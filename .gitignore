@@ -1,0 +1,16 @@
+.DS_Store
+.idea/
+.vscode/
+bin/
+dist/
+node_modules/
+coverage/
+*.log
+*.out
+*.test
+.env
+.env.*
+ui/eval-web/node_modules/
+ui/eval-web/.vite/
+runner/.venv/
+

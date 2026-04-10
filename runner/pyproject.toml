@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rsi-agent-platform-runner"
+version = "0.1.0"
+description = "Hermes-backed runner wrapper for RSI Agent Platform"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+rsi-runner = "rsi_runner.main:main"
+
+[tool.setuptools.packages.find]
+include = ["rsi_runner"]
+
