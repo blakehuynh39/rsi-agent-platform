@@ -85,3 +85,8 @@ type CronLease struct {
 	Holder    string    `json:"holder"`
 	ExpiresAt time.Time `json:"expires_at"`
 }
+
+type Settings struct {
+	ActiveProposalCap int       `json:"active_proposal_cap"`
+	UpdatedAt         time.Time `json:"updated_at"`
+}

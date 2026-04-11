@@ -8,12 +8,26 @@ const (
 	ProposalQueuedForPromotion ProposalStatus = "queued_for_promotion"
 	ProposalPendingReview      ProposalStatus = "pending_review"
 	ProposalApproved           ProposalStatus = "approved"
+	ProposalRepoChangeQueued   ProposalStatus = "repo_change_queued"
+	ProposalRepoChangeRunning  ProposalStatus = "repo_change_running"
+	ProposalValidationPending  ProposalStatus = "validation_pending"
+	ProposalPROpen             ProposalStatus = "pr_open"
 	ProposalDismissed          ProposalStatus = "dismissed"
 	ProposalRejected           ProposalStatus = "rejected"
 	ProposalSuperseded         ProposalStatus = "superseded"
 	ProposalMerged             ProposalStatus = "merged"
 	ProposalFailedValidation   ProposalStatus = "failed_validation"
+	ProposalCanceled           ProposalStatus = "canceled"
 )
+
+func ConsumesActiveProposalSlot(status ProposalStatus) bool {
+	switch status {
+	case ProposalPendingReview, ProposalApproved, ProposalRepoChangeQueued, ProposalRepoChangeRunning, ProposalValidationPending, ProposalPROpen:
+		return true
+	default:
+		return false
+	}
+}
 
 type HumanRating struct {
 	TraceID    string    `json:"trace_id"`
@@ -56,12 +70,13 @@ type Proposal struct {
 }
 
 type ProposalReview struct {
-	ProposalID   string    `json:"proposal_id"`
-	Decision     string    `json:"decision"`
-	Rationale    string    `json:"rationale"`
-	ReviewerID   string    `json:"reviewer_id"`
-	FailureClass string    `json:"failure_class,omitempty"`
-	CreatedAt    time.Time `json:"created_at"`
+	ProposalID     string    `json:"proposal_id"`
+	Decision       string    `json:"decision"`
+	Rationale      string    `json:"rationale"`
+	ReviewerID     string    `json:"reviewer_id"`
+	FailureClass   string    `json:"failure_class,omitempty"`
+	FailureClasses []string  `json:"failure_classes,omitempty"`
+	CreatedAt      time.Time `json:"created_at"`
 }
 
 type ProposalMemory struct {
@@ -74,6 +89,7 @@ type ProposalMemory struct {
 	Disposition       ProposalStatus `json:"disposition"`
 	DispositionReason string         `json:"disposition_reason,omitempty"`
 	FailureClass      string         `json:"failure_class,omitempty"`
+	FailureClasses    []string       `json:"failure_classes,omitempty"`
 	SourceEvalIDs     []string       `json:"source_eval_ids,omitempty"`
 	LinkedArtifactIDs []string       `json:"linked_artifact_ids,omitempty"`
 	LinkedProposalIDs []string       `json:"linked_proposal_ids,omitempty"`

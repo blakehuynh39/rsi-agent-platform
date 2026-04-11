@@ -13,6 +13,7 @@ import (
 
 func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 	r := app.NewBaseRouter(cfg)
+	service := NewService(cfg, store)
 	r.Get("/api/tools", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
 			"service":      cfg.ServiceName,
@@ -23,7 +24,7 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 		toolName := chi.URLParam(r, "toolName")
 		input := map[string]interface{}{}
 		_ = json.NewDecoder(r.Body).Decode(&input)
-		app.WriteJSON(w, http.StatusOK, store.ExecuteTool(toolName, input))
+		app.WriteJSON(w, http.StatusOK, service.Execute(toolName, input))
 	})
 	return r
 }

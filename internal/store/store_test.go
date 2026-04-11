@@ -6,6 +6,7 @@ import (
 
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
+	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 )
 
@@ -133,5 +134,54 @@ func TestRejectedProposalRequiresNewEvidence(t *testing.T) {
 		if store.proposals[promotedID].CandidateKey == proposal.CandidateKey {
 			t.Fatal("expected rejected candidate to stay blocked without new evidence")
 		}
+	}
+}
+
+func TestSettingsBackedProposalCap(t *testing.T) {
+	store := NewMemoryStore()
+
+	settings, err := store.UpdateSettings(improvement.Settings{ActiveProposalCap: 1})
+	if err != nil {
+		t.Fatalf("UpdateSettings() error = %v", err)
+	}
+	if settings.ActiveProposalCap != 1 {
+		t.Fatalf("expected active proposal cap to be 1, got %d", settings.ActiveProposalCap)
+	}
+
+	slots := store.GetProposalSlots()
+	if slots.Cap != 1 {
+		t.Fatalf("expected slot cap to be 1, got %d", slots.Cap)
+	}
+}
+
+func TestApproveProposalQueuesMaterializationWork(t *testing.T) {
+	store := NewMemoryStore()
+	proposals := store.ListProposals()
+	if len(proposals) == 0 {
+		t.Fatal("expected seeded proposals")
+	}
+
+	proposal, err := store.ReviewProposal(proposals[0].ID, review.ProposalReview{
+		Decision:   string(review.ProposalApproved),
+		Rationale:  "Proceed with repo-change work.",
+		ReviewerID: "alice",
+	})
+	if err != nil {
+		t.Fatalf("ReviewProposal() error = %v", err)
+	}
+	if proposal.Status != review.ProposalApproved {
+		t.Fatalf("expected approved proposal, got %s", proposal.Status)
+	}
+
+	items := store.ListWorkItems()
+	found := false
+	for _, item := range items {
+		if item.Queue == queue.ProposalQueue && item.ProposalID == proposal.ID {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("expected proposal materialization work item to be queued")
 	}
 }

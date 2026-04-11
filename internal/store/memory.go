@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 
@@ -19,9 +20,9 @@ import (
 )
 
 const (
-	proposalSlotCap       = 2
-	proposalReviewSLA     = 24 * time.Hour
-	proposalPromoterLease = 5 * time.Minute
+	defaultProposalSlotCap = 2
+	proposalReviewSLA      = 24 * time.Hour
+	proposalPromoterLease  = 5 * time.Minute
 )
 
 type Store interface {
@@ -47,6 +48,15 @@ type Store interface {
 	ListEvalRuns() []evals.Run
 	ListEvalJudgments(evalRunID string) []evals.Judgment
 	EvaluateTrace(traceID string, trigger string) (evals.Run, []evals.Judgment, error)
+	GetSettings() improvement.Settings
+	UpdateSettings(settings improvement.Settings) (improvement.Settings, error)
+	ListWorkItems() []queue.WorkItem
+	EnqueueWorkItem(item queue.WorkItem) (queue.WorkItem, error)
+	ClaimNextWorkItem(queues []queue.QueueName, holder string, lease time.Duration) (queue.WorkItem, bool, error)
+	CompleteWorkItem(id string) (queue.WorkItem, error)
+	FailWorkItem(id string, lastError string) (queue.WorkItem, error)
+	UpdateWorkflowStatus(workflowID string, status string, lastError string) (Workflow, error)
+	ApplyTraceUpdate(traceID string, update TraceUpdate) (events.Trace, error)
 	ListCandidates() []improvement.Candidate
 	ListProposalMemories() []review.ProposalMemory
 	GetProposalSlots() ProposalSlotState
@@ -54,8 +64,12 @@ type Store interface {
 	RunProposalPromoter(holder string) (PromotionResult, error)
 	ListProposals() []review.Proposal
 	ReviewProposal(proposalID string, decision review.ProposalReview) (review.Proposal, error)
+	UpdateProposalStatus(proposalID string, status review.ProposalStatus) (review.Proposal, error)
+	MaterializeApprovedProposal(proposalID string, requestedBy string) (improvement.RepoChangeJob, error)
 	ListRepoChangeJobs() []improvement.RepoChangeJob
+	UpdateRepoChangeJobStatus(jobID string, status string) (improvement.RepoChangeJob, error)
 	ListPRAttempts() []improvement.PRAttempt
+	RecordPRAttempt(attempt improvement.PRAttempt) (improvement.PRAttempt, error)
 	ListPostMergeReplays() []improvement.PostMergeReplay
 	ExecuteTool(name string, input map[string]interface{}) ToolResult
 }
@@ -78,6 +92,7 @@ type MemoryStore struct {
 	evalSuites      []evals.Suite
 	evalRuns        map[string]evals.Run
 	evalJudgments   map[string][]evals.Judgment
+	workItems       map[string]queue.WorkItem
 	candidates      map[string]improvement.Candidate
 	proposals       map[string]review.Proposal
 	proposalMemory  []review.ProposalMemory
@@ -85,6 +100,7 @@ type MemoryStore struct {
 	prAttempts      map[string]improvement.PRAttempt
 	postMergeReplay map[string]improvement.PostMergeReplay
 	cronLeases      map[string]improvement.CronLease
+	settings        improvement.Settings
 }
 
 func NewMemoryStore() *MemoryStore {
@@ -163,7 +179,10 @@ func (s *MemoryStore) seedDefaults() {
 		},
 		CreatedAt: now.Add(-20 * time.Minute),
 	})
-	_, _ = s.PromoteCandidates("seed", proposalSlotCap)
+	for _, trace := range s.ListTraces() {
+		_, _, _ = s.EvaluateTrace(trace.TraceID, "seed")
+	}
+	_, _ = s.PromoteCandidates("seed", 1)
 }
 
 func (s *MemoryStore) ListEvents() []ingestion.EventEnvelope {
@@ -181,6 +200,11 @@ func (s *MemoryStore) CreateEvent(event ingestion.EventEnvelope) (ingestion.Even
 }
 
 func (s *MemoryStore) createEventLocked(event ingestion.EventEnvelope) (ingestion.EventEnvelope, error) {
+	for _, existing := range s.events {
+		if existing.Source == event.Source && existing.DedupeKey == event.DedupeKey {
+			return existing, nil
+		}
+	}
 	now := time.Now().UTC()
 	if event.ID == "" {
 		event.ID = nextID("evt", len(s.events)+1)
@@ -238,12 +262,13 @@ func (s *MemoryStore) CreateIngestion(envelope slack.SlackEnvelope) slack.Ingest
 		},
 		CreatedAt: envelope.CreatedAt,
 	}
+	event.RawPayloadRef = fmt.Sprintf("memory://slack/%s/%s.json", envelope.ChannelID, strings.ReplaceAll(envelope.TS, ".", "-"))
 	if event.CreatedAt.IsZero() {
 		event.CreatedAt = time.Now().UTC()
 	}
 	created, _ := s.createEventLocked(event)
 	for _, item := range s.ingestions {
-		if item.ThreadKey == created.ThreadKey && item.CreatedAt.Equal(created.CreatedAt) {
+		if item.EventID == created.ID {
 			return item
 		}
 	}
@@ -255,6 +280,13 @@ func (s *MemoryStore) materializeWorkflowLocked(event ingestion.EventEnvelope) {
 	ingestionID := nextID("ing", len(s.ingestions)+1)
 	channelID, _ := event.Metadata["channel_id"].(string)
 	userID, _ := event.Metadata["user_id"].(string)
+	threadTS, _ := event.Metadata["thread_ts"].(string)
+	botRoleValue, _ := event.Metadata["bot_role"].(slack.BotRole)
+	if botRoleValue == "" {
+		if raw, ok := event.Metadata["bot_role"].(string); ok {
+			botRoleValue = slack.BotRole(raw)
+		}
+	}
 	if channelID == "" {
 		channelID = string(event.Source)
 	}
@@ -268,11 +300,23 @@ func (s *MemoryStore) materializeWorkflowLocked(event ingestion.EventEnvelope) {
 	if threadKey == "" {
 		threadKey = fmt.Sprintf("%s:%s", event.Source, event.SourceEventID)
 	}
+	intent := intentForWorkflowHint(event.WorkflowHint)
+	assignedBot := assignedBotFor(event.WorkflowHint)
+	if botRoleValue != "" {
+		assignedBot = string(botRoleValue)
+	}
+	if threadTS == "" {
+		threadTS = event.SourceEventID
+	}
 
 	ingestionItem := slack.Ingestion{
 		ID:           ingestionID,
+		EventID:      event.ID,
 		ThreadKey:    threadKey,
+		ThreadTS:     threadTS,
 		WorkflowHint: event.WorkflowHint,
+		Intent:       intent,
+		BotRole:      slack.BotRole(assignedBot),
 		Source:       string(event.Source),
 		ChannelID:    channelID,
 		UserID:       userID,
@@ -282,14 +326,20 @@ func (s *MemoryStore) materializeWorkflowLocked(event ingestion.EventEnvelope) {
 	s.ingestions = append(s.ingestions, ingestionItem)
 
 	workflowID := nextID("wf", len(s.workflows)+1)
-	assignedBot := assignedBotFor(event.WorkflowHint)
+	traceID := nextID("trace", len(s.traces)+1)
 	workflow := Workflow{
-		ID:          workflowID,
-		ThreadKey:   threadKey,
-		Kind:        event.WorkflowHint,
-		AssignedBot: assignedBot,
-		Status:      "completed",
-		CreatedAt:   createdAt,
+		ID:           workflowID,
+		IngestionID:  ingestionID,
+		TraceID:      traceID,
+		ThreadKey:    threadKey,
+		Kind:         event.WorkflowHint,
+		Intent:       intent,
+		AssignedBot:  assignedBot,
+		ApprovalMode: approvalModeForIntent(intent),
+		ResponseMode: responseModeForIntent(intent),
+		Status:       "queued",
+		CreatedAt:    createdAt,
+		UpdatedAt:    createdAt,
 	}
 	s.workflows = append(s.workflows, workflow)
 	s.assignments = append(s.assignments, Assignment{
@@ -308,39 +358,102 @@ func (s *MemoryStore) materializeWorkflowLocked(event ingestion.EventEnvelope) {
 		UpdatedAt:         createdAt,
 	}
 
-	traceID := nextID("trace", len(s.traces)+1)
-	traceStatus := events.StatusCompleted
-	if event.Severity == ingestion.SeverityError || event.Severity == ingestion.SeverityCritical {
-		traceStatus = events.StatusFailed
-	}
-	startedAt := createdAt.Add(1 * time.Minute)
-	endedAt := startedAt.Add(45 * time.Second)
+	traceStatus := events.StatusQueued
 	trace := events.Trace{
 		Summary: events.TraceSummary{
-			TraceID:       traceID,
-			IngestionID:   ingestionID,
-			WorkflowID:    workflowID,
-			ThreadKey:     threadKey,
-			WorkflowKind:  event.WorkflowHint,
-			Status:        traceStatus,
-			StartedAt:     startedAt,
-			EndedAt:       endedAt,
-			EventCount:    4,
-			ArtifactCount: 2,
+			TraceID:      traceID,
+			IngestionID:  ingestionID,
+			WorkflowID:   workflowID,
+			ThreadKey:    threadKey,
+			WorkflowKind: event.WorkflowHint,
+			Status:       traceStatus,
+			StartedAt:    createdAt,
+			EndedAt:      createdAt,
 		},
 		Events: []events.TraceEvent{
-			{TraceID: traceID, IngestionID: ingestionID, WorkflowID: workflowID, Plane: "edge", Service: "control-plane", Actor: "orchestrator", EventType: "event.ingested", Status: events.StatusCompleted, StartedAt: createdAt, EndedAt: timePtr(createdAt.Add(250 * time.Millisecond)), PayloadRef: event.RawPayloadRef, LatencyMs: 250, Description: fmt.Sprintf("%s event normalized into the control-plane event bus.", event.Source)},
-			{TraceID: traceID, IngestionID: ingestionID, WorkflowID: workflowID, Plane: "control", Service: "control-plane", Actor: "router-policy", EventType: "workflow.routed", Status: events.StatusCompleted, StartedAt: createdAt.Add(1 * time.Second), EndedAt: timePtr(createdAt.Add(1500 * time.Millisecond)), LatencyMs: 500, Description: fmt.Sprintf("Assigned to %s with %s workflow.", assignedBot, event.WorkflowHint)},
-			{TraceID: traceID, IngestionID: ingestionID, WorkflowID: workflowID, Plane: "execution", Service: "runner", Actor: assignedBot, EventType: "runner.completed", Status: traceStatus, StartedAt: startedAt, EndedAt: timePtr(endedAt), CostTokens: 1600, LatencyMs: endedAt.Sub(startedAt).Milliseconds(), Description: "Structured runner task completed."},
-			{TraceID: traceID, IngestionID: ingestionID, WorkflowID: workflowID, Plane: "improvement", Service: "improvement-plane", Actor: "eval-orchestrator", EventType: "eval.queued", Status: events.StatusQueued, StartedAt: endedAt, Description: "Trace queued for recursive evaluation."},
+			{
+				TraceID:     traceID,
+				IngestionID: ingestionID,
+				WorkflowID:  workflowID,
+				Plane:       "edge",
+				Service:     "control-plane",
+				Actor:       "slack-ingestor",
+				EventType:   "event.ingested",
+				Status:      events.StatusCompleted,
+				StartedAt:   createdAt,
+				EndedAt:     timePtr(createdAt),
+				PayloadRef:  event.RawPayloadRef,
+				Description: fmt.Sprintf("%s event normalized into the event bus.", event.Source),
+			},
+			{
+				TraceID:     traceID,
+				IngestionID: ingestionID,
+				WorkflowID:  workflowID,
+				Plane:       "control",
+				Service:     "control-plane",
+				Actor:       "router-policy",
+				EventType:   "workflow.queued",
+				Status:      events.StatusQueued,
+				StartedAt:   createdAt,
+				Description: fmt.Sprintf("Queued %s workflow for bot %s.", intent, assignedBot),
+			},
 		},
 		Artifacts: []events.Artifact{
-			{ID: nextID("artifact", len(s.traces)+1), TraceID: traceID, Kind: "logs", ContentType: "text/plain", URL: event.RawPayloadRef, SizeBytes: 2048, Source: "event-bus"},
-			{ID: nextID("artifact", len(s.traces)+2), TraceID: traceID, Kind: "summary", ContentType: "application/json", URL: fmt.Sprintf("memory://traces/%s/summary.json", traceID), SizeBytes: 512, Source: "improvement-plane"},
+			{
+				ID:          nextID("artifact", len(s.traces)+1),
+				TraceID:     traceID,
+				Kind:        "event_payload",
+				ContentType: "application/json",
+				URL:         event.RawPayloadRef,
+				SizeBytes:   2048,
+				Source:      "event-bus",
+			},
+		},
+		Reasoning: []events.ReasoningStep{
+			{
+				ID:         nextID("reason", len(s.traces)+1),
+				TraceID:    traceID,
+				WorkflowID: workflowID,
+				StepType:   "intent_classified",
+				Summary:    fmt.Sprintf("Classified incoming event as %s for workflow kind %s.", intent, event.WorkflowHint),
+				EvidenceRefs: []events.EvidenceRef{
+					{Kind: "event", Ref: event.ID, Summary: event.NormalizedProblemStatement},
+				},
+				Alternatives: []string{"incident", "feature_request", "question"},
+				Confidence:   routeConfidenceForEvent(event),
+				Decision:     fmt.Sprintf("route:%s assign:%s", intent, assignedBot),
+				CreatedAt:    createdAt,
+			},
 		},
 	}
+	recomputeTraceSummary(&trace)
 	s.traces[traceID] = trace
-	_, _, _ = s.evaluateTraceLocked(traceID, "event_ingested")
+	_, _ = s.enqueueWorkItemLocked(queue.WorkItem{
+		Queue:        queue.WorkflowQueue,
+		Kind:         "workflow",
+		Status:       queue.WorkQueued,
+		TraceID:      traceID,
+		WorkflowID:   workflowID,
+		IngestionID:  ingestionID,
+		ThreadKey:    threadKey,
+		Intent:       intent,
+		RepoScope:    event.OwnershipHint,
+		RequestedBy:  "event_ingested",
+		ApprovalMode: workflow.ApprovalMode,
+		ResponseMode: workflow.ResponseMode,
+		Payload: map[string]interface{}{
+			"event_id":        event.ID,
+			"workflow_hint":   event.WorkflowHint,
+			"assigned_bot":    assignedBot,
+			"channel_id":      channelID,
+			"thread_ts":       threadTS,
+			"problem":         event.NormalizedProblemStatement,
+			"source":          event.Source,
+			"raw_payload_ref": event.RawPayloadRef,
+		},
+		CreatedAt: createdAt,
+		UpdatedAt: createdAt,
+	})
 }
 
 func severityFromText(text string) ingestion.Severity {
@@ -509,18 +622,39 @@ func (s *MemoryStore) ScheduleReplay(traceID string, requestedBy string) (queue.
 		return queue.WorkItem{}, errors.New("trace not found")
 	}
 	item := queue.WorkItem{
-		ID:           fmt.Sprintf("replay-%s-%d", traceID, time.Now().Unix()),
 		Queue:        queue.EvalQueue,
 		Kind:         "trace_replay",
+		Status:       queue.WorkQueued,
 		TraceID:      traceID,
+		WorkflowID:   trace.Summary.WorkflowID,
+		IngestionID:  trace.Summary.IngestionID,
+		ThreadKey:    trace.Summary.ThreadKey,
 		RequestedBy:  requestedBy,
 		ApprovalMode: "ui",
 		CreatedAt:    time.Now().UTC(),
+		UpdatedAt:    time.Now().UTC(),
 	}
+	created, err := s.enqueueWorkItemLocked(item)
+	if err != nil {
+		return queue.WorkItem{}, err
+	}
+	stepStatus := events.StatusReplayed
 	trace.Summary.Status = events.StatusReplayed
+	trace.Events = append(trace.Events, events.TraceEvent{
+		TraceID:     traceID,
+		IngestionID: trace.Summary.IngestionID,
+		WorkflowID:  trace.Summary.WorkflowID,
+		Plane:       "improvement",
+		Service:     "improvement-plane",
+		Actor:       "replay-scheduler",
+		EventType:   "replay.queued",
+		Status:      stepStatus,
+		StartedAt:   time.Now().UTC(),
+		Description: "Replay queued for later evaluation.",
+	})
+	recomputeTraceSummary(&trace)
 	s.traces[traceID] = trace
-	_, _, _ = s.evaluateTraceLocked(traceID, "replay")
-	return item, nil
+	return created, nil
 }
 
 func (s *MemoryStore) ListEvalSuites() []evals.Suite {
@@ -552,6 +686,200 @@ func (s *MemoryStore) EvaluateTrace(traceID string, trigger string) (evals.Run, 
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	return s.evaluateTraceLocked(traceID, trigger)
+}
+
+func (s *MemoryStore) GetSettings() improvement.Settings {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return normalizedSettings(s.settings)
+}
+
+func (s *MemoryStore) UpdateSettings(settings improvement.Settings) (improvement.Settings, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	settings = normalizedSettings(settings)
+	settings.UpdatedAt = time.Now().UTC()
+	s.settings = settings
+	return settings, nil
+}
+
+func (s *MemoryStore) ListWorkItems() []queue.WorkItem {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	out := make([]queue.WorkItem, 0, len(s.workItems))
+	for _, item := range s.workItems {
+		out = append(out, item)
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].CreatedAt.Equal(out[j].CreatedAt) {
+			return out[i].ID < out[j].ID
+		}
+		return out[i].CreatedAt.After(out[j].CreatedAt)
+	})
+	return out
+}
+
+func (s *MemoryStore) EnqueueWorkItem(item queue.WorkItem) (queue.WorkItem, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.enqueueWorkItemLocked(item)
+}
+
+func (s *MemoryStore) enqueueWorkItemLocked(item queue.WorkItem) (queue.WorkItem, error) {
+	now := time.Now().UTC()
+	if item.ID == "" {
+		item.ID = nextID("work", len(s.workItems)+1)
+	}
+	if item.Status == "" {
+		item.Status = queue.WorkQueued
+	}
+	if item.CreatedAt.IsZero() {
+		item.CreatedAt = now
+	}
+	if item.UpdatedAt.IsZero() {
+		item.UpdatedAt = item.CreatedAt
+	}
+	if item.Payload == nil {
+		item.Payload = map[string]interface{}{}
+	}
+	s.workItems[item.ID] = item
+	return item, nil
+}
+
+func (s *MemoryStore) ClaimNextWorkItem(queuesToCheck []queue.QueueName, holder string, lease time.Duration) (queue.WorkItem, bool, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if holder == "" {
+		return queue.WorkItem{}, false, errors.New("holder is required")
+	}
+	if lease <= 0 {
+		lease = 30 * time.Second
+	}
+	queueFilter := map[queue.QueueName]struct{}{}
+	for _, name := range queuesToCheck {
+		queueFilter[name] = struct{}{}
+	}
+	now := time.Now().UTC()
+	candidates := make([]queue.WorkItem, 0, len(s.workItems))
+	for _, item := range s.workItems {
+		if len(queueFilter) > 0 {
+			if _, ok := queueFilter[item.Queue]; !ok {
+				continue
+			}
+		}
+		expired := item.Status == queue.WorkLeased && item.LeaseExpiresAt != nil && item.LeaseExpiresAt.Before(now)
+		if item.Status == queue.WorkQueued || expired {
+			candidates = append(candidates, item)
+		}
+	}
+	sort.Slice(candidates, func(i, j int) bool {
+		if candidates[i].CreatedAt.Equal(candidates[j].CreatedAt) {
+			return candidates[i].ID < candidates[j].ID
+		}
+		return candidates[i].CreatedAt.Before(candidates[j].CreatedAt)
+	})
+	if len(candidates) == 0 {
+		return queue.WorkItem{}, false, nil
+	}
+	item := candidates[0]
+	expires := now.Add(lease)
+	item.Status = queue.WorkLeased
+	item.Attempts++
+	item.LeaseOwner = holder
+	item.LeaseExpiresAt = &expires
+	item.UpdatedAt = now
+	s.workItems[item.ID] = item
+	return item, true, nil
+}
+
+func (s *MemoryStore) CompleteWorkItem(id string) (queue.WorkItem, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	item, ok := s.workItems[id]
+	if !ok {
+		return queue.WorkItem{}, errors.New("work item not found")
+	}
+	now := time.Now().UTC()
+	item.Status = queue.WorkCompleted
+	item.UpdatedAt = now
+	item.CompletedAt = &now
+	item.LeaseOwner = ""
+	item.LeaseExpiresAt = nil
+	s.workItems[id] = item
+	return item, nil
+}
+
+func (s *MemoryStore) FailWorkItem(id string, lastError string) (queue.WorkItem, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	item, ok := s.workItems[id]
+	if !ok {
+		return queue.WorkItem{}, errors.New("work item not found")
+	}
+	now := time.Now().UTC()
+	item.Status = queue.WorkFailed
+	item.LastError = lastError
+	item.UpdatedAt = now
+	item.CompletedAt = &now
+	item.LeaseOwner = ""
+	item.LeaseExpiresAt = nil
+	s.workItems[id] = item
+	return item, nil
+}
+
+func (s *MemoryStore) UpdateWorkflowStatus(workflowID string, status string, lastError string) (Workflow, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.updateWorkflowStatusLocked(workflowID, status, lastError)
+}
+
+func (s *MemoryStore) updateWorkflowStatusLocked(workflowID string, status string, lastError string) (Workflow, error) {
+	for i := range s.workflows {
+		if s.workflows[i].ID != workflowID {
+			continue
+		}
+		now := time.Now().UTC()
+		s.workflows[i].Status = status
+		s.workflows[i].LastError = lastError
+		s.workflows[i].UpdatedAt = now
+		if status == "completed" || status == "failed" {
+			s.workflows[i].CompletedAt = &now
+		}
+		return s.workflows[i], nil
+	}
+	return Workflow{}, errors.New("workflow not found")
+}
+
+func (s *MemoryStore) ApplyTraceUpdate(traceID string, update TraceUpdate) (events.Trace, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	trace, ok := s.traces[traceID]
+	if !ok {
+		return events.Trace{}, errors.New("trace not found")
+	}
+	now := time.Now().UTC()
+	if update.Status != nil {
+		trace.Summary.Status = *update.Status
+	}
+	if update.LastVerdict != nil {
+		trace.Summary.LastVerdict = *update.LastVerdict
+	}
+	trace.Events = append(trace.Events, update.Events...)
+	trace.Artifacts = append(trace.Artifacts, update.Artifacts...)
+	trace.Reasoning = append(trace.Reasoning, update.Reasoning...)
+	trace.ToolCalls = append(trace.ToolCalls, update.ToolCalls...)
+	trace.SlackActions = append(trace.SlackActions, update.SlackActions...)
+	recomputeTraceSummary(&trace)
+	if trace.Summary.EndedAt.Before(now) && (trace.Summary.Status == events.StatusCompleted || trace.Summary.Status == events.StatusFailed || trace.Summary.Status == events.StatusNeedsHuman) {
+		trace.Summary.EndedAt = now
+	}
+	s.traces[traceID] = trace
+	if update.WorkflowStatus != "" {
+		if _, err := s.updateWorkflowStatusLocked(trace.Summary.WorkflowID, update.WorkflowStatus, update.WorkflowError); err != nil {
+			return events.Trace{}, err
+		}
+	}
+	return trace, nil
 }
 
 func (s *MemoryStore) evaluateTraceLocked(traceID string, trigger string) (evals.Run, []evals.Judgment, error) {
@@ -921,9 +1249,10 @@ func (s *MemoryStore) GetProposalSlots() ProposalSlotState {
 }
 
 func (s *MemoryStore) proposalSlotsLocked(now time.Time) ProposalSlotState {
-	out := ProposalSlotState{Cap: proposalSlotCap}
+	settings := normalizedSettings(s.settings)
+	out := ProposalSlotState{Cap: settings.ActiveProposalCap}
 	for _, proposal := range s.proposals {
-		if proposal.ActiveSlotConsuming {
+		if review.ConsumesActiveProposalSlot(proposal.Status) {
 			out.Active++
 			out.ActiveProposalIDs = append(out.ActiveProposalIDs, proposal.ID)
 			if proposal.Status == review.ProposalPendingReview && !proposal.ReviewDeadline.IsZero() && proposal.ReviewDeadline.Before(now) {
@@ -933,7 +1262,7 @@ func (s *MemoryStore) proposalSlotsLocked(now time.Time) ProposalSlotState {
 	}
 	sort.Strings(out.ActiveProposalIDs)
 	sort.Strings(out.StaleProposalIDs)
-	out.Available = proposalSlotCap - out.Active
+	out.Available = out.Cap - out.Active
 	if out.Available < 0 {
 		out.Available = 0
 	}
@@ -963,7 +1292,10 @@ func (s *MemoryStore) promoteCandidatesLocked(requestedBy string, limit int) (Pr
 		}
 		return candidates[i].PriorityScore > candidates[j].PriorityScore
 	})
-	allowed := minInt(limit, slots.Available)
+	allowed := slots.Available
+	if limit > 0 {
+		allowed = minInt(limit, slots.Available)
+	}
 	for _, candidate := range candidates {
 		if allowed == 0 {
 			break
@@ -1009,7 +1341,7 @@ func (s *MemoryStore) promoteCandidatesLocked(requestedBy string, limit int) (Pr
 
 func (s *MemoryStore) hasActiveProposalForCandidateLocked(candidateKey string) bool {
 	for _, proposal := range s.proposals {
-		if proposal.CandidateKey == candidateKey && proposal.ActiveSlotConsuming {
+		if proposal.CandidateKey == candidateKey && review.ConsumesActiveProposalSlot(proposal.Status) {
 			return true
 		}
 	}
@@ -1035,7 +1367,7 @@ func (s *MemoryStore) RunProposalPromoter(holder string) (PromotionResult, error
 		Holder:    holder,
 		ExpiresAt: now.Add(proposalPromoterLease),
 	}
-	return s.promoteCandidatesLocked(holder, proposalSlotCap)
+	return s.promoteCandidatesLocked(holder, normalizedSettings(s.settings).ActiveProposalCap)
 }
 
 func (s *MemoryStore) ListProposals() []review.Proposal {
@@ -1058,10 +1390,13 @@ func (s *MemoryStore) ReviewProposal(proposalID string, decision review.Proposal
 	}
 	decision.ProposalID = proposalID
 	decision.CreatedAt = time.Now().UTC()
+	if len(decision.FailureClasses) == 0 && decision.FailureClass != "" {
+		decision.FailureClasses = []string{decision.FailureClass}
+	}
 	proposal.Reviews = append(proposal.Reviews, decision)
 	proposal.Reviewer = decision.ReviewerID
 	proposal.Status = review.ProposalStatus(decision.Decision)
-	proposal.ActiveSlotConsuming = proposal.Status == review.ProposalPendingReview || proposal.Status == review.ProposalApproved
+	proposal.ActiveSlotConsuming = review.ConsumesActiveProposalSlot(proposal.Status)
 	s.proposals[proposalID] = proposal
 
 	memory := review.ProposalMemory{
@@ -1074,6 +1409,7 @@ func (s *MemoryStore) ReviewProposal(proposalID string, decision review.Proposal
 		Disposition:       proposal.Status,
 		DispositionReason: decision.Rationale,
 		FailureClass:      decision.FailureClass,
+		FailureClasses:    append([]string(nil), decision.FailureClasses...),
 		SourceEvalIDs:     append([]string(nil), proposal.SourceEvalIDs...),
 		LinkedArtifactIDs: append([]string(nil), proposal.EvidenceArtifactIDs...),
 		LinkedProposalIDs: append([]string(nil), proposal.PriorSimilarProposalIDs...),
@@ -1085,19 +1421,21 @@ func (s *MemoryStore) ReviewProposal(proposalID string, decision review.Proposal
 	switch proposal.Status {
 	case review.ProposalApproved:
 		candidate.Status = improvement.CandidatePromoted
-		jobID := nextID("job", len(s.repoChangeJobs)+1)
-		s.repoChangeJobs[jobID] = improvement.RepoChangeJob{
-			ID:               jobID,
-			ProposalID:       proposal.ID,
-			CandidateKey:     proposal.CandidateKey,
-			Status:           "awaiting_execution",
-			Repo:             "rsi-agent-platform",
-			BaseRef:          "main",
-			BranchName:       fmt.Sprintf("codex/%s", proposal.ID),
-			AllowedPathGlobs: []string{"cmd/**", "internal/**", "runner/**", "ui/**", "README.md", "Makefile"},
-			ContextSummary:   buildRepoChangeContext(proposal, s.proposalMemory),
-			CreatedAt:        decision.CreatedAt,
-		}
+		_, _ = s.enqueueWorkItemLocked(queue.WorkItem{
+			Queue:        queue.ProposalQueue,
+			Kind:         "approved_proposal",
+			Status:       queue.WorkQueued,
+			TraceID:      proposal.TraceID,
+			ProposalID:   proposal.ID,
+			RequestedBy:  decision.ReviewerID,
+			ApprovalMode: "human_review",
+			CreatedAt:    decision.CreatedAt,
+			UpdatedAt:    decision.CreatedAt,
+			Payload: map[string]interface{}{
+				"candidate_key": proposal.CandidateKey,
+				"risk_tier":     proposal.RiskTier,
+			},
+		})
 	case review.ProposalRejected, review.ProposalDismissed:
 		candidate.Status = improvement.CandidateNeedsEvidence
 		candidate.NewEvidenceSinceLastRejection = false
@@ -1119,6 +1457,72 @@ func (s *MemoryStore) ReviewProposal(proposalID string, decision review.Proposal
 	candidate.UpdatedAt = decision.CreatedAt
 	s.candidates[proposal.CandidateKey] = candidate
 	return proposal, nil
+}
+
+func (s *MemoryStore) UpdateProposalStatus(proposalID string, status review.ProposalStatus) (review.Proposal, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	proposal, ok := s.proposals[proposalID]
+	if !ok {
+		return review.Proposal{}, errors.New("proposal not found")
+	}
+	proposal.Status = status
+	proposal.ActiveSlotConsuming = review.ConsumesActiveProposalSlot(status)
+	s.proposals[proposalID] = proposal
+	return proposal, nil
+}
+
+func (s *MemoryStore) MaterializeApprovedProposal(proposalID string, requestedBy string) (improvement.RepoChangeJob, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	proposal, ok := s.proposals[proposalID]
+	if !ok {
+		return improvement.RepoChangeJob{}, errors.New("proposal not found")
+	}
+	if proposal.Status != review.ProposalApproved && proposal.Status != review.ProposalRepoChangeQueued && proposal.Status != review.ProposalRepoChangeRunning && proposal.Status != review.ProposalValidationPending && proposal.Status != review.ProposalPROpen {
+		return improvement.RepoChangeJob{}, fmt.Errorf("proposal %s is not approved for materialization", proposal.Status)
+	}
+	for _, existing := range s.repoChangeJobs {
+		if existing.ProposalID == proposalID {
+			return existing, nil
+		}
+	}
+	now := time.Now().UTC()
+	jobID := nextID("job", len(s.repoChangeJobs)+1)
+	job := improvement.RepoChangeJob{
+		ID:               jobID,
+		ProposalID:       proposal.ID,
+		CandidateKey:     proposal.CandidateKey,
+		Status:           string(review.ProposalRepoChangeQueued),
+		Repo:             proposalRepo(proposal),
+		BaseRef:          "main",
+		BranchName:       fmt.Sprintf("codex/%s", proposal.ID),
+		AllowedPathGlobs: []string{"cmd/**", "internal/**", "runner/**", "ui/**", "README.md", "Makefile"},
+		ContextSummary:   buildRepoChangeContext(proposal, s.proposalMemory),
+		CreatedAt:        now,
+	}
+	s.repoChangeJobs[jobID] = job
+	proposal.Status = review.ProposalRepoChangeQueued
+	proposal.ActiveSlotConsuming = true
+	s.proposals[proposal.ID] = proposal
+	_, _ = s.enqueueWorkItemLocked(queue.WorkItem{
+		Queue:        queue.SandboxQueue,
+		Kind:         "repo_change_job",
+		Status:       queue.WorkQueued,
+		TraceID:      proposal.TraceID,
+		ProposalID:   proposal.ID,
+		RepoScope:    job.Repo,
+		RequestedBy:  requestedBy,
+		ApprovalMode: "approved",
+		CreatedAt:    now,
+		UpdatedAt:    now,
+		Payload: map[string]interface{}{
+			"branch_name": job.BranchName,
+			"base_ref":    job.BaseRef,
+			"job_id":      job.ID,
+		},
+	})
+	return job, nil
 }
 
 func buildRepoChangeContext(proposal review.Proposal, memories []review.ProposalMemory) string {
@@ -1154,6 +1558,18 @@ func (s *MemoryStore) ListRepoChangeJobs() []improvement.RepoChangeJob {
 	return out
 }
 
+func (s *MemoryStore) UpdateRepoChangeJobStatus(jobID string, status string) (improvement.RepoChangeJob, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	item, ok := s.repoChangeJobs[jobID]
+	if !ok {
+		return improvement.RepoChangeJob{}, errors.New("repo change job not found")
+	}
+	item.Status = status
+	s.repoChangeJobs[jobID] = item
+	return item, nil
+}
+
 func (s *MemoryStore) ListPRAttempts() []improvement.PRAttempt {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -1163,6 +1579,26 @@ func (s *MemoryStore) ListPRAttempts() []improvement.PRAttempt {
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].CreatedAt.After(out[j].CreatedAt) })
 	return out
+}
+
+func (s *MemoryStore) RecordPRAttempt(attempt improvement.PRAttempt) (improvement.PRAttempt, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if attempt.ID == "" {
+		attempt.ID = nextID("pr", len(s.prAttempts)+1)
+	}
+	if attempt.CreatedAt.IsZero() {
+		attempt.CreatedAt = time.Now().UTC()
+	}
+	s.prAttempts[attempt.ID] = attempt
+	if attempt.ProposalID != "" {
+		if proposal, ok := s.proposals[attempt.ProposalID]; ok && attempt.Status == string(review.ProposalPROpen) {
+			proposal.Status = review.ProposalPROpen
+			proposal.ActiveSlotConsuming = true
+			s.proposals[proposal.ID] = proposal
+		}
+	}
+	return attempt, nil
 }
 
 func (s *MemoryStore) ListPostMergeReplays() []improvement.PostMergeReplay {
@@ -1177,10 +1613,27 @@ func (s *MemoryStore) ListPostMergeReplays() []improvement.PostMergeReplay {
 }
 
 func (s *MemoryStore) ExecuteTool(name string, input map[string]interface{}) ToolResult {
+	now := time.Now().UTC()
+	toolCallID := nextID("toolcall", len(s.prAttempts)+len(s.repoChangeJobs)+len(s.events)+1)
 	approved := name != "github.create_pr"
+	approvalState := "not_required"
+	summary := fmt.Sprintf("tool execution for %s", name)
+	rawArtifactRefs := []string{}
 	if name == "github.create_pr" {
+		approvalState = "human_approved"
 		if proposalID, _ := input["proposal_id"].(string); proposalID != "" {
 			if proposal, ok := s.proposals[proposalID]; ok && proposal.Status == review.ProposalApproved {
+				slots := s.proposalSlotsLocked(now)
+				if slots.Active > slots.Cap {
+					approved = false
+					approvalState = "blocked_by_cap"
+					summary = "proposal cap exceeded; refusing to open another PR-backed proposal"
+				}
+				if approved {
+					proposal.Status = review.ProposalPROpen
+					proposal.ActiveSlotConsuming = true
+					s.proposals[proposalID] = proposal
+				}
 				approved = true
 				attemptID := nextID("pr", len(s.prAttempts)+1)
 				s.prAttempts[attemptID] = improvement.PRAttempt{
@@ -1189,21 +1642,33 @@ func (s *MemoryStore) ExecuteTool(name string, input map[string]interface{}) Too
 					Repo:             "rsi-agent-platform",
 					BranchName:       fmt.Sprintf("codex/%s", proposalID),
 					PRURL:            fmt.Sprintf("https://github.com/piplabs/rsi-agent-platform/pull/%d", len(s.prAttempts)+100),
-					Status:           "draft_open",
+					Status:           string(review.ProposalPROpen),
 					ValidationStatus: "pending",
-					CreatedAt:        time.Now().UTC(),
+					CreatedAt:        now,
 				}
+				summary = fmt.Sprintf("draft PR opened for proposal %s", proposalID)
 			}
+		}
+		if !approved && summary == fmt.Sprintf("tool execution for %s", name) {
+			approvalState = "missing_or_unapproved_proposal"
+			summary = "github.create_pr requires an approved active proposal"
 		}
 	}
 	return ToolResult{
-		Name:       name,
-		Approved:   approved,
-		ExecutedAt: time.Now().UTC(),
-		Input:      input,
+		Name:          name,
+		ToolCallID:    toolCallID,
+		Approved:      approved,
+		ApprovalState: approvalState,
+		ExecutedAt:    now,
+		Input:         input,
 		Output: map[string]interface{}{
 			"status":  "ok",
-			"message": fmt.Sprintf("tool execution for %s", name),
+			"message": summary,
+		},
+		Summary:         summary,
+		RawArtifactRefs: rawArtifactRefs,
+		Metadata: map[string]interface{}{
+			"tool_name": name,
 		},
 	}
 }
@@ -1224,6 +1689,35 @@ func deriveWorkflowHint(text string) string {
 		return "feature-request"
 	default:
 		return "architecture"
+	}
+}
+
+func intentForWorkflowHint(kind string) string {
+	switch kind {
+	case "incident":
+		return "incident"
+	case "feature-request":
+		return "feature_request"
+	default:
+		return "question"
+	}
+}
+
+func approvalModeForIntent(intent string) string {
+	switch intent {
+	case "feature_request":
+		return "human_required"
+	default:
+		return "policy_gated"
+	}
+}
+
+func responseModeForIntent(intent string) string {
+	switch intent {
+	case "incident":
+		return "thread_updates"
+	default:
+		return "reply_in_thread"
 	}
 }
 
@@ -1274,6 +1768,74 @@ func lowerRune(r rune) rune {
 		return r + ('a' - 'A')
 	}
 	return r
+}
+
+func recomputeTraceSummary(trace *events.Trace) {
+	if trace == nil {
+		return
+	}
+	trace.Summary.EventCount = len(trace.Events)
+	trace.Summary.ArtifactCount = len(trace.Artifacts)
+	trace.Summary.ReasoningStepCount = len(trace.Reasoning)
+	trace.Summary.ToolCallCount = len(trace.ToolCalls)
+	trace.Summary.SlackActionCount = len(trace.SlackActions)
+
+	latest := trace.Summary.StartedAt
+	for _, event := range trace.Events {
+		if event.StartedAt.After(latest) {
+			latest = event.StartedAt
+		}
+		if event.EndedAt != nil && event.EndedAt.After(latest) {
+			latest = *event.EndedAt
+		}
+	}
+	for _, item := range trace.Reasoning {
+		if item.CreatedAt.After(latest) {
+			latest = item.CreatedAt
+		}
+	}
+	for _, item := range trace.ToolCalls {
+		if item.CreatedAt.After(latest) {
+			latest = item.CreatedAt
+		}
+	}
+	for _, item := range trace.SlackActions {
+		if item.CreatedAt.After(latest) {
+			latest = item.CreatedAt
+		}
+	}
+	if latest.IsZero() {
+		latest = time.Now().UTC()
+	}
+	trace.Summary.EndedAt = latest
+}
+
+func normalizedSettings(settings improvement.Settings) improvement.Settings {
+	if settings.ActiveProposalCap <= 0 {
+		settings.ActiveProposalCap = defaultProposalSlotCap
+	}
+	if settings.UpdatedAt.IsZero() {
+		settings.UpdatedAt = time.Now().UTC()
+	}
+	return settings
+}
+
+func proposalRepo(proposal review.Proposal) string {
+	scope := strings.TrimSpace(strings.ToLower(proposal.ProposedScope))
+	switch {
+	case strings.Contains(scope, "story-deployments"):
+		return "story-deployments"
+	case strings.Contains(scope, "story-infra-aws"):
+		return "story-infra-aws"
+	case strings.Contains(scope, "story-api"):
+		return "story-api"
+	case strings.Contains(scope, "story-orchestration-service"):
+		return "story-orchestration-service"
+	case strings.Contains(scope, "depin-backend"):
+		return "depin-backend"
+	default:
+		return "rsi-agent-platform"
+	}
 }
 
 func appendUnique(existing []string, values ...string) []string {

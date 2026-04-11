@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 from typing import Any, Dict, List
 
 ROLE_TASK_TYPES = {
@@ -39,6 +40,15 @@ class RunnerTaskRequest:
     artifact_destination: str | None
     context_summary: str | None
     rejected_proposal_context: List[Dict[str, Any]]
+    intent: str | None
+    trace_id: str | None
+    workflow_id: str | None
+    repo_allowlist: List[str]
+    tool_allowlist: List[str]
+    response_mode: str | None
+    context_refs: List[Dict[str, Any]]
+    approval_mode: str | None
+    reasoning_verbosity: str | None
 
     @classmethod
     def from_payload(cls, payload: Dict[str, Any]) -> "RunnerTaskRequest":
@@ -56,6 +66,15 @@ class RunnerTaskRequest:
             artifact_destination=task.get("artifact_destination"),
             context_summary=task.get("context_summary"),
             rejected_proposal_context=list(task.get("rejected_proposal_context", [])),
+            intent=task.get("intent"),
+            trace_id=task.get("trace_id"),
+            workflow_id=task.get("workflow_id"),
+            repo_allowlist=[str(item) for item in task.get("repo_allowlist", [])],
+            tool_allowlist=[str(item) for item in task.get("tool_allowlist", [])],
+            response_mode=task.get("response_mode"),
+            context_refs=list(task.get("context_refs", [])),
+            approval_mode=task.get("approval_mode"),
+            reasoning_verbosity=task.get("reasoning_verbosity"),
         )
 
 
@@ -98,6 +117,7 @@ class HermesRuntime:
             )
         prompt = self._render_task_prompt(task)
         result = self.execute(prompt, system_message=task.system_message)
+        structured_output = self._extract_structured_output(result.message)
         result.raw = {
             **result.raw,
             "role": self._role,
@@ -111,6 +131,16 @@ class HermesRuntime:
             "artifact_destination": task.artifact_destination,
             "context_summary": task.context_summary,
             "rejected_proposal_context": task.rejected_proposal_context,
+            "intent": task.intent,
+            "trace_id": task.trace_id,
+            "workflow_id": task.workflow_id,
+            "repo_allowlist": task.repo_allowlist,
+            "tool_allowlist": task.tool_allowlist,
+            "response_mode": task.response_mode,
+            "context_refs": task.context_refs,
+            "approval_mode": task.approval_mode,
+            "reasoning_verbosity": task.reasoning_verbosity,
+            "structured_output": structured_output,
         }
         return result
 
@@ -122,18 +152,64 @@ class HermesRuntime:
         ]
         if task.repo_ref:
             parts.append(f"Repository ref: {task.repo_ref}")
+        if task.intent:
+            parts.append(f"Intent: {task.intent}")
+        if task.trace_id:
+            parts.append(f"Trace ID: {task.trace_id}")
+        if task.workflow_id:
+            parts.append(f"Workflow ID: {task.workflow_id}")
         if task.context_summary:
             parts.append(f"Context: {task.context_summary}")
+        if task.context_refs:
+            parts.append(f"Context refs: {json.dumps(task.context_refs)}")
         if task.allowed_tools:
             parts.append(f"Allowed tools: {', '.join(task.allowed_tools)}")
+        if task.tool_allowlist:
+            parts.append(f"Tool allowlist: {', '.join(task.tool_allowlist)}")
         if task.allowed_commands:
             parts.append(f"Allowed commands: {', '.join(task.allowed_commands)}")
+        if task.repo_allowlist:
+            parts.append(f"Repo allowlist: {', '.join(task.repo_allowlist)}")
         if task.expected_outputs:
             parts.append(f"Expected outputs: {', '.join(task.expected_outputs)}")
         if task.artifact_destination:
             parts.append(f"Artifact destination: {task.artifact_destination}")
         if task.rejected_proposal_context:
             parts.append(f"Prior rejected/dismissed context: {task.rejected_proposal_context}")
+        if task.response_mode:
+            parts.append(f"Response mode: {task.response_mode}")
+        if task.approval_mode:
+            parts.append(f"Approval mode: {task.approval_mode}")
+        if task.reasoning_verbosity:
+            parts.append(f"Reasoning verbosity: {task.reasoning_verbosity}")
         parts.append(f"Timeout seconds: {task.timeout_seconds}")
+        parts.append(
+            "Return a JSON object with keys: visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique."
+        )
         parts.append(f"Task prompt:\n{task.prompt}")
         return "\n".join(parts)
+
+    def _extract_structured_output(self, message: str) -> Dict[str, Any]:
+        text = (message or "").strip()
+        if text:
+            try:
+                parsed = json.loads(text)
+                if isinstance(parsed, dict):
+                    return parsed
+            except json.JSONDecodeError:
+                pass
+        return {
+            "visible_reasoning": [
+                {
+                    "step_type": "fallback",
+                    "summary": "Runtime returned unstructured text; preserving it as the visible answer.",
+                    "confidence": 0.5,
+                    "decision": text,
+                }
+            ],
+            "reply_draft": text,
+            "final_answer": text,
+            "confidence": 0.5,
+            "context_summary": "",
+            "self_critique": "",
+        }

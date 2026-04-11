@@ -11,13 +11,19 @@ import (
 )
 
 func main() {
-	mode := flag.String("mode", "serve", "serve or slack-surface")
+	mode := flag.String("mode", "serve", "serve, slack-surface, or worker")
 	flag.Parse()
 
 	cfg := config.Load("control-plane")
 	store := storepkg.MustOpenStore(cfg)
 	if *mode == "slack-surface" {
 		if err := control.RunSlackSurface(cfg, store); err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
+	if *mode == "worker" {
+		if err := control.RunWorker(cfg, store); err != nil {
 			log.Fatal(err)
 		}
 		return

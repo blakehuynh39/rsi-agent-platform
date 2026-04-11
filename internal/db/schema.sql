@@ -46,8 +46,12 @@ create table if not exists experiment_registry (
 
 create table if not exists ingestion (
   id text primary key,
+  event_id text,
   thread_key text not null,
+  thread_ts text,
   workflow_hint text not null,
+  intent text,
+  bot_role text,
   source text not null,
   channel_id text not null,
   user_id text not null,
@@ -57,11 +61,19 @@ create table if not exists ingestion (
 
 create table if not exists workflow (
   id text primary key,
+  ingestion_id text,
+  trace_id text,
   thread_key text not null,
   kind text not null,
+  intent text,
   assigned_bot text not null,
+  approval_mode text,
+  response_mode text,
   status text not null,
-  created_at timestamptz not null default now()
+  last_error text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  completed_at timestamptz
 );
 
 create table if not exists assignment (
@@ -92,7 +104,10 @@ create table if not exists trace_summary (
   started_at timestamptz not null,
   ended_at timestamptz not null,
   event_count integer not null default 0,
-  artifact_count integer not null default 0
+  artifact_count integer not null default 0,
+  reasoning_step_count integer not null default 0,
+  tool_call_count integer not null default 0,
+  slack_action_count integer not null default 0
 );
 
 create table if not exists trace_event (
@@ -192,6 +207,7 @@ create table if not exists proposal_review (
   rationale text not null,
   reviewer_id text not null,
   failure_class text,
+  failure_classes jsonb not null default '[]'::jsonb,
   created_at timestamptz not null default now()
 );
 
@@ -205,6 +221,7 @@ create table if not exists proposal_memory (
   disposition text not null,
   disposition_reason text,
   failure_class text,
+  failure_classes jsonb not null default '[]'::jsonb,
   source_eval_ids jsonb not null default '[]'::jsonb,
   linked_artifact_ids jsonb not null default '[]'::jsonb,
   linked_proposal_ids jsonb not null default '[]'::jsonb,
@@ -324,3 +341,106 @@ create table if not exists sandbox_session (
   created_at timestamptz not null default now(),
   expires_at timestamptz
 );
+
+create table if not exists improvement_settings (
+  key text primary key,
+  active_proposal_cap integer not null default 2,
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists work_item (
+  id text primary key,
+  queue text not null,
+  kind text not null,
+  status text not null,
+  trace_id text,
+  workflow_id text,
+  ingestion_id text,
+  proposal_id text,
+  thread_key text,
+  intent text,
+  repo_scope text,
+  requested_by text,
+  approval_mode text,
+  response_mode text,
+  payload jsonb not null default '{}'::jsonb,
+  attempts integer not null default 0,
+  lease_owner text,
+  lease_expires_at timestamptz,
+  last_error text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  completed_at timestamptz
+);
+
+create index if not exists work_item_queue_status_idx on work_item (queue, status, created_at asc);
+
+create table if not exists reasoning_step (
+  id text primary key,
+  trace_id text not null,
+  workflow_id text,
+  step_type text not null,
+  summary text not null,
+  evidence_refs jsonb not null default '[]'::jsonb,
+  alternatives jsonb not null default '[]'::jsonb,
+  confidence double precision not null default 0,
+  decision text,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists reasoning_step_trace_idx on reasoning_step (trace_id, created_at asc);
+
+create table if not exists tool_call_record (
+  id text primary key,
+  trace_id text not null,
+  workflow_id text,
+  tool_name text not null,
+  tool_call_id text not null,
+  request jsonb not null default '{}'::jsonb,
+  summary text,
+  raw_artifact_refs jsonb not null default '[]'::jsonb,
+  approval_state text,
+  interpretation_summary text,
+  status text,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists tool_call_record_trace_idx on tool_call_record (trace_id, created_at asc);
+
+create table if not exists slack_action_record (
+  id text primary key,
+  trace_id text not null,
+  workflow_id text,
+  channel_id text,
+  thread_ts text,
+  idempotency_key text not null,
+  draft_body text,
+  final_body text,
+  policy_verdict text,
+  send_status text,
+  artifact_refs jsonb not null default '[]'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists slack_action_record_trace_idx on slack_action_record (trace_id, created_at asc);
+
+alter table if exists ingestion add column if not exists event_id text;
+alter table if exists ingestion add column if not exists thread_ts text;
+alter table if exists ingestion add column if not exists intent text;
+alter table if exists ingestion add column if not exists bot_role text;
+
+alter table if exists workflow add column if not exists ingestion_id text;
+alter table if exists workflow add column if not exists trace_id text;
+alter table if exists workflow add column if not exists intent text;
+alter table if exists workflow add column if not exists approval_mode text;
+alter table if exists workflow add column if not exists response_mode text;
+alter table if exists workflow add column if not exists last_error text;
+alter table if exists workflow add column if not exists updated_at timestamptz not null default now();
+alter table if exists workflow add column if not exists completed_at timestamptz;
+
+alter table if exists trace_summary add column if not exists reasoning_step_count integer not null default 0;
+alter table if exists trace_summary add column if not exists tool_call_count integer not null default 0;
+alter table if exists trace_summary add column if not exists slack_action_count integer not null default 0;
+
+alter table if exists proposal_review add column if not exists failure_classes jsonb not null default '[]'::jsonb;
+alter table if exists proposal_memory add column if not exists failure_classes jsonb not null default '[]'::jsonb;

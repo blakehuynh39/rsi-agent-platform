@@ -13,6 +13,9 @@ type TraceSummary = {
   ended_at: string;
   event_count: number;
   artifact_count: number;
+  reasoning_step_count: number;
+  tool_call_count: number;
+  slack_action_count: number;
 };
 
 type TraceEvent = {
@@ -33,10 +36,45 @@ type Artifact = {
   source: string;
 };
 
+type ReasoningStep = {
+  id: string;
+  step_type: string;
+  summary: string;
+  alternatives?: string[];
+  confidence?: number;
+  decision?: string;
+  created_at: string;
+};
+
+type ToolCallRecord = {
+  id: string;
+  tool_name: string;
+  tool_call_id: string;
+  summary?: string;
+  approval_state?: string;
+  interpretation_summary?: string;
+  status?: string;
+  created_at: string;
+};
+
+type SlackActionRecord = {
+  id: string;
+  channel_id?: string;
+  thread_ts?: string;
+  draft_body?: string;
+  final_body?: string;
+  policy_verdict?: string;
+  send_status?: string;
+  created_at: string;
+};
+
 type Trace = {
   summary: TraceSummary;
   events: TraceEvent[];
   artifacts: Artifact[];
+  reasoning: ReasoningStep[];
+  tool_calls: ToolCallRecord[];
+  slack_actions: SlackActionRecord[];
 };
 
 type EvalRun = {
@@ -132,6 +170,24 @@ type PostMergeReplay = {
   improved: boolean;
 };
 
+type WorkItem = {
+  id: string;
+  queue: string;
+  kind: string;
+  status: string;
+  trace_id?: string;
+  workflow_id?: string;
+  proposal_id?: string;
+  lease_owner?: string;
+  last_error?: string;
+  created_at: string;
+};
+
+type ImprovementSettings = {
+  active_proposal_cap: number;
+  updated_at: string;
+};
+
 type ProposalResponse = {
   proposals: Proposal[];
   proposal_slots: ProposalSlots;
@@ -140,11 +196,15 @@ type ProposalResponse = {
   repo_change_jobs: RepoChangeJob[];
   pr_attempts: PRAttempt[];
   post_merge_replays: PostMergeReplay[];
+  work_items: WorkItem[];
+  settings: ImprovementSettings;
 };
 
 type EvalResponse = {
   eval_runs: EvalRun[];
   judgments: Record<string, EvalJudgment[]>;
+  work_items: WorkItem[];
+  settings: ImprovementSettings;
 };
 
 async function getJSON<T>(url: string): Promise<T> {
@@ -172,6 +232,7 @@ export function App() {
   const [selectedTraceId, setSelectedTraceId] = useState("");
   const [ratingNotes, setRatingNotes] = useState("");
   const [improvementNote, setImprovementNote] = useState("");
+  const [proposalCapInput, setProposalCapInput] = useState("2");
 
   const tracesQuery = useQuery({
     queryKey: ["traces"],
@@ -208,6 +269,7 @@ export function App() {
   }, [activeTraceId, evalsQuery.data?.eval_runs]);
 
   const slotState = proposalsQuery.data?.proposal_slots;
+  const settings = proposalsQuery.data?.settings;
 
   const refreshEverything = async () => {
     await queryClient.invalidateQueries({ queryKey: ["traces"] });
@@ -274,6 +336,14 @@ export function App() {
     onSuccess: refreshEverything
   });
 
+  const settingsMutation = useMutation({
+    mutationFn: () =>
+      postJSON(`/api/settings`, {
+        active_proposal_cap: Number(proposalCapInput)
+      }),
+    onSuccess: refreshEverything
+  });
+
   return (
     <div className="shell">
       <aside className="sidebar">
@@ -293,6 +363,19 @@ export function App() {
             <div><dt>Available</dt><dd>{slotState?.available ?? 0}</dd></div>
             <div><dt>Stale</dt><dd>{slotState?.stale_proposal_ids.length ?? 0}</dd></div>
           </dl>
+          <div className="stack">
+            <label>
+              Active cap
+              <input
+                type="number"
+                min={1}
+                value={proposalCapInput}
+                onChange={(event) => setProposalCapInput(event.target.value)}
+                placeholder={String(settings?.active_proposal_cap ?? 2)}
+              />
+            </label>
+            <button onClick={() => settingsMutation.mutate()}>Save cap</button>
+          </div>
           <button onClick={() => promoteMutation.mutate()} disabled={(slotState?.available ?? 0) === 0}>
             Run proposal promoter
           </button>
@@ -360,6 +443,9 @@ export function App() {
                 <div><dt>Thread</dt><dd>{traceQuery.data.summary.thread_key}</dd></div>
                 <div><dt>Events</dt><dd>{traceQuery.data.summary.event_count}</dd></div>
                 <div><dt>Artifacts</dt><dd>{traceQuery.data.summary.artifact_count}</dd></div>
+                <div><dt>Reasoning</dt><dd>{traceQuery.data.summary.reasoning_step_count}</dd></div>
+                <div><dt>Tool Calls</dt><dd>{traceQuery.data.summary.tool_call_count}</dd></div>
+                <div><dt>Slack Actions</dt><dd>{traceQuery.data.summary.slack_action_count}</dd></div>
               </dl>
             ) : (
               <p>Loading trace...</p>
@@ -460,6 +546,40 @@ export function App() {
 
         <section className="grid">
           <article className="panel">
+            <h3>Visible Reasoning</h3>
+            <ul className="timeline">
+              {(traceQuery.data?.reasoning ?? []).map((step) => (
+                <li key={step.id}>
+                  <span className="pill">{step.step_type}</span>
+                  <div>
+                    <strong>{step.summary}</strong>
+                    <p>{step.decision ?? "no decision recorded"}</p>
+                  </div>
+                  <small>{typeof step.confidence === "number" ? step.confidence.toFixed(2) : ""}</small>
+                </li>
+              ))}
+            </ul>
+          </article>
+
+          <article className="panel">
+            <h3>Tool Lineage</h3>
+            <ul className="memory-list">
+              {(traceQuery.data?.tool_calls ?? []).map((toolCall) => (
+                <li key={toolCall.id}>
+                  <div>
+                    <strong>{toolCall.tool_name}</strong>
+                    <p>{toolCall.summary ?? toolCall.interpretation_summary}</p>
+                    <small>{toolCall.tool_call_id}</small>
+                  </div>
+                  <span className="pill">{toolCall.approval_state ?? toolCall.status}</span>
+                </li>
+              ))}
+            </ul>
+          </article>
+        </section>
+
+        <section className="grid">
+          <article className="panel">
             <h3>Timeline</h3>
             <ul className="timeline">
               {(traceQuery.data?.events ?? []).map((event, index) => (
@@ -490,6 +610,21 @@ export function App() {
         </section>
 
         <section className="grid">
+          <article className="panel">
+            <h3>Slack Actions</h3>
+            <ul className="memory-list">
+              {(traceQuery.data?.slack_actions ?? []).map((action) => (
+                <li key={action.id}>
+                  <div>
+                    <strong>{action.send_status ?? "pending"}</strong>
+                    <p>{action.final_body ?? action.draft_body}</p>
+                    <small>{action.policy_verdict}</small>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </article>
+
           <article className="panel">
             <h3>Proposal Memory</h3>
             <ul className="memory-list">
@@ -528,6 +663,22 @@ export function App() {
               ))}
             </ul>
           </article>
+        </section>
+
+        <section className="panel">
+          <h3>Work Queue</h3>
+          <ul className="memory-list">
+            {(proposalsQuery.data?.work_items ?? []).slice(0, 10).map((item) => (
+              <li key={item.id}>
+                <div>
+                  <strong>{item.queue}</strong>
+                  <p>{item.kind}</p>
+                  <small>{item.trace_id ?? item.proposal_id ?? item.workflow_id}</small>
+                </div>
+                <span className="pill">{item.status}</span>
+              </li>
+            ))}
+          </ul>
         </section>
 
         <section className="panel">

@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	mode := flag.String("mode", "serve", "serve or cron")
+	mode := flag.String("mode", "serve", "serve, cron, or worker")
 	once := flag.Bool("once", false, "run one cron tick and exit")
 	flag.Parse()
 
@@ -21,6 +21,13 @@ func main() {
 	if *mode == "cron" {
 		log.Printf("starting %s cron interval=%s", cfg.ServiceName, cfg.ProposalPromoterInterval)
 		improvementplane.RunCron(cfg, store, *once)
+		return
+	}
+	if *mode == "worker" {
+		log.Printf("starting %s worker poll=%s", cfg.ServiceName, cfg.WorkerPollInterval)
+		if err := improvementplane.RunWorker(cfg, store); err != nil {
+			log.Fatal(err)
+		}
 		return
 	}
 

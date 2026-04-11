@@ -8,6 +8,9 @@ import (
 	"time"
 
 	"github.com/piplabs/rsi-agent-platform/internal/config"
+	batchv1 "k8s.io/api/batch/v1"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type JobRequest struct {
@@ -23,10 +26,10 @@ type JobRequest struct {
 }
 
 type JobManifest struct {
-	APIVersion string      `json:"apiVersion"`
-	Kind       string      `json:"kind"`
-	Metadata   Metadata    `json:"metadata"`
-	Spec       JobSpec     `json:"spec"`
+	APIVersion string   `json:"apiVersion"`
+	Kind       string   `json:"kind"`
+	Metadata   Metadata `json:"metadata"`
+	Spec       JobSpec  `json:"spec"`
 }
 
 type Metadata struct {
@@ -36,10 +39,10 @@ type Metadata struct {
 }
 
 type JobSpec struct {
-	BackoffLimit            int          `json:"backoffLimit"`
-	TTLSecondsAfterFinished int          `json:"ttlSecondsAfterFinished,omitempty"`
-	ActiveDeadlineSeconds   int          `json:"activeDeadlineSeconds,omitempty"`
-	Template                PodTemplate  `json:"template"`
+	BackoffLimit            int         `json:"backoffLimit"`
+	TTLSecondsAfterFinished int         `json:"ttlSecondsAfterFinished,omitempty"`
+	ActiveDeadlineSeconds   int         `json:"activeDeadlineSeconds,omitempty"`
+	Template                PodTemplate `json:"template"`
 }
 
 type PodTemplate struct {
@@ -55,12 +58,12 @@ type PodSpec struct {
 }
 
 type Container struct {
-	Name         string          `json:"name"`
-	Image        string          `json:"image"`
-	Command      []string        `json:"command,omitempty"`
-	Env          []EnvVar        `json:"env,omitempty"`
-	VolumeMounts []VolumeMount   `json:"volumeMounts,omitempty"`
-	Resources    map[string]any  `json:"resources,omitempty"`
+	Name         string         `json:"name"`
+	Image        string         `json:"image"`
+	Command      []string       `json:"command,omitempty"`
+	Env          []EnvVar       `json:"env,omitempty"`
+	VolumeMounts []VolumeMount  `json:"volumeMounts,omitempty"`
+	Resources    map[string]any `json:"resources,omitempty"`
 }
 
 type EnvVar struct {
@@ -69,13 +72,28 @@ type EnvVar struct {
 }
 
 type Volume struct {
-	Name     string    `json:"name"`
-	EmptyDir struct{}  `json:"emptyDir,omitempty"`
+	Name     string   `json:"name"`
+	EmptyDir struct{} `json:"emptyDir,omitempty"`
 }
 
 type VolumeMount struct {
 	Name      string `json:"name"`
 	MountPath string `json:"mountPath"`
+}
+
+type Session struct {
+	ID              string     `json:"id"`
+	TraceID         string     `json:"trace_id"`
+	ProposalID      string     `json:"proposal_id,omitempty"`
+	RepoChangeJobID string     `json:"repo_change_job_id,omitempty"`
+	PodName         string     `json:"pod_name"`
+	Namespace       string     `json:"namespace"`
+	Status          string     `json:"status"`
+	BranchName      string     `json:"branch_name,omitempty"`
+	LastError       string     `json:"last_error,omitempty"`
+	CreatedAt       time.Time  `json:"created_at"`
+	UpdatedAt       time.Time  `json:"updated_at"`
+	ExpiresAt       *time.Time `json:"expires_at,omitempty"`
 }
 
 var nonAlnum = regexp.MustCompile(`[^a-z0-9-]+`)
@@ -157,6 +175,57 @@ func BuildJob(cfg config.Config, req JobRequest) JobManifest {
 			},
 		},
 	}
+}
+
+func BuildBatchJob(cfg config.Config, req JobRequest) *batchv1.Job {
+	manifest := BuildJob(cfg, req)
+	envVars := make([]corev1.EnvVar, 0, len(manifest.Spec.Template.Spec.Containers[0].Env))
+	for _, item := range manifest.Spec.Template.Spec.Containers[0].Env {
+		envVars = append(envVars, corev1.EnvVar{Name: item.Name, Value: item.Value})
+	}
+	return &batchv1.Job{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: manifest.APIVersion,
+			Kind:       manifest.Kind,
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      manifest.Metadata.Name,
+			Namespace: manifest.Metadata.Namespace,
+			Labels:    manifest.Metadata.Labels,
+		},
+		Spec: batchv1.JobSpec{
+			BackoffLimit:            int32Ptr(int32(manifest.Spec.BackoffLimit)),
+			TTLSecondsAfterFinished: int32Ptr(int32(manifest.Spec.TTLSecondsAfterFinished)),
+			ActiveDeadlineSeconds:   int64Ptr(int64(manifest.Spec.ActiveDeadlineSeconds)),
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: manifest.Spec.Template.Metadata.Labels,
+				},
+				Spec: corev1.PodSpec{
+					ServiceAccountName: manifest.Spec.Template.Spec.ServiceAccountName,
+					RestartPolicy:      corev1.RestartPolicy(manifest.Spec.Template.Spec.RestartPolicy),
+					Containers: []corev1.Container{
+						{
+							Name:         manifest.Spec.Template.Spec.Containers[0].Name,
+							Image:        manifest.Spec.Template.Spec.Containers[0].Image,
+							Command:      manifest.Spec.Template.Spec.Containers[0].Command,
+							Env:          envVars,
+							VolumeMounts: []corev1.VolumeMount{{Name: "workspace", MountPath: "/workspace"}},
+						},
+					},
+					Volumes: []corev1.Volume{{Name: "workspace", VolumeSource: corev1.VolumeSource{EmptyDir: &corev1.EmptyDirVolumeSource{}}}},
+				},
+			},
+		},
+	}
+}
+
+func int32Ptr(value int32) *int32 {
+	return &value
+}
+
+func int64Ptr(value int64) *int64 {
+	return &value
 }
 
 func buildName(traceID string, repo string) string {

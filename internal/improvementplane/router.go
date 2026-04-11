@@ -11,6 +11,7 @@ import (
 
 	"github.com/piplabs/rsi-agent-platform/internal/app"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
+	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	"github.com/piplabs/rsi-agent-platform/internal/reviewui"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
@@ -32,6 +33,8 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 			"eval_runs":  runs,
 			"judgments":  judgments,
 			"candidates": store.ListCandidates(),
+			"work_items": store.ListWorkItems(),
+			"settings":   store.GetSettings(),
 		})
 	})
 	r.Post("/api/traces/{traceID}/evaluate", func(w http.ResponseWriter, r *http.Request) {
@@ -114,7 +117,32 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 			"repo_change_jobs":   store.ListRepoChangeJobs(),
 			"pr_attempts":        store.ListPRAttempts(),
 			"post_merge_replays": store.ListPostMergeReplays(),
+			"work_items":         store.ListWorkItems(),
+			"settings":           store.GetSettings(),
 		})
+	})
+	r.Get("/api/work-items", func(w http.ResponseWriter, r *http.Request) {
+		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
+			"work_items": store.ListWorkItems(),
+		})
+	})
+	r.Get("/api/settings", func(w http.ResponseWriter, r *http.Request) {
+		app.WriteJSON(w, http.StatusOK, store.GetSettings())
+	})
+	r.Post("/api/settings", func(w http.ResponseWriter, r *http.Request) {
+		var body struct {
+			ActiveProposalCap int `json:"active_proposal_cap"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			app.WriteError(w, http.StatusBadRequest, err)
+			return
+		}
+		item, err := store.UpdateSettings(improvement.Settings{ActiveProposalCap: body.ActiveProposalCap})
+		if err != nil {
+			app.WriteError(w, http.StatusBadRequest, err)
+			return
+		}
+		app.WriteJSON(w, http.StatusOK, item)
 	})
 	r.Get("/api/candidates", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
@@ -152,6 +180,7 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 	r.Get("/api/cron/status", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
 			"proposal_slots": store.GetProposalSlots(),
+			"settings":       store.GetSettings(),
 			"service":        cfg.ServiceName,
 		})
 	})

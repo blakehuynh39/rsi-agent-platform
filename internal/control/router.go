@@ -26,6 +26,7 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 			"ingestions":  store.ListIngestions(),
 			"workflows":   store.ListWorkflows(),
 			"assignments": store.ListAssignments(),
+			"work_items":  store.ListWorkItems(),
 		})
 	})
 	r.Post("/api/events", func(w http.ResponseWriter, r *http.Request) {
@@ -48,6 +49,7 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 			"ingestions":  store.ListIngestions(),
 			"workflows":   store.ListWorkflows(),
 			"assignments": store.ListAssignments(),
+			"work_items":  store.ListWorkItems(),
 		})
 	})
 	r.Post("/api/ingestions", func(w http.ResponseWriter, r *http.Request) {
@@ -95,6 +97,7 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 			"workflow_count":   len(store.ListWorkflows()),
 			"assignment_count": len(store.ListAssignments()),
 			"thread_count":     len(store.ListThreadPolicies()),
+			"work_item_count":  len(store.ListWorkItems()),
 		})
 	})
 	r.Post("/api/sandbox/jobs/preview", func(w http.ResponseWriter, r *http.Request) {

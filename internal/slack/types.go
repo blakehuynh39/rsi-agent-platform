@@ -25,12 +25,15 @@ type SlackEnvelope struct {
 
 type Ingestion struct {
 	ID           string    `json:"id"`
+	EventID      string    `json:"event_id,omitempty"`
 	ThreadKey    string    `json:"thread_key"`
+	ThreadTS     string    `json:"thread_ts,omitempty"`
 	WorkflowHint string    `json:"workflow_hint"`
+	Intent       string    `json:"intent,omitempty"`
+	BotRole      BotRole   `json:"bot_role,omitempty"`
 	Source       string    `json:"source"`
 	ChannelID    string    `json:"channel_id"`
 	UserID       string    `json:"user_id"`
 	Text         string    `json:"text"`
 	CreatedAt    time.Time `json:"created_at"`
 }
-

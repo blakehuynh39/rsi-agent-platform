@@ -1,0 +1,80 @@
+package clients
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"strings"
+	"time"
+)
+
+type RunnerTask struct {
+	TaskType                string           `json:"task_type"`
+	Repo                    string           `json:"repo"`
+	RepoRef                 string           `json:"repo_ref,omitempty"`
+	Prompt                  string           `json:"prompt"`
+	SystemMessage           string           `json:"system_message,omitempty"`
+	AllowedTools            []string         `json:"allowed_tools,omitempty"`
+	AllowedCommands         []string         `json:"allowed_commands,omitempty"`
+	TimeoutSeconds          int              `json:"timeout_seconds,omitempty"`
+	ExpectedOutputs         []string         `json:"expected_outputs,omitempty"`
+	ArtifactDestination     string           `json:"artifact_destination,omitempty"`
+	ContextSummary          string           `json:"context_summary,omitempty"`
+	RejectedProposalContext []map[string]any `json:"rejected_proposal_context,omitempty"`
+	Intent                  string           `json:"intent,omitempty"`
+	TraceID                 string           `json:"trace_id,omitempty"`
+	WorkflowID              string           `json:"workflow_id,omitempty"`
+	RepoAllowlist           []string         `json:"repo_allowlist,omitempty"`
+	ToolAllowlist           []string         `json:"tool_allowlist,omitempty"`
+	ResponseMode            string           `json:"response_mode,omitempty"`
+	ContextRefs             []map[string]any `json:"context_refs,omitempty"`
+	ApprovalMode            string           `json:"approval_mode,omitempty"`
+	ReasoningVerbosity      string           `json:"reasoning_verbosity,omitempty"`
+}
+
+type RunnerResponse struct {
+	OK       bool                   `json:"ok"`
+	Message  string                 `json:"message"`
+	Provider string                 `json:"provider"`
+	Raw      map[string]interface{} `json:"raw"`
+}
+
+type RunnerClient struct {
+	baseURL    string
+	httpClient *http.Client
+}
+
+func NewRunnerClient(baseURL string) *RunnerClient {
+	return &RunnerClient{
+		baseURL: strings.TrimRight(baseURL, "/"),
+		httpClient: &http.Client{
+			Timeout: 60 * time.Second,
+		},
+	}
+}
+
+func (c *RunnerClient) Execute(task RunnerTask) (RunnerResponse, error) {
+	body, err := json.Marshal(map[string]any{"task": task})
+	if err != nil {
+		return RunnerResponse{}, err
+	}
+	req, err := http.NewRequest(http.MethodPost, c.baseURL+"/execute", bytes.NewReader(body))
+	if err != nil {
+		return RunnerResponse{}, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return RunnerResponse{}, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		return RunnerResponse{}, fmt.Errorf("runner returned %d", resp.StatusCode)
+	}
+	var out RunnerResponse
+	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+		return RunnerResponse{}, err
+	}
+	return out, nil
+}
