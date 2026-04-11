@@ -112,29 +112,69 @@ func (s *slackSurfaceRuntime) handleEventsAPIEvent(eventsAPIEvent slackevents.Ev
 	if eventsAPIEvent.Type != slackevents.CallbackEvent {
 		return
 	}
-	messageEvent, ok := eventsAPIEvent.InnerEvent.Data.(*slackevents.MessageEvent)
-	if !ok || messageEvent == nil {
+	switch event := eventsAPIEvent.InnerEvent.Data.(type) {
+	case *slackevents.AppMentionEvent:
+		if event == nil {
+			return
+		}
+		envelope, ok := s.buildMentionEnvelope(eventsAPIEvent.TeamID, event)
+		if !ok {
+			return
+		}
+		created := s.store.CreateIngestion(envelope)
+		log.Printf("slack-surface identity=%s ingested thread=%s ingestion=%s", s.cfg.SlackAppIdentity, created.ThreadKey, created.ID)
+	case *slackevents.MessageEvent:
+		if event == nil {
+			return
+		}
+		envelope, ok := s.buildDirectMessageEnvelope(eventsAPIEvent.TeamID, event)
+		if !ok {
+			return
+		}
+		created := s.store.CreateIngestion(envelope)
+		log.Printf("slack-surface identity=%s ingested thread=%s ingestion=%s", s.cfg.SlackAppIdentity, created.ThreadKey, created.ID)
+	default:
 		return
 	}
-	envelope, ok := s.buildEnvelope(eventsAPIEvent.TeamID, messageEvent)
-	if !ok {
-		return
-	}
-	created := s.store.CreateIngestion(envelope)
-	log.Printf("slack-surface identity=%s ingested thread=%s ingestion=%s", s.cfg.SlackAppIdentity, created.ThreadKey, created.ID)
 }
 
-func (s *slackSurfaceRuntime) buildEnvelope(teamID string, event *slackevents.MessageEvent) (slackpkg.SlackEnvelope, bool) {
+func (s *slackSurfaceRuntime) buildMentionEnvelope(teamID string, event *slackevents.AppMentionEvent) (slackpkg.SlackEnvelope, bool) {
 	if event == nil {
 		return slackpkg.SlackEnvelope{}, false
 	}
-	if event.SubType != "" || event.BotID != "" {
+	if event.BotID != "" {
 		return slackpkg.SlackEnvelope{}, false
 	}
 	if len(s.allowedChan) > 0 {
 		if _, ok := s.allowedChan[event.Channel]; !ok {
 			return slackpkg.SlackEnvelope{}, false
 		}
+	}
+	threadTS := strings.TrimSpace(event.ThreadTimeStamp)
+	if threadTS == "" {
+		threadTS = strings.TrimSpace(event.TimeStamp)
+	}
+	return slackpkg.SlackEnvelope{
+		BotRole:   slackRoleFromIdentity(s.cfg.SlackAppIdentity),
+		TeamID:    teamID,
+		ChannelID: event.Channel,
+		ThreadTS:  threadTS,
+		UserID:    event.User,
+		Text:      event.Text,
+		TS:        event.TimeStamp,
+		CreatedAt: parseSlackTimestamp(event.TimeStamp),
+	}, true
+}
+
+func (s *slackSurfaceRuntime) buildDirectMessageEnvelope(teamID string, event *slackevents.MessageEvent) (slackpkg.SlackEnvelope, bool) {
+	if event == nil {
+		return slackpkg.SlackEnvelope{}, false
+	}
+	if !event.IsIM() {
+		return slackpkg.SlackEnvelope{}, false
+	}
+	if event.SubType != "" || event.BotID != "" {
+		return slackpkg.SlackEnvelope{}, false
 	}
 	threadTS := strings.TrimSpace(event.ThreadTimeStamp)
 	if threadTS == "" {
