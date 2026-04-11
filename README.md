@@ -16,6 +16,8 @@ the Python execution runtime for live, proactive, eval, proposal, and repo-chang
 
 ## Quick start
 
+This repo is pinned to Go `1.26.2`.
+
 ```bash
 make ci
 go run ./cmd/improvement-plane

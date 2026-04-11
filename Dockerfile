@@ -1,3 +1,5 @@
+ARG GO_VERSION=1.26.2
+
 FROM node:22-bookworm AS ui-builder
 
 WORKDIR /src/ui/eval-web
@@ -6,7 +8,7 @@ RUN corepack enable && pnpm install --frozen-lockfile
 COPY ui/eval-web/src ./src
 RUN pnpm build
 
-FROM golang:1.24-bookworm AS builder
+FROM golang:${GO_VERSION}-bookworm AS builder
 
 ARG SERVICE=improvement-plane
 WORKDIR /src
