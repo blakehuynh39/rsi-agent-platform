@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FormEvent, useMemo, useState } from "react";
 
+type NullableList<T> = T[] | null;
+
 type TraceSummary = {
   trace_id: string;
   ingestion_id: string;
@@ -40,7 +42,7 @@ type ReasoningStep = {
   id: string;
   step_type: string;
   summary: string;
-  alternatives?: string[];
+  alternatives?: NullableList<string>;
   confidence?: number;
   decision?: string;
   created_at: string;
@@ -70,11 +72,11 @@ type SlackActionRecord = {
 
 type Trace = {
   summary: TraceSummary;
-  events: TraceEvent[];
-  artifacts: Artifact[];
-  reasoning: ReasoningStep[];
-  tool_calls: ToolCallRecord[];
-  slack_actions: SlackActionRecord[];
+  events: NullableList<TraceEvent>;
+  artifacts: NullableList<Artifact>;
+  reasoning: NullableList<ReasoningStep>;
+  tool_calls: NullableList<ToolCallRecord>;
+  slack_actions: NullableList<SlackActionRecord>;
 };
 
 type EvalRun = {
@@ -108,7 +110,7 @@ type Candidate = {
   priority_score: number;
   confidence_score: number;
   new_evidence_since_last_rejection: boolean;
-  prior_similar_proposal_ids: string[];
+  prior_similar_proposal_ids: NullableList<string>;
 };
 
 type Proposal = {
@@ -123,7 +125,7 @@ type Proposal = {
   risk_tier?: string;
   review_deadline?: string;
   active_slot_consuming: boolean;
-  prior_similar_proposal_ids: string[];
+  prior_similar_proposal_ids: NullableList<string>;
   new_evidence_since_last_rejection: boolean;
 };
 
@@ -141,8 +143,8 @@ type ProposalSlots = {
   cap: number;
   active: number;
   available: number;
-  active_proposal_ids: string[];
-  stale_proposal_ids: string[];
+  active_proposal_ids: NullableList<string>;
+  stale_proposal_ids: NullableList<string>;
 };
 
 type RepoChangeJob = {
@@ -189,23 +191,31 @@ type ImprovementSettings = {
 };
 
 type ProposalResponse = {
-  proposals: Proposal[];
+  proposals: NullableList<Proposal>;
   proposal_slots: ProposalSlots;
-  candidates: Candidate[];
-  proposal_memory: ProposalMemory[];
-  repo_change_jobs: RepoChangeJob[];
-  pr_attempts: PRAttempt[];
-  post_merge_replays: PostMergeReplay[];
-  work_items: WorkItem[];
+  candidates: NullableList<Candidate>;
+  proposal_memory: NullableList<ProposalMemory>;
+  repo_change_jobs: NullableList<RepoChangeJob>;
+  pr_attempts: NullableList<PRAttempt>;
+  post_merge_replays: NullableList<PostMergeReplay>;
+  work_items: NullableList<WorkItem>;
   settings: ImprovementSettings;
 };
 
 type EvalResponse = {
-  eval_runs: EvalRun[];
-  judgments: Record<string, EvalJudgment[]>;
-  work_items: WorkItem[];
+  eval_runs: NullableList<EvalRun>;
+  judgments: Record<string, NullableList<EvalJudgment>>;
+  work_items: NullableList<WorkItem>;
   settings: ImprovementSettings;
 };
+
+function listOrEmpty<T>(items: NullableList<T> | undefined): T[] {
+  return items ?? [];
+}
+
+function listCount<T>(items: NullableList<T> | undefined): number {
+  return items?.length ?? 0;
+}
 
 async function getJSON<T>(url: string): Promise<T> {
   const response = await fetch(url);
@@ -240,7 +250,7 @@ export function App() {
   });
 
   const activeTraceId = useMemo(() => {
-    const traceIds = tracesQuery.data?.traces ?? [];
+    const traceIds = listOrEmpty(tracesQuery.data?.traces);
     if (selectedTraceId && traceIds.some((trace) => trace.trace_id === selectedTraceId)) {
       return selectedTraceId;
     }
@@ -264,7 +274,7 @@ export function App() {
   });
 
   const traceEvals = useMemo(() => {
-    const evalRuns = evalsQuery.data?.eval_runs ?? [];
+    const evalRuns = listOrEmpty(evalsQuery.data?.eval_runs);
     return evalRuns.filter((run) => run.trace_id === activeTraceId).slice(0, 3);
   }, [activeTraceId, evalsQuery.data?.eval_runs]);
 
@@ -361,7 +371,7 @@ export function App() {
             <div><dt>Cap</dt><dd>{slotState?.cap ?? 0}</dd></div>
             <div><dt>Active</dt><dd>{slotState?.active ?? 0}</dd></div>
             <div><dt>Available</dt><dd>{slotState?.available ?? 0}</dd></div>
-            <div><dt>Stale</dt><dd>{slotState?.stale_proposal_ids.length ?? 0}</dd></div>
+            <div><dt>Stale</dt><dd>{listCount(slotState?.stale_proposal_ids)}</dd></div>
           </dl>
           <div className="stack">
             <label>
@@ -384,7 +394,7 @@ export function App() {
         <div className="panel">
           <h2>Traces</h2>
           <ul className="trace-list">
-            {(tracesQuery.data?.traces ?? []).map((trace) => (
+            {listOrEmpty(tracesQuery.data?.traces).map((trace) => (
               <li key={trace.trace_id}>
                 <button
                   className={trace.trace_id === activeTraceId ? "trace-button active" : "trace-button"}
@@ -402,7 +412,7 @@ export function App() {
         <div className="panel">
           <h2>Queued Candidates</h2>
           <ul className="candidate-list">
-            {(proposalsQuery.data?.candidates ?? []).slice(0, 6).map((candidate) => (
+            {listOrEmpty(proposalsQuery.data?.candidates).slice(0, 6).map((candidate) => (
               <li key={candidate.id}>
                 <div>
                   <strong>{candidate.subsystem}</strong>
@@ -501,7 +511,7 @@ export function App() {
             </ul>
             {traceEvals[0] ? (
               <div className="stack detail-block">
-                {(evalsQuery.data?.judgments?.[traceEvals[0].id] ?? []).map((judgment) => (
+                {listOrEmpty(evalsQuery.data?.judgments?.[traceEvals[0].id]).map((judgment) => (
                   <div key={judgment.id} className="judgment">
                     <strong>{judgment.layer}</strong>
                     <p>{judgment.category}</p>
@@ -517,7 +527,7 @@ export function App() {
           <article className="panel">
             <h3>Active Proposals</h3>
             <ul className="proposal-list">
-              {(proposalsQuery.data?.proposals ?? []).map((proposal) => (
+              {listOrEmpty(proposalsQuery.data?.proposals).map((proposal) => (
                 <li key={proposal.id}>
                   <div>
                     <strong>{proposal.title}</strong>
@@ -548,7 +558,7 @@ export function App() {
           <article className="panel">
             <h3>Visible Reasoning</h3>
             <ul className="timeline">
-              {(traceQuery.data?.reasoning ?? []).map((step) => (
+              {listOrEmpty(traceQuery.data?.reasoning).map((step) => (
                 <li key={step.id}>
                   <span className="pill">{step.step_type}</span>
                   <div>
@@ -564,7 +574,7 @@ export function App() {
           <article className="panel">
             <h3>Tool Lineage</h3>
             <ul className="memory-list">
-              {(traceQuery.data?.tool_calls ?? []).map((toolCall) => (
+              {listOrEmpty(traceQuery.data?.tool_calls).map((toolCall) => (
                 <li key={toolCall.id}>
                   <div>
                     <strong>{toolCall.tool_name}</strong>
@@ -582,7 +592,7 @@ export function App() {
           <article className="panel">
             <h3>Timeline</h3>
             <ul className="timeline">
-              {(traceQuery.data?.events ?? []).map((event, index) => (
+              {listOrEmpty(traceQuery.data?.events).map((event, index) => (
                 <li key={`${event.event_type}-${index}`}>
                   <span className="pill">{event.plane}</span>
                   <div>
@@ -598,7 +608,7 @@ export function App() {
           <article className="panel">
             <h3>Artifacts</h3>
             <ul className="artifact-list">
-              {(traceQuery.data?.artifacts ?? []).map((artifact) => (
+              {listOrEmpty(traceQuery.data?.artifacts).map((artifact) => (
                 <li key={artifact.id}>
                   <strong>{artifact.kind}</strong>
                   <a href={artifact.url}>{artifact.id}</a>
@@ -613,7 +623,7 @@ export function App() {
           <article className="panel">
             <h3>Slack Actions</h3>
             <ul className="memory-list">
-              {(traceQuery.data?.slack_actions ?? []).map((action) => (
+              {listOrEmpty(traceQuery.data?.slack_actions).map((action) => (
                 <li key={action.id}>
                   <div>
                     <strong>{action.send_status ?? "pending"}</strong>
@@ -628,7 +638,7 @@ export function App() {
           <article className="panel">
             <h3>Proposal Memory</h3>
             <ul className="memory-list">
-              {(proposalsQuery.data?.proposal_memory ?? []).slice(0, 6).map((memory) => (
+              {listOrEmpty(proposalsQuery.data?.proposal_memory).slice(0, 6).map((memory) => (
                 <li key={memory.id}>
                   <div>
                     <strong>{memory.candidate_key}</strong>
@@ -643,7 +653,7 @@ export function App() {
           <article className="panel">
             <h3>Repo Change Context</h3>
             <ul className="memory-list">
-              {(proposalsQuery.data?.repo_change_jobs ?? []).slice(0, 4).map((job) => (
+              {listOrEmpty(proposalsQuery.data?.repo_change_jobs).slice(0, 4).map((job) => (
                 <li key={job.id}>
                   <div>
                     <strong>{job.branch_name}</strong>
@@ -652,7 +662,7 @@ export function App() {
                   </div>
                 </li>
               ))}
-              {(proposalsQuery.data?.pr_attempts ?? []).slice(0, 4).map((attempt) => (
+              {listOrEmpty(proposalsQuery.data?.pr_attempts).slice(0, 4).map((attempt) => (
                 <li key={attempt.id}>
                   <div>
                     <strong>{attempt.proposal_id}</strong>
@@ -668,7 +678,7 @@ export function App() {
         <section className="panel">
           <h3>Work Queue</h3>
           <ul className="memory-list">
-            {(proposalsQuery.data?.work_items ?? []).slice(0, 10).map((item) => (
+            {listOrEmpty(proposalsQuery.data?.work_items).slice(0, 10).map((item) => (
               <li key={item.id}>
                 <div>
                   <strong>{item.queue}</strong>

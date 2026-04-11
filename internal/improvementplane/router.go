@@ -11,6 +11,7 @@ import (
 
 	"github.com/piplabs/rsi-agent-platform/internal/app"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
+	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	"github.com/piplabs/rsi-agent-platform/internal/reviewui"
@@ -20,20 +21,20 @@ import (
 func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 	r := app.NewBaseRouter(cfg)
 	r.Get("/api/traces", func(w http.ResponseWriter, r *http.Request) {
-		app.WriteJSON(w, http.StatusOK, map[string]interface{}{"traces": store.ListTraces()})
+		app.WriteJSON(w, http.StatusOK, map[string]interface{}{"traces": sliceOrEmpty(store.ListTraces())})
 	})
 	r.Get("/api/evals", func(w http.ResponseWriter, r *http.Request) {
 		runs := store.ListEvalRuns()
 		judgments := map[string]interface{}{}
 		for _, run := range runs {
-			judgments[run.ID] = store.ListEvalJudgments(run.ID)
+			judgments[run.ID] = sliceOrEmpty(store.ListEvalJudgments(run.ID))
 		}
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
 			"suites":     store.ListEvalSuites(),
-			"eval_runs":  runs,
+			"eval_runs":  sliceOrEmpty(runs),
 			"judgments":  judgments,
-			"candidates": store.ListCandidates(),
-			"work_items": store.ListWorkItems(),
+			"candidates": sliceOrEmpty(store.ListCandidates()),
+			"work_items": sliceOrEmpty(store.ListWorkItems()),
 			"settings":   store.GetSettings(),
 		})
 	})
@@ -56,7 +57,7 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 			app.WriteError(w, http.StatusNotFound, errors.New("trace not found"))
 			return
 		}
-		app.WriteJSON(w, http.StatusOK, trace)
+		app.WriteJSON(w, http.StatusOK, normalizeTrace(trace))
 	})
 	r.Get("/api/traces/{traceID}/artifacts", func(w http.ResponseWriter, r *http.Request) {
 		traceID := chi.URLParam(r, "traceID")
@@ -65,7 +66,7 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 			app.WriteError(w, http.StatusNotFound, errors.New("trace not found"))
 			return
 		}
-		app.WriteJSON(w, http.StatusOK, map[string]interface{}{"artifacts": trace.Artifacts})
+		app.WriteJSON(w, http.StatusOK, map[string]interface{}{"artifacts": sliceOrEmpty(trace.Artifacts)})
 	})
 	r.Post("/api/traces/{traceID}/ratings", func(w http.ResponseWriter, r *http.Request) {
 		traceID := chi.URLParam(r, "traceID")
@@ -110,20 +111,20 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 	})
 	r.Get("/api/proposals", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
-			"proposals":          store.ListProposals(),
-			"proposal_slots":     store.GetProposalSlots(),
-			"candidates":         store.ListCandidates(),
-			"proposal_memory":    store.ListProposalMemories(),
-			"repo_change_jobs":   store.ListRepoChangeJobs(),
-			"pr_attempts":        store.ListPRAttempts(),
-			"post_merge_replays": store.ListPostMergeReplays(),
-			"work_items":         store.ListWorkItems(),
+			"proposals":          sliceOrEmpty(store.ListProposals()),
+			"proposal_slots":     normalizeProposalSlots(store.GetProposalSlots()),
+			"candidates":         sliceOrEmpty(store.ListCandidates()),
+			"proposal_memory":    sliceOrEmpty(store.ListProposalMemories()),
+			"repo_change_jobs":   sliceOrEmpty(store.ListRepoChangeJobs()),
+			"pr_attempts":        sliceOrEmpty(store.ListPRAttempts()),
+			"post_merge_replays": sliceOrEmpty(store.ListPostMergeReplays()),
+			"work_items":         sliceOrEmpty(store.ListWorkItems()),
 			"settings":           store.GetSettings(),
 		})
 	})
 	r.Get("/api/work-items", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
-			"work_items": store.ListWorkItems(),
+			"work_items": sliceOrEmpty(store.ListWorkItems()),
 		})
 	})
 	r.Get("/api/settings", func(w http.ResponseWriter, r *http.Request) {
@@ -146,9 +147,9 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 	})
 	r.Get("/api/candidates", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
-			"candidates":      store.ListCandidates(),
-			"proposal_memory": store.ListProposalMemories(),
-			"proposal_slots":  store.GetProposalSlots(),
+			"candidates":      sliceOrEmpty(store.ListCandidates()),
+			"proposal_memory": sliceOrEmpty(store.ListProposalMemories()),
+			"proposal_slots":  normalizeProposalSlots(store.GetProposalSlots()),
 		})
 	})
 	r.Post("/api/proposals/promote", func(w http.ResponseWriter, r *http.Request) {
@@ -188,6 +189,28 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 	ui := reviewui.NewHandler(cfg.PublicBaseURL)
 	r.Handle("/*", ui)
 	return r
+}
+
+func sliceOrEmpty[T any](items []T) []T {
+	if items == nil {
+		return []T{}
+	}
+	return items
+}
+
+func normalizeTrace(trace events.Trace) events.Trace {
+	trace.Events = sliceOrEmpty(trace.Events)
+	trace.Artifacts = sliceOrEmpty(trace.Artifacts)
+	trace.Reasoning = sliceOrEmpty(trace.Reasoning)
+	trace.ToolCalls = sliceOrEmpty(trace.ToolCalls)
+	trace.SlackActions = sliceOrEmpty(trace.SlackActions)
+	return trace
+}
+
+func normalizeProposalSlots(state storepkg.ProposalSlotState) storepkg.ProposalSlotState {
+	state.ActiveProposalIDs = sliceOrEmpty(state.ActiveProposalIDs)
+	state.StaleProposalIDs = sliceOrEmpty(state.StaleProposalIDs)
+	return state
 }
 
 func RunCron(cfg config.Config, store storepkg.Repository, once bool) {
