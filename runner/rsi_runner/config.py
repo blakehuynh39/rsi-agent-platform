@@ -10,7 +10,7 @@ class RunnerConfig:
     host: str = "0.0.0.0"
     port: int = 8090
     model: str = "openai/gpt-5.4"
-    reasoning_effort: str = "medium"
+    reasoning_effort: str = "xhigh"
     public_base_url: str = "http://localhost:8090"
 
     @classmethod
@@ -20,6 +20,6 @@ class RunnerConfig:
             host=os.getenv("RSI_RUNNER_HOST", "0.0.0.0"),
             port=int(os.getenv("RSI_RUNNER_PORT", "8090")),
             model=os.getenv("RSI_RUNNER_MODEL", "openai/gpt-5.4"),
-            reasoning_effort=os.getenv("RSI_RUNNER_REASONING_EFFORT", "medium"),
+            reasoning_effort=os.getenv("RSI_RUNNER_REASONING_EFFORT", "xhigh"),
             public_base_url=os.getenv("RSI_RUNNER_PUBLIC_BASE_URL", "http://localhost:8090"),
         )

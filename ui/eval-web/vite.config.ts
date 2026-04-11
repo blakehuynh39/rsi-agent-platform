@@ -6,6 +6,9 @@ export default defineConfig({
   build: {
     outDir: "../../internal/reviewui/dist",
     emptyOutDir: true
+  },
+  test: {
+    environment: "jsdom",
+    setupFiles: "./src/test-setup.ts"
   }
 });
-

@@ -2,9 +2,9 @@ GO ?= go
 PNPM ?= corepack pnpm
 PYTHON ?= python3
 
-.PHONY: ci test build ui-install ui-build runner-test runner-smoke improvement-cron-once
+.PHONY: ci test build ui-install ui-build ui-test runner-test runner-smoke improvement-cron-once
 
-ci: ui-build
+ci: ui-test ui-build
 	$(GO) test ./...
 	$(GO) build ./cmd/...
 	PYTHONPATH=runner $(PYTHON) -m unittest discover -s runner/tests
@@ -20,6 +20,9 @@ ui-install:
 
 ui-build: ui-install
 	cd ui/eval-web && $(PNPM) build
+
+ui-test: ui-install
+	cd ui/eval-web && $(PNPM) test
 
 runner-test:
 	PYTHONPATH=runner $(PYTHON) -m unittest discover -s runner/tests

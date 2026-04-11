@@ -21,7 +21,7 @@ import (
 func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 	r := app.NewBaseRouter(cfg)
 	r.Get("/api/traces", func(w http.ResponseWriter, r *http.Request) {
-		app.WriteJSON(w, http.StatusOK, map[string]interface{}{"traces": sliceOrEmpty(store.ListTraces())})
+		app.WriteJSON(w, http.StatusOK, map[string]interface{}{"traces": buildTraceList(store)})
 	})
 	r.Get("/api/evals", func(w http.ResponseWriter, r *http.Request) {
 		runs := store.ListEvalRuns()
@@ -52,12 +52,12 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 	})
 	r.Get("/api/traces/{traceID}", func(w http.ResponseWriter, r *http.Request) {
 		traceID := chi.URLParam(r, "traceID")
-		trace, ok := store.GetTrace(traceID)
+		payload, ok := buildTraceDetail(store, traceID)
 		if !ok {
 			app.WriteError(w, http.StatusNotFound, errors.New("trace not found"))
 			return
 		}
-		app.WriteJSON(w, http.StatusOK, normalizeTrace(trace))
+		app.WriteJSON(w, http.StatusOK, payload)
 	})
 	r.Get("/api/traces/{traceID}/artifacts", func(w http.ResponseWriter, r *http.Request) {
 		traceID := chi.URLParam(r, "traceID")
@@ -111,7 +111,7 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 	})
 	r.Get("/api/proposals", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
-			"proposals":          sliceOrEmpty(store.ListProposals()),
+			"proposals":          normalizeProposals(store.ListProposals()),
 			"proposal_slots":     normalizeProposalSlots(store.GetProposalSlots()),
 			"candidates":         sliceOrEmpty(store.ListCandidates()),
 			"proposal_memory":    sliceOrEmpty(store.ListProposalMemories()),
@@ -122,9 +122,23 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 			"settings":           store.GetSettings(),
 		})
 	})
+	r.Get("/api/proposals/{proposalID}", func(w http.ResponseWriter, r *http.Request) {
+		proposalID := chi.URLParam(r, "proposalID")
+		payload, ok := buildProposalDetail(store, proposalID)
+		if !ok {
+			app.WriteError(w, http.StatusNotFound, errors.New("proposal not found"))
+			return
+		}
+		app.WriteJSON(w, http.StatusOK, payload)
+	})
 	r.Get("/api/work-items", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
 			"work_items": sliceOrEmpty(store.ListWorkItems()),
+		})
+	})
+	r.Get("/api/runtime", func(w http.ResponseWriter, r *http.Request) {
+		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
+			"roles": buildRuntimeStatus(cfg),
 		})
 	})
 	r.Get("/api/settings", func(w http.ResponseWriter, r *http.Request) {

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import json
+import os
 from typing import Any, Dict, List
 
 ROLE_TASK_TYPES = {
@@ -14,8 +15,19 @@ ROLE_TASK_TYPES = {
 
 try:
     from run_agent import AIAgent  # type: ignore
-except Exception:  # pragma: no cover - best-effort runtime import
+    from hermes_constants import parse_reasoning_effort  # type: ignore
+except Exception:  # pragma: no cover - import depends on external Hermes install
     AIAgent = None
+
+    def parse_reasoning_effort(effort: str) -> Dict[str, Any] | None:
+        level = (effort or "").strip().lower()
+        if not level:
+            return None
+        if level == "none":
+            return {"enabled": False}
+        if level in {"minimal", "low", "medium", "high", "xhigh"}:
+            return {"enabled": True, "effort": level}
+        return None
 
 
 @dataclass
@@ -80,32 +92,135 @@ class RunnerTaskRequest:
 
 class HermesRuntime:
     def __init__(self, model: str, reasoning_effort: str, role: str = "prod") -> None:
-        self._model = model
+        self._configured_model = model
         self._reasoning_effort = reasoning_effort
         self._role = role
-        self._available = AIAgent is not None
+        self._backend = "hermes-aiagent"
+        self._provider = "hermes"
+        self._api_mode = ""
+        self._base_url = ""
+        self._api_key = ""
+        self._provider_model = model
+        self._provider_hint = ""
+        self._reasoning_config = parse_reasoning_effort(reasoning_effort) or {"enabled": True, "effort": "medium"}
+        self._openai_configured = False
+        self._configure_runtime()
+        self._available = AIAgent is not None and self._runtime_has_credentials()
+
+    def _configure_runtime(self) -> None:
+        if self._configured_model.startswith("openai/"):
+            self._provider = "openai"
+            self._provider_hint = "custom"
+            self._provider_model = self._configured_model.split("/", 1)[1]
+            self._api_mode = "codex_responses"
+            self._base_url = first_non_empty(
+                os.getenv("RSI_OPENAI_BASE_URL"),
+                os.getenv("OPENAI_BASE_URL"),
+                "https://api.openai.com/v1",
+            )
+            self._api_key = first_non_empty(os.getenv("RSI_OPENAI_API_KEY"), os.getenv("OPENAI_API_KEY"))
+            self._openai_configured = bool(self._api_key)
+            return
+
+        self._provider = first_non_empty(os.getenv("RSI_HERMES_PROVIDER"), "hermes")
+        self._provider_hint = first_non_empty(os.getenv("RSI_HERMES_PROVIDER_HINT"), "")
+        self._base_url = first_non_empty(os.getenv("RSI_HERMES_BASE_URL"), "")
+        self._api_key = first_non_empty(os.getenv("RSI_HERMES_API_KEY"), "")
+        self._api_mode = first_non_empty(os.getenv("RSI_HERMES_API_MODE"), "")
+
+    def _runtime_has_credentials(self) -> bool:
+        if self._configured_model.startswith("openai/"):
+            return bool(self._api_key)
+        return True
 
     @property
     def available(self) -> bool:
         return self._available
 
+    @property
+    def metadata(self) -> Dict[str, Any]:
+        return {
+            "status": "ok" if self.available else "degraded",
+            "role": self._role,
+            "backend": self._backend,
+            "provider": self._provider,
+            "model": self._configured_model,
+            "provider_model": self._provider_model,
+            "reasoning_effort": self._reasoning_effort,
+            "api_mode": self._api_mode,
+            "available": self.available,
+            "hermes_available": AIAgent is not None,
+            "openai_configured": self._openai_configured,
+        }
+
     def execute(self, prompt: str, system_message: str | None = None) -> HermesExecutionResult:
-        if not self._available:
+        if AIAgent is None:
             return HermesExecutionResult(
                 ok=False,
                 message="Hermes runtime is not installed in this environment.",
-                provider="stub",
-                raw={"prompt": prompt, "system_message": system_message},
+                provider=self._backend,
+                raw=self._base_raw(prompt=prompt, system_message=system_message),
+            )
+        if not self._runtime_has_credentials():
+            return HermesExecutionResult(
+                ok=False,
+                message="Hermes OpenAI runtime selected but RSI_OPENAI_API_KEY / OPENAI_API_KEY is not configured.",
+                provider=self._backend,
+                raw=self._base_raw(prompt=prompt, system_message=system_message),
             )
 
-        agent = AIAgent(model=self._model, quiet_mode=True)
-        response = agent.chat(prompt if system_message is None else f"{system_message}\n\n{prompt}")
+        agent_kwargs: Dict[str, Any] = {
+            "model": self._provider_model,
+            "quiet_mode": True,
+            "reasoning_config": self._reasoning_config,
+            "enabled_toolsets": [],
+            "skip_context_files": True,
+            "skip_memory": True,
+            "persist_session": False,
+            "max_iterations": 1,
+        }
+        if self._provider_hint:
+            agent_kwargs["provider"] = self._provider_hint
+        if self._api_mode:
+            agent_kwargs["api_mode"] = self._api_mode
+        if self._base_url:
+            agent_kwargs["base_url"] = self._base_url
+        if self._api_key:
+            agent_kwargs["api_key"] = self._api_key
+
+        try:
+            agent = AIAgent(**agent_kwargs)
+            response = agent.run_conversation(prompt, system_message=system_message)["final_response"]
+        except Exception as exc:
+            return HermesExecutionResult(
+                ok=False,
+                message=f"Hermes execution failed: {exc}",
+                provider=self._backend,
+                raw={**self._base_raw(prompt=prompt, system_message=system_message), "error": str(exc)},
+            )
+
         return HermesExecutionResult(
             ok=True,
             message=response,
-            provider="hermes",
-            raw={"model": self._model, "reasoning_effort": self._reasoning_effort},
+            provider=self._backend,
+            raw=self._base_raw(prompt=prompt, system_message=system_message),
         )
+
+    def _base_raw(self, prompt: str = "", system_message: str | None = None) -> Dict[str, Any]:
+        return {
+            "role": self._role,
+            "backend": self._backend,
+            "provider": self._provider,
+            "provider_hint": self._provider_hint,
+            "api_mode": self._api_mode,
+            "model": self._configured_model,
+            "provider_model": self._provider_model,
+            "reasoning_effort": self._reasoning_effort,
+            "reasoning_config": self._reasoning_config,
+            "base_url": self._base_url,
+            "prompt": prompt,
+            "system_message": system_message,
+        }
 
     def execute_task(self, task: RunnerTaskRequest) -> HermesExecutionResult:
         if task.task_type not in ROLE_TASK_TYPES.get(self._role, {self._role}):
@@ -149,6 +264,8 @@ class HermesRuntime:
             f"Runner role: {self._role}",
             f"Task type: {task.task_type}",
             f"Repository: {task.repo}",
+            f"Configured model: {self._configured_model}",
+            f"Reasoning effort: {self._reasoning_effort}",
         ]
         if task.repo_ref:
             parts.append(f"Repository ref: {task.repo_ref}")
@@ -175,7 +292,7 @@ class HermesRuntime:
         if task.artifact_destination:
             parts.append(f"Artifact destination: {task.artifact_destination}")
         if task.rejected_proposal_context:
-            parts.append(f"Prior rejected/dismissed context: {task.rejected_proposal_context}")
+            parts.append(f"Prior rejected/dismissed context: {json.dumps(task.rejected_proposal_context)}")
         if task.response_mode:
             parts.append(f"Response mode: {task.response_mode}")
         if task.approval_mode:
@@ -203,6 +320,7 @@ class HermesRuntime:
                 {
                     "step_type": "fallback",
                     "summary": "Runtime returned unstructured text; preserving it as the visible answer.",
+                    "alternatives": [],
                     "confidence": 0.5,
                     "decision": text,
                 }
@@ -213,3 +331,10 @@ class HermesRuntime:
             "context_summary": "",
             "self_critique": "",
         }
+
+
+def first_non_empty(*values: str | None) -> str:
+    for value in values:
+        if value and value.strip():
+            return value.strip()
+    return ""

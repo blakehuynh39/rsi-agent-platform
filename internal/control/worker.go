@@ -1,7 +1,6 @@
 package control
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
@@ -11,29 +10,16 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
+	"github.com/piplabs/rsi-agent-platform/internal/runnerutil"
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
 
-type runnerReasoningStep struct {
-	StepType     string   `json:"step_type"`
-	Summary      string   `json:"summary"`
-	Alternatives []string `json:"alternatives"`
-	Confidence   float64  `json:"confidence"`
-	Decision     string   `json:"decision"`
-}
-
-type runnerStructuredOutput struct {
-	ContextSummary   string                `json:"context_summary"`
-	ReplyDraft       string                `json:"reply_draft"`
-	FinalAnswer      string                `json:"final_answer"`
-	Confidence       float64               `json:"confidence"`
-	SelfCritique     string                `json:"self_critique"`
-	VisibleReasoning []runnerReasoningStep `json:"visible_reasoning"`
-}
-
 func RunWorker(cfg config.Config, store storepkg.Store) error {
-	runnerClient := clients.NewRunnerClient(cfg.RunnerBaseURL)
+	runnerClients := map[string]*clients.RunnerClient{
+		"prod":      clients.NewRunnerClient(cfg.RunnerURLForRole("prod")),
+		"proactive": clients.NewRunnerClient(cfg.RunnerURLForRole("proactive")),
+	}
 	toolClient := clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL)
 	workerID := fmt.Sprintf("%s-worker", cfg.ServiceName)
 	for {
@@ -45,6 +31,7 @@ func RunWorker(cfg config.Config, store storepkg.Store) error {
 			time.Sleep(cfg.WorkerPollInterval)
 			continue
 		}
+		runnerClient := runnerClients[runnerRoleForQueue(item.Queue)]
 		if err := processWorkflowItem(cfg, store, runnerClient, toolClient, item); err != nil {
 			log.Printf("control-plane worker item=%s error=%v", item.ID, err)
 			_, _ = store.FailWorkItem(item.ID, err.Error())
@@ -167,7 +154,7 @@ func processWorkflowItem(cfg config.Config, store storepkg.Store, runnerClient *
 	if err != nil {
 		return err
 	}
-	runnerOutput := parseRunnerOutput(runnerResp)
+	runnerOutput := runnerutil.ParseStructuredOutput(runnerResp)
 	runnerCompleted := time.Now().UTC()
 
 	allowed, policyVerdict := replyPolicy(store, workflow.Kind, trace.Summary.ThreadKey, ingestion.ChannelID)
@@ -228,7 +215,7 @@ func processWorkflowItem(cfg config.Config, store storepkg.Store, runnerClient *
 		})
 	}
 
-	finalReasoning := reasoningStepsFromRunner(trace.Summary.TraceID, trace.Summary.WorkflowID, runnerOutput, runnerCompleted)
+	finalReasoning := runnerutil.ToTraceReasoning(trace.Summary.TraceID, trace.Summary.WorkflowID, runnerOutput, runnerCompleted)
 	if runnerOutput.SelfCritique != "" {
 		finalReasoning = append(finalReasoning, events.ReasoningStep{
 			ID:         fmt.Sprintf("reason-self-critique-%d", runnerCompleted.UnixNano()),
@@ -454,6 +441,15 @@ func toolPlanForIntent(intent string) []string {
 	}
 }
 
+func runnerRoleForQueue(name queue.QueueName) string {
+	switch name {
+	case queue.ProactiveQueue:
+		return "proactive"
+	default:
+		return "prod"
+	}
+}
+
 func replyPolicy(store storepkg.Store, workflowKind string, threadKey string, channelID string) (bool, string) {
 	for _, item := range store.ListThreadPolicies() {
 		if item.ThreadKey == threadKey && item.Muted {
@@ -480,50 +476,6 @@ func replyPolicy(store storepkg.Store, workflowKind string, threadKey string, ch
 		return false, "workflow_kind_not_allowed"
 	}
 	return false, "channel_policy_missing"
-}
-
-func parseRunnerOutput(resp clients.RunnerResponse) runnerStructuredOutput {
-	if raw, ok := resp.Raw["structured_output"]; ok {
-		data, _ := json.Marshal(raw)
-		var out runnerStructuredOutput
-		if err := json.Unmarshal(data, &out); err == nil {
-			return out
-		}
-	}
-	var out runnerStructuredOutput
-	if err := json.Unmarshal([]byte(resp.Message), &out); err == nil {
-		return out
-	}
-	return runnerStructuredOutput{
-		FinalAnswer: resp.Message,
-		Confidence:  0.5,
-		VisibleReasoning: []runnerReasoningStep{
-			{
-				StepType:   "fallback",
-				Summary:    "Runner returned unstructured output; stored raw response as the visible answer.",
-				Confidence: 0.5,
-				Decision:   resp.Message,
-			},
-		},
-	}
-}
-
-func reasoningStepsFromRunner(traceID string, workflowID string, output runnerStructuredOutput, createdAt time.Time) []events.ReasoningStep {
-	out := make([]events.ReasoningStep, 0, len(output.VisibleReasoning))
-	for index, step := range output.VisibleReasoning {
-		out = append(out, events.ReasoningStep{
-			ID:           fmt.Sprintf("reason-runner-%d-%d", createdAt.UnixNano(), index),
-			TraceID:      traceID,
-			WorkflowID:   workflowID,
-			StepType:     firstNonEmpty(step.StepType, "visible_reasoning"),
-			Summary:      step.Summary,
-			Alternatives: step.Alternatives,
-			Confidence:   step.Confidence,
-			Decision:     step.Decision,
-			CreatedAt:    createdAt,
-		})
-	}
-	return out
 }
 
 func evidenceRefsFromContext(contextRefs []map[string]any) []events.EvidenceRef {

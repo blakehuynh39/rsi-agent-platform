@@ -22,6 +22,10 @@ type Config struct {
 	ProposalQueueURL          string
 	SandboxQueueURL           string
 	RunnerBaseURL             string
+	ProdRunnerBaseURL         string
+	ProactiveRunnerBaseURL    string
+	EvalRunnerBaseURL         string
+	ProposalRunnerBaseURL     string
 	ToolGatewayBaseURL        string
 	WorkerPollInterval        time.Duration
 	WorkItemLeaseDuration     time.Duration
@@ -61,6 +65,7 @@ type Config struct {
 
 func Load(serviceName string) Config {
 	environment := stringEnv("RSI_ENV", "development")
+	runnerBaseURL := stringEnv("RSI_RUNNER_BASE_URL", "http://localhost:8090")
 	return Config{
 		ServiceName:               stringEnv("RSI_SERVICE_NAME", serviceName),
 		Environment:               environment,
@@ -75,7 +80,11 @@ func Load(serviceName string) Config {
 		EvalQueueURL:              stringEnv("RSI_EVAL_QUEUE_URL", "memory://eval"),
 		ProposalQueueURL:          stringEnv("RSI_PROPOSAL_QUEUE_URL", "memory://proposal"),
 		SandboxQueueURL:           stringEnv("RSI_SANDBOX_QUEUE_URL", "memory://sandbox"),
-		RunnerBaseURL:             stringEnv("RSI_RUNNER_BASE_URL", "http://localhost:8090"),
+		RunnerBaseURL:             runnerBaseURL,
+		ProdRunnerBaseURL:         stringEnv("RSI_RUNNER_PROD_BASE_URL", runnerBaseURL),
+		ProactiveRunnerBaseURL:    stringEnv("RSI_RUNNER_PROACTIVE_BASE_URL", runnerBaseURL),
+		EvalRunnerBaseURL:         stringEnv("RSI_RUNNER_EVAL_BASE_URL", runnerBaseURL),
+		ProposalRunnerBaseURL:     stringEnv("RSI_RUNNER_PROPOSAL_BASE_URL", runnerBaseURL),
 		ToolGatewayBaseURL:        stringEnv("RSI_TOOL_GATEWAY_BASE_URL", "http://localhost:8082"),
 		WorkerPollInterval:        durationEnv("RSI_WORKER_POLL_INTERVAL", 5*time.Second),
 		WorkItemLeaseDuration:     durationEnv("RSI_WORK_ITEM_LEASE_DURATION", 30*time.Second),
@@ -111,6 +120,30 @@ func Load(serviceName string) Config {
 		DefaultReasoningVerbosity: stringEnv("RSI_REASONING_VERBOSITY", "verbose"),
 		DefaultProposalCap:        intEnv("RSI_ACTIVE_PROPOSAL_CAP", 2),
 		ProposalPromoterInterval:  durationEnv("RSI_PROPOSAL_PROMOTER_INTERVAL", 15*time.Minute),
+	}
+}
+
+func (c Config) RunnerURLForRole(role string) string {
+	switch strings.TrimSpace(role) {
+	case "prod":
+		return firstNonEmpty(c.ProdRunnerBaseURL, c.RunnerBaseURL)
+	case "proactive":
+		return firstNonEmpty(c.ProactiveRunnerBaseURL, c.RunnerBaseURL)
+	case "eval":
+		return firstNonEmpty(c.EvalRunnerBaseURL, c.RunnerBaseURL)
+	case "proposal":
+		return firstNonEmpty(c.ProposalRunnerBaseURL, c.RunnerBaseURL)
+	default:
+		return c.RunnerBaseURL
+	}
+}
+
+func (c Config) RunnerURLs() map[string]string {
+	return map[string]string{
+		"prod":      c.RunnerURLForRole("prod"),
+		"proactive": c.RunnerURLForRole("proactive"),
+		"eval":      c.RunnerURLForRole("eval"),
+		"proposal":  c.RunnerURLForRole("proposal"),
 	}
 }
 
@@ -181,4 +214,14 @@ func defaultStoreBackend(environment string) string {
 		return "postgres"
 	}
 	return "memory"
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		value = strings.TrimSpace(value)
+		if value != "" {
+			return value
+		}
+	}
+	return ""
 }

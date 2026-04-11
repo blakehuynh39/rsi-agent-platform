@@ -41,6 +41,8 @@ type Store interface {
 	ListExperiments() []registry.ExperimentRecord
 	ListTraces() []events.TraceSummary
 	GetTrace(traceID string) (events.Trace, bool)
+	ListRatings(traceID string) []review.HumanRating
+	ListImprovementNotes(traceID string) []review.ImprovementNote
 	AddRating(traceID string, rating review.HumanRating) (review.HumanRating, error)
 	AddImprovementNote(traceID string, note review.ImprovementNote) (review.ImprovementNote, error)
 	ScheduleReplay(traceID string, requestedBy string) (queue.WorkItem, error)
@@ -583,6 +585,18 @@ func (s *MemoryStore) GetTrace(traceID string) (events.Trace, bool) {
 	defer s.mu.RUnlock()
 	trace, ok := s.traces[traceID]
 	return trace, ok
+}
+
+func (s *MemoryStore) ListRatings(traceID string) []review.HumanRating {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return append([]review.HumanRating(nil), s.ratings[traceID]...)
+}
+
+func (s *MemoryStore) ListImprovementNotes(traceID string) []review.ImprovementNote {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return append([]review.ImprovementNote(nil), s.notes[traceID]...)
 }
 
 func (s *MemoryStore) AddRating(traceID string, rating review.HumanRating) (review.HumanRating, error) {

@@ -1531,6 +1531,22 @@ func (p *PostgresStore) GetTrace(traceID string) (events.Trace, bool) {
 	return store.GetTrace(traceID)
 }
 
+func (p *PostgresStore) ListRatings(traceID string) []review.HumanRating {
+	store, err := p.readStore()
+	if err != nil {
+		return []review.HumanRating{}
+	}
+	return store.ListRatings(traceID)
+}
+
+func (p *PostgresStore) ListImprovementNotes(traceID string) []review.ImprovementNote {
+	store, err := p.readStore()
+	if err != nil {
+		return []review.ImprovementNote{}
+	}
+	return store.ListImprovementNotes(traceID)
+}
+
 func (p *PostgresStore) AddRating(traceID string, rating review.HumanRating) (item review.HumanRating, err error) {
 	err = p.mutate(func(store *MemoryStore) error {
 		var inner error

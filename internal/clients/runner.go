@@ -40,6 +40,20 @@ type RunnerResponse struct {
 	Raw      map[string]interface{} `json:"raw"`
 }
 
+type RuntimeResponse struct {
+	Status           string `json:"status"`
+	Role             string `json:"role"`
+	Backend          string `json:"backend"`
+	Provider         string `json:"provider"`
+	Model            string `json:"model"`
+	ProviderModel    string `json:"provider_model"`
+	APIMode          string `json:"api_mode"`
+	ReasoningEffort  string `json:"reasoning_effort"`
+	Available        bool   `json:"available"`
+	HermesAvailable  bool   `json:"hermes_available"`
+	OpenAIConfigured bool   `json:"openai_configured"`
+}
+
 type RunnerClient struct {
 	baseURL    string
 	httpClient *http.Client
@@ -75,6 +89,26 @@ func (c *RunnerClient) Execute(task RunnerTask) (RunnerResponse, error) {
 	var out RunnerResponse
 	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
 		return RunnerResponse{}, err
+	}
+	return out, nil
+}
+
+func (c *RunnerClient) Runtime() (RuntimeResponse, error) {
+	req, err := http.NewRequest(http.MethodGet, c.baseURL+"/runtimez", nil)
+	if err != nil {
+		return RuntimeResponse{}, err
+	}
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return RuntimeResponse{}, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		return RuntimeResponse{}, fmt.Errorf("runner returned %d", resp.StatusCode)
+	}
+	var out RuntimeResponse
+	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+		return RuntimeResponse{}, err
 	}
 	return out, nil
 }

@@ -22,15 +22,8 @@ class RunnerHandler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self) -> None:  # noqa: N802
-        if self.path in {"/healthz", "/readyz"}:
-            self._json(
-                200,
-                {
-                    "status": "ok",
-                    "role": self.config.role,
-                    "hermes_available": self.runtime.available,
-                },
-            )
+        if self.path in {"/healthz", "/readyz", "/runtimez"}:
+            self._json(200, self.runtime.metadata)
             return
         self._json(404, {"error": "not found"})
 
@@ -74,7 +67,16 @@ def run_once() -> None:
     config = RunnerConfig.from_env()
     runtime = HermesRuntime(model=config.model, reasoning_effort=config.reasoning_effort, role=config.role)
     result = runtime.execute("Summarize the current RSI runner bootstrap state in one sentence.")
-    print(json.dumps({"ok": result.ok, "message": result.message, "provider": result.provider}))
+    print(
+        json.dumps(
+            {
+                "ok": result.ok,
+                "message": result.message,
+                "provider": result.provider,
+                "runtime": runtime.metadata,
+            }
+        )
+    )
 
 
 def main() -> None:
