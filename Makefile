@@ -1,17 +1,28 @@
 GO ?= go
-PNPM ?= pnpm
+PNPM ?= corepack pnpm
 PYTHON ?= python3
 
-.PHONY: test build ui-build runner-smoke improvement-cron-once
+.PHONY: ci test build ui-install ui-build runner-test runner-smoke improvement-cron-once
 
-test:
+ci: ui-build
+	$(GO) test ./...
+	$(GO) build ./cmd/...
+	PYTHONPATH=runner $(PYTHON) -m unittest discover -s runner/tests
+
+test: ui-build
 	$(GO) test ./...
 
-build:
+build: ui-build
 	$(GO) build ./cmd/...
 
-ui-build:
+ui-install:
+	cd ui/eval-web && $(PNPM) install --frozen-lockfile
+
+ui-build: ui-install
 	cd ui/eval-web && $(PNPM) build
+
+runner-test:
+	PYTHONPATH=runner $(PYTHON) -m unittest discover -s runner/tests
 
 runner-smoke:
 	cd runner && $(PYTHON) -m rsi_runner.main --once

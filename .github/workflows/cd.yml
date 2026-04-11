@@ -1,0 +1,221 @@
+name: Build, Push, and Deploy Stage Images
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      skip_story_deployments_bump:
+        description: Skip updating story-deployments after pushing images
+        required: false
+        type: boolean
+        default: false
+
+env:
+  AWS_REGION: us-east-1
+  GO_IMAGE_REPOSITORY: rsi-agent-platform
+  RUNNER_IMAGE_REPOSITORY: rsi-agent-platform-runner
+  SANDBOX_IMAGE_REPOSITORY: rsi-agent-platform-sandbox
+  IMAGE_VERSION: ${{ github.sha }}
+  STORY_DEPLOYMENTS_REPOSITORY: storyprotocol/story-deployments
+  STORY_DEPLOYMENTS_VALUES_FILE: rsi-platform/rsi-agent-platform/use1-stage.yaml
+  CONTROL_PLANE_TAG: control-plane-${{ github.sha }}
+  TOOL_GATEWAY_TAG: tool-gateway-${{ github.sha }}
+  IMPROVEMENT_PLANE_TAG: improvement-plane-${{ github.sha }}
+  RUNNER_TAG: runner-${{ github.sha }}
+  SANDBOX_TAG: sandbox-${{ github.sha }}
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: rsi-agent-platform-cd-main
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+          run_install: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: ui/eval-web/pnpm-lock.yaml
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install runner package
+        run: python -m pip install -e ./runner
+
+      - name: Run repo validation
+        run: make ci
+
+  build-and-push:
+    needs: validate
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: control-plane
+            dockerfile: ./Dockerfile
+            repository: rsi-agent-platform
+            tag_prefix: control-plane
+            build_args: |
+              SERVICE=control-plane
+          - name: tool-gateway
+            dockerfile: ./Dockerfile
+            repository: rsi-agent-platform
+            tag_prefix: tool-gateway
+            build_args: |
+              SERVICE=tool-gateway
+          - name: improvement-plane
+            dockerfile: ./Dockerfile
+            repository: rsi-agent-platform
+            tag_prefix: improvement-plane
+            build_args: |
+              SERVICE=improvement-plane
+          - name: runner
+            dockerfile: ./runner/Dockerfile
+            repository: rsi-agent-platform-runner
+            tag_prefix: runner
+            build_args: ""
+          - name: sandbox
+            dockerfile: ./sandbox/Dockerfile
+            repository: rsi-agent-platform-sandbox
+            tag_prefix: sandbox
+            build_args: ""
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Verify required secrets are configured
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -z "${{ secrets.AWS_ECR_PUSH_ROLE_ARN }}" ]; then
+            echo "Missing repository secret AWS_ECR_PUSH_ROLE_ARN"
+            exit 1
+          fi
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ECR_PUSH_ROLE_ARN }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push ${{ matrix.name }}
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          build-args: ${{ matrix.build_args }}
+          provenance: false
+          sbom: false
+          push: true
+          tags: ${{ format('{0}/{1}:{2}-{3}', steps.login-ecr.outputs.registry, matrix.repository, matrix.tag_prefix, env.IMAGE_VERSION) }}
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}
+
+  bump-story-deployments-main:
+    name: Bump story-deployments RSI image tags
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.skip_story_deployments_bump != true }}
+    concurrency:
+      group: story-deployments-tag-bump-rsi-agent-platform
+      cancel-in-progress: false
+    steps:
+      - name: Verify story-deployments token is configured
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -z "${{ secrets.STORY_DEPLOYMENTS_PUSH_TOKEN }}" ]; then
+            echo "Missing repository secret STORY_DEPLOYMENTS_PUSH_TOKEN"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v6
+
+      - name: Checkout story-deployments (main)
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ env.STORY_DEPLOYMENTS_REPOSITORY }}
+          ref: main
+          token: ${{ secrets.STORY_DEPLOYMENTS_PUSH_TOKEN }}
+          path: story-deployments
+
+      - name: Update RSI image tags in story-deployments
+        working-directory: story-deployments
+        run: |
+          set -euo pipefail
+
+          python3 "${GITHUB_WORKSPACE}/scripts/update_story_deployments_tags.py" \
+            --file "${{ env.STORY_DEPLOYMENTS_VALUES_FILE }}" \
+            --control-plane-tag "${{ env.CONTROL_PLANE_TAG }}" \
+            --tool-gateway-tag "${{ env.TOOL_GATEWAY_TAG }}" \
+            --improvement-plane-tag "${{ env.IMPROVEMENT_PLANE_TAG }}" \
+            --runner-tag "${{ env.RUNNER_TAG }}" \
+            --sandbox-tag "${{ env.SANDBOX_TAG }}"
+
+          git diff -- "${{ env.STORY_DEPLOYMENTS_VALUES_FILE }}"
+
+      - name: Commit and push to story-deployments main
+        working-directory: story-deployments
+        env:
+          FILE: ${{ env.STORY_DEPLOYMENTS_VALUES_FILE }}
+          TARGET_VERSION: ${{ env.IMAGE_VERSION }}
+        run: |
+          set -euo pipefail
+
+          if git diff --quiet -- "$FILE"; then
+            echo "No changes needed; RSI tags already point at ${TARGET_VERSION}"
+            exit 0
+          fi
+
+          git config user.name "rsi-agent-platform-deploy-bot"
+          git config user.email "rsi-agent-platform-deploy-bot@users.noreply.github.com"
+
+          git add "$FILE"
+          git commit -m "chore(stage): bump rsi-agent-platform images to ${TARGET_VERSION}"
+
+          for attempt in 1 2 3 4 5; do
+            if git push origin main; then
+              echo "Push succeeded on attempt ${attempt}"
+              exit 0
+            fi
+
+            echo "Push raced with another update; rebasing on origin/main and retrying (attempt ${attempt})"
+            git pull --rebase origin main
+            sleep $((attempt * 2))
+          done
+
+          echo "Failed to push story-deployments update after retries"
+          exit 1

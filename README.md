@@ -17,7 +17,7 @@ the Python execution runtime for live, proactive, eval, proposal, and repo-chang
 ## Quick start
 
 ```bash
-go test ./...
+make ci
 go run ./cmd/improvement-plane
 ```
 
@@ -36,9 +36,7 @@ go run ./cmd/improvement-plane --mode cron --once
 Build the UI when frontend changes land:
 
 ```bash
-cd ui/eval-web
-pnpm install
-pnpm build
+make ui-build
 ```
 
 Run the Hermes runner wrapper:
@@ -52,3 +50,27 @@ The runner accepts the legacy prompt contract and the new structured task contra
 
 `control-plane --mode slack-surface` uses the legacy Slack env contract:
 `RSI_SLACK_APP_IDENTITY`, `RSI_SLACK_SOCKET_MODE_ENABLED`, `RSI_SLACK_APP_TOKEN`, and `RSI_SLACK_BOT_TOKEN`.
+
+## CI/CD
+
+GitHub Actions is split into:
+
+- PR/push CI in `.github/workflows/ci.yml`
+- stage image build + deploy-repo bump in `.github/workflows/cd.yml`
+
+The CD workflow builds and pushes five stage images on `main`:
+
+- `rsi-agent-platform:control-plane-<sha>`
+- `rsi-agent-platform:tool-gateway-<sha>`
+- `rsi-agent-platform:improvement-plane-<sha>`
+- `rsi-agent-platform-runner:runner-<sha>`
+- `rsi-agent-platform-sandbox:sandbox-<sha>`
+
+After pushing images, CD updates
+`storyprotocol/story-deployments:rsi-platform/rsi-agent-platform/use1-stage.yaml`
+using the same token-driven pattern already used by `depin-backend`.
+
+Repository secrets required for CD:
+
+- `AWS_ECR_PUSH_ROLE_ARN`
+- `STORY_DEPLOYMENTS_PUSH_TOKEN`
