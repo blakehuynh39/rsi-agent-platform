@@ -1,18 +1,31 @@
 package main
 
 import (
+	"flag"
 	"log"
 
+	"github.com/piplabs/rsi-agent-platform/internal/app"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
-	"github.com/piplabs/rsi-agent-platform/internal/platform"
+	improvementplane "github.com/piplabs/rsi-agent-platform/internal/improvementplane"
+	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
 
 func main() {
+	mode := flag.String("mode", "serve", "serve or cron")
+	once := flag.Bool("once", false, "run one cron tick and exit")
+	flag.Parse()
+
 	cfg := config.Load("improvement-plane")
-	store := platform.NewMemoryStore()
+	store := storepkg.MustOpenStore(cfg)
+
+	if *mode == "cron" {
+		log.Printf("starting %s cron interval=%s", cfg.ServiceName, cfg.ProposalPromoterInterval)
+		improvementplane.RunCron(cfg, store, *once)
+		return
+	}
+
 	log.Printf("starting %s on :%d", cfg.ServiceName, cfg.HTTPPort)
-	if err := platform.ListenAndServe(cfg, platform.NewImprovementPlaneRouter(cfg, store)); err != nil {
+	if err := app.ListenAndServe(cfg, improvementplane.NewRouter(cfg, store)); err != nil {
 		log.Fatal(err)
 	}
 }
-

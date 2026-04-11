@@ -82,9 +82,12 @@ textarea {
 }
 
 .trace-list,
+.candidate-list,
 .proposal-list,
+.eval-list,
 .timeline,
-.artifact-list {
+.artifact-list,
+.memory-list {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -111,8 +114,11 @@ textarea {
 }
 
 .proposal-list li,
+.candidate-list li,
+.eval-list li,
 .timeline li,
-.artifact-list li {
+.artifact-list li,
+.memory-list li {
   border: 1px solid rgba(24, 32, 39, 0.08);
   border-radius: 14px;
   padding: 12px;
@@ -131,6 +137,11 @@ textarea {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   margin: 0;
+}
+
+.summary.compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 16px;
 }
 
 .summary dt {
@@ -163,6 +174,11 @@ button {
   background: #1a2834;
 }
 
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 select,
 input,
 textarea {
@@ -189,6 +205,30 @@ textarea {
   font-size: 0.78rem;
 }
 
+.pill.score {
+  background: #d9efe4;
+  color: #18543f;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.inline-actions {
+  min-width: 110px;
+}
+
+.detail-block {
+  margin-top: 16px;
+}
+
+.judgment {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(241, 237, 228, 0.85);
+}
+
 @media (max-width: 960px) {
   .shell {
     grid-template-columns: 1fr;
@@ -198,4 +238,3 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
-

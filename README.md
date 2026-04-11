@@ -1,14 +1,14 @@
 # RSI Agent Platform
 
 Go-first platform control stack for the RSI agent factory, with Hermes retained as
-the Python execution runtime for live, proactive, eval, and proposal workloads.
+the Python execution runtime for live, proactive, eval, proposal, and repo-change workloads.
 
 ## Layout
 
-- `cmd/workflow-api`: Slack ingestion and workflow/session APIs
-- `cmd/control-plane`: routing, policy, approval, sandbox lifecycle
+- `cmd/control-plane`: Slack ingress, workflow/session APIs, routing, policy, approval, orchestration
 - `cmd/tool-gateway`: typed integration facade
-- `cmd/improvement-plane`: trace/review APIs and embedded eval UI
+- `cmd/improvement-plane`: trace/review APIs, eval/proposal cron mode, and embedded eval UI
+- `internal/control`: control-plane HTTP APIs plus Slack socket-mode surface
 - `internal/*`: shared contracts, storage, registries, and review/event logic
 - `runner/`: Python Hermes runner wrapper
 - `ui/eval-web`: React + Vite review UI
@@ -19,6 +19,18 @@ the Python execution runtime for live, proactive, eval, and proposal workloads.
 ```bash
 go test ./...
 go run ./cmd/improvement-plane
+```
+
+Use the shared Postgres-backed store in production:
+
+```bash
+export RSI_ENV=production
+export RSI_STORE_BACKEND=postgres
+export RSI_POSTGRES_URL=postgres://localhost:5432/rsi_agent_platform
+go run ./cmd/control-plane
+go run ./cmd/control-plane --mode slack-surface
+go run ./cmd/improvement-plane
+go run ./cmd/improvement-plane --mode cron --once
 ```
 
 Build the UI when frontend changes land:
@@ -36,3 +48,7 @@ cd runner
 python3 -m rsi_runner.main
 ```
 
+The runner accepts the legacy prompt contract and the new structured task contract for repo-scoped eval and patch-generation work. Set `RSI_RUNNER_ROLE` to `prod`, `proactive`, `eval`, or `proposal` to gate allowed task types.
+
+`control-plane --mode slack-surface` uses the legacy Slack env contract:
+`RSI_SLACK_APP_IDENTITY`, `RSI_SLACK_SOCKET_MODE_ENABLED`, `RSI_SLACK_APP_TOKEN`, and `RSI_SLACK_BOT_TOKEN`.

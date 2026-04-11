@@ -1,0 +1,29 @@
+package toolgateway
+
+import (
+	"encoding/json"
+	"net/http"
+
+	"github.com/go-chi/chi/v5"
+
+	"github.com/piplabs/rsi-agent-platform/internal/app"
+	"github.com/piplabs/rsi-agent-platform/internal/config"
+	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
+)
+
+func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
+	r := app.NewBaseRouter(cfg)
+	r.Get("/api/tools", func(w http.ResponseWriter, r *http.Request) {
+		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
+			"service":      cfg.ServiceName,
+			"capabilities": store.ListCapabilities(),
+		})
+	})
+	r.Post("/api/tools/{toolName}/execute", func(w http.ResponseWriter, r *http.Request) {
+		toolName := chi.URLParam(r, "toolName")
+		input := map[string]interface{}{}
+		_ = json.NewDecoder(r.Body).Decode(&input)
+		app.WriteJSON(w, http.StatusOK, store.ExecuteTool(toolName, input))
+	})
+	return r
+}

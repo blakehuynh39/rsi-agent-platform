@@ -6,7 +6,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Dict
 
 from .config import RunnerConfig
-from .hermes_runtime import HermesRuntime
+from .hermes_runtime import HermesRuntime, RunnerTaskRequest
 
 
 class RunnerHandler(BaseHTTPRequestHandler):
@@ -41,9 +41,13 @@ class RunnerHandler(BaseHTTPRequestHandler):
 
         content_length = int(self.headers.get("Content-Length", "0"))
         payload = json.loads(self.rfile.read(content_length) or "{}")
-        prompt = payload.get("prompt", "")
-        system_message = payload.get("system_message")
-        result = self.runtime.execute(prompt, system_message=system_message)
+        if "task" in payload or "task_type" in payload:
+            task = RunnerTaskRequest.from_payload(payload)
+            result = self.runtime.execute_task(task)
+        else:
+            prompt = payload.get("prompt", "")
+            system_message = payload.get("system_message")
+            result = self.runtime.execute(prompt, system_message=system_message)
         self._json(
             200,
             {
@@ -57,7 +61,7 @@ class RunnerHandler(BaseHTTPRequestHandler):
 
 def run_server() -> None:
     config = RunnerConfig.from_env()
-    runtime = HermesRuntime(model=config.model, reasoning_effort=config.reasoning_effort)
+    runtime = HermesRuntime(model=config.model, reasoning_effort=config.reasoning_effort, role=config.role)
     RunnerHandler.config = config
     RunnerHandler.runtime = runtime
 
@@ -68,7 +72,7 @@ def run_server() -> None:
 
 def run_once() -> None:
     config = RunnerConfig.from_env()
-    runtime = HermesRuntime(model=config.model, reasoning_effort=config.reasoning_effort)
+    runtime = HermesRuntime(model=config.model, reasoning_effort=config.reasoning_effort, role=config.role)
     result = runtime.execute("Summarize the current RSI runner bootstrap state in one sentence.")
     print(json.dumps({"ok": result.ok, "message": result.message, "provider": result.provider}))
 
@@ -85,4 +89,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
