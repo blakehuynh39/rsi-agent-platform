@@ -88,3 +88,27 @@ func TestProcessWorkflowItemRecordsReasoningAndQueuesEval(t *testing.T) {
 		t.Fatal("expected eval work item to be queued")
 	}
 }
+
+func TestReplyPolicyAllowsDirectMessagesWithoutChannelPolicy(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+
+	allowed, verdict := replyPolicy(store, "architecture", "slack:D123:171000002.000100", "D123")
+	if !allowed {
+		t.Fatal("expected direct messages to be allowed")
+	}
+	if verdict != "direct_message" {
+		t.Fatalf("expected direct_message verdict, got %s", verdict)
+	}
+}
+
+func TestReplyPolicyStillBlocksUnknownChannels(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+
+	allowed, verdict := replyPolicy(store, "architecture", "slack:C999:171000002.000100", "C999")
+	if allowed {
+		t.Fatal("expected unknown channels to remain blocked")
+	}
+	if verdict != "channel_policy_missing" {
+		t.Fatalf("expected channel_policy_missing verdict, got %s", verdict)
+	}
+}

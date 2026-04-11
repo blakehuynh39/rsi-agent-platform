@@ -460,6 +460,11 @@ func replyPolicy(store storepkg.Store, workflowKind string, threadKey string, ch
 			return false, "thread_muted"
 		}
 	}
+	// Slack 1:1 DMs use channel IDs prefixed with "D". Allow them by default so
+	// users can talk to RSI directly without having to seed channel policy rows.
+	if strings.HasPrefix(channelID, "D") {
+		return true, "direct_message"
+	}
 	for _, item := range store.ListChannelPolicies() {
 		if item.ChannelID != channelID {
 			continue
