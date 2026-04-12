@@ -10,27 +10,33 @@ import (
 )
 
 type RunnerTask struct {
-	TaskType                string           `json:"task_type"`
-	Repo                    string           `json:"repo"`
-	RepoRef                 string           `json:"repo_ref,omitempty"`
-	Prompt                  string           `json:"prompt"`
-	SystemMessage           string           `json:"system_message,omitempty"`
-	AllowedTools            []string         `json:"allowed_tools,omitempty"`
-	AllowedCommands         []string         `json:"allowed_commands,omitempty"`
-	TimeoutSeconds          int              `json:"timeout_seconds,omitempty"`
-	ExpectedOutputs         []string         `json:"expected_outputs,omitempty"`
-	ArtifactDestination     string           `json:"artifact_destination,omitempty"`
-	ContextSummary          string           `json:"context_summary,omitempty"`
-	RejectedProposalContext []map[string]any `json:"rejected_proposal_context,omitempty"`
-	Intent                  string           `json:"intent,omitempty"`
-	TraceID                 string           `json:"trace_id,omitempty"`
-	WorkflowID              string           `json:"workflow_id,omitempty"`
-	RepoAllowlist           []string         `json:"repo_allowlist,omitempty"`
-	ToolAllowlist           []string         `json:"tool_allowlist,omitempty"`
-	ResponseMode            string           `json:"response_mode,omitempty"`
-	ContextRefs             []map[string]any `json:"context_refs,omitempty"`
-	ApprovalMode            string           `json:"approval_mode,omitempty"`
-	ReasoningVerbosity      string           `json:"reasoning_verbosity,omitempty"`
+	TaskType                  string           `json:"task_type"`
+	Repo                      string           `json:"repo"`
+	RepoRef                   string           `json:"repo_ref,omitempty"`
+	Prompt                    string           `json:"prompt"`
+	SystemMessage             string           `json:"system_message,omitempty"`
+	AllowedTools              []string         `json:"allowed_tools,omitempty"`
+	AllowedCommands           []string         `json:"allowed_commands,omitempty"`
+	TimeoutSeconds            int              `json:"timeout_seconds,omitempty"`
+	ExpectedOutputs           []string         `json:"expected_outputs,omitempty"`
+	ArtifactDestination       string           `json:"artifact_destination,omitempty"`
+	ContextSummary            string           `json:"context_summary,omitempty"`
+	RejectedProposalContext   []map[string]any `json:"rejected_proposal_context,omitempty"`
+	Intent                    string           `json:"intent,omitempty"`
+	TraceID                   string           `json:"trace_id,omitempty"`
+	WorkflowID                string           `json:"workflow_id,omitempty"`
+	ConversationID            string           `json:"conversation_id,omitempty"`
+	CaseID                    string           `json:"case_id,omitempty"`
+	TriggerEventID            string           `json:"trigger_event_id,omitempty"`
+	RecentConversationEntries []map[string]any `json:"recent_conversation_entries,omitempty"`
+	CaseSummary               map[string]any   `json:"case_summary,omitempty"`
+	PriorTraceRefs            []map[string]any `json:"prior_trace_refs,omitempty"`
+	RepoAllowlist             []string         `json:"repo_allowlist,omitempty"`
+	ToolAllowlist             []string         `json:"tool_allowlist,omitempty"`
+	ResponseMode              string           `json:"response_mode,omitempty"`
+	ContextRefs               []map[string]any `json:"context_refs,omitempty"`
+	ApprovalMode              string           `json:"approval_mode,omitempty"`
+	ReasoningVerbosity        string           `json:"reasoning_verbosity,omitempty"`
 }
 
 type RunnerResponse struct {

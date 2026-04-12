@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	"github.com/piplabs/rsi-agent-platform/internal/evals"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
@@ -28,6 +29,11 @@ const (
 type Store interface {
 	ListEvents() []ingestion.EventEnvelope
 	CreateEvent(event ingestion.EventEnvelope) (ingestion.EventEnvelope, error)
+	ListConversations() []conversation.Conversation
+	GetConversation(conversationID string) (conversation.Conversation, bool)
+	ListConversationEntries(conversationID string) []conversation.Entry
+	ListCases() []conversation.Case
+	GetCase(caseID string) (conversation.Case, bool)
 	ListIngestions() []slack.Ingestion
 	CreateIngestion(envelope slack.SlackEnvelope) slack.Ingestion
 	ListWorkflows() []Workflow
@@ -43,6 +49,8 @@ type Store interface {
 	GetTrace(traceID string) (events.Trace, bool)
 	ListRatings(traceID string) []review.HumanRating
 	ListImprovementNotes(traceID string) []review.ImprovementNote
+	ListFeedback(traceID string) []review.FeedbackRecord
+	AddFeedback(record review.FeedbackRecord) (review.FeedbackRecord, error)
 	AddRating(traceID string, rating review.HumanRating) (review.HumanRating, error)
 	AddImprovementNote(traceID string, note review.ImprovementNote) (review.ImprovementNote, error)
 	ScheduleReplay(traceID string, requestedBy string) (queue.WorkItem, error)
@@ -77,32 +85,36 @@ type Store interface {
 }
 
 type MemoryStore struct {
-	mu              sync.RWMutex
-	events          []ingestion.EventEnvelope
-	ingestions      []slack.Ingestion
-	workflows       []Workflow
-	assignments     []Assignment
-	threadPolicies  map[string]policy.ThreadPolicy
-	channelPolicy   []policy.ChannelPolicy
-	ownership       []registry.OwnershipRecord
-	capabilities    []registry.CapabilityRecord
-	templates       []registry.WorkflowTemplate
-	experiments     []registry.ExperimentRecord
-	traces          map[string]events.Trace
-	ratings         map[string][]review.HumanRating
-	notes           map[string][]review.ImprovementNote
-	evalSuites      []evals.Suite
-	evalRuns        map[string]evals.Run
-	evalJudgments   map[string][]evals.Judgment
-	workItems       map[string]queue.WorkItem
-	candidates      map[string]improvement.Candidate
-	proposals       map[string]review.Proposal
-	proposalMemory  []review.ProposalMemory
-	repoChangeJobs  map[string]improvement.RepoChangeJob
-	prAttempts      map[string]improvement.PRAttempt
-	postMergeReplay map[string]improvement.PostMergeReplay
-	cronLeases      map[string]improvement.CronLease
-	settings        improvement.Settings
+	mu                  sync.RWMutex
+	events              []ingestion.EventEnvelope
+	conversations       map[string]conversation.Conversation
+	conversationEntries []conversation.Entry
+	cases               map[string]conversation.Case
+	ingestions          []slack.Ingestion
+	workflows           []Workflow
+	assignments         []Assignment
+	threadPolicies      map[string]policy.ThreadPolicy
+	channelPolicy       []policy.ChannelPolicy
+	ownership           []registry.OwnershipRecord
+	capabilities        []registry.CapabilityRecord
+	templates           []registry.WorkflowTemplate
+	experiments         []registry.ExperimentRecord
+	traces              map[string]events.Trace
+	ratings             map[string][]review.HumanRating
+	notes               map[string][]review.ImprovementNote
+	feedbackRecords     map[string][]review.FeedbackRecord
+	evalSuites          []evals.Suite
+	evalRuns            map[string]evals.Run
+	evalJudgments       map[string][]evals.Judgment
+	workItems           map[string]queue.WorkItem
+	candidates          map[string]improvement.Candidate
+	proposals           map[string]review.Proposal
+	proposalMemory      []review.ProposalMemory
+	repoChangeJobs      map[string]improvement.RepoChangeJob
+	prAttempts          map[string]improvement.PRAttempt
+	postMergeReplay     map[string]improvement.PostMergeReplay
+	cronLeases          map[string]improvement.CronLease
+	settings            improvement.Settings
 }
 
 func NewMemoryStore() *MemoryStore {
@@ -234,6 +246,55 @@ func (s *MemoryStore) createEventLocked(event ingestion.EventEnvelope) (ingestio
 	return event, nil
 }
 
+func (s *MemoryStore) ListConversations() []conversation.Conversation {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	out := make([]conversation.Conversation, 0, len(s.conversations))
+	for _, item := range s.conversations {
+		out = append(out, item)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].UpdatedAt.After(out[j].UpdatedAt) })
+	return out
+}
+
+func (s *MemoryStore) GetConversation(conversationID string) (conversation.Conversation, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	item, ok := s.conversations[conversationID]
+	return item, ok
+}
+
+func (s *MemoryStore) ListConversationEntries(conversationID string) []conversation.Entry {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	out := make([]conversation.Entry, 0)
+	for _, item := range s.conversationEntries {
+		if item.ConversationID == conversationID {
+			out = append(out, item)
+		}
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].CreatedAt.Before(out[j].CreatedAt) })
+	return out
+}
+
+func (s *MemoryStore) ListCases() []conversation.Case {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	out := make([]conversation.Case, 0, len(s.cases))
+	for _, item := range s.cases {
+		out = append(out, item)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].UpdatedAt.After(out[j].UpdatedAt) })
+	return out
+}
+
+func (s *MemoryStore) GetCase(caseID string) (conversation.Case, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	item, ok := s.cases[caseID]
+	return item, ok
+}
+
 func (s *MemoryStore) ListIngestions() []slack.Ingestion {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -245,22 +306,24 @@ func (s *MemoryStore) ListIngestions() []slack.Ingestion {
 func (s *MemoryStore) CreateIngestion(envelope slack.SlackEnvelope) slack.Ingestion {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	conversationKey := slackConversationKey(envelope)
 	event := ingestion.EventEnvelope{
 		Source:                     ingestion.SourceSlack,
 		SourceEventID:              envelope.TS,
-		ThreadKey:                  fmt.Sprintf("slack:%s:%s", envelope.ChannelID, envelope.ThreadTS),
-		DedupeKey:                  fmt.Sprintf("slack:%s:%s", envelope.ChannelID, envelope.ThreadTS),
+		ThreadKey:                  conversationKey,
+		DedupeKey:                  envelope.TS,
 		Severity:                   severityFromText(envelope.Text),
 		NormalizedProblemStatement: envelope.Text,
 		OwnershipHint:              "platform",
 		WorkflowHint:               deriveWorkflowHint(envelope.Text),
 		Metadata: map[string]interface{}{
-			"team_id":    envelope.TeamID,
-			"channel_id": envelope.ChannelID,
-			"user_id":    envelope.UserID,
-			"thread_ts":  envelope.ThreadTS,
-			"bot_role":   envelope.BotRole,
-			"files":      envelope.Files,
+			"team_id":          envelope.TeamID,
+			"channel_id":       envelope.ChannelID,
+			"user_id":          envelope.UserID,
+			"thread_ts":        envelope.ThreadTS,
+			"conversation_key": conversationKey,
+			"bot_role":         envelope.BotRole,
+			"files":            envelope.Files,
 		},
 		CreatedAt: envelope.CreatedAt,
 	}
@@ -279,15 +342,19 @@ func (s *MemoryStore) CreateIngestion(envelope slack.SlackEnvelope) slack.Ingest
 
 func (s *MemoryStore) materializeWorkflowLocked(event ingestion.EventEnvelope) {
 	createdAt := event.CreatedAt
-	ingestionID := nextID("ing", len(s.ingestions)+1)
+	if createdAt.IsZero() {
+		createdAt = time.Now().UTC()
+	}
+	intent := intentForWorkflowHint(event.WorkflowHint)
+	assignedBot := assignedBotFor(event.WorkflowHint)
 	channelID, _ := event.Metadata["channel_id"].(string)
 	userID, _ := event.Metadata["user_id"].(string)
 	threadTS, _ := event.Metadata["thread_ts"].(string)
-	botRoleValue, _ := event.Metadata["bot_role"].(slack.BotRole)
-	if botRoleValue == "" {
-		if raw, ok := event.Metadata["bot_role"].(string); ok {
-			botRoleValue = slack.BotRole(raw)
-		}
+	if raw, ok := event.Metadata["bot_role"].(string); ok && raw != "" {
+		assignedBot = raw
+	}
+	if raw, ok := event.Metadata["bot_role"].(slack.BotRole); ok && raw != "" {
+		assignedBot = string(raw)
 	}
 	if channelID == "" {
 		channelID = string(event.Source)
@@ -295,109 +362,121 @@ func (s *MemoryStore) materializeWorkflowLocked(event ingestion.EventEnvelope) {
 	if userID == "" {
 		userID = "system"
 	}
-	threadKey := event.ThreadKey
-	if threadKey == "" {
-		threadKey = event.IncidentKey
-	}
-	if threadKey == "" {
-		threadKey = fmt.Sprintf("%s:%s", event.Source, event.SourceEventID)
-	}
-	intent := intentForWorkflowHint(event.WorkflowHint)
-	assignedBot := assignedBotFor(event.WorkflowHint)
-	if botRoleValue != "" {
-		assignedBot = string(botRoleValue)
-	}
 	if threadTS == "" {
 		threadTS = event.SourceEventID
 	}
 
+	conv, createdConversation := s.resolveConversationLocked(event, createdAt)
+	entry := s.appendConversationEntryLocked(conv.ID, event, createdAt)
+	caseRecord, caseCreated := s.resolveCaseLocked(conv, event, createdAt)
+	workflow := s.ensureWorkflowForCaseLocked(caseRecord, entry, createdAt)
+
+	ingestionID := nextID("ing", len(s.ingestions)+1)
 	ingestionItem := slack.Ingestion{
-		ID:           ingestionID,
-		EventID:      event.ID,
-		ThreadKey:    threadKey,
-		ThreadTS:     threadTS,
-		WorkflowHint: event.WorkflowHint,
-		Intent:       intent,
-		BotRole:      slack.BotRole(assignedBot),
-		Source:       string(event.Source),
-		ChannelID:    channelID,
-		UserID:       userID,
-		Text:         event.NormalizedProblemStatement,
-		CreatedAt:    createdAt,
+		ID:             ingestionID,
+		EventID:        event.ID,
+		ConversationID: conv.ID,
+		CaseID:         caseRecord.ID,
+		ThreadKey:      conv.ExternalKey,
+		ThreadTS:       threadTS,
+		WorkflowHint:   event.WorkflowHint,
+		Intent:         intent,
+		BotRole:        slack.BotRole(assignedBot),
+		Source:         string(event.Source),
+		ChannelID:      channelID,
+		UserID:         userID,
+		Text:           event.NormalizedProblemStatement,
+		CreatedAt:      createdAt,
 	}
 	s.ingestions = append(s.ingestions, ingestionItem)
 
-	workflowID := nextID("wf", len(s.workflows)+1)
-	traceID := nextID("trace", len(s.traces)+1)
-	workflow := Workflow{
-		ID:           workflowID,
-		IngestionID:  ingestionID,
-		TraceID:      traceID,
-		ThreadKey:    threadKey,
-		Kind:         event.WorkflowHint,
-		Intent:       intent,
-		AssignedBot:  assignedBot,
-		ApprovalMode: approvalModeForIntent(intent),
-		ResponseMode: responseModeForIntent(intent),
-		Status:       "queued",
-		CreatedAt:    createdAt,
-		UpdatedAt:    createdAt,
-	}
-	s.workflows = append(s.workflows, workflow)
 	s.assignments = append(s.assignments, Assignment{
-		ID:          nextID("as", len(s.assignments)+1),
-		ThreadKey:   threadKey,
-		AssignedBot: assignedBot,
-		Confidence:  routeConfidenceForEvent(event),
-		Rationale:   routingRationale(event),
-		CreatedAt:   createdAt,
+		ID:             nextID("as", len(s.assignments)+1),
+		ConversationID: conv.ID,
+		CaseID:         caseRecord.ID,
+		ThreadKey:      conv.ExternalKey,
+		AssignedBot:    assignedBot,
+		Confidence:     routeConfidenceForEvent(event),
+		Rationale:      routingRationale(event),
+		CreatedAt:      createdAt,
 	})
-	s.threadPolicies[threadKey] = policy.ThreadPolicy{
-		ThreadKey:         threadKey,
-		State:             policy.ThreadStateActive,
-		OwnerBot:          assignedBot,
-		LastPolicyVersion: "v2",
-		UpdatedAt:         createdAt,
+	if _, ok := s.threadPolicies[conv.ExternalKey]; !ok {
+		s.threadPolicies[conv.ExternalKey] = policy.ThreadPolicy{
+			ThreadKey:         conv.ExternalKey,
+			State:             policy.ThreadStateActive,
+			OwnerBot:          assignedBot,
+			LastPolicyVersion: "conversation-v2",
+			UpdatedAt:         createdAt,
+		}
 	}
+
+	traceID := nextID("trace", len(s.traces)+1)
+	supersedesTraceID := s.supersedeInFlightTracesLocked(caseRecord.ID, traceID, event.ID, createdAt)
+	workflow.IngestionID = ingestionID
+	workflow.TraceID = traceID
+	workflow.Status = "queued"
+	workflow.UpdatedAt = createdAt
+	s.upsertWorkflowLocked(workflow)
+
+	caseRecord.LatestTraceID = traceID
+	caseRecord.UpdatedAt = createdAt
+	s.cases[caseRecord.ID] = caseRecord
+	conv.ActiveCaseID = caseRecord.ID
+	conv.LatestEventID = event.ID
+	conv.UpdatedAt = createdAt
+	if createdConversation && conv.Title == "" {
+		conv.Title = conversation.NormalizeTitle(caseRecord.Kind, event.NormalizedProblemStatement)
+	}
+	s.conversations[conv.ID] = conv
 
 	traceStatus := events.StatusQueued
 	trace := events.Trace{
 		Summary: events.TraceSummary{
-			TraceID:      traceID,
-			IngestionID:  ingestionID,
-			WorkflowID:   workflowID,
-			ThreadKey:    threadKey,
-			WorkflowKind: event.WorkflowHint,
-			Status:       traceStatus,
-			StartedAt:    createdAt,
-			EndedAt:      createdAt,
+			TraceID:           traceID,
+			IngestionID:       ingestionID,
+			WorkflowID:        workflow.ID,
+			ConversationID:    conv.ID,
+			CaseID:            caseRecord.ID,
+			TriggerEventID:    event.ID,
+			SupersedesTraceID: supersedesTraceID,
+			ThreadKey:         conv.ExternalKey,
+			WorkflowKind:      caseRecord.Kind,
+			Status:            traceStatus,
+			StartedAt:         createdAt,
+			EndedAt:           createdAt,
 		},
 		Events: []events.TraceEvent{
 			{
-				TraceID:     traceID,
-				IngestionID: ingestionID,
-				WorkflowID:  workflowID,
-				Plane:       "edge",
-				Service:     "control-plane",
-				Actor:       "slack-ingestor",
-				EventType:   "event.ingested",
-				Status:      events.StatusCompleted,
-				StartedAt:   createdAt,
-				EndedAt:     timePtr(createdAt),
-				PayloadRef:  event.RawPayloadRef,
-				Description: fmt.Sprintf("%s event normalized into the event bus.", event.Source),
+				TraceID:        traceID,
+				IngestionID:    ingestionID,
+				WorkflowID:     workflow.ID,
+				ConversationID: conv.ID,
+				CaseID:         caseRecord.ID,
+				TriggerEventID: event.ID,
+				Plane:          "edge",
+				Service:        "control-plane",
+				Actor:          "event-ingestor",
+				EventType:      "event.ingested",
+				Status:         events.StatusCompleted,
+				StartedAt:      createdAt,
+				EndedAt:        timePtr(createdAt),
+				PayloadRef:     event.RawPayloadRef,
+				Description:    fmt.Sprintf("%s event normalized into conversation %s.", event.Source, conv.ExternalKey),
 			},
 			{
-				TraceID:     traceID,
-				IngestionID: ingestionID,
-				WorkflowID:  workflowID,
-				Plane:       "control",
-				Service:     "control-plane",
-				Actor:       "router-policy",
-				EventType:   "workflow.queued",
-				Status:      events.StatusQueued,
-				StartedAt:   createdAt,
-				Description: fmt.Sprintf("Queued %s workflow for bot %s.", intent, assignedBot),
+				TraceID:        traceID,
+				IngestionID:    ingestionID,
+				WorkflowID:     workflow.ID,
+				ConversationID: conv.ID,
+				CaseID:         caseRecord.ID,
+				TriggerEventID: event.ID,
+				Plane:          "control",
+				Service:        "control-plane",
+				Actor:          "router-policy",
+				EventType:      "workflow.queued",
+				Status:         events.StatusQueued,
+				StartedAt:      createdAt,
+				Description:    fmt.Sprintf("Queued %s trace for case %s and bot %s.", intent, caseRecord.ID, assignedBot),
 			},
 		},
 		Artifacts: []events.Artifact{
@@ -413,17 +492,20 @@ func (s *MemoryStore) materializeWorkflowLocked(event ingestion.EventEnvelope) {
 		},
 		Reasoning: []events.ReasoningStep{
 			{
-				ID:         nextID("reason", len(s.traces)+1),
-				TraceID:    traceID,
-				WorkflowID: workflowID,
-				StepType:   "intent_classified",
-				Summary:    fmt.Sprintf("Classified incoming event as %s for workflow kind %s.", intent, event.WorkflowHint),
+				ID:             nextID("reason", len(s.traces)+1),
+				TraceID:        traceID,
+				WorkflowID:     workflow.ID,
+				ConversationID: conv.ID,
+				CaseID:         caseRecord.ID,
+				StepType:       "goal_framing",
+				Summary:        fmt.Sprintf("Treat event %s as %s within case %s.", event.ID, intent, caseRecord.ID),
 				EvidenceRefs: []events.EvidenceRef{
 					{Kind: "event", Ref: event.ID, Summary: event.NormalizedProblemStatement},
+					{Kind: "conversation_entry", Ref: entry.ID, Summary: entry.Body},
 				},
 				Alternatives: []string{"incident", "feature_request", "question"},
 				Confidence:   routeConfidenceForEvent(event),
-				Decision:     fmt.Sprintf("route:%s assign:%s", intent, assignedBot),
+				Decision:     fmt.Sprintf("route:%s assign:%s case:%s", intent, assignedBot, caseRecord.ID),
 				CreatedAt:    createdAt,
 			},
 		},
@@ -431,31 +513,227 @@ func (s *MemoryStore) materializeWorkflowLocked(event ingestion.EventEnvelope) {
 	recomputeTraceSummary(&trace)
 	s.traces[traceID] = trace
 	_, _ = s.enqueueWorkItemLocked(queue.WorkItem{
-		Queue:        queue.WorkflowQueue,
-		Kind:         "workflow",
-		Status:       queue.WorkQueued,
-		TraceID:      traceID,
-		WorkflowID:   workflowID,
-		IngestionID:  ingestionID,
-		ThreadKey:    threadKey,
-		Intent:       intent,
-		RepoScope:    event.OwnershipHint,
-		RequestedBy:  "event_ingested",
-		ApprovalMode: workflow.ApprovalMode,
-		ResponseMode: workflow.ResponseMode,
+		Queue:          queue.WorkflowQueue,
+		Kind:           "workflow",
+		Status:         queue.WorkQueued,
+		TraceID:        traceID,
+		WorkflowID:     workflow.ID,
+		IngestionID:    ingestionID,
+		ConversationID: conv.ID,
+		CaseID:         caseRecord.ID,
+		TriggerEventID: event.ID,
+		ThreadKey:      conv.ExternalKey,
+		Intent:         intent,
+		RepoScope:      event.OwnershipHint,
+		RequestedBy:    "event_ingested",
+		ApprovalMode:   workflow.ApprovalMode,
+		ResponseMode:   workflow.ResponseMode,
 		Payload: map[string]interface{}{
-			"event_id":        event.ID,
-			"workflow_hint":   event.WorkflowHint,
-			"assigned_bot":    assignedBot,
-			"channel_id":      channelID,
-			"thread_ts":       threadTS,
-			"problem":         event.NormalizedProblemStatement,
-			"source":          event.Source,
-			"raw_payload_ref": event.RawPayloadRef,
+			"event_id":             event.ID,
+			"workflow_hint":        event.WorkflowHint,
+			"assigned_bot":         assignedBot,
+			"channel_id":           channelID,
+			"thread_ts":            threadTS,
+			"problem":              event.NormalizedProblemStatement,
+			"source":               event.Source,
+			"raw_payload_ref":      event.RawPayloadRef,
+			"conversation_id":      conv.ID,
+			"case_id":              caseRecord.ID,
+			"created_case":         caseCreated,
+			"created_conversation": createdConversation,
 		},
 		CreatedAt: createdAt,
 		UpdatedAt: createdAt,
 	})
+}
+
+func (s *MemoryStore) resolveConversationLocked(event ingestion.EventEnvelope, createdAt time.Time) (conversation.Conversation, bool) {
+	externalKey := conversationKeyForEvent(event)
+	for _, item := range s.conversations {
+		if item.ExternalKey == externalKey {
+			item.LatestEventID = event.ID
+			item.UpdatedAt = createdAt
+			item.Title = firstNonEmpty(item.Title, conversation.NormalizeTitle(event.WorkflowHint, event.NormalizedProblemStatement))
+			item.ParticipantIDs = appendUnique(item.ParticipantIDs, stringFromMetadata(event.Metadata, "user_id"))
+			s.conversations[item.ID] = item
+			return item, false
+		}
+	}
+	item := conversation.Conversation{
+		ID:                   nextID("conv", len(s.conversations)+1),
+		Source:               event.Source,
+		ExternalKey:          externalKey,
+		ExternalConversation: externalKey,
+		Title:                conversation.NormalizeTitle(event.WorkflowHint, event.NormalizedProblemStatement),
+		Status:               conversation.StatusActive,
+		ParticipantIDs:       compactStrings([]string{stringFromMetadata(event.Metadata, "user_id")}),
+		LatestEventID:        event.ID,
+		CreatedAt:            createdAt,
+		UpdatedAt:            createdAt,
+	}
+	s.conversations[item.ID] = item
+	return item, true
+}
+
+func (s *MemoryStore) appendConversationEntryLocked(conversationID string, event ingestion.EventEnvelope, createdAt time.Time) conversation.Entry {
+	entry := conversation.Entry{
+		ID:             nextID("entry", len(s.conversationEntries)+1),
+		ConversationID: conversationID,
+		EventID:        event.ID,
+		Source:         event.Source,
+		SourceEventID:  event.SourceEventID,
+		EntryType:      "external_event",
+		ActorID:        stringFromMetadata(event.Metadata, "user_id"),
+		ActorType:      actorTypeForEvent(event),
+		Body:           event.NormalizedProblemStatement,
+		Metadata:       cloneMetadata(event.Metadata),
+		CreatedAt:      createdAt,
+	}
+	s.conversationEntries = append(s.conversationEntries, entry)
+	return entry
+}
+
+func (s *MemoryStore) resolveCaseLocked(conv conversation.Conversation, event ingestion.EventEnvelope, createdAt time.Time) (conversation.Case, bool) {
+	if active, ok := s.activeCaseForConversationLocked(conv.ID); ok && active.Kind == event.WorkflowHint && active.Status == conversation.CaseActive {
+		active.Summary = event.NormalizedProblemStatement
+		active.UpdatedAt = createdAt
+		active.OpenedByEventID = firstNonEmpty(active.OpenedByEventID, event.ID)
+		s.cases[active.ID] = active
+		return active, false
+	}
+	if active, ok := s.activeCaseForConversationLocked(conv.ID); ok {
+		active.Status = conversation.CaseSuperseded
+		active.ClosedByEventID = event.ID
+		active.UpdatedAt = createdAt
+		active.ClosedAt = timePtr(createdAt)
+		s.cases[active.ID] = active
+	}
+	item := conversation.Case{
+		ID:              nextID("case", len(s.cases)+1),
+		ConversationID:  conv.ID,
+		Kind:            event.WorkflowHint,
+		Intent:          intentForWorkflowHint(event.WorkflowHint),
+		Title:           conversation.NormalizeTitle(event.WorkflowHint, event.NormalizedProblemStatement),
+		Summary:         event.NormalizedProblemStatement,
+		Status:          conversation.CaseActive,
+		ApprovalMode:    approvalModeForIntent(intentForWorkflowHint(event.WorkflowHint)),
+		ResponseMode:    responseModeForIntent(intentForWorkflowHint(event.WorkflowHint)),
+		AssignedBot:     assignedBotFor(event.WorkflowHint),
+		OpenedByEventID: event.ID,
+		CreatedAt:       createdAt,
+		UpdatedAt:       createdAt,
+	}
+	s.cases[item.ID] = item
+	return item, true
+}
+
+func (s *MemoryStore) activeCaseForConversationLocked(conversationID string) (conversation.Case, bool) {
+	if item, ok := s.conversations[conversationID]; ok && item.ActiveCaseID != "" {
+		caseRecord, found := s.cases[item.ActiveCaseID]
+		if found && caseRecord.Status == conversation.CaseActive {
+			return caseRecord, true
+		}
+	}
+	for _, item := range s.cases {
+		if item.ConversationID == conversationID && item.Status == conversation.CaseActive {
+			return item, true
+		}
+	}
+	return conversation.Case{}, false
+}
+
+func (s *MemoryStore) ensureWorkflowForCaseLocked(caseRecord conversation.Case, entry conversation.Entry, createdAt time.Time) Workflow {
+	for i := range s.workflows {
+		if s.workflows[i].CaseID != caseRecord.ID {
+			continue
+		}
+		s.workflows[i].ConversationID = caseRecord.ConversationID
+		s.workflows[i].CaseID = caseRecord.ID
+		s.workflows[i].ThreadKey = conversationKeyForCase(caseRecord, s.conversations)
+		s.workflows[i].Kind = caseRecord.Kind
+		s.workflows[i].Intent = caseRecord.Intent
+		s.workflows[i].AssignedBot = caseRecord.AssignedBot
+		s.workflows[i].ApprovalMode = caseRecord.ApprovalMode
+		s.workflows[i].ResponseMode = caseRecord.ResponseMode
+		s.workflows[i].UpdatedAt = createdAt
+		return s.workflows[i]
+	}
+	item := Workflow{
+		ID:             nextID("wf", len(s.workflows)+1),
+		ConversationID: caseRecord.ConversationID,
+		CaseID:         caseRecord.ID,
+		ThreadKey:      conversationKeyForCase(caseRecord, s.conversations),
+		Kind:           caseRecord.Kind,
+		Intent:         caseRecord.Intent,
+		AssignedBot:    caseRecord.AssignedBot,
+		ApprovalMode:   caseRecord.ApprovalMode,
+		ResponseMode:   caseRecord.ResponseMode,
+		Status:         "queued",
+		CreatedAt:      entry.CreatedAt,
+		UpdatedAt:      createdAt,
+	}
+	s.workflows = append(s.workflows, item)
+	return item
+}
+
+func (s *MemoryStore) upsertWorkflowLocked(item Workflow) {
+	for i := range s.workflows {
+		if s.workflows[i].ID == item.ID {
+			s.workflows[i] = item
+			return
+		}
+	}
+	s.workflows = append(s.workflows, item)
+}
+
+func (s *MemoryStore) supersedeInFlightTracesLocked(caseID string, nextTraceID string, triggerEventID string, createdAt time.Time) string {
+	var supersedes string
+	for traceID, trace := range s.traces {
+		if trace.Summary.CaseID != caseID {
+			continue
+		}
+		if trace.Summary.Status != events.StatusQueued && trace.Summary.Status != events.StatusRunning && trace.Summary.Status != events.StatusReplayed {
+			continue
+		}
+		if supersedes == "" {
+			supersedes = traceID
+		}
+		trace.Summary.Status = events.StatusSuppressed
+		trace.Events = append(trace.Events, events.TraceEvent{
+			TraceID:        traceID,
+			IngestionID:    trace.Summary.IngestionID,
+			WorkflowID:     trace.Summary.WorkflowID,
+			ConversationID: trace.Summary.ConversationID,
+			CaseID:         caseID,
+			TriggerEventID: triggerEventID,
+			Plane:          "control",
+			Service:        "control-plane",
+			Actor:          "supersession",
+			EventType:      "trace.superseded",
+			Status:         events.StatusSuppressed,
+			StartedAt:      createdAt,
+			EndedAt:        timePtr(createdAt),
+			Description:    fmt.Sprintf("Superseded by newer trace %s for case %s.", nextTraceID, caseID),
+		})
+		recomputeTraceSummary(&trace)
+		s.traces[traceID] = trace
+	}
+	for id, item := range s.workItems {
+		if item.CaseID != caseID {
+			continue
+		}
+		if item.Status != queue.WorkQueued && item.Status != queue.WorkLeased {
+			continue
+		}
+		item.Status = queue.WorkCanceled
+		item.LastError = fmt.Sprintf("superseded by trace %s", nextTraceID)
+		item.UpdatedAt = createdAt
+		item.CompletedAt = timePtr(createdAt)
+		item.LeaseOwner = ""
+		item.LeaseExpiresAt = nil
+		s.workItems[id] = item
+	}
+	return supersedes
 }
 
 func severityFromText(text string) ingestion.Severity {
@@ -599,6 +877,57 @@ func (s *MemoryStore) ListImprovementNotes(traceID string) []review.ImprovementN
 	return append([]review.ImprovementNote(nil), s.notes[traceID]...)
 }
 
+func (s *MemoryStore) ListFeedback(traceID string) []review.FeedbackRecord {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return append([]review.FeedbackRecord(nil), s.feedbackRecords[traceID]...)
+}
+
+func (s *MemoryStore) AddFeedback(record review.FeedbackRecord) (review.FeedbackRecord, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if strings.TrimSpace(record.TargetID) == "" {
+		return review.FeedbackRecord{}, errors.New("target_id is required")
+	}
+	switch record.TargetType {
+	case review.FeedbackTargetConversation:
+		if _, ok := s.conversations[record.TargetID]; !ok {
+			return review.FeedbackRecord{}, errors.New("conversation not found")
+		}
+	case review.FeedbackTargetCase:
+		caseRecord, ok := s.cases[record.TargetID]
+		if !ok {
+			return review.FeedbackRecord{}, errors.New("case not found")
+		}
+		record.CaseID = caseRecord.ID
+		record.ConversationID = caseRecord.ConversationID
+	case review.FeedbackTargetTrace, review.FeedbackTargetReasoning, review.FeedbackTargetToolCall, review.FeedbackTargetSlackAction:
+		trace, ok := s.traceForFeedbackTargetLocked(record)
+		if !ok {
+			return review.FeedbackRecord{}, errors.New("trace not found")
+		}
+		record.TraceID = trace.Summary.TraceID
+		record.CaseID = trace.Summary.CaseID
+		record.ConversationID = trace.Summary.ConversationID
+	case review.FeedbackTargetProposal:
+		proposal, ok := s.proposals[record.TargetID]
+		if !ok {
+			return review.FeedbackRecord{}, errors.New("proposal not found")
+		}
+		record.TraceID = firstNonEmpty(proposal.OriginTraceID, proposal.TraceID)
+		record.CaseID = proposal.CaseID
+		record.ConversationID = proposal.ConversationID
+	default:
+		return review.FeedbackRecord{}, errors.New("unsupported feedback target")
+	}
+	if record.ID == "" {
+		record.ID = nextID("feedback", len(s.feedbackRecords[record.TraceID])+1)
+	}
+	record.CreatedAt = time.Now().UTC()
+	s.feedbackRecords[record.TraceID] = append(s.feedbackRecords[record.TraceID], record)
+	return record, nil
+}
+
 func (s *MemoryStore) AddRating(traceID string, rating review.HumanRating) (review.HumanRating, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -612,6 +941,20 @@ func (s *MemoryStore) AddRating(traceID string, rating review.HumanRating) (revi
 	trace.Summary.LastVerdict = rating.Verdict
 	trace.Summary.Status = events.StatusInReview
 	s.traces[traceID] = trace
+	s.feedbackRecords[traceID] = append(s.feedbackRecords[traceID], review.FeedbackRecord{
+		ID:             nextID("feedback", len(s.feedbackRecords[traceID])+1),
+		ConversationID: trace.Summary.ConversationID,
+		CaseID:         trace.Summary.CaseID,
+		TraceID:        traceID,
+		TargetType:     review.FeedbackTargetTrace,
+		TargetID:       traceID,
+		Score:          rating.Score,
+		Verdict:        rating.Verdict,
+		Labels:         append([]string(nil), rating.Labels...),
+		Notes:          rating.Notes,
+		ReviewerID:     rating.ReviewerID,
+		CreatedAt:      rating.CreatedAt,
+	})
 	_, _, _ = s.evaluateTraceLocked(traceID, "human_rating")
 	return rating, nil
 }
@@ -625,6 +968,20 @@ func (s *MemoryStore) AddImprovementNote(traceID string, note review.Improvement
 	note.TraceID = traceID
 	note.CreatedAt = time.Now().UTC()
 	s.notes[traceID] = append(s.notes[traceID], note)
+	trace := s.traces[traceID]
+	s.feedbackRecords[traceID] = append(s.feedbackRecords[traceID], review.FeedbackRecord{
+		ID:             nextID("feedback", len(s.feedbackRecords[traceID])+1),
+		ConversationID: trace.Summary.ConversationID,
+		CaseID:         trace.Summary.CaseID,
+		TraceID:        traceID,
+		TargetType:     review.FeedbackTargetTrace,
+		TargetID:       traceID,
+		Verdict:        note.Category,
+		Labels:         []string{"improvement_note"},
+		Notes:          note.Note,
+		ReviewerID:     note.CreatedBy,
+		CreatedAt:      note.CreatedAt,
+	})
 	return note, nil
 }
 
@@ -636,17 +993,20 @@ func (s *MemoryStore) ScheduleReplay(traceID string, requestedBy string) (queue.
 		return queue.WorkItem{}, errors.New("trace not found")
 	}
 	item := queue.WorkItem{
-		Queue:        queue.EvalQueue,
-		Kind:         "trace_replay",
-		Status:       queue.WorkQueued,
-		TraceID:      traceID,
-		WorkflowID:   trace.Summary.WorkflowID,
-		IngestionID:  trace.Summary.IngestionID,
-		ThreadKey:    trace.Summary.ThreadKey,
-		RequestedBy:  requestedBy,
-		ApprovalMode: "ui",
-		CreatedAt:    time.Now().UTC(),
-		UpdatedAt:    time.Now().UTC(),
+		Queue:          queue.EvalQueue,
+		Kind:           "trace_replay",
+		Status:         queue.WorkQueued,
+		TraceID:        traceID,
+		WorkflowID:     trace.Summary.WorkflowID,
+		IngestionID:    trace.Summary.IngestionID,
+		ConversationID: trace.Summary.ConversationID,
+		CaseID:         trace.Summary.CaseID,
+		TriggerEventID: trace.Summary.TriggerEventID,
+		ThreadKey:      trace.Summary.ThreadKey,
+		RequestedBy:    requestedBy,
+		ApprovalMode:   "ui",
+		CreatedAt:      time.Now().UTC(),
+		UpdatedAt:      time.Now().UTC(),
 	}
 	created, err := s.enqueueWorkItemLocked(item)
 	if err != nil {
@@ -655,16 +1015,19 @@ func (s *MemoryStore) ScheduleReplay(traceID string, requestedBy string) (queue.
 	stepStatus := events.StatusReplayed
 	trace.Summary.Status = events.StatusReplayed
 	trace.Events = append(trace.Events, events.TraceEvent{
-		TraceID:     traceID,
-		IngestionID: trace.Summary.IngestionID,
-		WorkflowID:  trace.Summary.WorkflowID,
-		Plane:       "improvement",
-		Service:     "improvement-plane",
-		Actor:       "replay-scheduler",
-		EventType:   "replay.queued",
-		Status:      stepStatus,
-		StartedAt:   time.Now().UTC(),
-		Description: "Replay queued for later evaluation.",
+		TraceID:        traceID,
+		IngestionID:    trace.Summary.IngestionID,
+		WorkflowID:     trace.Summary.WorkflowID,
+		ConversationID: trace.Summary.ConversationID,
+		CaseID:         trace.Summary.CaseID,
+		TriggerEventID: trace.Summary.TriggerEventID,
+		Plane:          "improvement",
+		Service:        "improvement-plane",
+		Actor:          "replay-scheduler",
+		EventType:      "replay.queued",
+		Status:         stepStatus,
+		StartedAt:      time.Now().UTC(),
+		Description:    "Replay queued for later evaluation.",
 	})
 	recomputeTraceSummary(&trace)
 	s.traces[traceID] = trace
@@ -883,11 +1246,42 @@ func (s *MemoryStore) ApplyTraceUpdate(traceID string, update TraceUpdate) (even
 	trace.Reasoning = append(trace.Reasoning, update.Reasoning...)
 	trace.ToolCalls = append(trace.ToolCalls, update.ToolCalls...)
 	trace.SlackActions = append(trace.SlackActions, update.SlackActions...)
+	for _, action := range update.SlackActions {
+		if trace.Summary.ConversationID == "" {
+			continue
+		}
+		s.conversationEntries = append(s.conversationEntries, conversation.Entry{
+			ID:             nextID("entry", len(s.conversationEntries)+1),
+			ConversationID: trace.Summary.ConversationID,
+			EventID:        trace.Summary.TriggerEventID,
+			TraceID:        trace.Summary.TraceID,
+			Source:         ingestion.SourceSlack,
+			SourceEventID:  action.IdempotencyKey,
+			EntryType:      "slack_action",
+			ActorID:        action.ChannelID,
+			ActorType:      "bot",
+			Body:           firstNonEmpty(action.FinalBody, action.DraftBody),
+			Metadata: map[string]interface{}{
+				"send_status":    action.SendStatus,
+				"policy_verdict": action.PolicyVerdict,
+				"thread_ts":      action.ThreadTS,
+			},
+			CreatedAt: action.CreatedAt,
+		})
+	}
 	recomputeTraceSummary(&trace)
 	if trace.Summary.EndedAt.Before(now) && (trace.Summary.Status == events.StatusCompleted || trace.Summary.Status == events.StatusFailed || trace.Summary.Status == events.StatusNeedsHuman) {
 		trace.Summary.EndedAt = now
 	}
 	s.traces[traceID] = trace
+	if caseRecord, ok := s.cases[trace.Summary.CaseID]; ok {
+		caseRecord.LatestTraceID = trace.Summary.TraceID
+		caseRecord.UpdatedAt = now
+		if trace.Summary.Status == events.StatusCompleted || trace.Summary.Status == events.StatusNeedsHuman {
+			caseRecord.Status = conversation.CaseActive
+		}
+		s.cases[caseRecord.ID] = caseRecord
+	}
 	if update.WorkflowStatus != "" {
 		if _, err := s.updateWorkflowStatusLocked(trace.Summary.WorkflowID, update.WorkflowStatus, update.WorkflowError); err != nil {
 			return events.Trace{}, err
@@ -1026,9 +1420,23 @@ func suiteNameForTrace(trace events.Trace, event *ingestion.EventEnvelope) strin
 }
 
 func (s *MemoryStore) findEventByTraceLocked(trace events.Trace) *ingestion.EventEnvelope {
+	if trace.Summary.TriggerEventID != "" {
+		for i := range s.events {
+			if s.events[i].ID == trace.Summary.TriggerEventID {
+				return &s.events[i]
+			}
+		}
+	}
 	for i := range s.ingestions {
 		if s.ingestions[i].ID != trace.Summary.IngestionID {
 			continue
+		}
+		if s.ingestions[i].EventID != "" {
+			for j := range s.events {
+				if s.events[j].ID == s.ingestions[i].EventID {
+					return &s.events[j]
+				}
+			}
 		}
 		for j := range s.events {
 			if sameThread(s.events[j], s.ingestions[i].ThreadKey) && sameCreatedWindow(s.events[j].CreatedAt, s.ingestions[i].CreatedAt) {
@@ -1056,6 +1464,10 @@ func (s *MemoryStore) updateCandidateLocked(trace events.Trace, event *ingestion
 		candidate = improvement.Candidate{
 			ID:               nextID("cand", len(s.candidates)+1),
 			CandidateKey:     key,
+			ConversationID:   trace.Summary.ConversationID,
+			CaseID:           trace.Summary.CaseID,
+			OriginTraceID:    trace.Summary.TraceID,
+			EvidenceTraceIDs: []string{trace.Summary.TraceID},
 			Subsystem:        subsystemForTrace(trace, event),
 			FailureMode:      failureMode,
 			InterventionType: interventionTypeForJudgments(judgments),
@@ -1073,7 +1485,11 @@ func (s *MemoryStore) updateCandidateLocked(trace events.Trace, event *ingestion
 	candidate.ConfidenceScore = confidenceScoreForCandidate(candidate.RecurrenceCount, judgments)
 	candidate.FreshnessScore = 1.0
 	candidate.PriorityScore = priorityScore(candidate.ExpectedImpact, candidate.NoveltyScore, candidate.ConfidenceScore, candidate.FreshnessScore, candidate.RecurrenceCount)
+	candidate.ConversationID = firstNonEmpty(candidate.ConversationID, trace.Summary.ConversationID)
+	candidate.CaseID = firstNonEmpty(candidate.CaseID, trace.Summary.CaseID)
+	candidate.OriginTraceID = firstNonEmpty(candidate.OriginTraceID, trace.Summary.TraceID)
 	candidate.LatestTraceID = trace.Summary.TraceID
+	candidate.EvidenceTraceIDs = appendUnique(candidate.EvidenceTraceIDs, trace.Summary.TraceID)
 	candidate.SourceEvalIDs = appendUnique(candidate.SourceEvalIDs, run.ID)
 	candidate.EvidenceArtifactIDs = collectArtifactIDs(trace)
 	candidate.PriorSimilarProposalIDs = similarProposalIDs(s.proposalMemory, candidate.CandidateKey)
@@ -1326,6 +1742,10 @@ func (s *MemoryStore) promoteCandidatesLocked(requestedBy string, limit int) (Pr
 		proposal := review.Proposal{
 			ID:                            nextID("proposal", len(s.proposals)+1),
 			TraceID:                       candidate.LatestTraceID,
+			ConversationID:                candidate.ConversationID,
+			CaseID:                        candidate.CaseID,
+			OriginTraceID:                 firstNonEmpty(candidate.OriginTraceID, candidate.LatestTraceID),
+			EvidenceTraceIDs:              append([]string(nil), candidate.EvidenceTraceIDs...),
 			Title:                         proposalTitle(candidate),
 			Category:                      candidate.InterventionType,
 			Summary:                       candidate.Hypothesis,
@@ -1417,6 +1837,10 @@ func (s *MemoryStore) ReviewProposal(proposalID string, decision review.Proposal
 		ID:                nextID("memory", len(s.proposalMemory)+1),
 		ProposalID:        proposalID,
 		CandidateKey:      proposal.CandidateKey,
+		ConversationID:    proposal.ConversationID,
+		CaseID:            proposal.CaseID,
+		OriginTraceID:     proposal.OriginTraceID,
+		EvidenceTraceIDs:  append([]string(nil), proposal.EvidenceTraceIDs...),
 		Hypothesis:        proposal.Summary,
 		DiffSummary:       proposal.ProposedScope,
 		ReviewRationale:   decision.Rationale,
@@ -1436,15 +1860,18 @@ func (s *MemoryStore) ReviewProposal(proposalID string, decision review.Proposal
 	case review.ProposalApproved:
 		candidate.Status = improvement.CandidatePromoted
 		_, _ = s.enqueueWorkItemLocked(queue.WorkItem{
-			Queue:        queue.ProposalQueue,
-			Kind:         "approved_proposal",
-			Status:       queue.WorkQueued,
-			TraceID:      proposal.TraceID,
-			ProposalID:   proposal.ID,
-			RequestedBy:  decision.ReviewerID,
-			ApprovalMode: "human_review",
-			CreatedAt:    decision.CreatedAt,
-			UpdatedAt:    decision.CreatedAt,
+			Queue:          queue.ProposalQueue,
+			Kind:           "approved_proposal",
+			Status:         queue.WorkQueued,
+			TraceID:        proposal.TraceID,
+			ConversationID: proposal.ConversationID,
+			CaseID:         proposal.CaseID,
+			TriggerEventID: proposal.OriginTraceID,
+			ProposalID:     proposal.ID,
+			RequestedBy:    decision.ReviewerID,
+			ApprovalMode:   "human_review",
+			CreatedAt:      decision.CreatedAt,
+			UpdatedAt:      decision.CreatedAt,
 			Payload: map[string]interface{}{
 				"candidate_key": proposal.CandidateKey,
 				"risk_tier":     proposal.RiskTier,
@@ -1460,6 +1887,8 @@ func (s *MemoryStore) ReviewProposal(proposalID string, decision review.Proposal
 			ID:             replayID,
 			ProposalID:     proposal.ID,
 			TraceID:        proposal.TraceID,
+			ConversationID: proposal.ConversationID,
+			CaseID:         proposal.CaseID,
 			BaselineScore:  latestEvalScoreForTrace(s.evalRuns, proposal.TraceID),
 			CandidateScore: minFloat(1.0, latestEvalScoreForTrace(s.evalRuns, proposal.TraceID)+0.15),
 			Improved:       true,
@@ -1506,6 +1935,9 @@ func (s *MemoryStore) MaterializeApprovedProposal(proposalID string, requestedBy
 	job := improvement.RepoChangeJob{
 		ID:               jobID,
 		ProposalID:       proposal.ID,
+		ConversationID:   proposal.ConversationID,
+		CaseID:           proposal.CaseID,
+		OriginTraceID:    proposal.OriginTraceID,
 		CandidateKey:     proposal.CandidateKey,
 		Status:           string(review.ProposalRepoChangeQueued),
 		Repo:             proposalRepo(proposal),
@@ -1520,16 +1952,19 @@ func (s *MemoryStore) MaterializeApprovedProposal(proposalID string, requestedBy
 	proposal.ActiveSlotConsuming = true
 	s.proposals[proposal.ID] = proposal
 	_, _ = s.enqueueWorkItemLocked(queue.WorkItem{
-		Queue:        queue.SandboxQueue,
-		Kind:         "repo_change_job",
-		Status:       queue.WorkQueued,
-		TraceID:      proposal.TraceID,
-		ProposalID:   proposal.ID,
-		RepoScope:    job.Repo,
-		RequestedBy:  requestedBy,
-		ApprovalMode: "approved",
-		CreatedAt:    now,
-		UpdatedAt:    now,
+		Queue:          queue.SandboxQueue,
+		Kind:           "repo_change_job",
+		Status:         queue.WorkQueued,
+		TraceID:        proposal.TraceID,
+		ConversationID: proposal.ConversationID,
+		CaseID:         proposal.CaseID,
+		TriggerEventID: proposal.OriginTraceID,
+		ProposalID:     proposal.ID,
+		RepoScope:      job.Repo,
+		RequestedBy:    requestedBy,
+		ApprovalMode:   "approved",
+		CreatedAt:      now,
+		UpdatedAt:      now,
 		Payload: map[string]interface{}{
 			"branch_name": job.BranchName,
 			"base_ref":    job.BaseRef,
@@ -1604,6 +2039,13 @@ func (s *MemoryStore) RecordPRAttempt(attempt improvement.PRAttempt) (improvemen
 	if attempt.CreatedAt.IsZero() {
 		attempt.CreatedAt = time.Now().UTC()
 	}
+	if attempt.ProposalID != "" {
+		if proposal, ok := s.proposals[attempt.ProposalID]; ok {
+			attempt.ConversationID = firstNonEmpty(attempt.ConversationID, proposal.ConversationID)
+			attempt.CaseID = firstNonEmpty(attempt.CaseID, proposal.CaseID)
+			attempt.OriginTraceID = firstNonEmpty(attempt.OriginTraceID, proposal.OriginTraceID)
+		}
+	}
 	s.prAttempts[attempt.ID] = attempt
 	if attempt.ProposalID != "" {
 		if proposal, ok := s.proposals[attempt.ProposalID]; ok && attempt.Status == string(review.ProposalPROpen) {
@@ -1653,6 +2095,9 @@ func (s *MemoryStore) ExecuteTool(name string, input map[string]interface{}) Too
 				s.prAttempts[attemptID] = improvement.PRAttempt{
 					ID:               attemptID,
 					ProposalID:       proposalID,
+					ConversationID:   proposal.ConversationID,
+					CaseID:           proposal.CaseID,
+					OriginTraceID:    proposal.OriginTraceID,
 					Repo:             "rsi-agent-platform",
 					BranchName:       fmt.Sprintf("codex/%s", proposalID),
 					PRURL:            fmt.Sprintf("https://github.com/piplabs/rsi-agent-platform/pull/%d", len(s.prAttempts)+100),
@@ -1782,6 +2227,115 @@ func lowerRune(r rune) rune {
 		return r + ('a' - 'A')
 	}
 	return r
+}
+
+func slackConversationKey(envelope slack.SlackEnvelope) string {
+	if strings.HasPrefix(envelope.ChannelID, "D") {
+		return fmt.Sprintf("slack:dm:%s", envelope.ChannelID)
+	}
+	root := firstNonEmpty(envelope.ThreadTS, envelope.TS)
+	return fmt.Sprintf("slack:thread:%s:%s", envelope.ChannelID, root)
+}
+
+func conversationKeyForEvent(event ingestion.EventEnvelope) string {
+	if key := strings.TrimSpace(event.ThreadKey); key != "" {
+		return key
+	}
+	if key := strings.TrimSpace(event.IncidentKey); key != "" {
+		return key
+	}
+	return fmt.Sprintf("%s:%s", event.Source, event.SourceEventID)
+}
+
+func conversationKeyForCase(caseRecord conversation.Case, conversations map[string]conversation.Conversation) string {
+	if item, ok := conversations[caseRecord.ConversationID]; ok {
+		return item.ExternalKey
+	}
+	return caseRecord.ConversationID
+}
+
+func actorTypeForEvent(event ingestion.EventEnvelope) string {
+	if event.Source == ingestion.SourceSlack {
+		return "user"
+	}
+	return "system"
+}
+
+func stringFromMetadata(metadata map[string]interface{}, key string) string {
+	if metadata == nil {
+		return ""
+	}
+	switch value := metadata[key].(type) {
+	case string:
+		return value
+	default:
+		return ""
+	}
+}
+
+func cloneMetadata(metadata map[string]interface{}) map[string]interface{} {
+	if metadata == nil {
+		return map[string]interface{}{}
+	}
+	out := make(map[string]interface{}, len(metadata))
+	for key, value := range metadata {
+		out[key] = value
+	}
+	return out
+}
+
+func compactStrings(items []string) []string {
+	out := make([]string, 0, len(items))
+	for _, item := range items {
+		if strings.TrimSpace(item) == "" {
+			continue
+		}
+		out = append(out, item)
+	}
+	return out
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if strings.TrimSpace(value) != "" {
+			return value
+		}
+	}
+	return ""
+}
+
+func (s *MemoryStore) traceForFeedbackTargetLocked(record review.FeedbackRecord) (events.Trace, bool) {
+	if record.TraceID != "" {
+		trace, ok := s.traces[record.TraceID]
+		return trace, ok
+	}
+	for _, trace := range s.traces {
+		switch record.TargetType {
+		case review.FeedbackTargetTrace:
+			if trace.Summary.TraceID == record.TargetID {
+				return trace, true
+			}
+		case review.FeedbackTargetReasoning:
+			for _, step := range trace.Reasoning {
+				if step.ID == record.TargetID {
+					return trace, true
+				}
+			}
+		case review.FeedbackTargetToolCall:
+			for _, call := range trace.ToolCalls {
+				if call.ID == record.TargetID || call.ToolCallID == record.TargetID {
+					return trace, true
+				}
+			}
+		case review.FeedbackTargetSlackAction:
+			for _, action := range trace.SlackActions {
+				if action.ID == record.TargetID {
+					return trace, true
+				}
+			}
+		}
+	}
+	return events.Trace{}, false
 }
 
 func recomputeTraceSummary(trace *events.Trace) {

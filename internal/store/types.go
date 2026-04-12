@@ -7,29 +7,33 @@ import (
 )
 
 type Workflow struct {
-	ID           string     `json:"id"`
-	IngestionID  string     `json:"ingestion_id,omitempty"`
-	TraceID      string     `json:"trace_id,omitempty"`
-	ThreadKey    string     `json:"thread_key"`
-	Kind         string     `json:"kind"`
-	Intent       string     `json:"intent,omitempty"`
-	AssignedBot  string     `json:"assigned_bot"`
-	ApprovalMode string     `json:"approval_mode,omitempty"`
-	ResponseMode string     `json:"response_mode,omitempty"`
-	Status       string     `json:"status"`
-	LastError    string     `json:"last_error,omitempty"`
-	CreatedAt    time.Time  `json:"created_at"`
-	UpdatedAt    time.Time  `json:"updated_at"`
-	CompletedAt  *time.Time `json:"completed_at,omitempty"`
+	ID             string     `json:"id"`
+	IngestionID    string     `json:"ingestion_id,omitempty"`
+	TraceID        string     `json:"trace_id,omitempty"`
+	ConversationID string     `json:"conversation_id,omitempty"`
+	CaseID         string     `json:"case_id,omitempty"`
+	ThreadKey      string     `json:"thread_key"`
+	Kind           string     `json:"kind"`
+	Intent         string     `json:"intent,omitempty"`
+	AssignedBot    string     `json:"assigned_bot"`
+	ApprovalMode   string     `json:"approval_mode,omitempty"`
+	ResponseMode   string     `json:"response_mode,omitempty"`
+	Status         string     `json:"status"`
+	LastError      string     `json:"last_error,omitempty"`
+	CreatedAt      time.Time  `json:"created_at"`
+	UpdatedAt      time.Time  `json:"updated_at"`
+	CompletedAt    *time.Time `json:"completed_at,omitempty"`
 }
 
 type Assignment struct {
-	ID          string    `json:"id"`
-	ThreadKey   string    `json:"thread_key"`
-	AssignedBot string    `json:"assigned_bot"`
-	Confidence  float64   `json:"confidence"`
-	Rationale   string    `json:"rationale"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID             string    `json:"id"`
+	ConversationID string    `json:"conversation_id,omitempty"`
+	CaseID         string    `json:"case_id,omitempty"`
+	ThreadKey      string    `json:"thread_key"`
+	AssignedBot    string    `json:"assigned_bot"`
+	Confidence     float64   `json:"confidence"`
+	Rationale      string    `json:"rationale"`
+	CreatedAt      time.Time `json:"created_at"`
 }
 
 type ToolResult struct {

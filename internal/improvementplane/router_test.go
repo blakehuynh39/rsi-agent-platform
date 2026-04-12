@@ -12,65 +12,109 @@ import (
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
 
-func TestRouterTraceEndpointsReturnSummaryAndDetailShapes(t *testing.T) {
+func TestRouterConversationCaseAndTraceEndpoints(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
 
-	listReq := httptest.NewRequest(http.MethodGet, "/api/traces", nil)
+	listReq := httptest.NewRequest(http.MethodGet, "/api/conversations", nil)
 	listRec := httptest.NewRecorder()
 	router.ServeHTTP(listRec, listReq)
 	if listRec.Code != http.StatusOK {
-		t.Fatalf("trace list status = %d, want %d", listRec.Code, http.StatusOK)
+		t.Fatalf("conversation list status = %d, want %d", listRec.Code, http.StatusOK)
 	}
 
 	var listPayload struct {
-		Traces []map[string]any `json:"traces"`
+		Conversations []map[string]any `json:"conversations"`
 	}
 	if err := json.NewDecoder(listRec.Body).Decode(&listPayload); err != nil {
-		t.Fatalf("decode trace list: %v", err)
+		t.Fatalf("decode conversation list: %v", err)
 	}
-	if len(listPayload.Traces) == 0 {
-		t.Fatal("expected at least one trace in summary list")
+	if len(listPayload.Conversations) == 0 {
+		t.Fatal("expected at least one conversation in summary list")
 	}
-	if _, ok := listPayload.Traces[0]["trace_id"]; !ok {
-		t.Fatal("expected trace list item to include trace_id")
+	if _, ok := listPayload.Conversations[0]["conversation_id"]; !ok {
+		t.Fatal("expected conversation list item to include conversation_id")
 	}
-	if _, ok := listPayload.Traces[0]["events"]; ok {
-		t.Fatal("trace list should not include full event detail payloads")
-	}
-
-	traceID, _ := listPayload.Traces[0]["trace_id"].(string)
-	if traceID == "" {
-		t.Fatal("expected non-empty trace_id from trace list")
+	if _, ok := listPayload.Conversations[0]["trace_attempts"]; ok {
+		t.Fatal("conversation list should not include transcript or trace detail payloads")
 	}
 
-	detailReq := httptest.NewRequest(http.MethodGet, "/api/traces/"+traceID, nil)
+	conversationID, _ := listPayload.Conversations[0]["conversation_id"].(string)
+	if conversationID == "" {
+		t.Fatal("expected non-empty conversation_id from conversation list")
+	}
+
+	detailReq := httptest.NewRequest(http.MethodGet, "/api/conversations/"+conversationID, nil)
 	detailRec := httptest.NewRecorder()
 	router.ServeHTTP(detailRec, detailReq)
 	if detailRec.Code != http.StatusOK {
-		t.Fatalf("trace detail status = %d, want %d", detailRec.Code, http.StatusOK)
+		t.Fatalf("conversation detail status = %d, want %d", detailRec.Code, http.StatusOK)
 	}
 
 	var detailPayload map[string]any
 	if err := json.NewDecoder(detailRec.Body).Decode(&detailPayload); err != nil {
-		t.Fatalf("decode trace detail: %v", err)
+		t.Fatalf("decode conversation detail: %v", err)
 	}
-	if _, ok := detailPayload["trace"].(map[string]any); !ok {
-		t.Fatal("expected trace detail payload to include trace object")
+	if _, ok := detailPayload["conversation"].(map[string]any); !ok {
+		t.Fatal("expected conversation detail payload to include conversation object")
 	}
-	if _, ok := detailPayload["linked_eval_runs"].([]any); !ok {
-		t.Fatal("expected linked_eval_runs to be a JSON array")
+	traceAttempts, ok := detailPayload["trace_attempts"].([]any)
+	if !ok || len(traceAttempts) == 0 {
+		t.Fatal("expected trace_attempts to be a non-empty JSON array")
+	}
+	if _, ok := detailPayload["transcript"].([]any); !ok {
+		t.Fatal("expected transcript to be a JSON array")
 	}
 	if _, ok := detailPayload["linked_proposals"].([]any); !ok {
 		t.Fatal("expected linked_proposals to be a JSON array")
 	}
-	if _, ok := detailPayload["ratings"].([]any); !ok {
-		t.Fatal("expected ratings to be a JSON array")
+
+	caseReq := httptest.NewRequest(http.MethodGet, "/api/cases", nil)
+	caseRec := httptest.NewRecorder()
+	router.ServeHTTP(caseRec, caseReq)
+	if caseRec.Code != http.StatusOK {
+		t.Fatalf("case list status = %d, want %d", caseRec.Code, http.StatusOK)
 	}
-	if _, ok := detailPayload["improvement_notes"].([]any); !ok {
-		t.Fatal("expected improvement_notes to be a JSON array")
+
+	var casePayload struct {
+		Cases []map[string]any `json:"cases"`
 	}
-	if _, ok := detailPayload["judgments_by_eval_run"].(map[string]any); !ok {
+	if err := json.NewDecoder(caseRec.Body).Decode(&casePayload); err != nil {
+		t.Fatalf("decode case list: %v", err)
+	}
+	if len(casePayload.Cases) == 0 {
+		t.Fatal("expected at least one case")
+	}
+
+	traceSummary, _ := traceAttempts[0].(map[string]any)
+	traceID, _ := traceSummary["trace_id"].(string)
+	if traceID == "" {
+		t.Fatal("expected trace_id in trace attempts")
+	}
+	traceReq := httptest.NewRequest(http.MethodGet, "/api/traces/"+traceID, nil)
+	traceRec := httptest.NewRecorder()
+	router.ServeHTTP(traceRec, traceReq)
+	if traceRec.Code != http.StatusOK {
+		t.Fatalf("trace detail status = %d, want %d", traceRec.Code, http.StatusOK)
+	}
+
+	var tracePayload map[string]any
+	if err := json.NewDecoder(traceRec.Body).Decode(&tracePayload); err != nil {
+		t.Fatalf("decode trace detail: %v", err)
+	}
+	if _, ok := tracePayload["trace"].(map[string]any); !ok {
+		t.Fatal("expected trace detail payload to include trace object")
+	}
+	if _, ok := tracePayload["transcript_slice"].([]any); !ok {
+		t.Fatal("expected transcript_slice to be a JSON array")
+	}
+	if _, ok := tracePayload["feedback_records"].([]any); !ok {
+		t.Fatal("expected feedback_records to be a JSON array")
+	}
+	if _, ok := tracePayload["linked_proposals"].([]any); !ok {
+		t.Fatal("expected linked_proposals to be a JSON array")
+	}
+	if _, ok := tracePayload["judgments_by_eval_run"].(map[string]any); !ok {
 		t.Fatal("expected judgments_by_eval_run to be a JSON object")
 	}
 }

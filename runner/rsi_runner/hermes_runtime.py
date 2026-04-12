@@ -55,6 +55,12 @@ class RunnerTaskRequest:
     intent: str | None
     trace_id: str | None
     workflow_id: str | None
+    conversation_id: str | None
+    case_id: str | None
+    trigger_event_id: str | None
+    recent_conversation_entries: List[Dict[str, Any]]
+    case_summary: Dict[str, Any] | None
+    prior_trace_refs: List[Dict[str, Any]]
     repo_allowlist: List[str]
     tool_allowlist: List[str]
     response_mode: str | None
@@ -81,6 +87,12 @@ class RunnerTaskRequest:
             intent=task.get("intent"),
             trace_id=task.get("trace_id"),
             workflow_id=task.get("workflow_id"),
+            conversation_id=task.get("conversation_id"),
+            case_id=task.get("case_id"),
+            trigger_event_id=task.get("trigger_event_id"),
+            recent_conversation_entries=list(task.get("recent_conversation_entries", [])),
+            case_summary=task.get("case_summary"),
+            prior_trace_refs=list(task.get("prior_trace_refs", [])),
             repo_allowlist=[str(item) for item in task.get("repo_allowlist", [])],
             tool_allowlist=[str(item) for item in task.get("tool_allowlist", [])],
             response_mode=task.get("response_mode"),

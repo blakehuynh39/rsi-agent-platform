@@ -1,6 +1,7 @@
 package store
 
 import (
+	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	"github.com/piplabs/rsi-agent-platform/internal/evals"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
@@ -14,6 +15,9 @@ type Repository = Store
 func newEmptyMemoryStore() *MemoryStore {
 	return &MemoryStore{
 		threadPolicies:  map[string]policy.ThreadPolicy{},
+		conversations:   map[string]conversation.Conversation{},
+		cases:           map[string]conversation.Case{},
+		feedbackRecords: map[string][]review.FeedbackRecord{},
 		traces:          map[string]events.Trace{},
 		ratings:         map[string][]review.HumanRating{},
 		notes:           map[string][]review.ImprovementNote{},

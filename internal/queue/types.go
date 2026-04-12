@@ -30,6 +30,9 @@ type WorkItem struct {
 	TraceID        string                 `json:"trace_id,omitempty"`
 	WorkflowID     string                 `json:"workflow_id,omitempty"`
 	IngestionID    string                 `json:"ingestion_id,omitempty"`
+	ConversationID string                 `json:"conversation_id,omitempty"`
+	CaseID         string                 `json:"case_id,omitempty"`
+	TriggerEventID string                 `json:"trigger_event_id,omitempty"`
 	ProposalID     string                 `json:"proposal_id,omitempty"`
 	ThreadKey      string                 `json:"thread_key,omitempty"`
 	Intent         string                 `json:"intent,omitempty"`

@@ -22,6 +22,10 @@ const (
 type Candidate struct {
 	ID                            string          `json:"id"`
 	CandidateKey                  string          `json:"candidate_key"`
+	ConversationID                string          `json:"conversation_id,omitempty"`
+	CaseID                        string          `json:"case_id,omitempty"`
+	OriginTraceID                 string          `json:"origin_trace_id,omitempty"`
+	EvidenceTraceIDs              []string        `json:"evidence_trace_ids,omitempty"`
 	Subsystem                     string          `json:"subsystem"`
 	FailureMode                   string          `json:"failure_mode"`
 	InterventionType              string          `json:"intervention_type"`
@@ -49,6 +53,9 @@ type Candidate struct {
 type RepoChangeJob struct {
 	ID               string    `json:"id"`
 	ProposalID       string    `json:"proposal_id"`
+	ConversationID   string    `json:"conversation_id,omitempty"`
+	CaseID           string    `json:"case_id,omitempty"`
+	OriginTraceID    string    `json:"origin_trace_id,omitempty"`
 	CandidateKey     string    `json:"candidate_key"`
 	Status           string    `json:"status"`
 	Repo             string    `json:"repo"`
@@ -62,6 +69,9 @@ type RepoChangeJob struct {
 type PRAttempt struct {
 	ID               string    `json:"id"`
 	ProposalID       string    `json:"proposal_id"`
+	ConversationID   string    `json:"conversation_id,omitempty"`
+	CaseID           string    `json:"case_id,omitempty"`
+	OriginTraceID    string    `json:"origin_trace_id,omitempty"`
 	Repo             string    `json:"repo"`
 	BranchName       string    `json:"branch_name"`
 	PRURL            string    `json:"pr_url,omitempty"`
@@ -74,6 +84,8 @@ type PostMergeReplay struct {
 	ID             string    `json:"id"`
 	ProposalID     string    `json:"proposal_id"`
 	TraceID        string    `json:"trace_id"`
+	ConversationID string    `json:"conversation_id,omitempty"`
+	CaseID         string    `json:"case_id,omitempty"`
 	BaselineScore  float64   `json:"baseline_score"`
 	CandidateScore float64   `json:"candidate_score"`
 	Improved       bool      `json:"improved"`

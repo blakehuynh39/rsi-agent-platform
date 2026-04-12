@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"slices"
+	"strings"
 	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 
 	"github.com/piplabs/rsi-agent-platform/internal/config"
+	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	platformdb "github.com/piplabs/rsi-agent-platform/internal/db"
 	"github.com/piplabs/rsi-agent-platform/internal/evals"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
@@ -137,6 +139,15 @@ func loadStore(r sqlReader) (*MemoryStore, error) {
 	if err := loadEvents(r, store); err != nil {
 		return nil, err
 	}
+	if err := loadConversations(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadConversationEntries(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadCases(r, store); err != nil {
+		return nil, err
+	}
 	if err := loadIngestions(r, store); err != nil {
 		return nil, err
 	}
@@ -153,6 +164,9 @@ func loadStore(r sqlReader) (*MemoryStore, error) {
 		return nil, err
 	}
 	if err := loadNotes(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadFeedback(r, store); err != nil {
 		return nil, err
 	}
 	if err := loadEvalSuites(r, store); err != nil {
@@ -198,6 +212,7 @@ func loadStore(r sqlReader) (*MemoryStore, error) {
 	if len(store.events) == 0 && len(store.workflows) == 0 {
 		return NewMemoryStore(), nil
 	}
+	backfillConversationCaseV2(store)
 	return store, nil
 }
 
@@ -213,6 +228,7 @@ func persistStore(tx *sql.Tx, store *MemoryStore) error {
 		"tool_call_record",
 		"reasoning_step",
 		"work_item",
+		"feedback_record",
 		"improvement_settings",
 		"proposal",
 		"improvement_candidate",
@@ -227,6 +243,9 @@ func persistStore(tx *sql.Tx, store *MemoryStore) error {
 		"assignment",
 		"workflow",
 		"ingestion",
+		"case_record",
+		"conversation_entry",
+		"conversation",
 		"event_envelope",
 		"experiment_registry",
 		"workflow_templates",
@@ -261,6 +280,15 @@ func persistStore(tx *sql.Tx, store *MemoryStore) error {
 	if err := persistEvents(tx, store); err != nil {
 		return err
 	}
+	if err := persistConversations(tx, store); err != nil {
+		return err
+	}
+	if err := persistConversationEntries(tx, store); err != nil {
+		return err
+	}
+	if err := persistCases(tx, store); err != nil {
+		return err
+	}
 	if err := persistIngestions(tx, store); err != nil {
 		return err
 	}
@@ -277,6 +305,9 @@ func persistStore(tx *sql.Tx, store *MemoryStore) error {
 		return err
 	}
 	if err := persistNotes(tx, store); err != nil {
+		return err
+	}
+	if err := persistFeedback(tx, store); err != nil {
 		return err
 	}
 	if err := persistEvalSuites(tx, store); err != nil {
@@ -455,19 +486,100 @@ func loadEvents(r sqlReader, store *MemoryStore) error {
 	return rows.Err()
 }
 
+func loadConversations(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, source, external_key, external_conversation, title, status, participant_ids, active_case_id, latest_event_id, created_at, updated_at from conversation order by updated_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item conversation.Conversation
+		var source, status string
+		var participantIDs []byte
+		var activeCaseID, latestEventID sql.NullString
+		if err := rows.Scan(&item.ID, &source, &item.ExternalKey, &item.ExternalConversation, &item.Title, &status, &participantIDs, &activeCaseID, &latestEventID, &item.CreatedAt, &item.UpdatedAt); err != nil {
+			return err
+		}
+		item.Source = ingestion.Source(source)
+		item.Status = conversation.Status(status)
+		item.ParticipantIDs = decodeJSON(participantIDs, []string{})
+		item.ActiveCaseID = activeCaseID.String
+		item.LatestEventID = latestEventID.String
+		store.conversations[item.ID] = item
+	}
+	return rows.Err()
+}
+
+func loadConversationEntries(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, conversation_id, event_id, trace_id, source, source_event_id, entry_type, actor_id, actor_type, body, metadata, created_at from conversation_entry order by created_at asc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item conversation.Entry
+		var eventID, traceID, actorID, actorType sql.NullString
+		var source string
+		var metadata []byte
+		if err := rows.Scan(&item.ID, &item.ConversationID, &eventID, &traceID, &source, &item.SourceEventID, &item.EntryType, &actorID, &actorType, &item.Body, &metadata, &item.CreatedAt); err != nil {
+			return err
+		}
+		item.EventID = eventID.String
+		item.TraceID = traceID.String
+		item.Source = ingestion.Source(source)
+		item.ActorID = actorID.String
+		item.ActorType = actorType.String
+		item.Metadata = decodeJSON(metadata, map[string]interface{}{})
+		store.conversationEntries = append(store.conversationEntries, item)
+	}
+	return rows.Err()
+}
+
+func loadCases(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, conversation_id, kind, intent, title, summary, status, approval_mode, response_mode, assigned_bot, opened_by_event_id, closed_by_event_id, latest_trace_id, superseded_by_case_id, created_at, updated_at, closed_at from case_record order by updated_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item conversation.Case
+		var status string
+		var approvalMode, responseMode, openedByEventID, closedByEventID, latestTraceID, supersededByCaseID sql.NullString
+		var closedAt sql.NullTime
+		if err := rows.Scan(&item.ID, &item.ConversationID, &item.Kind, &item.Intent, &item.Title, &item.Summary, &status, &approvalMode, &responseMode, &item.AssignedBot, &openedByEventID, &closedByEventID, &latestTraceID, &supersededByCaseID, &item.CreatedAt, &item.UpdatedAt, &closedAt); err != nil {
+			return err
+		}
+		item.Status = conversation.CaseStatus(status)
+		item.ApprovalMode = approvalMode.String
+		item.ResponseMode = responseMode.String
+		item.OpenedByEventID = openedByEventID.String
+		item.ClosedByEventID = closedByEventID.String
+		item.LatestTraceID = latestTraceID.String
+		item.SupersededByCaseID = supersededByCaseID.String
+		if closedAt.Valid {
+			t := closedAt.Time
+			item.ClosedAt = &t
+		}
+		store.cases[item.ID] = item
+	}
+	return rows.Err()
+}
+
 func loadIngestions(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, event_id, thread_key, thread_ts, workflow_hint, intent, bot_role, source, channel_id, user_id, text, created_at from ingestion order by created_at desc`)
+	rows, err := r.Query(`select id, event_id, conversation_id, case_id, thread_key, thread_ts, workflow_hint, intent, bot_role, source, channel_id, user_id, text, created_at from ingestion order by created_at desc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var item slack.Ingestion
-		var eventID, threadTS, intent, botRole sql.NullString
-		if err := rows.Scan(&item.ID, &eventID, &item.ThreadKey, &threadTS, &item.WorkflowHint, &intent, &botRole, &item.Source, &item.ChannelID, &item.UserID, &item.Text, &item.CreatedAt); err != nil {
+		var eventID, conversationID, caseID, threadTS, intent, botRole sql.NullString
+		if err := rows.Scan(&item.ID, &eventID, &conversationID, &caseID, &item.ThreadKey, &threadTS, &item.WorkflowHint, &intent, &botRole, &item.Source, &item.ChannelID, &item.UserID, &item.Text, &item.CreatedAt); err != nil {
 			return err
 		}
 		item.EventID = eventID.String
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
 		item.ThreadTS = threadTS.String
 		item.Intent = intent.String
 		item.BotRole = slack.BotRole(botRole.String)
@@ -477,20 +589,22 @@ func loadIngestions(r sqlReader, store *MemoryStore) error {
 }
 
 func loadWorkflows(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, ingestion_id, trace_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_error, created_at, updated_at, completed_at from workflow order by created_at desc`)
+	rows, err := r.Query(`select id, ingestion_id, trace_id, conversation_id, case_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_error, created_at, updated_at, completed_at from workflow order by created_at desc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var item Workflow
-		var ingestionID, traceID, intent, approvalMode, responseMode, lastError sql.NullString
+		var ingestionID, traceID, conversationID, caseID, intent, approvalMode, responseMode, lastError sql.NullString
 		var completedAt sql.NullTime
-		if err := rows.Scan(&item.ID, &ingestionID, &traceID, &item.ThreadKey, &item.Kind, &intent, &item.AssignedBot, &approvalMode, &responseMode, &item.Status, &lastError, &item.CreatedAt, &item.UpdatedAt, &completedAt); err != nil {
+		if err := rows.Scan(&item.ID, &ingestionID, &traceID, &conversationID, &caseID, &item.ThreadKey, &item.Kind, &intent, &item.AssignedBot, &approvalMode, &responseMode, &item.Status, &lastError, &item.CreatedAt, &item.UpdatedAt, &completedAt); err != nil {
 			return err
 		}
 		item.IngestionID = ingestionID.String
 		item.TraceID = traceID.String
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
 		item.Intent = intent.String
 		item.ApprovalMode = approvalMode.String
 		item.ResponseMode = responseMode.String
@@ -505,23 +619,26 @@ func loadWorkflows(r sqlReader, store *MemoryStore) error {
 }
 
 func loadAssignments(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, thread_key, assigned_bot, confidence, rationale, created_at from assignment order by created_at desc`)
+	rows, err := r.Query(`select id, conversation_id, case_id, thread_key, assigned_bot, confidence, rationale, created_at from assignment order by created_at desc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var item Assignment
-		if err := rows.Scan(&item.ID, &item.ThreadKey, &item.AssignedBot, &item.Confidence, &item.Rationale, &item.CreatedAt); err != nil {
+		var conversationID, caseID sql.NullString
+		if err := rows.Scan(&item.ID, &conversationID, &caseID, &item.ThreadKey, &item.AssignedBot, &item.Confidence, &item.Rationale, &item.CreatedAt); err != nil {
 			return err
 		}
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
 		store.assignments = append(store.assignments, item)
 	}
 	return rows.Err()
 }
 
 func loadTraces(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select trace_id, ingestion_id, workflow_id, thread_key, workflow_kind, status, last_verdict, started_at, ended_at, event_count, artifact_count, reasoning_step_count, tool_call_count, slack_action_count from trace_summary order by started_at desc`)
+	rows, err := r.Query(`select trace_id, ingestion_id, workflow_id, conversation_id, case_id, trigger_event_id, supersedes_trace_id, thread_key, workflow_kind, status, last_verdict, started_at, ended_at, event_count, artifact_count, reasoning_step_count, tool_call_count, slack_action_count from trace_summary order by started_at desc`)
 	if err != nil {
 		return err
 	}
@@ -529,10 +646,14 @@ func loadTraces(r sqlReader, store *MemoryStore) error {
 	for rows.Next() {
 		var summary events.TraceSummary
 		var status string
-		var lastVerdict sql.NullString
-		if err := rows.Scan(&summary.TraceID, &summary.IngestionID, &summary.WorkflowID, &summary.ThreadKey, &summary.WorkflowKind, &status, &lastVerdict, &summary.StartedAt, &summary.EndedAt, &summary.EventCount, &summary.ArtifactCount, &summary.ReasoningStepCount, &summary.ToolCallCount, &summary.SlackActionCount); err != nil {
+		var conversationID, caseID, triggerEventID, supersedesTraceID, lastVerdict sql.NullString
+		if err := rows.Scan(&summary.TraceID, &summary.IngestionID, &summary.WorkflowID, &conversationID, &caseID, &triggerEventID, &supersedesTraceID, &summary.ThreadKey, &summary.WorkflowKind, &status, &lastVerdict, &summary.StartedAt, &summary.EndedAt, &summary.EventCount, &summary.ArtifactCount, &summary.ReasoningStepCount, &summary.ToolCallCount, &summary.SlackActionCount); err != nil {
 			return err
 		}
+		summary.ConversationID = conversationID.String
+		summary.CaseID = caseID.String
+		summary.TriggerEventID = triggerEventID.String
+		summary.SupersedesTraceID = supersedesTraceID.String
 		summary.Status = events.Status(status)
 		summary.LastVerdict = lastVerdict.String
 		store.traces[summary.TraceID] = events.Trace{Summary: summary}
@@ -541,7 +662,7 @@ func loadTraces(r sqlReader, store *MemoryStore) error {
 		return err
 	}
 
-	rows, err = r.Query(`select trace_id, ingestion_id, workflow_id, parent_event_id, plane, service, actor, event_type, status, started_at, ended_at, payload_ref, artifact_ref, cost_tokens, latency_ms, description from trace_event order by started_at asc`)
+	rows, err = r.Query(`select trace_id, ingestion_id, workflow_id, conversation_id, case_id, trigger_event_id, parent_event_id, plane, service, actor, event_type, status, started_at, ended_at, payload_ref, artifact_ref, cost_tokens, latency_ms, description from trace_event order by started_at asc`)
 	if err != nil {
 		return err
 	}
@@ -549,11 +670,14 @@ func loadTraces(r sqlReader, store *MemoryStore) error {
 	for rows.Next() {
 		var item events.TraceEvent
 		var status string
-		var parentEvent, payloadRef, artifactRef, description sql.NullString
+		var conversationID, caseID, triggerEventID, parentEvent, payloadRef, artifactRef, description sql.NullString
 		var endedAt sql.NullTime
-		if err := rows.Scan(&item.TraceID, &item.IngestionID, &item.WorkflowID, &parentEvent, &item.Plane, &item.Service, &item.Actor, &item.EventType, &status, &item.StartedAt, &endedAt, &payloadRef, &artifactRef, &item.CostTokens, &item.LatencyMs, &description); err != nil {
+		if err := rows.Scan(&item.TraceID, &item.IngestionID, &item.WorkflowID, &conversationID, &caseID, &triggerEventID, &parentEvent, &item.Plane, &item.Service, &item.Actor, &item.EventType, &status, &item.StartedAt, &endedAt, &payloadRef, &artifactRef, &item.CostTokens, &item.LatencyMs, &description); err != nil {
 			return err
 		}
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.TriggerEventID = triggerEventID.String
 		item.Status = events.Status(status)
 		item.ParentEvent = parentEvent.String
 		item.PayloadRef = payloadRef.String
@@ -589,19 +713,21 @@ func loadTraces(r sqlReader, store *MemoryStore) error {
 		return err
 	}
 
-	rows, err = r.Query(`select id, trace_id, workflow_id, step_type, summary, evidence_refs, alternatives, confidence, decision, created_at from reasoning_step order by created_at asc`)
+	rows, err = r.Query(`select id, trace_id, workflow_id, conversation_id, case_id, step_type, summary, evidence_refs, alternatives, confidence, decision, created_at from reasoning_step order by created_at asc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var item events.ReasoningStep
-		var workflowID, decision sql.NullString
+		var workflowID, conversationID, caseID, decision sql.NullString
 		var evidenceRefs, alternatives []byte
-		if err := rows.Scan(&item.ID, &item.TraceID, &workflowID, &item.StepType, &item.Summary, &evidenceRefs, &alternatives, &item.Confidence, &decision, &item.CreatedAt); err != nil {
+		if err := rows.Scan(&item.ID, &item.TraceID, &workflowID, &conversationID, &caseID, &item.StepType, &item.Summary, &evidenceRefs, &alternatives, &item.Confidence, &decision, &item.CreatedAt); err != nil {
 			return err
 		}
 		item.WorkflowID = workflowID.String
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
 		item.Decision = decision.String
 		item.EvidenceRefs = decodeJSON(evidenceRefs, []events.EvidenceRef{})
 		item.Alternatives = decodeJSON(alternatives, []string{})
@@ -613,19 +739,21 @@ func loadTraces(r sqlReader, store *MemoryStore) error {
 		return err
 	}
 
-	rows, err = r.Query(`select id, trace_id, workflow_id, tool_name, tool_call_id, request, summary, raw_artifact_refs, approval_state, interpretation_summary, status, created_at from tool_call_record order by created_at asc`)
+	rows, err = r.Query(`select id, trace_id, workflow_id, conversation_id, case_id, tool_name, tool_call_id, request, summary, raw_artifact_refs, approval_state, interpretation_summary, status, created_at from tool_call_record order by created_at asc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var item events.ToolCallRecord
-		var workflowID, summary, approvalState, interpretationSummary, status sql.NullString
+		var workflowID, conversationID, caseID, summary, approvalState, interpretationSummary, status sql.NullString
 		var request, rawArtifactRefs []byte
-		if err := rows.Scan(&item.ID, &item.TraceID, &workflowID, &item.ToolName, &item.ToolCallID, &request, &summary, &rawArtifactRefs, &approvalState, &interpretationSummary, &status, &item.CreatedAt); err != nil {
+		if err := rows.Scan(&item.ID, &item.TraceID, &workflowID, &conversationID, &caseID, &item.ToolName, &item.ToolCallID, &request, &summary, &rawArtifactRefs, &approvalState, &interpretationSummary, &status, &item.CreatedAt); err != nil {
 			return err
 		}
 		item.WorkflowID = workflowID.String
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
 		item.Request = decodeJSON(request, map[string]interface{}{})
 		item.Summary = summary.String
 		item.RawArtifactRefs = decodeJSON(rawArtifactRefs, []string{})
@@ -640,19 +768,21 @@ func loadTraces(r sqlReader, store *MemoryStore) error {
 		return err
 	}
 
-	rows, err = r.Query(`select id, trace_id, workflow_id, channel_id, thread_ts, idempotency_key, draft_body, final_body, policy_verdict, send_status, artifact_refs, created_at from slack_action_record order by created_at asc`)
+	rows, err = r.Query(`select id, trace_id, workflow_id, conversation_id, case_id, channel_id, thread_ts, idempotency_key, draft_body, final_body, policy_verdict, send_status, artifact_refs, created_at from slack_action_record order by created_at asc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var item events.SlackActionRecord
-		var workflowID, channelID, threadTS, draftBody, finalBody, policyVerdict, sendStatus sql.NullString
+		var workflowID, conversationID, caseID, channelID, threadTS, draftBody, finalBody, policyVerdict, sendStatus sql.NullString
 		var artifactRefs []byte
-		if err := rows.Scan(&item.ID, &item.TraceID, &workflowID, &channelID, &threadTS, &item.IdempotencyKey, &draftBody, &finalBody, &policyVerdict, &sendStatus, &artifactRefs, &item.CreatedAt); err != nil {
+		if err := rows.Scan(&item.ID, &item.TraceID, &workflowID, &conversationID, &caseID, &channelID, &threadTS, &item.IdempotencyKey, &draftBody, &finalBody, &policyVerdict, &sendStatus, &artifactRefs, &item.CreatedAt); err != nil {
 			return err
 		}
 		item.WorkflowID = workflowID.String
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
 		item.ChannelID = channelID.String
 		item.ThreadTS = threadTS.String
 		item.DraftBody = draftBody.String
@@ -709,6 +839,32 @@ func loadNotes(r sqlReader, store *MemoryStore) error {
 		}
 		item.SuggestedOwner = suggestedOwner.String
 		store.notes[item.TraceID] = append(store.notes[item.TraceID], item)
+	}
+	return rows.Err()
+}
+
+func loadFeedback(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, conversation_id, case_id, trace_id, target_type, target_id, score, verdict, labels, notes, reviewer_id, created_at from feedback_record order by created_at asc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item review.FeedbackRecord
+		var conversationID, caseID, traceID, verdict, notes sql.NullString
+		var labels []byte
+		var targetType string
+		if err := rows.Scan(&item.ID, &conversationID, &caseID, &traceID, &targetType, &item.TargetID, &item.Score, &verdict, &labels, &notes, &item.ReviewerID, &item.CreatedAt); err != nil {
+			return err
+		}
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.TraceID = traceID.String
+		item.TargetType = review.FeedbackTargetType(targetType)
+		item.Verdict = verdict.String
+		item.Labels = decodeJSON(labels, []string{})
+		item.Notes = notes.String
+		store.feedbackRecords[item.TraceID] = append(store.feedbackRecords[item.TraceID], item)
 	}
 	return rows.Err()
 }
@@ -795,7 +951,7 @@ func loadSettings(r sqlReader, store *MemoryStore) error {
 }
 
 func loadWorkItems(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, queue, kind, status, trace_id, workflow_id, ingestion_id, proposal_id, thread_key, intent, repo_scope, requested_by, approval_mode, response_mode, payload, attempts, lease_owner, lease_expires_at, last_error, created_at, updated_at, completed_at from work_item order by created_at asc`)
+	rows, err := r.Query(`select id, queue, kind, status, trace_id, workflow_id, ingestion_id, conversation_id, case_id, trigger_event_id, proposal_id, thread_key, intent, repo_scope, requested_by, approval_mode, response_mode, payload, attempts, lease_owner, lease_expires_at, last_error, created_at, updated_at, completed_at from work_item order by created_at asc`)
 	if err != nil {
 		return err
 	}
@@ -803,10 +959,10 @@ func loadWorkItems(r sqlReader, store *MemoryStore) error {
 	for rows.Next() {
 		var item queue.WorkItem
 		var queueName, status string
-		var traceID, workflowID, ingestionID, proposalID, threadKey, intent, repoScope, requestedBy, approvalMode, responseMode, leaseOwner, lastError sql.NullString
+		var traceID, workflowID, ingestionID, conversationID, caseID, triggerEventID, proposalID, threadKey, intent, repoScope, requestedBy, approvalMode, responseMode, leaseOwner, lastError sql.NullString
 		var payload []byte
 		var leaseExpiresAt, completedAt sql.NullTime
-		if err := rows.Scan(&item.ID, &queueName, &item.Kind, &status, &traceID, &workflowID, &ingestionID, &proposalID, &threadKey, &intent, &repoScope, &requestedBy, &approvalMode, &responseMode, &payload, &item.Attempts, &leaseOwner, &leaseExpiresAt, &lastError, &item.CreatedAt, &item.UpdatedAt, &completedAt); err != nil {
+		if err := rows.Scan(&item.ID, &queueName, &item.Kind, &status, &traceID, &workflowID, &ingestionID, &conversationID, &caseID, &triggerEventID, &proposalID, &threadKey, &intent, &repoScope, &requestedBy, &approvalMode, &responseMode, &payload, &item.Attempts, &leaseOwner, &leaseExpiresAt, &lastError, &item.CreatedAt, &item.UpdatedAt, &completedAt); err != nil {
 			return err
 		}
 		item.Queue = queue.QueueName(queueName)
@@ -814,6 +970,9 @@ func loadWorkItems(r sqlReader, store *MemoryStore) error {
 		item.TraceID = traceID.String
 		item.WorkflowID = workflowID.String
 		item.IngestionID = ingestionID.String
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.TriggerEventID = triggerEventID.String
 		item.ProposalID = proposalID.String
 		item.ThreadKey = threadKey.String
 		item.Intent = intent.String
@@ -838,7 +997,7 @@ func loadWorkItems(r sqlReader, store *MemoryStore) error {
 }
 
 func loadCandidates(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, candidate_key, subsystem, failure_mode, intervention_type, status, severity, recurrence_count, expected_impact, novelty_score, confidence_score, freshness_score, priority_score, risk_tier, hypothesis, proposed_scope, latest_trace_id, source_eval_ids, evidence_artifact_ids, prior_similar_proposal_ids, new_evidence_since_last_rejection, last_evaluated_at, created_at, updated_at from improvement_candidate order by updated_at desc`)
+	rows, err := r.Query(`select id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, subsystem, failure_mode, intervention_type, status, severity, recurrence_count, expected_impact, novelty_score, confidence_score, freshness_score, priority_score, risk_tier, hypothesis, proposed_scope, latest_trace_id, source_eval_ids, evidence_artifact_ids, prior_similar_proposal_ids, new_evidence_since_last_rejection, last_evaluated_at, created_at, updated_at from improvement_candidate order by updated_at desc`)
 	if err != nil {
 		return err
 	}
@@ -846,12 +1005,16 @@ func loadCandidates(r sqlReader, store *MemoryStore) error {
 	for rows.Next() {
 		var item improvement.Candidate
 		var status, riskTier string
-		var latestTraceID sql.NullString
-		var sourceEvalIDs, evidenceArtifactIDs, priorSimilarProposalIDs []byte
+		var conversationID, caseID, originTraceID, latestTraceID sql.NullString
+		var evidenceTraceIDs, sourceEvalIDs, evidenceArtifactIDs, priorSimilarProposalIDs []byte
 		var lastEvaluatedAt sql.NullTime
-		if err := rows.Scan(&item.ID, &item.CandidateKey, &item.Subsystem, &item.FailureMode, &item.InterventionType, &status, &item.Severity, &item.RecurrenceCount, &item.ExpectedImpact, &item.NoveltyScore, &item.ConfidenceScore, &item.FreshnessScore, &item.PriorityScore, &riskTier, &item.Hypothesis, &item.ProposedScope, &latestTraceID, &sourceEvalIDs, &evidenceArtifactIDs, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &lastEvaluatedAt, &item.CreatedAt, &item.UpdatedAt); err != nil {
+		if err := rows.Scan(&item.ID, &item.CandidateKey, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Subsystem, &item.FailureMode, &item.InterventionType, &status, &item.Severity, &item.RecurrenceCount, &item.ExpectedImpact, &item.NoveltyScore, &item.ConfidenceScore, &item.FreshnessScore, &item.PriorityScore, &riskTier, &item.Hypothesis, &item.ProposedScope, &latestTraceID, &sourceEvalIDs, &evidenceArtifactIDs, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &lastEvaluatedAt, &item.CreatedAt, &item.UpdatedAt); err != nil {
 			return err
 		}
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.OriginTraceID = originTraceID.String
+		item.EvidenceTraceIDs = decodeJSON(evidenceTraceIDs, []string{})
 		item.Status = improvement.CandidateStatus(status)
 		item.RiskTier = improvement.RiskTier(riskTier)
 		item.LatestTraceID = latestTraceID.String
@@ -867,7 +1030,7 @@ func loadCandidates(r sqlReader, store *MemoryStore) error {
 }
 
 func loadProposals(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, trace_id, title, category, summary, status, reviewer, candidate_key, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, created_at from proposal order by created_at desc`)
+	rows, err := r.Query(`select id, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, created_at from proposal order by created_at desc`)
 	if err != nil {
 		return err
 	}
@@ -875,12 +1038,16 @@ func loadProposals(r sqlReader, store *MemoryStore) error {
 	for rows.Next() {
 		var item review.Proposal
 		var status string
-		var reviewer sql.NullString
-		var sourceEvalIDs, evidenceArtifactIDs, priorSimilarProposalIDs []byte
+		var conversationID, caseID, originTraceID, reviewer sql.NullString
+		var evidenceTraceIDs, sourceEvalIDs, evidenceArtifactIDs, priorSimilarProposalIDs []byte
 		var reviewDeadline sql.NullTime
-		if err := rows.Scan(&item.ID, &item.TraceID, &item.Title, &item.Category, &item.Summary, &status, &reviewer, &item.CandidateKey, &sourceEvalIDs, &item.RiskTier, &item.ProposedScope, &evidenceArtifactIDs, &item.ActiveSlotConsuming, &reviewDeadline, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &item.CreatedAt); err != nil {
+		if err := rows.Scan(&item.ID, &item.TraceID, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Title, &item.Category, &item.Summary, &status, &reviewer, &item.CandidateKey, &sourceEvalIDs, &item.RiskTier, &item.ProposedScope, &evidenceArtifactIDs, &item.ActiveSlotConsuming, &reviewDeadline, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &item.CreatedAt); err != nil {
 			return err
 		}
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.OriginTraceID = originTraceID.String
+		item.EvidenceTraceIDs = decodeJSON(evidenceTraceIDs, []string{})
 		item.Status = review.ProposalStatus(status)
 		item.Reviewer = reviewer.String
 		item.SourceEvalIDs = decodeJSON(sourceEvalIDs, []string{})
@@ -917,7 +1084,7 @@ func loadProposalReviews(r sqlReader, store *MemoryStore) error {
 }
 
 func loadProposalMemory(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, proposal_id, candidate_key, hypothesis, diff_summary, review_rationale, disposition, disposition_reason, failure_class, failure_classes, source_eval_ids, linked_artifact_ids, linked_proposal_ids, created_at from proposal_memory order by created_at desc`)
+	rows, err := r.Query(`select id, proposal_id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, hypothesis, diff_summary, review_rationale, disposition, disposition_reason, failure_class, failure_classes, source_eval_ids, linked_artifact_ids, linked_proposal_ids, created_at from proposal_memory order by created_at desc`)
 	if err != nil {
 		return err
 	}
@@ -925,11 +1092,15 @@ func loadProposalMemory(r sqlReader, store *MemoryStore) error {
 	for rows.Next() {
 		var item review.ProposalMemory
 		var disposition string
-		var dispositionReason, failureClass sql.NullString
-		var failureClasses, sourceEvalIDs, linkedArtifactIDs, linkedProposalIDs []byte
-		if err := rows.Scan(&item.ID, &item.ProposalID, &item.CandidateKey, &item.Hypothesis, &item.DiffSummary, &item.ReviewRationale, &disposition, &dispositionReason, &failureClass, &failureClasses, &sourceEvalIDs, &linkedArtifactIDs, &linkedProposalIDs, &item.CreatedAt); err != nil {
+		var conversationID, caseID, originTraceID, dispositionReason, failureClass sql.NullString
+		var evidenceTraceIDs, failureClasses, sourceEvalIDs, linkedArtifactIDs, linkedProposalIDs []byte
+		if err := rows.Scan(&item.ID, &item.ProposalID, &item.CandidateKey, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Hypothesis, &item.DiffSummary, &item.ReviewRationale, &disposition, &dispositionReason, &failureClass, &failureClasses, &sourceEvalIDs, &linkedArtifactIDs, &linkedProposalIDs, &item.CreatedAt); err != nil {
 			return err
 		}
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.OriginTraceID = originTraceID.String
+		item.EvidenceTraceIDs = decodeJSON(evidenceTraceIDs, []string{})
 		item.Disposition = review.ProposalStatus(disposition)
 		item.DispositionReason = dispositionReason.String
 		item.FailureClass = failureClass.String
@@ -943,17 +1114,21 @@ func loadProposalMemory(r sqlReader, store *MemoryStore) error {
 }
 
 func loadRepoChangeJobs(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, proposal_id, candidate_key, status, repo, base_ref, branch_name, allowed_path_globs, context_summary, created_at from repo_change_job order by created_at desc`)
+	rows, err := r.Query(`select id, proposal_id, conversation_id, case_id, origin_trace_id, candidate_key, status, repo, base_ref, branch_name, allowed_path_globs, context_summary, created_at from repo_change_job order by created_at desc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var item improvement.RepoChangeJob
+		var conversationID, caseID, originTraceID sql.NullString
 		var allowed []byte
-		if err := rows.Scan(&item.ID, &item.ProposalID, &item.CandidateKey, &item.Status, &item.Repo, &item.BaseRef, &item.BranchName, &allowed, &item.ContextSummary, &item.CreatedAt); err != nil {
+		if err := rows.Scan(&item.ID, &item.ProposalID, &conversationID, &caseID, &originTraceID, &item.CandidateKey, &item.Status, &item.Repo, &item.BaseRef, &item.BranchName, &allowed, &item.ContextSummary, &item.CreatedAt); err != nil {
 			return err
 		}
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.OriginTraceID = originTraceID.String
 		item.AllowedPathGlobs = decodeJSON(allowed, []string{})
 		store.repoChangeJobs[item.ID] = item
 	}
@@ -961,17 +1136,20 @@ func loadRepoChangeJobs(r sqlReader, store *MemoryStore) error {
 }
 
 func loadPRAttempts(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, proposal_id, repo, branch_name, pr_url, status, validation_status, created_at from pr_attempt order by created_at desc`)
+	rows, err := r.Query(`select id, proposal_id, conversation_id, case_id, origin_trace_id, repo, branch_name, pr_url, status, validation_status, created_at from pr_attempt order by created_at desc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var item improvement.PRAttempt
-		var prURL sql.NullString
-		if err := rows.Scan(&item.ID, &item.ProposalID, &item.Repo, &item.BranchName, &prURL, &item.Status, &item.ValidationStatus, &item.CreatedAt); err != nil {
+		var conversationID, caseID, originTraceID, prURL sql.NullString
+		if err := rows.Scan(&item.ID, &item.ProposalID, &conversationID, &caseID, &originTraceID, &item.Repo, &item.BranchName, &prURL, &item.Status, &item.ValidationStatus, &item.CreatedAt); err != nil {
 			return err
 		}
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.OriginTraceID = originTraceID.String
 		item.PRURL = prURL.String
 		store.prAttempts[item.ID] = item
 	}
@@ -979,16 +1157,19 @@ func loadPRAttempts(r sqlReader, store *MemoryStore) error {
 }
 
 func loadPostMergeReplays(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, proposal_id, trace_id, baseline_score, candidate_score, improved, created_at from post_merge_replay order by created_at desc`)
+	rows, err := r.Query(`select id, proposal_id, trace_id, conversation_id, case_id, baseline_score, candidate_score, improved, created_at from post_merge_replay order by created_at desc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var item improvement.PostMergeReplay
-		if err := rows.Scan(&item.ID, &item.ProposalID, &item.TraceID, &item.BaselineScore, &item.CandidateScore, &item.Improved, &item.CreatedAt); err != nil {
+		var conversationID, caseID sql.NullString
+		if err := rows.Scan(&item.ID, &item.ProposalID, &item.TraceID, &conversationID, &caseID, &item.BaselineScore, &item.CandidateScore, &item.Improved, &item.CreatedAt); err != nil {
 			return err
 		}
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
 		store.postMergeReplay[item.ID] = item
 	}
 	return rows.Err()
@@ -1089,10 +1270,47 @@ func persistEvents(tx *sql.Tx, store *MemoryStore) error {
 	return nil
 }
 
+func persistConversations(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.conversations)
+	for _, key := range keys {
+		item := store.conversations[key]
+		if _, err := tx.Exec(`insert into conversation (id, source, external_key, external_conversation, title, status, participant_ids, active_case_id, latest_event_id, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9,$10,$11)`,
+			item.ID, string(item.Source), item.ExternalKey, item.ExternalConversation, item.Title, string(item.Status), jsonString(item.ParticipantIDs), nullString(item.ActiveCaseID), nullString(item.LatestEventID), item.CreatedAt, item.UpdatedAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistConversationEntries(tx *sql.Tx, store *MemoryStore) error {
+	for _, item := range store.conversationEntries {
+		if _, err := tx.Exec(`insert into conversation_entry (id, conversation_id, event_id, trace_id, source, source_event_id, entry_type, actor_id, actor_type, body, metadata, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb,$12)`,
+			item.ID, item.ConversationID, nullString(item.EventID), nullString(item.TraceID), string(item.Source), item.SourceEventID, item.EntryType, nullString(item.ActorID), nullString(item.ActorType), item.Body, jsonString(item.Metadata), item.CreatedAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistCases(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.cases)
+	for _, key := range keys {
+		item := store.cases[key]
+		if _, err := tx.Exec(`insert into case_record (id, conversation_id, kind, intent, title, summary, status, approval_mode, response_mode, assigned_bot, opened_by_event_id, closed_by_event_id, latest_trace_id, superseded_by_case_id, created_at, updated_at, closed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)`,
+			item.ID, item.ConversationID, item.Kind, item.Intent, item.Title, item.Summary, string(item.Status), nullString(item.ApprovalMode), nullString(item.ResponseMode), item.AssignedBot, nullString(item.OpenedByEventID), nullString(item.ClosedByEventID), nullString(item.LatestTraceID), nullString(item.SupersededByCaseID), item.CreatedAt, item.UpdatedAt, nullTime(item.ClosedAt),
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func persistIngestions(tx *sql.Tx, store *MemoryStore) error {
 	for _, item := range store.ingestions {
-		if _, err := tx.Exec(`insert into ingestion (id, event_id, thread_key, thread_ts, workflow_hint, intent, bot_role, source, channel_id, user_id, text, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
-			item.ID, nullString(item.EventID), item.ThreadKey, nullString(item.ThreadTS), item.WorkflowHint, nullString(item.Intent), nullString(string(item.BotRole)), item.Source, item.ChannelID, item.UserID, item.Text, item.CreatedAt,
+		if _, err := tx.Exec(`insert into ingestion (id, event_id, conversation_id, case_id, thread_key, thread_ts, workflow_hint, intent, bot_role, source, channel_id, user_id, text, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
+			item.ID, nullString(item.EventID), nullString(item.ConversationID), nullString(item.CaseID), item.ThreadKey, nullString(item.ThreadTS), item.WorkflowHint, nullString(item.Intent), nullString(string(item.BotRole)), item.Source, item.ChannelID, item.UserID, item.Text, item.CreatedAt,
 		); err != nil {
 			return err
 		}
@@ -1102,8 +1320,8 @@ func persistIngestions(tx *sql.Tx, store *MemoryStore) error {
 
 func persistWorkflows(tx *sql.Tx, store *MemoryStore) error {
 	for _, item := range store.workflows {
-		if _, err := tx.Exec(`insert into workflow (id, ingestion_id, trace_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_error, created_at, updated_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
-			item.ID, nullString(item.IngestionID), nullString(item.TraceID), item.ThreadKey, item.Kind, nullString(item.Intent), item.AssignedBot, nullString(item.ApprovalMode), nullString(item.ResponseMode), item.Status, nullString(item.LastError), item.CreatedAt, item.UpdatedAt, nullTime(item.CompletedAt),
+		if _, err := tx.Exec(`insert into workflow (id, ingestion_id, trace_id, conversation_id, case_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_error, created_at, updated_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)`,
+			item.ID, nullString(item.IngestionID), nullString(item.TraceID), nullString(item.ConversationID), nullString(item.CaseID), item.ThreadKey, item.Kind, nullString(item.Intent), item.AssignedBot, nullString(item.ApprovalMode), nullString(item.ResponseMode), item.Status, nullString(item.LastError), item.CreatedAt, item.UpdatedAt, nullTime(item.CompletedAt),
 		); err != nil {
 			return err
 		}
@@ -1113,8 +1331,8 @@ func persistWorkflows(tx *sql.Tx, store *MemoryStore) error {
 
 func persistAssignments(tx *sql.Tx, store *MemoryStore) error {
 	for _, item := range store.assignments {
-		if _, err := tx.Exec(`insert into assignment (id, thread_key, assigned_bot, confidence, rationale, created_at) values ($1,$2,$3,$4,$5,$6)`,
-			item.ID, item.ThreadKey, item.AssignedBot, item.Confidence, item.Rationale, item.CreatedAt,
+		if _, err := tx.Exec(`insert into assignment (id, conversation_id, case_id, thread_key, assigned_bot, confidence, rationale, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8)`,
+			item.ID, nullString(item.ConversationID), nullString(item.CaseID), item.ThreadKey, item.AssignedBot, item.Confidence, item.Rationale, item.CreatedAt,
 		); err != nil {
 			return err
 		}
@@ -1126,14 +1344,14 @@ func persistTraces(tx *sql.Tx, store *MemoryStore) error {
 	traceIDs := sortedMapKeys(store.traces)
 	for _, traceID := range traceIDs {
 		trace := store.traces[traceID]
-		if _, err := tx.Exec(`insert into trace_summary (trace_id, ingestion_id, workflow_id, thread_key, workflow_kind, status, last_verdict, started_at, ended_at, event_count, artifact_count, reasoning_step_count, tool_call_count, slack_action_count) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
-			trace.Summary.TraceID, trace.Summary.IngestionID, trace.Summary.WorkflowID, trace.Summary.ThreadKey, trace.Summary.WorkflowKind, string(trace.Summary.Status), nullString(trace.Summary.LastVerdict), trace.Summary.StartedAt, trace.Summary.EndedAt, trace.Summary.EventCount, trace.Summary.ArtifactCount, trace.Summary.ReasoningStepCount, trace.Summary.ToolCallCount, trace.Summary.SlackActionCount,
+		if _, err := tx.Exec(`insert into trace_summary (trace_id, ingestion_id, workflow_id, conversation_id, case_id, trigger_event_id, supersedes_trace_id, thread_key, workflow_kind, status, last_verdict, started_at, ended_at, event_count, artifact_count, reasoning_step_count, tool_call_count, slack_action_count) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)`,
+			trace.Summary.TraceID, trace.Summary.IngestionID, trace.Summary.WorkflowID, nullString(trace.Summary.ConversationID), nullString(trace.Summary.CaseID), nullString(trace.Summary.TriggerEventID), nullString(trace.Summary.SupersedesTraceID), trace.Summary.ThreadKey, trace.Summary.WorkflowKind, string(trace.Summary.Status), nullString(trace.Summary.LastVerdict), trace.Summary.StartedAt, trace.Summary.EndedAt, trace.Summary.EventCount, trace.Summary.ArtifactCount, trace.Summary.ReasoningStepCount, trace.Summary.ToolCallCount, trace.Summary.SlackActionCount,
 		); err != nil {
 			return err
 		}
 		for _, event := range trace.Events {
-			if _, err := tx.Exec(`insert into trace_event (trace_id, ingestion_id, workflow_id, parent_event_id, plane, service, actor, event_type, status, started_at, ended_at, payload_ref, artifact_ref, cost_tokens, latency_ms, description) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)`,
-				event.TraceID, event.IngestionID, event.WorkflowID, nullString(event.ParentEvent), event.Plane, event.Service, event.Actor, event.EventType, string(event.Status), event.StartedAt, nullTime(event.EndedAt), nullString(event.PayloadRef), nullString(event.ArtifactRef), event.CostTokens, event.LatencyMs, nullString(event.Description),
+			if _, err := tx.Exec(`insert into trace_event (trace_id, ingestion_id, workflow_id, conversation_id, case_id, trigger_event_id, parent_event_id, plane, service, actor, event_type, status, started_at, ended_at, payload_ref, artifact_ref, cost_tokens, latency_ms, description) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)`,
+				event.TraceID, event.IngestionID, event.WorkflowID, nullString(event.ConversationID), nullString(event.CaseID), nullString(event.TriggerEventID), nullString(event.ParentEvent), event.Plane, event.Service, event.Actor, event.EventType, string(event.Status), event.StartedAt, nullTime(event.EndedAt), nullString(event.PayloadRef), nullString(event.ArtifactRef), event.CostTokens, event.LatencyMs, nullString(event.Description),
 			); err != nil {
 				return err
 			}
@@ -1146,22 +1364,22 @@ func persistTraces(tx *sql.Tx, store *MemoryStore) error {
 			}
 		}
 		for _, item := range trace.Reasoning {
-			if _, err := tx.Exec(`insert into reasoning_step (id, trace_id, workflow_id, step_type, summary, evidence_refs, alternatives, confidence, decision, created_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7::jsonb,$8,$9,$10)`,
-				item.ID, item.TraceID, nullString(item.WorkflowID), item.StepType, item.Summary, jsonString(item.EvidenceRefs), jsonString(item.Alternatives), item.Confidence, nullString(item.Decision), item.CreatedAt,
+			if _, err := tx.Exec(`insert into reasoning_step (id, trace_id, workflow_id, conversation_id, case_id, step_type, summary, evidence_refs, alternatives, confidence, decision, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9::jsonb,$10,$11,$12)`,
+				item.ID, item.TraceID, nullString(item.WorkflowID), nullString(item.ConversationID), nullString(item.CaseID), item.StepType, item.Summary, jsonString(item.EvidenceRefs), jsonString(item.Alternatives), item.Confidence, nullString(item.Decision), item.CreatedAt,
 			); err != nil {
 				return err
 			}
 		}
 		for _, item := range trace.ToolCalls {
-			if _, err := tx.Exec(`insert into tool_call_record (id, trace_id, workflow_id, tool_name, tool_call_id, request, summary, raw_artifact_refs, approval_state, interpretation_summary, status, created_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7,$8::jsonb,$9,$10,$11,$12)`,
-				item.ID, item.TraceID, nullString(item.WorkflowID), item.ToolName, item.ToolCallID, jsonString(item.Request), nullString(item.Summary), jsonString(item.RawArtifactRefs), nullString(item.ApprovalState), nullString(item.InterpretationSummary), nullString(item.Status), item.CreatedAt,
+			if _, err := tx.Exec(`insert into tool_call_record (id, trace_id, workflow_id, conversation_id, case_id, tool_name, tool_call_id, request, summary, raw_artifact_refs, approval_state, interpretation_summary, status, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$10::jsonb,$11,$12,$13,$14)`,
+				item.ID, item.TraceID, nullString(item.WorkflowID), nullString(item.ConversationID), nullString(item.CaseID), item.ToolName, item.ToolCallID, jsonString(item.Request), nullString(item.Summary), jsonString(item.RawArtifactRefs), nullString(item.ApprovalState), nullString(item.InterpretationSummary), nullString(item.Status), item.CreatedAt,
 			); err != nil {
 				return err
 			}
 		}
 		for _, item := range trace.SlackActions {
-			if _, err := tx.Exec(`insert into slack_action_record (id, trace_id, workflow_id, channel_id, thread_ts, idempotency_key, draft_body, final_body, policy_verdict, send_status, artifact_refs, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb,$12)`,
-				item.ID, item.TraceID, nullString(item.WorkflowID), nullString(item.ChannelID), nullString(item.ThreadTS), item.IdempotencyKey, nullString(item.DraftBody), nullString(item.FinalBody), nullString(item.PolicyVerdict), nullString(item.SendStatus), jsonString(item.ArtifactRefs), item.CreatedAt,
+			if _, err := tx.Exec(`insert into slack_action_record (id, trace_id, workflow_id, conversation_id, case_id, channel_id, thread_ts, idempotency_key, draft_body, final_body, policy_verdict, send_status, artifact_refs, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::jsonb,$14)`,
+				item.ID, item.TraceID, nullString(item.WorkflowID), nullString(item.ConversationID), nullString(item.CaseID), nullString(item.ChannelID), nullString(item.ThreadTS), item.IdempotencyKey, nullString(item.DraftBody), nullString(item.FinalBody), nullString(item.PolicyVerdict), nullString(item.SendStatus), jsonString(item.ArtifactRefs), item.CreatedAt,
 			); err != nil {
 				return err
 			}
@@ -1190,6 +1408,20 @@ func persistNotes(tx *sql.Tx, store *MemoryStore) error {
 		for _, item := range store.notes[traceID] {
 			if _, err := tx.Exec(`insert into improvement_note (trace_id, category, note, suggested_owner, created_by, created_at) values ($1,$2,$3,$4,$5,$6)`,
 				item.TraceID, item.Category, item.Note, nullString(item.SuggestedOwner), item.CreatedBy, item.CreatedAt,
+			); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func persistFeedback(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.feedbackRecords)
+	for _, key := range keys {
+		for _, item := range store.feedbackRecords[key] {
+			if _, err := tx.Exec(`insert into feedback_record (id, conversation_id, case_id, trace_id, target_type, target_id, score, verdict, labels, notes, reviewer_id, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10,$11,$12)`,
+				item.ID, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.TraceID), string(item.TargetType), item.TargetID, item.Score, nullString(item.Verdict), jsonString(item.Labels), nullString(item.Notes), item.ReviewerID, item.CreatedAt,
 			); err != nil {
 				return err
 			}
@@ -1240,8 +1472,8 @@ func persistCandidates(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.candidates)
 	for _, key := range keys {
 		item := store.candidates[key]
-		if _, err := tx.Exec(`insert into improvement_candidate (id, candidate_key, subsystem, failure_mode, intervention_type, status, severity, recurrence_count, expected_impact, novelty_score, confidence_score, freshness_score, priority_score, risk_tier, hypothesis, proposed_scope, latest_trace_id, source_eval_ids, evidence_artifact_ids, prior_similar_proposal_ids, new_evidence_since_last_rejection, last_evaluated_at, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18::jsonb,$19::jsonb,$20::jsonb,$21,$22,$23,$24)`,
-			item.ID, item.CandidateKey, item.Subsystem, item.FailureMode, item.InterventionType, string(item.Status), item.Severity, item.RecurrenceCount, item.ExpectedImpact, item.NoveltyScore, item.ConfidenceScore, item.FreshnessScore, item.PriorityScore, string(item.RiskTier), item.Hypothesis, item.ProposedScope, nullString(item.LatestTraceID), jsonString(item.SourceEvalIDs), jsonString(item.EvidenceArtifactIDs), jsonString(item.PriorSimilarProposalIDs), item.NewEvidenceSinceLastRejection, nullTimeValue(item.LastEvaluatedAt), item.CreatedAt, item.UpdatedAt,
+		if _, err := tx.Exec(`insert into improvement_candidate (id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, subsystem, failure_mode, intervention_type, status, severity, recurrence_count, expected_impact, novelty_score, confidence_score, freshness_score, priority_score, risk_tier, hypothesis, proposed_scope, latest_trace_id, source_eval_ids, evidence_artifact_ids, prior_similar_proposal_ids, new_evidence_since_last_rejection, last_evaluated_at, created_at, updated_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23::jsonb,$24::jsonb,$25::jsonb,$26,$27,$28,$29)`,
+			item.ID, item.CandidateKey, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), jsonString(item.EvidenceTraceIDs), item.Subsystem, item.FailureMode, item.InterventionType, string(item.Status), item.Severity, item.RecurrenceCount, item.ExpectedImpact, item.NoveltyScore, item.ConfidenceScore, item.FreshnessScore, item.PriorityScore, string(item.RiskTier), item.Hypothesis, item.ProposedScope, nullString(item.LatestTraceID), jsonString(item.SourceEvalIDs), jsonString(item.EvidenceArtifactIDs), jsonString(item.PriorSimilarProposalIDs), item.NewEvidenceSinceLastRejection, nullTimeValue(item.LastEvaluatedAt), item.CreatedAt, item.UpdatedAt,
 		); err != nil {
 			return err
 		}
@@ -1253,8 +1485,8 @@ func persistProposals(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.proposals)
 	for _, key := range keys {
 		item := store.proposals[key]
-		if _, err := tx.Exec(`insert into proposal (id, trace_id, title, category, summary, status, reviewer, candidate_key, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10,$11,$12::jsonb,$13,$14,$15::jsonb,$16,$17)`,
-			item.ID, item.TraceID, item.Title, item.Category, item.Summary, string(item.Status), nullString(item.Reviewer), item.CandidateKey, jsonString(item.SourceEvalIDs), item.RiskTier, item.ProposedScope, jsonString(item.EvidenceArtifactIDs), item.ActiveSlotConsuming, nullTimeValue(item.ReviewDeadline), jsonString(item.PriorSimilarProposalIDs), item.NewEvidenceSinceLastRejection, item.CreatedAt,
+		if _, err := tx.Exec(`insert into proposal (id, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, created_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12,$13::jsonb,$14,$15,$16::jsonb,$17,$18,$19::jsonb,$20,$21)`,
+			item.ID, item.TraceID, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), jsonString(item.EvidenceTraceIDs), item.Title, item.Category, item.Summary, string(item.Status), nullString(item.Reviewer), item.CandidateKey, jsonString(item.SourceEvalIDs), item.RiskTier, item.ProposedScope, jsonString(item.EvidenceArtifactIDs), item.ActiveSlotConsuming, nullTimeValue(item.ReviewDeadline), jsonString(item.PriorSimilarProposalIDs), item.NewEvidenceSinceLastRejection, item.CreatedAt,
 		); err != nil {
 			return err
 		}
@@ -1278,8 +1510,8 @@ func persistProposalReviews(tx *sql.Tx, store *MemoryStore) error {
 
 func persistProposalMemory(tx *sql.Tx, store *MemoryStore) error {
 	for _, item := range store.proposalMemory {
-		if _, err := tx.Exec(`insert into proposal_memory (id, proposal_id, candidate_key, hypothesis, diff_summary, review_rationale, disposition, disposition_reason, failure_class, failure_classes, source_eval_ids, linked_artifact_ids, linked_proposal_ids, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::jsonb,$11::jsonb,$12::jsonb,$13::jsonb,$14)`,
-			item.ID, item.ProposalID, item.CandidateKey, item.Hypothesis, item.DiffSummary, item.ReviewRationale, string(item.Disposition), nullString(item.DispositionReason), nullString(item.FailureClass), jsonString(item.FailureClasses), jsonString(item.SourceEvalIDs), jsonString(item.LinkedArtifactIDs), jsonString(item.LinkedProposalIDs), item.CreatedAt,
+		if _, err := tx.Exec(`insert into proposal_memory (id, proposal_id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, hypothesis, diff_summary, review_rationale, disposition, disposition_reason, failure_class, failure_classes, source_eval_ids, linked_artifact_ids, linked_proposal_ids, created_at) values ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9,$10,$11,$12,$13,$14::jsonb,$15::jsonb,$16::jsonb,$17::jsonb,$18)`,
+			item.ID, item.ProposalID, item.CandidateKey, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), jsonString(item.EvidenceTraceIDs), item.Hypothesis, item.DiffSummary, item.ReviewRationale, string(item.Disposition), nullString(item.DispositionReason), nullString(item.FailureClass), jsonString(item.FailureClasses), jsonString(item.SourceEvalIDs), jsonString(item.LinkedArtifactIDs), jsonString(item.LinkedProposalIDs), item.CreatedAt,
 		); err != nil {
 			return err
 		}
@@ -1301,8 +1533,8 @@ func persistWorkItems(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.workItems)
 	for _, key := range keys {
 		item := store.workItems[key]
-		if _, err := tx.Exec(`insert into work_item (id, queue, kind, status, trace_id, workflow_id, ingestion_id, proposal_id, thread_key, intent, repo_scope, requested_by, approval_mode, response_mode, payload, attempts, lease_owner, lease_expires_at, last_error, created_at, updated_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15::jsonb,$16,$17,$18,$19,$20,$21,$22)`,
-			item.ID, string(item.Queue), item.Kind, string(item.Status), nullString(item.TraceID), nullString(item.WorkflowID), nullString(item.IngestionID), nullString(item.ProposalID), nullString(item.ThreadKey), nullString(item.Intent), nullString(item.RepoScope), nullString(item.RequestedBy), nullString(item.ApprovalMode), nullString(item.ResponseMode), jsonString(item.Payload), item.Attempts, nullString(item.LeaseOwner), nullTime(item.LeaseExpiresAt), nullString(item.LastError), item.CreatedAt, item.UpdatedAt, nullTime(item.CompletedAt),
+		if _, err := tx.Exec(`insert into work_item (id, queue, kind, status, trace_id, workflow_id, ingestion_id, conversation_id, case_id, trigger_event_id, proposal_id, thread_key, intent, repo_scope, requested_by, approval_mode, response_mode, payload, attempts, lease_owner, lease_expires_at, last_error, created_at, updated_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18::jsonb,$19,$20,$21,$22,$23,$24,$25)`,
+			item.ID, string(item.Queue), item.Kind, string(item.Status), nullString(item.TraceID), nullString(item.WorkflowID), nullString(item.IngestionID), nullString(item.ConversationID), nullString(item.CaseID), nullString(item.TriggerEventID), nullString(item.ProposalID), nullString(item.ThreadKey), nullString(item.Intent), nullString(item.RepoScope), nullString(item.RequestedBy), nullString(item.ApprovalMode), nullString(item.ResponseMode), jsonString(item.Payload), item.Attempts, nullString(item.LeaseOwner), nullTime(item.LeaseExpiresAt), nullString(item.LastError), item.CreatedAt, item.UpdatedAt, nullTime(item.CompletedAt),
 		); err != nil {
 			return err
 		}
@@ -1314,8 +1546,8 @@ func persistRepoChangeJobs(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.repoChangeJobs)
 	for _, key := range keys {
 		item := store.repoChangeJobs[key]
-		if _, err := tx.Exec(`insert into repo_change_job (id, proposal_id, candidate_key, status, repo, base_ref, branch_name, allowed_path_globs, context_summary, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$10)`,
-			item.ID, item.ProposalID, item.CandidateKey, item.Status, item.Repo, item.BaseRef, item.BranchName, jsonString(item.AllowedPathGlobs), item.ContextSummary, item.CreatedAt,
+		if _, err := tx.Exec(`insert into repo_change_job (id, proposal_id, conversation_id, case_id, origin_trace_id, candidate_key, status, repo, base_ref, branch_name, allowed_path_globs, context_summary, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb,$12,$13)`,
+			item.ID, item.ProposalID, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), item.CandidateKey, item.Status, item.Repo, item.BaseRef, item.BranchName, jsonString(item.AllowedPathGlobs), item.ContextSummary, item.CreatedAt,
 		); err != nil {
 			return err
 		}
@@ -1327,8 +1559,8 @@ func persistPRAttempts(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.prAttempts)
 	for _, key := range keys {
 		item := store.prAttempts[key]
-		if _, err := tx.Exec(`insert into pr_attempt (id, proposal_id, repo, branch_name, pr_url, status, validation_status, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8)`,
-			item.ID, item.ProposalID, item.Repo, item.BranchName, nullString(item.PRURL), item.Status, item.ValidationStatus, item.CreatedAt,
+		if _, err := tx.Exec(`insert into pr_attempt (id, proposal_id, conversation_id, case_id, origin_trace_id, repo, branch_name, pr_url, status, validation_status, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+			item.ID, item.ProposalID, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), item.Repo, item.BranchName, nullString(item.PRURL), item.Status, item.ValidationStatus, item.CreatedAt,
 		); err != nil {
 			return err
 		}
@@ -1340,8 +1572,8 @@ func persistPostMergeReplays(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.postMergeReplay)
 	for _, key := range keys {
 		item := store.postMergeReplay[key]
-		if _, err := tx.Exec(`insert into post_merge_replay (id, proposal_id, trace_id, baseline_score, candidate_score, improved, created_at) values ($1,$2,$3,$4,$5,$6,$7)`,
-			item.ID, item.ProposalID, item.TraceID, item.BaselineScore, item.CandidateScore, item.Improved, item.CreatedAt,
+		if _, err := tx.Exec(`insert into post_merge_replay (id, proposal_id, trace_id, conversation_id, case_id, baseline_score, candidate_score, improved, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+			item.ID, item.ProposalID, item.TraceID, nullString(item.ConversationID), nullString(item.CaseID), item.BaselineScore, item.CandidateScore, item.Improved, item.CreatedAt,
 		); err != nil {
 			return err
 		}
@@ -1360,6 +1592,281 @@ func persistCronLeases(tx *sql.Tx, store *MemoryStore) error {
 		}
 	}
 	return nil
+}
+
+func backfillConversationCaseV2(store *MemoryStore) {
+	if len(store.conversations) == 0 {
+		for i := range store.ingestions {
+			ingestionItem := &store.ingestions[i]
+			externalKey := firstNonEmpty(strings.TrimSpace(ingestionItem.ThreadKey), legacyConversationKeyFromIngestion(*ingestionItem))
+			conversationID := legacyConversationID(externalKey)
+			item, ok := store.conversations[conversationID]
+			if !ok {
+				item = conversation.Conversation{
+					ID:                   conversationID,
+					Source:               ingestion.Source(ingestionItem.Source),
+					ExternalKey:          externalKey,
+					ExternalConversation: externalKey,
+					Title:                conversation.NormalizeTitle(ingestionItem.WorkflowHint, ingestionItem.Text),
+					Status:               conversation.StatusActive,
+					ParticipantIDs:       compactStrings([]string{ingestionItem.UserID}),
+					LatestEventID:        ingestionItem.EventID,
+					CreatedAt:            ingestionItem.CreatedAt,
+					UpdatedAt:            ingestionItem.CreatedAt,
+				}
+			}
+			item.ParticipantIDs = appendUnique(item.ParticipantIDs, ingestionItem.UserID)
+			item.LatestEventID = firstNonEmpty(ingestionItem.EventID, item.LatestEventID)
+			if ingestionItem.CreatedAt.After(item.UpdatedAt) {
+				item.UpdatedAt = ingestionItem.CreatedAt
+			}
+			store.conversations[conversationID] = item
+			ingestionItem.ConversationID = conversationID
+		}
+	}
+
+	if len(store.cases) == 0 {
+		for i := range store.workflows {
+			workflowItem := &store.workflows[i]
+			conversationID := workflowItem.ConversationID
+			if conversationID == "" {
+				conversationID = legacyConversationID(workflowItem.ThreadKey)
+				workflowItem.ConversationID = conversationID
+			}
+			caseID := workflowItem.CaseID
+			if caseID == "" {
+				caseID = legacyCaseID(workflowItem.ID)
+				workflowItem.CaseID = caseID
+			}
+			item := conversation.Case{
+				ID:             caseID,
+				ConversationID: conversationID,
+				Kind:           workflowItem.Kind,
+				Intent:         workflowItem.Intent,
+				Title:          conversation.NormalizeTitle(workflowItem.Kind, workflowItem.Kind),
+				Summary:        workflowItem.Kind,
+				Status:         legacyCaseStatus(workflowItem.Status),
+				ApprovalMode:   workflowItem.ApprovalMode,
+				ResponseMode:   workflowItem.ResponseMode,
+				AssignedBot:    workflowItem.AssignedBot,
+				LatestTraceID:  workflowItem.TraceID,
+				CreatedAt:      workflowItem.CreatedAt,
+				UpdatedAt:      workflowItem.UpdatedAt,
+				ClosedAt:       workflowItem.CompletedAt,
+			}
+			if workflowItem.IngestionID != "" {
+				if ingestionItem, ok := findLoadedIngestion(store.ingestions, workflowItem.IngestionID); ok {
+					item.Summary = ingestionItem.Text
+					item.Title = conversation.NormalizeTitle(workflowItem.Kind, ingestionItem.Text)
+					item.OpenedByEventID = ingestionItem.EventID
+				}
+			}
+			store.cases[item.ID] = item
+			if conversationItem, ok := store.conversations[conversationID]; ok {
+				if conversationItem.ActiveCaseID == "" && item.Status == conversation.CaseActive {
+					conversationItem.ActiveCaseID = item.ID
+				}
+				store.conversations[conversationID] = conversationItem
+			}
+		}
+	}
+
+	if len(store.conversationEntries) == 0 {
+		for _, ingestionItem := range store.ingestions {
+			store.conversationEntries = append(store.conversationEntries, conversation.Entry{
+				ID:             legacyEntryID(ingestionItem.ID),
+				ConversationID: ingestionItem.ConversationID,
+				EventID:        ingestionItem.EventID,
+				Source:         ingestion.Source(ingestionItem.Source),
+				SourceEventID:  firstNonEmpty(ingestionItem.EventID, ingestionItem.ID),
+				EntryType:      "external_event",
+				ActorID:        ingestionItem.UserID,
+				ActorType:      "user",
+				Body:           ingestionItem.Text,
+				Metadata: map[string]interface{}{
+					"channel_id": ingestionItem.ChannelID,
+					"thread_ts":  ingestionItem.ThreadTS,
+				},
+				CreatedAt: ingestionItem.CreatedAt,
+			})
+		}
+	}
+
+	for i := range store.ingestions {
+		if store.ingestions[i].CaseID == "" {
+			for _, workflowItem := range store.workflows {
+				if workflowItem.IngestionID == store.ingestions[i].ID {
+					store.ingestions[i].CaseID = workflowItem.CaseID
+					store.ingestions[i].ConversationID = workflowItem.ConversationID
+					break
+				}
+			}
+		}
+	}
+
+	for traceID, trace := range store.traces {
+		if trace.Summary.ConversationID == "" || trace.Summary.CaseID == "" {
+			for _, workflowItem := range store.workflows {
+				if workflowItem.ID != trace.Summary.WorkflowID {
+					continue
+				}
+				trace.Summary.ConversationID = firstNonEmpty(trace.Summary.ConversationID, workflowItem.ConversationID)
+				trace.Summary.CaseID = firstNonEmpty(trace.Summary.CaseID, workflowItem.CaseID)
+				break
+			}
+		}
+		if trace.Summary.TriggerEventID == "" {
+			for _, ingestionItem := range store.ingestions {
+				if ingestionItem.ID == trace.Summary.IngestionID {
+					trace.Summary.TriggerEventID = ingestionItem.EventID
+					break
+				}
+			}
+		}
+		for i := range trace.Events {
+			trace.Events[i].ConversationID = firstNonEmpty(trace.Events[i].ConversationID, trace.Summary.ConversationID)
+			trace.Events[i].CaseID = firstNonEmpty(trace.Events[i].CaseID, trace.Summary.CaseID)
+			trace.Events[i].TriggerEventID = firstNonEmpty(trace.Events[i].TriggerEventID, trace.Summary.TriggerEventID)
+		}
+		for i := range trace.Reasoning {
+			trace.Reasoning[i].ConversationID = firstNonEmpty(trace.Reasoning[i].ConversationID, trace.Summary.ConversationID)
+			trace.Reasoning[i].CaseID = firstNonEmpty(trace.Reasoning[i].CaseID, trace.Summary.CaseID)
+		}
+		for i := range trace.ToolCalls {
+			trace.ToolCalls[i].ConversationID = firstNonEmpty(trace.ToolCalls[i].ConversationID, trace.Summary.ConversationID)
+			trace.ToolCalls[i].CaseID = firstNonEmpty(trace.ToolCalls[i].CaseID, trace.Summary.CaseID)
+		}
+		for i := range trace.SlackActions {
+			trace.SlackActions[i].ConversationID = firstNonEmpty(trace.SlackActions[i].ConversationID, trace.Summary.ConversationID)
+			trace.SlackActions[i].CaseID = firstNonEmpty(trace.SlackActions[i].CaseID, trace.Summary.CaseID)
+		}
+		store.traces[traceID] = trace
+	}
+
+	for workID, item := range store.workItems {
+		if item.ConversationID == "" || item.CaseID == "" || item.TriggerEventID == "" {
+			if trace, ok := store.traces[item.TraceID]; ok {
+				item.ConversationID = firstNonEmpty(item.ConversationID, trace.Summary.ConversationID)
+				item.CaseID = firstNonEmpty(item.CaseID, trace.Summary.CaseID)
+				item.TriggerEventID = firstNonEmpty(item.TriggerEventID, trace.Summary.TriggerEventID)
+			}
+			store.workItems[workID] = item
+		}
+	}
+
+	for key, candidate := range store.candidates {
+		if trace, ok := store.traces[candidate.LatestTraceID]; ok {
+			candidate.ConversationID = firstNonEmpty(candidate.ConversationID, trace.Summary.ConversationID)
+			candidate.CaseID = firstNonEmpty(candidate.CaseID, trace.Summary.CaseID)
+			candidate.OriginTraceID = firstNonEmpty(candidate.OriginTraceID, trace.Summary.TraceID)
+			if len(candidate.EvidenceTraceIDs) == 0 {
+				candidate.EvidenceTraceIDs = []string{trace.Summary.TraceID}
+			}
+			store.candidates[key] = candidate
+		}
+	}
+	for id, proposal := range store.proposals {
+		traceID := firstNonEmpty(proposal.OriginTraceID, proposal.TraceID)
+		if trace, ok := store.traces[traceID]; ok {
+			proposal.ConversationID = firstNonEmpty(proposal.ConversationID, trace.Summary.ConversationID)
+			proposal.CaseID = firstNonEmpty(proposal.CaseID, trace.Summary.CaseID)
+			proposal.OriginTraceID = firstNonEmpty(proposal.OriginTraceID, trace.Summary.TraceID)
+			if len(proposal.EvidenceTraceIDs) == 0 {
+				proposal.EvidenceTraceIDs = []string{trace.Summary.TraceID}
+			}
+			store.proposals[id] = proposal
+		}
+	}
+	if len(store.feedbackRecords) == 0 {
+		for traceID, ratings := range store.ratings {
+			trace := store.traces[traceID]
+			for idx, rating := range ratings {
+				store.feedbackRecords[traceID] = append(store.feedbackRecords[traceID], review.FeedbackRecord{
+					ID:             fmt.Sprintf("feedback-rating-%s-%d", traceID, idx+1),
+					ConversationID: trace.Summary.ConversationID,
+					CaseID:         trace.Summary.CaseID,
+					TraceID:        traceID,
+					TargetType:     review.FeedbackTargetTrace,
+					TargetID:       traceID,
+					Score:          rating.Score,
+					Verdict:        rating.Verdict,
+					Labels:         append([]string(nil), rating.Labels...),
+					Notes:          rating.Notes,
+					ReviewerID:     rating.ReviewerID,
+					CreatedAt:      rating.CreatedAt,
+				})
+			}
+		}
+		for traceID, notes := range store.notes {
+			trace := store.traces[traceID]
+			for idx, note := range notes {
+				store.feedbackRecords[traceID] = append(store.feedbackRecords[traceID], review.FeedbackRecord{
+					ID:             fmt.Sprintf("feedback-note-%s-%d", traceID, idx+1),
+					ConversationID: trace.Summary.ConversationID,
+					CaseID:         trace.Summary.CaseID,
+					TraceID:        traceID,
+					TargetType:     review.FeedbackTargetTrace,
+					TargetID:       traceID,
+					Verdict:        note.Category,
+					Labels:         []string{"improvement_note"},
+					Notes:          note.Note,
+					ReviewerID:     note.CreatedBy,
+					CreatedAt:      note.CreatedAt,
+				})
+			}
+		}
+	}
+}
+
+func legacyConversationKeyFromIngestion(item slack.Ingestion) string {
+	if item.ThreadKey != "" {
+		return item.ThreadKey
+	}
+	if strings.HasPrefix(item.ChannelID, "D") {
+		return fmt.Sprintf("slack:dm:%s", item.ChannelID)
+	}
+	return fmt.Sprintf("%s:%s", item.Source, item.ID)
+}
+
+func legacyConversationID(externalKey string) string {
+	return fmt.Sprintf("conv-%s", sanitizeIDComponent(externalKey))
+}
+
+func legacyCaseID(workflowID string) string {
+	return fmt.Sprintf("case-%s", sanitizeIDComponent(workflowID))
+}
+
+func legacyEntryID(ingestionID string) string {
+	return fmt.Sprintf("entry-%s", sanitizeIDComponent(ingestionID))
+}
+
+func sanitizeIDComponent(value string) string {
+	replacer := strings.NewReplacer(":", "-", "/", "-", ".", "-", " ", "-", "#", "-")
+	value = replacer.Replace(strings.TrimSpace(value))
+	if value == "" {
+		return "unknown"
+	}
+	return value
+}
+
+func legacyCaseStatus(status string) conversation.CaseStatus {
+	switch strings.ToLower(strings.TrimSpace(status)) {
+	case "completed":
+		return conversation.CaseResolved
+	case "failed":
+		return conversation.CaseClosed
+	default:
+		return conversation.CaseActive
+	}
+}
+
+func findLoadedIngestion(items []slack.Ingestion, id string) (slack.Ingestion, bool) {
+	for _, item := range items {
+		if item.ID == id {
+			return item, true
+		}
+	}
+	return slack.Ingestion{}, false
 }
 
 func decodeJSON[T any](raw []byte, fallback T) T {
@@ -1414,6 +1921,46 @@ func (p *PostgresStore) ListEvents() []ingestion.EventEnvelope {
 		return nil
 	}
 	return store.ListEvents()
+}
+
+func (p *PostgresStore) ListConversations() []conversation.Conversation {
+	store, err := p.readStore()
+	if err != nil {
+		return nil
+	}
+	return store.ListConversations()
+}
+
+func (p *PostgresStore) GetConversation(conversationID string) (conversation.Conversation, bool) {
+	store, err := p.readStore()
+	if err != nil {
+		return conversation.Conversation{}, false
+	}
+	return store.GetConversation(conversationID)
+}
+
+func (p *PostgresStore) ListConversationEntries(conversationID string) []conversation.Entry {
+	store, err := p.readStore()
+	if err != nil {
+		return nil
+	}
+	return store.ListConversationEntries(conversationID)
+}
+
+func (p *PostgresStore) ListCases() []conversation.Case {
+	store, err := p.readStore()
+	if err != nil {
+		return nil
+	}
+	return store.ListCases()
+}
+
+func (p *PostgresStore) GetCase(caseID string) (conversation.Case, bool) {
+	store, err := p.readStore()
+	if err != nil {
+		return conversation.Case{}, false
+	}
+	return store.GetCase(caseID)
 }
 
 func (p *PostgresStore) CreateEvent(event ingestion.EventEnvelope) (created ingestion.EventEnvelope, err error) {
@@ -1545,6 +2092,23 @@ func (p *PostgresStore) ListImprovementNotes(traceID string) []review.Improvemen
 		return []review.ImprovementNote{}
 	}
 	return store.ListImprovementNotes(traceID)
+}
+
+func (p *PostgresStore) ListFeedback(traceID string) []review.FeedbackRecord {
+	store, err := p.readStore()
+	if err != nil {
+		return []review.FeedbackRecord{}
+	}
+	return store.ListFeedback(traceID)
+}
+
+func (p *PostgresStore) AddFeedback(record review.FeedbackRecord) (item review.FeedbackRecord, err error) {
+	err = p.mutate(func(store *MemoryStore) error {
+		var inner error
+		item, inner = store.AddFeedback(record)
+		return inner
+	})
+	return
 }
 
 func (p *PostgresStore) AddRating(traceID string, rating review.HumanRating) (item review.HumanRating, err error) {

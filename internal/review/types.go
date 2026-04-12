@@ -48,9 +48,40 @@ type ImprovementNote struct {
 	CreatedAt      time.Time `json:"created_at"`
 }
 
+type FeedbackTargetType string
+
+const (
+	FeedbackTargetConversation FeedbackTargetType = "conversation"
+	FeedbackTargetCase         FeedbackTargetType = "case"
+	FeedbackTargetTrace        FeedbackTargetType = "trace"
+	FeedbackTargetReasoning    FeedbackTargetType = "reasoning_step"
+	FeedbackTargetToolCall     FeedbackTargetType = "tool_call"
+	FeedbackTargetSlackAction  FeedbackTargetType = "slack_action"
+	FeedbackTargetProposal     FeedbackTargetType = "proposal"
+)
+
+type FeedbackRecord struct {
+	ID             string             `json:"id"`
+	ConversationID string             `json:"conversation_id,omitempty"`
+	CaseID         string             `json:"case_id,omitempty"`
+	TraceID        string             `json:"trace_id,omitempty"`
+	TargetType     FeedbackTargetType `json:"target_type"`
+	TargetID       string             `json:"target_id"`
+	Score          int                `json:"score,omitempty"`
+	Verdict        string             `json:"verdict,omitempty"`
+	Labels         []string           `json:"labels,omitempty"`
+	Notes          string             `json:"notes,omitempty"`
+	ReviewerID     string             `json:"reviewer_id"`
+	CreatedAt      time.Time          `json:"created_at"`
+}
+
 type Proposal struct {
 	ID                            string           `json:"id"`
 	TraceID                       string           `json:"trace_id"`
+	ConversationID                string           `json:"conversation_id,omitempty"`
+	CaseID                        string           `json:"case_id,omitempty"`
+	OriginTraceID                 string           `json:"origin_trace_id,omitempty"`
+	EvidenceTraceIDs              []string         `json:"evidence_trace_ids,omitempty"`
 	Title                         string           `json:"title"`
 	Category                      string           `json:"category"`
 	Summary                       string           `json:"summary"`
@@ -83,6 +114,10 @@ type ProposalMemory struct {
 	ID                string         `json:"id"`
 	ProposalID        string         `json:"proposal_id"`
 	CandidateKey      string         `json:"candidate_key"`
+	ConversationID    string         `json:"conversation_id,omitempty"`
+	CaseID            string         `json:"case_id,omitempty"`
+	OriginTraceID     string         `json:"origin_trace_id,omitempty"`
+	EvidenceTraceIDs  []string       `json:"evidence_trace_ids,omitempty"`
 	Hypothesis        string         `json:"hypothesis"`
 	DiffSummary       string         `json:"diff_summary"`
 	ReviewRationale   string         `json:"review_rationale"`

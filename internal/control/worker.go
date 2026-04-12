@@ -8,6 +8,7 @@ import (
 
 	"github.com/piplabs/rsi-agent-platform/internal/clients"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
+	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/runnerutil"
@@ -149,7 +150,7 @@ func processWorkflowItem(cfg config.Config, store storepkg.Store, runnerClient *
 		},
 	})
 
-	runnerTask := buildRunnerTask(cfg, trace, workflow, ingestion, contextSummary, contextRefs, toolNames)
+	runnerTask := buildRunnerTask(cfg, store, trace, workflow, ingestion, contextSummary, contextRefs, toolNames)
 	runnerResp, err := runnerClient.Execute(runnerTask)
 	if err != nil {
 		return err
@@ -311,31 +312,94 @@ func processWorkflowItem(cfg config.Config, store storepkg.Store, runnerClient *
 	return nil
 }
 
-func buildRunnerTask(cfg config.Config, trace events.Trace, workflow storepkg.Workflow, ingestion slackpkg.Ingestion, contextSummary string, contextRefs []map[string]any, toolNames []string) clients.RunnerTask {
+func buildRunnerTask(cfg config.Config, store storepkg.Store, trace events.Trace, workflow storepkg.Workflow, ingestion slackpkg.Ingestion, contextSummary string, contextRefs []map[string]any, toolNames []string) clients.RunnerTask {
+	caseSummary := map[string]any{}
+	if caseRecord, ok := store.GetCase(trace.Summary.CaseID); ok {
+		caseSummary = map[string]any{
+			"case_id":         caseRecord.ID,
+			"conversation_id": caseRecord.ConversationID,
+			"kind":            caseRecord.Kind,
+			"intent":          caseRecord.Intent,
+			"title":           caseRecord.Title,
+			"summary":         caseRecord.Summary,
+			"status":          caseRecord.Status,
+			"assigned_bot":    caseRecord.AssignedBot,
+			"latest_trace_id": caseRecord.LatestTraceID,
+		}
+	}
+	recentEntries := recentConversationEntries(store.ListConversationEntries(trace.Summary.ConversationID))
+	priorTraceRefs := priorTraceRefsForCase(store.ListTraces(), trace.Summary.CaseID, trace.Summary.TraceID)
 	prompt := fmt.Sprintf("User request: %s\n\nRespond in-thread for intent=%s. Use the gathered context and cite concrete evidence when possible. If unsure, say so explicitly.", ingestion.Text, workflow.Intent)
 	return clients.RunnerTask{
-		TaskType:                "workflow",
-		Repo:                    cfg.DefaultRepo,
-		RepoRef:                 "main",
-		Prompt:                  prompt,
-		SystemMessage:           "Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, and self_critique.",
-		AllowedTools:            toolNames,
-		AllowedCommands:         []string{},
-		TimeoutSeconds:          120,
-		ExpectedOutputs:         []string{"visible_reasoning", "final_answer"},
-		ArtifactDestination:     fmt.Sprintf("trace:%s", trace.Summary.TraceID),
-		ContextSummary:          contextSummary,
-		Intent:                  workflow.Intent,
-		TraceID:                 trace.Summary.TraceID,
-		WorkflowID:              trace.Summary.WorkflowID,
-		RepoAllowlist:           cfg.AllowedTargetRepos,
-		ToolAllowlist:           toolNames,
-		ResponseMode:            workflow.ResponseMode,
-		ContextRefs:             contextRefs,
-		ApprovalMode:            workflow.ApprovalMode,
-		ReasoningVerbosity:      cfg.DefaultReasoningVerbosity,
-		RejectedProposalContext: []map[string]any{},
+		TaskType:                  "workflow",
+		Repo:                      cfg.DefaultRepo,
+		RepoRef:                   "main",
+		Prompt:                    prompt,
+		SystemMessage:             "Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, and self_critique.",
+		AllowedTools:              toolNames,
+		AllowedCommands:           []string{},
+		TimeoutSeconds:            120,
+		ExpectedOutputs:           []string{"visible_reasoning", "final_answer"},
+		ArtifactDestination:       fmt.Sprintf("trace:%s", trace.Summary.TraceID),
+		ContextSummary:            contextSummary,
+		Intent:                    workflow.Intent,
+		TraceID:                   trace.Summary.TraceID,
+		WorkflowID:                trace.Summary.WorkflowID,
+		ConversationID:            trace.Summary.ConversationID,
+		CaseID:                    trace.Summary.CaseID,
+		TriggerEventID:            trace.Summary.TriggerEventID,
+		RecentConversationEntries: recentEntries,
+		CaseSummary:               caseSummary,
+		PriorTraceRefs:            priorTraceRefs,
+		RepoAllowlist:             cfg.AllowedTargetRepos,
+		ToolAllowlist:             toolNames,
+		ResponseMode:              workflow.ResponseMode,
+		ContextRefs:               contextRefs,
+		ApprovalMode:              workflow.ApprovalMode,
+		ReasoningVerbosity:        cfg.DefaultReasoningVerbosity,
+		RejectedProposalContext:   []map[string]any{},
 	}
+}
+
+func recentConversationEntries(items []conversation.Entry) []map[string]any {
+	if len(items) > 8 {
+		items = items[len(items)-8:]
+	}
+	out := make([]map[string]any, 0, len(items))
+	for _, item := range items {
+		out = append(out, map[string]any{
+			"id":              item.ID,
+			"event_id":        item.EventID,
+			"entry_type":      item.EntryType,
+			"actor_id":        item.ActorID,
+			"actor_type":      item.ActorType,
+			"body":            item.Body,
+			"created_at":      item.CreatedAt,
+			"source":          item.Source,
+			"source_event_id": item.SourceEventID,
+		})
+	}
+	return out
+}
+
+func priorTraceRefsForCase(items []events.TraceSummary, caseID string, currentTraceID string) []map[string]any {
+	out := make([]map[string]any, 0)
+	for _, item := range items {
+		if item.CaseID != caseID || item.TraceID == currentTraceID {
+			continue
+		}
+		out = append(out, map[string]any{
+			"trace_id":         item.TraceID,
+			"status":           item.Status,
+			"workflow_kind":    item.WorkflowKind,
+			"started_at":       item.StartedAt,
+			"trigger_event_id": item.TriggerEventID,
+		})
+		if len(out) == 6 {
+			break
+		}
+	}
+	return out
 }
 
 func collectContext(cfg config.Config, toolClient *clients.ToolGatewayClient, trace events.Trace, workflow storepkg.Workflow, ingestion slackpkg.Ingestion, toolNames []string) ([]events.ToolCallRecord, []events.TraceEvent, []map[string]any, string, error) {

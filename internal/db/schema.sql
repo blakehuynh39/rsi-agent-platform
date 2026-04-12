@@ -168,6 +168,61 @@ create table if not exists event_envelope (
 
 create unique index if not exists event_envelope_dedupe_idx on event_envelope (source, dedupe_key);
 
+create table if not exists conversation (
+  id text primary key,
+  source text not null,
+  external_key text not null unique,
+  external_conversation text not null,
+  title text not null default '',
+  status text not null default 'active',
+  participant_ids jsonb not null default '[]'::jsonb,
+  active_case_id text,
+  latest_event_id text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists conversation_updated_idx on conversation (updated_at desc);
+
+create table if not exists conversation_entry (
+  id text primary key,
+  conversation_id text not null,
+  event_id text,
+  trace_id text,
+  source text not null,
+  source_event_id text not null,
+  entry_type text not null,
+  actor_id text,
+  actor_type text,
+  body text not null default '',
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists conversation_entry_conv_idx on conversation_entry (conversation_id, created_at asc);
+
+create table if not exists case_record (
+  id text primary key,
+  conversation_id text not null,
+  kind text not null,
+  intent text not null,
+  title text not null default '',
+  summary text not null default '',
+  status text not null default 'active',
+  approval_mode text,
+  response_mode text,
+  assigned_bot text not null default '',
+  opened_by_event_id text,
+  closed_by_event_id text,
+  latest_trace_id text,
+  superseded_by_case_id text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  closed_at timestamptz
+);
+
+create index if not exists case_record_conversation_idx on case_record (conversation_id, updated_at desc);
+
 create table if not exists improvement_note (
   id bigserial primary key,
   trace_id text not null,
@@ -181,6 +236,10 @@ create table if not exists improvement_note (
 create table if not exists proposal (
   id text primary key,
   trace_id text not null,
+  conversation_id text,
+  case_id text,
+  origin_trace_id text,
+  evidence_trace_ids jsonb not null default '[]'::jsonb,
   title text not null,
   category text not null,
   summary text not null,
@@ -215,6 +274,10 @@ create table if not exists proposal_memory (
   id text primary key,
   proposal_id text not null,
   candidate_key text not null,
+  conversation_id text,
+  case_id text,
+  origin_trace_id text,
+  evidence_trace_ids jsonb not null default '[]'::jsonb,
   hypothesis text not null,
   diff_summary text not null,
   review_rationale text not null,
@@ -266,6 +329,10 @@ create table if not exists eval_judgment (
 create table if not exists improvement_candidate (
   id text primary key,
   candidate_key text not null unique,
+  conversation_id text,
+  case_id text,
+  origin_trace_id text,
+  evidence_trace_ids jsonb not null default '[]'::jsonb,
   subsystem text not null,
   failure_mode text not null,
   intervention_type text not null,
@@ -295,6 +362,9 @@ create index if not exists improvement_candidate_priority_idx on improvement_can
 create table if not exists repo_change_job (
   id text primary key,
   proposal_id text not null,
+  conversation_id text,
+  case_id text,
+  origin_trace_id text,
   candidate_key text not null,
   status text not null,
   repo text not null,
@@ -308,6 +378,9 @@ create table if not exists repo_change_job (
 create table if not exists pr_attempt (
   id text primary key,
   proposal_id text not null,
+  conversation_id text,
+  case_id text,
+  origin_trace_id text,
   repo text not null,
   branch_name text not null,
   pr_url text,
@@ -320,6 +393,8 @@ create table if not exists post_merge_replay (
   id text primary key,
   proposal_id text not null,
   trace_id text not null,
+  conversation_id text,
+  case_id text,
   baseline_score double precision not null default 0,
   candidate_score double precision not null default 0,
   improved boolean not null default false,
@@ -356,6 +431,9 @@ create table if not exists work_item (
   trace_id text,
   workflow_id text,
   ingestion_id text,
+  conversation_id text,
+  case_id text,
+  trigger_event_id text,
   proposal_id text,
   thread_key text,
   intent text,
@@ -379,6 +457,8 @@ create table if not exists reasoning_step (
   id text primary key,
   trace_id text not null,
   workflow_id text,
+  conversation_id text,
+  case_id text,
   step_type text not null,
   summary text not null,
   evidence_refs jsonb not null default '[]'::jsonb,
@@ -394,6 +474,8 @@ create table if not exists tool_call_record (
   id text primary key,
   trace_id text not null,
   workflow_id text,
+  conversation_id text,
+  case_id text,
   tool_name text not null,
   tool_call_id text not null,
   request jsonb not null default '{}'::jsonb,
@@ -411,6 +493,8 @@ create table if not exists slack_action_record (
   id text primary key,
   trace_id text not null,
   workflow_id text,
+  conversation_id text,
+  case_id text,
   channel_id text,
   thread_ts text,
   idempotency_key text not null,
@@ -424,13 +508,34 @@ create table if not exists slack_action_record (
 
 create index if not exists slack_action_record_trace_idx on slack_action_record (trace_id, created_at asc);
 
+create table if not exists feedback_record (
+  id text primary key,
+  conversation_id text,
+  case_id text,
+  trace_id text,
+  target_type text not null,
+  target_id text not null,
+  score integer not null default 0,
+  verdict text,
+  labels jsonb not null default '[]'::jsonb,
+  notes text,
+  reviewer_id text not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists feedback_record_trace_idx on feedback_record (trace_id, created_at asc);
+
 alter table if exists ingestion add column if not exists event_id text;
+alter table if exists ingestion add column if not exists conversation_id text;
+alter table if exists ingestion add column if not exists case_id text;
 alter table if exists ingestion add column if not exists thread_ts text;
 alter table if exists ingestion add column if not exists intent text;
 alter table if exists ingestion add column if not exists bot_role text;
 
 alter table if exists workflow add column if not exists ingestion_id text;
 alter table if exists workflow add column if not exists trace_id text;
+alter table if exists workflow add column if not exists conversation_id text;
+alter table if exists workflow add column if not exists case_id text;
 alter table if exists workflow add column if not exists intent text;
 alter table if exists workflow add column if not exists approval_mode text;
 alter table if exists workflow add column if not exists response_mode text;
@@ -438,9 +543,58 @@ alter table if exists workflow add column if not exists last_error text;
 alter table if exists workflow add column if not exists updated_at timestamptz not null default now();
 alter table if exists workflow add column if not exists completed_at timestamptz;
 
+alter table if exists assignment add column if not exists conversation_id text;
+alter table if exists assignment add column if not exists case_id text;
+
+alter table if exists trace_summary add column if not exists conversation_id text;
+alter table if exists trace_summary add column if not exists case_id text;
+alter table if exists trace_summary add column if not exists trigger_event_id text;
+alter table if exists trace_summary add column if not exists supersedes_trace_id text;
 alter table if exists trace_summary add column if not exists reasoning_step_count integer not null default 0;
 alter table if exists trace_summary add column if not exists tool_call_count integer not null default 0;
 alter table if exists trace_summary add column if not exists slack_action_count integer not null default 0;
 
+alter table if exists trace_event add column if not exists conversation_id text;
+alter table if exists trace_event add column if not exists case_id text;
+alter table if exists trace_event add column if not exists trigger_event_id text;
+
+alter table if exists reasoning_step add column if not exists conversation_id text;
+alter table if exists reasoning_step add column if not exists case_id text;
+
+alter table if exists tool_call_record add column if not exists conversation_id text;
+alter table if exists tool_call_record add column if not exists case_id text;
+
+alter table if exists slack_action_record add column if not exists conversation_id text;
+alter table if exists slack_action_record add column if not exists case_id text;
+
+alter table if exists work_item add column if not exists conversation_id text;
+alter table if exists work_item add column if not exists case_id text;
+alter table if exists work_item add column if not exists trigger_event_id text;
+
+alter table if exists proposal add column if not exists conversation_id text;
+alter table if exists proposal add column if not exists case_id text;
+alter table if exists proposal add column if not exists origin_trace_id text;
+alter table if exists proposal add column if not exists evidence_trace_ids jsonb not null default '[]'::jsonb;
+
 alter table if exists proposal_review add column if not exists failure_classes jsonb not null default '[]'::jsonb;
+alter table if exists proposal_memory add column if not exists conversation_id text;
+alter table if exists proposal_memory add column if not exists case_id text;
+alter table if exists proposal_memory add column if not exists origin_trace_id text;
+alter table if exists proposal_memory add column if not exists evidence_trace_ids jsonb not null default '[]'::jsonb;
 alter table if exists proposal_memory add column if not exists failure_classes jsonb not null default '[]'::jsonb;
+
+alter table if exists improvement_candidate add column if not exists conversation_id text;
+alter table if exists improvement_candidate add column if not exists case_id text;
+alter table if exists improvement_candidate add column if not exists origin_trace_id text;
+alter table if exists improvement_candidate add column if not exists evidence_trace_ids jsonb not null default '[]'::jsonb;
+
+alter table if exists repo_change_job add column if not exists conversation_id text;
+alter table if exists repo_change_job add column if not exists case_id text;
+alter table if exists repo_change_job add column if not exists origin_trace_id text;
+
+alter table if exists pr_attempt add column if not exists conversation_id text;
+alter table if exists pr_attempt add column if not exists case_id text;
+alter table if exists pr_attempt add column if not exists origin_trace_id text;
+
+alter table if exists post_merge_replay add column if not exists conversation_id text;
+alter table if exists post_merge_replay add column if not exists case_id text;

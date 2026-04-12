@@ -9,6 +9,7 @@ import (
 
 	"github.com/piplabs/rsi-agent-platform/internal/clients"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
+	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	"github.com/piplabs/rsi-agent-platform/internal/evals"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
@@ -107,7 +108,7 @@ func processEvalItem(cfg config.Config, store storepkg.Store, runnerClient *clie
 		runnerErr    error
 	)
 	if runnerClient != nil {
-		runnerResp, runnerErr = runnerClient.Execute(buildEvalRunnerTask(cfg, trace, run, judgments, item))
+		runnerResp, runnerErr = runnerClient.Execute(buildEvalRunnerTask(cfg, store, trace, run, judgments, item))
 		if runnerErr == nil {
 			runnerOutput = runnerutil.ParseStructuredOutput(runnerResp)
 		}
@@ -219,7 +220,7 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 		runnerErr    error
 	)
 	if runnerClient != nil {
-		runnerResp, runnerErr = runnerClient.Execute(buildProposalRunnerTask(cfg, trace, proposal, memories))
+		runnerResp, runnerErr = runnerClient.Execute(buildProposalRunnerTask(cfg, store, trace, proposal, memories))
 		if runnerErr == nil {
 			runnerOutput = runnerutil.ParseStructuredOutput(runnerResp)
 		}
@@ -584,7 +585,7 @@ func filterProposalMemory(items []review.ProposalMemory, candidateKey string) []
 	return out
 }
 
-func buildEvalRunnerTask(cfg config.Config, trace events.Trace, run evals.Run, judgments []evals.Judgment, item queue.WorkItem) clients.RunnerTask {
+func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.Trace, run evals.Run, judgments []evals.Judgment, item queue.WorkItem) clients.RunnerTask {
 	contextRefs := make([]map[string]any, 0, len(judgments)+1)
 	contextRefs = append(contextRefs, map[string]any{
 		"kind":      "eval_run",
@@ -617,6 +618,19 @@ func buildEvalRunnerTask(cfg config.Config, trace events.Trace, run evals.Run, j
 		run.OverallScore,
 		judgmentDigest(judgments),
 	)
+	caseSummary := map[string]any{}
+	if caseRecord, ok := store.GetCase(trace.Summary.CaseID); ok {
+		caseSummary = map[string]any{
+			"case_id":         caseRecord.ID,
+			"conversation_id": caseRecord.ConversationID,
+			"kind":            caseRecord.Kind,
+			"intent":          caseRecord.Intent,
+			"title":           caseRecord.Title,
+			"summary":         caseRecord.Summary,
+			"status":          caseRecord.Status,
+			"assigned_bot":    caseRecord.AssignedBot,
+		}
+	}
 	return clients.RunnerTask{
 		TaskType:            "eval",
 		Repo:                cfg.DefaultRepo,
@@ -633,18 +647,24 @@ func buildEvalRunnerTask(cfg config.Config, trace events.Trace, run evals.Run, j
 			run.OverallScore,
 			len(judgments),
 		),
-		Intent:             trace.Summary.WorkflowKind,
-		TraceID:            trace.Summary.TraceID,
-		WorkflowID:         trace.Summary.WorkflowID,
-		RepoAllowlist:      cfg.AllowedTargetRepos,
-		ResponseMode:       "analysis",
-		ContextRefs:        contextRefs,
-		ApprovalMode:       "deterministic",
-		ReasoningVerbosity: cfg.DefaultReasoningVerbosity,
+		Intent:                    trace.Summary.WorkflowKind,
+		TraceID:                   trace.Summary.TraceID,
+		WorkflowID:                trace.Summary.WorkflowID,
+		ConversationID:            trace.Summary.ConversationID,
+		CaseID:                    trace.Summary.CaseID,
+		TriggerEventID:            trace.Summary.TriggerEventID,
+		RecentConversationEntries: improvementRecentConversationEntries(store.ListConversationEntries(trace.Summary.ConversationID)),
+		CaseSummary:               caseSummary,
+		PriorTraceRefs:            improvementPriorTraceRefs(store.ListTraces(), trace.Summary.CaseID, trace.Summary.TraceID),
+		RepoAllowlist:             cfg.AllowedTargetRepos,
+		ResponseMode:              "analysis",
+		ContextRefs:               contextRefs,
+		ApprovalMode:              "deterministic",
+		ReasoningVerbosity:        cfg.DefaultReasoningVerbosity,
 	}
 }
 
-func buildProposalRunnerTask(cfg config.Config, trace events.Trace, proposal review.Proposal, memories []review.ProposalMemory) clients.RunnerTask {
+func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace events.Trace, proposal review.Proposal, memories []review.ProposalMemory) clients.RunnerTask {
 	rejectedContext := make([]map[string]any, 0, len(memories))
 	for _, memory := range memories {
 		rejectedContext = append(rejectedContext, map[string]any{
@@ -672,26 +692,86 @@ func buildProposalRunnerTask(cfg config.Config, trace events.Trace, proposal rev
 		proposal.ProposedScope,
 		proposal.Summary,
 	)
-	return clients.RunnerTask{
-		TaskType:                "proposal",
-		Repo:                    cfg.DefaultRepo,
-		RepoRef:                 "main",
-		Prompt:                  prompt,
-		SystemMessage:           "Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, and self_critique.",
-		TimeoutSeconds:          120,
-		ExpectedOutputs:         []string{"visible_reasoning", "final_answer"},
-		ArtifactDestination:     fmt.Sprintf("trace:%s:proposal:%s", trace.Summary.TraceID, proposal.ID),
-		ContextSummary:          fmt.Sprintf("Approved proposal %s for candidate %s is entering repo-change queue.", proposal.ID, proposal.CandidateKey),
-		RejectedProposalContext: rejectedContext,
-		Intent:                  trace.Summary.WorkflowKind,
-		TraceID:                 trace.Summary.TraceID,
-		WorkflowID:              trace.Summary.WorkflowID,
-		RepoAllowlist:           cfg.AllowedTargetRepos,
-		ResponseMode:            "analysis",
-		ContextRefs:             contextRefs,
-		ApprovalMode:            "human_review",
-		ReasoningVerbosity:      cfg.DefaultReasoningVerbosity,
+	caseSummary := map[string]any{}
+	if caseRecord, ok := store.GetCase(trace.Summary.CaseID); ok {
+		caseSummary = map[string]any{
+			"case_id":         caseRecord.ID,
+			"conversation_id": caseRecord.ConversationID,
+			"kind":            caseRecord.Kind,
+			"intent":          caseRecord.Intent,
+			"title":           caseRecord.Title,
+			"summary":         caseRecord.Summary,
+			"status":          caseRecord.Status,
+			"assigned_bot":    caseRecord.AssignedBot,
+		}
 	}
+	return clients.RunnerTask{
+		TaskType:                  "proposal",
+		Repo:                      cfg.DefaultRepo,
+		RepoRef:                   "main",
+		Prompt:                    prompt,
+		SystemMessage:             "Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, and self_critique.",
+		TimeoutSeconds:            120,
+		ExpectedOutputs:           []string{"visible_reasoning", "final_answer"},
+		ArtifactDestination:       fmt.Sprintf("trace:%s:proposal:%s", trace.Summary.TraceID, proposal.ID),
+		ContextSummary:            fmt.Sprintf("Approved proposal %s for candidate %s is entering repo-change queue.", proposal.ID, proposal.CandidateKey),
+		RejectedProposalContext:   rejectedContext,
+		Intent:                    trace.Summary.WorkflowKind,
+		TraceID:                   trace.Summary.TraceID,
+		WorkflowID:                trace.Summary.WorkflowID,
+		ConversationID:            trace.Summary.ConversationID,
+		CaseID:                    trace.Summary.CaseID,
+		TriggerEventID:            trace.Summary.TriggerEventID,
+		RecentConversationEntries: improvementRecentConversationEntries(store.ListConversationEntries(trace.Summary.ConversationID)),
+		CaseSummary:               caseSummary,
+		PriorTraceRefs:            improvementPriorTraceRefs(store.ListTraces(), trace.Summary.CaseID, trace.Summary.TraceID),
+		RepoAllowlist:             cfg.AllowedTargetRepos,
+		ResponseMode:              "analysis",
+		ContextRefs:               contextRefs,
+		ApprovalMode:              "human_review",
+		ReasoningVerbosity:        cfg.DefaultReasoningVerbosity,
+	}
+}
+
+func improvementRecentConversationEntries(items []conversation.Entry) []map[string]any {
+	if len(items) > 8 {
+		items = items[len(items)-8:]
+	}
+	out := make([]map[string]any, 0, len(items))
+	for _, item := range items {
+		out = append(out, map[string]any{
+			"id":              item.ID,
+			"event_id":        item.EventID,
+			"entry_type":      item.EntryType,
+			"actor_id":        item.ActorID,
+			"actor_type":      item.ActorType,
+			"body":            item.Body,
+			"created_at":      item.CreatedAt,
+			"source":          item.Source,
+			"source_event_id": item.SourceEventID,
+		})
+	}
+	return out
+}
+
+func improvementPriorTraceRefs(items []events.TraceSummary, caseID string, currentTraceID string) []map[string]any {
+	out := make([]map[string]any, 0)
+	for _, item := range items {
+		if item.CaseID != caseID || item.TraceID == currentTraceID {
+			continue
+		}
+		out = append(out, map[string]any{
+			"trace_id":         item.TraceID,
+			"status":           item.Status,
+			"workflow_kind":    item.WorkflowKind,
+			"started_at":       item.StartedAt,
+			"trigger_event_id": item.TriggerEventID,
+		})
+		if len(out) == 6 {
+			break
+		}
+	}
+	return out
 }
 
 func judgmentDigest(items []evals.Judgment) []string {

@@ -17,22 +17,25 @@ const (
 )
 
 type TraceEvent struct {
-	TraceID     string     `json:"trace_id"`
-	IngestionID string     `json:"ingestion_id"`
-	WorkflowID  string     `json:"workflow_id"`
-	ParentEvent string     `json:"parent_event_id,omitempty"`
-	Plane       string     `json:"plane"`
-	Service     string     `json:"service"`
-	Actor       string     `json:"actor"`
-	EventType   string     `json:"event_type"`
-	Status      Status     `json:"status"`
-	StartedAt   time.Time  `json:"started_at"`
-	EndedAt     *time.Time `json:"ended_at,omitempty"`
-	PayloadRef  string     `json:"payload_ref,omitempty"`
-	ArtifactRef string     `json:"artifact_ref,omitempty"`
-	CostTokens  int        `json:"cost_tokens,omitempty"`
-	LatencyMs   int64      `json:"latency_ms,omitempty"`
-	Description string     `json:"description,omitempty"`
+	TraceID        string     `json:"trace_id"`
+	IngestionID    string     `json:"ingestion_id"`
+	WorkflowID     string     `json:"workflow_id"`
+	ConversationID string     `json:"conversation_id,omitempty"`
+	CaseID         string     `json:"case_id,omitempty"`
+	TriggerEventID string     `json:"trigger_event_id,omitempty"`
+	ParentEvent    string     `json:"parent_event_id,omitempty"`
+	Plane          string     `json:"plane"`
+	Service        string     `json:"service"`
+	Actor          string     `json:"actor"`
+	EventType      string     `json:"event_type"`
+	Status         Status     `json:"status"`
+	StartedAt      time.Time  `json:"started_at"`
+	EndedAt        *time.Time `json:"ended_at,omitempty"`
+	PayloadRef     string     `json:"payload_ref,omitempty"`
+	ArtifactRef    string     `json:"artifact_ref,omitempty"`
+	CostTokens     int        `json:"cost_tokens,omitempty"`
+	LatencyMs      int64      `json:"latency_ms,omitempty"`
+	Description    string     `json:"description,omitempty"`
 }
 
 type Artifact struct {
@@ -52,22 +55,26 @@ type EvidenceRef struct {
 }
 
 type ReasoningStep struct {
-	ID           string        `json:"id"`
-	TraceID      string        `json:"trace_id"`
-	WorkflowID   string        `json:"workflow_id,omitempty"`
-	StepType     string        `json:"step_type"`
-	Summary      string        `json:"summary"`
-	EvidenceRefs []EvidenceRef `json:"evidence_refs,omitempty"`
-	Alternatives []string      `json:"alternatives,omitempty"`
-	Confidence   float64       `json:"confidence,omitempty"`
-	Decision     string        `json:"decision,omitempty"`
-	CreatedAt    time.Time     `json:"created_at"`
+	ID             string        `json:"id"`
+	TraceID        string        `json:"trace_id"`
+	WorkflowID     string        `json:"workflow_id,omitempty"`
+	ConversationID string        `json:"conversation_id,omitempty"`
+	CaseID         string        `json:"case_id,omitempty"`
+	StepType       string        `json:"step_type"`
+	Summary        string        `json:"summary"`
+	EvidenceRefs   []EvidenceRef `json:"evidence_refs,omitempty"`
+	Alternatives   []string      `json:"alternatives,omitempty"`
+	Confidence     float64       `json:"confidence,omitempty"`
+	Decision       string        `json:"decision,omitempty"`
+	CreatedAt      time.Time     `json:"created_at"`
 }
 
 type ToolCallRecord struct {
 	ID                    string                 `json:"id"`
 	TraceID               string                 `json:"trace_id"`
 	WorkflowID            string                 `json:"workflow_id,omitempty"`
+	ConversationID        string                 `json:"conversation_id,omitempty"`
+	CaseID                string                 `json:"case_id,omitempty"`
 	ToolName              string                 `json:"tool_name"`
 	ToolCallID            string                 `json:"tool_call_id"`
 	Request               map[string]interface{} `json:"request,omitempty"`
@@ -83,6 +90,8 @@ type SlackActionRecord struct {
 	ID             string    `json:"id"`
 	TraceID        string    `json:"trace_id"`
 	WorkflowID     string    `json:"workflow_id,omitempty"`
+	ConversationID string    `json:"conversation_id,omitempty"`
+	CaseID         string    `json:"case_id,omitempty"`
 	ChannelID      string    `json:"channel_id,omitempty"`
 	ThreadTS       string    `json:"thread_ts,omitempty"`
 	IdempotencyKey string    `json:"idempotency_key"`
@@ -98,6 +107,10 @@ type TraceSummary struct {
 	TraceID            string    `json:"trace_id"`
 	IngestionID        string    `json:"ingestion_id"`
 	WorkflowID         string    `json:"workflow_id"`
+	ConversationID     string    `json:"conversation_id,omitempty"`
+	CaseID             string    `json:"case_id,omitempty"`
+	TriggerEventID     string    `json:"trigger_event_id,omitempty"`
+	SupersedesTraceID  string    `json:"supersedes_trace_id,omitempty"`
 	ThreadKey          string    `json:"thread_key"`
 	WorkflowKind       string    `json:"workflow_kind"`
 	Status             Status    `json:"status"`
