@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -52,7 +53,7 @@ type Store interface {
 	ListKnowledgeReviews(knowledgeID string) []knowledge.Review
 	ReviewKnowledgeEntry(knowledgeID string, item knowledge.Review) (knowledge.Entry, error)
 	ListIngestions() []slack.Ingestion
-	CreateIngestion(envelope slack.SlackEnvelope) slack.Ingestion
+	CreateIngestion(envelope slack.SlackEnvelope) (slack.Ingestion, error)
 	ListWorkflows() []Workflow
 	ListAssignments() []Assignment
 	ListThreadPolicies() []policy.ThreadPolicy
@@ -79,6 +80,7 @@ type Store interface {
 	UpdateSettings(settings improvement.Settings) (improvement.Settings, error)
 	ListWorkItems() []queue.WorkItem
 	EnqueueWorkItem(item queue.WorkItem) (queue.WorkItem, error)
+	RescheduleWorkItem(id string, payload map[string]interface{}, lastError string, availableAt time.Time) (queue.WorkItem, error)
 	ClaimNextWorkItem(queues []queue.QueueName, holder string, lease time.Duration) (queue.WorkItem, bool, error)
 	CompleteWorkItem(id string) (queue.WorkItem, error)
 	FailWorkItem(id string, lastError string) (queue.WorkItem, error)
@@ -95,6 +97,7 @@ type Store interface {
 	MaterializeApprovedProposal(proposalID string, requestedBy string) (improvement.RepoChangeJob, error)
 	RetryProposalRepoChange(proposalID string, requestedBy string) (queue.WorkItem, error)
 	ListRepoChangeJobs() []improvement.RepoChangeJob
+	UpsertRepoChangeJob(job improvement.RepoChangeJob) (improvement.RepoChangeJob, error)
 	UpdateRepoChangeJobStatus(jobID string, status string) (improvement.RepoChangeJob, error)
 	ListPRAttempts() []improvement.PRAttempt
 	RecordPRAttempt(attempt improvement.PRAttempt) (improvement.PRAttempt, error)
@@ -589,7 +592,7 @@ func (s *MemoryStore) ListIngestions() []slack.Ingestion {
 	return out
 }
 
-func (s *MemoryStore) CreateIngestion(envelope slack.SlackEnvelope) slack.Ingestion {
+func (s *MemoryStore) CreateIngestion(envelope slack.SlackEnvelope) (slack.Ingestion, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	conversationKey := slackConversationKey(envelope)
@@ -617,13 +620,16 @@ func (s *MemoryStore) CreateIngestion(envelope slack.SlackEnvelope) slack.Ingest
 	if event.CreatedAt.IsZero() {
 		event.CreatedAt = time.Now().UTC()
 	}
-	created, _ := s.createEventLocked(event)
+	created, err := s.createEventLocked(event)
+	if err != nil {
+		return slack.Ingestion{}, err
+	}
 	for _, item := range s.ingestions {
 		if item.EventID == created.ID {
-			return item
+			return item, nil
 		}
 	}
-	return slack.Ingestion{}
+	return slack.Ingestion{}, errors.New("ingestion materialization did not produce an ingestion row")
 }
 
 func (s *MemoryStore) outcomeFromEventLocked(event ingestion.EventEnvelope) (outcome.Record, bool) {
@@ -1484,6 +1490,35 @@ func (s *MemoryStore) EnqueueWorkItem(item queue.WorkItem) (queue.WorkItem, erro
 	return s.enqueueWorkItemLocked(item)
 }
 
+func (s *MemoryStore) RescheduleWorkItem(id string, payload map[string]interface{}, lastError string, availableAt time.Time) (queue.WorkItem, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	item, ok := s.workItems[id]
+	if !ok {
+		return queue.WorkItem{}, errors.New("work item not found")
+	}
+	if payload == nil {
+		payload = cloneMetadata(item.Payload)
+	}
+	if payload == nil {
+		payload = map[string]interface{}{}
+	}
+	if availableAt.IsZero() {
+		delete(payload, "retry_after_unix")
+	} else {
+		payload["retry_after_unix"] = availableAt.Unix()
+	}
+	item.Payload = payload
+	item.Status = queue.WorkQueued
+	item.LeaseOwner = ""
+	item.LeaseExpiresAt = nil
+	item.LastError = lastError
+	item.CompletedAt = nil
+	item.UpdatedAt = time.Now().UTC()
+	s.workItems[id] = item
+	return item, nil
+}
+
 func (s *MemoryStore) enqueueWorkItemLocked(item queue.WorkItem) (queue.WorkItem, error) {
 	now := time.Now().UTC()
 	if item.ID == "" {
@@ -1539,6 +1574,9 @@ func (s *MemoryStore) ClaimNextWorkItem(queuesToCheck []queue.QueueName, holder 
 			if _, ok := queueFilter[item.Queue]; !ok {
 				continue
 			}
+		}
+		if retryAfterUnix, ok := int64FromPayload(item.Payload, "retry_after_unix"); ok && retryAfterUnix > now.Unix() {
+			continue
 		}
 		expired := item.Status == queue.WorkLeased && item.LeaseExpiresAt != nil && item.LeaseExpiresAt.Before(now)
 		if item.Status == queue.WorkQueued || expired {
@@ -2319,6 +2357,13 @@ func (s *MemoryStore) ReviewProposal(proposalID string, decision review.Proposal
 		return review.Proposal{}, errors.New("proposal not found")
 	}
 	decision.ProposalID = proposalID
+	decision.IdempotencyKey = proposalDecisionIdempotencyKey(proposalID, decision.Decision)
+	for _, existing := range proposal.Reviews {
+		if existing.IdempotencyKey == decision.IdempotencyKey {
+			return proposal, nil
+		}
+	}
+	decision.ID = int64(len(proposal.Reviews) + 1)
 	decision.CreatedAt = time.Now().UTC()
 	if len(decision.FailureClasses) == 0 && decision.FailureClass != "" {
 		decision.FailureClasses = []string{decision.FailureClass}
@@ -2331,6 +2376,7 @@ func (s *MemoryStore) ReviewProposal(proposalID string, decision review.Proposal
 
 	memory := review.ProposalMemory{
 		ID:                nextID("memory", len(s.proposalMemory)+1),
+		ReviewID:          decision.ID,
 		ProposalID:        proposalID,
 		CandidateKey:      proposal.CandidateKey,
 		ConversationID:    proposal.ConversationID,
@@ -2371,6 +2417,7 @@ func (s *MemoryStore) ReviewProposal(proposalID string, decision review.Proposal
 			Payload: map[string]interface{}{
 				"candidate_key": proposal.CandidateKey,
 				"risk_tier":     proposal.RiskTier,
+				"dedupe_key":    fmt.Sprintf("proposal-runner:%s", proposal.ID),
 			},
 		})
 	case review.ProposalRejected, review.ProposalDismissed:
@@ -2442,6 +2489,7 @@ func (s *MemoryStore) MaterializeApprovedProposal(proposalID string, requestedBy
 		AllowedPathGlobs: []string{"cmd/**", "internal/**", "runner/**", "ui/**", "README.md", "Makefile"},
 		ContextSummary:   buildRepoChangeContext(proposal, s.proposalMemory),
 		CreatedAt:        now,
+		UpdatedAt:        now,
 	}
 	s.repoChangeJobs[jobID] = job
 	proposal.Status = review.ProposalRepoChangeQueued
@@ -2479,10 +2527,6 @@ func (s *MemoryStore) RetryProposalRepoChange(proposalID string, requestedBy str
 	if !ok {
 		return queue.WorkItem{}, errors.New("proposal not found")
 	}
-	if proposal.Status != review.ProposalFailedValidation && proposal.Status != review.ProposalRepoChangeQueued {
-		return queue.WorkItem{}, fmt.Errorf("proposal %s is not retryable", proposal.Status)
-	}
-
 	var repoJob improvement.RepoChangeJob
 	found := false
 	for _, item := range s.repoChangeJobs {
@@ -2495,35 +2539,98 @@ func (s *MemoryStore) RetryProposalRepoChange(proposalID string, requestedBy str
 	if !found {
 		return queue.WorkItem{}, errors.New("repo change job not found")
 	}
-
 	now := time.Now().UTC()
-	repoJob.Status = string(review.ProposalRepoChangeQueued)
-	s.repoChangeJobs[repoJob.ID] = repoJob
-	proposal.Status = review.ProposalRepoChangeQueued
-	proposal.ActiveSlotConsuming = true
-	s.proposals[proposal.ID] = proposal
+	switch proposal.Status {
+	case review.ProposalApproved:
+		if found {
+			break
+		}
+		return s.enqueueWorkItemLocked(queue.WorkItem{
+			Queue:          queue.ProposalQueue,
+			Kind:           "approved_proposal",
+			Status:         queue.WorkQueued,
+			TraceID:        proposal.TraceID,
+			ConversationID: proposal.ConversationID,
+			CaseID:         proposal.CaseID,
+			TriggerEventID: proposal.OriginTraceID,
+			ProposalID:     proposal.ID,
+			RequestedBy:    requestedBy,
+			ApprovalMode:   "human_review",
+			CreatedAt:      now,
+			UpdatedAt:      now,
+			Payload: map[string]interface{}{
+				"candidate_key": proposal.CandidateKey,
+				"risk_tier":     proposal.RiskTier,
+				"dedupe_key":    fmt.Sprintf("proposal-runner:%s", proposal.ID),
+			},
+		})
+	case review.ProposalRepoChangeQueued, review.ProposalFailedValidation:
+		if !found {
+			return queue.WorkItem{}, errors.New("repo change job not found")
+		}
+		repoJob.Status = string(review.ProposalRepoChangeQueued)
+		repoJob.ValidationError = ""
+		repoJob.ValidationRef = ""
+		repoJob.LogArtifactID = ""
+		repoJob.UpdatedAt = now
+		s.repoChangeJobs[repoJob.ID] = repoJob
+		proposal.Status = review.ProposalRepoChangeQueued
+		proposal.ActiveSlotConsuming = true
+		s.proposals[proposal.ID] = proposal
+		return s.enqueueWorkItemLocked(queue.WorkItem{
+			Queue:          queue.SandboxQueue,
+			Kind:           "repo_change_job",
+			Status:         queue.WorkQueued,
+			TraceID:        proposal.TraceID,
+			ConversationID: proposal.ConversationID,
+			CaseID:         proposal.CaseID,
+			TriggerEventID: proposal.OriginTraceID,
+			ProposalID:     proposal.ID,
+			RepoScope:      repoJob.Repo,
+			RequestedBy:    requestedBy,
+			ApprovalMode:   "approved",
+			CreatedAt:      now,
+			UpdatedAt:      now,
+			Payload: map[string]interface{}{
+				"branch_name": repoJob.BranchName,
+				"base_ref":    repoJob.BaseRef,
+				"dedupe_key":  fmt.Sprintf("sandbox-job:%s", repoJob.ID),
+				"job_id":      repoJob.ID,
+			},
+		})
+	case review.ProposalValidationPending:
+		if !found {
+			return queue.WorkItem{}, errors.New("repo change job not found")
+		}
+		return s.enqueueWorkItemLocked(queue.WorkItem{
+			Queue:          queue.ImprovementActionQueue,
+			Kind:           "draft_pr_open",
+			Status:         queue.WorkQueued,
+			TraceID:        proposal.TraceID,
+			ConversationID: proposal.ConversationID,
+			CaseID:         proposal.CaseID,
+			TriggerEventID: proposal.OriginTraceID,
+			ProposalID:     proposal.ID,
+			RepoScope:      repoJob.Repo,
+			RequestedBy:    requestedBy,
+			ApprovalMode:   "approved",
+			CreatedAt:      now,
+			UpdatedAt:      now,
+			Payload: map[string]interface{}{
+				"job_id":      repoJob.ID,
+				"job_name":    repoJob.SandboxJobName,
+				"namespace":   repoJob.SandboxNamespace,
+				"repo":        repoJob.Repo,
+				"branch_name": repoJob.BranchName,
+				"base_ref":    repoJob.BaseRef,
+				"dedupe_key":  fmt.Sprintf("draft-pr:%s:%s", proposal.ID, repoJob.BranchName),
+			},
+		})
+	default:
+		return queue.WorkItem{}, fmt.Errorf("proposal %s is not retryable", proposal.Status)
+	}
 
-	return s.enqueueWorkItemLocked(queue.WorkItem{
-		Queue:          queue.SandboxQueue,
-		Kind:           "repo_change_job",
-		Status:         queue.WorkQueued,
-		TraceID:        proposal.TraceID,
-		ConversationID: proposal.ConversationID,
-		CaseID:         proposal.CaseID,
-		TriggerEventID: proposal.OriginTraceID,
-		ProposalID:     proposal.ID,
-		RepoScope:      repoJob.Repo,
-		RequestedBy:    requestedBy,
-		ApprovalMode:   "approved",
-		CreatedAt:      now,
-		UpdatedAt:      now,
-		Payload: map[string]interface{}{
-			"branch_name": repoJob.BranchName,
-			"base_ref":    repoJob.BaseRef,
-			"dedupe_key":  fmt.Sprintf("sandbox-job:%s", repoJob.ID),
-			"job_id":      repoJob.ID,
-		},
-	})
+	return queue.WorkItem{}, fmt.Errorf("proposal %s is not retryable", proposal.Status)
 }
 
 func buildRepoChangeContext(proposal review.Proposal, memories []review.ProposalMemory) string {
@@ -2567,8 +2674,26 @@ func (s *MemoryStore) UpdateRepoChangeJobStatus(jobID string, status string) (im
 		return improvement.RepoChangeJob{}, errors.New("repo change job not found")
 	}
 	item.Status = status
+	item.UpdatedAt = time.Now().UTC()
 	s.repoChangeJobs[jobID] = item
 	return item, nil
+}
+
+func (s *MemoryStore) UpsertRepoChangeJob(job improvement.RepoChangeJob) (improvement.RepoChangeJob, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	now := time.Now().UTC()
+	if job.ID == "" {
+		job.ID = nextID("job", len(s.repoChangeJobs)+1)
+	}
+	if job.CreatedAt.IsZero() {
+		job.CreatedAt = now
+	}
+	if job.UpdatedAt.IsZero() {
+		job.UpdatedAt = now
+	}
+	s.repoChangeJobs[job.ID] = job
+	return job, nil
 }
 
 func (s *MemoryStore) ListPRAttempts() []improvement.PRAttempt {
@@ -2793,6 +2918,32 @@ func workItemDedupeKey(item queue.WorkItem) string {
 		return strings.TrimSpace(raw)
 	}
 	return ""
+}
+
+func int64FromPayload(payload map[string]interface{}, key string) (int64, bool) {
+	if payload == nil {
+		return 0, false
+	}
+	raw, ok := payload[key]
+	if !ok {
+		return 0, false
+	}
+	switch typed := raw.(type) {
+	case int64:
+		return typed, true
+	case int:
+		return int64(typed), true
+	case float64:
+		return int64(typed), true
+	case string:
+		value, err := strconv.ParseInt(strings.TrimSpace(typed), 10, 64)
+		if err != nil {
+			return 0, false
+		}
+		return value, true
+	default:
+		return 0, false
+	}
 }
 
 func timePtr(t time.Time) *time.Time {

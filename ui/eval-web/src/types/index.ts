@@ -376,6 +376,12 @@ export type Proposal = {
   created_at: string;
 };
 
+export type ProposalListItem = Proposal & {
+  repo_change_status?: string;
+  pr_status?: string;
+  pr_url?: string;
+};
+
 export type ProposalReview = {
   proposal_id: string;
   decision: string;
@@ -411,6 +417,14 @@ export type RepoChangeJob = {
   repo: string;
   branch_name: string;
   context_summary: string;
+  sandbox_namespace?: string;
+  sandbox_job_name?: string;
+  sandbox_pod_name?: string;
+  validation_error?: string;
+  validation_ref?: string;
+  log_artifact_id?: string;
+  created_at?: string;
+  updated_at?: string;
 };
 
 export type PRAttempt = {
@@ -446,13 +460,9 @@ export type ImprovementSettings = {
 };
 
 export type ProposalResponse = {
-  proposals: NullableList<Proposal>;
+  proposals: NullableList<ProposalListItem>;
   proposal_slots: ProposalSlots;
   candidates: NullableList<Candidate>;
-  proposal_memory: NullableList<ProposalMemory>;
-  repo_change_jobs: NullableList<RepoChangeJob>;
-  pr_attempts: NullableList<PRAttempt>;
-  post_merge_replays: NullableList<PostMergeReplay>;
   settings: ImprovementSettings;
 };
 
@@ -485,6 +495,7 @@ export type RuntimeRole = {
   role: string;
   reported_role?: string;
   base_url: string;
+  timeout_seconds: number;
   status: string;
   backend: string;
   provider: string;

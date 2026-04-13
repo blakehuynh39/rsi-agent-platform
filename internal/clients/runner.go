@@ -66,10 +66,17 @@ type RunnerClient struct {
 }
 
 func NewRunnerClient(baseURL string) *RunnerClient {
+	return NewRunnerClientWithTimeout(baseURL, 60*time.Second)
+}
+
+func NewRunnerClientWithTimeout(baseURL string, timeout time.Duration) *RunnerClient {
+	if timeout <= 0 {
+		timeout = 60 * time.Second
+	}
 	return &RunnerClient{
 		baseURL: strings.TrimRight(baseURL, "/"),
 		httpClient: &http.Client{
-			Timeout: 60 * time.Second,
+			Timeout: timeout,
 		},
 	}
 }

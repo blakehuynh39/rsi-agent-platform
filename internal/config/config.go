@@ -33,6 +33,10 @@ type Config struct {
 	EvalRunnerBaseURL         string
 	ProposalRunnerBaseURL     string
 	ToolGatewayBaseURL        string
+	ProdRunnerTimeout         time.Duration
+	ProactiveRunnerTimeout    time.Duration
+	EvalRunnerTimeout         time.Duration
+	ProposalRunnerTimeout     time.Duration
 	WorkerPollInterval        time.Duration
 	WorkItemLeaseDuration     time.Duration
 	SandboxPollInterval       time.Duration
@@ -94,6 +98,10 @@ func Load(serviceName string) Config {
 		EvalRunnerBaseURL:         stringEnv("RSI_RUNNER_EVAL_BASE_URL", ""),
 		ProposalRunnerBaseURL:     stringEnv("RSI_RUNNER_PROPOSAL_BASE_URL", ""),
 		ToolGatewayBaseURL:        stringEnv("RSI_TOOL_GATEWAY_BASE_URL", ""),
+		ProdRunnerTimeout:         durationEnv("RSI_RUNNER_PROD_TIMEOUT", 60*time.Second),
+		ProactiveRunnerTimeout:    durationEnv("RSI_RUNNER_PROACTIVE_TIMEOUT", 60*time.Second),
+		EvalRunnerTimeout:         durationEnv("RSI_RUNNER_EVAL_TIMEOUT", 120*time.Second),
+		ProposalRunnerTimeout:     durationEnv("RSI_RUNNER_PROPOSAL_TIMEOUT", 180*time.Second),
 		WorkerPollInterval:        durationEnv("RSI_WORKER_POLL_INTERVAL", 5*time.Second),
 		WorkItemLeaseDuration:     durationEnv("RSI_WORK_ITEM_LEASE_DURATION", 30*time.Second),
 		SandboxPollInterval:       durationEnv("RSI_SANDBOX_POLL_INTERVAL", 10*time.Second),
@@ -153,6 +161,21 @@ func (c Config) RunnerURLs() map[string]string {
 		"proactive": c.RunnerURLForRole("proactive"),
 		"eval":      c.RunnerURLForRole("eval"),
 		"proposal":  c.RunnerURLForRole("proposal"),
+	}
+}
+
+func (c Config) RunnerTimeoutForRole(role string) time.Duration {
+	switch strings.TrimSpace(role) {
+	case "prod":
+		return c.ProdRunnerTimeout
+	case "proactive":
+		return c.ProactiveRunnerTimeout
+	case "eval":
+		return c.EvalRunnerTimeout
+	case "proposal":
+		return c.ProposalRunnerTimeout
+	default:
+		return c.ProdRunnerTimeout
 	}
 }
 

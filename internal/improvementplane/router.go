@@ -179,15 +179,10 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 	})
 	r.Get("/api/proposals", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
-			"proposals":          normalizeProposals(store.ListProposals()),
-			"proposal_slots":     normalizeProposalSlots(store.GetProposalSlots()),
-			"candidates":         sliceOrEmpty(store.ListCandidates()),
-			"proposal_memory":    sliceOrEmpty(store.ListProposalMemories()),
-			"repo_change_jobs":   sliceOrEmpty(store.ListRepoChangeJobs()),
-			"pr_attempts":        sliceOrEmpty(store.ListPRAttempts()),
-			"post_merge_replays": sliceOrEmpty(store.ListPostMergeReplays()),
-			"work_items":         sliceOrEmpty(store.ListWorkItems()),
-			"settings":           store.GetSettings(),
+			"proposals":      buildProposalSummaries(store),
+			"proposal_slots": normalizeProposalSlots(store.GetProposalSlots()),
+			"candidates":     sliceOrEmpty(store.ListCandidates()),
+			"settings":       store.GetSettings(),
 		})
 	})
 	r.Get("/api/proposals/{proposalID}", func(w http.ResponseWriter, r *http.Request) {

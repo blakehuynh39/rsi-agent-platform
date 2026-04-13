@@ -36,8 +36,8 @@ type workflowContext struct {
 
 func RunWorker(cfg config.Config, store storepkg.Store) error {
 	runnerClients := map[string]*clients.RunnerClient{
-		"prod":      clients.NewRunnerClient(cfg.RunnerURLForRole("prod")),
-		"proactive": clients.NewRunnerClient(cfg.RunnerURLForRole("proactive")),
+		"prod":      clients.NewRunnerClientWithTimeout(cfg.RunnerURLForRole("prod"), cfg.RunnerTimeoutForRole("prod")),
+		"proactive": clients.NewRunnerClientWithTimeout(cfg.RunnerURLForRole("proactive"), cfg.RunnerTimeoutForRole("proactive")),
 	}
 	workerID := fmt.Sprintf("%s-worker", cfg.ServiceName)
 	for {

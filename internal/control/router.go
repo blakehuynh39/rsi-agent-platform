@@ -61,7 +61,11 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 		if envelope.CreatedAt.IsZero() {
 			envelope.CreatedAt = time.Now().UTC()
 		}
-		ingestion := store.CreateIngestion(envelope)
+		ingestion, err := store.CreateIngestion(envelope)
+		if err != nil {
+			app.WriteError(w, http.StatusInternalServerError, err)
+			return
+		}
 		app.WriteJSON(w, http.StatusCreated, ingestion)
 	})
 	r.Post("/webhooks/github", func(w http.ResponseWriter, r *http.Request) {

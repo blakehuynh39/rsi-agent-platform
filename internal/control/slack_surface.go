@@ -121,7 +121,11 @@ func (s *slackSurfaceRuntime) handleEventsAPIEvent(eventsAPIEvent slackevents.Ev
 		if !ok {
 			return
 		}
-		created := s.store.CreateIngestion(envelope)
+		created, err := s.store.CreateIngestion(envelope)
+		if err != nil {
+			log.Printf("slack-surface identity=%s ingestion error=%v", s.cfg.SlackAppIdentity, err)
+			return
+		}
 		log.Printf("slack-surface identity=%s ingested thread=%s ingestion=%s", s.cfg.SlackAppIdentity, created.ThreadKey, created.ID)
 	case *slackevents.MessageEvent:
 		if event == nil {
@@ -131,7 +135,11 @@ func (s *slackSurfaceRuntime) handleEventsAPIEvent(eventsAPIEvent slackevents.Ev
 		if !ok {
 			return
 		}
-		created := s.store.CreateIngestion(envelope)
+		created, err := s.store.CreateIngestion(envelope)
+		if err != nil {
+			log.Printf("slack-surface identity=%s ingestion error=%v", s.cfg.SlackAppIdentity, err)
+			return
+		}
 		log.Printf("slack-surface identity=%s ingested thread=%s ingestion=%s", s.cfg.SlackAppIdentity, created.ThreadKey, created.ID)
 	default:
 		return

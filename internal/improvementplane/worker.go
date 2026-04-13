@@ -2,6 +2,7 @@ package improvementplane
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -22,11 +23,13 @@ import (
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
 
+var errDeferredWorkItem = errors.New("work item deferred for retry")
+
 func RunWorker(cfg config.Config, store storepkg.Store) error {
 	workerID := fmt.Sprintf("%s-worker", cfg.ServiceName)
 	runnerClients := map[string]*clients.RunnerClient{
-		"eval":     clients.NewRunnerClient(cfg.RunnerURLForRole("eval")),
-		"proposal": clients.NewRunnerClient(cfg.RunnerURLForRole("proposal")),
+		"eval":     clients.NewRunnerClientWithTimeout(cfg.RunnerURLForRole("eval"), cfg.RunnerTimeoutForRole("eval")),
+		"proposal": clients.NewRunnerClientWithTimeout(cfg.RunnerURLForRole("proposal"), cfg.RunnerTimeoutForRole("proposal")),
 	}
 	toolClient := clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL)
 	launcher, launcherErr := sandbox.NewLauncher(cfg)
@@ -40,6 +43,9 @@ func RunWorker(cfg config.Config, store storepkg.Store) error {
 			continue
 		}
 		if err := processImprovementItem(cfg, store, runnerClients, toolClient, launcher, launcherErr, item); err != nil {
+			if errors.Is(err, errDeferredWorkItem) {
+				continue
+			}
 			log.Printf("improvement-plane worker item=%s error=%v", item.ID, err)
 			_, _ = store.FailWorkItem(item.ID, err.Error())
 			continue
@@ -198,6 +204,9 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 	if !ok {
 		return fmt.Errorf("proposal %s not found", item.ProposalID)
 	}
+	if proposal.Status != review.ProposalApproved {
+		return nil
+	}
 	proposalTraceID := item.TraceID
 	if proposalTraceID == "" {
 		proposalTraceID = proposal.TraceID
@@ -234,6 +243,48 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 		if runnerErr == nil {
 			runnerOutput = runnerutil.ParseStructuredOutput(runnerResp)
 		}
+	}
+	if runnerErr != nil {
+		retryAt := time.Now().UTC().Add(proposalRunnerBackoff(item.Attempts))
+		payload := clonePayload(item.Payload)
+		if payload == nil {
+			payload = map[string]any{}
+		}
+		payload["dedupe_key"] = fmt.Sprintf("proposal-runner:%s", item.ProposalID)
+		if _, err := store.RescheduleWorkItem(item.ID, payload, runnerErr.Error(), retryAt); err != nil {
+			return err
+		}
+		now := time.Now().UTC()
+		_, _ = store.ApplyTraceUpdate(trace.Summary.TraceID, storepkg.TraceUpdate{
+			Events: []events.TraceEvent{
+				{
+					TraceID:     trace.Summary.TraceID,
+					IngestionID: trace.Summary.IngestionID,
+					WorkflowID:  trace.Summary.WorkflowID,
+					Plane:       "execution",
+					Service:     "runner",
+					Actor:       "proposal",
+					EventType:   "runner.failed",
+					Status:      events.StatusFailed,
+					StartedAt:   runnerStarted,
+					EndedAt:     ptrTime(now),
+					Description: fmt.Sprintf("Proposal runner failed; proposal remains approved and will retry after %s: %v", retryAt.Format(time.RFC3339), runnerErr),
+				},
+			},
+			Reasoning: []events.ReasoningStep{
+				{
+					ID:         fmt.Sprintf("reason-proposal-retry-%d", now.UnixNano()),
+					TraceID:    trace.Summary.TraceID,
+					WorkflowID: trace.Summary.WorkflowID,
+					StepType:   "proposal_runner_retry",
+					Summary:    "Proposal runner failed closed. Repo-change work was not materialized.",
+					Confidence: 0.93,
+					Decision:   retryAt.Format(time.RFC3339),
+					CreatedAt:  now,
+				},
+			},
+		})
+		return errDeferredWorkItem
 	}
 	job, err := store.MaterializeApprovedProposal(item.ProposalID, cfg.ServiceName)
 	if err != nil {
@@ -297,23 +348,21 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 			CreatedAt:  now,
 		},
 	}
-	if runnerErr == nil {
-		reasoning = append(runnerutil.ToTraceReasoning(trace.Summary.TraceID, trace.Summary.WorkflowID, runnerOutput, now), reasoning...)
-		reasoning = append(reasoning, improvementOutcomeHypothesisReasoning(trace, runnerOutput.OutcomeHypotheses, now)...)
-		if err := persistImprovementKnowledgeDrafts(store, runnerOutput.KnowledgeDrafts, trace, proposal.ID, now); err != nil {
-			return err
-		}
-		if strings.TrimSpace(runnerOutput.SelfCritique) != "" {
-			reasoning = append(reasoning, events.ReasoningStep{
-				ID:         fmt.Sprintf("reason-proposal-self-%d", now.UnixNano()),
-				TraceID:    trace.Summary.TraceID,
-				WorkflowID: trace.Summary.WorkflowID,
-				StepType:   "self_critique",
-				Summary:    runnerOutput.SelfCritique,
-				Confidence: confidenceOr(0.86, runnerOutput.Confidence),
-				CreatedAt:  now,
-			})
-		}
+	reasoning = append(runnerutil.ToTraceReasoning(trace.Summary.TraceID, trace.Summary.WorkflowID, runnerOutput, now), reasoning...)
+	reasoning = append(reasoning, improvementOutcomeHypothesisReasoning(trace, runnerOutput.OutcomeHypotheses, now)...)
+	if err := persistImprovementKnowledgeDrafts(store, runnerOutput.KnowledgeDrafts, trace, proposal.ID, now); err != nil {
+		return err
+	}
+	if strings.TrimSpace(runnerOutput.SelfCritique) != "" {
+		reasoning = append(reasoning, events.ReasoningStep{
+			ID:         fmt.Sprintf("reason-proposal-self-%d", now.UnixNano()),
+			TraceID:    trace.Summary.TraceID,
+			WorkflowID: trace.Summary.WorkflowID,
+			StepType:   "self_critique",
+			Summary:    runnerOutput.SelfCritique,
+			Confidence: confidenceOr(0.86, runnerOutput.Confidence),
+			CreatedAt:  now,
+		})
 	}
 	runnerEvent := events.TraceEvent{
 		TraceID:     trace.Summary.TraceID,
@@ -327,11 +376,6 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 		StartedAt:   runnerStarted,
 		EndedAt:     ptrTime(now),
 		Description: fmt.Sprintf("Proposal runner returned repo-change rationale using %s.", runnerRuntimeLabel(runnerResp)),
-	}
-	if runnerErr != nil {
-		runnerEvent.EventType = "runner.failed"
-		runnerEvent.Status = events.StatusFailed
-		runnerEvent.Description = fmt.Sprintf("Proposal runner unavailable; using deterministic repo-change materialization only: %v", runnerErr)
 	}
 	_, _ = store.ApplyTraceUpdate(trace.Summary.TraceID, storepkg.TraceUpdate{
 		Events: []events.TraceEvent{
@@ -531,7 +575,13 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 		return err
 	}
 	now := time.Now().UTC()
-	_, _ = store.UpdateRepoChangeJobStatus(repoJob.ID, string(review.ProposalRepoChangeRunning))
+	repoJob.Status = string(review.ProposalRepoChangeRunning)
+	repoJob.SandboxNamespace = session.Namespace
+	repoJob.SandboxJobName = session.PodName
+	repoJob.SandboxPodName = session.PodName
+	repoJob.ValidationRef = fmt.Sprintf("%s/%s", session.Namespace, session.PodName)
+	repoJob.UpdatedAt = now
+	_, _ = store.UpsertRepoChangeJob(repoJob)
 	_, _ = store.UpdateProposalStatus(item.ProposalID, review.ProposalRepoChangeRunning)
 	_, _ = store.ApplyTraceUpdate(trace.Summary.TraceID, storepkg.TraceUpdate{
 		Events: []events.TraceEvent{
@@ -583,7 +633,9 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 			"namespace":   session.Namespace,
 			"repo":        repoJob.Repo,
 			"branch_name": repoJob.BranchName,
+			"base_ref":    repoJob.BaseRef,
 			"job_id":      repoJob.ID,
+			"dedupe_key":  fmt.Sprintf("sandbox-watch:%s", repoJob.ID),
 		},
 		CreatedAt: now,
 		UpdatedAt: now,
@@ -606,7 +658,7 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 	if jobName == "" || namespace == "" {
 		return fmt.Errorf("sandbox watch item missing job metadata")
 	}
-	job, err := launcher.GetJob(context.Background(), namespace, jobName)
+	observation, err := launcher.ObserveJob(context.Background(), namespace, jobName)
 	if err != nil {
 		return err
 	}
@@ -614,7 +666,7 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 	if !ok {
 		return fmt.Errorf("trace %s not found", item.TraceID)
 	}
-	if job.Status.Succeeded == 0 && job.Status.Failed == 0 {
+	if !observation.JobSucceeded && !observation.JobFailed {
 		time.Sleep(cfg.SandboxPollInterval)
 		_, err = store.EnqueueWorkItem(queue.WorkItem{
 			Queue:      queue.SandboxQueue,
@@ -629,7 +681,9 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 		return err
 	}
 	now := time.Now().UTC()
-	if job.Status.Failed > 0 {
+	statusArtifactID, logArtifactID, sandboxArtifacts := sandboxObservationArtifacts(trace.Summary.TraceID, observation, now)
+	if observation.JobFailed {
+		errorMessage := sandboxFailureMessage(observation)
 		intent, _ := findProposalActionIntent(store, item.ProposalID, action.KindSandboxLaunch)
 		if intent.ID != "" {
 			_, _ = upsertImprovementActionIntent(store, withActionStatus(intent, action.StatusFailed, now))
@@ -637,15 +691,29 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 				ActionIntentID: intent.ID,
 				Executor:       "sandbox-runtime",
 				Provider:       "kubernetes",
-				ProviderRef:    fmt.Sprintf("%s/%s", namespace, jobName),
+				ProviderRef:    fmt.Sprintf("%s/%s", observation.Namespace, observation.JobName),
+				ResponseArtifactID: statusArtifactID,
 				Status:         action.StatusFailed,
 				ErrorCode:      "sandbox_job_failed",
-				ErrorMessage:   fmt.Sprintf("Sandbox job %s failed.", jobName),
+				ErrorMessage:   errorMessage,
 				StartedAt:      intent.UpdatedAt,
 				CompletedAt:    now,
 			})
 		}
-		_, _ = store.UpdateRepoChangeJobStatus(jobID, string(review.ProposalFailedValidation))
+		repoJob, ok := findRepoChangeJob(store.ListRepoChangeJobs(), jobID)
+		if ok {
+			repoJob.Status = string(review.ProposalFailedValidation)
+			repoJob.SandboxNamespace = observation.Namespace
+			repoJob.SandboxJobName = observation.JobName
+			repoJob.SandboxPodName = observation.PodName
+			repoJob.ValidationError = errorMessage
+			repoJob.ValidationRef = fmt.Sprintf("%s/%s", observation.Namespace, observation.JobName)
+			repoJob.LogArtifactID = logArtifactID
+			repoJob.UpdatedAt = now
+			_, _ = store.UpsertRepoChangeJob(repoJob)
+		} else {
+			_, _ = store.UpdateRepoChangeJobStatus(jobID, string(review.ProposalFailedValidation))
+		}
 		_, _ = store.UpdateProposalStatus(item.ProposalID, review.ProposalFailedValidation)
 		_, _ = store.ApplyTraceUpdate(trace.Summary.TraceID, storepkg.TraceUpdate{
 			Status: ptrStatus(events.StatusFailed),
@@ -660,9 +728,10 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 					EventType:   "sandbox.job.failed",
 					Status:      events.StatusFailed,
 					StartedAt:   now,
-					Description: fmt.Sprintf("Sandbox job %s failed.", jobName),
+					Description: errorMessage,
 				},
 			},
+			Artifacts: sandboxArtifacts,
 		})
 		return nil
 	}
@@ -674,13 +743,27 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 			ActionIntentID: intent.ID,
 			Executor:       "sandbox-runtime",
 			Provider:       "kubernetes",
-			ProviderRef:    fmt.Sprintf("%s/%s", namespace, jobName),
+			ProviderRef:    fmt.Sprintf("%s/%s", observation.Namespace, observation.JobName),
+			ResponseArtifactID: statusArtifactID,
 			Status:         action.StatusSucceeded,
 			StartedAt:      intent.UpdatedAt,
 			CompletedAt:    now,
 		})
 	}
-	_, _ = store.UpdateRepoChangeJobStatus(jobID, string(review.ProposalValidationPending))
+	repoJob, ok := findRepoChangeJob(store.ListRepoChangeJobs(), jobID)
+	if ok {
+		repoJob.Status = string(review.ProposalValidationPending)
+		repoJob.SandboxNamespace = observation.Namespace
+		repoJob.SandboxJobName = observation.JobName
+		repoJob.SandboxPodName = observation.PodName
+		repoJob.ValidationError = ""
+		repoJob.ValidationRef = fmt.Sprintf("%s/%s", observation.Namespace, observation.JobName)
+		repoJob.LogArtifactID = logArtifactID
+		repoJob.UpdatedAt = now
+		_, _ = store.UpsertRepoChangeJob(repoJob)
+	} else {
+		_, _ = store.UpdateRepoChangeJobStatus(jobID, string(review.ProposalValidationPending))
+	}
 	_, _ = store.UpdateProposalStatus(item.ProposalID, review.ProposalValidationPending)
 	_, err = store.EnqueueWorkItem(queue.WorkItem{
 		Queue:      queue.ImprovementActionQueue,
@@ -692,11 +775,12 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 		UpdatedAt:  now,
 		Payload: map[string]any{
 			"job_id":      jobID,
-			"job_name":    jobName,
-			"namespace":   namespace,
+			"job_name":    observation.JobName,
+			"namespace":   observation.Namespace,
 			"repo":        repo,
 			"branch_name": branchName,
-			"base_ref":    "main",
+			"base_ref":    firstNonEmpty(stringValue(item.Payload["base_ref"]), "main"),
+			"dedupe_key":  fmt.Sprintf("draft-pr:%s:%s", item.ProposalID, branchName),
 		},
 	})
 	if err != nil {
@@ -714,9 +798,10 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 				EventType:   "github.pr.queued",
 				Status:      events.StatusQueued,
 				StartedAt:   now,
-				Description: fmt.Sprintf("Sandbox job %s succeeded; queued draft PR open for branch %s.", jobName, branchName),
+				Description: fmt.Sprintf("Sandbox job %s succeeded; queued draft PR open for branch %s.", observation.JobName, branchName),
 			},
 		},
+		Artifacts: sandboxArtifacts,
 		Reasoning: []events.ReasoningStep{
 			{
 				ID:         fmt.Sprintf("reason-pr-open-%d", now.UnixNano()),
@@ -898,6 +983,54 @@ func findRepoChangeJob(items []improvement.RepoChangeJob, jobID string) (improve
 		}
 	}
 	return improvement.RepoChangeJob{}, false
+}
+
+func sandboxObservationArtifacts(traceID string, observation sandbox.JobObservation, createdAt time.Time) (string, string, []events.Artifact) {
+	statusArtifactID := fmt.Sprintf("artifact-sandbox-status-%d", createdAt.UnixNano())
+	artifacts := []events.Artifact{
+		{
+			ID:          statusArtifactID,
+			TraceID:     traceID,
+			Kind:        "sandbox_job_status",
+			ContentType: "application/json",
+			URL:         fmt.Sprintf("k8s://%s/jobs/%s", observation.Namespace, observation.JobName),
+			SizeBytes:   int64(len(strings.Join(observation.JobConditions, "\n"))),
+			Source:      "sandbox-runtime",
+		},
+	}
+	logArtifactID := ""
+	if strings.TrimSpace(observation.Logs) != "" && strings.TrimSpace(observation.PodName) != "" {
+		logArtifactID = fmt.Sprintf("artifact-sandbox-log-%d", createdAt.UnixNano())
+		artifacts = append(artifacts, events.Artifact{
+			ID:          logArtifactID,
+			TraceID:     traceID,
+			Kind:        "sandbox_job_logs",
+			ContentType: "text/plain",
+			URL:         fmt.Sprintf("k8s://%s/pods/%s/log", observation.Namespace, observation.PodName),
+			SizeBytes:   int64(len(observation.Logs)),
+			Source:      "sandbox-runtime",
+		})
+	}
+	return statusArtifactID, logArtifactID, artifacts
+}
+
+func sandboxFailureMessage(observation sandbox.JobObservation) string {
+	parts := []string{
+		fmt.Sprintf("Sandbox job %s failed in namespace %s.", observation.JobName, observation.Namespace),
+	}
+	if strings.TrimSpace(observation.PodName) != "" {
+		parts = append(parts, fmt.Sprintf("pod=%s", observation.PodName))
+	}
+	if strings.TrimSpace(observation.PodPhase) != "" {
+		parts = append(parts, fmt.Sprintf("phase=%s", observation.PodPhase))
+	}
+	if observation.ContainerExitCode != nil {
+		parts = append(parts, fmt.Sprintf("exit_code=%d", *observation.ContainerExitCode))
+	}
+	if strings.TrimSpace(observation.TerminationReason) != "" {
+		parts = append(parts, fmt.Sprintf("reason=%s", observation.TerminationReason))
+	}
+	return strings.Join(parts, " ")
 }
 
 func findProposal(items []review.Proposal, proposalID string) (review.Proposal, bool) {
@@ -1329,6 +1462,28 @@ func improvementActionError(result storepkg.ToolResult, execErr error) string {
 		return result.Summary
 	}
 	return ""
+}
+
+func proposalRunnerBackoff(attempts int) time.Duration {
+	if attempts < 1 {
+		attempts = 1
+	}
+	backoff := time.Duration(attempts) * 30 * time.Second
+	if backoff > 5*time.Minute {
+		return 5 * time.Minute
+	}
+	return backoff
+}
+
+func clonePayload(payload map[string]interface{}) map[string]interface{} {
+	if payload == nil {
+		return nil
+	}
+	out := make(map[string]interface{}, len(payload))
+	for key, value := range payload {
+		out[key] = value
+	}
+	return out
 }
 
 func parseTimeOrNil(value string) *time.Time {

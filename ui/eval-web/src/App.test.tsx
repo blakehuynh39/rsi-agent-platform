@@ -214,6 +214,9 @@ const proposalListResponse = {
       category: "architecture",
       summary: "Split detail payloads into conversation, case, and trace evidence objects.",
       status: "pr_open",
+      repo_change_status: "validation_pending",
+      pr_status: "pr_open",
+      pr_url: "https://github.com/piplabs/rsi-agent-platform/pull/42",
       candidate_key: "improvement-plane:detail-contracts",
       risk_tier: "medium",
       proposed_scope: "ui/eval-web and internal/improvementplane",
@@ -231,7 +234,16 @@ const proposalListResponse = {
     stale_proposal_ids: []
   },
   candidates: [],
-  proposal_memory: [],
+  settings: {
+    active_proposal_cap: 2,
+    updated_at: "2026-04-11T12:00:00Z"
+  }
+};
+
+const proposalDetailResponse = {
+  proposal: proposalListResponse.proposals[0],
+  reviews: [],
+  related_proposal_memory: [],
   repo_change_jobs: [
     {
       id: "job-001",
@@ -239,7 +251,15 @@ const proposalListResponse = {
       status: "pr_open",
       repo: "rsi-agent-platform",
       branch_name: "codex/proposal-001",
-      context_summary: "Detail payload refactor."
+      context_summary: "Detail payload refactor.",
+      validation_error: "",
+      validation_ref: "rsi-platform/rsi-sandbox-trace-001",
+      sandbox_namespace: "rsi-platform",
+      sandbox_job_name: "rsi-sandbox-trace-001",
+      sandbox_pod_name: "rsi-sandbox-trace-001",
+      log_artifact_id: "",
+      created_at: "2026-04-11T12:25:00Z",
+      updated_at: "2026-04-11T12:30:00Z"
     }
   ],
   pr_attempts: [
@@ -252,19 +272,6 @@ const proposalListResponse = {
       created_at: "2026-04-11T12:30:00Z"
     }
   ],
-  post_merge_replays: [],
-  settings: {
-    active_proposal_cap: 2,
-    updated_at: "2026-04-11T12:00:00Z"
-  }
-};
-
-const proposalDetailResponse = {
-  proposal: proposalListResponse.proposals[0],
-  reviews: [],
-  related_proposal_memory: [],
-  repo_change_jobs: proposalListResponse.repo_change_jobs,
-  pr_attempts: proposalListResponse.pr_attempts,
   post_merge_replays: [],
   linked_trace_summaries: conversationDetailResponse.trace_attempts,
   linked_eval_runs: [],
@@ -302,6 +309,7 @@ const runtimeResponse = {
       role: "eval",
       reported_role: "eval",
       base_url: "http://runner-eval",
+      timeout_seconds: 120,
       status: "ok",
       backend: "hermes-aiagent",
       provider: "openai",

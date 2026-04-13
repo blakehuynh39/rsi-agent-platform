@@ -288,6 +288,39 @@ func TestRouterProposalDetailAndRuntimeEndpoints(t *testing.T) {
 	}
 	router := NewRouter(cfg, store)
 
+	proposalListReq := httptest.NewRequest(http.MethodGet, "/api/proposals", nil)
+	proposalListRec := httptest.NewRecorder()
+	router.ServeHTTP(proposalListRec, proposalListReq)
+	if proposalListRec.Code != http.StatusOK {
+		t.Fatalf("proposal list status = %d, want %d", proposalListRec.Code, http.StatusOK)
+	}
+
+	var proposalListPayload struct {
+		Proposals []map[string]any `json:"proposals"`
+	}
+	if err := json.NewDecoder(proposalListRec.Body).Decode(&proposalListPayload); err != nil {
+		t.Fatalf("decode proposal list: %v", err)
+	}
+	if len(proposalListPayload.Proposals) == 0 {
+		t.Fatal("expected at least one proposal summary")
+	}
+	firstProposal := proposalListPayload.Proposals[0]
+	if got, _ := firstProposal["repo_change_status"].(string); got == "" {
+		t.Fatal("expected compact repo_change_status on proposal summary")
+	}
+	if got, _ := firstProposal["pr_status"].(string); got == "" {
+		t.Fatal("expected compact pr_status on proposal summary")
+	}
+	if got, _ := firstProposal["pr_url"].(string); got == "" {
+		t.Fatal("expected compact pr_url on proposal summary")
+	}
+	if _, ok := firstProposal["repo_change_jobs"]; ok {
+		t.Fatal("proposal list should not hydrate repo_change_jobs history")
+	}
+	if _, ok := firstProposal["pr_attempts"]; ok {
+		t.Fatal("proposal list should not hydrate pr_attempts history")
+	}
+
 	proposalReq := httptest.NewRequest(http.MethodGet, "/api/proposals/"+proposal.ID, nil)
 	proposalRec := httptest.NewRecorder()
 	router.ServeHTTP(proposalRec, proposalReq)

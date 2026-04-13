@@ -14,8 +14,6 @@ import type {
   EvalJudgment,
   KnowledgeEntry,
   NullableList,
-  PRAttempt,
-  RepoChangeJob,
   ActionResult,
   ProposalResponse,
   ProposalDetailResponse,
@@ -97,14 +95,6 @@ function writeViewState(next: ViewState) {
   const query = params.toString();
   const target = `${window.location.pathname}${query ? `?${query}` : ""}`;
   window.history.replaceState({}, "", target);
-}
-
-function proposalPRState(proposalId: string, attempts: PRAttempt[]) {
-  return attempts.find((attempt) => attempt.proposal_id === proposalId);
-}
-
-function proposalJobState(proposalId: string, jobs: RepoChangeJob[]) {
-  return jobs.find((job) => job.proposal_id === proposalId);
 }
 
 function knowledgeEntriesForSegment(entries: KnowledgeEntry[], segment: KnowledgeSegment) {
@@ -208,9 +198,6 @@ export function App() {
   const proposals = listOrEmpty(proposalsQuery.data?.proposals);
   const knowledgeEntries = listOrEmpty(knowledgeQuery.data?.knowledge_entries);
   const candidates = listOrEmpty(proposalsQuery.data?.candidates);
-  const proposalMemories = listOrEmpty(proposalsQuery.data?.proposal_memory);
-  const repoChangeJobs = listOrEmpty(proposalsQuery.data?.repo_change_jobs);
-  const prAttempts = listOrEmpty(proposalsQuery.data?.pr_attempts);
   const runtimeRoles = listOrEmpty(runtimeQuery.data?.roles);
   const proposalSlotState = proposalsQuery.data?.proposal_slots;
 
@@ -559,8 +546,6 @@ export function App() {
             ) : (
               <div className="list-stack">
                 {proposalRows.map((proposal) => {
-                  const prAttempt = proposalPRState(proposal.id, prAttempts);
-                  const repoJob = proposalJobState(proposal.id, repoChangeJobs);
                   return (
                     <button
                       key={proposal.id}
@@ -572,14 +557,14 @@ export function App() {
                           <strong>{proposal.title}</strong>
                           <p>{proposal.status} · {proposal.candidate_key}</p>
                         </div>
-                        <span className="status-chip">{prAttempt?.status || repoJob?.status || proposal.status}</span>
+                        <span className="status-chip">{proposal.pr_status || proposal.repo_change_status || proposal.status}</span>
                       </div>
                       <p className="trace-thread">{proposal.summary}</p>
                       <dl className="mini-metrics">
                         <div><dt>Risk</dt><dd>{proposal.risk_tier || "n/a"}</dd></div>
                         <div><dt>Case</dt><dd>{proposal.case_id || "none"}</dd></div>
                         <div><dt>Slot</dt><dd>{proposal.active_slot_consuming ? "occupied" : "free"}</dd></div>
-                        <div><dt>PR</dt><dd>{prAttempt?.pr_url ? "linked" : "none"}</dd></div>
+                        <div><dt>PR</dt><dd>{proposal.pr_url ? "linked" : "none"}</dd></div>
                       </dl>
                     </button>
                   );
@@ -707,7 +692,6 @@ export function App() {
             onDecision={(decision) => proposalDecisionMutation.mutate(decision)}
             onRetry={() => proposalRetryMutation.mutate()}
             canRetry={proposalDetailQuery.data.proposal.status === "failed_validation" && listOrEmpty(proposalDetailQuery.data.pr_attempts).length === 0}
-            proposalMemories={proposalMemories}
           />
         ) : (
           <EmptyDetail title="Proposal not found" body="The selected proposal no longer exists." />

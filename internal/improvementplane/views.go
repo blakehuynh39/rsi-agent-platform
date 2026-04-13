@@ -130,10 +130,38 @@ type proposalDetailResponse struct {
 	KnowledgeEntries      []knowledge.Entry             `json:"knowledge_entries"`
 }
 
+type proposalListItem struct {
+	ID                            string                `json:"id"`
+	TraceID                       string                `json:"trace_id"`
+	ConversationID                string                `json:"conversation_id,omitempty"`
+	CaseID                        string                `json:"case_id,omitempty"`
+	OriginTraceID                 string                `json:"origin_trace_id,omitempty"`
+	EvidenceTraceIDs              []string              `json:"evidence_trace_ids"`
+	Title                         string                `json:"title"`
+	Category                      string                `json:"category"`
+	Summary                       string                `json:"summary"`
+	Status                        review.ProposalStatus `json:"status"`
+	Reviewer                      string                `json:"reviewer,omitempty"`
+	CandidateKey                  string                `json:"candidate_key"`
+	SourceEvalIDs                 []string              `json:"source_eval_ids"`
+	RiskTier                      string                `json:"risk_tier,omitempty"`
+	ProposedScope                 string                `json:"proposed_scope,omitempty"`
+	EvidenceArtifactIDs           []string              `json:"evidence_artifact_ids"`
+	ActiveSlotConsuming           bool                  `json:"active_slot_consuming"`
+	ReviewDeadline                time.Time             `json:"review_deadline,omitempty"`
+	PriorSimilarProposalIDs       []string              `json:"prior_similar_proposal_ids"`
+	NewEvidenceSinceLastRejection bool                  `json:"new_evidence_since_last_rejection"`
+	CreatedAt                     time.Time             `json:"created_at"`
+	RepoChangeStatus              string                `json:"repo_change_status,omitempty"`
+	PRStatus                      string                `json:"pr_status,omitempty"`
+	PRURL                         string                `json:"pr_url,omitempty"`
+}
+
 type runtimeRoleStatus struct {
 	Role             string `json:"role"`
 	ReportedRole     string `json:"reported_role,omitempty"`
 	BaseURL          string `json:"base_url"`
+	TimeoutSeconds   int    `json:"timeout_seconds"`
 	Status           string `json:"status"`
 	Backend          string `json:"backend"`
 	Provider         string `json:"provider"`
@@ -325,6 +353,47 @@ func buildProposalDetail(store storepkg.Repository, proposalID string) (proposal
 	}, true
 }
 
+func buildProposalSummaries(store storepkg.Repository) []proposalListItem {
+	proposals := normalizeProposals(store.ListProposals())
+	latestJobs := latestRepoChangeJobByProposal(store.ListRepoChangeJobs())
+	latestPRAttempts := latestPRAttemptByProposal(store.ListPRAttempts())
+	out := make([]proposalListItem, 0, len(proposals))
+	for _, item := range proposals {
+		summary := proposalListItem{
+			ID:                            item.ID,
+			TraceID:                       item.TraceID,
+			ConversationID:                item.ConversationID,
+			CaseID:                        item.CaseID,
+			OriginTraceID:                 item.OriginTraceID,
+			EvidenceTraceIDs:              sliceOrEmpty(item.EvidenceTraceIDs),
+			Title:                         item.Title,
+			Category:                      item.Category,
+			Summary:                       item.Summary,
+			Status:                        item.Status,
+			Reviewer:                      item.Reviewer,
+			CandidateKey:                  item.CandidateKey,
+			SourceEvalIDs:                 sliceOrEmpty(item.SourceEvalIDs),
+			RiskTier:                      item.RiskTier,
+			ProposedScope:                 item.ProposedScope,
+			EvidenceArtifactIDs:           sliceOrEmpty(item.EvidenceArtifactIDs),
+			ActiveSlotConsuming:           item.ActiveSlotConsuming,
+			ReviewDeadline:                item.ReviewDeadline,
+			PriorSimilarProposalIDs:       sliceOrEmpty(item.PriorSimilarProposalIDs),
+			NewEvidenceSinceLastRejection: item.NewEvidenceSinceLastRejection,
+			CreatedAt:                     item.CreatedAt,
+		}
+		if job, ok := latestJobs[item.ID]; ok {
+			summary.RepoChangeStatus = job.Status
+		}
+		if attempt, ok := latestPRAttempts[item.ID]; ok {
+			summary.PRStatus = attempt.Status
+			summary.PRURL = attempt.PRURL
+		}
+		out = append(out, summary)
+	}
+	return out
+}
+
 func buildRuntimeStatus(cfg config.Config) []runtimeRoleStatus {
 	roleURLs := cfg.RunnerURLs()
 	cache := map[string]clients.RuntimeResponse{}
@@ -334,7 +403,7 @@ func buildRuntimeStatus(cfg config.Config) []runtimeRoleStatus {
 	for _, role := range roles {
 		baseURL := roleURLs[role]
 		if _, ok := cache[baseURL]; !ok && cacheErrs[baseURL] == nil {
-			resp, err := clients.NewRunnerClient(baseURL).Runtime()
+			resp, err := clients.NewRunnerClientWithTimeout(baseURL, cfg.RunnerTimeoutForRole(role)).Runtime()
 			if err != nil {
 				cacheErrs[baseURL] = err
 			} else {
@@ -344,6 +413,7 @@ func buildRuntimeStatus(cfg config.Config) []runtimeRoleStatus {
 		item := runtimeRoleStatus{
 			Role:            role,
 			BaseURL:         baseURL,
+			TimeoutSeconds:  int(cfg.RunnerTimeoutForRole(role).Seconds()),
 			Status:          "unreachable",
 			Model:           "openai/gpt-5.4",
 			ReasoningEffort: "xhigh",
@@ -616,6 +686,28 @@ func filterPostMergeReplays(items []improvement.PostMergeReplay, proposalID stri
 	return out
 }
 
+func latestRepoChangeJobByProposal(items []improvement.RepoChangeJob) map[string]improvement.RepoChangeJob {
+	out := map[string]improvement.RepoChangeJob{}
+	for _, item := range items {
+		current, ok := out[item.ProposalID]
+		if !ok || itemUpdatedAt(item).After(itemUpdatedAt(current)) {
+			out[item.ProposalID] = item
+		}
+	}
+	return out
+}
+
+func latestPRAttemptByProposal(items []improvement.PRAttempt) map[string]improvement.PRAttempt {
+	out := map[string]improvement.PRAttempt{}
+	for _, item := range items {
+		current, ok := out[item.ProposalID]
+		if !ok || item.CreatedAt.After(current.CreatedAt) {
+			out[item.ProposalID] = item
+		}
+	}
+	return out
+}
+
 func linkTraceSummaries(items []events.TraceSummary, proposal review.Proposal, replays []improvement.PostMergeReplay) []traceAttemptSummary {
 	index := map[string]events.TraceSummary{}
 	for _, item := range items {
@@ -661,6 +753,16 @@ func normalizeProposal(item review.Proposal) review.Proposal {
 	item.EvidenceTraceIDs = sliceOrEmpty(item.EvidenceTraceIDs)
 	item.Reviews = sliceOrEmpty(item.Reviews)
 	return item
+}
+
+func itemUpdatedAt(item improvement.RepoChangeJob) time.Time {
+	if !item.UpdatedAt.IsZero() {
+		return item.UpdatedAt
+	}
+	if !item.CreatedAt.IsZero() {
+		return item.CreatedAt
+	}
+	return time.Time{}
 }
 
 func normalizeTrace(trace events.Trace) events.Trace {

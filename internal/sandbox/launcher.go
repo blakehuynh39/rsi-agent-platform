@@ -3,11 +3,14 @@ package sandbox
 import (
 	"context"
 	"fmt"
+	"io"
+	"sort"
 	"time"
 
 	"github.com/piplabs/rsi-agent-platform/internal/cluster"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	batchv1 "k8s.io/api/batch/v1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -15,6 +18,7 @@ import (
 type Launcher interface {
 	Launch(ctx context.Context, req JobRequest) (Session, *batchv1.Job, error)
 	GetJob(ctx context.Context, namespace string, name string) (*batchv1.Job, error)
+	ObserveJob(ctx context.Context, namespace string, name string) (JobObservation, error)
 }
 
 type KubernetesLauncher struct {
@@ -60,4 +64,60 @@ func (l *KubernetesLauncher) GetJob(ctx context.Context, namespace string, name 
 		return nil, fmt.Errorf("get sandbox job: %w", err)
 	}
 	return job, nil
+}
+
+func (l *KubernetesLauncher) ObserveJob(ctx context.Context, namespace string, name string) (JobObservation, error) {
+	job, err := l.GetJob(ctx, namespace, name)
+	if err != nil {
+		return JobObservation{}, err
+	}
+	observation := JobObservation{
+		Namespace:    namespace,
+		JobName:      name,
+		JobSucceeded: job.Status.Succeeded > 0,
+		JobFailed:    job.Status.Failed > 0,
+	}
+	for _, condition := range job.Status.Conditions {
+		observation.JobConditions = append(observation.JobConditions, fmt.Sprintf("%s=%s:%s", condition.Type, condition.Status, condition.Reason))
+	}
+	pods, err := l.clientset.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{
+		LabelSelector: fmt.Sprintf("job-name=%s", name),
+	})
+	if err != nil {
+		return JobObservation{}, fmt.Errorf("list sandbox pods: %w", err)
+	}
+	if len(pods.Items) == 0 {
+		return observation, nil
+	}
+	sort.Slice(pods.Items, func(i, j int) bool {
+		return pods.Items[i].CreationTimestamp.Time.After(pods.Items[j].CreationTimestamp.Time)
+	})
+	pod := pods.Items[0]
+	observation.PodName = pod.Name
+	observation.PodPhase = string(pod.Status.Phase)
+	if terminated := terminatedContainerState(pod); terminated != nil {
+		exitCode := terminated.ExitCode
+		observation.ContainerExitCode = &exitCode
+		observation.TerminationReason = terminated.Reason
+		observation.TerminationMessage = terminated.Message
+	}
+	if observation.JobSucceeded || observation.JobFailed || pod.Status.Phase == corev1.PodSucceeded || pod.Status.Phase == corev1.PodFailed {
+		stream, err := l.clientset.CoreV1().Pods(namespace).GetLogs(pod.Name, &corev1.PodLogOptions{Container: "sandbox-runtime"}).Stream(ctx)
+		if err == nil {
+			defer stream.Close()
+			if body, readErr := io.ReadAll(stream); readErr == nil {
+				observation.Logs = string(body)
+			}
+		}
+	}
+	return observation, nil
+}
+
+func terminatedContainerState(pod corev1.Pod) *corev1.ContainerStateTerminated {
+	for _, status := range pod.Status.ContainerStatuses {
+		if status.State.Terminated != nil {
+			return status.State.Terminated
+		}
+	}
+	return nil
 }

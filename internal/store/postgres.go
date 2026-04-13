@@ -1289,18 +1289,20 @@ func loadProposals(r sqlReader, store *MemoryStore) error {
 }
 
 func loadProposalReviews(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select proposal_id, decision, rationale, reviewer_id, failure_class, failure_classes, created_at from proposal_review order by created_at asc`)
+	rows, err := r.Query(`select id, proposal_id, idempotency_key, decision, rationale, reviewer_id, failure_class, failure_classes, created_at from proposal_review order by created_at asc, id asc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var item review.ProposalReview
+		var idempotencyKey sql.NullString
 		var failureClass sql.NullString
 		var failureClasses []byte
-		if err := rows.Scan(&item.ProposalID, &item.Decision, &item.Rationale, &item.ReviewerID, &failureClass, &failureClasses, &item.CreatedAt); err != nil {
+		if err := rows.Scan(&item.ID, &item.ProposalID, &idempotencyKey, &item.Decision, &item.Rationale, &item.ReviewerID, &failureClass, &failureClasses, &item.CreatedAt); err != nil {
 			return err
 		}
+		item.IdempotencyKey = idempotencyKey.String
 		item.FailureClass = failureClass.String
 		item.FailureClasses = decodeJSON(failureClasses, []string{})
 		proposal := store.proposals[item.ProposalID]
@@ -1311,7 +1313,7 @@ func loadProposalReviews(r sqlReader, store *MemoryStore) error {
 }
 
 func loadProposalMemory(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, proposal_id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, hypothesis, diff_summary, review_rationale, disposition, disposition_reason, failure_class, failure_classes, source_eval_ids, linked_artifact_ids, linked_proposal_ids, created_at from proposal_memory order by created_at desc`)
+	rows, err := r.Query(`select id, review_id, proposal_id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, hypothesis, diff_summary, review_rationale, disposition, disposition_reason, failure_class, failure_classes, source_eval_ids, linked_artifact_ids, linked_proposal_ids, created_at from proposal_memory order by created_at desc`)
 	if err != nil {
 		return err
 	}
@@ -1319,10 +1321,14 @@ func loadProposalMemory(r sqlReader, store *MemoryStore) error {
 	for rows.Next() {
 		var item review.ProposalMemory
 		var disposition string
+		var reviewID sql.NullInt64
 		var conversationID, caseID, originTraceID, dispositionReason, failureClass sql.NullString
 		var evidenceTraceIDs, failureClasses, sourceEvalIDs, linkedArtifactIDs, linkedProposalIDs []byte
-		if err := rows.Scan(&item.ID, &item.ProposalID, &item.CandidateKey, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Hypothesis, &item.DiffSummary, &item.ReviewRationale, &disposition, &dispositionReason, &failureClass, &failureClasses, &sourceEvalIDs, &linkedArtifactIDs, &linkedProposalIDs, &item.CreatedAt); err != nil {
+		if err := rows.Scan(&item.ID, &reviewID, &item.ProposalID, &item.CandidateKey, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Hypothesis, &item.DiffSummary, &item.ReviewRationale, &disposition, &dispositionReason, &failureClass, &failureClasses, &sourceEvalIDs, &linkedArtifactIDs, &linkedProposalIDs, &item.CreatedAt); err != nil {
 			return err
+		}
+		if reviewID.Valid {
+			item.ReviewID = reviewID.Int64
 		}
 		item.ConversationID = conversationID.String
 		item.CaseID = caseID.String
@@ -1341,22 +1347,28 @@ func loadProposalMemory(r sqlReader, store *MemoryStore) error {
 }
 
 func loadRepoChangeJobs(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, proposal_id, conversation_id, case_id, origin_trace_id, candidate_key, status, repo, base_ref, branch_name, allowed_path_globs, context_summary, created_at from repo_change_job order by created_at desc`)
+	rows, err := r.Query(`select id, proposal_id, conversation_id, case_id, origin_trace_id, candidate_key, status, repo, base_ref, branch_name, allowed_path_globs, context_summary, sandbox_namespace, sandbox_job_name, sandbox_pod_name, validation_error, validation_ref, log_artifact_id, created_at, updated_at from repo_change_job order by created_at desc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var item improvement.RepoChangeJob
-		var conversationID, caseID, originTraceID sql.NullString
+		var conversationID, caseID, originTraceID, sandboxNamespace, sandboxJobName, sandboxPodName, validationError, validationRef, logArtifactID sql.NullString
 		var allowed []byte
-		if err := rows.Scan(&item.ID, &item.ProposalID, &conversationID, &caseID, &originTraceID, &item.CandidateKey, &item.Status, &item.Repo, &item.BaseRef, &item.BranchName, &allowed, &item.ContextSummary, &item.CreatedAt); err != nil {
+		if err := rows.Scan(&item.ID, &item.ProposalID, &conversationID, &caseID, &originTraceID, &item.CandidateKey, &item.Status, &item.Repo, &item.BaseRef, &item.BranchName, &allowed, &item.ContextSummary, &sandboxNamespace, &sandboxJobName, &sandboxPodName, &validationError, &validationRef, &logArtifactID, &item.CreatedAt, &item.UpdatedAt); err != nil {
 			return err
 		}
 		item.ConversationID = conversationID.String
 		item.CaseID = caseID.String
 		item.OriginTraceID = originTraceID.String
 		item.AllowedPathGlobs = decodeJSON(allowed, []string{})
+		item.SandboxNamespace = sandboxNamespace.String
+		item.SandboxJobName = sandboxJobName.String
+		item.SandboxPodName = sandboxPodName.String
+		item.ValidationError = validationError.String
+		item.ValidationRef = validationRef.String
+		item.LogArtifactID = logArtifactID.String
 		store.repoChangeJobs[item.ID] = item
 	}
 	return rows.Err()
@@ -2106,8 +2118,17 @@ func persistProposalReviews(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.proposals)
 	for _, key := range keys {
 		for _, item := range store.proposals[key].Reviews {
-			if _, err := tx.Exec(`insert into proposal_review (proposal_id, decision, rationale, reviewer_id, failure_class, failure_classes, created_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7)`,
-				item.ProposalID, item.Decision, item.Rationale, item.ReviewerID, nullString(item.FailureClass), jsonString(item.FailureClasses), item.CreatedAt,
+			if _, err := tx.Exec(`insert into proposal_review (id, proposal_id, idempotency_key, decision, rationale, reviewer_id, failure_class, failure_classes, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9)
+				on conflict (id) do update set
+					proposal_id = excluded.proposal_id,
+					idempotency_key = excluded.idempotency_key,
+					decision = excluded.decision,
+					rationale = excluded.rationale,
+					reviewer_id = excluded.reviewer_id,
+					failure_class = excluded.failure_class,
+					failure_classes = excluded.failure_classes,
+					created_at = excluded.created_at`,
+				item.ID, item.ProposalID, nullString(item.IdempotencyKey), item.Decision, item.Rationale, item.ReviewerID, nullString(item.FailureClass), jsonString(item.FailureClasses), item.CreatedAt,
 			); err != nil {
 				return err
 			}
@@ -2118,8 +2139,27 @@ func persistProposalReviews(tx *sql.Tx, store *MemoryStore) error {
 
 func persistProposalMemory(tx *sql.Tx, store *MemoryStore) error {
 	for _, item := range store.proposalMemory {
-		if _, err := tx.Exec(`insert into proposal_memory (id, proposal_id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, hypothesis, diff_summary, review_rationale, disposition, disposition_reason, failure_class, failure_classes, source_eval_ids, linked_artifact_ids, linked_proposal_ids, created_at) values ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9,$10,$11,$12,$13,$14::jsonb,$15::jsonb,$16::jsonb,$17::jsonb,$18)`,
-			item.ID, item.ProposalID, item.CandidateKey, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), jsonString(item.EvidenceTraceIDs), item.Hypothesis, item.DiffSummary, item.ReviewRationale, string(item.Disposition), nullString(item.DispositionReason), nullString(item.FailureClass), jsonString(item.FailureClasses), jsonString(item.SourceEvalIDs), jsonString(item.LinkedArtifactIDs), jsonString(item.LinkedProposalIDs), item.CreatedAt,
+		if _, err := tx.Exec(`insert into proposal_memory (id, review_id, proposal_id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, hypothesis, diff_summary, review_rationale, disposition, disposition_reason, failure_class, failure_classes, source_eval_ids, linked_artifact_ids, linked_proposal_ids, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$10,$11,$12,$13,$14,$15::jsonb,$16::jsonb,$17::jsonb,$18::jsonb,$19)
+			on conflict (id) do update set
+				review_id = excluded.review_id,
+				proposal_id = excluded.proposal_id,
+				candidate_key = excluded.candidate_key,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				origin_trace_id = excluded.origin_trace_id,
+				evidence_trace_ids = excluded.evidence_trace_ids,
+				hypothesis = excluded.hypothesis,
+				diff_summary = excluded.diff_summary,
+				review_rationale = excluded.review_rationale,
+				disposition = excluded.disposition,
+				disposition_reason = excluded.disposition_reason,
+				failure_class = excluded.failure_class,
+				failure_classes = excluded.failure_classes,
+				source_eval_ids = excluded.source_eval_ids,
+				linked_artifact_ids = excluded.linked_artifact_ids,
+				linked_proposal_ids = excluded.linked_proposal_ids,
+				created_at = excluded.created_at`,
+			item.ID, nullInt64(item.ReviewID), item.ProposalID, item.CandidateKey, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), jsonString(item.EvidenceTraceIDs), item.Hypothesis, item.DiffSummary, item.ReviewRationale, string(item.Disposition), nullString(item.DispositionReason), nullString(item.FailureClass), jsonString(item.FailureClasses), jsonString(item.SourceEvalIDs), jsonString(item.LinkedArtifactIDs), jsonString(item.LinkedProposalIDs), item.CreatedAt,
 		); err != nil {
 			return err
 		}
@@ -2182,7 +2222,7 @@ func persistRepoChangeJobs(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.repoChangeJobs)
 	for _, key := range keys {
 		item := store.repoChangeJobs[key]
-		if _, err := tx.Exec(`insert into repo_change_job (id, proposal_id, conversation_id, case_id, origin_trace_id, candidate_key, status, repo, base_ref, branch_name, allowed_path_globs, context_summary, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb,$12,$13)
+		if _, err := tx.Exec(`insert into repo_change_job (id, proposal_id, conversation_id, case_id, origin_trace_id, candidate_key, status, repo, base_ref, branch_name, allowed_path_globs, context_summary, sandbox_namespace, sandbox_job_name, sandbox_pod_name, validation_error, validation_ref, log_artifact_id, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb,$12,$13,$14,$15,$16,$17,$18,$19,$20)
 			on conflict (id) do update set
 				proposal_id = excluded.proposal_id,
 				conversation_id = excluded.conversation_id,
@@ -2195,8 +2235,15 @@ func persistRepoChangeJobs(tx *sql.Tx, store *MemoryStore) error {
 				branch_name = excluded.branch_name,
 				allowed_path_globs = excluded.allowed_path_globs,
 				context_summary = excluded.context_summary,
-				created_at = excluded.created_at`,
-			item.ID, item.ProposalID, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), item.CandidateKey, item.Status, item.Repo, item.BaseRef, item.BranchName, jsonString(item.AllowedPathGlobs), item.ContextSummary, item.CreatedAt,
+				sandbox_namespace = excluded.sandbox_namespace,
+				sandbox_job_name = excluded.sandbox_job_name,
+				sandbox_pod_name = excluded.sandbox_pod_name,
+				validation_error = excluded.validation_error,
+				validation_ref = excluded.validation_ref,
+				log_artifact_id = excluded.log_artifact_id,
+				created_at = excluded.created_at,
+				updated_at = excluded.updated_at`,
+			item.ID, item.ProposalID, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), item.CandidateKey, item.Status, item.Repo, item.BaseRef, item.BranchName, jsonString(item.AllowedPathGlobs), item.ContextSummary, nullString(item.SandboxNamespace), nullString(item.SandboxJobName), nullString(item.SandboxPodName), nullString(item.ValidationError), nullString(item.ValidationRef), nullString(item.LogArtifactID), item.CreatedAt, nullTimeValue(item.UpdatedAt),
 		); err != nil {
 			return err
 		}
@@ -2722,6 +2769,13 @@ func nullTimeValue(value time.Time) any {
 	return value
 }
 
+func nullInt64(value int64) any {
+	if value == 0 {
+		return nil
+	}
+	return value
+}
+
 func sortedMapKeys[V any](items map[string]V) []string {
 	keys := make([]string, 0, len(items))
 	for key := range items {
@@ -2945,21 +2999,8 @@ func (p *PostgresStore) ListIngestions() []slack.Ingestion {
 	return store.ListIngestions()
 }
 
-func (p *PostgresStore) CreateIngestion(envelope slack.SlackEnvelope) slack.Ingestion {
-	var created slack.Ingestion
-	_ = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
-		created = store.CreateIngestion(envelope)
-		if created.EventID == "" {
-			return nil
-		}
-		for _, item := range store.events {
-			if item.ID == created.EventID {
-				return replaceEventMaterializationScope(tx, store, item)
-			}
-		}
-		return nil
-	})
-	return created
+func (p *PostgresStore) CreateIngestion(envelope slack.SlackEnvelope) (slack.Ingestion, error) {
+	return p.createIngestionDirect(envelope)
 }
 
 func (p *PostgresStore) ListWorkflows() []Workflow {
@@ -3226,6 +3267,10 @@ func (p *PostgresStore) EnqueueWorkItem(item queue.WorkItem) (created queue.Work
 	return
 }
 
+func (p *PostgresStore) RescheduleWorkItem(id string, payload map[string]interface{}, lastError string, availableAt time.Time) (queue.WorkItem, error) {
+	return p.rescheduleWorkItemDirect(id, payload, lastError, availableAt)
+}
+
 func (p *PostgresStore) ClaimNextWorkItem(queues []queue.QueueName, holder string, lease time.Duration) (item queue.WorkItem, ok bool, err error) {
 	if holder == "" {
 		return queue.WorkItem{}, false, fmt.Errorf("holder is required")
@@ -3240,14 +3285,16 @@ func (p *PostgresStore) ClaimNextWorkItem(queues []queue.QueueName, holder strin
 		statusQueuedArg := len(queueArgs) + 1
 		statusLeasedArg := len(queueArgs) + 2
 		nowArg := len(queueArgs) + 3
-		leasedStatusArg := len(queueArgs) + 4
-		holderArg := len(queueArgs) + 5
-		expiresArg := len(queueArgs) + 6
-		updatedArg := len(queueArgs) + 7
+		nowUnixArg := len(queueArgs) + 4
+		leasedStatusArg := len(queueArgs) + 5
+		holderArg := len(queueArgs) + 6
+		expiresArg := len(queueArgs) + 7
+		updatedArg := len(queueArgs) + 8
 		args := append(queueArgs,
 			string(queue.WorkQueued),
 			string(queue.WorkLeased),
 			now,
+			now.Unix(),
 			string(queue.WorkLeased),
 			holder,
 			expires,
@@ -3258,6 +3305,7 @@ with next_item as (
 	select id
 	from work_item
 	where %s
+	  and coalesce(nullif(payload->>'retry_after_unix', ''), '0')::bigint <= $%d
 	  and (status = $%d or (status = $%d and lease_expires_at is not null and lease_expires_at < $%d))
 	order by created_at asc, id asc
 	for update skip locked
@@ -3272,7 +3320,7 @@ set status = $%d,
 	completed_at = null
 from next_item
 where wi.id = next_item.id
-returning %s`, queueClause, statusQueuedArg, statusLeasedArg, nowArg, leasedStatusArg, holderArg, expiresArg, updatedArg, workItemSelectColumnsWithAlias("wi"))
+returning %s`, queueClause, nowUnixArg, statusQueuedArg, statusLeasedArg, nowArg, leasedStatusArg, holderArg, expiresArg, updatedArg, workItemSelectColumnsWithAlias("wi"))
 		row := tx.QueryRow(query, args...)
 		var scanErr error
 		item, scanErr = scanWorkItem(row)
@@ -3411,41 +3459,8 @@ func (p *PostgresStore) ListProposals() []review.Proposal {
 	return store.ListProposals()
 }
 
-func (p *PostgresStore) ReviewProposal(proposalID string, decision review.ProposalReview) (proposal review.Proposal, err error) {
-	err = p.withProposalLockedStoreTx(proposalID, func(tx *sql.Tx, store *MemoryStore) error {
-		if existing, alreadyApplied := proposalDecisionAlreadyApplied(store, proposalID, decision); alreadyApplied {
-			proposal = existing
-			return nil
-		}
-		proposal, err = store.ReviewProposal(proposalID, decision)
-		if err != nil {
-			return err
-		}
-		if err := replaceProposalScope(tx, store, proposalID); err != nil {
-			return err
-		}
-		if err := replaceProposalReviewScope(tx, store, proposalID); err != nil {
-			return err
-		}
-		if err := replaceProposalMemoryScope(tx, store, proposalID); err != nil {
-			return err
-		}
-		if err := replaceCandidateScope(tx, store, proposal.CandidateKey); err != nil {
-			return err
-		}
-		if err := replacePostMergeReplayScope(tx, store, proposalID); err != nil {
-			return err
-		}
-		for _, item := range store.workItems {
-			if item.ProposalID == proposalID && item.Queue == queue.ProposalQueue {
-				if err := replaceWorkItemScope(tx, item); err != nil {
-					return err
-				}
-			}
-		}
-		return nil
-	})
-	return
+func (p *PostgresStore) ReviewProposal(proposalID string, decision review.ProposalReview) (review.Proposal, error) {
+	return p.reviewProposalDirect(proposalID, decision)
 }
 
 func (p *PostgresStore) UpdateProposalStatus(proposalID string, status review.ProposalStatus) (proposal review.Proposal, err error) {
@@ -3459,52 +3474,12 @@ func (p *PostgresStore) UpdateProposalStatus(proposalID string, status review.Pr
 	return
 }
 
-func (p *PostgresStore) MaterializeApprovedProposal(proposalID string, requestedBy string) (job improvement.RepoChangeJob, err error) {
-	err = p.withProposalLockedStoreTx(proposalID, func(tx *sql.Tx, store *MemoryStore) error {
-		job, err = store.MaterializeApprovedProposal(proposalID, requestedBy)
-		if err != nil {
-			return err
-		}
-		if err := replaceProposalScope(tx, store, proposalID); err != nil {
-			return err
-		}
-		if err := replaceRepoChangeJobScope(tx, store, proposalID); err != nil {
-			return err
-		}
-		for _, item := range store.workItems {
-			if item.ProposalID == proposalID && item.Queue == queue.SandboxQueue {
-				if err := replaceWorkItemScope(tx, item); err != nil {
-					return err
-				}
-			}
-		}
-		return nil
-	})
-	return
+func (p *PostgresStore) MaterializeApprovedProposal(proposalID string, requestedBy string) (improvement.RepoChangeJob, error) {
+	return p.materializeApprovedProposalDirect(proposalID, requestedBy)
 }
 
-func (p *PostgresStore) RetryProposalRepoChange(proposalID string, requestedBy string) (item queue.WorkItem, err error) {
-	err = p.withProposalLockedStoreTx(proposalID, func(tx *sql.Tx, store *MemoryStore) error {
-		item, err = store.RetryProposalRepoChange(proposalID, requestedBy)
-		if err != nil {
-			return err
-		}
-		if err := replaceProposalScope(tx, store, proposalID); err != nil {
-			return err
-		}
-		if err := replaceRepoChangeJobScope(tx, store, proposalID); err != nil {
-			return err
-		}
-		for _, queued := range store.workItems {
-			if queued.ProposalID == proposalID && queued.Queue == queue.SandboxQueue {
-				if err := replaceWorkItemScope(tx, queued); err != nil {
-					return err
-				}
-			}
-		}
-		return nil
-	})
-	return
+func (p *PostgresStore) RetryProposalRepoChange(proposalID string, requestedBy string) (queue.WorkItem, error) {
+	return p.retryProposalRepoChangeDirect(proposalID, requestedBy)
 }
 
 func (p *PostgresStore) ListRepoChangeJobs() []improvement.RepoChangeJob {
@@ -3516,16 +3491,11 @@ func (p *PostgresStore) ListRepoChangeJobs() []improvement.RepoChangeJob {
 }
 
 func (p *PostgresStore) UpdateRepoChangeJobStatus(jobID string, status string) (item improvement.RepoChangeJob, err error) {
-	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
-		item, err = store.UpdateRepoChangeJobStatus(jobID, status)
-		if err != nil {
-			return err
-		}
-		temp := newSubsetStore()
-		temp.repoChangeJobs[item.ID] = item
-		return persistRepoChangeJobs(tx, temp)
-	})
-	return
+	return p.updateRepoChangeJobStatusDirect(jobID, status)
+}
+
+func (p *PostgresStore) UpsertRepoChangeJob(job improvement.RepoChangeJob) (improvement.RepoChangeJob, error) {
+	return p.upsertRepoChangeJobDirect(job)
 }
 
 func (p *PostgresStore) ListPRAttempts() []improvement.PRAttempt {
@@ -3537,14 +3507,7 @@ func (p *PostgresStore) ListPRAttempts() []improvement.PRAttempt {
 }
 
 func (p *PostgresStore) RecordPRAttempt(attempt improvement.PRAttempt) (item improvement.PRAttempt, err error) {
-	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
-		item, err = store.RecordPRAttempt(attempt)
-		if err != nil {
-			return err
-		}
-		return replacePRAttemptScope(tx, item)
-	})
-	return
+	return p.recordPRAttemptDirect(attempt)
 }
 
 func (p *PostgresStore) ListPostMergeReplays() []improvement.PostMergeReplay {

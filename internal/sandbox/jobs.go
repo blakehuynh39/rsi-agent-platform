@@ -96,6 +96,20 @@ type Session struct {
 	ExpiresAt       *time.Time `json:"expires_at,omitempty"`
 }
 
+type JobObservation struct {
+	Namespace          string   `json:"namespace"`
+	JobName            string   `json:"job_name"`
+	PodName            string   `json:"pod_name,omitempty"`
+	JobSucceeded       bool     `json:"job_succeeded"`
+	JobFailed          bool     `json:"job_failed"`
+	JobConditions      []string `json:"job_conditions,omitempty"`
+	PodPhase           string   `json:"pod_phase,omitempty"`
+	ContainerExitCode  *int32   `json:"container_exit_code,omitempty"`
+	TerminationReason  string   `json:"termination_reason,omitempty"`
+	TerminationMessage string   `json:"termination_message,omitempty"`
+	Logs               string   `json:"logs,omitempty"`
+}
+
 var nonAlnum = regexp.MustCompile(`[^a-z0-9-]+`)
 
 func BuildJob(cfg config.Config, req JobRequest) JobManifest {

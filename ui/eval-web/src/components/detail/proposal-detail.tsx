@@ -1,9 +1,8 @@
-import type { ProposalDetailResponse, ProposalMemory } from "@/types";
+import type { ProposalDetailResponse } from "@/types";
 import { formatTime, latestActionResult, listOrEmpty, scoreBadge } from "@/hooks/api";
 
 export function ProposalDetail(props: {
   detail: ProposalDetailResponse;
-  proposalMemories: ProposalMemory[];
   proposalRationale: string;
   setProposalRationale: (value: string) => void;
   onDecision: (decision: string) => void;
@@ -48,7 +47,7 @@ export function ProposalDetail(props: {
                 <p className="detail-copy">{memory.review_rationale}</p>
               </div>
             ))}
-            {!listOrEmpty(props.detail.related_proposal_memory).length && !props.proposalMemories.length ? (
+            {!listOrEmpty(props.detail.related_proposal_memory).length ? (
               <div className="nested-card"><p className="detail-copy">No prior memory recorded.</p></div>
             ) : null}
           </div>
@@ -89,6 +88,8 @@ export function ProposalDetail(props: {
                 <small>{job.status}</small>
               </div>
               <p className="detail-copy">{job.branch_name}</p>
+              {job.validation_error ? <p className="muted">Validation: {job.validation_error}</p> : null}
+              {job.validation_ref ? <p className="muted">Sandbox ref: {job.validation_ref}</p> : null}
             </div>
           ))}
           {listOrEmpty(props.detail.pr_attempts).map((attempt) => (

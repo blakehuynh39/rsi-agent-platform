@@ -63,7 +63,14 @@ type RepoChangeJob struct {
 	BranchName       string    `json:"branch_name"`
 	AllowedPathGlobs []string  `json:"allowed_path_globs"`
 	ContextSummary   string    `json:"context_summary"`
+	SandboxNamespace string    `json:"sandbox_namespace,omitempty"`
+	SandboxJobName   string    `json:"sandbox_job_name,omitempty"`
+	SandboxPodName   string    `json:"sandbox_pod_name,omitempty"`
+	ValidationError  string    `json:"validation_error,omitempty"`
+	ValidationRef    string    `json:"validation_ref,omitempty"`
+	LogArtifactID    string    `json:"log_artifact_id,omitempty"`
 	CreatedAt        time.Time `json:"created_at"`
+	UpdatedAt        time.Time `json:"updated_at"`
 }
 
 type PRAttempt struct {

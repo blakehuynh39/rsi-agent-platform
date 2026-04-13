@@ -174,7 +174,7 @@ func withStoreDatabase(rawURL string, dbName string) (string, error) {
 func seedPromotableFailureProposal(t *testing.T, store *PostgresStore) (events.Trace, evals.Run, []evals.Judgment, review.Proposal) {
 	t.Helper()
 
-	ingested := store.CreateIngestion(slackpkg.SlackEnvelope{
+	ingested, err := store.CreateIngestion(slackpkg.SlackEnvelope{
 		BotRole:   slackpkg.BotArch,
 		TeamID:    "T123",
 		ChannelID: "D123",
@@ -184,6 +184,9 @@ func seedPromotableFailureProposal(t *testing.T, store *PostgresStore) (events.T
 		TS:        "171000001.000100",
 		CreatedAt: time.Now().UTC(),
 	})
+	if err != nil {
+		t.Fatalf("CreateIngestion() error = %v", err)
+	}
 	if ingested.ID == "" {
 		t.Fatal("expected ingestion to be created")
 	}

@@ -101,7 +101,9 @@ type Proposal struct {
 }
 
 type ProposalReview struct {
+	ID             int64     `json:"id"`
 	ProposalID     string    `json:"proposal_id"`
+	IdempotencyKey string    `json:"idempotency_key,omitempty"`
 	Decision       string    `json:"decision"`
 	Rationale      string    `json:"rationale"`
 	ReviewerID     string    `json:"reviewer_id"`
@@ -112,6 +114,7 @@ type ProposalReview struct {
 
 type ProposalMemory struct {
 	ID                string         `json:"id"`
+	ReviewID          int64          `json:"review_id,omitempty"`
 	ProposalID        string         `json:"proposal_id"`
 	CandidateKey      string         `json:"candidate_key"`
 	ConversationID    string         `json:"conversation_id,omitempty"`
