@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/piplabs/rsi-agent-platform/internal/action"
 	"github.com/piplabs/rsi-agent-platform/internal/clients"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
@@ -242,6 +244,143 @@ func TestSupersededTraceDoesNotPostLateSlackReply(t *testing.T) {
 	}
 }
 
+func TestControlActionPersistenceFailureFinalizesTraceAndQueuesEval(t *testing.T) {
+	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
+		name = strings.TrimSuffix(name, "/execute")
+		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
+			Name:          name,
+			ToolCallID:    name + "-call",
+			Approved:      true,
+			ApprovalState: "not_required",
+			Status:        "completed",
+			Available:     true,
+			Summary:       "Context gathered.",
+			Input:         map[string]any{},
+			Output:        map[string]any{"ok": true},
+		})
+	}))
+	defer toolGateway.Close()
+
+	baseStore := storepkg.NewMemoryStore()
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		ToolGatewayBaseURL:        toolGateway.URL,
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+	}
+
+	workflowItem := firstQueuedWorkflowItem(t, baseStore, "slack:")
+	if err := processWorkflowItem(cfg, baseStore, nil, workflowItem); err != nil {
+		t.Fatalf("processWorkflowItem(run_workflow) error = %v", err)
+	}
+	_, _ = baseStore.CompleteWorkItem(workflowItem.ID)
+
+	contextActions := queuedWorkItemsForQueue(baseStore, queue.ControlActionQueue)
+	if len(contextActions) == 0 {
+		t.Fatal("expected queued control actions")
+	}
+	failingAction := contextActions[0]
+	failingIntentID := stringFromMap(failingAction.Payload, "action_intent_id")
+	store := &failingRecordActionResultStore{
+		Store:        baseStore,
+		FailActionID: failingIntentID,
+		Err: &pgconn.PgError{
+			Code:           "23505",
+			ConstraintName: "action_result_pkey",
+			TableName:      "action_result",
+			Message:        `duplicate key value violates unique constraint "action_result_pkey"`,
+		},
+	}
+
+	err := processControlActionItem(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), failingAction)
+	if err == nil {
+		t.Fatal("expected persistence failure to bubble up")
+	}
+	if _, failErr := store.FailWorkItem(failingAction.ID, err.Error()); failErr != nil {
+		t.Fatalf("FailWorkItem() error = %v", failErr)
+	}
+
+	intent, ok := baseStore.GetActionIntent(failingIntentID)
+	if !ok {
+		t.Fatal("expected action intent to exist")
+	}
+	if intent.Status != action.StatusFailed {
+		t.Fatalf("expected failed action intent, got %s", intent.Status)
+	}
+	if intent.PolicyVerdict != "action_result_primary_key_collision" {
+		t.Fatalf("expected runtime failure mode on intent, got %s", intent.PolicyVerdict)
+	}
+
+	trace, ok := baseStore.GetTrace(workflowItem.TraceID)
+	if !ok {
+		t.Fatal("expected trace to exist")
+	}
+	if trace.Summary.Status != "needs-human" {
+		t.Fatalf("expected trace to move to needs-human immediately, got %s", trace.Summary.Status)
+	}
+	foundFailureEvent := false
+	for _, event := range trace.Events {
+		if event.EventType != "action.persistence_failed" {
+			continue
+		}
+		foundFailureEvent = true
+		if !strings.Contains(event.Description, "sqlstate=23505") {
+			t.Fatalf("expected SQLSTATE in failure event, got %q", event.Description)
+		}
+		if !strings.Contains(event.Description, "constraint=action_result_pkey") {
+			t.Fatalf("expected constraint in failure event, got %q", event.Description)
+		}
+	}
+	if !foundFailureEvent {
+		t.Fatal("expected explicit action.persistence_failed trace event")
+	}
+	if len(contextActions) > 1 {
+		remainingAction := contextActions[1]
+		remainingIntentID := stringFromMap(remainingAction.Payload, "action_intent_id")
+		if err := processControlActionItem(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), remainingAction); err != nil {
+			t.Fatalf("processControlActionItem(remaining) error = %v", err)
+		}
+		remainingIntent, ok := baseStore.GetActionIntent(remainingIntentID)
+		if !ok {
+			t.Fatal("expected remaining action intent to exist")
+		}
+		if remainingIntent.Status != action.StatusCanceled {
+			t.Fatalf("expected remaining action to be canceled after terminal failure, got %s", remainingIntent.Status)
+		}
+		if countQueuedItems(baseStore, queue.WorkflowQueue, controlWorkResumeAfterContext) != 0 {
+			t.Fatal("expected no resume_after_context work after terminal persistence failure")
+		}
+	}
+
+	resumeReply := firstQueuedWorkItem(t, baseStore, queue.WorkflowQueue, controlWorkResumeAfterReply)
+	if err := processWorkflowItem(cfg, store, nil, resumeReply); err != nil {
+		t.Fatalf("processWorkflowItem(resume_after_reply) error = %v", err)
+	}
+
+	trace, _ = baseStore.GetTrace(workflowItem.TraceID)
+	if trace.Summary.Status != "needs-human" {
+		t.Fatalf("expected terminal needs-human trace, got %s", trace.Summary.Status)
+	}
+	if trace.Summary.EndedAt.IsZero() {
+		t.Fatal("expected terminal trace ended_at to be set")
+	}
+
+	foundEval := false
+	for _, item := range baseStore.ListWorkItems() {
+		if item.Queue == queue.EvalQueue && item.TraceID == workflowItem.TraceID {
+			foundEval = true
+			break
+		}
+	}
+	if !foundEval {
+		t.Fatal("expected eval work item after persistence failure finalization")
+	}
+}
+
 func TestReplyPolicyAllowsDirectMessagesWithoutChannelPolicy(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 
@@ -359,4 +498,17 @@ func countQueuedItems(store storepkg.Store, queueName queue.QueueName, kind stri
 		}
 	}
 	return count
+}
+
+type failingRecordActionResultStore struct {
+	storepkg.Store
+	FailActionID string
+	Err          error
+}
+
+func (s *failingRecordActionResultStore) RecordActionResult(result action.Result) (action.Result, error) {
+	if result.ActionIntentID == s.FailActionID {
+		return action.Result{}, s.Err
+	}
+	return s.Store.RecordActionResult(result)
 }

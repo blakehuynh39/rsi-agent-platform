@@ -1,9 +1,11 @@
 package store
 
 import (
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
@@ -184,4 +186,79 @@ func TestApproveProposalQueuesMaterializationWork(t *testing.T) {
 	if !found {
 		t.Fatal("expected proposal materialization work item to be queued")
 	}
+}
+
+func TestEvaluateTraceRuntimeFailureCreatesRootCauseCandidate(t *testing.T) {
+	store := NewMemoryStore()
+	traceID := store.ListTraces()[0].TraceID
+	trace, ok := store.GetTrace(traceID)
+	if !ok {
+		t.Fatalf("expected trace %s", traceID)
+	}
+
+	description := `subsystem=shared-store failure_mode=action_result_primary_key_collision provider=github action_intent_id=action-002 work_item_id=work-003 kind=tool_read sqlstate=23505 constraint=action_result_pkey table=action_result error="duplicate key value violates unique constraint \"action_result_pkey\""`
+	if _, err := store.ApplyTraceUpdate(traceID, TraceUpdate{
+		Status:         statusPtr(events.StatusNeedsHuman),
+		WorkflowStatus: "needs-human",
+		WorkflowError:  description,
+		Events: []events.TraceEvent{
+			{
+				TraceID:        trace.Summary.TraceID,
+				IngestionID:    trace.Summary.IngestionID,
+				WorkflowID:     trace.Summary.WorkflowID,
+				ConversationID: trace.Summary.ConversationID,
+				CaseID:         trace.Summary.CaseID,
+				TriggerEventID: trace.Summary.TriggerEventID,
+				Plane:          "control",
+				Service:        "control-plane",
+				Actor:          "action-worker",
+				EventType:      "action.persistence_failed",
+				Status:         events.StatusNeedsHuman,
+				StartedAt:      time.Now().UTC(),
+				Description:    description,
+			},
+		},
+	}); err != nil {
+		t.Fatalf("ApplyTraceUpdate() error = %v", err)
+	}
+
+	run, judgments, err := store.EvaluateTrace(traceID, "test")
+	if err != nil {
+		t.Fatalf("EvaluateTrace() error = %v", err)
+	}
+	if run.OverallScore >= 0.65 {
+		t.Fatalf("expected failing runtime trace to score below promotion threshold, got %.2f (%#v)", run.OverallScore, judgments)
+	}
+
+	var candidate improvement.Candidate
+	found := false
+	for _, item := range store.ListCandidates() {
+		if item.LatestTraceID == traceID && item.FailureMode == "action_result_primary_key_collision" {
+			candidate = item
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("expected runtime failure candidate to be created")
+	}
+	if candidate.CandidateKey != "shared-store:policy_or_runtime_fix:action_result_primary_key_collision" {
+		t.Fatalf("unexpected candidate key: %s", candidate.CandidateKey)
+	}
+	if candidate.Subsystem != "shared-store" {
+		t.Fatalf("expected shared-store subsystem, got %s", candidate.Subsystem)
+	}
+	if candidate.InterventionType != "policy_or_runtime_fix" {
+		t.Fatalf("expected policy_or_runtime_fix intervention, got %s", candidate.InterventionType)
+	}
+	if candidate.Status != improvement.CandidateQueued {
+		t.Fatalf("expected queued candidate, got %s", candidate.Status)
+	}
+	if !strings.Contains(candidate.Hypothesis, "action result") {
+		t.Fatalf("expected hypothesis to mention action result failure, got %q", candidate.Hypothesis)
+	}
+}
+
+func statusPtr(status events.Status) *events.Status {
+	return &status
 }

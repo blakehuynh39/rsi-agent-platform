@@ -1,11 +1,13 @@
 package control
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"strings"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/piplabs/rsi-agent-platform/internal/action"
 	"github.com/piplabs/rsi-agent-platform/internal/clients"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
@@ -212,6 +214,9 @@ func resumeAfterContextPhase(cfg config.Config, store storepkg.Store, runnerClie
 	if ok {
 		ctx.trace = refreshedTrace
 	}
+	if isTerminalTraceStatus(ctx.trace.Summary.Status) {
+		return nil
+	}
 	contextSummary, contextRefs, toolNames := contextFromTrace(ctx.trace)
 	runnerStarted := time.Now().UTC()
 	if _, err := store.ApplyTraceUpdate(ctx.trace.Summary.TraceID, storepkg.TraceUpdate{
@@ -392,6 +397,13 @@ func processControlActionItem(cfg config.Config, store storepkg.Store, toolClien
 	if err != nil {
 		return err
 	}
+	if isTerminalTraceStatus(ctx.trace.Summary.Status) && !isTerminalActionStatus(intent.Status) {
+		intent.Status = action.StatusCanceled
+		intent.PolicyVerdict = firstNonEmpty(intent.PolicyVerdict, fmt.Sprintf("trace_%s", ctx.trace.Summary.Status))
+		intent.UpdatedAt = time.Now().UTC()
+		_, err := store.UpsertActionIntent(intent)
+		return err
+	}
 
 	intent.Status = action.StatusExecuting
 	intent.UpdatedAt = time.Now().UTC()
@@ -402,10 +414,20 @@ func processControlActionItem(cfg config.Config, store storepkg.Store, toolClien
 	switch intent.Kind {
 	case action.KindToolRead:
 		if err := executeToolReadActionIntent(store, toolClient, ctx, intent); err != nil {
+			if isPostgresActionPersistenceError(err) {
+				if finalizeErr := finalizeControlActionPersistenceFailure(cfg, store, item, ctx, intent, err); finalizeErr != nil {
+					return fmt.Errorf("finalize control action persistence failure: %w (original error: %v)", finalizeErr, err)
+				}
+			}
 			return err
 		}
 	case action.KindSlackPost:
 		if err := executeSlackPostActionIntent(cfg, store, toolClient, ctx, intent); err != nil {
+			if isPostgresActionPersistenceError(err) {
+				if finalizeErr := finalizeControlActionPersistenceFailure(cfg, store, item, ctx, intent, err); finalizeErr != nil {
+					return fmt.Errorf("finalize control action persistence failure: %w (original error: %v)", finalizeErr, err)
+				}
+			}
 			return err
 		}
 	default:
@@ -598,7 +620,7 @@ func maybeEnqueuePhaseResume(store storepkg.Store, item queue.WorkItem, intent a
 		return nil
 	}
 	trace, ok := store.GetTrace(intent.TraceID)
-	if !ok || trace.Summary.Status == events.StatusSuppressed {
+	if !ok || isTerminalTraceStatus(trace.Summary.Status) {
 		return nil
 	}
 	queueName := queueNameFromString(firstNonEmpty(stringFromMap(item.Payload, "resume_queue"), string(queue.WorkflowQueue)))
@@ -1355,6 +1377,149 @@ func blockedReasonFromIntent(intent action.Intent) string {
 	}
 }
 
+type actionPersistenceFailure struct {
+	Subsystem   string
+	FailureMode string
+	Provider    string
+	SQLState    string
+	Constraint  string
+	Table       string
+}
+
+func finalizeControlActionPersistenceFailure(cfg config.Config, store storepkg.Store, item queue.WorkItem, ctx workflowContext, intent action.Intent, execErr error) error {
+	failure := classifyActionPersistenceFailure(intent, execErr)
+	now := time.Now().UTC()
+	intent.Status = action.StatusFailed
+	intent.PolicyVerdict = firstNonEmpty(failure.FailureMode, "action_result_persistence_failure")
+	intent.UpdatedAt = now
+	if _, err := store.UpsertActionIntent(intent); err != nil {
+		return err
+	}
+
+	description := actionPersistenceFailureDescription(intent, item, failure, execErr)
+	if _, err := store.ApplyTraceUpdate(ctx.trace.Summary.TraceID, storepkg.TraceUpdate{
+		Status:         ptrStatus(events.StatusNeedsHuman),
+		WorkflowStatus: "needs-human",
+		WorkflowError:  description,
+		Events: []events.TraceEvent{
+			{
+				TraceID:        ctx.trace.Summary.TraceID,
+				IngestionID:    ctx.trace.Summary.IngestionID,
+				WorkflowID:     ctx.trace.Summary.WorkflowID,
+				ConversationID: ctx.trace.Summary.ConversationID,
+				CaseID:         ctx.trace.Summary.CaseID,
+				TriggerEventID: ctx.trace.Summary.TriggerEventID,
+				Plane:          "control",
+				Service:        cfg.ServiceName,
+				Actor:          "action-worker",
+				EventType:      "action.persistence_failed",
+				Status:         events.StatusNeedsHuman,
+				StartedAt:      now,
+				Description:    description,
+			},
+		},
+	}); err != nil {
+		return err
+	}
+
+	resumeQueue := queueNameFromString(firstNonEmpty(stringFromMap(item.Payload, "resume_queue"), string(queue.WorkflowQueue)))
+	_, err := enqueueWorkflowResume(store, resumeQueue, ctx, controlWorkResumeAfterReply, now)
+	return err
+}
+
+func isPostgresActionPersistenceError(err error) bool {
+	_, ok := postgresFailureDetailsFromError(err)
+	return ok
+}
+
+func classifyActionPersistenceFailure(intent action.Intent, err error) actionPersistenceFailure {
+	failure := actionPersistenceFailure{
+		Subsystem:   "control-plane",
+		FailureMode: "action_result_persistence_failure",
+		Provider:    providerForToolName(intent.TargetRef),
+	}
+	if intent.Kind == action.KindSlackPost {
+		failure.Provider = "slack"
+	}
+	if details, ok := postgresFailureDetailsFromError(err); ok {
+		failure.Subsystem = "shared-store"
+		failure.SQLState = details.SQLState
+		failure.Constraint = details.Constraint
+		failure.Table = details.Table
+		failure.FailureMode = "postgres_persistence_failure"
+		if isActionResultPrimaryKeyCollision(details, err) {
+			failure.FailureMode = "action_result_primary_key_collision"
+		} else if details.SQLState == "23505" {
+			failure.FailureMode = "postgres_unique_constraint_violation"
+		}
+	}
+	return failure
+}
+
+func actionPersistenceFailureDescription(intent action.Intent, item queue.WorkItem, failure actionPersistenceFailure, execErr error) string {
+	parts := []string{
+		fmt.Sprintf("subsystem=%s", failure.Subsystem),
+		fmt.Sprintf("failure_mode=%s", failure.FailureMode),
+		fmt.Sprintf("provider=%s", firstNonEmpty(failure.Provider, "unknown")),
+		fmt.Sprintf("action_intent_id=%s", intent.ID),
+		fmt.Sprintf("work_item_id=%s", item.ID),
+		fmt.Sprintf("kind=%s", intent.Kind),
+	}
+	if failure.SQLState != "" {
+		parts = append(parts, fmt.Sprintf("sqlstate=%s", failure.SQLState))
+	}
+	if failure.Constraint != "" {
+		parts = append(parts, fmt.Sprintf("constraint=%s", failure.Constraint))
+	}
+	if failure.Table != "" {
+		parts = append(parts, fmt.Sprintf("table=%s", failure.Table))
+	}
+	parts = append(parts, fmt.Sprintf("error=%q", execErr.Error()))
+	return strings.Join(parts, " ")
+}
+
+type postgresFailureDetails struct {
+	SQLState   string
+	Constraint string
+	Table      string
+}
+
+func postgresFailureDetailsFromError(err error) (postgresFailureDetails, bool) {
+	var pgErr *pgconn.PgError
+	details := postgresFailureDetails{}
+	if errors.As(err, &pgErr) && pgErr != nil {
+		details.SQLState = strings.TrimSpace(pgErr.Code)
+		details.Constraint = strings.TrimSpace(pgErr.ConstraintName)
+		details.Table = strings.TrimSpace(pgErr.TableName)
+	}
+	msg := err.Error()
+	if details.SQLState == "" {
+		if idx := strings.Index(msg, "SQLSTATE "); idx >= 0 {
+			code := strings.TrimSpace(msg[idx+len("SQLSTATE "):])
+			if end := strings.IndexAny(code, " )]"); end >= 0 {
+				code = code[:end]
+			}
+			details.SQLState = strings.TrimSpace(code)
+		}
+	}
+	lower := strings.ToLower(msg)
+	if details.Constraint == "" && strings.Contains(lower, "action_result_pkey") {
+		details.Constraint = "action_result_pkey"
+	}
+	if details.Table == "" && strings.Contains(lower, "action_result") {
+		details.Table = "action_result"
+	}
+	return details, details.SQLState != "" || details.Constraint != "" || details.Table != ""
+}
+
+func isActionResultPrimaryKeyCollision(details postgresFailureDetails, err error) bool {
+	if strings.EqualFold(strings.TrimSpace(details.Constraint), "action_result_pkey") {
+		return true
+	}
+	lower := strings.ToLower(err.Error())
+	return strings.Contains(lower, "action_result_pkey") && strings.Contains(lower, "duplicate key")
+}
+
 func toolResultSummary(result storepkg.ToolResult, execErr error) string {
 	if execErr != nil {
 		return execErr.Error()
@@ -1400,6 +1565,15 @@ func phaseActionsTerminal(store storepkg.Store, traceID string, phaseKey string)
 func isTerminalActionStatus(status action.Status) bool {
 	switch status {
 	case action.StatusSucceeded, action.StatusBlocked, action.StatusFailed, action.StatusCanceled, action.StatusSuperseded:
+		return true
+	default:
+		return false
+	}
+}
+
+func isTerminalTraceStatus(status events.Status) bool {
+	switch status {
+	case events.StatusCompleted, events.StatusFailed, events.StatusNeedsHuman, events.StatusSuppressed:
 		return true
 	default:
 		return false
