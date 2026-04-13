@@ -5,7 +5,7 @@ import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Dict
 
-from .config import RunnerConfig
+from .config import RunnerConfig, RunnerConfigError
 from .hermes_runtime import HermesRuntime, RunnerTaskRequest
 
 
@@ -83,10 +83,13 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="RSI Hermes runner wrapper")
     parser.add_argument("--once", action="store_true", help="Run one health check execution and exit")
     args = parser.parse_args()
-    if args.once:
-        run_once()
-        return
-    run_server()
+    try:
+        if args.once:
+            run_once()
+            return
+        run_server()
+    except RunnerConfigError as exc:
+        raise SystemExit(str(exc)) from exc
 
 
 if __name__ == "__main__":

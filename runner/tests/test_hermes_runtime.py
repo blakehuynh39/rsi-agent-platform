@@ -5,7 +5,7 @@ import os
 import unittest
 from unittest import mock
 
-from rsi_runner.config import RunnerConfig
+from rsi_runner.config import RunnerConfig, RunnerConfigError
 from rsi_runner.hermes_runtime import HermesRuntime, RunnerTaskRequest
 
 
@@ -48,8 +48,26 @@ class HermesRuntimeTests(unittest.TestCase):
         FakeAIAgent.last_prompt = None
         FakeAIAgent.last_system_message = None
 
-    def test_defaults_use_gpt54_xhigh(self) -> None:
-        config = RunnerConfig.from_env()
+    def test_config_requires_explicit_env(self) -> None:
+        with mock.patch.dict(os.environ, {}, clear=True):
+            with self.assertRaises(RunnerConfigError):
+                RunnerConfig.from_env()
+
+    def test_config_reads_explicit_gpt54_xhigh(self) -> None:
+        with mock.patch.dict(
+            os.environ,
+            {
+                "RSI_RUNNER_ROLE": "prod",
+                "RSI_RUNNER_HOST": "0.0.0.0",
+                "RSI_RUNNER_PORT": "8090",
+                "RSI_RUNNER_MODEL": "openai/gpt-5.4",
+                "RSI_RUNNER_REASONING_EFFORT": "xhigh",
+                "RSI_RUNNER_PUBLIC_BASE_URL": "https://staging-rsi-platform.storyprotocol.net",
+                "OPENAI_API_KEY": "test-key",
+            },
+            clear=True,
+        ):
+            config = RunnerConfig.from_env()
 
         self.assertEqual(config.model, "openai/gpt-5.4")
         self.assertEqual(config.reasoning_effort, "xhigh")

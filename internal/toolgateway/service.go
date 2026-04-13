@@ -67,6 +67,8 @@ func (s *Service) Execute(name string, input map[string]interface{}) storepkg.To
 		return s.githubCreatePR(input)
 	case "github.repo_context":
 		return s.githubRepoContext(input)
+	case "github.repo_activity":
+		return s.githubRepoActivity(input)
 	case "cloudflare.inspect":
 		return s.cloudflareInspect(input)
 	default:
@@ -151,18 +153,11 @@ func (s *Service) sentryLookup(input map[string]interface{}) storepkg.ToolResult
 	alert := stringValue(input["alert"])
 	if strings.TrimSpace(s.cfg.SentryAuthToken) == "" || strings.TrimSpace(s.cfg.SentryOrganization) == "" {
 		summary := fmt.Sprintf("Sentry lookup unavailable for %s: missing credentials.", service)
-		if s.failClosed() {
-			return s.unavailableResult("sentry.lookup", input, "sentry", summary, map[string]interface{}{
-				"service": service,
-				"alert":   alert,
-				"error":   "missing RSI_SENTRY_AUTH_TOKEN or RSI_SENTRY_ORGANIZATION",
-			})
-		}
-		return s.result("sentry.lookup", input, summary, map[string]interface{}{
+		return s.unavailableResult("sentry.lookup", input, "sentry", summary, map[string]interface{}{
 			"service": service,
 			"alert":   alert,
-			"source":  "development_fallback",
-		}, nil)
+			"error":   "missing RSI_SENTRY_AUTH_TOKEN or RSI_SENTRY_ORGANIZATION",
+		})
 	}
 
 	query := firstNonEmpty(stringValue(input["query"]), alert, service)
@@ -173,11 +168,11 @@ func (s *Service) sentryLookup(input map[string]interface{}) storepkg.ToolResult
 	if err := s.apiJSON(http.MethodGet, endpoint, nil, map[string]string{
 		"Authorization": "Bearer " + s.cfg.SentryAuthToken,
 	}, &issues); err != nil {
-		return s.result("sentry.lookup", input, fmt.Sprintf("Sentry lookup failed: %v", err), map[string]interface{}{
+		return s.failedResult("sentry.lookup", input, "sentry", fmt.Sprintf("Sentry lookup failed: %v", err), map[string]interface{}{
 			"service": service,
 			"alert":   alert,
 			"error":   err.Error(),
-		}, nil)
+		})
 	}
 	summary := fmt.Sprintf("Sentry returned %d issues for query %q.", len(issues), query)
 	return s.result("sentry.lookup", input, summary, map[string]interface{}{
@@ -193,29 +188,22 @@ func (s *Service) kubernetesInspect(input map[string]interface{}) storepkg.ToolR
 	target := firstNonEmpty(stringValue(input["target"]), stringValue(input["service"]))
 	if s.kubeClient == nil {
 		summary := fmt.Sprintf("Kubernetes inspection unavailable for %s/%s.", namespace, firstNonEmpty(target, "unknown"))
-		if s.failClosed() {
-			return s.unavailableResult("kubernetes.inspect", input, "kubernetes", summary, map[string]interface{}{
-				"namespace": namespace,
-				"target":    target,
-				"error":     "kubernetes client unavailable",
-			})
-		}
-		return s.result("kubernetes.inspect", input, summary, map[string]interface{}{
+		return s.unavailableResult("kubernetes.inspect", input, "kubernetes", summary, map[string]interface{}{
 			"namespace": namespace,
 			"target":    target,
-			"source":    "development_fallback",
-		}, nil)
+			"error":     "kubernetes client unavailable",
+		})
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	pods, err := s.kubeClient.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{})
 	if err != nil {
-		return s.result("kubernetes.inspect", input, fmt.Sprintf("Kubernetes inspection failed: %v", err), map[string]interface{}{
+		return s.failedResult("kubernetes.inspect", input, "kubernetes", fmt.Sprintf("Kubernetes inspection failed: %v", err), map[string]interface{}{
 			"namespace": namespace,
 			"target":    target,
 			"error":     err.Error(),
-		}, nil)
+		})
 	}
 	eventsList, _ := s.kubeClient.CoreV1().Events(namespace).List(ctx, metav1.ListOptions{})
 	matchedPods := make([]map[string]interface{}, 0)
@@ -255,16 +243,10 @@ func (s *Service) githubRepoContext(input map[string]interface{}) storepkg.ToolR
 	repo := firstNonEmpty(stringValue(input["repo"]), s.cfg.DefaultRepo)
 	if strings.TrimSpace(s.cfg.GitHubToken) == "" {
 		summary := fmt.Sprintf("GitHub repo context unavailable for %s: missing token.", repo)
-		if s.failClosed() {
-			return s.unavailableResult("github.repo_context", input, "github", summary, map[string]interface{}{
-				"repo":  repo,
-				"error": "missing RSI_GITHUB_TOKEN",
-			})
-		}
-		return s.result("github.repo_context", input, summary, map[string]interface{}{
-			"repo":   repo,
-			"source": "development_fallback",
-		}, nil)
+		return s.unavailableResult("github.repo_context", input, "github", summary, map[string]interface{}{
+			"repo":  repo,
+			"error": "missing RSI_GITHUB_TOKEN",
+		})
 	}
 	endpoint := fmt.Sprintf("%s/repos/%s/%s", strings.TrimRight(s.cfg.GitHubAPIBaseURL, "/"), s.cfg.GitHubOwner, repo)
 	var payload map[string]interface{}
@@ -272,13 +254,87 @@ func (s *Service) githubRepoContext(input map[string]interface{}) storepkg.ToolR
 		"Authorization": "Bearer " + s.cfg.GitHubToken,
 		"Accept":        "application/vnd.github+json",
 	}, &payload); err != nil {
-		return s.result("github.repo_context", input, fmt.Sprintf("GitHub repo context failed: %v", err), map[string]interface{}{
+		return s.failedResult("github.repo_context", input, "github", fmt.Sprintf("GitHub repo context failed: %v", err), map[string]interface{}{
 			"repo":  repo,
 			"error": err.Error(),
-		}, nil)
+		})
 	}
 	summary := fmt.Sprintf("GitHub repo context loaded for %s (default branch %s).", repo, stringValue(payload["default_branch"]))
 	return s.result("github.repo_context", input, summary, payload, nil)
+}
+
+func (s *Service) githubRepoActivity(input map[string]interface{}) storepkg.ToolResult {
+	repo := firstNonEmpty(stringValue(input["repo"]), s.cfg.DefaultRepo)
+	if strings.TrimSpace(s.cfg.GitHubToken) == "" {
+		return s.unavailableResult("github.repo_activity", input, "github", fmt.Sprintf("GitHub repo activity unavailable for %s: missing token.", repo), map[string]interface{}{
+			"repo":  repo,
+			"error": "missing RSI_GITHUB_TOKEN",
+		})
+	}
+	since, until, err := parseActivityWindow(input)
+	if err != nil {
+		return s.failedResult("github.repo_activity", input, "github", fmt.Sprintf("GitHub repo activity input invalid: %v", err), map[string]interface{}{
+			"repo":  repo,
+			"error": err.Error(),
+		})
+	}
+	headers := map[string]string{
+		"Authorization": "Bearer " + s.cfg.GitHubToken,
+		"Accept":        "application/vnd.github+json",
+	}
+
+	commitValues := url.Values{}
+	commitValues.Set("since", since.Format(time.RFC3339))
+	commitValues.Set("until", until.Format(time.RFC3339))
+	commitValues.Set("per_page", "25")
+	commitEndpoint := fmt.Sprintf("%s/repos/%s/%s/commits?%s", strings.TrimRight(s.cfg.GitHubAPIBaseURL, "/"), s.cfg.GitHubOwner, repo, commitValues.Encode())
+	var commitPayload []map[string]interface{}
+	if err := s.apiJSON(http.MethodGet, commitEndpoint, nil, headers, &commitPayload); err != nil {
+		return s.failedResult("github.repo_activity", input, "github", fmt.Sprintf("GitHub repo activity failed to load commits: %v", err), map[string]interface{}{
+			"repo":  repo,
+			"error": err.Error(),
+		})
+	}
+
+	pullValues := url.Values{}
+	pullValues.Set("state", "all")
+	pullValues.Set("sort", "updated")
+	pullValues.Set("direction", "desc")
+	pullValues.Set("per_page", "50")
+	pullEndpoint := fmt.Sprintf("%s/repos/%s/%s/pulls?%s", strings.TrimRight(s.cfg.GitHubAPIBaseURL, "/"), s.cfg.GitHubOwner, repo, pullValues.Encode())
+	var pullPayload []map[string]interface{}
+	if err := s.apiJSON(http.MethodGet, pullEndpoint, nil, headers, &pullPayload); err != nil {
+		return s.failedResult("github.repo_activity", input, "github", fmt.Sprintf("GitHub repo activity failed to load pull requests: %v", err), map[string]interface{}{
+			"repo":  repo,
+			"error": err.Error(),
+		})
+	}
+
+	commits := make([]map[string]interface{}, 0, len(commitPayload))
+	for _, item := range commitPayload {
+		commits = append(commits, mapGitHubCommit(item))
+	}
+	mergedPRs := make([]map[string]interface{}, 0)
+	openedPRs := make([]map[string]interface{}, 0)
+	for _, item := range pullPayload {
+		mapped := mapGitHubPull(item)
+		if mergedAt := parseGitHubTimestamp(stringValue(item["merged_at"])); mergedAt != nil && !mergedAt.Before(since) && !mergedAt.After(until) {
+			mergedPRs = append(mergedPRs, mapped)
+		}
+		if createdAt := parseGitHubTimestamp(stringValue(item["created_at"])); createdAt != nil && !createdAt.Before(since) && !createdAt.After(until) {
+			openedPRs = append(openedPRs, mapped)
+		}
+	}
+	summary := fmt.Sprintf("GitHub activity for %s from %s to %s includes %d commits, %d merged PRs, and %d opened PRs.", repo, since.Format("2006-01-02"), until.Format("2006-01-02"), len(commits), len(mergedPRs), len(openedPRs))
+	return s.result("github.repo_activity", input, summary, map[string]interface{}{
+		"repo":                 repo,
+		"since":                since.Format(time.RFC3339),
+		"until":                until.Format(time.RFC3339),
+		"commits":              commits,
+		"merged_pull_requests": mergedPRs,
+		"opened_pull_requests": openedPRs,
+		"summary":              summary,
+	}, nil)
 }
 
 func (s *Service) githubCreatePR(input map[string]interface{}) storepkg.ToolResult {
@@ -308,12 +364,12 @@ func (s *Service) githubCreatePR(input map[string]interface{}) storepkg.ToolResu
 		"Authorization": "Bearer " + s.cfg.GitHubToken,
 		"Accept":        "application/vnd.github+json",
 	}, &response); err != nil {
-		return s.result("github.create_pr", input, fmt.Sprintf("GitHub PR creation failed: %v", err), map[string]interface{}{
+		return s.failedResult("github.create_pr", input, "github", fmt.Sprintf("GitHub PR creation failed: %v", err), map[string]interface{}{
 			"repo":  repo,
 			"head":  head,
 			"base":  base,
 			"error": err.Error(),
-		}, nil)
+		})
 	}
 	summary := fmt.Sprintf("Draft PR opened for %s:%s.", repo, head)
 	return s.result("github.create_pr", input, summary, map[string]interface{}{
@@ -330,16 +386,10 @@ func (s *Service) cloudflareInspect(input map[string]interface{}) storepkg.ToolR
 	resource := firstNonEmpty(stringValue(input["resource"]), "zones")
 	if strings.TrimSpace(s.cfg.CloudflareAPIToken) == "" {
 		summary := fmt.Sprintf("Cloudflare inspection unavailable for %s: missing API token.", resource)
-		if s.failClosed() {
-			return s.unavailableResult("cloudflare.inspect", input, "cloudflare", summary, map[string]interface{}{
-				"resource": resource,
-				"error":    "missing RSI_CLOUDFLARE_API_TOKEN",
-			})
-		}
-		return s.result("cloudflare.inspect", input, summary, map[string]interface{}{
+		return s.unavailableResult("cloudflare.inspect", input, "cloudflare", summary, map[string]interface{}{
 			"resource": resource,
-			"source":   "development_fallback",
-		}, nil)
+			"error":    "missing RSI_CLOUDFLARE_API_TOKEN",
+		})
 	}
 
 	var endpoint string
@@ -364,10 +414,10 @@ func (s *Service) cloudflareInspect(input map[string]interface{}) storepkg.ToolR
 		"Authorization": "Bearer " + s.cfg.CloudflareAPIToken,
 		"Content-Type":  "application/json",
 	}, &response); err != nil {
-		return s.result("cloudflare.inspect", input, fmt.Sprintf("Cloudflare inspection failed: %v", err), map[string]interface{}{
+		return s.failedResult("cloudflare.inspect", input, "cloudflare", fmt.Sprintf("Cloudflare inspection failed: %v", err), map[string]interface{}{
 			"resource": resource,
 			"error":    err.Error(),
-		}, nil)
+		})
 	}
 	summary := fmt.Sprintf("Cloudflare inspection loaded for %s.", resource)
 	return s.result("cloudflare.inspect", input, summary, response, nil)
@@ -385,18 +435,16 @@ func (s *Service) slackReply(input map[string]interface{}) storepkg.ToolResult {
 	}
 	summary := "Slack reply drafted."
 	if channelID == "" || body == "" {
-		return s.result("slack.reply", input, "Slack reply missing channel or body.", map[string]interface{}{
+		return s.failedResult("slack.reply", input, "slack", "Slack reply missing channel or body.", map[string]interface{}{
 			"posted": false,
-		}, nil)
+		})
 	}
 	if !dryRun && s.slackClient == nil {
 		summary = "Slack reply unavailable: bot token is not configured."
-		if s.failClosed() {
-			return s.unavailableResult("slack.reply", input, "slack", summary, map[string]interface{}{
-				"posted": false,
-				"error":  "missing RSI_SLACK_BOT_TOKEN",
-			})
-		}
+		return s.unavailableResult("slack.reply", input, "slack", summary, map[string]interface{}{
+			"posted": false,
+			"error":  "missing RSI_SLACK_BOT_TOKEN",
+		})
 	}
 	if !dryRun && s.slackClient != nil {
 		params := slackapi.PostMessageParameters{ThreadTimestamp: threadTS}
@@ -409,6 +457,7 @@ func (s *Service) slackReply(input map[string]interface{}) storepkg.ToolResult {
 		}
 		output["error"] = err.Error()
 		summary = fmt.Sprintf("Slack reply failed: %v", err)
+		return s.failedResult("slack.reply", input, "slack", summary, output)
 	}
 	if dryRun {
 		summary = "Slack reply dry-run generated."
@@ -459,8 +508,26 @@ func (s *Service) unavailableResult(name string, input map[string]interface{}, p
 	}
 }
 
-func (s *Service) failClosed() bool {
-	return !strings.EqualFold(strings.TrimSpace(s.cfg.Environment), "development")
+func (s *Service) failedResult(name string, input map[string]interface{}, provider string, summary string, output map[string]interface{}) storepkg.ToolResult {
+	callID := fmt.Sprintf("%s-%d", sanitizeToolName(name), time.Now().UTC().UnixNano())
+	return storepkg.ToolResult{
+		Name:          name,
+		ToolCallID:    callID,
+		Approved:      true,
+		ApprovalState: "not_required",
+		Status:        "failed",
+		Available:     true,
+		Provider:      provider,
+		ProviderRef:   providerRefForTool(name, output),
+		ExecutedAt:    time.Now().UTC(),
+		Input:         input,
+		Output:        output,
+		Summary:       summary,
+		Metadata: map[string]interface{}{
+			"tool_name": name,
+			"provider":  provider,
+		},
+	}
 }
 
 func (s *Service) apiJSON(method string, endpoint string, body interface{}, headers map[string]string, out interface{}) error {
@@ -593,6 +660,8 @@ func providerRefForTool(name string, output map[string]interface{}) string {
 		return stringValue(output["pr_url"])
 	case "github.repo_context":
 		return stringValue(output["html_url"])
+	case "github.repo_activity":
+		return stringValue(output["repo"])
 	case "sentry.lookup":
 		return stringValue(output["query"])
 	case "kubernetes.inspect":
@@ -604,4 +673,65 @@ func providerRefForTool(name string, output map[string]interface{}) string {
 	default:
 		return stringValue(output["repo"])
 	}
+}
+
+func parseActivityWindow(input map[string]interface{}) (time.Time, time.Time, error) {
+	now := time.Now().UTC()
+	since := strings.TrimSpace(stringValue(input["since"]))
+	until := strings.TrimSpace(stringValue(input["until"]))
+	if since == "" {
+		since = now.Add(-7 * 24 * time.Hour).Format(time.RFC3339)
+	}
+	if until == "" {
+		until = now.Format(time.RFC3339)
+	}
+	start, err := time.Parse(time.RFC3339, since)
+	if err != nil {
+		return time.Time{}, time.Time{}, fmt.Errorf("invalid since timestamp %q", since)
+	}
+	end, err := time.Parse(time.RFC3339, until)
+	if err != nil {
+		return time.Time{}, time.Time{}, fmt.Errorf("invalid until timestamp %q", until)
+	}
+	if end.Before(start) {
+		return time.Time{}, time.Time{}, fmt.Errorf("until must be after since")
+	}
+	return start, end, nil
+}
+
+func mapGitHubCommit(item map[string]interface{}) map[string]interface{} {
+	commit, _ := item["commit"].(map[string]interface{})
+	author, _ := commit["author"].(map[string]interface{})
+	return map[string]interface{}{
+		"sha":          stringValue(item["sha"]),
+		"message":      stringValue(commit["message"]),
+		"author":       firstNonEmpty(stringValue(author["name"]), stringValue(item["author"])),
+		"committed_at": stringValue(author["date"]),
+		"url":          stringValue(item["html_url"]),
+	}
+}
+
+func mapGitHubPull(item map[string]interface{}) map[string]interface{} {
+	user, _ := item["user"].(map[string]interface{})
+	return map[string]interface{}{
+		"number":     item["number"],
+		"title":      stringValue(item["title"]),
+		"author":     firstNonEmpty(stringValue(user["login"]), stringValue(user["name"])),
+		"state":      stringValue(item["state"]),
+		"created_at": stringValue(item["created_at"]),
+		"merged_at":  stringValue(item["merged_at"]),
+		"url":        stringValue(item["html_url"]),
+	}
+}
+
+func parseGitHubTimestamp(value string) *time.Time {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return nil
+	}
+	parsed, err := time.Parse(time.RFC3339, value)
+	if err != nil {
+		return nil
+	}
+	return &parsed
 }

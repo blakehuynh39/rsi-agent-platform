@@ -24,20 +24,30 @@ func NewBaseRouter(cfg config.Config) *chi.Mux {
 		WriteJSON(w, http.StatusOK, map[string]string{"status": "ok", "service": cfg.ServiceName})
 	})
 	r.Get("/readyz", func(w http.ResponseWriter, r *http.Request) {
-		WriteJSON(w, http.StatusOK, map[string]string{"status": "ready", "service": cfg.ServiceName})
+		status := http.StatusOK
+		payload := map[string]any{
+			"status":           "ready",
+			"service":          cfg.ServiceName,
+			"service_kind":     cfg.ServiceKind,
+			"mode":             cfg.RuntimeMode,
+			"config_validated": cfg.ConfigValidated,
+		}
+		if !cfg.ConfigValidated {
+			status = http.StatusServiceUnavailable
+			payload["status"] = "not_ready"
+		}
+		WriteJSON(w, status, payload)
 	})
 	r.Get("/api/meta", func(w http.ResponseWriter, r *http.Request) {
 		WriteJSON(w, http.StatusOK, map[string]interface{}{
-			"service": cfg.ServiceName,
-			"env":     cfg.Environment,
-			"queues": map[string]string{
-				"workflow":  cfg.WorkflowQueueURL,
-				"proactive": cfg.ProactiveQueueURL,
-				"eval":      cfg.EvalQueueURL,
-				"proposal":  cfg.ProposalQueueURL,
-				"sandbox":   cfg.SandboxQueueURL,
-			},
-			"default_repo": cfg.DefaultRepo,
+			"service":          cfg.ServiceName,
+			"service_kind":     cfg.ServiceKind,
+			"mode":             cfg.RuntimeMode,
+			"env":              cfg.Environment,
+			"config_validated": cfg.ConfigValidated,
+			"store_backend":    cfg.StoreBackend,
+			"default_repo":     cfg.DefaultRepo,
+			"dependencies":     cfg.DependencyTargets(),
 		})
 	})
 	return r

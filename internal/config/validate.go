@@ -1,0 +1,179 @@
+package config
+
+import (
+	"fmt"
+	"net"
+	"net/url"
+	"sort"
+	"strings"
+)
+
+type ValidationError struct {
+	Issues []string
+}
+
+func (e ValidationError) Error() string {
+	if len(e.Issues) == 0 {
+		return "configuration validation failed"
+	}
+	return "configuration validation failed: " + strings.Join(e.Issues, "; ")
+}
+
+func (c Config) ValidatedFor(serviceKind string, mode string) (Config, error) {
+	cfg := c
+	cfg.ServiceKind = firstNonEmpty(serviceKind, c.ServiceKind, c.ServiceName)
+	cfg.RuntimeMode = strings.TrimSpace(mode)
+	issues := cfg.validate()
+	cfg.ConfigValidated = len(issues) == 0
+	if len(issues) > 0 {
+		return cfg, ValidationError{Issues: issues}
+	}
+	return cfg, nil
+}
+
+func (c Config) DependencyTargets() map[string]string {
+	targets := map[string]string{
+		"public_base_url": c.PublicBaseURL,
+	}
+	if c.ToolGatewayBaseURL != "" {
+		targets["tool_gateway"] = c.ToolGatewayBaseURL
+	}
+	if c.ProdRunnerBaseURL != "" {
+		targets["runner_prod"] = c.ProdRunnerBaseURL
+	}
+	if c.ProactiveRunnerBaseURL != "" {
+		targets["runner_proactive"] = c.ProactiveRunnerBaseURL
+	}
+	if c.EvalRunnerBaseURL != "" {
+		targets["runner_eval"] = c.EvalRunnerBaseURL
+	}
+	if c.ProposalRunnerBaseURL != "" {
+		targets["runner_proposal"] = c.ProposalRunnerBaseURL
+	}
+	return targets
+}
+
+func (c Config) validate() []string {
+	issues := make([]string, 0)
+	addRequiredString(&issues, "RSI_ENV", c.Environment)
+	if c.HTTPPort <= 0 {
+		issues = append(issues, "RSI_HTTP_PORT must be set to a positive integer")
+	}
+
+	switch c.ServiceKind {
+	case "control-plane":
+		c.validateControlPlane(&issues)
+	case "improvement-plane":
+		c.validateImprovementPlane(&issues)
+	case "tool-gateway":
+		c.validateToolGateway(&issues)
+	}
+
+	sort.Strings(issues)
+	return issues
+}
+
+func (c Config) validateControlPlane(issues *[]string) {
+	c.validateCommonPlaneConfig(issues)
+	addRequiredURL(issues, "RSI_TOOL_GATEWAY_BASE_URL", c.ToolGatewayBaseURL, c.nonLocalhostRequired())
+	addRequiredURL(issues, "RSI_RUNNER_PROD_BASE_URL", c.ProdRunnerBaseURL, c.nonLocalhostRequired())
+	addRequiredURL(issues, "RSI_RUNNER_PROACTIVE_BASE_URL", c.ProactiveRunnerBaseURL, c.nonLocalhostRequired())
+	addRequiredString(issues, "RSI_DEFAULT_REPO", c.DefaultRepo)
+	addRequiredString(issues, "RSI_KNOWLEDGE_BASE_URL", c.DefaultKnowledgeBaseURL)
+	addRequiredList(issues, "RSI_ALLOWED_TARGET_REPOS", c.AllowedTargetRepos)
+	addRequiredString(issues, "RSI_REASONING_VERBOSITY", c.DefaultReasoningVerbosity)
+	if c.RuntimeMode == "slack-surface" {
+		addRequiredString(issues, "RSI_SLACK_APP_IDENTITY", c.SlackAppIdentity)
+		if !c.SlackSocketModeEnabled {
+			*issues = append(*issues, "RSI_SLACK_SOCKET_MODE_ENABLED must be true")
+		}
+		addRequiredString(issues, "RSI_SLACK_APP_TOKEN", c.SlackAppToken)
+		addRequiredString(issues, "RSI_SLACK_BOT_TOKEN", c.SlackBotToken)
+		addRequiredList(issues, "RSI_ALLOWED_SLACK_CHANNEL_IDS", c.AllowedSlackChannelIDs)
+	}
+}
+
+func (c Config) validateImprovementPlane(issues *[]string) {
+	c.validateCommonPlaneConfig(issues)
+	addRequiredURL(issues, "RSI_TOOL_GATEWAY_BASE_URL", c.ToolGatewayBaseURL, c.nonLocalhostRequired())
+	addRequiredURL(issues, "RSI_RUNNER_EVAL_BASE_URL", c.EvalRunnerBaseURL, c.nonLocalhostRequired())
+	addRequiredURL(issues, "RSI_RUNNER_PROPOSAL_BASE_URL", c.ProposalRunnerBaseURL, c.nonLocalhostRequired())
+	if c.DefaultProposalCap <= 0 {
+		*issues = append(*issues, "RSI_ACTIVE_PROPOSAL_CAP must be set to a positive integer")
+	}
+	if c.ProposalPromoterInterval <= 0 {
+		*issues = append(*issues, "RSI_PROPOSAL_PROMOTER_INTERVAL must be set to a positive duration")
+	}
+	addRequiredString(issues, "RSI_REASONING_VERBOSITY", c.DefaultReasoningVerbosity)
+}
+
+func (c Config) validateToolGateway(issues *[]string) {
+	c.validateCommonPlaneConfig(issues)
+	addRequiredString(issues, "RSI_SLACK_BOT_TOKEN", c.SlackBotToken)
+	addRequiredString(issues, "RSI_GITHUB_TOKEN", c.GitHubToken)
+	addRequiredString(issues, "RSI_GITHUB_OWNER", c.GitHubOwner)
+	addRequiredURL(issues, "RSI_GITHUB_API_BASE_URL", c.GitHubAPIBaseURL, false)
+	addRequiredString(issues, "RSI_SENTRY_AUTH_TOKEN", c.SentryAuthToken)
+	addRequiredString(issues, "RSI_SENTRY_ORGANIZATION", c.SentryOrganization)
+	addRequiredURL(issues, "RSI_SENTRY_API_BASE_URL", c.SentryAPIBaseURL, false)
+	addRequiredString(issues, "RSI_KNOWLEDGE_BASE_URL", c.DefaultKnowledgeBaseURL)
+}
+
+func (c Config) validateCommonPlaneConfig(issues *[]string) {
+	addRequiredString(issues, "RSI_STORE_BACKEND", c.StoreBackend)
+	if strings.TrimSpace(c.StoreBackend) != "postgres" {
+		*issues = append(*issues, "RSI_STORE_BACKEND must be set to postgres")
+	}
+	addRequiredString(issues, "RSI_POSTGRES_URL", c.PostgresURL)
+	addRequiredURL(issues, "RSI_PUBLIC_BASE_URL", c.PublicBaseURL, c.nonLocalhostRequired())
+}
+
+func (c Config) nonLocalhostRequired() bool {
+	env := strings.ToLower(strings.TrimSpace(c.Environment))
+	return env == "stage" || env == "prod" || env == "production"
+}
+
+func addRequiredString(issues *[]string, name string, value string) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		*issues = append(*issues, name+" is required")
+		return
+	}
+	if strings.HasPrefix(strings.ToLower(value), "vault:") {
+		*issues = append(*issues, name+" must be resolved at runtime and may not start with vault:")
+	}
+}
+
+func addRequiredList(issues *[]string, name string, values []string) {
+	if len(values) == 0 {
+		*issues = append(*issues, name+" is required")
+		return
+	}
+	for _, value := range values {
+		addRequiredString(issues, name, value)
+	}
+}
+
+func addRequiredURL(issues *[]string, name string, value string, rejectLocalhost bool) {
+	addRequiredString(issues, name, value)
+	value = strings.TrimSpace(value)
+	if value == "" || strings.HasPrefix(strings.ToLower(value), "vault:") {
+		return
+	}
+	parsed, err := url.Parse(value)
+	if err != nil || parsed.Scheme == "" || parsed.Host == "" {
+		*issues = append(*issues, fmt.Sprintf("%s must be a valid absolute URL", name))
+		return
+	}
+	if !rejectLocalhost {
+		return
+	}
+	host := parsed.Hostname()
+	if strings.EqualFold(host, "localhost") || host == "127.0.0.1" || host == "::1" {
+		*issues = append(*issues, fmt.Sprintf("%s may not point to localhost in stage/prod", name))
+		return
+	}
+	if ip := net.ParseIP(host); ip != nil && ip.IsLoopback() {
+		*issues = append(*issues, fmt.Sprintf("%s may not point to loopback in stage/prod", name))
+	}
+}

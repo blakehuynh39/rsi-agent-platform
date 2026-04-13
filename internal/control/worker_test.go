@@ -12,6 +12,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
+	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
 
@@ -263,6 +264,59 @@ func TestReplyPolicyStillBlocksUnknownChannels(t *testing.T) {
 	if verdict != "channel_policy_missing" {
 		t.Fatalf("expected channel_policy_missing verdict, got %s", verdict)
 	}
+}
+
+func TestToolPlanForRepoProgressQuestionUsesGitHubActivity(t *testing.T) {
+	plan := toolPlanForIntent("question", "Hello RSI, can you give me a quick rundown of how depin-backend api progressed in the last week", "depin-backend")
+	if !containsString(plan, "github.repo_activity") {
+		t.Fatalf("expected github.repo_activity in tool plan, got %#v", plan)
+	}
+}
+
+func TestToolInputForIntentUsesMentionedRepoAndTimeWindow(t *testing.T) {
+	cfg := config.Config{
+		DefaultRepo:             "rsi-agent-platform",
+		AllowedTargetRepos:      []string{"depin-backend", "rsi-agent-platform"},
+		DefaultKnowledgeBaseURL: "https://example.test/kb",
+		SandboxNamespace:        "rsi-platform",
+	}
+	input := toolInputForIntent(cfg, storepkg.Workflow{AssignedBot: "arch", Kind: "architecture"}, slackpkg.Ingestion{
+		Text:      "Hello RSI, can you give me a quick rundown of how depin-backend api progressed in the last week",
+		ChannelID: "D123",
+		ThreadTS:  "171000001.000100",
+	})
+
+	if got := input["repo"]; got != "depin-backend" {
+		t.Fatalf("expected mentioned repo, got %#v", got)
+	}
+	since, ok := input["since"].(string)
+	if !ok || since == "" {
+		t.Fatalf("expected non-empty since value, got %#v", input["since"])
+	}
+	until, ok := input["until"].(string)
+	if !ok || until == "" {
+		t.Fatalf("expected non-empty until value, got %#v", input["until"])
+	}
+	sinceTime, err := time.Parse(time.RFC3339, since)
+	if err != nil {
+		t.Fatalf("parse since: %v", err)
+	}
+	untilTime, err := time.Parse(time.RFC3339, until)
+	if err != nil {
+		t.Fatalf("parse until: %v", err)
+	}
+	if !sinceTime.Before(untilTime) {
+		t.Fatalf("expected since before until, got since=%s until=%s", since, until)
+	}
+}
+
+func containsString(items []string, target string) bool {
+	for _, item := range items {
+		if item == target {
+			return true
+		}
+	}
+	return false
 }
 
 func firstQueuedWorkItem(t *testing.T, store storepkg.Store, queueName queue.QueueName, kind string) queue.WorkItem {

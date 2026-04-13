@@ -14,7 +14,10 @@ func main() {
 	mode := flag.String("mode", "serve", "serve, slack-surface, worker, or action-worker")
 	flag.Parse()
 
-	cfg := config.Load("control-plane")
+	cfg, err := config.Load("control-plane").ValidatedFor("control-plane", *mode)
+	if err != nil {
+		log.Fatal(err)
+	}
 	store := storepkg.MustOpenStore(cfg)
 	if *mode == "slack-surface" {
 		if err := control.RunSlackSurface(cfg, store); err != nil {
@@ -34,7 +37,7 @@ func main() {
 		}
 		return
 	}
-	log.Printf("starting %s mode=%s on :%d", cfg.ServiceName, *mode, cfg.HTTPPort)
+	log.Printf("starting %s kind=%s mode=%s on :%d dependencies=%v", cfg.ServiceName, cfg.ServiceKind, cfg.RuntimeMode, cfg.HTTPPort, cfg.DependencyTargets())
 	if err := app.ListenAndServe(cfg, control.NewRouter(cfg, store)); err != nil {
 		log.Fatal(err)
 	}

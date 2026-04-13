@@ -147,7 +147,7 @@ func runWorkflowPhase(cfg config.Config, store storepkg.Store, item queue.WorkIt
 		})
 	}
 
-	toolNames := toolPlanForIntent(ctx.workflow.Intent)
+	toolNames := toolPlanForIntent(ctx.workflow.Intent, ingestionText(ctx.ingestion), resolveTargetRepo(cfg, ctx.ingestion.Text))
 	for _, toolName := range toolNames {
 		intent, created, err := ensureActionIntent(store, action.Intent{
 			OwnerPlane:     "control",
@@ -830,14 +830,18 @@ func findIngestion(items []slackpkg.Ingestion, ingestionID string) (slackpkg.Ing
 	return slackpkg.Ingestion{}, false
 }
 
-func toolPlanForIntent(intent string) []string {
+func toolPlanForIntent(intent string, question string, repo string) []string {
 	switch intent {
 	case "incident":
 		return []string{"sentry.lookup", "kubernetes.inspect"}
 	case "feature_request":
 		return []string{"repo.context", "github.repo_context"}
 	default:
-		return []string{"repo.context", "knowledge.context"}
+		plan := []string{"repo.context", "knowledge.context"}
+		if shouldUseGitHubRepoActivity(question, repo) {
+			plan = append(plan, "github.repo_activity")
+		}
+		return plan
 	}
 }
 
@@ -1202,9 +1206,13 @@ func queueEvalWork(store storepkg.Store, requestedBy string, ctx workflowContext
 }
 
 func toolInputForIntent(cfg config.Config, workflow storepkg.Workflow, ingestion slackpkg.Ingestion) map[string]any {
+	repo := resolveTargetRepo(cfg, ingestion.Text)
+	since, until := repoActivityWindow(ingestion.Text, time.Now().UTC())
 	return map[string]any{
-		"repo":               cfg.DefaultRepo,
+		"repo":               repo,
 		"question":           ingestion.Text,
+		"topic":              ingestion.Text,
+		"scope_id":           repo,
 		"service":            workflow.AssignedBot,
 		"alert":              ingestion.Text,
 		"namespace":          cfg.SandboxNamespace,
@@ -1212,6 +1220,8 @@ func toolInputForIntent(cfg config.Config, workflow storepkg.Workflow, ingestion
 		"knowledge_base_url": cfg.DefaultKnowledgeBaseURL,
 		"channel_id":         ingestion.ChannelID,
 		"thread_ts":          ingestion.ThreadTS,
+		"since":              since,
+		"until":              until,
 	}
 }
 
@@ -1234,9 +1244,74 @@ func contextFromTrace(trace events.Trace) (string, []map[string]any, []string) {
 		}
 	}
 	if len(toolNames) == 0 {
-		toolNames = toolPlanForIntent(trace.Summary.WorkflowKind)
+		toolNames = toolPlanForIntent(trace.Summary.WorkflowKind, "", "")
 	}
 	return strings.Join(summaries, " "), contextRefs, uniqueStrings(toolNames)
+}
+
+func ingestionText(ingestion slackpkg.Ingestion) string {
+	return strings.TrimSpace(ingestion.Text)
+}
+
+func resolveTargetRepo(cfg config.Config, question string) string {
+	text := strings.ToLower(strings.TrimSpace(question))
+	for _, repo := range cfg.AllowedTargetRepos {
+		repo = strings.TrimSpace(repo)
+		if repo == "" {
+			continue
+		}
+		if strings.Contains(text, strings.ToLower(repo)) {
+			return repo
+		}
+	}
+	return cfg.DefaultRepo
+}
+
+func shouldUseGitHubRepoActivity(question string, repo string) bool {
+	if strings.TrimSpace(repo) == "" || strings.EqualFold(strings.TrimSpace(repo), "cloudflare") {
+		return false
+	}
+	text := strings.ToLower(strings.TrimSpace(question))
+	if text == "" {
+		return false
+	}
+	indicators := []string{
+		"progress",
+		"activity",
+		"recent",
+		"last week",
+		"past week",
+		"this week",
+		"today",
+		"yesterday",
+		"commits",
+		"prs",
+		"pull requests",
+		"merged",
+		"opened",
+	}
+	for _, indicator := range indicators {
+		if strings.Contains(text, indicator) {
+			return true
+		}
+	}
+	return false
+}
+
+func repoActivityWindow(question string, now time.Time) (string, string) {
+	text := strings.ToLower(strings.TrimSpace(question))
+	start := now.Add(-7 * 24 * time.Hour)
+	switch {
+	case strings.Contains(text, "today"):
+		start = now.Add(-24 * time.Hour)
+	case strings.Contains(text, "yesterday"):
+		start = now.Add(-48 * time.Hour)
+	case strings.Contains(text, "last 24 hours"):
+		start = now.Add(-24 * time.Hour)
+	case strings.Contains(text, "last week"), strings.Contains(text, "past week"), strings.Contains(text, "this week"), strings.Contains(text, "recent"):
+		start = now.Add(-7 * 24 * time.Hour)
+	}
+	return start.UTC().Format(time.RFC3339), now.UTC().Format(time.RFC3339)
 }
 
 func workflowOutcomeForTrace(store storepkg.Store, traceID string) (events.Status, string, string) {

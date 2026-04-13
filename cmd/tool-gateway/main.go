@@ -10,9 +10,12 @@ import (
 )
 
 func main() {
-	cfg := config.Load("tool-gateway")
+	cfg, err := config.Load("tool-gateway").ValidatedFor("tool-gateway", "serve")
+	if err != nil {
+		log.Fatal(err)
+	}
 	store := storepkg.MustOpenStore(cfg)
-	log.Printf("starting %s on :%d", cfg.ServiceName, cfg.HTTPPort)
+	log.Printf("starting %s kind=%s mode=%s on :%d dependencies=%v", cfg.ServiceName, cfg.ServiceKind, cfg.RuntimeMode, cfg.HTTPPort, cfg.DependencyTargets())
 	if err := app.ListenAndServe(cfg, toolgateway.NewRouter(cfg, store)); err != nil {
 		log.Fatal(err)
 	}

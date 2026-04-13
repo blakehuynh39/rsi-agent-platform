@@ -9,6 +9,9 @@ import (
 
 type Config struct {
 	ServiceName               string
+	ServiceKind               string
+	RuntimeMode               string
+	ConfigValidated           bool
 	Environment               string
 	HTTPPort                  int
 	StoreBackend              string
@@ -65,28 +68,29 @@ type Config struct {
 }
 
 func Load(serviceName string) Config {
-	environment := stringEnv("RSI_ENV", "development")
-	runnerBaseURL := stringEnv("RSI_RUNNER_BASE_URL", "http://localhost:8090")
+	environment := stringEnv("RSI_ENV", "")
+	runnerBaseURL := stringEnv("RSI_RUNNER_BASE_URL", "")
 	return Config{
 		ServiceName:               stringEnv("RSI_SERVICE_NAME", serviceName),
+		ServiceKind:               serviceName,
 		Environment:               environment,
-		HTTPPort:                  intEnv("RSI_HTTP_PORT", 8080),
-		StoreBackend:              stringEnv("RSI_STORE_BACKEND", defaultStoreBackend(environment)),
-		PostgresURL:               stringEnv("RSI_POSTGRES_URL", "postgres://localhost:5432/rsi_agent_platform"),
-		RedisAddr:                 stringEnv("RSI_REDIS_ADDR", "redis://redis.redis.svc.cluster.local:6379"),
-		S3Bucket:                  stringEnv("RSI_S3_BUCKET", "rsi-agent-platform-stage-artifacts"),
-		PublicBaseURL:             stringEnv("RSI_PUBLIC_BASE_URL", "http://localhost:8080"),
-		WorkflowQueueURL:          stringEnv("RSI_WORKFLOW_QUEUE_URL", "memory://workflow"),
-		ProactiveQueueURL:         stringEnv("RSI_PROACTIVE_QUEUE_URL", "memory://proactive"),
-		EvalQueueURL:              stringEnv("RSI_EVAL_QUEUE_URL", "memory://eval"),
-		ProposalQueueURL:          stringEnv("RSI_PROPOSAL_QUEUE_URL", "memory://proposal"),
-		SandboxQueueURL:           stringEnv("RSI_SANDBOX_QUEUE_URL", "memory://sandbox"),
+		HTTPPort:                  intEnv("RSI_HTTP_PORT", 0),
+		StoreBackend:              stringEnv("RSI_STORE_BACKEND", ""),
+		PostgresURL:               stringEnv("RSI_POSTGRES_URL", ""),
+		RedisAddr:                 stringEnv("RSI_REDIS_ADDR", ""),
+		S3Bucket:                  stringEnv("RSI_S3_BUCKET", ""),
+		PublicBaseURL:             stringEnv("RSI_PUBLIC_BASE_URL", ""),
+		WorkflowQueueURL:          stringEnv("RSI_WORKFLOW_QUEUE_URL", ""),
+		ProactiveQueueURL:         stringEnv("RSI_PROACTIVE_QUEUE_URL", ""),
+		EvalQueueURL:              stringEnv("RSI_EVAL_QUEUE_URL", ""),
+		ProposalQueueURL:          stringEnv("RSI_PROPOSAL_QUEUE_URL", ""),
+		SandboxQueueURL:           stringEnv("RSI_SANDBOX_QUEUE_URL", ""),
 		RunnerBaseURL:             runnerBaseURL,
-		ProdRunnerBaseURL:         stringEnv("RSI_RUNNER_PROD_BASE_URL", runnerBaseURL),
-		ProactiveRunnerBaseURL:    stringEnv("RSI_RUNNER_PROACTIVE_BASE_URL", runnerBaseURL),
-		EvalRunnerBaseURL:         stringEnv("RSI_RUNNER_EVAL_BASE_URL", runnerBaseURL),
-		ProposalRunnerBaseURL:     stringEnv("RSI_RUNNER_PROPOSAL_BASE_URL", runnerBaseURL),
-		ToolGatewayBaseURL:        stringEnv("RSI_TOOL_GATEWAY_BASE_URL", "http://localhost:8082"),
+		ProdRunnerBaseURL:         stringEnv("RSI_RUNNER_PROD_BASE_URL", ""),
+		ProactiveRunnerBaseURL:    stringEnv("RSI_RUNNER_PROACTIVE_BASE_URL", ""),
+		EvalRunnerBaseURL:         stringEnv("RSI_RUNNER_EVAL_BASE_URL", ""),
+		ProposalRunnerBaseURL:     stringEnv("RSI_RUNNER_PROPOSAL_BASE_URL", ""),
+		ToolGatewayBaseURL:        stringEnv("RSI_TOOL_GATEWAY_BASE_URL", ""),
 		WorkerPollInterval:        durationEnv("RSI_WORKER_POLL_INTERVAL", 5*time.Second),
 		WorkItemLeaseDuration:     durationEnv("RSI_WORK_ITEM_LEASE_DURATION", 30*time.Second),
 		SandboxPollInterval:       durationEnv("RSI_SANDBOX_POLL_INTERVAL", 10*time.Second),
@@ -96,45 +100,45 @@ func Load(serviceName string) Config {
 		SlackBotToken:             stringEnv("RSI_SLACK_BOT_TOKEN", ""),
 		GitHubToken:               stringEnv("RSI_GITHUB_TOKEN", ""),
 		GitHubWebhookSecret:       stringEnv("RSI_GITHUB_WEBHOOK_SECRET", ""),
-		GitHubOwner:               stringEnv("RSI_GITHUB_OWNER", "piplabs"),
-		GitHubAPIBaseURL:          stringEnv("RSI_GITHUB_API_BASE_URL", "https://api.github.com"),
-		GitHubCommitUser:          stringEnv("RSI_GITHUB_COMMIT_USER", "rsi-bot"),
-		GitHubCommitEmail:         stringEnv("RSI_GITHUB_COMMIT_EMAIL", "rsi-bot@storyprotocol.xyz"),
+		GitHubOwner:               stringEnv("RSI_GITHUB_OWNER", ""),
+		GitHubAPIBaseURL:          stringEnv("RSI_GITHUB_API_BASE_URL", ""),
+		GitHubCommitUser:          stringEnv("RSI_GITHUB_COMMIT_USER", ""),
+		GitHubCommitEmail:         stringEnv("RSI_GITHUB_COMMIT_EMAIL", ""),
 		SentryAuthToken:           stringEnv("RSI_SENTRY_AUTH_TOKEN", ""),
 		SentryOrganization:        stringEnv("RSI_SENTRY_ORGANIZATION", ""),
-		SentryAPIBaseURL:          stringEnv("RSI_SENTRY_API_BASE_URL", "https://sentry.io/api/0"),
+		SentryAPIBaseURL:          stringEnv("RSI_SENTRY_API_BASE_URL", ""),
 		CloudflareAPIToken:        stringEnv("RSI_CLOUDFLARE_API_TOKEN", ""),
 		CloudflareAccountID:       stringEnv("RSI_CLOUDFLARE_ACCOUNT_ID", ""),
 		CloudflareZoneID:          stringEnv("RSI_CLOUDFLARE_ZONE_ID", ""),
-		CloudflareAPIBaseURL:      stringEnv("RSI_CLOUDFLARE_API_BASE_URL", "https://api.cloudflare.com/client/v4"),
+		CloudflareAPIBaseURL:      stringEnv("RSI_CLOUDFLARE_API_BASE_URL", ""),
 		KubeconfigPath:            stringEnv("RSI_KUBECONFIG", ""),
 		KubernetesContext:         stringEnv("RSI_KUBERNETES_CONTEXT", ""),
-		SandboxNamespace:          stringEnv("RSI_SANDBOX_NAMESPACE", "rsi-platform"),
-		SandboxImage:              stringEnv("RSI_SANDBOX_IMAGE", "rsi-agent-platform-sandbox:latest"),
-		SandboxServiceAccount:     stringEnv("RSI_SANDBOX_SERVICE_ACCOUNT_NAME", "rsi-sandbox"),
-		SandboxJobTTLSeconds:      intEnv("RSI_SANDBOX_JOB_TTL_SECONDS", 3600),
-		SandboxDeadlineSeconds:    intEnv("RSI_SANDBOX_ACTIVE_DEADLINE_SECONDS", 1800),
-		AllowedSlackChannelIDs:    listEnv("RSI_ALLOWED_SLACK_CHANNEL_IDS", []string{"C_AGENT_FACTORY"}),
-		AllowedTargetRepos:        listEnv("RSI_ALLOWED_TARGET_REPOS", []string{"rsi-agent-platform", "depin-backend", "story-api", "story-orchestration-service", "story-deployments", "story-infra-aws", "cloudflare"}),
-		DefaultOperatorDomain:     stringEnv("RSI_OPERATOR_EMAIL_DOMAIN", "piplabs.xyz"),
-		DefaultRepo:               stringEnv("RSI_DEFAULT_REPO", "depin-backend"),
-		DefaultKnowledgeBaseURL:   stringEnv("RSI_KNOWLEDGE_BASE_URL", "https://staging-depin.storyprotocol.net/openapi.json"),
-		DefaultReasoningVerbosity: stringEnv("RSI_REASONING_VERBOSITY", "verbose"),
-		DefaultProposalCap:        intEnv("RSI_ACTIVE_PROPOSAL_CAP", 2),
-		ProposalPromoterInterval:  durationEnv("RSI_PROPOSAL_PROMOTER_INTERVAL", 15*time.Minute),
+		SandboxNamespace:          stringEnv("RSI_SANDBOX_NAMESPACE", ""),
+		SandboxImage:              stringEnv("RSI_SANDBOX_IMAGE", ""),
+		SandboxServiceAccount:     stringEnv("RSI_SANDBOX_SERVICE_ACCOUNT_NAME", ""),
+		SandboxJobTTLSeconds:      intEnv("RSI_SANDBOX_JOB_TTL_SECONDS", 0),
+		SandboxDeadlineSeconds:    intEnv("RSI_SANDBOX_ACTIVE_DEADLINE_SECONDS", 0),
+		AllowedSlackChannelIDs:    listEnv("RSI_ALLOWED_SLACK_CHANNEL_IDS", nil),
+		AllowedTargetRepos:        listEnv("RSI_ALLOWED_TARGET_REPOS", nil),
+		DefaultOperatorDomain:     stringEnv("RSI_OPERATOR_EMAIL_DOMAIN", ""),
+		DefaultRepo:               stringEnv("RSI_DEFAULT_REPO", ""),
+		DefaultKnowledgeBaseURL:   stringEnv("RSI_KNOWLEDGE_BASE_URL", ""),
+		DefaultReasoningVerbosity: stringEnv("RSI_REASONING_VERBOSITY", ""),
+		DefaultProposalCap:        intEnv("RSI_ACTIVE_PROPOSAL_CAP", 0),
+		ProposalPromoterInterval:  durationEnv("RSI_PROPOSAL_PROMOTER_INTERVAL", 0),
 	}
 }
 
 func (c Config) RunnerURLForRole(role string) string {
 	switch strings.TrimSpace(role) {
 	case "prod":
-		return firstNonEmpty(c.ProdRunnerBaseURL, c.RunnerBaseURL)
+		return c.ProdRunnerBaseURL
 	case "proactive":
-		return firstNonEmpty(c.ProactiveRunnerBaseURL, c.RunnerBaseURL)
+		return c.ProactiveRunnerBaseURL
 	case "eval":
-		return firstNonEmpty(c.EvalRunnerBaseURL, c.RunnerBaseURL)
+		return c.EvalRunnerBaseURL
 	case "proposal":
-		return firstNonEmpty(c.ProposalRunnerBaseURL, c.RunnerBaseURL)
+		return c.ProposalRunnerBaseURL
 	default:
 		return c.RunnerBaseURL
 	}
@@ -209,13 +213,6 @@ func boolEnv(key string, fallback bool) bool {
 		return fallback
 	}
 	return value
-}
-
-func defaultStoreBackend(environment string) string {
-	if strings.EqualFold(environment, "production") {
-		return "postgres"
-	}
-	return "memory"
 }
 
 func firstNonEmpty(values ...string) string {

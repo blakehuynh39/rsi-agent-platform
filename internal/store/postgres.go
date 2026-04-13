@@ -37,10 +37,14 @@ type sqlReader interface {
 }
 
 func OpenStore(cfg config.Config) (Store, error) {
-	if cfg.StoreBackend == "postgres" {
+	switch strings.TrimSpace(cfg.StoreBackend) {
+	case "postgres":
 		return NewPostgresStore(cfg)
+	case "memory":
+		return NewMemoryStore(), nil
+	default:
+		return nil, fmt.Errorf("unsupported RSI_STORE_BACKEND %q", cfg.StoreBackend)
 	}
-	return NewMemoryStore(), nil
 }
 
 func MustOpenStore(cfg config.Config) Store {
@@ -63,13 +67,13 @@ func NewPostgresStore(cfg config.Config) (*PostgresStore, error) {
 		return nil, fmt.Errorf("apply schema: %w", err)
 	}
 	store := &PostgresStore{db: db}
-	if err := store.ensureSeed(); err != nil {
+	if err := store.ensureSeed(cfg); err != nil {
 		return nil, err
 	}
 	return store, nil
 }
 
-func (p *PostgresStore) ensureSeed() error {
+func (p *PostgresStore) ensureSeed(cfg config.Config) error {
 	var count int
 	if err := p.db.QueryRow(`select count(*) from event_envelope`).Scan(&count); err != nil {
 		return err
@@ -86,7 +90,11 @@ func (p *PostgresStore) ensureSeed() error {
 		_ = tx.Rollback()
 	}()
 
-	if err := persistStore(tx, NewMemoryStore()); err != nil {
+	bootstrap := newEmptyMemoryStore()
+	if cfg.DefaultProposalCap > 0 {
+		bootstrap.settings.ActiveProposalCap = cfg.DefaultProposalCap
+	}
+	if err := persistStore(tx, bootstrap); err != nil {
 		return err
 	}
 	return tx.Commit()
@@ -230,8 +238,8 @@ func loadStore(r sqlReader) (*MemoryStore, error) {
 		return nil, err
 	}
 
-	if len(store.events) == 0 && len(store.workflows) == 0 {
-		return NewMemoryStore(), nil
+	if len(store.events) == 0 && len(store.workflows) == 0 && len(store.conversations) == 0 {
+		return store, nil
 	}
 	backfillConversationCaseV2(store)
 	backfillActionOutcomeKnowledgeV3(store)
