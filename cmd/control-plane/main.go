@@ -7,6 +7,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/app"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/control"
+	platformdb "github.com/piplabs/rsi-agent-platform/internal/db"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
 
@@ -19,6 +20,14 @@ func main() {
 		log.Fatal(err)
 	}
 	store := storepkg.MustOpenStore(cfg)
+	if provider, ok := store.(interface {
+		SchemaStatus() platformdb.SchemaStatus
+	}); ok {
+		status := provider.SchemaStatus()
+		cfg.SchemaVersionCurrent = status.CurrentVersion
+		cfg.SchemaVersionExpected = status.ExpectedVersion
+		cfg.SchemaCompatibility = status.State
+	}
 	if *mode == "slack-surface" {
 		if err := control.RunSlackSurface(cfg, store); err != nil {
 			log.Fatal(err)

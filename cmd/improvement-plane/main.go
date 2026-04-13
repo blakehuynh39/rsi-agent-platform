@@ -6,12 +6,13 @@ import (
 
 	"github.com/piplabs/rsi-agent-platform/internal/app"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
+	platformdb "github.com/piplabs/rsi-agent-platform/internal/db"
 	improvementplane "github.com/piplabs/rsi-agent-platform/internal/improvementplane"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
 
 func main() {
-	mode := flag.String("mode", "serve", "serve, cron, or worker")
+	mode := flag.String("mode", "serve", "serve, cron, worker, or migrate")
 	once := flag.Bool("once", false, "run one cron tick and exit")
 	flag.Parse()
 
@@ -19,7 +20,28 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	if *mode == "migrate" {
+		db, err := platformdb.OpenPostgres(cfg.PostgresURL)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer db.Close()
+		status, err := platformdb.ApplyMigrations(db)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("completed %s kind=%s mode=%s schema=%d/%d state=%s", cfg.ServiceName, cfg.ServiceKind, cfg.RuntimeMode, status.CurrentVersion, status.ExpectedVersion, status.State)
+		return
+	}
 	store := storepkg.MustOpenStore(cfg)
+	if provider, ok := store.(interface {
+		SchemaStatus() platformdb.SchemaStatus
+	}); ok {
+		status := provider.SchemaStatus()
+		cfg.SchemaVersionCurrent = status.CurrentVersion
+		cfg.SchemaVersionExpected = status.ExpectedVersion
+		cfg.SchemaCompatibility = status.State
+	}
 
 	if *mode == "cron" {
 		log.Printf("starting %s kind=%s mode=%s interval=%s dependencies=%v", cfg.ServiceName, cfg.ServiceKind, cfg.RuntimeMode, cfg.ProposalPromoterInterval, cfg.DependencyTargets())

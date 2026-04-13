@@ -82,6 +82,22 @@ func TestImprovementPlaneValidationRequiresExplicitPromoterInterval(t *testing.T
 	}
 }
 
+func TestImprovementPlaneMigrateModeOnlyRequiresSharedDatabaseContract(t *testing.T) {
+	cfg := Config{
+		ServiceName:   "improvement-plane",
+		ServiceKind:   "improvement-plane",
+		Environment:   "stage",
+		HTTPPort:      8080,
+		StoreBackend:  "postgres",
+		PostgresURL:   "postgres://user:pass@db.example/rsi",
+		PublicBaseURL: "https://staging-rsi-platform.storyprotocol.net",
+	}
+
+	if _, err := cfg.ValidatedFor("improvement-plane", "migrate"); err != nil {
+		t.Fatalf("expected migrate mode to validate with shared database contract, got %v", err)
+	}
+}
+
 func validControlPlaneConfig() Config {
 	return Config{
 		ServiceName:               "control-plane",

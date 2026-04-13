@@ -671,6 +671,7 @@ alter table if exists trace_summary add column if not exists slack_action_count 
 alter table if exists trace_event add column if not exists conversation_id text;
 alter table if exists trace_event add column if not exists case_id text;
 alter table if exists trace_event add column if not exists trigger_event_id text;
+alter table if exists trace_event add column if not exists description text not null default '';
 
 alter table if exists reasoning_step add column if not exists conversation_id text;
 alter table if exists reasoning_step add column if not exists case_id text;

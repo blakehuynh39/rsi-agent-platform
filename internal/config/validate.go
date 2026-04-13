@@ -95,6 +95,9 @@ func (c Config) validateControlPlane(issues *[]string) {
 
 func (c Config) validateImprovementPlane(issues *[]string) {
 	c.validateCommonPlaneConfig(issues)
+	if c.RuntimeMode == "migrate" {
+		return
+	}
 	addRequiredURL(issues, "RSI_TOOL_GATEWAY_BASE_URL", c.ToolGatewayBaseURL, c.nonLocalhostRequired())
 	addRequiredURL(issues, "RSI_RUNNER_EVAL_BASE_URL", c.EvalRunnerBaseURL, c.nonLocalhostRequired())
 	addRequiredURL(issues, "RSI_RUNNER_PROPOSAL_BASE_URL", c.ProposalRunnerBaseURL, c.nonLocalhostRequired())

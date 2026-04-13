@@ -26,11 +26,14 @@ func NewBaseRouter(cfg config.Config) *chi.Mux {
 	r.Get("/readyz", func(w http.ResponseWriter, r *http.Request) {
 		status := http.StatusOK
 		payload := map[string]any{
-			"status":           "ready",
-			"service":          cfg.ServiceName,
-			"service_kind":     cfg.ServiceKind,
-			"mode":             cfg.RuntimeMode,
-			"config_validated": cfg.ConfigValidated,
+			"status":                  "ready",
+			"service":                 cfg.ServiceName,
+			"service_kind":            cfg.ServiceKind,
+			"mode":                    cfg.RuntimeMode,
+			"config_validated":        cfg.ConfigValidated,
+			"schema_current_version":  cfg.SchemaVersionCurrent,
+			"schema_expected_version": cfg.SchemaVersionExpected,
+			"schema_state":            cfg.SchemaCompatibility,
 		}
 		if !cfg.ConfigValidated {
 			status = http.StatusServiceUnavailable
@@ -40,14 +43,17 @@ func NewBaseRouter(cfg config.Config) *chi.Mux {
 	})
 	r.Get("/api/meta", func(w http.ResponseWriter, r *http.Request) {
 		WriteJSON(w, http.StatusOK, map[string]interface{}{
-			"service":          cfg.ServiceName,
-			"service_kind":     cfg.ServiceKind,
-			"mode":             cfg.RuntimeMode,
-			"env":              cfg.Environment,
-			"config_validated": cfg.ConfigValidated,
-			"store_backend":    cfg.StoreBackend,
-			"default_repo":     cfg.DefaultRepo,
-			"dependencies":     cfg.DependencyTargets(),
+			"service":                 cfg.ServiceName,
+			"service_kind":            cfg.ServiceKind,
+			"mode":                    cfg.RuntimeMode,
+			"env":                     cfg.Environment,
+			"config_validated":        cfg.ConfigValidated,
+			"store_backend":           cfg.StoreBackend,
+			"default_repo":            cfg.DefaultRepo,
+			"dependencies":            cfg.DependencyTargets(),
+			"schema_current_version":  cfg.SchemaVersionCurrent,
+			"schema_expected_version": cfg.SchemaVersionExpected,
+			"schema_state":            cfg.SchemaCompatibility,
 		})
 	})
 	return r

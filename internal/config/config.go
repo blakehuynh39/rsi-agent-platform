@@ -12,6 +12,9 @@ type Config struct {
 	ServiceKind               string
 	RuntimeMode               string
 	ConfigValidated           bool
+	SchemaVersionCurrent      int64
+	SchemaVersionExpected     int64
+	SchemaCompatibility       string
 	Environment               string
 	HTTPPort                  int
 	StoreBackend              string

@@ -28,7 +28,8 @@ import (
 )
 
 type PostgresStore struct {
-	db *sql.DB
+	db           *sql.DB
+	schemaStatus platformdb.SchemaStatus
 }
 
 type sqlReader interface {
@@ -56,21 +57,24 @@ func MustOpenStore(cfg config.Config) Store {
 }
 
 func NewPostgresStore(cfg config.Config) (*PostgresStore, error) {
-	db, err := sql.Open("pgx", cfg.PostgresURL)
+	db, err := platformdb.OpenPostgres(cfg.PostgresURL)
 	if err != nil {
 		return nil, err
 	}
-	if err := db.Ping(); err != nil {
+	status, err := platformdb.VerifyCompatible(db)
+	if err != nil {
+		_ = db.Close()
 		return nil, err
 	}
-	if _, err := db.Exec(platformdb.SchemaSQL); err != nil {
-		return nil, fmt.Errorf("apply schema: %w", err)
-	}
-	store := &PostgresStore{db: db}
+	store := &PostgresStore{db: db, schemaStatus: status}
 	if err := store.ensureSeed(cfg); err != nil {
 		return nil, err
 	}
 	return store, nil
+}
+
+func (p *PostgresStore) SchemaStatus() platformdb.SchemaStatus {
+	return p.schemaStatus
 }
 
 func (p *PostgresStore) ensureSeed(cfg config.Config) error {
