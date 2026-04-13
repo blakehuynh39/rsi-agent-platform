@@ -3272,7 +3272,7 @@ set status = $%d,
 	completed_at = null
 from next_item
 where wi.id = next_item.id
-returning %s`, queueClause, statusQueuedArg, statusLeasedArg, nowArg, leasedStatusArg, holderArg, expiresArg, updatedArg, workItemSelectColumns())
+returning %s`, queueClause, statusQueuedArg, statusLeasedArg, nowArg, leasedStatusArg, holderArg, expiresArg, updatedArg, workItemSelectColumnsWithAlias("wi"))
 		row := tx.QueryRow(query, args...)
 		var scanErr error
 		item, scanErr = scanWorkItem(row)

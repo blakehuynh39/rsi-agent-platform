@@ -645,6 +645,41 @@ func workItemSelectColumns() string {
 	return `id, queue, kind, status, trace_id, workflow_id, ingestion_id, conversation_id, case_id, trigger_event_id, proposal_id, thread_key, intent, repo_scope, requested_by, approval_mode, response_mode, payload, attempts, lease_owner, lease_expires_at, last_error, created_at, updated_at, completed_at`
 }
 
+func workItemSelectColumnsWithAlias(alias string) string {
+	columns := []string{
+		"id",
+		"queue",
+		"kind",
+		"status",
+		"trace_id",
+		"workflow_id",
+		"ingestion_id",
+		"conversation_id",
+		"case_id",
+		"trigger_event_id",
+		"proposal_id",
+		"thread_key",
+		"intent",
+		"repo_scope",
+		"requested_by",
+		"approval_mode",
+		"response_mode",
+		"payload",
+		"attempts",
+		"lease_owner",
+		"lease_expires_at",
+		"last_error",
+		"created_at",
+		"updated_at",
+		"completed_at",
+	}
+	qualified := make([]string, 0, len(columns))
+	for _, column := range columns {
+		qualified = append(qualified, alias+"."+column)
+	}
+	return strings.Join(qualified, ", ")
+}
+
 func findExistingWorkItemByDedupe(tx *sql.Tx, item queue.WorkItem) (queue.WorkItem, bool, error) {
 	dedupeKey := workItemDedupeKey(item)
 	if dedupeKey == "" {
