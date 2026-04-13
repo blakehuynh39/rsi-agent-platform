@@ -132,14 +132,21 @@ func BuildJob(cfg config.Config, req JobRequest) JobManifest {
 	}
 	labels["rsi.storyprotocol.net/generated-at"] = now.Format("20060102-150405")
 
-	env := []EnvVar{
-		{Name: "RSI_TRACE_ID", Value: req.TraceID},
-		{Name: "RSI_REPO", Value: req.Repo},
-		{Name: "RSI_REQUESTED_BY", Value: req.RequestedBy},
-		{Name: "RSI_ARTIFACT_PATH", Value: req.ArtifactPath},
-		{Name: "RSI_BASE_REF", Value: req.BaseRef},
+	envMap := map[string]string{
+		"RSI_TRACE_ID":      req.TraceID,
+		"RSI_REPO":          req.Repo,
+		"RSI_REQUESTED_BY":  req.RequestedBy,
+		"RSI_ARTIFACT_PATH": req.ArtifactPath,
+		"RSI_BASE_REF":      req.BaseRef,
 	}
 	for key, value := range req.Env {
+		if strings.TrimSpace(key) == "" {
+			continue
+		}
+		envMap[key] = value
+	}
+	env := make([]EnvVar, 0, len(envMap))
+	for key, value := range envMap {
 		if strings.TrimSpace(key) == "" {
 			continue
 		}

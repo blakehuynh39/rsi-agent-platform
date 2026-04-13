@@ -667,18 +667,15 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 		return fmt.Errorf("trace %s not found", item.TraceID)
 	}
 	if !observation.JobSucceeded && !observation.JobFailed {
-		time.Sleep(cfg.SandboxPollInterval)
-		_, err = store.EnqueueWorkItem(queue.WorkItem{
-			Queue:      queue.SandboxQueue,
-			Kind:       "watch_sandbox_job",
-			Status:     queue.WorkQueued,
-			TraceID:    item.TraceID,
-			ProposalID: item.ProposalID,
-			Payload:    item.Payload,
-			CreatedAt:  time.Now().UTC(),
-			UpdatedAt:  time.Now().UTC(),
-		})
-		return err
+		retryAt := time.Now().UTC().Add(cfg.SandboxPollInterval)
+		payload := clonePayload(item.Payload)
+		if payload == nil {
+			payload = map[string]any{}
+		}
+		if _, err := store.RescheduleWorkItem(item.ID, payload, "", retryAt); err != nil {
+			return err
+		}
+		return errDeferredWorkItem
 	}
 	now := time.Now().UTC()
 	statusArtifactID, logArtifactID, sandboxArtifacts := sandboxObservationArtifacts(trace.Summary.TraceID, observation, now)
@@ -688,16 +685,16 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 		if intent.ID != "" {
 			_, _ = upsertImprovementActionIntent(store, withActionStatus(intent, action.StatusFailed, now))
 			_, _ = store.RecordActionResult(action.Result{
-				ActionIntentID: intent.ID,
-				Executor:       "sandbox-runtime",
-				Provider:       "kubernetes",
-				ProviderRef:    fmt.Sprintf("%s/%s", observation.Namespace, observation.JobName),
+				ActionIntentID:     intent.ID,
+				Executor:           "sandbox-runtime",
+				Provider:           "kubernetes",
+				ProviderRef:        fmt.Sprintf("%s/%s", observation.Namespace, observation.JobName),
 				ResponseArtifactID: statusArtifactID,
-				Status:         action.StatusFailed,
-				ErrorCode:      "sandbox_job_failed",
-				ErrorMessage:   errorMessage,
-				StartedAt:      intent.UpdatedAt,
-				CompletedAt:    now,
+				Status:             action.StatusFailed,
+				ErrorCode:          "sandbox_job_failed",
+				ErrorMessage:       errorMessage,
+				StartedAt:          intent.UpdatedAt,
+				CompletedAt:        now,
 			})
 		}
 		repoJob, ok := findRepoChangeJob(store.ListRepoChangeJobs(), jobID)
@@ -740,14 +737,14 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 	if intent.ID != "" {
 		_, _ = upsertImprovementActionIntent(store, withActionStatus(intent, action.StatusSucceeded, now))
 		_, _ = store.RecordActionResult(action.Result{
-			ActionIntentID: intent.ID,
-			Executor:       "sandbox-runtime",
-			Provider:       "kubernetes",
-			ProviderRef:    fmt.Sprintf("%s/%s", observation.Namespace, observation.JobName),
+			ActionIntentID:     intent.ID,
+			Executor:           "sandbox-runtime",
+			Provider:           "kubernetes",
+			ProviderRef:        fmt.Sprintf("%s/%s", observation.Namespace, observation.JobName),
 			ResponseArtifactID: statusArtifactID,
-			Status:         action.StatusSucceeded,
-			StartedAt:      intent.UpdatedAt,
-			CompletedAt:    now,
+			Status:             action.StatusSucceeded,
+			StartedAt:          intent.UpdatedAt,
+			CompletedAt:        now,
 		})
 	}
 	repoJob, ok := findRepoChangeJob(store.ListRepoChangeJobs(), jobID)
