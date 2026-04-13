@@ -1422,7 +1422,14 @@ func persistThreadPolicies(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.threadPolicies)
 	for _, key := range keys {
 		item := store.threadPolicies[key]
-		if _, err := tx.Exec(`insert into thread_policy (thread_key, state, owner_bot, muted, close_reason, last_policy_version, updated_at) values ($1,$2,$3,$4,$5,$6,$7)`,
+		if _, err := tx.Exec(`insert into thread_policy (thread_key, state, owner_bot, muted, close_reason, last_policy_version, updated_at) values ($1,$2,$3,$4,$5,$6,$7)
+			on conflict (thread_key) do update set
+				state = excluded.state,
+				owner_bot = excluded.owner_bot,
+				muted = excluded.muted,
+				close_reason = excluded.close_reason,
+				last_policy_version = excluded.last_policy_version,
+				updated_at = excluded.updated_at`,
 			item.ThreadKey, string(item.State), item.OwnerBot, item.Muted, nullString(item.CloseReason), item.LastPolicyVersion, item.UpdatedAt,
 		); err != nil {
 			return err
@@ -1488,7 +1495,20 @@ func persistExperiments(tx *sql.Tx, store *MemoryStore) error {
 
 func persistEvents(tx *sql.Tx, store *MemoryStore) error {
 	for _, item := range store.events {
-		if _, err := tx.Exec(`insert into event_envelope (id, source, source_event_id, thread_key, incident_key, dedupe_key, severity, normalized_problem_statement, ownership_hint, raw_payload_ref, workflow_hint, metadata, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::jsonb,$13)`,
+		if _, err := tx.Exec(`insert into event_envelope (id, source, source_event_id, thread_key, incident_key, dedupe_key, severity, normalized_problem_statement, ownership_hint, raw_payload_ref, workflow_hint, metadata, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::jsonb,$13)
+			on conflict (id) do update set
+				source = excluded.source,
+				source_event_id = excluded.source_event_id,
+				thread_key = excluded.thread_key,
+				incident_key = excluded.incident_key,
+				dedupe_key = excluded.dedupe_key,
+				severity = excluded.severity,
+				normalized_problem_statement = excluded.normalized_problem_statement,
+				ownership_hint = excluded.ownership_hint,
+				raw_payload_ref = excluded.raw_payload_ref,
+				workflow_hint = excluded.workflow_hint,
+				metadata = excluded.metadata,
+				created_at = excluded.created_at`,
 			item.ID, string(item.Source), item.SourceEventID, nullString(item.ThreadKey), nullString(item.IncidentKey), item.DedupeKey, string(item.Severity), item.NormalizedProblemStatement, nullString(item.OwnershipHint), nullString(item.RawPayloadRef), nullString(item.WorkflowHint), jsonString(item.Metadata), item.CreatedAt,
 		); err != nil {
 			return err
@@ -1501,7 +1521,18 @@ func persistConversations(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.conversations)
 	for _, key := range keys {
 		item := store.conversations[key]
-		if _, err := tx.Exec(`insert into conversation (id, source, external_key, external_conversation, title, status, participant_ids, active_case_id, latest_event_id, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9,$10,$11)`,
+		if _, err := tx.Exec(`insert into conversation (id, source, external_key, external_conversation, title, status, participant_ids, active_case_id, latest_event_id, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9,$10,$11)
+			on conflict (id) do update set
+				source = excluded.source,
+				external_key = excluded.external_key,
+				external_conversation = excluded.external_conversation,
+				title = excluded.title,
+				status = excluded.status,
+				participant_ids = excluded.participant_ids,
+				active_case_id = excluded.active_case_id,
+				latest_event_id = excluded.latest_event_id,
+				created_at = excluded.created_at,
+				updated_at = excluded.updated_at`,
 			item.ID, string(item.Source), item.ExternalKey, item.ExternalConversation, item.Title, string(item.Status), jsonString(item.ParticipantIDs), nullString(item.ActiveCaseID), nullString(item.LatestEventID), item.CreatedAt, item.UpdatedAt,
 		); err != nil {
 			return err
@@ -1512,7 +1543,19 @@ func persistConversations(tx *sql.Tx, store *MemoryStore) error {
 
 func persistConversationEntries(tx *sql.Tx, store *MemoryStore) error {
 	for _, item := range store.conversationEntries {
-		if _, err := tx.Exec(`insert into conversation_entry (id, conversation_id, event_id, trace_id, source, source_event_id, entry_type, actor_id, actor_type, body, metadata, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb,$12)`,
+		if _, err := tx.Exec(`insert into conversation_entry (id, conversation_id, event_id, trace_id, source, source_event_id, entry_type, actor_id, actor_type, body, metadata, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb,$12)
+			on conflict (id) do update set
+				conversation_id = excluded.conversation_id,
+				event_id = excluded.event_id,
+				trace_id = excluded.trace_id,
+				source = excluded.source,
+				source_event_id = excluded.source_event_id,
+				entry_type = excluded.entry_type,
+				actor_id = excluded.actor_id,
+				actor_type = excluded.actor_type,
+				body = excluded.body,
+				metadata = excluded.metadata,
+				created_at = excluded.created_at`,
 			item.ID, item.ConversationID, nullString(item.EventID), nullString(item.TraceID), string(item.Source), item.SourceEventID, item.EntryType, nullString(item.ActorID), nullString(item.ActorType), item.Body, jsonString(item.Metadata), item.CreatedAt,
 		); err != nil {
 			return err
@@ -1525,7 +1568,28 @@ func persistCases(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.cases)
 	for _, key := range keys {
 		item := store.cases[key]
-		if _, err := tx.Exec(`insert into case_record (id, conversation_id, kind, intent, title, summary, status, approval_mode, response_mode, assigned_bot, opened_by_event_id, closed_by_event_id, latest_trace_id, resolution_state, resolved_at, latest_outcome_id, outcome_score, superseded_by_case_id, created_at, updated_at, closed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)`,
+		if _, err := tx.Exec(`insert into case_record (id, conversation_id, kind, intent, title, summary, status, approval_mode, response_mode, assigned_bot, opened_by_event_id, closed_by_event_id, latest_trace_id, resolution_state, resolved_at, latest_outcome_id, outcome_score, superseded_by_case_id, created_at, updated_at, closed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)
+			on conflict (id) do update set
+				conversation_id = excluded.conversation_id,
+				kind = excluded.kind,
+				intent = excluded.intent,
+				title = excluded.title,
+				summary = excluded.summary,
+				status = excluded.status,
+				approval_mode = excluded.approval_mode,
+				response_mode = excluded.response_mode,
+				assigned_bot = excluded.assigned_bot,
+				opened_by_event_id = excluded.opened_by_event_id,
+				closed_by_event_id = excluded.closed_by_event_id,
+				latest_trace_id = excluded.latest_trace_id,
+				resolution_state = excluded.resolution_state,
+				resolved_at = excluded.resolved_at,
+				latest_outcome_id = excluded.latest_outcome_id,
+				outcome_score = excluded.outcome_score,
+				superseded_by_case_id = excluded.superseded_by_case_id,
+				created_at = excluded.created_at,
+				updated_at = excluded.updated_at,
+				closed_at = excluded.closed_at`,
 			item.ID, item.ConversationID, item.Kind, item.Intent, item.Title, item.Summary, string(item.Status), nullString(item.ApprovalMode), nullString(item.ResponseMode), item.AssignedBot, nullString(item.OpenedByEventID), nullString(item.ClosedByEventID), nullString(item.LatestTraceID), string(item.ResolutionState), nullTime(item.ResolvedAt), nullString(item.LatestOutcomeID), item.OutcomeScore, nullString(item.SupersededByCaseID), item.CreatedAt, item.UpdatedAt, nullTime(item.ClosedAt),
 		); err != nil {
 			return err
@@ -1538,7 +1602,28 @@ func persistActionIntents(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.actionIntents)
 	for _, key := range keys {
 		item := store.actionIntents[key]
-		if _, err := tx.Exec(`insert into action_intent (id, owner_plane, conversation_id, case_id, trace_id, proposal_id, kind, phase_key, target_ref, request_payload, idempotency_key, approval_mode, approval_state, policy_verdict, status, superseded_by_action_id, requested_by, rationale, evidence_refs, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::jsonb,$11,$12,$13,$14,$15,$16,$17,$18,$19::jsonb,$20,$21)`,
+		if _, err := tx.Exec(`insert into action_intent (id, owner_plane, conversation_id, case_id, trace_id, proposal_id, kind, phase_key, target_ref, request_payload, idempotency_key, approval_mode, approval_state, policy_verdict, status, superseded_by_action_id, requested_by, rationale, evidence_refs, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::jsonb,$11,$12,$13,$14,$15,$16,$17,$18,$19::jsonb,$20,$21)
+			on conflict (id) do update set
+				owner_plane = excluded.owner_plane,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				trace_id = excluded.trace_id,
+				proposal_id = excluded.proposal_id,
+				kind = excluded.kind,
+				phase_key = excluded.phase_key,
+				target_ref = excluded.target_ref,
+				request_payload = excluded.request_payload,
+				idempotency_key = excluded.idempotency_key,
+				approval_mode = excluded.approval_mode,
+				approval_state = excluded.approval_state,
+				policy_verdict = excluded.policy_verdict,
+				status = excluded.status,
+				superseded_by_action_id = excluded.superseded_by_action_id,
+				requested_by = excluded.requested_by,
+				rationale = excluded.rationale,
+				evidence_refs = excluded.evidence_refs,
+				created_at = excluded.created_at,
+				updated_at = excluded.updated_at`,
 			item.ID, item.OwnerPlane, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.TraceID), nullString(item.ProposalID), string(item.Kind), nullString(item.PhaseKey), nullString(item.TargetRef), jsonString(item.RequestPayload), nullString(item.IdempotencyKey), nullString(item.ApprovalMode), nullString(item.ApprovalState), nullString(item.PolicyVerdict), string(item.Status), nullString(item.SupersededByActionID), nullString(item.RequestedBy), nullString(item.Rationale), jsonString(item.EvidenceRefs), item.CreatedAt, item.UpdatedAt,
 		); err != nil {
 			return err
@@ -1551,7 +1636,20 @@ func persistActionResults(tx *sql.Tx, store *MemoryStore) error {
 	intentKeys := sortedMapKeys(store.actionResults)
 	for _, key := range intentKeys {
 		for _, item := range store.actionResults[key] {
-			if _, err := tx.Exec(`insert into action_result (id, action_intent_id, attempt_number, executor, provider, provider_ref, request_artifact_id, response_artifact_id, status, error_code, error_message, started_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,
+			if _, err := tx.Exec(`insert into action_result (id, action_intent_id, attempt_number, executor, provider, provider_ref, request_artifact_id, response_artifact_id, status, error_code, error_message, started_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+				on conflict (id) do update set
+					action_intent_id = excluded.action_intent_id,
+					attempt_number = excluded.attempt_number,
+					executor = excluded.executor,
+					provider = excluded.provider,
+					provider_ref = excluded.provider_ref,
+					request_artifact_id = excluded.request_artifact_id,
+					response_artifact_id = excluded.response_artifact_id,
+					status = excluded.status,
+					error_code = excluded.error_code,
+					error_message = excluded.error_message,
+					started_at = excluded.started_at,
+					completed_at = excluded.completed_at`,
 				item.ID, item.ActionIntentID, item.AttemptNumber, item.Executor, nullString(item.Provider), nullString(item.ProviderRef), nullString(item.RequestArtifactID), nullString(item.ResponseArtifactID), string(item.Status), nullString(item.ErrorCode), nullString(item.ErrorMessage), item.StartedAt, item.CompletedAt,
 			); err != nil {
 				return err
@@ -1565,7 +1663,22 @@ func persistOutcomes(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.outcomes)
 	for _, key := range keys {
 		item := store.outcomes[key]
-		if _, err := tx.Exec(`insert into outcome_record (id, source, source_event_id, conversation_id, case_id, trace_id, proposal_id, outcome_type, verdict, score, summary, details, external_ref, recorded_by, recorded_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
+		if _, err := tx.Exec(`insert into outcome_record (id, source, source_event_id, conversation_id, case_id, trace_id, proposal_id, outcome_type, verdict, score, summary, details, external_ref, recorded_by, recorded_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+			on conflict (id) do update set
+				source = excluded.source,
+				source_event_id = excluded.source_event_id,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				trace_id = excluded.trace_id,
+				proposal_id = excluded.proposal_id,
+				outcome_type = excluded.outcome_type,
+				verdict = excluded.verdict,
+				score = excluded.score,
+				summary = excluded.summary,
+				details = excluded.details,
+				external_ref = excluded.external_ref,
+				recorded_by = excluded.recorded_by,
+				recorded_at = excluded.recorded_at`,
 			item.ID, item.Source, nullString(item.SourceEventID), nullString(item.ConversationID), nullString(item.CaseID), nullString(item.TraceID), nullString(item.ProposalID), string(item.OutcomeType), string(item.Verdict), item.Score, nullString(item.Summary), nullString(item.Details), nullString(item.ExternalRef), nullString(item.RecordedBy), item.RecordedAt,
 		); err != nil {
 			return err
@@ -1578,7 +1691,24 @@ func persistKnowledgeEntries(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.knowledgeEntries)
 	for _, key := range keys {
 		item := store.knowledgeEntries[key]
-		if _, err := tx.Exec(`insert into knowledge_entry (id, tier, kind, scope_type, scope_id, title, summary, body, structured_facts, status, confidence, fresh_until, source_type, supersedes_entry_id, contradicted_by_entry_id, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10,$11,$12,$13,$14,$15,$16,$17)`,
+		if _, err := tx.Exec(`insert into knowledge_entry (id, tier, kind, scope_type, scope_id, title, summary, body, structured_facts, status, confidence, fresh_until, source_type, supersedes_entry_id, contradicted_by_entry_id, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10,$11,$12,$13,$14,$15,$16,$17)
+			on conflict (id) do update set
+				tier = excluded.tier,
+				kind = excluded.kind,
+				scope_type = excluded.scope_type,
+				scope_id = excluded.scope_id,
+				title = excluded.title,
+				summary = excluded.summary,
+				body = excluded.body,
+				structured_facts = excluded.structured_facts,
+				status = excluded.status,
+				confidence = excluded.confidence,
+				fresh_until = excluded.fresh_until,
+				source_type = excluded.source_type,
+				supersedes_entry_id = excluded.supersedes_entry_id,
+				contradicted_by_entry_id = excluded.contradicted_by_entry_id,
+				created_at = excluded.created_at,
+				updated_at = excluded.updated_at`,
 			item.ID, string(item.Tier), string(item.Kind), string(item.ScopeType), nullString(item.ScopeID), item.Title, nullString(item.Summary), nullString(item.Body), jsonString(item.StructuredFacts), string(item.Status), item.Confidence, nullTime(item.FreshUntil), string(item.SourceType), nullString(item.SupersedesEntryID), nullString(item.ContradictedByEntryID), item.CreatedAt, item.UpdatedAt,
 		); err != nil {
 			return err
@@ -1617,7 +1747,21 @@ func persistKnowledgeReviews(tx *sql.Tx, store *MemoryStore) error {
 
 func persistIngestions(tx *sql.Tx, store *MemoryStore) error {
 	for _, item := range store.ingestions {
-		if _, err := tx.Exec(`insert into ingestion (id, event_id, conversation_id, case_id, thread_key, thread_ts, workflow_hint, intent, bot_role, source, channel_id, user_id, text, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
+		if _, err := tx.Exec(`insert into ingestion (id, event_id, conversation_id, case_id, thread_key, thread_ts, workflow_hint, intent, bot_role, source, channel_id, user_id, text, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+			on conflict (id) do update set
+				event_id = excluded.event_id,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				thread_key = excluded.thread_key,
+				thread_ts = excluded.thread_ts,
+				workflow_hint = excluded.workflow_hint,
+				intent = excluded.intent,
+				bot_role = excluded.bot_role,
+				source = excluded.source,
+				channel_id = excluded.channel_id,
+				user_id = excluded.user_id,
+				text = excluded.text,
+				created_at = excluded.created_at`,
 			item.ID, nullString(item.EventID), nullString(item.ConversationID), nullString(item.CaseID), item.ThreadKey, nullString(item.ThreadTS), item.WorkflowHint, nullString(item.Intent), nullString(string(item.BotRole)), item.Source, item.ChannelID, item.UserID, item.Text, item.CreatedAt,
 		); err != nil {
 			return err
@@ -1628,7 +1772,23 @@ func persistIngestions(tx *sql.Tx, store *MemoryStore) error {
 
 func persistWorkflows(tx *sql.Tx, store *MemoryStore) error {
 	for _, item := range store.workflows {
-		if _, err := tx.Exec(`insert into workflow (id, ingestion_id, trace_id, conversation_id, case_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_error, created_at, updated_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)`,
+		if _, err := tx.Exec(`insert into workflow (id, ingestion_id, trace_id, conversation_id, case_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_error, created_at, updated_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+			on conflict (id) do update set
+				ingestion_id = excluded.ingestion_id,
+				trace_id = excluded.trace_id,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				thread_key = excluded.thread_key,
+				kind = excluded.kind,
+				intent = excluded.intent,
+				assigned_bot = excluded.assigned_bot,
+				approval_mode = excluded.approval_mode,
+				response_mode = excluded.response_mode,
+				status = excluded.status,
+				last_error = excluded.last_error,
+				created_at = excluded.created_at,
+				updated_at = excluded.updated_at,
+				completed_at = excluded.completed_at`,
 			item.ID, nullString(item.IngestionID), nullString(item.TraceID), nullString(item.ConversationID), nullString(item.CaseID), item.ThreadKey, item.Kind, nullString(item.Intent), item.AssignedBot, nullString(item.ApprovalMode), nullString(item.ResponseMode), item.Status, nullString(item.LastError), item.CreatedAt, item.UpdatedAt, nullTime(item.CompletedAt),
 		); err != nil {
 			return err
@@ -1639,7 +1799,15 @@ func persistWorkflows(tx *sql.Tx, store *MemoryStore) error {
 
 func persistAssignments(tx *sql.Tx, store *MemoryStore) error {
 	for _, item := range store.assignments {
-		if _, err := tx.Exec(`insert into assignment (id, conversation_id, case_id, thread_key, assigned_bot, confidence, rationale, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8)`,
+		if _, err := tx.Exec(`insert into assignment (id, conversation_id, case_id, thread_key, assigned_bot, confidence, rationale, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8)
+			on conflict (id) do update set
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				thread_key = excluded.thread_key,
+				assigned_bot = excluded.assigned_bot,
+				confidence = excluded.confidence,
+				rationale = excluded.rationale,
+				created_at = excluded.created_at`,
 			item.ID, nullString(item.ConversationID), nullString(item.CaseID), item.ThreadKey, item.AssignedBot, item.Confidence, item.Rationale, item.CreatedAt,
 		); err != nil {
 			return err
@@ -1652,7 +1820,25 @@ func persistTraces(tx *sql.Tx, store *MemoryStore) error {
 	traceIDs := sortedMapKeys(store.traces)
 	for _, traceID := range traceIDs {
 		trace := store.traces[traceID]
-		if _, err := tx.Exec(`insert into trace_summary (trace_id, ingestion_id, workflow_id, conversation_id, case_id, trigger_event_id, supersedes_trace_id, thread_key, workflow_kind, status, last_verdict, started_at, ended_at, event_count, artifact_count, reasoning_step_count, tool_call_count, slack_action_count) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)`,
+		if _, err := tx.Exec(`insert into trace_summary (trace_id, ingestion_id, workflow_id, conversation_id, case_id, trigger_event_id, supersedes_trace_id, thread_key, workflow_kind, status, last_verdict, started_at, ended_at, event_count, artifact_count, reasoning_step_count, tool_call_count, slack_action_count) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
+			on conflict (trace_id) do update set
+				ingestion_id = excluded.ingestion_id,
+				workflow_id = excluded.workflow_id,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				trigger_event_id = excluded.trigger_event_id,
+				supersedes_trace_id = excluded.supersedes_trace_id,
+				thread_key = excluded.thread_key,
+				workflow_kind = excluded.workflow_kind,
+				status = excluded.status,
+				last_verdict = excluded.last_verdict,
+				started_at = excluded.started_at,
+				ended_at = excluded.ended_at,
+				event_count = excluded.event_count,
+				artifact_count = excluded.artifact_count,
+				reasoning_step_count = excluded.reasoning_step_count,
+				tool_call_count = excluded.tool_call_count,
+				slack_action_count = excluded.slack_action_count`,
 			trace.Summary.TraceID, trace.Summary.IngestionID, trace.Summary.WorkflowID, nullString(trace.Summary.ConversationID), nullString(trace.Summary.CaseID), nullString(trace.Summary.TriggerEventID), nullString(trace.Summary.SupersedesTraceID), trace.Summary.ThreadKey, trace.Summary.WorkflowKind, string(trace.Summary.Status), nullString(trace.Summary.LastVerdict), trace.Summary.StartedAt, trace.Summary.EndedAt, trace.Summary.EventCount, trace.Summary.ArtifactCount, trace.Summary.ReasoningStepCount, trace.Summary.ToolCallCount, trace.Summary.SlackActionCount,
 		); err != nil {
 			return err
@@ -1665,28 +1851,75 @@ func persistTraces(tx *sql.Tx, store *MemoryStore) error {
 			}
 		}
 		for _, artifact := range trace.Artifacts {
-			if _, err := tx.Exec(`insert into artifact (id, trace_id, kind, content_type, url, size_bytes, source) values ($1,$2,$3,$4,$5,$6,$7)`,
+			if _, err := tx.Exec(`insert into artifact (id, trace_id, kind, content_type, url, size_bytes, source) values ($1,$2,$3,$4,$5,$6,$7)
+				on conflict (id) do update set
+					trace_id = excluded.trace_id,
+					kind = excluded.kind,
+					content_type = excluded.content_type,
+					url = excluded.url,
+					size_bytes = excluded.size_bytes,
+					source = excluded.source`,
 				artifact.ID, artifact.TraceID, artifact.Kind, artifact.ContentType, artifact.URL, artifact.SizeBytes, artifact.Source,
 			); err != nil {
 				return err
 			}
 		}
 		for _, item := range trace.Reasoning {
-			if _, err := tx.Exec(`insert into reasoning_step (id, trace_id, workflow_id, conversation_id, case_id, step_type, summary, evidence_refs, alternatives, confidence, decision, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9::jsonb,$10,$11,$12)`,
+			if _, err := tx.Exec(`insert into reasoning_step (id, trace_id, workflow_id, conversation_id, case_id, step_type, summary, evidence_refs, alternatives, confidence, decision, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9::jsonb,$10,$11,$12)
+				on conflict (id) do update set
+					trace_id = excluded.trace_id,
+					workflow_id = excluded.workflow_id,
+					conversation_id = excluded.conversation_id,
+					case_id = excluded.case_id,
+					step_type = excluded.step_type,
+					summary = excluded.summary,
+					evidence_refs = excluded.evidence_refs,
+					alternatives = excluded.alternatives,
+					confidence = excluded.confidence,
+					decision = excluded.decision,
+					created_at = excluded.created_at`,
 				item.ID, item.TraceID, nullString(item.WorkflowID), nullString(item.ConversationID), nullString(item.CaseID), item.StepType, item.Summary, jsonString(item.EvidenceRefs), jsonString(item.Alternatives), item.Confidence, nullString(item.Decision), item.CreatedAt,
 			); err != nil {
 				return err
 			}
 		}
 		for _, item := range trace.ToolCalls {
-			if _, err := tx.Exec(`insert into tool_call_record (id, trace_id, workflow_id, conversation_id, case_id, tool_name, tool_call_id, request, summary, raw_artifact_refs, approval_state, interpretation_summary, status, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$10::jsonb,$11,$12,$13,$14)`,
+			if _, err := tx.Exec(`insert into tool_call_record (id, trace_id, workflow_id, conversation_id, case_id, tool_name, tool_call_id, request, summary, raw_artifact_refs, approval_state, interpretation_summary, status, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$10::jsonb,$11,$12,$13,$14)
+				on conflict (id) do update set
+					trace_id = excluded.trace_id,
+					workflow_id = excluded.workflow_id,
+					conversation_id = excluded.conversation_id,
+					case_id = excluded.case_id,
+					tool_name = excluded.tool_name,
+					tool_call_id = excluded.tool_call_id,
+					request = excluded.request,
+					summary = excluded.summary,
+					raw_artifact_refs = excluded.raw_artifact_refs,
+					approval_state = excluded.approval_state,
+					interpretation_summary = excluded.interpretation_summary,
+					status = excluded.status,
+					created_at = excluded.created_at`,
 				item.ID, item.TraceID, nullString(item.WorkflowID), nullString(item.ConversationID), nullString(item.CaseID), item.ToolName, item.ToolCallID, jsonString(item.Request), nullString(item.Summary), jsonString(item.RawArtifactRefs), nullString(item.ApprovalState), nullString(item.InterpretationSummary), nullString(item.Status), item.CreatedAt,
 			); err != nil {
 				return err
 			}
 		}
 		for _, item := range trace.SlackActions {
-			if _, err := tx.Exec(`insert into slack_action_record (id, trace_id, workflow_id, conversation_id, case_id, channel_id, thread_ts, idempotency_key, draft_body, final_body, policy_verdict, send_status, artifact_refs, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::jsonb,$14)`,
+			if _, err := tx.Exec(`insert into slack_action_record (id, trace_id, workflow_id, conversation_id, case_id, channel_id, thread_ts, idempotency_key, draft_body, final_body, policy_verdict, send_status, artifact_refs, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::jsonb,$14)
+				on conflict (id) do update set
+					trace_id = excluded.trace_id,
+					workflow_id = excluded.workflow_id,
+					conversation_id = excluded.conversation_id,
+					case_id = excluded.case_id,
+					channel_id = excluded.channel_id,
+					thread_ts = excluded.thread_ts,
+					idempotency_key = excluded.idempotency_key,
+					draft_body = excluded.draft_body,
+					final_body = excluded.final_body,
+					policy_verdict = excluded.policy_verdict,
+					send_status = excluded.send_status,
+					artifact_refs = excluded.artifact_refs,
+					created_at = excluded.created_at`,
 				item.ID, item.TraceID, nullString(item.WorkflowID), nullString(item.ConversationID), nullString(item.CaseID), nullString(item.ChannelID), nullString(item.ThreadTS), item.IdempotencyKey, nullString(item.DraftBody), nullString(item.FinalBody), nullString(item.PolicyVerdict), nullString(item.SendStatus), jsonString(item.ArtifactRefs), item.CreatedAt,
 			); err != nil {
 				return err
@@ -1753,7 +1986,17 @@ func persistEvalRuns(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.evalRuns)
 	for _, key := range keys {
 		item := store.evalRuns[key]
-		if _, err := tx.Exec(`insert into eval_run (id, trace_id, event_id, suite_name, status, trigger, overall_score, overall_verdict, created_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+		if _, err := tx.Exec(`insert into eval_run (id, trace_id, event_id, suite_name, status, trigger, overall_score, overall_verdict, created_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+			on conflict (id) do update set
+				trace_id = excluded.trace_id,
+				event_id = excluded.event_id,
+				suite_name = excluded.suite_name,
+				status = excluded.status,
+				trigger = excluded.trigger,
+				overall_score = excluded.overall_score,
+				overall_verdict = excluded.overall_verdict,
+				created_at = excluded.created_at,
+				completed_at = excluded.completed_at`,
 			item.ID, item.TraceID, nullString(item.EventID), item.SuiteName, string(item.Status), item.Trigger, item.OverallScore, item.OverallVerdict, item.CreatedAt, nullTimeValue(item.CompletedAt),
 		); err != nil {
 			return err
@@ -1766,7 +2009,15 @@ func persistEvalJudgments(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.evalJudgments)
 	for _, key := range keys {
 		for _, item := range store.evalJudgments[key] {
-			if _, err := tx.Exec(`insert into eval_judgment (id, eval_run_id, layer, category, score, passed, rationale, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8)`,
+			if _, err := tx.Exec(`insert into eval_judgment (id, eval_run_id, layer, category, score, passed, rationale, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8)
+				on conflict (id) do update set
+					eval_run_id = excluded.eval_run_id,
+					layer = excluded.layer,
+					category = excluded.category,
+					score = excluded.score,
+					passed = excluded.passed,
+					rationale = excluded.rationale,
+					created_at = excluded.created_at`,
 				item.ID, item.EvalRunID, string(item.Layer), item.Category, item.Score, item.Passed, item.Rationale, item.CreatedAt,
 			); err != nil {
 				return err
@@ -1821,7 +2072,28 @@ func persistProposals(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.proposals)
 	for _, key := range keys {
 		item := store.proposals[key]
-		if _, err := tx.Exec(`insert into proposal (id, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, created_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12,$13::jsonb,$14,$15,$16::jsonb,$17,$18,$19::jsonb,$20,$21)`,
+		if _, err := tx.Exec(`insert into proposal (id, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, created_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12,$13::jsonb,$14,$15,$16::jsonb,$17,$18,$19::jsonb,$20,$21)
+			on conflict (id) do update set
+				trace_id = excluded.trace_id,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				origin_trace_id = excluded.origin_trace_id,
+				evidence_trace_ids = excluded.evidence_trace_ids,
+				title = excluded.title,
+				category = excluded.category,
+				summary = excluded.summary,
+				status = excluded.status,
+				reviewer = excluded.reviewer,
+				candidate_key = excluded.candidate_key,
+				source_eval_ids = excluded.source_eval_ids,
+				risk_tier = excluded.risk_tier,
+				proposed_scope = excluded.proposed_scope,
+				evidence_artifact_ids = excluded.evidence_artifact_ids,
+				active_slot_consuming = excluded.active_slot_consuming,
+				review_deadline = excluded.review_deadline,
+				prior_similar_proposal_ids = excluded.prior_similar_proposal_ids,
+				new_evidence_since_last_rejection = excluded.new_evidence_since_last_rejection,
+				created_at = excluded.created_at`,
 			item.ID, item.TraceID, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), jsonString(item.EvidenceTraceIDs), item.Title, item.Category, item.Summary, string(item.Status), nullString(item.Reviewer), item.CandidateKey, jsonString(item.SourceEvalIDs), item.RiskTier, item.ProposedScope, jsonString(item.EvidenceArtifactIDs), item.ActiveSlotConsuming, nullTimeValue(item.ReviewDeadline), jsonString(item.PriorSimilarProposalIDs), item.NewEvidenceSinceLastRejection, item.CreatedAt,
 		); err != nil {
 			return err
@@ -1857,7 +2129,10 @@ func persistProposalMemory(tx *sql.Tx, store *MemoryStore) error {
 
 func persistSettings(tx *sql.Tx, store *MemoryStore) error {
 	item := normalizedSettings(store.settings)
-	if _, err := tx.Exec(`insert into improvement_settings (key, active_proposal_cap, updated_at) values ($1,$2,$3)`,
+	if _, err := tx.Exec(`insert into improvement_settings (key, active_proposal_cap, updated_at) values ($1,$2,$3)
+		on conflict (key) do update set
+			active_proposal_cap = excluded.active_proposal_cap,
+			updated_at = excluded.updated_at`,
 		"default", item.ActiveProposalCap, item.UpdatedAt,
 	); err != nil {
 		return err
@@ -1869,7 +2144,32 @@ func persistWorkItems(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.workItems)
 	for _, key := range keys {
 		item := store.workItems[key]
-		if _, err := tx.Exec(`insert into work_item (id, queue, kind, status, trace_id, workflow_id, ingestion_id, conversation_id, case_id, trigger_event_id, proposal_id, thread_key, intent, repo_scope, requested_by, approval_mode, response_mode, payload, attempts, lease_owner, lease_expires_at, last_error, created_at, updated_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18::jsonb,$19,$20,$21,$22,$23,$24,$25)`,
+		if _, err := tx.Exec(`insert into work_item (id, queue, kind, status, trace_id, workflow_id, ingestion_id, conversation_id, case_id, trigger_event_id, proposal_id, thread_key, intent, repo_scope, requested_by, approval_mode, response_mode, payload, attempts, lease_owner, lease_expires_at, last_error, created_at, updated_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18::jsonb,$19,$20,$21,$22,$23,$24,$25)
+			on conflict (id) do update set
+				queue = excluded.queue,
+				kind = excluded.kind,
+				status = excluded.status,
+				trace_id = excluded.trace_id,
+				workflow_id = excluded.workflow_id,
+				ingestion_id = excluded.ingestion_id,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				trigger_event_id = excluded.trigger_event_id,
+				proposal_id = excluded.proposal_id,
+				thread_key = excluded.thread_key,
+				intent = excluded.intent,
+				repo_scope = excluded.repo_scope,
+				requested_by = excluded.requested_by,
+				approval_mode = excluded.approval_mode,
+				response_mode = excluded.response_mode,
+				payload = excluded.payload,
+				attempts = excluded.attempts,
+				lease_owner = excluded.lease_owner,
+				lease_expires_at = excluded.lease_expires_at,
+				last_error = excluded.last_error,
+				created_at = excluded.created_at,
+				updated_at = excluded.updated_at,
+				completed_at = excluded.completed_at`,
 			item.ID, string(item.Queue), item.Kind, string(item.Status), nullString(item.TraceID), nullString(item.WorkflowID), nullString(item.IngestionID), nullString(item.ConversationID), nullString(item.CaseID), nullString(item.TriggerEventID), nullString(item.ProposalID), nullString(item.ThreadKey), nullString(item.Intent), nullString(item.RepoScope), nullString(item.RequestedBy), nullString(item.ApprovalMode), nullString(item.ResponseMode), jsonString(item.Payload), item.Attempts, nullString(item.LeaseOwner), nullTime(item.LeaseExpiresAt), nullString(item.LastError), item.CreatedAt, item.UpdatedAt, nullTime(item.CompletedAt),
 		); err != nil {
 			return err
@@ -1882,7 +2182,20 @@ func persistRepoChangeJobs(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.repoChangeJobs)
 	for _, key := range keys {
 		item := store.repoChangeJobs[key]
-		if _, err := tx.Exec(`insert into repo_change_job (id, proposal_id, conversation_id, case_id, origin_trace_id, candidate_key, status, repo, base_ref, branch_name, allowed_path_globs, context_summary, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb,$12,$13)`,
+		if _, err := tx.Exec(`insert into repo_change_job (id, proposal_id, conversation_id, case_id, origin_trace_id, candidate_key, status, repo, base_ref, branch_name, allowed_path_globs, context_summary, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb,$12,$13)
+			on conflict (id) do update set
+				proposal_id = excluded.proposal_id,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				origin_trace_id = excluded.origin_trace_id,
+				candidate_key = excluded.candidate_key,
+				status = excluded.status,
+				repo = excluded.repo,
+				base_ref = excluded.base_ref,
+				branch_name = excluded.branch_name,
+				allowed_path_globs = excluded.allowed_path_globs,
+				context_summary = excluded.context_summary,
+				created_at = excluded.created_at`,
 			item.ID, item.ProposalID, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), item.CandidateKey, item.Status, item.Repo, item.BaseRef, item.BranchName, jsonString(item.AllowedPathGlobs), item.ContextSummary, item.CreatedAt,
 		); err != nil {
 			return err
@@ -1895,7 +2208,18 @@ func persistPRAttempts(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.prAttempts)
 	for _, key := range keys {
 		item := store.prAttempts[key]
-		if _, err := tx.Exec(`insert into pr_attempt (id, proposal_id, conversation_id, case_id, origin_trace_id, repo, branch_name, pr_url, status, validation_status, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+		if _, err := tx.Exec(`insert into pr_attempt (id, proposal_id, conversation_id, case_id, origin_trace_id, repo, branch_name, pr_url, status, validation_status, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+			on conflict (id) do update set
+				proposal_id = excluded.proposal_id,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				origin_trace_id = excluded.origin_trace_id,
+				repo = excluded.repo,
+				branch_name = excluded.branch_name,
+				pr_url = excluded.pr_url,
+				status = excluded.status,
+				validation_status = excluded.validation_status,
+				created_at = excluded.created_at`,
 			item.ID, item.ProposalID, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), item.Repo, item.BranchName, nullString(item.PRURL), item.Status, item.ValidationStatus, item.CreatedAt,
 		); err != nil {
 			return err
@@ -1908,7 +2232,16 @@ func persistPostMergeReplays(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.postMergeReplay)
 	for _, key := range keys {
 		item := store.postMergeReplay[key]
-		if _, err := tx.Exec(`insert into post_merge_replay (id, proposal_id, trace_id, conversation_id, case_id, baseline_score, candidate_score, improved, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+		if _, err := tx.Exec(`insert into post_merge_replay (id, proposal_id, trace_id, conversation_id, case_id, baseline_score, candidate_score, improved, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+			on conflict (id) do update set
+				proposal_id = excluded.proposal_id,
+				trace_id = excluded.trace_id,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				baseline_score = excluded.baseline_score,
+				candidate_score = excluded.candidate_score,
+				improved = excluded.improved,
+				created_at = excluded.created_at`,
 			item.ID, item.ProposalID, item.TraceID, nullString(item.ConversationID), nullString(item.CaseID), item.BaselineScore, item.CandidateScore, item.Improved, item.CreatedAt,
 		); err != nil {
 			return err
@@ -1921,7 +2254,10 @@ func persistCronLeases(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.cronLeases)
 	for _, key := range keys {
 		item := store.cronLeases[key]
-		if _, err := tx.Exec(`insert into cron_lease (name, holder, expires_at) values ($1,$2,$3)`,
+		if _, err := tx.Exec(`insert into cron_lease (name, holder, expires_at) values ($1,$2,$3)
+			on conflict (name) do update set
+				holder = excluded.holder,
+				expires_at = excluded.expires_at`,
 			item.Name, item.Holder, item.ExpiresAt,
 		); err != nil {
 			return err
@@ -2460,10 +2796,12 @@ func (p *PostgresStore) GetActionIntent(actionID string) (action.Intent, bool) {
 }
 
 func (p *PostgresStore) UpsertActionIntent(intent action.Intent) (item action.Intent, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		item, inner = store.UpsertActionIntent(intent)
-		return inner
+	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
+		item, err = store.UpsertActionIntent(intent)
+		if err != nil {
+			return err
+		}
+		return replaceActionIntentScope(tx, item)
 	})
 	return
 }
@@ -2477,10 +2815,21 @@ func (p *PostgresStore) ListActionResults(actionIntentID string) []action.Result
 }
 
 func (p *PostgresStore) RecordActionResult(result action.Result) (item action.Result, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		item, inner = store.RecordActionResult(result)
-		return inner
+	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
+		item, err = store.RecordActionResult(result)
+		if err != nil {
+			return err
+		}
+		// Keep action_result persistence on plain insert semantics so RSI can
+		// still reproduce and self-repair the original primary-key collision.
+		if err := insertActionResult(tx, item); err != nil {
+			return err
+		}
+		intent, ok := store.actionIntents[item.ActionIntentID]
+		if !ok {
+			return nil
+		}
+		return replaceActionIntentScope(tx, intent)
 	})
 	return
 }
@@ -2494,10 +2843,21 @@ func (p *PostgresStore) ListOutcomes() []outcome.Record {
 }
 
 func (p *PostgresStore) RecordOutcome(record outcome.Record) (item outcome.Record, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		item, inner = store.RecordOutcome(record)
-		return inner
+	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
+		item, err = store.RecordOutcome(record)
+		if err != nil {
+			return err
+		}
+		if err := replaceOutcomeScope(tx, item); err != nil {
+			return err
+		}
+		if err := replaceCaseScope(tx, item, store); err != nil {
+			return err
+		}
+		if item.ProposalID != "" {
+			return replaceProposalScope(tx, store, item.ProposalID)
+		}
+		return nil
 	})
 	return
 }
@@ -2519,10 +2879,15 @@ func (p *PostgresStore) GetKnowledgeEntry(knowledgeID string) (knowledge.Entry, 
 }
 
 func (p *PostgresStore) UpsertKnowledgeEntry(entry knowledge.Entry, links []knowledge.EvidenceLink) (item knowledge.Entry, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		item, inner = store.UpsertKnowledgeEntry(entry, links)
-		return inner
+	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
+		item, err = store.UpsertKnowledgeEntry(entry, links)
+		if err != nil {
+			return err
+		}
+		if err := replaceKnowledgeEntryScope(tx, item); err != nil {
+			return err
+		}
+		return replaceKnowledgeEvidenceScope(tx, store, item.ID)
 	})
 	return
 }
@@ -2544,19 +2909,30 @@ func (p *PostgresStore) ListKnowledgeReviews(knowledgeID string) []knowledge.Rev
 }
 
 func (p *PostgresStore) ReviewKnowledgeEntry(knowledgeID string, item knowledge.Review) (entry knowledge.Entry, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		entry, inner = store.ReviewKnowledgeEntry(knowledgeID, item)
-		return inner
+	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
+		entry, err = store.ReviewKnowledgeEntry(knowledgeID, item)
+		if err != nil {
+			return err
+		}
+		if err := replaceKnowledgeEntryScope(tx, entry); err != nil {
+			return err
+		}
+		if err := replaceKnowledgeEvidenceScope(tx, store, knowledgeID); err != nil {
+			return err
+		}
+		return replaceKnowledgeReviewScope(tx, store, knowledgeID)
 	})
 	return
 }
 
 func (p *PostgresStore) CreateEvent(event ingestion.EventEnvelope) (created ingestion.EventEnvelope, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
+	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
 		var createErr error
 		created, createErr = store.CreateEvent(event)
-		return createErr
+		if createErr != nil {
+			return createErr
+		}
+		return replaceEventMaterializationScope(tx, store, created)
 	})
 	return
 }
@@ -2571,8 +2947,16 @@ func (p *PostgresStore) ListIngestions() []slack.Ingestion {
 
 func (p *PostgresStore) CreateIngestion(envelope slack.SlackEnvelope) slack.Ingestion {
 	var created slack.Ingestion
-	_ = p.mutate(func(store *MemoryStore) error {
+	_ = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
 		created = store.CreateIngestion(envelope)
+		if created.EventID == "" {
+			return nil
+		}
+		for _, item := range store.events {
+			if item.ID == created.EventID {
+				return replaceEventMaterializationScope(tx, store, item)
+			}
+		}
 		return nil
 	})
 	return created
@@ -2611,10 +2995,13 @@ func (p *PostgresStore) ListChannelPolicies() []policy.ChannelPolicy {
 }
 
 func (p *PostgresStore) SetThreadState(threadKey string, state policy.ThreadState, owner string) (item policy.ThreadPolicy, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
+	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
 		var inner error
 		item, inner = store.SetThreadState(threadKey, state, owner)
-		return inner
+		if inner != nil {
+			return inner
+		}
+		return replaceThreadPolicyScope(tx, item)
 	})
 	return
 }
@@ -2692,37 +3079,49 @@ func (p *PostgresStore) ListFeedback(traceID string) []review.FeedbackRecord {
 }
 
 func (p *PostgresStore) AddFeedback(record review.FeedbackRecord) (item review.FeedbackRecord, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		item, inner = store.AddFeedback(record)
-		return inner
+	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
+		item, err = store.AddFeedback(record)
+		if err != nil {
+			return err
+		}
+		return replaceFeedbackScope(tx, store, item.TraceID)
 	})
 	return
 }
 
 func (p *PostgresStore) AddRating(traceID string, rating review.HumanRating) (item review.HumanRating, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		item, inner = store.AddRating(traceID, rating)
-		return inner
+	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
+		item, err = store.AddRating(traceID, rating)
+		if err != nil {
+			return err
+		}
+		return replaceRatingScope(tx, store, traceID)
 	})
 	return
 }
 
 func (p *PostgresStore) AddImprovementNote(traceID string, note review.ImprovementNote) (item review.ImprovementNote, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		item, inner = store.AddImprovementNote(traceID, note)
-		return inner
+	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
+		item, err = store.AddImprovementNote(traceID, note)
+		if err != nil {
+			return err
+		}
+		return replaceImprovementNotesScope(tx, store, traceID)
 	})
 	return
 }
 
 func (p *PostgresStore) ScheduleReplay(traceID string, requestedBy string) (item queue.WorkItem, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
+	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
 		var inner error
 		item, inner = store.ScheduleReplay(traceID, requestedBy)
-		return inner
+		if inner != nil {
+			return inner
+		}
+		if err := replaceWorkItemScope(tx, item); err != nil {
+			return err
+		}
+		return replaceTraceScope(tx, store, traceID)
 	})
 	return
 }
@@ -2752,10 +3151,15 @@ func (p *PostgresStore) ListEvalJudgments(evalRunID string) []evals.Judgment {
 }
 
 func (p *PostgresStore) EvaluateTrace(traceID string, trigger string) (run evals.Run, judgments []evals.Judgment, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		run, judgments, inner = store.EvaluateTrace(traceID, trigger)
-		return inner
+	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
+		run, judgments, err = store.EvaluateTrace(traceID, trigger)
+		if err != nil {
+			return err
+		}
+		if err := replaceEvalRunScope(tx, run, judgments); err != nil {
+			return err
+		}
+		return replaceAllCandidates(tx, store)
 	})
 	return
 }
@@ -2769,10 +3173,12 @@ func (p *PostgresStore) GetSettings() improvement.Settings {
 }
 
 func (p *PostgresStore) UpdateSettings(settings improvement.Settings) (item improvement.Settings, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		item, inner = store.UpdateSettings(settings)
-		return inner
+	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
+		item, err = store.UpdateSettings(settings)
+		if err != nil {
+			return err
+		}
+		return replaceSettingsScope(tx, item)
 	})
 	return
 }
@@ -2786,55 +3192,164 @@ func (p *PostgresStore) ListWorkItems() []queue.WorkItem {
 }
 
 func (p *PostgresStore) EnqueueWorkItem(item queue.WorkItem) (created queue.WorkItem, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		created, inner = store.EnqueueWorkItem(item)
-		return inner
+	err = p.withTx(func(tx *sql.Tx) error {
+		now := time.Now().UTC()
+		if item.ID == "" {
+			item.ID = nextID("work", 0)
+		}
+		if item.Status == "" {
+			item.Status = queue.WorkQueued
+		}
+		if item.CreatedAt.IsZero() {
+			item.CreatedAt = now
+		}
+		if item.UpdatedAt.IsZero() {
+			item.UpdatedAt = item.CreatedAt
+		}
+		if item.Payload == nil {
+			item.Payload = map[string]interface{}{}
+		}
+		existing, ok, findErr := findExistingWorkItemByDedupe(tx, item)
+		if findErr != nil {
+			return findErr
+		}
+		if ok {
+			created = existing
+			return nil
+		}
+		if err := replaceWorkItemScope(tx, item); err != nil {
+			return err
+		}
+		created = item
+		return nil
 	})
 	return
 }
 
 func (p *PostgresStore) ClaimNextWorkItem(queues []queue.QueueName, holder string, lease time.Duration) (item queue.WorkItem, ok bool, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		item, ok, inner = store.ClaimNextWorkItem(queues, holder, lease)
-		return inner
+	if holder == "" {
+		return queue.WorkItem{}, false, fmt.Errorf("holder is required")
+	}
+	if lease <= 0 {
+		lease = 30 * time.Second
+	}
+	err = p.withTx(func(tx *sql.Tx) error {
+		now := time.Now().UTC()
+		expires := now.Add(lease)
+		queueClause, queueArgs := queuePredicate(queues, 1)
+		statusQueuedArg := len(queueArgs) + 1
+		statusLeasedArg := len(queueArgs) + 2
+		nowArg := len(queueArgs) + 3
+		leasedStatusArg := len(queueArgs) + 4
+		holderArg := len(queueArgs) + 5
+		expiresArg := len(queueArgs) + 6
+		updatedArg := len(queueArgs) + 7
+		args := append(queueArgs,
+			string(queue.WorkQueued),
+			string(queue.WorkLeased),
+			now,
+			string(queue.WorkLeased),
+			holder,
+			expires,
+			now,
+		)
+		query := fmt.Sprintf(`
+with next_item as (
+	select id
+	from work_item
+	where %s
+	  and (status = $%d or (status = $%d and lease_expires_at is not null and lease_expires_at < $%d))
+	order by created_at asc, id asc
+	for update skip locked
+	limit 1
+)
+update work_item wi
+set status = $%d,
+	attempts = wi.attempts + 1,
+	lease_owner = $%d,
+	lease_expires_at = $%d,
+	updated_at = $%d,
+	completed_at = null
+from next_item
+where wi.id = next_item.id
+returning %s`, queueClause, statusQueuedArg, statusLeasedArg, nowArg, leasedStatusArg, holderArg, expiresArg, updatedArg, workItemSelectColumns())
+		row := tx.QueryRow(query, args...)
+		var scanErr error
+		item, scanErr = scanWorkItem(row)
+		if scanErr == sql.ErrNoRows {
+			ok = false
+			return nil
+		}
+		if scanErr != nil {
+			return scanErr
+		}
+		ok = true
+		return nil
 	})
 	return
 }
 
 func (p *PostgresStore) CompleteWorkItem(id string) (item queue.WorkItem, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		item, inner = store.CompleteWorkItem(id)
-		return inner
+	err = p.withTx(func(tx *sql.Tx) error {
+		now := time.Now().UTC()
+		row := tx.QueryRow(
+			`update work_item set status = $2, lease_owner = null, lease_expires_at = null, updated_at = $3, completed_at = $3 where id = $1 returning `+workItemSelectColumns(),
+			id,
+			string(queue.WorkCompleted),
+			now,
+		)
+		item, err = scanWorkItem(row)
+		return err
 	})
 	return
 }
 
 func (p *PostgresStore) FailWorkItem(id string, lastError string) (item queue.WorkItem, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		item, inner = store.FailWorkItem(id, lastError)
-		return inner
+	err = p.withTx(func(tx *sql.Tx) error {
+		now := time.Now().UTC()
+		row := tx.QueryRow(
+			`update work_item set status = $2, lease_owner = null, lease_expires_at = null, last_error = $3, updated_at = $4, completed_at = $4 where id = $1 returning `+workItemSelectColumns(),
+			id,
+			string(queue.WorkFailed),
+			lastError,
+			now,
+		)
+		item, err = scanWorkItem(row)
+		return err
 	})
 	return
 }
 
 func (p *PostgresStore) UpdateWorkflowStatus(workflowID string, status string, lastError string) (item Workflow, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		item, inner = store.UpdateWorkflowStatus(workflowID, status, lastError)
-		return inner
+	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
+		item, err = store.UpdateWorkflowStatus(workflowID, status, lastError)
+		if err != nil {
+			return err
+		}
+		return replaceWorkflowScope(tx, item)
 	})
 	return
 }
 
 func (p *PostgresStore) ApplyTraceUpdate(traceID string, update TraceUpdate) (trace events.Trace, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		trace, inner = store.ApplyTraceUpdate(traceID, update)
-		return inner
+	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
+		trace, err = store.ApplyTraceUpdate(traceID, update)
+		if err != nil {
+			return err
+		}
+		if err := replaceTraceAndWorkflowScope(tx, store, trace); err != nil {
+			return err
+		}
+		if trace.Summary.CaseID != "" {
+			if caseItem, ok := store.cases[trace.Summary.CaseID]; ok {
+				temp := newSubsetStore()
+				temp.cases[caseItem.ID] = caseItem
+				if err := persistCases(tx, temp); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
 	})
 	return
 }
@@ -2864,19 +3379,26 @@ func (p *PostgresStore) GetProposalSlots() ProposalSlotState {
 }
 
 func (p *PostgresStore) PromoteCandidates(requestedBy string, limit int) (result PromotionResult, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		result, inner = store.PromoteCandidates(requestedBy, limit)
-		return inner
+	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
+		result, err = store.PromoteCandidates(requestedBy, limit)
+		if err != nil {
+			return err
+		}
+		if err := replaceAllCandidates(tx, store); err != nil {
+			return err
+		}
+		return replaceAllProposals(tx, store)
 	})
 	return
 }
 
 func (p *PostgresStore) RunProposalPromoter(holder string) (result PromotionResult, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		result, inner = store.RunProposalPromoter(holder)
-		return inner
+	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
+		result, err = store.RunProposalPromoter(holder)
+		if err != nil {
+			return err
+		}
+		return replaceProposalPromoterScope(tx, store)
 	})
 	return
 }
@@ -2890,37 +3412,97 @@ func (p *PostgresStore) ListProposals() []review.Proposal {
 }
 
 func (p *PostgresStore) ReviewProposal(proposalID string, decision review.ProposalReview) (proposal review.Proposal, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		proposal, inner = store.ReviewProposal(proposalID, decision)
-		return inner
+	err = p.withProposalLockedStoreTx(proposalID, func(tx *sql.Tx, store *MemoryStore) error {
+		if existing, alreadyApplied := proposalDecisionAlreadyApplied(store, proposalID, decision); alreadyApplied {
+			proposal = existing
+			return nil
+		}
+		proposal, err = store.ReviewProposal(proposalID, decision)
+		if err != nil {
+			return err
+		}
+		if err := replaceProposalScope(tx, store, proposalID); err != nil {
+			return err
+		}
+		if err := replaceProposalReviewScope(tx, store, proposalID); err != nil {
+			return err
+		}
+		if err := replaceProposalMemoryScope(tx, store, proposalID); err != nil {
+			return err
+		}
+		if err := replaceCandidateScope(tx, store, proposal.CandidateKey); err != nil {
+			return err
+		}
+		if err := replacePostMergeReplayScope(tx, store, proposalID); err != nil {
+			return err
+		}
+		for _, item := range store.workItems {
+			if item.ProposalID == proposalID && item.Queue == queue.ProposalQueue {
+				if err := replaceWorkItemScope(tx, item); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
 	})
 	return
 }
 
 func (p *PostgresStore) UpdateProposalStatus(proposalID string, status review.ProposalStatus) (proposal review.Proposal, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		proposal, inner = store.UpdateProposalStatus(proposalID, status)
-		return inner
+	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
+		proposal, err = store.UpdateProposalStatus(proposalID, status)
+		if err != nil {
+			return err
+		}
+		return replaceProposalScope(tx, store, proposalID)
 	})
 	return
 }
 
 func (p *PostgresStore) MaterializeApprovedProposal(proposalID string, requestedBy string) (job improvement.RepoChangeJob, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		job, inner = store.MaterializeApprovedProposal(proposalID, requestedBy)
-		return inner
+	err = p.withProposalLockedStoreTx(proposalID, func(tx *sql.Tx, store *MemoryStore) error {
+		job, err = store.MaterializeApprovedProposal(proposalID, requestedBy)
+		if err != nil {
+			return err
+		}
+		if err := replaceProposalScope(tx, store, proposalID); err != nil {
+			return err
+		}
+		if err := replaceRepoChangeJobScope(tx, store, proposalID); err != nil {
+			return err
+		}
+		for _, item := range store.workItems {
+			if item.ProposalID == proposalID && item.Queue == queue.SandboxQueue {
+				if err := replaceWorkItemScope(tx, item); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
 	})
 	return
 }
 
 func (p *PostgresStore) RetryProposalRepoChange(proposalID string, requestedBy string) (item queue.WorkItem, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		item, inner = store.RetryProposalRepoChange(proposalID, requestedBy)
-		return inner
+	err = p.withProposalLockedStoreTx(proposalID, func(tx *sql.Tx, store *MemoryStore) error {
+		item, err = store.RetryProposalRepoChange(proposalID, requestedBy)
+		if err != nil {
+			return err
+		}
+		if err := replaceProposalScope(tx, store, proposalID); err != nil {
+			return err
+		}
+		if err := replaceRepoChangeJobScope(tx, store, proposalID); err != nil {
+			return err
+		}
+		for _, queued := range store.workItems {
+			if queued.ProposalID == proposalID && queued.Queue == queue.SandboxQueue {
+				if err := replaceWorkItemScope(tx, queued); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
 	})
 	return
 }
@@ -2934,10 +3516,14 @@ func (p *PostgresStore) ListRepoChangeJobs() []improvement.RepoChangeJob {
 }
 
 func (p *PostgresStore) UpdateRepoChangeJobStatus(jobID string, status string) (item improvement.RepoChangeJob, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		item, inner = store.UpdateRepoChangeJobStatus(jobID, status)
-		return inner
+	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
+		item, err = store.UpdateRepoChangeJobStatus(jobID, status)
+		if err != nil {
+			return err
+		}
+		temp := newSubsetStore()
+		temp.repoChangeJobs[item.ID] = item
+		return persistRepoChangeJobs(tx, temp)
 	})
 	return
 }
@@ -2951,10 +3537,12 @@ func (p *PostgresStore) ListPRAttempts() []improvement.PRAttempt {
 }
 
 func (p *PostgresStore) RecordPRAttempt(attempt improvement.PRAttempt) (item improvement.PRAttempt, err error) {
-	err = p.mutate(func(store *MemoryStore) error {
-		var inner error
-		item, inner = store.RecordPRAttempt(attempt)
-		return inner
+	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
+		item, err = store.RecordPRAttempt(attempt)
+		if err != nil {
+			return err
+		}
+		return replacePRAttemptScope(tx, item)
 	})
 	return
 }
@@ -2969,8 +3557,23 @@ func (p *PostgresStore) ListPostMergeReplays() []improvement.PostMergeReplay {
 
 func (p *PostgresStore) ExecuteTool(name string, input map[string]interface{}) ToolResult {
 	var result ToolResult
-	_ = p.mutate(func(store *MemoryStore) error {
+	_ = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
+		beforeAttempts := len(store.prAttempts)
 		result = store.ExecuteTool(name, input)
+		if name == "github.create_pr" {
+			if proposalID, _ := input["proposal_id"].(string); proposalID != "" {
+				if err := replaceProposalScope(tx, store, proposalID); err != nil {
+					return err
+				}
+			}
+			if len(store.prAttempts) > beforeAttempts {
+				temp := newSubsetStore()
+				temp.prAttempts = store.prAttempts
+				if err := persistPRAttempts(tx, temp); err != nil {
+					return err
+				}
+			}
+		}
 		return nil
 	})
 	return result

@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/piplabs/rsi-agent-platform/internal/action"
 	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	"github.com/piplabs/rsi-agent-platform/internal/evals"
@@ -2776,7 +2777,12 @@ func normalizeEvidenceRefs(items []events.EvidenceRef) []events.EvidenceRef {
 }
 
 func nextID(prefix string, n int) string {
-	return fmt.Sprintf("%s-%03d", prefix, n)
+	if prefix == "action-result" {
+		// Keep action_result IDs on the legacy sequential scheme so RSI can still
+		// reproduce and self-repair the original collision through the recursive path.
+		return fmt.Sprintf("%s-%03d", prefix, n)
+	}
+	return fmt.Sprintf("%s-%s", prefix, strings.ReplaceAll(uuid.NewString(), "-", ""))
 }
 
 func workItemDedupeKey(item queue.WorkItem) string {

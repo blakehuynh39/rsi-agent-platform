@@ -20,6 +20,7 @@ This repo is pinned to Go `1.26.2`.
 
 ```bash
 make ci
+make db-migrate
 go run ./cmd/improvement-plane
 ```
 
@@ -29,11 +30,16 @@ Use the shared Postgres-backed store in production:
 export RSI_ENV=production
 export RSI_STORE_BACKEND=postgres
 export RSI_POSTGRES_URL=postgres://localhost:5432/rsi_agent_platform
+go run ./cmd/improvement-plane --mode migrate
 go run ./cmd/control-plane
 go run ./cmd/control-plane --mode slack-surface
 go run ./cmd/improvement-plane
 go run ./cmd/improvement-plane --mode cron --once
 ```
+
+Normal service startup no longer applies schema. Database changes are forward-only SQL
+migrations under `internal/db/migrations`, and `improvement-plane --mode migrate` is the
+only schema mutator in local, stage, and prod.
 
 Build the UI when frontend changes land:
 
@@ -68,6 +74,11 @@ GitHub Actions is split into:
 
 - PR/push CI in `.github/workflows/ci.yml`
 - stage image build + deploy-repo bump in `.github/workflows/cd.yml`
+
+CI also runs Postgres-backed migration and store integration tests. Set
+`RSI_TEST_POSTGRES_URL` locally and run `make test-postgres` to exercise the same path.
+The stage acceptance runbook for the persistence hardening rollout lives at
+[`docs/persistence-hardening-stage-acceptance.md`](./docs/persistence-hardening-stage-acceptance.md).
 
 The CD workflow builds and pushes five stage images on `main`:
 
