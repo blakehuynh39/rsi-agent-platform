@@ -313,7 +313,16 @@ class HermesRuntime:
             parts.append(f"Reasoning verbosity: {task.reasoning_verbosity}")
         parts.append(f"Timeout seconds: {task.timeout_seconds}")
         parts.append(
-            "Return a JSON object with keys: visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique."
+            "Return a JSON object with keys: visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, outcome_hypotheses."
+        )
+        parts.append(
+            "Each proposed action must include: kind, target_ref, request_payload, approval_mode, idempotency_key, rationale, evidence_refs."
+        )
+        parts.append(
+            "Each knowledge draft must include: kind, scope_type, scope_id, title, summary, body, confidence, fresh_until, evidence_refs."
+        )
+        parts.append(
+            "Each outcome hypothesis must include: outcome_type, success_condition, measurement_ref, expected_time_horizon."
         )
         parts.append(f"Task prompt:\n{task.prompt}")
         return "\n".join(parts)
@@ -342,6 +351,9 @@ class HermesRuntime:
             "confidence": 0.5,
             "context_summary": "",
             "self_critique": "",
+            "proposed_actions": [],
+            "knowledge_drafts": [],
+            "outcome_hypotheses": [],
         }
 
 

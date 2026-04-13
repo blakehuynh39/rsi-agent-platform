@@ -101,6 +101,10 @@ const conversationDetailResponse = {
       }
     }
   ],
+  action_intents: [],
+  action_results: [],
+  outcomes: [],
+  knowledge_entries: [],
   linked_proposals: []
 };
 
@@ -142,6 +146,57 @@ const traceDetailResponse = {
   transcript_slice: conversationDetailResponse.transcript,
   linked_eval_runs: [],
   judgments_by_eval_run: {},
+  action_intents: [
+    {
+      id: "action-001",
+      owner_plane: "control",
+      trace_id: "trace-001",
+      kind: "slack_post",
+      status: "succeeded",
+      created_at: "2026-04-11T12:03:00Z",
+      updated_at: "2026-04-11T12:03:00Z"
+    }
+  ],
+  action_results: [
+    {
+      id: "action-result-001",
+      action_intent_id: "action-001",
+      attempt_number: 1,
+      executor: "tool-gateway",
+      provider: "slack",
+      status: "succeeded",
+      started_at: "2026-04-11T12:03:00Z",
+      completed_at: "2026-04-11T12:03:01Z"
+    }
+  ],
+  outcomes: [
+    {
+      id: "outcome-001",
+      source: "operator",
+      trace_id: "trace-001",
+      outcome_type: "answer_quality",
+      verdict: "positive",
+      score: 1,
+      summary: "The answer resolved the thread.",
+      recorded_at: "2026-04-11T12:15:00Z"
+    }
+  ],
+  knowledge_entries: [
+    {
+      id: "knowledge-001",
+      tier: "working",
+      kind: "fact",
+      scope_type: "case",
+      scope_id: "case-001",
+      title: "Trace rendering note",
+      summary: "Keep evidence grouped by trace attempt.",
+      status: "draft",
+      confidence: 0.82,
+      source_type: "agent",
+      created_at: "2026-04-11T12:16:00Z",
+      updated_at: "2026-04-11T12:16:00Z"
+    }
+  ],
   feedback_records: [],
   linked_proposals: []
 };
@@ -212,7 +267,33 @@ const proposalDetailResponse = {
   pr_attempts: proposalListResponse.pr_attempts,
   post_merge_replays: [],
   linked_trace_summaries: conversationDetailResponse.trace_attempts,
-  linked_eval_runs: []
+  linked_eval_runs: [],
+  action_intents: traceDetailResponse.action_intents,
+  action_results: traceDetailResponse.action_results,
+  outcomes: traceDetailResponse.outcomes,
+  knowledge_entries: traceDetailResponse.knowledge_entries
+};
+
+const knowledgeListResponse = {
+  knowledge_entries: traceDetailResponse.knowledge_entries
+};
+
+const knowledgeDetailResponse = {
+  knowledge_entry: traceDetailResponse.knowledge_entries[0],
+  evidence_links: [
+    {
+      knowledge_entry_id: "knowledge-001",
+      evidence_type: "trace",
+      evidence_id: "trace-001",
+      relevance_summary: "Derived from the successful question trace.",
+      evidence_ref: {
+        kind: "trace",
+        ref: "trace-001",
+        summary: "question"
+      }
+    }
+  ],
+  reviews: []
 };
 
 const runtimeResponse = {
@@ -260,10 +341,12 @@ describe("App", () => {
         url.endsWith("/api/conversations") ? conversationListResponse :
         url.endsWith("/api/cases") ? casesListResponse :
         url.endsWith("/api/proposals") ? proposalListResponse :
+        url.endsWith("/api/knowledge") ? knowledgeListResponse :
         url.endsWith("/api/runtime") ? runtimeResponse :
         url.endsWith("/api/conversations/conv-001") ? conversationDetailResponse :
         url.endsWith("/api/traces/trace-001") ? traceDetailResponse :
         url.endsWith("/api/proposals/proposal-001") ? proposalDetailResponse :
+        url.endsWith("/api/knowledge/knowledge-001") ? knowledgeDetailResponse :
         undefined;
 
       if (!payload) {
@@ -323,5 +406,21 @@ describe("App", () => {
       "href",
       "https://github.com/piplabs/rsi-agent-platform/pull/42"
     );
+  });
+
+  it("shows knowledge detail and trace action evidence", async () => {
+    renderApp();
+
+    fireEvent.click(await screen.findByRole("button", { name: /Need help understanding trace rendering/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /trace-001/i }));
+    fireEvent.click(await screen.findByRole("button", { name: "actions" }));
+
+    expect(await screen.findByText("slack_post")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Knowledge/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /Trace rendering note/i }));
+
+    expect(await screen.findByText("Evidence links")).toBeInTheDocument();
+    expect(screen.getByText("Derived from the successful question trace.")).toBeInTheDocument();
   });
 });

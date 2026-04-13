@@ -5,12 +5,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/piplabs/rsi-agent-platform/internal/action"
 	"github.com/piplabs/rsi-agent-platform/internal/clients"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	"github.com/piplabs/rsi-agent-platform/internal/evals"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
+	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
+	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
@@ -41,19 +44,22 @@ type traceAttemptSummary struct {
 }
 
 type caseSummary struct {
-	CaseID             string                  `json:"case_id"`
-	ConversationID     string                  `json:"conversation_id"`
-	Kind               string                  `json:"kind"`
-	Intent             string                  `json:"intent"`
-	Title              string                  `json:"title"`
-	Summary            string                  `json:"summary"`
-	Status             conversation.CaseStatus `json:"status"`
-	AssignedBot        string                  `json:"assigned_bot"`
-	LatestTraceID      string                  `json:"latest_trace_id,omitempty"`
-	LatestTraceVerdict string                  `json:"latest_trace_verdict,omitempty"`
-	Recurrence         int                     `json:"recurrence"`
-	LinkedProposalIDs  []string                `json:"linked_proposal_ids"`
-	UpdatedAt          time.Time               `json:"updated_at"`
+	CaseID             string                       `json:"case_id"`
+	ConversationID     string                       `json:"conversation_id"`
+	Kind               string                       `json:"kind"`
+	Intent             string                       `json:"intent"`
+	Title              string                       `json:"title"`
+	Summary            string                       `json:"summary"`
+	Status             conversation.CaseStatus      `json:"status"`
+	ResolutionState    conversation.ResolutionState `json:"resolution_state"`
+	AssignedBot        string                       `json:"assigned_bot"`
+	LatestTraceID      string                       `json:"latest_trace_id,omitempty"`
+	LatestTraceVerdict string                       `json:"latest_trace_verdict,omitempty"`
+	LatestOutcomeID    string                       `json:"latest_outcome_id,omitempty"`
+	OutcomeScore       float64                      `json:"outcome_score,omitempty"`
+	Recurrence         int                          `json:"recurrence"`
+	LinkedProposalIDs  []string                     `json:"linked_proposal_ids"`
+	UpdatedAt          time.Time                    `json:"updated_at"`
 }
 
 type conversationListItem struct {
@@ -70,20 +76,28 @@ type conversationListItem struct {
 }
 
 type conversationDetailResponse struct {
-	Conversation    conversation.Conversation `json:"conversation"`
-	ActiveCase      *caseSummary              `json:"active_case,omitempty"`
-	Cases           []caseSummary             `json:"cases"`
-	Transcript      []conversation.Entry      `json:"transcript"`
-	TraceAttempts   []traceAttemptSummary     `json:"trace_attempts"`
-	LinkedProposals []review.Proposal         `json:"linked_proposals"`
+	Conversation     conversation.Conversation `json:"conversation"`
+	ActiveCase       *caseSummary              `json:"active_case,omitempty"`
+	Cases            []caseSummary             `json:"cases"`
+	Transcript       []conversation.Entry      `json:"transcript"`
+	TraceAttempts    []traceAttemptSummary     `json:"trace_attempts"`
+	ActionIntents    []action.Intent           `json:"action_intents"`
+	ActionResults    []action.Result           `json:"action_results"`
+	Outcomes         []outcome.Record          `json:"outcomes"`
+	KnowledgeEntries []knowledge.Entry         `json:"knowledge_entries"`
+	LinkedProposals  []review.Proposal         `json:"linked_proposals"`
 }
 
 type caseDetailResponse struct {
-	Case            caseSummary           `json:"case"`
-	Conversation    conversationListItem  `json:"conversation"`
-	TraceAttempts   []traceAttemptSummary `json:"trace_attempts"`
-	LatestEvalRuns  []evals.Run           `json:"latest_eval_runs"`
-	LinkedProposals []review.Proposal     `json:"linked_proposals"`
+	Case             caseSummary           `json:"case"`
+	Conversation     conversationListItem  `json:"conversation"`
+	TraceAttempts    []traceAttemptSummary `json:"trace_attempts"`
+	LatestEvalRuns   []evals.Run           `json:"latest_eval_runs"`
+	ActionIntents    []action.Intent       `json:"action_intents"`
+	ActionResults    []action.Result       `json:"action_results"`
+	Outcomes         []outcome.Record      `json:"outcomes"`
+	KnowledgeEntries []knowledge.Entry     `json:"knowledge_entries"`
+	LinkedProposals  []review.Proposal     `json:"linked_proposals"`
 }
 
 type traceDetailResponse struct {
@@ -93,6 +107,10 @@ type traceDetailResponse struct {
 	TranscriptSlice    []conversation.Entry        `json:"transcript_slice"`
 	LinkedEvalRuns     []evals.Run                 `json:"linked_eval_runs"`
 	JudgmentsByEvalRun map[string][]evals.Judgment `json:"judgments_by_eval_run"`
+	ActionIntents      []action.Intent             `json:"action_intents"`
+	ActionResults      []action.Result             `json:"action_results"`
+	Outcomes           []outcome.Record            `json:"outcomes"`
+	KnowledgeEntries   []knowledge.Entry           `json:"knowledge_entries"`
 	FeedbackRecords    []review.FeedbackRecord     `json:"feedback_records"`
 	LinkedProposals    []review.Proposal           `json:"linked_proposals"`
 }
@@ -106,6 +124,10 @@ type proposalDetailResponse struct {
 	PostMergeReplays      []improvement.PostMergeReplay `json:"post_merge_replays"`
 	LinkedTraceSummaries  []traceAttemptSummary         `json:"linked_trace_summaries"`
 	LinkedEvalRuns        []evals.Run                   `json:"linked_eval_runs"`
+	ActionIntents         []action.Intent               `json:"action_intents"`
+	ActionResults         []action.Result               `json:"action_results"`
+	Outcomes              []outcome.Record              `json:"outcomes"`
+	KnowledgeEntries      []knowledge.Entry             `json:"knowledge_entries"`
 }
 
 type runtimeRoleStatus struct {
@@ -189,12 +211,16 @@ func buildConversationDetail(store storepkg.Repository, conversationID string) (
 	caseIndex := buildCaseSummaryIndex(store, store.ListTraces(), proposals)
 	cases := casesForConversation(store.ListCases(), conversationID, caseIndex)
 	return conversationDetailResponse{
-		Conversation:    item,
-		ActiveCase:      caseIndex[item.ActiveCaseID],
-		Cases:           cases,
-		Transcript:      sliceOrEmpty(store.ListConversationEntries(conversationID)),
-		TraceAttempts:   traceSummaries,
-		LinkedProposals: filterProposalsByConversation(proposals, conversationID),
+		Conversation:     item,
+		ActiveCase:       caseIndex[item.ActiveCaseID],
+		Cases:            cases,
+		Transcript:       sliceOrEmpty(store.ListConversationEntries(conversationID)),
+		TraceAttempts:    traceSummaries,
+		ActionIntents:    sliceOrEmpty(listActionIntents(store, actionFilters{ConversationID: conversationID})),
+		ActionResults:    sliceOrEmpty(flattenActionResults(store, listActionIntents(store, actionFilters{ConversationID: conversationID}))),
+		Outcomes:         sliceOrEmpty(listOutcomes(store, conversationID, "", "", "")),
+		KnowledgeEntries: sliceOrEmpty(relatedKnowledgeEntries(store, conversationID, "", "", "")),
+		LinkedProposals:  filterProposalsByConversation(proposals, conversationID),
 	}, true
 }
 
@@ -216,11 +242,15 @@ func buildCaseDetail(store storepkg.Repository, caseID string) (caseDetailRespon
 	latestEvalByTrace := latestEvalRunByTrace(store.ListEvalRuns())
 	traceSummaries := buildTraceSummaries(traces, latestEvalByTrace)
 	return caseDetailResponse{
-		Case:            *caseItem,
-		Conversation:    conversationSummary,
-		TraceAttempts:   traceSummaries,
-		LatestEvalRuns:  latestEvalRunsForTraceSet(store.ListEvalRuns(), traceSummaries),
-		LinkedProposals: filterProposalsByCase(normalizeProposals(store.ListProposals()), caseID),
+		Case:             *caseItem,
+		Conversation:     conversationSummary,
+		TraceAttempts:    traceSummaries,
+		LatestEvalRuns:   latestEvalRunsForTraceSet(store.ListEvalRuns(), traceSummaries),
+		ActionIntents:    sliceOrEmpty(listActionIntents(store, actionFilters{CaseID: caseID})),
+		ActionResults:    sliceOrEmpty(flattenActionResults(store, listActionIntents(store, actionFilters{CaseID: caseID}))),
+		Outcomes:         sliceOrEmpty(listOutcomes(store, "", caseID, "", "")),
+		KnowledgeEntries: sliceOrEmpty(relatedKnowledgeEntries(store, conversationSummary.ConversationID, caseID, "", "")),
+		LinkedProposals:  filterProposalsByCase(normalizeProposals(store.ListProposals()), caseID),
 	}, true
 }
 
@@ -238,6 +268,18 @@ func buildTraceDetail(store storepkg.Repository, traceID string) (traceDetailRes
 	conversations := buildConversationList(store)
 	conversationSummary, _ := findConversationSummary(conversations, trace.Summary.ConversationID)
 	caseIndex := buildCaseSummaryIndex(store, store.ListTraces(), normalizeProposals(store.ListProposals()))
+	actionIntents := listActionIntents(store, actionFilters{TraceID: traceID})
+	outcomes := listOutcomes(store, trace.Summary.ConversationID, trace.Summary.CaseID, traceID, "")
+	extraEvidence := make([]string, 0, len(trace.Reasoning)+len(trace.ToolCalls)+len(outcomes))
+	for _, step := range trace.Reasoning {
+		extraEvidence = append(extraEvidence, step.ID)
+	}
+	for _, call := range trace.ToolCalls {
+		extraEvidence = append(extraEvidence, call.ID)
+	}
+	for _, item := range outcomes {
+		extraEvidence = append(extraEvidence, item.ID)
+	}
 	return traceDetailResponse{
 		Trace:              trace,
 		Conversation:       conversationSummary,
@@ -245,6 +287,10 @@ func buildTraceDetail(store storepkg.Repository, traceID string) (traceDetailRes
 		TranscriptSlice:    transcriptSlice(store.ListConversationEntries(trace.Summary.ConversationID), trace.Summary.TriggerEventID),
 		LinkedEvalRuns:     runs,
 		JudgmentsByEvalRun: judgments,
+		ActionIntents:      sliceOrEmpty(actionIntents),
+		ActionResults:      sliceOrEmpty(flattenActionResults(store, actionIntents)),
+		Outcomes:           sliceOrEmpty(outcomes),
+		KnowledgeEntries:   sliceOrEmpty(relatedKnowledgeEntries(store, trace.Summary.ConversationID, trace.Summary.CaseID, traceID, "", extraEvidence...)),
 		FeedbackRecords:    sliceOrEmpty(store.ListFeedback(traceID)),
 		LinkedProposals:    filterProposalsForTrace(normalizeProposals(store.ListProposals()), traceID),
 	}, true
@@ -256,6 +302,13 @@ func buildProposalDetail(store storepkg.Repository, proposalID string) (proposal
 		return proposalDetailResponse{}, false
 	}
 	traceSummaries := linkTraceSummaries(store.ListTraces(), proposal, store.ListPostMergeReplays())
+	actionIntents := listActionIntents(store, actionFilters{ProposalID: proposal.ID})
+	outcomes := listOutcomes(store, proposal.ConversationID, proposal.CaseID, "", proposal.ID)
+	extraEvidence := append([]string{}, proposal.EvidenceTraceIDs...)
+	extraEvidence = appendUniqueStrings(extraEvidence, proposal.OriginTraceID, proposal.TraceID)
+	for _, item := range outcomes {
+		extraEvidence = append(extraEvidence, item.ID)
+	}
 	return proposalDetailResponse{
 		Proposal:              normalizeProposal(proposal),
 		Reviews:               sliceOrEmpty(proposal.Reviews),
@@ -265,6 +318,10 @@ func buildProposalDetail(store storepkg.Repository, proposalID string) (proposal
 		PostMergeReplays:      sliceOrEmpty(filterPostMergeReplays(store.ListPostMergeReplays(), proposal.ID)),
 		LinkedTraceSummaries:  traceSummaries,
 		LinkedEvalRuns:        sliceOrEmpty(filterEvalRunsForProposal(store.ListEvalRuns(), proposal)),
+		ActionIntents:         sliceOrEmpty(actionIntents),
+		ActionResults:         sliceOrEmpty(flattenActionResults(store, actionIntents)),
+		Outcomes:              sliceOrEmpty(outcomes),
+		KnowledgeEntries:      sliceOrEmpty(relatedKnowledgeEntries(store, proposal.ConversationID, proposal.CaseID, proposal.OriginTraceID, proposal.ID, extraEvidence...)),
 	}, true
 }
 
@@ -347,9 +404,12 @@ func buildCaseSummaryIndex(store storepkg.Repository, traces []events.TraceSumma
 			Title:              item.Title,
 			Summary:            item.Summary,
 			Status:             item.Status,
+			ResolutionState:    item.ResolutionState,
 			AssignedBot:        item.AssignedBot,
 			LatestTraceID:      item.LatestTraceID,
 			LatestTraceVerdict: traceVerdictByCase[item.ID],
+			LatestOutcomeID:    item.LatestOutcomeID,
+			OutcomeScore:       item.OutcomeScore,
 			Recurrence:         recurrenceByCase[item.ID],
 			LinkedProposalIDs:  sliceOrEmpty(proposalIDsByCase[item.ID]),
 			UpdatedAt:          item.UpdatedAt,

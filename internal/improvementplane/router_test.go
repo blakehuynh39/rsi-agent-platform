@@ -5,15 +5,87 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
+	"github.com/piplabs/rsi-agent-platform/internal/action"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
+	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
+	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
+	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
 
 func TestRouterConversationCaseAndTraceEndpoints(t *testing.T) {
 	store := storepkg.NewMemoryStore()
+	traceSummaries := store.ListTraces()
+	if len(traceSummaries) == 0 {
+		t.Fatal("expected seeded trace")
+	}
+	trace, ok := store.GetTrace(traceSummaries[0].TraceID)
+	if !ok {
+		t.Fatal("expected seeded trace detail")
+	}
+	now := time.Now().UTC()
+	intent, err := store.UpsertActionIntent(action.Intent{
+		ConversationID: trace.Summary.ConversationID,
+		CaseID:         trace.Summary.CaseID,
+		TraceID:        trace.Summary.TraceID,
+		Kind:           action.KindSlackPost,
+		Status:         action.StatusSucceeded,
+		CreatedAt:      now,
+		UpdatedAt:      now,
+	})
+	if err != nil {
+		t.Fatalf("upsert action intent: %v", err)
+	}
+	if _, err := store.RecordActionResult(action.Result{
+		ActionIntentID: intent.ID,
+		Executor:       "tool-gateway",
+		Provider:       "slack",
+		Status:         action.StatusSucceeded,
+		StartedAt:      now,
+		CompletedAt:    now,
+	}); err != nil {
+		t.Fatalf("record action result: %v", err)
+	}
+	if _, err := store.RecordOutcome(outcome.Record{
+		Source:         "operator",
+		RecordedBy:     "tester",
+		ConversationID: trace.Summary.ConversationID,
+		CaseID:         trace.Summary.CaseID,
+		TraceID:        trace.Summary.TraceID,
+		OutcomeType:    outcome.TypeAnswerQuality,
+		Verdict:        outcome.VerdictPositive,
+		Score:          1,
+		Summary:        "Trace resolved the question well.",
+		RecordedAt:     now,
+	}); err != nil {
+		t.Fatalf("record outcome: %v", err)
+	}
+	entry, err := store.UpsertKnowledgeEntry(knowledge.Entry{
+		Tier:       knowledge.TierWorking,
+		Kind:       knowledge.KindFact,
+		ScopeType:  knowledge.ScopeCase,
+		ScopeID:    trace.Summary.CaseID,
+		Title:      "Trace learning",
+		Summary:    "Structured action/outcome evidence is present.",
+		Status:     knowledge.StatusDraft,
+		Confidence: 0.8,
+		SourceType: knowledge.SourceAgent,
+		CreatedAt:  now,
+		UpdatedAt:  now,
+	}, []knowledge.EvidenceLink{
+		{
+			EvidenceType: "trace",
+			EvidenceID:   trace.Summary.TraceID,
+			EvidenceRef:  events.EvidenceRef{Kind: "trace", Ref: trace.Summary.TraceID, Summary: trace.Summary.WorkflowKind},
+		},
+	})
+	if err != nil {
+		t.Fatalf("upsert knowledge entry: %v", err)
+	}
 	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
 
 	listReq := httptest.NewRequest(http.MethodGet, "/api/conversations", nil)
@@ -117,6 +189,46 @@ func TestRouterConversationCaseAndTraceEndpoints(t *testing.T) {
 	if _, ok := tracePayload["judgments_by_eval_run"].(map[string]any); !ok {
 		t.Fatal("expected judgments_by_eval_run to be a JSON object")
 	}
+	if items, ok := tracePayload["action_intents"].([]any); !ok || len(items) == 0 {
+		t.Fatal("expected action_intents to be a non-empty JSON array")
+	}
+	if items, ok := tracePayload["action_results"].([]any); !ok || len(items) == 0 {
+		t.Fatal("expected action_results to be a non-empty JSON array")
+	}
+	if items, ok := tracePayload["outcomes"].([]any); !ok || len(items) == 0 {
+		t.Fatal("expected outcomes to be a non-empty JSON array")
+	}
+	if items, ok := tracePayload["knowledge_entries"].([]any); !ok || len(items) == 0 {
+		t.Fatal("expected knowledge_entries to be a non-empty JSON array")
+	}
+
+	actionReq := httptest.NewRequest(http.MethodGet, "/api/actions?trace="+traceID, nil)
+	actionRec := httptest.NewRecorder()
+	router.ServeHTTP(actionRec, actionReq)
+	if actionRec.Code != http.StatusOK {
+		t.Fatalf("action list status = %d, want %d", actionRec.Code, http.StatusOK)
+	}
+
+	outcomeReq := httptest.NewRequest(http.MethodGet, "/api/outcomes?trace="+traceID, nil)
+	outcomeRec := httptest.NewRecorder()
+	router.ServeHTTP(outcomeRec, outcomeReq)
+	if outcomeRec.Code != http.StatusOK {
+		t.Fatalf("outcome list status = %d, want %d", outcomeRec.Code, http.StatusOK)
+	}
+
+	knowledgeReq := httptest.NewRequest(http.MethodGet, "/api/knowledge", nil)
+	knowledgeRec := httptest.NewRecorder()
+	router.ServeHTTP(knowledgeRec, knowledgeReq)
+	if knowledgeRec.Code != http.StatusOK {
+		t.Fatalf("knowledge list status = %d, want %d", knowledgeRec.Code, http.StatusOK)
+	}
+
+	knowledgeDetailReq := httptest.NewRequest(http.MethodGet, "/api/knowledge/"+entry.ID, nil)
+	knowledgeDetailRec := httptest.NewRecorder()
+	router.ServeHTTP(knowledgeDetailRec, knowledgeDetailReq)
+	if knowledgeDetailRec.Code != http.StatusOK {
+		t.Fatalf("knowledge detail status = %d, want %d", knowledgeDetailRec.Code, http.StatusOK)
+	}
 }
 
 func TestRouterProposalDetailAndRuntimeEndpoints(t *testing.T) {
@@ -194,6 +306,15 @@ func TestRouterProposalDetailAndRuntimeEndpoints(t *testing.T) {
 	}
 	if items, ok := proposalPayload["linked_trace_summaries"].([]any); !ok || len(items) == 0 {
 		t.Fatal("expected linked_trace_summaries array with at least one item")
+	}
+	if _, ok := proposalPayload["action_intents"].([]any); !ok {
+		t.Fatal("expected action_intents array in proposal detail")
+	}
+	if _, ok := proposalPayload["outcomes"].([]any); !ok {
+		t.Fatal("expected outcomes array in proposal detail")
+	}
+	if _, ok := proposalPayload["knowledge_entries"].([]any); !ok {
+		t.Fatal("expected knowledge_entries array in proposal detail")
 	}
 
 	runtimeReq := httptest.NewRequest(http.MethodGet, "/api/runtime", nil)

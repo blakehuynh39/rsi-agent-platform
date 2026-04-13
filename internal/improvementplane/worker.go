@@ -7,12 +7,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/piplabs/rsi-agent-platform/internal/action"
 	"github.com/piplabs/rsi-agent-platform/internal/clients"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	"github.com/piplabs/rsi-agent-platform/internal/evals"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
+	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	"github.com/piplabs/rsi-agent-platform/internal/runnerutil"
@@ -29,7 +31,7 @@ func RunWorker(cfg config.Config, store storepkg.Store) error {
 	toolClient := clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL)
 	launcher, launcherErr := sandbox.NewLauncher(cfg)
 	for {
-		item, ok, err := store.ClaimNextWorkItem([]queue.QueueName{queue.EvalQueue, queue.ProposalQueue, queue.SandboxQueue}, workerID, cfg.WorkItemLeaseDuration)
+		item, ok, err := store.ClaimNextWorkItem([]queue.QueueName{queue.EvalQueue, queue.ProposalQueue, queue.SandboxQueue, queue.ImprovementActionQueue}, workerID, cfg.WorkItemLeaseDuration)
 		if err != nil {
 			return err
 		}
@@ -53,7 +55,9 @@ func processImprovementItem(cfg config.Config, store storepkg.Store, runnerClien
 	case queue.ProposalQueue:
 		return processProposalItem(cfg, store, runnerClients["proposal"], item)
 	case queue.SandboxQueue:
-		return processSandboxItem(cfg, store, toolClient, launcher, launcherErr, item)
+		return processSandboxItem(cfg, store, launcher, launcherErr, item)
+	case queue.ImprovementActionQueue:
+		return processImprovementActionItem(cfg, store, toolClient, item)
 	default:
 		return fmt.Errorf("unsupported improvement work queue %s", item.Queue)
 	}
@@ -114,6 +118,11 @@ func processEvalItem(cfg config.Config, store storepkg.Store, runnerClient *clie
 		}
 	}
 	completed := time.Now().UTC()
+	if runnerErr == nil {
+		if err := persistImprovementKnowledgeDrafts(store, runnerOutput.KnowledgeDrafts, trace, "", completed); err != nil {
+			return err
+		}
+	}
 	reasoning := []events.ReasoningStep{
 		{
 			ID:         fmt.Sprintf("reason-eval-%d", completed.UnixNano()),
@@ -128,6 +137,7 @@ func processEvalItem(cfg config.Config, store storepkg.Store, runnerClient *clie
 	}
 	if runnerErr == nil {
 		reasoning = append(runnerutil.ToTraceReasoning(trace.Summary.TraceID, trace.Summary.WorkflowID, runnerOutput, completed), reasoning...)
+		reasoning = append(reasoning, improvementOutcomeHypothesisReasoning(trace, runnerOutput.OutcomeHypotheses, completed)...)
 		if strings.TrimSpace(runnerOutput.SelfCritique) != "" {
 			reasoning = append(reasoning, events.ReasoningStep{
 				ID:         fmt.Sprintf("reason-eval-self-%d", completed.UnixNano()),
@@ -244,6 +254,37 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 	})
 	now := time.Now().UTC()
 	_, _ = store.UpdateRepoChangeJobStatus(job.ID, string(review.ProposalRepoChangeQueued))
+	_, err = upsertImprovementActionIntent(store, action.Intent{
+		OwnerPlane:     "improvement",
+		ConversationID: proposal.ConversationID,
+		CaseID:         proposal.CaseID,
+		TraceID:        trace.Summary.TraceID,
+		ProposalID:     proposal.ID,
+		Kind:           action.KindSandboxLaunch,
+		TargetRef:      fmt.Sprintf("%s/%s", cfg.SandboxNamespace, job.ID),
+		RequestPayload: map[string]any{
+			"job_id":      job.ID,
+			"repo":        job.Repo,
+			"branch_name": job.BranchName,
+			"base_ref":    job.BaseRef,
+		},
+		IdempotencyKey: fmt.Sprintf("sandbox:%s", job.ID),
+		ApprovalMode:   "approved",
+		ApprovalState:  "approved",
+		PolicyVerdict:  "approved_proposal",
+		Status:         action.StatusQueued,
+		RequestedBy:    cfg.ServiceName,
+		Rationale:      firstNonEmpty(firstProposedActionRationale(runnerOutput.ProposedActions, action.KindSandboxLaunch), "Launch the sandbox repo-change job after human approval."),
+		EvidenceRefs: []events.EvidenceRef{
+			{Kind: "proposal", Ref: proposal.ID, Summary: proposal.Title},
+			{Kind: "trace", Ref: trace.Summary.TraceID, Summary: trace.Summary.WorkflowKind},
+		},
+		CreatedAt: now,
+		UpdatedAt: now,
+	})
+	if err != nil {
+		return err
+	}
 	reasoning := []events.ReasoningStep{
 		{
 			ID:         fmt.Sprintf("reason-proposal-%d", now.UnixNano()),
@@ -258,6 +299,10 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 	}
 	if runnerErr == nil {
 		reasoning = append(runnerutil.ToTraceReasoning(trace.Summary.TraceID, trace.Summary.WorkflowID, runnerOutput, now), reasoning...)
+		reasoning = append(reasoning, improvementOutcomeHypothesisReasoning(trace, runnerOutput.OutcomeHypotheses, now)...)
+		if err := persistImprovementKnowledgeDrafts(store, runnerOutput.KnowledgeDrafts, trace, proposal.ID, now); err != nil {
+			return err
+		}
 		if strings.TrimSpace(runnerOutput.SelfCritique) != "" {
 			reasoning = append(reasoning, events.ReasoningStep{
 				ID:         fmt.Sprintf("reason-proposal-self-%d", now.UnixNano()),
@@ -320,24 +365,18 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 	return nil
 }
 
-func processSandboxItem(cfg config.Config, store storepkg.Store, toolClient *clients.ToolGatewayClient, launcher sandbox.Launcher, launcherErr error, item queue.WorkItem) error {
+func processSandboxItem(cfg config.Config, store storepkg.Store, launcher sandbox.Launcher, launcherErr error, item queue.WorkItem) error {
 	switch item.Kind {
 	case "repo_change_job":
 		return processSandboxLaunch(cfg, store, launcher, launcherErr, item)
 	case "watch_sandbox_job":
-		return processSandboxWatch(cfg, store, toolClient, launcher, launcherErr, item)
+		return processSandboxWatch(cfg, store, launcher, launcherErr, item)
 	default:
 		return fmt.Errorf("unsupported sandbox item kind %s", item.Kind)
 	}
 }
 
 func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sandbox.Launcher, launcherErr error, item queue.WorkItem) error {
-	if launcherErr != nil {
-		return launcherErr
-	}
-	if launcher == nil {
-		return fmt.Errorf("sandbox launcher not configured")
-	}
 	jobID := stringValue(item.Payload["job_id"])
 	if jobID == "" {
 		return fmt.Errorf("sandbox work item missing job_id")
@@ -349,6 +388,37 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 	trace, ok := store.GetTrace(item.TraceID)
 	if !ok {
 		return fmt.Errorf("trace %s not found", item.TraceID)
+	}
+	intent, err := upsertImprovementActionIntent(store, action.Intent{
+		OwnerPlane:     "improvement",
+		ConversationID: repoJob.ConversationID,
+		CaseID:         repoJob.CaseID,
+		TraceID:        trace.Summary.TraceID,
+		ProposalID:     item.ProposalID,
+		Kind:           action.KindSandboxLaunch,
+		TargetRef:      fmt.Sprintf("%s/%s", cfg.SandboxNamespace, repoJob.ID),
+		RequestPayload: map[string]any{
+			"job_id":      repoJob.ID,
+			"repo":        repoJob.Repo,
+			"branch_name": repoJob.BranchName,
+			"base_ref":    repoJob.BaseRef,
+		},
+		IdempotencyKey: fmt.Sprintf("sandbox:%s", repoJob.ID),
+		ApprovalMode:   "approved",
+		ApprovalState:  "approved",
+		PolicyVerdict:  "approved_proposal",
+		Status:         action.StatusExecuting,
+		RequestedBy:    cfg.ServiceName,
+		Rationale:      "Launch the sandbox job to validate the approved repo change.",
+		EvidenceRefs: []events.EvidenceRef{
+			{Kind: "proposal", Ref: item.ProposalID, Summary: repoJob.CandidateKey},
+			{Kind: "trace", Ref: trace.Summary.TraceID, Summary: trace.Summary.WorkflowKind},
+		},
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+	})
+	if err != nil {
+		return err
 	}
 	request := sandbox.JobRequest{
 		TraceID:      trace.Summary.TraceID,
@@ -370,8 +440,94 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 		},
 		Commands: repoChangeCommands(item.ProposalID),
 	}
+	if launcherErr != nil || launcher == nil {
+		completed := time.Now().UTC()
+		if _, err := upsertImprovementActionIntent(store, action.Intent{
+			ID:             intent.ID,
+			OwnerPlane:     intent.OwnerPlane,
+			ConversationID: intent.ConversationID,
+			CaseID:         intent.CaseID,
+			TraceID:        intent.TraceID,
+			ProposalID:     intent.ProposalID,
+			Kind:           intent.Kind,
+			TargetRef:      intent.TargetRef,
+			RequestPayload: intent.RequestPayload,
+			IdempotencyKey: intent.IdempotencyKey,
+			ApprovalMode:   intent.ApprovalMode,
+			ApprovalState:  intent.ApprovalState,
+			PolicyVerdict:  intent.PolicyVerdict,
+			Status:         action.StatusBlocked,
+			RequestedBy:    intent.RequestedBy,
+			Rationale:      intent.Rationale,
+			EvidenceRefs:   intent.EvidenceRefs,
+			CreatedAt:      intent.CreatedAt,
+			UpdatedAt:      completed,
+		}); err != nil {
+			return err
+		}
+		_, _ = store.RecordActionResult(action.Result{
+			ActionIntentID: intent.ID,
+			Executor:       "sandbox-runtime",
+			Provider:       "kubernetes",
+			Status:         action.StatusBlocked,
+			ErrorCode:      "sandbox_unavailable",
+			ErrorMessage:   firstNonEmpty(errorString(launcherErr), "sandbox launcher not configured"),
+			StartedAt:      completed,
+			CompletedAt:    completed,
+		})
+		_, _ = store.ApplyTraceUpdate(trace.Summary.TraceID, storepkg.TraceUpdate{
+			Status: ptrStatus(events.StatusNeedsHuman),
+			Events: []events.TraceEvent{
+				{
+					TraceID:     trace.Summary.TraceID,
+					IngestionID: trace.Summary.IngestionID,
+					WorkflowID:  trace.Summary.WorkflowID,
+					Plane:       "improvement",
+					Service:     cfg.ServiceName,
+					Actor:       "sandbox-launcher",
+					EventType:   "sandbox.job.blocked",
+					Status:      events.StatusNeedsHuman,
+					StartedAt:   completed,
+					Description: firstNonEmpty(errorString(launcherErr), "Sandbox launcher unavailable."),
+				},
+			},
+		})
+		return nil
+	}
 	session, _, err := launcher.Launch(context.Background(), request)
 	if err != nil {
+		completed := time.Now().UTC()
+		_, _ = upsertImprovementActionIntent(store, action.Intent{
+			ID:             intent.ID,
+			OwnerPlane:     intent.OwnerPlane,
+			ConversationID: intent.ConversationID,
+			CaseID:         intent.CaseID,
+			TraceID:        intent.TraceID,
+			ProposalID:     intent.ProposalID,
+			Kind:           intent.Kind,
+			TargetRef:      intent.TargetRef,
+			RequestPayload: intent.RequestPayload,
+			IdempotencyKey: intent.IdempotencyKey,
+			ApprovalMode:   intent.ApprovalMode,
+			ApprovalState:  intent.ApprovalState,
+			PolicyVerdict:  intent.PolicyVerdict,
+			Status:         action.StatusFailed,
+			RequestedBy:    intent.RequestedBy,
+			Rationale:      intent.Rationale,
+			EvidenceRefs:   intent.EvidenceRefs,
+			CreatedAt:      intent.CreatedAt,
+			UpdatedAt:      completed,
+		})
+		_, _ = store.RecordActionResult(action.Result{
+			ActionIntentID: intent.ID,
+			Executor:       "sandbox-runtime",
+			Provider:       "kubernetes",
+			Status:         action.StatusFailed,
+			ErrorCode:      "sandbox_launch_failed",
+			ErrorMessage:   err.Error(),
+			StartedAt:      intent.UpdatedAt,
+			CompletedAt:    completed,
+		})
 		return err
 	}
 	now := time.Now().UTC()
@@ -435,7 +591,7 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 	return err
 }
 
-func processSandboxWatch(cfg config.Config, store storepkg.Store, toolClient *clients.ToolGatewayClient, launcher sandbox.Launcher, launcherErr error, item queue.WorkItem) error {
+func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandbox.Launcher, launcherErr error, item queue.WorkItem) error {
 	if launcherErr != nil {
 		return launcherErr
 	}
@@ -474,6 +630,21 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, toolClient *cl
 	}
 	now := time.Now().UTC()
 	if job.Status.Failed > 0 {
+		intent, _ := findProposalActionIntent(store, item.ProposalID, action.KindSandboxLaunch)
+		if intent.ID != "" {
+			_, _ = upsertImprovementActionIntent(store, withActionStatus(intent, action.StatusFailed, now))
+			_, _ = store.RecordActionResult(action.Result{
+				ActionIntentID: intent.ID,
+				Executor:       "sandbox-runtime",
+				Provider:       "kubernetes",
+				ProviderRef:    fmt.Sprintf("%s/%s", namespace, jobName),
+				Status:         action.StatusFailed,
+				ErrorCode:      "sandbox_job_failed",
+				ErrorMessage:   fmt.Sprintf("Sandbox job %s failed.", jobName),
+				StartedAt:      intent.UpdatedAt,
+				CompletedAt:    now,
+			})
+		}
 		_, _ = store.UpdateRepoChangeJobStatus(jobID, string(review.ProposalFailedValidation))
 		_, _ = store.UpdateProposalStatus(item.ProposalID, review.ProposalFailedValidation)
 		_, _ = store.ApplyTraceUpdate(trace.Summary.TraceID, storepkg.TraceUpdate{
@@ -496,18 +667,180 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, toolClient *cl
 		return nil
 	}
 
+	intent, _ := findProposalActionIntent(store, item.ProposalID, action.KindSandboxLaunch)
+	if intent.ID != "" {
+		_, _ = upsertImprovementActionIntent(store, withActionStatus(intent, action.StatusSucceeded, now))
+		_, _ = store.RecordActionResult(action.Result{
+			ActionIntentID: intent.ID,
+			Executor:       "sandbox-runtime",
+			Provider:       "kubernetes",
+			ProviderRef:    fmt.Sprintf("%s/%s", namespace, jobName),
+			Status:         action.StatusSucceeded,
+			StartedAt:      intent.UpdatedAt,
+			CompletedAt:    now,
+		})
+	}
 	_, _ = store.UpdateRepoChangeJobStatus(jobID, string(review.ProposalValidationPending))
 	_, _ = store.UpdateProposalStatus(item.ProposalID, review.ProposalValidationPending)
-	prResult, err := toolClient.Execute("github.create_pr", map[string]any{
-		"proposal_id": item.ProposalID,
-		"repo":        repo,
-		"branch_name": branchName,
-		"base_ref":    "main",
-		"title":       fmt.Sprintf("RSI proposal %s for %s", item.ProposalID, repo),
-		"body":        fmt.Sprintf("Automated draft PR for proposal %s after sandbox validation.", item.ProposalID),
+	_, err = store.EnqueueWorkItem(queue.WorkItem{
+		Queue:      queue.ImprovementActionQueue,
+		Kind:       "draft_pr_open",
+		Status:     queue.WorkQueued,
+		TraceID:    item.TraceID,
+		ProposalID: item.ProposalID,
+		CreatedAt:  now,
+		UpdatedAt:  now,
+		Payload: map[string]any{
+			"job_id":      jobID,
+			"job_name":    jobName,
+			"namespace":   namespace,
+			"repo":        repo,
+			"branch_name": branchName,
+			"base_ref":    "main",
+		},
 	})
 	if err != nil {
 		return err
+	}
+	_, _ = store.ApplyTraceUpdate(trace.Summary.TraceID, storepkg.TraceUpdate{
+		Events: []events.TraceEvent{
+			{
+				TraceID:     trace.Summary.TraceID,
+				IngestionID: trace.Summary.IngestionID,
+				WorkflowID:  trace.Summary.WorkflowID,
+				Plane:       "improvement",
+				Service:     cfg.ServiceName,
+				Actor:       "worker",
+				EventType:   "github.pr.queued",
+				Status:      events.StatusQueued,
+				StartedAt:   now,
+				Description: fmt.Sprintf("Sandbox job %s succeeded; queued draft PR open for branch %s.", jobName, branchName),
+			},
+		},
+		Reasoning: []events.ReasoningStep{
+			{
+				ID:         fmt.Sprintf("reason-pr-open-%d", now.UnixNano()),
+				TraceID:    trace.Summary.TraceID,
+				WorkflowID: trace.Summary.WorkflowID,
+				StepType:   "pr_queue",
+				Summary:    fmt.Sprintf("Sandbox validation succeeded; queued draft PR open for branch %s.", branchName),
+				Confidence: 0.9,
+				Decision:   branchName,
+				CreatedAt:  now,
+			},
+		},
+	})
+	return nil
+}
+
+func processImprovementActionItem(cfg config.Config, store storepkg.Store, toolClient *clients.ToolGatewayClient, item queue.WorkItem) error {
+	switch item.Kind {
+	case "draft_pr_open":
+		return processDraftPROpen(cfg, store, toolClient, item)
+	default:
+		return fmt.Errorf("unsupported improvement action kind %s", item.Kind)
+	}
+}
+
+func processDraftPROpen(cfg config.Config, store storepkg.Store, toolClient *clients.ToolGatewayClient, item queue.WorkItem) error {
+	trace, ok := store.GetTrace(item.TraceID)
+	if !ok {
+		return fmt.Errorf("trace %s not found", item.TraceID)
+	}
+	repo := stringValue(item.Payload["repo"])
+	branchName := stringValue(item.Payload["branch_name"])
+	baseRef := firstNonEmpty(stringValue(item.Payload["base_ref"]), "main")
+	jobID := stringValue(item.Payload["job_id"])
+	now := time.Now().UTC()
+	intent, err := upsertImprovementActionIntent(store, action.Intent{
+		OwnerPlane:     "improvement",
+		ConversationID: trace.Summary.ConversationID,
+		CaseID:         trace.Summary.CaseID,
+		TraceID:        trace.Summary.TraceID,
+		ProposalID:     item.ProposalID,
+		Kind:           action.KindDraftPROpen,
+		TargetRef:      repo,
+		RequestPayload: map[string]any{
+			"proposal_id": item.ProposalID,
+			"repo":        repo,
+			"branch_name": branchName,
+			"base_ref":    baseRef,
+		},
+		IdempotencyKey: fmt.Sprintf("pr:%s:%s", item.ProposalID, branchName),
+		ApprovalMode:   "approved",
+		ApprovalState:  "approved",
+		PolicyVerdict:  "approved_proposal",
+		Status:         action.StatusExecuting,
+		RequestedBy:    cfg.ServiceName,
+		Rationale:      "Open a draft PR once sandbox validation succeeds.",
+		EvidenceRefs: []events.EvidenceRef{
+			{Kind: "proposal", Ref: item.ProposalID, Summary: item.ProposalID},
+			{Kind: "trace", Ref: trace.Summary.TraceID, Summary: trace.Summary.WorkflowKind},
+		},
+		CreatedAt: now,
+		UpdatedAt: now,
+	})
+	if err != nil {
+		return err
+	}
+	_, _ = store.ApplyTraceUpdate(trace.Summary.TraceID, storepkg.TraceUpdate{
+		Events: []events.TraceEvent{
+			{
+				TraceID:     trace.Summary.TraceID,
+				IngestionID: trace.Summary.IngestionID,
+				WorkflowID:  trace.Summary.WorkflowID,
+				Plane:       "improvement",
+				Service:     cfg.ServiceName,
+				Actor:       "worker",
+				EventType:   "github.pr.started",
+				Status:      events.StatusRunning,
+				StartedAt:   now,
+				Description: fmt.Sprintf("Opening draft PR for %s on branch %s.", repo, branchName),
+			},
+		},
+	})
+	prResult, execErr := toolClient.Execute("github.create_pr", map[string]any{
+		"proposal_id": item.ProposalID,
+		"repo":        repo,
+		"branch_name": branchName,
+		"base_ref":    baseRef,
+		"title":       fmt.Sprintf("RSI proposal %s for %s", item.ProposalID, repo),
+		"body":        fmt.Sprintf("Automated draft PR for proposal %s after sandbox validation.", item.ProposalID),
+	})
+	completed := time.Now().UTC()
+	actionStatus := improvementActionStatus(prResult, execErr)
+	_, _ = upsertImprovementActionIntent(store, withActionStatus(intent, actionStatus, completed))
+	_, _ = store.RecordActionResult(action.Result{
+		ActionIntentID: intent.ID,
+		Executor:       "tool-gateway",
+		Provider:       firstNonEmpty(prResult.Provider, "github"),
+		ProviderRef:    prResult.ProviderRef,
+		Status:         actionStatus,
+		ErrorCode:      improvementActionErrorCode(actionStatus),
+		ErrorMessage:   improvementActionError(prResult, execErr),
+		StartedAt:      intent.UpdatedAt,
+		CompletedAt:    completed,
+	})
+	if execErr != nil || actionStatus != action.StatusSucceeded {
+		_, _ = store.ApplyTraceUpdate(trace.Summary.TraceID, storepkg.TraceUpdate{
+			Status: ptrStatus(events.StatusNeedsHuman),
+			Events: []events.TraceEvent{
+				{
+					TraceID:     trace.Summary.TraceID,
+					IngestionID: trace.Summary.IngestionID,
+					WorkflowID:  trace.Summary.WorkflowID,
+					Plane:       "improvement",
+					Service:     cfg.ServiceName,
+					Actor:       "worker",
+					EventType:   "github.pr.blocked",
+					Status:      events.StatusNeedsHuman,
+					StartedAt:   now,
+					EndedAt:     ptrTime(completed),
+					Description: firstNonEmpty(improvementActionError(prResult, execErr), "Draft PR open blocked."),
+				},
+			},
+		})
+		return nil
 	}
 	prURL := stringValue(prResult.Output["pr_url"])
 	if _, err := store.RecordPRAttempt(buildPRAttempt(item.ProposalID, repo, branchName, prURL)); err != nil {
@@ -521,25 +854,26 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, toolClient *cl
 				TraceID:     trace.Summary.TraceID,
 				IngestionID: trace.Summary.IngestionID,
 				WorkflowID:  trace.Summary.WorkflowID,
-				Plane:       "execution",
+				Plane:       "improvement",
 				Service:     cfg.ServiceName,
-				Actor:       "sandbox-launcher",
-				EventType:   "sandbox.job.succeeded",
+				Actor:       "worker",
+				EventType:   "github.pr.completed",
 				Status:      events.StatusCompleted,
 				StartedAt:   now,
-				Description: fmt.Sprintf("Sandbox job %s succeeded and draft PR opened.", jobName),
+				EndedAt:     ptrTime(completed),
+				Description: fmt.Sprintf("Opened draft PR for %s on branch %s.", repo, branchName),
 			},
 		},
 		Reasoning: []events.ReasoningStep{
 			{
-				ID:         fmt.Sprintf("reason-pr-open-%d", now.UnixNano()),
+				ID:         fmt.Sprintf("reason-pr-open-%d", completed.UnixNano()),
 				TraceID:    trace.Summary.TraceID,
 				WorkflowID: trace.Summary.WorkflowID,
 				StepType:   "pr_opened",
 				Summary:    fmt.Sprintf("Opened real draft PR for branch %s.", branchName),
 				Confidence: 0.9,
 				Decision:   prURL,
-				CreatedAt:  now,
+				CreatedAt:  completed,
 			},
 		},
 	})
@@ -800,6 +1134,220 @@ git commit -m "chore: seed RSI proposal context for ` + proposalID + `" || true
 git push origin HEAD
 `
 	return []string{"bash", "-lc", script}
+}
+
+func persistImprovementKnowledgeDrafts(store storepkg.Store, drafts []runnerutil.KnowledgeDraft, trace events.Trace, proposalID string, createdAt time.Time) error {
+	for _, item := range drafts {
+		scopeType := knowledge.ScopeType(firstNonEmpty(item.ScopeType, string(knowledge.ScopeCase)))
+		scopeID := firstNonEmpty(item.ScopeID, trace.Summary.CaseID)
+		if scopeType == knowledge.ScopeConversation {
+			scopeID = firstNonEmpty(item.ScopeID, trace.Summary.ConversationID)
+		}
+		if scopeType == knowledge.ScopeGlobal {
+			scopeID = ""
+		}
+		links := improvementEvidenceLinksFromDraft(item)
+		if proposalID != "" {
+			links = append(links, knowledge.EvidenceLink{
+				EvidenceType:     "proposal",
+				EvidenceID:       proposalID,
+				RelevanceSummary: proposalID,
+				EvidenceRef:      events.EvidenceRef{Kind: "proposal", Ref: proposalID, Summary: proposalID},
+			})
+		}
+		if _, err := store.UpsertKnowledgeEntry(knowledge.Entry{
+			Tier:       knowledge.TierWorking,
+			Kind:       knowledge.Kind(firstNonEmpty(item.Kind, string(knowledge.KindFact))),
+			ScopeType:  scopeType,
+			ScopeID:    scopeID,
+			Title:      item.Title,
+			Summary:    item.Summary,
+			Body:       item.Body,
+			Status:     knowledge.StatusDraft,
+			Confidence: item.Confidence,
+			FreshUntil: parseTimeOrNil(item.FreshUntil),
+			SourceType: knowledge.SourceAgent,
+			CreatedAt:  createdAt,
+			UpdatedAt:  createdAt,
+		}, links); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func improvementEvidenceLinksFromDraft(item runnerutil.KnowledgeDraft) []knowledge.EvidenceLink {
+	out := make([]knowledge.EvidenceLink, 0, len(item.EvidenceRefs))
+	for _, ref := range item.EvidenceRefs {
+		out = append(out, knowledge.EvidenceLink{
+			EvidenceType:     ref.Kind,
+			EvidenceID:       ref.Ref,
+			RelevanceSummary: ref.Summary,
+			EvidenceRef:      ref,
+		})
+	}
+	return out
+}
+
+func improvementOutcomeHypothesisReasoning(trace events.Trace, items []runnerutil.OutcomeHypothesis, createdAt time.Time) []events.ReasoningStep {
+	out := make([]events.ReasoningStep, 0, len(items))
+	for idx, item := range items {
+		out = append(out, events.ReasoningStep{
+			ID:         fmt.Sprintf("reason-outcome-%d-%d", createdAt.UnixNano(), idx),
+			TraceID:    trace.Summary.TraceID,
+			WorkflowID: trace.Summary.WorkflowID,
+			StepType:   "outcome_hypothesis",
+			Summary:    firstNonEmpty(item.SuccessCondition, string(item.OutcomeType)),
+			Alternatives: []string{
+				firstNonEmpty(item.MeasurementRef, "manual_review"),
+				firstNonEmpty(item.ExpectedTimeHorizon, "unspecified"),
+			},
+			Confidence: 0.7,
+			Decision:   string(item.OutcomeType),
+			CreatedAt:  createdAt,
+		})
+	}
+	return out
+}
+
+func upsertImprovementActionIntent(store storepkg.Store, intent action.Intent) (action.Intent, error) {
+	if strings.TrimSpace(intent.ID) == "" {
+		if existing, ok := findMatchingActionIntent(store.ListActionIntents(), intent); ok {
+			intent.ID = existing.ID
+			if intent.CreatedAt.IsZero() {
+				intent.CreatedAt = existing.CreatedAt
+			}
+		}
+	}
+	now := time.Now().UTC()
+	if intent.CreatedAt.IsZero() {
+		intent.CreatedAt = now
+	}
+	if intent.UpdatedAt.IsZero() {
+		intent.UpdatedAt = now
+	}
+	intent.EvidenceRefs = normalizeImprovementEvidenceRefs(intent.EvidenceRefs, intent.TraceID, intent.ProposalID)
+	return store.UpsertActionIntent(intent)
+}
+
+func findMatchingActionIntent(items []action.Intent, candidate action.Intent) (action.Intent, bool) {
+	for _, item := range items {
+		if candidate.ID != "" && item.ID == candidate.ID {
+			return item, true
+		}
+		if candidate.IdempotencyKey != "" && item.IdempotencyKey == candidate.IdempotencyKey && item.Kind == candidate.Kind {
+			return item, true
+		}
+		if candidate.ProposalID != "" && item.ProposalID == candidate.ProposalID && item.Kind == candidate.Kind && item.TargetRef == candidate.TargetRef {
+			return item, true
+		}
+	}
+	return action.Intent{}, false
+}
+
+func findProposalActionIntent(store storepkg.Store, proposalID string, kind action.Kind) (action.Intent, bool) {
+	for _, item := range store.ListActionIntents() {
+		if item.ProposalID == proposalID && item.Kind == kind {
+			return item, true
+		}
+	}
+	return action.Intent{}, false
+}
+
+func withActionStatus(intent action.Intent, status action.Status, updatedAt time.Time) action.Intent {
+	intent.Status = status
+	intent.UpdatedAt = updatedAt
+	return intent
+}
+
+func normalizeImprovementEvidenceRefs(items []events.EvidenceRef, traceID string, proposalID string) []events.EvidenceRef {
+	if len(items) > 0 {
+		return items
+	}
+	out := make([]events.EvidenceRef, 0, 2)
+	if proposalID != "" {
+		out = append(out, events.EvidenceRef{Kind: "proposal", Ref: proposalID, Summary: proposalID})
+	}
+	if traceID != "" {
+		out = append(out, events.EvidenceRef{Kind: "trace", Ref: traceID, Summary: traceID})
+	}
+	return out
+}
+
+func firstProposedActionRationale(items []runnerutil.ProposedAction, kind action.Kind) string {
+	for _, item := range items {
+		if strings.EqualFold(strings.TrimSpace(item.Kind), string(kind)) {
+			return item.Rationale
+		}
+	}
+	return ""
+}
+
+func improvementActionStatus(result storepkg.ToolResult, execErr error) action.Status {
+	if execErr != nil {
+		return action.StatusFailed
+	}
+	status := strings.ToLower(strings.TrimSpace(result.Status))
+	switch status {
+	case "blocked":
+		return action.StatusBlocked
+	case "failed", "error":
+		return action.StatusFailed
+	case "", "ok", "success", "completed":
+		if !result.Available && strings.TrimSpace(result.Status) != "" {
+			return action.StatusBlocked
+		}
+		return action.StatusSucceeded
+	default:
+		if !result.Available {
+			return action.StatusBlocked
+		}
+		return action.StatusSucceeded
+	}
+}
+
+func improvementActionErrorCode(status action.Status) string {
+	switch status {
+	case action.StatusBlocked:
+		return "blocked"
+	case action.StatusFailed:
+		return "failed"
+	default:
+		return ""
+	}
+}
+
+func improvementActionError(result storepkg.ToolResult, execErr error) string {
+	if execErr != nil {
+		return execErr.Error()
+	}
+	status := strings.ToLower(strings.TrimSpace(result.Status))
+	if status == "blocked" || status == "failed" || status == "error" {
+		return result.Summary
+	}
+	if !result.Available && status != "" {
+		return result.Summary
+	}
+	return ""
+}
+
+func parseTimeOrNil(value string) *time.Time {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return nil
+	}
+	parsed, err := time.Parse(time.RFC3339, value)
+	if err != nil {
+		return nil
+	}
+	return &parsed
+}
+
+func errorString(err error) string {
+	if err == nil {
+		return ""
+	}
+	return err.Error()
 }
 
 func stringValue(value interface{}) string {

@@ -41,6 +41,10 @@ type ToolResult struct {
 	ToolCallID      string                 `json:"tool_call_id"`
 	Approved        bool                   `json:"approved"`
 	ApprovalState   string                 `json:"approval_state,omitempty"`
+	Status          string                 `json:"status,omitempty"`
+	Available       bool                   `json:"available"`
+	Provider        string                 `json:"provider,omitempty"`
+	ProviderRef     string                 `json:"provider_ref,omitempty"`
 	ExecutedAt      time.Time              `json:"executed_at"`
 	Input           map[string]interface{} `json:"input"`
 	Output          map[string]interface{} `json:"output"`

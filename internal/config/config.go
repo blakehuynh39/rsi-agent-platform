@@ -35,6 +35,7 @@ type Config struct {
 	SlackAppToken             string
 	SlackBotToken             string
 	GitHubToken               string
+	GitHubWebhookSecret       string
 	GitHubOwner               string
 	GitHubAPIBaseURL          string
 	GitHubCommitUser          string
@@ -94,6 +95,7 @@ func Load(serviceName string) Config {
 		SlackAppToken:             stringEnv("RSI_SLACK_APP_TOKEN", ""),
 		SlackBotToken:             stringEnv("RSI_SLACK_BOT_TOKEN", ""),
 		GitHubToken:               stringEnv("RSI_GITHUB_TOKEN", ""),
+		GitHubWebhookSecret:       stringEnv("RSI_GITHUB_WEBHOOK_SECRET", ""),
 		GitHubOwner:               stringEnv("RSI_GITHUB_OWNER", "piplabs"),
 		GitHubAPIBaseURL:          stringEnv("RSI_GITHUB_API_BASE_URL", "https://api.github.com"),
 		GitHubCommitUser:          stringEnv("RSI_GITHUB_COMMIT_USER", "rsi-bot"),

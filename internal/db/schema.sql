@@ -215,6 +215,10 @@ create table if not exists case_record (
   opened_by_event_id text,
   closed_by_event_id text,
   latest_trace_id text,
+  resolution_state text not null default 'unresolved',
+  resolved_at timestamptz,
+  latest_outcome_id text,
+  outcome_score double precision not null default 0,
   superseded_by_case_id text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -400,6 +404,116 @@ create table if not exists post_merge_replay (
   improved boolean not null default false,
   created_at timestamptz not null default now()
 );
+
+create table if not exists action_intent (
+  id text primary key,
+  owner_plane text not null,
+  conversation_id text,
+  case_id text,
+  trace_id text,
+  proposal_id text,
+  kind text not null,
+  phase_key text,
+  target_ref text,
+  request_payload jsonb not null default '{}'::jsonb,
+  idempotency_key text,
+  approval_mode text,
+  approval_state text,
+  policy_verdict text,
+  status text not null,
+  superseded_by_action_id text,
+  requested_by text,
+  rationale text,
+  evidence_refs jsonb not null default '[]'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table if exists action_intent add column if not exists phase_key text;
+
+create index if not exists action_intent_scope_idx on action_intent (conversation_id, case_id, trace_id, proposal_id, created_at desc);
+
+create table if not exists action_result (
+  id text primary key,
+  action_intent_id text not null,
+  attempt_number integer not null default 1,
+  executor text not null,
+  provider text,
+  provider_ref text,
+  request_artifact_id text,
+  response_artifact_id text,
+  status text not null,
+  error_code text,
+  error_message text,
+  started_at timestamptz not null default now(),
+  completed_at timestamptz not null default now()
+);
+
+create index if not exists action_result_intent_idx on action_result (action_intent_id, attempt_number asc);
+
+create table if not exists outcome_record (
+  id text primary key,
+  source text not null,
+  source_event_id text,
+  conversation_id text,
+  case_id text,
+  trace_id text,
+  proposal_id text,
+  outcome_type text not null,
+  verdict text not null,
+  score double precision not null default 0,
+  summary text,
+  details text,
+  external_ref text,
+  recorded_by text,
+  recorded_at timestamptz not null default now()
+);
+
+create index if not exists outcome_record_scope_idx on outcome_record (conversation_id, case_id, trace_id, proposal_id, recorded_at desc);
+
+create table if not exists knowledge_entry (
+  id text primary key,
+  tier text not null,
+  kind text not null,
+  scope_type text not null,
+  scope_id text,
+  title text not null,
+  summary text,
+  body text,
+  structured_facts jsonb not null default '{}'::jsonb,
+  status text not null,
+  confidence double precision not null default 0,
+  fresh_until timestamptz,
+  source_type text not null,
+  supersedes_entry_id text,
+  contradicted_by_entry_id text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists knowledge_entry_scope_idx on knowledge_entry (scope_type, scope_id, status, updated_at desc);
+
+create table if not exists knowledge_evidence_link (
+  id bigserial primary key,
+  knowledge_entry_id text not null,
+  evidence_type text not null,
+  evidence_id text not null,
+  relevance_summary text,
+  evidence_ref jsonb not null default '{}'::jsonb
+);
+
+create index if not exists knowledge_evidence_link_entry_idx on knowledge_evidence_link (knowledge_entry_id);
+
+create table if not exists knowledge_review (
+  id text primary key,
+  knowledge_entry_id text not null,
+  decision text not null,
+  reviewer_id text not null,
+  rationale text,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists knowledge_review_entry_idx on knowledge_review (knowledge_entry_id, created_at desc);
 
 create table if not exists cron_lease (
   name text primary key,

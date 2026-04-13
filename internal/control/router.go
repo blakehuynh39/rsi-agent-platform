@@ -64,6 +64,9 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 		ingestion := store.CreateIngestion(envelope)
 		app.WriteJSON(w, http.StatusCreated, ingestion)
 	})
+	r.Post("/webhooks/github", func(w http.ResponseWriter, r *http.Request) {
+		handleGitHubWebhook(cfg, store, w, r)
+	})
 	r.Get("/api/thread-policies", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
 			"thread_policies":  store.ListThreadPolicies(),

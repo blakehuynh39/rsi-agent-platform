@@ -8,11 +8,14 @@ import (
 	"sync"
 	"time"
 
+	"github.com/piplabs/rsi-agent-platform/internal/action"
 	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	"github.com/piplabs/rsi-agent-platform/internal/evals"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
+	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
+	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/registry"
@@ -34,6 +37,19 @@ type Store interface {
 	ListConversationEntries(conversationID string) []conversation.Entry
 	ListCases() []conversation.Case
 	GetCase(caseID string) (conversation.Case, bool)
+	ListActionIntents() []action.Intent
+	GetActionIntent(actionID string) (action.Intent, bool)
+	UpsertActionIntent(intent action.Intent) (action.Intent, error)
+	ListActionResults(actionIntentID string) []action.Result
+	RecordActionResult(result action.Result) (action.Result, error)
+	ListOutcomes() []outcome.Record
+	RecordOutcome(record outcome.Record) (outcome.Record, error)
+	ListKnowledgeEntries() []knowledge.Entry
+	GetKnowledgeEntry(knowledgeID string) (knowledge.Entry, bool)
+	UpsertKnowledgeEntry(entry knowledge.Entry, links []knowledge.EvidenceLink) (knowledge.Entry, error)
+	ListKnowledgeEvidenceLinks(knowledgeID string) []knowledge.EvidenceLink
+	ListKnowledgeReviews(knowledgeID string) []knowledge.Review
+	ReviewKnowledgeEntry(knowledgeID string, item knowledge.Review) (knowledge.Entry, error)
 	ListIngestions() []slack.Ingestion
 	CreateIngestion(envelope slack.SlackEnvelope) slack.Ingestion
 	ListWorkflows() []Workflow
@@ -103,6 +119,12 @@ type MemoryStore struct {
 	ratings             map[string][]review.HumanRating
 	notes               map[string][]review.ImprovementNote
 	feedbackRecords     map[string][]review.FeedbackRecord
+	actionIntents       map[string]action.Intent
+	actionResults       map[string][]action.Result
+	outcomes            map[string]outcome.Record
+	knowledgeEntries    map[string]knowledge.Entry
+	knowledgeEvidence   map[string][]knowledge.EvidenceLink
+	knowledgeReviews    map[string][]knowledge.Review
 	evalSuites          []evals.Suite
 	evalRuns            map[string]evals.Run
 	evalJudgments       map[string][]evals.Judgment
@@ -235,13 +257,23 @@ func (s *MemoryStore) createEventLocked(event ingestion.EventEnvelope) (ingestio
 	if event.Severity == "" {
 		event.Severity = ingestion.SeverityWarning
 	}
-	if event.WorkflowHint == "" {
+	skipWorkflowMaterialization := boolFromMetadata(event.Metadata, "skip_workflow_materialization")
+	if event.WorkflowHint == "" && !skipWorkflowMaterialization {
 		event.WorkflowHint = deriveWorkflowHint(event.NormalizedProblemStatement)
 	}
 	if event.CreatedAt.IsZero() {
 		event.CreatedAt = now
 	}
 	s.events = append(s.events, event)
+	if outcomeRecord, ok := s.outcomeFromEventLocked(event); ok {
+		if _, err := s.recordOutcomeLocked(outcomeRecord); err != nil {
+			return ingestion.EventEnvelope{}, err
+		}
+		return event, nil
+	}
+	if skipWorkflowMaterialization || strings.TrimSpace(event.WorkflowHint) == "" {
+		return event, nil
+	}
 	s.materializeWorkflowLocked(event)
 	return event, nil
 }
@@ -295,6 +327,258 @@ func (s *MemoryStore) GetCase(caseID string) (conversation.Case, bool) {
 	return item, ok
 }
 
+func (s *MemoryStore) ListActionIntents() []action.Intent {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	out := make([]action.Intent, 0, len(s.actionIntents))
+	for _, item := range s.actionIntents {
+		out = append(out, item)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].CreatedAt.After(out[j].CreatedAt) })
+	return out
+}
+
+func (s *MemoryStore) GetActionIntent(actionID string) (action.Intent, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	item, ok := s.actionIntents[actionID]
+	return item, ok
+}
+
+func (s *MemoryStore) UpsertActionIntent(intent action.Intent) (action.Intent, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.upsertActionIntentLocked(intent)
+}
+
+func (s *MemoryStore) upsertActionIntentLocked(intent action.Intent) (action.Intent, error) {
+	now := time.Now().UTC()
+	if intent.ID == "" {
+		intent.ID = nextID("action", len(s.actionIntents)+1)
+	}
+	if intent.Status == "" {
+		intent.Status = action.StatusDrafted
+	}
+	if intent.CreatedAt.IsZero() {
+		intent.CreatedAt = now
+	}
+	intent.UpdatedAt = now
+	intent.EvidenceRefs = normalizeEvidenceRefs(intent.EvidenceRefs)
+	intent.RequestPayload = cloneMetadata(intent.RequestPayload)
+	s.actionIntents[intent.ID] = intent
+	return intent, nil
+}
+
+func (s *MemoryStore) ListActionResults(actionIntentID string) []action.Result {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	out := append([]action.Result(nil), s.actionResults[actionIntentID]...)
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].AttemptNumber == out[j].AttemptNumber {
+			return out[i].StartedAt.Before(out[j].StartedAt)
+		}
+		return out[i].AttemptNumber < out[j].AttemptNumber
+	})
+	return out
+}
+
+func (s *MemoryStore) RecordActionResult(result action.Result) (action.Result, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if strings.TrimSpace(result.ActionIntentID) == "" {
+		return action.Result{}, errors.New("action_intent_id is required")
+	}
+	intent, ok := s.actionIntents[result.ActionIntentID]
+	if !ok {
+		return action.Result{}, errors.New("action intent not found")
+	}
+	now := time.Now().UTC()
+	if result.ID == "" {
+		result.ID = nextID("action-result", len(s.actionResults[result.ActionIntentID])+1)
+	}
+	if result.AttemptNumber == 0 {
+		result.AttemptNumber = len(s.actionResults[result.ActionIntentID]) + 1
+	}
+	if result.StartedAt.IsZero() {
+		result.StartedAt = now
+	}
+	if result.CompletedAt.IsZero() {
+		result.CompletedAt = now
+	}
+	s.actionResults[result.ActionIntentID] = append(s.actionResults[result.ActionIntentID], result)
+	intent.UpdatedAt = result.CompletedAt
+	switch result.Status {
+	case action.StatusSucceeded:
+		intent.Status = action.StatusSucceeded
+	case action.StatusBlocked:
+		intent.Status = action.StatusBlocked
+	case action.StatusCanceled:
+		intent.Status = action.StatusCanceled
+	case action.StatusSuperseded:
+		intent.Status = action.StatusSuperseded
+	default:
+		intent.Status = action.StatusFailed
+	}
+	s.actionIntents[intent.ID] = intent
+	return result, nil
+}
+
+func (s *MemoryStore) ListOutcomes() []outcome.Record {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	out := make([]outcome.Record, 0, len(s.outcomes))
+	for _, item := range s.outcomes {
+		out = append(out, item)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].RecordedAt.After(out[j].RecordedAt) })
+	return out
+}
+
+func (s *MemoryStore) RecordOutcome(record outcome.Record) (outcome.Record, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.recordOutcomeLocked(record)
+}
+
+func (s *MemoryStore) recordOutcomeLocked(record outcome.Record) (outcome.Record, error) {
+	now := time.Now().UTC()
+	if record.ID == "" {
+		record.ID = nextID("outcome", len(s.outcomes)+1)
+	}
+	if record.RecordedAt.IsZero() {
+		record.RecordedAt = now
+	}
+	s.outcomes[record.ID] = record
+	if record.CaseID != "" {
+		caseRecord, ok := s.cases[record.CaseID]
+		if ok {
+			caseRecord.LatestOutcomeID = record.ID
+			caseRecord.OutcomeScore = record.Score
+			caseRecord.UpdatedAt = record.RecordedAt
+			switch record.Verdict {
+			case outcome.VerdictPositive:
+				caseRecord.ResolutionState = conversation.ResolutionResolved
+				caseRecord.Status = conversation.CaseResolved
+				caseRecord.ResolvedAt = timePtr(record.RecordedAt)
+			case outcome.VerdictNegative:
+				caseRecord.ResolutionState = conversation.ResolutionRegressed
+			case outcome.VerdictMixed:
+				caseRecord.ResolutionState = conversation.ResolutionMonitoring
+			default:
+				caseRecord.ResolutionState = conversation.ResolutionUnresolved
+			}
+			s.cases[caseRecord.ID] = caseRecord
+		}
+	}
+	if record.ProposalID != "" {
+		if proposal, ok := s.proposals[record.ProposalID]; ok && record.OutcomeType == outcome.TypeProposalEffectiveness {
+			if record.Verdict == outcome.VerdictPositive {
+				proposal.NewEvidenceSinceLastRejection = true
+			}
+			s.proposals[proposal.ID] = proposal
+		}
+	}
+	return record, nil
+}
+
+func (s *MemoryStore) ListKnowledgeEntries() []knowledge.Entry {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	out := make([]knowledge.Entry, 0, len(s.knowledgeEntries))
+	for _, item := range s.knowledgeEntries {
+		out = append(out, item)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].UpdatedAt.After(out[j].UpdatedAt) })
+	return out
+}
+
+func (s *MemoryStore) GetKnowledgeEntry(knowledgeID string) (knowledge.Entry, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	item, ok := s.knowledgeEntries[knowledgeID]
+	return item, ok
+}
+
+func (s *MemoryStore) UpsertKnowledgeEntry(entry knowledge.Entry, links []knowledge.EvidenceLink) (knowledge.Entry, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	now := time.Now().UTC()
+	if entry.ID == "" {
+		entry.ID = nextID("knowledge", len(s.knowledgeEntries)+1)
+	}
+	if entry.Tier == "" {
+		entry.Tier = knowledge.TierWorking
+	}
+	if entry.Status == "" {
+		entry.Status = knowledge.StatusDraft
+	}
+	if entry.SourceType == "" {
+		entry.SourceType = knowledge.SourceAgent
+	}
+	if entry.CreatedAt.IsZero() {
+		entry.CreatedAt = now
+	}
+	entry.UpdatedAt = now
+	entry.StructuredFacts = cloneMetadata(entry.StructuredFacts)
+	s.knowledgeEntries[entry.ID] = entry
+	normalized := make([]knowledge.EvidenceLink, 0, len(links))
+	for _, link := range links {
+		link.KnowledgeEntryID = entry.ID
+		normalized = append(normalized, link)
+	}
+	if len(normalized) > 0 {
+		s.knowledgeEvidence[entry.ID] = normalized
+	}
+	return entry, nil
+}
+
+func (s *MemoryStore) ListKnowledgeEvidenceLinks(knowledgeID string) []knowledge.EvidenceLink {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return append([]knowledge.EvidenceLink(nil), s.knowledgeEvidence[knowledgeID]...)
+}
+
+func (s *MemoryStore) ListKnowledgeReviews(knowledgeID string) []knowledge.Review {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return append([]knowledge.Review(nil), s.knowledgeReviews[knowledgeID]...)
+}
+
+func (s *MemoryStore) ReviewKnowledgeEntry(knowledgeID string, item knowledge.Review) (knowledge.Entry, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	entry, ok := s.knowledgeEntries[knowledgeID]
+	if !ok {
+		return knowledge.Entry{}, errors.New("knowledge entry not found")
+	}
+	now := time.Now().UTC()
+	if item.ID == "" {
+		item.ID = nextID("knowledge-review", len(s.knowledgeReviews[knowledgeID])+1)
+	}
+	item.KnowledgeEntryID = knowledgeID
+	if item.CreatedAt.IsZero() {
+		item.CreatedAt = now
+	}
+	s.knowledgeReviews[knowledgeID] = append(s.knowledgeReviews[knowledgeID], item)
+	entry.UpdatedAt = item.CreatedAt
+	switch strings.ToLower(strings.TrimSpace(item.Decision)) {
+	case "approve":
+		entry.Tier = knowledge.TierCanonical
+		entry.Status = knowledge.StatusCanonical
+		entry.SourceType = knowledge.SourcePromoted
+	case "reject":
+		entry.Status = knowledge.StatusDraft
+	case "mark_stale":
+		entry.Status = knowledge.StatusStale
+	case "archive":
+		entry.Status = knowledge.StatusArchived
+	default:
+		return knowledge.Entry{}, errors.New("unsupported knowledge review decision")
+	}
+	s.knowledgeEntries[knowledgeID] = entry
+	return entry, nil
+}
+
 func (s *MemoryStore) ListIngestions() []slack.Ingestion {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -338,6 +622,77 @@ func (s *MemoryStore) CreateIngestion(envelope slack.SlackEnvelope) slack.Ingest
 		}
 	}
 	return slack.Ingestion{}
+}
+
+func (s *MemoryStore) outcomeFromEventLocked(event ingestion.EventEnvelope) (outcome.Record, bool) {
+	now := event.CreatedAt
+	if now.IsZero() {
+		now = time.Now().UTC()
+	}
+	if event.Source == ingestion.SourceGitHub {
+		githubOutcome, ok := githubOutcomeFromMetadata(event.Metadata)
+		if !ok {
+			return outcome.Record{}, false
+		}
+		proposalID := firstNonEmpty(stringFromMetadata(event.Metadata, "proposal_id"), githubOutcome.ProposalID)
+		if proposalID == "" {
+			return outcome.Record{}, false
+		}
+		proposal, ok := s.proposals[proposalID]
+		if !ok {
+			return outcome.Record{}, false
+		}
+		if conv, ok := s.conversations[proposal.ConversationID]; ok {
+			conv.LatestEventID = event.ID
+			conv.UpdatedAt = now
+			s.conversations[conv.ID] = conv
+			_ = s.appendConversationEntryLocked(conv.ID, event, now)
+		}
+		return outcome.Record{
+			Source:         string(event.Source),
+			SourceEventID:  event.SourceEventID,
+			ConversationID: proposal.ConversationID,
+			CaseID:         proposal.CaseID,
+			TraceID:        firstNonEmpty(proposal.OriginTraceID, proposal.TraceID),
+			ProposalID:     proposalID,
+			OutcomeType:    githubOutcome.OutcomeType,
+			Verdict:        githubOutcome.Verdict,
+			Score:          githubOutcome.Score,
+			Summary:        githubOutcome.Summary,
+			Details:        githubOutcome.Details,
+			ExternalRef:    firstNonEmpty(stringFromMetadata(event.Metadata, "html_url"), stringFromMetadata(event.Metadata, "pr_url")),
+			RecordedBy:     firstNonEmpty(stringFromMetadata(event.Metadata, "sender_login"), stringFromMetadata(event.Metadata, "user_id")),
+			RecordedAt:     now,
+		}, true
+	}
+	conversationKey := conversationKeyForEvent(event)
+	conv, _ := s.resolveConversationLocked(event, now)
+	conv.LatestEventID = event.ID
+	conv.UpdatedAt = now
+	s.conversations[conv.ID] = conv
+	entry := s.appendConversationEntryLocked(conv.ID, event, now)
+	caseRecord, _ := s.activeCaseForConversationLocked(conv.ID)
+	base := outcome.Record{
+		Source:         string(event.Source),
+		SourceEventID:  event.SourceEventID,
+		ConversationID: conv.ID,
+		CaseID:         caseRecord.ID,
+		TraceID:        caseRecord.LatestTraceID,
+		RecordedBy:     stringFromMetadata(event.Metadata, "user_id"),
+		RecordedAt:     now,
+		ExternalRef:    conversationKey,
+	}
+	if event.Source == ingestion.SourceSlack {
+		if slackOutcome, ok := slackOutcomeFromText(event.NormalizedProblemStatement); ok {
+			base.OutcomeType = slackOutcome.OutcomeType
+			base.Verdict = slackOutcome.Verdict
+			base.Score = slackOutcome.Score
+			base.Summary = slackOutcome.Summary
+			base.Details = fmt.Sprintf("Slack outcome via conversation entry %s.", entry.ID)
+			return base, true
+		}
+	}
+	return outcome.Record{}, false
 }
 
 func (s *MemoryStore) materializeWorkflowLocked(event ingestion.EventEnvelope) {
@@ -514,7 +869,7 @@ func (s *MemoryStore) materializeWorkflowLocked(event ingestion.EventEnvelope) {
 	s.traces[traceID] = trace
 	_, _ = s.enqueueWorkItemLocked(queue.WorkItem{
 		Queue:          queue.WorkflowQueue,
-		Kind:           "workflow",
+		Kind:           "run_workflow",
 		Status:         queue.WorkQueued,
 		TraceID:        traceID,
 		WorkflowID:     workflow.ID,
@@ -529,6 +884,7 @@ func (s *MemoryStore) materializeWorkflowLocked(event ingestion.EventEnvelope) {
 		ApprovalMode:   workflow.ApprovalMode,
 		ResponseMode:   workflow.ResponseMode,
 		Payload: map[string]interface{}{
+			"dedupe_key":           fmt.Sprintf("%s:run_workflow", traceID),
 			"event_id":             event.ID,
 			"workflow_hint":        event.WorkflowHint,
 			"assigned_bot":         assignedBot,
@@ -620,6 +976,7 @@ func (s *MemoryStore) resolveCaseLocked(conv conversation.Conversation, event in
 		ResponseMode:    responseModeForIntent(intentForWorkflowHint(event.WorkflowHint)),
 		AssignedBot:     assignedBotFor(event.WorkflowHint),
 		OpenedByEventID: event.ID,
+		ResolutionState: conversation.ResolutionUnresolved,
 		CreatedAt:       createdAt,
 		UpdatedAt:       createdAt,
 	}
@@ -732,6 +1089,29 @@ func (s *MemoryStore) supersedeInFlightTracesLocked(caseID string, nextTraceID s
 		item.LeaseOwner = ""
 		item.LeaseExpiresAt = nil
 		s.workItems[id] = item
+	}
+	for id, item := range s.actionIntents {
+		if item.CaseID != caseID {
+			continue
+		}
+		if item.Status == action.StatusSucceeded || item.Status == action.StatusFailed || item.Status == action.StatusBlocked || item.Status == action.StatusCanceled || item.Status == action.StatusSuperseded {
+			continue
+		}
+		item.Status = action.StatusSuperseded
+		item.SupersededByActionID = nextTraceID
+		item.UpdatedAt = createdAt
+		s.actionIntents[id] = item
+		s.actionResults[id] = append(s.actionResults[id], action.Result{
+			ID:             nextID("action-result", len(s.actionResults[id])+1),
+			ActionIntentID: id,
+			AttemptNumber:  len(s.actionResults[id]) + 1,
+			Executor:       "supersession",
+			Status:         action.StatusSuperseded,
+			ErrorCode:      "trace_superseded",
+			ErrorMessage:   fmt.Sprintf("Superseded by newer trace %s", nextTraceID),
+			StartedAt:      createdAt,
+			CompletedAt:    createdAt,
+		})
 	}
 	return supersedes
 }
@@ -1118,6 +1498,20 @@ func (s *MemoryStore) enqueueWorkItemLocked(item queue.WorkItem) (queue.WorkItem
 	}
 	if item.Payload == nil {
 		item.Payload = map[string]interface{}{}
+	}
+	if dedupeKey := workItemDedupeKey(item); dedupeKey != "" {
+		for _, existing := range s.workItems {
+			if existing.Queue != item.Queue || existing.Kind != item.Kind {
+				continue
+			}
+			if workItemDedupeKey(existing) != dedupeKey {
+				continue
+			}
+			if existing.Status == queue.WorkFailed || existing.Status == queue.WorkCanceled {
+				continue
+			}
+			return existing, nil
+		}
 	}
 	s.workItems[item.ID] = item
 	return item, nil
@@ -2118,6 +2512,9 @@ func (s *MemoryStore) ExecuteTool(name string, input map[string]interface{}) Too
 		ToolCallID:    toolCallID,
 		Approved:      approved,
 		ApprovalState: approvalState,
+		Status:        "ok",
+		Available:     true,
+		Provider:      "memory",
 		ExecutedAt:    now,
 		Input:         input,
 		Output: map[string]interface{}{
@@ -2132,8 +2529,107 @@ func (s *MemoryStore) ExecuteTool(name string, input map[string]interface{}) Too
 	}
 }
 
+type derivedOutcome struct {
+	OutcomeType outcome.Type
+	Verdict     outcome.Verdict
+	Score       float64
+	Summary     string
+	Details     string
+	ProposalID  string
+}
+
+func slackOutcomeFromText(text string) (derivedOutcome, bool) {
+	normalized := strings.ToLower(strings.TrimSpace(text))
+	normalized = strings.TrimPrefix(normalized, "rsi outcome:")
+	normalized = strings.TrimPrefix(normalized, "rsi:")
+	normalized = strings.TrimSpace(normalized)
+	switch {
+	case strings.HasPrefix(normalized, "accepted"):
+		return derivedOutcome{OutcomeType: outcome.TypeAnswerQuality, Verdict: outcome.VerdictPositive, Score: 1, Summary: "Slack participant marked the answer accepted."}, true
+	case strings.HasPrefix(normalized, "corrected"):
+		return derivedOutcome{OutcomeType: outcome.TypeAnswerQuality, Verdict: outcome.VerdictNegative, Score: 0.2, Summary: "Slack participant corrected the answer."}, true
+	case strings.HasPrefix(normalized, "mitigated"):
+		return derivedOutcome{OutcomeType: outcome.TypeIncidentMitigation, Verdict: outcome.VerdictPositive, Score: 1, Summary: "Slack participant marked the incident mitigated."}, true
+	case strings.HasPrefix(normalized, "still broken"):
+		return derivedOutcome{OutcomeType: outcome.TypeIncidentMitigation, Verdict: outcome.VerdictNegative, Score: 0, Summary: "Slack participant reported the incident is still broken."}, true
+	case strings.HasPrefix(normalized, "feature approved"):
+		return derivedOutcome{OutcomeType: outcome.TypeFeatureDelivery, Verdict: outcome.VerdictPositive, Score: 0.8, Summary: "Slack participant approved the feature request direction."}, true
+	case strings.HasPrefix(normalized, "feature declined"):
+		return derivedOutcome{OutcomeType: outcome.TypeFeatureDelivery, Verdict: outcome.VerdictNegative, Score: 0.1, Summary: "Slack participant declined the feature request."}, true
+	default:
+		return derivedOutcome{}, false
+	}
+}
+
+func githubOutcomeFromMetadata(metadata map[string]interface{}) (derivedOutcome, bool) {
+	if strings.TrimSpace(stringFromMetadata(metadata, "proposal_id")) == "" {
+		return derivedOutcome{}, false
+	}
+	actionValue := strings.ToLower(strings.TrimSpace(stringFromMetadata(metadata, "action")))
+	eventType := strings.ToLower(strings.TrimSpace(stringFromMetadata(metadata, "event_type")))
+	state := strings.ToLower(strings.TrimSpace(stringFromMetadata(metadata, "state")))
+	merged := strings.ToLower(strings.TrimSpace(stringFromMetadata(metadata, "merged")))
+	switch {
+	case eventType == "pull_request" && actionValue == "opened":
+		return derivedOutcome{
+			OutcomeType: outcome.TypeProposalEffectiveness,
+			Verdict:     outcome.VerdictUnresolved,
+			Score:       0.4,
+			Summary:     "GitHub pull request was opened.",
+			Details:     "Proposal path reached draft PR open.",
+			ProposalID:  stringFromMetadata(metadata, "proposal_id"),
+		}, true
+	case eventType == "pull_request" && actionValue == "reopened":
+		return derivedOutcome{
+			OutcomeType: outcome.TypeProposalEffectiveness,
+			Verdict:     outcome.VerdictUnresolved,
+			Score:       0.4,
+			Summary:     "GitHub pull request reopened.",
+			Details:     "Proposal path re-entered the open PR state.",
+			ProposalID:  stringFromMetadata(metadata, "proposal_id"),
+		}, true
+	case eventType == "pull_request" && (actionValue == "closed" && (merged == "true" || state == "merged")):
+		return derivedOutcome{
+			OutcomeType: outcome.TypeProposalEffectiveness,
+			Verdict:     outcome.VerdictPositive,
+			Score:       1,
+			Summary:     "GitHub pull request merged.",
+			Details:     "Proposal path reached merge.",
+			ProposalID:  stringFromMetadata(metadata, "proposal_id"),
+		}, true
+	case eventType == "pull_request" && actionValue == "closed":
+		return derivedOutcome{
+			OutcomeType: outcome.TypeProposalEffectiveness,
+			Verdict:     outcome.VerdictNegative,
+			Score:       0,
+			Summary:     "GitHub pull request closed without merge.",
+			Details:     "Proposal path did not merge.",
+			ProposalID:  stringFromMetadata(metadata, "proposal_id"),
+		}, true
+	default:
+		return derivedOutcome{}, false
+	}
+}
+
+func normalizeEvidenceRefs(items []events.EvidenceRef) []events.EvidenceRef {
+	if items == nil {
+		return []events.EvidenceRef{}
+	}
+	return items
+}
+
 func nextID(prefix string, n int) string {
 	return fmt.Sprintf("%s-%03d", prefix, n)
+}
+
+func workItemDedupeKey(item queue.WorkItem) string {
+	if item.Payload == nil {
+		return ""
+	}
+	if raw, ok := item.Payload["dedupe_key"].(string); ok {
+		return strings.TrimSpace(raw)
+	}
+	return ""
 }
 
 func timePtr(t time.Time) *time.Time {
@@ -2268,8 +2764,35 @@ func stringFromMetadata(metadata map[string]interface{}, key string) string {
 	switch value := metadata[key].(type) {
 	case string:
 		return value
+	case bool:
+		if value {
+			return "true"
+		}
+		return "false"
+	case fmt.Stringer:
+		return value.String()
+	case int:
+		return fmt.Sprintf("%d", value)
+	case int64:
+		return fmt.Sprintf("%d", value)
+	case float64:
+		return fmt.Sprintf("%v", value)
 	default:
 		return ""
+	}
+}
+
+func boolFromMetadata(metadata map[string]interface{}, key string) bool {
+	if metadata == nil {
+		return false
+	}
+	switch value := metadata[key].(type) {
+	case bool:
+		return value
+	case string:
+		return strings.EqualFold(strings.TrimSpace(value), "true")
+	default:
+		return false
 	}
 }
 

@@ -12,6 +12,8 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/app"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
+	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
+	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	"github.com/piplabs/rsi-agent-platform/internal/reviewui"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
@@ -55,6 +57,91 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 			return
 		}
 		app.WriteJSON(w, http.StatusCreated, item)
+	})
+	r.Get("/api/actions", func(w http.ResponseWriter, r *http.Request) {
+		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
+			"action_intents": sliceOrEmpty(listActionIntents(store, actionFilters{
+				ConversationID: r.URL.Query().Get("conversation"),
+				CaseID:         r.URL.Query().Get("case"),
+				TraceID:        r.URL.Query().Get("trace"),
+				ProposalID:     r.URL.Query().Get("proposal"),
+			})),
+		})
+	})
+	r.Get("/api/actions/{actionID}", func(w http.ResponseWriter, r *http.Request) {
+		actionID := chi.URLParam(r, "actionID")
+		payload, ok := buildActionDetail(store, actionID)
+		if !ok {
+			app.WriteError(w, http.StatusNotFound, errors.New("action not found"))
+			return
+		}
+		app.WriteJSON(w, http.StatusOK, payload)
+	})
+	r.Get("/api/outcomes", func(w http.ResponseWriter, r *http.Request) {
+		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
+			"outcomes": sliceOrEmpty(listOutcomes(
+				store,
+				r.URL.Query().Get("conversation"),
+				r.URL.Query().Get("case"),
+				r.URL.Query().Get("trace"),
+				r.URL.Query().Get("proposal"),
+			)),
+		})
+	})
+	r.Post("/api/outcomes", func(w http.ResponseWriter, r *http.Request) {
+		var body outcome.Record
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			app.WriteError(w, http.StatusBadRequest, err)
+			return
+		}
+		if body.Source == "" {
+			body.Source = "operator"
+		}
+		if body.RecordedBy == "" {
+			body.RecordedBy = "ui-operator"
+		}
+		item, err := store.RecordOutcome(body)
+		if err != nil {
+			app.WriteError(w, http.StatusBadRequest, err)
+			return
+		}
+		app.WriteJSON(w, http.StatusCreated, item)
+	})
+	r.Get("/api/knowledge", func(w http.ResponseWriter, r *http.Request) {
+		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
+			"knowledge_entries": sliceOrEmpty(listKnowledgeEntries(store, knowledgeFilters{
+				Tier:      r.URL.Query().Get("tier"),
+				Status:    r.URL.Query().Get("status"),
+				ScopeType: r.URL.Query().Get("scope_type"),
+				ScopeID:   r.URL.Query().Get("scope_id"),
+			})),
+		})
+	})
+	r.Get("/api/knowledge/{knowledgeID}", func(w http.ResponseWriter, r *http.Request) {
+		knowledgeID := chi.URLParam(r, "knowledgeID")
+		payload, ok := buildKnowledgeDetail(store, knowledgeID)
+		if !ok {
+			app.WriteError(w, http.StatusNotFound, errors.New("knowledge entry not found"))
+			return
+		}
+		app.WriteJSON(w, http.StatusOK, payload)
+	})
+	r.Post("/api/knowledge/{knowledgeID}/review", func(w http.ResponseWriter, r *http.Request) {
+		knowledgeID := chi.URLParam(r, "knowledgeID")
+		var body knowledge.Review
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			app.WriteError(w, http.StatusBadRequest, err)
+			return
+		}
+		if body.ReviewerID == "" {
+			body.ReviewerID = "ui-operator"
+		}
+		item, err := store.ReviewKnowledgeEntry(knowledgeID, body)
+		if err != nil {
+			app.WriteError(w, http.StatusBadRequest, err)
+			return
+		}
+		app.WriteJSON(w, http.StatusOK, item)
 	})
 	r.Post("/api/traces/{traceID}/evaluate", func(w http.ResponseWriter, r *http.Request) {
 		traceID := chi.URLParam(r, "traceID")

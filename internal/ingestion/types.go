@@ -7,6 +7,7 @@ type Source string
 const (
 	SourceSlack  Source = "slack"
 	SourceSentry Source = "sentry"
+	SourceGitHub Source = "github"
 	SourceReplay Source = "replay"
 	SourceSystem Source = "system"
 )

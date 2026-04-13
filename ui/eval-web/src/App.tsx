@@ -2,9 +2,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 
 type NullableList<T> = T[] | null;
-type TabKey = "conversations" | "cases" | "proposals";
+type TabKey = "conversations" | "cases" | "proposals" | "knowledge";
 type ProposalSegment = "active" | "candidates" | "history";
-type TraceInspectorTab = "overview" | "timeline" | "reasoning" | "tools" | "slack" | "evals" | "feedback" | "proposals";
+type KnowledgeSegment = "working" | "review" | "canonical" | "stale";
+type TraceInspectorTab = "overview" | "timeline" | "reasoning" | "tools" | "actions" | "slack" | "outcomes" | "evals" | "feedback" | "proposals";
 
 type TraceEvalSummary = {
   run_id: string;
@@ -86,6 +87,10 @@ type ConversationDetailResponse = {
   cases: NullableList<CaseSummary>;
   transcript: NullableList<ConversationEntry>;
   trace_attempts: NullableList<TraceAttemptSummary>;
+  action_intents: NullableList<ActionIntent>;
+  action_results: NullableList<ActionResult>;
+  outcomes: NullableList<OutcomeRecord>;
+  knowledge_entries: NullableList<KnowledgeEntry>;
   linked_proposals: NullableList<Proposal>;
 };
 
@@ -94,6 +99,10 @@ type CaseDetailResponse = {
   conversation: ConversationListItem;
   trace_attempts: NullableList<TraceAttemptSummary>;
   latest_eval_runs: NullableList<EvalRun>;
+  action_intents: NullableList<ActionIntent>;
+  action_results: NullableList<ActionResult>;
+  outcomes: NullableList<OutcomeRecord>;
+  knowledge_entries: NullableList<KnowledgeEntry>;
   linked_proposals: NullableList<Proposal>;
 };
 
@@ -184,6 +193,10 @@ type TraceDetailResponse = {
   transcript_slice: NullableList<ConversationEntry>;
   linked_eval_runs: NullableList<EvalRun>;
   judgments_by_eval_run: Record<string, NullableList<EvalJudgment>>;
+  action_intents: NullableList<ActionIntent>;
+  action_results: NullableList<ActionResult>;
+  outcomes: NullableList<OutcomeRecord>;
+  knowledge_entries: NullableList<KnowledgeEntry>;
   feedback_records: NullableList<FeedbackRecord>;
   linked_proposals: NullableList<Proposal>;
 };
@@ -219,6 +232,100 @@ type FeedbackRecord = {
   labels?: NullableList<string>;
   notes?: string;
   reviewer_id: string;
+  created_at: string;
+};
+
+type ActionIntent = {
+  id: string;
+  owner_plane: string;
+  conversation_id?: string;
+  case_id?: string;
+  trace_id?: string;
+  proposal_id?: string;
+  kind: string;
+  target_ref?: string;
+  request_payload?: Record<string, unknown>;
+  idempotency_key?: string;
+  approval_mode?: string;
+  approval_state?: string;
+  policy_verdict?: string;
+  status: string;
+  superseded_by_action_id?: string;
+  requested_by?: string;
+  rationale?: string;
+  evidence_refs?: NullableList<EvidenceRef>;
+  created_at: string;
+  updated_at: string;
+};
+
+type ActionResult = {
+  id: string;
+  action_intent_id: string;
+  attempt_number: number;
+  executor: string;
+  provider?: string;
+  provider_ref?: string;
+  request_artifact_id?: string;
+  response_artifact_id?: string;
+  status: string;
+  error_code?: string;
+  error_message?: string;
+  started_at: string;
+  completed_at: string;
+};
+
+type OutcomeRecord = {
+  id: string;
+  source: string;
+  source_event_id?: string;
+  conversation_id?: string;
+  case_id?: string;
+  trace_id?: string;
+  proposal_id?: string;
+  outcome_type: string;
+  verdict: string;
+  score?: number;
+  summary?: string;
+  details?: string;
+  external_ref?: string;
+  recorded_by?: string;
+  recorded_at: string;
+};
+
+type KnowledgeEntry = {
+  id: string;
+  tier: string;
+  kind: string;
+  scope_type: string;
+  scope_id?: string;
+  title: string;
+  summary?: string;
+  body?: string;
+  structured_facts?: Record<string, unknown>;
+  status: string;
+  confidence?: number;
+  fresh_until?: string;
+  source_type: string;
+  supersedes_entry_id?: string;
+  contradicted_by_entry_id?: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type KnowledgeEvidenceLink = {
+  knowledge_entry_id: string;
+  evidence_type: string;
+  evidence_id: string;
+  relevance_summary?: string;
+  evidence_ref: EvidenceRef;
+};
+
+type KnowledgeReview = {
+  id: string;
+  knowledge_entry_id: string;
+  decision: string;
+  reviewer_id: string;
+  rationale?: string;
   created_at: string;
 };
 
@@ -351,6 +458,20 @@ type ProposalDetailResponse = {
   post_merge_replays: NullableList<PostMergeReplay>;
   linked_trace_summaries: NullableList<TraceAttemptSummary>;
   linked_eval_runs: NullableList<EvalRun>;
+  action_intents: NullableList<ActionIntent>;
+  action_results: NullableList<ActionResult>;
+  outcomes: NullableList<OutcomeRecord>;
+  knowledge_entries: NullableList<KnowledgeEntry>;
+};
+
+type KnowledgeListResponse = {
+  knowledge_entries: NullableList<KnowledgeEntry>;
+};
+
+type KnowledgeDetailResponse = {
+  knowledge_entry: KnowledgeEntry;
+  evidence_links: NullableList<KnowledgeEvidenceLink>;
+  reviews: NullableList<KnowledgeReview>;
 };
 
 type RuntimeRole = {
@@ -381,6 +502,7 @@ type ViewState = {
   case?: string;
   trace?: string;
   proposal?: string;
+  knowledge?: string;
 };
 
 const ACTIVE_PROPOSAL_STATES = new Set([
@@ -425,13 +547,18 @@ function postJSON<T>(url: string, body: Record<string, unknown>): Promise<T> {
 function readViewState(): ViewState {
   const params = new URLSearchParams(window.location.search);
   const tabValue = params.get("tab");
-  const tab: TabKey = tabValue === "cases" ? "cases" : tabValue === "proposals" ? "proposals" : "conversations";
+  const tab: TabKey =
+    tabValue === "cases" ? "cases" :
+    tabValue === "proposals" ? "proposals" :
+    tabValue === "knowledge" ? "knowledge" :
+    "conversations";
   return {
     tab,
     conversation: params.get("conversation") || undefined,
     case: params.get("case") || undefined,
     trace: params.get("trace") || undefined,
-    proposal: params.get("proposal") || undefined
+    proposal: params.get("proposal") || undefined,
+    knowledge: params.get("knowledge") || undefined
   };
 }
 
@@ -442,6 +569,7 @@ function writeViewState(next: ViewState) {
   if (next.case) params.set("case", next.case);
   if (next.trace) params.set("trace", next.trace);
   if (next.proposal) params.set("proposal", next.proposal);
+  if (next.knowledge) params.set("knowledge", next.knowledge);
   const query = params.toString();
   const target = `${window.location.pathname}${query ? `?${query}` : ""}`;
   window.history.replaceState({}, "", target);
@@ -471,10 +599,34 @@ function proposalJobState(proposalId: string, jobs: RepoChangeJob[]) {
   return jobs.find((job) => job.proposal_id === proposalId);
 }
 
+function actionResultsForIntent(intentId: string, results: NullableList<ActionResult> | undefined) {
+  return listOrEmpty(results).filter((item) => item.action_intent_id === intentId);
+}
+
+function latestActionResult(intentId: string, results: NullableList<ActionResult> | undefined) {
+  return actionResultsForIntent(intentId, results)[0];
+}
+
+function knowledgeEntriesForSegment(entries: KnowledgeEntry[], segment: KnowledgeSegment) {
+  switch (segment) {
+    case "working":
+      return entries.filter((item) => item.tier === "working" && item.status === "draft");
+    case "review":
+      return entries.filter((item) => item.status === "review_pending");
+    case "canonical":
+      return entries.filter((item) => item.status === "canonical" || item.tier === "canonical");
+    case "stale":
+      return entries.filter((item) => ["stale", "contradicted", "archived"].includes(item.status));
+    default:
+      return entries;
+  }
+}
+
 export function App() {
   const queryClient = useQueryClient();
   const [viewState, setViewState] = useState<ViewState>(() => readViewState());
   const [proposalSegment, setProposalSegment] = useState<ProposalSegment>("active");
+  const [knowledgeSegment, setKnowledgeSegment] = useState<KnowledgeSegment>("working");
   const [traceInspectorTab, setTraceInspectorTab] = useState<TraceInspectorTab>("overview");
   const [proposalCapInput, setProposalCapInput] = useState("2");
   const [feedbackTargetType, setFeedbackTargetType] = useState("trace");
@@ -483,6 +635,7 @@ export function App() {
   const [feedbackVerdict, setFeedbackVerdict] = useState("useful");
   const [feedbackNotes, setFeedbackNotes] = useState("");
   const [proposalRationale, setProposalRationale] = useState("");
+  const [knowledgeReviewRationale, setKnowledgeReviewRationale] = useState("");
 
   useEffect(() => {
     const handlePopState = () => setViewState(readViewState());
@@ -508,6 +661,11 @@ export function App() {
   const proposalsQuery = useQuery({
     queryKey: ["proposals"],
     queryFn: () => getJSON<ProposalResponse>("/api/proposals")
+  });
+
+  const knowledgeQuery = useQuery({
+    queryKey: ["knowledge"],
+    queryFn: () => getJSON<KnowledgeListResponse>("/api/knowledge")
   });
 
   const runtimeQuery = useQuery({
@@ -539,9 +697,16 @@ export function App() {
     enabled: Boolean(viewState.tab === "proposals" && viewState.proposal)
   });
 
+  const knowledgeDetailQuery = useQuery({
+    queryKey: ["knowledge", viewState.knowledge],
+    queryFn: () => getJSON<KnowledgeDetailResponse>(`/api/knowledge/${viewState.knowledge}`),
+    enabled: Boolean(viewState.tab === "knowledge" && viewState.knowledge)
+  });
+
   const conversations = listOrEmpty(conversationsQuery.data?.conversations);
   const cases = listOrEmpty(casesQuery.data?.cases);
   const proposals = listOrEmpty(proposalsQuery.data?.proposals);
+  const knowledgeEntries = listOrEmpty(knowledgeQuery.data?.knowledge_entries);
   const candidates = listOrEmpty(proposalsQuery.data?.candidates);
   const proposalMemories = listOrEmpty(proposalsQuery.data?.proposal_memory);
   const repoChangeJobs = listOrEmpty(proposalsQuery.data?.repo_change_jobs);
@@ -574,6 +739,12 @@ export function App() {
     }
   }, [viewState.proposal, proposals]);
 
+  useEffect(() => {
+    if (viewState.knowledge && !knowledgeEntries.some((item) => item.id === viewState.knowledge)) {
+      navigate({ tab: "knowledge" });
+    }
+  }, [viewState.knowledge, knowledgeEntries]);
+
   const refreshEverything = async () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ["conversations"] }),
@@ -583,6 +754,7 @@ export function App() {
       queryClient.invalidateQueries({ queryKey: ["trace"] }),
       queryClient.invalidateQueries({ queryKey: ["proposals"] }),
       queryClient.invalidateQueries({ queryKey: ["proposal"] }),
+      queryClient.invalidateQueries({ queryKey: ["knowledge"] }),
       queryClient.invalidateQueries({ queryKey: ["runtime"] })
     ]);
   };
@@ -610,6 +782,19 @@ export function App() {
       }),
     onSuccess: async () => {
       setFeedbackNotes("");
+      await refreshEverything();
+    }
+  });
+
+  const knowledgeReviewMutation = useMutation({
+    mutationFn: (decision: string) =>
+      postJSON(`/api/knowledge/${viewState.knowledge}/review`, {
+        decision,
+        rationale: knowledgeReviewRationale || `UI operator recorded ${decision}.`,
+        reviewer_id: "ui-operator"
+      }),
+    onSuccess: async () => {
+      setKnowledgeReviewRationale("");
       await refreshEverything();
     }
   });
@@ -647,6 +832,10 @@ export function App() {
     [proposals]
   );
   const proposalRows = proposalSegment === "active" ? activeProposals : proposalSegment === "history" ? historyProposals : [];
+  const knowledgeRows = useMemo(
+    () => knowledgeEntriesForSegment(knowledgeEntries, knowledgeSegment),
+    [knowledgeEntries, knowledgeSegment]
+  );
 
   const traceDetail = traceDetailQuery.data;
   const feedbackTargets = useMemo(() => {
@@ -657,6 +846,9 @@ export function App() {
     }
     for (const call of listOrEmpty(traceDetail.trace.tool_calls)) {
       targets.push({ label: `Tool: ${call.tool_name}`, value: call.id, type: "tool_call" });
+    }
+    for (const intent of listOrEmpty(traceDetail.action_intents)) {
+      targets.push({ label: `Action: ${intent.kind}`, value: intent.id, type: "action_intent" });
     }
     for (const action of listOrEmpty(traceDetail.trace.slack_actions)) {
       targets.push({ label: `Slack action ${formatTime(action.created_at)}`, value: action.id, type: "slack_action" });
@@ -696,6 +888,10 @@ export function App() {
           <button className={viewState.tab === "proposals" ? "tab-button active" : "tab-button"} onClick={() => navigate({ tab: "proposals" })}>
             <span>Proposals</span>
             <strong>{proposals.length}</strong>
+          </button>
+          <button className={viewState.tab === "knowledge" ? "tab-button active" : "tab-button"} onClick={() => navigate({ tab: "knowledge" })}>
+            <span>Knowledge</span>
+            <strong>{knowledgeEntries.length}</strong>
           </button>
         </nav>
 
@@ -817,7 +1013,7 @@ export function App() {
               ))}
             </div>
           </>
-        ) : (
+        ) : viewState.tab === "proposals" ? (
           <>
             <header className="pane-header">
               <div>
@@ -882,6 +1078,46 @@ export function App() {
                 })}
               </div>
             )}
+          </>
+        ) : (
+          <>
+            <header className="pane-header">
+              <div>
+                <p className="eyebrow">Knowledge</p>
+                <h2>Working drafts and canonical memory</h2>
+              </div>
+              <div className="segment-row">
+                {(["working", "review", "canonical", "stale"] as KnowledgeSegment[]).map((segment) => (
+                  <button key={segment} className={knowledgeSegment === segment ? "segment-button active" : "segment-button"} onClick={() => setKnowledgeSegment(segment)}>
+                    {segment}
+                  </button>
+                ))}
+              </div>
+            </header>
+            <div className="list-stack">
+              {knowledgeRows.map((entry) => (
+                <button
+                  key={entry.id}
+                  className={entry.id === viewState.knowledge ? "list-card selected" : "list-card"}
+                  onClick={() => navigate({ tab: "knowledge", knowledge: entry.id })}
+                >
+                  <div className="list-card-header">
+                    <div>
+                      <strong>{entry.title}</strong>
+                      <p>{entry.kind} · {entry.scope_type}</p>
+                    </div>
+                    <span className="status-chip">{entry.status}</span>
+                  </div>
+                  <p className="trace-thread">{entry.summary || entry.body || "No summary."}</p>
+                  <dl className="mini-metrics">
+                    <div><dt>Tier</dt><dd>{entry.tier}</dd></div>
+                    <div><dt>Confidence</dt><dd>{scoreBadge(entry.confidence)}</dd></div>
+                    <div><dt>Source</dt><dd>{entry.source_type}</dd></div>
+                    <div><dt>Updated</dt><dd>{formatTime(entry.updated_at)}</dd></div>
+                  </dl>
+                </button>
+              ))}
+            </div>
           </>
         )}
       </section>
@@ -951,7 +1187,7 @@ export function App() {
           ) : (
             <EmptyDetail title="Case not found" body="The selected case no longer exists." />
           )
-        ) : !viewState.proposal ? (
+        ) : viewState.tab === "proposals" ? (!viewState.proposal ? (
           <EmptyDetail title="Select a proposal" body="Proposals remain the review and PR-path surface. Select one to inspect reasoning, memory, evidence traces, and linked PR state." />
         ) : proposalDetailQuery.isLoading ? (
           <EmptyDetail title="Loading proposal" body="Fetching proposal reviews, memory, repo-change state, and linked traces." />
@@ -965,6 +1201,19 @@ export function App() {
           />
         ) : (
           <EmptyDetail title="Proposal not found" body="The selected proposal no longer exists." />
+        )) : !viewState.knowledge ? (
+          <EmptyDetail title="Select a knowledge entry" body="Knowledge tracks working drafts, canonical guidance, contradictions, and the evidence behind each entry." />
+        ) : knowledgeDetailQuery.isLoading ? (
+          <EmptyDetail title="Loading knowledge" body="Fetching provenance links and review history." />
+        ) : knowledgeDetailQuery.data ? (
+          <KnowledgeDetail
+            detail={knowledgeDetailQuery.data}
+            reviewRationale={knowledgeReviewRationale}
+            setReviewRationale={setKnowledgeReviewRationale}
+            onDecision={(decision) => knowledgeReviewMutation.mutate(decision)}
+          />
+        ) : (
+          <EmptyDetail title="Knowledge entry not found" body="The selected knowledge entry no longer exists." />
         )}
       </section>
     </div>
@@ -1183,6 +1432,8 @@ function ProposalDetail(props: {
   onDecision: (decision: string) => void;
 }) {
   const prAttempt = listOrEmpty(props.detail.pr_attempts)[0];
+  const actionIntents = listOrEmpty(props.detail.action_intents);
+  const actionResults = listOrEmpty(props.detail.action_results);
   return (
     <div className="detail-stack">
       <div className="detail-card">
@@ -1271,6 +1522,52 @@ function ProposalDetail(props: {
           ))}
         </div>
       </div>
+
+      <div className="review-grid">
+        <div className="detail-card">
+          <h3>Action chain</h3>
+          <div className="nested-list">
+            {actionIntents.map((intent) => {
+              const result = latestActionResult(intent.id, actionResults);
+              return (
+                <div key={intent.id} className="nested-card">
+                  <div className="detail-row-header">
+                    <strong>{intent.kind}</strong>
+                    <small>{result?.status || intent.status}</small>
+                  </div>
+                  <p className="detail-copy">{intent.rationale || intent.target_ref || "No rationale recorded."}</p>
+                  <p className="muted">{intent.target_ref || intent.policy_verdict || "No target."}</p>
+                  {result?.error_message ? <p className="muted">Error: {result.error_message}</p> : null}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="detail-card">
+          <h3>Knowledge and outcomes</h3>
+          <div className="nested-list">
+            {listOrEmpty(props.detail.outcomes).map((item) => (
+              <div key={item.id} className="nested-card">
+                <div className="detail-row-header">
+                  <strong>{item.outcome_type}</strong>
+                  <small>{item.verdict} · {scoreBadge(item.score)}</small>
+                </div>
+                <p className="detail-copy">{item.summary || item.details || "No summary."}</p>
+              </div>
+            ))}
+            {listOrEmpty(props.detail.knowledge_entries).map((item) => (
+              <div key={item.id} className="nested-card">
+                <div className="detail-row-header">
+                  <strong>{item.title}</strong>
+                  <small>{item.status} · {item.tier}</small>
+                </div>
+                <p className="detail-copy">{item.summary || item.body || "No summary."}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1304,7 +1601,7 @@ function TraceInspector(props: {
   }
 
   const trace = props.traceDetail.trace;
-  const inspectorTabs: TraceInspectorTab[] = ["overview", "timeline", "reasoning", "tools", "slack", "evals", "feedback", "proposals"];
+  const inspectorTabs: TraceInspectorTab[] = ["overview", "timeline", "reasoning", "tools", "actions", "slack", "outcomes", "evals", "feedback", "proposals"];
 
   return (
     <div className="detail-card">
@@ -1337,6 +1634,9 @@ function TraceInspector(props: {
             <div><dt>Reasoning</dt><dd>{trace.summary.reasoning_step_count}</dd></div>
             <div><dt>Tools</dt><dd>{trace.summary.tool_call_count}</dd></div>
             <div><dt>Slack</dt><dd>{trace.summary.slack_action_count}</dd></div>
+            <div><dt>Actions</dt><dd>{listOrEmpty(props.traceDetail.action_intents).length}</dd></div>
+            <div><dt>Outcomes</dt><dd>{listOrEmpty(props.traceDetail.outcomes).length}</dd></div>
+            <div><dt>Knowledge</dt><dd>{listOrEmpty(props.traceDetail.knowledge_entries).length}</dd></div>
           </dl>
           <div className="detail-card">
             <h3>Transcript slice used</h3>
@@ -1400,6 +1700,26 @@ function TraceInspector(props: {
         </div>
       ) : null}
 
+      {props.tab === "actions" ? (
+        <div className="detail-section-body">
+          {listOrEmpty(props.traceDetail.action_intents).map((intent) => {
+            const result = latestActionResult(intent.id, props.traceDetail.action_results);
+            return (
+              <div key={intent.id} className="detail-row">
+                <div className="detail-row-header">
+                  <strong>{intent.kind}</strong>
+                  <small>{result?.status || intent.status}</small>
+                </div>
+                <p className="detail-copy">{intent.rationale || intent.target_ref || "No rationale recorded."}</p>
+                <p className="muted">{intent.target_ref || intent.policy_verdict || "No target reference."}</p>
+                {result?.provider ? <p className="muted">Provider: {result.provider}{result.provider_ref ? ` · ${result.provider_ref}` : ""}</p> : null}
+                {result?.error_message ? <p className="muted">Error: {result.error_message}</p> : null}
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
+
       {props.tab === "slack" ? (
         <div className="detail-section-body">
           {listOrEmpty(trace.slack_actions).map((action) => (
@@ -1411,6 +1731,37 @@ function TraceInspector(props: {
               <p className="detail-copy">{action.final_body || action.draft_body}</p>
             </div>
           ))}
+        </div>
+      ) : null}
+
+      {props.tab === "outcomes" ? (
+        <div className="detail-section-body">
+          {listOrEmpty(props.traceDetail.outcomes).map((item) => (
+            <div key={item.id} className="detail-row">
+              <div className="detail-row-header">
+                <strong>{item.outcome_type}</strong>
+                <small>{item.verdict} · {scoreBadge(item.score)}</small>
+              </div>
+              <p className="detail-copy">{item.summary || item.details || "No summary."}</p>
+              <p className="muted">{item.source} · {formatTime(item.recorded_at)}</p>
+            </div>
+          ))}
+          {listOrEmpty(props.traceDetail.knowledge_entries).length ? (
+            <div className="detail-card">
+              <h3>Related knowledge</h3>
+              <div className="nested-list">
+                {listOrEmpty(props.traceDetail.knowledge_entries).map((item) => (
+                  <div key={item.id} className="nested-card">
+                    <div className="detail-row-header">
+                      <strong>{item.title}</strong>
+                      <small>{item.status} · {item.tier}</small>
+                    </div>
+                    <p className="detail-copy">{item.summary || item.body || "No summary."}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
       ) : null}
 
@@ -1502,6 +1853,83 @@ function TraceInspector(props: {
           ))}
         </div>
       ) : null}
+    </div>
+  );
+}
+
+function KnowledgeDetail(props: {
+  detail: KnowledgeDetailResponse;
+  reviewRationale: string;
+  setReviewRationale: (value: string) => void;
+  onDecision: (decision: string) => void;
+}) {
+  return (
+    <div className="detail-stack">
+      <div className="detail-card">
+        <div className="detail-header">
+          <div>
+            <p className="eyebrow">Knowledge</p>
+            <h2>{props.detail.knowledge_entry.title}</h2>
+          </div>
+          <div className="detail-meta">
+            <span className="status-chip">{props.detail.knowledge_entry.status}</span>
+            <span className="status-chip">{props.detail.knowledge_entry.tier}</span>
+          </div>
+        </div>
+        <p className="detail-copy">{props.detail.knowledge_entry.summary || props.detail.knowledge_entry.body || "No summary."}</p>
+        <dl className="overview-grid">
+          <div><dt>Kind</dt><dd>{props.detail.knowledge_entry.kind}</dd></div>
+          <div><dt>Scope</dt><dd>{props.detail.knowledge_entry.scope_type}</dd></div>
+          <div><dt>Scope ID</dt><dd>{props.detail.knowledge_entry.scope_id || "global"}</dd></div>
+          <div><dt>Confidence</dt><dd>{scoreBadge(props.detail.knowledge_entry.confidence)}</dd></div>
+        </dl>
+      </div>
+
+      <div className="review-grid">
+        <div className="detail-card">
+          <h3>Evidence links</h3>
+          <div className="nested-list">
+            {listOrEmpty(props.detail.evidence_links).map((link) => (
+              <div key={`${link.evidence_type}:${link.evidence_id}`} className="nested-card">
+                <div className="detail-row-header">
+                  <strong>{link.evidence_type}</strong>
+                  <small>{link.evidence_id}</small>
+                </div>
+                <p className="detail-copy">{link.relevance_summary || link.evidence_ref.summary || link.evidence_ref.ref}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="detail-card">
+          <h3>Review actions</h3>
+          <label className="field">
+            Review rationale
+            <textarea value={props.reviewRationale} onChange={(event) => props.setReviewRationale(event.target.value)} placeholder="Why this entry should be approved, rejected, or marked stale." />
+          </label>
+          <div className="button-row">
+            <button onClick={() => props.onDecision("approve")}>Approve</button>
+            <button className="secondary" onClick={() => props.onDecision("reject")}>Reject</button>
+            <button className="secondary" onClick={() => props.onDecision("mark_stale")}>Mark stale</button>
+            <button className="secondary" onClick={() => props.onDecision("archive")}>Archive</button>
+          </div>
+        </div>
+      </div>
+
+      <div className="detail-card">
+        <h3>Review history</h3>
+        <div className="nested-list">
+          {listOrEmpty(props.detail.reviews).map((review) => (
+            <div key={review.id} className="nested-card">
+              <div className="detail-row-header">
+                <strong>{review.decision}</strong>
+                <small>{formatTime(review.created_at)}</small>
+              </div>
+              <p className="detail-copy">{review.rationale || "No rationale."}</p>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

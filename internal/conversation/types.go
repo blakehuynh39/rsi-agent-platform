@@ -24,6 +24,15 @@ const (
 	CaseClosed     CaseStatus = "closed"
 )
 
+type ResolutionState string
+
+const (
+	ResolutionUnresolved ResolutionState = "unresolved"
+	ResolutionMonitoring ResolutionState = "monitoring"
+	ResolutionResolved   ResolutionState = "resolved"
+	ResolutionRegressed  ResolutionState = "regressed"
+)
+
 type Conversation struct {
 	ID                   string           `json:"id"`
 	Source               ingestion.Source `json:"source"`
@@ -54,21 +63,25 @@ type Entry struct {
 }
 
 type Case struct {
-	ID                 string     `json:"id"`
-	ConversationID     string     `json:"conversation_id"`
-	Kind               string     `json:"kind"`
-	Intent             string     `json:"intent"`
-	Title              string     `json:"title"`
-	Summary            string     `json:"summary"`
-	Status             CaseStatus `json:"status"`
-	ApprovalMode       string     `json:"approval_mode,omitempty"`
-	ResponseMode       string     `json:"response_mode,omitempty"`
-	AssignedBot        string     `json:"assigned_bot"`
-	OpenedByEventID    string     `json:"opened_by_event_id,omitempty"`
-	ClosedByEventID    string     `json:"closed_by_event_id,omitempty"`
-	LatestTraceID      string     `json:"latest_trace_id,omitempty"`
-	SupersededByCaseID string     `json:"superseded_by_case_id,omitempty"`
-	CreatedAt          time.Time  `json:"created_at"`
-	UpdatedAt          time.Time  `json:"updated_at"`
-	ClosedAt           *time.Time `json:"closed_at,omitempty"`
+	ID                 string          `json:"id"`
+	ConversationID     string          `json:"conversation_id"`
+	Kind               string          `json:"kind"`
+	Intent             string          `json:"intent"`
+	Title              string          `json:"title"`
+	Summary            string          `json:"summary"`
+	Status             CaseStatus      `json:"status"`
+	ApprovalMode       string          `json:"approval_mode,omitempty"`
+	ResponseMode       string          `json:"response_mode,omitempty"`
+	AssignedBot        string          `json:"assigned_bot"`
+	OpenedByEventID    string          `json:"opened_by_event_id,omitempty"`
+	ClosedByEventID    string          `json:"closed_by_event_id,omitempty"`
+	LatestTraceID      string          `json:"latest_trace_id,omitempty"`
+	ResolutionState    ResolutionState `json:"resolution_state,omitempty"`
+	ResolvedAt         *time.Time      `json:"resolved_at,omitempty"`
+	LatestOutcomeID    string          `json:"latest_outcome_id,omitempty"`
+	OutcomeScore       float64         `json:"outcome_score,omitempty"`
+	SupersededByCaseID string          `json:"superseded_by_case_id,omitempty"`
+	CreatedAt          time.Time       `json:"created_at"`
+	UpdatedAt          time.Time       `json:"updated_at"`
+	ClosedAt           *time.Time      `json:"closed_at,omitempty"`
 }

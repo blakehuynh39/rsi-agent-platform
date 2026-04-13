@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"sort"
 	"strings"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 
 	"github.com/piplabs/rsi-agent-platform/internal/cluster"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
+	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -94,11 +96,53 @@ func (s *Service) repoContext(input map[string]interface{}) storepkg.ToolResult 
 }
 
 func (s *Service) knowledgeContext(input map[string]interface{}) storepkg.ToolResult {
-	kbURL := firstNonEmpty(stringValue(input["knowledge_base_url"]), s.cfg.DefaultKnowledgeBaseURL)
-	summary := fmt.Sprintf("Knowledge-base reference prepared from %s.", kbURL)
+	topic := strings.ToLower(strings.TrimSpace(firstNonEmpty(stringValue(input["topic"]), stringValue(input["question"]))))
+	scopeID := firstNonEmpty(stringValue(input["scope_id"]), stringValue(input["repo"]))
+	entries := s.store.ListKnowledgeEntries()
+	sort.Slice(entries, func(i, j int) bool {
+		left := entries[i]
+		right := entries[j]
+		leftRank := 1
+		if left.Status == knowledge.StatusCanonical || left.Tier == knowledge.TierCanonical {
+			leftRank = 0
+		}
+		rightRank := 1
+		if right.Status == knowledge.StatusCanonical || right.Tier == knowledge.TierCanonical {
+			rightRank = 0
+		}
+		if leftRank != rightRank {
+			return leftRank < rightRank
+		}
+		if left.Confidence != right.Confidence {
+			return left.Confidence > right.Confidence
+		}
+		return left.UpdatedAt.After(right.UpdatedAt)
+	})
+	matches := make([]knowledge.Entry, 0)
+	links := make([][]knowledge.EvidenceLink, 0)
+	for _, item := range entries {
+		if item.Status != knowledge.StatusCanonical && item.Tier != knowledge.TierWorking {
+			continue
+		}
+		if scopeID != "" && item.ScopeID != "" && item.ScopeID != scopeID {
+			continue
+		}
+		haystack := strings.ToLower(strings.Join([]string{item.Title, item.Summary, item.Body, string(item.Kind), string(item.ScopeType)}, " "))
+		if topic != "" && !strings.Contains(haystack, topic) {
+			continue
+		}
+		matches = append(matches, item)
+		links = append(links, s.store.ListKnowledgeEvidenceLinks(item.ID))
+		if len(matches) == 8 {
+			break
+		}
+	}
+	summary := fmt.Sprintf("Retrieved %d structured knowledge entries.", len(matches))
 	return s.result("knowledge.context", input, summary, map[string]interface{}{
-		"knowledge_base_url": kbURL,
-		"topic":              stringValue(input["topic"]),
+		"topic":    topic,
+		"scope_id": scopeID,
+		"entries":  matches,
+		"links":    links,
 	}, nil)
 }
 
@@ -106,11 +150,18 @@ func (s *Service) sentryLookup(input map[string]interface{}) storepkg.ToolResult
 	service := firstNonEmpty(stringValue(input["service"]), "unknown-service")
 	alert := stringValue(input["alert"])
 	if strings.TrimSpace(s.cfg.SentryAuthToken) == "" || strings.TrimSpace(s.cfg.SentryOrganization) == "" {
-		summary := fmt.Sprintf("Sentry context for %s prepared from typed fallback: %s", service, firstNonEmpty(alert, "no alert specified"))
+		summary := fmt.Sprintf("Sentry lookup unavailable for %s: missing credentials.", service)
+		if s.failClosed() {
+			return s.unavailableResult("sentry.lookup", input, "sentry", summary, map[string]interface{}{
+				"service": service,
+				"alert":   alert,
+				"error":   "missing RSI_SENTRY_AUTH_TOKEN or RSI_SENTRY_ORGANIZATION",
+			})
+		}
 		return s.result("sentry.lookup", input, summary, map[string]interface{}{
 			"service": service,
 			"alert":   alert,
-			"source":  "fallback",
+			"source":  "development_fallback",
 		}, nil)
 	}
 
@@ -141,11 +192,18 @@ func (s *Service) kubernetesInspect(input map[string]interface{}) storepkg.ToolR
 	namespace := firstNonEmpty(stringValue(input["namespace"]), s.cfg.SandboxNamespace)
 	target := firstNonEmpty(stringValue(input["target"]), stringValue(input["service"]))
 	if s.kubeClient == nil {
-		summary := fmt.Sprintf("Kubernetes inspection fallback for %s/%s.", namespace, firstNonEmpty(target, "unknown"))
+		summary := fmt.Sprintf("Kubernetes inspection unavailable for %s/%s.", namespace, firstNonEmpty(target, "unknown"))
+		if s.failClosed() {
+			return s.unavailableResult("kubernetes.inspect", input, "kubernetes", summary, map[string]interface{}{
+				"namespace": namespace,
+				"target":    target,
+				"error":     "kubernetes client unavailable",
+			})
+		}
 		return s.result("kubernetes.inspect", input, summary, map[string]interface{}{
 			"namespace": namespace,
 			"target":    target,
-			"source":    "fallback",
+			"source":    "development_fallback",
 		}, nil)
 	}
 
@@ -196,10 +254,16 @@ func (s *Service) kubernetesInspect(input map[string]interface{}) storepkg.ToolR
 func (s *Service) githubRepoContext(input map[string]interface{}) storepkg.ToolResult {
 	repo := firstNonEmpty(stringValue(input["repo"]), s.cfg.DefaultRepo)
 	if strings.TrimSpace(s.cfg.GitHubToken) == "" {
-		summary := fmt.Sprintf("GitHub repo context prepared for %s from fallback metadata.", repo)
+		summary := fmt.Sprintf("GitHub repo context unavailable for %s: missing token.", repo)
+		if s.failClosed() {
+			return s.unavailableResult("github.repo_context", input, "github", summary, map[string]interface{}{
+				"repo":  repo,
+				"error": "missing RSI_GITHUB_TOKEN",
+			})
+		}
 		return s.result("github.repo_context", input, summary, map[string]interface{}{
 			"repo":   repo,
-			"source": "fallback",
+			"source": "development_fallback",
 		}, nil)
 	}
 	endpoint := fmt.Sprintf("%s/repos/%s/%s", strings.TrimRight(s.cfg.GitHubAPIBaseURL, "/"), s.cfg.GitHubOwner, repo)
@@ -224,12 +288,12 @@ func (s *Service) githubCreatePR(input map[string]interface{}) storepkg.ToolResu
 	title := firstNonEmpty(stringValue(input["title"]), fmt.Sprintf("RSI proposal for %s", repo))
 	body := firstNonEmpty(stringValue(input["body"]), "Automated draft PR from RSI platform.")
 	if strings.TrimSpace(s.cfg.GitHubToken) == "" {
-		return s.result("github.create_pr", input, "GitHub token not configured; refusing stub PR path.", map[string]interface{}{
+		return s.unavailableResult("github.create_pr", input, "github", "GitHub token not configured; refusing draft PR execution.", map[string]interface{}{
 			"repo":  repo,
 			"head":  head,
 			"base":  base,
 			"error": "missing RSI_GITHUB_TOKEN",
-		}, nil)
+		})
 	}
 	requestBody := map[string]interface{}{
 		"title": title,
@@ -265,10 +329,16 @@ func (s *Service) githubCreatePR(input map[string]interface{}) storepkg.ToolResu
 func (s *Service) cloudflareInspect(input map[string]interface{}) storepkg.ToolResult {
 	resource := firstNonEmpty(stringValue(input["resource"]), "zones")
 	if strings.TrimSpace(s.cfg.CloudflareAPIToken) == "" {
-		summary := fmt.Sprintf("Cloudflare read-only inspection prepared for %s from fallback metadata.", resource)
+		summary := fmt.Sprintf("Cloudflare inspection unavailable for %s: missing API token.", resource)
+		if s.failClosed() {
+			return s.unavailableResult("cloudflare.inspect", input, "cloudflare", summary, map[string]interface{}{
+				"resource": resource,
+				"error":    "missing RSI_CLOUDFLARE_API_TOKEN",
+			})
+		}
 		return s.result("cloudflare.inspect", input, summary, map[string]interface{}{
 			"resource": resource,
-			"source":   "fallback",
+			"source":   "development_fallback",
 		}, nil)
 	}
 
@@ -282,10 +352,10 @@ func (s *Service) cloudflareInspect(input map[string]interface{}) storepkg.ToolR
 		}
 	default:
 		if strings.TrimSpace(s.cfg.CloudflareAccountID) == "" {
-			return s.result("cloudflare.inspect", input, "Cloudflare account id required for non-zone inspection.", map[string]interface{}{
+			return s.unavailableResult("cloudflare.inspect", input, "cloudflare", "Cloudflare account id required for non-zone inspection.", map[string]interface{}{
 				"resource": resource,
 				"error":    "missing RSI_CLOUDFLARE_ACCOUNT_ID",
-			}, nil)
+			})
 		}
 		endpoint = fmt.Sprintf("%s/accounts/%s/%s", strings.TrimRight(s.cfg.CloudflareAPIBaseURL, "/"), s.cfg.CloudflareAccountID, path.Clean("/"+resource))
 	}
@@ -319,6 +389,15 @@ func (s *Service) slackReply(input map[string]interface{}) storepkg.ToolResult {
 			"posted": false,
 		}, nil)
 	}
+	if !dryRun && s.slackClient == nil {
+		summary = "Slack reply unavailable: bot token is not configured."
+		if s.failClosed() {
+			return s.unavailableResult("slack.reply", input, "slack", summary, map[string]interface{}{
+				"posted": false,
+				"error":  "missing RSI_SLACK_BOT_TOKEN",
+			})
+		}
+	}
 	if !dryRun && s.slackClient != nil {
 		params := slackapi.PostMessageParameters{ThreadTimestamp: threadTS}
 		_, ts, err := s.slackClient.PostMessage(channelID, slackapi.MsgOptionText(body, false), slackapi.MsgOptionPostMessageParameters(params))
@@ -344,6 +423,10 @@ func (s *Service) result(name string, input map[string]interface{}, summary stri
 		ToolCallID:      callID,
 		Approved:        true,
 		ApprovalState:   "not_required",
+		Status:          "ok",
+		Available:       true,
+		Provider:        providerForToolName(name),
+		ProviderRef:     providerRefForTool(name, output),
 		ExecutedAt:      time.Now().UTC(),
 		Input:           input,
 		Output:          output,
@@ -353,6 +436,31 @@ func (s *Service) result(name string, input map[string]interface{}, summary stri
 			"tool_name": name,
 		},
 	}
+}
+
+func (s *Service) unavailableResult(name string, input map[string]interface{}, provider string, summary string, output map[string]interface{}) storepkg.ToolResult {
+	callID := fmt.Sprintf("%s-%d", sanitizeToolName(name), time.Now().UTC().UnixNano())
+	return storepkg.ToolResult{
+		Name:          name,
+		ToolCallID:    callID,
+		Approved:      false,
+		ApprovalState: "provider_unavailable",
+		Status:        "blocked",
+		Available:     false,
+		Provider:      provider,
+		ExecutedAt:    time.Now().UTC(),
+		Input:         input,
+		Output:        output,
+		Summary:       summary,
+		Metadata: map[string]interface{}{
+			"tool_name": name,
+			"provider":  provider,
+		},
+	}
+}
+
+func (s *Service) failClosed() bool {
+	return !strings.EqualFold(strings.TrimSpace(s.cfg.Environment), "development")
 }
 
 func (s *Service) apiJSON(method string, endpoint string, body interface{}, headers map[string]string, out interface{}) error {
@@ -456,4 +564,44 @@ func truncate(value string, limit int) string {
 		return value
 	}
 	return value[:limit]
+}
+
+func providerForToolName(name string) string {
+	switch {
+	case strings.HasPrefix(name, "slack."):
+		return "slack"
+	case strings.HasPrefix(name, "github."):
+		return "github"
+	case strings.HasPrefix(name, "sentry."):
+		return "sentry"
+	case strings.HasPrefix(name, "kubernetes."):
+		return "kubernetes"
+	case strings.HasPrefix(name, "cloudflare."):
+		return "cloudflare"
+	case strings.HasPrefix(name, "knowledge."):
+		return "knowledge"
+	default:
+		return "internal"
+	}
+}
+
+func providerRefForTool(name string, output map[string]interface{}) string {
+	switch name {
+	case "slack.reply":
+		return firstNonEmpty(stringValue(output["ts"]), stringValue(output["thread_ts"]))
+	case "github.create_pr":
+		return stringValue(output["pr_url"])
+	case "github.repo_context":
+		return stringValue(output["html_url"])
+	case "sentry.lookup":
+		return stringValue(output["query"])
+	case "kubernetes.inspect":
+		return stringValue(output["target"])
+	case "cloudflare.inspect":
+		return stringValue(output["resource"])
+	case "knowledge.context":
+		return stringValue(output["topic"])
+	default:
+		return stringValue(output["repo"])
+	}
 }

@@ -10,6 +10,7 @@ import (
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 
+	"github.com/piplabs/rsi-agent-platform/internal/action"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	platformdb "github.com/piplabs/rsi-agent-platform/internal/db"
@@ -17,6 +18,8 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
+	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
+	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/registry"
@@ -148,6 +151,24 @@ func loadStore(r sqlReader) (*MemoryStore, error) {
 	if err := loadCases(r, store); err != nil {
 		return nil, err
 	}
+	if err := loadActionIntents(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadActionResults(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadOutcomes(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadKnowledgeEntries(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadKnowledgeEvidence(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadKnowledgeReviews(r, store); err != nil {
+		return nil, err
+	}
 	if err := loadIngestions(r, store); err != nil {
 		return nil, err
 	}
@@ -213,6 +234,7 @@ func loadStore(r sqlReader) (*MemoryStore, error) {
 		return NewMemoryStore(), nil
 	}
 	backfillConversationCaseV2(store)
+	backfillActionOutcomeKnowledgeV3(store)
 	return store, nil
 }
 
@@ -223,6 +245,12 @@ func persistStore(tx *sql.Tx, store *MemoryStore) error {
 		"pr_attempt",
 		"repo_change_job",
 		"post_merge_replay",
+		"knowledge_review",
+		"knowledge_evidence_link",
+		"knowledge_entry",
+		"outcome_record",
+		"action_result",
+		"action_intent",
 		"cron_lease",
 		"slack_action_record",
 		"tool_call_record",
@@ -287,6 +315,24 @@ func persistStore(tx *sql.Tx, store *MemoryStore) error {
 		return err
 	}
 	if err := persistCases(tx, store); err != nil {
+		return err
+	}
+	if err := persistActionIntents(tx, store); err != nil {
+		return err
+	}
+	if err := persistActionResults(tx, store); err != nil {
+		return err
+	}
+	if err := persistOutcomes(tx, store); err != nil {
+		return err
+	}
+	if err := persistKnowledgeEntries(tx, store); err != nil {
+		return err
+	}
+	if err := persistKnowledgeEvidence(tx, store); err != nil {
+		return err
+	}
+	if err := persistKnowledgeReviews(tx, store); err != nil {
 		return err
 	}
 	if err := persistIngestions(tx, store); err != nil {
@@ -536,7 +582,7 @@ func loadConversationEntries(r sqlReader, store *MemoryStore) error {
 }
 
 func loadCases(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, conversation_id, kind, intent, title, summary, status, approval_mode, response_mode, assigned_bot, opened_by_event_id, closed_by_event_id, latest_trace_id, superseded_by_case_id, created_at, updated_at, closed_at from case_record order by updated_at desc`)
+	rows, err := r.Query(`select id, conversation_id, kind, intent, title, summary, status, approval_mode, response_mode, assigned_bot, opened_by_event_id, closed_by_event_id, latest_trace_id, resolution_state, resolved_at, latest_outcome_id, outcome_score, superseded_by_case_id, created_at, updated_at, closed_at from case_record order by updated_at desc`)
 	if err != nil {
 		return err
 	}
@@ -544,9 +590,9 @@ func loadCases(r sqlReader, store *MemoryStore) error {
 	for rows.Next() {
 		var item conversation.Case
 		var status string
-		var approvalMode, responseMode, openedByEventID, closedByEventID, latestTraceID, supersededByCaseID sql.NullString
-		var closedAt sql.NullTime
-		if err := rows.Scan(&item.ID, &item.ConversationID, &item.Kind, &item.Intent, &item.Title, &item.Summary, &status, &approvalMode, &responseMode, &item.AssignedBot, &openedByEventID, &closedByEventID, &latestTraceID, &supersededByCaseID, &item.CreatedAt, &item.UpdatedAt, &closedAt); err != nil {
+		var approvalMode, responseMode, openedByEventID, closedByEventID, latestTraceID, resolutionState, latestOutcomeID, supersededByCaseID sql.NullString
+		var resolvedAt, closedAt sql.NullTime
+		if err := rows.Scan(&item.ID, &item.ConversationID, &item.Kind, &item.Intent, &item.Title, &item.Summary, &status, &approvalMode, &responseMode, &item.AssignedBot, &openedByEventID, &closedByEventID, &latestTraceID, &resolutionState, &resolvedAt, &latestOutcomeID, &item.OutcomeScore, &supersededByCaseID, &item.CreatedAt, &item.UpdatedAt, &closedAt); err != nil {
 			return err
 		}
 		item.Status = conversation.CaseStatus(status)
@@ -555,12 +601,181 @@ func loadCases(r sqlReader, store *MemoryStore) error {
 		item.OpenedByEventID = openedByEventID.String
 		item.ClosedByEventID = closedByEventID.String
 		item.LatestTraceID = latestTraceID.String
+		item.ResolutionState = conversation.ResolutionState(resolutionState.String)
+		item.LatestOutcomeID = latestOutcomeID.String
 		item.SupersededByCaseID = supersededByCaseID.String
+		if resolvedAt.Valid {
+			t := resolvedAt.Time
+			item.ResolvedAt = &t
+		}
 		if closedAt.Valid {
 			t := closedAt.Time
 			item.ClosedAt = &t
 		}
 		store.cases[item.ID] = item
+	}
+	return rows.Err()
+}
+
+func loadActionIntents(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, owner_plane, conversation_id, case_id, trace_id, proposal_id, kind, phase_key, target_ref, request_payload, idempotency_key, approval_mode, approval_state, policy_verdict, status, superseded_by_action_id, requested_by, rationale, evidence_refs, created_at, updated_at from action_intent order by created_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item action.Intent
+		var conversationID, caseID, traceID, proposalID, phaseKey, targetRef, idempotencyKey, approvalMode, approvalState, policyVerdict, supersededBy, requestedBy, rationale sql.NullString
+		var requestPayload, evidenceRefs []byte
+		var kind, status string
+		if err := rows.Scan(&item.ID, &item.OwnerPlane, &conversationID, &caseID, &traceID, &proposalID, &kind, &phaseKey, &targetRef, &requestPayload, &idempotencyKey, &approvalMode, &approvalState, &policyVerdict, &status, &supersededBy, &requestedBy, &rationale, &evidenceRefs, &item.CreatedAt, &item.UpdatedAt); err != nil {
+			return err
+		}
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.TraceID = traceID.String
+		item.ProposalID = proposalID.String
+		item.Kind = action.Kind(kind)
+		item.PhaseKey = phaseKey.String
+		item.TargetRef = targetRef.String
+		item.RequestPayload = decodeJSON(requestPayload, map[string]any{})
+		item.IdempotencyKey = idempotencyKey.String
+		item.ApprovalMode = approvalMode.String
+		item.ApprovalState = approvalState.String
+		item.PolicyVerdict = policyVerdict.String
+		item.Status = action.Status(status)
+		item.SupersededByActionID = supersededBy.String
+		item.RequestedBy = requestedBy.String
+		item.Rationale = rationale.String
+		item.EvidenceRefs = decodeJSON(evidenceRefs, []events.EvidenceRef{})
+		store.actionIntents[item.ID] = item
+	}
+	return rows.Err()
+}
+
+func loadActionResults(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, action_intent_id, attempt_number, executor, provider, provider_ref, request_artifact_id, response_artifact_id, status, error_code, error_message, started_at, completed_at from action_result order by action_intent_id asc, attempt_number asc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item action.Result
+		var provider, providerRef, requestArtifactID, responseArtifactID, errorCode, errorMessage sql.NullString
+		var status string
+		if err := rows.Scan(&item.ID, &item.ActionIntentID, &item.AttemptNumber, &item.Executor, &provider, &providerRef, &requestArtifactID, &responseArtifactID, &status, &errorCode, &errorMessage, &item.StartedAt, &item.CompletedAt); err != nil {
+			return err
+		}
+		item.Provider = provider.String
+		item.ProviderRef = providerRef.String
+		item.RequestArtifactID = requestArtifactID.String
+		item.ResponseArtifactID = responseArtifactID.String
+		item.Status = action.Status(status)
+		item.ErrorCode = errorCode.String
+		item.ErrorMessage = errorMessage.String
+		store.actionResults[item.ActionIntentID] = append(store.actionResults[item.ActionIntentID], item)
+	}
+	return rows.Err()
+}
+
+func loadOutcomes(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, source, source_event_id, conversation_id, case_id, trace_id, proposal_id, outcome_type, verdict, score, summary, details, external_ref, recorded_by, recorded_at from outcome_record order by recorded_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item outcome.Record
+		var sourceEventID, conversationID, caseID, traceID, proposalID, summary, details, externalRef, recordedBy sql.NullString
+		var outcomeType, verdict string
+		if err := rows.Scan(&item.ID, &item.Source, &sourceEventID, &conversationID, &caseID, &traceID, &proposalID, &outcomeType, &verdict, &item.Score, &summary, &details, &externalRef, &recordedBy, &item.RecordedAt); err != nil {
+			return err
+		}
+		item.SourceEventID = sourceEventID.String
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.TraceID = traceID.String
+		item.ProposalID = proposalID.String
+		item.OutcomeType = outcome.Type(outcomeType)
+		item.Verdict = outcome.Verdict(verdict)
+		item.Summary = summary.String
+		item.Details = details.String
+		item.ExternalRef = externalRef.String
+		item.RecordedBy = recordedBy.String
+		store.outcomes[item.ID] = item
+	}
+	return rows.Err()
+}
+
+func loadKnowledgeEntries(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, tier, kind, scope_type, scope_id, title, summary, body, structured_facts, status, confidence, fresh_until, source_type, supersedes_entry_id, contradicted_by_entry_id, created_at, updated_at from knowledge_entry order by updated_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item knowledge.Entry
+		var scopeID, summary, body, supersedesEntryID, contradictedByEntryID sql.NullString
+		var structuredFacts []byte
+		var freshUntil sql.NullTime
+		var tier, kind, scopeType, status, sourceType string
+		if err := rows.Scan(&item.ID, &tier, &kind, &scopeType, &scopeID, &item.Title, &summary, &body, &structuredFacts, &status, &item.Confidence, &freshUntil, &sourceType, &supersedesEntryID, &contradictedByEntryID, &item.CreatedAt, &item.UpdatedAt); err != nil {
+			return err
+		}
+		item.Tier = knowledge.Tier(tier)
+		item.Kind = knowledge.Kind(kind)
+		item.ScopeType = knowledge.ScopeType(scopeType)
+		item.ScopeID = scopeID.String
+		item.Summary = summary.String
+		item.Body = body.String
+		item.StructuredFacts = decodeJSON(structuredFacts, map[string]any{})
+		item.Status = knowledge.Status(status)
+		if freshUntil.Valid {
+			t := freshUntil.Time
+			item.FreshUntil = &t
+		}
+		item.SourceType = knowledge.SourceType(sourceType)
+		item.SupersedesEntryID = supersedesEntryID.String
+		item.ContradictedByEntryID = contradictedByEntryID.String
+		store.knowledgeEntries[item.ID] = item
+	}
+	return rows.Err()
+}
+
+func loadKnowledgeEvidence(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select knowledge_entry_id, evidence_type, evidence_id, relevance_summary, evidence_ref from knowledge_evidence_link order by knowledge_entry_id asc, id asc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item knowledge.EvidenceLink
+		var relevance sql.NullString
+		var evidenceRef []byte
+		if err := rows.Scan(&item.KnowledgeEntryID, &item.EvidenceType, &item.EvidenceID, &relevance, &evidenceRef); err != nil {
+			return err
+		}
+		item.RelevanceSummary = relevance.String
+		item.EvidenceRef = decodeJSON(evidenceRef, events.EvidenceRef{})
+		store.knowledgeEvidence[item.KnowledgeEntryID] = append(store.knowledgeEvidence[item.KnowledgeEntryID], item)
+	}
+	return rows.Err()
+}
+
+func loadKnowledgeReviews(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, knowledge_entry_id, decision, reviewer_id, rationale, created_at from knowledge_review order by created_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item knowledge.Review
+		var rationale sql.NullString
+		if err := rows.Scan(&item.ID, &item.KnowledgeEntryID, &item.Decision, &item.ReviewerID, &rationale, &item.CreatedAt); err != nil {
+			return err
+		}
+		item.Rationale = rationale.String
+		store.knowledgeReviews[item.KnowledgeEntryID] = append(store.knowledgeReviews[item.KnowledgeEntryID], item)
 	}
 	return rows.Err()
 }
@@ -1298,10 +1513,91 @@ func persistCases(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.cases)
 	for _, key := range keys {
 		item := store.cases[key]
-		if _, err := tx.Exec(`insert into case_record (id, conversation_id, kind, intent, title, summary, status, approval_mode, response_mode, assigned_bot, opened_by_event_id, closed_by_event_id, latest_trace_id, superseded_by_case_id, created_at, updated_at, closed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)`,
-			item.ID, item.ConversationID, item.Kind, item.Intent, item.Title, item.Summary, string(item.Status), nullString(item.ApprovalMode), nullString(item.ResponseMode), item.AssignedBot, nullString(item.OpenedByEventID), nullString(item.ClosedByEventID), nullString(item.LatestTraceID), nullString(item.SupersededByCaseID), item.CreatedAt, item.UpdatedAt, nullTime(item.ClosedAt),
+		if _, err := tx.Exec(`insert into case_record (id, conversation_id, kind, intent, title, summary, status, approval_mode, response_mode, assigned_bot, opened_by_event_id, closed_by_event_id, latest_trace_id, resolution_state, resolved_at, latest_outcome_id, outcome_score, superseded_by_case_id, created_at, updated_at, closed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)`,
+			item.ID, item.ConversationID, item.Kind, item.Intent, item.Title, item.Summary, string(item.Status), nullString(item.ApprovalMode), nullString(item.ResponseMode), item.AssignedBot, nullString(item.OpenedByEventID), nullString(item.ClosedByEventID), nullString(item.LatestTraceID), string(item.ResolutionState), nullTime(item.ResolvedAt), nullString(item.LatestOutcomeID), item.OutcomeScore, nullString(item.SupersededByCaseID), item.CreatedAt, item.UpdatedAt, nullTime(item.ClosedAt),
 		); err != nil {
 			return err
+		}
+	}
+	return nil
+}
+
+func persistActionIntents(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.actionIntents)
+	for _, key := range keys {
+		item := store.actionIntents[key]
+		if _, err := tx.Exec(`insert into action_intent (id, owner_plane, conversation_id, case_id, trace_id, proposal_id, kind, phase_key, target_ref, request_payload, idempotency_key, approval_mode, approval_state, policy_verdict, status, superseded_by_action_id, requested_by, rationale, evidence_refs, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::jsonb,$11,$12,$13,$14,$15,$16,$17,$18,$19::jsonb,$20,$21)`,
+			item.ID, item.OwnerPlane, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.TraceID), nullString(item.ProposalID), string(item.Kind), nullString(item.PhaseKey), nullString(item.TargetRef), jsonString(item.RequestPayload), nullString(item.IdempotencyKey), nullString(item.ApprovalMode), nullString(item.ApprovalState), nullString(item.PolicyVerdict), string(item.Status), nullString(item.SupersededByActionID), nullString(item.RequestedBy), nullString(item.Rationale), jsonString(item.EvidenceRefs), item.CreatedAt, item.UpdatedAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistActionResults(tx *sql.Tx, store *MemoryStore) error {
+	intentKeys := sortedMapKeys(store.actionResults)
+	for _, key := range intentKeys {
+		for _, item := range store.actionResults[key] {
+			if _, err := tx.Exec(`insert into action_result (id, action_intent_id, attempt_number, executor, provider, provider_ref, request_artifact_id, response_artifact_id, status, error_code, error_message, started_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,
+				item.ID, item.ActionIntentID, item.AttemptNumber, item.Executor, nullString(item.Provider), nullString(item.ProviderRef), nullString(item.RequestArtifactID), nullString(item.ResponseArtifactID), string(item.Status), nullString(item.ErrorCode), nullString(item.ErrorMessage), item.StartedAt, item.CompletedAt,
+			); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func persistOutcomes(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.outcomes)
+	for _, key := range keys {
+		item := store.outcomes[key]
+		if _, err := tx.Exec(`insert into outcome_record (id, source, source_event_id, conversation_id, case_id, trace_id, proposal_id, outcome_type, verdict, score, summary, details, external_ref, recorded_by, recorded_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
+			item.ID, item.Source, nullString(item.SourceEventID), nullString(item.ConversationID), nullString(item.CaseID), nullString(item.TraceID), nullString(item.ProposalID), string(item.OutcomeType), string(item.Verdict), item.Score, nullString(item.Summary), nullString(item.Details), nullString(item.ExternalRef), nullString(item.RecordedBy), item.RecordedAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistKnowledgeEntries(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.knowledgeEntries)
+	for _, key := range keys {
+		item := store.knowledgeEntries[key]
+		if _, err := tx.Exec(`insert into knowledge_entry (id, tier, kind, scope_type, scope_id, title, summary, body, structured_facts, status, confidence, fresh_until, source_type, supersedes_entry_id, contradicted_by_entry_id, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10,$11,$12,$13,$14,$15,$16,$17)`,
+			item.ID, string(item.Tier), string(item.Kind), string(item.ScopeType), nullString(item.ScopeID), item.Title, nullString(item.Summary), nullString(item.Body), jsonString(item.StructuredFacts), string(item.Status), item.Confidence, nullTime(item.FreshUntil), string(item.SourceType), nullString(item.SupersedesEntryID), nullString(item.ContradictedByEntryID), item.CreatedAt, item.UpdatedAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistKnowledgeEvidence(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.knowledgeEvidence)
+	for _, key := range keys {
+		for _, item := range store.knowledgeEvidence[key] {
+			if _, err := tx.Exec(`insert into knowledge_evidence_link (knowledge_entry_id, evidence_type, evidence_id, relevance_summary, evidence_ref) values ($1,$2,$3,$4,$5::jsonb)`,
+				item.KnowledgeEntryID, item.EvidenceType, item.EvidenceID, nullString(item.RelevanceSummary), jsonString(item.EvidenceRef),
+			); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func persistKnowledgeReviews(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.knowledgeReviews)
+	for _, key := range keys {
+		for _, item := range store.knowledgeReviews[key] {
+			if _, err := tx.Exec(`insert into knowledge_review (id, knowledge_entry_id, decision, reviewer_id, rationale, created_at) values ($1,$2,$3,$4,$5,$6)`,
+				item.ID, item.KnowledgeEntryID, item.Decision, item.ReviewerID, nullString(item.Rationale), item.CreatedAt,
+			); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -1818,6 +2114,150 @@ func backfillConversationCaseV2(store *MemoryStore) {
 	}
 }
 
+func backfillActionOutcomeKnowledgeV3(store *MemoryStore) {
+	for key, caseRecord := range store.cases {
+		if caseRecord.ResolutionState == "" {
+			caseRecord.ResolutionState = conversation.ResolutionUnresolved
+		}
+		store.cases[key] = caseRecord
+	}
+
+	if len(store.actionIntents) == 0 {
+		for _, trace := range store.traces {
+			for _, item := range trace.SlackActions {
+				intentID := fmt.Sprintf("backfill-action-slack-%s", item.ID)
+				store.actionIntents[intentID] = action.Intent{
+					ID:             intentID,
+					OwnerPlane:     "control",
+					ConversationID: firstNonEmpty(item.ConversationID, trace.Summary.ConversationID),
+					CaseID:         firstNonEmpty(item.CaseID, trace.Summary.CaseID),
+					TraceID:        trace.Summary.TraceID,
+					Kind:           action.KindSlackPost,
+					TargetRef:      firstNonEmpty(item.ChannelID, trace.Summary.ThreadKey),
+					RequestPayload: map[string]any{
+						"channel_id": item.ChannelID,
+						"thread_ts":  item.ThreadTS,
+						"body":       firstNonEmpty(item.FinalBody, item.DraftBody),
+					},
+					IdempotencyKey: item.IdempotencyKey,
+					ApprovalState:  item.PolicyVerdict,
+					PolicyVerdict:  item.PolicyVerdict,
+					Status:         backfilledActionStatus(item.SendStatus),
+					RequestedBy:    "backfill",
+					Rationale:      "Backfilled from existing slack_action_record.",
+					EvidenceRefs: []events.EvidenceRef{
+						{Kind: "slack_action", Ref: item.ID, Summary: firstNonEmpty(item.FinalBody, item.DraftBody)},
+					},
+					CreatedAt: item.CreatedAt,
+					UpdatedAt: item.CreatedAt,
+				}
+				store.actionResults[intentID] = []action.Result{
+					{
+						ID:             fmt.Sprintf("backfill-action-result-%s", item.ID),
+						ActionIntentID: intentID,
+						AttemptNumber:  1,
+						Executor:       "backfill",
+						Provider:       "slack",
+						ProviderRef:    firstNonEmpty(item.ThreadTS, item.ChannelID),
+						Status:         backfilledActionStatus(item.SendStatus),
+						StartedAt:      item.CreatedAt,
+						CompletedAt:    item.CreatedAt,
+					},
+				}
+			}
+		}
+		for _, proposal := range store.proposals {
+			for _, job := range store.repoChangeJobs {
+				if job.ProposalID != proposal.ID {
+					continue
+				}
+				intentID := fmt.Sprintf("backfill-action-sandbox-%s", job.ID)
+				if _, ok := store.actionIntents[intentID]; !ok {
+					store.actionIntents[intentID] = action.Intent{
+						ID:             intentID,
+						OwnerPlane:     "improvement",
+						ConversationID: job.ConversationID,
+						CaseID:         job.CaseID,
+						TraceID:        firstNonEmpty(job.OriginTraceID, proposal.TraceID),
+						ProposalID:     proposal.ID,
+						Kind:           action.KindSandboxLaunch,
+						TargetRef:      job.Repo,
+						RequestPayload: map[string]any{"branch_name": job.BranchName, "base_ref": job.BaseRef},
+						Status:         statusForProposalJob(job.Status),
+						RequestedBy:    "backfill",
+						Rationale:      "Backfilled from existing repo_change_job.",
+						CreatedAt:      job.CreatedAt,
+						UpdatedAt:      job.CreatedAt,
+					}
+				}
+			}
+			for _, attempt := range store.prAttempts {
+				if attempt.ProposalID != proposal.ID {
+					continue
+				}
+				intentID := fmt.Sprintf("backfill-action-pr-%s", attempt.ID)
+				store.actionIntents[intentID] = action.Intent{
+					ID:             intentID,
+					OwnerPlane:     "improvement",
+					ConversationID: attempt.ConversationID,
+					CaseID:         attempt.CaseID,
+					TraceID:        firstNonEmpty(attempt.OriginTraceID, proposal.TraceID),
+					ProposalID:     proposal.ID,
+					Kind:           action.KindDraftPROpen,
+					TargetRef:      attempt.Repo,
+					RequestPayload: map[string]any{"branch_name": attempt.BranchName},
+					Status:         action.StatusSucceeded,
+					RequestedBy:    "backfill",
+					Rationale:      "Backfilled from existing pr_attempt.",
+					CreatedAt:      attempt.CreatedAt,
+					UpdatedAt:      attempt.CreatedAt,
+				}
+				store.actionResults[intentID] = []action.Result{
+					{
+						ID:             fmt.Sprintf("backfill-action-result-pr-%s", attempt.ID),
+						ActionIntentID: intentID,
+						AttemptNumber:  1,
+						Executor:       "backfill",
+						Provider:       "github",
+						ProviderRef:    attempt.PRURL,
+						Status:         action.StatusSucceeded,
+						StartedAt:      attempt.CreatedAt,
+						CompletedAt:    attempt.CreatedAt,
+					},
+				}
+			}
+		}
+	}
+}
+
+func backfilledActionStatus(sendStatus string) action.Status {
+	switch strings.ToLower(strings.TrimSpace(sendStatus)) {
+	case "posted", "ok", "succeeded":
+		return action.StatusSucceeded
+	case "blocked_by_policy", "blocked":
+		return action.StatusBlocked
+	case "canceled":
+		return action.StatusCanceled
+	default:
+		return action.StatusSucceeded
+	}
+}
+
+func statusForProposalJob(status string) action.Status {
+	switch strings.ToLower(strings.TrimSpace(status)) {
+	case string(review.ProposalRepoChangeQueued):
+		return action.StatusQueued
+	case string(review.ProposalRepoChangeRunning), string(review.ProposalValidationPending):
+		return action.StatusExecuting
+	case string(review.ProposalPROpen), string(review.ProposalMerged):
+		return action.StatusSucceeded
+	case string(review.ProposalFailedValidation):
+		return action.StatusFailed
+	default:
+		return action.StatusApproved
+	}
+}
+
 func legacyConversationKeyFromIngestion(item slack.Ingestion) string {
 	if item.ThreadKey != "" {
 		return item.ThreadKey
@@ -1961,6 +2401,115 @@ func (p *PostgresStore) GetCase(caseID string) (conversation.Case, bool) {
 		return conversation.Case{}, false
 	}
 	return store.GetCase(caseID)
+}
+
+func (p *PostgresStore) ListActionIntents() []action.Intent {
+	store, err := p.readStore()
+	if err != nil {
+		return nil
+	}
+	return store.ListActionIntents()
+}
+
+func (p *PostgresStore) GetActionIntent(actionID string) (action.Intent, bool) {
+	store, err := p.readStore()
+	if err != nil {
+		return action.Intent{}, false
+	}
+	return store.GetActionIntent(actionID)
+}
+
+func (p *PostgresStore) UpsertActionIntent(intent action.Intent) (item action.Intent, err error) {
+	err = p.mutate(func(store *MemoryStore) error {
+		var inner error
+		item, inner = store.UpsertActionIntent(intent)
+		return inner
+	})
+	return
+}
+
+func (p *PostgresStore) ListActionResults(actionIntentID string) []action.Result {
+	store, err := p.readStore()
+	if err != nil {
+		return nil
+	}
+	return store.ListActionResults(actionIntentID)
+}
+
+func (p *PostgresStore) RecordActionResult(result action.Result) (item action.Result, err error) {
+	err = p.mutate(func(store *MemoryStore) error {
+		var inner error
+		item, inner = store.RecordActionResult(result)
+		return inner
+	})
+	return
+}
+
+func (p *PostgresStore) ListOutcomes() []outcome.Record {
+	store, err := p.readStore()
+	if err != nil {
+		return nil
+	}
+	return store.ListOutcomes()
+}
+
+func (p *PostgresStore) RecordOutcome(record outcome.Record) (item outcome.Record, err error) {
+	err = p.mutate(func(store *MemoryStore) error {
+		var inner error
+		item, inner = store.RecordOutcome(record)
+		return inner
+	})
+	return
+}
+
+func (p *PostgresStore) ListKnowledgeEntries() []knowledge.Entry {
+	store, err := p.readStore()
+	if err != nil {
+		return nil
+	}
+	return store.ListKnowledgeEntries()
+}
+
+func (p *PostgresStore) GetKnowledgeEntry(knowledgeID string) (knowledge.Entry, bool) {
+	store, err := p.readStore()
+	if err != nil {
+		return knowledge.Entry{}, false
+	}
+	return store.GetKnowledgeEntry(knowledgeID)
+}
+
+func (p *PostgresStore) UpsertKnowledgeEntry(entry knowledge.Entry, links []knowledge.EvidenceLink) (item knowledge.Entry, err error) {
+	err = p.mutate(func(store *MemoryStore) error {
+		var inner error
+		item, inner = store.UpsertKnowledgeEntry(entry, links)
+		return inner
+	})
+	return
+}
+
+func (p *PostgresStore) ListKnowledgeEvidenceLinks(knowledgeID string) []knowledge.EvidenceLink {
+	store, err := p.readStore()
+	if err != nil {
+		return nil
+	}
+	return store.ListKnowledgeEvidenceLinks(knowledgeID)
+}
+
+func (p *PostgresStore) ListKnowledgeReviews(knowledgeID string) []knowledge.Review {
+	store, err := p.readStore()
+	if err != nil {
+		return nil
+	}
+	return store.ListKnowledgeReviews(knowledgeID)
+}
+
+func (p *PostgresStore) ReviewKnowledgeEntry(knowledgeID string, item knowledge.Review) (entry knowledge.Entry, err error) {
+	err = p.mutate(func(store *MemoryStore) error {
+		var inner error
+		entry, inner = store.ReviewKnowledgeEntry(knowledgeID, item)
+		return inner
+	})
+	return
 }
 
 func (p *PostgresStore) CreateEvent(event ingestion.EventEnvelope) (created ingestion.EventEnvelope, err error) {

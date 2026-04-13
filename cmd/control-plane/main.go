@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	mode := flag.String("mode", "serve", "serve, slack-surface, or worker")
+	mode := flag.String("mode", "serve", "serve, slack-surface, worker, or action-worker")
 	flag.Parse()
 
 	cfg := config.Load("control-plane")
@@ -24,6 +24,12 @@ func main() {
 	}
 	if *mode == "worker" {
 		if err := control.RunWorker(cfg, store); err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
+	if *mode == "action-worker" {
+		if err := control.RunActionWorker(cfg, store); err != nil {
 			log.Fatal(err)
 		}
 		return
