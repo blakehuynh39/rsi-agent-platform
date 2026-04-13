@@ -59,6 +59,82 @@ func TestPostgresEvaluateTraceCreatesCandidateAndPromotableProposal(t *testing.T
 	}
 }
 
+func TestPostgresRetryProposalRepoChangePersistsSandboxRequeue(t *testing.T) {
+	postgresURL, cleanup := openTempPostgresURL(t)
+	defer cleanup()
+
+	db, err := platformdb.OpenPostgres(postgresURL)
+	if err != nil {
+		t.Fatalf("open postgres: %v", err)
+	}
+	defer db.Close()
+	if _, err := platformdb.ApplyMigrations(db); err != nil {
+		t.Fatalf("apply migrations: %v", err)
+	}
+
+	store, err := NewPostgresStore(config.Config{
+		StoreBackend:       "postgres",
+		PostgresURL:        postgresURL,
+		DefaultProposalCap: 2,
+	})
+	if err != nil {
+		t.Fatalf("NewPostgresStore() error = %v", err)
+	}
+	defer store.db.Close()
+
+	_, _, _, proposal := seedPromotableFailureProposal(t, store)
+	if _, err := store.ReviewProposal(proposal.ID, review.ProposalReview{
+		Decision:   string(review.ProposalApproved),
+		Rationale:  "Proceed with repo-change work.",
+		ReviewerID: "alice",
+	}); err != nil {
+		t.Fatalf("approve proposal: %v", err)
+	}
+	job, err := store.MaterializeApprovedProposal(proposal.ID, "alice")
+	if err != nil {
+		t.Fatalf("materialize proposal: %v", err)
+	}
+	if _, err := store.UpdateRepoChangeJobStatus(job.ID, string(review.ProposalFailedValidation)); err != nil {
+		t.Fatalf("update job status: %v", err)
+	}
+	if _, err := store.UpdateProposalStatus(proposal.ID, review.ProposalFailedValidation); err != nil {
+		t.Fatalf("update proposal status: %v", err)
+	}
+
+	item, err := store.RetryProposalRepoChange(proposal.ID, "alice")
+	if err != nil {
+		t.Fatalf("RetryProposalRepoChange() error = %v", err)
+	}
+	if item.Queue != "sandbox" {
+		t.Fatalf("expected sandbox work item, got %+v", item)
+	}
+
+	reloaded, err := NewPostgresStore(config.Config{
+		StoreBackend:       "postgres",
+		PostgresURL:        postgresURL,
+		DefaultProposalCap: 2,
+	})
+	if err != nil {
+		t.Fatalf("reopen store: %v", err)
+	}
+	defer reloaded.db.Close()
+
+	jobs := reloaded.ListRepoChangeJobs()
+	if len(jobs) == 0 || jobs[0].Status != string(review.ProposalRepoChangeQueued) {
+		t.Fatalf("expected repo change job persisted in repo_change_queued, got %+v", jobs)
+	}
+	found := false
+	for _, queued := range reloaded.ListWorkItems() {
+		if queued.ID == item.ID && queued.Queue == "sandbox" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected retried sandbox work item %s to persist", item.ID)
+	}
+}
+
 func openTempPostgresURL(t *testing.T) (string, func()) {
 	t.Helper()
 	baseURL := strings.TrimSpace(os.Getenv("RSI_TEST_POSTGRES_URL"))

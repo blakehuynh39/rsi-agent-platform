@@ -323,6 +323,14 @@ export function App() {
     }
   });
 
+  const proposalRetryMutation = useMutation({
+    mutationFn: () =>
+      postJSON(`/api/proposals/${viewState.proposal}/retry`, {
+        requested_by: "ui-operator"
+      }),
+    onSuccess: refreshEverything
+  });
+
   const activeProposals = useMemo(
     () => proposals.filter((proposal) => ACTIVE_PROPOSAL_STATES.has(proposal.status)),
     [proposals]
@@ -697,6 +705,8 @@ export function App() {
             proposalRationale={proposalRationale}
             setProposalRationale={setProposalRationale}
             onDecision={(decision) => proposalDecisionMutation.mutate(decision)}
+            onRetry={() => proposalRetryMutation.mutate()}
+            canRetry={proposalDetailQuery.data.proposal.status === "failed_validation" && listOrEmpty(proposalDetailQuery.data.pr_attempts).length === 0}
             proposalMemories={proposalMemories}
           />
         ) : (

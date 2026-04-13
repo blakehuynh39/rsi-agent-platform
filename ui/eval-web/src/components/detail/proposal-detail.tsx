@@ -7,6 +7,8 @@ export function ProposalDetail(props: {
   proposalRationale: string;
   setProposalRationale: (value: string) => void;
   onDecision: (decision: string) => void;
+  onRetry: () => void;
+  canRetry: boolean;
 }) {
   const prAttempt = listOrEmpty(props.detail.pr_attempts)[0];
   const actionIntents = listOrEmpty(props.detail.action_intents);
@@ -63,6 +65,7 @@ export function ProposalDetail(props: {
             <button className="secondary" onClick={() => props.onDecision("dismissed")}>Dismiss</button>
             <button className="secondary" onClick={() => props.onDecision("rejected")}>Reject</button>
             <button className="secondary" onClick={() => props.onDecision("merged")}>Mark merged</button>
+            {props.canRetry ? <button className="secondary" onClick={props.onRetry}>Retry repo change</button> : null}
           </div>
         </div>
       </div>

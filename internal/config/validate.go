@@ -108,6 +108,21 @@ func (c Config) validateImprovementPlane(issues *[]string) {
 		*issues = append(*issues, "RSI_PROPOSAL_PROMOTER_INTERVAL must be set to a positive duration")
 	}
 	addRequiredString(issues, "RSI_REASONING_VERBOSITY", c.DefaultReasoningVerbosity)
+	if c.RuntimeMode == "worker" {
+		addRequiredString(issues, "RSI_GITHUB_TOKEN", c.GitHubToken)
+		addRequiredString(issues, "RSI_GITHUB_OWNER", c.GitHubOwner)
+		addRequiredString(issues, "RSI_GITHUB_COMMIT_USER", c.GitHubCommitUser)
+		addRequiredString(issues, "RSI_GITHUB_COMMIT_EMAIL", c.GitHubCommitEmail)
+		addRequiredString(issues, "RSI_SANDBOX_NAMESPACE", c.SandboxNamespace)
+		addRequiredString(issues, "RSI_SANDBOX_IMAGE", c.SandboxImage)
+		addRequiredString(issues, "RSI_SANDBOX_SERVICE_ACCOUNT_NAME", c.SandboxServiceAccount)
+		if c.SandboxJobTTLSeconds <= 0 {
+			*issues = append(*issues, "RSI_SANDBOX_JOB_TTL_SECONDS must be set to a positive integer")
+		}
+		if c.SandboxDeadlineSeconds <= 0 {
+			*issues = append(*issues, "RSI_SANDBOX_ACTIVE_DEADLINE_SECONDS must be set to a positive integer")
+		}
+	}
 }
 
 func (c Config) validateToolGateway(issues *[]string) {

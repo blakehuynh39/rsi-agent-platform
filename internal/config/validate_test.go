@@ -82,6 +82,45 @@ func TestImprovementPlaneValidationRequiresExplicitPromoterInterval(t *testing.T
 	}
 }
 
+func TestImprovementPlaneWorkerValidationRequiresSandboxAndGitIdentity(t *testing.T) {
+	cfg := Config{
+		ServiceName:               "improvement-plane",
+		ServiceKind:               "improvement-plane",
+		Environment:               "stage",
+		HTTPPort:                  8080,
+		StoreBackend:              "postgres",
+		PostgresURL:               "postgres://user:pass@db.example/rsi",
+		PublicBaseURL:             "https://staging-rsi-platform.storyprotocol.net",
+		ToolGatewayBaseURL:        "http://use1-stage-rsi-agent-platform-tool-gateway:8080",
+		EvalRunnerBaseURL:         "http://use1-stage-rsi-agent-platform-runner-eval:8090",
+		ProposalRunnerBaseURL:     "http://use1-stage-rsi-agent-platform-runner-proposal:8090",
+		DefaultProposalCap:        2,
+		DefaultReasoningVerbosity: "verbose",
+		ProposalPromoterInterval:  15 * time.Minute,
+	}
+
+	_, err := cfg.ValidatedFor("improvement-plane", "worker")
+	if err == nil {
+		t.Fatal("expected worker validation error")
+	}
+	message := err.Error()
+	for _, required := range []string{
+		"RSI_GITHUB_TOKEN is required",
+		"RSI_GITHUB_OWNER is required",
+		"RSI_GITHUB_COMMIT_USER is required",
+		"RSI_GITHUB_COMMIT_EMAIL is required",
+		"RSI_SANDBOX_NAMESPACE is required",
+		"RSI_SANDBOX_IMAGE is required",
+		"RSI_SANDBOX_SERVICE_ACCOUNT_NAME is required",
+		"RSI_SANDBOX_JOB_TTL_SECONDS must be set to a positive integer",
+		"RSI_SANDBOX_ACTIVE_DEADLINE_SECONDS must be set to a positive integer",
+	} {
+		if !strings.Contains(message, required) {
+			t.Fatalf("expected %q in validation message, got %s", required, message)
+		}
+	}
+}
+
 func TestImprovementPlaneMigrateModeOnlyRequiresSharedDatabaseContract(t *testing.T) {
 	cfg := Config{
 		ServiceName:   "improvement-plane",

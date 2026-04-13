@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -343,5 +344,45 @@ func TestRouterProposalDetailAndRuntimeEndpoints(t *testing.T) {
 		if got, _ := role["api_mode"].(string); got != "codex_responses" {
 			t.Fatalf("expected api_mode codex_responses, got %q", got)
 		}
+	}
+}
+
+func TestRouterProposalRetryEndpoint(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	proposal := store.ListProposals()[0]
+
+	if _, err := store.ReviewProposal(proposal.ID, review.ProposalReview{
+		Decision:   string(review.ProposalApproved),
+		Rationale:  "Proceed with repo-change work.",
+		ReviewerID: "operator",
+	}); err != nil {
+		t.Fatalf("approve proposal: %v", err)
+	}
+	job, err := store.MaterializeApprovedProposal(proposal.ID, "operator")
+	if err != nil {
+		t.Fatalf("materialize approved proposal: %v", err)
+	}
+	if _, err := store.UpdateRepoChangeJobStatus(job.ID, string(review.ProposalFailedValidation)); err != nil {
+		t.Fatalf("update repo change job status: %v", err)
+	}
+	if _, err := store.UpdateProposalStatus(proposal.ID, review.ProposalFailedValidation); err != nil {
+		t.Fatalf("update proposal status: %v", err)
+	}
+
+	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
+	req := httptest.NewRequest(http.MethodPost, "/api/proposals/"+proposal.ID+"/retry", strings.NewReader(`{"requested_by":"ui-operator"}`))
+	req.Header.Set("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+	if rec.Code != http.StatusAccepted {
+		t.Fatalf("retry proposal status = %d, want %d", rec.Code, http.StatusAccepted)
+	}
+
+	var item map[string]any
+	if err := json.NewDecoder(rec.Body).Decode(&item); err != nil {
+		t.Fatalf("decode retry response: %v", err)
+	}
+	if got, _ := item["queue"].(string); got != "sandbox" {
+		t.Fatalf("expected sandbox retry queue, got %q", got)
 	}
 }

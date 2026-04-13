@@ -188,6 +188,57 @@ func TestApproveProposalQueuesMaterializationWork(t *testing.T) {
 	}
 }
 
+func TestRetryProposalRepoChangeRequeuesSandboxWork(t *testing.T) {
+	store := NewMemoryStore()
+	proposal := store.ListProposals()[0]
+
+	if _, err := store.ReviewProposal(proposal.ID, review.ProposalReview{
+		Decision:   string(review.ProposalApproved),
+		Rationale:  "Proceed with repo-change work.",
+		ReviewerID: "alice",
+	}); err != nil {
+		t.Fatalf("ReviewProposal() error = %v", err)
+	}
+	job, err := store.MaterializeApprovedProposal(proposal.ID, "alice")
+	if err != nil {
+		t.Fatalf("MaterializeApprovedProposal() error = %v", err)
+	}
+	if _, err := store.UpdateRepoChangeJobStatus(job.ID, string(review.ProposalFailedValidation)); err != nil {
+		t.Fatalf("UpdateRepoChangeJobStatus() error = %v", err)
+	}
+	if _, err := store.UpdateProposalStatus(proposal.ID, review.ProposalFailedValidation); err != nil {
+		t.Fatalf("UpdateProposalStatus() error = %v", err)
+	}
+
+	item, err := store.RetryProposalRepoChange(proposal.ID, "alice")
+	if err != nil {
+		t.Fatalf("RetryProposalRepoChange() error = %v", err)
+	}
+	if item.Queue != queue.SandboxQueue || item.Kind != "repo_change_job" {
+		t.Fatalf("expected sandbox repo_change_job work item, got %+v", item)
+	}
+	if got := item.Payload["dedupe_key"]; got != "sandbox-job:"+job.ID {
+		t.Fatalf("expected dedupe key for job %s, got %v", job.ID, got)
+	}
+
+	reloaded := store.ListRepoChangeJobs()[0]
+	if reloaded.Status != string(review.ProposalRepoChangeQueued) {
+		t.Fatalf("expected repo change job to return to repo_change_queued, got %s", reloaded.Status)
+	}
+	retryProposal := store.ListProposals()[0]
+	if retryProposal.Status != review.ProposalRepoChangeQueued {
+		t.Fatalf("expected proposal to return to repo_change_queued, got %s", retryProposal.Status)
+	}
+
+	again, err := store.RetryProposalRepoChange(proposal.ID, "alice")
+	if err != nil {
+		t.Fatalf("second RetryProposalRepoChange() error = %v", err)
+	}
+	if again.ID != item.ID {
+		t.Fatalf("expected deduped retry work item %s, got %s", item.ID, again.ID)
+	}
+}
+
 func TestEvaluateTraceRuntimeFailureCreatesRootCauseCandidate(t *testing.T) {
 	store := NewMemoryStore()
 	traceID := store.ListTraces()[0].TraceID

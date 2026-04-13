@@ -2916,6 +2916,15 @@ func (p *PostgresStore) MaterializeApprovedProposal(proposalID string, requested
 	return
 }
 
+func (p *PostgresStore) RetryProposalRepoChange(proposalID string, requestedBy string) (item queue.WorkItem, err error) {
+	err = p.mutate(func(store *MemoryStore) error {
+		var inner error
+		item, inner = store.RetryProposalRepoChange(proposalID, requestedBy)
+		return inner
+	})
+	return
+}
+
 func (p *PostgresStore) ListRepoChangeJobs() []improvement.RepoChangeJob {
 	store, err := p.readStore()
 	if err != nil {

@@ -248,6 +248,19 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 		}
 		app.WriteJSON(w, http.StatusOK, item)
 	})
+	r.Post("/api/proposals/{proposalID}/retry", func(w http.ResponseWriter, r *http.Request) {
+		proposalID := chi.URLParam(r, "proposalID")
+		var payload struct {
+			RequestedBy string `json:"requested_by"`
+		}
+		_ = json.NewDecoder(r.Body).Decode(&payload)
+		item, err := store.RetryProposalRepoChange(proposalID, payload.RequestedBy)
+		if err != nil {
+			app.WriteError(w, http.StatusConflict, err)
+			return
+		}
+		app.WriteJSON(w, http.StatusAccepted, item)
+	})
 	r.Get("/api/cron/status", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
 			"proposal_slots": store.GetProposalSlots(),

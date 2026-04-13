@@ -92,6 +92,7 @@ type Store interface {
 	ReviewProposal(proposalID string, decision review.ProposalReview) (review.Proposal, error)
 	UpdateProposalStatus(proposalID string, status review.ProposalStatus) (review.Proposal, error)
 	MaterializeApprovedProposal(proposalID string, requestedBy string) (improvement.RepoChangeJob, error)
+	RetryProposalRepoChange(proposalID string, requestedBy string) (queue.WorkItem, error)
 	ListRepoChangeJobs() []improvement.RepoChangeJob
 	UpdateRepoChangeJobStatus(jobID string, status string) (improvement.RepoChangeJob, error)
 	ListPRAttempts() []improvement.PRAttempt
@@ -2462,10 +2463,66 @@ func (s *MemoryStore) MaterializeApprovedProposal(proposalID string, requestedBy
 		Payload: map[string]interface{}{
 			"branch_name": job.BranchName,
 			"base_ref":    job.BaseRef,
+			"dedupe_key":  fmt.Sprintf("sandbox-job:%s", job.ID),
 			"job_id":      job.ID,
 		},
 	})
 	return job, nil
+}
+
+func (s *MemoryStore) RetryProposalRepoChange(proposalID string, requestedBy string) (queue.WorkItem, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	proposal, ok := s.proposals[proposalID]
+	if !ok {
+		return queue.WorkItem{}, errors.New("proposal not found")
+	}
+	if proposal.Status != review.ProposalFailedValidation && proposal.Status != review.ProposalRepoChangeQueued {
+		return queue.WorkItem{}, fmt.Errorf("proposal %s is not retryable", proposal.Status)
+	}
+
+	var repoJob improvement.RepoChangeJob
+	found := false
+	for _, item := range s.repoChangeJobs {
+		if item.ProposalID == proposalID {
+			repoJob = item
+			found = true
+			break
+		}
+	}
+	if !found {
+		return queue.WorkItem{}, errors.New("repo change job not found")
+	}
+
+	now := time.Now().UTC()
+	repoJob.Status = string(review.ProposalRepoChangeQueued)
+	s.repoChangeJobs[repoJob.ID] = repoJob
+	proposal.Status = review.ProposalRepoChangeQueued
+	proposal.ActiveSlotConsuming = true
+	s.proposals[proposal.ID] = proposal
+
+	return s.enqueueWorkItemLocked(queue.WorkItem{
+		Queue:          queue.SandboxQueue,
+		Kind:           "repo_change_job",
+		Status:         queue.WorkQueued,
+		TraceID:        proposal.TraceID,
+		ConversationID: proposal.ConversationID,
+		CaseID:         proposal.CaseID,
+		TriggerEventID: proposal.OriginTraceID,
+		ProposalID:     proposal.ID,
+		RepoScope:      repoJob.Repo,
+		RequestedBy:    requestedBy,
+		ApprovalMode:   "approved",
+		CreatedAt:      now,
+		UpdatedAt:      now,
+		Payload: map[string]interface{}{
+			"branch_name": repoJob.BranchName,
+			"base_ref":    repoJob.BaseRef,
+			"dedupe_key":  fmt.Sprintf("sandbox-job:%s", repoJob.ID),
+			"job_id":      repoJob.ID,
+		},
+	})
 }
 
 func buildRepoChangeContext(proposal review.Proposal, memories []review.ProposalMemory) string {
