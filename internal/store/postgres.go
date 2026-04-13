@@ -1776,7 +1776,35 @@ func persistCandidates(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.candidates)
 	for _, key := range keys {
 		item := store.candidates[key]
-		if _, err := tx.Exec(`insert into improvement_candidate (id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, subsystem, failure_mode, intervention_type, status, severity, recurrence_count, expected_impact, novelty_score, confidence_score, freshness_score, priority_score, risk_tier, hypothesis, proposed_scope, latest_trace_id, source_eval_ids, evidence_artifact_ids, prior_similar_proposal_ids, new_evidence_since_last_rejection, last_evaluated_at, created_at, updated_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23::jsonb,$24::jsonb,$25::jsonb,$26,$27,$28,$29)`,
+		if _, err := tx.Exec(`insert into improvement_candidate (id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, subsystem, failure_mode, intervention_type, status, severity, recurrence_count, expected_impact, novelty_score, confidence_score, freshness_score, priority_score, risk_tier, hypothesis, proposed_scope, latest_trace_id, source_eval_ids, evidence_artifact_ids, prior_similar_proposal_ids, new_evidence_since_last_rejection, last_evaluated_at, created_at, updated_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22::jsonb,$23::jsonb,$24::jsonb,$25,$26,$27,$28)
+			on conflict (id) do update set
+				candidate_key = excluded.candidate_key,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				origin_trace_id = excluded.origin_trace_id,
+				evidence_trace_ids = excluded.evidence_trace_ids,
+				subsystem = excluded.subsystem,
+				failure_mode = excluded.failure_mode,
+				intervention_type = excluded.intervention_type,
+				status = excluded.status,
+				severity = excluded.severity,
+				recurrence_count = excluded.recurrence_count,
+				expected_impact = excluded.expected_impact,
+				novelty_score = excluded.novelty_score,
+				confidence_score = excluded.confidence_score,
+				freshness_score = excluded.freshness_score,
+				priority_score = excluded.priority_score,
+				risk_tier = excluded.risk_tier,
+				hypothesis = excluded.hypothesis,
+				proposed_scope = excluded.proposed_scope,
+				latest_trace_id = excluded.latest_trace_id,
+				source_eval_ids = excluded.source_eval_ids,
+				evidence_artifact_ids = excluded.evidence_artifact_ids,
+				prior_similar_proposal_ids = excluded.prior_similar_proposal_ids,
+				new_evidence_since_last_rejection = excluded.new_evidence_since_last_rejection,
+				last_evaluated_at = excluded.last_evaluated_at,
+				created_at = excluded.created_at,
+				updated_at = excluded.updated_at`,
 			item.ID, item.CandidateKey, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), jsonString(item.EvidenceTraceIDs), item.Subsystem, item.FailureMode, item.InterventionType, string(item.Status), item.Severity, item.RecurrenceCount, item.ExpectedImpact, item.NoveltyScore, item.ConfidenceScore, item.FreshnessScore, item.PriorityScore, string(item.RiskTier), item.Hypothesis, item.ProposedScope, nullString(item.LatestTraceID), jsonString(item.SourceEvalIDs), jsonString(item.EvidenceArtifactIDs), jsonString(item.PriorSimilarProposalIDs), item.NewEvidenceSinceLastRejection, nullTimeValue(item.LastEvaluatedAt), item.CreatedAt, item.UpdatedAt,
 		); err != nil {
 			return err
