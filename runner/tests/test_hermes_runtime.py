@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 import types
 import unittest
 from unittest import mock
@@ -18,6 +19,7 @@ def runner_env(role: str = "prod") -> dict[str, str]:
         "RSI_RUNNER_MODEL": "openai/gpt-5.4",
         "RSI_RUNNER_REASONING_EFFORT": "xhigh",
         "RSI_RUNNER_PUBLIC_BASE_URL": "https://staging-rsi-platform.storyprotocol.net",
+        "RSI_TOOL_GATEWAY_BASE_URL": "http://tool-gateway.internal:8080",
         "HERMES_HOME": "/tmp/hermes",
         "RSI_RUNNER_MEMORY_BACKEND": "honcho",
         "RSI_HONCHO_WORKSPACE": "rsi-stage",
@@ -26,6 +28,14 @@ def runner_env(role: str = "prod") -> dict[str, str]:
         "RSI_HONCHO_SESSION_STRATEGY": "hybrid",
         "RSI_HONCHO_AI_PEER": f"rsi:stage:{role}",
         "RSI_HONCHO_ENVIRONMENT": "stage",
+        "RSI_RUNNER_EVAL_MAX_ITERATIONS": "5",
+        "RSI_RUNNER_PROPOSAL_MAX_ITERATIONS": "5",
+        "RSI_RUNNER_EVAL_TASK_TIMEOUT": "300s",
+        "RSI_RUNNER_PROPOSAL_TASK_TIMEOUT": "420s",
+        "RSI_RUNNER_PROD_TIMEOUT": "60s",
+        "RSI_RUNNER_PROACTIVE_TIMEOUT": "60s",
+        "RSI_RUNNER_EVAL_TIMEOUT": "330s",
+        "RSI_RUNNER_PROPOSAL_TIMEOUT": "450s",
         "HONCHO_API_KEY": "honcho-test-key",
         "OPENAI_API_KEY": "openai-test-key",
     }
@@ -36,9 +46,13 @@ class FakeAIAgent:
     last_prompt: str | None = None
     last_system_message: str | None = None
     last_history: list[dict] | None = None
+    last_valid_tool_names: list[str] | None = None
+    last_tool_names: list[str] | None = None
+    sleep_seconds: float = 0.0
 
     def __init__(self, **kwargs) -> None:
         type(self).last_kwargs = kwargs
+        self._interrupted = False
 
     def run_conversation(
         self,
@@ -46,9 +60,17 @@ class FakeAIAgent:
         system_message: str | None = None,
         conversation_history: list[dict] | None = None,
     ) -> dict:
+        if type(self).sleep_seconds > 0:
+            time.sleep(type(self).sleep_seconds)
         type(self).last_prompt = prompt
         type(self).last_system_message = system_message
         type(self).last_history = conversation_history or []
+        type(self).last_valid_tool_names = sorted(getattr(self, "valid_tool_names", []))
+        type(self).last_tool_names = sorted(
+            tool["function"]["name"]
+            for tool in list(getattr(self, "tools", []) or [])
+            if isinstance(tool, dict) and isinstance(tool.get("function"), dict) and tool["function"].get("name")
+        )
         return {
             "final_response": json.dumps(
                 {
@@ -71,6 +93,17 @@ class FakeAIAgent:
                     "outcome_hypotheses": [],
                 }
             )
+        }
+
+    def interrupt(self, _message: str | None = None) -> None:
+        self._interrupted = True
+
+    def get_activity_summary(self) -> dict:
+        return {
+            "last_activity_desc": "waiting_on_tool_or_model",
+            "current_tool": "rsi.trace_context",
+            "budget_used": 1,
+            "budget_max": type(self).last_kwargs.get("max_iterations", 1) if type(self).last_kwargs else 1,
         }
 
 
@@ -132,6 +165,9 @@ class HermesRuntimeTests(unittest.TestCase):
         FakeAIAgent.last_prompt = None
         FakeAIAgent.last_system_message = None
         FakeAIAgent.last_history = None
+        FakeAIAgent.last_valid_tool_names = None
+        FakeAIAgent.last_tool_names = None
+        FakeAIAgent.sleep_seconds = 0.0
 
     def test_config_requires_explicit_env(self) -> None:
         with mock.patch.dict(os.environ, {}, clear=True):
@@ -241,6 +277,83 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(runtime.metadata["honcho_write_frequency"], "async")
         self.assertEqual(runtime.metadata["honcho_session_strategy"], "hybrid")
         self.assertEqual(runtime.metadata["honcho_ai_peer"], "rsi:stage:proposal")
+
+    def test_proposal_role_enforces_read_only_tool_policy(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "proposal",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Produce a fix plan.",
+                    "allowed_tools": ["repo.context", "github.create_pr", "rsi.candidate_context", "honcho_conclude"],
+                    "tool_allowlist": ["repo.context", "github.create_pr", "rsi.candidate_context", "honcho_conclude"],
+                    "session_scope_kind": "proposal_candidate",
+                    "session_scope_id": "shared-store:pk-collision",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:proposal",
+                    "user_peer_id": "operator:alice",
+                }
+            }
+        )
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("proposal"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(FakeAIAgent.last_kwargs["max_iterations"], 5)
+        self.assertIn("repo.context", FakeAIAgent.last_valid_tool_names)
+        self.assertIn("rsi.candidate_context", FakeAIAgent.last_valid_tool_names)
+        self.assertNotIn("github.create_pr", FakeAIAgent.last_valid_tool_names)
+        self.assertNotIn("honcho_conclude", FakeAIAgent.last_valid_tool_names)
+        self.assertEqual(result.raw["tool_policy_mode"], "enforced_read_only")
+        self.assertIn("github.create_pr", result.raw["blocked_tool_names"])
+        self.assertIn("honcho_conclude", result.raw["blocked_tool_names"])
+        self.assertIn("repo.context", result.raw["tool_allowlist_effective"])
+        self.assertIn("rsi.candidate_context", result.raw["tool_allowlist_effective"])
+
+    def test_eval_task_timeout_returns_structured_timeout(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "eval",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the eval.",
+                    "timeout_seconds": 1,
+                    "session_scope_kind": "eval_line",
+                    "session_scope_id": "shared-store:pk-collision",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:eval",
+                    "user_peer_id": "operator:alice",
+                }
+            }
+        )
+        FakeAIAgent.sleep_seconds = 1.2
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, {**runner_env("eval"), "RSI_RUNNER_EVAL_TASK_TIMEOUT": "1s"}, clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertFalse(result.ok)
+        self.assertIn("timed out", result.message)
+        self.assertEqual(result.raw["timeout_kind"], "task_timeout")
+        self.assertEqual(result.raw["task_timeout_seconds"], 1)
+        self.assertEqual(result.raw["transport_timeout_seconds"], 330)
+        self.assertEqual(result.raw["tool_policy_mode"], "enforced_read_only")
+
+    def test_runtime_metadata_reports_role_contract(self) -> None:
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("proposal"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        self.assertEqual(runtime.metadata["max_iterations"], 5)
+        self.assertEqual(runtime.metadata["task_timeout_seconds"], 420)
+        self.assertEqual(runtime.metadata["transport_timeout_seconds"], 450)
+        self.assertEqual(runtime.metadata["tool_policy_mode"], "enforced_read_only")
+        self.assertIn("repo.context", runtime.metadata["tool_allowlist_effective"])
 
     def test_eval_role_rejects_repo_change_task(self) -> None:
         task = RunnerTaskRequest.from_payload(

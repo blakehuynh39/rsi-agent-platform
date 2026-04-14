@@ -1,11 +1,22 @@
 from __future__ import annotations
 
+import concurrent.futures
 from dataclasses import asdict, dataclass, replace
 import json
 import os
+import time
 from typing import Any, Dict, List
 
 from .config import RunnerConfig
+from .rsi_tools import (
+    BLOCKED_HONCHO_TOOLS,
+    CompositeToolProvider,
+    READ_ONLY_HONCHO_TOOLS,
+    READ_ONLY_RSI_TOOL_NAMES,
+    ReadOnlyToolBinding,
+    normalize_tool_names,
+    tool_schema_wrappers,
+)
 from .session_manager import SessionManager
 
 ROLE_TASK_TYPES = {
@@ -123,6 +134,16 @@ class RunnerTaskRequest:
         )
 
 
+@dataclass
+class ToolPolicy:
+    mode: str
+    requested: List[str]
+    effective: List[str]
+    blocked: List[str]
+    memory_tools: List[str]
+    custom_tools: List[str]
+
+
 class HermesRuntime:
     def __init__(self, config: RunnerConfig) -> None:
         self._config = config
@@ -139,6 +160,10 @@ class HermesRuntime:
         self._reasoning_config = parse_reasoning_effort(config.reasoning_effort) or {"enabled": True, "effort": "medium"}
         self._openai_configured = False
         self._session_manager = SessionManager(config)
+        self._max_iterations = config.max_iterations
+        self._default_task_timeout_seconds = config.task_timeout_seconds
+        self._transport_timeout_seconds = config.transport_timeout_seconds
+        self._tool_policy_mode = config.tool_policy_mode
         self._configure_runtime()
         self._available = AIAgent is not None and self._runtime_has_credentials() and self._session_manager.available
 
@@ -190,6 +215,12 @@ class HermesRuntime:
             "hermes_home": self._session_manager.hermes_home,
             "session_db_path": self._session_manager.session_db_path,
             "memory_backend": self._config.memory_backend,
+            "max_iterations": self._max_iterations,
+            "task_timeout_seconds": self._default_task_timeout_seconds,
+            "transport_timeout_seconds": self._transport_timeout_seconds,
+            "tool_policy_mode": self._tool_policy_mode,
+            "tool_allowlist_effective": self._default_policy_allowlist(),
+            "blocked_tool_names": [],
             "honcho_configured": self._config.honcho_api_key_configured or bool(self._config.honcho_base_url),
             "honcho_available": self._session_manager.honcho_available,
             "honcho_base_url": self._config.honcho_base_url or "",
@@ -217,7 +248,7 @@ class HermesRuntime:
                 }
             }
         )
-        return self._execute_task_request(task)
+        return self._execute_task_request(task, self._resolve_tool_policy(task))
 
     def _create_agent(self, context: Any) -> Any:
         agent_kwargs: Dict[str, Any] = {
@@ -228,7 +259,7 @@ class HermesRuntime:
             "skip_context_files": True,
             "skip_memory": False,
             "persist_session": True,
-            "max_iterations": 1,
+            "max_iterations": self._max_iterations,
             "session_id": context.session_id,
             "parent_session_id": context.parent_session_id or None,
             "session_db": self._session_manager.session_db,
@@ -243,7 +274,7 @@ class HermesRuntime:
             agent_kwargs["api_key"] = self._api_key
         return AIAgent(**agent_kwargs)
 
-    def _execute_task_request(self, task: RunnerTaskRequest) -> HermesExecutionResult:
+    def _execute_task_request(self, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> HermesExecutionResult:
         if AIAgent is None:
             return HermesExecutionResult(
                 ok=False,
@@ -267,14 +298,32 @@ class HermesRuntime:
             )
 
         context = self._session_manager.prepare(task)
+        effective_task_timeout = self._effective_task_timeout(task)
         try:
             agent = self._create_agent(context)
+            self._attach_tool_policy(agent, task, tool_policy)
             tracker = self._session_manager.attach_tracking(agent, task, context)
-            response = agent.run_conversation(
-                task.prompt,
-                system_message=task.system_message,
-                conversation_history=context.conversation_history,
-            )["final_response"]
+            timed_out, run_result, timeout_meta = self._run_with_task_timeout(agent, task, context, effective_task_timeout)
+            if timed_out:
+                finalized = self._session_manager.finalize(context, tracker)
+                return HermesExecutionResult(
+                    ok=False,
+                    message=f"Hermes execution timed out after {effective_task_timeout}s.",
+                    provider=self._backend,
+                    raw={
+                        **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                        **finalized,
+                        **timeout_meta,
+                        "task_timeout_seconds": effective_task_timeout,
+                        "transport_timeout_seconds": self._transport_timeout_seconds,
+                        "max_iterations": self._max_iterations,
+                        "tool_policy_mode": tool_policy.mode,
+                        "tool_allowlist_effective": tool_policy.effective,
+                        "blocked_tool_names": tool_policy.blocked,
+                        "termination_reason": "task_timeout",
+                    },
+                )
+            response = str((run_result or {}).get("final_response", "") or "")
         except Exception as exc:
             return HermesExecutionResult(
                 ok=False,
@@ -291,6 +340,14 @@ class HermesRuntime:
             raw={
                 **self._base_raw(prompt=task.prompt, system_message=task.system_message),
                 **finalized,
+                "task_timeout_seconds": effective_task_timeout,
+                "transport_timeout_seconds": self._transport_timeout_seconds,
+                "max_iterations": self._max_iterations,
+                "tool_policy_mode": tool_policy.mode,
+                "tool_allowlist_effective": tool_policy.effective,
+                "blocked_tool_names": tool_policy.blocked,
+                "termination_reason": "normal_completion",
+                "max_iterations_reached": False,
                 "harness_profile_id": task.harness_profile_id,
                 "effective_overlay_version": task.harness_overlay_version,
             },
@@ -319,6 +376,120 @@ class HermesRuntime:
             "system_message": system_message,
         }
 
+    def _default_policy_allowlist(self) -> List[str]:
+        if self._role not in {"eval", "proposal"}:
+            return sorted(READ_ONLY_HONCHO_TOOLS)
+        return sorted(list(READ_ONLY_HONCHO_TOOLS) + list(READ_ONLY_RSI_TOOL_NAMES))
+
+    def _resolve_tool_policy(self, task: RunnerTaskRequest) -> ToolPolicy:
+        requested = normalize_tool_names([*task.allowed_tools, *task.tool_allowlist])
+        if self._role not in {"eval", "proposal"}:
+            effective = requested
+            return ToolPolicy(
+                mode=self._tool_policy_mode,
+                requested=requested,
+                effective=effective,
+                blocked=[],
+                memory_tools=sorted(READ_ONLY_HONCHO_TOOLS),
+                custom_tools=[],
+            )
+        permitted = set(READ_ONLY_HONCHO_TOOLS) | set(READ_ONLY_RSI_TOOL_NAMES)
+        effective = normalize_tool_names(requested or sorted(permitted))
+        effective = [name for name in effective if name in permitted]
+        blocked = [name for name in requested if name not in permitted]
+        return ToolPolicy(
+            mode=self._tool_policy_mode,
+            requested=requested,
+            effective=effective,
+            blocked=blocked,
+            memory_tools=sorted([name for name in effective if name in READ_ONLY_HONCHO_TOOLS]),
+            custom_tools=sorted([name for name in effective if name in READ_ONLY_RSI_TOOL_NAMES]),
+        )
+
+    def _effective_task_timeout(self, task: RunnerTaskRequest) -> int:
+        requested = int(task.timeout_seconds or 0)
+        candidates = [self._default_task_timeout_seconds]
+        if requested > 0:
+            candidates.append(requested)
+        if self._transport_timeout_seconds > 5:
+            candidates.append(self._transport_timeout_seconds - 5)
+        return max(1, min(value for value in candidates if value > 0))
+
+    def _attach_tool_policy(self, agent: Any, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> None:
+        current_tools = list(getattr(agent, "tools", []) or [])
+        current_valid = set(getattr(agent, "valid_tool_names", set()) or set())
+        filtered_tools = []
+        if self._role in {"eval", "proposal"}:
+            allowed_names = set(tool_policy.effective)
+            filtered_tools = [tool for tool in current_tools if tool_name(tool) in allowed_names]
+        else:
+            filtered_tools = current_tools
+        custom_tool_names = [name for name in tool_policy.custom_tools if self._config.tool_gateway_base_url]
+        if custom_tool_names:
+            filtered_tools.extend(tool_schema_wrappers(custom_tool_names))
+            readonly_tools = ReadOnlyToolBinding(
+                base_url=self._config.tool_gateway_base_url or "",
+                task_repo=task.repo,
+                task_prompt=task.prompt,
+                task_context_summary=task.context_summary or "",
+                trace_id=task.trace_id or "",
+                session_scope_kind=task.session_scope_kind or "",
+                session_scope_id=task.session_scope_id or "",
+                context_refs=task.context_refs,
+            )
+            agent._memory_manager = CompositeToolProvider(getattr(agent, "_memory_manager", None), readonly_tools)
+        elif self._role in {"eval", "proposal"} and getattr(agent, "_memory_manager", None) is not None:
+            agent._memory_manager = CompositeToolProvider(getattr(agent, "_memory_manager", None), ReadOnlyToolBinding(
+                base_url=self._config.tool_gateway_base_url or "",
+                task_repo=task.repo,
+                task_prompt=task.prompt,
+                task_context_summary=task.context_summary or "",
+                trace_id=task.trace_id or "",
+                session_scope_kind=task.session_scope_kind or "",
+                session_scope_id=task.session_scope_id or "",
+                context_refs=task.context_refs,
+            ))
+        if self._role in {"eval", "proposal"}:
+            effective_names = set(tool_policy.effective)
+            current_valid = {name for name in current_valid if name in effective_names and name not in BLOCKED_HONCHO_TOOLS}
+            current_valid.update(custom_tool_names)
+        agent.tools = filtered_tools
+        agent.valid_tool_names = current_valid
+
+    def _run_with_task_timeout(self, agent: Any, task: RunnerTaskRequest, context: Any, timeout_seconds: int) -> tuple[bool, Dict[str, Any] | None, Dict[str, Any]]:
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        future = executor.submit(
+            agent.run_conversation,
+            task.prompt,
+            task.system_message,
+            context.conversation_history,
+        )
+        try:
+            result = future.result(timeout=timeout_seconds)
+            activity = safe_activity_summary(agent)
+            return False, result, {
+                "last_activity": activity,
+                "last_tool_invoked": string_from_map(activity, "current_tool"),
+                "max_iterations_reached": bool(activity.get("budget_used", 0) >= activity.get("budget_max", 0) and activity.get("budget_max", 0) > 0),
+            }
+        except concurrent.futures.TimeoutError:
+            agent.interrupt(f"runner task timeout after {timeout_seconds}s")
+            try:
+                future.result(timeout=min(5, max(1, timeout_seconds//10)))
+            except Exception:
+                pass
+            activity = safe_activity_summary(agent)
+            return True, None, {
+                "timeout_kind": "task_timeout",
+                "last_activity": activity,
+                "last_activity_desc": string_from_map(activity, "last_activity_desc"),
+                "last_tool_invoked": string_from_map(activity, "current_tool"),
+                "max_iterations_reached": bool(activity.get("budget_used", 0) >= activity.get("budget_max", 0) and activity.get("budget_max", 0) > 0),
+                "timed_out_after_seconds": timeout_seconds,
+            }
+        finally:
+            executor.shutdown(wait=False, cancel_futures=True)
+
     def execute_task(self, task: RunnerTaskRequest) -> HermesExecutionResult:
         if task.task_type not in ROLE_TASK_TYPES.get(self._role, {self._role}):
             return HermesExecutionResult(
@@ -327,9 +498,10 @@ class HermesRuntime:
                 provider="policy",
                 raw={"role": self._role, "task_type": task.task_type},
             )
-        prompt = self._render_task_prompt(task)
+        tool_policy = self._resolve_tool_policy(task)
+        prompt = self._render_task_prompt(task, tool_policy)
         rendered_task = replace(task, prompt=prompt)
-        result = self._execute_task_request(rendered_task)
+        result = self._execute_task_request(rendered_task, tool_policy)
         structured_output = self._extract_structured_output(result.message)
         result.raw = {
             **result.raw,
@@ -349,6 +521,9 @@ class HermesRuntime:
             "workflow_id": task.workflow_id,
             "repo_allowlist": task.repo_allowlist,
             "tool_allowlist": task.tool_allowlist,
+            "tool_policy_mode": tool_policy.mode,
+            "tool_allowlist_effective": tool_policy.effective,
+            "blocked_tool_names": tool_policy.blocked,
             "response_mode": task.response_mode,
             "context_refs": task.context_refs,
             "approval_mode": task.approval_mode,
@@ -366,13 +541,17 @@ class HermesRuntime:
         }
         return result
 
-    def _render_task_prompt(self, task: RunnerTaskRequest) -> str:
+    def _render_task_prompt(self, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> str:
         parts = [
             f"Runner role: {self._role}",
             f"Task type: {task.task_type}",
             f"Repository: {task.repo}",
             f"Configured model: {self._configured_model}",
             f"Reasoning effort: {self._reasoning_effort}",
+            f"Max iterations: {self._max_iterations}",
+            f"Task timeout seconds: {self._effective_task_timeout(task)}",
+            f"Transport timeout seconds: {self._transport_timeout_seconds}",
+            f"Tool policy mode: {tool_policy.mode}",
         ]
         if task.repo_ref:
             parts.append(f"Repository ref: {task.repo_ref}")
@@ -387,9 +566,13 @@ class HermesRuntime:
         if task.context_refs:
             parts.append(f"Context refs: {json.dumps(task.context_refs)}")
         if task.allowed_tools:
-            parts.append(f"Allowed tools: {', '.join(task.allowed_tools)}")
+            parts.append(f"Requested allowed tools: {', '.join(task.allowed_tools)}")
         if task.tool_allowlist:
-            parts.append(f"Tool allowlist: {', '.join(task.tool_allowlist)}")
+            parts.append(f"Requested tool allowlist: {', '.join(task.tool_allowlist)}")
+        if tool_policy.effective:
+            parts.append(f"Effective tool allowlist: {', '.join(tool_policy.effective)}")
+        if tool_policy.blocked:
+            parts.append(f"Blocked tools by policy: {', '.join(tool_policy.blocked)}")
         if task.allowed_commands:
             parts.append(f"Allowed commands: {', '.join(task.allowed_commands)}")
         if task.repo_allowlist:
@@ -417,6 +600,7 @@ class HermesRuntime:
         if task.memory_backend:
             parts.append(f"Memory backend: {task.memory_backend}")
         parts.append(f"Timeout seconds: {task.timeout_seconds}")
+        parts.append("Use only the effective tool allowlist above. Proposal and eval roles are read-only; they must not mutate repos, launch jobs, open PRs, or post to Slack.")
         parts.append(
             "Return a JSON object with keys: visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, outcome_hypotheses, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta."
         )
@@ -481,3 +665,28 @@ def first_non_empty(*values: str | None) -> str:
         if value and value.strip():
             return value.strip()
     return ""
+
+
+def tool_name(schema: Dict[str, Any]) -> str:
+    if not isinstance(schema, dict):
+        return ""
+    function = schema.get("function", {})
+    if not isinstance(function, dict):
+        return ""
+    value = function.get("name", "")
+    return str(value).strip()
+
+
+def safe_activity_summary(agent: Any) -> Dict[str, Any]:
+    try:
+        summary = agent.get_activity_summary()
+        if isinstance(summary, dict):
+            return summary
+    except Exception:
+        pass
+    return {}
+
+
+def string_from_map(values: Dict[str, Any], key: str) -> str:
+    value = values.get(key, "")
+    return str(value or "").strip()

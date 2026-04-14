@@ -122,6 +122,9 @@ func processEvalItem(cfg config.Config, store storepkg.Store, runnerClient *clie
 	)
 	if runnerClient != nil {
 		runnerResp, runnerErr = runnerClient.Execute(buildEvalRunnerTask(cfg, store, trace, run, judgments, item))
+		if runnerErr == nil && !runnerResp.OK {
+			runnerErr = fmt.Errorf("eval runner returned non-ok result: %s", strings.TrimSpace(runnerResp.Message))
+		}
 		if runnerErr == nil {
 			if err := runnerutil.PersistHarnessExecution(
 				store,
@@ -266,6 +269,9 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 	if runnerClient != nil {
 		runnerTask := buildProposalRunnerTask(cfg, store, trace, proposal, attempt, memories)
 		runnerResp, runnerErr = runnerClient.Execute(runnerTask)
+		if runnerErr == nil && !runnerResp.OK {
+			runnerErr = fmt.Errorf("proposal runner returned non-ok result: %s", strings.TrimSpace(runnerResp.Message))
+		}
 		if runnerErr == nil {
 			if err := runnerutil.PersistHarnessExecution(
 				store,
@@ -1364,8 +1370,11 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 			"summary":  judgment.Rationale,
 		})
 	}
+	contextRefs = append(contextRefs, improvementTraceEvidenceRefs(trace)...)
+	contextRefs = append(contextRefs, improvementCandidateEvidenceRefs(store, trace, "")...)
+	contextRefs = append(contextRefs, improvementProposalMemoryRefs(store, "")...)
 	prompt := fmt.Sprintf(
-		"Summarize the completed eval for trace %s. Workflow=%s status=%s thread=%s. Eval run=%s suite=%s verdict=%s score=%.2f. Judgments=%v. Explain what the eval found, what evidence mattered, and whether the trace should create or strengthen improvement pressure.",
+		"Summarize the completed eval for trace %s. Workflow=%s status=%s thread=%s. Eval run=%s suite=%s verdict=%s score=%.2f. Judgments=%v. Start from the supplied evidence pack, then use the read-only RSI tools when you need more trace, candidate, or proposal-memory detail. Explain what the eval found, what evidence mattered, whether improvement pressure should increase, and why.",
 		trace.Summary.TraceID,
 		trace.Summary.WorkflowKind,
 		trace.Summary.Status,
@@ -1396,11 +1405,12 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 		RepoRef:             "main",
 		Prompt:              prompt,
 		SystemMessage:       harness.ComposeSystemMessage("Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, and self_critique.", effectiveHarness),
-		TimeoutSeconds:      120,
+		AllowedTools:        improvementReadOnlyTools(effectiveHarness),
+		TimeoutSeconds:      300,
 		ExpectedOutputs:     []string{"visible_reasoning", "final_answer"},
 		ArtifactDestination: fmt.Sprintf("trace:%s:eval:%s", trace.Summary.TraceID, run.ID),
 		ContextSummary: fmt.Sprintf(
-			"Eval %s completed with verdict=%s score=%.2f across %d judgments.",
+			"Eval %s completed with verdict=%s score=%.2f across %d judgments. Terminal trace evidence, candidate lineage, and proposal memory are available in the evidence pack and read-only RSI tools.",
 			run.ID,
 			run.OverallVerdict,
 			run.OverallScore,
@@ -1416,6 +1426,7 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 		CaseSummary:               caseSummary,
 		PriorTraceRefs:            improvementPriorTraceRefs(store.ListTraces(), trace.Summary.CaseID, trace.Summary.TraceID),
 		RepoAllowlist:             cfg.AllowedTargetRepos,
+		ToolAllowlist:             improvementReadOnlyTools(effectiveHarness),
 		ResponseMode:              "analysis",
 		ContextRefs:               contextRefs,
 		ApprovalMode:              "deterministic",
@@ -1463,8 +1474,12 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 			"failure_summary": attempt.FailureSummary,
 		},
 	}
+	contextRefs = append(contextRefs, improvementTraceEvidenceRefs(trace)...)
+	contextRefs = append(contextRefs, improvementCandidateEvidenceRefs(store, trace, proposal.CandidateKey)...)
+	contextRefs = append(contextRefs, improvementProposalMemoryRefs(store, proposal.CandidateKey)...)
+	contextRefs = append(contextRefs, improvementAttemptHistoryRefs(store, proposal.ID, attempt.ID)...)
 	prompt := fmt.Sprintf(
-		"Materialize remediation attempt %d for approved proposal %s. Candidate=%s risk=%s scope=%s summary=%s. Return explicit visible reasoning plus a concrete change_plan, a non-empty unified repo_patch touching allowed repo files, a validation_plan, retry_assessment, and hypothesis_delta. Do not return metadata-only or .rsi-only diffs. Use prior rejected/dismissed memory and prior attempt failures to improve the patch.",
+		"Materialize remediation attempt %d for approved proposal %s. Candidate=%s risk=%s scope=%s summary=%s. Start from the dense evidence pack: latest failing trace evidence, root-cause metadata, prior rejected or dismissed proposal memory, and prior attempt failures. Use the read-only RSI tools when you need more repo, trace, candidate, attempt, or proposal-memory detail. Return explicit visible reasoning plus a concrete change_plan, a non-empty unified repo_patch touching allowed repo files, a validation_plan, retry_assessment, and hypothesis_delta. Do not return metadata-only or .rsi-only diffs.",
 		attempt.AttemptNumber,
 		proposal.ID,
 		proposal.CandidateKey,
@@ -1503,10 +1518,11 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 		RepoRef:                   "main",
 		Prompt:                    prompt,
 		SystemMessage:             harness.ComposeSystemMessage("Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta, proposed_actions, knowledge_drafts, and outcome_hypotheses.", effectiveHarness),
-		TimeoutSeconds:            120,
+		AllowedTools:              improvementReadOnlyTools(effectiveHarness),
+		TimeoutSeconds:            420,
 		ExpectedOutputs:           []string{"visible_reasoning", "final_answer", "change_plan", "validation_plan", "retry_assessment"},
 		ArtifactDestination:       fmt.Sprintf("trace:%s:proposal:%s:attempt:%s", trace.Summary.TraceID, proposal.ID, attempt.ID),
-		ContextSummary:            proposalRunnerContextSummary(proposal),
+		ContextSummary:            proposalRunnerContextSummary(proposal) + " Latest trace failures, candidate lineage, prior attempt failures, and proposal memory are preloaded; additional read-only RSI tools are available for evidence lookup.",
 		RejectedProposalContext:   rejectedContext,
 		Intent:                    trace.Summary.WorkflowKind,
 		TraceID:                   trace.Summary.TraceID,
@@ -1518,6 +1534,7 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 		CaseSummary:               caseSummary,
 		PriorTraceRefs:            improvementPriorTraceRefs(store.ListTraces(), trace.Summary.CaseID, trace.Summary.TraceID),
 		RepoAllowlist:             cfg.AllowedTargetRepos,
+		ToolAllowlist:             improvementReadOnlyTools(effectiveHarness),
 		ResponseMode:              "analysis",
 		ContextRefs:               contextRefs,
 		ApprovalMode:              "human_review",
@@ -1541,6 +1558,142 @@ func evalSessionScope(store storepkg.Store, trace events.Trace, run evals.Run) (
 		}
 	}
 	return "eval_line", "trace:" + trace.Summary.TraceID
+}
+
+func improvementReadOnlyTools(effective harness.EffectiveConfig) []string {
+	return harness.ApplyToolPreference([]string{
+		"repo.context",
+		"knowledge.context",
+		"github.repo_activity",
+		"github.repo_context",
+		"sentry.lookup",
+		"kubernetes.inspect",
+		"kubernetes.logs",
+		"kubernetes.events",
+		"cloudflare.inspect",
+		"rsi.trace_context",
+		"rsi.proposal_memory",
+		"rsi.candidate_context",
+		"rsi.attempt_context",
+	}, effective.ToolPreferenceOrder)
+}
+
+func improvementTraceEvidenceRefs(trace events.Trace) []map[string]any {
+	eventRefs := make([]map[string]any, 0, minInt(len(trace.Events), 12))
+	for _, item := range tailTraceEvents(trace.Events, 12) {
+		eventRefs = append(eventRefs, map[string]any{
+			"kind":        "trace_event",
+			"ref":         item.EventType,
+			"status":      item.Status,
+			"plane":       item.Plane,
+			"service":     item.Service,
+			"description": item.Description,
+		})
+	}
+	reasoningRefs := make([]map[string]any, 0, minInt(len(trace.Reasoning), 8))
+	for _, item := range tailReasoning(trace.Reasoning, 8) {
+		reasoningRefs = append(reasoningRefs, map[string]any{
+			"kind":       "reasoning_step",
+			"ref":        item.ID,
+			"step_type":  item.StepType,
+			"summary":    item.Summary,
+			"decision":   item.Decision,
+			"confidence": item.Confidence,
+		})
+	}
+	return append(eventRefs, reasoningRefs...)
+}
+
+func improvementCandidateEvidenceRefs(store storepkg.Store, trace events.Trace, candidateKey string) []map[string]any {
+	refs := make([]map[string]any, 0)
+	for _, item := range store.ListCandidates() {
+		if candidateKey != "" && item.CandidateKey != candidateKey {
+			continue
+		}
+		if candidateKey == "" && item.LatestTraceID != trace.Summary.TraceID && !containsString(item.EvidenceTraceIDs, trace.Summary.TraceID) {
+			continue
+		}
+		refs = append(refs, map[string]any{
+			"kind":                        "candidate",
+			"ref":                         item.CandidateKey,
+			"subsystem":                   item.Subsystem,
+			"failure_mode":                item.FailureMode,
+			"target_layer":                item.TargetLayer,
+			"priority_score":              item.PriorityScore,
+			"retryable_failure_class":     item.RetryableFailureClass,
+			"attempt_count":               item.AttemptCount,
+			"auto_retry_budget_remaining": item.AutoRetryBudgetRemaining,
+		})
+	}
+	return refs
+}
+
+func improvementProposalMemoryRefs(store storepkg.Store, candidateKey string) []map[string]any {
+	refs := make([]map[string]any, 0)
+	for _, item := range store.ListProposalMemories() {
+		if candidateKey != "" && item.CandidateKey != candidateKey {
+			continue
+		}
+		refs = append(refs, map[string]any{
+			"kind":          "proposal_memory",
+			"ref":           item.ID,
+			"proposal_id":   item.ProposalID,
+			"disposition":   item.Disposition,
+			"failure_class": firstNonEmpty(item.FailureClass, strings.Join(item.FailureClasses, ",")),
+			"rationale":     item.ReviewRationale,
+			"hypothesis":    item.Hypothesis,
+			"diff_summary":  item.DiffSummary,
+		})
+		if len(refs) == 8 {
+			break
+		}
+	}
+	return refs
+}
+
+func improvementAttemptHistoryRefs(store storepkg.Store, proposalID string, currentAttemptID string) []map[string]any {
+	refs := make([]map[string]any, 0)
+	for _, item := range store.ListChangeAttempts() {
+		if item.ProposalID != proposalID || item.ID == currentAttemptID {
+			continue
+		}
+		refs = append(refs, map[string]any{
+			"kind":                       "change_attempt_history",
+			"ref":                        item.ID,
+			"attempt_number":             item.AttemptNumber,
+			"state":                      item.State,
+			"failure_class":              item.FailureClass,
+			"failure_summary":            item.FailureSummary,
+			"retry_decision":             item.RetryDecision,
+			"material_hypothesis_change": item.MaterialHypothesisChange,
+			"changed_files":              item.ChangedFiles,
+		})
+	}
+	return refs
+}
+
+func tailTraceEvents(values []events.TraceEvent, limit int) []events.TraceEvent {
+	if len(values) <= limit {
+		return append([]events.TraceEvent(nil), values...)
+	}
+	return append([]events.TraceEvent(nil), values[len(values)-limit:]...)
+}
+
+func tailReasoning(values []events.ReasoningStep, limit int) []events.ReasoningStep {
+	if len(values) <= limit {
+		return append([]events.ReasoningStep(nil), values...)
+	}
+	return append([]events.ReasoningStep(nil), values[len(values)-limit:]...)
+}
+
+func containsString(values []string, needle string) bool {
+	needle = strings.TrimSpace(needle)
+	for _, item := range values {
+		if strings.TrimSpace(item) == needle {
+			return true
+		}
+	}
+	return false
 }
 
 func stringFromAny(raw any) string {

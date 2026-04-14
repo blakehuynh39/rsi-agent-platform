@@ -62,6 +62,10 @@ func (s *Service) Execute(name string, input map[string]interface{}) storepkg.To
 		return s.sentryLookup(input)
 	case "kubernetes.inspect":
 		return s.kubernetesInspect(input)
+	case "kubernetes.logs":
+		return s.kubernetesLogs(input)
+	case "kubernetes.events":
+		return s.kubernetesEvents(input)
 	case "slack.reply":
 		return s.slackReply(input)
 	case "github.create_pr":
@@ -72,6 +76,14 @@ func (s *Service) Execute(name string, input map[string]interface{}) storepkg.To
 		return s.githubRepoActivity(input)
 	case "cloudflare.inspect":
 		return s.cloudflareInspect(input)
+	case "rsi.trace_context":
+		return s.rsiTraceContext(input)
+	case "rsi.proposal_memory":
+		return s.rsiProposalMemory(input)
+	case "rsi.candidate_context":
+		return s.rsiCandidateContext(input)
+	case "rsi.attempt_context":
+		return s.rsiAttemptContext(input)
 	default:
 		return s.store.ExecuteTool(name, input)
 	}
@@ -237,6 +249,125 @@ func (s *Service) kubernetesInspect(input map[string]interface{}) storepkg.ToolR
 		"target":    target,
 		"pods":      matchedPods,
 		"events":    matchedEvents,
+	}, nil)
+}
+
+func (s *Service) kubernetesLogs(input map[string]interface{}) storepkg.ToolResult {
+	namespace := firstNonEmpty(stringValue(input["namespace"]), s.cfg.SandboxNamespace)
+	target := firstNonEmpty(stringValue(input["target"]), stringValue(input["pod_name"]), stringValue(input["service"]))
+	if s.kubeClient == nil {
+		summary := fmt.Sprintf("Kubernetes logs unavailable for %s/%s.", namespace, firstNonEmpty(target, "unknown"))
+		return s.unavailableResult("kubernetes.logs", input, "kubernetes", summary, map[string]interface{}{
+			"namespace": namespace,
+			"target":    target,
+			"error":     "kubernetes client unavailable",
+		})
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	pods, err := s.kubeClient.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return s.failedResult("kubernetes.logs", input, "kubernetes", fmt.Sprintf("Kubernetes logs failed: %v", err), map[string]interface{}{
+			"namespace": namespace,
+			"target":    target,
+			"error":     err.Error(),
+		})
+	}
+	logs := make([]map[string]interface{}, 0)
+	for _, pod := range pods.Items {
+		if target != "" && !matchesKubernetesTarget(pod, target) && !strings.EqualFold(pod.Name, target) {
+			continue
+		}
+		var container string
+		if len(pod.Spec.Containers) > 0 {
+			container = pod.Spec.Containers[0].Name
+		}
+		if explicit := strings.TrimSpace(stringValue(input["container"])); explicit != "" {
+			container = explicit
+		}
+		tailLines := int64(80)
+		req := s.kubeClient.CoreV1().Pods(namespace).GetLogs(pod.Name, &corev1.PodLogOptions{
+			Container: container,
+			TailLines: &tailLines,
+		})
+		stream, err := req.Stream(ctx)
+		if err != nil {
+			logs = append(logs, map[string]interface{}{
+				"pod_name":  pod.Name,
+				"container": container,
+				"error":     err.Error(),
+			})
+			continue
+		}
+		data, readErr := io.ReadAll(stream)
+		_ = stream.Close()
+		if readErr != nil {
+			logs = append(logs, map[string]interface{}{
+				"pod_name":  pod.Name,
+				"container": container,
+				"error":     readErr.Error(),
+			})
+			continue
+		}
+		logs = append(logs, map[string]interface{}{
+			"pod_name":  pod.Name,
+			"container": container,
+			"log_tail":  truncate(string(data), 4000),
+		})
+		if len(logs) == 3 {
+			break
+		}
+	}
+	summary := fmt.Sprintf("Kubernetes logs loaded for %d pod(s) in %s.", len(logs), namespace)
+	return s.result("kubernetes.logs", input, summary, map[string]interface{}{
+		"namespace": namespace,
+		"target":    target,
+		"logs":      logs,
+	}, nil)
+}
+
+func (s *Service) kubernetesEvents(input map[string]interface{}) storepkg.ToolResult {
+	namespace := firstNonEmpty(stringValue(input["namespace"]), s.cfg.SandboxNamespace)
+	target := firstNonEmpty(stringValue(input["target"]), stringValue(input["service"]))
+	if s.kubeClient == nil {
+		summary := fmt.Sprintf("Kubernetes events unavailable for %s/%s.", namespace, firstNonEmpty(target, "unknown"))
+		return s.unavailableResult("kubernetes.events", input, "kubernetes", summary, map[string]interface{}{
+			"namespace": namespace,
+			"target":    target,
+			"error":     "kubernetes client unavailable",
+		})
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	eventsList, err := s.kubeClient.CoreV1().Events(namespace).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return s.failedResult("kubernetes.events", input, "kubernetes", fmt.Sprintf("Kubernetes events failed: %v", err), map[string]interface{}{
+			"namespace": namespace,
+			"target":    target,
+			"error":     err.Error(),
+		})
+	}
+	items := make([]map[string]interface{}, 0)
+	for _, event := range eventsList.Items {
+		if target != "" && !strings.Contains(strings.ToLower(event.InvolvedObject.Name), strings.ToLower(target)) {
+			continue
+		}
+		items = append(items, map[string]interface{}{
+			"name":            event.Name,
+			"involved_object": event.InvolvedObject.Name,
+			"reason":          event.Reason,
+			"type":            event.Type,
+			"message":         event.Message,
+		})
+		if len(items) == 20 {
+			break
+		}
+	}
+	summary := fmt.Sprintf("Kubernetes events loaded for %d event(s) in %s.", len(items), namespace)
+	return s.result("kubernetes.events", input, summary, map[string]interface{}{
+		"namespace": namespace,
+		"target":    target,
+		"events":    items,
 	}, nil)
 }
 
@@ -441,6 +572,163 @@ func (s *Service) cloudflareInspect(input map[string]interface{}) storepkg.ToolR
 	}
 	summary := fmt.Sprintf("Cloudflare inspection loaded for %s.", resource)
 	return s.result("cloudflare.inspect", input, summary, response, nil)
+}
+
+func (s *Service) rsiTraceContext(input map[string]interface{}) storepkg.ToolResult {
+	traceID := stringValue(input["trace_id"])
+	if traceID == "" {
+		return s.failedResult("rsi.trace_context", input, "internal", "Trace context requires trace_id.", map[string]interface{}{
+			"error": "missing trace_id",
+		})
+	}
+	trace, ok := s.store.GetTrace(traceID)
+	if !ok {
+		return s.failedResult("rsi.trace_context", input, "internal", fmt.Sprintf("Trace %s not found.", traceID), map[string]interface{}{
+			"trace_id": traceID,
+			"error":    "not_found",
+		})
+	}
+	evalRuns := make([]interface{}, 0)
+	evalJudgments := map[string][]interface{}{}
+	for _, run := range s.store.ListEvalRuns() {
+		if run.TraceID != traceID {
+			continue
+		}
+		evalRuns = append(evalRuns, run)
+		judgments := make([]interface{}, 0)
+		for _, judgment := range s.store.ListEvalJudgments(run.ID) {
+			judgments = append(judgments, judgment)
+		}
+		evalJudgments[run.ID] = judgments
+	}
+	linkedProposals := make([]interface{}, 0)
+	for _, proposal := range s.store.ListProposals() {
+		if proposal.TraceID == traceID || proposal.OriginTraceID == traceID || containsString(proposal.EvidenceTraceIDs, traceID) {
+			linkedProposals = append(linkedProposals, proposal)
+		}
+	}
+	summary := fmt.Sprintf("RSI trace context loaded for %s with %d events and %d linked proposals.", traceID, len(trace.Events), len(linkedProposals))
+	return s.result("rsi.trace_context", input, summary, map[string]interface{}{
+		"trace":            trace.Summary,
+		"events":           trace.Events,
+		"artifacts":        trace.Artifacts,
+		"reasoning":        trace.Reasoning,
+		"tool_calls":       trace.ToolCalls,
+		"slack_actions":    trace.SlackActions,
+		"eval_runs":        evalRuns,
+		"eval_judgments":   evalJudgments,
+		"linked_proposals": linkedProposals,
+	}, nil)
+}
+
+func (s *Service) rsiProposalMemory(input map[string]interface{}) storepkg.ToolResult {
+	candidateKey := strings.TrimSpace(stringValue(input["candidate_key"]))
+	proposalID := strings.TrimSpace(stringValue(input["proposal_id"]))
+	items := make([]interface{}, 0)
+	for _, memory := range s.store.ListProposalMemories() {
+		if candidateKey != "" && memory.CandidateKey != candidateKey {
+			continue
+		}
+		if proposalID != "" && memory.ProposalID != proposalID {
+			continue
+		}
+		items = append(items, memory)
+	}
+	summary := fmt.Sprintf("RSI proposal memory returned %d record(s).", len(items))
+	return s.result("rsi.proposal_memory", input, summary, map[string]interface{}{
+		"candidate_key": candidateKey,
+		"proposal_id":   proposalID,
+		"items":         items,
+	}, nil)
+}
+
+func (s *Service) rsiCandidateContext(input map[string]interface{}) storepkg.ToolResult {
+	candidateKey := strings.TrimSpace(stringValue(input["candidate_key"]))
+	if candidateKey == "" {
+		return s.failedResult("rsi.candidate_context", input, "internal", "Candidate context requires candidate_key.", map[string]interface{}{
+			"error": "missing candidate_key",
+		})
+	}
+	var candidate interface{}
+	for _, item := range s.store.ListCandidates() {
+		if item.CandidateKey == candidateKey {
+			candidate = item
+			break
+		}
+	}
+	proposals := make([]interface{}, 0)
+	for _, item := range s.store.ListProposals() {
+		if item.CandidateKey == candidateKey {
+			proposals = append(proposals, item)
+		}
+	}
+	memories := make([]interface{}, 0)
+	for _, item := range s.store.ListProposalMemories() {
+		if item.CandidateKey == candidateKey {
+			memories = append(memories, item)
+		}
+	}
+	summary := fmt.Sprintf("RSI candidate context loaded for %s with %d proposal(s) and %d memory item(s).", candidateKey, len(proposals), len(memories))
+	return s.result("rsi.candidate_context", input, summary, map[string]interface{}{
+		"candidate_key":   candidateKey,
+		"candidate":       candidate,
+		"proposals":       proposals,
+		"proposal_memory": memories,
+	}, nil)
+}
+
+func (s *Service) rsiAttemptContext(input map[string]interface{}) storepkg.ToolResult {
+	attemptID := strings.TrimSpace(stringValue(input["attempt_id"]))
+	if attemptID == "" {
+		return s.failedResult("rsi.attempt_context", input, "internal", "Attempt context requires attempt_id.", map[string]interface{}{
+			"error": "missing attempt_id",
+		})
+	}
+	attempt, ok := s.store.GetChangeAttempt(attemptID)
+	if !ok {
+		return s.failedResult("rsi.attempt_context", input, "internal", fmt.Sprintf("Attempt %s not found.", attemptID), map[string]interface{}{
+			"attempt_id": attemptID,
+			"error":      "not_found",
+		})
+	}
+	repoJobs := make([]interface{}, 0)
+	for _, item := range s.store.ListRepoChangeJobs() {
+		if item.AttemptID == attemptID {
+			repoJobs = append(repoJobs, item)
+		}
+	}
+	prAttempts := make([]interface{}, 0)
+	for _, item := range s.store.ListPRAttempts() {
+		if item.AttemptID == attemptID {
+			prAttempts = append(prAttempts, item)
+		}
+	}
+	actionIntents := make([]interface{}, 0)
+	actionResults := make([]interface{}, 0)
+	for _, intent := range s.store.ListActionIntents() {
+		if intent.AttemptID != attemptID {
+			continue
+		}
+		actionIntents = append(actionIntents, intent)
+		for _, result := range s.store.ListActionResults(intent.ID) {
+			actionResults = append(actionResults, result)
+		}
+	}
+	outcomes := make([]interface{}, 0)
+	for _, outcome := range s.store.ListOutcomes() {
+		if outcome.AttemptID == attemptID {
+			outcomes = append(outcomes, outcome)
+		}
+	}
+	summary := fmt.Sprintf("RSI attempt context loaded for %s with %d repo jobs and %d PR attempt(s).", attemptID, len(repoJobs), len(prAttempts))
+	return s.result("rsi.attempt_context", input, summary, map[string]interface{}{
+		"attempt":          attempt,
+		"repo_change_jobs": repoJobs,
+		"pr_attempts":      prAttempts,
+		"action_intents":   actionIntents,
+		"action_results":   actionResults,
+		"outcomes":         outcomes,
+	}, nil)
 }
 
 func (s *Service) slackReply(input map[string]interface{}) storepkg.ToolResult {
@@ -659,6 +947,16 @@ func boolValue(value interface{}) bool {
 	}
 }
 
+func containsString(values []string, needle string) bool {
+	needle = strings.TrimSpace(needle)
+	for _, item := range values {
+		if strings.TrimSpace(item) == needle {
+			return true
+		}
+	}
+	return false
+}
+
 func truncate(value string, limit int) string {
 	value = strings.TrimSpace(value)
 	if limit <= 0 || len(value) <= limit {
@@ -681,6 +979,8 @@ func providerForToolName(name string) string {
 		return "cloudflare"
 	case strings.HasPrefix(name, "knowledge."):
 		return "knowledge"
+	case strings.HasPrefix(name, "rsi."):
+		return "rsi"
 	default:
 		return "internal"
 	}

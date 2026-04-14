@@ -11,6 +11,8 @@ import (
 	"testing"
 
 	"github.com/piplabs/rsi-agent-platform/internal/config"
+	"github.com/piplabs/rsi-agent-platform/internal/events"
+	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
 
@@ -189,6 +191,54 @@ func TestSlackReplyWithoutTokenIsBlocked(t *testing.T) {
 	}
 	if result.Available {
 		t.Fatal("expected unavailable slack provider when token is missing")
+	}
+}
+
+func TestRSITraceContextReturnsTraceEvidence(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	traces := store.ListTraces()
+	if len(traces) == 0 {
+		t.Fatal("expected seeded traces")
+	}
+	service := NewService(config.Config{}, store)
+
+	result := service.Execute("rsi.trace_context", map[string]interface{}{
+		"trace_id": traces[0].TraceID,
+	})
+
+	if result.Status != "ok" {
+		t.Fatalf("expected ok status, got %s %#v", result.Status, result.Output)
+	}
+	traceSummary, ok := result.Output["trace"].(events.TraceSummary)
+	if !ok {
+		t.Fatalf("expected trace summary in output, got %#v", result.Output["trace"])
+	}
+	if traceSummary.TraceID != traces[0].TraceID {
+		t.Fatalf("unexpected trace id %#v", traceSummary)
+	}
+}
+
+func TestRSICandidateContextReturnsCandidateAndMemory(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	candidates := store.ListCandidates()
+	if len(candidates) == 0 {
+		t.Fatal("expected seeded candidates")
+	}
+	service := NewService(config.Config{}, store)
+
+	result := service.Execute("rsi.candidate_context", map[string]interface{}{
+		"candidate_key": candidates[0].CandidateKey,
+	})
+
+	if result.Status != "ok" {
+		t.Fatalf("expected ok status, got %s %#v", result.Status, result.Output)
+	}
+	candidate, ok := result.Output["candidate"].(improvement.Candidate)
+	if !ok {
+		t.Fatalf("expected candidate payload, got %#v", result.Output["candidate"])
+	}
+	if candidate.CandidateKey != candidates[0].CandidateKey {
+		t.Fatalf("unexpected candidate key %#v", result.Output)
 	}
 }
 

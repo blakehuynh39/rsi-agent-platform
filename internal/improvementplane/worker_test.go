@@ -211,3 +211,74 @@ func TestProcessEvalItemRequeuesStalledApprovedProposal(t *testing.T) {
 		t.Fatal("expected stalled approved proposal to be requeued after eval")
 	}
 }
+
+func TestBuildProposalRunnerTaskUsesReadOnlyToolBudget(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	proposal := store.ListProposals()[0]
+	trace, ok := store.GetTrace(proposal.TraceID)
+	if !ok {
+		t.Fatalf("expected trace %s", proposal.TraceID)
+	}
+	attempt := improvement.ChangeAttempt{
+		ID:            "attempt-test-1",
+		ProposalID:    proposal.ID,
+		CandidateKey:  proposal.CandidateKey,
+		AttemptNumber: 1,
+		TargetLayer:   proposal.TargetLayer,
+		TargetKind:    proposal.TargetKind,
+		TargetRef:     proposal.TargetRef,
+	}
+	task := buildProposalRunnerTask(config.Config{
+		Environment:               "stage",
+		DefaultRepo:               "rsi-agent-platform",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		DefaultReasoningVerbosity: "verbose",
+	}, store, trace, proposal, attempt, store.ListProposalMemories())
+
+	if task.TimeoutSeconds != 420 {
+		t.Fatalf("proposal timeout = %d, want 420", task.TimeoutSeconds)
+	}
+	if len(task.AllowedTools) == 0 || len(task.ToolAllowlist) == 0 {
+		t.Fatalf("expected proposal read-only tools, got allowed=%v allowlist=%v", task.AllowedTools, task.ToolAllowlist)
+	}
+	assertContains(t, task.ToolAllowlist, "repo.context")
+	assertContains(t, task.ToolAllowlist, "rsi.trace_context")
+	assertContains(t, task.ToolAllowlist, "rsi.candidate_context")
+	assertContains(t, task.ToolAllowlist, "rsi.proposal_memory")
+}
+
+func TestBuildEvalRunnerTaskUsesReadOnlyToolBudget(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	traceID := store.ListTraces()[0].TraceID
+	run, judgments, err := store.EvaluateTrace(traceID, "incident-response")
+	if err != nil {
+		t.Fatalf("EvaluateTrace() error = %v", err)
+	}
+	trace, ok := store.GetTrace(traceID)
+	if !ok {
+		t.Fatalf("expected trace %s", traceID)
+	}
+	task := buildEvalRunnerTask(config.Config{
+		Environment:               "stage",
+		DefaultRepo:               "rsi-agent-platform",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		DefaultReasoningVerbosity: "verbose",
+	}, store, trace, run, judgments, queue.WorkItem{Kind: "evaluate_trace"})
+
+	if task.TimeoutSeconds != 300 {
+		t.Fatalf("eval timeout = %d, want 300", task.TimeoutSeconds)
+	}
+	assertContains(t, task.ToolAllowlist, "knowledge.context")
+	assertContains(t, task.ToolAllowlist, "rsi.trace_context")
+	assertContains(t, task.ToolAllowlist, "rsi.candidate_context")
+}
+
+func assertContains(t *testing.T, values []string, target string) {
+	t.Helper()
+	for _, item := range values {
+		if item == target {
+			return
+		}
+	}
+	t.Fatalf("expected %q in %v", target, values)
+}

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import os
+import re
 from urllib.parse import urlparse
 
 
@@ -17,6 +18,7 @@ class RunnerConfig:
     model: str
     reasoning_effort: str
     public_base_url: str
+    tool_gateway_base_url: str | None
     hermes_home: str
     memory_backend: str
     honcho_workspace: str
@@ -27,6 +29,10 @@ class RunnerConfig:
     honcho_base_url: str | None
     honcho_environment: str
     honcho_api_key_configured: bool
+    max_iterations: int
+    task_timeout_seconds: int
+    transport_timeout_seconds: int
+    tool_policy_mode: str
 
     @classmethod
     def from_env(cls) -> "RunnerConfig":
@@ -36,6 +42,7 @@ class RunnerConfig:
         model = required_env("RSI_RUNNER_MODEL")
         reasoning_effort = required_env("RSI_RUNNER_REASONING_EFFORT")
         public_base_url = required_url_env("RSI_RUNNER_PUBLIC_BASE_URL")
+        tool_gateway_base_url = optional_url_env("RSI_TOOL_GATEWAY_BASE_URL")
         hermes_home = required_env("HERMES_HOME")
         memory_backend = required_env("RSI_RUNNER_MEMORY_BACKEND")
         honcho_workspace = required_env("RSI_HONCHO_WORKSPACE")
@@ -46,12 +53,18 @@ class RunnerConfig:
         honcho_base_url = optional_url_env("RSI_HONCHO_BASE_URL")
         honcho_environment = optional_env("RSI_HONCHO_ENVIRONMENT") or "production"
         honcho_api_key = optional_env("HONCHO_API_KEY")
+        max_iterations = role_max_iterations(role)
+        task_timeout_seconds = role_task_timeout_seconds(role)
+        transport_timeout_seconds = role_transport_timeout_seconds(role)
+        tool_policy_mode = role_tool_policy_mode(role)
         if model.startswith("openai/"):
             required_env("OPENAI_API_KEY")
         if memory_backend != "honcho":
             raise RunnerConfigError("RSI_RUNNER_MEMORY_BACKEND must be set to honcho")
         if not honcho_api_key and not honcho_base_url:
             raise RunnerConfigError("HONCHO_API_KEY or RSI_HONCHO_BASE_URL is required when RSI_RUNNER_MEMORY_BACKEND=honcho")
+        if role in {"eval", "proposal"} and not tool_gateway_base_url:
+            raise RunnerConfigError("RSI_TOOL_GATEWAY_BASE_URL is required for eval and proposal runner roles")
         return cls(
             role=role,
             host=host,
@@ -59,6 +72,7 @@ class RunnerConfig:
             model=model,
             reasoning_effort=reasoning_effort,
             public_base_url=public_base_url,
+            tool_gateway_base_url=tool_gateway_base_url or None,
             hermes_home=hermes_home,
             memory_backend=memory_backend,
             honcho_workspace=honcho_workspace,
@@ -69,6 +83,10 @@ class RunnerConfig:
             honcho_base_url=honcho_base_url or None,
             honcho_environment=honcho_environment,
             honcho_api_key_configured=bool(honcho_api_key),
+            max_iterations=max_iterations,
+            task_timeout_seconds=task_timeout_seconds,
+            transport_timeout_seconds=transport_timeout_seconds,
+            tool_policy_mode=tool_policy_mode,
         )
 
 
@@ -114,3 +132,63 @@ def parse_port(raw: str) -> int:
     if port <= 0:
         raise RunnerConfigError("RSI_RUNNER_PORT must be a positive integer")
     return port
+
+
+def role_env_name(role: str, suffix: str) -> str:
+    return f"RSI_RUNNER_{role.strip().upper()}_{suffix.strip().upper()}"
+
+
+def role_max_iterations(role: str) -> int:
+    if role not in {"eval", "proposal"}:
+        return 1
+    raw = required_env(role_env_name(role, "MAX_ITERATIONS"))
+    value = parse_positive_int(raw, role_env_name(role, "MAX_ITERATIONS"))
+    if value <= 0:
+        raise RunnerConfigError(f"{role_env_name(role, 'MAX_ITERATIONS')} must be greater than 0")
+    return value
+
+
+def role_task_timeout_seconds(role: str) -> int:
+    if role in {"eval", "proposal"}:
+        return parse_duration_seconds(required_env(role_env_name(role, "TASK_TIMEOUT")), role_env_name(role, "TASK_TIMEOUT"))
+    return max(1, role_transport_timeout_seconds(role)-5)
+
+
+def role_transport_timeout_seconds(role: str) -> int:
+    return parse_duration_seconds(required_env(role_env_name(role, "TIMEOUT")), role_env_name(role, "TIMEOUT"))
+
+
+def role_tool_policy_mode(role: str) -> str:
+    if role in {"eval", "proposal"}:
+        return "enforced_read_only"
+    return "persistent_memory_only"
+
+
+def parse_positive_int(raw: str, name: str) -> int:
+    try:
+        value = int(raw)
+    except ValueError as exc:
+        raise RunnerConfigError(f"{name} must be a positive integer") from exc
+    if value <= 0:
+        raise RunnerConfigError(f"{name} must be a positive integer")
+    return value
+
+
+_DURATION_RE = re.compile(r"^(?P<value>\d+(?:\.\d+)?)(?P<unit>ms|s|m)?$")
+
+
+def parse_duration_seconds(raw: str, name: str) -> int:
+    match = _DURATION_RE.match((raw or "").strip())
+    if not match:
+        raise RunnerConfigError(f"{name} must be a duration like 300s, 5m, or 500ms")
+    value = float(match.group("value"))
+    unit = match.group("unit") or "s"
+    multiplier = 1.0
+    if unit == "ms":
+        multiplier = 0.001
+    elif unit == "m":
+        multiplier = 60.0
+    seconds = int(max(1, round(value * multiplier)))
+    if seconds <= 0:
+        raise RunnerConfigError(f"{name} must resolve to at least 1 second")
+    return seconds

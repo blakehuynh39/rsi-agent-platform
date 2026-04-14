@@ -176,37 +176,42 @@ type proposalListItem struct {
 }
 
 type runtimeRoleStatus struct {
-	Role                  string `json:"role"`
-	ReportedRole          string `json:"reported_role,omitempty"`
-	BaseURL               string `json:"base_url"`
-	TimeoutSeconds        int    `json:"timeout_seconds"`
-	Status                string `json:"status"`
-	Backend               string `json:"backend"`
-	Provider              string `json:"provider"`
-	Model                 string `json:"model"`
-	ProviderModel         string `json:"provider_model,omitempty"`
-	APIMode               string `json:"api_mode,omitempty"`
-	ReasoningEffort       string `json:"reasoning_effort"`
-	Available             bool   `json:"available"`
-	Healthy               bool   `json:"healthy"`
-	OpenAIConfigured      bool   `json:"openai_configured"`
-	HermesAvailable       bool   `json:"hermes_available"`
-	PersistenceEnabled    bool   `json:"persistence_enabled"`
-	HermesHome            string `json:"hermes_home,omitempty"`
-	SessionDBPath         string `json:"session_db_path,omitempty"`
-	MemoryBackend         string `json:"memory_backend,omitempty"`
-	HonchoConfigured      bool   `json:"honcho_configured"`
-	HonchoAvailable       bool   `json:"honcho_available"`
-	HonchoBaseURL         string `json:"honcho_base_url,omitempty"`
-	HonchoWorkspace       string `json:"honcho_workspace,omitempty"`
-	HonchoEnvironment     string `json:"honcho_environment,omitempty"`
-	HonchoRecallMode      string `json:"honcho_recall_mode,omitempty"`
-	HonchoWriteFrequency  string `json:"honcho_write_frequency,omitempty"`
-	HonchoSessionStrategy string `json:"honcho_session_strategy,omitempty"`
-	HonchoAIPeer          string `json:"honcho_ai_peer,omitempty"`
-	HarnessProfileID      string `json:"harness_profile_id,omitempty"`
-	ActiveOverlayVersion  string `json:"active_overlay_version,omitempty"`
-	Error                 string `json:"error,omitempty"`
+	Role                   string   `json:"role"`
+	ReportedRole           string   `json:"reported_role,omitempty"`
+	BaseURL                string   `json:"base_url"`
+	TimeoutSeconds         int      `json:"timeout_seconds"`
+	TaskTimeoutSeconds     int      `json:"task_timeout_seconds"`
+	MaxIterations          int      `json:"max_iterations"`
+	Status                 string   `json:"status"`
+	Backend                string   `json:"backend"`
+	Provider               string   `json:"provider"`
+	Model                  string   `json:"model"`
+	ProviderModel          string   `json:"provider_model,omitempty"`
+	APIMode                string   `json:"api_mode,omitempty"`
+	ReasoningEffort        string   `json:"reasoning_effort"`
+	ToolPolicyMode         string   `json:"tool_policy_mode,omitempty"`
+	ToolAllowlistEffective []string `json:"tool_allowlist_effective,omitempty"`
+	BlockedToolNames       []string `json:"blocked_tool_names,omitempty"`
+	Available              bool     `json:"available"`
+	Healthy                bool     `json:"healthy"`
+	OpenAIConfigured       bool     `json:"openai_configured"`
+	HermesAvailable        bool     `json:"hermes_available"`
+	PersistenceEnabled     bool     `json:"persistence_enabled"`
+	HermesHome             string   `json:"hermes_home,omitempty"`
+	SessionDBPath          string   `json:"session_db_path,omitempty"`
+	MemoryBackend          string   `json:"memory_backend,omitempty"`
+	HonchoConfigured       bool     `json:"honcho_configured"`
+	HonchoAvailable        bool     `json:"honcho_available"`
+	HonchoBaseURL          string   `json:"honcho_base_url,omitempty"`
+	HonchoWorkspace        string   `json:"honcho_workspace,omitempty"`
+	HonchoEnvironment      string   `json:"honcho_environment,omitempty"`
+	HonchoRecallMode       string   `json:"honcho_recall_mode,omitempty"`
+	HonchoWriteFrequency   string   `json:"honcho_write_frequency,omitempty"`
+	HonchoSessionStrategy  string   `json:"honcho_session_strategy,omitempty"`
+	HonchoAIPeer           string   `json:"honcho_ai_peer,omitempty"`
+	HarnessProfileID       string   `json:"harness_profile_id,omitempty"`
+	ActiveOverlayVersion   string   `json:"active_overlay_version,omitempty"`
+	Error                  string   `json:"error,omitempty"`
 }
 
 type honchoRuntimeStatus struct {
@@ -526,6 +531,14 @@ func buildRuntimeStatus(cfg config.Config, store storepkg.Repository) []runtimeR
 		item.ProviderModel = resp.ProviderModel
 		item.APIMode = resp.APIMode
 		item.ReasoningEffort = firstNonEmptyString(strings.TrimSpace(resp.ReasoningEffort), item.ReasoningEffort)
+		item.MaxIterations = resp.MaxIterations
+		item.TaskTimeoutSeconds = resp.TaskTimeoutSeconds
+		if resp.TransportTimeoutSeconds > 0 {
+			item.TimeoutSeconds = resp.TransportTimeoutSeconds
+		}
+		item.ToolPolicyMode = resp.ToolPolicyMode
+		item.ToolAllowlistEffective = sliceOrEmpty(resp.ToolAllowlistEffective)
+		item.BlockedToolNames = sliceOrEmpty(resp.BlockedToolNames)
 		item.Available = resp.Available
 		item.Healthy = resp.Available && strings.EqualFold(resp.Status, "ok")
 		item.OpenAIConfigured = resp.OpenAIConfigured
