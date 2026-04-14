@@ -151,18 +151,25 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ECR_PUSH_ROLE_ARN }}
 
-      - name: Ensure ECR repository exists
+      - name: Verify ECR repository is provisioned
         shell: bash
         run: |
           set -euo pipefail
 
-          if aws ecr describe-repositories --repository-names "${{ matrix.repository }}" >/dev/null 2>&1; then
+          output=""
+          if output="$(aws ecr describe-repositories --repository-names "${{ matrix.repository }}" 2>&1)"; then
             echo "ECR repository ${{ matrix.repository }} already exists"
             exit 0
           fi
 
-          aws ecr create-repository --repository-name "${{ matrix.repository }}" >/dev/null
-          echo "Created ECR repository ${{ matrix.repository }}"
+          if grep -q "RepositoryNotFoundException" <<<"$output"; then
+            echo "::error::ECR repository ${{ matrix.repository }} is not provisioned. Apply story-infra-aws before running RSI CD."
+            exit 1
+          fi
+
+          echo "::error::Failed to inspect ECR repository ${{ matrix.repository }}."
+          echo "$output"
+          exit 1
 
       - name: Login to Amazon ECR
         id: login-ecr
