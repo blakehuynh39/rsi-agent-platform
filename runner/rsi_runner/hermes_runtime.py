@@ -192,6 +192,13 @@ class HermesRuntime:
             "memory_backend": self._config.memory_backend,
             "honcho_configured": self._config.honcho_api_key_configured or bool(self._config.honcho_base_url),
             "honcho_available": self._session_manager.honcho_available,
+            "honcho_base_url": self._config.honcho_base_url or "",
+            "honcho_workspace": self._config.honcho_workspace,
+            "honcho_environment": self._config.honcho_environment,
+            "honcho_recall_mode": self._config.honcho_recall_mode,
+            "honcho_write_frequency": self._config.honcho_write_frequency,
+            "honcho_session_strategy": self._config.honcho_session_strategy,
+            "honcho_ai_peer": self._config.honcho_ai_peer,
             "issues": self._session_manager.ready_issues,
         }
 
@@ -301,6 +308,13 @@ class HermesRuntime:
             "reasoning_effort": self._reasoning_effort,
             "reasoning_config": self._reasoning_config,
             "base_url": self._base_url,
+            "honcho_base_url": self._config.honcho_base_url or "",
+            "honcho_workspace": self._config.honcho_workspace,
+            "honcho_environment": self._config.honcho_environment,
+            "honcho_recall_mode": self._config.honcho_recall_mode,
+            "honcho_write_frequency": self._config.honcho_write_frequency,
+            "honcho_session_strategy": self._config.honcho_session_strategy,
+            "honcho_ai_peer": self._config.honcho_ai_peer,
             "prompt": prompt,
             "system_message": system_message,
         }

@@ -20,7 +20,10 @@ ENV HOME=/app
 
 RUN git clone --depth 1 --branch "${HONCHO_REF}" https://github.com/plastic-labs/honcho.git /app
 
+COPY honcho/apply_rsi_overlay.py /tmp/apply_rsi_overlay.py
 COPY honcho/rsi-entrypoint.sh /app/docker/rsi-entrypoint.sh
+
+RUN python /tmp/apply_rsi_overlay.py /app && rm -f /tmp/apply_rsi_overlay.py
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-group dev && \

@@ -2049,7 +2049,7 @@ func persistEvalJudgments(tx *sql.Tx, store *MemoryStore) error {
 func persistCandidates(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.candidates)
 	for _, key := range keys {
-		item := store.candidates[key]
+		item := normalizeCandidateTargetFields(store.candidates[key])
 		if _, err := tx.Exec(`insert into improvement_candidate (id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, subsystem, failure_mode, intervention_type, target_layer, target_kind, target_ref, status, severity, recurrence_count, expected_impact, novelty_score, confidence_score, freshness_score, priority_score, risk_tier, hypothesis, proposed_scope, latest_trace_id, source_eval_ids, evidence_artifact_ids, prior_similar_proposal_ids, new_evidence_since_last_rejection, last_evaluated_at, created_at, updated_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25::jsonb,$26::jsonb,$27::jsonb,$28,$29,$30,$31)
 			on conflict (id) do update set
 				candidate_key = excluded.candidate_key,
@@ -2093,7 +2093,7 @@ func persistCandidates(tx *sql.Tx, store *MemoryStore) error {
 func persistProposals(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.proposals)
 	for _, key := range keys {
-		item := store.proposals[key]
+		item := normalizeProposalTargetFields(store.proposals[key])
 		if _, err := tx.Exec(`insert into proposal (id, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, target_layer, target_kind, target_ref, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, created_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16::jsonb,$17,$18,$19::jsonb,$20,$21,$22::jsonb,$23,$24)
 			on conflict (id) do update set
 				trace_id = excluded.trace_id,
@@ -2125,6 +2125,81 @@ func persistProposals(tx *sql.Tx, store *MemoryStore) error {
 		}
 	}
 	return nil
+}
+
+func normalizeCandidateTargetFields(item improvement.Candidate) improvement.Candidate {
+	if strings.TrimSpace(string(item.TargetLayer)) == "" {
+		item.TargetLayer = deriveCandidateTargetLayer(item)
+	}
+	if strings.TrimSpace(item.TargetKind) == "" {
+		if item.TargetLayer == harness.TargetLayerHarnessOverlay {
+			item.TargetKind = "runner_role"
+		} else {
+			item.TargetKind = "repo"
+		}
+	}
+	if strings.TrimSpace(item.TargetRef) == "" {
+		if item.TargetLayer == harness.TargetLayerHarnessOverlay {
+			item.TargetRef = "prod"
+		} else {
+			item.TargetRef = "rsi-agent-platform"
+		}
+	}
+	return item
+}
+
+func normalizeProposalTargetFields(item review.Proposal) review.Proposal {
+	if strings.TrimSpace(string(item.TargetLayer)) == "" {
+		item.TargetLayer = deriveProposalTargetLayer(item)
+	}
+	if strings.TrimSpace(item.TargetKind) == "" {
+		if item.TargetLayer == harness.TargetLayerHarnessOverlay {
+			item.TargetKind = "runner_role"
+		} else {
+			item.TargetKind = "repo"
+		}
+	}
+	if strings.TrimSpace(item.TargetRef) == "" {
+		if item.TargetLayer == harness.TargetLayerHarnessOverlay {
+			item.TargetRef = "prod"
+		} else {
+			item.TargetRef = "rsi-agent-platform"
+		}
+	}
+	return item
+}
+
+func deriveCandidateTargetLayer(item improvement.Candidate) harness.TargetLayer {
+	lowerFailure := strings.ToLower(strings.TrimSpace(item.FailureMode))
+	lowerIntervention := strings.ToLower(strings.TrimSpace(item.InterventionType))
+	switch {
+	case strings.Contains(lowerFailure, "memory"),
+		strings.Contains(lowerFailure, "prompt"),
+		strings.Contains(lowerFailure, "tool_selection"),
+		strings.Contains(lowerFailure, "behavioral"):
+		return harness.TargetLayerHarnessOverlay
+	case strings.Contains(lowerIntervention, "overlay"),
+		strings.Contains(lowerIntervention, "prompt"),
+		strings.Contains(lowerIntervention, "behavior"):
+		return harness.TargetLayerHarnessOverlay
+	default:
+		return harness.TargetLayerRepoChange
+	}
+}
+
+func deriveProposalTargetLayer(item review.Proposal) harness.TargetLayer {
+	if strings.TrimSpace(string(item.TargetLayer)) != "" {
+		return item.TargetLayer
+	}
+	switch {
+	case strings.Contains(strings.ToLower(strings.TrimSpace(item.CandidateKey)), "memory"),
+		strings.Contains(strings.ToLower(strings.TrimSpace(item.CandidateKey)), "prompt"),
+		strings.Contains(strings.ToLower(strings.TrimSpace(item.CandidateKey)), "behavioral"),
+		strings.Contains(strings.ToLower(strings.TrimSpace(item.Category)), "overlay"):
+		return harness.TargetLayerHarnessOverlay
+	default:
+		return harness.TargetLayerRepoChange
+	}
 }
 
 func persistProposalReviews(tx *sql.Tx, store *MemoryStore) error {

@@ -188,6 +188,12 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["reasoning_effort"], "xhigh")
         self.assertEqual(result.raw["hermes_session_id"], "rsi-prod-conversation-123")
         self.assertEqual(result.raw["memory_backend"], "honcho")
+        self.assertEqual(result.raw["honcho_workspace"], "rsi-stage")
+        self.assertEqual(result.raw["honcho_environment"], "stage")
+        self.assertEqual(result.raw["honcho_recall_mode"], "hybrid")
+        self.assertEqual(result.raw["honcho_write_frequency"], "async")
+        self.assertEqual(result.raw["honcho_session_strategy"], "hybrid")
+        self.assertEqual(result.raw["honcho_ai_peer"], "rsi:stage:eval")
         self.assertIn("structured_output", result.raw)
         self.assertEqual(result.raw["structured_output"]["final_answer"], "Final reply")
 
@@ -217,6 +223,24 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertFalse(runtime.available)
         self.assertEqual(runtime.metadata["status"], "degraded")
         self.assertFalse(runtime.metadata["persistence_enabled"])
+
+    def test_runtime_metadata_exposes_honcho_configuration(self) -> None:
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(
+            os.environ,
+            {**runner_env("proposal"), "RSI_HONCHO_BASE_URL": "http://honcho.internal:8000"},
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        self.assertEqual(runtime.metadata["honcho_base_url"], "http://honcho.internal:8000")
+        self.assertEqual(runtime.metadata["honcho_workspace"], "rsi-stage")
+        self.assertEqual(runtime.metadata["honcho_environment"], "stage")
+        self.assertEqual(runtime.metadata["honcho_recall_mode"], "hybrid")
+        self.assertEqual(runtime.metadata["honcho_write_frequency"], "async")
+        self.assertEqual(runtime.metadata["honcho_session_strategy"], "hybrid")
+        self.assertEqual(runtime.metadata["honcho_ai_peer"], "rsi:stage:proposal")
 
     def test_eval_role_rejects_repo_change_task(self) -> None:
         task = RunnerTaskRequest.from_payload(

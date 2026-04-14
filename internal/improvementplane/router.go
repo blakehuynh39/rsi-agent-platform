@@ -196,7 +196,8 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 	})
 	r.Get("/api/runtime", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
-			"roles": buildRuntimeStatus(cfg, store),
+			"roles":  buildRuntimeStatus(cfg, store),
+			"honcho": buildHonchoRuntimeStatus(cfg),
 		})
 	})
 	r.Get("/api/harness", func(w http.ResponseWriter, r *http.Request) {

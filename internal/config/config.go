@@ -33,6 +33,7 @@ type Config struct {
 	EvalRunnerBaseURL         string
 	ProposalRunnerBaseURL     string
 	ToolGatewayBaseURL        string
+	HonchoRuntimeBaseURL      string
 	ProdRunnerTimeout         time.Duration
 	ProactiveRunnerTimeout    time.Duration
 	EvalRunnerTimeout         time.Duration
@@ -102,6 +103,7 @@ func Load(serviceName string) Config {
 		EvalRunnerBaseURL:         stringEnv("RSI_RUNNER_EVAL_BASE_URL", ""),
 		ProposalRunnerBaseURL:     stringEnv("RSI_RUNNER_PROPOSAL_BASE_URL", ""),
 		ToolGatewayBaseURL:        stringEnv("RSI_TOOL_GATEWAY_BASE_URL", ""),
+		HonchoRuntimeBaseURL:      stringEnv("RSI_HONCHO_RUNTIME_BASE_URL", ""),
 		ProdRunnerTimeout:         durationEnv("RSI_RUNNER_PROD_TIMEOUT", 60*time.Second),
 		ProactiveRunnerTimeout:    durationEnv("RSI_RUNNER_PROACTIVE_TIMEOUT", 60*time.Second),
 		EvalRunnerTimeout:         durationEnv("RSI_RUNNER_EVAL_TIMEOUT", 120*time.Second),

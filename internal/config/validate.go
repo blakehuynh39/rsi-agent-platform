@@ -38,6 +38,9 @@ func (c Config) DependencyTargets() map[string]string {
 	if c.ToolGatewayBaseURL != "" {
 		targets["tool_gateway"] = c.ToolGatewayBaseURL
 	}
+	if c.HonchoRuntimeBaseURL != "" {
+		targets["honcho_runtime"] = c.HonchoRuntimeBaseURL
+	}
 	if c.ProdRunnerBaseURL != "" {
 		targets["runner_prod"] = c.ProdRunnerBaseURL
 	}
@@ -108,6 +111,9 @@ func (c Config) validateImprovementPlane(issues *[]string) {
 		*issues = append(*issues, "RSI_PROPOSAL_PROMOTER_INTERVAL must be set to a positive duration")
 	}
 	addRequiredString(issues, "RSI_REASONING_VERBOSITY", c.DefaultReasoningVerbosity)
+	if c.RuntimeMode == "serve" {
+		addRequiredURL(issues, "RSI_HONCHO_RUNTIME_BASE_URL", c.HonchoRuntimeBaseURL, c.nonLocalhostRequired())
+	}
 	if c.RuntimeMode == "worker" {
 		addRequiredString(issues, "RSI_GITHUB_APP_ID", c.GitHubAppID)
 		addRequiredString(issues, "RSI_GITHUB_APP_INSTALLATION_ID", c.GitHubAppInstallationID)

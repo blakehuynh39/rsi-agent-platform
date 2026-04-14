@@ -82,6 +82,32 @@ func TestImprovementPlaneValidationRequiresExplicitPromoterInterval(t *testing.T
 	}
 }
 
+func TestImprovementPlaneServeValidationRequiresHonchoRuntimeURL(t *testing.T) {
+	cfg := Config{
+		ServiceName:               "improvement-plane",
+		ServiceKind:               "improvement-plane",
+		Environment:               "stage",
+		HTTPPort:                  8080,
+		StoreBackend:              "postgres",
+		PostgresURL:               "postgres://user:pass@db.example/rsi",
+		PublicBaseURL:             "https://staging-rsi-platform.storyprotocol.net",
+		ToolGatewayBaseURL:        "http://use1-stage-rsi-agent-platform-tool-gateway:8080",
+		EvalRunnerBaseURL:         "http://use1-stage-rsi-agent-platform-runner-eval:8090",
+		ProposalRunnerBaseURL:     "http://use1-stage-rsi-agent-platform-runner-proposal:8090",
+		DefaultProposalCap:        2,
+		DefaultReasoningVerbosity: "verbose",
+		ProposalPromoterInterval:  15 * time.Minute,
+	}
+
+	_, err := cfg.ValidatedFor("improvement-plane", "serve")
+	if err == nil {
+		t.Fatal("expected serve validation error")
+	}
+	if !strings.Contains(err.Error(), "RSI_HONCHO_RUNTIME_BASE_URL is required") {
+		t.Fatalf("unexpected validation error: %v", err)
+	}
+}
+
 func TestImprovementPlaneWorkerValidationRequiresSandboxAndGitIdentity(t *testing.T) {
 	cfg := Config{
 		ServiceName:               "improvement-plane",

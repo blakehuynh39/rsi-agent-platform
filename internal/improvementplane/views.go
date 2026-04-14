@@ -164,30 +164,50 @@ type proposalListItem struct {
 }
 
 type runtimeRoleStatus struct {
-	Role                 string `json:"role"`
-	ReportedRole         string `json:"reported_role,omitempty"`
-	BaseURL              string `json:"base_url"`
-	TimeoutSeconds       int    `json:"timeout_seconds"`
-	Status               string `json:"status"`
-	Backend              string `json:"backend"`
-	Provider             string `json:"provider"`
-	Model                string `json:"model"`
-	ProviderModel        string `json:"provider_model,omitempty"`
-	APIMode              string `json:"api_mode,omitempty"`
-	ReasoningEffort      string `json:"reasoning_effort"`
-	Available            bool   `json:"available"`
-	Healthy              bool   `json:"healthy"`
-	OpenAIConfigured     bool   `json:"openai_configured"`
-	HermesAvailable      bool   `json:"hermes_available"`
-	PersistenceEnabled   bool   `json:"persistence_enabled"`
-	HermesHome           string `json:"hermes_home,omitempty"`
-	SessionDBPath        string `json:"session_db_path,omitempty"`
-	MemoryBackend        string `json:"memory_backend,omitempty"`
-	HonchoConfigured     bool   `json:"honcho_configured"`
-	HonchoAvailable      bool   `json:"honcho_available"`
-	HarnessProfileID     string `json:"harness_profile_id,omitempty"`
-	ActiveOverlayVersion string `json:"active_overlay_version,omitempty"`
-	Error                string `json:"error,omitempty"`
+	Role                  string `json:"role"`
+	ReportedRole          string `json:"reported_role,omitempty"`
+	BaseURL               string `json:"base_url"`
+	TimeoutSeconds        int    `json:"timeout_seconds"`
+	Status                string `json:"status"`
+	Backend               string `json:"backend"`
+	Provider              string `json:"provider"`
+	Model                 string `json:"model"`
+	ProviderModel         string `json:"provider_model,omitempty"`
+	APIMode               string `json:"api_mode,omitempty"`
+	ReasoningEffort       string `json:"reasoning_effort"`
+	Available             bool   `json:"available"`
+	Healthy               bool   `json:"healthy"`
+	OpenAIConfigured      bool   `json:"openai_configured"`
+	HermesAvailable       bool   `json:"hermes_available"`
+	PersistenceEnabled    bool   `json:"persistence_enabled"`
+	HermesHome            string `json:"hermes_home,omitempty"`
+	SessionDBPath         string `json:"session_db_path,omitempty"`
+	MemoryBackend         string `json:"memory_backend,omitempty"`
+	HonchoConfigured      bool   `json:"honcho_configured"`
+	HonchoAvailable       bool   `json:"honcho_available"`
+	HonchoBaseURL         string `json:"honcho_base_url,omitempty"`
+	HonchoWorkspace       string `json:"honcho_workspace,omitempty"`
+	HonchoEnvironment     string `json:"honcho_environment,omitempty"`
+	HonchoRecallMode      string `json:"honcho_recall_mode,omitempty"`
+	HonchoWriteFrequency  string `json:"honcho_write_frequency,omitempty"`
+	HonchoSessionStrategy string `json:"honcho_session_strategy,omitempty"`
+	HonchoAIPeer          string `json:"honcho_ai_peer,omitempty"`
+	HarnessProfileID      string `json:"harness_profile_id,omitempty"`
+	ActiveOverlayVersion  string `json:"active_overlay_version,omitempty"`
+	Error                 string `json:"error,omitempty"`
+}
+
+type honchoRuntimeStatus struct {
+	BaseURL            string                                  `json:"base_url"`
+	Status             string                                  `json:"status"`
+	Namespace          string                                  `json:"namespace,omitempty"`
+	DBSchema           string                                  `json:"db_schema,omitempty"`
+	CacheEnabled       bool                                    `json:"cache_enabled"`
+	CacheURLConfigured bool                                    `json:"cache_url_configured"`
+	Deriver            clients.HonchoRuntimeComponent          `json:"deriver"`
+	Summary            clients.HonchoRuntimeComponent          `json:"summary"`
+	DialecticLevels    map[string]clients.HonchoDialecticLevel `json:"dialectic_levels"`
+	Error              string                                  `json:"error,omitempty"`
 }
 
 type harnessOverviewResponse struct {
@@ -197,6 +217,7 @@ type harnessOverviewResponse struct {
 	SessionBindings []harness.SessionBinding `json:"session_bindings"`
 	Executions      []harness.Execution      `json:"executions"`
 	Roles           []runtimeRoleStatus      `json:"roles"`
+	Honcho          honchoRuntimeStatus      `json:"honcho"`
 }
 
 func buildConversationList(store storepkg.Repository) []conversationListItem {
@@ -476,9 +497,43 @@ func buildRuntimeStatus(cfg config.Config, store storepkg.Repository) []runtimeR
 		item.MemoryBackend = resp.MemoryBackend
 		item.HonchoConfigured = resp.HonchoConfigured
 		item.HonchoAvailable = resp.HonchoAvailable
+		item.HonchoBaseURL = resp.HonchoBaseURL
+		item.HonchoWorkspace = resp.HonchoWorkspace
+		item.HonchoEnvironment = resp.HonchoEnvironment
+		item.HonchoRecallMode = resp.HonchoRecallMode
+		item.HonchoWriteFrequency = resp.HonchoWriteFrequency
+		item.HonchoSessionStrategy = resp.HonchoSessionStrategy
+		item.HonchoAIPeer = resp.HonchoAIPeer
 		out = append(out, item)
 	}
 	return out
+}
+
+func buildHonchoRuntimeStatus(cfg config.Config) honchoRuntimeStatus {
+	item := honchoRuntimeStatus{
+		BaseURL:         cfg.HonchoRuntimeBaseURL,
+		Status:          "unreachable",
+		DialecticLevels: map[string]clients.HonchoDialecticLevel{},
+	}
+	if strings.TrimSpace(cfg.HonchoRuntimeBaseURL) == "" {
+		item.Status = "disabled"
+		item.Error = "RSI_HONCHO_RUNTIME_BASE_URL is not configured"
+		return item
+	}
+	resp, err := clients.NewHonchoClient(cfg.HonchoRuntimeBaseURL).Runtime()
+	if err != nil {
+		item.Error = err.Error()
+		return item
+	}
+	item.Status = firstNonEmptyString(strings.TrimSpace(resp.Status), "ok")
+	item.Namespace = resp.Namespace
+	item.DBSchema = resp.DBSchema
+	item.CacheEnabled = resp.CacheEnabled
+	item.CacheURLConfigured = resp.CacheURLConfigured
+	item.Deriver = resp.Deriver
+	item.Summary = resp.Summary
+	item.DialecticLevels = resp.DialecticLevels
+	return item
 }
 
 func buildHarnessOverview(cfg config.Config, store storepkg.Repository) harnessOverviewResponse {
@@ -489,6 +544,7 @@ func buildHarnessOverview(cfg config.Config, store storepkg.Repository) harnessO
 		SessionBindings: sliceOrEmpty(store.ListHarnessSessionBindings()),
 		Executions:      sliceOrEmpty(store.ListHarnessExecutions()),
 		Roles:           buildRuntimeStatus(cfg, store),
+		Honcho:          buildHonchoRuntimeStatus(cfg),
 	}
 }
 

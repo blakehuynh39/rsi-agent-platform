@@ -235,20 +235,57 @@ func TestRouterConversationCaseAndTraceEndpoints(t *testing.T) {
 func TestRouterProposalDetailAndRuntimeEndpoints(t *testing.T) {
 	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(w).Encode(map[string]any{
-			"status":            "ok",
-			"role":              "eval",
-			"backend":           "hermes-aiagent",
-			"provider":          "openai",
-			"model":             "openai/gpt-5.4",
-			"provider_model":    "gpt-5.4",
-			"api_mode":          "codex_responses",
-			"reasoning_effort":  "xhigh",
-			"available":         true,
-			"hermes_available":  true,
-			"openai_configured": true,
+			"status":                  "ok",
+			"role":                    "eval",
+			"backend":                 "hermes-aiagent",
+			"provider":                "openai",
+			"model":                   "openai/gpt-5.4",
+			"provider_model":          "gpt-5.4",
+			"api_mode":                "codex_responses",
+			"reasoning_effort":        "xhigh",
+			"available":               true,
+			"hermes_available":        true,
+			"openai_configured":       true,
+			"honcho_configured":       true,
+			"honcho_available":        true,
+			"honcho_base_url":         "http://use1-stage-rsi-agent-platform-honcho-api:8000",
+			"honcho_workspace":        "rsi-stage",
+			"honcho_environment":      "stage",
+			"honcho_recall_mode":      "hybrid",
+			"honcho_write_frequency":  "async",
+			"honcho_session_strategy": "global",
+			"honcho_ai_peer":          "rsi:stage:eval",
 		})
 	}))
 	defer runner.Close()
+	honcho := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"status":               "ok",
+			"namespace":            "rsi-stage",
+			"db_schema":            "honcho",
+			"cache_enabled":        true,
+			"cache_url_configured": true,
+			"deriver": map[string]any{
+				"provider":         "openai",
+				"model":            "gpt-5.4",
+				"reasoning_effort": "xhigh",
+			},
+			"summary": map[string]any{
+				"provider":         "openai",
+				"model":            "gpt-5.4",
+				"reasoning_effort": "xhigh",
+			},
+			"dialectic_levels": map[string]any{
+				"minimal": map[string]any{
+					"provider":               "openai",
+					"model":                  "gpt-5.4",
+					"reasoning_effort":       "xhigh",
+					"thinking_budget_tokens": 0,
+				},
+			},
+		})
+	}))
+	defer honcho.Close()
 
 	store := storepkg.NewMemoryStore()
 	proposals := store.ListProposals()
@@ -285,6 +322,7 @@ func TestRouterProposalDetailAndRuntimeEndpoints(t *testing.T) {
 		ProactiveRunnerBaseURL: runner.URL,
 		EvalRunnerBaseURL:      runner.URL,
 		ProposalRunnerBaseURL:  runner.URL,
+		HonchoRuntimeBaseURL:   honcho.URL,
 	}
 	router := NewRouter(cfg, store)
 
@@ -359,13 +397,30 @@ func TestRouterProposalDetailAndRuntimeEndpoints(t *testing.T) {
 	}
 
 	var runtimePayload struct {
-		Roles []map[string]any `json:"roles"`
+		Roles  []map[string]any `json:"roles"`
+		Honcho map[string]any   `json:"honcho"`
 	}
 	if err := json.NewDecoder(runtimeRec.Body).Decode(&runtimePayload); err != nil {
 		t.Fatalf("decode runtime payload: %v", err)
 	}
 	if len(runtimePayload.Roles) != 4 {
 		t.Fatalf("expected 4 runtime roles, got %d", len(runtimePayload.Roles))
+	}
+	if got, _ := runtimePayload.Honcho["status"].(string); got != "ok" {
+		t.Fatalf("expected honcho runtime ok, got %q", got)
+	}
+	if got, _ := runtimePayload.Honcho["namespace"].(string); got != "rsi-stage" {
+		t.Fatalf("expected honcho namespace rsi-stage, got %q", got)
+	}
+	deriver, ok := runtimePayload.Honcho["deriver"].(map[string]any)
+	if !ok {
+		t.Fatal("expected honcho deriver payload")
+	}
+	if got, _ := deriver["model"].(string); got != "gpt-5.4" {
+		t.Fatalf("expected honcho deriver model gpt-5.4, got %q", got)
+	}
+	if got, _ := deriver["reasoning_effort"].(string); got != "xhigh" {
+		t.Fatalf("expected honcho deriver reasoning xhigh, got %q", got)
 	}
 	for _, role := range runtimePayload.Roles {
 		if got, _ := role["model"].(string); got != "openai/gpt-5.4" {
@@ -376,6 +431,12 @@ func TestRouterProposalDetailAndRuntimeEndpoints(t *testing.T) {
 		}
 		if got, _ := role["api_mode"].(string); got != "codex_responses" {
 			t.Fatalf("expected api_mode codex_responses, got %q", got)
+		}
+		if got, _ := role["honcho_workspace"].(string); got != "rsi-stage" {
+			t.Fatalf("expected honcho_workspace rsi-stage, got %q", got)
+		}
+		if got, _ := role["honcho_recall_mode"].(string); got != "hybrid" {
+			t.Fatalf("expected honcho_recall_mode hybrid, got %q", got)
 		}
 	}
 }

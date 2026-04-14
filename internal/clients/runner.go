@@ -56,23 +56,30 @@ type RunnerResponse struct {
 }
 
 type RuntimeResponse struct {
-	Status             string `json:"status"`
-	Role               string `json:"role"`
-	Backend            string `json:"backend"`
-	Provider           string `json:"provider"`
-	Model              string `json:"model"`
-	ProviderModel      string `json:"provider_model"`
-	APIMode            string `json:"api_mode"`
-	ReasoningEffort    string `json:"reasoning_effort"`
-	Available          bool   `json:"available"`
-	HermesAvailable    bool   `json:"hermes_available"`
-	OpenAIConfigured   bool   `json:"openai_configured"`
-	PersistenceEnabled bool   `json:"persistence_enabled"`
-	HermesHome         string `json:"hermes_home,omitempty"`
-	SessionDBPath      string `json:"session_db_path,omitempty"`
-	MemoryBackend      string `json:"memory_backend,omitempty"`
-	HonchoConfigured   bool   `json:"honcho_configured"`
-	HonchoAvailable    bool   `json:"honcho_available"`
+	Status                string `json:"status"`
+	Role                  string `json:"role"`
+	Backend               string `json:"backend"`
+	Provider              string `json:"provider"`
+	Model                 string `json:"model"`
+	ProviderModel         string `json:"provider_model"`
+	APIMode               string `json:"api_mode"`
+	ReasoningEffort       string `json:"reasoning_effort"`
+	Available             bool   `json:"available"`
+	HermesAvailable       bool   `json:"hermes_available"`
+	OpenAIConfigured      bool   `json:"openai_configured"`
+	PersistenceEnabled    bool   `json:"persistence_enabled"`
+	HermesHome            string `json:"hermes_home,omitempty"`
+	SessionDBPath         string `json:"session_db_path,omitempty"`
+	MemoryBackend         string `json:"memory_backend,omitempty"`
+	HonchoConfigured      bool   `json:"honcho_configured"`
+	HonchoAvailable       bool   `json:"honcho_available"`
+	HonchoBaseURL         string `json:"honcho_base_url,omitempty"`
+	HonchoWorkspace       string `json:"honcho_workspace,omitempty"`
+	HonchoEnvironment     string `json:"honcho_environment,omitempty"`
+	HonchoRecallMode      string `json:"honcho_recall_mode,omitempty"`
+	HonchoWriteFrequency  string `json:"honcho_write_frequency,omitempty"`
+	HonchoSessionStrategy string `json:"honcho_session_strategy,omitempty"`
+	HonchoAIPeer          string `json:"honcho_ai_peer,omitempty"`
 }
 
 type RunnerClient struct {
