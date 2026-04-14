@@ -173,7 +173,10 @@ func (p *PostgresStore) recordPRAttemptDirect(attempt improvement.PRAttempt) (it
 			attempt.OriginTraceID = firstNonEmpty(attempt.OriginTraceID, proposal.OriginTraceID)
 			attempt.AttemptID = firstNonEmpty(attempt.AttemptID, proposal.CurrentAttemptID)
 			if attempt.Status == string(review.ProposalPROpen) {
-				if _, err := tx.Exec(`update proposal set status = $2, active_slot_consuming = true, current_attempt_id = $3 where id = $1`, proposal.ID, string(review.ProposalPROpen), firstNonEmpty(attempt.AttemptID)); err != nil {
+				proposal.Status = review.ProposalPROpen
+				proposal.ActiveSlotConsuming = true
+				proposal.CurrentAttemptID = firstNonEmpty(attempt.AttemptID)
+				if err := updateProposalOperationalStateTx(tx, proposal); err != nil {
 					return err
 				}
 			}
@@ -227,7 +230,26 @@ func selectProposalTx(tx *sql.Tx, proposalID string, forUpdate bool) (review.Pro
 		t := lineStoppedAt.Time
 		item.LineStoppedAt = &t
 	}
-	return item, nil
+	return normalizeProposalTargetFields(item), nil
+}
+
+func updateProposalOperationalStateTx(tx *sql.Tx, item review.Proposal) error {
+	item = normalizeProposalTargetFields(item)
+	_, err := tx.Exec(`update proposal set reviewer = $2, status = $3, active_slot_consuming = $4, current_attempt_id = $5, attempt_count = $6, auto_retry_budget_remaining = $7, last_failure_class = $8, next_retry_action = $9, line_stopped_by = $10, line_stop_reason = $11, line_stopped_at = $12 where id = $1`,
+		item.ID,
+		nullString(item.Reviewer),
+		string(item.Status),
+		item.ActiveSlotConsuming,
+		firstNonEmpty(item.CurrentAttemptID),
+		item.AttemptCount,
+		item.AutoRetryBudgetRemaining,
+		firstNonEmpty(item.LastFailureClass),
+		firstNonEmpty(item.NextRetryAction),
+		firstNonEmpty(item.LineStoppedBy),
+		firstNonEmpty(item.LineStopReason),
+		nullTime(item.LineStoppedAt),
+	)
+	return err
 }
 
 func selectRepoChangeJobByProposalTx(tx *sql.Tx, proposalID string, forUpdate bool) (improvement.RepoChangeJob, bool, error) {
@@ -349,28 +371,20 @@ func (p *PostgresStore) reviewProposalDirect(proposalID string, decision review.
 		}
 
 		targetStatus := review.ProposalStatus(decision.Decision)
-		if _, err := tx.Exec(`update proposal set reviewer = $2, status = $3, active_slot_consuming = $4 where id = $1`,
-			proposalID,
-			nullString(decision.ReviewerID),
-			string(targetStatus),
-			review.ConsumesActiveProposalSlot(targetStatus),
-		); err != nil {
-			return err
-		}
-
 		candidateStatus := improvement.CandidateDormant
 		lineStatus := improvement.LineDormant
 		newEvidence := current.NewEvidenceSinceLastRejection
+		current.Reviewer = decision.ReviewerID
+		current.Status = targetStatus
+		current.ActiveSlotConsuming = review.ConsumesActiveProposalSlot(targetStatus)
 		switch targetStatus {
 		case review.ProposalApproved:
 			candidateStatus = improvement.CandidatePromoted
 			lineStatus = improvement.LineActive
-			if _, err := tx.Exec(`update proposal set auto_retry_budget_remaining = case when auto_retry_budget_remaining = 0 then $2 else auto_retry_budget_remaining end, next_retry_action = '' where id = $1`,
-				proposalID,
-				defaultProposalRetryBudget,
-			); err != nil {
-				return err
+			if current.AutoRetryBudgetRemaining == 0 {
+				current.AutoRetryBudgetRemaining = defaultProposalRetryBudget
 			}
+			current.NextRetryAction = ""
 		case review.ProposalRejected, review.ProposalDismissed:
 			candidateStatus = improvement.CandidateNeedsEvidence
 			lineStatus = improvement.LineClosed
@@ -378,6 +392,9 @@ func (p *PostgresStore) reviewProposalDirect(proposalID string, decision review.
 		case review.ProposalMerged:
 			candidateStatus = improvement.CandidateDormant
 			lineStatus = improvement.LineClosed
+		}
+		if err := updateProposalOperationalStateTx(tx, current); err != nil {
+			return err
 		}
 		if _, err := tx.Exec(`update improvement_candidate set status = $2, new_evidence_since_last_rejection = $3, line_status = $4, auto_retry_budget_remaining = case when $4 = 'active_line' and auto_retry_budget_remaining = 0 then $5 when $4 <> 'active_line' then 0 else auto_retry_budget_remaining end, current_target_layer = $6, updated_at = $7 where candidate_key = $1`,
 			current.CandidateKey,
@@ -526,7 +543,10 @@ func (p *PostgresStore) materializeApprovedProposalDirect(proposalID string, req
 		if err := persistRepoChangeJobs(tx, temp); err != nil {
 			return err
 		}
-		if _, err := tx.Exec(`update proposal set status = $2, active_slot_consuming = true, current_attempt_id = $3 where id = $1`, proposalID, string(review.ProposalRepoChangeQueued), firstNonEmpty(proposal.CurrentAttemptID)); err != nil {
+		proposal.Status = review.ProposalRepoChangeQueued
+		proposal.ActiveSlotConsuming = true
+		proposal.CurrentAttemptID = firstNonEmpty(proposal.CurrentAttemptID)
+		if err := updateProposalOperationalStateTx(tx, proposal); err != nil {
 			return err
 		}
 		attempt.State = improvement.AttemptStatePatchGenerated
@@ -630,7 +650,9 @@ func (p *PostgresStore) retryProposalRepoChangeDirect(proposalID string, request
 			if err := persistRepoChangeJobs(tx, temp); err != nil {
 				return err
 			}
-			if _, err := tx.Exec(`update proposal set status = $2, active_slot_consuming = true where id = $1`, proposal.ID, string(review.ProposalRepoChangeQueued)); err != nil {
+			proposal.Status = review.ProposalRepoChangeQueued
+			proposal.ActiveSlotConsuming = true
+			if err := updateProposalOperationalStateTx(tx, proposal); err != nil {
 				return err
 			}
 			item, err = enqueueWorkItemTx(tx, queue.WorkItem{

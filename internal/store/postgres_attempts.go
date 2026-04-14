@@ -60,14 +60,12 @@ func (p *PostgresStore) UpsertChangeAttempt(item improvement.ChangeAttempt) (imp
 			if budget < 0 {
 				budget = 0
 			}
-			if _, err := tx.Exec(`update proposal set current_attempt_id = $2, attempt_count = greatest(coalesce(attempt_count, 0), $3), auto_retry_budget_remaining = $4, last_failure_class = $5, next_retry_action = $6 where id = $1`,
-				proposal.ID,
-				item.ID,
-				item.AttemptNumber,
-				budget,
-				nullString(item.FailureClass),
-				nullString(item.RetryDecision),
-			); err != nil {
+			proposal.CurrentAttemptID = item.ID
+			proposal.AttemptCount = maxInt(proposal.AttemptCount, item.AttemptNumber)
+			proposal.AutoRetryBudgetRemaining = budget
+			proposal.LastFailureClass = item.FailureClass
+			proposal.NextRetryAction = item.RetryDecision
+			if err := updateProposalOperationalStateTx(tx, proposal); err != nil {
 				return err
 			}
 		}
@@ -79,11 +77,11 @@ func (p *PostgresStore) UpsertChangeAttempt(item improvement.ChangeAttempt) (imp
 			if _, err := tx.Exec(`update improvement_candidate set line_status = $2, retryable_failure_class = $3, last_attempt_id = $4, attempt_count = greatest(coalesce(attempt_count, 0), $5), auto_retry_budget_remaining = $6, current_target_layer = $7, updated_at = $8 where candidate_key = $1`,
 				item.CandidateKey,
 				string(improvement.LineActive),
-				nullString(item.FailureClass),
-				nullString(item.ID),
+				firstNonEmpty(item.FailureClass),
+				firstNonEmpty(item.ID),
 				item.AttemptNumber,
 				budget,
-				string(item.TargetLayer),
+				firstNonEmpty(string(item.TargetLayer), string(harness.TargetLayerRepoChange)),
 				item.UpdatedAt,
 			); err != nil {
 				return err
@@ -105,13 +103,13 @@ func (p *PostgresStore) StopProposalLine(proposalID string, requestedBy string, 
 			return err
 		}
 		now := time.Now().UTC()
-		if _, err := tx.Exec(`update proposal set status = $2, active_slot_consuming = false, next_retry_action = '', line_stopped_by = $3, line_stop_reason = $4, line_stopped_at = $5 where id = $1`,
-			current.ID,
-			string(review.ProposalCanceled),
-			nullString(requestedBy),
-			nullString(rationale),
-			now,
-		); err != nil {
+		current.Status = review.ProposalCanceled
+		current.ActiveSlotConsuming = false
+		current.NextRetryAction = ""
+		current.LineStoppedBy = requestedBy
+		current.LineStopReason = rationale
+		current.LineStoppedAt = &now
+		if err := updateProposalOperationalStateTx(tx, current); err != nil {
 			return err
 		}
 		if current.CurrentAttemptID != "" {

@@ -585,9 +585,10 @@ func replaceEventMaterializationScope(tx *sql.Tx, store *MemoryStore, event inge
 }
 
 func insertActionResult(tx *sql.Tx, item action.Result) error {
-	_, err := tx.Exec(`insert into action_result (id, action_intent_id, attempt_number, executor, provider, provider_ref, request_artifact_id, response_artifact_id, status, error_code, error_message, started_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,
+	_, err := tx.Exec(`insert into action_result (id, action_intent_id, attempt_id, attempt_number, executor, provider, provider_ref, request_artifact_id, response_artifact_id, status, error_code, error_message, started_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
 		item.ID,
 		item.ActionIntentID,
+		firstNonEmpty(item.AttemptID),
 		item.AttemptNumber,
 		item.Executor,
 		nullString(item.Provider),
