@@ -1578,7 +1578,7 @@ func (s *MemoryStore) enqueueWorkItemLocked(item queue.WorkItem) (queue.WorkItem
 			if workItemDedupeKey(existing) != dedupeKey {
 				continue
 			}
-			if existing.Status == queue.WorkFailed || existing.Status == queue.WorkCanceled {
+			if existing.Status == queue.WorkFailed || existing.Status == queue.WorkCanceled || existing.Status == queue.WorkCompleted {
 				continue
 			}
 			return existing, nil

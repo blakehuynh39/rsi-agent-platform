@@ -211,6 +211,9 @@ func processEvalItem(cfg config.Config, store storepkg.Store, runnerClient *clie
 		},
 		Reasoning: reasoning,
 	})
+	if err := ensureApprovedProposalWork(store, trace, cfg.ServiceName); err != nil {
+		return err
+	}
 	return nil
 }
 

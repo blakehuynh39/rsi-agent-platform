@@ -690,12 +690,13 @@ func findExistingWorkItemByDedupe(tx *sql.Tx, item queue.WorkItem) (queue.WorkIt
 		return queue.WorkItem{}, false, err
 	}
 	row := tx.QueryRow(
-		`select `+workItemSelectColumns()+` from work_item where queue = $1 and kind = $2 and payload->>'dedupe_key' = $3 and status not in ($4, $5) order by created_at desc, id desc limit 1`,
+		`select `+workItemSelectColumns()+` from work_item where queue = $1 and kind = $2 and payload->>'dedupe_key' = $3 and status not in ($4, $5, $6) order by created_at desc, id desc limit 1`,
 		string(item.Queue),
 		item.Kind,
 		dedupeKey,
 		string(queue.WorkFailed),
 		string(queue.WorkCanceled),
+		string(queue.WorkCompleted),
 	)
 	existing, err := scanWorkItem(row)
 	if err == sql.ErrNoRows {

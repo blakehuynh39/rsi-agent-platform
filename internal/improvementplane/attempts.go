@@ -25,6 +25,121 @@ func latestAttemptForProposal(store storepkg.Store, proposalID string) (improvem
 	return items[0], true
 }
 
+func latestCandidateForTrace(store storepkg.Store, traceID string) (improvement.Candidate, bool) {
+	var (
+		best   improvement.Candidate
+		found  bool
+		bestTS time.Time
+	)
+	for _, item := range store.ListCandidates() {
+		matches := item.LatestTraceID == traceID
+		if !matches {
+			for _, evidence := range item.EvidenceTraceIDs {
+				if evidence == traceID {
+					matches = true
+					break
+				}
+			}
+		}
+		if !matches {
+			continue
+		}
+		if !found || item.UpdatedAt.After(bestTS) {
+			best = item
+			bestTS = item.UpdatedAt
+			found = true
+		}
+	}
+	return best, found
+}
+
+func latestApprovedProposalForCandidate(store storepkg.Store, candidateKey string) (review.Proposal, bool) {
+	var (
+		best   review.Proposal
+		found  bool
+		bestTS time.Time
+	)
+	for _, item := range store.ListProposals() {
+		if item.CandidateKey != candidateKey || item.Status != review.ProposalApproved {
+			continue
+		}
+		if !found || item.CreatedAt.After(bestTS) {
+			best = item
+			bestTS = item.CreatedAt
+			found = true
+		}
+	}
+	return best, found
+}
+
+func hasLiveProposalQueueWork(store storepkg.Store, proposalID string) bool {
+	for _, item := range store.ListWorkItems() {
+		if item.Queue != queue.ProposalQueue || item.Kind != "approved_proposal" || item.ProposalID != proposalID {
+			continue
+		}
+		if item.Status == queue.WorkQueued || item.Status == queue.WorkLeased {
+			return true
+		}
+	}
+	return false
+}
+
+func hasInFlightRepoChange(store storepkg.Store, proposalID string) bool {
+	for _, item := range store.ListRepoChangeJobs() {
+		if item.ProposalID != proposalID {
+			continue
+		}
+		switch item.Status {
+		case string(review.ProposalRepoChangeQueued), string(review.ProposalRepoChangeRunning), string(review.ProposalValidationPending), string(review.ProposalPROpen):
+			return true
+		}
+	}
+	for _, item := range store.ListPRAttempts() {
+		if item.ProposalID == proposalID && item.Status == string(review.ProposalPROpen) {
+			return true
+		}
+	}
+	return false
+}
+
+func ensureApprovedProposalWork(store storepkg.Store, trace events.Trace, requestedBy string) error {
+	candidate, ok := latestCandidateForTrace(store, trace.Summary.TraceID)
+	if !ok || candidate.LineStatus != improvement.LineActive {
+		return nil
+	}
+	proposal, ok := latestApprovedProposalForCandidate(store, candidate.CandidateKey)
+	if !ok {
+		return nil
+	}
+	if hasLiveProposalQueueWork(store, proposal.ID) || hasInFlightRepoChange(store, proposal.ID) {
+		return nil
+	}
+	if attempt, ok := latestAttemptForProposal(store, proposal.ID); ok && !isAttemptTerminal(attempt.State) {
+		return nil
+	}
+	_, err := store.EnqueueWorkItem(queue.WorkItem{
+		Queue:          queue.ProposalQueue,
+		Kind:           "approved_proposal",
+		Status:         queue.WorkQueued,
+		TraceID:        proposal.TraceID,
+		ConversationID: proposal.ConversationID,
+		CaseID:         proposal.CaseID,
+		TriggerEventID: proposal.OriginTraceID,
+		ProposalID:     proposal.ID,
+		RequestedBy:    requestedBy,
+		ApprovalMode:   "human_review",
+		CreatedAt:      time.Now().UTC(),
+		UpdatedAt:      time.Now().UTC(),
+		Payload: map[string]any{
+			"candidate_key": candidate.CandidateKey,
+			"risk_tier":     proposal.RiskTier,
+			"dedupe_key":    fmt.Sprintf("proposal-runner:%s", proposal.ID),
+			"trigger":       string(improvement.AttemptTriggerOperatorRetry),
+		},
+	})
+	return err
+}
+
 func attemptsForProposal(store storepkg.Store, proposalID string) []improvement.ChangeAttempt {
 	out := make([]improvement.ChangeAttempt, 0)
 	for _, item := range store.ListChangeAttempts() {
@@ -65,19 +180,19 @@ func ensureProposalAttempt(cfg config.Config, store storepkg.Store, proposal rev
 		trigger = improvement.ChangeAttemptTrigger(raw)
 	}
 	attempt := improvement.ChangeAttempt{
-		ID:            fmt.Sprintf("attempt-%s", strings.ReplaceAll(strings.ReplaceAll(strings.ToLower(strings.TrimSpace(proposal.ID)), "/", "-"), " ", "-")),
-		ProposalID:    proposal.ID,
-		CandidateKey:  proposal.CandidateKey,
-		AttemptNumber: nextNumber,
-		TargetLayer:   proposal.TargetLayer,
-		TargetKind:    proposal.TargetKind,
-		TargetRef:     proposal.TargetRef,
-		Trigger:       trigger,
-		State:         improvement.AttemptStatePlanning,
+		ID:              fmt.Sprintf("attempt-%s", strings.ReplaceAll(strings.ReplaceAll(strings.ToLower(strings.TrimSpace(proposal.ID)), "/", "-"), " ", "-")),
+		ProposalID:      proposal.ID,
+		CandidateKey:    proposal.CandidateKey,
+		AttemptNumber:   nextNumber,
+		TargetLayer:     proposal.TargetLayer,
+		TargetKind:      proposal.TargetKind,
+		TargetRef:       proposal.TargetRef,
+		Trigger:         trigger,
+		State:           improvement.AttemptStatePlanning,
 		ParentAttemptID: parentAttemptID,
-		BranchName:    buildAttemptBranchName(proposal.ID, nextNumber),
-		CreatedAt:     time.Now().UTC(),
-		UpdatedAt:     time.Now().UTC(),
+		BranchName:      buildAttemptBranchName(proposal.ID, nextNumber),
+		CreatedAt:       time.Now().UTC(),
+		UpdatedAt:       time.Now().UTC(),
 	}
 	attempt.ID = fmt.Sprintf("attempt-%s-%02d", strings.ReplaceAll(strings.TrimSpace(proposal.ID), "/", "-"), nextNumber)
 	description := fmt.Sprintf("Queued remediation attempt %d for proposal %s triggered by %s.", nextNumber, proposal.ID, trigger)

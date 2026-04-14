@@ -239,6 +239,43 @@ func TestRetryProposalRepoChangeRequeuesSandboxWork(t *testing.T) {
 	}
 }
 
+func TestEnqueueWorkItemAllowsRequeueAfterCompleted(t *testing.T) {
+	store := NewMemoryStore()
+	now := time.Now().UTC()
+	first, err := store.EnqueueWorkItem(queue.WorkItem{
+		Queue:  queue.ProposalQueue,
+		Kind:   "approved_proposal",
+		Status: queue.WorkQueued,
+		Payload: map[string]any{
+			"dedupe_key": "proposal-runner:proposal-test",
+		},
+		CreatedAt: now,
+		UpdatedAt: now,
+	})
+	if err != nil {
+		t.Fatalf("EnqueueWorkItem() error = %v", err)
+	}
+	if _, err := store.CompleteWorkItem(first.ID); err != nil {
+		t.Fatalf("CompleteWorkItem() error = %v", err)
+	}
+	second, err := store.EnqueueWorkItem(queue.WorkItem{
+		Queue:  queue.ProposalQueue,
+		Kind:   "approved_proposal",
+		Status: queue.WorkQueued,
+		Payload: map[string]any{
+			"dedupe_key": "proposal-runner:proposal-test",
+		},
+		CreatedAt: now.Add(time.Second),
+		UpdatedAt: now.Add(time.Second),
+	})
+	if err != nil {
+		t.Fatalf("second EnqueueWorkItem() error = %v", err)
+	}
+	if second.ID == first.ID {
+		t.Fatalf("expected completed work item %s not to block requeue", first.ID)
+	}
+}
+
 func TestEvaluateTraceRuntimeFailureCreatesRootCauseCandidate(t *testing.T) {
 	store := NewMemoryStore()
 	traceID := store.ListTraces()[0].TraceID

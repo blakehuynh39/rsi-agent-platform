@@ -151,3 +151,63 @@ func TestProcessSandboxWatchReschedulesCurrentLeaseUntilTerminal(t *testing.T) {
 		t.Fatalf("retry_after_unix = %d, want value after %d", retryAfter, now.Unix())
 	}
 }
+
+func TestProcessEvalItemRequeuesStalledApprovedProposal(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	proposals := store.ListProposals()
+	if len(proposals) == 0 {
+		t.Fatal("expected seeded proposals")
+	}
+	proposal := proposals[0]
+	trace, ok := store.GetTrace(proposal.TraceID)
+	if !ok {
+		t.Fatalf("expected trace %s", proposal.TraceID)
+	}
+	var err error
+	proposal, err = store.ReviewProposal(proposal.ID, review.ProposalReview{
+		Decision:   string(review.ProposalApproved),
+		Rationale:  "Proceed.",
+		ReviewerID: "alice",
+	})
+	if err != nil {
+		t.Fatalf("ReviewProposal() error = %v", err)
+	}
+	var queued queue.WorkItem
+	foundQueued := false
+	for _, item := range store.ListWorkItems() {
+		if item.Queue == queue.ProposalQueue && item.Kind == "approved_proposal" && item.ProposalID == proposal.ID && item.Status == queue.WorkQueued {
+			queued = item
+			foundQueued = true
+			break
+		}
+	}
+	if !foundQueued {
+		t.Fatalf("expected queued proposal work item for %s", proposal.ID)
+	}
+	if _, err := store.FailWorkItem(queued.ID, "simulated old runtime failure"); err != nil {
+		t.Fatalf("FailWorkItem() error = %v", err)
+	}
+	cfg := config.Config{ServiceName: "improvement-plane"}
+	evalItem := queue.WorkItem{
+		ID:        "eval-manual",
+		Queue:     queue.EvalQueue,
+		Kind:      "evaluate_trace",
+		Status:    queue.WorkQueued,
+		TraceID:   trace.Summary.TraceID,
+		CreatedAt: now.Add(time.Second),
+		UpdatedAt: now.Add(time.Second),
+	}
+	if err := processEvalItem(cfg, store, nil, evalItem); err != nil {
+		t.Fatalf("processEvalItem() error = %v", err)
+	}
+	foundQueued = false
+	for _, item := range store.ListWorkItems() {
+		if item.Queue == queue.ProposalQueue && item.Kind == "approved_proposal" && item.ProposalID == proposal.ID && item.Status == queue.WorkQueued {
+			foundQueued = true
+		}
+	}
+	if !foundQueued {
+		t.Fatal("expected stalled approved proposal to be requeued after eval")
+	}
+}
