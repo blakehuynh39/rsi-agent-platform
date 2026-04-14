@@ -1,6 +1,10 @@
 package improvement
 
-import "time"
+import (
+	"time"
+
+	"github.com/piplabs/rsi-agent-platform/internal/harness"
+)
 
 type CandidateStatus string
 
@@ -20,34 +24,37 @@ const (
 )
 
 type Candidate struct {
-	ID                            string          `json:"id"`
-	CandidateKey                  string          `json:"candidate_key"`
-	ConversationID                string          `json:"conversation_id,omitempty"`
-	CaseID                        string          `json:"case_id,omitempty"`
-	OriginTraceID                 string          `json:"origin_trace_id,omitempty"`
-	EvidenceTraceIDs              []string        `json:"evidence_trace_ids,omitempty"`
-	Subsystem                     string          `json:"subsystem"`
-	FailureMode                   string          `json:"failure_mode"`
-	InterventionType              string          `json:"intervention_type"`
-	Status                        CandidateStatus `json:"status"`
-	Severity                      string          `json:"severity"`
-	RecurrenceCount               int             `json:"recurrence_count"`
-	ExpectedImpact                float64         `json:"expected_impact"`
-	NoveltyScore                  float64         `json:"novelty_score"`
-	ConfidenceScore               float64         `json:"confidence_score"`
-	FreshnessScore                float64         `json:"freshness_score"`
-	PriorityScore                 float64         `json:"priority_score"`
-	RiskTier                      RiskTier        `json:"risk_tier"`
-	Hypothesis                    string          `json:"hypothesis"`
-	ProposedScope                 string          `json:"proposed_scope"`
-	LatestTraceID                 string          `json:"latest_trace_id,omitempty"`
-	SourceEvalIDs                 []string        `json:"source_eval_ids"`
-	EvidenceArtifactIDs           []string        `json:"evidence_artifact_ids"`
-	PriorSimilarProposalIDs       []string        `json:"prior_similar_proposal_ids"`
-	NewEvidenceSinceLastRejection bool            `json:"new_evidence_since_last_rejection"`
-	LastEvaluatedAt               time.Time       `json:"last_evaluated_at"`
-	CreatedAt                     time.Time       `json:"created_at"`
-	UpdatedAt                     time.Time       `json:"updated_at"`
+	ID                            string              `json:"id"`
+	CandidateKey                  string              `json:"candidate_key"`
+	ConversationID                string              `json:"conversation_id,omitempty"`
+	CaseID                        string              `json:"case_id,omitempty"`
+	OriginTraceID                 string              `json:"origin_trace_id,omitempty"`
+	EvidenceTraceIDs              []string            `json:"evidence_trace_ids,omitempty"`
+	Subsystem                     string              `json:"subsystem"`
+	FailureMode                   string              `json:"failure_mode"`
+	InterventionType              string              `json:"intervention_type"`
+	TargetLayer                   harness.TargetLayer `json:"target_layer"`
+	TargetKind                    string              `json:"target_kind,omitempty"`
+	TargetRef                     string              `json:"target_ref,omitempty"`
+	Status                        CandidateStatus     `json:"status"`
+	Severity                      string              `json:"severity"`
+	RecurrenceCount               int                 `json:"recurrence_count"`
+	ExpectedImpact                float64             `json:"expected_impact"`
+	NoveltyScore                  float64             `json:"novelty_score"`
+	ConfidenceScore               float64             `json:"confidence_score"`
+	FreshnessScore                float64             `json:"freshness_score"`
+	PriorityScore                 float64             `json:"priority_score"`
+	RiskTier                      RiskTier            `json:"risk_tier"`
+	Hypothesis                    string              `json:"hypothesis"`
+	ProposedScope                 string              `json:"proposed_scope"`
+	LatestTraceID                 string              `json:"latest_trace_id,omitempty"`
+	SourceEvalIDs                 []string            `json:"source_eval_ids"`
+	EvidenceArtifactIDs           []string            `json:"evidence_artifact_ids"`
+	PriorSimilarProposalIDs       []string            `json:"prior_similar_proposal_ids"`
+	NewEvidenceSinceLastRejection bool                `json:"new_evidence_since_last_rejection"`
+	LastEvaluatedAt               time.Time           `json:"last_evaluated_at"`
+	CreatedAt                     time.Time           `json:"created_at"`
+	UpdatedAt                     time.Time           `json:"updated_at"`
 }
 
 type RepoChangeJob struct {

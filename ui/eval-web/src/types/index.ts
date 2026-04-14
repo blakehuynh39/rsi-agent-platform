@@ -1,5 +1,5 @@
 export type NullableList<T> = T[] | null;
-export type TabKey = "conversations" | "cases" | "proposals" | "knowledge";
+export type TabKey = "conversations" | "cases" | "proposals" | "knowledge" | "harness";
 export type ProposalSegment = "active" | "candidates" | "history";
 export type KnowledgeSegment = "working" | "review" | "canonical" | "stale";
 export type TraceInspectorTab =
@@ -206,6 +206,7 @@ export type TraceDetailResponse = {
   knowledge_entries: NullableList<KnowledgeEntry>;
   feedback_records: NullableList<FeedbackRecord>;
   linked_proposals: NullableList<Proposal>;
+  harness_executions: NullableList<HarnessExecution>;
 };
 
 export type EvalRun = {
@@ -342,6 +343,9 @@ export type Candidate = {
   subsystem: string;
   failure_mode: string;
   intervention_type: string;
+  target_layer: string;
+  target_kind?: string;
+  target_ref?: string;
   status: string;
   severity: string;
   recurrence_count: number;
@@ -365,6 +369,9 @@ export type Proposal = {
   status: string;
   reviewer?: string;
   candidate_key: string;
+  target_layer: string;
+  target_kind?: string;
+  target_ref?: string;
   source_eval_ids?: NullableList<string>;
   risk_tier?: string;
   proposed_scope?: string;
@@ -479,6 +486,107 @@ export type ProposalDetailResponse = {
   action_results: NullableList<ActionResult>;
   outcomes: NullableList<OutcomeRecord>;
   knowledge_entries: NullableList<KnowledgeEntry>;
+  harness_executions: NullableList<HarnessExecution>;
+};
+
+export type HarnessProfile = {
+  id: string;
+  role: string;
+  name: string;
+  description?: string;
+  model?: string;
+  reasoning_effort?: string;
+  prompt_fragments?: NullableList<string>;
+  few_shot_snippets?: NullableList<string>;
+  tool_preference_order?: NullableList<string>;
+  retrieval_bias?: string;
+  reasoning_verbosity?: string;
+  memory_read_enabled: boolean;
+  memory_write_enabled: boolean;
+  repo_ref?: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type HarnessOverlay = {
+  id: string;
+  profile_id: string;
+  role: string;
+  version: string;
+  status: string;
+  target_kind?: string;
+  target_ref?: string;
+  proposal_id?: string;
+  prompt_fragments?: NullableList<string>;
+  few_shot_snippets?: NullableList<string>;
+  tool_preference_order?: NullableList<string>;
+  retrieval_bias?: string;
+  reasoning_verbosity?: string;
+  memory_read_enabled?: boolean;
+  memory_write_enabled?: boolean;
+  created_by?: string;
+  approved_by?: string;
+  created_at: string;
+  updated_at: string;
+  activated_at?: string;
+};
+
+export type HarnessExperiment = {
+  id: string;
+  profile_id: string;
+  overlay_id?: string;
+  proposal_id?: string;
+  role: string;
+  status: string;
+  summary?: string;
+  metrics?: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+};
+
+export type HarnessSessionBinding = {
+  role: string;
+  scope_kind: string;
+  scope_id: string;
+  parent_scope_kind?: string;
+  parent_scope_id?: string;
+  hermes_session_id: string;
+  parent_session_id?: string;
+  memory_backend: string;
+  assistant_peer_id?: string;
+  user_peer_id?: string;
+  harness_profile_id?: string;
+  effective_overlay_id?: string;
+  effective_overlay_version?: string;
+  last_used_at: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type HarnessMemoryArtifact = {
+  kind: string;
+  summary: string;
+  ref?: string;
+  source?: string;
+  created_at?: string;
+};
+
+export type HarnessExecution = {
+  id: string;
+  trace_id?: string;
+  proposal_id?: string;
+  role: string;
+  session_scope_kind: string;
+  session_scope_id: string;
+  hermes_session_id: string;
+  parent_session_id?: string;
+  harness_profile_id?: string;
+  effective_overlay_id?: string;
+  effective_overlay_version?: string;
+  memory_backend?: string;
+  memory_reads?: NullableList<HarnessMemoryArtifact>;
+  memory_writes?: NullableList<HarnessMemoryArtifact>;
+  created_at: string;
 };
 
 export type KnowledgeListResponse = {
@@ -507,10 +615,27 @@ export type RuntimeRole = {
   healthy: boolean;
   openai_configured: boolean;
   hermes_available: boolean;
+  persistence_enabled: boolean;
+  hermes_home?: string;
+  session_db_path?: string;
+  memory_backend?: string;
+  honcho_configured: boolean;
+  honcho_available: boolean;
+  harness_profile_id?: string;
+  active_overlay_version?: string;
   error?: string;
 };
 
 export type RuntimeResponse = {
+  roles: NullableList<RuntimeRole>;
+};
+
+export type HarnessResponse = {
+  profiles: NullableList<HarnessProfile>;
+  overlays: NullableList<HarnessOverlay>;
+  experiments: NullableList<HarnessExperiment>;
+  session_bindings: NullableList<HarnessSessionBinding>;
+  executions: NullableList<HarnessExecution>;
   roles: NullableList<RuntimeRole>;
 };
 
@@ -521,6 +646,7 @@ export type ViewState = {
   trace?: string;
   proposal?: string;
   knowledge?: string;
+  role?: string;
 };
 
 export const ACTIVE_PROPOSAL_STATES = new Set([

@@ -196,8 +196,11 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 	})
 	r.Get("/api/runtime", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
-			"roles": buildRuntimeStatus(cfg),
+			"roles": buildRuntimeStatus(cfg, store),
 		})
+	})
+	r.Get("/api/harness", func(w http.ResponseWriter, r *http.Request) {
+		app.WriteJSON(w, http.StatusOK, buildHarnessOverview(cfg, store))
 	})
 	r.Get("/api/settings", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, store.GetSettings())

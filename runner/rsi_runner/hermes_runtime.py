@@ -1,9 +1,12 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass, replace
 import json
 import os
 from typing import Any, Dict, List
+
+from .config import RunnerConfig
+from .session_manager import SessionManager
 
 ROLE_TASK_TYPES = {
     "prod": {"general", "workflow", "prod"},
@@ -67,6 +70,15 @@ class RunnerTaskRequest:
     context_refs: List[Dict[str, Any]]
     approval_mode: str | None
     reasoning_verbosity: str | None
+    session_scope_kind: str | None
+    session_scope_id: str | None
+    parent_session_scope_kind: str | None
+    parent_session_scope_id: str | None
+    harness_profile_id: str | None
+    harness_overlay_version: str | None
+    memory_backend: str | None
+    assistant_peer_id: str | None
+    user_peer_id: str | None
 
     @classmethod
     def from_payload(cls, payload: Dict[str, Any]) -> "RunnerTaskRequest":
@@ -99,25 +111,36 @@ class RunnerTaskRequest:
             context_refs=list(task.get("context_refs", [])),
             approval_mode=task.get("approval_mode"),
             reasoning_verbosity=task.get("reasoning_verbosity"),
+            session_scope_kind=task.get("session_scope_kind"),
+            session_scope_id=task.get("session_scope_id"),
+            parent_session_scope_kind=task.get("parent_session_scope_kind"),
+            parent_session_scope_id=task.get("parent_session_scope_id"),
+            harness_profile_id=task.get("harness_profile_id"),
+            harness_overlay_version=task.get("harness_overlay_version"),
+            memory_backend=task.get("memory_backend"),
+            assistant_peer_id=task.get("assistant_peer_id"),
+            user_peer_id=task.get("user_peer_id"),
         )
 
 
 class HermesRuntime:
-    def __init__(self, model: str, reasoning_effort: str, role: str = "prod") -> None:
-        self._configured_model = model
-        self._reasoning_effort = reasoning_effort
-        self._role = role
+    def __init__(self, config: RunnerConfig) -> None:
+        self._config = config
+        self._configured_model = config.model
+        self._reasoning_effort = config.reasoning_effort
+        self._role = config.role
         self._backend = "hermes-aiagent"
         self._provider = "hermes"
         self._api_mode = ""
         self._base_url = ""
         self._api_key = ""
-        self._provider_model = model
+        self._provider_model = config.model
         self._provider_hint = ""
-        self._reasoning_config = parse_reasoning_effort(reasoning_effort) or {"enabled": True, "effort": "medium"}
+        self._reasoning_config = parse_reasoning_effort(config.reasoning_effort) or {"enabled": True, "effort": "medium"}
         self._openai_configured = False
+        self._session_manager = SessionManager(config)
         self._configure_runtime()
-        self._available = AIAgent is not None and self._runtime_has_credentials()
+        self._available = AIAgent is not None and self._runtime_has_credentials() and self._session_manager.available
 
     def _configure_runtime(self) -> None:
         if self._configured_model.startswith("openai/"):
@@ -163,33 +186,45 @@ class HermesRuntime:
             "available": self.available,
             "hermes_available": AIAgent is not None,
             "openai_configured": self._openai_configured,
+            "persistence_enabled": self._session_manager.available,
+            "hermes_home": self._session_manager.hermes_home,
+            "session_db_path": self._session_manager.session_db_path,
+            "memory_backend": self._config.memory_backend,
+            "honcho_configured": self._config.honcho_api_key_configured or bool(self._config.honcho_base_url),
+            "honcho_available": self._session_manager.honcho_available,
+            "issues": self._session_manager.ready_issues,
         }
 
     def execute(self, prompt: str, system_message: str | None = None) -> HermesExecutionResult:
-        if AIAgent is None:
-            return HermesExecutionResult(
-                ok=False,
-                message="Hermes runtime is not installed in this environment.",
-                provider=self._backend,
-                raw=self._base_raw(prompt=prompt, system_message=system_message),
-            )
-        if not self._runtime_has_credentials():
-            return HermesExecutionResult(
-                ok=False,
-                message="Hermes OpenAI runtime selected but RSI_OPENAI_API_KEY / OPENAI_API_KEY is not configured.",
-                provider=self._backend,
-                raw=self._base_raw(prompt=prompt, system_message=system_message),
-            )
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "general",
+                    "repo": "rsi-agent-platform",
+                    "prompt": prompt,
+                    "system_message": system_message,
+                    "session_scope_kind": "adhoc",
+                    "session_scope_id": self._role,
+                    "memory_backend": self._config.memory_backend,
+                    "assistant_peer_id": self._config.honcho_ai_peer,
+                }
+            }
+        )
+        return self._execute_task_request(task)
 
+    def _create_agent(self, context: Any) -> Any:
         agent_kwargs: Dict[str, Any] = {
             "model": self._provider_model,
             "quiet_mode": True,
             "reasoning_config": self._reasoning_config,
             "enabled_toolsets": [],
             "skip_context_files": True,
-            "skip_memory": True,
-            "persist_session": False,
+            "skip_memory": False,
+            "persist_session": True,
             "max_iterations": 1,
+            "session_id": context.session_id,
+            "parent_session_id": context.parent_session_id or None,
+            "session_db": self._session_manager.session_db,
         }
         if self._provider_hint:
             agent_kwargs["provider"] = self._provider_hint
@@ -199,23 +234,59 @@ class HermesRuntime:
             agent_kwargs["base_url"] = self._base_url
         if self._api_key:
             agent_kwargs["api_key"] = self._api_key
+        return AIAgent(**agent_kwargs)
 
+    def _execute_task_request(self, task: RunnerTaskRequest) -> HermesExecutionResult:
+        if AIAgent is None:
+            return HermesExecutionResult(
+                ok=False,
+                message="Hermes runtime is not installed in this environment.",
+                provider=self._backend,
+                raw=self._base_raw(prompt=task.prompt, system_message=task.system_message),
+            )
+        if not self._runtime_has_credentials():
+            return HermesExecutionResult(
+                ok=False,
+                message="Hermes OpenAI runtime selected but RSI_OPENAI_API_KEY / OPENAI_API_KEY is not configured.",
+                provider=self._backend,
+                raw=self._base_raw(prompt=task.prompt, system_message=task.system_message),
+            )
+        if not self._session_manager.available:
+            return HermesExecutionResult(
+                ok=False,
+                message="Hermes persistent session runtime is unavailable.",
+                provider=self._backend,
+                raw=self._base_raw(prompt=task.prompt, system_message=task.system_message),
+            )
+
+        context = self._session_manager.prepare(task)
         try:
-            agent = AIAgent(**agent_kwargs)
-            response = agent.run_conversation(prompt, system_message=system_message)["final_response"]
+            agent = self._create_agent(context)
+            tracker = self._session_manager.attach_tracking(agent, task, context)
+            response = agent.run_conversation(
+                task.prompt,
+                system_message=task.system_message,
+                conversation_history=context.conversation_history,
+            )["final_response"]
         except Exception as exc:
             return HermesExecutionResult(
                 ok=False,
                 message=f"Hermes execution failed: {exc}",
                 provider=self._backend,
-                raw={**self._base_raw(prompt=prompt, system_message=system_message), "error": str(exc)},
+                raw={**self._base_raw(prompt=task.prompt, system_message=task.system_message), "error": str(exc)},
             )
 
+        finalized = self._session_manager.finalize(context, tracker)
         return HermesExecutionResult(
             ok=True,
             message=response,
             provider=self._backend,
-            raw=self._base_raw(prompt=prompt, system_message=system_message),
+            raw={
+                **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                **finalized,
+                "harness_profile_id": task.harness_profile_id,
+                "effective_overlay_version": task.harness_overlay_version,
+            },
         )
 
     def _base_raw(self, prompt: str = "", system_message: str | None = None) -> Dict[str, Any]:
@@ -243,7 +314,8 @@ class HermesRuntime:
                 raw={"role": self._role, "task_type": task.task_type},
             )
         prompt = self._render_task_prompt(task)
-        result = self.execute(prompt, system_message=task.system_message)
+        rendered_task = replace(task, prompt=prompt)
+        result = self._execute_task_request(rendered_task)
         structured_output = self._extract_structured_output(result.message)
         result.raw = {
             **result.raw,
@@ -267,6 +339,15 @@ class HermesRuntime:
             "context_refs": task.context_refs,
             "approval_mode": task.approval_mode,
             "reasoning_verbosity": task.reasoning_verbosity,
+            "session_scope_kind": task.session_scope_kind,
+            "session_scope_id": task.session_scope_id,
+            "parent_session_scope_kind": task.parent_session_scope_kind,
+            "parent_session_scope_id": task.parent_session_scope_id,
+            "harness_profile_id": task.harness_profile_id,
+            "harness_overlay_version": task.harness_overlay_version,
+            "memory_backend": task.memory_backend,
+            "assistant_peer_id": task.assistant_peer_id,
+            "user_peer_id": task.user_peer_id,
             "structured_output": structured_output,
         }
         return result
@@ -311,6 +392,16 @@ class HermesRuntime:
             parts.append(f"Approval mode: {task.approval_mode}")
         if task.reasoning_verbosity:
             parts.append(f"Reasoning verbosity: {task.reasoning_verbosity}")
+        if task.session_scope_kind:
+            parts.append(f"Session scope: {task.session_scope_kind}:{task.session_scope_id}")
+        if task.parent_session_scope_kind:
+            parts.append(f"Parent session scope: {task.parent_session_scope_kind}:{task.parent_session_scope_id}")
+        if task.harness_profile_id:
+            parts.append(f"Harness profile: {task.harness_profile_id}")
+        if task.harness_overlay_version:
+            parts.append(f"Effective harness overlay: {task.harness_overlay_version}")
+        if task.memory_backend:
+            parts.append(f"Memory backend: {task.memory_backend}")
         parts.append(f"Timeout seconds: {task.timeout_seconds}")
         parts.append(
             "Return a JSON object with keys: visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, outcome_hypotheses."

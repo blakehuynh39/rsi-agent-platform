@@ -14,6 +14,7 @@ const (
 	KindToolMutation     Kind = "tool_mutation"
 	KindSandboxLaunch    Kind = "sandbox_launch"
 	KindDraftPROpen      Kind = "draft_pr_open"
+	KindHarnessOverlay   Kind = "harness_overlay_activate"
 	KindKnowledgePromote Kind = "knowledge_promote"
 )
 

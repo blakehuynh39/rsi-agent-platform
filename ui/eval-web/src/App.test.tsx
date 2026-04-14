@@ -198,7 +198,31 @@ const traceDetailResponse = {
     }
   ],
   feedback_records: [],
-  linked_proposals: []
+  linked_proposals: [],
+  harness_executions: [
+    {
+      id: "hexec-001",
+      trace_id: "trace-001",
+      role: "prod",
+      session_scope_kind: "conversation",
+      session_scope_id: "conv-001",
+      hermes_session_id: "rsi-prod-conversation-123",
+      memory_backend: "honcho",
+      memory_reads: [
+        {
+          kind: "session_history",
+          summary: "user: How does the agent think through trace rendering?"
+        }
+      ],
+      memory_writes: [
+        {
+          kind: "memory_sync_assistant",
+          summary: "Explained trace rendering and evidence grouping."
+        }
+      ],
+      created_at: "2026-04-11T12:03:00Z"
+    }
+  ]
 };
 
 const proposalListResponse = {
@@ -278,7 +302,8 @@ const proposalDetailResponse = {
   action_intents: traceDetailResponse.action_intents,
   action_results: traceDetailResponse.action_results,
   outcomes: traceDetailResponse.outcomes,
-  knowledge_entries: traceDetailResponse.knowledge_entries
+  knowledge_entries: traceDetailResponse.knowledge_entries,
+  harness_executions: traceDetailResponse.harness_executions
 };
 
 const knowledgeListResponse = {
@@ -306,6 +331,31 @@ const knowledgeDetailResponse = {
 const runtimeResponse = {
   roles: [
     {
+      role: "prod",
+      reported_role: "prod",
+      base_url: "http://runner-prod",
+      timeout_seconds: 60,
+      status: "ok",
+      backend: "hermes-aiagent",
+      provider: "openai",
+      model: "openai/gpt-5.4",
+      provider_model: "gpt-5.4",
+      api_mode: "codex_responses",
+      reasoning_effort: "xhigh",
+      available: true,
+      healthy: true,
+      openai_configured: true,
+      hermes_available: true,
+      persistence_enabled: true,
+      hermes_home: "/var/lib/hermes",
+      session_db_path: "/var/lib/hermes/state.db",
+      memory_backend: "honcho",
+      honcho_configured: true,
+      honcho_available: true,
+      harness_profile_id: "harness-profile-prod",
+      active_overlay_version: "baseline"
+    },
+    {
       role: "eval",
       reported_role: "eval",
       base_url: "http://runner-eval",
@@ -320,9 +370,57 @@ const runtimeResponse = {
       available: true,
       healthy: true,
       openai_configured: true,
-      hermes_available: true
+      hermes_available: true,
+      persistence_enabled: true,
+      hermes_home: "/var/lib/hermes",
+      session_db_path: "/var/lib/hermes/state.db",
+      memory_backend: "honcho",
+      honcho_configured: true,
+      honcho_available: true,
+      harness_profile_id: "harness-profile-eval",
+      active_overlay_version: "baseline"
     }
   ]
+};
+
+const harnessResponse = {
+  profiles: [
+    {
+      id: "harness-profile-prod",
+      role: "prod",
+      name: "Production conversational",
+      description: "Baseline prod role profile.",
+      model: "openai/gpt-5.4",
+      reasoning_effort: "xhigh",
+      prompt_fragments: ["Use explicit visible reasoning."],
+      few_shot_snippets: [],
+      tool_preference_order: ["repo.context", "knowledge.context"],
+      retrieval_bias: "canonical_first",
+      reasoning_verbosity: "verbose",
+      memory_read_enabled: true,
+      memory_write_enabled: true,
+      created_at: "2026-04-11T12:00:00Z",
+      updated_at: "2026-04-11T12:00:00Z"
+    }
+  ],
+  overlays: [],
+  experiments: [],
+  session_bindings: [
+    {
+      role: "prod",
+      scope_kind: "conversation",
+      scope_id: "conv-001",
+      hermes_session_id: "rsi-prod-conversation-123",
+      memory_backend: "honcho",
+      harness_profile_id: "harness-profile-prod",
+      effective_overlay_version: "baseline",
+      last_used_at: "2026-04-11T12:03:00Z",
+      created_at: "2026-04-11T12:00:00Z",
+      updated_at: "2026-04-11T12:03:00Z"
+    }
+  ],
+  executions: traceDetailResponse.harness_executions,
+  roles: runtimeResponse.roles
 };
 
 function renderApp() {
@@ -351,6 +449,7 @@ describe("App", () => {
         url.endsWith("/api/proposals") ? proposalListResponse :
         url.endsWith("/api/knowledge") ? knowledgeListResponse :
         url.endsWith("/api/runtime") ? runtimeResponse :
+        url.endsWith("/api/harness") ? harnessResponse :
         url.endsWith("/api/conversations/conv-001") ? conversationDetailResponse :
         url.endsWith("/api/traces/trace-001") ? traceDetailResponse :
         url.endsWith("/api/proposals/proposal-001") ? proposalDetailResponse :
@@ -414,6 +513,20 @@ describe("App", () => {
       "href",
       "https://github.com/piplabs/rsi-agent-platform/pull/42"
     );
+  });
+
+  it("shows harness role detail with Hermes persistence metadata", async () => {
+    renderApp();
+
+    fireEvent.click(await screen.findByRole("button", { name: /Harness/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /prod/i }));
+
+    await waitFor(() => {
+      expect(window.location.search).toContain("tab=harness");
+      expect(window.location.search).toContain("role=prod");
+    });
+    expect(await screen.findByText("Persistent Hermes role agents")).toBeInTheDocument();
+    expect(screen.getByText("rsi-prod-conversation-123")).toBeInTheDocument();
   });
 
   it("shows knowledge detail and trace action evidence", async () => {

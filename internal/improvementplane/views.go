@@ -11,6 +11,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	"github.com/piplabs/rsi-agent-platform/internal/evals"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
+	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
@@ -113,6 +114,7 @@ type traceDetailResponse struct {
 	KnowledgeEntries   []knowledge.Entry           `json:"knowledge_entries"`
 	FeedbackRecords    []review.FeedbackRecord     `json:"feedback_records"`
 	LinkedProposals    []review.Proposal           `json:"linked_proposals"`
+	HarnessExecutions  []harness.Execution         `json:"harness_executions"`
 }
 
 type proposalDetailResponse struct {
@@ -128,6 +130,7 @@ type proposalDetailResponse struct {
 	ActionResults         []action.Result               `json:"action_results"`
 	Outcomes              []outcome.Record              `json:"outcomes"`
 	KnowledgeEntries      []knowledge.Entry             `json:"knowledge_entries"`
+	HarnessExecutions     []harness.Execution           `json:"harness_executions"`
 }
 
 type proposalListItem struct {
@@ -143,6 +146,9 @@ type proposalListItem struct {
 	Status                        review.ProposalStatus `json:"status"`
 	Reviewer                      string                `json:"reviewer,omitempty"`
 	CandidateKey                  string                `json:"candidate_key"`
+	TargetLayer                   harness.TargetLayer   `json:"target_layer"`
+	TargetKind                    string                `json:"target_kind,omitempty"`
+	TargetRef                     string                `json:"target_ref,omitempty"`
 	SourceEvalIDs                 []string              `json:"source_eval_ids"`
 	RiskTier                      string                `json:"risk_tier,omitempty"`
 	ProposedScope                 string                `json:"proposed_scope,omitempty"`
@@ -158,22 +164,39 @@ type proposalListItem struct {
 }
 
 type runtimeRoleStatus struct {
-	Role             string `json:"role"`
-	ReportedRole     string `json:"reported_role,omitempty"`
-	BaseURL          string `json:"base_url"`
-	TimeoutSeconds   int    `json:"timeout_seconds"`
-	Status           string `json:"status"`
-	Backend          string `json:"backend"`
-	Provider         string `json:"provider"`
-	Model            string `json:"model"`
-	ProviderModel    string `json:"provider_model,omitempty"`
-	APIMode          string `json:"api_mode,omitempty"`
-	ReasoningEffort  string `json:"reasoning_effort"`
-	Available        bool   `json:"available"`
-	Healthy          bool   `json:"healthy"`
-	OpenAIConfigured bool   `json:"openai_configured"`
-	HermesAvailable  bool   `json:"hermes_available"`
-	Error            string `json:"error,omitempty"`
+	Role                 string `json:"role"`
+	ReportedRole         string `json:"reported_role,omitempty"`
+	BaseURL              string `json:"base_url"`
+	TimeoutSeconds       int    `json:"timeout_seconds"`
+	Status               string `json:"status"`
+	Backend              string `json:"backend"`
+	Provider             string `json:"provider"`
+	Model                string `json:"model"`
+	ProviderModel        string `json:"provider_model,omitempty"`
+	APIMode              string `json:"api_mode,omitempty"`
+	ReasoningEffort      string `json:"reasoning_effort"`
+	Available            bool   `json:"available"`
+	Healthy              bool   `json:"healthy"`
+	OpenAIConfigured     bool   `json:"openai_configured"`
+	HermesAvailable      bool   `json:"hermes_available"`
+	PersistenceEnabled   bool   `json:"persistence_enabled"`
+	HermesHome           string `json:"hermes_home,omitempty"`
+	SessionDBPath        string `json:"session_db_path,omitempty"`
+	MemoryBackend        string `json:"memory_backend,omitempty"`
+	HonchoConfigured     bool   `json:"honcho_configured"`
+	HonchoAvailable      bool   `json:"honcho_available"`
+	HarnessProfileID     string `json:"harness_profile_id,omitempty"`
+	ActiveOverlayVersion string `json:"active_overlay_version,omitempty"`
+	Error                string `json:"error,omitempty"`
+}
+
+type harnessOverviewResponse struct {
+	Profiles        []harness.Profile        `json:"profiles"`
+	Overlays        []harness.Overlay        `json:"overlays"`
+	Experiments     []harness.Experiment     `json:"experiments"`
+	SessionBindings []harness.SessionBinding `json:"session_bindings"`
+	Executions      []harness.Execution      `json:"executions"`
+	Roles           []runtimeRoleStatus      `json:"roles"`
 }
 
 func buildConversationList(store storepkg.Repository) []conversationListItem {
@@ -321,6 +344,7 @@ func buildTraceDetail(store storepkg.Repository, traceID string) (traceDetailRes
 		KnowledgeEntries:   sliceOrEmpty(relatedKnowledgeEntries(store, trace.Summary.ConversationID, trace.Summary.CaseID, traceID, "", extraEvidence...)),
 		FeedbackRecords:    sliceOrEmpty(store.ListFeedback(traceID)),
 		LinkedProposals:    filterProposalsForTrace(normalizeProposals(store.ListProposals()), traceID),
+		HarnessExecutions:  sliceOrEmpty(filterHarnessExecutions(store.ListHarnessExecutions(), traceID, "")),
 	}, true
 }
 
@@ -350,6 +374,7 @@ func buildProposalDetail(store storepkg.Repository, proposalID string) (proposal
 		ActionResults:         sliceOrEmpty(flattenActionResults(store, actionIntents)),
 		Outcomes:              sliceOrEmpty(outcomes),
 		KnowledgeEntries:      sliceOrEmpty(relatedKnowledgeEntries(store, proposal.ConversationID, proposal.CaseID, proposal.OriginTraceID, proposal.ID, extraEvidence...)),
+		HarnessExecutions:     sliceOrEmpty(filterHarnessExecutions(store.ListHarnessExecutions(), proposal.OriginTraceID, proposal.ID)),
 	}, true
 }
 
@@ -372,6 +397,9 @@ func buildProposalSummaries(store storepkg.Repository) []proposalListItem {
 			Status:                        item.Status,
 			Reviewer:                      item.Reviewer,
 			CandidateKey:                  item.CandidateKey,
+			TargetLayer:                   item.TargetLayer,
+			TargetKind:                    item.TargetKind,
+			TargetRef:                     item.TargetRef,
 			SourceEvalIDs:                 sliceOrEmpty(item.SourceEvalIDs),
 			RiskTier:                      item.RiskTier,
 			ProposedScope:                 item.ProposedScope,
@@ -394,7 +422,7 @@ func buildProposalSummaries(store storepkg.Repository) []proposalListItem {
 	return out
 }
 
-func buildRuntimeStatus(cfg config.Config) []runtimeRoleStatus {
+func buildRuntimeStatus(cfg config.Config, store storepkg.Repository) []runtimeRoleStatus {
 	roleURLs := cfg.RunnerURLs()
 	cache := map[string]clients.RuntimeResponse{}
 	cacheErrs := map[string]error{}
@@ -418,6 +446,12 @@ func buildRuntimeStatus(cfg config.Config) []runtimeRoleStatus {
 			Model:           "openai/gpt-5.4",
 			ReasoningEffort: "xhigh",
 		}
+		if profile, ok := store.GetHarnessProfile(harness.DefaultProfileID(role)); ok {
+			item.HarnessProfileID = profile.ID
+		}
+		if overlay, ok := store.GetActiveHarnessOverlay(role); ok {
+			item.ActiveOverlayVersion = overlay.Version
+		}
 		if err := cacheErrs[baseURL]; err != nil {
 			item.Error = err.Error()
 			out = append(out, item)
@@ -436,9 +470,26 @@ func buildRuntimeStatus(cfg config.Config) []runtimeRoleStatus {
 		item.Healthy = resp.Available && strings.EqualFold(resp.Status, "ok")
 		item.OpenAIConfigured = resp.OpenAIConfigured
 		item.HermesAvailable = resp.HermesAvailable
+		item.PersistenceEnabled = resp.PersistenceEnabled
+		item.HermesHome = resp.HermesHome
+		item.SessionDBPath = resp.SessionDBPath
+		item.MemoryBackend = resp.MemoryBackend
+		item.HonchoConfigured = resp.HonchoConfigured
+		item.HonchoAvailable = resp.HonchoAvailable
 		out = append(out, item)
 	}
 	return out
+}
+
+func buildHarnessOverview(cfg config.Config, store storepkg.Repository) harnessOverviewResponse {
+	return harnessOverviewResponse{
+		Profiles:        sliceOrEmpty(store.ListHarnessProfiles()),
+		Overlays:        sliceOrEmpty(store.ListHarnessOverlays()),
+		Experiments:     sliceOrEmpty(store.ListHarnessExperiments()),
+		SessionBindings: sliceOrEmpty(store.ListHarnessSessionBindings()),
+		Executions:      sliceOrEmpty(store.ListHarnessExecutions()),
+		Roles:           buildRuntimeStatus(cfg, store),
+	}
 }
 
 func buildCaseSummaryIndex(store storepkg.Repository, traces []events.TraceSummary, proposals []review.Proposal) map[string]*caseSummary {
@@ -753,6 +804,20 @@ func normalizeProposal(item review.Proposal) review.Proposal {
 	item.EvidenceTraceIDs = sliceOrEmpty(item.EvidenceTraceIDs)
 	item.Reviews = sliceOrEmpty(item.Reviews)
 	return item
+}
+
+func filterHarnessExecutions(items []harness.Execution, traceID string, proposalID string) []harness.Execution {
+	out := make([]harness.Execution, 0)
+	for _, item := range items {
+		if traceID != "" && item.TraceID == traceID {
+			out = append(out, item)
+			continue
+		}
+		if proposalID != "" && item.ProposalID == proposalID {
+			out = append(out, item)
+		}
+	}
+	return out
 }
 
 func itemUpdatedAt(item improvement.RepoChangeJob) time.Time {

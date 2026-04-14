@@ -1,0 +1,271 @@
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+import hashlib
+import json
+import os
+from pathlib import Path
+from typing import Any, Dict, List
+
+try:
+    from hermes_state import SessionDB  # type: ignore
+except Exception:  # pragma: no cover - depends on Hermes install
+    SessionDB = None
+
+from .config import RunnerConfig
+
+
+@dataclass
+class SessionContext:
+    session_id: str
+    parent_session_id: str
+    scope_kind: str
+    scope_id: str
+    parent_scope_kind: str
+    parent_scope_id: str
+    memory_backend: str
+    assistant_peer_id: str
+    user_peer_id: str
+    hermes_home: str
+    session_db_path: str
+    conversation_history: List[Dict[str, Any]] = field(default_factory=list)
+
+
+@dataclass
+class MemoryTracker:
+    reads: List[Dict[str, Any]] = field(default_factory=list)
+    writes: List[Dict[str, Any]] = field(default_factory=list)
+
+    def record_read(self, kind: str, summary: str, source: str = "", ref: str = "") -> None:
+        text = (summary or "").strip()
+        if not text:
+            return
+        self.reads.append({"kind": kind, "summary": text, "source": source, "ref": ref})
+
+    def record_write(self, kind: str, summary: str, source: str = "", ref: str = "") -> None:
+        text = (summary or "").strip()
+        if not text:
+            return
+        self.writes.append({"kind": kind, "summary": text, "source": source, "ref": ref})
+
+
+class SessionManager:
+    def __init__(self, config: RunnerConfig) -> None:
+        self._config = config
+        self._hermes_home = Path(config.hermes_home)
+        self._session_db_path = self._hermes_home / "state.db"
+        self._db = None
+        self._ready_issues = self._configure_home()
+
+    @property
+    def ready_issues(self) -> List[str]:
+        return list(self._ready_issues)
+
+    @property
+    def available(self) -> bool:
+        return not self._ready_issues
+
+    @property
+    def session_db_path(self) -> str:
+        return str(self._session_db_path)
+
+    @property
+    def hermes_home(self) -> str:
+        return str(self._hermes_home)
+
+    @property
+    def session_db(self) -> Any:
+        return self._get_db()
+
+    @property
+    def honcho_available(self) -> bool:
+        return self._config.memory_backend == "honcho"
+
+    def prepare(self, task: Any) -> SessionContext:
+        scope_kind = first_non_empty(getattr(task, "session_scope_kind", None), "role")
+        scope_id = first_non_empty(getattr(task, "session_scope_id", None), self._config.role)
+        parent_scope_kind = first_non_empty(getattr(task, "parent_session_scope_kind", None))
+        parent_scope_id = first_non_empty(getattr(task, "parent_session_scope_id", None))
+        session_id = stable_session_id(self._config.role, scope_kind, scope_id)
+        parent_session_id = stable_session_id(self._config.role, parent_scope_kind, parent_scope_id) if parent_scope_kind and parent_scope_id else ""
+        db = self._get_db()
+        history: List[Dict[str, Any]] = []
+        if db is not None:
+            try:
+                history = list(db.get_messages_as_conversation(session_id) or [])
+            except Exception:
+                history = []
+        tracker_user_peer = first_non_empty(
+            getattr(task, "user_peer_id", None),
+            infer_user_peer_id(getattr(task, "recent_conversation_entries", []) or [], scope_kind, scope_id, self._config.role),
+        )
+        return SessionContext(
+            session_id=session_id,
+            parent_session_id=parent_session_id,
+            scope_kind=scope_kind,
+            scope_id=scope_id,
+            parent_scope_kind=parent_scope_kind,
+            parent_scope_id=parent_scope_id,
+            memory_backend=self._config.memory_backend,
+            assistant_peer_id=first_non_empty(getattr(task, "assistant_peer_id", None), self._config.honcho_ai_peer),
+            user_peer_id=tracker_user_peer,
+            hermes_home=str(self._hermes_home),
+            session_db_path=str(self._session_db_path),
+            conversation_history=history,
+        )
+
+    def attach_tracking(self, agent: Any, task: Any, context: SessionContext) -> MemoryTracker:
+        tracker = MemoryTracker()
+        for entry in summarize_history(context.conversation_history):
+            tracker.record_read("session_history", entry, source="session_db", ref=context.session_id)
+        memory_manager = getattr(agent, "_memory_manager", None)
+        if memory_manager is None:
+            return tracker
+
+        original_prefetch = getattr(memory_manager, "prefetch_all", None)
+        if callable(original_prefetch):
+            def tracked_prefetch(query: str, *, session_id: str = "") -> str:
+                result = original_prefetch(query, session_id=session_id)
+                if result and str(result).strip():
+                    tracker.record_read("memory_prefetch", truncate_text(str(result), 800), source=self._config.memory_backend, ref=session_id or context.session_id)
+                return result
+            memory_manager.prefetch_all = tracked_prefetch
+
+        original_sync = getattr(memory_manager, "sync_all", None)
+        if callable(original_sync):
+            def tracked_sync(user_content: str, assistant_content: str, *, session_id: str = "") -> None:
+                tracker.record_write("memory_sync_user", truncate_text(user_content, 320), source=self._config.memory_backend, ref=session_id or context.session_id)
+                tracker.record_write("memory_sync_assistant", truncate_text(assistant_content, 320), source=self._config.memory_backend, ref=session_id or context.session_id)
+                return original_sync(user_content, assistant_content, session_id=session_id)
+            memory_manager.sync_all = tracked_sync
+        return tracker
+
+    def finalize(self, context: SessionContext, tracker: MemoryTracker) -> Dict[str, Any]:
+        db = self._get_db()
+        if db is not None:
+            try:
+                history = list(db.get_messages_as_conversation(context.session_id) or [])
+                if len(history) > len(context.conversation_history):
+                    tracker.record_write(
+                        "session_append",
+                        f"Persisted {len(history) - len(context.conversation_history)} new session messages.",
+                        source="session_db",
+                        ref=context.session_id,
+                    )
+            except Exception:
+                pass
+        return {
+            "hermes_session_id": context.session_id,
+            "parent_session_id": context.parent_session_id,
+            "session_scope_kind": context.scope_kind,
+            "session_scope_id": context.scope_id,
+            "parent_session_scope_kind": context.parent_scope_kind,
+            "parent_session_scope_id": context.parent_scope_id,
+            "memory_backend": context.memory_backend,
+            "assistant_peer_id": context.assistant_peer_id,
+            "user_peer_id": context.user_peer_id,
+            "hermes_home": context.hermes_home,
+            "session_db_path": context.session_db_path,
+            "memory_reads": tracker.reads,
+            "memory_writes": tracker.writes,
+        }
+
+    def _get_db(self) -> Any:
+        if not self.available or SessionDB is None:
+            return None
+        if self._db is None:
+            self._db = SessionDB(db_path=self._session_db_path)
+        return self._db
+
+    def _configure_home(self) -> List[str]:
+        issues: List[str] = []
+        try:
+            self._hermes_home.mkdir(parents=True, exist_ok=True)
+        except Exception as exc:  # pragma: no cover - OS-specific failure
+            return [f"create HERMES_HOME failed: {exc}"]
+        try:
+            self._write_hermes_config()
+            self._write_honcho_config()
+        except Exception as exc:  # pragma: no cover - OS-specific failure
+            issues.append(f"configure Hermes persistence failed: {exc}")
+        if SessionDB is None:
+            issues.append("Hermes SessionDB is unavailable in this environment.")
+        else:
+            try:
+                self._db = SessionDB(db_path=self._session_db_path)
+            except Exception as exc:
+                issues.append(f"open Hermes session DB failed: {exc}")
+        return issues
+
+    def _write_hermes_config(self) -> None:
+        config_path = self._hermes_home / "config.yaml"
+        content = (
+            "memory:\n"
+            "  provider: honcho\n"
+        )
+        config_path.write_text(content, encoding="utf-8")
+
+    def _write_honcho_config(self) -> None:
+        honcho_path = self._hermes_home / "honcho.json"
+        payload = {
+            "workspace": self._config.honcho_workspace,
+            "environment": self._config.honcho_environment,
+            "hosts": {
+                "hermes": {
+                    "enabled": True,
+                    "workspace": self._config.honcho_workspace,
+                    "aiPeer": self._config.honcho_ai_peer,
+                    "peerName": f"rsi:{self._config.role}:user",
+                    "recallMode": self._config.honcho_recall_mode,
+                    "writeFrequency": self._config.honcho_write_frequency,
+                    "sessionStrategy": self._config.honcho_session_strategy,
+                }
+            },
+        }
+        if self._config.honcho_base_url:
+            payload["baseUrl"] = self._config.honcho_base_url
+        honcho_path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+
+
+def stable_session_id(role: str, scope_kind: str, scope_id: str) -> str:
+    role = first_non_empty(role, "prod")
+    scope_kind = first_non_empty(scope_kind, "role")
+    scope_id = first_non_empty(scope_id, role)
+    digest = hashlib.sha256(f"{role}:{scope_kind}:{scope_id}".encode("utf-8")).hexdigest()[:20]
+    return f"rsi-{role}-{scope_kind}-{digest}"
+
+
+def summarize_history(history: List[Dict[str, Any]]) -> List[str]:
+    if not history:
+        return []
+    out: List[str] = []
+    for item in history[-4:]:
+        role = first_non_empty(str(item.get("role", "")).strip(), "message")
+        content = truncate_text(str(item.get("content", "") or ""), 160)
+        if not content:
+            continue
+        out.append(f"{role}: {content}")
+    return out
+
+
+def truncate_text(value: str, limit: int) -> str:
+    text = (value or "").strip()
+    if len(text) <= limit:
+        return text
+    return text[: max(0, limit - 3)].rstrip() + "..."
+
+
+def infer_user_peer_id(entries: List[Dict[str, Any]], scope_kind: str, scope_id: str, role: str) -> str:
+    for entry in reversed(entries):
+        actor_id = str(entry.get("actor_id", "") or "").strip()
+        actor_type = str(entry.get("actor_type", "") or "").strip()
+        if actor_id and actor_type in {"user", "operator"}:
+            return f"{actor_type}:{actor_id}"
+    return f"session:{role}:{scope_kind}:{scope_id}"
+
+
+def first_non_empty(*values: str | None) -> str:
+    for value in values:
+        if value and value.strip():
+            return value.strip()
+    return ""

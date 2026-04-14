@@ -9,7 +9,7 @@ import type {
   ViewState
 } from "@/types";
 
-const TAB_KEYS: TabKey[] = ["conversations", "cases", "proposals", "knowledge"];
+const TAB_KEYS: TabKey[] = ["conversations", "cases", "proposals", "knowledge", "harness"];
 
 export function readViewState(): ViewState {
   const params = new URLSearchParams(window.location.search);
@@ -21,7 +21,8 @@ export function readViewState(): ViewState {
     case: params.get("case") ?? undefined,
     trace: params.get("trace") ?? undefined,
     proposal: params.get("proposal") ?? undefined,
-    knowledge: params.get("knowledge") ?? undefined
+    knowledge: params.get("knowledge") ?? undefined,
+    role: params.get("role") ?? undefined
   };
 }
 
@@ -33,6 +34,7 @@ export function writeViewState(state: ViewState): void {
   if (state.trace) params.set("trace", state.trace);
   if (state.proposal) params.set("proposal", state.proposal);
   if (state.knowledge) params.set("knowledge", state.knowledge);
+  if (state.role) params.set("role", state.role);
   const qs = params.toString();
   const url = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
   window.history.pushState(null, "", url);

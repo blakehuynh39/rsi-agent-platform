@@ -31,6 +31,8 @@ export function ProposalDetail(props: {
           <div><dt>Risk</dt><dd>{props.detail.proposal.risk_tier || "n/a"}</dd></div>
           <div><dt>Origin trace</dt><dd>{props.detail.proposal.origin_trace_id || props.detail.proposal.trace_id}</dd></div>
           <div><dt>Evidence traces</dt><dd>{listOrEmpty(props.detail.proposal.evidence_trace_ids).length}</dd></div>
+          <div><dt>Target layer</dt><dd>{props.detail.proposal.target_layer || "repo_change"}</dd></div>
+          <div><dt>Target</dt><dd>{props.detail.proposal.target_kind || "n/a"} {props.detail.proposal.target_ref ? `· ${props.detail.proposal.target_ref}` : ""}</dd></div>
         </dl>
       </div>
 
@@ -122,6 +124,26 @@ export function ProposalDetail(props: {
                 </div>
               );
             })}
+          </div>
+        </div>
+
+        <div className="detail-card">
+          <h3>Hermes harness executions</h3>
+          <div className="nested-list">
+            {listOrEmpty(props.detail.harness_executions).map((item) => (
+              <div key={item.id} className="nested-card">
+                <div className="detail-row-header">
+                  <strong>{item.role}</strong>
+                  <small>{formatTime(item.created_at)}</small>
+                </div>
+                <p className="detail-copy">{item.hermes_session_id}</p>
+                <p className="muted">Scope: {item.session_scope_kind}:{item.session_scope_id}</p>
+                {item.effective_overlay_version ? <p className="muted">Overlay: {item.effective_overlay_version}</p> : null}
+              </div>
+            ))}
+            {!listOrEmpty(props.detail.harness_executions).length ? (
+              <div className="nested-card"><p className="detail-copy">No harness execution metadata recorded for this proposal yet.</p></div>
+            ) : null}
           </div>
         </div>
 

@@ -16,6 +16,7 @@ import (
 	platformdb "github.com/piplabs/rsi-agent-platform/internal/db"
 	"github.com/piplabs/rsi-agent-platform/internal/evals"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
+	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
@@ -1224,24 +1225,27 @@ func loadWorkItems(r sqlReader, store *MemoryStore) error {
 }
 
 func loadCandidates(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, subsystem, failure_mode, intervention_type, status, severity, recurrence_count, expected_impact, novelty_score, confidence_score, freshness_score, priority_score, risk_tier, hypothesis, proposed_scope, latest_trace_id, source_eval_ids, evidence_artifact_ids, prior_similar_proposal_ids, new_evidence_since_last_rejection, last_evaluated_at, created_at, updated_at from improvement_candidate order by updated_at desc`)
+	rows, err := r.Query(`select id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, subsystem, failure_mode, intervention_type, target_layer, target_kind, target_ref, status, severity, recurrence_count, expected_impact, novelty_score, confidence_score, freshness_score, priority_score, risk_tier, hypothesis, proposed_scope, latest_trace_id, source_eval_ids, evidence_artifact_ids, prior_similar_proposal_ids, new_evidence_since_last_rejection, last_evaluated_at, created_at, updated_at from improvement_candidate order by updated_at desc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var item improvement.Candidate
-		var status, riskTier string
-		var conversationID, caseID, originTraceID, latestTraceID sql.NullString
+		var status, riskTier, targetLayer string
+		var conversationID, caseID, originTraceID, latestTraceID, targetKind, targetRef sql.NullString
 		var evidenceTraceIDs, sourceEvalIDs, evidenceArtifactIDs, priorSimilarProposalIDs []byte
 		var lastEvaluatedAt sql.NullTime
-		if err := rows.Scan(&item.ID, &item.CandidateKey, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Subsystem, &item.FailureMode, &item.InterventionType, &status, &item.Severity, &item.RecurrenceCount, &item.ExpectedImpact, &item.NoveltyScore, &item.ConfidenceScore, &item.FreshnessScore, &item.PriorityScore, &riskTier, &item.Hypothesis, &item.ProposedScope, &latestTraceID, &sourceEvalIDs, &evidenceArtifactIDs, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &lastEvaluatedAt, &item.CreatedAt, &item.UpdatedAt); err != nil {
+		if err := rows.Scan(&item.ID, &item.CandidateKey, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Subsystem, &item.FailureMode, &item.InterventionType, &targetLayer, &targetKind, &targetRef, &status, &item.Severity, &item.RecurrenceCount, &item.ExpectedImpact, &item.NoveltyScore, &item.ConfidenceScore, &item.FreshnessScore, &item.PriorityScore, &riskTier, &item.Hypothesis, &item.ProposedScope, &latestTraceID, &sourceEvalIDs, &evidenceArtifactIDs, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &lastEvaluatedAt, &item.CreatedAt, &item.UpdatedAt); err != nil {
 			return err
 		}
 		item.ConversationID = conversationID.String
 		item.CaseID = caseID.String
 		item.OriginTraceID = originTraceID.String
 		item.EvidenceTraceIDs = decodeJSON(evidenceTraceIDs, []string{})
+		item.TargetLayer = harness.TargetLayer(targetLayer)
+		item.TargetKind = targetKind.String
+		item.TargetRef = targetRef.String
 		item.Status = improvement.CandidateStatus(status)
 		item.RiskTier = improvement.RiskTier(riskTier)
 		item.LatestTraceID = latestTraceID.String
@@ -1257,18 +1261,18 @@ func loadCandidates(r sqlReader, store *MemoryStore) error {
 }
 
 func loadProposals(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, created_at from proposal order by created_at desc`)
+	rows, err := r.Query(`select id, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, target_layer, target_kind, target_ref, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, created_at from proposal order by created_at desc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var item review.Proposal
-		var status string
-		var conversationID, caseID, originTraceID, reviewer sql.NullString
+		var status, targetLayer string
+		var conversationID, caseID, originTraceID, reviewer, targetKind, targetRef sql.NullString
 		var evidenceTraceIDs, sourceEvalIDs, evidenceArtifactIDs, priorSimilarProposalIDs []byte
 		var reviewDeadline sql.NullTime
-		if err := rows.Scan(&item.ID, &item.TraceID, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Title, &item.Category, &item.Summary, &status, &reviewer, &item.CandidateKey, &sourceEvalIDs, &item.RiskTier, &item.ProposedScope, &evidenceArtifactIDs, &item.ActiveSlotConsuming, &reviewDeadline, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &item.CreatedAt); err != nil {
+		if err := rows.Scan(&item.ID, &item.TraceID, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Title, &item.Category, &item.Summary, &status, &reviewer, &item.CandidateKey, &targetLayer, &targetKind, &targetRef, &sourceEvalIDs, &item.RiskTier, &item.ProposedScope, &evidenceArtifactIDs, &item.ActiveSlotConsuming, &reviewDeadline, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &item.CreatedAt); err != nil {
 			return err
 		}
 		item.ConversationID = conversationID.String
@@ -1277,6 +1281,9 @@ func loadProposals(r sqlReader, store *MemoryStore) error {
 		item.EvidenceTraceIDs = decodeJSON(evidenceTraceIDs, []string{})
 		item.Status = review.ProposalStatus(status)
 		item.Reviewer = reviewer.String
+		item.TargetLayer = harness.TargetLayer(targetLayer)
+		item.TargetKind = targetKind.String
+		item.TargetRef = targetRef.String
 		item.SourceEvalIDs = decodeJSON(sourceEvalIDs, []string{})
 		item.EvidenceArtifactIDs = decodeJSON(evidenceArtifactIDs, []string{})
 		item.PriorSimilarProposalIDs = decodeJSON(priorSimilarProposalIDs, []string{})
@@ -2043,7 +2050,7 @@ func persistCandidates(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.candidates)
 	for _, key := range keys {
 		item := store.candidates[key]
-		if _, err := tx.Exec(`insert into improvement_candidate (id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, subsystem, failure_mode, intervention_type, status, severity, recurrence_count, expected_impact, novelty_score, confidence_score, freshness_score, priority_score, risk_tier, hypothesis, proposed_scope, latest_trace_id, source_eval_ids, evidence_artifact_ids, prior_similar_proposal_ids, new_evidence_since_last_rejection, last_evaluated_at, created_at, updated_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22::jsonb,$23::jsonb,$24::jsonb,$25,$26,$27,$28)
+		if _, err := tx.Exec(`insert into improvement_candidate (id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, subsystem, failure_mode, intervention_type, target_layer, target_kind, target_ref, status, severity, recurrence_count, expected_impact, novelty_score, confidence_score, freshness_score, priority_score, risk_tier, hypothesis, proposed_scope, latest_trace_id, source_eval_ids, evidence_artifact_ids, prior_similar_proposal_ids, new_evidence_since_last_rejection, last_evaluated_at, created_at, updated_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25::jsonb,$26::jsonb,$27::jsonb,$28,$29,$30,$31)
 			on conflict (id) do update set
 				candidate_key = excluded.candidate_key,
 				conversation_id = excluded.conversation_id,
@@ -2053,6 +2060,9 @@ func persistCandidates(tx *sql.Tx, store *MemoryStore) error {
 				subsystem = excluded.subsystem,
 				failure_mode = excluded.failure_mode,
 				intervention_type = excluded.intervention_type,
+				target_layer = excluded.target_layer,
+				target_kind = excluded.target_kind,
+				target_ref = excluded.target_ref,
 				status = excluded.status,
 				severity = excluded.severity,
 				recurrence_count = excluded.recurrence_count,
@@ -2072,7 +2082,7 @@ func persistCandidates(tx *sql.Tx, store *MemoryStore) error {
 				last_evaluated_at = excluded.last_evaluated_at,
 				created_at = excluded.created_at,
 				updated_at = excluded.updated_at`,
-			item.ID, item.CandidateKey, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), jsonString(item.EvidenceTraceIDs), item.Subsystem, item.FailureMode, item.InterventionType, string(item.Status), item.Severity, item.RecurrenceCount, item.ExpectedImpact, item.NoveltyScore, item.ConfidenceScore, item.FreshnessScore, item.PriorityScore, string(item.RiskTier), item.Hypothesis, item.ProposedScope, nullString(item.LatestTraceID), jsonString(item.SourceEvalIDs), jsonString(item.EvidenceArtifactIDs), jsonString(item.PriorSimilarProposalIDs), item.NewEvidenceSinceLastRejection, nullTimeValue(item.LastEvaluatedAt), item.CreatedAt, item.UpdatedAt,
+			item.ID, item.CandidateKey, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), jsonString(item.EvidenceTraceIDs), item.Subsystem, item.FailureMode, item.InterventionType, string(item.TargetLayer), nullString(item.TargetKind), nullString(item.TargetRef), string(item.Status), item.Severity, item.RecurrenceCount, item.ExpectedImpact, item.NoveltyScore, item.ConfidenceScore, item.FreshnessScore, item.PriorityScore, string(item.RiskTier), item.Hypothesis, item.ProposedScope, nullString(item.LatestTraceID), jsonString(item.SourceEvalIDs), jsonString(item.EvidenceArtifactIDs), jsonString(item.PriorSimilarProposalIDs), item.NewEvidenceSinceLastRejection, nullTimeValue(item.LastEvaluatedAt), item.CreatedAt, item.UpdatedAt,
 		); err != nil {
 			return err
 		}
@@ -2084,7 +2094,7 @@ func persistProposals(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.proposals)
 	for _, key := range keys {
 		item := store.proposals[key]
-		if _, err := tx.Exec(`insert into proposal (id, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, created_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12,$13::jsonb,$14,$15,$16::jsonb,$17,$18,$19::jsonb,$20,$21)
+		if _, err := tx.Exec(`insert into proposal (id, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, target_layer, target_kind, target_ref, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, created_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16::jsonb,$17,$18,$19::jsonb,$20,$21,$22::jsonb,$23,$24)
 			on conflict (id) do update set
 				trace_id = excluded.trace_id,
 				conversation_id = excluded.conversation_id,
@@ -2097,6 +2107,9 @@ func persistProposals(tx *sql.Tx, store *MemoryStore) error {
 				status = excluded.status,
 				reviewer = excluded.reviewer,
 				candidate_key = excluded.candidate_key,
+				target_layer = excluded.target_layer,
+				target_kind = excluded.target_kind,
+				target_ref = excluded.target_ref,
 				source_eval_ids = excluded.source_eval_ids,
 				risk_tier = excluded.risk_tier,
 				proposed_scope = excluded.proposed_scope,
@@ -2106,7 +2119,7 @@ func persistProposals(tx *sql.Tx, store *MemoryStore) error {
 				prior_similar_proposal_ids = excluded.prior_similar_proposal_ids,
 				new_evidence_since_last_rejection = excluded.new_evidence_since_last_rejection,
 				created_at = excluded.created_at`,
-			item.ID, item.TraceID, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), jsonString(item.EvidenceTraceIDs), item.Title, item.Category, item.Summary, string(item.Status), nullString(item.Reviewer), item.CandidateKey, jsonString(item.SourceEvalIDs), item.RiskTier, item.ProposedScope, jsonString(item.EvidenceArtifactIDs), item.ActiveSlotConsuming, nullTimeValue(item.ReviewDeadline), jsonString(item.PriorSimilarProposalIDs), item.NewEvidenceSinceLastRejection, item.CreatedAt,
+			item.ID, item.TraceID, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), jsonString(item.EvidenceTraceIDs), item.Title, item.Category, item.Summary, string(item.Status), nullString(item.Reviewer), item.CandidateKey, string(item.TargetLayer), nullString(item.TargetKind), nullString(item.TargetRef), jsonString(item.SourceEvalIDs), item.RiskTier, item.ProposedScope, jsonString(item.EvidenceArtifactIDs), item.ActiveSlotConsuming, nullTimeValue(item.ReviewDeadline), jsonString(item.PriorSimilarProposalIDs), item.NewEvidenceSinceLastRejection, item.CreatedAt,
 		); err != nil {
 			return err
 		}

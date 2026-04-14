@@ -37,6 +37,15 @@ type RunnerTask struct {
 	ContextRefs               []map[string]any `json:"context_refs,omitempty"`
 	ApprovalMode              string           `json:"approval_mode,omitempty"`
 	ReasoningVerbosity        string           `json:"reasoning_verbosity,omitempty"`
+	SessionScopeKind          string           `json:"session_scope_kind,omitempty"`
+	SessionScopeID            string           `json:"session_scope_id,omitempty"`
+	ParentSessionScopeKind    string           `json:"parent_session_scope_kind,omitempty"`
+	ParentSessionScopeID      string           `json:"parent_session_scope_id,omitempty"`
+	HarnessProfileID          string           `json:"harness_profile_id,omitempty"`
+	HarnessOverlayVersion     string           `json:"harness_overlay_version,omitempty"`
+	MemoryBackend             string           `json:"memory_backend,omitempty"`
+	AssistantPeerID           string           `json:"assistant_peer_id,omitempty"`
+	UserPeerID                string           `json:"user_peer_id,omitempty"`
 }
 
 type RunnerResponse struct {
@@ -47,17 +56,23 @@ type RunnerResponse struct {
 }
 
 type RuntimeResponse struct {
-	Status           string `json:"status"`
-	Role             string `json:"role"`
-	Backend          string `json:"backend"`
-	Provider         string `json:"provider"`
-	Model            string `json:"model"`
-	ProviderModel    string `json:"provider_model"`
-	APIMode          string `json:"api_mode"`
-	ReasoningEffort  string `json:"reasoning_effort"`
-	Available        bool   `json:"available"`
-	HermesAvailable  bool   `json:"hermes_available"`
-	OpenAIConfigured bool   `json:"openai_configured"`
+	Status             string `json:"status"`
+	Role               string `json:"role"`
+	Backend            string `json:"backend"`
+	Provider           string `json:"provider"`
+	Model              string `json:"model"`
+	ProviderModel      string `json:"provider_model"`
+	APIMode            string `json:"api_mode"`
+	ReasoningEffort    string `json:"reasoning_effort"`
+	Available          bool   `json:"available"`
+	HermesAvailable    bool   `json:"hermes_available"`
+	OpenAIConfigured   bool   `json:"openai_configured"`
+	PersistenceEnabled bool   `json:"persistence_enabled"`
+	HermesHome         string `json:"hermes_home,omitempty"`
+	SessionDBPath      string `json:"session_db_path,omitempty"`
+	MemoryBackend      string `json:"memory_backend,omitempty"`
+	HonchoConfigured   bool   `json:"honcho_configured"`
+	HonchoAvailable    bool   `json:"honcho_available"`
 }
 
 type RunnerClient struct {

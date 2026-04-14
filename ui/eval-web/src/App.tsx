@@ -20,6 +20,7 @@ import type {
   KnowledgeListResponse,
   KnowledgeDetailResponse,
   RuntimeResponse,
+  HarnessResponse,
   ViewState,
 } from "@/types";
 
@@ -30,6 +31,7 @@ import { ConversationDetail } from "@/components/detail/conversation-detail";
 import { CaseDetail } from "@/components/detail/case-detail";
 import { ProposalDetail } from "@/components/detail/proposal-detail";
 import { KnowledgeDetail } from "@/components/detail/knowledge-detail";
+import { HarnessDetail } from "@/components/detail/harness-detail";
 
 const ACTIVE_PROPOSAL_STATES = new Set([
   "pending_review",
@@ -73,6 +75,7 @@ function readViewState(): ViewState {
     tabValue === "cases" ? "cases" :
     tabValue === "proposals" ? "proposals" :
     tabValue === "knowledge" ? "knowledge" :
+    tabValue === "harness" ? "harness" :
     "conversations";
   return {
     tab,
@@ -80,7 +83,8 @@ function readViewState(): ViewState {
     case: params.get("case") || undefined,
     trace: params.get("trace") || undefined,
     proposal: params.get("proposal") || undefined,
-    knowledge: params.get("knowledge") || undefined
+    knowledge: params.get("knowledge") || undefined,
+    role: params.get("role") || undefined
   };
 }
 
@@ -92,6 +96,7 @@ function writeViewState(next: ViewState) {
   if (next.trace) params.set("trace", next.trace);
   if (next.proposal) params.set("proposal", next.proposal);
   if (next.knowledge) params.set("knowledge", next.knowledge);
+  if (next.role) params.set("role", next.role);
   const query = params.toString();
   const target = `${window.location.pathname}${query ? `?${query}` : ""}`;
   window.history.replaceState({}, "", target);
@@ -163,6 +168,11 @@ export function App() {
     queryFn: () => getJSON<RuntimeResponse>("/api/runtime")
   });
 
+  const harnessQuery = useQuery({
+    queryKey: ["harness"],
+    queryFn: () => getJSON<HarnessResponse>("/api/harness")
+  });
+
   const conversationDetailQuery = useQuery({
     queryKey: ["conversation", viewState.conversation],
     queryFn: () => getJSON<ConversationDetailResponse>(`/api/conversations/${viewState.conversation}`),
@@ -199,6 +209,7 @@ export function App() {
   const knowledgeEntries = listOrEmpty(knowledgeQuery.data?.knowledge_entries);
   const candidates = listOrEmpty(proposalsQuery.data?.candidates);
   const runtimeRoles = listOrEmpty(runtimeQuery.data?.roles);
+  const harnessRoles = listOrEmpty(harnessQuery.data?.roles);
   const proposalSlotState = proposalsQuery.data?.proposal_slots;
 
   useEffect(() => {
@@ -232,6 +243,12 @@ export function App() {
     }
   }, [viewState.knowledge, knowledgeEntries]);
 
+  useEffect(() => {
+    if (viewState.role && !harnessRoles.some((item) => item.role === viewState.role)) {
+      navigate({ tab: "harness" });
+    }
+  }, [viewState.role, harnessRoles]);
+
   const refreshEverything = async () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ["conversations"] }),
@@ -242,7 +259,8 @@ export function App() {
       queryClient.invalidateQueries({ queryKey: ["proposals"] }),
       queryClient.invalidateQueries({ queryKey: ["proposal"] }),
       queryClient.invalidateQueries({ queryKey: ["knowledge"] }),
-      queryClient.invalidateQueries({ queryKey: ["runtime"] })
+      queryClient.invalidateQueries({ queryKey: ["runtime"] }),
+      queryClient.invalidateQueries({ queryKey: ["harness"] })
     ]);
   };
 
@@ -387,6 +405,10 @@ export function App() {
           <button className={viewState.tab === "knowledge" ? "tab-button active" : "tab-button"} onClick={() => navigate({ tab: "knowledge" })}>
             <span>Knowledge</span>
             <strong>{knowledgeEntries.length}</strong>
+          </button>
+          <button className={viewState.tab === "harness" ? "tab-button active" : "tab-button"} onClick={() => navigate({ tab: "harness" })}>
+            <span>Harness</span>
+            <strong>{harnessRoles.length}</strong>
           </button>
         </nav>
 
@@ -560,17 +582,55 @@ export function App() {
                         <span className="status-chip">{proposal.pr_status || proposal.repo_change_status || proposal.status}</span>
                       </div>
                       <p className="trace-thread">{proposal.summary}</p>
-                      <dl className="mini-metrics">
-                        <div><dt>Risk</dt><dd>{proposal.risk_tier || "n/a"}</dd></div>
-                        <div><dt>Case</dt><dd>{proposal.case_id || "none"}</dd></div>
-                        <div><dt>Slot</dt><dd>{proposal.active_slot_consuming ? "occupied" : "free"}</dd></div>
-                        <div><dt>PR</dt><dd>{proposal.pr_url ? "linked" : "none"}</dd></div>
-                      </dl>
+                    <dl className="mini-metrics">
+                      <div><dt>Risk</dt><dd>{proposal.risk_tier || "n/a"}</dd></div>
+                      <div><dt>Target</dt><dd>{proposal.target_layer || "repo_change"}</dd></div>
+                      <div><dt>Slot</dt><dd>{proposal.active_slot_consuming ? "occupied" : "free"}</dd></div>
+                      <div><dt>PR</dt><dd>{proposal.pr_url ? "linked" : "none"}</dd></div>
+                    </dl>
                     </button>
                   );
                 })}
               </div>
             )}
+          </>
+        ) : viewState.tab === "harness" ? (
+          <>
+            <header className="pane-header">
+              <div>
+                <p className="eyebrow">Harness</p>
+                <h2>Persistent Hermes role agents</h2>
+              </div>
+            </header>
+            <div className="list-stack">
+              {harnessRoles.map((role) => {
+                const bindings = listOrEmpty(harnessQuery.data?.session_bindings).filter((item) => item.role === role.role);
+                const overlays = listOrEmpty(harnessQuery.data?.overlays).filter((item) => item.role === role.role && item.status === "active");
+                const executions = listOrEmpty(harnessQuery.data?.executions).filter((item) => item.role === role.role);
+                return (
+                  <button
+                    key={role.role}
+                    className={role.role === viewState.role ? "list-card selected" : "list-card"}
+                    onClick={() => navigate({ tab: "harness", role: role.role })}
+                  >
+                    <div className="list-card-header">
+                      <div>
+                        <strong>{role.role}</strong>
+                        <p>{role.provider || "n/a"} · {role.status}</p>
+                      </div>
+                      <span className="status-chip">{role.honcho_available ? "honcho" : "memory off"}</span>
+                    </div>
+                    <p className="trace-thread">{role.model} · {role.reasoning_effort}</p>
+                    <dl className="mini-metrics">
+                      <div><dt>Sessions</dt><dd>{bindings.length}</dd></div>
+                      <div><dt>Runs</dt><dd>{executions.length}</dd></div>
+                      <div><dt>Overlay</dt><dd>{overlays[0]?.version || role.active_overlay_version || "baseline"}</dd></div>
+                      <div><dt>Persistence</dt><dd>{role.persistence_enabled ? "on" : "off"}</dd></div>
+                    </dl>
+                  </button>
+                );
+              })}
+            </div>
           </>
         ) : (
           <>
@@ -695,7 +755,15 @@ export function App() {
           />
         ) : (
           <EmptyDetail title="Proposal not found" body="The selected proposal no longer exists." />
-        )) : !viewState.knowledge ? (
+        )) : viewState.tab === "harness" ? (
+          !viewState.role ? (
+            <EmptyDetail title="Select a harness role" body="Choose a role agent to inspect Hermes session continuity, overlays, experiments, and memory activity." />
+          ) : harnessQuery.isLoading ? (
+            <EmptyDetail title="Loading harness state" body="Fetching role agent sessions, overlays, and experiments." />
+          ) : (
+            <HarnessDetail detail={harnessQuery.data} selectedRole={viewState.role} />
+          )
+        ) : !viewState.knowledge ? (
           <EmptyDetail title="Select a knowledge entry" body="Knowledge tracks working drafts, canonical guidance, contradictions, and the evidence behind each entry." />
         ) : knowledgeDetailQuery.isLoading ? (
           <EmptyDetail title="Loading knowledge" body="Fetching provenance links and review history." />

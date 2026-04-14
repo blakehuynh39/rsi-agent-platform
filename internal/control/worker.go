@@ -13,6 +13,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
+	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/runnerutil"
@@ -263,9 +264,25 @@ func resumeAfterContextPhase(cfg config.Config, store storepkg.Store, runnerClie
 		return err
 	}
 
-	runnerTask := buildRunnerTask(cfg, store, ctx.trace, ctx.workflow, ctx.ingestion, contextSummary, contextRefs, toolNames)
+	role := runnerRoleForQueue(item.Queue)
+	runnerTask := buildRunnerTask(cfg, store, role, ctx.trace, ctx.workflow, ctx.ingestion, contextSummary, contextRefs, toolNames)
 	runnerResp, err := runnerClient.Execute(runnerTask)
 	if err != nil {
+		return err
+	}
+	if err := runnerutil.PersistHarnessExecution(
+		store,
+		runnerResp,
+		role,
+		ctx.trace.Summary.TraceID,
+		"",
+		runnerTask.HarnessProfileID,
+		runnerTask.HarnessOverlayVersion,
+		runnerTask.SessionScopeKind,
+		runnerTask.SessionScopeID,
+		runnerTask.ParentSessionScopeKind,
+		runnerTask.ParentSessionScopeID,
+	); err != nil {
 		return err
 	}
 	runnerOutput := runnerutil.ParseStructuredOutput(runnerResp)
@@ -644,7 +661,8 @@ func maybeEnqueuePhaseResume(store storepkg.Store, item queue.WorkItem, intent a
 	}
 }
 
-func buildRunnerTask(cfg config.Config, store storepkg.Store, trace events.Trace, workflow storepkg.Workflow, ingestion slackpkg.Ingestion, contextSummary string, contextRefs []map[string]any, toolNames []string) clients.RunnerTask {
+func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace events.Trace, workflow storepkg.Workflow, ingestion slackpkg.Ingestion, contextSummary string, contextRefs []map[string]any, toolNames []string) clients.RunnerTask {
+	effectiveHarness := harness.ResolveEffectiveConfig(store, role, cfg.DefaultReasoningVerbosity)
 	caseSummary := map[string]any{}
 	if caseRecord, ok := store.GetCase(trace.Summary.CaseID); ok {
 		caseSummary = map[string]any{
@@ -661,14 +679,19 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, trace events.Trace
 	}
 	recentEntries := recentConversationEntries(store.ListConversationEntries(trace.Summary.ConversationID))
 	priorTraceRefs := priorTraceRefsForCase(store.ListTraces(), trace.Summary.CaseID, trace.Summary.TraceID)
+	sessionScopeKind, sessionScopeID, parentScopeKind, parentScopeID := workflowSessionScope(trace, workflow)
+	systemMessage := harness.ComposeSystemMessage(
+		"Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, and outcome_hypotheses. Do not assume actions from prose; emit them explicitly.",
+		effectiveHarness,
+	)
 	prompt := fmt.Sprintf("User request: %s\n\nRespond in-thread for intent=%s. Use the gathered context and cite concrete evidence when possible. If unsure, say so explicitly.", ingestion.Text, workflow.Intent)
 	return clients.RunnerTask{
 		TaskType:                  "workflow",
 		Repo:                      cfg.DefaultRepo,
 		RepoRef:                   "main",
 		Prompt:                    prompt,
-		SystemMessage:             "Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, and outcome_hypotheses. Do not assume actions from prose; emit them explicitly.",
-		AllowedTools:              toolNames,
+		SystemMessage:             systemMessage,
+		AllowedTools:              harness.ApplyToolPreference(toolNames, effectiveHarness.ToolPreferenceOrder),
 		AllowedCommands:           []string{},
 		TimeoutSeconds:            120,
 		ExpectedOutputs:           []string{"visible_reasoning", "final_answer"},
@@ -684,13 +707,42 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, trace events.Trace
 		CaseSummary:               caseSummary,
 		PriorTraceRefs:            priorTraceRefs,
 		RepoAllowlist:             cfg.AllowedTargetRepos,
-		ToolAllowlist:             toolNames,
+		ToolAllowlist:             harness.ApplyToolPreference(toolNames, effectiveHarness.ToolPreferenceOrder),
 		ResponseMode:              workflow.ResponseMode,
 		ContextRefs:               contextRefs,
 		ApprovalMode:              workflow.ApprovalMode,
-		ReasoningVerbosity:        cfg.DefaultReasoningVerbosity,
+		ReasoningVerbosity:        effectiveHarness.ReasoningVerbosity,
 		RejectedProposalContext:   []map[string]any{},
+		SessionScopeKind:          sessionScopeKind,
+		SessionScopeID:            sessionScopeID,
+		ParentSessionScopeKind:    parentScopeKind,
+		ParentSessionScopeID:      parentScopeID,
+		HarnessProfileID:          effectiveHarness.Profile.ID,
+		HarnessOverlayVersion:     effectiveHarness.EffectiveOverlayVersion,
+		MemoryBackend:             harness.DefaultMemoryBackend,
+		AssistantPeerID:           fmt.Sprintf("rsi:%s:%s", cfg.Environment, role),
+		UserPeerID:                workflowUserPeerID(store.ListConversationEntries(trace.Summary.ConversationID), sessionScopeKind, sessionScopeID),
 	}
+}
+
+func workflowSessionScope(trace events.Trace, workflow storepkg.Workflow) (string, string, string, string) {
+	if strings.EqualFold(strings.TrimSpace(workflow.Intent), "incident") || strings.EqualFold(strings.TrimSpace(workflow.Kind), "incident") {
+		return "case", trace.Summary.CaseID, "conversation", trace.Summary.ConversationID
+	}
+	return "conversation", trace.Summary.ConversationID, "", ""
+}
+
+func workflowUserPeerID(entries []conversation.Entry, scopeKind string, scopeID string) string {
+	for i := len(entries) - 1; i >= 0; i-- {
+		entry := entries[i]
+		if strings.TrimSpace(entry.ActorID) == "" {
+			continue
+		}
+		if strings.EqualFold(strings.TrimSpace(entry.ActorType), "user") || strings.EqualFold(strings.TrimSpace(entry.ActorType), "operator") {
+			return fmt.Sprintf("%s:%s", strings.TrimSpace(entry.ActorType), strings.TrimSpace(entry.ActorID))
+		}
+	}
+	return fmt.Sprintf("session:%s:%s", scopeKind, scopeID)
 }
 
 func draftSlackPostAction(cfg config.Config, store storepkg.Store, resumeQueue queue.QueueName, ctx workflowContext, output runnerutil.StructuredOutput, replyBody string, allowed bool, policyVerdict string, createdAt time.Time) (action.Intent, []events.TraceEvent, []events.ReasoningStep, error) {

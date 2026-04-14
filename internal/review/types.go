@@ -1,6 +1,10 @@
 package review
 
-import "time"
+import (
+	"time"
+
+	"github.com/piplabs/rsi-agent-platform/internal/harness"
+)
 
 type ProposalStatus string
 
@@ -76,28 +80,31 @@ type FeedbackRecord struct {
 }
 
 type Proposal struct {
-	ID                            string           `json:"id"`
-	TraceID                       string           `json:"trace_id"`
-	ConversationID                string           `json:"conversation_id,omitempty"`
-	CaseID                        string           `json:"case_id,omitempty"`
-	OriginTraceID                 string           `json:"origin_trace_id,omitempty"`
-	EvidenceTraceIDs              []string         `json:"evidence_trace_ids,omitempty"`
-	Title                         string           `json:"title"`
-	Category                      string           `json:"category"`
-	Summary                       string           `json:"summary"`
-	Status                        ProposalStatus   `json:"status"`
-	Reviewer                      string           `json:"reviewer,omitempty"`
-	CandidateKey                  string           `json:"candidate_key"`
-	SourceEvalIDs                 []string         `json:"source_eval_ids,omitempty"`
-	RiskTier                      string           `json:"risk_tier,omitempty"`
-	ProposedScope                 string           `json:"proposed_scope,omitempty"`
-	EvidenceArtifactIDs           []string         `json:"evidence_artifact_ids,omitempty"`
-	ActiveSlotConsuming           bool             `json:"active_slot_consuming"`
-	ReviewDeadline                time.Time        `json:"review_deadline,omitempty"`
-	PriorSimilarProposalIDs       []string         `json:"prior_similar_proposal_ids,omitempty"`
-	NewEvidenceSinceLastRejection bool             `json:"new_evidence_since_last_rejection"`
-	CreatedAt                     time.Time        `json:"created_at"`
-	Reviews                       []ProposalReview `json:"reviews,omitempty"`
+	ID                            string              `json:"id"`
+	TraceID                       string              `json:"trace_id"`
+	ConversationID                string              `json:"conversation_id,omitempty"`
+	CaseID                        string              `json:"case_id,omitempty"`
+	OriginTraceID                 string              `json:"origin_trace_id,omitempty"`
+	EvidenceTraceIDs              []string            `json:"evidence_trace_ids,omitempty"`
+	Title                         string              `json:"title"`
+	Category                      string              `json:"category"`
+	Summary                       string              `json:"summary"`
+	Status                        ProposalStatus      `json:"status"`
+	Reviewer                      string              `json:"reviewer,omitempty"`
+	CandidateKey                  string              `json:"candidate_key"`
+	TargetLayer                   harness.TargetLayer `json:"target_layer"`
+	TargetKind                    string              `json:"target_kind,omitempty"`
+	TargetRef                     string              `json:"target_ref,omitempty"`
+	SourceEvalIDs                 []string            `json:"source_eval_ids,omitempty"`
+	RiskTier                      string              `json:"risk_tier,omitempty"`
+	ProposedScope                 string              `json:"proposed_scope,omitempty"`
+	EvidenceArtifactIDs           []string            `json:"evidence_artifact_ids,omitempty"`
+	ActiveSlotConsuming           bool                `json:"active_slot_consuming"`
+	ReviewDeadline                time.Time           `json:"review_deadline,omitempty"`
+	PriorSimilarProposalIDs       []string            `json:"prior_similar_proposal_ids,omitempty"`
+	NewEvidenceSinceLastRejection bool                `json:"new_evidence_since_last_rejection"`
+	CreatedAt                     time.Time           `json:"created_at"`
+	Reviews                       []ProposalReview    `json:"reviews,omitempty"`
 }
 
 type ProposalReview struct {

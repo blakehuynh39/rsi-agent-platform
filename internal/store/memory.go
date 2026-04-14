@@ -14,6 +14,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	"github.com/piplabs/rsi-agent-platform/internal/evals"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
+	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
@@ -52,6 +53,17 @@ type Store interface {
 	ListKnowledgeEvidenceLinks(knowledgeID string) []knowledge.EvidenceLink
 	ListKnowledgeReviews(knowledgeID string) []knowledge.Review
 	ReviewKnowledgeEntry(knowledgeID string, item knowledge.Review) (knowledge.Entry, error)
+	ListHarnessProfiles() []harness.Profile
+	GetHarnessProfile(profileID string) (harness.Profile, bool)
+	ListHarnessOverlays() []harness.Overlay
+	GetActiveHarnessOverlay(role string) (harness.Overlay, bool)
+	UpsertHarnessOverlay(item harness.Overlay) (harness.Overlay, error)
+	ListHarnessExperiments() []harness.Experiment
+	RecordHarnessExperiment(item harness.Experiment) (harness.Experiment, error)
+	ListHarnessSessionBindings() []harness.SessionBinding
+	UpsertHarnessSessionBinding(item harness.SessionBinding) (harness.SessionBinding, error)
+	ListHarnessExecutions() []harness.Execution
+	RecordHarnessExecution(item harness.Execution) (harness.Execution, error)
 	ListIngestions() []slack.Ingestion
 	CreateIngestion(envelope slack.SlackEnvelope) (slack.Ingestion, error)
 	ListWorkflows() []Workflow
@@ -106,42 +118,47 @@ type Store interface {
 }
 
 type MemoryStore struct {
-	mu                  sync.RWMutex
-	events              []ingestion.EventEnvelope
-	conversations       map[string]conversation.Conversation
-	conversationEntries []conversation.Entry
-	cases               map[string]conversation.Case
-	ingestions          []slack.Ingestion
-	workflows           []Workflow
-	assignments         []Assignment
-	threadPolicies      map[string]policy.ThreadPolicy
-	channelPolicy       []policy.ChannelPolicy
-	ownership           []registry.OwnershipRecord
-	capabilities        []registry.CapabilityRecord
-	templates           []registry.WorkflowTemplate
-	experiments         []registry.ExperimentRecord
-	traces              map[string]events.Trace
-	ratings             map[string][]review.HumanRating
-	notes               map[string][]review.ImprovementNote
-	feedbackRecords     map[string][]review.FeedbackRecord
-	actionIntents       map[string]action.Intent
-	actionResults       map[string][]action.Result
-	outcomes            map[string]outcome.Record
-	knowledgeEntries    map[string]knowledge.Entry
-	knowledgeEvidence   map[string][]knowledge.EvidenceLink
-	knowledgeReviews    map[string][]knowledge.Review
-	evalSuites          []evals.Suite
-	evalRuns            map[string]evals.Run
-	evalJudgments       map[string][]evals.Judgment
-	workItems           map[string]queue.WorkItem
-	candidates          map[string]improvement.Candidate
-	proposals           map[string]review.Proposal
-	proposalMemory      []review.ProposalMemory
-	repoChangeJobs      map[string]improvement.RepoChangeJob
-	prAttempts          map[string]improvement.PRAttempt
-	postMergeReplay     map[string]improvement.PostMergeReplay
-	cronLeases          map[string]improvement.CronLease
-	settings            improvement.Settings
+	mu                     sync.RWMutex
+	events                 []ingestion.EventEnvelope
+	conversations          map[string]conversation.Conversation
+	conversationEntries    []conversation.Entry
+	cases                  map[string]conversation.Case
+	ingestions             []slack.Ingestion
+	workflows              []Workflow
+	assignments            []Assignment
+	threadPolicies         map[string]policy.ThreadPolicy
+	channelPolicy          []policy.ChannelPolicy
+	ownership              []registry.OwnershipRecord
+	capabilities           []registry.CapabilityRecord
+	templates              []registry.WorkflowTemplate
+	experiments            []registry.ExperimentRecord
+	traces                 map[string]events.Trace
+	ratings                map[string][]review.HumanRating
+	notes                  map[string][]review.ImprovementNote
+	feedbackRecords        map[string][]review.FeedbackRecord
+	actionIntents          map[string]action.Intent
+	actionResults          map[string][]action.Result
+	outcomes               map[string]outcome.Record
+	knowledgeEntries       map[string]knowledge.Entry
+	knowledgeEvidence      map[string][]knowledge.EvidenceLink
+	knowledgeReviews       map[string][]knowledge.Review
+	harnessProfiles        map[string]harness.Profile
+	harnessOverlays        map[string]harness.Overlay
+	harnessExperiments     map[string]harness.Experiment
+	harnessSessionBindings map[string]harness.SessionBinding
+	harnessExecutions      []harness.Execution
+	evalSuites             []evals.Suite
+	evalRuns               map[string]evals.Run
+	evalJudgments          map[string][]evals.Judgment
+	workItems              map[string]queue.WorkItem
+	candidates             map[string]improvement.Candidate
+	proposals              map[string]review.Proposal
+	proposalMemory         []review.ProposalMemory
+	repoChangeJobs         map[string]improvement.RepoChangeJob
+	prAttempts             map[string]improvement.PRAttempt
+	postMergeReplay        map[string]improvement.PostMergeReplay
+	cronLeases             map[string]improvement.CronLease
+	settings               improvement.Settings
 }
 
 func NewMemoryStore() *MemoryStore {
@@ -152,6 +169,9 @@ func NewMemoryStore() *MemoryStore {
 
 func (s *MemoryStore) seedDefaults() {
 	now := time.Now().UTC()
+	for _, profile := range harness.SeedProfiles(now) {
+		s.harnessProfiles[profile.ID] = profile
+	}
 	s.channelPolicy = []policy.ChannelPolicy{
 		{
 			ChannelID:            "CENG",
@@ -1917,6 +1937,9 @@ func (s *MemoryStore) updateCandidateLocked(trace events.Trace, event *ingestion
 			Subsystem:        subsystem,
 			FailureMode:      failureMode,
 			InterventionType: interventionType,
+			TargetLayer:      targetLayerForCandidate(trace, subsystem, failureMode, interventionType),
+			TargetKind:       targetKindForCandidate(trace, subsystem, failureMode, interventionType),
+			TargetRef:        targetRefForCandidate(trace, subsystem, failureMode, interventionType),
 			Status:           improvement.CandidateNeedsEvidence,
 			Severity:         severityForTrace(trace, event),
 			RiskTier:         improvement.RiskMedium,
@@ -2285,6 +2308,9 @@ func (s *MemoryStore) promoteCandidatesLocked(requestedBy string, limit int) (Pr
 			Summary:                       candidate.Hypothesis,
 			Status:                        review.ProposalPendingReview,
 			CandidateKey:                  candidate.CandidateKey,
+			TargetLayer:                   candidate.TargetLayer,
+			TargetKind:                    candidate.TargetKind,
+			TargetRef:                     candidate.TargetRef,
 			SourceEvalIDs:                 append([]string(nil), candidate.SourceEvalIDs...),
 			RiskTier:                      string(candidate.RiskTier),
 			ProposedScope:                 candidate.ProposedScope,
@@ -2318,6 +2344,46 @@ func (s *MemoryStore) hasActiveProposalForCandidateLocked(candidateKey string) b
 
 func proposalTitle(candidate improvement.Candidate) string {
 	return fmt.Sprintf("Improve %s: %s", candidate.Subsystem, candidate.FailureMode)
+}
+
+func targetLayerForCandidate(trace events.Trace, subsystem, failureMode, interventionType string) harness.TargetLayer {
+	lowerFailure := strings.ToLower(strings.TrimSpace(failureMode))
+	lowerIntervention := strings.ToLower(strings.TrimSpace(interventionType))
+	switch {
+	case strings.Contains(lowerFailure, "memory"), strings.Contains(lowerFailure, "prompt"), strings.Contains(lowerFailure, "tool_selection"), strings.Contains(lowerFailure, "behavioral"):
+		return harness.TargetLayerHarnessOverlay
+	case strings.Contains(lowerIntervention, "overlay"), strings.Contains(lowerIntervention, "prompt"), strings.Contains(lowerIntervention, "behavior"):
+		return harness.TargetLayerHarnessOverlay
+	case strings.TrimSpace(trace.Summary.WorkflowKind) == "proposal":
+		return harness.TargetLayerPlatformRuntime
+	case strings.TrimSpace(subsystem) == "control-plane", strings.TrimSpace(subsystem) == "improvement-plane", strings.TrimSpace(subsystem) == "shared-store", strings.TrimSpace(subsystem) == "tool-gateway":
+		return harness.TargetLayerRepoChange
+	default:
+		return harness.TargetLayerRepoChange
+	}
+}
+
+func targetKindForCandidate(trace events.Trace, subsystem, failureMode, interventionType string) string {
+	layer := targetLayerForCandidate(trace, subsystem, failureMode, interventionType)
+	if layer == harness.TargetLayerHarnessOverlay {
+		return "runner_role"
+	}
+	return "repo"
+}
+
+func targetRefForCandidate(trace events.Trace, subsystem, failureMode, interventionType string) string {
+	layer := targetLayerForCandidate(trace, subsystem, failureMode, interventionType)
+	if layer == harness.TargetLayerHarnessOverlay {
+		switch strings.TrimSpace(trace.Summary.WorkflowKind) {
+		case "incident":
+			return "prod"
+		case "proposal":
+			return "proposal"
+		default:
+			return "prod"
+		}
+	}
+	return "rsi-agent-platform"
 }
 
 func (s *MemoryStore) RunProposalPromoter(holder string) (PromotionResult, error) {

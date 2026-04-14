@@ -14,6 +14,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	"github.com/piplabs/rsi-agent-platform/internal/evals"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
+	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
@@ -120,6 +121,21 @@ func processEvalItem(cfg config.Config, store storepkg.Store, runnerClient *clie
 	if runnerClient != nil {
 		runnerResp, runnerErr = runnerClient.Execute(buildEvalRunnerTask(cfg, store, trace, run, judgments, item))
 		if runnerErr == nil {
+			if err := runnerutil.PersistHarnessExecution(
+				store,
+				runnerResp,
+				"eval",
+				trace.Summary.TraceID,
+				"",
+				stringFromAny(runnerResp.Raw["harness_profile_id"]),
+				stringFromAny(runnerResp.Raw["effective_overlay_version"]),
+				stringFromAny(runnerResp.Raw["session_scope_kind"]),
+				stringFromAny(runnerResp.Raw["session_scope_id"]),
+				stringFromAny(runnerResp.Raw["parent_session_scope_kind"]),
+				stringFromAny(runnerResp.Raw["parent_session_scope_id"]),
+			); err != nil {
+				return err
+			}
 			runnerOutput = runnerutil.ParseStructuredOutput(runnerResp)
 		}
 	}
@@ -239,8 +255,24 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 		runnerErr    error
 	)
 	if runnerClient != nil {
-		runnerResp, runnerErr = runnerClient.Execute(buildProposalRunnerTask(cfg, store, trace, proposal, memories))
+		runnerTask := buildProposalRunnerTask(cfg, store, trace, proposal, memories)
+		runnerResp, runnerErr = runnerClient.Execute(runnerTask)
 		if runnerErr == nil {
+			if err := runnerutil.PersistHarnessExecution(
+				store,
+				runnerResp,
+				"proposal",
+				trace.Summary.TraceID,
+				proposal.ID,
+				runnerTask.HarnessProfileID,
+				runnerTask.HarnessOverlayVersion,
+				runnerTask.SessionScopeKind,
+				runnerTask.SessionScopeID,
+				runnerTask.ParentSessionScopeKind,
+				runnerTask.ParentSessionScopeID,
+			); err != nil {
+				return err
+			}
 			runnerOutput = runnerutil.ParseStructuredOutput(runnerResp)
 		}
 	}
@@ -285,6 +317,9 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 			},
 		})
 		return errDeferredWorkItem
+	}
+	if proposal.TargetLayer == harness.TargetLayerHarnessOverlay {
+		return processHarnessOverlayProposal(cfg, store, trace, proposal, runnerResp, runnerOutput, runnerStarted)
 	}
 	job, err := store.MaterializeApprovedProposal(item.ProposalID, cfg.ServiceName)
 	if err != nil {
@@ -418,6 +453,135 @@ func processSandboxItem(cfg config.Config, store storepkg.Store, launcher sandbo
 	default:
 		return fmt.Errorf("unsupported sandbox item kind %s", item.Kind)
 	}
+}
+
+func processHarnessOverlayProposal(cfg config.Config, store storepkg.Store, trace events.Trace, proposal review.Proposal, runnerResp clients.RunnerResponse, runnerOutput runnerutil.StructuredOutput, runnerStarted time.Time) error {
+	overlay, err := buildHarnessOverlayFromRunner(store, proposal, runnerOutput)
+	if err != nil {
+		return err
+	}
+	now := time.Now().UTC()
+	if _, err := store.UpsertHarnessOverlay(overlay); err != nil {
+		return err
+	}
+	if _, err := store.RecordHarnessExperiment(harness.Experiment{
+		ID:         fmt.Sprintf("hexp-%s", proposal.ID),
+		ProfileID:  overlay.ProfileID,
+		OverlayID:  overlay.ID,
+		ProposalID: proposal.ID,
+		Role:       overlay.Role,
+		Status:     harness.ExperimentStatusSucceeded,
+		Summary:    firstNonEmpty(runnerOutput.FinalAnswer, runnerOutput.ContextSummary, proposal.Summary),
+		Metrics: map[string]any{
+			"target_layer": proposal.TargetLayer,
+			"target_kind":  proposal.TargetKind,
+			"target_ref":   proposal.TargetRef,
+		},
+		CreatedAt: now,
+		UpdatedAt: now,
+	}); err != nil {
+		return err
+	}
+	intent, err := upsertImprovementActionIntent(store, action.Intent{
+		OwnerPlane:     "improvement",
+		ConversationID: proposal.ConversationID,
+		CaseID:         proposal.CaseID,
+		TraceID:        trace.Summary.TraceID,
+		ProposalID:     proposal.ID,
+		Kind:           action.KindHarnessOverlay,
+		TargetRef:      overlay.Role,
+		RequestPayload: map[string]any{
+			"overlay_id":                overlay.ID,
+			"profile_id":                overlay.ProfileID,
+			"version":                   overlay.Version,
+			"prompt_fragments":          overlay.PromptFragments,
+			"few_shot_snippets":         overlay.FewShotSnippets,
+			"tool_preference_order":     overlay.ToolPreferenceOrder,
+			"retrieval_bias":            overlay.RetrievalBias,
+			"reasoning_verbosity":       overlay.ReasoningVerbosity,
+			"memory_read_enabled":       boolPointerValue(overlay.MemoryReadEnabled),
+			"memory_write_enabled":      boolPointerValue(overlay.MemoryWriteEnabled),
+			"effective_overlay_version": overlay.Version,
+		},
+		IdempotencyKey: fmt.Sprintf("harness-overlay:%s", proposal.ID),
+		ApprovalMode:   "approved",
+		ApprovalState:  "approved",
+		PolicyVerdict:  "approved_proposal",
+		Status:         action.StatusSucceeded,
+		RequestedBy:    cfg.ServiceName,
+		Rationale:      firstNonEmpty(firstProposedActionRationale(runnerOutput.ProposedActions, action.KindHarnessOverlay), runnerOutput.FinalAnswer, "Activated runtime harness overlay after human approval."),
+		EvidenceRefs: []events.EvidenceRef{
+			{Kind: "proposal", Ref: proposal.ID, Summary: proposal.Title},
+			{Kind: "trace", Ref: trace.Summary.TraceID, Summary: trace.Summary.WorkflowKind},
+		},
+		CreatedAt: now,
+		UpdatedAt: now,
+	})
+	if err != nil {
+		return err
+	}
+	if _, err := store.RecordActionResult(action.Result{
+		ActionIntentID: intent.ID,
+		Executor:       cfg.ServiceName,
+		Provider:       "rsi-platform",
+		ProviderRef:    overlay.ID,
+		Status:         action.StatusSucceeded,
+		StartedAt:      runnerStarted,
+		CompletedAt:    now,
+	}); err != nil {
+		return err
+	}
+	if _, err := store.UpdateProposalStatus(proposal.ID, review.ProposalMerged); err != nil {
+		return err
+	}
+	reasoning := []events.ReasoningStep{
+		{
+			ID:         fmt.Sprintf("reason-overlay-%d", now.UnixNano()),
+			TraceID:    trace.Summary.TraceID,
+			WorkflowID: trace.Summary.WorkflowID,
+			StepType:   "harness_overlay_activation",
+			Summary:    firstNonEmpty(runnerOutput.FinalAnswer, fmt.Sprintf("Activated overlay %s for role %s.", overlay.Version, overlay.Role)),
+			Confidence: confidenceOr(0.87, runnerOutput.Confidence),
+			Decision:   overlay.Version,
+			CreatedAt:  now,
+		},
+	}
+	reasoning = append(reasoning, runnerutil.ToTraceReasoning(trace.Summary.TraceID, trace.Summary.WorkflowID, runnerOutput, now)...)
+	if err := persistImprovementKnowledgeDrafts(store, runnerOutput.KnowledgeDrafts, trace, proposal.ID, now); err != nil {
+		return err
+	}
+	_, _ = store.ApplyTraceUpdate(trace.Summary.TraceID, storepkg.TraceUpdate{
+		Events: []events.TraceEvent{
+			{
+				TraceID:     trace.Summary.TraceID,
+				IngestionID: trace.Summary.IngestionID,
+				WorkflowID:  trace.Summary.WorkflowID,
+				Plane:       "execution",
+				Service:     "runner",
+				Actor:       "proposal",
+				EventType:   "runner.completed",
+				Status:      events.StatusCompleted,
+				StartedAt:   runnerStarted,
+				EndedAt:     ptrTime(now),
+				Description: fmt.Sprintf("Proposal runner returned harness overlay rationale using %s.", runnerRuntimeLabel(runnerResp)),
+			},
+			{
+				TraceID:     trace.Summary.TraceID,
+				IngestionID: trace.Summary.IngestionID,
+				WorkflowID:  trace.Summary.WorkflowID,
+				Plane:       "improvement",
+				Service:     cfg.ServiceName,
+				Actor:       "worker",
+				EventType:   "harness.overlay.activated",
+				Status:      events.StatusCompleted,
+				StartedAt:   now,
+				EndedAt:     ptrTime(now),
+				Description: fmt.Sprintf("Activated harness overlay %s for role %s.", overlay.Version, overlay.Role),
+			},
+		},
+		Reasoning: reasoning,
+	})
+	return nil
 }
 
 func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sandbox.Launcher, launcherErr error, item queue.WorkItem) error {
@@ -1050,6 +1214,7 @@ func filterProposalMemory(items []review.ProposalMemory, candidateKey string) []
 }
 
 func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.Trace, run evals.Run, judgments []evals.Judgment, item queue.WorkItem) clients.RunnerTask {
+	effectiveHarness := harness.ResolveEffectiveConfig(store, "eval", cfg.DefaultReasoningVerbosity)
 	contextRefs := make([]map[string]any, 0, len(judgments)+1)
 	contextRefs = append(contextRefs, map[string]any{
 		"kind":      "eval_run",
@@ -1095,12 +1260,13 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 			"assigned_bot":    caseRecord.AssignedBot,
 		}
 	}
+	sessionScopeKind, sessionScopeID := evalSessionScope(store, trace, run)
 	return clients.RunnerTask{
 		TaskType:            "eval",
 		Repo:                cfg.DefaultRepo,
 		RepoRef:             "main",
 		Prompt:              prompt,
-		SystemMessage:       "Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, and self_critique.",
+		SystemMessage:       harness.ComposeSystemMessage("Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, and self_critique.", effectiveHarness),
 		TimeoutSeconds:      120,
 		ExpectedOutputs:     []string{"visible_reasoning", "final_answer"},
 		ArtifactDestination: fmt.Sprintf("trace:%s:eval:%s", trace.Summary.TraceID, run.ID),
@@ -1124,11 +1290,19 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 		ResponseMode:              "analysis",
 		ContextRefs:               contextRefs,
 		ApprovalMode:              "deterministic",
-		ReasoningVerbosity:        cfg.DefaultReasoningVerbosity,
+		ReasoningVerbosity:        effectiveHarness.ReasoningVerbosity,
+		SessionScopeKind:          sessionScopeKind,
+		SessionScopeID:            sessionScopeID,
+		HarnessProfileID:          effectiveHarness.Profile.ID,
+		HarnessOverlayVersion:     effectiveHarness.EffectiveOverlayVersion,
+		MemoryBackend:             harness.DefaultMemoryBackend,
+		AssistantPeerID:           fmt.Sprintf("rsi:%s:eval", cfg.Environment),
+		UserPeerID:                fmt.Sprintf("line:%s", sessionScopeID),
 	}
 }
 
 func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace events.Trace, proposal review.Proposal, memories []review.ProposalMemory) clients.RunnerTask {
+	effectiveHarness := harness.ResolveEffectiveConfig(store, "proposal", cfg.DefaultReasoningVerbosity)
 	rejectedContext := make([]map[string]any, 0, len(memories))
 	for _, memory := range memories {
 		rejectedContext = append(rejectedContext, map[string]any{
@@ -1146,6 +1320,9 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 			"candidate_key": proposal.CandidateKey,
 			"risk_tier":     proposal.RiskTier,
 			"scope":         proposal.ProposedScope,
+			"target_layer":  proposal.TargetLayer,
+			"target_kind":   proposal.TargetKind,
+			"target_ref":    proposal.TargetRef,
 		},
 	}
 	prompt := fmt.Sprintf(
@@ -1156,6 +1333,17 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 		proposal.ProposedScope,
 		proposal.Summary,
 	)
+	if proposal.TargetLayer == harness.TargetLayerHarnessOverlay {
+		targetRole := firstNonEmpty(strings.TrimSpace(proposal.TargetRef), "prod")
+		prompt = fmt.Sprintf(
+			"Design an approved runtime harness overlay for role %s from proposal %s. Candidate=%s summary=%s. Return explicit visible reasoning and include exactly one proposed action with kind=%q whose request_payload contains prompt_fragments, few_shot_snippets, tool_preference_order, retrieval_bias, reasoning_verbosity, memory_read_enabled, and memory_write_enabled. This is a runtime overlay activation, not a repo change.",
+			targetRole,
+			proposal.ID,
+			proposal.CandidateKey,
+			proposal.Summary,
+			action.KindHarnessOverlay,
+		)
+	}
 	caseSummary := map[string]any{}
 	if caseRecord, ok := store.GetCase(trace.Summary.CaseID); ok {
 		caseSummary = map[string]any{
@@ -1174,11 +1362,11 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 		Repo:                      cfg.DefaultRepo,
 		RepoRef:                   "main",
 		Prompt:                    prompt,
-		SystemMessage:             "Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, and self_critique.",
+		SystemMessage:             harness.ComposeSystemMessage("Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, and self_critique.", effectiveHarness),
 		TimeoutSeconds:            120,
 		ExpectedOutputs:           []string{"visible_reasoning", "final_answer"},
 		ArtifactDestination:       fmt.Sprintf("trace:%s:proposal:%s", trace.Summary.TraceID, proposal.ID),
-		ContextSummary:            fmt.Sprintf("Approved proposal %s for candidate %s is entering repo-change queue.", proposal.ID, proposal.CandidateKey),
+		ContextSummary:            proposalRunnerContextSummary(proposal),
 		RejectedProposalContext:   rejectedContext,
 		Intent:                    trace.Summary.WorkflowKind,
 		TraceID:                   trace.Summary.TraceID,
@@ -1193,8 +1381,34 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 		ResponseMode:              "analysis",
 		ContextRefs:               contextRefs,
 		ApprovalMode:              "human_review",
-		ReasoningVerbosity:        cfg.DefaultReasoningVerbosity,
+		ReasoningVerbosity:        effectiveHarness.ReasoningVerbosity,
+		SessionScopeKind:          "proposal_candidate",
+		SessionScopeID:            proposal.CandidateKey,
+		HarnessProfileID:          effectiveHarness.Profile.ID,
+		HarnessOverlayVersion:     effectiveHarness.EffectiveOverlayVersion,
+		MemoryBackend:             harness.DefaultMemoryBackend,
+		AssistantPeerID:           fmt.Sprintf("rsi:%s:proposal", cfg.Environment),
+		UserPeerID:                fmt.Sprintf("candidate:%s", proposal.CandidateKey),
 	}
+}
+
+func evalSessionScope(store storepkg.Store, trace events.Trace, run evals.Run) (string, string) {
+	for _, candidate := range store.ListCandidates() {
+		for _, evalID := range candidate.SourceEvalIDs {
+			if evalID == run.ID {
+				return "eval_line", firstNonEmpty(candidate.Subsystem, "unknown") + ":" + firstNonEmpty(candidate.FailureMode, candidate.CandidateKey)
+			}
+		}
+	}
+	return "eval_line", "trace:" + trace.Summary.TraceID
+}
+
+func stringFromAny(raw any) string {
+	value, ok := raw.(string)
+	if !ok {
+		return ""
+	}
+	return strings.TrimSpace(value)
 }
 
 func improvementRecentConversationEntries(items []conversation.Entry) []map[string]any {
@@ -1411,6 +1625,108 @@ func firstProposedActionRationale(items []runnerutil.ProposedAction, kind action
 		}
 	}
 	return ""
+}
+
+func proposedActionByKind(items []runnerutil.ProposedAction, kind action.Kind) (runnerutil.ProposedAction, bool) {
+	for _, item := range items {
+		if strings.EqualFold(strings.TrimSpace(item.Kind), string(kind)) {
+			return item, true
+		}
+	}
+	return runnerutil.ProposedAction{}, false
+}
+
+func proposalRunnerContextSummary(proposal review.Proposal) string {
+	if proposal.TargetLayer == harness.TargetLayerHarnessOverlay {
+		return fmt.Sprintf("Approved proposal %s for candidate %s is activating a runtime harness overlay for %s.", proposal.ID, proposal.CandidateKey, firstNonEmpty(proposal.TargetRef, "prod"))
+	}
+	return fmt.Sprintf("Approved proposal %s for candidate %s is entering repo-change queue.", proposal.ID, proposal.CandidateKey)
+}
+
+func buildHarnessOverlayFromRunner(store storepkg.Store, proposal review.Proposal, output runnerutil.StructuredOutput) (harness.Overlay, error) {
+	targetRole := firstNonEmpty(strings.TrimSpace(proposal.TargetRef), "prod")
+	profile, ok := store.GetHarnessProfile(harness.DefaultProfileID(targetRole))
+	if !ok {
+		return harness.Overlay{}, fmt.Errorf("harness profile for role %s not found", targetRole)
+	}
+	actionSpec, ok := proposedActionByKind(output.ProposedActions, action.KindHarnessOverlay)
+	if !ok {
+		return harness.Overlay{}, fmt.Errorf("proposal runner did not return %s action for overlay target", action.KindHarnessOverlay)
+	}
+	payload := actionSpec.RequestPayload
+	if payload == nil {
+		return harness.Overlay{}, fmt.Errorf("proposal runner returned empty overlay payload")
+	}
+	overlay := harness.Overlay{
+		ID:                  fmt.Sprintf("overlay-%s", proposal.ID),
+		ProfileID:           profile.ID,
+		Role:                targetRole,
+		Version:             firstNonEmpty(stringFromAny(payload["version"]), proposal.ID),
+		Status:              harness.OverlayStatusActive,
+		TargetKind:          proposal.TargetKind,
+		TargetRef:           firstNonEmpty(proposal.TargetRef, targetRole),
+		ProposalID:          proposal.ID,
+		PromptFragments:     stringSliceFromAny(payload["prompt_fragments"]),
+		FewShotSnippets:     stringSliceFromAny(payload["few_shot_snippets"]),
+		ToolPreferenceOrder: stringSliceFromAny(payload["tool_preference_order"]),
+		RetrievalBias:       firstNonEmpty(stringFromAny(payload["retrieval_bias"]), profile.RetrievalBias),
+		ReasoningVerbosity:  firstNonEmpty(stringFromAny(payload["reasoning_verbosity"]), profile.ReasoningVerbosity),
+		MemoryReadEnabled:   boolPointerFromAny(payload["memory_read_enabled"]),
+		MemoryWriteEnabled:  boolPointerFromAny(payload["memory_write_enabled"]),
+		CreatedBy:           "proposal-runner",
+		ApprovedBy:          "improvement-plane",
+	}
+	if len(overlay.PromptFragments) == 0 && len(overlay.FewShotSnippets) == 0 && len(overlay.ToolPreferenceOrder) == 0 && overlay.RetrievalBias == "" && overlay.ReasoningVerbosity == "" && overlay.MemoryReadEnabled == nil && overlay.MemoryWriteEnabled == nil {
+		return harness.Overlay{}, fmt.Errorf("proposal runner returned overlay action without any runtime-safe fields")
+	}
+	return overlay, nil
+}
+
+func stringSliceFromAny(raw any) []string {
+	switch value := raw.(type) {
+	case []string:
+		out := make([]string, 0, len(value))
+		for _, item := range value {
+			if trimmed := strings.TrimSpace(item); trimmed != "" {
+				out = append(out, trimmed)
+			}
+		}
+		return out
+	case []any:
+		out := make([]string, 0, len(value))
+		for _, item := range value {
+			if trimmed := strings.TrimSpace(fmt.Sprint(item)); trimmed != "" && trimmed != "<nil>" {
+				out = append(out, trimmed)
+			}
+		}
+		return out
+	default:
+		return []string{}
+	}
+}
+
+func boolPointerFromAny(raw any) *bool {
+	switch value := raw.(type) {
+	case bool:
+		return &value
+	case string:
+		switch strings.ToLower(strings.TrimSpace(value)) {
+		case "true":
+			parsed := true
+			return &parsed
+		case "false":
+			parsed := false
+			return &parsed
+		}
+	}
+	return nil
+}
+
+func boolPointerValue(raw *bool) bool {
+	if raw == nil {
+		return false
+	}
+	return *raw
 }
 
 func improvementActionStatus(result storepkg.ToolResult, execErr error) action.Status {

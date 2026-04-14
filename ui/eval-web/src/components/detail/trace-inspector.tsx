@@ -67,7 +67,28 @@ export function TraceInspector(props: {
             <div><dt>Actions</dt><dd>{listOrEmpty(props.traceDetail.action_intents).length}</dd></div>
             <div><dt>Outcomes</dt><dd>{listOrEmpty(props.traceDetail.outcomes).length}</dd></div>
             <div><dt>Knowledge</dt><dd>{listOrEmpty(props.traceDetail.knowledge_entries).length}</dd></div>
+            <div><dt>Harness runs</dt><dd>{listOrEmpty(props.traceDetail.harness_executions).length}</dd></div>
           </dl>
+          {listOrEmpty(props.traceDetail.harness_executions).length ? (
+            <div className="detail-card">
+              <h3>Hermes session continuity</h3>
+              <div className="nested-list">
+                {listOrEmpty(props.traceDetail.harness_executions).map((item) => (
+                  <div key={item.id} className="nested-card">
+                    <div className="detail-row-header">
+                      <strong>{item.role}</strong>
+                      <small>{formatTime(item.created_at)}</small>
+                    </div>
+                    <p className="detail-copy">{item.hermes_session_id}</p>
+                    <p className="muted">Scope: {item.session_scope_kind}:{item.session_scope_id}</p>
+                    {item.parent_session_id ? <p className="muted">Parent session: {item.parent_session_id}</p> : null}
+                    {listOrEmpty(item.memory_reads).length ? <p className="muted">Reads: {listOrEmpty(item.memory_reads).map((memory) => memory.summary).join(" • ")}</p> : null}
+                    {listOrEmpty(item.memory_writes).length ? <p className="muted">Writes: {listOrEmpty(item.memory_writes).map((memory) => memory.summary).join(" • ")}</p> : null}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
           <div className="detail-card">
             <h3>Transcript slice used</h3>
             <div className="nested-list">
