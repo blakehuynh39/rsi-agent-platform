@@ -210,6 +210,15 @@ func (s *MemoryStore) RecordHarnessExecution(item harness.Execution) (harness.Ex
 	if item.CreatedAt.IsZero() {
 		item.CreatedAt = now
 	}
+	if strings.TrimSpace(item.OperationID) != "" {
+		for i, existing := range s.harnessExecutions {
+			if strings.TrimSpace(existing.OperationID) == item.OperationID {
+				item.ID = existing.ID
+				s.harnessExecutions[i] = item
+				return item, nil
+			}
+		}
+	}
 	for i, existing := range s.harnessExecutions {
 		if existing.ID == item.ID {
 			s.harnessExecutions[i] = item
@@ -268,6 +277,7 @@ func normalizeHarnessSessionBinding(item harness.SessionBinding) harness.Session
 }
 
 func normalizeHarnessExecution(item harness.Execution) harness.Execution {
+	item.OperationID = strings.TrimSpace(item.OperationID)
 	item.MemoryReads = memoryArtifactsOrEmpty(item.MemoryReads)
 	item.MemoryWrites = memoryArtifactsOrEmpty(item.MemoryWrites)
 	return item

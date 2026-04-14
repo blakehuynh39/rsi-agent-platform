@@ -16,6 +16,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
+	"github.com/piplabs/rsi-agent-platform/internal/operation"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
@@ -412,7 +413,19 @@ func transitionGitHubAttemptFailure(store storepkg.Store, proposal review.Propos
 		if _, err := store.UpdateProposalStatus(proposal.ID, review.ProposalApproved); err != nil {
 			return err
 		}
-		_, err := store.EnqueueWorkItem(queue.WorkItem{
+		nextAttemptNumber := attempt.AttemptNumber + 1
+		_, err := enqueueOperationBackedWork(store, operation.Execution{
+			ScopeKind:     operation.ScopeProposal,
+			ScopeID:       proposal.ID,
+			OperationKind: "line_activate",
+			OperationKey:  fmt.Sprintf("attempt-%02d", nextAttemptNumber),
+			Status:        operation.StatusQueued,
+			Queue:         queue.ProposalQueue,
+			RequestedBy:   "github-webhook",
+			TraceID:       firstNonEmpty(attempt.AttemptTraceID, proposal.TraceID),
+			ProposalID:    proposal.ID,
+			AttemptID:     attempt.ID,
+		}, queue.WorkItem{
 			Queue:          queue.ProposalQueue,
 			Kind:           "approved_proposal",
 			Status:         queue.WorkQueued,
@@ -430,7 +443,7 @@ func transitionGitHubAttemptFailure(store storepkg.Store, proposal review.Propos
 				"risk_tier":      proposal.RiskTier,
 				"trigger":        string(trigger),
 				"parent_attempt": attempt.ID,
-				"dedupe_key":     fmt.Sprintf("proposal-runner:%s:attempt:%d", proposal.ID, attempt.AttemptNumber+1),
+				"attempt_number": nextAttemptNumber,
 			},
 		})
 		return err

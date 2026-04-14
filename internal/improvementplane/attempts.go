@@ -10,12 +10,20 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
+	"github.com/piplabs/rsi-agent-platform/internal/operation"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
 
 const attemptAutoRetryLimit = 3
+
+func maxInt(a int, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
 
 func latestAttemptForProposal(store storepkg.Store, proposalID string) (improvement.ChangeAttempt, bool) {
 	items := attemptsForProposal(store, proposalID)
@@ -117,7 +125,18 @@ func ensureApprovedProposalWork(store storepkg.Store, trace events.Trace, reques
 	if attempt, ok := latestAttemptForProposal(store, proposal.ID); ok && !isAttemptTerminal(attempt.State) {
 		return nil
 	}
-	_, err := store.EnqueueWorkItem(queue.WorkItem{
+	nextAttemptNumber := maxInt(1, proposal.AttemptCount+1)
+	_, err := enqueueImprovementOperationWork(store, operation.Execution{
+		ScopeKind:     operation.ScopeProposal,
+		ScopeID:       proposal.ID,
+		OperationKind: "line_activate",
+		OperationKey:  fmt.Sprintf("attempt-%02d", nextAttemptNumber),
+		Status:        operation.StatusQueued,
+		Queue:         queue.ProposalQueue,
+		RequestedBy:   requestedBy,
+		TraceID:       proposal.TraceID,
+		ProposalID:    proposal.ID,
+	}, queue.WorkItem{
 		Queue:          queue.ProposalQueue,
 		Kind:           "approved_proposal",
 		Status:         queue.WorkQueued,
@@ -133,7 +152,7 @@ func ensureApprovedProposalWork(store storepkg.Store, trace events.Trace, reques
 		Payload: map[string]any{
 			"candidate_key": candidate.CandidateKey,
 			"risk_tier":     proposal.RiskTier,
-			"dedupe_key":    fmt.Sprintf("proposal-runner:%s", proposal.ID),
+			"attempt_number": nextAttemptNumber,
 			"trigger":       string(improvement.AttemptTriggerOperatorRetry),
 		},
 	})
@@ -315,7 +334,19 @@ func shouldAutoRetryAttempt(attempt improvement.ChangeAttempt, failureClass stri
 }
 
 func queueProposalAttemptRetry(store storepkg.Store, proposal review.Proposal, failedAttempt improvement.ChangeAttempt, requestedBy string, trigger improvement.ChangeAttemptTrigger) error {
-	_, err := store.EnqueueWorkItem(queue.WorkItem{
+	nextAttemptNumber := failedAttempt.AttemptNumber + 1
+	_, err := enqueueImprovementOperationWork(store, operation.Execution{
+		ScopeKind:     operation.ScopeProposal,
+		ScopeID:       proposal.ID,
+		OperationKind: "line_activate",
+		OperationKey:  fmt.Sprintf("attempt-%02d", nextAttemptNumber),
+		Status:        operation.StatusQueued,
+		Queue:         queue.ProposalQueue,
+		RequestedBy:   requestedBy,
+		TraceID:       proposal.TraceID,
+		ProposalID:    proposal.ID,
+		AttemptID:     failedAttempt.ID,
+	}, queue.WorkItem{
 		Queue:          queue.ProposalQueue,
 		Kind:           "approved_proposal",
 		Status:         queue.WorkQueued,
@@ -333,7 +364,7 @@ func queueProposalAttemptRetry(store storepkg.Store, proposal review.Proposal, f
 			"risk_tier":      proposal.RiskTier,
 			"trigger":        string(trigger),
 			"parent_attempt": failedAttempt.ID,
-			"dedupe_key":     fmt.Sprintf("proposal-runner:%s:attempt:%d", proposal.ID, failedAttempt.AttemptNumber+1),
+			"attempt_number": nextAttemptNumber,
 		},
 	})
 	return err

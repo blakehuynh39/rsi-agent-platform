@@ -585,8 +585,24 @@ func replaceEventMaterializationScope(tx *sql.Tx, store *MemoryStore, event inge
 }
 
 func insertActionResult(tx *sql.Tx, item action.Result) error {
-	_, err := tx.Exec(`insert into action_result (id, action_intent_id, attempt_id, attempt_number, executor, provider, provider_ref, request_artifact_id, response_artifact_id, status, error_code, error_message, started_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
+	_, err := tx.Exec(`insert into action_result (id, operation_id, action_intent_id, attempt_id, attempt_number, executor, provider, provider_ref, request_artifact_id, response_artifact_id, status, error_code, error_message, started_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+		on conflict (id) do update set
+			operation_id = excluded.operation_id,
+			action_intent_id = excluded.action_intent_id,
+			attempt_id = excluded.attempt_id,
+			attempt_number = excluded.attempt_number,
+			executor = excluded.executor,
+			provider = excluded.provider,
+			provider_ref = excluded.provider_ref,
+			request_artifact_id = excluded.request_artifact_id,
+			response_artifact_id = excluded.response_artifact_id,
+			status = excluded.status,
+			error_code = excluded.error_code,
+			error_message = excluded.error_message,
+			started_at = excluded.started_at,
+			completed_at = excluded.completed_at`,
 		item.ID,
+		firstNonEmpty(item.OperationID),
 		item.ActionIntentID,
 		firstNonEmpty(item.AttemptID),
 		item.AttemptNumber,
@@ -607,12 +623,14 @@ func insertActionResult(tx *sql.Tx, item action.Result) error {
 func scanWorkItem(scanner rowScanner) (queue.WorkItem, error) {
 	var item queue.WorkItem
 	var queueName, status string
+	var operationID sql.NullString
 	var traceID, workflowID, ingestionID, conversationID, caseID, triggerEventID, proposalID, threadKey, intent, repoScope, requestedBy, approvalMode, responseMode, leaseOwner, lastError sql.NullString
 	var payload []byte
 	var leaseExpiresAt, completedAt sql.NullTime
-	if err := scanner.Scan(&item.ID, &queueName, &item.Kind, &status, &traceID, &workflowID, &ingestionID, &conversationID, &caseID, &triggerEventID, &proposalID, &threadKey, &intent, &repoScope, &requestedBy, &approvalMode, &responseMode, &payload, &item.Attempts, &leaseOwner, &leaseExpiresAt, &lastError, &item.CreatedAt, &item.UpdatedAt, &completedAt); err != nil {
+	if err := scanner.Scan(&item.ID, &operationID, &queueName, &item.Kind, &status, &traceID, &workflowID, &ingestionID, &conversationID, &caseID, &triggerEventID, &proposalID, &threadKey, &intent, &repoScope, &requestedBy, &approvalMode, &responseMode, &payload, &item.Attempts, &leaseOwner, &leaseExpiresAt, &lastError, &item.CreatedAt, &item.UpdatedAt, &completedAt); err != nil {
 		return queue.WorkItem{}, err
 	}
+	item.OperationID = operationID.String
 	item.Queue = queue.QueueName(queueName)
 	item.Status = queue.WorkItemStatus(status)
 	item.TraceID = traceID.String
@@ -643,12 +661,13 @@ func scanWorkItem(scanner rowScanner) (queue.WorkItem, error) {
 }
 
 func workItemSelectColumns() string {
-	return `id, queue, kind, status, trace_id, workflow_id, ingestion_id, conversation_id, case_id, trigger_event_id, proposal_id, thread_key, intent, repo_scope, requested_by, approval_mode, response_mode, payload, attempts, lease_owner, lease_expires_at, last_error, created_at, updated_at, completed_at`
+	return `id, operation_id, queue, kind, status, trace_id, workflow_id, ingestion_id, conversation_id, case_id, trigger_event_id, proposal_id, thread_key, intent, repo_scope, requested_by, approval_mode, response_mode, payload, attempts, lease_owner, lease_expires_at, last_error, created_at, updated_at, completed_at`
 }
 
 func workItemSelectColumnsWithAlias(alias string) string {
 	columns := []string{
 		"id",
+		"operation_id",
 		"queue",
 		"kind",
 		"status",
@@ -698,6 +717,25 @@ func findExistingWorkItemByDedupe(tx *sql.Tx, item queue.WorkItem) (queue.WorkIt
 		string(queue.WorkCanceled),
 		string(queue.WorkCompleted),
 	)
+	existing, err := scanWorkItem(row)
+	if err == sql.ErrNoRows {
+		return queue.WorkItem{}, false, nil
+	}
+	if err != nil {
+		return queue.WorkItem{}, false, err
+	}
+	return existing, true, nil
+}
+
+func findExistingWorkItemByOperation(tx *sql.Tx, operationID string) (queue.WorkItem, bool, error) {
+	operationID = strings.TrimSpace(operationID)
+	if operationID == "" {
+		return queue.WorkItem{}, false, nil
+	}
+	if err := advisoryLock(tx, fmt.Sprintf("work-item:operation:%s", operationID)); err != nil {
+		return queue.WorkItem{}, false, err
+	}
+	row := tx.QueryRow(`select `+workItemSelectColumns()+` from work_item where operation_id = $1 order by created_at desc, id desc limit 1`, operationID)
 	existing, err := scanWorkItem(row)
 	if err == sql.ErrNoRows {
 		return queue.WorkItem{}, false, nil

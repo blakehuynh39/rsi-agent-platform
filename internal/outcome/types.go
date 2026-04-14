@@ -22,6 +22,7 @@ const (
 
 type Record struct {
 	ID             string    `json:"id"`
+	OperationID    string    `json:"operation_id,omitempty"`
 	Source         string    `json:"source"`
 	SourceEventID  string    `json:"source_event_id,omitempty"`
 	ConversationID string    `json:"conversation_id,omitempty"`

@@ -8,6 +8,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
+	"github.com/piplabs/rsi-agent-platform/internal/operation"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
@@ -28,6 +29,7 @@ func newEmptyMemoryStore() *MemoryStore {
 		knowledgeEntries:       map[string]knowledge.Entry{},
 		knowledgeEvidence:      map[string][]knowledge.EvidenceLink{},
 		knowledgeReviews:       map[string][]knowledge.Review{},
+		operations:             map[string]operation.Execution{},
 		harnessProfiles:        map[string]harness.Profile{},
 		harnessOverlays:        map[string]harness.Overlay{},
 		harnessExperiments:     map[string]harness.Experiment{},

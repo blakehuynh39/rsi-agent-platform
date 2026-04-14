@@ -19,6 +19,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
+	"github.com/piplabs/rsi-agent-platform/internal/operation"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	"github.com/piplabs/rsi-agent-platform/internal/runnerutil"
@@ -130,6 +131,7 @@ func processEvalItem(cfg config.Config, store storepkg.Store, runnerClient *clie
 				store,
 				runnerResp,
 				"eval",
+				item.OperationID,
 				trace.Summary.TraceID,
 				"",
 				stringFromAny(runnerResp.Raw["harness_profile_id"]),
@@ -277,6 +279,7 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 				store,
 				runnerResp,
 				"proposal",
+				item.OperationID,
 				trace.Summary.TraceID,
 				proposal.ID,
 				runnerTask.HarnessProfileID,
@@ -586,10 +589,11 @@ func processHarnessOverlayProposal(cfg config.Config, store storepkg.Store, trac
 	if err != nil {
 		return err
 	}
-	if _, err := store.RecordActionResult(action.Result{
-		ActionIntentID: intent.ID,
-		AttemptID:      attempt.ID,
-		Executor:       cfg.ServiceName,
+		if _, err := store.RecordActionResult(action.Result{
+			OperationID:    intent.OperationID,
+			ActionIntentID: intent.ID,
+			AttemptID:      attempt.ID,
+			Executor:       cfg.ServiceName,
 		Provider:       "rsi-platform",
 		ProviderRef:    overlay.ID,
 		Status:         action.StatusSucceeded,
@@ -768,6 +772,7 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 			return err
 		}
 		_, _ = store.RecordActionResult(action.Result{
+			OperationID:    item.OperationID,
 			ActionIntentID: intent.ID,
 			AttemptID:      attemptID,
 			Executor:       "sandbox-runtime",
@@ -809,6 +814,7 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 			UpdatedAt:      completed,
 		})
 		_, _ = store.RecordActionResult(action.Result{
+			OperationID:    item.OperationID,
 			ActionIntentID: intent.ID,
 			AttemptID:      attemptID,
 			Executor:       "sandbox-runtime",
@@ -877,7 +883,18 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 			},
 		},
 	})
-	_, err = store.EnqueueWorkItem(queue.WorkItem{
+	_, err = enqueueImprovementOperationWork(store, operation.Execution{
+		ScopeKind:     operation.ScopeAttempt,
+		ScopeID:       attemptID,
+		OperationKind: "sandbox_watch",
+		OperationKey:  "sandbox_watch",
+		Status:        operation.StatusQueued,
+		Queue:         queue.SandboxQueue,
+		RequestedBy:   cfg.ServiceName,
+		TraceID:       trace.Summary.TraceID,
+		ProposalID:    item.ProposalID,
+		AttemptID:     attemptID,
+	}, queue.WorkItem{
 		Queue:      queue.SandboxQueue,
 		Kind:       "watch_sandbox_job",
 		Status:     queue.WorkQueued,
@@ -891,7 +908,6 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 			"branch_name": repoJob.BranchName,
 			"base_ref":    repoJob.BaseRef,
 			"job_id":      repoJob.ID,
-			"dedupe_key":  fmt.Sprintf("sandbox-watch:%s:%s", repoJob.ID, attemptID),
 		},
 		CreatedAt: now,
 		UpdatedAt: now,
@@ -944,6 +960,7 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 		if intent.ID != "" {
 			_, _ = upsertImprovementActionIntent(store, withActionStatus(intent, action.StatusFailed, now))
 			_, _ = store.RecordActionResult(action.Result{
+				OperationID:        item.OperationID,
 				ActionIntentID:     intent.ID,
 				AttemptID:          firstNonEmpty(intent.AttemptID, attempt.ID),
 				Executor:           "sandbox-runtime",
@@ -1008,6 +1025,7 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 	if intent.ID != "" {
 		_, _ = upsertImprovementActionIntent(store, withActionStatus(intent, action.StatusSucceeded, now))
 		_, _ = store.RecordActionResult(action.Result{
+			OperationID:        item.OperationID,
 			ActionIntentID:     intent.ID,
 			AttemptID:          firstNonEmpty(intent.AttemptID, attempt.ID),
 			Executor:           "sandbox-runtime",
@@ -1040,7 +1058,18 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 		attempt.UpdatedAt = now
 		_, _ = store.UpsertChangeAttempt(attempt)
 	}
-	_, err = store.EnqueueWorkItem(queue.WorkItem{
+	_, err = enqueueImprovementOperationWork(store, operation.Execution{
+		ScopeKind:     operation.ScopeAttempt,
+		ScopeID:       attempt.ID,
+		OperationKind: "pr_open",
+		OperationKey:  "pr_open",
+		Status:        operation.StatusQueued,
+		Queue:         queue.ImprovementActionQueue,
+		RequestedBy:   cfg.ServiceName,
+		TraceID:       item.TraceID,
+		ProposalID:    item.ProposalID,
+		AttemptID:     attempt.ID,
+	}, queue.WorkItem{
 		Queue:      queue.ImprovementActionQueue,
 		Kind:       "draft_pr_open",
 		Status:     queue.WorkQueued,
@@ -1056,7 +1085,6 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 			"repo":        repo,
 			"branch_name": branchName,
 			"base_ref":    firstNonEmpty(stringValue(item.Payload["base_ref"]), "main"),
-			"dedupe_key":  fmt.Sprintf("draft-pr:%s:%s", attempt.ID, branchName),
 		},
 	})
 	if err != nil {
@@ -1178,6 +1206,7 @@ func processDraftPROpen(cfg config.Config, store storepkg.Store, toolClient *cli
 	actionStatus := improvementActionStatus(prResult, execErr)
 	_, _ = upsertImprovementActionIntent(store, withActionStatus(intent, actionStatus, completed))
 	_, _ = store.RecordActionResult(action.Result{
+		OperationID:    item.OperationID,
 		ActionIntentID: intent.ID,
 		AttemptID:      attemptID,
 		Executor:       "tool-gateway",
@@ -1907,6 +1936,15 @@ func findProposalActionIntent(store storepkg.Store, proposalID string, kind acti
 		}
 	}
 	return action.Intent{}, false
+}
+
+func enqueueImprovementOperationWork(store storepkg.Store, op operation.Execution, item queue.WorkItem) (queue.WorkItem, error) {
+	created, _, err := store.GetOrCreateOperation(op)
+	if err != nil {
+		return queue.WorkItem{}, err
+	}
+	item.OperationID = created.ID
+	return store.EnqueueWorkItem(item)
 }
 
 func withActionStatus(intent action.Intent, status action.Status, updatedAt time.Time) action.Intent {

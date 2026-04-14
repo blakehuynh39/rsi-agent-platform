@@ -27,6 +27,7 @@ const (
 
 type WorkItem struct {
 	ID             string                 `json:"id"`
+	OperationID    string                 `json:"operation_id,omitempty"`
 	Queue          QueueName              `json:"queue"`
 	Kind           string                 `json:"kind"`
 	Status         WorkItemStatus         `json:"status"`

@@ -309,7 +309,7 @@ func (p *PostgresStore) UpsertHarnessSessionBinding(item harness.SessionBinding)
 
 func (p *PostgresStore) ListHarnessExecutions() []harness.Execution {
 	rows, err := p.db.Query(`
-		select id, trace_id, proposal_id, role, session_scope_kind, session_scope_id, hermes_session_id, parent_session_id, harness_profile_id, effective_overlay_id, effective_overlay_version, memory_backend, memory_reads, memory_writes, created_at
+		select id, operation_id, trace_id, proposal_id, role, session_scope_kind, session_scope_id, hermes_session_id, parent_session_id, harness_profile_id, effective_overlay_id, effective_overlay_version, memory_backend, memory_reads, memory_writes, created_at
 		from harness_execution
 		order by created_at desc, id asc
 	`)
@@ -331,6 +331,19 @@ func (p *PostgresStore) ListHarnessExecutions() []harness.Execution {
 func (p *PostgresStore) RecordHarnessExecution(item harness.Execution) (harness.Execution, error) {
 	item = normalizeHarnessExecution(item)
 	now := time.Now().UTC()
+	if strings.TrimSpace(item.OperationID) != "" {
+		row := p.db.QueryRow(`
+			select id, operation_id, trace_id, proposal_id, role, session_scope_kind, session_scope_id, hermes_session_id, parent_session_id, harness_profile_id, effective_overlay_id, effective_overlay_version, memory_backend, memory_reads, memory_writes, created_at
+			from harness_execution
+			where operation_id = $1
+		`, item.OperationID)
+		if existing, err := scanHarnessExecution(row); err == nil {
+			item.ID = existing.ID
+			item.CreatedAt = existing.CreatedAt
+		} else if err != sql.ErrNoRows {
+			return harness.Execution{}, err
+		}
+	}
 	if item.ID == "" {
 		item.ID = nextUUID("hexec")
 	}
@@ -339,11 +352,12 @@ func (p *PostgresStore) RecordHarnessExecution(item harness.Execution) (harness.
 	}
 	if _, err := p.db.Exec(`
 		insert into harness_execution (
-			id, trace_id, proposal_id, role, session_scope_kind, session_scope_id, hermes_session_id, parent_session_id, harness_profile_id, effective_overlay_id, effective_overlay_version, memory_backend, memory_reads, memory_writes, created_at
+			id, operation_id, trace_id, proposal_id, role, session_scope_kind, session_scope_id, hermes_session_id, parent_session_id, harness_profile_id, effective_overlay_id, effective_overlay_version, memory_backend, memory_reads, memory_writes, created_at
 		) values (
-			$1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::jsonb,$14::jsonb,$15
+			$1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14::jsonb,$15::jsonb,$16
 		)
 		on conflict (id) do update set
+			operation_id = excluded.operation_id,
 			trace_id = excluded.trace_id,
 			proposal_id = excluded.proposal_id,
 			role = excluded.role,
@@ -360,6 +374,7 @@ func (p *PostgresStore) RecordHarnessExecution(item harness.Execution) (harness.
 			created_at = excluded.created_at
 	`,
 		item.ID,
+		firstNonEmpty(item.OperationID),
 		nullString(item.TraceID),
 		nullString(item.ProposalID),
 		item.Role,
@@ -538,6 +553,7 @@ func scanHarnessSessionBinding(scanner harnessScanner) (harness.SessionBinding, 
 func scanHarnessExecution(scanner harnessScanner) (harness.Execution, error) {
 	var (
 		item         harness.Execution
+		operationID  sql.NullString
 		traceID      sql.NullString
 		proposalID   sql.NullString
 		memoryReads  []byte
@@ -545,6 +561,7 @@ func scanHarnessExecution(scanner harnessScanner) (harness.Execution, error) {
 	)
 	err := scanner.Scan(
 		&item.ID,
+		&operationID,
 		&traceID,
 		&proposalID,
 		&item.Role,
@@ -563,6 +580,7 @@ func scanHarnessExecution(scanner harnessScanner) (harness.Execution, error) {
 	if err != nil {
 		return harness.Execution{}, err
 	}
+	item.OperationID = operationID.String
 	item.TraceID = traceID.String
 	item.ProposalID = proposalID.String
 	item.MemoryReads = decodeJSON(memoryReads, []harness.MemoryArtifact{})

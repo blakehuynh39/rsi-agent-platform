@@ -207,6 +207,7 @@ export type TraceDetailResponse = {
   feedback_records: NullableList<FeedbackRecord>;
   linked_proposals: NullableList<Proposal>;
   harness_executions: NullableList<HarnessExecution>;
+  operations: NullableList<OperationExecution>;
 };
 
 export type EvalRun = {
@@ -271,6 +272,7 @@ export type ActionIntent = {
 export type ActionResult = {
   id: string;
   action_intent_id: string;
+  operation_id?: string;
   attempt_id?: string;
   attempt_number: number;
   executor: string;
@@ -283,6 +285,29 @@ export type ActionResult = {
   error_message?: string;
   started_at: string;
   completed_at: string;
+};
+
+export type OperationExecution = {
+  id: string;
+  scope_kind: string;
+  scope_id: string;
+  operation_kind: string;
+  operation_key: string;
+  status: string;
+  queue: string;
+  requested_by?: string;
+  holder?: string;
+  trace_id?: string;
+  proposal_id?: string;
+  attempt_id?: string;
+  payload_hash?: string;
+  result_ref?: string;
+  last_error?: string;
+  retry_count: number;
+  created_at: string;
+  updated_at: string;
+  started_at?: string;
+  completed_at?: string;
 };
 
 export type OutcomeRecord = {
@@ -527,6 +552,7 @@ export type ProposalResponse = {
 export type ProposalDetailResponse = {
   proposal: Proposal;
   attempts: NullableList<ChangeAttempt>;
+  operations: NullableList<OperationExecution>;
   reviews: NullableList<ProposalReview>;
   related_proposal_memory: NullableList<ProposalMemory>;
   repo_change_jobs: NullableList<RepoChangeJob>;

@@ -34,6 +34,7 @@ const (
 
 type Intent struct {
 	ID                   string               `json:"id"`
+	OperationID          string               `json:"operation_id,omitempty"`
 	OwnerPlane           string               `json:"owner_plane"`
 	ConversationID       string               `json:"conversation_id,omitempty"`
 	CaseID               string               `json:"case_id,omitempty"`
@@ -59,6 +60,7 @@ type Intent struct {
 
 type Result struct {
 	ID                 string    `json:"id"`
+	OperationID        string    `json:"operation_id,omitempty"`
 	ActionIntentID     string    `json:"action_intent_id"`
 	AttemptID          string    `json:"attempt_id,omitempty"`
 	AttemptNumber      int       `json:"attempt_number"`

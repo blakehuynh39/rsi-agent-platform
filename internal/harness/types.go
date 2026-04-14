@@ -115,6 +115,7 @@ type SessionBinding struct {
 
 type Execution struct {
 	ID                      string           `json:"id"`
+	OperationID             string           `json:"operation_id,omitempty"`
 	TraceID                 string           `json:"trace_id,omitempty"`
 	ProposalID              string           `json:"proposal_id,omitempty"`
 	Role                    string           `json:"role"`

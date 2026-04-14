@@ -15,6 +15,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
+	"github.com/piplabs/rsi-agent-platform/internal/operation"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/runnerutil"
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
@@ -274,6 +275,7 @@ func resumeAfterContextPhase(cfg config.Config, store storepkg.Store, runnerClie
 		store,
 		runnerResp,
 		role,
+		item.OperationID,
 		ctx.trace.Summary.TraceID,
 		"",
 		runnerTask.HarnessProfileID,
@@ -422,6 +424,7 @@ func processControlActionItem(cfg config.Config, store storepkg.Store, toolClien
 		return err
 	}
 
+	intent.OperationID = firstNonEmpty(intent.OperationID, item.OperationID)
 	intent.Status = action.StatusExecuting
 	intent.UpdatedAt = time.Now().UTC()
 	if _, err := store.UpsertActionIntent(intent); err != nil {
@@ -467,6 +470,7 @@ func executeToolReadActionIntent(store storepkg.Store, toolClient *clients.ToolG
 		return err
 	}
 	if _, err := store.RecordActionResult(action.Result{
+		OperationID:    intent.OperationID,
 		ActionIntentID: intent.ID,
 		Executor:       "tool-gateway",
 		Provider:       firstNonEmpty(result.Provider, providerForToolName(intent.TargetRef)),
@@ -584,6 +588,7 @@ func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, toolC
 		return err
 	}
 	if _, err := store.RecordActionResult(action.Result{
+		OperationID:    intent.OperationID,
 		ActionIntentID: intent.ID,
 		Executor:       firstNonEmpty(result.Provider, "tool-gateway"),
 		Provider:       firstNonEmpty(result.Provider, "slack"),
@@ -1207,7 +1212,17 @@ func findActionIntentByIdempotencyKey(items []action.Intent, key string) (action
 }
 
 func enqueueControlActionWork(store storepkg.Store, resumeQueue queue.QueueName, ctx workflowContext, intent action.Intent, workflow storepkg.Workflow) (queue.WorkItem, error) {
-	return store.EnqueueWorkItem(queue.WorkItem{
+	return enqueueOperationBackedWork(store, operation.Execution{
+		ScopeKind:     operation.ScopeAction,
+		ScopeID:       intent.ID,
+		OperationKind: "execute_action",
+		OperationKey:  firstNonEmpty(intent.PhaseKey, string(intent.Kind)),
+		Status:        operation.StatusQueued,
+		Queue:         queue.ControlActionQueue,
+		RequestedBy:   "control_orchestrator",
+		TraceID:       ctx.trace.Summary.TraceID,
+		AttemptID:     intent.AttemptID,
+	}, queue.WorkItem{
 		Queue:          queue.ControlActionQueue,
 		Kind:           "execute_action",
 		Status:         queue.WorkQueued,
@@ -1225,7 +1240,6 @@ func enqueueControlActionWork(store storepkg.Store, resumeQueue queue.QueueName,
 		Payload: map[string]any{
 			"action_intent_id": intent.ID,
 			"resume_queue":     string(resumeQueue),
-			"dedupe_key":       fmt.Sprintf("control_action:%s", intent.ID),
 		},
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
@@ -1233,7 +1247,16 @@ func enqueueControlActionWork(store storepkg.Store, resumeQueue queue.QueueName,
 }
 
 func enqueueWorkflowResume(store storepkg.Store, queueName queue.QueueName, ctx workflowContext, kind string, createdAt time.Time) (queue.WorkItem, error) {
-	return store.EnqueueWorkItem(queue.WorkItem{
+	return enqueueOperationBackedWork(store, operation.Execution{
+		ScopeKind:     operation.ScopeTrace,
+		ScopeID:       ctx.trace.Summary.TraceID,
+		OperationKind: kind,
+		OperationKey:  kind,
+		Status:        operation.StatusQueued,
+		Queue:         queueName,
+		RequestedBy:   "control_action_worker",
+		TraceID:       ctx.trace.Summary.TraceID,
+	}, queue.WorkItem{
 		Queue:          queueName,
 		Kind:           kind,
 		Status:         queue.WorkQueued,
@@ -1248,16 +1271,23 @@ func enqueueWorkflowResume(store storepkg.Store, queueName queue.QueueName, ctx 
 		RequestedBy:    "control_action_worker",
 		ApprovalMode:   ctx.workflow.ApprovalMode,
 		ResponseMode:   ctx.workflow.ResponseMode,
-		Payload: map[string]any{
-			"dedupe_key": fmt.Sprintf("%s:%s", ctx.trace.Summary.TraceID, kind),
-		},
+		Payload:        map[string]any{},
 		CreatedAt: createdAt,
 		UpdatedAt: createdAt,
 	})
 }
 
 func queueEvalWork(store storepkg.Store, requestedBy string, ctx workflowContext, createdAt time.Time) (queue.WorkItem, error) {
-	return store.EnqueueWorkItem(queue.WorkItem{
+	return enqueueOperationBackedWork(store, operation.Execution{
+		ScopeKind:     operation.ScopeTrace,
+		ScopeID:       ctx.trace.Summary.TraceID,
+		OperationKind: "eval_enqueue",
+		OperationKey:  "evaluate_trace",
+		Status:        operation.StatusQueued,
+		Queue:         queue.EvalQueue,
+		RequestedBy:   requestedBy,
+		TraceID:       ctx.trace.Summary.TraceID,
+	}, queue.WorkItem{
 		Queue:          queue.EvalQueue,
 		Kind:           "evaluate_trace",
 		Status:         queue.WorkQueued,
@@ -1271,12 +1301,19 @@ func queueEvalWork(store storepkg.Store, requestedBy string, ctx workflowContext
 		RequestedBy:    requestedBy,
 		ApprovalMode:   ctx.workflow.ApprovalMode,
 		ResponseMode:   ctx.workflow.ResponseMode,
-		Payload: map[string]any{
-			"dedupe_key": fmt.Sprintf("%s:evaluate_trace", ctx.trace.Summary.TraceID),
-		},
+		Payload:        map[string]any{},
 		CreatedAt: createdAt,
 		UpdatedAt: createdAt,
 	})
+}
+
+func enqueueOperationBackedWork(store storepkg.Store, op operation.Execution, item queue.WorkItem) (queue.WorkItem, error) {
+	created, _, err := store.GetOrCreateOperation(op)
+	if err != nil {
+		return queue.WorkItem{}, err
+	}
+	item.OperationID = created.ID
+	return store.EnqueueWorkItem(item)
 }
 
 func toolInputForIntent(cfg config.Config, workflow storepkg.Workflow, ingestion slackpkg.Ingestion) map[string]any {

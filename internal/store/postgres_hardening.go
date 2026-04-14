@@ -13,6 +13,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
+	"github.com/piplabs/rsi-agent-platform/internal/operation"
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
@@ -39,6 +40,34 @@ func enqueueWorkItemTx(tx *sql.Tx, item queue.WorkItem) (queue.WorkItem, error) 
 	}
 	if item.Payload == nil {
 		item.Payload = map[string]interface{}{}
+	}
+	if item.OperationID != "" {
+		existing, ok, err := findExistingWorkItemByOperation(tx, item.OperationID)
+		if err != nil {
+			return queue.WorkItem{}, err
+		}
+		if ok {
+			if item.Status == queue.WorkQueued && (existing.Status == queue.WorkFailed || existing.Status == queue.WorkCanceled) {
+				row := tx.QueryRow(
+					`update work_item
+					set status = $2,
+						payload = $3::jsonb,
+						lease_owner = null,
+						lease_expires_at = null,
+						last_error = '',
+						updated_at = $4,
+						completed_at = null
+					where id = $1
+					returning `+workItemSelectColumns(),
+					existing.ID,
+					string(queue.WorkQueued),
+					jsonString(item.Payload),
+					now,
+				)
+				return scanWorkItem(row)
+			}
+			return existing, nil
+		}
 	}
 	existing, ok, err := findExistingWorkItemByDedupe(tx, item)
 	if err != nil {
@@ -438,7 +467,18 @@ func (p *PostgresStore) reviewProposalDirect(proposalID string, decision review.
 		}
 
 		if targetStatus == review.ProposalApproved {
-			_, err := enqueueWorkItemTx(tx, queue.WorkItem{
+			nextAttemptNumber := maxInt(1, current.AttemptCount+1)
+			_, _, _, err := ensureOperationWorkItemTx(tx, operation.Execution{
+				ScopeKind:     operation.ScopeProposal,
+				ScopeID:       proposalID,
+				OperationKind: "line_activate",
+				OperationKey:  fmt.Sprintf("attempt-%02d", nextAttemptNumber),
+				Status:        operation.StatusQueued,
+				Queue:         queue.ProposalQueue,
+				RequestedBy:   decision.ReviewerID,
+				TraceID:       current.TraceID,
+				ProposalID:    proposalID,
+			}, queue.WorkItem{
 				Queue:          queue.ProposalQueue,
 				Kind:           "approved_proposal",
 				Status:         queue.WorkQueued,
@@ -454,7 +494,7 @@ func (p *PostgresStore) reviewProposalDirect(proposalID string, decision review.
 				Payload: map[string]interface{}{
 					"candidate_key": current.CandidateKey,
 					"risk_tier":     current.RiskTier,
-					"dedupe_key":    fmt.Sprintf("proposal-runner:%s", proposalID),
+					"attempt_number": nextAttemptNumber,
 				},
 			})
 			if err != nil {
@@ -557,7 +597,18 @@ func (p *PostgresStore) materializeApprovedProposalDirect(proposalID string, req
 		if err := persistChangeAttempts(tx, temp); err != nil {
 			return err
 		}
-		_, err = enqueueWorkItemTx(tx, queue.WorkItem{
+		_, _, _, err = ensureOperationWorkItemTx(tx, operation.Execution{
+			ScopeKind:     operation.ScopeAttempt,
+			ScopeID:       attempt.ID,
+			OperationKind: "sandbox_launch",
+			OperationKey:  "sandbox_launch",
+			Status:        operation.StatusQueued,
+			Queue:         queue.SandboxQueue,
+			RequestedBy:   requestedBy,
+			TraceID:       firstNonEmpty(attempt.AttemptTraceID, proposal.TraceID),
+			ProposalID:    proposal.ID,
+			AttemptID:     attempt.ID,
+		}, queue.WorkItem{
 			Queue:          queue.SandboxQueue,
 			Kind:           "repo_change_job",
 			Status:         queue.WorkQueued,
@@ -575,7 +626,6 @@ func (p *PostgresStore) materializeApprovedProposalDirect(proposalID string, req
 				"attempt_id":  attempt.ID,
 				"branch_name": job.BranchName,
 				"base_ref":    job.BaseRef,
-				"dedupe_key":  fmt.Sprintf("sandbox-job:%s", job.ID),
 				"job_id":      job.ID,
 			},
 		})
@@ -608,7 +658,18 @@ func (p *PostgresStore) retryProposalRepoChangeDirect(proposalID string, request
 			if hasJob && strings.TrimSpace(job.AttemptID) == strings.TrimSpace(proposal.CurrentAttemptID) {
 				return fmt.Errorf("proposal %s is not retryable", proposal.Status)
 			}
-			item, err = enqueueWorkItemTx(tx, queue.WorkItem{
+			nextAttemptNumber := maxInt(1, proposal.AttemptCount+1)
+			_, item, _, err = ensureOperationWorkItemTx(tx, operation.Execution{
+				ScopeKind:     operation.ScopeProposal,
+				ScopeID:       proposal.ID,
+				OperationKind: "line_activate",
+				OperationKey:  fmt.Sprintf("attempt-%02d", nextAttemptNumber),
+				Status:        operation.StatusQueued,
+				Queue:         queue.ProposalQueue,
+				RequestedBy:   requestedBy,
+				TraceID:       proposal.TraceID,
+				ProposalID:    proposal.ID,
+			}, queue.WorkItem{
 				Queue:          queue.ProposalQueue,
 				Kind:           "approved_proposal",
 				Status:         queue.WorkQueued,
@@ -626,7 +687,7 @@ func (p *PostgresStore) retryProposalRepoChangeDirect(proposalID string, request
 					"parent_attempt": proposal.CurrentAttemptID,
 					"candidate_key":  proposal.CandidateKey,
 					"risk_tier":      proposal.RiskTier,
-					"dedupe_key":     fmt.Sprintf("proposal-runner:%s", proposal.ID),
+					"attempt_number": nextAttemptNumber,
 				},
 			})
 			return err
@@ -655,7 +716,18 @@ func (p *PostgresStore) retryProposalRepoChangeDirect(proposalID string, request
 			if err := updateProposalOperationalStateTx(tx, proposal); err != nil {
 				return err
 			}
-			item, err = enqueueWorkItemTx(tx, queue.WorkItem{
+			_, item, _, err = ensureOperationWorkItemTx(tx, operation.Execution{
+				ScopeKind:     operation.ScopeAttempt,
+				ScopeID:       attempt.ID,
+				OperationKind: "sandbox_launch",
+				OperationKey:  "sandbox_launch",
+				Status:        operation.StatusQueued,
+				Queue:         queue.SandboxQueue,
+				RequestedBy:   requestedBy,
+				TraceID:       proposal.TraceID,
+				ProposalID:    proposal.ID,
+				AttemptID:     attempt.ID,
+			}, queue.WorkItem{
 				Queue:          queue.SandboxQueue,
 				Kind:           "repo_change_job",
 				Status:         queue.WorkQueued,
@@ -673,7 +745,6 @@ func (p *PostgresStore) retryProposalRepoChangeDirect(proposalID string, request
 					"attempt_id":  attempt.ID,
 					"branch_name": job.BranchName,
 					"base_ref":    job.BaseRef,
-					"dedupe_key":  fmt.Sprintf("sandbox-job:%s", job.ID),
 					"job_id":      job.ID,
 				},
 			})
@@ -688,7 +759,18 @@ func (p *PostgresStore) retryProposalRepoChangeDirect(proposalID string, request
 			if !hasAttempt {
 				return errors.New("change attempt not found")
 			}
-			item, err = enqueueWorkItemTx(tx, queue.WorkItem{
+			_, item, _, err = ensureOperationWorkItemTx(tx, operation.Execution{
+				ScopeKind:     operation.ScopeAttempt,
+				ScopeID:       attempt.ID,
+				OperationKind: "pr_open",
+				OperationKey:  "pr_open",
+				Status:        operation.StatusQueued,
+				Queue:         queue.ImprovementActionQueue,
+				RequestedBy:   requestedBy,
+				TraceID:       proposal.TraceID,
+				ProposalID:    proposal.ID,
+				AttemptID:     attempt.ID,
+			}, queue.WorkItem{
 				Queue:          queue.ImprovementActionQueue,
 				Kind:           "draft_pr_open",
 				Status:         queue.WorkQueued,
@@ -710,7 +792,6 @@ func (p *PostgresStore) retryProposalRepoChangeDirect(proposalID string, request
 					"repo":        job.Repo,
 					"branch_name": job.BranchName,
 					"base_ref":    job.BaseRef,
-					"dedupe_key":  fmt.Sprintf("draft-pr:%s:%s", attempt.ID, job.BranchName),
 				},
 			})
 			return err
@@ -1161,14 +1242,14 @@ func (p *PostgresStore) createIngestionDirect(envelope slack.SlackEnvelope) (cre
 				string(action.StatusSuperseded),
 				traceID,
 				createdAt,
-			); err != nil {
-				return err
-			}
-			if err := insertActionResult(tx, action.Result{
-				ID:             nextID("action-result", attemptCount+1),
-				ActionIntentID: actionIntentID,
-				AttemptNumber:  attemptCount + 1,
-				Executor:       "supersession",
+				); err != nil {
+					return err
+				}
+				if err := insertActionResult(tx, action.Result{
+					ID:             nextUUID("ares"),
+					ActionIntentID: actionIntentID,
+					AttemptNumber:  attemptCount + 1,
+					Executor:       "supersession",
 				Status:         action.StatusSuperseded,
 				ErrorCode:      "trace_superseded",
 				ErrorMessage:   fmt.Sprintf("Superseded by newer trace %s", traceID),
@@ -1300,7 +1381,17 @@ func (p *PostgresStore) createIngestionDirect(envelope slack.SlackEnvelope) (cre
 			return err
 		}
 
-		_, err = enqueueWorkItemTx(tx, queue.WorkItem{
+		_, _, _, err = ensureOperationWorkItemTx(tx, operation.Execution{
+			ScopeKind:     operation.ScopeTrace,
+			ScopeID:       traceID,
+			OperationKind: "run_workflow",
+			OperationKey:  "run_workflow",
+			Status:        operation.StatusQueued,
+			Queue:         queue.WorkflowQueue,
+			RequestedBy:   "event_ingested",
+			TraceID:       traceID,
+			PayloadHash:   payloadHash(map[string]interface{}{}),
+		}, queue.WorkItem{
 			Queue:          queue.WorkflowQueue,
 			Kind:           "run_workflow",
 			Status:         queue.WorkQueued,
@@ -1317,7 +1408,6 @@ func (p *PostgresStore) createIngestionDirect(envelope slack.SlackEnvelope) (cre
 			ApprovalMode:   workflow.ApprovalMode,
 			ResponseMode:   workflow.ResponseMode,
 			Payload: map[string]interface{}{
-				"dedupe_key":           fmt.Sprintf("%s:run_workflow", traceID),
 				"event_id":             event.ID,
 				"workflow_hint":        event.WorkflowHint,
 				"assigned_bot":         assignedBot,

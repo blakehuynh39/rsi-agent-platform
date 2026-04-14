@@ -13,6 +13,7 @@ func PersistHarnessExecution(
 	store storepkg.Repository,
 	resp clients.RunnerResponse,
 	role string,
+	operationID string,
 	traceID string,
 	proposalID string,
 	fallbackProfileID string,
@@ -49,6 +50,7 @@ func PersistHarnessExecution(
 		return err
 	}
 	_, err := store.RecordHarnessExecution(harness.Execution{
+		OperationID:            operationID,
 		TraceID:                 traceID,
 		ProposalID:              proposalID,
 		Role:                    role,

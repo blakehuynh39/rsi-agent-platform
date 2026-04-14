@@ -217,8 +217,8 @@ func TestRetryProposalRepoChangeRequeuesSandboxWork(t *testing.T) {
 	if item.Queue != queue.SandboxQueue || item.Kind != "repo_change_job" {
 		t.Fatalf("expected sandbox repo_change_job work item, got %+v", item)
 	}
-	if got := item.Payload["dedupe_key"]; got != "sandbox-job:"+job.ID {
-		t.Fatalf("expected dedupe key for job %s, got %v", job.ID, got)
+	if item.OperationID == "" {
+		t.Fatalf("expected retry sandbox work item for job %s to be operation-backed", job.ID)
 	}
 
 	reloaded := store.ListRepoChangeJobs()[0]

@@ -18,6 +18,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
+	"github.com/piplabs/rsi-agent-platform/internal/operation"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
@@ -45,6 +46,13 @@ type Store interface {
 	UpsertActionIntent(intent action.Intent) (action.Intent, error)
 	ListActionResults(actionIntentID string) []action.Result
 	RecordActionResult(result action.Result) (action.Result, error)
+	ListOperations() []operation.Execution
+	GetOperation(operationID string) (operation.Execution, bool)
+	ListOperationsByScope(scopeKind operation.ScopeKind, scopeID string) []operation.Execution
+	GetOrCreateOperation(item operation.Execution) (operation.Execution, bool, error)
+	ClaimOperation(operationID string, holder string) (operation.Execution, bool, error)
+	CompleteOperation(operationID string, resultRef string) (operation.Execution, error)
+	FailOperation(operationID string, lastError string) (operation.Execution, error)
 	ListOutcomes() []outcome.Record
 	RecordOutcome(record outcome.Record) (outcome.Record, error)
 	ListKnowledgeEntries() []knowledge.Entry
@@ -143,6 +151,7 @@ type MemoryStore struct {
 	feedbackRecords        map[string][]review.FeedbackRecord
 	actionIntents          map[string]action.Intent
 	actionResults          map[string][]action.Result
+	operations             map[string]operation.Execution
 	outcomes               map[string]outcome.Record
 	knowledgeEntries       map[string]knowledge.Entry
 	knowledgeEvidence      map[string][]knowledge.EvidenceLink
@@ -424,8 +433,15 @@ func (s *MemoryStore) RecordActionResult(result action.Result) (action.Result, e
 		return action.Result{}, errors.New("action intent not found")
 	}
 	now := time.Now().UTC()
+	if strings.TrimSpace(result.OperationID) != "" {
+		for _, existing := range s.actionResults[result.ActionIntentID] {
+			if strings.TrimSpace(existing.OperationID) == result.OperationID {
+				return existing, nil
+			}
+		}
+	}
 	if result.ID == "" {
-		result.ID = nextID("action-result", len(s.actionResults[result.ActionIntentID])+1)
+		result.ID = nextUUID("ares")
 	}
 	if result.AttemptNumber == 0 {
 		result.AttemptNumber = len(s.actionResults[result.ActionIntentID]) + 1
@@ -473,8 +489,15 @@ func (s *MemoryStore) RecordOutcome(record outcome.Record) (outcome.Record, erro
 
 func (s *MemoryStore) recordOutcomeLocked(record outcome.Record) (outcome.Record, error) {
 	now := time.Now().UTC()
+	if strings.TrimSpace(record.OperationID) != "" {
+		for _, existing := range s.outcomes {
+			if strings.TrimSpace(existing.OperationID) == record.OperationID {
+				return existing, nil
+			}
+		}
+	}
 	if record.ID == "" {
-		record.ID = nextID("outcome", len(s.outcomes)+1)
+		record.ID = nextUUID("outcome")
 	}
 	if record.RecordedAt.IsZero() {
 		record.RecordedAt = now
@@ -909,7 +932,16 @@ func (s *MemoryStore) materializeWorkflowLocked(event ingestion.EventEnvelope) {
 	}
 	recomputeTraceSummary(&trace)
 	s.traces[traceID] = trace
-	_, _ = s.enqueueWorkItemLocked(queue.WorkItem{
+	_, _, _, _ = s.ensureOperationWorkItemLocked(operation.Execution{
+		ScopeKind:     operation.ScopeTrace,
+		ScopeID:       traceID,
+		OperationKind: "run_workflow",
+		OperationKey:  "run_workflow",
+		Status:        operation.StatusQueued,
+		Queue:         queue.WorkflowQueue,
+		RequestedBy:   "event_ingested",
+		TraceID:       traceID,
+	}, queue.WorkItem{
 		Queue:          queue.WorkflowQueue,
 		Kind:           "run_workflow",
 		Status:         queue.WorkQueued,
@@ -926,7 +958,6 @@ func (s *MemoryStore) materializeWorkflowLocked(event ingestion.EventEnvelope) {
 		ApprovalMode:   workflow.ApprovalMode,
 		ResponseMode:   workflow.ResponseMode,
 		Payload: map[string]interface{}{
-			"dedupe_key":           fmt.Sprintf("%s:run_workflow", traceID),
 			"event_id":             event.ID,
 			"workflow_hint":        event.WorkflowHint,
 			"assigned_bot":         assignedBot,
@@ -1144,7 +1175,7 @@ func (s *MemoryStore) supersedeInFlightTracesLocked(caseID string, nextTraceID s
 		item.UpdatedAt = createdAt
 		s.actionIntents[id] = item
 		s.actionResults[id] = append(s.actionResults[id], action.Result{
-			ID:             nextID("action-result", len(s.actionResults[id])+1),
+			ID:             nextUUID("ares"),
 			ActionIntentID: id,
 			AttemptNumber:  len(s.actionResults[id]) + 1,
 			Executor:       "supersession",
@@ -1570,6 +1601,26 @@ func (s *MemoryStore) enqueueWorkItemLocked(item queue.WorkItem) (queue.WorkItem
 	if item.Payload == nil {
 		item.Payload = map[string]interface{}{}
 	}
+	if item.OperationID != "" {
+		for _, existing := range s.workItems {
+			if existing.OperationID == item.OperationID {
+				if item.Status == queue.WorkQueued && (existing.Status == queue.WorkFailed || existing.Status == queue.WorkCanceled) {
+					existing.Status = queue.WorkQueued
+					existing.Payload = cloneMetadata(item.Payload)
+					if existing.Payload == nil {
+						existing.Payload = map[string]interface{}{}
+					}
+					existing.LastError = ""
+					existing.LeaseOwner = ""
+					existing.LeaseExpiresAt = nil
+					existing.CompletedAt = nil
+					existing.UpdatedAt = now
+					s.workItems[existing.ID] = existing
+				}
+				return existing, nil
+			}
+		}
+	}
 	if dedupeKey := workItemDedupeKey(item); dedupeKey != "" {
 		for _, existing := range s.workItems {
 			if existing.Queue != item.Queue || existing.Kind != item.Kind {
@@ -1609,6 +1660,15 @@ func (s *MemoryStore) ClaimNextWorkItem(queuesToCheck []queue.QueueName, holder 
 				continue
 			}
 		}
+		if item.OperationID != "" {
+			if op, ok := s.operations[item.OperationID]; ok {
+				switch op.Status {
+				case operation.StatusQueued, operation.StatusFailed:
+				default:
+					continue
+				}
+			}
+		}
 		if retryAfterUnix, ok := int64FromPayload(item.Payload, "retry_after_unix"); ok && retryAfterUnix > now.Unix() {
 			continue
 		}
@@ -1634,6 +1694,17 @@ func (s *MemoryStore) ClaimNextWorkItem(queuesToCheck []queue.QueueName, holder 
 	item.LeaseExpiresAt = &expires
 	item.UpdatedAt = now
 	s.workItems[item.ID] = item
+	if item.OperationID != "" {
+		if op, ok := s.operations[item.OperationID]; ok {
+			op.Status = operation.StatusRunning
+			op.Holder = holder
+			op.UpdatedAt = now
+			if op.StartedAt == nil {
+				op.StartedAt = &now
+			}
+			s.operations[op.ID] = op
+		}
+	}
 	return item, true, nil
 }
 
@@ -1651,6 +1722,15 @@ func (s *MemoryStore) CompleteWorkItem(id string) (queue.WorkItem, error) {
 	item.LeaseOwner = ""
 	item.LeaseExpiresAt = nil
 	s.workItems[id] = item
+	if item.OperationID != "" {
+		if op, ok := s.operations[item.OperationID]; ok {
+			op.Status = operation.StatusCompleted
+			op.UpdatedAt = now
+			op.CompletedAt = &now
+			op.LastError = ""
+			s.operations[op.ID] = op
+		}
+	}
 	return item, nil
 }
 
@@ -1669,6 +1749,16 @@ func (s *MemoryStore) FailWorkItem(id string, lastError string) (queue.WorkItem,
 	item.LeaseOwner = ""
 	item.LeaseExpiresAt = nil
 	s.workItems[id] = item
+	if item.OperationID != "" {
+		if op, ok := s.operations[item.OperationID]; ok {
+			op.Status = operation.StatusFailed
+			op.LastError = lastError
+			op.UpdatedAt = now
+			op.CompletedAt = &now
+			op.RetryCount++
+			s.operations[op.ID] = op
+		}
+	}
 	return item, nil
 }
 
@@ -2490,7 +2580,18 @@ func (s *MemoryStore) ReviewProposal(proposalID string, decision review.Proposal
 		candidate.LineStatus = improvement.LineActive
 		candidate.AutoRetryBudgetRemaining = proposal.AutoRetryBudgetRemaining
 		candidate.CurrentTargetLayer = proposal.TargetLayer
-		_, _ = s.enqueueWorkItemLocked(queue.WorkItem{
+		nextAttemptNumber := maxInt(1, proposal.AttemptCount+1)
+		_, _, _, _ = s.ensureOperationWorkItemLocked(operation.Execution{
+			ScopeKind:     operation.ScopeProposal,
+			ScopeID:       proposal.ID,
+			OperationKind: "line_activate",
+			OperationKey:  fmt.Sprintf("attempt-%02d", nextAttemptNumber),
+			Status:        operation.StatusQueued,
+			Queue:         queue.ProposalQueue,
+			RequestedBy:   decision.ReviewerID,
+			TraceID:       proposal.TraceID,
+			ProposalID:    proposal.ID,
+		}, queue.WorkItem{
 			Queue:          queue.ProposalQueue,
 			Kind:           "approved_proposal",
 			Status:         queue.WorkQueued,
@@ -2506,7 +2607,7 @@ func (s *MemoryStore) ReviewProposal(proposalID string, decision review.Proposal
 			Payload: map[string]interface{}{
 				"candidate_key": proposal.CandidateKey,
 				"risk_tier":     proposal.RiskTier,
-				"dedupe_key":    fmt.Sprintf("proposal-runner:%s", proposal.ID),
+				"attempt_number": nextAttemptNumber,
 			},
 		})
 	case review.ProposalRejected, review.ProposalDismissed:
@@ -2631,7 +2732,18 @@ func (s *MemoryStore) MaterializeApprovedProposal(proposalID string, requestedBy
 	proposal.Status = review.ProposalRepoChangeQueued
 	proposal.ActiveSlotConsuming = true
 	s.proposals[proposal.ID] = proposal
-	_, _ = s.enqueueWorkItemLocked(queue.WorkItem{
+	_, _, _, _ = s.ensureOperationWorkItemLocked(operation.Execution{
+		ScopeKind:     operation.ScopeAttempt,
+		ScopeID:       attempt.ID,
+		OperationKind: "sandbox_launch",
+		OperationKey:  "sandbox_launch",
+		Status:        operation.StatusQueued,
+		Queue:         queue.SandboxQueue,
+		RequestedBy:   requestedBy,
+		TraceID:       firstNonEmpty(attempt.AttemptTraceID, proposal.TraceID),
+		ProposalID:    proposal.ID,
+		AttemptID:     attempt.ID,
+	}, queue.WorkItem{
 		Queue:          queue.SandboxQueue,
 		Kind:           "repo_change_job",
 		Status:         queue.WorkQueued,
@@ -2649,7 +2761,6 @@ func (s *MemoryStore) MaterializeApprovedProposal(proposalID string, requestedBy
 			"attempt_id":  attempt.ID,
 			"branch_name": job.BranchName,
 			"base_ref":    job.BaseRef,
-			"dedupe_key":  fmt.Sprintf("sandbox-job:%s", job.ID),
 			"job_id":      job.ID,
 		},
 	})
@@ -2682,7 +2793,18 @@ func (s *MemoryStore) RetryProposalRepoChange(proposalID string, requestedBy str
 		if found {
 			break
 		}
-		return s.enqueueWorkItemLocked(queue.WorkItem{
+		nextAttemptNumber := maxInt(1, proposal.AttemptCount+1)
+		_, item, _, err := s.ensureOperationWorkItemLocked(operation.Execution{
+			ScopeKind:     operation.ScopeProposal,
+			ScopeID:       proposal.ID,
+			OperationKind: "line_activate",
+			OperationKey:  fmt.Sprintf("attempt-%02d", nextAttemptNumber),
+			Status:        operation.StatusQueued,
+			Queue:         queue.ProposalQueue,
+			RequestedBy:   requestedBy,
+			TraceID:       proposal.TraceID,
+			ProposalID:    proposal.ID,
+		}, queue.WorkItem{
 			Queue:          queue.ProposalQueue,
 			Kind:           "approved_proposal",
 			Status:         queue.WorkQueued,
@@ -2700,9 +2822,10 @@ func (s *MemoryStore) RetryProposalRepoChange(proposalID string, requestedBy str
 				"parent_attempt": proposal.CurrentAttemptID,
 				"candidate_key":  proposal.CandidateKey,
 				"risk_tier":      proposal.RiskTier,
-				"dedupe_key":     fmt.Sprintf("proposal-runner:%s", proposal.ID),
+				"attempt_number": nextAttemptNumber,
 			},
 		})
+		return item, err
 	case review.ProposalRepoChangeQueued, review.ProposalFailedValidation:
 		if !found {
 			return queue.WorkItem{}, errors.New("repo change job not found")
@@ -2716,7 +2839,18 @@ func (s *MemoryStore) RetryProposalRepoChange(proposalID string, requestedBy str
 		proposal.Status = review.ProposalRepoChangeQueued
 		proposal.ActiveSlotConsuming = true
 		s.proposals[proposal.ID] = proposal
-		return s.enqueueWorkItemLocked(queue.WorkItem{
+		_, item, _, err := s.ensureOperationWorkItemLocked(operation.Execution{
+			ScopeKind:     operation.ScopeAttempt,
+			ScopeID:       repoJob.AttemptID,
+			OperationKind: "sandbox_launch",
+			OperationKey:  "sandbox_launch",
+			Status:        operation.StatusQueued,
+			Queue:         queue.SandboxQueue,
+			RequestedBy:   requestedBy,
+			TraceID:       proposal.TraceID,
+			ProposalID:    proposal.ID,
+			AttemptID:     repoJob.AttemptID,
+		}, queue.WorkItem{
 			Queue:          queue.SandboxQueue,
 			Kind:           "repo_change_job",
 			Status:         queue.WorkQueued,
@@ -2734,15 +2868,26 @@ func (s *MemoryStore) RetryProposalRepoChange(proposalID string, requestedBy str
 				"attempt_id":  repoJob.AttemptID,
 				"branch_name": repoJob.BranchName,
 				"base_ref":    repoJob.BaseRef,
-				"dedupe_key":  fmt.Sprintf("sandbox-job:%s", repoJob.ID),
 				"job_id":      repoJob.ID,
 			},
 		})
+		return item, err
 	case review.ProposalValidationPending:
 		if !found {
 			return queue.WorkItem{}, errors.New("repo change job not found")
 		}
-		return s.enqueueWorkItemLocked(queue.WorkItem{
+		_, item, _, err := s.ensureOperationWorkItemLocked(operation.Execution{
+			ScopeKind:     operation.ScopeAttempt,
+			ScopeID:       repoJob.AttemptID,
+			OperationKind: "pr_open",
+			OperationKey:  "pr_open",
+			Status:        operation.StatusQueued,
+			Queue:         queue.ImprovementActionQueue,
+			RequestedBy:   requestedBy,
+			TraceID:       proposal.TraceID,
+			ProposalID:    proposal.ID,
+			AttemptID:     repoJob.AttemptID,
+		}, queue.WorkItem{
 			Queue:          queue.ImprovementActionQueue,
 			Kind:           "draft_pr_open",
 			Status:         queue.WorkQueued,
@@ -2764,9 +2909,9 @@ func (s *MemoryStore) RetryProposalRepoChange(proposalID string, requestedBy str
 				"repo":        repoJob.Repo,
 				"branch_name": repoJob.BranchName,
 				"base_ref":    repoJob.BaseRef,
-				"dedupe_key":  fmt.Sprintf("draft-pr:%s:%s", repoJob.AttemptID, repoJob.BranchName),
 			},
 		})
+		return item, err
 	default:
 		return queue.WorkItem{}, fmt.Errorf("proposal %s is not retryable", proposal.Status)
 	}

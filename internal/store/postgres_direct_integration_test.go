@@ -1,7 +1,6 @@
 package store
 
 import (
-	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -593,7 +592,7 @@ func TestPostgresRetryProposalRepoChangeIsIdempotent(t *testing.T) {
 	}
 }
 
-func TestPostgresRecordActionResultStillSurfacesDuplicateKey(t *testing.T) {
+func TestPostgresRecordActionResultReusesCanonicalRowForDuplicateID(t *testing.T) {
 	postgresURL, cleanup := openTempPostgresURL(t)
 	defer cleanup()
 
@@ -640,9 +639,15 @@ func TestPostgresRecordActionResultStillSurfacesDuplicateKey(t *testing.T) {
 	if _, err := store.RecordActionResult(result); err != nil {
 		t.Fatalf("first RecordActionResult() error = %v", err)
 	}
-	if _, err := store.RecordActionResult(result); err == nil {
-		t.Fatal("expected duplicate action_result primary key error")
-	} else if !strings.Contains(err.Error(), "action_result_pkey") {
-		t.Fatalf("expected action_result_pkey error, got %v", err)
+	again, err := store.RecordActionResult(result)
+	if err != nil {
+		t.Fatalf("second RecordActionResult() error = %v", err)
+	}
+	if again.ID != result.ID {
+		t.Fatalf("expected duplicate action result to keep canonical id %s, got %+v", result.ID, again)
+	}
+	results := store.ListActionResults(intent.ID)
+	if len(results) != 1 {
+		t.Fatalf("expected one persisted action result row, got %+v", results)
 	}
 }

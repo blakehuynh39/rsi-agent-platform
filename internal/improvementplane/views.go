@@ -2,6 +2,7 @@ package improvementplane
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -14,6 +15,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
+	"github.com/piplabs/rsi-agent-platform/internal/operation"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
@@ -115,11 +117,13 @@ type traceDetailResponse struct {
 	FeedbackRecords    []review.FeedbackRecord     `json:"feedback_records"`
 	LinkedProposals    []review.Proposal           `json:"linked_proposals"`
 	HarnessExecutions  []harness.Execution         `json:"harness_executions"`
+	Operations         []operation.Execution       `json:"operations"`
 }
 
 type proposalDetailResponse struct {
 	Proposal              review.Proposal               `json:"proposal"`
 	Attempts              []improvement.ChangeAttempt   `json:"attempts"`
+	Operations            []operation.Execution         `json:"operations"`
 	Reviews               []review.ProposalReview       `json:"reviews"`
 	RelatedProposalMemory []review.ProposalMemory       `json:"related_proposal_memory"`
 	RepoChangeJobs        []improvement.RepoChangeJob   `json:"repo_change_jobs"`
@@ -137,6 +141,7 @@ type proposalDetailResponse struct {
 type attemptDetailResponse struct {
 	Attempt           improvement.ChangeAttempt   `json:"attempt"`
 	Trace             *events.Trace               `json:"trace,omitempty"`
+	Operations        []operation.Execution       `json:"operations"`
 	ActionIntents     []action.Intent             `json:"action_intents"`
 	ActionResults     []action.Result             `json:"action_results"`
 	Outcomes          []outcome.Record            `json:"outcomes"`
@@ -383,6 +388,7 @@ func buildTraceDetail(store storepkg.Repository, traceID string) (traceDetailRes
 		FeedbackRecords:    sliceOrEmpty(store.ListFeedback(traceID)),
 		LinkedProposals:    filterProposalsForTrace(normalizeProposals(store.ListProposals()), traceID),
 		HarnessExecutions:  sliceOrEmpty(filterHarnessExecutions(store.ListHarnessExecutions(), traceID, "")),
+		Operations:         sliceOrEmpty(store.ListOperationsByScope(operation.ScopeTrace, traceID)),
 	}, true
 }
 
@@ -403,6 +409,7 @@ func buildProposalDetail(store storepkg.Repository, proposalID string) (proposal
 	return proposalDetailResponse{
 		Proposal:              normalizeProposal(proposal),
 		Attempts:              sliceOrEmpty(attempts),
+		Operations:            sliceOrEmpty(proposalOperations(store, proposal.ID, attempts)),
 		Reviews:               sliceOrEmpty(proposal.Reviews),
 		RelatedProposalMemory: sliceOrEmpty(filterProposalMemory(store.ListProposalMemories(), proposal.CandidateKey)),
 		RepoChangeJobs:        sliceOrEmpty(filterRepoChangeJobs(store.ListRepoChangeJobs(), proposal.ID)),
@@ -434,6 +441,7 @@ func buildAttemptDetail(store storepkg.Repository, proposalID string, attemptID 
 	return attemptDetailResponse{
 		Attempt:           attempt,
 		Trace:             trace,
+		Operations:        sliceOrEmpty(store.ListOperationsByScope(operation.ScopeAttempt, attempt.ID)),
 		ActionIntents:     sliceOrEmpty(actionIntents),
 		ActionResults:     sliceOrEmpty(flattenActionResults(store, actionIntents)),
 		Outcomes:          sliceOrEmpty(filterOutcomesByAttempt(listOutcomes(store, "", "", "", proposalID), attempt.ID)),
@@ -441,6 +449,30 @@ func buildAttemptDetail(store storepkg.Repository, proposalID string, attemptID 
 		PRAttempts:        sliceOrEmpty(filterPRAttemptsByAttempt(store.ListPRAttempts(), proposalID, attempt.ID)),
 		HarnessExecutions: sliceOrEmpty(filterHarnessExecutions(store.ListHarnessExecutions(), attempt.AttemptTraceID, proposalID)),
 	}, true
+}
+
+func proposalOperations(store storepkg.Repository, proposalID string, attempts []improvement.ChangeAttempt) []operation.Execution {
+	items := sliceOrEmpty(store.ListOperationsByScope(operation.ScopeProposal, proposalID))
+	seen := make(map[string]struct{}, len(items))
+	for _, item := range items {
+		seen[item.ID] = struct{}{}
+	}
+	for _, attempt := range attempts {
+		for _, item := range store.ListOperationsByScope(operation.ScopeAttempt, attempt.ID) {
+			if _, ok := seen[item.ID]; ok {
+				continue
+			}
+			items = append(items, item)
+			seen[item.ID] = struct{}{}
+		}
+	}
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].UpdatedAt.Equal(items[j].UpdatedAt) {
+			return items[i].ID > items[j].ID
+		}
+		return items[i].UpdatedAt.After(items[j].UpdatedAt)
+	})
+	return items
 }
 
 func buildProposalSummaries(store storepkg.Repository) []proposalListItem {
