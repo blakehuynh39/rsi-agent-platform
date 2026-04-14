@@ -3,6 +3,7 @@ package toolgateway
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -13,6 +14,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"unicode"
 
 	slackapi "github.com/slack-go/slack"
 
@@ -92,22 +94,56 @@ func (s *Service) Execute(name string, input map[string]interface{}) storepkg.To
 func (s *Service) repoContext(input map[string]interface{}) storepkg.ToolResult {
 	repo := firstNonEmpty(stringValue(input["repo"]), s.cfg.DefaultRepo)
 	question := stringValue(input["question"])
-	summary := fmt.Sprintf("Repo context for %s prepared.", repo)
-	excerpt := ""
-	if repo == "rsi-agent-platform" {
-		if data, err := os.ReadFile("README.md"); err == nil {
-			excerpt = truncate(string(data), 500)
+	repoName := s.cfg.GitHubRepoName(repo)
+	owner := s.cfg.GitHubRepoOwner(repo)
+	summary := fmt.Sprintf("Repo context for %s prepared.", repoName)
+	output := map[string]interface{}{
+		"repo":     repoName,
+		"owner":    owner,
+		"question": question,
+	}
+	token, err := s.githubInstallationToken(repo)
+	if err == nil {
+		repoMeta, metaErr := s.githubRepoMetadata(owner, repoName, token)
+		if metaErr == nil {
+			output["default_branch"] = stringValue(repoMeta["default_branch"])
+			output["html_url"] = stringValue(repoMeta["html_url"])
+			output["description"] = stringValue(repoMeta["description"])
+		}
+		searchTerms := repoContextSearchTerms(question)
+		if len(searchTerms) == 0 {
+			searchTerms = []string{repoName}
+		}
+		output["search_terms"] = searchTerms
+		matches, searchErr := s.githubRepoSearchContext(owner, repoName, token, searchTerms, stringValue(output["default_branch"]))
+		if searchErr == nil {
+			output["matches"] = matches
+			if len(matches) > 0 {
+				summary = fmt.Sprintf("GitHub-backed repo context loaded for %s/%s with %d relevant code match(es).", owner, repoName, len(matches))
+			} else {
+				summary = fmt.Sprintf("GitHub-backed repo context loaded for %s/%s with no direct code matches for %q.", owner, repoName, strings.TrimSpace(question))
+			}
+			return s.result("repo.context", input, summary, output, nil)
+		}
+		output["search_error"] = searchErr.Error()
+		if metaErr == nil {
+			summary = fmt.Sprintf("GitHub repo metadata loaded for %s/%s, but code search failed: %v", owner, repoName, searchErr)
+			return s.result("repo.context", input, summary, output, nil)
+		}
+		return s.failedResult("repo.context", input, "github", fmt.Sprintf("Repo context failed: %v", searchErr), output)
+	}
+
+	if repoName == "rsi-agent-platform" {
+		if data, readErr := os.ReadFile("README.md"); readErr == nil {
+			excerpt := truncate(string(data), 500)
 			if excerpt != "" {
-				summary = fmt.Sprintf("Loaded README context for %s.", repo)
+				output["excerpt"] = excerpt
+				summary = fmt.Sprintf("Loaded README fallback context for %s.", repoName)
+				return s.result("repo.context", input, summary, output, nil)
 			}
 		}
 	}
-	output := map[string]interface{}{
-		"repo":     repo,
-		"question": question,
-		"excerpt":  excerpt,
-	}
-	return s.result("repo.context", input, summary, output, nil)
+	return s.unavailableResult("repo.context", input, "github", fmt.Sprintf("Repo context unavailable for %s/%s: missing app authentication.", owner, repoName), output)
 }
 
 func (s *Service) knowledgeContext(input map[string]interface{}) storepkg.ToolResult {
@@ -398,6 +434,95 @@ func (s *Service) githubRepoContext(input map[string]interface{}) storepkg.ToolR
 	}
 	summary := fmt.Sprintf("GitHub repo context loaded for %s/%s (default branch %s).", owner, repoName, stringValue(payload["default_branch"]))
 	return s.result("github.repo_context", input, summary, payload, nil)
+}
+
+func (s *Service) githubRepoMetadata(owner string, repo string, token string) (map[string]interface{}, error) {
+	endpoint := fmt.Sprintf("%s/repos/%s/%s", strings.TrimRight(s.cfg.GitHubAPIBaseURL, "/"), owner, repo)
+	payload := map[string]interface{}{}
+	if err := s.apiJSON(http.MethodGet, endpoint, nil, map[string]string{
+		"Authorization": "Bearer " + token,
+		"Accept":        "application/vnd.github+json",
+	}, &payload); err != nil {
+		return nil, err
+	}
+	return payload, nil
+}
+
+func (s *Service) githubRepoSearchContext(owner string, repo string, token string, terms []string, defaultBranch string) ([]map[string]interface{}, error) {
+	values := url.Values{}
+	queryParts := make([]string, 0, len(terms)+1)
+	queryParts = append(queryParts, fmt.Sprintf("repo:%s/%s", owner, repo))
+	queryParts = append(queryParts, terms...)
+	values.Set("q", strings.Join(queryParts, " "))
+	values.Set("per_page", "5")
+	endpoint := fmt.Sprintf("%s/search/code?%s", strings.TrimRight(s.cfg.GitHubAPIBaseURL, "/"), values.Encode())
+	var payload struct {
+		Items []struct {
+			Name        string `json:"name"`
+			Path        string `json:"path"`
+			HTMLURL     string `json:"html_url"`
+			TextMatches []struct {
+				Fragment string `json:"fragment"`
+			} `json:"text_matches"`
+		} `json:"items"`
+	}
+	if err := s.apiJSON(http.MethodGet, endpoint, nil, map[string]string{
+		"Authorization": "Bearer " + token,
+		"Accept":        "application/vnd.github.text-match+json",
+	}, &payload); err != nil {
+		return nil, err
+	}
+	matches := make([]map[string]interface{}, 0, minInt(len(payload.Items), 3))
+	for _, item := range payload.Items {
+		if len(matches) == 3 {
+			break
+		}
+		snippet := ""
+		for _, textMatch := range item.TextMatches {
+			if fragment := truncate(strings.TrimSpace(textMatch.Fragment), 800); fragment != "" {
+				snippet = fragment
+				break
+			}
+		}
+		if snippet == "" {
+			contents, err := s.githubRepoFileContents(owner, repo, item.Path, defaultBranch, token)
+			if err == nil {
+				snippet = extractRepoContextSnippet(contents, terms)
+			}
+		}
+		matches = append(matches, map[string]interface{}{
+			"name":     item.Name,
+			"path":     item.Path,
+			"html_url": item.HTMLURL,
+			"snippet":  truncate(snippet, 800),
+		})
+	}
+	return matches, nil
+}
+
+func (s *Service) githubRepoFileContents(owner string, repo string, filePath string, ref string, token string) (string, error) {
+	endpoint := fmt.Sprintf("%s/repos/%s/%s/contents/%s", strings.TrimRight(s.cfg.GitHubAPIBaseURL, "/"), owner, repo, path.Clean(strings.TrimPrefix(filePath, "/")))
+	if strings.TrimSpace(ref) != "" {
+		endpoint += "?ref=" + url.QueryEscape(ref)
+	}
+	var payload struct {
+		Content  string `json:"content"`
+		Encoding string `json:"encoding"`
+	}
+	if err := s.apiJSON(http.MethodGet, endpoint, nil, map[string]string{
+		"Authorization": "Bearer " + token,
+		"Accept":        "application/vnd.github+json",
+	}, &payload); err != nil {
+		return "", err
+	}
+	if !strings.EqualFold(strings.TrimSpace(payload.Encoding), "base64") {
+		return "", fmt.Errorf("unsupported content encoding %q", payload.Encoding)
+	}
+	decoded, err := base64.StdEncoding.DecodeString(strings.ReplaceAll(payload.Content, "\n", ""))
+	if err != nil {
+		return "", err
+	}
+	return string(decoded), nil
 }
 
 func (s *Service) githubRepoActivity(input map[string]interface{}) storepkg.ToolResult {
@@ -965,6 +1090,20 @@ func truncate(value string, limit int) string {
 	return value[:limit]
 }
 
+func minInt(a int, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func maxInt(a int, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
 func providerForToolName(name string) string {
 	switch {
 	case strings.HasPrefix(name, "slack."):
@@ -1031,6 +1170,70 @@ func parseActivityWindow(input map[string]interface{}) (time.Time, time.Time, er
 		return time.Time{}, time.Time{}, fmt.Errorf("until must be after since")
 	}
 	return start, end, nil
+}
+
+func repoContextSearchTerms(question string) []string {
+	stopwords := map[string]struct{}{
+		"a": {}, "an": {}, "and": {}, "are": {}, "can": {}, "for": {}, "from": {}, "give": {}, "how": {}, "in": {}, "into": {}, "last": {}, "me": {}, "of": {}, "on": {}, "or": {}, "quick": {}, "rundown": {}, "the": {}, "this": {}, "to": {}, "week": {}, "with": {}, "you": {},
+	}
+	fields := strings.FieldsFunc(strings.ToLower(question), func(r rune) bool {
+		return !unicode.IsLetter(r) && !unicode.IsNumber(r) && r != '_' && r != '-' && r != '.'
+	})
+	out := make([]string, 0, len(fields))
+	seen := map[string]struct{}{}
+	for _, field := range fields {
+		field = strings.TrimSpace(field)
+		if len(field) < 3 {
+			continue
+		}
+		if _, blocked := stopwords[field]; blocked {
+			continue
+		}
+		if _, ok := seen[field]; ok {
+			continue
+		}
+		seen[field] = struct{}{}
+		out = append(out, field)
+		if len(out) == 6 {
+			break
+		}
+	}
+	return out
+}
+
+func extractRepoContextSnippet(contents string, terms []string) string {
+	lines := strings.Split(contents, "\n")
+	lowerTerms := make([]string, 0, len(terms))
+	for _, term := range terms {
+		term = strings.ToLower(strings.TrimSpace(term))
+		if term != "" {
+			lowerTerms = append(lowerTerms, term)
+		}
+	}
+	matchIndex := -1
+	for index, line := range lines {
+		lower := strings.ToLower(line)
+		for _, term := range lowerTerms {
+			if strings.Contains(lower, term) {
+				matchIndex = index
+				break
+			}
+		}
+		if matchIndex >= 0 {
+			break
+		}
+	}
+	start := 0
+	end := minInt(len(lines), 20)
+	if matchIndex >= 0 {
+		start = maxInt(matchIndex-2, 0)
+		end = minInt(matchIndex+3, len(lines))
+	}
+	snippetLines := make([]string, 0, end-start)
+	for idx := start; idx < end; idx++ {
+		snippetLines = append(snippetLines, fmt.Sprintf("%d: %s", idx+1, lines[idx]))
+	}
+	return strings.Join(snippetLines, "\n")
 }
 
 func mapGitHubCommit(item map[string]interface{}) map[string]interface{} {

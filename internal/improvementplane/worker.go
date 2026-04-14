@@ -589,11 +589,11 @@ func processHarnessOverlayProposal(cfg config.Config, store storepkg.Store, trac
 	if err != nil {
 		return err
 	}
-		if _, err := store.RecordActionResult(action.Result{
-			OperationID:    intent.OperationID,
-			ActionIntentID: intent.ID,
-			AttemptID:      attempt.ID,
-			Executor:       cfg.ServiceName,
+	if _, err := store.RecordActionResult(action.Result{
+		OperationID:    intent.OperationID,
+		ActionIntentID: intent.ID,
+		AttemptID:      attempt.ID,
+		Executor:       cfg.ServiceName,
 		Provider:       "rsi-platform",
 		ProviderRef:    overlay.ID,
 		Status:         action.StatusSucceeded,
@@ -1379,6 +1379,8 @@ func filterProposalMemory(items []review.ProposalMemory, candidateKey string) []
 
 func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.Trace, run evals.Run, judgments []evals.Judgment, item queue.WorkItem) clients.RunnerTask {
 	effectiveHarness := harness.ResolveEffectiveConfig(store, "eval", cfg.DefaultReasoningVerbosity)
+	targetRepo := evalTargetRepo(cfg, store, trace)
+	repoAllowlist := scopedImprovementRepoAllowlist(targetRepo, cfg.AllowedTargetRepos)
 	contextRefs := make([]map[string]any, 0, len(judgments)+1)
 	contextRefs = append(contextRefs, map[string]any{
 		"kind":      "eval_run",
@@ -1402,8 +1404,15 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 	contextRefs = append(contextRefs, improvementTraceEvidenceRefs(trace)...)
 	contextRefs = append(contextRefs, improvementCandidateEvidenceRefs(store, trace, "")...)
 	contextRefs = append(contextRefs, improvementProposalMemoryRefs(store, "")...)
+	if targetRepo != "" {
+		contextRefs = append(contextRefs, map[string]any{
+			"kind":    "target_repo",
+			"ref":     targetRepo,
+			"summary": fmt.Sprintf("Authoritative target repository for this eval line is %s.", targetRepo),
+		})
+	}
 	prompt := fmt.Sprintf(
-		"Summarize the completed eval for trace %s. Workflow=%s status=%s thread=%s. Eval run=%s suite=%s verdict=%s score=%.2f. Judgments=%v. Start from the supplied evidence pack, then use the read-only RSI tools when you need more trace, candidate, or proposal-memory detail. Explain what the eval found, what evidence mattered, whether improvement pressure should increase, and why.",
+		"Summarize the completed eval for trace %s. Workflow=%s status=%s thread=%s. Eval run=%s suite=%s verdict=%s score=%.2f. Judgments=%v. The authoritative target repository for this eval line is %s. Start from the supplied evidence pack, then use the read-only RSI tools when you need more trace, candidate, proposal-memory, or repo detail. If recalled memory conflicts with the target repository or trace evidence, prefer the target repository and explicit evidence. Explain what the eval found, what evidence mattered, whether improvement pressure should increase, and why.",
 		trace.Summary.TraceID,
 		trace.Summary.WorkflowKind,
 		trace.Summary.Status,
@@ -1413,6 +1422,7 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 		run.OverallVerdict,
 		run.OverallScore,
 		judgmentDigest(judgments),
+		firstNonEmpty(targetRepo, cfg.DefaultRepo),
 	)
 	caseSummary := map[string]any{}
 	if caseRecord, ok := store.GetCase(trace.Summary.CaseID); ok {
@@ -1430,7 +1440,7 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 	sessionScopeKind, sessionScopeID := evalSessionScope(store, trace, run)
 	return clients.RunnerTask{
 		TaskType:            "eval",
-		Repo:                cfg.DefaultRepo,
+		Repo:                firstNonEmpty(targetRepo, cfg.DefaultRepo),
 		RepoRef:             "main",
 		Prompt:              prompt,
 		SystemMessage:       harness.ComposeSystemMessage("Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, and self_critique.", effectiveHarness),
@@ -1454,7 +1464,7 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 		RecentConversationEntries: improvementRecentConversationEntries(store.ListConversationEntries(trace.Summary.ConversationID)),
 		CaseSummary:               caseSummary,
 		PriorTraceRefs:            improvementPriorTraceRefs(store.ListTraces(), trace.Summary.CaseID, trace.Summary.TraceID),
-		RepoAllowlist:             cfg.AllowedTargetRepos,
+		RepoAllowlist:             repoAllowlist,
 		ToolAllowlist:             improvementReadOnlyTools(effectiveHarness),
 		ResponseMode:              "analysis",
 		ContextRefs:               contextRefs,
@@ -1472,6 +1482,8 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 
 func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace events.Trace, proposal review.Proposal, attempt improvement.ChangeAttempt, memories []review.ProposalMemory) clients.RunnerTask {
 	effectiveHarness := harness.ResolveEffectiveConfig(store, "proposal", cfg.DefaultReasoningVerbosity)
+	targetRepo := proposalTargetRepo(cfg, proposal)
+	repoAllowlist := scopedImprovementRepoAllowlist(targetRepo, cfg.AllowedTargetRepos)
 	rejectedContext := make([]map[string]any, 0, len(memories))
 	for _, memory := range memories {
 		rejectedContext = append(rejectedContext, map[string]any{
@@ -1503,18 +1515,27 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 			"failure_summary": attempt.FailureSummary,
 		},
 	}
+	if targetRepo != "" {
+		contextRefs = append(contextRefs, map[string]any{
+			"kind":    "target_repo",
+			"ref":     targetRepo,
+			"summary": fmt.Sprintf("Authoritative remediation repository is %s.", targetRepo),
+		})
+	}
 	contextRefs = append(contextRefs, improvementTraceEvidenceRefs(trace)...)
 	contextRefs = append(contextRefs, improvementCandidateEvidenceRefs(store, trace, proposal.CandidateKey)...)
 	contextRefs = append(contextRefs, improvementProposalMemoryRefs(store, proposal.CandidateKey)...)
 	contextRefs = append(contextRefs, improvementAttemptHistoryRefs(store, proposal.ID, attempt.ID)...)
 	prompt := fmt.Sprintf(
-		"Materialize remediation attempt %d for approved proposal %s. Candidate=%s risk=%s scope=%s summary=%s. Start from the dense evidence pack: latest failing trace evidence, root-cause metadata, prior rejected or dismissed proposal memory, and prior attempt failures. Use the read-only RSI tools when you need more repo, trace, candidate, attempt, or proposal-memory detail. Return explicit visible reasoning plus a concrete change_plan, a non-empty unified repo_patch touching allowed repo files, a validation_plan, retry_assessment, and hypothesis_delta. Do not return metadata-only or .rsi-only diffs.",
+		"Materialize remediation attempt %d for approved proposal %s. Candidate=%s risk=%s scope=%s summary=%s. The authoritative target repository is %s. Start from the dense evidence pack: latest failing trace evidence, root-cause metadata, prior rejected or dismissed proposal memory, and prior attempt failures. If recalled memory mentions a different repository, treat it as stale unless the supplied evidence pack explicitly supports it. Before returning repo_patch, inspect read-only repo context for %s and ground the diff in concrete files within that repository. Return explicit visible reasoning plus a concrete change_plan, a non-empty unified repo_patch touching allowed repo files, a validation_plan, retry_assessment, and hypothesis_delta. Do not return metadata-only or .rsi-only diffs.",
 		attempt.AttemptNumber,
 		proposal.ID,
 		proposal.CandidateKey,
 		proposal.RiskTier,
 		proposal.ProposedScope,
 		proposal.Summary,
+		firstNonEmpty(targetRepo, cfg.DefaultRepo),
+		firstNonEmpty(targetRepo, cfg.DefaultRepo),
 	)
 	if proposal.TargetLayer == harness.TargetLayerHarnessOverlay {
 		targetRole := firstNonEmpty(strings.TrimSpace(proposal.TargetRef), "prod")
@@ -1543,7 +1564,7 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 	}
 	return clients.RunnerTask{
 		TaskType:                  "proposal",
-		Repo:                      cfg.DefaultRepo,
+		Repo:                      firstNonEmpty(targetRepo, cfg.DefaultRepo),
 		RepoRef:                   "main",
 		Prompt:                    prompt,
 		SystemMessage:             harness.ComposeSystemMessage("Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta, proposed_actions, knowledge_drafts, and outcome_hypotheses.", effectiveHarness),
@@ -1562,7 +1583,7 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 		RecentConversationEntries: improvementRecentConversationEntries(store.ListConversationEntries(trace.Summary.ConversationID)),
 		CaseSummary:               caseSummary,
 		PriorTraceRefs:            improvementPriorTraceRefs(store.ListTraces(), trace.Summary.CaseID, trace.Summary.TraceID),
-		RepoAllowlist:             cfg.AllowedTargetRepos,
+		RepoAllowlist:             repoAllowlist,
 		ToolAllowlist:             improvementReadOnlyTools(effectiveHarness),
 		ResponseMode:              "analysis",
 		ContextRefs:               contextRefs,
@@ -1576,6 +1597,39 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 		AssistantPeerID:           fmt.Sprintf("rsi:%s:proposal", cfg.Environment),
 		UserPeerID:                fmt.Sprintf("candidate:%s", proposal.CandidateKey),
 	}
+}
+
+func evalTargetRepo(cfg config.Config, store storepkg.Store, trace events.Trace) string {
+	if candidate, ok := latestCandidateForTrace(store, trace.Summary.TraceID); ok {
+		return improvementTargetRepo(cfg, candidate.TargetLayer, candidate.TargetKind, candidate.TargetRef)
+	}
+	return firstNonEmpty(cfg.DefaultRepo, "rsi-agent-platform")
+}
+
+func proposalTargetRepo(cfg config.Config, proposal review.Proposal) string {
+	return improvementTargetRepo(cfg, proposal.TargetLayer, proposal.TargetKind, proposal.TargetRef)
+}
+
+func improvementTargetRepo(cfg config.Config, targetLayer harness.TargetLayer, targetKind string, targetRef string) string {
+	if targetLayer == harness.TargetLayerHarnessOverlay {
+		return firstNonEmpty(cfg.DefaultRepo, "rsi-agent-platform")
+	}
+	candidate := strings.TrimSpace(cfg.GitHubRepoName(targetRef))
+	if candidate != "" {
+		return candidate
+	}
+	if strings.EqualFold(strings.TrimSpace(targetKind), "repo") && strings.TrimSpace(targetRef) != "" {
+		return strings.TrimSpace(targetRef)
+	}
+	return firstNonEmpty(cfg.DefaultRepo, "rsi-agent-platform")
+}
+
+func scopedImprovementRepoAllowlist(primary string, fallback []string) []string {
+	primary = strings.TrimSpace(primary)
+	if primary == "" {
+		return append([]string(nil), fallback...)
+	}
+	return []string{primary}
 }
 
 func evalSessionScope(store storepkg.Store, trace events.Trace, run evals.Run) (string, string) {

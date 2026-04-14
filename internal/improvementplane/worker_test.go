@@ -3,6 +3,7 @@ package improvementplane
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 	"time"
 
@@ -230,8 +231,8 @@ func TestBuildProposalRunnerTaskUsesReadOnlyToolBudget(t *testing.T) {
 	}
 	task := buildProposalRunnerTask(config.Config{
 		Environment:               "stage",
-		DefaultRepo:               "rsi-agent-platform",
-		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		DefaultRepo:               "depin-backend",
+		AllowedTargetRepos:        []string{"depin-backend", "rsi-agent-platform"},
 		DefaultReasoningVerbosity: "verbose",
 	}, store, trace, proposal, attempt, store.ListProposalMemories())
 
@@ -245,6 +246,15 @@ func TestBuildProposalRunnerTaskUsesReadOnlyToolBudget(t *testing.T) {
 	assertContains(t, task.ToolAllowlist, "rsi.trace_context")
 	assertContains(t, task.ToolAllowlist, "rsi.candidate_context")
 	assertContains(t, task.ToolAllowlist, "rsi.proposal_memory")
+	if task.Repo != "rsi-agent-platform" {
+		t.Fatalf("proposal task repo = %q, want rsi-agent-platform", task.Repo)
+	}
+	if len(task.RepoAllowlist) != 1 || task.RepoAllowlist[0] != "rsi-agent-platform" {
+		t.Fatalf("proposal repo allowlist = %v, want [rsi-agent-platform]", task.RepoAllowlist)
+	}
+	if !strings.Contains(task.Prompt, "authoritative target repository is rsi-agent-platform") {
+		t.Fatalf("proposal prompt missing target-repo guard: %s", task.Prompt)
+	}
 }
 
 func TestBuildEvalRunnerTaskUsesReadOnlyToolBudget(t *testing.T) {
