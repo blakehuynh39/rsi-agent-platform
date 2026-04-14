@@ -90,20 +90,24 @@ func TestPostgresMaterializeApprovedProposalPersistsRepoChangeJob(t *testing.T) 
 	defer store.db.Close()
 
 	_, _, _, proposal := seedPromotableFailureProposal(t, store)
-	if _, err := store.db.Exec(`
-		alter table proposal alter column current_attempt_id drop not null;
-		alter table proposal alter column last_failure_class drop not null;
-		alter table proposal alter column next_retry_action drop not null;
-		alter table proposal alter column line_stopped_by drop not null;
-		alter table proposal alter column line_stop_reason drop not null;
-		update proposal
+	for _, stmt := range []string{
+		`alter table proposal alter column current_attempt_id drop not null`,
+		`alter table proposal alter column last_failure_class drop not null`,
+		`alter table proposal alter column next_retry_action drop not null`,
+		`alter table proposal alter column line_stopped_by drop not null`,
+		`alter table proposal alter column line_stop_reason drop not null`,
+	} {
+		if _, err := store.db.Exec(stmt); err != nil {
+			t.Fatalf("prepare legacy-null proposal schema: %v", err)
+		}
+	}
+	if _, err := store.db.Exec(`update proposal
 		set current_attempt_id = null,
 			last_failure_class = null,
 			next_retry_action = null,
 			line_stopped_by = null,
 			line_stop_reason = null
-		where id = $1;
-	`, proposal.ID); err != nil {
+		where id = $1`, proposal.ID); err != nil {
 		t.Fatalf("prepare legacy-null proposal row: %v", err)
 	}
 	reviewed, err := store.ReviewProposal(proposal.ID, review.ProposalReview{
