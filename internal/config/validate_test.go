@@ -105,7 +105,10 @@ func TestImprovementPlaneWorkerValidationRequiresSandboxAndGitIdentity(t *testin
 	}
 	message := err.Error()
 	for _, required := range []string{
-		"RSI_GITHUB_TOKEN is required",
+		"RSI_GITHUB_API_BASE_URL is required",
+		"RSI_GITHUB_APP_ID is required",
+		"RSI_GITHUB_APP_INSTALLATION_ID is required",
+		"RSI_GITHUB_APP_PRIVATE_KEY is required",
 		"RSI_GITHUB_OWNER is required",
 		"RSI_GITHUB_COMMIT_USER is required",
 		"RSI_GITHUB_COMMIT_EMAIL is required",
@@ -118,6 +121,163 @@ func TestImprovementPlaneWorkerValidationRequiresSandboxAndGitIdentity(t *testin
 		if !strings.Contains(message, required) {
 			t.Fatalf("expected %q in validation message, got %s", required, message)
 		}
+	}
+}
+
+func TestImprovementPlaneWorkerValidationAcceptsGitHubAppContract(t *testing.T) {
+	cfg := Config{
+		ServiceName:               "improvement-plane",
+		ServiceKind:               "improvement-plane",
+		Environment:               "stage",
+		HTTPPort:                  8080,
+		StoreBackend:              "postgres",
+		PostgresURL:               "postgres://user:pass@db.example/rsi",
+		PublicBaseURL:             "https://staging-rsi-platform.storyprotocol.net",
+		ToolGatewayBaseURL:        "http://use1-stage-rsi-agent-platform-tool-gateway:8080",
+		EvalRunnerBaseURL:         "http://use1-stage-rsi-agent-platform-runner-eval:8090",
+		ProposalRunnerBaseURL:     "http://use1-stage-rsi-agent-platform-runner-proposal:8090",
+		DefaultProposalCap:        2,
+		DefaultReasoningVerbosity: "verbose",
+		ProposalPromoterInterval:  15 * time.Minute,
+		GitHubAPIBaseURL:          "https://api.github.com",
+		GitHubAppID:               "123",
+		GitHubAppInstallationID:   "456",
+		GitHubAppInstallationIDs:  map[string]string{"storyprotocol": "789"},
+		GitHubAppPrivateKey:       "-----BEGIN RSA PRIVATE KEY-----\nkey\n-----END RSA PRIVATE KEY-----",
+		GitHubOwner:               "piplabs",
+		GitHubRepoOwners:          map[string]string{"story-api": "storyprotocol"},
+		GitHubCommitUser:          "rsi-agent-platform-bot",
+		GitHubCommitEmail:         "rsi-agent-platform-bot@users.noreply.github.com",
+		SandboxNamespace:          "rsi-platform",
+		SandboxImage:              "sandbox-image",
+		SandboxServiceAccount:     "rsi-sandbox",
+		SandboxJobTTLSeconds:      3600,
+		SandboxDeadlineSeconds:    1800,
+	}
+
+	if _, err := cfg.ValidatedFor("improvement-plane", "worker"); err != nil {
+		t.Fatalf("expected github app worker config to validate, got %v", err)
+	}
+}
+
+func TestToolGatewayValidationRequiresGitHubApp(t *testing.T) {
+	cfg := Config{
+		ServiceName:               "tool-gateway",
+		ServiceKind:               "tool-gateway",
+		Environment:               "stage",
+		HTTPPort:                  8080,
+		StoreBackend:              "postgres",
+		PostgresURL:               "postgres://user:pass@db.example/rsi",
+		PublicBaseURL:             "https://staging-rsi-platform.storyprotocol.net",
+		SlackBotToken:             "xoxb-token",
+		GitHubOwner:               "piplabs",
+		GitHubAPIBaseURL:          "https://api.github.com",
+		SentryAuthToken:           "sentry-token",
+		SentryOrganization:        "story-protocol",
+		SentryAPIBaseURL:          "https://sentry.io/api/0",
+		DefaultKnowledgeBaseURL:   "https://staging-depin.storyprotocol.net/openapi.json",
+		DefaultReasoningVerbosity: "verbose",
+	}
+
+	_, err := cfg.ValidatedFor("tool-gateway", "serve")
+	if err == nil {
+		t.Fatal("expected tool-gateway validation error")
+	}
+	for _, required := range []string{
+		"RSI_GITHUB_APP_ID is required",
+		"RSI_GITHUB_APP_INSTALLATION_ID is required",
+		"RSI_GITHUB_APP_PRIVATE_KEY is required",
+	} {
+		if !strings.Contains(err.Error(), required) {
+			t.Fatalf("unexpected validation error: %v", err)
+		}
+	}
+}
+
+func TestToolGatewayValidationAcceptsGitHubAppContract(t *testing.T) {
+	cfg := Config{
+		ServiceName:               "tool-gateway",
+		ServiceKind:               "tool-gateway",
+		Environment:               "stage",
+		HTTPPort:                  8080,
+		StoreBackend:              "postgres",
+		PostgresURL:               "postgres://user:pass@db.example/rsi",
+		PublicBaseURL:             "https://staging-rsi-platform.storyprotocol.net",
+		SlackBotToken:             "xoxb-token",
+		GitHubAppID:               "123",
+		GitHubAppInstallationID:   "456",
+		GitHubAppInstallationIDs:  map[string]string{"storyprotocol": "789"},
+		GitHubAppPrivateKey:       "-----BEGIN RSA PRIVATE KEY-----\nkey\n-----END RSA PRIVATE KEY-----",
+		GitHubOwner:               "piplabs",
+		GitHubRepoOwners:          map[string]string{"story-api": "storyprotocol"},
+		GitHubAPIBaseURL:          "https://api.github.com",
+		SentryAuthToken:           "sentry-token",
+		SentryOrganization:        "story-protocol",
+		SentryAPIBaseURL:          "https://sentry.io/api/0",
+		DefaultKnowledgeBaseURL:   "https://staging-depin.storyprotocol.net/openapi.json",
+		DefaultReasoningVerbosity: "verbose",
+	}
+
+	if _, err := cfg.ValidatedFor("tool-gateway", "serve"); err != nil {
+		t.Fatalf("unexpected validation error: %v", err)
+	}
+}
+
+func TestValidationRequiresInstallationForMappedRepoOwner(t *testing.T) {
+	cfg := Config{
+		ServiceName:               "tool-gateway",
+		ServiceKind:               "tool-gateway",
+		Environment:               "stage",
+		HTTPPort:                  8080,
+		StoreBackend:              "postgres",
+		PostgresURL:               "postgres://user:pass@db.example/rsi",
+		PublicBaseURL:             "https://staging-rsi-platform.storyprotocol.net",
+		SlackBotToken:             "xoxb-token",
+		GitHubAppID:               "123",
+		GitHubAppInstallationID:   "456",
+		GitHubAppPrivateKey:       "-----BEGIN RSA PRIVATE KEY-----\nkey\n-----END RSA PRIVATE KEY-----",
+		GitHubOwner:               "piplabs",
+		GitHubRepoOwners:          map[string]string{"story-api": "storyprotocol"},
+		GitHubAPIBaseURL:          "https://api.github.com",
+		SentryAuthToken:           "sentry-token",
+		SentryOrganization:        "story-protocol",
+		SentryAPIBaseURL:          "https://sentry.io/api/0",
+		DefaultKnowledgeBaseURL:   "https://staging-depin.storyprotocol.net/openapi.json",
+		DefaultReasoningVerbosity: "verbose",
+	}
+
+	_, err := cfg.ValidatedFor("tool-gateway", "serve")
+	if err == nil {
+		t.Fatal("expected validation error")
+	}
+	if !strings.Contains(err.Error(), "RSI_GITHUB_APP_INSTALLATION_IDS must include storyprotocol for repo story-api") {
+		t.Fatalf("unexpected validation error: %v", err)
+	}
+}
+
+func TestGitHubRepoResolutionUsesOverrides(t *testing.T) {
+	cfg := Config{
+		GitHubOwner:             "piplabs",
+		GitHubAppInstallationID: "456",
+		GitHubAppInstallationIDs: map[string]string{
+			"storyprotocol": "789",
+		},
+		GitHubRepoOwners: map[string]string{
+			"story-api": "storyprotocol",
+		},
+	}
+
+	if owner := cfg.GitHubRepoOwner("story-api"); owner != "storyprotocol" {
+		t.Fatalf("GitHubRepoOwner() = %q, want storyprotocol", owner)
+	}
+	if name := cfg.GitHubRepoName("storyprotocol/story-api"); name != "story-api" {
+		t.Fatalf("GitHubRepoName() = %q, want story-api", name)
+	}
+	if id := cfg.GitHubInstallationIDForRepo("story-api"); id != "789" {
+		t.Fatalf("GitHubInstallationIDForRepo() = %q, want 789", id)
+	}
+	if id := cfg.GitHubInstallationIDForRepo("rsi-agent-platform"); id != "456" {
+		t.Fatalf("GitHubInstallationIDForRepo() default = %q, want 456", id)
 	}
 }
 

@@ -109,8 +109,11 @@ func (c Config) validateImprovementPlane(issues *[]string) {
 	}
 	addRequiredString(issues, "RSI_REASONING_VERBOSITY", c.DefaultReasoningVerbosity)
 	if c.RuntimeMode == "worker" {
-		addRequiredString(issues, "RSI_GITHUB_TOKEN", c.GitHubToken)
+		addRequiredString(issues, "RSI_GITHUB_APP_ID", c.GitHubAppID)
+		addRequiredString(issues, "RSI_GITHUB_APP_INSTALLATION_ID", c.GitHubAppInstallationID)
+		addRequiredString(issues, "RSI_GITHUB_APP_PRIVATE_KEY", c.GitHubAppPrivateKey)
 		addRequiredString(issues, "RSI_GITHUB_OWNER", c.GitHubOwner)
+		addRequiredURL(issues, "RSI_GITHUB_API_BASE_URL", c.GitHubAPIBaseURL, false)
 		addRequiredString(issues, "RSI_GITHUB_COMMIT_USER", c.GitHubCommitUser)
 		addRequiredString(issues, "RSI_GITHUB_COMMIT_EMAIL", c.GitHubCommitEmail)
 		addRequiredString(issues, "RSI_SANDBOX_NAMESPACE", c.SandboxNamespace)
@@ -122,19 +125,40 @@ func (c Config) validateImprovementPlane(issues *[]string) {
 		if c.SandboxDeadlineSeconds <= 0 {
 			*issues = append(*issues, "RSI_SANDBOX_ACTIVE_DEADLINE_SECONDS must be set to a positive integer")
 		}
+		c.validateGitHubInstallations(issues)
 	}
 }
 
 func (c Config) validateToolGateway(issues *[]string) {
 	c.validateCommonPlaneConfig(issues)
 	addRequiredString(issues, "RSI_SLACK_BOT_TOKEN", c.SlackBotToken)
-	addRequiredString(issues, "RSI_GITHUB_TOKEN", c.GitHubToken)
+	addRequiredString(issues, "RSI_GITHUB_APP_ID", c.GitHubAppID)
+	addRequiredString(issues, "RSI_GITHUB_APP_INSTALLATION_ID", c.GitHubAppInstallationID)
+	addRequiredString(issues, "RSI_GITHUB_APP_PRIVATE_KEY", c.GitHubAppPrivateKey)
 	addRequiredString(issues, "RSI_GITHUB_OWNER", c.GitHubOwner)
 	addRequiredURL(issues, "RSI_GITHUB_API_BASE_URL", c.GitHubAPIBaseURL, false)
 	addRequiredString(issues, "RSI_SENTRY_AUTH_TOKEN", c.SentryAuthToken)
 	addRequiredString(issues, "RSI_SENTRY_ORGANIZATION", c.SentryOrganization)
 	addRequiredURL(issues, "RSI_SENTRY_API_BASE_URL", c.SentryAPIBaseURL, false)
 	addRequiredString(issues, "RSI_KNOWLEDGE_BASE_URL", c.DefaultKnowledgeBaseURL)
+	c.validateGitHubInstallations(issues)
+}
+
+func (c Config) validateGitHubInstallations(issues *[]string) {
+	defaultOwner := strings.TrimSpace(c.GitHubOwner)
+	if defaultOwner == "" {
+		return
+	}
+	for repo, owner := range c.GitHubRepoOwners {
+		repo = strings.TrimSpace(repo)
+		owner = strings.TrimSpace(owner)
+		if repo == "" || owner == "" || strings.EqualFold(owner, defaultOwner) {
+			continue
+		}
+		if _, ok := c.GitHubAppInstallationIDs[owner]; !ok {
+			*issues = append(*issues, fmt.Sprintf("RSI_GITHUB_APP_INSTALLATION_IDS must include %s for repo %s", owner, repo))
+		}
+	}
 }
 
 func (c Config) validateCommonPlaneConfig(issues *[]string) {

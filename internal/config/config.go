@@ -44,10 +44,14 @@ type Config struct {
 	SlackSocketModeEnabled    bool
 	SlackAppToken             string
 	SlackBotToken             string
-	GitHubToken               string
 	GitHubWebhookSecret       string
 	GitHubOwner               string
 	GitHubAPIBaseURL          string
+	GitHubAppID               string
+	GitHubAppInstallationID   string
+	GitHubAppInstallationIDs  map[string]string
+	GitHubAppPrivateKey       string
+	GitHubRepoOwners          map[string]string
 	GitHubCommitUser          string
 	GitHubCommitEmail         string
 	SentryAuthToken           string
@@ -109,10 +113,14 @@ func Load(serviceName string) Config {
 		SlackSocketModeEnabled:    boolEnv("RSI_SLACK_SOCKET_MODE_ENABLED", false),
 		SlackAppToken:             stringEnv("RSI_SLACK_APP_TOKEN", ""),
 		SlackBotToken:             stringEnv("RSI_SLACK_BOT_TOKEN", ""),
-		GitHubToken:               stringEnv("RSI_GITHUB_TOKEN", ""),
 		GitHubWebhookSecret:       stringEnv("RSI_GITHUB_WEBHOOK_SECRET", ""),
 		GitHubOwner:               stringEnv("RSI_GITHUB_OWNER", ""),
-		GitHubAPIBaseURL:          stringEnv("RSI_GITHUB_API_BASE_URL", ""),
+		GitHubAPIBaseURL:          stringEnv("RSI_GITHUB_API_BASE_URL", "https://api.github.com"),
+		GitHubAppID:               stringEnv("RSI_GITHUB_APP_ID", ""),
+		GitHubAppInstallationID:   stringEnv("RSI_GITHUB_APP_INSTALLATION_ID", ""),
+		GitHubAppInstallationIDs:  mapEnv("RSI_GITHUB_APP_INSTALLATION_IDS", nil),
+		GitHubAppPrivateKey:       stringEnv("RSI_GITHUB_APP_PRIVATE_KEY", ""),
+		GitHubRepoOwners:          mapEnv("RSI_GITHUB_REPO_OWNERS", nil),
 		GitHubCommitUser:          stringEnv("RSI_GITHUB_COMMIT_USER", ""),
 		GitHubCommitEmail:         stringEnv("RSI_GITHUB_COMMIT_EMAIL", ""),
 		SentryAuthToken:           stringEnv("RSI_SENTRY_AUTH_TOKEN", ""),
@@ -179,6 +187,39 @@ func (c Config) RunnerTimeoutForRole(role string) time.Duration {
 	}
 }
 
+func (c Config) GitHubRepoOwner(repo string) string {
+	repo = strings.TrimSpace(repo)
+	if owner, _, ok := splitGitHubRepo(repo); ok {
+		return owner
+	}
+	if owner, ok := c.GitHubRepoOwners[repo]; ok && strings.TrimSpace(owner) != "" {
+		return strings.TrimSpace(owner)
+	}
+	return strings.TrimSpace(c.GitHubOwner)
+}
+
+func (c Config) GitHubRepoName(repo string) string {
+	repo = strings.TrimSpace(repo)
+	if _, name, ok := splitGitHubRepo(repo); ok {
+		return name
+	}
+	return repo
+}
+
+func (c Config) GitHubInstallationIDForRepo(repo string) string {
+	owner := c.GitHubRepoOwner(repo)
+	if owner == "" {
+		return ""
+	}
+	if strings.EqualFold(owner, strings.TrimSpace(c.GitHubOwner)) {
+		return strings.TrimSpace(c.GitHubAppInstallationID)
+	}
+	if id, ok := c.GitHubAppInstallationIDs[owner]; ok {
+		return strings.TrimSpace(id)
+	}
+	return ""
+}
+
 func stringEnv(key, fallback string) string {
 	if value := strings.TrimSpace(os.Getenv(key)); value != "" {
 		return value
@@ -210,6 +251,34 @@ func listEnv(key string, fallback []string) []string {
 		if part != "" {
 			out = append(out, part)
 		}
+	}
+	if len(out) == 0 {
+		return fallback
+	}
+	return out
+}
+
+func mapEnv(key string, fallback map[string]string) map[string]string {
+	raw := strings.TrimSpace(os.Getenv(key))
+	if raw == "" {
+		return fallback
+	}
+	out := make(map[string]string)
+	for _, part := range strings.Split(raw, ",") {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+		keyPart, valuePart, ok := strings.Cut(part, "=")
+		if !ok {
+			continue
+		}
+		keyPart = strings.TrimSpace(keyPart)
+		valuePart = strings.TrimSpace(valuePart)
+		if keyPart == "" || valuePart == "" {
+			continue
+		}
+		out[keyPart] = valuePart
 	}
 	if len(out) == 0 {
 		return fallback
@@ -249,4 +318,17 @@ func firstNonEmpty(values ...string) string {
 		}
 	}
 	return ""
+}
+
+func splitGitHubRepo(repo string) (string, string, bool) {
+	owner, name, ok := strings.Cut(strings.TrimSpace(repo), "/")
+	if !ok {
+		return "", "", false
+	}
+	owner = strings.TrimSpace(owner)
+	name = strings.TrimSpace(name)
+	if owner == "" || name == "" {
+		return "", "", false
+	}
+	return owner, name, true
 }

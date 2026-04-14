@@ -1,7 +1,11 @@
 package toolgateway
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -11,30 +15,67 @@ import (
 )
 
 func TestGitHubCreatePRUsesExternalAPI(t *testing.T) {
-	var seenAuth string
+	privateKey := testGitHubAppPrivateKey(t)
+	var (
+		seenAppAuth string
+		seenPRAuth  string
+	)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		seenAuth = r.Header.Get("Authorization")
-		if r.URL.Path != "/repos/piplabs/rsi-agent-platform/pulls" {
+		switch r.URL.Path {
+		case "/app/installations/456/access_tokens":
+			seenAppAuth = r.Header.Get("Authorization")
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
+				"token":      "installation-token",
+				"expires_at": "2026-04-14T00:00:00Z",
+			})
+		case "/repos/piplabs/rsi-agent-platform/pulls":
+			seenPRAuth = r.Header.Get("Authorization")
+			var body map[string]interface{}
+			if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+				t.Fatalf("decode body: %v", err)
+			}
+			if draft, ok := body["draft"].(bool); !ok || !draft {
+				t.Fatalf("expected draft PR payload, got %#v", body)
+			}
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
+				"html_url": "https://github.com/piplabs/rsi-agent-platform/pull/123",
+				"number":   123,
+			})
+		default:
 			t.Fatalf("unexpected path %s", r.URL.Path)
 		}
-		var body map[string]interface{}
-		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-			t.Fatalf("decode body: %v", err)
-		}
-		if draft, ok := body["draft"].(bool); !ok || !draft {
-			t.Fatalf("expected draft PR payload, got %#v", body)
-		}
-		_ = json.NewEncoder(w).Encode(map[string]interface{}{
-			"html_url": "https://github.com/piplabs/rsi-agent-platform/pull/123",
-			"number":   123,
-		})
 	}))
 	defer server.Close()
 
 	service := NewService(config.Config{
-		GitHubToken:      "test-token",
+		GitHubAppID:             "123",
+		GitHubAppInstallationID: "456",
+		GitHubAppPrivateKey:     privateKey,
+		GitHubOwner:             "piplabs",
+		GitHubAPIBaseURL:        server.URL,
+		DefaultRepo:             "rsi-agent-platform",
+	}, storepkg.NewMemoryStore())
+
+	result := service.Execute("github.create_pr", map[string]interface{}{
+		"repo":        "rsi-agent-platform",
+		"branch_name": "codex/test-branch",
+		"base_ref":    "main",
+		"title":       "Test PR",
+		"body":        "Draft body",
+	})
+
+	if seenAppAuth == "" || seenPRAuth != "Bearer installation-token" {
+		t.Fatalf("unexpected app/pr auth headers app=%q pr=%q", seenAppAuth, seenPRAuth)
+	}
+	if result.Output["pr_url"] != "https://github.com/piplabs/rsi-agent-platform/pull/123" {
+		t.Fatalf("unexpected pr url %#v", result.Output)
+	}
+}
+
+func TestGitHubCreatePRRequiresAppConfig(t *testing.T) {
+	service := NewService(config.Config{
 		GitHubOwner:      "piplabs",
-		GitHubAPIBaseURL: server.URL,
+		GitHubAPIBaseURL: "https://api.github.com",
 		DefaultRepo:      "rsi-agent-platform",
 	}, storepkg.NewMemoryStore())
 
@@ -46,20 +87,29 @@ func TestGitHubCreatePRUsesExternalAPI(t *testing.T) {
 		"body":        "Draft body",
 	})
 
-	if seenAuth != "Bearer test-token" {
-		t.Fatalf("unexpected auth header %q", seenAuth)
+	if result.Status != "blocked" {
+		t.Fatalf("expected blocked status, got %s", result.Status)
 	}
-	if result.Output["pr_url"] != "https://github.com/piplabs/rsi-agent-platform/pull/123" {
-		t.Fatalf("unexpected pr url %#v", result.Output)
+	if result.Output["error"] == nil {
+		t.Fatalf("unexpected output %#v", result.Output)
 	}
 }
 
 func TestGitHubRepoActivityUsesExternalAPI(t *testing.T) {
+	privateKey := testGitHubAppPrivateKey(t)
 	var seenAuth string
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		seenAuth = r.Header.Get("Authorization")
 		switch r.URL.Path {
+		case "/app/installations/456/access_tokens":
+			seenAuth = r.Header.Get("Authorization")
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
+				"token":      "installation-token",
+				"expires_at": "2026-04-14T00:00:00Z",
+			})
 		case "/repos/piplabs/depin-backend/commits":
+			if r.Header.Get("Authorization") != "Bearer installation-token" {
+				t.Fatalf("unexpected commit auth %q", r.Header.Get("Authorization"))
+			}
 			_ = json.NewEncoder(w).Encode([]map[string]any{
 				{
 					"sha":      "abc123",
@@ -74,6 +124,9 @@ func TestGitHubRepoActivityUsesExternalAPI(t *testing.T) {
 				},
 			})
 		case "/repos/piplabs/depin-backend/pulls":
+			if r.Header.Get("Authorization") != "Bearer installation-token" {
+				t.Fatalf("unexpected pull auth %q", r.Header.Get("Authorization"))
+			}
 			_ = json.NewEncoder(w).Encode([]map[string]any{
 				{
 					"number":     42,
@@ -94,10 +147,12 @@ func TestGitHubRepoActivityUsesExternalAPI(t *testing.T) {
 	defer server.Close()
 
 	service := NewService(config.Config{
-		GitHubToken:      "test-token",
-		GitHubOwner:      "piplabs",
-		GitHubAPIBaseURL: server.URL,
-		DefaultRepo:      "depin-backend",
+		GitHubAppID:             "123",
+		GitHubAppInstallationID: "456",
+		GitHubAppPrivateKey:     privateKey,
+		GitHubOwner:             "piplabs",
+		GitHubAPIBaseURL:        server.URL,
+		DefaultRepo:             "depin-backend",
 	}, storepkg.NewMemoryStore())
 
 	result := service.Execute("github.repo_activity", map[string]interface{}{
@@ -106,7 +161,7 @@ func TestGitHubRepoActivityUsesExternalAPI(t *testing.T) {
 		"until": "2026-04-12T00:00:00Z",
 	})
 
-	if seenAuth != "Bearer test-token" {
+	if seenAuth == "" {
 		t.Fatalf("unexpected auth header %q", seenAuth)
 	}
 	if result.Status != "ok" {
@@ -135,4 +190,16 @@ func TestSlackReplyWithoutTokenIsBlocked(t *testing.T) {
 	if result.Available {
 		t.Fatal("expected unavailable slack provider when token is missing")
 	}
+}
+
+func testGitHubAppPrivateKey(t *testing.T) string {
+	t.Helper()
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatalf("GenerateKey() error = %v", err)
+	}
+	return string(pem.EncodeToMemory(&pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: x509.MarshalPKCS1PrivateKey(privateKey),
+	}))
 }

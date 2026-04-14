@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"strings"
 	"time"
 
@@ -14,6 +15,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	"github.com/piplabs/rsi-agent-platform/internal/evals"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
+	"github.com/piplabs/rsi-agent-platform/internal/githubapp"
 	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
@@ -628,21 +630,33 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 	if err != nil {
 		return err
 	}
+	repoOwner := cfg.GitHubRepoOwner(repoJob.Repo)
+	repoName := cfg.GitHubRepoName(repoJob.Repo)
+	writeToken, err := githubapp.NewClient(
+		cfg.GitHubAppID,
+		cfg.GitHubInstallationIDForRepo(repoJob.Repo),
+		cfg.GitHubAppPrivateKey,
+		cfg.GitHubAPIBaseURL,
+		&http.Client{Timeout: 30 * time.Second},
+	).MintInstallationToken(context.Background(), []string{repoName})
+	if err != nil {
+		return fmt.Errorf("mint github app installation token for sandbox launch: %w", err)
+	}
 	request := sandbox.JobRequest{
 		TraceID:      trace.Summary.TraceID,
 		ProposalID:   item.ProposalID,
-		Repo:         repoJob.Repo,
+		Repo:         repoName,
 		BaseRef:      repoJob.BaseRef,
 		RequestedBy:  cfg.ServiceName,
 		ArtifactPath: fmt.Sprintf("memory://sandbox/%s", repoJob.ID),
 		Env: map[string]string{
-			"GITHUB_TOKEN":        cfg.GitHubToken,
-			"GITHUB_OWNER":        cfg.GitHubOwner,
+			"GITHUB_TOKEN":        writeToken.Token,
+			"GITHUB_OWNER":        repoOwner,
 			"GITHUB_COMMIT_USER":  cfg.GitHubCommitUser,
 			"GITHUB_COMMIT_EMAIL": cfg.GitHubCommitEmail,
 			"RSI_BRANCH_NAME":     repoJob.BranchName,
 			"RSI_CONTEXT_SUMMARY": repoJob.ContextSummary,
-			"RSI_REPO":            repoJob.Repo,
+			"RSI_REPO":            repoName,
 			"RSI_BASE_REF":        repoJob.BaseRef,
 			"RSI_PROPOSAL_ID":     item.ProposalID,
 		},

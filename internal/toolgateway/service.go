@@ -18,6 +18,7 @@ import (
 
 	"github.com/piplabs/rsi-agent-platform/internal/cluster"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
+	"github.com/piplabs/rsi-agent-platform/internal/githubapp"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 	corev1 "k8s.io/api/core/v1"
@@ -241,45 +242,55 @@ func (s *Service) kubernetesInspect(input map[string]interface{}) storepkg.ToolR
 
 func (s *Service) githubRepoContext(input map[string]interface{}) storepkg.ToolResult {
 	repo := firstNonEmpty(stringValue(input["repo"]), s.cfg.DefaultRepo)
-	if strings.TrimSpace(s.cfg.GitHubToken) == "" {
-		summary := fmt.Sprintf("GitHub repo context unavailable for %s: missing token.", repo)
+	owner := s.cfg.GitHubRepoOwner(repo)
+	repoName := s.cfg.GitHubRepoName(repo)
+	token, err := s.githubInstallationToken(repo)
+	if err != nil {
+		summary := fmt.Sprintf("GitHub repo context unavailable for %s/%s: missing app authentication.", owner, repoName)
 		return s.unavailableResult("github.repo_context", input, "github", summary, map[string]interface{}{
-			"repo":  repo,
-			"error": "missing RSI_GITHUB_TOKEN",
-		})
-	}
-	endpoint := fmt.Sprintf("%s/repos/%s/%s", strings.TrimRight(s.cfg.GitHubAPIBaseURL, "/"), s.cfg.GitHubOwner, repo)
-	var payload map[string]interface{}
-	if err := s.apiJSON(http.MethodGet, endpoint, nil, map[string]string{
-		"Authorization": "Bearer " + s.cfg.GitHubToken,
-		"Accept":        "application/vnd.github+json",
-	}, &payload); err != nil {
-		return s.failedResult("github.repo_context", input, "github", fmt.Sprintf("GitHub repo context failed: %v", err), map[string]interface{}{
-			"repo":  repo,
+			"repo":  repoName,
+			"owner": owner,
 			"error": err.Error(),
 		})
 	}
-	summary := fmt.Sprintf("GitHub repo context loaded for %s (default branch %s).", repo, stringValue(payload["default_branch"]))
+	endpoint := fmt.Sprintf("%s/repos/%s/%s", strings.TrimRight(s.cfg.GitHubAPIBaseURL, "/"), owner, repoName)
+	var payload map[string]interface{}
+	if err := s.apiJSON(http.MethodGet, endpoint, nil, map[string]string{
+		"Authorization": "Bearer " + token,
+		"Accept":        "application/vnd.github+json",
+	}, &payload); err != nil {
+		return s.failedResult("github.repo_context", input, "github", fmt.Sprintf("GitHub repo context failed: %v", err), map[string]interface{}{
+			"repo":  repoName,
+			"owner": owner,
+			"error": err.Error(),
+		})
+	}
+	summary := fmt.Sprintf("GitHub repo context loaded for %s/%s (default branch %s).", owner, repoName, stringValue(payload["default_branch"]))
 	return s.result("github.repo_context", input, summary, payload, nil)
 }
 
 func (s *Service) githubRepoActivity(input map[string]interface{}) storepkg.ToolResult {
 	repo := firstNonEmpty(stringValue(input["repo"]), s.cfg.DefaultRepo)
-	if strings.TrimSpace(s.cfg.GitHubToken) == "" {
-		return s.unavailableResult("github.repo_activity", input, "github", fmt.Sprintf("GitHub repo activity unavailable for %s: missing token.", repo), map[string]interface{}{
-			"repo":  repo,
-			"error": "missing RSI_GITHUB_TOKEN",
+	owner := s.cfg.GitHubRepoOwner(repo)
+	repoName := s.cfg.GitHubRepoName(repo)
+	token, err := s.githubInstallationToken(repo)
+	if err != nil {
+		return s.unavailableResult("github.repo_activity", input, "github", fmt.Sprintf("GitHub repo activity unavailable for %s/%s: missing app authentication.", owner, repoName), map[string]interface{}{
+			"repo":  repoName,
+			"owner": owner,
+			"error": err.Error(),
 		})
 	}
 	since, until, err := parseActivityWindow(input)
 	if err != nil {
 		return s.failedResult("github.repo_activity", input, "github", fmt.Sprintf("GitHub repo activity input invalid: %v", err), map[string]interface{}{
-			"repo":  repo,
+			"repo":  repoName,
+			"owner": owner,
 			"error": err.Error(),
 		})
 	}
 	headers := map[string]string{
-		"Authorization": "Bearer " + s.cfg.GitHubToken,
+		"Authorization": "Bearer " + token,
 		"Accept":        "application/vnd.github+json",
 	}
 
@@ -287,11 +298,12 @@ func (s *Service) githubRepoActivity(input map[string]interface{}) storepkg.Tool
 	commitValues.Set("since", since.Format(time.RFC3339))
 	commitValues.Set("until", until.Format(time.RFC3339))
 	commitValues.Set("per_page", "25")
-	commitEndpoint := fmt.Sprintf("%s/repos/%s/%s/commits?%s", strings.TrimRight(s.cfg.GitHubAPIBaseURL, "/"), s.cfg.GitHubOwner, repo, commitValues.Encode())
+	commitEndpoint := fmt.Sprintf("%s/repos/%s/%s/commits?%s", strings.TrimRight(s.cfg.GitHubAPIBaseURL, "/"), owner, repoName, commitValues.Encode())
 	var commitPayload []map[string]interface{}
 	if err := s.apiJSON(http.MethodGet, commitEndpoint, nil, headers, &commitPayload); err != nil {
 		return s.failedResult("github.repo_activity", input, "github", fmt.Sprintf("GitHub repo activity failed to load commits: %v", err), map[string]interface{}{
-			"repo":  repo,
+			"repo":  repoName,
+			"owner": owner,
 			"error": err.Error(),
 		})
 	}
@@ -301,11 +313,12 @@ func (s *Service) githubRepoActivity(input map[string]interface{}) storepkg.Tool
 	pullValues.Set("sort", "updated")
 	pullValues.Set("direction", "desc")
 	pullValues.Set("per_page", "50")
-	pullEndpoint := fmt.Sprintf("%s/repos/%s/%s/pulls?%s", strings.TrimRight(s.cfg.GitHubAPIBaseURL, "/"), s.cfg.GitHubOwner, repo, pullValues.Encode())
+	pullEndpoint := fmt.Sprintf("%s/repos/%s/%s/pulls?%s", strings.TrimRight(s.cfg.GitHubAPIBaseURL, "/"), owner, repoName, pullValues.Encode())
 	var pullPayload []map[string]interface{}
 	if err := s.apiJSON(http.MethodGet, pullEndpoint, nil, headers, &pullPayload); err != nil {
 		return s.failedResult("github.repo_activity", input, "github", fmt.Sprintf("GitHub repo activity failed to load pull requests: %v", err), map[string]interface{}{
-			"repo":  repo,
+			"repo":  repoName,
+			"owner": owner,
 			"error": err.Error(),
 		})
 	}
@@ -325,9 +338,10 @@ func (s *Service) githubRepoActivity(input map[string]interface{}) storepkg.Tool
 			openedPRs = append(openedPRs, mapped)
 		}
 	}
-	summary := fmt.Sprintf("GitHub activity for %s from %s to %s includes %d commits, %d merged PRs, and %d opened PRs.", repo, since.Format("2006-01-02"), until.Format("2006-01-02"), len(commits), len(mergedPRs), len(openedPRs))
+	summary := fmt.Sprintf("GitHub activity for %s/%s from %s to %s includes %d commits, %d merged PRs, and %d opened PRs.", owner, repoName, since.Format("2006-01-02"), until.Format("2006-01-02"), len(commits), len(mergedPRs), len(openedPRs))
 	return s.result("github.repo_activity", input, summary, map[string]interface{}{
-		"repo":                 repo,
+		"repo":                 repoName,
+		"owner":                owner,
 		"since":                since.Format(time.RFC3339),
 		"until":                until.Format(time.RFC3339),
 		"commits":              commits,
@@ -339,16 +353,20 @@ func (s *Service) githubRepoActivity(input map[string]interface{}) storepkg.Tool
 
 func (s *Service) githubCreatePR(input map[string]interface{}) storepkg.ToolResult {
 	repo := firstNonEmpty(stringValue(input["repo"]), s.cfg.DefaultRepo)
+	owner := s.cfg.GitHubRepoOwner(repo)
+	repoName := s.cfg.GitHubRepoName(repo)
 	head := firstNonEmpty(stringValue(input["branch_name"]), stringValue(input["head"]))
 	base := firstNonEmpty(stringValue(input["base_ref"]), "main")
-	title := firstNonEmpty(stringValue(input["title"]), fmt.Sprintf("RSI proposal for %s", repo))
+	title := firstNonEmpty(stringValue(input["title"]), fmt.Sprintf("RSI proposal for %s", repoName))
 	body := firstNonEmpty(stringValue(input["body"]), "Automated draft PR from RSI platform.")
-	if strings.TrimSpace(s.cfg.GitHubToken) == "" {
-		return s.unavailableResult("github.create_pr", input, "github", "GitHub token not configured; refusing draft PR execution.", map[string]interface{}{
-			"repo":  repo,
+	writeToken, err := s.githubInstallationToken(repo)
+	if err != nil {
+		return s.unavailableResult("github.create_pr", input, "github", "GitHub App authentication not configured; refusing draft PR execution.", map[string]interface{}{
+			"repo":  repoName,
+			"owner": owner,
 			"head":  head,
 			"base":  base,
-			"error": "missing RSI_GITHUB_TOKEN",
+			"error": err.Error(),
 		})
 	}
 	requestBody := map[string]interface{}{
@@ -358,22 +376,24 @@ func (s *Service) githubCreatePR(input map[string]interface{}) storepkg.ToolResu
 		"body":  body,
 		"draft": true,
 	}
-	endpoint := fmt.Sprintf("%s/repos/%s/%s/pulls", strings.TrimRight(s.cfg.GitHubAPIBaseURL, "/"), s.cfg.GitHubOwner, repo)
+	endpoint := fmt.Sprintf("%s/repos/%s/%s/pulls", strings.TrimRight(s.cfg.GitHubAPIBaseURL, "/"), owner, repoName)
 	var response map[string]interface{}
 	if err := s.apiJSON(http.MethodPost, endpoint, requestBody, map[string]string{
-		"Authorization": "Bearer " + s.cfg.GitHubToken,
+		"Authorization": "Bearer " + writeToken,
 		"Accept":        "application/vnd.github+json",
 	}, &response); err != nil {
 		return s.failedResult("github.create_pr", input, "github", fmt.Sprintf("GitHub PR creation failed: %v", err), map[string]interface{}{
-			"repo":  repo,
+			"repo":  repoName,
+			"owner": owner,
 			"head":  head,
 			"base":  base,
 			"error": err.Error(),
 		})
 	}
-	summary := fmt.Sprintf("Draft PR opened for %s:%s.", repo, head)
+	summary := fmt.Sprintf("Draft PR opened for %s/%s:%s.", owner, repoName, head)
 	return s.result("github.create_pr", input, summary, map[string]interface{}{
-		"repo":     repo,
+		"repo":     repoName,
+		"owner":    owner,
 		"head":     head,
 		"base":     base,
 		"pr_url":   stringValue(response["html_url"]),
@@ -568,6 +588,20 @@ func (s *Service) apiJSON(method string, endpoint string, body interface{}, head
 		return err
 	}
 	return nil
+}
+
+func (s *Service) githubInstallationToken(repo string) (string, error) {
+	token, err := githubapp.NewClient(
+		s.cfg.GitHubAppID,
+		s.cfg.GitHubInstallationIDForRepo(repo),
+		s.cfg.GitHubAppPrivateKey,
+		s.cfg.GitHubAPIBaseURL,
+		s.httpClient,
+	).MintInstallationToken(context.Background(), []string{s.cfg.GitHubRepoName(repo)})
+	if err != nil {
+		return "", err
+	}
+	return token.Token, nil
 }
 
 func matchesKubernetesTarget(pod corev1.Pod, target string) bool {
