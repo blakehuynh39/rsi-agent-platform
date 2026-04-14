@@ -250,7 +250,9 @@ export type ActionIntent = {
   case_id?: string;
   trace_id?: string;
   proposal_id?: string;
+  attempt_id?: string;
   kind: string;
+  phase_key?: string;
   target_ref?: string;
   request_payload?: Record<string, unknown>;
   idempotency_key?: string;
@@ -269,6 +271,7 @@ export type ActionIntent = {
 export type ActionResult = {
   id: string;
   action_intent_id: string;
+  attempt_id?: string;
   attempt_number: number;
   executor: string;
   provider?: string;
@@ -290,6 +293,7 @@ export type OutcomeRecord = {
   case_id?: string;
   trace_id?: string;
   proposal_id?: string;
+  attempt_id?: string;
   outcome_type: string;
   verdict: string;
   score?: number;
@@ -380,6 +384,14 @@ export type Proposal = {
   review_deadline?: string;
   prior_similar_proposal_ids?: NullableList<string>;
   new_evidence_since_last_rejection: boolean;
+  current_attempt_id?: string;
+  attempt_count: number;
+  auto_retry_budget_remaining: number;
+  last_failure_class?: string;
+  next_retry_action?: string;
+  line_stopped_by?: string;
+  line_stop_reason?: string;
+  line_stopped_at?: string;
   created_at: string;
 };
 
@@ -401,6 +413,7 @@ export type ProposalReview = {
 
 export type ProposalMemory = {
   id: string;
+  review_id?: number;
   proposal_id: string;
   candidate_key: string;
   conversation_id?: string;
@@ -420,6 +433,7 @@ export type ProposalMemory = {
 export type RepoChangeJob = {
   id: string;
   proposal_id: string;
+  attempt_id?: string;
   status: string;
   repo: string;
   branch_name: string;
@@ -437,10 +451,47 @@ export type RepoChangeJob = {
 export type PRAttempt = {
   id: string;
   proposal_id: string;
+  attempt_id?: string;
+  repo?: string;
+  branch_name?: string;
   pr_url?: string;
+  head_sha?: string;
   status: string;
   validation_status: string;
   created_at: string;
+};
+
+export type ChangeAttempt = {
+  id: string;
+  proposal_id: string;
+  candidate_key: string;
+  attempt_number: number;
+  target_layer: string;
+  target_kind?: string;
+  target_ref?: string;
+  trigger: string;
+  state: string;
+  attempt_trace_id?: string;
+  parent_attempt_id?: string;
+  branch_name?: string;
+  pr_url?: string;
+  head_sha?: string;
+  failure_class?: string;
+  failure_summary?: string;
+  retry_decision?: string;
+  retry_after?: string;
+  material_hypothesis_change?: boolean;
+  diff_summary?: string;
+  changed_files?: NullableList<string>;
+  validation_summary?: string;
+  change_plan?: string;
+  repo_patch?: string;
+  validation_plan?: string;
+  retry_assessment?: string;
+  hypothesis_delta?: string;
+  overlay_payload?: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
 };
 
 export type PostMergeReplay = {
@@ -475,6 +526,7 @@ export type ProposalResponse = {
 
 export type ProposalDetailResponse = {
   proposal: Proposal;
+  attempts: NullableList<ChangeAttempt>;
   reviews: NullableList<ProposalReview>;
   related_proposal_memory: NullableList<ProposalMemory>;
   repo_change_jobs: NullableList<RepoChangeJob>;

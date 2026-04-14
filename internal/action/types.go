@@ -39,6 +39,7 @@ type Intent struct {
 	CaseID               string               `json:"case_id,omitempty"`
 	TraceID              string               `json:"trace_id,omitempty"`
 	ProposalID           string               `json:"proposal_id,omitempty"`
+	AttemptID            string               `json:"attempt_id,omitempty"`
 	Kind                 Kind                 `json:"kind"`
 	PhaseKey             string               `json:"phase_key,omitempty"`
 	TargetRef            string               `json:"target_ref,omitempty"`
@@ -59,6 +60,7 @@ type Intent struct {
 type Result struct {
 	ID                 string    `json:"id"`
 	ActionIntentID     string    `json:"action_intent_id"`
+	AttemptID          string    `json:"attempt_id,omitempty"`
 	AttemptNumber      int       `json:"attempt_number"`
 	Executor           string    `json:"executor"`
 	Provider           string    `json:"provider,omitempty"`

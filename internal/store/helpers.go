@@ -40,6 +40,7 @@ func newEmptyMemoryStore() *MemoryStore {
 		evalJudgments:          map[string][]evals.Judgment{},
 		candidates:             map[string]improvement.Candidate{},
 		proposals:              map[string]review.Proposal{},
+		changeAttempts:         map[string]improvement.ChangeAttempt{},
 		workItems:              map[string]queue.WorkItem{},
 		repoChangeJobs:         map[string]improvement.RepoChangeJob{},
 		prAttempts:             map[string]improvement.PRAttempt{},

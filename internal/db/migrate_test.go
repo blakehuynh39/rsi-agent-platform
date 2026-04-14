@@ -89,7 +89,10 @@ func TestMigrationRejectsBaselineWithoutHonchoArtifacts(t *testing.T) {
 	if err != nil {
 		t.Fatalf("list migrations: %v", err)
 	}
-	for _, migration := range migrations[:len(migrations)-1] {
+	for _, migration := range migrations {
+		if migration.Version >= 4 {
+			break
+		}
 		if _, err := db.Exec(migration.SQL); err != nil {
 			t.Fatalf("seed migration %d (%s): %v", migration.Version, migration.Name, err)
 		}

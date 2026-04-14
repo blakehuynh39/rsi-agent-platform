@@ -233,6 +233,10 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 	if !ok {
 		return nil
 	}
+	attempt, trace, err := ensureProposalAttempt(cfg, store, proposal, trace, item)
+	if err != nil {
+		return err
+	}
 	memories := filterProposalMemory(store.ListProposalMemories(), proposal.CandidateKey)
 	runnerStarted := time.Now().UTC()
 	_, _ = store.ApplyTraceUpdate(trace.Summary.TraceID, storepkg.TraceUpdate{
@@ -247,7 +251,7 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 				EventType:   "runner.started",
 				Status:      events.StatusRunning,
 				StartedAt:   runnerStarted,
-				Description: "Proposal materialization dispatched to proposal runner.",
+				Description: fmt.Sprintf("Change attempt %s dispatched to proposal runner.", attempt.ID),
 			},
 		},
 	})
@@ -257,7 +261,7 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 		runnerErr    error
 	)
 	if runnerClient != nil {
-		runnerTask := buildProposalRunnerTask(cfg, store, trace, proposal, memories)
+		runnerTask := buildProposalRunnerTask(cfg, store, trace, proposal, attempt, memories)
 		runnerResp, runnerErr = runnerClient.Execute(runnerTask)
 		if runnerErr == nil {
 			if err := runnerutil.PersistHarnessExecution(
@@ -321,7 +325,28 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 		return errDeferredWorkItem
 	}
 	if proposal.TargetLayer == harness.TargetLayerHarnessOverlay {
-		return processHarnessOverlayProposal(cfg, store, trace, proposal, runnerResp, runnerOutput, runnerStarted)
+		return processHarnessOverlayProposal(cfg, store, trace, proposal, attempt, runnerResp, runnerOutput, runnerStarted)
+	}
+	now := time.Now().UTC()
+	failureClass, failureSummary, changedFiles := validateRepoPatch(runnerOutput.RepoPatch, runnerOutput.RetryAssessment.ChangedFiles)
+	attempt.ChangePlan = strings.TrimSpace(runnerOutput.ChangePlan)
+	attempt.RepoPatch = strings.TrimSpace(runnerOutput.RepoPatch)
+	attempt.ValidationPlan = strings.TrimSpace(runnerOutput.ValidationPlan)
+	attempt.HypothesisDelta = strings.TrimSpace(runnerOutput.HypothesisDelta)
+	attempt.DiffSummary = firstNonEmpty(strings.TrimSpace(runnerOutput.ChangePlan), strings.TrimSpace(runnerOutput.ContextSummary))
+	attempt.ValidationSummary = strings.TrimSpace(runnerOutput.ValidationPlan)
+	attempt.ChangedFiles = changedFiles
+	attempt.FailureClass = firstNonEmpty(runnerOutput.RetryAssessment.FailureClass, failureClass)
+	attempt.FailureSummary = firstNonEmpty(runnerOutput.RetryAssessment.FailureSummary, failureSummary)
+	attempt.RetryDecision = strings.TrimSpace(runnerOutput.RetryAssessment.RetryDecision)
+	attempt.MaterialHypothesisChange = runnerOutput.RetryAssessment.MaterialHypothesisChange
+	attempt.UpdatedAt = now
+	if failureClass != "" {
+		return recordAttemptFailure(cfg, store, proposal, attempt, trace, failureClass, failureSummary, runnerOutput.RetryAssessment.MaterialHypothesisChange, improvement.AttemptTriggerProposalApproved)
+	}
+	attempt.State = improvement.AttemptStatePatchGenerated
+	if _, err := store.UpsertChangeAttempt(attempt); err != nil {
+		return err
 	}
 	job, err := store.MaterializeApprovedProposal(item.ProposalID, cfg.ServiceName)
 	if err != nil {
@@ -334,13 +359,14 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 		BaseRef:      job.BaseRef,
 		RequestedBy:  cfg.ServiceName,
 		ArtifactPath: fmt.Sprintf("memory://sandbox/%s", job.ID),
-		Commands: []string{
-			"bash",
-			"-lc",
-			fmt.Sprintf("echo materialized proposal %s for repo %s", item.ProposalID, job.Repo),
+		Env: map[string]string{
+			"RSI_ATTEMPT_ID":      attempt.ID,
+			"RSI_CHANGE_PLAN":     attempt.ChangePlan,
+			"RSI_REPO_PATCH":      attempt.RepoPatch,
+			"RSI_VALIDATION_PLAN": attempt.ValidationPlan,
 		},
+		Commands: repoChangeCommands(),
 	})
-	now := time.Now().UTC()
 	_, _ = store.UpdateRepoChangeJobStatus(job.ID, string(review.ProposalRepoChangeQueued))
 	_, err = upsertImprovementActionIntent(store, action.Intent{
 		OwnerPlane:     "improvement",
@@ -348,10 +374,12 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 		CaseID:         proposal.CaseID,
 		TraceID:        trace.Summary.TraceID,
 		ProposalID:     proposal.ID,
+		AttemptID:      attempt.ID,
 		Kind:           action.KindSandboxLaunch,
 		TargetRef:      fmt.Sprintf("%s/%s", cfg.SandboxNamespace, job.ID),
 		RequestPayload: map[string]any{
 			"job_id":      job.ID,
+			"attempt_id":  attempt.ID,
 			"repo":        job.Repo,
 			"branch_name": job.BranchName,
 			"base_ref":    job.BaseRef,
@@ -366,6 +394,7 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 		EvidenceRefs: []events.EvidenceRef{
 			{Kind: "proposal", Ref: proposal.ID, Summary: proposal.Title},
 			{Kind: "trace", Ref: trace.Summary.TraceID, Summary: trace.Summary.WorkflowKind},
+			{Kind: "change_attempt", Ref: attempt.ID, Summary: attempt.ChangePlan},
 		},
 		CreatedAt: now,
 		UpdatedAt: now,
@@ -379,7 +408,7 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 			TraceID:    trace.Summary.TraceID,
 			WorkflowID: trace.Summary.WorkflowID,
 			StepType:   "proposal_materialized",
-			Summary:    firstNonEmpty(runnerOutput.FinalAnswer, runnerOutput.ContextSummary, fmt.Sprintf("Approved proposal %s moved into repo-change queue.", item.ProposalID)),
+			Summary:    firstNonEmpty(runnerOutput.ChangePlan, runnerOutput.FinalAnswer, runnerOutput.ContextSummary, fmt.Sprintf("Approved proposal %s moved into repo-change queue.", item.ProposalID)),
 			Confidence: confidenceOr(0.86, runnerOutput.Confidence),
 			Decision:   job.BranchName,
 			CreatedAt:  now,
@@ -432,6 +461,15 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 		},
 		Artifacts: []events.Artifact{
 			{
+				ID:          fmt.Sprintf("artifact-patch-%d", now.UnixNano()),
+				TraceID:     trace.Summary.TraceID,
+				Kind:        "repo_patch",
+				ContentType: "text/x-diff",
+				URL:         fmt.Sprintf("memory://attempt/%s/repo.patch", attempt.ID),
+				SizeBytes:   int64(len(attempt.RepoPatch)),
+				Source:      "proposal-runner",
+			},
+			{
 				ID:          fmt.Sprintf("artifact-sandbox-%d", now.UnixNano()),
 				TraceID:     trace.Summary.TraceID,
 				Kind:        "sandbox_job_manifest",
@@ -457,12 +495,27 @@ func processSandboxItem(cfg config.Config, store storepkg.Store, launcher sandbo
 	}
 }
 
-func processHarnessOverlayProposal(cfg config.Config, store storepkg.Store, trace events.Trace, proposal review.Proposal, runnerResp clients.RunnerResponse, runnerOutput runnerutil.StructuredOutput, runnerStarted time.Time) error {
+func processHarnessOverlayProposal(cfg config.Config, store storepkg.Store, trace events.Trace, proposal review.Proposal, attempt improvement.ChangeAttempt, runnerResp clients.RunnerResponse, runnerOutput runnerutil.StructuredOutput, runnerStarted time.Time) error {
 	overlay, err := buildHarnessOverlayFromRunner(store, proposal, runnerOutput)
 	if err != nil {
 		return err
 	}
 	now := time.Now().UTC()
+	attempt.State = improvement.AttemptStateOverlayGenerated
+	attempt.ChangePlan = firstNonEmpty(strings.TrimSpace(runnerOutput.ChangePlan), strings.TrimSpace(runnerOutput.FinalAnswer), proposal.Summary)
+	attempt.ValidationPlan = strings.TrimSpace(runnerOutput.ValidationPlan)
+	attempt.OverlayPayload = map[string]any{
+		"overlay_id":            overlay.ID,
+		"prompt_fragments":      overlay.PromptFragments,
+		"few_shot_snippets":     overlay.FewShotSnippets,
+		"tool_preference_order": overlay.ToolPreferenceOrder,
+		"retrieval_bias":        overlay.RetrievalBias,
+		"reasoning_verbosity":   overlay.ReasoningVerbosity,
+	}
+	attempt.UpdatedAt = now
+	if _, err := store.UpsertChangeAttempt(attempt); err != nil {
+		return err
+	}
 	if _, err := store.UpsertHarnessOverlay(overlay); err != nil {
 		return err
 	}
@@ -471,6 +524,7 @@ func processHarnessOverlayProposal(cfg config.Config, store storepkg.Store, trac
 		ProfileID:  overlay.ProfileID,
 		OverlayID:  overlay.ID,
 		ProposalID: proposal.ID,
+		AttemptID:  attempt.ID,
 		Role:       overlay.Role,
 		Status:     harness.ExperimentStatusSucceeded,
 		Summary:    firstNonEmpty(runnerOutput.FinalAnswer, runnerOutput.ContextSummary, proposal.Summary),
@@ -490,6 +544,7 @@ func processHarnessOverlayProposal(cfg config.Config, store storepkg.Store, trac
 		CaseID:         proposal.CaseID,
 		TraceID:        trace.Summary.TraceID,
 		ProposalID:     proposal.ID,
+		AttemptID:      attempt.ID,
 		Kind:           action.KindHarnessOverlay,
 		TargetRef:      overlay.Role,
 		RequestPayload: map[string]any{
@@ -524,6 +579,7 @@ func processHarnessOverlayProposal(cfg config.Config, store storepkg.Store, trac
 	}
 	if _, err := store.RecordActionResult(action.Result{
 		ActionIntentID: intent.ID,
+		AttemptID:      attempt.ID,
 		Executor:       cfg.ServiceName,
 		Provider:       "rsi-platform",
 		ProviderRef:    overlay.ID,
@@ -534,6 +590,11 @@ func processHarnessOverlayProposal(cfg config.Config, store storepkg.Store, trac
 		return err
 	}
 	if _, err := store.UpdateProposalStatus(proposal.ID, review.ProposalMerged); err != nil {
+		return err
+	}
+	attempt.State = improvement.AttemptStateMerged
+	attempt.UpdatedAt = now
+	if _, err := store.UpsertChangeAttempt(attempt); err != nil {
 		return err
 	}
 	reasoning := []events.ReasoningStep{
@@ -599,16 +660,21 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 	if !ok {
 		return fmt.Errorf("trace %s not found", item.TraceID)
 	}
+	attemptID := firstNonEmpty(stringValue(item.Payload["attempt_id"]), repoJob.AttemptID)
+	attempt, _ := store.GetChangeAttempt(attemptID)
+	proposal, _ := findProposal(store.ListProposals(), item.ProposalID)
 	intent, err := upsertImprovementActionIntent(store, action.Intent{
 		OwnerPlane:     "improvement",
 		ConversationID: repoJob.ConversationID,
 		CaseID:         repoJob.CaseID,
 		TraceID:        trace.Summary.TraceID,
 		ProposalID:     item.ProposalID,
+		AttemptID:      attemptID,
 		Kind:           action.KindSandboxLaunch,
 		TargetRef:      fmt.Sprintf("%s/%s", cfg.SandboxNamespace, repoJob.ID),
 		RequestPayload: map[string]any{
 			"job_id":      repoJob.ID,
+			"attempt_id":  attemptID,
 			"repo":        repoJob.Repo,
 			"branch_name": repoJob.BranchName,
 			"base_ref":    repoJob.BaseRef,
@@ -656,11 +722,15 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 			"GITHUB_COMMIT_EMAIL": cfg.GitHubCommitEmail,
 			"RSI_BRANCH_NAME":     repoJob.BranchName,
 			"RSI_CONTEXT_SUMMARY": repoJob.ContextSummary,
+			"RSI_CHANGE_PLAN":     attempt.ChangePlan,
+			"RSI_REPO_PATCH":      attempt.RepoPatch,
+			"RSI_VALIDATION_PLAN": attempt.ValidationPlan,
+			"RSI_ATTEMPT_ID":      attemptID,
 			"RSI_REPO":            repoName,
 			"RSI_BASE_REF":        repoJob.BaseRef,
 			"RSI_PROPOSAL_ID":     item.ProposalID,
 		},
-		Commands: repoChangeCommands(item.ProposalID),
+		Commands: repoChangeCommands(),
 	}
 	if launcherErr != nil || launcher == nil {
 		completed := time.Now().UTC()
@@ -671,6 +741,7 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 			CaseID:         intent.CaseID,
 			TraceID:        intent.TraceID,
 			ProposalID:     intent.ProposalID,
+			AttemptID:      intent.AttemptID,
 			Kind:           intent.Kind,
 			TargetRef:      intent.TargetRef,
 			RequestPayload: intent.RequestPayload,
@@ -689,6 +760,7 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 		}
 		_, _ = store.RecordActionResult(action.Result{
 			ActionIntentID: intent.ID,
+			AttemptID:      attemptID,
 			Executor:       "sandbox-runtime",
 			Provider:       "kubernetes",
 			Status:         action.StatusBlocked,
@@ -697,23 +769,9 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 			StartedAt:      completed,
 			CompletedAt:    completed,
 		})
-		_, _ = store.ApplyTraceUpdate(trace.Summary.TraceID, storepkg.TraceUpdate{
-			Status: ptrStatus(events.StatusNeedsHuman),
-			Events: []events.TraceEvent{
-				{
-					TraceID:     trace.Summary.TraceID,
-					IngestionID: trace.Summary.IngestionID,
-					WorkflowID:  trace.Summary.WorkflowID,
-					Plane:       "improvement",
-					Service:     cfg.ServiceName,
-					Actor:       "sandbox-launcher",
-					EventType:   "sandbox.job.blocked",
-					Status:      events.StatusNeedsHuman,
-					StartedAt:   completed,
-					Description: firstNonEmpty(errorString(launcherErr), "Sandbox launcher unavailable."),
-				},
-			},
-		})
+		if attempt.ID != "" && proposal.ID != "" {
+			return recordAttemptFailure(cfg, store, proposal, attempt, trace, "sandbox_failure", firstNonEmpty(errorString(launcherErr), "Sandbox launcher unavailable."), false, improvement.AttemptTriggerSandboxFailed)
+		}
 		return nil
 	}
 	session, _, err := launcher.Launch(context.Background(), request)
@@ -726,6 +784,7 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 			CaseID:         intent.CaseID,
 			TraceID:        intent.TraceID,
 			ProposalID:     intent.ProposalID,
+			AttemptID:      intent.AttemptID,
 			Kind:           intent.Kind,
 			TargetRef:      intent.TargetRef,
 			RequestPayload: intent.RequestPayload,
@@ -742,6 +801,7 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 		})
 		_, _ = store.RecordActionResult(action.Result{
 			ActionIntentID: intent.ID,
+			AttemptID:      attemptID,
 			Executor:       "sandbox-runtime",
 			Provider:       "kubernetes",
 			Status:         action.StatusFailed,
@@ -750,9 +810,17 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 			StartedAt:      intent.UpdatedAt,
 			CompletedAt:    completed,
 		})
+		if attempt.ID != "" && proposal.ID != "" {
+			return recordAttemptFailure(cfg, store, proposal, attempt, trace, "sandbox_failure", err.Error(), false, improvement.AttemptTriggerSandboxFailed)
+		}
 		return err
 	}
 	now := time.Now().UTC()
+	if attempt.ID != "" {
+		attempt.State = improvement.AttemptStateSandboxRunning
+		attempt.UpdatedAt = now
+		_, _ = store.UpsertChangeAttempt(attempt)
+	}
 	repoJob.Status = string(review.ProposalRepoChangeRunning)
 	repoJob.SandboxNamespace = session.Namespace
 	repoJob.SandboxJobName = session.PodName
@@ -807,13 +875,14 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 		TraceID:    trace.Summary.TraceID,
 		ProposalID: item.ProposalID,
 		Payload: map[string]interface{}{
+			"attempt_id":  attemptID,
 			"job_name":    session.PodName,
 			"namespace":   session.Namespace,
 			"repo":        repoJob.Repo,
 			"branch_name": repoJob.BranchName,
 			"base_ref":    repoJob.BaseRef,
 			"job_id":      repoJob.ID,
-			"dedupe_key":  fmt.Sprintf("sandbox-watch:%s", repoJob.ID),
+			"dedupe_key":  fmt.Sprintf("sandbox-watch:%s:%s", repoJob.ID, attemptID),
 		},
 		CreatedAt: now,
 		UpdatedAt: now,
@@ -833,6 +902,7 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 	repo := stringValue(item.Payload["repo"])
 	branchName := stringValue(item.Payload["branch_name"])
 	jobID := stringValue(item.Payload["job_id"])
+	attemptID := stringValue(item.Payload["attempt_id"])
 	if jobName == "" || namespace == "" {
 		return fmt.Errorf("sandbox watch item missing job metadata")
 	}
@@ -844,6 +914,8 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 	if !ok {
 		return fmt.Errorf("trace %s not found", item.TraceID)
 	}
+	proposal, _ := findProposal(store.ListProposals(), item.ProposalID)
+	attempt, _ := store.GetChangeAttempt(firstNonEmpty(attemptID, proposal.CurrentAttemptID))
 	if !observation.JobSucceeded && !observation.JobFailed {
 		retryAt := time.Now().UTC().Add(cfg.SandboxPollInterval)
 		payload := clonePayload(item.Payload)
@@ -864,6 +936,7 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 			_, _ = upsertImprovementActionIntent(store, withActionStatus(intent, action.StatusFailed, now))
 			_, _ = store.RecordActionResult(action.Result{
 				ActionIntentID:     intent.ID,
+				AttemptID:          firstNonEmpty(intent.AttemptID, attempt.ID),
 				Executor:           "sandbox-runtime",
 				Provider:           "kubernetes",
 				ProviderRef:        fmt.Sprintf("%s/%s", observation.Namespace, observation.JobName),
@@ -890,6 +963,14 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 			_, _ = store.UpdateRepoChangeJobStatus(jobID, string(review.ProposalFailedValidation))
 		}
 		_, _ = store.UpdateProposalStatus(item.ProposalID, review.ProposalFailedValidation)
+		if attempt.ID != "" && proposal.ID != "" {
+			attempt.State = improvement.AttemptStateSandboxFailed
+			attempt.FailureClass = "sandbox_failure"
+			attempt.FailureSummary = errorMessage
+			attempt.ValidationSummary = errorMessage
+			attempt.UpdatedAt = now
+			_, _ = store.UpsertChangeAttempt(attempt)
+		}
 		_, _ = store.ApplyTraceUpdate(trace.Summary.TraceID, storepkg.TraceUpdate{
 			Status: ptrStatus(events.StatusFailed),
 			Events: []events.TraceEvent{
@@ -908,6 +989,9 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 			},
 			Artifacts: sandboxArtifacts,
 		})
+		if attempt.ID != "" && proposal.ID != "" {
+			return recordAttemptFailure(cfg, store, proposal, attempt, trace, "sandbox_failure", errorMessage, false, improvement.AttemptTriggerSandboxFailed)
+		}
 		return nil
 	}
 
@@ -916,6 +1000,7 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 		_, _ = upsertImprovementActionIntent(store, withActionStatus(intent, action.StatusSucceeded, now))
 		_, _ = store.RecordActionResult(action.Result{
 			ActionIntentID:     intent.ID,
+			AttemptID:          firstNonEmpty(intent.AttemptID, attempt.ID),
 			Executor:           "sandbox-runtime",
 			Provider:           "kubernetes",
 			ProviderRef:        fmt.Sprintf("%s/%s", observation.Namespace, observation.JobName),
@@ -940,6 +1025,12 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 		_, _ = store.UpdateRepoChangeJobStatus(jobID, string(review.ProposalValidationPending))
 	}
 	_, _ = store.UpdateProposalStatus(item.ProposalID, review.ProposalValidationPending)
+	if attempt.ID != "" {
+		attempt.State = improvement.AttemptStateValidationReady
+		attempt.ValidationSummary = fmt.Sprintf("Sandbox validation succeeded for %s.", observation.JobName)
+		attempt.UpdatedAt = now
+		_, _ = store.UpsertChangeAttempt(attempt)
+	}
 	_, err = store.EnqueueWorkItem(queue.WorkItem{
 		Queue:      queue.ImprovementActionQueue,
 		Kind:       "draft_pr_open",
@@ -949,13 +1040,14 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 		CreatedAt:  now,
 		UpdatedAt:  now,
 		Payload: map[string]any{
+			"attempt_id":  attempt.ID,
 			"job_id":      jobID,
 			"job_name":    observation.JobName,
 			"namespace":   observation.Namespace,
 			"repo":        repo,
 			"branch_name": branchName,
 			"base_ref":    firstNonEmpty(stringValue(item.Payload["base_ref"]), "main"),
-			"dedupe_key":  fmt.Sprintf("draft-pr:%s:%s", item.ProposalID, branchName),
+			"dedupe_key":  fmt.Sprintf("draft-pr:%s:%s", attempt.ID, branchName),
 		},
 	})
 	if err != nil {
@@ -1011,22 +1103,27 @@ func processDraftPROpen(cfg config.Config, store storepkg.Store, toolClient *cli
 	branchName := stringValue(item.Payload["branch_name"])
 	baseRef := firstNonEmpty(stringValue(item.Payload["base_ref"]), "main")
 	jobID := stringValue(item.Payload["job_id"])
+	attemptID := stringValue(item.Payload["attempt_id"])
 	now := time.Now().UTC()
+	proposal, _ := findProposal(store.ListProposals(), item.ProposalID)
+	attempt, _ := store.GetChangeAttempt(firstNonEmpty(attemptID, proposal.CurrentAttemptID))
 	intent, err := upsertImprovementActionIntent(store, action.Intent{
 		OwnerPlane:     "improvement",
 		ConversationID: trace.Summary.ConversationID,
 		CaseID:         trace.Summary.CaseID,
 		TraceID:        trace.Summary.TraceID,
 		ProposalID:     item.ProposalID,
+		AttemptID:      attemptID,
 		Kind:           action.KindDraftPROpen,
 		TargetRef:      repo,
 		RequestPayload: map[string]any{
 			"proposal_id": item.ProposalID,
+			"attempt_id":  attemptID,
 			"repo":        repo,
 			"branch_name": branchName,
 			"base_ref":    baseRef,
 		},
-		IdempotencyKey: fmt.Sprintf("pr:%s:%s", item.ProposalID, branchName),
+		IdempotencyKey: fmt.Sprintf("pr:%s:%s", attemptID, branchName),
 		ApprovalMode:   "approved",
 		ApprovalState:  "approved",
 		PolicyVerdict:  "approved_proposal",
@@ -1061,17 +1158,19 @@ func processDraftPROpen(cfg config.Config, store storepkg.Store, toolClient *cli
 	})
 	prResult, execErr := toolClient.Execute("github.create_pr", map[string]any{
 		"proposal_id": item.ProposalID,
+		"attempt_id":  attemptID,
 		"repo":        repo,
 		"branch_name": branchName,
 		"base_ref":    baseRef,
-		"title":       fmt.Sprintf("RSI proposal %s for %s", item.ProposalID, repo),
-		"body":        fmt.Sprintf("Automated draft PR for proposal %s after sandbox validation.", item.ProposalID),
+		"title":       fmt.Sprintf("RSI proposal %s attempt %s for %s", item.ProposalID, attemptID, repo),
+		"body":        fmt.Sprintf("Automated draft PR for proposal %s attempt %s after sandbox validation.", item.ProposalID, attemptID),
 	})
 	completed := time.Now().UTC()
 	actionStatus := improvementActionStatus(prResult, execErr)
 	_, _ = upsertImprovementActionIntent(store, withActionStatus(intent, actionStatus, completed))
 	_, _ = store.RecordActionResult(action.Result{
 		ActionIntentID: intent.ID,
+		AttemptID:      attemptID,
 		Executor:       "tool-gateway",
 		Provider:       firstNonEmpty(prResult.Provider, "github"),
 		ProviderRef:    prResult.ProviderRef,
@@ -1100,11 +1199,22 @@ func processDraftPROpen(cfg config.Config, store storepkg.Store, toolClient *cli
 				},
 			},
 		})
+		if attempt.ID != "" && proposal.ID != "" {
+			return recordAttemptFailure(cfg, store, proposal, attempt, trace, "stale_branch", firstNonEmpty(improvementActionError(prResult, execErr), "Draft PR open blocked."), false, improvement.AttemptTriggerCIFailed)
+		}
 		return nil
 	}
 	prURL := stringValue(prResult.Output["pr_url"])
-	if _, err := store.RecordPRAttempt(buildPRAttempt(item.ProposalID, repo, branchName, prURL)); err != nil {
+	headSHA := nestedString(prResult.Output, "response", "head", "sha")
+	if _, err := store.RecordPRAttempt(buildPRAttempt(item.ProposalID, attemptID, repo, branchName, prURL, headSHA)); err != nil {
 		return err
+	}
+	if attempt.ID != "" {
+		attempt.State = improvement.AttemptStatePROpen
+		attempt.PRURL = prURL
+		attempt.HeadSHA = headSHA
+		attempt.UpdatedAt = completed
+		_, _ = store.UpsertChangeAttempt(attempt)
 	}
 	_, _ = store.UpdateRepoChangeJobStatus(jobID, string(review.ProposalPROpen))
 	_, _ = store.UpdateProposalStatus(item.ProposalID, review.ProposalPROpen)
@@ -1140,12 +1250,14 @@ func processDraftPROpen(cfg config.Config, store storepkg.Store, toolClient *cli
 	return nil
 }
 
-func buildPRAttempt(proposalID string, repo string, branchName string, prURL string) improvement.PRAttempt {
+func buildPRAttempt(proposalID string, attemptID string, repo string, branchName string, prURL string, headSHA string) improvement.PRAttempt {
 	return improvement.PRAttempt{
 		ProposalID:       proposalID,
+		AttemptID:        attemptID,
 		Repo:             repo,
 		BranchName:       branchName,
 		PRURL:            prURL,
+		HeadSHA:          headSHA,
 		Status:           string(review.ProposalPROpen),
 		ValidationStatus: "pending",
 	}
@@ -1315,7 +1427,7 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 	}
 }
 
-func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace events.Trace, proposal review.Proposal, memories []review.ProposalMemory) clients.RunnerTask {
+func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace events.Trace, proposal review.Proposal, attempt improvement.ChangeAttempt, memories []review.ProposalMemory) clients.RunnerTask {
 	effectiveHarness := harness.ResolveEffectiveConfig(store, "proposal", cfg.DefaultReasoningVerbosity)
 	rejectedContext := make([]map[string]any, 0, len(memories))
 	for _, memory := range memories {
@@ -1338,9 +1450,19 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 			"target_kind":   proposal.TargetKind,
 			"target_ref":    proposal.TargetRef,
 		},
+		{
+			"kind":            "change_attempt",
+			"ref":             attempt.ID,
+			"attempt_number":  attempt.AttemptNumber,
+			"branch_name":     attempt.BranchName,
+			"parent_attempt":  attempt.ParentAttemptID,
+			"failure_class":   attempt.FailureClass,
+			"failure_summary": attempt.FailureSummary,
+		},
 	}
 	prompt := fmt.Sprintf(
-		"Summarize why approved proposal %s should move into repo-change work. Candidate=%s risk=%s scope=%s summary=%s. Explain what makes this change justified now, what prior rejections or dismissals matter, and what a reviewer should inspect before the PR path continues.",
+		"Materialize remediation attempt %d for approved proposal %s. Candidate=%s risk=%s scope=%s summary=%s. Return explicit visible reasoning plus a concrete change_plan, a non-empty unified repo_patch touching allowed repo files, a validation_plan, retry_assessment, and hypothesis_delta. Do not return metadata-only or .rsi-only diffs. Use prior rejected/dismissed memory and prior attempt failures to improve the patch.",
+		attempt.AttemptNumber,
 		proposal.ID,
 		proposal.CandidateKey,
 		proposal.RiskTier,
@@ -1350,7 +1472,8 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 	if proposal.TargetLayer == harness.TargetLayerHarnessOverlay {
 		targetRole := firstNonEmpty(strings.TrimSpace(proposal.TargetRef), "prod")
 		prompt = fmt.Sprintf(
-			"Design an approved runtime harness overlay for role %s from proposal %s. Candidate=%s summary=%s. Return explicit visible reasoning and include exactly one proposed action with kind=%q whose request_payload contains prompt_fragments, few_shot_snippets, tool_preference_order, retrieval_bias, reasoning_verbosity, memory_read_enabled, and memory_write_enabled. This is a runtime overlay activation, not a repo change.",
+			"Design remediation attempt %d as an approved runtime harness overlay for role %s from proposal %s. Candidate=%s summary=%s. Return explicit visible reasoning, a change_plan, validation_plan, retry_assessment, hypothesis_delta, and exactly one proposed action with kind=%q whose request_payload contains prompt_fragments, few_shot_snippets, tool_preference_order, retrieval_bias, reasoning_verbosity, memory_read_enabled, and memory_write_enabled. This is a runtime overlay activation, not a repo change.",
+			attempt.AttemptNumber,
 			targetRole,
 			proposal.ID,
 			proposal.CandidateKey,
@@ -1376,10 +1499,10 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 		Repo:                      cfg.DefaultRepo,
 		RepoRef:                   "main",
 		Prompt:                    prompt,
-		SystemMessage:             harness.ComposeSystemMessage("Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, and self_critique.", effectiveHarness),
+		SystemMessage:             harness.ComposeSystemMessage("Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta, proposed_actions, knowledge_drafts, and outcome_hypotheses.", effectiveHarness),
 		TimeoutSeconds:            120,
-		ExpectedOutputs:           []string{"visible_reasoning", "final_answer"},
-		ArtifactDestination:       fmt.Sprintf("trace:%s:proposal:%s", trace.Summary.TraceID, proposal.ID),
+		ExpectedOutputs:           []string{"visible_reasoning", "final_answer", "change_plan", "validation_plan", "retry_assessment"},
+		ArtifactDestination:       fmt.Sprintf("trace:%s:proposal:%s:attempt:%s", trace.Summary.TraceID, proposal.ID, attempt.ID),
 		ContextSummary:            proposalRunnerContextSummary(proposal),
 		RejectedProposalContext:   rejectedContext,
 		Intent:                    trace.Summary.WorkflowKind,
@@ -1474,7 +1597,7 @@ func judgmentDigest(items []evals.Judgment) []string {
 	return out
 }
 
-func repoChangeCommands(proposalID string) []string {
+func repoChangeCommands() []string {
 	script := `
 set -euo pipefail
 mkdir -p /workspace
@@ -1483,12 +1606,30 @@ rm -rf repo
 git clone "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_OWNER}/${RSI_REPO}.git" repo
 cd repo
 git checkout -B "${RSI_BRANCH_NAME}" "origin/${RSI_BASE_REF}"
+if [ -z "${RSI_REPO_PATCH:-}" ]; then
+  echo "RSI_REPO_PATCH is required" >&2
+  exit 1
+fi
 mkdir -p .rsi
 printf "%s\n" "${RSI_CONTEXT_SUMMARY}" > .rsi/proposal-context.txt
+printf "%s\n" "${RSI_CHANGE_PLAN:-}" > .rsi/change-plan.txt
+printf "%s\n" "${RSI_VALIDATION_PLAN:-}" > .rsi/validation-plan.txt
+printf "%s\n" "${RSI_REPO_PATCH}" > /tmp/rsi-change.patch
+git apply --check /tmp/rsi-change.patch
+git apply /tmp/rsi-change.patch
+if [ -z "$(git status --short)" ]; then
+  echo "Patch produced no working tree changes" >&2
+  exit 1
+fi
+if ! git status --short | awk '{print $2}' | grep -qv '^\.rsi/'; then
+  echo "Patch only changed .rsi metadata files" >&2
+  exit 1
+fi
 git config user.name "${GITHUB_COMMIT_USER}"
 git config user.email "${GITHUB_COMMIT_EMAIL}"
-git add .rsi/proposal-context.txt
-git commit -m "chore: seed RSI proposal context for ` + proposalID + `" || true
+make test
+git add -A
+git commit -m "fix: RSI proposal ${RSI_PROPOSAL_ID} attempt ${RSI_ATTEMPT_ID}" || true
 git push origin HEAD
 `
 	return []string{"bash", "-lc", script}
@@ -1839,6 +1980,21 @@ func stringValue(value interface{}) string {
 	default:
 		return fmt.Sprintf("%v", value)
 	}
+}
+
+func nestedString(value interface{}, path ...string) string {
+	current := value
+	for _, key := range path {
+		next, ok := current.(map[string]interface{})
+		if !ok {
+			return ""
+		}
+		current, ok = next[key]
+		if !ok {
+			return ""
+		}
+	}
+	return stringValue(current)
 }
 
 func firstNonEmpty(values ...string) string {

@@ -119,6 +119,7 @@ type traceDetailResponse struct {
 
 type proposalDetailResponse struct {
 	Proposal              review.Proposal               `json:"proposal"`
+	Attempts              []improvement.ChangeAttempt   `json:"attempts"`
 	Reviews               []review.ProposalReview       `json:"reviews"`
 	RelatedProposalMemory []review.ProposalMemory       `json:"related_proposal_memory"`
 	RepoChangeJobs        []improvement.RepoChangeJob   `json:"repo_change_jobs"`
@@ -131,6 +132,17 @@ type proposalDetailResponse struct {
 	Outcomes              []outcome.Record              `json:"outcomes"`
 	KnowledgeEntries      []knowledge.Entry             `json:"knowledge_entries"`
 	HarnessExecutions     []harness.Execution           `json:"harness_executions"`
+}
+
+type attemptDetailResponse struct {
+	Attempt           improvement.ChangeAttempt   `json:"attempt"`
+	Trace             *events.Trace               `json:"trace,omitempty"`
+	ActionIntents     []action.Intent             `json:"action_intents"`
+	ActionResults     []action.Result             `json:"action_results"`
+	Outcomes          []outcome.Record            `json:"outcomes"`
+	RepoChangeJobs    []improvement.RepoChangeJob `json:"repo_change_jobs"`
+	PRAttempts        []improvement.PRAttempt     `json:"pr_attempts"`
+	HarnessExecutions []harness.Execution         `json:"harness_executions"`
 }
 
 type proposalListItem struct {
@@ -374,6 +386,7 @@ func buildProposalDetail(store storepkg.Repository, proposalID string) (proposal
 	if !ok {
 		return proposalDetailResponse{}, false
 	}
+	attempts := attemptsForProposal(store, proposal.ID)
 	traceSummaries := linkTraceSummaries(store.ListTraces(), proposal, store.ListPostMergeReplays())
 	actionIntents := listActionIntents(store, actionFilters{ProposalID: proposal.ID})
 	outcomes := listOutcomes(store, proposal.ConversationID, proposal.CaseID, "", proposal.ID)
@@ -384,6 +397,7 @@ func buildProposalDetail(store storepkg.Repository, proposalID string) (proposal
 	}
 	return proposalDetailResponse{
 		Proposal:              normalizeProposal(proposal),
+		Attempts:              sliceOrEmpty(attempts),
 		Reviews:               sliceOrEmpty(proposal.Reviews),
 		RelatedProposalMemory: sliceOrEmpty(filterProposalMemory(store.ListProposalMemories(), proposal.CandidateKey)),
 		RepoChangeJobs:        sliceOrEmpty(filterRepoChangeJobs(store.ListRepoChangeJobs(), proposal.ID)),
@@ -396,6 +410,31 @@ func buildProposalDetail(store storepkg.Repository, proposalID string) (proposal
 		Outcomes:              sliceOrEmpty(outcomes),
 		KnowledgeEntries:      sliceOrEmpty(relatedKnowledgeEntries(store, proposal.ConversationID, proposal.CaseID, proposal.OriginTraceID, proposal.ID, extraEvidence...)),
 		HarnessExecutions:     sliceOrEmpty(filterHarnessExecutions(store.ListHarnessExecutions(), proposal.OriginTraceID, proposal.ID)),
+	}, true
+}
+
+func buildAttemptDetail(store storepkg.Repository, proposalID string, attemptID string) (attemptDetailResponse, bool) {
+	attempt, ok := store.GetChangeAttempt(attemptID)
+	if !ok || attempt.ProposalID != proposalID {
+		return attemptDetailResponse{}, false
+	}
+	var trace *events.Trace
+	if strings.TrimSpace(attempt.AttemptTraceID) != "" {
+		if item, ok := store.GetTrace(attempt.AttemptTraceID); ok {
+			normalized := normalizeTrace(item)
+			trace = &normalized
+		}
+	}
+	actionIntents := filterActionIntentsByAttempt(listActionIntents(store, actionFilters{ProposalID: proposalID}), attempt.ID)
+	return attemptDetailResponse{
+		Attempt:           attempt,
+		Trace:             trace,
+		ActionIntents:     sliceOrEmpty(actionIntents),
+		ActionResults:     sliceOrEmpty(flattenActionResults(store, actionIntents)),
+		Outcomes:          sliceOrEmpty(filterOutcomesByAttempt(listOutcomes(store, "", "", "", proposalID), attempt.ID)),
+		RepoChangeJobs:    sliceOrEmpty(filterRepoChangeJobsByAttempt(store.ListRepoChangeJobs(), proposalID, attempt.ID)),
+		PRAttempts:        sliceOrEmpty(filterPRAttemptsByAttempt(store.ListPRAttempts(), proposalID, attempt.ID)),
+		HarnessExecutions: sliceOrEmpty(filterHarnessExecutions(store.ListHarnessExecutions(), attempt.AttemptTraceID, proposalID)),
 	}, true
 }
 
@@ -783,6 +822,26 @@ func filterPRAttempts(items []improvement.PRAttempt, proposalID string) []improv
 	return out
 }
 
+func filterRepoChangeJobsByAttempt(items []improvement.RepoChangeJob, proposalID string, attemptID string) []improvement.RepoChangeJob {
+	out := make([]improvement.RepoChangeJob, 0)
+	for _, item := range items {
+		if item.ProposalID == proposalID && item.AttemptID == attemptID {
+			out = append(out, item)
+		}
+	}
+	return out
+}
+
+func filterPRAttemptsByAttempt(items []improvement.PRAttempt, proposalID string, attemptID string) []improvement.PRAttempt {
+	out := make([]improvement.PRAttempt, 0)
+	for _, item := range items {
+		if item.ProposalID == proposalID && item.AttemptID == attemptID {
+			out = append(out, item)
+		}
+	}
+	return out
+}
+
 func filterPostMergeReplays(items []improvement.PostMergeReplay, proposalID string) []improvement.PostMergeReplay {
 	out := make([]improvement.PostMergeReplay, 0)
 	for _, item := range items {
@@ -870,6 +929,26 @@ func filterHarnessExecutions(items []harness.Execution, traceID string, proposal
 			continue
 		}
 		if proposalID != "" && item.ProposalID == proposalID {
+			out = append(out, item)
+		}
+	}
+	return out
+}
+
+func filterActionIntentsByAttempt(items []action.Intent, attemptID string) []action.Intent {
+	out := make([]action.Intent, 0)
+	for _, item := range items {
+		if strings.TrimSpace(item.AttemptID) == strings.TrimSpace(attemptID) {
+			out = append(out, item)
+		}
+	}
+	return out
+}
+
+func filterOutcomesByAttempt(items []outcome.Record, attemptID string) []outcome.Record {
+	out := make([]outcome.Record, 0)
+	for _, item := range items {
+		if strings.TrimSpace(item.AttemptID) == strings.TrimSpace(attemptID) {
 			out = append(out, item)
 		}
 	}

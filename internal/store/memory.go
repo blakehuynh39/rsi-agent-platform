@@ -64,6 +64,10 @@ type Store interface {
 	UpsertHarnessSessionBinding(item harness.SessionBinding) (harness.SessionBinding, error)
 	ListHarnessExecutions() []harness.Execution
 	RecordHarnessExecution(item harness.Execution) (harness.Execution, error)
+	ListChangeAttempts() []improvement.ChangeAttempt
+	GetChangeAttempt(attemptID string) (improvement.ChangeAttempt, bool)
+	UpsertChangeAttempt(item improvement.ChangeAttempt) (improvement.ChangeAttempt, error)
+	CreateDerivedTrace(req DerivedTraceRequest) (events.Trace, Workflow, error)
 	ListIngestions() []slack.Ingestion
 	CreateIngestion(envelope slack.SlackEnvelope) (slack.Ingestion, error)
 	ListWorkflows() []Workflow
@@ -105,6 +109,7 @@ type Store interface {
 	RunProposalPromoter(holder string) (PromotionResult, error)
 	ListProposals() []review.Proposal
 	ReviewProposal(proposalID string, decision review.ProposalReview) (review.Proposal, error)
+	StopProposalLine(proposalID string, requestedBy string, rationale string) (review.Proposal, error)
 	UpdateProposalStatus(proposalID string, status review.ProposalStatus) (review.Proposal, error)
 	MaterializeApprovedProposal(proposalID string, requestedBy string) (improvement.RepoChangeJob, error)
 	RetryProposalRepoChange(proposalID string, requestedBy string) (queue.WorkItem, error)
@@ -153,6 +158,7 @@ type MemoryStore struct {
 	workItems              map[string]queue.WorkItem
 	candidates             map[string]improvement.Candidate
 	proposals              map[string]review.Proposal
+	changeAttempts         map[string]improvement.ChangeAttempt
 	proposalMemory         []review.ProposalMemory
 	repoChangeJobs         map[string]improvement.RepoChangeJob
 	prAttempts             map[string]improvement.PRAttempt
@@ -670,6 +676,13 @@ func (s *MemoryStore) outcomeFromEventLocked(event ingestion.EventEnvelope) (out
 		if !ok {
 			return outcome.Record{}, false
 		}
+		attemptID := strings.TrimSpace(stringFromMetadata(event.Metadata, "attempt_id"))
+		traceID := firstNonEmpty(proposal.OriginTraceID, proposal.TraceID)
+		if attemptID != "" {
+			if attempt, ok := s.changeAttempts[attemptID]; ok {
+				traceID = firstNonEmpty(attempt.AttemptTraceID, traceID)
+			}
+		}
 		if conv, ok := s.conversations[proposal.ConversationID]; ok {
 			conv.LatestEventID = event.ID
 			conv.UpdatedAt = now
@@ -681,8 +694,9 @@ func (s *MemoryStore) outcomeFromEventLocked(event ingestion.EventEnvelope) (out
 			SourceEventID:  event.SourceEventID,
 			ConversationID: proposal.ConversationID,
 			CaseID:         proposal.CaseID,
-			TraceID:        firstNonEmpty(proposal.OriginTraceID, proposal.TraceID),
+			TraceID:        traceID,
 			ProposalID:     proposalID,
+			AttemptID:      attemptID,
 			OutcomeType:    githubOutcome.OutcomeType,
 			Verdict:        githubOutcome.Verdict,
 			Score:          githubOutcome.Score,
@@ -2438,6 +2452,12 @@ func (s *MemoryStore) ReviewProposal(proposalID string, decision review.Proposal
 	proposal.Reviewer = decision.ReviewerID
 	proposal.Status = review.ProposalStatus(decision.Decision)
 	proposal.ActiveSlotConsuming = review.ConsumesActiveProposalSlot(proposal.Status)
+	if proposal.Status == review.ProposalApproved && proposal.AutoRetryBudgetRemaining == 0 {
+		proposal.AutoRetryBudgetRemaining = defaultProposalRetryBudget
+	}
+	if proposal.Status == review.ProposalRejected || proposal.Status == review.ProposalDismissed {
+		proposal.NextRetryAction = ""
+	}
 	s.proposals[proposalID] = proposal
 
 	memory := review.ProposalMemory{
@@ -2467,6 +2487,9 @@ func (s *MemoryStore) ReviewProposal(proposalID string, decision review.Proposal
 	switch proposal.Status {
 	case review.ProposalApproved:
 		candidate.Status = improvement.CandidatePromoted
+		candidate.LineStatus = improvement.LineActive
+		candidate.AutoRetryBudgetRemaining = proposal.AutoRetryBudgetRemaining
+		candidate.CurrentTargetLayer = proposal.TargetLayer
 		_, _ = s.enqueueWorkItemLocked(queue.WorkItem{
 			Queue:          queue.ProposalQueue,
 			Kind:           "approved_proposal",
@@ -2488,9 +2511,13 @@ func (s *MemoryStore) ReviewProposal(proposalID string, decision review.Proposal
 		})
 	case review.ProposalRejected, review.ProposalDismissed:
 		candidate.Status = improvement.CandidateNeedsEvidence
+		candidate.LineStatus = improvement.LineClosed
+		candidate.AutoRetryBudgetRemaining = 0
 		candidate.NewEvidenceSinceLastRejection = false
 	case review.ProposalMerged:
 		candidate.Status = improvement.CandidateDormant
+		candidate.LineStatus = improvement.LineClosed
+		candidate.AutoRetryBudgetRemaining = 0
 		replayID := nextID("pmr", len(s.postMergeReplay)+1)
 		s.postMergeReplay[replayID] = improvement.PostMergeReplay{
 			ID:             replayID,
@@ -2505,6 +2532,9 @@ func (s *MemoryStore) ReviewProposal(proposalID string, decision review.Proposal
 		}
 	default:
 		candidate.Status = improvement.CandidateDormant
+		if candidate.LineStatus == "" {
+			candidate.LineStatus = improvement.LineDormant
+		}
 	}
 	candidate.UpdatedAt = decision.CreatedAt
 	s.candidates[proposal.CandidateKey] = candidate
@@ -2534,8 +2564,43 @@ func (s *MemoryStore) MaterializeApprovedProposal(proposalID string, requestedBy
 	if proposal.Status != review.ProposalApproved && proposal.Status != review.ProposalRepoChangeQueued && proposal.Status != review.ProposalRepoChangeRunning && proposal.Status != review.ProposalValidationPending && proposal.Status != review.ProposalPROpen {
 		return improvement.RepoChangeJob{}, fmt.Errorf("proposal %s is not approved for materialization", proposal.Status)
 	}
+	attempt, ok := s.changeAttempts[proposal.CurrentAttemptID]
+	if !ok {
+		for _, item := range s.changeAttempts {
+			if item.ProposalID == proposalID {
+				attempt = item
+				ok = true
+				break
+			}
+		}
+	}
+	if !ok {
+		now := time.Now().UTC()
+		attempt = normalizeChangeAttempt(improvement.ChangeAttempt{
+			ID:             nextID("attempt", len(s.changeAttempts)+1),
+			ProposalID:     proposal.ID,
+			CandidateKey:   proposal.CandidateKey,
+			AttemptNumber:  maxInt(1, proposal.AttemptCount+1),
+			TargetLayer:    proposal.TargetLayer,
+			TargetKind:     proposal.TargetKind,
+			TargetRef:      proposal.TargetRef,
+			Trigger:        improvement.AttemptTriggerProposalApproved,
+			State:          improvement.AttemptStatePlanning,
+			AttemptTraceID: firstNonEmpty(proposal.OriginTraceID, proposal.TraceID),
+			BranchName:     fmt.Sprintf("codex/%s/attempt-%02d", proposal.ID, maxInt(1, proposal.AttemptCount+1)),
+			CreatedAt:      now,
+			UpdatedAt:      now,
+		})
+		s.changeAttempts[attempt.ID] = attempt
+		proposal.CurrentAttemptID = attempt.ID
+		if proposal.AttemptCount < attempt.AttemptNumber {
+			proposal.AttemptCount = attempt.AttemptNumber
+		}
+		proposal.AutoRetryBudgetRemaining = maxInt(0, defaultProposalRetryBudget-attempt.AttemptNumber)
+		s.proposals[proposal.ID] = proposal
+	}
 	for _, existing := range s.repoChangeJobs {
-		if existing.ProposalID == proposalID {
+		if existing.ProposalID == proposalID && existing.AttemptID == attempt.ID {
 			return existing, nil
 		}
 	}
@@ -2544,20 +2609,25 @@ func (s *MemoryStore) MaterializeApprovedProposal(proposalID string, requestedBy
 	job := improvement.RepoChangeJob{
 		ID:               jobID,
 		ProposalID:       proposal.ID,
+		AttemptID:        attempt.ID,
 		ConversationID:   proposal.ConversationID,
 		CaseID:           proposal.CaseID,
-		OriginTraceID:    proposal.OriginTraceID,
+		OriginTraceID:    firstNonEmpty(attempt.AttemptTraceID, proposal.OriginTraceID),
 		CandidateKey:     proposal.CandidateKey,
 		Status:           string(review.ProposalRepoChangeQueued),
 		Repo:             proposalRepo(proposal),
 		BaseRef:          "main",
-		BranchName:       fmt.Sprintf("codex/%s", proposal.ID),
+		BranchName:       firstNonEmpty(attempt.BranchName, fmt.Sprintf("codex/%s/%s", proposal.ID, attempt.ID)),
 		AllowedPathGlobs: []string{"cmd/**", "internal/**", "runner/**", "ui/**", "README.md", "Makefile"},
 		ContextSummary:   buildRepoChangeContext(proposal, s.proposalMemory),
 		CreatedAt:        now,
 		UpdatedAt:        now,
 	}
 	s.repoChangeJobs[jobID] = job
+	attempt.State = improvement.AttemptStatePatchGenerated
+	attempt.BranchName = job.BranchName
+	attempt.UpdatedAt = now
+	s.changeAttempts[attempt.ID] = normalizeChangeAttempt(attempt)
 	proposal.Status = review.ProposalRepoChangeQueued
 	proposal.ActiveSlotConsuming = true
 	s.proposals[proposal.ID] = proposal
@@ -2565,7 +2635,7 @@ func (s *MemoryStore) MaterializeApprovedProposal(proposalID string, requestedBy
 		Queue:          queue.SandboxQueue,
 		Kind:           "repo_change_job",
 		Status:         queue.WorkQueued,
-		TraceID:        proposal.TraceID,
+		TraceID:        firstNonEmpty(attempt.AttemptTraceID, proposal.TraceID),
 		ConversationID: proposal.ConversationID,
 		CaseID:         proposal.CaseID,
 		TriggerEventID: proposal.OriginTraceID,
@@ -2576,6 +2646,7 @@ func (s *MemoryStore) MaterializeApprovedProposal(proposalID string, requestedBy
 		CreatedAt:      now,
 		UpdatedAt:      now,
 		Payload: map[string]interface{}{
+			"attempt_id":  attempt.ID,
 			"branch_name": job.BranchName,
 			"base_ref":    job.BaseRef,
 			"dedupe_key":  fmt.Sprintf("sandbox-job:%s", job.ID),
@@ -2596,13 +2667,13 @@ func (s *MemoryStore) RetryProposalRepoChange(proposalID string, requestedBy str
 	var repoJob improvement.RepoChangeJob
 	found := false
 	for _, item := range s.repoChangeJobs {
-		if item.ProposalID == proposalID {
+		if item.ProposalID == proposalID && item.AttemptID == proposal.CurrentAttemptID {
 			repoJob = item
 			found = true
 			break
 		}
 	}
-	if !found {
+	if !found && proposal.Status != review.ProposalApproved {
 		return queue.WorkItem{}, errors.New("repo change job not found")
 	}
 	now := time.Now().UTC()
@@ -2625,9 +2696,11 @@ func (s *MemoryStore) RetryProposalRepoChange(proposalID string, requestedBy str
 			CreatedAt:      now,
 			UpdatedAt:      now,
 			Payload: map[string]interface{}{
-				"candidate_key": proposal.CandidateKey,
-				"risk_tier":     proposal.RiskTier,
-				"dedupe_key":    fmt.Sprintf("proposal-runner:%s", proposal.ID),
+				"trigger":        string(improvement.AttemptTriggerOperatorRetry),
+				"parent_attempt": proposal.CurrentAttemptID,
+				"candidate_key":  proposal.CandidateKey,
+				"risk_tier":      proposal.RiskTier,
+				"dedupe_key":     fmt.Sprintf("proposal-runner:%s", proposal.ID),
 			},
 		})
 	case review.ProposalRepoChangeQueued, review.ProposalFailedValidation:
@@ -2658,6 +2731,7 @@ func (s *MemoryStore) RetryProposalRepoChange(proposalID string, requestedBy str
 			CreatedAt:      now,
 			UpdatedAt:      now,
 			Payload: map[string]interface{}{
+				"attempt_id":  repoJob.AttemptID,
 				"branch_name": repoJob.BranchName,
 				"base_ref":    repoJob.BaseRef,
 				"dedupe_key":  fmt.Sprintf("sandbox-job:%s", repoJob.ID),
@@ -2683,13 +2757,14 @@ func (s *MemoryStore) RetryProposalRepoChange(proposalID string, requestedBy str
 			CreatedAt:      now,
 			UpdatedAt:      now,
 			Payload: map[string]interface{}{
+				"attempt_id":  repoJob.AttemptID,
 				"job_id":      repoJob.ID,
 				"job_name":    repoJob.SandboxJobName,
 				"namespace":   repoJob.SandboxNamespace,
 				"repo":        repoJob.Repo,
 				"branch_name": repoJob.BranchName,
 				"base_ref":    repoJob.BaseRef,
-				"dedupe_key":  fmt.Sprintf("draft-pr:%s:%s", proposal.ID, repoJob.BranchName),
+				"dedupe_key":  fmt.Sprintf("draft-pr:%s:%s", repoJob.AttemptID, repoJob.BranchName),
 			},
 		})
 	default:
@@ -2955,8 +3030,26 @@ func githubOutcomeFromMetadata(metadata map[string]interface{}) (derivedOutcome,
 			Details:     "Proposal path did not merge.",
 			ProposalID:  stringFromMetadata(metadata, "proposal_id"),
 		}, true
+	case (eventType == "check_run" || eventType == "check_suite" || eventType == "workflow_run") && isGitHubFailureConclusion(stringFromMetadata(metadata, "conclusion")):
+		return derivedOutcome{
+			OutcomeType: outcome.TypeProposalEffectiveness,
+			Verdict:     outcome.VerdictNegative,
+			Score:       0.2,
+			Summary:     fmt.Sprintf("GitHub %s failed.", strings.ReplaceAll(eventType, "_", " ")),
+			Details:     fmt.Sprintf("Proposal attempt hit CI failure with conclusion %s.", stringFromMetadata(metadata, "conclusion")),
+			ProposalID:  stringFromMetadata(metadata, "proposal_id"),
+		}, true
 	default:
 		return derivedOutcome{}, false
+	}
+}
+
+func isGitHubFailureConclusion(conclusion string) bool {
+	switch strings.ToLower(strings.TrimSpace(conclusion)) {
+	case "failure", "cancelled", "timed_out", "startup_failure", "action_required":
+		return true
+	default:
+		return false
 	}
 }
 

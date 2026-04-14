@@ -103,6 +103,14 @@ type Proposal struct {
 	ReviewDeadline                time.Time           `json:"review_deadline,omitempty"`
 	PriorSimilarProposalIDs       []string            `json:"prior_similar_proposal_ids,omitempty"`
 	NewEvidenceSinceLastRejection bool                `json:"new_evidence_since_last_rejection"`
+	CurrentAttemptID              string              `json:"current_attempt_id,omitempty"`
+	AttemptCount                  int                 `json:"attempt_count,omitempty"`
+	AutoRetryBudgetRemaining      int                 `json:"auto_retry_budget_remaining,omitempty"`
+	LastFailureClass              string              `json:"last_failure_class,omitempty"`
+	NextRetryAction               string              `json:"next_retry_action,omitempty"`
+	LineStoppedBy                 string              `json:"line_stopped_by,omitempty"`
+	LineStopReason                string              `json:"line_stop_reason,omitempty"`
+	LineStoppedAt                 *time.Time          `json:"line_stopped_at,omitempty"`
 	CreatedAt                     time.Time           `json:"created_at"`
 	Reviews                       []ProposalReview    `json:"reviews,omitempty"`
 }

@@ -68,6 +68,21 @@ type PromotionResult struct {
 	StaleProposalIDs []string `json:"stale_proposal_ids"`
 }
 
+type DerivedTraceRequest struct {
+	SourceTraceID  string    `json:"source_trace_id"`
+	ProposalID     string    `json:"proposal_id,omitempty"`
+	AttemptID      string    `json:"attempt_id,omitempty"`
+	ConversationID string    `json:"conversation_id,omitempty"`
+	CaseID         string    `json:"case_id,omitempty"`
+	ThreadKey      string    `json:"thread_key,omitempty"`
+	WorkflowKind   string    `json:"workflow_kind"`
+	RequestedBy    string    `json:"requested_by,omitempty"`
+	Description    string    `json:"description,omitempty"`
+	TriggerEventID string    `json:"trigger_event_id,omitempty"`
+	IngestionID    string    `json:"ingestion_id,omitempty"`
+	CreatedAt      time.Time `json:"created_at,omitempty"`
+}
+
 type TraceUpdate struct {
 	Status         *events.Status             `json:"status,omitempty"`
 	LastVerdict    *string                    `json:"last_verdict,omitempty"`

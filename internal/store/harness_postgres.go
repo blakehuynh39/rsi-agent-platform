@@ -169,7 +169,7 @@ func (p *PostgresStore) UpsertHarnessOverlay(item harness.Overlay) (harness.Over
 
 func (p *PostgresStore) ListHarnessExperiments() []harness.Experiment {
 	rows, err := p.db.Query(`
-		select id, profile_id, overlay_id, proposal_id, role, status, summary, metrics, created_at, updated_at
+		select id, profile_id, overlay_id, proposal_id, attempt_id, role, status, summary, metrics, created_at, updated_at
 		from harness_experiment
 		order by updated_at desc, id asc
 	`)
@@ -201,12 +201,13 @@ func (p *PostgresStore) RecordHarnessExperiment(item harness.Experiment) (harnes
 		item.UpdatedAt = now
 	}
 	if _, err := p.db.Exec(`
-		insert into harness_experiment (id, profile_id, overlay_id, proposal_id, role, status, summary, metrics, created_at, updated_at)
-		values ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$10)
+		insert into harness_experiment (id, profile_id, overlay_id, proposal_id, attempt_id, role, status, summary, metrics, created_at, updated_at)
+		values ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10,$11)
 		on conflict (id) do update set
 			profile_id = excluded.profile_id,
 			overlay_id = excluded.overlay_id,
 			proposal_id = excluded.proposal_id,
+			attempt_id = excluded.attempt_id,
 			role = excluded.role,
 			status = excluded.status,
 			summary = excluded.summary,
@@ -218,6 +219,7 @@ func (p *PostgresStore) RecordHarnessExperiment(item harness.Experiment) (harnes
 		item.ProfileID,
 		nullString(item.OverlayID),
 		nullString(item.ProposalID),
+		firstNonEmpty(item.AttemptID),
 		item.Role,
 		string(item.Status),
 		item.Summary,
@@ -481,6 +483,7 @@ func scanHarnessExperiment(scanner harnessScanner) (harness.Experiment, error) {
 		item       harness.Experiment
 		overlayID  sql.NullString
 		proposalID sql.NullString
+		attemptID  sql.NullString
 		metrics    []byte
 	)
 	err := scanner.Scan(
@@ -488,6 +491,7 @@ func scanHarnessExperiment(scanner harnessScanner) (harness.Experiment, error) {
 		&item.ProfileID,
 		&overlayID,
 		&proposalID,
+		&attemptID,
 		&item.Role,
 		&item.Status,
 		&item.Summary,
@@ -500,6 +504,7 @@ func scanHarnessExperiment(scanner harnessScanner) (harness.Experiment, error) {
 	}
 	item.OverlayID = overlayID.String
 	item.ProposalID = proposalID.String
+	item.AttemptID = attemptID.String
 	item.Metrics = decodeJSON(metrics, map[string]any{})
 	return normalizeHarnessExperiment(item), nil
 }

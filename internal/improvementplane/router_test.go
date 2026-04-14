@@ -376,6 +376,9 @@ func TestRouterProposalDetailAndRuntimeEndpoints(t *testing.T) {
 	if items, ok := proposalPayload["pr_attempts"].([]any); !ok || len(items) == 0 {
 		t.Fatal("expected pr_attempts array with at least one item")
 	}
+	if items, ok := proposalPayload["attempts"].([]any); !ok || len(items) == 0 {
+		t.Fatal("expected attempts array with at least one item")
+	}
 	if items, ok := proposalPayload["linked_trace_summaries"].([]any); !ok || len(items) == 0 {
 		t.Fatal("expected linked_trace_summaries array with at least one item")
 	}
@@ -387,6 +390,18 @@ func TestRouterProposalDetailAndRuntimeEndpoints(t *testing.T) {
 	}
 	if _, ok := proposalPayload["knowledge_entries"].([]any); !ok {
 		t.Fatal("expected knowledge_entries array in proposal detail")
+	}
+	attempts := proposalPayload["attempts"].([]any)
+	attempt, _ := attempts[0].(map[string]any)
+	attemptID, _ := attempt["id"].(string)
+	if attemptID == "" {
+		t.Fatal("expected attempt id in proposal detail")
+	}
+	attemptReq := httptest.NewRequest(http.MethodGet, "/api/proposals/"+proposal.ID+"/attempts/"+attemptID, nil)
+	attemptRec := httptest.NewRecorder()
+	router.ServeHTTP(attemptRec, attemptReq)
+	if attemptRec.Code != http.StatusOK {
+		t.Fatalf("attempt detail status = %d, want %d", attemptRec.Code, http.StatusOK)
 	}
 
 	runtimeReq := httptest.NewRequest(http.MethodGet, "/api/runtime", nil)
@@ -478,5 +493,34 @@ func TestRouterProposalRetryEndpoint(t *testing.T) {
 	}
 	if got, _ := item["queue"].(string); got != "sandbox" {
 		t.Fatalf("expected sandbox retry queue, got %q", got)
+	}
+}
+
+func TestRouterProposalStopEndpoint(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	proposal := store.ListProposals()[0]
+	if _, err := store.ReviewProposal(proposal.ID, review.ProposalReview{
+		Decision:   string(review.ProposalApproved),
+		Rationale:  "Proceed with remediation.",
+		ReviewerID: "operator",
+	}); err != nil {
+		t.Fatalf("approve proposal: %v", err)
+	}
+
+	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
+	req := httptest.NewRequest(http.MethodPost, "/api/proposals/"+proposal.ID+"/stop", strings.NewReader(`{"requested_by":"ui-operator","rationale":"Stop this remediation line."}`))
+	req.Header.Set("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("stop proposal status = %d, want %d", rec.Code, http.StatusOK)
+	}
+
+	var item map[string]any
+	if err := json.NewDecoder(rec.Body).Decode(&item); err != nil {
+		t.Fatalf("decode stop response: %v", err)
+	}
+	if got, _ := item["status"].(string); got != string(review.ProposalCanceled) {
+		t.Fatalf("expected canceled status, got %q", got)
 	}
 }

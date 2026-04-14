@@ -85,6 +85,7 @@ type Experiment struct {
 	ProfileID  string           `json:"profile_id"`
 	OverlayID  string           `json:"overlay_id,omitempty"`
 	ProposalID string           `json:"proposal_id,omitempty"`
+	AttemptID  string           `json:"attempt_id,omitempty"`
 	Role       string           `json:"role"`
 	Status     ExperimentStatus `json:"status"`
 	Summary    string           `json:"summary,omitempty"`

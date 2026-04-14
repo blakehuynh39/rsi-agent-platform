@@ -224,6 +224,9 @@ func loadStore(r sqlReader) (*MemoryStore, error) {
 	if err := loadProposals(r, store); err != nil {
 		return nil, err
 	}
+	if err := loadChangeAttempts(r, store); err != nil {
+		return nil, err
+	}
 	if err := loadProposalReviews(r, store); err != nil {
 		return nil, err
 	}
@@ -388,6 +391,9 @@ func persistStore(tx *sql.Tx, store *MemoryStore) error {
 		return err
 	}
 	if err := persistProposals(tx, store); err != nil {
+		return err
+	}
+	if err := persistChangeAttempts(tx, store); err != nil {
 		return err
 	}
 	if err := persistProposalReviews(tx, store); err != nil {
@@ -631,23 +637,24 @@ func loadCases(r sqlReader, store *MemoryStore) error {
 }
 
 func loadActionIntents(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, owner_plane, conversation_id, case_id, trace_id, proposal_id, kind, phase_key, target_ref, request_payload, idempotency_key, approval_mode, approval_state, policy_verdict, status, superseded_by_action_id, requested_by, rationale, evidence_refs, created_at, updated_at from action_intent order by created_at desc`)
+	rows, err := r.Query(`select id, owner_plane, conversation_id, case_id, trace_id, proposal_id, attempt_id, kind, phase_key, target_ref, request_payload, idempotency_key, approval_mode, approval_state, policy_verdict, status, superseded_by_action_id, requested_by, rationale, evidence_refs, created_at, updated_at from action_intent order by created_at desc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var item action.Intent
-		var conversationID, caseID, traceID, proposalID, phaseKey, targetRef, idempotencyKey, approvalMode, approvalState, policyVerdict, supersededBy, requestedBy, rationale sql.NullString
+		var conversationID, caseID, traceID, proposalID, attemptID, phaseKey, targetRef, idempotencyKey, approvalMode, approvalState, policyVerdict, supersededBy, requestedBy, rationale sql.NullString
 		var requestPayload, evidenceRefs []byte
 		var kind, status string
-		if err := rows.Scan(&item.ID, &item.OwnerPlane, &conversationID, &caseID, &traceID, &proposalID, &kind, &phaseKey, &targetRef, &requestPayload, &idempotencyKey, &approvalMode, &approvalState, &policyVerdict, &status, &supersededBy, &requestedBy, &rationale, &evidenceRefs, &item.CreatedAt, &item.UpdatedAt); err != nil {
+		if err := rows.Scan(&item.ID, &item.OwnerPlane, &conversationID, &caseID, &traceID, &proposalID, &attemptID, &kind, &phaseKey, &targetRef, &requestPayload, &idempotencyKey, &approvalMode, &approvalState, &policyVerdict, &status, &supersededBy, &requestedBy, &rationale, &evidenceRefs, &item.CreatedAt, &item.UpdatedAt); err != nil {
 			return err
 		}
 		item.ConversationID = conversationID.String
 		item.CaseID = caseID.String
 		item.TraceID = traceID.String
 		item.ProposalID = proposalID.String
+		item.AttemptID = attemptID.String
 		item.Kind = action.Kind(kind)
 		item.PhaseKey = phaseKey.String
 		item.TargetRef = targetRef.String
@@ -667,18 +674,19 @@ func loadActionIntents(r sqlReader, store *MemoryStore) error {
 }
 
 func loadActionResults(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, action_intent_id, attempt_number, executor, provider, provider_ref, request_artifact_id, response_artifact_id, status, error_code, error_message, started_at, completed_at from action_result order by action_intent_id asc, attempt_number asc`)
+	rows, err := r.Query(`select id, action_intent_id, attempt_id, attempt_number, executor, provider, provider_ref, request_artifact_id, response_artifact_id, status, error_code, error_message, started_at, completed_at from action_result order by action_intent_id asc, attempt_number asc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var item action.Result
-		var provider, providerRef, requestArtifactID, responseArtifactID, errorCode, errorMessage sql.NullString
+		var attemptID, provider, providerRef, requestArtifactID, responseArtifactID, errorCode, errorMessage sql.NullString
 		var status string
-		if err := rows.Scan(&item.ID, &item.ActionIntentID, &item.AttemptNumber, &item.Executor, &provider, &providerRef, &requestArtifactID, &responseArtifactID, &status, &errorCode, &errorMessage, &item.StartedAt, &item.CompletedAt); err != nil {
+		if err := rows.Scan(&item.ID, &item.ActionIntentID, &attemptID, &item.AttemptNumber, &item.Executor, &provider, &providerRef, &requestArtifactID, &responseArtifactID, &status, &errorCode, &errorMessage, &item.StartedAt, &item.CompletedAt); err != nil {
 			return err
 		}
+		item.AttemptID = attemptID.String
 		item.Provider = provider.String
 		item.ProviderRef = providerRef.String
 		item.RequestArtifactID = requestArtifactID.String
@@ -692,16 +700,16 @@ func loadActionResults(r sqlReader, store *MemoryStore) error {
 }
 
 func loadOutcomes(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, source, source_event_id, conversation_id, case_id, trace_id, proposal_id, outcome_type, verdict, score, summary, details, external_ref, recorded_by, recorded_at from outcome_record order by recorded_at desc`)
+	rows, err := r.Query(`select id, source, source_event_id, conversation_id, case_id, trace_id, proposal_id, attempt_id, outcome_type, verdict, score, summary, details, external_ref, recorded_by, recorded_at from outcome_record order by recorded_at desc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var item outcome.Record
-		var sourceEventID, conversationID, caseID, traceID, proposalID, summary, details, externalRef, recordedBy sql.NullString
+		var sourceEventID, conversationID, caseID, traceID, proposalID, attemptID, summary, details, externalRef, recordedBy sql.NullString
 		var outcomeType, verdict string
-		if err := rows.Scan(&item.ID, &item.Source, &sourceEventID, &conversationID, &caseID, &traceID, &proposalID, &outcomeType, &verdict, &item.Score, &summary, &details, &externalRef, &recordedBy, &item.RecordedAt); err != nil {
+		if err := rows.Scan(&item.ID, &item.Source, &sourceEventID, &conversationID, &caseID, &traceID, &proposalID, &attemptID, &outcomeType, &verdict, &item.Score, &summary, &details, &externalRef, &recordedBy, &item.RecordedAt); err != nil {
 			return err
 		}
 		item.SourceEventID = sourceEventID.String
@@ -709,6 +717,7 @@ func loadOutcomes(r sqlReader, store *MemoryStore) error {
 		item.CaseID = caseID.String
 		item.TraceID = traceID.String
 		item.ProposalID = proposalID.String
+		item.AttemptID = attemptID.String
 		item.OutcomeType = outcome.Type(outcomeType)
 		item.Verdict = outcome.Verdict(verdict)
 		item.Summary = summary.String
@@ -1225,18 +1234,18 @@ func loadWorkItems(r sqlReader, store *MemoryStore) error {
 }
 
 func loadCandidates(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, subsystem, failure_mode, intervention_type, target_layer, target_kind, target_ref, status, severity, recurrence_count, expected_impact, novelty_score, confidence_score, freshness_score, priority_score, risk_tier, hypothesis, proposed_scope, latest_trace_id, source_eval_ids, evidence_artifact_ids, prior_similar_proposal_ids, new_evidence_since_last_rejection, last_evaluated_at, created_at, updated_at from improvement_candidate order by updated_at desc`)
+	rows, err := r.Query(`select id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, subsystem, failure_mode, intervention_type, target_layer, target_kind, target_ref, status, severity, recurrence_count, expected_impact, novelty_score, confidence_score, freshness_score, priority_score, risk_tier, hypothesis, proposed_scope, latest_trace_id, source_eval_ids, evidence_artifact_ids, prior_similar_proposal_ids, new_evidence_since_last_rejection, line_status, retryable_failure_class, last_attempt_id, attempt_count, auto_retry_budget_remaining, current_target_layer, last_evaluated_at, created_at, updated_at from improvement_candidate order by updated_at desc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var item improvement.Candidate
-		var status, riskTier, targetLayer string
-		var conversationID, caseID, originTraceID, latestTraceID, targetKind, targetRef sql.NullString
+		var status, riskTier, targetLayer, lineStatus, currentTargetLayer string
+		var conversationID, caseID, originTraceID, latestTraceID, targetKind, targetRef, retryableFailureClass, lastAttemptID sql.NullString
 		var evidenceTraceIDs, sourceEvalIDs, evidenceArtifactIDs, priorSimilarProposalIDs []byte
 		var lastEvaluatedAt sql.NullTime
-		if err := rows.Scan(&item.ID, &item.CandidateKey, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Subsystem, &item.FailureMode, &item.InterventionType, &targetLayer, &targetKind, &targetRef, &status, &item.Severity, &item.RecurrenceCount, &item.ExpectedImpact, &item.NoveltyScore, &item.ConfidenceScore, &item.FreshnessScore, &item.PriorityScore, &riskTier, &item.Hypothesis, &item.ProposedScope, &latestTraceID, &sourceEvalIDs, &evidenceArtifactIDs, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &lastEvaluatedAt, &item.CreatedAt, &item.UpdatedAt); err != nil {
+		if err := rows.Scan(&item.ID, &item.CandidateKey, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Subsystem, &item.FailureMode, &item.InterventionType, &targetLayer, &targetKind, &targetRef, &status, &item.Severity, &item.RecurrenceCount, &item.ExpectedImpact, &item.NoveltyScore, &item.ConfidenceScore, &item.FreshnessScore, &item.PriorityScore, &riskTier, &item.Hypothesis, &item.ProposedScope, &latestTraceID, &sourceEvalIDs, &evidenceArtifactIDs, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &lineStatus, &retryableFailureClass, &lastAttemptID, &item.AttemptCount, &item.AutoRetryBudgetRemaining, &currentTargetLayer, &lastEvaluatedAt, &item.CreatedAt, &item.UpdatedAt); err != nil {
 			return err
 		}
 		item.ConversationID = conversationID.String
@@ -1252,6 +1261,10 @@ func loadCandidates(r sqlReader, store *MemoryStore) error {
 		item.SourceEvalIDs = decodeJSON(sourceEvalIDs, []string{})
 		item.EvidenceArtifactIDs = decodeJSON(evidenceArtifactIDs, []string{})
 		item.PriorSimilarProposalIDs = decodeJSON(priorSimilarProposalIDs, []string{})
+		item.LineStatus = improvement.LineStatus(lineStatus)
+		item.RetryableFailureClass = retryableFailureClass.String
+		item.LastAttemptID = lastAttemptID.String
+		item.CurrentTargetLayer = harness.TargetLayer(currentTargetLayer)
 		if lastEvaluatedAt.Valid {
 			item.LastEvaluatedAt = lastEvaluatedAt.Time
 		}
@@ -1261,7 +1274,7 @@ func loadCandidates(r sqlReader, store *MemoryStore) error {
 }
 
 func loadProposals(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, target_layer, target_kind, target_ref, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, created_at from proposal order by created_at desc`)
+	rows, err := r.Query(`select id, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, target_layer, target_kind, target_ref, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, current_attempt_id, attempt_count, auto_retry_budget_remaining, last_failure_class, next_retry_action, line_stopped_by, line_stop_reason, line_stopped_at, created_at from proposal order by created_at desc`)
 	if err != nil {
 		return err
 	}
@@ -1269,10 +1282,10 @@ func loadProposals(r sqlReader, store *MemoryStore) error {
 	for rows.Next() {
 		var item review.Proposal
 		var status, targetLayer string
-		var conversationID, caseID, originTraceID, reviewer, targetKind, targetRef sql.NullString
+		var conversationID, caseID, originTraceID, reviewer, targetKind, targetRef, currentAttemptID, lastFailureClass, nextRetryAction, lineStoppedBy, lineStopReason sql.NullString
 		var evidenceTraceIDs, sourceEvalIDs, evidenceArtifactIDs, priorSimilarProposalIDs []byte
-		var reviewDeadline sql.NullTime
-		if err := rows.Scan(&item.ID, &item.TraceID, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Title, &item.Category, &item.Summary, &status, &reviewer, &item.CandidateKey, &targetLayer, &targetKind, &targetRef, &sourceEvalIDs, &item.RiskTier, &item.ProposedScope, &evidenceArtifactIDs, &item.ActiveSlotConsuming, &reviewDeadline, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &item.CreatedAt); err != nil {
+		var reviewDeadline, lineStoppedAt sql.NullTime
+		if err := rows.Scan(&item.ID, &item.TraceID, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Title, &item.Category, &item.Summary, &status, &reviewer, &item.CandidateKey, &targetLayer, &targetKind, &targetRef, &sourceEvalIDs, &item.RiskTier, &item.ProposedScope, &evidenceArtifactIDs, &item.ActiveSlotConsuming, &reviewDeadline, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &currentAttemptID, &item.AttemptCount, &item.AutoRetryBudgetRemaining, &lastFailureClass, &nextRetryAction, &lineStoppedBy, &lineStopReason, &lineStoppedAt, &item.CreatedAt); err != nil {
 			return err
 		}
 		item.ConversationID = conversationID.String
@@ -1287,10 +1300,65 @@ func loadProposals(r sqlReader, store *MemoryStore) error {
 		item.SourceEvalIDs = decodeJSON(sourceEvalIDs, []string{})
 		item.EvidenceArtifactIDs = decodeJSON(evidenceArtifactIDs, []string{})
 		item.PriorSimilarProposalIDs = decodeJSON(priorSimilarProposalIDs, []string{})
+		item.CurrentAttemptID = currentAttemptID.String
+		item.LastFailureClass = lastFailureClass.String
+		item.NextRetryAction = nextRetryAction.String
+		item.LineStoppedBy = lineStoppedBy.String
+		item.LineStopReason = lineStopReason.String
 		if reviewDeadline.Valid {
 			item.ReviewDeadline = reviewDeadline.Time
 		}
+		if lineStoppedAt.Valid {
+			t := lineStoppedAt.Time
+			item.LineStoppedAt = &t
+		}
 		store.proposals[item.ID] = item
+	}
+	return rows.Err()
+}
+
+func loadChangeAttempts(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, proposal_id, candidate_key, attempt_number, target_layer, target_kind, target_ref, trigger, state, attempt_trace_id, parent_attempt_id, branch_name, pr_url, head_sha, failure_class, failure_summary, retry_decision, retry_after, material_hypothesis_change, diff_summary, changed_files, validation_summary, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta, overlay_payload, created_at, updated_at from change_attempt order by created_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item improvement.ChangeAttempt
+		var targetLayer, trigger, state string
+		var retryAfter sql.NullTime
+		var targetKind, targetRef, attemptTraceID, parentAttemptID, branchName, prURL, headSHA, failureClass, failureSummary, retryDecision, diffSummary, validationSummary, changePlan, repoPatch, validationPlan, retryAssessment, hypothesisDelta sql.NullString
+		var changedFiles, overlayPayload []byte
+		if err := rows.Scan(&item.ID, &item.ProposalID, &item.CandidateKey, &item.AttemptNumber, &targetLayer, &targetKind, &targetRef, &trigger, &state, &attemptTraceID, &parentAttemptID, &branchName, &prURL, &headSHA, &failureClass, &failureSummary, &retryDecision, &retryAfter, &item.MaterialHypothesisChange, &diffSummary, &changedFiles, &validationSummary, &changePlan, &repoPatch, &validationPlan, &retryAssessment, &hypothesisDelta, &overlayPayload, &item.CreatedAt, &item.UpdatedAt); err != nil {
+			return err
+		}
+		item.TargetLayer = harness.TargetLayer(targetLayer)
+		item.TargetKind = targetKind.String
+		item.TargetRef = targetRef.String
+		item.Trigger = improvement.ChangeAttemptTrigger(trigger)
+		item.State = improvement.ChangeAttemptState(state)
+		item.AttemptTraceID = attemptTraceID.String
+		item.ParentAttemptID = parentAttemptID.String
+		item.BranchName = branchName.String
+		item.PRURL = prURL.String
+		item.HeadSHA = headSHA.String
+		item.FailureClass = failureClass.String
+		item.FailureSummary = failureSummary.String
+		item.RetryDecision = retryDecision.String
+		if retryAfter.Valid {
+			t := retryAfter.Time
+			item.RetryAfter = &t
+		}
+		item.DiffSummary = diffSummary.String
+		item.ChangedFiles = decodeJSON(changedFiles, []string{})
+		item.ValidationSummary = validationSummary.String
+		item.ChangePlan = changePlan.String
+		item.RepoPatch = repoPatch.String
+		item.ValidationPlan = validationPlan.String
+		item.RetryAssessment = retryAssessment.String
+		item.HypothesisDelta = hypothesisDelta.String
+		item.OverlayPayload = decodeJSON(overlayPayload, map[string]any{})
+		store.changeAttempts[item.ID] = normalizeChangeAttempt(item)
 	}
 	return rows.Err()
 }
@@ -1354,18 +1422,19 @@ func loadProposalMemory(r sqlReader, store *MemoryStore) error {
 }
 
 func loadRepoChangeJobs(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, proposal_id, conversation_id, case_id, origin_trace_id, candidate_key, status, repo, base_ref, branch_name, allowed_path_globs, context_summary, sandbox_namespace, sandbox_job_name, sandbox_pod_name, validation_error, validation_ref, log_artifact_id, created_at, updated_at from repo_change_job order by created_at desc`)
+	rows, err := r.Query(`select id, proposal_id, attempt_id, conversation_id, case_id, origin_trace_id, candidate_key, status, repo, base_ref, branch_name, allowed_path_globs, context_summary, sandbox_namespace, sandbox_job_name, sandbox_pod_name, validation_error, validation_ref, log_artifact_id, created_at, updated_at from repo_change_job order by created_at desc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var item improvement.RepoChangeJob
-		var conversationID, caseID, originTraceID, sandboxNamespace, sandboxJobName, sandboxPodName, validationError, validationRef, logArtifactID sql.NullString
+		var attemptID, conversationID, caseID, originTraceID, sandboxNamespace, sandboxJobName, sandboxPodName, validationError, validationRef, logArtifactID sql.NullString
 		var allowed []byte
-		if err := rows.Scan(&item.ID, &item.ProposalID, &conversationID, &caseID, &originTraceID, &item.CandidateKey, &item.Status, &item.Repo, &item.BaseRef, &item.BranchName, &allowed, &item.ContextSummary, &sandboxNamespace, &sandboxJobName, &sandboxPodName, &validationError, &validationRef, &logArtifactID, &item.CreatedAt, &item.UpdatedAt); err != nil {
+		if err := rows.Scan(&item.ID, &item.ProposalID, &attemptID, &conversationID, &caseID, &originTraceID, &item.CandidateKey, &item.Status, &item.Repo, &item.BaseRef, &item.BranchName, &allowed, &item.ContextSummary, &sandboxNamespace, &sandboxJobName, &sandboxPodName, &validationError, &validationRef, &logArtifactID, &item.CreatedAt, &item.UpdatedAt); err != nil {
 			return err
 		}
+		item.AttemptID = attemptID.String
 		item.ConversationID = conversationID.String
 		item.CaseID = caseID.String
 		item.OriginTraceID = originTraceID.String
@@ -1382,21 +1451,23 @@ func loadRepoChangeJobs(r sqlReader, store *MemoryStore) error {
 }
 
 func loadPRAttempts(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, proposal_id, conversation_id, case_id, origin_trace_id, repo, branch_name, pr_url, status, validation_status, created_at from pr_attempt order by created_at desc`)
+	rows, err := r.Query(`select id, proposal_id, attempt_id, conversation_id, case_id, origin_trace_id, repo, branch_name, pr_url, head_sha, status, validation_status, created_at from pr_attempt order by created_at desc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var item improvement.PRAttempt
-		var conversationID, caseID, originTraceID, prURL sql.NullString
-		if err := rows.Scan(&item.ID, &item.ProposalID, &conversationID, &caseID, &originTraceID, &item.Repo, &item.BranchName, &prURL, &item.Status, &item.ValidationStatus, &item.CreatedAt); err != nil {
+		var attemptID, conversationID, caseID, originTraceID, prURL, headSHA sql.NullString
+		if err := rows.Scan(&item.ID, &item.ProposalID, &attemptID, &conversationID, &caseID, &originTraceID, &item.Repo, &item.BranchName, &prURL, &headSHA, &item.Status, &item.ValidationStatus, &item.CreatedAt); err != nil {
 			return err
 		}
+		item.AttemptID = attemptID.String
 		item.ConversationID = conversationID.String
 		item.CaseID = caseID.String
 		item.OriginTraceID = originTraceID.String
 		item.PRURL = prURL.String
+		item.HeadSHA = headSHA.String
 		store.prAttempts[item.ID] = item
 	}
 	return rows.Err()
@@ -1621,13 +1692,14 @@ func persistActionIntents(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.actionIntents)
 	for _, key := range keys {
 		item := store.actionIntents[key]
-		if _, err := tx.Exec(`insert into action_intent (id, owner_plane, conversation_id, case_id, trace_id, proposal_id, kind, phase_key, target_ref, request_payload, idempotency_key, approval_mode, approval_state, policy_verdict, status, superseded_by_action_id, requested_by, rationale, evidence_refs, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::jsonb,$11,$12,$13,$14,$15,$16,$17,$18,$19::jsonb,$20,$21)
+		if _, err := tx.Exec(`insert into action_intent (id, owner_plane, conversation_id, case_id, trace_id, proposal_id, attempt_id, kind, phase_key, target_ref, request_payload, idempotency_key, approval_mode, approval_state, policy_verdict, status, superseded_by_action_id, requested_by, rationale, evidence_refs, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb,$12,$13,$14,$15,$16,$17,$18,$19,$20::jsonb,$21,$22)
 			on conflict (id) do update set
 				owner_plane = excluded.owner_plane,
 				conversation_id = excluded.conversation_id,
 				case_id = excluded.case_id,
 				trace_id = excluded.trace_id,
 				proposal_id = excluded.proposal_id,
+				attempt_id = excluded.attempt_id,
 				kind = excluded.kind,
 				phase_key = excluded.phase_key,
 				target_ref = excluded.target_ref,
@@ -1643,7 +1715,7 @@ func persistActionIntents(tx *sql.Tx, store *MemoryStore) error {
 				evidence_refs = excluded.evidence_refs,
 				created_at = excluded.created_at,
 				updated_at = excluded.updated_at`,
-			item.ID, item.OwnerPlane, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.TraceID), nullString(item.ProposalID), string(item.Kind), nullString(item.PhaseKey), nullString(item.TargetRef), jsonString(item.RequestPayload), nullString(item.IdempotencyKey), nullString(item.ApprovalMode), nullString(item.ApprovalState), nullString(item.PolicyVerdict), string(item.Status), nullString(item.SupersededByActionID), nullString(item.RequestedBy), nullString(item.Rationale), jsonString(item.EvidenceRefs), item.CreatedAt, item.UpdatedAt,
+			item.ID, item.OwnerPlane, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.TraceID), nullString(item.ProposalID), firstNonEmpty(item.AttemptID), string(item.Kind), nullString(item.PhaseKey), nullString(item.TargetRef), jsonString(item.RequestPayload), nullString(item.IdempotencyKey), nullString(item.ApprovalMode), nullString(item.ApprovalState), nullString(item.PolicyVerdict), string(item.Status), nullString(item.SupersededByActionID), nullString(item.RequestedBy), nullString(item.Rationale), jsonString(item.EvidenceRefs), item.CreatedAt, item.UpdatedAt,
 		); err != nil {
 			return err
 		}
@@ -1655,9 +1727,10 @@ func persistActionResults(tx *sql.Tx, store *MemoryStore) error {
 	intentKeys := sortedMapKeys(store.actionResults)
 	for _, key := range intentKeys {
 		for _, item := range store.actionResults[key] {
-			if _, err := tx.Exec(`insert into action_result (id, action_intent_id, attempt_number, executor, provider, provider_ref, request_artifact_id, response_artifact_id, status, error_code, error_message, started_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+			if _, err := tx.Exec(`insert into action_result (id, action_intent_id, attempt_id, attempt_number, executor, provider, provider_ref, request_artifact_id, response_artifact_id, status, error_code, error_message, started_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
 				on conflict (id) do update set
 					action_intent_id = excluded.action_intent_id,
+					attempt_id = excluded.attempt_id,
 					attempt_number = excluded.attempt_number,
 					executor = excluded.executor,
 					provider = excluded.provider,
@@ -1669,7 +1742,7 @@ func persistActionResults(tx *sql.Tx, store *MemoryStore) error {
 					error_message = excluded.error_message,
 					started_at = excluded.started_at,
 					completed_at = excluded.completed_at`,
-				item.ID, item.ActionIntentID, item.AttemptNumber, item.Executor, nullString(item.Provider), nullString(item.ProviderRef), nullString(item.RequestArtifactID), nullString(item.ResponseArtifactID), string(item.Status), nullString(item.ErrorCode), nullString(item.ErrorMessage), item.StartedAt, item.CompletedAt,
+				item.ID, item.ActionIntentID, firstNonEmpty(item.AttemptID), item.AttemptNumber, item.Executor, nullString(item.Provider), nullString(item.ProviderRef), nullString(item.RequestArtifactID), nullString(item.ResponseArtifactID), string(item.Status), nullString(item.ErrorCode), nullString(item.ErrorMessage), item.StartedAt, item.CompletedAt,
 			); err != nil {
 				return err
 			}
@@ -1682,7 +1755,7 @@ func persistOutcomes(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.outcomes)
 	for _, key := range keys {
 		item := store.outcomes[key]
-		if _, err := tx.Exec(`insert into outcome_record (id, source, source_event_id, conversation_id, case_id, trace_id, proposal_id, outcome_type, verdict, score, summary, details, external_ref, recorded_by, recorded_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+		if _, err := tx.Exec(`insert into outcome_record (id, source, source_event_id, conversation_id, case_id, trace_id, proposal_id, attempt_id, outcome_type, verdict, score, summary, details, external_ref, recorded_by, recorded_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
 			on conflict (id) do update set
 				source = excluded.source,
 				source_event_id = excluded.source_event_id,
@@ -1690,6 +1763,7 @@ func persistOutcomes(tx *sql.Tx, store *MemoryStore) error {
 				case_id = excluded.case_id,
 				trace_id = excluded.trace_id,
 				proposal_id = excluded.proposal_id,
+				attempt_id = excluded.attempt_id,
 				outcome_type = excluded.outcome_type,
 				verdict = excluded.verdict,
 				score = excluded.score,
@@ -1698,7 +1772,7 @@ func persistOutcomes(tx *sql.Tx, store *MemoryStore) error {
 				external_ref = excluded.external_ref,
 				recorded_by = excluded.recorded_by,
 				recorded_at = excluded.recorded_at`,
-			item.ID, item.Source, nullString(item.SourceEventID), nullString(item.ConversationID), nullString(item.CaseID), nullString(item.TraceID), nullString(item.ProposalID), string(item.OutcomeType), string(item.Verdict), item.Score, nullString(item.Summary), nullString(item.Details), nullString(item.ExternalRef), nullString(item.RecordedBy), item.RecordedAt,
+			item.ID, item.Source, nullString(item.SourceEventID), nullString(item.ConversationID), nullString(item.CaseID), nullString(item.TraceID), nullString(item.ProposalID), firstNonEmpty(item.AttemptID), string(item.OutcomeType), string(item.Verdict), item.Score, nullString(item.Summary), nullString(item.Details), nullString(item.ExternalRef), nullString(item.RecordedBy), item.RecordedAt,
 		); err != nil {
 			return err
 		}
@@ -2050,7 +2124,13 @@ func persistCandidates(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.candidates)
 	for _, key := range keys {
 		item := normalizeCandidateTargetFields(store.candidates[key])
-		if _, err := tx.Exec(`insert into improvement_candidate (id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, subsystem, failure_mode, intervention_type, target_layer, target_kind, target_ref, status, severity, recurrence_count, expected_impact, novelty_score, confidence_score, freshness_score, priority_score, risk_tier, hypothesis, proposed_scope, latest_trace_id, source_eval_ids, evidence_artifact_ids, prior_similar_proposal_ids, new_evidence_since_last_rejection, last_evaluated_at, created_at, updated_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25::jsonb,$26::jsonb,$27::jsonb,$28,$29,$30,$31)
+		if item.LineStatus == "" {
+			item.LineStatus = improvement.LineStatus(item.Status)
+		}
+		if strings.TrimSpace(string(item.CurrentTargetLayer)) == "" {
+			item.CurrentTargetLayer = item.TargetLayer
+		}
+		if _, err := tx.Exec(`insert into improvement_candidate (id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, subsystem, failure_mode, intervention_type, target_layer, target_kind, target_ref, status, severity, recurrence_count, expected_impact, novelty_score, confidence_score, freshness_score, priority_score, risk_tier, hypothesis, proposed_scope, latest_trace_id, source_eval_ids, evidence_artifact_ids, prior_similar_proposal_ids, new_evidence_since_last_rejection, line_status, retryable_failure_class, last_attempt_id, attempt_count, auto_retry_budget_remaining, current_target_layer, last_evaluated_at, created_at, updated_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25::jsonb,$26::jsonb,$27::jsonb,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37)
 			on conflict (id) do update set
 				candidate_key = excluded.candidate_key,
 				conversation_id = excluded.conversation_id,
@@ -2079,10 +2159,16 @@ func persistCandidates(tx *sql.Tx, store *MemoryStore) error {
 				evidence_artifact_ids = excluded.evidence_artifact_ids,
 				prior_similar_proposal_ids = excluded.prior_similar_proposal_ids,
 				new_evidence_since_last_rejection = excluded.new_evidence_since_last_rejection,
+				line_status = excluded.line_status,
+				retryable_failure_class = excluded.retryable_failure_class,
+				last_attempt_id = excluded.last_attempt_id,
+				attempt_count = excluded.attempt_count,
+				auto_retry_budget_remaining = excluded.auto_retry_budget_remaining,
+				current_target_layer = excluded.current_target_layer,
 				last_evaluated_at = excluded.last_evaluated_at,
 				created_at = excluded.created_at,
 				updated_at = excluded.updated_at`,
-			item.ID, item.CandidateKey, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), jsonString(item.EvidenceTraceIDs), item.Subsystem, item.FailureMode, item.InterventionType, string(item.TargetLayer), nullString(item.TargetKind), nullString(item.TargetRef), string(item.Status), item.Severity, item.RecurrenceCount, item.ExpectedImpact, item.NoveltyScore, item.ConfidenceScore, item.FreshnessScore, item.PriorityScore, string(item.RiskTier), item.Hypothesis, item.ProposedScope, nullString(item.LatestTraceID), jsonString(item.SourceEvalIDs), jsonString(item.EvidenceArtifactIDs), jsonString(item.PriorSimilarProposalIDs), item.NewEvidenceSinceLastRejection, nullTimeValue(item.LastEvaluatedAt), item.CreatedAt, item.UpdatedAt,
+			item.ID, item.CandidateKey, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), jsonString(item.EvidenceTraceIDs), item.Subsystem, item.FailureMode, item.InterventionType, string(item.TargetLayer), nullString(item.TargetKind), nullString(item.TargetRef), string(item.Status), item.Severity, item.RecurrenceCount, item.ExpectedImpact, item.NoveltyScore, item.ConfidenceScore, item.FreshnessScore, item.PriorityScore, string(item.RiskTier), item.Hypothesis, item.ProposedScope, nullString(item.LatestTraceID), jsonString(item.SourceEvalIDs), jsonString(item.EvidenceArtifactIDs), jsonString(item.PriorSimilarProposalIDs), item.NewEvidenceSinceLastRejection, string(item.LineStatus), firstNonEmpty(item.RetryableFailureClass), firstNonEmpty(item.LastAttemptID), item.AttemptCount, item.AutoRetryBudgetRemaining, string(item.CurrentTargetLayer), nullTimeValue(item.LastEvaluatedAt), item.CreatedAt, item.UpdatedAt,
 		); err != nil {
 			return err
 		}
@@ -2094,7 +2180,10 @@ func persistProposals(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.proposals)
 	for _, key := range keys {
 		item := normalizeProposalTargetFields(store.proposals[key])
-		if _, err := tx.Exec(`insert into proposal (id, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, target_layer, target_kind, target_ref, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, created_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16::jsonb,$17,$18,$19::jsonb,$20,$21,$22::jsonb,$23,$24)
+		if item.AutoRetryBudgetRemaining == 0 && review.ConsumesActiveProposalSlot(item.Status) {
+			item.AutoRetryBudgetRemaining = defaultProposalRetryBudget
+		}
+		if _, err := tx.Exec(`insert into proposal (id, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, target_layer, target_kind, target_ref, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, current_attempt_id, attempt_count, auto_retry_budget_remaining, last_failure_class, next_retry_action, line_stopped_by, line_stop_reason, line_stopped_at, created_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16::jsonb,$17,$18,$19::jsonb,$20,$21,$22::jsonb,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32)
 			on conflict (id) do update set
 				trace_id = excluded.trace_id,
 				conversation_id = excluded.conversation_id,
@@ -2118,8 +2207,16 @@ func persistProposals(tx *sql.Tx, store *MemoryStore) error {
 				review_deadline = excluded.review_deadline,
 				prior_similar_proposal_ids = excluded.prior_similar_proposal_ids,
 				new_evidence_since_last_rejection = excluded.new_evidence_since_last_rejection,
+				current_attempt_id = excluded.current_attempt_id,
+				attempt_count = excluded.attempt_count,
+				auto_retry_budget_remaining = excluded.auto_retry_budget_remaining,
+				last_failure_class = excluded.last_failure_class,
+				next_retry_action = excluded.next_retry_action,
+				line_stopped_by = excluded.line_stopped_by,
+				line_stop_reason = excluded.line_stop_reason,
+				line_stopped_at = excluded.line_stopped_at,
 				created_at = excluded.created_at`,
-			item.ID, item.TraceID, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), jsonString(item.EvidenceTraceIDs), item.Title, item.Category, item.Summary, string(item.Status), nullString(item.Reviewer), item.CandidateKey, string(item.TargetLayer), nullString(item.TargetKind), nullString(item.TargetRef), jsonString(item.SourceEvalIDs), item.RiskTier, item.ProposedScope, jsonString(item.EvidenceArtifactIDs), item.ActiveSlotConsuming, nullTimeValue(item.ReviewDeadline), jsonString(item.PriorSimilarProposalIDs), item.NewEvidenceSinceLastRejection, item.CreatedAt,
+			item.ID, item.TraceID, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), jsonString(item.EvidenceTraceIDs), item.Title, item.Category, item.Summary, string(item.Status), nullString(item.Reviewer), item.CandidateKey, string(item.TargetLayer), nullString(item.TargetKind), nullString(item.TargetRef), jsonString(item.SourceEvalIDs), item.RiskTier, item.ProposedScope, jsonString(item.EvidenceArtifactIDs), item.ActiveSlotConsuming, nullTimeValue(item.ReviewDeadline), jsonString(item.PriorSimilarProposalIDs), item.NewEvidenceSinceLastRejection, firstNonEmpty(item.CurrentAttemptID), item.AttemptCount, item.AutoRetryBudgetRemaining, firstNonEmpty(item.LastFailureClass), firstNonEmpty(item.NextRetryAction), firstNonEmpty(item.LineStoppedBy), firstNonEmpty(item.LineStopReason), nullTime(item.LineStoppedAt), item.CreatedAt,
 		); err != nil {
 			return err
 		}
@@ -2145,6 +2242,8 @@ func normalizeCandidateTargetFields(item improvement.Candidate) improvement.Cand
 			item.TargetRef = "rsi-agent-platform"
 		}
 	}
+	item.RetryableFailureClass = firstNonEmpty(item.RetryableFailureClass)
+	item.LastAttemptID = firstNonEmpty(item.LastAttemptID)
 	return item
 }
 
@@ -2166,6 +2265,11 @@ func normalizeProposalTargetFields(item review.Proposal) review.Proposal {
 			item.TargetRef = "rsi-agent-platform"
 		}
 	}
+	item.CurrentAttemptID = firstNonEmpty(item.CurrentAttemptID)
+	item.LastFailureClass = firstNonEmpty(item.LastFailureClass)
+	item.NextRetryAction = firstNonEmpty(item.NextRetryAction)
+	item.LineStoppedBy = firstNonEmpty(item.LineStoppedBy)
+	item.LineStopReason = firstNonEmpty(item.LineStopReason)
 	return item
 }
 
@@ -2255,6 +2359,49 @@ func persistProposalMemory(tx *sql.Tx, store *MemoryStore) error {
 	return nil
 }
 
+func persistChangeAttempts(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.changeAttempts)
+	for _, key := range keys {
+		item := normalizeChangeAttempt(store.changeAttempts[key])
+		if _, err := tx.Exec(`insert into change_attempt (id, proposal_id, candidate_key, attempt_number, target_layer, target_kind, target_ref, trigger, state, attempt_trace_id, parent_attempt_id, branch_name, pr_url, head_sha, failure_class, failure_summary, retry_decision, retry_after, material_hypothesis_change, diff_summary, changed_files, validation_summary, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta, overlay_payload, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21::jsonb,$22,$23,$24,$25,$26,$27,$28::jsonb,$29,$30)
+			on conflict (id) do update set
+				proposal_id = excluded.proposal_id,
+				candidate_key = excluded.candidate_key,
+				attempt_number = excluded.attempt_number,
+				target_layer = excluded.target_layer,
+				target_kind = excluded.target_kind,
+				target_ref = excluded.target_ref,
+				trigger = excluded.trigger,
+				state = excluded.state,
+				attempt_trace_id = excluded.attempt_trace_id,
+				parent_attempt_id = excluded.parent_attempt_id,
+				branch_name = excluded.branch_name,
+				pr_url = excluded.pr_url,
+				head_sha = excluded.head_sha,
+				failure_class = excluded.failure_class,
+				failure_summary = excluded.failure_summary,
+				retry_decision = excluded.retry_decision,
+				retry_after = excluded.retry_after,
+				material_hypothesis_change = excluded.material_hypothesis_change,
+				diff_summary = excluded.diff_summary,
+				changed_files = excluded.changed_files,
+				validation_summary = excluded.validation_summary,
+				change_plan = excluded.change_plan,
+				repo_patch = excluded.repo_patch,
+				validation_plan = excluded.validation_plan,
+				retry_assessment = excluded.retry_assessment,
+				hypothesis_delta = excluded.hypothesis_delta,
+				overlay_payload = excluded.overlay_payload,
+				created_at = excluded.created_at,
+				updated_at = excluded.updated_at`,
+			item.ID, item.ProposalID, item.CandidateKey, item.AttemptNumber, string(item.TargetLayer), item.TargetKind, item.TargetRef, string(item.Trigger), string(item.State), item.AttemptTraceID, item.ParentAttemptID, item.BranchName, item.PRURL, item.HeadSHA, item.FailureClass, item.FailureSummary, item.RetryDecision, nullTime(item.RetryAfter), item.MaterialHypothesisChange, item.DiffSummary, jsonString(item.ChangedFiles), item.ValidationSummary, item.ChangePlan, item.RepoPatch, item.ValidationPlan, item.RetryAssessment, item.HypothesisDelta, jsonString(item.OverlayPayload), item.CreatedAt, item.UpdatedAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func persistSettings(tx *sql.Tx, store *MemoryStore) error {
 	item := normalizedSettings(store.settings)
 	if _, err := tx.Exec(`insert into improvement_settings (key, active_proposal_cap, updated_at) values ($1,$2,$3)
@@ -2310,9 +2457,10 @@ func persistRepoChangeJobs(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.repoChangeJobs)
 	for _, key := range keys {
 		item := store.repoChangeJobs[key]
-		if _, err := tx.Exec(`insert into repo_change_job (id, proposal_id, conversation_id, case_id, origin_trace_id, candidate_key, status, repo, base_ref, branch_name, allowed_path_globs, context_summary, sandbox_namespace, sandbox_job_name, sandbox_pod_name, validation_error, validation_ref, log_artifact_id, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb,$12,$13,$14,$15,$16,$17,$18,$19,$20)
+		if _, err := tx.Exec(`insert into repo_change_job (id, proposal_id, attempt_id, conversation_id, case_id, origin_trace_id, candidate_key, status, repo, base_ref, branch_name, allowed_path_globs, context_summary, sandbox_namespace, sandbox_job_name, sandbox_pod_name, validation_error, validation_ref, log_artifact_id, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::jsonb,$13,$14,$15,$16,$17,$18,$19,$20,$21)
 			on conflict (id) do update set
 				proposal_id = excluded.proposal_id,
+				attempt_id = excluded.attempt_id,
 				conversation_id = excluded.conversation_id,
 				case_id = excluded.case_id,
 				origin_trace_id = excluded.origin_trace_id,
@@ -2331,7 +2479,7 @@ func persistRepoChangeJobs(tx *sql.Tx, store *MemoryStore) error {
 				log_artifact_id = excluded.log_artifact_id,
 				created_at = excluded.created_at,
 				updated_at = excluded.updated_at`,
-			item.ID, item.ProposalID, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), item.CandidateKey, item.Status, item.Repo, item.BaseRef, item.BranchName, jsonString(item.AllowedPathGlobs), item.ContextSummary, nullString(item.SandboxNamespace), nullString(item.SandboxJobName), nullString(item.SandboxPodName), nullString(item.ValidationError), nullString(item.ValidationRef), nullString(item.LogArtifactID), item.CreatedAt, nullTimeValue(item.UpdatedAt),
+			item.ID, item.ProposalID, firstNonEmpty(item.AttemptID), nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), item.CandidateKey, item.Status, item.Repo, item.BaseRef, item.BranchName, jsonString(item.AllowedPathGlobs), item.ContextSummary, nullString(item.SandboxNamespace), nullString(item.SandboxJobName), nullString(item.SandboxPodName), nullString(item.ValidationError), nullString(item.ValidationRef), nullString(item.LogArtifactID), item.CreatedAt, nullTimeValue(item.UpdatedAt),
 		); err != nil {
 			return err
 		}
@@ -2343,19 +2491,21 @@ func persistPRAttempts(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.prAttempts)
 	for _, key := range keys {
 		item := store.prAttempts[key]
-		if _, err := tx.Exec(`insert into pr_attempt (id, proposal_id, conversation_id, case_id, origin_trace_id, repo, branch_name, pr_url, status, validation_status, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+		if _, err := tx.Exec(`insert into pr_attempt (id, proposal_id, attempt_id, conversation_id, case_id, origin_trace_id, repo, branch_name, pr_url, head_sha, status, validation_status, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
 			on conflict (id) do update set
 				proposal_id = excluded.proposal_id,
+				attempt_id = excluded.attempt_id,
 				conversation_id = excluded.conversation_id,
 				case_id = excluded.case_id,
 				origin_trace_id = excluded.origin_trace_id,
 				repo = excluded.repo,
 				branch_name = excluded.branch_name,
 				pr_url = excluded.pr_url,
+				head_sha = excluded.head_sha,
 				status = excluded.status,
 				validation_status = excluded.validation_status,
 				created_at = excluded.created_at`,
-			item.ID, item.ProposalID, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), item.Repo, item.BranchName, nullString(item.PRURL), item.Status, item.ValidationStatus, item.CreatedAt,
+			item.ID, item.ProposalID, firstNonEmpty(item.AttemptID), nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), item.Repo, item.BranchName, nullString(item.PRURL), firstNonEmpty(item.HeadSHA), item.Status, item.ValidationStatus, item.CreatedAt,
 		); err != nil {
 			return err
 		}

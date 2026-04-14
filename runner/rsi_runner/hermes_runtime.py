@@ -418,7 +418,7 @@ class HermesRuntime:
             parts.append(f"Memory backend: {task.memory_backend}")
         parts.append(f"Timeout seconds: {task.timeout_seconds}")
         parts.append(
-            "Return a JSON object with keys: visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, outcome_hypotheses."
+            "Return a JSON object with keys: visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, outcome_hypotheses, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta."
         )
         parts.append(
             "Each proposed action must include: kind, target_ref, request_payload, approval_mode, idempotency_key, rationale, evidence_refs."
@@ -428,6 +428,9 @@ class HermesRuntime:
         )
         parts.append(
             "Each outcome hypothesis must include: outcome_type, success_condition, measurement_ref, expected_time_horizon."
+        )
+        parts.append(
+            "For proposal or repo-change tasks, change_plan must explain the concrete remediation, repo_patch must contain a unified diff when target_layer is repo_change, validation_plan must name the checks to run, retry_assessment must include failure_class, failure_summary, retry_decision, material_hypothesis_change, and changed_files, and hypothesis_delta must explain what changed from the prior failed attempt."
         )
         parts.append(f"Task prompt:\n{task.prompt}")
         return "\n".join(parts)
@@ -459,6 +462,17 @@ class HermesRuntime:
             "proposed_actions": [],
             "knowledge_drafts": [],
             "outcome_hypotheses": [],
+            "change_plan": "",
+            "repo_patch": "",
+            "validation_plan": "",
+            "retry_assessment": {
+                "failure_class": "",
+                "failure_summary": "",
+                "retry_decision": "",
+                "material_hypothesis_change": False,
+                "changed_files": [],
+            },
+            "hypothesis_delta": "",
         }
 
 

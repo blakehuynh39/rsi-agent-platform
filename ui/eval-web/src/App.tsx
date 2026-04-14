@@ -336,6 +336,18 @@ export function App() {
     onSuccess: refreshEverything
   });
 
+  const proposalStopMutation = useMutation({
+    mutationFn: () =>
+      postJSON(`/api/proposals/${viewState.proposal}/stop`, {
+        requested_by: "ui-operator",
+        rationale: proposalRationale || "UI operator stopped the remediation line."
+      }),
+    onSuccess: async () => {
+      setProposalRationale("");
+      await refreshEverything();
+    }
+  });
+
   const activeProposals = useMemo(
     () => proposals.filter((proposal) => ACTIVE_PROPOSAL_STATES.has(proposal.status)),
     [proposals]
@@ -751,7 +763,9 @@ export function App() {
             setProposalRationale={setProposalRationale}
             onDecision={(decision) => proposalDecisionMutation.mutate(decision)}
             onRetry={() => proposalRetryMutation.mutate()}
-            canRetry={proposalDetailQuery.data.proposal.status === "failed_validation" && listOrEmpty(proposalDetailQuery.data.pr_attempts).length === 0}
+            onStop={() => proposalStopMutation.mutate()}
+            canRetry={["approved", "repo_change_queued", "failed_validation", "validation_pending"].includes(proposalDetailQuery.data.proposal.status)}
+            canStop={ACTIVE_PROPOSAL_STATES.has(proposalDetailQuery.data.proposal.status)}
           />
         ) : (
           <EmptyDetail title="Proposal not found" body="The selected proposal no longer exists." />

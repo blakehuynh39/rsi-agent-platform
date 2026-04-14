@@ -15,6 +15,17 @@ const (
 	CandidateDormant       CandidateStatus = "dormant"
 )
 
+type LineStatus string
+
+const (
+	LineQueuedForPromotion LineStatus = "queued_for_promotion"
+	LineActive             LineStatus = "active_line"
+	LineNeedsRework        LineStatus = "needs_rework"
+	LineNeedsEvidence      LineStatus = "needs_evidence"
+	LineDormant            LineStatus = "dormant"
+	LineClosed             LineStatus = "closed"
+)
+
 type RiskTier string
 
 const (
@@ -52,14 +63,83 @@ type Candidate struct {
 	EvidenceArtifactIDs           []string            `json:"evidence_artifact_ids"`
 	PriorSimilarProposalIDs       []string            `json:"prior_similar_proposal_ids"`
 	NewEvidenceSinceLastRejection bool                `json:"new_evidence_since_last_rejection"`
+	LineStatus                    LineStatus          `json:"line_status,omitempty"`
+	RetryableFailureClass         string              `json:"retryable_failure_class,omitempty"`
+	LastAttemptID                 string              `json:"last_attempt_id,omitempty"`
+	AttemptCount                  int                 `json:"attempt_count,omitempty"`
+	AutoRetryBudgetRemaining      int                 `json:"auto_retry_budget_remaining,omitempty"`
+	CurrentTargetLayer            harness.TargetLayer `json:"current_target_layer,omitempty"`
 	LastEvaluatedAt               time.Time           `json:"last_evaluated_at"`
 	CreatedAt                     time.Time           `json:"created_at"`
 	UpdatedAt                     time.Time           `json:"updated_at"`
 }
 
+type ChangeAttemptTrigger string
+
+const (
+	AttemptTriggerProposalApproved ChangeAttemptTrigger = "proposal_approved"
+	AttemptTriggerSandboxFailed    ChangeAttemptTrigger = "sandbox_failed"
+	AttemptTriggerPRClosed         ChangeAttemptTrigger = "pr_closed"
+	AttemptTriggerCIFailed         ChangeAttemptTrigger = "ci_failed"
+	AttemptTriggerPostMergeRegress ChangeAttemptTrigger = "post_merge_regression"
+	AttemptTriggerOperatorRetry    ChangeAttemptTrigger = "operator_retry"
+)
+
+type ChangeAttemptState string
+
+const (
+	AttemptStatePlanning         ChangeAttemptState = "planning"
+	AttemptStatePatchGenerated   ChangeAttemptState = "patch_generated"
+	AttemptStateOverlayGenerated ChangeAttemptState = "overlay_generated"
+	AttemptStateSandboxRunning   ChangeAttemptState = "sandbox_running"
+	AttemptStateSandboxFailed    ChangeAttemptState = "sandbox_failed"
+	AttemptStateValidationReady  ChangeAttemptState = "validation_pending"
+	AttemptStatePROpen           ChangeAttemptState = "pr_open"
+	AttemptStateCIFailed         ChangeAttemptState = "ci_failed"
+	AttemptStateClosedUnmerged   ChangeAttemptState = "closed_unmerged"
+	AttemptStateMerged           ChangeAttemptState = "merged"
+	AttemptStateNeedsReview      ChangeAttemptState = "needs_review"
+	AttemptStateAbandoned        ChangeAttemptState = "abandoned"
+	AttemptStateSuperseded       ChangeAttemptState = "superseded"
+)
+
+type ChangeAttempt struct {
+	ID                       string               `json:"id"`
+	ProposalID               string               `json:"proposal_id"`
+	CandidateKey             string               `json:"candidate_key"`
+	AttemptNumber            int                  `json:"attempt_number"`
+	TargetLayer              harness.TargetLayer  `json:"target_layer"`
+	TargetKind               string               `json:"target_kind,omitempty"`
+	TargetRef                string               `json:"target_ref,omitempty"`
+	Trigger                  ChangeAttemptTrigger `json:"trigger"`
+	State                    ChangeAttemptState   `json:"state"`
+	AttemptTraceID           string               `json:"attempt_trace_id,omitempty"`
+	ParentAttemptID          string               `json:"parent_attempt_id,omitempty"`
+	BranchName               string               `json:"branch_name,omitempty"`
+	PRURL                    string               `json:"pr_url,omitempty"`
+	HeadSHA                  string               `json:"head_sha,omitempty"`
+	FailureClass             string               `json:"failure_class,omitempty"`
+	FailureSummary           string               `json:"failure_summary,omitempty"`
+	RetryDecision            string               `json:"retry_decision,omitempty"`
+	RetryAfter               *time.Time           `json:"retry_after,omitempty"`
+	MaterialHypothesisChange bool                 `json:"material_hypothesis_change,omitempty"`
+	DiffSummary              string               `json:"diff_summary,omitempty"`
+	ChangedFiles             []string             `json:"changed_files,omitempty"`
+	ValidationSummary        string               `json:"validation_summary,omitempty"`
+	ChangePlan               string               `json:"change_plan,omitempty"`
+	RepoPatch                string               `json:"repo_patch,omitempty"`
+	ValidationPlan           string               `json:"validation_plan,omitempty"`
+	RetryAssessment          string               `json:"retry_assessment,omitempty"`
+	HypothesisDelta          string               `json:"hypothesis_delta,omitempty"`
+	OverlayPayload           map[string]any       `json:"overlay_payload,omitempty"`
+	CreatedAt                time.Time            `json:"created_at"`
+	UpdatedAt                time.Time            `json:"updated_at"`
+}
+
 type RepoChangeJob struct {
 	ID               string    `json:"id"`
 	ProposalID       string    `json:"proposal_id"`
+	AttemptID        string    `json:"attempt_id,omitempty"`
 	ConversationID   string    `json:"conversation_id,omitempty"`
 	CaseID           string    `json:"case_id,omitempty"`
 	OriginTraceID    string    `json:"origin_trace_id,omitempty"`
@@ -83,12 +163,14 @@ type RepoChangeJob struct {
 type PRAttempt struct {
 	ID               string    `json:"id"`
 	ProposalID       string    `json:"proposal_id"`
+	AttemptID        string    `json:"attempt_id,omitempty"`
 	ConversationID   string    `json:"conversation_id,omitempty"`
 	CaseID           string    `json:"case_id,omitempty"`
 	OriginTraceID    string    `json:"origin_trace_id,omitempty"`
 	Repo             string    `json:"repo"`
 	BranchName       string    `json:"branch_name"`
 	PRURL            string    `json:"pr_url,omitempty"`
+	HeadSHA          string    `json:"head_sha,omitempty"`
 	Status           string    `json:"status"`
 	ValidationStatus string    `json:"validation_status"`
 	CreatedAt        time.Time `json:"created_at"`

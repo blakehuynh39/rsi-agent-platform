@@ -28,6 +28,7 @@ type Record struct {
 	CaseID         string    `json:"case_id,omitempty"`
 	TraceID        string    `json:"trace_id,omitempty"`
 	ProposalID     string    `json:"proposal_id,omitempty"`
+	AttemptID      string    `json:"attempt_id,omitempty"`
 	OutcomeType    Type      `json:"outcome_type"`
 	Verdict        Verdict   `json:"verdict"`
 	Score          float64   `json:"score,omitempty"`

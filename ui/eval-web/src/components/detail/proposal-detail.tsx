@@ -7,11 +7,14 @@ export function ProposalDetail(props: {
   setProposalRationale: (value: string) => void;
   onDecision: (decision: string) => void;
   onRetry: () => void;
+  onStop: () => void;
   canRetry: boolean;
+  canStop: boolean;
 }) {
   const prAttempt = listOrEmpty(props.detail.pr_attempts)[0];
   const actionIntents = listOrEmpty(props.detail.action_intents);
   const actionResults = listOrEmpty(props.detail.action_results);
+  const attempts = listOrEmpty(props.detail.attempts);
   return (
     <div className="detail-stack">
       <div className="detail-card">
@@ -33,7 +36,15 @@ export function ProposalDetail(props: {
           <div><dt>Evidence traces</dt><dd>{listOrEmpty(props.detail.proposal.evidence_trace_ids).length}</dd></div>
           <div><dt>Target layer</dt><dd>{props.detail.proposal.target_layer || "repo_change"}</dd></div>
           <div><dt>Target</dt><dd>{props.detail.proposal.target_kind || "n/a"} {props.detail.proposal.target_ref ? `· ${props.detail.proposal.target_ref}` : ""}</dd></div>
+          <div><dt>Current attempt</dt><dd>{props.detail.proposal.current_attempt_id || "n/a"}</dd></div>
+          <div><dt>Attempt count</dt><dd>{props.detail.proposal.attempt_count ?? 0}</dd></div>
+          <div><dt>Retry budget</dt><dd>{props.detail.proposal.auto_retry_budget_remaining ?? 0}</dd></div>
+          <div><dt>Next retry action</dt><dd>{props.detail.proposal.next_retry_action || "n/a"}</dd></div>
+          <div><dt>Last failure</dt><dd>{props.detail.proposal.last_failure_class || "n/a"}</dd></div>
         </dl>
+        {props.detail.proposal.line_stop_reason ? (
+          <p className="muted">Line stopped: {props.detail.proposal.line_stop_reason}</p>
+        ) : null}
       </div>
 
       <div className="review-grid">
@@ -66,8 +77,47 @@ export function ProposalDetail(props: {
             <button className="secondary" onClick={() => props.onDecision("dismissed")}>Dismiss</button>
             <button className="secondary" onClick={() => props.onDecision("rejected")}>Reject</button>
             <button className="secondary" onClick={() => props.onDecision("merged")}>Mark merged</button>
-            {props.canRetry ? <button className="secondary" onClick={props.onRetry}>Retry repo change</button> : null}
+            {props.canRetry ? <button className="secondary" onClick={props.onRetry}>Resume line</button> : null}
+            {props.canStop ? <button className="secondary" onClick={props.onStop}>Stop line</button> : null}
           </div>
+        </div>
+      </div>
+
+      <div className="detail-card">
+        <h3>Attempts</h3>
+        <div className="nested-list">
+          {attempts.map((attempt) => {
+            const attemptJobs = listOrEmpty(props.detail.repo_change_jobs).filter((job) => job.attempt_id === attempt.id);
+            const attemptPRs = listOrEmpty(props.detail.pr_attempts).filter((item) => item.attempt_id === attempt.id);
+            return (
+              <div key={attempt.id} className="nested-card">
+                <div className="detail-row-header">
+                  <strong>Attempt {attempt.attempt_number}</strong>
+                  <small>{attempt.state}</small>
+                </div>
+                <p className="detail-copy">{attempt.change_plan || attempt.failure_summary || attempt.validation_summary || "No attempt summary recorded."}</p>
+                <p className="muted">Trigger: {attempt.trigger} · Branch: {attempt.branch_name || "n/a"}</p>
+                <p className="muted">Failure: {attempt.failure_class || "n/a"} · Retry: {attempt.retry_decision || "n/a"}</p>
+                {listOrEmpty(attempt.changed_files).length ? (
+                  <p className="muted">Files: {listOrEmpty(attempt.changed_files).join(", ")}</p>
+                ) : null}
+                {attempt.validation_plan ? <p className="muted">Validation: {attempt.validation_plan}</p> : null}
+                {attempt.hypothesis_delta ? <p className="muted">Delta: {attempt.hypothesis_delta}</p> : null}
+                {attemptJobs.map((job) => (
+                  <p key={job.id} className="muted">Sandbox: {job.status}{job.sandbox_job_name ? ` · ${job.sandbox_job_name}` : ""}{job.validation_error ? ` · ${job.validation_error}` : ""}</p>
+                ))}
+                {attemptPRs.map((item) => (
+                  <p key={item.id} className="muted">
+                    PR: {item.status}
+                    {item.pr_url ? <> · <a className="detail-link" href={item.pr_url} target="_blank" rel="noreferrer">{item.pr_url}</a></> : null}
+                  </p>
+                ))}
+              </div>
+            );
+          })}
+          {!attempts.length ? (
+            <div className="nested-card"><p className="detail-copy">No change attempts recorded yet.</p></div>
+          ) : null}
         </div>
       </div>
 

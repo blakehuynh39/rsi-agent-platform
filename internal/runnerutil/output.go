@@ -48,6 +48,14 @@ type OutcomeHypothesis struct {
 	ExpectedTimeHorizon string `json:"expected_time_horizon,omitempty"`
 }
 
+type RetryAssessment struct {
+	FailureClass             string   `json:"failure_class,omitempty"`
+	FailureSummary           string   `json:"failure_summary,omitempty"`
+	RetryDecision            string   `json:"retry_decision,omitempty"`
+	MaterialHypothesisChange bool     `json:"material_hypothesis_change,omitempty"`
+	ChangedFiles             []string `json:"changed_files,omitempty"`
+}
+
 type StructuredOutput struct {
 	ContextSummary    string              `json:"context_summary"`
 	ReplyDraft        string              `json:"reply_draft"`
@@ -58,6 +66,11 @@ type StructuredOutput struct {
 	ProposedActions   []ProposedAction    `json:"proposed_actions"`
 	KnowledgeDrafts   []KnowledgeDraft    `json:"knowledge_drafts"`
 	OutcomeHypotheses []OutcomeHypothesis `json:"outcome_hypotheses"`
+	ChangePlan        string              `json:"change_plan,omitempty"`
+	RepoPatch         string              `json:"repo_patch,omitempty"`
+	ValidationPlan    string              `json:"validation_plan,omitempty"`
+	RetryAssessment   RetryAssessment     `json:"retry_assessment,omitempty"`
+	HypothesisDelta   string              `json:"hypothesis_delta,omitempty"`
 }
 
 func ParseStructuredOutput(resp clients.RunnerResponse) StructuredOutput {
@@ -86,6 +99,9 @@ func ParseStructuredOutput(resp clients.RunnerResponse) StructuredOutput {
 		ProposedActions:   []ProposedAction{},
 		KnowledgeDrafts:   []KnowledgeDraft{},
 		OutcomeHypotheses: []OutcomeHypothesis{},
+		RetryAssessment: RetryAssessment{
+			ChangedFiles: []string{},
+		},
 	}
 }
 

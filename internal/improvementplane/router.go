@@ -194,6 +194,16 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 		}
 		app.WriteJSON(w, http.StatusOK, payload)
 	})
+	r.Get("/api/proposals/{proposalID}/attempts/{attemptID}", func(w http.ResponseWriter, r *http.Request) {
+		proposalID := chi.URLParam(r, "proposalID")
+		attemptID := chi.URLParam(r, "attemptID")
+		payload, ok := buildAttemptDetail(store, proposalID, attemptID)
+		if !ok {
+			app.WriteError(w, http.StatusNotFound, errors.New("attempt not found"))
+			return
+		}
+		app.WriteJSON(w, http.StatusOK, payload)
+	})
 	r.Get("/api/runtime", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
 			"roles":  buildRuntimeStatus(cfg, store),
@@ -259,6 +269,20 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 			return
 		}
 		app.WriteJSON(w, http.StatusAccepted, item)
+	})
+	r.Post("/api/proposals/{proposalID}/stop", func(w http.ResponseWriter, r *http.Request) {
+		proposalID := chi.URLParam(r, "proposalID")
+		var payload struct {
+			RequestedBy string `json:"requested_by"`
+			Rationale   string `json:"rationale"`
+		}
+		_ = json.NewDecoder(r.Body).Decode(&payload)
+		item, err := store.StopProposalLine(proposalID, payload.RequestedBy, payload.Rationale)
+		if err != nil {
+			app.WriteError(w, http.StatusConflict, err)
+			return
+		}
+		app.WriteJSON(w, http.StatusOK, item)
 	})
 	r.Get("/api/cron/status", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{

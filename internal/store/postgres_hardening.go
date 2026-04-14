@@ -10,6 +10,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/action"
 	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
+	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
@@ -127,16 +128,17 @@ func (p *PostgresStore) upsertRepoChangeJobDirect(job improvement.RepoChangeJob)
 
 func (p *PostgresStore) updateRepoChangeJobStatusDirect(jobID string, status string) (item improvement.RepoChangeJob, err error) {
 	err = p.withTx(func(tx *sql.Tx) error {
-		row := tx.QueryRow(`update repo_change_job set status = $2, updated_at = $3 where id = $1 returning id, proposal_id, conversation_id, case_id, origin_trace_id, candidate_key, status, repo, base_ref, branch_name, allowed_path_globs, context_summary, sandbox_namespace, sandbox_job_name, sandbox_pod_name, validation_error, validation_ref, log_artifact_id, created_at, updated_at`,
+		row := tx.QueryRow(`update repo_change_job set status = $2, updated_at = $3 where id = $1 returning id, proposal_id, attempt_id, conversation_id, case_id, origin_trace_id, candidate_key, status, repo, base_ref, branch_name, allowed_path_globs, context_summary, sandbox_namespace, sandbox_job_name, sandbox_pod_name, validation_error, validation_ref, log_artifact_id, created_at, updated_at`,
 			jobID,
 			status,
 			time.Now().UTC(),
 		)
-		var conversationID, caseID, originTraceID, sandboxNamespace, sandboxJobName, sandboxPodName, validationError, validationRef, logArtifactID sql.NullString
+		var attemptID, conversationID, caseID, originTraceID, sandboxNamespace, sandboxJobName, sandboxPodName, validationError, validationRef, logArtifactID sql.NullString
 		var allowed []byte
-		if err := row.Scan(&item.ID, &item.ProposalID, &conversationID, &caseID, &originTraceID, &item.CandidateKey, &item.Status, &item.Repo, &item.BaseRef, &item.BranchName, &allowed, &item.ContextSummary, &sandboxNamespace, &sandboxJobName, &sandboxPodName, &validationError, &validationRef, &logArtifactID, &item.CreatedAt, &item.UpdatedAt); err != nil {
+		if err := row.Scan(&item.ID, &item.ProposalID, &attemptID, &conversationID, &caseID, &originTraceID, &item.CandidateKey, &item.Status, &item.Repo, &item.BaseRef, &item.BranchName, &allowed, &item.ContextSummary, &sandboxNamespace, &sandboxJobName, &sandboxPodName, &validationError, &validationRef, &logArtifactID, &item.CreatedAt, &item.UpdatedAt); err != nil {
 			return err
 		}
+		item.AttemptID = attemptID.String
 		item.ConversationID = conversationID.String
 		item.CaseID = caseID.String
 		item.OriginTraceID = originTraceID.String
@@ -169,8 +171,9 @@ func (p *PostgresStore) recordPRAttemptDirect(attempt improvement.PRAttempt) (it
 			attempt.ConversationID = firstNonEmpty(attempt.ConversationID, proposal.ConversationID)
 			attempt.CaseID = firstNonEmpty(attempt.CaseID, proposal.CaseID)
 			attempt.OriginTraceID = firstNonEmpty(attempt.OriginTraceID, proposal.OriginTraceID)
+			attempt.AttemptID = firstNonEmpty(attempt.AttemptID, proposal.CurrentAttemptID)
 			if attempt.Status == string(review.ProposalPROpen) {
-				if _, err := tx.Exec(`update proposal set status = $2, active_slot_consuming = true where id = $1`, proposal.ID, string(review.ProposalPROpen)); err != nil {
+				if _, err := tx.Exec(`update proposal set status = $2, active_slot_consuming = true, current_attempt_id = $3 where id = $1`, proposal.ID, string(review.ProposalPROpen), firstNonEmpty(attempt.AttemptID)); err != nil {
 					return err
 				}
 			}
@@ -187,16 +190,16 @@ func (p *PostgresStore) recordPRAttemptDirect(attempt improvement.PRAttempt) (it
 }
 
 func selectProposalTx(tx *sql.Tx, proposalID string, forUpdate bool) (review.Proposal, error) {
-	query := `select id, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, created_at from proposal where id = $1`
+	query := `select id, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, target_layer, target_kind, target_ref, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, current_attempt_id, attempt_count, auto_retry_budget_remaining, last_failure_class, next_retry_action, line_stopped_by, line_stop_reason, line_stopped_at, created_at from proposal where id = $1`
 	if forUpdate {
 		query += ` for update`
 	}
 	var item review.Proposal
-	var status string
-	var conversationID, caseID, originTraceID, reviewer sql.NullString
+	var status, targetLayer string
+	var conversationID, caseID, originTraceID, reviewer, targetKind, targetRef, currentAttemptID, lastFailureClass, nextRetryAction, lineStoppedBy, lineStopReason sql.NullString
 	var evidenceTraceIDs, sourceEvalIDs, evidenceArtifactIDs, priorSimilarProposalIDs []byte
-	var reviewDeadline sql.NullTime
-	err := tx.QueryRow(query, proposalID).Scan(&item.ID, &item.TraceID, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Title, &item.Category, &item.Summary, &status, &reviewer, &item.CandidateKey, &sourceEvalIDs, &item.RiskTier, &item.ProposedScope, &evidenceArtifactIDs, &item.ActiveSlotConsuming, &reviewDeadline, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &item.CreatedAt)
+	var reviewDeadline, lineStoppedAt sql.NullTime
+	err := tx.QueryRow(query, proposalID).Scan(&item.ID, &item.TraceID, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Title, &item.Category, &item.Summary, &status, &reviewer, &item.CandidateKey, &targetLayer, &targetKind, &targetRef, &sourceEvalIDs, &item.RiskTier, &item.ProposedScope, &evidenceArtifactIDs, &item.ActiveSlotConsuming, &reviewDeadline, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &currentAttemptID, &item.AttemptCount, &item.AutoRetryBudgetRemaining, &lastFailureClass, &nextRetryAction, &lineStoppedBy, &lineStopReason, &lineStoppedAt, &item.CreatedAt)
 	if err != nil {
 		return review.Proposal{}, err
 	}
@@ -206,30 +209,43 @@ func selectProposalTx(tx *sql.Tx, proposalID string, forUpdate bool) (review.Pro
 	item.EvidenceTraceIDs = decodeJSON(evidenceTraceIDs, []string{})
 	item.Status = review.ProposalStatus(status)
 	item.Reviewer = reviewer.String
+	item.TargetLayer = harness.TargetLayer(targetLayer)
+	item.TargetKind = targetKind.String
+	item.TargetRef = targetRef.String
 	item.SourceEvalIDs = decodeJSON(sourceEvalIDs, []string{})
 	item.EvidenceArtifactIDs = decodeJSON(evidenceArtifactIDs, []string{})
 	item.PriorSimilarProposalIDs = decodeJSON(priorSimilarProposalIDs, []string{})
+	item.CurrentAttemptID = currentAttemptID.String
+	item.LastFailureClass = lastFailureClass.String
+	item.NextRetryAction = nextRetryAction.String
+	item.LineStoppedBy = lineStoppedBy.String
+	item.LineStopReason = lineStopReason.String
 	if reviewDeadline.Valid {
 		item.ReviewDeadline = reviewDeadline.Time
+	}
+	if lineStoppedAt.Valid {
+		t := lineStoppedAt.Time
+		item.LineStoppedAt = &t
 	}
 	return item, nil
 }
 
 func selectRepoChangeJobByProposalTx(tx *sql.Tx, proposalID string, forUpdate bool) (improvement.RepoChangeJob, bool, error) {
-	query := `select id, proposal_id, conversation_id, case_id, origin_trace_id, candidate_key, status, repo, base_ref, branch_name, allowed_path_globs, context_summary, sandbox_namespace, sandbox_job_name, sandbox_pod_name, validation_error, validation_ref, log_artifact_id, created_at, updated_at from repo_change_job where proposal_id = $1 order by created_at desc limit 1`
+	query := `select id, proposal_id, attempt_id, conversation_id, case_id, origin_trace_id, candidate_key, status, repo, base_ref, branch_name, allowed_path_globs, context_summary, sandbox_namespace, sandbox_job_name, sandbox_pod_name, validation_error, validation_ref, log_artifact_id, created_at, updated_at from repo_change_job where proposal_id = $1 order by created_at desc limit 1`
 	if forUpdate {
 		query += ` for update`
 	}
 	var item improvement.RepoChangeJob
-	var conversationID, caseID, originTraceID, sandboxNamespace, sandboxJobName, sandboxPodName, validationError, validationRef, logArtifactID sql.NullString
+	var attemptID, conversationID, caseID, originTraceID, sandboxNamespace, sandboxJobName, sandboxPodName, validationError, validationRef, logArtifactID sql.NullString
 	var allowed []byte
-	err := tx.QueryRow(query, proposalID).Scan(&item.ID, &item.ProposalID, &conversationID, &caseID, &originTraceID, &item.CandidateKey, &item.Status, &item.Repo, &item.BaseRef, &item.BranchName, &allowed, &item.ContextSummary, &sandboxNamespace, &sandboxJobName, &sandboxPodName, &validationError, &validationRef, &logArtifactID, &item.CreatedAt, &item.UpdatedAt)
+	err := tx.QueryRow(query, proposalID).Scan(&item.ID, &item.ProposalID, &attemptID, &conversationID, &caseID, &originTraceID, &item.CandidateKey, &item.Status, &item.Repo, &item.BaseRef, &item.BranchName, &allowed, &item.ContextSummary, &sandboxNamespace, &sandboxJobName, &sandboxPodName, &validationError, &validationRef, &logArtifactID, &item.CreatedAt, &item.UpdatedAt)
 	if err == sql.ErrNoRows {
 		return improvement.RepoChangeJob{}, false, nil
 	}
 	if err != nil {
 		return improvement.RepoChangeJob{}, false, err
 	}
+	item.AttemptID = attemptID.String
 	item.ConversationID = conversationID.String
 	item.CaseID = caseID.String
 	item.OriginTraceID = originTraceID.String
@@ -245,18 +261,20 @@ func selectRepoChangeJobByProposalTx(tx *sql.Tx, proposalID string, forUpdate bo
 
 func selectLatestPRAttemptByProposalTx(tx *sql.Tx, proposalID string) (improvement.PRAttempt, bool, error) {
 	var item improvement.PRAttempt
-	var conversationID, caseID, originTraceID, prURL sql.NullString
-	err := tx.QueryRow(`select id, proposal_id, conversation_id, case_id, origin_trace_id, repo, branch_name, pr_url, status, validation_status, created_at from pr_attempt where proposal_id = $1 order by created_at desc limit 1`, proposalID).Scan(&item.ID, &item.ProposalID, &conversationID, &caseID, &originTraceID, &item.Repo, &item.BranchName, &prURL, &item.Status, &item.ValidationStatus, &item.CreatedAt)
+	var attemptID, conversationID, caseID, originTraceID, prURL, headSHA sql.NullString
+	err := tx.QueryRow(`select id, proposal_id, attempt_id, conversation_id, case_id, origin_trace_id, repo, branch_name, pr_url, head_sha, status, validation_status, created_at from pr_attempt where proposal_id = $1 order by created_at desc limit 1`, proposalID).Scan(&item.ID, &item.ProposalID, &attemptID, &conversationID, &caseID, &originTraceID, &item.Repo, &item.BranchName, &prURL, &headSHA, &item.Status, &item.ValidationStatus, &item.CreatedAt)
 	if err == sql.ErrNoRows {
 		return improvement.PRAttempt{}, false, nil
 	}
 	if err != nil {
 		return improvement.PRAttempt{}, false, err
 	}
+	item.AttemptID = attemptID.String
 	item.ConversationID = conversationID.String
 	item.CaseID = caseID.String
 	item.OriginTraceID = originTraceID.String
 	item.PRURL = prURL.String
+	item.HeadSHA = headSHA.String
 	return item, true, nil
 }
 
@@ -341,20 +359,33 @@ func (p *PostgresStore) reviewProposalDirect(proposalID string, decision review.
 		}
 
 		candidateStatus := improvement.CandidateDormant
+		lineStatus := improvement.LineDormant
 		newEvidence := current.NewEvidenceSinceLastRejection
 		switch targetStatus {
 		case review.ProposalApproved:
 			candidateStatus = improvement.CandidatePromoted
+			lineStatus = improvement.LineActive
+			if _, err := tx.Exec(`update proposal set auto_retry_budget_remaining = case when auto_retry_budget_remaining = 0 then $2 else auto_retry_budget_remaining end, next_retry_action = '' where id = $1`,
+				proposalID,
+				defaultProposalRetryBudget,
+			); err != nil {
+				return err
+			}
 		case review.ProposalRejected, review.ProposalDismissed:
 			candidateStatus = improvement.CandidateNeedsEvidence
+			lineStatus = improvement.LineClosed
 			newEvidence = false
 		case review.ProposalMerged:
 			candidateStatus = improvement.CandidateDormant
+			lineStatus = improvement.LineClosed
 		}
-		if _, err := tx.Exec(`update improvement_candidate set status = $2, new_evidence_since_last_rejection = $3, updated_at = $4 where candidate_key = $1`,
+		if _, err := tx.Exec(`update improvement_candidate set status = $2, new_evidence_since_last_rejection = $3, line_status = $4, auto_retry_budget_remaining = case when $4 = 'active_line' and auto_retry_budget_remaining = 0 then $5 when $4 <> 'active_line' then 0 else auto_retry_budget_remaining end, current_target_layer = $6, updated_at = $7 where candidate_key = $1`,
 			current.CandidateKey,
 			string(candidateStatus),
 			newEvidence,
+			string(lineStatus),
+			defaultProposalRetryBudget,
+			string(current.TargetLayer),
 			decision.CreatedAt,
 		); err != nil {
 			return err
@@ -437,9 +468,38 @@ func (p *PostgresStore) materializeApprovedProposalDirect(proposalID string, req
 		default:
 			return fmt.Errorf("proposal %s is not approved for materialization", proposal.Status)
 		}
+		attempt, ok, err := selectLatestChangeAttemptByProposalTx(tx, proposalID, true)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			now := time.Now().UTC()
+			attempt = normalizeChangeAttempt(improvement.ChangeAttempt{
+				ID:             nextID("attempt", 0),
+				ProposalID:     proposal.ID,
+				CandidateKey:   proposal.CandidateKey,
+				AttemptNumber:  maxInt(1, proposal.AttemptCount+1),
+				TargetLayer:    proposal.TargetLayer,
+				TargetKind:     proposal.TargetKind,
+				TargetRef:      proposal.TargetRef,
+				Trigger:        improvement.AttemptTriggerProposalApproved,
+				State:          improvement.AttemptStatePlanning,
+				AttemptTraceID: firstNonEmpty(proposal.OriginTraceID, proposal.TraceID),
+				BranchName:     fmt.Sprintf("codex/%s/attempt-%02d", proposal.ID, maxInt(1, proposal.AttemptCount+1)),
+				CreatedAt:      now,
+				UpdatedAt:      now,
+			})
+			temp := newSubsetStore()
+			temp.changeAttempts[attempt.ID] = attempt
+			if err := persistChangeAttempts(tx, temp); err != nil {
+				return err
+			}
+			ok = true
+		}
+		proposal.CurrentAttemptID = firstNonEmpty(proposal.CurrentAttemptID, attempt.ID)
 		if existing, ok, err := selectRepoChangeJobByProposalTx(tx, proposalID, true); err != nil {
 			return err
-		} else if ok {
+		} else if ok && existing.AttemptID == proposal.CurrentAttemptID {
 			job = existing
 			return nil
 		}
@@ -447,14 +507,15 @@ func (p *PostgresStore) materializeApprovedProposalDirect(proposalID string, req
 		job = improvement.RepoChangeJob{
 			ID:               nextID("job", 0),
 			ProposalID:       proposal.ID,
+			AttemptID:        proposal.CurrentAttemptID,
 			ConversationID:   proposal.ConversationID,
 			CaseID:           proposal.CaseID,
-			OriginTraceID:    proposal.OriginTraceID,
+			OriginTraceID:    firstNonEmpty(attempt.AttemptTraceID, proposal.OriginTraceID),
 			CandidateKey:     proposal.CandidateKey,
 			Status:           string(review.ProposalRepoChangeQueued),
 			Repo:             proposalRepo(proposal),
 			BaseRef:          "main",
-			BranchName:       fmt.Sprintf("codex/%s", proposal.ID),
+			BranchName:       firstNonEmpty(attempt.BranchName, fmt.Sprintf("codex/%s/%s", proposal.ID, proposal.CurrentAttemptID)),
 			AllowedPathGlobs: []string{"cmd/**", "internal/**", "runner/**", "ui/**", "README.md", "Makefile"},
 			ContextSummary:   buildRepoChangeContext(proposal, p.ListProposalMemories()),
 			CreatedAt:        now,
@@ -465,17 +526,25 @@ func (p *PostgresStore) materializeApprovedProposalDirect(proposalID string, req
 		if err := persistRepoChangeJobs(tx, temp); err != nil {
 			return err
 		}
-		if _, err := tx.Exec(`update proposal set status = $2, active_slot_consuming = true where id = $1`, proposalID, string(review.ProposalRepoChangeQueued)); err != nil {
+		if _, err := tx.Exec(`update proposal set status = $2, active_slot_consuming = true, current_attempt_id = $3 where id = $1`, proposalID, string(review.ProposalRepoChangeQueued), firstNonEmpty(proposal.CurrentAttemptID)); err != nil {
+			return err
+		}
+		attempt.State = improvement.AttemptStatePatchGenerated
+		attempt.BranchName = job.BranchName
+		attempt.UpdatedAt = now
+		temp = newSubsetStore()
+		temp.changeAttempts[attempt.ID] = attempt
+		if err := persistChangeAttempts(tx, temp); err != nil {
 			return err
 		}
 		_, err = enqueueWorkItemTx(tx, queue.WorkItem{
 			Queue:          queue.SandboxQueue,
 			Kind:           "repo_change_job",
 			Status:         queue.WorkQueued,
-			TraceID:        proposal.TraceID,
+			TraceID:        firstNonEmpty(attempt.AttemptTraceID, proposal.TraceID),
 			ConversationID: proposal.ConversationID,
 			CaseID:         proposal.CaseID,
-			TriggerEventID: proposal.OriginTraceID,
+			TriggerEventID: firstNonEmpty(attempt.AttemptTraceID, proposal.OriginTraceID),
 			ProposalID:     proposal.ID,
 			RepoScope:      job.Repo,
 			RequestedBy:    requestedBy,
@@ -483,6 +552,7 @@ func (p *PostgresStore) materializeApprovedProposalDirect(proposalID string, req
 			CreatedAt:      now,
 			UpdatedAt:      now,
 			Payload: map[string]interface{}{
+				"attempt_id":  attempt.ID,
 				"branch_name": job.BranchName,
 				"base_ref":    job.BaseRef,
 				"dedupe_key":  fmt.Sprintf("sandbox-job:%s", job.ID),
@@ -504,6 +574,10 @@ func (p *PostgresStore) retryProposalRepoChangeDirect(proposalID string, request
 		if err != nil {
 			return err
 		}
+		attempt, hasAttempt, err := selectLatestChangeAttemptByProposalTx(tx, proposalID, true)
+		if err != nil {
+			return err
+		}
 		_, hasPR, err := selectLatestPRAttemptByProposalTx(tx, proposalID)
 		if err != nil {
 			return err
@@ -511,7 +585,7 @@ func (p *PostgresStore) retryProposalRepoChangeDirect(proposalID string, request
 		now := time.Now().UTC()
 		switch proposal.Status {
 		case review.ProposalApproved:
-			if hasJob {
+			if hasJob && strings.TrimSpace(job.AttemptID) == strings.TrimSpace(proposal.CurrentAttemptID) {
 				return fmt.Errorf("proposal %s is not retryable", proposal.Status)
 			}
 			item, err = enqueueWorkItemTx(tx, queue.WorkItem{
@@ -528,9 +602,11 @@ func (p *PostgresStore) retryProposalRepoChangeDirect(proposalID string, request
 				CreatedAt:      now,
 				UpdatedAt:      now,
 				Payload: map[string]interface{}{
-					"candidate_key": proposal.CandidateKey,
-					"risk_tier":     proposal.RiskTier,
-					"dedupe_key":    fmt.Sprintf("proposal-runner:%s", proposal.ID),
+					"trigger":        string(improvement.AttemptTriggerOperatorRetry),
+					"parent_attempt": proposal.CurrentAttemptID,
+					"candidate_key":  proposal.CandidateKey,
+					"risk_tier":      proposal.RiskTier,
+					"dedupe_key":     fmt.Sprintf("proposal-runner:%s", proposal.ID),
 				},
 			})
 			return err
@@ -540,6 +616,9 @@ func (p *PostgresStore) retryProposalRepoChangeDirect(proposalID string, request
 			}
 			if hasPR {
 				return fmt.Errorf("proposal %s is not retryable once a PR attempt exists", proposal.Status)
+			}
+			if !hasAttempt {
+				return errors.New("change attempt not found")
 			}
 			job.Status = string(review.ProposalRepoChangeQueued)
 			job.ValidationError = ""
@@ -569,6 +648,7 @@ func (p *PostgresStore) retryProposalRepoChangeDirect(proposalID string, request
 				CreatedAt:      now,
 				UpdatedAt:      now,
 				Payload: map[string]interface{}{
+					"attempt_id":  attempt.ID,
 					"branch_name": job.BranchName,
 					"base_ref":    job.BaseRef,
 					"dedupe_key":  fmt.Sprintf("sandbox-job:%s", job.ID),
@@ -582,6 +662,9 @@ func (p *PostgresStore) retryProposalRepoChangeDirect(proposalID string, request
 			}
 			if hasPR {
 				return fmt.Errorf("proposal %s is not retryable once a PR attempt exists", proposal.Status)
+			}
+			if !hasAttempt {
+				return errors.New("change attempt not found")
 			}
 			item, err = enqueueWorkItemTx(tx, queue.WorkItem{
 				Queue:          queue.ImprovementActionQueue,
@@ -598,13 +681,14 @@ func (p *PostgresStore) retryProposalRepoChangeDirect(proposalID string, request
 				CreatedAt:      now,
 				UpdatedAt:      now,
 				Payload: map[string]interface{}{
+					"attempt_id":  attempt.ID,
 					"job_id":      job.ID,
 					"job_name":    job.SandboxJobName,
 					"namespace":   job.SandboxNamespace,
 					"repo":        job.Repo,
 					"branch_name": job.BranchName,
 					"base_ref":    job.BaseRef,
-					"dedupe_key":  fmt.Sprintf("draft-pr:%s:%s", proposal.ID, job.BranchName),
+					"dedupe_key":  fmt.Sprintf("draft-pr:%s:%s", attempt.ID, job.BranchName),
 				},
 			})
 			return err
@@ -1107,20 +1191,20 @@ func (p *PostgresStore) createIngestionDirect(envelope slack.SlackEnvelope) (cre
 
 		trace := events.Trace{
 			Summary: events.TraceSummary{
-				TraceID:           traceID,
-				IngestionID:       ingestionID,
-				WorkflowID:        workflow.ID,
-				ConversationID:    conv.ID,
-				CaseID:            caseRecord.ID,
-				TriggerEventID:    event.ID,
-				SupersedesTraceID: supersedesTraceID,
-				ThreadKey:         conv.ExternalKey,
-				WorkflowKind:      caseRecord.Kind,
-				Status:            events.StatusQueued,
-				StartedAt:         createdAt,
-				EndedAt:           createdAt,
-				EventCount:        2,
-				ArtifactCount:     1,
+				TraceID:            traceID,
+				IngestionID:        ingestionID,
+				WorkflowID:         workflow.ID,
+				ConversationID:     conv.ID,
+				CaseID:             caseRecord.ID,
+				TriggerEventID:     event.ID,
+				SupersedesTraceID:  supersedesTraceID,
+				ThreadKey:          conv.ExternalKey,
+				WorkflowKind:       caseRecord.Kind,
+				Status:             events.StatusQueued,
+				StartedAt:          createdAt,
+				EndedAt:            createdAt,
+				EventCount:         2,
+				ArtifactCount:      1,
 				ReasoningStepCount: 1,
 			},
 			Events: []events.TraceEvent{
