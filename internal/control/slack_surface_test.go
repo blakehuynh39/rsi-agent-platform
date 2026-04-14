@@ -41,6 +41,26 @@ func TestSlackSurfaceBuildMentionEnvelopeFiltersAndMapsIdentity(t *testing.T) {
 	}
 }
 
+func TestSlackSurfaceBuildMentionEnvelopeAllowsMentionOnlySentinel(t *testing.T) {
+	runtime := newSlackSurfaceRuntime(config.Config{
+		SlackAppIdentity:       "rsi",
+		AllowedSlackChannelIDs: []string{slackMentionsOnlySentinel},
+	}, storepkg.NewMemoryStore())
+
+	envelope, ok := runtime.buildMentionEnvelope("T123", &slackevents.AppMentionEvent{
+		Channel:   "C999",
+		User:      "U123",
+		Text:      "<@U_RSI> Hello from a new training room",
+		TimeStamp: "171000001.000100",
+	})
+	if !ok {
+		t.Fatal("expected mention-only sentinel to allow any channel mention")
+	}
+	if envelope.ChannelID != "C999" {
+		t.Fatalf("unexpected channel id: %s", envelope.ChannelID)
+	}
+}
+
 func TestSlackSurfaceIgnoresAmbientMessageEvents(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	runtime := newSlackSurfaceRuntime(config.Config{

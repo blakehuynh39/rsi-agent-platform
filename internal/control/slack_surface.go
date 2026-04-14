@@ -20,6 +20,8 @@ import (
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
 
+const slackMentionsOnlySentinel = "MENTIONS_ONLY"
+
 func RunSlackSurface(cfg config.Config, store storepkg.Store) error {
 	if !cfg.SlackSocketModeEnabled {
 		return errors.New("slack-surface mode requires RSI_SLACK_SOCKET_MODE_ENABLED=true")
@@ -48,10 +50,10 @@ func newSlackSurfaceRouter(cfg config.Config) http.Handler {
 	r := app.NewBaseRouter(cfg)
 	r.Get("/api/slack-surface", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]any{
-			"service":               cfg.ServiceName,
-			"mode":                  "slack-surface",
-			"slack_app_identity":    cfg.SlackAppIdentity,
-			"socket_mode_enabled":   cfg.SlackSocketModeEnabled,
+			"service":                   cfg.ServiceName,
+			"mode":                      "slack-surface",
+			"slack_app_identity":        cfg.SlackAppIdentity,
+			"socket_mode_enabled":       cfg.SlackSocketModeEnabled,
 			"allowed_slack_channel_ids": cfg.AllowedSlackChannelIDs,
 		})
 	})
@@ -153,10 +155,9 @@ func (s *slackSurfaceRuntime) buildMentionEnvelope(teamID string, event *slackev
 	if event.BotID != "" {
 		return slackpkg.SlackEnvelope{}, false
 	}
-	if len(s.allowedChan) > 0 {
-		if _, ok := s.allowedChan[event.Channel]; !ok {
-			return slackpkg.SlackEnvelope{}, false
-		}
+	if !s.mentionChannelAllowed(event.Channel) {
+		log.Printf("slack-surface identity=%s ignored mention channel=%s allowed=%v", s.cfg.SlackAppIdentity, event.Channel, s.cfg.AllowedSlackChannelIDs)
+		return slackpkg.SlackEnvelope{}, false
 	}
 	threadTS := strings.TrimSpace(event.ThreadTimeStamp)
 	if threadTS == "" {
@@ -198,6 +199,17 @@ func (s *slackSurfaceRuntime) buildDirectMessageEnvelope(teamID string, event *s
 		TS:        event.TimeStamp,
 		CreatedAt: parseSlackTimestamp(event.TimeStamp),
 	}, true
+}
+
+func (s *slackSurfaceRuntime) mentionChannelAllowed(channelID string) bool {
+	if len(s.allowedChan) == 0 {
+		return true
+	}
+	if _, ok := s.allowedChan[slackMentionsOnlySentinel]; ok {
+		return true
+	}
+	_, ok := s.allowedChan[channelID]
+	return ok
 }
 
 func slackRoleFromIdentity(identity string) slackpkg.BotRole {
