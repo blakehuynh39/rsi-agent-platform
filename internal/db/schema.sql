@@ -713,3 +713,674 @@ alter table if exists pr_attempt add column if not exists origin_trace_id text;
 
 alter table if exists post_merge_replay add column if not exists conversation_id text;
 alter table if exists post_merge_replay add column if not exists case_id text;
+
+
+alter table if exists proposal_review add column if not exists idempotency_key text;
+
+update proposal_review
+set idempotency_key = proposal_id || ':' || decision
+where coalesce(idempotency_key, '') = '';
+
+with canonical_review as (
+  select
+    min(id) as canonical_id,
+    proposal_id,
+    decision,
+    rationale,
+    reviewer_id,
+    coalesce(failure_class, '') as failure_class_key,
+    failure_classes,
+    created_at
+  from proposal_review
+  group by proposal_id, decision, rationale, reviewer_id, coalesce(failure_class, ''), failure_classes, created_at
+),
+duplicate_review as (
+  select pr.id
+  from proposal_review pr
+  join canonical_review cr
+    on cr.proposal_id = pr.proposal_id
+   and cr.decision = pr.decision
+   and cr.rationale = pr.rationale
+   and cr.reviewer_id = pr.reviewer_id
+   and cr.failure_class_key = coalesce(pr.failure_class, '')
+   and cr.failure_classes = pr.failure_classes
+   and cr.created_at = pr.created_at
+  where pr.id <> cr.canonical_id
+)
+delete from proposal_review pr
+using duplicate_review dr
+where pr.id = dr.id;
+
+create unique index if not exists proposal_review_proposal_idempotency_idx on proposal_review (proposal_id, idempotency_key);
+
+alter table if exists proposal_memory add column if not exists review_id bigint;
+
+with canonical_review as (
+  select
+    min(id) as canonical_id,
+    proposal_id,
+    decision,
+    rationale,
+    created_at
+  from proposal_review
+  group by proposal_id, decision, rationale, created_at
+)
+update proposal_memory pm
+set review_id = cr.canonical_id
+from canonical_review cr
+where pm.review_id is null
+  and pm.proposal_id = cr.proposal_id
+  and pm.disposition = cr.decision
+  and pm.review_rationale = cr.rationale
+  and pm.created_at = cr.created_at;
+
+with canonical_memory as (
+  select
+    min(id) as canonical_id,
+    proposal_id,
+    coalesce(review_id, 0) as review_id_key,
+    candidate_key,
+    coalesce(conversation_id, '') as conversation_key,
+    coalesce(case_id, '') as case_key,
+    coalesce(origin_trace_id, '') as origin_trace_key,
+    evidence_trace_ids,
+    hypothesis,
+    diff_summary,
+    review_rationale,
+    disposition,
+    coalesce(disposition_reason, '') as disposition_reason_key,
+    coalesce(failure_class, '') as failure_class_key,
+    failure_classes,
+    source_eval_ids,
+    linked_artifact_ids,
+    linked_proposal_ids,
+    created_at
+  from proposal_memory
+  group by
+    proposal_id,
+    coalesce(review_id, 0),
+    candidate_key,
+    coalesce(conversation_id, ''),
+    coalesce(case_id, ''),
+    coalesce(origin_trace_id, ''),
+    evidence_trace_ids,
+    hypothesis,
+    diff_summary,
+    review_rationale,
+    disposition,
+    coalesce(disposition_reason, ''),
+    coalesce(failure_class, ''),
+    failure_classes,
+    source_eval_ids,
+    linked_artifact_ids,
+    linked_proposal_ids,
+    created_at
+),
+duplicate_memory as (
+  select pm.id
+  from proposal_memory pm
+  join canonical_memory cm
+    on cm.proposal_id = pm.proposal_id
+   and cm.review_id_key = coalesce(pm.review_id, 0)
+   and cm.candidate_key = pm.candidate_key
+   and cm.conversation_key = coalesce(pm.conversation_id, '')
+   and cm.case_key = coalesce(pm.case_id, '')
+   and cm.origin_trace_key = coalesce(pm.origin_trace_id, '')
+   and cm.evidence_trace_ids = pm.evidence_trace_ids
+   and cm.hypothesis = pm.hypothesis
+   and cm.diff_summary = pm.diff_summary
+   and cm.review_rationale = pm.review_rationale
+   and cm.disposition = pm.disposition
+   and cm.disposition_reason_key = coalesce(pm.disposition_reason, '')
+   and cm.failure_class_key = coalesce(pm.failure_class, '')
+   and cm.failure_classes = pm.failure_classes
+   and cm.source_eval_ids = pm.source_eval_ids
+   and cm.linked_artifact_ids = pm.linked_artifact_ids
+   and cm.linked_proposal_ids = pm.linked_proposal_ids
+   and cm.created_at = pm.created_at
+  where pm.id <> cm.canonical_id
+)
+delete from proposal_memory pm
+using duplicate_memory dm
+where pm.id = dm.id;
+
+create unique index if not exists proposal_memory_review_idx on proposal_memory (review_id) where review_id is not null;
+
+alter table if exists repo_change_job add column if not exists sandbox_namespace text;
+alter table if exists repo_change_job add column if not exists sandbox_job_name text;
+alter table if exists repo_change_job add column if not exists sandbox_pod_name text;
+alter table if exists repo_change_job add column if not exists validation_error text;
+alter table if exists repo_change_job add column if not exists validation_ref text;
+alter table if exists repo_change_job add column if not exists log_artifact_id text;
+alter table if exists repo_change_job add column if not exists updated_at timestamptz not null default now();
+
+update repo_change_job
+set updated_at = created_at
+where updated_at < created_at;
+
+update proposal
+set active_slot_consuming = case
+  when status in ('pending_review', 'approved', 'repo_change_queued', 'repo_change_running', 'validation_pending', 'pr_open') then true
+  else false
+end;
+
+
+alter table if exists improvement_candidate add column if not exists target_layer text not null default 'repo_change';
+alter table if exists improvement_candidate add column if not exists target_kind text not null default 'repo';
+alter table if exists improvement_candidate add column if not exists target_ref text not null default '';
+
+alter table if exists proposal add column if not exists target_layer text not null default 'repo_change';
+alter table if exists proposal add column if not exists target_kind text not null default 'repo';
+alter table if exists proposal add column if not exists target_ref text not null default '';
+
+create table if not exists harness_profile (
+  id text primary key,
+  role text not null,
+  name text not null,
+  description text not null default '',
+  model text not null default '',
+  reasoning_effort text not null default '',
+  prompt_fragments jsonb not null default '[]'::jsonb,
+  few_shot_snippets jsonb not null default '[]'::jsonb,
+  tool_preference_order jsonb not null default '[]'::jsonb,
+  retrieval_bias text not null default '',
+  reasoning_verbosity text not null default '',
+  memory_read_enabled boolean not null default true,
+  memory_write_enabled boolean not null default true,
+  repo_ref text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists harness_profile_role_idx on harness_profile (role);
+
+create table if not exists harness_overlay (
+  id text primary key,
+  profile_id text not null references harness_profile(id),
+  role text not null,
+  version text not null,
+  status text not null,
+  target_kind text not null default '',
+  target_ref text not null default '',
+  proposal_id text,
+  prompt_fragments jsonb not null default '[]'::jsonb,
+  few_shot_snippets jsonb not null default '[]'::jsonb,
+  tool_preference_order jsonb not null default '[]'::jsonb,
+  retrieval_bias text not null default '',
+  reasoning_verbosity text not null default '',
+  memory_read_enabled boolean,
+  memory_write_enabled boolean,
+  created_by text not null default '',
+  approved_by text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  activated_at timestamptz
+);
+
+create unique index if not exists harness_overlay_role_version_idx on harness_overlay (role, version);
+create index if not exists harness_overlay_role_status_idx on harness_overlay (role, status, updated_at desc);
+
+create table if not exists harness_experiment (
+  id text primary key,
+  profile_id text not null references harness_profile(id),
+  overlay_id text references harness_overlay(id),
+  proposal_id text,
+  role text not null,
+  status text not null,
+  summary text not null default '',
+  metrics jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists harness_experiment_role_idx on harness_experiment (role, updated_at desc);
+
+create table if not exists harness_session_binding (
+  role text not null,
+  scope_kind text not null,
+  scope_id text not null,
+  parent_scope_kind text not null default '',
+  parent_scope_id text not null default '',
+  hermes_session_id text not null,
+  parent_session_id text not null default '',
+  memory_backend text not null default '',
+  assistant_peer_id text not null default '',
+  user_peer_id text not null default '',
+  harness_profile_id text not null default '',
+  effective_overlay_id text not null default '',
+  effective_overlay_version text not null default '',
+  last_used_at timestamptz not null default now(),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  primary key (role, scope_kind, scope_id)
+);
+
+create index if not exists harness_session_binding_last_used_idx on harness_session_binding (last_used_at desc);
+
+create table if not exists harness_execution (
+  id text primary key,
+  trace_id text,
+  proposal_id text,
+  role text not null,
+  session_scope_kind text not null,
+  session_scope_id text not null,
+  hermes_session_id text not null,
+  parent_session_id text not null default '',
+  harness_profile_id text not null default '',
+  effective_overlay_id text not null default '',
+  effective_overlay_version text not null default '',
+  memory_backend text not null default '',
+  memory_reads jsonb not null default '[]'::jsonb,
+  memory_writes jsonb not null default '[]'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists harness_execution_trace_idx on harness_execution (trace_id, created_at desc);
+create index if not exists harness_execution_proposal_idx on harness_execution (proposal_id, created_at desc);
+create index if not exists harness_execution_role_scope_idx on harness_execution (role, session_scope_kind, session_scope_id, created_at desc);
+
+insert into harness_profile (
+  id,
+  role,
+  name,
+  description,
+  model,
+  reasoning_effort,
+  prompt_fragments,
+  few_shot_snippets,
+  tool_preference_order,
+  retrieval_bias,
+  reasoning_verbosity,
+  memory_read_enabled,
+  memory_write_enabled,
+  repo_ref,
+  created_at,
+  updated_at
+)
+values
+  (
+    'harness-profile-prod',
+    'prod',
+    'Production Operator',
+    'Live conversation and incident workflow agent with durable memory and explicit evidence-first reasoning.',
+    'openai/gpt-5.4',
+    'xhigh',
+    '["Ground answers in explicit evidence. Prefer concrete repo, Slack, and tool context over generic advice."]'::jsonb,
+    '[]'::jsonb,
+    '["repo.context","knowledge.context","github.repo_activity","sentry.lookup","kubernetes.logs"]'::jsonb,
+    'canonical_then_working_then_session',
+    'verbose',
+    true,
+    true,
+    'main',
+    now(),
+    now()
+  ),
+  (
+    'harness-profile-proactive',
+    'proactive',
+    'Proactive Thread Agent',
+    'Monitors and joins conversations when evidence justifies intervention.',
+    'openai/gpt-5.4',
+    'xhigh',
+    '["Intervene only when the evidence supports a useful reply or workflow launch."]'::jsonb,
+    '[]'::jsonb,
+    '["knowledge.context","repo.context","github.repo_activity"]'::jsonb,
+    'canonical_then_session',
+    'verbose',
+    true,
+    true,
+    'main',
+    now(),
+    now()
+  ),
+  (
+    'harness-profile-eval',
+    'eval',
+    'Eval Analyst',
+    'Summarizes failures, compares traces, and improves recurring eval lines without hiding uncertainty.',
+    'openai/gpt-5.4',
+    'xhigh',
+    '["Focus on observable evidence, failure patterns, and novelty relative to prior rejected proposals."]'::jsonb,
+    '[]'::jsonb,
+    '["knowledge.context"]'::jsonb,
+    'canonical_then_session',
+    'verbose',
+    true,
+    true,
+    'main',
+    now(),
+    now()
+  ),
+  (
+    'harness-profile-proposal',
+    'proposal',
+    'Proposal Materializer',
+    'Turns approved candidate lines into governed repo-change or overlay-ready reasoning with prior memory context.',
+    'openai/gpt-5.4',
+    'xhigh',
+    '["Respect proposal memory, review rationale, and rollback expectations before materializing work."]'::jsonb,
+    '[]'::jsonb,
+    '["knowledge.context","repo.context"]'::jsonb,
+    'canonical_then_working_then_session',
+    'verbose',
+    true,
+    true,
+    'main',
+    now(),
+    now()
+  )
+on conflict (id) do update set
+  role = excluded.role,
+  name = excluded.name,
+  description = excluded.description,
+  model = excluded.model,
+  reasoning_effort = excluded.reasoning_effort,
+  prompt_fragments = excluded.prompt_fragments,
+  few_shot_snippets = excluded.few_shot_snippets,
+  tool_preference_order = excluded.tool_preference_order,
+  retrieval_bias = excluded.retrieval_bias,
+  reasoning_verbosity = excluded.reasoning_verbosity,
+  memory_read_enabled = excluded.memory_read_enabled,
+  memory_write_enabled = excluded.memory_write_enabled,
+  repo_ref = excluded.repo_ref,
+  updated_at = excluded.updated_at;
+
+
+CREATE EXTENSION IF NOT EXISTS vector;
+
+CREATE SCHEMA IF NOT EXISTS honcho;
+CREATE TABLE honcho.active_queue_sessions (
+    last_updated timestamp with time zone DEFAULT now() NOT NULL,
+    id text NOT NULL,
+    work_unit_key text NOT NULL
+);
+CREATE TABLE honcho.alembic_version (
+    version_num character varying(32) NOT NULL
+);
+CREATE TABLE honcho.collections (
+    id text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    workspace_name text NOT NULL,
+    internal_metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    observer text NOT NULL,
+    observed text NOT NULL,
+    CONSTRAINT ck_collections_id_format CHECK ((id ~ '^[A-Za-z0-9_-]+$'::text)),
+    CONSTRAINT ck_collections_id_length CHECK ((length(id) = 21)),
+    CONSTRAINT ck_collections_public_id_format CHECK ((id ~ '^[A-Za-z0-9_-]+$'::text)),
+    CONSTRAINT ck_collections_public_id_length CHECK ((length(id) = 21))
+);
+CREATE TABLE honcho.documents (
+    id text NOT NULL,
+    internal_metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    content text NOT NULL,
+    embedding public.vector(1536),
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    workspace_name text NOT NULL,
+    session_name text,
+    observer text NOT NULL,
+    observed text NOT NULL,
+    level text DEFAULT 'explicit'::text NOT NULL,
+    times_derived integer DEFAULT 1 NOT NULL,
+    source_ids jsonb,
+    deleted_at timestamp with time zone,
+    sync_state text DEFAULT 'pending'::text NOT NULL,
+    last_sync_at timestamp with time zone,
+    sync_attempts integer DEFAULT 0 NOT NULL,
+    CONSTRAINT ck_documents_content_length CHECK ((length(content) <= 65535)),
+    CONSTRAINT ck_documents_id_format CHECK ((id ~ '^[A-Za-z0-9_-]+$'::text)),
+    CONSTRAINT ck_documents_id_length CHECK ((length(id) = 21)),
+    CONSTRAINT ck_documents_public_id_format CHECK ((id ~ '^[A-Za-z0-9_-]+$'::text)),
+    CONSTRAINT ck_documents_public_id_length CHECK ((length(id) = 21))
+);
+CREATE TABLE honcho.message_embeddings (
+    id bigint NOT NULL,
+    content text NOT NULL,
+    embedding public.vector(1536),
+    message_id text NOT NULL,
+    workspace_name text NOT NULL,
+    session_name text NOT NULL,
+    peer_name text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    sync_state text DEFAULT 'pending'::text NOT NULL,
+    last_sync_at timestamp with time zone,
+    sync_attempts integer DEFAULT 0 NOT NULL
+);
+ALTER TABLE honcho.message_embeddings ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME honcho.message_embeddings_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+CREATE TABLE honcho.messages (
+    id bigint NOT NULL,
+    public_id text NOT NULL,
+    content text NOT NULL,
+    metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    peer_name text NOT NULL,
+    workspace_name text NOT NULL,
+    session_name text NOT NULL,
+    token_count integer DEFAULT 0 NOT NULL,
+    internal_metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    seq_in_session bigint NOT NULL,
+    CONSTRAINT ck_messages_content_length CHECK ((length(content) <= 65535)),
+    CONSTRAINT ck_messages_public_id_format CHECK ((public_id ~ '^[A-Za-z0-9_-]+$'::text)),
+    CONSTRAINT ck_messages_public_id_length CHECK ((length(public_id) = 21))
+);
+ALTER TABLE honcho.messages ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME honcho.messages_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+CREATE TABLE honcho.peers (
+    id text NOT NULL,
+    name text NOT NULL,
+    metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    configuration jsonb DEFAULT '{}'::jsonb NOT NULL,
+    internal_metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    workspace_name text NOT NULL,
+    CONSTRAINT ck_peers_id_format CHECK ((id ~ '^[A-Za-z0-9_-]+$'::text)),
+    CONSTRAINT ck_peers_id_length CHECK ((length(id) = 21)),
+    CONSTRAINT ck_users_name_length CHECK ((length(name) <= 512)),
+    CONSTRAINT ck_users_public_id_format CHECK ((id ~ '^[A-Za-z0-9_-]+$'::text)),
+    CONSTRAINT ck_users_public_id_length CHECK ((length(id) = 21))
+);
+CREATE TABLE honcho.queue (
+    id bigint NOT NULL,
+    session_id text,
+    payload jsonb NOT NULL,
+    processed boolean DEFAULT false NOT NULL,
+    task_type text NOT NULL,
+    work_unit_key text NOT NULL,
+    error text,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    workspace_name text,
+    message_id bigint
+);
+ALTER TABLE honcho.queue ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME honcho.queue_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+CREATE TABLE honcho.session_peers (
+    workspace_name text NOT NULL,
+    session_name text NOT NULL,
+    peer_name text NOT NULL,
+    configuration jsonb DEFAULT '{}'::jsonb NOT NULL,
+    internal_metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    joined_at timestamp with time zone DEFAULT now() NOT NULL,
+    left_at timestamp with time zone
+);
+CREATE TABLE honcho.sessions (
+    id text NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    configuration jsonb DEFAULT '{}'::jsonb NOT NULL,
+    internal_metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    workspace_name text NOT NULL,
+    name text NOT NULL,
+    CONSTRAINT ck_sessions_id_format CHECK ((id ~ '^[A-Za-z0-9_-]+$'::text)),
+    CONSTRAINT ck_sessions_id_length CHECK ((length(id) = 21)),
+    CONSTRAINT ck_sessions_name_length CHECK ((length(name) <= 512)),
+    CONSTRAINT ck_sessions_public_id_format CHECK ((id ~ '^[A-Za-z0-9_-]+$'::text)),
+    CONSTRAINT ck_sessions_public_id_length CHECK ((length(id) = 21))
+);
+CREATE TABLE honcho.webhook_endpoints (
+    id text NOT NULL,
+    workspace_name text NOT NULL,
+    url text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ck_webhook_endpoints_webhook_endpoint_url_length CHECK ((length(url) <= 2048))
+);
+CREATE TABLE honcho.workspaces (
+    id text NOT NULL,
+    name text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    configuration jsonb DEFAULT '{}'::jsonb NOT NULL,
+    internal_metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    CONSTRAINT ck_apps_name_length CHECK ((length(name) <= 512)),
+    CONSTRAINT ck_apps_public_id_format CHECK ((id ~ '^[A-Za-z0-9_-]+$'::text)),
+    CONSTRAINT ck_apps_public_id_length CHECK ((length(id) = 21)),
+    CONSTRAINT ck_workspaces_id_format CHECK ((id ~ '^[A-Za-z0-9_-]+$'::text)),
+    CONSTRAINT ck_workspaces_id_length CHECK ((length(id) = 21))
+);
+ALTER TABLE ONLY honcho.alembic_version
+    ADD CONSTRAINT alembic_version_pkc PRIMARY KEY (version_num);
+ALTER TABLE ONLY honcho.active_queue_sessions
+    ADD CONSTRAINT pk_active_queue_sessions PRIMARY KEY (id);
+ALTER TABLE ONLY honcho.collections
+    ADD CONSTRAINT pk_collections PRIMARY KEY (id);
+ALTER TABLE ONLY honcho.documents
+    ADD CONSTRAINT pk_documents PRIMARY KEY (id);
+ALTER TABLE ONLY honcho.message_embeddings
+    ADD CONSTRAINT pk_message_embeddings PRIMARY KEY (id);
+ALTER TABLE ONLY honcho.messages
+    ADD CONSTRAINT pk_messages PRIMARY KEY (id);
+ALTER TABLE ONLY honcho.peers
+    ADD CONSTRAINT pk_peers PRIMARY KEY (id);
+ALTER TABLE ONLY honcho.queue
+    ADD CONSTRAINT pk_queue PRIMARY KEY (id);
+ALTER TABLE ONLY honcho.session_peers
+    ADD CONSTRAINT pk_session_peers PRIMARY KEY (workspace_name, session_name, peer_name);
+ALTER TABLE ONLY honcho.sessions
+    ADD CONSTRAINT pk_sessions PRIMARY KEY (id);
+ALTER TABLE ONLY honcho.webhook_endpoints
+    ADD CONSTRAINT pk_webhook_endpoints PRIMARY KEY (id);
+ALTER TABLE ONLY honcho.workspaces
+    ADD CONSTRAINT pk_workspaces PRIMARY KEY (id);
+ALTER TABLE ONLY honcho.active_queue_sessions
+    ADD CONSTRAINT uq_active_queue_sessions_work_unit_key UNIQUE (work_unit_key);
+ALTER TABLE ONLY honcho.collections
+    ADD CONSTRAINT uq_collections_observer_observed_workspace_name UNIQUE (observer, observed, workspace_name);
+ALTER TABLE ONLY honcho.messages
+    ADD CONSTRAINT uq_messages_public_id UNIQUE (public_id);
+ALTER TABLE ONLY honcho.messages
+    ADD CONSTRAINT uq_messages_workspace_name_session_name_seq_in_session UNIQUE (workspace_name, session_name, seq_in_session);
+ALTER TABLE ONLY honcho.peers
+    ADD CONSTRAINT uq_peers_name_workspace_name UNIQUE (name, workspace_name);
+ALTER TABLE ONLY honcho.sessions
+    ADD CONSTRAINT uq_sessions_name_workspace_name UNIQUE (name, workspace_name);
+ALTER TABLE ONLY honcho.workspaces
+    ADD CONSTRAINT uq_workspaces_name UNIQUE (name);
+CREATE INDEX ix_collections_created_at ON honcho.collections USING btree (created_at);
+CREATE INDEX ix_collections_observed ON honcho.collections USING btree (observed);
+CREATE INDEX ix_collections_observer ON honcho.collections USING btree (observer);
+CREATE INDEX ix_collections_workspace_name ON honcho.collections USING btree (workspace_name);
+CREATE INDEX ix_documents_created_at ON honcho.documents USING btree (created_at);
+CREATE INDEX ix_documents_deleted_at ON honcho.documents USING btree (deleted_at) WHERE (deleted_at IS NOT NULL);
+CREATE INDEX ix_documents_embedding_hnsw ON honcho.documents USING hnsw (embedding public.vector_cosine_ops) WITH (m='16', ef_construction='64');
+CREATE INDEX ix_documents_observed ON honcho.documents USING btree (observed);
+CREATE INDEX ix_documents_observer ON honcho.documents USING btree (observer);
+CREATE INDEX ix_documents_session_name ON honcho.documents USING btree (session_name);
+CREATE INDEX ix_documents_source_ids_gin ON honcho.documents USING gin (source_ids);
+CREATE INDEX ix_documents_sync_state ON honcho.documents USING btree (sync_state);
+CREATE INDEX ix_documents_sync_state_last_sync_at ON honcho.documents USING btree (sync_state, last_sync_at);
+CREATE INDEX ix_documents_workspace_name ON honcho.documents USING btree (workspace_name);
+CREATE INDEX ix_message_embeddings_created_at ON honcho.message_embeddings USING btree (created_at);
+CREATE INDEX ix_message_embeddings_embedding_hnsw ON honcho.message_embeddings USING hnsw (embedding public.vector_cosine_ops) WITH (m='16', ef_construction='64');
+CREATE INDEX ix_message_embeddings_message_id ON honcho.message_embeddings USING btree (message_id);
+CREATE INDEX ix_message_embeddings_peer_name ON honcho.message_embeddings USING btree (peer_name);
+CREATE INDEX ix_message_embeddings_session_name ON honcho.message_embeddings USING btree (session_name);
+CREATE INDEX ix_message_embeddings_sync_state ON honcho.message_embeddings USING btree (sync_state);
+CREATE INDEX ix_message_embeddings_sync_state_last_sync_at ON honcho.message_embeddings USING btree (sync_state, last_sync_at);
+CREATE INDEX ix_message_embeddings_workspace_name ON honcho.message_embeddings USING btree (workspace_name);
+CREATE INDEX ix_messages_content_gin ON honcho.messages USING gin (to_tsvector('english'::regconfig, content));
+CREATE INDEX ix_messages_created_at ON honcho.messages USING btree (created_at);
+CREATE INDEX ix_messages_peer_name ON honcho.messages USING btree (peer_name);
+CREATE INDEX ix_messages_session_lookup ON honcho.messages USING btree (session_name, id) INCLUDE (id, created_at);
+CREATE INDEX ix_messages_workspace_name ON honcho.messages USING btree (workspace_name);
+CREATE INDEX ix_peers_created_at ON honcho.peers USING btree (created_at);
+CREATE INDEX ix_peers_workspace_name ON honcho.peers USING btree (workspace_name);
+CREATE INDEX ix_queue_created_at ON honcho.queue USING btree (created_at);
+CREATE INDEX ix_queue_message_id_not_null ON honcho.queue USING btree (message_id) WHERE (message_id IS NOT NULL);
+CREATE INDEX ix_queue_processed ON honcho.queue USING btree (processed);
+CREATE INDEX ix_queue_session_id ON honcho.queue USING btree (session_id);
+CREATE INDEX ix_queue_work_unit_key_processed_id ON honcho.queue USING btree (work_unit_key, processed, id);
+CREATE INDEX ix_queue_workspace_name ON honcho.queue USING btree (workspace_name);
+CREATE INDEX ix_sessions_created_at ON honcho.sessions USING btree (created_at);
+CREATE INDEX ix_sessions_workspace_name ON honcho.sessions USING btree (workspace_name);
+CREATE INDEX ix_webhook_endpoints_workspace_name ON honcho.webhook_endpoints USING btree (workspace_name);
+CREATE INDEX ix_workspaces_created_at ON honcho.workspaces USING btree (created_at);
+CREATE UNIQUE INDEX uq_queue_dream_pending_work_unit_key ON honcho.queue USING btree (work_unit_key) WHERE ((task_type = 'dream'::text) AND (processed = false));
+CREATE UNIQUE INDEX uq_queue_reconciler_pending_work_unit_key ON honcho.queue USING btree (work_unit_key) WHERE ((task_type = 'reconciler'::text) AND (processed = false));
+ALTER TABLE ONLY honcho.collections
+    ADD CONSTRAINT fk_collections_observed_workspace_name_peers FOREIGN KEY (observed, workspace_name) REFERENCES honcho.peers(name, workspace_name);
+ALTER TABLE ONLY honcho.collections
+    ADD CONSTRAINT fk_collections_observer_workspace_name_peers FOREIGN KEY (observer, workspace_name) REFERENCES honcho.peers(name, workspace_name);
+ALTER TABLE ONLY honcho.collections
+    ADD CONSTRAINT fk_collections_workspace_name_workspaces FOREIGN KEY (workspace_name) REFERENCES honcho.workspaces(name);
+ALTER TABLE ONLY honcho.documents
+    ADD CONSTRAINT fk_documents_observed_workspace_name_peers FOREIGN KEY (observed, workspace_name) REFERENCES honcho.peers(name, workspace_name);
+ALTER TABLE ONLY honcho.documents
+    ADD CONSTRAINT fk_documents_observer_observed_workspace_name_collections FOREIGN KEY (observer, observed, workspace_name) REFERENCES honcho.collections(observer, observed, workspace_name);
+ALTER TABLE ONLY honcho.documents
+    ADD CONSTRAINT fk_documents_observer_workspace_name_peers FOREIGN KEY (observer, workspace_name) REFERENCES honcho.peers(name, workspace_name);
+ALTER TABLE ONLY honcho.documents
+    ADD CONSTRAINT fk_documents_session_workspace FOREIGN KEY (session_name, workspace_name) REFERENCES honcho.sessions(name, workspace_name);
+ALTER TABLE ONLY honcho.documents
+    ADD CONSTRAINT fk_documents_workspace_name_workspaces FOREIGN KEY (workspace_name) REFERENCES honcho.workspaces(name);
+ALTER TABLE ONLY honcho.message_embeddings
+    ADD CONSTRAINT fk_message_embeddings_message_id_messages FOREIGN KEY (message_id) REFERENCES honcho.messages(public_id) ON DELETE CASCADE;
+ALTER TABLE ONLY honcho.message_embeddings
+    ADD CONSTRAINT fk_message_embeddings_peer_name_workspace_name_peers FOREIGN KEY (peer_name, workspace_name) REFERENCES honcho.peers(name, workspace_name);
+ALTER TABLE ONLY honcho.message_embeddings
+    ADD CONSTRAINT fk_message_embeddings_session_name_workspace_name_sessions FOREIGN KEY (session_name, workspace_name) REFERENCES honcho.sessions(name, workspace_name);
+ALTER TABLE ONLY honcho.message_embeddings
+    ADD CONSTRAINT fk_message_embeddings_workspace_name_workspaces FOREIGN KEY (workspace_name) REFERENCES honcho.workspaces(name);
+ALTER TABLE ONLY honcho.messages
+    ADD CONSTRAINT fk_messages_peer_name_peers FOREIGN KEY (peer_name, workspace_name) REFERENCES honcho.peers(name, workspace_name);
+ALTER TABLE ONLY honcho.messages
+    ADD CONSTRAINT fk_messages_session_name_sessions FOREIGN KEY (session_name, workspace_name) REFERENCES honcho.sessions(name, workspace_name);
+ALTER TABLE ONLY honcho.peers
+    ADD CONSTRAINT fk_peers_workspace_name_workspaces FOREIGN KEY (workspace_name) REFERENCES honcho.workspaces(name);
+ALTER TABLE ONLY honcho.queue
+    ADD CONSTRAINT fk_queue_message_id FOREIGN KEY (message_id) REFERENCES honcho.messages(id);
+ALTER TABLE ONLY honcho.queue
+    ADD CONSTRAINT fk_queue_session_id FOREIGN KEY (session_id) REFERENCES honcho.sessions(id);
+ALTER TABLE ONLY honcho.queue
+    ADD CONSTRAINT fk_queue_workspace_name FOREIGN KEY (workspace_name) REFERENCES honcho.workspaces(name);
+ALTER TABLE ONLY honcho.session_peers
+    ADD CONSTRAINT fk_session_peers_peer_name_workspace_name_peers FOREIGN KEY (peer_name, workspace_name) REFERENCES honcho.peers(name, workspace_name);
+ALTER TABLE ONLY honcho.session_peers
+    ADD CONSTRAINT fk_session_peers_session_name_workspace_name_sessions FOREIGN KEY (session_name, workspace_name) REFERENCES honcho.sessions(name, workspace_name);
+ALTER TABLE ONLY honcho.session_peers
+    ADD CONSTRAINT fk_session_peers_workspace_name FOREIGN KEY (workspace_name) REFERENCES honcho.workspaces(name);
+ALTER TABLE ONLY honcho.sessions
+    ADD CONSTRAINT fk_sessions_workspace_name_workspaces FOREIGN KEY (workspace_name) REFERENCES honcho.workspaces(name);
+ALTER TABLE ONLY honcho.webhook_endpoints
+    ADD CONSTRAINT fk_webhook_endpoints_workspace_name_workspaces FOREIGN KEY (workspace_name) REFERENCES honcho.workspaces(name);
+
+

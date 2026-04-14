@@ -10,6 +10,7 @@ the Python execution runtime for live, proactive, eval, proposal, and repo-chang
 - `cmd/improvement-plane`: trace/review APIs, eval/proposal cron mode, and embedded eval UI
 - `internal/control`: control-plane HTTP APIs plus Slack socket-mode surface
 - `internal/*`: shared contracts, storage, registries, and review/event logic
+- `honcho/`: pinned self-hosted Honcho image build for stage memory services
 - `runner/`: Python Hermes runner wrapper
 - `ui/eval-web`: React + Vite review UI
 - `sandbox/`: sandbox runtime image definition
@@ -75,17 +76,21 @@ GitHub Actions is split into:
 - PR/push CI in `.github/workflows/ci.yml`
 - stage image build + deploy-repo bump in `.github/workflows/cd.yml`
 
-CI also runs Postgres-backed migration and store integration tests. Set
+CI also runs Postgres-backed migration and store integration tests against a
+`pgvector`-enabled Postgres image. Set
 `RSI_TEST_POSTGRES_URL` locally and run `make test-postgres` to exercise the same path.
 The stage acceptance runbook for the persistence hardening rollout lives at
 [`docs/persistence-hardening-stage-acceptance.md`](./docs/persistence-hardening-stage-acceptance.md).
+The Honcho stage rollout and rollback runbook lives at
+[`docs/honcho-stage-rollout.md`](./docs/honcho-stage-rollout.md).
 
-The CD workflow builds and pushes five stage images on `main`:
+The CD workflow builds and pushes six stage images on `main`:
 
 - `rsi-agent-platform:control-plane-<sha>`
 - `rsi-agent-platform:tool-gateway-<sha>`
 - `rsi-agent-platform:improvement-plane-<sha>`
 - `rsi-agent-platform-runner:runner-<sha>`
+- `rsi-agent-platform-honcho:honcho-<sha>`
 - `rsi-agent-platform-sandbox:sandbox-<sha>`
 
 After pushing images, CD updates

@@ -16,6 +16,7 @@ env:
   AWS_REGION: us-east-1
   GO_IMAGE_REPOSITORY: rsi-agent-platform
   RUNNER_IMAGE_REPOSITORY: rsi-agent-platform-runner
+  HONCHO_IMAGE_REPOSITORY: rsi-agent-platform-honcho
   SANDBOX_IMAGE_REPOSITORY: rsi-agent-platform-sandbox
   IMAGE_VERSION: ${{ github.sha }}
   STORY_DEPLOYMENTS_REPOSITORY: storyprotocol/story-deployments
@@ -24,6 +25,7 @@ env:
   TOOL_GATEWAY_TAG: tool-gateway-${{ github.sha }}
   IMPROVEMENT_PLANE_TAG: improvement-plane-${{ github.sha }}
   RUNNER_TAG: runner-${{ github.sha }}
+  HONCHO_TAG: honcho-${{ github.sha }}
   SANDBOX_TAG: sandbox-${{ github.sha }}
 
 permissions:
@@ -39,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:16
+        image: pgvector/pgvector:pg16
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
@@ -117,6 +119,11 @@ jobs:
             repository: rsi-agent-platform-runner
             tag_prefix: runner
             build_args: ""
+          - name: honcho
+            dockerfile: ./honcho/Dockerfile
+            repository: rsi-agent-platform-honcho
+            tag_prefix: honcho
+            build_args: ""
           - name: sandbox
             dockerfile: ./sandbox/Dockerfile
             repository: rsi-agent-platform-sandbox
@@ -143,6 +150,19 @@ jobs:
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ECR_PUSH_ROLE_ARN }}
+
+      - name: Ensure ECR repository exists
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if aws ecr describe-repositories --repository-names "${{ matrix.repository }}" >/dev/null 2>&1; then
+            echo "ECR repository ${{ matrix.repository }} already exists"
+            exit 0
+          fi
+
+          aws ecr create-repository --repository-name "${{ matrix.repository }}" >/dev/null
+          echo "Created ECR repository ${{ matrix.repository }}"
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -201,6 +221,7 @@ jobs:
             --tool-gateway-tag "${{ env.TOOL_GATEWAY_TAG }}" \
             --improvement-plane-tag "${{ env.IMPROVEMENT_PLANE_TAG }}" \
             --runner-tag "${{ env.RUNNER_TAG }}" \
+            --honcho-tag "${{ env.HONCHO_TAG }}" \
             --sandbox-tag "${{ env.SANDBOX_TAG }}"
 
           git diff -- "${{ env.STORY_DEPLOYMENTS_VALUES_FILE }}"

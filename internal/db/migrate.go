@@ -122,10 +122,12 @@ func ApplyMigrations(db *sql.DB) (SchemaStatus, error) {
 			if len(migrations) == 0 {
 				return SchemaStatus{ExpectedVersion: 0, State: "compatible"}, nil
 			}
-			if err := recordAppliedMigration(db, migrations[0]); err != nil {
+			if err := recordAppliedMigrations(db, migrations); err != nil {
 				return SchemaStatus{ExpectedVersion: expected, State: "baseline_stamp_failed"}, err
 			}
-			applied[migrations[0].Version] = struct{}{}
+			for _, migration := range migrations {
+				applied[migration.Version] = struct{}{}
+			}
 		}
 	}
 
@@ -278,6 +280,20 @@ func recordAppliedMigration(db *sql.DB, migration Migration) error {
 	return err
 }
 
+func recordAppliedMigrations(db *sql.DB, migrations []Migration) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	for _, migration := range migrations {
+		if _, err := tx.Exec(`insert into rsi_schema_migrations (version, name, applied_at) values ($1,$2,$3)`, migration.Version, migration.Name, time.Now().UTC()); err != nil {
+			_ = tx.Rollback()
+			return err
+		}
+	}
+	return tx.Commit()
+}
+
 func databaseLooksEmpty(db *sql.DB) (bool, error) {
 	var count int
 	err := db.QueryRow(`
@@ -313,6 +329,13 @@ func baselineCompatible(db *sql.DB) (bool, error) {
 			return false, nil
 		}
 	}
+	ok, err := honchoSchemaArtifactsPresent(db)
+	if err != nil {
+		return false, err
+	}
+	if !ok {
+		return false, nil
+	}
 	return true, nil
 }
 
@@ -347,4 +370,35 @@ func tableHasColumns(db *sql.DB, table string, columns ...string) (bool, error) 
 		}
 	}
 	return true, nil
+}
+
+func honchoSchemaArtifactsPresent(db *sql.DB) (bool, error) {
+	var vectorInstalled bool
+	if err := db.QueryRow(`select exists (select 1 from pg_extension where extname = 'vector')`).Scan(&vectorInstalled); err != nil {
+		return false, err
+	}
+	if !vectorInstalled {
+		return false, nil
+	}
+
+	var honchoSchemaExists bool
+	if err := db.QueryRow(`select exists (select 1 from information_schema.schemata where schema_name = 'honcho')`).Scan(&honchoSchemaExists); err != nil {
+		return false, err
+	}
+	if !honchoSchemaExists {
+		return false, nil
+	}
+
+	var messagesTableExists bool
+	if err := db.QueryRow(`
+		select exists (
+			select 1
+			from information_schema.tables
+			where table_schema = 'honcho'
+			  and table_name = 'messages'
+		)
+	`).Scan(&messagesTableExists); err != nil {
+		return false, err
+	}
+	return messagesTableExists, nil
 }
