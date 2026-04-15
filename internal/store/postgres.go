@@ -230,6 +230,9 @@ func loadStore(r sqlReader) (*MemoryStore, error) {
 	if err := loadChangeAttempts(r, store); err != nil {
 		return nil, err
 	}
+	if err := loadAttemptWorkspaces(r, store); err != nil {
+		return nil, err
+	}
 	if err := loadProposalReviews(r, store); err != nil {
 		return nil, err
 	}
@@ -401,6 +404,9 @@ func persistStore(tx *sql.Tx, store *MemoryStore) error {
 		return err
 	}
 	if err := persistChangeAttempts(tx, store); err != nil {
+		return err
+	}
+	if err := persistAttemptWorkspaces(tx, store); err != nil {
 		return err
 	}
 	if err := persistProposalReviews(tx, store); err != nil {

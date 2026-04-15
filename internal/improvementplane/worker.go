@@ -63,7 +63,7 @@ func processImprovementItem(cfg config.Config, store storepkg.Store, runnerClien
 	case queue.EvalQueue:
 		return processEvalItem(cfg, store, runnerClients["eval"], item)
 	case queue.ProposalQueue:
-		return processProposalItem(cfg, store, runnerClients["proposal"], item)
+		return processProposalItem(cfg, store, runnerClients["proposal"], toolClient, launcher, launcherErr, item)
 	case queue.SandboxQueue:
 		return processSandboxItem(cfg, store, launcher, launcherErr, item)
 	case queue.ImprovementActionQueue:
@@ -222,7 +222,7 @@ func processEvalItem(cfg config.Config, store storepkg.Store, runnerClient *clie
 	return nil
 }
 
-func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *clients.RunnerClient, item queue.WorkItem) error {
+func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *clients.RunnerClient, toolClient *clients.ToolGatewayClient, launcher sandbox.Launcher, launcherErr error, item queue.WorkItem) error {
 	if item.ProposalID == "" {
 		return fmt.Errorf("proposal work item %s missing proposal_id", item.ID)
 	}
@@ -248,6 +248,30 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 	if err != nil {
 		return err
 	}
+	var workspace *improvement.AttemptWorkspace
+	if proposal.RecommendedInterventionKind != review.InterventionHarnessOverlay && proposal.TargetLayer != harness.TargetLayerHarnessOverlay {
+		itemWorkspace, ready, err := ensureAttemptWorkspace(cfg, store, launcher, launcherErr, proposal, attempt, trace.Summary.TraceID)
+		if err != nil {
+			return err
+		}
+		workspace = &itemWorkspace
+		if _, err := ensureWorkspaceRepoChangeJob(store, proposal, attempt, itemWorkspace); err != nil {
+			return err
+		}
+		if !ready {
+			retryAt := time.Now().UTC().Add(5 * time.Second)
+			payload := clonePayload(item.Payload)
+			if payload == nil {
+				payload = map[string]any{}
+			}
+			payload["workspace_id"] = itemWorkspace.ID
+			if _, err := store.RescheduleWorkItem(item.ID, payload, "workspace initializing", retryAt); err != nil {
+				return err
+			}
+			return errDeferredWorkItem
+		}
+		_, _ = store.UpdateProposalStatus(proposal.ID, review.ProposalRepoChangeRunning)
+	}
 	memories := filterProposalMemory(store.ListProposalMemories(), proposal.CandidateKey)
 	runnerStarted := time.Now().UTC()
 	_, _ = store.ApplyTraceUpdate(trace.Summary.TraceID, storepkg.TraceUpdate{
@@ -272,7 +296,7 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 		runnerErr    error
 	)
 	if runnerClient != nil {
-		runnerTask := buildProposalRunnerTask(cfg, store, trace, proposal, attempt, memories)
+		runnerTask := buildProposalRunnerTask(cfg, store, trace, proposal, attempt, workspace, memories)
 		runnerResp, runnerErr = runnerClient.Execute(runnerTask)
 		if runnerErr == nil && !runnerResp.OK {
 			runnerErr = fmt.Errorf("proposal runner returned non-ok result: %s", strings.TrimSpace(runnerResp.Message))
@@ -342,13 +366,26 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 	if proposal.RecommendedInterventionKind == review.InterventionHarnessOverlay || proposal.TargetLayer == harness.TargetLayerHarnessOverlay {
 		return processHarnessOverlayProposal(cfg, store, trace, proposal, attempt, runnerResp, runnerOutput, runnerStarted)
 	}
+	if workspace == nil {
+		return fmt.Errorf("proposal %s missing workspace for repo-change execution", proposal.ID)
+	}
 	now := time.Now().UTC()
-	failureClass, failureSummary, changedFiles := validateRepoPatch(runnerOutput.RepoPatch, runnerOutput.RetryAssessment.ChangedFiles)
+	diffResult, execErr := toolClient.Execute("workspace.git_diff", map[string]any{
+		"workspace_id": workspace.ID,
+		"attempt_id":   attempt.ID,
+	})
+	if execErr != nil || diffResult.Status != "ok" {
+		return recordAttemptFailure(cfg, store, proposal, attempt, trace, "sandbox_failure", firstNonEmpty(improvementActionError(diffResult, execErr), "Workspace diff inspection failed."), false, improvement.AttemptTriggerSandboxFailed)
+	}
+	changedFiles := stringSliceFromAny(diffResult.Output["changed_files"])
+	patch := stringValue(diffResult.Output["patch"])
+	diffSummary := firstNonEmpty(stringValue(diffResult.Output["diff_summary"]), strings.TrimSpace(runnerOutput.ChangePlan), strings.TrimSpace(runnerOutput.ContextSummary))
+	failureClass, failureSummary, changedFiles := validateRepoPatch(patch, changedFiles)
 	attempt.ChangePlan = strings.TrimSpace(runnerOutput.ChangePlan)
-	attempt.RepoPatch = strings.TrimSpace(runnerOutput.RepoPatch)
+	attempt.RepoPatch = strings.TrimSpace(patch)
 	attempt.ValidationPlan = strings.TrimSpace(runnerOutput.ValidationPlan)
 	attempt.HypothesisDelta = strings.TrimSpace(runnerOutput.HypothesisDelta)
-	attempt.DiffSummary = firstNonEmpty(strings.TrimSpace(runnerOutput.ChangePlan), strings.TrimSpace(runnerOutput.ContextSummary))
+	attempt.DiffSummary = diffSummary
 	attempt.ValidationSummary = strings.TrimSpace(runnerOutput.ValidationPlan)
 	attempt.ChangedFiles = changedFiles
 	attempt.FailureClass = firstNonEmpty(runnerOutput.RetryAssessment.FailureClass, failureClass)
@@ -363,56 +400,80 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 	if _, err := store.UpsertChangeAttempt(attempt); err != nil {
 		return err
 	}
-	job, err := store.MaterializeApprovedProposal(item.ProposalID, cfg.ServiceName)
+	validationCommand := workspaceValidationCommand(firstNonEmpty(runnerOutput.ValidationPlan, proposal.ValidationPlan))
+	validationResult, execErr := toolClient.Execute("workspace.run_validation", map[string]any{
+		"workspace_id": workspace.ID,
+		"attempt_id":   attempt.ID,
+		"command":      validationCommand,
+	})
+	if execErr != nil || validationResult.Status != "ok" {
+		return recordAttemptFailure(cfg, store, proposal, attempt, trace, "sandbox_failure", firstNonEmpty(improvementActionError(validationResult, execErr), "Workspace validation failed."), false, improvement.AttemptTriggerSandboxFailed)
+	}
+	attempt.State = improvement.AttemptStateValidationRunning
+	attempt.ValidationSummary = firstNonEmpty(stringValue(validationResult.Output["stdout"]), validationCommand)
+	attempt.UpdatedAt = time.Now().UTC()
+	if _, err := store.UpsertChangeAttempt(attempt); err != nil {
+		return err
+	}
+	job, err := ensureWorkspaceRepoChangeJob(store, proposal, attempt, *workspace)
 	if err != nil {
 		return err
 	}
-	manifest := sandbox.BuildJob(cfg, sandbox.JobRequest{
-		TraceID:      trace.Summary.TraceID,
-		ProposalID:   item.ProposalID,
-		Repo:         job.Repo,
-		BaseRef:      job.BaseRef,
-		RequestedBy:  cfg.ServiceName,
-		ArtifactPath: fmt.Sprintf("memory://sandbox/%s", job.ID),
-		Env: map[string]string{
-			"RSI_ATTEMPT_ID":      attempt.ID,
-			"RSI_CHANGE_PLAN":     attempt.ChangePlan,
-			"RSI_REPO_PATCH":      attempt.RepoPatch,
-			"RSI_VALIDATION_PLAN": attempt.ValidationPlan,
-		},
-		Commands: repoChangeCommands(),
-	})
-	_, _ = store.UpdateRepoChangeJobStatus(job.ID, string(review.ProposalRepoChangeQueued))
-	_, err = upsertImprovementActionIntent(store, action.Intent{
-		OwnerPlane:     "improvement",
+	job.Status = string(review.ProposalValidationPending)
+	job.ValidationError = ""
+	job.ValidationRef = fmt.Sprintf("%s/%s", workspace.Namespace, firstNonEmpty(workspace.PodName, workspace.JobName))
+	job.LogArtifactID = ""
+	job.UpdatedAt = time.Now().UTC()
+	if _, err := store.UpsertRepoChangeJob(job); err != nil {
+		return err
+	}
+	if _, err := store.UpdateProposalStatus(item.ProposalID, review.ProposalValidationPending); err != nil {
+		return err
+	}
+	prAction, ok := proposedActionByKind(runnerOutput.ProposedActions, action.KindDraftPROpen)
+	if !ok {
+		return recordAttemptFailure(cfg, store, proposal, attempt, trace, "insufficient_evidence", "Proposal implement run completed without requesting a governed draft PR open.", true, improvement.AttemptTriggerProposalApproved)
+	}
+	branchName := firstNonEmpty(stringValue(prAction.RequestPayload["branch_name"]), workspace.BranchName, attempt.BranchName)
+	baseRef := firstNonEmpty(stringValue(prAction.RequestPayload["base_ref"]), workspace.BaseRef, "main")
+	title := firstNonEmpty(stringValue(prAction.RequestPayload["title"]), fmt.Sprintf("RSI proposal %s attempt %s for %s", item.ProposalID, attempt.ID, job.Repo))
+	body := firstNonEmpty(stringValue(prAction.RequestPayload["body"]), fmt.Sprintf("Automated draft PR for proposal %s attempt %s after workspace validation.", item.ProposalID, attempt.ID))
+	item, err = enqueueImprovementOperationWork(store, operation.Execution{
+		ScopeKind:     operation.ScopeAttempt,
+		ScopeID:       attempt.ID,
+		OperationKind: "pr_open",
+		OperationKey:  "pr_open",
+		Status:        operation.StatusQueued,
+		Queue:         queue.ImprovementActionQueue,
+		RequestedBy:   cfg.ServiceName,
+		TraceID:       trace.Summary.TraceID,
+		ProposalID:    item.ProposalID,
+		AttemptID:     attempt.ID,
+	}, queue.WorkItem{
+		Queue:          queue.ImprovementActionQueue,
+		Kind:           "draft_pr_open",
+		Status:         queue.WorkQueued,
+		TraceID:        trace.Summary.TraceID,
 		ConversationID: proposal.ConversationID,
 		CaseID:         proposal.CaseID,
-		TraceID:        trace.Summary.TraceID,
+		TriggerEventID: proposal.OriginTraceID,
 		ProposalID:     proposal.ID,
-		AttemptID:      attempt.ID,
-		Kind:           action.KindSandboxLaunch,
-		TargetRef:      fmt.Sprintf("%s/%s", cfg.SandboxNamespace, job.ID),
-		RequestPayload: map[string]any{
-			"job_id":      job.ID,
-			"attempt_id":  attempt.ID,
-			"repo":        job.Repo,
-			"branch_name": job.BranchName,
-			"base_ref":    job.BaseRef,
-		},
-		IdempotencyKey: fmt.Sprintf("sandbox:%s", job.ID),
-		ApprovalMode:   "approved",
-		ApprovalState:  "approved",
-		PolicyVerdict:  "approved_proposal",
-		Status:         action.StatusQueued,
+		RepoScope:      job.Repo,
 		RequestedBy:    cfg.ServiceName,
-		Rationale:      firstNonEmpty(firstProposedActionRationale(runnerOutput.ProposedActions, action.KindSandboxLaunch), "Launch the sandbox repo-change job after human approval."),
-		EvidenceRefs: []events.EvidenceRef{
-			{Kind: "proposal", Ref: proposal.ID, Summary: proposal.Title},
-			{Kind: "trace", Ref: trace.Summary.TraceID, Summary: trace.Summary.WorkflowKind},
-			{Kind: "change_attempt", Ref: attempt.ID, Summary: attempt.ChangePlan},
+		ApprovalMode:   "approved",
+		CreatedAt:      now,
+		UpdatedAt:      now,
+		Payload: map[string]interface{}{
+			"attempt_id":  attempt.ID,
+			"job_id":      job.ID,
+			"job_name":    job.SandboxJobName,
+			"namespace":   job.SandboxNamespace,
+			"repo":        job.Repo,
+			"branch_name": branchName,
+			"base_ref":    baseRef,
+			"title":       title,
+			"body":        body,
 		},
-		CreatedAt: now,
-		UpdatedAt: now,
 	})
 	if err != nil {
 		return err
@@ -422,10 +483,10 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 			ID:         fmt.Sprintf("reason-proposal-%d", now.UnixNano()),
 			TraceID:    trace.Summary.TraceID,
 			WorkflowID: trace.Summary.WorkflowID,
-			StepType:   "proposal_materialized",
-			Summary:    firstNonEmpty(runnerOutput.ChangePlan, runnerOutput.FinalAnswer, runnerOutput.ContextSummary, fmt.Sprintf("Approved proposal %s moved into repo-change queue.", item.ProposalID)),
+			StepType:   "workspace_implemented",
+			Summary:    firstNonEmpty(runnerOutput.ChangePlan, runnerOutput.FinalAnswer, runnerOutput.ContextSummary, fmt.Sprintf("Approved proposal %s produced a workspace-backed implementation.", item.ProposalID)),
 			Confidence: confidenceOr(0.86, runnerOutput.Confidence),
-			Decision:   job.BranchName,
+			Decision:   branchName,
 			CreatedAt:  now,
 		},
 	}
@@ -468,10 +529,10 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 				Plane:       "improvement",
 				Service:     cfg.ServiceName,
 				Actor:       "worker",
-				EventType:   "repo_change.queued",
+				EventType:   "workspace.validation.completed",
 				Status:      events.StatusQueued,
 				StartedAt:   now,
-				Description: fmt.Sprintf("Materialized repo change job %s.", job.ID),
+				Description: fmt.Sprintf("Validated workspace %s and queued governed draft PR open for branch %s.", workspace.ID, branchName),
 			},
 		},
 		Artifacts: []events.Artifact{
@@ -485,12 +546,12 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 				Source:      "proposal-runner",
 			},
 			{
-				ID:          fmt.Sprintf("artifact-sandbox-%d", now.UnixNano()),
+				ID:          fmt.Sprintf("artifact-workspace-%d", now.UnixNano()),
 				TraceID:     trace.Summary.TraceID,
-				Kind:        "sandbox_job_manifest",
-				ContentType: "application/json",
-				URL:         fmt.Sprintf("memory://sandbox/%s/manifest.json", job.ID),
-				SizeBytes:   int64(len(fmt.Sprintf("%v", manifest))),
+				Kind:        "workspace_diff_summary",
+				ContentType: "text/plain",
+				URL:         fmt.Sprintf("memory://workspace/%s/diff.txt", workspace.ID),
+				SizeBytes:   int64(len(diffSummary)),
 				Source:      "improvement-plane",
 			},
 		},
@@ -1144,6 +1205,8 @@ func processDraftPROpen(cfg config.Config, store storepkg.Store, toolClient *cli
 	baseRef := firstNonEmpty(stringValue(item.Payload["base_ref"]), "main")
 	jobID := stringValue(item.Payload["job_id"])
 	attemptID := stringValue(item.Payload["attempt_id"])
+	title := firstNonEmpty(stringValue(item.Payload["title"]), fmt.Sprintf("RSI proposal %s attempt %s for %s", item.ProposalID, attemptID, repo))
+	body := firstNonEmpty(stringValue(item.Payload["body"]), fmt.Sprintf("Automated draft PR for proposal %s attempt %s after workspace validation.", item.ProposalID, attemptID))
 	now := time.Now().UTC()
 	proposal, _ := findProposal(store.ListProposals(), item.ProposalID)
 	attempt, _ := store.GetChangeAttempt(firstNonEmpty(attemptID, proposal.CurrentAttemptID))
@@ -1202,8 +1265,8 @@ func processDraftPROpen(cfg config.Config, store storepkg.Store, toolClient *cli
 		"repo":        repo,
 		"branch_name": branchName,
 		"base_ref":    baseRef,
-		"title":       fmt.Sprintf("RSI proposal %s attempt %s for %s", item.ProposalID, attemptID, repo),
-		"body":        fmt.Sprintf("Automated draft PR for proposal %s attempt %s after sandbox validation.", item.ProposalID, attemptID),
+		"title":       title,
+		"body":        body,
 	})
 	completed := time.Now().UTC()
 	actionStatus := improvementActionStatus(prResult, execErr)
@@ -1483,11 +1546,17 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 	}
 }
 
-func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace events.Trace, proposal review.Proposal, attempt improvement.ChangeAttempt, memories []review.ProposalMemory) clients.RunnerTask {
+func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace events.Trace, proposal review.Proposal, attempt improvement.ChangeAttempt, workspace *improvement.AttemptWorkspace, memories []review.ProposalMemory) clients.RunnerTask {
 	effectiveHarness := harness.ResolveEffectiveConfig(store, "proposal", cfg.DefaultReasoningVerbosity)
 	targetRepo := proposalTargetRepo(cfg, proposal)
 	repoAllowlist := scopedImprovementRepoAllowlist(targetRepo, cfg.AllowedTargetRepos)
 	sessionScopeID := proposalSessionScopeID(proposal, targetRepo)
+	executionMode := "investigate"
+	toolAllowlist := improvementReadOnlyTools(effectiveHarness)
+	if workspace != nil {
+		executionMode = "implement"
+		toolAllowlist = improvementImplementTools(effectiveHarness)
+	}
 	rejectedContext := make([]map[string]any, 0, len(memories))
 	for _, memory := range memories {
 		rejectedContext = append(rejectedContext, map[string]any{
@@ -1532,12 +1601,23 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 			"summary": fmt.Sprintf("Authoritative remediation repository is %s.", targetRepo),
 		})
 	}
+	if workspace != nil {
+		contextRefs = append(contextRefs, map[string]any{
+			"kind":               "attempt_workspace",
+			"ref":                workspace.ID,
+			"attempt_id":         workspace.AttemptID,
+			"repo":               workspace.Repo,
+			"branch_name":        workspace.BranchName,
+			"status":             workspace.Status,
+			"allowed_path_globs": workspace.AllowedPathGlobs,
+		})
+	}
 	contextRefs = append(contextRefs, improvementTraceEvidenceRefs(trace)...)
 	contextRefs = append(contextRefs, improvementCandidateEvidenceRefs(store, trace, proposal.CandidateKey)...)
 	contextRefs = append(contextRefs, improvementProposalMemoryRefs(store, proposal.CandidateKey)...)
 	contextRefs = append(contextRefs, improvementAttemptHistoryRefs(store, proposal.ID, attempt.ID)...)
 	prompt := fmt.Sprintf(
-		"Execute approved intervention attempt %d for proposal %s. Candidate=%s risk=%s scope=%s summary=%s. The approved intervention kind is %s with rationale %q, target surface %q, and validation plan %q. The authoritative target repository is %s. Start from the dense evidence pack: latest failing trace evidence, root-cause metadata, prior rejected or dismissed proposal memory, and prior attempt failures. If recalled memory mentions a different repository, treat it as stale unless the supplied evidence pack explicitly supports it. Before returning repo_patch, inspect read-only repo context for %s and ground the diff in concrete files within that repository. Return explicit visible reasoning plus a concrete change_plan, a non-empty unified repo_patch touching allowed repo files, a validation_plan, retry_assessment, and hypothesis_delta. Do not return metadata-only or .rsi-only diffs.",
+		"Execute approved intervention attempt %d for proposal %s. Candidate=%s risk=%s scope=%s summary=%s. The approved intervention kind is %s with rationale %q, target surface %q, and validation plan %q. The authoritative target repository is %s. Start from the dense evidence pack: latest failing trace evidence, root-cause metadata, prior rejected or dismissed proposal memory, and prior attempt failures. If recalled memory mentions a different repository, treat it as stale unless the supplied evidence pack explicitly supports it. Investigate the approved scope, ground the implementation in concrete files within %s, and return explicit visible reasoning, change_plan, validation_plan, retry_assessment, hypothesis_delta, and any governed proposed_actions needed for the next platform step.",
 		attempt.AttemptNumber,
 		proposal.ID,
 		proposal.CandidateKey,
@@ -1551,6 +1631,24 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 		firstNonEmpty(targetRepo, cfg.DefaultRepo),
 		firstNonEmpty(targetRepo, cfg.DefaultRepo),
 	)
+	if workspace != nil {
+		prompt = fmt.Sprintf(
+			"Implement approved repo-change attempt %d for proposal %s inside governed workspace %s. Candidate=%s risk=%s scope=%s summary=%s. The approved intervention rationale is %q, target surface is %q, and validation plan is %q. The authoritative repository is %s on branch %s. Use workspace tools to inspect, edit, diff, and validate only inside the allowed path globs. The authoritative patch is the workspace git diff, not repo_patch text. After validation succeeds, decide whether opening a draft PR is warranted; if yes, include exactly one proposed action kind=%q with title, body, branch_name, and base_ref in request_payload. Do not mutate GitHub directly.",
+			attempt.AttemptNumber,
+			proposal.ID,
+			workspace.ID,
+			proposal.CandidateKey,
+			proposal.RiskTier,
+			proposal.ProposedScope,
+			proposal.Summary,
+			firstNonEmpty(proposal.RecommendedInterventionRationale),
+			firstNonEmpty(proposal.TargetSurface),
+			firstNonEmpty(proposal.ValidationPlan),
+			firstNonEmpty(targetRepo, cfg.DefaultRepo),
+			workspace.BranchName,
+			action.KindDraftPROpen,
+		)
+	}
 	if proposal.TargetLayer == harness.TargetLayerHarnessOverlay {
 		targetRole := firstNonEmpty(strings.TrimSpace(proposal.TargetRef), "prod")
 		prompt = fmt.Sprintf(
@@ -1581,10 +1679,10 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 	return clients.RunnerTask{
 		TaskType:                  "proposal",
 		Repo:                      firstNonEmpty(targetRepo, cfg.DefaultRepo),
-		RepoRef:                   "main",
+		RepoRef:                   firstNonEmpty(valueOrWorkspaceBaseRef(workspace), "main"),
 		Prompt:                    prompt,
-		SystemMessage:             harness.ComposeSystemMessage("Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta, proposed_actions, knowledge_drafts, and outcome_hypotheses.", effectiveHarness),
-		AllowedTools:              improvementReadOnlyTools(effectiveHarness),
+		SystemMessage:             harness.ComposeSystemMessage("Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta, proposed_actions, knowledge_drafts, and outcome_hypotheses. For repo-change implement mode, repo_patch is optional and the authoritative diff is the workspace git diff.", effectiveHarness),
+		AllowedTools:              toolAllowlist,
 		TimeoutSeconds:            420,
 		ExpectedOutputs:           []string{"visible_reasoning", "final_answer", "change_plan", "validation_plan", "retry_assessment"},
 		ArtifactDestination:       fmt.Sprintf("trace:%s:proposal:%s:attempt:%s", trace.Summary.TraceID, proposal.ID, attempt.ID),
@@ -1600,11 +1698,12 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 		CaseSummary:               caseSummary,
 		PriorTraceRefs:            improvementPriorTraceRefs(store.ListTraces(), trace.Summary.CaseID, trace.Summary.TraceID),
 		RepoAllowlist:             repoAllowlist,
-		ToolAllowlist:             improvementReadOnlyTools(effectiveHarness),
+		ToolAllowlist:             toolAllowlist,
 		ResponseMode:              "analysis",
 		ContextRefs:               contextRefs,
 		ApprovalMode:              "human_review",
 		ReasoningVerbosity:        effectiveHarness.ReasoningVerbosity,
+		ExecutionMode:             executionMode,
 		SessionScopeKind:          "proposal_candidate",
 		SessionScopeID:            sessionScopeID,
 		HarnessProfileID:          effectiveHarness.Profile.ID,
@@ -1612,6 +1711,11 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 		MemoryBackend:             harness.DefaultMemoryBackend,
 		AssistantPeerID:           fmt.Sprintf("rsi:%s:proposal", cfg.Environment),
 		UserPeerID:                fmt.Sprintf("candidate:%s", sessionScopeID),
+		AttemptID:                 attempt.ID,
+		WorkspaceID:               workspaceIDValue(workspace),
+		WorkspaceRepo:             workspaceRepoValue(workspace),
+		WorkspaceBranch:           workspaceBranchValue(workspace),
+		AllowedPathGlobs:          workspaceAllowedPathGlobsValue(workspace),
 	}
 }
 
@@ -1682,6 +1786,32 @@ func improvementReadOnlyTools(effective harness.EffectiveConfig) []string {
 		"rsi.proposal_memory",
 		"rsi.candidate_context",
 		"rsi.attempt_context",
+	}, effective.ToolPreferenceOrder)
+}
+
+func improvementImplementTools(effective harness.EffectiveConfig) []string {
+	return harness.ApplyToolPreference([]string{
+		"repo.context",
+		"knowledge.context",
+		"github.repo_activity",
+		"github.repo_context",
+		"sentry.lookup",
+		"kubernetes.inspect",
+		"kubernetes.logs",
+		"kubernetes.events",
+		"cloudflare.inspect",
+		"rsi.trace_context",
+		"rsi.proposal_memory",
+		"rsi.candidate_context",
+		"rsi.attempt_context",
+		"workspace.list_files",
+		"workspace.read_file",
+		"workspace.search",
+		"workspace.write_file",
+		"workspace.apply_patch",
+		"workspace.git_status",
+		"workspace.git_diff",
+		"workspace.run_validation",
 	}, effective.ToolPreferenceOrder)
 }
 
@@ -1809,6 +1939,41 @@ func stringFromAny(raw any) string {
 		return ""
 	}
 	return strings.TrimSpace(value)
+}
+
+func valueOrWorkspaceBaseRef(workspace *improvement.AttemptWorkspace) string {
+	if workspace == nil {
+		return ""
+	}
+	return workspace.BaseRef
+}
+
+func workspaceIDValue(workspace *improvement.AttemptWorkspace) string {
+	if workspace == nil {
+		return ""
+	}
+	return workspace.ID
+}
+
+func workspaceRepoValue(workspace *improvement.AttemptWorkspace) string {
+	if workspace == nil {
+		return ""
+	}
+	return workspace.Repo
+}
+
+func workspaceBranchValue(workspace *improvement.AttemptWorkspace) string {
+	if workspace == nil {
+		return ""
+	}
+	return workspace.BranchName
+}
+
+func workspaceAllowedPathGlobsValue(workspace *improvement.AttemptWorkspace) []string {
+	if workspace == nil {
+		return nil
+	}
+	return append([]string(nil), workspace.AllowedPathGlobs...)
 }
 
 func improvementRecentConversationEntries(items []conversation.Entry) []map[string]any {

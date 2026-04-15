@@ -1513,6 +1513,10 @@ create unique index if not exists action_result_intent_operation_idx
 create unique index if not exists harness_execution_operation_idx
   on harness_execution (operation_id)
   where operation_id <> '';
+create unique index if not exists outcome_record_operation_idx
+  on outcome_record (operation_id)
+  where operation_id <> '';
+
 
 alter table if exists proposal
   add column if not exists recommended_intervention_kind text not null default 'repo_change',
@@ -1525,7 +1529,58 @@ alter table if exists proposal
 
 alter table if exists proposal_review
   add column if not exists scope text not null default 'line';
-create unique index if not exists outcome_record_operation_idx
-  on outcome_record (operation_id)
-  where operation_id <> '';
 
+update proposal
+set recommended_intervention_kind = case
+      when coalesce(nullif(target_layer, ''), 'repo_change') = 'harness_overlay' then 'harness_overlay'
+      else 'repo_change'
+    end,
+    recommended_intervention_rationale = case
+      when coalesce(nullif(summary, ''), '') <> '' then summary
+      else 'Intervention recommendation inferred from candidate evidence.'
+    end,
+    target_surface = case
+      when coalesce(nullif(proposed_scope, ''), '') <> '' then proposed_scope
+      when coalesce(nullif(target_kind, ''), '') <> '' and coalesce(nullif(target_ref, ''), '') <> '' then target_kind || ':' || target_ref
+      when coalesce(nullif(target_ref, ''), '') <> '' then target_ref
+      when coalesce(nullif(target_kind, ''), '') <> '' then target_kind
+      else 'unspecified_target_surface'
+    end,
+    validation_plan = case
+      when coalesce(nullif(target_layer, ''), 'repo_change') = 'harness_overlay' then 'Generate a bounded runtime overlay, validate behavior in the target role, and activate only if the change remains inside the approved scope.'
+      else 'Generate a bounded repo change, validate it in sandbox, and only then open a draft PR.'
+    end,
+    material_risk_summary = case
+      when coalesce(nullif(risk_tier, ''), '') <> '' and coalesce(nullif(target_layer, ''), 'repo_change') = 'harness_overlay' then risk_tier || ' risk intervention on runtime harness surface.'
+      when coalesce(nullif(risk_tier, ''), '') <> '' then risk_tier || ' risk repo-change intervention.'
+      when coalesce(nullif(target_layer, ''), 'repo_change') = 'harness_overlay' then 'medium risk intervention on runtime harness surface.'
+      else 'medium risk repo-change intervention.'
+    end,
+    recommended_disposition = 'approve_intervention'
+where coalesce(recommended_intervention_kind, '') = ''
+   or coalesce(target_surface, '') = ''
+   or coalesce(validation_plan, '') = ''
+   or coalesce(material_risk_summary, '') = ''
+   or coalesce(recommended_disposition, '') = '';
+
+
+create table if not exists attempt_workspace (
+  id text primary key,
+  attempt_id text not null unique,
+  proposal_id text not null,
+  repo text not null,
+  base_ref text not null default 'main',
+  branch_name text not null,
+  namespace text,
+  job_name text,
+  pod_name text,
+  status text not null default 'queued',
+  allowed_path_globs jsonb not null default '[]'::jsonb,
+  head_sha text,
+  diff_summary text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  expires_at timestamptz
+);
+
+create index if not exists attempt_workspace_proposal_idx on attempt_workspace (proposal_id, created_at desc);

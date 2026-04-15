@@ -75,6 +75,10 @@ type Store interface {
 	ListChangeAttempts() []improvement.ChangeAttempt
 	GetChangeAttempt(attemptID string) (improvement.ChangeAttempt, bool)
 	UpsertChangeAttempt(item improvement.ChangeAttempt) (improvement.ChangeAttempt, error)
+	ListAttemptWorkspaces() []improvement.AttemptWorkspace
+	GetAttemptWorkspace(workspaceID string) (improvement.AttemptWorkspace, bool)
+	GetAttemptWorkspaceByAttempt(attemptID string) (improvement.AttemptWorkspace, bool)
+	UpsertAttemptWorkspace(item improvement.AttemptWorkspace) (improvement.AttemptWorkspace, error)
 	CreateDerivedTrace(req DerivedTraceRequest) (events.Trace, Workflow, error)
 	ListIngestions() []slack.Ingestion
 	CreateIngestion(envelope slack.SlackEnvelope) (slack.Ingestion, error)
@@ -168,6 +172,7 @@ type MemoryStore struct {
 	candidates             map[string]improvement.Candidate
 	proposals              map[string]review.Proposal
 	changeAttempts         map[string]improvement.ChangeAttempt
+	attemptWorkspaces      map[string]improvement.AttemptWorkspace
 	proposalMemory         []review.ProposalMemory
 	repoChangeJobs         map[string]improvement.RepoChangeJob
 	prAttempts             map[string]improvement.PRAttempt

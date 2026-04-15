@@ -11,7 +11,7 @@ READ_ONLY_HONCHO_TOOLS = frozenset({"honcho_profile", "honcho_search", "honcho_c
 BLOCKED_HONCHO_TOOLS = frozenset({"honcho_conclude"})
 
 
-_TOOL_SCHEMAS: dict[str, dict[str, Any]] = {
+_READ_ONLY_TOOL_SCHEMAS: dict[str, dict[str, Any]] = {
     "repo.context": {
         "name": "repo.context",
         "description": "Read-only repository context lookup for the current repo or a named repo.",
@@ -158,8 +158,114 @@ _TOOL_SCHEMAS: dict[str, dict[str, Any]] = {
     },
 }
 
+_WORKSPACE_TOOL_SCHEMAS: dict[str, dict[str, Any]] = {
+    "workspace.list_files": {
+        "name": "workspace.list_files",
+        "description": "List files inside the governed attempt workspace.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "workspace_id": {"type": "string"},
+                "attempt_id": {"type": "string"},
+                "path": {"type": "string"},
+            },
+        },
+    },
+    "workspace.read_file": {
+        "name": "workspace.read_file",
+        "description": "Read a file from the governed attempt workspace.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "workspace_id": {"type": "string"},
+                "attempt_id": {"type": "string"},
+                "path": {"type": "string"},
+            },
+            "required": ["path"],
+        },
+    },
+    "workspace.search": {
+        "name": "workspace.search",
+        "description": "Search for text within the governed attempt workspace using ripgrep.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "workspace_id": {"type": "string"},
+                "attempt_id": {"type": "string"},
+                "path": {"type": "string"},
+                "pattern": {"type": "string"},
+            },
+            "required": ["pattern"],
+        },
+    },
+    "workspace.write_file": {
+        "name": "workspace.write_file",
+        "description": "Write file content inside the governed attempt workspace.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "workspace_id": {"type": "string"},
+                "attempt_id": {"type": "string"},
+                "path": {"type": "string"},
+                "content": {"type": "string"},
+            },
+            "required": ["path", "content"],
+        },
+    },
+    "workspace.apply_patch": {
+        "name": "workspace.apply_patch",
+        "description": "Apply a unified diff patch inside the governed attempt workspace.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "workspace_id": {"type": "string"},
+                "attempt_id": {"type": "string"},
+                "patch": {"type": "string"},
+            },
+            "required": ["patch"],
+        },
+    },
+    "workspace.git_status": {
+        "name": "workspace.git_status",
+        "description": "Inspect git status inside the governed attempt workspace.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "workspace_id": {"type": "string"},
+                "attempt_id": {"type": "string"},
+            },
+        },
+    },
+    "workspace.git_diff": {
+        "name": "workspace.git_diff",
+        "description": "Inspect the current git diff inside the governed attempt workspace.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "workspace_id": {"type": "string"},
+                "attempt_id": {"type": "string"},
+            },
+        },
+    },
+    "workspace.run_validation": {
+        "name": "workspace.run_validation",
+        "description": "Run bounded validation inside the governed attempt workspace.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "workspace_id": {"type": "string"},
+                "attempt_id": {"type": "string"},
+                "command": {"type": "string"},
+            },
+        },
+    },
+}
 
-READ_ONLY_RSI_TOOL_NAMES = tuple(sorted(_TOOL_SCHEMAS.keys()))
+_TOOL_SCHEMAS = {**_READ_ONLY_TOOL_SCHEMAS, **_WORKSPACE_TOOL_SCHEMAS}
+
+READ_ONLY_RSI_TOOL_NAMES = tuple(sorted(_READ_ONLY_TOOL_SCHEMAS.keys()))
+WORKSPACE_RSI_TOOL_NAMES = tuple(sorted(_WORKSPACE_TOOL_SCHEMAS.keys()))
+IMPLEMENT_RSI_TOOL_NAMES = tuple(sorted(_TOOL_SCHEMAS.keys()))
 
 
 def tool_schema_wrappers(names: Iterable[str]) -> list[dict[str, Any]]:
@@ -194,13 +300,16 @@ class ReadOnlyToolBinding:
     session_scope_kind: str
     session_scope_id: str
     context_refs: list[dict[str, Any]]
+    execution_mode: str = ""
+    attempt_id: str = ""
+    workspace_id: str = ""
     timeout_seconds: int = 30
 
     def has_tool(self, name: str) -> bool:
         return name in _TOOL_SCHEMAS
 
     def tool_names(self) -> list[str]:
-        return list(READ_ONLY_RSI_TOOL_NAMES)
+        return list(IMPLEMENT_RSI_TOOL_NAMES)
 
     def handle_tool_call(self, name: str, args: dict[str, Any]) -> str:
         payload = self._default_payload(name)
@@ -277,6 +386,11 @@ class ReadOnlyToolBinding:
             attempt_id = self._attempt_id_from_context_refs()
             if attempt_id:
                 payload["attempt_id"] = attempt_id
+        if name.startswith("workspace."):
+            if self.workspace_id:
+                payload["workspace_id"] = self.workspace_id
+            if self.attempt_id:
+                payload["attempt_id"] = self.attempt_id
         return payload
 
     def _attempt_id_from_context_refs(self) -> str:

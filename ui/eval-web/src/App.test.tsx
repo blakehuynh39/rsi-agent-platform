@@ -266,6 +266,60 @@ const proposalListResponse = {
 
 const proposalDetailResponse = {
   proposal: proposalListResponse.proposals[0],
+  attempts: [
+    {
+      id: "attempt-001",
+      proposal_id: "proposal-001",
+      candidate_key: "shared-store:action_result_pkey",
+      attempt_number: 1,
+      target_layer: "repo_change",
+      target_kind: "repo",
+      target_ref: "rsi-agent-platform",
+      trigger: "proposal_approved",
+      state: "pr_open",
+      branch_name: "codex/proposal-001",
+      diff_summary: "Update persistence contract.",
+      changed_files: ["internal/store/postgres.go"],
+      validation_summary: "make test passed in workspace",
+      change_plan: "Patch direct write path and keep action result identity append-only.",
+      validation_plan: "make test",
+      created_at: "2026-04-11T12:24:00Z",
+      updated_at: "2026-04-11T12:30:00Z"
+    }
+  ],
+  attempt_workspaces: [
+    {
+      id: "workspace-001",
+      attempt_id: "attempt-001",
+      proposal_id: "proposal-001",
+      repo: "rsi-agent-platform",
+      base_ref: "main",
+      branch_name: "codex/proposal-001",
+      namespace: "rsi-platform",
+      job_name: "rsi-workspace-attempt-001",
+      pod_name: "rsi-workspace-attempt-001-pod",
+      status: "ready",
+      allowed_path_globs: ["internal/**", "cmd/**"],
+      diff_summary: "1 file changed",
+      created_at: "2026-04-11T12:24:00Z",
+      updated_at: "2026-04-11T12:30:00Z"
+    }
+  ],
+  operations: [
+    {
+      id: "op-001",
+      scope_kind: "proposal",
+      scope_id: "proposal-001",
+      operation_kind: "pr_open",
+      operation_key: "proposal-001:pr_open",
+      status: "completed",
+      queue: "improvement",
+      retry_count: 0,
+      attempt_id: "attempt-001",
+      started_at: "2026-04-11T12:28:00Z",
+      completed_at: "2026-04-11T12:30:00Z"
+    }
+  ],
   reviews: [],
   related_proposal_memory: [],
   repo_change_jobs: [

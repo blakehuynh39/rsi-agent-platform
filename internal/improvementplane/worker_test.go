@@ -34,6 +34,17 @@ func (f fakeLauncher) ObserveJob(context.Context, string, string) (sandbox.JobOb
 	return f.observation, f.err
 }
 
+func (f fakeLauncher) ResolvePod(context.Context, string, string) (string, error) {
+	if strings.TrimSpace(f.observation.PodName) == "" {
+		return "", errors.New("not implemented")
+	}
+	return f.observation.PodName, f.err
+}
+
+func (f fakeLauncher) Exec(context.Context, string, string, []string) (sandbox.ExecResult, error) {
+	return sandbox.ExecResult{}, errors.New("not implemented")
+}
+
 func TestProcessSandboxWatchReschedulesCurrentLeaseUntilTerminal(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	now := time.Now().UTC()
@@ -234,7 +245,7 @@ func TestBuildProposalRunnerTaskUsesReadOnlyToolBudget(t *testing.T) {
 		DefaultRepo:               "depin-backend",
 		AllowedTargetRepos:        []string{"depin-backend", "rsi-agent-platform"},
 		DefaultReasoningVerbosity: "verbose",
-	}, store, trace, proposal, attempt, store.ListProposalMemories())
+	}, store, trace, proposal, attempt, nil, store.ListProposalMemories())
 
 	if task.TimeoutSeconds != 420 {
 		t.Fatalf("proposal timeout = %d, want 420", task.TimeoutSeconds)

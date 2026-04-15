@@ -15,6 +15,7 @@ export function ProposalDetail(props: {
   const actionIntents = listOrEmpty(props.detail.action_intents);
   const actionResults = listOrEmpty(props.detail.action_results);
   const attempts = listOrEmpty(props.detail.attempts);
+  const workspaces = listOrEmpty(props.detail.attempt_workspaces);
   const operations = listOrEmpty(props.detail.operations);
   const lineOperations = operations.filter((item) => item.scope_kind === "proposal");
   return (
@@ -96,7 +97,7 @@ export function ProposalDetail(props: {
             <button className="secondary" onClick={() => props.onDecision("dismissed")}>Dismiss line</button>
             <button className="secondary" onClick={() => props.onDecision("rejected")}>Reject line</button>
             <button className="secondary" onClick={() => props.onDecision("merged")}>Mark merged</button>
-            {props.canRetry ? <button className="secondary" onClick={props.onRetry}>Resume line</button> : null}
+            {props.canRetry ? <button className="secondary" onClick={props.onRetry}>Resume attempt</button> : null}
             {props.canStop ? <button className="secondary" onClick={props.onStop}>Stop line</button> : null}
           </div>
         </div>
@@ -108,6 +109,7 @@ export function ProposalDetail(props: {
           {attempts.map((attempt) => {
             const attemptJobs = listOrEmpty(props.detail.repo_change_jobs).filter((job) => job.attempt_id === attempt.id);
             const attemptPRs = listOrEmpty(props.detail.pr_attempts).filter((item) => item.attempt_id === attempt.id);
+            const attemptWorkspace = workspaces.find((item) => item.attempt_id === attempt.id);
             const attemptOperations = operations.filter((item) => item.attempt_id === attempt.id || (item.scope_kind === "attempt" && item.scope_id === attempt.id));
             return (
               <div key={attempt.id} className="nested-card">
@@ -118,6 +120,18 @@ export function ProposalDetail(props: {
                 <p className="detail-copy">{attempt.change_plan || attempt.failure_summary || attempt.validation_summary || "No attempt summary recorded."}</p>
                 <p className="muted">Trigger: {attempt.trigger} · Branch: {attempt.branch_name || "n/a"}</p>
                 <p className="muted">Failure: {attempt.failure_class || "n/a"} · Retry: {attempt.retry_decision || "n/a"}</p>
+                {attemptWorkspace ? (
+                  <p className="muted">
+                    Workspace: {attemptWorkspace.status}
+                    {attemptWorkspace.repo ? ` · ${attemptWorkspace.repo}` : ""}
+                    {attemptWorkspace.branch_name ? ` · ${attemptWorkspace.branch_name}` : ""}
+                    {attemptWorkspace.pod_name ? ` · pod ${attemptWorkspace.pod_name}` : ""}
+                  </p>
+                ) : null}
+                {attemptWorkspace?.diff_summary ? <p className="muted">Diff: {attemptWorkspace.diff_summary}</p> : null}
+                {listOrEmpty(attemptWorkspace?.allowed_path_globs).length ? (
+                  <p className="muted">Allowed paths: {listOrEmpty(attemptWorkspace?.allowed_path_globs).join(", ")}</p>
+                ) : null}
                 {listOrEmpty(attempt.changed_files).length ? (
                   <p className="muted">Files: {listOrEmpty(attempt.changed_files).join(", ")}</p>
                 ) : null}

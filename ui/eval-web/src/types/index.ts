@@ -494,6 +494,25 @@ export type PRAttempt = {
   created_at: string;
 };
 
+export type AttemptWorkspace = {
+  id: string;
+  attempt_id: string;
+  proposal_id: string;
+  repo: string;
+  base_ref?: string;
+  branch_name: string;
+  namespace?: string;
+  job_name?: string;
+  pod_name?: string;
+  status: string;
+  allowed_path_globs?: NullableList<string>;
+  head_sha?: string;
+  diff_summary?: string;
+  created_at: string;
+  updated_at: string;
+  expires_at?: string;
+};
+
 export type ChangeAttempt = {
   id: string;
   proposal_id: string;
@@ -560,6 +579,7 @@ export type ProposalResponse = {
 export type ProposalDetailResponse = {
   proposal: Proposal;
   attempts: NullableList<ChangeAttempt>;
+  attempt_workspaces: NullableList<AttemptWorkspace>;
   operations: NullableList<OperationExecution>;
   reviews: NullableList<ProposalReview>;
   related_proposal_memory: NullableList<ProposalMemory>;

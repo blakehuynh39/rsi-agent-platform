@@ -11,9 +11,11 @@ from .config import RunnerConfig
 from .rsi_tools import (
     BLOCKED_HONCHO_TOOLS,
     CompositeToolProvider,
+    IMPLEMENT_RSI_TOOL_NAMES,
     READ_ONLY_HONCHO_TOOLS,
     READ_ONLY_RSI_TOOL_NAMES,
     ReadOnlyToolBinding,
+    WORKSPACE_RSI_TOOL_NAMES,
     normalize_tool_names,
     tool_schema_wrappers,
 )
@@ -66,6 +68,7 @@ class RunnerTaskRequest:
     artifact_destination: str | None
     context_summary: str | None
     rejected_proposal_context: List[Dict[str, Any]]
+    execution_mode: str | None
     intent: str | None
     trace_id: str | None
     workflow_id: str | None
@@ -90,6 +93,11 @@ class RunnerTaskRequest:
     memory_backend: str | None
     assistant_peer_id: str | None
     user_peer_id: str | None
+    attempt_id: str | None
+    workspace_id: str | None
+    workspace_repo: str | None
+    workspace_branch: str | None
+    allowed_path_globs: List[str]
 
     @classmethod
     def from_payload(cls, payload: Dict[str, Any]) -> "RunnerTaskRequest":
@@ -107,6 +115,7 @@ class RunnerTaskRequest:
             artifact_destination=task.get("artifact_destination"),
             context_summary=task.get("context_summary"),
             rejected_proposal_context=list(task.get("rejected_proposal_context", [])),
+            execution_mode=task.get("execution_mode"),
             intent=task.get("intent"),
             trace_id=task.get("trace_id"),
             workflow_id=task.get("workflow_id"),
@@ -131,6 +140,11 @@ class RunnerTaskRequest:
             memory_backend=task.get("memory_backend"),
             assistant_peer_id=task.get("assistant_peer_id"),
             user_peer_id=task.get("user_peer_id"),
+            attempt_id=task.get("attempt_id"),
+            workspace_id=task.get("workspace_id"),
+            workspace_repo=task.get("workspace_repo"),
+            workspace_branch=task.get("workspace_branch"),
+            allowed_path_globs=[str(item) for item in task.get("allowed_path_globs", [])],
         )
 
 
@@ -394,6 +408,8 @@ class HermesRuntime:
                 custom_tools=[],
             )
         permitted = set(READ_ONLY_HONCHO_TOOLS) | set(READ_ONLY_RSI_TOOL_NAMES)
+        if self._role == "proposal" and (task.execution_mode or "").strip().lower() == "implement":
+            permitted = permitted | set(WORKSPACE_RSI_TOOL_NAMES)
         effective = normalize_tool_names(requested or sorted(permitted))
         effective = [name for name in effective if name in permitted]
         blocked = [name for name in requested if name not in permitted]
@@ -436,6 +452,9 @@ class HermesRuntime:
                 session_scope_kind=task.session_scope_kind or "",
                 session_scope_id=task.session_scope_id or "",
                 context_refs=task.context_refs,
+                execution_mode=task.execution_mode or "",
+                attempt_id=task.attempt_id or "",
+                workspace_id=task.workspace_id or "",
             )
             agent._memory_manager = CompositeToolProvider(getattr(agent, "_memory_manager", None), readonly_tools)
         elif self._role in {"eval", "proposal"} and getattr(agent, "_memory_manager", None) is not None:
@@ -448,6 +467,9 @@ class HermesRuntime:
                 session_scope_kind=task.session_scope_kind or "",
                 session_scope_id=task.session_scope_id or "",
                 context_refs=task.context_refs,
+                execution_mode=task.execution_mode or "",
+                attempt_id=task.attempt_id or "",
+                workspace_id=task.workspace_id or "",
             ))
         if self._role in {"eval", "proposal"}:
             effective_names = set(tool_policy.effective)
@@ -516,6 +538,7 @@ class HermesRuntime:
             "artifact_destination": task.artifact_destination,
             "context_summary": task.context_summary,
             "rejected_proposal_context": task.rejected_proposal_context,
+            "execution_mode": task.execution_mode,
             "intent": task.intent,
             "trace_id": task.trace_id,
             "workflow_id": task.workflow_id,
@@ -537,6 +560,11 @@ class HermesRuntime:
             "memory_backend": task.memory_backend,
             "assistant_peer_id": task.assistant_peer_id,
             "user_peer_id": task.user_peer_id,
+            "attempt_id": task.attempt_id,
+            "workspace_id": task.workspace_id,
+            "workspace_repo": task.workspace_repo,
+            "workspace_branch": task.workspace_branch,
+            "allowed_path_globs": task.allowed_path_globs,
             "structured_output": structured_output,
         }
         return result
@@ -563,8 +591,20 @@ class HermesRuntime:
             parts.append(f"Workflow ID: {task.workflow_id}")
         if task.context_summary:
             parts.append(f"Context: {task.context_summary}")
+        if task.execution_mode:
+            parts.append(f"Execution mode: {task.execution_mode}")
         if task.context_refs:
             parts.append(f"Context refs: {json.dumps(task.context_refs)}")
+        if task.attempt_id:
+            parts.append(f"Attempt ID: {task.attempt_id}")
+        if task.workspace_id:
+            parts.append(f"Workspace ID: {task.workspace_id}")
+        if task.workspace_repo:
+            parts.append(f"Workspace repo: {task.workspace_repo}")
+        if task.workspace_branch:
+            parts.append(f"Workspace branch: {task.workspace_branch}")
+        if task.allowed_path_globs:
+            parts.append(f"Allowed path globs: {', '.join(task.allowed_path_globs)}")
         if task.allowed_tools:
             parts.append(f"Requested allowed tools: {', '.join(task.allowed_tools)}")
         if task.tool_allowlist:
@@ -600,7 +640,7 @@ class HermesRuntime:
         if task.memory_backend:
             parts.append(f"Memory backend: {task.memory_backend}")
         parts.append(f"Timeout seconds: {task.timeout_seconds}")
-        parts.append("Use only the effective tool allowlist above. Proposal and eval roles are read-only; they must not mutate repos, launch jobs, open PRs, or post to Slack.")
+        parts.append("Use only the effective tool allowlist above. Eval is read-only. Proposal investigate mode is read-only. Proposal implement mode may mutate only through governed workspace tools inside the bound workspace; it must not mutate GitHub directly, launch jobs, or post to Slack.")
         parts.append(
             "Return a JSON object with keys: visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, outcome_hypotheses, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta."
         )
@@ -613,9 +653,14 @@ class HermesRuntime:
         parts.append(
             "Each outcome hypothesis must include: outcome_type, success_condition, measurement_ref, expected_time_horizon."
         )
-        parts.append(
-            "For proposal or repo-change tasks, change_plan must explain the concrete remediation, repo_patch must contain a unified diff when target_layer is repo_change, validation_plan must name the checks to run, retry_assessment must include failure_class, failure_summary, retry_decision, material_hypothesis_change, and changed_files, and hypothesis_delta must explain what changed from the prior failed attempt."
-        )
+        if (task.execution_mode or "").strip().lower() == "implement":
+            parts.append(
+                "For proposal implement tasks, use the bound workspace tools to inspect, edit, diff, and validate inside the workspace. repo_patch is optional legacy output only; the authoritative patch is the workspace git diff. If local validation succeeds and opening a draft PR is warranted, include exactly one proposed action with kind=draft_pr_open and request_payload containing title, body, branch_name, base_ref, and rationale."
+            )
+        else:
+            parts.append(
+                "For proposal or repo-change investigate tasks, change_plan must explain the concrete remediation, repo_patch should contain a unified diff when target_layer is repo_change, validation_plan must name the checks to run, retry_assessment must include failure_class, failure_summary, retry_decision, material_hypothesis_change, and changed_files, and hypothesis_delta must explain what changed from the prior failed attempt."
+            )
         parts.append(f"Task prompt:\n{task.prompt}")
         return "\n".join(parts)
 

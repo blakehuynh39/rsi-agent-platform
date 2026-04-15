@@ -141,6 +141,37 @@ type ChangeAttempt struct {
 	UpdatedAt                time.Time            `json:"updated_at"`
 }
 
+type AttemptWorkspaceStatus string
+
+const (
+	WorkspaceQueued     AttemptWorkspaceStatus = "queued"
+	WorkspaceReady      AttemptWorkspaceStatus = "ready"
+	WorkspaceExecuting  AttemptWorkspaceStatus = "executing"
+	WorkspaceValidating AttemptWorkspaceStatus = "validating"
+	WorkspaceCompleted  AttemptWorkspaceStatus = "completed"
+	WorkspaceFailed     AttemptWorkspaceStatus = "failed"
+	WorkspaceClosed     AttemptWorkspaceStatus = "closed"
+)
+
+type AttemptWorkspace struct {
+	ID               string                 `json:"id"`
+	AttemptID        string                 `json:"attempt_id"`
+	ProposalID       string                 `json:"proposal_id"`
+	Repo             string                 `json:"repo"`
+	BaseRef          string                 `json:"base_ref"`
+	BranchName       string                 `json:"branch_name"`
+	Namespace        string                 `json:"namespace,omitempty"`
+	JobName          string                 `json:"job_name,omitempty"`
+	PodName          string                 `json:"pod_name,omitempty"`
+	Status           AttemptWorkspaceStatus `json:"status"`
+	AllowedPathGlobs []string               `json:"allowed_path_globs,omitempty"`
+	HeadSHA          string                 `json:"head_sha,omitempty"`
+	DiffSummary      string                 `json:"diff_summary,omitempty"`
+	CreatedAt        time.Time              `json:"created_at"`
+	UpdatedAt        time.Time              `json:"updated_at"`
+	ExpiresAt        *time.Time             `json:"expires_at,omitempty"`
+}
+
 type RepoChangeJob struct {
 	ID               string    `json:"id"`
 	ProposalID       string    `json:"proposal_id"`

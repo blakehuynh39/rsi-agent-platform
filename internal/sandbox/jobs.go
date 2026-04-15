@@ -110,6 +110,11 @@ type JobObservation struct {
 	Logs               string   `json:"logs,omitempty"`
 }
 
+type ExecResult struct {
+	Stdout string `json:"stdout,omitempty"`
+	Stderr string `json:"stderr,omitempty"`
+}
+
 var nonAlnum = regexp.MustCompile(`[^a-z0-9-]+`)
 
 func BuildJob(cfg config.Config, req JobRequest) JobManifest {

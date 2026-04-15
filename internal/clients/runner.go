@@ -22,6 +22,7 @@ type RunnerTask struct {
 	ArtifactDestination       string           `json:"artifact_destination,omitempty"`
 	ContextSummary            string           `json:"context_summary,omitempty"`
 	RejectedProposalContext   []map[string]any `json:"rejected_proposal_context,omitempty"`
+	ExecutionMode             string           `json:"execution_mode,omitempty"`
 	Intent                    string           `json:"intent,omitempty"`
 	TraceID                   string           `json:"trace_id,omitempty"`
 	WorkflowID                string           `json:"workflow_id,omitempty"`
@@ -46,6 +47,11 @@ type RunnerTask struct {
 	MemoryBackend             string           `json:"memory_backend,omitempty"`
 	AssistantPeerID           string           `json:"assistant_peer_id,omitempty"`
 	UserPeerID                string           `json:"user_peer_id,omitempty"`
+	AttemptID                 string           `json:"attempt_id,omitempty"`
+	WorkspaceID               string           `json:"workspace_id,omitempty"`
+	WorkspaceRepo             string           `json:"workspace_repo,omitempty"`
+	WorkspaceBranch           string           `json:"workspace_branch,omitempty"`
+	AllowedPathGlobs          []string         `json:"allowed_path_globs,omitempty"`
 }
 
 type RunnerResponse struct {

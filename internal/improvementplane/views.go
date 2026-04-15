@@ -121,33 +121,35 @@ type traceDetailResponse struct {
 }
 
 type proposalDetailResponse struct {
-	Proposal              review.Proposal               `json:"proposal"`
-	Attempts              []improvement.ChangeAttempt   `json:"attempts"`
-	Operations            []operation.Execution         `json:"operations"`
-	Reviews               []review.ProposalReview       `json:"reviews"`
-	RelatedProposalMemory []review.ProposalMemory       `json:"related_proposal_memory"`
-	RepoChangeJobs        []improvement.RepoChangeJob   `json:"repo_change_jobs"`
-	PRAttempts            []improvement.PRAttempt       `json:"pr_attempts"`
-	PostMergeReplays      []improvement.PostMergeReplay `json:"post_merge_replays"`
-	LinkedTraceSummaries  []traceAttemptSummary         `json:"linked_trace_summaries"`
-	LinkedEvalRuns        []evals.Run                   `json:"linked_eval_runs"`
-	ActionIntents         []action.Intent               `json:"action_intents"`
-	ActionResults         []action.Result               `json:"action_results"`
-	Outcomes              []outcome.Record              `json:"outcomes"`
-	KnowledgeEntries      []knowledge.Entry             `json:"knowledge_entries"`
-	HarnessExecutions     []harness.Execution           `json:"harness_executions"`
+	Proposal              review.Proposal                `json:"proposal"`
+	Attempts              []improvement.ChangeAttempt    `json:"attempts"`
+	AttemptWorkspaces     []improvement.AttemptWorkspace `json:"attempt_workspaces"`
+	Operations            []operation.Execution          `json:"operations"`
+	Reviews               []review.ProposalReview        `json:"reviews"`
+	RelatedProposalMemory []review.ProposalMemory        `json:"related_proposal_memory"`
+	RepoChangeJobs        []improvement.RepoChangeJob    `json:"repo_change_jobs"`
+	PRAttempts            []improvement.PRAttempt        `json:"pr_attempts"`
+	PostMergeReplays      []improvement.PostMergeReplay  `json:"post_merge_replays"`
+	LinkedTraceSummaries  []traceAttemptSummary          `json:"linked_trace_summaries"`
+	LinkedEvalRuns        []evals.Run                    `json:"linked_eval_runs"`
+	ActionIntents         []action.Intent                `json:"action_intents"`
+	ActionResults         []action.Result                `json:"action_results"`
+	Outcomes              []outcome.Record               `json:"outcomes"`
+	KnowledgeEntries      []knowledge.Entry              `json:"knowledge_entries"`
+	HarnessExecutions     []harness.Execution            `json:"harness_executions"`
 }
 
 type attemptDetailResponse struct {
-	Attempt           improvement.ChangeAttempt   `json:"attempt"`
-	Trace             *events.Trace               `json:"trace,omitempty"`
-	Operations        []operation.Execution       `json:"operations"`
-	ActionIntents     []action.Intent             `json:"action_intents"`
-	ActionResults     []action.Result             `json:"action_results"`
-	Outcomes          []outcome.Record            `json:"outcomes"`
-	RepoChangeJobs    []improvement.RepoChangeJob `json:"repo_change_jobs"`
-	PRAttempts        []improvement.PRAttempt     `json:"pr_attempts"`
-	HarnessExecutions []harness.Execution         `json:"harness_executions"`
+	Attempt           improvement.ChangeAttempt     `json:"attempt"`
+	Trace             *events.Trace                 `json:"trace,omitempty"`
+	Workspace         *improvement.AttemptWorkspace `json:"workspace,omitempty"`
+	Operations        []operation.Execution         `json:"operations"`
+	ActionIntents     []action.Intent               `json:"action_intents"`
+	ActionResults     []action.Result               `json:"action_results"`
+	Outcomes          []outcome.Record              `json:"outcomes"`
+	RepoChangeJobs    []improvement.RepoChangeJob   `json:"repo_change_jobs"`
+	PRAttempts        []improvement.PRAttempt       `json:"pr_attempts"`
+	HarnessExecutions []harness.Execution           `json:"harness_executions"`
 }
 
 type proposalListItem struct {
@@ -408,6 +410,7 @@ func buildProposalDetail(store storepkg.Repository, proposalID string) (proposal
 	traceSummaries := linkTraceSummaries(store.ListTraces(), proposal, store.ListPostMergeReplays())
 	actionIntents := listActionIntents(store, actionFilters{ProposalID: proposal.ID})
 	outcomes := listOutcomes(store, proposal.ConversationID, proposal.CaseID, "", proposal.ID)
+	workspaces := filterAttemptWorkspacesByProposal(store.ListAttemptWorkspaces(), proposal.ID)
 	extraEvidence := append([]string{}, proposal.EvidenceTraceIDs...)
 	extraEvidence = appendUniqueStrings(extraEvidence, proposal.OriginTraceID, proposal.TraceID)
 	for _, item := range outcomes {
@@ -416,6 +419,7 @@ func buildProposalDetail(store storepkg.Repository, proposalID string) (proposal
 	return proposalDetailResponse{
 		Proposal:              normalizeProposal(proposal),
 		Attempts:              sliceOrEmpty(attempts),
+		AttemptWorkspaces:     sliceOrEmpty(workspaces),
 		Operations:            sliceOrEmpty(proposalOperations(store, proposal.ID, attempts)),
 		Reviews:               sliceOrEmpty(proposal.Reviews),
 		RelatedProposalMemory: sliceOrEmpty(filterProposalMemory(store.ListProposalMemories(), proposal.CandidateKey)),
@@ -438,16 +442,22 @@ func buildAttemptDetail(store storepkg.Repository, proposalID string, attemptID 
 		return attemptDetailResponse{}, false
 	}
 	var trace *events.Trace
+	var workspace *improvement.AttemptWorkspace
 	if strings.TrimSpace(attempt.AttemptTraceID) != "" {
 		if item, ok := store.GetTrace(attempt.AttemptTraceID); ok {
 			normalized := normalizeTrace(item)
 			trace = &normalized
 		}
 	}
+	if item, ok := findAttemptWorkspaceByAttempt(store.ListAttemptWorkspaces(), attempt.ID); ok {
+		normalized := item
+		workspace = &normalized
+	}
 	actionIntents := filterActionIntentsByAttempt(listActionIntents(store, actionFilters{ProposalID: proposalID}), attempt.ID)
 	return attemptDetailResponse{
 		Attempt:           attempt,
 		Trace:             trace,
+		Workspace:         workspace,
 		Operations:        sliceOrEmpty(store.ListOperationsByScope(operation.ScopeAttempt, attempt.ID)),
 		ActionIntents:     sliceOrEmpty(actionIntents),
 		ActionResults:     sliceOrEmpty(flattenActionResults(store, actionIntents)),
@@ -899,6 +909,25 @@ func filterPRAttemptsByAttempt(items []improvement.PRAttempt, proposalID string,
 		}
 	}
 	return out
+}
+
+func filterAttemptWorkspacesByProposal(items []improvement.AttemptWorkspace, proposalID string) []improvement.AttemptWorkspace {
+	out := make([]improvement.AttemptWorkspace, 0)
+	for _, item := range items {
+		if item.ProposalID == proposalID {
+			out = append(out, item)
+		}
+	}
+	return out
+}
+
+func findAttemptWorkspaceByAttempt(items []improvement.AttemptWorkspace, attemptID string) (improvement.AttemptWorkspace, bool) {
+	for _, item := range items {
+		if item.AttemptID == attemptID {
+			return item, true
+		}
+	}
+	return improvement.AttemptWorkspace{}, false
 }
 
 func filterPostMergeReplays(items []improvement.PostMergeReplay, proposalID string) []improvement.PostMergeReplay {

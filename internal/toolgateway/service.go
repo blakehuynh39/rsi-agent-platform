@@ -22,6 +22,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/githubapp"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
+	"github.com/piplabs/rsi-agent-platform/internal/sandbox"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -34,6 +35,7 @@ type Service struct {
 	httpClient  *http.Client
 	slackClient *slackapi.Client
 	kubeClient  kubernetes.Interface
+	launcher    sandbox.Launcher
 }
 
 func NewService(cfg config.Config, store storepkg.Repository) *Service {
@@ -45,12 +47,17 @@ func NewService(cfg config.Config, store storepkg.Repository) *Service {
 	if clientset, err := cluster.NewClientset(cfg); err == nil {
 		kubeClient = clientset
 	}
+	var launcher sandbox.Launcher
+	if item, err := sandbox.NewLauncher(cfg); err == nil {
+		launcher = item
+	}
 	return &Service{
 		cfg:         cfg,
 		store:       store,
 		httpClient:  &http.Client{Timeout: 30 * time.Second},
 		slackClient: slackClient,
 		kubeClient:  kubeClient,
+		launcher:    launcher,
 	}
 }
 
@@ -86,6 +93,22 @@ func (s *Service) Execute(name string, input map[string]interface{}) storepkg.To
 		return s.rsiCandidateContext(input)
 	case "rsi.attempt_context":
 		return s.rsiAttemptContext(input)
+	case "workspace.list_files":
+		return s.workspaceListFiles(input)
+	case "workspace.read_file":
+		return s.workspaceReadFile(input)
+	case "workspace.search":
+		return s.workspaceSearch(input)
+	case "workspace.write_file":
+		return s.workspaceWriteFile(input)
+	case "workspace.apply_patch":
+		return s.workspaceApplyPatch(input)
+	case "workspace.git_status":
+		return s.workspaceGitStatus(input)
+	case "workspace.git_diff":
+		return s.workspaceGitDiff(input)
+	case "workspace.run_validation":
+		return s.workspaceRunValidation(input)
 	default:
 		return s.store.ExecuteTool(name, input)
 	}
@@ -1118,6 +1141,8 @@ func providerForToolName(name string) string {
 		return "cloudflare"
 	case strings.HasPrefix(name, "knowledge."):
 		return "knowledge"
+	case strings.HasPrefix(name, "workspace."):
+		return "sandbox"
 	case strings.HasPrefix(name, "rsi."):
 		return "rsi"
 	default:
@@ -1143,6 +1168,10 @@ func providerRefForTool(name string, output map[string]interface{}) string {
 		return stringValue(output["resource"])
 	case "knowledge.context":
 		return stringValue(output["topic"])
+	case "workspace.git_diff":
+		return stringValue(output["workspace_id"])
+	case "workspace.run_validation":
+		return stringValue(output["workspace_id"])
 	default:
 		return stringValue(output["repo"])
 	}

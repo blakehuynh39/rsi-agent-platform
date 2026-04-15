@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/url"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/piplabs/rsi-agent-platform/internal/cluster"
@@ -13,25 +15,35 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/remotecommand"
 )
 
 type Launcher interface {
 	Launch(ctx context.Context, req JobRequest) (Session, *batchv1.Job, error)
 	GetJob(ctx context.Context, namespace string, name string) (*batchv1.Job, error)
 	ObserveJob(ctx context.Context, namespace string, name string) (JobObservation, error)
+	ResolvePod(ctx context.Context, namespace string, jobName string) (string, error)
+	Exec(ctx context.Context, namespace string, podName string, command []string) (ExecResult, error)
 }
 
 type KubernetesLauncher struct {
 	cfg       config.Config
 	clientset kubernetes.Interface
+	restCfg   *rest.Config
 }
 
 func NewLauncher(cfg config.Config) (*KubernetesLauncher, error) {
-	clientset, err := cluster.NewClientset(cfg)
+	restCfg, err := cluster.NewConfig(cfg)
 	if err != nil {
 		return nil, err
 	}
-	return &KubernetesLauncher{cfg: cfg, clientset: clientset}, nil
+	clientset, err := kubernetes.NewForConfig(restCfg)
+	if err != nil {
+		return nil, fmt.Errorf("create kubernetes client: %w", err)
+	}
+	return &KubernetesLauncher{cfg: cfg, clientset: clientset, restCfg: restCfg}, nil
 }
 
 func NewLauncherWithClient(cfg config.Config, clientset kubernetes.Interface) *KubernetesLauncher {
@@ -111,6 +123,57 @@ func (l *KubernetesLauncher) ObserveJob(ctx context.Context, namespace string, n
 		}
 	}
 	return observation, nil
+}
+
+func (l *KubernetesLauncher) ResolvePod(ctx context.Context, namespace string, jobName string) (string, error) {
+	pods, err := l.clientset.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{
+		LabelSelector: fmt.Sprintf("job-name=%s", jobName),
+	})
+	if err != nil {
+		return "", fmt.Errorf("list sandbox pods: %w", err)
+	}
+	if len(pods.Items) == 0 {
+		return "", fmt.Errorf("no sandbox pod found for job %s", jobName)
+	}
+	sort.Slice(pods.Items, func(i, j int) bool {
+		return pods.Items[i].CreationTimestamp.Time.After(pods.Items[j].CreationTimestamp.Time)
+	})
+	return pods.Items[0].Name, nil
+}
+
+func (l *KubernetesLauncher) Exec(ctx context.Context, namespace string, podName string, command []string) (ExecResult, error) {
+	if l.restCfg == nil {
+		return ExecResult{}, fmt.Errorf("sandbox exec unavailable: rest config not configured")
+	}
+	if len(command) == 0 {
+		return ExecResult{}, fmt.Errorf("sandbox exec requires a command")
+	}
+	req := l.clientset.CoreV1().RESTClient().
+		Post().
+		Resource("pods").
+		Name(podName).
+		Namespace(namespace).
+		SubResource("exec")
+	req.VersionedParams(&corev1.PodExecOptions{
+		Container: "sandbox-runtime",
+		Command:   command,
+		Stdout:    true,
+		Stderr:    true,
+	}, scheme.ParameterCodec)
+	execURL, err := url.Parse(req.URL().String())
+	if err != nil {
+		return ExecResult{}, fmt.Errorf("sandbox exec url: %w", err)
+	}
+	executor, err := remotecommand.NewSPDYExecutor(l.restCfg, "POST", execURL)
+	if err != nil {
+		return ExecResult{}, fmt.Errorf("sandbox exec setup: %w", err)
+	}
+	var stdout, stderr strings.Builder
+	err = executor.StreamWithContext(ctx, remotecommand.StreamOptions{
+		Stdout: &stdout,
+		Stderr: &stderr,
+	})
+	return ExecResult{Stdout: stdout.String(), Stderr: stderr.String()}, err
 }
 
 func terminatedContainerState(pod corev1.Pod) *corev1.ContainerStateTerminated {
