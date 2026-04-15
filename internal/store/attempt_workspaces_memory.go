@@ -3,7 +3,6 @@ package store
 import (
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 )
@@ -49,19 +48,7 @@ func (s *MemoryStore) GetAttemptWorkspaceByAttempt(attemptID string) (improvemen
 func (s *MemoryStore) UpsertAttemptWorkspace(item improvement.AttemptWorkspace) (improvement.AttemptWorkspace, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	now := time.Now().UTC()
-	if item.ID == "" {
-		item.ID = nextID("ws", len(s.attemptWorkspaces)+1)
-	}
-	if item.CreatedAt.IsZero() {
-		item.CreatedAt = now
-	}
-	if item.UpdatedAt.IsZero() {
-		item.UpdatedAt = item.CreatedAt
-	}
-	item = normalizeAttemptWorkspace(item)
-	s.attemptWorkspaces[item.ID] = item
-	return item, nil
+	return s.upsertAttemptWorkspaceLocked(item)
 }
 
 func normalizeAttemptWorkspace(item improvement.AttemptWorkspace) improvement.AttemptWorkspace {

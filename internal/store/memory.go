@@ -112,6 +112,10 @@ type Store interface {
 	ClaimNextWorkItem(queues []queue.QueueName, holder string, lease time.Duration) (queue.WorkItem, bool, error)
 	CompleteWorkItem(id string) (queue.WorkItem, error)
 	FailWorkItem(id string, lastError string) (queue.WorkItem, error)
+	AdvanceProposalAttemptPhase(req ProposalAttemptPhaseAdvance) error
+	DeferProposalAttemptPhase(req ProposalAttemptPhaseDefer) error
+	FailProposalAttemptPhase(req ProposalAttemptPhaseFailure) error
+	ReconcileProposalAttemptPhase(proposalID string, requestedBy string) (queue.WorkItem, bool, error)
 	UpdateWorkflowStatus(workflowID string, status string, lastError string) (Workflow, error)
 	ApplyTraceUpdate(traceID string, update TraceUpdate) (events.Trace, error)
 	ListCandidates() []improvement.Candidate
@@ -1738,6 +1742,11 @@ func (s *MemoryStore) CompleteWorkItem(id string) (queue.WorkItem, error) {
 	if !ok {
 		return queue.WorkItem{}, errors.New("work item not found")
 	}
+	if item.OperationID != "" {
+		if op, ok := s.operations[item.OperationID]; ok && isProposalAttemptPhaseOperation(item, op) {
+			return queue.WorkItem{}, fmt.Errorf("proposal phase work item %s must be finalized via proposal phase transition methods", item.ID)
+		}
+	}
 	now := time.Now().UTC()
 	item.Status = queue.WorkCompleted
 	item.UpdatedAt = now
@@ -1763,6 +1772,11 @@ func (s *MemoryStore) FailWorkItem(id string, lastError string) (queue.WorkItem,
 	item, ok := s.workItems[id]
 	if !ok {
 		return queue.WorkItem{}, errors.New("work item not found")
+	}
+	if item.OperationID != "" {
+		if op, ok := s.operations[item.OperationID]; ok && isProposalAttemptPhaseOperation(item, op) {
+			return queue.WorkItem{}, fmt.Errorf("proposal phase work item %s must be finalized via proposal phase transition methods", item.ID)
+		}
 	}
 	now := time.Now().UTC()
 	item.Status = queue.WorkFailed
@@ -1811,6 +1825,10 @@ func (s *MemoryStore) updateWorkflowStatusLocked(workflowID string, status strin
 func (s *MemoryStore) ApplyTraceUpdate(traceID string, update TraceUpdate) (events.Trace, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	return s.applyTraceUpdateLocked(traceID, update)
+}
+
+func (s *MemoryStore) applyTraceUpdateLocked(traceID string, update TraceUpdate) (events.Trace, error) {
 	trace, ok := s.traces[traceID]
 	if !ok {
 		return events.Trace{}, errors.New("trace not found")
@@ -2682,14 +2700,7 @@ func (s *MemoryStore) ReviewProposal(proposalID string, decision review.Proposal
 func (s *MemoryStore) UpdateProposalStatus(proposalID string, status review.ProposalStatus) (review.Proposal, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	proposal, ok := s.proposals[proposalID]
-	if !ok {
-		return review.Proposal{}, errors.New("proposal not found")
-	}
-	proposal.Status = status
-	proposal.ActiveSlotConsuming = review.ConsumesActiveProposalSlot(status)
-	s.proposals[proposalID] = proposal
-	return proposal, nil
+	return s.updateProposalStatusLocked(proposalID, status)
 }
 
 func (s *MemoryStore) MaterializeApprovedProposal(proposalID string, requestedBy string) (improvement.RepoChangeJob, error) {
@@ -2814,6 +2825,19 @@ func (s *MemoryStore) RetryProposalRepoChange(proposalID string, requestedBy str
 	proposal, ok := s.proposals[proposalID]
 	if !ok {
 		return queue.WorkItem{}, errors.New("proposal not found")
+	}
+	if (proposal.Status == review.ProposalRepoChangeQueued || proposal.Status == review.ProposalValidationPending) && strings.TrimSpace(proposal.CurrentAttemptID) != "" {
+		currentAttemptID := strings.TrimSpace(proposal.CurrentAttemptID)
+		if active, ok := activeRepoChangeResumeOperation(listOperationsByScopeLocked(s.operations, operation.ScopeAttempt, currentAttemptID)); ok {
+			if item, ok := findWorkItemByOperationLocked(s.workItems, active.ID); ok && (item.Status == queue.WorkQueued || item.Status == queue.WorkLeased) {
+				return item, nil
+			}
+		}
+	}
+	if item, queued, err := s.reconcileProposalAttemptPhaseLocked(proposalID, requestedBy); err != nil {
+		return queue.WorkItem{}, err
+	} else if queued || item.ID != "" {
+		return item, nil
 	}
 	var repoJob improvement.RepoChangeJob
 	found := false
@@ -3008,18 +3032,7 @@ func (s *MemoryStore) UpdateRepoChangeJobStatus(jobID string, status string) (im
 func (s *MemoryStore) UpsertRepoChangeJob(job improvement.RepoChangeJob) (improvement.RepoChangeJob, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	now := time.Now().UTC()
-	if job.ID == "" {
-		job.ID = nextID("job", len(s.repoChangeJobs)+1)
-	}
-	if job.CreatedAt.IsZero() {
-		job.CreatedAt = now
-	}
-	if job.UpdatedAt.IsZero() {
-		job.UpdatedAt = now
-	}
-	s.repoChangeJobs[job.ID] = job
-	return job, nil
+	return s.upsertRepoChangeJobLocked(job)
 }
 
 func (s *MemoryStore) ListPRAttempts() []improvement.PRAttempt {

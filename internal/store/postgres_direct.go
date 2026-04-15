@@ -12,6 +12,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
+	"github.com/piplabs/rsi-agent-platform/internal/operation"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
@@ -168,6 +169,12 @@ func replaceActionIntentScope(tx *sql.Tx, item action.Intent) error {
 	return persistActionIntents(tx, temp)
 }
 
+func replaceOperationScope(tx *sql.Tx, item operation.Execution) error {
+	temp := newSubsetStore()
+	temp.operations[item.ID] = item
+	return persistOperations(tx, temp)
+}
+
 func replaceActionResultScope(tx *sql.Tx, store *MemoryStore, actionIntentID string) error {
 	temp := newSubsetStore()
 	temp.actionResults[actionIntentID] = append([]action.Result(nil), store.actionResults[actionIntentID]...)
@@ -211,6 +218,12 @@ func replaceCandidateScope(tx *sql.Tx, store *MemoryStore, candidateKey string) 
 	temp := newSubsetStore()
 	temp.candidates[candidateKey] = candidate
 	return persistCandidates(tx, temp)
+}
+
+func replaceChangeAttemptScope(tx *sql.Tx, item improvement.ChangeAttempt) error {
+	temp := newSubsetStore()
+	temp.changeAttempts[item.ID] = item
+	return persistChangeAttempts(tx, temp)
 }
 
 func replaceAllCandidates(tx *sql.Tx, store *MemoryStore) error {
@@ -258,6 +271,12 @@ func replacePRAttemptScope(tx *sql.Tx, attempt improvement.PRAttempt) error {
 	temp := newSubsetStore()
 	temp.prAttempts[attempt.ID] = attempt
 	return persistPRAttempts(tx, temp)
+}
+
+func replaceAttemptWorkspaceScope(tx *sql.Tx, item improvement.AttemptWorkspace) error {
+	temp := newSubsetStore()
+	temp.attemptWorkspaces[item.ID] = item
+	return persistAttemptWorkspaces(tx, temp)
 }
 
 func replacePostMergeReplayScope(tx *sql.Tx, store *MemoryStore, proposalID string) error {

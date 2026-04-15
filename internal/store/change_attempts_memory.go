@@ -43,44 +43,7 @@ func (s *MemoryStore) GetChangeAttempt(attemptID string) (improvement.ChangeAtte
 func (s *MemoryStore) UpsertChangeAttempt(item improvement.ChangeAttempt) (improvement.ChangeAttempt, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	now := time.Now().UTC()
-	if item.ID == "" {
-		item.ID = nextID("attempt", len(s.changeAttempts)+1)
-	}
-	if item.CreatedAt.IsZero() {
-		item.CreatedAt = now
-	}
-	if item.UpdatedAt.IsZero() {
-		item.UpdatedAt = item.CreatedAt
-	}
-	item = normalizeChangeAttempt(item)
-	s.changeAttempts[item.ID] = item
-	if proposal, ok := s.proposals[item.ProposalID]; ok {
-		proposal.CurrentAttemptID = item.ID
-		if item.AttemptNumber > proposal.AttemptCount {
-			proposal.AttemptCount = item.AttemptNumber
-		}
-		proposal.AutoRetryBudgetRemaining = maxInt(0, defaultProposalRetryBudget-item.AttemptNumber)
-		proposal.LastFailureClass = item.FailureClass
-		s.proposals[proposal.ID] = proposal
-	}
-	if candidate, ok := s.candidates[item.CandidateKey]; ok {
-		candidate.LastAttemptID = item.ID
-		if item.AttemptNumber > candidate.AttemptCount {
-			candidate.AttemptCount = item.AttemptNumber
-		}
-		candidate.RetryableFailureClass = firstNonEmpty(item.FailureClass, candidate.RetryableFailureClass)
-		if strings.TrimSpace(string(item.TargetLayer)) != "" {
-			candidate.CurrentTargetLayer = item.TargetLayer
-		}
-		candidate.AutoRetryBudgetRemaining = maxInt(0, defaultProposalRetryBudget-item.AttemptNumber)
-		if candidate.LineStatus == "" {
-			candidate.LineStatus = improvement.LineActive
-		}
-		candidate.UpdatedAt = item.UpdatedAt
-		s.candidates[candidate.CandidateKey] = candidate
-	}
-	return item, nil
+	return s.upsertChangeAttemptLocked(item)
 }
 
 func (s *MemoryStore) StopProposalLine(proposalID string, requestedBy string, rationale string) (review.Proposal, error) {

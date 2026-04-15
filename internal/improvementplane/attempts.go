@@ -126,7 +126,8 @@ func ensureApprovedProposalWork(store storepkg.Store, trace events.Trace, reques
 		return nil
 	}
 	if attempt, ok := latestAttemptForProposal(store, proposal.ID); ok && !isAttemptTerminal(attempt.State) {
-		return nil
+		_, _, err := store.ReconcileProposalAttemptPhase(proposal.ID, requestedBy)
+		return err
 	}
 	nextAttemptNumber := maxInt(1, proposal.AttemptCount+1)
 	_, err := enqueueImprovementOperationWork(store, operation.Execution{
@@ -445,4 +446,130 @@ func recordAttemptFailure(cfg config.Config, store storepkg.Store, proposal revi
 		},
 	})
 	return nil
+}
+
+func recordProposalPhaseAttemptFailure(cfg config.Config, store storepkg.Store, proposal review.Proposal, attempt improvement.ChangeAttempt, trace events.Trace, item queue.WorkItem, failureClass string, failureSummary string, materialChange bool, trigger improvement.ChangeAttemptTrigger, workspace *improvement.AttemptWorkspace, job *improvement.RepoChangeJob) error {
+	now := time.Now().UTC()
+	switch failureClass {
+	case "sandbox_failure":
+		attempt.State = improvement.AttemptStateSandboxFailed
+	case "ci_regression":
+		attempt.State = improvement.AttemptStateCIFailed
+	case "closed_unmerged":
+		attempt.State = improvement.AttemptStateClosedUnmerged
+	default:
+		attempt.State = improvement.AttemptStateNeedsReview
+	}
+	retryDecision := "needs_review"
+	nextStatus := review.ProposalPendingReview
+	if shouldAutoRetryAttempt(attempt, failureClass, materialChange) {
+		retryDecision = "auto_retry"
+		nextStatus = review.ProposalApproved
+		attempt.RetryAfter = ptrTime(time.Now().UTC().Add(time.Minute))
+	} else {
+		attempt.State = improvement.AttemptStateNeedsReview
+		attempt.RetryAfter = nil
+	}
+	attempt.FailureClass = failureClass
+	attempt.FailureSummary = failureSummary
+	attempt.RetryDecision = retryDecision
+	attempt.MaterialHypothesisChange = materialChange
+	attempt.UpdatedAt = now
+	proposal.Status = nextStatus
+	proposal.NextRetryAction = retryDecision
+	if workspace != nil {
+		workspace.Status = improvement.WorkspaceFailed
+		workspace.UpdatedAt = now
+	}
+	if job != nil {
+		job.Status = string(review.ProposalFailedValidation)
+		job.ValidationError = failureSummary
+		job.UpdatedAt = now
+	}
+	traceUpdate := storepkg.TraceUpdate{
+		Status: ptrStatus(events.StatusFailed),
+		Events: []events.TraceEvent{
+			{
+				TraceID:     trace.Summary.TraceID,
+				IngestionID: trace.Summary.IngestionID,
+				WorkflowID:  trace.Summary.WorkflowID,
+				Plane:       "improvement",
+				Service:     cfg.ServiceName,
+				Actor:       "attempt-supervisor",
+				EventType:   "change_attempt.failed",
+				Status:      events.StatusFailed,
+				StartedAt:   now,
+				EndedAt:     ptrTime(now),
+				Description: failureSummary,
+			},
+		},
+		Reasoning: []events.ReasoningStep{
+			{
+				ID:         fmt.Sprintf("reason-attempt-failed-%d", now.UnixNano()),
+				TraceID:    trace.Summary.TraceID,
+				WorkflowID: trace.Summary.WorkflowID,
+				StepType:   "retry_decision",
+				Summary:    failureSummary,
+				Confidence: 0.88,
+				Decision:   retryDecision,
+				CreatedAt:  now,
+			},
+		},
+	}
+	req := storepkg.ProposalAttemptPhaseFailure{
+		ProposalID:    proposal.ID,
+		WorkItemID:    item.ID,
+		OperationID:   item.OperationID,
+		LastError:     failureSummary,
+		Proposal:      &proposal,
+		Attempt:       &attempt,
+		TraceID:       trace.Summary.TraceID,
+		TraceUpdate:   &traceUpdate,
+		Workspace:     workspace,
+		RepoChangeJob: job,
+	}
+	if shouldAutoRetryAttempt(attempt, failureClass, materialChange) {
+		nextAttemptNumber := attempt.AttemptNumber + 1
+		nextOp := operation.Execution{
+			ScopeKind:     operation.ScopeProposal,
+			ScopeID:       proposal.ID,
+			OperationKind: proposalOperationLineActivate,
+			OperationKey:  fmt.Sprintf("attempt-%02d", nextAttemptNumber),
+			Status:        operation.StatusQueued,
+			Queue:         queue.ProposalQueue,
+			RequestedBy:   cfg.ServiceName,
+			TraceID:       proposal.TraceID,
+			ProposalID:    proposal.ID,
+			AttemptID:     attempt.ID,
+			CreatedAt:     now,
+			UpdatedAt:     now,
+		}
+		nextItem := queue.WorkItem{
+			Queue:          queue.ProposalQueue,
+			Kind:           "approved_proposal",
+			Status:         queue.WorkQueued,
+			TraceID:        proposal.TraceID,
+			ConversationID: proposal.ConversationID,
+			CaseID:         proposal.CaseID,
+			TriggerEventID: proposal.OriginTraceID,
+			ProposalID:     proposal.ID,
+			RequestedBy:    cfg.ServiceName,
+			ApprovalMode:   "human_review",
+			CreatedAt:      now,
+			UpdatedAt:      now,
+			Payload: map[string]any{
+				"candidate_key":  proposal.CandidateKey,
+				"risk_tier":      proposal.RiskTier,
+				"trigger":        string(trigger),
+				"parent_attempt": attempt.ID,
+				"attempt_number": nextAttemptNumber,
+			},
+		}
+		req.NextOperation = &nextOp
+		req.NextWorkItem = &nextItem
+	}
+	if err := store.FailProposalAttemptPhase(req); err != nil {
+		return err
+	}
+	return errProposalPhaseFailed
 }

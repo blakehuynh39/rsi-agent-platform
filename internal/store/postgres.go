@@ -21,6 +21,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
+	"github.com/piplabs/rsi-agent-platform/internal/operation"
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/registry"
@@ -3664,6 +3665,20 @@ returning %s`, queueClause, nowUnixArg, statusQueuedArg, statusLeasedArg, nowArg
 
 func (p *PostgresStore) CompleteWorkItem(id string) (item queue.WorkItem, err error) {
 	err = p.withTx(func(tx *sql.Tx) error {
+		currentRow := tx.QueryRow(`select `+workItemSelectColumns()+` from work_item where id = $1`, id)
+		current, currentErr := scanWorkItem(currentRow)
+		if currentErr != nil {
+			return currentErr
+		}
+		if current.OperationID != "" {
+			op, opErr := selectOperationByIDTx(tx, current.OperationID)
+			if opErr != nil {
+				return opErr
+			}
+			if isProposalAttemptPhaseOperation(current, op) {
+				return fmt.Errorf("proposal phase work item %s must be finalized via proposal phase transition methods", current.ID)
+			}
+		}
 		now := time.Now().UTC()
 		row := tx.QueryRow(
 			`update work_item set status = $2, lease_owner = null, lease_expires_at = null, updated_at = $3, completed_at = $3 where id = $1 returning `+workItemSelectColumns(),
@@ -3685,6 +3700,20 @@ func (p *PostgresStore) CompleteWorkItem(id string) (item queue.WorkItem, err er
 
 func (p *PostgresStore) FailWorkItem(id string, lastError string) (item queue.WorkItem, err error) {
 	err = p.withTx(func(tx *sql.Tx) error {
+		currentRow := tx.QueryRow(`select `+workItemSelectColumns()+` from work_item where id = $1`, id)
+		current, currentErr := scanWorkItem(currentRow)
+		if currentErr != nil {
+			return currentErr
+		}
+		if current.OperationID != "" {
+			op, opErr := selectOperationByIDTx(tx, current.OperationID)
+			if opErr != nil {
+				return opErr
+			}
+			if isProposalAttemptPhaseOperation(current, op) {
+				return fmt.Errorf("proposal phase work item %s must be finalized via proposal phase transition methods", current.ID)
+			}
+		}
 		now := time.Now().UTC()
 		row := tx.QueryRow(
 			`update work_item set status = $2, lease_owner = null, lease_expires_at = null, last_error = $3, updated_at = $4, completed_at = $4 where id = $1 returning `+workItemSelectColumns(),
@@ -3816,6 +3845,27 @@ func (p *PostgresStore) MaterializeApprovedProposal(proposalID string, requested
 }
 
 func (p *PostgresStore) RetryProposalRepoChange(proposalID string, requestedBy string) (queue.WorkItem, error) {
+	if store, err := p.readStore(); err == nil {
+		for _, proposal := range store.ListProposals() {
+			if proposal.ID != proposalID {
+				continue
+			}
+			if (proposal.Status == review.ProposalRepoChangeQueued || proposal.Status == review.ProposalValidationPending) && strings.TrimSpace(proposal.CurrentAttemptID) != "" {
+				currentAttemptID := strings.TrimSpace(proposal.CurrentAttemptID)
+				if active, ok := activeRepoChangeResumeOperation(store.ListOperationsByScope(operation.ScopeAttempt, currentAttemptID)); ok {
+					if item, ok := queuedOrLeasedWorkItemByOperation(store.ListWorkItems(), active.ID); ok {
+						return item, nil
+					}
+				}
+			}
+			break
+		}
+	}
+	if item, queued, err := p.ReconcileProposalAttemptPhase(proposalID, requestedBy); err != nil {
+		return queue.WorkItem{}, err
+	} else if queued || item.ID != "" {
+		return item, nil
+	}
 	return p.retryProposalRepoChangeDirect(proposalID, requestedBy)
 }
 

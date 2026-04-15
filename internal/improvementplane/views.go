@@ -17,6 +17,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/operation"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
+	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
@@ -122,6 +123,7 @@ type traceDetailResponse struct {
 
 type proposalDetailResponse struct {
 	Proposal              review.Proposal                `json:"proposal"`
+	CurrentPhase          *proposalCurrentPhaseSummary   `json:"current_phase,omitempty"`
 	Attempts              []improvement.ChangeAttempt    `json:"attempts"`
 	AttemptWorkspaces     []improvement.AttemptWorkspace `json:"attempt_workspaces"`
 	Operations            []operation.Execution          `json:"operations"`
@@ -137,6 +139,16 @@ type proposalDetailResponse struct {
 	Outcomes              []outcome.Record               `json:"outcomes"`
 	KnowledgeEntries      []knowledge.Entry              `json:"knowledge_entries"`
 	HarnessExecutions     []harness.Execution            `json:"harness_executions"`
+}
+
+type proposalCurrentPhaseSummary struct {
+	AttemptID            string            `json:"attempt_id,omitempty"`
+	OperationID          string            `json:"operation_id,omitempty"`
+	OperationKind        string            `json:"operation_kind,omitempty"`
+	OperationStatus      operation.Status  `json:"operation_status,omitempty"`
+	WorkItemID           string            `json:"work_item_id,omitempty"`
+	WorkItemStatus       queue.WorkItemStatus `json:"work_item_status,omitempty"`
+	ReconciliationNeeded bool              `json:"reconciliation_needed"`
 }
 
 type attemptDetailResponse struct {
@@ -416,11 +428,13 @@ func buildProposalDetail(store storepkg.Repository, proposalID string) (proposal
 	for _, item := range outcomes {
 		extraEvidence = append(extraEvidence, item.ID)
 	}
+	operations := sliceOrEmpty(proposalOperations(store, proposal.ID, attempts))
 	return proposalDetailResponse{
 		Proposal:              normalizeProposal(proposal),
+		CurrentPhase:          buildProposalCurrentPhase(store, proposal, attempts, operations),
 		Attempts:              sliceOrEmpty(attempts),
 		AttemptWorkspaces:     sliceOrEmpty(workspaces),
-		Operations:            sliceOrEmpty(proposalOperations(store, proposal.ID, attempts)),
+		Operations:            operations,
 		Reviews:               sliceOrEmpty(proposal.Reviews),
 		RelatedProposalMemory: sliceOrEmpty(filterProposalMemory(store.ListProposalMemories(), proposal.CandidateKey)),
 		RepoChangeJobs:        sliceOrEmpty(filterRepoChangeJobs(store.ListRepoChangeJobs(), proposal.ID)),
@@ -434,6 +448,93 @@ func buildProposalDetail(store storepkg.Repository, proposalID string) (proposal
 		KnowledgeEntries:      sliceOrEmpty(relatedKnowledgeEntries(store, proposal.ConversationID, proposal.CaseID, proposal.OriginTraceID, proposal.ID, extraEvidence...)),
 		HarnessExecutions:     sliceOrEmpty(filterHarnessExecutions(store.ListHarnessExecutions(), proposal.OriginTraceID, proposal.ID)),
 	}, true
+}
+
+func buildProposalCurrentPhase(store storepkg.Repository, proposal review.Proposal, attempts []improvement.ChangeAttempt, operations []operation.Execution) *proposalCurrentPhaseSummary {
+	currentAttemptID := strings.TrimSpace(proposal.CurrentAttemptID)
+	if currentAttemptID == "" {
+		return nil
+	}
+	attempt, ok := findAttemptByID(attempts, currentAttemptID)
+	if !ok {
+		return &proposalCurrentPhaseSummary{
+			AttemptID:            currentAttemptID,
+			ReconciliationNeeded: true,
+		}
+	}
+	if op, ok := activeAttemptPhaseOperationView(operations, attempt.ID); ok {
+		summary := &proposalCurrentPhaseSummary{
+			AttemptID:       attempt.ID,
+			OperationID:     op.ID,
+			OperationKind:   op.OperationKind,
+			OperationStatus: op.Status,
+		}
+		if item, ok := workItemByOperation(store.ListWorkItems(), op.ID); ok {
+			summary.WorkItemID = item.ID
+			summary.WorkItemStatus = item.Status
+		}
+		return summary
+	}
+	return &proposalCurrentPhaseSummary{
+		AttemptID:            attempt.ID,
+		ReconciliationNeeded: !isAttemptTerminal(attempt.State),
+	}
+}
+
+func findAttemptByID(items []improvement.ChangeAttempt, attemptID string) (improvement.ChangeAttempt, bool) {
+	attemptID = strings.TrimSpace(attemptID)
+	for _, item := range items {
+		if strings.TrimSpace(item.ID) == attemptID {
+			return item, true
+		}
+	}
+	return improvement.ChangeAttempt{}, false
+}
+
+func activeAttemptPhaseOperationView(items []operation.Execution, attemptID string) (operation.Execution, bool) {
+	var best operation.Execution
+	found := false
+	attemptID = strings.TrimSpace(attemptID)
+	for _, item := range items {
+		if item.ScopeKind != operation.ScopeAttempt || strings.TrimSpace(item.ScopeID) != attemptID {
+			continue
+		}
+		kind := strings.TrimSpace(item.OperationKind)
+		if !isProposalAttemptPhaseKindView(kind) && kind != "sandbox_launch" && kind != "pr_open" {
+			continue
+		}
+		if item.Status != operation.StatusQueued && item.Status != operation.StatusRunning {
+			continue
+		}
+		if !found || item.UpdatedAt.After(best.UpdatedAt) {
+			best = item
+			found = true
+		}
+	}
+	return best, found
+}
+
+func isProposalAttemptPhaseKindView(kind string) bool {
+	switch strings.TrimSpace(kind) {
+	case proposalOperationLineActivate,
+		proposalOperationAttemptPlan,
+		proposalOperationWorkspaceOpen,
+		proposalOperationImplementAttempt,
+		proposalOperationWorkspaceValidate:
+		return true
+	default:
+		return false
+	}
+}
+
+func workItemByOperation(items []queue.WorkItem, operationID string) (queue.WorkItem, bool) {
+	operationID = strings.TrimSpace(operationID)
+	for _, item := range items {
+		if strings.TrimSpace(item.OperationID) == operationID {
+			return item, true
+		}
+	}
+	return queue.WorkItem{}, false
 }
 
 func buildAttemptDetail(store storepkg.Repository, proposalID string, attemptID string) (attemptDetailResponse, bool) {

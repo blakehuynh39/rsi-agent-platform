@@ -60,12 +60,17 @@ func resolveProposalOperationKind(store storepkg.Store, item queue.WorkItem) str
 }
 
 func queueProposalAttemptPhase(cfg config.Config, store storepkg.Store, proposal review.Proposal, trace events.Trace, attempt improvement.ChangeAttempt, operationKind string, payload map[string]any) (queue.WorkItem, error) {
+	op, item := proposalAttemptPhaseWork(cfg, proposal, trace, attempt, operationKind, payload)
+	return enqueueImprovementOperationWork(store, op, item)
+}
+
+func proposalAttemptPhaseWork(cfg config.Config, proposal review.Proposal, trace events.Trace, attempt improvement.ChangeAttempt, operationKind string, payload map[string]any) (operation.Execution, queue.WorkItem) {
 	now := time.Now().UTC()
 	if payload == nil {
 		payload = map[string]any{}
 	}
 	payload["attempt_id"] = attempt.ID
-	return enqueueImprovementOperationWork(store, operation.Execution{
+	return operation.Execution{
 		ScopeKind:     operation.ScopeAttempt,
 		ScopeID:       attempt.ID,
 		OperationKind: operationKind,
@@ -90,7 +95,7 @@ func queueProposalAttemptPhase(cfg config.Config, store storepkg.Store, proposal
 		CreatedAt:      now,
 		UpdatedAt:      now,
 		Payload:        payload,
-	})
+	}
 }
 
 func processProposalLineActivate(cfg config.Config, store storepkg.Store, proposal review.Proposal, trace events.Trace, item queue.WorkItem) error {
@@ -99,7 +104,14 @@ func processProposalLineActivate(cfg config.Config, store storepkg.Store, propos
 		return err
 	}
 	now := time.Now().UTC()
-	_, _ = store.ApplyTraceUpdate(attemptTrace.Summary.TraceID, storepkg.TraceUpdate{
+	nextOp, nextItem := proposalAttemptPhaseWork(cfg, proposal, attemptTrace, attempt, proposalOperationAttemptPlan, clonePayload(item.Payload))
+	if err := store.AdvanceProposalAttemptPhase(storepkg.ProposalAttemptPhaseAdvance{
+		ProposalID:  proposal.ID,
+		WorkItemID:  item.ID,
+		OperationID: item.OperationID,
+		Attempt:     &attempt,
+		TraceID:     attemptTrace.Summary.TraceID,
+		TraceUpdate: &storepkg.TraceUpdate{
 		Events: []events.TraceEvent{
 			{
 				TraceID:     attemptTrace.Summary.TraceID,
@@ -114,9 +126,13 @@ func processProposalLineActivate(cfg config.Config, store storepkg.Store, propos
 				Description: fmt.Sprintf("Activated proposal line %s and queued %s for attempt %s.", proposal.ID, proposalOperationAttemptPlan, attempt.ID),
 			},
 		},
-	})
-	_, err = queueProposalAttemptPhase(cfg, store, proposal, attemptTrace, attempt, proposalOperationAttemptPlan, clonePayload(item.Payload))
-	return err
+		},
+		NextOperation: &nextOp,
+		NextWorkItem:  &nextItem,
+	}); err != nil {
+		return err
+	}
+	return errProposalPhaseHandled
 }
 
 func processProposalAttemptPlan(cfg config.Config, store storepkg.Store, proposal review.Proposal, trace events.Trace, item queue.WorkItem) error {
@@ -131,14 +147,18 @@ func processProposalAttemptPlan(cfg config.Config, store storepkg.Store, proposa
 		attempt.State = improvement.AttemptStatePatchPlan
 	}
 	attempt.UpdatedAt = now
-	if _, err := store.UpsertChangeAttempt(attempt); err != nil {
-		return err
-	}
 	nextPhase := proposalOperationWorkspaceOpen
 	if proposal.RecommendedInterventionKind == review.InterventionHarnessOverlay || proposal.TargetLayer == harness.TargetLayerHarnessOverlay {
 		nextPhase = proposalOperationImplementAttempt
 	}
-	_, _ = store.ApplyTraceUpdate(attemptTrace.Summary.TraceID, storepkg.TraceUpdate{
+	nextOp, nextItem := proposalAttemptPhaseWork(cfg, proposal, attemptTrace, attempt, nextPhase, clonePayload(item.Payload))
+	if err := store.AdvanceProposalAttemptPhase(storepkg.ProposalAttemptPhaseAdvance{
+		ProposalID:  proposal.ID,
+		WorkItemID:  item.ID,
+		OperationID: item.OperationID,
+		Attempt:     &attempt,
+		TraceID:     attemptTrace.Summary.TraceID,
+		TraceUpdate: &storepkg.TraceUpdate{
 		Events: []events.TraceEvent{
 			{
 				TraceID:     attemptTrace.Summary.TraceID,
@@ -153,9 +173,13 @@ func processProposalAttemptPlan(cfg config.Config, store storepkg.Store, proposa
 				Description: fmt.Sprintf("Attempt %s entered planning and queued %s.", attempt.ID, nextPhase),
 			},
 		},
-	})
-	_, err = queueProposalAttemptPhase(cfg, store, proposal, attemptTrace, attempt, nextPhase, clonePayload(item.Payload))
-	return err
+		},
+		NextOperation: &nextOp,
+		NextWorkItem:  &nextItem,
+	}); err != nil {
+		return err
+	}
+	return errProposalPhaseHandled
 }
 
 func processProposalWorkspaceOpen(cfg config.Config, store storepkg.Store, launcher sandbox.Launcher, launcherErr error, proposal review.Proposal, trace events.Trace, item queue.WorkItem) error {
@@ -173,46 +197,57 @@ func processProposalWorkspaceOpen(cfg config.Config, store storepkg.Store, launc
 		return err
 	}
 	if !ready {
+		proposal.Status = review.ProposalRepoChangeQueued
+		workspace.UpdatedAt = now
 		job.Status = string(review.ProposalRepoChangeQueued)
 		job.SandboxNamespace = workspace.Namespace
 		job.SandboxJobName = workspace.JobName
 		job.SandboxPodName = workspace.PodName
 		job.ValidationRef = firstNonEmpty(job.ValidationRef, fmt.Sprintf("%s/%s", workspace.Namespace, firstNonEmpty(workspace.PodName, workspace.JobName)))
 		job.UpdatedAt = now
-		if _, err := store.UpsertRepoChangeJob(job); err != nil {
-			return err
-		}
-		_, _ = store.UpdateProposalStatus(proposal.ID, review.ProposalRepoChangeQueued)
 		payload := clonePayload(item.Payload)
 		if payload == nil {
 			payload = map[string]any{}
 		}
 		payload["workspace_id"] = workspace.ID
-		if _, err := store.RescheduleWorkItem(item.ID, payload, "workspace initializing", time.Now().UTC().Add(5*time.Second)); err != nil {
+		if err := store.DeferProposalAttemptPhase(storepkg.ProposalAttemptPhaseDefer{
+			ProposalID:    proposal.ID,
+			WorkItemID:    item.ID,
+			OperationID:   item.OperationID,
+			LastError:     "workspace initializing",
+			AvailableAt:   time.Now().UTC().Add(5 * time.Second),
+			Payload:       payload,
+			Proposal:      &proposal,
+			Workspace:     &workspace,
+			RepoChangeJob: &job,
+		}); err != nil {
 			return err
 		}
 		return errDeferredWorkItem
 	}
 	if workspace.Status != improvement.WorkspaceReady {
 		workspace.Status = improvement.WorkspaceReady
-		workspace.UpdatedAt = now
-		if _, err := store.UpsertAttemptWorkspace(workspace); err != nil {
-			return err
-		}
 	}
+	workspace.UpdatedAt = now
 	job.Status = string(review.ProposalRepoChangeRunning)
 	job.SandboxNamespace = workspace.Namespace
 	job.SandboxJobName = workspace.JobName
 	job.SandboxPodName = workspace.PodName
 	job.ValidationRef = fmt.Sprintf("%s/%s", workspace.Namespace, firstNonEmpty(workspace.PodName, workspace.JobName))
 	job.UpdatedAt = now
-	if _, err := store.UpsertRepoChangeJob(job); err != nil {
-		return err
-	}
-	if _, err := store.UpdateProposalStatus(proposal.ID, review.ProposalRepoChangeRunning); err != nil {
-		return err
-	}
-	_, _ = store.ApplyTraceUpdate(attemptTrace.Summary.TraceID, storepkg.TraceUpdate{
+	proposal.Status = review.ProposalRepoChangeRunning
+	nextOp, nextItem := proposalAttemptPhaseWork(cfg, proposal, attemptTrace, attempt, proposalOperationImplementAttempt, map[string]any{
+		"workspace_id": workspace.ID,
+	})
+	if err := store.AdvanceProposalAttemptPhase(storepkg.ProposalAttemptPhaseAdvance{
+		ProposalID:    proposal.ID,
+		WorkItemID:    item.ID,
+		OperationID:   item.OperationID,
+		Proposal:      &proposal,
+		Workspace:     &workspace,
+		RepoChangeJob: &job,
+		TraceID:       attemptTrace.Summary.TraceID,
+		TraceUpdate:   &storepkg.TraceUpdate{
 		Events: []events.TraceEvent{
 			{
 				TraceID:     attemptTrace.Summary.TraceID,
@@ -227,11 +262,13 @@ func processProposalWorkspaceOpen(cfg config.Config, store storepkg.Store, launc
 				Description: fmt.Sprintf("Workspace %s is ready; queued %s for attempt %s.", workspace.ID, proposalOperationImplementAttempt, attempt.ID),
 			},
 		},
-	})
-	_, err = queueProposalAttemptPhase(cfg, store, proposal, attemptTrace, attempt, proposalOperationImplementAttempt, map[string]any{
-		"workspace_id": workspace.ID,
-	})
-	return err
+		},
+		NextOperation: &nextOp,
+		NextWorkItem:  &nextItem,
+	}); err != nil {
+		return err
+	}
+	return errProposalPhaseHandled
 }
 
 func processProposalImplementAttempt(cfg config.Config, store storepkg.Store, runnerClient runnerExecutor, toolClient toolExecutor, proposal review.Proposal, trace events.Trace, item queue.WorkItem) error {
@@ -316,11 +353,16 @@ func processProposalImplementAttempt(cfg config.Config, store storepkg.Store, ru
 		if payload == nil {
 			payload = map[string]any{}
 		}
-		if _, err := store.RescheduleWorkItem(item.ID, payload, runnerErr.Error(), retryAt); err != nil {
-			return err
-		}
 		now := time.Now().UTC()
-		_, _ = store.ApplyTraceUpdate(attemptTrace.Summary.TraceID, storepkg.TraceUpdate{
+		if err := store.DeferProposalAttemptPhase(storepkg.ProposalAttemptPhaseDefer{
+			ProposalID:  proposal.ID,
+			WorkItemID:  item.ID,
+			OperationID: item.OperationID,
+			LastError:   runnerErr.Error(),
+			AvailableAt: retryAt,
+			Payload:     payload,
+			TraceID:     attemptTrace.Summary.TraceID,
+			TraceUpdate: &storepkg.TraceUpdate{
 			Events: []events.TraceEvent{
 				{
 					TraceID:     attemptTrace.Summary.TraceID,
@@ -348,7 +390,10 @@ func processProposalImplementAttempt(cfg config.Config, store storepkg.Store, ru
 					CreatedAt:  now,
 				},
 			},
-		})
+			},
+		}); err != nil {
+			return err
+		}
 		return errDeferredWorkItem
 	}
 	if proposal.RecommendedInterventionKind == review.InterventionHarnessOverlay || proposal.TargetLayer == harness.TargetLayerHarnessOverlay {
@@ -362,7 +407,7 @@ func processProposalImplementAttempt(cfg config.Config, store storepkg.Store, ru
 		attemptTrace = refreshedTrace
 	}
 	if workspaceMutationCallCount(attemptTrace) == 0 {
-		return recordAttemptFailure(cfg, store, proposal, attempt, attemptTrace, "no_op_diff", "Proposal implement run completed without any write-capable workspace tool calls.", false, improvement.AttemptTriggerProposalApproved)
+		return recordProposalPhaseAttemptFailure(cfg, store, proposal, attempt, attemptTrace, item, "no_op_diff", "Proposal implement run completed without any write-capable workspace tool calls.", false, improvement.AttemptTriggerProposalApproved, workspace, nil)
 	}
 	diffResult, execErr := toolClient.Execute("workspace.git_diff", map[string]any{
 		"trace_id":     attemptTrace.Summary.TraceID,
@@ -370,7 +415,7 @@ func processProposalImplementAttempt(cfg config.Config, store storepkg.Store, ru
 		"attempt_id":   attempt.ID,
 	})
 	if execErr != nil || diffResult.Status != "ok" {
-		return recordAttemptFailure(cfg, store, proposal, attempt, attemptTrace, "sandbox_failure", firstNonEmpty(improvementActionError(diffResult, execErr), "Workspace diff inspection failed."), false, improvement.AttemptTriggerSandboxFailed)
+		return recordProposalPhaseAttemptFailure(cfg, store, proposal, attempt, attemptTrace, item, "sandbox_failure", firstNonEmpty(improvementActionError(diffResult, execErr), "Workspace diff inspection failed."), false, improvement.AttemptTriggerSandboxFailed, workspace, nil)
 	}
 	changedFiles := stringSliceFromAny(diffResult.Output["changed_files"])
 	patch := stringValue(diffResult.Output["patch"])
@@ -390,18 +435,12 @@ func processProposalImplementAttempt(cfg config.Config, store storepkg.Store, ru
 	attempt.HeadSHA = firstNonEmpty(stringValue(diffResult.Output["head_sha"]), attempt.HeadSHA)
 	attempt.UpdatedAt = time.Now().UTC()
 	if failureClass != "" {
-		return recordAttemptFailure(cfg, store, proposal, attempt, attemptTrace, failureClass, failureSummary, runnerOutput.RetryAssessment.MaterialHypothesisChange, improvement.AttemptTriggerProposalApproved)
+		return recordProposalPhaseAttemptFailure(cfg, store, proposal, attempt, attemptTrace, item, failureClass, failureSummary, runnerOutput.RetryAssessment.MaterialHypothesisChange, improvement.AttemptTriggerProposalApproved, workspace, nil)
 	}
 	attempt.State = improvement.AttemptStatePatchGenerated
-	if _, err := store.UpsertChangeAttempt(attempt); err != nil {
-		return err
-	}
 	workspace.DiffSummary = attempt.DiffSummary
 	workspace.HeadSHA = attempt.HeadSHA
 	workspace.UpdatedAt = attempt.UpdatedAt
-	if _, err := store.UpsertAttemptWorkspace(*workspace); err != nil {
-		return err
-	}
 	now := time.Now().UTC()
 	reasoning := []events.ReasoningStep{
 		{
@@ -460,8 +499,38 @@ func processProposalImplementAttempt(cfg config.Config, store storepkg.Store, ru
 		payload["title"] = firstNonEmpty(stringValue(prAction.RequestPayload["title"]), fmt.Sprintf("RSI proposal %s attempt %s for %s", proposal.ID, attempt.ID, proposalTargetRepo(cfg, proposal)))
 		payload["body"] = firstNonEmpty(stringValue(prAction.RequestPayload["body"]), fmt.Sprintf("Automated draft PR for proposal %s attempt %s after workspace validation.", proposal.ID, attempt.ID))
 	}
-	_, err = queueProposalAttemptPhase(cfg, store, proposal, attemptTrace, attempt, proposalOperationWorkspaceValidate, payload)
-	return err
+	nextOp, nextItem := proposalAttemptPhaseWork(cfg, proposal, attemptTrace, attempt, proposalOperationWorkspaceValidate, payload)
+	if err := store.AdvanceProposalAttemptPhase(storepkg.ProposalAttemptPhaseAdvance{
+		ProposalID:  proposal.ID,
+		WorkItemID:  item.ID,
+		OperationID: item.OperationID,
+		Attempt:     &attempt,
+		Workspace:   workspace,
+		TraceID:     attemptTrace.Summary.TraceID,
+		TraceUpdate: &storepkg.TraceUpdate{
+			Events: []events.TraceEvent{
+				{
+					TraceID:     attemptTrace.Summary.TraceID,
+					IngestionID: attemptTrace.Summary.IngestionID,
+					WorkflowID:  attemptTrace.Summary.WorkflowID,
+					Plane:       "execution",
+					Service:     "runner",
+					Actor:       "proposal",
+					EventType:   "runner.completed",
+					Status:      events.StatusCompleted,
+					StartedAt:   runnerStarted,
+					EndedAt:     ptrTime(now),
+					Description: fmt.Sprintf("Proposal runner returned repo-change rationale using %s.", runnerRuntimeLabel(runnerResp)),
+				},
+			},
+			Reasoning: reasoning,
+		},
+		NextOperation: &nextOp,
+		NextWorkItem:  &nextItem,
+	}); err != nil {
+		return err
+	}
+	return errProposalPhaseHandled
 }
 
 func processProposalWorkspaceValidate(cfg config.Config, store storepkg.Store, toolClient toolExecutor, proposal review.Proposal, trace events.Trace, item queue.WorkItem) error {
@@ -486,13 +555,10 @@ func processProposalWorkspaceValidate(cfg config.Config, store storepkg.Store, t
 		"command":      validationCommand,
 	})
 	if execErr != nil || validationResult.Status != "ok" {
-		return recordAttemptFailure(cfg, store, proposal, attempt, attemptTrace, "sandbox_failure", firstNonEmpty(improvementActionError(validationResult, execErr), "Workspace validation failed."), false, improvement.AttemptTriggerSandboxFailed)
+		return recordProposalPhaseAttemptFailure(cfg, store, proposal, attempt, attemptTrace, item, "sandbox_failure", firstNonEmpty(improvementActionError(validationResult, execErr), "Workspace validation failed."), false, improvement.AttemptTriggerSandboxFailed, &workspace, nil)
 	}
 	attempt.ValidationSummary = firstNonEmpty(stringValue(validationResult.Output["stdout"]), validationCommand)
 	attempt.UpdatedAt = time.Now().UTC()
-	if _, err := store.UpsertChangeAttempt(attempt); err != nil {
-		return err
-	}
 	job, err := ensureWorkspaceRepoChangeJob(store, proposal, attempt, workspace)
 	if err != nil {
 		return err
@@ -502,21 +568,16 @@ func processProposalWorkspaceValidate(cfg config.Config, store storepkg.Store, t
 	job.ValidationRef = fmt.Sprintf("%s/%s", workspace.Namespace, firstNonEmpty(workspace.PodName, workspace.JobName))
 	job.LogArtifactID = ""
 	job.UpdatedAt = time.Now().UTC()
-	if _, err := store.UpsertRepoChangeJob(job); err != nil {
-		return err
-	}
-	if _, err := store.UpdateProposalStatus(proposal.ID, review.ProposalValidationPending); err != nil {
-		return err
-	}
+	proposal.Status = review.ProposalValidationPending
 	branchName := firstNonEmpty(stringValue(item.Payload["branch_name"]), workspace.BranchName, attempt.BranchName)
 	baseRef := firstNonEmpty(stringValue(item.Payload["base_ref"]), workspace.BaseRef, "main")
 	title := strings.TrimSpace(stringValue(item.Payload["title"]))
 	body := strings.TrimSpace(stringValue(item.Payload["body"]))
 	if title == "" || body == "" {
-		return recordAttemptFailure(cfg, store, proposal, attempt, attemptTrace, "insufficient_evidence", "Proposal implement run completed without requesting a governed draft PR open.", true, improvement.AttemptTriggerProposalApproved)
+		return recordProposalPhaseAttemptFailure(cfg, store, proposal, attempt, attemptTrace, item, "insufficient_evidence", "Proposal implement run completed without requesting a governed draft PR open.", true, improvement.AttemptTriggerProposalApproved, &workspace, &job)
 	}
 	now := time.Now().UTC()
-	_, err = enqueueImprovementOperationWork(store, operation.Execution{
+	nextOp := operation.Execution{
 		ScopeKind:     operation.ScopeAttempt,
 		ScopeID:       attempt.ID,
 		OperationKind: "pr_open",
@@ -527,7 +588,8 @@ func processProposalWorkspaceValidate(cfg config.Config, store storepkg.Store, t
 		TraceID:       attemptTrace.Summary.TraceID,
 		ProposalID:    proposal.ID,
 		AttemptID:     attempt.ID,
-	}, queue.WorkItem{
+	}
+	nextItem := queue.WorkItem{
 		Queue:          queue.ImprovementActionQueue,
 		Kind:           "draft_pr_open",
 		Status:         queue.WorkQueued,
@@ -552,11 +614,17 @@ func processProposalWorkspaceValidate(cfg config.Config, store storepkg.Store, t
 			"title":       title,
 			"body":        body,
 		},
-	})
-	if err != nil {
-		return err
 	}
-	_, _ = store.ApplyTraceUpdate(attemptTrace.Summary.TraceID, storepkg.TraceUpdate{
+	if err := store.AdvanceProposalAttemptPhase(storepkg.ProposalAttemptPhaseAdvance{
+		ProposalID:    proposal.ID,
+		WorkItemID:    item.ID,
+		OperationID:   item.OperationID,
+		Proposal:      &proposal,
+		Attempt:       &attempt,
+		Workspace:     &workspace,
+		RepoChangeJob: &job,
+		TraceID:       attemptTrace.Summary.TraceID,
+		TraceUpdate:   &storepkg.TraceUpdate{
 		Events: []events.TraceEvent{
 			{
 				TraceID:     attemptTrace.Summary.TraceID,
@@ -600,11 +668,16 @@ func processProposalWorkspaceValidate(cfg config.Config, store storepkg.Store, t
 				Summary:    fmt.Sprintf("Validated workspace-backed diff for attempt %s using %q.", attempt.ID, validationCommand),
 				Confidence: 0.87,
 				Decision:   branchName,
-				CreatedAt:  now,
+					CreatedAt:  now,
+				},
 			},
 		},
-	})
-	return nil
+		NextOperation: &nextOp,
+		NextWorkItem:  &nextItem,
+	}); err != nil {
+		return err
+	}
+	return errProposalPhaseHandled
 }
 
 func workspaceMutationCallCount(trace events.Trace) int {

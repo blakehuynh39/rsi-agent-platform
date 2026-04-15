@@ -260,20 +260,56 @@ func TestProcessEvalItemRequeuesStalledApprovedProposal(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ReviewProposal() error = %v", err)
 	}
-	var queued queue.WorkItem
-	foundQueued := false
-	for _, item := range store.ListWorkItems() {
-		if item.Queue == queue.ProposalQueue && item.Kind == "approved_proposal" && item.ProposalID == proposal.ID && item.Status == queue.WorkQueued {
-			queued = item
-			foundQueued = true
-			break
-		}
+	lineItem, ok, err := store.ClaimNextWorkItem([]queue.QueueName{queue.ProposalQueue}, "tester", 30*time.Second)
+	if err != nil || !ok {
+		t.Fatalf("ClaimNextWorkItem(line_activate) ok=%t err=%v", ok, err)
 	}
-	if !foundQueued {
-		t.Fatalf("expected queued proposal work item for %s", proposal.ID)
+	if err := processProposalItem(config.Config{ServiceName: "improvement-plane"}, store, nil, nil, nil, nil, lineItem); !errors.Is(err, errProposalPhaseHandled) {
+		t.Fatalf("processProposalItem(line_activate) error = %v", err)
 	}
-	if _, err := store.FailWorkItem(queued.ID, "simulated old runtime failure"); err != nil {
-		t.Fatalf("FailWorkItem() error = %v", err)
+	attemptPlan, ok, err := store.ClaimNextWorkItem([]queue.QueueName{queue.ProposalQueue}, "tester", 30*time.Second)
+	if err != nil || !ok {
+		t.Fatalf("ClaimNextWorkItem(attempt_plan) ok=%t err=%v", ok, err)
+	}
+	if err := processProposalItem(config.Config{ServiceName: "improvement-plane"}, store, nil, nil, nil, nil, attemptPlan); !errors.Is(err, errProposalPhaseHandled) {
+		t.Fatalf("processProposalItem(attempt_plan) error = %v", err)
+	}
+	proposal, ok = findProposal(store.ListProposals(), proposal.ID)
+	if !ok || proposal.CurrentAttemptID == "" {
+		t.Fatalf("expected current attempt after planning, got %+v", proposal)
+	}
+	attempt, ok := store.GetChangeAttempt(proposal.CurrentAttemptID)
+	if !ok {
+		t.Fatalf("expected attempt %s", proposal.CurrentAttemptID)
+	}
+	workspaceOpen, ok, err := store.ClaimNextWorkItem([]queue.QueueName{queue.ProposalQueue}, "tester", 30*time.Second)
+	if err != nil || !ok {
+		t.Fatalf("ClaimNextWorkItem(workspace_open) ok=%t err=%v", ok, err)
+	}
+	now = time.Now().UTC()
+	workspace, err := store.UpsertAttemptWorkspace(improvement.AttemptWorkspace{
+		ID:               "workspace-stalled-1",
+		AttemptID:        attempt.ID,
+		ProposalID:       proposal.ID,
+		Repo:             "rsi-agent-platform",
+		BaseRef:          "main",
+		BranchName:       attempt.BranchName,
+		Status:           improvement.WorkspaceQueued,
+		AllowedPathGlobs: []string{"internal/**"},
+		CreatedAt:        now,
+		UpdatedAt:        now,
+	})
+	if err != nil {
+		t.Fatalf("UpsertAttemptWorkspace() error = %v", err)
+	}
+	if err := store.AdvanceProposalAttemptPhase(storepkg.ProposalAttemptPhaseAdvance{
+		ProposalID:    proposal.ID,
+		WorkItemID:    workspaceOpen.ID,
+		OperationID:   workspaceOpen.OperationID,
+		Proposal:      &proposal,
+		Workspace:     &workspace,
+	}); err != nil {
+		t.Fatalf("AdvanceProposalAttemptPhase(workspace_open) error = %v", err)
 	}
 	cfg := config.Config{ServiceName: "improvement-plane"}
 	evalItem := queue.WorkItem{
@@ -288,14 +324,14 @@ func TestProcessEvalItemRequeuesStalledApprovedProposal(t *testing.T) {
 	if err := processEvalItem(cfg, store, nil, evalItem); err != nil {
 		t.Fatalf("processEvalItem() error = %v", err)
 	}
-	foundQueued = false
+	foundQueued := false
 	for _, item := range store.ListWorkItems() {
-		if item.Queue == queue.ProposalQueue && item.Kind == "approved_proposal" && item.ProposalID == proposal.ID && item.Status == queue.WorkQueued {
+		if item.Queue == queue.ProposalQueue && item.Kind == proposalOperationWorkspaceOpen && item.ProposalID == proposal.ID && item.Status == queue.WorkQueued {
 			foundQueued = true
 		}
 	}
 	if !foundQueued {
-		t.Fatal("expected stalled approved proposal to be requeued after eval")
+		t.Fatal("expected stalled approved proposal to requeue workspace_open after eval")
 	}
 }
 
@@ -315,11 +351,8 @@ func TestProcessProposalItemQueuesExplicitPhases(t *testing.T) {
 	if err != nil || !ok {
 		t.Fatalf("ClaimNextWorkItem() ok=%t err=%v", ok, err)
 	}
-	if err := processProposalItem(cfg, store, nil, nil, nil, nil, lineItem); err != nil {
+	if err := processProposalItem(cfg, store, nil, nil, nil, nil, lineItem); !errors.Is(err, errProposalPhaseHandled) {
 		t.Fatalf("processProposalItem(line_activate) error = %v", err)
-	}
-	if _, err := store.CompleteWorkItem(lineItem.ID); err != nil {
-		t.Fatalf("CompleteWorkItem(line_activate) error = %v", err)
 	}
 	approved, ok = findProposal(store.ListProposals(), approved.ID)
 	if !ok || approved.CurrentAttemptID == "" {
@@ -332,11 +365,8 @@ func TestProcessProposalItemQueuesExplicitPhases(t *testing.T) {
 	if attemptPlan.Kind != proposalOperationAttemptPlan {
 		t.Fatalf("attempt plan kind = %q, want %q", attemptPlan.Kind, proposalOperationAttemptPlan)
 	}
-	if err := processProposalItem(cfg, store, nil, nil, nil, nil, attemptPlan); err != nil {
+	if err := processProposalItem(cfg, store, nil, nil, nil, nil, attemptPlan); !errors.Is(err, errProposalPhaseHandled) {
 		t.Fatalf("processProposalItem(attempt_plan) error = %v", err)
-	}
-	if _, err := store.CompleteWorkItem(attemptPlan.ID); err != nil {
-		t.Fatalf("CompleteWorkItem(attempt_plan) error = %v", err)
 	}
 	foundWorkspaceOpen := false
 	for _, item := range store.ListWorkItems() {
@@ -395,7 +425,7 @@ func TestProcessProposalImplementAttemptRequiresWorkspaceMutation(t *testing.T) 
 	}); err != nil {
 		t.Fatalf("UpsertAttemptWorkspace() error = %v", err)
 	}
-	op, _, err := store.GetOrCreateOperation(operation.Execution{
+	item, err := enqueueImprovementOperationWork(store, operation.Execution{
 		ScopeKind:     operation.ScopeAttempt,
 		ScopeID:       attempt.ID,
 		OperationKind: proposalOperationImplementAttempt,
@@ -406,9 +436,22 @@ func TestProcessProposalImplementAttemptRequiresWorkspaceMutation(t *testing.T) 
 		TraceID:       attemptTrace.Summary.TraceID,
 		ProposalID:    approved.ID,
 		AttemptID:     attempt.ID,
+	}, queue.WorkItem{
+		ID:         "work-implement-1",
+		Queue:      queue.ProposalQueue,
+		Kind:       proposalOperationImplementAttempt,
+		Status:     queue.WorkQueued,
+		TraceID:    attemptTrace.Summary.TraceID,
+		ProposalID: approved.ID,
+		Payload: map[string]any{
+			"attempt_id":   attempt.ID,
+			"workspace_id": "workspace-1",
+		},
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
 	})
 	if err != nil {
-		t.Fatalf("GetOrCreateOperation() error = %v", err)
+		t.Fatalf("enqueueImprovementOperationWork() error = %v", err)
 	}
 	runner := &fakeRunner{
 		resp: clients.RunnerResponse{
@@ -433,22 +476,7 @@ func TestProcessProposalImplementAttemptRequiresWorkspaceMutation(t *testing.T) 
 			},
 		},
 	}
-	item := queue.WorkItem{
-		ID:          "work-implement-1",
-		OperationID: op.ID,
-		Queue:       queue.ProposalQueue,
-		Kind:        proposalOperationImplementAttempt,
-		Status:      queue.WorkQueued,
-		TraceID:     attemptTrace.Summary.TraceID,
-		ProposalID:  approved.ID,
-		Payload: map[string]any{
-			"attempt_id":   attempt.ID,
-			"workspace_id": "workspace-1",
-		},
-		CreatedAt: time.Now().UTC(),
-		UpdatedAt: time.Now().UTC(),
-	}
-	if err := processProposalItem(cfg, store, runner, fakeToolClient{}, nil, nil, item); err != nil {
+	if err := processProposalItem(cfg, store, runner, fakeToolClient{}, nil, nil, item); !errors.Is(err, errProposalPhaseFailed) {
 		t.Fatalf("processProposalItem(implement_attempt) error = %v", err)
 	}
 	persisted, ok := store.GetChangeAttempt(attempt.ID)
@@ -520,7 +548,7 @@ func TestProcessProposalImplementAttemptQueuesValidationAfterWorkspaceMutation(t
 	}); err != nil {
 		t.Fatalf("UpsertAttemptWorkspace() error = %v", err)
 	}
-	op, _, err := store.GetOrCreateOperation(operation.Execution{
+	item, err := enqueueImprovementOperationWork(store, operation.Execution{
 		ScopeKind:     operation.ScopeAttempt,
 		ScopeID:       attempt.ID,
 		OperationKind: proposalOperationImplementAttempt,
@@ -531,9 +559,22 @@ func TestProcessProposalImplementAttemptQueuesValidationAfterWorkspaceMutation(t
 		TraceID:       attemptTrace.Summary.TraceID,
 		ProposalID:    approved.ID,
 		AttemptID:     attempt.ID,
+	}, queue.WorkItem{
+		ID:         "work-implement-2",
+		Queue:      queue.ProposalQueue,
+		Kind:       proposalOperationImplementAttempt,
+		Status:     queue.WorkQueued,
+		TraceID:    attemptTrace.Summary.TraceID,
+		ProposalID: approved.ID,
+		Payload: map[string]any{
+			"attempt_id":   attempt.ID,
+			"workspace_id": "workspace-2",
+		},
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
 	})
 	if err != nil {
-		t.Fatalf("GetOrCreateOperation() error = %v", err)
+		t.Fatalf("enqueueImprovementOperationWork() error = %v", err)
 	}
 	runner := &fakeRunner{
 		resp: clients.RunnerResponse{
@@ -574,22 +615,7 @@ func TestProcessProposalImplementAttemptQueuesValidationAfterWorkspaceMutation(t
 			},
 		},
 	}
-	item := queue.WorkItem{
-		ID:          "work-implement-2",
-		OperationID: op.ID,
-		Queue:       queue.ProposalQueue,
-		Kind:        proposalOperationImplementAttempt,
-		Status:      queue.WorkQueued,
-		TraceID:     attemptTrace.Summary.TraceID,
-		ProposalID:  approved.ID,
-		Payload: map[string]any{
-			"attempt_id":   attempt.ID,
-			"workspace_id": "workspace-2",
-		},
-		CreatedAt: time.Now().UTC(),
-		UpdatedAt: time.Now().UTC(),
-	}
-	if err := processProposalItem(cfg, store, runner, toolClient, nil, nil, item); err != nil {
+	if err := processProposalItem(cfg, store, runner, toolClient, nil, nil, item); !errors.Is(err, errProposalPhaseHandled) {
 		t.Fatalf("processProposalItem(implement_attempt) error = %v", err)
 	}
 	foundValidate := false

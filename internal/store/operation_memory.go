@@ -39,9 +39,14 @@ func (s *MemoryStore) GetOperation(operationID string) (operation.Execution, boo
 func (s *MemoryStore) ListOperationsByScope(scopeKind operation.ScopeKind, scopeID string) []operation.Execution {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
+	return listOperationsByScopeLocked(s.operations, scopeKind, scopeID)
+}
+
+func listOperationsByScopeLocked(items map[string]operation.Execution, scopeKind operation.ScopeKind, scopeID string) []operation.Execution {
 	out := []operation.Execution{}
-	for _, item := range s.operations {
-		if item.ScopeKind == scopeKind && item.ScopeID == strings.TrimSpace(scopeID) {
+	scopeID = strings.TrimSpace(scopeID)
+	for _, item := range items {
+		if item.ScopeKind == scopeKind && item.ScopeID == scopeID {
 			out = append(out, item)
 		}
 	}
@@ -178,12 +183,20 @@ func findOperationLocked(items map[string]operation.Execution, scopeKind operati
 }
 
 func (s *MemoryStore) ensureOperationWorkItemLocked(op operation.Execution, item queue.WorkItem) (operation.Execution, queue.WorkItem, bool, error) {
+	return s.ensureOperationWorkItemLockedWithPolicy(op, item, false)
+}
+
+func (s *MemoryStore) ensureQueuedOperationWorkItemLocked(op operation.Execution, item queue.WorkItem) (operation.Execution, queue.WorkItem, bool, error) {
+	return s.ensureOperationWorkItemLockedWithPolicy(op, item, true)
+}
+
+func (s *MemoryStore) ensureOperationWorkItemLockedWithPolicy(op operation.Execution, item queue.WorkItem, reopenTerminal bool) (operation.Execution, queue.WorkItem, bool, error) {
 	createdOp, _, err := s.getOrCreateOperationLocked(op)
 	if err != nil {
 		return operation.Execution{}, queue.WorkItem{}, false, err
 	}
 	now := time.Now().UTC()
-	if createdOp.Status == operation.StatusFailed && item.Status == queue.WorkQueued {
+	if item.Status == queue.WorkQueued && (createdOp.Status == operation.StatusFailed || (reopenTerminal && createdOp.Status == operation.StatusCompleted)) {
 		createdOp.Status = operation.StatusQueued
 		createdOp.Holder = ""
 		createdOp.LastError = ""
@@ -197,7 +210,7 @@ func (s *MemoryStore) ensureOperationWorkItemLocked(op operation.Execution, item
 	item.OperationID = createdOp.ID
 	for _, existing := range s.workItems {
 		if existing.OperationID == createdOp.ID {
-			if item.Status == queue.WorkQueued && (existing.Status == queue.WorkFailed || existing.Status == queue.WorkCanceled) {
+			if item.Status == queue.WorkQueued && (existing.Status == queue.WorkFailed || existing.Status == queue.WorkCanceled || (reopenTerminal && existing.Status == queue.WorkCompleted)) {
 				existing.Status = queue.WorkQueued
 				existing.Payload = cloneMetadata(item.Payload)
 				if existing.Payload == nil {

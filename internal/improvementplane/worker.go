@@ -27,7 +27,11 @@ import (
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
 
-var errDeferredWorkItem = errors.New("work item deferred for retry")
+var (
+	errDeferredWorkItem        = errors.New("work item deferred for retry")
+	errProposalPhaseHandled    = errors.New("proposal phase finalized by repository transition")
+	errProposalPhaseFailed     = errors.New("proposal phase failed by repository transition")
+)
 
 func RunWorker(cfg config.Config, store storepkg.Store) error {
 	workerID := fmt.Sprintf("%s-worker", cfg.ServiceName)
@@ -47,7 +51,7 @@ func RunWorker(cfg config.Config, store storepkg.Store) error {
 			continue
 		}
 		if err := processImprovementItem(cfg, store, runnerClients, toolClient, launcher, launcherErr, item); err != nil {
-			if errors.Is(err, errDeferredWorkItem) {
+			if errors.Is(err, errDeferredWorkItem) || errors.Is(err, errProposalPhaseHandled) || errors.Is(err, errProposalPhaseFailed) {
 				continue
 			}
 			log.Printf("improvement-plane worker item=%s error=%v", item.ID, err)
@@ -246,18 +250,25 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient r
 	}
 	switch resolveProposalOperationKind(store, item) {
 	case proposalOperationLineActivate:
-		return processProposalLineActivate(cfg, store, proposal, trace, item)
+		return requireProposalPhaseTerminal(processProposalLineActivate(cfg, store, proposal, trace, item), proposalOperationLineActivate)
 	case proposalOperationAttemptPlan:
-		return processProposalAttemptPlan(cfg, store, proposal, trace, item)
+		return requireProposalPhaseTerminal(processProposalAttemptPlan(cfg, store, proposal, trace, item), proposalOperationAttemptPlan)
 	case proposalOperationWorkspaceOpen:
-		return processProposalWorkspaceOpen(cfg, store, launcher, launcherErr, proposal, trace, item)
+		return requireProposalPhaseTerminal(processProposalWorkspaceOpen(cfg, store, launcher, launcherErr, proposal, trace, item), proposalOperationWorkspaceOpen)
 	case proposalOperationImplementAttempt:
-		return processProposalImplementAttempt(cfg, store, runnerClient, toolClient, proposal, trace, item)
+		return requireProposalPhaseTerminal(processProposalImplementAttempt(cfg, store, runnerClient, toolClient, proposal, trace, item), proposalOperationImplementAttempt)
 	case proposalOperationWorkspaceValidate:
-		return processProposalWorkspaceValidate(cfg, store, toolClient, proposal, trace, item)
+		return requireProposalPhaseTerminal(processProposalWorkspaceValidate(cfg, store, toolClient, proposal, trace, item), proposalOperationWorkspaceValidate)
 	default:
 		return fmt.Errorf("unsupported proposal operation for item %s", item.ID)
 	}
+}
+
+func requireProposalPhaseTerminal(err error, phaseKind string) error {
+	if err == nil {
+		return fmt.Errorf("proposal phase %s returned without explicit repository finalization", phaseKind)
+	}
+	return err
 }
 
 func processSandboxItem(cfg config.Config, store storepkg.Store, launcher sandbox.Launcher, launcherErr error, item queue.WorkItem) error {

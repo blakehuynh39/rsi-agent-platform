@@ -240,6 +240,62 @@ func TestRetryProposalRepoChangeRequeuesSandboxWork(t *testing.T) {
 	}
 }
 
+func TestReconcileProposalAttemptPhaseRequeuesCompletedWorkspaceOpenWhenWorkspaceNotReady(t *testing.T) {
+	store := NewMemoryStore()
+	proposal := seedProposalAttemptPhaseReconcileFixture(t, store, improvement.WorkspaceQueued)
+
+	item, queued, err := store.ReconcileProposalAttemptPhase(proposal.ID, "tester")
+	if err != nil {
+		t.Fatalf("ReconcileProposalAttemptPhase() error = %v", err)
+	}
+	if !queued {
+		t.Fatal("expected reconcile to requeue workspace_open")
+	}
+	if item.Kind != "workspace_open" || item.Status != queue.WorkQueued {
+		t.Fatalf("expected queued workspace_open item, got %+v", item)
+	}
+	op, ok := store.GetOperation(item.OperationID)
+	if !ok {
+		t.Fatalf("expected operation %s", item.OperationID)
+	}
+	if op.OperationKind != "workspace_open" || op.Status != operation.StatusQueued {
+		t.Fatalf("expected queued workspace_open operation, got %+v", op)
+	}
+}
+
+func TestReconcileProposalAttemptPhaseQueuesImplementAttemptWhenWorkspaceReady(t *testing.T) {
+	store := NewMemoryStore()
+	proposal := seedProposalAttemptPhaseReconcileFixture(t, store, improvement.WorkspaceReady)
+
+	item, queued, err := store.ReconcileProposalAttemptPhase(proposal.ID, "tester")
+	if err != nil {
+		t.Fatalf("ReconcileProposalAttemptPhase() error = %v", err)
+	}
+	if !queued {
+		t.Fatal("expected reconcile to queue implement_attempt")
+	}
+	if item.Kind != "implement_attempt" || item.Status != queue.WorkQueued {
+		t.Fatalf("expected queued implement_attempt item, got %+v", item)
+	}
+	op, ok := store.GetOperation(item.OperationID)
+	if !ok {
+		t.Fatalf("expected operation %s", item.OperationID)
+	}
+	if op.OperationKind != "implement_attempt" || op.Status != operation.StatusQueued {
+		t.Fatalf("expected queued implement_attempt operation, got %+v", op)
+	}
+	ops := store.ListOperationsByScope(operation.ScopeAttempt, proposal.CurrentAttemptID)
+	count := 0
+	for _, candidate := range ops {
+		if candidate.OperationKind == "implement_attempt" {
+			count++
+		}
+	}
+	if count != 1 {
+		t.Fatalf("expected exactly one implement_attempt operation, got %d", count)
+	}
+}
+
 func TestEnqueueWorkItemAllowsRequeueAfterCompleted(t *testing.T) {
 	store := NewMemoryStore()
 	now := time.Now().UTC()
@@ -277,6 +333,106 @@ func TestEnqueueWorkItemAllowsRequeueAfterCompleted(t *testing.T) {
 	}
 }
 
+func seedProposalAttemptPhaseReconcileFixture(t *testing.T, store *MemoryStore, workspaceStatus improvement.AttemptWorkspaceStatus) review.Proposal {
+	t.Helper()
+	base := store.ListProposals()[0]
+	approved, err := store.ReviewProposal(base.ID, review.ProposalReview{
+		Decision:   string(review.ProposalApproved),
+		Rationale:  "Proceed.",
+		ReviewerID: "tester",
+	})
+	if err != nil {
+		t.Fatalf("ReviewProposal() error = %v", err)
+	}
+	now := time.Now().UTC()
+	attempt := normalizeChangeAttempt(improvement.ChangeAttempt{
+		ID:             "attempt-reconcile-1",
+		ProposalID:     approved.ID,
+		CandidateKey:   approved.CandidateKey,
+		AttemptNumber:  1,
+		TargetLayer:    approved.TargetLayer,
+		TargetKind:     approved.TargetKind,
+		TargetRef:      approved.TargetRef,
+		Trigger:        improvement.AttemptTriggerProposalApproved,
+		State:          improvement.AttemptStatePatchPlan,
+		AttemptTraceID: firstNonEmpty(approved.OriginTraceID, approved.TraceID),
+		BranchName:     "codex/reconcile-attempt-01",
+		CreatedAt:      now,
+		UpdatedAt:      now,
+	})
+	workspace := normalizeAttemptWorkspace(improvement.AttemptWorkspace{
+		ID:               "workspace-reconcile-1",
+		AttemptID:        attempt.ID,
+		ProposalID:       approved.ID,
+		Repo:             "rsi-agent-platform",
+		BaseRef:          "main",
+		BranchName:       attempt.BranchName,
+		Status:           workspaceStatus,
+		AllowedPathGlobs: []string{"internal/**"},
+		CreatedAt:        now,
+		UpdatedAt:        now,
+	})
+	job := improvement.RepoChangeJob{
+		ID:               "job-reconcile-1",
+		ProposalID:       approved.ID,
+		AttemptID:        attempt.ID,
+		ConversationID:   approved.ConversationID,
+		CaseID:           approved.CaseID,
+		OriginTraceID:    approved.TraceID,
+		CandidateKey:     approved.CandidateKey,
+		Status:           string(review.ProposalRepoChangeQueued),
+		Repo:             "rsi-agent-platform",
+		BaseRef:          "main",
+		BranchName:       attempt.BranchName,
+		AllowedPathGlobs: []string{"internal/**"},
+		CreatedAt:        now,
+		UpdatedAt:        now,
+	}
+	approved.CurrentAttemptID = attempt.ID
+	approved.AttemptCount = 1
+	approved.Status = review.ProposalRepoChangeQueued
+	approved.ActiveSlotConsuming = true
+	store.changeAttempts[attempt.ID] = attempt
+	store.attemptWorkspaces[workspace.ID] = workspace
+	store.repoChangeJobs[job.ID] = job
+	store.proposals[approved.ID] = approved
+	workspaceOpenOp := operation.Execution{
+		ID:            "op-workspace-open-1",
+		ScopeKind:     operation.ScopeAttempt,
+		ScopeID:       attempt.ID,
+		OperationKind: "workspace_open",
+		OperationKey:  "workspace_open",
+		Status:        operation.StatusCompleted,
+		Queue:         queue.ProposalQueue,
+		RequestedBy:   "tester",
+		TraceID:       approved.TraceID,
+		ProposalID:    approved.ID,
+		AttemptID:     attempt.ID,
+		CreatedAt:     now,
+		UpdatedAt:     now,
+		CompletedAt:   &now,
+	}
+	store.operations[workspaceOpenOp.ID] = workspaceOpenOp
+	store.workItems["work-workspace-open-1"] = queue.WorkItem{
+		ID:          "work-workspace-open-1",
+		OperationID: workspaceOpenOp.ID,
+		Queue:       queue.ProposalQueue,
+		Kind:        "workspace_open",
+		Status:      queue.WorkCompleted,
+		TraceID:     approved.TraceID,
+		ProposalID:  approved.ID,
+		Payload: map[string]any{
+			"attempt_id":   attempt.ID,
+			"workspace_id": workspace.ID,
+		},
+		RequestedBy: "tester",
+		CreatedAt:   now,
+		UpdatedAt:   now,
+		CompletedAt: &now,
+	}
+	return approved
+}
+
 func TestEnqueueWorkItemReusesFailedOperationScopedItem(t *testing.T) {
 	store := NewMemoryStore()
 	now := time.Now().UTC()
@@ -284,10 +440,10 @@ func TestEnqueueWorkItemReusesFailedOperationScopedItem(t *testing.T) {
 		ID:            "op-requeue",
 		ScopeKind:     operation.ScopeAttempt,
 		ScopeID:       "attempt-1",
-		OperationKind: "implement_attempt",
-		OperationKey:  "implement_attempt",
+		OperationKind: "sandbox_launch",
+		OperationKey:  "sandbox_launch",
 		Status:        operation.StatusQueued,
-		Queue:         queue.ProposalQueue,
+		Queue:         queue.SandboxQueue,
 		RequestedBy:   "tester",
 		TraceID:       "trace-1",
 		ProposalID:    "proposal-1",
@@ -301,8 +457,8 @@ func TestEnqueueWorkItemReusesFailedOperationScopedItem(t *testing.T) {
 	first, err := store.EnqueueWorkItem(queue.WorkItem{
 		ID:          "work-op-requeue",
 		OperationID: op.ID,
-		Queue:       queue.ProposalQueue,
-		Kind:        "implement_attempt",
+		Queue:       queue.SandboxQueue,
+		Kind:        "repo_change_job",
 		Status:      queue.WorkQueued,
 		ProposalID:  "proposal-1",
 		TraceID:     "trace-1",
@@ -319,8 +475,8 @@ func TestEnqueueWorkItemReusesFailedOperationScopedItem(t *testing.T) {
 	second, err := store.EnqueueWorkItem(queue.WorkItem{
 		ID:          "work-op-requeue-new",
 		OperationID: op.ID,
-		Queue:       queue.ProposalQueue,
-		Kind:        "implement_attempt",
+		Queue:       queue.SandboxQueue,
+		Kind:        "repo_change_job",
 		Status:      queue.WorkQueued,
 		ProposalID:  "proposal-1",
 		TraceID:     "trace-1",
