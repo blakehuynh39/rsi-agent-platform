@@ -45,6 +45,45 @@ func (f fakeLauncher) Exec(context.Context, string, string, []string) (sandbox.E
 	return sandbox.ExecResult{}, errors.New("not implemented")
 }
 
+type workspaceLaunchStub struct{}
+
+func (workspaceLaunchStub) Launch(context.Context, sandbox.JobRequest) (sandbox.Session, *batchv1.Job, error) {
+	now := time.Now().UTC()
+	return sandbox.Session{
+		ID:        "workspace-session-1",
+		Namespace: "rsi-platform",
+		PodName:   "workspace-pod-1",
+		Status:    "running",
+		CreatedAt: now,
+		UpdatedAt: now,
+	}, &batchv1.Job{}, nil
+}
+
+func (workspaceLaunchStub) GetJob(context.Context, string, string) (*batchv1.Job, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (workspaceLaunchStub) ObserveJob(context.Context, string, string) (sandbox.JobObservation, error) {
+	return sandbox.JobObservation{}, errors.New("not implemented")
+}
+
+func (workspaceLaunchStub) ResolvePod(context.Context, string, string) (string, error) {
+	return "workspace-pod-1", nil
+}
+
+func (workspaceLaunchStub) Exec(context.Context, string, string, []string) (sandbox.ExecResult, error) {
+	return sandbox.ExecResult{}, errors.New("not implemented")
+}
+
+type workspaceUpsertFailStore struct {
+	storepkg.Store
+	err error
+}
+
+func (s workspaceUpsertFailStore) UpsertAttemptWorkspace(improvement.AttemptWorkspace) (improvement.AttemptWorkspace, error) {
+	return improvement.AttemptWorkspace{}, s.err
+}
+
 func TestProcessSandboxWatchReschedulesCurrentLeaseUntilTerminal(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	now := time.Now().UTC()
@@ -299,6 +338,50 @@ func TestBuildEvalRunnerTaskUsesReadOnlyToolBudget(t *testing.T) {
 	assertContains(t, task.ToolAllowlist, "knowledge.context")
 	assertContains(t, task.ToolAllowlist, "rsi.trace_context")
 	assertContains(t, task.ToolAllowlist, "rsi.candidate_context")
+}
+
+func TestEnsureAttemptWorkspaceReturnsPersistenceError(t *testing.T) {
+	base := storepkg.NewMemoryStore()
+	if _, err := base.UpsertAttemptWorkspace(improvement.AttemptWorkspace{
+		ID:         "workspace-1",
+		AttemptID:  "attempt-1",
+		ProposalID: "proposal-1",
+		Repo:       "rsi-agent-platform",
+		BaseRef:    "main",
+		BranchName: "codex/proposal-1/attempt-01",
+		Namespace:  "rsi-platform",
+		JobName:    "workspace-job-1",
+		Status:     improvement.WorkspaceQueued,
+		CreatedAt:  time.Now().UTC(),
+		UpdatedAt:  time.Now().UTC(),
+	}); err != nil {
+		t.Fatalf("UpsertAttemptWorkspace() error = %v", err)
+	}
+	cfg := config.Config{ServiceName: "improvement-plane"}
+	proposal := review.Proposal{
+		ID:                          "proposal-1",
+		ConversationID:              "conv-1",
+		CaseID:                      "case-1",
+		TraceID:                     "trace-1",
+		OriginTraceID:               "trace-1",
+		CandidateKey:                "candidate-1",
+		TargetLayer:                 "repo_change",
+		TargetKind:                  "repo",
+		TargetRef:                   "rsi-agent-platform",
+		RecommendedInterventionKind: review.InterventionRepoChange,
+		Summary:                     "Fix workspace persistence.",
+		ValidationPlan:              "make test",
+	}
+	attempt := improvement.ChangeAttempt{
+		ID:         "attempt-1",
+		ProposalID: proposal.ID,
+		BranchName: "codex/proposal-1/attempt-01",
+	}
+	wantErr := errors.New("workspace upsert failed")
+	_, _, err := ensureAttemptWorkspace(cfg, workspaceUpsertFailStore{Store: base, err: wantErr}, workspaceLaunchStub{}, nil, proposal, attempt, "trace-1")
+	if err == nil || !strings.Contains(err.Error(), wantErr.Error()) {
+		t.Fatalf("ensureAttemptWorkspace() error = %v, want %v", err, wantErr)
+	}
 }
 
 func assertContains(t *testing.T, values []string, target string) {

@@ -28,9 +28,11 @@ func ensureAttemptWorkspace(cfg config.Config, store storepkg.Store, launcher sa
 				workspace.PodName = podName
 				workspace.Status = improvement.WorkspaceReady
 				workspace.UpdatedAt = time.Now().UTC()
-				if updated, err := store.UpsertAttemptWorkspace(workspace); err == nil {
-					workspace = updated
+				updated, err := store.UpsertAttemptWorkspace(workspace)
+				if err != nil {
+					return improvement.AttemptWorkspace{}, false, err
 				}
+				workspace = updated
 			}
 		}
 		return workspace, workspace.PodName != "", nil
@@ -92,9 +94,11 @@ func ensureAttemptWorkspace(cfg config.Config, store storepkg.Store, launcher sa
 		CreatedAt:        time.Now().UTC(),
 		UpdatedAt:        time.Now().UTC(),
 	}
-	if updated, err := store.UpsertAttemptWorkspace(workspace); err == nil {
-		workspace = updated
+	updated, err := store.UpsertAttemptWorkspace(workspace)
+	if err != nil {
+		return improvement.AttemptWorkspace{}, false, err
 	}
+	workspace = updated
 	return workspace, false, nil
 }
 

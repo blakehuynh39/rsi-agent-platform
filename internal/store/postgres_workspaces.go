@@ -120,7 +120,7 @@ func persistAttemptWorkspaces(tx *sql.Tx, store *MemoryStore) error {
 				created_at = excluded.created_at,
 				updated_at = excluded.updated_at,
 				expires_at = excluded.expires_at`,
-			item.ID, item.AttemptID, item.ProposalID, item.Repo, item.BaseRef, item.BranchName, nullString(item.Namespace), nullString(item.JobName), nullString(item.PodName), string(item.Status), jsonString(item.AllowedPathGlobs), nullString(item.HeadSHA), nullString(item.DiffSummary), item.CreatedAt, item.UpdatedAt, nullTime(item.ExpiresAt),
+			item.ID, item.AttemptID, item.ProposalID, item.Repo, item.BaseRef, item.BranchName, nullString(item.Namespace), nullString(item.JobName), nullString(item.PodName), string(item.Status), jsonString(item.AllowedPathGlobs), nullString(item.HeadSHA), item.DiffSummary, item.CreatedAt, item.UpdatedAt, nullTime(item.ExpiresAt),
 		); err != nil {
 			return err
 		}
