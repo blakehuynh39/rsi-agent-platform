@@ -255,6 +255,13 @@ func TestBuildProposalRunnerTaskUsesReadOnlyToolBudget(t *testing.T) {
 	if !strings.Contains(task.Prompt, "authoritative target repository is rsi-agent-platform") {
 		t.Fatalf("proposal prompt missing target-repo guard: %s", task.Prompt)
 	}
+	expectedSessionScopeID := proposal.CandidateKey + "|repo:rsi-agent-platform|v2"
+	if task.SessionScopeID != expectedSessionScopeID {
+		t.Fatalf("proposal session scope id = %q", task.SessionScopeID)
+	}
+	if task.UserPeerID != "candidate:"+expectedSessionScopeID {
+		t.Fatalf("proposal user peer id = %q", task.UserPeerID)
+	}
 }
 
 func TestBuildEvalRunnerTaskUsesReadOnlyToolBudget(t *testing.T) {

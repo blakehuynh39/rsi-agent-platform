@@ -1484,6 +1484,7 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 	effectiveHarness := harness.ResolveEffectiveConfig(store, "proposal", cfg.DefaultReasoningVerbosity)
 	targetRepo := proposalTargetRepo(cfg, proposal)
 	repoAllowlist := scopedImprovementRepoAllowlist(targetRepo, cfg.AllowedTargetRepos)
+	sessionScopeID := proposalSessionScopeID(proposal, targetRepo)
 	rejectedContext := make([]map[string]any, 0, len(memories))
 	for _, memory := range memories {
 		rejectedContext = append(rejectedContext, map[string]any{
@@ -1590,12 +1591,12 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 		ApprovalMode:              "human_review",
 		ReasoningVerbosity:        effectiveHarness.ReasoningVerbosity,
 		SessionScopeKind:          "proposal_candidate",
-		SessionScopeID:            proposal.CandidateKey,
+		SessionScopeID:            sessionScopeID,
 		HarnessProfileID:          effectiveHarness.Profile.ID,
 		HarnessOverlayVersion:     effectiveHarness.EffectiveOverlayVersion,
 		MemoryBackend:             harness.DefaultMemoryBackend,
 		AssistantPeerID:           fmt.Sprintf("rsi:%s:proposal", cfg.Environment),
-		UserPeerID:                fmt.Sprintf("candidate:%s", proposal.CandidateKey),
+		UserPeerID:                fmt.Sprintf("candidate:%s", sessionScopeID),
 	}
 }
 
@@ -1608,6 +1609,14 @@ func evalTargetRepo(cfg config.Config, store storepkg.Store, trace events.Trace)
 
 func proposalTargetRepo(cfg config.Config, proposal review.Proposal) string {
 	return improvementTargetRepo(cfg, proposal.TargetLayer, proposal.TargetKind, proposal.TargetRef)
+}
+
+func proposalSessionScopeID(proposal review.Proposal, targetRepo string) string {
+	targetRepo = strings.TrimSpace(targetRepo)
+	if targetRepo == "" {
+		return proposal.CandidateKey
+	}
+	return fmt.Sprintf("%s|repo:%s|v2", proposal.CandidateKey, targetRepo)
 }
 
 func improvementTargetRepo(cfg config.Config, targetLayer harness.TargetLayer, targetKind string, targetRef string) string {
