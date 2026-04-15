@@ -90,7 +90,7 @@ export function ProposalDetail(props: {
           <h3>Review actions</h3>
           <label className="field">
             Decision rationale
-            <textarea value={props.proposalRationale} onChange={(event) => props.setProposalRationale(event.target.value)} placeholder="Why this should advance, be dismissed, or be rejected." />
+            <textarea value={props.proposalRationale} onChange={(event) => props.setProposalRationale(event.target.value)} placeholder="State the evidence and decision for this line." />
           </label>
           <div className="button-row">
             <button onClick={() => props.onDecision("approved")}>Approve intervention</button>

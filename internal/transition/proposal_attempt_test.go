@@ -3,15 +3,12 @@ package transition
 import (
 	"testing"
 	"time"
-
-	"github.com/piplabs/rsi-agent-platform/internal/improvement"
-	"github.com/piplabs/rsi-agent-platform/internal/review"
 )
 
 func TestReduceAttemptRejectsIllegalCombination(t *testing.T) {
 	decision := ReduceAttempt(AttemptSnapshot{
-		ProposalStatus: review.ProposalApproved,
-		AttemptState:   improvement.AttemptStatePatchPlan,
+		ProposalStatus: ProposalApproved,
+		AttemptState:   AttemptStatePatchPlan,
 	}, CommandEnvelope{
 		MachineKind: MachineAttempt,
 		CommandKind: string(CommandValidationCompleted),
@@ -25,8 +22,8 @@ func TestReduceAttemptRejectsIllegalCombination(t *testing.T) {
 
 func TestReduceAttemptWorkspaceReadyAdvances(t *testing.T) {
 	decision := ReduceAttempt(AttemptSnapshot{
-		ProposalStatus: review.ProposalRepoChangeQueued,
-		AttemptState:   improvement.AttemptStatePatchPlan,
+		ProposalStatus: ProposalRepoChangeQueued,
+		AttemptState:   AttemptStatePatchPlan,
 	}, CommandEnvelope{
 		MachineKind: MachineAttempt,
 		CommandKind: string(CommandWorkspaceReady),
@@ -39,15 +36,15 @@ func TestReduceAttemptWorkspaceReadyAdvances(t *testing.T) {
 	if decision.NextPhase != AttemptPhaseImplementing {
 		t.Fatalf("expected implementing phase, got %s", decision.NextPhase)
 	}
-	if len(decision.AllowedProposalNext) == 0 || decision.AllowedProposalNext[0] != review.ProposalRepoChangeRunning {
+	if len(decision.AllowedProposalNext) == 0 || decision.AllowedProposalNext[0] != ProposalRepoChangeRunning {
 		t.Fatalf("expected proposal repo_change_running to be allowed, got %+v", decision.AllowedProposalNext)
 	}
 }
 
 func TestReduceAttemptValidationCompletedAdvancesToPROpen(t *testing.T) {
 	decision := ReduceAttempt(AttemptSnapshot{
-		ProposalStatus: review.ProposalRepoChangeRunning,
-		AttemptState:   improvement.AttemptStatePatchGenerated,
+		ProposalStatus: ProposalRepoChangeRunning,
+		AttemptState:   AttemptStatePatchGenerated,
 	}, CommandEnvelope{
 		MachineKind: MachineAttempt,
 		CommandKind: string(CommandValidationCompleted),

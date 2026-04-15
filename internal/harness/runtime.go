@@ -37,6 +37,23 @@ type ExecutionMetadata struct {
 	MemoryWrites            []MemoryArtifact
 }
 
+type executionMetadataPayload struct {
+	HermesSessionID         string           `json:"hermes_session_id"`
+	ParentSessionID         string           `json:"parent_session_id"`
+	HarnessProfileID        string           `json:"harness_profile_id"`
+	EffectiveOverlayID      string           `json:"effective_overlay_id"`
+	EffectiveOverlayVersion string           `json:"effective_overlay_version"`
+	MemoryBackend           string           `json:"memory_backend"`
+	AssistantPeerID         string           `json:"assistant_peer_id"`
+	UserPeerID              string           `json:"user_peer_id"`
+	SessionScopeKind        string           `json:"session_scope_kind"`
+	SessionScopeID          string           `json:"session_scope_id"`
+	ParentScopeKind         string           `json:"parent_session_scope_kind"`
+	ParentScopeID           string           `json:"parent_session_scope_id"`
+	MemoryReads             []MemoryArtifact `json:"memory_reads"`
+	MemoryWrites            []MemoryArtifact `json:"memory_writes"`
+}
+
 type ConfigResolver interface {
 	GetHarnessProfile(profileID string) (Profile, bool)
 	GetActiveHarnessOverlay(role string) (Overlay, bool)
@@ -141,23 +158,30 @@ func DecodeExecutionMetadata(raw map[string]any) ExecutionMetadata {
 	if raw == nil {
 		return ExecutionMetadata{}
 	}
-	out := ExecutionMetadata{
-		HermesSessionID:         stringFromMap(raw, "hermes_session_id"),
-		ParentSessionID:         stringFromMap(raw, "parent_session_id"),
-		HarnessProfileID:        stringFromMap(raw, "harness_profile_id"),
-		EffectiveOverlayID:      stringFromMap(raw, "effective_overlay_id"),
-		EffectiveOverlayVersion: stringFromMap(raw, "effective_overlay_version"),
-		MemoryBackend:           stringFromMap(raw, "memory_backend"),
-		AssistantPeerID:         stringFromMap(raw, "assistant_peer_id"),
-		UserPeerID:              stringFromMap(raw, "user_peer_id"),
-		SessionScopeKind:        stringFromMap(raw, "session_scope_kind"),
-		SessionScopeID:          stringFromMap(raw, "session_scope_id"),
-		ParentScopeKind:         stringFromMap(raw, "parent_session_scope_kind"),
-		ParentScopeID:           stringFromMap(raw, "parent_session_scope_id"),
+	data, err := json.Marshal(raw)
+	if err != nil {
+		return ExecutionMetadata{}
 	}
-	out.MemoryReads = decodeMemoryArtifacts(raw["memory_reads"])
-	out.MemoryWrites = decodeMemoryArtifacts(raw["memory_writes"])
-	return out
+	var payload executionMetadataPayload
+	if err := json.Unmarshal(data, &payload); err != nil {
+		return ExecutionMetadata{}
+	}
+	return ExecutionMetadata{
+		HermesSessionID:         strings.TrimSpace(payload.HermesSessionID),
+		ParentSessionID:         strings.TrimSpace(payload.ParentSessionID),
+		HarnessProfileID:        strings.TrimSpace(payload.HarnessProfileID),
+		EffectiveOverlayID:      strings.TrimSpace(payload.EffectiveOverlayID),
+		EffectiveOverlayVersion: strings.TrimSpace(payload.EffectiveOverlayVersion),
+		MemoryBackend:           strings.TrimSpace(payload.MemoryBackend),
+		AssistantPeerID:         strings.TrimSpace(payload.AssistantPeerID),
+		UserPeerID:              strings.TrimSpace(payload.UserPeerID),
+		SessionScopeKind:        strings.TrimSpace(payload.SessionScopeKind),
+		SessionScopeID:          strings.TrimSpace(payload.SessionScopeID),
+		ParentScopeKind:         strings.TrimSpace(payload.ParentScopeKind),
+		ParentScopeID:           strings.TrimSpace(payload.ParentScopeID),
+		MemoryReads:             compactMemoryArtifacts(payload.MemoryReads),
+		MemoryWrites:            compactMemoryArtifacts(payload.MemoryWrites),
+	}
 }
 
 func compactStrings(items []string) []string {
@@ -179,41 +203,16 @@ func firstNonEmpty(values ...string) string {
 	return ""
 }
 
-func stringFromMap(values map[string]any, key string) string {
-	raw, ok := values[key]
-	if !ok || raw == nil {
-		return ""
-	}
-	switch value := raw.(type) {
-	case string:
-		return strings.TrimSpace(value)
-	default:
-		return strings.TrimSpace(strings.TrimSpace(toJSONString(value)))
-	}
-}
-
-func decodeMemoryArtifacts(raw any) []MemoryArtifact {
-	if raw == nil {
-		return []MemoryArtifact{}
-	}
-	data, err := json.Marshal(raw)
-	if err != nil {
-		return []MemoryArtifact{}
-	}
-	var out []MemoryArtifact
-	if err := json.Unmarshal(data, &out); err != nil {
-		return []MemoryArtifact{}
+func compactMemoryArtifacts(items []MemoryArtifact) []MemoryArtifact {
+	out := make([]MemoryArtifact, 0, len(items))
+	for _, item := range items {
+		if strings.TrimSpace(item.Kind) == "" && strings.TrimSpace(item.Summary) == "" && strings.TrimSpace(item.Ref) == "" {
+			continue
+		}
+		out = append(out, item)
 	}
 	if out == nil {
 		return []MemoryArtifact{}
 	}
 	return out
-}
-
-func toJSONString(value any) string {
-	data, err := json.Marshal(value)
-	if err != nil {
-		return ""
-	}
-	return string(data)
 }

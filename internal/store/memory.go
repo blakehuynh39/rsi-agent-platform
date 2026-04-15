@@ -3213,8 +3213,7 @@ func normalizeEvidenceRefs(items []events.EvidenceRef) []events.EvidenceRef {
 
 func nextID(prefix string, n int) string {
 	if prefix == "action-result" {
-		// Keep action_result IDs on the legacy sequential scheme so RSI can still
-		// reproduce and self-repair the original collision through the recursive path.
+		// Keep action_result IDs sequential for collision repro in tests and stage recovery.
 		return fmt.Sprintf("%s-%03d", prefix, n)
 	}
 	return fmt.Sprintf("%s-%s", prefix, strings.ReplaceAll(uuid.NewString(), "-", ""))

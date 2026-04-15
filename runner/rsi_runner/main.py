@@ -3,7 +3,8 @@ from __future__ import annotations
 import argparse
 import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from typing import Any, Dict
+
+from .json_types import JsonObject
 
 from .config import RunnerConfig, RunnerConfigError
 from .hermes_runtime import HermesRuntime, RunnerTaskRequest
@@ -13,7 +14,7 @@ class RunnerHandler(BaseHTTPRequestHandler):
     runtime: HermesRuntime
     config: RunnerConfig
 
-    def _json(self, status: int, payload: Dict[str, Any]) -> None:
+    def _json(self, status: int, payload: JsonObject) -> None:
         body = json.dumps(payload).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
@@ -40,7 +41,7 @@ class RunnerHandler(BaseHTTPRequestHandler):
             return
 
         content_length = int(self.headers.get("Content-Length", "0"))
-        payload = json.loads(self.rfile.read(content_length) or "{}")
+        payload: JsonObject = json.loads(self.rfile.read(content_length) or "{}")
         if "task" in payload or "task_type" in payload:
             task = RunnerTaskRequest.from_payload(payload)
             result = self.runtime.execute_task(task)

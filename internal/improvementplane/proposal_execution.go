@@ -71,31 +71,31 @@ func proposalAttemptPhaseWork(cfg config.Config, proposal review.Proposal, trace
 	}
 	payload["attempt_id"] = attempt.ID
 	return operation.Execution{
-		ScopeKind:     operation.ScopeAttempt,
-		ScopeID:       attempt.ID,
-		OperationKind: operationKind,
-		OperationKey:  operationKind,
-		Status:        operation.StatusQueued,
-		Queue:         queue.ProposalQueue,
-		RequestedBy:   cfg.ServiceName,
-		TraceID:       trace.Summary.TraceID,
-		ProposalID:    proposal.ID,
-		AttemptID:     attempt.ID,
-	}, queue.WorkItem{
-		Queue:          queue.ProposalQueue,
-		Kind:           operationKind,
-		Status:         queue.WorkQueued,
-		TraceID:        trace.Summary.TraceID,
-		ConversationID: proposal.ConversationID,
-		CaseID:         proposal.CaseID,
-		TriggerEventID: proposal.OriginTraceID,
-		ProposalID:     proposal.ID,
-		RequestedBy:    cfg.ServiceName,
-		ApprovalMode:   "human_review",
-		CreatedAt:      now,
-		UpdatedAt:      now,
-		Payload:        payload,
-	}
+			ScopeKind:     operation.ScopeAttempt,
+			ScopeID:       attempt.ID,
+			OperationKind: operationKind,
+			OperationKey:  operationKind,
+			Status:        operation.StatusQueued,
+			Queue:         queue.ProposalQueue,
+			RequestedBy:   cfg.ServiceName,
+			TraceID:       trace.Summary.TraceID,
+			ProposalID:    proposal.ID,
+			AttemptID:     attempt.ID,
+		}, queue.WorkItem{
+			Queue:          queue.ProposalQueue,
+			Kind:           operationKind,
+			Status:         queue.WorkQueued,
+			TraceID:        trace.Summary.TraceID,
+			ConversationID: proposal.ConversationID,
+			CaseID:         proposal.CaseID,
+			TriggerEventID: proposal.OriginTraceID,
+			ProposalID:     proposal.ID,
+			RequestedBy:    cfg.ServiceName,
+			ApprovalMode:   "human_review",
+			CreatedAt:      now,
+			UpdatedAt:      now,
+			Payload:        payload,
+		}
 }
 
 func processProposalLineActivate(cfg config.Config, store storepkg.Store, proposal review.Proposal, trace events.Trace, item queue.WorkItem) error {
@@ -112,20 +112,20 @@ func processProposalLineActivate(cfg config.Config, store storepkg.Store, propos
 		Attempt:     &attempt,
 		TraceID:     attemptTrace.Summary.TraceID,
 		TraceUpdate: &storepkg.TraceUpdate{
-		Events: []events.TraceEvent{
-			{
-				TraceID:     attemptTrace.Summary.TraceID,
-				IngestionID: attemptTrace.Summary.IngestionID,
-				WorkflowID:  attemptTrace.Summary.WorkflowID,
-				Plane:       "improvement",
-				Service:     cfg.ServiceName,
-				Actor:       "attempt-supervisor",
-				EventType:   "change_attempt.phase_queued",
-				Status:      events.StatusQueued,
-				StartedAt:   now,
-				Description: fmt.Sprintf("Activated proposal line %s and queued %s for attempt %s.", proposal.ID, proposalOperationAttemptPlan, attempt.ID),
+			Events: []events.TraceEvent{
+				{
+					TraceID:     attemptTrace.Summary.TraceID,
+					IngestionID: attemptTrace.Summary.IngestionID,
+					WorkflowID:  attemptTrace.Summary.WorkflowID,
+					Plane:       "improvement",
+					Service:     cfg.ServiceName,
+					Actor:       "attempt-supervisor",
+					EventType:   "change_attempt.phase_queued",
+					Status:      events.StatusQueued,
+					StartedAt:   now,
+					Description: fmt.Sprintf("Activated proposal line %s and queued %s for attempt %s.", proposal.ID, proposalOperationAttemptPlan, attempt.ID),
+				},
 			},
-		},
 		},
 		NextOperation: &nextOp,
 		NextWorkItem:  &nextItem,
@@ -159,20 +159,20 @@ func processProposalAttemptPlan(cfg config.Config, store storepkg.Store, proposa
 		Attempt:     &attempt,
 		TraceID:     attemptTrace.Summary.TraceID,
 		TraceUpdate: &storepkg.TraceUpdate{
-		Events: []events.TraceEvent{
-			{
-				TraceID:     attemptTrace.Summary.TraceID,
-				IngestionID: attemptTrace.Summary.IngestionID,
-				WorkflowID:  attemptTrace.Summary.WorkflowID,
-				Plane:       "improvement",
-				Service:     cfg.ServiceName,
-				Actor:       "attempt-supervisor",
-				EventType:   "change_attempt.phase_queued",
-				Status:      events.StatusQueued,
-				StartedAt:   now,
-				Description: fmt.Sprintf("Attempt %s entered planning and queued %s.", attempt.ID, nextPhase),
+			Events: []events.TraceEvent{
+				{
+					TraceID:     attemptTrace.Summary.TraceID,
+					IngestionID: attemptTrace.Summary.IngestionID,
+					WorkflowID:  attemptTrace.Summary.WorkflowID,
+					Plane:       "improvement",
+					Service:     cfg.ServiceName,
+					Actor:       "attempt-supervisor",
+					EventType:   "change_attempt.phase_queued",
+					Status:      events.StatusQueued,
+					StartedAt:   now,
+					Description: fmt.Sprintf("Attempt %s entered planning and queued %s.", attempt.ID, nextPhase),
+				},
 			},
-		},
 		},
 		NextOperation: &nextOp,
 		NextWorkItem:  &nextItem,
@@ -247,21 +247,21 @@ func processProposalWorkspaceOpen(cfg config.Config, store storepkg.Store, launc
 		Workspace:     &workspace,
 		RepoChangeJob: &job,
 		TraceID:       attemptTrace.Summary.TraceID,
-		TraceUpdate:   &storepkg.TraceUpdate{
-		Events: []events.TraceEvent{
-			{
-				TraceID:     attemptTrace.Summary.TraceID,
-				IngestionID: attemptTrace.Summary.IngestionID,
-				WorkflowID:  attemptTrace.Summary.WorkflowID,
-				Plane:       "improvement",
-				Service:     cfg.ServiceName,
-				Actor:       "attempt-supervisor",
-				EventType:   "workspace.ready",
-				Status:      events.StatusQueued,
-				StartedAt:   now,
-				Description: fmt.Sprintf("Workspace %s is ready; queued %s for attempt %s.", workspace.ID, proposalOperationImplementAttempt, attempt.ID),
+		TraceUpdate: &storepkg.TraceUpdate{
+			Events: []events.TraceEvent{
+				{
+					TraceID:     attemptTrace.Summary.TraceID,
+					IngestionID: attemptTrace.Summary.IngestionID,
+					WorkflowID:  attemptTrace.Summary.WorkflowID,
+					Plane:       "improvement",
+					Service:     cfg.ServiceName,
+					Actor:       "attempt-supervisor",
+					EventType:   "workspace.ready",
+					Status:      events.StatusQueued,
+					StartedAt:   now,
+					Description: fmt.Sprintf("Workspace %s is ready; queued %s for attempt %s.", workspace.ID, proposalOperationImplementAttempt, attempt.ID),
+				},
 			},
-		},
 		},
 		NextOperation: &nextOp,
 		NextWorkItem:  &nextItem,
@@ -344,7 +344,11 @@ func processProposalImplementAttempt(cfg config.Config, store storepkg.Store, ru
 			); err != nil {
 				return err
 			}
-			runnerOutput = runnerutil.ParseStructuredOutput(runnerResp)
+			var parseErr error
+			runnerOutput, parseErr = runnerutil.ParseStructuredOutput(runnerResp)
+			if parseErr != nil {
+				return parseErr
+			}
 		}
 	}
 	if runnerErr != nil {
@@ -363,33 +367,33 @@ func processProposalImplementAttempt(cfg config.Config, store storepkg.Store, ru
 			Payload:     payload,
 			TraceID:     attemptTrace.Summary.TraceID,
 			TraceUpdate: &storepkg.TraceUpdate{
-			Events: []events.TraceEvent{
-				{
-					TraceID:     attemptTrace.Summary.TraceID,
-					IngestionID: attemptTrace.Summary.IngestionID,
-					WorkflowID:  attemptTrace.Summary.WorkflowID,
-					Plane:       "execution",
-					Service:     "runner",
-					Actor:       "proposal",
-					EventType:   "runner.failed",
-					Status:      events.StatusFailed,
-					StartedAt:   runnerStarted,
-					EndedAt:     ptrTime(now),
-					Description: fmt.Sprintf("Proposal runner failed; attempt remains resumable and will retry after %s: %v", retryAt.Format(time.RFC3339), runnerErr),
+				Events: []events.TraceEvent{
+					{
+						TraceID:     attemptTrace.Summary.TraceID,
+						IngestionID: attemptTrace.Summary.IngestionID,
+						WorkflowID:  attemptTrace.Summary.WorkflowID,
+						Plane:       "execution",
+						Service:     "runner",
+						Actor:       "proposal",
+						EventType:   "runner.failed",
+						Status:      events.StatusFailed,
+						StartedAt:   runnerStarted,
+						EndedAt:     ptrTime(now),
+						Description: fmt.Sprintf("Proposal runner failed; attempt remains resumable and will retry after %s: %v", retryAt.Format(time.RFC3339), runnerErr),
+					},
 				},
-			},
-			Reasoning: []events.ReasoningStep{
-				{
-					ID:         fmt.Sprintf("reason-proposal-retry-%d", now.UnixNano()),
-					TraceID:    attemptTrace.Summary.TraceID,
-					WorkflowID: attemptTrace.Summary.WorkflowID,
-					StepType:   "proposal_runner_retry",
-					Summary:    "Proposal runner failed closed. The attempt was deferred without materializing further side effects.",
-					Confidence: 0.93,
-					Decision:   retryAt.Format(time.RFC3339),
-					CreatedAt:  now,
+				Reasoning: []events.ReasoningStep{
+					{
+						ID:         fmt.Sprintf("reason-proposal-retry-%d", now.UnixNano()),
+						TraceID:    attemptTrace.Summary.TraceID,
+						WorkflowID: attemptTrace.Summary.WorkflowID,
+						StepType:   "proposal_runner_retry",
+						Summary:    "Proposal runner failed closed. The attempt was deferred without materializing further side effects.",
+						Confidence: 0.93,
+						Decision:   retryAt.Format(time.RFC3339),
+						CreatedAt:  now,
+					},
 				},
-			},
 			},
 		}); err != nil {
 			return err
@@ -624,50 +628,50 @@ func processProposalWorkspaceValidate(cfg config.Config, store storepkg.Store, t
 		Workspace:     &workspace,
 		RepoChangeJob: &job,
 		TraceID:       attemptTrace.Summary.TraceID,
-		TraceUpdate:   &storepkg.TraceUpdate{
-		Events: []events.TraceEvent{
-			{
-				TraceID:     attemptTrace.Summary.TraceID,
-				IngestionID: attemptTrace.Summary.IngestionID,
-				WorkflowID:  attemptTrace.Summary.WorkflowID,
-				Plane:       "improvement",
-				Service:     cfg.ServiceName,
-				Actor:       "worker",
-				EventType:   "workspace.validation.completed",
-				Status:      events.StatusQueued,
-				StartedAt:   now,
-				Description: fmt.Sprintf("Validated workspace %s and queued governed draft PR open for branch %s.", workspace.ID, branchName),
+		TraceUpdate: &storepkg.TraceUpdate{
+			Events: []events.TraceEvent{
+				{
+					TraceID:     attemptTrace.Summary.TraceID,
+					IngestionID: attemptTrace.Summary.IngestionID,
+					WorkflowID:  attemptTrace.Summary.WorkflowID,
+					Plane:       "improvement",
+					Service:     cfg.ServiceName,
+					Actor:       "worker",
+					EventType:   "workspace.validation.completed",
+					Status:      events.StatusQueued,
+					StartedAt:   now,
+					Description: fmt.Sprintf("Validated workspace %s and queued governed draft PR open for branch %s.", workspace.ID, branchName),
+				},
 			},
-		},
-		Artifacts: []events.Artifact{
-			{
-				ID:          fmt.Sprintf("artifact-patch-%d", now.UnixNano()),
-				TraceID:     attemptTrace.Summary.TraceID,
-				Kind:        "repo_patch",
-				ContentType: "text/x-diff",
-				URL:         fmt.Sprintf("memory://attempt/%s/repo.patch", attempt.ID),
-				SizeBytes:   int64(len(attempt.RepoPatch)),
-				Source:      "improvement-plane",
+			Artifacts: []events.Artifact{
+				{
+					ID:          fmt.Sprintf("artifact-patch-%d", now.UnixNano()),
+					TraceID:     attemptTrace.Summary.TraceID,
+					Kind:        "repo_patch",
+					ContentType: "text/x-diff",
+					URL:         fmt.Sprintf("memory://attempt/%s/repo.patch", attempt.ID),
+					SizeBytes:   int64(len(attempt.RepoPatch)),
+					Source:      "improvement-plane",
+				},
+				{
+					ID:          fmt.Sprintf("artifact-workspace-%d", now.UnixNano()),
+					TraceID:     attemptTrace.Summary.TraceID,
+					Kind:        "workspace_diff_summary",
+					ContentType: "text/plain",
+					URL:         fmt.Sprintf("memory://workspace/%s/diff.txt", workspace.ID),
+					SizeBytes:   int64(len(attempt.DiffSummary)),
+					Source:      "improvement-plane",
+				},
 			},
-			{
-				ID:          fmt.Sprintf("artifact-workspace-%d", now.UnixNano()),
-				TraceID:     attemptTrace.Summary.TraceID,
-				Kind:        "workspace_diff_summary",
-				ContentType: "text/plain",
-				URL:         fmt.Sprintf("memory://workspace/%s/diff.txt", workspace.ID),
-				SizeBytes:   int64(len(attempt.DiffSummary)),
-				Source:      "improvement-plane",
-			},
-		},
-		Reasoning: []events.ReasoningStep{
-			{
-				ID:         fmt.Sprintf("reason-workspace-validate-%d", now.UnixNano()),
-				TraceID:    attemptTrace.Summary.TraceID,
-				WorkflowID: attemptTrace.Summary.WorkflowID,
-				StepType:   "workspace_validate",
-				Summary:    fmt.Sprintf("Validated workspace-backed diff for attempt %s using %q.", attempt.ID, validationCommand),
-				Confidence: 0.87,
-				Decision:   branchName,
+			Reasoning: []events.ReasoningStep{
+				{
+					ID:         fmt.Sprintf("reason-workspace-validate-%d", now.UnixNano()),
+					TraceID:    attemptTrace.Summary.TraceID,
+					WorkflowID: attemptTrace.Summary.WorkflowID,
+					StepType:   "workspace_validate",
+					Summary:    fmt.Sprintf("Validated workspace-backed diff for attempt %s using %q.", attempt.ID, validationCommand),
+					Confidence: 0.87,
+					Decision:   branchName,
 					CreatedAt:  now,
 				},
 			},

@@ -1,73 +1,7 @@
-import type {
-  ActionResult,
-  KnowledgeEntry,
-  KnowledgeSegment,
-  NullableList,
-  PRAttempt,
-  RepoChangeJob,
-  TabKey,
-  ViewState
-} from "@/types";
-
-const TAB_KEYS: TabKey[] = ["conversations", "cases", "proposals", "knowledge", "harness"];
-
-export function readViewState(): ViewState {
-  const params = new URLSearchParams(window.location.search);
-  const tabRaw = params.get("tab");
-  const tab: TabKey = tabRaw && TAB_KEYS.includes(tabRaw as TabKey) ? (tabRaw as TabKey) : "conversations";
-  return {
-    tab,
-    conversation: params.get("conversation") ?? undefined,
-    case: params.get("case") ?? undefined,
-    trace: params.get("trace") ?? undefined,
-    proposal: params.get("proposal") ?? undefined,
-    knowledge: params.get("knowledge") ?? undefined,
-    role: params.get("role") ?? undefined
-  };
-}
-
-export function writeViewState(state: ViewState): void {
-  const params = new URLSearchParams();
-  params.set("tab", state.tab);
-  if (state.conversation) params.set("conversation", state.conversation);
-  if (state.case) params.set("case", state.case);
-  if (state.trace) params.set("trace", state.trace);
-  if (state.proposal) params.set("proposal", state.proposal);
-  if (state.knowledge) params.set("knowledge", state.knowledge);
-  if (state.role) params.set("role", state.role);
-  const qs = params.toString();
-  const url = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
-  window.history.pushState(null, "", url);
-}
-
-export function getJSON<T>(url: string): Promise<T> {
-  return fetch(url).then(async (response) => {
-    if (!response.ok) {
-      throw new Error(`Request failed: ${response.status}`);
-    }
-    return response.json();
-  });
-}
-
-export function postJSON<T>(url: string, body: Record<string, unknown>): Promise<T> {
-  return fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  }).then(async (response) => {
-    if (!response.ok) {
-      throw new Error(`Request failed: ${response.status}`);
-    }
-    return response.json();
-  });
-}
+import type { ActionResult, JsonObject, KnowledgeEntry, KnowledgeSegment, NullableList, RepoChangeJob, PRAttempt, TabKey, ViewState } from "@/types";
 
 export function listOrEmpty<T>(items: NullableList<T> | undefined): T[] {
   return items ?? [];
-}
-
-export function recordOrEmpty<T>(items: Record<string, T> | undefined): Record<string, T> {
-  return items ?? {};
 }
 
 export function formatTime(value?: string) {
@@ -86,29 +20,79 @@ export function scoreBadge(score?: number) {
   return score.toFixed(2);
 }
 
-export function actionResultsForIntent(intentId: string, results: NullableList<ActionResult> | undefined) {
-  return listOrEmpty(results).filter((item) => item.action_intent_id === intentId);
+export function getJSON<T>(url: string): Promise<T> {
+  return fetch(url).then(async (response) => {
+    if (!response.ok) {
+      throw new Error(`Request failed: ${response.status}`);
+    }
+    return response.json();
+  });
+}
+
+export function postJSON<T>(url: string, body: JsonObject): Promise<T> {
+  return fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  }).then(async (response) => {
+    if (!response.ok) {
+      throw new Error(`Request failed: ${response.status}`);
+    }
+    return response.json();
+  });
+}
+
+export function readViewState(): ViewState {
+  const params = new URLSearchParams(window.location.search);
+  const tabValue = params.get("tab");
+  const tab: TabKey =
+    tabValue === "cases" ? "cases" :
+    tabValue === "proposals" ? "proposals" :
+    tabValue === "knowledge" ? "knowledge" :
+    tabValue === "harness" ? "harness" :
+    "conversations";
+  return {
+    tab,
+    conversation: params.get("conversation") || undefined,
+    case: params.get("case") || undefined,
+    trace: params.get("trace") || undefined,
+    proposal: params.get("proposal") || undefined,
+    knowledge: params.get("knowledge") || undefined,
+    role: params.get("role") || undefined
+  };
+}
+
+export function writeViewState(next: ViewState) {
+  const params = new URLSearchParams();
+  params.set("tab", next.tab);
+  if (next.conversation) params.set("conversation", next.conversation);
+  if (next.case) params.set("case", next.case);
+  if (next.trace) params.set("trace", next.trace);
+  if (next.proposal) params.set("proposal", next.proposal);
+  if (next.knowledge) params.set("knowledge", next.knowledge);
+  if (next.role) params.set("role", next.role);
+  const query = params.toString();
+  const target = `${window.location.pathname}${query ? `?${query}` : ""}`;
+  window.history.replaceState({}, "", target);
+}
+
+export function knowledgeEntriesForSegment(entries: KnowledgeEntry[], segment: KnowledgeSegment) {
+  switch (segment) {
+    case "working":
+      return entries.filter((item) => item.tier === "working" && item.status === "draft");
+    case "review":
+      return entries.filter((item) => item.status === "review_pending");
+    case "canonical":
+      return entries.filter((item) => item.status === "canonical" || item.tier === "canonical");
+    case "stale":
+      return entries.filter((item) => ["stale", "contradicted", "archived"].includes(item.status));
+    default:
+      return entries;
+  }
 }
 
 export function latestActionResult(intentId: string, results: NullableList<ActionResult> | undefined) {
-  return actionResultsForIntent(intentId, results)[0];
-}
-
-export function knowledgeEntriesForSegment(entries: KnowledgeEntry[], segment: KnowledgeSegment): KnowledgeEntry[] {
-  return entries.filter((entry) => {
-    switch (segment) {
-      case "working":
-        return entry.tier === "working";
-      case "review":
-        return entry.status === "review_pending";
-      case "canonical":
-        return entry.tier === "canonical" || entry.status === "canonical";
-      case "stale":
-        return entry.status === "stale";
-      default:
-        return true;
-    }
-  });
+  return listOrEmpty(results).filter((item) => item.action_intent_id === intentId)[0];
 }
 
 export function proposalJobState(proposalId: string, jobs: NullableList<RepoChangeJob> | undefined): RepoChangeJob | undefined {

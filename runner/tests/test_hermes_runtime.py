@@ -18,6 +18,7 @@ def runner_env(role: str = "prod") -> dict[str, str]:
         "RSI_RUNNER_PORT": "8090",
         "RSI_RUNNER_MODEL": "openai/gpt-5.4",
         "RSI_RUNNER_REASONING_EFFORT": "xhigh",
+        "RSI_HERMES_PIN": "0e336b0e717027cbb81fcb5816246b7aec2d4a47",
         "RSI_RUNNER_PUBLIC_BASE_URL": "https://staging-rsi-platform.storyprotocol.net",
         "RSI_TOOL_GATEWAY_BASE_URL": "http://tool-gateway.internal:8080",
         "HERMES_HOME": "/tmp/hermes",
@@ -32,6 +33,8 @@ def runner_env(role: str = "prod") -> dict[str, str]:
         "RSI_RUNNER_PROPOSAL_MAX_ITERATIONS": "5",
         "RSI_RUNNER_EVAL_TASK_TIMEOUT": "300s",
         "RSI_RUNNER_PROPOSAL_TASK_TIMEOUT": "420s",
+        "RSI_RUNNER_EVAL_INACTIVITY_TIMEOUT": "240s",
+        "RSI_RUNNER_PROPOSAL_INACTIVITY_TIMEOUT": "360s",
         "RSI_RUNNER_PROD_TIMEOUT": "60s",
         "RSI_RUNNER_PROACTIVE_TIMEOUT": "60s",
         "RSI_RUNNER_EVAL_TIMEOUT": "330s",
@@ -230,8 +233,47 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["honcho_write_frequency"], "async")
         self.assertEqual(result.raw["honcho_session_strategy"], "hybrid")
         self.assertEqual(result.raw["honcho_ai_peer"], "rsi:stage:eval")
+        self.assertEqual(result.raw["hermes_pin"], "0e336b0e717027cbb81fcb5816246b7aec2d4a47")
         self.assertIn("structured_output", result.raw)
         self.assertEqual(result.raw["structured_output"]["final_answer"], "Final reply")
+
+    def test_non_json_runner_output_fails_closed(self) -> None:
+        class UnstructuredAIAgent(FakeAIAgent):
+            def run_conversation(
+                self,
+                prompt: str,
+                system_message: str | None = None,
+                conversation_history: list[dict] | None = None,
+            ) -> dict:
+                type(self).last_prompt = prompt
+                type(self).last_system_message = system_message
+                type(self).last_history = conversation_history or []
+                return {"final_response": "plain text response"}
+
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "eval",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the eval.",
+                    "session_scope_kind": "eval_line",
+                    "session_scope_id": "shared-store:pk-collision",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:eval",
+                    "user_peer_id": "operator:alice",
+                }
+            }
+        )
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", UnstructuredAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("eval"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertFalse(result.ok)
+        self.assertIn("structured output", result.message)
+        self.assertEqual(result.raw["raw_response"], "plain text response")
+        self.assertIn("structured_output_error", result.raw)
 
     def test_system_message_is_forwarded_to_hermes_run_conversation(self) -> None:
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
@@ -313,6 +355,36 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("repo.context", result.raw["tool_allowlist_effective"])
         self.assertIn("rsi.candidate_context", result.raw["tool_allowlist_effective"])
 
+    def test_prod_role_uses_governed_read_only_tool_policy(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the active workflow.",
+                    "allowed_tools": ["repo.context", "knowledge.context", "github.create_pr"],
+                    "tool_allowlist": ["repo.context", "knowledge.context", "github.create_pr"],
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                    "user_peer_id": "user:alice",
+                }
+            }
+        )
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertIn("repo.context", FakeAIAgent.last_valid_tool_names)
+        self.assertIn("knowledge.context", FakeAIAgent.last_valid_tool_names)
+        self.assertNotIn("github.create_pr", FakeAIAgent.last_valid_tool_names)
+        self.assertEqual(result.raw["tool_policy_mode"], "enforced_read_only")
+        self.assertIn("github.create_pr", result.raw["blocked_tool_names"])
+
     def test_eval_task_timeout_returns_structured_timeout(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
@@ -343,6 +415,38 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["transport_timeout_seconds"], 330)
         self.assertEqual(result.raw["tool_policy_mode"], "enforced_read_only")
 
+    def test_eval_inactivity_timeout_returns_structured_timeout(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "eval",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the eval.",
+                    "timeout_seconds": 10,
+                    "session_scope_kind": "eval_line",
+                    "session_scope_id": "shared-store:pk-collision",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:eval",
+                    "user_peer_id": "operator:alice",
+                }
+            }
+        )
+        FakeAIAgent.sleep_seconds = 1.2
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(
+            os.environ,
+            {**runner_env("eval"), "RSI_RUNNER_EVAL_TASK_TIMEOUT": "10s", "RSI_RUNNER_EVAL_INACTIVITY_TIMEOUT": "1s"},
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertFalse(result.ok)
+        self.assertIn("inactivity timeout", result.message)
+        self.assertEqual(result.raw["timeout_kind"], "inactivity_timeout")
+        self.assertEqual(result.raw["inactivity_timeout_seconds"], 1)
+
     def test_runtime_metadata_reports_role_contract(self) -> None:
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
@@ -351,8 +455,11 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertEqual(runtime.metadata["max_iterations"], 5)
         self.assertEqual(runtime.metadata["task_timeout_seconds"], 420)
+        self.assertEqual(runtime.metadata["inactivity_timeout_seconds"], 360)
         self.assertEqual(runtime.metadata["transport_timeout_seconds"], 450)
         self.assertEqual(runtime.metadata["tool_policy_mode"], "enforced_read_only")
+        self.assertEqual(runtime.metadata["hermes_pin"], "0e336b0e717027cbb81fcb5816246b7aec2d4a47")
+        self.assertEqual(runtime.metadata["session_continuity_status"], "ok")
         self.assertIn("repo.context", runtime.metadata["tool_allowlist_effective"])
 
     def test_eval_role_rejects_repo_change_task(self) -> None:

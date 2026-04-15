@@ -287,7 +287,10 @@ func resumeAfterContextPhase(cfg config.Config, store storepkg.Store, runnerClie
 	); err != nil {
 		return err
 	}
-	runnerOutput := runnerutil.ParseStructuredOutput(runnerResp)
+	runnerOutput, err := runnerutil.ParseStructuredOutput(runnerResp)
+	if err != nil {
+		return err
+	}
 	runnerCompleted := time.Now().UTC()
 	if err := persistKnowledgeDrafts(store, ctx.trace, runnerOutput.KnowledgeDrafts, runnerCompleted); err != nil {
 		return err
@@ -666,20 +669,20 @@ func maybeEnqueuePhaseResume(store storepkg.Store, item queue.WorkItem, intent a
 	}
 }
 
-func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace events.Trace, workflow storepkg.Workflow, ingestion slackpkg.Ingestion, contextSummary string, contextRefs []map[string]any, toolNames []string) clients.RunnerTask {
+func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace events.Trace, workflow storepkg.Workflow, ingestion slackpkg.Ingestion, contextSummary string, contextRefs []clients.RunnerContextRef, toolNames []string) clients.RunnerTask {
 	effectiveHarness := harness.ResolveEffectiveConfig(store, role, cfg.DefaultReasoningVerbosity)
-	caseSummary := map[string]any{}
+	var caseSummary *clients.RunnerCaseSummary
 	if caseRecord, ok := store.GetCase(trace.Summary.CaseID); ok {
-		caseSummary = map[string]any{
-			"case_id":         caseRecord.ID,
-			"conversation_id": caseRecord.ConversationID,
-			"kind":            caseRecord.Kind,
-			"intent":          caseRecord.Intent,
-			"title":           caseRecord.Title,
-			"summary":         caseRecord.Summary,
-			"status":          caseRecord.Status,
-			"assigned_bot":    caseRecord.AssignedBot,
-			"latest_trace_id": caseRecord.LatestTraceID,
+		caseSummary = &clients.RunnerCaseSummary{
+			CaseID:         caseRecord.ID,
+			ConversationID: caseRecord.ConversationID,
+			Kind:           caseRecord.Kind,
+			Intent:         caseRecord.Intent,
+			Title:          caseRecord.Title,
+			Summary:        caseRecord.Summary,
+			Status:         string(caseRecord.Status),
+			AssignedBot:    caseRecord.AssignedBot,
+			LatestTraceID:  caseRecord.LatestTraceID,
 		}
 	}
 	recentEntries := recentConversationEntries(store.ListConversationEntries(trace.Summary.ConversationID))
@@ -717,7 +720,7 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		ContextRefs:               contextRefs,
 		ApprovalMode:              workflow.ApprovalMode,
 		ReasoningVerbosity:        effectiveHarness.ReasoningVerbosity,
-		RejectedProposalContext:   []map[string]any{},
+		RejectedProposalContext:   []clients.RunnerRejectedProposalContext{},
 		SessionScopeKind:          sessionScopeKind,
 		SessionScopeID:            sessionScopeID,
 		ParentSessionScopeKind:    parentScopeKind,
@@ -850,39 +853,40 @@ func draftSlackPostAction(cfg config.Config, store storepkg.Store, resumeQueue q
 	}, reasoning, nil
 }
 
-func recentConversationEntries(items []conversation.Entry) []map[string]any {
+func recentConversationEntries(items []conversation.Entry) []clients.RunnerConversationEntry {
 	if len(items) > 8 {
 		items = items[len(items)-8:]
 	}
-	out := make([]map[string]any, 0, len(items))
+	out := make([]clients.RunnerConversationEntry, 0, len(items))
 	for _, item := range items {
-		out = append(out, map[string]any{
-			"id":              item.ID,
-			"event_id":        item.EventID,
-			"entry_type":      item.EntryType,
-			"actor_id":        item.ActorID,
-			"actor_type":      item.ActorType,
-			"body":            item.Body,
-			"created_at":      item.CreatedAt,
-			"source":          item.Source,
-			"source_event_id": item.SourceEventID,
+		out = append(out, clients.RunnerConversationEntry{
+			ID:            item.ID,
+			EventID:       item.EventID,
+			TraceID:       item.TraceID,
+			Source:        string(item.Source),
+			SourceEventID: item.SourceEventID,
+			EntryType:     item.EntryType,
+			ActorID:       item.ActorID,
+			ActorType:     item.ActorType,
+			Body:          item.Body,
+			CreatedAt:     item.CreatedAt,
 		})
 	}
 	return out
 }
 
-func priorTraceRefsForCase(items []events.TraceSummary, caseID string, currentTraceID string) []map[string]any {
-	out := make([]map[string]any, 0)
+func priorTraceRefsForCase(items []events.TraceSummary, caseID string, currentTraceID string) []clients.RunnerTraceRef {
+	out := make([]clients.RunnerTraceRef, 0)
 	for _, item := range items {
 		if item.CaseID != caseID || item.TraceID == currentTraceID {
 			continue
 		}
-		out = append(out, map[string]any{
-			"trace_id":         item.TraceID,
-			"status":           item.Status,
-			"workflow_kind":    item.WorkflowKind,
-			"started_at":       item.StartedAt,
-			"trigger_event_id": item.TriggerEventID,
+		out = append(out, clients.RunnerTraceRef{
+			TraceID:        item.TraceID,
+			Status:         string(item.Status),
+			WorkflowKind:   item.WorkflowKind,
+			StartedAt:      item.StartedAt,
+			TriggerEventID: item.TriggerEventID,
 		})
 		if len(out) == 6 {
 			break
@@ -912,11 +916,11 @@ func findIngestion(items []slackpkg.Ingestion, ingestionID string) (slackpkg.Ing
 func toolPlanForIntent(intent string, question string, repo string) []string {
 	switch intent {
 	case "incident":
-		return []string{"sentry.lookup", "kubernetes.inspect"}
+		return []string{"sentry.lookup", "kubernetes.inspect", "rsi.workflow_context", "rsi.action_chain", "rsi.runtime_health"}
 	case "feature_request":
-		return []string{"repo.context", "github.repo_context"}
+		return []string{"repo.context", "github.repo_context", "rsi.workflow_context", "rsi.action_chain"}
 	default:
-		plan := []string{"repo.context", "knowledge.context"}
+		plan := []string{"repo.context", "knowledge.context", "rsi.workflow_context", "rsi.action_chain"}
 		if shouldUseGitHubRepoActivity(question, repo) {
 			plan = append(plan, "github.repo_activity")
 		}
@@ -959,13 +963,13 @@ func replyPolicy(store storepkg.Store, workflowKind string, threadKey string, ch
 	return false, "channel_policy_missing"
 }
 
-func evidenceRefsFromContext(contextRefs []map[string]any) []events.EvidenceRef {
+func evidenceRefsFromContext(contextRefs []clients.RunnerContextRef) []events.EvidenceRef {
 	out := make([]events.EvidenceRef, 0, len(contextRefs))
 	for _, ref := range contextRefs {
 		out = append(out, events.EvidenceRef{
-			Kind:    stringFromMap(ref, "kind"),
-			Ref:     firstNonEmpty(stringFromMap(ref, "ref"), stringFromMap(ref, "tool_call_id")),
-			Summary: stringFromMap(ref, "summary"),
+			Kind:    ref.Kind,
+			Ref:     firstNonEmpty(ref.Ref, ref.ToolCallID),
+			Summary: ref.Summary,
 		})
 	}
 	return out
@@ -1222,28 +1226,10 @@ func enqueueControlActionWork(store storepkg.Store, resumeQueue queue.QueueName,
 		RequestedBy:   "control_orchestrator",
 		TraceID:       ctx.trace.Summary.TraceID,
 		AttemptID:     intent.AttemptID,
-	}, queue.WorkItem{
-		Queue:          queue.ControlActionQueue,
-		Kind:           "execute_action",
-		Status:         queue.WorkQueued,
-		TraceID:        ctx.trace.Summary.TraceID,
-		WorkflowID:     ctx.trace.Summary.WorkflowID,
-		IngestionID:    ctx.trace.Summary.IngestionID,
-		ConversationID: ctx.trace.Summary.ConversationID,
-		CaseID:         ctx.trace.Summary.CaseID,
-		TriggerEventID: ctx.trace.Summary.TriggerEventID,
-		ThreadKey:      ctx.trace.Summary.ThreadKey,
-		Intent:         workflow.Intent,
-		RequestedBy:    "control_orchestrator",
-		ApprovalMode:   workflow.ApprovalMode,
-		ResponseMode:   workflow.ResponseMode,
-		Payload: map[string]any{
-			"action_intent_id": intent.ID,
-			"resume_queue":     string(resumeQueue),
-		},
-		CreatedAt: time.Now().UTC(),
-		UpdatedAt: time.Now().UTC(),
-	})
+	}, workflowWorkItemBase(ctx, queue.ControlActionQueue, "execute_action", "control_orchestrator", time.Now().UTC(), workflow.Intent, map[string]any{
+		"action_intent_id": intent.ID,
+		"resume_queue":     string(resumeQueue),
+	}))
 }
 
 func enqueueWorkflowResume(store storepkg.Store, queueName queue.QueueName, ctx workflowContext, kind string, createdAt time.Time) (queue.WorkItem, error) {
@@ -1256,25 +1242,7 @@ func enqueueWorkflowResume(store storepkg.Store, queueName queue.QueueName, ctx 
 		Queue:         queueName,
 		RequestedBy:   "control_action_worker",
 		TraceID:       ctx.trace.Summary.TraceID,
-	}, queue.WorkItem{
-		Queue:          queueName,
-		Kind:           kind,
-		Status:         queue.WorkQueued,
-		TraceID:        ctx.trace.Summary.TraceID,
-		WorkflowID:     ctx.trace.Summary.WorkflowID,
-		IngestionID:    ctx.trace.Summary.IngestionID,
-		ConversationID: ctx.trace.Summary.ConversationID,
-		CaseID:         ctx.trace.Summary.CaseID,
-		TriggerEventID: ctx.trace.Summary.TriggerEventID,
-		ThreadKey:      ctx.trace.Summary.ThreadKey,
-		Intent:         ctx.workflow.Intent,
-		RequestedBy:    "control_action_worker",
-		ApprovalMode:   ctx.workflow.ApprovalMode,
-		ResponseMode:   ctx.workflow.ResponseMode,
-		Payload:        map[string]any{},
-		CreatedAt: createdAt,
-		UpdatedAt: createdAt,
-	})
+	}, workflowWorkItemBase(ctx, queueName, kind, "control_action_worker", createdAt, ctx.workflow.Intent, map[string]any{}))
 }
 
 func queueEvalWork(store storepkg.Store, requestedBy string, ctx workflowContext, createdAt time.Time) (queue.WorkItem, error) {
@@ -1287,24 +1255,7 @@ func queueEvalWork(store storepkg.Store, requestedBy string, ctx workflowContext
 		Queue:         queue.EvalQueue,
 		RequestedBy:   requestedBy,
 		TraceID:       ctx.trace.Summary.TraceID,
-	}, queue.WorkItem{
-		Queue:          queue.EvalQueue,
-		Kind:           "evaluate_trace",
-		Status:         queue.WorkQueued,
-		TraceID:        ctx.trace.Summary.TraceID,
-		WorkflowID:     ctx.trace.Summary.WorkflowID,
-		IngestionID:    ctx.trace.Summary.IngestionID,
-		ConversationID: ctx.trace.Summary.ConversationID,
-		CaseID:         ctx.trace.Summary.CaseID,
-		TriggerEventID: ctx.trace.Summary.TriggerEventID,
-		ThreadKey:      ctx.trace.Summary.ThreadKey,
-		RequestedBy:    requestedBy,
-		ApprovalMode:   ctx.workflow.ApprovalMode,
-		ResponseMode:   ctx.workflow.ResponseMode,
-		Payload:        map[string]any{},
-		CreatedAt: createdAt,
-		UpdatedAt: createdAt,
-	})
+	}, workflowWorkItemBase(ctx, queue.EvalQueue, "evaluate_trace", requestedBy, createdAt, ctx.workflow.Intent, map[string]any{}))
 }
 
 func enqueueOperationBackedWork(store storepkg.Store, op operation.Execution, item queue.WorkItem) (queue.WorkItem, error) {
@@ -1314,6 +1265,28 @@ func enqueueOperationBackedWork(store storepkg.Store, op operation.Execution, it
 	}
 	item.OperationID = created.ID
 	return store.EnqueueWorkItem(item)
+}
+
+func workflowWorkItemBase(ctx workflowContext, queueName queue.QueueName, kind string, requestedBy string, createdAt time.Time, intent string, payload map[string]any) queue.WorkItem {
+	return queue.WorkItem{
+		Queue:          queueName,
+		Kind:           kind,
+		Status:         queue.WorkQueued,
+		TraceID:        ctx.trace.Summary.TraceID,
+		WorkflowID:     ctx.trace.Summary.WorkflowID,
+		IngestionID:    ctx.trace.Summary.IngestionID,
+		ConversationID: ctx.trace.Summary.ConversationID,
+		CaseID:         ctx.trace.Summary.CaseID,
+		TriggerEventID: ctx.trace.Summary.TriggerEventID,
+		ThreadKey:      ctx.trace.Summary.ThreadKey,
+		Intent:         intent,
+		RequestedBy:    requestedBy,
+		ApprovalMode:   ctx.workflow.ApprovalMode,
+		ResponseMode:   ctx.workflow.ResponseMode,
+		Payload:        payload,
+		CreatedAt:      createdAt,
+		UpdatedAt:      createdAt,
+	}
 }
 
 func toolInputForIntent(cfg config.Config, workflow storepkg.Workflow, ingestion slackpkg.Ingestion) map[string]any {
@@ -1336,18 +1309,18 @@ func toolInputForIntent(cfg config.Config, workflow storepkg.Workflow, ingestion
 	}
 }
 
-func contextFromTrace(trace events.Trace) (string, []map[string]any, []string) {
-	contextRefs := make([]map[string]any, 0, len(trace.ToolCalls))
+func contextFromTrace(trace events.Trace) (string, []clients.RunnerContextRef, []string) {
+	contextRefs := make([]clients.RunnerContextRef, 0, len(trace.ToolCalls))
 	summaries := make([]string, 0, len(trace.ToolCalls))
 	toolNames := make([]string, 0, len(trace.ToolCalls))
 	for _, call := range trace.ToolCalls {
-		contextRefs = append(contextRefs, map[string]any{
-			"kind":         "tool_call",
-			"ref":          firstNonEmpty(call.ToolCallID, call.ID),
-			"tool_call_id": firstNonEmpty(call.ToolCallID, call.ID),
-			"summary":      call.Summary,
-			"tool_name":    call.ToolName,
-			"status":       call.Status,
+		contextRefs = append(contextRefs, clients.RunnerContextRef{
+			Kind:       "tool_call",
+			Ref:        firstNonEmpty(call.ToolCallID, call.ID),
+			ToolCallID: firstNonEmpty(call.ToolCallID, call.ID),
+			Summary:    call.Summary,
+			ToolName:   call.ToolName,
+			Status:     string(call.Status),
 		})
 		summaries = append(summaries, call.Summary)
 		if call.ToolName != "" {

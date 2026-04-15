@@ -11,10 +11,13 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/piplabs/rsi-agent-platform/internal/action"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
+	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
 
@@ -119,6 +122,122 @@ func TestUnknownToolIsRejectedWithoutStoreFallback(t *testing.T) {
 	}
 }
 
+func TestRepoContextWithoutGitHubAuthIsBlocked(t *testing.T) {
+	service := NewService(config.Config{
+		DefaultRepo: "rsi-agent-platform",
+	}, storepkg.NewMemoryStore())
+
+	result := service.Execute("repo.context", map[string]interface{}{
+		"repo":     "rsi-agent-platform",
+		"question": "Fix action_result_pkey collision in the shared store",
+	})
+
+	if result.Status != "blocked" {
+		t.Fatalf("expected blocked status, got %s %#v", result.Status, result.Output)
+	}
+	if result.Available {
+		t.Fatalf("expected repo context to be unavailable, got %+v", result)
+	}
+	if result.ApprovalState != "provider_unavailable" {
+		t.Fatalf("expected provider_unavailable approval state, got %#v", result)
+	}
+}
+
+func TestRSIRuntimeConfigReturnsSanitizedConfig(t *testing.T) {
+	service := NewService(config.Config{
+		Environment:            "stage",
+		DefaultRepo:            "rsi-agent-platform",
+		AllowedTargetRepos:     []string{"rsi-agent-platform", "depin-backend"},
+		DefaultProposalCap:     2,
+		ToolGatewayBaseURL:     "http://tool-gateway.internal:8080",
+		HonchoRuntimeBaseURL:   "http://honcho.internal:8000",
+		ProdRunnerBaseURL:      "http://runner-prod.internal:8090",
+		EvalRunnerBaseURL:      "http://runner-eval.internal:8090",
+		ProposalRunnerBaseURL:  "http://runner-proposal.internal:8090",
+		ProdRunnerTimeout:      60 * time.Second,
+		EvalRunnerTimeout:      330 * time.Second,
+		ProposalRunnerTimeout:  450 * time.Second,
+		ProactiveRunnerTimeout: 60 * time.Second,
+	}, storepkg.NewMemoryStore())
+
+	result := service.Execute("rsi.runtime_config", map[string]interface{}{})
+
+	if result.Status != "ok" {
+		t.Fatalf("expected ok status, got %s", result.Status)
+	}
+	if got := result.Output["default_repo"]; got != "rsi-agent-platform" {
+		t.Fatalf("unexpected default repo %#v", got)
+	}
+	runnerURLs, ok := result.Output["runner_urls"].(map[string]string)
+	if !ok {
+		t.Fatalf("expected runner_urls map[string]string, got %#v", result.Output["runner_urls"])
+	}
+	if runnerURLs["proposal"] != "http://runner-proposal.internal:8090" {
+		t.Fatalf("unexpected proposal runner url %#v", runnerURLs)
+	}
+}
+
+func TestRSIActionChainReturnsIntentsResultsAndOutcomes(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	intent, err := store.UpsertActionIntent(action.Intent{
+		ID:             "intent-1",
+		OwnerPlane:     "improvement",
+		TraceID:        "trace-1",
+		ProposalID:     "proposal-1",
+		AttemptID:      "attempt-1",
+		Kind:           action.KindDraftPROpen,
+		Status:         action.StatusQueued,
+		IdempotencyKey: "attempt-1:pr-open",
+		CreatedAt:      time.Now().UTC(),
+		UpdatedAt:      time.Now().UTC(),
+	})
+	if err != nil {
+		t.Fatalf("upsert action intent: %v", err)
+	}
+	if _, err := store.RecordActionResult(action.Result{
+		ID:             "result-1",
+		ActionIntentID: intent.ID,
+		AttemptID:      "attempt-1",
+		AttemptNumber:  1,
+		Executor:       "tool-gateway",
+		Status:         action.StatusSucceeded,
+		StartedAt:      time.Now().UTC(),
+		CompletedAt:    time.Now().UTC(),
+	}); err != nil {
+		t.Fatalf("record action result: %v", err)
+	}
+	if _, err := store.RecordOutcome(outcome.Record{
+		ID:          "outcome-1",
+		TraceID:     "trace-1",
+		ProposalID:  "proposal-1",
+		AttemptID:   "attempt-1",
+		OutcomeType: outcome.TypeProposalEffectiveness,
+		Verdict:     outcome.VerdictPositive,
+		RecordedAt:  time.Now().UTC(),
+	}); err != nil {
+		t.Fatalf("record outcome: %v", err)
+	}
+
+	service := NewService(config.Config{DefaultRepo: "rsi-agent-platform"}, store)
+	result := service.Execute("rsi.action_chain", map[string]interface{}{
+		"trace_id":    "trace-1",
+		"proposal_id": "proposal-1",
+		"attempt_id":  "attempt-1",
+	})
+
+	if result.Status != "ok" {
+		t.Fatalf("expected ok status, got %s", result.Status)
+	}
+	if len(result.Output["action_intents"].([]interface{})) != 1 {
+		t.Fatalf("expected one action intent, got %#v", result.Output["action_intents"])
+	}
+	if len(result.Output["action_results"].([]interface{})) != 1 {
+		t.Fatalf("expected one action result, got %#v", result.Output["action_results"])
+	}
+	if len(result.Output["outcomes"].([]interface{})) != 1 {
+		t.Fatalf("expected one outcome, got %#v", result.Output["outcomes"])
+	}
+}
 func TestGitHubRepoActivityUsesExternalAPI(t *testing.T) {
 	privateKey := testGitHubAppPrivateKey(t)
 	var seenAuth string

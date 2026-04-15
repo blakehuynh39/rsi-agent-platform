@@ -55,7 +55,7 @@ cd runner
 python3 -m rsi_runner.main
 ```
 
-The runner accepts the legacy prompt contract and the new structured task contract for repo-scoped eval and patch-generation work. Set `RSI_RUNNER_ROLE` to `prod`, `proactive`, `eval`, or `proposal` to gate allowed task types.
+The runner uses the structured task contract for repo-scoped eval, proposal, and workspace work. Set `RSI_RUNNER_ROLE` to `prod`, `proactive`, `eval`, or `proposal` to gate allowed task types.
 
 Runtime defaults:
 
@@ -66,7 +66,7 @@ Runtime defaults:
 
 For `openai/*` models, the runner uses Hermes directly and forwards the configured `reasoning_effort` into Hermes `reasoning_config`. The effective runtime is exposed at `/runtimez` on each runner and aggregated by `improvement-plane` at `/api/runtime`.
 
-`control-plane --mode slack-surface` uses the legacy Slack env contract:
+`control-plane --mode slack-surface` uses the Slack env contract:
 `RSI_SLACK_APP_IDENTITY`, `RSI_SLACK_SOCKET_MODE_ENABLED`, `RSI_SLACK_APP_TOKEN`, and `RSI_SLACK_BOT_TOKEN`.
 
 ## CI/CD

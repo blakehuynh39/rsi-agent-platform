@@ -9,7 +9,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"path"
 	"sort"
 	"strings"
@@ -18,6 +17,7 @@ import (
 
 	slackapi "github.com/slack-go/slack"
 
+	"github.com/piplabs/rsi-agent-platform/internal/clients"
 	"github.com/piplabs/rsi-agent-platform/internal/cluster"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
@@ -88,6 +88,16 @@ func (s *Service) Execute(name string, input map[string]interface{}) storepkg.To
 		return s.cloudflareInspect(input)
 	case "rsi.trace_context":
 		return s.rsiTraceContext(input)
+	case "rsi.workflow_context":
+		return s.rsiWorkflowContext(input)
+	case "rsi.action_chain":
+		return s.rsiActionChain(input)
+	case "rsi.runner_execution":
+		return s.rsiRunnerExecution(input)
+	case "rsi.runtime_config":
+		return s.rsiRuntimeConfig(input)
+	case "rsi.runtime_health":
+		return s.rsiRuntimeHealth(input)
 	case "rsi.proposal_memory":
 		return s.rsiProposalMemory(input)
 	case "rsi.candidate_context":
@@ -158,17 +168,6 @@ func (s *Service) repoContext(input map[string]interface{}) storepkg.ToolResult 
 			return s.result("repo.context", input, summary, output, nil)
 		}
 		return s.failedResult("repo.context", input, "github", fmt.Sprintf("Repo context failed: %v", searchErr), output)
-	}
-
-	if repoName == "rsi-agent-platform" {
-		if data, readErr := os.ReadFile("README.md"); readErr == nil {
-			excerpt := truncate(string(data), 500)
-			if excerpt != "" {
-				output["excerpt"] = excerpt
-				summary = fmt.Sprintf("Loaded README fallback context for %s.", repoName)
-				return s.result("repo.context", input, summary, output, nil)
-			}
-		}
 	}
 	return s.unavailableResult("repo.context", input, "github", fmt.Sprintf("Repo context unavailable for %s/%s: missing app authentication.", owner, repoName), output)
 }
@@ -726,6 +725,204 @@ func (s *Service) cloudflareInspect(input map[string]interface{}) storepkg.ToolR
 	return s.result("cloudflare.inspect", input, summary, response, nil)
 }
 
+func (s *Service) rsiWorkflowContext(input map[string]interface{}) storepkg.ToolResult {
+	workflowID := strings.TrimSpace(stringValue(input["workflow_id"]))
+	traceID := strings.TrimSpace(stringValue(input["trace_id"]))
+	var workflow storepkg.Workflow
+	var found bool
+	if workflowID != "" {
+		for _, item := range s.store.ListWorkflows() {
+			if item.ID == workflowID {
+				workflow = item
+				found = true
+				break
+			}
+		}
+	}
+	var trace events.Trace
+	if traceID != "" {
+		trace, _ = s.store.GetTrace(traceID)
+		if !found && trace.Summary.WorkflowID != "" {
+			workflowID = trace.Summary.WorkflowID
+			for _, item := range s.store.ListWorkflows() {
+				if item.ID == workflowID {
+					workflow = item
+					found = true
+					break
+				}
+			}
+		}
+	}
+	if !found {
+		return s.failedResult("rsi.workflow_context", input, "internal", "Workflow context requires workflow_id or trace_id bound to a workflow.", map[string]interface{}{
+			"workflow_id": workflowID,
+			"trace_id":    traceID,
+			"error":       "not_found",
+		})
+	}
+	recentEntries := make([]interface{}, 0)
+	for _, item := range s.store.ListConversationEntries(workflow.ConversationID) {
+		recentEntries = append(recentEntries, item)
+		if len(recentEntries) == 8 {
+			break
+		}
+	}
+	assignments := make([]interface{}, 0)
+	for _, item := range s.store.ListAssignments() {
+		if workflow.ConversationID != "" && item.ConversationID == workflow.ConversationID {
+			assignments = append(assignments, item)
+			continue
+		}
+		if workflow.CaseID != "" && item.CaseID == workflow.CaseID {
+			assignments = append(assignments, item)
+		}
+	}
+	summary := fmt.Sprintf("RSI workflow context loaded for workflow %s.", workflow.ID)
+	return s.result("rsi.workflow_context", input, summary, map[string]interface{}{
+		"workflow":                    workflow,
+		"trace_summary":               trace.Summary,
+		"recent_conversation_entries": recentEntries,
+		"assignments":                 assignments,
+	}, nil)
+}
+
+func (s *Service) rsiActionChain(input map[string]interface{}) storepkg.ToolResult {
+	traceID := strings.TrimSpace(stringValue(input["trace_id"]))
+	proposalID := strings.TrimSpace(stringValue(input["proposal_id"]))
+	attemptID := strings.TrimSpace(stringValue(input["attempt_id"]))
+	intents := make([]interface{}, 0)
+	results := make([]interface{}, 0)
+	outcomes := make([]interface{}, 0)
+	for _, intent := range s.store.ListActionIntents() {
+		if traceID != "" && intent.TraceID != traceID {
+			continue
+		}
+		if proposalID != "" && intent.ProposalID != proposalID {
+			continue
+		}
+		if attemptID != "" && intent.AttemptID != attemptID {
+			continue
+		}
+		intents = append(intents, intent)
+		for _, result := range s.store.ListActionResults(intent.ID) {
+			results = append(results, result)
+		}
+	}
+	for _, outcome := range s.store.ListOutcomes() {
+		if traceID != "" && outcome.TraceID != traceID {
+			continue
+		}
+		if proposalID != "" && outcome.ProposalID != proposalID {
+			continue
+		}
+		if attemptID != "" && outcome.AttemptID != attemptID {
+			continue
+		}
+		outcomes = append(outcomes, outcome)
+	}
+	summary := fmt.Sprintf("RSI action chain loaded with %d intent(s), %d result(s), and %d outcome(s).", len(intents), len(results), len(outcomes))
+	return s.result("rsi.action_chain", input, summary, map[string]interface{}{
+		"trace_id":       traceID,
+		"proposal_id":    proposalID,
+		"attempt_id":     attemptID,
+		"action_intents": intents,
+		"action_results": results,
+		"outcomes":       outcomes,
+	}, nil)
+}
+
+func (s *Service) rsiRunnerExecution(input map[string]interface{}) storepkg.ToolResult {
+	traceID := strings.TrimSpace(stringValue(input["trace_id"]))
+	proposalID := strings.TrimSpace(stringValue(input["proposal_id"]))
+	role := strings.TrimSpace(stringValue(input["role"]))
+	executions := make([]interface{}, 0)
+	for _, item := range s.store.ListHarnessExecutions() {
+		if traceID != "" && item.TraceID != traceID {
+			continue
+		}
+		if proposalID != "" && item.ProposalID != proposalID {
+			continue
+		}
+		if role != "" && item.Role != role {
+			continue
+		}
+		executions = append(executions, item)
+	}
+	summary := fmt.Sprintf("RSI runner execution lookup returned %d harness execution(s).", len(executions))
+	return s.result("rsi.runner_execution", input, summary, map[string]interface{}{
+		"trace_id":           traceID,
+		"proposal_id":        proposalID,
+		"role":               role,
+		"harness_executions": executions,
+	}, nil)
+}
+
+func (s *Service) rsiRuntimeConfig(input map[string]interface{}) storepkg.ToolResult {
+	output := map[string]interface{}{
+		"environment":                 s.cfg.Environment,
+		"default_repo":                s.cfg.DefaultRepo,
+		"allowed_target_repos":        append([]string(nil), s.cfg.AllowedTargetRepos...),
+		"default_reasoning_verbosity": s.cfg.DefaultReasoningVerbosity,
+		"active_proposal_cap":         s.cfg.DefaultProposalCap,
+		"runner_urls":                 s.cfg.RunnerURLs(),
+		"runner_timeouts_seconds": map[string]int{
+			"prod":      int(s.cfg.ProdRunnerTimeout.Seconds()),
+			"proactive": int(s.cfg.ProactiveRunnerTimeout.Seconds()),
+			"eval":      int(s.cfg.EvalRunnerTimeout.Seconds()),
+			"proposal":  int(s.cfg.ProposalRunnerTimeout.Seconds()),
+		},
+		"tool_gateway_base_url":   s.cfg.ToolGatewayBaseURL,
+		"honcho_runtime_base_url": s.cfg.HonchoRuntimeBaseURL,
+		"public_base_url":         s.cfg.PublicBaseURL,
+	}
+	return s.result("rsi.runtime_config", input, "RSI runtime configuration summary loaded.", output, nil)
+}
+
+func (s *Service) rsiRuntimeHealth(input map[string]interface{}) storepkg.ToolResult {
+	runners := map[string]interface{}{}
+	for role, baseURL := range s.cfg.RunnerURLs() {
+		baseURL = strings.TrimSpace(baseURL)
+		if baseURL == "" {
+			runners[role] = map[string]interface{}{"status": "disabled"}
+			continue
+		}
+		resp, err := clients.NewRunnerClientWithTimeout(baseURL, 5*time.Second).Runtime()
+		if err != nil {
+			runners[role] = map[string]interface{}{
+				"status": "unreachable",
+				"error":  err.Error(),
+			}
+			continue
+		}
+		runners[role] = resp
+	}
+	honcho := map[string]interface{}{"status": "disabled"}
+	if strings.TrimSpace(s.cfg.HonchoRuntimeBaseURL) != "" {
+		resp, err := clients.NewHonchoClient(s.cfg.HonchoRuntimeBaseURL).Runtime()
+		if err != nil {
+			honcho = map[string]interface{}{
+				"status": "unreachable",
+				"error":  err.Error(),
+			}
+		} else {
+			honcho = map[string]interface{}{
+				"status":               firstNonEmpty(stringValue(resp.Status), "ok"),
+				"namespace":            resp.Namespace,
+				"db_schema":            resp.DBSchema,
+				"cache_enabled":        resp.CacheEnabled,
+				"cache_url_configured": resp.CacheURLConfigured,
+				"deriver":              resp.Deriver,
+				"summary":              resp.Summary,
+				"dialectic_levels":     resp.DialecticLevels,
+			}
+		}
+	}
+	return s.result("rsi.runtime_health", input, "RSI runtime health summary loaded.", map[string]interface{}{
+		"runners": runners,
+		"honcho":  honcho,
+	}, nil)
+}
+
 func (s *Service) rsiTraceContext(input map[string]interface{}) storepkg.ToolResult {
 	traceID := stringValue(input["trace_id"])
 	if traceID == "" {
@@ -926,10 +1123,9 @@ func (s *Service) slackReply(input map[string]interface{}) storepkg.ToolResult {
 }
 
 func (s *Service) result(name string, input map[string]interface{}, summary string, output map[string]interface{}, refs []string) storepkg.ToolResult {
-	callID := fmt.Sprintf("%s-%d", sanitizeToolName(name), time.Now().UTC().UnixNano())
 	result := storepkg.ToolResult{
 		Name:            name,
-		ToolCallID:      callID,
+		ToolCallID:      newToolCallID(name),
 		Approved:        true,
 		ApprovalState:   "not_required",
 		Status:          "ok",
@@ -950,10 +1146,9 @@ func (s *Service) result(name string, input map[string]interface{}, summary stri
 }
 
 func (s *Service) unavailableResult(name string, input map[string]interface{}, provider string, summary string, output map[string]interface{}) storepkg.ToolResult {
-	callID := fmt.Sprintf("%s-%d", sanitizeToolName(name), time.Now().UTC().UnixNano())
 	result := storepkg.ToolResult{
 		Name:          name,
-		ToolCallID:    callID,
+		ToolCallID:    newToolCallID(name),
 		Approved:      false,
 		ApprovalState: "provider_unavailable",
 		Status:        "blocked",
@@ -973,10 +1168,9 @@ func (s *Service) unavailableResult(name string, input map[string]interface{}, p
 }
 
 func (s *Service) failedResult(name string, input map[string]interface{}, provider string, summary string, output map[string]interface{}) storepkg.ToolResult {
-	callID := fmt.Sprintf("%s-%d", sanitizeToolName(name), time.Now().UTC().UnixNano())
 	result := storepkg.ToolResult{
 		Name:          name,
-		ToolCallID:    callID,
+		ToolCallID:    newToolCallID(name),
 		Approved:      true,
 		ApprovalState: "not_required",
 		Status:        "failed",
@@ -994,6 +1188,10 @@ func (s *Service) failedResult(name string, input map[string]interface{}, provid
 	}
 	s.persistTraceToolCall(result)
 	return result
+}
+
+func newToolCallID(name string) string {
+	return fmt.Sprintf("%s-%d", sanitizeToolName(name), time.Now().UTC().UnixNano())
 }
 
 func (s *Service) persistTraceToolCall(result storepkg.ToolResult) {

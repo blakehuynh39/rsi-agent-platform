@@ -6,31 +6,13 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/piplabs/rsi-agent-platform/internal/harness"
 )
 
-type HonchoRuntimeComponent struct {
-	Provider        string `json:"provider"`
-	Model           string `json:"model"`
-	ReasoningEffort string `json:"reasoning_effort"`
-}
-
-type HonchoDialecticLevel struct {
-	Provider             string `json:"provider"`
-	Model                string `json:"model"`
-	ReasoningEffort      string `json:"reasoning_effort"`
-	ThinkingBudgetTokens int    `json:"thinking_budget_tokens"`
-}
-
-type HonchoRuntimeResponse struct {
-	Status             string                          `json:"status"`
-	Namespace          string                          `json:"namespace"`
-	DBSchema           string                          `json:"db_schema"`
-	CacheEnabled       bool                            `json:"cache_enabled"`
-	CacheURLConfigured bool                            `json:"cache_url_configured"`
-	Deriver            HonchoRuntimeComponent          `json:"deriver"`
-	Summary            HonchoRuntimeComponent          `json:"summary"`
-	DialecticLevels    map[string]HonchoDialecticLevel `json:"dialectic_levels"`
-}
+type HonchoRuntimeComponent = harness.RuntimeComponent
+type HonchoDialecticLevel = harness.DialecticLevel
+type HonchoRuntimeResponse = harness.HonchoRuntimeResponse
 
 type HonchoClient struct {
 	baseURL    string

@@ -385,8 +385,8 @@ func (s *MemoryStore) advanceProposalAttemptPhaseLocked(req ProposalAttemptPhase
 		return result, err
 	}
 	decision := transition.ReduceAttempt(transition.AttemptSnapshot{
-		ProposalStatus:       proposalStatusOr(currentProposal),
-		AttemptState:         attemptStateOr(currentAttempt),
+		ProposalStatus:       transitionProposalStatusOr(currentProposal),
+		AttemptState:         transitionAttemptStateOr(currentAttempt),
 		CurrentOperationKind: strings.TrimSpace(currentOp.OperationKind),
 	}, transition.CommandEnvelope{
 		MachineKind:     transition.MachineAttempt,
@@ -504,8 +504,8 @@ func (s *MemoryStore) deferProposalAttemptPhaseLocked(req ProposalAttemptPhaseDe
 		ExpectedVersion: aggregateVersionOr(currentAttempt),
 	}
 	decision := transition.ReduceAttempt(transition.AttemptSnapshot{
-		ProposalStatus:       proposalStatusOr(currentProposal),
-		AttemptState:         attemptStateOr(currentAttempt),
+		ProposalStatus:       transitionProposalStatusOr(currentProposal),
+		AttemptState:         transitionAttemptStateOr(currentAttempt),
 		CurrentOperationKind: strings.TrimSpace(currentOp.OperationKind),
 	}, command)
 	result.Transition, err = buildTransitionBundle(now, command, decision, updatedProposal, updatedAttempt, currentItem, currentOp, nil, nil, strings.TrimSpace(req.LastError))
@@ -590,8 +590,8 @@ func (s *MemoryStore) failProposalAttemptPhaseLocked(req ProposalAttemptPhaseFai
 		ExpectedVersion: aggregateVersionOr(currentAttempt),
 	}
 	decision := transition.ReduceAttempt(transition.AttemptSnapshot{
-		ProposalStatus:       proposalStatusOr(currentProposal),
-		AttemptState:         attemptStateOr(currentAttempt),
+		ProposalStatus:       transitionProposalStatusOr(currentProposal),
+		AttemptState:         transitionAttemptStateOr(currentAttempt),
 		CurrentOperationKind: strings.TrimSpace(currentOp.OperationKind),
 	}, command)
 	var nextItem *queue.WorkItem
@@ -615,18 +615,18 @@ func (s *MemoryStore) failProposalAttemptPhaseLocked(req ProposalAttemptPhaseFai
 	return result, nil
 }
 
-func proposalStatusOr(item *review.Proposal) review.ProposalStatus {
+func transitionProposalStatusOr(item *review.Proposal) transition.ProposalStatus {
 	if item == nil {
 		return ""
 	}
-	return item.Status
+	return transition.ProposalStatus(item.Status)
 }
 
-func attemptStateOr(item *improvement.ChangeAttempt) improvement.ChangeAttemptState {
+func transitionAttemptStateOr(item *improvement.ChangeAttempt) transition.AttemptState {
 	if item == nil {
 		return ""
 	}
-	return item.State
+	return transition.AttemptState(item.State)
 }
 
 func aggregateVersionOr(item *improvement.ChangeAttempt) int64 {

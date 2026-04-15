@@ -200,26 +200,28 @@ func validateAttemptDecision(decision transition.AttemptPhaseDecision, proposal 
 		return fmt.Errorf("transition reducer rejected proposal attempt command: %s", decision.Reason)
 	}
 	if proposal != nil {
+		currentProposalStatus := transitionProposalStatusOr(proposal)
 		if len(decision.AllowedProposalNext) > 0 {
 			for _, allowed := range decision.AllowedProposalNext {
-				if proposal.Status == allowed {
+				if currentProposalStatus == allowed {
 					goto attemptCheck
 				}
 			}
-			return fmt.Errorf("proposal transition mismatch: got %s want one of %v", proposal.Status, decision.AllowedProposalNext)
+			return fmt.Errorf("proposal transition mismatch: got %s want one of %v", currentProposalStatus, decision.AllowedProposalNext)
 		}
-		if decision.ExpectedProposal != "" && proposal.Status != decision.ExpectedProposal {
-			return fmt.Errorf("proposal transition mismatch: got %s want %s", proposal.Status, decision.ExpectedProposal)
+		if decision.ExpectedProposal != "" && currentProposalStatus != decision.ExpectedProposal {
+			return fmt.Errorf("proposal transition mismatch: got %s want %s", currentProposalStatus, decision.ExpectedProposal)
 		}
 	}
 attemptCheck:
 	if attempt != nil && len(decision.AllowedAttemptNext) > 0 {
+		currentAttemptState := transitionAttemptStateOr(attempt)
 		for _, allowed := range decision.AllowedAttemptNext {
-			if attempt.State == allowed {
+			if currentAttemptState == allowed {
 				return nil
 			}
 		}
-		return fmt.Errorf("attempt transition mismatch: got %s want one of %v", attempt.State, decision.AllowedAttemptNext)
+		return fmt.Errorf("attempt transition mismatch: got %s want one of %v", currentAttemptState, decision.AllowedAttemptNext)
 	}
 	return nil
 }

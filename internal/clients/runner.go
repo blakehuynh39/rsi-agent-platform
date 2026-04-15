@@ -7,51 +7,141 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/piplabs/rsi-agent-platform/internal/harness"
 )
 
+type RunnerRejectedProposalContext struct {
+	ProposalID   string `json:"proposal_id"`
+	Disposition  string `json:"disposition"`
+	Rationale    string `json:"rationale"`
+	FailureClass string `json:"failure_class,omitempty"`
+}
+
+type RunnerConversationEntry struct {
+	ID            string    `json:"id"`
+	EventID       string    `json:"event_id,omitempty"`
+	TraceID       string    `json:"trace_id,omitempty"`
+	Source        string    `json:"source"`
+	SourceEventID string    `json:"source_event_id"`
+	EntryType     string    `json:"entry_type"`
+	ActorID       string    `json:"actor_id,omitempty"`
+	ActorType     string    `json:"actor_type,omitempty"`
+	Body          string    `json:"body"`
+	CreatedAt     time.Time `json:"created_at"`
+}
+
+type RunnerCaseSummary struct {
+	CaseID         string `json:"case_id"`
+	ConversationID string `json:"conversation_id"`
+	Kind           string `json:"kind"`
+	Intent         string `json:"intent"`
+	Title          string `json:"title"`
+	Summary        string `json:"summary"`
+	Status         string `json:"status"`
+	AssignedBot    string `json:"assigned_bot"`
+	LatestTraceID  string `json:"latest_trace_id,omitempty"`
+}
+
+type RunnerTraceRef struct {
+	TraceID        string    `json:"trace_id"`
+	Status         string    `json:"status"`
+	WorkflowKind   string    `json:"workflow_kind"`
+	StartedAt      time.Time `json:"started_at"`
+	TriggerEventID string    `json:"trigger_event_id,omitempty"`
+}
+
+type RunnerContextRef struct {
+	Kind                             string   `json:"kind"`
+	Ref                              string   `json:"ref,omitempty"`
+	Summary                          string   `json:"summary,omitempty"`
+	ToolCallID                       string   `json:"tool_call_id,omitempty"`
+	ToolName                         string   `json:"tool_name,omitempty"`
+	Status                           string   `json:"status,omitempty"`
+	StepType                         string   `json:"step_type,omitempty"`
+	Decision                         string   `json:"decision,omitempty"`
+	Confidence                       float64  `json:"confidence,omitempty"`
+	Plane                            string   `json:"plane,omitempty"`
+	Service                          string   `json:"service,omitempty"`
+	Description                      string   `json:"description,omitempty"`
+	TraceID                          string   `json:"trace_id,omitempty"`
+	Subsystem                        string   `json:"subsystem,omitempty"`
+	FailureMode                      string   `json:"failure_mode,omitempty"`
+	TargetLayer                      string   `json:"target_layer,omitempty"`
+	PriorityScore                    float64  `json:"priority_score,omitempty"`
+	RetryableFailureClass            string   `json:"retryable_failure_class,omitempty"`
+	AttemptCount                     int      `json:"attempt_count,omitempty"`
+	AutoRetryBudgetRemaining         int      `json:"auto_retry_budget_remaining,omitempty"`
+	ProposalID                       string   `json:"proposal_id,omitempty"`
+	CandidateKey                     string   `json:"candidate_key,omitempty"`
+	Disposition                      string   `json:"disposition,omitempty"`
+	Rationale                        string   `json:"rationale,omitempty"`
+	Hypothesis                       string   `json:"hypothesis,omitempty"`
+	DiffSummary                      string   `json:"diff_summary,omitempty"`
+	AttemptNumber                    int      `json:"attempt_number,omitempty"`
+	AttemptID                        string   `json:"attempt_id,omitempty"`
+	State                            string   `json:"state,omitempty"`
+	FailureClass                     string   `json:"failure_class,omitempty"`
+	FailureSummary                   string   `json:"failure_summary,omitempty"`
+	RetryDecision                    string   `json:"retry_decision,omitempty"`
+	MaterialHypothesisChange         bool     `json:"material_hypothesis_change,omitempty"`
+	ChangedFiles                     []string `json:"changed_files,omitempty"`
+	Repo                             string   `json:"repo,omitempty"`
+	BranchName                       string   `json:"branch_name,omitempty"`
+	TargetKind                       string   `json:"target_kind,omitempty"`
+	TargetRef                        string   `json:"target_ref,omitempty"`
+	RecommendedInterventionKind      string   `json:"recommended_intervention_kind,omitempty"`
+	RecommendedInterventionRationale string   `json:"recommended_intervention_rationale,omitempty"`
+	TargetSurface                    string   `json:"target_surface,omitempty"`
+	ValidationPlan                   string   `json:"validation_plan,omitempty"`
+	MaterialRiskSummary              string   `json:"material_risk_summary,omitempty"`
+	RecommendedDisposition           string   `json:"recommended_disposition,omitempty"`
+	AllowedPathGlobs                 []string `json:"allowed_path_globs,omitempty"`
+}
+
 type RunnerTask struct {
-	TaskType                  string           `json:"task_type"`
-	Repo                      string           `json:"repo"`
-	RepoRef                   string           `json:"repo_ref,omitempty"`
-	Prompt                    string           `json:"prompt"`
-	SystemMessage             string           `json:"system_message,omitempty"`
-	AllowedTools              []string         `json:"allowed_tools,omitempty"`
-	AllowedCommands           []string         `json:"allowed_commands,omitempty"`
-	TimeoutSeconds            int              `json:"timeout_seconds,omitempty"`
-	ExpectedOutputs           []string         `json:"expected_outputs,omitempty"`
-	ArtifactDestination       string           `json:"artifact_destination,omitempty"`
-	ContextSummary            string           `json:"context_summary,omitempty"`
-	RejectedProposalContext   []map[string]any `json:"rejected_proposal_context,omitempty"`
-	ExecutionMode             string           `json:"execution_mode,omitempty"`
-	Intent                    string           `json:"intent,omitempty"`
-	TraceID                   string           `json:"trace_id,omitempty"`
-	WorkflowID                string           `json:"workflow_id,omitempty"`
-	ConversationID            string           `json:"conversation_id,omitempty"`
-	CaseID                    string           `json:"case_id,omitempty"`
-	TriggerEventID            string           `json:"trigger_event_id,omitempty"`
-	RecentConversationEntries []map[string]any `json:"recent_conversation_entries,omitempty"`
-	CaseSummary               map[string]any   `json:"case_summary,omitempty"`
-	PriorTraceRefs            []map[string]any `json:"prior_trace_refs,omitempty"`
-	RepoAllowlist             []string         `json:"repo_allowlist,omitempty"`
-	ToolAllowlist             []string         `json:"tool_allowlist,omitempty"`
-	ResponseMode              string           `json:"response_mode,omitempty"`
-	ContextRefs               []map[string]any `json:"context_refs,omitempty"`
-	ApprovalMode              string           `json:"approval_mode,omitempty"`
-	ReasoningVerbosity        string           `json:"reasoning_verbosity,omitempty"`
-	SessionScopeKind          string           `json:"session_scope_kind,omitempty"`
-	SessionScopeID            string           `json:"session_scope_id,omitempty"`
-	ParentSessionScopeKind    string           `json:"parent_session_scope_kind,omitempty"`
-	ParentSessionScopeID      string           `json:"parent_session_scope_id,omitempty"`
-	HarnessProfileID          string           `json:"harness_profile_id,omitempty"`
-	HarnessOverlayVersion     string           `json:"harness_overlay_version,omitempty"`
-	MemoryBackend             string           `json:"memory_backend,omitempty"`
-	AssistantPeerID           string           `json:"assistant_peer_id,omitempty"`
-	UserPeerID                string           `json:"user_peer_id,omitempty"`
-	AttemptID                 string           `json:"attempt_id,omitempty"`
-	WorkspaceID               string           `json:"workspace_id,omitempty"`
-	WorkspaceRepo             string           `json:"workspace_repo,omitempty"`
-	WorkspaceBranch           string           `json:"workspace_branch,omitempty"`
-	AllowedPathGlobs          []string         `json:"allowed_path_globs,omitempty"`
+	TaskType                  string                          `json:"task_type"`
+	Repo                      string                          `json:"repo"`
+	RepoRef                   string                          `json:"repo_ref,omitempty"`
+	Prompt                    string                          `json:"prompt"`
+	SystemMessage             string                          `json:"system_message,omitempty"`
+	AllowedTools              []string                        `json:"allowed_tools,omitempty"`
+	AllowedCommands           []string                        `json:"allowed_commands,omitempty"`
+	TimeoutSeconds            int                             `json:"timeout_seconds,omitempty"`
+	ExpectedOutputs           []string                        `json:"expected_outputs,omitempty"`
+	ArtifactDestination       string                          `json:"artifact_destination,omitempty"`
+	ContextSummary            string                          `json:"context_summary,omitempty"`
+	RejectedProposalContext   []RunnerRejectedProposalContext `json:"rejected_proposal_context,omitempty"`
+	ExecutionMode             string                          `json:"execution_mode,omitempty"`
+	Intent                    string                          `json:"intent,omitempty"`
+	TraceID                   string                          `json:"trace_id,omitempty"`
+	WorkflowID                string                          `json:"workflow_id,omitempty"`
+	ConversationID            string                          `json:"conversation_id,omitempty"`
+	CaseID                    string                          `json:"case_id,omitempty"`
+	TriggerEventID            string                          `json:"trigger_event_id,omitempty"`
+	RecentConversationEntries []RunnerConversationEntry       `json:"recent_conversation_entries,omitempty"`
+	CaseSummary               *RunnerCaseSummary              `json:"case_summary,omitempty"`
+	PriorTraceRefs            []RunnerTraceRef                `json:"prior_trace_refs,omitempty"`
+	RepoAllowlist             []string                        `json:"repo_allowlist,omitempty"`
+	ToolAllowlist             []string                        `json:"tool_allowlist,omitempty"`
+	ResponseMode              string                          `json:"response_mode,omitempty"`
+	ContextRefs               []RunnerContextRef              `json:"context_refs,omitempty"`
+	ApprovalMode              string                          `json:"approval_mode,omitempty"`
+	ReasoningVerbosity        string                          `json:"reasoning_verbosity,omitempty"`
+	SessionScopeKind          string                          `json:"session_scope_kind,omitempty"`
+	SessionScopeID            string                          `json:"session_scope_id,omitempty"`
+	ParentSessionScopeKind    string                          `json:"parent_session_scope_kind,omitempty"`
+	ParentSessionScopeID      string                          `json:"parent_session_scope_id,omitempty"`
+	HarnessProfileID          string                          `json:"harness_profile_id,omitempty"`
+	HarnessOverlayVersion     string                          `json:"harness_overlay_version,omitempty"`
+	MemoryBackend             string                          `json:"memory_backend,omitempty"`
+	AssistantPeerID           string                          `json:"assistant_peer_id,omitempty"`
+	UserPeerID                string                          `json:"user_peer_id,omitempty"`
+	AttemptID                 string                          `json:"attempt_id,omitempty"`
+	WorkspaceID               string                          `json:"workspace_id,omitempty"`
+	WorkspaceRepo             string                          `json:"workspace_repo,omitempty"`
+	WorkspaceBranch           string                          `json:"workspace_branch,omitempty"`
+	AllowedPathGlobs          []string                        `json:"allowed_path_globs,omitempty"`
 }
 
 type RunnerResponse struct {
@@ -61,38 +151,7 @@ type RunnerResponse struct {
 	Raw      map[string]interface{} `json:"raw"`
 }
 
-type RuntimeResponse struct {
-	Status                  string   `json:"status"`
-	Role                    string   `json:"role"`
-	Backend                 string   `json:"backend"`
-	Provider                string   `json:"provider"`
-	Model                   string   `json:"model"`
-	ProviderModel           string   `json:"provider_model"`
-	APIMode                 string   `json:"api_mode"`
-	ReasoningEffort         string   `json:"reasoning_effort"`
-	MaxIterations           int      `json:"max_iterations"`
-	TaskTimeoutSeconds      int      `json:"task_timeout_seconds"`
-	TransportTimeoutSeconds int      `json:"transport_timeout_seconds"`
-	ToolPolicyMode          string   `json:"tool_policy_mode"`
-	ToolAllowlistEffective  []string `json:"tool_allowlist_effective"`
-	BlockedToolNames        []string `json:"blocked_tool_names"`
-	Available               bool     `json:"available"`
-	HermesAvailable         bool     `json:"hermes_available"`
-	OpenAIConfigured        bool     `json:"openai_configured"`
-	PersistenceEnabled      bool     `json:"persistence_enabled"`
-	HermesHome              string   `json:"hermes_home,omitempty"`
-	SessionDBPath           string   `json:"session_db_path,omitempty"`
-	MemoryBackend           string   `json:"memory_backend,omitempty"`
-	HonchoConfigured        bool     `json:"honcho_configured"`
-	HonchoAvailable         bool     `json:"honcho_available"`
-	HonchoBaseURL           string   `json:"honcho_base_url,omitempty"`
-	HonchoWorkspace         string   `json:"honcho_workspace,omitempty"`
-	HonchoEnvironment       string   `json:"honcho_environment,omitempty"`
-	HonchoRecallMode        string   `json:"honcho_recall_mode,omitempty"`
-	HonchoWriteFrequency    string   `json:"honcho_write_frequency,omitempty"`
-	HonchoSessionStrategy   string   `json:"honcho_session_strategy,omitempty"`
-	HonchoAIPeer            string   `json:"honcho_ai_peer,omitempty"`
-}
+type RuntimeResponse = harness.RuntimeResponse
 
 type RunnerClient struct {
 	baseURL    string
@@ -116,7 +175,7 @@ func NewRunnerClientWithTimeout(baseURL string, timeout time.Duration) *RunnerCl
 }
 
 func (c *RunnerClient) Execute(task RunnerTask) (RunnerResponse, error) {
-	body, err := json.Marshal(map[string]any{"task": task})
+	body, err := json.Marshal(map[string]RunnerTask{"task": task})
 	if err != nil {
 		return RunnerResponse{}, err
 	}

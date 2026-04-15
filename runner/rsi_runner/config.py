@@ -17,6 +17,7 @@ class RunnerConfig:
     port: int
     model: str
     reasoning_effort: str
+    hermes_pin: str
     public_base_url: str
     tool_gateway_base_url: str | None
     hermes_home: str
@@ -31,6 +32,7 @@ class RunnerConfig:
     honcho_api_key_configured: bool
     max_iterations: int
     task_timeout_seconds: int
+    inactivity_timeout_seconds: int
     transport_timeout_seconds: int
     tool_policy_mode: str
 
@@ -41,6 +43,7 @@ class RunnerConfig:
         port = parse_port(required_env("RSI_RUNNER_PORT"))
         model = required_env("RSI_RUNNER_MODEL")
         reasoning_effort = required_env("RSI_RUNNER_REASONING_EFFORT")
+        hermes_pin = optional_env("RSI_HERMES_PIN")
         public_base_url = required_url_env("RSI_RUNNER_PUBLIC_BASE_URL")
         tool_gateway_base_url = optional_url_env("RSI_TOOL_GATEWAY_BASE_URL")
         hermes_home = required_env("HERMES_HOME")
@@ -55,6 +58,7 @@ class RunnerConfig:
         honcho_api_key = optional_env("HONCHO_API_KEY")
         max_iterations = role_max_iterations(role)
         task_timeout_seconds = role_task_timeout_seconds(role)
+        inactivity_timeout_seconds = role_inactivity_timeout_seconds(role, task_timeout_seconds)
         transport_timeout_seconds = role_transport_timeout_seconds(role)
         tool_policy_mode = role_tool_policy_mode(role)
         if model.startswith("openai/"):
@@ -71,6 +75,7 @@ class RunnerConfig:
             port=port,
             model=model,
             reasoning_effort=reasoning_effort,
+            hermes_pin=hermes_pin,
             public_base_url=public_base_url,
             tool_gateway_base_url=tool_gateway_base_url or None,
             hermes_home=hermes_home,
@@ -85,6 +90,7 @@ class RunnerConfig:
             honcho_api_key_configured=bool(honcho_api_key),
             max_iterations=max_iterations,
             task_timeout_seconds=task_timeout_seconds,
+            inactivity_timeout_seconds=inactivity_timeout_seconds,
             transport_timeout_seconds=transport_timeout_seconds,
             tool_policy_mode=tool_policy_mode,
         )
@@ -158,10 +164,16 @@ def role_transport_timeout_seconds(role: str) -> int:
     return parse_duration_seconds(required_env(role_env_name(role, "TIMEOUT")), role_env_name(role, "TIMEOUT"))
 
 
+def role_inactivity_timeout_seconds(role: str, task_timeout_seconds: int) -> int:
+    raw = optional_env(role_env_name(role, "INACTIVITY_TIMEOUT"))
+    if not raw:
+        return max(1, task_timeout_seconds)
+    value = parse_duration_seconds(raw, role_env_name(role, "INACTIVITY_TIMEOUT"))
+    return max(1, min(value, task_timeout_seconds))
+
+
 def role_tool_policy_mode(role: str) -> str:
-    if role in {"eval", "proposal"}:
-        return "enforced_read_only"
-    return "persistent_memory_only"
+    return "enforced_read_only"
 
 
 def parse_positive_int(raw: str, name: str) -> int:

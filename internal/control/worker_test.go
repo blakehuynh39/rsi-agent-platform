@@ -24,7 +24,33 @@ func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
 			"ok":       true,
 			"provider": "fake",
 			"message":  `{"visible_reasoning":[{"step_type":"analysis","summary":"Collected context and prepared a reply.","confidence":0.91,"decision":"reply_in_thread"}],"reply_draft":"Draft reply","final_answer":"Final reply","confidence":0.91,"context_summary":"Repo and KB context collected.","self_critique":"Follow up if channel policy changes.","proposed_actions":[{"kind":"slack_post","target_ref":"CENG","idempotency_key":"reply-action-1","rationale":"Post the answer back into Slack."}]}`,
-			"raw":      map[string]any{},
+			"raw": map[string]any{
+				"structured_output": map[string]any{
+					"visible_reasoning": []any{
+						map[string]any{
+							"step_type":  "analysis",
+							"summary":    "Collected context and prepared a reply.",
+							"confidence": 0.91,
+							"decision":   "reply_in_thread",
+						},
+					},
+					"reply_draft":     "Draft reply",
+					"final_answer":    "Final reply",
+					"confidence":      0.91,
+					"context_summary": "Repo and KB context collected.",
+					"self_critique":   "Follow up if channel policy changes.",
+					"proposed_actions": []any{
+						map[string]any{
+							"kind":            "slack_post",
+							"target_ref":      "CENG",
+							"idempotency_key": "reply-action-1",
+							"rationale":       "Post the answer back into Slack.",
+						},
+					},
+					"knowledge_drafts":   []any{},
+					"outcome_hypotheses": []any{},
+				},
+			},
 		})
 	}))
 	defer runner.Close()
@@ -35,7 +61,7 @@ func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
 		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
 		name = strings.TrimSuffix(name, "/execute")
 		switch name {
-		case "repo.context", "knowledge.context", "sentry.lookup", "kubernetes.inspect":
+		case "repo.context", "knowledge.context", "sentry.lookup", "kubernetes.inspect", "github.repo_activity", "rsi.workflow_context", "rsi.action_chain", "rsi.runtime_health":
 			toolCalls++
 			_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
 				Name:          name,
@@ -88,8 +114,8 @@ func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
 	_, _ = store.CompleteWorkItem(workflowItem.ID)
 
 	contextActions := queuedWorkItemsForQueue(store, queue.ControlActionQueue)
-	if len(contextActions) != 2 {
-		t.Fatalf("expected 2 control actions for context collection, got %d", len(contextActions))
+	if len(contextActions) < 2 {
+		t.Fatalf("expected multiple control actions for context collection, got %d", len(contextActions))
 	}
 	for _, item := range contextActions {
 		if err := processControlActionItem(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), item); err != nil {
@@ -97,8 +123,8 @@ func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
 		}
 		_, _ = store.CompleteWorkItem(item.ID)
 	}
-	if toolCalls != 2 {
-		t.Fatalf("expected 2 context tool calls, got %d", toolCalls)
+	if toolCalls != len(contextActions) {
+		t.Fatalf("expected one context tool call per queued action, got calls=%d actions=%d", toolCalls, len(contextActions))
 	}
 
 	resumeContext := firstQueuedWorkItem(t, store, queue.WorkflowQueue, controlWorkResumeAfterContext)
@@ -134,7 +160,7 @@ func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
 	if len(trace.Reasoning) < 4 {
 		t.Fatalf("expected visible reasoning to be recorded, got %d steps", len(trace.Reasoning))
 	}
-	if len(trace.ToolCalls) != 2 {
+	if len(trace.ToolCalls) != len(contextActions) {
 		t.Fatalf("expected tool call records to be persisted, got %d", len(trace.ToolCalls))
 	}
 	if len(trace.SlackActions) != 1 {
@@ -159,7 +185,31 @@ func TestSupersededTraceDoesNotPostLateSlackReply(t *testing.T) {
 			"ok":       true,
 			"provider": "fake",
 			"message":  `{"visible_reasoning":[{"step_type":"analysis","summary":"Collected context and prepared a reply.","confidence":0.91,"decision":"reply_in_thread"}],"reply_draft":"Draft reply","final_answer":"Final reply","confidence":0.91,"proposed_actions":[{"kind":"slack_post","target_ref":"CENG","idempotency_key":"reply-action-2","rationale":"Post the answer back into Slack."}]}`,
-			"raw":      map[string]any{},
+			"raw": map[string]any{
+				"structured_output": map[string]any{
+					"visible_reasoning": []any{
+						map[string]any{
+							"step_type":  "analysis",
+							"summary":    "Collected context and prepared a reply.",
+							"confidence": 0.91,
+							"decision":   "reply_in_thread",
+						},
+					},
+					"reply_draft":  "Draft reply",
+					"final_answer": "Final reply",
+					"confidence":   0.91,
+					"proposed_actions": []any{
+						map[string]any{
+							"kind":            "slack_post",
+							"target_ref":      "CENG",
+							"idempotency_key": "reply-action-2",
+							"rationale":       "Post the answer back into Slack.",
+						},
+					},
+					"knowledge_drafts":   []any{},
+					"outcome_hypotheses": []any{},
+				},
+			},
 		})
 	}))
 	defer runner.Close()

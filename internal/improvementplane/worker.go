@@ -28,9 +28,9 @@ import (
 )
 
 var (
-	errDeferredWorkItem        = errors.New("work item deferred for retry")
-	errProposalPhaseHandled    = errors.New("proposal phase finalized by repository transition")
-	errProposalPhaseFailed     = errors.New("proposal phase failed by repository transition")
+	errDeferredWorkItem     = errors.New("work item deferred for retry")
+	errProposalPhaseHandled = errors.New("proposal phase finalized by repository transition")
+	errProposalPhaseFailed  = errors.New("proposal phase failed by repository transition")
 )
 
 func RunWorker(cfg config.Config, store storepkg.Store) error {
@@ -147,7 +147,11 @@ func processEvalItem(cfg config.Config, store storepkg.Store, runnerClient runne
 			); err != nil {
 				return err
 			}
-			runnerOutput = runnerutil.ParseStructuredOutput(runnerResp)
+			var parseErr error
+			runnerOutput, parseErr = runnerutil.ParseStructuredOutput(runnerResp)
+			if parseErr != nil {
+				return parseErr
+			}
 		}
 	}
 	completed := time.Now().UTC()
@@ -325,16 +329,17 @@ func processHarnessOverlayProposal(cfg config.Config, store storepkg.Store, trac
 	}); err != nil {
 		return err
 	}
-	intent, err := upsertImprovementActionIntent(store, action.Intent{
-		OwnerPlane:     "improvement",
-		ConversationID: proposal.ConversationID,
-		CaseID:         proposal.CaseID,
-		TraceID:        trace.Summary.TraceID,
-		ProposalID:     proposal.ID,
-		AttemptID:      attempt.ID,
-		Kind:           action.KindHarnessOverlay,
-		TargetRef:      overlay.Role,
-		RequestPayload: map[string]any{
+	intent, err := upsertImprovementActionIntent(store, improvementActionIntentBase(
+		cfg.ServiceName,
+		proposal,
+		trace,
+		attempt.ID,
+		action.KindHarnessOverlay,
+		overlay.Role,
+		action.StatusSucceeded,
+		firstNonEmpty(firstProposedActionRationale(runnerOutput.ProposedActions, action.KindHarnessOverlay), runnerOutput.FinalAnswer, "Activated runtime harness overlay after human approval."),
+		fmt.Sprintf("harness-overlay:%s", proposal.ID),
+		map[string]any{
 			"overlay_id":                overlay.ID,
 			"profile_id":                overlay.ProfileID,
 			"version":                   overlay.Version,
@@ -347,20 +352,12 @@ func processHarnessOverlayProposal(cfg config.Config, store storepkg.Store, trac
 			"memory_write_enabled":      boolPointerValue(overlay.MemoryWriteEnabled),
 			"effective_overlay_version": overlay.Version,
 		},
-		IdempotencyKey: fmt.Sprintf("harness-overlay:%s", proposal.ID),
-		ApprovalMode:   "approved",
-		ApprovalState:  "approved",
-		PolicyVerdict:  "approved_proposal",
-		Status:         action.StatusSucceeded,
-		RequestedBy:    cfg.ServiceName,
-		Rationale:      firstNonEmpty(firstProposedActionRationale(runnerOutput.ProposedActions, action.KindHarnessOverlay), runnerOutput.FinalAnswer, "Activated runtime harness overlay after human approval."),
-		EvidenceRefs: []events.EvidenceRef{
+		[]events.EvidenceRef{
 			{Kind: "proposal", Ref: proposal.ID, Summary: proposal.Title},
 			{Kind: "trace", Ref: trace.Summary.TraceID, Summary: trace.Summary.WorkflowKind},
 		},
-		CreatedAt: now,
-		UpdatedAt: now,
-	})
+		now,
+	))
 	if err != nil {
 		return err
 	}
@@ -450,37 +447,37 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 	}
 	attemptID := firstNonEmpty(stringValue(item.Payload["attempt_id"]), repoJob.AttemptID)
 	attempt, _ := store.GetChangeAttempt(attemptID)
-	proposal, _ := findProposal(store.ListProposals(), item.ProposalID)
-	intent, err := upsertImprovementActionIntent(store, action.Intent{
-		OwnerPlane:     "improvement",
-		ConversationID: repoJob.ConversationID,
-		CaseID:         repoJob.CaseID,
-		TraceID:        trace.Summary.TraceID,
-		ProposalID:     item.ProposalID,
-		AttemptID:      attemptID,
-		Kind:           action.KindSandboxLaunch,
-		TargetRef:      fmt.Sprintf("%s/%s", cfg.SandboxNamespace, repoJob.ID),
-		RequestPayload: map[string]any{
+	proposal, ok := findProposal(store.ListProposals(), item.ProposalID)
+	if !ok {
+		proposal = review.Proposal{
+			ID:             item.ProposalID,
+			ConversationID: repoJob.ConversationID,
+			CaseID:         repoJob.CaseID,
+		}
+	}
+	intent, err := upsertImprovementActionIntent(store, improvementActionIntentBase(
+		cfg.ServiceName,
+		proposal,
+		trace,
+		attemptID,
+		action.KindSandboxLaunch,
+		fmt.Sprintf("%s/%s", cfg.SandboxNamespace, repoJob.ID),
+		action.StatusExecuting,
+		"Launch the sandbox job to validate the approved repo change.",
+		fmt.Sprintf("sandbox:%s", repoJob.ID),
+		map[string]any{
 			"job_id":      repoJob.ID,
 			"attempt_id":  attemptID,
 			"repo":        repoJob.Repo,
 			"branch_name": repoJob.BranchName,
 			"base_ref":    repoJob.BaseRef,
 		},
-		IdempotencyKey: fmt.Sprintf("sandbox:%s", repoJob.ID),
-		ApprovalMode:   "approved",
-		ApprovalState:  "approved",
-		PolicyVerdict:  "approved_proposal",
-		Status:         action.StatusExecuting,
-		RequestedBy:    cfg.ServiceName,
-		Rationale:      "Launch the sandbox job to validate the approved repo change.",
-		EvidenceRefs: []events.EvidenceRef{
+		[]events.EvidenceRef{
 			{Kind: "proposal", Ref: item.ProposalID, Summary: repoJob.CandidateKey},
 			{Kind: "trace", Ref: trace.Summary.TraceID, Summary: trace.Summary.WorkflowKind},
 		},
-		CreatedAt: time.Now().UTC(),
-		UpdatedAt: time.Now().UTC(),
-	})
+		time.Now().UTC(),
+	))
 	if err != nil {
 		return err
 	}
@@ -522,28 +519,9 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 	}
 	if launcherErr != nil || launcher == nil {
 		completed := time.Now().UTC()
-		if _, err := upsertImprovementActionIntent(store, action.Intent{
-			ID:             intent.ID,
-			OwnerPlane:     intent.OwnerPlane,
-			ConversationID: intent.ConversationID,
-			CaseID:         intent.CaseID,
-			TraceID:        intent.TraceID,
-			ProposalID:     intent.ProposalID,
-			AttemptID:      intent.AttemptID,
-			Kind:           intent.Kind,
-			TargetRef:      intent.TargetRef,
-			RequestPayload: intent.RequestPayload,
-			IdempotencyKey: intent.IdempotencyKey,
-			ApprovalMode:   intent.ApprovalMode,
-			ApprovalState:  intent.ApprovalState,
-			PolicyVerdict:  intent.PolicyVerdict,
-			Status:         action.StatusBlocked,
-			RequestedBy:    intent.RequestedBy,
-			Rationale:      intent.Rationale,
-			EvidenceRefs:   intent.EvidenceRefs,
-			CreatedAt:      intent.CreatedAt,
-			UpdatedAt:      completed,
-		}); err != nil {
+		intent.Status = action.StatusBlocked
+		intent.UpdatedAt = completed
+		if _, err := upsertImprovementActionIntent(store, intent); err != nil {
 			return err
 		}
 		_, _ = store.RecordActionResult(action.Result{
@@ -566,28 +544,9 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 	session, _, err := launcher.Launch(context.Background(), request)
 	if err != nil {
 		completed := time.Now().UTC()
-		_, _ = upsertImprovementActionIntent(store, action.Intent{
-			ID:             intent.ID,
-			OwnerPlane:     intent.OwnerPlane,
-			ConversationID: intent.ConversationID,
-			CaseID:         intent.CaseID,
-			TraceID:        intent.TraceID,
-			ProposalID:     intent.ProposalID,
-			AttemptID:      intent.AttemptID,
-			Kind:           intent.Kind,
-			TargetRef:      intent.TargetRef,
-			RequestPayload: intent.RequestPayload,
-			IdempotencyKey: intent.IdempotencyKey,
-			ApprovalMode:   intent.ApprovalMode,
-			ApprovalState:  intent.ApprovalState,
-			PolicyVerdict:  intent.PolicyVerdict,
-			Status:         action.StatusFailed,
-			RequestedBy:    intent.RequestedBy,
-			Rationale:      intent.Rationale,
-			EvidenceRefs:   intent.EvidenceRefs,
-			CreatedAt:      intent.CreatedAt,
-			UpdatedAt:      completed,
-		})
+		intent.Status = action.StatusFailed
+		intent.UpdatedAt = completed
+		_, _ = upsertImprovementActionIntent(store, intent)
 		_, _ = store.RecordActionResult(action.Result{
 			OperationID:    item.OperationID,
 			ActionIntentID: intent.ID,
@@ -921,36 +880,29 @@ func processDraftPROpen(cfg config.Config, store storepkg.Store, toolClient tool
 	now := time.Now().UTC()
 	proposal, _ := findProposal(store.ListProposals(), item.ProposalID)
 	attempt, _ := store.GetChangeAttempt(firstNonEmpty(attemptID, proposal.CurrentAttemptID))
-	intent, err := upsertImprovementActionIntent(store, action.Intent{
-		OwnerPlane:     "improvement",
-		ConversationID: trace.Summary.ConversationID,
-		CaseID:         trace.Summary.CaseID,
-		TraceID:        trace.Summary.TraceID,
-		ProposalID:     item.ProposalID,
-		AttemptID:      attemptID,
-		Kind:           action.KindDraftPROpen,
-		TargetRef:      repo,
-		RequestPayload: map[string]any{
+	intent, err := upsertImprovementActionIntent(store, improvementActionIntentBase(
+		cfg.ServiceName,
+		proposal,
+		trace,
+		attemptID,
+		action.KindDraftPROpen,
+		repo,
+		action.StatusExecuting,
+		"Open a draft PR once sandbox validation succeeds.",
+		fmt.Sprintf("pr:%s:%s", attemptID, branchName),
+		map[string]any{
 			"proposal_id": item.ProposalID,
 			"attempt_id":  attemptID,
 			"repo":        repo,
 			"branch_name": branchName,
 			"base_ref":    baseRef,
 		},
-		IdempotencyKey: fmt.Sprintf("pr:%s:%s", attemptID, branchName),
-		ApprovalMode:   "approved",
-		ApprovalState:  "approved",
-		PolicyVerdict:  "approved_proposal",
-		Status:         action.StatusExecuting,
-		RequestedBy:    cfg.ServiceName,
-		Rationale:      "Open a draft PR once sandbox validation succeeds.",
-		EvidenceRefs: []events.EvidenceRef{
+		[]events.EvidenceRef{
 			{Kind: "proposal", Ref: item.ProposalID, Summary: item.ProposalID},
 			{Kind: "trace", Ref: trace.Summary.TraceID, Summary: trace.Summary.WorkflowKind},
 		},
-		CreatedAt: now,
-		UpdatedAt: now,
-	})
+		now,
+	))
 	if err != nil {
 		return err
 	}
@@ -1157,35 +1109,36 @@ func filterProposalMemory(items []review.ProposalMemory, candidateKey string) []
 func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.Trace, run evals.Run, judgments []evals.Judgment, item queue.WorkItem) clients.RunnerTask {
 	effectiveHarness := harness.ResolveEffectiveConfig(store, "eval", cfg.DefaultReasoningVerbosity)
 	targetRepo := evalTargetRepo(cfg, store, trace)
-	repoAllowlist := scopedImprovementRepoAllowlist(targetRepo, cfg.AllowedTargetRepos)
-	contextRefs := make([]map[string]any, 0, len(judgments)+1)
-	contextRefs = append(contextRefs, map[string]any{
-		"kind":      "eval_run",
-		"ref":       run.ID,
-		"summary":   run.OverallVerdict,
-		"trace_id":  trace.Summary.TraceID,
-		"suite":     run.SuiteName,
-		"trigger":   run.Trigger,
-		"work_kind": item.Kind,
+	repoAllowlist := scopedImprovementRepoAllowlist(targetRepo)
+	toolAllowlist := improvementReadOnlyTools(effectiveHarness)
+	evalContextRefs := make([]clients.RunnerContextRef, 0, len(judgments)+1)
+	evalContextRefs = append(evalContextRefs, clients.RunnerContextRef{
+		Kind:     "eval_run",
+		Ref:      run.ID,
+		Summary:  run.OverallVerdict,
+		TraceID:  trace.Summary.TraceID,
+		ToolName: run.SuiteName,
+		Decision: run.Trigger,
+		Status:   string(item.Kind),
 	})
 	for _, judgment := range judgments {
-		contextRefs = append(contextRefs, map[string]any{
-			"kind":     "eval_judgment",
-			"ref":      judgment.ID,
-			"layer":    judgment.Layer,
-			"category": judgment.Category,
-			"score":    judgment.Score,
-			"summary":  judgment.Rationale,
+		evalContextRefs = append(evalContextRefs, clients.RunnerContextRef{
+			Kind:       "eval_judgment",
+			Ref:        judgment.ID,
+			Plane:      string(judgment.Layer),
+			Service:    judgment.Category,
+			Confidence: judgment.Score,
+			Summary:    judgment.Rationale,
 		})
 	}
-	contextRefs = append(contextRefs, improvementTraceEvidenceRefs(trace)...)
-	contextRefs = append(contextRefs, improvementCandidateEvidenceRefs(store, trace, "")...)
-	contextRefs = append(contextRefs, improvementProposalMemoryRefs(store, "")...)
+	evalContextRefs = append(evalContextRefs, improvementTraceEvidenceRefs(trace)...)
+	evalContextRefs = append(evalContextRefs, improvementCandidateEvidenceRefs(store, trace, "")...)
+	evalContextRefs = append(evalContextRefs, improvementProposalMemoryRefs(store, "")...)
 	if targetRepo != "" {
-		contextRefs = append(contextRefs, map[string]any{
-			"kind":    "target_repo",
-			"ref":     targetRepo,
-			"summary": fmt.Sprintf("Authoritative target repository for this eval line is %s.", targetRepo),
+		evalContextRefs = append(evalContextRefs, clients.RunnerContextRef{
+			Kind:    "target_repo",
+			Ref:     targetRepo,
+			Summary: fmt.Sprintf("Authoritative target repository for this eval line is %s.", targetRepo),
 		})
 	}
 	prompt := fmt.Sprintf(
@@ -1201,17 +1154,17 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 		judgmentDigest(judgments),
 		firstNonEmpty(targetRepo, cfg.DefaultRepo),
 	)
-	caseSummary := map[string]any{}
+	var caseSummary *clients.RunnerCaseSummary
 	if caseRecord, ok := store.GetCase(trace.Summary.CaseID); ok {
-		caseSummary = map[string]any{
-			"case_id":         caseRecord.ID,
-			"conversation_id": caseRecord.ConversationID,
-			"kind":            caseRecord.Kind,
-			"intent":          caseRecord.Intent,
-			"title":           caseRecord.Title,
-			"summary":         caseRecord.Summary,
-			"status":          caseRecord.Status,
-			"assigned_bot":    caseRecord.AssignedBot,
+		caseSummary = &clients.RunnerCaseSummary{
+			CaseID:         caseRecord.ID,
+			ConversationID: caseRecord.ConversationID,
+			Kind:           caseRecord.Kind,
+			Intent:         caseRecord.Intent,
+			Title:          caseRecord.Title,
+			Summary:        caseRecord.Summary,
+			Status:         string(caseRecord.Status),
+			AssignedBot:    caseRecord.AssignedBot,
 		}
 	}
 	sessionScopeKind, sessionScopeID := evalSessionScope(store, trace, run)
@@ -1221,7 +1174,7 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 		RepoRef:             "main",
 		Prompt:              prompt,
 		SystemMessage:       harness.ComposeSystemMessage("Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, and self_critique.", effectiveHarness),
-		AllowedTools:        improvementReadOnlyTools(effectiveHarness),
+		AllowedTools:        toolAllowlist,
 		TimeoutSeconds:      300,
 		ExpectedOutputs:     []string{"visible_reasoning", "final_answer"},
 		ArtifactDestination: fmt.Sprintf("trace:%s:eval:%s", trace.Summary.TraceID, run.ID),
@@ -1242,9 +1195,9 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 		CaseSummary:               caseSummary,
 		PriorTraceRefs:            improvementPriorTraceRefs(store.ListTraces(), trace.Summary.CaseID, trace.Summary.TraceID),
 		RepoAllowlist:             repoAllowlist,
-		ToolAllowlist:             improvementReadOnlyTools(effectiveHarness),
+		ToolAllowlist:             toolAllowlist,
 		ResponseMode:              "analysis",
-		ContextRefs:               contextRefs,
+		ContextRefs:               evalContextRefs,
 		ApprovalMode:              "deterministic",
 		ReasoningVerbosity:        effectiveHarness.ReasoningVerbosity,
 		SessionScopeKind:          sessionScopeKind,
@@ -1260,7 +1213,7 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace events.Trace, proposal review.Proposal, attempt improvement.ChangeAttempt, workspace *improvement.AttemptWorkspace, memories []review.ProposalMemory) clients.RunnerTask {
 	effectiveHarness := harness.ResolveEffectiveConfig(store, "proposal", cfg.DefaultReasoningVerbosity)
 	targetRepo := proposalTargetRepo(cfg, proposal)
-	repoAllowlist := scopedImprovementRepoAllowlist(targetRepo, cfg.AllowedTargetRepos)
+	repoAllowlist := scopedImprovementRepoAllowlist(targetRepo)
 	sessionScopeID := proposalSessionScopeID(proposal, targetRepo)
 	executionMode := "investigate"
 	toolAllowlist := improvementReadOnlyTools(effectiveHarness)
@@ -1268,59 +1221,58 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 		executionMode = "implement"
 		toolAllowlist = improvementImplementTools(effectiveHarness)
 	}
-	rejectedContext := make([]map[string]any, 0, len(memories))
+	rejectedContext := make([]clients.RunnerRejectedProposalContext, 0, len(memories))
 	for _, memory := range memories {
-		rejectedContext = append(rejectedContext, map[string]any{
-			"proposal_id":   memory.ProposalID,
-			"disposition":   memory.Disposition,
-			"rationale":     memory.ReviewRationale,
-			"failure_class": firstNonEmpty(memory.FailureClass, strings.Join(memory.FailureClasses, ",")),
+		rejectedContext = append(rejectedContext, clients.RunnerRejectedProposalContext{
+			ProposalID:   memory.ProposalID,
+			Disposition:  string(memory.Disposition),
+			Rationale:    memory.ReviewRationale,
+			FailureClass: firstNonEmpty(memory.FailureClass, strings.Join(memory.FailureClasses, ",")),
 		})
 	}
-	contextRefs := []map[string]any{
+	contextRefs := []clients.RunnerContextRef{
 		{
-			"kind":                               "proposal",
-			"ref":                                proposal.ID,
-			"summary":                            proposal.Summary,
-			"candidate_key":                      proposal.CandidateKey,
-			"risk_tier":                          proposal.RiskTier,
-			"scope":                              proposal.ProposedScope,
-			"target_layer":                       proposal.TargetLayer,
-			"target_kind":                        proposal.TargetKind,
-			"target_ref":                         proposal.TargetRef,
-			"recommended_intervention_kind":      proposal.RecommendedInterventionKind,
-			"recommended_intervention_rationale": proposal.RecommendedInterventionRationale,
-			"target_surface":                     proposal.TargetSurface,
-			"validation_plan":                    proposal.ValidationPlan,
-			"material_risk_summary":              proposal.MaterialRiskSummary,
-			"recommended_disposition":            proposal.RecommendedDisposition,
+			Kind:                             "proposal",
+			Ref:                              proposal.ID,
+			Summary:                          proposal.Summary,
+			CandidateKey:                     proposal.CandidateKey,
+			TargetLayer:                      string(proposal.TargetLayer),
+			TargetKind:                       proposal.TargetKind,
+			TargetRef:                        proposal.TargetRef,
+			RecommendedInterventionKind:      string(proposal.RecommendedInterventionKind),
+			RecommendedInterventionRationale: proposal.RecommendedInterventionRationale,
+			TargetSurface:                    proposal.TargetSurface,
+			ValidationPlan:                   proposal.ValidationPlan,
+			MaterialRiskSummary:              proposal.MaterialRiskSummary,
+			RecommendedDisposition:           proposal.RecommendedDisposition,
 		},
 		{
-			"kind":            "change_attempt",
-			"ref":             attempt.ID,
-			"attempt_number":  attempt.AttemptNumber,
-			"branch_name":     attempt.BranchName,
-			"parent_attempt":  attempt.ParentAttemptID,
-			"failure_class":   attempt.FailureClass,
-			"failure_summary": attempt.FailureSummary,
+			Kind:           "change_attempt",
+			Ref:            attempt.ID,
+			AttemptNumber:  attempt.AttemptNumber,
+			AttemptID:      attempt.ID,
+			BranchName:     attempt.BranchName,
+			FailureClass:   attempt.FailureClass,
+			FailureSummary: attempt.FailureSummary,
 		},
 	}
 	if targetRepo != "" {
-		contextRefs = append(contextRefs, map[string]any{
-			"kind":    "target_repo",
-			"ref":     targetRepo,
-			"summary": fmt.Sprintf("Authoritative remediation repository is %s.", targetRepo),
+		contextRefs = append(contextRefs, clients.RunnerContextRef{
+			Kind:    "target_repo",
+			Ref:     targetRepo,
+			Summary: fmt.Sprintf("Authoritative remediation repository is %s.", targetRepo),
 		})
 	}
 	if workspace != nil {
-		contextRefs = append(contextRefs, map[string]any{
-			"kind":               "attempt_workspace",
-			"ref":                workspace.ID,
-			"attempt_id":         workspace.AttemptID,
-			"repo":               workspace.Repo,
-			"branch_name":        workspace.BranchName,
-			"status":             workspace.Status,
-			"allowed_path_globs": workspace.AllowedPathGlobs,
+		contextRefs = append(contextRefs, clients.RunnerContextRef{
+			Kind:             "attempt_workspace",
+			Ref:              workspace.ID,
+			ProposalID:       workspace.ProposalID,
+			AttemptID:        workspace.AttemptID,
+			Repo:             workspace.Repo,
+			BranchName:       workspace.BranchName,
+			Status:           string(workspace.Status),
+			AllowedPathGlobs: workspace.AllowedPathGlobs,
 		})
 	}
 	contextRefs = append(contextRefs, improvementTraceEvidenceRefs(trace)...)
@@ -1374,17 +1326,17 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 			action.KindHarnessOverlay,
 		)
 	}
-	caseSummary := map[string]any{}
+	var caseSummary *clients.RunnerCaseSummary
 	if caseRecord, ok := store.GetCase(trace.Summary.CaseID); ok {
-		caseSummary = map[string]any{
-			"case_id":         caseRecord.ID,
-			"conversation_id": caseRecord.ConversationID,
-			"kind":            caseRecord.Kind,
-			"intent":          caseRecord.Intent,
-			"title":           caseRecord.Title,
-			"summary":         caseRecord.Summary,
-			"status":          caseRecord.Status,
-			"assigned_bot":    caseRecord.AssignedBot,
+		caseSummary = &clients.RunnerCaseSummary{
+			CaseID:         caseRecord.ID,
+			ConversationID: caseRecord.ConversationID,
+			Kind:           caseRecord.Kind,
+			Intent:         caseRecord.Intent,
+			Title:          caseRecord.Title,
+			Summary:        caseRecord.Summary,
+			Status:         string(caseRecord.Status),
+			AssignedBot:    caseRecord.AssignedBot,
 		}
 	}
 	return clients.RunnerTask{
@@ -1463,12 +1415,48 @@ func improvementTargetRepo(cfg config.Config, targetLayer harness.TargetLayer, t
 	return firstNonEmpty(cfg.DefaultRepo, "rsi-agent-platform")
 }
 
-func scopedImprovementRepoAllowlist(primary string, fallback []string) []string {
+func scopedImprovementRepoAllowlist(primary string) []string {
 	primary = strings.TrimSpace(primary)
 	if primary == "" {
-		return append([]string(nil), fallback...)
+		return nil
 	}
 	return []string{primary}
+}
+
+func improvementBaseToolNames() []string {
+	return []string{
+		"repo.context",
+		"knowledge.context",
+		"github.repo_activity",
+		"github.repo_context",
+		"sentry.lookup",
+		"kubernetes.inspect",
+		"kubernetes.logs",
+		"kubernetes.events",
+		"cloudflare.inspect",
+		"rsi.trace_context",
+		"rsi.workflow_context",
+		"rsi.action_chain",
+		"rsi.runner_execution",
+		"rsi.runtime_config",
+		"rsi.runtime_health",
+		"rsi.proposal_memory",
+		"rsi.candidate_context",
+		"rsi.attempt_context",
+	}
+}
+
+func improvementWorkspaceToolNames() []string {
+	return []string{
+		"workspace.list_files",
+		"workspace.read_file",
+		"workspace.search",
+		"workspace.write_file",
+		"workspace.apply_patch",
+		"workspace.git_status",
+		"workspace.git_diff",
+		"workspace.run_validation",
+	}
 }
 
 func evalSessionScope(store storepkg.Store, trace events.Trace, run evals.Run) (string, string) {
@@ -1483,77 +1471,42 @@ func evalSessionScope(store storepkg.Store, trace events.Trace, run evals.Run) (
 }
 
 func improvementReadOnlyTools(effective harness.EffectiveConfig) []string {
-	return harness.ApplyToolPreference([]string{
-		"repo.context",
-		"knowledge.context",
-		"github.repo_activity",
-		"github.repo_context",
-		"sentry.lookup",
-		"kubernetes.inspect",
-		"kubernetes.logs",
-		"kubernetes.events",
-		"cloudflare.inspect",
-		"rsi.trace_context",
-		"rsi.proposal_memory",
-		"rsi.candidate_context",
-		"rsi.attempt_context",
-	}, effective.ToolPreferenceOrder)
+	return harness.ApplyToolPreference(improvementBaseToolNames(), effective.ToolPreferenceOrder)
 }
 
 func improvementImplementTools(effective harness.EffectiveConfig) []string {
-	return harness.ApplyToolPreference([]string{
-		"repo.context",
-		"knowledge.context",
-		"github.repo_activity",
-		"github.repo_context",
-		"sentry.lookup",
-		"kubernetes.inspect",
-		"kubernetes.logs",
-		"kubernetes.events",
-		"cloudflare.inspect",
-		"rsi.trace_context",
-		"rsi.proposal_memory",
-		"rsi.candidate_context",
-		"rsi.attempt_context",
-		"workspace.list_files",
-		"workspace.read_file",
-		"workspace.search",
-		"workspace.write_file",
-		"workspace.apply_patch",
-		"workspace.git_status",
-		"workspace.git_diff",
-		"workspace.run_validation",
-	}, effective.ToolPreferenceOrder)
+	tools := append(improvementBaseToolNames(), improvementWorkspaceToolNames()...)
+	return harness.ApplyToolPreference(tools, effective.ToolPreferenceOrder)
 }
 
-func improvementTraceEvidenceRefs(trace events.Trace) []map[string]any {
-	eventRefs := make([]map[string]any, 0, minInt(len(trace.Events), 12))
+func improvementTraceEvidenceRefs(trace events.Trace) []clients.RunnerContextRef {
+	eventRefs := make([]clients.RunnerContextRef, 0, minInt(len(trace.Events), 12))
 	for _, item := range tailTraceEvents(trace.Events, 12) {
-		eventRefs = append(eventRefs, map[string]any{
-			"kind":        "trace_event",
-			"ref":         item.EventType,
-			"status":      item.Status,
-			"plane":       item.Plane,
-			"service":     item.Service,
-			"description": item.Description,
+		eventRefs = append(eventRefs, clients.RunnerContextRef{
+			Kind:        "trace_event",
+			Ref:         item.EventType,
+			Status:      string(item.Status),
+			Plane:       item.Plane,
+			Service:     item.Service,
+			Description: item.Description,
 		})
 	}
-	reasoningRefs := make([]map[string]any, 0, minInt(len(trace.Reasoning), 8))
+	reasoningRefs := make([]clients.RunnerContextRef, 0, minInt(len(trace.Reasoning), 8))
 	for _, item := range tailReasoning(trace.Reasoning, 8) {
-		reasoningRefs = append(reasoningRefs, map[string]any{
-			"kind":       "reasoning_step",
-			"ref":        item.ID,
-			"step_type":  item.StepType,
-			"summary":    item.Summary,
-			"decision":   item.Decision,
-			"confidence": item.Confidence,
+		reasoningRefs = append(reasoningRefs, clients.RunnerContextRef{
+			Kind:       "reasoning_step",
+			Ref:        item.ID,
+			StepType:   item.StepType,
+			Summary:    item.Summary,
+			Decision:   item.Decision,
+			Confidence: item.Confidence,
 		})
 	}
 	return append(eventRefs, reasoningRefs...)
 }
 
-func improvementCandidateEvidenceRefs(store storepkg.Store, trace events.Trace, candidateKey string) []map[string]any {
-	refs := make([]map[string]any, 0)
+func improvementCandidateEvidenceRefs(store storepkg.Store, trace events.Trace, candidateKey string) []clients.RunnerContextRef {
+	refs := make([]clients.RunnerContextRef, 0)
 	for _, item := range store.ListCandidates() {
 		if candidateKey != "" && item.CandidateKey != candidateKey {
 			continue
@@ -1561,36 +1514,36 @@ func improvementCandidateEvidenceRefs(store storepkg.Store, trace events.Trace, 
 		if candidateKey == "" && item.LatestTraceID != trace.Summary.TraceID && !containsString(item.EvidenceTraceIDs, trace.Summary.TraceID) {
 			continue
 		}
-		refs = append(refs, map[string]any{
-			"kind":                        "candidate",
-			"ref":                         item.CandidateKey,
-			"subsystem":                   item.Subsystem,
-			"failure_mode":                item.FailureMode,
-			"target_layer":                item.TargetLayer,
-			"priority_score":              item.PriorityScore,
-			"retryable_failure_class":     item.RetryableFailureClass,
-			"attempt_count":               item.AttemptCount,
-			"auto_retry_budget_remaining": item.AutoRetryBudgetRemaining,
+		refs = append(refs, clients.RunnerContextRef{
+			Kind:                     "candidate",
+			Ref:                      item.CandidateKey,
+			Subsystem:                item.Subsystem,
+			FailureMode:              item.FailureMode,
+			TargetLayer:              string(item.TargetLayer),
+			PriorityScore:            item.PriorityScore,
+			RetryableFailureClass:    item.RetryableFailureClass,
+			AttemptCount:             item.AttemptCount,
+			AutoRetryBudgetRemaining: item.AutoRetryBudgetRemaining,
 		})
 	}
 	return refs
 }
 
-func improvementProposalMemoryRefs(store storepkg.Store, candidateKey string) []map[string]any {
-	refs := make([]map[string]any, 0)
+func improvementProposalMemoryRefs(store storepkg.Store, candidateKey string) []clients.RunnerContextRef {
+	refs := make([]clients.RunnerContextRef, 0)
 	for _, item := range store.ListProposalMemories() {
 		if candidateKey != "" && item.CandidateKey != candidateKey {
 			continue
 		}
-		refs = append(refs, map[string]any{
-			"kind":          "proposal_memory",
-			"ref":           item.ID,
-			"proposal_id":   item.ProposalID,
-			"disposition":   item.Disposition,
-			"failure_class": firstNonEmpty(item.FailureClass, strings.Join(item.FailureClasses, ",")),
-			"rationale":     item.ReviewRationale,
-			"hypothesis":    item.Hypothesis,
-			"diff_summary":  item.DiffSummary,
+		refs = append(refs, clients.RunnerContextRef{
+			Kind:         "proposal_memory",
+			Ref:          item.ID,
+			ProposalID:   item.ProposalID,
+			Disposition:  string(item.Disposition),
+			FailureClass: firstNonEmpty(item.FailureClass, strings.Join(item.FailureClasses, ",")),
+			Rationale:    item.ReviewRationale,
+			Hypothesis:   item.Hypothesis,
+			DiffSummary:  item.DiffSummary,
 		})
 		if len(refs) == 8 {
 			break
@@ -1599,22 +1552,22 @@ func improvementProposalMemoryRefs(store storepkg.Store, candidateKey string) []
 	return refs
 }
 
-func improvementAttemptHistoryRefs(store storepkg.Store, proposalID string, currentAttemptID string) []map[string]any {
-	refs := make([]map[string]any, 0)
+func improvementAttemptHistoryRefs(store storepkg.Store, proposalID string, currentAttemptID string) []clients.RunnerContextRef {
+	refs := make([]clients.RunnerContextRef, 0)
 	for _, item := range store.ListChangeAttempts() {
 		if item.ProposalID != proposalID || item.ID == currentAttemptID {
 			continue
 		}
-		refs = append(refs, map[string]any{
-			"kind":                       "change_attempt_history",
-			"ref":                        item.ID,
-			"attempt_number":             item.AttemptNumber,
-			"state":                      item.State,
-			"failure_class":              item.FailureClass,
-			"failure_summary":            item.FailureSummary,
-			"retry_decision":             item.RetryDecision,
-			"material_hypothesis_change": item.MaterialHypothesisChange,
-			"changed_files":              item.ChangedFiles,
+		refs = append(refs, clients.RunnerContextRef{
+			Kind:                     "change_attempt_history",
+			Ref:                      item.ID,
+			AttemptNumber:            item.AttemptNumber,
+			State:                    string(item.State),
+			FailureClass:             item.FailureClass,
+			FailureSummary:           item.FailureSummary,
+			RetryDecision:            item.RetryDecision,
+			MaterialHypothesisChange: item.MaterialHypothesisChange,
+			ChangedFiles:             append([]string(nil), item.ChangedFiles...),
 		})
 	}
 	return refs
@@ -1687,39 +1640,40 @@ func workspaceAllowedPathGlobsValue(workspace *improvement.AttemptWorkspace) []s
 	return append([]string(nil), workspace.AllowedPathGlobs...)
 }
 
-func improvementRecentConversationEntries(items []conversation.Entry) []map[string]any {
+func improvementRecentConversationEntries(items []conversation.Entry) []clients.RunnerConversationEntry {
 	if len(items) > 8 {
 		items = items[len(items)-8:]
 	}
-	out := make([]map[string]any, 0, len(items))
+	out := make([]clients.RunnerConversationEntry, 0, len(items))
 	for _, item := range items {
-		out = append(out, map[string]any{
-			"id":              item.ID,
-			"event_id":        item.EventID,
-			"entry_type":      item.EntryType,
-			"actor_id":        item.ActorID,
-			"actor_type":      item.ActorType,
-			"body":            item.Body,
-			"created_at":      item.CreatedAt,
-			"source":          item.Source,
-			"source_event_id": item.SourceEventID,
+		out = append(out, clients.RunnerConversationEntry{
+			ID:            item.ID,
+			EventID:       item.EventID,
+			TraceID:       item.TraceID,
+			Source:        string(item.Source),
+			SourceEventID: item.SourceEventID,
+			EntryType:     item.EntryType,
+			ActorID:       item.ActorID,
+			ActorType:     item.ActorType,
+			Body:          item.Body,
+			CreatedAt:     item.CreatedAt,
 		})
 	}
 	return out
 }
 
-func improvementPriorTraceRefs(items []events.TraceSummary, caseID string, currentTraceID string) []map[string]any {
-	out := make([]map[string]any, 0)
+func improvementPriorTraceRefs(items []events.TraceSummary, caseID string, currentTraceID string) []clients.RunnerTraceRef {
+	out := make([]clients.RunnerTraceRef, 0)
 	for _, item := range items {
 		if item.CaseID != caseID || item.TraceID == currentTraceID {
 			continue
 		}
-		out = append(out, map[string]any{
-			"trace_id":         item.TraceID,
-			"status":           item.Status,
-			"workflow_kind":    item.WorkflowKind,
-			"started_at":       item.StartedAt,
-			"trigger_event_id": item.TriggerEventID,
+		out = append(out, clients.RunnerTraceRef{
+			TraceID:        item.TraceID,
+			Status:         string(item.Status),
+			WorkflowKind:   item.WorkflowKind,
+			StartedAt:      item.StartedAt,
+			TriggerEventID: item.TriggerEventID,
 		})
 		if len(out) == 6 {
 			break
@@ -1846,6 +1800,30 @@ func improvementOutcomeHypothesisReasoning(trace events.Trace, items []runneruti
 		})
 	}
 	return out
+}
+
+func improvementActionIntentBase(requestedBy string, proposal review.Proposal, trace events.Trace, attemptID string, kind action.Kind, targetRef string, status action.Status, rationale string, idempotencyKey string, requestPayload map[string]any, evidenceRefs []events.EvidenceRef, createdAt time.Time) action.Intent {
+	return action.Intent{
+		OwnerPlane:     "improvement",
+		ConversationID: proposal.ConversationID,
+		CaseID:         proposal.CaseID,
+		TraceID:        trace.Summary.TraceID,
+		ProposalID:     proposal.ID,
+		AttemptID:      attemptID,
+		Kind:           kind,
+		TargetRef:      targetRef,
+		ApprovalMode:   "approved",
+		ApprovalState:  "approved",
+		PolicyVerdict:  "approved_proposal",
+		Status:         status,
+		RequestedBy:    requestedBy,
+		Rationale:      rationale,
+		IdempotencyKey: idempotencyKey,
+		RequestPayload: requestPayload,
+		EvidenceRefs:   evidenceRefs,
+		CreatedAt:      createdAt,
+		UpdatedAt:      createdAt,
+	}
 }
 
 func upsertImprovementActionIntent(store storepkg.Store, intent action.Intent) (action.Intent, error) {

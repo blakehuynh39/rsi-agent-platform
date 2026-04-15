@@ -49,7 +49,7 @@ export function KnowledgeDetail(props: {
           <h3>Review actions</h3>
           <label className="field">
             Review rationale
-            <textarea value={props.reviewRationale} onChange={(event) => props.setReviewRationale(event.target.value)} placeholder="Why this entry should be approved, rejected, or marked stale." />
+            <textarea value={props.reviewRationale} onChange={(event) => props.setReviewRationale(event.target.value)} placeholder="State the evidence and decision for this entry." />
           </label>
           <div className="button-row">
             <button onClick={() => props.onDecision("approve")}>Approve</button>

@@ -1,4 +1,21 @@
 export type NullableList<T> = T[] | null;
+export type JsonPrimitive = string | number | boolean | null;
+export type JsonValue = JsonPrimitive | JsonObject | JsonValue[];
+export type JsonObject = {
+  [key: string]: JsonValue;
+};
+export type CreatedAt = {
+  created_at: string;
+};
+
+export type OptionalCreatedAt = {
+  created_at?: string;
+};
+
+export type Timestamped = CreatedAt & {
+  updated_at: string;
+};
+
 export type TabKey = "conversations" | "cases" | "proposals" | "knowledge" | "harness";
 export type ProposalSegment = "active" | "candidates" | "history";
 export type KnowledgeSegment = "working" | "review" | "canonical" | "stale";
@@ -14,11 +31,10 @@ export type TraceInspectorTab =
   | "feedback"
   | "proposals";
 
-export type TraceEvalSummary = {
+export type TraceEvalSummary = CreatedAt & {
   run_id: string;
   verdict: string;
   score: number;
-  created_at: string;
   suite_name: string;
 };
 
@@ -68,7 +84,7 @@ export type ConversationListItem = {
   proposal_count: number;
 };
 
-export type ConversationEntry = {
+export type ConversationEntry = CreatedAt & {
   id: string;
   event_id?: string;
   trace_id?: string;
@@ -78,7 +94,6 @@ export type ConversationEntry = {
   actor_id?: string;
   actor_type?: string;
   body: string;
-  created_at: string;
 };
 
 export type ConversationDetailResponse = {
@@ -210,14 +225,13 @@ export type TraceDetailResponse = {
   operations: NullableList<OperationExecution>;
 };
 
-export type EvalRun = {
+export type EvalRun = CreatedAt & {
   id: string;
   trace_id: string;
   suite_name: string;
   trigger: string;
   overall_score: number;
   overall_verdict: string;
-  created_at: string;
 };
 
 export type EvalJudgment = {
@@ -229,7 +243,7 @@ export type EvalJudgment = {
   rationale: string;
 };
 
-export type FeedbackRecord = {
+export type FeedbackRecord = CreatedAt & {
   id: string;
   conversation_id?: string;
   case_id?: string;
@@ -241,10 +255,9 @@ export type FeedbackRecord = {
   labels?: NullableList<string>;
   notes?: string;
   reviewer_id: string;
-  created_at: string;
 };
 
-export type ActionIntent = {
+export type ActionIntent = Timestamped & {
   id: string;
   owner_plane: string;
   conversation_id?: string;
@@ -255,7 +268,7 @@ export type ActionIntent = {
   kind: string;
   phase_key?: string;
   target_ref?: string;
-  request_payload?: Record<string, unknown>;
+  request_payload?: JsonObject;
   idempotency_key?: string;
   approval_mode?: string;
   approval_state?: string;
@@ -265,8 +278,6 @@ export type ActionIntent = {
   requested_by?: string;
   rationale?: string;
   evidence_refs?: NullableList<EvidenceRef>;
-  created_at: string;
-  updated_at: string;
 };
 
 export type ActionResult = {
@@ -310,7 +321,7 @@ export type OperationExecution = {
   completed_at?: string;
 };
 
-export type OutcomeRecord = {
+export type OutcomeRecord = CreatedAt & {
   id: string;
   source: string;
   source_event_id?: string;
@@ -329,7 +340,7 @@ export type OutcomeRecord = {
   recorded_at: string;
 };
 
-export type KnowledgeEntry = {
+export type KnowledgeEntry = Timestamped & {
   id: string;
   tier: string;
   kind: string;
@@ -338,15 +349,13 @@ export type KnowledgeEntry = {
   title: string;
   summary?: string;
   body?: string;
-  structured_facts?: Record<string, unknown>;
+  structured_facts?: JsonObject;
   status: string;
   confidence?: number;
   fresh_until?: string;
   source_type: string;
   supersedes_entry_id?: string;
   contradicted_by_entry_id?: string;
-  created_at: string;
-  updated_at: string;
 };
 
 export type KnowledgeEvidenceLink = {
@@ -385,7 +394,7 @@ export type Candidate = {
   prior_similar_proposal_ids?: NullableList<string>;
 };
 
-export type Proposal = {
+export type Proposal = CreatedAt & {
   id: string;
   trace_id: string;
   conversation_id?: string;
@@ -424,7 +433,6 @@ export type Proposal = {
   validation_plan?: string;
   material_risk_summary?: string;
   recommended_disposition?: string;
-  created_at: string;
 };
 
 export type ProposalListItem = Proposal & {
@@ -433,7 +441,7 @@ export type ProposalListItem = Proposal & {
   pr_url?: string;
 };
 
-export type ProposalReview = {
+export type ProposalReview = CreatedAt & {
   proposal_id: string;
   decision: string;
   scope?: string;
@@ -441,10 +449,9 @@ export type ProposalReview = {
   reviewer_id: string;
   failure_class?: string;
   failure_classes?: NullableList<string>;
-  created_at: string;
 };
 
-export type ProposalMemory = {
+export type ProposalMemory = CreatedAt & {
   id: string;
   review_id?: number;
   proposal_id: string;
@@ -460,7 +467,6 @@ export type ProposalMemory = {
   disposition_reason?: string;
   failure_class?: string;
   failure_classes?: NullableList<string>;
-  created_at: string;
 };
 
 export type RepoChangeJob = {
@@ -481,7 +487,7 @@ export type RepoChangeJob = {
   updated_at?: string;
 };
 
-export type PRAttempt = {
+export type PRAttempt = CreatedAt & {
   id: string;
   proposal_id: string;
   attempt_id?: string;
@@ -491,10 +497,9 @@ export type PRAttempt = {
   head_sha?: string;
   status: string;
   validation_status: string;
-  created_at: string;
 };
 
-export type AttemptWorkspace = {
+export type AttemptWorkspace = Timestamped & {
   id: string;
   attempt_id: string;
   proposal_id: string;
@@ -508,12 +513,10 @@ export type AttemptWorkspace = {
   allowed_path_globs?: NullableList<string>;
   head_sha?: string;
   diff_summary?: string;
-  created_at: string;
-  updated_at: string;
   expires_at?: string;
 };
 
-export type ChangeAttempt = {
+export type ChangeAttempt = Timestamped & {
   id: string;
   proposal_id: string;
   candidate_key: string;
@@ -541,19 +544,16 @@ export type ChangeAttempt = {
   validation_plan?: string;
   retry_assessment?: string;
   hypothesis_delta?: string;
-  overlay_payload?: Record<string, unknown>;
-  created_at: string;
-  updated_at: string;
+  overlay_payload?: JsonObject;
 };
 
-export type PostMergeReplay = {
+export type PostMergeReplay = CreatedAt & {
   id: string;
   proposal_id: string;
   trace_id: string;
   baseline_score: number;
   candidate_score: number;
   improved: boolean;
-  created_at: string;
 };
 
 export type ProposalSlots = {
@@ -595,7 +595,7 @@ export type ProposalDetailResponse = {
   harness_executions: NullableList<HarnessExecution>;
 };
 
-export type HarnessProfile = {
+export type HarnessProfile = Timestamped & {
   id: string;
   role: string;
   name: string;
@@ -610,11 +610,9 @@ export type HarnessProfile = {
   memory_read_enabled: boolean;
   memory_write_enabled: boolean;
   repo_ref?: string;
-  created_at: string;
-  updated_at: string;
 };
 
-export type HarnessOverlay = {
+export type HarnessOverlay = Timestamped & {
   id: string;
   profile_id: string;
   role: string;
@@ -632,12 +630,10 @@ export type HarnessOverlay = {
   memory_write_enabled?: boolean;
   created_by?: string;
   approved_by?: string;
-  created_at: string;
-  updated_at: string;
   activated_at?: string;
 };
 
-export type HarnessExperiment = {
+export type HarnessExperiment = Timestamped & {
   id: string;
   profile_id: string;
   overlay_id?: string;
@@ -645,12 +641,10 @@ export type HarnessExperiment = {
   role: string;
   status: string;
   summary?: string;
-  metrics?: Record<string, unknown>;
-  created_at: string;
-  updated_at: string;
+  metrics?: JsonObject;
 };
 
-export type HarnessSessionBinding = {
+export type HarnessSessionBinding = Timestamped & {
   role: string;
   scope_kind: string;
   scope_id: string;
@@ -665,19 +659,16 @@ export type HarnessSessionBinding = {
   effective_overlay_id?: string;
   effective_overlay_version?: string;
   last_used_at: string;
-  created_at: string;
-  updated_at: string;
 };
 
-export type HarnessMemoryArtifact = {
+export type HarnessMemoryArtifact = OptionalCreatedAt & {
   kind: string;
   summary: string;
   ref?: string;
   source?: string;
-  created_at?: string;
 };
 
-export type HarnessExecution = {
+export type HarnessExecution = CreatedAt & {
   id: string;
   trace_id?: string;
   proposal_id?: string;
@@ -692,7 +683,6 @@ export type HarnessExecution = {
   memory_backend?: string;
   memory_reads?: NullableList<HarnessMemoryArtifact>;
   memory_writes?: NullableList<HarnessMemoryArtifact>;
-  created_at: string;
 };
 
 export type KnowledgeListResponse = {
@@ -754,12 +744,3 @@ export type ViewState = {
   knowledge?: string;
   role?: string;
 };
-
-export const ACTIVE_PROPOSAL_STATES = new Set([
-  "pending_review",
-  "approved",
-  "repo_change_queued",
-  "repo_change_running",
-  "validation_pending",
-  "pr_open"
-]);

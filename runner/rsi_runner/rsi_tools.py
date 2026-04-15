@@ -2,16 +2,18 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import json
-from typing import Any, Dict, Iterable, List
+from typing import Any, Iterable
 from urllib import error as urlerror
 from urllib import request as urlrequest
+
+from .json_types import JsonObject
 
 
 READ_ONLY_HONCHO_TOOLS = frozenset({"honcho_profile", "honcho_search", "honcho_context"})
 BLOCKED_HONCHO_TOOLS = frozenset({"honcho_conclude"})
 
 
-_READ_ONLY_TOOL_SCHEMAS: dict[str, dict[str, Any]] = {
+_READ_ONLY_TOOL_SCHEMAS: dict[str, JsonObject] = {
     "repo.context": {
         "name": "repo.context",
         "description": "Read-only repository context lookup for the current repo or a named repo.",
@@ -125,6 +127,57 @@ _READ_ONLY_TOOL_SCHEMAS: dict[str, dict[str, Any]] = {
             },
         },
     },
+    "rsi.workflow_context": {
+        "name": "rsi.workflow_context",
+        "description": "Read-only RSI workflow context, including workflow state, trace summary, and recent conversation entries.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "workflow_id": {"type": "string"},
+                "trace_id": {"type": "string"},
+            },
+        },
+    },
+    "rsi.action_chain": {
+        "name": "rsi.action_chain",
+        "description": "Read-only RSI action chain lookup for intents, results, and outcomes related to a trace, proposal, or attempt.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "trace_id": {"type": "string"},
+                "proposal_id": {"type": "string"},
+                "attempt_id": {"type": "string"},
+            },
+        },
+    },
+    "rsi.runner_execution": {
+        "name": "rsi.runner_execution",
+        "description": "Read-only RSI harness execution lookup for workflow, eval, or proposal runs.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "trace_id": {"type": "string"},
+                "proposal_id": {"type": "string"},
+                "role": {"type": "string"},
+            },
+        },
+    },
+    "rsi.runtime_config": {
+        "name": "rsi.runtime_config",
+        "description": "Read-only RSI runtime configuration summary without secrets.",
+        "parameters": {
+            "type": "object",
+            "properties": {},
+        },
+    },
+    "rsi.runtime_health": {
+        "name": "rsi.runtime_health",
+        "description": "Read-only RSI runtime health summary for runners and Honcho.",
+        "parameters": {
+            "type": "object",
+            "properties": {},
+        },
+    },
     "rsi.proposal_memory": {
         "name": "rsi.proposal_memory",
         "description": "Read-only RSI proposal-memory lookup for a candidate line or proposal.",
@@ -158,7 +211,7 @@ _READ_ONLY_TOOL_SCHEMAS: dict[str, dict[str, Any]] = {
     },
 }
 
-_WORKSPACE_TOOL_SCHEMAS: dict[str, dict[str, Any]] = {
+_WORKSPACE_TOOL_SCHEMAS: dict[str, JsonObject] = {
     "workspace.list_files": {
         "name": "workspace.list_files",
         "description": "List files inside the governed attempt workspace.",
@@ -268,8 +321,8 @@ WORKSPACE_RSI_TOOL_NAMES = tuple(sorted(_WORKSPACE_TOOL_SCHEMAS.keys()))
 IMPLEMENT_RSI_TOOL_NAMES = tuple(sorted(_TOOL_SCHEMAS.keys()))
 
 
-def tool_schema_wrappers(names: Iterable[str]) -> list[dict[str, Any]]:
-    wrappers: list[dict[str, Any]] = []
+def tool_schema_wrappers(names: Iterable[str]) -> list[JsonObject]:
+    wrappers: list[JsonObject] = []
     for name in names:
         schema = _TOOL_SCHEMAS.get(name)
         if schema is None:
@@ -293,25 +346,26 @@ def normalize_tool_names(values: Iterable[str]) -> list[str]:
 @dataclass
 class ReadOnlyToolBinding:
     base_url: str
+    allowed_tool_names: list[str]
     task_repo: str
     task_prompt: str
     task_context_summary: str
     trace_id: str
     session_scope_kind: str
     session_scope_id: str
-    context_refs: list[dict[str, Any]]
+    context_refs: list[JsonObject]
     execution_mode: str = ""
     attempt_id: str = ""
     workspace_id: str = ""
     timeout_seconds: int = 30
 
     def has_tool(self, name: str) -> bool:
-        return name in _TOOL_SCHEMAS
+        return name in _TOOL_SCHEMAS and name in set(self.allowed_tool_names)
 
     def tool_names(self) -> list[str]:
-        return list(IMPLEMENT_RSI_TOOL_NAMES)
+        return list(normalize_tool_names(self.allowed_tool_names))
 
-    def handle_tool_call(self, name: str, args: dict[str, Any]) -> str:
+    def handle_tool_call(self, name: str, args: JsonObject) -> str:
         payload = self._default_payload(name)
         payload.update(args or {})
         req = urlrequest.Request(
@@ -332,7 +386,7 @@ class ReadOnlyToolBinding:
                     "error": f"tool gateway returned {exc.code}: {detail}",
                 }
             )
-        except Exception as exc:
+        except (urlerror.URLError, TimeoutError, ConnectionError, OSError) as exc:
             return json.dumps(
                 {
                     "tool_name": name,
@@ -366,8 +420,8 @@ class ReadOnlyToolBinding:
             }
         )
 
-    def _default_payload(self, name: str) -> dict[str, Any]:
-        payload: dict[str, Any] = {}
+    def _default_payload(self, name: str) -> JsonObject:
+        payload: JsonObject = {}
         if self.trace_id:
             payload["trace_id"] = self.trace_id
         if name in {"repo.context", "github.repo_activity", "github.repo_context"} and self.task_repo:
@@ -378,6 +432,12 @@ class ReadOnlyToolBinding:
             payload["question"] = self.task_prompt
             payload["topic"] = self.task_prompt or self.task_context_summary
             payload["scope_id"] = self.task_repo
+        if name == "rsi.workflow_context":
+            payload["trace_id"] = self.trace_id
+        if name == "rsi.action_chain":
+            payload["trace_id"] = self.trace_id
+        if name == "rsi.runner_execution":
+            payload["trace_id"] = self.trace_id
         if name == "sentry.lookup":
             payload["alert"] = self.task_context_summary or self.task_prompt
         if name in {"rsi.proposal_memory", "rsi.candidate_context"} and self.session_scope_kind == "proposal_candidate":
@@ -416,7 +476,7 @@ class CompositeToolProvider:
         has_tool = getattr(self._base_manager, "has_tool", None)
         return bool(callable(has_tool) and has_tool(name))
 
-    def handle_tool_call(self, name: str, args: dict[str, Any], **kwargs: Any) -> str:
+    def handle_tool_call(self, name: str, args: JsonObject, **kwargs: Any) -> str:
         if self._readonly_tools.has_tool(name):
             return self._readonly_tools.handle_tool_call(name, args)
         if self._base_manager is None:
@@ -432,10 +492,11 @@ class CompositeToolProvider:
                 if base_prompt:
                     parts.append(str(base_prompt).strip())
         readonly_names = ", ".join(self._readonly_tools.tool_names())
-        parts.append(
-            "Additional RSI read-only tools are available for evidence gathering only. "
-            f"Available tools: {readonly_names}. Side effects remain blocked outside the RSI platform."
-        )
+        if readonly_names:
+            parts.append(
+                "Additional governed RSI tools are available through the platform tool gateway. "
+                f"Available tools: {readonly_names}. GitHub mutation, Slack posting, and unmanaged shell access remain blocked."
+            )
         return "\n\n".join(part for part in parts if part)
 
     def __getattr__(self, name: str) -> Any:

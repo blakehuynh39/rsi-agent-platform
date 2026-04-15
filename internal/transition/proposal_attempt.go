@@ -2,9 +2,47 @@ package transition
 
 import (
 	"fmt"
+)
 
-	"github.com/piplabs/rsi-agent-platform/internal/improvement"
-	"github.com/piplabs/rsi-agent-platform/internal/review"
+type ProposalStatus string
+
+const (
+	ProposalQueuedForPromotion ProposalStatus = "queued_for_promotion"
+	ProposalPendingReview      ProposalStatus = "pending_review"
+	ProposalApproved           ProposalStatus = "approved"
+	ProposalRepoChangeQueued   ProposalStatus = "repo_change_queued"
+	ProposalRepoChangeRunning  ProposalStatus = "repo_change_running"
+	ProposalValidationPending  ProposalStatus = "validation_pending"
+	ProposalPROpen             ProposalStatus = "pr_open"
+	ProposalDismissed          ProposalStatus = "dismissed"
+	ProposalRejected           ProposalStatus = "rejected"
+	ProposalSuperseded         ProposalStatus = "superseded"
+	ProposalMerged             ProposalStatus = "merged"
+	ProposalFailedValidation   ProposalStatus = "failed_validation"
+	ProposalCanceled           ProposalStatus = "canceled"
+)
+
+type AttemptState string
+
+const (
+	AttemptStatePatchPlan           AttemptState = "patch_plan"
+	AttemptStateInvestigateComplete AttemptState = "investigate_complete"
+	AttemptStatePatchGenerated      AttemptState = "patch_generated"
+	AttemptStateValidationRunning   AttemptState = "validation_running"
+	AttemptStateCIObserving         AttemptState = "ci_observing"
+	AttemptStateRetryDeciding       AttemptState = "retry_deciding"
+	AttemptStateOverlayPlan         AttemptState = "overlay_plan"
+	AttemptStateOverlayGenerated    AttemptState = "overlay_generated"
+	AttemptStateOverlayValidating   AttemptState = "overlay_validating"
+	AttemptStateOverlayActive       AttemptState = "overlay_active"
+	AttemptStateSandboxFailed       AttemptState = "sandbox_failed"
+	AttemptStatePROpen              AttemptState = "pr_open"
+	AttemptStateCIFailed            AttemptState = "ci_failed"
+	AttemptStateClosedUnmerged      AttemptState = "closed_unmerged"
+	AttemptStateMerged              AttemptState = "merged"
+	AttemptStateNeedsReview         AttemptState = "needs_review"
+	AttemptStateAbandoned           AttemptState = "abandoned"
+	AttemptStateSuperseded          AttemptState = "superseded"
 )
 
 type AttemptPhaseState string
@@ -38,17 +76,17 @@ const (
 )
 
 type AttemptSnapshot struct {
-	ProposalStatus       review.ProposalStatus
-	AttemptState         improvement.ChangeAttemptState
+	ProposalStatus       ProposalStatus
+	AttemptState         AttemptState
 	CurrentOperationKind string
 }
 
 type AttemptPhaseDecision struct {
 	TransitionDecision
 	NextPhase           AttemptPhaseState
-	ExpectedProposal    review.ProposalStatus
-	AllowedProposalNext []review.ProposalStatus
-	AllowedAttemptNext  []improvement.ChangeAttemptState
+	ExpectedProposal    ProposalStatus
+	AllowedProposalNext []ProposalStatus
+	AllowedAttemptNext  []AttemptState
 }
 
 type attemptReducer func(snapshot AttemptSnapshot, command CommandEnvelope) AttemptPhaseDecision
@@ -67,34 +105,34 @@ func deriveAttemptPhase(snapshot AttemptSnapshot) AttemptPhaseState {
 		return AttemptPhasePROpen
 	}
 	switch snapshot.AttemptState {
-	case improvement.AttemptStatePatchPlan, improvement.AttemptStateOverlayPlan:
+	case AttemptStatePatchPlan, AttemptStateOverlayPlan:
 		switch snapshot.ProposalStatus {
-		case review.ProposalRepoChangeQueued:
+		case ProposalRepoChangeQueued:
 			return AttemptPhaseWorkspaceOpening
-		case review.ProposalRepoChangeRunning:
+		case ProposalRepoChangeRunning:
 			return AttemptPhaseImplementing
 		default:
 			return AttemptPhasePlanning
 		}
-	case improvement.AttemptStatePatchGenerated, improvement.AttemptStateOverlayGenerated:
+	case AttemptStatePatchGenerated, AttemptStateOverlayGenerated:
 		return AttemptPhaseValidating
-	case improvement.AttemptStateValidationRunning, improvement.AttemptStateOverlayValidating:
-		if snapshot.ProposalStatus == review.ProposalValidationPending {
+	case AttemptStateValidationRunning, AttemptStateOverlayValidating:
+		if snapshot.ProposalStatus == ProposalValidationPending {
 			return AttemptPhasePROpen
 		}
 		return AttemptPhaseValidating
-	case improvement.AttemptStatePROpen, improvement.AttemptStateCIObserving:
+	case AttemptStatePROpen, AttemptStateCIObserving:
 		return AttemptPhasePROpen
-	case improvement.AttemptStateRetryDeciding:
+	case AttemptStateRetryDeciding:
 		return AttemptPhaseRetryDeciding
-	case improvement.AttemptStateSandboxFailed,
-		improvement.AttemptStateCIFailed,
-		improvement.AttemptStateClosedUnmerged,
-		improvement.AttemptStateMerged,
-		improvement.AttemptStateNeedsReview,
-		improvement.AttemptStateAbandoned,
-		improvement.AttemptStateSuperseded,
-		improvement.AttemptStateOverlayActive:
+	case AttemptStateSandboxFailed,
+		AttemptStateCIFailed,
+		AttemptStateClosedUnmerged,
+		AttemptStateMerged,
+		AttemptStateNeedsReview,
+		AttemptStateAbandoned,
+		AttemptStateSuperseded,
+		AttemptStateOverlayActive:
 		return AttemptPhaseTerminal
 	default:
 		return AttemptPhasePlanning
@@ -154,8 +192,8 @@ func reduceLineActivated(snapshot AttemptSnapshot, command CommandEnvelope) Atte
 			}},
 		},
 		NextPhase:           AttemptPhasePlanning,
-		AllowedProposalNext: []review.ProposalStatus{snapshot.ProposalStatus},
-		AllowedAttemptNext:  []improvement.ChangeAttemptState{improvement.AttemptStatePatchPlan, improvement.AttemptStateOverlayPlan},
+		AllowedProposalNext: []ProposalStatus{snapshot.ProposalStatus},
+		AllowedAttemptNext:  []AttemptState{AttemptStatePatchPlan, AttemptStateOverlayPlan},
 	}
 }
 
@@ -174,8 +212,8 @@ func reduceAttemptPlannedWorkspace(snapshot AttemptSnapshot, command CommandEnve
 			}},
 		},
 		NextPhase:           AttemptPhaseWorkspaceOpening,
-		AllowedProposalNext: []review.ProposalStatus{snapshot.ProposalStatus},
-		AllowedAttemptNext:  []improvement.ChangeAttemptState{improvement.AttemptStatePatchPlan, improvement.AttemptStateOverlayPlan},
+		AllowedProposalNext: []ProposalStatus{snapshot.ProposalStatus},
+		AllowedAttemptNext:  []AttemptState{AttemptStatePatchPlan, AttemptStateOverlayPlan},
 	}
 }
 
@@ -194,8 +232,8 @@ func reduceAttemptPlannedImplement(snapshot AttemptSnapshot, command CommandEnve
 			}},
 		},
 		NextPhase:           AttemptPhaseImplementing,
-		AllowedProposalNext: []review.ProposalStatus{snapshot.ProposalStatus},
-		AllowedAttemptNext:  []improvement.ChangeAttemptState{improvement.AttemptStatePatchPlan, improvement.AttemptStateOverlayPlan},
+		AllowedProposalNext: []ProposalStatus{snapshot.ProposalStatus},
+		AllowedAttemptNext:  []AttemptState{AttemptStatePatchPlan, AttemptStateOverlayPlan},
 	}
 }
 
@@ -214,10 +252,10 @@ func reduceWorkspaceOpenDeferred(snapshot AttemptSnapshot, command CommandEnvelo
 			}},
 		},
 		NextPhase:           AttemptPhaseWorkspaceOpening,
-		AllowedProposalNext: []review.ProposalStatus{review.ProposalRepoChangeQueued},
-		AllowedAttemptNext: []improvement.ChangeAttemptState{
-			improvement.AttemptStatePatchPlan,
-			improvement.AttemptStateOverlayPlan,
+		AllowedProposalNext: []ProposalStatus{ProposalRepoChangeQueued},
+		AllowedAttemptNext: []AttemptState{
+			AttemptStatePatchPlan,
+			AttemptStateOverlayPlan,
 		},
 	}
 }
@@ -232,10 +270,10 @@ func reduceWorkspaceCompletedLegacy(snapshot AttemptSnapshot, command CommandEnv
 			}},
 		},
 		NextPhase:           AttemptPhaseWorkspaceOpening,
-		AllowedProposalNext: []review.ProposalStatus{review.ProposalApproved, review.ProposalRepoChangeQueued},
-		AllowedAttemptNext: []improvement.ChangeAttemptState{
-			improvement.AttemptStatePatchPlan,
-			improvement.AttemptStateOverlayPlan,
+		AllowedProposalNext: []ProposalStatus{ProposalApproved, ProposalRepoChangeQueued},
+		AllowedAttemptNext: []AttemptState{
+			AttemptStatePatchPlan,
+			AttemptStateOverlayPlan,
 		},
 	}
 }
@@ -255,10 +293,10 @@ func reduceWorkspaceReady(snapshot AttemptSnapshot, command CommandEnvelope) Att
 			}},
 		},
 		NextPhase:           AttemptPhaseImplementing,
-		AllowedProposalNext: []review.ProposalStatus{review.ProposalRepoChangeRunning},
-		AllowedAttemptNext: []improvement.ChangeAttemptState{
-			improvement.AttemptStatePatchPlan,
-			improvement.AttemptStateOverlayPlan,
+		AllowedProposalNext: []ProposalStatus{ProposalRepoChangeRunning},
+		AllowedAttemptNext: []AttemptState{
+			AttemptStatePatchPlan,
+			AttemptStateOverlayPlan,
 		},
 	}
 }
@@ -278,10 +316,10 @@ func reduceImplementationDeferred(snapshot AttemptSnapshot, command CommandEnvel
 			}},
 		},
 		NextPhase:           AttemptPhaseImplementing,
-		AllowedProposalNext: []review.ProposalStatus{review.ProposalRepoChangeRunning, review.ProposalApproved},
-		AllowedAttemptNext: []improvement.ChangeAttemptState{
-			improvement.AttemptStatePatchPlan,
-			improvement.AttemptStateOverlayPlan,
+		AllowedProposalNext: []ProposalStatus{ProposalRepoChangeRunning, ProposalApproved},
+		AllowedAttemptNext: []AttemptState{
+			AttemptStatePatchPlan,
+			AttemptStateOverlayPlan,
 		},
 	}
 }
@@ -301,10 +339,10 @@ func reduceImplementationCompleted(snapshot AttemptSnapshot, command CommandEnve
 			}},
 		},
 		NextPhase:           AttemptPhaseValidating,
-		AllowedProposalNext: []review.ProposalStatus{review.ProposalRepoChangeRunning, review.ProposalApproved},
-		AllowedAttemptNext: []improvement.ChangeAttemptState{
-			improvement.AttemptStatePatchGenerated,
-			improvement.AttemptStateOverlayGenerated,
+		AllowedProposalNext: []ProposalStatus{ProposalRepoChangeRunning, ProposalApproved},
+		AllowedAttemptNext: []AttemptState{
+			AttemptStatePatchGenerated,
+			AttemptStateOverlayGenerated,
 		},
 	}
 }
@@ -324,8 +362,8 @@ func reduceImplementationFailedRetryable(snapshot AttemptSnapshot, command Comma
 			}},
 		},
 		NextPhase:           AttemptPhaseRetryDeciding,
-		AllowedProposalNext: []review.ProposalStatus{review.ProposalApproved, review.ProposalRepoChangeRunning, review.ProposalFailedValidation},
-		AllowedAttemptNext:  []improvement.ChangeAttemptState{improvement.AttemptStateSandboxFailed, improvement.AttemptStateCIFailed, improvement.AttemptStateClosedUnmerged, improvement.AttemptStateNeedsReview},
+		AllowedProposalNext: []ProposalStatus{ProposalApproved, ProposalRepoChangeRunning, ProposalFailedValidation},
+		AllowedAttemptNext:  []AttemptState{AttemptStateSandboxFailed, AttemptStateCIFailed, AttemptStateClosedUnmerged, AttemptStateNeedsReview},
 	}
 }
 
@@ -344,8 +382,8 @@ func reduceImplementationFailedReview(snapshot AttemptSnapshot, command CommandE
 			}},
 		},
 		NextPhase:           AttemptPhaseTerminal,
-		AllowedProposalNext: []review.ProposalStatus{review.ProposalPendingReview},
-		AllowedAttemptNext:  []improvement.ChangeAttemptState{improvement.AttemptStateNeedsReview},
+		AllowedProposalNext: []ProposalStatus{ProposalPendingReview},
+		AllowedAttemptNext:  []AttemptState{AttemptStateNeedsReview},
 	}
 }
 
@@ -364,10 +402,10 @@ func reduceValidationCompleted(snapshot AttemptSnapshot, command CommandEnvelope
 			}},
 		},
 		NextPhase:           AttemptPhasePROpen,
-		AllowedProposalNext: []review.ProposalStatus{review.ProposalValidationPending},
-		AllowedAttemptNext: []improvement.ChangeAttemptState{
-			improvement.AttemptStateValidationRunning,
-			improvement.AttemptStateOverlayValidating,
+		AllowedProposalNext: []ProposalStatus{ProposalValidationPending},
+		AllowedAttemptNext: []AttemptState{
+			AttemptStateValidationRunning,
+			AttemptStateOverlayValidating,
 		},
 	}
 }
@@ -387,8 +425,8 @@ func reduceValidationFailedRetryable(snapshot AttemptSnapshot, command CommandEn
 			}},
 		},
 		NextPhase:           AttemptPhaseRetryDeciding,
-		AllowedProposalNext: []review.ProposalStatus{review.ProposalApproved, review.ProposalFailedValidation},
-		AllowedAttemptNext:  []improvement.ChangeAttemptState{improvement.AttemptStateSandboxFailed, improvement.AttemptStateCIFailed, improvement.AttemptStateClosedUnmerged, improvement.AttemptStateNeedsReview},
+		AllowedProposalNext: []ProposalStatus{ProposalApproved, ProposalFailedValidation},
+		AllowedAttemptNext:  []AttemptState{AttemptStateSandboxFailed, AttemptStateCIFailed, AttemptStateClosedUnmerged, AttemptStateNeedsReview},
 	}
 }
 
@@ -407,8 +445,8 @@ func reduceValidationFailedReview(snapshot AttemptSnapshot, command CommandEnvel
 			}},
 		},
 		NextPhase:           AttemptPhaseTerminal,
-		AllowedProposalNext: []review.ProposalStatus{review.ProposalPendingReview},
-		AllowedAttemptNext:  []improvement.ChangeAttemptState{improvement.AttemptStateNeedsReview},
+		AllowedProposalNext: []ProposalStatus{ProposalPendingReview},
+		AllowedAttemptNext:  []AttemptState{AttemptStateNeedsReview},
 	}
 }
 

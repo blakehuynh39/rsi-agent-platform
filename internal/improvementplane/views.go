@@ -142,13 +142,13 @@ type proposalDetailResponse struct {
 }
 
 type proposalCurrentPhaseSummary struct {
-	AttemptID            string            `json:"attempt_id,omitempty"`
-	OperationID          string            `json:"operation_id,omitempty"`
-	OperationKind        string            `json:"operation_kind,omitempty"`
-	OperationStatus      operation.Status  `json:"operation_status,omitempty"`
-	WorkItemID           string            `json:"work_item_id,omitempty"`
+	AttemptID            string               `json:"attempt_id,omitempty"`
+	OperationID          string               `json:"operation_id,omitempty"`
+	OperationKind        string               `json:"operation_kind,omitempty"`
+	OperationStatus      operation.Status     `json:"operation_status,omitempty"`
+	WorkItemID           string               `json:"work_item_id,omitempty"`
 	WorkItemStatus       queue.WorkItemStatus `json:"work_item_status,omitempty"`
-	ReconciliationNeeded bool              `json:"reconciliation_needed"`
+	ReconciliationNeeded bool                 `json:"reconciliation_needed"`
 }
 
 type attemptDetailResponse struct {
@@ -202,55 +202,62 @@ type proposalListItem struct {
 }
 
 type runtimeRoleStatus struct {
-	Role                   string   `json:"role"`
-	ReportedRole           string   `json:"reported_role,omitempty"`
-	BaseURL                string   `json:"base_url"`
-	TimeoutSeconds         int      `json:"timeout_seconds"`
-	TaskTimeoutSeconds     int      `json:"task_timeout_seconds"`
-	MaxIterations          int      `json:"max_iterations"`
-	Status                 string   `json:"status"`
-	Backend                string   `json:"backend"`
-	Provider               string   `json:"provider"`
-	Model                  string   `json:"model"`
-	ProviderModel          string   `json:"provider_model,omitempty"`
-	APIMode                string   `json:"api_mode,omitempty"`
-	ReasoningEffort        string   `json:"reasoning_effort"`
-	ToolPolicyMode         string   `json:"tool_policy_mode,omitempty"`
-	ToolAllowlistEffective []string `json:"tool_allowlist_effective,omitempty"`
-	BlockedToolNames       []string `json:"blocked_tool_names,omitempty"`
-	Available              bool     `json:"available"`
-	Healthy                bool     `json:"healthy"`
-	OpenAIConfigured       bool     `json:"openai_configured"`
-	HermesAvailable        bool     `json:"hermes_available"`
-	PersistenceEnabled     bool     `json:"persistence_enabled"`
-	HermesHome             string   `json:"hermes_home,omitempty"`
-	SessionDBPath          string   `json:"session_db_path,omitempty"`
-	MemoryBackend          string   `json:"memory_backend,omitempty"`
-	HonchoConfigured       bool     `json:"honcho_configured"`
-	HonchoAvailable        bool     `json:"honcho_available"`
-	HonchoBaseURL          string   `json:"honcho_base_url,omitempty"`
-	HonchoWorkspace        string   `json:"honcho_workspace,omitempty"`
-	HonchoEnvironment      string   `json:"honcho_environment,omitempty"`
-	HonchoRecallMode       string   `json:"honcho_recall_mode,omitempty"`
-	HonchoWriteFrequency   string   `json:"honcho_write_frequency,omitempty"`
-	HonchoSessionStrategy  string   `json:"honcho_session_strategy,omitempty"`
-	HonchoAIPeer           string   `json:"honcho_ai_peer,omitempty"`
-	HarnessProfileID       string   `json:"harness_profile_id,omitempty"`
-	ActiveOverlayVersion   string   `json:"active_overlay_version,omitempty"`
-	Error                  string   `json:"error,omitempty"`
+	Role                     string   `json:"role"`
+	ReportedRole             string   `json:"reported_role,omitempty"`
+	BaseURL                  string   `json:"base_url"`
+	TimeoutSeconds           int      `json:"timeout_seconds"`
+	TaskTimeoutSeconds       int      `json:"task_timeout_seconds"`
+	InactivityTimeoutSeconds int      `json:"inactivity_timeout_seconds"`
+	MaxIterations            int      `json:"max_iterations"`
+	Status                   string   `json:"status"`
+	Backend                  string   `json:"backend"`
+	Provider                 string   `json:"provider"`
+	Model                    string   `json:"model"`
+	ProviderModel            string   `json:"provider_model,omitempty"`
+	APIMode                  string   `json:"api_mode,omitempty"`
+	ReasoningEffort          string   `json:"reasoning_effort"`
+	HermesVersion            string   `json:"hermes_version,omitempty"`
+	HermesPin                string   `json:"hermes_pin,omitempty"`
+	ToolPolicyMode           string   `json:"tool_policy_mode,omitempty"`
+	ToolAllowlistEffective   []string `json:"tool_allowlist_effective,omitempty"`
+	BlockedToolNames         []string `json:"blocked_tool_names,omitempty"`
+	Available                bool     `json:"available"`
+	Healthy                  bool     `json:"healthy"`
+	OpenAIConfigured         bool     `json:"openai_configured"`
+	HermesAvailable          bool     `json:"hermes_available"`
+	PersistenceEnabled       bool     `json:"persistence_enabled"`
+	SessionContinuityStatus  string   `json:"session_continuity_status,omitempty"`
+	HermesHome               string   `json:"hermes_home,omitempty"`
+	SessionDBPath            string   `json:"session_db_path,omitempty"`
+	ContextEngineMode        string   `json:"context_engine_mode,omitempty"`
+	ContextEngineStatus      string   `json:"context_engine_status,omitempty"`
+	LifecycleHookStatus      string   `json:"lifecycle_hook_status,omitempty"`
+	MemoryBackend            string   `json:"memory_backend,omitempty"`
+	HonchoConfigured         bool     `json:"honcho_configured"`
+	HonchoAvailable          bool     `json:"honcho_available"`
+	HonchoBaseURL            string   `json:"honcho_base_url,omitempty"`
+	HonchoWorkspace          string   `json:"honcho_workspace,omitempty"`
+	HonchoEnvironment        string   `json:"honcho_environment,omitempty"`
+	HonchoRecallMode         string   `json:"honcho_recall_mode,omitempty"`
+	HonchoWriteFrequency     string   `json:"honcho_write_frequency,omitempty"`
+	HonchoSessionStrategy    string   `json:"honcho_session_strategy,omitempty"`
+	HonchoAIPeer             string   `json:"honcho_ai_peer,omitempty"`
+	HarnessProfileID         string   `json:"harness_profile_id,omitempty"`
+	ActiveOverlayVersion     string   `json:"active_overlay_version,omitempty"`
+	Error                    string   `json:"error,omitempty"`
 }
 
 type honchoRuntimeStatus struct {
-	BaseURL            string                                  `json:"base_url"`
-	Status             string                                  `json:"status"`
-	Namespace          string                                  `json:"namespace,omitempty"`
-	DBSchema           string                                  `json:"db_schema,omitempty"`
-	CacheEnabled       bool                                    `json:"cache_enabled"`
-	CacheURLConfigured bool                                    `json:"cache_url_configured"`
-	Deriver            clients.HonchoRuntimeComponent          `json:"deriver"`
-	Summary            clients.HonchoRuntimeComponent          `json:"summary"`
-	DialecticLevels    map[string]clients.HonchoDialecticLevel `json:"dialectic_levels"`
-	Error              string                                  `json:"error,omitempty"`
+	BaseURL            string                            `json:"base_url"`
+	Status             string                            `json:"status"`
+	Namespace          string                            `json:"namespace,omitempty"`
+	DBSchema           string                            `json:"db_schema,omitempty"`
+	CacheEnabled       bool                              `json:"cache_enabled"`
+	CacheURLConfigured bool                              `json:"cache_url_configured"`
+	Deriver            harness.RuntimeComponent          `json:"deriver"`
+	Summary            harness.RuntimeComponent          `json:"summary"`
+	DialecticLevels    map[string]harness.DialecticLevel `json:"dialectic_levels"`
+	Error              string                            `json:"error,omitempty"`
 }
 
 type harnessOverviewResponse struct {
@@ -646,7 +653,7 @@ func buildProposalSummaries(store storepkg.Repository) []proposalListItem {
 
 func buildRuntimeStatus(cfg config.Config, store storepkg.Repository) []runtimeRoleStatus {
 	roleURLs := cfg.RunnerURLs()
-	cache := map[string]clients.RuntimeResponse{}
+	cache := map[string]harness.RuntimeResponse{}
 	cacheErrs := map[string]error{}
 	roles := []string{"prod", "proactive", "eval", "proposal"}
 	out := make([]runtimeRoleStatus, 0, len(roles))
@@ -688,8 +695,11 @@ func buildRuntimeStatus(cfg config.Config, store storepkg.Repository) []runtimeR
 		item.ProviderModel = resp.ProviderModel
 		item.APIMode = resp.APIMode
 		item.ReasoningEffort = firstNonEmptyString(strings.TrimSpace(resp.ReasoningEffort), item.ReasoningEffort)
+		item.HermesVersion = resp.HermesVersion
+		item.HermesPin = resp.HermesPin
 		item.MaxIterations = resp.MaxIterations
 		item.TaskTimeoutSeconds = resp.TaskTimeoutSeconds
+		item.InactivityTimeoutSeconds = resp.InactivityTimeoutSeconds
 		if resp.TransportTimeoutSeconds > 0 {
 			item.TimeoutSeconds = resp.TransportTimeoutSeconds
 		}
@@ -701,8 +711,12 @@ func buildRuntimeStatus(cfg config.Config, store storepkg.Repository) []runtimeR
 		item.OpenAIConfigured = resp.OpenAIConfigured
 		item.HermesAvailable = resp.HermesAvailable
 		item.PersistenceEnabled = resp.PersistenceEnabled
+		item.SessionContinuityStatus = resp.SessionContinuityStatus
 		item.HermesHome = resp.HermesHome
 		item.SessionDBPath = resp.SessionDBPath
+		item.ContextEngineMode = resp.ContextEngineMode
+		item.ContextEngineStatus = resp.ContextEngineStatus
+		item.LifecycleHookStatus = resp.LifecycleHookStatus
 		item.MemoryBackend = resp.MemoryBackend
 		item.HonchoConfigured = resp.HonchoConfigured
 		item.HonchoAvailable = resp.HonchoAvailable
@@ -722,7 +736,7 @@ func buildHonchoRuntimeStatus(cfg config.Config) honchoRuntimeStatus {
 	item := honchoRuntimeStatus{
 		BaseURL:         cfg.HonchoRuntimeBaseURL,
 		Status:          "unreachable",
-		DialecticLevels: map[string]clients.HonchoDialecticLevel{},
+		DialecticLevels: map[string]harness.DialecticLevel{},
 	}
 	if strings.TrimSpace(cfg.HonchoRuntimeBaseURL) == "" {
 		item.Status = "disabled"

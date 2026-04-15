@@ -73,36 +73,20 @@ type StructuredOutput struct {
 	HypothesisDelta   string              `json:"hypothesis_delta,omitempty"`
 }
 
-func ParseStructuredOutput(resp clients.RunnerResponse) StructuredOutput {
-	if raw, ok := resp.Raw["structured_output"]; ok {
-		data, _ := json.Marshal(raw)
-		var out StructuredOutput
-		if err := json.Unmarshal(data, &out); err == nil {
-			return out
-		}
+func ParseStructuredOutput(resp clients.RunnerResponse) (StructuredOutput, error) {
+	raw, ok := resp.Raw["structured_output"]
+	if !ok {
+		return StructuredOutput{}, fmt.Errorf("runner response missing structured_output")
+	}
+	data, err := json.Marshal(raw)
+	if err != nil {
+		return StructuredOutput{}, fmt.Errorf("marshal runner structured_output: %w", err)
 	}
 	var out StructuredOutput
-	if err := json.Unmarshal([]byte(resp.Message), &out); err == nil {
-		return out
+	if err := json.Unmarshal(data, &out); err != nil {
+		return StructuredOutput{}, fmt.Errorf("parse runner structured_output: %w", err)
 	}
-	return StructuredOutput{
-		FinalAnswer: resp.Message,
-		Confidence:  0.5,
-		VisibleReasoning: []Step{
-			{
-				StepType:   "fallback",
-				Summary:    "Runner returned unstructured output; stored raw response as the visible answer.",
-				Confidence: 0.5,
-				Decision:   resp.Message,
-			},
-		},
-		ProposedActions:   []ProposedAction{},
-		KnowledgeDrafts:   []KnowledgeDraft{},
-		OutcomeHypotheses: []OutcomeHypothesis{},
-		RetryAssessment: RetryAssessment{
-			ChangedFiles: []string{},
-		},
-	}
+	return out, nil
 }
 
 func ToTraceReasoning(traceID string, workflowID string, output StructuredOutput, createdAt time.Time) []events.ReasoningStep {

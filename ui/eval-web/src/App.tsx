@@ -24,7 +24,7 @@ import type {
   ViewState,
 } from "@/types";
 
-import { formatTime, listOrEmpty, scoreBadge } from "@/hooks/api";
+import { formatTime, getJSON, knowledgeEntriesForSegment, listOrEmpty, postJSON, readViewState, scoreBadge, writeViewState } from "@/hooks/api";
 
 import { EmptyDetail } from "@/components/detail/empty-detail";
 import { ConversationDetail } from "@/components/detail/conversation-detail";
@@ -41,81 +41,6 @@ const ACTIVE_PROPOSAL_STATES = new Set([
   "validation_pending",
   "pr_open"
 ]);
-
-function recordOrEmpty<T>(items: Record<string, T> | undefined): Record<string, T> {
-  return items ?? {};
-}
-
-function getJSON<T>(url: string): Promise<T> {
-  return fetch(url).then(async (response) => {
-    if (!response.ok) {
-      throw new Error(`Request failed: ${response.status}`);
-    }
-    return response.json();
-  });
-}
-
-function postJSON<T>(url: string, body: Record<string, unknown>): Promise<T> {
-  return fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  }).then(async (response) => {
-    if (!response.ok) {
-      throw new Error(`Request failed: ${response.status}`);
-    }
-    return response.json();
-  });
-}
-
-function readViewState(): ViewState {
-  const params = new URLSearchParams(window.location.search);
-  const tabValue = params.get("tab");
-  const tab: TabKey =
-    tabValue === "cases" ? "cases" :
-    tabValue === "proposals" ? "proposals" :
-    tabValue === "knowledge" ? "knowledge" :
-    tabValue === "harness" ? "harness" :
-    "conversations";
-  return {
-    tab,
-    conversation: params.get("conversation") || undefined,
-    case: params.get("case") || undefined,
-    trace: params.get("trace") || undefined,
-    proposal: params.get("proposal") || undefined,
-    knowledge: params.get("knowledge") || undefined,
-    role: params.get("role") || undefined
-  };
-}
-
-function writeViewState(next: ViewState) {
-  const params = new URLSearchParams();
-  params.set("tab", next.tab);
-  if (next.conversation) params.set("conversation", next.conversation);
-  if (next.case) params.set("case", next.case);
-  if (next.trace) params.set("trace", next.trace);
-  if (next.proposal) params.set("proposal", next.proposal);
-  if (next.knowledge) params.set("knowledge", next.knowledge);
-  if (next.role) params.set("role", next.role);
-  const query = params.toString();
-  const target = `${window.location.pathname}${query ? `?${query}` : ""}`;
-  window.history.replaceState({}, "", target);
-}
-
-function knowledgeEntriesForSegment(entries: KnowledgeEntry[], segment: KnowledgeSegment) {
-  switch (segment) {
-    case "working":
-      return entries.filter((item) => item.tier === "working" && item.status === "draft");
-    case "review":
-      return entries.filter((item) => item.status === "review_pending");
-    case "canonical":
-      return entries.filter((item) => item.status === "canonical" || item.tier === "canonical");
-    case "stale":
-      return entries.filter((item) => ["stale", "contradicted", "archived"].includes(item.status));
-    default:
-      return entries;
-  }
-}
 
 export function App() {
   const queryClient = useQueryClient();
@@ -389,7 +314,7 @@ export function App() {
     }
   }, [traceDetail?.trace.summary.trace_id]);
 
-  const traceJudgments = recordOrEmpty(traceDetail?.judgments_by_eval_run);
+  const traceJudgments = traceDetail?.judgments_by_eval_run ?? {};
 
   return (
     <div className="app-shell">

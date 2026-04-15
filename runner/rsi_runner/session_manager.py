@@ -3,13 +3,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 import hashlib
 import json
-import os
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, List
+
+from .json_types import JsonObject
 
 try:
     from hermes_state import SessionDB  # type: ignore
-except Exception:  # pragma: no cover - depends on Hermes install
+except (ImportError, ModuleNotFoundError):  # pragma: no cover - depends on Hermes install
     SessionDB = None
 
 from .config import RunnerConfig
@@ -28,13 +29,13 @@ class SessionContext:
     user_peer_id: str
     hermes_home: str
     session_db_path: str
-    conversation_history: List[Dict[str, Any]] = field(default_factory=list)
+    conversation_history: list[JsonObject] = field(default_factory=list)
 
 
 @dataclass
 class MemoryTracker:
-    reads: List[Dict[str, Any]] = field(default_factory=list)
-    writes: List[Dict[str, Any]] = field(default_factory=list)
+    reads: list[JsonObject] = field(default_factory=list)
+    writes: list[JsonObject] = field(default_factory=list)
 
     def record_read(self, kind: str, summary: str, source: str = "", ref: str = "") -> None:
         text = (summary or "").strip()
@@ -89,12 +90,9 @@ class SessionManager:
         session_id = stable_session_id(self._config.role, scope_kind, scope_id)
         parent_session_id = stable_session_id(self._config.role, parent_scope_kind, parent_scope_id) if parent_scope_kind and parent_scope_id else ""
         db = self._get_db()
-        history: List[Dict[str, Any]] = []
+        history: list[JsonObject] = []
         if db is not None:
-            try:
-                history = list(db.get_messages_as_conversation(session_id) or [])
-            except Exception:
-                history = []
+            history = list(db.get_messages_as_conversation(session_id) or [])
         tracker_user_peer = first_non_empty(
             getattr(task, "user_peer_id", None),
             infer_user_peer_id(getattr(task, "recent_conversation_entries", []) or [], scope_kind, scope_id, self._config.role),
@@ -140,20 +138,17 @@ class SessionManager:
             memory_manager.sync_all = tracked_sync
         return tracker
 
-    def finalize(self, context: SessionContext, tracker: MemoryTracker) -> Dict[str, Any]:
+    def finalize(self, context: SessionContext, tracker: MemoryTracker) -> JsonObject:
         db = self._get_db()
         if db is not None:
-            try:
-                history = list(db.get_messages_as_conversation(context.session_id) or [])
-                if len(history) > len(context.conversation_history):
-                    tracker.record_write(
-                        "session_append",
-                        f"Persisted {len(history) - len(context.conversation_history)} new session messages.",
-                        source="session_db",
-                        ref=context.session_id,
-                    )
-            except Exception:
-                pass
+            history = list(db.get_messages_as_conversation(context.session_id) or [])
+            if len(history) > len(context.conversation_history):
+                tracker.record_write(
+                    "session_append",
+                    f"Persisted {len(history) - len(context.conversation_history)} new session messages.",
+                    source="session_db",
+                    ref=context.session_id,
+                )
         return {
             "hermes_session_id": context.session_id,
             "parent_session_id": context.parent_session_id,
@@ -235,7 +230,7 @@ def stable_session_id(role: str, scope_kind: str, scope_id: str) -> str:
     return f"rsi-{role}-{scope_kind}-{digest}"
 
 
-def summarize_history(history: List[Dict[str, Any]]) -> List[str]:
+def summarize_history(history: list[JsonObject]) -> list[str]:
     if not history:
         return []
     out: List[str] = []
@@ -255,7 +250,7 @@ def truncate_text(value: str, limit: int) -> str:
     return text[: max(0, limit - 3)].rstrip() + "..."
 
 
-def infer_user_peer_id(entries: List[Dict[str, Any]], scope_kind: str, scope_id: str, role: str) -> str:
+def infer_user_peer_id(entries: list[JsonObject], scope_kind: str, scope_id: str, role: str) -> str:
     for entry in reversed(entries):
         actor_id = str(entry.get("actor_id", "") or "").strip()
         actor_type = str(entry.get("actor_type", "") or "").strip()

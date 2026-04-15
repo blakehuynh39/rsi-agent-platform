@@ -50,7 +50,7 @@ func PersistHarnessExecution(
 		return err
 	}
 	_, err := store.RecordHarnessExecution(harness.Execution{
-		OperationID:            operationID,
+		OperationID:             operationID,
 		TraceID:                 traceID,
 		ProposalID:              proposalID,
 		Role:                    role,
