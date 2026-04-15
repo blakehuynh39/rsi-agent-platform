@@ -845,7 +845,7 @@ func loadIngestions(r sqlReader, store *MemoryStore) error {
 }
 
 func loadWorkflows(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, ingestion_id, trace_id, conversation_id, case_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_error, created_at, updated_at, completed_at from workflow order by created_at desc`)
+	rows, err := r.Query(`select id, version, ingestion_id, trace_id, conversation_id, case_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_error, created_at, updated_at, completed_at from workflow order by created_at desc`)
 	if err != nil {
 		return err
 	}
@@ -854,7 +854,7 @@ func loadWorkflows(r sqlReader, store *MemoryStore) error {
 		var item Workflow
 		var ingestionID, traceID, conversationID, caseID, intent, approvalMode, responseMode, lastError sql.NullString
 		var completedAt sql.NullTime
-		if err := rows.Scan(&item.ID, &ingestionID, &traceID, &conversationID, &caseID, &item.ThreadKey, &item.Kind, &intent, &item.AssignedBot, &approvalMode, &responseMode, &item.Status, &lastError, &item.CreatedAt, &item.UpdatedAt, &completedAt); err != nil {
+		if err := rows.Scan(&item.ID, &item.Version, &ingestionID, &traceID, &conversationID, &caseID, &item.ThreadKey, &item.Kind, &intent, &item.AssignedBot, &approvalMode, &responseMode, &item.Status, &lastError, &item.CreatedAt, &item.UpdatedAt, &completedAt); err != nil {
 			return err
 		}
 		item.IngestionID = ingestionID.String
@@ -1897,8 +1897,9 @@ func persistIngestions(tx *sql.Tx, store *MemoryStore) error {
 
 func persistWorkflows(tx *sql.Tx, store *MemoryStore) error {
 	for _, item := range store.workflows {
-		if _, err := tx.Exec(`insert into workflow (id, ingestion_id, trace_id, conversation_id, case_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_error, created_at, updated_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+		if _, err := tx.Exec(`insert into workflow (id, version, ingestion_id, trace_id, conversation_id, case_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_error, created_at, updated_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
 			on conflict (id) do update set
+				version = excluded.version,
 				ingestion_id = excluded.ingestion_id,
 				trace_id = excluded.trace_id,
 				conversation_id = excluded.conversation_id,
@@ -1914,7 +1915,7 @@ func persistWorkflows(tx *sql.Tx, store *MemoryStore) error {
 				created_at = excluded.created_at,
 				updated_at = excluded.updated_at,
 				completed_at = excluded.completed_at`,
-			item.ID, nullString(item.IngestionID), nullString(item.TraceID), nullString(item.ConversationID), nullString(item.CaseID), item.ThreadKey, item.Kind, nullString(item.Intent), item.AssignedBot, nullString(item.ApprovalMode), nullString(item.ResponseMode), item.Status, nullString(item.LastError), item.CreatedAt, item.UpdatedAt, nullTime(item.CompletedAt),
+			item.ID, item.Version, nullString(item.IngestionID), nullString(item.TraceID), nullString(item.ConversationID), nullString(item.CaseID), item.ThreadKey, item.Kind, nullString(item.Intent), item.AssignedBot, nullString(item.ApprovalMode), nullString(item.ResponseMode), item.Status, nullString(item.LastError), item.CreatedAt, item.UpdatedAt, nullTime(item.CompletedAt),
 		); err != nil {
 			return err
 		}
@@ -3932,28 +3933,4 @@ func (p *PostgresStore) ListPostMergeReplays() []improvement.PostMergeReplay {
 		return nil
 	}
 	return store.ListPostMergeReplays()
-}
-
-func (p *PostgresStore) ExecuteTool(name string, input map[string]interface{}) ToolResult {
-	var result ToolResult
-	_ = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
-		beforeAttempts := len(store.prAttempts)
-		result = store.ExecuteTool(name, input)
-		if name == "github.create_pr" {
-			if proposalID, _ := input["proposal_id"].(string); proposalID != "" {
-				if err := replaceProposalScope(tx, store, proposalID); err != nil {
-					return err
-				}
-			}
-			if len(store.prAttempts) > beforeAttempts {
-				temp := newSubsetStore()
-				temp.prAttempts = store.prAttempts
-				if err := persistPRAttempts(tx, temp); err != nil {
-					return err
-				}
-			}
-		}
-		return nil
-	})
-	return result
 }

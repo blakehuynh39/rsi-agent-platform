@@ -99,6 +99,26 @@ func TestGitHubCreatePRRequiresAppConfig(t *testing.T) {
 	}
 }
 
+func TestUnknownToolIsRejectedWithoutStoreFallback(t *testing.T) {
+	service := NewService(config.Config{
+		DefaultRepo: "rsi-agent-platform",
+	}, storepkg.NewMemoryStore())
+
+	result := service.Execute("github.legacy_fallback", map[string]interface{}{
+		"proposal_id": "proposal-123",
+	})
+
+	if result.Available {
+		t.Fatalf("expected unknown tool to be unavailable, got %+v", result)
+	}
+	if result.Status != "blocked" {
+		t.Fatalf("expected unavailable status, got %+v", result)
+	}
+	if got := result.Output["error"]; got != "unknown_tool" {
+		t.Fatalf("expected unknown_tool error, got %#v", result.Output)
+	}
+}
+
 func TestGitHubRepoActivityUsesExternalAPI(t *testing.T) {
 	privateKey := testGitHubAppPrivateKey(t)
 	var seenAuth string

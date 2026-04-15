@@ -479,51 +479,6 @@ func TestPostgresGitHubEventPersistsProposalOutcome(t *testing.T) {
 	}
 }
 
-func TestPostgresExecuteToolFallbackPersistsPRAttempt(t *testing.T) {
-	postgresURL, cleanup := openTempPostgresURL(t)
-	defer cleanup()
-
-	db, err := platformdb.OpenPostgres(postgresURL)
-	if err != nil {
-		t.Fatalf("open postgres: %v", err)
-	}
-	defer db.Close()
-	if _, err := platformdb.ApplyMigrations(db); err != nil {
-		t.Fatalf("apply migrations: %v", err)
-	}
-
-	store, err := NewPostgresStore(config.Config{
-		StoreBackend:       "postgres",
-		PostgresURL:        postgresURL,
-		DefaultProposalCap: 2,
-	})
-	if err != nil {
-		t.Fatalf("NewPostgresStore() error = %v", err)
-	}
-	defer store.db.Close()
-
-	_, _, _, proposal := seedPromotableFailureProposal(t, store)
-	if _, err := store.ReviewProposal(proposal.ID, review.ProposalReview{
-		ProposalID: proposal.ID,
-		Decision:   string(review.ProposalApproved),
-		Rationale:  "Allow draft PR fallback execution.",
-		ReviewerID: "alice",
-		CreatedAt:  time.Now().UTC(),
-	}); err != nil {
-		t.Fatalf("ReviewProposal() error = %v", err)
-	}
-
-	result := store.ExecuteTool("github.create_pr", map[string]interface{}{"proposal_id": proposal.ID})
-	if !result.Approved {
-		t.Fatalf("expected fallback tool execution to succeed, got %+v", result)
-	}
-
-	attempts := store.ListPRAttempts()
-	if len(attempts) != 1 || attempts[0].ProposalID != proposal.ID {
-		t.Fatalf("expected persisted PR attempt for proposal %s, got %+v", proposal.ID, attempts)
-	}
-}
-
 func TestPostgresClaimNextWorkItemIsAtomic(t *testing.T) {
 	postgresURL, cleanup := openTempPostgresURL(t)
 	defer cleanup()

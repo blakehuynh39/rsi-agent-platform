@@ -25,6 +25,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/registry"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	"github.com/piplabs/rsi-agent-platform/internal/slack"
+	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
 const (
@@ -46,6 +47,14 @@ type Store interface {
 	UpsertActionIntent(intent action.Intent) (action.Intent, error)
 	ListActionResults(actionIntentID string) []action.Result
 	RecordActionResult(result action.Result) (action.Result, error)
+	ListDomainEvents() []transition.DomainEvent
+	ListEffectExecutions() []transition.EffectExecution
+	ListEffectExecutionsByAggregate(machineKind transition.MachineKind, aggregateID string) []transition.EffectExecution
+	GetCommandReceipt(commandID string) (transition.CommandReceipt, bool)
+	RecordCommandReceipt(item transition.CommandReceipt) (transition.CommandReceipt, bool, error)
+	ClaimEffectExecution(effectID string, holder string, lease time.Duration) (transition.EffectExecution, bool, error)
+	CompleteEffectExecution(effectID string, resultRef string) (transition.EffectExecution, error)
+	FailEffectExecution(effectID string, lastError string) (transition.EffectExecution, error)
 	ListOperations() []operation.Execution
 	GetOperation(operationID string) (operation.Execution, bool)
 	ListOperationsByScope(scopeKind operation.ScopeKind, scopeID string) []operation.Execution
@@ -135,7 +144,6 @@ type Store interface {
 	ListPRAttempts() []improvement.PRAttempt
 	RecordPRAttempt(attempt improvement.PRAttempt) (improvement.PRAttempt, error)
 	ListPostMergeReplays() []improvement.PostMergeReplay
-	ExecuteTool(name string, input map[string]interface{}) ToolResult
 }
 
 type MemoryStore struct {
@@ -159,6 +167,9 @@ type MemoryStore struct {
 	feedbackRecords        map[string][]review.FeedbackRecord
 	actionIntents          map[string]action.Intent
 	actionResults          map[string][]action.Result
+	domainEvents           []transition.DomainEvent
+	effectExecutions       map[string]transition.EffectExecution
+	commandReceipts        map[string]transition.CommandReceipt
 	operations             map[string]operation.Execution
 	outcomes               map[string]outcome.Record
 	knowledgeEntries       map[string]knowledge.Entry
@@ -1086,6 +1097,7 @@ func (s *MemoryStore) ensureWorkflowForCaseLocked(caseRecord conversation.Case, 
 		if s.workflows[i].CaseID != caseRecord.ID {
 			continue
 		}
+		s.workflows[i].Version++
 		s.workflows[i].ConversationID = caseRecord.ConversationID
 		s.workflows[i].CaseID = caseRecord.ID
 		s.workflows[i].ThreadKey = conversationKeyForCase(caseRecord, s.conversations)
@@ -1108,6 +1120,7 @@ func (s *MemoryStore) ensureWorkflowForCaseLocked(caseRecord conversation.Case, 
 		ApprovalMode:   caseRecord.ApprovalMode,
 		ResponseMode:   caseRecord.ResponseMode,
 		Status:         "queued",
+		Version:        1,
 		CreatedAt:      entry.CreatedAt,
 		UpdatedAt:      createdAt,
 	}
@@ -1118,9 +1131,15 @@ func (s *MemoryStore) ensureWorkflowForCaseLocked(caseRecord conversation.Case, 
 func (s *MemoryStore) upsertWorkflowLocked(item Workflow) {
 	for i := range s.workflows {
 		if s.workflows[i].ID == item.ID {
+			if item.Version <= s.workflows[i].Version {
+				item.Version = s.workflows[i].Version + 1
+			}
 			s.workflows[i] = item
 			return
 		}
+	}
+	if item.Version == 0 {
+		item.Version = 1
 	}
 	s.workflows = append(s.workflows, item)
 }
@@ -1814,6 +1833,7 @@ func (s *MemoryStore) updateWorkflowStatusLocked(workflowID string, status strin
 		s.workflows[i].Status = status
 		s.workflows[i].LastError = lastError
 		s.workflows[i].UpdatedAt = now
+		s.workflows[i].Version++
 		if status == "completed" || status == "failed" {
 			s.workflows[i].CompletedAt = &now
 		}
@@ -3082,73 +3102,6 @@ func (s *MemoryStore) ListPostMergeReplays() []improvement.PostMergeReplay {
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].CreatedAt.After(out[j].CreatedAt) })
 	return out
-}
-
-func (s *MemoryStore) ExecuteTool(name string, input map[string]interface{}) ToolResult {
-	now := time.Now().UTC()
-	toolCallID := nextID("toolcall", len(s.prAttempts)+len(s.repoChangeJobs)+len(s.events)+1)
-	approved := name != "github.create_pr"
-	approvalState := "not_required"
-	summary := fmt.Sprintf("tool execution for %s", name)
-	rawArtifactRefs := []string{}
-	if name == "github.create_pr" {
-		approvalState = "human_approved"
-		if proposalID, _ := input["proposal_id"].(string); proposalID != "" {
-			if proposal, ok := s.proposals[proposalID]; ok && proposal.Status == review.ProposalApproved {
-				slots := s.proposalSlotsLocked(now)
-				if slots.Active > slots.Cap {
-					approved = false
-					approvalState = "blocked_by_cap"
-					summary = "proposal cap exceeded; refusing to open another PR-backed proposal"
-				}
-				if approved {
-					proposal.Status = review.ProposalPROpen
-					proposal.ActiveSlotConsuming = true
-					s.proposals[proposalID] = proposal
-				}
-				approved = true
-				attemptID := nextID("pr", len(s.prAttempts)+1)
-				s.prAttempts[attemptID] = improvement.PRAttempt{
-					ID:               attemptID,
-					ProposalID:       proposalID,
-					ConversationID:   proposal.ConversationID,
-					CaseID:           proposal.CaseID,
-					OriginTraceID:    proposal.OriginTraceID,
-					Repo:             "rsi-agent-platform",
-					BranchName:       fmt.Sprintf("codex/%s", proposalID),
-					PRURL:            fmt.Sprintf("https://github.com/piplabs/rsi-agent-platform/pull/%d", len(s.prAttempts)+100),
-					Status:           string(review.ProposalPROpen),
-					ValidationStatus: "pending",
-					CreatedAt:        now,
-				}
-				summary = fmt.Sprintf("draft PR opened for proposal %s", proposalID)
-			}
-		}
-		if !approved && summary == fmt.Sprintf("tool execution for %s", name) {
-			approvalState = "missing_or_unapproved_proposal"
-			summary = "github.create_pr requires an approved active proposal"
-		}
-	}
-	return ToolResult{
-		Name:          name,
-		ToolCallID:    toolCallID,
-		Approved:      approved,
-		ApprovalState: approvalState,
-		Status:        "ok",
-		Available:     true,
-		Provider:      "memory",
-		ExecutedAt:    now,
-		Input:         input,
-		Output: map[string]interface{}{
-			"status":  "ok",
-			"message": summary,
-		},
-		Summary:         summary,
-		RawArtifactRefs: rawArtifactRefs,
-		Metadata: map[string]interface{}{
-			"tool_name": name,
-		},
-	}
 }
 
 type derivedOutcome struct {

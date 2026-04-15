@@ -75,21 +75,30 @@ type proposalAttemptPhaseMutationResult struct {
 func (s *MemoryStore) AdvanceProposalAttemptPhase(req ProposalAttemptPhaseAdvance) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	_, err := s.advanceProposalAttemptPhaseLocked(req)
+	result, err := s.advanceProposalAttemptPhaseLocked(req)
+	if err == nil {
+		s.appendTransitionBundleLocked(result.Transition)
+	}
 	return err
 }
 
 func (s *MemoryStore) DeferProposalAttemptPhase(req ProposalAttemptPhaseDefer) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	_, err := s.deferProposalAttemptPhaseLocked(req)
+	result, err := s.deferProposalAttemptPhaseLocked(req)
+	if err == nil {
+		s.appendTransitionBundleLocked(result.Transition)
+	}
 	return err
 }
 
 func (s *MemoryStore) FailProposalAttemptPhase(req ProposalAttemptPhaseFailure) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	_, err := s.failProposalAttemptPhaseLocked(req)
+	result, err := s.failProposalAttemptPhaseLocked(req)
+	if err == nil {
+		s.appendTransitionBundleLocked(result.Transition)
+	}
 	return err
 }
 

@@ -13,6 +13,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
+	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
 type Repository = Store
@@ -25,6 +26,9 @@ func newEmptyMemoryStore() *MemoryStore {
 		feedbackRecords:        map[string][]review.FeedbackRecord{},
 		actionIntents:          map[string]action.Intent{},
 		actionResults:          map[string][]action.Result{},
+		domainEvents:           []transition.DomainEvent{},
+		effectExecutions:       map[string]transition.EffectExecution{},
+		commandReceipts:        map[string]transition.CommandReceipt{},
 		outcomes:               map[string]outcome.Record{},
 		knowledgeEntries:       map[string]knowledge.Entry{},
 		knowledgeEvidence:      map[string][]knowledge.EvidenceLink{},

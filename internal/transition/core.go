@@ -6,6 +6,7 @@ type MachineKind string
 
 const (
 	MachineWorkflow     MachineKind = "workflow"
+	MachineProblemLine  MachineKind = "problem_line"
 	MachineProposalLine MachineKind = "proposal_line"
 	MachineAttempt      MachineKind = "attempt"
 	MachineAction       MachineKind = "action_execution"
@@ -24,13 +25,18 @@ const (
 type EffectKind string
 
 const (
-	EffectQueueAttemptPhase EffectKind = "queue_attempt_phase"
-	EffectOpenWorkspace     EffectKind = "open_workspace"
-	EffectInvokeRunner      EffectKind = "invoke_runner"
-	EffectWorkspaceValidate EffectKind = "workspace_validate"
-	EffectOpenDraftPR       EffectKind = "open_draft_pr"
-	EffectScheduleRetry     EffectKind = "schedule_retry"
-	EffectRefreshProjection EffectKind = "refresh_projection"
+	EffectQueueAttemptPhase  EffectKind = "queue_attempt_phase"
+	EffectQueueWorkflow      EffectKind = "queue_workflow"
+	EffectQueueControlAction EffectKind = "queue_control_action"
+	EffectOpenWorkspace      EffectKind = "open_workspace"
+	EffectInvokeRunner       EffectKind = "invoke_runner"
+	EffectPostSlackReply     EffectKind = "post_slack_reply"
+	EffectQueueEval          EffectKind = "queue_eval"
+	EffectWorkspaceValidate  EffectKind = "workspace_validate"
+	EffectOpenDraftPR        EffectKind = "open_draft_pr"
+	EffectRecordOutcome      EffectKind = "record_outcome"
+	EffectScheduleRetry      EffectKind = "schedule_retry"
+	EffectRefreshProjection  EffectKind = "refresh_projection"
 )
 
 type EffectStatus string
@@ -87,6 +93,21 @@ type DomainEvent struct {
 	CreatedAt        time.Time      `json:"created_at"`
 }
 
+type CommandReceipt struct {
+	CommandID        string       `json:"command_id"`
+	MachineKind      MachineKind  `json:"machine_kind"`
+	AggregateID      string       `json:"aggregate_id"`
+	CommandKind      string       `json:"command_kind"`
+	CausationID      string       `json:"causation_id,omitempty"`
+	Actor            string       `json:"actor,omitempty"`
+	DecisionKind     DecisionKind `json:"decision_kind"`
+	Reason           string       `json:"reason,omitempty"`
+	AggregateVersion int64        `json:"aggregate_version,omitempty"`
+	ResultRef        string       `json:"result_ref,omitempty"`
+	CreatedAt        time.Time    `json:"created_at"`
+	UpdatedAt        time.Time    `json:"updated_at"`
+}
+
 type EffectExecution struct {
 	ID             string         `json:"id"`
 	MachineKind    MachineKind    `json:"machine_kind"`
@@ -94,12 +115,15 @@ type EffectExecution struct {
 	AttemptID      string         `json:"attempt_id,omitempty"`
 	EffectKind     EffectKind     `json:"effect_kind"`
 	Status         EffectStatus   `json:"status"`
+	Holder         string         `json:"holder,omitempty"`
 	IdempotencyKey string         `json:"idempotency_key"`
 	Payload        map[string]any `json:"payload,omitempty"`
 	ResultRef      string         `json:"result_ref,omitempty"`
 	LastError      string         `json:"last_error,omitempty"`
+	RetryCount     int            `json:"retry_count,omitempty"`
 	CreatedAt      time.Time      `json:"created_at"`
 	UpdatedAt      time.Time      `json:"updated_at"`
 	StartedAt      *time.Time     `json:"started_at,omitempty"`
+	LeaseExpiresAt *time.Time     `json:"lease_expires_at,omitempty"`
 	CompletedAt    *time.Time     `json:"completed_at,omitempty"`
 }

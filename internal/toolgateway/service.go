@@ -111,7 +111,10 @@ func (s *Service) Execute(name string, input map[string]interface{}) storepkg.To
 	case "workspace.run_validation":
 		return s.workspaceRunValidation(input)
 	default:
-		return s.store.ExecuteTool(name, input)
+		return s.unavailableResult(name, input, "tool-gateway", fmt.Sprintf("Tool %s is not registered in the governed tool gateway.", strings.TrimSpace(name)), map[string]interface{}{
+			"tool_name": strings.TrimSpace(name),
+			"error":     "unknown_tool",
+		})
 	}
 }
 

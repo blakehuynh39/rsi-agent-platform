@@ -20,6 +20,7 @@ type Workflow struct {
 	ResponseMode   string     `json:"response_mode,omitempty"`
 	Status         string     `json:"status"`
 	LastError      string     `json:"last_error,omitempty"`
+	Version        int64      `json:"version"`
 	CreatedAt      time.Time  `json:"created_at"`
 	UpdatedAt      time.Time  `json:"updated_at"`
 	CompletedAt    *time.Time `json:"completed_at,omitempty"`
