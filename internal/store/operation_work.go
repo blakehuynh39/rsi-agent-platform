@@ -72,6 +72,12 @@ func ensureOperationWorkItemTx(tx *sql.Tx, op operation.Execution, item queue.Wo
 		return operation.Execution{}, queue.WorkItem{}, false, err
 	}
 	if found {
+		if item.Status == queue.WorkQueued && shouldRequeueOperationForWorkItem(createdOp, existing.Status, false) {
+			createdOp, err = requeueOperationTx(tx, createdOp.ID, "")
+			if err != nil {
+				return operation.Execution{}, queue.WorkItem{}, false, err
+			}
+		}
 		if item.Status == queue.WorkQueued && (existing.Status == queue.WorkFailed || existing.Status == queue.WorkCanceled) {
 			row := tx.QueryRow(`
 				update work_item
@@ -95,6 +101,12 @@ func ensureOperationWorkItemTx(tx *sql.Tx, op operation.Execution, item queue.Wo
 			}
 		}
 		return createdOp, existing, false, nil
+	}
+	if item.Status == queue.WorkQueued && shouldRequeueOperationForMissingWorkItem(createdOp, false) {
+		createdOp, err = requeueOperationTx(tx, createdOp.ID, "")
+		if err != nil {
+			return operation.Execution{}, queue.WorkItem{}, false, err
+		}
 	}
 	createdItem, err := enqueueWorkItemTx(tx, item)
 	if err != nil {

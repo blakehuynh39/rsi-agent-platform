@@ -144,7 +144,7 @@ func (p *PostgresStore) ReconcileProposalAttemptPhase(proposalID string, request
 		if reconcileErr != nil {
 			return reconcileErr
 		}
-		if !queued {
+		if item.ID == "" {
 			return nil
 		}
 		if err := replaceWorkItemScope(tx, item); err != nil {

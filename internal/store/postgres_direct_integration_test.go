@@ -1,6 +1,7 @@
 package store
 
 import (
+	"database/sql"
 	"sync"
 	"testing"
 	"time"
@@ -811,6 +812,109 @@ func TestPostgresRetryProposalRepoChangeIsIdempotent(t *testing.T) {
 	}
 	if sandboxItems != 1 {
 		t.Fatalf("expected one sandbox work item after retry dedupe, got %d", sandboxItems)
+	}
+}
+
+func TestPostgresRetryProposalRepoChangeReopensRunningWorkspaceOpenWithCanceledWorkItem(t *testing.T) {
+	postgresURL, cleanup := openTempPostgresURL(t)
+	defer cleanup()
+
+	db, err := platformdb.OpenPostgres(postgresURL)
+	if err != nil {
+		t.Fatalf("open postgres: %v", err)
+	}
+	defer db.Close()
+	if _, err := platformdb.ApplyMigrations(db); err != nil {
+		t.Fatalf("apply migrations: %v", err)
+	}
+
+	store, err := NewPostgresStore(config.Config{
+		StoreBackend: "postgres",
+		PostgresURL:  postgresURL,
+	})
+	if err != nil {
+		t.Fatalf("NewPostgresStore() error = %v", err)
+	}
+	defer store.db.Close()
+
+	_, _, _, seededProposal := seedPromotableFailureProposal(t, store)
+	if err := store.withProposalLockedStoreTx(seededProposal.ID, func(tx *sql.Tx, mem *MemoryStore) error {
+		proposal := seedProposalAttemptPhaseReconcileFixture(t, mem, improvement.WorkspaceQueued)
+		now := time.Now().UTC()
+
+		op := mem.operations["op-workspace-open-1"]
+		op.Status = operation.StatusRunning
+		op.Holder = "worker-a"
+		op.CompletedAt = nil
+		op.UpdatedAt = now
+		mem.operations[op.ID] = op
+
+		item := mem.workItems["work-workspace-open-1"]
+		item.Status = queue.WorkCanceled
+		item.LeaseOwner = ""
+		item.LeaseExpiresAt = nil
+		item.LastError = "operation already terminal"
+		item.CompletedAt = &now
+		item.UpdatedAt = now
+		mem.workItems[item.ID] = item
+
+		if err := replaceProposalScope(tx, mem, proposal.ID); err != nil {
+			return err
+		}
+		if err := replaceChangeAttemptScope(tx, mem.changeAttempts["attempt-reconcile-1"]); err != nil {
+			return err
+		}
+		if err := replaceAttemptWorkspaceScope(tx, mem.attemptWorkspaces["workspace-reconcile-1"]); err != nil {
+			return err
+		}
+		if err := replaceRepoChangeJobScope(tx, mem, proposal.ID); err != nil {
+			return err
+		}
+		if err := replaceOperationScope(tx, mem.operations["op-workspace-open-1"]); err != nil {
+			return err
+		}
+		if err := replaceWorkItemScope(tx, mem.workItems["work-workspace-open-1"]); err != nil {
+			return err
+		}
+		return nil
+	}); err != nil {
+		t.Fatalf("seed running workspace_open state: %v", err)
+	}
+
+	item, err := store.RetryProposalRepoChange(seededProposal.ID, "tester")
+	if err != nil {
+		t.Fatalf("RetryProposalRepoChange() error = %v", err)
+	}
+	if item.Kind != "workspace_open" || item.Status != queue.WorkQueued {
+		t.Fatalf("expected reopened workspace_open work item, got %+v", item)
+	}
+
+	reloaded, err := store.readStore()
+	if err != nil {
+		t.Fatalf("readStore() error = %v", err)
+	}
+	op, ok := reloaded.GetOperation("op-workspace-open-1")
+	if !ok {
+		t.Fatalf("expected operation op-workspace-open-1")
+	}
+	if op.Status != operation.StatusQueued || op.Holder != "" {
+		t.Fatalf("expected workspace_open operation to be queued and unheld, got %+v", op)
+	}
+
+	var reopened queue.WorkItem
+	found := false
+	for _, candidate := range reloaded.ListWorkItems() {
+		if candidate.ID == "work-workspace-open-1" {
+			reopened = candidate
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected work item work-workspace-open-1")
+	}
+	if reopened.Status != queue.WorkQueued || reopened.LastError != "" {
+		t.Fatalf("expected canceled work item to be reopened, got %+v", reopened)
 	}
 }
 

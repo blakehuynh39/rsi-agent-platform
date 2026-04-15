@@ -196,20 +196,20 @@ func (s *MemoryStore) ensureOperationWorkItemLockedWithPolicy(op operation.Execu
 		return operation.Execution{}, queue.WorkItem{}, false, err
 	}
 	now := time.Now().UTC()
-	if item.Status == queue.WorkQueued && (createdOp.Status == operation.StatusFailed || (reopenTerminal && createdOp.Status == operation.StatusCompleted)) {
-		createdOp.Status = operation.StatusQueued
-		createdOp.Holder = ""
-		createdOp.LastError = ""
-		createdOp.UpdatedAt = now
-		createdOp.CompletedAt = nil
-		if op.PayloadHash != "" {
-			createdOp.PayloadHash = op.PayloadHash
-		}
-		s.operations[createdOp.ID] = createdOp
-	}
 	item.OperationID = createdOp.ID
 	for _, existing := range s.workItems {
 		if existing.OperationID == createdOp.ID {
+			if item.Status == queue.WorkQueued && shouldRequeueOperationForWorkItem(createdOp, existing.Status, reopenTerminal) {
+				createdOp.Status = operation.StatusQueued
+				createdOp.Holder = ""
+				createdOp.LastError = ""
+				createdOp.UpdatedAt = now
+				createdOp.CompletedAt = nil
+				if op.PayloadHash != "" {
+					createdOp.PayloadHash = op.PayloadHash
+				}
+				s.operations[createdOp.ID] = createdOp
+			}
 			if item.Status == queue.WorkQueued && (existing.Status == queue.WorkFailed || existing.Status == queue.WorkCanceled || (reopenTerminal && existing.Status == queue.WorkCompleted)) {
 				existing.Status = queue.WorkQueued
 				existing.Payload = cloneMetadata(item.Payload)
@@ -226,9 +226,38 @@ func (s *MemoryStore) ensureOperationWorkItemLockedWithPolicy(op operation.Execu
 			return createdOp, existing, false, nil
 		}
 	}
+	if item.Status == queue.WorkQueued && shouldRequeueOperationForMissingWorkItem(createdOp, reopenTerminal) {
+		createdOp.Status = operation.StatusQueued
+		createdOp.Holder = ""
+		createdOp.LastError = ""
+		createdOp.UpdatedAt = now
+		createdOp.CompletedAt = nil
+		if op.PayloadHash != "" {
+			createdOp.PayloadHash = op.PayloadHash
+		}
+		s.operations[createdOp.ID] = createdOp
+	}
 	createdItem, err := s.enqueueWorkItemLocked(item)
 	if err != nil {
 		return operation.Execution{}, queue.WorkItem{}, false, err
 	}
 	return createdOp, createdItem, true, nil
+}
+
+func shouldRequeueOperationForWorkItem(op operation.Execution, status queue.WorkItemStatus, reopenTerminal bool) bool {
+	if status == queue.WorkQueued || status == queue.WorkLeased {
+		return false
+	}
+	return shouldRequeueOperationForMissingWorkItem(op, reopenTerminal)
+}
+
+func shouldRequeueOperationForMissingWorkItem(op operation.Execution, reopenTerminal bool) bool {
+	switch op.Status {
+	case operation.StatusFailed:
+		return true
+	case operation.StatusRunning, operation.StatusCompleted:
+		return reopenTerminal
+	default:
+		return false
+	}
 }

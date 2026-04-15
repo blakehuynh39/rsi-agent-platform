@@ -296,6 +296,46 @@ func TestReconcileProposalAttemptPhaseQueuesImplementAttemptWhenWorkspaceReady(t
 	}
 }
 
+func TestReconcileProposalAttemptPhaseRequeuesRunningWorkspaceOpenWhenWorkItemCanceled(t *testing.T) {
+	store := NewMemoryStore()
+	proposal := seedProposalAttemptPhaseReconcileFixture(t, store, improvement.WorkspaceQueued)
+
+	op := store.operations["op-workspace-open-1"]
+	now := time.Now().UTC()
+	op.Status = operation.StatusRunning
+	op.Holder = "worker-a"
+	op.CompletedAt = nil
+	op.UpdatedAt = now
+	store.operations[op.ID] = op
+
+	item := store.workItems["work-workspace-open-1"]
+	item.Status = queue.WorkCanceled
+	item.LeaseOwner = ""
+	item.LeaseExpiresAt = nil
+	item.LastError = "operation already terminal"
+	item.CompletedAt = &now
+	item.UpdatedAt = now
+	store.workItems[item.ID] = item
+
+	requeued, queued, err := store.ReconcileProposalAttemptPhase(proposal.ID, "tester")
+	if err != nil {
+		t.Fatalf("ReconcileProposalAttemptPhase() error = %v", err)
+	}
+	if !queued {
+		t.Fatal("expected reconcile to requeue running workspace_open")
+	}
+	if requeued.ID != item.ID || requeued.Status != queue.WorkQueued {
+		t.Fatalf("expected canceled workspace_open work item to be reopened, got %+v", requeued)
+	}
+	reopenedOp, ok := store.GetOperation(op.ID)
+	if !ok {
+		t.Fatalf("expected operation %s", op.ID)
+	}
+	if reopenedOp.Status != operation.StatusQueued || reopenedOp.Holder != "" {
+		t.Fatalf("expected running workspace_open operation to be reopened, got %+v", reopenedOp)
+	}
+}
+
 func TestEnqueueWorkItemAllowsRequeueAfterCompleted(t *testing.T) {
 	store := NewMemoryStore()
 	now := time.Now().UTC()
