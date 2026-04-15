@@ -417,6 +417,13 @@ export type Proposal = {
   line_stopped_by?: string;
   line_stop_reason?: string;
   line_stopped_at?: string;
+  recommended_intervention_kind?: string;
+  recommended_intervention_rationale?: string;
+  target_surface?: string;
+  touched_files?: NullableList<string>;
+  validation_plan?: string;
+  material_risk_summary?: string;
+  recommended_disposition?: string;
   created_at: string;
 };
 
@@ -429,6 +436,7 @@ export type ProposalListItem = Proposal & {
 export type ProposalReview = {
   proposal_id: string;
   decision: string;
+  scope?: string;
   rationale: string;
   reviewer_id: string;
   failure_class?: string;

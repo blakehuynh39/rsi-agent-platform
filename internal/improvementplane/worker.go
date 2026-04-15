@@ -233,6 +233,9 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 	if proposal.Status != review.ProposalApproved {
 		return nil
 	}
+	if !review.ProposalExecutableIntervention(proposal.RecommendedInterventionKind) {
+		return nil
+	}
 	proposalTraceID := item.TraceID
 	if proposalTraceID == "" {
 		proposalTraceID = proposal.TraceID
@@ -336,7 +339,7 @@ func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient *
 		})
 		return errDeferredWorkItem
 	}
-	if proposal.TargetLayer == harness.TargetLayerHarnessOverlay {
+	if proposal.RecommendedInterventionKind == review.InterventionHarnessOverlay || proposal.TargetLayer == harness.TargetLayerHarnessOverlay {
 		return processHarnessOverlayProposal(cfg, store, trace, proposal, attempt, runnerResp, runnerOutput, runnerStarted)
 	}
 	now := time.Now().UTC()
@@ -605,7 +608,7 @@ func processHarnessOverlayProposal(cfg config.Config, store storepkg.Store, trac
 	if _, err := store.UpdateProposalStatus(proposal.ID, review.ProposalMerged); err != nil {
 		return err
 	}
-	attempt.State = improvement.AttemptStateMerged
+	attempt.State = improvement.AttemptStateOverlayActive
 	attempt.UpdatedAt = now
 	if _, err := store.UpsertChangeAttempt(attempt); err != nil {
 		return err
@@ -832,7 +835,7 @@ func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sand
 	}
 	now := time.Now().UTC()
 	if attempt.ID != "" {
-		attempt.State = improvement.AttemptStateSandboxRunning
+		attempt.State = improvement.AttemptStateValidationRunning
 		attempt.UpdatedAt = now
 		_, _ = store.UpsertChangeAttempt(attempt)
 	}
@@ -1053,7 +1056,7 @@ func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandb
 	}
 	_, _ = store.UpdateProposalStatus(item.ProposalID, review.ProposalValidationPending)
 	if attempt.ID != "" {
-		attempt.State = improvement.AttemptStateValidationReady
+		attempt.State = improvement.AttemptStateValidationRunning
 		attempt.ValidationSummary = fmt.Sprintf("Sandbox validation succeeded for %s.", observation.JobName)
 		attempt.UpdatedAt = now
 		_, _ = store.UpsertChangeAttempt(attempt)
@@ -1496,15 +1499,21 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 	}
 	contextRefs := []map[string]any{
 		{
-			"kind":          "proposal",
-			"ref":           proposal.ID,
-			"summary":       proposal.Summary,
-			"candidate_key": proposal.CandidateKey,
-			"risk_tier":     proposal.RiskTier,
-			"scope":         proposal.ProposedScope,
-			"target_layer":  proposal.TargetLayer,
-			"target_kind":   proposal.TargetKind,
-			"target_ref":    proposal.TargetRef,
+			"kind":                               "proposal",
+			"ref":                                proposal.ID,
+			"summary":                            proposal.Summary,
+			"candidate_key":                      proposal.CandidateKey,
+			"risk_tier":                          proposal.RiskTier,
+			"scope":                              proposal.ProposedScope,
+			"target_layer":                       proposal.TargetLayer,
+			"target_kind":                        proposal.TargetKind,
+			"target_ref":                         proposal.TargetRef,
+			"recommended_intervention_kind":      proposal.RecommendedInterventionKind,
+			"recommended_intervention_rationale": proposal.RecommendedInterventionRationale,
+			"target_surface":                     proposal.TargetSurface,
+			"validation_plan":                    proposal.ValidationPlan,
+			"material_risk_summary":              proposal.MaterialRiskSummary,
+			"recommended_disposition":            proposal.RecommendedDisposition,
 		},
 		{
 			"kind":            "change_attempt",
@@ -1528,25 +1537,31 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 	contextRefs = append(contextRefs, improvementProposalMemoryRefs(store, proposal.CandidateKey)...)
 	contextRefs = append(contextRefs, improvementAttemptHistoryRefs(store, proposal.ID, attempt.ID)...)
 	prompt := fmt.Sprintf(
-		"Materialize remediation attempt %d for approved proposal %s. Candidate=%s risk=%s scope=%s summary=%s. The authoritative target repository is %s. Start from the dense evidence pack: latest failing trace evidence, root-cause metadata, prior rejected or dismissed proposal memory, and prior attempt failures. If recalled memory mentions a different repository, treat it as stale unless the supplied evidence pack explicitly supports it. Before returning repo_patch, inspect read-only repo context for %s and ground the diff in concrete files within that repository. Return explicit visible reasoning plus a concrete change_plan, a non-empty unified repo_patch touching allowed repo files, a validation_plan, retry_assessment, and hypothesis_delta. Do not return metadata-only or .rsi-only diffs.",
+		"Execute approved intervention attempt %d for proposal %s. Candidate=%s risk=%s scope=%s summary=%s. The approved intervention kind is %s with rationale %q, target surface %q, and validation plan %q. The authoritative target repository is %s. Start from the dense evidence pack: latest failing trace evidence, root-cause metadata, prior rejected or dismissed proposal memory, and prior attempt failures. If recalled memory mentions a different repository, treat it as stale unless the supplied evidence pack explicitly supports it. Before returning repo_patch, inspect read-only repo context for %s and ground the diff in concrete files within that repository. Return explicit visible reasoning plus a concrete change_plan, a non-empty unified repo_patch touching allowed repo files, a validation_plan, retry_assessment, and hypothesis_delta. Do not return metadata-only or .rsi-only diffs.",
 		attempt.AttemptNumber,
 		proposal.ID,
 		proposal.CandidateKey,
 		proposal.RiskTier,
 		proposal.ProposedScope,
 		proposal.Summary,
+		firstNonEmpty(string(proposal.RecommendedInterventionKind), string(review.InterventionRepoChange)),
+		firstNonEmpty(proposal.RecommendedInterventionRationale),
+		firstNonEmpty(proposal.TargetSurface),
+		firstNonEmpty(proposal.ValidationPlan),
 		firstNonEmpty(targetRepo, cfg.DefaultRepo),
 		firstNonEmpty(targetRepo, cfg.DefaultRepo),
 	)
 	if proposal.TargetLayer == harness.TargetLayerHarnessOverlay {
 		targetRole := firstNonEmpty(strings.TrimSpace(proposal.TargetRef), "prod")
 		prompt = fmt.Sprintf(
-			"Design remediation attempt %d as an approved runtime harness overlay for role %s from proposal %s. Candidate=%s summary=%s. Return explicit visible reasoning, a change_plan, validation_plan, retry_assessment, hypothesis_delta, and exactly one proposed action with kind=%q whose request_payload contains prompt_fragments, few_shot_snippets, tool_preference_order, retrieval_bias, reasoning_verbosity, memory_read_enabled, and memory_write_enabled. This is a runtime overlay activation, not a repo change.",
+			"Design remediation attempt %d as an approved runtime harness overlay for role %s from proposal %s. Candidate=%s summary=%s. The approved intervention rationale is %q and the approved target surface is %q. Return explicit visible reasoning, a change_plan, validation_plan, retry_assessment, hypothesis_delta, and exactly one proposed action with kind=%q whose request_payload contains prompt_fragments, few_shot_snippets, tool_preference_order, retrieval_bias, reasoning_verbosity, memory_read_enabled, and memory_write_enabled. This is a runtime overlay activation, not a repo change.",
 			attempt.AttemptNumber,
 			targetRole,
 			proposal.ID,
 			proposal.CandidateKey,
 			proposal.Summary,
+			firstNonEmpty(proposal.RecommendedInterventionRationale),
+			firstNonEmpty(proposal.TargetSurface),
 			action.KindHarnessOverlay,
 		)
 	}
@@ -2049,10 +2064,10 @@ func proposedActionByKind(items []runnerutil.ProposedAction, kind action.Kind) (
 }
 
 func proposalRunnerContextSummary(proposal review.Proposal) string {
-	if proposal.TargetLayer == harness.TargetLayerHarnessOverlay {
-		return fmt.Sprintf("Approved proposal %s for candidate %s is activating a runtime harness overlay for %s.", proposal.ID, proposal.CandidateKey, firstNonEmpty(proposal.TargetRef, "prod"))
+	if proposal.RecommendedInterventionKind == review.InterventionHarnessOverlay || proposal.TargetLayer == harness.TargetLayerHarnessOverlay {
+		return fmt.Sprintf("Approved intervention %s for proposal %s is activating a runtime harness overlay on %s.", firstNonEmpty(string(proposal.RecommendedInterventionKind), string(review.InterventionHarnessOverlay)), proposal.ID, firstNonEmpty(proposal.TargetSurface, proposal.TargetRef, "prod"))
 	}
-	return fmt.Sprintf("Approved proposal %s for candidate %s is entering repo-change queue.", proposal.ID, proposal.CandidateKey)
+	return fmt.Sprintf("Approved intervention %s for proposal %s is entering repo-change execution on %s.", firstNonEmpty(string(proposal.RecommendedInterventionKind), string(review.InterventionRepoChange)), proposal.ID, firstNonEmpty(proposal.TargetSurface, proposal.TargetRef, "rsi-agent-platform"))
 }
 
 func buildHarnessOverlayFromRunner(store storepkg.Store, proposal review.Proposal, output runnerutil.StructuredOutput) (harness.Overlay, error) {

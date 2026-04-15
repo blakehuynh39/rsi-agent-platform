@@ -20,8 +20,8 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/slack"
 )
 
-func proposalDecisionIdempotencyKey(proposalID string, decision string) string {
-	return fmt.Sprintf("%s:%s", strings.TrimSpace(proposalID), strings.ToLower(strings.TrimSpace(decision)))
+func proposalDecisionIdempotencyKey(proposalID string, decision string, scope review.ProposalFeedbackScope) string {
+	return fmt.Sprintf("%s:%s:%s", strings.TrimSpace(proposalID), strings.ToLower(strings.TrimSpace(decision)), strings.ToLower(firstNonEmpty(string(scope), string(review.FeedbackScopeLine))))
 }
 
 func enqueueWorkItemTx(tx *sql.Tx, item queue.WorkItem) (queue.WorkItem, error) {
@@ -222,16 +222,16 @@ func (p *PostgresStore) recordPRAttemptDirect(attempt improvement.PRAttempt) (it
 }
 
 func selectProposalTx(tx *sql.Tx, proposalID string, forUpdate bool) (review.Proposal, error) {
-	query := `select id, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, target_layer, target_kind, target_ref, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, current_attempt_id, attempt_count, auto_retry_budget_remaining, last_failure_class, next_retry_action, line_stopped_by, line_stop_reason, line_stopped_at, created_at from proposal where id = $1`
+	query := `select id, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, target_layer, target_kind, target_ref, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, current_attempt_id, attempt_count, auto_retry_budget_remaining, last_failure_class, next_retry_action, line_stopped_by, line_stop_reason, line_stopped_at, recommended_intervention_kind, recommended_intervention_rationale, target_surface, touched_files, validation_plan, material_risk_summary, recommended_disposition, created_at from proposal where id = $1`
 	if forUpdate {
 		query += ` for update`
 	}
 	var item review.Proposal
 	var status, targetLayer string
-	var conversationID, caseID, originTraceID, reviewer, targetKind, targetRef, currentAttemptID, lastFailureClass, nextRetryAction, lineStoppedBy, lineStopReason sql.NullString
-	var evidenceTraceIDs, sourceEvalIDs, evidenceArtifactIDs, priorSimilarProposalIDs []byte
+	var conversationID, caseID, originTraceID, reviewer, targetKind, targetRef, currentAttemptID, lastFailureClass, nextRetryAction, lineStoppedBy, lineStopReason, recommendedKind, recommendedRationale, targetSurface, validationPlan, materialRiskSummary, recommendedDisposition sql.NullString
+	var evidenceTraceIDs, sourceEvalIDs, evidenceArtifactIDs, priorSimilarProposalIDs, touchedFiles []byte
 	var reviewDeadline, lineStoppedAt sql.NullTime
-	err := tx.QueryRow(query, proposalID).Scan(&item.ID, &item.TraceID, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Title, &item.Category, &item.Summary, &status, &reviewer, &item.CandidateKey, &targetLayer, &targetKind, &targetRef, &sourceEvalIDs, &item.RiskTier, &item.ProposedScope, &evidenceArtifactIDs, &item.ActiveSlotConsuming, &reviewDeadline, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &currentAttemptID, &item.AttemptCount, &item.AutoRetryBudgetRemaining, &lastFailureClass, &nextRetryAction, &lineStoppedBy, &lineStopReason, &lineStoppedAt, &item.CreatedAt)
+	err := tx.QueryRow(query, proposalID).Scan(&item.ID, &item.TraceID, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Title, &item.Category, &item.Summary, &status, &reviewer, &item.CandidateKey, &targetLayer, &targetKind, &targetRef, &sourceEvalIDs, &item.RiskTier, &item.ProposedScope, &evidenceArtifactIDs, &item.ActiveSlotConsuming, &reviewDeadline, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &currentAttemptID, &item.AttemptCount, &item.AutoRetryBudgetRemaining, &lastFailureClass, &nextRetryAction, &lineStoppedBy, &lineStopReason, &lineStoppedAt, &recommendedKind, &recommendedRationale, &targetSurface, &touchedFiles, &validationPlan, &materialRiskSummary, &recommendedDisposition, &item.CreatedAt)
 	if err != nil {
 		return review.Proposal{}, err
 	}
@@ -252,6 +252,13 @@ func selectProposalTx(tx *sql.Tx, proposalID string, forUpdate bool) (review.Pro
 	item.NextRetryAction = nextRetryAction.String
 	item.LineStoppedBy = lineStoppedBy.String
 	item.LineStopReason = lineStopReason.String
+	item.RecommendedInterventionKind = review.ProposalInterventionKind(recommendedKind.String)
+	item.RecommendedInterventionRationale = recommendedRationale.String
+	item.TargetSurface = targetSurface.String
+	item.TouchedFiles = decodeJSON(touchedFiles, []string{})
+	item.ValidationPlan = validationPlan.String
+	item.MaterialRiskSummary = materialRiskSummary.String
+	item.RecommendedDisposition = recommendedDisposition.String
 	if reviewDeadline.Valid {
 		item.ReviewDeadline = reviewDeadline.Time
 	}
@@ -264,7 +271,7 @@ func selectProposalTx(tx *sql.Tx, proposalID string, forUpdate bool) (review.Pro
 
 func updateProposalOperationalStateTx(tx *sql.Tx, item review.Proposal) error {
 	item = normalizeProposalTargetFields(item)
-	_, err := tx.Exec(`update proposal set reviewer = $2, status = $3, active_slot_consuming = $4, current_attempt_id = $5, attempt_count = $6, auto_retry_budget_remaining = $7, last_failure_class = $8, next_retry_action = $9, line_stopped_by = $10, line_stop_reason = $11, line_stopped_at = $12 where id = $1`,
+	_, err := tx.Exec(`update proposal set reviewer = $2, status = $3, active_slot_consuming = $4, current_attempt_id = $5, attempt_count = $6, auto_retry_budget_remaining = $7, last_failure_class = $8, next_retry_action = $9, line_stopped_by = $10, line_stop_reason = $11, line_stopped_at = $12, recommended_intervention_kind = $13, recommended_intervention_rationale = $14, target_surface = $15, touched_files = $16::jsonb, validation_plan = $17, material_risk_summary = $18, recommended_disposition = $19 where id = $1`,
 		item.ID,
 		nullString(item.Reviewer),
 		string(item.Status),
@@ -277,6 +284,13 @@ func updateProposalOperationalStateTx(tx *sql.Tx, item review.Proposal) error {
 		firstNonEmpty(item.LineStoppedBy),
 		firstNonEmpty(item.LineStopReason),
 		nullTime(item.LineStoppedAt),
+		string(item.RecommendedInterventionKind),
+		firstNonEmpty(item.RecommendedInterventionRationale),
+		firstNonEmpty(item.TargetSurface),
+		jsonString(item.TouchedFiles),
+		firstNonEmpty(item.ValidationPlan),
+		firstNonEmpty(item.MaterialRiskSummary),
+		firstNonEmpty(item.RecommendedDisposition),
 	)
 	return err
 }
@@ -346,7 +360,10 @@ func (p *PostgresStore) reviewProposalDirect(proposalID string, decision review.
 			return err
 		}
 		decision.ProposalID = proposalID
-		decision.IdempotencyKey = proposalDecisionIdempotencyKey(proposalID, decision.Decision)
+		decision.IdempotencyKey = proposalDecisionIdempotencyKey(proposalID, decision.Decision, decision.Scope)
+		if decision.Scope == "" {
+			decision.Scope = review.FeedbackScopeLine
+		}
 		if decision.CreatedAt.IsZero() {
 			decision.CreatedAt = now
 		}
@@ -359,10 +376,11 @@ func (p *PostgresStore) reviewProposalDirect(proposalID string, decision review.
 			return err
 		}
 		if existingID == 0 {
-			if err := tx.QueryRow(`insert into proposal_review (proposal_id, idempotency_key, decision, rationale, reviewer_id, failure_class, failure_classes, created_at) values ($1,$2,$3,$4,$5,$6,$7::jsonb,$8) returning id`,
+			if err := tx.QueryRow(`insert into proposal_review (proposal_id, idempotency_key, decision, scope, rationale, reviewer_id, failure_class, failure_classes, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9) returning id`,
 				proposalID,
 				decision.IdempotencyKey,
 				decision.Decision,
+				firstNonEmpty(string(decision.Scope), string(review.FeedbackScopeLine)),
 				decision.Rationale,
 				decision.ReviewerID,
 				nullString(decision.FailureClass),
@@ -466,7 +484,7 @@ func (p *PostgresStore) reviewProposalDirect(proposalID string, decision review.
 			}
 		}
 
-		if targetStatus == review.ProposalApproved {
+		if targetStatus == review.ProposalApproved && review.ProposalExecutableIntervention(current.RecommendedInterventionKind) {
 			nextAttemptNumber := maxInt(1, current.AttemptCount+1)
 			_, _, _, err := ensureOperationWorkItemTx(tx, operation.Execution{
 				ScopeKind:     operation.ScopeProposal,
@@ -492,8 +510,8 @@ func (p *PostgresStore) reviewProposalDirect(proposalID string, decision review.
 				CreatedAt:      decision.CreatedAt,
 				UpdatedAt:      decision.CreatedAt,
 				Payload: map[string]interface{}{
-					"candidate_key": current.CandidateKey,
-					"risk_tier":     current.RiskTier,
+					"candidate_key":  current.CandidateKey,
+					"risk_tier":      current.RiskTier,
 					"attempt_number": nextAttemptNumber,
 				},
 			})
@@ -525,6 +543,9 @@ func (p *PostgresStore) materializeApprovedProposalDirect(proposalID string, req
 		default:
 			return fmt.Errorf("proposal %s is not approved for materialization", proposal.Status)
 		}
+		if !review.ProposalExecutableIntervention(proposal.RecommendedInterventionKind) {
+			return fmt.Errorf("proposal %s recommends %s and cannot materialize a repo change", proposal.ID, proposal.RecommendedInterventionKind)
+		}
 		attempt, ok, err := selectLatestChangeAttemptByProposalTx(tx, proposalID, true)
 		if err != nil {
 			return err
@@ -540,7 +561,7 @@ func (p *PostgresStore) materializeApprovedProposalDirect(proposalID string, req
 				TargetKind:     proposal.TargetKind,
 				TargetRef:      proposal.TargetRef,
 				Trigger:        improvement.AttemptTriggerProposalApproved,
-				State:          improvement.AttemptStatePlanning,
+				State:          improvement.AttemptStatePatchPlan,
 				AttemptTraceID: firstNonEmpty(proposal.OriginTraceID, proposal.TraceID),
 				BranchName:     fmt.Sprintf("codex/%s/attempt-%02d", proposal.ID, maxInt(1, proposal.AttemptCount+1)),
 				CreatedAt:      now,
@@ -1242,14 +1263,14 @@ func (p *PostgresStore) createIngestionDirect(envelope slack.SlackEnvelope) (cre
 				string(action.StatusSuperseded),
 				traceID,
 				createdAt,
-				); err != nil {
-					return err
-				}
-				if err := insertActionResult(tx, action.Result{
-					ID:             nextUUID("ares"),
-					ActionIntentID: actionIntentID,
-					AttemptNumber:  attemptCount + 1,
-					Executor:       "supersession",
+			); err != nil {
+				return err
+			}
+			if err := insertActionResult(tx, action.Result{
+				ID:             nextUUID("ares"),
+				ActionIntentID: actionIntentID,
+				AttemptNumber:  attemptCount + 1,
+				Executor:       "supersession",
 				Status:         action.StatusSuperseded,
 				ErrorCode:      "trace_superseded",
 				ErrorMessage:   fmt.Sprintf("Superseded by newer trace %s", traceID),

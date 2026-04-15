@@ -88,19 +88,24 @@ const (
 type ChangeAttemptState string
 
 const (
-	AttemptStatePlanning         ChangeAttemptState = "planning"
-	AttemptStatePatchGenerated   ChangeAttemptState = "patch_generated"
-	AttemptStateOverlayGenerated ChangeAttemptState = "overlay_generated"
-	AttemptStateSandboxRunning   ChangeAttemptState = "sandbox_running"
-	AttemptStateSandboxFailed    ChangeAttemptState = "sandbox_failed"
-	AttemptStateValidationReady  ChangeAttemptState = "validation_pending"
-	AttemptStatePROpen           ChangeAttemptState = "pr_open"
-	AttemptStateCIFailed         ChangeAttemptState = "ci_failed"
-	AttemptStateClosedUnmerged   ChangeAttemptState = "closed_unmerged"
-	AttemptStateMerged           ChangeAttemptState = "merged"
-	AttemptStateNeedsReview      ChangeAttemptState = "needs_review"
-	AttemptStateAbandoned        ChangeAttemptState = "abandoned"
-	AttemptStateSuperseded       ChangeAttemptState = "superseded"
+	AttemptStatePatchPlan           ChangeAttemptState = "patch_plan"
+	AttemptStateInvestigateComplete ChangeAttemptState = "investigate_complete"
+	AttemptStatePatchGenerated      ChangeAttemptState = "patch_generated"
+	AttemptStateValidationRunning   ChangeAttemptState = "validation_running"
+	AttemptStateCIObserving         ChangeAttemptState = "ci_observing"
+	AttemptStateRetryDeciding       ChangeAttemptState = "retry_deciding"
+	AttemptStateOverlayPlan         ChangeAttemptState = "overlay_plan"
+	AttemptStateOverlayGenerated    ChangeAttemptState = "overlay_generated"
+	AttemptStateOverlayValidating   ChangeAttemptState = "overlay_validating"
+	AttemptStateOverlayActive       ChangeAttemptState = "overlay_active"
+	AttemptStateSandboxFailed       ChangeAttemptState = "sandbox_failed"
+	AttemptStatePROpen              ChangeAttemptState = "pr_open"
+	AttemptStateCIFailed            ChangeAttemptState = "ci_failed"
+	AttemptStateClosedUnmerged      ChangeAttemptState = "closed_unmerged"
+	AttemptStateMerged              ChangeAttemptState = "merged"
+	AttemptStateNeedsReview         ChangeAttemptState = "needs_review"
+	AttemptStateAbandoned           ChangeAttemptState = "abandoned"
+	AttemptStateSuperseded          ChangeAttemptState = "superseded"
 )
 
 type ChangeAttempt struct {

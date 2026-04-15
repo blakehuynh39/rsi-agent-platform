@@ -341,7 +341,7 @@ func applyGitHubAttemptTransition(store storepkg.Store, metadata map[string]any,
 		if proposal.CurrentAttemptID != "" && attempt.ID != proposal.CurrentAttemptID {
 			return nil
 		}
-		attempt.State = improvement.AttemptStatePROpen
+		attempt.State = improvement.AttemptStateCIObserving
 		attempt.PRURL = firstNonEmpty(prURL, attempt.PRURL)
 		attempt.HeadSHA = firstNonEmpty(headSHA, attempt.HeadSHA)
 		attempt.UpdatedAt = time.Now().UTC()

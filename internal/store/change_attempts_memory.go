@@ -236,6 +236,7 @@ func isTerminalAttemptState(state improvement.ChangeAttemptState) bool {
 	case improvement.AttemptStateSandboxFailed,
 		improvement.AttemptStateCIFailed,
 		improvement.AttemptStateClosedUnmerged,
+		improvement.AttemptStateOverlayActive,
 		improvement.AttemptStateMerged,
 		improvement.AttemptStateNeedsReview,
 		improvement.AttemptStateAbandoned,

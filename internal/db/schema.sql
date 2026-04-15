@@ -1513,8 +1513,19 @@ create unique index if not exists action_result_intent_operation_idx
 create unique index if not exists harness_execution_operation_idx
   on harness_execution (operation_id)
   where operation_id <> '';
+
+alter table if exists proposal
+  add column if not exists recommended_intervention_kind text not null default 'repo_change',
+  add column if not exists recommended_intervention_rationale text not null default '',
+  add column if not exists target_surface text not null default '',
+  add column if not exists touched_files jsonb not null default '[]'::jsonb,
+  add column if not exists validation_plan text not null default '',
+  add column if not exists material_risk_summary text not null default '',
+  add column if not exists recommended_disposition text not null default '';
+
+alter table if exists proposal_review
+  add column if not exists scope text not null default 'line';
 create unique index if not exists outcome_record_operation_idx
   on outcome_record (operation_id)
   where operation_id <> '';
-
 

@@ -34,16 +34,33 @@ export function ProposalDetail(props: {
         <dl className="overview-grid">
           <div><dt>Candidate key</dt><dd>{props.detail.proposal.candidate_key}</dd></div>
           <div><dt>Risk</dt><dd>{props.detail.proposal.risk_tier || "n/a"}</dd></div>
+          <div><dt>Intervention</dt><dd>{props.detail.proposal.recommended_intervention_kind || "repo_change"}</dd></div>
+          <div><dt>Disposition</dt><dd>{props.detail.proposal.recommended_disposition || "approve_intervention"}</dd></div>
           <div><dt>Origin trace</dt><dd>{props.detail.proposal.origin_trace_id || props.detail.proposal.trace_id}</dd></div>
           <div><dt>Evidence traces</dt><dd>{listOrEmpty(props.detail.proposal.evidence_trace_ids).length}</dd></div>
           <div><dt>Target layer</dt><dd>{props.detail.proposal.target_layer || "repo_change"}</dd></div>
           <div><dt>Target</dt><dd>{props.detail.proposal.target_kind || "n/a"} {props.detail.proposal.target_ref ? `· ${props.detail.proposal.target_ref}` : ""}</dd></div>
+          <div><dt>Target surface</dt><dd>{props.detail.proposal.target_surface || props.detail.proposal.proposed_scope || "n/a"}</dd></div>
           <div><dt>Current attempt</dt><dd>{props.detail.proposal.current_attempt_id || "n/a"}</dd></div>
           <div><dt>Attempt count</dt><dd>{props.detail.proposal.attempt_count ?? 0}</dd></div>
           <div><dt>Retry budget</dt><dd>{props.detail.proposal.auto_retry_budget_remaining ?? 0}</dd></div>
           <div><dt>Next retry action</dt><dd>{props.detail.proposal.next_retry_action || "n/a"}</dd></div>
           <div><dt>Last failure</dt><dd>{props.detail.proposal.last_failure_class || "n/a"}</dd></div>
         </dl>
+        <div className="nested-list">
+          <div className="nested-card">
+            <div className="detail-row-header">
+              <strong>Recommended intervention</strong>
+              <small>{props.detail.proposal.recommended_intervention_kind || "repo_change"}</small>
+            </div>
+            <p className="detail-copy">{props.detail.proposal.recommended_intervention_rationale || props.detail.proposal.summary}</p>
+            <p className="muted">{props.detail.proposal.material_risk_summary || "No material risk summary recorded."}</p>
+            {props.detail.proposal.validation_plan ? <p className="muted">Validation: {props.detail.proposal.validation_plan}</p> : null}
+            {listOrEmpty(props.detail.proposal.touched_files).length ? (
+              <p className="muted">Expected files: {listOrEmpty(props.detail.proposal.touched_files).join(", ")}</p>
+            ) : null}
+          </div>
+        </div>
         {props.detail.proposal.line_stop_reason ? (
           <p className="muted">Line stopped: {props.detail.proposal.line_stop_reason}</p>
         ) : null}
@@ -75,9 +92,9 @@ export function ProposalDetail(props: {
             <textarea value={props.proposalRationale} onChange={(event) => props.setProposalRationale(event.target.value)} placeholder="Why this should advance, be dismissed, or be rejected." />
           </label>
           <div className="button-row">
-            <button onClick={() => props.onDecision("approved")}>Approve</button>
-            <button className="secondary" onClick={() => props.onDecision("dismissed")}>Dismiss</button>
-            <button className="secondary" onClick={() => props.onDecision("rejected")}>Reject</button>
+            <button onClick={() => props.onDecision("approved")}>Approve intervention</button>
+            <button className="secondary" onClick={() => props.onDecision("dismissed")}>Dismiss line</button>
+            <button className="secondary" onClick={() => props.onDecision("rejected")}>Reject line</button>
             <button className="secondary" onClick={() => props.onDecision("merged")}>Mark merged</button>
             {props.canRetry ? <button className="secondary" onClick={props.onRetry}>Resume line</button> : null}
             {props.canStop ? <button className="secondary" onClick={props.onStop}>Stop line</button> : null}

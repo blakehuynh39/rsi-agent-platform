@@ -151,33 +151,40 @@ type attemptDetailResponse struct {
 }
 
 type proposalListItem struct {
-	ID                            string                `json:"id"`
-	TraceID                       string                `json:"trace_id"`
-	ConversationID                string                `json:"conversation_id,omitempty"`
-	CaseID                        string                `json:"case_id,omitempty"`
-	OriginTraceID                 string                `json:"origin_trace_id,omitempty"`
-	EvidenceTraceIDs              []string              `json:"evidence_trace_ids"`
-	Title                         string                `json:"title"`
-	Category                      string                `json:"category"`
-	Summary                       string                `json:"summary"`
-	Status                        review.ProposalStatus `json:"status"`
-	Reviewer                      string                `json:"reviewer,omitempty"`
-	CandidateKey                  string                `json:"candidate_key"`
-	TargetLayer                   harness.TargetLayer   `json:"target_layer"`
-	TargetKind                    string                `json:"target_kind,omitempty"`
-	TargetRef                     string                `json:"target_ref,omitempty"`
-	SourceEvalIDs                 []string              `json:"source_eval_ids"`
-	RiskTier                      string                `json:"risk_tier,omitempty"`
-	ProposedScope                 string                `json:"proposed_scope,omitempty"`
-	EvidenceArtifactIDs           []string              `json:"evidence_artifact_ids"`
-	ActiveSlotConsuming           bool                  `json:"active_slot_consuming"`
-	ReviewDeadline                time.Time             `json:"review_deadline,omitempty"`
-	PriorSimilarProposalIDs       []string              `json:"prior_similar_proposal_ids"`
-	NewEvidenceSinceLastRejection bool                  `json:"new_evidence_since_last_rejection"`
-	CreatedAt                     time.Time             `json:"created_at"`
-	RepoChangeStatus              string                `json:"repo_change_status,omitempty"`
-	PRStatus                      string                `json:"pr_status,omitempty"`
-	PRURL                         string                `json:"pr_url,omitempty"`
+	ID                               string                          `json:"id"`
+	TraceID                          string                          `json:"trace_id"`
+	ConversationID                   string                          `json:"conversation_id,omitempty"`
+	CaseID                           string                          `json:"case_id,omitempty"`
+	OriginTraceID                    string                          `json:"origin_trace_id,omitempty"`
+	EvidenceTraceIDs                 []string                        `json:"evidence_trace_ids"`
+	Title                            string                          `json:"title"`
+	Category                         string                          `json:"category"`
+	Summary                          string                          `json:"summary"`
+	Status                           review.ProposalStatus           `json:"status"`
+	Reviewer                         string                          `json:"reviewer,omitempty"`
+	CandidateKey                     string                          `json:"candidate_key"`
+	TargetLayer                      harness.TargetLayer             `json:"target_layer"`
+	TargetKind                       string                          `json:"target_kind,omitempty"`
+	TargetRef                        string                          `json:"target_ref,omitempty"`
+	SourceEvalIDs                    []string                        `json:"source_eval_ids"`
+	RiskTier                         string                          `json:"risk_tier,omitempty"`
+	ProposedScope                    string                          `json:"proposed_scope,omitempty"`
+	EvidenceArtifactIDs              []string                        `json:"evidence_artifact_ids"`
+	ActiveSlotConsuming              bool                            `json:"active_slot_consuming"`
+	ReviewDeadline                   time.Time                       `json:"review_deadline,omitempty"`
+	PriorSimilarProposalIDs          []string                        `json:"prior_similar_proposal_ids"`
+	NewEvidenceSinceLastRejection    bool                            `json:"new_evidence_since_last_rejection"`
+	RecommendedInterventionKind      review.ProposalInterventionKind `json:"recommended_intervention_kind,omitempty"`
+	RecommendedInterventionRationale string                          `json:"recommended_intervention_rationale,omitempty"`
+	TargetSurface                    string                          `json:"target_surface,omitempty"`
+	TouchedFiles                     []string                        `json:"touched_files"`
+	ValidationPlan                   string                          `json:"validation_plan,omitempty"`
+	MaterialRiskSummary              string                          `json:"material_risk_summary,omitempty"`
+	RecommendedDisposition           string                          `json:"recommended_disposition,omitempty"`
+	CreatedAt                        time.Time                       `json:"created_at"`
+	RepoChangeStatus                 string                          `json:"repo_change_status,omitempty"`
+	PRStatus                         string                          `json:"pr_status,omitempty"`
+	PRURL                            string                          `json:"pr_url,omitempty"`
 }
 
 type runtimeRoleStatus struct {
@@ -482,30 +489,37 @@ func buildProposalSummaries(store storepkg.Repository) []proposalListItem {
 	out := make([]proposalListItem, 0, len(proposals))
 	for _, item := range proposals {
 		summary := proposalListItem{
-			ID:                            item.ID,
-			TraceID:                       item.TraceID,
-			ConversationID:                item.ConversationID,
-			CaseID:                        item.CaseID,
-			OriginTraceID:                 item.OriginTraceID,
-			EvidenceTraceIDs:              sliceOrEmpty(item.EvidenceTraceIDs),
-			Title:                         item.Title,
-			Category:                      item.Category,
-			Summary:                       item.Summary,
-			Status:                        item.Status,
-			Reviewer:                      item.Reviewer,
-			CandidateKey:                  item.CandidateKey,
-			TargetLayer:                   item.TargetLayer,
-			TargetKind:                    item.TargetKind,
-			TargetRef:                     item.TargetRef,
-			SourceEvalIDs:                 sliceOrEmpty(item.SourceEvalIDs),
-			RiskTier:                      item.RiskTier,
-			ProposedScope:                 item.ProposedScope,
-			EvidenceArtifactIDs:           sliceOrEmpty(item.EvidenceArtifactIDs),
-			ActiveSlotConsuming:           item.ActiveSlotConsuming,
-			ReviewDeadline:                item.ReviewDeadline,
-			PriorSimilarProposalIDs:       sliceOrEmpty(item.PriorSimilarProposalIDs),
-			NewEvidenceSinceLastRejection: item.NewEvidenceSinceLastRejection,
-			CreatedAt:                     item.CreatedAt,
+			ID:                               item.ID,
+			TraceID:                          item.TraceID,
+			ConversationID:                   item.ConversationID,
+			CaseID:                           item.CaseID,
+			OriginTraceID:                    item.OriginTraceID,
+			EvidenceTraceIDs:                 sliceOrEmpty(item.EvidenceTraceIDs),
+			Title:                            item.Title,
+			Category:                         item.Category,
+			Summary:                          item.Summary,
+			Status:                           item.Status,
+			Reviewer:                         item.Reviewer,
+			CandidateKey:                     item.CandidateKey,
+			TargetLayer:                      item.TargetLayer,
+			TargetKind:                       item.TargetKind,
+			TargetRef:                        item.TargetRef,
+			SourceEvalIDs:                    sliceOrEmpty(item.SourceEvalIDs),
+			RiskTier:                         item.RiskTier,
+			ProposedScope:                    item.ProposedScope,
+			EvidenceArtifactIDs:              sliceOrEmpty(item.EvidenceArtifactIDs),
+			ActiveSlotConsuming:              item.ActiveSlotConsuming,
+			ReviewDeadline:                   item.ReviewDeadline,
+			PriorSimilarProposalIDs:          sliceOrEmpty(item.PriorSimilarProposalIDs),
+			NewEvidenceSinceLastRejection:    item.NewEvidenceSinceLastRejection,
+			RecommendedInterventionKind:      item.RecommendedInterventionKind,
+			RecommendedInterventionRationale: item.RecommendedInterventionRationale,
+			TargetSurface:                    item.TargetSurface,
+			TouchedFiles:                     sliceOrEmpty(item.TouchedFiles),
+			ValidationPlan:                   item.ValidationPlan,
+			MaterialRiskSummary:              item.MaterialRiskSummary,
+			RecommendedDisposition:           item.RecommendedDisposition,
+			CreatedAt:                        item.CreatedAt,
 		}
 		if job, ok := latestJobs[item.ID]; ok {
 			summary.RepoChangeStatus = job.Status

@@ -119,6 +119,9 @@ func ensureApprovedProposalWork(store storepkg.Store, trace events.Trace, reques
 	if !ok {
 		return nil
 	}
+	if !review.ProposalExecutableIntervention(proposal.RecommendedInterventionKind) {
+		return nil
+	}
 	if hasLiveProposalQueueWork(store, proposal.ID) || hasInFlightRepoChange(store, proposal.ID) {
 		return nil
 	}
@@ -150,10 +153,10 @@ func ensureApprovedProposalWork(store storepkg.Store, trace events.Trace, reques
 		CreatedAt:      time.Now().UTC(),
 		UpdatedAt:      time.Now().UTC(),
 		Payload: map[string]any{
-			"candidate_key": candidate.CandidateKey,
-			"risk_tier":     proposal.RiskTier,
+			"candidate_key":  candidate.CandidateKey,
+			"risk_tier":      proposal.RiskTier,
 			"attempt_number": nextAttemptNumber,
-			"trigger":       string(improvement.AttemptTriggerOperatorRetry),
+			"trigger":        string(improvement.AttemptTriggerOperatorRetry),
 		},
 	})
 	return err
@@ -207,11 +210,14 @@ func ensureProposalAttempt(cfg config.Config, store storepkg.Store, proposal rev
 		TargetKind:      proposal.TargetKind,
 		TargetRef:       proposal.TargetRef,
 		Trigger:         trigger,
-		State:           improvement.AttemptStatePlanning,
+		State:           improvement.AttemptStatePatchPlan,
 		ParentAttemptID: parentAttemptID,
 		BranchName:      buildAttemptBranchName(proposal.ID, nextNumber),
 		CreatedAt:       time.Now().UTC(),
 		UpdatedAt:       time.Now().UTC(),
+	}
+	if proposal.RecommendedInterventionKind == review.InterventionHarnessOverlay {
+		attempt.State = improvement.AttemptStateOverlayPlan
 	}
 	attempt.ID = fmt.Sprintf("attempt-%s-%02d", strings.ReplaceAll(strings.TrimSpace(proposal.ID), "/", "-"), nextNumber)
 	description := fmt.Sprintf("Queued remediation attempt %d for proposal %s triggered by %s.", nextNumber, proposal.ID, trigger)
@@ -311,6 +317,7 @@ func isAttemptTerminal(state improvement.ChangeAttemptState) bool {
 	case improvement.AttemptStateSandboxFailed,
 		improvement.AttemptStateCIFailed,
 		improvement.AttemptStateClosedUnmerged,
+		improvement.AttemptStateOverlayActive,
 		improvement.AttemptStateMerged,
 		improvement.AttemptStateNeedsReview,
 		improvement.AttemptStateAbandoned,

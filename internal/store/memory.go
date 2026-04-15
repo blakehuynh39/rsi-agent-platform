@@ -2400,30 +2400,39 @@ func (s *MemoryStore) promoteCandidatesLocked(requestedBy string, limit int) (Pr
 		if rejectedRecently(s.proposalMemory, candidate.CandidateKey) && !candidate.NewEvidenceSinceLastRejection {
 			continue
 		}
+		kind := review.RecommendProposalIntervention(candidate)
+		targetSurface := review.ProposalTargetSurfaceFromCandidate(candidate)
 		proposal := review.Proposal{
-			ID:                            nextID("proposal", len(s.proposals)+1),
-			TraceID:                       candidate.LatestTraceID,
-			ConversationID:                candidate.ConversationID,
-			CaseID:                        candidate.CaseID,
-			OriginTraceID:                 firstNonEmpty(candidate.OriginTraceID, candidate.LatestTraceID),
-			EvidenceTraceIDs:              append([]string(nil), candidate.EvidenceTraceIDs...),
-			Title:                         proposalTitle(candidate),
-			Category:                      candidate.InterventionType,
-			Summary:                       candidate.Hypothesis,
-			Status:                        review.ProposalPendingReview,
-			CandidateKey:                  candidate.CandidateKey,
-			TargetLayer:                   candidate.TargetLayer,
-			TargetKind:                    candidate.TargetKind,
-			TargetRef:                     candidate.TargetRef,
-			SourceEvalIDs:                 append([]string(nil), candidate.SourceEvalIDs...),
-			RiskTier:                      string(candidate.RiskTier),
-			ProposedScope:                 candidate.ProposedScope,
-			EvidenceArtifactIDs:           append([]string(nil), candidate.EvidenceArtifactIDs...),
-			ActiveSlotConsuming:           true,
-			ReviewDeadline:                now.Add(proposalReviewSLA),
-			PriorSimilarProposalIDs:       append([]string(nil), candidate.PriorSimilarProposalIDs...),
-			NewEvidenceSinceLastRejection: candidate.NewEvidenceSinceLastRejection,
-			CreatedAt:                     now,
+			ID:                               nextID("proposal", len(s.proposals)+1),
+			TraceID:                          candidate.LatestTraceID,
+			ConversationID:                   candidate.ConversationID,
+			CaseID:                           candidate.CaseID,
+			OriginTraceID:                    firstNonEmpty(candidate.OriginTraceID, candidate.LatestTraceID),
+			EvidenceTraceIDs:                 append([]string(nil), candidate.EvidenceTraceIDs...),
+			Title:                            proposalTitle(candidate),
+			Category:                         candidate.InterventionType,
+			Summary:                          candidate.Hypothesis,
+			Status:                           review.ProposalPendingReview,
+			CandidateKey:                     candidate.CandidateKey,
+			TargetLayer:                      candidate.TargetLayer,
+			TargetKind:                       candidate.TargetKind,
+			TargetRef:                        candidate.TargetRef,
+			SourceEvalIDs:                    append([]string(nil), candidate.SourceEvalIDs...),
+			RiskTier:                         string(candidate.RiskTier),
+			ProposedScope:                    candidate.ProposedScope,
+			EvidenceArtifactIDs:              append([]string(nil), candidate.EvidenceArtifactIDs...),
+			ActiveSlotConsuming:              true,
+			ReviewDeadline:                   now.Add(proposalReviewSLA),
+			PriorSimilarProposalIDs:          append([]string(nil), candidate.PriorSimilarProposalIDs...),
+			NewEvidenceSinceLastRejection:    candidate.NewEvidenceSinceLastRejection,
+			RecommendedInterventionKind:      kind,
+			RecommendedInterventionRationale: review.ProposalInterventionRationale(candidate, kind, targetSurface),
+			TargetSurface:                    targetSurface,
+			TouchedFiles:                     []string{},
+			ValidationPlan:                   review.ProposalValidationPlan(kind, targetSurface),
+			MaterialRiskSummary:              review.ProposalRiskSummary(string(candidate.RiskTier), targetSurface, kind),
+			RecommendedDisposition:           review.ProposalDispositionForIntervention(kind),
+			CreatedAt:                        now,
 		}
 		s.proposals[proposal.ID] = proposal
 		candidate.Status = improvement.CandidatePromoted
@@ -2527,7 +2536,10 @@ func (s *MemoryStore) ReviewProposal(proposalID string, decision review.Proposal
 		return review.Proposal{}, errors.New("proposal not found")
 	}
 	decision.ProposalID = proposalID
-	decision.IdempotencyKey = proposalDecisionIdempotencyKey(proposalID, decision.Decision)
+	decision.IdempotencyKey = proposalDecisionIdempotencyKey(proposalID, decision.Decision, decision.Scope)
+	if decision.Scope == "" {
+		decision.Scope = review.FeedbackScopeLine
+	}
 	for _, existing := range proposal.Reviews {
 		if existing.IdempotencyKey == decision.IdempotencyKey {
 			return proposal, nil
@@ -2580,36 +2592,38 @@ func (s *MemoryStore) ReviewProposal(proposalID string, decision review.Proposal
 		candidate.LineStatus = improvement.LineActive
 		candidate.AutoRetryBudgetRemaining = proposal.AutoRetryBudgetRemaining
 		candidate.CurrentTargetLayer = proposal.TargetLayer
-		nextAttemptNumber := maxInt(1, proposal.AttemptCount+1)
-		_, _, _, _ = s.ensureOperationWorkItemLocked(operation.Execution{
-			ScopeKind:     operation.ScopeProposal,
-			ScopeID:       proposal.ID,
-			OperationKind: "line_activate",
-			OperationKey:  fmt.Sprintf("attempt-%02d", nextAttemptNumber),
-			Status:        operation.StatusQueued,
-			Queue:         queue.ProposalQueue,
-			RequestedBy:   decision.ReviewerID,
-			TraceID:       proposal.TraceID,
-			ProposalID:    proposal.ID,
-		}, queue.WorkItem{
-			Queue:          queue.ProposalQueue,
-			Kind:           "approved_proposal",
-			Status:         queue.WorkQueued,
-			TraceID:        proposal.TraceID,
-			ConversationID: proposal.ConversationID,
-			CaseID:         proposal.CaseID,
-			TriggerEventID: proposal.OriginTraceID,
-			ProposalID:     proposal.ID,
-			RequestedBy:    decision.ReviewerID,
-			ApprovalMode:   "human_review",
-			CreatedAt:      decision.CreatedAt,
-			UpdatedAt:      decision.CreatedAt,
-			Payload: map[string]interface{}{
-				"candidate_key": proposal.CandidateKey,
-				"risk_tier":     proposal.RiskTier,
-				"attempt_number": nextAttemptNumber,
-			},
-		})
+		if review.ProposalExecutableIntervention(proposal.RecommendedInterventionKind) {
+			nextAttemptNumber := maxInt(1, proposal.AttemptCount+1)
+			_, _, _, _ = s.ensureOperationWorkItemLocked(operation.Execution{
+				ScopeKind:     operation.ScopeProposal,
+				ScopeID:       proposal.ID,
+				OperationKind: "line_activate",
+				OperationKey:  fmt.Sprintf("attempt-%02d", nextAttemptNumber),
+				Status:        operation.StatusQueued,
+				Queue:         queue.ProposalQueue,
+				RequestedBy:   decision.ReviewerID,
+				TraceID:       proposal.TraceID,
+				ProposalID:    proposal.ID,
+			}, queue.WorkItem{
+				Queue:          queue.ProposalQueue,
+				Kind:           "approved_proposal",
+				Status:         queue.WorkQueued,
+				TraceID:        proposal.TraceID,
+				ConversationID: proposal.ConversationID,
+				CaseID:         proposal.CaseID,
+				TriggerEventID: proposal.OriginTraceID,
+				ProposalID:     proposal.ID,
+				RequestedBy:    decision.ReviewerID,
+				ApprovalMode:   "human_review",
+				CreatedAt:      decision.CreatedAt,
+				UpdatedAt:      decision.CreatedAt,
+				Payload: map[string]interface{}{
+					"candidate_key":  proposal.CandidateKey,
+					"risk_tier":      proposal.RiskTier,
+					"attempt_number": nextAttemptNumber,
+				},
+			})
+		}
 	case review.ProposalRejected, review.ProposalDismissed:
 		candidate.Status = improvement.CandidateNeedsEvidence
 		candidate.LineStatus = improvement.LineClosed
@@ -2665,6 +2679,9 @@ func (s *MemoryStore) MaterializeApprovedProposal(proposalID string, requestedBy
 	if proposal.Status != review.ProposalApproved && proposal.Status != review.ProposalRepoChangeQueued && proposal.Status != review.ProposalRepoChangeRunning && proposal.Status != review.ProposalValidationPending && proposal.Status != review.ProposalPROpen {
 		return improvement.RepoChangeJob{}, fmt.Errorf("proposal %s is not approved for materialization", proposal.Status)
 	}
+	if !review.ProposalExecutableIntervention(proposal.RecommendedInterventionKind) {
+		return improvement.RepoChangeJob{}, fmt.Errorf("proposal %s recommends %s and cannot materialize a repo change", proposal.ID, proposal.RecommendedInterventionKind)
+	}
 	attempt, ok := s.changeAttempts[proposal.CurrentAttemptID]
 	if !ok {
 		for _, item := range s.changeAttempts {
@@ -2686,7 +2703,7 @@ func (s *MemoryStore) MaterializeApprovedProposal(proposalID string, requestedBy
 			TargetKind:     proposal.TargetKind,
 			TargetRef:      proposal.TargetRef,
 			Trigger:        improvement.AttemptTriggerProposalApproved,
-			State:          improvement.AttemptStatePlanning,
+			State:          improvement.AttemptStatePatchPlan,
 			AttemptTraceID: firstNonEmpty(proposal.OriginTraceID, proposal.TraceID),
 			BranchName:     fmt.Sprintf("codex/%s/attempt-%02d", proposal.ID, maxInt(1, proposal.AttemptCount+1)),
 			CreatedAt:      now,
@@ -2920,7 +2937,7 @@ func (s *MemoryStore) RetryProposalRepoChange(proposalID string, requestedBy str
 }
 
 func buildRepoChangeContext(proposal review.Proposal, memories []review.ProposalMemory) string {
-	context := fmt.Sprintf("Proposal %s targets %s with scope %s.", proposal.ID, proposal.CandidateKey, proposal.ProposedScope)
+	context := fmt.Sprintf("Proposal %s recommends %s on %s. Rationale: %s.", proposal.ID, firstNonEmpty(string(proposal.RecommendedInterventionKind), string(review.InterventionRepoChange)), firstNonEmpty(proposal.TargetSurface, proposal.ProposedScope), firstNonEmpty(proposal.RecommendedInterventionRationale, proposal.Summary))
 	for _, memory := range memories {
 		if memory.CandidateKey == proposal.CandidateKey && (memory.Disposition == review.ProposalRejected || memory.Disposition == review.ProposalDismissed) {
 			context += fmt.Sprintf(" Prior %s rationale: %s.", memory.Disposition, memory.ReviewRationale)

@@ -33,6 +33,22 @@ func ConsumesActiveProposalSlot(status ProposalStatus) bool {
 	}
 }
 
+type ProposalInterventionKind string
+
+const (
+	InterventionRepoChange     ProposalInterventionKind = "repo_change"
+	InterventionHarnessOverlay ProposalInterventionKind = "harness_overlay"
+	InterventionNeedsEvidence  ProposalInterventionKind = "needs_evidence"
+	InterventionCloseLine      ProposalInterventionKind = "close_line"
+)
+
+type ProposalFeedbackScope string
+
+const (
+	FeedbackScopeLine    ProposalFeedbackScope = "line"
+	FeedbackScopeAttempt ProposalFeedbackScope = "attempt"
+)
+
 type HumanRating struct {
 	TraceID    string    `json:"trace_id"`
 	Score      int       `json:"score"`
@@ -80,51 +96,59 @@ type FeedbackRecord struct {
 }
 
 type Proposal struct {
-	ID                            string              `json:"id"`
-	TraceID                       string              `json:"trace_id"`
-	ConversationID                string              `json:"conversation_id,omitempty"`
-	CaseID                        string              `json:"case_id,omitempty"`
-	OriginTraceID                 string              `json:"origin_trace_id,omitempty"`
-	EvidenceTraceIDs              []string            `json:"evidence_trace_ids,omitempty"`
-	Title                         string              `json:"title"`
-	Category                      string              `json:"category"`
-	Summary                       string              `json:"summary"`
-	Status                        ProposalStatus      `json:"status"`
-	Reviewer                      string              `json:"reviewer,omitempty"`
-	CandidateKey                  string              `json:"candidate_key"`
-	TargetLayer                   harness.TargetLayer `json:"target_layer"`
-	TargetKind                    string              `json:"target_kind,omitempty"`
-	TargetRef                     string              `json:"target_ref,omitempty"`
-	SourceEvalIDs                 []string            `json:"source_eval_ids,omitempty"`
-	RiskTier                      string              `json:"risk_tier,omitempty"`
-	ProposedScope                 string              `json:"proposed_scope,omitempty"`
-	EvidenceArtifactIDs           []string            `json:"evidence_artifact_ids,omitempty"`
-	ActiveSlotConsuming           bool                `json:"active_slot_consuming"`
-	ReviewDeadline                time.Time           `json:"review_deadline,omitempty"`
-	PriorSimilarProposalIDs       []string            `json:"prior_similar_proposal_ids,omitempty"`
-	NewEvidenceSinceLastRejection bool                `json:"new_evidence_since_last_rejection"`
-	CurrentAttemptID              string              `json:"current_attempt_id,omitempty"`
-	AttemptCount                  int                 `json:"attempt_count,omitempty"`
-	AutoRetryBudgetRemaining      int                 `json:"auto_retry_budget_remaining,omitempty"`
-	LastFailureClass              string              `json:"last_failure_class,omitempty"`
-	NextRetryAction               string              `json:"next_retry_action,omitempty"`
-	LineStoppedBy                 string              `json:"line_stopped_by,omitempty"`
-	LineStopReason                string              `json:"line_stop_reason,omitempty"`
-	LineStoppedAt                 *time.Time          `json:"line_stopped_at,omitempty"`
-	CreatedAt                     time.Time           `json:"created_at"`
-	Reviews                       []ProposalReview    `json:"reviews,omitempty"`
+	ID                               string                   `json:"id"`
+	TraceID                          string                   `json:"trace_id"`
+	ConversationID                   string                   `json:"conversation_id,omitempty"`
+	CaseID                           string                   `json:"case_id,omitempty"`
+	OriginTraceID                    string                   `json:"origin_trace_id,omitempty"`
+	EvidenceTraceIDs                 []string                 `json:"evidence_trace_ids,omitempty"`
+	Title                            string                   `json:"title"`
+	Category                         string                   `json:"category"`
+	Summary                          string                   `json:"summary"`
+	Status                           ProposalStatus           `json:"status"`
+	Reviewer                         string                   `json:"reviewer,omitempty"`
+	CandidateKey                     string                   `json:"candidate_key"`
+	TargetLayer                      harness.TargetLayer      `json:"target_layer"`
+	TargetKind                       string                   `json:"target_kind,omitempty"`
+	TargetRef                        string                   `json:"target_ref,omitempty"`
+	SourceEvalIDs                    []string                 `json:"source_eval_ids,omitempty"`
+	RiskTier                         string                   `json:"risk_tier,omitempty"`
+	ProposedScope                    string                   `json:"proposed_scope,omitempty"`
+	EvidenceArtifactIDs              []string                 `json:"evidence_artifact_ids,omitempty"`
+	ActiveSlotConsuming              bool                     `json:"active_slot_consuming"`
+	ReviewDeadline                   time.Time                `json:"review_deadline,omitempty"`
+	PriorSimilarProposalIDs          []string                 `json:"prior_similar_proposal_ids,omitempty"`
+	NewEvidenceSinceLastRejection    bool                     `json:"new_evidence_since_last_rejection"`
+	CurrentAttemptID                 string                   `json:"current_attempt_id,omitempty"`
+	AttemptCount                     int                      `json:"attempt_count,omitempty"`
+	AutoRetryBudgetRemaining         int                      `json:"auto_retry_budget_remaining,omitempty"`
+	LastFailureClass                 string                   `json:"last_failure_class,omitempty"`
+	NextRetryAction                  string                   `json:"next_retry_action,omitempty"`
+	LineStoppedBy                    string                   `json:"line_stopped_by,omitempty"`
+	LineStopReason                   string                   `json:"line_stop_reason,omitempty"`
+	LineStoppedAt                    *time.Time               `json:"line_stopped_at,omitempty"`
+	RecommendedInterventionKind      ProposalInterventionKind `json:"recommended_intervention_kind,omitempty"`
+	RecommendedInterventionRationale string                   `json:"recommended_intervention_rationale,omitempty"`
+	TargetSurface                    string                   `json:"target_surface,omitempty"`
+	TouchedFiles                     []string                 `json:"touched_files,omitempty"`
+	ValidationPlan                   string                   `json:"validation_plan,omitempty"`
+	MaterialRiskSummary              string                   `json:"material_risk_summary,omitempty"`
+	RecommendedDisposition           string                   `json:"recommended_disposition,omitempty"`
+	CreatedAt                        time.Time                `json:"created_at"`
+	Reviews                          []ProposalReview         `json:"reviews,omitempty"`
 }
 
 type ProposalReview struct {
-	ID             int64     `json:"id"`
-	ProposalID     string    `json:"proposal_id"`
-	IdempotencyKey string    `json:"idempotency_key,omitempty"`
-	Decision       string    `json:"decision"`
-	Rationale      string    `json:"rationale"`
-	ReviewerID     string    `json:"reviewer_id"`
-	FailureClass   string    `json:"failure_class,omitempty"`
-	FailureClasses []string  `json:"failure_classes,omitempty"`
-	CreatedAt      time.Time `json:"created_at"`
+	ID             int64                 `json:"id"`
+	ProposalID     string                `json:"proposal_id"`
+	IdempotencyKey string                `json:"idempotency_key,omitempty"`
+	Decision       string                `json:"decision"`
+	Scope          ProposalFeedbackScope `json:"scope,omitempty"`
+	Rationale      string                `json:"rationale"`
+	ReviewerID     string                `json:"reviewer_id"`
+	FailureClass   string                `json:"failure_class,omitempty"`
+	FailureClasses []string              `json:"failure_classes,omitempty"`
+	CreatedAt      time.Time             `json:"created_at"`
 }
 
 type ProposalMemory struct {

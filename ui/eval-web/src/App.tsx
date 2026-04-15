@@ -318,6 +318,7 @@ export function App() {
     mutationFn: (decision: string) =>
       postJSON(`/api/proposals/${viewState.proposal}/decision`, {
         decision,
+        scope: "line",
         rationale: proposalRationale || `UI operator recorded ${decision}.`,
         reviewer_id: "ui-operator",
         failure_class: decision === "rejected" ? "insufficient_evidence" : ""
@@ -589,16 +590,16 @@ export function App() {
                       <div className="list-card-header">
                         <div>
                           <strong>{proposal.title}</strong>
-                          <p>{proposal.status} · {proposal.candidate_key}</p>
+                          <p>{proposal.status} · {proposal.recommended_intervention_kind || "repo_change"} · {proposal.candidate_key}</p>
                         </div>
                         <span className="status-chip">{proposal.pr_status || proposal.repo_change_status || proposal.status}</span>
                       </div>
                       <p className="trace-thread">{proposal.summary}</p>
                     <dl className="mini-metrics">
                       <div><dt>Risk</dt><dd>{proposal.risk_tier || "n/a"}</dd></div>
-                      <div><dt>Target</dt><dd>{proposal.target_layer || "repo_change"}</dd></div>
+                      <div><dt>Target</dt><dd>{proposal.target_surface || proposal.target_layer || "repo_change"}</dd></div>
                       <div><dt>Slot</dt><dd>{proposal.active_slot_consuming ? "occupied" : "free"}</dd></div>
-                      <div><dt>PR</dt><dd>{proposal.pr_url ? "linked" : "none"}</dd></div>
+                      <div><dt>Disposition</dt><dd>{proposal.recommended_disposition || "approve_intervention"}</dd></div>
                     </dl>
                     </button>
                   );
