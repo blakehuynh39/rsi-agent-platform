@@ -3864,9 +3864,36 @@ func (p *PostgresStore) RetryProposalRepoChange(proposalID string, requestedBy s
 	if item, queued, err := p.ReconcileProposalAttemptPhase(proposalID, requestedBy); err != nil {
 		return queue.WorkItem{}, err
 	} else if queued || item.ID != "" {
-		return item, nil
+		return p.normalizeRetryProposalWorkItem(proposalID, item), nil
 	}
-	return p.retryProposalRepoChangeDirect(proposalID, requestedBy)
+	item, err := p.retryProposalRepoChangeDirect(proposalID, requestedBy)
+	if err != nil {
+		return queue.WorkItem{}, err
+	}
+	return p.normalizeRetryProposalWorkItem(proposalID, item), nil
+}
+
+func (p *PostgresStore) normalizeRetryProposalWorkItem(proposalID string, fallback queue.WorkItem) queue.WorkItem {
+	store, err := p.readStore()
+	if err != nil {
+		return fallback
+	}
+	for _, proposal := range store.ListProposals() {
+		if proposal.ID != proposalID {
+			continue
+		}
+		currentAttemptID := strings.TrimSpace(proposal.CurrentAttemptID)
+		if currentAttemptID == "" {
+			return fallback
+		}
+		if active, ok := activeRepoChangeResumeOperation(store.ListOperationsByScope(operation.ScopeAttempt, currentAttemptID)); ok {
+			if item, ok := queuedOrLeasedWorkItemByOperation(store.ListWorkItems(), active.ID); ok {
+				return item
+			}
+		}
+		return fallback
+	}
+	return fallback
 }
 
 func (p *PostgresStore) ListRepoChangeJobs() []improvement.RepoChangeJob {
