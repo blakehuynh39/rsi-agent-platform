@@ -97,6 +97,7 @@ type FeedbackRecord struct {
 
 type Proposal struct {
 	ID                               string                   `json:"id"`
+	Version                          int64                    `json:"version,omitempty"`
 	TraceID                          string                   `json:"trace_id"`
 	ConversationID                   string                   `json:"conversation_id,omitempty"`
 	CaseID                           string                   `json:"case_id,omitempty"`

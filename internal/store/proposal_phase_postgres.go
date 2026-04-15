@@ -79,6 +79,12 @@ func persistProposalAttemptPhaseMutationTx(tx *sql.Tx, store *MemoryStore, resul
 			return err
 		}
 	}
+	if err := persistDomainEvents(tx, result.Transition.Events); err != nil {
+		return err
+	}
+	if err := persistEffectExecutions(tx, result.Transition.Effects); err != nil {
+		return err
+	}
 	return nil
 }
 

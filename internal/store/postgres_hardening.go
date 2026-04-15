@@ -230,7 +230,7 @@ func (p *PostgresStore) recordPRAttemptDirect(attempt improvement.PRAttempt) (it
 }
 
 func selectProposalTx(tx *sql.Tx, proposalID string, forUpdate bool) (review.Proposal, error) {
-	query := `select id, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, target_layer, target_kind, target_ref, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, current_attempt_id, attempt_count, auto_retry_budget_remaining, last_failure_class, next_retry_action, line_stopped_by, line_stop_reason, line_stopped_at, recommended_intervention_kind, recommended_intervention_rationale, target_surface, touched_files, validation_plan, material_risk_summary, recommended_disposition, created_at from proposal where id = $1`
+	query := `select id, version, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, target_layer, target_kind, target_ref, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, current_attempt_id, attempt_count, auto_retry_budget_remaining, last_failure_class, next_retry_action, line_stopped_by, line_stop_reason, line_stopped_at, recommended_intervention_kind, recommended_intervention_rationale, target_surface, touched_files, validation_plan, material_risk_summary, recommended_disposition, created_at from proposal where id = $1`
 	if forUpdate {
 		query += ` for update`
 	}
@@ -239,7 +239,7 @@ func selectProposalTx(tx *sql.Tx, proposalID string, forUpdate bool) (review.Pro
 	var conversationID, caseID, originTraceID, reviewer, targetKind, targetRef, currentAttemptID, lastFailureClass, nextRetryAction, lineStoppedBy, lineStopReason, recommendedKind, recommendedRationale, targetSurface, validationPlan, materialRiskSummary, recommendedDisposition sql.NullString
 	var evidenceTraceIDs, sourceEvalIDs, evidenceArtifactIDs, priorSimilarProposalIDs, touchedFiles []byte
 	var reviewDeadline, lineStoppedAt sql.NullTime
-	err := tx.QueryRow(query, proposalID).Scan(&item.ID, &item.TraceID, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Title, &item.Category, &item.Summary, &status, &reviewer, &item.CandidateKey, &targetLayer, &targetKind, &targetRef, &sourceEvalIDs, &item.RiskTier, &item.ProposedScope, &evidenceArtifactIDs, &item.ActiveSlotConsuming, &reviewDeadline, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &currentAttemptID, &item.AttemptCount, &item.AutoRetryBudgetRemaining, &lastFailureClass, &nextRetryAction, &lineStoppedBy, &lineStopReason, &lineStoppedAt, &recommendedKind, &recommendedRationale, &targetSurface, &touchedFiles, &validationPlan, &materialRiskSummary, &recommendedDisposition, &item.CreatedAt)
+	err := tx.QueryRow(query, proposalID).Scan(&item.ID, &item.Version, &item.TraceID, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Title, &item.Category, &item.Summary, &status, &reviewer, &item.CandidateKey, &targetLayer, &targetKind, &targetRef, &sourceEvalIDs, &item.RiskTier, &item.ProposedScope, &evidenceArtifactIDs, &item.ActiveSlotConsuming, &reviewDeadline, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &currentAttemptID, &item.AttemptCount, &item.AutoRetryBudgetRemaining, &lastFailureClass, &nextRetryAction, &lineStoppedBy, &lineStopReason, &lineStoppedAt, &recommendedKind, &recommendedRationale, &targetSurface, &touchedFiles, &validationPlan, &materialRiskSummary, &recommendedDisposition, &item.CreatedAt)
 	if err != nil {
 		return review.Proposal{}, err
 	}
@@ -279,7 +279,7 @@ func selectProposalTx(tx *sql.Tx, proposalID string, forUpdate bool) (review.Pro
 
 func updateProposalOperationalStateTx(tx *sql.Tx, item review.Proposal) error {
 	item = normalizeProposalTargetFields(item)
-	_, err := tx.Exec(`update proposal set reviewer = $2, status = $3, active_slot_consuming = $4, current_attempt_id = $5, attempt_count = $6, auto_retry_budget_remaining = $7, last_failure_class = $8, next_retry_action = $9, line_stopped_by = $10, line_stop_reason = $11, line_stopped_at = $12, recommended_intervention_kind = $13, recommended_intervention_rationale = $14, target_surface = $15, touched_files = $16::jsonb, validation_plan = $17, material_risk_summary = $18, recommended_disposition = $19 where id = $1`,
+	_, err := tx.Exec(`update proposal set reviewer = $2, status = $3, active_slot_consuming = $4, current_attempt_id = $5, attempt_count = $6, auto_retry_budget_remaining = $7, last_failure_class = $8, next_retry_action = $9, line_stopped_by = $10, line_stop_reason = $11, line_stopped_at = $12, recommended_intervention_kind = $13, recommended_intervention_rationale = $14, target_surface = $15, touched_files = $16::jsonb, validation_plan = $17, material_risk_summary = $18, recommended_disposition = $19, version = version + 1 where id = $1`,
 		item.ID,
 		nullString(item.Reviewer),
 		string(item.Status),

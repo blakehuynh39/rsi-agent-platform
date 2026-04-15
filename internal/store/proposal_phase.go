@@ -10,6 +10,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/operation"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
+	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
 type ProposalAttemptPhaseAdvance struct {
@@ -58,16 +59,17 @@ type ProposalAttemptPhaseFailure struct {
 }
 
 type proposalAttemptPhaseMutationResult struct {
-	ProposalID      string
-	CandidateKey    string
-	AttemptID       string
-	WorkspaceID     string
-	TraceID         string
-	CurrentWorkItem string
+	ProposalID       string
+	CandidateKey     string
+	AttemptID        string
+	WorkspaceID      string
+	TraceID          string
+	CurrentWorkItem  string
 	CurrentOperation string
-	NextWorkItem    string
-	NextOperation   string
-	RepoJobTouched  bool
+	NextWorkItem     string
+	NextOperation    string
+	RepoJobTouched   bool
+	Transition       transitionPersistBundle
 }
 
 func (s *MemoryStore) AdvanceProposalAttemptPhase(req ProposalAttemptPhaseAdvance) error {
@@ -145,8 +147,16 @@ func (s *MemoryStore) upsertProposalLocked(item review.Proposal) review.Proposal
 		if len(item.Reviews) == 0 && len(existing.Reviews) > 0 {
 			item.Reviews = append([]review.ProposalReview(nil), existing.Reviews...)
 		}
+		if item.Version <= existing.Version {
+			item.Version = existing.Version + 1
+		}
 	} else if item.CreatedAt.IsZero() {
 		item.CreatedAt = now
+		if item.Version == 0 {
+			item.Version = 1
+		}
+	} else if item.Version == 0 {
+		item.Version = 1
 	}
 	item.ActiveSlotConsuming = review.ConsumesActiveProposalSlot(item.Status)
 	item = normalizeProposalTargetFields(item)
@@ -165,6 +175,13 @@ func (s *MemoryStore) upsertChangeAttemptLocked(item improvement.ChangeAttempt) 
 	if item.UpdatedAt.IsZero() {
 		item.UpdatedAt = item.CreatedAt
 	}
+	if existing, ok := s.changeAttempts[item.ID]; ok {
+		if item.Version <= existing.Version {
+			item.Version = existing.Version + 1
+		}
+	} else if item.Version == 0 {
+		item.Version = 1
+	}
 	item = normalizeChangeAttempt(item)
 	s.changeAttempts[item.ID] = item
 	if proposal, ok := s.proposals[item.ProposalID]; ok {
@@ -175,6 +192,11 @@ func (s *MemoryStore) upsertChangeAttemptLocked(item improvement.ChangeAttempt) 
 		proposal.AutoRetryBudgetRemaining = maxInt(0, defaultProposalRetryBudget-item.AttemptNumber)
 		proposal.LastFailureClass = item.FailureClass
 		proposal.NextRetryAction = item.RetryDecision
+		if proposal.Version == 0 {
+			proposal.Version = 1
+		} else {
+			proposal.Version++
+		}
 		s.proposals[proposal.ID] = normalizeProposalTargetFields(proposal)
 	}
 	if candidate, ok := s.candidates[item.CandidateKey]; ok {
@@ -234,6 +256,11 @@ func (s *MemoryStore) updateProposalStatusLocked(proposalID string, status revie
 	}
 	proposal.Status = status
 	proposal.ActiveSlotConsuming = review.ConsumesActiveProposalSlot(status)
+	if proposal.Version == 0 {
+		proposal.Version = 1
+	} else {
+		proposal.Version++
+	}
 	s.proposals[proposalID] = normalizeProposalTargetFields(proposal)
 	return s.proposals[proposalID], nil
 }
@@ -289,6 +316,10 @@ func (s *MemoryStore) advanceProposalAttemptPhaseLocked(req ProposalAttemptPhase
 	if err != nil {
 		return proposalAttemptPhaseMutationResult{}, err
 	}
+	currentProposal, currentAttempt, err := proposalTransitionSnapshots(firstNonEmpty(strings.TrimSpace(req.ProposalID), currentItem.ProposalID, currentOp.ProposalID), firstNonEmpty(currentOp.AttemptID), s.proposals, s.changeAttempts)
+	if err != nil && strings.TrimSpace(currentOp.AttemptID) != "" {
+		return proposalAttemptPhaseMutationResult{}, err
+	}
 	if (req.NextOperation == nil) != (req.NextWorkItem == nil) {
 		return proposalAttemptPhaseMutationResult{}, fmt.Errorf("proposal phase advance must provide both next operation and next work item")
 	}
@@ -336,12 +367,65 @@ func (s *MemoryStore) advanceProposalAttemptPhaseLocked(req ProposalAttemptPhase
 	currentOp.UpdatedAt = now
 	currentOp.CompletedAt = &now
 	s.operations[currentOp.ID] = currentOp
+	updatedProposal, updatedAttempt, err := proposalTransitionSnapshots(firstNonEmpty(result.ProposalID, currentItem.ProposalID, currentOp.ProposalID), firstNonEmpty(result.AttemptID, currentOp.AttemptID), s.proposals, s.changeAttempts)
+	if err != nil && strings.TrimSpace(result.AttemptID) != "" {
+		return result, err
+	}
+	commandKind, err := proposalPhaseAdvanceCommand(currentOp.OperationKind, firstNonEmpty(operationKind(req.NextOperation), workItemKind(req.NextWorkItem)))
+	if err != nil {
+		return result, err
+	}
+	decision := transition.ReduceAttempt(transition.AttemptSnapshot{
+		ProposalStatus:       proposalStatusOr(currentProposal),
+		AttemptState:         attemptStateOr(currentAttempt),
+		CurrentOperationKind: strings.TrimSpace(currentOp.OperationKind),
+	}, transition.CommandEnvelope{
+		MachineKind:     transition.MachineAttempt,
+		AggregateID:     firstNonEmpty(result.AttemptID, currentOp.AttemptID),
+		CommandKind:     string(commandKind),
+		CommandID:       currentOp.ID,
+		CausationID:     currentItem.ID,
+		Actor:           firstNonEmpty(currentItem.RequestedBy, currentOp.RequestedBy),
+		OccurredAt:      now,
+		ExpectedVersion: aggregateVersionOr(currentAttempt),
+	})
+	var nextItem *queue.WorkItem
+	if result.NextWorkItem != "" {
+		if item, ok := s.workItems[result.NextWorkItem]; ok {
+			copy := item
+			nextItem = &copy
+		}
+	}
+	var nextOp *operation.Execution
+	if result.NextOperation != "" {
+		if item, ok := s.operations[result.NextOperation]; ok {
+			copy := item
+			nextOp = &copy
+		}
+	}
+	result.Transition, err = buildTransitionBundle(now, transition.CommandEnvelope{
+		MachineKind:     transition.MachineAttempt,
+		AggregateID:     firstNonEmpty(result.AttemptID, currentOp.AttemptID),
+		CommandKind:     string(commandKind),
+		CommandID:       currentOp.ID,
+		CausationID:     currentItem.ID,
+		Actor:           firstNonEmpty(currentItem.RequestedBy, currentOp.RequestedBy),
+		OccurredAt:      now,
+		ExpectedVersion: aggregateVersionOr(currentAttempt),
+	}, decision, updatedProposal, updatedAttempt, currentItem, currentOp, nextItem, nextOp, "")
+	if err != nil {
+		return result, err
+	}
 	return result, nil
 }
 
 func (s *MemoryStore) deferProposalAttemptPhaseLocked(req ProposalAttemptPhaseDefer) (proposalAttemptPhaseMutationResult, error) {
 	currentItem, currentOp, err := s.currentProposalPhaseWorkLocked(req.WorkItemID, req.OperationID)
 	if err != nil {
+		return proposalAttemptPhaseMutationResult{}, err
+	}
+	currentProposal, currentAttempt, err := proposalTransitionSnapshots(firstNonEmpty(strings.TrimSpace(req.ProposalID), currentItem.ProposalID, currentOp.ProposalID), firstNonEmpty(currentOp.AttemptID), s.proposals, s.changeAttempts)
+	if err != nil && strings.TrimSpace(currentOp.AttemptID) != "" {
 		return proposalAttemptPhaseMutationResult{}, err
 	}
 	result := proposalAttemptPhaseMutationResult{
@@ -392,12 +476,43 @@ func (s *MemoryStore) deferProposalAttemptPhaseLocked(req ProposalAttemptPhaseDe
 	currentOp.UpdatedAt = now
 	currentOp.CompletedAt = nil
 	s.operations[currentOp.ID] = currentOp
+	updatedProposal, updatedAttempt, err := proposalTransitionSnapshots(firstNonEmpty(result.ProposalID, currentItem.ProposalID, currentOp.ProposalID), firstNonEmpty(result.AttemptID, currentOp.AttemptID), s.proposals, s.changeAttempts)
+	if err != nil && strings.TrimSpace(result.AttemptID) != "" {
+		return result, err
+	}
+	commandKind, err := proposalPhaseDeferCommand(currentOp.OperationKind)
+	if err != nil {
+		return result, err
+	}
+	command := transition.CommandEnvelope{
+		MachineKind:     transition.MachineAttempt,
+		AggregateID:     firstNonEmpty(result.AttemptID, currentOp.AttemptID),
+		CommandKind:     string(commandKind),
+		CommandID:       currentOp.ID,
+		CausationID:     currentItem.ID,
+		Actor:           firstNonEmpty(currentItem.RequestedBy, currentOp.RequestedBy),
+		OccurredAt:      now,
+		ExpectedVersion: aggregateVersionOr(currentAttempt),
+	}
+	decision := transition.ReduceAttempt(transition.AttemptSnapshot{
+		ProposalStatus:       proposalStatusOr(currentProposal),
+		AttemptState:         attemptStateOr(currentAttempt),
+		CurrentOperationKind: strings.TrimSpace(currentOp.OperationKind),
+	}, command)
+	result.Transition, err = buildTransitionBundle(now, command, decision, updatedProposal, updatedAttempt, currentItem, currentOp, nil, nil, strings.TrimSpace(req.LastError))
+	if err != nil {
+		return result, err
+	}
 	return result, nil
 }
 
 func (s *MemoryStore) failProposalAttemptPhaseLocked(req ProposalAttemptPhaseFailure) (proposalAttemptPhaseMutationResult, error) {
 	currentItem, currentOp, err := s.currentProposalPhaseWorkLocked(req.WorkItemID, req.OperationID)
 	if err != nil {
+		return proposalAttemptPhaseMutationResult{}, err
+	}
+	currentProposal, currentAttempt, err := proposalTransitionSnapshots(firstNonEmpty(strings.TrimSpace(req.ProposalID), currentItem.ProposalID, currentOp.ProposalID), firstNonEmpty(currentOp.AttemptID), s.proposals, s.changeAttempts)
+	if err != nil && strings.TrimSpace(currentOp.AttemptID) != "" {
 		return proposalAttemptPhaseMutationResult{}, err
 	}
 	if (req.NextOperation == nil) != (req.NextWorkItem == nil) {
@@ -447,7 +562,83 @@ func (s *MemoryStore) failProposalAttemptPhaseLocked(req ProposalAttemptPhaseFai
 	currentOp.UpdatedAt = now
 	currentOp.CompletedAt = &now
 	s.operations[currentOp.ID] = currentOp
+	updatedProposal, updatedAttempt, err := proposalTransitionSnapshots(firstNonEmpty(result.ProposalID, currentItem.ProposalID, currentOp.ProposalID), firstNonEmpty(result.AttemptID, currentOp.AttemptID), s.proposals, s.changeAttempts)
+	if err != nil && strings.TrimSpace(result.AttemptID) != "" {
+		return result, err
+	}
+	commandKind, err := proposalPhaseFailureCommand(currentOp.OperationKind, updatedProposal, updatedAttempt)
+	if err != nil {
+		return result, err
+	}
+	command := transition.CommandEnvelope{
+		MachineKind:     transition.MachineAttempt,
+		AggregateID:     firstNonEmpty(result.AttemptID, currentOp.AttemptID),
+		CommandKind:     string(commandKind),
+		CommandID:       currentOp.ID,
+		CausationID:     currentItem.ID,
+		Actor:           firstNonEmpty(currentItem.RequestedBy, currentOp.RequestedBy),
+		OccurredAt:      now,
+		ExpectedVersion: aggregateVersionOr(currentAttempt),
+	}
+	decision := transition.ReduceAttempt(transition.AttemptSnapshot{
+		ProposalStatus:       proposalStatusOr(currentProposal),
+		AttemptState:         attemptStateOr(currentAttempt),
+		CurrentOperationKind: strings.TrimSpace(currentOp.OperationKind),
+	}, command)
+	var nextItem *queue.WorkItem
+	if result.NextWorkItem != "" {
+		if item, ok := s.workItems[result.NextWorkItem]; ok {
+			copy := item
+			nextItem = &copy
+		}
+	}
+	var nextOp *operation.Execution
+	if result.NextOperation != "" {
+		if item, ok := s.operations[result.NextOperation]; ok {
+			copy := item
+			nextOp = &copy
+		}
+	}
+	result.Transition, err = buildTransitionBundle(now, command, decision, updatedProposal, updatedAttempt, currentItem, currentOp, nextItem, nextOp, strings.TrimSpace(req.LastError))
+	if err != nil {
+		return result, err
+	}
 	return result, nil
+}
+
+func proposalStatusOr(item *review.Proposal) review.ProposalStatus {
+	if item == nil {
+		return ""
+	}
+	return item.Status
+}
+
+func attemptStateOr(item *improvement.ChangeAttempt) improvement.ChangeAttemptState {
+	if item == nil {
+		return ""
+	}
+	return item.State
+}
+
+func aggregateVersionOr(item *improvement.ChangeAttempt) int64 {
+	if item == nil {
+		return 0
+	}
+	return item.Version
+}
+
+func operationKind(item *operation.Execution) string {
+	if item == nil {
+		return ""
+	}
+	return strings.TrimSpace(item.OperationKind)
+}
+
+func workItemKind(item *queue.WorkItem) string {
+	if item == nil {
+		return ""
+	}
+	return strings.TrimSpace(item.Kind)
 }
 
 func activePhaseOperationLocked(ops []operation.Execution) (operation.Execution, bool) {
@@ -657,13 +848,13 @@ func (s *MemoryStore) reconcileProposalAttemptPhaseLocked(proposalID string, req
 	if strings.TrimSpace(proposal.CurrentAttemptID) == "" {
 		nextAttemptNumber := maxInt(1, proposal.AttemptCount+1)
 		attempt := improvement.ChangeAttempt{
-			ID:            fmt.Sprintf("attempt-%s-%02d", strings.ReplaceAll(strings.TrimSpace(proposal.ID), "/", "-"), nextAttemptNumber),
-			ProposalID:    proposal.ID,
-			CandidateKey:  proposal.CandidateKey,
-			AttemptNumber: nextAttemptNumber,
-			TargetLayer:   proposal.TargetLayer,
-			TargetKind:    proposal.TargetKind,
-			TargetRef:     proposal.TargetRef,
+			ID:             fmt.Sprintf("attempt-%s-%02d", strings.ReplaceAll(strings.TrimSpace(proposal.ID), "/", "-"), nextAttemptNumber),
+			ProposalID:     proposal.ID,
+			CandidateKey:   proposal.CandidateKey,
+			AttemptNumber:  nextAttemptNumber,
+			TargetLayer:    proposal.TargetLayer,
+			TargetKind:     proposal.TargetKind,
+			TargetRef:      proposal.TargetRef,
 			AttemptTraceID: firstNonEmpty(proposal.TraceID, proposal.OriginTraceID),
 		}
 		op := proposalPhaseOperationTemplate("line_activate", proposal, attempt, requestedBy)

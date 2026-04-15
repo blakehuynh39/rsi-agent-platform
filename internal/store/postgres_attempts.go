@@ -263,7 +263,7 @@ func (p *PostgresStore) CreateDerivedTrace(req DerivedTraceRequest) (events.Trac
 }
 
 func selectChangeAttemptTx(tx *sql.Tx, attemptID string, forUpdate bool) (improvement.ChangeAttempt, error) {
-	query := `select id, proposal_id, candidate_key, attempt_number, target_layer, target_kind, target_ref, trigger, state, attempt_trace_id, parent_attempt_id, branch_name, pr_url, head_sha, failure_class, failure_summary, retry_decision, retry_after, material_hypothesis_change, diff_summary, changed_files, validation_summary, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta, overlay_payload, created_at, updated_at from change_attempt where id = $1`
+	query := `select id, version, proposal_id, candidate_key, attempt_number, target_layer, target_kind, target_ref, trigger, state, attempt_trace_id, parent_attempt_id, branch_name, pr_url, head_sha, failure_class, failure_summary, retry_decision, retry_after, material_hypothesis_change, diff_summary, changed_files, validation_summary, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta, overlay_payload, created_at, updated_at from change_attempt where id = $1`
 	if forUpdate {
 		query += ` for update`
 	}
@@ -273,7 +273,7 @@ func selectChangeAttemptTx(tx *sql.Tx, attemptID string, forUpdate bool) (improv
 	var targetKind, targetRef, attemptTraceID, parentAttemptID, branchName, prURL, headSHA, failureClass, failureSummary, retryDecision, diffSummary, validationSummary, changePlan, repoPatch, validationPlan, retryAssessment, hypothesisDelta sql.NullString
 	var changedFiles, overlayPayload []byte
 	if err := tx.QueryRow(query, strings.TrimSpace(attemptID)).
-		Scan(&item.ID, &item.ProposalID, &item.CandidateKey, &item.AttemptNumber, &targetLayer, &targetKind, &targetRef, &trigger, &state, &attemptTraceID, &parentAttemptID, &branchName, &prURL, &headSHA, &failureClass, &failureSummary, &retryDecision, &retryAfter, &item.MaterialHypothesisChange, &diffSummary, &changedFiles, &validationSummary, &changePlan, &repoPatch, &validationPlan, &retryAssessment, &hypothesisDelta, &overlayPayload, &item.CreatedAt, &item.UpdatedAt); err != nil {
+		Scan(&item.ID, &item.Version, &item.ProposalID, &item.CandidateKey, &item.AttemptNumber, &targetLayer, &targetKind, &targetRef, &trigger, &state, &attemptTraceID, &parentAttemptID, &branchName, &prURL, &headSHA, &failureClass, &failureSummary, &retryDecision, &retryAfter, &item.MaterialHypothesisChange, &diffSummary, &changedFiles, &validationSummary, &changePlan, &repoPatch, &validationPlan, &retryAssessment, &hypothesisDelta, &overlayPayload, &item.CreatedAt, &item.UpdatedAt); err != nil {
 		return improvement.ChangeAttempt{}, err
 	}
 	item.TargetLayer = harness.TargetLayer(targetLayer)

@@ -20,8 +20,8 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
-	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/operation"
+	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/registry"
@@ -1295,7 +1295,7 @@ func loadCandidates(r sqlReader, store *MemoryStore) error {
 }
 
 func loadProposals(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, target_layer, target_kind, target_ref, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, current_attempt_id, attempt_count, auto_retry_budget_remaining, last_failure_class, next_retry_action, line_stopped_by, line_stop_reason, line_stopped_at, recommended_intervention_kind, recommended_intervention_rationale, target_surface, touched_files, validation_plan, material_risk_summary, recommended_disposition, created_at from proposal order by created_at desc`)
+	rows, err := r.Query(`select id, version, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, target_layer, target_kind, target_ref, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, current_attempt_id, attempt_count, auto_retry_budget_remaining, last_failure_class, next_retry_action, line_stopped_by, line_stop_reason, line_stopped_at, recommended_intervention_kind, recommended_intervention_rationale, target_surface, touched_files, validation_plan, material_risk_summary, recommended_disposition, created_at from proposal order by created_at desc`)
 	if err != nil {
 		return err
 	}
@@ -1306,7 +1306,7 @@ func loadProposals(r sqlReader, store *MemoryStore) error {
 		var conversationID, caseID, originTraceID, reviewer, targetKind, targetRef, currentAttemptID, lastFailureClass, nextRetryAction, lineStoppedBy, lineStopReason, recommendedKind, recommendedRationale, targetSurface, validationPlan, materialRiskSummary, recommendedDisposition sql.NullString
 		var evidenceTraceIDs, sourceEvalIDs, evidenceArtifactIDs, priorSimilarProposalIDs, touchedFiles []byte
 		var reviewDeadline, lineStoppedAt sql.NullTime
-		if err := rows.Scan(&item.ID, &item.TraceID, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Title, &item.Category, &item.Summary, &status, &reviewer, &item.CandidateKey, &targetLayer, &targetKind, &targetRef, &sourceEvalIDs, &item.RiskTier, &item.ProposedScope, &evidenceArtifactIDs, &item.ActiveSlotConsuming, &reviewDeadline, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &currentAttemptID, &item.AttemptCount, &item.AutoRetryBudgetRemaining, &lastFailureClass, &nextRetryAction, &lineStoppedBy, &lineStopReason, &lineStoppedAt, &recommendedKind, &recommendedRationale, &targetSurface, &touchedFiles, &validationPlan, &materialRiskSummary, &recommendedDisposition, &item.CreatedAt); err != nil {
+		if err := rows.Scan(&item.ID, &item.Version, &item.TraceID, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Title, &item.Category, &item.Summary, &status, &reviewer, &item.CandidateKey, &targetLayer, &targetKind, &targetRef, &sourceEvalIDs, &item.RiskTier, &item.ProposedScope, &evidenceArtifactIDs, &item.ActiveSlotConsuming, &reviewDeadline, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &currentAttemptID, &item.AttemptCount, &item.AutoRetryBudgetRemaining, &lastFailureClass, &nextRetryAction, &lineStoppedBy, &lineStopReason, &lineStoppedAt, &recommendedKind, &recommendedRationale, &targetSurface, &touchedFiles, &validationPlan, &materialRiskSummary, &recommendedDisposition, &item.CreatedAt); err != nil {
 			return err
 		}
 		item.ConversationID = conversationID.String
@@ -1346,7 +1346,7 @@ func loadProposals(r sqlReader, store *MemoryStore) error {
 }
 
 func loadChangeAttempts(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, proposal_id, candidate_key, attempt_number, target_layer, target_kind, target_ref, trigger, state, attempt_trace_id, parent_attempt_id, branch_name, pr_url, head_sha, failure_class, failure_summary, retry_decision, retry_after, material_hypothesis_change, diff_summary, changed_files, validation_summary, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta, overlay_payload, created_at, updated_at from change_attempt order by created_at desc`)
+	rows, err := r.Query(`select id, version, proposal_id, candidate_key, attempt_number, target_layer, target_kind, target_ref, trigger, state, attempt_trace_id, parent_attempt_id, branch_name, pr_url, head_sha, failure_class, failure_summary, retry_decision, retry_after, material_hypothesis_change, diff_summary, changed_files, validation_summary, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta, overlay_payload, created_at, updated_at from change_attempt order by created_at desc`)
 	if err != nil {
 		return err
 	}
@@ -1357,7 +1357,7 @@ func loadChangeAttempts(r sqlReader, store *MemoryStore) error {
 		var retryAfter sql.NullTime
 		var targetKind, targetRef, attemptTraceID, parentAttemptID, branchName, prURL, headSHA, failureClass, failureSummary, retryDecision, diffSummary, validationSummary, changePlan, repoPatch, validationPlan, retryAssessment, hypothesisDelta sql.NullString
 		var changedFiles, overlayPayload []byte
-		if err := rows.Scan(&item.ID, &item.ProposalID, &item.CandidateKey, &item.AttemptNumber, &targetLayer, &targetKind, &targetRef, &trigger, &state, &attemptTraceID, &parentAttemptID, &branchName, &prURL, &headSHA, &failureClass, &failureSummary, &retryDecision, &retryAfter, &item.MaterialHypothesisChange, &diffSummary, &changedFiles, &validationSummary, &changePlan, &repoPatch, &validationPlan, &retryAssessment, &hypothesisDelta, &overlayPayload, &item.CreatedAt, &item.UpdatedAt); err != nil {
+		if err := rows.Scan(&item.ID, &item.Version, &item.ProposalID, &item.CandidateKey, &item.AttemptNumber, &targetLayer, &targetKind, &targetRef, &trigger, &state, &attemptTraceID, &parentAttemptID, &branchName, &prURL, &headSHA, &failureClass, &failureSummary, &retryDecision, &retryAfter, &item.MaterialHypothesisChange, &diffSummary, &changedFiles, &validationSummary, &changePlan, &repoPatch, &validationPlan, &retryAssessment, &hypothesisDelta, &overlayPayload, &item.CreatedAt, &item.UpdatedAt); err != nil {
 			return err
 		}
 		item.TargetLayer = harness.TargetLayer(targetLayer)
@@ -2215,8 +2215,9 @@ func persistProposals(tx *sql.Tx, store *MemoryStore) error {
 		if item.AutoRetryBudgetRemaining == 0 && review.ConsumesActiveProposalSlot(item.Status) {
 			item.AutoRetryBudgetRemaining = defaultProposalRetryBudget
 		}
-		if _, err := tx.Exec(`insert into proposal (id, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, target_layer, target_kind, target_ref, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, current_attempt_id, attempt_count, auto_retry_budget_remaining, last_failure_class, next_retry_action, line_stopped_by, line_stop_reason, line_stopped_at, recommended_intervention_kind, recommended_intervention_rationale, target_surface, touched_files, validation_plan, material_risk_summary, recommended_disposition, created_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16::jsonb,$17,$18,$19::jsonb,$20,$21,$22::jsonb,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35::jsonb,$36,$37,$38,$39)
+		if _, err := tx.Exec(`insert into proposal (id, version, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, target_layer, target_kind, target_ref, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, current_attempt_id, attempt_count, auto_retry_budget_remaining, last_failure_class, next_retry_action, line_stopped_by, line_stop_reason, line_stopped_at, recommended_intervention_kind, recommended_intervention_rationale, target_surface, touched_files, validation_plan, material_risk_summary, recommended_disposition, created_at) values ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17::jsonb,$18,$19,$20::jsonb,$21,$22,$23::jsonb,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36::jsonb,$37,$38,$39,$40)
 			on conflict (id) do update set
+				version = excluded.version,
 				trace_id = excluded.trace_id,
 				conversation_id = excluded.conversation_id,
 				case_id = excluded.case_id,
@@ -2255,7 +2256,7 @@ func persistProposals(tx *sql.Tx, store *MemoryStore) error {
 				material_risk_summary = excluded.material_risk_summary,
 				recommended_disposition = excluded.recommended_disposition,
 				created_at = excluded.created_at`,
-			item.ID, item.TraceID, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), jsonString(item.EvidenceTraceIDs), item.Title, item.Category, item.Summary, string(item.Status), nullString(item.Reviewer), item.CandidateKey, string(item.TargetLayer), nullString(item.TargetKind), nullString(item.TargetRef), jsonString(item.SourceEvalIDs), item.RiskTier, item.ProposedScope, jsonString(item.EvidenceArtifactIDs), item.ActiveSlotConsuming, nullTimeValue(item.ReviewDeadline), jsonString(item.PriorSimilarProposalIDs), item.NewEvidenceSinceLastRejection, firstNonEmpty(item.CurrentAttemptID), item.AttemptCount, item.AutoRetryBudgetRemaining, firstNonEmpty(item.LastFailureClass), firstNonEmpty(item.NextRetryAction), firstNonEmpty(item.LineStoppedBy), firstNonEmpty(item.LineStopReason), nullTime(item.LineStoppedAt), string(item.RecommendedInterventionKind), firstNonEmpty(item.RecommendedInterventionRationale), firstNonEmpty(item.TargetSurface), jsonString(item.TouchedFiles), firstNonEmpty(item.ValidationPlan), firstNonEmpty(item.MaterialRiskSummary), firstNonEmpty(item.RecommendedDisposition), item.CreatedAt,
+			item.ID, item.Version, item.TraceID, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), jsonString(item.EvidenceTraceIDs), item.Title, item.Category, item.Summary, string(item.Status), nullString(item.Reviewer), item.CandidateKey, string(item.TargetLayer), nullString(item.TargetKind), nullString(item.TargetRef), jsonString(item.SourceEvalIDs), item.RiskTier, item.ProposedScope, jsonString(item.EvidenceArtifactIDs), item.ActiveSlotConsuming, nullTimeValue(item.ReviewDeadline), jsonString(item.PriorSimilarProposalIDs), item.NewEvidenceSinceLastRejection, firstNonEmpty(item.CurrentAttemptID), item.AttemptCount, item.AutoRetryBudgetRemaining, firstNonEmpty(item.LastFailureClass), firstNonEmpty(item.NextRetryAction), firstNonEmpty(item.LineStoppedBy), firstNonEmpty(item.LineStopReason), nullTime(item.LineStoppedAt), string(item.RecommendedInterventionKind), firstNonEmpty(item.RecommendedInterventionRationale), firstNonEmpty(item.TargetSurface), jsonString(item.TouchedFiles), firstNonEmpty(item.ValidationPlan), firstNonEmpty(item.MaterialRiskSummary), firstNonEmpty(item.RecommendedDisposition), item.CreatedAt,
 		); err != nil {
 			return err
 		}
@@ -2403,8 +2404,9 @@ func persistChangeAttempts(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.changeAttempts)
 	for _, key := range keys {
 		item := normalizeChangeAttempt(store.changeAttempts[key])
-		if _, err := tx.Exec(`insert into change_attempt (id, proposal_id, candidate_key, attempt_number, target_layer, target_kind, target_ref, trigger, state, attempt_trace_id, parent_attempt_id, branch_name, pr_url, head_sha, failure_class, failure_summary, retry_decision, retry_after, material_hypothesis_change, diff_summary, changed_files, validation_summary, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta, overlay_payload, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21::jsonb,$22,$23,$24,$25,$26,$27,$28::jsonb,$29,$30)
+		if _, err := tx.Exec(`insert into change_attempt (id, version, proposal_id, candidate_key, attempt_number, target_layer, target_kind, target_ref, trigger, state, attempt_trace_id, parent_attempt_id, branch_name, pr_url, head_sha, failure_class, failure_summary, retry_decision, retry_after, material_hypothesis_change, diff_summary, changed_files, validation_summary, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta, overlay_payload, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22::jsonb,$23,$24,$25,$26,$27,$28,$29::jsonb,$30,$31)
 			on conflict (id) do update set
+				version = excluded.version,
 				proposal_id = excluded.proposal_id,
 				candidate_key = excluded.candidate_key,
 				attempt_number = excluded.attempt_number,
@@ -2434,7 +2436,7 @@ func persistChangeAttempts(tx *sql.Tx, store *MemoryStore) error {
 				overlay_payload = excluded.overlay_payload,
 				created_at = excluded.created_at,
 				updated_at = excluded.updated_at`,
-			item.ID, item.ProposalID, item.CandidateKey, item.AttemptNumber, string(item.TargetLayer), item.TargetKind, item.TargetRef, string(item.Trigger), string(item.State), item.AttemptTraceID, item.ParentAttemptID, item.BranchName, item.PRURL, item.HeadSHA, item.FailureClass, item.FailureSummary, item.RetryDecision, nullTime(item.RetryAfter), item.MaterialHypothesisChange, item.DiffSummary, jsonString(item.ChangedFiles), item.ValidationSummary, item.ChangePlan, item.RepoPatch, item.ValidationPlan, item.RetryAssessment, item.HypothesisDelta, jsonString(item.OverlayPayload), item.CreatedAt, item.UpdatedAt,
+			item.ID, item.Version, item.ProposalID, item.CandidateKey, item.AttemptNumber, string(item.TargetLayer), item.TargetKind, item.TargetRef, string(item.Trigger), string(item.State), item.AttemptTraceID, item.ParentAttemptID, item.BranchName, item.PRURL, item.HeadSHA, item.FailureClass, item.FailureSummary, item.RetryDecision, nullTime(item.RetryAfter), item.MaterialHypothesisChange, item.DiffSummary, jsonString(item.ChangedFiles), item.ValidationSummary, item.ChangePlan, item.RepoPatch, item.ValidationPlan, item.RetryAssessment, item.HypothesisDelta, jsonString(item.OverlayPayload), item.CreatedAt, item.UpdatedAt,
 		); err != nil {
 			return err
 		}

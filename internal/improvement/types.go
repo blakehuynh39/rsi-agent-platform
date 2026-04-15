@@ -110,6 +110,7 @@ const (
 
 type ChangeAttempt struct {
 	ID                       string               `json:"id"`
+	Version                  int64                `json:"version,omitempty"`
 	ProposalID               string               `json:"proposal_id"`
 	CandidateKey             string               `json:"candidate_key"`
 	AttemptNumber            int                  `json:"attempt_number"`
