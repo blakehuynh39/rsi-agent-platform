@@ -302,6 +302,36 @@ func TestRSITraceContextReturnsTraceEvidence(t *testing.T) {
 	}
 }
 
+func TestToolExecutionPersistsTraceToolCallEvidence(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	traces := store.ListTraces()
+	if len(traces) == 0 {
+		t.Fatal("expected seeded traces")
+	}
+	service := NewService(config.Config{}, store)
+
+	result := service.Execute("rsi.trace_context", map[string]interface{}{
+		"trace_id": traces[0].TraceID,
+	})
+	if result.Status != "ok" {
+		t.Fatalf("expected ok status, got %s %#v", result.Status, result.Output)
+	}
+	trace, ok := store.GetTrace(traces[0].TraceID)
+	if !ok {
+		t.Fatalf("expected trace %s", traces[0].TraceID)
+	}
+	found := false
+	for _, call := range trace.ToolCalls {
+		if call.ToolCallID == result.ToolCallID && call.ToolName == "rsi.trace_context" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("expected trace tool call evidence to be persisted")
+	}
+}
+
 func TestRSICandidateContextReturnsCandidateAndMemory(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	candidates := store.ListCandidates()

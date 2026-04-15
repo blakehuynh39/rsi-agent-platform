@@ -368,6 +368,8 @@ class ReadOnlyToolBinding:
 
     def _default_payload(self, name: str) -> dict[str, Any]:
         payload: dict[str, Any] = {}
+        if self.trace_id:
+            payload["trace_id"] = self.trace_id
         if name in {"repo.context", "github.repo_activity", "github.repo_context"} and self.task_repo:
             payload["repo"] = self.task_repo
         if name == "repo.context":
@@ -378,8 +380,6 @@ class ReadOnlyToolBinding:
             payload["scope_id"] = self.task_repo
         if name == "sentry.lookup":
             payload["alert"] = self.task_context_summary or self.task_prompt
-        if name == "rsi.trace_context" and self.trace_id:
-            payload["trace_id"] = self.trace_id
         if name in {"rsi.proposal_memory", "rsi.candidate_context"} and self.session_scope_kind == "proposal_candidate":
             payload["candidate_key"] = self.session_scope_id
         if name == "rsi.attempt_context":

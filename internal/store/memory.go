@@ -1586,6 +1586,16 @@ func (s *MemoryStore) RescheduleWorkItem(id string, payload map[string]interface
 	item.CompletedAt = nil
 	item.UpdatedAt = time.Now().UTC()
 	s.workItems[id] = item
+	if item.OperationID != "" {
+		if op, ok := s.operations[item.OperationID]; ok {
+			op.Status = operation.StatusQueued
+			op.Holder = ""
+			op.LastError = strings.TrimSpace(lastError)
+			op.UpdatedAt = item.UpdatedAt
+			op.CompletedAt = nil
+			s.operations[op.ID] = op
+		}
+	}
 	return item, nil
 }
 
@@ -1621,6 +1631,14 @@ func (s *MemoryStore) enqueueWorkItemLocked(item queue.WorkItem) (queue.WorkItem
 					existing.CompletedAt = nil
 					existing.UpdatedAt = now
 					s.workItems[existing.ID] = existing
+					if op, ok := s.operations[existing.OperationID]; ok {
+						op.Status = operation.StatusQueued
+						op.Holder = ""
+						op.LastError = ""
+						op.UpdatedAt = now
+						op.CompletedAt = nil
+						s.operations[existing.OperationID] = op
+					}
 				}
 				return existing, nil
 			}

@@ -3526,6 +3526,36 @@ func (p *PostgresStore) EnqueueWorkItem(item queue.WorkItem) (created queue.Work
 		if item.Payload == nil {
 			item.Payload = map[string]interface{}{}
 		}
+		existingByOperation, ok, findErr := findExistingWorkItemByOperation(tx, item.OperationID)
+		if findErr != nil {
+			return findErr
+		}
+		if ok {
+			if item.Status == queue.WorkQueued && (existingByOperation.Status == queue.WorkFailed || existingByOperation.Status == queue.WorkCanceled) {
+				existingByOperation.Status = queue.WorkQueued
+				existingByOperation.Payload = cloneMetadata(item.Payload)
+				if existingByOperation.Payload == nil {
+					existingByOperation.Payload = map[string]interface{}{}
+				}
+				existingByOperation.LastError = ""
+				existingByOperation.LeaseOwner = ""
+				existingByOperation.LeaseExpiresAt = nil
+				existingByOperation.CompletedAt = nil
+				existingByOperation.UpdatedAt = now
+				if err := replaceWorkItemScope(tx, existingByOperation); err != nil {
+					return err
+				}
+				if existingByOperation.OperationID != "" {
+					if _, err := requeueOperationTx(tx, existingByOperation.OperationID, ""); err != nil {
+						return err
+					}
+				}
+				created = existingByOperation
+				return nil
+			}
+			created = existingByOperation
+			return nil
+		}
 		existing, ok, findErr := findExistingWorkItemByDedupe(tx, item)
 		if findErr != nil {
 			return findErr

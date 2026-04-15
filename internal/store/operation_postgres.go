@@ -303,6 +303,33 @@ func failOperationTx(tx *sql.Tx, operationID string, lastError string) (operatio
 	return item, err
 }
 
+func requeueOperationTx(tx *sql.Tx, operationID string, lastError string) (operation.Execution, error) {
+	now := time.Now().UTC()
+	row := tx.QueryRow(`
+		update operation_execution
+		set status = $2,
+			holder = '',
+			last_error = $3,
+			updated_at = $4,
+			completed_at = null
+		where id = $1
+		  and status not in ($5, $6, $7)
+		returning `+operationSelectColumns(),
+		strings.TrimSpace(operationID),
+		string(operation.StatusQueued),
+		strings.TrimSpace(lastError),
+		now,
+		string(operation.StatusCompleted),
+		string(operation.StatusCanceled),
+		string(operation.StatusSuperseded),
+	)
+	item, err := scanOperation(row)
+	if err == sql.ErrNoRows {
+		return selectOperationByIDTx(tx, operationID)
+	}
+	return item, err
+}
+
 func operationSelectColumns() string {
 	return `id, scope_kind, scope_id, operation_kind, operation_key, status, queue, requested_by, holder, trace_id, proposal_id, attempt_id, payload_hash, result_ref, last_error, retry_count, created_at, updated_at, started_at, completed_at`
 }

@@ -127,7 +127,15 @@ func (p *PostgresStore) rescheduleWorkItemDirect(id string, payload map[string]i
 		)
 		var scanErr error
 		item, scanErr = scanWorkItem(row)
-		return scanErr
+		if scanErr != nil {
+			return scanErr
+		}
+		if item.OperationID != "" {
+			if _, err := requeueOperationTx(tx, item.OperationID, lastError); err != nil {
+				return err
+			}
+		}
+		return nil
 	})
 	return
 }

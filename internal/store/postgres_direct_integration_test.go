@@ -10,6 +10,7 @@ import (
 	platformdb "github.com/piplabs/rsi-agent-platform/internal/db"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
+	"github.com/piplabs/rsi-agent-platform/internal/operation"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
@@ -66,6 +67,92 @@ func TestPostgresWorkItemDirectPersistence(t *testing.T) {
 	}
 }
 
+func TestPostgresEnqueueWorkItemReusesFailedOperationScopedItem(t *testing.T) {
+	postgresURL, cleanup := openTempPostgresURL(t)
+	defer cleanup()
+
+	db, err := platformdb.OpenPostgres(postgresURL)
+	if err != nil {
+		t.Fatalf("open postgres: %v", err)
+	}
+	defer db.Close()
+	if _, err := platformdb.ApplyMigrations(db); err != nil {
+		t.Fatalf("apply migrations: %v", err)
+	}
+
+	store, err := NewPostgresStore(config.Config{
+		StoreBackend: "postgres",
+		PostgresURL:  postgresURL,
+	})
+	if err != nil {
+		t.Fatalf("NewPostgresStore() error = %v", err)
+	}
+	defer store.db.Close()
+
+	now := time.Now().UTC()
+	op, _, err := store.GetOrCreateOperation(operation.Execution{
+		ID:            "op-requeue",
+		ScopeKind:     operation.ScopeAttempt,
+		ScopeID:       "attempt-1",
+		OperationKind: "implement_attempt",
+		OperationKey:  "implement_attempt",
+		Status:        operation.StatusQueued,
+		Queue:         queue.ProposalQueue,
+		RequestedBy:   "tester",
+		TraceID:       "trace-1",
+		ProposalID:    "proposal-1",
+		AttemptID:     "attempt-1",
+		CreatedAt:     now,
+		UpdatedAt:     now,
+	})
+	if err != nil {
+		t.Fatalf("GetOrCreateOperation() error = %v", err)
+	}
+	first, err := store.EnqueueWorkItem(queue.WorkItem{
+		ID:          "work-op-requeue",
+		OperationID: op.ID,
+		Queue:       queue.ProposalQueue,
+		Kind:        "implement_attempt",
+		Status:      queue.WorkQueued,
+		ProposalID:  "proposal-1",
+		TraceID:     "trace-1",
+		Payload:     map[string]any{"phase": 1},
+		CreatedAt:   now,
+		UpdatedAt:   now,
+	})
+	if err != nil {
+		t.Fatalf("EnqueueWorkItem() error = %v", err)
+	}
+	if _, err := store.FailWorkItem(first.ID, "temporary failure"); err != nil {
+		t.Fatalf("FailWorkItem() error = %v", err)
+	}
+	second, err := store.EnqueueWorkItem(queue.WorkItem{
+		ID:          "work-op-requeue-new",
+		OperationID: op.ID,
+		Queue:       queue.ProposalQueue,
+		Kind:        "implement_attempt",
+		Status:      queue.WorkQueued,
+		ProposalID:  "proposal-1",
+		TraceID:     "trace-1",
+		Payload:     map[string]any{"phase": 2},
+		CreatedAt:   now.Add(time.Second),
+		UpdatedAt:   now.Add(time.Second),
+	})
+	if err != nil {
+		t.Fatalf("second EnqueueWorkItem() error = %v", err)
+	}
+	if second.ID != first.ID {
+		t.Fatalf("expected operation-backed work item reuse, got %s want %s", second.ID, first.ID)
+	}
+	reloadedOp, ok := store.GetOperation(op.ID)
+	if !ok {
+		t.Fatal("expected operation to remain present")
+	}
+	if reloadedOp.Status != operation.StatusQueued {
+		t.Fatalf("expected requeued operation status, got %s", reloadedOp.Status)
+	}
+}
+
 func TestPostgresUpsertAttemptWorkspacePersistsBlankDiffSummary(t *testing.T) {
 	postgresURL, cleanup := openTempPostgresURL(t)
 	defer cleanup()
@@ -116,6 +203,87 @@ func TestPostgresUpsertAttemptWorkspacePersistsBlankDiffSummary(t *testing.T) {
 	}
 	if persisted.DiffSummary != "" {
 		t.Fatalf("expected persisted blank diff summary, got %q", persisted.DiffSummary)
+	}
+}
+
+func TestPostgresRescheduleWorkItemRequeuesOperation(t *testing.T) {
+	postgresURL, cleanup := openTempPostgresURL(t)
+	defer cleanup()
+
+	db, err := platformdb.OpenPostgres(postgresURL)
+	if err != nil {
+		t.Fatalf("open postgres: %v", err)
+	}
+	defer db.Close()
+	if _, err := platformdb.ApplyMigrations(db); err != nil {
+		t.Fatalf("apply migrations: %v", err)
+	}
+
+	store, err := NewPostgresStore(config.Config{
+		StoreBackend: "postgres",
+		PostgresURL:  postgresURL,
+	})
+	if err != nil {
+		t.Fatalf("NewPostgresStore() error = %v", err)
+	}
+	defer store.db.Close()
+
+	now := time.Now().UTC()
+	op, _, err := store.GetOrCreateOperation(operation.Execution{
+		ID:            "op-1",
+		ScopeKind:     operation.ScopeProposal,
+		ScopeID:       "proposal-1",
+		OperationKind: "line_activate",
+		OperationKey:  "attempt-01",
+		Status:        operation.StatusQueued,
+		Queue:         queue.ProposalQueue,
+		RequestedBy:   "tester",
+		TraceID:       "trace-1",
+		ProposalID:    "proposal-1",
+		CreatedAt:     now,
+		UpdatedAt:     now,
+	})
+	if err != nil {
+		t.Fatalf("GetOrCreateOperation() error = %v", err)
+	}
+	item, err := store.EnqueueWorkItem(queue.WorkItem{
+		ID:          "work-1",
+		OperationID: op.ID,
+		Queue:       queue.ProposalQueue,
+		Kind:        "approved_proposal",
+		Status:      queue.WorkQueued,
+		ProposalID:  "proposal-1",
+		TraceID:     "trace-1",
+		CreatedAt:   now,
+		UpdatedAt:   now,
+		RequestedBy: "tester",
+	})
+	if err != nil {
+		t.Fatalf("EnqueueWorkItem() error = %v", err)
+	}
+	claimed, ok, err := store.ClaimNextWorkItem([]queue.QueueName{queue.ProposalQueue}, "worker-a", 30*time.Second)
+	if err != nil || !ok {
+		t.Fatalf("ClaimNextWorkItem() ok=%t err=%v", ok, err)
+	}
+	if claimed.ID != item.ID {
+		t.Fatalf("claimed wrong item: %+v", claimed)
+	}
+	if _, err := store.RescheduleWorkItem(item.ID, map[string]interface{}{"workspace_id": "workspace-1"}, "workspace initializing", time.Time{}); err != nil {
+		t.Fatalf("RescheduleWorkItem() error = %v", err)
+	}
+	rescheduledOp, ok := store.GetOperation(op.ID)
+	if !ok {
+		t.Fatal("expected operation to remain present")
+	}
+	if rescheduledOp.Status != operation.StatusQueued {
+		t.Fatalf("expected operation to be requeued, got %s", rescheduledOp.Status)
+	}
+	reclaimed, ok, err := store.ClaimNextWorkItem([]queue.QueueName{queue.ProposalQueue}, "worker-b", 30*time.Second)
+	if err != nil || !ok {
+		t.Fatalf("second ClaimNextWorkItem() ok=%t err=%v", ok, err)
+	}
+	if reclaimed.ID != item.ID {
+		t.Fatalf("expected reclaimed item %s, got %s", item.ID, reclaimed.ID)
 	}
 }
 

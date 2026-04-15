@@ -20,6 +20,7 @@ import (
 
 	"github.com/piplabs/rsi-agent-platform/internal/cluster"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
+	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/githubapp"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/sandbox"
@@ -923,7 +924,7 @@ func (s *Service) slackReply(input map[string]interface{}) storepkg.ToolResult {
 
 func (s *Service) result(name string, input map[string]interface{}, summary string, output map[string]interface{}, refs []string) storepkg.ToolResult {
 	callID := fmt.Sprintf("%s-%d", sanitizeToolName(name), time.Now().UTC().UnixNano())
-	return storepkg.ToolResult{
+	result := storepkg.ToolResult{
 		Name:            name,
 		ToolCallID:      callID,
 		Approved:        true,
@@ -941,11 +942,13 @@ func (s *Service) result(name string, input map[string]interface{}, summary stri
 			"tool_name": name,
 		},
 	}
+	s.persistTraceToolCall(result)
+	return result
 }
 
 func (s *Service) unavailableResult(name string, input map[string]interface{}, provider string, summary string, output map[string]interface{}) storepkg.ToolResult {
 	callID := fmt.Sprintf("%s-%d", sanitizeToolName(name), time.Now().UTC().UnixNano())
-	return storepkg.ToolResult{
+	result := storepkg.ToolResult{
 		Name:          name,
 		ToolCallID:    callID,
 		Approved:      false,
@@ -962,11 +965,13 @@ func (s *Service) unavailableResult(name string, input map[string]interface{}, p
 			"provider":  provider,
 		},
 	}
+	s.persistTraceToolCall(result)
+	return result
 }
 
 func (s *Service) failedResult(name string, input map[string]interface{}, provider string, summary string, output map[string]interface{}) storepkg.ToolResult {
 	callID := fmt.Sprintf("%s-%d", sanitizeToolName(name), time.Now().UTC().UnixNano())
-	return storepkg.ToolResult{
+	result := storepkg.ToolResult{
 		Name:          name,
 		ToolCallID:    callID,
 		Approved:      true,
@@ -984,6 +989,62 @@ func (s *Service) failedResult(name string, input map[string]interface{}, provid
 			"provider":  provider,
 		},
 	}
+	s.persistTraceToolCall(result)
+	return result
+}
+
+func (s *Service) persistTraceToolCall(result storepkg.ToolResult) {
+	traceID := strings.TrimSpace(stringValue(result.Input["trace_id"]))
+	if traceID == "" {
+		return
+	}
+	trace, ok := s.store.GetTrace(traceID)
+	if !ok {
+		return
+	}
+	request := sanitizeToolRequest(result.Input)
+	_, _ = s.store.ApplyTraceUpdate(traceID, storepkg.TraceUpdate{
+		ToolCalls: []events.ToolCallRecord{
+			{
+				ID:                    fmt.Sprintf("tool-%s", result.ToolCallID),
+				TraceID:               traceID,
+				WorkflowID:            trace.Summary.WorkflowID,
+				ConversationID:        trace.Summary.ConversationID,
+				CaseID:                trace.Summary.CaseID,
+				ToolName:              result.Name,
+				ToolCallID:            result.ToolCallID,
+				Request:               request,
+				Summary:               result.Summary,
+				RawArtifactRefs:       append([]string(nil), result.RawArtifactRefs...),
+				ApprovalState:         result.ApprovalState,
+				InterpretationSummary: result.Summary,
+				Status:                result.Status,
+				CreatedAt:             result.ExecutedAt,
+			},
+		},
+	})
+}
+
+func sanitizeToolRequest(input map[string]interface{}) map[string]interface{} {
+	if input == nil {
+		return map[string]interface{}{}
+	}
+	out := make(map[string]interface{}, len(input))
+	for key, value := range input {
+		switch key {
+		case "patch":
+			out[key] = fmt.Sprintf("<redacted patch %d bytes>", len(stringValue(value)))
+		case "content":
+			out[key] = fmt.Sprintf("<redacted content %d bytes>", len(stringValue(value)))
+		default:
+			if str, ok := value.(string); ok && len(str) > 2000 {
+				out[key] = truncate(str, 2000)
+				continue
+			}
+			out[key] = value
+		}
+	}
+	return out
 }
 
 func (s *Service) apiJSON(method string, endpoint string, body interface{}, headers map[string]string, out interface{}) error {

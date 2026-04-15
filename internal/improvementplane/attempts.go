@@ -82,7 +82,7 @@ func latestApprovedProposalForCandidate(store storepkg.Store, candidateKey strin
 
 func hasLiveProposalQueueWork(store storepkg.Store, proposalID string) bool {
 	for _, item := range store.ListWorkItems() {
-		if item.Queue != queue.ProposalQueue || item.Kind != "approved_proposal" || item.ProposalID != proposalID {
+		if item.Queue != queue.ProposalQueue || item.ProposalID != proposalID {
 			continue
 		}
 		if item.Status == queue.WorkQueued || item.Status == queue.WorkLeased {
