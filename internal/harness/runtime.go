@@ -21,23 +21,6 @@ type EffectiveConfig struct {
 }
 
 type ExecutionMetadata struct {
-	HermesSessionID         string
-	ParentSessionID         string
-	HarnessProfileID        string
-	EffectiveOverlayID      string
-	EffectiveOverlayVersion string
-	MemoryBackend           string
-	AssistantPeerID         string
-	UserPeerID              string
-	SessionScopeKind        string
-	SessionScopeID          string
-	ParentScopeKind         string
-	ParentScopeID           string
-	MemoryReads             []MemoryArtifact
-	MemoryWrites            []MemoryArtifact
-}
-
-type executionMetadataPayload struct {
 	HermesSessionID         string           `json:"hermes_session_id"`
 	ParentSessionID         string           `json:"parent_session_id"`
 	HarnessProfileID        string           `json:"harness_profile_id"`
@@ -162,26 +145,25 @@ func DecodeExecutionMetadata(raw map[string]any) ExecutionMetadata {
 	if err != nil {
 		return ExecutionMetadata{}
 	}
-	var payload executionMetadataPayload
-	if err := json.Unmarshal(data, &payload); err != nil {
+	var metadata ExecutionMetadata
+	if err := json.Unmarshal(data, &metadata); err != nil {
 		return ExecutionMetadata{}
 	}
-	return ExecutionMetadata{
-		HermesSessionID:         strings.TrimSpace(payload.HermesSessionID),
-		ParentSessionID:         strings.TrimSpace(payload.ParentSessionID),
-		HarnessProfileID:        strings.TrimSpace(payload.HarnessProfileID),
-		EffectiveOverlayID:      strings.TrimSpace(payload.EffectiveOverlayID),
-		EffectiveOverlayVersion: strings.TrimSpace(payload.EffectiveOverlayVersion),
-		MemoryBackend:           strings.TrimSpace(payload.MemoryBackend),
-		AssistantPeerID:         strings.TrimSpace(payload.AssistantPeerID),
-		UserPeerID:              strings.TrimSpace(payload.UserPeerID),
-		SessionScopeKind:        strings.TrimSpace(payload.SessionScopeKind),
-		SessionScopeID:          strings.TrimSpace(payload.SessionScopeID),
-		ParentScopeKind:         strings.TrimSpace(payload.ParentScopeKind),
-		ParentScopeID:           strings.TrimSpace(payload.ParentScopeID),
-		MemoryReads:             compactMemoryArtifacts(payload.MemoryReads),
-		MemoryWrites:            compactMemoryArtifacts(payload.MemoryWrites),
-	}
+	metadata.HermesSessionID = strings.TrimSpace(metadata.HermesSessionID)
+	metadata.ParentSessionID = strings.TrimSpace(metadata.ParentSessionID)
+	metadata.HarnessProfileID = strings.TrimSpace(metadata.HarnessProfileID)
+	metadata.EffectiveOverlayID = strings.TrimSpace(metadata.EffectiveOverlayID)
+	metadata.EffectiveOverlayVersion = strings.TrimSpace(metadata.EffectiveOverlayVersion)
+	metadata.MemoryBackend = strings.TrimSpace(metadata.MemoryBackend)
+	metadata.AssistantPeerID = strings.TrimSpace(metadata.AssistantPeerID)
+	metadata.UserPeerID = strings.TrimSpace(metadata.UserPeerID)
+	metadata.SessionScopeKind = strings.TrimSpace(metadata.SessionScopeKind)
+	metadata.SessionScopeID = strings.TrimSpace(metadata.SessionScopeID)
+	metadata.ParentScopeKind = strings.TrimSpace(metadata.ParentScopeKind)
+	metadata.ParentScopeID = strings.TrimSpace(metadata.ParentScopeID)
+	metadata.MemoryReads = compactMemoryArtifacts(metadata.MemoryReads)
+	metadata.MemoryWrites = compactMemoryArtifacts(metadata.MemoryWrites)
+	return metadata
 }
 
 func compactStrings(items []string) []string {

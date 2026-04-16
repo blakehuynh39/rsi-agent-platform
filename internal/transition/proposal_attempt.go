@@ -65,9 +65,6 @@ const (
 	CommandAttemptPlannedWorkspace          AttemptPhaseCommandKind = "attempt_planned_workspace"
 	CommandAttemptPlannedImplement          AttemptPhaseCommandKind = "attempt_planned_implement"
 	CommandWorkspaceOpenDeferred            AttemptPhaseCommandKind = "workspace_open_deferred"
-	CommandWorkspaceCompletedLegacy         AttemptPhaseCommandKind = "workspace_completed_legacy"
-	CommandImplementationTransportClosed    AttemptPhaseCommandKind = "implementation_transport_closed_legacy"
-	CommandValidationTransportClosed        AttemptPhaseCommandKind = "validation_transport_closed_legacy"
 	CommandWorkspaceReady                   AttemptPhaseCommandKind = "workspace_ready"
 	CommandWorkspaceFailedRetryable         AttemptPhaseCommandKind = "workspace_failed_retryable"
 	CommandWorkspaceFailedReview            AttemptPhaseCommandKind = "workspace_failed_review"
@@ -166,13 +163,11 @@ var attemptTransitionTable = map[AttemptPhaseState]map[AttemptPhaseCommandKind]a
 	},
 	AttemptPhaseWorkspaceOpening: {
 		CommandWorkspaceOpenDeferred:    reduceWorkspaceOpenDeferred,
-		CommandWorkspaceCompletedLegacy: reduceWorkspaceCompletedLegacy,
 		CommandWorkspaceReady:           reduceWorkspaceReady,
 		CommandWorkspaceFailedRetryable: reduceWorkspaceFailedRetryable,
 		CommandWorkspaceFailedReview:    reduceWorkspaceFailedReview,
 	},
 	AttemptPhaseImplementing: {
-		CommandImplementationTransportClosed:    reduceImplementationTransportClosedLegacy,
 		CommandWorkspaceMetadataSynced:          reduceWorkspaceMetadataSynced,
 		CommandWorkspaceToolValidationStarted:   reduceWorkspaceToolValidationStarted,
 		CommandWorkspaceToolValidationCompleted: reduceWorkspaceToolValidationCompleted,
@@ -186,7 +181,6 @@ var attemptTransitionTable = map[AttemptPhaseState]map[AttemptPhaseCommandKind]a
 		CommandImplementationFailedReview:       reduceImplementationFailedReview,
 	},
 	AttemptPhaseValidating: {
-		CommandValidationTransportClosed:        reduceValidationTransportClosedLegacy,
 		CommandWorkspaceMetadataSynced:          reduceWorkspaceMetadataSynced,
 		CommandWorkspaceToolValidationStarted:   reduceWorkspaceToolValidationStarted,
 		CommandWorkspaceToolValidationCompleted: reduceWorkspaceToolValidationCompleted,
@@ -299,51 +293,6 @@ func reduceWorkspaceOpenDeferred(snapshot AttemptSnapshot, command CommandEnvelo
 			AttemptStatePatchPlan,
 			AttemptStateOverlayPlan,
 		},
-	}
-}
-
-func reduceWorkspaceCompletedLegacy(snapshot AttemptSnapshot, command CommandEnvelope) AttemptPhaseDecision {
-	return AttemptPhaseDecision{
-		TransitionDecision: TransitionDecision{
-			DecisionKind: DecisionAdvance,
-			Reason:       "legacy workspace_open completion without a successor was accepted so reconciliation can recover it",
-			Events: []DomainEventDescriptor{{
-				Kind: "workspace_open_completed_without_successor",
-			}},
-		},
-		NextPhase:           AttemptPhaseWorkspaceOpening,
-		AllowedProposalNext: []ProposalStatus{snapshot.ProposalStatus},
-		AllowedAttemptNext:  []AttemptState{snapshot.AttemptState},
-	}
-}
-
-func reduceImplementationTransportClosedLegacy(snapshot AttemptSnapshot, command CommandEnvelope) AttemptPhaseDecision {
-	return AttemptPhaseDecision{
-		TransitionDecision: TransitionDecision{
-			DecisionKind: DecisionAdvance,
-			Reason:       "legacy implement_attempt transport was closed after effect-backed command progression",
-			Events: []DomainEventDescriptor{{
-				Kind: "implement_attempt_transport_closed_legacy",
-			}},
-		},
-		NextPhase:           AttemptPhaseImplementing,
-		AllowedProposalNext: []ProposalStatus{snapshot.ProposalStatus},
-		AllowedAttemptNext:  []AttemptState{snapshot.AttemptState},
-	}
-}
-
-func reduceValidationTransportClosedLegacy(snapshot AttemptSnapshot, command CommandEnvelope) AttemptPhaseDecision {
-	return AttemptPhaseDecision{
-		TransitionDecision: TransitionDecision{
-			DecisionKind: DecisionAdvance,
-			Reason:       "legacy workspace_validate transport was closed after effect-backed command progression",
-			Events: []DomainEventDescriptor{{
-				Kind: "workspace_validate_transport_closed_legacy",
-			}},
-		},
-		NextPhase:           AttemptPhaseValidating,
-		AllowedProposalNext: []ProposalStatus{snapshot.ProposalStatus},
-		AllowedAttemptNext:  []AttemptState{snapshot.AttemptState},
 	}
 }
 

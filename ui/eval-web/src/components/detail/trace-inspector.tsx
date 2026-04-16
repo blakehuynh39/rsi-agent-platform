@@ -30,7 +30,8 @@ export function TraceInspector(props: {
     return <EmptyDetail title="Loading trace" body="Fetching the bounded evidence object for the selected trace." />;
   }
 
-  const trace = props.traceDetail.trace;
+  const traceDetail = props.traceDetail;
+  const trace = traceDetail.trace;
   const inspectorTabs: TraceInspectorTab[] = ["overview", "timeline", "reasoning", "tools", "actions", "slack", "outcomes", "evals", "feedback", "proposals"];
 
   return (
@@ -153,8 +154,8 @@ export function TraceInspector(props: {
 
       {props.tab === "actions" ? (
         <div className="detail-section-body">
-          {listOrEmpty(props.traceDetail.action_intents).map((intent) => {
-            const result = latestActionResult(intent.id, props.traceDetail.action_results);
+          {listOrEmpty(traceDetail.action_intents).map((intent) => {
+            const result = latestActionResult(intent.id, traceDetail.action_results);
             return (
               <div key={intent.id} className="detail-row">
                 <div className="detail-row-header">

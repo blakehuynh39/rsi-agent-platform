@@ -6,9 +6,9 @@ import json
 import os
 import time
 from numbers import Number
-from typing import Any, Dict, List
+from typing import Any
 
-from .json_types import JsonObject
+from .json_types import JsonObject, JsonToolWrapperSchema, JsonValue
 
 from .config import RunnerConfig
 from .hermes_adapter import HermesAdapter
@@ -23,7 +23,7 @@ from .rsi_tools import (
     normalize_tool_names,
     tool_schema_wrappers,
 )
-from .session_manager import SessionManager
+from .session_manager import SessionContext, SessionManager
 
 ROLE_TASK_TYPES = {
     "prod": {"general", "workflow", "prod"},
@@ -31,6 +31,49 @@ ROLE_TASK_TYPES = {
     "eval": {"general", "eval"},
     "proposal": {"general", "proposal", "repo-change"},
 }
+
+
+def _json_object_or_empty(value: JsonValue | None) -> JsonObject:
+    if isinstance(value, dict):
+        return value
+    return {}
+
+
+def _json_object_list(value: JsonValue | None) -> list[JsonObject]:
+    if not isinstance(value, list):
+        return []
+    return [item for item in value if isinstance(item, dict)]
+
+
+def _string_list(value: JsonValue | None) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(item) for item in value]
+
+
+def _optional_string(value: JsonValue | None) -> str | None:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        text = value.strip()
+        return text or None
+    return str(value)
+
+
+def _required_string(value: JsonValue | None, default: str) -> str:
+    if value is None:
+        return default
+    if isinstance(value, str):
+        text = value.strip()
+        return text or default
+    return str(value)
+
+
+def _first_non_none(*values: JsonValue | None) -> JsonValue | None:
+    for value in values:
+        if value is not None:
+            return value
+    return None
 
 
 try:
@@ -65,10 +108,10 @@ class RunnerTaskRequest:
     repo_ref: str | None
     prompt: str
     system_message: str | None
-    allowed_tools: List[str]
-    allowed_commands: List[str]
+    allowed_tools: list[str]
+    allowed_commands: list[str]
     timeout_seconds: int
-    expected_outputs: List[str]
+    expected_outputs: list[str]
     artifact_destination: str | None
     context_summary: str | None
     rejected_proposal_context: list[JsonObject]
@@ -82,8 +125,8 @@ class RunnerTaskRequest:
     recent_conversation_entries: list[JsonObject]
     case_summary: JsonObject | None
     prior_trace_refs: list[JsonObject]
-    repo_allowlist: List[str]
-    tool_allowlist: List[str]
+    repo_allowlist: list[str]
+    tool_allowlist: list[str]
     response_mode: str | None
     context_refs: list[JsonObject]
     approval_mode: str | None
@@ -105,61 +148,61 @@ class RunnerTaskRequest:
 
     @classmethod
     def from_payload(cls, payload: JsonObject) -> "RunnerTaskRequest":
-        task = payload.get("task", payload)
+        task = _json_object_or_empty(payload.get("task")) or payload
         return cls(
-            task_type=str(task.get("task_type", "general")),
-            repo=str(task.get("repo", "rsi-agent-platform")),
-            repo_ref=task.get("repo_ref"),
-            prompt=str(task.get("prompt", payload.get("prompt", ""))),
-            system_message=task.get("system_message", payload.get("system_message")),
-            allowed_tools=[str(item) for item in task.get("allowed_tools", [])],
-            allowed_commands=[str(item) for item in task.get("allowed_commands", [])],
+            task_type=_required_string(task.get("task_type"), "general"),
+            repo=_required_string(task.get("repo"), "rsi-agent-platform"),
+            repo_ref=_optional_string(task.get("repo_ref")),
+            prompt=_required_string(_first_non_none(task.get("prompt"), payload.get("prompt")), ""),
+            system_message=_optional_string(_first_non_none(task.get("system_message"), payload.get("system_message"))),
+            allowed_tools=_string_list(task.get("allowed_tools")),
+            allowed_commands=_string_list(task.get("allowed_commands")),
             timeout_seconds=int(task.get("timeout_seconds", 900)),
-            expected_outputs=[str(item) for item in task.get("expected_outputs", [])],
-            artifact_destination=task.get("artifact_destination"),
-            context_summary=task.get("context_summary"),
-            rejected_proposal_context=list(task.get("rejected_proposal_context", [])),
-            execution_mode=task.get("execution_mode"),
-            intent=task.get("intent"),
-            trace_id=task.get("trace_id"),
-            workflow_id=task.get("workflow_id"),
-            conversation_id=task.get("conversation_id"),
-            case_id=task.get("case_id"),
-            trigger_event_id=task.get("trigger_event_id"),
-            recent_conversation_entries=list(task.get("recent_conversation_entries", [])),
-            case_summary=task.get("case_summary"),
-            prior_trace_refs=list(task.get("prior_trace_refs", [])),
-            repo_allowlist=[str(item) for item in task.get("repo_allowlist", [])],
-            tool_allowlist=[str(item) for item in task.get("tool_allowlist", [])],
-            response_mode=task.get("response_mode"),
-            context_refs=list(task.get("context_refs", [])),
-            approval_mode=task.get("approval_mode"),
-            reasoning_verbosity=task.get("reasoning_verbosity"),
-            session_scope_kind=task.get("session_scope_kind"),
-            session_scope_id=task.get("session_scope_id"),
-            parent_session_scope_kind=task.get("parent_session_scope_kind"),
-            parent_session_scope_id=task.get("parent_session_scope_id"),
-            harness_profile_id=task.get("harness_profile_id"),
-            harness_overlay_version=task.get("harness_overlay_version"),
-            memory_backend=task.get("memory_backend"),
-            assistant_peer_id=task.get("assistant_peer_id"),
-            user_peer_id=task.get("user_peer_id"),
-            attempt_id=task.get("attempt_id"),
-            workspace_id=task.get("workspace_id"),
-            workspace_repo=task.get("workspace_repo"),
-            workspace_branch=task.get("workspace_branch"),
-            allowed_path_globs=[str(item) for item in task.get("allowed_path_globs", [])],
+            expected_outputs=_string_list(task.get("expected_outputs")),
+            artifact_destination=_optional_string(task.get("artifact_destination")),
+            context_summary=_optional_string(task.get("context_summary")),
+            rejected_proposal_context=_json_object_list(task.get("rejected_proposal_context")),
+            execution_mode=_optional_string(task.get("execution_mode")),
+            intent=_optional_string(task.get("intent")),
+            trace_id=_optional_string(task.get("trace_id")),
+            workflow_id=_optional_string(task.get("workflow_id")),
+            conversation_id=_optional_string(task.get("conversation_id")),
+            case_id=_optional_string(task.get("case_id")),
+            trigger_event_id=_optional_string(task.get("trigger_event_id")),
+            recent_conversation_entries=_json_object_list(task.get("recent_conversation_entries")),
+            case_summary=_json_object_or_empty(task.get("case_summary")) or None,
+            prior_trace_refs=_json_object_list(task.get("prior_trace_refs")),
+            repo_allowlist=_string_list(task.get("repo_allowlist")),
+            tool_allowlist=_string_list(task.get("tool_allowlist")),
+            response_mode=_optional_string(task.get("response_mode")),
+            context_refs=_json_object_list(task.get("context_refs")),
+            approval_mode=_optional_string(task.get("approval_mode")),
+            reasoning_verbosity=_optional_string(task.get("reasoning_verbosity")),
+            session_scope_kind=_optional_string(task.get("session_scope_kind")),
+            session_scope_id=_optional_string(task.get("session_scope_id")),
+            parent_session_scope_kind=_optional_string(task.get("parent_session_scope_kind")),
+            parent_session_scope_id=_optional_string(task.get("parent_session_scope_id")),
+            harness_profile_id=_optional_string(task.get("harness_profile_id")),
+            harness_overlay_version=_optional_string(task.get("harness_overlay_version")),
+            memory_backend=_optional_string(task.get("memory_backend")),
+            assistant_peer_id=_optional_string(task.get("assistant_peer_id")),
+            user_peer_id=_optional_string(task.get("user_peer_id")),
+            attempt_id=_optional_string(task.get("attempt_id")),
+            workspace_id=_optional_string(task.get("workspace_id")),
+            workspace_repo=_optional_string(task.get("workspace_repo")),
+            workspace_branch=_optional_string(task.get("workspace_branch")),
+            allowed_path_globs=_string_list(task.get("allowed_path_globs")),
         )
 
 
 @dataclass
 class ToolPolicy:
     mode: str
-    requested: List[str]
-    effective: List[str]
-    blocked: List[str]
-    memory_tools: List[str]
-    custom_tools: List[str]
+    requested: list[str]
+    effective: list[str]
+    blocked: list[str]
+    memory_tools: list[str]
+    custom_tools: list[str]
 
 
 class HermesStructuredOutputError(ValueError):
@@ -282,7 +325,7 @@ class HermesRuntime:
         )
         return self._execute_task_request(task, self._resolve_tool_policy(task))
 
-    def _create_agent(self, context: Any) -> Any:
+    def _create_agent(self, context: SessionContext) -> Any:
         agent_kwargs: JsonObject = {
             "model": self._provider_model,
             "quiet_mode": True,
@@ -448,7 +491,7 @@ class HermesRuntime:
             "system_message": system_message,
         }
 
-    def _default_policy_allowlist(self, execution_mode: str) -> List[str]:
+    def _default_policy_allowlist(self, execution_mode: str) -> list[str]:
         permitted = set(READ_ONLY_HONCHO_TOOLS)
         if self._config.tool_gateway_base_url:
             permitted.update(READ_ONLY_RSI_TOOL_NAMES)
@@ -535,7 +578,7 @@ class HermesRuntime:
         self,
         agent: Any,
         task: RunnerTaskRequest,
-        context: Any,
+        context: SessionContext,
         timeout_seconds: int,
         inactivity_timeout_seconds: int,
     ) -> tuple[bool, JsonObject | None, JsonObject]:
@@ -586,7 +629,7 @@ class HermesRuntime:
         future: concurrent.futures.Future,
         timeout_kind: str,
         timeout_seconds: int,
-        activity: Dict[str, Any],
+        activity: JsonObject,
     ) -> tuple[bool, JsonObject | None, JsonObject]:
         agent.interrupt(f"runner {timeout_kind} after {timeout_seconds}s")
         shutdown_error = ""
@@ -795,12 +838,8 @@ def first_non_empty(*values: str | None) -> str:
     return ""
 
 
-def tool_name(schema: JsonObject) -> str:
-    if not isinstance(schema, dict):
-        return ""
+def tool_name(schema: JsonToolWrapperSchema) -> str:
     function = schema.get("function", {})
-    if not isinstance(function, dict):
-        return ""
     value = function.get("name", "")
     return str(value).strip()
 

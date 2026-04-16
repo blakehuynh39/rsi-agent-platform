@@ -45,10 +45,10 @@ def runner_env(role: str = "prod") -> dict[str, str]:
 
 
 class FakeAIAgent:
-    last_kwargs: dict | None = None
+    last_kwargs: dict[str, object] | None = None
     last_prompt: str | None = None
     last_system_message: str | None = None
-    last_history: list[dict] | None = None
+    last_history: list[dict[str, object]] | None = None
     last_valid_tool_names: list[str] | None = None
     last_tool_names: list[str] | None = None
     sleep_seconds: float = 0.0
@@ -62,7 +62,7 @@ class FakeAIAgent:
         prompt: str,
         system_message: str | None = None,
         conversation_history: list[dict] | None = None,
-    ) -> dict:
+    ) -> dict[str, object]:
         if type(self).sleep_seconds > 0:
             time.sleep(type(self).sleep_seconds)
         type(self).last_prompt = prompt
@@ -101,7 +101,7 @@ class FakeAIAgent:
     def interrupt(self, _message: str | None = None) -> None:
         self._interrupted = True
 
-    def get_activity_summary(self) -> dict:
+    def get_activity_summary(self) -> dict[str, object]:
         return {
             "last_activity_desc": "waiting_on_tool_or_model",
             "current_tool": "rsi.trace_context",
@@ -125,7 +125,7 @@ class FakeSessionManager:
         self.session_db = object()
         self.honcho_available = True
 
-    def prepare(self, task):
+    def prepare(self, task: RunnerTaskRequest):
         return types.SimpleNamespace(
             session_id="rsi-prod-conversation-123",
             parent_session_id="",
@@ -141,10 +141,10 @@ class FakeSessionManager:
             conversation_history=[{"role": "user", "content": "Earlier thread message"}],
         )
 
-    def attach_tracking(self, _agent, _task, _context):
+    def attach_tracking(self, _agent: object, _task: RunnerTaskRequest, _context: object) -> FakeTracker:
         return FakeTracker()
 
-    def finalize(self, context, tracker):
+    def finalize(self, context: types.SimpleNamespace, tracker: FakeTracker) -> dict[str, object]:
         return {
             "hermes_session_id": context.session_id,
             "parent_session_id": context.parent_session_id,
@@ -185,6 +185,54 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(config.reasoning_effort, "xhigh")
         self.assertEqual(config.memory_backend, "honcho")
         self.assertEqual(config.honcho_workspace, "rsi-stage")
+
+    def test_runner_task_request_normalizes_non_list_payload_fields(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "eval",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the eval.",
+                    "allowed_tools": "repo.context",
+                    "allowed_commands": "python -m pytest",
+                    "expected_outputs": "final answer",
+                    "rejected_proposal_context": "nope",
+                    "recent_conversation_entries": "nope",
+                    "prior_trace_refs": "nope",
+                    "repo_allowlist": "nope",
+                    "tool_allowlist": "nope",
+                    "context_refs": "nope",
+                    "allowed_path_globs": "nope",
+                    "case_summary": "nope",
+                }
+            }
+        )
+
+        self.assertEqual(task.allowed_tools, [])
+        self.assertEqual(task.allowed_commands, [])
+        self.assertEqual(task.expected_outputs, [])
+        self.assertEqual(task.rejected_proposal_context, [])
+        self.assertEqual(task.recent_conversation_entries, [])
+        self.assertEqual(task.prior_trace_refs, [])
+        self.assertEqual(task.repo_allowlist, [])
+        self.assertEqual(task.tool_allowlist, [])
+        self.assertEqual(task.context_refs, [])
+        self.assertEqual(task.allowed_path_globs, [])
+        self.assertIsNone(task.case_summary)
+
+    def test_runner_task_request_falls_back_to_top_level_payload_when_task_is_not_object(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": "not-an-object",
+                "task_type": "general",
+                "repo": "rsi-agent-platform",
+                "prompt": "Use the top-level prompt.",
+            }
+        )
+
+        self.assertEqual(task.task_type, "general")
+        self.assertEqual(task.repo, "rsi-agent-platform")
+        self.assertEqual(task.prompt, "Use the top-level prompt.")
 
     def test_openai_models_use_persisted_hermes_sessions_with_xhigh(self) -> None:
         task = RunnerTaskRequest.from_payload(

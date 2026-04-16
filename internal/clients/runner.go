@@ -1,11 +1,7 @@
 package clients
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/piplabs/rsi-agent-platform/internal/harness"
@@ -163,57 +159,23 @@ func NewRunnerClient(baseURL string) *RunnerClient {
 }
 
 func NewRunnerClientWithTimeout(baseURL string, timeout time.Duration) *RunnerClient {
-	if timeout <= 0 {
-		timeout = 60 * time.Second
-	}
 	return &RunnerClient{
-		baseURL: strings.TrimRight(baseURL, "/"),
-		httpClient: &http.Client{
-			Timeout: timeout,
-		},
+		baseURL:    trimBaseURL(baseURL),
+		httpClient: newHTTPClient(timeout),
 	}
 }
 
 func (c *RunnerClient) Execute(task RunnerTask) (RunnerResponse, error) {
-	body, err := json.Marshal(map[string]RunnerTask{"task": task})
-	if err != nil {
-		return RunnerResponse{}, err
-	}
-	req, err := http.NewRequest(http.MethodPost, c.baseURL+"/execute", bytes.NewReader(body))
-	if err != nil {
-		return RunnerResponse{}, err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return RunnerResponse{}, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 300 {
-		return RunnerResponse{}, fmt.Errorf("runner returned %d", resp.StatusCode)
-	}
 	var out RunnerResponse
-	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+	if err := doJSON(c.httpClient, http.MethodPost, c.baseURL+"/execute", map[string]RunnerTask{"task": task}, &out, "runner"); err != nil {
 		return RunnerResponse{}, err
 	}
 	return out, nil
 }
 
 func (c *RunnerClient) Runtime() (RuntimeResponse, error) {
-	req, err := http.NewRequest(http.MethodGet, c.baseURL+"/runtimez", nil)
-	if err != nil {
-		return RuntimeResponse{}, err
-	}
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return RuntimeResponse{}, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 300 {
-		return RuntimeResponse{}, fmt.Errorf("runner returned %d", resp.StatusCode)
-	}
 	var out RuntimeResponse
-	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+	if err := doJSON(c.httpClient, http.MethodGet, c.baseURL+"/runtimez", nil, &out, "runner"); err != nil {
 		return RuntimeResponse{}, err
 	}
 	return out, nil

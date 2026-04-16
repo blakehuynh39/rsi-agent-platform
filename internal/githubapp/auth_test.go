@@ -88,3 +88,27 @@ func TestMintInstallationTokenSupportsEscapedNewlines(t *testing.T) {
 		t.Fatalf("MintInstallationToken() error = %v", err)
 	}
 }
+
+func TestMintInstallationTokenRejectsNonNumericAppID(t *testing.T) {
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatalf("GenerateKey() error = %v", err)
+	}
+	pemBytes := pem.EncodeToMemory(&pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: x509.MarshalPKCS1PrivateKey(privateKey),
+	})
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		t.Fatal("request should not be sent when app id is invalid")
+	}))
+	defer server.Close()
+
+	client := NewClient("not-a-number", "456", string(pemBytes), server.URL, server.Client())
+	_, err = client.MintInstallationToken(context.Background(), nil)
+	if err == nil {
+		t.Fatal("expected MintInstallationToken to fail for non-numeric app id")
+	}
+	if !strings.Contains(err.Error(), "github app id must be numeric") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}

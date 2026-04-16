@@ -495,7 +495,7 @@ function renderApp() {
 describe("App", () => {
   beforeEach(() => {
     window.history.replaceState({}, "", "/");
-    vi.spyOn(global, "fetch").mockImplementation((input) => {
+    vi.spyOn(globalThis, "fetch").mockImplementation((input: RequestInfo | URL) => {
       const url = String(input);
       const payload =
         url.endsWith("/api/conversations") ? conversationListResponse :

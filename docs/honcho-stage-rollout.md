@@ -1,14 +1,14 @@
 # Honcho Stage Rollout
 
-Use this runbook when cutting stage over from managed Honcho credentials to the
-self-hosted Honcho service inside the RSI platform deployment.
+Use this runbook for the stage cutover from managed Honcho credentials to the
+self-hosted Honcho service in the RSI platform deployment.
 
 ## Rollout Order
 
 1. Merge and deploy the RSI platform image set that includes the Honcho baseline
    migration and Honcho image build.
 2. Confirm the `PreSync` `improvement-plane --mode migrate` job completes.
-3. Verify the shared stage Postgres now contains:
+3. Verify the shared stage Postgres contains:
    - `pg_extension.extname = 'vector'`
    - schema `honcho`
    - Honcho tables such as `honcho.messages`
@@ -36,14 +36,13 @@ self-hosted Honcho service inside the RSI platform deployment.
   [`docs/persistence-hardening-stage-acceptance.md`](./persistence-hardening-stage-acceptance.md)
   still pass.
 
-## Bootstrap Notes
+## Notes
 
 - The stage chart owns the `standard-rwo` compatibility `StorageClass` because
   the cluster only exposes `gp3` natively and older runner PVCs still reference
   `standard-rwo`.
-- The main CD workflow now auto-creates the target ECR repository if it does not
-  already exist, including `rsi-agent-platform-honcho`, before attempting to push
-  images.
+- The main CD workflow verifies that each target ECR repository exists before
+  pushing images, including `rsi-agent-platform-honcho`.
 
 ## Rollback
 

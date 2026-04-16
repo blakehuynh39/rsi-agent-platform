@@ -4,7 +4,7 @@ Use this runbook after the three app PRs and the deployment migration-job PR are
 
 ## Preconditions
 
-- Stage deployments are on the updated images.
+- Stage deployments use the new images.
 - The stage chart includes the `PreSync` migration job.
 - `improvement-plane --mode migrate` has completed successfully in Argo.
 - Slack and GitHub stage credentials are present.
@@ -18,17 +18,17 @@ Use this runbook after the three app PRs and the deployment migration-job PR are
 2. Verify runtime metadata:
    - `curl -sf https://staging-rsi-platform.storyprotocol.net/api/meta | jq`
    - Confirm schema versions are exposed for debugging.
-3. Trigger a Slack DM question in the allowed stage bot surface.
+3. Trigger a Slack DM question through the approved stage bot surface.
 4. In improvement-plane, confirm the DM produced:
    - one `Conversation`
    - one `Case`
    - one terminal `Trace`
-5. Force or observe a terminal failed trace for the recursive-loop path.
+5. Create or observe a terminal failed trace for the recursive-loop path.
 6. Verify eval persistence:
    - confirm an `EvalRun` exists for the failed trace
    - confirm at least one `ImprovementCandidate` exists
 7. Verify promotion:
-   - wait for cron or run the promoter once
+   - wait for the cron run or run the promoter once
    - confirm a proposal appears when the active slot cap allows it
 8. Verify approval path:
    - approve the proposal

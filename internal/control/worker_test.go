@@ -19,6 +19,7 @@ import (
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
+	"github.com/piplabs/rsi-agent-platform/internal/workflowplan"
 )
 
 func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
@@ -634,7 +635,7 @@ func TestFinalizeWorkflowFailureQueuesEvalForFailedTrace(t *testing.T) {
 }
 
 func TestToolPlanForRepoProgressQuestionUsesGitHubActivity(t *testing.T) {
-	plan := toolPlanForIntent("question", "Hello RSI, can you give me a quick rundown of how depin-backend api progressed in the last week", "depin-backend")
+	plan := workflowplan.ToolPlan("question", "Hello RSI, can you give me a quick rundown of how depin-backend api progressed in the last week", "depin-backend")
 	if !containsString(plan, "github.repo_activity") {
 		t.Fatalf("expected github.repo_activity in tool plan, got %#v", plan)
 	}

@@ -57,10 +57,7 @@ func RunWorker(cfg config.Config, store storepkg.Store) error {
 			}
 			continue
 		}
-		if !ok {
-			time.Sleep(cfg.WorkerPollInterval)
-			continue
-		}
+		time.Sleep(cfg.WorkerPollInterval)
 	}
 }
 

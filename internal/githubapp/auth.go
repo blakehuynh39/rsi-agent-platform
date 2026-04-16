@@ -125,8 +125,12 @@ func (c *Client) signedJWT() (string, error) {
 	claims := map[string]any{
 		"iat": now.Add(-60 * time.Second).Unix(),
 		"exp": now.Add(9 * time.Minute).Unix(),
-		"iss": issuerClaim(c.appID),
 	}
+	issuer, err := issuerClaim(c.appID)
+	if err != nil {
+		return "", err
+	}
+	claims["iss"] = issuer
 
 	headerJSON, err := json.Marshal(header)
 	if err != nil {
@@ -166,9 +170,10 @@ func parsePrivateKey(value string) (*rsa.PrivateKey, error) {
 	return key, nil
 }
 
-func issuerClaim(appID string) any {
-	if id, err := strconv.ParseInt(strings.TrimSpace(appID), 10, 64); err == nil {
-		return id
+func issuerClaim(appID string) (any, error) {
+	id, err := strconv.ParseInt(strings.TrimSpace(appID), 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("github app id must be numeric: %q", strings.TrimSpace(appID))
 	}
-	return strings.TrimSpace(appID)
+	return id, nil
 }

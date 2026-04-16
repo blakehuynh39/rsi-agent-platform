@@ -2,18 +2,18 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import json
-from typing import Any, Iterable
+from typing import Any, Iterable, Protocol
 from urllib import error as urlerror
 from urllib import request as urlrequest
 
-from .json_types import JsonObject
+from .json_types import JsonObject, JsonToolFunctionSchema, JsonToolWrapperSchema
 
 
 READ_ONLY_HONCHO_TOOLS = frozenset({"honcho_profile", "honcho_search", "honcho_context"})
 BLOCKED_HONCHO_TOOLS = frozenset({"honcho_conclude"})
 
 
-_READ_ONLY_TOOL_SCHEMAS: dict[str, JsonObject] = {
+_READ_ONLY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     "repo.context": {
         "name": "repo.context",
         "description": "Read-only repository context lookup for the current repo or a named repo.",
@@ -211,7 +211,7 @@ _READ_ONLY_TOOL_SCHEMAS: dict[str, JsonObject] = {
     },
 }
 
-_WORKSPACE_TOOL_SCHEMAS: dict[str, JsonObject] = {
+_WORKSPACE_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     "workspace.list_files": {
         "name": "workspace.list_files",
         "description": "List files inside the governed attempt workspace.",
@@ -321,8 +321,8 @@ WORKSPACE_RSI_TOOL_NAMES = tuple(sorted(_WORKSPACE_TOOL_SCHEMAS.keys()))
 IMPLEMENT_RSI_TOOL_NAMES = tuple(sorted(_TOOL_SCHEMAS.keys()))
 
 
-def tool_schema_wrappers(names: Iterable[str]) -> list[JsonObject]:
-    wrappers: list[JsonObject] = []
+def tool_schema_wrappers(names: Iterable[str]) -> list[JsonToolWrapperSchema]:
+    wrappers: list[JsonToolWrapperSchema] = []
     for name in names:
         schema = _TOOL_SCHEMAS.get(name)
         if schema is None:
@@ -341,6 +341,17 @@ def normalize_tool_names(values: Iterable[str]) -> list[str]:
         seen.add(name)
         out.append(name)
     return out
+
+
+class ToolManagerLike(Protocol):
+    def has_tool(self, name: str) -> bool:
+        ...
+
+    def handle_tool_call(self, name: str, args: JsonObject, **kwargs: Any) -> str:
+        ...
+
+    def build_system_prompt(self) -> str:
+        ...
 
 
 @dataclass
@@ -406,6 +417,14 @@ class ReadOnlyToolBinding:
                     "body": body[:8000],
                 }
             )
+        if not isinstance(parsed, dict):
+            return json.dumps(
+                {
+                    "tool_name": name,
+                    "status": "error",
+                    "error": "tool gateway returned a non-object JSON payload",
+                }
+            )
         return json.dumps(
             {
                 "tool_name": name,
@@ -464,7 +483,7 @@ class ReadOnlyToolBinding:
 
 
 class CompositeToolProvider:
-    def __init__(self, base_manager: Any, readonly_tools: ReadOnlyToolBinding) -> None:
+    def __init__(self, base_manager: ToolManagerLike | None, readonly_tools: ReadOnlyToolBinding) -> None:
         self._base_manager = base_manager
         self._readonly_tools = readonly_tools
 

@@ -7,10 +7,8 @@ type RuntimeComponent struct {
 }
 
 type DialecticLevel struct {
-	Provider             string `json:"provider"`
-	Model                string `json:"model"`
-	ReasoningEffort      string `json:"reasoning_effort"`
-	ThinkingBudgetTokens int    `json:"thinking_budget_tokens"`
+	RuntimeComponent
+	ThinkingBudgetTokens int `json:"thinking_budget_tokens"`
 }
 
 type RuntimeResponse struct {

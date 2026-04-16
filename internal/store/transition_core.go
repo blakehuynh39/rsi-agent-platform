@@ -149,23 +149,14 @@ func proposalPhaseAdvanceCommand(currentKind string, nextKind string) (transitio
 			return transition.CommandAttemptPlannedImplement, nil
 		}
 	case "workspace_open":
-		if strings.TrimSpace(nextKind) == "" {
-			return transition.CommandWorkspaceCompletedLegacy, nil
-		}
 		if strings.TrimSpace(nextKind) == "implement_attempt" {
 			return transition.CommandWorkspaceReady, nil
 		}
 	case "implement_attempt":
-		if strings.TrimSpace(nextKind) == "" {
-			return transition.CommandImplementationTransportClosed, nil
-		}
 		if strings.TrimSpace(nextKind) == "workspace_validate" {
 			return transition.CommandImplementationCompleted, nil
 		}
 	case "workspace_validate":
-		if strings.TrimSpace(nextKind) == "" {
-			return transition.CommandValidationTransportClosed, nil
-		}
 		if strings.TrimSpace(nextKind) == "pr_open" {
 			return transition.CommandValidationCompleted, nil
 		}

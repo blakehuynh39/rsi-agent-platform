@@ -1011,16 +1011,35 @@ func TestProcessEvalItemRequeuesStalledApprovedProposal(t *testing.T) {
 	if err != nil {
 		t.Fatalf("UpsertAttemptWorkspace() error = %v", err)
 	}
+	if _, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineProposalLine,
+		AggregateID: proposal.ID,
+		CommandKind: string(transition.CommandProposalMarkRepoChangeRunning),
+		CommandID:   "cmd-test-proposal-repo-change-running",
+		Actor:       "tester",
+		OccurredAt:  time.Now().UTC(),
+	}); err != nil {
+		t.Fatalf("SubmitCommand(proposal_mark_repo_change_running) error = %v", err)
+	}
+	proposal, ok = findProposal(store.ListProposals(), proposal.ID)
+	if !ok {
+		t.Fatalf("expected proposal %s after repo change running command", proposal.ID)
+	}
+	cfg := config.Config{ServiceName: "improvement-plane"}
+	nextOp, nextItem := proposalAttemptPhaseWork(cfg, proposal, trace, attempt, proposalOperationImplementAttempt, map[string]any{
+		"workspace_id": workspace.ID,
+	})
 	if err := store.AdvanceProposalAttemptPhase(storepkg.ProposalAttemptPhaseAdvance{
-		ProposalID:  proposal.ID,
-		WorkItemID:  workspaceOpen.ID,
-		OperationID: workspaceOpen.OperationID,
-		Proposal:    &proposal,
-		Workspace:   &workspace,
+		ProposalID:    proposal.ID,
+		WorkItemID:    workspaceOpen.ID,
+		OperationID:   workspaceOpen.OperationID,
+		Proposal:      &proposal,
+		Workspace:     &workspace,
+		NextOperation: &nextOp,
+		NextWorkItem:  &nextItem,
 	}); err != nil {
 		t.Fatalf("AdvanceProposalAttemptPhase(workspace_open) error = %v", err)
 	}
-	cfg := config.Config{ServiceName: "improvement-plane"}
 	evalCommandID := "cmd-problem-line:evaluate:" + trace.Summary.TraceID + ":manual-effect"
 	if _, err := store.SubmitCommand(transition.CommandEnvelope{
 		MachineKind: transition.MachineProblemLine,
@@ -1056,26 +1075,6 @@ func TestProcessEvalItemRequeuesStalledApprovedProposal(t *testing.T) {
 		t.Fatalf("expected proposal %s with current attempt after eval", proposal.ID)
 	}
 	assertQueuedAttemptBootstrapEffect(t, store, proposal.CurrentAttemptID)
-}
-
-func TestProcessProposalItemRejectsLegacyApprovedProposalBootstrap(t *testing.T) {
-	store := storepkg.NewMemoryStore()
-	proposal := store.ListProposals()[0]
-	cfg := config.Config{ServiceName: "improvement-plane"}
-
-	err := processProposalItem(cfg, store, nil, nil, nil, nil, queue.WorkItem{
-		ID:         "work-legacy-approved-proposal",
-		Queue:      queue.ProposalQueue,
-		Kind:       "approved_proposal",
-		Status:     queue.WorkQueued,
-		TraceID:    proposal.TraceID,
-		ProposalID: proposal.ID,
-		CreatedAt:  time.Now().UTC(),
-		UpdatedAt:  time.Now().UTC(),
-	})
-	if err == nil || !strings.Contains(err.Error(), "unsupported proposal operation") {
-		t.Fatalf("processProposalItem(approved_proposal) error = %v", err)
-	}
 }
 
 func TestRecordAttemptFailureUsesFormalAttemptAndProposalCommands(t *testing.T) {
@@ -2263,7 +2262,7 @@ func TestProcessProposalWorkspaceOpenEffectRequeuesOnDefer(t *testing.T) {
 		t.Fatalf("expected workspace_open work item %s", workspaceWorkItemID)
 	}
 	if workspaceWorkItem.Status != queue.WorkQueued {
-		t.Fatalf("expected legacy workspace_open transport to remain untouched, got %s", workspaceWorkItem.Status)
+		t.Fatalf("expected workspace_open work item to remain queued, got %s", workspaceWorkItem.Status)
 	}
 }
 

@@ -208,7 +208,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 				EventType:   "runner.completed",
 				Status:      events.StatusCompleted,
 				StartedAt:   runnerStarted,
-				EndedAt:     ptrTime(runnerCompleted),
+				EndedAt:     &runnerCompleted,
 				Description: runnerDescription,
 			},
 		}, draftEvents...),
@@ -807,10 +807,6 @@ func findIngestion(items []slackpkg.Ingestion, ingestionID string) (slackpkg.Ing
 	return slackpkg.Ingestion{}, false
 }
 
-func toolPlanForIntent(intent string, question string, repo string) []string {
-	return workflowplan.ToolPlan(intent, question, repo)
-}
-
 func runnerRoleForQueue(name queue.QueueName) string {
 	switch name {
 	case queue.ProactiveQueue:
@@ -1027,14 +1023,6 @@ func parseTimeOrNil(raw string) *time.Time {
 	return &parsed
 }
 
-func ptrStatus(status events.Status) *events.Status {
-	return &status
-}
-
-func ptrTime(value time.Time) *time.Time {
-	return &value
-}
-
 func firstNonEmpty(values ...string) string {
 	for _, value := range values {
 		value = strings.TrimSpace(value)
@@ -1206,28 +1194,9 @@ func contextFromTrace(trace events.Trace) (string, []clients.RunnerContextRef, [
 		}
 	}
 	if len(toolNames) == 0 {
-		toolNames = toolPlanForIntent(trace.Summary.WorkflowKind, "", "")
+		toolNames = workflowplan.ToolPlan(trace.Summary.WorkflowKind, "", "")
 	}
 	return strings.Join(summaries, " "), contextRefs, uniqueStrings(toolNames)
-}
-
-func ingestionText(ingestion slackpkg.Ingestion) string {
-	return strings.TrimSpace(ingestion.Text)
-}
-
-func resolveTargetRepo(cfg config.Config, question string) string {
-	return workflowplan.ResolveTargetRepo(workflowplan.RuntimeConfig{
-		DefaultRepo:  cfg.DefaultRepo,
-		AllowedRepos: append([]string(nil), cfg.AllowedTargetRepos...),
-	}, question)
-}
-
-func shouldUseGitHubRepoActivity(question string, repo string) bool {
-	return workflowplan.ShouldUseGitHubRepoActivity(question, repo)
-}
-
-func repoActivityWindow(question string, now time.Time) (string, string) {
-	return workflowplan.RepoActivityWindow(question, now)
 }
 
 func workflowOutcomeForTrace(store storepkg.Store, traceID string) (events.Status, string, string) {
@@ -1625,15 +1594,6 @@ func queueNameFromString(raw string) queue.QueueName {
 	default:
 		return queue.WorkflowQueue
 	}
-}
-
-func traceHasEventType(trace events.Trace, eventType string) bool {
-	for _, item := range trace.Events {
-		if item.EventType == eventType {
-			return true
-		}
-	}
-	return false
 }
 
 func uniqueStrings(values []string) []string {

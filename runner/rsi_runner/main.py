@@ -41,7 +41,11 @@ class RunnerHandler(BaseHTTPRequestHandler):
             return
 
         content_length = int(self.headers.get("Content-Length", "0"))
-        payload: JsonObject = json.loads(self.rfile.read(content_length) or "{}")
+        parsed = json.loads(self.rfile.read(content_length) or "{}")
+        if not isinstance(parsed, dict):
+            self._json(400, {"error": "request body must be a JSON object"})
+            return
+        payload: JsonObject = parsed
         if "task" in payload or "task_type" in payload:
             task = RunnerTaskRequest.from_payload(payload)
             result = self.runtime.execute_task(task)

@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 import hashlib
 import json
 from pathlib import Path
-from typing import Any, List
+from typing import Any, Protocol
 
 from .json_types import JsonObject
 
@@ -50,6 +50,16 @@ class MemoryTracker:
         self.writes.append({"kind": kind, "summary": text, "source": source, "ref": ref})
 
 
+class RunnerTaskLike(Protocol):
+    session_scope_kind: str | None
+    session_scope_id: str | None
+    parent_session_scope_kind: str | None
+    parent_session_scope_id: str | None
+    user_peer_id: str | None
+    recent_conversation_entries: list[JsonObject]
+    assistant_peer_id: str | None
+
+
 class SessionManager:
     def __init__(self, config: RunnerConfig) -> None:
         self._config = config
@@ -59,7 +69,7 @@ class SessionManager:
         self._ready_issues = self._configure_home()
 
     @property
-    def ready_issues(self) -> List[str]:
+    def ready_issues(self) -> list[str]:
         return list(self._ready_issues)
 
     @property
@@ -82,7 +92,7 @@ class SessionManager:
     def honcho_available(self) -> bool:
         return self._config.memory_backend == "honcho"
 
-    def prepare(self, task: Any) -> SessionContext:
+    def prepare(self, task: RunnerTaskLike) -> SessionContext:
         scope_kind = first_non_empty(getattr(task, "session_scope_kind", None), "role")
         scope_id = first_non_empty(getattr(task, "session_scope_id", None), self._config.role)
         parent_scope_kind = first_non_empty(getattr(task, "parent_session_scope_kind", None))
@@ -112,7 +122,7 @@ class SessionManager:
             conversation_history=history,
         )
 
-    def attach_tracking(self, agent: Any, task: Any, context: SessionContext) -> MemoryTracker:
+    def attach_tracking(self, agent: Any, task: RunnerTaskLike, context: SessionContext) -> MemoryTracker:
         tracker = MemoryTracker()
         for entry in summarize_history(context.conversation_history):
             tracker.record_read("session_history", entry, source="session_db", ref=context.session_id)
@@ -172,8 +182,8 @@ class SessionManager:
             self._db = SessionDB(db_path=self._session_db_path)
         return self._db
 
-    def _configure_home(self) -> List[str]:
-        issues: List[str] = []
+    def _configure_home(self) -> list[str]:
+        issues: list[str] = []
         try:
             self._hermes_home.mkdir(parents=True, exist_ok=True)
         except Exception as exc:  # pragma: no cover - OS-specific failure
@@ -233,7 +243,7 @@ def stable_session_id(role: str, scope_kind: str, scope_id: str) -> str:
 def summarize_history(history: list[JsonObject]) -> list[str]:
     if not history:
         return []
-    out: List[str] = []
+    out: list[str] = []
     for item in history[-4:]:
         role = first_non_empty(str(item.get("role", "")).strip(), "message")
         content = truncate_text(str(item.get("content", "") or ""), 160)

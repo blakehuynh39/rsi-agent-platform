@@ -92,11 +92,15 @@ func ParseStructuredOutput(resp clients.RunnerResponse) (StructuredOutput, error
 func ToTraceReasoning(traceID string, workflowID string, output StructuredOutput, createdAt time.Time) []events.ReasoningStep {
 	out := make([]events.ReasoningStep, 0, len(output.VisibleReasoning))
 	for index, step := range output.VisibleReasoning {
+		stepType := strings.TrimSpace(step.StepType)
+		if stepType == "" {
+			stepType = "visible_reasoning"
+		}
 		out = append(out, events.ReasoningStep{
 			ID:           fmt.Sprintf("reason-runner-%d-%d", createdAt.UnixNano(), index),
 			TraceID:      traceID,
 			WorkflowID:   workflowID,
-			StepType:     firstNonEmpty(step.StepType, "visible_reasoning"),
+			StepType:     stepType,
 			Summary:      step.Summary,
 			EvidenceRefs: normalizeEvidenceRefs(step.EvidenceRefs),
 			Alternatives: normalizeStrings(step.Alternatives),
@@ -106,16 +110,6 @@ func ToTraceReasoning(traceID string, workflowID string, output StructuredOutput
 		})
 	}
 	return out
-}
-
-func firstNonEmpty(values ...string) string {
-	for _, value := range values {
-		value = strings.TrimSpace(value)
-		if value != "" {
-			return value
-		}
-	}
-	return ""
 }
 
 func normalizeStrings(values []string) []string {

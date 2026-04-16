@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -120,9 +121,9 @@ func Load(serviceName string) Config {
 		GitHubAPIBaseURL:          stringEnv("RSI_GITHUB_API_BASE_URL", "https://api.github.com"),
 		GitHubAppID:               stringEnv("RSI_GITHUB_APP_ID", ""),
 		GitHubAppInstallationID:   stringEnv("RSI_GITHUB_APP_INSTALLATION_ID", ""),
-		GitHubAppInstallationIDs:  mapEnv("RSI_GITHUB_APP_INSTALLATION_IDS", nil),
+		GitHubAppInstallationIDs:  mapEnv("RSI_GITHUB_APP_INSTALLATION_IDS"),
 		GitHubAppPrivateKey:       stringEnv("RSI_GITHUB_APP_PRIVATE_KEY", ""),
-		GitHubRepoOwners:          mapEnv("RSI_GITHUB_REPO_OWNERS", nil),
+		GitHubRepoOwners:          mapEnv("RSI_GITHUB_REPO_OWNERS"),
 		GitHubCommitUser:          stringEnv("RSI_GITHUB_COMMIT_USER", ""),
 		GitHubCommitEmail:         stringEnv("RSI_GITHUB_COMMIT_EMAIL", ""),
 		SentryAuthToken:           stringEnv("RSI_SENTRY_AUTH_TOKEN", ""),
@@ -139,8 +140,8 @@ func Load(serviceName string) Config {
 		SandboxServiceAccount:     stringEnv("RSI_SANDBOX_SERVICE_ACCOUNT_NAME", ""),
 		SandboxJobTTLSeconds:      intEnv("RSI_SANDBOX_JOB_TTL_SECONDS", 0),
 		SandboxDeadlineSeconds:    intEnv("RSI_SANDBOX_ACTIVE_DEADLINE_SECONDS", 0),
-		AllowedSlackChannelIDs:    listEnv("RSI_ALLOWED_SLACK_CHANNEL_IDS", nil),
-		AllowedTargetRepos:        listEnv("RSI_ALLOWED_TARGET_REPOS", nil),
+		AllowedSlackChannelIDs:    listEnv("RSI_ALLOWED_SLACK_CHANNEL_IDS"),
+		AllowedTargetRepos:        listEnv("RSI_ALLOWED_TARGET_REPOS"),
 		DefaultOperatorDomain:     stringEnv("RSI_OPERATOR_EMAIL_DOMAIN", ""),
 		DefaultRepo:               stringEnv("RSI_DEFAULT_REPO", ""),
 		DefaultKnowledgeBaseURL:   stringEnv("RSI_KNOWLEDGE_BASE_URL", ""),
@@ -236,54 +237,49 @@ func intEnv(key string, fallback int) int {
 	}
 	value, err := strconv.Atoi(raw)
 	if err != nil {
-		return fallback
+		panic(fmt.Errorf("%s must be a valid integer: %q: %w", key, raw, err))
 	}
 	return value
 }
 
-func listEnv(key string, fallback []string) []string {
+func listEnv(key string) []string {
 	raw := strings.TrimSpace(os.Getenv(key))
 	if raw == "" {
-		return fallback
+		return nil
 	}
 	parts := strings.Split(raw, ",")
 	out := make([]string, 0, len(parts))
 	for _, part := range parts {
 		part = strings.TrimSpace(part)
-		if part != "" {
-			out = append(out, part)
+		if part == "" {
+			panic(fmt.Errorf("%s must not contain empty list entries: %q", key, raw))
 		}
-	}
-	if len(out) == 0 {
-		return fallback
+		out = append(out, part)
 	}
 	return out
 }
 
-func mapEnv(key string, fallback map[string]string) map[string]string {
+func mapEnv(key string) map[string]string {
 	raw := strings.TrimSpace(os.Getenv(key))
 	if raw == "" {
-		return fallback
+		return nil
 	}
 	out := make(map[string]string)
 	for _, part := range strings.Split(raw, ",") {
 		part = strings.TrimSpace(part)
 		if part == "" {
-			continue
+			panic(fmt.Errorf("%s must not contain empty map entries: %q", key, raw))
 		}
 		keyPart, valuePart, ok := strings.Cut(part, "=")
 		if !ok {
-			continue
+			panic(fmt.Errorf("%s must use key=value pairs: %q", key, raw))
 		}
 		keyPart = strings.TrimSpace(keyPart)
 		valuePart = strings.TrimSpace(valuePart)
 		if keyPart == "" || valuePart == "" {
-			continue
+			panic(fmt.Errorf("%s must use non-empty key=value pairs: %q", key, raw))
 		}
 		out[keyPart] = valuePart
-	}
-	if len(out) == 0 {
-		return fallback
 	}
 	return out
 }
@@ -295,7 +291,7 @@ func durationEnv(key string, fallback time.Duration) time.Duration {
 	}
 	value, err := time.ParseDuration(raw)
 	if err != nil {
-		return fallback
+		panic(fmt.Errorf("%s must be a valid duration: %q: %w", key, raw, err))
 	}
 	return value
 }
@@ -307,7 +303,7 @@ func boolEnv(key string, fallback bool) bool {
 	}
 	value, err := strconv.ParseBool(raw)
 	if err != nil {
-		return fallback
+		panic(fmt.Errorf("%s must be a valid boolean: %q: %w", key, raw, err))
 	}
 	return value
 }

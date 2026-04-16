@@ -44,6 +44,18 @@ func ToolPlan(intent string, question string, repo string) []string {
 func BuildToolRequestPayload(cfg RuntimeConfig, ctx RequestContext, now time.Time) map[string]any {
 	repo := ResolveTargetRepo(cfg, ctx.Question)
 	since, until := RepoActivityWindow(ctx.Question, now)
+	workflowID := ctx.Trace.WorkflowID
+	if workflowID == "" {
+		workflowID = ctx.WorkflowID
+	}
+	conversationID := ctx.Trace.ConversationID
+	if conversationID == "" {
+		conversationID = ctx.ConversationID
+	}
+	caseID := ctx.Trace.CaseID
+	if caseID == "" {
+		caseID = ctx.CaseID
+	}
 	return map[string]any{
 		"repo":               repo,
 		"question":           ctx.Question,
@@ -57,9 +69,9 @@ func BuildToolRequestPayload(cfg RuntimeConfig, ctx RequestContext, now time.Tim
 		"channel_id":         ctx.ChannelID,
 		"thread_ts":          ctx.ThreadTS,
 		"trace_id":           ctx.Trace.TraceID,
-		"workflow_id":        firstNonEmpty(ctx.Trace.WorkflowID, ctx.WorkflowID),
-		"conversation_id":    firstNonEmpty(ctx.Trace.ConversationID, ctx.ConversationID),
-		"case_id":            firstNonEmpty(ctx.Trace.CaseID, ctx.CaseID),
+		"workflow_id":        workflowID,
+		"conversation_id":    conversationID,
+		"case_id":            caseID,
 		"since":              since,
 		"until":              until,
 	}
@@ -124,14 +136,4 @@ func RepoActivityWindow(question string, now time.Time) (string, string) {
 		start = now.Add(-7 * 24 * time.Hour)
 	}
 	return start.UTC().Format(time.RFC3339), now.UTC().Format(time.RFC3339)
-}
-
-func firstNonEmpty(values ...string) string {
-	for _, value := range values {
-		value = strings.TrimSpace(value)
-		if value != "" {
-			return value
-		}
-	}
-	return ""
 }

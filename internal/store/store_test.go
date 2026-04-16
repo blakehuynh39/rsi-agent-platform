@@ -610,9 +610,6 @@ func TestMemoryStoreSubmitCommandProposalApproveMaterializesAttemptAndQueuesFirs
 	foundAttemptEffect := false
 	for _, item := range store.ListWorkItems() {
 		if item.Queue == queue.ProposalQueue && item.ProposalID == proposal.ID {
-			if strings.TrimSpace(item.Kind) == "line_activate" || strings.TrimSpace(item.Kind) == "attempt_plan" {
-				t.Fatalf("did not expect legacy bootstrap phase work item, got %+v", item)
-			}
 			if strings.TrimSpace(item.OperationID) == "" {
 				continue
 			}

@@ -1,6 +1,7 @@
 package app
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -64,9 +65,13 @@ func WriteError(w http.ResponseWriter, status int, err error) {
 }
 
 func WriteJSON(w http.ResponseWriter, status int, payload interface{}) {
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(payload); err != nil {
+		panic(fmt.Errorf("encode json response: %w", err))
+	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(payload)
+	_, _ = w.Write(buf.Bytes())
 }
 
 func ListenAndServe(cfg config.Config, handler http.Handler) error {

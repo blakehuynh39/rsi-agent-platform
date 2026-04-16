@@ -42,7 +42,7 @@ def _lifecycle_path(session_id: str) -> Path:
     return _runtime_root() / "lifecycle" / f"{session_id}.jsonl"
 
 
-def _append_event(session_id: str, event: str, payload: dict) -> None:
+def _append_event(session_id: str, event: str, payload: JsonObject) -> None:
     path = _lifecycle_path(session_id)
     path.parent.mkdir(parents=True, exist_ok=True)
     item = {
@@ -53,23 +53,26 @@ def _append_event(session_id: str, event: str, payload: dict) -> None:
     with path.open("a", encoding="utf-8") as handle:
         handle.write(json.dumps(item, sort_keys=True) + "\\n")
 
-def _load_context(session_id: str) -> dict:
+def _load_context(session_id: str) -> JsonObject:
     path = _context_path(session_id)
     if not path.exists():
         return {}
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        parsed = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
         raise RuntimeError(f"Invalid RSI context payload for session {session_id}.") from exc
+    if not isinstance(parsed, dict):
+        raise RuntimeError(f"Invalid RSI context payload for session {session_id}.")
+    return parsed
 
 
-def _json_block(label: str, value) -> str:
+def _json_block(label: str, value: object) -> str:
     if not value:
         return ""
     return f"{label}:\\n" + json.dumps(value, ensure_ascii=True, sort_keys=True)
 
 
-def _render_context(payload: dict) -> str:
+def _render_context(payload: JsonObject) -> str:
     parts: list[str] = []
     summary = str(payload.get("context_summary", "") or "").strip()
     if summary:
