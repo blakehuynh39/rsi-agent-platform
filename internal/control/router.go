@@ -10,10 +10,10 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/app"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
-	"github.com/piplabs/rsi-agent-platform/internal/policy"
 	"github.com/piplabs/rsi-agent-platform/internal/sandbox"
 	"github.com/piplabs/rsi-agent-platform/internal/slack"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
+	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
 func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
@@ -35,9 +35,22 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 			app.WriteError(w, http.StatusBadRequest, err)
 			return
 		}
-		created, err := store.CreateEvent(event)
+		now := time.Now().UTC()
+		receipt, err := submitIngressEventCommand(
+			cfg,
+			store,
+			event,
+			"ui-operator",
+			now,
+			"cmd-ingress:event:"+ingressAggregateID(string(event.Source), firstNonEmpty(event.DedupeKey, event.SourceEventID, event.ID)),
+		)
 		if err != nil {
 			app.WriteError(w, http.StatusBadRequest, err)
+			return
+		}
+		created, err := loadIngressEventFromReceipt(store, receipt)
+		if err != nil {
+			app.WriteError(w, http.StatusInternalServerError, err)
 			return
 		}
 		app.WriteJSON(w, http.StatusCreated, created)
@@ -61,7 +74,19 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 		if envelope.CreatedAt.IsZero() {
 			envelope.CreatedAt = time.Now().UTC()
 		}
-		ingestion, err := store.CreateIngestion(envelope)
+		receipt, err := submitIngressSlackCommand(
+			cfg,
+			store,
+			envelope,
+			"ui-operator",
+			envelope.CreatedAt,
+			"cmd-ingress:slack:"+ingressAggregateID("slack", firstNonEmpty(envelope.TS, envelope.ThreadTS, envelope.ChannelID)),
+		)
+		if err != nil {
+			app.WriteError(w, http.StatusInternalServerError, err)
+			return
+		}
+		ingestion, err := loadSlackIngestionFromReceipt(store, receipt)
 		if err != nil {
 			app.WriteError(w, http.StatusInternalServerError, err)
 			return
@@ -70,6 +95,14 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 	})
 	r.Post("/webhooks/github", func(w http.ResponseWriter, r *http.Request) {
 		handleGitHubWebhook(cfg, store, w, r)
+	})
+	r.Post("/api/workflows/{workflowID}/commands", func(w http.ResponseWriter, r *http.Request) {
+		workflowID := chi.URLParam(r, "workflowID")
+		receipt, ok := app.SubmitMachineCommand(w, r, store, transition.MachineWorkflow, workflowID, "ui-operator")
+		if !ok {
+			return
+		}
+		app.WriteJSON(w, http.StatusAccepted, receipt)
 	})
 	r.Get("/api/thread-policies", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
@@ -81,23 +114,13 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 			"experiments":      store.ListExperiments(),
 		})
 	})
-	r.Post("/api/thread-policies/{threadKey}/mute", func(w http.ResponseWriter, r *http.Request) {
+	r.Post("/api/thread-policies/{threadKey}/commands", func(w http.ResponseWriter, r *http.Request) {
 		threadKey := chi.URLParam(r, "threadKey")
-		item, err := store.SetThreadState(threadKey, policy.ThreadStateMuted, "")
-		if err != nil {
-			app.WriteError(w, http.StatusNotFound, err)
+		receipt, ok := app.SubmitMachineCommand(w, r, store, transition.MachineThreadPolicy, threadKey, "ui-operator")
+		if !ok {
 			return
 		}
-		app.WriteJSON(w, http.StatusOK, item)
-	})
-	r.Post("/api/thread-policies/{threadKey}/resume", func(w http.ResponseWriter, r *http.Request) {
-		threadKey := chi.URLParam(r, "threadKey")
-		item, err := store.SetThreadState(threadKey, policy.ThreadStateActive, "")
-		if err != nil {
-			app.WriteError(w, http.StatusNotFound, err)
-			return
-		}
-		app.WriteJSON(w, http.StatusOK, item)
+		app.WriteJSON(w, http.StatusAccepted, receipt)
 	})
 	r.Get("/api/orchestration/status", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{

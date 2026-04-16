@@ -190,7 +190,10 @@ func (p *PostgresStore) CompleteEffectExecution(effectID string, resultRef strin
 			row = tx.QueryRow(`select `+effectExecutionSelectColumns()+` from effect_execution where id = $1`, strings.TrimSpace(effectID))
 			item, err = scanEffectExecution(row)
 		}
-		return err
+		if err != nil {
+			return err
+		}
+		return nil
 	})
 	return
 }

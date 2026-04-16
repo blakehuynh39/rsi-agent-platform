@@ -19,6 +19,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
+	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
 func TestGitHubCreatePRUsesExternalAPI(t *testing.T) {
@@ -179,43 +180,70 @@ func TestRSIRuntimeConfigReturnsSanitizedConfig(t *testing.T) {
 
 func TestRSIActionChainReturnsIntentsResultsAndOutcomes(t *testing.T) {
 	store := storepkg.NewMemoryStore()
-	intent, err := store.UpsertActionIntent(action.Intent{
-		ID:             "intent-1",
-		OwnerPlane:     "improvement",
-		TraceID:        "trace-1",
-		ProposalID:     "proposal-1",
-		AttemptID:      "attempt-1",
-		Kind:           action.KindDraftPROpen,
-		Status:         action.StatusQueued,
-		IdempotencyKey: "attempt-1:pr-open",
-		CreatedAt:      time.Now().UTC(),
-		UpdatedAt:      time.Now().UTC(),
-	})
-	if err != nil {
-		t.Fatalf("upsert action intent: %v", err)
-	}
-	if _, err := store.RecordActionResult(action.Result{
-		ID:             "result-1",
-		ActionIntentID: intent.ID,
-		AttemptID:      "attempt-1",
-		AttemptNumber:  1,
-		Executor:       "tool-gateway",
-		Status:         action.StatusSucceeded,
-		StartedAt:      time.Now().UTC(),
-		CompletedAt:    time.Now().UTC(),
+	now := time.Now().UTC()
+	if _, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineAction,
+		AggregateID: "intent-1",
+		CommandKind: string(transition.CommandActionQueue),
+		CommandID:   "cmd-toolgateway-action-queue",
+		OccurredAt:  now,
+		Payload: map[string]any{
+			"owner_plane":     "improvement",
+			"trace_id":        "trace-1",
+			"proposal_id":     "proposal-1",
+			"attempt_id":      "attempt-1",
+			"kind":            string(action.KindDraftPROpen),
+			"idempotency_key": "attempt-1:pr-open",
+		},
 	}); err != nil {
-		t.Fatalf("record action result: %v", err)
+		t.Fatalf("SubmitCommand(action_queued) error = %v", err)
 	}
-	if _, err := store.RecordOutcome(outcome.Record{
-		ID:          "outcome-1",
-		TraceID:     "trace-1",
-		ProposalID:  "proposal-1",
-		AttemptID:   "attempt-1",
-		OutcomeType: outcome.TypeProposalEffectiveness,
-		Verdict:     outcome.VerdictPositive,
-		RecordedAt:  time.Now().UTC(),
+	if _, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineAction,
+		AggregateID: "intent-1",
+		CommandKind: string(transition.CommandActionStart),
+		CommandID:   "cmd-toolgateway-action-start",
+		OccurredAt:  now,
+		Payload: map[string]any{
+			"operation_id": "op-toolgateway-action",
+		},
 	}); err != nil {
-		t.Fatalf("record outcome: %v", err)
+		t.Fatalf("SubmitCommand(action_started) error = %v", err)
+	}
+	if _, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineAction,
+		AggregateID: "intent-1",
+		CommandKind: string(transition.CommandActionSucceed),
+		CommandID:   "cmd-toolgateway-action-succeed",
+		OccurredAt:  now.Add(time.Second),
+		Payload: map[string]any{
+			"operation_id": "op-toolgateway-action",
+			"attempt_id":   "attempt-1",
+			"executor":     "tool-gateway",
+			"started_at":   now,
+			"completed_at": now.Add(time.Second),
+			"provider_ref": "result-1",
+		},
+	}); err != nil {
+		t.Fatalf("SubmitCommand(action_succeeded) error = %v", err)
+	}
+	if _, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineProblemLine,
+		AggregateID: "trace-1",
+		CommandKind: string(transition.CommandProblemLineRecordOutcome),
+		CommandID:   "cmd-toolgateway-outcome",
+		Actor:       "tester",
+		OccurredAt:  time.Now().UTC(),
+		Payload: map[string]any{
+			"outcome_id":   "outcome-1",
+			"trace_id":     "trace-1",
+			"proposal_id":  "proposal-1",
+			"attempt_id":   "attempt-1",
+			"outcome_type": string(outcome.TypeProposalEffectiveness),
+			"verdict":      string(outcome.VerdictPositive),
+		},
+	}); err != nil {
+		t.Fatalf("SubmitCommand(problem_line_record_outcome) error = %v", err)
 	}
 
 	service := NewService(config.Config{DefaultRepo: "rsi-agent-platform"}, store)
@@ -441,11 +469,15 @@ func TestRSITraceContextReturnsTraceEvidence(t *testing.T) {
 	}
 }
 
-func TestToolExecutionPersistsTraceToolCallEvidence(t *testing.T) {
+func TestToolExecutionDoesNotMutateTraceEvidence(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	traces := store.ListTraces()
 	if len(traces) == 0 {
 		t.Fatal("expected seeded traces")
+	}
+	traceBefore, ok := store.GetTrace(traces[0].TraceID)
+	if !ok {
+		t.Fatalf("expected trace %s", traces[0].TraceID)
 	}
 	service := NewService(config.Config{}, store)
 
@@ -455,19 +487,12 @@ func TestToolExecutionPersistsTraceToolCallEvidence(t *testing.T) {
 	if result.Status != "ok" {
 		t.Fatalf("expected ok status, got %s %#v", result.Status, result.Output)
 	}
-	trace, ok := store.GetTrace(traces[0].TraceID)
+	traceAfter, ok := store.GetTrace(traces[0].TraceID)
 	if !ok {
 		t.Fatalf("expected trace %s", traces[0].TraceID)
 	}
-	found := false
-	for _, call := range trace.ToolCalls {
-		if call.ToolCallID == result.ToolCallID && call.ToolName == "rsi.trace_context" {
-			found = true
-			break
-		}
-	}
-	if !found {
-		t.Fatal("expected trace tool call evidence to be persisted")
+	if len(traceAfter.ToolCalls) != len(traceBefore.ToolCalls) {
+		t.Fatalf("expected tool execution to leave trace evidence unchanged, before=%d after=%d", len(traceBefore.ToolCalls), len(traceAfter.ToolCalls))
 	}
 }
 

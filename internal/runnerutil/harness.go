@@ -1,12 +1,16 @@
 package runnerutil
 
 import (
+	"crypto/sha1"
+	"errors"
+	"fmt"
 	"strings"
 	"time"
 
 	"github.com/piplabs/rsi-agent-platform/internal/clients"
 	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
+	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
 func PersistHarnessExecution(
@@ -46,10 +50,10 @@ func PersistHarnessExecution(
 		LastUsedAt:              now,
 		UpdatedAt:               now,
 	}
-	if _, err := store.UpsertHarnessSessionBinding(binding); err != nil {
+	if err := submitHarnessSessionBinding(store, binding, role, operationID, now); err != nil {
 		return err
 	}
-	_, err := store.RecordHarnessExecution(harness.Execution{
+	return submitHarnessExecution(store, harness.Execution{
 		OperationID:             operationID,
 		TraceID:                 traceID,
 		ProposalID:              proposalID,
@@ -65,8 +69,7 @@ func PersistHarnessExecution(
 		MemoryReads:             meta.MemoryReads,
 		MemoryWrites:            meta.MemoryWrites,
 		CreatedAt:               now,
-	})
-	return err
+	}, role, operationID, now)
 }
 
 func firstNonEmptyHarness(values ...string) string {
@@ -76,4 +79,94 @@ func firstNonEmptyHarness(values ...string) string {
 		}
 	}
 	return ""
+}
+
+func submitHarnessSessionBinding(store storepkg.Repository, binding harness.SessionBinding, actor string, operationID string, occurredAt time.Time) error {
+	commandID := fmt.Sprintf("cmd-harness:bind:%s:%s", harnessBindingAggregateID(binding), firstNonEmptyHarness(operationID, binding.HermesSessionID))
+	receipt, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineHarness,
+		AggregateID: harnessBindingAggregateID(binding),
+		CommandKind: string(transition.CommandHarnessBindSession),
+		CommandID:   commandID,
+		Actor:       actor,
+		OccurredAt:  occurredAt,
+		Payload: map[string]any{
+			"role":                      binding.Role,
+			"scope_kind":                binding.ScopeKind,
+			"scope_id":                  binding.ScopeID,
+			"parent_scope_kind":         binding.ParentScopeKind,
+			"parent_scope_id":           binding.ParentScopeID,
+			"hermes_session_id":         binding.HermesSessionID,
+			"parent_session_id":         binding.ParentSessionID,
+			"memory_backend":            binding.MemoryBackend,
+			"assistant_peer_id":         binding.AssistantPeerID,
+			"user_peer_id":              binding.UserPeerID,
+			"harness_profile_id":        binding.HarnessProfileID,
+			"effective_overlay_id":      binding.EffectiveOverlayID,
+			"effective_overlay_version": binding.EffectiveOverlayVersion,
+			"last_used_at":              binding.LastUsedAt,
+			"created_at":                binding.CreatedAt,
+			"updated_at":                binding.UpdatedAt,
+		},
+	})
+	if err != nil {
+		return err
+	}
+	if receipt.DecisionKind == transition.DecisionReject {
+		return errors.New(receipt.Reason)
+	}
+	return nil
+}
+
+func submitHarnessExecution(store storepkg.Repository, execution harness.Execution, actor string, operationID string, occurredAt time.Time) error {
+	executionID := harnessExecutionAggregateID(execution, occurredAt)
+	commandID := fmt.Sprintf("cmd-harness:execution:%s", executionID)
+	receipt, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineHarness,
+		AggregateID: executionID,
+		CommandKind: string(transition.CommandHarnessRecordExecution),
+		CommandID:   commandID,
+		Actor:       actor,
+		OccurredAt:  occurredAt,
+		Payload: map[string]any{
+			"operation_id":              firstNonEmptyHarness(execution.OperationID, operationID),
+			"trace_id":                  execution.TraceID,
+			"proposal_id":               execution.ProposalID,
+			"role":                      execution.Role,
+			"session_scope_kind":        execution.SessionScopeKind,
+			"session_scope_id":          execution.SessionScopeID,
+			"hermes_session_id":         execution.HermesSessionID,
+			"parent_session_id":         execution.ParentSessionID,
+			"harness_profile_id":        execution.HarnessProfileID,
+			"effective_overlay_id":      execution.EffectiveOverlayID,
+			"effective_overlay_version": execution.EffectiveOverlayVersion,
+			"memory_backend":            execution.MemoryBackend,
+			"memory_reads":              execution.MemoryReads,
+			"memory_writes":             execution.MemoryWrites,
+			"created_at":                execution.CreatedAt,
+		},
+	})
+	if err != nil {
+		return err
+	}
+	if receipt.DecisionKind == transition.DecisionReject {
+		return errors.New(receipt.Reason)
+	}
+	return nil
+}
+
+func harnessBindingAggregateID(binding harness.SessionBinding) string {
+	return strings.TrimSpace(binding.Role) + "|" + strings.TrimSpace(binding.ScopeKind) + "|" + strings.TrimSpace(binding.ScopeID)
+}
+
+func harnessExecutionAggregateID(execution harness.Execution, occurredAt time.Time) string {
+	if trimmed := strings.TrimSpace(execution.ID); trimmed != "" {
+		return trimmed
+	}
+	seed := firstNonEmptyHarness(
+		execution.OperationID,
+		fmt.Sprintf("%s|%s|%s|%d", execution.Role, execution.SessionScopeKind, execution.SessionScopeID, occurredAt.UnixNano()),
+	)
+	sum := sha1.Sum([]byte(seed))
+	return fmt.Sprintf("hexec-%x", sum[:8])
 }

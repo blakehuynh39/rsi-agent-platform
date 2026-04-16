@@ -1,6 +1,7 @@
 package control
 
 import (
+	"crypto/sha1"
 	"errors"
 	"fmt"
 	"log"
@@ -15,19 +16,17 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
-	"github.com/piplabs/rsi-agent-platform/internal/operation"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/runnerutil"
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
+	"github.com/piplabs/rsi-agent-platform/internal/transition"
+	"github.com/piplabs/rsi-agent-platform/internal/workflowplan"
 )
 
 const (
-	controlPhaseCollectContext    = "collect_context"
-	controlPhaseReplyPost         = "reply_post"
-	controlWorkRunWorkflow        = "run_workflow"
-	controlWorkResumeAfterContext = "resume_after_context"
-	controlWorkResumeAfterReply   = "resume_after_reply"
+	controlPhaseCollectContext = "collect_context"
+	controlPhaseReplyPost      = "reply_post"
 )
 
 type workflowContext struct {
@@ -43,40 +42,17 @@ func RunWorker(cfg config.Config, store storepkg.Store) error {
 	}
 	workerID := fmt.Sprintf("%s-worker", cfg.ServiceName)
 	for {
-		item, ok, err := store.ClaimNextWorkItem([]queue.QueueName{queue.WorkflowQueue, queue.ProactiveQueue}, workerID, cfg.WorkItemLeaseDuration)
+		effect, claimed, err := claimNextWorkflowRunnerEffect(store, workerID, cfg.WorkItemLeaseDuration)
 		if err != nil {
 			return err
 		}
-		if !ok {
+		if !claimed {
 			time.Sleep(cfg.WorkerPollInterval)
 			continue
 		}
-		runnerClient := runnerClients[runnerRoleForQueue(item.Queue)]
-		if err := processWorkflowItem(cfg, store, runnerClient, item); err != nil {
-			log.Printf("control-plane worker item=%s error=%v", item.ID, err)
-			_, _ = store.FailWorkItem(item.ID, err.Error())
-			_, _ = store.ApplyTraceUpdate(item.TraceID, storepkg.TraceUpdate{
-				Status: ptrStatus(events.StatusFailed),
-				Events: []events.TraceEvent{
-					{
-						TraceID:     item.TraceID,
-						IngestionID: item.IngestionID,
-						WorkflowID:  item.WorkflowID,
-						Plane:       "control",
-						Service:     cfg.ServiceName,
-						Actor:       "worker",
-						EventType:   "workflow.failed",
-						Status:      events.StatusFailed,
-						StartedAt:   time.Now().UTC(),
-						Description: err.Error(),
-					},
-				},
-				WorkflowStatus: "failed",
-				WorkflowError:  err.Error(),
-			})
-			continue
+		if err := processWorkflowRunnerEffect(cfg, store, runnerClients, effect); err != nil {
+			log.Printf("control-plane runner effect=%s aggregate=%s error=%v", effect.ID, effect.AggregateID, err)
 		}
-		_, _ = store.CompleteWorkItem(item.ID)
 	}
 }
 
@@ -84,7 +60,7 @@ func RunActionWorker(cfg config.Config, store storepkg.Store) error {
 	toolClient := clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL)
 	workerID := fmt.Sprintf("%s-action-worker", cfg.ServiceName)
 	for {
-		item, ok, err := store.ClaimNextWorkItem([]queue.QueueName{queue.ControlActionQueue}, workerID, cfg.WorkItemLeaseDuration)
+		effect, ok, err := claimNextActionEffect(store, "control", workerID, cfg.WorkItemLeaseDuration)
 		if err != nil {
 			return err
 		}
@@ -92,124 +68,41 @@ func RunActionWorker(cfg config.Config, store storepkg.Store) error {
 			time.Sleep(cfg.WorkerPollInterval)
 			continue
 		}
-		if err := processControlActionItem(cfg, store, toolClient, item); err != nil {
-			log.Printf("control-plane action worker item=%s error=%v", item.ID, err)
-			_, _ = store.FailWorkItem(item.ID, err.Error())
+		if err := processControlActionEffect(cfg, store, toolClient, effect); err != nil {
+			log.Printf("control-plane action worker effect=%s aggregate=%s error=%v", effect.ID, effect.AggregateID, err)
 			continue
 		}
-		_, _ = store.CompleteWorkItem(item.ID)
 	}
 }
 
-func processWorkflowItem(cfg config.Config, store storepkg.Store, runnerClient *clients.RunnerClient, item queue.WorkItem) error {
-	switch strings.TrimSpace(item.Kind) {
-	case "", "workflow", controlWorkRunWorkflow:
-		return runWorkflowPhase(cfg, store, item)
-	case controlWorkResumeAfterContext:
-		return resumeAfterContextPhase(cfg, store, runnerClient, item)
-	case controlWorkResumeAfterReply:
-		return resumeAfterReplyPhase(cfg, store, item)
-	default:
-		return fmt.Errorf("unsupported control-plane work item kind %s", item.Kind)
-	}
+func startWorkflowViaCommand(cfg config.Config, store storepkg.Store, workflowID string, occurredAt time.Time, resumeQueue queue.QueueName) error {
+	_, err := submitWorkflowCommand(store, workflowID, transition.CommandWorkflowStarted, cfg.ServiceName, occurredAt, map[string]any{
+		"default_repo":         cfg.DefaultRepo,
+		"allowed_target_repos": append([]string(nil), cfg.AllowedTargetRepos...),
+		"knowledge_base_url":   cfg.DefaultKnowledgeBaseURL,
+		"sandbox_namespace":    cfg.SandboxNamespace,
+		"resume_queue":         string(resumeQueue),
+	})
+	return err
 }
 
-func runWorkflowPhase(cfg config.Config, store storepkg.Store, item queue.WorkItem) error {
-	ctx, err := loadWorkflowContext(store, item)
-	if err != nil {
-		return err
-	}
+func finalizeWorkflowFailure(cfg config.Config, store storepkg.Store, item queue.WorkItem, procErr error) error {
 	now := time.Now().UTC()
-	_, _ = store.UpdateWorkflowStatus(ctx.workflow.ID, "running", "")
-
-	update := storepkg.TraceUpdate{
-		Status:         ptrStatus(events.StatusRunning),
-		WorkflowStatus: "running",
+	if item.TraceID == "" {
+		return nil
 	}
-	if !traceHasEventType(ctx.trace, "workflow.started") {
-		update.Events = append(update.Events, events.TraceEvent{
-			TraceID:     ctx.trace.Summary.TraceID,
-			IngestionID: ctx.trace.Summary.IngestionID,
-			WorkflowID:  ctx.trace.Summary.WorkflowID,
-			Plane:       "control",
-			Service:     cfg.ServiceName,
-			Actor:       "worker",
-			EventType:   "workflow.started",
-			Status:      events.StatusRunning,
-			StartedAt:   now,
-			Description: fmt.Sprintf("Started %s workflow worker loop.", ctx.workflow.Intent),
-		})
-		update.Reasoning = append(update.Reasoning, events.ReasoningStep{
-			ID:         fmt.Sprintf("reason-start-%d", now.UnixNano()),
-			TraceID:    ctx.trace.Summary.TraceID,
-			WorkflowID: ctx.trace.Summary.WorkflowID,
-			StepType:   "pre_action_summary",
-			Summary:    fmt.Sprintf("Preparing %s response for conversation %s.", ctx.workflow.Intent, ctx.trace.Summary.ConversationID),
-			Confidence: 0.9,
-			Decision:   fmt.Sprintf("response_mode:%s", ctx.workflow.ResponseMode),
-			CreatedAt:  now,
-		})
-	}
-
-	toolNames := toolPlanForIntent(ctx.workflow.Intent, ingestionText(ctx.ingestion), resolveTargetRepo(cfg, ctx.ingestion.Text))
-	for _, toolName := range toolNames {
-		intent, created, err := ensureActionIntent(store, action.Intent{
-			OwnerPlane:     "control",
-			ConversationID: ctx.trace.Summary.ConversationID,
-			CaseID:         ctx.trace.Summary.CaseID,
-			TraceID:        ctx.trace.Summary.TraceID,
-			Kind:           action.KindToolRead,
-			PhaseKey:       controlPhaseCollectContext,
-			TargetRef:      toolName,
-			RequestPayload: toolInputForIntent(cfg, ctx.workflow, ctx.ingestion),
-			IdempotencyKey: fmt.Sprintf("%s:%s:%s", ctx.trace.Summary.TraceID, toolName, ctx.trace.Summary.TriggerEventID),
-			ApprovalMode:   "not_required",
-			ApprovalState:  "not_required",
-			Status:         action.StatusQueued,
-			RequestedBy:    cfg.ServiceName,
-			Rationale:      fmt.Sprintf("Collect context via %s.", toolName),
-			EvidenceRefs: []events.EvidenceRef{
-				{Kind: "trace", Ref: ctx.trace.Summary.TraceID, Summary: ctx.trace.Summary.WorkflowKind},
-			},
-			CreatedAt: now,
-			UpdatedAt: now,
-		})
-		if err != nil {
-			return err
-		}
-		if created {
-			update.Events = append(update.Events, events.TraceEvent{
-				TraceID:     ctx.trace.Summary.TraceID,
-				IngestionID: ctx.trace.Summary.IngestionID,
-				WorkflowID:  ctx.trace.Summary.WorkflowID,
-				Plane:       "control",
-				Service:     "tool-gateway",
-				Actor:       ctx.workflow.AssignedBot,
-				EventType:   "tool.requested",
-				Status:      events.StatusQueued,
-				StartedAt:   now,
-				Description: fmt.Sprintf("Requested %s.", toolName),
-			})
-		}
-		if _, err := enqueueControlActionWork(store, item.Queue, ctx, intent, ctx.workflow); err != nil {
-			return err
-		}
-	}
-	if len(update.Events) > 0 || len(update.Reasoning) > 0 || update.Status != nil {
-		if _, err := store.ApplyTraceUpdate(ctx.trace.Summary.TraceID, update); err != nil {
-			return err
-		}
-	}
-	if len(toolNames) == 0 || phaseActionsTerminal(store, ctx.trace.Summary.TraceID, controlPhaseCollectContext) {
-		_, err := enqueueWorkflowResume(store, item.Queue, ctx, controlWorkResumeAfterContext, now)
-		return err
+	if _, submitErr := submitWorkflowCommand(store, item.WorkflowID, transition.CommandWorkflowFailed, cfg.ServiceName, now, map[string]any{
+		"last_error": procErr.Error(),
+	}); submitErr != nil {
+		return submitErr
 	}
 	return nil
 }
 
-func resumeAfterContextPhase(cfg config.Config, store storepkg.Store, runnerClient *clients.RunnerClient, item queue.WorkItem) error {
-	ctx, err := loadWorkflowContext(store, item)
+func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runnerClients map[string]*clients.RunnerClient, effect transition.EffectExecution) error {
+	ctx, queueName, err := loadWorkflowContextForEffect(store, effect)
 	if err != nil {
+		_ = failClaimedEffect(store, effect, err.Error())
 		return err
 	}
 	refreshedTrace, ok := store.GetTrace(ctx.trace.Summary.TraceID)
@@ -217,65 +110,27 @@ func resumeAfterContextPhase(cfg config.Config, store storepkg.Store, runnerClie
 		ctx.trace = refreshedTrace
 	}
 	if isTerminalTraceStatus(ctx.trace.Summary.Status) {
-		return nil
+		return completeClaimedEffect(store, effect, ctx.trace.Summary.TraceID)
+	}
+	runnerClient := runnerClients[runnerRoleForQueue(queueName)]
+	if runnerClient == nil {
+		err := fmt.Errorf("runner client unavailable for queue %s", queueName)
+		_ = failClaimedEffect(store, effect, err.Error())
+		return err
 	}
 	contextSummary, contextRefs, toolNames := contextFromTrace(ctx.trace)
 	runnerStarted := time.Now().UTC()
-	if _, err := store.ApplyTraceUpdate(ctx.trace.Summary.TraceID, storepkg.TraceUpdate{
-		Events: []events.TraceEvent{
-			{
-				TraceID:     ctx.trace.Summary.TraceID,
-				IngestionID: ctx.trace.Summary.IngestionID,
-				WorkflowID:  ctx.trace.Summary.WorkflowID,
-				Plane:       "control",
-				Service:     cfg.ServiceName,
-				Actor:       "worker",
-				EventType:   "context.collected",
-				Status:      events.StatusCompleted,
-				StartedAt:   runnerStarted,
-				Description: firstNonEmpty(contextSummary, "Context collection phase completed."),
-			},
-			{
-				TraceID:     ctx.trace.Summary.TraceID,
-				IngestionID: ctx.trace.Summary.IngestionID,
-				WorkflowID:  ctx.trace.Summary.WorkflowID,
-				Plane:       "execution",
-				Service:     "runner",
-				Actor:       ctx.workflow.AssignedBot,
-				EventType:   "runner.started",
-				Status:      events.StatusRunning,
-				StartedAt:   runnerStarted,
-				Description: "Runner task dispatched with verbose reasoning enabled.",
-			},
-		},
-		Reasoning: []events.ReasoningStep{
-			{
-				ID:           fmt.Sprintf("reason-context-%d", runnerStarted.UnixNano()),
-				TraceID:      ctx.trace.Summary.TraceID,
-				WorkflowID:   ctx.trace.Summary.WorkflowID,
-				StepType:     "context_collected",
-				Summary:      firstNonEmpty(contextSummary, "No external context tools were required."),
-				EvidenceRefs: evidenceRefsFromContext(contextRefs),
-				Confidence:   0.82,
-				Decision:     strings.Join(toolNames, ","),
-				CreatedAt:    runnerStarted,
-			},
-		},
-	}); err != nil {
-		return err
-	}
-
-	role := runnerRoleForQueue(item.Queue)
-	runnerTask := buildRunnerTask(cfg, store, role, ctx.trace, ctx.workflow, ctx.ingestion, contextSummary, contextRefs, toolNames)
+	runnerTask := buildRunnerTask(cfg, store, runnerRoleForQueue(queueName), ctx.trace, ctx.workflow, ctx.ingestion, contextSummary, contextRefs, toolNames)
 	runnerResp, err := runnerClient.Execute(runnerTask)
 	if err != nil {
+		_ = failClaimedEffect(store, effect, err.Error())
 		return err
 	}
 	if err := runnerutil.PersistHarnessExecution(
 		store,
 		runnerResp,
-		role,
-		item.OperationID,
+		runnerRoleForQueue(queueName),
+		effect.ID,
 		ctx.trace.Summary.TraceID,
 		"",
 		runnerTask.HarnessProfileID,
@@ -285,6 +140,10 @@ func resumeAfterContextPhase(cfg config.Config, store storepkg.Store, runnerClie
 		runnerTask.ParentSessionScopeKind,
 		runnerTask.ParentSessionScopeID,
 	); err != nil {
+		_ = failClaimedEffect(store, effect, err.Error())
+		return err
+	}
+	if err := completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner", ctx.trace.Summary.TraceID)); err != nil {
 		return err
 	}
 	runnerOutput, err := runnerutil.ParseStructuredOutput(runnerResp)
@@ -298,7 +157,7 @@ func resumeAfterContextPhase(cfg config.Config, store storepkg.Store, runnerClie
 
 	allowed, policyVerdict := replyPolicy(store, ctx.workflow.Kind, ctx.trace.Summary.ThreadKey, ctx.ingestion.ChannelID)
 	replyBody := firstNonEmpty(strings.TrimSpace(runnerOutput.FinalAnswer), strings.TrimSpace(runnerOutput.ReplyDraft), strings.TrimSpace(runnerResp.Message))
-	replyAction, draftEvents, draftReasoning, err := draftSlackPostAction(cfg, store, item.Queue, ctx, runnerOutput, replyBody, allowed, policyVerdict, runnerCompleted)
+	replyAction, draftEvents, draftReasoning, err := draftSlackPostAction(cfg, store, queueName, ctx, runnerOutput, replyBody, allowed, policyVerdict, runnerCompleted)
 	if err != nil {
 		return err
 	}
@@ -331,8 +190,14 @@ func resumeAfterContextPhase(cfg config.Config, store storepkg.Store, runnerClie
 	if strings.TrimSpace(replyAction.ID) == "" {
 		runnerDescription = "Runner returned visible reasoning."
 	}
-	_, err = store.ApplyTraceUpdate(ctx.trace.Summary.TraceID, storepkg.TraceUpdate{
-		Events: append([]events.TraceEvent{
+	runnerCommand := transition.CommandRunnerCompleted
+	if strings.TrimSpace(replyAction.ID) == "" {
+		runnerCommand = transition.CommandRunnerCompletedNoReply
+	}
+	if _, err := submitWorkflowCommand(store, ctx.workflow.ID, runnerCommand, cfg.ServiceName, runnerCompleted, map[string]any{
+		"resume_queue":    string(queueName),
+		"reply_action_id": replyAction.ID,
+		"trace_events": append([]events.TraceEvent{
 			{
 				TraceID:     ctx.trace.Summary.TraceID,
 				IngestionID: ctx.trace.Summary.IngestionID,
@@ -347,192 +212,214 @@ func resumeAfterContextPhase(cfg config.Config, store storepkg.Store, runnerClie
 				Description: runnerDescription,
 			},
 		}, draftEvents...),
-		Reasoning: finalReasoning,
-	})
-	return err
+		"reasoning_steps": finalReasoning,
+	}); err != nil {
+		return err
+	}
+	return nil
 }
 
-func resumeAfterReplyPhase(cfg config.Config, store storepkg.Store, item queue.WorkItem) error {
-	ctx, err := loadWorkflowContext(store, item)
-	if err != nil {
-		return err
+func submitWorkflowContextCompleted(cfg config.Config, store storepkg.Store, ctx workflowContext, resumeQueue queue.QueueName, occurredAt time.Time) error {
+	refreshedTrace, ok := store.GetTrace(ctx.trace.Summary.TraceID)
+	if ok {
+		ctx.trace = refreshedTrace
 	}
-	completedAt := time.Now().UTC()
-	traceStatus, workflowStatus, workflowError := workflowOutcomeForTrace(store, ctx.trace.Summary.TraceID)
-	if _, err := store.UpdateWorkflowStatus(ctx.workflow.ID, workflowStatus, workflowError); err != nil {
-		return err
+	if isTerminalTraceStatus(ctx.trace.Summary.Status) {
+		return nil
 	}
-	if _, err := queueEvalWork(store, cfg.ServiceName, ctx, completedAt); err != nil {
-		return err
-	}
-	_, err = store.ApplyTraceUpdate(ctx.trace.Summary.TraceID, storepkg.TraceUpdate{
-		Status:         ptrStatus(traceStatus),
-		WorkflowStatus: workflowStatus,
-		WorkflowError:  workflowError,
-		Events: []events.TraceEvent{
-			{
-				TraceID:     ctx.trace.Summary.TraceID,
-				IngestionID: ctx.trace.Summary.IngestionID,
-				WorkflowID:  ctx.trace.Summary.WorkflowID,
-				Plane:       "improvement",
-				Service:     "improvement-plane",
-				Actor:       "eval-scheduler",
-				EventType:   "eval_trace.queued",
-				Status:      events.StatusQueued,
-				StartedAt:   completedAt,
-				Description: "Queued trace for post-completion evaluation.",
+	contextSummary, contextRefs, toolNames := contextFromTrace(ctx.trace)
+	if len(toolNames) > 0 {
+		if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandContextCompleted, cfg.ServiceName, occurredAt, map[string]any{
+			"tool_count":   len(toolNames),
+			"resume_queue": string(resumeQueue),
+			"trace_events": []events.TraceEvent{
+				{
+					TraceID:     ctx.trace.Summary.TraceID,
+					IngestionID: ctx.trace.Summary.IngestionID,
+					WorkflowID:  ctx.trace.Summary.WorkflowID,
+					Plane:       "control",
+					Service:     cfg.ServiceName,
+					Actor:       "worker",
+					EventType:   "context.collected",
+					Status:      events.StatusCompleted,
+					StartedAt:   occurredAt,
+					Description: firstNonEmpty(contextSummary, "Context collection phase completed."),
+				},
+				{
+					TraceID:     ctx.trace.Summary.TraceID,
+					IngestionID: ctx.trace.Summary.IngestionID,
+					WorkflowID:  ctx.trace.Summary.WorkflowID,
+					Plane:       "execution",
+					Service:     "runner",
+					Actor:       ctx.workflow.AssignedBot,
+					EventType:   "runner.started",
+					Status:      events.StatusRunning,
+					StartedAt:   occurredAt,
+					Description: "Runner task dispatched with verbose reasoning enabled.",
+				},
 			},
+			"reasoning_steps": []events.ReasoningStep{
+				{
+					ID:           fmt.Sprintf("reason-context-%d", occurredAt.UnixNano()),
+					TraceID:      ctx.trace.Summary.TraceID,
+					WorkflowID:   ctx.trace.Summary.WorkflowID,
+					StepType:     "context_collected",
+					Summary:      firstNonEmpty(contextSummary, "No external context tools were required."),
+					EvidenceRefs: evidenceRefsFromContext(contextRefs),
+					Confidence:   0.82,
+					Decision:     strings.Join(toolNames, ","),
+					CreatedAt:    occurredAt,
+				},
+			},
+		}); err != nil {
+			return err
+		}
+		return nil
+	}
+	if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandContextSkipped, cfg.ServiceName, occurredAt, map[string]any{
+		"tool_count":   0,
+		"resume_queue": string(resumeQueue),
+		"trace_events": []events.TraceEvent{
 			{
 				TraceID:     ctx.trace.Summary.TraceID,
 				IngestionID: ctx.trace.Summary.IngestionID,
 				WorkflowID:  ctx.trace.Summary.WorkflowID,
-				Plane:       "control",
-				Service:     cfg.ServiceName,
-				Actor:       "worker",
-				EventType:   "workflow.completed",
-				Status:      traceStatus,
-				StartedAt:   completedAt,
-				Description: fmt.Sprintf("Workflow ended with %s.", workflowStatus),
+				Plane:       "execution",
+				Service:     "runner",
+				Actor:       ctx.workflow.AssignedBot,
+				EventType:   "runner.started",
+				Status:      events.StatusRunning,
+				StartedAt:   occurredAt,
+				Description: "Runner task dispatched with verbose reasoning enabled.",
 			},
 		},
-	})
-	return err
+	}); err != nil {
+		return err
+	}
+	return nil
 }
 
-func processControlActionItem(cfg config.Config, store storepkg.Store, toolClient *clients.ToolGatewayClient, item queue.WorkItem) error {
-	actionID := stringFromMap(item.Payload, "action_intent_id")
+func processControlActionEffect(cfg config.Config, store storepkg.Store, toolClient *clients.ToolGatewayClient, effect transition.EffectExecution) error {
+	actionID := strings.TrimSpace(effect.AggregateID)
 	if actionID == "" {
-		return fmt.Errorf("control action item %s missing action_intent_id", item.ID)
+		return failClaimedEffect(store, effect, "invoke_action effect missing aggregate id")
 	}
 	intent, ok := store.GetActionIntent(actionID)
 	if !ok {
-		return fmt.Errorf("action intent %s not found", actionID)
+		return failClaimedEffect(store, effect, fmt.Sprintf("action intent %s not found", actionID))
+	}
+	item := queue.WorkItem{
+		ID:          effect.ID,
+		OperationID: effect.ID,
+		Payload: map[string]any{
+			"resume_queue": stringFromMap(intent.RequestPayload, "resume_queue"),
+		},
 	}
 	if isTerminalActionStatus(intent.Status) {
-		return maybeEnqueuePhaseResume(store, item, intent)
+		if err := maybeAdvanceWorkflowPhaseFromAction(cfg, store, intent); err != nil {
+			_ = failClaimedEffect(store, effect, err.Error())
+			return err
+		}
+		return completeClaimedEffect(store, effect, intent.ID)
 	}
 	ctx, err := loadWorkflowContext(store, queue.WorkItem{
-		TraceID:     intent.TraceID,
-		WorkflowID:  item.WorkflowID,
-		IngestionID: item.IngestionID,
+		TraceID: intent.TraceID,
 	})
 	if err != nil {
+		_ = failClaimedEffect(store, effect, err.Error())
 		return err
 	}
 	if isTerminalTraceStatus(ctx.trace.Summary.Status) && !isTerminalActionStatus(intent.Status) {
-		intent.Status = action.StatusCanceled
-		intent.PolicyVerdict = firstNonEmpty(intent.PolicyVerdict, fmt.Sprintf("trace_%s", ctx.trace.Summary.Status))
-		intent.UpdatedAt = time.Now().UTC()
-		_, err := store.UpsertActionIntent(intent)
-		return err
+		_, err := submitActionCommand(store, intent.ID, transition.CommandActionCancel, cfg.ServiceName, time.Now().UTC(), map[string]any{
+			"operation_id":   firstNonEmpty(intent.OperationID, effect.ID),
+			"policy_verdict": firstNonEmpty(intent.PolicyVerdict, fmt.Sprintf("trace_%s", ctx.trace.Summary.Status)),
+		})
+		if err != nil {
+			_ = failClaimedEffect(store, effect, err.Error())
+			return err
+		}
+		return completeClaimedEffect(store, effect, intent.ID)
 	}
 
-	intent.OperationID = firstNonEmpty(intent.OperationID, item.OperationID)
-	intent.Status = action.StatusExecuting
-	intent.UpdatedAt = time.Now().UTC()
-	if _, err := store.UpsertActionIntent(intent); err != nil {
+	if _, err := submitActionCommand(store, intent.ID, transition.CommandActionStart, cfg.ServiceName, time.Now().UTC(), map[string]any{
+		"operation_id":   firstNonEmpty(intent.OperationID, effect.ID),
+		"approval_state": intent.ApprovalState,
+		"policy_verdict": intent.PolicyVerdict,
+	}); err != nil {
+		_ = failClaimedEffect(store, effect, err.Error())
 		return err
 	}
+	intent, _ = store.GetActionIntent(actionID)
 
 	switch intent.Kind {
 	case action.KindToolRead:
-		if err := executeToolReadActionIntent(store, toolClient, ctx, intent); err != nil {
+		if err := executeToolReadActionIntent(store, toolClient, intent); err != nil {
 			if isPostgresActionPersistenceError(err) {
 				if finalizeErr := finalizeControlActionPersistenceFailure(cfg, store, item, ctx, intent, err); finalizeErr != nil {
+					_ = failClaimedEffect(store, effect, finalizeErr.Error())
 					return fmt.Errorf("finalize control action persistence failure: %w (original error: %v)", finalizeErr, err)
 				}
 			}
+			_ = failClaimedEffect(store, effect, err.Error())
 			return err
 		}
 	case action.KindSlackPost:
 		if err := executeSlackPostActionIntent(cfg, store, toolClient, ctx, intent); err != nil {
 			if isPostgresActionPersistenceError(err) {
 				if finalizeErr := finalizeControlActionPersistenceFailure(cfg, store, item, ctx, intent, err); finalizeErr != nil {
+					_ = failClaimedEffect(store, effect, finalizeErr.Error())
 					return fmt.Errorf("finalize control action persistence failure: %w (original error: %v)", finalizeErr, err)
 				}
 			}
+			_ = failClaimedEffect(store, effect, err.Error())
 			return err
 		}
 	default:
-		return fmt.Errorf("unsupported control action kind %s", intent.Kind)
+		err := fmt.Errorf("unsupported control action kind %s", intent.Kind)
+		_ = failClaimedEffect(store, effect, err.Error())
+		return err
 	}
 	intent, _ = store.GetActionIntent(actionID)
-	return maybeEnqueuePhaseResume(store, item, intent)
+	if err := maybeAdvanceWorkflowPhaseFromAction(cfg, store, intent); err != nil {
+		_ = failClaimedEffect(store, effect, err.Error())
+		return err
+	}
+	return completeClaimedEffect(store, effect, intent.ID)
 }
 
-func executeToolReadActionIntent(store storepkg.Store, toolClient *clients.ToolGatewayClient, ctx workflowContext, intent action.Intent) error {
+func executeToolReadActionIntent(store storepkg.Store, toolClient *clients.ToolGatewayClient, intent action.Intent) error {
 	started := time.Now().UTC()
-	result, execErr := toolClient.Execute(intent.TargetRef, cloneAnyMap(intent.RequestPayload))
+	requestPayload := cloneAnyMap(intent.RequestPayload)
+	delete(requestPayload, "resume_queue")
+	result, execErr := toolClient.Execute(intent.TargetRef, requestPayload)
 	completed := time.Now().UTC()
 	actionStatus := actionStatusFromToolResult(result, execErr)
 	summary := toolResultSummary(result, execErr)
-	intent.Status = actionStatus
-	intent.ApprovalState = firstNonEmpty(result.ApprovalState, intent.ApprovalState)
-	intent.UpdatedAt = completed
-	if _, err := store.UpsertActionIntent(intent); err != nil {
+	commandKind, err := actionCommandForStatus(actionStatus)
+	if err != nil {
 		return err
 	}
-	if _, err := store.RecordActionResult(action.Result{
-		OperationID:    intent.OperationID,
-		ActionIntentID: intent.ID,
-		Executor:       "tool-gateway",
-		Provider:       firstNonEmpty(result.Provider, providerForToolName(intent.TargetRef)),
-		ProviderRef:    result.ProviderRef,
-		Status:         actionStatus,
-		ErrorCode:      actionErrorCode(actionStatus),
-		ErrorMessage:   actionErrorMessage(result, execErr),
-		StartedAt:      started,
-		CompletedAt:    completed,
+	if _, err := submitActionCommand(store, intent.ID, commandKind, "tool-gateway", completed, map[string]any{
+		"operation_id":   intent.OperationID,
+		"approval_state": firstNonEmpty(result.ApprovalState, intent.ApprovalState),
+		"executor":       "tool-gateway",
+		"provider":       firstNonEmpty(result.Provider, providerForToolName(intent.TargetRef)),
+		"provider_ref":   result.ProviderRef,
+		"error_code":     actionErrorCode(actionStatus),
+		"error_message":  actionErrorMessage(result, execErr),
+		"started_at":     started,
+		"completed_at":   completed,
+		"summary":        summary,
+		"tool_call_id":   firstNonEmpty(result.ToolCallID, intent.ID),
+		"request_payload": firstNonEmptyMap(
+			result.Input,
+			intent.RequestPayload,
+		),
+		"raw_artifact_refs": append([]string(nil), result.RawArtifactRefs...),
 	}); err != nil {
 		return err
 	}
-
-	eventStatus := events.StatusCompleted
-	eventType := "tool.completed"
-	switch actionStatus {
-	case action.StatusBlocked:
-		eventStatus = events.StatusNeedsHuman
-		eventType = "tool.blocked"
-	case action.StatusFailed:
-		eventStatus = events.StatusNeedsHuman
-		eventType = "tool.failed"
-	}
-	_, err := store.ApplyTraceUpdate(ctx.trace.Summary.TraceID, storepkg.TraceUpdate{
-		Events: []events.TraceEvent{
-			{
-				TraceID:     ctx.trace.Summary.TraceID,
-				IngestionID: ctx.trace.Summary.IngestionID,
-				WorkflowID:  ctx.trace.Summary.WorkflowID,
-				Plane:       "control",
-				Service:     "tool-gateway",
-				Actor:       ctx.workflow.AssignedBot,
-				EventType:   eventType,
-				Status:      eventStatus,
-				StartedAt:   started,
-				EndedAt:     ptrTime(completed),
-				Description: summary,
-			},
-		},
-		ToolCalls: []events.ToolCallRecord{
-			{
-				ID:                    fmt.Sprintf("tool-record-%d", completed.UnixNano()),
-				TraceID:               ctx.trace.Summary.TraceID,
-				WorkflowID:            ctx.trace.Summary.WorkflowID,
-				ConversationID:        ctx.trace.Summary.ConversationID,
-				CaseID:                ctx.trace.Summary.CaseID,
-				ToolName:              intent.TargetRef,
-				ToolCallID:            firstNonEmpty(result.ToolCallID, intent.ID),
-				Request:               firstNonEmptyMap(result.Input, intent.RequestPayload),
-				Summary:               summary,
-				RawArtifactRefs:       append([]string(nil), result.RawArtifactRefs...),
-				ApprovalState:         firstNonEmpty(result.ApprovalState, intent.ApprovalState),
-				InterpretationSummary: summary,
-				Status:                string(actionStatus),
-				CreatedAt:             completed,
-			},
-		},
-	})
-	return err
+	return nil
 }
 
 func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, toolClient *clients.ToolGatewayClient, ctx workflowContext, intent action.Intent) error {
@@ -559,6 +446,18 @@ func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, toolC
 		SendStatus:     "draft_only",
 		CreatedAt:      started,
 	}
+	replyEffect, _, err := claimWorkflowEffectByPayload(
+		store,
+		ctx.workflow.ID,
+		transition.EffectPostSlackReply,
+		"reply_action_id",
+		intent.ID,
+		cfg.ServiceName,
+		cfg.WorkItemLeaseDuration,
+	)
+	if err != nil {
+		return err
+	}
 
 	var (
 		result       storepkg.ToolResult
@@ -584,63 +483,51 @@ func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, toolC
 		baseRecord.SendStatus = blockedReason
 	}
 
-	intent.Status = actionStatus
-	intent.ApprovalState = firstNonEmpty(result.ApprovalState, intent.ApprovalState)
-	intent.UpdatedAt = time.Now().UTC()
-	if _, err := store.UpsertActionIntent(intent); err != nil {
+	commandKind, err := actionCommandForStatus(actionStatus)
+	if err != nil {
 		return err
 	}
-	if _, err := store.RecordActionResult(action.Result{
-		OperationID:    intent.OperationID,
-		ActionIntentID: intent.ID,
-		Executor:       firstNonEmpty(result.Provider, "tool-gateway"),
-		Provider:       firstNonEmpty(result.Provider, "slack"),
-		ProviderRef:    firstNonEmpty(result.ProviderRef, threadTS),
-		Status:         actionStatus,
-		ErrorCode:      actionErrorCode(actionStatus),
-		ErrorMessage:   firstNonEmpty(actionErrorMessage(result, execErr), blockedReason),
-		StartedAt:      started,
-		CompletedAt:    time.Now().UTC(),
+	completedAt := time.Now().UTC()
+	if _, err := submitActionCommand(store, intent.ID, commandKind, cfg.ServiceName, completedAt, map[string]any{
+		"operation_id":   intent.OperationID,
+		"approval_state": firstNonEmpty(result.ApprovalState, intent.ApprovalState),
+		"policy_verdict": firstNonEmpty(intent.PolicyVerdict, blockedReason),
+		"executor":       firstNonEmpty(result.Provider, "tool-gateway"),
+		"provider":       firstNonEmpty(result.Provider, "slack"),
+		"provider_ref":   firstNonEmpty(result.ProviderRef, threadTS),
+		"error_code":     actionErrorCode(actionStatus),
+		"error_message":  firstNonEmpty(actionErrorMessage(result, execErr), blockedReason),
+		"started_at":     started,
+		"completed_at":   completedAt,
+		"summary":        firstNonEmpty(summary, blockedReason, "Slack reply action completed."),
+		"channel_id":     channelID,
+		"thread_ts":      threadTS,
+		"draft_body":     baseRecord.DraftBody,
+		"final_body":     baseRecord.FinalBody,
+		"send_status":    baseRecord.SendStatus,
+		"artifact_refs":  append([]string(nil), baseRecord.ArtifactRefs...),
 	}); err != nil {
+		_ = failClaimedEffect(store, replyEffect, err.Error())
 		return err
+	}
+	switch actionStatus {
+	case action.StatusSucceeded:
+		if err := completeClaimedEffect(store, replyEffect, firstNonEmpty(result.ProviderRef, intent.ID)); err != nil {
+			return err
+		}
+	case action.StatusBlocked, action.StatusFailed:
+		if err := failClaimedEffect(store, replyEffect, firstNonEmpty(actionErrorMessage(result, execErr), blockedReason, string(actionStatus))); err != nil {
+			return err
+		}
 	}
 
-	eventType := "slack.reply.posted"
-	eventStatus := events.StatusCompleted
-	switch actionStatus {
-	case action.StatusBlocked:
-		eventType = "slack.reply.blocked"
-		eventStatus = events.StatusNeedsHuman
-	case action.StatusFailed:
-		eventType = "slack.reply.failed"
-		eventStatus = events.StatusNeedsHuman
-	}
 	if actionStatus == action.StatusSucceeded && strings.TrimSpace(baseRecord.SendStatus) == "" {
 		baseRecord.SendStatus = "posted"
 	}
-	endedAt := time.Now().UTC()
-	_, err := store.ApplyTraceUpdate(ctx.trace.Summary.TraceID, storepkg.TraceUpdate{
-		Events: []events.TraceEvent{
-			{
-				TraceID:     ctx.trace.Summary.TraceID,
-				IngestionID: ctx.trace.Summary.IngestionID,
-				WorkflowID:  ctx.trace.Summary.WorkflowID,
-				Plane:       "edge",
-				Service:     "tool-gateway",
-				Actor:       ctx.workflow.AssignedBot,
-				EventType:   eventType,
-				Status:      eventStatus,
-				StartedAt:   started,
-				EndedAt:     ptrTime(endedAt),
-				Description: firstNonEmpty(summary, blockedReason, "Slack reply action completed."),
-			},
-		},
-		SlackActions: []events.SlackActionRecord{baseRecord},
-	})
-	return err
+	return nil
 }
 
-func maybeEnqueuePhaseResume(store storepkg.Store, item queue.WorkItem, intent action.Intent) error {
+func maybeAdvanceWorkflowPhaseFromAction(cfg config.Config, store storepkg.Store, intent action.Intent) error {
 	if intent.TraceID == "" || !phaseActionsTerminal(store, intent.TraceID, intent.PhaseKey) {
 		return nil
 	}
@@ -648,7 +535,6 @@ func maybeEnqueuePhaseResume(store storepkg.Store, item queue.WorkItem, intent a
 	if !ok || isTerminalTraceStatus(trace.Summary.Status) {
 		return nil
 	}
-	queueName := queueNameFromString(firstNonEmpty(stringFromMap(item.Payload, "resume_queue"), string(queue.WorkflowQueue)))
 	ctx, err := loadWorkflowContext(store, queue.WorkItem{
 		TraceID:     intent.TraceID,
 		WorkflowID:  trace.Summary.WorkflowID,
@@ -657,12 +543,23 @@ func maybeEnqueuePhaseResume(store storepkg.Store, item queue.WorkItem, intent a
 	if err != nil {
 		return err
 	}
+	queueName := queueNameFromString(firstNonEmpty(stringFromMap(intent.RequestPayload, "resume_queue"), string(queue.WorkflowQueue)))
 	switch intent.PhaseKey {
 	case controlPhaseCollectContext:
-		_, err = enqueueWorkflowResume(store, queueName, ctx, controlWorkResumeAfterContext, time.Now().UTC())
-		return err
+		return submitWorkflowContextCompleted(cfg, store, ctx, queueName, time.Now().UTC())
 	case controlPhaseReplyPost:
-		_, err = enqueueWorkflowResume(store, queueName, ctx, controlWorkResumeAfterReply, time.Now().UTC())
+		completedAt := time.Now().UTC()
+		_, workflowStatus, workflowError := workflowOutcomeForTrace(store, ctx.trace.Summary.TraceID)
+		switch workflowStatus {
+		case "needs-human":
+			_, err = submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowBlocked, cfg.ServiceName, completedAt, map[string]any{
+				"last_error": workflowError,
+			})
+		default:
+			_, err = submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandReplyPosted, cfg.ServiceName, completedAt, map[string]any{
+				"resume_queue": string(queueName),
+			})
+		}
 		return err
 	default:
 		return nil
@@ -763,6 +660,7 @@ func draftSlackPostAction(cfg config.Config, store storepkg.Store, resumeQueue q
 		"draft_body":     firstNonEmpty(output.ReplyDraft, replyBody),
 		"final_body":     replyBody,
 		"policy_verdict": policyVerdict,
+		"resume_queue":   string(resumeQueue),
 	}
 
 	approvalState := "approved"
@@ -833,10 +731,6 @@ func draftSlackPostAction(cfg config.Config, store storepkg.Store, resumeQueue q
 	if err != nil {
 		return action.Intent{}, nil, nil, err
 	}
-	if _, err := enqueueControlActionWork(store, resumeQueue, ctx, intent, ctx.workflow); err != nil {
-		return action.Intent{}, nil, nil, err
-	}
-
 	return intent, []events.TraceEvent{
 		{
 			TraceID:     ctx.trace.Summary.TraceID,
@@ -914,18 +808,7 @@ func findIngestion(items []slackpkg.Ingestion, ingestionID string) (slackpkg.Ing
 }
 
 func toolPlanForIntent(intent string, question string, repo string) []string {
-	switch intent {
-	case "incident":
-		return []string{"sentry.lookup", "kubernetes.inspect", "rsi.workflow_context", "rsi.action_chain", "rsi.runtime_health"}
-	case "feature_request":
-		return []string{"repo.context", "github.repo_context", "rsi.workflow_context", "rsi.action_chain"}
-	default:
-		plan := []string{"repo.context", "knowledge.context", "rsi.workflow_context", "rsi.action_chain"}
-		if shouldUseGitHubRepoActivity(question, repo) {
-			plan = append(plan, "github.repo_activity")
-		}
-		return plan
-	}
+	return workflowplan.ToolPlan(intent, question, repo)
 }
 
 func runnerRoleForQueue(name queue.QueueName) string {
@@ -984,9 +867,9 @@ func stringFromMap(item map[string]any, key string) string {
 }
 
 func persistKnowledgeDrafts(store storepkg.Store, trace events.Trace, drafts []runnerutil.KnowledgeDraft, createdAt time.Time) error {
-	for _, item := range drafts {
+	for idx, item := range drafts {
 		freshUntil := parseTimeOrNil(item.FreshUntil)
-		_, err := store.UpsertKnowledgeEntry(knowledge.Entry{
+		if _, err := runnerutil.PersistKnowledgeDraft(store, knowledge.Entry{
 			Tier:       knowledge.TierWorking,
 			Kind:       knowledge.Kind(firstNonEmpty(item.Kind, string(knowledge.KindFact))),
 			ScopeType:  knowledge.ScopeType(firstNonEmpty(item.ScopeType, string(knowledge.ScopeCase))),
@@ -1000,8 +883,7 @@ func persistKnowledgeDrafts(store storepkg.Store, trace events.Trace, drafts []r
 			SourceType: knowledge.SourceAgent,
 			CreatedAt:  createdAt,
 			UpdatedAt:  createdAt,
-		}, evidenceLinksFromDraft(item))
-		if err != nil {
+		}, evidenceLinksFromDraft(item), "control-plane", trace.Summary.TraceID, idx, createdAt); err != nil {
 			return err
 		}
 	}
@@ -1195,11 +1077,47 @@ func ensureActionIntent(store storepkg.Store, template action.Intent) (action.In
 	if existing, ok := findActionIntentByIdempotencyKey(store.ListActionIntents(), template.IdempotencyKey); ok {
 		return existing, false, nil
 	}
-	created, err := store.UpsertActionIntent(template)
+	if strings.TrimSpace(template.IdempotencyKey) == "" {
+		return action.Intent{}, false, errors.New("action intent idempotency key is required")
+	}
+	template.ID = actionIntentIDFromIdempotencyKey(template.IdempotencyKey)
+	receipt, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineAction,
+		AggregateID: template.ID,
+		CommandKind: string(transition.CommandActionQueue),
+		CommandID:   actionCommandID(template.ID, transition.CommandActionQueue, ""),
+		Actor:       firstNonEmpty(template.RequestedBy, "control-plane"),
+		OccurredAt:  firstNonZeroTime(template.CreatedAt, time.Now().UTC()),
+		Payload: map[string]any{
+			"owner_plane":     template.OwnerPlane,
+			"conversation_id": template.ConversationID,
+			"case_id":         template.CaseID,
+			"trace_id":        template.TraceID,
+			"attempt_id":      template.AttemptID,
+			"kind":            string(template.Kind),
+			"phase_key":       template.PhaseKey,
+			"target_ref":      template.TargetRef,
+			"request_payload": cloneAnyMap(template.RequestPayload),
+			"idempotency_key": template.IdempotencyKey,
+			"approval_mode":   template.ApprovalMode,
+			"approval_state":  template.ApprovalState,
+			"policy_verdict":  template.PolicyVerdict,
+			"requested_by":    template.RequestedBy,
+			"rationale":       template.Rationale,
+			"evidence_refs":   normalizeActionEvidenceRefs(template.EvidenceRefs, template.TraceID),
+		},
+	})
 	if err != nil {
 		return action.Intent{}, false, err
 	}
-	return created, true, nil
+	if receipt.DecisionKind == transition.DecisionReject {
+		return action.Intent{}, false, errors.New(receipt.Reason)
+	}
+	created, ok := store.GetActionIntent(template.ID)
+	if !ok {
+		return action.Intent{}, false, fmt.Errorf("action intent %s not found after queue command", template.ID)
+	}
+	return created, receipt.DecisionKind == transition.DecisionAdvance, nil
 }
 
 func findActionIntentByIdempotencyKey(items []action.Intent, key string) (action.Intent, bool) {
@@ -1215,98 +1133,58 @@ func findActionIntentByIdempotencyKey(items []action.Intent, key string) (action
 	return action.Intent{}, false
 }
 
-func enqueueControlActionWork(store storepkg.Store, resumeQueue queue.QueueName, ctx workflowContext, intent action.Intent, workflow storepkg.Workflow) (queue.WorkItem, error) {
-	return enqueueOperationBackedWork(store, operation.Execution{
-		ScopeKind:     operation.ScopeAction,
-		ScopeID:       intent.ID,
-		OperationKind: "execute_action",
-		OperationKey:  firstNonEmpty(intent.PhaseKey, string(intent.Kind)),
-		Status:        operation.StatusQueued,
-		Queue:         queue.ControlActionQueue,
-		RequestedBy:   "control_orchestrator",
-		TraceID:       ctx.trace.Summary.TraceID,
-		AttemptID:     intent.AttemptID,
-	}, workflowWorkItemBase(ctx, queue.ControlActionQueue, "execute_action", "control_orchestrator", time.Now().UTC(), workflow.Intent, map[string]any{
-		"action_intent_id": intent.ID,
-		"resume_queue":     string(resumeQueue),
-	}))
+func actionIntentIDFromIdempotencyKey(key string) string {
+	sum := sha1.Sum([]byte(strings.TrimSpace(key)))
+	return fmt.Sprintf("action-%x", sum[:8])
 }
 
-func enqueueWorkflowResume(store storepkg.Store, queueName queue.QueueName, ctx workflowContext, kind string, createdAt time.Time) (queue.WorkItem, error) {
-	return enqueueOperationBackedWork(store, operation.Execution{
-		ScopeKind:     operation.ScopeTrace,
-		ScopeID:       ctx.trace.Summary.TraceID,
-		OperationKind: kind,
-		OperationKey:  kind,
-		Status:        operation.StatusQueued,
-		Queue:         queueName,
-		RequestedBy:   "control_action_worker",
-		TraceID:       ctx.trace.Summary.TraceID,
-	}, workflowWorkItemBase(ctx, queueName, kind, "control_action_worker", createdAt, ctx.workflow.Intent, map[string]any{}))
+func firstNonZeroTime(items ...time.Time) time.Time {
+	for _, item := range items {
+		if !item.IsZero() {
+			return item
+		}
+	}
+	return time.Time{}
 }
 
-func queueEvalWork(store storepkg.Store, requestedBy string, ctx workflowContext, createdAt time.Time) (queue.WorkItem, error) {
-	return enqueueOperationBackedWork(store, operation.Execution{
-		ScopeKind:     operation.ScopeTrace,
-		ScopeID:       ctx.trace.Summary.TraceID,
-		OperationKind: "eval_enqueue",
-		OperationKey:  "evaluate_trace",
-		Status:        operation.StatusQueued,
-		Queue:         queue.EvalQueue,
-		RequestedBy:   requestedBy,
-		TraceID:       ctx.trace.Summary.TraceID,
-	}, workflowWorkItemBase(ctx, queue.EvalQueue, "evaluate_trace", requestedBy, createdAt, ctx.workflow.Intent, map[string]any{}))
-}
-
-func enqueueOperationBackedWork(store storepkg.Store, op operation.Execution, item queue.WorkItem) (queue.WorkItem, error) {
-	created, _, err := store.GetOrCreateOperation(op)
+func loadWorkflowContextForEffect(store storepkg.Store, effect transition.EffectExecution) (workflowContext, queue.QueueName, error) {
+	workflowID := strings.TrimSpace(effect.AggregateID)
+	if workflowID == "" {
+		return workflowContext{}, "", fmt.Errorf("workflow effect %s missing aggregate id", effect.ID)
+	}
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowID)
+	if !ok {
+		return workflowContext{}, "", fmt.Errorf("workflow %s not found", workflowID)
+	}
+	ctx, err := loadWorkflowContext(store, queue.WorkItem{
+		TraceID:     workflow.TraceID,
+		WorkflowID:  workflow.ID,
+		IngestionID: workflow.IngestionID,
+	})
 	if err != nil {
-		return queue.WorkItem{}, err
+		return workflowContext{}, "", err
 	}
-	item.OperationID = created.ID
-	return store.EnqueueWorkItem(item)
+	queueName := queueNameFromString(firstNonEmpty(stringFromMap(effect.Payload, "resume_queue"), string(queue.WorkflowQueue)))
+	return ctx, queueName, nil
 }
 
-func workflowWorkItemBase(ctx workflowContext, queueName queue.QueueName, kind string, requestedBy string, createdAt time.Time, intent string, payload map[string]any) queue.WorkItem {
-	return queue.WorkItem{
-		Queue:          queueName,
-		Kind:           kind,
-		Status:         queue.WorkQueued,
-		TraceID:        ctx.trace.Summary.TraceID,
-		WorkflowID:     ctx.trace.Summary.WorkflowID,
-		IngestionID:    ctx.trace.Summary.IngestionID,
-		ConversationID: ctx.trace.Summary.ConversationID,
-		CaseID:         ctx.trace.Summary.CaseID,
-		TriggerEventID: ctx.trace.Summary.TriggerEventID,
-		ThreadKey:      ctx.trace.Summary.ThreadKey,
-		Intent:         intent,
-		RequestedBy:    requestedBy,
-		ApprovalMode:   ctx.workflow.ApprovalMode,
-		ResponseMode:   ctx.workflow.ResponseMode,
-		Payload:        payload,
-		CreatedAt:      createdAt,
-		UpdatedAt:      createdAt,
-	}
-}
-
-func toolInputForIntent(cfg config.Config, workflow storepkg.Workflow, ingestion slackpkg.Ingestion) map[string]any {
-	repo := resolveTargetRepo(cfg, ingestion.Text)
-	since, until := repoActivityWindow(ingestion.Text, time.Now().UTC())
-	return map[string]any{
-		"repo":               repo,
-		"question":           ingestion.Text,
-		"topic":              ingestion.Text,
-		"scope_id":           repo,
-		"service":            workflow.AssignedBot,
-		"alert":              ingestion.Text,
-		"namespace":          cfg.SandboxNamespace,
-		"target":             workflow.Kind,
-		"knowledge_base_url": cfg.DefaultKnowledgeBaseURL,
-		"channel_id":         ingestion.ChannelID,
-		"thread_ts":          ingestion.ThreadTS,
-		"since":              since,
-		"until":              until,
-	}
+func toolInputForIntent(cfg config.Config, trace events.TraceSummary, workflow storepkg.Workflow, ingestion slackpkg.Ingestion) map[string]any {
+	return workflowplan.BuildToolRequestPayload(workflowplan.RuntimeConfig{
+		DefaultRepo:      cfg.DefaultRepo,
+		AllowedRepos:     append([]string(nil), cfg.AllowedTargetRepos...),
+		KnowledgeBaseURL: cfg.DefaultKnowledgeBaseURL,
+		SandboxNamespace: cfg.SandboxNamespace,
+	}, workflowplan.RequestContext{
+		Trace:          trace,
+		WorkflowID:     workflow.ID,
+		ConversationID: workflow.ConversationID,
+		CaseID:         workflow.CaseID,
+		WorkflowKind:   workflow.Kind,
+		AssignedBot:    workflow.AssignedBot,
+		Question:       ingestion.Text,
+		ChannelID:      ingestion.ChannelID,
+		ThreadTS:       ingestion.ThreadTS,
+	}, time.Now().UTC())
 }
 
 func contextFromTrace(trace events.Trace) (string, []clients.RunnerContextRef, []string) {
@@ -1338,64 +1216,18 @@ func ingestionText(ingestion slackpkg.Ingestion) string {
 }
 
 func resolveTargetRepo(cfg config.Config, question string) string {
-	text := strings.ToLower(strings.TrimSpace(question))
-	for _, repo := range cfg.AllowedTargetRepos {
-		repo = strings.TrimSpace(repo)
-		if repo == "" {
-			continue
-		}
-		if strings.Contains(text, strings.ToLower(repo)) {
-			return repo
-		}
-	}
-	return cfg.DefaultRepo
+	return workflowplan.ResolveTargetRepo(workflowplan.RuntimeConfig{
+		DefaultRepo:  cfg.DefaultRepo,
+		AllowedRepos: append([]string(nil), cfg.AllowedTargetRepos...),
+	}, question)
 }
 
 func shouldUseGitHubRepoActivity(question string, repo string) bool {
-	if strings.TrimSpace(repo) == "" || strings.EqualFold(strings.TrimSpace(repo), "cloudflare") {
-		return false
-	}
-	text := strings.ToLower(strings.TrimSpace(question))
-	if text == "" {
-		return false
-	}
-	indicators := []string{
-		"progress",
-		"activity",
-		"recent",
-		"last week",
-		"past week",
-		"this week",
-		"today",
-		"yesterday",
-		"commits",
-		"prs",
-		"pull requests",
-		"merged",
-		"opened",
-	}
-	for _, indicator := range indicators {
-		if strings.Contains(text, indicator) {
-			return true
-		}
-	}
-	return false
+	return workflowplan.ShouldUseGitHubRepoActivity(question, repo)
 }
 
 func repoActivityWindow(question string, now time.Time) (string, string) {
-	text := strings.ToLower(strings.TrimSpace(question))
-	start := now.Add(-7 * 24 * time.Hour)
-	switch {
-	case strings.Contains(text, "today"):
-		start = now.Add(-24 * time.Hour)
-	case strings.Contains(text, "yesterday"):
-		start = now.Add(-48 * time.Hour)
-	case strings.Contains(text, "last 24 hours"):
-		start = now.Add(-24 * time.Hour)
-	case strings.Contains(text, "last week"), strings.Contains(text, "past week"), strings.Contains(text, "this week"), strings.Contains(text, "recent"):
-		start = now.Add(-7 * 24 * time.Hour)
-	}
-	return start.UTC().Format(time.RFC3339), now.UTC().Format(time.RFC3339)
+	return workflowplan.RepoActivityWindow(question, now)
 }
 
 func workflowOutcomeForTrace(store storepkg.Store, traceID string) (events.Status, string, string) {
@@ -1417,6 +1249,149 @@ func workflowOutcomeForTrace(store storepkg.Store, traceID string) (events.Statu
 		return events.StatusNeedsHuman, "needs-human", lastError
 	}
 	return events.StatusCompleted, "completed", ""
+}
+
+func submitWorkflowCommand(store storepkg.Store, workflowID string, kind transition.WorkflowCommandKind, actor string, occurredAt time.Time, payload map[string]any) (transition.CommandReceipt, error) {
+	if strings.TrimSpace(workflowID) == "" {
+		return transition.CommandReceipt{}, nil
+	}
+	return store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineWorkflow,
+		AggregateID: workflowID,
+		CommandKind: string(kind),
+		CommandID:   workflowCommandID(workflowID, kind),
+		Actor:       actor,
+		OccurredAt:  occurredAt,
+		Payload:     payload,
+	})
+}
+
+func workflowCommandID(workflowID string, kind transition.WorkflowCommandKind) string {
+	return fmt.Sprintf("cmd-workflow:%s:%s", strings.TrimSpace(workflowID), string(kind))
+}
+
+func submitActionCommand(store storepkg.Store, actionID string, kind transition.ActionExecutionCommandKind, actor string, occurredAt time.Time, payload map[string]any) (transition.CommandReceipt, error) {
+	if strings.TrimSpace(actionID) == "" {
+		return transition.CommandReceipt{}, nil
+	}
+	return store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineAction,
+		AggregateID: actionID,
+		CommandKind: string(kind),
+		CommandID:   actionCommandID(actionID, kind, stringFromMap(payload, "operation_id")),
+		Actor:       actor,
+		OccurredAt:  occurredAt,
+		Payload:     payload,
+	})
+}
+
+func actionCommandID(actionID string, kind transition.ActionExecutionCommandKind, operationID string) string {
+	base := fmt.Sprintf("cmd-action:%s:%s", strings.TrimSpace(actionID), string(kind))
+	operationID = strings.TrimSpace(operationID)
+	if operationID == "" {
+		return base
+	}
+	return base + ":" + operationID
+}
+
+func actionCommandForStatus(status action.Status) (transition.ActionExecutionCommandKind, error) {
+	switch status {
+	case action.StatusSucceeded:
+		return transition.CommandActionSucceed, nil
+	case action.StatusBlocked:
+		return transition.CommandActionBlock, nil
+	case action.StatusFailed:
+		return transition.CommandActionFail, nil
+	default:
+		return "", fmt.Errorf("unsupported terminal action status %s", status)
+	}
+}
+
+func claimLatestWorkflowEffect(store storepkg.Store, workflowID string, kind transition.EffectKind, holder string, lease time.Duration) (transition.EffectExecution, bool, error) {
+	effect, ok := workflowEffectByPayload(store, workflowID, kind, "", "")
+	if !ok {
+		return transition.EffectExecution{}, false, nil
+	}
+	return store.ClaimEffectExecution(effect.ID, holder, lease)
+}
+
+func claimNextWorkflowRunnerEffect(store storepkg.Store, holder string, lease time.Duration) (transition.EffectExecution, bool, error) {
+	for _, effect := range store.ListEffectExecutions() {
+		if effect.MachineKind != transition.MachineWorkflow || effect.EffectKind != transition.EffectInvokeRunner {
+			continue
+		}
+		claimed, ok, err := store.ClaimEffectExecution(effect.ID, holder, lease)
+		if err != nil {
+			return transition.EffectExecution{}, false, err
+		}
+		if ok {
+			return claimed, true, nil
+		}
+	}
+	return transition.EffectExecution{}, false, nil
+}
+
+func claimNextActionEffect(store storepkg.Store, ownerPlane string, holder string, lease time.Duration) (transition.EffectExecution, bool, error) {
+	ownerPlane = strings.TrimSpace(ownerPlane)
+	for _, effect := range store.ListEffectExecutions() {
+		if effect.MachineKind != transition.MachineAction || effect.EffectKind != transition.EffectInvokeAction {
+			continue
+		}
+		if ownerPlane != "" && !strings.EqualFold(strings.TrimSpace(stringFromMap(effect.Payload, "owner_plane")), ownerPlane) {
+			continue
+		}
+		claimed, ok, err := store.ClaimEffectExecution(effect.ID, holder, lease)
+		if err != nil {
+			return transition.EffectExecution{}, false, err
+		}
+		if ok {
+			return claimed, true, nil
+		}
+	}
+	return transition.EffectExecution{}, false, nil
+}
+
+func claimWorkflowEffectByPayload(store storepkg.Store, workflowID string, kind transition.EffectKind, payloadKey string, payloadValue string, holder string, lease time.Duration) (transition.EffectExecution, bool, error) {
+	effect, ok := workflowEffectByPayload(store, workflowID, kind, payloadKey, payloadValue)
+	if !ok {
+		return transition.EffectExecution{}, false, nil
+	}
+	return store.ClaimEffectExecution(effect.ID, holder, lease)
+}
+
+func completeClaimedEffect(store storepkg.Store, effect transition.EffectExecution, resultRef string) error {
+	if strings.TrimSpace(effect.ID) == "" || effect.Status == transition.EffectCompleted {
+		return nil
+	}
+	_, err := store.CompleteEffectExecution(effect.ID, resultRef)
+	return err
+}
+
+func failClaimedEffect(store storepkg.Store, effect transition.EffectExecution, lastError string) error {
+	if strings.TrimSpace(effect.ID) == "" || effect.Status == transition.EffectFailed {
+		return nil
+	}
+	_, err := store.FailEffectExecution(effect.ID, lastError)
+	return err
+}
+
+func latestWorkflowEffect(store storepkg.Store, workflowID string, kind transition.EffectKind) (transition.EffectExecution, bool) {
+	return workflowEffectByPayload(store, workflowID, kind, "", "")
+}
+
+func workflowEffectByPayload(store storepkg.Store, workflowID string, kind transition.EffectKind, payloadKey string, payloadValue string) (transition.EffectExecution, bool) {
+	payloadKey = strings.TrimSpace(payloadKey)
+	payloadValue = strings.TrimSpace(payloadValue)
+	for _, effect := range store.ListEffectExecutionsByAggregate(transition.MachineWorkflow, workflowID) {
+		if effect.EffectKind != kind {
+			continue
+		}
+		if payloadKey != "" && stringFromMap(effect.Payload, payloadKey) != payloadValue {
+			continue
+		}
+		return effect, true
+	}
+	return transition.EffectExecution{}, false
 }
 
 func latestActionError(store storepkg.Store, actionID string) string {
@@ -1451,19 +1426,20 @@ type actionPersistenceFailure struct {
 func finalizeControlActionPersistenceFailure(cfg config.Config, store storepkg.Store, item queue.WorkItem, ctx workflowContext, intent action.Intent, execErr error) error {
 	failure := classifyActionPersistenceFailure(intent, execErr)
 	now := time.Now().UTC()
-	intent.Status = action.StatusFailed
-	intent.PolicyVerdict = firstNonEmpty(failure.FailureMode, "action_result_persistence_failure")
-	intent.UpdatedAt = now
-	if _, err := store.UpsertActionIntent(intent); err != nil {
+	if _, err := submitActionCommand(store, intent.ID, transition.CommandActionFail, cfg.ServiceName, now, map[string]any{
+		"operation_id":   firstNonEmpty(intent.OperationID, item.OperationID),
+		"policy_verdict": firstNonEmpty(failure.FailureMode, "action_result_persistence_failure"),
+		"error_code":     "failed",
+		"error_message":  execErr.Error(),
+		"record_result":  false,
+	}); err != nil {
 		return err
 	}
 
 	description := actionPersistenceFailureDescription(intent, item, failure, execErr)
-	if _, err := store.ApplyTraceUpdate(ctx.trace.Summary.TraceID, storepkg.TraceUpdate{
-		Status:         ptrStatus(events.StatusNeedsHuman),
-		WorkflowStatus: "needs-human",
-		WorkflowError:  description,
-		Events: []events.TraceEvent{
+	if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowBlocked, cfg.ServiceName, now, map[string]any{
+		"last_error": description,
+		"trace_events": []events.TraceEvent{
 			{
 				TraceID:        ctx.trace.Summary.TraceID,
 				IngestionID:    ctx.trace.Summary.IngestionID,
@@ -1484,9 +1460,7 @@ func finalizeControlActionPersistenceFailure(cfg config.Config, store storepkg.S
 		return err
 	}
 
-	resumeQueue := queueNameFromString(firstNonEmpty(stringFromMap(item.Payload, "resume_queue"), string(queue.WorkflowQueue)))
-	_, err := enqueueWorkflowResume(store, resumeQueue, ctx, controlWorkResumeAfterReply, now)
-	return err
+	return nil
 }
 
 func isPostgresActionPersistenceError(err error) bool {

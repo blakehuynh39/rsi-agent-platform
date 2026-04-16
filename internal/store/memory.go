@@ -36,7 +36,6 @@ const (
 
 type Store interface {
 	ListEvents() []ingestion.EventEnvelope
-	CreateEvent(event ingestion.EventEnvelope) (ingestion.EventEnvelope, error)
 	ListConversations() []conversation.Conversation
 	GetConversation(conversationID string) (conversation.Conversation, bool)
 	ListConversationEntries(conversationID string) []conversation.Entry
@@ -44,14 +43,13 @@ type Store interface {
 	GetCase(caseID string) (conversation.Case, bool)
 	ListActionIntents() []action.Intent
 	GetActionIntent(actionID string) (action.Intent, bool)
-	UpsertActionIntent(intent action.Intent) (action.Intent, error)
 	ListActionResults(actionIntentID string) []action.Result
-	RecordActionResult(result action.Result) (action.Result, error)
 	ListDomainEvents() []transition.DomainEvent
 	ListEffectExecutions() []transition.EffectExecution
 	ListEffectExecutionsByAggregate(machineKind transition.MachineKind, aggregateID string) []transition.EffectExecution
 	GetCommandReceipt(commandID string) (transition.CommandReceipt, bool)
 	RecordCommandReceipt(item transition.CommandReceipt) (transition.CommandReceipt, bool, error)
+	SubmitCommand(command transition.CommandEnvelope) (transition.CommandReceipt, error)
 	ClaimEffectExecution(effectID string, holder string, lease time.Duration) (transition.EffectExecution, bool, error)
 	CompleteEffectExecution(effectID string, resultRef string) (transition.EffectExecution, error)
 	FailEffectExecution(effectID string, lastError string) (transition.EffectExecution, error)
@@ -63,39 +61,27 @@ type Store interface {
 	CompleteOperation(operationID string, resultRef string) (operation.Execution, error)
 	FailOperation(operationID string, lastError string) (operation.Execution, error)
 	ListOutcomes() []outcome.Record
-	RecordOutcome(record outcome.Record) (outcome.Record, error)
 	ListKnowledgeEntries() []knowledge.Entry
 	GetKnowledgeEntry(knowledgeID string) (knowledge.Entry, bool)
-	UpsertKnowledgeEntry(entry knowledge.Entry, links []knowledge.EvidenceLink) (knowledge.Entry, error)
 	ListKnowledgeEvidenceLinks(knowledgeID string) []knowledge.EvidenceLink
 	ListKnowledgeReviews(knowledgeID string) []knowledge.Review
-	ReviewKnowledgeEntry(knowledgeID string, item knowledge.Review) (knowledge.Entry, error)
 	ListHarnessProfiles() []harness.Profile
 	GetHarnessProfile(profileID string) (harness.Profile, bool)
 	ListHarnessOverlays() []harness.Overlay
 	GetActiveHarnessOverlay(role string) (harness.Overlay, bool)
-	UpsertHarnessOverlay(item harness.Overlay) (harness.Overlay, error)
 	ListHarnessExperiments() []harness.Experiment
-	RecordHarnessExperiment(item harness.Experiment) (harness.Experiment, error)
 	ListHarnessSessionBindings() []harness.SessionBinding
-	UpsertHarnessSessionBinding(item harness.SessionBinding) (harness.SessionBinding, error)
 	ListHarnessExecutions() []harness.Execution
-	RecordHarnessExecution(item harness.Execution) (harness.Execution, error)
 	ListChangeAttempts() []improvement.ChangeAttempt
 	GetChangeAttempt(attemptID string) (improvement.ChangeAttempt, bool)
-	UpsertChangeAttempt(item improvement.ChangeAttempt) (improvement.ChangeAttempt, error)
 	ListAttemptWorkspaces() []improvement.AttemptWorkspace
 	GetAttemptWorkspace(workspaceID string) (improvement.AttemptWorkspace, bool)
 	GetAttemptWorkspaceByAttempt(attemptID string) (improvement.AttemptWorkspace, bool)
-	UpsertAttemptWorkspace(item improvement.AttemptWorkspace) (improvement.AttemptWorkspace, error)
-	CreateDerivedTrace(req DerivedTraceRequest) (events.Trace, Workflow, error)
 	ListIngestions() []slack.Ingestion
-	CreateIngestion(envelope slack.SlackEnvelope) (slack.Ingestion, error)
 	ListWorkflows() []Workflow
 	ListAssignments() []Assignment
 	ListThreadPolicies() []policy.ThreadPolicy
 	ListChannelPolicies() []policy.ChannelPolicy
-	SetThreadState(threadKey string, state policy.ThreadState, owner string) (policy.ThreadPolicy, error)
 	ListOwnershipRecords() []registry.OwnershipRecord
 	ListCapabilities() []registry.CapabilityRecord
 	ListTemplates() []registry.WorkflowTemplate
@@ -105,16 +91,10 @@ type Store interface {
 	ListRatings(traceID string) []review.HumanRating
 	ListImprovementNotes(traceID string) []review.ImprovementNote
 	ListFeedback(traceID string) []review.FeedbackRecord
-	AddFeedback(record review.FeedbackRecord) (review.FeedbackRecord, error)
-	AddRating(traceID string, rating review.HumanRating) (review.HumanRating, error)
-	AddImprovementNote(traceID string, note review.ImprovementNote) (review.ImprovementNote, error)
-	ScheduleReplay(traceID string, requestedBy string) (queue.WorkItem, error)
 	ListEvalSuites() []evals.Suite
 	ListEvalRuns() []evals.Run
 	ListEvalJudgments(evalRunID string) []evals.Judgment
-	EvaluateTrace(traceID string, trigger string) (evals.Run, []evals.Judgment, error)
 	GetSettings() improvement.Settings
-	UpdateSettings(settings improvement.Settings) (improvement.Settings, error)
 	ListWorkItems() []queue.WorkItem
 	EnqueueWorkItem(item queue.WorkItem) (queue.WorkItem, error)
 	RescheduleWorkItem(id string, payload map[string]interface{}, lastError string, availableAt time.Time) (queue.WorkItem, error)
@@ -125,24 +105,12 @@ type Store interface {
 	DeferProposalAttemptPhase(req ProposalAttemptPhaseDefer) error
 	FailProposalAttemptPhase(req ProposalAttemptPhaseFailure) error
 	ReconcileProposalAttemptPhase(proposalID string, requestedBy string) (queue.WorkItem, bool, error)
-	UpdateWorkflowStatus(workflowID string, status string, lastError string) (Workflow, error)
-	ApplyTraceUpdate(traceID string, update TraceUpdate) (events.Trace, error)
 	ListCandidates() []improvement.Candidate
 	ListProposalMemories() []review.ProposalMemory
 	GetProposalSlots() ProposalSlotState
-	PromoteCandidates(requestedBy string, limit int) (PromotionResult, error)
-	RunProposalPromoter(holder string) (PromotionResult, error)
 	ListProposals() []review.Proposal
-	ReviewProposal(proposalID string, decision review.ProposalReview) (review.Proposal, error)
-	StopProposalLine(proposalID string, requestedBy string, rationale string) (review.Proposal, error)
-	UpdateProposalStatus(proposalID string, status review.ProposalStatus) (review.Proposal, error)
-	MaterializeApprovedProposal(proposalID string, requestedBy string) (improvement.RepoChangeJob, error)
-	RetryProposalRepoChange(proposalID string, requestedBy string) (queue.WorkItem, error)
 	ListRepoChangeJobs() []improvement.RepoChangeJob
-	UpsertRepoChangeJob(job improvement.RepoChangeJob) (improvement.RepoChangeJob, error)
-	UpdateRepoChangeJobStatus(jobID string, status string) (improvement.RepoChangeJob, error)
 	ListPRAttempts() []improvement.PRAttempt
-	RecordPRAttempt(attempt improvement.PRAttempt) (improvement.PRAttempt, error)
 	ListPostMergeReplays() []improvement.PostMergeReplay
 }
 
@@ -242,7 +210,7 @@ func (s *MemoryStore) seedDefaults() {
 		{Name: "proposal-quality", Description: "Evaluate repo-change proposal readiness", EventKinds: []string{"proposal"}, Layers: []evals.Layer{evals.LayerDeterministic, evals.LayerTaskQuality, evals.LayerArchitecture}},
 	}
 
-	_, _ = s.CreateEvent(ingestion.EventEnvelope{
+	_, _ = s.createEventLocked(ingestion.EventEnvelope{
 		Source:                     ingestion.SourceSlack,
 		SourceEventID:              "slack-171000001.000100",
 		ThreadKey:                  "slack:CENG:171000001.000100",
@@ -259,7 +227,7 @@ func (s *MemoryStore) seedDefaults() {
 		},
 		CreatedAt: now.Add(-35 * time.Minute),
 	})
-	_, _ = s.CreateEvent(ingestion.EventEnvelope{
+	_, _ = s.createEventLocked(ingestion.EventEnvelope{
 		Source:                     ingestion.SourceSentry,
 		SourceEventID:              "sentry-issue-2413",
 		IncidentKey:                "sentry:issue-2413",
@@ -276,9 +244,19 @@ func (s *MemoryStore) seedDefaults() {
 		CreatedAt: now.Add(-20 * time.Minute),
 	})
 	for _, trace := range s.ListTraces() {
-		_, _, _ = s.EvaluateTrace(trace.TraceID, "seed")
+		_, _ = s.SubmitCommand(transition.CommandEnvelope{
+			MachineKind: transition.MachineProblemLine,
+			AggregateID: trace.TraceID,
+			CommandKind: string(transition.CommandProblemLineEvaluateTrace),
+			CommandID:   fmt.Sprintf("cmd-seed-evaluate:%s", trace.TraceID),
+			Actor:       "seed",
+			OccurredAt:  now,
+			Payload: map[string]any{
+				"trigger": "seed",
+			},
+		})
 	}
-	_, _ = s.PromoteCandidates("seed", 1)
+	_, _ = s.promoteCandidatesLocked("seed", 1)
 }
 
 func (s *MemoryStore) ListEvents() []ingestion.EventEnvelope {
@@ -287,12 +265,6 @@ func (s *MemoryStore) ListEvents() []ingestion.EventEnvelope {
 	out := append([]ingestion.EventEnvelope(nil), s.events...)
 	sort.Slice(out, func(i, j int) bool { return out[i].CreatedAt.After(out[j].CreatedAt) })
 	return out
-}
-
-func (s *MemoryStore) CreateEvent(event ingestion.EventEnvelope) (ingestion.EventEnvelope, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.createEventLocked(event)
 }
 
 func (s *MemoryStore) createEventLocked(event ingestion.EventEnvelope) (ingestion.EventEnvelope, error) {
@@ -405,12 +377,6 @@ func (s *MemoryStore) GetActionIntent(actionID string) (action.Intent, bool) {
 	return item, ok
 }
 
-func (s *MemoryStore) UpsertActionIntent(intent action.Intent) (action.Intent, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.upsertActionIntentLocked(intent)
-}
-
 func (s *MemoryStore) upsertActionIntentLocked(intent action.Intent) (action.Intent, error) {
 	now := time.Now().UTC()
 	if intent.ID == "" {
@@ -442,9 +408,7 @@ func (s *MemoryStore) ListActionResults(actionIntentID string) []action.Result {
 	return out
 }
 
-func (s *MemoryStore) RecordActionResult(result action.Result) (action.Result, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+func (s *MemoryStore) recordActionResultLocked(result action.Result) (action.Result, error) {
 	if strings.TrimSpace(result.ActionIntentID) == "" {
 		return action.Result{}, errors.New("action_intent_id is required")
 	}
@@ -499,12 +463,6 @@ func (s *MemoryStore) ListOutcomes() []outcome.Record {
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].RecordedAt.After(out[j].RecordedAt) })
 	return out
-}
-
-func (s *MemoryStore) RecordOutcome(record outcome.Record) (outcome.Record, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.recordOutcomeLocked(record)
 }
 
 func (s *MemoryStore) recordOutcomeLocked(record outcome.Record) (outcome.Record, error) {
@@ -573,9 +531,7 @@ func (s *MemoryStore) GetKnowledgeEntry(knowledgeID string) (knowledge.Entry, bo
 	return item, ok
 }
 
-func (s *MemoryStore) UpsertKnowledgeEntry(entry knowledge.Entry, links []knowledge.EvidenceLink) (knowledge.Entry, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+func (s *MemoryStore) upsertKnowledgeEntryLocked(entry knowledge.Entry, links []knowledge.EvidenceLink) (knowledge.Entry, error) {
 	now := time.Now().UTC()
 	if entry.ID == "" {
 		entry.ID = nextID("knowledge", len(s.knowledgeEntries)+1)
@@ -618,41 +574,6 @@ func (s *MemoryStore) ListKnowledgeReviews(knowledgeID string) []knowledge.Revie
 	return append([]knowledge.Review(nil), s.knowledgeReviews[knowledgeID]...)
 }
 
-func (s *MemoryStore) ReviewKnowledgeEntry(knowledgeID string, item knowledge.Review) (knowledge.Entry, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	entry, ok := s.knowledgeEntries[knowledgeID]
-	if !ok {
-		return knowledge.Entry{}, errors.New("knowledge entry not found")
-	}
-	now := time.Now().UTC()
-	if item.ID == "" {
-		item.ID = nextID("knowledge-review", len(s.knowledgeReviews[knowledgeID])+1)
-	}
-	item.KnowledgeEntryID = knowledgeID
-	if item.CreatedAt.IsZero() {
-		item.CreatedAt = now
-	}
-	s.knowledgeReviews[knowledgeID] = append(s.knowledgeReviews[knowledgeID], item)
-	entry.UpdatedAt = item.CreatedAt
-	switch strings.ToLower(strings.TrimSpace(item.Decision)) {
-	case "approve":
-		entry.Tier = knowledge.TierCanonical
-		entry.Status = knowledge.StatusCanonical
-		entry.SourceType = knowledge.SourcePromoted
-	case "reject":
-		entry.Status = knowledge.StatusDraft
-	case "mark_stale":
-		entry.Status = knowledge.StatusStale
-	case "archive":
-		entry.Status = knowledge.StatusArchived
-	default:
-		return knowledge.Entry{}, errors.New("unsupported knowledge review decision")
-	}
-	s.knowledgeEntries[knowledgeID] = entry
-	return entry, nil
-}
-
 func (s *MemoryStore) ListIngestions() []slack.Ingestion {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -661,9 +582,7 @@ func (s *MemoryStore) ListIngestions() []slack.Ingestion {
 	return out
 }
 
-func (s *MemoryStore) CreateIngestion(envelope slack.SlackEnvelope) (slack.Ingestion, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+func (s *MemoryStore) createIngestionLocked(envelope slack.SlackEnvelope) (slack.Ingestion, error) {
 	conversationKey := slackConversationKey(envelope)
 	event := ingestion.EventEnvelope{
 		Source:                     ingestion.SourceSlack,
@@ -808,10 +727,10 @@ func (s *MemoryStore) materializeWorkflowLocked(event ingestion.EventEnvelope) {
 
 	conv, createdConversation := s.resolveConversationLocked(event, createdAt)
 	entry := s.appendConversationEntryLocked(conv.ID, event, createdAt)
-	caseRecord, caseCreated := s.resolveCaseLocked(conv, event, createdAt)
-	workflow := s.ensureWorkflowForCaseLocked(caseRecord, entry, createdAt)
+	caseRecord, _ := s.resolveCaseLocked(conv, event, createdAt)
+	workflow := s.ensureWorkflowForCaseLocked(caseRecord, entry, createdAt, stringFromMetadata(event.Metadata, "workflow_id"))
 
-	ingestionID := nextID("ing", len(s.ingestions)+1)
+	ingestionID := firstNonEmpty(stringFromMetadata(event.Metadata, "ingestion_id"), nextID("ing", len(s.ingestions)+1))
 	ingestionItem := slack.Ingestion{
 		ID:             ingestionID,
 		EventID:        event.ID,
@@ -952,48 +871,6 @@ func (s *MemoryStore) materializeWorkflowLocked(event ingestion.EventEnvelope) {
 	}
 	recomputeTraceSummary(&trace)
 	s.traces[traceID] = trace
-	_, _, _, _ = s.ensureOperationWorkItemLocked(operation.Execution{
-		ScopeKind:     operation.ScopeTrace,
-		ScopeID:       traceID,
-		OperationKind: "run_workflow",
-		OperationKey:  "run_workflow",
-		Status:        operation.StatusQueued,
-		Queue:         queue.WorkflowQueue,
-		RequestedBy:   "event_ingested",
-		TraceID:       traceID,
-	}, queue.WorkItem{
-		Queue:          queue.WorkflowQueue,
-		Kind:           "run_workflow",
-		Status:         queue.WorkQueued,
-		TraceID:        traceID,
-		WorkflowID:     workflow.ID,
-		IngestionID:    ingestionID,
-		ConversationID: conv.ID,
-		CaseID:         caseRecord.ID,
-		TriggerEventID: event.ID,
-		ThreadKey:      conv.ExternalKey,
-		Intent:         intent,
-		RepoScope:      event.OwnershipHint,
-		RequestedBy:    "event_ingested",
-		ApprovalMode:   workflow.ApprovalMode,
-		ResponseMode:   workflow.ResponseMode,
-		Payload: map[string]interface{}{
-			"event_id":             event.ID,
-			"workflow_hint":        event.WorkflowHint,
-			"assigned_bot":         assignedBot,
-			"channel_id":           channelID,
-			"thread_ts":            threadTS,
-			"problem":              event.NormalizedProblemStatement,
-			"source":               event.Source,
-			"raw_payload_ref":      event.RawPayloadRef,
-			"conversation_id":      conv.ID,
-			"case_id":              caseRecord.ID,
-			"created_case":         caseCreated,
-			"created_conversation": createdConversation,
-		},
-		CreatedAt: createdAt,
-		UpdatedAt: createdAt,
-	})
 }
 
 func (s *MemoryStore) resolveConversationLocked(event ingestion.EventEnvelope, createdAt time.Time) (conversation.Conversation, bool) {
@@ -1092,7 +969,7 @@ func (s *MemoryStore) activeCaseForConversationLocked(conversationID string) (co
 	return conversation.Case{}, false
 }
 
-func (s *MemoryStore) ensureWorkflowForCaseLocked(caseRecord conversation.Case, entry conversation.Entry, createdAt time.Time) Workflow {
+func (s *MemoryStore) ensureWorkflowForCaseLocked(caseRecord conversation.Case, entry conversation.Entry, createdAt time.Time, preferredWorkflowID string) Workflow {
 	for i := range s.workflows {
 		if s.workflows[i].CaseID != caseRecord.ID {
 			continue
@@ -1110,7 +987,7 @@ func (s *MemoryStore) ensureWorkflowForCaseLocked(caseRecord conversation.Case, 
 		return s.workflows[i]
 	}
 	item := Workflow{
-		ID:             nextID("wf", len(s.workflows)+1),
+		ID:             firstNonEmpty(preferredWorkflowID, nextID("wf", len(s.workflows)+1)),
 		ConversationID: caseRecord.ConversationID,
 		CaseID:         caseRecord.ID,
 		ThreadKey:      conversationKeyForCase(caseRecord, s.conversations),
@@ -1283,23 +1160,6 @@ func (s *MemoryStore) ListChannelPolicies() []policy.ChannelPolicy {
 	return append([]policy.ChannelPolicy(nil), s.channelPolicy...)
 }
 
-func (s *MemoryStore) SetThreadState(threadKey string, state policy.ThreadState, owner string) (policy.ThreadPolicy, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	item, ok := s.threadPolicies[threadKey]
-	if !ok {
-		return policy.ThreadPolicy{}, errors.New("thread policy not found")
-	}
-	item.State = state
-	item.Muted = state == policy.ThreadStateMuted || state == policy.ThreadStateMuteUntilMention
-	if owner != "" {
-		item.OwnerBot = owner
-	}
-	item.UpdatedAt = time.Now().UTC()
-	s.threadPolicies[threadKey] = item
-	return item, nil
-}
-
 func (s *MemoryStore) ListOwnershipRecords() []registry.OwnershipRecord {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -1364,60 +1224,13 @@ func (s *MemoryStore) ListFeedback(traceID string) []review.FeedbackRecord {
 	return append([]review.FeedbackRecord(nil), s.feedbackRecords[traceID]...)
 }
 
-func (s *MemoryStore) AddFeedback(record review.FeedbackRecord) (review.FeedbackRecord, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if strings.TrimSpace(record.TargetID) == "" {
-		return review.FeedbackRecord{}, errors.New("target_id is required")
-	}
-	switch record.TargetType {
-	case review.FeedbackTargetConversation:
-		if _, ok := s.conversations[record.TargetID]; !ok {
-			return review.FeedbackRecord{}, errors.New("conversation not found")
-		}
-	case review.FeedbackTargetCase:
-		caseRecord, ok := s.cases[record.TargetID]
-		if !ok {
-			return review.FeedbackRecord{}, errors.New("case not found")
-		}
-		record.CaseID = caseRecord.ID
-		record.ConversationID = caseRecord.ConversationID
-	case review.FeedbackTargetTrace, review.FeedbackTargetReasoning, review.FeedbackTargetToolCall, review.FeedbackTargetSlackAction:
-		trace, ok := s.traceForFeedbackTargetLocked(record)
-		if !ok {
-			return review.FeedbackRecord{}, errors.New("trace not found")
-		}
-		record.TraceID = trace.Summary.TraceID
-		record.CaseID = trace.Summary.CaseID
-		record.ConversationID = trace.Summary.ConversationID
-	case review.FeedbackTargetProposal:
-		proposal, ok := s.proposals[record.TargetID]
-		if !ok {
-			return review.FeedbackRecord{}, errors.New("proposal not found")
-		}
-		record.TraceID = firstNonEmpty(proposal.OriginTraceID, proposal.TraceID)
-		record.CaseID = proposal.CaseID
-		record.ConversationID = proposal.ConversationID
-	default:
-		return review.FeedbackRecord{}, errors.New("unsupported feedback target")
-	}
-	if record.ID == "" {
-		record.ID = nextID("feedback", len(s.feedbackRecords[record.TraceID])+1)
-	}
-	record.CreatedAt = time.Now().UTC()
-	s.feedbackRecords[record.TraceID] = append(s.feedbackRecords[record.TraceID], record)
-	return record, nil
-}
-
-func (s *MemoryStore) AddRating(traceID string, rating review.HumanRating) (review.HumanRating, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+func (s *MemoryStore) addRatingLocked(traceID string, rating review.HumanRating, createdAt time.Time) (review.HumanRating, error) {
 	trace, ok := s.traces[traceID]
 	if !ok {
 		return review.HumanRating{}, errors.New("trace not found")
 	}
 	rating.TraceID = traceID
-	rating.CreatedAt = time.Now().UTC()
+	rating.CreatedAt = createdAt
 	s.ratings[traceID] = append(s.ratings[traceID], rating)
 	trace.Summary.LastVerdict = rating.Verdict
 	trace.Summary.Status = events.StatusInReview
@@ -1440,14 +1253,12 @@ func (s *MemoryStore) AddRating(traceID string, rating review.HumanRating) (revi
 	return rating, nil
 }
 
-func (s *MemoryStore) AddImprovementNote(traceID string, note review.ImprovementNote) (review.ImprovementNote, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+func (s *MemoryStore) addImprovementNoteLocked(traceID string, note review.ImprovementNote, createdAt time.Time) (review.ImprovementNote, error) {
 	if _, ok := s.traces[traceID]; !ok {
 		return review.ImprovementNote{}, errors.New("trace not found")
 	}
 	note.TraceID = traceID
-	note.CreatedAt = time.Now().UTC()
+	note.CreatedAt = createdAt
 	s.notes[traceID] = append(s.notes[traceID], note)
 	trace := s.traces[traceID]
 	s.feedbackRecords[traceID] = append(s.feedbackRecords[traceID], review.FeedbackRecord{
@@ -1466,9 +1277,26 @@ func (s *MemoryStore) AddImprovementNote(traceID string, note review.Improvement
 	return note, nil
 }
 
-func (s *MemoryStore) ScheduleReplay(traceID string, requestedBy string) (queue.WorkItem, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+func (s *MemoryStore) addFeedbackLocked(record review.FeedbackRecord, createdAt time.Time) (review.FeedbackRecord, error) {
+	if strings.TrimSpace(record.TargetID) == "" {
+		return review.FeedbackRecord{}, errors.New("target_id is required")
+	}
+	trace, err := s.resolveFeedbackTraceLocked(record)
+	if err != nil {
+		return review.FeedbackRecord{}, err
+	}
+	record.TraceID = trace.Summary.TraceID
+	record.CaseID = trace.Summary.CaseID
+	record.ConversationID = trace.Summary.ConversationID
+	if record.ID == "" {
+		record.ID = nextID("feedback", len(s.feedbackRecords[record.TraceID])+1)
+	}
+	record.CreatedAt = createdAt
+	s.feedbackRecords[record.TraceID] = append(s.feedbackRecords[record.TraceID], record)
+	return record, nil
+}
+
+func (s *MemoryStore) scheduleReplayLocked(traceID string, requestedBy string, createdAt time.Time) (queue.WorkItem, error) {
 	trace, ok := s.traces[traceID]
 	if !ok {
 		return queue.WorkItem{}, errors.New("trace not found")
@@ -1486,8 +1314,8 @@ func (s *MemoryStore) ScheduleReplay(traceID string, requestedBy string) (queue.
 		ThreadKey:      trace.Summary.ThreadKey,
 		RequestedBy:    requestedBy,
 		ApprovalMode:   "ui",
-		CreatedAt:      time.Now().UTC(),
-		UpdatedAt:      time.Now().UTC(),
+		CreatedAt:      createdAt,
+		UpdatedAt:      createdAt,
 	}
 	created, err := s.enqueueWorkItemLocked(item)
 	if err != nil {
@@ -1507,7 +1335,7 @@ func (s *MemoryStore) ScheduleReplay(traceID string, requestedBy string) (queue.
 		Actor:          "replay-scheduler",
 		EventType:      "replay.queued",
 		Status:         stepStatus,
-		StartedAt:      time.Now().UTC(),
+		StartedAt:      createdAt,
 		Description:    "Replay queued for later evaluation.",
 	})
 	recomputeTraceSummary(&trace)
@@ -1540,25 +1368,10 @@ func (s *MemoryStore) ListEvalJudgments(evalRunID string) []evals.Judgment {
 	return out
 }
 
-func (s *MemoryStore) EvaluateTrace(traceID string, trigger string) (evals.Run, []evals.Judgment, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.evaluateTraceLocked(traceID, trigger)
-}
-
 func (s *MemoryStore) GetSettings() improvement.Settings {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return normalizedSettings(s.settings)
-}
-
-func (s *MemoryStore) UpdateSettings(settings improvement.Settings) (improvement.Settings, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	settings = normalizedSettings(settings)
-	settings.UpdatedAt = time.Now().UTC()
-	s.settings = settings
-	return settings, nil
 }
 
 func (s *MemoryStore) ListWorkItems() []queue.WorkItem {
@@ -1818,12 +1631,6 @@ func (s *MemoryStore) FailWorkItem(id string, lastError string) (queue.WorkItem,
 	return item, nil
 }
 
-func (s *MemoryStore) UpdateWorkflowStatus(workflowID string, status string, lastError string) (Workflow, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.updateWorkflowStatusLocked(workflowID, status, lastError)
-}
-
 func (s *MemoryStore) updateWorkflowStatusLocked(workflowID string, status string, lastError string) (Workflow, error) {
 	for i := range s.workflows {
 		if s.workflows[i].ID != workflowID {
@@ -1840,12 +1647,6 @@ func (s *MemoryStore) updateWorkflowStatusLocked(workflowID string, status strin
 		return s.workflows[i], nil
 	}
 	return Workflow{}, errors.New("workflow not found")
-}
-
-func (s *MemoryStore) ApplyTraceUpdate(traceID string, update TraceUpdate) (events.Trace, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.applyTraceUpdateLocked(traceID, update)
 }
 
 func (s *MemoryStore) applyTraceUpdateLocked(traceID string, update TraceUpdate) (events.Trace, error) {
@@ -1944,6 +1745,9 @@ func (s *MemoryStore) evaluateTraceLocked(traceID string, trigger string) (evals
 	if event != nil {
 		run.EventID = event.ID
 	}
+	for idx := range judgments {
+		judgments[idx].EvalRunID = runID
+	}
 	s.evalRuns[runID] = run
 	s.evalJudgments[runID] = judgments
 	s.updateCandidateLocked(trace, event, run, judgments)
@@ -1958,7 +1762,7 @@ func buildJudgments(trace events.Trace, event *ingestion.EventEnvelope, ratings 
 	deterministicReason := "Trace completed within expected policy, cost, and validation budget."
 	if hasRuntimeFailure {
 		deterministicScore = 0.18
-		deterministicReason = fmt.Sprintf("Trace failed because RSI runtime persistence broke in %s (%s).", runtimeFailure.Subsystem, runtimeFailure.FailureMode)
+		deterministicReason = fmt.Sprintf("Trace failed because RSI runtime execution broke in %s (%s).", runtimeFailure.Subsystem, runtimeFailure.FailureMode)
 	} else if trace.Summary.Status == events.StatusFailed || trace.Summary.Status == events.StatusNeedsHuman {
 		deterministicScore = 0.35
 		deterministicReason = "Trace indicates an operational failure or unresolved handoff."
@@ -2247,6 +2051,19 @@ type runtimeFailureEvidence struct {
 }
 
 func runtimeFailureForTrace(trace events.Trace) (runtimeFailureEvidence, bool) {
+	if failure, ok := runtimeFailureFromActionPersistence(trace); ok {
+		return failure, true
+	}
+	if failure, ok := runtimeFailureFromRSIToolCall(trace); ok {
+		return failure, true
+	}
+	if failure, ok := runtimeFailureFromWorkflowFailure(trace); ok {
+		return failure, true
+	}
+	return runtimeFailureEvidence{}, false
+}
+
+func runtimeFailureFromActionPersistence(trace events.Trace) (runtimeFailureEvidence, bool) {
 	for _, event := range trace.Events {
 		if event.EventType != "action.persistence_failed" {
 			continue
@@ -2264,6 +2081,94 @@ func runtimeFailureForTrace(trace events.Trace) (runtimeFailureEvidence, bool) {
 		}, true
 	}
 	return runtimeFailureEvidence{}, false
+}
+
+func runtimeFailureFromRSIToolCall(trace events.Trace) (runtimeFailureEvidence, bool) {
+	for _, call := range trace.ToolCalls {
+		toolName := strings.TrimSpace(call.ToolName)
+		if !strings.HasPrefix(toolName, "rsi.") || !failedToolCallStatus(call.Status) {
+			continue
+		}
+		if toolName == "rsi.workflow_context" && workflowContextBindingFailure(call) {
+			return runtimeFailureEvidence{
+				Subsystem:     "control-plane",
+				FailureMode:   "workflow_context_binding_failure",
+				Hypothesis:    "Bind RSI workflow-context reads to the active workflow and trace so the control loop always gathers scoped evidence before calling the runner.",
+				ProposedScope: "control-plane + tool-gateway",
+			}, true
+		}
+		return runtimeFailureEvidence{
+			Subsystem:     "control-plane",
+			FailureMode:   runtimeFailureModeForToolName(toolName),
+			Hypothesis:    fmt.Sprintf("Stabilize internal RSI tool reads so %s cannot fail mid-workflow and strand the control loop before evaluation.", toolName),
+			ProposedScope: "control-plane + tool-gateway",
+		}, true
+	}
+	return runtimeFailureEvidence{}, false
+}
+
+func runtimeFailureFromWorkflowFailure(trace events.Trace) (runtimeFailureEvidence, bool) {
+	for _, event := range trace.Events {
+		if event.EventType != "workflow.failed" {
+			continue
+		}
+		description := strings.ToLower(strings.TrimSpace(event.Description))
+		switch {
+		case strings.Contains(description, "runner response missing structured_output"):
+			return runtimeFailureEvidence{
+				Subsystem:     "runner",
+				FailureMode:   "runner_missing_structured_output",
+				Hypothesis:    "Enforce the runner structured-output contract so control-plane failures surface as grounded evaluations instead of opaque workflow errors.",
+				ProposedScope: "control-plane + runner",
+			}, true
+		case strings.Contains(description, "parse runner structured_output"):
+			return runtimeFailureEvidence{
+				Subsystem:     "runner",
+				FailureMode:   "runner_structured_output_parse_failure",
+				Hypothesis:    "Tighten the runner structured-output schema so control-plane can parse responses deterministically and recover from malformed outputs.",
+				ProposedScope: "control-plane + runner",
+			}, true
+		}
+	}
+	return runtimeFailureEvidence{}, false
+}
+
+func failedToolCallStatus(status string) bool {
+	switch strings.ToLower(strings.TrimSpace(status)) {
+	case "failed", "error", "blocked":
+		return true
+	default:
+		return false
+	}
+}
+
+func workflowContextBindingFailure(call events.ToolCallRecord) bool {
+	summary := strings.ToLower(strings.TrimSpace(call.Summary))
+	if strings.Contains(summary, "requires workflow_id or trace_id") {
+		return true
+	}
+	return traceToolRequestValue(call.Request, "workflow_id") == "" && traceToolRequestValue(call.Request, "trace_id") == ""
+}
+
+func traceToolRequestValue(input map[string]interface{}, key string) string {
+	if len(input) == 0 {
+		return ""
+	}
+	value, ok := input[key]
+	if !ok || value == nil {
+		return ""
+	}
+	switch typed := value.(type) {
+	case string:
+		return strings.TrimSpace(typed)
+	default:
+		return strings.TrimSpace(fmt.Sprint(typed))
+	}
+}
+
+func runtimeFailureModeForToolName(toolName string) string {
+	replacer := strings.NewReplacer(".", "_", "-", "_")
+	return replacer.Replace(strings.ToLower(strings.TrimSpace(toolName))) + "_failure"
 }
 
 func traceEventTagValue(description string, key string) string {
@@ -2421,12 +2326,6 @@ func (s *MemoryStore) proposalSlotsLocked(now time.Time) ProposalSlotState {
 	return out
 }
 
-func (s *MemoryStore) PromoteCandidates(requestedBy string, limit int) (PromotionResult, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.promoteCandidatesLocked(requestedBy, limit)
-}
-
 func (s *MemoryStore) promoteCandidatesLocked(requestedBy string, limit int) (PromotionResult, error) {
 	now := time.Now().UTC()
 	slots := s.proposalSlotsLocked(now)
@@ -2560,24 +2459,6 @@ func targetRefForCandidate(trace events.Trace, subsystem, failureMode, intervent
 	return "rsi-agent-platform"
 }
 
-func (s *MemoryStore) RunProposalPromoter(holder string) (PromotionResult, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	now := time.Now().UTC()
-	if holder == "" {
-		holder = "improvement-plane-cron"
-	}
-	if lease, ok := s.cronLeases["improvement-plane-cron"]; ok && lease.ExpiresAt.After(now) && lease.Holder != holder {
-		return PromotionResult{}, errors.New("proposal promoter lease already held")
-	}
-	s.cronLeases["improvement-plane-cron"] = improvement.CronLease{
-		Name:      "improvement-plane-cron",
-		Holder:    holder,
-		ExpiresAt: now.Add(proposalPromoterLease),
-	}
-	return s.promoteCandidatesLocked(holder, normalizedSettings(s.settings).ActiveProposalCap)
-}
-
 func (s *MemoryStore) ListProposals() []review.Proposal {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -2590,137 +2471,40 @@ func (s *MemoryStore) ListProposals() []review.Proposal {
 }
 
 func (s *MemoryStore) ReviewProposal(proposalID string, decision review.ProposalReview) (review.Proposal, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	commandKind, err := proposalCommandKindForDecision(decision.Decision)
+	if err != nil {
+		return review.Proposal{}, err
+	}
+	if decision.Scope == "" {
+		decision.Scope = review.FeedbackScopeLine
+	}
+	decision.IdempotencyKey = firstNonEmpty(strings.TrimSpace(decision.IdempotencyKey), proposalDecisionIdempotencyKey(proposalID, decision.Decision, decision.Scope))
+	commandID := fmt.Sprintf("cmd-proposal-review:%s", decision.IdempotencyKey)
+	if _, err := s.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineProposalLine,
+		AggregateID: proposalID,
+		CommandKind: string(commandKind),
+		CommandID:   commandID,
+		Actor:       firstNonEmpty(decision.ReviewerID, "system"),
+		OccurredAt:  firstNonZeroTime(&decision.CreatedAt, time.Now().UTC()),
+		Payload: map[string]any{
+			"idempotency_key": decision.IdempotencyKey,
+			"rationale":       decision.Rationale,
+			"reviewer_id":     decision.ReviewerID,
+			"failure_class":   decision.FailureClass,
+			"failure_classes": append([]string(nil), decision.FailureClasses...),
+			"scope":           string(decision.Scope),
+		},
+	}); err != nil {
+		return review.Proposal{}, err
+	}
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	proposal, ok := s.proposals[proposalID]
 	if !ok {
 		return review.Proposal{}, errors.New("proposal not found")
 	}
-	decision.ProposalID = proposalID
-	decision.IdempotencyKey = proposalDecisionIdempotencyKey(proposalID, decision.Decision, decision.Scope)
-	if decision.Scope == "" {
-		decision.Scope = review.FeedbackScopeLine
-	}
-	for _, existing := range proposal.Reviews {
-		if existing.IdempotencyKey == decision.IdempotencyKey {
-			return proposal, nil
-		}
-	}
-	decision.ID = int64(len(proposal.Reviews) + 1)
-	decision.CreatedAt = time.Now().UTC()
-	if len(decision.FailureClasses) == 0 && decision.FailureClass != "" {
-		decision.FailureClasses = []string{decision.FailureClass}
-	}
-	proposal.Reviews = append(proposal.Reviews, decision)
-	proposal.Reviewer = decision.ReviewerID
-	proposal.Status = review.ProposalStatus(decision.Decision)
-	proposal.ActiveSlotConsuming = review.ConsumesActiveProposalSlot(proposal.Status)
-	if proposal.Status == review.ProposalApproved && proposal.AutoRetryBudgetRemaining == 0 {
-		proposal.AutoRetryBudgetRemaining = defaultProposalRetryBudget
-	}
-	if proposal.Status == review.ProposalRejected || proposal.Status == review.ProposalDismissed {
-		proposal.NextRetryAction = ""
-	}
-	s.proposals[proposalID] = proposal
-
-	memory := review.ProposalMemory{
-		ID:                nextID("memory", len(s.proposalMemory)+1),
-		ReviewID:          decision.ID,
-		ProposalID:        proposalID,
-		CandidateKey:      proposal.CandidateKey,
-		ConversationID:    proposal.ConversationID,
-		CaseID:            proposal.CaseID,
-		OriginTraceID:     proposal.OriginTraceID,
-		EvidenceTraceIDs:  append([]string(nil), proposal.EvidenceTraceIDs...),
-		Hypothesis:        proposal.Summary,
-		DiffSummary:       proposal.ProposedScope,
-		ReviewRationale:   decision.Rationale,
-		Disposition:       proposal.Status,
-		DispositionReason: decision.Rationale,
-		FailureClass:      decision.FailureClass,
-		FailureClasses:    append([]string(nil), decision.FailureClasses...),
-		SourceEvalIDs:     append([]string(nil), proposal.SourceEvalIDs...),
-		LinkedArtifactIDs: append([]string(nil), proposal.EvidenceArtifactIDs...),
-		LinkedProposalIDs: append([]string(nil), proposal.PriorSimilarProposalIDs...),
-		CreatedAt:         decision.CreatedAt,
-	}
-	s.proposalMemory = append(s.proposalMemory, memory)
-
-	candidate := s.candidates[proposal.CandidateKey]
-	switch proposal.Status {
-	case review.ProposalApproved:
-		candidate.Status = improvement.CandidatePromoted
-		candidate.LineStatus = improvement.LineActive
-		candidate.AutoRetryBudgetRemaining = proposal.AutoRetryBudgetRemaining
-		candidate.CurrentTargetLayer = proposal.TargetLayer
-		if review.ProposalExecutableIntervention(proposal.RecommendedInterventionKind) {
-			nextAttemptNumber := maxInt(1, proposal.AttemptCount+1)
-			_, _, _, _ = s.ensureOperationWorkItemLocked(operation.Execution{
-				ScopeKind:     operation.ScopeProposal,
-				ScopeID:       proposal.ID,
-				OperationKind: "line_activate",
-				OperationKey:  fmt.Sprintf("attempt-%02d", nextAttemptNumber),
-				Status:        operation.StatusQueued,
-				Queue:         queue.ProposalQueue,
-				RequestedBy:   decision.ReviewerID,
-				TraceID:       proposal.TraceID,
-				ProposalID:    proposal.ID,
-			}, queue.WorkItem{
-				Queue:          queue.ProposalQueue,
-				Kind:           "approved_proposal",
-				Status:         queue.WorkQueued,
-				TraceID:        proposal.TraceID,
-				ConversationID: proposal.ConversationID,
-				CaseID:         proposal.CaseID,
-				TriggerEventID: proposal.OriginTraceID,
-				ProposalID:     proposal.ID,
-				RequestedBy:    decision.ReviewerID,
-				ApprovalMode:   "human_review",
-				CreatedAt:      decision.CreatedAt,
-				UpdatedAt:      decision.CreatedAt,
-				Payload: map[string]interface{}{
-					"candidate_key":  proposal.CandidateKey,
-					"risk_tier":      proposal.RiskTier,
-					"attempt_number": nextAttemptNumber,
-				},
-			})
-		}
-	case review.ProposalRejected, review.ProposalDismissed:
-		candidate.Status = improvement.CandidateNeedsEvidence
-		candidate.LineStatus = improvement.LineClosed
-		candidate.AutoRetryBudgetRemaining = 0
-		candidate.NewEvidenceSinceLastRejection = false
-	case review.ProposalMerged:
-		candidate.Status = improvement.CandidateDormant
-		candidate.LineStatus = improvement.LineClosed
-		candidate.AutoRetryBudgetRemaining = 0
-		replayID := nextID("pmr", len(s.postMergeReplay)+1)
-		s.postMergeReplay[replayID] = improvement.PostMergeReplay{
-			ID:             replayID,
-			ProposalID:     proposal.ID,
-			TraceID:        proposal.TraceID,
-			ConversationID: proposal.ConversationID,
-			CaseID:         proposal.CaseID,
-			BaselineScore:  latestEvalScoreForTrace(s.evalRuns, proposal.TraceID),
-			CandidateScore: minFloat(1.0, latestEvalScoreForTrace(s.evalRuns, proposal.TraceID)+0.15),
-			Improved:       true,
-			CreatedAt:      decision.CreatedAt,
-		}
-	default:
-		candidate.Status = improvement.CandidateDormant
-		if candidate.LineStatus == "" {
-			candidate.LineStatus = improvement.LineDormant
-		}
-	}
-	candidate.UpdatedAt = decision.CreatedAt
-	s.candidates[proposal.CandidateKey] = candidate
 	return proposal, nil
-}
-
-func (s *MemoryStore) UpdateProposalStatus(proposalID string, status review.ProposalStatus) (review.Proposal, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.updateProposalStatusLocked(proposalID, status)
 }
 
 func (s *MemoryStore) MaterializeApprovedProposal(proposalID string, requestedBy string) (improvement.RepoChangeJob, error) {
@@ -2839,168 +2623,36 @@ func (s *MemoryStore) MaterializeApprovedProposal(proposalID string, requestedBy
 }
 
 func (s *MemoryStore) RetryProposalRepoChange(proposalID string, requestedBy string) (queue.WorkItem, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
+	if _, err := s.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineProposalLine,
+		AggregateID: proposalID,
+		CommandKind: string(transition.CommandProposalRetryAttempt),
+		CommandID:   nextUUID("cmd"),
+		Actor:       requestedBy,
+		OccurredAt:  time.Now().UTC(),
+		Payload: map[string]any{
+			"reviewer_id": requestedBy,
+			"scope":       string(review.FeedbackScopeLine),
+		},
+	}); err != nil {
+		return queue.WorkItem{}, err
+	}
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	proposal, ok := s.proposals[proposalID]
 	if !ok {
 		return queue.WorkItem{}, errors.New("proposal not found")
 	}
-	if (proposal.Status == review.ProposalRepoChangeQueued || proposal.Status == review.ProposalValidationPending) && strings.TrimSpace(proposal.CurrentAttemptID) != "" {
-		currentAttemptID := strings.TrimSpace(proposal.CurrentAttemptID)
-		if active, ok := activeRepoChangeResumeOperation(listOperationsByScopeLocked(s.operations, operation.ScopeAttempt, currentAttemptID)); ok {
-			if item, ok := findWorkItemByOperationLocked(s.workItems, active.ID); ok && (item.Status == queue.WorkQueued || item.Status == queue.WorkLeased) {
-				return item, nil
-			}
+	currentAttemptID := strings.TrimSpace(proposal.CurrentAttemptID)
+	if currentAttemptID == "" {
+		return queue.WorkItem{}, errors.New("proposal current attempt not found")
+	}
+	if active, ok := activeRepoChangeResumeOperation(listOperationsByScopeLocked(s.operations, operation.ScopeAttempt, currentAttemptID)); ok {
+		if item, ok := findWorkItemByOperationLocked(s.workItems, active.ID); ok && (item.Status == queue.WorkQueued || item.Status == queue.WorkLeased) {
+			return item, nil
 		}
 	}
-	if item, queued, err := s.reconcileProposalAttemptPhaseLocked(proposalID, requestedBy); err != nil {
-		return queue.WorkItem{}, err
-	} else if queued || item.ID != "" {
-		return item, nil
-	}
-	var repoJob improvement.RepoChangeJob
-	found := false
-	for _, item := range s.repoChangeJobs {
-		if item.ProposalID == proposalID && item.AttemptID == proposal.CurrentAttemptID {
-			repoJob = item
-			found = true
-			break
-		}
-	}
-	if !found && proposal.Status != review.ProposalApproved {
-		return queue.WorkItem{}, errors.New("repo change job not found")
-	}
-	now := time.Now().UTC()
-	switch proposal.Status {
-	case review.ProposalApproved:
-		if found {
-			break
-		}
-		nextAttemptNumber := maxInt(1, proposal.AttemptCount+1)
-		_, item, _, err := s.ensureOperationWorkItemLocked(operation.Execution{
-			ScopeKind:     operation.ScopeProposal,
-			ScopeID:       proposal.ID,
-			OperationKind: "line_activate",
-			OperationKey:  fmt.Sprintf("attempt-%02d", nextAttemptNumber),
-			Status:        operation.StatusQueued,
-			Queue:         queue.ProposalQueue,
-			RequestedBy:   requestedBy,
-			TraceID:       proposal.TraceID,
-			ProposalID:    proposal.ID,
-		}, queue.WorkItem{
-			Queue:          queue.ProposalQueue,
-			Kind:           "approved_proposal",
-			Status:         queue.WorkQueued,
-			TraceID:        proposal.TraceID,
-			ConversationID: proposal.ConversationID,
-			CaseID:         proposal.CaseID,
-			TriggerEventID: proposal.OriginTraceID,
-			ProposalID:     proposal.ID,
-			RequestedBy:    requestedBy,
-			ApprovalMode:   "human_review",
-			CreatedAt:      now,
-			UpdatedAt:      now,
-			Payload: map[string]interface{}{
-				"trigger":        string(improvement.AttemptTriggerOperatorRetry),
-				"parent_attempt": proposal.CurrentAttemptID,
-				"candidate_key":  proposal.CandidateKey,
-				"risk_tier":      proposal.RiskTier,
-				"attempt_number": nextAttemptNumber,
-			},
-		})
-		return item, err
-	case review.ProposalRepoChangeQueued, review.ProposalFailedValidation:
-		if !found {
-			return queue.WorkItem{}, errors.New("repo change job not found")
-		}
-		repoJob.Status = string(review.ProposalRepoChangeQueued)
-		repoJob.ValidationError = ""
-		repoJob.ValidationRef = ""
-		repoJob.LogArtifactID = ""
-		repoJob.UpdatedAt = now
-		s.repoChangeJobs[repoJob.ID] = repoJob
-		proposal.Status = review.ProposalRepoChangeQueued
-		proposal.ActiveSlotConsuming = true
-		s.proposals[proposal.ID] = proposal
-		_, item, _, err := s.ensureOperationWorkItemLocked(operation.Execution{
-			ScopeKind:     operation.ScopeAttempt,
-			ScopeID:       repoJob.AttemptID,
-			OperationKind: "sandbox_launch",
-			OperationKey:  "sandbox_launch",
-			Status:        operation.StatusQueued,
-			Queue:         queue.SandboxQueue,
-			RequestedBy:   requestedBy,
-			TraceID:       proposal.TraceID,
-			ProposalID:    proposal.ID,
-			AttemptID:     repoJob.AttemptID,
-		}, queue.WorkItem{
-			Queue:          queue.SandboxQueue,
-			Kind:           "repo_change_job",
-			Status:         queue.WorkQueued,
-			TraceID:        proposal.TraceID,
-			ConversationID: proposal.ConversationID,
-			CaseID:         proposal.CaseID,
-			TriggerEventID: proposal.OriginTraceID,
-			ProposalID:     proposal.ID,
-			RepoScope:      repoJob.Repo,
-			RequestedBy:    requestedBy,
-			ApprovalMode:   "approved",
-			CreatedAt:      now,
-			UpdatedAt:      now,
-			Payload: map[string]interface{}{
-				"attempt_id":  repoJob.AttemptID,
-				"branch_name": repoJob.BranchName,
-				"base_ref":    repoJob.BaseRef,
-				"job_id":      repoJob.ID,
-			},
-		})
-		return item, err
-	case review.ProposalValidationPending:
-		if !found {
-			return queue.WorkItem{}, errors.New("repo change job not found")
-		}
-		_, item, _, err := s.ensureOperationWorkItemLocked(operation.Execution{
-			ScopeKind:     operation.ScopeAttempt,
-			ScopeID:       repoJob.AttemptID,
-			OperationKind: "pr_open",
-			OperationKey:  "pr_open",
-			Status:        operation.StatusQueued,
-			Queue:         queue.ImprovementActionQueue,
-			RequestedBy:   requestedBy,
-			TraceID:       proposal.TraceID,
-			ProposalID:    proposal.ID,
-			AttemptID:     repoJob.AttemptID,
-		}, queue.WorkItem{
-			Queue:          queue.ImprovementActionQueue,
-			Kind:           "draft_pr_open",
-			Status:         queue.WorkQueued,
-			TraceID:        proposal.TraceID,
-			ConversationID: proposal.ConversationID,
-			CaseID:         proposal.CaseID,
-			TriggerEventID: proposal.OriginTraceID,
-			ProposalID:     proposal.ID,
-			RepoScope:      repoJob.Repo,
-			RequestedBy:    requestedBy,
-			ApprovalMode:   "approved",
-			CreatedAt:      now,
-			UpdatedAt:      now,
-			Payload: map[string]interface{}{
-				"attempt_id":  repoJob.AttemptID,
-				"job_id":      repoJob.ID,
-				"job_name":    repoJob.SandboxJobName,
-				"namespace":   repoJob.SandboxNamespace,
-				"repo":        repoJob.Repo,
-				"branch_name": repoJob.BranchName,
-				"base_ref":    repoJob.BaseRef,
-			},
-		})
-		return item, err
-	default:
-		return queue.WorkItem{}, fmt.Errorf("proposal %s is not retryable", proposal.Status)
-	}
-
-	return queue.WorkItem{}, fmt.Errorf("proposal %s is not retryable", proposal.Status)
+	return queue.WorkItem{}, nil
 }
 
 func buildRepoChangeContext(proposal review.Proposal, memories []review.ProposalMemory) string {
@@ -3069,6 +2721,10 @@ func (s *MemoryStore) ListPRAttempts() []improvement.PRAttempt {
 func (s *MemoryStore) RecordPRAttempt(attempt improvement.PRAttempt) (improvement.PRAttempt, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	return s.recordPRAttemptLocked(attempt)
+}
+
+func (s *MemoryStore) recordPRAttemptLocked(attempt improvement.PRAttempt) (improvement.PRAttempt, error) {
 	if attempt.ID == "" {
 		attempt.ID = nextID("pr", len(s.prAttempts)+1)
 	}
@@ -3083,13 +2739,6 @@ func (s *MemoryStore) RecordPRAttempt(attempt improvement.PRAttempt) (improvemen
 		}
 	}
 	s.prAttempts[attempt.ID] = attempt
-	if attempt.ProposalID != "" {
-		if proposal, ok := s.proposals[attempt.ProposalID]; ok && attempt.Status == string(review.ProposalPROpen) {
-			proposal.Status = review.ProposalPROpen
-			proposal.ActiveSlotConsuming = true
-			s.proposals[proposal.ID] = proposal
-		}
-	}
 	return attempt, nil
 }
 
@@ -3455,6 +3104,34 @@ func (s *MemoryStore) traceForFeedbackTargetLocked(record review.FeedbackRecord)
 		trace, ok := s.traces[record.TraceID]
 		return trace, ok
 	}
+	if record.TargetType == review.FeedbackTargetActionIntent {
+		intent, ok := s.actionIntents[record.TargetID]
+		if !ok {
+			return events.Trace{}, false
+		}
+		switch {
+		case strings.TrimSpace(intent.TraceID) != "":
+			trace, ok := s.traces[intent.TraceID]
+			return trace, ok
+		case strings.TrimSpace(intent.ProposalID) != "":
+			proposal, ok := s.proposals[intent.ProposalID]
+			if !ok {
+				return events.Trace{}, false
+			}
+			trace, ok := s.traces[firstNonEmpty(proposal.OriginTraceID, proposal.TraceID)]
+			return trace, ok
+		case strings.TrimSpace(intent.CaseID) != "":
+			return s.latestTraceLocked(func(trace events.Trace) bool {
+				return trace.Summary.CaseID == intent.CaseID
+			})
+		case strings.TrimSpace(intent.ConversationID) != "":
+			return s.latestTraceLocked(func(trace events.Trace) bool {
+				return trace.Summary.ConversationID == intent.ConversationID
+			})
+		default:
+			return events.Trace{}, false
+		}
+	}
 	for _, trace := range s.traces {
 		switch record.TargetType {
 		case review.FeedbackTargetTrace:
@@ -3482,6 +3159,67 @@ func (s *MemoryStore) traceForFeedbackTargetLocked(record review.FeedbackRecord)
 		}
 	}
 	return events.Trace{}, false
+}
+
+func (s *MemoryStore) resolveFeedbackTraceLocked(record review.FeedbackRecord) (events.Trace, error) {
+	if trace, ok := s.traceForFeedbackTargetLocked(record); ok {
+		return trace, nil
+	}
+	switch record.TargetType {
+	case review.FeedbackTargetConversation:
+		if _, ok := s.conversations[record.TargetID]; !ok {
+			return events.Trace{}, errors.New("conversation not found")
+		}
+		trace, ok := s.latestTraceLocked(func(trace events.Trace) bool {
+			return trace.Summary.ConversationID == record.TargetID
+		})
+		if !ok {
+			return events.Trace{}, errors.New("trace not found for conversation")
+		}
+		return trace, nil
+	case review.FeedbackTargetCase:
+		if _, ok := s.cases[record.TargetID]; !ok {
+			return events.Trace{}, errors.New("case not found")
+		}
+		trace, ok := s.latestTraceLocked(func(trace events.Trace) bool {
+			return trace.Summary.CaseID == record.TargetID
+		})
+		if !ok {
+			return events.Trace{}, errors.New("trace not found for case")
+		}
+		return trace, nil
+	case review.FeedbackTargetProposal:
+		proposal, ok := s.proposals[record.TargetID]
+		if !ok {
+			return events.Trace{}, errors.New("proposal not found")
+		}
+		trace, ok := s.traces[firstNonEmpty(proposal.OriginTraceID, proposal.TraceID)]
+		if !ok {
+			return events.Trace{}, errors.New("trace not found for proposal")
+		}
+		return trace, nil
+	case review.FeedbackTargetTrace, review.FeedbackTargetReasoning, review.FeedbackTargetToolCall, review.FeedbackTargetActionIntent, review.FeedbackTargetSlackAction:
+		return events.Trace{}, errors.New("trace not found")
+	default:
+		return events.Trace{}, errors.New("unsupported feedback target")
+	}
+}
+
+func (s *MemoryStore) latestTraceLocked(match func(events.Trace) bool) (events.Trace, bool) {
+	var (
+		current events.Trace
+		found   bool
+	)
+	for _, trace := range s.traces {
+		if !match(trace) {
+			continue
+		}
+		if !found || trace.Summary.StartedAt.After(current.Summary.StartedAt) || (trace.Summary.StartedAt.Equal(current.Summary.StartedAt) && trace.Summary.TraceID > current.Summary.TraceID) {
+			current = trace
+			found = true
+		}
+	}
+	return current, found
 }
 
 func recomputeTraceSummary(trace *events.Trace) {

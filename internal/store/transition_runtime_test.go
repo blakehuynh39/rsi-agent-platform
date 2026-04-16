@@ -7,6 +7,7 @@ import (
 
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	platformdb "github.com/piplabs/rsi-agent-platform/internal/db"
+	"github.com/piplabs/rsi-agent-platform/internal/slack"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
@@ -80,6 +81,47 @@ func TestMemoryStoreEffectExecutionClaimAndFail(t *testing.T) {
 	}
 	if item.Status != transition.EffectFailed || item.RetryCount != 1 {
 		t.Fatalf("expected failed effect execution with retry count, got %+v", item)
+	}
+}
+
+func TestMemoryStoreCompleteEffectExecutionIsLedgerOnly(t *testing.T) {
+	store := NewMemoryStore()
+	workflow := store.ListWorkflows()[0]
+	trace, ok := store.GetTrace(workflow.TraceID)
+	if !ok {
+		t.Fatalf("expected trace %s", workflow.TraceID)
+	}
+	initialEvents := len(trace.Events)
+	now := time.Now().UTC()
+	store.effectExecutions["eff-queue-eval"] = transition.EffectExecution{
+		ID:             "eff-queue-eval",
+		MachineKind:    transition.MachineWorkflow,
+		AggregateID:    workflow.ID,
+		EffectKind:     transition.EffectInvokeRunner,
+		Status:         transition.EffectQueued,
+		IdempotencyKey: workflow.ID + ":invoke_runner",
+		Payload: map[string]any{
+			"command_kind": string(transition.CommandWorkflowFailed),
+		},
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+
+	if _, claimed, err := store.ClaimEffectExecution("eff-queue-eval", "worker-1", 30*time.Second); err != nil {
+		t.Fatalf("ClaimEffectExecution() error = %v", err)
+	} else if !claimed {
+		t.Fatal("expected effect claim to succeed")
+	}
+	if _, err := store.CompleteEffectExecution("eff-queue-eval", "result-1"); err != nil {
+		t.Fatalf("CompleteEffectExecution() error = %v", err)
+	}
+
+	trace, ok = store.GetTrace(workflow.TraceID)
+	if !ok {
+		t.Fatalf("expected trace %s", workflow.TraceID)
+	}
+	if len(trace.Events) != initialEvents {
+		t.Fatalf("expected effect completion to avoid direct trace mutation, got %d events want %d", len(trace.Events), initialEvents)
 	}
 }
 
@@ -167,5 +209,91 @@ func TestPostgresCommandReceiptAndEffectExecutionLifecycle(t *testing.T) {
 	}
 	if effect.Status != transition.EffectCompleted || effect.ResultRef != "result-1" {
 		t.Fatalf("expected completed effect execution, got %+v", effect)
+	}
+}
+
+func TestPostgresCompleteEffectExecutionIsLedgerOnly(t *testing.T) {
+	postgresURL, cleanup := openTempPostgresURL(t)
+	defer cleanup()
+
+	db, err := platformdb.OpenPostgres(postgresURL)
+	if err != nil {
+		t.Fatalf("open postgres: %v", err)
+	}
+	defer db.Close()
+	if _, err := platformdb.ApplyMigrations(db); err != nil {
+		t.Fatalf("apply migrations: %v", err)
+	}
+
+	store, err := NewPostgresStore(config.Config{
+		StoreBackend: "postgres",
+		PostgresURL:  postgresURL,
+	})
+	if err != nil {
+		t.Fatalf("NewPostgresStore() error = %v", err)
+	}
+	defer store.db.Close()
+
+	if _, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineIngress,
+		AggregateID: "slack:171000001.000100",
+		CommandKind: string(transition.CommandIngressRecordSlack),
+		CommandID:   "cmd-transition-runtime-slack-ingress",
+		Actor:       "tester",
+		OccurredAt:  time.Now().UTC(),
+		Payload: map[string]any{
+			"bot_role":   string(slack.BotArch),
+			"team_id":    "T123",
+			"channel_id": "D123",
+			"thread_ts":  "171000001.000100",
+			"user_id":    "U123",
+			"text":       "Queue an eval effect after a failed workflow.",
+			"ts":         "171000001.000100",
+			"created_at": time.Now().UTC(),
+		},
+	}); err != nil {
+		t.Fatalf("SubmitCommand(ingress_record_slack) error = %v", err)
+	}
+	workflow := store.ListWorkflows()[0]
+	trace, ok := store.GetTrace(workflow.TraceID)
+	if !ok {
+		t.Fatalf("expected trace %s", workflow.TraceID)
+	}
+	initialEvents := len(trace.Events)
+	now := time.Now().UTC()
+	err = store.withTx(func(tx *sql.Tx) error {
+		return persistEffectExecutions(tx, []transition.EffectExecution{{
+			ID:             "eff-pg-queue-eval",
+			MachineKind:    transition.MachineWorkflow,
+			AggregateID:    workflow.ID,
+			EffectKind:     transition.EffectInvokeRunner,
+			Status:         transition.EffectQueued,
+			IdempotencyKey: workflow.ID + ":invoke_runner",
+			Payload: map[string]any{
+				"command_kind": string(transition.CommandWorkflowFailed),
+			},
+			CreatedAt: now,
+			UpdatedAt: now,
+		}})
+	})
+	if err != nil {
+		t.Fatalf("persistEffectExecutions() error = %v", err)
+	}
+
+	if _, claimed, err := store.ClaimEffectExecution("eff-pg-queue-eval", "worker-1", 30*time.Second); err != nil {
+		t.Fatalf("ClaimEffectExecution() error = %v", err)
+	} else if !claimed {
+		t.Fatal("expected effect claim to succeed")
+	}
+	if _, err := store.CompleteEffectExecution("eff-pg-queue-eval", "result-1"); err != nil {
+		t.Fatalf("CompleteEffectExecution() error = %v", err)
+	}
+
+	trace, ok = store.GetTrace(workflow.TraceID)
+	if !ok {
+		t.Fatalf("expected trace %s", workflow.TraceID)
+	}
+	if len(trace.Events) != initialEvents {
+		t.Fatalf("expected effect completion to avoid direct trace mutation, got %d events want %d", len(trace.Events), initialEvents)
 	}
 }

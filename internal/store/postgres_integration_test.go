@@ -15,6 +15,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
+	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
 func TestPostgresEvaluateTraceCreatesCandidateAndPromotableProposal(t *testing.T) {
@@ -98,9 +99,7 @@ func TestPostgresRetryProposalRepoChangePersistsSandboxRequeue(t *testing.T) {
 	if _, err := store.UpdateRepoChangeJobStatus(job.ID, string(review.ProposalFailedValidation)); err != nil {
 		t.Fatalf("update job status: %v", err)
 	}
-	if _, err := store.UpdateProposalStatus(proposal.ID, review.ProposalFailedValidation); err != nil {
-		t.Fatalf("update proposal status: %v", err)
-	}
+	submitProposalCommandForTest(t, store, proposal.ID, transition.CommandProposalMarkFailedValidation, "cmd-postgres-integration-proposal-failed-validation", nil)
 
 	item, err := store.RetryProposalRepoChange(proposal.ID, "alice")
 	if err != nil {
@@ -234,39 +233,45 @@ func withStoreDatabase(rawURL string, dbName string) (string, error) {
 func seedPromotableFailureProposal(t *testing.T, store *PostgresStore) (events.Trace, evals.Run, []evals.Judgment, review.Proposal) {
 	t.Helper()
 
-	ingested, err := store.CreateIngestion(slackpkg.SlackEnvelope{
-		BotRole:   slackpkg.BotArch,
-		TeamID:    "T123",
-		ChannelID: "D123",
-		ThreadTS:  "171000001.000100",
-		UserID:    "U123",
-		Text:      "RSI is failing because Postgres persistence wedged the recursive loop.",
-		TS:        "171000001.000100",
-		CreatedAt: time.Now().UTC(),
+	receipt := submitIngressCommandForTest(t, store, "slack:171000001.000100", transition.CommandIngressRecordSlack, "cmd-postgres-seed-slack-ingress", "tester", time.Now().UTC(), map[string]any{
+		"bot_role":   string(slackpkg.BotArch),
+		"team_id":    "T123",
+		"channel_id": "D123",
+		"thread_ts":  "171000001.000100",
+		"user_id":    "U123",
+		"text":       "RSI is failing because Postgres persistence wedged the recursive loop.",
+		"ts":         "171000001.000100",
+		"created_at": time.Now().UTC(),
 	})
-	if err != nil {
-		t.Fatalf("CreateIngestion() error = %v", err)
-	}
-	if ingested.ID == "" {
+	if receipt.ResultRef == "" {
 		t.Fatal("expected ingestion to be created")
 	}
 
+	traceID := ""
 	items := store.ListWorkItems()
-	if len(items) == 0 {
-		t.Fatal("expected workflow work item")
+	if len(items) > 0 {
+		traceID = items[0].TraceID
 	}
-	traceID := items[0].TraceID
+	if traceID == "" {
+		traces := store.ListTraces()
+		if len(traces) == 0 {
+			t.Fatal("expected workflow trace after ingress")
+		}
+		traceID = traces[0].TraceID
+	}
 	trace, ok := store.GetTrace(traceID)
 	if !ok {
 		t.Fatalf("expected trace %s", traceID)
 	}
 
 	description := `subsystem=shared-store failure_mode=action_result_primary_key_collision provider=github action_intent_id=action-002 work_item_id=work-003 kind=tool_read sqlstate=23505 constraint=action_result_pkey table=action_result error="duplicate key value violates unique constraint \"action_result_pkey\""`
-	if _, err := store.ApplyTraceUpdate(traceID, TraceUpdate{
-		Status:         statusPtr(events.StatusNeedsHuman),
-		WorkflowStatus: "needs-human",
-		WorkflowError:  description,
-		Events: []events.TraceEvent{
+	projectedAt := time.Now().UTC()
+	if receipt := submitProblemLineCommandForTest(t, store, traceID, transition.CommandProblemLineProjectTrace, "cmd-postgres-seed-project-trace", "integration", projectedAt, map[string]any{
+		"trace_id":        traceID,
+		"trace_status":    string(events.StatusNeedsHuman),
+		"workflow_status": "needs-human",
+		"workflow_error":  description,
+		"trace_events": []events.TraceEvent{
 			{
 				TraceID:        trace.Summary.TraceID,
 				IngestionID:    trace.Summary.IngestionID,
@@ -279,22 +284,28 @@ func seedPromotableFailureProposal(t *testing.T, store *PostgresStore) (events.T
 				Actor:          "action-worker",
 				EventType:      "action.persistence_failed",
 				Status:         events.StatusNeedsHuman,
-				StartedAt:      time.Now().UTC(),
+				StartedAt:      projectedAt,
 				Description:    description,
 			},
 		},
-	}); err != nil {
-		t.Fatalf("ApplyTraceUpdate() error = %v", err)
+	}); receipt.DecisionKind != transition.DecisionAdvance {
+		t.Fatalf("expected advance receipt, got %+v", receipt)
 	}
 
-	run, judgments, err := store.EvaluateTrace(traceID, "integration")
-	if err != nil {
-		t.Fatalf("EvaluateTrace() error = %v", err)
+	evalReceipt := submitProblemLineCommandForTest(t, store, traceID, transition.CommandProblemLineEvaluateTrace, "cmd-postgres-seed-evaluate-trace", "integration", time.Now().UTC(), map[string]any{
+		"trigger": "integration",
+	})
+	run, judgments, ok := findEvalRunForReceipt(store, evalReceipt)
+	if !ok {
+		t.Fatalf("expected eval run %s", evalReceipt.ResultRef)
 	}
 
-	result, err := store.RunProposalPromoter("integration-test")
+	promoteReceipt := submitProblemLineCommandForTest(t, store, "integration-test", transition.CommandProblemLinePromote, "cmd-postgres-seed-promote", "integration-test", time.Now().UTC(), map[string]any{
+		"requested_by": "integration-test",
+	})
+	result, err := loadPromotionResultForReceipt(store, promoteReceipt)
 	if err != nil {
-		t.Fatalf("RunProposalPromoter() error = %v", err)
+		t.Fatalf("loadPromotionResultForReceipt() error = %v", err)
 	}
 	if result.Promoted == 0 {
 		t.Fatalf("expected promoted proposal, got %+v", result)

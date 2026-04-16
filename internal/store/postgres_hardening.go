@@ -1095,7 +1095,6 @@ func (p *PostgresStore) createIngestionDirect(envelope slack.SlackEnvelope) (cre
 		if err != nil {
 			return err
 		}
-		caseCreated := false
 		if hasCase && caseRecord.Kind == event.WorkflowHint && caseRecord.Status == conversation.CaseActive {
 			caseRecord.Summary = event.NormalizedProblemStatement
 			caseRecord.UpdatedAt = createdAt
@@ -1112,7 +1111,6 @@ func (p *PostgresStore) createIngestionDirect(envelope slack.SlackEnvelope) (cre
 					return err
 				}
 			}
-			caseCreated = true
 			caseRecord = conversation.Case{
 				ID:              nextID("case", 0),
 				ConversationID:  conv.ID,
@@ -1410,50 +1408,7 @@ func (p *PostgresStore) createIngestionDirect(envelope slack.SlackEnvelope) (cre
 			return err
 		}
 
-		_, _, _, err = ensureOperationWorkItemTx(tx, operation.Execution{
-			ScopeKind:     operation.ScopeTrace,
-			ScopeID:       traceID,
-			OperationKind: "run_workflow",
-			OperationKey:  "run_workflow",
-			Status:        operation.StatusQueued,
-			Queue:         queue.WorkflowQueue,
-			RequestedBy:   "event_ingested",
-			TraceID:       traceID,
-			PayloadHash:   payloadHash(map[string]interface{}{}),
-		}, queue.WorkItem{
-			Queue:          queue.WorkflowQueue,
-			Kind:           "run_workflow",
-			Status:         queue.WorkQueued,
-			TraceID:        traceID,
-			WorkflowID:     workflow.ID,
-			IngestionID:    ingestionID,
-			ConversationID: conv.ID,
-			CaseID:         caseRecord.ID,
-			TriggerEventID: event.ID,
-			ThreadKey:      conv.ExternalKey,
-			Intent:         intent,
-			RepoScope:      event.OwnershipHint,
-			RequestedBy:    "event_ingested",
-			ApprovalMode:   workflow.ApprovalMode,
-			ResponseMode:   workflow.ResponseMode,
-			Payload: map[string]interface{}{
-				"event_id":             event.ID,
-				"workflow_hint":        event.WorkflowHint,
-				"assigned_bot":         assignedBot,
-				"channel_id":           channelID,
-				"thread_ts":            threadTS,
-				"problem":              event.NormalizedProblemStatement,
-				"source":               event.Source,
-				"raw_payload_ref":      event.RawPayloadRef,
-				"conversation_id":      conv.ID,
-				"case_id":              caseRecord.ID,
-				"created_case":         caseCreated,
-				"created_conversation": !hasConv,
-			},
-			CreatedAt: createdAt,
-			UpdatedAt: createdAt,
-		})
-		return err
+		return nil
 	})
 	return
 }

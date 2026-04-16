@@ -2,6 +2,7 @@ package transition
 
 import (
 	"fmt"
+	"strings"
 )
 
 type ProposalStatus string
@@ -60,19 +61,37 @@ const (
 type AttemptPhaseCommandKind string
 
 const (
-	CommandLineActivated                 AttemptPhaseCommandKind = "line_activated"
-	CommandAttemptPlannedWorkspace       AttemptPhaseCommandKind = "attempt_planned_workspace"
-	CommandAttemptPlannedImplement       AttemptPhaseCommandKind = "attempt_planned_implement"
-	CommandWorkspaceOpenDeferred         AttemptPhaseCommandKind = "workspace_open_deferred"
-	CommandWorkspaceCompletedLegacy      AttemptPhaseCommandKind = "workspace_completed_legacy"
-	CommandWorkspaceReady                AttemptPhaseCommandKind = "workspace_ready"
-	CommandImplementationDeferred        AttemptPhaseCommandKind = "implementation_deferred"
-	CommandImplementationCompleted       AttemptPhaseCommandKind = "implementation_completed"
-	CommandImplementationFailedRetryable AttemptPhaseCommandKind = "implementation_failed_retryable"
-	CommandImplementationFailedReview    AttemptPhaseCommandKind = "implementation_failed_review"
-	CommandValidationCompleted           AttemptPhaseCommandKind = "validation_completed"
-	CommandValidationFailedRetryable     AttemptPhaseCommandKind = "validation_failed_retryable"
-	CommandValidationFailedReview        AttemptPhaseCommandKind = "validation_failed_review"
+	CommandLineActivated                    AttemptPhaseCommandKind = "line_activated"
+	CommandAttemptPlannedWorkspace          AttemptPhaseCommandKind = "attempt_planned_workspace"
+	CommandAttemptPlannedImplement          AttemptPhaseCommandKind = "attempt_planned_implement"
+	CommandWorkspaceOpenDeferred            AttemptPhaseCommandKind = "workspace_open_deferred"
+	CommandWorkspaceCompletedLegacy         AttemptPhaseCommandKind = "workspace_completed_legacy"
+	CommandImplementationTransportClosed    AttemptPhaseCommandKind = "implementation_transport_closed_legacy"
+	CommandValidationTransportClosed        AttemptPhaseCommandKind = "validation_transport_closed_legacy"
+	CommandWorkspaceReady                   AttemptPhaseCommandKind = "workspace_ready"
+	CommandWorkspaceFailedRetryable         AttemptPhaseCommandKind = "workspace_failed_retryable"
+	CommandWorkspaceFailedReview            AttemptPhaseCommandKind = "workspace_failed_review"
+	CommandWorkspaceMetadataSynced          AttemptPhaseCommandKind = "workspace_metadata_synced"
+	CommandWorkspaceToolValidationStarted   AttemptPhaseCommandKind = "workspace_tool_validation_started"
+	CommandWorkspaceToolValidationCompleted AttemptPhaseCommandKind = "workspace_tool_validation_completed"
+	CommandWorkspaceToolValidationFailed    AttemptPhaseCommandKind = "workspace_tool_validation_failed"
+	CommandAttemptRunnerStarted             AttemptPhaseCommandKind = "attempt_runner_started"
+	CommandAttemptRunnerCompleted           AttemptPhaseCommandKind = "attempt_runner_completed"
+	CommandOverlayActivated                 AttemptPhaseCommandKind = "overlay_activated"
+	CommandImplementationDeferred           AttemptPhaseCommandKind = "implementation_deferred"
+	CommandImplementationCompleted          AttemptPhaseCommandKind = "implementation_completed"
+	CommandImplementationFailedRetryable    AttemptPhaseCommandKind = "implementation_failed_retryable"
+	CommandImplementationFailedReview       AttemptPhaseCommandKind = "implementation_failed_review"
+	CommandValidationStarted                AttemptPhaseCommandKind = "validation_started"
+	CommandValidationCompleted              AttemptPhaseCommandKind = "validation_completed"
+	CommandValidationFailedRetryable        AttemptPhaseCommandKind = "validation_failed_retryable"
+	CommandValidationFailedReview           AttemptPhaseCommandKind = "validation_failed_review"
+	CommandAttemptPROpened                  AttemptPhaseCommandKind = "attempt_pr_opened"
+	CommandPROpenFailedRetryable            AttemptPhaseCommandKind = "pr_open_failed_retryable"
+	CommandPROpenFailedReview               AttemptPhaseCommandKind = "pr_open_failed_review"
+	CommandAttemptMerged                    AttemptPhaseCommandKind = "attempt_merged"
+	CommandAttemptClosedUnmerged            AttemptPhaseCommandKind = "attempt_closed_unmerged"
+	CommandAttemptCIFailed                  AttemptPhaseCommandKind = "attempt_ci_failed"
 )
 
 type AttemptSnapshot struct {
@@ -149,17 +168,45 @@ var attemptTransitionTable = map[AttemptPhaseState]map[AttemptPhaseCommandKind]a
 		CommandWorkspaceOpenDeferred:    reduceWorkspaceOpenDeferred,
 		CommandWorkspaceCompletedLegacy: reduceWorkspaceCompletedLegacy,
 		CommandWorkspaceReady:           reduceWorkspaceReady,
+		CommandWorkspaceFailedRetryable: reduceWorkspaceFailedRetryable,
+		CommandWorkspaceFailedReview:    reduceWorkspaceFailedReview,
 	},
 	AttemptPhaseImplementing: {
-		CommandImplementationDeferred:        reduceImplementationDeferred,
-		CommandImplementationCompleted:       reduceImplementationCompleted,
-		CommandImplementationFailedRetryable: reduceImplementationFailedRetryable,
-		CommandImplementationFailedReview:    reduceImplementationFailedReview,
+		CommandImplementationTransportClosed:    reduceImplementationTransportClosedLegacy,
+		CommandWorkspaceMetadataSynced:          reduceWorkspaceMetadataSynced,
+		CommandWorkspaceToolValidationStarted:   reduceWorkspaceToolValidationStarted,
+		CommandWorkspaceToolValidationCompleted: reduceWorkspaceToolValidationCompleted,
+		CommandWorkspaceToolValidationFailed:    reduceWorkspaceToolValidationFailed,
+		CommandAttemptRunnerStarted:             reduceAttemptRunnerStarted,
+		CommandAttemptRunnerCompleted:           reduceAttemptRunnerCompleted,
+		CommandOverlayActivated:                 reduceOverlayActivated,
+		CommandImplementationDeferred:           reduceImplementationDeferred,
+		CommandImplementationCompleted:          reduceImplementationCompleted,
+		CommandImplementationFailedRetryable:    reduceImplementationFailedRetryable,
+		CommandImplementationFailedReview:       reduceImplementationFailedReview,
 	},
 	AttemptPhaseValidating: {
-		CommandValidationCompleted:       reduceValidationCompleted,
-		CommandValidationFailedRetryable: reduceValidationFailedRetryable,
-		CommandValidationFailedReview:    reduceValidationFailedReview,
+		CommandValidationTransportClosed:        reduceValidationTransportClosedLegacy,
+		CommandWorkspaceMetadataSynced:          reduceWorkspaceMetadataSynced,
+		CommandWorkspaceToolValidationStarted:   reduceWorkspaceToolValidationStarted,
+		CommandWorkspaceToolValidationCompleted: reduceWorkspaceToolValidationCompleted,
+		CommandWorkspaceToolValidationFailed:    reduceWorkspaceToolValidationFailed,
+		CommandValidationStarted:                reduceValidationStarted,
+		CommandValidationCompleted:              reduceValidationCompleted,
+		CommandValidationFailedRetryable:        reduceValidationFailedRetryable,
+		CommandValidationFailedReview:           reduceValidationFailedReview,
+		CommandAttemptPROpened:                  reduceAttemptPROpened,
+		CommandAttemptMerged:                    reduceAttemptMerged,
+		CommandAttemptClosedUnmerged:            reduceAttemptClosedUnmerged,
+		CommandAttemptCIFailed:                  reduceAttemptCIFailed,
+	},
+	AttemptPhasePROpen: {
+		CommandAttemptPROpened:       reduceAttemptPROpened,
+		CommandPROpenFailedRetryable: reducePROpenFailedRetryable,
+		CommandPROpenFailedReview:    reducePROpenFailedReview,
+		CommandAttemptMerged:         reduceAttemptMerged,
+		CommandAttemptClosedUnmerged: reduceAttemptClosedUnmerged,
+		CommandAttemptCIFailed:       reduceAttemptCIFailed,
 	},
 }
 
@@ -184,11 +231,6 @@ func reduceLineActivated(snapshot AttemptSnapshot, command CommandEnvelope) Atte
 			Reason:       "activated proposal line and queued attempt planning",
 			Events: []DomainEventDescriptor{{
 				Kind: "attempt_plan_queued",
-			}},
-			Effects: []EffectRequest{{
-				Kind:           EffectQueueAttemptPhase,
-				Status:         EffectQueued,
-				IdempotencyKey: effectKey(command, "attempt_plan"),
 			}},
 		},
 		NextPhase:           AttemptPhasePlanning,
@@ -246,9 +288,9 @@ func reduceWorkspaceOpenDeferred(snapshot AttemptSnapshot, command CommandEnvelo
 				Kind: "workspace_open_deferred",
 			}},
 			Effects: []EffectRequest{{
-				Kind:           EffectScheduleRetry,
+				Kind:           EffectOpenWorkspace,
 				Status:         EffectQueued,
-				IdempotencyKey: effectKey(command, "workspace_open_retry"),
+				IdempotencyKey: effectKey(command, "workspace_open"),
 			}},
 		},
 		NextPhase:           AttemptPhaseWorkspaceOpening,
@@ -270,11 +312,38 @@ func reduceWorkspaceCompletedLegacy(snapshot AttemptSnapshot, command CommandEnv
 			}},
 		},
 		NextPhase:           AttemptPhaseWorkspaceOpening,
-		AllowedProposalNext: []ProposalStatus{ProposalApproved, ProposalRepoChangeQueued},
-		AllowedAttemptNext: []AttemptState{
-			AttemptStatePatchPlan,
-			AttemptStateOverlayPlan,
+		AllowedProposalNext: []ProposalStatus{snapshot.ProposalStatus},
+		AllowedAttemptNext:  []AttemptState{snapshot.AttemptState},
+	}
+}
+
+func reduceImplementationTransportClosedLegacy(snapshot AttemptSnapshot, command CommandEnvelope) AttemptPhaseDecision {
+	return AttemptPhaseDecision{
+		TransitionDecision: TransitionDecision{
+			DecisionKind: DecisionAdvance,
+			Reason:       "legacy implement_attempt transport was closed after effect-backed command progression",
+			Events: []DomainEventDescriptor{{
+				Kind: "implement_attempt_transport_closed_legacy",
+			}},
 		},
+		NextPhase:           AttemptPhaseImplementing,
+		AllowedProposalNext: []ProposalStatus{snapshot.ProposalStatus},
+		AllowedAttemptNext:  []AttemptState{snapshot.AttemptState},
+	}
+}
+
+func reduceValidationTransportClosedLegacy(snapshot AttemptSnapshot, command CommandEnvelope) AttemptPhaseDecision {
+	return AttemptPhaseDecision{
+		TransitionDecision: TransitionDecision{
+			DecisionKind: DecisionAdvance,
+			Reason:       "legacy workspace_validate transport was closed after effect-backed command progression",
+			Events: []DomainEventDescriptor{{
+				Kind: "workspace_validate_transport_closed_legacy",
+			}},
+		},
+		NextPhase:           AttemptPhaseValidating,
+		AllowedProposalNext: []ProposalStatus{snapshot.ProposalStatus},
+		AllowedAttemptNext:  []AttemptState{snapshot.AttemptState},
 	}
 }
 
@@ -301,6 +370,141 @@ func reduceWorkspaceReady(snapshot AttemptSnapshot, command CommandEnvelope) Att
 	}
 }
 
+func reduceWorkspaceFailedRetryable(snapshot AttemptSnapshot, command CommandEnvelope) AttemptPhaseDecision {
+	return AttemptPhaseDecision{
+		TransitionDecision: TransitionDecision{
+			DecisionKind: DecisionAdvance,
+			Reason:       "workspace opening failed with a retryable outcome",
+			Events: []DomainEventDescriptor{{
+				Kind: "workspace_failed_retryable",
+			}},
+		},
+		NextPhase:           AttemptPhaseRetryDeciding,
+		AllowedProposalNext: []ProposalStatus{ProposalApproved, ProposalRepoChangeQueued, ProposalRepoChangeRunning, ProposalFailedValidation},
+		AllowedAttemptNext:  []AttemptState{AttemptStateSandboxFailed, AttemptStateNeedsReview},
+	}
+}
+
+func reduceWorkspaceFailedReview(snapshot AttemptSnapshot, command CommandEnvelope) AttemptPhaseDecision {
+	return AttemptPhaseDecision{
+		TransitionDecision: TransitionDecision{
+			DecisionKind: DecisionAdvance,
+			Reason:       "workspace opening failed and line review is required",
+			Events: []DomainEventDescriptor{{
+				Kind: "workspace_failed_needs_review",
+			}},
+		},
+		NextPhase:           AttemptPhaseTerminal,
+		AllowedProposalNext: []ProposalStatus{ProposalPendingReview},
+		AllowedAttemptNext:  []AttemptState{AttemptStateNeedsReview},
+	}
+}
+
+func reduceAttemptRunnerStarted(snapshot AttemptSnapshot, _ CommandEnvelope) AttemptPhaseDecision {
+	return AttemptPhaseDecision{
+		TransitionDecision: TransitionDecision{
+			DecisionKind: DecisionAdvance,
+			Reason:       "implementation runner started",
+			Events: []DomainEventDescriptor{{
+				Kind: "attempt_runner_started",
+			}},
+		},
+		NextPhase:           AttemptPhaseImplementing,
+		AllowedProposalNext: []ProposalStatus{snapshot.ProposalStatus},
+		AllowedAttemptNext:  []AttemptState{snapshot.AttemptState},
+	}
+}
+
+func reduceWorkspaceMetadataSynced(snapshot AttemptSnapshot, _ CommandEnvelope) AttemptPhaseDecision {
+	return AttemptPhaseDecision{
+		TransitionDecision: TransitionDecision{
+			DecisionKind: DecisionAdvance,
+			Reason:       "workspace metadata synced from governed tool execution",
+			Events: []DomainEventDescriptor{{
+				Kind: "workspace_metadata_synced",
+			}},
+		},
+		NextPhase:           deriveAttemptPhase(snapshot),
+		AllowedProposalNext: []ProposalStatus{snapshot.ProposalStatus},
+		AllowedAttemptNext:  []AttemptState{snapshot.AttemptState},
+	}
+}
+
+func reduceWorkspaceToolValidationStarted(snapshot AttemptSnapshot, _ CommandEnvelope) AttemptPhaseDecision {
+	return AttemptPhaseDecision{
+		TransitionDecision: TransitionDecision{
+			DecisionKind: DecisionAdvance,
+			Reason:       "workspace tool validation started",
+			Events: []DomainEventDescriptor{{
+				Kind: "workspace_tool_validation_started",
+			}},
+		},
+		NextPhase:           deriveAttemptPhase(snapshot),
+		AllowedProposalNext: []ProposalStatus{snapshot.ProposalStatus},
+		AllowedAttemptNext:  []AttemptState{snapshot.AttemptState},
+	}
+}
+
+func reduceWorkspaceToolValidationCompleted(snapshot AttemptSnapshot, _ CommandEnvelope) AttemptPhaseDecision {
+	return AttemptPhaseDecision{
+		TransitionDecision: TransitionDecision{
+			DecisionKind: DecisionAdvance,
+			Reason:       "workspace tool validation completed",
+			Events: []DomainEventDescriptor{{
+				Kind: "workspace_tool_validation_completed",
+			}},
+		},
+		NextPhase:           deriveAttemptPhase(snapshot),
+		AllowedProposalNext: []ProposalStatus{snapshot.ProposalStatus},
+		AllowedAttemptNext:  []AttemptState{snapshot.AttemptState},
+	}
+}
+
+func reduceWorkspaceToolValidationFailed(snapshot AttemptSnapshot, _ CommandEnvelope) AttemptPhaseDecision {
+	return AttemptPhaseDecision{
+		TransitionDecision: TransitionDecision{
+			DecisionKind: DecisionAdvance,
+			Reason:       "workspace tool validation failed",
+			Events: []DomainEventDescriptor{{
+				Kind: "workspace_tool_validation_failed",
+			}},
+		},
+		NextPhase:           deriveAttemptPhase(snapshot),
+		AllowedProposalNext: []ProposalStatus{snapshot.ProposalStatus},
+		AllowedAttemptNext:  []AttemptState{snapshot.AttemptState},
+	}
+}
+
+func reduceAttemptRunnerCompleted(snapshot AttemptSnapshot, _ CommandEnvelope) AttemptPhaseDecision {
+	return AttemptPhaseDecision{
+		TransitionDecision: TransitionDecision{
+			DecisionKind: DecisionAdvance,
+			Reason:       "implementation runner completed",
+			Events: []DomainEventDescriptor{{
+				Kind: "attempt_runner_completed",
+			}},
+		},
+		NextPhase:           AttemptPhaseImplementing,
+		AllowedProposalNext: []ProposalStatus{snapshot.ProposalStatus},
+		AllowedAttemptNext:  []AttemptState{snapshot.AttemptState},
+	}
+}
+
+func reduceOverlayActivated(snapshot AttemptSnapshot, command CommandEnvelope) AttemptPhaseDecision {
+	return AttemptPhaseDecision{
+		TransitionDecision: TransitionDecision{
+			DecisionKind: DecisionAdvance,
+			Reason:       "harness overlay was activated for the approved attempt",
+			Events: []DomainEventDescriptor{{
+				Kind: "overlay_activated",
+			}},
+		},
+		NextPhase:           AttemptPhaseTerminal,
+		AllowedProposalNext: []ProposalStatus{ProposalApproved, ProposalMerged},
+		AllowedAttemptNext:  []AttemptState{AttemptStateOverlayActive},
+	}
+}
+
 func reduceImplementationDeferred(snapshot AttemptSnapshot, command CommandEnvelope) AttemptPhaseDecision {
 	return AttemptPhaseDecision{
 		TransitionDecision: TransitionDecision{
@@ -310,9 +514,9 @@ func reduceImplementationDeferred(snapshot AttemptSnapshot, command CommandEnvel
 				Kind: "implementation_deferred",
 			}},
 			Effects: []EffectRequest{{
-				Kind:           EffectScheduleRetry,
+				Kind:           EffectInvokeRunner,
 				Status:         EffectQueued,
-				IdempotencyKey: effectKey(command, "implement_attempt_retry"),
+				IdempotencyKey: effectKey(command, "implement_attempt"),
 			}},
 		},
 		NextPhase:           AttemptPhaseImplementing,
@@ -355,11 +559,6 @@ func reduceImplementationFailedRetryable(snapshot AttemptSnapshot, command Comma
 			Events: []DomainEventDescriptor{{
 				Kind: "attempt_failed_retryable",
 			}},
-			Effects: []EffectRequest{{
-				Kind:           EffectRefreshProjection,
-				Status:         EffectQueued,
-				IdempotencyKey: effectKey(command, "retryable_failure"),
-			}},
 		},
 		NextPhase:           AttemptPhaseRetryDeciding,
 		AllowedProposalNext: []ProposalStatus{ProposalApproved, ProposalRepoChangeRunning, ProposalFailedValidation},
@@ -375,16 +574,50 @@ func reduceImplementationFailedReview(snapshot AttemptSnapshot, command CommandE
 			Events: []DomainEventDescriptor{{
 				Kind: "attempt_failed_needs_review",
 			}},
-			Effects: []EffectRequest{{
-				Kind:           EffectRefreshProjection,
-				Status:         EffectQueued,
-				IdempotencyKey: effectKey(command, "needs_review"),
-			}},
 		},
 		NextPhase:           AttemptPhaseTerminal,
 		AllowedProposalNext: []ProposalStatus{ProposalPendingReview},
 		AllowedAttemptNext:  []AttemptState{AttemptStateNeedsReview},
 	}
+}
+
+func reduceValidationStarted(snapshot AttemptSnapshot, command CommandEnvelope) AttemptPhaseDecision {
+	effects := []EffectRequest{}
+	if hasSandboxObservationMetadata(command) {
+		effects = append(effects, EffectRequest{
+			Kind:           EffectObserveWorkspaceValidation,
+			Status:         EffectQueued,
+			IdempotencyKey: effectKey(command, "observe_workspace_validation"),
+		})
+	}
+	return AttemptPhaseDecision{
+		TransitionDecision: TransitionDecision{
+			DecisionKind: DecisionAdvance,
+			Reason:       "validation started inside the governed sandbox",
+			Events: []DomainEventDescriptor{{
+				Kind: "validation_started",
+			}},
+			Effects: effects,
+		},
+		NextPhase:           AttemptPhaseValidating,
+		AllowedProposalNext: []ProposalStatus{ProposalRepoChangeQueued, ProposalRepoChangeRunning},
+		AllowedAttemptNext: []AttemptState{
+			AttemptStatePatchGenerated,
+			AttemptStateOverlayGenerated,
+		},
+	}
+}
+
+func hasSandboxObservationMetadata(command CommandEnvelope) bool {
+	payload := command.Payload
+	if payload == nil {
+		return false
+	}
+	namespace, _ := payload["sandbox_namespace"].(string)
+	jobName, _ := payload["sandbox_job_name"].(string)
+	namespace = strings.TrimSpace(namespace)
+	jobName = strings.TrimSpace(jobName)
+	return namespace != "" && jobName != ""
 }
 
 func reduceValidationCompleted(snapshot AttemptSnapshot, command CommandEnvelope) AttemptPhaseDecision {
@@ -402,7 +635,7 @@ func reduceValidationCompleted(snapshot AttemptSnapshot, command CommandEnvelope
 			}},
 		},
 		NextPhase:           AttemptPhasePROpen,
-		AllowedProposalNext: []ProposalStatus{ProposalValidationPending},
+		AllowedProposalNext: []ProposalStatus{ProposalRepoChangeRunning, ProposalValidationPending},
 		AllowedAttemptNext: []AttemptState{
 			AttemptStateValidationRunning,
 			AttemptStateOverlayValidating,
@@ -417,11 +650,6 @@ func reduceValidationFailedRetryable(snapshot AttemptSnapshot, command CommandEn
 			Reason:       "validation failed with a retryable outcome",
 			Events: []DomainEventDescriptor{{
 				Kind: "validation_failed_retryable",
-			}},
-			Effects: []EffectRequest{{
-				Kind:           EffectRefreshProjection,
-				Status:         EffectQueued,
-				IdempotencyKey: effectKey(command, "validation_failed"),
 			}},
 		},
 		NextPhase:           AttemptPhaseRetryDeciding,
@@ -438,15 +666,119 @@ func reduceValidationFailedReview(snapshot AttemptSnapshot, command CommandEnvel
 			Events: []DomainEventDescriptor{{
 				Kind: "validation_failed_needs_review",
 			}},
-			Effects: []EffectRequest{{
-				Kind:           EffectRefreshProjection,
-				Status:         EffectQueued,
-				IdempotencyKey: effectKey(command, "validation_needs_review"),
+		},
+		NextPhase:           AttemptPhaseTerminal,
+		AllowedProposalNext: []ProposalStatus{ProposalPendingReview},
+		AllowedAttemptNext:  []AttemptState{AttemptStateNeedsReview},
+	}
+}
+
+func reduceAttemptPROpened(snapshot AttemptSnapshot, command CommandEnvelope) AttemptPhaseDecision {
+	return AttemptPhaseDecision{
+		TransitionDecision: TransitionDecision{
+			DecisionKind: DecisionAdvance,
+			Reason:       "governed pr open was observed for the attempt",
+			Events: []DomainEventDescriptor{{
+				Kind: "attempt_pr_opened",
+			}},
+		},
+		NextPhase: AttemptPhasePROpen,
+		AllowedProposalNext: []ProposalStatus{
+			ProposalApproved,
+			ProposalValidationPending,
+			ProposalPROpen,
+		},
+		AllowedAttemptNext: []AttemptState{
+			AttemptStateCIObserving,
+			AttemptStatePROpen,
+		},
+	}
+}
+
+func reducePROpenFailedReview(snapshot AttemptSnapshot, command CommandEnvelope) AttemptPhaseDecision {
+	return AttemptPhaseDecision{
+		TransitionDecision: TransitionDecision{
+			DecisionKind: DecisionAdvance,
+			Reason:       "governed pr open failed and line review is required",
+			Events: []DomainEventDescriptor{{
+				Kind: "pr_open_failed_needs_review",
 			}},
 		},
 		NextPhase:           AttemptPhaseTerminal,
 		AllowedProposalNext: []ProposalStatus{ProposalPendingReview},
 		AllowedAttemptNext:  []AttemptState{AttemptStateNeedsReview},
+	}
+}
+
+func reducePROpenFailedRetryable(snapshot AttemptSnapshot, command CommandEnvelope) AttemptPhaseDecision {
+	return AttemptPhaseDecision{
+		TransitionDecision: TransitionDecision{
+			DecisionKind: DecisionAdvance,
+			Reason:       "governed pr open failed with a retryable outcome",
+			Events: []DomainEventDescriptor{{
+				Kind: "pr_open_failed_retryable",
+			}},
+		},
+		NextPhase:           AttemptPhaseRetryDeciding,
+		AllowedProposalNext: []ProposalStatus{ProposalApproved, ProposalValidationPending, ProposalPROpen, ProposalFailedValidation},
+		AllowedAttemptNext:  []AttemptState{AttemptStateNeedsReview},
+	}
+}
+
+func reduceAttemptMerged(snapshot AttemptSnapshot, command CommandEnvelope) AttemptPhaseDecision {
+	return AttemptPhaseDecision{
+		TransitionDecision: TransitionDecision{
+			DecisionKind: DecisionAdvance,
+			Reason:       "merged pr was observed for the attempt",
+			Events: []DomainEventDescriptor{{
+				Kind: "attempt_merged",
+			}},
+		},
+		NextPhase: AttemptPhaseTerminal,
+		AllowedProposalNext: []ProposalStatus{
+			ProposalApproved,
+			ProposalPROpen,
+			ProposalMerged,
+		},
+		AllowedAttemptNext: []AttemptState{AttemptStateMerged},
+	}
+}
+
+func reduceAttemptClosedUnmerged(snapshot AttemptSnapshot, command CommandEnvelope) AttemptPhaseDecision {
+	return AttemptPhaseDecision{
+		TransitionDecision: TransitionDecision{
+			DecisionKind: DecisionAdvance,
+			Reason:       "closed unmerged pr was observed for the attempt",
+			Events: []DomainEventDescriptor{{
+				Kind: "attempt_closed_unmerged",
+			}},
+		},
+		NextPhase: AttemptPhaseTerminal,
+		AllowedProposalNext: []ProposalStatus{
+			ProposalApproved,
+			ProposalPROpen,
+			ProposalPendingReview,
+		},
+		AllowedAttemptNext: []AttemptState{AttemptStateClosedUnmerged},
+	}
+}
+
+func reduceAttemptCIFailed(snapshot AttemptSnapshot, command CommandEnvelope) AttemptPhaseDecision {
+	return AttemptPhaseDecision{
+		TransitionDecision: TransitionDecision{
+			DecisionKind: DecisionAdvance,
+			Reason:       "ci failure was observed for the attempt",
+			Events: []DomainEventDescriptor{{
+				Kind: "attempt_ci_failed",
+			}},
+		},
+		NextPhase: AttemptPhaseTerminal,
+		AllowedProposalNext: []ProposalStatus{
+			ProposalApproved,
+			ProposalPROpen,
+			ProposalPendingReview,
+		},
+		AllowedAttemptNext: []AttemptState{AttemptStateCIFailed},
 	}
 }
 

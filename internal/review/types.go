@@ -76,6 +76,7 @@ const (
 	FeedbackTargetTrace        FeedbackTargetType = "trace"
 	FeedbackTargetReasoning    FeedbackTargetType = "reasoning_step"
 	FeedbackTargetToolCall     FeedbackTargetType = "tool_call"
+	FeedbackTargetActionIntent FeedbackTargetType = "action_intent"
 	FeedbackTargetSlackAction  FeedbackTargetType = "slack_action"
 	FeedbackTargetProposal     FeedbackTargetType = "proposal"
 )

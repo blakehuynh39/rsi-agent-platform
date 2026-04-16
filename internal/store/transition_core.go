@@ -14,8 +14,9 @@ import (
 )
 
 type transitionPersistBundle struct {
-	Events  []transition.DomainEvent
-	Effects []transition.EffectExecution
+	Events   []transition.DomainEvent
+	Commands []transition.CommandEnvelope
+	Effects  []transition.EffectExecution
 }
 
 func persistDomainEvents(tx *sql.Tx, items []transition.DomainEvent) error {
@@ -155,10 +156,16 @@ func proposalPhaseAdvanceCommand(currentKind string, nextKind string) (transitio
 			return transition.CommandWorkspaceReady, nil
 		}
 	case "implement_attempt":
+		if strings.TrimSpace(nextKind) == "" {
+			return transition.CommandImplementationTransportClosed, nil
+		}
 		if strings.TrimSpace(nextKind) == "workspace_validate" {
 			return transition.CommandImplementationCompleted, nil
 		}
 	case "workspace_validate":
+		if strings.TrimSpace(nextKind) == "" {
+			return transition.CommandValidationTransportClosed, nil
+		}
 		if strings.TrimSpace(nextKind) == "pr_open" {
 			return transition.CommandValidationCompleted, nil
 		}
@@ -290,10 +297,40 @@ func buildTransitionBundle(now time.Time, command transition.CommandEnvelope, de
 		}
 		if nextItem != nil {
 			payload["work_item_id"] = nextItem.ID
+			payload["work_item_kind"] = nextItem.Kind
 			payload["queue"] = string(nextItem.Queue)
+			payload["trace_id"] = nextItem.TraceID
+			payload["workflow_id"] = nextItem.WorkflowID
+			payload["ingestion_id"] = nextItem.IngestionID
+			payload["conversation_id"] = nextItem.ConversationID
+			payload["case_id"] = nextItem.CaseID
+			payload["trigger_event_id"] = nextItem.TriggerEventID
+			payload["proposal_id"] = nextItem.ProposalID
+			payload["thread_key"] = nextItem.ThreadKey
+			payload["intent"] = nextItem.Intent
+			payload["repo_scope"] = nextItem.RepoScope
+			payload["requested_by"] = nextItem.RequestedBy
+			payload["approval_mode"] = nextItem.ApprovalMode
+			payload["response_mode"] = nextItem.ResponseMode
+			payload["work_item_payload"] = cloneMetadata(nextItem.Payload)
 		} else {
 			payload["work_item_id"] = currentItem.ID
+			payload["work_item_kind"] = currentItem.Kind
 			payload["queue"] = string(currentItem.Queue)
+			payload["trace_id"] = currentItem.TraceID
+			payload["workflow_id"] = currentItem.WorkflowID
+			payload["ingestion_id"] = currentItem.IngestionID
+			payload["conversation_id"] = currentItem.ConversationID
+			payload["case_id"] = currentItem.CaseID
+			payload["trigger_event_id"] = currentItem.TriggerEventID
+			payload["proposal_id"] = currentItem.ProposalID
+			payload["thread_key"] = currentItem.ThreadKey
+			payload["intent"] = currentItem.Intent
+			payload["repo_scope"] = currentItem.RepoScope
+			payload["requested_by"] = currentItem.RequestedBy
+			payload["approval_mode"] = currentItem.ApprovalMode
+			payload["response_mode"] = currentItem.ResponseMode
+			payload["work_item_payload"] = cloneMetadata(currentItem.Payload)
 		}
 		aggregateID := command.AggregateID
 		if aggregateID == "" && attempt != nil {

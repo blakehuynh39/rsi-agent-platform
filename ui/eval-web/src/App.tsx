@@ -24,7 +24,7 @@ import type {
   ViewState,
 } from "@/types";
 
-import { formatTime, getJSON, knowledgeEntriesForSegment, listOrEmpty, postJSON, readViewState, scoreBadge, writeViewState } from "@/hooks/api";
+import { formatTime, getJSON, knowledgeEntriesForSegment, listOrEmpty, postCommand, postJSON, readViewState, scoreBadge, writeViewState } from "@/hooks/api";
 
 import { EmptyDetail } from "@/components/detail/empty-detail";
 import { ConversationDetail } from "@/components/detail/conversation-detail";
@@ -41,6 +41,34 @@ const ACTIVE_PROPOSAL_STATES = new Set([
   "validation_pending",
   "pr_open"
 ]);
+
+function knowledgeCommandKind(decision: string) {
+  switch (decision) {
+    case "approve":
+      return "knowledge_approve";
+    case "reject":
+      return "knowledge_reject";
+    case "mark_stale":
+      return "knowledge_mark_stale";
+    case "archive":
+      return "knowledge_archive";
+    default:
+      throw new Error(`Unsupported knowledge decision: ${decision}`);
+  }
+}
+
+function proposalCommandKind(decision: string) {
+  switch (decision) {
+    case "approved":
+      return "proposal_approve_intervention";
+    case "rejected":
+      return "proposal_reject_line";
+    case "dismissed":
+      return "proposal_dismiss_line";
+    default:
+      throw new Error(`Unsupported proposal decision: ${decision}`);
+  }
+}
 
 export function App() {
   const queryClient = useQueryClient();
@@ -190,7 +218,14 @@ export function App() {
   };
 
   const evaluateMutation = useMutation({
-    mutationFn: () => postJSON(`/api/traces/${viewState.trace}/evaluate`, {}),
+    mutationFn: () =>
+      postCommand(`/api/problem-lines/${viewState.trace}/commands`, {
+        command_kind: "problem_line_evaluate_trace",
+        actor: "ui-operator",
+        payload: {
+          trigger: "manual"
+        }
+      }),
     onSuccess: refreshEverything
   });
 
@@ -218,10 +253,13 @@ export function App() {
 
   const knowledgeReviewMutation = useMutation({
     mutationFn: (decision: string) =>
-      postJSON(`/api/knowledge/${viewState.knowledge}/review`, {
-        decision,
-        rationale: knowledgeReviewRationale || `UI operator recorded ${decision}.`,
-        reviewer_id: "ui-operator"
+      postCommand(`/api/knowledge/${viewState.knowledge}/commands`, {
+        command_kind: knowledgeCommandKind(decision),
+        actor: "ui-operator",
+        payload: {
+          rationale: knowledgeReviewRationale || `UI operator recorded ${decision}.`,
+          reviewer_id: "ui-operator"
+        }
       }),
     onSuccess: async () => {
       setKnowledgeReviewRationale("");
@@ -230,23 +268,40 @@ export function App() {
   });
 
   const promoteMutation = useMutation({
-    mutationFn: () => postJSON(`/api/proposals/promote`, { requested_by: "ui-operator" }),
+    mutationFn: () =>
+      postCommand(`/api/problem-lines/problem-lines/commands`, {
+        command_kind: "problem_line_promote",
+        actor: "ui-operator",
+        payload: {
+          requested_by: "ui-operator"
+        }
+      }),
     onSuccess: refreshEverything
   });
 
   const settingsMutation = useMutation({
-    mutationFn: () => postJSON(`/api/settings`, { active_proposal_cap: Number(proposalCapInput) }),
+    mutationFn: () =>
+      postCommand(`/api/settings/commands`, {
+        command_kind: "settings_update",
+        actor: "ui-operator",
+        payload: {
+          active_proposal_cap: Number(proposalCapInput)
+        }
+      }),
     onSuccess: refreshEverything
   });
 
   const proposalDecisionMutation = useMutation({
     mutationFn: (decision: string) =>
-      postJSON(`/api/proposals/${viewState.proposal}/decision`, {
-        decision,
-        scope: "line",
-        rationale: proposalRationale || `UI operator recorded ${decision}.`,
-        reviewer_id: "ui-operator",
-        failure_class: decision === "rejected" ? "insufficient_evidence" : ""
+      postCommand(`/api/proposals/${viewState.proposal}/commands`, {
+        command_kind: proposalCommandKind(decision),
+        actor: "ui-operator",
+        payload: {
+          scope: "line",
+          rationale: proposalRationale || `UI operator recorded ${decision}.`,
+          reviewer_id: "ui-operator",
+          failure_class: decision === "rejected" ? "insufficient_evidence" : ""
+        }
       }),
     onSuccess: async () => {
       setProposalRationale("");
@@ -256,17 +311,21 @@ export function App() {
 
   const proposalRetryMutation = useMutation({
     mutationFn: () =>
-      postJSON(`/api/proposals/${viewState.proposal}/retry`, {
-        requested_by: "ui-operator"
+      postCommand(`/api/proposals/${viewState.proposal}/commands`, {
+        command_kind: "proposal_retry_attempt",
+        actor: "ui-operator"
       }),
     onSuccess: refreshEverything
   });
 
   const proposalStopMutation = useMutation({
     mutationFn: () =>
-      postJSON(`/api/proposals/${viewState.proposal}/stop`, {
-        requested_by: "ui-operator",
-        rationale: proposalRationale || "UI operator stopped the remediation line."
+      postCommand(`/api/proposals/${viewState.proposal}/commands`, {
+        command_kind: "proposal_stop_line",
+        actor: "ui-operator",
+        payload: {
+          rationale: proposalRationale || "UI operator stopped the remediation line."
+        }
       }),
     onSuccess: async () => {
       setProposalRationale("");

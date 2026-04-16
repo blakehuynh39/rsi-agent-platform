@@ -15,6 +15,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
+	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
 func TestPostgresWorkItemDirectPersistence(t *testing.T) {
@@ -412,24 +413,21 @@ func TestPostgresGitHubEventPersistsProposalOutcome(t *testing.T) {
 	defer store.db.Close()
 
 	trace, _, _, proposal := seedPromotableFailureProposal(t, store)
-	created, err := store.CreateEvent(ingestion.EventEnvelope{
-		Source:        ingestion.SourceGitHub,
-		SourceEventID: "delivery-123",
-		DedupeKey:     "github:delivery-123",
-		Severity:      ingestion.SeverityWarning,
-		Metadata: map[string]interface{}{
+	receipt := submitIngressCommandForTest(t, store, "github:github:delivery-123", transition.CommandIngressRecordEvent, "cmd-postgres-github-event", "tester", time.Now().UTC(), map[string]any{
+		"source":          string(ingestion.SourceGitHub),
+		"source_event_id": "delivery-123",
+		"dedupe_key":      "github:delivery-123",
+		"severity":        string(ingestion.SeverityWarning),
+		"metadata": map[string]interface{}{
 			"event_type":  "pull_request",
 			"action":      "closed",
 			"merged":      "true",
 			"proposal_id": proposal.ID,
 			"html_url":    "https://github.com/piplabs/rsi-agent-platform/pull/321",
 		},
-		CreatedAt: time.Now().UTC(),
+		"created_at": time.Now().UTC(),
 	})
-	if err != nil {
-		t.Fatalf("CreateEvent() error = %v", err)
-	}
-	if created.ID == "" {
+	if receipt.ResultRef == "" {
 		t.Fatal("expected github event to be persisted")
 	}
 
@@ -653,14 +651,20 @@ func TestPostgresReviewProposalIsIdempotent(t *testing.T) {
 	if memories != 1 {
 		t.Fatalf("expected one proposal memory entry, got %d", memories)
 	}
-	workItems := 0
-	for _, item := range reloaded.ListWorkItems() {
-		if item.ProposalID == proposal.ID && item.Queue == queue.ProposalQueue {
-			workItems++
+	foundEffect := false
+	for _, effect := range reloaded.ListEffectExecutions() {
+		if effect.MachineKind != transition.MachineAttempt || effect.AggregateID != persisted.CurrentAttemptID || effect.Status != transition.EffectQueued {
+			continue
+		}
+		switch effect.EffectKind {
+		case transition.EffectOpenWorkspace, transition.EffectInvokeRunner:
+			foundEffect = true
+		default:
+			t.Fatalf("unexpected proposal approval bootstrap effect %s", effect.EffectKind)
 		}
 	}
-	if workItems != 1 {
-		t.Fatalf("expected one proposal materialization work item, got %d", workItems)
+	if !foundEffect {
+		t.Fatal("expected one queued attempt bootstrap effect after idempotent proposal approval")
 	}
 }
 
@@ -714,9 +718,7 @@ func TestPostgresRetryProposalRepoChangeIsIdempotent(t *testing.T) {
 	if _, err := storeA.UpdateRepoChangeJobStatus(job.ID, string(review.ProposalFailedValidation)); err != nil {
 		t.Fatalf("update job status: %v", err)
 	}
-	if _, err := storeA.UpdateProposalStatus(proposal.ID, review.ProposalFailedValidation); err != nil {
-		t.Fatalf("update proposal status: %v", err)
-	}
+	submitProposalCommandForTest(t, storeA, proposal.ID, transition.CommandProposalMarkFailedValidation, "cmd-postgres-proposal-failed-validation", nil)
 
 	var wg sync.WaitGroup
 	type retryResult struct {
@@ -895,37 +897,34 @@ func TestPostgresRecordActionResultReusesCanonicalRowForDuplicateID(t *testing.T
 	}
 	defer store.db.Close()
 
-	intent, err := store.UpsertActionIntent(action.Intent{
+	intent := queueActionIntentForTest(t, store, action.Intent{
 		ID:         "intent-duplicate-action-result",
 		OwnerPlane: "control",
 		TraceID:    "trace-duplicate-action-result",
 		Kind:       action.KindToolRead,
-		Status:     action.StatusExecuting,
 		CreatedAt:  time.Now().UTC(),
-		UpdatedAt:  time.Now().UTC(),
+	}, "cmd-postgres-duplicate-action-queue")
+	submitActionCommandForTest(t, store, intent.ID, transition.CommandActionStart, "cmd-postgres-duplicate-action-start", time.Now().UTC(), map[string]any{
+		"operation_id": "op-duplicate-action-result",
 	})
-	if err != nil {
-		t.Fatalf("UpsertActionIntent() error = %v", err)
-	}
 
-	result := action.Result{
-		ID:             "action-result-001",
-		ActionIntentID: intent.ID,
-		AttemptNumber:  1,
-		Executor:       "tester",
-		Status:         action.StatusSucceeded,
-		StartedAt:      time.Now().UTC(),
-		CompletedAt:    time.Now().UTC(),
-	}
-	if _, err := store.RecordActionResult(result); err != nil {
-		t.Fatalf("first RecordActionResult() error = %v", err)
-	}
-	again, err := store.RecordActionResult(result)
-	if err != nil {
-		t.Fatalf("second RecordActionResult() error = %v", err)
-	}
-	if again.ID != result.ID {
-		t.Fatalf("expected duplicate action result to keep canonical id %s, got %+v", result.ID, again)
+	now := time.Now().UTC()
+	first := submitActionCommandForTest(t, store, intent.ID, transition.CommandActionSucceed, "cmd-postgres-duplicate-action-succeed", now, map[string]any{
+		"operation_id": "op-duplicate-action-result",
+		"executor":     "tester",
+		"provider_ref": "action-result-001",
+		"started_at":   now,
+		"completed_at": now,
+	})
+	again := submitActionCommandForTest(t, store, intent.ID, transition.CommandActionSucceed, "cmd-postgres-duplicate-action-succeed", now, map[string]any{
+		"operation_id": "op-duplicate-action-result",
+		"executor":     "tester",
+		"provider_ref": "action-result-001",
+		"started_at":   now,
+		"completed_at": now,
+	})
+	if again.ResultRef != first.ResultRef {
+		t.Fatalf("expected duplicate action command to keep canonical result ref %s, got %+v", first.ResultRef, again)
 	}
 	results := store.ListActionResults(intent.ID)
 	if len(results) != 1 {

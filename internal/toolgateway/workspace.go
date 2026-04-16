@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/sandbox"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
+	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
 const workspaceRepoDir = "/workspace/repo"
@@ -26,7 +28,7 @@ var allowedValidationCommands = map[string]struct{}{
 }
 
 func (s *Service) workspaceListFiles(input map[string]interface{}) storepkg.ToolResult {
-	workspace, _, errResult := s.resolveWorkspace(input, "workspace.list_files")
+	workspace, errResult := s.resolveWorkspace(input, "workspace.list_files")
 	if errResult != nil {
 		return *errResult
 	}
@@ -51,7 +53,7 @@ func (s *Service) workspaceListFiles(input map[string]interface{}) storepkg.Tool
 }
 
 func (s *Service) workspaceReadFile(input map[string]interface{}) storepkg.ToolResult {
-	workspace, _, errResult := s.resolveWorkspace(input, "workspace.read_file")
+	workspace, errResult := s.resolveWorkspace(input, "workspace.read_file")
 	if errResult != nil {
 		return *errResult
 	}
@@ -76,7 +78,7 @@ func (s *Service) workspaceReadFile(input map[string]interface{}) storepkg.ToolR
 }
 
 func (s *Service) workspaceSearch(input map[string]interface{}) storepkg.ToolResult {
-	workspace, _, errResult := s.resolveWorkspace(input, "workspace.search")
+	workspace, errResult := s.resolveWorkspace(input, "workspace.search")
 	if errResult != nil {
 		return *errResult
 	}
@@ -107,7 +109,7 @@ func (s *Service) workspaceSearch(input map[string]interface{}) storepkg.ToolRes
 }
 
 func (s *Service) workspaceWriteFile(input map[string]interface{}) storepkg.ToolResult {
-	workspace, _, errResult := s.resolveWorkspace(input, "workspace.write_file")
+	workspace, errResult := s.resolveWorkspace(input, "workspace.write_file")
 	if errResult != nil {
 		return *errResult
 	}
@@ -133,7 +135,7 @@ func (s *Service) workspaceWriteFile(input map[string]interface{}) storepkg.Tool
 }
 
 func (s *Service) workspaceApplyPatch(input map[string]interface{}) storepkg.ToolResult {
-	workspace, _, errResult := s.resolveWorkspace(input, "workspace.apply_patch")
+	workspace, errResult := s.resolveWorkspace(input, "workspace.apply_patch")
 	if errResult != nil {
 		return *errResult
 	}
@@ -169,7 +171,7 @@ func (s *Service) workspaceApplyPatch(input map[string]interface{}) storepkg.Too
 }
 
 func (s *Service) workspaceGitStatus(input map[string]interface{}) storepkg.ToolResult {
-	workspace, _, errResult := s.resolveWorkspace(input, "workspace.git_status")
+	workspace, errResult := s.resolveWorkspace(input, "workspace.git_status")
 	if errResult != nil {
 		return *errResult
 	}
@@ -188,7 +190,7 @@ func (s *Service) workspaceGitStatus(input map[string]interface{}) storepkg.Tool
 }
 
 func (s *Service) workspaceGitDiff(input map[string]interface{}) storepkg.ToolResult {
-	workspace, workspaceUpdated, errResult := s.resolveWorkspace(input, "workspace.git_diff")
+	workspace, errResult := s.resolveWorkspace(input, "workspace.git_diff")
 	if errResult != nil {
 		return *errResult
 	}
@@ -211,16 +213,23 @@ func (s *Service) workspaceGitDiff(input map[string]interface{}) storepkg.ToolRe
 	changedFiles := gitStatusChangedFiles(statusResult.Stdout)
 	patch := truncate(diffResult.Stdout, 120000)
 	diffSummary := truncate(strings.TrimSpace(statResult.Stdout), 4000)
-	workspaceUpdated.HeadSHA = strings.TrimSpace(headResult.Stdout)
-	workspaceUpdated.DiffSummary = diffSummary
-	workspaceUpdated.UpdatedAt = time.Now().UTC()
-	_, _ = s.store.UpsertAttemptWorkspace(workspaceUpdated)
+	workspace.HeadSHA = strings.TrimSpace(headResult.Stdout)
+	workspace.DiffSummary = diffSummary
+	if failed := s.submitWorkspaceAttemptCommand(workspace, "workspace.git_diff", input, transition.CommandWorkspaceMetadataSynced, map[string]any{
+		"workspace_namespace": workspace.Namespace,
+		"workspace_job_name":  workspace.JobName,
+		"workspace_pod_name":  workspace.PodName,
+		"head_sha":            workspace.HeadSHA,
+		"diff_summary":        workspace.DiffSummary,
+	}); failed != nil {
+		return *failed
+	}
 	summary := fmt.Sprintf("Workspace diff for attempt %s touches %d file(s).", workspace.AttemptID, len(changedFiles))
 	return s.result("workspace.git_diff", input, summary, map[string]interface{}{
 		"workspace_id":  workspace.ID,
 		"attempt_id":    workspace.AttemptID,
 		"repo":          workspace.Repo,
-		"head_sha":      workspaceUpdated.HeadSHA,
+		"head_sha":      workspace.HeadSHA,
 		"changed_files": changedFiles,
 		"diff_summary":  diffSummary,
 		"patch":         patch,
@@ -228,7 +237,7 @@ func (s *Service) workspaceGitDiff(input map[string]interface{}) storepkg.ToolRe
 }
 
 func (s *Service) workspaceRunValidation(input map[string]interface{}) storepkg.ToolResult {
-	workspace, workspaceUpdated, errResult := s.resolveWorkspace(input, "workspace.run_validation")
+	workspace, errResult := s.resolveWorkspace(input, "workspace.run_validation")
 	if errResult != nil {
 		return *errResult
 	}
@@ -242,20 +251,26 @@ func (s *Service) workspaceRunValidation(input map[string]interface{}) storepkg.
 			"error":        "command_not_allowed",
 		})
 	}
-	workspaceUpdated.Status = improvement.WorkspaceValidating
-	workspaceUpdated.UpdatedAt = time.Now().UTC()
-	_, _ = s.store.UpsertAttemptWorkspace(workspaceUpdated)
-	execResult, failed := s.execWorkspaceCommand(workspaceUpdated, []string{"bash", "-lc", fmt.Sprintf("cd %s && %s", shellQuote(workspaceRepoDir), command)}, "workspace.run_validation", input)
-	completedAt := time.Now().UTC()
-	if failed != nil {
-		workspaceUpdated.Status = improvement.WorkspaceFailed
-		workspaceUpdated.UpdatedAt = completedAt
-		_, _ = s.store.UpsertAttemptWorkspace(workspaceUpdated)
+	if failed := s.submitWorkspaceAttemptCommand(workspace, "workspace.run_validation", input, transition.CommandWorkspaceToolValidationStarted, map[string]any{
+		"validation_command": command,
+	}); failed != nil {
 		return *failed
 	}
-	workspaceUpdated.Status = improvement.WorkspaceCompleted
-	workspaceUpdated.UpdatedAt = completedAt
-	_, _ = s.store.UpsertAttemptWorkspace(workspaceUpdated)
+	execResult, failed := s.execWorkspaceCommand(workspace, []string{"bash", "-lc", fmt.Sprintf("cd %s && %s", shellQuote(workspaceRepoDir), command)}, "workspace.run_validation", input)
+	if failed != nil {
+		if syncFailed := s.submitWorkspaceAttemptCommand(workspace, "workspace.run_validation", input, transition.CommandWorkspaceToolValidationFailed, map[string]any{
+			"validation_command": command,
+			"failure_summary":    firstNonEmpty(stringValue(failed.Output["error"]), failed.Summary),
+		}); syncFailed != nil {
+			return *syncFailed
+		}
+		return *failed
+	}
+	if failed := s.submitWorkspaceAttemptCommand(workspace, "workspace.run_validation", input, transition.CommandWorkspaceToolValidationCompleted, map[string]any{
+		"validation_command": command,
+	}); failed != nil {
+		return *failed
+	}
 	summary := fmt.Sprintf("Workspace validation succeeded for attempt %s using %q.", workspace.AttemptID, command)
 	return s.result("workspace.run_validation", input, summary, map[string]interface{}{
 		"workspace_id": workspace.ID,
@@ -268,10 +283,10 @@ func (s *Service) workspaceRunValidation(input map[string]interface{}) storepkg.
 	}, nil)
 }
 
-func (s *Service) resolveWorkspace(input map[string]interface{}, toolName string) (improvement.AttemptWorkspace, improvement.AttemptWorkspace, *storepkg.ToolResult) {
+func (s *Service) resolveWorkspace(input map[string]interface{}, toolName string) (improvement.AttemptWorkspace, *storepkg.ToolResult) {
 	if s.launcher == nil {
 		result := s.unavailableResult(toolName, input, "sandbox", "Workspace tools unavailable: sandbox launcher not configured.", map[string]interface{}{"error": "sandbox_launcher_unavailable"})
-		return improvement.AttemptWorkspace{}, improvement.AttemptWorkspace{}, &result
+		return improvement.AttemptWorkspace{}, &result
 	}
 	workspaceID := strings.TrimSpace(stringValue(input["workspace_id"]))
 	attemptID := strings.TrimSpace(stringValue(input["attempt_id"]))
@@ -290,7 +305,7 @@ func (s *Service) resolveWorkspace(input map[string]interface{}, toolName string
 			"attempt_id":   attemptID,
 			"error":        "workspace_not_found",
 		})
-		return improvement.AttemptWorkspace{}, improvement.AttemptWorkspace{}, &result
+		return improvement.AttemptWorkspace{}, &result
 	}
 	if workspace.Namespace == "" || workspace.JobName == "" {
 		result := s.failedResult(toolName, input, "sandbox", "Workspace is missing Kubernetes identity.", map[string]interface{}{
@@ -298,24 +313,28 @@ func (s *Service) resolveWorkspace(input map[string]interface{}, toolName string
 			"attempt_id":   workspace.AttemptID,
 			"error":        "workspace_identity_missing",
 		})
-		return improvement.AttemptWorkspace{}, improvement.AttemptWorkspace{}, &result
+		return improvement.AttemptWorkspace{}, &result
 	}
-	updated := workspace
-	if strings.TrimSpace(updated.PodName) == "" {
-		podName, err := s.launcher.ResolvePod(context.Background(), updated.Namespace, updated.JobName)
+	if strings.TrimSpace(workspace.PodName) == "" {
+		podName, err := s.launcher.ResolvePod(context.Background(), workspace.Namespace, workspace.JobName)
 		if err != nil {
 			result := s.failedResult(toolName, input, "sandbox", fmt.Sprintf("Workspace pod resolution failed: %v", err), map[string]interface{}{
 				"workspace_id": workspace.ID,
 				"attempt_id":   workspace.AttemptID,
 				"job_name":     workspace.JobName,
 			})
-			return improvement.AttemptWorkspace{}, improvement.AttemptWorkspace{}, &result
+			return improvement.AttemptWorkspace{}, &result
 		}
-		updated.PodName = podName
-		updated.UpdatedAt = time.Now().UTC()
-		_, _ = s.store.UpsertAttemptWorkspace(updated)
+		workspace.PodName = podName
+		if failed := s.submitWorkspaceAttemptCommand(workspace, toolName, input, transition.CommandWorkspaceMetadataSynced, map[string]any{
+			"workspace_namespace": workspace.Namespace,
+			"workspace_job_name":  workspace.JobName,
+			"workspace_pod_name":  workspace.PodName,
+		}); failed != nil {
+			return improvement.AttemptWorkspace{}, failed
+		}
 	}
-	return workspace, updated, nil
+	return workspace, nil
 }
 
 func (s *Service) execWorkspaceCommand(workspace improvement.AttemptWorkspace, command []string, toolName string, input map[string]interface{}) (sandbox.ExecResult, *storepkg.ToolResult) {
@@ -376,6 +395,59 @@ func workspaceAllowsPath(workspace improvement.AttemptWorkspace, relPath string)
 		}
 	}
 	return false
+}
+
+func (s *Service) submitWorkspaceAttemptCommand(workspace improvement.AttemptWorkspace, toolName string, input map[string]interface{}, kind transition.AttemptPhaseCommandKind, payload map[string]any) *storepkg.ToolResult {
+	attemptID := strings.TrimSpace(workspace.AttemptID)
+	if attemptID == "" {
+		result := s.failedResult(toolName, input, "transition", "Workspace is missing attempt identity for formal state sync.", map[string]interface{}{
+			"workspace_id": workspace.ID,
+			"error":        "workspace_attempt_missing",
+		})
+		return &result
+	}
+	if payload == nil {
+		payload = map[string]any{}
+	}
+	payload["workspace_id"] = workspace.ID
+	occurredAt := time.Now().UTC()
+	receipt, err := s.store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineAttempt,
+		AggregateID: attemptID,
+		CommandKind: string(kind),
+		CommandID:   workspaceAttemptCommandID(workspace, kind, input, occurredAt),
+		Actor:       firstNonEmpty(strings.TrimSpace(s.cfg.ServiceName), "tool-gateway"),
+		OccurredAt:  occurredAt,
+		Payload:     payload,
+	})
+	if err != nil {
+		result := s.failedResult(toolName, input, "transition", fmt.Sprintf("Workspace state sync failed: %v", err), map[string]interface{}{
+			"workspace_id": workspace.ID,
+			"attempt_id":   attemptID,
+			"command_kind": string(kind),
+			"error":        "workspace_state_sync_failed",
+		})
+		return &result
+	}
+	if receipt.DecisionKind == transition.DecisionReject {
+		result := s.failedResult(toolName, input, "transition", fmt.Sprintf("Workspace state sync rejected: %s", receipt.Reason), map[string]interface{}{
+			"workspace_id": workspace.ID,
+			"attempt_id":   attemptID,
+			"command_kind": string(kind),
+			"error":        "workspace_state_sync_rejected",
+		})
+		return &result
+	}
+	return nil
+}
+
+func workspaceAttemptCommandID(workspace improvement.AttemptWorkspace, kind transition.AttemptPhaseCommandKind, input map[string]interface{}, occurredAt time.Time) string {
+	suffix := firstNonEmpty(
+		strings.TrimSpace(stringValue(input["tool_call_id"])),
+		strings.TrimSpace(stringValue(input["provider_ref"])),
+		strconv.FormatInt(occurredAt.UnixNano(), 10),
+	)
+	return fmt.Sprintf("cmd-attempt:%s:%s:%s", strings.TrimSpace(workspace.AttemptID), string(kind), suffix)
 }
 
 func isDefaultAllowedWorkspacePath(relPath string) bool {

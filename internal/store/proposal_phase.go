@@ -20,6 +20,7 @@ type ProposalAttemptPhaseAdvance struct {
 	ResultRef     string
 	Proposal      *review.Proposal
 	Attempt       *improvement.ChangeAttempt
+	AttemptTrace  *DerivedTraceRequest
 	Workspace     *improvement.AttemptWorkspace
 	RepoChangeJob *improvement.RepoChangeJob
 	TraceID       string
@@ -327,7 +328,21 @@ func (s *MemoryStore) advanceProposalAttemptPhaseLocked(req ProposalAttemptPhase
 	}
 	currentProposal, currentAttempt, err := proposalTransitionSnapshots(firstNonEmpty(strings.TrimSpace(req.ProposalID), currentItem.ProposalID, currentOp.ProposalID), firstNonEmpty(currentOp.AttemptID), s.proposals, s.changeAttempts)
 	if err != nil && strings.TrimSpace(currentOp.AttemptID) != "" {
-		return proposalAttemptPhaseMutationResult{}, err
+		if strings.TrimSpace(currentOp.OperationKind) == "line_activate" {
+			currentAttempt = nil
+			if proposalItem, ok := s.proposals[firstNonEmpty(strings.TrimSpace(req.ProposalID), currentItem.ProposalID, currentOp.ProposalID)]; ok {
+				proposalCopy := proposalItem
+				currentProposal = &proposalCopy
+			}
+		} else if req.Attempt != nil && strings.TrimSpace(req.Attempt.ID) == strings.TrimSpace(currentOp.AttemptID) {
+			currentAttempt = nil
+			if proposalItem, ok := s.proposals[firstNonEmpty(strings.TrimSpace(req.ProposalID), currentItem.ProposalID, currentOp.ProposalID)]; ok {
+				proposalCopy := proposalItem
+				currentProposal = &proposalCopy
+			}
+		} else {
+			return proposalAttemptPhaseMutationResult{}, fmt.Errorf("load current proposal phase snapshots for %s: %w", currentOp.OperationKind, err)
+		}
 	}
 	if (req.NextOperation == nil) != (req.NextWorkItem == nil) {
 		return proposalAttemptPhaseMutationResult{}, fmt.Errorf("proposal phase advance must provide both next operation and next work item")
@@ -335,6 +350,28 @@ func (s *MemoryStore) advanceProposalAttemptPhaseLocked(req ProposalAttemptPhase
 	result := proposalAttemptPhaseMutationResult{
 		CurrentWorkItem:  currentItem.ID,
 		CurrentOperation: currentOp.ID,
+	}
+	if req.Attempt != nil && req.AttemptTrace != nil && strings.TrimSpace(req.Attempt.AttemptTraceID) == "" {
+		traceReq := *req.AttemptTrace
+		traceReq.AttemptID = firstNonEmpty(traceReq.AttemptID, req.Attempt.ID)
+		traceReq.ProposalID = firstNonEmpty(traceReq.ProposalID, req.Attempt.ProposalID, currentItem.ProposalID, currentOp.ProposalID)
+		traceReq.SourceTraceID = firstNonEmpty(traceReq.SourceTraceID, currentItem.TraceID)
+		traceReq.CreatedAt = timeOr(traceReq.CreatedAt, req.Attempt.CreatedAt, time.Now().UTC())
+		createdTrace, _, err := s.createDerivedTraceLocked(traceReq)
+		if err != nil {
+			return result, err
+		}
+		req.Attempt.AttemptTraceID = createdTrace.Summary.TraceID
+		result.TraceID = createdTrace.Summary.TraceID
+		if req.TraceID == "" {
+			req.TraceID = createdTrace.Summary.TraceID
+		}
+		if req.NextOperation != nil && strings.TrimSpace(req.NextOperation.TraceID) == "" {
+			req.NextOperation.TraceID = createdTrace.Summary.TraceID
+		}
+		if req.NextWorkItem != nil && strings.TrimSpace(req.NextWorkItem.TraceID) == "" {
+			req.NextWorkItem.TraceID = createdTrace.Summary.TraceID
+		}
 	}
 	proposalID, attemptID, workspaceID, repoJobTouched, err := s.applyProposalPhaseMutationsLocked(req.Proposal, req.Attempt, req.Workspace, req.RepoChangeJob)
 	if err != nil {
@@ -378,7 +415,27 @@ func (s *MemoryStore) advanceProposalAttemptPhaseLocked(req ProposalAttemptPhase
 	s.operations[currentOp.ID] = currentOp
 	updatedProposal, updatedAttempt, err := proposalTransitionSnapshots(firstNonEmpty(result.ProposalID, currentItem.ProposalID, currentOp.ProposalID), firstNonEmpty(result.AttemptID, currentOp.AttemptID), s.proposals, s.changeAttempts)
 	if err != nil && strings.TrimSpace(result.AttemptID) != "" {
-		return result, err
+		if strings.TrimSpace(currentOp.OperationKind) == "line_activate" {
+			if req.Attempt != nil {
+				attemptCopy := *req.Attempt
+				updatedAttempt = &attemptCopy
+			}
+			if proposalItem, ok := s.proposals[firstNonEmpty(result.ProposalID, currentItem.ProposalID, currentOp.ProposalID)]; ok {
+				proposalCopy := proposalItem
+				updatedProposal = &proposalCopy
+			}
+		} else if req.Attempt != nil && strings.TrimSpace(req.Attempt.ID) == strings.TrimSpace(result.AttemptID) {
+			attemptCopy := *req.Attempt
+			updatedAttempt = &attemptCopy
+			if updatedProposal == nil {
+				if proposalItem, ok := s.proposals[firstNonEmpty(result.ProposalID, currentItem.ProposalID, currentOp.ProposalID)]; ok {
+					proposalCopy := proposalItem
+					updatedProposal = &proposalCopy
+				}
+			}
+		} else {
+			return result, fmt.Errorf("load updated proposal phase snapshots for %s: %w", currentOp.OperationKind, err)
+		}
 	}
 	commandKind, err := proposalPhaseAdvanceCommand(currentOp.OperationKind, firstNonEmpty(operationKind(req.NextOperation), workItemKind(req.NextWorkItem)))
 	if err != nil {
@@ -531,6 +588,13 @@ func (s *MemoryStore) failProposalAttemptPhaseLocked(req ProposalAttemptPhaseFai
 		CurrentWorkItem:  currentItem.ID,
 		CurrentOperation: currentOp.ID,
 	}
+	ledgerOnly := req.Proposal == nil &&
+		req.Attempt == nil &&
+		req.Workspace == nil &&
+		req.RepoChangeJob == nil &&
+		req.TraceUpdate == nil &&
+		req.NextOperation == nil &&
+		req.NextWorkItem == nil
 	proposalID, attemptID, workspaceID, repoJobTouched, err := s.applyProposalPhaseMutationsLocked(req.Proposal, req.Attempt, req.Workspace, req.RepoChangeJob)
 	if err != nil {
 		return result, err
@@ -571,6 +635,9 @@ func (s *MemoryStore) failProposalAttemptPhaseLocked(req ProposalAttemptPhaseFai
 	currentOp.UpdatedAt = now
 	currentOp.CompletedAt = &now
 	s.operations[currentOp.ID] = currentOp
+	if ledgerOnly {
+		return result, nil
+	}
 	updatedProposal, updatedAttempt, err := proposalTransitionSnapshots(firstNonEmpty(result.ProposalID, currentItem.ProposalID, currentOp.ProposalID), firstNonEmpty(result.AttemptID, currentOp.AttemptID), s.proposals, s.changeAttempts)
 	if err != nil && strings.TrimSpace(result.AttemptID) != "" {
 		return result, err
@@ -673,7 +740,9 @@ func activeRepoChangeResumeOperation(ops []operation.Execution) (operation.Execu
 	found := false
 	for _, op := range ops {
 		kind := strings.TrimSpace(op.OperationKind)
-		if kind != "sandbox_launch" && kind != "pr_open" {
+		switch kind {
+		case "sandbox_launch", "workspace_open", "implement_attempt", "workspace_validate", "pr_open":
+		default:
 			continue
 		}
 		if op.Status != operation.StatusQueued && op.Status != operation.StatusRunning {
@@ -855,40 +924,25 @@ func (s *MemoryStore) reconcileProposalAttemptPhaseLocked(proposalID string, req
 		return queue.WorkItem{}, false, nil
 	}
 	if strings.TrimSpace(proposal.CurrentAttemptID) == "" {
-		nextAttemptNumber := maxInt(1, proposal.AttemptCount+1)
-		attempt := improvement.ChangeAttempt{
-			ID:             fmt.Sprintf("attempt-%s-%02d", strings.ReplaceAll(strings.TrimSpace(proposal.ID), "/", "-"), nextAttemptNumber),
-			ProposalID:     proposal.ID,
-			CandidateKey:   proposal.CandidateKey,
-			AttemptNumber:  nextAttemptNumber,
-			TargetLayer:    proposal.TargetLayer,
-			TargetKind:     proposal.TargetKind,
-			TargetRef:      proposal.TargetRef,
-			AttemptTraceID: firstNonEmpty(proposal.TraceID, proposal.OriginTraceID),
-		}
-		op := proposalPhaseOperationTemplate("line_activate", proposal, attempt, requestedBy)
-		item := queue.WorkItem{
-			Queue:          queue.ProposalQueue,
-			Kind:           "approved_proposal",
-			Status:         queue.WorkQueued,
-			TraceID:        proposal.TraceID,
-			ConversationID: proposal.ConversationID,
-			CaseID:         proposal.CaseID,
-			TriggerEventID: proposal.OriginTraceID,
-			ProposalID:     proposal.ID,
-			RequestedBy:    requestedBy,
-			ApprovalMode:   "human_review",
-			CreatedAt:      time.Now().UTC(),
-			UpdatedAt:      time.Now().UTC(),
+		now := time.Now().UTC()
+		command := transition.CommandEnvelope{
+			MachineKind: transition.MachineProposalLine,
+			AggregateID: proposal.ID,
+			CommandKind: string(transition.CommandProposalResumeExecution),
+			CommandID:   fmt.Sprintf("cmd-proposal-reconcile-resume:%s:%d", proposal.ID, now.UnixNano()),
+			Actor:       requestedBy,
+			OccurredAt:  now,
 			Payload: map[string]any{
-				"trigger":        string(improvement.AttemptTriggerOperatorRetry),
-				"candidate_key":  proposal.CandidateKey,
-				"risk_tier":      proposal.RiskTier,
-				"attempt_number": nextAttemptNumber,
+				"trigger":       string(improvement.AttemptTriggerOperatorRetry),
+				"candidate_key": proposal.CandidateKey,
+				"risk_tier":     proposal.RiskTier,
 			},
 		}
-		_, created, _, err := s.ensureQueuedOperationWorkItemLocked(op, item)
-		return created, err == nil, err
+		_, _, _, created, handled, err := s.resumeApprovedProposalAttemptLocked(command, proposal)
+		if err != nil {
+			return queue.WorkItem{}, false, err
+		}
+		return created, handled && created.ID != "", nil
 	}
 	attempt, ok := s.changeAttempts[proposal.CurrentAttemptID]
 	if !ok || isTerminalAttemptState(attempt.State) {
@@ -980,6 +1034,15 @@ func workspacePtr(item improvement.AttemptWorkspace, ok bool) *improvement.Attem
 	}
 	copy := item
 	return &copy
+}
+
+func timeOr(values ...time.Time) time.Time {
+	for _, value := range values {
+		if !value.IsZero() {
+			return value
+		}
+	}
+	return time.Time{}
 }
 
 func workspaceJobPtr(item improvement.RepoChangeJob, ok bool) *improvement.RepoChangeJob {

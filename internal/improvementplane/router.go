@@ -3,20 +3,20 @@ package improvementplane
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 
 	"github.com/piplabs/rsi-agent-platform/internal/app"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
-	"github.com/piplabs/rsi-agent-platform/internal/improvement"
-	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
-	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	"github.com/piplabs/rsi-agent-platform/internal/reviewui"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
+	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
 func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
@@ -51,9 +51,37 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 			app.WriteError(w, http.StatusBadRequest, err)
 			return
 		}
-		item, err := store.AddFeedback(body)
+		traceID, err := resolveFeedbackTargetTraceID(store, body)
 		if err != nil {
 			app.WriteError(w, http.StatusBadRequest, err)
+			return
+		}
+		now := time.Now().UTC()
+		receipt, err := submitProblemLineCommand(
+			store,
+			traceID,
+			transition.CommandProblemLineRecordFeedback,
+			firstNonEmptyString(body.ReviewerID, "ui-operator"),
+			now,
+			fmt.Sprintf("cmd-problem-line:feedback:%s:%d", traceID, now.UnixNano()),
+			map[string]any{
+				"trace_id":    traceID,
+				"target_type": string(body.TargetType),
+				"target_id":   strings.TrimSpace(body.TargetID),
+				"score":       body.Score,
+				"verdict":     strings.TrimSpace(body.Verdict),
+				"labels":      append([]string(nil), body.Labels...),
+				"notes":       body.Notes,
+				"reviewer_id": firstNonEmptyString(body.ReviewerID, "ui-operator"),
+			},
+		)
+		if err != nil {
+			app.WriteError(w, http.StatusBadRequest, err)
+			return
+		}
+		item, err := loadFeedbackFromReceipt(store, receipt)
+		if err != nil {
+			app.WriteError(w, http.StatusInternalServerError, err)
 			return
 		}
 		app.WriteJSON(w, http.StatusCreated, item)
@@ -88,24 +116,13 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 			)),
 		})
 	})
-	r.Post("/api/outcomes", func(w http.ResponseWriter, r *http.Request) {
-		var body outcome.Record
-		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-			app.WriteError(w, http.StatusBadRequest, err)
+	r.Post("/api/problem-lines/{aggregateID}/commands", func(w http.ResponseWriter, r *http.Request) {
+		aggregateID := chi.URLParam(r, "aggregateID")
+		receipt, ok := app.SubmitMachineCommand(w, r, store, transition.MachineProblemLine, aggregateID, "ui-operator")
+		if !ok {
 			return
 		}
-		if body.Source == "" {
-			body.Source = "operator"
-		}
-		if body.RecordedBy == "" {
-			body.RecordedBy = "ui-operator"
-		}
-		item, err := store.RecordOutcome(body)
-		if err != nil {
-			app.WriteError(w, http.StatusBadRequest, err)
-			return
-		}
-		app.WriteJSON(w, http.StatusCreated, item)
+		app.WriteJSON(w, http.StatusAccepted, receipt)
 	})
 	r.Get("/api/knowledge", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
@@ -126,34 +143,13 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 		}
 		app.WriteJSON(w, http.StatusOK, payload)
 	})
-	r.Post("/api/knowledge/{knowledgeID}/review", func(w http.ResponseWriter, r *http.Request) {
+	r.Post("/api/knowledge/{knowledgeID}/commands", func(w http.ResponseWriter, r *http.Request) {
 		knowledgeID := chi.URLParam(r, "knowledgeID")
-		var body knowledge.Review
-		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-			app.WriteError(w, http.StatusBadRequest, err)
+		receipt, ok := app.SubmitMachineCommand(w, r, store, transition.MachineKnowledge, knowledgeID, "ui-operator")
+		if !ok {
 			return
 		}
-		if body.ReviewerID == "" {
-			body.ReviewerID = "ui-operator"
-		}
-		item, err := store.ReviewKnowledgeEntry(knowledgeID, body)
-		if err != nil {
-			app.WriteError(w, http.StatusBadRequest, err)
-			return
-		}
-		app.WriteJSON(w, http.StatusOK, item)
-	})
-	r.Post("/api/traces/{traceID}/evaluate", func(w http.ResponseWriter, r *http.Request) {
-		traceID := chi.URLParam(r, "traceID")
-		run, judgments, err := store.EvaluateTrace(traceID, "manual")
-		if err != nil {
-			app.WriteError(w, http.StatusNotFound, err)
-			return
-		}
-		app.WriteJSON(w, http.StatusCreated, map[string]interface{}{
-			"eval_run":  run,
-			"judgments": judgments,
-		})
+		app.WriteJSON(w, http.StatusAccepted, receipt)
 	})
 	r.Get("/api/traces/{traceID}", func(w http.ResponseWriter, r *http.Request) {
 		traceID := chi.URLParam(r, "traceID")
@@ -170,12 +166,28 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 			RequestedBy string `json:"requested_by"`
 		}
 		_ = json.NewDecoder(r.Body).Decode(&payload)
-		item, err := store.ScheduleReplay(traceID, payload.RequestedBy)
-		if err != nil {
-			app.WriteError(w, http.StatusNotFound, err)
+		if _, ok := store.GetTrace(traceID); !ok {
+			app.WriteError(w, http.StatusNotFound, errors.New("trace not found"))
 			return
 		}
-		app.WriteJSON(w, http.StatusAccepted, item)
+		now := time.Now().UTC()
+		requestedBy := firstNonEmptyString(payload.RequestedBy, "ui-operator")
+		receipt, err := submitProblemLineCommand(
+			store,
+			traceID,
+			transition.CommandProblemLineScheduleReplay,
+			requestedBy,
+			now,
+			fmt.Sprintf("cmd-problem-line:replay:%s:%d", traceID, now.UnixNano()),
+			map[string]any{
+				"requested_by": requestedBy,
+			},
+		)
+		if err != nil {
+			app.WriteError(w, http.StatusBadRequest, err)
+			return
+		}
+		app.WriteJSON(w, http.StatusAccepted, receipt)
 	})
 	r.Get("/api/proposals", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
@@ -216,73 +228,36 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 	r.Get("/api/settings", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, store.GetSettings())
 	})
-	r.Post("/api/settings", func(w http.ResponseWriter, r *http.Request) {
-		var body struct {
-			ActiveProposalCap int `json:"active_proposal_cap"`
-		}
-		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-			app.WriteError(w, http.StatusBadRequest, err)
+	r.Post("/api/settings/commands", func(w http.ResponseWriter, r *http.Request) {
+		receipt, ok := app.SubmitMachineCommand(w, r, store, transition.MachineSettings, "settings", "ui-operator")
+		if !ok {
 			return
 		}
-		item, err := store.UpdateSettings(improvement.Settings{ActiveProposalCap: body.ActiveProposalCap})
-		if err != nil {
-			app.WriteError(w, http.StatusBadRequest, err)
-			return
-		}
-		app.WriteJSON(w, http.StatusOK, item)
+		app.WriteJSON(w, http.StatusAccepted, receipt)
 	})
-	r.Post("/api/proposals/promote", func(w http.ResponseWriter, r *http.Request) {
-		var payload struct {
-			RequestedBy string `json:"requested_by"`
-		}
-		_ = json.NewDecoder(r.Body).Decode(&payload)
-		result, err := store.RunProposalPromoter(payload.RequestedBy)
-		if err != nil {
-			app.WriteError(w, http.StatusConflict, err)
-			return
-		}
-		app.WriteJSON(w, http.StatusAccepted, result)
-	})
-	r.Post("/api/proposals/{proposalID}/decision", func(w http.ResponseWriter, r *http.Request) {
+	r.Post("/api/proposals/{proposalID}/commands", func(w http.ResponseWriter, r *http.Request) {
 		proposalID := chi.URLParam(r, "proposalID")
-		var body review.ProposalReview
-		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-			app.WriteError(w, http.StatusBadRequest, err)
+		receipt, ok := app.SubmitMachineCommand(w, r, store, transition.MachineProposalLine, proposalID, "ui-operator")
+		if !ok {
 			return
 		}
-		item, err := store.ReviewProposal(proposalID, body)
-		if err != nil {
-			app.WriteError(w, http.StatusNotFound, err)
-			return
-		}
-		app.WriteJSON(w, http.StatusOK, item)
+		app.WriteJSON(w, http.StatusAccepted, receipt)
 	})
-	r.Post("/api/proposals/{proposalID}/retry", func(w http.ResponseWriter, r *http.Request) {
-		proposalID := chi.URLParam(r, "proposalID")
-		var payload struct {
-			RequestedBy string `json:"requested_by"`
-		}
-		_ = json.NewDecoder(r.Body).Decode(&payload)
-		item, err := store.RetryProposalRepoChange(proposalID, payload.RequestedBy)
-		if err != nil {
-			app.WriteError(w, http.StatusConflict, err)
+	r.Post("/api/attempts/{attemptID}/commands", func(w http.ResponseWriter, r *http.Request) {
+		attemptID := chi.URLParam(r, "attemptID")
+		receipt, ok := app.SubmitMachineCommand(w, r, store, transition.MachineAttempt, attemptID, "ui-operator")
+		if !ok {
 			return
 		}
-		app.WriteJSON(w, http.StatusAccepted, item)
+		app.WriteJSON(w, http.StatusAccepted, receipt)
 	})
-	r.Post("/api/proposals/{proposalID}/stop", func(w http.ResponseWriter, r *http.Request) {
-		proposalID := chi.URLParam(r, "proposalID")
-		var payload struct {
-			RequestedBy string `json:"requested_by"`
-			Rationale   string `json:"rationale"`
-		}
-		_ = json.NewDecoder(r.Body).Decode(&payload)
-		item, err := store.StopProposalLine(proposalID, payload.RequestedBy, payload.Rationale)
-		if err != nil {
-			app.WriteError(w, http.StatusConflict, err)
+	r.Post("/api/harness/{overlayID}/commands", func(w http.ResponseWriter, r *http.Request) {
+		overlayID := chi.URLParam(r, "overlayID")
+		receipt, ok := app.SubmitMachineCommand(w, r, store, transition.MachineHarness, overlayID, "ui-operator")
+		if !ok {
 			return
 		}
-		app.WriteJSON(w, http.StatusOK, item)
+		app.WriteJSON(w, http.StatusAccepted, receipt)
 	})
 	r.Get("/api/cron/status", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
@@ -312,9 +287,24 @@ func normalizeProposalSlots(state storepkg.ProposalSlotState) storepkg.ProposalS
 
 func RunCron(cfg config.Config, store storepkg.Repository, once bool) {
 	run := func() {
-		result, err := store.RunProposalPromoter(cfg.ServiceName)
+		receipt, err := submitProblemLineCommand(
+			store,
+			"problem-lines",
+			transition.CommandProblemLinePromote,
+			cfg.ServiceName,
+			time.Now().UTC(),
+			fmt.Sprintf("cmd-problem-line:promote:%s:%d", cfg.ServiceName, time.Now().UTC().UnixNano()),
+			map[string]any{
+				"requested_by": cfg.ServiceName,
+			},
+		)
 		if err != nil {
 			log.Printf("improvement-plane cron error: %v", err)
+			return
+		}
+		result, err := loadPromotionResultFromReceipt(store, receipt)
+		if err != nil {
+			log.Printf("improvement-plane cron result error: %v", err)
 			return
 		}
 		log.Printf("improvement-plane cron promoted=%d blocked_by_cap=%t stale=%v ids=%v", result.Promoted, result.BlockedByCap, result.StaleProposalIDs, result.PromotedIDs)

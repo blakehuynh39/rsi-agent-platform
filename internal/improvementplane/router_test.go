@@ -14,9 +14,121 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
+	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
+	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
+
+func seedRouterActionIntent(t *testing.T, store *storepkg.MemoryStore, intent action.Intent, prefix string, resultPayload map[string]any) action.Intent {
+	t.Helper()
+	now := intent.CreatedAt
+	if now.IsZero() {
+		now = time.Now().UTC()
+	}
+	if intent.ID == "" {
+		intent.ID = prefix + "-action"
+	}
+	if _, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineAction,
+		AggregateID: intent.ID,
+		CommandKind: string(transition.CommandActionQueue),
+		CommandID:   prefix + "-queue",
+		OccurredAt:  now,
+		Payload: map[string]any{
+			"conversation_id": intent.ConversationID,
+			"case_id":         intent.CaseID,
+			"trace_id":        intent.TraceID,
+			"kind":            string(intent.Kind),
+			"target_ref":      intent.TargetRef,
+			"request_payload": intent.RequestPayload,
+		},
+	}); err != nil {
+		t.Fatalf("SubmitCommand(action_queued) error = %v", err)
+	}
+	if resultPayload != nil {
+		startedAt := now
+		completedAt := now.Add(time.Second)
+		if _, err := store.SubmitCommand(transition.CommandEnvelope{
+			MachineKind: transition.MachineAction,
+			AggregateID: intent.ID,
+			CommandKind: string(transition.CommandActionStart),
+			CommandID:   prefix + "-start",
+			OccurredAt:  startedAt,
+			Payload:     map[string]any{"operation_id": prefix + "-op"},
+		}); err != nil {
+			t.Fatalf("SubmitCommand(action_started) error = %v", err)
+		}
+		payload := map[string]any{
+			"operation_id": prefix + "-op",
+			"started_at":   startedAt,
+			"completed_at": completedAt,
+		}
+		for key, value := range resultPayload {
+			payload[key] = value
+		}
+		if _, err := store.SubmitCommand(transition.CommandEnvelope{
+			MachineKind: transition.MachineAction,
+			AggregateID: intent.ID,
+			CommandKind: string(transition.CommandActionSucceed),
+			CommandID:   prefix + "-succeed",
+			OccurredAt:  completedAt,
+			Payload:     payload,
+		}); err != nil {
+			t.Fatalf("SubmitCommand(action_succeeded) error = %v", err)
+		}
+	}
+	created, ok := store.GetActionIntent(intent.ID)
+	if !ok {
+		t.Fatalf("expected action intent %s", intent.ID)
+	}
+	return created
+}
+
+func seedRouterKnowledgeEntry(t *testing.T, store *storepkg.MemoryStore, entryID string, entry knowledge.Entry, links []knowledge.EvidenceLink, commandID string) knowledge.Entry {
+	t.Helper()
+	occurredAt := entry.UpdatedAt
+	if occurredAt.IsZero() {
+		occurredAt = entry.CreatedAt
+	}
+	if occurredAt.IsZero() {
+		occurredAt = time.Now().UTC()
+	}
+	createdAt := entry.CreatedAt
+	if createdAt.IsZero() {
+		createdAt = occurredAt
+	}
+	if _, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineKnowledge,
+		AggregateID: entryID,
+		CommandKind: string(transition.CommandKnowledgeRecordDraft),
+		CommandID:   commandID,
+		Actor:       "tester",
+		OccurredAt:  occurredAt,
+		Payload: map[string]any{
+			"tier":           string(entry.Tier),
+			"kind":           string(entry.Kind),
+			"scope_type":     string(entry.ScopeType),
+			"scope_id":       entry.ScopeID,
+			"title":          entry.Title,
+			"summary":        entry.Summary,
+			"body":           entry.Body,
+			"status":         string(entry.Status),
+			"confidence":     entry.Confidence,
+			"source_type":    string(entry.SourceType),
+			"created_at":     createdAt,
+			"updated_at":     occurredAt,
+			"evidence_links": links,
+		},
+	}); err != nil {
+		t.Fatalf("SubmitCommand(knowledge_record_draft) error = %v", err)
+	}
+	created, ok := store.GetKnowledgeEntry(entryID)
+	if !ok {
+		t.Fatalf("expected knowledge entry %s", entryID)
+	}
+	return created
+}
 
 func TestRouterConversationCaseAndTraceEndpoints(t *testing.T) {
 	store := storepkg.NewMemoryStore()
@@ -29,43 +141,39 @@ func TestRouterConversationCaseAndTraceEndpoints(t *testing.T) {
 		t.Fatal("expected seeded trace detail")
 	}
 	now := time.Now().UTC()
-	intent, err := store.UpsertActionIntent(action.Intent{
+	seedRouterActionIntent(t, store, action.Intent{
 		ConversationID: trace.Summary.ConversationID,
 		CaseID:         trace.Summary.CaseID,
 		TraceID:        trace.Summary.TraceID,
 		Kind:           action.KindSlackPost,
-		Status:         action.StatusSucceeded,
 		CreatedAt:      now,
-		UpdatedAt:      now,
+	}, "router-conversation", map[string]any{
+		"executor":     "tool-gateway",
+		"provider":     "slack",
+		"provider_ref": "slack-provider-ref",
 	})
-	if err != nil {
-		t.Fatalf("upsert action intent: %v", err)
-	}
-	if _, err := store.RecordActionResult(action.Result{
-		ActionIntentID: intent.ID,
-		Executor:       "tool-gateway",
-		Provider:       "slack",
-		Status:         action.StatusSucceeded,
-		StartedAt:      now,
-		CompletedAt:    now,
+	if _, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineProblemLine,
+		AggregateID: trace.Summary.TraceID,
+		CommandKind: string(transition.CommandProblemLineRecordOutcome),
+		CommandID:   "router-conversation-outcome",
+		Actor:       "tester",
+		OccurredAt:  now,
+		Payload: map[string]any{
+			"source":          "operator",
+			"recorded_by":     "tester",
+			"conversation_id": trace.Summary.ConversationID,
+			"case_id":         trace.Summary.CaseID,
+			"trace_id":        trace.Summary.TraceID,
+			"outcome_type":    string(outcome.TypeAnswerQuality),
+			"verdict":         string(outcome.VerdictPositive),
+			"score":           1,
+			"summary":         "Trace resolved the question well.",
+		},
 	}); err != nil {
-		t.Fatalf("record action result: %v", err)
+		t.Fatalf("SubmitCommand(problem_line_record_outcome) error = %v", err)
 	}
-	if _, err := store.RecordOutcome(outcome.Record{
-		Source:         "operator",
-		RecordedBy:     "tester",
-		ConversationID: trace.Summary.ConversationID,
-		CaseID:         trace.Summary.CaseID,
-		TraceID:        trace.Summary.TraceID,
-		OutcomeType:    outcome.TypeAnswerQuality,
-		Verdict:        outcome.VerdictPositive,
-		Score:          1,
-		Summary:        "Trace resolved the question well.",
-		RecordedAt:     now,
-	}); err != nil {
-		t.Fatalf("record outcome: %v", err)
-	}
-	entry, err := store.UpsertKnowledgeEntry(knowledge.Entry{
+	entry := seedRouterKnowledgeEntry(t, store, "knowledge-trace-learning", knowledge.Entry{
 		Tier:       knowledge.TierWorking,
 		Kind:       knowledge.KindFact,
 		ScopeType:  knowledge.ScopeCase,
@@ -83,10 +191,7 @@ func TestRouterConversationCaseAndTraceEndpoints(t *testing.T) {
 			EvidenceID:   trace.Summary.TraceID,
 			EvidenceRef:  events.EvidenceRef{Kind: "trace", Ref: trace.Summary.TraceID, Summary: trace.Summary.WorkflowKind},
 		},
-	})
-	if err != nil {
-		t.Fatalf("upsert knowledge entry: %v", err)
-	}
+	}, "router-conversation-knowledge")
 	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
 
 	listReq := httptest.NewRequest(http.MethodGet, "/api/conversations", nil)
@@ -229,6 +334,90 @@ func TestRouterConversationCaseAndTraceEndpoints(t *testing.T) {
 	router.ServeHTTP(knowledgeDetailRec, knowledgeDetailReq)
 	if knowledgeDetailRec.Code != http.StatusOK {
 		t.Fatalf("knowledge detail status = %d, want %d", knowledgeDetailRec.Code, http.StatusOK)
+	}
+}
+
+func TestRouterFeedbackAndReplayRoutesSubmitProblemLineCommands(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	traceID := store.ListTraces()[0].TraceID
+	trace, ok := store.GetTrace(traceID)
+	if !ok {
+		t.Fatal("expected seeded trace")
+	}
+	now := time.Now().UTC()
+	intent := seedRouterActionIntent(t, store, action.Intent{
+		ConversationID: trace.Summary.ConversationID,
+		CaseID:         trace.Summary.CaseID,
+		TraceID:        traceID,
+		Kind:           action.KindToolRead,
+		CreatedAt:      now,
+	}, "router-feedback", map[string]any{
+		"executor":     "tool-gateway",
+		"provider":     "github",
+		"provider_ref": "repo-activity-ref",
+	})
+	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
+
+	feedbackReq := httptest.NewRequest(http.MethodPost, "/api/feedback", strings.NewReader(`{
+		"target_type":"action_intent",
+		"target_id":"`+intent.ID+`",
+		"verdict":"useful",
+		"reviewer_id":"alice"
+	}`))
+	feedbackRec := httptest.NewRecorder()
+	router.ServeHTTP(feedbackRec, feedbackReq)
+	if feedbackRec.Code != http.StatusCreated {
+		t.Fatalf("feedback status = %d, want %d", feedbackRec.Code, http.StatusCreated)
+	}
+	foundFeedbackEvent := false
+	for _, item := range store.ListDomainEvents() {
+		if item.EventKind == "problem_line_feedback_recorded" {
+			foundFeedbackEvent = true
+			break
+		}
+	}
+	if !foundFeedbackEvent {
+		t.Fatal("expected feedback route to record a problem-line domain event")
+	}
+
+	replayReq := httptest.NewRequest(http.MethodPost, "/api/traces/"+traceID+"/replay", strings.NewReader(`{"requested_by":"alice"}`))
+	replayRec := httptest.NewRecorder()
+	router.ServeHTTP(replayRec, replayReq)
+	if replayRec.Code != http.StatusAccepted {
+		t.Fatalf("replay status = %d, want %d", replayRec.Code, http.StatusAccepted)
+	}
+	var replayReceipt transition.CommandReceipt
+	if err := json.NewDecoder(replayRec.Body).Decode(&replayReceipt); err != nil {
+		t.Fatalf("decode replay receipt: %v", err)
+	}
+	if replayReceipt.MachineKind != transition.MachineProblemLine || replayReceipt.CommandKind != string(transition.CommandProblemLineScheduleReplay) {
+		t.Fatalf("unexpected replay receipt %+v", replayReceipt)
+	}
+	foundReplayEvent := false
+	foundEvalReceipt := false
+	foundEvalEffect := false
+	for _, item := range store.ListDomainEvents() {
+		if item.EventKind == "problem_line_replay_scheduled" {
+			foundReplayEvent = true
+		}
+	}
+	if _, ok := store.GetCommandReceipt(replayReceipt.CommandID + ":evaluate"); ok {
+		foundEvalReceipt = true
+	}
+	for _, effect := range store.ListEffectExecutions() {
+		if effect.MachineKind == transition.MachineProblemLine && effect.AggregateID == traceID && effect.EffectKind == transition.EffectInvokeRunner && effect.Status == transition.EffectQueued {
+			foundEvalEffect = true
+			break
+		}
+	}
+	if !foundReplayEvent {
+		t.Fatal("expected replay route to record a problem-line domain event")
+	}
+	if !foundEvalReceipt {
+		t.Fatal("expected replay route to emit a follow-on eval command receipt")
+	}
+	if !foundEvalEffect {
+		t.Fatal("expected replay route to queue a problem-line eval runner effect")
 	}
 }
 
@@ -474,12 +663,19 @@ func TestRouterProposalRetryEndpoint(t *testing.T) {
 	if _, err := store.UpdateRepoChangeJobStatus(job.ID, string(review.ProposalFailedValidation)); err != nil {
 		t.Fatalf("update repo change job status: %v", err)
 	}
-	if _, err := store.UpdateProposalStatus(proposal.ID, review.ProposalFailedValidation); err != nil {
-		t.Fatalf("update proposal status: %v", err)
+	if _, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineProposalLine,
+		AggregateID: proposal.ID,
+		CommandKind: string(transition.CommandProposalMarkFailedValidation),
+		CommandID:   "cmd-router-proposal-failed-validation",
+		Actor:       "operator",
+		OccurredAt:  time.Now().UTC(),
+	}); err != nil {
+		t.Fatalf("SubmitCommand(proposal_mark_failed_validation) error = %v", err)
 	}
 
 	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
-	req := httptest.NewRequest(http.MethodPost, "/api/proposals/"+proposal.ID+"/retry", strings.NewReader(`{"requested_by":"ui-operator"}`))
+	req := httptest.NewRequest(http.MethodPost, "/api/proposals/"+proposal.ID+"/commands", strings.NewReader(`{"command_kind":"proposal_retry_attempt","actor":"ui-operator"}`))
 	req.Header.Set("Content-Type", "application/json")
 	rec := httptest.NewRecorder()
 	router.ServeHTTP(rec, req)
@@ -487,12 +683,17 @@ func TestRouterProposalRetryEndpoint(t *testing.T) {
 		t.Fatalf("retry proposal status = %d, want %d", rec.Code, http.StatusAccepted)
 	}
 
-	var item map[string]any
-	if err := json.NewDecoder(rec.Body).Decode(&item); err != nil {
+	var receipt transition.CommandReceipt
+	if err := json.NewDecoder(rec.Body).Decode(&receipt); err != nil {
 		t.Fatalf("decode retry response: %v", err)
 	}
-	if got, _ := item["queue"].(string); got != "sandbox" {
-		t.Fatalf("expected sandbox retry queue, got %q", got)
+	if receipt.ResultRef == "" {
+		t.Fatal("expected retry command to return a resumable work item ref")
+	}
+	if queued, ok := findWorkItemByID(store.ListWorkItems(), receipt.ResultRef); !ok {
+		t.Fatalf("expected work item %s to exist", receipt.ResultRef)
+	} else if queued.Queue != "sandbox" {
+		t.Fatalf("expected sandbox retry queue, got %q", queued.Queue)
 	}
 }
 
@@ -508,19 +709,105 @@ func TestRouterProposalStopEndpoint(t *testing.T) {
 	}
 
 	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
-	req := httptest.NewRequest(http.MethodPost, "/api/proposals/"+proposal.ID+"/stop", strings.NewReader(`{"requested_by":"ui-operator","rationale":"Stop this remediation line."}`))
+	req := httptest.NewRequest(http.MethodPost, "/api/proposals/"+proposal.ID+"/commands", strings.NewReader(`{"command_kind":"proposal_stop_line","actor":"ui-operator","payload":{"rationale":"Stop this remediation line."}}`))
 	req.Header.Set("Content-Type", "application/json")
 	rec := httptest.NewRecorder()
 	router.ServeHTTP(rec, req)
-	if rec.Code != http.StatusOK {
-		t.Fatalf("stop proposal status = %d, want %d", rec.Code, http.StatusOK)
+	if rec.Code != http.StatusAccepted {
+		t.Fatalf("stop proposal status = %d, want %d", rec.Code, http.StatusAccepted)
 	}
 
-	var item map[string]any
-	if err := json.NewDecoder(rec.Body).Decode(&item); err != nil {
-		t.Fatalf("decode stop response: %v", err)
+	var receipt transition.CommandReceipt
+	if err := json.NewDecoder(rec.Body).Decode(&receipt); err != nil {
+		t.Fatalf("decode stop receipt: %v", err)
 	}
-	if got, _ := item["status"].(string); got != string(review.ProposalCanceled) {
-		t.Fatalf("expected canceled status, got %q", got)
+	updated, ok := findProposalByID(store.ListProposals(), proposal.ID)
+	if !ok {
+		t.Fatal("expected proposal to exist")
 	}
+	if updated.Status != review.ProposalCanceled {
+		t.Fatalf("expected canceled status, got %q", updated.Status)
+	}
+}
+
+func TestRouterCommandEndpointsEvaluateTraceAndUpdateSettings(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	traceID := store.ListTraces()[0].TraceID
+	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
+
+	evalReq := httptest.NewRequest(http.MethodPost, "/api/problem-lines/"+traceID+"/commands", strings.NewReader(`{"command_kind":"problem_line_evaluate_trace","actor":"ui-operator","payload":{"trigger":"manual"}}`))
+	evalReq.Header.Set("Content-Type", "application/json")
+	evalRec := httptest.NewRecorder()
+	router.ServeHTTP(evalRec, evalReq)
+	if evalRec.Code != http.StatusAccepted {
+		t.Fatalf("evaluate command status = %d, want %d", evalRec.Code, http.StatusAccepted)
+	}
+
+	settingsReq := httptest.NewRequest(http.MethodPost, "/api/settings/commands", strings.NewReader(`{"command_kind":"settings_update","actor":"ui-operator","payload":{"active_proposal_cap":1}}`))
+	settingsReq.Header.Set("Content-Type", "application/json")
+	settingsRec := httptest.NewRecorder()
+	router.ServeHTTP(settingsRec, settingsReq)
+	if settingsRec.Code != http.StatusAccepted {
+		t.Fatalf("settings command status = %d, want %d", settingsRec.Code, http.StatusAccepted)
+	}
+	if got := store.GetSettings().ActiveProposalCap; got != 1 {
+		t.Fatalf("expected proposal cap 1, got %d", got)
+	}
+	if len(store.ListEvalRuns()) == 0 {
+		t.Fatal("expected eval run to be created")
+	}
+}
+
+func TestLegacyMutationRoutesAbsent(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	traceID := store.ListTraces()[0].TraceID
+	proposalID := store.ListProposals()[0].ID
+	knowledgeEntry := seedRouterKnowledgeEntry(t, store, "knowledge-legacy-route-coverage", knowledge.Entry{
+		Tier:       knowledge.TierWorking,
+		Kind:       knowledge.KindFact,
+		ScopeType:  knowledge.ScopeGlobal,
+		Title:      "Legacy route coverage",
+		Status:     knowledge.StatusDraft,
+		SourceType: knowledge.SourceAgent,
+		CreatedAt:  time.Now().UTC(),
+		UpdatedAt:  time.Now().UTC(),
+	}, nil, "router-legacy-route-knowledge")
+	knowledgeID := knowledgeEntry.ID
+	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
+
+	for _, path := range []string{
+		"/api/traces/" + traceID + "/evaluate",
+		"/api/proposals/promote",
+		"/api/proposals/" + proposalID + "/decision",
+		"/api/proposals/" + proposalID + "/retry",
+		"/api/proposals/" + proposalID + "/stop",
+		"/api/knowledge/" + knowledgeID + "/review",
+		"/api/settings",
+	} {
+		req := httptest.NewRequest(http.MethodPost, path, strings.NewReader(`{}`))
+		req.Header.Set("Content-Type", "application/json")
+		rec := httptest.NewRecorder()
+		router.ServeHTTP(rec, req)
+		if rec.Code != http.StatusNotFound {
+			t.Fatalf("expected %s to be absent, got %d", path, rec.Code)
+		}
+	}
+}
+
+func findWorkItemByID(items []queue.WorkItem, workItemID string) (queue.WorkItem, bool) {
+	for _, item := range items {
+		if item.ID == workItemID {
+			return item, true
+		}
+	}
+	return queue.WorkItem{}, false
+}
+
+func findProposalByID(items []review.Proposal, proposalID string) (review.Proposal, bool) {
+	for _, item := range items {
+		if item.ID == proposalID {
+			return item, true
+		}
+	}
+	return review.Proposal{}, false
 }

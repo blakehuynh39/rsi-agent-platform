@@ -1,6 +1,7 @@
 package improvementplane
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -17,6 +18,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/runnerutil"
 	"github.com/piplabs/rsi-agent-platform/internal/sandbox"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
+	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
 const (
@@ -55,13 +57,8 @@ func resolveProposalOperationKind(store storepkg.Store, item queue.WorkItem) str
 		proposalOperationWorkspaceValidate:
 		return strings.TrimSpace(item.Kind)
 	default:
-		return proposalOperationLineActivate
+		return ""
 	}
-}
-
-func queueProposalAttemptPhase(cfg config.Config, store storepkg.Store, proposal review.Proposal, trace events.Trace, attempt improvement.ChangeAttempt, operationKind string, payload map[string]any) (queue.WorkItem, error) {
-	op, item := proposalAttemptPhaseWork(cfg, proposal, trace, attempt, operationKind, payload)
-	return enqueueImprovementOperationWork(store, op, item)
 }
 
 func proposalAttemptPhaseWork(cfg config.Config, proposal review.Proposal, trace events.Trace, attempt improvement.ChangeAttempt, operationKind string, payload map[string]any) (operation.Execution, queue.WorkItem) {
@@ -100,18 +97,36 @@ func proposalAttemptPhaseWork(cfg config.Config, proposal review.Proposal, trace
 
 func processProposalLineActivate(cfg config.Config, store storepkg.Store, proposal review.Proposal, trace events.Trace, item queue.WorkItem) error {
 	attempt, attemptTrace, err := ensureProposalAttempt(cfg, store, proposal, trace, item)
+	attemptTraceReq := (*storepkg.DerivedTraceRequest)(nil)
 	if err != nil {
-		return err
+		if !errors.Is(err, errProposalAttemptNotMaterialized) {
+			return err
+		}
+		var derivedTraceReq storepkg.DerivedTraceRequest
+		attempt, derivedTraceReq = prepareProposalAttempt(cfg, proposal, trace, item)
+		attemptTraceReq = &derivedTraceReq
+		attemptTrace = events.Trace{}
+	} else {
+		attemptTraceReq = nil
 	}
 	now := time.Now().UTC()
 	nextOp, nextItem := proposalAttemptPhaseWork(cfg, proposal, attemptTrace, attempt, proposalOperationAttemptPlan, clonePayload(item.Payload))
-	if err := store.AdvanceProposalAttemptPhase(storepkg.ProposalAttemptPhaseAdvance{
-		ProposalID:  proposal.ID,
-		WorkItemID:  item.ID,
-		OperationID: item.OperationID,
-		Attempt:     &attempt,
-		TraceID:     attemptTrace.Summary.TraceID,
-		TraceUpdate: &storepkg.TraceUpdate{
+	if attemptTraceReq != nil {
+		nextOp.TraceID = ""
+		nextItem.TraceID = ""
+	}
+	advance := storepkg.ProposalAttemptPhaseAdvance{
+		ProposalID:    proposal.ID,
+		WorkItemID:    item.ID,
+		OperationID:   item.OperationID,
+		Attempt:       &attempt,
+		AttemptTrace:  attemptTraceReq,
+		NextOperation: &nextOp,
+		NextWorkItem:  &nextItem,
+	}
+	if attemptTraceReq == nil {
+		advance.TraceID = attemptTrace.Summary.TraceID
+		advance.TraceUpdate = &storepkg.TraceUpdate{
 			Events: []events.TraceEvent{
 				{
 					TraceID:     attemptTrace.Summary.TraceID,
@@ -126,10 +141,9 @@ func processProposalLineActivate(cfg config.Config, store storepkg.Store, propos
 					Description: fmt.Sprintf("Activated proposal line %s and queued %s for attempt %s.", proposal.ID, proposalOperationAttemptPlan, attempt.ID),
 				},
 			},
-		},
-		NextOperation: &nextOp,
-		NextWorkItem:  &nextItem,
-	}); err != nil {
+		}
+	}
+	if err := store.AdvanceProposalAttemptPhase(advance); err != nil {
 		return err
 	}
 	return errProposalPhaseHandled
@@ -292,16 +306,12 @@ func processProposalImplementAttempt(cfg config.Config, store storepkg.Store, ru
 		if workspace == nil {
 			return fmt.Errorf("attempt %s missing workspace for implement phase", attempt.ID)
 		}
-		workspace.Status = improvement.WorkspaceExecuting
-		workspace.UpdatedAt = time.Now().UTC()
-		if _, err := store.UpsertAttemptWorkspace(*workspace); err != nil {
-			return err
-		}
 	}
 	memories := filterProposalMemory(store.ListProposalMemories(), proposal.CandidateKey)
 	runnerStarted := time.Now().UTC()
-	_, _ = store.ApplyTraceUpdate(attemptTrace.Summary.TraceID, storepkg.TraceUpdate{
-		Events: []events.TraceEvent{
+	runnerStartPayload := map[string]any{
+		"operation_id": item.OperationID,
+		"trace_events": []events.TraceEvent{
 			{
 				TraceID:     attemptTrace.Summary.TraceID,
 				IngestionID: attemptTrace.Summary.IngestionID,
@@ -315,7 +325,13 @@ func processProposalImplementAttempt(cfg config.Config, store storepkg.Store, ru
 				Description: fmt.Sprintf("Change attempt %s dispatched to proposal runner.", attempt.ID),
 			},
 		},
-	})
+	}
+	if workspace != nil {
+		runnerStartPayload["workspace_id"] = workspace.ID
+	}
+	if err := submitAttemptCommand(store, attempt, transition.CommandAttemptRunnerStarted, cfg.ServiceName, runnerStarted, runnerStartPayload); err != nil {
+		return err
+	}
 	var (
 		runnerResp   clients.RunnerResponse
 		runnerOutput runnerutil.StructuredOutput
@@ -474,8 +490,9 @@ func processProposalImplementAttempt(cfg config.Config, store storepkg.Store, ru
 			CreatedAt:  now,
 		})
 	}
-	_, _ = store.ApplyTraceUpdate(attemptTrace.Summary.TraceID, storepkg.TraceUpdate{
-		Events: []events.TraceEvent{
+	if err := submitAttemptCommand(store, attempt, transition.CommandAttemptRunnerCompleted, cfg.ServiceName, now, map[string]any{
+		"operation_id": item.OperationID,
+		"trace_events": []events.TraceEvent{
 			{
 				TraceID:     attemptTrace.Summary.TraceID,
 				IngestionID: attemptTrace.Summary.IngestionID,
@@ -490,8 +507,10 @@ func processProposalImplementAttempt(cfg config.Config, store storepkg.Store, ru
 				Description: fmt.Sprintf("Proposal runner returned repo-change rationale using %s.", runnerRuntimeLabel(runnerResp)),
 			},
 		},
-		Reasoning: reasoning,
-	})
+		"reasoning_steps": reasoning,
+	}); err != nil {
+		return err
+	}
 	prAction, ok := proposedActionByKind(runnerOutput.ProposedActions, action.KindDraftPROpen)
 	payload := map[string]any{
 		"workspace_id":       workspace.ID,
@@ -505,30 +524,12 @@ func processProposalImplementAttempt(cfg config.Config, store storepkg.Store, ru
 	}
 	nextOp, nextItem := proposalAttemptPhaseWork(cfg, proposal, attemptTrace, attempt, proposalOperationWorkspaceValidate, payload)
 	if err := store.AdvanceProposalAttemptPhase(storepkg.ProposalAttemptPhaseAdvance{
-		ProposalID:  proposal.ID,
-		WorkItemID:  item.ID,
-		OperationID: item.OperationID,
-		Attempt:     &attempt,
-		Workspace:   workspace,
-		TraceID:     attemptTrace.Summary.TraceID,
-		TraceUpdate: &storepkg.TraceUpdate{
-			Events: []events.TraceEvent{
-				{
-					TraceID:     attemptTrace.Summary.TraceID,
-					IngestionID: attemptTrace.Summary.IngestionID,
-					WorkflowID:  attemptTrace.Summary.WorkflowID,
-					Plane:       "execution",
-					Service:     "runner",
-					Actor:       "proposal",
-					EventType:   "runner.completed",
-					Status:      events.StatusCompleted,
-					StartedAt:   runnerStarted,
-					EndedAt:     ptrTime(now),
-					Description: fmt.Sprintf("Proposal runner returned repo-change rationale using %s.", runnerRuntimeLabel(runnerResp)),
-				},
-			},
-			Reasoning: reasoning,
-		},
+		ProposalID:    proposal.ID,
+		WorkItemID:    item.ID,
+		OperationID:   item.OperationID,
+		Attempt:       &attempt,
+		Workspace:     workspace,
+		TraceID:       attemptTrace.Summary.TraceID,
 		NextOperation: &nextOp,
 		NextWorkItem:  &nextItem,
 	}); err != nil {
@@ -546,12 +547,43 @@ func processProposalWorkspaceValidate(cfg config.Config, store storepkg.Store, t
 	if !ok {
 		return fmt.Errorf("attempt %s missing workspace for validation phase", attempt.ID)
 	}
-	attempt.State = improvement.AttemptStateValidationRunning
-	attempt.UpdatedAt = time.Now().UTC()
-	if _, err := store.UpsertChangeAttempt(attempt); err != nil {
+	validationCommand := firstNonEmpty(strings.TrimSpace(stringValue(item.Payload["validation_command"])), workspaceValidationCommand(firstNonEmpty(attempt.ValidationPlan, proposal.ValidationPlan)))
+	validationStarted := time.Now().UTC()
+	if err := submitAttemptCommand(store, attempt, transition.CommandValidationStarted, cfg.ServiceName, validationStarted, map[string]any{
+		"operation_id":       item.OperationID,
+		"validation_summary": fmt.Sprintf("Running workspace validation for attempt %s with %q.", attempt.ID, validationCommand),
+		"trace_events": []events.TraceEvent{
+			{
+				TraceID:     attemptTrace.Summary.TraceID,
+				IngestionID: attemptTrace.Summary.IngestionID,
+				WorkflowID:  attemptTrace.Summary.WorkflowID,
+				Plane:       "execution",
+				Service:     cfg.ServiceName,
+				Actor:       "attempt-supervisor",
+				EventType:   "workspace.validation.started",
+				Status:      events.StatusRunning,
+				StartedAt:   validationStarted,
+				Description: fmt.Sprintf("Started workspace validation for attempt %s using %q.", attempt.ID, validationCommand),
+			},
+		},
+		"reasoning_steps": []events.ReasoningStep{
+			{
+				ID:         fmt.Sprintf("reason-workspace-validate-start-%d", validationStarted.UnixNano()),
+				TraceID:    attemptTrace.Summary.TraceID,
+				WorkflowID: attemptTrace.Summary.WorkflowID,
+				StepType:   "workspace_validate_start",
+				Summary:    fmt.Sprintf("Entered governed workspace validation for attempt %s.", attempt.ID),
+				Confidence: 0.84,
+				Decision:   validationCommand,
+				CreatedAt:  validationStarted,
+			},
+		},
+	}); err != nil {
 		return err
 	}
-	validationCommand := firstNonEmpty(strings.TrimSpace(stringValue(item.Payload["validation_command"])), workspaceValidationCommand(firstNonEmpty(attempt.ValidationPlan, proposal.ValidationPlan)))
+	if refreshed, exists := store.GetChangeAttempt(attempt.ID); exists {
+		attempt = refreshed
+	}
 	validationResult, execErr := toolClient.Execute("workspace.run_validation", map[string]any{
 		"trace_id":     attemptTrace.Summary.TraceID,
 		"workspace_id": workspace.ID,

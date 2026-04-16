@@ -28,11 +28,6 @@ func ensureAttemptWorkspace(cfg config.Config, store storepkg.Store, launcher sa
 				workspace.PodName = podName
 				workspace.Status = improvement.WorkspaceReady
 				workspace.UpdatedAt = time.Now().UTC()
-				updated, err := store.UpsertAttemptWorkspace(workspace)
-				if err != nil {
-					return improvement.AttemptWorkspace{}, false, err
-				}
-				workspace = updated
 			}
 		}
 		return workspace, workspace.PodName != "", nil
@@ -94,11 +89,6 @@ func ensureAttemptWorkspace(cfg config.Config, store storepkg.Store, launcher sa
 		CreatedAt:        time.Now().UTC(),
 		UpdatedAt:        time.Now().UTC(),
 	}
-	updated, err := store.UpsertAttemptWorkspace(workspace)
-	if err != nil {
-		return improvement.AttemptWorkspace{}, false, err
-	}
-	workspace = updated
 	return workspace, false, nil
 }
 
@@ -114,11 +104,11 @@ func ensureWorkspaceRepoChangeJob(store storepkg.Store, proposal review.Proposal
 			item.SandboxPodName = workspace.PodName
 			item.ValidationRef = firstNonEmpty(item.ValidationRef, fmt.Sprintf("%s/%s", workspace.Namespace, firstNonEmpty(workspace.PodName, workspace.JobName)))
 			item.UpdatedAt = time.Now().UTC()
-			return store.UpsertRepoChangeJob(item)
+			return item, nil
 		}
 	}
 	now := time.Now().UTC()
-	return store.UpsertRepoChangeJob(improvement.RepoChangeJob{
+	return improvement.RepoChangeJob{
 		ID:               fmt.Sprintf("job-%s", attempt.ID),
 		ProposalID:       proposal.ID,
 		AttemptID:        attempt.ID,
@@ -138,7 +128,7 @@ func ensureWorkspaceRepoChangeJob(store storepkg.Store, proposal review.Proposal
 		ValidationRef:    fmt.Sprintf("%s/%s", workspace.Namespace, firstNonEmpty(workspace.PodName, workspace.JobName)),
 		CreatedAt:        now,
 		UpdatedAt:        now,
-	})
+	}, nil
 }
 
 func workspaceOpenCommands() []string {

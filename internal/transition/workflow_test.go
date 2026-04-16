@@ -39,9 +39,10 @@ func TestReduceWorkflowRunnerCompletedQueuesReply(t *testing.T) {
 	}
 }
 
-func TestReduceWorkflowReplyPostedCompletesAndQueuesEval(t *testing.T) {
+func TestReduceWorkflowReplyPostedCompletesAndQueuesFollowOnEvalCommand(t *testing.T) {
 	decision := ReduceWorkflow(WorkflowSnapshot{
-		State: WorkflowStateReplyPending,
+		State:   WorkflowStateReplyPending,
+		TraceID: "trace-1",
 	}, CommandEnvelope{
 		MachineKind: MachineWorkflow,
 		CommandKind: string(CommandReplyPosted),
@@ -54,8 +55,11 @@ func TestReduceWorkflowReplyPostedCompletesAndQueuesEval(t *testing.T) {
 	if decision.NextState != WorkflowStateCompleted {
 		t.Fatalf("expected completed, got %s", decision.NextState)
 	}
-	if len(decision.Effects) != 1 || decision.Effects[0].Kind != EffectQueueEval {
-		t.Fatalf("expected queue_eval effect, got %+v", decision.Effects)
+	if len(decision.Commands) != 1 {
+		t.Fatalf("expected one follow-on command, got %+v", decision.Commands)
+	}
+	if decision.Commands[0].MachineKind != MachineProblemLine || decision.Commands[0].AggregateID != "trace-1" || decision.Commands[0].CommandKind != string(CommandProblemLineEvaluateTrace) {
+		t.Fatalf("expected follow-on problem-line evaluation command, got %+v", decision.Commands[0])
 	}
 }
 

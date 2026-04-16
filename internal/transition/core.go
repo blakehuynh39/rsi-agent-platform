@@ -5,6 +5,7 @@ import "time"
 type MachineKind string
 
 const (
+	MachineIngress      MachineKind = "ingress"
 	MachineWorkflow     MachineKind = "workflow"
 	MachineProblemLine  MachineKind = "problem_line"
 	MachineProposalLine MachineKind = "proposal_line"
@@ -12,6 +13,8 @@ const (
 	MachineAction       MachineKind = "action_execution"
 	MachineKnowledge    MachineKind = "knowledge_promotion"
 	MachineHarness      MachineKind = "harness"
+	MachineThreadPolicy MachineKind = "thread_policy"
+	MachineSettings     MachineKind = "platform_settings"
 )
 
 type DecisionKind string
@@ -25,18 +28,14 @@ const (
 type EffectKind string
 
 const (
-	EffectQueueAttemptPhase  EffectKind = "queue_attempt_phase"
-	EffectQueueWorkflow      EffectKind = "queue_workflow"
-	EffectQueueControlAction EffectKind = "queue_control_action"
-	EffectOpenWorkspace      EffectKind = "open_workspace"
-	EffectInvokeRunner       EffectKind = "invoke_runner"
-	EffectPostSlackReply     EffectKind = "post_slack_reply"
-	EffectQueueEval          EffectKind = "queue_eval"
-	EffectWorkspaceValidate  EffectKind = "workspace_validate"
-	EffectOpenDraftPR        EffectKind = "open_draft_pr"
-	EffectRecordOutcome      EffectKind = "record_outcome"
-	EffectScheduleRetry      EffectKind = "schedule_retry"
-	EffectRefreshProjection  EffectKind = "refresh_projection"
+	EffectInvokeAction               EffectKind = "invoke_action"
+	EffectOpenWorkspace              EffectKind = "open_workspace"
+	EffectInvokeRunner               EffectKind = "invoke_runner"
+	EffectPostSlackReply             EffectKind = "post_slack_reply"
+	EffectWorkspaceValidate          EffectKind = "workspace_validate"
+	EffectObserveWorkspaceValidation EffectKind = "observe_workspace_validation"
+	EffectOpenDraftPR                EffectKind = "open_draft_pr"
+	EffectRecordOutcome              EffectKind = "record_outcome"
 )
 
 type EffectStatus string
@@ -67,6 +66,15 @@ type DomainEventDescriptor struct {
 	Payload map[string]any `json:"payload,omitempty"`
 }
 
+type CommandDescriptor struct {
+	MachineKind MachineKind    `json:"machine_kind"`
+	AggregateID string         `json:"aggregate_id"`
+	CommandKind string         `json:"command_kind"`
+	CommandID   string         `json:"command_id,omitempty"`
+	Actor       string         `json:"actor,omitempty"`
+	Payload     map[string]any `json:"payload,omitempty"`
+}
+
 type EffectRequest struct {
 	Kind           EffectKind     `json:"kind"`
 	Status         EffectStatus   `json:"status"`
@@ -78,6 +86,7 @@ type TransitionDecision struct {
 	DecisionKind DecisionKind            `json:"decision_kind"`
 	Reason       string                  `json:"reason,omitempty"`
 	Events       []DomainEventDescriptor `json:"events,omitempty"`
+	Commands     []CommandDescriptor     `json:"commands,omitempty"`
 	Effects      []EffectRequest         `json:"effects,omitempty"`
 }
 

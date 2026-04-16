@@ -3,6 +3,7 @@ package store
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"slices"
 	"strings"
@@ -27,6 +28,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/registry"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	"github.com/piplabs/rsi-agent-platform/internal/slack"
+	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
 type PostgresStore struct {
@@ -3131,17 +3133,6 @@ func (p *PostgresStore) GetActionIntent(actionID string) (action.Intent, bool) {
 	return store.GetActionIntent(actionID)
 }
 
-func (p *PostgresStore) UpsertActionIntent(intent action.Intent) (item action.Intent, err error) {
-	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
-		item, err = store.UpsertActionIntent(intent)
-		if err != nil {
-			return err
-		}
-		return replaceActionIntentScope(tx, item)
-	})
-	return
-}
-
 func (p *PostgresStore) ListActionResults(actionIntentID string) []action.Result {
 	store, err := p.readStore()
 	if err != nil {
@@ -3150,50 +3141,12 @@ func (p *PostgresStore) ListActionResults(actionIntentID string) []action.Result
 	return store.ListActionResults(actionIntentID)
 }
 
-func (p *PostgresStore) RecordActionResult(result action.Result) (item action.Result, err error) {
-	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
-		item, err = store.RecordActionResult(result)
-		if err != nil {
-			return err
-		}
-		if err := insertActionResult(tx, item); err != nil {
-			return err
-		}
-		intent, ok := store.actionIntents[item.ActionIntentID]
-		if !ok {
-			return nil
-		}
-		return replaceActionIntentScope(tx, intent)
-	})
-	return
-}
-
 func (p *PostgresStore) ListOutcomes() []outcome.Record {
 	store, err := p.readStore()
 	if err != nil {
 		return nil
 	}
 	return store.ListOutcomes()
-}
-
-func (p *PostgresStore) RecordOutcome(record outcome.Record) (item outcome.Record, err error) {
-	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
-		item, err = store.RecordOutcome(record)
-		if err != nil {
-			return err
-		}
-		if err := replaceOutcomeScope(tx, item); err != nil {
-			return err
-		}
-		if err := replaceCaseScope(tx, item, store); err != nil {
-			return err
-		}
-		if item.ProposalID != "" {
-			return replaceProposalScope(tx, store, item.ProposalID)
-		}
-		return nil
-	})
-	return
 }
 
 func (p *PostgresStore) ListKnowledgeEntries() []knowledge.Entry {
@@ -3212,20 +3165,6 @@ func (p *PostgresStore) GetKnowledgeEntry(knowledgeID string) (knowledge.Entry, 
 	return store.GetKnowledgeEntry(knowledgeID)
 }
 
-func (p *PostgresStore) UpsertKnowledgeEntry(entry knowledge.Entry, links []knowledge.EvidenceLink) (item knowledge.Entry, err error) {
-	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
-		item, err = store.UpsertKnowledgeEntry(entry, links)
-		if err != nil {
-			return err
-		}
-		if err := replaceKnowledgeEntryScope(tx, item); err != nil {
-			return err
-		}
-		return replaceKnowledgeEvidenceScope(tx, store, item.ID)
-	})
-	return
-}
-
 func (p *PostgresStore) ListKnowledgeEvidenceLinks(knowledgeID string) []knowledge.EvidenceLink {
 	store, err := p.readStore()
 	if err != nil {
@@ -3242,45 +3181,12 @@ func (p *PostgresStore) ListKnowledgeReviews(knowledgeID string) []knowledge.Rev
 	return store.ListKnowledgeReviews(knowledgeID)
 }
 
-func (p *PostgresStore) ReviewKnowledgeEntry(knowledgeID string, item knowledge.Review) (entry knowledge.Entry, err error) {
-	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
-		entry, err = store.ReviewKnowledgeEntry(knowledgeID, item)
-		if err != nil {
-			return err
-		}
-		if err := replaceKnowledgeEntryScope(tx, entry); err != nil {
-			return err
-		}
-		if err := replaceKnowledgeEvidenceScope(tx, store, knowledgeID); err != nil {
-			return err
-		}
-		return replaceKnowledgeReviewScope(tx, store, knowledgeID)
-	})
-	return
-}
-
-func (p *PostgresStore) CreateEvent(event ingestion.EventEnvelope) (created ingestion.EventEnvelope, err error) {
-	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
-		var createErr error
-		created, createErr = store.CreateEvent(event)
-		if createErr != nil {
-			return createErr
-		}
-		return replaceEventMaterializationScope(tx, store, created)
-	})
-	return
-}
-
 func (p *PostgresStore) ListIngestions() []slack.Ingestion {
 	store, err := p.readStore()
 	if err != nil {
 		return nil
 	}
 	return store.ListIngestions()
-}
-
-func (p *PostgresStore) CreateIngestion(envelope slack.SlackEnvelope) (slack.Ingestion, error) {
-	return p.createIngestionDirect(envelope)
 }
 
 func (p *PostgresStore) ListWorkflows() []Workflow {
@@ -3313,18 +3219,6 @@ func (p *PostgresStore) ListChannelPolicies() []policy.ChannelPolicy {
 		return nil
 	}
 	return store.ListChannelPolicies()
-}
-
-func (p *PostgresStore) SetThreadState(threadKey string, state policy.ThreadState, owner string) (item policy.ThreadPolicy, err error) {
-	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
-		var inner error
-		item, inner = store.SetThreadState(threadKey, state, owner)
-		if inner != nil {
-			return inner
-		}
-		return replaceThreadPolicyScope(tx, item)
-	})
-	return
 }
 
 func (p *PostgresStore) ListOwnershipRecords() []registry.OwnershipRecord {
@@ -3399,54 +3293,6 @@ func (p *PostgresStore) ListFeedback(traceID string) []review.FeedbackRecord {
 	return store.ListFeedback(traceID)
 }
 
-func (p *PostgresStore) AddFeedback(record review.FeedbackRecord) (item review.FeedbackRecord, err error) {
-	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
-		item, err = store.AddFeedback(record)
-		if err != nil {
-			return err
-		}
-		return replaceFeedbackScope(tx, store, item.TraceID)
-	})
-	return
-}
-
-func (p *PostgresStore) AddRating(traceID string, rating review.HumanRating) (item review.HumanRating, err error) {
-	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
-		item, err = store.AddRating(traceID, rating)
-		if err != nil {
-			return err
-		}
-		return replaceRatingScope(tx, store, traceID)
-	})
-	return
-}
-
-func (p *PostgresStore) AddImprovementNote(traceID string, note review.ImprovementNote) (item review.ImprovementNote, err error) {
-	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
-		item, err = store.AddImprovementNote(traceID, note)
-		if err != nil {
-			return err
-		}
-		return replaceImprovementNotesScope(tx, store, traceID)
-	})
-	return
-}
-
-func (p *PostgresStore) ScheduleReplay(traceID string, requestedBy string) (item queue.WorkItem, err error) {
-	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
-		var inner error
-		item, inner = store.ScheduleReplay(traceID, requestedBy)
-		if inner != nil {
-			return inner
-		}
-		if err := replaceWorkItemScope(tx, item); err != nil {
-			return err
-		}
-		return replaceTraceScope(tx, store, traceID)
-	})
-	return
-}
-
 func (p *PostgresStore) ListEvalSuites() []evals.Suite {
 	store, err := p.readStore()
 	if err != nil {
@@ -3471,37 +3317,12 @@ func (p *PostgresStore) ListEvalJudgments(evalRunID string) []evals.Judgment {
 	return store.ListEvalJudgments(evalRunID)
 }
 
-func (p *PostgresStore) EvaluateTrace(traceID string, trigger string) (run evals.Run, judgments []evals.Judgment, err error) {
-	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
-		run, judgments, err = store.EvaluateTrace(traceID, trigger)
-		if err != nil {
-			return err
-		}
-		if err := replaceEvalRunScope(tx, run, judgments); err != nil {
-			return err
-		}
-		return replaceAllCandidates(tx, store)
-	})
-	return
-}
-
 func (p *PostgresStore) GetSettings() improvement.Settings {
 	store, err := p.readStore()
 	if err != nil {
 		return improvement.Settings{ActiveProposalCap: defaultProposalSlotCap}
 	}
 	return store.GetSettings()
-}
-
-func (p *PostgresStore) UpdateSettings(settings improvement.Settings) (item improvement.Settings, err error) {
-	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
-		item, err = store.UpdateSettings(settings)
-		if err != nil {
-			return err
-		}
-		return replaceSettingsScope(tx, item)
-	})
-	return
 }
 
 func (p *PostgresStore) ListWorkItems() []queue.WorkItem {
@@ -3737,40 +3558,6 @@ func (p *PostgresStore) FailWorkItem(id string, lastError string) (item queue.Wo
 	return
 }
 
-func (p *PostgresStore) UpdateWorkflowStatus(workflowID string, status string, lastError string) (item Workflow, err error) {
-	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
-		item, err = store.UpdateWorkflowStatus(workflowID, status, lastError)
-		if err != nil {
-			return err
-		}
-		return replaceWorkflowScope(tx, item)
-	})
-	return
-}
-
-func (p *PostgresStore) ApplyTraceUpdate(traceID string, update TraceUpdate) (trace events.Trace, err error) {
-	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
-		trace, err = store.ApplyTraceUpdate(traceID, update)
-		if err != nil {
-			return err
-		}
-		if err := replaceTraceAndWorkflowScope(tx, store, trace); err != nil {
-			return err
-		}
-		if trace.Summary.CaseID != "" {
-			if caseItem, ok := store.cases[trace.Summary.CaseID]; ok {
-				temp := newSubsetStore()
-				temp.cases[caseItem.ID] = caseItem
-				if err := persistCases(tx, temp); err != nil {
-					return err
-				}
-			}
-		}
-		return nil
-	})
-	return
-}
-
 func (p *PostgresStore) ListCandidates() []improvement.Candidate {
 	store, err := p.readStore()
 	if err != nil {
@@ -3795,31 +3582,6 @@ func (p *PostgresStore) GetProposalSlots() ProposalSlotState {
 	return store.GetProposalSlots()
 }
 
-func (p *PostgresStore) PromoteCandidates(requestedBy string, limit int) (result PromotionResult, err error) {
-	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
-		result, err = store.PromoteCandidates(requestedBy, limit)
-		if err != nil {
-			return err
-		}
-		if err := replaceAllCandidates(tx, store); err != nil {
-			return err
-		}
-		return replaceAllProposals(tx, store)
-	})
-	return
-}
-
-func (p *PostgresStore) RunProposalPromoter(holder string) (result PromotionResult, err error) {
-	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
-		result, err = store.RunProposalPromoter(holder)
-		if err != nil {
-			return err
-		}
-		return replaceProposalPromoterScope(tx, store)
-	})
-	return
-}
-
 func (p *PostgresStore) ListProposals() []review.Proposal {
 	store, err := p.readStore()
 	if err != nil {
@@ -3829,18 +3591,43 @@ func (p *PostgresStore) ListProposals() []review.Proposal {
 }
 
 func (p *PostgresStore) ReviewProposal(proposalID string, decision review.ProposalReview) (review.Proposal, error) {
-	return p.reviewProposalDirect(proposalID, decision)
-}
-
-func (p *PostgresStore) UpdateProposalStatus(proposalID string, status review.ProposalStatus) (proposal review.Proposal, err error) {
-	err = p.withLoadedStoreTx(func(tx *sql.Tx, store *MemoryStore) error {
-		proposal, err = store.UpdateProposalStatus(proposalID, status)
-		if err != nil {
-			return err
+	commandKind, err := proposalCommandKindForDecision(decision.Decision)
+	if err != nil {
+		return review.Proposal{}, err
+	}
+	if decision.Scope == "" {
+		decision.Scope = review.FeedbackScopeLine
+	}
+	decision.IdempotencyKey = firstNonEmpty(strings.TrimSpace(decision.IdempotencyKey), proposalDecisionIdempotencyKey(proposalID, decision.Decision, decision.Scope))
+	commandID := fmt.Sprintf("cmd-proposal-review:%s", decision.IdempotencyKey)
+	if _, err := p.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineProposalLine,
+		AggregateID: proposalID,
+		CommandKind: string(commandKind),
+		CommandID:   commandID,
+		Actor:       firstNonEmpty(decision.ReviewerID, "system"),
+		OccurredAt:  firstNonZeroTime(&decision.CreatedAt, time.Now().UTC()),
+		Payload: map[string]any{
+			"idempotency_key": decision.IdempotencyKey,
+			"rationale":       decision.Rationale,
+			"reviewer_id":     decision.ReviewerID,
+			"failure_class":   decision.FailureClass,
+			"failure_classes": append([]string(nil), decision.FailureClasses...),
+			"scope":           string(decision.Scope),
+		},
+	}); err != nil {
+		return review.Proposal{}, err
+	}
+	store, err := p.readStore()
+	if err != nil {
+		return review.Proposal{}, err
+	}
+	for _, proposal := range store.ListProposals() {
+		if proposal.ID == proposalID {
+			return proposal, nil
 		}
-		return replaceProposalScope(tx, store, proposalID)
-	})
-	return
+	}
+	return review.Proposal{}, errors.New("proposal not found")
 }
 
 func (p *PostgresStore) MaterializeApprovedProposal(proposalID string, requestedBy string) (improvement.RepoChangeJob, error) {
@@ -3848,32 +3635,21 @@ func (p *PostgresStore) MaterializeApprovedProposal(proposalID string, requested
 }
 
 func (p *PostgresStore) RetryProposalRepoChange(proposalID string, requestedBy string) (queue.WorkItem, error) {
-	if store, err := p.readStore(); err == nil {
-		for _, proposal := range store.ListProposals() {
-			if proposal.ID != proposalID {
-				continue
-			}
-			if (proposal.Status == review.ProposalRepoChangeQueued || proposal.Status == review.ProposalValidationPending) && strings.TrimSpace(proposal.CurrentAttemptID) != "" {
-				currentAttemptID := strings.TrimSpace(proposal.CurrentAttemptID)
-				if active, ok := activeRepoChangeResumeOperation(store.ListOperationsByScope(operation.ScopeAttempt, currentAttemptID)); ok {
-					if item, ok := queuedOrLeasedWorkItemByOperation(store.ListWorkItems(), active.ID); ok {
-						return item, nil
-					}
-				}
-			}
-			break
-		}
-	}
-	if item, queued, err := p.ReconcileProposalAttemptPhase(proposalID, requestedBy); err != nil {
-		return queue.WorkItem{}, err
-	} else if queued || item.ID != "" {
-		return p.normalizeRetryProposalWorkItem(proposalID, item), nil
-	}
-	item, err := p.retryProposalRepoChangeDirect(proposalID, requestedBy)
-	if err != nil {
+	if _, err := p.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineProposalLine,
+		AggregateID: proposalID,
+		CommandKind: string(transition.CommandProposalRetryAttempt),
+		CommandID:   nextUUID("cmd"),
+		Actor:       requestedBy,
+		OccurredAt:  time.Now().UTC(),
+		Payload: map[string]any{
+			"reviewer_id": requestedBy,
+			"scope":       string(review.FeedbackScopeLine),
+		},
+	}); err != nil {
 		return queue.WorkItem{}, err
 	}
-	return p.normalizeRetryProposalWorkItem(proposalID, item), nil
+	return p.normalizeRetryProposalWorkItem(proposalID, queue.WorkItem{}), nil
 }
 
 func (p *PostgresStore) normalizeRetryProposalWorkItem(proposalID string, fallback queue.WorkItem) queue.WorkItem {

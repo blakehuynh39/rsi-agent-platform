@@ -123,9 +123,25 @@ func (s *slackSurfaceRuntime) handleEventsAPIEvent(eventsAPIEvent slackevents.Ev
 		if !ok {
 			return
 		}
-		created, err := s.store.CreateIngestion(envelope)
+		createdAt := envelope.CreatedAt
+		if createdAt.IsZero() {
+			createdAt = time.Now().UTC()
+		}
+		receipt, err := submitIngressSlackCommand(
+			s.cfg,
+			s.store,
+			envelope,
+			s.cfg.ServiceName,
+			createdAt,
+			"cmd-ingress:slack:"+ingressAggregateID("slack", firstNonEmpty(envelope.TS, envelope.ThreadTS, envelope.ChannelID)),
+		)
 		if err != nil {
 			log.Printf("slack-surface identity=%s ingestion error=%v", s.cfg.SlackAppIdentity, err)
+			return
+		}
+		created, err := loadSlackIngestionFromReceipt(s.store, receipt)
+		if err != nil {
+			log.Printf("slack-surface identity=%s ingestion load error=%v", s.cfg.SlackAppIdentity, err)
 			return
 		}
 		log.Printf("slack-surface identity=%s ingested thread=%s ingestion=%s", s.cfg.SlackAppIdentity, created.ThreadKey, created.ID)
@@ -137,9 +153,25 @@ func (s *slackSurfaceRuntime) handleEventsAPIEvent(eventsAPIEvent slackevents.Ev
 		if !ok {
 			return
 		}
-		created, err := s.store.CreateIngestion(envelope)
+		createdAt := envelope.CreatedAt
+		if createdAt.IsZero() {
+			createdAt = time.Now().UTC()
+		}
+		receipt, err := submitIngressSlackCommand(
+			s.cfg,
+			s.store,
+			envelope,
+			s.cfg.ServiceName,
+			createdAt,
+			"cmd-ingress:slack:"+ingressAggregateID("slack", firstNonEmpty(envelope.TS, envelope.ThreadTS, envelope.ChannelID)),
+		)
 		if err != nil {
 			log.Printf("slack-surface identity=%s ingestion error=%v", s.cfg.SlackAppIdentity, err)
+			return
+		}
+		created, err := loadSlackIngestionFromReceipt(s.store, receipt)
+		if err != nil {
+			log.Printf("slack-surface identity=%s ingestion load error=%v", s.cfg.SlackAppIdentity, err)
 			return
 		}
 		log.Printf("slack-surface identity=%s ingested thread=%s ingestion=%s", s.cfg.SlackAppIdentity, created.ThreadKey, created.ID)

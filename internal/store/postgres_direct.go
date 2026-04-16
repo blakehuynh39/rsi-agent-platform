@@ -9,6 +9,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/action"
 	"github.com/piplabs/rsi-agent-platform/internal/evals"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
+	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
@@ -306,6 +307,214 @@ func replaceOutcomeScope(tx *sql.Tx, record outcome.Record) error {
 	temp := newSubsetStore()
 	temp.outcomes[record.ID] = record
 	return persistOutcomes(tx, temp)
+}
+
+func replaceHarnessOverlayScope(tx *sql.Tx, store *MemoryStore, overlayID string) error {
+	item, ok := store.harnessOverlays[strings.TrimSpace(overlayID)]
+	if !ok {
+		return fmt.Errorf("harness overlay %s not found for persistence", overlayID)
+	}
+	item = normalizeHarnessOverlay(item)
+	if item.Status == harness.OverlayStatusActive {
+		if _, err := tx.Exec(`
+			update harness_overlay
+			set status = $1, updated_at = $2
+			where role = $3 and status = $4 and id <> $5
+		`, string(harness.OverlayStatusSuperseded), item.UpdatedAt, item.Role, string(harness.OverlayStatusActive), item.ID); err != nil {
+			return err
+		}
+	}
+	_, err := tx.Exec(`
+		insert into harness_overlay (
+			id, profile_id, role, version, status, target_kind, target_ref, proposal_id, prompt_fragments, few_shot_snippets, tool_preference_order, retrieval_bias, reasoning_verbosity, memory_read_enabled, memory_write_enabled, created_by, approved_by, created_at, updated_at, activated_at
+		) values (
+			$1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10::jsonb,$11::jsonb,$12,$13,$14,$15,$16,$17,$18,$19,$20
+		)
+		on conflict (id) do update set
+			profile_id = excluded.profile_id,
+			role = excluded.role,
+			version = excluded.version,
+			status = excluded.status,
+			target_kind = excluded.target_kind,
+			target_ref = excluded.target_ref,
+			proposal_id = excluded.proposal_id,
+			prompt_fragments = excluded.prompt_fragments,
+			few_shot_snippets = excluded.few_shot_snippets,
+			tool_preference_order = excluded.tool_preference_order,
+			retrieval_bias = excluded.retrieval_bias,
+			reasoning_verbosity = excluded.reasoning_verbosity,
+			memory_read_enabled = excluded.memory_read_enabled,
+			memory_write_enabled = excluded.memory_write_enabled,
+			created_by = excluded.created_by,
+			approved_by = excluded.approved_by,
+			created_at = excluded.created_at,
+			updated_at = excluded.updated_at,
+			activated_at = excluded.activated_at
+	`,
+		item.ID,
+		item.ProfileID,
+		item.Role,
+		item.Version,
+		string(item.Status),
+		item.TargetKind,
+		item.TargetRef,
+		nullString(item.ProposalID),
+		jsonString(item.PromptFragments),
+		jsonString(item.FewShotSnippets),
+		jsonString(item.ToolPreferenceOrder),
+		item.RetrievalBias,
+		item.ReasoningVerbosity,
+		item.MemoryReadEnabled,
+		item.MemoryWriteEnabled,
+		item.CreatedBy,
+		item.ApprovedBy,
+		item.CreatedAt,
+		item.UpdatedAt,
+		nullTime(item.ActivatedAt),
+	)
+	return err
+}
+
+func replaceHarnessExperimentScope(tx *sql.Tx, store *MemoryStore, experimentID string) error {
+	item, ok := store.harnessExperiments[strings.TrimSpace(experimentID)]
+	if !ok {
+		return fmt.Errorf("harness experiment %s not found for persistence", experimentID)
+	}
+	item = normalizeHarnessExperiment(item)
+	_, err := tx.Exec(`
+		insert into harness_experiment (id, profile_id, overlay_id, proposal_id, attempt_id, role, status, summary, metrics, created_at, updated_at)
+		values ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10,$11)
+		on conflict (id) do update set
+			profile_id = excluded.profile_id,
+			overlay_id = excluded.overlay_id,
+			proposal_id = excluded.proposal_id,
+			attempt_id = excluded.attempt_id,
+			role = excluded.role,
+			status = excluded.status,
+			summary = excluded.summary,
+			metrics = excluded.metrics,
+			created_at = excluded.created_at,
+			updated_at = excluded.updated_at
+	`,
+		item.ID,
+		item.ProfileID,
+		nullString(item.OverlayID),
+		nullString(item.ProposalID),
+		firstNonEmpty(item.AttemptID),
+		item.Role,
+		string(item.Status),
+		item.Summary,
+		jsonString(item.Metrics),
+		item.CreatedAt,
+		item.UpdatedAt,
+	)
+	return err
+}
+
+func replaceHarnessSessionBindingScope(tx *sql.Tx, store *MemoryStore, bindingKey string) error {
+	item, ok := store.harnessSessionBindings[strings.TrimSpace(bindingKey)]
+	if !ok {
+		return fmt.Errorf("harness session binding %s not found for persistence", bindingKey)
+	}
+	item = normalizeHarnessSessionBinding(item)
+	_, err := tx.Exec(`
+		insert into harness_session_binding (
+			role, scope_kind, scope_id, parent_scope_kind, parent_scope_id, hermes_session_id, parent_session_id, memory_backend, assistant_peer_id, user_peer_id, harness_profile_id, effective_overlay_id, effective_overlay_version, last_used_at, created_at, updated_at
+		) values (
+			$1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16
+		)
+		on conflict (role, scope_kind, scope_id) do update set
+			parent_scope_kind = excluded.parent_scope_kind,
+			parent_scope_id = excluded.parent_scope_id,
+			hermes_session_id = excluded.hermes_session_id,
+			parent_session_id = excluded.parent_session_id,
+			memory_backend = excluded.memory_backend,
+			assistant_peer_id = excluded.assistant_peer_id,
+			user_peer_id = excluded.user_peer_id,
+			harness_profile_id = excluded.harness_profile_id,
+			effective_overlay_id = excluded.effective_overlay_id,
+			effective_overlay_version = excluded.effective_overlay_version,
+			last_used_at = excluded.last_used_at,
+			updated_at = excluded.updated_at
+	`,
+		item.Role,
+		item.ScopeKind,
+		item.ScopeID,
+		item.ParentScopeKind,
+		item.ParentScopeID,
+		item.HermesSessionID,
+		item.ParentSessionID,
+		item.MemoryBackend,
+		item.AssistantPeerID,
+		item.UserPeerID,
+		item.HarnessProfileID,
+		item.EffectiveOverlayID,
+		item.EffectiveOverlayVersion,
+		item.LastUsedAt,
+		item.CreatedAt,
+		item.UpdatedAt,
+	)
+	return err
+}
+
+func replaceHarnessExecutionScope(tx *sql.Tx, store *MemoryStore, executionID string) error {
+	var (
+		item harness.Execution
+		ok   bool
+	)
+	executionID = strings.TrimSpace(executionID)
+	for _, candidate := range store.harnessExecutions {
+		if strings.TrimSpace(candidate.ID) == executionID {
+			item = candidate
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("harness execution %s not found for persistence", executionID)
+	}
+	item = normalizeHarnessExecution(item)
+	_, err := tx.Exec(`
+		insert into harness_execution (
+			id, operation_id, trace_id, proposal_id, role, session_scope_kind, session_scope_id, hermes_session_id, parent_session_id, harness_profile_id, effective_overlay_id, effective_overlay_version, memory_backend, memory_reads, memory_writes, created_at
+		) values (
+			$1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14::jsonb,$15::jsonb,$16
+		)
+		on conflict (id) do update set
+			operation_id = excluded.operation_id,
+			trace_id = excluded.trace_id,
+			proposal_id = excluded.proposal_id,
+			role = excluded.role,
+			session_scope_kind = excluded.session_scope_kind,
+			session_scope_id = excluded.session_scope_id,
+			hermes_session_id = excluded.hermes_session_id,
+			parent_session_id = excluded.parent_session_id,
+			harness_profile_id = excluded.harness_profile_id,
+			effective_overlay_id = excluded.effective_overlay_id,
+			effective_overlay_version = excluded.effective_overlay_version,
+			memory_backend = excluded.memory_backend,
+			memory_reads = excluded.memory_reads,
+			memory_writes = excluded.memory_writes,
+			created_at = excluded.created_at
+	`,
+		item.ID,
+		firstNonEmpty(item.OperationID),
+		nullString(item.TraceID),
+		nullString(item.ProposalID),
+		item.Role,
+		item.SessionScopeKind,
+		item.SessionScopeID,
+		item.HermesSessionID,
+		item.ParentSessionID,
+		item.HarnessProfileID,
+		item.EffectiveOverlayID,
+		item.EffectiveOverlayVersion,
+		item.MemoryBackend,
+		jsonString(item.MemoryReads),
+		jsonString(item.MemoryWrites),
+		item.CreatedAt,
+	)
+	return err
 }
 
 func replaceKnowledgeEntryScope(tx *sql.Tx, entry knowledge.Entry) error {

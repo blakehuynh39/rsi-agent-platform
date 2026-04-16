@@ -10,7 +10,6 @@ const (
 	EvalQueue                 QueueName = "eval"
 	ProposalQueue             QueueName = "proposal"
 	SandboxQueue              QueueName = "sandbox"
-	ControlActionQueue        QueueName = "control_action"
 	ImprovementActionQueue    QueueName = "improvement_action"
 	KnowledgeMaintenanceQueue QueueName = "knowledge_maintenance"
 )

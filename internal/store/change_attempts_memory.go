@@ -1,7 +1,6 @@
 package store
 
 import (
-	"errors"
 	"fmt"
 	"sort"
 	"strings"
@@ -49,57 +48,16 @@ func (s *MemoryStore) UpsertChangeAttempt(item improvement.ChangeAttempt) (impro
 func (s *MemoryStore) StopProposalLine(proposalID string, requestedBy string, rationale string) (review.Proposal, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	proposal, ok := s.proposals[proposalID]
-	if !ok {
-		return review.Proposal{}, errors.New("proposal not found")
-	}
-	now := time.Now().UTC()
-	proposal.Status = review.ProposalCanceled
-	proposal.ActiveSlotConsuming = false
-	proposal.NextRetryAction = ""
-	proposal.LineStoppedBy = requestedBy
-	proposal.LineStopReason = rationale
-	proposal.LineStoppedAt = &now
-	s.proposals[proposal.ID] = proposal
-	if candidate, ok := s.candidates[proposal.CandidateKey]; ok {
-		candidate.LineStatus = improvement.LineClosed
-		candidate.AutoRetryBudgetRemaining = 0
-		candidate.UpdatedAt = now
-		s.candidates[candidate.CandidateKey] = candidate
-	}
-	if proposal.CurrentAttemptID != "" {
-		if attempt, ok := s.changeAttempts[proposal.CurrentAttemptID]; ok && !isTerminalAttemptState(attempt.State) {
-			attempt.State = improvement.AttemptStateAbandoned
-			attempt.FailureClass = firstNonEmpty(attempt.FailureClass, "stopped_by_operator")
-			attempt.FailureSummary = firstNonEmpty(attempt.FailureSummary, rationale)
-			attempt.RetryDecision = "stop_line"
-			attempt.UpdatedAt = now
-			s.changeAttempts[attempt.ID] = normalizeChangeAttempt(attempt)
-		}
-	}
-	s.proposalMemory = append(s.proposalMemory, review.ProposalMemory{
-		ID:                nextID("memory", len(s.proposalMemory)+1),
-		ProposalID:        proposal.ID,
-		CandidateKey:      proposal.CandidateKey,
-		ConversationID:    proposal.ConversationID,
-		CaseID:            proposal.CaseID,
-		OriginTraceID:     proposal.OriginTraceID,
-		EvidenceTraceIDs:  append([]string(nil), proposal.EvidenceTraceIDs...),
-		Hypothesis:        proposal.Summary,
-		DiffSummary:       proposal.ProposedScope,
-		ReviewRationale:   firstNonEmpty(rationale, "Line stopped by operator."),
-		Disposition:       review.ProposalCanceled,
-		DispositionReason: firstNonEmpty(rationale, "Line stopped by operator."),
-		FailureClass:      "stopped_by_operator",
-		LinkedProposalIDs: append([]string(nil), proposal.PriorSimilarProposalIDs...),
-		CreatedAt:         now,
-	})
-	return proposal, nil
+	return s.stopProposalLineLocked(proposalID, requestedBy, rationale)
 }
 
 func (s *MemoryStore) CreateDerivedTrace(req DerivedTraceRequest) (events.Trace, Workflow, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	return s.createDerivedTraceLocked(req)
+}
+
+func (s *MemoryStore) createDerivedTraceLocked(req DerivedTraceRequest) (events.Trace, Workflow, error) {
 	now := req.CreatedAt.UTC()
 	if now.IsZero() {
 		now = time.Now().UTC()

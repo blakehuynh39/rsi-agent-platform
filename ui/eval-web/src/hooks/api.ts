@@ -1,5 +1,15 @@
 import type { ActionResult, JsonObject, KnowledgeEntry, KnowledgeSegment, NullableList, RepoChangeJob, PRAttempt, TabKey, ViewState } from "@/types";
 
+export type CommandRequest = {
+  command_kind: string;
+  command_id?: string;
+  causation_id?: string;
+  actor?: string;
+  occurred_at?: string;
+  expected_version?: number;
+  payload?: JsonObject;
+};
+
 export function listOrEmpty<T>(items: NullableList<T> | undefined): T[] {
   return items ?? [];
 }
@@ -40,6 +50,10 @@ export function postJSON<T>(url: string, body: JsonObject): Promise<T> {
     }
     return response.json();
   });
+}
+
+export function postCommand<T>(url: string, body: CommandRequest): Promise<T> {
+  return postJSON(url, body as JsonObject);
 }
 
 export function readViewState(): ViewState {

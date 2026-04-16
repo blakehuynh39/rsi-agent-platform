@@ -31,6 +31,7 @@ const (
 
 type WorkflowSnapshot struct {
 	State                WorkflowStateKind `json:"state"`
+	TraceID              string            `json:"trace_id,omitempty"`
 	CurrentOperationKind string            `json:"current_operation_kind,omitempty"`
 }
 
@@ -109,11 +110,6 @@ func reduceWorkflowStarted(snapshot WorkflowSnapshot, _ CommandEnvelope) Workflo
 			Events: []DomainEventDescriptor{{
 				Kind: "workflow_started",
 			}},
-			Effects: []EffectRequest{{
-				Kind:           EffectRefreshProjection,
-				Status:         EffectQueued,
-				IdempotencyKey: "workflow_started:projection",
-			}},
 		},
 		NextState:     WorkflowStateCollectingContext,
 		ExpectedState: WorkflowStateQueued,
@@ -128,11 +124,6 @@ func reduceContextActionsQueued(snapshot WorkflowSnapshot, _ CommandEnvelope) Wo
 			Reason:       "context actions were queued and workflow is waiting on action execution",
 			Events: []DomainEventDescriptor{{
 				Kind: "workflow_context_actions_queued",
-			}},
-			Effects: []EffectRequest{{
-				Kind:           EffectQueueControlAction,
-				Status:         EffectQueued,
-				IdempotencyKey: "context_actions",
 			}},
 		},
 		NextState:     WorkflowStateWaitingOnActions,
@@ -209,11 +200,7 @@ func reduceRunnerCompletedNoReply(snapshot WorkflowSnapshot, _ CommandEnvelope) 
 			Events: []DomainEventDescriptor{{
 				Kind: "workflow_runner_completed_no_reply",
 			}},
-			Effects: []EffectRequest{{
-				Kind:           EffectQueueEval,
-				Status:         EffectQueued,
-				IdempotencyKey: "queue_eval",
-			}},
+			Commands: workflowEvalCommands(snapshot.TraceID, "runner_completed_no_reply"),
 		},
 		NextState:     WorkflowStateCompleted,
 		ExpectedState: snapshot.State,
@@ -229,11 +216,7 @@ func reduceReplyPosted(snapshot WorkflowSnapshot, _ CommandEnvelope) WorkflowDec
 			Events: []DomainEventDescriptor{{
 				Kind: "workflow_reply_posted",
 			}},
-			Effects: []EffectRequest{{
-				Kind:           EffectQueueEval,
-				Status:         EffectQueued,
-				IdempotencyKey: "queue_eval",
-			}},
+			Commands: workflowEvalCommands(snapshot.TraceID, "reply_posted"),
 		},
 		NextState:     WorkflowStateCompleted,
 		ExpectedState: snapshot.State,
@@ -249,11 +232,7 @@ func reduceWorkflowBlocked(snapshot WorkflowSnapshot, _ CommandEnvelope) Workflo
 			Events: []DomainEventDescriptor{{
 				Kind: "workflow_blocked",
 			}},
-			Effects: []EffectRequest{{
-				Kind:           EffectQueueEval,
-				Status:         EffectQueued,
-				IdempotencyKey: "queue_eval",
-			}},
+			Commands: workflowEvalCommands(snapshot.TraceID, "workflow_blocked"),
 		},
 		NextState:     WorkflowStateNeedsHuman,
 		ExpectedState: snapshot.State,
@@ -269,11 +248,7 @@ func reduceWorkflowFailed(snapshot WorkflowSnapshot, _ CommandEnvelope) Workflow
 			Events: []DomainEventDescriptor{{
 				Kind: "workflow_failed",
 			}},
-			Effects: []EffectRequest{{
-				Kind:           EffectQueueEval,
-				Status:         EffectQueued,
-				IdempotencyKey: "queue_eval",
-			}},
+			Commands: workflowEvalCommands(snapshot.TraceID, "workflow_failed"),
 		},
 		NextState:     WorkflowStateFailed,
 		ExpectedState: snapshot.State,
@@ -304,4 +279,18 @@ func rejectWorkflow(state WorkflowStateKind, command WorkflowCommandKind, reason
 		},
 		ExpectedState: state,
 	}
+}
+
+func workflowEvalCommands(traceID string, trigger string) []CommandDescriptor {
+	if traceID == "" {
+		return nil
+	}
+	return []CommandDescriptor{{
+		MachineKind: MachineProblemLine,
+		AggregateID: traceID,
+		CommandKind: string(CommandProblemLineEvaluateTrace),
+		Payload: map[string]any{
+			"trigger": trigger,
+		},
+	}}
 }

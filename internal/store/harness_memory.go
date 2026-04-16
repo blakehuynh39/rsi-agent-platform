@@ -78,6 +78,10 @@ func (s *MemoryStore) getActiveHarnessOverlayLocked(role string) (harness.Overla
 func (s *MemoryStore) UpsertHarnessOverlay(item harness.Overlay) (harness.Overlay, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	return s.upsertHarnessOverlayLocked(item)
+}
+
+func (s *MemoryStore) upsertHarnessOverlayLocked(item harness.Overlay) (harness.Overlay, error) {
 	now := time.Now().UTC()
 	item = normalizeHarnessOverlay(item)
 	if item.ID == "" {
@@ -124,6 +128,10 @@ func (s *MemoryStore) ListHarnessExperiments() []harness.Experiment {
 func (s *MemoryStore) RecordHarnessExperiment(item harness.Experiment) (harness.Experiment, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	return s.recordHarnessExperimentLocked(item)
+}
+
+func (s *MemoryStore) recordHarnessExperimentLocked(item harness.Experiment) (harness.Experiment, error) {
 	now := time.Now().UTC()
 	item = normalizeHarnessExperiment(item)
 	if item.ID == "" {
@@ -164,6 +172,10 @@ func (s *MemoryStore) ListHarnessSessionBindings() []harness.SessionBinding {
 func (s *MemoryStore) UpsertHarnessSessionBinding(item harness.SessionBinding) (harness.SessionBinding, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	return s.upsertHarnessSessionBindingLocked(item)
+}
+
+func (s *MemoryStore) upsertHarnessSessionBindingLocked(item harness.SessionBinding) (harness.SessionBinding, error) {
 	now := time.Now().UTC()
 	item = normalizeHarnessSessionBinding(item)
 	if item.CreatedAt.IsZero() {
@@ -202,6 +214,10 @@ func (s *MemoryStore) ListHarnessExecutions() []harness.Execution {
 func (s *MemoryStore) RecordHarnessExecution(item harness.Execution) (harness.Execution, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	return s.recordHarnessExecutionLocked(item)
+}
+
+func (s *MemoryStore) recordHarnessExecutionLocked(item harness.Execution) (harness.Execution, error) {
 	now := time.Now().UTC()
 	item = normalizeHarnessExecution(item)
 	if item.ID == "" {

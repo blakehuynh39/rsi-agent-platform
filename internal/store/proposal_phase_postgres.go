@@ -57,6 +57,13 @@ func persistProposalAttemptPhaseMutationTx(tx *sql.Tx, store *MemoryStore, resul
 		}
 	}
 	if result.TraceID != "" {
+		if trace, ok := store.traces[result.TraceID]; ok {
+			if workflow, ok := findWorkflowByID(store.workflows, trace.Summary.WorkflowID); ok {
+				if err := replaceWorkflowScope(tx, workflow); err != nil {
+					return err
+				}
+			}
+		}
 		if err := replaceTraceScope(tx, store, result.TraceID); err != nil {
 			return err
 		}

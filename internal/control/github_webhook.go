@@ -16,10 +16,9 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
-	"github.com/piplabs/rsi-agent-platform/internal/operation"
-	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
+	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
 var (
@@ -142,9 +141,21 @@ func handleGitHubWebhook(cfg config.Config, store storepkg.Store, w http.Respons
 		return
 	}
 
-	created, err := store.CreateEvent(event)
+	receipt, err := submitIngressEventCommand(
+		cfg,
+		store,
+		event,
+		cfg.ServiceName,
+		event.CreatedAt,
+		"cmd-ingress:github:"+deliveryID,
+	)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	created, err := loadIngressEventFromReceipt(store, receipt)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	if linkage.Linked {
@@ -341,115 +352,141 @@ func applyGitHubAttemptTransition(store storepkg.Store, metadata map[string]any,
 		if proposal.CurrentAttemptID != "" && attempt.ID != proposal.CurrentAttemptID {
 			return nil
 		}
-		attempt.State = improvement.AttemptStateCIObserving
-		attempt.PRURL = firstNonEmpty(prURL, attempt.PRURL)
-		attempt.HeadSHA = firstNonEmpty(headSHA, attempt.HeadSHA)
-		attempt.UpdatedAt = time.Now().UTC()
-		if _, err := store.UpsertChangeAttempt(attempt); err != nil {
+		if err := submitAttemptWebhookCommand(store, attempt, transition.CommandAttemptPROpened, metadata, map[string]any{
+			"pr_url":   firstNonEmpty(prURL, attempt.PRURL),
+			"head_sha": firstNonEmpty(headSHA, attempt.HeadSHA),
+		}); err != nil {
 			return err
 		}
-		_, err := store.UpdateProposalStatus(proposal.ID, review.ProposalPROpen)
-		return err
+		return submitProposalWebhookCommand(store, proposal.ID, transition.CommandProposalMarkPROpen, metadata, "GitHub webhook recorded an open PR for the active attempt.")
 	case eventType == "pull_request" && actionName == "closed" && (merged == "true" || strings.EqualFold(stringFromAny(metadata["state"]), "merged")):
 		if proposal.CurrentAttemptID != "" && attempt.ID != proposal.CurrentAttemptID {
 			return nil
 		}
-		attempt.State = improvement.AttemptStateMerged
-		attempt.PRURL = firstNonEmpty(prURL, attempt.PRURL)
-		attempt.HeadSHA = firstNonEmpty(headSHA, attempt.HeadSHA)
-		attempt.UpdatedAt = time.Now().UTC()
-		if _, err := store.UpsertChangeAttempt(attempt); err != nil {
+		if err := submitAttemptWebhookCommand(store, attempt, transition.CommandAttemptMerged, metadata, map[string]any{
+			"pr_url":   firstNonEmpty(prURL, attempt.PRURL),
+			"head_sha": firstNonEmpty(headSHA, attempt.HeadSHA),
+		}); err != nil {
 			return err
 		}
-		_, err := store.ReviewProposal(proposal.ID, review.ProposalReview{
-			Decision:   string(review.ProposalMerged),
-			Rationale:  "GitHub webhook recorded merged PR for the active attempt.",
-			ReviewerID: "github-webhook",
-		})
-		return err
+		return submitProposalWebhookCommand(store, proposal.ID, transition.CommandProposalMarkMerged, metadata, "GitHub webhook recorded merged PR for the active attempt.")
 	case eventType == "pull_request" && actionName == "closed":
-		return transitionGitHubAttemptFailure(store, proposal, attempt, "closed_unmerged", "GitHub pull request closed without merge.", improvement.AttemptTriggerPRClosed)
+		return transitionGitHubAttemptFailure(store, proposal, attempt, metadata, "closed_unmerged", "GitHub pull request closed without merge.")
 	case eventType == "check_run" && isGitHubFailureEvent(conclusion):
-		return transitionGitHubAttemptFailure(store, proposal, attempt, "ci_regression", fmt.Sprintf("GitHub check run failed with conclusion %s.", conclusion), improvement.AttemptTriggerCIFailed)
+		return transitionGitHubAttemptFailure(store, proposal, attempt, metadata, "ci_regression", fmt.Sprintf("GitHub check run failed with conclusion %s.", conclusion))
 	case eventType == "check_suite" && isGitHubFailureEvent(conclusion):
-		return transitionGitHubAttemptFailure(store, proposal, attempt, "ci_regression", fmt.Sprintf("GitHub check suite failed with conclusion %s.", conclusion), improvement.AttemptTriggerCIFailed)
+		return transitionGitHubAttemptFailure(store, proposal, attempt, metadata, "ci_regression", fmt.Sprintf("GitHub check suite failed with conclusion %s.", conclusion))
 	case eventType == "workflow_run" && isGitHubFailureEvent(conclusion):
-		return transitionGitHubAttemptFailure(store, proposal, attempt, "ci_regression", fmt.Sprintf("GitHub workflow run failed with conclusion %s.", conclusion), improvement.AttemptTriggerCIFailed)
+		return transitionGitHubAttemptFailure(store, proposal, attempt, metadata, "ci_regression", fmt.Sprintf("GitHub workflow run failed with conclusion %s.", conclusion))
 	default:
 		return nil
 	}
 }
 
-func transitionGitHubAttemptFailure(store storepkg.Store, proposal review.Proposal, attempt improvement.ChangeAttempt, failureClass string, failureSummary string, trigger improvement.ChangeAttemptTrigger) error {
+func submitProposalWebhookCommand(store storepkg.Store, proposalID string, kind transition.ProposalLineCommandKind, metadata map[string]any, rationale string) error {
+	proposalID = strings.TrimSpace(proposalID)
+	if proposalID == "" {
+		return nil
+	}
+	deliveryID := strings.TrimSpace(stringFromAny(metadata["github_delivery_id"]))
+	commandID := fmt.Sprintf("cmd-github-proposal:%s:%s", proposalID, string(kind))
+	if deliveryID != "" {
+		commandID = commandID + ":" + deliveryID
+	}
+	receipt, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineProposalLine,
+		AggregateID: proposalID,
+		CommandKind: string(kind),
+		CommandID:   commandID,
+		Actor:       "github-webhook",
+		OccurredAt:  time.Now().UTC(),
+		Payload: map[string]any{
+			"rationale":       rationale,
+			"idempotency_key": deliveryID,
+			"reviewer_id":     "github-webhook",
+			"scope":           string(review.FeedbackScopeLine),
+		},
+	})
+	if err != nil {
+		return err
+	}
+	if receipt.DecisionKind == transition.DecisionReject {
+		return errors.New(receipt.Reason)
+	}
+	return nil
+}
+
+func submitAttemptWebhookCommand(store storepkg.Store, attempt improvement.ChangeAttempt, kind transition.AttemptPhaseCommandKind, metadata map[string]any, payload map[string]any) error {
+	attemptID := strings.TrimSpace(attempt.ID)
+	if attemptID == "" {
+		return nil
+	}
+	deliveryID := strings.TrimSpace(stringFromAny(metadata["github_delivery_id"]))
+	commandID := fmt.Sprintf("cmd-github-attempt:%s:%s", attemptID, string(kind))
+	if deliveryID != "" {
+		commandID = commandID + ":" + deliveryID
+	}
+	if payload == nil {
+		payload = map[string]any{}
+	}
+	receipt, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineAttempt,
+		AggregateID: attemptID,
+		CommandKind: string(kind),
+		CommandID:   commandID,
+		Actor:       "github-webhook",
+		OccurredAt:  time.Now().UTC(),
+		Payload:     payload,
+	})
+	if err != nil {
+		return err
+	}
+	if receipt.DecisionKind == transition.DecisionReject {
+		return errors.New(receipt.Reason)
+	}
+	return nil
+}
+
+func transitionGitHubAttemptFailure(store storepkg.Store, proposal review.Proposal, attempt improvement.ChangeAttempt, metadata map[string]any, failureClass string, failureSummary string) error {
 	if proposal.CurrentAttemptID != "" && attempt.ID != proposal.CurrentAttemptID {
 		return nil
 	}
 	now := time.Now().UTC()
-	switch failureClass {
-	case "ci_regression":
-		attempt.State = improvement.AttemptStateCIFailed
-	case "closed_unmerged":
-		attempt.State = improvement.AttemptStateClosedUnmerged
-	default:
-		attempt.State = improvement.AttemptStateNeedsReview
-	}
-	attempt.FailureClass = failureClass
-	attempt.FailureSummary = failureSummary
-	attempt.MaterialHypothesisChange = false
+	retryDecision := "needs_review"
+	var retryAfter any
 	if shouldAutoRetryAttempt(attempt) {
-		attempt.RetryDecision = "auto_retry"
-		retryAt := now.Add(time.Minute)
-		attempt.RetryAfter = &retryAt
-	} else {
-		attempt.State = improvement.AttemptStateNeedsReview
-		attempt.RetryDecision = "needs_review"
-		attempt.RetryAfter = nil
+		retryDecision = "auto_retry"
+		retryAfter = now.Add(time.Minute).Format(time.RFC3339)
 	}
-	attempt.UpdatedAt = now
-	if _, err := store.UpsertChangeAttempt(attempt); err != nil {
+	commandKind := transition.CommandAttemptClosedUnmerged
+	if failureClass == "ci_regression" {
+		commandKind = transition.CommandAttemptCIFailed
+	}
+	if err := submitAttemptWebhookCommand(store, attempt, commandKind, metadata, map[string]any{
+		"failure_class":              failureClass,
+		"failure_summary":            failureSummary,
+		"retry_decision":             retryDecision,
+		"retry_after":                retryAfter,
+		"material_hypothesis_change": false,
+	}); err != nil {
 		return err
 	}
-	if attempt.RetryDecision == "auto_retry" {
-		if _, err := store.UpdateProposalStatus(proposal.ID, review.ProposalApproved); err != nil {
-			return err
-		}
-		nextAttemptNumber := attempt.AttemptNumber + 1
-		_, err := enqueueOperationBackedWork(store, operation.Execution{
-			ScopeKind:     operation.ScopeProposal,
-			ScopeID:       proposal.ID,
-			OperationKind: "line_activate",
-			OperationKey:  fmt.Sprintf("attempt-%02d", nextAttemptNumber),
-			Status:        operation.StatusQueued,
-			Queue:         queue.ProposalQueue,
-			RequestedBy:   "github-webhook",
-			TraceID:       firstNonEmpty(attempt.AttemptTraceID, proposal.TraceID),
-			ProposalID:    proposal.ID,
-			AttemptID:     attempt.ID,
-		}, queue.WorkItem{
-			Queue:          queue.ProposalQueue,
-			Kind:           "approved_proposal",
-			Status:         queue.WorkQueued,
-			TraceID:        firstNonEmpty(attempt.AttemptTraceID, proposal.TraceID),
-			ConversationID: proposal.ConversationID,
-			CaseID:         proposal.CaseID,
-			TriggerEventID: firstNonEmpty(proposal.OriginTraceID, proposal.TraceID),
-			ProposalID:     proposal.ID,
-			RequestedBy:    "github-webhook",
-			ApprovalMode:   "human_review",
-			CreatedAt:      now,
-			UpdatedAt:      now,
-			Payload: map[string]any{
-				"candidate_key":  proposal.CandidateKey,
-				"risk_tier":      proposal.RiskTier,
-				"trigger":        string(trigger),
-				"parent_attempt": attempt.ID,
-				"attempt_number": nextAttemptNumber,
-			},
-		})
-		return err
+	if retryDecision == "auto_retry" {
+		return submitProposalWebhookCommand(store, proposal.ID, transition.CommandProposalRetryableFailure, withGitHubOutcomeSuffix(metadata, failureClass), failureSummary)
 	}
-	_, err := store.UpdateProposalStatus(proposal.ID, review.ProposalPendingReview)
-	return err
+	return submitProposalWebhookCommand(store, proposal.ID, transition.CommandProposalNeedsReview, withGitHubOutcomeSuffix(metadata, failureClass), failureSummary)
+}
+
+func withGitHubOutcomeSuffix(metadata map[string]any, suffix string) map[string]any {
+	cloned := map[string]any{}
+	for key, value := range metadata {
+		cloned[key] = value
+	}
+	deliveryID := strings.TrimSpace(stringFromAny(metadata["github_delivery_id"]))
+	if deliveryID != "" {
+		cloned["github_delivery_id"] = deliveryID + ":" + strings.TrimSpace(suffix)
+	}
+	return cloned
 }
 
 func shouldAutoRetryAttempt(attempt improvement.ChangeAttempt) bool {
@@ -656,6 +693,17 @@ func stringFromAny(value any) string {
 	switch typed := value.(type) {
 	case string:
 		return typed
+	case bool:
+		if typed {
+			return "true"
+		}
+		return "false"
+	case int:
+		return fmt.Sprintf("%d", typed)
+	case int64:
+		return fmt.Sprintf("%d", typed)
+	case float64:
+		return fmt.Sprintf("%v", typed)
 	case fmt.Stringer:
 		return typed.String()
 	default:
