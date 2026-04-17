@@ -1988,7 +1988,7 @@ func persistWorkflows(tx *sql.Tx, store *MemoryStore) error {
 				created_at = excluded.created_at,
 				updated_at = excluded.updated_at,
 				completed_at = excluded.completed_at`,
-			item.ID, item.Version, nullString(item.IngestionID), nullString(item.TraceID), nullString(item.ConversationID), nullString(item.CaseID), item.ThreadKey, item.Kind, nullString(item.Intent), item.AssignedBot, nullString(item.ApprovalMode), nullString(item.ResponseMode), item.Status, nullString(item.LastVerdict), nullString(item.LastError), item.AttemptNumber, nullString(item.ParentWorkflowID), nullString(item.FailureClass), nullString(item.FailureSummary), nullString(item.RetryDecision), nullTime(item.RetryAfter), runnerDiagnostics, item.RepairAttempted, item.RepairSucceeded, item.CreatedAt, item.UpdatedAt, nullTime(item.CompletedAt),
+			item.ID, item.Version, nullString(item.IngestionID), nullString(item.TraceID), nullString(item.ConversationID), nullString(item.CaseID), item.ThreadKey, item.Kind, nullString(item.Intent), item.AssignedBot, nullString(item.ApprovalMode), nullString(item.ResponseMode), item.Status, item.LastVerdict, nullString(item.LastError), item.AttemptNumber, nullString(item.ParentWorkflowID), nullString(item.FailureClass), nullString(item.FailureSummary), nullString(item.RetryDecision), nullTime(item.RetryAfter), runnerDiagnostics, item.RepairAttempted, item.RepairSucceeded, item.CreatedAt, item.UpdatedAt, nullTime(item.CompletedAt),
 		); err != nil {
 			return err
 		}
