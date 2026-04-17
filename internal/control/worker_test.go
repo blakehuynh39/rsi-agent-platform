@@ -835,6 +835,112 @@ func TestHandleClaimedWorkflowRunnerEffectNonOKSchedulesSuccessorAttempt(t *test
 	}
 }
 
+func TestHandleClaimedWorkflowRunnerEffectInvalidRequestUsesRunnerDiagnosticsAndSkipsRetry(t *testing.T) {
+	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":       false,
+			"provider": "fake",
+			"message":  "OpenAI rejected tools[0].name",
+			"raw": map[string]any{
+				"failure_class": "runner_invalid_request",
+				"runner_diagnostics": map[string]any{
+					"failure_kind":           "invalid_request",
+					"provider_status_code":   400,
+					"provider_error_param":   "tools[0].name",
+					"provider_error_code":    "invalid_value",
+					"provider_error_message": "Invalid 'tools[0].name': string does not match pattern '^[A-Za-z0-9_-]+$'",
+					"invalid_tool_names":     []any{"repo.context", "rsi.workflow_context"},
+				},
+				"repair_attempted": false,
+				"repair_succeeded": false,
+			},
+		})
+	}))
+	defer runner.Close()
+
+	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
+		name = strings.TrimSuffix(name, "/execute")
+		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
+			Name:          name,
+			ToolCallID:    name + "-call",
+			Approved:      true,
+			ApprovalState: "not_required",
+			Status:        "completed",
+			Available:     true,
+			Summary:       "Context gathered.",
+			Input:         map[string]any{},
+			Output:        map[string]any{"ok": true},
+		})
+	}))
+	defer toolGateway.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	ctx, err := loadWorkflowContext(store, workflowItem)
+	if err != nil {
+		t.Fatalf("loadWorkflowContext() error = %v", err)
+	}
+	cfg := config.Config{
+		ServiceName:                     "control-plane",
+		DefaultRepo:                     "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:         "https://example.test/kb",
+		AllowedTargetRepos:              []string{"rsi-agent-platform"},
+		RunnerBaseURL:                   runner.URL,
+		ToolGatewayBaseURL:              toolGateway.URL,
+		SandboxNamespace:                "rsi-platform",
+		DefaultReasoningVerbosity:       "verbose",
+		WorkflowAutoRetryEnabled:        true,
+		WorkflowAutoRetryMaxAttempts:    3,
+		WorkflowAutoRetryBackoffSeconds: []int{1, 60},
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+	for _, item := range queuedActionEffectsForPlane(store, "control") {
+		if err := processControlActionEffect(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), item); err != nil {
+			t.Fatalf("processControlActionEffect(context) error = %v", err)
+		}
+	}
+
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	handleClaimedWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect)
+
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatal("expected workflow to exist")
+	}
+	if workflow.Status != "failed" {
+		t.Fatalf("expected workflow to fail, got %s", workflow.Status)
+	}
+	if workflow.FailureClass != workflowFailureRunnerInvalidRequest {
+		t.Fatalf("expected failure class %s, got %s", workflowFailureRunnerInvalidRequest, workflow.FailureClass)
+	}
+	if workflow.RetryDecision != "needs_human" {
+		t.Fatalf("expected retry_decision=needs_human, got %s", workflow.RetryDecision)
+	}
+	if workflow.RunnerDiagnostics["provider_error_param"] != "tools[0].name" {
+		t.Fatalf("expected persisted runner diagnostics, got %#v", workflow.RunnerDiagnostics)
+	}
+
+	line, ok := store.GetWorkflowLine(ctx.workflow.CaseID)
+	if !ok {
+		t.Fatalf("expected workflow line for case %s", ctx.workflow.CaseID)
+	}
+	if line.Status != string(transition.WorkflowLineStateNeedsHuman) {
+		t.Fatalf("expected needs_human workflow line, got %s", line.Status)
+	}
+	if line.AttemptCount != 1 {
+		t.Fatalf("expected attempt_count=1 without successor retry, got %d", line.AttemptCount)
+	}
+	if line.CurrentWorkflowID != workflowItem.workflowID {
+		t.Fatalf("expected current workflow to remain original attempt, got %s", line.CurrentWorkflowID)
+	}
+}
+
 func TestWorkflowRetryAtSkipsRetryAfterReplyPostBegins(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")

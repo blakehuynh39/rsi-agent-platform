@@ -26,6 +26,9 @@ func (s *MemoryStore) applyWorkflowCommandMetadataLocked(workflowID string, comm
 		if _, ok := command.Payload["retry_after"]; ok {
 			s.workflows[i].RetryAfter = optionalTimeFromCommand(command, "retry_after")
 		}
+		if _, ok := command.Payload["runner_diagnostics"]; ok {
+			s.workflows[i].RunnerDiagnostics = anyMapFromCommand(command, "runner_diagnostics")
+		}
 		if _, ok := command.Payload["repair_attempted"]; ok {
 			s.workflows[i].RepairAttempted = boolFromCommand(command, "repair_attempted", s.workflows[i].RepairAttempted)
 		}

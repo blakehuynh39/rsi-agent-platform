@@ -956,17 +956,42 @@ func (s *Service) rsiTraceContext(input map[string]interface{}) storepkg.ToolRes
 			linkedProposals = append(linkedProposals, proposal)
 		}
 	}
-	summary := fmt.Sprintf("RSI trace context loaded for %s with %d events and %d linked proposals.", traceID, len(trace.Events), len(linkedProposals))
+	var workflowLine interface{}
+	if caseID := strings.TrimSpace(trace.Summary.CaseID); caseID != "" {
+		if item, ok := s.store.GetWorkflowLine(caseID); ok {
+			workflowLine = item
+		}
+	}
+	workflowAttempts := make([]interface{}, 0)
+	for _, workflow := range s.store.ListWorkflows() {
+		if workflow.CaseID != "" && workflow.CaseID == trace.Summary.CaseID {
+			workflowAttempts = append(workflowAttempts, workflow)
+			continue
+		}
+		if workflow.TraceID == traceID || workflow.ID == trace.Summary.WorkflowID {
+			workflowAttempts = append(workflowAttempts, workflow)
+		}
+	}
+	harnessExecutions := make([]interface{}, 0)
+	for _, execution := range s.store.ListHarnessExecutions() {
+		if execution.TraceID == traceID {
+			harnessExecutions = append(harnessExecutions, execution)
+		}
+	}
+	summary := fmt.Sprintf("RSI trace context loaded for %s with %d events, %d workflow attempt(s), and %d linked proposals.", traceID, len(trace.Events), len(workflowAttempts), len(linkedProposals))
 	return s.result("rsi.trace_context", input, summary, map[string]interface{}{
-		"trace":            trace.Summary,
-		"events":           trace.Events,
-		"artifacts":        trace.Artifacts,
-		"reasoning":        trace.Reasoning,
-		"tool_calls":       trace.ToolCalls,
-		"slack_actions":    trace.SlackActions,
-		"eval_runs":        evalRuns,
-		"eval_judgments":   evalJudgments,
-		"linked_proposals": linkedProposals,
+		"trace":              trace.Summary,
+		"workflow_line":      workflowLine,
+		"workflow_attempts":  workflowAttempts,
+		"harness_executions": harnessExecutions,
+		"events":             trace.Events,
+		"artifacts":          trace.Artifacts,
+		"reasoning":          trace.Reasoning,
+		"tool_calls":         trace.ToolCalls,
+		"slack_actions":      trace.SlackActions,
+		"eval_runs":          evalRuns,
+		"eval_judgments":     evalJudgments,
+		"linked_proposals":   linkedProposals,
 	}, nil)
 }
 

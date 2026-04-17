@@ -15,6 +15,7 @@ import (
 
 const (
 	workflowFailureRunnerMissingStructuredOutput = "runner_missing_structured_output"
+	workflowFailureRunnerInvalidRequest          = "runner_invalid_request"
 	workflowFailureRunnerNonOK                   = "runner_non_ok"
 	workflowFailureRunnerTransportTimeout        = "runner_transport_timeout"
 	workflowFailureRunnerStructuredOutputParse   = "runner_structured_output_parse_failure"
@@ -23,11 +24,12 @@ const (
 )
 
 type workflowFailure struct {
-	Class           string
-	Summary         string
-	RepairAttempted bool
-	RepairSucceeded bool
-	Retryable       bool
+	Class             string
+	Summary           string
+	RunnerDiagnostics map[string]any
+	RepairAttempted   bool
+	RepairSucceeded   bool
+	Retryable         bool
 }
 
 type workflowFailureError struct {
@@ -53,6 +55,9 @@ func finalizeWorkflowFailureWithDetails(cfg config.Config, store storepkg.Store,
 		"failure_summary":  firstNonEmpty(strings.TrimSpace(failure.Summary), strings.TrimSpace(failure.Class), "workflow failed"),
 		"repair_attempted": failure.RepairAttempted,
 		"repair_succeeded": failure.RepairSucceeded,
+	}
+	if len(failure.RunnerDiagnostics) > 0 {
+		payload["runner_diagnostics"] = cloneStringAnyMap(failure.RunnerDiagnostics)
 	}
 	if retryAt, ok := workflowRetryAt(cfg, store, ctx.workflow, failure); ok {
 		retryDecision = "auto_retry"
@@ -128,16 +133,19 @@ func workflowFailureFromRunnerError(err error) workflowFailure {
 }
 
 func workflowFailureFromRunnerResponse(resp clients.RunnerResponse) workflowFailure {
-	class := workflowFailureRunnerNonOK
-	if strings.TrimSpace(stringValue(resp.Raw["structured_output_error"])) != "" {
+	class := firstNonEmpty(strings.TrimSpace(stringValue(resp.Raw["failure_class"])), workflowFailureRunnerNonOK)
+	runnerDiagnostics := mapValue(resp.Raw["runner_diagnostics"])
+	if class == workflowFailureRunnerNonOK && strings.TrimSpace(stringValue(resp.Raw["structured_output_error"])) != "" {
 		class = workflowFailureRunnerStructuredOutputParse
 	}
+	retryable := class == workflowFailureRunnerNonOK || class == workflowFailureRunnerStructuredOutputParse || class == workflowFailureRunnerTransportTimeout
 	return workflowFailure{
-		Class:           class,
-		Summary:         firstNonEmpty(strings.TrimSpace(resp.Message), strings.TrimSpace(stringValue(resp.Raw["structured_output_error"])), class),
-		RepairAttempted: boolValue(resp.Raw["repair_attempted"]),
-		RepairSucceeded: boolValue(resp.Raw["repair_succeeded"]),
-		Retryable:       class == workflowFailureRunnerNonOK || class == workflowFailureRunnerStructuredOutputParse,
+		Class:             class,
+		Summary:           firstNonEmpty(strings.TrimSpace(stringValueFromMap(runnerDiagnostics, "provider_error_message")), strings.TrimSpace(resp.Message), strings.TrimSpace(stringValue(resp.Raw["structured_output_error"])), class),
+		RunnerDiagnostics: runnerDiagnostics,
+		RepairAttempted:   boolValue(resp.Raw["repair_attempted"]),
+		RepairSucceeded:   boolValue(resp.Raw["repair_succeeded"]),
+		Retryable:         retryable,
 	}
 }
 
@@ -147,11 +155,12 @@ func workflowFailureFromStructuredOutputError(resp clients.RunnerResponse, err e
 		class = workflowFailureRunnerMissingStructuredOutput
 	}
 	return workflowFailure{
-		Class:           class,
-		Summary:         strings.TrimSpace(err.Error()),
-		RepairAttempted: boolValue(resp.Raw["repair_attempted"]),
-		RepairSucceeded: boolValue(resp.Raw["repair_succeeded"]),
-		Retryable:       true,
+		Class:             class,
+		Summary:           strings.TrimSpace(err.Error()),
+		RunnerDiagnostics: mapValue(resp.Raw["runner_diagnostics"]),
+		RepairAttempted:   boolValue(resp.Raw["repair_attempted"]),
+		RepairSucceeded:   boolValue(resp.Raw["repair_succeeded"]),
+		Retryable:         true,
 	}
 }
 
@@ -239,4 +248,31 @@ func stringValue(value any) string {
 	default:
 		return ""
 	}
+}
+
+func mapValue(value any) map[string]any {
+	switch typed := value.(type) {
+	case map[string]any:
+		return cloneStringAnyMap(typed)
+	default:
+		return nil
+	}
+}
+
+func stringValueFromMap(values map[string]any, key string) string {
+	if len(values) == 0 {
+		return ""
+	}
+	return stringValue(values[key])
+}
+
+func cloneStringAnyMap(input map[string]any) map[string]any {
+	if len(input) == 0 {
+		return nil
+	}
+	out := make(map[string]any, len(input))
+	for key, value := range input {
+		out[key] = value
+	}
+	return out
 }

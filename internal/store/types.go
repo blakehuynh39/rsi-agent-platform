@@ -7,31 +7,32 @@ import (
 )
 
 type Workflow struct {
-	ID               string     `json:"id"`
-	IngestionID      string     `json:"ingestion_id,omitempty"`
-	TraceID          string     `json:"trace_id,omitempty"`
-	ConversationID   string     `json:"conversation_id,omitempty"`
-	CaseID           string     `json:"case_id,omitempty"`
-	ThreadKey        string     `json:"thread_key"`
-	Kind             string     `json:"kind"`
-	Intent           string     `json:"intent,omitempty"`
-	AssignedBot      string     `json:"assigned_bot"`
-	ApprovalMode     string     `json:"approval_mode,omitempty"`
-	ResponseMode     string     `json:"response_mode,omitempty"`
-	Status           string     `json:"status"`
-	LastError        string     `json:"last_error,omitempty"`
-	AttemptNumber    int        `json:"attempt_number,omitempty"`
-	ParentWorkflowID string     `json:"parent_workflow_id,omitempty"`
-	FailureClass     string     `json:"failure_class,omitempty"`
-	FailureSummary   string     `json:"failure_summary,omitempty"`
-	RetryDecision    string     `json:"retry_decision,omitempty"`
-	RetryAfter       *time.Time `json:"retry_after,omitempty"`
-	RepairAttempted  bool       `json:"repair_attempted,omitempty"`
-	RepairSucceeded  bool       `json:"repair_succeeded,omitempty"`
-	Version          int64      `json:"version"`
-	CreatedAt        time.Time  `json:"created_at"`
-	UpdatedAt        time.Time  `json:"updated_at"`
-	CompletedAt      *time.Time `json:"completed_at,omitempty"`
+	ID                string         `json:"id"`
+	IngestionID       string         `json:"ingestion_id,omitempty"`
+	TraceID           string         `json:"trace_id,omitempty"`
+	ConversationID    string         `json:"conversation_id,omitempty"`
+	CaseID            string         `json:"case_id,omitempty"`
+	ThreadKey         string         `json:"thread_key"`
+	Kind              string         `json:"kind"`
+	Intent            string         `json:"intent,omitempty"`
+	AssignedBot       string         `json:"assigned_bot"`
+	ApprovalMode      string         `json:"approval_mode,omitempty"`
+	ResponseMode      string         `json:"response_mode,omitempty"`
+	Status            string         `json:"status"`
+	LastError         string         `json:"last_error,omitempty"`
+	AttemptNumber     int            `json:"attempt_number,omitempty"`
+	ParentWorkflowID  string         `json:"parent_workflow_id,omitempty"`
+	FailureClass      string         `json:"failure_class,omitempty"`
+	FailureSummary    string         `json:"failure_summary,omitempty"`
+	RetryDecision     string         `json:"retry_decision,omitempty"`
+	RetryAfter        *time.Time     `json:"retry_after,omitempty"`
+	RunnerDiagnostics map[string]any `json:"runner_diagnostics,omitempty"`
+	RepairAttempted   bool           `json:"repair_attempted,omitempty"`
+	RepairSucceeded   bool           `json:"repair_succeeded,omitempty"`
+	Version           int64          `json:"version"`
+	CreatedAt         time.Time      `json:"created_at"`
+	UpdatedAt         time.Time      `json:"updated_at"`
+	CompletedAt       *time.Time     `json:"completed_at,omitempty"`
 }
 
 type WorkflowLine struct {

@@ -1359,7 +1359,9 @@ func (s *MemoryStore) applyTraceUpdateLocked(traceID string, update TraceUpdate)
 	}
 	now := time.Now().UTC()
 	if update.Status != nil {
-		trace.Summary.Status = *update.Status
+		if !isTerminalTraceStatusValue(trace.Summary.Status) || isTerminalTraceStatusValue(*update.Status) {
+			trace.Summary.Status = *update.Status
+		}
 	}
 	if update.LastVerdict != nil {
 		trace.Summary.LastVerdict = *update.LastVerdict
@@ -1413,6 +1415,15 @@ func (s *MemoryStore) applyTraceUpdateLocked(traceID string, update TraceUpdate)
 	return trace, nil
 }
 
+func isTerminalTraceStatusValue(status events.Status) bool {
+	switch status {
+	case events.StatusCompleted, events.StatusFailed, events.StatusNeedsHuman:
+		return true
+	default:
+		return false
+	}
+}
+
 func (s *MemoryStore) evaluateTraceLocked(traceID string, trigger string) (evals.Run, []evals.Judgment, error) {
 	trace, ok := s.traces[traceID]
 	if !ok {
@@ -1422,7 +1433,7 @@ func (s *MemoryStore) evaluateTraceLocked(traceID string, trigger string) (evals
 	suiteName := suiteNameForTrace(trace, event)
 	createdAt := time.Now().UTC()
 	runID := nextID("eval", len(s.evalRuns)+1)
-	judgments := buildJudgments(trace, event, s.ratings[traceID], s.proposalMemory)
+	judgments := s.buildJudgments(trace, event, s.ratings[traceID], s.proposalMemory)
 	overallScore := 0.0
 	overallVerdict := "pass"
 	for _, judgment := range judgments {
@@ -1457,10 +1468,10 @@ func (s *MemoryStore) evaluateTraceLocked(traceID string, trigger string) (evals
 	return run, append([]evals.Judgment(nil), judgments...), nil
 }
 
-func buildJudgments(trace events.Trace, event *ingestion.EventEnvelope, ratings []review.HumanRating, memories []review.ProposalMemory) []evals.Judgment {
+func (s *MemoryStore) buildJudgments(trace events.Trace, event *ingestion.EventEnvelope, ratings []review.HumanRating, memories []review.ProposalMemory) []evals.Judgment {
 	now := time.Now().UTC()
 	judgments := []evals.Judgment{}
-	runtimeFailure, hasRuntimeFailure := runtimeFailureForTrace(trace)
+	runtimeFailure, hasRuntimeFailure := s.runtimeFailureForTrace(trace)
 	deterministicScore := 0.85
 	deterministicReason := "Trace completed within expected policy, cost, and validation budget."
 	if hasRuntimeFailure {
@@ -1512,7 +1523,7 @@ func buildJudgments(trace events.Trace, event *ingestion.EventEnvelope, ratings 
 		architectureScore = 0.54
 		architectureReason = "Platform-level event suggests architectural debt or missing self-improvement guardrails."
 	}
-	if hasRecentRejectedMemory(memories, candidateKeyForTrace(trace, event)) {
+	if hasRecentRejectedMemory(memories, s.candidateKeyForTrace(trace, event)) {
 		architectureScore -= 0.08
 		architectureReason = "Similar platform issue was rejected before; stronger novelty is required."
 	}
@@ -1592,10 +1603,10 @@ func sameCreatedWindow(a, b time.Time) bool {
 }
 
 func (s *MemoryStore) updateCandidateLocked(trace events.Trace, event *ingestion.EventEnvelope, run evals.Run, judgments []evals.Judgment) {
-	key := candidateKeyForTrace(trace, event)
-	failureMode := failureModeForTrace(trace, judgments)
-	subsystem := subsystemForTrace(trace, event)
-	interventionType := interventionTypeForTrace(trace, judgments)
+	key := s.candidateKeyForTrace(trace, event)
+	failureMode := s.failureModeForTrace(trace, judgments)
+	subsystem := s.subsystemForTrace(trace, event)
+	interventionType := s.interventionTypeForTrace(trace, judgments)
 	now := time.Now().UTC()
 	candidate, ok := s.candidates[key]
 	if !ok {
@@ -1613,10 +1624,10 @@ func (s *MemoryStore) updateCandidateLocked(trace events.Trace, event *ingestion
 			TargetKind:       targetKindForCandidate(trace, subsystem, failureMode, interventionType),
 			TargetRef:        targetRefForCandidate(trace, subsystem, failureMode, interventionType),
 			Status:           improvement.CandidateNeedsEvidence,
-			Severity:         severityForTrace(trace, event),
+			Severity:         s.severityForTrace(trace, event),
 			RiskTier:         improvement.RiskMedium,
-			Hypothesis:       hypothesisForTrace(trace, event, judgments),
-			ProposedScope:    proposedScopeForTrace(trace, event),
+			Hypothesis:       s.hypothesisForTrace(trace, event, judgments),
+			ProposedScope:    s.proposedScopeForTrace(trace, event),
 			CreatedAt:        now,
 		}
 	}
@@ -1642,6 +1653,9 @@ func (s *MemoryStore) updateCandidateLocked(trace events.Trace, event *ingestion
 	} else {
 		candidate.Status = improvement.CandidateNeedsEvidence
 	}
+	if isUngroundedFailedWorkflowCandidate(candidate) {
+		candidate.Status = improvement.CandidateNeedsEvidence
+	}
 	if len(candidate.PriorSimilarProposalIDs) > 0 && !candidate.NewEvidenceSinceLastRejection && rejectedRecently(s.proposalMemory, candidate.CandidateKey) {
 		candidate.Status = improvement.CandidateNeedsEvidence
 		candidate.PriorityScore *= 0.4
@@ -1649,17 +1663,17 @@ func (s *MemoryStore) updateCandidateLocked(trace events.Trace, event *ingestion
 	s.candidates[key] = candidate
 }
 
-func candidateKeyForTrace(trace events.Trace, event *ingestion.EventEnvelope) string {
-	subsystem := subsystemForTrace(trace, event)
-	failureMode := failureModeForTrace(trace, nil)
-	if runtimeFailure, ok := runtimeFailureForTrace(trace); ok {
-		return fmt.Sprintf("%s:%s:%s", firstNonEmpty(subsystem, runtimeFailure.Subsystem), interventionTypeForTrace(trace, nil), failureMode)
+func (s *MemoryStore) candidateKeyForTrace(trace events.Trace, event *ingestion.EventEnvelope) string {
+	subsystem := s.subsystemForTrace(trace, event)
+	failureMode := s.failureModeForTrace(trace, nil)
+	if runtimeFailure, ok := s.runtimeFailureForTrace(trace); ok {
+		return fmt.Sprintf("%s:%s:%s", firstNonEmpty(subsystem, runtimeFailure.Subsystem), s.interventionTypeForTrace(trace, nil), failureMode)
 	}
 	return fmt.Sprintf("%s:%s:%s", subsystem, trace.Summary.WorkflowKind, failureMode)
 }
 
-func subsystemForTrace(trace events.Trace, event *ingestion.EventEnvelope) string {
-	if runtimeFailure, ok := runtimeFailureForTrace(trace); ok {
+func (s *MemoryStore) subsystemForTrace(trace events.Trace, event *ingestion.EventEnvelope) string {
+	if runtimeFailure, ok := s.runtimeFailureForTrace(trace); ok {
 		return runtimeFailure.Subsystem
 	}
 	if event != nil && event.OwnershipHint != "" {
@@ -1673,8 +1687,8 @@ func subsystemForTrace(trace events.Trace, event *ingestion.EventEnvelope) strin
 	}
 }
 
-func severityForTrace(trace events.Trace, event *ingestion.EventEnvelope) string {
-	if _, ok := runtimeFailureForTrace(trace); ok {
+func (s *MemoryStore) severityForTrace(trace events.Trace, event *ingestion.EventEnvelope) string {
+	if _, ok := s.runtimeFailureForTrace(trace); ok {
 		return string(ingestion.SeverityError)
 	}
 	if event != nil {
@@ -1686,8 +1700,8 @@ func severityForTrace(trace events.Trace, event *ingestion.EventEnvelope) string
 	return string(ingestion.SeverityWarning)
 }
 
-func failureModeForTrace(trace events.Trace, judgments []evals.Judgment) string {
-	if runtimeFailure, ok := runtimeFailureForTrace(trace); ok {
+func (s *MemoryStore) failureModeForTrace(trace events.Trace, judgments []evals.Judgment) string {
+	if runtimeFailure, ok := s.runtimeFailureForTrace(trace); ok {
 		return runtimeFailure.FailureMode
 	}
 	if trace.Summary.Status == events.StatusFailed {
@@ -1704,8 +1718,8 @@ func failureModeForTrace(trace events.Trace, judgments []evals.Judgment) string 
 	return "quality_gap"
 }
 
-func interventionTypeForTrace(trace events.Trace, judgments []evals.Judgment) string {
-	if _, ok := runtimeFailureForTrace(trace); ok {
+func (s *MemoryStore) interventionTypeForTrace(trace events.Trace, judgments []evals.Judgment) string {
+	if _, ok := s.runtimeFailureForTrace(trace); ok {
 		return "policy_or_runtime_fix"
 	}
 	return interventionTypeForJudgments(judgments)
@@ -1723,8 +1737,8 @@ func interventionTypeForJudgments(judgments []evals.Judgment) string {
 	return "prompt_or_workflow_tune"
 }
 
-func hypothesisForTrace(trace events.Trace, event *ingestion.EventEnvelope, judgments []evals.Judgment) string {
-	if runtimeFailure, ok := runtimeFailureForTrace(trace); ok {
+func (s *MemoryStore) hypothesisForTrace(trace events.Trace, event *ingestion.EventEnvelope, judgments []evals.Judgment) string {
+	if runtimeFailure, ok := s.runtimeFailureForTrace(trace); ok {
 		return runtimeFailure.Hypothesis
 	}
 	if event != nil && event.Source == ingestion.SourceSentry {
@@ -1736,8 +1750,8 @@ func hypothesisForTrace(trace events.Trace, event *ingestion.EventEnvelope, judg
 	return "Tighten workflow policy and evaluation criteria to improve remediation quality."
 }
 
-func proposedScopeForTrace(trace events.Trace, event *ingestion.EventEnvelope) string {
-	if runtimeFailure, ok := runtimeFailureForTrace(trace); ok {
+func (s *MemoryStore) proposedScopeForTrace(trace events.Trace, event *ingestion.EventEnvelope) string {
+	if runtimeFailure, ok := s.runtimeFailureForTrace(trace); ok {
 		return runtimeFailure.ProposedScope
 	}
 	if event != nil && event.Source == ingestion.SourceSentry {
@@ -1753,7 +1767,10 @@ type runtimeFailureEvidence struct {
 	ProposedScope string
 }
 
-func runtimeFailureForTrace(trace events.Trace) (runtimeFailureEvidence, bool) {
+func (s *MemoryStore) runtimeFailureForTrace(trace events.Trace) (runtimeFailureEvidence, bool) {
+	if failure, ok := s.runtimeFailureFromWorkflowAttempts(trace); ok {
+		return failure, true
+	}
 	if failure, ok := runtimeFailureFromActionPersistence(trace); ok {
 		return failure, true
 	}
@@ -1764,6 +1781,69 @@ func runtimeFailureForTrace(trace events.Trace) (runtimeFailureEvidence, bool) {
 		return failure, true
 	}
 	return runtimeFailureEvidence{}, false
+}
+
+func (s *MemoryStore) runtimeFailureFromWorkflowAttempts(trace events.Trace) (runtimeFailureEvidence, bool) {
+	for _, workflow := range s.workflowAttemptsForTraceLocked(trace) {
+		failureClass := strings.TrimSpace(workflow.FailureClass)
+		failureKind := strings.TrimSpace(stringFromDiagnostic(workflow.RunnerDiagnostics, "failure_kind"))
+		providerParam := strings.TrimSpace(stringFromDiagnostic(workflow.RunnerDiagnostics, "provider_error_param"))
+		switch {
+		case (failureClass == "runner_invalid_request" || failureKind == "invalid_request") && providerParam == "tools[0].name":
+			return runtimeFailureEvidence{
+				Subsystem:     "runner",
+				FailureMode:   "runner_invalid_tool_name_contract",
+				Hypothesis:    "OpenAI rejected tools[0].name because dotted RSI tool IDs crossed the runner boundary unchanged; normalize RSI tool names to OpenAI-safe transport names in the runner and reverse-map tool calls back to canonical dotted IDs before executing them through the tool gateway.",
+				ProposedScope: "runner + control-plane + improvement-plane",
+			}, true
+		case failureClass == "runner_missing_structured_output":
+			return runtimeFailureEvidence{
+				Subsystem:     "runner",
+				FailureMode:   "runner_missing_structured_output",
+				Hypothesis:    "Enforce the runner structured-output contract so control-plane failures surface as grounded evaluations instead of opaque workflow errors.",
+				ProposedScope: "control-plane + runner",
+			}, true
+		case failureClass == "runner_structured_output_parse_failure":
+			return runtimeFailureEvidence{
+				Subsystem:     "runner",
+				FailureMode:   "runner_structured_output_parse_failure",
+				Hypothesis:    "Tighten the runner structured-output schema so control-plane can parse responses deterministically and recover from malformed outputs.",
+				ProposedScope: "control-plane + runner",
+			}, true
+		case failureClass == "runner_transport_timeout":
+			return runtimeFailureEvidence{
+				Subsystem:     "runner",
+				FailureMode:   "runner_transport_timeout",
+				Hypothesis:    "Treat runner transport timeouts as terminal runtime evidence with explicit diagnostics so the platform can distinguish network failures from model-output problems.",
+				ProposedScope: "runner + control-plane",
+			}, true
+		}
+	}
+	return runtimeFailureEvidence{}, false
+}
+
+func (s *MemoryStore) workflowAttemptsForTraceLocked(trace events.Trace) []Workflow {
+	attempts := make([]Workflow, 0)
+	caseID := strings.TrimSpace(trace.Summary.CaseID)
+	traceID := strings.TrimSpace(trace.Summary.TraceID)
+	workflowID := strings.TrimSpace(trace.Summary.WorkflowID)
+	for _, workflow := range s.workflows {
+		switch {
+		case caseID != "" && strings.TrimSpace(workflow.CaseID) == caseID:
+			attempts = append(attempts, workflow)
+		case traceID != "" && strings.TrimSpace(workflow.TraceID) == traceID:
+			attempts = append(attempts, workflow)
+		case workflowID != "" && strings.TrimSpace(workflow.ID) == workflowID:
+			attempts = append(attempts, workflow)
+		}
+	}
+	sort.Slice(attempts, func(i, j int) bool {
+		if attempts[i].AttemptNumber == attempts[j].AttemptNumber {
+			return attempts[i].CreatedAt.After(attempts[j].CreatedAt)
+		}
+		return attempts[i].AttemptNumber > attempts[j].AttemptNumber
+	})
+	return attempts
 }
 
 func runtimeFailureFromActionPersistence(trace events.Trace) (runtimeFailureEvidence, bool) {
@@ -1836,6 +1916,22 @@ func runtimeFailureFromWorkflowFailure(trace events.Trace) (runtimeFailureEviden
 	return runtimeFailureEvidence{}, false
 }
 
+func stringFromDiagnostic(values map[string]any, key string) string {
+	if len(values) == 0 {
+		return ""
+	}
+	raw, ok := values[key]
+	if !ok || raw == nil {
+		return ""
+	}
+	switch typed := raw.(type) {
+	case string:
+		return strings.TrimSpace(typed)
+	default:
+		return strings.TrimSpace(fmt.Sprint(typed))
+	}
+}
+
 func failedToolCallStatus(status string) bool {
 	switch strings.ToLower(strings.TrimSpace(status)) {
 	case "failed", "error", "blocked":
@@ -1893,6 +1989,8 @@ func traceEventTagValue(description string, key string) string {
 
 func runtimeFailureHypothesis(subsystem string, failureMode string) string {
 	switch failureMode {
+	case "runner_invalid_tool_name_contract":
+		return "Normalize dotted RSI tool IDs to OpenAI-safe transport names in the runner, reverse-map tool calls back to canonical IDs before tool-gateway execution, and persist invalid-request diagnostics instead of collapsing them into structured-output parse failures."
 	case "action_result_primary_key_collision":
 		return "Fix shared-store action result keying and control-plane terminalization so action result collisions cannot wedge traces before eval."
 	case "postgres_unique_constraint_violation":
@@ -1903,6 +2001,9 @@ func runtimeFailureHypothesis(subsystem string, failureMode string) string {
 }
 
 func runtimeFailureScope(subsystem string, failureMode string) string {
+	if failureMode == "runner_invalid_tool_name_contract" {
+		return "runner + control-plane + improvement-plane"
+	}
 	if failureMode == "action_result_primary_key_collision" || subsystem == "shared-store" {
 		return "control-plane + shared-store"
 	}
@@ -2057,6 +2158,12 @@ func (s *MemoryStore) promoteCandidatesLocked(requestedBy string, limit int) (Pr
 		if candidate.Status != improvement.CandidateQueued {
 			continue
 		}
+		if isUngroundedFailedWorkflowCandidate(candidate) {
+			candidate.Status = improvement.CandidateNeedsEvidence
+			candidate.UpdatedAt = now
+			s.candidates[candidate.CandidateKey] = candidate
+			continue
+		}
 		if s.hasActiveProposalForCandidateLocked(candidate.CandidateKey) {
 			continue
 		}
@@ -2116,6 +2223,25 @@ func (s *MemoryStore) hasActiveProposalForCandidateLocked(candidateKey string) b
 		}
 	}
 	return false
+}
+
+func isUngroundedFailedWorkflowCandidate(candidate improvement.Candidate) bool {
+	if candidate.FailureMode != "failed_workflow" {
+		return false
+	}
+	scope := strings.TrimSpace(candidate.ProposedScope)
+	hypothesis := strings.TrimSpace(candidate.Hypothesis)
+	if scope == "whole_repo" || scope == "platform + adapters" {
+		return true
+	}
+	switch hypothesis {
+	case "Introduce stronger proposal slot gating and shared-state evaluation to avoid repeated recursive failures.",
+		"Improve architecture routing and add stronger closed-loop evaluation signals.",
+		"Tighten workflow policy and evaluation criteria to improve remediation quality.":
+		return true
+	default:
+		return false
+	}
 }
 
 func proposalTitle(candidate improvement.Candidate) string {

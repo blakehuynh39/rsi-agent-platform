@@ -62,25 +62,26 @@ type workflowLineSummary struct {
 }
 
 type workflowAttemptSummary struct {
-	WorkflowID        string     `json:"workflow_id"`
-	TraceID           string     `json:"trace_id,omitempty"`
-	ConversationID    string     `json:"conversation_id,omitempty"`
-	CaseID            string     `json:"case_id,omitempty"`
-	WorkflowKind      string     `json:"workflow_kind"`
-	Status            string     `json:"status"`
-	TraceStatus       string     `json:"trace_status,omitempty"`
-	AttemptNumber     int        `json:"attempt_number"`
-	ParentWorkflowID  string     `json:"parent_workflow_id,omitempty"`
-	SupersedesTraceID string     `json:"supersedes_trace_id,omitempty"`
-	FailureClass      string     `json:"failure_class,omitempty"`
-	FailureSummary    string     `json:"failure_summary,omitempty"`
-	RetryDecision     string     `json:"retry_decision,omitempty"`
-	RetryAfter        *time.Time `json:"retry_after,omitempty"`
-	RepairAttempted   bool       `json:"repair_attempted,omitempty"`
-	RepairSucceeded   bool       `json:"repair_succeeded,omitempty"`
-	CreatedAt         time.Time  `json:"created_at"`
-	UpdatedAt         time.Time  `json:"updated_at"`
-	CompletedAt       *time.Time `json:"completed_at,omitempty"`
+	WorkflowID        string         `json:"workflow_id"`
+	TraceID           string         `json:"trace_id,omitempty"`
+	ConversationID    string         `json:"conversation_id,omitempty"`
+	CaseID            string         `json:"case_id,omitempty"`
+	WorkflowKind      string         `json:"workflow_kind"`
+	Status            string         `json:"status"`
+	TraceStatus       string         `json:"trace_status,omitempty"`
+	AttemptNumber     int            `json:"attempt_number"`
+	ParentWorkflowID  string         `json:"parent_workflow_id,omitempty"`
+	SupersedesTraceID string         `json:"supersedes_trace_id,omitempty"`
+	FailureClass      string         `json:"failure_class,omitempty"`
+	FailureSummary    string         `json:"failure_summary,omitempty"`
+	RetryDecision     string         `json:"retry_decision,omitempty"`
+	RetryAfter        *time.Time     `json:"retry_after,omitempty"`
+	RunnerDiagnostics map[string]any `json:"runner_diagnostics,omitempty"`
+	RepairAttempted   bool           `json:"repair_attempted,omitempty"`
+	RepairSucceeded   bool           `json:"repair_succeeded,omitempty"`
+	CreatedAt         time.Time      `json:"created_at"`
+	UpdatedAt         time.Time      `json:"updated_at"`
+	CompletedAt       *time.Time     `json:"completed_at,omitempty"`
 }
 
 type caseSummary struct {
@@ -705,23 +706,24 @@ func workflowAttemptsForCase(workflows []storepkg.Workflow, traces []events.Trac
 
 func workflowAttemptSummaryView(workflow storepkg.Workflow, traces []events.TraceSummary) workflowAttemptSummary {
 	summary := workflowAttemptSummary{
-		WorkflowID:       workflow.ID,
-		TraceID:          workflow.TraceID,
-		ConversationID:   workflow.ConversationID,
-		CaseID:           workflow.CaseID,
-		WorkflowKind:     workflow.Kind,
-		Status:           workflow.Status,
-		AttemptNumber:    workflow.AttemptNumber,
-		ParentWorkflowID: workflow.ParentWorkflowID,
-		FailureClass:     workflow.FailureClass,
-		FailureSummary:   workflow.FailureSummary,
-		RetryDecision:    workflow.RetryDecision,
-		RetryAfter:       workflow.RetryAfter,
-		RepairAttempted:  workflow.RepairAttempted,
-		RepairSucceeded:  workflow.RepairSucceeded,
-		CreatedAt:        workflow.CreatedAt,
-		UpdatedAt:        workflow.UpdatedAt,
-		CompletedAt:      workflow.CompletedAt,
+		WorkflowID:        workflow.ID,
+		TraceID:           workflow.TraceID,
+		ConversationID:    workflow.ConversationID,
+		CaseID:            workflow.CaseID,
+		WorkflowKind:      workflow.Kind,
+		Status:            workflow.Status,
+		AttemptNumber:     workflow.AttemptNumber,
+		ParentWorkflowID:  workflow.ParentWorkflowID,
+		FailureClass:      workflow.FailureClass,
+		FailureSummary:    workflow.FailureSummary,
+		RetryDecision:     workflow.RetryDecision,
+		RetryAfter:        workflow.RetryAfter,
+		RunnerDiagnostics: workflow.RunnerDiagnostics,
+		RepairAttempted:   workflow.RepairAttempted,
+		RepairSucceeded:   workflow.RepairSucceeded,
+		CreatedAt:         workflow.CreatedAt,
+		UpdatedAt:         workflow.UpdatedAt,
+		CompletedAt:       workflow.CompletedAt,
 	}
 	for _, trace := range traces {
 		if trace.WorkflowID != workflow.ID {

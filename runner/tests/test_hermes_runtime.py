@@ -9,6 +9,7 @@ from unittest import mock
 
 from rsi_runner.config import RunnerConfig, RunnerConfigError
 from rsi_runner.hermes_runtime import HermesRuntime, RunnerTaskRequest
+from rsi_runner.rsi_tools import ReadOnlyToolBinding, tool_schema_wrappers
 
 
 def runner_env(role: str = "prod") -> dict[str, str]:
@@ -285,6 +286,99 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("structured_output", result.raw)
         self.assertEqual(result.raw["structured_output"]["final_answer"], "Final reply")
 
+    def test_rsi_tool_wrappers_use_transport_names_and_reverse_map_to_canonical_gateway_ids(self) -> None:
+        wrappers = tool_schema_wrappers(["repo.context", "rsi.workflow_context"])
+        self.assertEqual(
+            [item["function"]["name"] for item in wrappers],
+            ["repo_context", "rsi_workflow_context"],
+        )
+
+        captured: dict[str, object] = {}
+
+        class FakeResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb) -> bool:
+                return False
+
+            def read(self) -> bytes:
+                return json.dumps(
+                    {
+                        "status": "completed",
+                        "available": True,
+                        "summary": "Context gathered.",
+                        "provider": "tool-gateway",
+                        "provider_ref": "repo.context-call",
+                        "output": {"ok": True},
+                    }
+                ).encode("utf-8")
+
+        def fake_urlopen(req, timeout: int = 0):
+            captured["url"] = req.full_url
+            captured["timeout"] = timeout
+            captured["body"] = json.loads(req.data.decode("utf-8"))
+            return FakeResponse()
+
+        binding = ReadOnlyToolBinding(
+            base_url="http://tool-gateway.internal",
+            allowed_tool_names=["repo.context", "rsi.workflow_context"],
+            task_repo="rsi-agent-platform",
+            task_prompt="What broke?",
+            task_context_summary="workflow summary",
+            trace_id="trace-123",
+            session_scope_kind="conversation",
+            session_scope_id="conv-123",
+            context_refs=[],
+        )
+
+        with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_urlopen):
+            payload = json.loads(binding.handle_tool_call("repo_context", {"question": "What broke?"}))
+
+        self.assertEqual(captured["url"], "http://tool-gateway.internal/api/tools/repo.context/execute")
+        self.assertEqual(captured["body"], {"trace_id": "trace-123", "repo": "rsi-agent-platform", "question": "What broke?"})
+        self.assertEqual(payload["tool_name"], "repo.context")
+        self.assertEqual(payload["transport_tool_name"], "repo_context")
+
+    def test_invalid_tool_name_preflight_fails_before_provider_execution(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the workflow.",
+                    "allowed_tools": ["repo.context"],
+                    "tool_allowlist": ["repo.context"],
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                    "user_peer_id": "user:alice",
+                }
+            }
+        )
+
+        def fake_transport_name(name: str) -> str:
+            if name == "repo.context":
+                raise ValueError("unsafe tool name")
+            return name
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch("rsi_runner.hermes_runtime.tool_transport_name", side_effect=fake_transport_name), mock.patch.dict(
+            os.environ, runner_env("prod"), clear=True
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.raw["failure_class"], "runner_invalid_request")
+        self.assertNotIn("structured_output_error", result.raw)
+        self.assertEqual(result.raw["runner_diagnostics"]["failure_kind"], "invalid_request")
+        self.assertEqual(result.raw["runner_diagnostics"]["provider_error_param"], "tools[0].name")
+        self.assertEqual(result.raw["runner_diagnostics"]["invalid_tool_names"], ["repo.context"])
+        self.assertIsNone(FakeAIAgent.last_kwargs)
+
     def test_workflow_non_json_output_repairs_successfully(self) -> None:
         class RepairingAIAgent(FakeAIAgent):
             calls = 0
@@ -453,8 +547,8 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertTrue(result.ok)
         self.assertEqual(FakeAIAgent.last_kwargs["max_iterations"], 5)
-        self.assertIn("repo.context", FakeAIAgent.last_valid_tool_names)
-        self.assertIn("rsi.candidate_context", FakeAIAgent.last_valid_tool_names)
+        self.assertIn("repo_context", FakeAIAgent.last_valid_tool_names)
+        self.assertIn("rsi_candidate_context", FakeAIAgent.last_valid_tool_names)
         self.assertNotIn("github.create_pr", FakeAIAgent.last_valid_tool_names)
         self.assertNotIn("honcho_conclude", FakeAIAgent.last_valid_tool_names)
         self.assertEqual(result.raw["tool_policy_mode"], "enforced_read_only")
@@ -462,6 +556,8 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("honcho_conclude", result.raw["blocked_tool_names"])
         self.assertIn("repo.context", result.raw["tool_allowlist_effective"])
         self.assertIn("rsi.candidate_context", result.raw["tool_allowlist_effective"])
+        self.assertIn("repo_context", result.raw["tool_transport_allowlist_effective"])
+        self.assertIn("rsi_candidate_context", result.raw["tool_transport_allowlist_effective"])
 
     def test_prod_role_uses_governed_read_only_tool_policy(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -487,11 +583,13 @@ class HermesRuntimeTests(unittest.TestCase):
             result = runtime.execute_task(task)
 
         self.assertTrue(result.ok)
-        self.assertIn("repo.context", FakeAIAgent.last_valid_tool_names)
-        self.assertIn("knowledge.context", FakeAIAgent.last_valid_tool_names)
+        self.assertIn("repo_context", FakeAIAgent.last_valid_tool_names)
+        self.assertIn("knowledge_context", FakeAIAgent.last_valid_tool_names)
         self.assertNotIn("github.create_pr", FakeAIAgent.last_valid_tool_names)
         self.assertEqual(result.raw["tool_policy_mode"], "enforced_read_only")
         self.assertIn("github.create_pr", result.raw["blocked_tool_names"])
+        self.assertIn("repo_context", result.raw["tool_transport_allowlist_effective"])
+        self.assertIn("knowledge_context", result.raw["tool_transport_allowlist_effective"])
 
     def test_eval_task_timeout_returns_structured_timeout(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -522,6 +620,8 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["task_timeout_seconds"], 1)
         self.assertEqual(result.raw["transport_timeout_seconds"], 330)
         self.assertEqual(result.raw["tool_policy_mode"], "enforced_read_only")
+        self.assertEqual(result.raw["failure_class"], "runner_transport_timeout")
+        self.assertEqual(result.raw["runner_diagnostics"]["failure_kind"], "transport_timeout")
 
     def test_eval_inactivity_timeout_returns_structured_timeout(self) -> None:
         task = RunnerTaskRequest.from_payload(

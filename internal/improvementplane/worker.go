@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"sort"
 	"strings"
 	"time"
 
@@ -1730,7 +1731,7 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 			Summary:    judgment.Rationale,
 		})
 	}
-	evalContextRefs = append(evalContextRefs, improvementTraceEvidenceRefs(trace)...)
+	evalContextRefs = append(evalContextRefs, improvementTraceEvidenceRefs(store, trace)...)
 	evalContextRefs = append(evalContextRefs, improvementCandidateEvidenceRefs(store, trace, "")...)
 	evalContextRefs = append(evalContextRefs, improvementProposalMemoryRefs(store, "")...)
 	if strings.TrimSpace(operationID) != "" {
@@ -1748,7 +1749,7 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 		})
 	}
 	prompt := fmt.Sprintf(
-		"Summarize the completed eval for trace %s. Workflow=%s status=%s thread=%s. Eval run=%s suite=%s verdict=%s score=%.2f. Judgments=%v. The authoritative target repository for this eval line is %s. Start from the supplied evidence pack, then use the read-only RSI tools when you need more trace, candidate, proposal-memory, or repo detail. If recalled memory conflicts with the target repository or trace evidence, prefer the target repository and explicit evidence. Explain what the eval found, what evidence mattered, whether improvement pressure should increase, and why.",
+		"Summarize the completed eval for trace %s. Workflow=%s status=%s thread=%s. Eval run=%s suite=%s verdict=%s score=%.2f. Judgments=%v. The authoritative target repository for this eval line is %s. Start from the supplied evidence pack, then use rsi.trace_context first for persisted workflow-attempt diagnostics, workflow-line state, and harness execution history. Only fall back to rsi.runner_execution or kubernetes.logs if the persisted diagnostics are absent or incomplete. If recalled memory conflicts with the target repository or trace evidence, prefer the target repository and explicit evidence. Explain what the eval found, what evidence mattered, whether improvement pressure should increase, and why.",
 		trace.Summary.TraceID,
 		trace.Summary.WorkflowKind,
 		trace.Summary.Status,
@@ -1881,12 +1882,12 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 			AllowedPathGlobs: workspace.AllowedPathGlobs,
 		})
 	}
-	contextRefs = append(contextRefs, improvementTraceEvidenceRefs(trace)...)
+	contextRefs = append(contextRefs, improvementTraceEvidenceRefs(store, trace)...)
 	contextRefs = append(contextRefs, improvementCandidateEvidenceRefs(store, trace, proposal.CandidateKey)...)
 	contextRefs = append(contextRefs, improvementProposalMemoryRefs(store, proposal.CandidateKey)...)
 	contextRefs = append(contextRefs, improvementAttemptHistoryRefs(store, proposal.ID, attempt.ID)...)
 	prompt := fmt.Sprintf(
-		"Execute approved intervention attempt %d for proposal %s. Candidate=%s risk=%s scope=%s summary=%s. The approved intervention kind is %s with rationale %q, target surface %q, and validation plan %q. The authoritative target repository is %s. Start from the dense evidence pack: latest failing trace evidence, root-cause metadata, prior rejected or dismissed proposal memory, and prior attempt failures. If recalled memory mentions a different repository, treat it as stale unless the supplied evidence pack explicitly supports it. Investigate the approved scope, ground the implementation in concrete files within %s, and return explicit visible reasoning, change_plan, validation_plan, retry_assessment, hypothesis_delta, and any governed proposed_actions needed for the next platform step.",
+		"Execute approved intervention attempt %d for proposal %s. Candidate=%s risk=%s scope=%s summary=%s. The approved intervention kind is %s with rationale %q, target surface %q, and validation plan %q. The authoritative target repository is %s. Start from the dense evidence pack: latest failing trace evidence, persisted workflow-attempt diagnostics, root-cause metadata, prior rejected or dismissed proposal memory, and prior attempt failures. Use rsi.trace_context first when you need more persisted runtime detail; use rsi.runner_execution or kubernetes.logs only if the persisted diagnostics are absent or incomplete. If recalled memory mentions a different repository, treat it as stale unless the supplied evidence pack explicitly supports it. Investigate the approved scope, ground the implementation in concrete files within %s, and return explicit visible reasoning, change_plan, validation_plan, retry_assessment, hypothesis_delta, and any governed proposed_actions needed for the next platform step.",
 		attempt.AttemptNumber,
 		proposal.ID,
 		proposal.CandidateKey,
@@ -2033,13 +2034,6 @@ func improvementBaseToolNames() []string {
 	return []string{
 		"repo.context",
 		"knowledge.context",
-		"github.repo_activity",
-		"github.repo_context",
-		"sentry.lookup",
-		"kubernetes.inspect",
-		"kubernetes.logs",
-		"kubernetes.events",
-		"cloudflare.inspect",
 		"rsi.trace_context",
 		"rsi.workflow_context",
 		"rsi.action_chain",
@@ -2049,6 +2043,13 @@ func improvementBaseToolNames() []string {
 		"rsi.proposal_memory",
 		"rsi.candidate_context",
 		"rsi.attempt_context",
+		"github.repo_activity",
+		"github.repo_context",
+		"sentry.lookup",
+		"kubernetes.inspect",
+		"kubernetes.logs",
+		"kubernetes.events",
+		"cloudflare.inspect",
 	}
 }
 
@@ -2085,7 +2086,43 @@ func improvementImplementTools(effective harness.EffectiveConfig) []string {
 	return harness.ApplyToolPreference(tools, effective.ToolPreferenceOrder)
 }
 
-func improvementTraceEvidenceRefs(trace events.Trace) []clients.RunnerContextRef {
+func improvementTraceEvidenceRefs(store storepkg.Store, trace events.Trace) []clients.RunnerContextRef {
+	refs := make([]clients.RunnerContextRef, 0, 16)
+	if caseID := strings.TrimSpace(trace.Summary.CaseID); caseID != "" {
+		if line, ok := store.GetWorkflowLine(caseID); ok {
+			refs = append(refs, clients.RunnerContextRef{
+				Kind:                     "workflow_line",
+				Ref:                      line.CaseID,
+				TraceID:                  trace.Summary.TraceID,
+				Status:                   line.Status,
+				Summary:                  fmt.Sprintf("Workflow line status=%s attempts=%d last_failure_class=%s", line.Status, line.AttemptCount, firstNonEmpty(line.LastFailureClass, "none")),
+				AttemptCount:             line.AttemptCount,
+				AutoRetryBudgetRemaining: line.AutoRetryBudgetRemaining,
+				FailureClass:             line.LastFailureClass,
+				NextRetryAction:          line.NextRetryAction,
+				RetryAfter:               formatOptionalTime(line.RetryAfter),
+				LineStopReason:           line.LineStopReason,
+			})
+		}
+		for _, workflow := range workflowAttemptsForTrace(store, trace) {
+			refs = append(refs, clients.RunnerContextRef{
+				Kind:              "workflow_attempt",
+				Ref:               workflow.ID,
+				TraceID:           workflow.TraceID,
+				Status:            workflow.Status,
+				Summary:           firstNonEmpty(workflow.FailureSummary, workflow.FailureClass, workflow.Status),
+				AttemptNumber:     workflow.AttemptNumber,
+				FailureClass:      workflow.FailureClass,
+				FailureSummary:    workflow.FailureSummary,
+				RetryDecision:     workflow.RetryDecision,
+				RetryAfter:        formatOptionalTime(workflow.RetryAfter),
+				RunnerDiagnostics: cloneRunnerDiagnostics(workflow.RunnerDiagnostics),
+			})
+			if len(refs) >= 8 {
+				break
+			}
+		}
+	}
 	eventRefs := make([]clients.RunnerContextRef, 0, minInt(len(trace.Events), 12))
 	for _, item := range tailTraceEvents(trace.Events, 12) {
 		eventRefs = append(eventRefs, clients.RunnerContextRef{
@@ -2108,7 +2145,49 @@ func improvementTraceEvidenceRefs(trace events.Trace) []clients.RunnerContextRef
 			Confidence: item.Confidence,
 		})
 	}
-	return append(eventRefs, reasoningRefs...)
+	refs = append(refs, eventRefs...)
+	refs = append(refs, reasoningRefs...)
+	return refs
+}
+
+func workflowAttemptsForTrace(store storepkg.Store, trace events.Trace) []storepkg.Workflow {
+	items := make([]storepkg.Workflow, 0)
+	caseID := strings.TrimSpace(trace.Summary.CaseID)
+	for _, item := range store.ListWorkflows() {
+		switch {
+		case caseID != "" && strings.TrimSpace(item.CaseID) == caseID:
+			items = append(items, item)
+		case strings.TrimSpace(item.TraceID) == strings.TrimSpace(trace.Summary.TraceID):
+			items = append(items, item)
+		case strings.TrimSpace(item.ID) == strings.TrimSpace(trace.Summary.WorkflowID):
+			items = append(items, item)
+		}
+	}
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].AttemptNumber == items[j].AttemptNumber {
+			return items[i].CreatedAt.After(items[j].CreatedAt)
+		}
+		return items[i].AttemptNumber > items[j].AttemptNumber
+	})
+	return items
+}
+
+func formatOptionalTime(value *time.Time) string {
+	if value == nil || value.IsZero() {
+		return ""
+	}
+	return value.UTC().Format(time.RFC3339)
+}
+
+func cloneRunnerDiagnostics(input map[string]any) map[string]any {
+	if len(input) == 0 {
+		return nil
+	}
+	out := make(map[string]any, len(input))
+	for key, value := range input {
+		out[key] = value
+	}
+	return out
 }
 
 func improvementCandidateEvidenceRefs(store storepkg.Store, trace events.Trace, candidateKey string) []clients.RunnerContextRef {

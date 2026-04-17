@@ -707,7 +707,8 @@ func TestMemoryStoreSubmitCommandWorkflowFailurePersistsLastError(t *testing.T) 
 		CommandID:   "cmd-workflow-failed",
 		OccurredAt:  now,
 		Payload: map[string]any{
-			"last_error": "runner response missing structured_output",
+			"last_error":         "runner response missing structured_output",
+			"runner_diagnostics": map[string]any{"failure_kind": "structured_output_parse_failure"},
 		},
 	}); err != nil {
 		t.Fatalf("SubmitCommand(workflow_failed) error = %v", err)
@@ -722,6 +723,9 @@ func TestMemoryStoreSubmitCommandWorkflowFailurePersistsLastError(t *testing.T) 
 	}
 	if updated.LastError != "runner response missing structured_output" {
 		t.Fatalf("expected workflow last error to persist, got %q", updated.LastError)
+	}
+	if updated.RunnerDiagnostics["failure_kind"] != "structured_output_parse_failure" {
+		t.Fatalf("expected runner diagnostics to persist, got %#v", updated.RunnerDiagnostics)
 	}
 	if updated.CompletedAt == nil {
 		t.Fatal("expected failed workflow to set completed_at")
@@ -1733,6 +1737,141 @@ func TestEvaluateTraceWorkflowContextBindingFailureCreatesRootCauseCandidate(t *
 	}
 	if candidate.ProposedScope != "control-plane + tool-gateway" {
 		t.Fatalf("expected bounded scope, got %q", candidate.ProposedScope)
+	}
+}
+
+func TestEvaluateTraceRunnerInvalidToolNameContractUsesWorkflowAttemptDiagnostics(t *testing.T) {
+	store := NewMemoryStore()
+	workflow := store.ListWorkflows()[0]
+	trace, ok := store.GetTrace(workflow.TraceID)
+	if !ok {
+		t.Fatalf("expected trace %s", workflow.TraceID)
+	}
+	now := time.Now().UTC()
+	if _, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineWorkflow,
+		AggregateID: workflow.ID,
+		CommandKind: string(transition.CommandWorkflowFailed),
+		CommandID:   "cmd-workflow-invalid-tool-name",
+		OccurredAt:  now,
+		Payload: map[string]any{
+			"last_error":      "OpenAI rejected tools[0].name",
+			"failure_class":   "runner_invalid_request",
+			"failure_summary": "OpenAI rejected tools[0].name because dotted RSI tool names crossed the provider boundary.",
+			"runner_diagnostics": map[string]any{
+				"failure_kind":           "invalid_request",
+				"provider_status_code":   400,
+				"provider_error_param":   "tools[0].name",
+				"provider_error_code":    "invalid_value",
+				"provider_error_message": "Invalid 'tools[0].name': string does not match pattern '^[A-Za-z0-9_-]+$'",
+				"invalid_tool_names":     []any{"repo.context", "rsi.workflow_context"},
+			},
+		},
+	}); err != nil {
+		t.Fatalf("SubmitCommand(workflow_failed invalid tool name) error = %v", err)
+	}
+
+	evalReceipt := submitProblemLineCommandForTest(t, store, trace.Summary.TraceID, transition.CommandProblemLineEvaluateTrace, "cmd-problem-line-evaluate-invalid-tool-name", "tester", time.Now().UTC(), map[string]any{
+		"trigger": "test",
+	})
+	run, judgments, ok := findEvalRunForReceipt(store, evalReceipt)
+	if !ok {
+		t.Fatalf("expected eval run %s", evalReceipt.ResultRef)
+	}
+	if run.OverallScore >= 0.65 {
+		t.Fatalf("expected invalid tool-name trace to score below promotion threshold, got %.2f (%#v)", run.OverallScore, judgments)
+	}
+
+	var candidate improvement.Candidate
+	found := false
+	for _, item := range store.ListCandidates() {
+		if item.LatestTraceID == trace.Summary.TraceID && item.FailureMode == "runner_invalid_tool_name_contract" {
+			candidate = item
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("expected runner invalid tool-name contract candidate to be created")
+	}
+	if candidate.CandidateKey != "runner:policy_or_runtime_fix:runner_invalid_tool_name_contract" {
+		t.Fatalf("unexpected candidate key: %s", candidate.CandidateKey)
+	}
+	if candidate.Subsystem != "runner" {
+		t.Fatalf("expected runner subsystem, got %s", candidate.Subsystem)
+	}
+	if candidate.Status != improvement.CandidateQueued {
+		t.Fatalf("expected queued candidate, got %s", candidate.Status)
+	}
+	if !strings.Contains(candidate.Hypothesis, "tools[0].name") {
+		t.Fatalf("expected hypothesis to mention tools[0].name, got %q", candidate.Hypothesis)
+	}
+	if candidate.ProposedScope != "runner + control-plane + improvement-plane" {
+		t.Fatalf("expected bounded scope, got %q", candidate.ProposedScope)
+	}
+}
+
+func TestUngroundedFailedWorkflowCandidateStaysNeedsEvidenceAndDoesNotPromote(t *testing.T) {
+	store := NewMemoryStore()
+	store.proposals = map[string]review.Proposal{}
+	for key, item := range store.candidates {
+		item.Status = improvement.CandidateNeedsEvidence
+		store.candidates[key] = item
+	}
+	workflow := store.ListWorkflows()[0]
+	initialProposalCount := len(store.ListProposals())
+	now := time.Now().UTC()
+	if _, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineWorkflow,
+		AggregateID: workflow.ID,
+		CommandKind: string(transition.CommandWorkflowFailed),
+		CommandID:   "cmd-workflow-generic-failure",
+		OccurredAt:  now,
+		Payload: map[string]any{
+			"last_error": "workflow failed",
+		},
+	}); err != nil {
+		t.Fatalf("SubmitCommand(workflow_failed generic) error = %v", err)
+	}
+
+	evalReceipt := submitProblemLineCommandForTest(t, store, workflow.TraceID, transition.CommandProblemLineEvaluateTrace, "cmd-problem-line-evaluate-generic-failure", "tester", now.Add(time.Second), map[string]any{
+		"trigger": "test",
+	})
+	if _, _, ok := findEvalRunForReceipt(store, evalReceipt); !ok {
+		t.Fatalf("expected eval run %s", evalReceipt.ResultRef)
+	}
+
+	var candidate improvement.Candidate
+	found := false
+	for _, item := range store.ListCandidates() {
+		if item.LatestTraceID == workflow.TraceID && item.FailureMode == "failed_workflow" {
+			candidate = item
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("expected generic failed_workflow candidate to be created")
+	}
+	if candidate.Status != improvement.CandidateNeedsEvidence {
+		t.Fatalf("expected candidate to stay needs_evidence, got %s", candidate.Status)
+	}
+	if candidate.ProposedScope != "whole_repo" && candidate.ProposedScope != "platform + adapters" {
+		t.Fatalf("expected generic broad scope, got %q", candidate.ProposedScope)
+	}
+
+	promoteReceipt := submitProblemLineCommandForTest(t, store, "test-promoter", transition.CommandProblemLinePromote, "cmd-problem-line-promote-generic-failure", "tester", now.Add(2*time.Second), map[string]any{
+		"limit": 1,
+	})
+	result, err := loadPromotionResultForReceipt(store, promoteReceipt)
+	if err != nil {
+		t.Fatalf("loadPromotionResultForReceipt() error = %v", err)
+	}
+	if result.Promoted != 0 {
+		t.Fatalf("expected no promoted proposals, got %+v", result)
+	}
+	if len(store.ListProposals()) != initialProposalCount {
+		t.Fatalf("expected proposal count to remain %d, got %d", initialProposalCount, len(store.ListProposals()))
 	}
 }
 

@@ -527,7 +527,7 @@ func (s *MemoryStore) applyProblemLineCommandLocked(command transition.CommandEn
 			if err != nil {
 				return commandApplyResult{}, err
 			}
-			candidateKey := candidateKeyForTrace(trace, s.findEventByTraceLocked(trace))
+			candidateKey := s.candidateKeyForTrace(trace, s.findEventByTraceLocked(trace))
 			result.evalRunID = run.ID
 			result.traceID = run.TraceID
 			result.evalJudgments = append([]evals.Judgment(nil), judgments...)
@@ -2964,6 +2964,10 @@ func (s *MemoryStore) projectWorkflowTraceLocked(workflow Workflow, command tran
 		update.Reasoning = append(update.Reasoning, reasoningStepsFromCommand(command, "reasoning_steps")...)
 	case transition.CommandWorkflowBlocked:
 		if traceHasEventType(trace, "workflow.blocked") {
+			if trace.Summary.Status != events.StatusNeedsHuman {
+				_, err := s.applyTraceUpdateLocked(traceID, TraceUpdate{Status: ptrStatus(events.StatusNeedsHuman)})
+				return err
+			}
 			return nil
 		}
 		update.Status = ptrStatus(events.StatusNeedsHuman)
@@ -2982,6 +2986,10 @@ func (s *MemoryStore) projectWorkflowTraceLocked(workflow Workflow, command tran
 		update.Events = append(update.Events, traceEventsFromCommand(command, "trace_events")...)
 	case transition.CommandWorkflowFailed:
 		if traceHasEventType(trace, "workflow.failed") {
+			if trace.Summary.Status != events.StatusFailed {
+				_, err := s.applyTraceUpdateLocked(traceID, TraceUpdate{Status: ptrStatus(events.StatusFailed)})
+				return err
+			}
 			return nil
 		}
 		update.Status = ptrStatus(events.StatusFailed)
@@ -2999,6 +3007,10 @@ func (s *MemoryStore) projectWorkflowTraceLocked(workflow Workflow, command tran
 		}}
 	case transition.CommandReplyPosted, transition.CommandRunnerCompletedNoReply:
 		if traceHasEventType(trace, "workflow.completed") {
+			if trace.Summary.Status != events.StatusCompleted {
+				_, err := s.applyTraceUpdateLocked(traceID, TraceUpdate{Status: ptrStatus(events.StatusCompleted)})
+				return err
+			}
 			return nil
 		}
 		update.Status = ptrStatus(events.StatusCompleted)

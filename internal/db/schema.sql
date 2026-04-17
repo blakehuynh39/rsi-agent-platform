@@ -79,6 +79,7 @@ create table if not exists workflow (
   failure_summary text,
   retry_decision text,
   retry_after timestamptz,
+  runner_diagnostics jsonb not null default '{}'::jsonb,
   repair_attempted boolean not null default false,
   repair_succeeded boolean not null default false,
   version bigint not null default 0,
@@ -1698,4 +1699,3 @@ drop index if exists work_item_operation_idx;
 drop index if exists work_item_queue_status_idx;
 drop table if exists operation_execution;
 drop table if exists work_item;
-

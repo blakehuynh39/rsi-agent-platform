@@ -5,6 +5,7 @@ from dataclasses import dataclass, replace
 import json
 import logging
 import os
+import re
 import time
 from numbers import Number
 from typing import Any
@@ -22,6 +23,7 @@ from .rsi_tools import (
     ReadOnlyToolBinding,
     WORKSPACE_RSI_TOOL_NAMES,
     normalize_tool_names,
+    tool_transport_name,
     tool_schema_wrappers,
 )
 from .session_manager import SessionContext, SessionManager
@@ -77,6 +79,27 @@ def _first_non_none(*values: JsonValue | None) -> JsonValue | None:
         if value is not None:
             return value
     return None
+
+
+def _transport_tool_policy(custom_tools: list[str], memory_tools: list[str]) -> tuple[list[str], dict[str, str], list[str]]:
+    transport_effective = list(memory_tools)
+    custom_tool_transport_map: dict[str, str] = {}
+    invalid_tool_names: list[str] = []
+    seen_transport: dict[str, str] = {}
+    for name in custom_tools:
+        try:
+            transport = tool_transport_name(name)
+        except ValueError:
+            invalid_tool_names.append(name)
+            continue
+        existing = seen_transport.get(transport)
+        if existing is not None and existing != name:
+            invalid_tool_names.extend([existing, name])
+            continue
+        seen_transport[transport] = name
+        custom_tool_transport_map[name] = transport
+        transport_effective.append(transport)
+    return normalize_tool_names(transport_effective), custom_tool_transport_map, normalize_tool_names(invalid_tool_names)
 
 
 try:
@@ -206,6 +229,8 @@ class ToolPolicy:
     blocked: list[str]
     memory_tools: list[str]
     custom_tools: list[str]
+    transport_effective: list[str]
+    custom_tool_transport_map: dict[str, str]
 
 
 class HermesStructuredOutputError(ValueError):
@@ -375,6 +400,9 @@ class HermesRuntime:
                 raw=self._base_raw(prompt=task.prompt, system_message=task.system_message),
             )
 
+        if preflight := self._preflight_tool_policy_failure(task, tool_policy):
+            return preflight
+
         context = self._session_manager.prepare(task)
         effective_task_timeout = self._effective_task_timeout(task)
         effective_inactivity_timeout = self._effective_inactivity_timeout(effective_task_timeout)
@@ -427,18 +455,41 @@ class HermesRuntime:
                         "max_iterations": self._max_iterations,
                         "tool_policy_mode": tool_policy.mode,
                         "tool_allowlist_effective": tool_policy.effective,
+                        "tool_transport_allowlist_effective": tool_policy.transport_effective,
                         "blocked_tool_names": tool_policy.blocked,
+                        "failure_class": "runner_transport_timeout",
+                        "runner_diagnostics": self._runner_diagnostics(
+                            tool_policy,
+                            failure_kind="transport_timeout",
+                            repair_attempted=False,
+                            repair_succeeded=False,
+                        ),
                         "lifecycle_events": lifecycle_events,
                         "termination_reason": timeout_kind or "task_timeout",
                     },
                 )
             response = str((run_result or {}).get("final_response", "") or "")
         except Exception as exc:
+            diagnostics = self._provider_invalid_request_diagnostics(str(exc), tool_policy)
+            raw = {
+                **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                "error": str(exc),
+                "tool_policy_mode": tool_policy.mode,
+                "tool_allowlist_effective": tool_policy.effective,
+                "tool_transport_allowlist_effective": tool_policy.transport_effective,
+                "tool_transport_map": tool_policy.custom_tool_transport_map,
+                "blocked_tool_names": tool_policy.blocked,
+            }
+            if diagnostics is not None:
+                raw["failure_class"] = "runner_invalid_request"
+                raw["runner_diagnostics"] = diagnostics
+            else:
+                raw["failure_class"] = "runner_non_ok"
             return HermesExecutionResult(
                 ok=False,
                 message=f"Hermes execution failed: {exc}",
                 provider=self._backend,
-                raw={**self._base_raw(prompt=task.prompt, system_message=task.system_message), "error": str(exc)},
+                raw=raw,
             )
 
         finalized = self._session_manager.finalize(context, tracker)
@@ -456,6 +507,8 @@ class HermesRuntime:
                 "max_iterations": self._max_iterations,
                 "tool_policy_mode": tool_policy.mode,
                 "tool_allowlist_effective": tool_policy.effective,
+                "tool_transport_allowlist_effective": tool_policy.transport_effective,
+                "tool_transport_map": tool_policy.custom_tool_transport_map,
                 "blocked_tool_names": tool_policy.blocked,
                 "lifecycle_events": lifecycle_events,
                 "termination_reason": "normal_completion",
@@ -494,6 +547,116 @@ class HermesRuntime:
             "system_message": system_message,
         }
 
+    def _runner_diagnostics(
+        self,
+        tool_policy: ToolPolicy,
+        *,
+        failure_kind: str,
+        provider_status_code: int | None = None,
+        provider_error_param: str | None = None,
+        provider_error_code: str | None = None,
+        provider_error_message: str | None = None,
+        invalid_tool_names: list[str] | None = None,
+        repair_attempted: bool | None = None,
+        repair_succeeded: bool | None = None,
+    ) -> JsonObject:
+        diagnostics: JsonObject = {
+            "failure_kind": failure_kind,
+            "tool_allowlist_effective": list(tool_policy.effective),
+            "tool_transport_allowlist_effective": list(tool_policy.transport_effective),
+        }
+        if tool_policy.custom_tool_transport_map:
+            diagnostics["tool_transport_map"] = dict(tool_policy.custom_tool_transport_map)
+        if provider_status_code is not None:
+            diagnostics["provider_status_code"] = provider_status_code
+        if provider_error_param:
+            diagnostics["provider_error_param"] = provider_error_param
+        if provider_error_code:
+            diagnostics["provider_error_code"] = provider_error_code
+        if provider_error_message:
+            diagnostics["provider_error_message"] = provider_error_message
+        if invalid_tool_names:
+            diagnostics["invalid_tool_names"] = normalize_tool_names(invalid_tool_names)
+        if repair_attempted is not None:
+            diagnostics["repair_attempted"] = repair_attempted
+        if repair_succeeded is not None:
+            diagnostics["repair_succeeded"] = repair_succeeded
+        return diagnostics
+
+    def _preflight_tool_policy_failure(self, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> HermesExecutionResult | None:
+        _, _, invalid_tool_names = _transport_tool_policy(tool_policy.custom_tools, tool_policy.memory_tools)
+        if not invalid_tool_names:
+            return None
+        diagnostics = self._runner_diagnostics(
+            tool_policy,
+            failure_kind="invalid_request",
+            provider_error_param="tools[0].name",
+            provider_error_code="invalid_value",
+            provider_error_message="Runner tool schema failed provider-safe tool-name preflight validation.",
+            invalid_tool_names=invalid_tool_names,
+            repair_attempted=False,
+            repair_succeeded=False,
+        )
+        return HermesExecutionResult(
+            ok=False,
+            message="Runner tool schema failed preflight validation for provider-safe tool names.",
+            provider=self._backend,
+            raw={
+                **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                "tool_policy_mode": tool_policy.mode,
+                "tool_allowlist_effective": tool_policy.effective,
+                "tool_transport_allowlist_effective": tool_policy.transport_effective,
+                "tool_transport_map": tool_policy.custom_tool_transport_map,
+                "blocked_tool_names": tool_policy.blocked,
+                "failure_class": "runner_invalid_request",
+                "runner_diagnostics": diagnostics,
+                "repair_attempted": False,
+                "repair_succeeded": False,
+            },
+        )
+
+    def _provider_invalid_request_diagnostics(self, message: str, tool_policy: ToolPolicy) -> JsonObject | None:
+        text = str(message or "").strip()
+        if not text:
+            return None
+        lower = text.lower()
+        if "invalid_request_error" not in lower and "tools[0].name" not in lower and "invalid 'tools[" not in lower and 'invalid "tools[' not in lower:
+            return None
+
+        status_code = 0
+        status_match = re.search(r"(?:error code|status code|status)\s*[:= -]+\s*(\d{3})", text, flags=re.IGNORECASE)
+        if status_match:
+            try:
+                status_code = int(status_match.group(1))
+            except ValueError:
+                status_code = 0
+        param_match = re.search(r"['\"]param['\"]\s*:\s*(['\"])(.*?)\1", text)
+        code_match = re.search(r"['\"]code['\"]\s*:\s*(['\"])(.*?)\1", text)
+        message_match = re.search(r"['\"]message['\"]\s*:\s*(['\"])(.*?)\1", text)
+        provider_error_param = param_match.group(2).strip() if param_match else ""
+        provider_error_code = code_match.group(2).strip() if code_match else ""
+        provider_error_message = message_match.group(2).strip() if message_match else text[:8000]
+        if status_code not in {0, 400, 422} and provider_error_param == "":
+            return None
+
+        invalid_tool_names: list[str] = []
+        if provider_error_param == "tools[0].name" or "tools[0].name" in lower:
+            invalid_tool_names = [name for name in tool_policy.custom_tools if "." in name]
+            if not invalid_tool_names:
+                invalid_tool_names = list(tool_policy.custom_tools)
+        diagnostics = self._runner_diagnostics(
+            tool_policy,
+            failure_kind="invalid_request",
+            provider_status_code=status_code or None,
+            provider_error_param=provider_error_param or None,
+            provider_error_code=provider_error_code or None,
+            provider_error_message=provider_error_message,
+            invalid_tool_names=invalid_tool_names,
+            repair_attempted=False,
+            repair_succeeded=False,
+        )
+        return diagnostics
+
     def _default_policy_allowlist(self, execution_mode: str) -> list[str]:
         permitted = set(READ_ONLY_HONCHO_TOOLS)
         if self._config.tool_gateway_base_url:
@@ -509,6 +672,9 @@ class HermesRuntime:
         effective = normalize_tool_names(requested or sorted(permitted))
         effective = [name for name in effective if name in permitted]
         blocked = [name for name in requested if name not in permitted]
+        memory_tools = sorted([name for name in effective if name in READ_ONLY_HONCHO_TOOLS])
+        custom_tools = sorted([name for name in effective if name in IMPLEMENT_RSI_TOOL_NAMES])
+        transport_effective, custom_tool_transport_map, _ = _transport_tool_policy(custom_tools, memory_tools)
         mode = self._tool_policy_mode
         if self._role == "proposal" and execution_mode == "implement":
             mode = "governed_workspace"
@@ -517,8 +683,10 @@ class HermesRuntime:
             requested=requested,
             effective=effective,
             blocked=blocked,
-            memory_tools=sorted([name for name in effective if name in READ_ONLY_HONCHO_TOOLS]),
-            custom_tools=sorted([name for name in effective if name in IMPLEMENT_RSI_TOOL_NAMES]),
+            memory_tools=memory_tools,
+            custom_tools=custom_tools,
+            transport_effective=transport_effective,
+            custom_tool_transport_map=custom_tool_transport_map,
         )
 
     def _effective_task_timeout(self, task: RunnerTaskRequest) -> int:
@@ -539,6 +707,7 @@ class HermesRuntime:
         allowed_names = set(tool_policy.effective)
         filtered_tools = [tool for tool in current_tools if tool_name(tool) in allowed_names]
         custom_tool_names = [name for name in tool_policy.custom_tools if self._config.tool_gateway_base_url]
+        custom_transport_names = [tool_policy.custom_tool_transport_map[name] for name in custom_tool_names if name in tool_policy.custom_tool_transport_map]
         if custom_tool_names:
             filtered_tools.extend(tool_schema_wrappers(custom_tool_names))
             readonly_tools = ReadOnlyToolBinding(
@@ -573,7 +742,7 @@ class HermesRuntime:
             ))
         effective_names = set(tool_policy.effective)
         current_valid = {name for name in current_valid if name in effective_names and name not in BLOCKED_HONCHO_TOOLS}
-        current_valid.update(custom_tool_names)
+        current_valid.update(custom_transport_names)
         agent.tools = filtered_tools
         agent.valid_tool_names = current_valid
 
@@ -669,6 +838,20 @@ class HermesRuntime:
         result = self._execute_task_request(rendered_task, tool_policy)
         if not result.ok:
             return result
+        if invalid_request := self._provider_invalid_request_diagnostics(result.message, tool_policy):
+            return HermesExecutionResult(
+                ok=False,
+                message=string_from_map(invalid_request, "provider_error_message") or "Provider rejected the runner request.",
+                provider=result.provider,
+                raw={
+                    **result.raw,
+                    "failure_class": "runner_invalid_request",
+                    "runner_diagnostics": invalid_request,
+                    "raw_response": result.message,
+                    "repair_attempted": False,
+                    "repair_succeeded": False,
+                },
+            )
         initial_response = result.message
         repair_attempted = False
         repair_succeeded = False
@@ -685,6 +868,24 @@ class HermesRuntime:
                 repair_task = self._build_structured_output_repair_task(rendered_task, result.message)
                 repair_result = self._execute_task_request(repair_task, tool_policy)
                 if repair_result.ok:
+                    if invalid_request := self._provider_invalid_request_diagnostics(repair_result.message, tool_policy):
+                        diagnostics = dict(invalid_request)
+                        diagnostics["repair_attempted"] = True
+                        diagnostics["repair_succeeded"] = False
+                        return HermesExecutionResult(
+                            ok=False,
+                            message=string_from_map(diagnostics, "provider_error_message") or "Provider rejected the runner request.",
+                            provider=repair_result.provider,
+                            raw={
+                                **repair_result.raw,
+                                "failure_class": "runner_invalid_request",
+                                "runner_diagnostics": diagnostics,
+                                "raw_response": repair_result.message,
+                                "repair_attempted": True,
+                                "repair_succeeded": False,
+                                "repair_original_response": result.message,
+                            },
+                        )
                     try:
                         structured_output = self._extract_structured_output(repair_result.message)
                         result = repair_result
@@ -707,6 +908,14 @@ class HermesRuntime:
                             provider=repair_result.provider,
                             raw={
                                 **repair_result.raw,
+                                "failure_class": "runner_structured_output_parse_failure",
+                                "runner_diagnostics": self._runner_diagnostics(
+                                    tool_policy,
+                                    failure_kind="structured_output_parse_failure",
+                                    provider_error_message=str(repair_exc),
+                                    repair_attempted=True,
+                                    repair_succeeded=False,
+                                ),
                                 "structured_output_error": str(repair_exc),
                                 "raw_response": repair_result.message,
                                 "repair_attempted": True,
@@ -727,7 +936,11 @@ class HermesRuntime:
                         provider=repair_result.provider,
                         raw={
                             **repair_result.raw,
-                            "structured_output_error": str(exc),
+                            "runner_diagnostics": {
+                                **_json_object_or_empty(repair_result.raw.get("runner_diagnostics")),
+                                "repair_attempted": True,
+                                "repair_succeeded": False,
+                            } if repair_result.raw.get("runner_diagnostics") is not None else repair_result.raw.get("runner_diagnostics"),
                             "raw_response": repair_result.message,
                             "repair_attempted": True,
                             "repair_succeeded": False,
@@ -741,6 +954,14 @@ class HermesRuntime:
                     provider=result.provider,
                     raw={
                         **result.raw,
+                        "failure_class": "runner_structured_output_parse_failure",
+                        "runner_diagnostics": self._runner_diagnostics(
+                            tool_policy,
+                            failure_kind="structured_output_parse_failure",
+                            provider_error_message=str(exc),
+                            repair_attempted=False,
+                            repair_succeeded=False,
+                        ),
                         "structured_output_error": str(exc),
                         "raw_response": result.message,
                         "repair_attempted": False,

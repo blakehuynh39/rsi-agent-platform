@@ -447,14 +447,29 @@ func TestSlackReplyWithoutTokenIsBlocked(t *testing.T) {
 
 func TestRSITraceContextReturnsTraceEvidence(t *testing.T) {
 	store := storepkg.NewMemoryStore()
-	traces := store.ListTraces()
-	if len(traces) == 0 {
-		t.Fatal("expected seeded traces")
+	workflow := store.ListWorkflows()[0]
+	trace, ok := store.GetTrace(workflow.TraceID)
+	if !ok {
+		t.Fatalf("expected trace %s", workflow.TraceID)
+	}
+	if _, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineWorkflow,
+		AggregateID: workflow.ID,
+		CommandKind: string(transition.CommandWorkflowFailed),
+		CommandID:   "cmd-toolgateway-trace-context-workflow-failed",
+		OccurredAt:  time.Now().UTC(),
+		Payload: map[string]any{
+			"last_error":         "OpenAI rejected tools[0].name",
+			"failure_class":      "runner_invalid_request",
+			"runner_diagnostics": map[string]any{"provider_error_param": "tools[0].name"},
+		},
+	}); err != nil {
+		t.Fatalf("SubmitCommand(workflow_failed) error = %v", err)
 	}
 	service := NewService(config.Config{}, store)
 
 	result := service.Execute("rsi.trace_context", map[string]interface{}{
-		"trace_id": traces[0].TraceID,
+		"trace_id": trace.Summary.TraceID,
 	})
 
 	if result.Status != "ok" {
@@ -464,8 +479,25 @@ func TestRSITraceContextReturnsTraceEvidence(t *testing.T) {
 	if !ok {
 		t.Fatalf("expected trace summary in output, got %#v", result.Output["trace"])
 	}
-	if traceSummary.TraceID != traces[0].TraceID {
+	if traceSummary.TraceID != trace.Summary.TraceID {
 		t.Fatalf("unexpected trace id %#v", traceSummary)
+	}
+	if _, ok := result.Output["workflow_line"]; !ok {
+		t.Fatalf("expected workflow_line in output, got %#v", result.Output)
+	}
+	workflowAttempts, ok := result.Output["workflow_attempts"].([]interface{})
+	if !ok || len(workflowAttempts) == 0 {
+		t.Fatalf("expected workflow_attempts in output, got %#v", result.Output["workflow_attempts"])
+	}
+	firstAttempt, ok := workflowAttempts[0].(storepkg.Workflow)
+	if !ok {
+		t.Fatalf("expected workflow attempt payload, got %#v", workflowAttempts[0])
+	}
+	if firstAttempt.RunnerDiagnostics["provider_error_param"] != "tools[0].name" {
+		t.Fatalf("expected runner diagnostics on workflow attempt, got %#v", firstAttempt.RunnerDiagnostics)
+	}
+	if _, ok := result.Output["harness_executions"].([]interface{}); !ok {
+		t.Fatalf("expected harness_executions in output, got %#v", result.Output["harness_executions"])
 	}
 }
 

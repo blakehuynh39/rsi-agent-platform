@@ -245,6 +245,8 @@ export type WorkflowLineSummary = {
   updated_at: string;
 };
 
+export type RunnerDiagnostics = Record<string, unknown>;
+
 export type WorkflowAttemptSummary = {
   workflow_id: string;
   trace_id?: string;
@@ -260,6 +262,7 @@ export type WorkflowAttemptSummary = {
   failure_summary?: string;
   retry_decision?: string;
   retry_after?: string;
+  runner_diagnostics?: RunnerDiagnostics;
   repair_attempted?: boolean;
   repair_succeeded?: boolean;
   created_at: string;

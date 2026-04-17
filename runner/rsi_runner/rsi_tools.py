@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass
 import json
 from typing import Any, Iterable, Protocol
@@ -316,9 +317,65 @@ _WORKSPACE_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
 
 _TOOL_SCHEMAS = {**_READ_ONLY_TOOL_SCHEMAS, **_WORKSPACE_TOOL_SCHEMAS}
 
+_TRANSPORT_SAFE_TOOL_CHARS = frozenset("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-")
+
 READ_ONLY_RSI_TOOL_NAMES = tuple(sorted(_READ_ONLY_TOOL_SCHEMAS.keys()))
 WORKSPACE_RSI_TOOL_NAMES = tuple(sorted(_WORKSPACE_TOOL_SCHEMAS.keys()))
 IMPLEMENT_RSI_TOOL_NAMES = tuple(sorted(_TOOL_SCHEMAS.keys()))
+
+
+def _is_transport_safe_tool_name(name: str) -> bool:
+    return bool(name) and all(char in _TRANSPORT_SAFE_TOOL_CHARS for char in name)
+
+
+def _canonical_to_transport_tool_name(name: str) -> str:
+    canonical = str(name or "").strip()
+    if not canonical:
+        raise ValueError("tool name is empty")
+    transport = canonical.replace(".", "_")
+    if not _is_transport_safe_tool_name(transport):
+        raise ValueError(f"tool name {canonical!r} cannot be mapped to an OpenAI-safe transport name")
+    return transport
+
+
+def _build_tool_transport_maps() -> tuple[dict[str, str], dict[str, str]]:
+    canonical_to_transport: dict[str, str] = {}
+    transport_to_canonical: dict[str, str] = {}
+    for canonical in sorted(_TOOL_SCHEMAS):
+        transport = _canonical_to_transport_tool_name(canonical)
+        existing = transport_to_canonical.get(transport)
+        if existing is not None and existing != canonical:
+            raise ValueError(f"transport tool name collision for {canonical!r} and {existing!r}: {transport!r}")
+        canonical_to_transport[canonical] = transport
+        transport_to_canonical[transport] = canonical
+    return canonical_to_transport, transport_to_canonical
+
+
+_CANONICAL_TO_TRANSPORT_TOOL_NAMES, _TRANSPORT_TO_CANONICAL_TOOL_NAMES = _build_tool_transport_maps()
+
+
+def tool_transport_name(name: str) -> str:
+    canonical = str(name or "").strip()
+    if not canonical:
+        raise ValueError("tool name is empty")
+    if canonical in _CANONICAL_TO_TRANSPORT_TOOL_NAMES:
+        return _CANONICAL_TO_TRANSPORT_TOOL_NAMES[canonical]
+    if "." not in canonical and _is_transport_safe_tool_name(canonical):
+        return canonical
+    raise ValueError(f"tool name {canonical!r} is not transport-safe")
+
+
+def canonical_tool_name(name: str) -> str:
+    tool = str(name or "").strip()
+    if not tool:
+        raise ValueError("tool name is empty")
+    if tool in _TOOL_SCHEMAS:
+        return tool
+    if tool in _TRANSPORT_TO_CANONICAL_TOOL_NAMES:
+        return _TRANSPORT_TO_CANONICAL_TOOL_NAMES[tool]
+    if "." not in tool and _is_transport_safe_tool_name(tool):
+        return tool
+    raise ValueError(f"tool name {tool!r} is not recognized")
 
 
 def tool_schema_wrappers(names: Iterable[str]) -> list[JsonToolWrapperSchema]:
@@ -327,7 +384,9 @@ def tool_schema_wrappers(names: Iterable[str]) -> list[JsonToolWrapperSchema]:
         schema = _TOOL_SCHEMAS.get(name)
         if schema is None:
             continue
-        wrappers.append({"type": "function", "function": schema})
+        wrapped = deepcopy(schema)
+        wrapped["name"] = tool_transport_name(name)
+        wrappers.append({"type": "function", "function": wrapped})
     return wrappers
 
 
@@ -371,16 +430,25 @@ class ReadOnlyToolBinding:
     timeout_seconds: int = 30
 
     def has_tool(self, name: str) -> bool:
-        return name in _TOOL_SCHEMAS and name in set(self.allowed_tool_names)
+        try:
+            canonical = canonical_tool_name(name)
+        except ValueError:
+            return False
+        return canonical in _TOOL_SCHEMAS and canonical in set(self.allowed_tool_names)
 
     def tool_names(self) -> list[str]:
-        return list(normalize_tool_names(self.allowed_tool_names))
+        out: list[str] = []
+        for name in normalize_tool_names(self.allowed_tool_names):
+            out.append(tool_transport_name(name))
+        return out
 
     def handle_tool_call(self, name: str, args: JsonObject) -> str:
-        payload = self._default_payload(name)
+        transport_name = tool_transport_name(name)
+        canonical_name = canonical_tool_name(name)
+        payload = self._default_payload(canonical_name)
         payload.update(args or {})
         req = urlrequest.Request(
-            f"{self.base_url.rstrip('/')}/api/tools/{name}/execute",
+            f"{self.base_url.rstrip('/')}/api/tools/{canonical_name}/execute",
             data=json.dumps(payload).encode("utf-8"),
             headers={"Content-Type": "application/json"},
             method="POST",
@@ -392,7 +460,8 @@ class ReadOnlyToolBinding:
             detail = exc.read().decode("utf-8", errors="replace")
             return json.dumps(
                 {
-                    "tool_name": name,
+                    "tool_name": canonical_name,
+                    "transport_tool_name": transport_name,
                     "status": "error",
                     "error": f"tool gateway returned {exc.code}: {detail}",
                 }
@@ -400,7 +469,8 @@ class ReadOnlyToolBinding:
         except (urlerror.URLError, TimeoutError, ConnectionError, OSError) as exc:
             return json.dumps(
                 {
-                    "tool_name": name,
+                    "tool_name": canonical_name,
+                    "transport_tool_name": transport_name,
                     "status": "error",
                     "error": f"tool gateway request failed: {exc}",
                 }
@@ -411,7 +481,8 @@ class ReadOnlyToolBinding:
         except json.JSONDecodeError:
             return json.dumps(
                 {
-                    "tool_name": name,
+                    "tool_name": canonical_name,
+                    "transport_tool_name": transport_name,
                     "status": "error",
                     "error": "tool gateway returned invalid JSON",
                     "body": body[:8000],
@@ -420,14 +491,16 @@ class ReadOnlyToolBinding:
         if not isinstance(parsed, dict):
             return json.dumps(
                 {
-                    "tool_name": name,
+                    "tool_name": canonical_name,
+                    "transport_tool_name": transport_name,
                     "status": "error",
                     "error": "tool gateway returned a non-object JSON payload",
                 }
             )
         return json.dumps(
             {
-                "tool_name": name,
+                "tool_name": canonical_name,
+                "transport_tool_name": transport_name,
                 "status": parsed.get("status", ""),
                 "available": parsed.get("available", True),
                 "summary": parsed.get("summary", ""),
