@@ -63,6 +63,8 @@ create table if not exists workflow (
   id text primary key,
   ingestion_id text,
   trace_id text,
+  conversation_id text,
+  case_id text,
   thread_key text not null,
   kind text not null,
   intent text,
@@ -71,10 +73,39 @@ create table if not exists workflow (
   response_mode text,
   status text not null,
   last_error text,
+  attempt_number integer not null default 0,
+  parent_workflow_id text,
+  failure_class text,
+  failure_summary text,
+  retry_decision text,
+  retry_after timestamptz,
+  repair_attempted boolean not null default false,
+  repair_succeeded boolean not null default false,
+  version bigint not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   completed_at timestamptz
 );
+
+create table if not exists workflow_line (
+  case_id text primary key,
+  conversation_id text not null,
+  status text not null,
+  current_workflow_id text,
+  latest_workflow_id text,
+  attempt_count integer not null default 0,
+  auto_retry_budget_remaining integer not null default 0,
+  last_failure_class text,
+  next_retry_action text,
+  retry_after timestamptz,
+  line_stop_reason text,
+  version bigint not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  completed_at timestamptz
+);
+
+create index if not exists workflow_line_conversation_idx on workflow_line (conversation_id, updated_at desc);
 
 create table if not exists assignment (
   id text primary key,
@@ -1667,5 +1698,4 @@ drop index if exists work_item_operation_idx;
 drop index if exists work_item_queue_status_idx;
 drop table if exists operation_execution;
 drop table if exists work_item;
-
 

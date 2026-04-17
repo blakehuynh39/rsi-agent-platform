@@ -285,7 +285,65 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("structured_output", result.raw)
         self.assertEqual(result.raw["structured_output"]["final_answer"], "Final reply")
 
-    def test_non_json_runner_output_fails_closed(self) -> None:
+    def test_workflow_non_json_output_repairs_successfully(self) -> None:
+        class RepairingAIAgent(FakeAIAgent):
+            calls = 0
+
+            def run_conversation(
+                self,
+                prompt: str,
+                system_message: str | None = None,
+                conversation_history: list[dict] | None = None,
+            ) -> dict:
+                type(self).calls += 1
+                type(self).last_prompt = prompt
+                type(self).last_system_message = system_message
+                type(self).last_history = conversation_history or []
+                if type(self).calls == 1:
+                    return {"final_response": "plain text response"}
+                return {
+                    "final_response": json.dumps(
+                        {
+                            "visible_reasoning": [],
+                            "reply_draft": "Draft reply",
+                            "final_answer": "Final reply",
+                            "confidence": 0.91,
+                            "context_summary": "Repo and KB context collected.",
+                            "self_critique": "",
+                            "proposed_actions": [],
+                            "knowledge_drafts": [],
+                            "outcome_hypotheses": [],
+                        }
+                    )
+                }
+
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the workflow.",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                    "user_peer_id": "user:alice",
+                }
+            }
+        )
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", RepairingAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertTrue(result.raw["repair_attempted"])
+        self.assertTrue(result.raw["repair_succeeded"])
+        self.assertEqual(result.raw["structured_output"]["final_answer"], "Final reply")
+        self.assertEqual(result.raw["repair_original_response"], "plain text response")
+
+    def test_workflow_non_json_output_fails_closed_after_single_repair(self) -> None:
         class UnstructuredAIAgent(FakeAIAgent):
             def run_conversation(
                 self,
@@ -301,20 +359,20 @@ class HermesRuntimeTests(unittest.TestCase):
         task = RunnerTaskRequest.from_payload(
             {
                 "task": {
-                    "task_type": "eval",
+                    "task_type": "workflow",
                     "repo": "rsi-agent-platform",
-                    "prompt": "Summarize the eval.",
-                    "session_scope_kind": "eval_line",
-                    "session_scope_id": "shared-store:pk-collision",
+                    "prompt": "Summarize the workflow.",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
                     "memory_backend": "honcho",
-                    "assistant_peer_id": "rsi:stage:eval",
-                    "user_peer_id": "operator:alice",
+                    "assistant_peer_id": "rsi:stage:prod",
+                    "user_peer_id": "user:alice",
                 }
             }
         )
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", UnstructuredAIAgent), mock.patch(
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(os.environ, runner_env("eval"), clear=True):
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
             runtime = HermesRuntime(RunnerConfig.from_env())
             result = runtime.execute_task(task)
 
@@ -322,6 +380,8 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("structured output", result.message)
         self.assertEqual(result.raw["raw_response"], "plain text response")
         self.assertIn("structured_output_error", result.raw)
+        self.assertTrue(result.raw["repair_attempted"])
+        self.assertFalse(result.raw["repair_succeeded"])
 
     def test_system_message_is_forwarded_to_hermes_run_conversation(self) -> None:
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(

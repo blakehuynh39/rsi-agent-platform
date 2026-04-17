@@ -634,6 +634,424 @@ func TestFinalizeWorkflowFailureQueuesEvalForFailedTrace(t *testing.T) {
 	}
 }
 
+func TestHandleClaimedWorkflowRunnerEffectFinalizesStructuredOutputFailure(t *testing.T) {
+	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":       true,
+			"provider": "fake",
+			"message":  "runner returned prose only",
+			"raw":      map[string]any{},
+		})
+	}))
+	defer runner.Close()
+
+	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
+		name = strings.TrimSuffix(name, "/execute")
+		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
+			Name:          name,
+			ToolCallID:    name + "-call",
+			Approved:      true,
+			ApprovalState: "not_required",
+			Status:        "completed",
+			Available:     true,
+			Summary:       "Context gathered.",
+			Input:         map[string]any{},
+			Output:        map[string]any{"ok": true},
+		})
+	}))
+	defer toolGateway.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             runner.URL,
+		ToolGatewayBaseURL:        toolGateway.URL,
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+
+	for _, item := range queuedActionEffectsForPlane(store, "control") {
+		if err := processControlActionEffect(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), item); err != nil {
+			t.Fatalf("processControlActionEffect(context) error = %v", err)
+		}
+	}
+
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	handleClaimedWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect)
+
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatal("expected failed trace")
+	}
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatal("expected workflow to exist")
+	}
+	if workflow.Status != "failed" {
+		t.Fatalf("expected workflow to fail, got %s", workflow.Status)
+	}
+	if workflow.LastError != "runner response missing structured_output" {
+		t.Fatalf("expected missing structured_output error, got %q", workflow.LastError)
+	}
+	if trace.Summary.Status != events.StatusFailed {
+		t.Fatalf("expected failed trace, got %s", trace.Summary.Status)
+	}
+	if len(store.ListEvalRuns()) == 0 {
+		t.Fatal("expected failed runner response to queue eval")
+	}
+}
+
+func TestHandleClaimedWorkflowRunnerEffectNonOKSchedulesSuccessorAttempt(t *testing.T) {
+	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":       false,
+			"provider": "fake",
+			"message":  "provider unavailable",
+			"raw": map[string]any{
+				"repair_attempted": false,
+				"repair_succeeded": false,
+			},
+		})
+	}))
+	defer runner.Close()
+
+	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
+		name = strings.TrimSuffix(name, "/execute")
+		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
+			Name:          name,
+			ToolCallID:    name + "-call",
+			Approved:      true,
+			ApprovalState: "not_required",
+			Status:        "completed",
+			Available:     true,
+			Summary:       "Context gathered.",
+			Input:         map[string]any{},
+			Output:        map[string]any{"ok": true},
+		})
+	}))
+	defer toolGateway.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	ctx, err := loadWorkflowContext(store, workflowItem)
+	if err != nil {
+		t.Fatalf("loadWorkflowContext() error = %v", err)
+	}
+	cfg := config.Config{
+		ServiceName:                     "control-plane",
+		DefaultRepo:                     "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:         "https://example.test/kb",
+		AllowedTargetRepos:              []string{"rsi-agent-platform"},
+		RunnerBaseURL:                   runner.URL,
+		ToolGatewayBaseURL:              toolGateway.URL,
+		SandboxNamespace:                "rsi-platform",
+		DefaultReasoningVerbosity:       "verbose",
+		WorkflowAutoRetryEnabled:        true,
+		WorkflowAutoRetryMaxAttempts:    3,
+		WorkflowAutoRetryBackoffSeconds: []int{1, 60},
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+	for _, item := range queuedActionEffectsForPlane(store, "control") {
+		if err := processControlActionEffect(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), item); err != nil {
+			t.Fatalf("processControlActionEffect(context) error = %v", err)
+		}
+	}
+
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	handleClaimedWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect)
+
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatal("expected original workflow to exist")
+	}
+	if workflow.Status != "failed" {
+		t.Fatalf("expected original workflow to fail, got %s", workflow.Status)
+	}
+	if workflow.FailureClass != workflowFailureRunnerNonOK {
+		t.Fatalf("expected failure class %s, got %s", workflowFailureRunnerNonOK, workflow.FailureClass)
+	}
+	if workflow.RetryDecision != "auto_retry" {
+		t.Fatalf("expected retry_decision=auto_retry, got %s", workflow.RetryDecision)
+	}
+
+	line, ok := store.GetWorkflowLine(ctx.workflow.CaseID)
+	if !ok {
+		t.Fatalf("expected workflow line for case %s", ctx.workflow.CaseID)
+	}
+	if line.Status != string(transition.WorkflowLineStateRetryScheduled) {
+		t.Fatalf("expected retry_scheduled workflow line, got %s", line.Status)
+	}
+	if line.AttemptCount != 2 {
+		t.Fatalf("expected attempt_count=2 after scheduling successor, got %d", line.AttemptCount)
+	}
+	if line.CurrentWorkflowID == "" || line.CurrentWorkflowID == workflowItem.workflowID {
+		t.Fatalf("expected successor workflow id on line, got %+v", line)
+	}
+	successor, ok := findWorkflow(store.ListWorkflows(), line.CurrentWorkflowID)
+	if !ok {
+		t.Fatalf("expected successor workflow %s", line.CurrentWorkflowID)
+	}
+	if successor.ParentWorkflowID != workflowItem.workflowID {
+		t.Fatalf("expected successor parent workflow %s, got %s", workflowItem.workflowID, successor.ParentWorkflowID)
+	}
+	if successor.AttemptNumber != 2 {
+		t.Fatalf("expected successor attempt_number=2, got %d", successor.AttemptNumber)
+	}
+	replayTrace, ok := store.GetTrace(successor.TraceID)
+	if !ok {
+		t.Fatalf("expected successor trace %s", successor.TraceID)
+	}
+	if replayTrace.Summary.SupersedesTraceID != workflowItem.traceID {
+		t.Fatalf("expected successor trace to supersede %s, got %s", workflowItem.traceID, replayTrace.Summary.SupersedesTraceID)
+	}
+
+	if err := activateDueWorkflowLineRetries(cfg, store, time.Now().UTC().Add(2*time.Second)); err != nil {
+		t.Fatalf("activateDueWorkflowLineRetries() error = %v", err)
+	}
+	line, _ = store.GetWorkflowLine(ctx.workflow.CaseID)
+	if line.Status != string(transition.WorkflowLineStateActive) {
+		t.Fatalf("expected active workflow line after due activation, got %s", line.Status)
+	}
+	successor, _ = findWorkflow(store.ListWorkflows(), line.CurrentWorkflowID)
+	if successor.Status == string(transition.WorkflowStateQueued) {
+		t.Fatalf("expected successor workflow to start, got %+v", successor)
+	}
+}
+
+func TestWorkflowRetryAtSkipsRetryAfterReplyPostBegins(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	ctx, err := loadWorkflowContext(store, workflowItem)
+	if err != nil {
+		t.Fatalf("loadWorkflowContext() error = %v", err)
+	}
+	now := time.Now().UTC()
+	if _, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineAction,
+		AggregateID: "action-reply-begun",
+		CommandKind: string(transition.CommandActionQueue),
+		CommandID:   "cmd-reply-begun",
+		OccurredAt:  now,
+		Payload: map[string]any{
+			"owner_plane":     "control",
+			"conversation_id": ctx.trace.Summary.ConversationID,
+			"case_id":         ctx.trace.Summary.CaseID,
+			"trace_id":        ctx.trace.Summary.TraceID,
+			"kind":            string(action.KindSlackPost),
+			"phase_key":       controlPhaseReplyPost,
+			"target_ref":      ctx.ingestion.ChannelID,
+			"request_payload": map[string]any{
+				"channel_id": ctx.ingestion.ChannelID,
+				"thread_ts":  ctx.ingestion.ThreadTS,
+				"body":       "Final reply",
+			},
+			"idempotency_key": "reply-begun",
+			"approval_mode":   "not_required",
+			"approval_state":  "approved",
+			"requested_by":    "control-plane",
+		},
+	}); err != nil {
+		t.Fatalf("SubmitCommand(action_queued) error = %v", err)
+	}
+
+	retryAt, ok := workflowRetryAt(config.Config{
+		WorkflowAutoRetryEnabled:        true,
+		WorkflowAutoRetryMaxAttempts:    3,
+		WorkflowAutoRetryBackoffSeconds: []int{15, 60},
+	}, store, ctx.workflow, workflowFailure{
+		Class:     workflowFailureRunnerNonOK,
+		Summary:   "provider unavailable",
+		Retryable: true,
+	})
+	if ok {
+		t.Fatalf("expected reply-post phase to suppress auto retry, got retryAt=%s", retryAt.Format(time.RFC3339))
+	}
+}
+
+func TestWorkflowRetryAtUsesSecondBackoffForSecondRetry(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatal("expected initial workflow to exist")
+	}
+	now := time.Now().UTC()
+	if _, err := submitWorkflowCommand(store, workflow.ID, transition.CommandWorkflowFailed, "tester", now, map[string]any{
+		"last_error":      "provider unavailable",
+		"failure_class":   workflowFailureRunnerNonOK,
+		"failure_summary": "provider unavailable",
+		"retry_decision":  "auto_retry",
+		"retry_after":     now.Add(15 * time.Second),
+	}); err != nil {
+		t.Fatalf("submitWorkflowCommand(workflow_failed) error = %v", err)
+	}
+
+	line, ok := store.GetWorkflowLine(workflow.CaseID)
+	if !ok {
+		t.Fatalf("expected workflow line for case %s", workflow.CaseID)
+	}
+	successor, ok := findWorkflow(store.ListWorkflows(), line.CurrentWorkflowID)
+	if !ok {
+		t.Fatalf("expected successor workflow %s", line.CurrentWorkflowID)
+	}
+
+	retryAt, ok := workflowRetryAt(config.Config{
+		WorkflowAutoRetryEnabled:        true,
+		WorkflowAutoRetryMaxAttempts:    3,
+		WorkflowAutoRetryBackoffSeconds: []int{15, 60},
+	}, store, successor, workflowFailure{
+		Class:     workflowFailureRunnerNonOK,
+		Summary:   "provider unavailable",
+		Retryable: true,
+	})
+	if !ok {
+		t.Fatal("expected second retry to be allowed")
+	}
+	delay := time.Until(retryAt)
+	if delay < 59*time.Second || delay > 61*time.Second {
+		t.Fatalf("expected second retry backoff near 60s, got %s", delay)
+	}
+}
+
+func TestFinalizeWorkflowFailureWithDetailsBudgetExhaustionMovesLineToNeedsHuman(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatal("expected initial workflow to exist")
+	}
+	now := time.Now().UTC()
+
+	if _, err := submitWorkflowCommand(store, workflow.ID, transition.CommandWorkflowFailed, "tester", now, map[string]any{
+		"last_error":      "provider unavailable",
+		"failure_class":   workflowFailureRunnerNonOK,
+		"failure_summary": "provider unavailable",
+		"retry_decision":  "auto_retry",
+		"retry_after":     now.Add(15 * time.Second),
+	}); err != nil {
+		t.Fatalf("submitWorkflowCommand(first workflow_failed) error = %v", err)
+	}
+	line, ok := store.GetWorkflowLine(workflow.CaseID)
+	if !ok {
+		t.Fatalf("expected workflow line for case %s", workflow.CaseID)
+	}
+	secondAttempt, ok := findWorkflow(store.ListWorkflows(), line.CurrentWorkflowID)
+	if !ok {
+		t.Fatalf("expected second attempt workflow %s", line.CurrentWorkflowID)
+	}
+
+	if _, err := submitWorkflowCommand(store, secondAttempt.ID, transition.CommandWorkflowFailed, "tester", now.Add(time.Second), map[string]any{
+		"last_error":      "provider unavailable again",
+		"failure_class":   workflowFailureRunnerNonOK,
+		"failure_summary": "provider unavailable again",
+		"retry_decision":  "auto_retry",
+		"retry_after":     now.Add(61 * time.Second),
+	}); err != nil {
+		t.Fatalf("submitWorkflowCommand(second workflow_failed) error = %v", err)
+	}
+	line, _ = store.GetWorkflowLine(workflow.CaseID)
+	thirdAttempt, ok := findWorkflow(store.ListWorkflows(), line.CurrentWorkflowID)
+	if !ok {
+		t.Fatalf("expected third attempt workflow %s", line.CurrentWorkflowID)
+	}
+
+	cfg := config.Config{
+		ServiceName:                     "control-plane",
+		WorkflowAutoRetryEnabled:        true,
+		WorkflowAutoRetryMaxAttempts:    3,
+		WorkflowAutoRetryBackoffSeconds: []int{15, 60},
+	}
+	if err := finalizeWorkflowFailureWithDetails(cfg, store, workflowLocator{
+		traceID:    thirdAttempt.TraceID,
+		workflowID: thirdAttempt.ID,
+	}, workflowFailure{
+		Class:     workflowFailureRunnerNonOK,
+		Summary:   "provider unavailable third time",
+		Retryable: true,
+	}); err != nil {
+		t.Fatalf("finalizeWorkflowFailureWithDetails() error = %v", err)
+	}
+
+	line, _ = store.GetWorkflowLine(workflow.CaseID)
+	if line.Status != string(transition.WorkflowLineStateNeedsHuman) {
+		t.Fatalf("expected budget exhaustion to move line to needs_human, got %s", line.Status)
+	}
+	if line.AttemptCount != 3 {
+		t.Fatalf("expected attempt_count=3 after exhausting budget, got %d", line.AttemptCount)
+	}
+	if line.AutoRetryBudgetRemaining != 0 {
+		t.Fatalf("expected retry budget to be exhausted, got %d", line.AutoRetryBudgetRemaining)
+	}
+	if line.CurrentWorkflowID != thirdAttempt.ID {
+		t.Fatalf("expected exhausted line to stay on third attempt %s, got %s", thirdAttempt.ID, line.CurrentWorkflowID)
+	}
+	finalAttempt, ok := findWorkflow(store.ListWorkflows(), thirdAttempt.ID)
+	if !ok {
+		t.Fatalf("expected final attempt workflow %s", thirdAttempt.ID)
+	}
+	if finalAttempt.RetryDecision != "needs_human" {
+		t.Fatalf("expected exhausted attempt retry_decision=needs_human, got %s", finalAttempt.RetryDecision)
+	}
+}
+
+func TestFinalizeWorkflowFailureWithDetailsNonRetryableMovesLineToNeedsHuman(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatal("expected initial workflow to exist")
+	}
+
+	cfg := config.Config{
+		ServiceName:                     "control-plane",
+		WorkflowAutoRetryEnabled:        true,
+		WorkflowAutoRetryMaxAttempts:    3,
+		WorkflowAutoRetryBackoffSeconds: []int{15, 60},
+	}
+	if err := finalizeWorkflowFailureWithDetails(cfg, store, workflowItem, workflowFailure{
+		Class:     "policy_block",
+		Summary:   "operator review required",
+		Retryable: false,
+	}); err != nil {
+		t.Fatalf("finalizeWorkflowFailureWithDetails() error = %v", err)
+	}
+
+	line, ok := store.GetWorkflowLine(workflow.CaseID)
+	if !ok {
+		t.Fatalf("expected workflow line for case %s", workflow.CaseID)
+	}
+	if line.Status != string(transition.WorkflowLineStateNeedsHuman) {
+		t.Fatalf("expected non-retryable failure to move line to needs_human, got %s", line.Status)
+	}
+	if line.AttemptCount != 1 {
+		t.Fatalf("expected non-retryable failure to avoid successor attempts, got attempt_count=%d", line.AttemptCount)
+	}
+	finalAttempt, ok := findWorkflow(store.ListWorkflows(), workflow.ID)
+	if !ok {
+		t.Fatalf("expected workflow %s", workflow.ID)
+	}
+	if finalAttempt.RetryDecision != "needs_human" {
+		t.Fatalf("expected retry_decision=needs_human, got %s", finalAttempt.RetryDecision)
+	}
+}
+
 func TestToolPlanForRepoProgressQuestionUsesGitHubActivity(t *testing.T) {
 	plan := workflowplan.ToolPlan("question", "Hello RSI, can you give me a quick rundown of how depin-backend api progressed in the last week", "depin-backend")
 	if !containsString(plan, "github.repo_activity") {

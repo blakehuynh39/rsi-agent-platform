@@ -13,6 +13,7 @@ import (
 
 	"github.com/piplabs/rsi-agent-platform/internal/app"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
+	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	"github.com/piplabs/rsi-agent-platform/internal/reviewui"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
@@ -170,24 +171,72 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 			app.WriteError(w, http.StatusNotFound, errors.New("trace not found"))
 			return
 		}
+		trace, _ := store.GetTrace(traceID)
 		now := time.Now().UTC()
 		requestedBy := firstNonEmptyString(payload.RequestedBy, "ui-operator")
-		receipt, err := submitProblemLineCommand(
-			store,
-			traceID,
-			transition.CommandProblemLineScheduleReplay,
-			requestedBy,
-			now,
-			fmt.Sprintf("cmd-problem-line:replay:%s:%d", traceID, now.UnixNano()),
-			map[string]any{
-				"requested_by": requestedBy,
+		receipt, err := store.SubmitCommand(transition.CommandEnvelope{
+			MachineKind: transition.MachineWorkflowLine,
+			AggregateID: trace.Summary.CaseID,
+			CommandKind: string(transition.CommandWorkflowLineScheduleRetry),
+			CommandID:   fmt.Sprintf("cmd-workflow-line:replay:%s:%d", traceID, now.UnixNano()),
+			Actor:       requestedBy,
+			OccurredAt:  now,
+			Payload: map[string]any{
+				"requested_by":       requestedBy,
+				"source_workflow_id": trace.Summary.WorkflowID,
+				"source_trace_id":    traceID,
+				"retry_decision":     "manual_replay",
+				"retry_after":        now,
+				"next_retry_action":  "activate_retry",
+				"trace_description":  fmt.Sprintf("Queued manual replay from trace %s.", traceID),
 			},
-		)
+		})
 		if err != nil {
 			app.WriteError(w, http.StatusBadRequest, err)
 			return
 		}
+		line, ok := store.GetWorkflowLine(trace.Summary.CaseID)
+		if ok && line.CurrentWorkflowID != "" {
+			if _, err := store.SubmitCommand(transition.CommandEnvelope{
+				MachineKind: transition.MachineWorkflowLine,
+				AggregateID: trace.Summary.CaseID,
+				CommandKind: string(transition.CommandWorkflowLineActivateRetry),
+				CommandID:   fmt.Sprintf("%s:activate", receipt.CommandID),
+				Actor:       requestedBy,
+				OccurredAt:  now,
+			}); err != nil {
+				app.WriteError(w, http.StatusBadRequest, err)
+				return
+			}
+			if _, err := store.SubmitCommand(transition.CommandEnvelope{
+				MachineKind: transition.MachineWorkflow,
+				AggregateID: line.CurrentWorkflowID,
+				CommandKind: string(transition.CommandWorkflowStarted),
+				CommandID:   fmt.Sprintf("cmd-workflow:%s:%s", line.CurrentWorkflowID, transition.CommandWorkflowStarted),
+				Actor:       requestedBy,
+				OccurredAt:  now,
+				Payload: map[string]any{
+					"default_repo":         cfg.DefaultRepo,
+					"allowed_target_repos": append([]string(nil), cfg.AllowedTargetRepos...),
+					"knowledge_base_url":   cfg.DefaultKnowledgeBaseURL,
+					"sandbox_namespace":    cfg.SandboxNamespace,
+					"resume_queue":         string(queue.WorkflowQueue),
+				},
+			}); err != nil {
+				app.WriteError(w, http.StatusBadRequest, err)
+				return
+			}
+		}
 		app.WriteJSON(w, http.StatusAccepted, receipt)
+	})
+	r.Get("/api/workflow-attempts/{workflowID}", func(w http.ResponseWriter, r *http.Request) {
+		workflowID := chi.URLParam(r, "workflowID")
+		payload, ok := buildWorkflowAttemptDetail(store, workflowID)
+		if !ok {
+			app.WriteError(w, http.StatusNotFound, errors.New("workflow attempt not found"))
+			return
+		}
+		app.WriteJSON(w, http.StatusOK, payload)
 	})
 	r.Get("/api/proposals", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{

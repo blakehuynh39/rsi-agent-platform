@@ -46,6 +46,43 @@ type traceAttemptSummary struct {
 	LatestEval        *traceEvalSummary `json:"latest_eval,omitempty"`
 }
 
+type workflowLineSummary struct {
+	CaseID                   string     `json:"case_id"`
+	ConversationID           string     `json:"conversation_id"`
+	Status                   string     `json:"status"`
+	CurrentWorkflowID        string     `json:"current_workflow_id,omitempty"`
+	LatestWorkflowID         string     `json:"latest_workflow_id,omitempty"`
+	AttemptCount             int        `json:"attempt_count"`
+	AutoRetryBudgetRemaining int        `json:"auto_retry_budget_remaining"`
+	LastFailureClass         string     `json:"last_failure_class,omitempty"`
+	NextRetryAction          string     `json:"next_retry_action,omitempty"`
+	RetryAfter               *time.Time `json:"retry_after,omitempty"`
+	LineStopReason           string     `json:"line_stop_reason,omitempty"`
+	UpdatedAt                time.Time  `json:"updated_at"`
+}
+
+type workflowAttemptSummary struct {
+	WorkflowID        string     `json:"workflow_id"`
+	TraceID           string     `json:"trace_id,omitempty"`
+	ConversationID    string     `json:"conversation_id,omitempty"`
+	CaseID            string     `json:"case_id,omitempty"`
+	WorkflowKind      string     `json:"workflow_kind"`
+	Status            string     `json:"status"`
+	TraceStatus       string     `json:"trace_status,omitempty"`
+	AttemptNumber     int        `json:"attempt_number"`
+	ParentWorkflowID  string     `json:"parent_workflow_id,omitempty"`
+	SupersedesTraceID string     `json:"supersedes_trace_id,omitempty"`
+	FailureClass      string     `json:"failure_class,omitempty"`
+	FailureSummary    string     `json:"failure_summary,omitempty"`
+	RetryDecision     string     `json:"retry_decision,omitempty"`
+	RetryAfter        *time.Time `json:"retry_after,omitempty"`
+	RepairAttempted   bool       `json:"repair_attempted,omitempty"`
+	RepairSucceeded   bool       `json:"repair_succeeded,omitempty"`
+	CreatedAt         time.Time  `json:"created_at"`
+	UpdatedAt         time.Time  `json:"updated_at"`
+	CompletedAt       *time.Time `json:"completed_at,omitempty"`
+}
+
 type caseSummary struct {
 	CaseID             string                       `json:"case_id"`
 	ConversationID     string                       `json:"conversation_id"`
@@ -81,6 +118,8 @@ type conversationListItem struct {
 type conversationDetailResponse struct {
 	Conversation     conversation.Conversation `json:"conversation"`
 	ActiveCase       *caseSummary              `json:"active_case,omitempty"`
+	WorkflowLine     *workflowLineSummary      `json:"workflow_line,omitempty"`
+	WorkflowAttempts []workflowAttemptSummary  `json:"workflow_attempts"`
 	Cases            []caseSummary             `json:"cases"`
 	Transcript       []conversation.Entry      `json:"transcript"`
 	TraceAttempts    []traceAttemptSummary     `json:"trace_attempts"`
@@ -92,21 +131,25 @@ type conversationDetailResponse struct {
 }
 
 type caseDetailResponse struct {
-	Case             caseSummary           `json:"case"`
-	Conversation     conversationListItem  `json:"conversation"`
-	TraceAttempts    []traceAttemptSummary `json:"trace_attempts"`
-	LatestEvalRuns   []evals.Run           `json:"latest_eval_runs"`
-	ActionIntents    []action.Intent       `json:"action_intents"`
-	ActionResults    []action.Result       `json:"action_results"`
-	Outcomes         []outcome.Record      `json:"outcomes"`
-	KnowledgeEntries []knowledge.Entry     `json:"knowledge_entries"`
-	LinkedProposals  []review.Proposal     `json:"linked_proposals"`
+	Case             caseSummary              `json:"case"`
+	Conversation     conversationListItem     `json:"conversation"`
+	WorkflowLine     *workflowLineSummary     `json:"workflow_line,omitempty"`
+	WorkflowAttempts []workflowAttemptSummary `json:"workflow_attempts"`
+	TraceAttempts    []traceAttemptSummary    `json:"trace_attempts"`
+	LatestEvalRuns   []evals.Run              `json:"latest_eval_runs"`
+	ActionIntents    []action.Intent          `json:"action_intents"`
+	ActionResults    []action.Result          `json:"action_results"`
+	Outcomes         []outcome.Record         `json:"outcomes"`
+	KnowledgeEntries []knowledge.Entry        `json:"knowledge_entries"`
+	LinkedProposals  []review.Proposal        `json:"linked_proposals"`
 }
 
 type traceDetailResponse struct {
 	Trace              events.Trace                `json:"trace"`
 	Conversation       conversationListItem        `json:"conversation"`
 	Case               *caseSummary                `json:"case,omitempty"`
+	WorkflowLine       *workflowLineSummary        `json:"workflow_line,omitempty"`
+	WorkflowAttempts   []workflowAttemptSummary    `json:"workflow_attempts"`
 	TranscriptSlice    []conversation.Entry        `json:"transcript_slice"`
 	LinkedEvalRuns     []evals.Run                 `json:"linked_eval_runs"`
 	JudgmentsByEvalRun map[string][]evals.Judgment `json:"judgments_by_eval_run"`
@@ -158,6 +201,13 @@ type attemptDetailResponse struct {
 	RepoChangeJobs    []improvement.RepoChangeJob   `json:"repo_change_jobs"`
 	PRAttempts        []improvement.PRAttempt       `json:"pr_attempts"`
 	HarnessExecutions []harness.Execution           `json:"harness_executions"`
+}
+
+type workflowAttemptDetailResponse struct {
+	WorkflowLine     *workflowLineSummary     `json:"workflow_line,omitempty"`
+	WorkflowAttempt  storepkg.Workflow        `json:"workflow_attempt"`
+	Trace            *events.Trace            `json:"trace,omitempty"`
+	WorkflowAttempts []workflowAttemptSummary `json:"workflow_attempts"`
 }
 
 type proposalListItem struct {
@@ -326,11 +376,18 @@ func buildConversationDetail(store storepkg.Repository, conversationID string) (
 	traces := traceSummariesForConversation(store.ListTraces(), conversationID)
 	latestEvalByTrace := latestEvalRunByTrace(store.ListEvalRuns())
 	traceSummaries := buildTraceSummaries(traces, latestEvalByTrace)
+	workflowAttempts := workflowAttemptsForConversation(store.ListWorkflows(), store.ListTraces(), conversationID)
 	caseIndex := buildCaseSummaryIndex(store, store.ListTraces(), proposals)
 	cases := casesForConversation(store.ListCases(), conversationID, caseIndex)
+	var workflowLine *workflowLineSummary
+	if active := caseIndex[item.ActiveCaseID]; active != nil {
+		workflowLine = workflowLineForCase(store.ListWorkflowLines(), active.CaseID)
+	}
 	return conversationDetailResponse{
 		Conversation:     item,
 		ActiveCase:       caseIndex[item.ActiveCaseID],
+		WorkflowLine:     workflowLine,
+		WorkflowAttempts: workflowAttempts,
 		Cases:            cases,
 		Transcript:       sliceOrEmpty(store.ListConversationEntries(conversationID)),
 		TraceAttempts:    traceSummaries,
@@ -359,9 +416,12 @@ func buildCaseDetail(store storepkg.Repository, caseID string) (caseDetailRespon
 	traces := traceSummariesForCase(store.ListTraces(), caseID)
 	latestEvalByTrace := latestEvalRunByTrace(store.ListEvalRuns())
 	traceSummaries := buildTraceSummaries(traces, latestEvalByTrace)
+	workflowAttempts := workflowAttemptsForCase(store.ListWorkflows(), store.ListTraces(), caseID)
 	return caseDetailResponse{
 		Case:             *caseItem,
 		Conversation:     conversationSummary,
+		WorkflowLine:     workflowLineForCase(store.ListWorkflowLines(), caseID),
+		WorkflowAttempts: workflowAttempts,
 		TraceAttempts:    traceSummaries,
 		LatestEvalRuns:   latestEvalRunsForTraceSet(store.ListEvalRuns(), traceSummaries),
 		ActionIntents:    sliceOrEmpty(listActionIntents(store, actionFilters{CaseID: caseID})),
@@ -402,6 +462,8 @@ func buildTraceDetail(store storepkg.Repository, traceID string) (traceDetailRes
 		Trace:              trace,
 		Conversation:       conversationSummary,
 		Case:               caseIndex[trace.Summary.CaseID],
+		WorkflowLine:       workflowLineForCase(store.ListWorkflowLines(), trace.Summary.CaseID),
+		WorkflowAttempts:   workflowAttemptsForCase(store.ListWorkflows(), store.ListTraces(), trace.Summary.CaseID),
 		TranscriptSlice:    transcriptSlice(store.ListConversationEntries(trace.Summary.ConversationID), trace.Summary.TriggerEventID),
 		LinkedEvalRuns:     runs,
 		JudgmentsByEvalRun: judgments,
@@ -542,6 +604,26 @@ func buildAttemptDetail(store storepkg.Repository, proposalID string, attemptID 
 	}, true
 }
 
+func buildWorkflowAttemptDetail(store storepkg.Repository, workflowID string) (workflowAttemptDetailResponse, bool) {
+	workflow, ok := findWorkflowView(store.ListWorkflows(), workflowID)
+	if !ok {
+		return workflowAttemptDetailResponse{}, false
+	}
+	var trace *events.Trace
+	if strings.TrimSpace(workflow.TraceID) != "" {
+		if item, ok := store.GetTrace(workflow.TraceID); ok {
+			normalized := normalizeTrace(item)
+			trace = &normalized
+		}
+	}
+	return workflowAttemptDetailResponse{
+		WorkflowLine:     workflowLineForCase(store.ListWorkflowLines(), workflow.CaseID),
+		WorkflowAttempt:  workflow,
+		Trace:            trace,
+		WorkflowAttempts: workflowAttemptsForCase(store.ListWorkflows(), store.ListTraces(), workflow.CaseID),
+	}, true
+}
+
 func proposalEffects(store storepkg.Repository, proposalID string, attempts []improvement.ChangeAttempt) []transition.EffectExecution {
 	items := sliceOrEmpty(store.ListEffectExecutionsByAggregate(transition.MachineProposalLine, proposalID))
 	seen := make(map[string]struct{}, len(items))
@@ -564,6 +646,115 @@ func proposalEffects(store storepkg.Repository, proposalID string, attempts []im
 		return items[i].UpdatedAt.After(items[j].UpdatedAt)
 	})
 	return items
+}
+
+func workflowLineForCase(items []storepkg.WorkflowLine, caseID string) *workflowLineSummary {
+	item, ok := findWorkflowLineSummaryByCaseID(items, caseID)
+	if !ok {
+		return nil
+	}
+	return &workflowLineSummary{
+		CaseID:                   item.CaseID,
+		ConversationID:           item.ConversationID,
+		Status:                   item.Status,
+		CurrentWorkflowID:        item.CurrentWorkflowID,
+		LatestWorkflowID:         item.LatestWorkflowID,
+		AttemptCount:             item.AttemptCount,
+		AutoRetryBudgetRemaining: item.AutoRetryBudgetRemaining,
+		LastFailureClass:         item.LastFailureClass,
+		NextRetryAction:          item.NextRetryAction,
+		RetryAfter:               item.RetryAfter,
+		LineStopReason:           item.LineStopReason,
+		UpdatedAt:                item.UpdatedAt,
+	}
+}
+
+func workflowAttemptsForConversation(workflows []storepkg.Workflow, traces []events.TraceSummary, conversationID string) []workflowAttemptSummary {
+	out := make([]workflowAttemptSummary, 0)
+	for _, workflow := range workflows {
+		if workflow.ConversationID != conversationID {
+			continue
+		}
+		out = append(out, workflowAttemptSummaryView(workflow, traces))
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].AttemptNumber == out[j].AttemptNumber {
+			return out[i].CreatedAt.Before(out[j].CreatedAt)
+		}
+		return out[i].AttemptNumber < out[j].AttemptNumber
+	})
+	return out
+}
+
+func workflowAttemptsForCase(workflows []storepkg.Workflow, traces []events.TraceSummary, caseID string) []workflowAttemptSummary {
+	out := make([]workflowAttemptSummary, 0)
+	for _, workflow := range workflows {
+		if workflow.CaseID != caseID {
+			continue
+		}
+		out = append(out, workflowAttemptSummaryView(workflow, traces))
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].AttemptNumber == out[j].AttemptNumber {
+			return out[i].CreatedAt.Before(out[j].CreatedAt)
+		}
+		return out[i].AttemptNumber < out[j].AttemptNumber
+	})
+	return out
+}
+
+func workflowAttemptSummaryView(workflow storepkg.Workflow, traces []events.TraceSummary) workflowAttemptSummary {
+	summary := workflowAttemptSummary{
+		WorkflowID:       workflow.ID,
+		TraceID:          workflow.TraceID,
+		ConversationID:   workflow.ConversationID,
+		CaseID:           workflow.CaseID,
+		WorkflowKind:     workflow.Kind,
+		Status:           workflow.Status,
+		AttemptNumber:    workflow.AttemptNumber,
+		ParentWorkflowID: workflow.ParentWorkflowID,
+		FailureClass:     workflow.FailureClass,
+		FailureSummary:   workflow.FailureSummary,
+		RetryDecision:    workflow.RetryDecision,
+		RetryAfter:       workflow.RetryAfter,
+		RepairAttempted:  workflow.RepairAttempted,
+		RepairSucceeded:  workflow.RepairSucceeded,
+		CreatedAt:        workflow.CreatedAt,
+		UpdatedAt:        workflow.UpdatedAt,
+		CompletedAt:      workflow.CompletedAt,
+	}
+	for _, trace := range traces {
+		if trace.WorkflowID != workflow.ID {
+			continue
+		}
+		summary.TraceStatus = string(trace.Status)
+		summary.SupersedesTraceID = trace.SupersedesTraceID
+		if !trace.StartedAt.IsZero() {
+			summary.CreatedAt = trace.StartedAt
+		}
+		break
+	}
+	return summary
+}
+
+func findWorkflowView(items []storepkg.Workflow, workflowID string) (storepkg.Workflow, bool) {
+	workflowID = strings.TrimSpace(workflowID)
+	for _, item := range items {
+		if strings.TrimSpace(item.ID) == workflowID {
+			return item, true
+		}
+	}
+	return storepkg.Workflow{}, false
+}
+
+func findWorkflowLineSummaryByCaseID(items []storepkg.WorkflowLine, caseID string) (storepkg.WorkflowLine, bool) {
+	caseID = strings.TrimSpace(caseID)
+	for _, item := range items {
+		if strings.TrimSpace(item.CaseID) == caseID {
+			return item, true
+		}
+	}
+	return storepkg.WorkflowLine{}, false
 }
 
 func buildProposalSummaries(store storepkg.Repository) []proposalListItem {

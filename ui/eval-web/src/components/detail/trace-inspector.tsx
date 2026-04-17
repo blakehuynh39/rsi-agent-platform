@@ -70,6 +70,41 @@ export function TraceInspector(props: {
             <div><dt>Knowledge</dt><dd>{listOrEmpty(props.traceDetail.knowledge_entries).length}</dd></div>
             <div><dt>Harness runs</dt><dd>{listOrEmpty(props.traceDetail.harness_executions).length}</dd></div>
           </dl>
+          {props.traceDetail.workflow_line ? (
+            <div className="detail-card">
+              <h3>Workflow line</h3>
+              <dl className="overview-grid">
+                <div><dt>Status</dt><dd>{props.traceDetail.workflow_line.status}</dd></div>
+                <div><dt>Current attempt</dt><dd>{props.traceDetail.workflow_line.current_workflow_id || "none"}</dd></div>
+                <div><dt>Retry budget</dt><dd>{props.traceDetail.workflow_line.auto_retry_budget_remaining}</dd></div>
+                <div><dt>Last failure</dt><dd>{props.traceDetail.workflow_line.last_failure_class || "none"}</dd></div>
+                <div><dt>Retry at</dt><dd>{props.traceDetail.workflow_line.retry_after ? formatTime(props.traceDetail.workflow_line.retry_after) : "none"}</dd></div>
+                <div><dt>Next action</dt><dd>{props.traceDetail.workflow_line.next_retry_action || "none"}</dd></div>
+              </dl>
+            </div>
+          ) : null}
+          {listOrEmpty(props.traceDetail.workflow_attempts).length ? (
+            <div className="detail-card">
+              <h3>Attempt lineage</h3>
+              <div className="nested-list">
+                {listOrEmpty(props.traceDetail.workflow_attempts).map((attempt) => (
+                  <div key={attempt.workflow_id} className="nested-card">
+                    <div className="detail-row-header">
+                      <strong>{attempt.workflow_id}</strong>
+                      <small>attempt {attempt.attempt_number} · {attempt.status}</small>
+                    </div>
+                    <p className="detail-copy">{attempt.trace_id || "No linked trace."}</p>
+                    <p className="muted">
+                      Parent: {attempt.parent_workflow_id || "none"} · Supersedes trace: {attempt.supersedes_trace_id || "none"}
+                    </p>
+                    <p className="muted">
+                      Failure: {attempt.failure_class || "none"} · Retry: {attempt.retry_decision || "none"} · Repair: {attempt.repair_attempted ? (attempt.repair_succeeded ? "succeeded" : "failed") : "not needed"}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
           {listOrEmpty(props.traceDetail.harness_executions).length ? (
             <div className="detail-card">
               <h3>Hermes session continuity</h3>

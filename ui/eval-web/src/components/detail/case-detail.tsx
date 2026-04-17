@@ -25,6 +25,8 @@ export function CaseDetail(props: {
   setFeedbackNotes: (value: string) => void;
   onSubmitFeedback: () => void;
 }) {
+  const workflowAttempts = listOrEmpty(props.detail.workflow_attempts);
+  const workflowLine = props.detail.workflow_line;
   return (
     <div className="detail-stack">
       <div className="detail-card">
@@ -45,25 +47,33 @@ export function CaseDetail(props: {
           <div><dt>Recurrence</dt><dd>{props.detail.case.recurrence}</dd></div>
           <div><dt>Linked proposals</dt><dd>{listOrEmpty(props.detail.case.linked_proposal_ids).length}</dd></div>
         </dl>
+        {workflowLine ? (
+          <dl className="overview-grid">
+            <div><dt>Line status</dt><dd>{workflowLine.status}</dd></div>
+            <div><dt>Current attempt</dt><dd>{workflowLine.current_workflow_id || "none"}</dd></div>
+            <div><dt>Retry budget</dt><dd>{workflowLine.auto_retry_budget_remaining}</dd></div>
+            <div><dt>Retry at</dt><dd>{workflowLine.retry_after ? formatTime(workflowLine.retry_after) : "none"}</dd></div>
+          </dl>
+        ) : null}
       </div>
 
       <div className="detail-card">
-        <h3>Trace attempts</h3>
+        <h3>Workflow attempts</h3>
         <div className="nested-list">
-          {listOrEmpty(props.detail.trace_attempts).map((trace) => (
-            <button key={trace.trace_id} className={trace.trace_id === props.selectedTraceId ? "list-card selected" : "list-card"} onClick={() => props.onSelectTrace(trace.trace_id)}>
+          {workflowAttempts.map((attempt) => (
+            <button key={attempt.workflow_id} className={attempt.trace_id === props.selectedTraceId ? "list-card selected" : "list-card"} onClick={() => attempt.trace_id ? props.onSelectTrace(attempt.trace_id) : undefined}>
               <div className="list-card-header">
                 <div>
-                  <strong>{trace.trace_id}</strong>
-                  <p>{trace.workflow_kind} · {trace.status}</p>
+                  <strong>{attempt.workflow_id}</strong>
+                  <p>attempt {attempt.attempt_number} · {attempt.status}</p>
                 </div>
-                {trace.latest_eval ? <span className="status-chip eval">{trace.latest_eval.verdict}</span> : null}
+                {attempt.failure_class ? <span className="status-chip eval">{attempt.failure_class}</span> : null}
               </div>
               <dl className="mini-metrics">
-                <div><dt>Started</dt><dd>{formatTime(trace.started_at)}</dd></div>
-                <div><dt>Events</dt><dd>{trace.event_count}</dd></div>
-                <div><dt>Tools</dt><dd>{trace.tool_call_count}</dd></div>
-                <div><dt>Slack</dt><dd>{trace.slack_action_count}</dd></div>
+                <div><dt>Started</dt><dd>{formatTime(attempt.created_at)}</dd></div>
+                <div><dt>Trace</dt><dd>{attempt.trace_id || "none"}</dd></div>
+                <div><dt>Retry</dt><dd>{attempt.retry_decision || "none"}</dd></div>
+                <div><dt>Repair</dt><dd>{attempt.repair_attempted ? (attempt.repair_succeeded ? "succeeded" : "failed") : "not needed"}</dd></div>
               </dl>
             </button>
           ))}

@@ -3,6 +3,7 @@ from __future__ import annotations
 import concurrent.futures
 from dataclasses import dataclass, replace
 import json
+import logging
 import os
 import time
 from numbers import Number
@@ -31,6 +32,8 @@ ROLE_TASK_TYPES = {
     "eval": {"general", "eval"},
     "proposal": {"general", "proposal", "repo-change"},
 }
+
+logger = logging.getLogger(__name__)
 
 
 def _json_object_or_empty(value: JsonValue | None) -> JsonObject:
@@ -666,19 +669,84 @@ class HermesRuntime:
         result = self._execute_task_request(rendered_task, tool_policy)
         if not result.ok:
             return result
+        initial_response = result.message
+        repair_attempted = False
+        repair_succeeded = False
         try:
             structured_output = self._extract_structured_output(result.message)
         except HermesStructuredOutputError as exc:
-            return HermesExecutionResult(
-                ok=False,
-                message=str(exc),
-                provider=result.provider,
-                raw={
-                    **result.raw,
-                    "structured_output_error": str(exc),
-                    "raw_response": result.message,
-                },
-            )
+            if task.task_type == "workflow" and self._config.workflow_runner_repair_attempts > 0 and self._structured_output_repairable(exc):
+                repair_attempted = True
+                logger.info(
+                    "workflow runner structured-output repair attempted trace_id=%s workflow_id=%s",
+                    task.trace_id or "",
+                    task.workflow_id or "",
+                )
+                repair_task = self._build_structured_output_repair_task(rendered_task, result.message)
+                repair_result = self._execute_task_request(repair_task, tool_policy)
+                if repair_result.ok:
+                    try:
+                        structured_output = self._extract_structured_output(repair_result.message)
+                        result = repair_result
+                        repair_succeeded = True
+                        logger.info(
+                            "workflow runner structured-output repair succeeded trace_id=%s workflow_id=%s",
+                            task.trace_id or "",
+                            task.workflow_id or "",
+                        )
+                    except HermesStructuredOutputError as repair_exc:
+                        logger.warning(
+                            "workflow runner structured-output repair failed trace_id=%s workflow_id=%s error=%s",
+                            task.trace_id or "",
+                            task.workflow_id or "",
+                            repair_exc,
+                        )
+                        return HermesExecutionResult(
+                            ok=False,
+                            message=str(repair_exc),
+                            provider=repair_result.provider,
+                            raw={
+                                **repair_result.raw,
+                                "structured_output_error": str(repair_exc),
+                                "raw_response": repair_result.message,
+                                "repair_attempted": True,
+                                "repair_succeeded": False,
+                                "repair_original_response": result.message,
+                            },
+                        )
+                else:
+                    logger.warning(
+                        "workflow runner structured-output repair failed trace_id=%s workflow_id=%s error=%s",
+                        task.trace_id or "",
+                        task.workflow_id or "",
+                        repair_result.message,
+                    )
+                    return HermesExecutionResult(
+                        ok=False,
+                        message=repair_result.message,
+                        provider=repair_result.provider,
+                        raw={
+                            **repair_result.raw,
+                            "structured_output_error": str(exc),
+                            "raw_response": repair_result.message,
+                            "repair_attempted": True,
+                            "repair_succeeded": False,
+                            "repair_original_response": result.message,
+                        },
+                    )
+            else:
+                return HermesExecutionResult(
+                    ok=False,
+                    message=str(exc),
+                    provider=result.provider,
+                    raw={
+                        **result.raw,
+                        "structured_output_error": str(exc),
+                        "raw_response": result.message,
+                        "repair_attempted": False,
+                        "repair_succeeded": False,
+                    },
+                )
         result.raw = {
             **result.raw,
             "role": self._role,
@@ -719,8 +787,12 @@ class HermesRuntime:
             "workspace_repo": task.workspace_repo,
             "workspace_branch": task.workspace_branch,
             "allowed_path_globs": task.allowed_path_globs,
+            "repair_attempted": repair_attempted,
+            "repair_succeeded": repair_succeeded,
             "structured_output": structured_output,
         }
+        if repair_attempted:
+            result.raw["repair_original_response"] = initial_response
         return result
 
     def _render_task_prompt(self, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> str:
@@ -829,6 +901,24 @@ class HermesRuntime:
         if not isinstance(parsed, dict):
             raise HermesStructuredOutputError("Hermes execution returned a non-object JSON payload; structured output must be a JSON object.")
         return parsed
+
+    def _structured_output_repairable(self, exc: HermesStructuredOutputError) -> bool:
+        message = str(exc).lower()
+        return "non-json" in message or "non-object json" in message
+
+    def _build_structured_output_repair_task(self, task: RunnerTaskRequest, raw_response: str) -> RunnerTaskRequest:
+        repair_prompt = "\n".join(
+            [
+                task.prompt,
+                "",
+                "Repair instruction: your previous response was invalid.",
+                "Return only a valid JSON object matching the required schema.",
+                "Do not include markdown, explanations, code fences, or any text before or after the JSON object.",
+                "Previous invalid response:",
+                raw_response,
+            ]
+        )
+        return replace(task, prompt=repair_prompt)
 
 
 def first_non_empty(*values: str | None) -> str:

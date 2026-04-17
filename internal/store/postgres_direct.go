@@ -643,6 +643,9 @@ func replaceEventMaterializationScope(tx *sql.Tx, store *MemoryStore, event inge
 			addID(conversationIDs, item.ConversationID)
 			addID(traceIDs, item.LatestTraceID)
 		}
+		if item, ok := store.workflowLines[caseID]; ok {
+			temp.workflowLines[caseID] = item
+		}
 	}
 	for convID := range conversationIDs {
 		if item, ok := store.conversations[convID]; ok {
@@ -712,6 +715,11 @@ func replaceEventMaterializationScope(tx *sql.Tx, store *MemoryStore, event inge
 	}
 	if len(temp.cases) > 0 {
 		if err := persistCases(tx, temp); err != nil {
+			return err
+		}
+	}
+	if len(temp.workflowLines) > 0 {
+		if err := persistWorkflowLines(tx, temp); err != nil {
 			return err
 		}
 	}

@@ -156,6 +156,8 @@ func (s *MemoryStore) applyCommandLocked(command transition.CommandEnvelope) (co
 		return s.applyIngressCommandLocked(command)
 	case transition.MachineWorkflow:
 		return s.applyWorkflowCommandLocked(command)
+	case transition.MachineWorkflowLine:
+		return s.applyWorkflowLineCommandLocked(command)
 	case transition.MachineProblemLine:
 		return s.applyProblemLineCommandLocked(command)
 	case transition.MachineAttempt:
@@ -248,6 +250,9 @@ func (s *MemoryStore) applyWorkflowCommandLocked(command transition.CommandEnvel
 			return commandApplyResult{}, err
 		}
 		workflow = next
+		if workflow, err = s.applyWorkflowCommandMetadataLocked(workflow.ID, command); err != nil {
+			return commandApplyResult{}, err
+		}
 		if err := s.projectWorkflowTraceLocked(workflow, command); err != nil {
 			return commandApplyResult{}, err
 		}
@@ -259,6 +264,7 @@ func (s *MemoryStore) applyWorkflowCommandLocked(command transition.CommandEnvel
 		receipt: buildCommandReceipt(command, decision.TransitionDecision, workflow.UpdatedAt, workflow.Version, workflow.ID),
 		bundle:  buildCommandBundle(command, decision.TransitionDecision, workflow.Version),
 	}
+	s.appendWorkflowLineFollowOnCommandLocked(&result.bundle, command, workflow)
 	if decision.DecisionKind == transition.DecisionAdvance &&
 		transition.WorkflowCommandKind(command.CommandKind) == transition.CommandWorkflowStarted &&
 		workflowPlanningRequested(command) {
@@ -1794,6 +1800,20 @@ func persistCommandMutation(tx *sql.Tx, store *MemoryStore, result commandApplyR
 			return errors.New("workflow not found for persistence")
 		}
 		return replaceWorkflowScope(tx, workflow)
+	case transition.MachineWorkflowLine:
+		line, ok := store.workflowLines[result.receipt.AggregateID]
+		if !ok {
+			return errors.New("workflow line not found for persistence")
+		}
+		if err := replaceWorkflowLineScope(tx, line); err != nil {
+			return err
+		}
+		if strings.TrimSpace(result.traceID) != "" {
+			if trace, ok := store.traces[result.traceID]; ok {
+				return replaceTraceAndWorkflowScope(tx, store, trace)
+			}
+		}
+		return nil
 	case transition.MachineAction:
 		intent, ok := store.actionIntents[result.receipt.AggregateID]
 		if !ok {

@@ -106,6 +106,8 @@ export type ConversationDetailResponse = {
     active_case_id?: string;
   };
   active_case?: CaseSummary;
+  workflow_line?: WorkflowLineSummary;
+  workflow_attempts?: NullableList<WorkflowAttemptSummary>;
   cases: NullableList<CaseSummary>;
   transcript: NullableList<ConversationEntry>;
   trace_attempts: NullableList<TraceAttemptSummary>;
@@ -119,6 +121,8 @@ export type ConversationDetailResponse = {
 export type CaseDetailResponse = {
   case: CaseSummary;
   conversation: ConversationListItem;
+  workflow_line?: WorkflowLineSummary;
+  workflow_attempts?: NullableList<WorkflowAttemptSummary>;
   trace_attempts: NullableList<TraceAttemptSummary>;
   latest_eval_runs: NullableList<EvalRun>;
   action_intents: NullableList<ActionIntent>;
@@ -212,6 +216,8 @@ export type TraceDetailResponse = {
   };
   conversation: ConversationListItem;
   case?: CaseSummary;
+  workflow_line?: WorkflowLineSummary;
+  workflow_attempts?: NullableList<WorkflowAttemptSummary>;
   transcript_slice: NullableList<ConversationEntry>;
   linked_eval_runs: NullableList<EvalRun>;
   judgments_by_eval_run: Record<string, NullableList<EvalJudgment>>;
@@ -222,6 +228,43 @@ export type TraceDetailResponse = {
   feedback_records: NullableList<FeedbackRecord>;
   linked_proposals: NullableList<Proposal>;
   harness_executions: NullableList<HarnessExecution>;
+};
+
+export type WorkflowLineSummary = {
+  case_id: string;
+  conversation_id: string;
+  status: string;
+  current_workflow_id?: string;
+  latest_workflow_id?: string;
+  attempt_count: number;
+  auto_retry_budget_remaining: number;
+  last_failure_class?: string;
+  next_retry_action?: string;
+  retry_after?: string;
+  line_stop_reason?: string;
+  updated_at: string;
+};
+
+export type WorkflowAttemptSummary = {
+  workflow_id: string;
+  trace_id?: string;
+  conversation_id?: string;
+  case_id?: string;
+  workflow_kind: string;
+  status: string;
+  trace_status?: string;
+  attempt_number: number;
+  parent_workflow_id?: string;
+  supersedes_trace_id?: string;
+  failure_class?: string;
+  failure_summary?: string;
+  retry_decision?: string;
+  retry_after?: string;
+  repair_attempted?: boolean;
+  repair_succeeded?: boolean;
+  created_at: string;
+  updated_at: string;
+  completed_at?: string;
 };
 
 export type EvalRun = CreatedAt & {

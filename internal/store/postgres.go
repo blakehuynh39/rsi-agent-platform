@@ -184,6 +184,9 @@ func loadStore(r sqlReader) (*MemoryStore, error) {
 	if err := loadIngestions(r, store); err != nil {
 		return nil, err
 	}
+	if err := loadWorkflowLines(r, store); err != nil {
+		return nil, err
+	}
 	if err := loadWorkflows(r, store); err != nil {
 		return nil, err
 	}
@@ -281,6 +284,7 @@ func persistStore(tx *sql.Tx, store *MemoryStore) error {
 		"trace_event",
 		"trace_summary",
 		"assignment",
+		"workflow_line",
 		"workflow",
 		"ingestion",
 		"case_record",
@@ -327,6 +331,9 @@ func persistStore(tx *sql.Tx, store *MemoryStore) error {
 		return err
 	}
 	if err := persistCases(tx, store); err != nil {
+		return err
+	}
+	if err := persistWorkflowLines(tx, store); err != nil {
 		return err
 	}
 	if err := persistActionIntents(tx, store); err != nil {
@@ -827,16 +834,16 @@ func loadIngestions(r sqlReader, store *MemoryStore) error {
 }
 
 func loadWorkflows(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, version, ingestion_id, trace_id, conversation_id, case_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_error, created_at, updated_at, completed_at from workflow order by created_at desc`)
+	rows, err := r.Query(`select id, version, ingestion_id, trace_id, conversation_id, case_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_error, attempt_number, parent_workflow_id, failure_class, failure_summary, retry_decision, retry_after, repair_attempted, repair_succeeded, created_at, updated_at, completed_at from workflow order by created_at desc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var item Workflow
-		var ingestionID, traceID, conversationID, caseID, intent, approvalMode, responseMode, lastError sql.NullString
-		var completedAt sql.NullTime
-		if err := rows.Scan(&item.ID, &item.Version, &ingestionID, &traceID, &conversationID, &caseID, &item.ThreadKey, &item.Kind, &intent, &item.AssignedBot, &approvalMode, &responseMode, &item.Status, &lastError, &item.CreatedAt, &item.UpdatedAt, &completedAt); err != nil {
+		var ingestionID, traceID, conversationID, caseID, intent, approvalMode, responseMode, lastError, parentWorkflowID, failureClass, failureSummary, retryDecision sql.NullString
+		var retryAfter, completedAt sql.NullTime
+		if err := rows.Scan(&item.ID, &item.Version, &ingestionID, &traceID, &conversationID, &caseID, &item.ThreadKey, &item.Kind, &intent, &item.AssignedBot, &approvalMode, &responseMode, &item.Status, &lastError, &item.AttemptNumber, &parentWorkflowID, &failureClass, &failureSummary, &retryDecision, &retryAfter, &item.RepairAttempted, &item.RepairSucceeded, &item.CreatedAt, &item.UpdatedAt, &completedAt); err != nil {
 			return err
 		}
 		item.IngestionID = ingestionID.String
@@ -847,6 +854,14 @@ func loadWorkflows(r sqlReader, store *MemoryStore) error {
 		item.ApprovalMode = approvalMode.String
 		item.ResponseMode = responseMode.String
 		item.LastError = lastError.String
+		item.ParentWorkflowID = parentWorkflowID.String
+		item.FailureClass = failureClass.String
+		item.FailureSummary = failureSummary.String
+		item.RetryDecision = retryDecision.String
+		if retryAfter.Valid {
+			t := retryAfter.Time
+			item.RetryAfter = &t
+		}
 		if completedAt.Valid {
 			t := completedAt.Time
 			item.CompletedAt = &t
@@ -1831,7 +1846,7 @@ func persistIngestions(tx *sql.Tx, store *MemoryStore) error {
 
 func persistWorkflows(tx *sql.Tx, store *MemoryStore) error {
 	for _, item := range store.workflows {
-		if _, err := tx.Exec(`insert into workflow (id, version, ingestion_id, trace_id, conversation_id, case_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_error, created_at, updated_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+		if _, err := tx.Exec(`insert into workflow (id, version, ingestion_id, trace_id, conversation_id, case_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_error, attempt_number, parent_workflow_id, failure_class, failure_summary, retry_decision, retry_after, repair_attempted, repair_succeeded, created_at, updated_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25)
 			on conflict (id) do update set
 				version = excluded.version,
 				ingestion_id = excluded.ingestion_id,
@@ -1846,10 +1861,18 @@ func persistWorkflows(tx *sql.Tx, store *MemoryStore) error {
 				response_mode = excluded.response_mode,
 				status = excluded.status,
 				last_error = excluded.last_error,
+				attempt_number = excluded.attempt_number,
+				parent_workflow_id = excluded.parent_workflow_id,
+				failure_class = excluded.failure_class,
+				failure_summary = excluded.failure_summary,
+				retry_decision = excluded.retry_decision,
+				retry_after = excluded.retry_after,
+				repair_attempted = excluded.repair_attempted,
+				repair_succeeded = excluded.repair_succeeded,
 				created_at = excluded.created_at,
 				updated_at = excluded.updated_at,
 				completed_at = excluded.completed_at`,
-			item.ID, item.Version, nullString(item.IngestionID), nullString(item.TraceID), nullString(item.ConversationID), nullString(item.CaseID), item.ThreadKey, item.Kind, nullString(item.Intent), item.AssignedBot, nullString(item.ApprovalMode), nullString(item.ResponseMode), item.Status, nullString(item.LastError), item.CreatedAt, item.UpdatedAt, nullTime(item.CompletedAt),
+			item.ID, item.Version, nullString(item.IngestionID), nullString(item.TraceID), nullString(item.ConversationID), nullString(item.CaseID), item.ThreadKey, item.Kind, nullString(item.Intent), item.AssignedBot, nullString(item.ApprovalMode), nullString(item.ResponseMode), item.Status, nullString(item.LastError), item.AttemptNumber, nullString(item.ParentWorkflowID), nullString(item.FailureClass), nullString(item.FailureSummary), nullString(item.RetryDecision), nullTime(item.RetryAfter), item.RepairAttempted, item.RepairSucceeded, item.CreatedAt, item.UpdatedAt, nullTime(item.CompletedAt),
 		); err != nil {
 			return err
 		}

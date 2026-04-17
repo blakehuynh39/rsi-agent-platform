@@ -21,6 +21,7 @@ func newEmptyMemoryStore() *MemoryStore {
 		threadPolicies:         map[string]policy.ThreadPolicy{},
 		conversations:          map[string]conversation.Conversation{},
 		cases:                  map[string]conversation.Case{},
+		workflowLines:          map[string]WorkflowLine{},
 		feedbackRecords:        map[string][]review.FeedbackRecord{},
 		actionIntents:          map[string]action.Intent{},
 		actionResults:          map[string][]action.Result{},

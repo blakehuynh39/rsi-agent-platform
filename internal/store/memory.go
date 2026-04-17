@@ -69,6 +69,8 @@ type Store interface {
 	GetAttemptWorkspace(workspaceID string) (improvement.AttemptWorkspace, bool)
 	GetAttemptWorkspaceByAttempt(attemptID string) (improvement.AttemptWorkspace, bool)
 	ListIngestions() []slack.Ingestion
+	ListWorkflowLines() []WorkflowLine
+	GetWorkflowLine(caseID string) (WorkflowLine, bool)
 	ListWorkflows() []Workflow
 	ListAssignments() []Assignment
 	ListThreadPolicies() []policy.ThreadPolicy
@@ -102,6 +104,7 @@ type MemoryStore struct {
 	conversationEntries    []conversation.Entry
 	cases                  map[string]conversation.Case
 	ingestions             []slack.Ingestion
+	workflowLines          map[string]WorkflowLine
 	workflows              []Workflow
 	assignments            []Assignment
 	threadPolicies         map[string]policy.ThreadPolicy
@@ -707,7 +710,7 @@ func (s *MemoryStore) materializeWorkflowLocked(event ingestion.EventEnvelope) {
 	conv, createdConversation := s.resolveConversationLocked(event, createdAt)
 	entry := s.appendConversationEntryLocked(conv.ID, event, createdAt)
 	caseRecord, _ := s.resolveCaseLocked(conv, event, createdAt)
-	workflow := s.ensureWorkflowForCaseLocked(caseRecord, entry, createdAt, stringFromMetadata(event.Metadata, "workflow_id"))
+	line := s.ensureWorkflowLineLocked(caseRecord, createdAt)
 
 	ingestionID := firstNonEmpty(stringFromMetadata(event.Metadata, "ingestion_id"), nextID("ing", len(s.ingestions)+1))
 	ingestionItem := slack.Ingestion{
@@ -749,11 +752,41 @@ func (s *MemoryStore) materializeWorkflowLocked(event ingestion.EventEnvelope) {
 	}
 
 	traceID := nextID("trace", len(s.traces)+1)
+	workflowID := firstNonEmpty(stringFromMetadata(event.Metadata, "workflow_id"), nextID("wf", len(s.workflows)+1))
+	parentWorkflowID := firstNonEmpty(line.CurrentWorkflowID, line.LatestWorkflowID)
 	supersedesTraceID := s.supersedeInFlightTracesLocked(caseRecord.ID, traceID, event.ID, createdAt)
-	workflow.IngestionID = ingestionID
-	workflow.TraceID = traceID
-	workflow.Status = "queued"
-	workflow.UpdatedAt = createdAt
+	workflow := Workflow{
+		ID:               workflowID,
+		IngestionID:      ingestionID,
+		TraceID:          traceID,
+		ConversationID:   caseRecord.ConversationID,
+		CaseID:           caseRecord.ID,
+		ThreadKey:        conversationKeyForCase(caseRecord, s.conversations),
+		Kind:             caseRecord.Kind,
+		Intent:           caseRecord.Intent,
+		AssignedBot:      caseRecord.AssignedBot,
+		ApprovalMode:     caseRecord.ApprovalMode,
+		ResponseMode:     caseRecord.ResponseMode,
+		Status:           "queued",
+		AttemptNumber:    line.AttemptCount + 1,
+		ParentWorkflowID: parentWorkflowID,
+		Version:          1,
+		CreatedAt:        entry.CreatedAt,
+		UpdatedAt:        createdAt,
+	}
+	line.ConversationID = conv.ID
+	line.Status = workflowLineStatusFromState(transition.WorkflowLineStateActive)
+	line.CurrentWorkflowID = workflow.ID
+	line.LatestWorkflowID = workflow.ID
+	line.AttemptCount++
+	line.AutoRetryBudgetRemaining = workflowLineRetryBudgetRemaining(line.AttemptCount)
+	line.LastFailureClass = ""
+	line.NextRetryAction = ""
+	line.RetryAfter = nil
+	line.LineStopReason = ""
+	line.UpdatedAt = createdAt
+	line.CompletedAt = nil
+	s.upsertWorkflowLineLocked(line)
 	s.upsertWorkflowLocked(workflow)
 
 	caseRecord.LatestTraceID = traceID
@@ -912,6 +945,13 @@ func (s *MemoryStore) resolveCaseLocked(conv conversation.Conversation, event in
 		active.UpdatedAt = createdAt
 		active.ClosedAt = timePtr(createdAt)
 		s.cases[active.ID] = active
+		if line, ok := s.workflowLines[active.ID]; ok {
+			line.Status = workflowLineStatusFromState(transition.WorkflowLineStateSuperseded)
+			line.LineStopReason = firstNonEmpty(line.LineStopReason, "case_superseded")
+			line.UpdatedAt = createdAt
+			line.CompletedAt = timePtr(createdAt)
+			s.upsertWorkflowLineLocked(line)
+		}
 	}
 	item := conversation.Case{
 		ID:              nextID("case", len(s.cases)+1),
@@ -1031,6 +1071,9 @@ func (s *MemoryStore) supersedeInFlightTracesLocked(caseID string, nextTraceID s
 		})
 		recomputeTraceSummary(&trace)
 		s.traces[traceID] = trace
+		if updated, err := s.updateWorkflowStatusLocked(trace.Summary.WorkflowID, string(transition.WorkflowStateSuperseded), "superseded by successor trace"); err == nil {
+			s.upsertWorkflowLocked(updated)
+		}
 	}
 	for id, item := range s.actionIntents {
 		if item.CaseID != caseID {
@@ -1301,7 +1344,7 @@ func (s *MemoryStore) updateWorkflowStatusLocked(workflowID string, status strin
 		s.workflows[i].LastError = lastError
 		s.workflows[i].UpdatedAt = now
 		s.workflows[i].Version++
-		if status == "completed" || status == "failed" {
+		if status == "completed" || status == "failed" || status == "needs_human" || status == "superseded" {
 			s.workflows[i].CompletedAt = &now
 		}
 		return s.workflows[i], nil

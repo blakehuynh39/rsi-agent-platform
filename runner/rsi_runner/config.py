@@ -35,6 +35,7 @@ class RunnerConfig:
     inactivity_timeout_seconds: int
     transport_timeout_seconds: int
     tool_policy_mode: str
+    workflow_runner_repair_attempts: int
 
     @classmethod
     def from_env(cls) -> "RunnerConfig":
@@ -61,6 +62,7 @@ class RunnerConfig:
         inactivity_timeout_seconds = role_inactivity_timeout_seconds(role, task_timeout_seconds)
         transport_timeout_seconds = role_transport_timeout_seconds(role)
         tool_policy_mode = role_tool_policy_mode(role)
+        workflow_runner_repair_attempts = parse_non_negative_int(optional_env("RSI_WORKFLOW_RUNNER_REPAIR_ATTEMPTS") or "1", "RSI_WORKFLOW_RUNNER_REPAIR_ATTEMPTS")
         if model.startswith("openai/"):
             required_env("OPENAI_API_KEY")
         if memory_backend != "honcho":
@@ -93,6 +95,7 @@ class RunnerConfig:
             inactivity_timeout_seconds=inactivity_timeout_seconds,
             transport_timeout_seconds=transport_timeout_seconds,
             tool_policy_mode=tool_policy_mode,
+            workflow_runner_repair_attempts=workflow_runner_repair_attempts,
         )
 
 
@@ -183,6 +186,16 @@ def parse_positive_int(raw: str, name: str) -> int:
         raise RunnerConfigError(f"{name} must be a positive integer") from exc
     if value <= 0:
         raise RunnerConfigError(f"{name} must be a positive integer")
+    return value
+
+
+def parse_non_negative_int(raw: str, name: str) -> int:
+    try:
+        value = int(raw)
+    except ValueError as exc:
+        raise RunnerConfigError(f"{name} must be a non-negative integer") from exc
+    if value < 0:
+        raise RunnerConfigError(f"{name} must be a non-negative integer")
     return value
 
 

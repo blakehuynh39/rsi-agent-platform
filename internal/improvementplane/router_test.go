@@ -274,6 +274,13 @@ func TestRouterConversationCaseAndTraceEndpoints(t *testing.T) {
 	if _, ok := detailPayload["conversation"].(map[string]any); !ok {
 		t.Fatal("expected conversation detail payload to include conversation object")
 	}
+	if _, ok := detailPayload["workflow_line"].(map[string]any); !ok {
+		t.Fatal("expected conversation detail payload to include workflow_line")
+	}
+	workflowAttempts, ok := detailPayload["workflow_attempts"].([]any)
+	if !ok || len(workflowAttempts) == 0 {
+		t.Fatal("expected workflow_attempts to be a non-empty JSON array")
+	}
 	traceAttempts, ok := detailPayload["trace_attempts"].([]any)
 	if !ok || len(traceAttempts) == 0 {
 		t.Fatal("expected trace_attempts to be a non-empty JSON array")
@@ -301,6 +308,28 @@ func TestRouterConversationCaseAndTraceEndpoints(t *testing.T) {
 	if len(casePayload.Cases) == 0 {
 		t.Fatal("expected at least one case")
 	}
+	caseSummary := casePayload.Cases[0]
+	caseID, _ := caseSummary["case_id"].(string)
+	if caseID == "" {
+		t.Fatal("expected non-empty case_id from case list")
+	}
+
+	caseDetailReq := httptest.NewRequest(http.MethodGet, "/api/cases/"+caseID, nil)
+	caseDetailRec := httptest.NewRecorder()
+	router.ServeHTTP(caseDetailRec, caseDetailReq)
+	if caseDetailRec.Code != http.StatusOK {
+		t.Fatalf("case detail status = %d, want %d", caseDetailRec.Code, http.StatusOK)
+	}
+	var caseDetailPayload map[string]any
+	if err := json.NewDecoder(caseDetailRec.Body).Decode(&caseDetailPayload); err != nil {
+		t.Fatalf("decode case detail: %v", err)
+	}
+	if _, ok := caseDetailPayload["workflow_line"].(map[string]any); !ok {
+		t.Fatal("expected case detail payload to include workflow_line")
+	}
+	if items, ok := caseDetailPayload["workflow_attempts"].([]any); !ok || len(items) == 0 {
+		t.Fatal("expected case detail payload to include workflow_attempts")
+	}
 
 	traceSummary, _ := traceAttempts[0].(map[string]any)
 	traceID, _ := traceSummary["trace_id"].(string)
@@ -320,6 +349,12 @@ func TestRouterConversationCaseAndTraceEndpoints(t *testing.T) {
 	}
 	if _, ok := tracePayload["trace"].(map[string]any); !ok {
 		t.Fatal("expected trace detail payload to include trace object")
+	}
+	if _, ok := tracePayload["workflow_line"].(map[string]any); !ok {
+		t.Fatal("expected trace detail payload to include workflow_line")
+	}
+	if items, ok := tracePayload["workflow_attempts"].([]any); !ok || len(items) == 0 {
+		t.Fatal("expected trace detail payload to include workflow_attempts")
 	}
 	if _, ok := tracePayload["transcript_slice"].([]any); !ok {
 		t.Fatal("expected transcript_slice to be a JSON array")
@@ -344,6 +379,31 @@ func TestRouterConversationCaseAndTraceEndpoints(t *testing.T) {
 	}
 	if items, ok := tracePayload["knowledge_entries"].([]any); !ok || len(items) == 0 {
 		t.Fatal("expected knowledge_entries to be a non-empty JSON array")
+	}
+
+	workflowAttemptSummary, _ := workflowAttempts[0].(map[string]any)
+	workflowID, _ := workflowAttemptSummary["workflow_id"].(string)
+	if workflowID == "" {
+		t.Fatal("expected workflow_id in workflow_attempts")
+	}
+	workflowAttemptReq := httptest.NewRequest(http.MethodGet, "/api/workflow-attempts/"+workflowID, nil)
+	workflowAttemptRec := httptest.NewRecorder()
+	router.ServeHTTP(workflowAttemptRec, workflowAttemptReq)
+	if workflowAttemptRec.Code != http.StatusOK {
+		t.Fatalf("workflow attempt detail status = %d, want %d", workflowAttemptRec.Code, http.StatusOK)
+	}
+	var workflowAttemptPayload map[string]any
+	if err := json.NewDecoder(workflowAttemptRec.Body).Decode(&workflowAttemptPayload); err != nil {
+		t.Fatalf("decode workflow attempt detail: %v", err)
+	}
+	if _, ok := workflowAttemptPayload["workflow_attempt"].(map[string]any); !ok {
+		t.Fatal("expected workflow attempt detail payload to include workflow_attempt")
+	}
+	if _, ok := workflowAttemptPayload["workflow_line"].(map[string]any); !ok {
+		t.Fatal("expected workflow attempt detail payload to include workflow_line")
+	}
+	if items, ok := workflowAttemptPayload["workflow_attempts"].([]any); !ok || len(items) == 0 {
+		t.Fatal("expected workflow attempt detail payload to include workflow_attempts")
 	}
 
 	actionReq := httptest.NewRequest(http.MethodGet, "/api/actions?trace="+traceID, nil)
@@ -428,34 +488,46 @@ func TestRouterFeedbackAndReplayRoutesSubmitProblemLineCommands(t *testing.T) {
 	if err := json.NewDecoder(replayRec.Body).Decode(&replayReceipt); err != nil {
 		t.Fatalf("decode replay receipt: %v", err)
 	}
-	if replayReceipt.MachineKind != transition.MachineProblemLine || replayReceipt.CommandKind != string(transition.CommandProblemLineScheduleReplay) {
+	if replayReceipt.MachineKind != transition.MachineWorkflowLine || replayReceipt.CommandKind != string(transition.CommandWorkflowLineScheduleRetry) {
 		t.Fatalf("unexpected replay receipt %+v", replayReceipt)
 	}
 	foundReplayEvent := false
-	foundEvalReceipt := false
-	foundEvalEffect := false
 	for _, item := range store.ListDomainEvents() {
-		if item.EventKind == "problem_line_replay_scheduled" {
+		if item.EventKind == "workflow_line_retry_scheduled" {
 			foundReplayEvent = true
 		}
 	}
-	if _, ok := store.GetCommandReceipt(replayReceipt.CommandID + ":evaluate"); ok {
-		foundEvalReceipt = true
-	}
-	for _, effect := range store.ListEffectExecutions() {
-		if effect.MachineKind == transition.MachineProblemLine && effect.AggregateID == traceID && effect.EffectKind == transition.EffectInvokeRunner && effect.Status == transition.EffectQueued {
-			foundEvalEffect = true
-			break
-		}
-	}
 	if !foundReplayEvent {
-		t.Fatal("expected replay route to record a problem-line domain event")
+		t.Fatal("expected replay route to record a workflow-line domain event")
 	}
-	if !foundEvalReceipt {
-		t.Fatal("expected replay route to emit a follow-on eval command receipt")
+	trace, ok = store.GetTrace(traceID)
+	if !ok {
+		t.Fatalf("expected original trace %s", traceID)
 	}
-	if !foundEvalEffect {
-		t.Fatal("expected replay route to queue a problem-line eval runner effect")
+	line, ok := store.GetWorkflowLine(trace.Summary.CaseID)
+	if !ok {
+		t.Fatalf("expected workflow line for case %s", trace.Summary.CaseID)
+	}
+	if line.CurrentWorkflowID == "" || line.CurrentWorkflowID == trace.Summary.WorkflowID {
+		t.Fatalf("expected replay route to create a successor workflow attempt, got %+v", line)
+	}
+	if _, ok := store.GetCommandReceipt(replayReceipt.CommandID + ":activate"); !ok {
+		t.Fatal("expected replay route to activate the scheduled workflow retry")
+	}
+	startCommandID := "cmd-workflow:" + line.CurrentWorkflowID + ":" + string(transition.CommandWorkflowStarted)
+	if _, ok := store.GetCommandReceipt(startCommandID); !ok {
+		t.Fatalf("expected replay route to start successor workflow %s", line.CurrentWorkflowID)
+	}
+	successor, ok := findWorkflowView(store.ListWorkflows(), line.CurrentWorkflowID)
+	if !ok {
+		t.Fatalf("expected successor workflow %s", line.CurrentWorkflowID)
+	}
+	replayTrace, ok := store.GetTrace(successor.TraceID)
+	if !ok {
+		t.Fatalf("expected successor trace %s", successor.TraceID)
+	}
+	if replayTrace.Summary.SupersedesTraceID != traceID {
+		t.Fatalf("expected successor trace to supersede %s, got %s", traceID, replayTrace.Summary.SupersedesTraceID)
 	}
 }
 

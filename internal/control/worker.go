@@ -53,12 +53,13 @@ func RunWorker(cfg config.Config, store storepkg.Store) error {
 			return err
 		}
 		if !claimed {
+			if err := activateDueWorkflowLineRetries(cfg, store, time.Now().UTC()); err != nil {
+				return err
+			}
 			time.Sleep(cfg.WorkerPollInterval)
 			continue
 		}
-		if err := processWorkflowRunnerEffect(cfg, store, runnerClients, effect); err != nil {
-			log.Printf("control-plane runner effect=%s aggregate=%s error=%v", effect.ID, effect.AggregateID, err)
-		}
+		handleClaimedWorkflowRunnerEffect(cfg, store, runnerClients, effect)
 	}
 }
 
@@ -93,16 +94,24 @@ func startWorkflowViaCommand(cfg config.Config, store storepkg.Store, workflowID
 }
 
 func finalizeWorkflowFailure(cfg config.Config, store storepkg.Store, workflow workflowLocator, procErr error) error {
-	now := time.Now().UTC()
-	if strings.TrimSpace(workflow.traceID) == "" {
-		return nil
+	failure := workflowFailure{
+		Summary: strings.TrimSpace(procErr.Error()),
 	}
-	if _, submitErr := submitWorkflowCommand(store, workflow.workflowID, transition.CommandWorkflowFailed, cfg.ServiceName, now, map[string]any{
-		"last_error": procErr.Error(),
-	}); submitErr != nil {
-		return submitErr
+	var detailed *workflowFailureError
+	if errors.As(procErr, &detailed) && detailed != nil {
+		failure = detailed.failure
 	}
-	return nil
+	return finalizeWorkflowFailureWithDetails(cfg, store, workflow, failure)
+}
+
+func handleClaimedWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runnerClients map[string]*clients.RunnerClient, effect transition.EffectExecution) {
+	workflow, _ := workflowLocatorForEffect(store, effect)
+	if err := processWorkflowRunnerEffect(cfg, store, runnerClients, effect); err != nil {
+		if finalizeErr := finalizeWorkflowFailure(cfg, store, workflow, err); finalizeErr != nil {
+			log.Printf("control-plane runner effect=%s aggregate=%s finalize_error=%v", effect.ID, effect.AggregateID, finalizeErr)
+		}
+		log.Printf("control-plane runner effect=%s aggregate=%s error=%v", effect.ID, effect.AggregateID, err)
+	}
 }
 
 func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runnerClients map[string]*clients.RunnerClient, effect transition.EffectExecution) error {
@@ -130,7 +139,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	runnerResp, err := runnerClient.Execute(runnerTask)
 	if err != nil {
 		_ = failClaimedEffect(store, effect, err.Error())
-		return err
+		return &workflowFailureError{failure: workflowFailureFromRunnerError(err)}
 	}
 	if err := runnerutil.PersistHarnessExecution(
 		store,
@@ -152,9 +161,12 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	if err := completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner", ctx.trace.Summary.TraceID)); err != nil {
 		return err
 	}
+	if !runnerResp.OK {
+		return &workflowFailureError{failure: workflowFailureFromRunnerResponse(runnerResp)}
+	}
 	runnerOutput, err := runnerutil.ParseStructuredOutput(runnerResp)
 	if err != nil {
-		return err
+		return &workflowFailureError{failure: workflowFailureFromStructuredOutputError(runnerResp, err)}
 	}
 	runnerCompleted := time.Now().UTC()
 	if err := persistKnowledgeDrafts(store, ctx.trace, runnerOutput.KnowledgeDrafts, runnerCompleted); err != nil {
@@ -201,8 +213,10 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		runnerCommand = transition.CommandRunnerCompletedNoReply
 	}
 	if _, err := submitWorkflowCommand(store, ctx.workflow.ID, runnerCommand, cfg.ServiceName, runnerCompleted, map[string]any{
-		"resume_queue":    string(queueName),
-		"reply_action_id": replyAction.ID,
+		"resume_queue":     string(queueName),
+		"reply_action_id":  replyAction.ID,
+		"repair_attempted": boolValue(runnerResp.Raw["repair_attempted"]),
+		"repair_succeeded": boolValue(runnerResp.Raw["repair_succeeded"]),
 		"trace_events": append([]events.TraceEvent{
 			{
 				TraceID:     ctx.trace.Summary.TraceID,
@@ -335,6 +349,9 @@ func processControlActionEffect(cfg config.Config, store storepkg.Store, toolCli
 			_ = failClaimedEffect(store, effect, err.Error())
 			return err
 		}
+		if intent.Kind == action.KindSlackPost {
+			log.Printf("control-plane duplicate_reply_prevented trace=%s action=%s status=%s", ctx.trace.Summary.TraceID, intent.ID, ctx.trace.Summary.Status)
+		}
 		return completeClaimedEffect(store, effect, intent.ID)
 	}
 
@@ -356,6 +373,8 @@ func processControlActionEffect(cfg config.Config, store storepkg.Store, toolCli
 					_ = failClaimedEffect(store, effect, finalizeErr.Error())
 					return fmt.Errorf("finalize control action persistence failure: %w (original error: %v)", finalizeErr, err)
 				}
+			} else if updatedIntent, ok := store.GetActionIntent(actionID); ok {
+				_ = maybeAdvanceWorkflowPhaseFromAction(cfg, store, updatedIntent)
 			}
 			_ = failClaimedEffect(store, effect, err.Error())
 			return err
@@ -543,6 +562,13 @@ func maybeAdvanceWorkflowPhaseFromAction(cfg config.Config, store storepkg.Store
 	queueName := queueNameFromString(firstNonEmpty(stringFromMap(intent.RequestPayload, "resume_queue"), string(queue.WorkflowQueue)))
 	switch intent.PhaseKey {
 	case controlPhaseCollectContext:
+		if failure, failed := workflowPhaseFailure(store, intent.TraceID, controlPhaseCollectContext); failed {
+			return finalizeWorkflowFailureWithDetails(cfg, store, workflowLocator{
+				traceID:     ctx.trace.Summary.TraceID,
+				workflowID:  ctx.workflow.ID,
+				ingestionID: ctx.ingestion.ID,
+			}, failure)
+		}
 		return submitWorkflowContextCompleted(cfg, store, ctx, queueName, time.Now().UTC())
 	case controlPhaseReplyPost:
 		completedAt := time.Now().UTC()
@@ -1133,24 +1159,32 @@ func firstNonZeroTime(items ...time.Time) time.Time {
 }
 
 func loadWorkflowContextForEffect(store storepkg.Store, effect transition.EffectExecution) (workflowContext, queue.QueueName, error) {
-	workflowID := strings.TrimSpace(effect.AggregateID)
-	if workflowID == "" {
-		return workflowContext{}, "", fmt.Errorf("workflow effect %s missing aggregate id", effect.ID)
+	workflow, err := workflowLocatorForEffect(store, effect)
+	if err != nil {
+		return workflowContext{}, "", err
 	}
-	workflow, ok := findWorkflow(store.ListWorkflows(), workflowID)
-	if !ok {
-		return workflowContext{}, "", fmt.Errorf("workflow %s not found", workflowID)
-	}
-	ctx, err := loadWorkflowContext(store, workflowLocator{
-		traceID:     workflow.TraceID,
-		workflowID:  workflow.ID,
-		ingestionID: workflow.IngestionID,
-	})
+	ctx, err := loadWorkflowContext(store, workflow)
 	if err != nil {
 		return workflowContext{}, "", err
 	}
 	queueName := queueNameFromString(firstNonEmpty(stringFromMap(effect.Payload, "resume_queue"), string(queue.WorkflowQueue)))
 	return ctx, queueName, nil
+}
+
+func workflowLocatorForEffect(store storepkg.Store, effect transition.EffectExecution) (workflowLocator, error) {
+	workflowID := strings.TrimSpace(effect.AggregateID)
+	if workflowID == "" {
+		return workflowLocator{}, fmt.Errorf("workflow effect %s missing aggregate id", effect.ID)
+	}
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowID)
+	if !ok {
+		return workflowLocator{}, fmt.Errorf("workflow %s not found", workflowID)
+	}
+	return workflowLocator{
+		traceID:     workflow.TraceID,
+		workflowID:  workflow.ID,
+		ingestionID: workflow.IngestionID,
+	}, nil
 }
 
 func toolInputForIntent(cfg config.Config, trace events.TraceSummary, workflow storepkg.Workflow, ingestion slackpkg.Ingestion) map[string]any {

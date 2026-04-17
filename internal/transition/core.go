@@ -7,6 +7,7 @@ type MachineKind string
 const (
 	MachineIngress      MachineKind = "ingress"
 	MachineWorkflow     MachineKind = "workflow"
+	MachineWorkflowLine MachineKind = "workflow_line"
 	MachineProblemLine  MachineKind = "problem_line"
 	MachineProposalLine MachineKind = "proposal_line"
 	MachineAttempt      MachineKind = "attempt"

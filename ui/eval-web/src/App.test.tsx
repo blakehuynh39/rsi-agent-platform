@@ -55,6 +55,36 @@ const casesListResponse = {
   ]
 };
 
+const workflowLineSummary = {
+  case_id: "case-001",
+  conversation_id: "conv-001",
+  status: "completed",
+  current_workflow_id: "wf-001",
+  latest_workflow_id: "wf-001",
+  attempt_count: 1,
+  auto_retry_budget_remaining: 2,
+  updated_at: "2026-04-11T12:05:00Z"
+};
+
+const workflowAttemptSummaries = [
+  {
+    workflow_id: "wf-001",
+    trace_id: "trace-001",
+    conversation_id: "conv-001",
+    case_id: "case-001",
+    workflow_kind: "question",
+    status: "completed",
+    trace_status: "completed",
+    attempt_number: 1,
+    retry_decision: "none",
+    repair_attempted: false,
+    repair_succeeded: false,
+    created_at: "2026-04-11T12:01:00Z",
+    updated_at: "2026-04-11T12:05:00Z",
+    completed_at: "2026-04-11T12:05:00Z"
+  }
+];
+
 const conversationDetailResponse = {
   conversation: {
     id: "conv-001",
@@ -65,6 +95,8 @@ const conversationDetailResponse = {
     active_case_id: "case-001"
   },
   active_case: casesListResponse.cases[0],
+  workflow_line: workflowLineSummary,
+  workflow_attempts: workflowAttemptSummaries,
   cases: casesListResponse.cases,
   transcript: [
     {
@@ -143,6 +175,8 @@ const traceDetailResponse = {
   },
   conversation: conversationListResponse.conversations[0],
   case: casesListResponse.cases[0],
+  workflow_line: workflowLineSummary,
+  workflow_attempts: workflowAttemptSummaries,
   transcript_slice: conversationDetailResponse.transcript,
   linked_eval_runs: [],
   judgments_by_eval_run: {},
