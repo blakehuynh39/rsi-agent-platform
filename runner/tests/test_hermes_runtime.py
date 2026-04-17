@@ -488,6 +488,7 @@ class HermesRuntimeTests(unittest.TestCase):
                 prompt: str,
                 system_message: str | None = None,
                 conversation_history: list[dict] | None = None,
+                task_id: str | None = None,
             ) -> dict:
                 type(self).last_prompt = prompt
                 type(self).last_system_message = system_message
