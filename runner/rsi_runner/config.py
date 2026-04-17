@@ -151,18 +151,21 @@ def role_env_name(role: str, suffix: str) -> str:
 
 
 def role_max_iterations(role: str) -> int:
-    if role not in {"eval", "proposal"}:
+    env_name = role_env_name(role, "MAX_ITERATIONS")
+    raw = required_env(env_name) if role in {"eval", "proposal"} else optional_env(env_name)
+    if not raw:
         return 1
-    raw = required_env(role_env_name(role, "MAX_ITERATIONS"))
-    value = parse_positive_int(raw, role_env_name(role, "MAX_ITERATIONS"))
+    value = parse_positive_int(raw, env_name)
     if value <= 0:
-        raise RunnerConfigError(f"{role_env_name(role, 'MAX_ITERATIONS')} must be greater than 0")
+        raise RunnerConfigError(f"{env_name} must be greater than 0")
     return value
 
 
 def role_task_timeout_seconds(role: str) -> int:
-    if role in {"eval", "proposal"}:
-        return parse_duration_seconds(required_env(role_env_name(role, "TASK_TIMEOUT")), role_env_name(role, "TASK_TIMEOUT"))
+    env_name = role_env_name(role, "TASK_TIMEOUT")
+    raw = required_env(env_name) if role in {"eval", "proposal"} else optional_env(env_name)
+    if raw:
+        return parse_duration_seconds(raw, env_name)
     return max(1, role_transport_timeout_seconds(role)-5)
 
 

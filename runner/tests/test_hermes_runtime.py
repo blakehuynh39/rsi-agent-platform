@@ -32,11 +32,13 @@ def runner_env(role: str = "prod") -> dict[str, str]:
         "RSI_HONCHO_ENVIRONMENT": "stage",
         "RSI_RUNNER_EVAL_MAX_ITERATIONS": "5",
         "RSI_RUNNER_PROPOSAL_MAX_ITERATIONS": "5",
+        "RSI_RUNNER_PROD_MAX_ITERATIONS": "5",
         "RSI_RUNNER_EVAL_TASK_TIMEOUT": "300s",
         "RSI_RUNNER_PROPOSAL_TASK_TIMEOUT": "420s",
+        "RSI_RUNNER_PROD_TASK_TIMEOUT": "300s",
         "RSI_RUNNER_EVAL_INACTIVITY_TIMEOUT": "240s",
         "RSI_RUNNER_PROPOSAL_INACTIVITY_TIMEOUT": "360s",
-        "RSI_RUNNER_PROD_TIMEOUT": "60s",
+        "RSI_RUNNER_PROD_TIMEOUT": "330s",
         "RSI_RUNNER_PROACTIVE_TIMEOUT": "60s",
         "RSI_RUNNER_EVAL_TIMEOUT": "330s",
         "RSI_RUNNER_PROPOSAL_TIMEOUT": "450s",
@@ -694,10 +696,13 @@ class HermesRuntimeTests(unittest.TestCase):
             result = runtime.execute_task(task)
 
         self.assertTrue(result.ok)
+        self.assertEqual(FakeAIAgent.last_kwargs["max_iterations"], 5)
         self.assertIn("repo_context", FakeAIAgent.last_valid_tool_names)
         self.assertIn("knowledge_context", FakeAIAgent.last_valid_tool_names)
         self.assertNotIn("github.create_pr", FakeAIAgent.last_valid_tool_names)
         self.assertEqual(result.raw["tool_policy_mode"], "enforced_read_only")
+        self.assertEqual(result.raw["task_timeout_seconds"], 300)
+        self.assertEqual(result.raw["transport_timeout_seconds"], 330)
         self.assertIn("github.create_pr", result.raw["blocked_tool_names"])
         self.assertIn("repo_context", result.raw["tool_transport_allowlist_effective"])
         self.assertIn("knowledge_context", result.raw["tool_transport_allowlist_effective"])
@@ -780,6 +785,17 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(runtime.metadata["hermes_pin"], "0e336b0e717027cbb81fcb5816246b7aec2d4a47")
         self.assertEqual(runtime.metadata["session_continuity_status"], "ok")
         self.assertIn("repo.context", runtime.metadata["tool_allowlist_effective"])
+
+    def test_prod_runtime_metadata_reports_live_contract(self) -> None:
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        self.assertEqual(runtime.metadata["max_iterations"], 5)
+        self.assertEqual(runtime.metadata["task_timeout_seconds"], 300)
+        self.assertEqual(runtime.metadata["inactivity_timeout_seconds"], 300)
+        self.assertEqual(runtime.metadata["transport_timeout_seconds"], 330)
 
     def test_eval_role_rejects_repo_change_task(self) -> None:
         task = RunnerTaskRequest.from_payload(
