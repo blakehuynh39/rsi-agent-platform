@@ -3,6 +3,7 @@ package toolgateway
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -14,6 +15,97 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
 	batchv1 "k8s.io/api/batch/v1"
 )
+
+func findProposalForTest(store *storepkg.MemoryStore, proposalID string) (review.Proposal, bool) {
+	for _, proposal := range store.ListProposals() {
+		if proposal.ID == proposalID {
+			return proposal, true
+		}
+	}
+	return review.Proposal{}, false
+}
+
+func prepareWorkspaceForToolTest(t *testing.T, store *storepkg.MemoryStore, proposal review.Proposal, workspaceID string, branchName string, namespace string, jobName string, podName string) (review.Proposal, improvement.ChangeAttempt, improvement.AttemptWorkspace) {
+	t.Helper()
+
+	refreshed, ok := findProposalForTest(store, proposal.ID)
+	if !ok {
+		t.Fatalf("expected proposal %s", proposal.ID)
+	}
+	proposal = refreshed
+	attemptID := proposal.CurrentAttemptID
+	if attemptID == "" {
+		t.Fatalf("expected proposal %s to materialize a current attempt", proposal.ID)
+	}
+	attempt, ok := store.GetChangeAttempt(attemptID)
+	if !ok {
+		t.Fatalf("expected attempt %s", attemptID)
+	}
+
+	now := time.Now().UTC()
+	for _, command := range []transition.CommandEnvelope{
+		{
+			MachineKind: transition.MachineProposalLine,
+			AggregateID: proposal.ID,
+			CommandKind: string(transition.CommandProposalMarkRepoChangeQueued),
+			CommandID:   fmt.Sprintf("cmd-proposal-queued:%s", proposal.ID),
+			Actor:       "tester",
+			OccurredAt:  now,
+		},
+		{
+			MachineKind: transition.MachineAttempt,
+			AggregateID: attempt.ID,
+			CommandKind: string(transition.CommandWorkspaceReady),
+			CommandID:   fmt.Sprintf("cmd-workspace-ready:%s", attempt.ID),
+			Actor:       "tester",
+			OccurredAt:  now.Add(time.Millisecond),
+			Payload: map[string]any{
+				"workspace_id":        workspaceID,
+				"repo":                "rsi-agent-platform",
+				"base_ref":            "main",
+				"branch_name":         branchName,
+				"workspace_namespace": namespace,
+				"workspace_job_name":  jobName,
+				"workspace_pod_name":  podName,
+				"allowed_path_globs":  []string{"internal/**"},
+				"validation_ref":      fmt.Sprintf("workspace:%s", workspaceID),
+				"sandbox_namespace":   namespace,
+				"sandbox_job_name":    jobName,
+				"sandbox_pod_name":    podName,
+			},
+		},
+		{
+			MachineKind: transition.MachineProposalLine,
+			AggregateID: proposal.ID,
+			CommandKind: string(transition.CommandProposalMarkRepoChangeRunning),
+			CommandID:   fmt.Sprintf("cmd-proposal-running:%s", proposal.ID),
+			Actor:       "tester",
+			OccurredAt:  now.Add(2 * time.Millisecond),
+		},
+	} {
+		receipt, err := store.SubmitCommand(command)
+		if err != nil {
+			t.Fatalf("SubmitCommand(%s) error = %v", command.CommandKind, err)
+		}
+		if receipt.DecisionKind == transition.DecisionReject {
+			t.Fatalf("SubmitCommand(%s) rejected: %s", command.CommandKind, receipt.Reason)
+		}
+	}
+
+	proposal, ok = findProposalForTest(store, proposal.ID)
+	if !ok {
+		t.Fatalf("expected proposal %s after workspace setup", proposal.ID)
+	}
+	attempt, ok = store.GetChangeAttempt(attempt.ID)
+	if !ok {
+		t.Fatalf("expected attempt %s after workspace setup", attempt.ID)
+	}
+	workspace, ok := store.GetAttemptWorkspace(workspaceID)
+	if !ok {
+		t.Fatalf("expected workspace %s after workspace setup", workspaceID)
+	}
+	return proposal, attempt, workspace
+}
 
 type workspaceLauncherStub struct {
 	resolvedPod string
@@ -61,49 +153,7 @@ func TestWorkspaceReadFileUsesResolvedPodAndFormalMetadataCommand(t *testing.T) 
 	if err != nil {
 		t.Fatalf("ReviewProposal() error = %v", err)
 	}
-	if _, err := store.SubmitCommand(transition.CommandEnvelope{
-		MachineKind: transition.MachineProposalLine,
-		AggregateID: proposal.ID,
-		CommandKind: string(transition.CommandProposalMarkRepoChangeRunning),
-		CommandID:   "cmd-workspace-read-running",
-		Actor:       "tester",
-		OccurredAt:  time.Now().UTC(),
-	}); err != nil {
-		t.Fatalf("SubmitCommand(proposal_mark_repo_change_running) error = %v", err)
-	}
-	now := time.Now().UTC()
-	attempt, err := storepkg.SeedChangeAttemptForTesting(store, improvement.ChangeAttempt{
-		ID:            "attempt-workspace-read",
-		ProposalID:    proposal.ID,
-		CandidateKey:  proposal.CandidateKey,
-		AttemptNumber: 1,
-		TargetLayer:   proposal.TargetLayer,
-		TargetKind:    proposal.TargetKind,
-		TargetRef:     proposal.TargetRef,
-		BranchName:    "codex/workspace-read",
-		State:         improvement.AttemptStatePatchPlan,
-		CreatedAt:     now,
-		UpdatedAt:     now,
-	})
-	if err != nil {
-		t.Fatalf("UpsertChangeAttempt() error = %v", err)
-	}
-	workspace, err := storepkg.SeedAttemptWorkspaceForTesting(store, improvement.AttemptWorkspace{
-		ID:         "workspace-read",
-		AttemptID:  attempt.ID,
-		ProposalID: proposal.ID,
-		Repo:       "rsi-agent-platform",
-		BaseRef:    "main",
-		BranchName: attempt.BranchName,
-		Namespace:  "rsi-platform",
-		JobName:    "workspace-job-read",
-		Status:     improvement.WorkspaceReady,
-		CreatedAt:  now,
-		UpdatedAt:  now,
-	})
-	if err != nil {
-		t.Fatalf("UpsertAttemptWorkspace() error = %v", err)
-	}
+	proposal, attempt, workspace := prepareWorkspaceForToolTest(t, store, proposal, "workspace-read", "codex/workspace-read", "rsi-platform", "workspace-job-read", "")
 
 	launcher := &workspaceLauncherStub{
 		resolvedPod: "workspace-pod-read",
@@ -149,50 +199,7 @@ func TestWorkspaceRunValidationUsesFormalWorkspaceCommands(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ReviewProposal() error = %v", err)
 	}
-	if _, err := store.SubmitCommand(transition.CommandEnvelope{
-		MachineKind: transition.MachineProposalLine,
-		AggregateID: proposal.ID,
-		CommandKind: string(transition.CommandProposalMarkRepoChangeRunning),
-		CommandID:   "cmd-workspace-validate-running",
-		Actor:       "tester",
-		OccurredAt:  time.Now().UTC(),
-	}); err != nil {
-		t.Fatalf("SubmitCommand(proposal_mark_repo_change_running) error = %v", err)
-	}
-	now := time.Now().UTC()
-	attempt, err := storepkg.SeedChangeAttemptForTesting(store, improvement.ChangeAttempt{
-		ID:            "attempt-workspace-validate",
-		ProposalID:    proposal.ID,
-		CandidateKey:  proposal.CandidateKey,
-		AttemptNumber: 1,
-		TargetLayer:   proposal.TargetLayer,
-		TargetKind:    proposal.TargetKind,
-		TargetRef:     proposal.TargetRef,
-		BranchName:    "codex/workspace-validate",
-		State:         improvement.AttemptStateValidationRunning,
-		CreatedAt:     now,
-		UpdatedAt:     now,
-	})
-	if err != nil {
-		t.Fatalf("UpsertChangeAttempt() error = %v", err)
-	}
-	workspace, err := storepkg.SeedAttemptWorkspaceForTesting(store, improvement.AttemptWorkspace{
-		ID:         "workspace-validate",
-		AttemptID:  attempt.ID,
-		ProposalID: proposal.ID,
-		Repo:       "rsi-agent-platform",
-		BaseRef:    "main",
-		BranchName: attempt.BranchName,
-		Namespace:  "rsi-platform",
-		JobName:    "workspace-job-validate",
-		PodName:    "workspace-pod-validate",
-		Status:     improvement.WorkspaceReady,
-		CreatedAt:  now,
-		UpdatedAt:  now,
-	})
-	if err != nil {
-		t.Fatalf("UpsertAttemptWorkspace() error = %v", err)
-	}
+	proposal, attempt, workspace := prepareWorkspaceForToolTest(t, store, proposal, "workspace-validate", "codex/workspace-validate", "rsi-platform", "workspace-job-validate", "workspace-pod-validate")
 
 	launcher := &workspaceLauncherStub{
 		execResult: sandbox.ExecResult{

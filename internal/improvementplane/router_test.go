@@ -129,6 +129,45 @@ func seedRouterKnowledgeEntry(t *testing.T, store *storepkg.MemoryStore, entryID
 	return created
 }
 
+func seedRouterRepoChangeJobViaCommand(t *testing.T, store *storepkg.MemoryStore, proposal review.Proposal, commandPrefix string, jobID string, branchName string) {
+	t.Helper()
+	if strings.TrimSpace(proposal.CurrentAttemptID) == "" {
+		t.Fatalf("expected current attempt for proposal %s", proposal.ID)
+	}
+	occurredAt := time.Now().UTC()
+	if _, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineProposalLine,
+		AggregateID: proposal.ID,
+		CommandKind: string(transition.CommandProposalMarkRepoChangeQueued),
+		CommandID:   commandPrefix + "-proposal-queued",
+		Actor:       "tester",
+		OccurredAt:  occurredAt,
+	}); err != nil {
+		t.Fatalf("SubmitCommand(proposal_mark_repo_change_queued) error = %v", err)
+	}
+	if _, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineAttempt,
+		AggregateID: proposal.CurrentAttemptID,
+		CommandKind: string(transition.CommandWorkspaceReady),
+		CommandID:   commandPrefix + "-workspace-ready",
+		Actor:       "tester",
+		OccurredAt:  occurredAt.Add(time.Millisecond),
+		Payload: map[string]any{
+			"workspace_id":       "workspace-" + proposal.CurrentAttemptID,
+			"job_id":             jobID,
+			"repo":               "rsi-agent-platform",
+			"base_ref":           "main",
+			"branch_name":        branchName,
+			"sandbox_namespace":  "rsi-platform",
+			"sandbox_job_name":   "workspace-job-" + proposal.CurrentAttemptID,
+			"sandbox_pod_name":   "workspace-pod-" + proposal.CurrentAttemptID,
+			"allowed_path_globs": []string{"internal/**"},
+		},
+	}); err != nil {
+		t.Fatalf("SubmitCommand(workspace_ready) error = %v", err)
+	}
+}
+
 func TestRouterConversationCaseAndTraceEndpoints(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	traceSummaries := store.ListTraces()
@@ -493,25 +532,7 @@ func TestRouterProposalDetailAndRuntimeEndpoints(t *testing.T) {
 	if strings.TrimSpace(approved.CurrentAttemptID) == "" {
 		t.Fatalf("expected current attempt after approval, got %+v", approved)
 	}
-	now := time.Now().UTC()
-	if _, err := storepkg.SeedRepoChangeJobForTesting(store, improvement.RepoChangeJob{
-		ID:               "job-proposal-list-1",
-		ProposalID:       proposal.ID,
-		AttemptID:        approved.CurrentAttemptID,
-		ConversationID:   approved.ConversationID,
-		CaseID:           approved.CaseID,
-		OriginTraceID:    firstNonEmpty(approved.OriginTraceID, approved.TraceID),
-		CandidateKey:     approved.CandidateKey,
-		Status:           string(review.ProposalRepoChangeQueued),
-		Repo:             "rsi-agent-platform",
-		BaseRef:          "main",
-		BranchName:       "codex/proposal-test",
-		AllowedPathGlobs: []string{"internal/**"},
-		CreatedAt:        now,
-		UpdatedAt:        now,
-	}); err != nil {
-		t.Fatalf("upsert repo change job: %v", err)
-	}
+	seedRouterRepoChangeJobViaCommand(t, store, approved, "proposal-list", "job-proposal-list-1", "codex/proposal-test")
 	if _, err := store.RecordPRAttempt(improvement.PRAttempt{
 		ProposalID:       proposal.ID,
 		AttemptID:        approved.CurrentAttemptID,
@@ -679,25 +700,6 @@ func TestRouterProposalRetryEndpoint(t *testing.T) {
 	}
 	if strings.TrimSpace(approved.CurrentAttemptID) == "" {
 		t.Fatalf("expected current attempt after approval, got %+v", approved)
-	}
-	now := time.Now().UTC()
-	if _, err := storepkg.SeedRepoChangeJobForTesting(store, improvement.RepoChangeJob{
-		ID:               "job-router-retry-1",
-		ProposalID:       proposal.ID,
-		AttemptID:        approved.CurrentAttemptID,
-		ConversationID:   approved.ConversationID,
-		CaseID:           approved.CaseID,
-		OriginTraceID:    firstNonEmpty(approved.OriginTraceID, approved.TraceID),
-		CandidateKey:     approved.CandidateKey,
-		Status:           string(review.ProposalFailedValidation),
-		Repo:             "rsi-agent-platform",
-		BaseRef:          "main",
-		BranchName:       "codex/router-retry",
-		AllowedPathGlobs: []string{"internal/**"},
-		CreatedAt:        now,
-		UpdatedAt:        now,
-	}); err != nil {
-		t.Fatalf("upsert repo change job: %v", err)
 	}
 	if _, _, err := storepkg.AdvanceProposalToFailedValidationForTesting(store, proposal.ID, time.Now().UTC()); err != nil {
 		t.Fatalf("AdvanceProposalToFailedValidationForTesting() error = %v", err)

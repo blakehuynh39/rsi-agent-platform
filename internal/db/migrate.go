@@ -318,7 +318,6 @@ func baselineCompatible(db *sql.DB) (bool, error) {
 		"knowledge_entry":       {"id", "tier", "status", "source_type"},
 		"improvement_candidate": {"id", "candidate_key", "origin_trace_id", "evidence_trace_ids", "source_eval_ids"},
 		"proposal":              {"id", "origin_trace_id", "evidence_trace_ids", "candidate_key"},
-		"work_item":             {"id", "queue", "conversation_id", "case_id", "trigger_event_id"},
 	}
 	for table, columns := range required {
 		ok, err := tableHasColumns(db, table, columns...)

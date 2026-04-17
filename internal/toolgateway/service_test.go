@@ -103,12 +103,12 @@ func TestGitHubCreatePRRequiresAppConfig(t *testing.T) {
 	}
 }
 
-func TestUnknownToolIsRejectedWithoutStoreFallback(t *testing.T) {
+func TestUnknownToolIsRejectedWithoutFallback(t *testing.T) {
 	service := NewService(config.Config{
 		DefaultRepo: "rsi-agent-platform",
 	}, storepkg.NewMemoryStore())
 
-	result := service.Execute("github.legacy_fallback", map[string]interface{}{
+	result := service.Execute("github.unknown_tool", map[string]interface{}{
 		"proposal_id": "proposal-123",
 	})
 

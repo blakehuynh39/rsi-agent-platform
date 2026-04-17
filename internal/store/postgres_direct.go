@@ -13,7 +13,6 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
-	"github.com/piplabs/rsi-agent-platform/internal/operation"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
@@ -35,16 +34,6 @@ func (p *PostgresStore) withTx(fn func(tx *sql.Tx) error) error {
 		return err
 	}
 	return tx.Commit()
-}
-
-func (p *PostgresStore) withLoadedStoreTx(fn func(tx *sql.Tx, store *MemoryStore) error) error {
-	return p.withTx(func(tx *sql.Tx) error {
-		store, err := loadStore(tx)
-		if err != nil {
-			return err
-		}
-		return fn(tx, store)
-	})
 }
 
 func (p *PostgresStore) withProposalLockedStoreTx(proposalID string, fn func(tx *sql.Tx, store *MemoryStore) error) error {
@@ -161,12 +150,6 @@ func replaceActionIntentScope(tx *sql.Tx, item action.Intent) error {
 	temp := newSubsetStore()
 	temp.actionIntents[item.ID] = item
 	return persistActionIntents(tx, temp)
-}
-
-func replaceOperationScope(tx *sql.Tx, item operation.Execution) error {
-	temp := newSubsetStore()
-	temp.operations[item.ID] = item
-	return persistOperations(tx, temp)
 }
 
 func replaceActionResultScope(tx *sql.Tx, store *MemoryStore, actionIntentID string) error {

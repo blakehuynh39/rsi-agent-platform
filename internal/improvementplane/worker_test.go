@@ -13,9 +13,8 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/evals"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
+	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
-	"github.com/piplabs/rsi-agent-platform/internal/operation"
-	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	"github.com/piplabs/rsi-agent-platform/internal/runnerutil"
 	"github.com/piplabs/rsi-agent-platform/internal/sandbox"
@@ -191,25 +190,374 @@ func (f fakeToolClient) Execute(name string, input map[string]any) (storepkg.Too
 	return storepkg.ToolResult{}, errors.New("unexpected tool call: " + name)
 }
 
-func ensureProposalAttemptForTest(cfg config.Config, store *storepkg.MemoryStore, proposal review.Proposal, sourceTrace events.Trace, item legacyWorkItem) (improvement.ChangeAttempt, events.Trace, error) {
-	attempt, attemptTrace, err := ensureProposalAttempt(cfg, store, proposal, sourceTrace, item)
-	if err == nil {
-		return attempt, attemptTrace, nil
+func ensureProposalAttemptForTest(cfg config.Config, store *storepkg.MemoryStore, proposal review.Proposal, payload map[string]any) (improvement.ChangeAttempt, events.Trace, error) {
+	refreshed, ok := findProposal(store.ListProposals(), proposal.ID)
+	if !ok {
+		return improvement.ChangeAttempt{}, events.Trace{}, fmt.Errorf("proposal %s not found", proposal.ID)
 	}
-	if !errors.Is(err, errProposalAttemptNotMaterialized) {
-		return improvement.ChangeAttempt{}, events.Trace{}, err
+	proposal = refreshed
+	if strings.TrimSpace(proposal.CurrentAttemptID) == "" {
+		receipt, err := store.SubmitCommand(transition.CommandEnvelope{
+			MachineKind: transition.MachineProposalLine,
+			AggregateID: proposal.ID,
+			CommandKind: string(transition.CommandProposalResumeExecution),
+			CommandID:   fmt.Sprintf("cmd-test-proposal-resume:%s", proposal.ID),
+			Actor:       cfg.ServiceName,
+			OccurredAt:  time.Now().UTC(),
+			Payload:     payload,
+		})
+		if err != nil {
+			return improvement.ChangeAttempt{}, events.Trace{}, err
+		}
+		if receipt.DecisionKind == transition.DecisionReject {
+			return improvement.ChangeAttempt{}, events.Trace{}, errors.New(receipt.Reason)
+		}
+		proposal, ok = findProposal(store.ListProposals(), proposal.ID)
+		if !ok {
+			return improvement.ChangeAttempt{}, events.Trace{}, fmt.Errorf("proposal %s not found after resume", proposal.ID)
+		}
 	}
-	attempt, traceReq := prepareProposalAttempt(cfg, proposal, sourceTrace, item)
-	attemptTrace, _, err = storepkg.CreateDerivedTraceForTesting(store, traceReq)
+	attemptID := strings.TrimSpace(proposal.CurrentAttemptID)
+	if attemptID == "" {
+		return improvement.ChangeAttempt{}, events.Trace{}, errors.New("proposal did not materialize an attempt")
+	}
+	attempt, ok := store.GetChangeAttempt(attemptID)
+	if !ok {
+		return improvement.ChangeAttempt{}, events.Trace{}, fmt.Errorf("attempt %s not found", attemptID)
+	}
+	trace, ok := store.GetTrace(attempt.AttemptTraceID)
+	if !ok {
+		return improvement.ChangeAttempt{}, events.Trace{}, fmt.Errorf("attempt trace %s not found", attempt.AttemptTraceID)
+	}
+	return attempt, trace, nil
+}
+
+func submitProblemLineCommandForTest(t *testing.T, store *storepkg.MemoryStore, aggregateID string, kind transition.ProblemLineCommandKind, commandID string, payload map[string]any) transition.CommandReceipt {
+	t.Helper()
+	receipt, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineProblemLine,
+		AggregateID: aggregateID,
+		CommandKind: string(kind),
+		CommandID:   commandID,
+		Actor:       "tester",
+		OccurredAt:  time.Now().UTC(),
+		Payload:     payload,
+	})
 	if err != nil {
-		return improvement.ChangeAttempt{}, events.Trace{}, err
+		t.Fatalf("SubmitCommand(%s) error = %v", kind, err)
 	}
-	attempt.AttemptTraceID = attemptTrace.Summary.TraceID
-	attempt, err = storepkg.SeedChangeAttemptForTesting(store, attempt)
+	return receipt
+}
+
+func submitSettingsCommandForTest(t *testing.T, store *storepkg.MemoryStore, commandID string, payload map[string]any) {
+	t.Helper()
+	receipt, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineSettings,
+		AggregateID: "default",
+		CommandKind: string(transition.CommandSettingsUpdate),
+		CommandID:   commandID,
+		Actor:       "tester",
+		OccurredAt:  time.Now().UTC(),
+		Payload:     payload,
+	})
 	if err != nil {
-		return improvement.ChangeAttempt{}, events.Trace{}, err
+		t.Fatalf("SubmitCommand(%s) error = %v", transition.CommandSettingsUpdate, err)
 	}
-	return attempt, attemptTrace, nil
+	if receipt.DecisionKind == transition.DecisionReject {
+		t.Fatalf("SubmitCommand(%s) rejected: %s", transition.CommandSettingsUpdate, receipt.Reason)
+	}
+}
+
+func seedHarnessOverlayProposalForTest(t *testing.T, store *storepkg.MemoryStore) review.Proposal {
+	t.Helper()
+
+	slackEventIDs := map[string]struct{}{}
+	for _, event := range store.ListEvents() {
+		if event.Source == "slack" {
+			slackEventIDs[event.ID] = struct{}{}
+		}
+	}
+	var trace events.Trace
+	foundTrace := false
+	for _, candidate := range store.ListTraces() {
+		if _, ok := slackEventIDs[candidate.TriggerEventID]; !ok {
+			continue
+		}
+		loadedTrace, ok := store.GetTrace(candidate.TraceID)
+		if !ok {
+			t.Fatalf("expected trace %s", candidate.TraceID)
+		}
+		trace = loadedTrace
+		foundTrace = true
+		break
+	}
+	if !foundTrace {
+		t.Fatal("expected a seeded slack trace")
+	}
+
+	submitSettingsCommandForTest(t, store, "cmd-test-settings-overlay-cap", map[string]any{
+		"active_proposal_cap": 4,
+	})
+
+	receipt, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineProblemLine,
+		AggregateID: trace.Summary.TraceID,
+		CommandKind: string(transition.CommandProblemLineRecordRating),
+		CommandID:   "cmd-test-overlay-rating",
+		Actor:       "tester",
+		OccurredAt:  time.Now().UTC(),
+		Payload: map[string]any{
+			"score":       1,
+			"verdict":     "behavioral_regression",
+			"labels":      []string{"overlay"},
+			"notes":       "Prompt and workflow behavior degraded despite a nominally completed trace.",
+			"reviewer_id": "tester",
+		},
+	})
+	if err != nil {
+		t.Fatalf("SubmitCommand(problem_line_record_rating) error = %v", err)
+	}
+	if receipt.DecisionKind == transition.DecisionReject {
+		t.Fatalf("SubmitCommand(problem_line_record_rating) rejected: %s", receipt.Reason)
+	}
+
+	var overlayCandidate improvement.Candidate
+	foundCandidate := false
+	for _, candidate := range store.ListCandidates() {
+		if candidate.LatestTraceID != trace.Summary.TraceID || candidate.TargetLayer != harness.TargetLayerHarnessOverlay {
+			continue
+		}
+		overlayCandidate = candidate
+		foundCandidate = true
+		break
+	}
+	if !foundCandidate {
+		t.Fatal("expected harness-overlay candidate after low-rating replay")
+	}
+
+	knownProposalIDs := map[string]struct{}{}
+	for _, proposal := range store.ListProposals() {
+		knownProposalIDs[proposal.ID] = struct{}{}
+	}
+
+	promoteReceipt := submitProblemLineCommandForTest(t, store, "tester", transition.CommandProblemLinePromote, "cmd-test-overlay-promote", map[string]any{
+		"requested_by": "tester",
+		"limit":        4,
+	})
+	if promoteReceipt.DecisionKind == transition.DecisionReject {
+		t.Fatalf("SubmitCommand(%s) rejected: %s", transition.CommandProblemLinePromote, promoteReceipt.Reason)
+	}
+
+	for _, proposal := range store.ListProposals() {
+		if _, ok := knownProposalIDs[proposal.ID]; ok {
+			continue
+		}
+		if proposal.CandidateKey == overlayCandidate.CandidateKey {
+			return proposal
+		}
+	}
+	t.Fatalf("expected promoted proposal for candidate %s", overlayCandidate.CandidateKey)
+	return review.Proposal{}
+}
+
+func loadProposalAttemptForTest(t *testing.T, store *storepkg.MemoryStore, proposalID string, attemptID string) (review.Proposal, improvement.ChangeAttempt) {
+	t.Helper()
+	proposal, ok := findProposal(store.ListProposals(), proposalID)
+	if !ok {
+		t.Fatalf("expected proposal %s", proposalID)
+	}
+	attempt, ok := store.GetChangeAttempt(attemptID)
+	if !ok {
+		t.Fatalf("expected attempt %s", attemptID)
+	}
+	return proposal, attempt
+}
+
+func loadRepoChangeJobForTest(t *testing.T, store *storepkg.MemoryStore, attemptID string, jobID string) improvement.RepoChangeJob {
+	t.Helper()
+	if jobID != "" {
+		if job, ok := findRepoChangeJob(store.ListRepoChangeJobs(), jobID); ok {
+			return job
+		}
+	}
+	if job, ok := findRepoChangeJobByAttempt(store.ListRepoChangeJobs(), attemptID); ok {
+		return job
+	}
+	t.Fatalf("expected repo change job for attempt %s", attemptID)
+	return improvement.RepoChangeJob{}
+}
+
+func advanceAttemptToPatchGeneratedForTest(
+	t *testing.T,
+	cfg config.Config,
+	store *storepkg.MemoryStore,
+	proposal review.Proposal,
+	attempt improvement.ChangeAttempt,
+	trace events.Trace,
+	workspaceID string,
+	jobID string,
+	repo string,
+	baseRef string,
+	namespace string,
+	jobName string,
+	podName string,
+	changePlan string,
+	validationPlan string,
+) (review.Proposal, improvement.ChangeAttempt, improvement.RepoChangeJob) {
+	t.Helper()
+
+	repo = firstNonEmpty(repo, "rsi-agent-platform")
+	baseRef = firstNonEmpty(baseRef, "main")
+	workspaceID = firstNonEmpty(workspaceID, "workspace-"+attempt.ID)
+	jobID = firstNonEmpty(jobID, "job-"+attempt.ID)
+	namespace = firstNonEmpty(namespace, "rsi-platform")
+	jobName = firstNonEmpty(jobName, "workspace-job-"+attempt.ID)
+	podName = firstNonEmpty(podName, "workspace-pod-"+attempt.ID)
+	changePlan = firstNonEmpty(changePlan, "Apply the approved remediation.")
+	validationPlan = firstNonEmpty(validationPlan, "Run governed validation.")
+
+	submitProposalStatusForTest(t, store, proposal.ID, review.ProposalRepoChangeQueued, "cmd-test-proposal-queued-"+attempt.ID)
+	if err := submitAttemptCommand(store, attempt, transition.CommandWorkspaceReady, cfg.ServiceName, time.Now().UTC(), map[string]any{
+		"workspace_id":       workspaceID,
+		"job_id":             jobID,
+		"trace_id":           trace.Summary.TraceID,
+		"repo":               repo,
+		"base_ref":           baseRef,
+		"branch_name":        attempt.BranchName,
+		"sandbox_namespace":  namespace,
+		"sandbox_job_name":   jobName,
+		"sandbox_pod_name":   podName,
+		"validation_ref":     fmt.Sprintf("%s/%s", namespace, jobName),
+		"validation_summary": "Workspace ready.",
+		"allowed_path_globs": []string{"internal/**"},
+	}); err != nil {
+		t.Fatalf("submitAttemptCommand(workspace_ready) error = %v", err)
+	}
+	submitProposalStatusForTest(t, store, proposal.ID, review.ProposalRepoChangeRunning, "cmd-test-proposal-running-"+attempt.ID)
+	if err := submitAttemptCommand(store, attempt, transition.CommandImplementationCompleted, cfg.ServiceName, time.Now().UTC(), map[string]any{
+		"job_id":             jobID,
+		"trace_id":           trace.Summary.TraceID,
+		"repo":               repo,
+		"base_ref":           baseRef,
+		"branch_name":        attempt.BranchName,
+		"change_plan":        changePlan,
+		"validation_plan":    validationPlan,
+		"diff_summary":       "1 file changed",
+		"changed_files":      []string{"internal/store/commands.go"},
+		"validation_ref":     fmt.Sprintf("%s/%s", namespace, jobName),
+		"validation_summary": validationPlan,
+	}); err != nil {
+		t.Fatalf("submitAttemptCommand(implementation_completed) error = %v", err)
+	}
+
+	proposal, attempt = loadProposalAttemptForTest(t, store, proposal.ID, attempt.ID)
+	return proposal, attempt, loadRepoChangeJobForTest(t, store, attempt.ID, jobID)
+}
+
+func advanceAttemptToValidationRunningForTest(
+	t *testing.T,
+	cfg config.Config,
+	store *storepkg.MemoryStore,
+	proposal review.Proposal,
+	attempt improvement.ChangeAttempt,
+	trace events.Trace,
+	workspaceID string,
+	jobID string,
+	repo string,
+	baseRef string,
+	namespace string,
+	jobName string,
+	podName string,
+	changePlan string,
+	validationPlan string,
+) (review.Proposal, improvement.ChangeAttempt, improvement.RepoChangeJob) {
+	t.Helper()
+
+	proposal, attempt, job := advanceAttemptToPatchGeneratedForTest(t, cfg, store, proposal, attempt, trace, workspaceID, jobID, repo, baseRef, namespace, jobName, podName, changePlan, validationPlan)
+	if err := submitAttemptCommand(store, attempt, transition.CommandValidationStarted, cfg.ServiceName, time.Now().UTC(), map[string]any{
+		"job_id":             job.ID,
+		"sandbox_namespace":  firstNonEmpty(job.SandboxNamespace, namespace, "rsi-platform"),
+		"sandbox_job_name":   firstNonEmpty(job.SandboxJobName, jobName),
+		"sandbox_pod_name":   firstNonEmpty(job.SandboxPodName, podName),
+		"validation_ref":     firstNonEmpty(job.ValidationRef, fmt.Sprintf("%s/%s", firstNonEmpty(job.SandboxNamespace, namespace, "rsi-platform"), firstNonEmpty(job.SandboxJobName, jobName))),
+		"validation_summary": firstNonEmpty(validationPlan, "Run governed validation."),
+	}); err != nil {
+		t.Fatalf("submitAttemptCommand(validation_started) error = %v", err)
+	}
+
+	proposal, attempt = loadProposalAttemptForTest(t, store, proposal.ID, attempt.ID)
+	return proposal, attempt, loadRepoChangeJobForTest(t, store, attempt.ID, job.ID)
+}
+
+func advanceAttemptToValidationPendingForTest(
+	t *testing.T,
+	cfg config.Config,
+	store *storepkg.MemoryStore,
+	proposal review.Proposal,
+	attempt improvement.ChangeAttempt,
+	trace events.Trace,
+	workspaceID string,
+	jobID string,
+	repo string,
+	baseRef string,
+	namespace string,
+	jobName string,
+	podName string,
+	changePlan string,
+	validationPlan string,
+) (review.Proposal, improvement.ChangeAttempt, improvement.RepoChangeJob) {
+	t.Helper()
+
+	proposal, attempt, job := advanceAttemptToPatchGeneratedForTest(t, cfg, store, proposal, attempt, trace, workspaceID, jobID, repo, baseRef, namespace, jobName, podName, changePlan, validationPlan)
+	if err := submitAttemptCommand(store, attempt, transition.CommandValidationCompleted, cfg.ServiceName, time.Now().UTC(), map[string]any{
+		"job_id":             job.ID,
+		"repo":               firstNonEmpty(job.Repo, repo, "rsi-agent-platform"),
+		"branch_name":        firstNonEmpty(job.BranchName, attempt.BranchName),
+		"base_ref":           firstNonEmpty(job.BaseRef, baseRef, "main"),
+		"sandbox_namespace":  firstNonEmpty(job.SandboxNamespace, namespace, "rsi-platform"),
+		"sandbox_job_name":   firstNonEmpty(job.SandboxJobName, jobName),
+		"sandbox_pod_name":   firstNonEmpty(job.SandboxPodName, podName),
+		"validation_ref":     firstNonEmpty(job.ValidationRef, fmt.Sprintf("%s/%s", firstNonEmpty(job.SandboxNamespace, namespace, "rsi-platform"), firstNonEmpty(job.SandboxJobName, jobName))),
+		"validation_summary": firstNonEmpty(validationPlan, "Run governed validation."),
+	}); err != nil {
+		t.Fatalf("submitAttemptCommand(validation_completed) error = %v", err)
+	}
+	submitProposalStatusForTest(t, store, proposal.ID, review.ProposalValidationPending, "cmd-test-proposal-validation-pending-"+attempt.ID)
+
+	proposal, attempt = loadProposalAttemptForTest(t, store, proposal.ID, attempt.ID)
+	return proposal, attempt, loadRepoChangeJobForTest(t, store, attempt.ID, job.ID)
+}
+
+func sandboxObservationRequestForTest(effectID string, operationID string, attempt improvement.ChangeAttempt, trace events.Trace, job improvement.RepoChangeJob) sandboxObservationRequest {
+	return sandboxObservationRequest{
+		EffectID:    effectID,
+		OperationID: operationID,
+		ProposalID:  attempt.ProposalID,
+		AttemptID:   attempt.ID,
+		TraceID:     trace.Summary.TraceID,
+		JobID:       job.ID,
+		JobName:     job.SandboxJobName,
+		Namespace:   job.SandboxNamespace,
+		Repo:        firstNonEmpty(job.Repo, "rsi-agent-platform"),
+		BranchName:  firstNonEmpty(job.BranchName, attempt.BranchName),
+		BaseRef:     firstNonEmpty(job.BaseRef, "main"),
+	}
+}
+
+func draftPROpenRequestForTest(effectID string, operationID string, attempt improvement.ChangeAttempt, trace events.Trace, jobID string, repo string, branchName string, baseRef string, title string, body string) draftPROpenRequest {
+	return draftPROpenRequest{
+		EffectID:    effectID,
+		OperationID: operationID,
+		ProposalID:  attempt.ProposalID,
+		AttemptID:   attempt.ID,
+		TraceID:     trace.Summary.TraceID,
+		JobID:       jobID,
+		Repo:        repo,
+		BranchName:  branchName,
+		BaseRef:     baseRef,
+		Title:       title,
+		Body:        body,
+	}
 }
 
 func assertQueuedAttemptBootstrapEffect(t *testing.T, store *storepkg.MemoryStore, attemptID string) transition.EffectExecution {
@@ -253,52 +601,41 @@ func TestProcessWorkspaceValidationObservationEffectDefersOnNonTerminalObservati
 	if !ok {
 		t.Fatalf("expected trace %s", proposal.TraceID)
 	}
-	attempt, _, err := ensureProposalAttemptForTest(config.Config{ServiceName: "improvement-plane"}, store, proposal, sourceTrace, legacyWorkItem{
-		ProposalID: proposal.ID,
-		Payload:    map[string]any{"trigger": string(improvement.AttemptTriggerProposalApproved)},
+	attempt, _, err := ensureProposalAttemptForTest(config.Config{ServiceName: "improvement-plane"}, store, proposal, map[string]any{
+		"trigger": string(improvement.AttemptTriggerProposalApproved),
 	})
 	if err != nil {
 		t.Fatalf("ensureProposalAttempt() error = %v", err)
-	}
-	attempt.State = improvement.AttemptStatePatchGenerated
-	attempt.ValidationPlan = "Run the sandbox validation flow."
-	attempt.UpdatedAt = time.Now().UTC()
-	if _, err := storepkg.SeedChangeAttemptForTesting(store, attempt); err != nil {
-		t.Fatalf("UpsertChangeAttempt() error = %v", err)
-	}
-	submitProposalStatusForTest(t, store, proposal.ID, review.ProposalRepoChangeQueued, "cmd-test-proposal-queued-observe-defer")
-	if _, err := storepkg.SeedRepoChangeJobForTesting(store, improvement.RepoChangeJob{
-		ID:               "job-watch-1",
-		ProposalID:       proposal.ID,
-		AttemptID:        attempt.ID,
-		ConversationID:   proposal.ConversationID,
-		CaseID:           proposal.CaseID,
-		OriginTraceID:    sourceTrace.Summary.TraceID,
-		CandidateKey:     proposal.CandidateKey,
-		Status:           string(review.ProposalRepoChangeQueued),
-		Repo:             "rsi-agent-platform",
-		BaseRef:          "main",
-		BranchName:       attempt.BranchName,
-		SandboxNamespace: "rsi-platform",
-		SandboxJobName:   "sandbox-watch-1",
-		SandboxPodName:   "sandbox-watch-1-pod",
-		CreatedAt:        time.Now().UTC(),
-		UpdatedAt:        time.Now().UTC(),
-	}); err != nil {
-		t.Fatalf("UpsertRepoChangeJob() error = %v", err)
 	}
 	cfg := config.Config{
 		ServiceName:         "improvement-plane",
 		SandboxPollInterval: 2 * time.Second,
 		SandboxNamespace:    "rsi-platform",
 	}
+	proposal, attempt, repoJob := advanceAttemptToPatchGeneratedForTest(
+		t,
+		cfg,
+		store,
+		proposal,
+		attempt,
+		sourceTrace,
+		"workspace-watch-1",
+		"job-watch-1",
+		"rsi-agent-platform",
+		"main",
+		"rsi-platform",
+		"sandbox-watch-1",
+		"sandbox-watch-1-pod",
+		"Update the formal transition path.",
+		"Run the sandbox validation flow.",
+	)
 	if err := submitAttemptCommand(store, attempt, transition.CommandValidationStarted, cfg.ServiceName, time.Now().UTC(), map[string]any{
 		"operation_id":      "op-sandbox-watch-defer",
-		"job_id":            "job-watch-1",
-		"sandbox_namespace": "rsi-platform",
-		"sandbox_job_name":  "sandbox-watch-1",
-		"sandbox_pod_name":  "sandbox-watch-1-pod",
-		"validation_ref":    "rsi-platform/sandbox-watch-1",
+		"job_id":            repoJob.ID,
+		"sandbox_namespace": firstNonEmpty(repoJob.SandboxNamespace, "rsi-platform"),
+		"sandbox_job_name":  firstNonEmpty(repoJob.SandboxJobName, "sandbox-watch-1"),
+		"sandbox_pod_name":  firstNonEmpty(repoJob.SandboxPodName, "sandbox-watch-1-pod"),
+		"validation_ref":    firstNonEmpty(repoJob.ValidationRef, "rsi-platform/sandbox-watch-1"),
 	}); err != nil {
 		t.Fatalf("submitAttemptCommand(validation_started) error = %v", err)
 	}
@@ -362,58 +699,30 @@ func TestApplySandboxLaunchSuccessUsesFormalAttemptAndProposalCommands(t *testin
 	if !ok {
 		t.Fatalf("expected trace %s", proposal.TraceID)
 	}
-	attempt, attemptTrace, err := ensureProposalAttemptForTest(cfg, store, proposal, sourceTrace, legacyWorkItem{
-		ProposalID: proposal.ID,
-		Payload:    map[string]any{"trigger": string(improvement.AttemptTriggerProposalApproved)},
+	attempt, attemptTrace, err := ensureProposalAttemptForTest(cfg, store, proposal, map[string]any{
+		"trigger": string(improvement.AttemptTriggerProposalApproved),
 	})
 	if err != nil {
 		t.Fatalf("ensureProposalAttempt() error = %v", err)
 	}
-	attempt.State = improvement.AttemptStatePatchGenerated
-	attempt.ChangePlan = "Update the formal transition path."
-	attempt.ValidationPlan = "Run the sandbox validation flow."
-	attempt.UpdatedAt = time.Now().UTC()
-	if _, err := storepkg.SeedChangeAttemptForTesting(store, attempt); err != nil {
-		t.Fatalf("UpsertChangeAttempt() error = %v", err)
-	}
-	submitProposalStatusForTest(t, store, proposal.ID, review.ProposalRepoChangeQueued, "cmd-test-proposal-queued")
-	proposal, ok = findProposal(store.ListProposals(), proposal.ID)
-	if !ok {
-		t.Fatalf("expected proposal %s", proposal.ID)
-	}
-	repoJob, err := storepkg.SeedRepoChangeJobForTesting(store, improvement.RepoChangeJob{
-		ID:             "job-sandbox-launch-1",
-		ProposalID:     proposal.ID,
-		AttemptID:      attempt.ID,
-		ConversationID: proposal.ConversationID,
-		CaseID:         proposal.CaseID,
-		OriginTraceID:  attemptTrace.Summary.TraceID,
-		CandidateKey:   proposal.CandidateKey,
-		Status:         string(review.ProposalRepoChangeQueued),
-		Repo:           "rsi-agent-platform",
-		BaseRef:        "main",
-		BranchName:     attempt.BranchName,
-		CreatedAt:      time.Now().UTC(),
-		UpdatedAt:      time.Now().UTC(),
-	})
-	if err != nil {
-		t.Fatalf("UpsertRepoChangeJob() error = %v", err)
-	}
-	item := legacyWorkItem{
-		ID:          "work-sandbox-launch-1",
-		Queue:       queue.SandboxQueue,
-		Kind:        "repo_change_job",
-		Status:      queue.WorkQueued,
-		TraceID:     sourceTrace.Summary.TraceID,
-		ProposalID:  proposal.ID,
-		OperationID: "op-sandbox-launch-1",
-		CreatedAt:   time.Now().UTC(),
-		UpdatedAt:   time.Now().UTC(),
-		Payload: map[string]any{
-			"attempt_id": attempt.ID,
-			"job_id":     repoJob.ID,
-		},
-	}
+	proposal, attempt, repoJob := advanceAttemptToPatchGeneratedForTest(
+		t,
+		cfg,
+		store,
+		proposal,
+		attempt,
+		attemptTrace,
+		"workspace-sandbox-launch-1",
+		"job-sandbox-launch-1",
+		"rsi-agent-platform",
+		"main",
+		"rsi-platform",
+		"workspace-job-sandbox-launch-1",
+		"workspace-pod-sandbox-launch-1",
+		"Update the formal transition path.",
+		"Run the sandbox validation flow.",
+	)
+	operationID := "op-sandbox-launch-1"
 	session := sandbox.Session{
 		ID:        "sandbox-session-1",
 		Namespace: "rsi-platform",
@@ -423,7 +732,7 @@ func TestApplySandboxLaunchSuccessUsesFormalAttemptAndProposalCommands(t *testin
 		UpdatedAt: time.Now().UTC(),
 	}
 
-	if err := applySandboxLaunchSuccess(cfg, store, proposal, attempt, sourceTrace, repoJob, sandboxObservationRequestForTest(item), session); err != nil {
+	if err := applySandboxLaunchSuccess(cfg, store, proposal, attempt, sourceTrace, repoJob, sandboxObservationRequestForTest("work-sandbox-launch-1", operationID, attempt, sourceTrace, repoJob), session); err != nil {
 		t.Fatalf("applySandboxLaunchSuccess() error = %v", err)
 	}
 
@@ -476,7 +785,7 @@ func TestApplySandboxLaunchSuccessUsesFormalAttemptAndProposalCommands(t *testin
 		t.Fatal("expected sandbox_job artifact on attempt trace")
 	}
 
-	if receipt, ok := store.GetCommandReceipt("cmd-attempt:" + attempt.ID + ":validation_started:" + item.OperationID); !ok || receipt.MachineKind != transition.MachineAttempt {
+	if receipt, ok := store.GetCommandReceipt("cmd-attempt:" + attempt.ID + ":validation_started:" + operationID); !ok || receipt.MachineKind != transition.MachineAttempt {
 		t.Fatalf("expected validation_started attempt command receipt, got ok=%t receipt=%+v", ok, receipt)
 	}
 	if receipt, ok := store.GetCommandReceipt("cmd-proposal-repo-change-running:" + proposal.ID + ":" + attempt.ID); !ok || receipt.MachineKind != transition.MachineProposalLine {
@@ -514,44 +823,29 @@ func TestProcessWorkspaceValidationObservationEffectUsesFormalAttemptAndProposal
 	if !ok {
 		t.Fatalf("expected trace %s", proposal.TraceID)
 	}
-	attempt, attemptTrace, err := ensureProposalAttemptForTest(cfg, store, proposal, sourceTrace, legacyWorkItem{
-		ProposalID: proposal.ID,
-		Payload:    map[string]any{"trigger": string(improvement.AttemptTriggerProposalApproved)},
+	attempt, attemptTrace, err := ensureProposalAttemptForTest(cfg, store, proposal, map[string]any{
+		"trigger": string(improvement.AttemptTriggerProposalApproved),
 	})
 	if err != nil {
 		t.Fatalf("ensureProposalAttempt() error = %v", err)
 	}
-	attempt.State = improvement.AttemptStatePatchGenerated
-	attempt.ValidationPlan = "Run the sandbox validation flow."
-	attempt.UpdatedAt = time.Now().UTC()
-	if _, err := storepkg.SeedChangeAttemptForTesting(store, attempt); err != nil {
-		t.Fatalf("UpsertChangeAttempt() error = %v", err)
-	}
-	submitProposalStatusForTest(t, store, proposal.ID, review.ProposalRepoChangeQueued, "cmd-test-proposal-queued-watch")
-	proposal, ok = findProposal(store.ListProposals(), proposal.ID)
-	if !ok {
-		t.Fatalf("expected proposal %s", proposal.ID)
-	}
-	if _, err := storepkg.SeedRepoChangeJobForTesting(store, improvement.RepoChangeJob{
-		ID:               "job-watch-success-1",
-		ProposalID:       proposal.ID,
-		AttemptID:        attempt.ID,
-		ConversationID:   proposal.ConversationID,
-		CaseID:           proposal.CaseID,
-		OriginTraceID:    attemptTrace.Summary.TraceID,
-		CandidateKey:     proposal.CandidateKey,
-		Status:           string(review.ProposalRepoChangeRunning),
-		Repo:             "rsi-agent-platform",
-		BaseRef:          "main",
-		BranchName:       attempt.BranchName,
-		SandboxNamespace: "rsi-platform",
-		SandboxJobName:   "sandbox-watch-success-1",
-		SandboxPodName:   "sandbox-watch-success-1-pod",
-		CreatedAt:        time.Now().UTC(),
-		UpdatedAt:        time.Now().UTC(),
-	}); err != nil {
-		t.Fatalf("UpsertRepoChangeJob() error = %v", err)
-	}
+	proposal, attempt, repoJob := advanceAttemptToPatchGeneratedForTest(
+		t,
+		cfg,
+		store,
+		proposal,
+		attempt,
+		attemptTrace,
+		"workspace-watch-success-1",
+		"job-watch-success-1",
+		"rsi-agent-platform",
+		"main",
+		"rsi-platform",
+		"sandbox-watch-success-1",
+		"sandbox-watch-success-1-pod",
+		"Update the formal transition path.",
+		"Run the sandbox validation flow.",
+	)
 	sandboxAction, err := ensureImprovementActionIntent(store, improvementActionIntentBase(
 		cfg.ServiceName,
 		proposal,
@@ -585,38 +879,7 @@ func TestProcessWorkspaceValidationObservationEffectUsesFormalAttemptAndProposal
 	}); err != nil {
 		t.Fatalf("submitImprovementActionCommand(action_started) error = %v", err)
 	}
-	if err := applySandboxLaunchSuccess(cfg, store, proposal, attempt, sourceTrace, improvement.RepoChangeJob{
-		ID:               "job-watch-success-1",
-		ProposalID:       proposal.ID,
-		AttemptID:        attempt.ID,
-		ConversationID:   proposal.ConversationID,
-		CaseID:           proposal.CaseID,
-		OriginTraceID:    attemptTrace.Summary.TraceID,
-		CandidateKey:     proposal.CandidateKey,
-		Status:           string(review.ProposalRepoChangeQueued),
-		Repo:             "rsi-agent-platform",
-		BaseRef:          "main",
-		BranchName:       attempt.BranchName,
-		SandboxNamespace: "rsi-platform",
-		SandboxJobName:   "sandbox-watch-success-1",
-		SandboxPodName:   "sandbox-watch-success-1-pod",
-		CreatedAt:        time.Now().UTC(),
-		UpdatedAt:        time.Now().UTC(),
-	}, sandboxObservationRequestForTest(legacyWorkItem{
-		ID:          "work-sandbox-launch-success",
-		Queue:       queue.SandboxQueue,
-		Kind:        "repo_change_job",
-		Status:      queue.WorkQueued,
-		TraceID:     sourceTrace.Summary.TraceID,
-		ProposalID:  proposal.ID,
-		OperationID: operationID,
-		CreatedAt:   time.Now().UTC(),
-		UpdatedAt:   time.Now().UTC(),
-		Payload: map[string]any{
-			"attempt_id": attempt.ID,
-			"job_id":     "job-watch-success-1",
-		},
-	}), sandbox.Session{
+	if err := applySandboxLaunchSuccess(cfg, store, proposal, attempt, sourceTrace, repoJob, sandboxObservationRequestForTest("work-sandbox-launch-success", operationID, attempt, sourceTrace, repoJob), sandbox.Session{
 		ID:        "sandbox-session-success",
 		Namespace: "rsi-platform",
 		PodName:   "sandbox-watch-success-1-pod",
@@ -752,40 +1015,29 @@ func TestProcessWorkspaceValidationObservationEffectProjectsSandboxFailureViaAtt
 	if !ok {
 		t.Fatalf("expected trace %s", proposal.TraceID)
 	}
-	attempt, attemptTrace, err := ensureProposalAttemptForTest(cfg, store, proposal, sourceTrace, legacyWorkItem{
-		ProposalID: proposal.ID,
-		Payload:    map[string]any{"trigger": string(improvement.AttemptTriggerProposalApproved)},
+	attempt, attemptTrace, err := ensureProposalAttemptForTest(cfg, store, proposal, map[string]any{
+		"trigger": string(improvement.AttemptTriggerProposalApproved),
 	})
 	if err != nil {
 		t.Fatalf("ensureProposalAttempt() error = %v", err)
 	}
-	attempt.State = improvement.AttemptStatePatchGenerated
-	attempt.ValidationPlan = "Run the sandbox validation flow."
-	attempt.UpdatedAt = time.Now().UTC()
-	if _, err := storepkg.SeedChangeAttemptForTesting(store, attempt); err != nil {
-		t.Fatalf("UpsertChangeAttempt() error = %v", err)
-	}
-	submitProposalStatusForTest(t, store, proposal.ID, review.ProposalRepoChangeQueued, "cmd-test-proposal-queued-validate")
-	if _, err := storepkg.SeedRepoChangeJobForTesting(store, improvement.RepoChangeJob{
-		ID:               "job-watch-fail-1",
-		ProposalID:       proposal.ID,
-		AttemptID:        attempt.ID,
-		ConversationID:   proposal.ConversationID,
-		CaseID:           proposal.CaseID,
-		OriginTraceID:    attemptTrace.Summary.TraceID,
-		CandidateKey:     proposal.CandidateKey,
-		Status:           string(review.ProposalRepoChangeRunning),
-		Repo:             "rsi-agent-platform",
-		BaseRef:          "main",
-		BranchName:       attempt.BranchName,
-		SandboxNamespace: "rsi-platform",
-		SandboxJobName:   "sandbox-watch-fail-1",
-		SandboxPodName:   "sandbox-watch-fail-1-pod",
-		CreatedAt:        time.Now().UTC(),
-		UpdatedAt:        time.Now().UTC(),
-	}); err != nil {
-		t.Fatalf("UpsertRepoChangeJob() error = %v", err)
-	}
+	proposal, attempt, repoJob := advanceAttemptToPatchGeneratedForTest(
+		t,
+		cfg,
+		store,
+		proposal,
+		attempt,
+		attemptTrace,
+		"workspace-watch-fail-1",
+		"job-watch-fail-1",
+		"rsi-agent-platform",
+		"main",
+		"rsi-platform",
+		"sandbox-watch-fail-1",
+		"sandbox-watch-fail-1-pod",
+		"Update the formal transition path.",
+		"Run the sandbox validation flow.",
+	)
 	sandboxAction, err := ensureImprovementActionIntent(store, improvementActionIntentBase(
 		cfg.ServiceName,
 		proposal,
@@ -819,38 +1071,7 @@ func TestProcessWorkspaceValidationObservationEffectProjectsSandboxFailureViaAtt
 	}); err != nil {
 		t.Fatalf("submitImprovementActionCommand(action_started) error = %v", err)
 	}
-	if err := applySandboxLaunchSuccess(cfg, store, proposal, attempt, sourceTrace, improvement.RepoChangeJob{
-		ID:               "job-watch-fail-1",
-		ProposalID:       proposal.ID,
-		AttemptID:        attempt.ID,
-		ConversationID:   proposal.ConversationID,
-		CaseID:           proposal.CaseID,
-		OriginTraceID:    attemptTrace.Summary.TraceID,
-		CandidateKey:     proposal.CandidateKey,
-		Status:           string(review.ProposalRepoChangeQueued),
-		Repo:             "rsi-agent-platform",
-		BaseRef:          "main",
-		BranchName:       attempt.BranchName,
-		SandboxNamespace: "rsi-platform",
-		SandboxJobName:   "sandbox-watch-fail-1",
-		SandboxPodName:   "sandbox-watch-fail-1-pod",
-		CreatedAt:        time.Now().UTC(),
-		UpdatedAt:        time.Now().UTC(),
-	}, sandboxObservationRequestForTest(legacyWorkItem{
-		ID:          "work-sandbox-launch-fail",
-		Queue:       queue.SandboxQueue,
-		Kind:        "repo_change_job",
-		Status:      queue.WorkQueued,
-		TraceID:     sourceTrace.Summary.TraceID,
-		ProposalID:  proposal.ID,
-		OperationID: operationID,
-		CreatedAt:   time.Now().UTC(),
-		UpdatedAt:   time.Now().UTC(),
-		Payload: map[string]any{
-			"attempt_id": attempt.ID,
-			"job_id":     "job-watch-fail-1",
-		},
-	}), sandbox.Session{
+	if err := applySandboxLaunchSuccess(cfg, store, proposal, attempt, sourceTrace, repoJob, sandboxObservationRequestForTest("work-sandbox-launch-fail", operationID, attempt, sourceTrace, repoJob), sandbox.Session{
 		ID:        "sandbox-session-fail",
 		Namespace: "rsi-platform",
 		PodName:   "sandbox-watch-fail-1-pod",
@@ -951,16 +1172,23 @@ func TestRecordAttemptFailureUsesFormalAttemptAndProposalCommands(t *testing.T) 
 	if !ok {
 		t.Fatalf("expected attempt %s", proposal.CurrentAttemptID)
 	}
-	attempt.State = improvement.AttemptStateValidationRunning
-	attempt.UpdatedAt = time.Now().UTC()
-	if _, err := storepkg.SeedChangeAttemptForTesting(store, attempt); err != nil {
-		t.Fatalf("UpsertChangeAttempt() error = %v", err)
-	}
-	submitProposalStatusForTest(t, store, proposal.ID, review.ProposalRepoChangeRunning, "cmd-test-proposal-validation-running-1")
-	proposal, ok = findProposal(store.ListProposals(), proposal.ID)
-	if !ok {
-		t.Fatalf("expected updated proposal %s", proposal.ID)
-	}
+	proposal, attempt, _ = advanceAttemptToValidationRunningForTest(
+		t,
+		cfg,
+		store,
+		proposal,
+		attempt,
+		trace,
+		"workspace-failure-1",
+		"job-failure-1",
+		"rsi-agent-platform",
+		"main",
+		"rsi-platform",
+		"sandbox-failure-1",
+		"sandbox-failure-1-pod",
+		"Update the formal transition path.",
+		"Run the sandbox validation flow.",
+	)
 
 	if err := recordAttemptFailure(cfg, store, proposal, attempt, trace, "sandbox_failure", "Sandbox validation failed.", false, improvement.AttemptTriggerSandboxFailed); err != nil {
 		t.Fatalf("recordAttemptFailure() error = %v", err)
@@ -1029,73 +1257,31 @@ func TestProcessDraftPROpenUsesFormalAttemptAndProposalCommands(t *testing.T) {
 	}
 	proposal.TargetRef = "prod"
 	proposal.TargetKind = "role"
-	sourceTrace, ok := store.GetTrace(proposal.TraceID)
-	if !ok {
-		t.Fatalf("expected trace %s", proposal.TraceID)
-	}
-	attempt, attemptTrace, err := ensureProposalAttemptForTest(cfg, store, proposal, sourceTrace, legacyWorkItem{
-		ProposalID: proposal.ID,
-		Payload:    map[string]any{"trigger": string(improvement.AttemptTriggerProposalApproved)},
+	attempt, attemptTrace, err := ensureProposalAttemptForTest(cfg, store, proposal, map[string]any{
+		"trigger": string(improvement.AttemptTriggerProposalApproved),
 	})
 	if err != nil {
 		t.Fatalf("ensureProposalAttempt() error = %v", err)
 	}
-	attempt.State = improvement.AttemptStateValidationRunning
-	attempt.UpdatedAt = time.Now().UTC()
-	if _, err := storepkg.SeedChangeAttemptForTesting(store, attempt); err != nil {
-		t.Fatalf("UpsertChangeAttempt() error = %v", err)
-	}
-	submitProposalStatusForTest(t, store, proposal.ID, review.ProposalValidationPending, "cmd-test-proposal-validation-pending-2")
-	if _, err := storepkg.SeedRepoChangeJobForTesting(store, improvement.RepoChangeJob{
-		ID:             "job-pr-open-1",
-		ProposalID:     proposal.ID,
-		AttemptID:      attempt.ID,
-		ConversationID: proposal.ConversationID,
-		CaseID:         proposal.CaseID,
-		OriginTraceID:  attemptTrace.Summary.TraceID,
-		CandidateKey:   proposal.CandidateKey,
-		Status:         string(review.ProposalValidationPending),
-		Repo:           "rsi-agent-platform",
-		BaseRef:        "main",
-		BranchName:     attempt.BranchName,
-		CreatedAt:      time.Now().UTC(),
-		UpdatedAt:      time.Now().UTC(),
-	}); err != nil {
-		t.Fatalf("UpsertRepoChangeJob() error = %v", err)
-	}
-	item, err := registerImprovementOperationForTest(store, operation.Execution{
-		ScopeKind:     operation.ScopeAttempt,
-		ScopeID:       attempt.ID,
-		OperationKind: "pr_open",
-		OperationKey:  "pr_open",
-		Status:        operation.StatusQueued,
-		Queue:         queue.ImprovementActionQueue,
-		RequestedBy:   cfg.ServiceName,
-		TraceID:       attemptTrace.Summary.TraceID,
-		ProposalID:    proposal.ID,
-		AttemptID:     attempt.ID,
-	}, legacyWorkItem{
-		ID:         "work-pr-open-1",
-		Queue:      queue.ImprovementActionQueue,
-		Kind:       "draft_pr_open",
-		Status:     queue.WorkQueued,
-		TraceID:    attemptTrace.Summary.TraceID,
-		ProposalID: proposal.ID,
-		CreatedAt:  time.Now().UTC(),
-		UpdatedAt:  time.Now().UTC(),
-		Payload: map[string]any{
-			"attempt_id":  attempt.ID,
-			"job_id":      "job-pr-open-1",
-			"repo":        "rsi-agent-platform",
-			"branch_name": attempt.BranchName,
-			"base_ref":    "main",
-			"title":       "Fix formal transition gap",
-			"body":        "Draft PR body",
-		},
-	})
-	if err != nil {
-		t.Fatalf("registerImprovementOperationForTest() error = %v", err)
-	}
+	proposal, attempt, _ = advanceAttemptToValidationPendingForTest(
+		t,
+		cfg,
+		store,
+		proposal,
+		attempt,
+		attemptTrace,
+		"workspace-pr-open-1",
+		"job-pr-open-1",
+		"rsi-agent-platform",
+		"main",
+		"rsi-platform",
+		"sandbox-pr-open-1",
+		"sandbox-pr-open-1-pod",
+		"Update the formal transition path.",
+		"Run the sandbox validation flow.",
+	)
+	operationID := "op-pr-open-1"
+	effectID := "work-pr-open-1"
 	toolClient := fakeToolClient{
 		results: map[string]storepkg.ToolResult{
 			"github.create_pr": {
@@ -1115,11 +1301,11 @@ func TestProcessDraftPROpenUsesFormalAttemptAndProposalCommands(t *testing.T) {
 		},
 	}
 
-	if err := processDraftPROpen(cfg, store, toolClient, draftPROpenRequestForTest(item)); err != nil {
+	if err := processDraftPROpen(cfg, store, toolClient, draftPROpenRequestForTest(effectID, operationID, attempt, attemptTrace, "job-pr-open-1", "rsi-agent-platform", attempt.BranchName, "main", "Fix formal transition gap", "Draft PR body")); err != nil {
 		t.Fatalf("processDraftPROpen() error = %v", err)
 	}
 
-	attempt, ok = store.GetChangeAttempt(attempt.ID)
+	attempt, ok := store.GetChangeAttempt(attempt.ID)
 	if !ok {
 		t.Fatalf("expected attempt %s", attempt.ID)
 	}
@@ -1177,7 +1363,7 @@ func TestProcessDraftPROpenUsesFormalAttemptAndProposalCommands(t *testing.T) {
 	} {
 		receiptID := improvementActionCommandID(actionID, kind, "")
 		if kind != transition.CommandActionQueue {
-			receiptID = improvementActionCommandID(actionID, kind, item.OperationID)
+			receiptID = improvementActionCommandID(actionID, kind, operationID)
 		}
 		if receipt, ok := store.GetCommandReceipt(receiptID); !ok || receipt.MachineKind != transition.MachineAction {
 			t.Fatalf("expected draft pr action receipt for %s, got ok=%t receipt=%+v", kind, ok, receipt)
@@ -1206,7 +1392,7 @@ func TestProcessDraftPROpenUsesFormalAttemptAndProposalCommands(t *testing.T) {
 		t.Fatal("expected github.pr.completed event on attempt trace")
 	}
 
-	attemptReceiptID := "cmd-attempt:" + attempt.ID + ":" + string(transition.CommandAttemptPROpened) + ":" + item.OperationID
+	attemptReceiptID := "cmd-attempt:" + attempt.ID + ":" + string(transition.CommandAttemptPROpened) + ":" + operationID
 	receipt, ok := store.GetCommandReceipt(attemptReceiptID)
 	if !ok || receipt.MachineKind != transition.MachineAttempt {
 		t.Fatalf("expected attempt pr-open command receipt, got ok=%t receipt=%+v", ok, receipt)
@@ -1232,55 +1418,31 @@ func TestProcessDraftPROpenFailureUsesFormalAttemptFailureCommands(t *testing.T)
 	}
 	proposal.TargetRef = "prod"
 	proposal.TargetKind = "role"
-	sourceTrace, ok := store.GetTrace(proposal.TraceID)
-	if !ok {
-		t.Fatalf("expected trace %s", proposal.TraceID)
-	}
-	attempt, attemptTrace, err := ensureProposalAttemptForTest(cfg, store, proposal, sourceTrace, legacyWorkItem{
-		ProposalID: proposal.ID,
-		Payload:    map[string]any{"trigger": string(improvement.AttemptTriggerProposalApproved)},
+	attempt, attemptTrace, err := ensureProposalAttemptForTest(cfg, store, proposal, map[string]any{
+		"trigger": string(improvement.AttemptTriggerProposalApproved),
 	})
 	if err != nil {
 		t.Fatalf("ensureProposalAttempt() error = %v", err)
 	}
-	attempt.State = improvement.AttemptStateValidationRunning
-	attempt.UpdatedAt = time.Now().UTC()
-	if _, err := storepkg.SeedChangeAttemptForTesting(store, attempt); err != nil {
-		t.Fatalf("UpsertChangeAttempt() error = %v", err)
-	}
-	submitProposalStatusForTest(t, store, proposal.ID, review.ProposalValidationPending, "cmd-test-proposal-validation-pending-3")
-	item, err := registerImprovementOperationForTest(store, operation.Execution{
-		ScopeKind:     operation.ScopeAttempt,
-		ScopeID:       attempt.ID,
-		OperationKind: "pr_open",
-		OperationKey:  "pr_open",
-		Status:        operation.StatusQueued,
-		Queue:         queue.ImprovementActionQueue,
-		RequestedBy:   cfg.ServiceName,
-		TraceID:       attemptTrace.Summary.TraceID,
-		ProposalID:    proposal.ID,
-		AttemptID:     attempt.ID,
-	}, legacyWorkItem{
-		ID:         "work-pr-open-fail-1",
-		Queue:      queue.ImprovementActionQueue,
-		Kind:       "draft_pr_open",
-		Status:     queue.WorkQueued,
-		TraceID:    attemptTrace.Summary.TraceID,
-		ProposalID: proposal.ID,
-		CreatedAt:  time.Now().UTC(),
-		UpdatedAt:  time.Now().UTC(),
-		Payload: map[string]any{
-			"attempt_id":  attempt.ID,
-			"repo":        "rsi-agent-platform",
-			"branch_name": attempt.BranchName,
-			"base_ref":    "main",
-			"title":       "Fix formal transition gap",
-			"body":        "Draft PR body",
-		},
-	})
-	if err != nil {
-		t.Fatalf("registerImprovementOperationForTest() error = %v", err)
-	}
+	proposal, attempt, _ = advanceAttemptToValidationPendingForTest(
+		t,
+		cfg,
+		store,
+		proposal,
+		attempt,
+		attemptTrace,
+		"workspace-pr-open-fail-1",
+		"job-pr-open-fail-1",
+		"rsi-agent-platform",
+		"main",
+		"rsi-platform",
+		"sandbox-pr-open-fail-1",
+		"sandbox-pr-open-fail-1-pod",
+		"Update the formal transition path.",
+		"Run the sandbox validation flow.",
+	)
+	operationID := "op-pr-open-fail-1"
+	effectID := "work-pr-open-fail-1"
 	toolClient := fakeToolClient{
 		results: map[string]storepkg.ToolResult{
 			"github.create_pr": {
@@ -1291,11 +1453,11 @@ func TestProcessDraftPROpenFailureUsesFormalAttemptFailureCommands(t *testing.T)
 		},
 	}
 
-	if err := processDraftPROpen(cfg, store, toolClient, draftPROpenRequestForTest(item)); err != nil {
+	if err := processDraftPROpen(cfg, store, toolClient, draftPROpenRequestForTest(effectID, operationID, attempt, attemptTrace, "", "rsi-agent-platform", attempt.BranchName, "main", "Fix formal transition gap", "Draft PR body")); err != nil {
 		t.Fatalf("processDraftPROpen() error = %v", err)
 	}
 
-	attempt, ok = store.GetChangeAttempt(attempt.ID)
+	attempt, ok := store.GetChangeAttempt(attempt.ID)
 	if !ok {
 		t.Fatalf("expected attempt %s", attempt.ID)
 	}
@@ -1348,7 +1510,7 @@ func TestProcessDraftPROpenFailureUsesFormalAttemptFailureCommands(t *testing.T)
 func TestProcessHarnessOverlayProposalUsesFormalAttemptAndProposalCommands(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	cfg := config.Config{ServiceName: "improvement-plane"}
-	base := store.ListProposals()[0]
+	base := seedHarnessOverlayProposalForTest(t, store)
 	proposal, err := storepkg.ReviewProposalForTesting(store, base.ID, review.ProposalReview{
 		Decision:   string(review.ProposalApproved),
 		Rationale:  "Proceed.",
@@ -1357,23 +1519,14 @@ func TestProcessHarnessOverlayProposalUsesFormalAttemptAndProposalCommands(t *te
 	if err != nil {
 		t.Fatalf("ReviewProposal() error = %v", err)
 	}
-	proposal.TargetRef = "prod"
-	proposal.TargetKind = "role"
-	sourceTrace, ok := store.GetTrace(proposal.TraceID)
-	if !ok {
-		t.Fatalf("expected trace %s", proposal.TraceID)
-	}
-	attempt, attemptTrace, err := ensureProposalAttemptForTest(cfg, store, proposal, sourceTrace, legacyWorkItem{
-		ProposalID: proposal.ID,
-		Payload:    map[string]any{"trigger": string(improvement.AttemptTriggerProposalApproved)},
+	attempt, attemptTrace, err := ensureProposalAttemptForTest(cfg, store, proposal, map[string]any{
+		"trigger": string(improvement.AttemptTriggerProposalApproved),
 	})
 	if err != nil {
 		t.Fatalf("ensureProposalAttempt() error = %v", err)
 	}
-	attempt.State = improvement.AttemptStateOverlayPlan
-	attempt.UpdatedAt = time.Now().UTC()
-	if _, err := storepkg.SeedChangeAttemptForTesting(store, attempt); err != nil {
-		t.Fatalf("UpsertChangeAttempt() error = %v", err)
+	if attempt.State != improvement.AttemptStateOverlayPlan {
+		t.Fatalf("expected overlay_plan attempt state, got %s", attempt.State)
 	}
 	submitProposalStatusForTest(t, store, proposal.ID, review.ProposalRepoChangeRunning, "cmd-test-proposal-overlay-running")
 
@@ -1402,7 +1555,7 @@ func TestProcessHarnessOverlayProposalUsesFormalAttemptAndProposalCommands(t *te
 		t.Fatalf("processHarnessOverlayProposal() error = %v", err)
 	}
 
-	attempt, ok = store.GetChangeAttempt(attempt.ID)
+	attempt, ok := store.GetChangeAttempt(attempt.ID)
 	if !ok {
 		t.Fatalf("expected attempt %s", attempt.ID)
 	}
@@ -1545,33 +1698,11 @@ func TestProcessImplementAttemptEffectRequiresWorkspaceMutation(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ReviewProposal() error = %v", err)
 	}
-	sourceTrace, ok := store.GetTrace(approved.TraceID)
-	if !ok {
-		t.Fatalf("expected trace %s", approved.TraceID)
-	}
-	attempt, attemptTrace, err := ensureProposalAttemptForTest(cfg, store, approved, sourceTrace, legacyWorkItem{
-		ProposalID: approved.ID,
-		Payload:    map[string]any{"trigger": string(improvement.AttemptTriggerProposalApproved)},
+	attempt, attemptTrace, err := ensureProposalAttemptForTest(cfg, store, approved, map[string]any{
+		"trigger": string(improvement.AttemptTriggerProposalApproved),
 	})
 	if err != nil {
 		t.Fatalf("ensureProposalAttempt() error = %v", err)
-	}
-	if _, err := storepkg.SeedAttemptWorkspaceForTesting(store, improvement.AttemptWorkspace{
-		ID:               "workspace-1",
-		AttemptID:        attempt.ID,
-		ProposalID:       approved.ID,
-		Repo:             "rsi-agent-platform",
-		BaseRef:          "main",
-		BranchName:       attempt.BranchName,
-		Namespace:        "rsi-platform",
-		JobName:          "workspace-job-1",
-		PodName:          "workspace-pod-1",
-		Status:           improvement.WorkspaceReady,
-		AllowedPathGlobs: []string{"internal/**"},
-		CreatedAt:        time.Now().UTC(),
-		UpdatedAt:        time.Now().UTC(),
-	}); err != nil {
-		t.Fatalf("UpsertAttemptWorkspace() error = %v", err)
 	}
 	submitProposalStatusForTest(t, store, approved.ID, review.ProposalRepoChangeQueued, "cmd-test-proposal-queued-noop-diff")
 	if _, err := store.SubmitCommand(transition.CommandEnvelope{
@@ -1707,13 +1838,8 @@ func TestProcessProposalImplementAttemptEffectQueuesValidation(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ReviewProposal() error = %v", err)
 	}
-	sourceTrace, ok := store.GetTrace(proposal.TraceID)
-	if !ok {
-		t.Fatalf("expected trace %s", proposal.TraceID)
-	}
-	attempt, attemptTrace, err := ensureProposalAttemptForTest(cfg, store, proposal, sourceTrace, legacyWorkItem{
-		ProposalID: proposal.ID,
-		Payload:    map[string]any{"trigger": string(improvement.AttemptTriggerProposalApproved)},
+	attempt, attemptTrace, err := ensureProposalAttemptForTest(cfg, store, proposal, map[string]any{
+		"trigger": string(improvement.AttemptTriggerProposalApproved),
 	})
 	if err != nil {
 		t.Fatalf("ensureProposalAttempt() error = %v", err)
@@ -1742,23 +1868,6 @@ func TestProcessProposalImplementAttemptEffectQueuesValidation(t *testing.T) {
 		},
 	}); err != nil {
 		t.Fatalf("SubmitCommand(problem_line_project_trace) error = %v", err)
-	}
-	if _, err := storepkg.SeedAttemptWorkspaceForTesting(store, improvement.AttemptWorkspace{
-		ID:               "workspace-effect-implement",
-		AttemptID:        attempt.ID,
-		ProposalID:       proposal.ID,
-		Repo:             "rsi-agent-platform",
-		BaseRef:          "main",
-		BranchName:       attempt.BranchName,
-		Namespace:        "rsi-platform",
-		JobName:          "workspace-job-effect-implement",
-		PodName:          "workspace-pod-effect-implement",
-		Status:           improvement.WorkspaceReady,
-		AllowedPathGlobs: []string{"internal/**"},
-		CreatedAt:        time.Now().UTC(),
-		UpdatedAt:        time.Now().UTC(),
-	}); err != nil {
-		t.Fatalf("UpsertAttemptWorkspace() error = %v", err)
 	}
 	submitProposalStatusForTest(t, store, proposal.ID, review.ProposalRepoChangeQueued, "cmd-test-proposal-queued-effect-implement")
 	if _, err := store.SubmitCommand(transition.CommandEnvelope{
@@ -1903,42 +2012,43 @@ func TestBuildEvalRunnerTaskUsesReadOnlyToolBudget(t *testing.T) {
 
 func TestEnsureAttemptWorkspaceReturnsPersistenceError(t *testing.T) {
 	base := storepkg.NewMemoryStore()
-	if _, err := storepkg.SeedAttemptWorkspaceForTesting(base, improvement.AttemptWorkspace{
-		ID:         "workspace-1",
-		AttemptID:  "attempt-1",
-		ProposalID: "proposal-1",
-		Repo:       "rsi-agent-platform",
-		BaseRef:    "main",
-		BranchName: "codex/proposal-1/attempt-01",
-		Namespace:  "rsi-platform",
-		JobName:    "workspace-job-1",
-		Status:     improvement.WorkspaceQueued,
-		CreatedAt:  time.Now().UTC(),
-		UpdatedAt:  time.Now().UTC(),
-	}); err != nil {
-		t.Fatalf("UpsertAttemptWorkspace() error = %v", err)
-	}
 	cfg := config.Config{ServiceName: "improvement-plane"}
-	proposal := review.Proposal{
-		ID:                          "proposal-1",
-		ConversationID:              "conv-1",
-		CaseID:                      "case-1",
-		TraceID:                     "trace-1",
-		OriginTraceID:               "trace-1",
-		CandidateKey:                "candidate-1",
-		TargetLayer:                 "repo_change",
-		TargetKind:                  "repo",
-		TargetRef:                   "rsi-agent-platform",
-		RecommendedInterventionKind: review.InterventionRepoChange,
-		Summary:                     "Fix workspace persistence.",
-		ValidationPlan:              "make test",
+	proposal := base.ListProposals()[0]
+	approved, err := storepkg.ReviewProposalForTesting(base, proposal.ID, review.ProposalReview{
+		Decision:   string(review.ProposalApproved),
+		Rationale:  "Proceed.",
+		ReviewerID: "tester",
+	})
+	if err != nil {
+		t.Fatalf("ReviewProposal() error = %v", err)
 	}
-	attempt := improvement.ChangeAttempt{
-		ID:         "attempt-1",
-		ProposalID: proposal.ID,
-		BranchName: "codex/proposal-1/attempt-01",
+	attempt, _, err := ensureProposalAttemptForTest(cfg, base, approved, map[string]any{
+		"trigger": string(improvement.AttemptTriggerProposalApproved),
+	})
+	if err != nil {
+		t.Fatalf("ensureProposalAttempt() error = %v", err)
 	}
-	workspace, ready, err := ensureAttemptWorkspace(cfg, base, workspaceLaunchStub{}, nil, proposal, attempt, "trace-1")
+	submitProposalStatusForTest(t, base, approved.ID, review.ProposalRepoChangeQueued, "cmd-test-proposal-queued-workspace-persist")
+	if err := submitAttemptCommand(base, attempt, transition.CommandWorkspaceOpenDeferred, cfg.ServiceName, time.Now().UTC(), map[string]any{
+		"workspace_id":        fmt.Sprintf("workspace-%s", attempt.ID),
+		"job_id":              "job-1",
+		"repo":                "rsi-agent-platform",
+		"base_ref":            "main",
+		"branch_name":         attempt.BranchName,
+		"workspace_namespace": "rsi-platform",
+		"workspace_job_name":  "workspace-job-1",
+	}); err != nil {
+		t.Fatalf("submitAttemptCommand(workspace_open_deferred) error = %v", err)
+	}
+	queuedWorkspace, ok := base.GetAttemptWorkspaceByAttempt(attempt.ID)
+	if !ok {
+		t.Fatalf("expected queued workspace for attempt %s", attempt.ID)
+	}
+	if queuedWorkspace.JobName == "" {
+		t.Fatalf("expected queued workspace job name, got %+v", queuedWorkspace)
+	}
+	approved, attempt = loadProposalAttemptForTest(t, base, approved.ID, attempt.ID)
+	workspace, ready, err := ensureAttemptWorkspace(cfg, base, workspaceLaunchStub{}, nil, approved, attempt, approved.TraceID)
 	if err != nil {
 		t.Fatalf("ensureAttemptWorkspace() error = %v", err)
 	}
@@ -1948,7 +2058,7 @@ func TestEnsureAttemptWorkspaceReturnsPersistenceError(t *testing.T) {
 	if workspace.PodName != "workspace-pod-1" || workspace.Status != improvement.WorkspaceReady {
 		t.Fatalf("unexpected workspace %+v", workspace)
 	}
-	stored, ok := base.GetAttemptWorkspaceByAttempt("attempt-1")
+	stored, ok := base.GetAttemptWorkspaceByAttempt(attempt.ID)
 	if !ok {
 		t.Fatal("expected stored workspace")
 	}

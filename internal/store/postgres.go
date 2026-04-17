@@ -214,9 +214,6 @@ func loadStore(r sqlReader) (*MemoryStore, error) {
 	if err := loadSettings(r, store); err != nil {
 		return nil, err
 	}
-	if err := loadOperations(r, store); err != nil {
-		return nil, err
-	}
 	if err := loadCandidates(r, store); err != nil {
 		return nil, err
 	}
@@ -269,12 +266,10 @@ func persistStore(tx *sql.Tx, store *MemoryStore) error {
 		"outcome_record",
 		"action_result",
 		"action_intent",
-		"operation_execution",
 		"cron_lease",
 		"slack_action_record",
 		"tool_call_record",
 		"reasoning_step",
-		"work_item",
 		"feedback_record",
 		"improvement_settings",
 		"proposal",
@@ -385,9 +380,6 @@ func persistStore(tx *sql.Tx, store *MemoryStore) error {
 		return err
 	}
 	if err := persistSettings(tx, store); err != nil {
-		return err
-	}
-	if err := persistOperations(tx, store); err != nil {
 		return err
 	}
 	if err := persistCandidates(tx, store); err != nil {

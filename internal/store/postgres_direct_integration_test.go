@@ -9,65 +9,11 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/action"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	platformdb "github.com/piplabs/rsi-agent-platform/internal/db"
-	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
-
-func TestPostgresUpsertAttemptWorkspacePersistsBlankDiffSummary(t *testing.T) {
-	postgresURL, cleanup := openTempPostgresURL(t)
-	defer cleanup()
-
-	db, err := platformdb.OpenPostgres(postgresURL)
-	if err != nil {
-		t.Fatalf("open postgres: %v", err)
-	}
-	defer db.Close()
-	if _, err := platformdb.ApplyMigrations(db); err != nil {
-		t.Fatalf("apply migrations: %v", err)
-	}
-
-	store, err := NewPostgresStore(config.Config{
-		StoreBackend: "postgres",
-		PostgresURL:  postgresURL,
-	})
-	if err != nil {
-		t.Fatalf("NewPostgresStore() error = %v", err)
-	}
-	defer store.db.Close()
-
-	now := time.Now().UTC()
-	item, err := SeedAttemptWorkspaceForTesting(store, improvement.AttemptWorkspace{
-		ID:               "workspace-1",
-		AttemptID:        "attempt-1",
-		ProposalID:       "proposal-1",
-		Repo:             "rsi-agent-platform",
-		BaseRef:          "main",
-		BranchName:       "codex/proposal-1/attempt-01",
-		Namespace:        "rsi-platform",
-		JobName:          "job-1",
-		Status:           improvement.WorkspaceQueued,
-		AllowedPathGlobs: []string{"internal/**"},
-		DiffSummary:      "",
-		CreatedAt:        now,
-		UpdatedAt:        now,
-	})
-	if err != nil {
-		t.Fatalf("UpsertAttemptWorkspace() error = %v", err)
-	}
-	if item.DiffSummary != "" {
-		t.Fatalf("expected blank diff summary, got %q", item.DiffSummary)
-	}
-	persisted, ok := store.GetAttemptWorkspaceByAttempt("attempt-1")
-	if !ok {
-		t.Fatal("expected workspace to be persisted")
-	}
-	if persisted.DiffSummary != "" {
-		t.Fatalf("expected persisted blank diff summary, got %q", persisted.DiffSummary)
-	}
-}
 
 func TestPostgresMaterializeApprovedProposalPersistsRepoChangeJob(t *testing.T) {
 	postgresURL, cleanup := openTempPostgresURL(t)
@@ -372,24 +318,6 @@ func TestPostgresRetryProposalRepoChangeIsIdempotent(t *testing.T) {
 		t.Fatalf("expected current attempt after approval, got %+v", approved)
 	}
 	now := time.Now().UTC()
-	if _, err := SeedRepoChangeJobForTesting(storeA, improvement.RepoChangeJob{
-		ID:               "job-postgres-direct-retry-1",
-		ProposalID:       proposal.ID,
-		AttemptID:        approved.CurrentAttemptID,
-		ConversationID:   approved.ConversationID,
-		CaseID:           approved.CaseID,
-		OriginTraceID:    firstNonEmpty(approved.OriginTraceID, approved.TraceID),
-		CandidateKey:     approved.CandidateKey,
-		Status:           string(review.ProposalFailedValidation),
-		Repo:             "rsi-agent-platform",
-		BaseRef:          "main",
-		BranchName:       "codex/postgres-direct-retry",
-		AllowedPathGlobs: []string{"internal/**"},
-		CreatedAt:        now,
-		UpdatedAt:        now,
-	}); err != nil {
-		t.Fatalf("upsert repo change job: %v", err)
-	}
 	if _, _, err := AdvanceProposalToFailedValidationForTesting(storeA, proposal.ID, now); err != nil {
 		t.Fatalf("AdvanceProposalToFailedValidationForTesting() error = %v", err)
 	}

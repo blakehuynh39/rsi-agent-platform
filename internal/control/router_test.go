@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
@@ -18,6 +19,124 @@ import (
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
+
+func prepareProposalAttemptForWebhookTest(t *testing.T, store *storepkg.MemoryStore, proposal review.Proposal, mode string) (review.Proposal, improvement.ChangeAttempt) {
+	t.Helper()
+
+	proposal, ok := findProposalByID(store.ListProposals(), proposal.ID)
+	if !ok {
+		t.Fatalf("expected proposal %s", proposal.ID)
+	}
+	if proposal.CurrentAttemptID == "" {
+		t.Fatalf("expected proposal %s to materialize a current attempt", proposal.ID)
+	}
+	attempt, ok := store.GetChangeAttempt(proposal.CurrentAttemptID)
+	if !ok {
+		t.Fatalf("expected attempt %s", proposal.CurrentAttemptID)
+	}
+
+	now := time.Now().UTC()
+	commands := []transition.CommandEnvelope{
+		{
+			MachineKind: transition.MachineProposalLine,
+			AggregateID: proposal.ID,
+			CommandKind: string(transition.CommandProposalMarkRepoChangeQueued),
+			CommandID:   "cmd-webhook-setup-queued:" + proposal.ID,
+			Actor:       "tester",
+			OccurredAt:  now,
+		},
+		{
+			MachineKind: transition.MachineAttempt,
+			AggregateID: attempt.ID,
+			CommandKind: string(transition.CommandWorkspaceReady),
+			CommandID:   "cmd-webhook-setup-workspace-ready:" + attempt.ID,
+			Actor:       "tester",
+			OccurredAt:  now.Add(time.Millisecond),
+			Payload: map[string]any{
+				"workspace_id":        "workspace-" + attempt.ID,
+				"repo":                "rsi-agent-platform",
+				"base_ref":            "main",
+				"branch_name":         attempt.BranchName,
+				"workspace_namespace": "rsi-platform",
+				"workspace_job_name":  "workspace-job-" + attempt.ID,
+			},
+		},
+		{
+			MachineKind: transition.MachineProposalLine,
+			AggregateID: proposal.ID,
+			CommandKind: string(transition.CommandProposalMarkRepoChangeRunning),
+			CommandID:   "cmd-webhook-setup-running:" + proposal.ID,
+			Actor:       "tester",
+			OccurredAt:  now.Add(2 * time.Millisecond),
+		},
+		{
+			MachineKind: transition.MachineAttempt,
+			AggregateID: attempt.ID,
+			CommandKind: string(transition.CommandImplementationCompleted),
+			CommandID:   "cmd-webhook-setup-implemented:" + attempt.ID,
+			Actor:       "tester",
+			OccurredAt:  now.Add(3 * time.Millisecond),
+			Payload: map[string]any{
+				"change_plan":     "Implement the approved remediation.",
+				"validation_plan": "Run the governed validation flow.",
+				"diff_summary":    "formal webhook setup",
+				"changed_files":   []string{"internal/store/commands.go"},
+			},
+		},
+		{
+			MachineKind: transition.MachineProposalLine,
+			AggregateID: proposal.ID,
+			CommandKind: string(transition.CommandProposalMarkValidationPending),
+			CommandID:   "cmd-webhook-setup-validation-pending:" + proposal.ID,
+			Actor:       "tester",
+			OccurredAt:  now.Add(4 * time.Millisecond),
+		},
+	}
+	if mode == "pr_open" {
+		commands = append(commands,
+			transition.CommandEnvelope{
+				MachineKind: transition.MachineAttempt,
+				AggregateID: attempt.ID,
+				CommandKind: string(transition.CommandAttemptPROpened),
+				CommandID:   "cmd-webhook-setup-pr-opened:" + attempt.ID,
+				Actor:       "tester",
+				OccurredAt:  now.Add(5 * time.Millisecond),
+				Payload: map[string]any{
+					"pr_url":   "https://github.com/piplabs/rsi-agent-platform/pull/seed",
+					"head_sha": "seedsha",
+				},
+			},
+			transition.CommandEnvelope{
+				MachineKind: transition.MachineProposalLine,
+				AggregateID: proposal.ID,
+				CommandKind: string(transition.CommandProposalMarkPROpen),
+				CommandID:   "cmd-webhook-setup-proposal-pr-open:" + proposal.ID,
+				Actor:       "tester",
+				OccurredAt:  now.Add(6 * time.Millisecond),
+			},
+		)
+	}
+
+	for _, command := range commands {
+		receipt, err := store.SubmitCommand(command)
+		if err != nil {
+			t.Fatalf("SubmitCommand(%s) error = %v", command.CommandKind, err)
+		}
+		if receipt.DecisionKind == transition.DecisionReject {
+			t.Fatalf("SubmitCommand(%s) rejected: %s", command.CommandKind, receipt.Reason)
+		}
+	}
+
+	proposal, ok = findProposalByID(store.ListProposals(), proposal.ID)
+	if !ok {
+		t.Fatalf("expected proposal %s after setup", proposal.ID)
+	}
+	attempt, ok = store.GetChangeAttempt(attempt.ID)
+	if !ok {
+		t.Fatalf("expected attempt %s after setup", attempt.ID)
+	}
+	return proposal, attempt
+}
 
 func TestGitHubWebhookCreatesLinkedOutcome(t *testing.T) {
 	store := storepkg.NewMemoryStore()
@@ -255,21 +374,7 @@ func TestGitHubWebhookClosedPRQueuesRetryForCurrentAttempt(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("approve proposal: %v", err)
 	}
-	attempt, err := storepkg.SeedChangeAttemptForTesting(store, improvement.ChangeAttempt{
-		ProposalID:     proposal.ID,
-		CandidateKey:   proposal.CandidateKey,
-		AttemptNumber:  1,
-		TargetLayer:    proposal.TargetLayer,
-		TargetKind:     proposal.TargetKind,
-		TargetRef:      proposal.TargetRef,
-		Trigger:        improvement.AttemptTriggerProposalApproved,
-		State:          improvement.AttemptStatePROpen,
-		AttemptTraceID: proposal.TraceID,
-		BranchName:     "codex/" + proposal.ID + "/attempt-01",
-	})
-	if err != nil {
-		t.Fatalf("upsert change attempt: %v", err)
-	}
+	proposal, attempt := prepareProposalAttemptForWebhookTest(t, store, proposal, "pr_open")
 
 	cfg := config.Config{
 		ServiceName:         "control-plane",
@@ -359,21 +464,7 @@ func TestGitHubWebhookOpenedPRRoutesProposalThroughCommand(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("approve proposal: %v", err)
 	}
-	attempt, err := storepkg.SeedChangeAttemptForTesting(store, improvement.ChangeAttempt{
-		ProposalID:     proposal.ID,
-		CandidateKey:   proposal.CandidateKey,
-		AttemptNumber:  1,
-		TargetLayer:    proposal.TargetLayer,
-		TargetKind:     proposal.TargetKind,
-		TargetRef:      proposal.TargetRef,
-		Trigger:        improvement.AttemptTriggerProposalApproved,
-		State:          improvement.AttemptStateValidationRunning,
-		AttemptTraceID: proposal.TraceID,
-		BranchName:     "codex/" + proposal.ID + "/attempt-01",
-	})
-	if err != nil {
-		t.Fatalf("upsert change attempt: %v", err)
-	}
+	proposal, attempt := prepareProposalAttemptForWebhookTest(t, store, proposal, "validation_pending")
 
 	cfg := config.Config{
 		ServiceName:         "control-plane",
@@ -452,21 +543,7 @@ func TestGitHubWebhookMergedPRRoutesProposalThroughCommand(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("approve proposal: %v", err)
 	}
-	attempt, err := storepkg.SeedChangeAttemptForTesting(store, improvement.ChangeAttempt{
-		ProposalID:     proposal.ID,
-		CandidateKey:   proposal.CandidateKey,
-		AttemptNumber:  1,
-		TargetLayer:    proposal.TargetLayer,
-		TargetKind:     proposal.TargetKind,
-		TargetRef:      proposal.TargetRef,
-		Trigger:        improvement.AttemptTriggerProposalApproved,
-		State:          improvement.AttemptStatePROpen,
-		AttemptTraceID: proposal.TraceID,
-		BranchName:     "codex/" + proposal.ID + "/attempt-01",
-	})
-	if err != nil {
-		t.Fatalf("upsert change attempt: %v", err)
-	}
+	proposal, attempt := prepareProposalAttemptForWebhookTest(t, store, proposal, "pr_open")
 
 	cfg := config.Config{
 		ServiceName:         "control-plane",

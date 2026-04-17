@@ -1,7 +1,6 @@
 package store
 
 import (
-	"database/sql"
 	"fmt"
 	"net/url"
 	"os"
@@ -13,7 +12,6 @@ import (
 	platformdb "github.com/piplabs/rsi-agent-platform/internal/db"
 	"github.com/piplabs/rsi-agent-platform/internal/evals"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
-	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
@@ -98,24 +96,6 @@ func TestPostgresRetryProposalRepoChangePersistsSandboxRequeue(t *testing.T) {
 		t.Fatalf("expected current attempt after approval, got %+v", approved)
 	}
 	now := time.Now().UTC()
-	if _, err := SeedRepoChangeJobForTesting(store, improvement.RepoChangeJob{
-		ID:               "job-postgres-retry-1",
-		ProposalID:       proposal.ID,
-		AttemptID:        approved.CurrentAttemptID,
-		ConversationID:   approved.ConversationID,
-		CaseID:           approved.CaseID,
-		OriginTraceID:    firstNonEmpty(approved.OriginTraceID, approved.TraceID),
-		CandidateKey:     approved.CandidateKey,
-		Status:           string(review.ProposalFailedValidation),
-		Repo:             "rsi-agent-platform",
-		BaseRef:          "main",
-		BranchName:       "codex/postgres-retry",
-		AllowedPathGlobs: []string{"internal/**"},
-		CreatedAt:        now,
-		UpdatedAt:        now,
-	}); err != nil {
-		t.Fatalf("upsert repo change job: %v", err)
-	}
 	if _, _, err := AdvanceProposalToFailedValidationForTesting(store, proposal.ID, now); err != nil {
 		t.Fatalf("AdvanceProposalToFailedValidationForTesting() error = %v", err)
 	}
@@ -210,23 +190,11 @@ func TestPostgresRunProposalPromoterNormalizesBlankTargetFields(t *testing.T) {
 		t.Fatal("expected promoted proposal")
 	}
 
-	err = store.withLoadedStoreTx(func(tx *sql.Tx, loaded *MemoryStore) error {
-		for key, candidate := range loaded.candidates {
-			candidate.TargetLayer = ""
-			candidate.TargetKind = ""
-			candidate.TargetRef = ""
-			loaded.candidates[key] = candidate
-		}
-		for key, current := range loaded.proposals {
-			current.TargetLayer = ""
-			current.TargetKind = ""
-			current.TargetRef = ""
-			loaded.proposals[key] = current
-		}
-		return replaceProposalPromoterScope(tx, loaded)
-	})
-	if err != nil {
-		t.Fatalf("replaceProposalPromoterScope() error = %v", err)
+	if _, err := store.db.Exec(`update candidate set target_layer = '', target_kind = '', target_ref = ''`); err != nil {
+		t.Fatalf("reset candidate target metadata: %v", err)
+	}
+	if _, err := store.db.Exec(`update proposal set target_layer = '', target_kind = '', target_ref = ''`); err != nil {
+		t.Fatalf("reset proposal target metadata: %v", err)
 	}
 
 	for _, candidate := range store.ListCandidates() {

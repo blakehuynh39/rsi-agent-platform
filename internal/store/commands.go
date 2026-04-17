@@ -17,7 +17,6 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
-	"github.com/piplabs/rsi-agent-platform/internal/operation"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
@@ -1285,22 +1284,6 @@ func (s *MemoryStore) supersedeNonCurrentActiveAttemptsLocked(proposalID string,
 	if len(staleAttemptIDs) == 0 {
 		return
 	}
-
-	for opID, item := range s.operations {
-		if _, ok := staleAttemptIDs[strings.TrimSpace(item.AttemptID)]; !ok {
-			continue
-		}
-		if item.Status != operation.StatusQueued && item.Status != operation.StatusRunning {
-			continue
-		}
-		item.Status = operation.StatusSuperseded
-		item.LastError = firstNonEmpty(item.LastError, "operation superseded by newer proposal attempt")
-		item.Holder = ""
-		item.UpdatedAt = now
-		item.CompletedAt = &now
-		s.operations[opID] = item
-	}
-
 }
 
 func proposalAttemptTriggerFromCommand(command transition.CommandEnvelope) improvement.ChangeAttemptTrigger {
@@ -1345,7 +1328,7 @@ func (s *MemoryStore) applyAttemptCommandLocked(command transition.CommandEnvelo
 	snapshot := transition.AttemptSnapshot{
 		ProposalStatus:       transitionProposalStatusOr(&proposal),
 		AttemptState:         transitionAttemptStateOr(&attempt),
-		CurrentOperationKind: attemptCurrentOperationKindForState(s.operations, attempt.ID, attempt.State),
+		CurrentOperationKind: "",
 	}
 	decision := transition.ReduceAttempt(snapshot, command)
 	if decision.DecisionKind == transition.DecisionReject {
@@ -1943,7 +1926,7 @@ func persistCommandMutation(tx *sql.Tx, store *MemoryStore, result commandApplyR
 				}
 			}
 		}
-		return persistProposalScopedOperations(tx, store, proposal.ID, result.attemptID)
+		return nil
 	case transition.MachineAttempt:
 		attempt, ok := store.changeAttempts[result.attemptID]
 		if !ok {
@@ -1984,9 +1967,6 @@ func persistCommandMutation(tx *sql.Tx, store *MemoryStore, result commandApplyR
 				return err
 			}
 		}
-		if err := persistProposalScopedOperations(tx, store, attempt.ProposalID, attempt.ID); err != nil {
-			return err
-		}
 		if strings.TrimSpace(result.prAttemptID) != "" {
 			if prAttempt, ok := store.prAttempts[result.prAttemptID]; ok {
 				if err := replacePRAttemptScope(tx, prAttempt); err != nil {
@@ -2020,19 +2000,6 @@ func persistCommandMutation(tx *sql.Tx, store *MemoryStore, result commandApplyR
 	default:
 		return fmt.Errorf("unsupported machine kind %s for persistence", result.receipt.MachineKind)
 	}
-}
-
-func persistProposalScopedOperations(tx *sql.Tx, store *MemoryStore, proposalID string, attemptID string) error {
-	temp := newSubsetStore()
-	for _, item := range store.operations {
-		if item.ProposalID == proposalID || (attemptID != "" && item.AttemptID == attemptID) {
-			temp.operations[item.ID] = item
-		}
-	}
-	if len(temp.operations) == 0 {
-		return nil
-	}
-	return persistOperations(tx, temp)
 }
 
 func buildCommandReceipt(command transition.CommandEnvelope, decision transition.TransitionDecision, updatedAt time.Time, version int64, resultRef string) transition.CommandReceipt {
@@ -2230,71 +2197,6 @@ func proposalCommandKindForDecision(decision string) (transition.ProposalLineCom
 		return transition.CommandProposalMarkMerged, nil
 	default:
 		return "", fmt.Errorf("unsupported proposal review decision %q", decision)
-	}
-}
-
-func attemptCurrentOperationKind(ops map[string]operation.Execution, attemptID string) string {
-	var (
-		current   string
-		updatedAt time.Time
-	)
-	for _, item := range ops {
-		if item.AttemptID != attemptID {
-			continue
-		}
-		if item.Status != operation.StatusQueued && item.Status != operation.StatusRunning {
-			continue
-		}
-		if current == "" || item.UpdatedAt.After(updatedAt) {
-			current = strings.TrimSpace(item.OperationKind)
-			updatedAt = item.UpdatedAt
-		}
-	}
-	return current
-}
-
-func attemptCurrentOperationKindForState(ops map[string]operation.Execution, attemptID string, state improvement.ChangeAttemptState) string {
-	var (
-		current   string
-		updatedAt time.Time
-	)
-	for _, item := range ops {
-		if item.AttemptID != attemptID {
-			continue
-		}
-		if item.Status != operation.StatusQueued && item.Status != operation.StatusRunning {
-			continue
-		}
-		if !attemptOperationMatchesState(strings.TrimSpace(item.OperationKind), state) {
-			continue
-		}
-		if current == "" || item.UpdatedAt.After(updatedAt) {
-			current = strings.TrimSpace(item.OperationKind)
-			updatedAt = item.UpdatedAt
-		}
-	}
-	return current
-}
-
-func attemptOperationMatchesState(kind string, state improvement.ChangeAttemptState) bool {
-	switch state {
-	case improvement.AttemptStatePatchGenerated, improvement.AttemptStateOverlayGenerated:
-		return kind == "implement_attempt" || kind == "workspace_validate"
-	case improvement.AttemptStateValidationRunning, improvement.AttemptStateOverlayValidating:
-		return kind == "workspace_validate" || kind == "pr_open"
-	case improvement.AttemptStatePROpen, improvement.AttemptStateCIObserving:
-		return kind == "pr_open"
-	case improvement.AttemptStateSandboxFailed,
-		improvement.AttemptStateCIFailed,
-		improvement.AttemptStateClosedUnmerged,
-		improvement.AttemptStateMerged,
-		improvement.AttemptStateNeedsReview,
-		improvement.AttemptStateAbandoned,
-		improvement.AttemptStateSuperseded,
-		improvement.AttemptStateOverlayActive:
-		return false
-	default:
-		return kind == "line_activate" || kind == "attempt_plan" || kind == "workspace_open" || kind == "implement_attempt" || kind == "workspace_validate" || kind == "pr_open"
 	}
 }
 

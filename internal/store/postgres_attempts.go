@@ -2,11 +2,9 @@ package store
 
 import (
 	"database/sql"
-	"fmt"
 	"strings"
 	"time"
 
-	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
@@ -31,68 +29,6 @@ func (p *PostgresStore) GetChangeAttempt(attemptID string) (improvement.ChangeAt
 		return improvement.ChangeAttempt{}, false
 	}
 	return normalizeChangeAttempt(item), true
-}
-
-func (p *PostgresStore) upsertChangeAttemptDirect(item improvement.ChangeAttempt) (improvement.ChangeAttempt, error) {
-	item = normalizeChangeAttempt(item)
-	now := time.Now().UTC()
-	if item.ID == "" {
-		item.ID = nextID("attempt", 0)
-	}
-	if item.CreatedAt.IsZero() {
-		item.CreatedAt = now
-	}
-	if item.UpdatedAt.IsZero() {
-		item.UpdatedAt = item.CreatedAt
-	}
-	err := p.withTx(func(tx *sql.Tx) error {
-		temp := newSubsetStore()
-		temp.changeAttempts[item.ID] = item
-		if err := persistChangeAttempts(tx, temp); err != nil {
-			return err
-		}
-		if strings.TrimSpace(item.ProposalID) != "" {
-			proposal, err := selectProposalTx(tx, item.ProposalID, true)
-			if err != nil {
-				return err
-			}
-			budget := defaultProposalRetryBudget - item.AttemptNumber
-			if budget < 0 {
-				budget = 0
-			}
-			proposal.CurrentAttemptID = item.ID
-			proposal.AttemptCount = maxInt(proposal.AttemptCount, item.AttemptNumber)
-			proposal.AutoRetryBudgetRemaining = budget
-			proposal.LastFailureClass = item.FailureClass
-			proposal.NextRetryAction = item.RetryDecision
-			if err := updateProposalOperationalStateTx(tx, proposal); err != nil {
-				return err
-			}
-		}
-		if strings.TrimSpace(item.CandidateKey) != "" {
-			budget := defaultProposalRetryBudget - item.AttemptNumber
-			if budget < 0 {
-				budget = 0
-			}
-			if _, err := tx.Exec(`update improvement_candidate set line_status = $2, retryable_failure_class = $3, last_attempt_id = $4, attempt_count = greatest(coalesce(attempt_count, 0), $5), auto_retry_budget_remaining = $6, current_target_layer = $7, updated_at = $8 where candidate_key = $1`,
-				item.CandidateKey,
-				string(improvement.LineActive),
-				firstNonEmpty(item.FailureClass),
-				firstNonEmpty(item.ID),
-				item.AttemptNumber,
-				budget,
-				firstNonEmpty(string(item.TargetLayer), string(harness.TargetLayerRepoChange)),
-				item.UpdatedAt,
-			); err != nil {
-				return err
-			}
-		}
-		return nil
-	})
-	if err != nil {
-		return improvement.ChangeAttempt{}, err
-	}
-	return item, nil
 }
 
 func (p *PostgresStore) StopProposalLine(proposalID string, requestedBy string, rationale string) (review.Proposal, error) {
@@ -163,103 +99,6 @@ func (p *PostgresStore) StopProposalLine(proposalID string, requestedBy string, 
 		return review.Proposal{}, err
 	}
 	return proposal, nil
-}
-
-func (p *PostgresStore) createDerivedTraceDirect(req DerivedTraceRequest) (events.Trace, Workflow, error) {
-	var (
-		trace    events.Trace
-		workflow Workflow
-	)
-	err := p.withTx(func(tx *sql.Tx) error {
-		now := req.CreatedAt.UTC()
-		if now.IsZero() {
-			now = time.Now().UTC()
-		}
-		var sourceIngestionID, sourceConversationID, sourceCaseID, sourceTriggerEventID, sourceThreadKey, sourceWorkflowKind sql.NullString
-		if strings.TrimSpace(req.SourceTraceID) != "" {
-			if err := tx.QueryRow(`select ingestion_id, conversation_id, case_id, trigger_event_id, thread_key, workflow_kind from trace_summary where trace_id = $1`, req.SourceTraceID).
-				Scan(&sourceIngestionID, &sourceConversationID, &sourceCaseID, &sourceTriggerEventID, &sourceThreadKey, &sourceWorkflowKind); err != nil && err != sql.ErrNoRows {
-				return err
-			}
-		}
-		traceID := nextID("trace", 0)
-		workflowID := nextID("wf", 0)
-		workflow = Workflow{
-			ID:             workflowID,
-			IngestionID:    firstNonEmpty(req.IngestionID, sourceIngestionID.String, "derived:"+traceID),
-			TraceID:        traceID,
-			ConversationID: firstNonEmpty(req.ConversationID, sourceConversationID.String),
-			CaseID:         firstNonEmpty(req.CaseID, sourceCaseID.String),
-			ThreadKey:      firstNonEmpty(req.ThreadKey, sourceThreadKey.String, "proposal:"+req.ProposalID),
-			Kind:           firstNonEmpty(req.WorkflowKind, sourceWorkflowKind.String, "proposal_attempt"),
-			Intent:         firstNonEmpty(req.WorkflowKind, sourceWorkflowKind.String, "proposal_attempt"),
-			AssignedBot:    "proposal",
-			ApprovalMode:   "human_review",
-			ResponseMode:   "analysis",
-			Status:         "running",
-			CreatedAt:      now,
-			UpdatedAt:      now,
-		}
-		trace = events.Trace{
-			Summary: events.TraceSummary{
-				TraceID:           traceID,
-				IngestionID:       workflow.IngestionID,
-				WorkflowID:        workflowID,
-				ConversationID:    workflow.ConversationID,
-				CaseID:            workflow.CaseID,
-				TriggerEventID:    firstNonEmpty(req.TriggerEventID, sourceTriggerEventID.String),
-				SupersedesTraceID: strings.TrimSpace(req.SourceTraceID),
-				ThreadKey:         workflow.ThreadKey,
-				WorkflowKind:      workflow.Kind,
-				Status:            events.StatusQueued,
-				StartedAt:         now,
-				EndedAt:           now,
-			},
-			Events: []events.TraceEvent{
-				{
-					TraceID:        traceID,
-					IngestionID:    workflow.IngestionID,
-					WorkflowID:     workflowID,
-					ConversationID: workflow.ConversationID,
-					CaseID:         workflow.CaseID,
-					TriggerEventID: firstNonEmpty(req.TriggerEventID, sourceTriggerEventID.String),
-					Plane:          "improvement",
-					Service:        "improvement-plane",
-					Actor:          "attempt-supervisor",
-					EventType:      "change_attempt.queued",
-					Status:         events.StatusQueued,
-					StartedAt:      now,
-					Description:    firstNonEmpty(req.Description, fmt.Sprintf("Queued remediation attempt %s for proposal %s.", req.AttemptID, req.ProposalID)),
-				},
-			},
-			Reasoning: []events.ReasoningStep{
-				{
-					ID:             nextID("reason", 0),
-					TraceID:        traceID,
-					WorkflowID:     workflowID,
-					ConversationID: workflow.ConversationID,
-					CaseID:         workflow.CaseID,
-					StepType:       "attempt_bootstrap",
-					Summary:        firstNonEmpty(req.Description, fmt.Sprintf("Start remediation attempt %s under proposal %s.", req.AttemptID, req.ProposalID)),
-					Confidence:     0.9,
-					Decision:       req.AttemptID,
-					CreatedAt:      now,
-				},
-			},
-		}
-		recomputeTraceSummary(&trace)
-		temp := newSubsetStore()
-		temp.upsertWorkflowLocked(workflow)
-		temp.traces[traceID] = trace
-		if err := persistWorkflows(tx, temp); err != nil {
-			return err
-		}
-		return persistTraces(tx, temp)
-	})
-	if err != nil {
-		return events.Trace{}, Workflow{}, err
-	}
-	return trace, workflow, nil
 }
 
 func selectChangeAttemptTx(tx *sql.Tx, attemptID string, forUpdate bool) (improvement.ChangeAttempt, error) {

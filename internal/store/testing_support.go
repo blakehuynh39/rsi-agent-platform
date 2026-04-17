@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
@@ -51,58 +50,6 @@ func ReviewProposalForTesting(store interface {
 	return review.Proposal{}, errors.New("proposal not found")
 }
 
-func SeedChangeAttemptForTesting(target any, item improvement.ChangeAttempt) (improvement.ChangeAttempt, error) {
-	switch store := target.(type) {
-	case *MemoryStore:
-		store.mu.Lock()
-		defer store.mu.Unlock()
-		return store.upsertChangeAttemptLocked(item)
-	case *PostgresStore:
-		return store.upsertChangeAttemptDirect(item)
-	default:
-		return improvement.ChangeAttempt{}, fmt.Errorf("unsupported test store %T", target)
-	}
-}
-
-func CreateDerivedTraceForTesting(target any, req DerivedTraceRequest) (events.Trace, Workflow, error) {
-	switch store := target.(type) {
-	case *MemoryStore:
-		store.mu.Lock()
-		defer store.mu.Unlock()
-		return store.createDerivedTraceLocked(req)
-	case *PostgresStore:
-		return store.createDerivedTraceDirect(req)
-	default:
-		return events.Trace{}, Workflow{}, fmt.Errorf("unsupported test store %T", target)
-	}
-}
-
-func SeedAttemptWorkspaceForTesting(target any, item improvement.AttemptWorkspace) (improvement.AttemptWorkspace, error) {
-	switch store := target.(type) {
-	case *MemoryStore:
-		store.mu.Lock()
-		defer store.mu.Unlock()
-		return store.upsertAttemptWorkspaceLocked(item)
-	case *PostgresStore:
-		return store.upsertAttemptWorkspaceDirect(item)
-	default:
-		return improvement.AttemptWorkspace{}, fmt.Errorf("unsupported test store %T", target)
-	}
-}
-
-func SeedRepoChangeJobForTesting(target any, job improvement.RepoChangeJob) (improvement.RepoChangeJob, error) {
-	switch store := target.(type) {
-	case *MemoryStore:
-		store.mu.Lock()
-		defer store.mu.Unlock()
-		return store.upsertRepoChangeJobLocked(job)
-	case *PostgresStore:
-		return store.upsertRepoChangeJobDirect(job)
-	default:
-		return improvement.RepoChangeJob{}, fmt.Errorf("unsupported test store %T", target)
-	}
-}
-
 func AdvanceProposalToFailedValidationForTesting(target interface {
 	SubmitCommand(transition.CommandEnvelope) (transition.CommandReceipt, error)
 	ListProposals() []review.Proposal
@@ -127,26 +74,19 @@ func AdvanceProposalToFailedValidationForTesting(target interface {
 		return review.Proposal{}, improvement.ChangeAttempt{}, errors.New("proposal not found")
 	}
 
-	commands := []transition.ProposalLineCommandKind{
-		transition.CommandProposalMarkRepoChangeQueued,
-		transition.CommandProposalMarkRepoChangeRunning,
-		transition.CommandProposalMarkValidationPending,
+	receipt, err := target.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineProposalLine,
+		AggregateID: proposalID,
+		CommandKind: string(transition.CommandProposalMarkRepoChangeQueued),
+		CommandID:   fmt.Sprintf("cmd-proposal-status:%s:%02d", proposalID, 1),
+		Actor:       "tester",
+		OccurredAt:  now,
+	})
+	if err != nil {
+		return review.Proposal{}, improvement.ChangeAttempt{}, err
 	}
-	for idx, kind := range commands {
-		receipt, err := target.SubmitCommand(transition.CommandEnvelope{
-			MachineKind: transition.MachineProposalLine,
-			AggregateID: proposalID,
-			CommandKind: string(kind),
-			CommandID:   fmt.Sprintf("cmd-proposal-status:%s:%02d", proposalID, idx+1),
-			Actor:       "tester",
-			OccurredAt:  now.Add(time.Duration(idx) * time.Millisecond),
-		})
-		if err != nil {
-			return review.Proposal{}, improvement.ChangeAttempt{}, err
-		}
-		if receipt.DecisionKind == transition.DecisionReject {
-			return review.Proposal{}, improvement.ChangeAttempt{}, fmt.Errorf("command %s rejected: %s", kind, receipt.Reason)
-		}
+	if receipt.DecisionKind == transition.DecisionReject {
+		return review.Proposal{}, improvement.ChangeAttempt{}, fmt.Errorf("command %s rejected: %s", transition.CommandProposalMarkRepoChangeQueued, receipt.Reason)
 	}
 
 	proposal, ok = findProposal()
@@ -161,23 +101,87 @@ func AdvanceProposalToFailedValidationForTesting(target interface {
 	if !ok {
 		return review.Proposal{}, improvement.ChangeAttempt{}, fmt.Errorf("change attempt %s not found", attemptID)
 	}
-	attempt.State = improvement.AttemptStateSandboxFailed
-	attempt.FailureClass = "sandbox_failure"
-	attempt.FailureSummary = "validation failed"
-	attempt.RetryDecision = "retry"
-	attempt.UpdatedAt = now.Add(3 * time.Millisecond)
-	recordedAttempt, err := SeedChangeAttemptForTesting(target, attempt)
-	if err != nil {
-		return review.Proposal{}, improvement.ChangeAttempt{}, err
+	for idx, command := range []transition.CommandEnvelope{
+		{
+			MachineKind: transition.MachineAttempt,
+			AggregateID: attempt.ID,
+			CommandKind: string(transition.CommandWorkspaceReady),
+			CommandID:   fmt.Sprintf("cmd-attempt-status:%s:%02d", attempt.ID, 1),
+			Actor:       "tester",
+			OccurredAt:  now.Add(3 * time.Millisecond),
+			Payload: map[string]any{
+				"workspace_id":        "workspace-" + attempt.ID,
+				"repo":                "rsi-agent-platform",
+				"base_ref":            "main",
+				"branch_name":         attempt.BranchName,
+				"workspace_namespace": "rsi-platform",
+				"workspace_job_name":  "workspace-job-" + attempt.ID,
+			},
+		},
+		{
+			MachineKind: transition.MachineProposalLine,
+			AggregateID: proposalID,
+			CommandKind: string(transition.CommandProposalMarkRepoChangeRunning),
+			CommandID:   fmt.Sprintf("cmd-proposal-status:%s:%02d", proposalID, 2),
+			Actor:       "tester",
+			OccurredAt:  now.Add(4 * time.Millisecond),
+		},
+		{
+			MachineKind: transition.MachineAttempt,
+			AggregateID: attempt.ID,
+			CommandKind: string(transition.CommandImplementationCompleted),
+			CommandID:   fmt.Sprintf("cmd-attempt-status:%s:%02d", attempt.ID, 2),
+			Actor:       "tester",
+			OccurredAt:  now.Add(5 * time.Millisecond),
+			Payload: map[string]any{
+				"change_plan":     "Implement the approved remediation.",
+				"validation_plan": "Run governed validation.",
+				"diff_summary":    "formal failed-validation setup",
+				"changed_files":   []string{"internal/store/commands.go"},
+			},
+		},
+		{
+			MachineKind: transition.MachineProposalLine,
+			AggregateID: proposalID,
+			CommandKind: string(transition.CommandProposalMarkValidationPending),
+			CommandID:   fmt.Sprintf("cmd-proposal-status:%s:%02d", proposalID, 3),
+			Actor:       "tester",
+			OccurredAt:  now.Add(6 * time.Millisecond),
+		},
+		{
+			MachineKind: transition.MachineAttempt,
+			AggregateID: attempt.ID,
+			CommandKind: string(transition.CommandValidationFailedRetryable),
+			CommandID:   fmt.Sprintf("cmd-attempt-status:%s:%02d", attempt.ID, 3),
+			Actor:       "tester",
+			OccurredAt:  now.Add(7 * time.Millisecond),
+			Payload: map[string]any{
+				"failure_class":   "sandbox_failure",
+				"failure_summary": "validation failed",
+				"retry_decision":  "retry",
+			},
+		},
+	} {
+		receipt, err := target.SubmitCommand(command)
+		if err != nil {
+			return review.Proposal{}, improvement.ChangeAttempt{}, err
+		}
+		if receipt.DecisionKind == transition.DecisionReject {
+			return review.Proposal{}, improvement.ChangeAttempt{}, fmt.Errorf("command %s rejected at step %d: %s", command.CommandKind, idx+1, receipt.Reason)
+		}
+	}
+	recordedAttempt, ok := target.GetChangeAttempt(attempt.ID)
+	if !ok {
+		return review.Proposal{}, improvement.ChangeAttempt{}, fmt.Errorf("change attempt %s not found after validation failure", attempt.ID)
 	}
 
-	receipt, err := target.SubmitCommand(transition.CommandEnvelope{
+	receipt, err = target.SubmitCommand(transition.CommandEnvelope{
 		MachineKind: transition.MachineProposalLine,
 		AggregateID: proposalID,
 		CommandKind: string(transition.CommandProposalMarkFailedValidation),
 		CommandID:   fmt.Sprintf("cmd-proposal-status:%s:04", proposalID),
 		Actor:       "tester",
-		OccurredAt:  now.Add(4 * time.Millisecond),
+		OccurredAt:  now.Add(8 * time.Millisecond),
 		Payload: map[string]any{
 			"failure_class":   recordedAttempt.FailureClass,
 			"failure_summary": recordedAttempt.FailureSummary,

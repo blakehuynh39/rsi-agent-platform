@@ -18,7 +18,6 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
-	"github.com/piplabs/rsi-agent-platform/internal/operation"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
 	"github.com/piplabs/rsi-agent-platform/internal/registry"
@@ -120,7 +119,6 @@ type MemoryStore struct {
 	domainEvents           []transition.DomainEvent
 	effectExecutions       map[string]transition.EffectExecution
 	commandReceipts        map[string]transition.CommandReceipt
-	operations             map[string]operation.Execution
 	outcomes               map[string]outcome.Record
 	knowledgeEntries       map[string]knowledge.Entry
 	knowledgeEvidence      map[string][]knowledge.EvidenceLink
