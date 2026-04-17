@@ -68,6 +68,7 @@ type workflowAttemptSummary struct {
 	CaseID            string         `json:"case_id,omitempty"`
 	WorkflowKind      string         `json:"workflow_kind"`
 	Status            string         `json:"status"`
+	LastVerdict       string         `json:"last_verdict,omitempty"`
 	TraceStatus       string         `json:"trace_status,omitempty"`
 	AttemptNumber     int            `json:"attempt_number"`
 	ParentWorkflowID  string         `json:"parent_workflow_id,omitempty"`
@@ -723,6 +724,7 @@ func workflowAttemptSummaryView(workflow storepkg.Workflow, traces []events.Trac
 		CaseID:            workflow.CaseID,
 		WorkflowKind:      workflow.Kind,
 		Status:            workflow.Status,
+		LastVerdict:       workflow.LastVerdict,
 		AttemptNumber:     workflow.AttemptNumber,
 		ParentWorkflowID:  workflow.ParentWorkflowID,
 		FailureClass:      workflow.FailureClass,

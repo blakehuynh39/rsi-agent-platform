@@ -287,6 +287,13 @@ func TestWorkflowPartialCompletionPostsStandardizedReplyAndPersistsVerdict(t *te
 	}
 
 	replyAction := firstQueuedActionEffectByKind(t, store, "control", action.KindSlackPost)
+	replyIntent, ok := store.GetActionIntent(replyAction.AggregateID)
+	if !ok {
+		t.Fatalf("expected reply action intent %s", replyAction.AggregateID)
+	}
+	if got := stringFromMap(replyIntent.RequestPayload, "workflow_reply_command"); got != string(transition.CommandReplyPostedPartial) {
+		t.Fatalf("expected partial reply-posted command in action payload, got %q", got)
+	}
 	if err := processControlActionEffect(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), replyAction); err != nil {
 		t.Fatalf("processControlActionEffect(reply) error = %v", err)
 	}
@@ -297,6 +304,9 @@ func TestWorkflowPartialCompletionPostsStandardizedReplyAndPersistsVerdict(t *te
 	}
 	if workflow.Status != "completed" {
 		t.Fatalf("expected completed workflow, got %s", workflow.Status)
+	}
+	if workflow.LastVerdict != "partial" {
+		t.Fatalf("expected partial workflow verdict, got %q", workflow.LastVerdict)
 	}
 	if workflow.RunnerDiagnostics["completion_verdict"] != "partial" {
 		t.Fatalf("expected partial completion verdict in runner diagnostics, got %#v", workflow.RunnerDiagnostics)
@@ -431,6 +441,13 @@ func TestWorkflowTaskTimeoutPartialCompletionPostsTimeoutNoticeAndPersistsVerdic
 	}
 
 	replyAction := firstQueuedActionEffectByKind(t, store, "control", action.KindSlackPost)
+	replyIntent, ok := store.GetActionIntent(replyAction.AggregateID)
+	if !ok {
+		t.Fatalf("expected reply action intent %s", replyAction.AggregateID)
+	}
+	if got := stringFromMap(replyIntent.RequestPayload, "workflow_reply_command"); got != string(transition.CommandReplyPostedPartial) {
+		t.Fatalf("expected partial reply-posted command in action payload, got %q", got)
+	}
 	if err := processControlActionEffect(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), replyAction); err != nil {
 		t.Fatalf("processControlActionEffect(reply) error = %v", err)
 	}
@@ -441,6 +458,9 @@ func TestWorkflowTaskTimeoutPartialCompletionPostsTimeoutNoticeAndPersistsVerdic
 	}
 	if workflow.Status != "completed" {
 		t.Fatalf("expected completed workflow, got %s", workflow.Status)
+	}
+	if workflow.LastVerdict != "partial" {
+		t.Fatalf("expected partial workflow verdict, got %q", workflow.LastVerdict)
 	}
 	if workflow.RunnerDiagnostics["completion_verdict"] != "partial" {
 		t.Fatalf("expected partial completion verdict in runner diagnostics, got %#v", workflow.RunnerDiagnostics)

@@ -2745,6 +2745,14 @@ func workflowStatusFromState(state transition.WorkflowStateKind) string {
 	return strings.TrimSpace(string(state))
 }
 
+func workflowLastVerdictForCommand(command transition.WorkflowCommandKind) *string {
+	verdict := strings.TrimSpace(transition.WorkflowCommandLastVerdict(command))
+	if verdict == "" {
+		return nil
+	}
+	return &verdict
+}
+
 func workflowLastErrorForCommand(command transition.CommandEnvelope) string {
 	switch transition.WorkflowCommandKind(command.CommandKind) {
 	case transition.CommandWorkflowBlocked, transition.CommandWorkflowFailed:
@@ -3063,7 +3071,7 @@ func (s *MemoryStore) projectWorkflowTraceLocked(workflow Workflow, command tran
 	}
 	commandKind := transition.WorkflowCommandKind(command.CommandKind)
 	update := TraceUpdate{
-		LastVerdict: optionalStringFromCommand(command, "last_verdict"),
+		LastVerdict: workflowLastVerdictForCommand(commandKind),
 	}
 	switch commandKind {
 	case transition.CommandWorkflowStarted:
@@ -3100,7 +3108,7 @@ func (s *MemoryStore) projectWorkflowTraceLocked(workflow Workflow, command tran
 		update.Events = append(update.Events, traceEventsFromCommand(command, "trace_events")...)
 		update.Artifacts = append(update.Artifacts, traceArtifactsFromCommand(command, "trace_artifacts")...)
 		update.Reasoning = append(update.Reasoning, reasoningStepsFromCommand(command, "reasoning_steps")...)
-	case transition.CommandRunnerCompleted:
+	case transition.CommandRunnerCompleted, transition.CommandRunnerCompletedPartial:
 		update.Events = append(update.Events, traceEventsFromCommand(command, "trace_events")...)
 		update.Artifacts = append(update.Artifacts, traceArtifactsFromCommand(command, "trace_artifacts")...)
 		update.Reasoning = append(update.Reasoning, reasoningStepsFromCommand(command, "reasoning_steps")...)
@@ -3152,13 +3160,17 @@ func (s *MemoryStore) projectWorkflowTraceLocked(workflow Workflow, command tran
 		update.Events = append(update.Events, traceEventsFromCommand(command, "trace_events")...)
 		update.Artifacts = append(update.Artifacts, traceArtifactsFromCommand(command, "trace_artifacts")...)
 		update.Reasoning = append(update.Reasoning, reasoningStepsFromCommand(command, "reasoning_steps")...)
-	case transition.CommandReplyPosted, transition.CommandRunnerCompletedNoReply:
+	case transition.CommandReplyPosted, transition.CommandReplyPostedPartial, transition.CommandRunnerCompletedNoReply, transition.CommandRunnerCompletedPartialNoReply:
 		if traceHasEventType(trace, "workflow.completed") {
 			if trace.Summary.Status != events.StatusCompleted {
 				_, err := s.applyTraceUpdateLocked(traceID, TraceUpdate{Status: ptrStatus(events.StatusCompleted)})
 				return err
 			}
 			return nil
+		}
+		description := "Workflow completed."
+		if transition.WorkflowCommandLastVerdict(commandKind) == "partial" {
+			description = "Workflow completed with a partial answer."
 		}
 		update.Status = ptrStatus(events.StatusCompleted)
 		update.Events = []events.TraceEvent{{
@@ -3171,7 +3183,7 @@ func (s *MemoryStore) projectWorkflowTraceLocked(workflow Workflow, command tran
 			EventType:   "workflow.completed",
 			Status:      events.StatusCompleted,
 			StartedAt:   command.OccurredAt,
-			Description: "Workflow completed.",
+			Description: description,
 		}}
 		update.Artifacts = append(update.Artifacts, traceArtifactsFromCommand(command, "trace_artifacts")...)
 		update.Events = append(traceEventsFromCommand(command, "trace_events"), update.Events...)

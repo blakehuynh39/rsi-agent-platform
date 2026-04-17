@@ -687,19 +687,16 @@ func TestMemoryStoreSubmitCommandWorkflowCompletesThroughReducerStates(t *testin
 		{
 			MachineKind: transition.MachineWorkflow,
 			AggregateID: workflow.ID,
-			CommandKind: string(transition.CommandRunnerCompleted),
+			CommandKind: string(transition.CommandRunnerCompletedPartial),
 			CommandID:   "cmd-workflow-runner-completed",
 			OccurredAt:  now.Add(2 * time.Second),
 		},
 		{
 			MachineKind: transition.MachineWorkflow,
 			AggregateID: workflow.ID,
-			CommandKind: string(transition.CommandReplyPosted),
+			CommandKind: string(transition.CommandReplyPostedPartial),
 			CommandID:   "cmd-workflow-reply-posted",
 			OccurredAt:  now.Add(3 * time.Second),
-			Payload: map[string]any{
-				"last_verdict": "partial",
-			},
 		},
 	}
 	for _, command := range commands {
@@ -714,6 +711,9 @@ func TestMemoryStoreSubmitCommandWorkflowCompletesThroughReducerStates(t *testin
 	}
 	if updated.Status != string(transition.WorkflowStateCompleted) {
 		t.Fatalf("expected completed workflow state, got %s", updated.Status)
+	}
+	if updated.LastVerdict != "partial" {
+		t.Fatalf("expected workflow last verdict to persist, got %q", updated.LastVerdict)
 	}
 	if updated.CompletedAt == nil {
 		t.Fatal("expected completed workflow to set completed_at")
@@ -739,6 +739,9 @@ func TestMemoryStoreSubmitCommandWorkflowCompletesThroughReducerStates(t *testin
 	}
 	if trace.Events[len(trace.Events)-1].EventType != "workflow.completed" {
 		t.Fatalf("expected workflow.completed event, got %s", trace.Events[len(trace.Events)-1].EventType)
+	}
+	if trace.Events[len(trace.Events)-1].Description != "Workflow completed with a partial answer." {
+		t.Fatalf("expected partial workflow completion description, got %q", trace.Events[len(trace.Events)-1].Description)
 	}
 }
 
@@ -840,6 +843,51 @@ func TestMemoryStoreReconcileWorkflowTraceRepairsFailedWorkflowProjection(t *tes
 	}
 	if len(reconciled.Events) == 0 || reconciled.Events[len(reconciled.Events)-1].EventType != "workflow.failed" {
 		t.Fatalf("expected workflow.failed event after reconciliation, got %+v", reconciled.Events)
+	}
+}
+
+func TestMemoryStoreReconcileWorkflowTraceRepairsPartialWorkflowProjection(t *testing.T) {
+	store := NewMemoryStore()
+	workflow := store.ListWorkflows()[0]
+	trace, ok := store.GetTrace(workflow.TraceID)
+	if !ok {
+		t.Fatalf("expected trace %s", workflow.TraceID)
+	}
+	for i := range store.workflows {
+		if store.workflows[i].ID != workflow.ID {
+			continue
+		}
+		now := time.Now().UTC()
+		store.workflows[i].Status = string(transition.WorkflowStateCompleted)
+		store.workflows[i].LastVerdict = "partial"
+		store.workflows[i].UpdatedAt = now
+		store.workflows[i].CompletedAt = &now
+		workflow = store.workflows[i]
+		break
+	}
+	trace.Summary.Status = events.StatusRunning
+	trace.Summary.LastVerdict = ""
+	trace.Events = nil
+	store.traces[trace.Summary.TraceID] = trace
+
+	reconciled, repaired, err := store.ReconcileWorkflowTrace(workflow.ID)
+	if err != nil {
+		t.Fatalf("ReconcileWorkflowTrace() error = %v", err)
+	}
+	if !repaired {
+		t.Fatal("expected trace reconciliation to repair the partial workflow projection")
+	}
+	if reconciled.Summary.Status != events.StatusCompleted {
+		t.Fatalf("expected completed trace status, got %s", reconciled.Summary.Status)
+	}
+	if reconciled.Summary.LastVerdict != "partial" {
+		t.Fatalf("expected partial trace verdict, got %q", reconciled.Summary.LastVerdict)
+	}
+	if len(reconciled.Events) == 0 || reconciled.Events[len(reconciled.Events)-1].EventType != "workflow.completed" {
+		t.Fatalf("expected workflow.completed event after reconciliation, got %+v", reconciled.Events)
+	}
+	if reconciled.Events[len(reconciled.Events)-1].Description != "Workflow completed with a partial answer." {
+		t.Fatalf("expected partial completion description after reconciliation, got %q", reconciled.Events[len(reconciled.Events)-1].Description)
 	}
 }
 

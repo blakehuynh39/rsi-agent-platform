@@ -12,6 +12,9 @@ func (s *MemoryStore) applyWorkflowCommandMetadataLocked(workflowID string, comm
 		if s.workflows[i].ID != workflowID {
 			continue
 		}
+		if verdict := transition.WorkflowCommandLastVerdict(transition.WorkflowCommandKind(command.CommandKind)); verdict != "" {
+			s.workflows[i].LastVerdict = verdict
+		}
 		if failureClass := strings.TrimSpace(stringFromCommand(command, "failure_class")); failureClass != "" {
 			s.workflows[i].FailureClass = failureClass
 		}
@@ -47,7 +50,7 @@ func (s *MemoryStore) appendWorkflowLineFollowOnCommandLocked(bundle *transition
 		return
 	}
 	switch transition.WorkflowCommandKind(parent.CommandKind) {
-	case transition.CommandRunnerCompletedNoReply, transition.CommandReplyPosted:
+	case transition.CommandRunnerCompletedNoReply, transition.CommandRunnerCompletedPartialNoReply, transition.CommandReplyPosted, transition.CommandReplyPostedPartial:
 		appendFollowOnCommand(bundle, parent, transition.CommandEnvelope{
 			MachineKind: transition.MachineWorkflowLine,
 			AggregateID: caseID,

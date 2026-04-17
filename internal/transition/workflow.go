@@ -17,16 +17,19 @@ const (
 type WorkflowCommandKind string
 
 const (
-	CommandWorkflowStarted        WorkflowCommandKind = "workflow_started"
-	CommandContextActionsQueued   WorkflowCommandKind = "context_actions_queued"
-	CommandContextSkipped         WorkflowCommandKind = "context_skipped"
-	CommandContextCompleted       WorkflowCommandKind = "context_completed"
-	CommandRunnerCompleted        WorkflowCommandKind = "runner_completed"
-	CommandRunnerCompletedNoReply WorkflowCommandKind = "runner_completed_no_reply"
-	CommandReplyPosted            WorkflowCommandKind = "reply_posted"
-	CommandWorkflowBlocked        WorkflowCommandKind = "workflow_blocked"
-	CommandWorkflowFailed         WorkflowCommandKind = "workflow_failed"
-	CommandWorkflowSuperseded     WorkflowCommandKind = "workflow_superseded"
+	CommandWorkflowStarted               WorkflowCommandKind = "workflow_started"
+	CommandContextActionsQueued          WorkflowCommandKind = "context_actions_queued"
+	CommandContextSkipped                WorkflowCommandKind = "context_skipped"
+	CommandContextCompleted              WorkflowCommandKind = "context_completed"
+	CommandRunnerCompleted               WorkflowCommandKind = "runner_completed"
+	CommandRunnerCompletedPartial        WorkflowCommandKind = "runner_completed_partial"
+	CommandRunnerCompletedNoReply        WorkflowCommandKind = "runner_completed_no_reply"
+	CommandRunnerCompletedPartialNoReply WorkflowCommandKind = "runner_completed_partial_no_reply"
+	CommandReplyPosted                   WorkflowCommandKind = "reply_posted"
+	CommandReplyPostedPartial            WorkflowCommandKind = "reply_posted_partial"
+	CommandWorkflowBlocked               WorkflowCommandKind = "workflow_blocked"
+	CommandWorkflowFailed                WorkflowCommandKind = "workflow_failed"
+	CommandWorkflowSuperseded            WorkflowCommandKind = "workflow_superseded"
 )
 
 type WorkflowSnapshot struct {
@@ -65,14 +68,17 @@ var workflowReducers = map[WorkflowStateKind]map[WorkflowCommandKind]workflowRed
 		CommandWorkflowSuperseded: reduceWorkflowSuperseded,
 	},
 	WorkflowStateReasoning: {
-		CommandRunnerCompleted:        reduceRunnerCompleted,
-		CommandRunnerCompletedNoReply: reduceRunnerCompletedNoReply,
-		CommandWorkflowFailed:         reduceWorkflowFailed,
-		CommandWorkflowBlocked:        reduceWorkflowBlocked,
-		CommandWorkflowSuperseded:     reduceWorkflowSuperseded,
+		CommandRunnerCompleted:               reduceRunnerCompleted,
+		CommandRunnerCompletedPartial:        reduceRunnerCompletedPartial,
+		CommandRunnerCompletedNoReply:        reduceRunnerCompletedNoReply,
+		CommandRunnerCompletedPartialNoReply: reduceRunnerCompletedPartialNoReply,
+		CommandWorkflowFailed:                reduceWorkflowFailed,
+		CommandWorkflowBlocked:               reduceWorkflowBlocked,
+		CommandWorkflowSuperseded:            reduceWorkflowSuperseded,
 	},
 	WorkflowStateReplyPending: {
 		CommandReplyPosted:        reduceReplyPosted,
+		CommandReplyPostedPartial: reduceReplyPostedPartial,
 		CommandWorkflowFailed:     reduceWorkflowFailed,
 		CommandWorkflowBlocked:    reduceWorkflowBlocked,
 		CommandWorkflowSuperseded: reduceWorkflowSuperseded,
@@ -173,12 +179,26 @@ func reduceContextCompleted(snapshot WorkflowSnapshot, _ CommandEnvelope) Workfl
 }
 
 func reduceRunnerCompleted(snapshot WorkflowSnapshot, _ CommandEnvelope) WorkflowDecision {
+	return reduceRunnerCompletedWithReply(snapshot, false)
+}
+
+func reduceRunnerCompletedPartial(snapshot WorkflowSnapshot, _ CommandEnvelope) WorkflowDecision {
+	return reduceRunnerCompletedWithReply(snapshot, true)
+}
+
+func reduceRunnerCompletedWithReply(snapshot WorkflowSnapshot, partial bool) WorkflowDecision {
+	reason := "runner finished and requested a reply side effect"
+	eventKind := "workflow_runner_completed"
+	if partial {
+		reason = "runner finished with a partial answer and requested a reply side effect"
+		eventKind = "workflow_runner_completed_partial"
+	}
 	return WorkflowDecision{
 		TransitionDecision: TransitionDecision{
 			DecisionKind: DecisionAdvance,
-			Reason:       "runner finished and requested a reply side effect",
+			Reason:       reason,
 			Events: []DomainEventDescriptor{{
-				Kind: "workflow_runner_completed",
+				Kind: eventKind,
 			}},
 			Effects: []EffectRequest{{
 				Kind:           EffectPostSlackReply,
@@ -193,14 +213,30 @@ func reduceRunnerCompleted(snapshot WorkflowSnapshot, _ CommandEnvelope) Workflo
 }
 
 func reduceRunnerCompletedNoReply(snapshot WorkflowSnapshot, _ CommandEnvelope) WorkflowDecision {
+	return reduceRunnerCompletedWithoutReply(snapshot, false)
+}
+
+func reduceRunnerCompletedPartialNoReply(snapshot WorkflowSnapshot, _ CommandEnvelope) WorkflowDecision {
+	return reduceRunnerCompletedWithoutReply(snapshot, true)
+}
+
+func reduceRunnerCompletedWithoutReply(snapshot WorkflowSnapshot, partial bool) WorkflowDecision {
+	reason := "runner finished without a reply side effect and workflow can terminate"
+	eventKind := "workflow_runner_completed_no_reply"
+	trigger := "runner_completed_no_reply"
+	if partial {
+		reason = "runner finished with a partial answer and no reply side effect, and workflow can terminate"
+		eventKind = "workflow_runner_completed_partial_no_reply"
+		trigger = "runner_completed_partial_no_reply"
+	}
 	return WorkflowDecision{
 		TransitionDecision: TransitionDecision{
 			DecisionKind: DecisionAdvance,
-			Reason:       "runner finished without a reply side effect and workflow can terminate",
+			Reason:       reason,
 			Events: []DomainEventDescriptor{{
-				Kind: "workflow_runner_completed_no_reply",
+				Kind: eventKind,
 			}},
-			Commands: workflowEvalCommands(snapshot.TraceID, "runner_completed_no_reply"),
+			Commands: workflowEvalCommands(snapshot.TraceID, trigger),
 		},
 		NextState:     WorkflowStateCompleted,
 		ExpectedState: snapshot.State,
@@ -209,14 +245,30 @@ func reduceRunnerCompletedNoReply(snapshot WorkflowSnapshot, _ CommandEnvelope) 
 }
 
 func reduceReplyPosted(snapshot WorkflowSnapshot, _ CommandEnvelope) WorkflowDecision {
+	return reduceReplyPostedWithVerdict(snapshot, false)
+}
+
+func reduceReplyPostedPartial(snapshot WorkflowSnapshot, _ CommandEnvelope) WorkflowDecision {
+	return reduceReplyPostedWithVerdict(snapshot, true)
+}
+
+func reduceReplyPostedWithVerdict(snapshot WorkflowSnapshot, partial bool) WorkflowDecision {
+	reason := "reply side effect completed and workflow can terminate"
+	eventKind := "workflow_reply_posted"
+	trigger := "reply_posted"
+	if partial {
+		reason = "partial reply side effect completed and workflow can terminate"
+		eventKind = "workflow_reply_posted_partial"
+		trigger = "reply_posted_partial"
+	}
 	return WorkflowDecision{
 		TransitionDecision: TransitionDecision{
 			DecisionKind: DecisionAdvance,
-			Reason:       "reply side effect completed and workflow can terminate",
+			Reason:       reason,
 			Events: []DomainEventDescriptor{{
-				Kind: "workflow_reply_posted",
+				Kind: eventKind,
 			}},
-			Commands: workflowEvalCommands(snapshot.TraceID, "reply_posted"),
+			Commands: workflowEvalCommands(snapshot.TraceID, trigger),
 		},
 		NextState:     WorkflowStateCompleted,
 		ExpectedState: snapshot.State,
@@ -278,6 +330,35 @@ func rejectWorkflow(state WorkflowStateKind, command WorkflowCommandKind, reason
 			Reason:       reason,
 		},
 		ExpectedState: state,
+	}
+}
+
+func WorkflowRunnerCompletionCommand(completionVerdict string, hasReplyAction bool) WorkflowCommandKind {
+	if hasReplyAction {
+		if completionVerdict == "partial" {
+			return CommandRunnerCompletedPartial
+		}
+		return CommandRunnerCompleted
+	}
+	if completionVerdict == "partial" {
+		return CommandRunnerCompletedPartialNoReply
+	}
+	return CommandRunnerCompletedNoReply
+}
+
+func WorkflowReplyPostedCommand(completionVerdict string) WorkflowCommandKind {
+	if completionVerdict == "partial" {
+		return CommandReplyPostedPartial
+	}
+	return CommandReplyPosted
+}
+
+func WorkflowCommandLastVerdict(command WorkflowCommandKind) string {
+	switch command {
+	case CommandRunnerCompletedPartial, CommandRunnerCompletedPartialNoReply, CommandReplyPostedPartial:
+		return "partial"
+	default:
+		return ""
 	}
 }
 

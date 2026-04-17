@@ -19,6 +19,7 @@ type Workflow struct {
 	ApprovalMode      string         `json:"approval_mode,omitempty"`
 	ResponseMode      string         `json:"response_mode,omitempty"`
 	Status            string         `json:"status"`
+	LastVerdict       string         `json:"last_verdict,omitempty"`
 	LastError         string         `json:"last_error,omitempty"`
 	AttemptNumber     int            `json:"attempt_number,omitempty"`
 	ParentWorkflowID  string         `json:"parent_workflow_id,omitempty"`

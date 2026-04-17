@@ -322,16 +322,16 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	}
 	finalReasoning = append(finalReasoning, draftReasoning...)
 	runnerDescription := "Runner returned visible reasoning."
-	runnerCommand := transition.CommandRunnerCompletedNoReply
-	if strings.TrimSpace(replyAction.ID) != "" {
+	hasReplyAction := strings.TrimSpace(replyAction.ID) != ""
+	runnerCommand := transition.WorkflowRunnerCompletionCommand(completionVerdict, hasReplyAction)
+	if hasReplyAction {
 		runnerDescription = "Runner returned visible reasoning and an explicit Slack reply action."
-		runnerCommand = transition.CommandRunnerCompleted
 	}
 	if completionVerdict == "partial" {
-		runnerDescription = partialCompletionRunnerDescription(terminationReason, runnerCommand != transition.CommandRunnerCompletedNoReply)
+		runnerDescription = partialCompletionRunnerDescription(terminationReason, hasReplyAction)
 	}
 	expectedWorkflowState := transition.WorkflowStateCompleted
-	if runnerCommand == transition.CommandRunnerCompleted {
+	if hasReplyAction {
 		expectedWorkflowState = transition.WorkflowStateReplyPending
 	}
 	runnerEvents[0].Description = runnerDescription
@@ -346,7 +346,6 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		"reply_action_id":    replyAction.ID,
 		"repair_attempted":   boolValue(runnerResp.Raw["repair_attempted"]),
 		"repair_succeeded":   boolValue(runnerResp.Raw["repair_succeeded"]),
-		"last_verdict":       lastVerdictForWorkflowCompletion(completionVerdict, runnerCommand),
 		"runner_diagnostics": runnerDiagnostics,
 		"trace_events":       append(runnerEvents, draftEvents...),
 		"reasoning_steps":    finalReasoning,
@@ -359,7 +358,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	if ctx.workflow.Status != string(expectedWorkflowState) {
 		return &workflowFailureError{failure: workflowFailureFromRunnerStateInvariant(runnerResp, ctx.workflow.ID, expectedWorkflowState, ctx.workflow.Status)}
 	}
-	if runnerCommand == transition.CommandRunnerCompletedNoReply {
+	if !hasReplyAction {
 		if _, _, err := store.ReconcileWorkflowTrace(ctx.workflow.ID); err != nil {
 			return err
 		}
@@ -714,10 +713,8 @@ func maybeAdvanceWorkflowPhaseFromAction(cfg config.Config, store storepkg.Store
 			payload := map[string]any{
 				"resume_queue": string(queueName),
 			}
-			if verdict := strings.TrimSpace(stringFromMap(intent.RequestPayload, "last_verdict")); verdict != "" {
-				payload["last_verdict"] = verdict
-			}
-			_, err = submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandReplyPosted, cfg.ServiceName, completedAt, payload)
+			replyCommand := workflowReplyPostedCommandFromPayload(intent.RequestPayload)
+			_, err = submitWorkflowCommand(store, ctx.workflow.ID, replyCommand, cfg.ServiceName, completedAt, payload)
 		}
 		if err == nil {
 			_, _, err = store.ReconcileWorkflowTrace(ctx.workflow.ID)
@@ -845,16 +842,14 @@ func draftSlackPostAction(cfg config.Config, store storepkg.Store, resumeQueue q
 	finalBody := firstNonEmpty(strings.TrimSpace(stringValueFromMap(proposed.RequestPayload, "final_body")), strings.TrimSpace(stringValueFromMap(proposed.RequestPayload, "body")), replyBody)
 	idempotencyKey := firstNonEmpty(proposed.IdempotencyKey, fmt.Sprintf("%s:%s:%s", ctx.ingestion.ChannelID, ctx.ingestion.ThreadTS, ctx.trace.Summary.TraceID))
 	requestPayload := map[string]any{
-		"channel_id":     channelID,
-		"thread_ts":      threadTS,
-		"body":           firstNonEmpty(finalBody, replyBody),
-		"draft_body":     draftBody,
-		"final_body":     firstNonEmpty(finalBody, replyBody),
-		"policy_verdict": policyVerdict,
-		"resume_queue":   string(resumeQueue),
-	}
-	if verdict := lastVerdictForWorkflowCompletion(completionVerdict, transition.CommandReplyPosted); verdict != "" {
-		requestPayload["last_verdict"] = verdict
+		"channel_id":             channelID,
+		"thread_ts":              threadTS,
+		"body":                   firstNonEmpty(finalBody, replyBody),
+		"draft_body":             draftBody,
+		"final_body":             firstNonEmpty(finalBody, replyBody),
+		"policy_verdict":         policyVerdict,
+		"resume_queue":           string(resumeQueue),
+		"workflow_reply_command": string(transition.WorkflowReplyPostedCommand(completionVerdict)),
 	}
 
 	approvalState := "approved"
@@ -1014,15 +1009,12 @@ func standardizePartialReplyBody(body string, terminationReason string) string {
 	return notice + "\n\n" + trimmed
 }
 
-func lastVerdictForWorkflowCompletion(completionVerdict string, command transition.WorkflowCommandKind) string {
-	if strings.TrimSpace(completionVerdict) != "partial" {
-		return ""
-	}
-	switch command {
-	case transition.CommandReplyPosted, transition.CommandRunnerCompletedNoReply:
-		return "partial"
+func workflowReplyPostedCommandFromPayload(payload map[string]any) transition.WorkflowCommandKind {
+	switch transition.WorkflowCommandKind(strings.TrimSpace(stringFromMap(payload, "workflow_reply_command"))) {
+	case transition.CommandReplyPostedPartial:
+		return transition.CommandReplyPostedPartial
 	default:
-		return ""
+		return transition.CommandReplyPosted
 	}
 }
 

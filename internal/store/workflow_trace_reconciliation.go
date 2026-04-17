@@ -54,9 +54,10 @@ func (s *MemoryStore) reconcileWorkflowTraceLocked(workflowID string) (events.Tr
 	}
 	needsStatus := trace.Summary.Status != status
 	needsEvent := !traceHasEventType(trace, eventType)
+	needsVerdict := strings.TrimSpace(trace.Summary.LastVerdict) != strings.TrimSpace(workflow.LastVerdict)
 	repaired := false
 
-	if needsStatus || needsEvent {
+	if needsStatus || needsEvent || needsVerdict {
 		occurredAt := workflow.UpdatedAt
 		if workflow.CompletedAt != nil && !workflow.CompletedAt.IsZero() {
 			occurredAt = *workflow.CompletedAt
@@ -66,6 +67,9 @@ func (s *MemoryStore) reconcileWorkflowTraceLocked(workflowID string) (events.Tr
 		}
 		update := TraceUpdate{
 			Status: ptrStatus(status),
+		}
+		if verdict := strings.TrimSpace(workflow.LastVerdict); needsVerdict || verdict != "" {
+			update.LastVerdict = &verdict
 		}
 		if needsEvent {
 			update.Events = []events.TraceEvent{{
@@ -104,6 +108,9 @@ func reconciledTraceProjection(workflow Workflow) (events.Status, string, string
 	case "failed":
 		return events.StatusFailed, "workflow.failed", firstNonEmpty(workflow.FailureSummary, workflow.LastError, "workflow failed"), true
 	case "completed":
+		if strings.TrimSpace(workflow.LastVerdict) == "partial" {
+			return events.StatusCompleted, "workflow.completed", "Workflow completed with a partial answer.", true
+		}
 		return events.StatusCompleted, "workflow.completed", "Workflow completed.", true
 	case "needs_human":
 		return events.StatusNeedsHuman, "workflow.blocked", firstNonEmpty(workflow.FailureSummary, workflow.LastError, "workflow needs human intervention"), true
