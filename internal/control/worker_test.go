@@ -315,14 +315,161 @@ func TestWorkflowPartialCompletionPostsStandardizedReplyAndPersistsVerdict(t *te
 	if len(trace.SlackActions) != 1 {
 		t.Fatalf("expected one slack action, got %d", len(trace.SlackActions))
 	}
-	if !strings.HasPrefix(trace.SlackActions[0].FinalBody, partialCompletionNotice) {
+	if !strings.HasPrefix(trace.SlackActions[0].FinalBody, partialCompletionNoticeForTerminationReason("iteration_budget_exhausted")) {
 		t.Fatalf("expected partial completion notice in final body, got %q", trace.SlackActions[0].FinalBody)
 	}
 	if len(slackBodies) != 1 {
 		t.Fatalf("expected one posted slack body, got %d", len(slackBodies))
 	}
-	if !strings.HasPrefix(slackBodies[0], partialCompletionNotice) {
+	if !strings.HasPrefix(slackBodies[0], partialCompletionNoticeForTerminationReason("iteration_budget_exhausted")) {
 		t.Fatalf("expected partial completion notice in posted body, got %q", slackBodies[0])
+	}
+}
+
+func TestWorkflowTaskTimeoutPartialCompletionPostsTimeoutNoticeAndPersistsVerdict(t *testing.T) {
+	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":       true,
+			"provider": "fake",
+			"message":  `{"visible_reasoning":[{"step_type":"analysis","summary":"Recovered a timeout partial answer.","confidence":0.68,"decision":"post_partial_reply"}],"reply_draft":"Grounded summary so far.","final_answer":"Grounded summary so far.","confidence":0.68,"context_summary":"Recovered from persisted session evidence after timeout.","self_critique":"More reads would improve coverage.","proposed_actions":[{"kind":"slack_post","target_ref":"D123","request_payload":{"body":"Grounded summary so far."},"idempotency_key":"reply-action-timeout-partial-1","rationale":"Post the grounded partial answer."}],"knowledge_drafts":[],"outcome_hypotheses":[]}`,
+			"raw": map[string]any{
+				"completion_verdict":     "partial",
+				"termination_reason":     "task_timeout",
+				"max_iterations_reached": false,
+				"timeout_kind":           "task_timeout",
+				"runner_diagnostics": map[string]any{
+					"completion_verdict":     "partial",
+					"termination_reason":     "task_timeout",
+					"timeout_kind":           "task_timeout",
+					"max_iterations_reached": false,
+					"budget_used":            9,
+					"budget_max":             20,
+				},
+				"structured_output": map[string]any{
+					"visible_reasoning": []any{
+						map[string]any{
+							"step_type":  "analysis",
+							"summary":    "Recovered a timeout partial answer.",
+							"confidence": 0.68,
+							"decision":   "post_partial_reply",
+						},
+					},
+					"reply_draft":     "Grounded summary so far.",
+					"final_answer":    "Grounded summary so far.",
+					"confidence":      0.68,
+					"context_summary": "Recovered from persisted session evidence after timeout.",
+					"self_critique":   "More reads would improve coverage.",
+					"proposed_actions": []any{
+						map[string]any{
+							"kind":       "slack_post",
+							"target_ref": "D123",
+							"request_payload": map[string]any{
+								"body": "Grounded summary so far.",
+							},
+							"idempotency_key": "reply-action-timeout-partial-1",
+							"rationale":       "Post the grounded partial answer.",
+						},
+					},
+					"knowledge_drafts":   []any{},
+					"outcome_hypotheses": []any{},
+				},
+			},
+		})
+	}))
+	defer runner.Close()
+
+	slackBodies := []string{}
+	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
+		name = strings.TrimSuffix(name, "/execute")
+		if name != "slack.reply" {
+			t.Fatalf("unexpected tool invocation %s", name)
+		}
+		var payload map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("decode slack payload: %v", err)
+		}
+		slackBodies = append(slackBodies, strings.TrimSpace(stringFromMap(payload, "body")))
+		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
+			Name:          name,
+			ToolCallID:    "slack-post-timeout-partial-1",
+			Approved:      true,
+			ApprovalState: "approved",
+			Status:        "completed",
+			Available:     true,
+			Provider:      "slack",
+			ProviderRef:   "171000001.000100",
+			Summary:       "Slack reply posted.",
+			Input:         payload,
+			Output:        map[string]any{"posted": true},
+		})
+	}))
+	defer toolGateway.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             runner.URL,
+		ToolGatewayBaseURL:        toolGateway.URL,
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect); err != nil {
+		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
+	}
+
+	replyAction := firstQueuedActionEffectByKind(t, store, "control", action.KindSlackPost)
+	if err := processControlActionEffect(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), replyAction); err != nil {
+		t.Fatalf("processControlActionEffect(reply) error = %v", err)
+	}
+
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatal("expected workflow to exist")
+	}
+	if workflow.Status != "completed" {
+		t.Fatalf("expected completed workflow, got %s", workflow.Status)
+	}
+	if workflow.RunnerDiagnostics["completion_verdict"] != "partial" {
+		t.Fatalf("expected partial completion verdict in runner diagnostics, got %#v", workflow.RunnerDiagnostics)
+	}
+	if workflow.RunnerDiagnostics["termination_reason"] != "task_timeout" {
+		t.Fatalf("expected task_timeout termination reason in runner diagnostics, got %#v", workflow.RunnerDiagnostics)
+	}
+
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatal("expected trace to exist")
+	}
+	if trace.Summary.Status != events.StatusCompleted {
+		t.Fatalf("expected completed trace, got %s", trace.Summary.Status)
+	}
+	if trace.Summary.LastVerdict != "partial" {
+		t.Fatalf("expected partial trace verdict, got %q", trace.Summary.LastVerdict)
+	}
+	if len(trace.SlackActions) != 1 {
+		t.Fatalf("expected one slack action, got %d", len(trace.SlackActions))
+	}
+	if !strings.HasPrefix(trace.SlackActions[0].FinalBody, partialCompletionNoticeForTerminationReason("task_timeout")) {
+		t.Fatalf("expected timeout partial completion notice in final body, got %q", trace.SlackActions[0].FinalBody)
+	}
+	if len(slackBodies) != 1 {
+		t.Fatalf("expected one posted slack body, got %d", len(slackBodies))
+	}
+	if !strings.HasPrefix(slackBodies[0], partialCompletionNoticeForTerminationReason("task_timeout")) {
+		t.Fatalf("expected timeout partial completion notice in posted body, got %q", slackBodies[0])
 	}
 }
 

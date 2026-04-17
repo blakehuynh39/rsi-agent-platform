@@ -26,9 +26,11 @@ import (
 )
 
 const (
-	controlPhaseCollectContext = "collect_context"
-	controlPhaseReplyPost      = "reply_post"
-	partialCompletionNotice    = "Partial answer: I hit my iteration budget before I could finish a deeper pass. This is the best grounded answer so far."
+	controlPhaseCollectContext             = "collect_context"
+	controlPhaseReplyPost                  = "reply_post"
+	partialCompletionNoticeGeneric         = "Partial answer: I had to stop before I could finish a deeper pass. This is the best grounded answer so far."
+	partialCompletionNoticeIterationBudget = "Partial answer: I hit my iteration budget before I could finish a deeper pass. This is the best grounded answer so far."
+	partialCompletionNoticeTaskTimeout     = "Partial answer: I hit the workflow time limit before I could finish a deeper pass. This is the best grounded answer so far."
 )
 
 type workflowContext struct {
@@ -188,8 +190,9 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		return &workflowFailureError{failure: workflowFailureFromStructuredOutputError(runnerResp, err)}
 	}
 	completionVerdict := workflowCompletionVerdict(runnerResp.Raw)
+	terminationReason := workflowTerminationReason(runnerResp.Raw)
 	if completionVerdict == "partial" {
-		runnerOutput = standardizePartialWorkflowReply(runnerOutput)
+		runnerOutput = standardizePartialWorkflowReply(runnerOutput, terminationReason)
 	}
 	if ctx, err = refreshWorkflowContextState(store, ctx); err != nil {
 		return runnerPostProcessingFailure("refresh_workflow_context_after_structured_output", err)
@@ -238,7 +241,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 			TraceID:    ctx.trace.Summary.TraceID,
 			WorkflowID: ctx.trace.Summary.WorkflowID,
 			StepType:   "completion_contract",
-			Summary:    "Runner exhausted its iteration budget and returned a best-effort partial response.",
+			Summary:    partialCompletionReasoningSummary(terminationReason),
 			Confidence: 1.0,
 			Decision:   "partial_completion",
 			CreatedAt:  runnerCompleted,
@@ -325,10 +328,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		runnerCommand = transition.CommandRunnerCompleted
 	}
 	if completionVerdict == "partial" {
-		runnerDescription = "Runner exhausted its iteration budget and returned a partial Slack reply."
-		if runnerCommand == transition.CommandRunnerCompletedNoReply {
-			runnerDescription = "Runner exhausted its iteration budget and returned a partial completion without a reply side effect."
-		}
+		runnerDescription = partialCompletionRunnerDescription(terminationReason, runnerCommand != transition.CommandRunnerCompletedNoReply)
 	}
 	expectedWorkflowState := transition.WorkflowStateCompleted
 	if runnerCommand == transition.CommandRunnerCompleted {
@@ -935,9 +935,55 @@ func workflowCompletionVerdict(raw map[string]any) string {
 	return verdict
 }
 
-func standardizePartialWorkflowReply(output runnerutil.StructuredOutput) runnerutil.StructuredOutput {
-	output.ReplyDraft = standardizePartialReplyBody(output.ReplyDraft)
-	output.FinalAnswer = standardizePartialReplyBody(output.FinalAnswer)
+func workflowTerminationReason(raw map[string]any) string {
+	return strings.TrimSpace(stringValue(raw["termination_reason"]))
+}
+
+func partialCompletionNoticeForTerminationReason(terminationReason string) string {
+	switch strings.TrimSpace(terminationReason) {
+	case "iteration_budget_exhausted":
+		return partialCompletionNoticeIterationBudget
+	case "task_timeout":
+		return partialCompletionNoticeTaskTimeout
+	default:
+		return partialCompletionNoticeGeneric
+	}
+}
+
+func partialCompletionReasoningSummary(terminationReason string) string {
+	switch strings.TrimSpace(terminationReason) {
+	case "iteration_budget_exhausted":
+		return "Runner exhausted its iteration budget and returned a best-effort partial response."
+	case "task_timeout":
+		return "Runner hit the workflow time limit and returned a best-effort partial response."
+	default:
+		return "Runner stopped early and returned a best-effort partial response."
+	}
+}
+
+func partialCompletionRunnerDescription(terminationReason string, hasReplyAction bool) string {
+	switch strings.TrimSpace(terminationReason) {
+	case "iteration_budget_exhausted":
+		if hasReplyAction {
+			return "Runner exhausted its iteration budget and returned a partial Slack reply."
+		}
+		return "Runner exhausted its iteration budget and returned a partial completion without a reply side effect."
+	case "task_timeout":
+		if hasReplyAction {
+			return "Runner hit the workflow time limit and returned a partial Slack reply."
+		}
+		return "Runner hit the workflow time limit and returned a partial completion without a reply side effect."
+	default:
+		if hasReplyAction {
+			return "Runner returned a partial Slack reply."
+		}
+		return "Runner returned a partial completion without a reply side effect."
+	}
+}
+
+func standardizePartialWorkflowReply(output runnerutil.StructuredOutput, terminationReason string) runnerutil.StructuredOutput {
+	output.ReplyDraft = standardizePartialReplyBody(output.ReplyDraft, terminationReason)
+	output.FinalAnswer = standardizePartialReplyBody(output.FinalAnswer, terminationReason)
 	for idx := range output.ProposedActions {
 		if !strings.EqualFold(strings.TrimSpace(output.ProposedActions[idx].Kind), string(action.KindSlackPost)) {
 			continue
@@ -950,21 +996,22 @@ func standardizePartialWorkflowReply(output runnerutil.StructuredOutput) runneru
 			if value == "" {
 				continue
 			}
-			output.ProposedActions[idx].RequestPayload[key] = standardizePartialReplyBody(value)
+			output.ProposedActions[idx].RequestPayload[key] = standardizePartialReplyBody(value, terminationReason)
 		}
 	}
 	return output
 }
 
-func standardizePartialReplyBody(body string) string {
+func standardizePartialReplyBody(body string, terminationReason string) string {
 	trimmed := strings.TrimSpace(body)
 	if trimmed == "" {
 		return ""
 	}
-	if strings.HasPrefix(trimmed, partialCompletionNotice) {
+	notice := partialCompletionNoticeForTerminationReason(terminationReason)
+	if strings.HasPrefix(trimmed, notice) {
 		return trimmed
 	}
-	return partialCompletionNotice + "\n\n" + trimmed
+	return notice + "\n\n" + trimmed
 }
 
 func lastVerdictForWorkflowCompletion(completionVerdict string, command transition.WorkflowCommandKind) string {

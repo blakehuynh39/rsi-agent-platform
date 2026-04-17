@@ -704,7 +704,18 @@ class HermesRuntime:
                 finalized = self._session_manager.finalize(context, tracker)
                 observed = self._observability_metadata(agent, task, tracker)
                 last_activity = _json_object_or_empty(stop_meta.get("last_activity"))
-                if termination_reason in {"task_timeout", "inactivity_timeout"}:
+                if termination_reason == "task_timeout":
+                    return self._recover_partial_completion(
+                        task,
+                        tool_policy,
+                        finalized,
+                        observed,
+                        stop_meta,
+                        lifecycle_events,
+                        termination_reason=termination_reason,
+                        allow_partial_recovery=allow_partial_recovery,
+                    )
+                if termination_reason == "inactivity_timeout":
                     timeout_kind = string_from_map(stop_meta, "timeout_kind") or termination_reason
                     timeout_message = f"Hermes execution timed out after {effective_task_timeout}s."
                     if timeout_kind == "inactivity_timeout":
@@ -745,13 +756,14 @@ class HermesRuntime:
                         },
                     )
                 if termination_reason == "iteration_budget_exhausted":
-                    return self._recover_iteration_budget_exhausted(
+                    return self._recover_partial_completion(
                         task,
                         tool_policy,
                         finalized,
                         observed,
                         stop_meta,
                         lifecycle_events,
+                        termination_reason=termination_reason,
                         allow_partial_recovery=allow_partial_recovery,
                     )
             response = str((run_result or {}).get("final_response", "") or "")
@@ -1121,17 +1133,39 @@ class HermesRuntime:
             return False
         return bool((task.channel_id or "").strip() and (task.thread_ts or "").strip())
 
-    def _build_iteration_budget_recovery_task(self, task: RunnerTaskRequest) -> RunnerTaskRequest:
+    def _partial_completion_recovery_timeout_seconds(
+        self,
+        task: RunnerTaskRequest,
+        termination_reason: str,
+        stop_meta: JsonObject,
+    ) -> int:
+        if termination_reason == "task_timeout":
+            stopped_after_seconds = int(stop_meta.get("stopped_after_seconds") or 0)
+            remaining_transport_headroom = self._transport_timeout_seconds - stopped_after_seconds - 10
+            return max(1, min(20, remaining_transport_headroom))
+        return min(60, max(1, self._effective_task_timeout(task)))
+
+    def _build_partial_completion_recovery_task(
+        self,
+        task: RunnerTaskRequest,
+        termination_reason: str,
+        recovery_timeout_seconds: int,
+    ) -> RunnerTaskRequest:
+        recovery_instruction = "the previous run exhausted its iteration budget before it finished."
+        recovery_disclaimer = "If you include a reply, state clearly that it is partial because the iteration budget was exhausted."
+        if termination_reason == "task_timeout":
+            recovery_instruction = "the previous run hit its task timeout before it finished."
+            recovery_disclaimer = "If you include a reply, state clearly that it is partial because the workflow time limit was reached."
         recovery_prompt = "\n".join(
             [
                 task.prompt,
                 "",
-                "Recovery instruction: the previous run exhausted its iteration budget before it finished.",
+                f"Recovery instruction: {recovery_instruction}",
                 "Use only the evidence already present in this persisted session.",
                 "Do not call tools, do not ask for more context, and do not speculate beyond the existing evidence.",
                 "Return only a valid JSON object matching the required schema.",
                 "Produce the best grounded partial answer you can.",
-                "If you include a reply, state clearly that it is partial because the iteration budget was exhausted.",
+                recovery_disclaimer,
                 "If you include a reply, include exactly one proposed action with kind=slack_post and a request_payload carrying the reply body.",
             ]
         )
@@ -1140,10 +1174,10 @@ class HermesRuntime:
             prompt=recovery_prompt,
             allowed_tools=[],
             tool_allowlist=[],
-            timeout_seconds=min(60, max(1, self._effective_task_timeout(task))),
+            timeout_seconds=recovery_timeout_seconds,
         )
 
-    def _iteration_budget_exhausted_failure(
+    def _partial_completion_failure(
         self,
         task: RunnerTaskRequest,
         tool_policy: ToolPolicy,
@@ -1152,26 +1186,36 @@ class HermesRuntime:
         stop_meta: JsonObject,
         lifecycle_events: list[JsonObject],
         *,
+        termination_reason: str,
         recovery_error: str = "",
         recovery_response: str = "",
         recovery_attempted: bool,
         recovery_succeeded: bool,
     ) -> HermesExecutionResult:
         last_activity = _json_object_or_empty(stop_meta.get("last_activity"))
+        max_iterations_reached = bool(stop_meta.get("max_iterations_reached")) or termination_reason == "iteration_budget_exhausted"
         message = "Hermes execution exhausted its iteration budget before completing the workflow response."
+        failure_class = "runner_iteration_budget_exhausted"
+        failure_kind = "iteration_budget_exhausted"
+        timeout_kind = ""
+        if termination_reason == "task_timeout":
+            message = f"Hermes execution timed out after {self._effective_task_timeout(task)}s."
+            failure_class = "runner_transport_timeout"
+            failure_kind = "transport_timeout"
+            timeout_kind = string_from_map(stop_meta, "timeout_kind") or "task_timeout"
         diagnostics = self._runner_diagnostics(
             tool_policy,
-            failure_kind="iteration_budget_exhausted",
+            failure_kind=failure_kind,
             provider_error_message=first_non_empty(recovery_error, message),
-            termination_reason="iteration_budget_exhausted",
+            timeout_kind=timeout_kind or None,
+            termination_reason=termination_reason,
             activity=last_activity,
-            max_iterations_reached=True,
+            max_iterations_reached=max_iterations_reached,
             session_ready_issues=self._session_manager.ready_issues,
             repair_attempted=recovery_attempted,
             repair_succeeded=recovery_succeeded,
             observed=observed,
         )
-        diagnostics["completion_verdict"] = "partial"
         diagnostics["recovery_attempted"] = recovery_attempted
         diagnostics["recovery_succeeded"] = recovery_succeeded
         raw: JsonObject = {
@@ -1187,11 +1231,11 @@ class HermesRuntime:
             "tool_transport_allowlist_effective": tool_policy.transport_effective,
             "blocked_tool_names": tool_policy.blocked,
             **observed,
-            "failure_class": "runner_iteration_budget_exhausted",
+            "failure_class": failure_class,
             "runner_diagnostics": diagnostics,
             "lifecycle_events": lifecycle_events,
-            "termination_reason": "iteration_budget_exhausted",
-            "max_iterations_reached": True,
+            "termination_reason": termination_reason,
+            "max_iterations_reached": max_iterations_reached,
         }
         if recovery_error:
             raw["recovery_error"] = recovery_error
@@ -1204,7 +1248,7 @@ class HermesRuntime:
             raw=raw,
         )
 
-    def _recover_iteration_budget_exhausted(
+    def _recover_partial_completion(
         self,
         task: RunnerTaskRequest,
         tool_policy: ToolPolicy,
@@ -1213,21 +1257,24 @@ class HermesRuntime:
         stop_meta: JsonObject,
         lifecycle_events: list[JsonObject],
         *,
+        termination_reason: str,
         allow_partial_recovery: bool,
     ) -> HermesExecutionResult:
         if not allow_partial_recovery or not self._workflow_partial_completion_eligible(task):
-            return self._iteration_budget_exhausted_failure(
+            return self._partial_completion_failure(
                 task,
                 tool_policy,
                 finalized,
                 observed,
                 stop_meta,
                 lifecycle_events,
+                termination_reason=termination_reason,
                 recovery_attempted=False,
                 recovery_succeeded=False,
             )
 
-        recovery_task = self._build_iteration_budget_recovery_task(task)
+        recovery_timeout_seconds = self._partial_completion_recovery_timeout_seconds(task, termination_reason, stop_meta)
+        recovery_task = self._build_partial_completion_recovery_task(task, termination_reason, recovery_timeout_seconds)
         recovery_policy = self._no_tools_recovery_policy()
         recovery_result = self._execute_task_request(
             recovery_task,
@@ -1236,13 +1283,14 @@ class HermesRuntime:
             max_iterations_override=1,
         )
         if not recovery_result.ok:
-            return self._iteration_budget_exhausted_failure(
+            return self._partial_completion_failure(
                 task,
                 tool_policy,
                 finalized,
                 observed,
                 stop_meta,
                 lifecycle_events,
+                termination_reason=termination_reason,
                 recovery_error=str(recovery_result.message or "").strip(),
                 recovery_response=str(recovery_result.message or "").strip(),
                 recovery_attempted=True,
@@ -1251,13 +1299,14 @@ class HermesRuntime:
         try:
             self._extract_structured_output(recovery_result.message)
         except HermesStructuredOutputError as exc:
-            return self._iteration_budget_exhausted_failure(
+            return self._partial_completion_failure(
                 task,
                 tool_policy,
                 finalized,
                 observed,
                 stop_meta,
                 lifecycle_events,
+                termination_reason=termination_reason,
                 recovery_error=str(exc),
                 recovery_response=recovery_result.message,
                 recovery_attempted=True,
@@ -1270,8 +1319,11 @@ class HermesRuntime:
         for key in ("budget_used", "budget_max", "api_call_count", "current_tool", "last_activity_desc"):
             if key in _json_object_or_empty(stop_meta.get("last_activity")):
                 merged_runner_diagnostics[key] = _json_object_or_empty(stop_meta.get("last_activity")).get(key)
-        merged_runner_diagnostics["termination_reason"] = "iteration_budget_exhausted"
-        merged_runner_diagnostics["max_iterations_reached"] = True
+        timeout_kind = string_from_map(stop_meta, "timeout_kind")
+        if timeout_kind:
+            merged_runner_diagnostics["timeout_kind"] = timeout_kind
+        merged_runner_diagnostics["termination_reason"] = termination_reason
+        merged_runner_diagnostics["max_iterations_reached"] = bool(stop_meta.get("max_iterations_reached"))
         merged_runner_diagnostics["completion_verdict"] = "partial"
         merged_runner_diagnostics["recovery_attempted"] = True
         merged_runner_diagnostics["recovery_succeeded"] = True
@@ -1293,8 +1345,8 @@ class HermesRuntime:
             "memory_warnings": observed.get("memory_warnings", recovery_result.raw.get("memory_warnings", [])),
             "runner_diagnostics": merged_runner_diagnostics,
             "lifecycle_events": lifecycle_events,
-            "termination_reason": "iteration_budget_exhausted",
-            "max_iterations_reached": True,
+            "termination_reason": termination_reason,
+            "max_iterations_reached": bool(stop_meta.get("max_iterations_reached")),
             "completion_verdict": "partial",
             "partial_recovery_attempted": True,
             "partial_recovery_succeeded": True,
@@ -1484,10 +1536,7 @@ class HermesRuntime:
         if not result.ok:
             return result
         repair_tool_policy = tool_policy
-        if (
-            string_from_map(_json_object_or_empty(result.raw), "completion_verdict") == "partial"
-            and string_from_map(_json_object_or_empty(result.raw), "termination_reason") == "iteration_budget_exhausted"
-        ):
+        if string_from_map(_json_object_or_empty(result.raw), "completion_verdict") == "partial":
             repair_tool_policy = self._no_tools_recovery_policy()
         if invalid_request := self._provider_invalid_request_diagnostics(result.message, repair_tool_policy):
             diagnostics = dict(invalid_request)

@@ -1104,6 +1104,150 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(BudgetRecoveryAIAgent.run_history[1]["history"], [{"role": "user", "content": "Earlier thread message"}])
         self.assertTrue(any("iteration_budget_exhausted" in message for message in BudgetRecoveryAIAgent.interrupt_messages))
 
+    def test_workflow_task_timeout_recovers_partial_completion_without_tools(self) -> None:
+        class TimeoutRecoveryAIAgent:
+            init_history: list[dict[str, object]] = []
+            run_history: list[dict[str, object]] = []
+            interrupt_messages: list[str] = []
+            created_instances = 0
+
+            def __init__(self, **kwargs) -> None:
+                type(self).created_instances += 1
+                self.instance_index = type(self).created_instances
+                type(self).init_history.append(dict(kwargs))
+
+            def run_conversation(
+                self,
+                prompt: str,
+                system_message: str | None = None,
+                conversation_history: list[dict] | None = None,
+                task_id: str | None = None,
+            ) -> dict[str, object]:
+                type(self).run_history.append(
+                    {
+                        "instance_index": self.instance_index,
+                        "prompt": prompt,
+                        "system_message": system_message,
+                        "history": list(conversation_history or []),
+                        "valid_tool_names": sorted(getattr(self, "valid_tool_names", [])),
+                        "tool_names": sorted(
+                            tool["function"]["name"]
+                            for tool in list(getattr(self, "tools", []) or [])
+                            if isinstance(tool, dict) and isinstance(tool.get("function"), dict) and tool["function"].get("name")
+                        ),
+                        "task_id": task_id,
+                    }
+                )
+                if self.instance_index == 1:
+                    time.sleep(1.2)
+                    return {"final_response": ""}
+                return {
+                    "final_response": json.dumps(
+                        {
+                            "visible_reasoning": [
+                                {
+                                    "step_type": "analysis",
+                                    "summary": "Recovered a partial answer from the persisted session context after the timeout.",
+                                    "alternatives": [],
+                                    "confidence": 0.68,
+                                    "decision": "post_partial_reply",
+                                }
+                            ],
+                            "reply_draft": "Partial answer: grounded summary so far.",
+                            "final_answer": "Partial answer: grounded summary so far.",
+                            "confidence": 0.68,
+                            "context_summary": "Recovered from the persisted session without new tools after the timeout.",
+                            "self_critique": "Additional Slack reads would improve coverage.",
+                            "proposed_actions": [
+                                {
+                                    "kind": "slack_post",
+                                    "target_ref": "C123",
+                                    "request_payload": {
+                                        "body": "Partial answer: grounded summary so far.",
+                                    },
+                                    "approval_mode": "not_required",
+                                    "idempotency_key": "partial-reply-timeout-1",
+                                    "rationale": "Post the grounded partial answer.",
+                                    "evidence_refs": [],
+                                }
+                            ],
+                            "knowledge_drafts": [],
+                            "outcome_hypotheses": [],
+                        }
+                    )
+                }
+
+            def interrupt(self, message: str | None = None) -> None:
+                type(self).interrupt_messages.append(message or "")
+
+            def get_activity_summary(self) -> dict[str, object]:
+                budget_max = int(type(self).init_history[self.instance_index - 1].get("max_iterations", 1))
+                if self.instance_index == 1:
+                    return {
+                        "last_activity_desc": "starting API call #9",
+                        "current_tool": "",
+                        "api_call_count": 9,
+                        "budget_used": 9,
+                        "budget_max": budget_max,
+                    }
+                return {
+                    "last_activity_desc": "composing partial reply",
+                    "current_tool": "",
+                    "api_call_count": 0,
+                    "budget_used": 0,
+                    "budget_max": budget_max,
+                }
+
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the Slack thread.",
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                    "user_peer_id": "user:alice",
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", TimeoutRecoveryAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(
+            os.environ,
+            {**runner_env("prod"), "RSI_RUNNER_PROD_TASK_TIMEOUT": "1s"},
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.raw["completion_verdict"], "partial")
+        self.assertEqual(result.raw["termination_reason"], "task_timeout")
+        self.assertFalse(result.raw["max_iterations_reached"])
+        self.assertEqual(result.raw["timeout_kind"], "task_timeout")
+        self.assertEqual(result.raw["task_timeout_seconds"], 1)
+        self.assertEqual(result.raw["runner_diagnostics"]["completion_verdict"], "partial")
+        self.assertEqual(result.raw["runner_diagnostics"]["termination_reason"], "task_timeout")
+        self.assertEqual(result.raw["runner_diagnostics"]["timeout_kind"], "task_timeout")
+        self.assertEqual(result.raw["runner_diagnostics"]["budget_used"], 9)
+        self.assertEqual(result.raw["runner_diagnostics"]["budget_max"], 20)
+        self.assertEqual(len(TimeoutRecoveryAIAgent.init_history), 2)
+        self.assertEqual(TimeoutRecoveryAIAgent.init_history[0]["session_id"], TimeoutRecoveryAIAgent.init_history[1]["session_id"])
+        self.assertEqual(TimeoutRecoveryAIAgent.init_history[0]["max_iterations"], 20)
+        self.assertEqual(TimeoutRecoveryAIAgent.init_history[1]["max_iterations"], 1)
+        self.assertIn("repo_context", TimeoutRecoveryAIAgent.run_history[0]["valid_tool_names"])
+        self.assertEqual(TimeoutRecoveryAIAgent.run_history[1]["valid_tool_names"], [])
+        self.assertEqual(TimeoutRecoveryAIAgent.run_history[1]["tool_names"], [])
+        self.assertIn("task timeout", TimeoutRecoveryAIAgent.run_history[1]["prompt"])
+        self.assertIn("workflow time limit", TimeoutRecoveryAIAgent.run_history[1]["prompt"])
+        self.assertEqual(TimeoutRecoveryAIAgent.run_history[1]["history"], [{"role": "user", "content": "Earlier thread message"}])
+        self.assertTrue(any("task_timeout" in message for message in TimeoutRecoveryAIAgent.interrupt_messages))
+
     def test_workflow_iteration_budget_exhaustion_fails_when_recovery_output_is_invalid(self) -> None:
         class InvalidRecoveryAIAgent:
             init_history: list[dict[str, object]] = []
