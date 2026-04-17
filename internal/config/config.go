@@ -39,6 +39,10 @@ type Config struct {
 	ProactiveRunnerTimeout             time.Duration
 	EvalRunnerTimeout                  time.Duration
 	ProposalRunnerTimeout              time.Duration
+	ProdRunnerTaskTimeout              time.Duration
+	ProactiveRunnerTaskTimeout         time.Duration
+	EvalRunnerTaskTimeout              time.Duration
+	ProposalRunnerTaskTimeout          time.Duration
 	WorkerPollInterval                 time.Duration
 	WorkItemLeaseDuration              time.Duration
 	SandboxPollInterval                time.Duration
@@ -87,6 +91,17 @@ type Config struct {
 	RuntimeDiagnosisLogFallbackEnabled bool
 }
 
+const (
+	defaultProdRunnerTimeout          = 330 * time.Second
+	defaultProactiveRunnerTimeout     = 330 * time.Second
+	defaultEvalRunnerTimeout          = 330 * time.Second
+	defaultProposalRunnerTimeout      = 450 * time.Second
+	defaultProdRunnerTaskTimeout      = 300 * time.Second
+	defaultProactiveRunnerTaskTimeout = 300 * time.Second
+	defaultEvalRunnerTaskTimeout      = 300 * time.Second
+	defaultProposalRunnerTaskTimeout  = 420 * time.Second
+)
+
 func Load(serviceName string) Config {
 	environment := stringEnv("RSI_ENV", "")
 	runnerBaseURL := stringEnv("RSI_RUNNER_BASE_URL", "")
@@ -112,10 +127,14 @@ func Load(serviceName string) Config {
 		ProposalRunnerBaseURL:              stringEnv("RSI_RUNNER_PROPOSAL_BASE_URL", ""),
 		ToolGatewayBaseURL:                 stringEnv("RSI_TOOL_GATEWAY_BASE_URL", ""),
 		HonchoRuntimeBaseURL:               stringEnv("RSI_HONCHO_RUNTIME_BASE_URL", ""),
-		ProdRunnerTimeout:                  durationEnv("RSI_RUNNER_PROD_TIMEOUT", 60*time.Second),
-		ProactiveRunnerTimeout:             durationEnv("RSI_RUNNER_PROACTIVE_TIMEOUT", 60*time.Second),
-		EvalRunnerTimeout:                  durationEnv("RSI_RUNNER_EVAL_TIMEOUT", 120*time.Second),
-		ProposalRunnerTimeout:              durationEnv("RSI_RUNNER_PROPOSAL_TIMEOUT", 180*time.Second),
+		ProdRunnerTimeout:                  durationEnv("RSI_RUNNER_PROD_TIMEOUT", defaultProdRunnerTimeout),
+		ProactiveRunnerTimeout:             durationEnv("RSI_RUNNER_PROACTIVE_TIMEOUT", defaultProactiveRunnerTimeout),
+		EvalRunnerTimeout:                  durationEnv("RSI_RUNNER_EVAL_TIMEOUT", defaultEvalRunnerTimeout),
+		ProposalRunnerTimeout:              durationEnv("RSI_RUNNER_PROPOSAL_TIMEOUT", defaultProposalRunnerTimeout),
+		ProdRunnerTaskTimeout:              durationEnv("RSI_RUNNER_PROD_TASK_TIMEOUT", defaultProdRunnerTaskTimeout),
+		ProactiveRunnerTaskTimeout:         durationEnv("RSI_RUNNER_PROACTIVE_TASK_TIMEOUT", defaultProactiveRunnerTaskTimeout),
+		EvalRunnerTaskTimeout:              durationEnv("RSI_RUNNER_EVAL_TASK_TIMEOUT", defaultEvalRunnerTaskTimeout),
+		ProposalRunnerTaskTimeout:          durationEnv("RSI_RUNNER_PROPOSAL_TASK_TIMEOUT", defaultProposalRunnerTaskTimeout),
 		WorkerPollInterval:                 durationEnv("RSI_WORKER_POLL_INTERVAL", 5*time.Second),
 		WorkItemLeaseDuration:              durationEnv("RSI_WORK_ITEM_LEASE_DURATION", 30*time.Second),
 		SandboxPollInterval:                durationEnv("RSI_SANDBOX_POLL_INTERVAL", 10*time.Second),
@@ -192,15 +211,60 @@ func (c Config) RunnerURLs() map[string]string {
 func (c Config) RunnerTimeoutForRole(role string) time.Duration {
 	switch strings.TrimSpace(role) {
 	case "prod":
-		return c.ProdRunnerTimeout
+		if c.ProdRunnerTimeout > 0 {
+			return c.ProdRunnerTimeout
+		}
+		return defaultProdRunnerTimeout
 	case "proactive":
-		return c.ProactiveRunnerTimeout
+		if c.ProactiveRunnerTimeout > 0 {
+			return c.ProactiveRunnerTimeout
+		}
+		return defaultProactiveRunnerTimeout
 	case "eval":
-		return c.EvalRunnerTimeout
+		if c.EvalRunnerTimeout > 0 {
+			return c.EvalRunnerTimeout
+		}
+		return defaultEvalRunnerTimeout
 	case "proposal":
-		return c.ProposalRunnerTimeout
+		if c.ProposalRunnerTimeout > 0 {
+			return c.ProposalRunnerTimeout
+		}
+		return defaultProposalRunnerTimeout
 	default:
-		return c.ProdRunnerTimeout
+		if c.ProdRunnerTimeout > 0 {
+			return c.ProdRunnerTimeout
+		}
+		return defaultProdRunnerTimeout
+	}
+}
+
+func (c Config) RunnerTaskTimeoutForRole(role string) time.Duration {
+	switch strings.TrimSpace(role) {
+	case "prod":
+		if c.ProdRunnerTaskTimeout > 0 {
+			return c.ProdRunnerTaskTimeout
+		}
+		return defaultProdRunnerTaskTimeout
+	case "proactive":
+		if c.ProactiveRunnerTaskTimeout > 0 {
+			return c.ProactiveRunnerTaskTimeout
+		}
+		return defaultProactiveRunnerTaskTimeout
+	case "eval":
+		if c.EvalRunnerTaskTimeout > 0 {
+			return c.EvalRunnerTaskTimeout
+		}
+		return defaultEvalRunnerTaskTimeout
+	case "proposal":
+		if c.ProposalRunnerTaskTimeout > 0 {
+			return c.ProposalRunnerTaskTimeout
+		}
+		return defaultProposalRunnerTaskTimeout
+	default:
+		if c.ProdRunnerTaskTimeout > 0 {
+			return c.ProdRunnerTaskTimeout
+		}
+		return defaultProdRunnerTaskTimeout
 	}
 }
 

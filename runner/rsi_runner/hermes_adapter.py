@@ -108,6 +108,8 @@ def _default_payload(canonical_name: str, payload: JsonObject) -> JsonObject:
     task_repo = str(payload.get("task_repo", "") or payload.get("repo", "")).strip()
     task_repo_ref = str(payload.get("task_repo_ref", "") or payload.get("repo_ref", "")).strip()
     task_prompt = str(payload.get("task_prompt", "") or payload.get("prompt", "")).strip()
+    task_channel_id = str(payload.get("task_channel_id", "") or payload.get("channel_id", "")).strip()
+    task_thread_ts = str(payload.get("task_thread_ts", "") or payload.get("thread_ts", "")).strip()
     context_summary = str(payload.get("context_summary", "") or "").strip()
     session_scope_kind = str(payload.get("session_scope_kind", "") or "").strip()
     session_scope_id = str(payload.get("session_scope_id", "") or "").strip()
@@ -127,6 +129,13 @@ def _default_payload(canonical_name: str, payload: JsonObject) -> JsonObject:
         out["question"] = task_prompt
         out["topic"] = task_prompt or context_summary
         out["scope_id"] = task_repo
+    if canonical_name == "slack.history":
+        if task_channel_id:
+            out["channel_id"] = task_channel_id
+        if task_thread_ts:
+            out["thread_ts"] = task_thread_ts
+        if task_prompt:
+            out["question"] = task_prompt
     if canonical_name == "rsi.workflow_context":
         out["trace_id"] = trace_id
     if canonical_name == "rsi.action_chain":

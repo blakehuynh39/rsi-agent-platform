@@ -26,19 +26,23 @@ type RequestContext struct {
 	ThreadTS       string
 }
 
-func ToolPlan(intent string, question string, repo string) []string {
+func ToolPlan(intent string, question string, repo string, channelID string, threadTS string) []string {
+	var plan []string
 	switch strings.TrimSpace(intent) {
 	case "incident":
-		return []string{"sentry.lookup", "kubernetes.inspect", "rsi.workflow_context", "rsi.action_chain", "rsi.runtime_health"}
+		plan = []string{"sentry.lookup", "kubernetes.inspect", "rsi.workflow_context", "rsi.action_chain", "rsi.runtime_health"}
 	case "feature_request":
-		return []string{"repo.context", "github.repo_context", "rsi.workflow_context", "rsi.action_chain"}
+		plan = []string{"repo.context", "github.repo_context", "rsi.workflow_context", "rsi.action_chain"}
 	default:
-		plan := []string{"repo.context", "knowledge.context", "rsi.workflow_context", "rsi.action_chain"}
+		plan = []string{"repo.context", "knowledge.context", "rsi.workflow_context", "rsi.action_chain"}
 		if ShouldUseGitHubRepoActivity(question, repo) {
 			plan = append(plan, "github.repo_activity")
 		}
-		return plan
 	}
+	if ShouldUseSlackHistory(question, repo, channelID, threadTS) {
+		plan = append(plan, "slack.history")
+	}
+	return plan
 }
 
 func BuildToolRequestPayload(cfg RuntimeConfig, ctx RequestContext, now time.Time) map[string]any {
@@ -120,6 +124,35 @@ func ShouldUseGitHubRepoActivity(question string, repo string) bool {
 		}
 	}
 	return false
+}
+
+func ShouldUseSlackHistory(question string, repo string, channelID string, threadTS string) bool {
+	if strings.TrimSpace(channelID) == "" {
+		return false
+	}
+	text := strings.ToLower(strings.TrimSpace(question))
+	if text == "" {
+		return strings.TrimSpace(threadTS) != ""
+	}
+	indicators := []string{
+		"slack",
+		"channel",
+		"thread",
+		"conversation",
+		"convo",
+		"discuss",
+		"discussion",
+		"talked",
+		"said",
+		"mention",
+		"mentioned",
+	}
+	for _, indicator := range indicators {
+		if strings.Contains(text, indicator) {
+			return true
+		}
+	}
+	return ShouldUseGitHubRepoActivity(question, repo)
 }
 
 func RepoActivityWindow(question string, now time.Time) (string, string) {

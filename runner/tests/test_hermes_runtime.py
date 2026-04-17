@@ -362,6 +362,8 @@ class HermesRuntimeTests(unittest.TestCase):
             task_repo="rsi-agent-platform",
             task_repo_ref="main",
             task_prompt="What broke?",
+            task_channel_id="",
+            task_thread_ts="",
             task_context_summary="workflow summary",
             trace_id="trace-123",
             session_scope_kind="conversation",
@@ -376,6 +378,65 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(captured["body"], {"trace_id": "trace-123", "repo": "rsi-agent-platform", "question": "What broke?"})
         self.assertEqual(payload["tool_name"], "repo.context")
         self.assertEqual(payload["transport_tool_name"], "repo_context")
+
+    def test_slack_history_binding_defaults_to_bound_channel_context(self) -> None:
+        captured: dict[str, object] = {}
+
+        class FakeResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb) -> bool:
+                return False
+
+            def read(self) -> bytes:
+                return json.dumps(
+                    {
+                        "status": "completed",
+                        "available": True,
+                        "summary": "Slack thread history loaded.",
+                        "provider": "slack",
+                        "provider_ref": "171000001.000100",
+                        "output": {"messages": []},
+                    }
+                ).encode("utf-8")
+
+        def fake_urlopen(req, timeout: int = 0):
+            captured["url"] = req.full_url
+            captured["timeout"] = timeout
+            captured["body"] = json.loads(req.data.decode("utf-8"))
+            return FakeResponse()
+
+        binding = ReadOnlyToolBinding(
+            base_url="http://tool-gateway.internal",
+            allowed_tool_names=["slack.history"],
+            task_repo="rsi-agent-platform",
+            task_repo_ref="main",
+            task_prompt="What did we say in the latest convo?",
+            task_channel_id="C123",
+            task_thread_ts="171000001.000100",
+            task_context_summary="workflow summary",
+            trace_id="trace-123",
+            session_scope_kind="conversation",
+            session_scope_id="conv-123",
+            context_refs=[],
+        )
+
+        with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_urlopen):
+            payload = json.loads(binding.handle_tool_call("slack_history", {}))
+
+        self.assertEqual(captured["url"], "http://tool-gateway.internal/api/tools/slack.history/execute")
+        self.assertEqual(
+            captured["body"],
+            {
+                "trace_id": "trace-123",
+                "channel_id": "C123",
+                "thread_ts": "171000001.000100",
+                "question": "What did we say in the latest convo?",
+            },
+        )
+        self.assertEqual(payload["tool_name"], "slack.history")
+        self.assertEqual(payload["transport_tool_name"], "slack_history")
 
     def test_invalid_tool_name_preflight_fails_before_provider_execution(self) -> None:
         task = RunnerTaskRequest.from_payload(

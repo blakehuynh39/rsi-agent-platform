@@ -1,6 +1,9 @@
 package config
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestLoadPanicsOnInvalidIntegerEnv(t *testing.T) {
 	t.Setenv("RSI_HTTP_PORT", "not-a-number")
@@ -35,6 +38,20 @@ func TestLoadPanicsOnInvalidListEnv(t *testing.T) {
 	assertPanics(t, func() {
 		_ = Load("control-plane")
 	})
+}
+
+func TestRunnerTaskTimeoutDefaultsUseExpandedBudgets(t *testing.T) {
+	cfg := Config{}
+
+	if got := cfg.RunnerTimeoutForRole("prod"); got != 330*time.Second {
+		t.Fatalf("prod runner timeout = %s, want 330s", got)
+	}
+	if got := cfg.RunnerTaskTimeoutForRole("prod"); got != 300*time.Second {
+		t.Fatalf("prod runner task timeout = %s, want 300s", got)
+	}
+	if got := cfg.RunnerTaskTimeoutForRole("proposal"); got != 420*time.Second {
+		t.Fatalf("proposal runner task timeout = %s, want 420s", got)
+	}
 }
 
 func assertPanics(t *testing.T, fn func()) {

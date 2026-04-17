@@ -20,6 +20,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
+	slackapi "github.com/slack-go/slack"
 )
 
 func TestGitHubCreatePRUsesExternalAPI(t *testing.T) {
@@ -175,6 +176,13 @@ func TestRSIRuntimeConfigReturnsSanitizedConfig(t *testing.T) {
 	}
 	if runnerURLs["proposal"] != "http://runner-proposal.internal:8090" {
 		t.Fatalf("unexpected proposal runner url %#v", runnerURLs)
+	}
+	taskTimeouts, ok := result.Output["runner_task_timeouts_seconds"].(map[string]int)
+	if !ok {
+		t.Fatalf("expected runner_task_timeouts_seconds map[string]int, got %#v", result.Output["runner_task_timeouts_seconds"])
+	}
+	if taskTimeouts["proposal"] != 420 {
+		t.Fatalf("unexpected proposal task timeout %#v", taskTimeouts)
 	}
 }
 
@@ -442,6 +450,111 @@ func TestSlackReplyWithoutTokenIsBlocked(t *testing.T) {
 	}
 	if result.Available {
 		t.Fatal("expected unavailable slack provider when token is missing")
+	}
+}
+
+func TestSlackHistoryUsesChannelHistoryForProgressQuestion(t *testing.T) {
+	var seenPath string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		seenPath = r.URL.Path
+		if err := r.ParseForm(); err != nil {
+			t.Fatalf("ParseForm() error = %v", err)
+		}
+		if got := r.Form.Get("channel"); got != "C123" {
+			t.Fatalf("expected channel C123, got %q", got)
+		}
+		if got := r.Form.Get("limit"); got != "25" {
+			t.Fatalf("expected default limit 25, got %q", got)
+		}
+		switch r.URL.Path {
+		case "/conversations.history":
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"ok":       true,
+				"has_more": false,
+				"messages": []map[string]any{
+					{"type": "message", "user": "U123", "text": "Raised the control-plane budget and added Slack reads.", "ts": "171000001.000100"},
+				},
+				"response_metadata": map[string]any{"next_cursor": ""},
+			})
+		default:
+			t.Fatalf("unexpected slack path %s", r.URL.Path)
+		}
+	}))
+	defer server.Close()
+
+	service := NewService(config.Config{
+		SlackBotToken:          "xoxb-test",
+		AllowedSlackChannelIDs: []string{"C123"},
+	}, storepkg.NewMemoryStore())
+	service.slackClient = slackapi.New("xoxb-test", slackapi.OptionAPIURL(server.URL+"/"))
+
+	result := service.Execute("slack.history", map[string]interface{}{
+		"channel_id": "C123",
+		"thread_ts":  "171000001.000100",
+		"question":   "How did depin-backend progress in the last week?",
+	})
+
+	if seenPath != "/conversations.history" {
+		t.Fatalf("expected conversations.history, got %s", seenPath)
+	}
+	if result.Status != "ok" {
+		t.Fatalf("expected ok status, got %s %#v", result.Status, result.Output)
+	}
+	if got := result.Output["scope"]; got != "channel" {
+		t.Fatalf("expected channel scope, got %#v", got)
+	}
+	messages, ok := result.Output["messages"].([]map[string]interface{})
+	if !ok || len(messages) != 1 {
+		t.Fatalf("expected one slack message, got %#v", result.Output["messages"])
+	}
+}
+
+func TestSlackHistoryUsesThreadRepliesForConversationQuestion(t *testing.T) {
+	var seenPath string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		seenPath = r.URL.Path
+		if err := r.ParseForm(); err != nil {
+			t.Fatalf("ParseForm() error = %v", err)
+		}
+		if got := r.Form.Get("ts"); got != "171000001.000100" {
+			t.Fatalf("expected thread ts 171000001.000100, got %q", got)
+		}
+		switch r.URL.Path {
+		case "/conversations.replies":
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"ok":       true,
+				"has_more": false,
+				"messages": []map[string]any{
+					{"type": "message", "user": "U123", "text": "We already wired the Slack app into this thread.", "ts": "171000001.000100", "thread_ts": "171000001.000100"},
+				},
+				"response_metadata": map[string]any{"next_cursor": ""},
+			})
+		default:
+			t.Fatalf("unexpected slack path %s", r.URL.Path)
+		}
+	}))
+	defer server.Close()
+
+	service := NewService(config.Config{
+		SlackBotToken:          "xoxb-test",
+		AllowedSlackChannelIDs: []string{"C123"},
+	}, storepkg.NewMemoryStore())
+	service.slackClient = slackapi.New("xoxb-test", slackapi.OptionAPIURL(server.URL+"/"))
+
+	result := service.Execute("slack.history", map[string]interface{}{
+		"channel_id": "C123",
+		"thread_ts":  "171000001.000100",
+		"question":   "What did we say in the latest convo?",
+	})
+
+	if seenPath != "/conversations.replies" {
+		t.Fatalf("expected conversations.replies, got %s", seenPath)
+	}
+	if result.Status != "ok" {
+		t.Fatalf("expected ok status, got %s %#v", result.Status, result.Output)
+	}
+	if got := result.Output["scope"]; got != "thread" {
+		t.Fatalf("expected thread scope, got %#v", got)
 	}
 }
 

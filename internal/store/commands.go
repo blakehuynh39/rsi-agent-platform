@@ -312,7 +312,7 @@ func (s *MemoryStore) appendWorkflowPlanningCommandsLocked(bundle *transitionPer
 	planning := workflowPlanningConfigFromCommand(parent)
 	resumeQueue := firstNonEmpty(stringFromCommand(parent, "resume_queue"), string(queue.WorkflowQueue))
 	repo := workflowplan.ResolveTargetRepo(planning, strings.TrimSpace(ingestion.Text))
-	toolNames := workflowplan.ToolPlan(workflow.Intent, strings.TrimSpace(ingestion.Text), repo)
+	toolNames := workflowplan.ToolPlan(workflow.Intent, strings.TrimSpace(ingestion.Text), repo, ingestion.ChannelID, ingestion.ThreadTS)
 	if len(toolNames) == 0 {
 		appendFollowOnCommand(bundle, parent, transition.CommandEnvelope{
 			MachineKind: transition.MachineWorkflow,

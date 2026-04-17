@@ -362,6 +362,8 @@ class RunnerTaskRequest:
     workflow_id: str | None
     conversation_id: str | None
     case_id: str | None
+    channel_id: str | None
+    thread_ts: str | None
     trigger_event_id: str | None
     recent_conversation_entries: list[JsonObject]
     case_summary: JsonObject | None
@@ -409,6 +411,8 @@ class RunnerTaskRequest:
             workflow_id=_optional_string(task.get("workflow_id")),
             conversation_id=_optional_string(task.get("conversation_id")),
             case_id=_optional_string(task.get("case_id")),
+            channel_id=_optional_string(task.get("channel_id")),
+            thread_ts=_optional_string(task.get("thread_ts")),
             trigger_event_id=_optional_string(task.get("trigger_event_id")),
             recent_conversation_entries=_json_object_list(task.get("recent_conversation_entries")),
             case_summary=_json_object_or_empty(task.get("case_summary")) or None,
@@ -651,6 +655,8 @@ class HermesRuntime:
                     "task_prompt": task.prompt,
                     "trace_id": task.trace_id,
                     "workflow_id": task.workflow_id,
+                    "task_channel_id": task.channel_id or "",
+                    "task_thread_ts": task.thread_ts or "",
                     "proposal_id": task.session_scope_id if (task.session_scope_kind or "").strip() == "proposal_candidate" else "",
                     "attempt_id": task.attempt_id,
                     "workspace_id": task.workspace_id,
@@ -1018,6 +1024,8 @@ class HermesRuntime:
                 task_repo=task.repo,
                 task_repo_ref=task.repo_ref or "",
                 task_prompt=task.prompt,
+                task_channel_id=task.channel_id or "",
+                task_thread_ts=task.thread_ts or "",
                 task_context_summary=task.context_summary or "",
                 trace_id=task.trace_id or "",
                 session_scope_kind=task.session_scope_kind or "",
@@ -1035,6 +1043,8 @@ class HermesRuntime:
                 task_repo=task.repo,
                 task_repo_ref=task.repo_ref or "",
                 task_prompt=task.prompt,
+                task_channel_id=task.channel_id or "",
+                task_thread_ts=task.thread_ts or "",
                 task_context_summary=task.context_summary or "",
                 trace_id=task.trace_id or "",
                 session_scope_kind=task.session_scope_kind or "",
@@ -1290,6 +1300,8 @@ class HermesRuntime:
             "intent": task.intent,
             "trace_id": task.trace_id,
             "workflow_id": task.workflow_id,
+            "channel_id": task.channel_id,
+            "thread_ts": task.thread_ts,
             "repo_allowlist": task.repo_allowlist,
             "tool_allowlist": task.tool_allowlist,
             "tool_policy_mode": tool_policy.mode,

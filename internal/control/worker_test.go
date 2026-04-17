@@ -65,7 +65,7 @@ func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
 		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
 		name = strings.TrimSuffix(name, "/execute")
 		switch name {
-		case "repo.context", "knowledge.context", "sentry.lookup", "kubernetes.inspect", "github.repo_activity", "rsi.workflow_context", "rsi.action_chain", "rsi.runtime_health":
+		case "repo.context", "knowledge.context", "sentry.lookup", "kubernetes.inspect", "github.repo_activity", "slack.history", "rsi.workflow_context", "rsi.action_chain", "rsi.runtime_health":
 			toolCalls++
 			_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
 				Name:          name,
@@ -1281,9 +1281,12 @@ func TestFinalizeWorkflowFailureWithDetailsNonRetryableMovesLineToNeedsHuman(t *
 }
 
 func TestToolPlanForRepoProgressQuestionUsesGitHubActivity(t *testing.T) {
-	plan := workflowplan.ToolPlan("question", "Hello RSI, can you give me a quick rundown of how depin-backend api progressed in the last week", "depin-backend")
+	plan := workflowplan.ToolPlan("question", "Hello RSI, can you give me a quick rundown of how depin-backend api progressed in the last week", "depin-backend", "C123", "171000001.000100")
 	if !containsString(plan, "github.repo_activity") {
 		t.Fatalf("expected github.repo_activity in tool plan, got %#v", plan)
+	}
+	if !containsString(plan, "slack.history") {
+		t.Fatalf("expected slack.history in tool plan, got %#v", plan)
 	}
 }
 
@@ -1339,6 +1342,39 @@ func TestToolInputForIntentUsesMentionedRepoAndTimeWindow(t *testing.T) {
 	}
 	if got := input["case_id"]; got != trace.CaseID {
 		t.Fatalf("expected case binding, got %#v", got)
+	}
+}
+
+func TestBuildRunnerTaskUsesConfiguredTimeoutAndSlackBinding(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatalf("expected trace %s", workflowItem.traceID)
+	}
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatalf("expected workflow %s", workflowItem.workflowID)
+	}
+	ingestion, ok := findIngestion(store.ListIngestions(), workflowItem.ingestionID)
+	if !ok {
+		t.Fatalf("expected ingestion %s", workflowItem.ingestionID)
+	}
+	task := buildRunnerTask(config.Config{
+		Environment:               "stage",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultReasoningVerbosity: "verbose",
+		ProdRunnerTaskTimeout:     300 * time.Second,
+	}, store, "prod", trace, workflow, ingestion, "context", nil, []string{"repo.context"})
+
+	if task.TimeoutSeconds != 0 {
+		t.Fatalf("task timeout = %d, want 0", task.TimeoutSeconds)
+	}
+	if task.ChannelID != ingestion.ChannelID {
+		t.Fatalf("channel id = %q, want %q", task.ChannelID, ingestion.ChannelID)
+	}
+	if task.ThreadTS != ingestion.ThreadTS {
+		t.Fatalf("thread ts = %q, want %q", task.ThreadTS, ingestion.ThreadTS)
 	}
 }
 

@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"path"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 	"unicode"
@@ -82,6 +83,8 @@ func (s *Service) Execute(name string, input map[string]interface{}) storepkg.To
 		return s.kubernetesEvents(input)
 	case "slack.reply":
 		return s.slackReply(input)
+	case "slack.history":
+		return s.slackHistory(input)
 	case "github.create_pr":
 		return s.githubCreatePR(input)
 	case "github.repo_context":
@@ -1009,10 +1012,16 @@ func (s *Service) rsiRuntimeConfig(input map[string]interface{}) storepkg.ToolRe
 		"active_proposal_cap":         s.cfg.DefaultProposalCap,
 		"runner_urls":                 s.cfg.RunnerURLs(),
 		"runner_timeouts_seconds": map[string]int{
-			"prod":      int(s.cfg.ProdRunnerTimeout.Seconds()),
-			"proactive": int(s.cfg.ProactiveRunnerTimeout.Seconds()),
-			"eval":      int(s.cfg.EvalRunnerTimeout.Seconds()),
-			"proposal":  int(s.cfg.ProposalRunnerTimeout.Seconds()),
+			"prod":      int(s.cfg.RunnerTimeoutForRole("prod").Seconds()),
+			"proactive": int(s.cfg.RunnerTimeoutForRole("proactive").Seconds()),
+			"eval":      int(s.cfg.RunnerTimeoutForRole("eval").Seconds()),
+			"proposal":  int(s.cfg.RunnerTimeoutForRole("proposal").Seconds()),
+		},
+		"runner_task_timeouts_seconds": map[string]int{
+			"prod":      int(s.cfg.RunnerTaskTimeoutForRole("prod").Seconds()),
+			"proactive": int(s.cfg.RunnerTaskTimeoutForRole("proactive").Seconds()),
+			"eval":      int(s.cfg.RunnerTaskTimeoutForRole("eval").Seconds()),
+			"proposal":  int(s.cfg.RunnerTaskTimeoutForRole("proposal").Seconds()),
 		},
 		"tool_gateway_base_url":   s.cfg.ToolGatewayBaseURL,
 		"honcho_runtime_base_url": s.cfg.HonchoRuntimeBaseURL,
@@ -1314,6 +1323,251 @@ func (s *Service) slackReply(input map[string]interface{}) storepkg.ToolResult {
 	return s.result("slack.reply", input, summary, output, nil)
 }
 
+func (s *Service) slackHistory(input map[string]interface{}) storepkg.ToolResult {
+	traceID := strings.TrimSpace(stringValue(input["trace_id"]))
+	boundChannelID, boundThreadTS := s.boundSlackContext(traceID)
+	channelID := firstNonEmpty(strings.TrimSpace(stringValue(input["channel_id"])), boundChannelID)
+	threadTS := firstNonEmpty(strings.TrimSpace(stringValue(input["thread_ts"])), boundThreadTS)
+	question := strings.TrimSpace(stringValue(input["question"]))
+	scope := slackHistoryScope(input, question, threadTS)
+	limit := slackHistoryLimit(input)
+	oldest, latest, err := slackHistoryWindow(input)
+	output := map[string]interface{}{
+		"channel_id": channelID,
+		"thread_ts":  threadTS,
+		"scope":      scope,
+		"limit":      limit,
+		"oldest":     oldest,
+		"latest":     latest,
+		"messages":   []map[string]interface{}{},
+	}
+	if err != nil {
+		output["error"] = err.Error()
+		return s.failedResult("slack.history", input, "slack", fmt.Sprintf("Slack history request invalid: %v", err), output)
+	}
+	if channelID == "" {
+		output["error"] = "missing channel_id"
+		return s.failedResult("slack.history", input, "slack", "Slack history requires channel_id or a trace bound to a Slack ingestion.", output)
+	}
+	if !s.slackHistoryChannelAllowed(channelID, boundChannelID) {
+		output["error"] = "channel_not_allowed"
+		return s.failedResult("slack.history", input, "slack", fmt.Sprintf("Slack history not permitted for channel %s.", channelID), output)
+	}
+	if s.slackClient == nil {
+		output["error"] = "missing RSI_SLACK_BOT_TOKEN"
+		return s.unavailableResult("slack.history", input, "slack", "Slack history unavailable: bot token is not configured.", output)
+	}
+	if scope == "thread" && threadTS != "" {
+		messages, hasMore, nextCursor, err := s.slackClient.GetConversationReplies(&slackapi.GetConversationRepliesParameters{
+			ChannelID: channelID,
+			Timestamp: threadTS,
+			Oldest:    oldest,
+			Latest:    latest,
+			Limit:     limit,
+			Inclusive: true,
+		})
+		if err != nil {
+			output["error"] = err.Error()
+			return s.failedResult("slack.history", input, "slack", fmt.Sprintf("Slack thread history failed: %v", err), output)
+		}
+		output["messages"] = slackMessagesPayload(messages)
+		output["has_more"] = hasMore
+		output["next_cursor"] = nextCursor
+		summary := fmt.Sprintf("Slack thread history loaded from %s with %d message(s).", channelID, len(messages))
+		return s.result("slack.history", input, summary, output, nil)
+	}
+	history, err := s.slackClient.GetConversationHistory(&slackapi.GetConversationHistoryParameters{
+		ChannelID: channelID,
+		Oldest:    oldest,
+		Latest:    latest,
+		Limit:     limit,
+		Inclusive: true,
+	})
+	if err != nil {
+		output["error"] = err.Error()
+		return s.failedResult("slack.history", input, "slack", fmt.Sprintf("Slack channel history failed: %v", err), output)
+	}
+	output["messages"] = slackMessagesPayload(history.Messages)
+	output["has_more"] = history.HasMore
+	output["next_cursor"] = history.ResponseMetaData.NextCursor
+	summary := fmt.Sprintf("Slack channel history loaded from %s with %d message(s).", channelID, len(history.Messages))
+	return s.result("slack.history", input, summary, output, nil)
+}
+
+func (s *Service) slackHistoryChannelAllowed(channelID string, boundChannelID string) bool {
+	channelID = strings.TrimSpace(channelID)
+	if channelID == "" {
+		return false
+	}
+	if channelID == strings.TrimSpace(boundChannelID) {
+		return true
+	}
+	for _, allowed := range s.cfg.AllowedSlackChannelIDs {
+		if channelID == strings.TrimSpace(allowed) {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *Service) boundSlackContext(traceID string) (string, string) {
+	traceID = strings.TrimSpace(traceID)
+	if traceID == "" {
+		return "", ""
+	}
+	trace, ok := s.store.GetTrace(traceID)
+	if !ok {
+		return "", ""
+	}
+	ingestionID := strings.TrimSpace(trace.Summary.IngestionID)
+	if ingestionID == "" {
+		return "", ""
+	}
+	for _, item := range s.store.ListIngestions() {
+		if strings.TrimSpace(item.ID) != ingestionID {
+			continue
+		}
+		return strings.TrimSpace(item.ChannelID), strings.TrimSpace(item.ThreadTS)
+	}
+	return "", ""
+}
+
+func slackHistoryScope(input map[string]interface{}, question string, threadTS string) string {
+	explicit := strings.ToLower(strings.TrimSpace(stringValue(input["scope"])))
+	if explicit == "thread" && strings.TrimSpace(threadTS) != "" {
+		return "thread"
+	}
+	if explicit == "channel" {
+		return "channel"
+	}
+	if strings.TrimSpace(threadTS) == "" {
+		return "channel"
+	}
+	text := strings.ToLower(strings.TrimSpace(question))
+	if text == "" {
+		return "thread"
+	}
+	threadIndicators := []string{
+		"thread",
+		"conversation",
+		"convo",
+		"reply",
+		"replied",
+		"said",
+		"latest convo",
+		"latest conversation",
+	}
+	for _, indicator := range threadIndicators {
+		if strings.Contains(text, indicator) {
+			return "thread"
+		}
+	}
+	return "channel"
+}
+
+func slackHistoryLimit(input map[string]interface{}) int {
+	switch raw := input["limit"].(type) {
+	case int:
+		return maxInt(1, minInt(raw, 100))
+	case int32:
+		return maxInt(1, minInt(int(raw), 100))
+	case int64:
+		return maxInt(1, minInt(int(raw), 100))
+	case float64:
+		return maxInt(1, minInt(int(raw), 100))
+	case json.Number:
+		if value, err := raw.Int64(); err == nil {
+			return maxInt(1, minInt(int(value), 100))
+		}
+	case string:
+		if value, err := strconv.Atoi(strings.TrimSpace(raw)); err == nil {
+			return maxInt(1, minInt(value, 100))
+		}
+	}
+	return 25
+}
+
+func slackHistoryWindow(input map[string]interface{}) (string, string, error) {
+	oldestRaw := firstNonEmpty(strings.TrimSpace(stringValue(input["oldest"])), strings.TrimSpace(stringValue(input["since"])))
+	latestRaw := firstNonEmpty(strings.TrimSpace(stringValue(input["latest"])), strings.TrimSpace(stringValue(input["until"])))
+	if oldestRaw == "" {
+		oldestRaw = time.Now().UTC().Add(-7 * 24 * time.Hour).Format(time.RFC3339)
+	}
+	if latestRaw == "" {
+		latestRaw = time.Now().UTC().Format(time.RFC3339)
+	}
+	oldest, err := parseFlexibleTimestamp(oldestRaw)
+	if err != nil {
+		return "", "", fmt.Errorf("invalid oldest timestamp %q", oldestRaw)
+	}
+	latest, err := parseFlexibleTimestamp(latestRaw)
+	if err != nil {
+		return "", "", fmt.Errorf("invalid latest timestamp %q", latestRaw)
+	}
+	if latest.Before(oldest) {
+		return "", "", fmt.Errorf("latest must be after oldest")
+	}
+	return slackTimestamp(oldest), slackTimestamp(latest), nil
+}
+
+func parseFlexibleTimestamp(raw string) (time.Time, error) {
+	text := strings.TrimSpace(raw)
+	if text == "" {
+		return time.Time{}, fmt.Errorf("timestamp is empty")
+	}
+	if parsed, err := time.Parse(time.RFC3339, text); err == nil {
+		return parsed.UTC(), nil
+	}
+	if sec, err := strconv.ParseInt(text, 10, 64); err == nil {
+		return time.Unix(sec, 0).UTC(), nil
+	}
+	parts := strings.SplitN(text, ".", 2)
+	if len(parts) == 2 {
+		sec, err := strconv.ParseInt(parts[0], 10, 64)
+		if err != nil {
+			return time.Time{}, err
+		}
+		fraction := parts[1]
+		if fraction == "" {
+			return time.Unix(sec, 0).UTC(), nil
+		}
+		if len(fraction) > 9 {
+			fraction = fraction[:9]
+		}
+		for len(fraction) < 9 {
+			fraction += "0"
+		}
+		nsec, err := strconv.ParseInt(fraction, 10, 64)
+		if err != nil {
+			return time.Time{}, err
+		}
+		return time.Unix(sec, nsec).UTC(), nil
+	}
+	return time.Time{}, fmt.Errorf("unsupported timestamp format")
+}
+
+func slackTimestamp(value time.Time) string {
+	value = value.UTC()
+	return fmt.Sprintf("%d.%06d", value.Unix(), value.Nanosecond()/1_000)
+}
+
+func slackMessagesPayload(messages []slackapi.Message) []map[string]interface{} {
+	out := make([]map[string]interface{}, 0, len(messages))
+	for _, message := range messages {
+		out = append(out, map[string]interface{}{
+			"ts":          strings.TrimSpace(message.Timestamp),
+			"thread_ts":   strings.TrimSpace(message.ThreadTimestamp),
+			"user":        strings.TrimSpace(message.User),
+			"username":    strings.TrimSpace(message.Username),
+			"bot_id":      strings.TrimSpace(message.BotID),
+			"subtype":     strings.TrimSpace(message.SubType),
+			"text":        truncate(strings.TrimSpace(message.Text), 2000),
+			"reply_count": message.ReplyCount,
+		})
+	}
+	return out
+}
+
 func (s *Service) result(name string, input map[string]interface{}, summary string, output map[string]interface{}, refs []string) storepkg.ToolResult {
 	result := storepkg.ToolResult{
 		Name:            name,
@@ -1551,6 +1805,8 @@ func providerRefForTool(name string, output map[string]interface{}) string {
 	switch name {
 	case "slack.reply":
 		return firstNonEmpty(stringValue(output["ts"]), stringValue(output["thread_ts"]))
+	case "slack.history":
+		return firstNonEmpty(stringValue(output["thread_ts"]), stringValue(output["channel_id"]))
 	case "github.create_pr":
 		return stringValue(output["pr_url"])
 	case "github.repo_context":

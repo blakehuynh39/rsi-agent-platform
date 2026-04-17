@@ -118,6 +118,8 @@ type RunnerTask struct {
 	WorkflowID                string                          `json:"workflow_id,omitempty"`
 	ConversationID            string                          `json:"conversation_id,omitempty"`
 	CaseID                    string                          `json:"case_id,omitempty"`
+	ChannelID                 string                          `json:"channel_id,omitempty"`
+	ThreadTS                  string                          `json:"thread_ts,omitempty"`
 	TriggerEventID            string                          `json:"trigger_event_id,omitempty"`
 	RecentConversationEntries []RunnerConversationEntry       `json:"recent_conversation_entries,omitempty"`
 	CaseSummary               *RunnerCaseSummary              `json:"case_summary,omitempty"`

@@ -665,6 +665,8 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		WorkflowID:                trace.Summary.WorkflowID,
 		ConversationID:            trace.Summary.ConversationID,
 		CaseID:                    trace.Summary.CaseID,
+		ChannelID:                 ingestion.ChannelID,
+		ThreadTS:                  ingestion.ThreadTS,
 		TriggerEventID:            trace.Summary.TriggerEventID,
 		RecentConversationEntries: recentEntries,
 		CaseSummary:               caseSummary,
@@ -1260,7 +1262,7 @@ func contextFromTrace(trace events.Trace) (string, []clients.RunnerContextRef, [
 		}
 	}
 	if len(toolNames) == 0 {
-		toolNames = workflowplan.ToolPlan(trace.Summary.WorkflowKind, "", "")
+		toolNames = workflowplan.ToolPlan(trace.Summary.WorkflowKind, "", "", "", "")
 	}
 	return strings.Join(summaries, " "), contextRefs, uniqueStrings(toolNames)
 }

@@ -65,6 +65,22 @@ _READ_ONLY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
             },
         },
     },
+    "slack.history": {
+        "name": "slack.history",
+        "description": "Read-only Slack channel or thread history lookup for the bound conversation or an allowed channel.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "channel_id": {"type": "string"},
+                "thread_ts": {"type": "string"},
+                "scope": {"type": "string"},
+                "question": {"type": "string"},
+                "oldest": {"type": "string"},
+                "latest": {"type": "string"},
+                "limit": {"type": "integer"},
+            },
+        },
+    },
     "github.repo_activity": {
         "name": "github.repo_activity",
         "description": "Read-only GitHub activity window lookup for commits and pull requests.",
@@ -481,6 +497,8 @@ class ReadOnlyToolBinding:
     task_repo: str
     task_repo_ref: str
     task_prompt: str
+    task_channel_id: str
+    task_thread_ts: str
     task_context_summary: str
     trace_id: str
     session_scope_kind: str
@@ -588,6 +606,15 @@ class ReadOnlyToolBinding:
             payload["question"] = self.task_prompt
             payload["topic"] = self.task_prompt or self.task_context_summary
             payload["scope_id"] = self.task_repo
+        if name == "slack.history":
+            channel_id = self.task_channel_id or self._channel_id_from_context_refs()
+            thread_ts = self.task_thread_ts or self._thread_ts_from_context_refs()
+            if channel_id:
+                payload["channel_id"] = channel_id
+            if thread_ts:
+                payload["thread_ts"] = thread_ts
+            if self.task_prompt:
+                payload["question"] = self.task_prompt
         if name == "rsi.workflow_context":
             payload["trace_id"] = self.trace_id
         if name == "rsi.action_chain":
@@ -616,6 +643,20 @@ class ReadOnlyToolBinding:
             ref = str(item.get("ref", "")).strip()
             if ref:
                 return ref
+        return ""
+
+    def _channel_id_from_context_refs(self) -> str:
+        for item in self.context_refs:
+            channel_id = str(item.get("channel_id", "")).strip()
+            if channel_id:
+                return channel_id
+        return ""
+
+    def _thread_ts_from_context_refs(self) -> str:
+        for item in self.context_refs:
+            thread_ts = str(item.get("thread_ts", "")).strip()
+            if thread_ts:
+                return thread_ts
         return ""
 
 
