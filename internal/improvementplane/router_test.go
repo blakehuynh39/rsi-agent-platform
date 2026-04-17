@@ -699,15 +699,8 @@ func TestRouterProposalRetryEndpoint(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("upsert repo change job: %v", err)
 	}
-	if _, err := store.SubmitCommand(transition.CommandEnvelope{
-		MachineKind: transition.MachineProposalLine,
-		AggregateID: proposal.ID,
-		CommandKind: string(transition.CommandProposalMarkFailedValidation),
-		CommandID:   "cmd-router-proposal-failed-validation",
-		Actor:       "operator",
-		OccurredAt:  time.Now().UTC(),
-	}); err != nil {
-		t.Fatalf("SubmitCommand(proposal_mark_failed_validation) error = %v", err)
+	if _, _, err := storepkg.AdvanceProposalToFailedValidationForTesting(store, proposal.ID, time.Now().UTC()); err != nil {
+		t.Fatalf("AdvanceProposalToFailedValidationForTesting() error = %v", err)
 	}
 
 	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)

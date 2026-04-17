@@ -1575,6 +1575,42 @@ func TestRetryProposalRepoChangeSupersedesStaleNonCurrentAttempt(t *testing.T) {
 	}
 }
 
+func TestRetryProposalRepoChangeAfterFailedValidationMaterializesNewAttempt(t *testing.T) {
+	store := NewMemoryStore()
+	proposal := store.ListProposals()[0]
+
+	approved, err := ReviewProposalForTesting(store, proposal.ID, review.ProposalReview{
+		Decision:   string(review.ProposalApproved),
+		Rationale:  "Proceed with repo-change work.",
+		ReviewerID: "alice",
+	})
+	if err != nil {
+		t.Fatalf("ReviewProposal() error = %v", err)
+	}
+	currentAttemptID := strings.TrimSpace(approved.CurrentAttemptID)
+	if currentAttemptID == "" {
+		t.Fatalf("expected current attempt after approval, got %+v", approved)
+	}
+	currentAttempt, ok := store.GetChangeAttempt(currentAttemptID)
+	if !ok {
+		t.Fatalf("expected attempt %s after approval", currentAttemptID)
+	}
+
+	if _, _, err := AdvanceProposalToFailedValidationForTesting(store, approved.ID, time.Now().UTC()); err != nil {
+		t.Fatalf("AdvanceProposalToFailedValidationForTesting() error = %v", err)
+	}
+
+	submitProposalCommandForTest(t, store, approved.ID, transition.CommandProposalRetryAttempt, "cmd-proposal-retry-after-failed-validation", nil)
+
+	reloadedProposal, ok := findProposalByID(store.ListProposals(), approved.ID)
+	if !ok {
+		t.Fatalf("expected proposal %s after retry", approved.ID)
+	}
+	if strings.TrimSpace(reloadedProposal.CurrentAttemptID) == "" || reloadedProposal.CurrentAttemptID == currentAttempt.ID {
+		t.Fatalf("expected retry to materialize a new current attempt, got %q", reloadedProposal.CurrentAttemptID)
+	}
+}
+
 func findThreadPolicyByKey(items []policy.ThreadPolicy, threadKey string) (policy.ThreadPolicy, bool) {
 	for _, item := range items {
 		if item.ThreadKey == threadKey {

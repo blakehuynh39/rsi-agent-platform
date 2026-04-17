@@ -390,7 +390,9 @@ func TestPostgresRetryProposalRepoChangeIsIdempotent(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("upsert repo change job: %v", err)
 	}
-	submitProposalCommandForTest(t, storeA, proposal.ID, transition.CommandProposalMarkFailedValidation, "cmd-postgres-proposal-failed-validation", nil)
+	if _, _, err := AdvanceProposalToFailedValidationForTesting(storeA, proposal.ID, now); err != nil {
+		t.Fatalf("AdvanceProposalToFailedValidationForTesting() error = %v", err)
+	}
 
 	var wg sync.WaitGroup
 	type retryResult struct {

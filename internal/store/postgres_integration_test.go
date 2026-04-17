@@ -116,7 +116,9 @@ func TestPostgresRetryProposalRepoChangePersistsSandboxRequeue(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("upsert repo change job: %v", err)
 	}
-	submitProposalCommandForTest(t, store, proposal.ID, transition.CommandProposalMarkFailedValidation, "cmd-postgres-integration-proposal-failed-validation", nil)
+	if _, _, err := AdvanceProposalToFailedValidationForTesting(store, proposal.ID, now); err != nil {
+		t.Fatalf("AdvanceProposalToFailedValidationForTesting() error = %v", err)
+	}
 
 	receipt, err := store.SubmitCommand(transition.CommandEnvelope{
 		MachineKind: transition.MachineProposalLine,
