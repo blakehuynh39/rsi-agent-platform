@@ -752,6 +752,45 @@ func TestMemoryStoreSubmitCommandWorkflowFailurePersistsLastError(t *testing.T) 
 	}
 }
 
+func TestMemoryStoreReconcileWorkflowTraceRepairsFailedWorkflowProjection(t *testing.T) {
+	store := NewMemoryStore()
+	workflow := store.ListWorkflows()[0]
+	trace, ok := store.GetTrace(workflow.TraceID)
+	if !ok {
+		t.Fatalf("expected trace %s", workflow.TraceID)
+	}
+	for i := range store.workflows {
+		if store.workflows[i].ID != workflow.ID {
+			continue
+		}
+		now := time.Now().UTC()
+		store.workflows[i].Status = string(transition.WorkflowStateFailed)
+		store.workflows[i].FailureSummary = "runner timed out"
+		store.workflows[i].LastError = "runner timed out"
+		store.workflows[i].UpdatedAt = now
+		store.workflows[i].CompletedAt = &now
+		workflow = store.workflows[i]
+		break
+	}
+	trace.Summary.Status = events.StatusRunning
+	trace.Events = nil
+	store.traces[trace.Summary.TraceID] = trace
+
+	reconciled, repaired, err := store.ReconcileWorkflowTrace(workflow.ID)
+	if err != nil {
+		t.Fatalf("ReconcileWorkflowTrace() error = %v", err)
+	}
+	if !repaired {
+		t.Fatal("expected trace reconciliation to repair the failed workflow projection")
+	}
+	if reconciled.Summary.Status != events.StatusFailed {
+		t.Fatalf("expected failed trace status, got %s", reconciled.Summary.Status)
+	}
+	if len(reconciled.Events) == 0 || reconciled.Events[len(reconciled.Events)-1].EventType != "workflow.failed" {
+		t.Fatalf("expected workflow.failed event after reconciliation, got %+v", reconciled.Events)
+	}
+}
+
 func TestMemoryStoreSubmitCommandContextTransitionsProjectTraceArtifacts(t *testing.T) {
 	t.Run("context actions queued", func(t *testing.T) {
 		store := NewMemoryStore()

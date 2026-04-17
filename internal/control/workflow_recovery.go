@@ -71,6 +71,9 @@ func finalizeWorkflowFailureWithDetails(cfg config.Config, store storepkg.Store,
 	if _, submitErr := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowFailed, cfg.ServiceName, time.Now().UTC(), payload); submitErr != nil {
 		return submitErr
 	}
+	if _, _, err := store.ReconcileWorkflowTrace(ctx.workflow.ID); err != nil {
+		return err
+	}
 	if retryDecision == "" {
 		log.Printf("control-plane workflow retry_exhausted_or_blocked case=%s workflow=%s failure_class=%s", ctx.workflow.CaseID, ctx.workflow.ID, failure.Class)
 	}

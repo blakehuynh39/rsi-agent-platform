@@ -214,7 +214,7 @@ class SessionManager:
         honcho_path = self._hermes_home / "honcho.json"
         payload = {
             "workspace": self._config.honcho_workspace,
-            "environment": self._config.honcho_environment,
+            "environment": self._config.honcho_environment_effective,
             "hosts": {
                 "hermes": {
                     "enabled": True,

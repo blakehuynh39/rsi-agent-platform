@@ -1792,7 +1792,7 @@ func completeClaimedImprovementEffect(store storepkg.Store, effect transition.Ef
 	if strings.TrimSpace(effect.ID) == "" || effect.Status == transition.EffectCompleted {
 		return nil
 	}
-	_, err := store.CompleteEffectExecution(effect.ID, resultRef)
+	_, err := store.CompleteEffectExecution(effect.ID, effect.Holder, resultRef)
 	return err
 }
 
@@ -1800,7 +1800,7 @@ func failClaimedImprovementEffect(store storepkg.Store, effect transition.Effect
 	if strings.TrimSpace(effect.ID) == "" || effect.Status == transition.EffectFailed {
 		return nil
 	}
-	_, err := store.FailEffectExecution(effect.ID, lastError)
+	_, err := store.FailEffectExecution(effect.ID, effect.Holder, lastError)
 	return err
 }
 

@@ -545,6 +545,7 @@ class HermesRuntime:
             "honcho_base_url": self._config.honcho_base_url or "",
             "honcho_workspace": self._config.honcho_workspace,
             "honcho_environment": self._config.honcho_environment,
+            "honcho_environment_effective": self._config.honcho_environment_effective,
             "honcho_recall_mode": self._config.honcho_recall_mode,
             "honcho_write_frequency": self._config.honcho_write_frequency,
             "honcho_session_strategy": self._config.honcho_session_strategy,
@@ -638,6 +639,7 @@ class HermesRuntime:
         context = self._session_manager.prepare(task)
         effective_task_timeout = self._effective_task_timeout(task)
         effective_inactivity_timeout = self._effective_inactivity_timeout(effective_task_timeout)
+        agent = None
         try:
             self._adapter.stage_task_context(
                 context.session_id,
@@ -702,6 +704,12 @@ class HermesRuntime:
                         "runner_diagnostics": self._runner_diagnostics(
                             tool_policy,
                             failure_kind="transport_timeout",
+                            provider_error_message=timeout_message,
+                            timeout_kind=timeout_kind or "task_timeout",
+                            termination_reason=timeout_kind or "task_timeout",
+                            activity=_json_object_or_empty(timeout_meta.get("last_activity")),
+                            max_iterations_reached=bool(timeout_meta.get("max_iterations_reached")),
+                            session_ready_issues=self._session_manager.ready_issues,
                             repair_attempted=False,
                             repair_succeeded=False,
                         ),
@@ -712,6 +720,7 @@ class HermesRuntime:
             response = str((run_result or {}).get("final_response", "") or "")
         except Exception as exc:
             diagnostics = self._provider_invalid_request_diagnostics(str(exc), tool_policy)
+            activity = safe_activity_summary(agent) if agent is not None else {}
             raw = {
                 **self._base_raw(prompt=task.prompt, system_message=task.system_message),
                 "error": str(exc),
@@ -726,6 +735,17 @@ class HermesRuntime:
                 raw["runner_diagnostics"] = diagnostics
             else:
                 raw["failure_class"] = "runner_non_ok"
+                raw["runner_diagnostics"] = self._runner_diagnostics(
+                    tool_policy,
+                    failure_kind="execution_error",
+                    provider_error_message=str(exc),
+                    termination_reason="exception",
+                    activity=activity,
+                    max_iterations_reached=bool(activity.get("budget_used", 0) >= activity.get("budget_max", 0) and activity.get("budget_max", 0) > 0),
+                    session_ready_issues=self._session_manager.ready_issues,
+                    repair_attempted=False,
+                    repair_succeeded=False,
+                )
             return HermesExecutionResult(
                 ok=False,
                 message=f"Hermes execution failed: {exc}",
@@ -781,6 +801,7 @@ class HermesRuntime:
             "honcho_base_url": self._config.honcho_base_url or "",
             "honcho_workspace": self._config.honcho_workspace,
             "honcho_environment": self._config.honcho_environment,
+            "honcho_environment_effective": self._config.honcho_environment_effective,
             "honcho_recall_mode": self._config.honcho_recall_mode,
             "honcho_write_frequency": self._config.honcho_write_frequency,
             "honcho_session_strategy": self._config.honcho_session_strategy,
@@ -799,6 +820,11 @@ class HermesRuntime:
         provider_error_code: str | None = None,
         provider_error_message: str | None = None,
         invalid_tool_names: list[str] | None = None,
+        timeout_kind: str | None = None,
+        termination_reason: str | None = None,
+        activity: JsonObject | None = None,
+        max_iterations_reached: bool | None = None,
+        session_ready_issues: list[str] | None = None,
         repair_attempted: bool | None = None,
         repair_succeeded: bool | None = None,
     ) -> JsonObject:
@@ -807,6 +833,7 @@ class HermesRuntime:
             "tool_allowlist_effective": list(tool_policy.effective),
             "tool_transport_allowlist_effective": list(tool_policy.transport_effective),
         }
+        latest_activity = _json_object_or_empty(activity)
         if tool_policy.custom_tool_transport_map:
             diagnostics["tool_transport_map"] = dict(tool_policy.custom_tool_transport_map)
         if provider_status_code is not None:
@@ -819,6 +846,25 @@ class HermesRuntime:
             diagnostics["provider_error_message"] = provider_error_message
         if invalid_tool_names:
             diagnostics["invalid_tool_names"] = normalize_tool_names(invalid_tool_names)
+        if timeout_kind:
+            diagnostics["timeout_kind"] = timeout_kind
+        if termination_reason:
+            diagnostics["termination_reason"] = termination_reason
+        if "last_activity_desc" in latest_activity:
+            diagnostics["last_activity_desc"] = string_from_map(latest_activity, "last_activity_desc")
+        if "current_tool" in latest_activity:
+            diagnostics["current_tool"] = string_from_map(latest_activity, "current_tool")
+        if "api_call_count" in latest_activity:
+            diagnostics["api_call_count"] = latest_activity.get("api_call_count")
+        if "budget_used" in latest_activity:
+            diagnostics["budget_used"] = latest_activity.get("budget_used")
+        if "budget_max" in latest_activity:
+            diagnostics["budget_max"] = latest_activity.get("budget_max")
+        if max_iterations_reached is not None:
+            diagnostics["max_iterations_reached"] = max_iterations_reached
+        ready_issues = list(session_ready_issues or [])
+        if ready_issues:
+            diagnostics["session_ready_issues"] = ready_issues
         if repair_attempted is not None:
             diagnostics["repair_attempted"] = repair_attempted
         if repair_succeeded is not None:

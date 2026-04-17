@@ -75,7 +75,7 @@ func TestMemoryStoreEffectExecutionClaimAndFail(t *testing.T) {
 		t.Fatal("expected claimed effect execution to have a lease")
 	}
 
-	item, err = store.FailEffectExecution("eff-1", "runner timeout")
+	item, err = store.FailEffectExecution("eff-1", "worker-1", "runner timeout")
 	if err != nil {
 		t.Fatalf("FailEffectExecution() error = %v", err)
 	}
@@ -112,7 +112,7 @@ func TestMemoryStoreCompleteEffectExecutionIsLedgerOnly(t *testing.T) {
 	} else if !claimed {
 		t.Fatal("expected effect claim to succeed")
 	}
-	if _, err := store.CompleteEffectExecution("eff-queue-eval", "result-1"); err != nil {
+	if _, err := store.CompleteEffectExecution("eff-queue-eval", "worker-1", "result-1"); err != nil {
 		t.Fatalf("CompleteEffectExecution() error = %v", err)
 	}
 
@@ -203,7 +203,7 @@ func TestPostgresCommandReceiptAndEffectExecutionLifecycle(t *testing.T) {
 		t.Fatalf("expected running claim, got claimed=%v effect=%+v", claimed, effect)
 	}
 
-	effect, err = store.CompleteEffectExecution("eff-pg-1", "result-1")
+	effect, err = store.CompleteEffectExecution("eff-pg-1", "worker-1", "result-1")
 	if err != nil {
 		t.Fatalf("CompleteEffectExecution() error = %v", err)
 	}
@@ -285,7 +285,7 @@ func TestPostgresCompleteEffectExecutionIsLedgerOnly(t *testing.T) {
 	} else if !claimed {
 		t.Fatal("expected effect claim to succeed")
 	}
-	if _, err := store.CompleteEffectExecution("eff-pg-queue-eval", "result-1"); err != nil {
+	if _, err := store.CompleteEffectExecution("eff-pg-queue-eval", "worker-1", "result-1"); err != nil {
 		t.Fatalf("CompleteEffectExecution() error = %v", err)
 	}
 
@@ -295,5 +295,114 @@ func TestPostgresCompleteEffectExecutionIsLedgerOnly(t *testing.T) {
 	}
 	if len(trace.Events) != initialEvents {
 		t.Fatalf("expected effect completion to avoid direct trace mutation, got %d events want %d", len(trace.Events), initialEvents)
+	}
+}
+
+func TestMemoryStoreStaleHolderCannotFinalizeEffectExecution(t *testing.T) {
+	store := NewMemoryStore()
+	now := time.Now().UTC()
+	store.effectExecutions["eff-stale"] = transition.EffectExecution{
+		ID:             "eff-stale",
+		MachineKind:    transition.MachineWorkflow,
+		AggregateID:    "wf-1",
+		EffectKind:     transition.EffectInvokeRunner,
+		Status:         transition.EffectQueued,
+		IdempotencyKey: "wf-1:invoke",
+		CreatedAt:      now,
+		UpdatedAt:      now,
+	}
+
+	firstClaim, claimed, err := store.ClaimEffectExecution("eff-stale", "worker-1", time.Second)
+	if err != nil || !claimed {
+		t.Fatalf("ClaimEffectExecution(worker-1) claimed=%v err=%v", claimed, err)
+	}
+	expired := now.Add(-time.Second)
+	firstClaim.LeaseExpiresAt = &expired
+	store.effectExecutions["eff-stale"] = firstClaim
+
+	secondClaim, claimed, err := store.ClaimEffectExecution("eff-stale", "worker-2", 30*time.Second)
+	if err != nil || !claimed {
+		t.Fatalf("ClaimEffectExecution(worker-2) claimed=%v err=%v", claimed, err)
+	}
+
+	item, err := store.CompleteEffectExecution("eff-stale", "worker-1", "result-1")
+	if err != nil {
+		t.Fatalf("CompleteEffectExecution(stale worker) error = %v", err)
+	}
+	if item.Status != transition.EffectRunning || item.Holder != "worker-2" {
+		t.Fatalf("expected stale completion to be a no-op, got %+v", item)
+	}
+
+	item, err = store.FailEffectExecution("eff-stale", "worker-1", "late failure")
+	if err != nil {
+		t.Fatalf("FailEffectExecution(stale worker) error = %v", err)
+	}
+	if item.Status != transition.EffectRunning || item.Holder != "worker-2" {
+		t.Fatalf("expected stale failure to be a no-op, got %+v", item)
+	}
+
+	if secondClaim.Holder != "worker-2" {
+		t.Fatalf("expected reclaimed holder worker-2, got %+v", secondClaim)
+	}
+}
+
+func TestPostgresStaleHolderCannotFinalizeEffectExecution(t *testing.T) {
+	postgresURL, cleanup := openTempPostgresURL(t)
+	defer cleanup()
+
+	db, err := platformdb.OpenPostgres(postgresURL)
+	if err != nil {
+		t.Fatalf("open postgres: %v", err)
+	}
+	defer db.Close()
+	if _, err := platformdb.ApplyMigrations(db); err != nil {
+		t.Fatalf("apply migrations: %v", err)
+	}
+
+	store, err := NewPostgresStore(config.Config{
+		StoreBackend: "postgres",
+		PostgresURL:  postgresURL,
+	})
+	if err != nil {
+		t.Fatalf("NewPostgresStore() error = %v", err)
+	}
+	defer store.db.Close()
+
+	now := time.Now().UTC()
+	err = store.withTx(func(tx *sql.Tx) error {
+		return persistEffectExecutions(tx, []transition.EffectExecution{{
+			ID:             "eff-pg-stale",
+			MachineKind:    transition.MachineWorkflow,
+			AggregateID:    "wf-pg-stale",
+			EffectKind:     transition.EffectInvokeRunner,
+			Status:         transition.EffectQueued,
+			IdempotencyKey: "wf-pg-stale:invoke",
+			CreatedAt:      now,
+			UpdatedAt:      now,
+		}})
+	})
+	if err != nil {
+		t.Fatalf("persistEffectExecutions() error = %v", err)
+	}
+
+	if _, claimed, err := store.ClaimEffectExecution("eff-pg-stale", "worker-1", 10*time.Millisecond); err != nil || !claimed {
+		t.Fatalf("ClaimEffectExecution(worker-1) claimed=%v err=%v", claimed, err)
+	}
+	time.Sleep(25 * time.Millisecond)
+
+	item, claimed, err := store.ClaimEffectExecution("eff-pg-stale", "worker-2", 30*time.Second)
+	if err != nil || !claimed {
+		t.Fatalf("ClaimEffectExecution(worker-2) claimed=%v err=%v", claimed, err)
+	}
+	if item.Holder != "worker-2" {
+		t.Fatalf("expected reclaimed holder worker-2, got %+v", item)
+	}
+
+	item, err = store.FailEffectExecution("eff-pg-stale", "worker-1", "late failure")
+	if err != nil {
+		t.Fatalf("FailEffectExecution(stale worker) error = %v", err)
+	}
+	if item.Status != transition.EffectRunning || item.Holder != "worker-2" {
+		t.Fatalf("expected stale failure to be a no-op, got %+v", item)
 	}
 }

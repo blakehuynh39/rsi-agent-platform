@@ -710,6 +710,106 @@ func TestHandleClaimedWorkflowRunnerEffectFinalizesStructuredOutputFailure(t *te
 	if len(store.ListEvalRuns()) == 0 {
 		t.Fatal("expected failed runner response to queue eval")
 	}
+	assertWorkflowEffectStatus(t, store, workflowItem.workflowID, transition.EffectInvokeRunner, transition.EffectCompleted)
+}
+
+func TestHandleClaimedWorkflowRunnerEffectWorkflowCommandPersistenceFailureKeepsEffectRecoverable(t *testing.T) {
+	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":       true,
+			"provider": "fake",
+			"message":  "Final reply",
+			"raw": map[string]any{
+				"structured_output": map[string]any{
+					"visible_reasoning": []any{
+						map[string]any{
+							"step_type":    "analysis",
+							"summary":      "Collected context.",
+							"alternatives": []any{},
+							"confidence":   0.9,
+							"decision":     "reply_in_thread",
+						},
+					},
+					"reply_draft":        "Draft reply",
+					"final_answer":       "Final reply",
+					"confidence":         0.9,
+					"context_summary":    "Context collected.",
+					"self_critique":      "",
+					"proposed_actions":   []any{map[string]any{"kind": "slack_post", "rationale": "Reply in thread.", "target_ref": "D123"}},
+					"knowledge_drafts":   []any{},
+					"outcome_hypotheses": []any{},
+				},
+			},
+		})
+	}))
+	defer runner.Close()
+
+	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
+		name = strings.TrimSuffix(name, "/execute")
+		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
+			Name:          name,
+			ToolCallID:    name + "-call",
+			Approved:      true,
+			ApprovalState: "not_required",
+			Status:        "completed",
+			Available:     true,
+			Summary:       "Context gathered.",
+			Input:         map[string]any{},
+			Output:        map[string]any{"ok": true},
+		})
+	}))
+	defer toolGateway.Close()
+
+	baseStore := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, baseStore, "slack:")
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             runner.URL,
+		ToolGatewayBaseURL:        toolGateway.URL,
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+	}
+
+	if err := startWorkflowViaCommand(cfg, baseStore, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+	for _, item := range queuedActionEffectsForPlane(baseStore, "control") {
+		if err := processControlActionEffect(cfg, baseStore, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), item); err != nil {
+			t.Fatalf("processControlActionEffect(context) error = %v", err)
+		}
+	}
+
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, baseStore, transition.EffectInvokeRunner)
+	store := &failingWorkflowCommandStore{
+		Store:           baseStore,
+		FailWorkflowID:  workflowItem.workflowID,
+		FailCommandKind: transition.CommandRunnerCompleted,
+		Err:             errors.New("workflow command persistence failed"),
+	}
+
+	handleClaimedWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect)
+
+	workflow, ok := findWorkflow(baseStore.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatal("expected workflow to exist")
+	}
+	if workflow.Status != string(transition.WorkflowStateReasoning) {
+		t.Fatalf("expected workflow to remain in reasoning after local persistence failure, got %s", workflow.Status)
+	}
+	trace, ok := baseStore.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatal("expected trace to exist")
+	}
+	if trace.Summary.Status != events.StatusRunning {
+		t.Fatalf("expected trace to remain running after local persistence failure, got %s", trace.Summary.Status)
+	}
+	assertWorkflowEffectStatus(t, baseStore, workflowItem.workflowID, transition.EffectInvokeRunner, transition.EffectFailed)
 }
 
 func TestHandleClaimedWorkflowRunnerEffectNonOKSchedulesSuccessorAttempt(t *testing.T) {
@@ -938,6 +1038,28 @@ func TestHandleClaimedWorkflowRunnerEffectInvalidRequestUsesRunnerDiagnosticsAnd
 	}
 	if line.CurrentWorkflowID != workflowItem.workflowID {
 		t.Fatalf("expected current workflow to remain original attempt, got %s", line.CurrentWorkflowID)
+	}
+}
+
+func TestBuildRunnerTaskDefersToRunnerDefaultTaskBudget(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	ctx, err := loadWorkflowContext(store, workflowItem)
+	if err != nil {
+		t.Fatalf("loadWorkflowContext() error = %v", err)
+	}
+	cfg := config.Config{
+		Environment:               "stage",
+		DefaultRepo:               "rsi-agent-platform",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+	}
+
+	task := buildRunnerTask(cfg, store, "prod", ctx.trace, ctx.workflow, ctx.ingestion, "Context collected.", nil, nil)
+	if task.TimeoutSeconds != 0 {
+		t.Fatalf("expected workflow runner task timeout override to be omitted, got %d", task.TimeoutSeconds)
 	}
 }
 
@@ -1257,6 +1379,11 @@ func queuedActionEffectsForPlane(store storepkg.Store, ownerPlane string) []tran
 		if stringFromMap(effect.Payload, "owner_plane") != ownerPlane {
 			continue
 		}
+		claimed, ok, err := store.ClaimEffectExecution(effect.ID, "tester", 30*time.Second)
+		if err == nil && ok {
+			out = append(out, claimed)
+			continue
+		}
 		out = append(out, effect)
 	}
 	return out
@@ -1277,6 +1404,13 @@ func firstQueuedWorkflowEffectByKind(t *testing.T, store storepkg.Store, kind tr
 	t.Helper()
 	for _, effect := range store.ListEffectExecutions() {
 		if effect.MachineKind == transition.MachineWorkflow && effect.EffectKind == kind && effect.Status == transition.EffectQueued {
+			claimed, ok, err := store.ClaimEffectExecution(effect.ID, "tester", 30*time.Second)
+			if err != nil {
+				t.Fatalf("ClaimEffectExecution(%s) error = %v", effect.ID, err)
+			}
+			if ok {
+				return claimed
+			}
 			return effect
 		}
 	}
@@ -1302,6 +1436,13 @@ type failingActionCommandStore struct {
 	storepkg.Store
 	FailActionID string
 	Err          error
+}
+
+type failingWorkflowCommandStore struct {
+	storepkg.Store
+	FailWorkflowID  string
+	FailCommandKind transition.WorkflowCommandKind
+	Err             error
 }
 
 type effectSelectionStore struct {
@@ -1338,7 +1479,7 @@ func (s *effectSelectionStore) ClaimEffectExecution(effectID string, holder stri
 	return s.Store.ClaimEffectExecution(effectID, holder, lease)
 }
 
-func (s *effectSelectionStore) CompleteEffectExecution(effectID string, resultRef string) (transition.EffectExecution, error) {
+func (s *effectSelectionStore) CompleteEffectExecution(effectID string, holder string, resultRef string) (transition.EffectExecution, error) {
 	for idx := range s.effects {
 		if s.effects[idx].ID != effectID {
 			continue
@@ -1352,10 +1493,10 @@ func (s *effectSelectionStore) CompleteEffectExecution(effectID string, resultRe
 		s.effects[idx].ResultRef = resultRef
 		return s.effects[idx], nil
 	}
-	return s.Store.CompleteEffectExecution(effectID, resultRef)
+	return s.Store.CompleteEffectExecution(effectID, holder, resultRef)
 }
 
-func (s *effectSelectionStore) FailEffectExecution(effectID string, lastError string) (transition.EffectExecution, error) {
+func (s *effectSelectionStore) FailEffectExecution(effectID string, holder string, lastError string) (transition.EffectExecution, error) {
 	for idx := range s.effects {
 		if s.effects[idx].ID != effectID {
 			continue
@@ -1365,7 +1506,7 @@ func (s *effectSelectionStore) FailEffectExecution(effectID string, lastError st
 		s.effects[idx].LastError = lastError
 		return s.effects[idx], nil
 	}
-	return s.Store.FailEffectExecution(effectID, lastError)
+	return s.Store.FailEffectExecution(effectID, holder, lastError)
 }
 
 func (s *failingActionCommandStore) SubmitCommand(command transition.CommandEnvelope) (transition.CommandReceipt, error) {
@@ -1376,6 +1517,15 @@ func (s *failingActionCommandStore) SubmitCommand(command transition.CommandEnve
 				return transition.CommandReceipt{}, s.Err
 			}
 		}
+	}
+	return s.Store.SubmitCommand(command)
+}
+
+func (s *failingWorkflowCommandStore) SubmitCommand(command transition.CommandEnvelope) (transition.CommandReceipt, error) {
+	if command.MachineKind == transition.MachineWorkflow &&
+		command.AggregateID == s.FailWorkflowID &&
+		transition.WorkflowCommandKind(command.CommandKind) == s.FailCommandKind {
+		return transition.CommandReceipt{}, s.Err
 	}
 	return s.Store.SubmitCommand(command)
 }

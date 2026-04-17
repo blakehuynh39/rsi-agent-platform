@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import tempfile
 import time
 import types
 import unittest
@@ -10,6 +11,7 @@ from unittest import mock
 from rsi_runner.config import RunnerConfig, RunnerConfigError
 from rsi_runner.hermes_runtime import HermesRuntime, RunnerTaskRequest
 from rsi_runner.rsi_tools import ReadOnlyToolBinding, tool_schema_wrappers
+from rsi_runner.session_manager import SessionManager
 
 
 def runner_env(role: str = "prod") -> dict[str, str]:
@@ -109,6 +111,7 @@ class FakeAIAgent:
         return {
             "last_activity_desc": "waiting_on_tool_or_model",
             "current_tool": "rsi.trace_context",
+            "api_call_count": 2,
             "budget_used": 1,
             "budget_max": type(self).last_kwargs.get("max_iterations", 1) if type(self).last_kwargs else 1,
         }
@@ -189,6 +192,35 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(config.reasoning_effort, "xhigh")
         self.assertEqual(config.memory_backend, "honcho")
         self.assertEqual(config.honcho_workspace, "rsi-stage")
+        self.assertEqual(config.honcho_environment_effective, "production")
+
+    def test_config_rejects_timeout_contract_drift(self) -> None:
+        with mock.patch.dict(
+            os.environ,
+            {**runner_env("eval"), "RSI_RUNNER_EVAL_TASK_TIMEOUT": "328s", "RSI_RUNNER_EVAL_TIMEOUT": "330s"},
+            clear=True,
+        ):
+            with self.assertRaises(RunnerConfigError):
+                RunnerConfig.from_env()
+
+    def test_session_manager_writes_honcho_safe_environment(self) -> None:
+        class FakeSessionDB:
+            def __init__(self, db_path: str) -> None:
+                self.db_path = db_path
+
+            def get_messages_as_conversation(self, _session_id: str) -> list[dict[str, object]]:
+                return []
+
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.session_manager.SessionDB", FakeSessionDB
+        ), mock.patch.dict(os.environ, {**runner_env("eval"), "HERMES_HOME": tempdir}, clear=True):
+            config = RunnerConfig.from_env()
+            SessionManager(config)
+
+            with open(os.path.join(tempdir, "honcho.json"), "r", encoding="utf-8") as fh:
+                payload = json.load(fh)
+
+        self.assertEqual(payload["environment"], "production")
 
     def test_runner_task_request_normalizes_non_list_payload_fields(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -281,6 +313,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["memory_backend"], "honcho")
         self.assertEqual(result.raw["honcho_workspace"], "rsi-stage")
         self.assertEqual(result.raw["honcho_environment"], "stage")
+        self.assertEqual(result.raw["honcho_environment_effective"], "production")
         self.assertEqual(result.raw["honcho_recall_mode"], "hybrid")
         self.assertEqual(result.raw["honcho_write_frequency"], "async")
         self.assertEqual(result.raw["honcho_session_strategy"], "hybrid")
@@ -738,6 +771,12 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["tool_policy_mode"], "enforced_read_only")
         self.assertEqual(result.raw["failure_class"], "runner_transport_timeout")
         self.assertEqual(result.raw["runner_diagnostics"]["failure_kind"], "transport_timeout")
+        self.assertEqual(result.raw["runner_diagnostics"]["timeout_kind"], "task_timeout")
+        self.assertEqual(result.raw["runner_diagnostics"]["termination_reason"], "task_timeout")
+        self.assertEqual(result.raw["runner_diagnostics"]["last_activity_desc"], "waiting_on_tool_or_model")
+        self.assertEqual(result.raw["runner_diagnostics"]["current_tool"], "rsi.trace_context")
+        self.assertEqual(result.raw["runner_diagnostics"]["api_call_count"], 2)
+        self.assertEqual(result.raw["runner_diagnostics"]["budget_used"], 1)
 
     def test_eval_inactivity_timeout_returns_structured_timeout(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -784,6 +823,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(runtime.metadata["tool_policy_mode"], "enforced_read_only")
         self.assertEqual(runtime.metadata["hermes_pin"], "0e336b0e717027cbb81fcb5816246b7aec2d4a47")
         self.assertEqual(runtime.metadata["session_continuity_status"], "ok")
+        self.assertEqual(runtime.metadata["honcho_environment_effective"], "production")
         self.assertIn("repo.context", runtime.metadata["tool_allowlist_effective"])
 
     def test_prod_runtime_metadata_reports_live_contract(self) -> None:

@@ -10,6 +10,9 @@ class RunnerConfigError(ValueError):
     pass
 
 
+TRANSPORT_TIMEOUT_SAFETY_MARGIN_SECONDS = 5
+
+
 @dataclass
 class RunnerConfig:
     role: str
@@ -29,6 +32,7 @@ class RunnerConfig:
     honcho_ai_peer: str
     honcho_base_url: str | None
     honcho_environment: str
+    honcho_environment_effective: str
     honcho_api_key_configured: bool
     max_iterations: int
     task_timeout_seconds: int
@@ -57,11 +61,18 @@ class RunnerConfig:
         honcho_ai_peer = required_env("RSI_HONCHO_AI_PEER")
         honcho_base_url = optional_url_env("RSI_HONCHO_BASE_URL")
         honcho_environment = optional_env("RSI_HONCHO_ENVIRONMENT") or "production"
+        honcho_environment_effective = normalize_honcho_environment(honcho_environment)
         honcho_api_key = optional_env("HONCHO_API_KEY")
         max_iterations = role_max_iterations(role)
         task_timeout_seconds = role_task_timeout_seconds(role)
         inactivity_timeout_seconds = role_inactivity_timeout_seconds(role, task_timeout_seconds)
         transport_timeout_seconds = role_transport_timeout_seconds(role)
+        validate_timeout_contract(
+            role,
+            task_timeout_seconds,
+            inactivity_timeout_seconds,
+            transport_timeout_seconds,
+        )
         tool_policy_mode = role_tool_policy_mode(role)
         workflow_runner_repair_attempts = parse_non_negative_int(optional_env("RSI_WORKFLOW_RUNNER_REPAIR_ATTEMPTS") or "1", "RSI_WORKFLOW_RUNNER_REPAIR_ATTEMPTS")
         hermes_native_governed_tools_enabled = parse_bool(optional_env("RSI_HERMES_NATIVE_GOVERNED_TOOLS_ENABLED") or "false", "RSI_HERMES_NATIVE_GOVERNED_TOOLS_ENABLED")
@@ -91,6 +102,7 @@ class RunnerConfig:
             honcho_ai_peer=honcho_ai_peer,
             honcho_base_url=honcho_base_url or None,
             honcho_environment=honcho_environment,
+            honcho_environment_effective=honcho_environment_effective,
             honcho_api_key_configured=bool(honcho_api_key),
             max_iterations=max_iterations,
             task_timeout_seconds=task_timeout_seconds,
@@ -166,7 +178,7 @@ def role_task_timeout_seconds(role: str) -> int:
     raw = required_env(env_name) if role in {"eval", "proposal"} else optional_env(env_name)
     if raw:
         return parse_duration_seconds(raw, env_name)
-    return max(1, role_transport_timeout_seconds(role)-5)
+    return max(1, role_transport_timeout_seconds(role) - TRANSPORT_TIMEOUT_SAFETY_MARGIN_SECONDS)
 
 
 def role_transport_timeout_seconds(role: str) -> int:
@@ -179,6 +191,33 @@ def role_inactivity_timeout_seconds(role: str, task_timeout_seconds: int) -> int
         return max(1, task_timeout_seconds)
     value = parse_duration_seconds(raw, role_env_name(role, "INACTIVITY_TIMEOUT"))
     return max(1, min(value, task_timeout_seconds))
+
+
+def validate_timeout_contract(role: str, task_timeout_seconds: int, inactivity_timeout_seconds: int, transport_timeout_seconds: int) -> None:
+    role = role.strip().upper()
+    if inactivity_timeout_seconds > task_timeout_seconds:
+        raise RunnerConfigError(
+            f"RSI_RUNNER_{role}_INACTIVITY_TIMEOUT must be less than or equal to RSI_RUNNER_{role}_TASK_TIMEOUT"
+        )
+    if task_timeout_seconds >= transport_timeout_seconds:
+        raise RunnerConfigError(
+            f"RSI_RUNNER_{role}_TASK_TIMEOUT must be less than RSI_RUNNER_{role}_TIMEOUT"
+        )
+    if (transport_timeout_seconds - task_timeout_seconds) < TRANSPORT_TIMEOUT_SAFETY_MARGIN_SECONDS:
+        raise RunnerConfigError(
+            f"RSI_RUNNER_{role}_TIMEOUT must exceed RSI_RUNNER_{role}_TASK_TIMEOUT by at least {TRANSPORT_TIMEOUT_SAFETY_MARGIN_SECONDS}s"
+        )
+
+
+def normalize_honcho_environment(raw: str) -> str:
+    value = str(raw or "").strip().lower()
+    if value in {"prod", "production", "stage", "staging"}:
+        return "production"
+    if value in {"local", "dev", "development"}:
+        return "local"
+    raise RunnerConfigError(
+        "RSI_HONCHO_ENVIRONMENT must be one of: stage, prod, production, local, dev, development"
+    )
 
 
 def role_tool_policy_mode(role: str) -> str:

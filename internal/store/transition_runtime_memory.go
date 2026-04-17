@@ -121,7 +121,7 @@ func (s *MemoryStore) ClaimEffectExecution(effectID string, holder string, lease
 	return item, true, nil
 }
 
-func (s *MemoryStore) CompleteEffectExecution(effectID string, resultRef string) (transition.EffectExecution, error) {
+func (s *MemoryStore) CompleteEffectExecution(effectID string, holder string, resultRef string) (transition.EffectExecution, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	item, ok := s.effectExecutions[strings.TrimSpace(effectID)]
@@ -130,6 +130,9 @@ func (s *MemoryStore) CompleteEffectExecution(effectID string, resultRef string)
 	}
 	switch item.Status {
 	case transition.EffectCompleted, transition.EffectCanceled, transition.EffectSuperseded:
+		return item, nil
+	}
+	if !effectExecutionLeaseHeldBy(item, holder, time.Now().UTC()) {
 		return item, nil
 	}
 	now := time.Now().UTC()
@@ -144,7 +147,7 @@ func (s *MemoryStore) CompleteEffectExecution(effectID string, resultRef string)
 	return item, nil
 }
 
-func (s *MemoryStore) FailEffectExecution(effectID string, lastError string) (transition.EffectExecution, error) {
+func (s *MemoryStore) FailEffectExecution(effectID string, holder string, lastError string) (transition.EffectExecution, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	item, ok := s.effectExecutions[strings.TrimSpace(effectID)]
@@ -153,6 +156,9 @@ func (s *MemoryStore) FailEffectExecution(effectID string, lastError string) (tr
 	}
 	switch item.Status {
 	case transition.EffectCompleted, transition.EffectCanceled, transition.EffectSuperseded:
+		return item, nil
+	}
+	if !effectExecutionLeaseHeldBy(item, holder, time.Now().UTC()) {
 		return item, nil
 	}
 	now := time.Now().UTC()
@@ -165,6 +171,16 @@ func (s *MemoryStore) FailEffectExecution(effectID string, lastError string) (tr
 	item.CompletedAt = &now
 	s.effectExecutions[item.ID] = item
 	return item, nil
+}
+
+func effectExecutionLeaseHeldBy(item transition.EffectExecution, holder string, now time.Time) bool {
+	if item.Status != transition.EffectRunning {
+		return false
+	}
+	if strings.TrimSpace(item.Holder) == "" || strings.TrimSpace(item.Holder) != strings.TrimSpace(holder) {
+		return false
+	}
+	return item.LeaseExpiresAt == nil || item.LeaseExpiresAt.After(now)
 }
 
 func (s *MemoryStore) appendTransitionBundleLocked(bundle transitionPersistBundle) {

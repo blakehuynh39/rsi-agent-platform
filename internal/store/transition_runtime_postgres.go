@@ -162,7 +162,7 @@ func (p *PostgresStore) ClaimEffectExecution(effectID string, holder string, lea
 	return
 }
 
-func (p *PostgresStore) CompleteEffectExecution(effectID string, resultRef string) (item transition.EffectExecution, err error) {
+func (p *PostgresStore) CompleteEffectExecution(effectID string, holder string, resultRef string) (item transition.EffectExecution, err error) {
 	err = p.withTx(func(tx *sql.Tx) error {
 		now := time.Now().UTC()
 		row := tx.QueryRow(`
@@ -175,15 +175,16 @@ func (p *PostgresStore) CompleteEffectExecution(effectID string, resultRef strin
 				lease_expires_at = null,
 				completed_at = $4
 			where id = $1
-			  and status not in ($5, $6, $7)
+			  and status = $5
+			  and holder = $6
+			  and (lease_expires_at is null or lease_expires_at > $4)
 			returning `+effectExecutionSelectColumns(),
 			strings.TrimSpace(effectID),
 			string(transition.EffectCompleted),
 			strings.TrimSpace(resultRef),
 			now,
-			string(transition.EffectCompleted),
-			string(transition.EffectCanceled),
-			string(transition.EffectSuperseded),
+			string(transition.EffectRunning),
+			strings.TrimSpace(holder),
 		)
 		item, err = scanEffectExecution(row)
 		if err == sql.ErrNoRows {
@@ -198,7 +199,7 @@ func (p *PostgresStore) CompleteEffectExecution(effectID string, resultRef strin
 	return
 }
 
-func (p *PostgresStore) FailEffectExecution(effectID string, lastError string) (item transition.EffectExecution, err error) {
+func (p *PostgresStore) FailEffectExecution(effectID string, holder string, lastError string) (item transition.EffectExecution, err error) {
 	err = p.withTx(func(tx *sql.Tx) error {
 		now := time.Now().UTC()
 		row := tx.QueryRow(`
@@ -211,15 +212,16 @@ func (p *PostgresStore) FailEffectExecution(effectID string, lastError string) (
 				lease_expires_at = null,
 				completed_at = $4
 			where id = $1
-			  and status not in ($5, $6, $7)
+			  and status = $5
+			  and holder = $6
+			  and (lease_expires_at is null or lease_expires_at > $4)
 			returning `+effectExecutionSelectColumns(),
 			strings.TrimSpace(effectID),
 			string(transition.EffectFailed),
 			strings.TrimSpace(lastError),
 			now,
-			string(transition.EffectCompleted),
-			string(transition.EffectCanceled),
-			string(transition.EffectSuperseded),
+			string(transition.EffectRunning),
+			strings.TrimSpace(holder),
 		)
 		item, err = scanEffectExecution(row)
 		if err == sql.ErrNoRows {

@@ -49,8 +49,9 @@ type Store interface {
 	RecordCommandReceipt(item transition.CommandReceipt) (transition.CommandReceipt, bool, error)
 	SubmitCommand(command transition.CommandEnvelope) (transition.CommandReceipt, error)
 	ClaimEffectExecution(effectID string, holder string, lease time.Duration) (transition.EffectExecution, bool, error)
-	CompleteEffectExecution(effectID string, resultRef string) (transition.EffectExecution, error)
-	FailEffectExecution(effectID string, lastError string) (transition.EffectExecution, error)
+	CompleteEffectExecution(effectID string, holder string, resultRef string) (transition.EffectExecution, error)
+	FailEffectExecution(effectID string, holder string, lastError string) (transition.EffectExecution, error)
+	ReconcileWorkflowTrace(workflowID string) (events.Trace, bool, error)
 	ListOutcomes() []outcome.Record
 	ListKnowledgeEntries() []knowledge.Entry
 	GetKnowledgeEntry(knowledgeID string) (knowledge.Entry, bool)
