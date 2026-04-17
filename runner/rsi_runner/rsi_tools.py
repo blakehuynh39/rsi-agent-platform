@@ -26,6 +26,33 @@ _READ_ONLY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
             },
         },
     },
+    "repo.read_file": {
+        "name": "repo.read_file",
+        "description": "Read a file from the governed repository at a specific ref.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "repo": {"type": "string"},
+                "path": {"type": "string"},
+                "ref": {"type": "string"},
+            },
+            "required": ["path"],
+        },
+    },
+    "repo.search": {
+        "name": "repo.search",
+        "description": "Search for text in the governed repository using the provider-backed code search surface.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "repo": {"type": "string"},
+                "pattern": {"type": "string"},
+                "path": {"type": "string"},
+                "ref": {"type": "string"},
+            },
+            "required": ["pattern"],
+        },
+    },
     "knowledge.context": {
         "name": "knowledge.context",
         "description": "Read-only RSI knowledge lookup with canonical and working knowledge provenance.",
@@ -353,6 +380,9 @@ def _build_tool_transport_maps() -> tuple[dict[str, str], dict[str, str]]:
 
 _CANONICAL_TO_TRANSPORT_TOOL_NAMES, _TRANSPORT_TO_CANONICAL_TOOL_NAMES = _build_tool_transport_maps()
 
+HERMES_GOVERNED_READONLY_TOOLSET = "rsi-governed-readonly"
+HERMES_GOVERNED_WORKSPACE_TOOLSET = "rsi-governed-workspace"
+
 
 def tool_transport_name(name: str) -> str:
     canonical = str(name or "").strip()
@@ -390,6 +420,37 @@ def tool_schema_wrappers(names: Iterable[str]) -> list[JsonToolWrapperSchema]:
     return wrappers
 
 
+def transport_tool_schema(name: str) -> JsonToolFunctionSchema:
+    schema = _TOOL_SCHEMAS.get(name)
+    if schema is None:
+        raise KeyError(name)
+    wrapped = deepcopy(schema)
+    wrapped["name"] = tool_transport_name(name)
+    return wrapped
+
+
+def governed_toolset_names() -> dict[str, list[str]]:
+    return {
+        HERMES_GOVERNED_READONLY_TOOLSET: list(READ_ONLY_RSI_TOOL_NAMES),
+        HERMES_GOVERNED_WORKSPACE_TOOLSET: list(WORKSPACE_RSI_TOOL_NAMES),
+    }
+
+
+def governed_toolset_definitions() -> list[JsonObject]:
+    definitions: list[JsonObject] = []
+    for toolset, names in governed_toolset_names().items():
+        for canonical_name in names:
+            definitions.append(
+                {
+                    "canonical_name": canonical_name,
+                    "transport_name": tool_transport_name(canonical_name),
+                    "toolset": toolset,
+                    "schema": transport_tool_schema(canonical_name),
+                }
+            )
+    return definitions
+
+
 def normalize_tool_names(values: Iterable[str]) -> list[str]:
     seen: set[str] = set()
     out: list[str] = []
@@ -418,6 +479,7 @@ class ReadOnlyToolBinding:
     base_url: str
     allowed_tool_names: list[str]
     task_repo: str
+    task_repo_ref: str
     task_prompt: str
     task_context_summary: str
     trace_id: str
@@ -516,8 +578,10 @@ class ReadOnlyToolBinding:
         payload: JsonObject = {}
         if self.trace_id:
             payload["trace_id"] = self.trace_id
-        if name in {"repo.context", "github.repo_activity", "github.repo_context"} and self.task_repo:
+        if name in {"repo.context", "repo.read_file", "repo.search", "github.repo_activity", "github.repo_context"} and self.task_repo:
             payload["repo"] = self.task_repo
+        if name in {"repo.read_file", "repo.search"} and self.task_repo_ref:
+            payload["ref"] = self.task_repo_ref
         if name == "repo.context":
             payload["question"] = self.task_prompt
         if name == "knowledge.context":

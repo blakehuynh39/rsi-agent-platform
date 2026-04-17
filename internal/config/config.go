@@ -9,153 +9,159 @@ import (
 )
 
 type Config struct {
-	ServiceName                     string
-	ServiceKind                     string
-	RuntimeMode                     string
-	ConfigValidated                 bool
-	SchemaVersionCurrent            int64
-	SchemaVersionExpected           int64
-	SchemaCompatibility             string
-	Environment                     string
-	HTTPPort                        int
-	StoreBackend                    string
-	PostgresURL                     string
-	RedisAddr                       string
-	S3Bucket                        string
-	PublicBaseURL                   string
-	WorkflowQueueURL                string
-	ProactiveQueueURL               string
-	EvalQueueURL                    string
-	ProposalQueueURL                string
-	SandboxQueueURL                 string
-	RunnerBaseURL                   string
-	ProdRunnerBaseURL               string
-	ProactiveRunnerBaseURL          string
-	EvalRunnerBaseURL               string
-	ProposalRunnerBaseURL           string
-	ToolGatewayBaseURL              string
-	HonchoRuntimeBaseURL            string
-	ProdRunnerTimeout               time.Duration
-	ProactiveRunnerTimeout          time.Duration
-	EvalRunnerTimeout               time.Duration
-	ProposalRunnerTimeout           time.Duration
-	WorkerPollInterval              time.Duration
-	WorkItemLeaseDuration           time.Duration
-	SandboxPollInterval             time.Duration
-	SlackAppIdentity                string
-	SlackSocketModeEnabled          bool
-	SlackAppToken                   string
-	SlackBotToken                   string
-	GitHubWebhookSecret             string
-	GitHubOwner                     string
-	GitHubAPIBaseURL                string
-	GitHubAppID                     string
-	GitHubAppInstallationID         string
-	GitHubAppInstallationIDs        map[string]string
-	GitHubAppPrivateKey             string
-	GitHubRepoOwners                map[string]string
-	GitHubCommitUser                string
-	GitHubCommitEmail               string
-	SentryAuthToken                 string
-	SentryOrganization              string
-	SentryAPIBaseURL                string
-	CloudflareAPIToken              string
-	CloudflareAccountID             string
-	CloudflareZoneID                string
-	CloudflareAPIBaseURL            string
-	KubeconfigPath                  string
-	KubernetesContext               string
-	SandboxNamespace                string
-	SandboxImage                    string
-	SandboxServiceAccount           string
-	SandboxJobTTLSeconds            int
-	SandboxDeadlineSeconds          int
-	AllowedSlackChannelIDs          []string
-	AllowedTargetRepos              []string
-	DefaultOperatorDomain           string
-	DefaultRepo                     string
-	DefaultKnowledgeBaseURL         string
-	DefaultReasoningVerbosity       string
-	DefaultProposalCap              int
-	ProposalPromoterInterval        time.Duration
-	WorkflowRunnerRepairAttempts    int
-	WorkflowAutoRetryEnabled        bool
-	WorkflowAutoRetryMaxAttempts    int
-	WorkflowAutoRetryBackoffSeconds []int
+	ServiceName                        string
+	ServiceKind                        string
+	RuntimeMode                        string
+	ConfigValidated                    bool
+	SchemaVersionCurrent               int64
+	SchemaVersionExpected              int64
+	SchemaCompatibility                string
+	Environment                        string
+	HTTPPort                           int
+	StoreBackend                       string
+	PostgresURL                        string
+	RedisAddr                          string
+	S3Bucket                           string
+	PublicBaseURL                      string
+	WorkflowQueueURL                   string
+	ProactiveQueueURL                  string
+	EvalQueueURL                       string
+	ProposalQueueURL                   string
+	SandboxQueueURL                    string
+	RunnerBaseURL                      string
+	ProdRunnerBaseURL                  string
+	ProactiveRunnerBaseURL             string
+	EvalRunnerBaseURL                  string
+	ProposalRunnerBaseURL              string
+	ToolGatewayBaseURL                 string
+	HonchoRuntimeBaseURL               string
+	ProdRunnerTimeout                  time.Duration
+	ProactiveRunnerTimeout             time.Duration
+	EvalRunnerTimeout                  time.Duration
+	ProposalRunnerTimeout              time.Duration
+	WorkerPollInterval                 time.Duration
+	WorkItemLeaseDuration              time.Duration
+	SandboxPollInterval                time.Duration
+	SlackAppIdentity                   string
+	SlackSocketModeEnabled             bool
+	SlackAppToken                      string
+	SlackBotToken                      string
+	GitHubWebhookSecret                string
+	GitHubOwner                        string
+	GitHubAPIBaseURL                   string
+	GitHubAppID                        string
+	GitHubAppInstallationID            string
+	GitHubAppInstallationIDs           map[string]string
+	GitHubAppPrivateKey                string
+	GitHubRepoOwners                   map[string]string
+	GitHubCommitUser                   string
+	GitHubCommitEmail                  string
+	SentryAuthToken                    string
+	SentryOrganization                 string
+	SentryAPIBaseURL                   string
+	CloudflareAPIToken                 string
+	CloudflareAccountID                string
+	CloudflareZoneID                   string
+	CloudflareAPIBaseURL               string
+	KubeconfigPath                     string
+	KubernetesContext                  string
+	SandboxNamespace                   string
+	SandboxImage                       string
+	SandboxServiceAccount              string
+	SandboxJobTTLSeconds               int
+	SandboxDeadlineSeconds             int
+	AllowedSlackChannelIDs             []string
+	AllowedTargetRepos                 []string
+	DefaultOperatorDomain              string
+	DefaultRepo                        string
+	DefaultKnowledgeBaseURL            string
+	DefaultReasoningVerbosity          string
+	DefaultProposalCap                 int
+	ProposalPromoterInterval           time.Duration
+	WorkflowRunnerRepairAttempts       int
+	WorkflowAutoRetryEnabled           bool
+	WorkflowAutoRetryMaxAttempts       int
+	WorkflowAutoRetryBackoffSeconds    []int
+	HermesNativeGovernedToolsEnabled   bool
+	RuntimeDiagnosisEnabled            bool
+	RuntimeDiagnosisLogFallbackEnabled bool
 }
 
 func Load(serviceName string) Config {
 	environment := stringEnv("RSI_ENV", "")
 	runnerBaseURL := stringEnv("RSI_RUNNER_BASE_URL", "")
 	return Config{
-		ServiceName:                     stringEnv("RSI_SERVICE_NAME", serviceName),
-		ServiceKind:                     serviceName,
-		Environment:                     environment,
-		HTTPPort:                        intEnv("RSI_HTTP_PORT", 0),
-		StoreBackend:                    stringEnv("RSI_STORE_BACKEND", ""),
-		PostgresURL:                     stringEnv("RSI_POSTGRES_URL", ""),
-		RedisAddr:                       stringEnv("RSI_REDIS_ADDR", ""),
-		S3Bucket:                        stringEnv("RSI_S3_BUCKET", ""),
-		PublicBaseURL:                   stringEnv("RSI_PUBLIC_BASE_URL", ""),
-		WorkflowQueueURL:                stringEnv("RSI_WORKFLOW_QUEUE_URL", ""),
-		ProactiveQueueURL:               stringEnv("RSI_PROACTIVE_QUEUE_URL", ""),
-		EvalQueueURL:                    stringEnv("RSI_EVAL_QUEUE_URL", ""),
-		ProposalQueueURL:                stringEnv("RSI_PROPOSAL_QUEUE_URL", ""),
-		SandboxQueueURL:                 stringEnv("RSI_SANDBOX_QUEUE_URL", ""),
-		RunnerBaseURL:                   runnerBaseURL,
-		ProdRunnerBaseURL:               stringEnv("RSI_RUNNER_PROD_BASE_URL", ""),
-		ProactiveRunnerBaseURL:          stringEnv("RSI_RUNNER_PROACTIVE_BASE_URL", ""),
-		EvalRunnerBaseURL:               stringEnv("RSI_RUNNER_EVAL_BASE_URL", ""),
-		ProposalRunnerBaseURL:           stringEnv("RSI_RUNNER_PROPOSAL_BASE_URL", ""),
-		ToolGatewayBaseURL:              stringEnv("RSI_TOOL_GATEWAY_BASE_URL", ""),
-		HonchoRuntimeBaseURL:            stringEnv("RSI_HONCHO_RUNTIME_BASE_URL", ""),
-		ProdRunnerTimeout:               durationEnv("RSI_RUNNER_PROD_TIMEOUT", 60*time.Second),
-		ProactiveRunnerTimeout:          durationEnv("RSI_RUNNER_PROACTIVE_TIMEOUT", 60*time.Second),
-		EvalRunnerTimeout:               durationEnv("RSI_RUNNER_EVAL_TIMEOUT", 120*time.Second),
-		ProposalRunnerTimeout:           durationEnv("RSI_RUNNER_PROPOSAL_TIMEOUT", 180*time.Second),
-		WorkerPollInterval:              durationEnv("RSI_WORKER_POLL_INTERVAL", 5*time.Second),
-		WorkItemLeaseDuration:           durationEnv("RSI_WORK_ITEM_LEASE_DURATION", 30*time.Second),
-		SandboxPollInterval:             durationEnv("RSI_SANDBOX_POLL_INTERVAL", 10*time.Second),
-		SlackAppIdentity:                stringEnv("RSI_SLACK_APP_IDENTITY", ""),
-		SlackSocketModeEnabled:          boolEnv("RSI_SLACK_SOCKET_MODE_ENABLED", false),
-		SlackAppToken:                   stringEnv("RSI_SLACK_APP_TOKEN", ""),
-		SlackBotToken:                   stringEnv("RSI_SLACK_BOT_TOKEN", ""),
-		GitHubWebhookSecret:             stringEnv("RSI_GITHUB_WEBHOOK_SECRET", ""),
-		GitHubOwner:                     stringEnv("RSI_GITHUB_OWNER", ""),
-		GitHubAPIBaseURL:                stringEnv("RSI_GITHUB_API_BASE_URL", "https://api.github.com"),
-		GitHubAppID:                     stringEnv("RSI_GITHUB_APP_ID", ""),
-		GitHubAppInstallationID:         stringEnv("RSI_GITHUB_APP_INSTALLATION_ID", ""),
-		GitHubAppInstallationIDs:        mapEnv("RSI_GITHUB_APP_INSTALLATION_IDS"),
-		GitHubAppPrivateKey:             stringEnv("RSI_GITHUB_APP_PRIVATE_KEY", ""),
-		GitHubRepoOwners:                mapEnv("RSI_GITHUB_REPO_OWNERS"),
-		GitHubCommitUser:                stringEnv("RSI_GITHUB_COMMIT_USER", ""),
-		GitHubCommitEmail:               stringEnv("RSI_GITHUB_COMMIT_EMAIL", ""),
-		SentryAuthToken:                 stringEnv("RSI_SENTRY_AUTH_TOKEN", ""),
-		SentryOrganization:              stringEnv("RSI_SENTRY_ORGANIZATION", ""),
-		SentryAPIBaseURL:                stringEnv("RSI_SENTRY_API_BASE_URL", ""),
-		CloudflareAPIToken:              stringEnv("RSI_CLOUDFLARE_API_TOKEN", ""),
-		CloudflareAccountID:             stringEnv("RSI_CLOUDFLARE_ACCOUNT_ID", ""),
-		CloudflareZoneID:                stringEnv("RSI_CLOUDFLARE_ZONE_ID", ""),
-		CloudflareAPIBaseURL:            stringEnv("RSI_CLOUDFLARE_API_BASE_URL", ""),
-		KubeconfigPath:                  stringEnv("RSI_KUBECONFIG", ""),
-		KubernetesContext:               stringEnv("RSI_KUBERNETES_CONTEXT", ""),
-		SandboxNamespace:                stringEnv("RSI_SANDBOX_NAMESPACE", ""),
-		SandboxImage:                    stringEnv("RSI_SANDBOX_IMAGE", ""),
-		SandboxServiceAccount:           stringEnv("RSI_SANDBOX_SERVICE_ACCOUNT_NAME", ""),
-		SandboxJobTTLSeconds:            intEnv("RSI_SANDBOX_JOB_TTL_SECONDS", 0),
-		SandboxDeadlineSeconds:          intEnv("RSI_SANDBOX_ACTIVE_DEADLINE_SECONDS", 0),
-		AllowedSlackChannelIDs:          listEnv("RSI_ALLOWED_SLACK_CHANNEL_IDS"),
-		AllowedTargetRepos:              listEnv("RSI_ALLOWED_TARGET_REPOS"),
-		DefaultOperatorDomain:           stringEnv("RSI_OPERATOR_EMAIL_DOMAIN", ""),
-		DefaultRepo:                     stringEnv("RSI_DEFAULT_REPO", ""),
-		DefaultKnowledgeBaseURL:         stringEnv("RSI_KNOWLEDGE_BASE_URL", ""),
-		DefaultReasoningVerbosity:       stringEnv("RSI_REASONING_VERBOSITY", ""),
-		DefaultProposalCap:              intEnv("RSI_ACTIVE_PROPOSAL_CAP", 0),
-		ProposalPromoterInterval:        durationEnv("RSI_PROPOSAL_PROMOTER_INTERVAL", 0),
-		WorkflowRunnerRepairAttempts:    intEnv("RSI_WORKFLOW_RUNNER_REPAIR_ATTEMPTS", 1),
-		WorkflowAutoRetryEnabled:        boolEnv("RSI_WORKFLOW_AUTO_RETRY_ENABLED", false),
-		WorkflowAutoRetryMaxAttempts:    intEnv("RSI_WORKFLOW_AUTO_RETRY_MAX_ATTEMPTS", 3),
-		WorkflowAutoRetryBackoffSeconds: intListEnv("RSI_WORKFLOW_AUTO_RETRY_BACKOFF_SECONDS", []int{15, 60}),
+		ServiceName:                        stringEnv("RSI_SERVICE_NAME", serviceName),
+		ServiceKind:                        serviceName,
+		Environment:                        environment,
+		HTTPPort:                           intEnv("RSI_HTTP_PORT", 0),
+		StoreBackend:                       stringEnv("RSI_STORE_BACKEND", ""),
+		PostgresURL:                        stringEnv("RSI_POSTGRES_URL", ""),
+		RedisAddr:                          stringEnv("RSI_REDIS_ADDR", ""),
+		S3Bucket:                           stringEnv("RSI_S3_BUCKET", ""),
+		PublicBaseURL:                      stringEnv("RSI_PUBLIC_BASE_URL", ""),
+		WorkflowQueueURL:                   stringEnv("RSI_WORKFLOW_QUEUE_URL", ""),
+		ProactiveQueueURL:                  stringEnv("RSI_PROACTIVE_QUEUE_URL", ""),
+		EvalQueueURL:                       stringEnv("RSI_EVAL_QUEUE_URL", ""),
+		ProposalQueueURL:                   stringEnv("RSI_PROPOSAL_QUEUE_URL", ""),
+		SandboxQueueURL:                    stringEnv("RSI_SANDBOX_QUEUE_URL", ""),
+		RunnerBaseURL:                      runnerBaseURL,
+		ProdRunnerBaseURL:                  stringEnv("RSI_RUNNER_PROD_BASE_URL", ""),
+		ProactiveRunnerBaseURL:             stringEnv("RSI_RUNNER_PROACTIVE_BASE_URL", ""),
+		EvalRunnerBaseURL:                  stringEnv("RSI_RUNNER_EVAL_BASE_URL", ""),
+		ProposalRunnerBaseURL:              stringEnv("RSI_RUNNER_PROPOSAL_BASE_URL", ""),
+		ToolGatewayBaseURL:                 stringEnv("RSI_TOOL_GATEWAY_BASE_URL", ""),
+		HonchoRuntimeBaseURL:               stringEnv("RSI_HONCHO_RUNTIME_BASE_URL", ""),
+		ProdRunnerTimeout:                  durationEnv("RSI_RUNNER_PROD_TIMEOUT", 60*time.Second),
+		ProactiveRunnerTimeout:             durationEnv("RSI_RUNNER_PROACTIVE_TIMEOUT", 60*time.Second),
+		EvalRunnerTimeout:                  durationEnv("RSI_RUNNER_EVAL_TIMEOUT", 120*time.Second),
+		ProposalRunnerTimeout:              durationEnv("RSI_RUNNER_PROPOSAL_TIMEOUT", 180*time.Second),
+		WorkerPollInterval:                 durationEnv("RSI_WORKER_POLL_INTERVAL", 5*time.Second),
+		WorkItemLeaseDuration:              durationEnv("RSI_WORK_ITEM_LEASE_DURATION", 30*time.Second),
+		SandboxPollInterval:                durationEnv("RSI_SANDBOX_POLL_INTERVAL", 10*time.Second),
+		SlackAppIdentity:                   stringEnv("RSI_SLACK_APP_IDENTITY", ""),
+		SlackSocketModeEnabled:             boolEnv("RSI_SLACK_SOCKET_MODE_ENABLED", false),
+		SlackAppToken:                      stringEnv("RSI_SLACK_APP_TOKEN", ""),
+		SlackBotToken:                      stringEnv("RSI_SLACK_BOT_TOKEN", ""),
+		GitHubWebhookSecret:                stringEnv("RSI_GITHUB_WEBHOOK_SECRET", ""),
+		GitHubOwner:                        stringEnv("RSI_GITHUB_OWNER", ""),
+		GitHubAPIBaseURL:                   stringEnv("RSI_GITHUB_API_BASE_URL", "https://api.github.com"),
+		GitHubAppID:                        stringEnv("RSI_GITHUB_APP_ID", ""),
+		GitHubAppInstallationID:            stringEnv("RSI_GITHUB_APP_INSTALLATION_ID", ""),
+		GitHubAppInstallationIDs:           mapEnv("RSI_GITHUB_APP_INSTALLATION_IDS"),
+		GitHubAppPrivateKey:                stringEnv("RSI_GITHUB_APP_PRIVATE_KEY", ""),
+		GitHubRepoOwners:                   mapEnv("RSI_GITHUB_REPO_OWNERS"),
+		GitHubCommitUser:                   stringEnv("RSI_GITHUB_COMMIT_USER", ""),
+		GitHubCommitEmail:                  stringEnv("RSI_GITHUB_COMMIT_EMAIL", ""),
+		SentryAuthToken:                    stringEnv("RSI_SENTRY_AUTH_TOKEN", ""),
+		SentryOrganization:                 stringEnv("RSI_SENTRY_ORGANIZATION", ""),
+		SentryAPIBaseURL:                   stringEnv("RSI_SENTRY_API_BASE_URL", ""),
+		CloudflareAPIToken:                 stringEnv("RSI_CLOUDFLARE_API_TOKEN", ""),
+		CloudflareAccountID:                stringEnv("RSI_CLOUDFLARE_ACCOUNT_ID", ""),
+		CloudflareZoneID:                   stringEnv("RSI_CLOUDFLARE_ZONE_ID", ""),
+		CloudflareAPIBaseURL:               stringEnv("RSI_CLOUDFLARE_API_BASE_URL", ""),
+		KubeconfigPath:                     stringEnv("RSI_KUBECONFIG", ""),
+		KubernetesContext:                  stringEnv("RSI_KUBERNETES_CONTEXT", ""),
+		SandboxNamespace:                   stringEnv("RSI_SANDBOX_NAMESPACE", ""),
+		SandboxImage:                       stringEnv("RSI_SANDBOX_IMAGE", ""),
+		SandboxServiceAccount:              stringEnv("RSI_SANDBOX_SERVICE_ACCOUNT_NAME", ""),
+		SandboxJobTTLSeconds:               intEnv("RSI_SANDBOX_JOB_TTL_SECONDS", 0),
+		SandboxDeadlineSeconds:             intEnv("RSI_SANDBOX_ACTIVE_DEADLINE_SECONDS", 0),
+		AllowedSlackChannelIDs:             listEnv("RSI_ALLOWED_SLACK_CHANNEL_IDS"),
+		AllowedTargetRepos:                 listEnv("RSI_ALLOWED_TARGET_REPOS"),
+		DefaultOperatorDomain:              stringEnv("RSI_OPERATOR_EMAIL_DOMAIN", ""),
+		DefaultRepo:                        stringEnv("RSI_DEFAULT_REPO", ""),
+		DefaultKnowledgeBaseURL:            stringEnv("RSI_KNOWLEDGE_BASE_URL", ""),
+		DefaultReasoningVerbosity:          stringEnv("RSI_REASONING_VERBOSITY", ""),
+		DefaultProposalCap:                 intEnv("RSI_ACTIVE_PROPOSAL_CAP", 0),
+		ProposalPromoterInterval:           durationEnv("RSI_PROPOSAL_PROMOTER_INTERVAL", 0),
+		WorkflowRunnerRepairAttempts:       intEnv("RSI_WORKFLOW_RUNNER_REPAIR_ATTEMPTS", 1),
+		WorkflowAutoRetryEnabled:           boolEnv("RSI_WORKFLOW_AUTO_RETRY_ENABLED", false),
+		WorkflowAutoRetryMaxAttempts:       intEnv("RSI_WORKFLOW_AUTO_RETRY_MAX_ATTEMPTS", 3),
+		WorkflowAutoRetryBackoffSeconds:    intListEnv("RSI_WORKFLOW_AUTO_RETRY_BACKOFF_SECONDS", []int{15, 60}),
+		HermesNativeGovernedToolsEnabled:   boolEnv("RSI_HERMES_NATIVE_GOVERNED_TOOLS_ENABLED", false),
+		RuntimeDiagnosisEnabled:            boolEnv("RSI_RUNTIME_DIAGNOSIS_ENABLED", false),
+		RuntimeDiagnosisLogFallbackEnabled: boolEnv("RSI_RUNTIME_DIAGNOSIS_LOG_FALLBACK_ENABLED", false),
 	}
 }
 

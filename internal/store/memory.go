@@ -89,6 +89,8 @@ type Store interface {
 	ListEvalJudgments(evalRunID string) []evals.Judgment
 	GetSettings() improvement.Settings
 	ListCandidates() []improvement.Candidate
+	ListRuntimeDiagnoses() []improvement.RuntimeDiagnosis
+	GetRuntimeDiagnosis(diagnosisID string) (improvement.RuntimeDiagnosis, bool)
 	ListProposalMemories() []review.ProposalMemory
 	GetProposalSlots() ProposalSlotState
 	ListProposals() []review.Proposal
@@ -135,6 +137,7 @@ type MemoryStore struct {
 	evalRuns               map[string]evals.Run
 	evalJudgments          map[string][]evals.Judgment
 	candidates             map[string]improvement.Candidate
+	runtimeDiagnoses       map[string]improvement.RuntimeDiagnosis
 	proposals              map[string]review.Proposal
 	changeAttempts         map[string]improvement.ChangeAttempt
 	attemptWorkspaces      map[string]improvement.AttemptWorkspace
@@ -2095,6 +2098,26 @@ func (s *MemoryStore) ListCandidates() []improvement.Candidate {
 	return out
 }
 
+func (s *MemoryStore) ListRuntimeDiagnoses() []improvement.RuntimeDiagnosis {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	out := make([]improvement.RuntimeDiagnosis, 0, len(s.runtimeDiagnoses))
+	for _, diagnosis := range s.runtimeDiagnoses {
+		out = append(out, diagnosis)
+	}
+	sort.Slice(out, func(i, j int) bool {
+		return out[i].UpdatedAt.After(out[j].UpdatedAt)
+	})
+	return out
+}
+
+func (s *MemoryStore) GetRuntimeDiagnosis(diagnosisID string) (improvement.RuntimeDiagnosis, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	item, ok := s.runtimeDiagnoses[strings.TrimSpace(diagnosisID)]
+	return item, ok
+}
+
 func (s *MemoryStore) ListProposalMemories() []review.ProposalMemory {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -2164,6 +2187,21 @@ func (s *MemoryStore) promoteCandidatesLocked(requestedBy string, limit int) (Pr
 			s.candidates[candidate.CandidateKey] = candidate
 			continue
 		}
+		diagnosis, hasDiagnosis := s.runtimeDiagnosisForCandidateLocked(candidate)
+		if hasDiagnosis {
+			switch diagnosis.Status {
+			case improvement.RuntimeDiagnosisQueued, improvement.RuntimeDiagnosisInvestigating:
+				continue
+			case improvement.RuntimeDiagnosisNeedsEvidence, improvement.RuntimeDiagnosisClosed:
+				candidate.Status = improvement.CandidateNeedsEvidence
+				candidate.LineStatus = improvement.LineNeedsEvidence
+				candidate.UpdatedAt = now
+				s.candidates[candidate.CandidateKey] = candidate
+				continue
+			case improvement.RuntimeDiagnosisPromoted:
+				continue
+			}
+		}
 		if s.hasActiveProposalForCandidateLocked(candidate.CandidateKey) {
 			continue
 		}
@@ -2172,6 +2210,23 @@ func (s *MemoryStore) promoteCandidatesLocked(requestedBy string, limit int) (Pr
 		}
 		kind := review.RecommendProposalIntervention(candidate)
 		targetSurface := review.ProposalTargetSurfaceFromCandidate(candidate)
+		summary := candidate.Hypothesis
+		recommendedRationale := review.ProposalInterventionRationale(candidate, kind, targetSurface)
+		validationPlan := review.ProposalValidationPlan(kind, targetSurface)
+		if hasDiagnosis && diagnosis.Status == improvement.RuntimeDiagnosisGrounded {
+			if strings.TrimSpace(diagnosis.Summary) != "" {
+				summary = strings.TrimSpace(diagnosis.Summary)
+			}
+			if strings.TrimSpace(diagnosis.TargetSurface) != "" {
+				targetSurface = strings.TrimSpace(diagnosis.TargetSurface)
+			}
+			if strings.TrimSpace(diagnosis.RecommendedFix) != "" {
+				recommendedRationale = strings.TrimSpace(diagnosis.RecommendedFix)
+			}
+			if strings.TrimSpace(diagnosis.ValidationPlan) != "" {
+				validationPlan = strings.TrimSpace(diagnosis.ValidationPlan)
+			}
+		}
 		proposal := review.Proposal{
 			ID:                               nextID("proposal", len(s.proposals)+1),
 			TraceID:                          candidate.LatestTraceID,
@@ -2181,7 +2236,7 @@ func (s *MemoryStore) promoteCandidatesLocked(requestedBy string, limit int) (Pr
 			EvidenceTraceIDs:                 append([]string(nil), candidate.EvidenceTraceIDs...),
 			Title:                            proposalTitle(candidate),
 			Category:                         candidate.InterventionType,
-			Summary:                          candidate.Hypothesis,
+			Summary:                          summary,
 			Status:                           review.ProposalPendingReview,
 			CandidateKey:                     candidate.CandidateKey,
 			TargetLayer:                      candidate.TargetLayer,
@@ -2196,10 +2251,10 @@ func (s *MemoryStore) promoteCandidatesLocked(requestedBy string, limit int) (Pr
 			PriorSimilarProposalIDs:          append([]string(nil), candidate.PriorSimilarProposalIDs...),
 			NewEvidenceSinceLastRejection:    candidate.NewEvidenceSinceLastRejection,
 			RecommendedInterventionKind:      kind,
-			RecommendedInterventionRationale: review.ProposalInterventionRationale(candidate, kind, targetSurface),
+			RecommendedInterventionRationale: recommendedRationale,
 			TargetSurface:                    targetSurface,
 			TouchedFiles:                     []string{},
-			ValidationPlan:                   review.ProposalValidationPlan(kind, targetSurface),
+			ValidationPlan:                   validationPlan,
 			MaterialRiskSummary:              review.ProposalRiskSummary(string(candidate.RiskTier), targetSurface, kind),
 			RecommendedDisposition:           review.ProposalDispositionForIntervention(kind),
 			CreatedAt:                        now,
@@ -2208,6 +2263,12 @@ func (s *MemoryStore) promoteCandidatesLocked(requestedBy string, limit int) (Pr
 		candidate.Status = improvement.CandidatePromoted
 		candidate.UpdatedAt = now
 		s.candidates[candidate.CandidateKey] = candidate
+		if hasDiagnosis && diagnosis.Status == improvement.RuntimeDiagnosisGrounded {
+			diagnosis.Status = improvement.RuntimeDiagnosisPromoted
+			diagnosis.PromotedAt = &now
+			diagnosis.UpdatedAt = now
+			s.runtimeDiagnoses[diagnosis.ID] = diagnosis
+		}
 		result.Promoted++
 		result.PromotedIDs = append(result.PromotedIDs, proposal.ID)
 		allowed--
@@ -2223,6 +2284,31 @@ func (s *MemoryStore) hasActiveProposalForCandidateLocked(candidateKey string) b
 		}
 	}
 	return false
+}
+
+func (s *MemoryStore) runtimeDiagnosisForCandidateLocked(candidate improvement.Candidate) (improvement.RuntimeDiagnosis, bool) {
+	targetRepo := strings.TrimSpace(candidate.TargetRef)
+	var best improvement.RuntimeDiagnosis
+	found := false
+	exactRepo := false
+	for _, item := range s.runtimeDiagnoses {
+		if item.CandidateKey != candidate.CandidateKey {
+			continue
+		}
+		itemRepo := strings.TrimSpace(item.Repo)
+		itemExactRepo := targetRepo != "" && itemRepo == targetRepo
+		switch {
+		case !found:
+		case itemExactRepo && !exactRepo:
+		case itemExactRepo == exactRepo && item.UpdatedAt.After(best.UpdatedAt):
+		default:
+			continue
+		}
+		best = item
+		found = true
+		exactRepo = itemExactRepo
+	}
+	return best, found
 }
 
 func isUngroundedFailedWorkflowCandidate(candidate improvement.Candidate) bool {

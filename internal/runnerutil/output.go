@@ -73,6 +73,18 @@ type StructuredOutput struct {
 	HypothesisDelta   string              `json:"hypothesis_delta,omitempty"`
 }
 
+type RuntimeDiagnosisOutput struct {
+	Status          string   `json:"status"`
+	Subsystem       string   `json:"subsystem"`
+	FailureMode     string   `json:"failure_mode"`
+	Summary         string   `json:"summary"`
+	EvidenceRefs    []string `json:"evidence_refs"`
+	MissingEvidence []string `json:"missing_evidence"`
+	RecommendedFix  string   `json:"recommended_fix"`
+	TargetSurface   string   `json:"target_surface"`
+	ValidationPlan  string   `json:"validation_plan"`
+}
+
 func ParseStructuredOutput(resp clients.RunnerResponse) (StructuredOutput, error) {
 	raw, ok := resp.Raw["structured_output"]
 	if !ok {
@@ -85,6 +97,22 @@ func ParseStructuredOutput(resp clients.RunnerResponse) (StructuredOutput, error
 	var out StructuredOutput
 	if err := json.Unmarshal(data, &out); err != nil {
 		return StructuredOutput{}, fmt.Errorf("parse runner structured_output: %w", err)
+	}
+	return out, nil
+}
+
+func ParseRuntimeDiagnosisOutput(resp clients.RunnerResponse) (RuntimeDiagnosisOutput, error) {
+	raw, ok := resp.Raw["structured_output"]
+	if !ok {
+		return RuntimeDiagnosisOutput{}, fmt.Errorf("runner response missing structured_output")
+	}
+	data, err := json.Marshal(raw)
+	if err != nil {
+		return RuntimeDiagnosisOutput{}, fmt.Errorf("marshal runner structured_output: %w", err)
+	}
+	var out RuntimeDiagnosisOutput
+	if err := json.Unmarshal(data, &out); err != nil {
+		return RuntimeDiagnosisOutput{}, fmt.Errorf("parse runtime diagnosis structured_output: %w", err)
 	}
 	return out, nil
 }

@@ -220,6 +220,9 @@ func loadStore(r sqlReader) (*MemoryStore, error) {
 	if err := loadCandidates(r, store); err != nil {
 		return nil, err
 	}
+	if err := loadRuntimeDiagnoses(r, store); err != nil {
+		return nil, err
+	}
 	if err := loadProposals(r, store); err != nil {
 		return nil, err
 	}
@@ -274,6 +277,7 @@ func persistStore(tx *sql.Tx, store *MemoryStore) error {
 		"feedback_record",
 		"improvement_settings",
 		"proposal",
+		"runtime_diagnosis",
 		"improvement_candidate",
 		"eval_judgment",
 		"eval_run",
@@ -388,6 +392,9 @@ func persistStore(tx *sql.Tx, store *MemoryStore) error {
 		return err
 	}
 	if err := persistCandidates(tx, store); err != nil {
+		return err
+	}
+	if err := persistRuntimeDiagnoses(tx, store); err != nil {
 		return err
 	}
 	if err := persistProposals(tx, store); err != nil {

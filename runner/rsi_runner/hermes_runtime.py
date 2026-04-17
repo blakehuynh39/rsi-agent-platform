@@ -17,6 +17,8 @@ from .hermes_adapter import HermesAdapter
 from .rsi_tools import (
     BLOCKED_HONCHO_TOOLS,
     CompositeToolProvider,
+    HERMES_GOVERNED_READONLY_TOOLSET,
+    HERMES_GOVERNED_WORKSPACE_TOOLSET,
     IMPLEMENT_RSI_TOOL_NAMES,
     READ_ONLY_HONCHO_TOOLS,
     READ_ONLY_RSI_TOOL_NAMES,
@@ -36,6 +38,8 @@ ROLE_TASK_TYPES = {
 }
 
 logger = logging.getLogger(__name__)
+
+NATIVE_HERMES_DIAGNOSE_TOOLS = frozenset({"todo", "session_search"})
 
 
 def _json_object_or_empty(value: JsonValue | None) -> JsonObject:
@@ -306,6 +310,13 @@ def _transport_tool_policy(custom_tools: list[str], memory_tools: list[str]) -> 
     return normalize_tool_names(transport_effective), custom_tool_transport_map, normalize_tool_names(invalid_tool_names)
 
 
+def _transport_name_or_self(name: str) -> str:
+    try:
+        return tool_transport_name(name)
+    except ValueError:
+        return str(name or "").strip()
+
+
 try:
     from run_agent import AIAgent  # type: ignore
     from hermes_constants import parse_reasoning_effort  # type: ignore
@@ -528,6 +539,7 @@ class HermesRuntime:
             "context_engine_mode": adapter_meta.context_engine_mode,
             "context_engine_status": adapter_meta.context_engine_status,
             "lifecycle_hook_status": adapter_meta.lifecycle_hook_status,
+            "governed_tools_status": adapter_meta.governed_tools_status,
             "honcho_configured": self._config.honcho_api_key_configured or bool(self._config.honcho_base_url),
             "honcho_available": self._session_manager.honcho_available,
             "honcho_base_url": self._config.honcho_base_url or "",
@@ -557,12 +569,28 @@ class HermesRuntime:
         )
         return self._execute_task_request(task, self._resolve_tool_policy(task))
 
-    def _create_agent(self, context: SessionContext) -> Any:
+    def _native_governed_tools_enabled(self, task: RunnerTaskRequest) -> bool:
+        if not self._config.hermes_native_governed_tools_enabled:
+            return False
+        if self._role != "proposal":
+            return False
+        return (task.execution_mode or "").strip().lower() in {"diagnose", "implement"}
+
+    def _native_toolsets_for_task(self, task: RunnerTaskRequest) -> list[str]:
+        if not self._native_governed_tools_enabled(task):
+            return []
+        execution_mode = (task.execution_mode or "").strip().lower()
+        toolsets = ["todo", "session_search", HERMES_GOVERNED_READONLY_TOOLSET]
+        if execution_mode == "implement":
+            toolsets.append(HERMES_GOVERNED_WORKSPACE_TOOLSET)
+        return toolsets
+
+    def _create_agent(self, task: RunnerTaskRequest, context: SessionContext) -> Any:
         agent_kwargs: JsonObject = {
             "model": self._provider_model,
             "quiet_mode": True,
             "reasoning_config": self._reasoning_config,
-            "enabled_toolsets": [],
+            "enabled_toolsets": self._native_toolsets_for_task(task),
             "skip_context_files": True,
             "skip_memory": False,
             "persist_session": True,
@@ -616,6 +644,9 @@ class HermesRuntime:
                 {
                     "role": self._role,
                     "task_type": task.task_type,
+                    "task_repo": task.repo,
+                    "task_repo_ref": task.repo_ref or "",
+                    "task_prompt": task.prompt,
                     "trace_id": task.trace_id,
                     "workflow_id": task.workflow_id,
                     "proposal_id": task.session_scope_id if (task.session_scope_kind or "").strip() == "proposal_candidate" else "",
@@ -624,11 +655,17 @@ class HermesRuntime:
                     "execution_mode": task.execution_mode or "",
                     "context_summary": task.context_summary or "",
                     "context_refs": task.context_refs,
+                    "tool_gateway_base_url": self._config.tool_gateway_base_url or "",
+                    "tool_timeout_seconds": 30,
                     "tool_allowlist_effective": tool_policy.effective,
+                    "tool_transport_allowlist_effective": tool_policy.transport_effective,
+                    "tool_transport_map": tool_policy.custom_tool_transport_map,
                     "blocked_tool_names": tool_policy.blocked,
+                    "session_scope_kind": task.session_scope_kind or "",
+                    "session_scope_id": task.session_scope_id or "",
                 },
             )
-            agent = self._create_agent(context)
+            agent = self._create_agent(task, context)
             self._attach_tool_policy(agent, task, tool_policy)
             tracker = self._session_manager.attach_tracking(agent, task, context)
             timed_out, run_result, timeout_meta = self._run_with_deadlines(
@@ -739,6 +776,7 @@ class HermesRuntime:
             "context_engine_mode": adapter_meta.context_engine_mode,
             "context_engine_status": adapter_meta.context_engine_status,
             "lifecycle_hook_status": adapter_meta.lifecycle_hook_status,
+            "governed_tools_status": adapter_meta.governed_tools_status,
             "base_url": self._base_url,
             "honcho_base_url": self._config.honcho_base_url or "",
             "honcho_workspace": self._config.honcho_workspace,
@@ -865,6 +903,8 @@ class HermesRuntime:
         permitted = set(READ_ONLY_HONCHO_TOOLS)
         if self._config.tool_gateway_base_url:
             permitted.update(READ_ONLY_RSI_TOOL_NAMES)
+        if self._role == "proposal" and self._config.hermes_native_governed_tools_enabled and execution_mode.strip().lower() == "diagnose":
+            permitted.update(NATIVE_HERMES_DIAGNOSE_TOOLS)
         if self._role == "proposal" and execution_mode.strip().lower() == "implement":
             permitted.update(WORKSPACE_RSI_TOOL_NAMES)
         return sorted(permitted)
@@ -908,7 +948,19 @@ class HermesRuntime:
     def _attach_tool_policy(self, agent: Any, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> None:
         current_tools = list(getattr(agent, "tools", []) or [])
         current_valid = set(getattr(agent, "valid_tool_names", set()) or set())
+        native_governed_tools = self._native_governed_tools_enabled(task)
         allowed_names = set(tool_policy.effective)
+        filtered_tools = current_tools
+        if native_governed_tools:
+            allowed_transport_names = {
+                _transport_name_or_self(name)
+                for name in tool_policy.effective
+                if name not in BLOCKED_HONCHO_TOOLS
+            }
+            filtered_tools = [tool for tool in current_tools if tool_name(tool) in allowed_transport_names]
+            agent.tools = filtered_tools
+            agent.valid_tool_names = {name for name in current_valid if name in allowed_transport_names}
+            return
         filtered_tools = [tool for tool in current_tools if tool_name(tool) in allowed_names]
         custom_tool_names = [name for name in tool_policy.custom_tools if self._config.tool_gateway_base_url]
         custom_transport_names = [tool_policy.custom_tool_transport_map[name] for name in custom_tool_names if name in tool_policy.custom_tool_transport_map]
@@ -918,6 +970,7 @@ class HermesRuntime:
                 base_url=self._config.tool_gateway_base_url or "",
                 allowed_tool_names=custom_tool_names,
                 task_repo=task.repo,
+                task_repo_ref=task.repo_ref or "",
                 task_prompt=task.prompt,
                 task_context_summary=task.context_summary or "",
                 trace_id=task.trace_id or "",
@@ -934,6 +987,7 @@ class HermesRuntime:
                 base_url=self._config.tool_gateway_base_url or "",
                 allowed_tool_names=[],
                 task_repo=task.repo,
+                task_repo_ref=task.repo_ref or "",
                 task_prompt=task.prompt,
                 task_context_summary=task.context_summary or "",
                 trace_id=task.trace_id or "",
@@ -964,6 +1018,7 @@ class HermesRuntime:
             task.prompt,
             task.system_message,
             context.conversation_history,
+            context.session_id,
         )
         try:
             started_at = time.monotonic()
@@ -1291,24 +1346,36 @@ class HermesRuntime:
         if task.memory_backend:
             parts.append(f"Memory backend: {task.memory_backend}")
         parts.append(f"Timeout seconds: {task.timeout_seconds}")
-        parts.append("Use only the effective tool allowlist above. Eval is read-only. Proposal investigate mode is read-only. Proposal implement mode may mutate only through governed workspace tools inside the bound workspace; it must not mutate GitHub directly, launch jobs, or post to Slack.")
-        parts.append(
-            "Return a JSON object with keys: visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, outcome_hypotheses, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta."
-        )
-        parts.append(
-            "Each proposed action must include: kind, target_ref, request_payload, approval_mode, idempotency_key, rationale, evidence_refs."
-        )
-        parts.append(
-            "Each knowledge draft must include: kind, scope_type, scope_id, title, summary, body, confidence, fresh_until, evidence_refs."
-        )
-        parts.append(
-            "Each outcome hypothesis must include: outcome_type, success_condition, measurement_ref, expected_time_horizon."
-        )
-        if (task.execution_mode or "").strip().lower() == "implement":
+        execution_mode = (task.execution_mode or "").strip().lower()
+        parts.append("Use only the effective tool allowlist above. Eval is read-only. Proposal investigate mode is read-only. Proposal diagnose mode is read-only and must stay grounded in persisted evidence before expanding to repo or log reads. Proposal implement mode may mutate only through governed workspace tools inside the bound workspace; it must not mutate GitHub directly, launch jobs, or post to Slack.")
+        if execution_mode == "diagnose":
+            parts.append(
+                "Return a JSON object with keys: status, subsystem, failure_mode, summary, evidence_refs, missing_evidence, recommended_fix, target_surface, validation_plan."
+            )
+            parts.append(
+                "status must be one of: grounded, needs_evidence, closed."
+            )
+            parts.append(
+                "If the evidence does not ground a specific cause, return status=needs_evidence and use missing_evidence instead of guessing."
+            )
+        else:
+            parts.append(
+                "Return a JSON object with keys: visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, outcome_hypotheses, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta."
+            )
+            parts.append(
+                "Each proposed action must include: kind, target_ref, request_payload, approval_mode, idempotency_key, rationale, evidence_refs."
+            )
+            parts.append(
+                "Each knowledge draft must include: kind, scope_type, scope_id, title, summary, body, confidence, fresh_until, evidence_refs."
+            )
+            parts.append(
+                "Each outcome hypothesis must include: outcome_type, success_condition, measurement_ref, expected_time_horizon."
+            )
+        if execution_mode == "implement":
             parts.append(
                 "For proposal implement tasks, use the bound workspace tools to inspect, edit, diff, and validate inside the workspace. repo_patch is optional legacy output only; the authoritative patch is the workspace git diff. If local validation succeeds and opening a draft PR is warranted, include exactly one proposed action with kind=draft_pr_open and request_payload containing title, body, branch_name, base_ref, and rationale."
             )
-        else:
+        elif execution_mode != "diagnose":
             parts.append(
                 "For proposal or repo-change investigate tasks, change_plan must explain the concrete remediation, repo_patch should contain a unified diff when target_layer is repo_change, validation_plan must name the checks to run, retry_assessment must include failure_class, failure_summary, retry_decision, material_hypothesis_change, and changed_files, and hypothesis_delta must explain what changed from the prior failed attempt."
             )

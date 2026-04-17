@@ -66,6 +66,10 @@ func (s *Service) Execute(name string, input map[string]interface{}) storepkg.To
 	switch name {
 	case "repo.context":
 		return s.repoContext(input)
+	case "repo.read_file":
+		return s.repoReadFile(input)
+	case "repo.search":
+		return s.repoSearch(input)
 	case "knowledge.context":
 		return s.knowledgeContext(input)
 	case "sentry.lookup":
@@ -170,6 +174,98 @@ func (s *Service) repoContext(input map[string]interface{}) storepkg.ToolResult 
 		return s.failedResult("repo.context", input, "github", fmt.Sprintf("Repo context failed: %v", searchErr), output)
 	}
 	return s.unavailableResult("repo.context", input, "github", fmt.Sprintf("Repo context unavailable for %s/%s: missing app authentication.", owner, repoName), output)
+}
+
+func (s *Service) repoReadFile(input map[string]interface{}) storepkg.ToolResult {
+	repo := firstNonEmpty(stringValue(input["repo"]), s.cfg.DefaultRepo)
+	filePath := strings.TrimPrefix(path.Clean("/"+stringValue(input["path"])), "/")
+	if filePath == "" || filePath == "." {
+		return s.failedResult("repo.read_file", input, "github", "Repository file read requires path.", map[string]interface{}{
+			"repo":  s.cfg.GitHubRepoName(repo),
+			"owner": s.cfg.GitHubRepoOwner(repo),
+			"error": "missing path",
+		})
+	}
+	owner := s.cfg.GitHubRepoOwner(repo)
+	repoName := s.cfg.GitHubRepoName(repo)
+	token, err := s.githubInstallationToken(repo)
+	if err != nil {
+		return s.unavailableResult("repo.read_file", input, "github", fmt.Sprintf("Repository file read unavailable for %s/%s: missing app authentication.", owner, repoName), map[string]interface{}{
+			"repo":  repoName,
+			"owner": owner,
+			"path":  filePath,
+			"error": err.Error(),
+		})
+	}
+	ref := strings.TrimSpace(stringValue(input["ref"]))
+	if ref == "" {
+		if meta, metaErr := s.githubRepoMetadata(owner, repoName, token); metaErr == nil {
+			ref = stringValue(meta["default_branch"])
+		}
+	}
+	content, err := s.githubRepoFileContents(owner, repoName, filePath, ref, token)
+	if err != nil {
+		return s.failedResult("repo.read_file", input, "github", fmt.Sprintf("Repository file read failed: %v", err), map[string]interface{}{
+			"repo":  repoName,
+			"owner": owner,
+			"path":  filePath,
+			"ref":   ref,
+			"error": err.Error(),
+		})
+	}
+	summary := fmt.Sprintf("Repository file %s loaded from %s/%s at %s.", filePath, owner, repoName, firstNonEmpty(ref, "default branch"))
+	return s.result("repo.read_file", input, summary, map[string]interface{}{
+		"repo":           repoName,
+		"owner":          owner,
+		"path":           filePath,
+		"ref":            ref,
+		"content":        truncate(content, 12000),
+		"content_length": len(content),
+		"truncated":      len(content) > len(truncate(content, 12000)),
+	}, nil)
+}
+
+func (s *Service) repoSearch(input map[string]interface{}) storepkg.ToolResult {
+	repo := firstNonEmpty(stringValue(input["repo"]), s.cfg.DefaultRepo)
+	pattern := strings.TrimSpace(stringValue(input["pattern"]))
+	pathPrefix := strings.TrimPrefix(path.Clean("/"+stringValue(input["path"])), "/")
+	if pattern == "" {
+		return s.failedResult("repo.search", input, "github", "Repository search requires pattern.", map[string]interface{}{
+			"repo":  s.cfg.GitHubRepoName(repo),
+			"owner": s.cfg.GitHubRepoOwner(repo),
+			"error": "missing pattern",
+		})
+	}
+	owner := s.cfg.GitHubRepoOwner(repo)
+	repoName := s.cfg.GitHubRepoName(repo)
+	token, err := s.githubInstallationToken(repo)
+	if err != nil {
+		return s.unavailableResult("repo.search", input, "github", fmt.Sprintf("Repository search unavailable for %s/%s: missing app authentication.", owner, repoName), map[string]interface{}{
+			"repo":    repoName,
+			"owner":   owner,
+			"pattern": pattern,
+			"path":    pathPrefix,
+			"error":   err.Error(),
+		})
+	}
+	matches, err := s.githubRepoSearch(owner, repoName, token, pattern, pathPrefix)
+	if err != nil {
+		return s.failedResult("repo.search", input, "github", fmt.Sprintf("Repository search failed: %v", err), map[string]interface{}{
+			"repo":    repoName,
+			"owner":   owner,
+			"pattern": pattern,
+			"path":    pathPrefix,
+			"error":   err.Error(),
+		})
+	}
+	summary := fmt.Sprintf("Repository search found %d match(es) in %s/%s for %q.", len(matches), owner, repoName, pattern)
+	return s.result("repo.search", input, summary, map[string]interface{}{
+		"repo":    repoName,
+		"owner":   owner,
+		"pattern": pattern,
+		"path":    pathPrefix,
+		"matches": matches,
+	}, nil)
 }
 
 func (s *Service) knowledgeContext(input map[string]interface{}) storepkg.ToolResult {
@@ -521,6 +617,53 @@ func (s *Service) githubRepoSearchContext(owner string, repo string, token strin
 			"path":     item.Path,
 			"html_url": item.HTMLURL,
 			"snippet":  truncate(snippet, 800),
+		})
+	}
+	return matches, nil
+}
+
+func (s *Service) githubRepoSearch(owner string, repo string, token string, pattern string, pathPrefix string) ([]map[string]interface{}, error) {
+	values := url.Values{}
+	queryParts := []string{fmt.Sprintf("repo:%s/%s", owner, repo), pattern}
+	if trimmedPath := strings.TrimSpace(pathPrefix); trimmedPath != "" && trimmedPath != "." {
+		queryParts = append(queryParts, fmt.Sprintf("path:%s", trimmedPath))
+	}
+	values.Set("q", strings.Join(queryParts, " "))
+	values.Set("per_page", "10")
+	endpoint := fmt.Sprintf("%s/search/code?%s", strings.TrimRight(s.cfg.GitHubAPIBaseURL, "/"), values.Encode())
+	var payload struct {
+		Items []struct {
+			Name        string `json:"name"`
+			Path        string `json:"path"`
+			HTMLURL     string `json:"html_url"`
+			TextMatches []struct {
+				Fragment string `json:"fragment"`
+			} `json:"text_matches"`
+		} `json:"items"`
+	}
+	if err := s.apiJSON(http.MethodGet, endpoint, nil, map[string]string{
+		"Authorization": "Bearer " + token,
+		"Accept":        "application/vnd.github.text-match+json",
+	}, &payload); err != nil {
+		return nil, err
+	}
+	matches := make([]map[string]interface{}, 0, minInt(len(payload.Items), 8))
+	for _, item := range payload.Items {
+		if len(matches) == 8 {
+			break
+		}
+		snippet := ""
+		for _, textMatch := range item.TextMatches {
+			if fragment := truncate(strings.TrimSpace(textMatch.Fragment), 800); fragment != "" {
+				snippet = fragment
+				break
+			}
+		}
+		matches = append(matches, map[string]interface{}{
+			"name":     item.Name,
+			"path":     item.Path,
+			"html_url": item.HTMLURL,
+			"snippet":  snippet,
 		})
 	}
 	return matches, nil
@@ -956,6 +1099,12 @@ func (s *Service) rsiTraceContext(input map[string]interface{}) storepkg.ToolRes
 			linkedProposals = append(linkedProposals, proposal)
 		}
 	}
+	candidateKeys := make(map[string]struct{})
+	for _, candidate := range s.store.ListCandidates() {
+		if candidate.LatestTraceID == traceID || containsString(candidate.EvidenceTraceIDs, traceID) {
+			candidateKeys[candidate.CandidateKey] = struct{}{}
+		}
+	}
 	var workflowLine interface{}
 	if caseID := strings.TrimSpace(trace.Summary.CaseID); caseID != "" {
 		if item, ok := s.store.GetWorkflowLine(caseID); ok {
@@ -978,11 +1127,22 @@ func (s *Service) rsiTraceContext(input map[string]interface{}) storepkg.ToolRes
 			harnessExecutions = append(harnessExecutions, execution)
 		}
 	}
-	summary := fmt.Sprintf("RSI trace context loaded for %s with %d events, %d workflow attempt(s), and %d linked proposals.", traceID, len(trace.Events), len(workflowAttempts), len(linkedProposals))
+	runtimeDiagnoses := make([]interface{}, 0)
+	for _, diagnosis := range s.store.ListRuntimeDiagnoses() {
+		if diagnosis.LatestTraceID == traceID || (trace.Summary.CaseID != "" && diagnosis.CaseID == trace.Summary.CaseID) {
+			runtimeDiagnoses = append(runtimeDiagnoses, diagnosis)
+			continue
+		}
+		if _, ok := candidateKeys[diagnosis.CandidateKey]; ok {
+			runtimeDiagnoses = append(runtimeDiagnoses, diagnosis)
+		}
+	}
+	summary := fmt.Sprintf("RSI trace context loaded for %s with %d events, %d workflow attempt(s), %d runtime diagnosis record(s), and %d linked proposals.", traceID, len(trace.Events), len(workflowAttempts), len(runtimeDiagnoses), len(linkedProposals))
 	return s.result("rsi.trace_context", input, summary, map[string]interface{}{
 		"trace":              trace.Summary,
 		"workflow_line":      workflowLine,
 		"workflow_attempts":  workflowAttempts,
+		"runtime_diagnoses":  runtimeDiagnoses,
 		"harness_executions": harnessExecutions,
 		"events":             trace.Events,
 		"artifacts":          trace.Artifacts,
@@ -1042,12 +1202,19 @@ func (s *Service) rsiCandidateContext(input map[string]interface{}) storepkg.Too
 			memories = append(memories, item)
 		}
 	}
-	summary := fmt.Sprintf("RSI candidate context loaded for %s with %d proposal(s) and %d memory item(s).", candidateKey, len(proposals), len(memories))
+	runtimeDiagnoses := make([]interface{}, 0)
+	for _, item := range s.store.ListRuntimeDiagnoses() {
+		if item.CandidateKey == candidateKey {
+			runtimeDiagnoses = append(runtimeDiagnoses, item)
+		}
+	}
+	summary := fmt.Sprintf("RSI candidate context loaded for %s with %d proposal(s), %d memory item(s), and %d runtime diagnosis record(s).", candidateKey, len(proposals), len(memories), len(runtimeDiagnoses))
 	return s.result("rsi.candidate_context", input, summary, map[string]interface{}{
-		"candidate_key":   candidateKey,
-		"candidate":       candidate,
-		"proposals":       proposals,
-		"proposal_memory": memories,
+		"candidate_key":     candidateKey,
+		"candidate":         candidate,
+		"proposals":         proposals,
+		"proposal_memory":   memories,
+		"runtime_diagnoses": runtimeDiagnoses,
 	}, nil)
 }
 

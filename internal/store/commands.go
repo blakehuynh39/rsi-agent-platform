@@ -38,6 +38,7 @@ type commandApplyResult struct {
 	attemptID           string
 	traceID             string
 	candidateKey        string
+	runtimeDiagnosisID  string
 	evalRunID           string
 	evalJudgments       []evals.Judgment
 	outcomeID           string
@@ -160,6 +161,8 @@ func (s *MemoryStore) applyCommandLocked(command transition.CommandEnvelope) (co
 		return s.applyWorkflowLineCommandLocked(command)
 	case transition.MachineProblemLine:
 		return s.applyProblemLineCommandLocked(command)
+	case transition.MachineRuntimeDiagnosis:
+		return s.applyRuntimeDiagnosisCommandLocked(command)
 	case transition.MachineAttempt:
 		return s.applyAttemptCommandLocked(command)
 	case transition.MachineAction:
@@ -684,6 +687,141 @@ func (s *MemoryStore) applyProblemLineCommandLocked(command transition.CommandEn
 		return result, nil
 	default:
 		return commandApplyResult{}, fmt.Errorf("unsupported problem line decision kind %s", decision.DecisionKind)
+	}
+}
+
+func (s *MemoryStore) applyRuntimeDiagnosisCommandLocked(command transition.CommandEnvelope) (commandApplyResult, error) {
+	diagnosis, ok := s.runtimeDiagnoses[command.AggregateID]
+	snapshot := transition.RuntimeDiagnosisSnapshot{Exists: ok}
+	if ok {
+		snapshot.State = transition.RuntimeDiagnosisState(diagnosis.Status)
+	}
+	decision := transition.ReduceRuntimeDiagnosis(snapshot, command)
+	result := commandApplyResult{
+		bundle: buildCommandBundle(command, decision.TransitionDecision, 1),
+	}
+	switch decision.DecisionKind {
+	case transition.DecisionAdvance:
+		now := command.OccurredAt
+		if !ok {
+			diagnosis = improvement.RuntimeDiagnosis{
+				ID:        strings.TrimSpace(command.AggregateID),
+				CreatedAt: now,
+			}
+		}
+		switch transition.RuntimeDiagnosisCommandKind(command.CommandKind) {
+		case transition.CommandRuntimeDiagnosisQueue:
+			diagnosis.CandidateKey = firstNonEmpty(stringFromCommand(command, "candidate_key"), diagnosis.CandidateKey)
+			diagnosis.Repo = firstNonEmpty(stringFromCommand(command, "repo"), diagnosis.Repo)
+			diagnosis.ConversationID = firstNonEmpty(stringFromCommand(command, "conversation_id"), diagnosis.ConversationID)
+			diagnosis.CaseID = firstNonEmpty(stringFromCommand(command, "case_id"), diagnosis.CaseID)
+			diagnosis.LatestTraceID = firstNonEmpty(stringFromCommand(command, "latest_trace_id"), diagnosis.LatestTraceID)
+			diagnosis.SessionScopeKind = firstNonEmpty(stringFromCommand(command, "session_scope_kind"), diagnosis.SessionScopeKind, "runtime_diagnosis")
+			diagnosis.SessionScopeID = firstNonEmpty(stringFromCommand(command, "session_scope_id"), diagnosis.SessionScopeID, diagnosis.ID)
+			diagnosis.Status = improvement.RuntimeDiagnosisQueued
+			diagnosis.LastError = ""
+			diagnosis.UpdatedAt = now
+			s.runtimeDiagnoses[diagnosis.ID] = diagnosis
+			result.runtimeDiagnosisID = diagnosis.ID
+			for idx := range result.bundle.Effects {
+				if result.bundle.Effects[idx].MachineKind != transition.MachineRuntimeDiagnosis || result.bundle.Effects[idx].EffectKind != transition.EffectInvokeRunner {
+					continue
+				}
+				result.bundle.Effects[idx].IdempotencyKey = fmt.Sprintf("runtime-diagnosis:%s", diagnosis.ID)
+				result.bundle.Effects[idx].Payload = mergeCommandMetadataPayload(result.bundle.Effects[idx].Payload, map[string]any{
+					"runtime_diagnosis_id": diagnosis.ID,
+					"candidate_key":        diagnosis.CandidateKey,
+					"repo":                 diagnosis.Repo,
+					"trace_id":             diagnosis.LatestTraceID,
+					"conversation_id":      diagnosis.ConversationID,
+					"case_id":              diagnosis.CaseID,
+					"session_scope_kind":   diagnosis.SessionScopeKind,
+					"session_scope_id":     diagnosis.SessionScopeID,
+				})
+			}
+			result.receipt = buildCommandReceipt(command, decision.TransitionDecision, now, 1, diagnosis.ID)
+			return result, nil
+		case transition.CommandRuntimeDiagnosisRunnerStarted:
+			if !ok {
+				return commandApplyResult{}, errors.New("runtime diagnosis not found")
+			}
+			diagnosis.Status = improvement.RuntimeDiagnosisInvestigating
+			diagnosis.LastError = ""
+			diagnosis.LastAttemptedAt = optionalTime(now)
+			diagnosis.UpdatedAt = now
+			s.runtimeDiagnoses[diagnosis.ID] = diagnosis
+			result.runtimeDiagnosisID = diagnosis.ID
+			result.receipt = buildCommandReceipt(command, decision.TransitionDecision, now, 1, diagnosis.ID)
+			return result, nil
+		case transition.CommandRuntimeDiagnosisRecordResult:
+			if !ok {
+				return commandApplyResult{}, errors.New("runtime diagnosis not found")
+			}
+			diagnosis.Status = improvement.RuntimeDiagnosisStatus(decision.NextState)
+			diagnosis.Subsystem = firstNonEmpty(stringFromCommand(command, "subsystem"), diagnosis.Subsystem)
+			diagnosis.FailureMode = firstNonEmpty(stringFromCommand(command, "failure_mode"), diagnosis.FailureMode)
+			diagnosis.Summary = firstNonEmpty(stringFromCommand(command, "summary"), diagnosis.Summary)
+			diagnosis.EvidenceRefs = firstNonEmptyStringSlice(stringSliceFromCommand(command, "evidence_refs"), diagnosis.EvidenceRefs)
+			diagnosis.MissingEvidence = firstNonEmptyStringSlice(stringSliceFromCommand(command, "missing_evidence"), diagnosis.MissingEvidence)
+			diagnosis.RecommendedFix = firstNonEmpty(stringFromCommand(command, "recommended_fix"), diagnosis.RecommendedFix)
+			diagnosis.TargetSurface = firstNonEmpty(stringFromCommand(command, "target_surface"), diagnosis.TargetSurface)
+			diagnosis.ValidationPlan = firstNonEmpty(stringFromCommand(command, "validation_plan"), diagnosis.ValidationPlan)
+			if payload := anyMapFromCommand(command, "last_result"); len(payload) > 0 {
+				diagnosis.LastResult = payload
+			}
+			diagnosis.LastError = strings.TrimSpace(stringFromCommand(command, "last_error"))
+			diagnosis.LastAttemptedAt = optionalTime(now)
+			diagnosis.UpdatedAt = now
+			s.runtimeDiagnoses[diagnosis.ID] = diagnosis
+			if candidate, exists := s.candidates[diagnosis.CandidateKey]; exists {
+				switch diagnosis.Status {
+				case improvement.RuntimeDiagnosisGrounded:
+					candidate.Status = improvement.CandidateQueued
+					candidate.LineStatus = improvement.LineQueuedForPromotion
+				case improvement.RuntimeDiagnosisNeedsEvidence:
+					candidate.Status = improvement.CandidateNeedsEvidence
+					candidate.LineStatus = improvement.LineNeedsEvidence
+				}
+				candidate.UpdatedAt = now
+				s.candidates[candidate.CandidateKey] = candidate
+				result.candidateKey = candidate.CandidateKey
+			}
+			result.runtimeDiagnosisID = diagnosis.ID
+			result.receipt = buildCommandReceipt(command, decision.TransitionDecision, now, 1, diagnosis.ID)
+			return result, nil
+		case transition.CommandRuntimeDiagnosisMarkPromoted:
+			if !ok {
+				return commandApplyResult{}, errors.New("runtime diagnosis not found")
+			}
+			diagnosis.Status = improvement.RuntimeDiagnosisPromoted
+			diagnosis.PromotedAt = optionalTime(now)
+			diagnosis.UpdatedAt = now
+			s.runtimeDiagnoses[diagnosis.ID] = diagnosis
+			result.runtimeDiagnosisID = diagnosis.ID
+			result.receipt = buildCommandReceipt(command, decision.TransitionDecision, now, 1, diagnosis.ID)
+			return result, nil
+		case transition.CommandRuntimeDiagnosisClose:
+			if !ok {
+				return commandApplyResult{}, errors.New("runtime diagnosis not found")
+			}
+			diagnosis.Status = improvement.RuntimeDiagnosisClosed
+			diagnosis.LastError = firstNonEmpty(stringFromCommand(command, "last_error"), diagnosis.LastError)
+			diagnosis.UpdatedAt = now
+			s.runtimeDiagnoses[diagnosis.ID] = diagnosis
+			result.runtimeDiagnosisID = diagnosis.ID
+			result.receipt = buildCommandReceipt(command, decision.TransitionDecision, now, 1, diagnosis.ID)
+			return result, nil
+		default:
+			return commandApplyResult{}, fmt.Errorf("unsupported runtime diagnosis command kind %s", command.CommandKind)
+		}
+	case transition.DecisionNoop:
+		result.receipt = buildCommandReceipt(command, decision.TransitionDecision, command.OccurredAt, 1, command.AggregateID)
+		return result, nil
+	case transition.DecisionReject:
+		result.receipt = buildCommandReceipt(command, decision.TransitionDecision, command.OccurredAt, 1, "")
+		return result, nil
+	default:
+		return commandApplyResult{}, fmt.Errorf("unsupported runtime diagnosis decision kind %s", decision.DecisionKind)
 	}
 }
 
@@ -1887,6 +2025,17 @@ func persistCommandMutation(tx *sql.Tx, store *MemoryStore, result commandApplyR
 		default:
 			return fmt.Errorf("unsupported problem line command kind %s for persistence", result.receipt.CommandKind)
 		}
+	case transition.MachineRuntimeDiagnosis:
+		if strings.TrimSpace(result.runtimeDiagnosisID) == "" {
+			return nil
+		}
+		if err := replaceRuntimeDiagnosisScope(tx, store, result.runtimeDiagnosisID); err != nil {
+			return err
+		}
+		if strings.TrimSpace(result.candidateKey) != "" {
+			return replaceCandidateScope(tx, store, result.candidateKey)
+		}
+		return nil
 	case transition.MachineThreadPolicy:
 		item, ok := store.threadPolicies[result.threadKey]
 		if !ok {

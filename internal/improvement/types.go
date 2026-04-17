@@ -74,6 +74,43 @@ type Candidate struct {
 	UpdatedAt                     time.Time           `json:"updated_at"`
 }
 
+type RuntimeDiagnosisStatus string
+
+const (
+	RuntimeDiagnosisQueued        RuntimeDiagnosisStatus = "queued"
+	RuntimeDiagnosisInvestigating RuntimeDiagnosisStatus = "investigating"
+	RuntimeDiagnosisGrounded      RuntimeDiagnosisStatus = "grounded"
+	RuntimeDiagnosisNeedsEvidence RuntimeDiagnosisStatus = "needs_evidence"
+	RuntimeDiagnosisPromoted      RuntimeDiagnosisStatus = "promoted"
+	RuntimeDiagnosisClosed        RuntimeDiagnosisStatus = "closed"
+)
+
+type RuntimeDiagnosis struct {
+	ID               string                 `json:"id"`
+	CandidateKey     string                 `json:"candidate_key"`
+	Repo             string                 `json:"repo"`
+	ConversationID   string                 `json:"conversation_id,omitempty"`
+	CaseID           string                 `json:"case_id,omitempty"`
+	LatestTraceID    string                 `json:"latest_trace_id,omitempty"`
+	Status           RuntimeDiagnosisStatus `json:"status"`
+	Subsystem        string                 `json:"subsystem,omitempty"`
+	FailureMode      string                 `json:"failure_mode,omitempty"`
+	Summary          string                 `json:"summary,omitempty"`
+	EvidenceRefs     []string               `json:"evidence_refs,omitempty"`
+	MissingEvidence  []string               `json:"missing_evidence,omitempty"`
+	RecommendedFix   string                 `json:"recommended_fix,omitempty"`
+	TargetSurface    string                 `json:"target_surface,omitempty"`
+	ValidationPlan   string                 `json:"validation_plan,omitempty"`
+	SessionScopeKind string                 `json:"session_scope_kind,omitempty"`
+	SessionScopeID   string                 `json:"session_scope_id,omitempty"`
+	LastResult       map[string]any         `json:"last_result,omitempty"`
+	LastError        string                 `json:"last_error,omitempty"`
+	LastAttemptedAt  *time.Time             `json:"last_attempted_at,omitempty"`
+	PromotedAt       *time.Time             `json:"promoted_at,omitempty"`
+	CreatedAt        time.Time              `json:"created_at"`
+	UpdatedAt        time.Time              `json:"updated_at"`
+}
+
 type ChangeAttemptTrigger string
 
 const (

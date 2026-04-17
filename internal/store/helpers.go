@@ -43,6 +43,7 @@ func newEmptyMemoryStore() *MemoryStore {
 		evalRuns:               map[string]evals.Run{},
 		evalJudgments:          map[string][]evals.Judgment{},
 		candidates:             map[string]improvement.Candidate{},
+		runtimeDiagnoses:       map[string]improvement.RuntimeDiagnosis{},
 		proposals:              map[string]review.Proposal{},
 		changeAttempts:         map[string]improvement.ChangeAttempt{},
 		attemptWorkspaces:      map[string]improvement.AttemptWorkspace{},

@@ -5,17 +5,18 @@ import "time"
 type MachineKind string
 
 const (
-	MachineIngress      MachineKind = "ingress"
-	MachineWorkflow     MachineKind = "workflow"
-	MachineWorkflowLine MachineKind = "workflow_line"
-	MachineProblemLine  MachineKind = "problem_line"
-	MachineProposalLine MachineKind = "proposal_line"
-	MachineAttempt      MachineKind = "attempt"
-	MachineAction       MachineKind = "action_execution"
-	MachineKnowledge    MachineKind = "knowledge_promotion"
-	MachineHarness      MachineKind = "harness"
-	MachineThreadPolicy MachineKind = "thread_policy"
-	MachineSettings     MachineKind = "platform_settings"
+	MachineIngress          MachineKind = "ingress"
+	MachineWorkflow         MachineKind = "workflow"
+	MachineWorkflowLine     MachineKind = "workflow_line"
+	MachineProblemLine      MachineKind = "problem_line"
+	MachineRuntimeDiagnosis MachineKind = "runtime_diagnosis"
+	MachineProposalLine     MachineKind = "proposal_line"
+	MachineAttempt          MachineKind = "attempt"
+	MachineAction           MachineKind = "action_execution"
+	MachineKnowledge        MachineKind = "knowledge_promotion"
+	MachineHarness          MachineKind = "harness"
+	MachineThreadPolicy     MachineKind = "thread_policy"
+	MachineSettings         MachineKind = "platform_settings"
 )
 
 type DecisionKind string

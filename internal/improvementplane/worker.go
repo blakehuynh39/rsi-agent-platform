@@ -98,6 +98,10 @@ func processImprovementEffect(cfg config.Config, store storepkg.Store, evalRunne
 		if effect.EffectKind == transition.EffectInvokeRunner {
 			return processProblemLineEvalEffect(cfg, store, evalRunner, effect)
 		}
+	case transition.MachineRuntimeDiagnosis:
+		if effect.EffectKind == transition.EffectInvokeRunner {
+			return processRuntimeDiagnosisEffect(cfg, store, proposalRunner, effect)
+		}
 	case transition.MachineAttempt:
 		switch effect.EffectKind {
 		case transition.EffectOpenWorkspace:
@@ -714,6 +718,190 @@ func processWorkspaceValidateEffect(cfg config.Config, store storepkg.Store, too
 		return err
 	}
 	return completeClaimedImprovementEffect(store, effect, attempt.ID)
+}
+
+func processRuntimeDiagnosisEffect(cfg config.Config, store storepkg.Store, runnerClient runnerExecutor, effect transition.EffectExecution) error {
+	diagnosisID := firstNonEmpty(strings.TrimSpace(effect.AggregateID), strings.TrimSpace(stringValue(effect.Payload["runtime_diagnosis_id"])))
+	if diagnosisID == "" {
+		return failClaimedImprovementEffect(store, effect, "runtime diagnosis effect missing diagnosis id")
+	}
+	diagnosis, ok := store.GetRuntimeDiagnosis(diagnosisID)
+	if !ok {
+		return failClaimedImprovementEffect(store, effect, fmt.Sprintf("runtime diagnosis %s not found", diagnosisID))
+	}
+	candidate, ok := findCandidate(store.ListCandidates(), diagnosis.CandidateKey)
+	if !ok {
+		now := time.Now().UTC()
+		if _, err := submitRuntimeDiagnosisCommand(
+			store,
+			diagnosis.ID,
+			transition.CommandRuntimeDiagnosisClose,
+			cfg.ServiceName,
+			now,
+			fmt.Sprintf("cmd-runtime-diagnosis:close:%s:%d", diagnosis.ID, now.UnixNano()),
+			map[string]any{
+				"last_error": fmt.Sprintf("candidate %s not found", diagnosis.CandidateKey),
+			},
+		); err != nil {
+			_ = failClaimedImprovementEffect(store, effect, err.Error())
+			return err
+		}
+		return completeClaimedImprovementEffect(store, effect, diagnosis.ID)
+	}
+	traceID := firstNonEmpty(diagnosis.LatestTraceID, candidate.LatestTraceID, candidate.OriginTraceID, strings.TrimSpace(stringValue(effect.Payload["trace_id"])))
+	if traceID == "" {
+		now := time.Now().UTC()
+		if _, err := submitRuntimeDiagnosisCommand(
+			store,
+			diagnosis.ID,
+			transition.CommandRuntimeDiagnosisRecordResult,
+			cfg.ServiceName,
+			now,
+			fmt.Sprintf("cmd-runtime-diagnosis:result:%s:%d", diagnosis.ID, now.UnixNano()),
+			map[string]any{
+				"status":           string(improvement.RuntimeDiagnosisNeedsEvidence),
+				"summary":          "Runtime diagnosis is missing a latest trace reference.",
+				"missing_evidence": []string{"latest_trace"},
+				"last_error":       "runtime diagnosis missing latest_trace_id",
+			},
+		); err != nil {
+			_ = failClaimedImprovementEffect(store, effect, err.Error())
+			return err
+		}
+		return completeClaimedImprovementEffect(store, effect, diagnosis.ID)
+	}
+	trace, ok := store.GetTrace(traceID)
+	if !ok {
+		now := time.Now().UTC()
+		if _, err := submitRuntimeDiagnosisCommand(
+			store,
+			diagnosis.ID,
+			transition.CommandRuntimeDiagnosisRecordResult,
+			cfg.ServiceName,
+			now,
+			fmt.Sprintf("cmd-runtime-diagnosis:result:%s:%d", diagnosis.ID, now.UnixNano()),
+			map[string]any{
+				"status":           string(improvement.RuntimeDiagnosisNeedsEvidence),
+				"summary":          "Runtime diagnosis could not load the latest persisted trace.",
+				"missing_evidence": []string{"latest_trace"},
+				"last_error":       fmt.Sprintf("trace %s not found", traceID),
+			},
+		); err != nil {
+			_ = failClaimedImprovementEffect(store, effect, err.Error())
+			return err
+		}
+		return completeClaimedImprovementEffect(store, effect, diagnosis.ID)
+	}
+	operationID := strings.TrimSpace(stringValue(effect.Payload["operation_id"]))
+	startedAt := time.Now().UTC()
+	if _, err := submitRuntimeDiagnosisCommand(
+		store,
+		diagnosis.ID,
+		transition.CommandRuntimeDiagnosisRunnerStarted,
+		cfg.ServiceName,
+		startedAt,
+		fmt.Sprintf("cmd-runtime-diagnosis:started:%s:%d", diagnosis.ID, startedAt.UnixNano()),
+		nil,
+	); err != nil {
+		_ = failClaimedImprovementEffect(store, effect, err.Error())
+		return err
+	}
+	runnerTask := buildRuntimeDiagnosisRunnerTask(cfg, store, diagnosis, candidate, trace)
+	var (
+		runnerResp   clients.RunnerResponse
+		runnerOutput runnerutil.RuntimeDiagnosisOutput
+		runnerErr    error
+	)
+	if runnerClient == nil {
+		runnerErr = errors.New("proposal runner unavailable")
+	} else {
+		runnerResp, runnerErr = runnerClient.Execute(runnerTask)
+		if runnerErr == nil && !runnerResp.OK {
+			runnerErr = fmt.Errorf("proposal runner returned non-ok result: %s", strings.TrimSpace(runnerResp.Message))
+		}
+		if runnerErr == nil {
+			if err := runnerutil.PersistHarnessExecution(
+				store,
+				runnerResp,
+				"proposal",
+				operationID,
+				trace.Summary.TraceID,
+				"",
+				runnerTask.HarnessProfileID,
+				runnerTask.HarnessOverlayVersion,
+				runnerTask.SessionScopeKind,
+				runnerTask.SessionScopeID,
+				runnerTask.ParentSessionScopeKind,
+				runnerTask.ParentSessionScopeID,
+			); err != nil {
+				_ = failClaimedImprovementEffect(store, effect, err.Error())
+				return err
+			}
+			var parseErr error
+			runnerOutput, parseErr = runnerutil.ParseRuntimeDiagnosisOutput(runnerResp)
+			if parseErr != nil {
+				runnerErr = parseErr
+			}
+		}
+	}
+	resultAt := time.Now().UTC()
+	if runnerErr != nil {
+		if _, err := submitRuntimeDiagnosisCommand(
+			store,
+			diagnosis.ID,
+			transition.CommandRuntimeDiagnosisRecordResult,
+			cfg.ServiceName,
+			resultAt,
+			fmt.Sprintf("cmd-runtime-diagnosis:result:%s:%d", diagnosis.ID, resultAt.UnixNano()),
+			map[string]any{
+				"status":     string(improvement.RuntimeDiagnosisNeedsEvidence),
+				"summary":    firstNonEmpty(diagnosis.Summary, "Runtime diagnosis did not ground a specific failure before the runner failed."),
+				"last_error": runnerErr.Error(),
+				"last_result": map[string]any{
+					"message": runnerResp.Message,
+					"raw":     runnerResp.Raw,
+				},
+			},
+		); err != nil {
+			_ = failClaimedImprovementEffect(store, effect, err.Error())
+			return err
+		}
+		return completeClaimedImprovementEffect(store, effect, diagnosis.ID)
+	}
+	status := improvement.RuntimeDiagnosisStatus(strings.TrimSpace(runnerOutput.Status))
+	switch status {
+	case improvement.RuntimeDiagnosisGrounded, improvement.RuntimeDiagnosisNeedsEvidence, improvement.RuntimeDiagnosisClosed:
+	default:
+		status = improvement.RuntimeDiagnosisNeedsEvidence
+		if runnerOutput.MissingEvidence == nil {
+			runnerOutput.MissingEvidence = []string{}
+		}
+		runnerOutput.MissingEvidence = append(runnerOutput.MissingEvidence, "structured diagnosis status")
+	}
+	if _, err := submitRuntimeDiagnosisCommand(
+		store,
+		diagnosis.ID,
+		transition.CommandRuntimeDiagnosisRecordResult,
+		cfg.ServiceName,
+		resultAt,
+		fmt.Sprintf("cmd-runtime-diagnosis:result:%s:%d", diagnosis.ID, resultAt.UnixNano()),
+		map[string]any{
+			"status":           string(status),
+			"subsystem":        strings.TrimSpace(runnerOutput.Subsystem),
+			"failure_mode":     strings.TrimSpace(runnerOutput.FailureMode),
+			"summary":          strings.TrimSpace(runnerOutput.Summary),
+			"evidence_refs":    append([]string(nil), runnerOutput.EvidenceRefs...),
+			"missing_evidence": append([]string(nil), runnerOutput.MissingEvidence...),
+			"recommended_fix":  strings.TrimSpace(runnerOutput.RecommendedFix),
+			"target_surface":   strings.TrimSpace(runnerOutput.TargetSurface),
+			"validation_plan":  strings.TrimSpace(runnerOutput.ValidationPlan),
+			"last_result":      runnerResp.Raw,
+		},
+	); err != nil {
+		_ = failClaimedImprovementEffect(store, effect, err.Error())
+		return err
+	}
+	return completeClaimedImprovementEffect(store, effect, diagnosis.ID)
 }
 
 func processProblemLineEvalEffect(cfg config.Config, store storepkg.Store, runnerClient runnerExecutor, effect transition.EffectExecution) error {
@@ -1572,6 +1760,10 @@ func claimNextImprovementEffect(store storepkg.Store, holder string, lease time.
 			if effect.EffectKind != transition.EffectInvokeRunner {
 				continue
 			}
+		case transition.MachineRuntimeDiagnosis:
+			if effect.EffectKind != transition.EffectInvokeRunner {
+				continue
+			}
 		case transition.MachineAttempt:
 			switch effect.EffectKind {
 			case transition.EffectOpenWorkspace, transition.EffectInvokeRunner, transition.EffectWorkspaceValidate, transition.EffectObserveWorkspaceValidation, transition.EffectOpenDraftPR:
@@ -1711,6 +1903,10 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 	targetRepo := evalTargetRepo(cfg, store, trace)
 	repoAllowlist := scopedImprovementRepoAllowlist(targetRepo)
 	toolAllowlist := improvementReadOnlyTools(effectiveHarness)
+	candidateKey := ""
+	if candidate, ok := latestCandidateForTrace(store, trace.Summary.TraceID); ok {
+		candidateKey = candidate.CandidateKey
+	}
 	evalContextRefs := make([]clients.RunnerContextRef, 0, len(judgments)+1)
 	evalContextRefs = append(evalContextRefs, clients.RunnerContextRef{
 		Kind:     "eval_run",
@@ -1733,6 +1929,7 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 	}
 	evalContextRefs = append(evalContextRefs, improvementTraceEvidenceRefs(store, trace)...)
 	evalContextRefs = append(evalContextRefs, improvementCandidateEvidenceRefs(store, trace, "")...)
+	evalContextRefs = append(evalContextRefs, runtimeDiagnosisContextRefs(store.ListRuntimeDiagnoses(), candidateKey)...)
 	evalContextRefs = append(evalContextRefs, improvementProposalMemoryRefs(store, "")...)
 	if strings.TrimSpace(operationID) != "" {
 		evalContextRefs = append(evalContextRefs, clients.RunnerContextRef{
@@ -1884,6 +2081,7 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 	}
 	contextRefs = append(contextRefs, improvementTraceEvidenceRefs(store, trace)...)
 	contextRefs = append(contextRefs, improvementCandidateEvidenceRefs(store, trace, proposal.CandidateKey)...)
+	contextRefs = append(contextRefs, runtimeDiagnosisContextRefs(store.ListRuntimeDiagnoses(), proposal.CandidateKey)...)
 	contextRefs = append(contextRefs, improvementProposalMemoryRefs(store, proposal.CandidateKey)...)
 	contextRefs = append(contextRefs, improvementAttemptHistoryRefs(store, proposal.ID, attempt.ID)...)
 	prompt := fmt.Sprintf(
@@ -1989,6 +2187,108 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 	}
 }
 
+func buildRuntimeDiagnosisRunnerTask(cfg config.Config, store storepkg.Store, diagnosis improvement.RuntimeDiagnosis, candidate improvement.Candidate, trace events.Trace) clients.RunnerTask {
+	effectiveHarness := harness.ResolveEffectiveConfig(store, "proposal", cfg.DefaultReasoningVerbosity)
+	targetRepo := firstNonEmpty(strings.TrimSpace(diagnosis.Repo), runtimeDiagnosisTargetRepo(cfg, candidate), cfg.DefaultRepo)
+	toolAllowlist := runtimeDiagnosisRunnerTools(cfg.RuntimeDiagnosisLogFallbackEnabled)
+	contextRefs := []clients.RunnerContextRef{
+		{
+			Kind:              "candidate",
+			Ref:               candidate.CandidateKey,
+			CandidateKey:      candidate.CandidateKey,
+			Subsystem:         candidate.Subsystem,
+			FailureMode:       candidate.FailureMode,
+			TargetLayer:       string(candidate.TargetLayer),
+			TargetKind:        candidate.TargetKind,
+			TargetRef:         candidate.TargetRef,
+			PriorityScore:     candidate.PriorityScore,
+			Summary:           candidate.Hypothesis,
+			AttemptCount:      candidate.AttemptCount,
+			FailureClass:      candidate.RetryableFailureClass,
+			TargetSurface:     candidate.ProposedScope,
+			ValidationPlan:    "",
+			RetryDecision:     "",
+			NextRetryAction:   "",
+			LineStopReason:    "",
+			RunnerDiagnostics: nil,
+		},
+		{
+			Kind:           "runtime_diagnosis",
+			Ref:            diagnosis.ID,
+			Status:         string(diagnosis.Status),
+			Summary:        diagnosis.Summary,
+			Subsystem:      diagnosis.Subsystem,
+			FailureMode:    diagnosis.FailureMode,
+			TargetSurface:  diagnosis.TargetSurface,
+			ValidationPlan: diagnosis.ValidationPlan,
+		},
+		{
+			Kind:    "target_repo",
+			Ref:     targetRepo,
+			Summary: fmt.Sprintf("Authoritative runtime diagnosis repository is %s.", targetRepo),
+		},
+	}
+	contextRefs = append(contextRefs, improvementTraceEvidenceRefs(store, trace)...)
+	contextRefs = append(contextRefs, improvementCandidateEvidenceRefs(store, trace, candidate.CandidateKey)...)
+	contextRefs = append(contextRefs, runtimeDiagnosisContextRefs(store.ListRuntimeDiagnoses(), candidate.CandidateKey)...)
+	contextRefs = append(contextRefs, improvementProposalMemoryRefs(store, candidate.CandidateKey)...)
+	prompt := fmt.Sprintf(
+		"Diagnose runtime candidate %s for trace %s in repository %s. Start with rsi.trace_context and use persisted workflow-line state, workflow attempts, runner diagnostics, and harness executions as the primary evidence. Expand to rsi.workflow_context, rsi.runner_execution, repo.search, and repo.read_file only when the persisted evidence is not enough to ground a specific cause. Use kubernetes.logs only as a fallback when the persisted diagnostics are absent or incomplete. Do not guess. If the evidence grounds a specific root cause, return status=grounded with a concrete subsystem, failure_mode, summary, evidence_refs, recommended_fix, target_surface, and validation_plan. If the evidence is still incomplete, return status=needs_evidence and fill missing_evidence instead of defaulting to a generic failed_workflow or whole_repo answer.",
+		candidate.CandidateKey,
+		trace.Summary.TraceID,
+		targetRepo,
+	)
+	var caseSummary *clients.RunnerCaseSummary
+	if caseRecord, ok := store.GetCase(trace.Summary.CaseID); ok {
+		caseSummary = &clients.RunnerCaseSummary{
+			CaseID:         caseRecord.ID,
+			ConversationID: caseRecord.ConversationID,
+			Kind:           caseRecord.Kind,
+			Intent:         caseRecord.Intent,
+			Title:          caseRecord.Title,
+			Summary:        caseRecord.Summary,
+			Status:         string(caseRecord.Status),
+			AssignedBot:    caseRecord.AssignedBot,
+			LatestTraceID:  trace.Summary.TraceID,
+		}
+	}
+	return clients.RunnerTask{
+		TaskType:                  "general",
+		Repo:                      targetRepo,
+		RepoRef:                   "main",
+		Prompt:                    prompt,
+		SystemMessage:             harness.ComposeSystemMessage("Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with status, subsystem, failure_mode, summary, evidence_refs, missing_evidence, recommended_fix, target_surface, and validation_plan.", effectiveHarness),
+		AllowedTools:              toolAllowlist,
+		TimeoutSeconds:            420,
+		ExpectedOutputs:           []string{"status", "subsystem", "failure_mode", "summary", "evidence_refs", "recommended_fix", "target_surface", "validation_plan"},
+		ArtifactDestination:       fmt.Sprintf("trace:%s:runtime_diagnosis:%s", trace.Summary.TraceID, diagnosis.ID),
+		ContextSummary:            "Runtime diagnosis starts from persisted evidence first and only expands to repo or log reads when the stored diagnostics are insufficient.",
+		ExecutionMode:             "diagnose",
+		Intent:                    trace.Summary.WorkflowKind,
+		TraceID:                   trace.Summary.TraceID,
+		WorkflowID:                trace.Summary.WorkflowID,
+		ConversationID:            trace.Summary.ConversationID,
+		CaseID:                    trace.Summary.CaseID,
+		TriggerEventID:            trace.Summary.TriggerEventID,
+		RecentConversationEntries: improvementRecentConversationEntries(store.ListConversationEntries(trace.Summary.ConversationID)),
+		CaseSummary:               caseSummary,
+		PriorTraceRefs:            improvementPriorTraceRefs(store.ListTraces(), trace.Summary.CaseID, trace.Summary.TraceID),
+		RepoAllowlist:             scopedImprovementRepoAllowlist(targetRepo),
+		ToolAllowlist:             toolAllowlist,
+		ResponseMode:              "analysis",
+		ContextRefs:               contextRefs,
+		ApprovalMode:              "deterministic",
+		ReasoningVerbosity:        effectiveHarness.ReasoningVerbosity,
+		SessionScopeKind:          firstNonEmpty(strings.TrimSpace(diagnosis.SessionScopeKind), "runtime_diagnosis"),
+		SessionScopeID:            firstNonEmpty(strings.TrimSpace(diagnosis.SessionScopeID), runtimeDiagnosisSessionScopeID(candidate.CandidateKey, targetRepo)),
+		HarnessProfileID:          effectiveHarness.Profile.ID,
+		HarnessOverlayVersion:     effectiveHarness.EffectiveOverlayVersion,
+		MemoryBackend:             harness.DefaultMemoryBackend,
+		AssistantPeerID:           fmt.Sprintf("rsi:%s:proposal", cfg.Environment),
+		UserPeerID:                fmt.Sprintf("runtime_diagnosis:%s", firstNonEmpty(strings.TrimSpace(diagnosis.SessionScopeID), runtimeDiagnosisSessionScopeID(candidate.CandidateKey, targetRepo))),
+	}
+}
+
 func evalTargetRepo(cfg config.Config, store storepkg.Store, trace events.Trace) string {
 	if candidate, ok := latestCandidateForTrace(store, trace.Summary.TraceID); ok {
 		return improvementTargetRepo(cfg, candidate.TargetLayer, candidate.TargetKind, candidate.TargetRef)
@@ -2033,6 +2333,8 @@ func scopedImprovementRepoAllowlist(primary string) []string {
 func improvementBaseToolNames() []string {
 	return []string{
 		"repo.context",
+		"repo.read_file",
+		"repo.search",
 		"knowledge.context",
 		"rsi.trace_context",
 		"rsi.workflow_context",

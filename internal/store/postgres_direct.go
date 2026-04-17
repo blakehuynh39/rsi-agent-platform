@@ -197,6 +197,16 @@ func replaceCandidateScope(tx *sql.Tx, store *MemoryStore, candidateKey string) 
 	return persistCandidates(tx, temp)
 }
 
+func replaceRuntimeDiagnosisScope(tx *sql.Tx, store *MemoryStore, diagnosisID string) error {
+	diagnosis, ok := store.runtimeDiagnoses[diagnosisID]
+	if !ok {
+		return nil
+	}
+	temp := newSubsetStore()
+	temp.runtimeDiagnoses[diagnosisID] = diagnosis
+	return persistRuntimeDiagnoses(tx, temp)
+}
+
 func replaceChangeAttemptScope(tx *sql.Tx, item improvement.ChangeAttempt) error {
 	temp := newSubsetStore()
 	temp.changeAttempts[item.ID] = item

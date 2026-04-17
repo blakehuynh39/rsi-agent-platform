@@ -8,6 +8,7 @@ from pathlib import Path
 from .json_types import JsonObject
 
 from .config import RunnerConfig
+from .rsi_tools import governed_toolset_definitions
 
 try:
     from hermes_cli.plugins import discover_plugins  # type: ignore
@@ -16,17 +17,23 @@ except (ImportError, ModuleNotFoundError):  # pragma: no cover - depends on Herm
 
 
 _PLUGIN_MANIFEST = """name: rsi_context_engine
-version: "1.0.0"
-description: "RSI governed context injection and lifecycle capture"
+version: "1.1.0"
+description: "RSI governed context injection, native governed tools, and lifecycle capture"
 """
 
 
-_PLUGIN_MODULE = """from __future__ import annotations
+_PLUGIN_MODULE_TEMPLATE = """from __future__ import annotations
 
 import json
 import os
 import time
 from pathlib import Path
+from urllib import error as urlerror
+from urllib import request as urlrequest
+
+
+_PLUGIN_TOOLS = __PLUGIN_TOOLS__
+_TRANSPORT_TO_CANONICAL = {item["transport_name"]: item["canonical_name"] for item in _PLUGIN_TOOLS}
 
 
 def _runtime_root() -> Path:
@@ -53,6 +60,7 @@ def _append_event(session_id: str, event: str, payload: JsonObject) -> None:
     with path.open("a", encoding="utf-8") as handle:
         handle.write(json.dumps(item, sort_keys=True) + "\\n")
 
+
 def _load_context(session_id: str) -> JsonObject:
     path = _context_path(session_id)
     if not path.exists():
@@ -64,6 +72,161 @@ def _load_context(session_id: str) -> JsonObject:
     if not isinstance(parsed, dict):
         raise RuntimeError(f"Invalid RSI context payload for session {session_id}.")
     return parsed
+
+
+def _active_context(task_id: str = "", **kwargs) -> JsonObject:
+    candidates = [
+        str(task_id or "").strip(),
+        str(kwargs.get("task_id", "") or "").strip(),
+        str(kwargs.get("session_id", "") or "").strip(),
+    ]
+    seen: set[str] = set()
+    for candidate in candidates:
+        if not candidate or candidate in seen:
+            continue
+        seen.add(candidate)
+        payload = _load_context(candidate)
+        if payload:
+            return payload
+    return {}
+
+
+def _tool_gateway_available() -> bool:
+    return bool(str(os.getenv("RSI_TOOL_GATEWAY_BASE_URL", "") or "").strip())
+
+
+def _allowed_tool_names(payload: JsonObject) -> set[str]:
+    raw = payload.get("tool_allowlist_effective") or []
+    return {str(item).strip() for item in raw if str(item).strip()}
+
+
+def _base_url_from_context(payload: JsonObject) -> str:
+    return str(payload.get("tool_gateway_base_url", "") or os.getenv("RSI_TOOL_GATEWAY_BASE_URL", "")).strip()
+
+
+def _default_payload(canonical_name: str, payload: JsonObject) -> JsonObject:
+    task_repo = str(payload.get("task_repo", "") or payload.get("repo", "")).strip()
+    task_repo_ref = str(payload.get("task_repo_ref", "") or payload.get("repo_ref", "")).strip()
+    task_prompt = str(payload.get("task_prompt", "") or payload.get("prompt", "")).strip()
+    context_summary = str(payload.get("context_summary", "") or "").strip()
+    session_scope_kind = str(payload.get("session_scope_kind", "") or "").strip()
+    session_scope_id = str(payload.get("session_scope_id", "") or "").strip()
+    trace_id = str(payload.get("trace_id", "") or "").strip()
+    attempt_id = str(payload.get("attempt_id", "") or "").strip()
+    workspace_id = str(payload.get("workspace_id", "") or "").strip()
+    out: JsonObject = {}
+    if trace_id:
+        out["trace_id"] = trace_id
+    if canonical_name in {"repo.context", "repo.read_file", "repo.search", "github.repo_activity", "github.repo_context"} and task_repo:
+        out["repo"] = task_repo
+    if canonical_name in {"repo.read_file", "repo.search"} and task_repo_ref:
+        out["ref"] = task_repo_ref
+    if canonical_name == "repo.context":
+        out["question"] = task_prompt
+    if canonical_name == "knowledge.context":
+        out["question"] = task_prompt
+        out["topic"] = task_prompt or context_summary
+        out["scope_id"] = task_repo
+    if canonical_name == "rsi.workflow_context":
+        out["trace_id"] = trace_id
+    if canonical_name == "rsi.action_chain":
+        out["trace_id"] = trace_id
+    if canonical_name == "rsi.runner_execution":
+        out["trace_id"] = trace_id
+    if canonical_name == "sentry.lookup":
+        out["alert"] = context_summary or task_prompt
+    if canonical_name in {"rsi.proposal_memory", "rsi.candidate_context"} and session_scope_kind == "proposal_candidate":
+        out["candidate_key"] = session_scope_id
+    if canonical_name == "rsi.attempt_context" and attempt_id:
+        out["attempt_id"] = attempt_id
+    if canonical_name.startswith("workspace."):
+        if workspace_id:
+            out["workspace_id"] = workspace_id
+        if attempt_id:
+            out["attempt_id"] = attempt_id
+    return out
+
+
+def _tool_handler(transport_name: str):
+    canonical_name = _TRANSPORT_TO_CANONICAL[transport_name]
+
+    def handler(args: JsonObject, task_id: str = "", **kwargs):
+        payload = _active_context(task_id=task_id, **kwargs)
+        base_url = _base_url_from_context(payload)
+        if not base_url:
+            return json.dumps({
+                "tool_name": canonical_name,
+                "transport_tool_name": transport_name,
+                "status": "error",
+                "error": "tool gateway base url unavailable",
+            })
+        if canonical_name not in _allowed_tool_names(payload):
+            return json.dumps({
+                "tool_name": canonical_name,
+                "transport_tool_name": transport_name,
+                "status": "error",
+                "error": "tool not allowed for this governed session",
+            })
+        request_payload = _default_payload(canonical_name, payload)
+        if isinstance(args, dict):
+            request_payload.update(args)
+        req = urlrequest.Request(
+            f"{base_url.rstrip('/')}/api/tools/{canonical_name}/execute",
+            data=json.dumps(request_payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            timeout_seconds = int(payload.get("tool_timeout_seconds", 30) or 30)
+            with urlrequest.urlopen(req, timeout=timeout_seconds) as resp:
+                body = resp.read().decode("utf-8")
+        except urlerror.HTTPError as exc:
+            detail = exc.read().decode("utf-8", errors="replace")
+            return json.dumps({
+                "tool_name": canonical_name,
+                "transport_tool_name": transport_name,
+                "status": "error",
+                "error": f"tool gateway returned {exc.code}: {detail}",
+            })
+        except (urlerror.URLError, TimeoutError, ConnectionError, OSError) as exc:
+            return json.dumps({
+                "tool_name": canonical_name,
+                "transport_tool_name": transport_name,
+                "status": "error",
+                "error": f"tool gateway request failed: {exc}",
+            })
+
+        try:
+            parsed = json.loads(body)
+        except json.JSONDecodeError:
+            return json.dumps({
+                "tool_name": canonical_name,
+                "transport_tool_name": transport_name,
+                "status": "error",
+                "error": "tool gateway returned invalid JSON",
+                "body": body[:8000],
+            })
+        if not isinstance(parsed, dict):
+            return json.dumps({
+                "tool_name": canonical_name,
+                "transport_tool_name": transport_name,
+                "status": "error",
+                "error": "tool gateway returned a non-object JSON payload",
+            })
+        return json.dumps({
+            "tool_name": canonical_name,
+            "transport_tool_name": transport_name,
+            "status": parsed.get("status", ""),
+            "available": parsed.get("available", True),
+            "summary": parsed.get("summary", ""),
+            "provider": parsed.get("provider", ""),
+            "provider_ref": parsed.get("provider_ref", ""),
+            "approval_state": parsed.get("approval_state", ""),
+            "output": parsed.get("output", {}),
+            "raw_artifact_refs": parsed.get("raw_artifact_refs", []),
+        })
+
+    return handler
 
 
 def _json_block(label: str, value: object) -> str:
@@ -145,10 +308,26 @@ def on_session_end(session_id: str, **kwargs):
 
 
 def register(ctx):
+    for item in _PLUGIN_TOOLS:
+        ctx.register_tool(
+            name=str(item["transport_name"]),
+            toolset=str(item["toolset"]),
+            schema=dict(item["schema"]),
+            handler=_tool_handler(str(item["transport_name"])),
+            check_fn=_tool_gateway_available,
+            description=str(item["schema"].get("description", "")),
+        )
     ctx.register_hook("pre_llm_call", pre_llm_call)
     ctx.register_hook("on_session_start", on_session_start)
     ctx.register_hook("on_session_end", on_session_end)
 """
+
+
+def _build_plugin_module() -> str:
+    return _PLUGIN_MODULE_TEMPLATE.replace(
+        "__PLUGIN_TOOLS__",
+        json.dumps(governed_toolset_definitions(), sort_keys=True),
+    )
 
 
 @dataclass
@@ -158,6 +337,7 @@ class HermesAdapterMetadata:
     context_engine_mode: str
     context_engine_status: str
     lifecycle_hook_status: str
+    governed_tools_status: str
 
 
 class HermesContextEngine:
@@ -206,7 +386,7 @@ class HermesContextEngine:
             self._context_dir.mkdir(parents=True, exist_ok=True)
             self._lifecycle_dir.mkdir(parents=True, exist_ok=True)
             (self._plugin_dir / "plugin.yaml").write_text(_PLUGIN_MANIFEST, encoding="utf-8")
-            (self._plugin_dir / "__init__.py").write_text(_PLUGIN_MODULE, encoding="utf-8")
+            (self._plugin_dir / "__init__.py").write_text(_build_plugin_module(), encoding="utf-8")
             if callable(discover_plugins):
                 discover_plugins()
             self._status = "ready"
@@ -228,6 +408,7 @@ class HermesAdapter:
             context_engine_mode="pre_llm_call_plugin",
             context_engine_status=self._context_engine.status,
             lifecycle_hook_status=self._context_engine.status,
+            governed_tools_status=self._context_engine.status if self._config.hermes_native_governed_tools_enabled else "disabled",
         )
 
     def stage_task_context(self, session_id: str, payload: JsonObject) -> None:

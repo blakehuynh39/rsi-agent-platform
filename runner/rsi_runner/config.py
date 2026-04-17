@@ -36,6 +36,7 @@ class RunnerConfig:
     transport_timeout_seconds: int
     tool_policy_mode: str
     workflow_runner_repair_attempts: int
+    hermes_native_governed_tools_enabled: bool
 
     @classmethod
     def from_env(cls) -> "RunnerConfig":
@@ -63,6 +64,7 @@ class RunnerConfig:
         transport_timeout_seconds = role_transport_timeout_seconds(role)
         tool_policy_mode = role_tool_policy_mode(role)
         workflow_runner_repair_attempts = parse_non_negative_int(optional_env("RSI_WORKFLOW_RUNNER_REPAIR_ATTEMPTS") or "1", "RSI_WORKFLOW_RUNNER_REPAIR_ATTEMPTS")
+        hermes_native_governed_tools_enabled = parse_bool(optional_env("RSI_HERMES_NATIVE_GOVERNED_TOOLS_ENABLED") or "false", "RSI_HERMES_NATIVE_GOVERNED_TOOLS_ENABLED")
         if model.startswith("openai/"):
             required_env("OPENAI_API_KEY")
         if memory_backend != "honcho":
@@ -96,6 +98,7 @@ class RunnerConfig:
             transport_timeout_seconds=transport_timeout_seconds,
             tool_policy_mode=tool_policy_mode,
             workflow_runner_repair_attempts=workflow_runner_repair_attempts,
+            hermes_native_governed_tools_enabled=hermes_native_governed_tools_enabled,
         )
 
 
@@ -197,6 +200,15 @@ def parse_non_negative_int(raw: str, name: str) -> int:
     if value < 0:
         raise RunnerConfigError(f"{name} must be a non-negative integer")
     return value
+
+
+def parse_bool(raw: str, name: str) -> bool:
+    text = str(raw or "").strip().lower()
+    if text in {"1", "true", "t", "yes", "y", "on"}:
+        return True
+    if text in {"0", "false", "f", "no", "n", "off"}:
+        return False
+    raise RunnerConfigError(f"{name} must be a boolean")
 
 
 _DURATION_RE = re.compile(r"^(?P<value>\d+(?:\.\d+)?)(?P<unit>ms|s|m)?$")

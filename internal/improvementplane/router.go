@@ -240,10 +240,11 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 	})
 	r.Get("/api/proposals", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
-			"proposals":      buildProposalSummaries(store),
-			"proposal_slots": normalizeProposalSlots(store.GetProposalSlots()),
-			"candidates":     sliceOrEmpty(store.ListCandidates()),
-			"settings":       store.GetSettings(),
+			"proposals":         buildProposalSummaries(store),
+			"proposal_slots":    normalizeProposalSlots(store.GetProposalSlots()),
+			"candidates":        sliceOrEmpty(store.ListCandidates()),
+			"runtime_diagnoses": sliceOrEmpty(store.ListRuntimeDiagnoses()),
+			"settings":          store.GetSettings(),
 		})
 	})
 	r.Get("/api/proposals/{proposalID}", func(w http.ResponseWriter, r *http.Request) {
@@ -336,6 +337,11 @@ func normalizeProposalSlots(state storepkg.ProposalSlotState) storepkg.ProposalS
 
 func RunCron(cfg config.Config, store storepkg.Repository, once bool) {
 	run := func() {
+		queuedDiagnoses, err := queueRuntimeDiagnoses(cfg, store, cfg.ServiceName, time.Now().UTC())
+		if err != nil {
+			log.Printf("improvement-plane runtime diagnosis queue error: %v", err)
+			return
+		}
 		receipt, err := submitProblemLineCommand(
 			store,
 			"problem-lines",
@@ -356,7 +362,7 @@ func RunCron(cfg config.Config, store storepkg.Repository, once bool) {
 			log.Printf("improvement-plane cron result error: %v", err)
 			return
 		}
-		log.Printf("improvement-plane cron promoted=%d blocked_by_cap=%t stale=%v ids=%v", result.Promoted, result.BlockedByCap, result.StaleProposalIDs, result.PromotedIDs)
+		log.Printf("improvement-plane cron queued_diagnoses=%d promoted=%d blocked_by_cap=%t stale=%v ids=%v", queuedDiagnoses, result.Promoted, result.BlockedByCap, result.StaleProposalIDs, result.PromotedIDs)
 	}
 	if once {
 		run()

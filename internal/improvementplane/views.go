@@ -117,50 +117,53 @@ type conversationListItem struct {
 }
 
 type conversationDetailResponse struct {
-	Conversation     conversation.Conversation `json:"conversation"`
-	ActiveCase       *caseSummary              `json:"active_case,omitempty"`
-	WorkflowLine     *workflowLineSummary      `json:"workflow_line,omitempty"`
-	WorkflowAttempts []workflowAttemptSummary  `json:"workflow_attempts"`
-	Cases            []caseSummary             `json:"cases"`
-	Transcript       []conversation.Entry      `json:"transcript"`
-	TraceAttempts    []traceAttemptSummary     `json:"trace_attempts"`
-	ActionIntents    []action.Intent           `json:"action_intents"`
-	ActionResults    []action.Result           `json:"action_results"`
-	Outcomes         []outcome.Record          `json:"outcomes"`
-	KnowledgeEntries []knowledge.Entry         `json:"knowledge_entries"`
-	LinkedProposals  []review.Proposal         `json:"linked_proposals"`
+	Conversation     conversation.Conversation      `json:"conversation"`
+	ActiveCase       *caseSummary                   `json:"active_case,omitempty"`
+	WorkflowLine     *workflowLineSummary           `json:"workflow_line,omitempty"`
+	WorkflowAttempts []workflowAttemptSummary       `json:"workflow_attempts"`
+	RuntimeDiagnoses []improvement.RuntimeDiagnosis `json:"runtime_diagnoses"`
+	Cases            []caseSummary                  `json:"cases"`
+	Transcript       []conversation.Entry           `json:"transcript"`
+	TraceAttempts    []traceAttemptSummary          `json:"trace_attempts"`
+	ActionIntents    []action.Intent                `json:"action_intents"`
+	ActionResults    []action.Result                `json:"action_results"`
+	Outcomes         []outcome.Record               `json:"outcomes"`
+	KnowledgeEntries []knowledge.Entry              `json:"knowledge_entries"`
+	LinkedProposals  []review.Proposal              `json:"linked_proposals"`
 }
 
 type caseDetailResponse struct {
-	Case             caseSummary              `json:"case"`
-	Conversation     conversationListItem     `json:"conversation"`
-	WorkflowLine     *workflowLineSummary     `json:"workflow_line,omitempty"`
-	WorkflowAttempts []workflowAttemptSummary `json:"workflow_attempts"`
-	TraceAttempts    []traceAttemptSummary    `json:"trace_attempts"`
-	LatestEvalRuns   []evals.Run              `json:"latest_eval_runs"`
-	ActionIntents    []action.Intent          `json:"action_intents"`
-	ActionResults    []action.Result          `json:"action_results"`
-	Outcomes         []outcome.Record         `json:"outcomes"`
-	KnowledgeEntries []knowledge.Entry        `json:"knowledge_entries"`
-	LinkedProposals  []review.Proposal        `json:"linked_proposals"`
+	Case             caseSummary                    `json:"case"`
+	Conversation     conversationListItem           `json:"conversation"`
+	WorkflowLine     *workflowLineSummary           `json:"workflow_line,omitempty"`
+	WorkflowAttempts []workflowAttemptSummary       `json:"workflow_attempts"`
+	RuntimeDiagnoses []improvement.RuntimeDiagnosis `json:"runtime_diagnoses"`
+	TraceAttempts    []traceAttemptSummary          `json:"trace_attempts"`
+	LatestEvalRuns   []evals.Run                    `json:"latest_eval_runs"`
+	ActionIntents    []action.Intent                `json:"action_intents"`
+	ActionResults    []action.Result                `json:"action_results"`
+	Outcomes         []outcome.Record               `json:"outcomes"`
+	KnowledgeEntries []knowledge.Entry              `json:"knowledge_entries"`
+	LinkedProposals  []review.Proposal              `json:"linked_proposals"`
 }
 
 type traceDetailResponse struct {
-	Trace              events.Trace                `json:"trace"`
-	Conversation       conversationListItem        `json:"conversation"`
-	Case               *caseSummary                `json:"case,omitempty"`
-	WorkflowLine       *workflowLineSummary        `json:"workflow_line,omitempty"`
-	WorkflowAttempts   []workflowAttemptSummary    `json:"workflow_attempts"`
-	TranscriptSlice    []conversation.Entry        `json:"transcript_slice"`
-	LinkedEvalRuns     []evals.Run                 `json:"linked_eval_runs"`
-	JudgmentsByEvalRun map[string][]evals.Judgment `json:"judgments_by_eval_run"`
-	ActionIntents      []action.Intent             `json:"action_intents"`
-	ActionResults      []action.Result             `json:"action_results"`
-	Outcomes           []outcome.Record            `json:"outcomes"`
-	KnowledgeEntries   []knowledge.Entry           `json:"knowledge_entries"`
-	FeedbackRecords    []review.FeedbackRecord     `json:"feedback_records"`
-	LinkedProposals    []review.Proposal           `json:"linked_proposals"`
-	HarnessExecutions  []harness.Execution         `json:"harness_executions"`
+	Trace              events.Trace                   `json:"trace"`
+	Conversation       conversationListItem           `json:"conversation"`
+	Case               *caseSummary                   `json:"case,omitempty"`
+	WorkflowLine       *workflowLineSummary           `json:"workflow_line,omitempty"`
+	WorkflowAttempts   []workflowAttemptSummary       `json:"workflow_attempts"`
+	RuntimeDiagnoses   []improvement.RuntimeDiagnosis `json:"runtime_diagnoses"`
+	TranscriptSlice    []conversation.Entry           `json:"transcript_slice"`
+	LinkedEvalRuns     []evals.Run                    `json:"linked_eval_runs"`
+	JudgmentsByEvalRun map[string][]evals.Judgment    `json:"judgments_by_eval_run"`
+	ActionIntents      []action.Intent                `json:"action_intents"`
+	ActionResults      []action.Result                `json:"action_results"`
+	Outcomes           []outcome.Record               `json:"outcomes"`
+	KnowledgeEntries   []knowledge.Entry              `json:"knowledge_entries"`
+	FeedbackRecords    []review.FeedbackRecord        `json:"feedback_records"`
+	LinkedProposals    []review.Proposal              `json:"linked_proposals"`
+	HarnessExecutions  []harness.Execution            `json:"harness_executions"`
 }
 
 type proposalDetailResponse struct {
@@ -389,6 +392,7 @@ func buildConversationDetail(store storepkg.Repository, conversationID string) (
 		ActiveCase:       caseIndex[item.ActiveCaseID],
 		WorkflowLine:     workflowLine,
 		WorkflowAttempts: workflowAttempts,
+		RuntimeDiagnoses: sliceOrEmpty(runtimeDiagnosesForConversation(store.ListRuntimeDiagnoses(), conversationID)),
 		Cases:            cases,
 		Transcript:       sliceOrEmpty(store.ListConversationEntries(conversationID)),
 		TraceAttempts:    traceSummaries,
@@ -423,6 +427,7 @@ func buildCaseDetail(store storepkg.Repository, caseID string) (caseDetailRespon
 		Conversation:     conversationSummary,
 		WorkflowLine:     workflowLineForCase(store.ListWorkflowLines(), caseID),
 		WorkflowAttempts: workflowAttempts,
+		RuntimeDiagnoses: sliceOrEmpty(runtimeDiagnosesForCase(store.ListRuntimeDiagnoses(), caseID)),
 		TraceAttempts:    traceSummaries,
 		LatestEvalRuns:   latestEvalRunsForTraceSet(store.ListEvalRuns(), traceSummaries),
 		ActionIntents:    sliceOrEmpty(listActionIntents(store, actionFilters{CaseID: caseID})),
@@ -439,6 +444,10 @@ func buildTraceDetail(store storepkg.Repository, traceID string) (traceDetailRes
 		return traceDetailResponse{}, false
 	}
 	trace = normalizeTrace(trace)
+	candidateKey := ""
+	if candidate, ok := latestCandidateForTrace(store, trace.Summary.TraceID); ok {
+		candidateKey = candidate.CandidateKey
+	}
 	runs := filterEvalRunsForTrace(store.ListEvalRuns(), traceID)
 	judgments := map[string][]evals.Judgment{}
 	for _, run := range runs {
@@ -465,6 +474,7 @@ func buildTraceDetail(store storepkg.Repository, traceID string) (traceDetailRes
 		Case:               caseIndex[trace.Summary.CaseID],
 		WorkflowLine:       workflowLineForCase(store.ListWorkflowLines(), trace.Summary.CaseID),
 		WorkflowAttempts:   workflowAttemptsForCase(store.ListWorkflows(), store.ListTraces(), trace.Summary.CaseID),
+		RuntimeDiagnoses:   sliceOrEmpty(runtimeDiagnosesForTrace(store.ListRuntimeDiagnoses(), trace, candidateKey)),
 		TranscriptSlice:    transcriptSlice(store.ListConversationEntries(trace.Summary.ConversationID), trace.Summary.TriggerEventID),
 		LinkedEvalRuns:     runs,
 		JudgmentsByEvalRun: judgments,

@@ -63,6 +63,7 @@ class FakeAIAgent:
         prompt: str,
         system_message: str | None = None,
         conversation_history: list[dict] | None = None,
+        task_id: str | None = None,
     ) -> dict[str, object]:
         if type(self).sleep_seconds > 0:
             time.sleep(type(self).sleep_seconds)
@@ -324,6 +325,7 @@ class HermesRuntimeTests(unittest.TestCase):
             base_url="http://tool-gateway.internal",
             allowed_tool_names=["repo.context", "rsi.workflow_context"],
             task_repo="rsi-agent-platform",
+            task_repo_ref="main",
             task_prompt="What broke?",
             task_context_summary="workflow summary",
             trace_id="trace-123",
@@ -388,6 +390,7 @@ class HermesRuntimeTests(unittest.TestCase):
                 prompt: str,
                 system_message: str | None = None,
                 conversation_history: list[dict] | None = None,
+                task_id: str | None = None,
             ) -> dict:
                 type(self).calls += 1
                 type(self).last_prompt = prompt
@@ -444,6 +447,7 @@ class HermesRuntimeTests(unittest.TestCase):
                 prompt: str,
                 system_message: str | None = None,
                 conversation_history: list[dict] | None = None,
+                task_id: str | None = None,
             ) -> dict:
                 type(self).last_prompt = prompt
                 type(self).last_system_message = system_message
