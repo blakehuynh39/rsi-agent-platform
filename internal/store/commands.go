@@ -3112,6 +3112,7 @@ func (s *MemoryStore) projectWorkflowTraceLocked(workflow Workflow, command tran
 		update.Events = append(update.Events, traceEventsFromCommand(command, "trace_events")...)
 		update.Artifacts = append(update.Artifacts, traceArtifactsFromCommand(command, "trace_artifacts")...)
 		update.Reasoning = append(update.Reasoning, reasoningStepsFromCommand(command, "reasoning_steps")...)
+		update.ToolCalls = append(update.ToolCalls, toolCallRecordsFromCommand(command, "tool_calls")...)
 	case transition.CommandWorkflowBlocked:
 		if traceHasEventType(trace, "workflow.blocked") {
 			if trace.Summary.Status != events.StatusNeedsHuman {
@@ -3136,6 +3137,7 @@ func (s *MemoryStore) projectWorkflowTraceLocked(workflow Workflow, command tran
 		update.Events = append(update.Events, traceEventsFromCommand(command, "trace_events")...)
 		update.Artifacts = append(update.Artifacts, traceArtifactsFromCommand(command, "trace_artifacts")...)
 		update.Reasoning = append(update.Reasoning, reasoningStepsFromCommand(command, "reasoning_steps")...)
+		update.ToolCalls = append(update.ToolCalls, toolCallRecordsFromCommand(command, "tool_calls")...)
 	case transition.CommandWorkflowFailed:
 		if traceHasEventType(trace, "workflow.failed") {
 			if trace.Summary.Status != events.StatusFailed {
@@ -3160,6 +3162,7 @@ func (s *MemoryStore) projectWorkflowTraceLocked(workflow Workflow, command tran
 		update.Events = append(update.Events, traceEventsFromCommand(command, "trace_events")...)
 		update.Artifacts = append(update.Artifacts, traceArtifactsFromCommand(command, "trace_artifacts")...)
 		update.Reasoning = append(update.Reasoning, reasoningStepsFromCommand(command, "reasoning_steps")...)
+		update.ToolCalls = append(update.ToolCalls, toolCallRecordsFromCommand(command, "tool_calls")...)
 	case transition.CommandReplyPosted, transition.CommandReplyPostedPartial, transition.CommandRunnerCompletedNoReply, transition.CommandRunnerCompletedPartialNoReply:
 		if traceHasEventType(trace, "workflow.completed") {
 			if trace.Summary.Status != events.StatusCompleted {
@@ -3188,10 +3191,11 @@ func (s *MemoryStore) projectWorkflowTraceLocked(workflow Workflow, command tran
 		update.Artifacts = append(update.Artifacts, traceArtifactsFromCommand(command, "trace_artifacts")...)
 		update.Events = append(traceEventsFromCommand(command, "trace_events"), update.Events...)
 		update.Reasoning = append(update.Reasoning, reasoningStepsFromCommand(command, "reasoning_steps")...)
+		update.ToolCalls = append(update.ToolCalls, toolCallRecordsFromCommand(command, "tool_calls")...)
 	default:
 		return nil
 	}
-	if update.Status == nil && update.LastVerdict == nil && len(update.Events) == 0 && len(update.Artifacts) == 0 && len(update.Reasoning) == 0 {
+	if update.Status == nil && update.LastVerdict == nil && len(update.Events) == 0 && len(update.Artifacts) == 0 && len(update.Reasoning) == 0 && len(update.ToolCalls) == 0 {
 		return nil
 	}
 	_, err := s.applyTraceUpdateLocked(traceID, update)

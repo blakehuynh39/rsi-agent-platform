@@ -194,6 +194,20 @@ func TestWorkflowPartialCompletionPostsStandardizedReplyAndPersistsVerdict(t *te
 				"completion_verdict":     "partial",
 				"termination_reason":     "iteration_budget_exhausted",
 				"max_iterations_reached": true,
+				"tool_calls": []any{
+					map[string]any{
+						"id":                     "runner-tool-record-slack-history-1",
+						"tool_name":              "slack.history",
+						"tool_call_id":           "slack.history:1",
+						"request":                map[string]any{"channel_id": "D123", "thread_ts": "171000001.000100"},
+						"summary":                "Fetched bound Slack thread history.",
+						"raw_artifact_refs":      []any{"artifact://slack/history/1"},
+						"approval_state":         "not_required",
+						"interpretation_summary": "Fetched bound Slack thread history.",
+						"status":                 "completed",
+						"created_at":             "2026-04-17T19:35:00Z",
+					},
+				},
 				"runner_diagnostics": map[string]any{
 					"completion_verdict":     "partial",
 					"termination_reason":     "iteration_budget_exhausted",
@@ -321,6 +335,21 @@ func TestWorkflowPartialCompletionPostsStandardizedReplyAndPersistsVerdict(t *te
 	}
 	if trace.Summary.LastVerdict != "partial" {
 		t.Fatalf("expected partial trace verdict, got %q", trace.Summary.LastVerdict)
+	}
+	if len(trace.ToolCalls) != 1 {
+		t.Fatalf("expected one projected runner tool call, got %d", len(trace.ToolCalls))
+	}
+	if trace.ToolCalls[0].TraceID != trace.Summary.TraceID {
+		t.Fatalf("expected projected tool call trace binding, got %#v", trace.ToolCalls[0])
+	}
+	if trace.ToolCalls[0].WorkflowID != workflowItem.workflowID {
+		t.Fatalf("expected projected tool call workflow binding, got %#v", trace.ToolCalls[0])
+	}
+	if trace.ToolCalls[0].ToolName != "slack.history" {
+		t.Fatalf("expected slack.history tool call, got %#v", trace.ToolCalls[0])
+	}
+	if trace.ToolCalls[0].ToolCallID != "slack.history:1" {
+		t.Fatalf("expected slack.history:1 tool call id, got %#v", trace.ToolCalls[0])
 	}
 	if len(trace.SlackActions) != 1 {
 		t.Fatalf("expected one slack action, got %d", len(trace.SlackActions))
@@ -1121,7 +1150,22 @@ func TestHandleClaimedWorkflowRunnerEffectFinalizesStructuredOutputFailure(t *te
 			"ok":       true,
 			"provider": "fake",
 			"message":  "runner returned prose only",
-			"raw":      map[string]any{},
+			"raw": map[string]any{
+				"tool_calls": []any{
+					map[string]any{
+						"id":                     "runner-tool-record-rsi-workflow-context-1",
+						"tool_name":              "rsi.workflow_context",
+						"tool_call_id":           "rsi.workflow_context:1",
+						"request":                map[string]any{"trace_id": "trace-seeded"},
+						"summary":                "Fetched workflow context before malformed final output.",
+						"raw_artifact_refs":      []any{"artifact://workflow/context/1"},
+						"approval_state":         "not_required",
+						"interpretation_summary": "Fetched workflow context before malformed final output.",
+						"status":                 "completed",
+						"created_at":             "2026-04-17T19:40:00Z",
+					},
+				},
+			},
 		})
 	}))
 	defer runner.Close()
@@ -1187,6 +1231,18 @@ func TestHandleClaimedWorkflowRunnerEffectFinalizesStructuredOutputFailure(t *te
 	}
 	if trace.Summary.Status != events.StatusFailed {
 		t.Fatalf("expected failed trace, got %s", trace.Summary.Status)
+	}
+	if len(trace.ToolCalls) != 1 {
+		t.Fatalf("expected one projected runner tool call on failure, got %d", len(trace.ToolCalls))
+	}
+	if trace.ToolCalls[0].TraceID != trace.Summary.TraceID {
+		t.Fatalf("expected failure tool call trace binding, got %#v", trace.ToolCalls[0])
+	}
+	if trace.ToolCalls[0].WorkflowID != workflowItem.workflowID {
+		t.Fatalf("expected failure tool call workflow binding, got %#v", trace.ToolCalls[0])
+	}
+	if trace.ToolCalls[0].ToolName != "rsi.workflow_context" {
+		t.Fatalf("expected rsi.workflow_context tool call, got %#v", trace.ToolCalls[0])
 	}
 	if len(store.ListEvalRuns()) == 0 {
 		t.Fatal("expected failed runner response to queue eval")

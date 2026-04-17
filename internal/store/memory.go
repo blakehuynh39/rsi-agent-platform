@@ -1863,6 +1863,13 @@ func (s *MemoryStore) runtimeFailureFromWorkflowAttempts(trace events.Trace) (ru
 				Hypothesis:    "Treat runner transport timeouts as terminal runtime evidence with explicit diagnostics so the platform can distinguish network failures from model-output problems.",
 				ProposedScope: "runner + control-plane",
 			}, true
+		case failureClass == "runner_partial_completion_unrecoverable":
+			return runtimeFailureEvidence{
+				Subsystem:     "runner",
+				FailureMode:   "runner_partial_completion_unrecoverable",
+				Hypothesis:    "Bounded-stop workflow runs must finalize into a grounded partial completion before the hard deadline; reserve time for no-tools finalization and surface unrecoverable partial-finalization failures explicitly instead of collapsing them into generic timeout handling.",
+				ProposedScope: "runner + control-plane",
+			}, true
 		}
 	}
 	return runtimeFailureEvidence{}, false

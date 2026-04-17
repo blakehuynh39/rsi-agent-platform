@@ -384,6 +384,12 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(captured["body"], {"trace_id": "trace-123", "repo": "rsi-agent-platform", "question": "What broke?"})
         self.assertEqual(payload["tool_name"], "repo.context")
         self.assertEqual(payload["transport_tool_name"], "repo_context")
+        self.assertEqual(payload["tool_call_id"], "repo.context:1")
+        self.assertEqual(len(binding.diagnostics()["tool_calls"]), 1)
+        self.assertEqual(binding.diagnostics()["tool_calls"][0]["tool_name"], "repo.context")
+        self.assertEqual(binding.diagnostics()["tool_calls"][0]["tool_call_id"], "repo.context:1")
+        self.assertEqual(binding.diagnostics()["tool_calls"][0]["request"], {"trace_id": "trace-123", "repo": "rsi-agent-platform", "question": "What broke?"})
+        self.assertEqual(binding.diagnostics()["tool_calls"][0]["summary"], "Context gathered.")
 
     def test_slack_history_binding_defaults_to_bound_channel_context(self) -> None:
         captured: dict[str, object] = {}
@@ -1096,7 +1102,8 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(len(BudgetRecoveryAIAgent.init_history), 2)
         self.assertEqual(BudgetRecoveryAIAgent.init_history[0]["session_id"], BudgetRecoveryAIAgent.init_history[1]["session_id"])
         self.assertEqual(BudgetRecoveryAIAgent.init_history[0]["max_iterations"], 20)
-        self.assertEqual(BudgetRecoveryAIAgent.init_history[1]["max_iterations"], 1)
+        self.assertEqual(BudgetRecoveryAIAgent.init_history[1]["max_iterations"], 3)
+        self.assertEqual(result.raw["partial_recovery_max_iterations"], 3)
         self.assertIn("repo_context", BudgetRecoveryAIAgent.run_history[0]["valid_tool_names"])
         self.assertEqual(BudgetRecoveryAIAgent.run_history[1]["valid_tool_names"], [])
         self.assertEqual(BudgetRecoveryAIAgent.run_history[1]["tool_names"], [])
@@ -1104,7 +1111,119 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(BudgetRecoveryAIAgent.run_history[1]["history"], [{"role": "user", "content": "Earlier thread message"}])
         self.assertTrue(any("iteration_budget_exhausted" in message for message in BudgetRecoveryAIAgent.interrupt_messages))
 
-    def test_workflow_task_timeout_recovers_partial_completion_without_tools(self) -> None:
+    def test_workflow_iteration_budget_exhaustion_repairs_partial_finalization_output(self) -> None:
+        class RepairingPartialAIAgent:
+            init_history: list[dict[str, object]] = []
+            created_instances = 0
+
+            def __init__(self, **kwargs) -> None:
+                type(self).created_instances += 1
+                self.instance_index = type(self).created_instances
+                type(self).init_history.append(dict(kwargs))
+
+            def run_conversation(
+                self,
+                prompt: str,
+                system_message: str | None = None,
+                conversation_history: list[dict] | None = None,
+                task_id: str | None = None,
+            ) -> dict[str, object]:
+                if self.instance_index == 1:
+                    time.sleep(0.6)
+                    return {"final_response": ""}
+                if self.instance_index == 2:
+                    return {"final_response": "not valid json"}
+                return {
+                    "final_response": json.dumps(
+                        {
+                            "visible_reasoning": [
+                                {
+                                    "step_type": "analysis",
+                                    "summary": "Recovered and repaired a partial answer.",
+                                    "alternatives": [],
+                                    "confidence": 0.74,
+                                    "decision": "post_partial_reply",
+                                }
+                            ],
+                            "reply_draft": "Partial answer after repair.",
+                            "final_answer": "Partial answer after repair.",
+                            "confidence": 0.74,
+                            "context_summary": "Recovered from persisted session evidence after structured-output repair.",
+                            "self_critique": "Fresh reads would improve coverage.",
+                            "proposed_actions": [
+                                {
+                                    "kind": "slack_post",
+                                    "target_ref": "C123",
+                                    "request_payload": {
+                                        "body": "Partial answer after repair.",
+                                    },
+                                    "approval_mode": "not_required",
+                                    "idempotency_key": "partial-reply-repaired-1",
+                                    "rationale": "Post the grounded partial answer.",
+                                    "evidence_refs": [],
+                                }
+                            ],
+                            "knowledge_drafts": [],
+                            "outcome_hypotheses": [],
+                        }
+                    )
+                }
+
+            def interrupt(self, _message: str | None = None) -> None:
+                return None
+
+            def get_activity_summary(self) -> dict[str, object]:
+                budget_max = int(type(self).init_history[self.instance_index - 1].get("max_iterations", 1))
+                if self.instance_index == 1:
+                    return {
+                        "last_activity_desc": "iteration budget exhausted",
+                        "current_tool": "slack_history",
+                        "api_call_count": budget_max,
+                        "budget_used": budget_max,
+                        "budget_max": budget_max,
+                    }
+                return {
+                    "last_activity_desc": "repairing partial reply",
+                    "current_tool": "",
+                    "api_call_count": 0,
+                    "budget_used": 0,
+                    "budget_max": budget_max,
+                }
+
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the Slack thread.",
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                    "user_peer_id": "user:alice",
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", RepairingPartialAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.raw["termination_reason"], "iteration_budget_exhausted")
+        self.assertEqual(result.raw["completion_verdict"], "partial")
+        self.assertTrue(result.raw["repair_attempted"])
+        self.assertTrue(result.raw["repair_succeeded"])
+        self.assertEqual(RepairingPartialAIAgent.created_instances, 3)
+        self.assertEqual(RepairingPartialAIAgent.init_history[0]["max_iterations"], 20)
+        self.assertEqual(RepairingPartialAIAgent.init_history[1]["max_iterations"], 3)
+        self.assertEqual(RepairingPartialAIAgent.init_history[2]["max_iterations"], 1)
+
+    def test_workflow_task_timeout_enters_partial_finalization_before_hard_deadline(self) -> None:
         class TimeoutRecoveryAIAgent:
             init_history: list[dict[str, object]] = []
             run_history: list[dict[str, object]] = []
@@ -1219,9 +1338,9 @@ class HermesRuntimeTests(unittest.TestCase):
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
         ), mock.patch.dict(
             os.environ,
-            {**runner_env("prod"), "RSI_RUNNER_PROD_TASK_TIMEOUT": "1s"},
+            {**runner_env("prod"), "RSI_RUNNER_PROD_TASK_TIMEOUT": "20s"},
             clear=True,
-        ):
+        ), mock.patch("rsi_runner.hermes_runtime.time.monotonic", side_effect=[100.0, 110.0, 111.0, 112.0]):
             runtime = HermesRuntime(RunnerConfig.from_env())
             result = runtime.execute_task(task)
 
@@ -1230,7 +1349,8 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["termination_reason"], "task_timeout")
         self.assertFalse(result.raw["max_iterations_reached"])
         self.assertEqual(result.raw["timeout_kind"], "task_timeout")
-        self.assertEqual(result.raw["task_timeout_seconds"], 1)
+        self.assertEqual(result.raw["task_timeout_seconds"], 20)
+        self.assertEqual(result.raw["stopped_after_seconds"], 10)
         self.assertEqual(result.raw["runner_diagnostics"]["completion_verdict"], "partial")
         self.assertEqual(result.raw["runner_diagnostics"]["termination_reason"], "task_timeout")
         self.assertEqual(result.raw["runner_diagnostics"]["timeout_kind"], "task_timeout")
@@ -1239,14 +1359,15 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(len(TimeoutRecoveryAIAgent.init_history), 2)
         self.assertEqual(TimeoutRecoveryAIAgent.init_history[0]["session_id"], TimeoutRecoveryAIAgent.init_history[1]["session_id"])
         self.assertEqual(TimeoutRecoveryAIAgent.init_history[0]["max_iterations"], 20)
-        self.assertEqual(TimeoutRecoveryAIAgent.init_history[1]["max_iterations"], 1)
+        self.assertEqual(TimeoutRecoveryAIAgent.init_history[1]["max_iterations"], 3)
+        self.assertEqual(result.raw["partial_recovery_max_iterations"], 3)
         self.assertIn("repo_context", TimeoutRecoveryAIAgent.run_history[0]["valid_tool_names"])
         self.assertEqual(TimeoutRecoveryAIAgent.run_history[1]["valid_tool_names"], [])
         self.assertEqual(TimeoutRecoveryAIAgent.run_history[1]["tool_names"], [])
         self.assertIn("task timeout", TimeoutRecoveryAIAgent.run_history[1]["prompt"])
         self.assertIn("workflow time limit", TimeoutRecoveryAIAgent.run_history[1]["prompt"])
         self.assertEqual(TimeoutRecoveryAIAgent.run_history[1]["history"], [{"role": "user", "content": "Earlier thread message"}])
-        self.assertTrue(any("task_timeout" in message for message in TimeoutRecoveryAIAgent.interrupt_messages))
+        self.assertTrue(any(message == "runner task_timeout after 10s" for message in TimeoutRecoveryAIAgent.interrupt_messages))
 
     def test_workflow_iteration_budget_exhaustion_fails_when_recovery_output_is_invalid(self) -> None:
         class InvalidRecoveryAIAgent:
@@ -1315,11 +1436,15 @@ class HermesRuntimeTests(unittest.TestCase):
             result = runtime.execute_task(task)
 
         self.assertFalse(result.ok)
-        self.assertEqual(result.raw["failure_class"], "runner_iteration_budget_exhausted")
+        self.assertEqual(result.raw["failure_class"], "runner_partial_completion_unrecoverable")
         self.assertEqual(result.raw["termination_reason"], "iteration_budget_exhausted")
         self.assertTrue(result.raw["runner_diagnostics"]["max_iterations_reached"])
         self.assertEqual(result.raw["runner_diagnostics"]["budget_used"], 20)
         self.assertEqual(result.raw["runner_diagnostics"]["budget_max"], 20)
+        self.assertTrue(result.raw["partial_recovery_attempted"])
+        self.assertFalse(result.raw["partial_recovery_succeeded"])
+        self.assertTrue(result.raw["runner_diagnostics"]["partial_completion_attempted"])
+        self.assertFalse(result.raw["runner_diagnostics"]["partial_completion_succeeded"])
         self.assertIn("structured output", result.message.lower())
 
     def test_runtime_metadata_reports_role_contract(self) -> None:

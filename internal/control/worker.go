@@ -2,6 +2,7 @@ package control
 
 import (
 	"crypto/sha1"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -259,6 +260,11 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	})
 	runnerDiagnostics := cloneStringAnyMap(mapValue(runnerResp.Raw["runner_diagnostics"]))
 	runnerDiagnostics = mergeWorkflowRunnerDiagnostics(runnerDiagnostics, runnerResp.Raw)
+	runnerToolCalls := bindRunnerToolCallRecords(
+		toolCallRecordsFromRunnerRaw(runnerResp.Raw),
+		ctx.trace,
+		ctx.workflow,
+	)
 	runnerEvents := []events.TraceEvent{
 		{
 			TraceID:     ctx.trace.Summary.TraceID,
@@ -300,6 +306,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 			"repair_succeeded":   boolValue(runnerResp.Raw["repair_succeeded"]),
 			"trace_events":       runnerEvents,
 			"reasoning_steps":    finalReasoning,
+			"tool_calls":         runnerToolCalls,
 		}); err != nil {
 			return runnerPostProcessingFailure("submit_workflow_blocked", err)
 		}
@@ -349,6 +356,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		"runner_diagnostics": runnerDiagnostics,
 		"trace_events":       append(runnerEvents, draftEvents...),
 		"reasoning_steps":    finalReasoning,
+		"tool_calls":         runnerToolCalls,
 	}); err != nil {
 		return runnerPostProcessingFailure("submit_runner_completion", err)
 	}
@@ -2060,6 +2068,57 @@ func mergeWorkflowRunnerDiagnostics(base map[string]any, raw map[string]any) map
 		}
 	}
 	return diagnostics
+}
+
+func toolCallRecordsFromRunnerRaw(raw map[string]any) []events.ToolCallRecord {
+	value, ok := raw["tool_calls"]
+	if !ok || value == nil {
+		return nil
+	}
+	payload, err := json.Marshal(value)
+	if err != nil {
+		return nil
+	}
+	var out []events.ToolCallRecord
+	if err := json.Unmarshal(payload, &out); err == nil {
+		return out
+	}
+	var single events.ToolCallRecord
+	if err := json.Unmarshal(payload, &single); err == nil && strings.TrimSpace(single.ToolCallID) != "" {
+		return []events.ToolCallRecord{single}
+	}
+	return nil
+}
+
+func bindRunnerToolCallRecords(records []events.ToolCallRecord, trace events.Trace, workflow storepkg.Workflow) []events.ToolCallRecord {
+	if len(records) == 0 {
+		return nil
+	}
+	bound := make([]events.ToolCallRecord, 0, len(records))
+	for idx, record := range records {
+		item := record
+		if strings.TrimSpace(item.ID) == "" {
+			key := firstNonEmpty(strings.TrimSpace(item.ToolCallID), strings.TrimSpace(item.ToolName), fmt.Sprintf("%d", idx+1))
+			item.ID = fmt.Sprintf("runner-tool-record-%s", key)
+		}
+		if strings.TrimSpace(item.TraceID) == "" {
+			item.TraceID = trace.Summary.TraceID
+		}
+		if strings.TrimSpace(item.WorkflowID) == "" {
+			item.WorkflowID = workflow.ID
+		}
+		if strings.TrimSpace(item.ConversationID) == "" {
+			item.ConversationID = trace.Summary.ConversationID
+		}
+		if strings.TrimSpace(item.CaseID) == "" {
+			item.CaseID = trace.Summary.CaseID
+		}
+		if item.CreatedAt.IsZero() {
+			item.CreatedAt = time.Now().UTC()
+		}
+		bound = append(bound, item)
+	}
+	return bound
 }
 
 func queueNameFromString(raw string) queue.QueueName {

@@ -3,6 +3,7 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass, field
 import json
+import time
 from typing import Any, Iterable, Protocol
 from urllib import error as urlerror
 from urllib import request as urlrequest
@@ -281,6 +282,18 @@ _READ_ONLY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     },
 }
 
+
+def _string_list(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(item).strip() for item in value if str(item).strip()]
+
+
+def _iso_timestamp(value: float) -> str:
+    if value <= 0:
+        return ""
+    return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(value))
+
 _WORKSPACE_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     "workspace.list_files": {
         "name": "workspace.list_files",
@@ -535,6 +548,8 @@ class ReadOnlyToolBinding:
     workspace_id: str = ""
     timeout_seconds: int = 30
     selected_context_surfaces: list[JsonObject] = field(default_factory=list)
+    tool_calls: list[JsonObject] = field(default_factory=list)
+    _tool_call_counter: int = 0
 
     def has_tool(self, name: str) -> bool:
         try:
@@ -555,6 +570,8 @@ class ReadOnlyToolBinding:
         payload = self._default_payload(canonical_name)
         payload.update(args or {})
         self._record_tool_selection(canonical_name, payload)
+        call_started_at = time.time()
+        tool_call_id = self._next_tool_call_id(canonical_name)
         req = urlrequest.Request(
             f"{self.base_url.rstrip('/')}/api/tools/{canonical_name}/execute",
             data=json.dumps(payload).encode("utf-8"),
@@ -566,27 +583,56 @@ class ReadOnlyToolBinding:
                 body = resp.read().decode("utf-8")
         except urlerror.HTTPError as exc:
             detail = exc.read().decode("utf-8", errors="replace")
+            summary = f"tool gateway returned {exc.code}: {detail}"
+            self._record_tool_call(
+                canonical_name=canonical_name,
+                tool_call_id=tool_call_id,
+                request_payload=payload,
+                started_at=call_started_at,
+                completed_at=time.time(),
+                status="failed",
+                summary=summary,
+            )
             return json.dumps(
                 {
                     "tool_name": canonical_name,
                     "transport_tool_name": transport_name,
                     "status": "error",
-                    "error": f"tool gateway returned {exc.code}: {detail}",
+                    "error": summary,
                 }
             )
         except (urlerror.URLError, TimeoutError, ConnectionError, OSError) as exc:
+            summary = f"tool gateway request failed: {exc}"
+            self._record_tool_call(
+                canonical_name=canonical_name,
+                tool_call_id=tool_call_id,
+                request_payload=payload,
+                started_at=call_started_at,
+                completed_at=time.time(),
+                status="failed",
+                summary=summary,
+            )
             return json.dumps(
                 {
                     "tool_name": canonical_name,
                     "transport_tool_name": transport_name,
                     "status": "error",
-                    "error": f"tool gateway request failed: {exc}",
+                    "error": summary,
                 }
             )
 
         try:
             parsed = json.loads(body)
         except json.JSONDecodeError:
+            self._record_tool_call(
+                canonical_name=canonical_name,
+                tool_call_id=tool_call_id,
+                request_payload=payload,
+                started_at=call_started_at,
+                completed_at=time.time(),
+                status="failed",
+                summary="tool gateway returned invalid JSON",
+            )
             return json.dumps(
                 {
                     "tool_name": canonical_name,
@@ -597,6 +643,15 @@ class ReadOnlyToolBinding:
                 }
             )
         if not isinstance(parsed, dict):
+            self._record_tool_call(
+                canonical_name=canonical_name,
+                tool_call_id=tool_call_id,
+                request_payload=payload,
+                started_at=call_started_at,
+                completed_at=time.time(),
+                status="failed",
+                summary="tool gateway returned a non-object JSON payload",
+            )
             return json.dumps(
                 {
                     "tool_name": canonical_name,
@@ -605,18 +660,36 @@ class ReadOnlyToolBinding:
                     "error": "tool gateway returned a non-object JSON payload",
                 }
             )
+        status = str(parsed.get("status", "") or "completed").strip()
+        summary = str(parsed.get("summary", "") or status or canonical_name).strip()
+        provider_ref = str(parsed.get("provider_ref", "") or "").strip()
+        approval_state = str(parsed.get("approval_state", "") or "").strip()
+        raw_artifact_refs = parsed.get("raw_artifact_refs", [])
+        self._record_tool_call(
+            canonical_name=canonical_name,
+            tool_call_id=tool_call_id,
+            request_payload=payload,
+            started_at=call_started_at,
+            completed_at=time.time(),
+            status=status or "completed",
+            summary=summary,
+            provider_ref=provider_ref,
+            approval_state=approval_state,
+            raw_artifact_refs=raw_artifact_refs,
+        )
         return json.dumps(
             {
                 "tool_name": canonical_name,
                 "transport_tool_name": transport_name,
-                "status": parsed.get("status", ""),
+                "status": status,
                 "available": parsed.get("available", True),
-                "summary": parsed.get("summary", ""),
+                "summary": summary,
                 "provider": parsed.get("provider", ""),
-                "provider_ref": parsed.get("provider_ref", ""),
-                "approval_state": parsed.get("approval_state", ""),
+                "provider_ref": provider_ref,
+                "approval_state": approval_state,
                 "output": parsed.get("output", {}),
-                "raw_artifact_refs": parsed.get("raw_artifact_refs", []),
+                "raw_artifact_refs": raw_artifact_refs,
+                "tool_call_id": tool_call_id,
             }
         )
 
@@ -624,7 +697,44 @@ class ReadOnlyToolBinding:
         return {
             "candidate_read_surfaces": self._candidate_read_surfaces(),
             "selected_context_surfaces": list(self.selected_context_surfaces),
+            "tool_calls": deepcopy(self.tool_calls),
         }
+
+    def _next_tool_call_id(self, canonical_name: str) -> str:
+        self._tool_call_counter += 1
+        return f"{canonical_name}:{self._tool_call_counter}"
+
+    def _record_tool_call(
+        self,
+        *,
+        canonical_name: str,
+        tool_call_id: str,
+        request_payload: JsonObject,
+        started_at: float,
+        completed_at: float,
+        status: str,
+        summary: str,
+        provider_ref: str = "",
+        approval_state: str = "",
+        raw_artifact_refs: Any = None,
+    ) -> None:
+        self.tool_calls.append(
+            {
+                "id": f"runner-tool-record-{tool_call_id}",
+                "tool_name": canonical_name,
+                "tool_call_id": tool_call_id,
+                "request": deepcopy(request_payload),
+                "summary": (summary or "").strip(),
+                "raw_artifact_refs": _string_list(raw_artifact_refs),
+                "approval_state": approval_state,
+                "interpretation_summary": (summary or "").strip(),
+                "status": (status or "").strip(),
+                "provider_ref": provider_ref,
+                "started_at": _iso_timestamp(started_at),
+                "completed_at": _iso_timestamp(completed_at),
+                "created_at": _iso_timestamp(completed_at or started_at),
+            }
+        )
 
     def _default_payload(self, name: str) -> JsonObject:
         payload: JsonObject = {}

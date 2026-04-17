@@ -9,6 +9,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/action"
 	"github.com/piplabs/rsi-agent-platform/internal/clients"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
+	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
@@ -19,6 +20,7 @@ const (
 	workflowFailureRunnerInvalidRequest           = "runner_invalid_request"
 	workflowFailureRunnerNonOK                    = "runner_non_ok"
 	workflowFailureRunnerIterationBudgetExhausted = "runner_iteration_budget_exhausted"
+	workflowFailureRunnerPartialCompletionBroken  = "runner_partial_completion_unrecoverable"
 	workflowFailureRunnerPostProcessing           = "runner_post_processing_failure"
 	workflowFailureRunnerStateInvariant           = "runner_state_transition_invariant_failed"
 	workflowFailureRunnerTransportTimeout         = "runner_transport_timeout"
@@ -31,6 +33,7 @@ type workflowFailure struct {
 	Class             string
 	Summary           string
 	RunnerDiagnostics map[string]any
+	ToolCalls         []events.ToolCallRecord
 	RepairAttempted   bool
 	RepairSucceeded   bool
 	Retryable         bool
@@ -62,6 +65,9 @@ func finalizeWorkflowFailureWithDetails(cfg config.Config, store storepkg.Store,
 	}
 	if len(failure.RunnerDiagnostics) > 0 {
 		payload["runner_diagnostics"] = cloneStringAnyMap(failure.RunnerDiagnostics)
+	}
+	if len(failure.ToolCalls) > 0 {
+		payload["tool_calls"] = bindRunnerToolCallRecords(failure.ToolCalls, ctx.trace, ctx.workflow)
 	}
 	if retryAt, ok := workflowRetryAt(cfg, store, ctx.workflow, failure); ok {
 		retryDecision = "auto_retry"
@@ -150,6 +156,7 @@ func workflowFailureFromRunnerResponse(resp clients.RunnerResponse) workflowFail
 		Class:             class,
 		Summary:           firstNonEmpty(strings.TrimSpace(stringValueFromMap(runnerDiagnostics, "provider_error_message")), strings.TrimSpace(resp.Message), strings.TrimSpace(stringValue(resp.Raw["structured_output_error"])), class),
 		RunnerDiagnostics: runnerDiagnostics,
+		ToolCalls:         toolCallRecordsFromRunnerRaw(resp.Raw),
 		RepairAttempted:   boolValue(resp.Raw["repair_attempted"]),
 		RepairSucceeded:   boolValue(resp.Raw["repair_succeeded"]),
 		Retryable:         retryable,
@@ -165,6 +172,7 @@ func workflowFailureFromStructuredOutputError(resp clients.RunnerResponse, err e
 		Class:             class,
 		Summary:           strings.TrimSpace(err.Error()),
 		RunnerDiagnostics: mapValue(resp.Raw["runner_diagnostics"]),
+		ToolCalls:         toolCallRecordsFromRunnerRaw(resp.Raw),
 		RepairAttempted:   boolValue(resp.Raw["repair_attempted"]),
 		RepairSucceeded:   boolValue(resp.Raw["repair_succeeded"]),
 		Retryable:         true,
@@ -180,6 +188,7 @@ func workflowFailureFromRunnerPostProcessing(resp clients.RunnerResponse, stage 
 		Class:             workflowFailureRunnerPostProcessing,
 		Summary:           firstNonEmpty(summary, workflowFailureRunnerPostProcessing),
 		RunnerDiagnostics: mapValue(resp.Raw["runner_diagnostics"]),
+		ToolCalls:         toolCallRecordsFromRunnerRaw(resp.Raw),
 		RepairAttempted:   boolValue(resp.Raw["repair_attempted"]),
 		RepairSucceeded:   boolValue(resp.Raw["repair_succeeded"]),
 		Retryable:         false,
@@ -194,6 +203,7 @@ func workflowFailureFromRunnerStateInvariant(resp clients.RunnerResponse, workfl
 		Class:             workflowFailureRunnerStateInvariant,
 		Summary:           summary,
 		RunnerDiagnostics: mapValue(resp.Raw["runner_diagnostics"]),
+		ToolCalls:         toolCallRecordsFromRunnerRaw(resp.Raw),
 		RepairAttempted:   boolValue(resp.Raw["repair_attempted"]),
 		RepairSucceeded:   boolValue(resp.Raw["repair_succeeded"]),
 		Retryable:         false,
