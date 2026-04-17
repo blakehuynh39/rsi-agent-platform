@@ -2852,15 +2852,16 @@ func eventEnvelopeFromCommand(command transition.CommandEnvelope) ingestion.Even
 
 func slackEnvelopeFromCommand(command transition.CommandEnvelope) slack.SlackEnvelope {
 	return slack.SlackEnvelope{
-		BotRole:   slack.BotRole(stringFromCommand(command, "bot_role")),
-		TeamID:    stringFromCommand(command, "team_id"),
-		ChannelID: stringFromCommand(command, "channel_id"),
-		ThreadTS:  stringFromCommand(command, "thread_ts"),
-		UserID:    stringFromCommand(command, "user_id"),
-		Text:      stringFromCommand(command, "text"),
-		TS:        stringFromCommand(command, "ts"),
-		Files:     stringSliceFromCommand(command, "files"),
-		CreatedAt: firstNonZeroTime(optionalTimeFromCommand(command, "created_at"), command.OccurredAt),
+		BotRole:     slack.BotRole(stringFromCommand(command, "bot_role")),
+		TeamID:      stringFromCommand(command, "team_id"),
+		ChannelID:   stringFromCommand(command, "channel_id"),
+		ThreadTS:    stringFromCommand(command, "thread_ts"),
+		ActionToken: stringFromCommand(command, "action_token"),
+		UserID:      stringFromCommand(command, "user_id"),
+		Text:        stringFromCommand(command, "text"),
+		TS:          stringFromCommand(command, "ts"),
+		Files:       stringSliceFromCommand(command, "files"),
+		CreatedAt:   firstNonZeroTime(optionalTimeFromCommand(command, "created_at"), command.OccurredAt),
 	}
 }
 

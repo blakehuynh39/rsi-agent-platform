@@ -643,52 +643,105 @@ func TestSlackHistoryAllowsMentionedChannelWhenMentionsOnlyConfigured(t *testing
 	}
 }
 
-func TestSlackSearchReturnsFilteredMessages(t *testing.T) {
+func TestSlackSearchRequiresBoundActionToken(t *testing.T) {
+	service := NewService(config.Config{
+		SlackBotToken:          "xoxb-test",
+		AllowedSlackChannelIDs: []string{"C123"},
+	}, storepkg.NewMemoryStore())
+
+	result := service.Execute("slack.search", map[string]interface{}{
+		"query":       "control plane 5 minute timeout",
+		"channel_ids": []interface{}{"C123"},
+	})
+
+	if result.Status != "blocked" {
+		t.Fatalf("expected blocked status, got %s", result.Status)
+	}
+	if got := result.Output["error"]; got != "missing_action_token" {
+		t.Fatalf("expected missing_action_token, got %#v", got)
+	}
+}
+
+func TestSlackSearchUsesAssistantSearchContextAndFiltersResults(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	receipt, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineIngress,
+		AggregateID: "slack:171000001.000100",
+		CommandKind: string(transition.CommandIngressRecordSlack),
+		CommandID:   "cmd-toolgateway-slack-search",
+		Actor:       "tester",
+		OccurredAt:  now,
+		Payload: map[string]any{
+			"bot_role":     "orchestrator",
+			"team_id":      "T123",
+			"channel_id":   "C123",
+			"thread_ts":    "171000001.000100",
+			"action_token": "action-123",
+			"user_id":      "U123",
+			"text":         "Search Slack for where we decided to bump the control plane to 5 minutes.",
+			"ts":           "171000001.000100",
+			"created_at":   now,
+		},
+	})
+	if err != nil {
+		t.Fatalf("SubmitCommand(slack ingress) error = %v", err)
+	}
+	ingestionID := receipt.ResultRef
+	traceID := ""
+	for _, workflow := range store.ListWorkflows() {
+		if workflow.IngestionID == ingestionID {
+			traceID = workflow.TraceID
+			break
+		}
+	}
+	if traceID == "" {
+		t.Fatal("expected trace for ingested slack conversation")
+	}
+
 	var seenPath string
+	var seenAuth string
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		seenPath = r.URL.Path
-		if err := r.ParseForm(); err != nil {
-			t.Fatalf("ParseForm() error = %v", err)
-		}
-		if got := r.Form.Get("query"); got != "control plane 5 minute timeout" {
-			t.Fatalf("expected query %q, got %q", "control plane 5 minute timeout", got)
-		}
+		seenAuth = r.Header.Get("Authorization")
 		switch r.URL.Path {
-		case "/search.messages":
+		case "/assistant.search.context":
+			var body map[string]any
+			if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+				t.Fatalf("Decode() error = %v", err)
+			}
+			if got := body["query"]; got != "control plane 5 minute timeout" {
+				t.Fatalf("expected query %q, got %#v", "control plane 5 minute timeout", got)
+			}
+			if got := body["action_token"]; got != "action-123" {
+				t.Fatalf("expected action_token action-123, got %#v", got)
+			}
+			if got := body["context_channel_id"]; got != "C123" {
+				t.Fatalf("expected context_channel_id C123, got %#v", got)
+			}
 			_ = json.NewEncoder(w).Encode(map[string]any{
 				"ok": true,
-				"messages": map[string]any{
-					"total": 3,
-					"matches": []map[string]any{
+				"results": map[string]any{
+					"messages": []map[string]any{
 						{
-							"type":      "message",
-							"channel":   map[string]any{"id": "C123", "name": "rsi-platform"},
-							"user":      "U123",
-							"username":  "blake",
-							"ts":        "1775952000.000100",
-							"text":      "We bumped the control plane timeout to 5 minutes.",
-							"permalink": "https://example.test/C123/p1775952000000100",
+							"author_name":       "blake",
+							"author_user_id":    "U123",
+							"channel_id":        "C123",
+							"message_timestamp": "1775952000.000100",
+							"text":              "We bumped the control plane timeout to 5 minutes.",
+							"permalink":         "https://example.test/C123/p1775952000000100",
 						},
 						{
-							"type":      "message",
-							"channel":   map[string]any{"id": "C999", "name": "other"},
-							"user":      "U999",
-							"username":  "other",
-							"ts":        "1775952001.000100",
-							"text":      "Wrong channel.",
-							"permalink": "https://example.test/C999/p1775952001000100",
-						},
-						{
-							"type":      "message",
-							"channel":   map[string]any{"id": "C123", "name": "rsi-platform"},
-							"user":      "U123",
-							"username":  "blake",
-							"ts":        "1775606400.000100",
-							"text":      "Outside the requested window.",
-							"permalink": "https://example.test/C123/p1775606400000100",
+							"author_name":       "other",
+							"author_user_id":    "U999",
+							"channel_id":        "C999",
+							"message_timestamp": "1775952001.000100",
+							"text":              "Wrong channel.",
+							"permalink":         "https://example.test/C999/p1775952001000100",
 						},
 					},
 				},
+				"response_metadata": map[string]any{"next_cursor": "cursor-1"},
 			})
 		default:
 			t.Fatalf("unexpected slack path %s", r.URL.Path)
@@ -698,26 +751,29 @@ func TestSlackSearchReturnsFilteredMessages(t *testing.T) {
 
 	service := NewService(config.Config{
 		SlackBotToken:          "xoxb-test",
-		AllowedSlackChannelIDs: []string{"C123", "C999"},
-	}, storepkg.NewMemoryStore())
-	service.slackClient = slackapi.New("xoxb-test", slackapi.OptionAPIURL(server.URL+"/"))
+		AllowedSlackChannelIDs: []string{"DM_ONLY", "C123", "C999"},
+	}, store)
+	service.slackAPIURL = server.URL + "/"
 
 	result := service.Execute("slack.search", map[string]interface{}{
-		"query":       "control plane 5 minute timeout",
-		"channel_ids": []interface{}{"C123"},
-		"since":       "2026-04-10T00:00:00Z",
-		"until":       "2026-04-17T00:00:00Z",
-		"limit":       1,
+		"trace_id": traceID,
+		"query":    "control plane 5 minute timeout",
+		"since":    "2026-04-10T00:00:00Z",
+		"until":    "2026-04-17T00:00:00Z",
+		"limit":    1,
 	})
 
-	if seenPath != "/search.messages" {
-		t.Fatalf("expected search.messages, got %s", seenPath)
+	if seenPath != "/assistant.search.context" {
+		t.Fatalf("expected assistant.search.context, got %s", seenPath)
+	}
+	if seenAuth != "Bearer xoxb-test" {
+		t.Fatalf("expected bearer bot token, got %q", seenAuth)
 	}
 	if result.Status != "ok" {
 		t.Fatalf("expected ok status, got %s %#v", result.Status, result.Output)
 	}
-	if got := result.Output["search_total"]; got != 3 {
-		t.Fatalf("expected search_total 3, got %#v", got)
+	if got := result.Output["search_total"]; got != 1 {
+		t.Fatalf("expected search_total 1, got %#v", got)
 	}
 	channelIDs, ok := result.Output["channel_ids"].([]string)
 	if !ok || len(channelIDs) != 1 || channelIDs[0] != "C123" {
@@ -729,6 +785,9 @@ func TestSlackSearchReturnsFilteredMessages(t *testing.T) {
 	}
 	if got := messages[0]["channel_id"]; got != "C123" {
 		t.Fatalf("expected message in channel C123, got %#v", got)
+	}
+	if got := result.Output["next_cursor"]; got != "cursor-1" {
+		t.Fatalf("expected next_cursor cursor-1, got %#v", got)
 	}
 }
 

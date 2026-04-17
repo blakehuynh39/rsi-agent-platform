@@ -297,6 +297,7 @@ func buildSlackEventEnvelope(envelope slack.SlackEnvelope) ingestion.EventEnvelo
 			"channel_id":       envelope.ChannelID,
 			"user_id":          envelope.UserID,
 			"thread_ts":        envelope.ThreadTS,
+			"action_token":     envelope.ActionToken,
 			"conversation_key": conversationKey,
 			"bot_role":         envelope.BotRole,
 			"files":            envelope.Files,

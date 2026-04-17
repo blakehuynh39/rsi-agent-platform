@@ -196,14 +196,15 @@ func (s *slackSurfaceRuntime) buildMentionEnvelope(teamID string, event *slackev
 		threadTS = strings.TrimSpace(event.TimeStamp)
 	}
 	return slackpkg.SlackEnvelope{
-		BotRole:   slackRoleFromIdentity(s.cfg.SlackAppIdentity),
-		TeamID:    teamID,
-		ChannelID: event.Channel,
-		ThreadTS:  threadTS,
-		UserID:    event.User,
-		Text:      event.Text,
-		TS:        event.TimeStamp,
-		CreatedAt: parseSlackTimestamp(event.TimeStamp),
+		BotRole:     slackRoleFromIdentity(s.cfg.SlackAppIdentity),
+		TeamID:      teamID,
+		ChannelID:   event.Channel,
+		ThreadTS:    threadTS,
+		ActionToken: slackActionToken(event.AssistantThread),
+		UserID:      event.User,
+		Text:        event.Text,
+		TS:          event.TimeStamp,
+		CreatedAt:   parseSlackTimestamp(event.TimeStamp),
 	}, true
 }
 
@@ -222,15 +223,23 @@ func (s *slackSurfaceRuntime) buildDirectMessageEnvelope(teamID string, event *s
 		threadTS = strings.TrimSpace(event.TimeStamp)
 	}
 	return slackpkg.SlackEnvelope{
-		BotRole:   slackRoleFromIdentity(s.cfg.SlackAppIdentity),
-		TeamID:    teamID,
-		ChannelID: event.Channel,
-		ThreadTS:  threadTS,
-		UserID:    event.User,
-		Text:      event.Text,
-		TS:        event.TimeStamp,
-		CreatedAt: parseSlackTimestamp(event.TimeStamp),
+		BotRole:     slackRoleFromIdentity(s.cfg.SlackAppIdentity),
+		TeamID:      teamID,
+		ChannelID:   event.Channel,
+		ThreadTS:    threadTS,
+		ActionToken: slackActionToken(event.AssistantThread),
+		UserID:      event.User,
+		Text:        event.Text,
+		TS:          event.TimeStamp,
+		CreatedAt:   parseSlackTimestamp(event.TimeStamp),
 	}, true
+}
+
+func slackActionToken(thread *slackevents.AssistantThreadActionToken) string {
+	if thread == nil {
+		return ""
+	}
+	return strings.TrimSpace(thread.ActionToken)
 }
 
 func (s *slackSurfaceRuntime) mentionChannelAllowed(channelID string) bool {

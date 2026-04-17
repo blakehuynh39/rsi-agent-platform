@@ -56,7 +56,9 @@ class FakeAIAgent:
     last_history: list[dict[str, object]] | None = None
     last_valid_tool_names: list[str] | None = None
     last_tool_names: list[str] | None = None
+    last_interrupt_message: str | None = None
     sleep_seconds: float = 0.0
+    budget_used: int = 1
 
     def __init__(self, **kwargs) -> None:
         type(self).last_kwargs = kwargs
@@ -106,13 +108,14 @@ class FakeAIAgent:
 
     def interrupt(self, _message: str | None = None) -> None:
         self._interrupted = True
+        type(self).last_interrupt_message = _message
 
     def get_activity_summary(self) -> dict[str, object]:
         return {
             "last_activity_desc": "waiting_on_tool_or_model",
             "current_tool": "rsi.trace_context",
             "api_call_count": 2,
-            "budget_used": 1,
+            "budget_used": type(self).budget_used,
             "budget_max": type(self).last_kwargs.get("max_iterations", 1) if type(self).last_kwargs else 1,
         }
 
@@ -177,7 +180,9 @@ class HermesRuntimeTests(unittest.TestCase):
         FakeAIAgent.last_history = None
         FakeAIAgent.last_valid_tool_names = None
         FakeAIAgent.last_tool_names = None
+        FakeAIAgent.last_interrupt_message = None
         FakeAIAgent.sleep_seconds = 0.0
+        FakeAIAgent.budget_used = 1
 
     def test_config_requires_explicit_env(self) -> None:
         with mock.patch.dict(os.environ, {}, clear=True):
@@ -928,6 +933,40 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("inactivity timeout", result.message)
         self.assertEqual(result.raw["timeout_kind"], "inactivity_timeout")
         self.assertEqual(result.raw["inactivity_timeout_seconds"], 1)
+
+    def test_prod_iteration_budget_exhaustion_returns_structured_failure(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the active workflow.",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                    "user_peer_id": "user:alice",
+                }
+            }
+        )
+        FakeAIAgent.sleep_seconds = 1.2
+        FakeAIAgent.budget_used = 5
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertFalse(result.ok)
+        self.assertIn("exhausted max iterations", result.message)
+        self.assertEqual(result.raw["failure_class"], "runner_iteration_budget_exhausted")
+        self.assertEqual(result.raw["termination_reason"], "iteration_budget_exhausted")
+        self.assertTrue(result.raw["max_iterations_reached"])
+        self.assertEqual(result.raw["runner_diagnostics"]["failure_kind"], "iteration_budget_exhausted")
+        self.assertEqual(result.raw["runner_diagnostics"]["termination_reason"], "iteration_budget_exhausted")
+        self.assertEqual(result.raw["runner_diagnostics"]["budget_used"], 5)
+        self.assertEqual(result.raw["runner_diagnostics"]["budget_max"], 5)
+        self.assertEqual(FakeAIAgent.last_interrupt_message, "runner iteration budget exhausted at 5 iterations")
 
     def test_runtime_metadata_reports_role_contract(self) -> None:
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(

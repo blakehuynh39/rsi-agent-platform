@@ -151,6 +151,12 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	if err != nil {
 		return &workflowFailureError{failure: workflowFailureFromRunnerError(err)}
 	}
+	runnerPostProcessingFailure := func(stage string, err error) error {
+		if err == nil {
+			return nil
+		}
+		return &workflowFailureError{failure: workflowFailureFromRunnerPostProcessing(runnerResp, stage, err)}
+	}
 	if err := runnerutil.PersistHarnessExecution(
 		store,
 		runnerResp,
@@ -165,10 +171,10 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		runnerTask.ParentSessionScopeKind,
 		runnerTask.ParentSessionScopeID,
 	); err != nil {
-		return err
+		return runnerPostProcessingFailure("persist_harness_execution", err)
 	}
 	if ctx, err = refreshWorkflowContextState(store, ctx); err != nil {
-		return err
+		return runnerPostProcessingFailure("refresh_workflow_context_after_harness_execution", err)
 	}
 	if isTerminalWorkflowStatus(ctx.workflow.Status) || isTerminalTraceStatus(ctx.trace.Summary.Status) {
 		return completeClaimedEffect(store, effect, ctx.trace.Summary.TraceID)
@@ -181,14 +187,14 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		return &workflowFailureError{failure: workflowFailureFromStructuredOutputError(runnerResp, err)}
 	}
 	if ctx, err = refreshWorkflowContextState(store, ctx); err != nil {
-		return err
+		return runnerPostProcessingFailure("refresh_workflow_context_after_structured_output", err)
 	}
 	if isTerminalWorkflowStatus(ctx.workflow.Status) || isTerminalTraceStatus(ctx.trace.Summary.Status) {
 		return completeClaimedEffect(store, effect, ctx.trace.Summary.TraceID)
 	}
 	runnerCompleted := time.Now().UTC()
 	if err := persistKnowledgeDrafts(store, ctx.trace, runnerOutput.KnowledgeDrafts, runnerCompleted); err != nil {
-		return err
+		return runnerPostProcessingFailure("persist_knowledge_drafts", err)
 	}
 
 	proposedReplyAction := firstSlackPostAction(runnerOutput.ProposedActions)
@@ -275,7 +281,13 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 			"trace_events":       runnerEvents,
 			"reasoning_steps":    finalReasoning,
 		}); err != nil {
+			return runnerPostProcessingFailure("submit_workflow_blocked", err)
+		}
+		if ctx, err = refreshWorkflowContextState(store, ctx); err != nil {
 			return err
+		}
+		if ctx.workflow.Status != string(transition.WorkflowStateNeedsHuman) {
+			return &workflowFailureError{failure: workflowFailureFromRunnerStateInvariant(runnerResp, ctx.workflow.ID, transition.WorkflowStateNeedsHuman, ctx.workflow.Status)}
 		}
 		if _, _, err := store.ReconcileWorkflowTrace(ctx.workflow.ID); err != nil {
 			return err
@@ -285,7 +297,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	if strings.TrimSpace(proposedReplyAction.Kind) != "" {
 		replyAction, draftEvents, draftReasoning, err = draftSlackPostAction(cfg, store, queueName, ctx, runnerOutput, replyBody, allowed, policyVerdict, runnerCompleted)
 		if err != nil {
-			return err
+			return runnerPostProcessingFailure("draft_slack_post_action", err)
 		}
 	}
 	finalReasoning = append(finalReasoning, draftReasoning...)
@@ -295,9 +307,13 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		runnerDescription = "Runner returned visible reasoning and an explicit Slack reply action."
 		runnerCommand = transition.CommandRunnerCompleted
 	}
+	expectedWorkflowState := transition.WorkflowStateCompleted
+	if runnerCommand == transition.CommandRunnerCompleted {
+		expectedWorkflowState = transition.WorkflowStateReplyPending
+	}
 	runnerEvents[0].Description = runnerDescription
 	if ctx, err = refreshWorkflowContextState(store, ctx); err != nil {
-		return err
+		return runnerPostProcessingFailure("refresh_workflow_context_before_runner_transition", err)
 	}
 	if isTerminalWorkflowStatus(ctx.workflow.Status) || isTerminalTraceStatus(ctx.trace.Summary.Status) {
 		return completeClaimedEffect(store, effect, ctx.trace.Summary.TraceID)
@@ -311,7 +327,13 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		"trace_events":       append(runnerEvents, draftEvents...),
 		"reasoning_steps":    finalReasoning,
 	}); err != nil {
+		return runnerPostProcessingFailure("submit_runner_completion", err)
+	}
+	if ctx, err = refreshWorkflowContextState(store, ctx); err != nil {
 		return err
+	}
+	if ctx.workflow.Status != string(expectedWorkflowState) {
+		return &workflowFailureError{failure: workflowFailureFromRunnerStateInvariant(runnerResp, ctx.workflow.ID, expectedWorkflowState, ctx.workflow.Status)}
 	}
 	if runnerCommand == transition.CommandRunnerCompletedNoReply {
 		if _, _, err := store.ReconcileWorkflowTrace(ctx.workflow.ID); err != nil {

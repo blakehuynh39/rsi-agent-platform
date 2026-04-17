@@ -644,6 +644,7 @@ func (s *MemoryStore) createIngestionLocked(envelope slack.SlackEnvelope) (slack
 			"channel_id":       envelope.ChannelID,
 			"user_id":          envelope.UserID,
 			"thread_ts":        envelope.ThreadTS,
+			"action_token":     envelope.ActionToken,
 			"conversation_key": conversationKey,
 			"bot_role":         envelope.BotRole,
 			"files":            envelope.Files,

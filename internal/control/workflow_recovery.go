@@ -1,6 +1,7 @@
 package control
 
 import (
+	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -17,6 +18,8 @@ const (
 	workflowFailureRunnerMissingStructuredOutput = "runner_missing_structured_output"
 	workflowFailureRunnerInvalidRequest          = "runner_invalid_request"
 	workflowFailureRunnerNonOK                   = "runner_non_ok"
+	workflowFailureRunnerPostProcessing          = "runner_post_processing_failure"
+	workflowFailureRunnerStateInvariant          = "runner_state_transition_invariant_failed"
 	workflowFailureRunnerTransportTimeout        = "runner_transport_timeout"
 	workflowFailureRunnerStructuredOutputParse   = "runner_structured_output_parse_failure"
 	workflowFailureToolGatewayTimeout            = "tool_gateway_timeout"
@@ -164,6 +167,35 @@ func workflowFailureFromStructuredOutputError(resp clients.RunnerResponse, err e
 		RepairAttempted:   boolValue(resp.Raw["repair_attempted"]),
 		RepairSucceeded:   boolValue(resp.Raw["repair_succeeded"]),
 		Retryable:         true,
+	}
+}
+
+func workflowFailureFromRunnerPostProcessing(resp clients.RunnerResponse, stage string, err error) workflowFailure {
+	summary := strings.TrimSpace(err.Error())
+	if stage = strings.TrimSpace(stage); stage != "" {
+		summary = fmt.Sprintf("%s: %s", stage, firstNonEmpty(summary, workflowFailureRunnerPostProcessing))
+	}
+	return workflowFailure{
+		Class:             workflowFailureRunnerPostProcessing,
+		Summary:           firstNonEmpty(summary, workflowFailureRunnerPostProcessing),
+		RunnerDiagnostics: mapValue(resp.Raw["runner_diagnostics"]),
+		RepairAttempted:   boolValue(resp.Raw["repair_attempted"]),
+		RepairSucceeded:   boolValue(resp.Raw["repair_succeeded"]),
+		Retryable:         false,
+	}
+}
+
+func workflowFailureFromRunnerStateInvariant(resp clients.RunnerResponse, workflowID string, expected transition.WorkflowStateKind, actual string) workflowFailure {
+	expectedState := strings.TrimSpace(string(expected))
+	actualState := strings.TrimSpace(actual)
+	summary := fmt.Sprintf("workflow %s remained in invalid state after successful runner execution: expected %s, got %s", strings.TrimSpace(workflowID), expectedState, firstNonEmpty(actualState, "unknown"))
+	return workflowFailure{
+		Class:             workflowFailureRunnerStateInvariant,
+		Summary:           summary,
+		RunnerDiagnostics: mapValue(resp.Raw["runner_diagnostics"]),
+		RepairAttempted:   boolValue(resp.Raw["repair_attempted"]),
+		RepairSucceeded:   boolValue(resp.Raw["repair_succeeded"]),
+		Retryable:         false,
 	}
 }
 

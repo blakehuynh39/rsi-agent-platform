@@ -676,7 +676,7 @@ class HermesRuntime:
             agent = self._create_agent(task, context)
             self._attach_tool_policy(agent, task, tool_policy)
             tracker = self._session_manager.attach_tracking(agent, task, context)
-            timed_out, run_result, timeout_meta = self._run_with_deadlines(
+            interrupted, run_result, run_meta = self._run_with_deadlines(
                 agent,
                 task,
                 context,
@@ -684,13 +684,20 @@ class HermesRuntime:
                 effective_inactivity_timeout,
             )
             lifecycle_events = self._adapter.lifecycle_events(context.session_id)
-            if timed_out:
+            if interrupted:
                 finalized = self._session_manager.finalize(context, tracker)
                 observed = self._observability_metadata(agent, task, tracker)
-                timeout_kind = string_from_map(timeout_meta, "timeout_kind")
+                termination_reason = string_from_map(run_meta, "termination_reason")
+                timeout_kind = string_from_map(run_meta, "timeout_kind")
                 timeout_message = f"Hermes execution timed out after {effective_task_timeout}s."
+                failure_class = "runner_transport_timeout"
+                failure_kind = "transport_timeout"
                 if timeout_kind == "inactivity_timeout":
                     timeout_message = f"Hermes execution hit inactivity timeout after {effective_inactivity_timeout}s."
+                elif termination_reason == "iteration_budget_exhausted":
+                    timeout_message = f"Hermes execution exhausted max iterations ({self._max_iterations})."
+                    failure_class = "runner_iteration_budget_exhausted"
+                    failure_kind = "iteration_budget_exhausted"
                 return HermesExecutionResult(
                     ok=False,
                     message=timeout_message,
@@ -698,7 +705,7 @@ class HermesRuntime:
                     raw={
                         **self._base_raw(prompt=task.prompt, system_message=task.system_message),
                         **finalized,
-                        **timeout_meta,
+                        **run_meta,
                         "task_timeout_seconds": effective_task_timeout,
                         "inactivity_timeout_seconds": effective_inactivity_timeout,
                         "transport_timeout_seconds": self._transport_timeout_seconds,
@@ -708,22 +715,22 @@ class HermesRuntime:
                         "tool_transport_allowlist_effective": tool_policy.transport_effective,
                         "blocked_tool_names": tool_policy.blocked,
                         **observed,
-                        "failure_class": "runner_transport_timeout",
+                        "failure_class": failure_class,
                         "runner_diagnostics": self._runner_diagnostics(
                             tool_policy,
-                            failure_kind="transport_timeout",
+                            failure_kind=failure_kind,
                             provider_error_message=timeout_message,
-                            timeout_kind=timeout_kind or "task_timeout",
-                            termination_reason=timeout_kind or "task_timeout",
-                            activity=_json_object_or_empty(timeout_meta.get("last_activity")),
-                            max_iterations_reached=bool(timeout_meta.get("max_iterations_reached")),
+                            timeout_kind=timeout_kind or None,
+                            termination_reason=first_non_empty(termination_reason, timeout_kind, "task_timeout"),
+                            activity=_json_object_or_empty(run_meta.get("last_activity")),
+                            max_iterations_reached=bool(run_meta.get("max_iterations_reached")),
                             session_ready_issues=self._session_manager.ready_issues,
                             repair_attempted=False,
                             repair_succeeded=False,
                             observed=observed,
                         ),
                         "lifecycle_events": lifecycle_events,
-                        "termination_reason": timeout_kind or "task_timeout",
+                        "termination_reason": first_non_empty(termination_reason, timeout_kind, "task_timeout"),
                     },
                 )
             response = str((run_result or {}).get("final_response", "") or "")
@@ -791,7 +798,7 @@ class HermesRuntime:
                 "runner_diagnostics": observed,
                 "lifecycle_events": lifecycle_events,
                 "termination_reason": "normal_completion",
-                "max_iterations_reached": False,
+                "max_iterations_reached": bool(run_meta.get("max_iterations_reached")),
                 "harness_profile_id": task.harness_profile_id,
                 "effective_overlay_version": task.harness_overlay_version,
             },
@@ -1154,14 +1161,22 @@ class HermesRuntime:
                     return False, result, {
                         "last_activity": activity,
                         "last_tool_invoked": string_from_map(activity, "current_tool"),
-                        "max_iterations_reached": bool(activity.get("budget_used", 0) >= activity.get("budget_max", 0) and activity.get("budget_max", 0) > 0),
+                        "max_iterations_reached": _max_iterations_reached(activity),
                     }
                 except concurrent.futures.TimeoutError:
                     activity = safe_activity_summary(agent)
+                    if _max_iterations_reached(activity):
+                        return self._interrupt_execution(
+                            agent,
+                            future,
+                            "iteration_budget_exhausted",
+                            int(activity.get("budget_max", 0) or self._max_iterations),
+                            activity,
+                        )
                     elapsed_seconds = max(0.0, time.monotonic() - started_at)
                     idle_seconds = inactivity_seconds(activity, elapsed_seconds)
                     if elapsed_seconds >= float(timeout_seconds):
-                        return self._interrupt_timeout(
+                        return self._interrupt_execution(
                             agent,
                             future,
                             "task_timeout",
@@ -1169,7 +1184,7 @@ class HermesRuntime:
                             activity,
                         )
                     if inactivity_timeout_seconds > 0 and idle_seconds >= float(inactivity_timeout_seconds):
-                        return self._interrupt_timeout(
+                        return self._interrupt_execution(
                             agent,
                             future,
                             "inactivity_timeout",
@@ -1179,31 +1194,38 @@ class HermesRuntime:
         finally:
             executor.shutdown(wait=False, cancel_futures=True)
 
-    def _interrupt_timeout(
+    def _interrupt_execution(
         self,
         agent: Any,
         future: concurrent.futures.Future,
-        timeout_kind: str,
-        timeout_seconds: int,
+        termination_reason: str,
+        threshold_value: int,
         activity: JsonObject,
     ) -> tuple[bool, JsonObject | None, JsonObject]:
-        agent.interrupt(f"runner {timeout_kind} after {timeout_seconds}s")
+        interrupt_message = f"runner {termination_reason} after {threshold_value}s"
+        if termination_reason == "iteration_budget_exhausted":
+            interrupt_message = f"runner iteration budget exhausted at {threshold_value} iterations"
+        agent.interrupt(interrupt_message)
         shutdown_error = ""
         try:
-            future.result(timeout=min(5, max(1, timeout_seconds//10)))
+            future.result(timeout=min(5, max(1, threshold_value//10)))
         except concurrent.futures.TimeoutError:
-            shutdown_error = f"{timeout_kind} shutdown did not complete before the grace period elapsed."
+            shutdown_error = f"{termination_reason} shutdown did not complete before the grace period elapsed."
         except Exception as exc:
             shutdown_error = str(exc)
         latest_activity = safe_activity_summary(agent) or activity
         meta = {
-            "timeout_kind": timeout_kind,
+            "termination_reason": termination_reason,
             "last_activity": latest_activity,
             "last_activity_desc": string_from_map(latest_activity, "last_activity_desc"),
             "last_tool_invoked": string_from_map(latest_activity, "current_tool"),
-            "max_iterations_reached": bool(latest_activity.get("budget_used", 0) >= latest_activity.get("budget_max", 0) and latest_activity.get("budget_max", 0) > 0),
-            "timed_out_after_seconds": timeout_seconds,
+            "max_iterations_reached": _max_iterations_reached(latest_activity),
         }
+        if termination_reason in {"task_timeout", "inactivity_timeout"}:
+            meta["timeout_kind"] = termination_reason
+            meta["timed_out_after_seconds"] = threshold_value
+        if termination_reason == "iteration_budget_exhausted":
+            meta["max_iterations"] = threshold_value
         if shutdown_error:
             meta["shutdown_error"] = shutdown_error
         return True, None, meta
@@ -1644,6 +1666,15 @@ def safe_activity_summary(agent: Any) -> JsonObject:
     if isinstance(summary, dict):
         return summary
     raise HermesStructuredOutputError("Hermes agent.get_activity_summary() returned a non-dict payload.")
+
+
+def _max_iterations_reached(activity: JsonObject) -> bool:
+    try:
+        budget_used = int(activity.get("budget_used", 0) or 0)
+        budget_max = int(activity.get("budget_max", 0) or 0)
+    except (TypeError, ValueError):
+        return False
+    return budget_max > 0 and budget_used >= budget_max
 
 
 def string_from_map(values: JsonObject, key: str) -> str:
