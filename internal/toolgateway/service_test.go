@@ -562,6 +562,87 @@ func TestSlackHistoryUsesThreadRepliesForConversationQuestion(t *testing.T) {
 	}
 }
 
+func TestSlackHistoryAllowsMentionedChannelWhenMentionsOnlyConfigured(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	receipt, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineIngress,
+		AggregateID: "slack:171000001.000100",
+		CommandKind: string(transition.CommandIngressRecordSlack),
+		CommandID:   "cmd-toolgateway-slack-mentions-only",
+		Actor:       "tester",
+		OccurredAt:  now,
+		Payload: map[string]any{
+			"bot_role":   "orchestrator",
+			"team_id":    "T123",
+			"channel_id": "C123",
+			"thread_ts":  "171000001.000100",
+			"user_id":    "U123",
+			"text":       "What did we decide in <#C999> for numo?",
+			"ts":         "171000001.000100",
+			"created_at": now,
+		},
+	})
+	if err != nil {
+		t.Fatalf("SubmitCommand(slack ingress) error = %v", err)
+	}
+	ingestionID := receipt.ResultRef
+	traceID := ""
+	for _, workflow := range store.ListWorkflows() {
+		if workflow.IngestionID == ingestionID {
+			traceID = workflow.TraceID
+			break
+		}
+	}
+	if traceID == "" {
+		t.Fatal("expected trace for ingested slack conversation")
+	}
+
+	var seenPath string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		seenPath = r.URL.Path
+		if err := r.ParseForm(); err != nil {
+			t.Fatalf("ParseForm() error = %v", err)
+		}
+		if got := r.Form.Get("channel"); got != "C999" {
+			t.Fatalf("expected channel C999, got %q", got)
+		}
+		switch r.URL.Path {
+		case "/conversations.history":
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"ok":       true,
+				"has_more": false,
+				"messages": []map[string]any{
+					{"type": "message", "user": "U999", "text": "Numo discussed here.", "ts": "171000001.000200"},
+				},
+				"response_metadata": map[string]any{"next_cursor": ""},
+			})
+		default:
+			t.Fatalf("unexpected slack path %s", r.URL.Path)
+		}
+	}))
+	defer server.Close()
+
+	service := NewService(config.Config{
+		SlackBotToken:          "xoxb-test",
+		AllowedSlackChannelIDs: []string{"MENTIONS_ONLY"},
+	}, store)
+	service.slackClient = slackapi.New("xoxb-test", slackapi.OptionAPIURL(server.URL+"/"))
+
+	result := service.Execute("slack.history", map[string]interface{}{
+		"trace_id":   traceID,
+		"channel_id": "C999",
+		"scope":      "channel",
+	})
+
+	if seenPath != "/conversations.history" {
+		t.Fatalf("expected conversations.history, got %s", seenPath)
+	}
+	if result.Status != "ok" {
+		t.Fatalf("expected ok status, got %s %#v", result.Status, result.Output)
+	}
+}
+
 func TestSlackSearchReturnsFilteredMessages(t *testing.T) {
 	var seenPath string
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

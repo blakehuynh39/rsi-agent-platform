@@ -482,19 +482,7 @@ func (p *PostgresStore) createIngestionDirect(envelope slack.SlackEnvelope) (cre
 			return err
 		}
 
-		entry := conversation.Entry{
-			ID:             nextID("entry", 0),
-			ConversationID: conv.ID,
-			EventID:        event.ID,
-			Source:         event.Source,
-			SourceEventID:  event.SourceEventID,
-			EntryType:      "external_event",
-			ActorID:        userID,
-			ActorType:      actorTypeForEvent(event),
-			Body:           event.NormalizedProblemStatement,
-			Metadata:       cloneMetadata(event.Metadata),
-			CreatedAt:      createdAt,
-		}
+		entry := externalConversationEntry(conv.ID, event, createdAt)
 		temp = newSubsetStore()
 		temp.conversationEntries = append(temp.conversationEntries, entry)
 		if err := persistConversationEntries(tx, temp); err != nil {

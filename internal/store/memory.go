@@ -978,18 +978,16 @@ func (s *MemoryStore) resolveConversationLocked(event ingestion.EventEnvelope, c
 }
 
 func (s *MemoryStore) appendConversationEntryLocked(conversationID string, event ingestion.EventEnvelope, createdAt time.Time) conversation.Entry {
-	entry := conversation.Entry{
-		ID:             nextID("entry", len(s.conversationEntries)+1),
-		ConversationID: conversationID,
-		EventID:        event.ID,
-		Source:         event.Source,
-		SourceEventID:  event.SourceEventID,
-		EntryType:      "external_event",
-		ActorID:        stringFromMetadata(event.Metadata, "user_id"),
-		ActorType:      actorTypeForEvent(event),
-		Body:           event.NormalizedProblemStatement,
-		Metadata:       cloneMetadata(event.Metadata),
-		CreatedAt:      createdAt,
+	return s.upsertConversationEntryLocked(externalConversationEntry(conversationID, event, createdAt))
+}
+
+func (s *MemoryStore) upsertConversationEntryLocked(entry conversation.Entry) conversation.Entry {
+	for idx := range s.conversationEntries {
+		if s.conversationEntries[idx].ID != entry.ID {
+			continue
+		}
+		s.conversationEntries[idx] = entry
+		return entry
 	}
 	s.conversationEntries = append(s.conversationEntries, entry)
 	return entry
@@ -1439,24 +1437,7 @@ func (s *MemoryStore) applyTraceUpdateLocked(traceID string, update TraceUpdate)
 		if trace.Summary.ConversationID == "" {
 			continue
 		}
-		s.conversationEntries = append(s.conversationEntries, conversation.Entry{
-			ID:             nextID("entry", len(s.conversationEntries)+1),
-			ConversationID: trace.Summary.ConversationID,
-			EventID:        trace.Summary.TriggerEventID,
-			TraceID:        trace.Summary.TraceID,
-			Source:         ingestion.SourceSlack,
-			SourceEventID:  action.IdempotencyKey,
-			EntryType:      "slack_action",
-			ActorID:        action.ChannelID,
-			ActorType:      "bot",
-			Body:           firstNonEmpty(action.FinalBody, action.DraftBody),
-			Metadata: map[string]interface{}{
-				"send_status":    action.SendStatus,
-				"policy_verdict": action.PolicyVerdict,
-				"thread_ts":      action.ThreadTS,
-			},
-			CreatedAt: action.CreatedAt,
-		})
+		s.upsertConversationEntryLocked(slackActionConversationEntry(trace.Summary.ConversationID, trace.Summary.TriggerEventID, trace.Summary.TraceID, action))
 	}
 	recomputeTraceSummary(&trace)
 	if trace.Summary.EndedAt.Before(now) && (trace.Summary.Status == events.StatusCompleted || trace.Summary.Status == events.StatusFailed || trace.Summary.Status == events.StatusNeedsHuman) {

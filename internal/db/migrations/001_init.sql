@@ -200,6 +200,8 @@ create table if not exists conversation_entry (
 );
 
 create index if not exists conversation_entry_conv_idx on conversation_entry (conversation_id, created_at asc);
+create unique index if not exists conversation_entry_external_event_idx on conversation_entry (conversation_id, event_id, entry_type) where entry_type = 'external_event' and event_id is not null;
+create unique index if not exists conversation_entry_slack_action_idx on conversation_entry (conversation_id, source_event_id, entry_type) where entry_type = 'slack_action' and source_event_id is not null;
 
 create table if not exists case_record (
   id text primary key,

@@ -498,6 +498,52 @@ func TestMemoryStoreSubmitCommandThreadPolicyMuteIsIdempotent(t *testing.T) {
 	}
 }
 
+func TestMemoryStoreSlackIngressCreatesSingleExternalTranscriptEntry(t *testing.T) {
+	store := NewMemoryStore()
+	now := time.Now().UTC()
+
+	receipt, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineIngress,
+		AggregateID: "slack:171000111.000100",
+		CommandKind: string(transition.CommandIngressRecordSlack),
+		CommandID:   "cmd-ingress-slack-single-entry",
+		Actor:       "tester",
+		OccurredAt:  now,
+		Payload: map[string]any{
+			"bot_role":   "orchestrator",
+			"team_id":    "T123",
+			"channel_id": "C123",
+			"thread_ts":  "171000111.000100",
+			"user_id":    "U123",
+			"text":       "Hello <@U0ASDQKU3UL>, summarize this thread",
+			"ts":         "171000111.000100",
+			"created_at": now,
+		},
+	})
+	if err != nil {
+		t.Fatalf("SubmitCommand(slack ingress) error = %v", err)
+	}
+
+	ingestion, ok := findIngestion(store.ListIngestions(), receipt.ResultRef)
+	if !ok {
+		t.Fatalf("expected ingestion %s", receipt.ResultRef)
+	}
+	entries := store.ListConversationEntries(ingestion.ConversationID)
+	externalEvents := 0
+	for _, item := range entries {
+		if item.EntryType != "external_event" {
+			continue
+		}
+		externalEvents++
+		if item.EventID != ingestion.EventID {
+			t.Fatalf("expected event id %s, got %s", ingestion.EventID, item.EventID)
+		}
+	}
+	if externalEvents != 1 {
+		t.Fatalf("expected one external_event transcript entry, got %d entries=%#v", externalEvents, entries)
+	}
+}
+
 func TestMemoryStoreSubmitCommandKnowledgeApprovePromotesEntry(t *testing.T) {
 	store := NewMemoryStore()
 	now := time.Now().UTC()

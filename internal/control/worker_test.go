@@ -466,6 +466,44 @@ func TestReplyPolicyAllowsDirectMessagesWithoutChannelPolicy(t *testing.T) {
 	}
 }
 
+func TestReplyPolicyAllowsActiveIngressThreadWithoutChannelPolicy(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	receipt, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineIngress,
+		AggregateID: "slack:171000002.000100",
+		CommandKind: string(transition.CommandIngressRecordSlack),
+		CommandID:   "cmd-reply-policy-active-thread",
+		Actor:       "tester",
+		OccurredAt:  now,
+		Payload: map[string]any{
+			"bot_role":   "orchestrator",
+			"team_id":    "T123",
+			"channel_id": "C123",
+			"thread_ts":  "171000002.000100",
+			"user_id":    "U123",
+			"text":       "Hello <@U0ASDQKU3UL>, can you look at this?",
+			"ts":         "171000002.000100",
+			"created_at": now,
+		},
+	})
+	if err != nil {
+		t.Fatalf("SubmitCommand(slack ingress) error = %v", err)
+	}
+	ingestion, ok := findIngestion(store.ListIngestions(), receipt.ResultRef)
+	if !ok {
+		t.Fatalf("expected ingestion %s", receipt.ResultRef)
+	}
+
+	allowed, verdict := replyPolicy(store, "architecture", ingestion.ThreadKey, ingestion.ChannelID)
+	if !allowed {
+		t.Fatal("expected active ingress thread to allow reply_in_thread")
+	}
+	if verdict != "thread_allowed" {
+		t.Fatalf("expected thread_allowed verdict, got %s", verdict)
+	}
+}
+
 func TestReplyPolicyStillBlocksUnknownChannels(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 

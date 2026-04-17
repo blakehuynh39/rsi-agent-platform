@@ -26,11 +26,14 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/sandbox"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
+	"github.com/piplabs/rsi-agent-platform/internal/workflowplan"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
+
+const slackMentionsOnlySentinel = "MENTIONS_ONLY"
 
 type Service struct {
 	cfg         config.Config
@@ -1421,7 +1424,8 @@ func (s *Service) slackReply(input map[string]interface{}) storepkg.ToolResult {
 
 func (s *Service) slackHistory(input map[string]interface{}) storepkg.ToolResult {
 	traceID := strings.TrimSpace(stringValue(input["trace_id"]))
-	boundChannelID, boundThreadTS := s.boundSlackContext(traceID)
+	boundChannelID, boundThreadTS, boundPrompt := s.boundSlackContext(traceID)
+	contextualChannelIDs := slackMentionChannelIDs(boundPrompt, boundChannelID, boundThreadTS, s.cfg.AllowedSlackChannelIDs)
 	channelID := firstNonEmpty(strings.TrimSpace(stringValue(input["channel_id"])), boundChannelID)
 	threadTS := firstNonEmpty(strings.TrimSpace(stringValue(input["thread_ts"])), boundThreadTS)
 	question := strings.TrimSpace(stringValue(input["question"]))
@@ -1445,7 +1449,7 @@ func (s *Service) slackHistory(input map[string]interface{}) storepkg.ToolResult
 		output["error"] = "missing channel_id"
 		return s.failedResult("slack.history", input, "slack", "Slack history requires channel_id or a trace bound to a Slack ingestion.", output)
 	}
-	if !s.slackHistoryChannelAllowed(channelID, boundChannelID) {
+	if !slackChannelAllowed(channelID, boundChannelID, contextualChannelIDs, s.cfg.AllowedSlackChannelIDs) {
 		output["error"] = "channel_not_allowed"
 		return s.failedResult("slack.history", input, "slack", fmt.Sprintf("Slack history not permitted for channel %s.", channelID), output)
 	}
@@ -1493,8 +1497,9 @@ func (s *Service) slackHistory(input map[string]interface{}) storepkg.ToolResult
 func (s *Service) slackSearch(input map[string]interface{}) storepkg.ToolResult {
 	query := firstNonEmpty(strings.TrimSpace(stringValue(input["query"])), strings.TrimSpace(stringValue(input["question"])))
 	traceID := strings.TrimSpace(stringValue(input["trace_id"]))
-	boundChannelID, _ := s.boundSlackContext(traceID)
-	channelIDs := slackSearchChannelIDs(input, boundChannelID, s.cfg.AllowedSlackChannelIDs)
+	boundChannelID, boundThreadTS, boundPrompt := s.boundSlackContext(traceID)
+	contextualChannelIDs := slackMentionChannelIDs(boundPrompt, boundChannelID, boundThreadTS, s.cfg.AllowedSlackChannelIDs)
+	channelIDs := slackSearchChannelIDs(input, boundChannelID, s.cfg.AllowedSlackChannelIDs, contextualChannelIDs)
 	limit := slackSearchLimit(input)
 	since, until, err := parseActivityWindow(input)
 	output := map[string]interface{}{
@@ -1512,7 +1517,7 @@ func (s *Service) slackSearch(input map[string]interface{}) storepkg.ToolResult 
 		return s.failedResult("slack.search", input, "slack", "Slack search requires at least one allowed channel.", output)
 	}
 	for _, channelID := range channelIDs {
-		if !s.slackHistoryChannelAllowed(channelID, boundChannelID) {
+		if !slackChannelAllowed(channelID, boundChannelID, contextualChannelIDs, s.cfg.AllowedSlackChannelIDs) {
 			output["error"] = "channel_not_allowed"
 			return s.failedResult("slack.search", input, "slack", fmt.Sprintf("Slack search not permitted for channel %s.", channelID), output)
 		}
@@ -1570,7 +1575,7 @@ func (s *Service) slackSearch(input map[string]interface{}) storepkg.ToolResult 
 	return s.result("slack.search", input, summary, output, nil)
 }
 
-func (s *Service) slackHistoryChannelAllowed(channelID string, boundChannelID string) bool {
+func slackChannelAllowed(channelID string, boundChannelID string, contextualChannelIDs []string, configured []string) bool {
 	channelID = strings.TrimSpace(channelID)
 	if channelID == "" {
 		return false
@@ -1578,7 +1583,12 @@ func (s *Service) slackHistoryChannelAllowed(channelID string, boundChannelID st
 	if channelID == strings.TrimSpace(boundChannelID) {
 		return true
 	}
-	for _, allowed := range s.cfg.AllowedSlackChannelIDs {
+	for _, allowed := range contextualChannelIDs {
+		if channelID == strings.TrimSpace(allowed) {
+			return true
+		}
+	}
+	for _, allowed := range configured {
 		if channelID == strings.TrimSpace(allowed) {
 			return true
 		}
@@ -1586,26 +1596,26 @@ func (s *Service) slackHistoryChannelAllowed(channelID string, boundChannelID st
 	return false
 }
 
-func (s *Service) boundSlackContext(traceID string) (string, string) {
+func (s *Service) boundSlackContext(traceID string) (string, string, string) {
 	traceID = strings.TrimSpace(traceID)
 	if traceID == "" {
-		return "", ""
+		return "", "", ""
 	}
 	trace, ok := s.store.GetTrace(traceID)
 	if !ok {
-		return "", ""
+		return "", "", ""
 	}
 	ingestionID := strings.TrimSpace(trace.Summary.IngestionID)
 	if ingestionID == "" {
-		return "", ""
+		return "", "", ""
 	}
 	for _, item := range s.store.ListIngestions() {
 		if strings.TrimSpace(item.ID) != ingestionID {
 			continue
 		}
-		return strings.TrimSpace(item.ChannelID), strings.TrimSpace(item.ThreadTS)
+		return strings.TrimSpace(item.ChannelID), strings.TrimSpace(item.ThreadTS), strings.TrimSpace(item.Text)
 	}
-	return "", ""
+	return "", "", ""
 }
 
 func slackHistoryScope(input map[string]interface{}, question string, threadTS string) string {
@@ -1984,7 +1994,7 @@ func runtimeTaskTimeoutsSeconds(cfg config.Config) map[string]int {
 	}
 }
 
-func slackSearchChannelIDs(input map[string]interface{}, boundChannelID string, allowed []string) []string {
+func slackSearchChannelIDs(input map[string]interface{}, boundChannelID string, allowed []string, contextual []string) []string {
 	channelIDs := make([]string, 0, len(allowed)+1)
 	channelIDs = append(channelIDs, stringSliceValue(input["channel_ids"])...)
 	if channelID := strings.TrimSpace(stringValue(input["channel_id"])); channelID != "" {
@@ -1993,9 +2003,9 @@ func slackSearchChannelIDs(input map[string]interface{}, boundChannelID string, 
 	if len(channelIDs) == 0 {
 		if channelID := strings.TrimSpace(boundChannelID); channelID != "" {
 			channelIDs = append(channelIDs, channelID)
-		} else {
-			channelIDs = append(channelIDs, allowed...)
 		}
+		channelIDs = append(channelIDs, contextual...)
+		channelIDs = append(channelIDs, allowed...)
 	}
 	filtered := make([]string, 0, len(channelIDs))
 	for _, channelID := range channelIDs {
@@ -2006,6 +2016,22 @@ func slackSearchChannelIDs(input map[string]interface{}, boundChannelID string, 
 		filtered = append(filtered, channelID)
 	}
 	return uniqueStrings(filtered)
+}
+
+func slackMentionChannelIDs(question string, ingressChannelID string, ingressThreadTS string, allowed []string) []string {
+	if !containsString(allowed, slackMentionsOnlySentinel) {
+		return nil
+	}
+	hints := workflowplan.CandidateReadSurfaces(question, ingressChannelID, ingressThreadTS)
+	out := make([]string, 0, len(hints))
+	for _, item := range hints {
+		channelID := strings.TrimSpace(item.ChannelID)
+		if channelID == "" || channelID == strings.TrimSpace(ingressChannelID) {
+			continue
+		}
+		out = append(out, channelID)
+	}
+	return uniqueStrings(out)
 }
 
 func slackSearchLimit(input map[string]interface{}) int {

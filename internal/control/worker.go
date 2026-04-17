@@ -16,6 +16,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
+	"github.com/piplabs/rsi-agent-platform/internal/policy"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/runnerutil"
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
@@ -248,8 +249,8 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		},
 	}
 	var (
-		replyAction  action.Intent
-		draftEvents  []events.TraceEvent
+		replyAction    action.Intent
+		draftEvents    []events.TraceEvent
 		draftReasoning []events.ReasoningStep
 	)
 	if strings.TrimSpace(replyBody) != "" && strings.TrimSpace(proposedReplyAction.Kind) == "" {
@@ -265,14 +266,14 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		})
 		runnerEvents[0].Description = "Runner returned visible reasoning and a reply draft but omitted the explicit slack_post action."
 		if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowBlocked, cfg.ServiceName, runnerCompleted, map[string]any{
-			"last_error":       "runner produced a reply without the required explicit slack_post action",
-			"failure_class":    "missing_explicit_action_contract",
-			"failure_summary":  "Runner produced a reply draft but omitted the required explicit slack_post action.",
+			"last_error":         "runner produced a reply without the required explicit slack_post action",
+			"failure_class":      "missing_explicit_action_contract",
+			"failure_summary":    "Runner produced a reply draft but omitted the required explicit slack_post action.",
 			"runner_diagnostics": runnerDiagnostics,
-			"repair_attempted": boolValue(runnerResp.Raw["repair_attempted"]),
-			"repair_succeeded": boolValue(runnerResp.Raw["repair_succeeded"]),
-			"trace_events":     runnerEvents,
-			"reasoning_steps":  finalReasoning,
+			"repair_attempted":   boolValue(runnerResp.Raw["repair_attempted"]),
+			"repair_succeeded":   boolValue(runnerResp.Raw["repair_succeeded"]),
+			"trace_events":       runnerEvents,
+			"reasoning_steps":    finalReasoning,
 		}); err != nil {
 			return err
 		}
@@ -302,13 +303,13 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		return completeClaimedEffect(store, effect, ctx.trace.Summary.TraceID)
 	}
 	if _, err := submitWorkflowCommand(store, ctx.workflow.ID, runnerCommand, cfg.ServiceName, runnerCompleted, map[string]any{
-		"resume_queue":     string(queueName),
-		"reply_action_id":  replyAction.ID,
-		"repair_attempted": boolValue(runnerResp.Raw["repair_attempted"]),
-		"repair_succeeded": boolValue(runnerResp.Raw["repair_succeeded"]),
+		"resume_queue":       string(queueName),
+		"reply_action_id":    replyAction.ID,
+		"repair_attempted":   boolValue(runnerResp.Raw["repair_attempted"]),
+		"repair_succeeded":   boolValue(runnerResp.Raw["repair_succeeded"]),
 		"runner_diagnostics": runnerDiagnostics,
 		"trace_events":       append(runnerEvents, draftEvents...),
-		"reasoning_steps": finalReasoning,
+		"reasoning_steps":    finalReasoning,
 	}); err != nil {
 		return err
 	}
@@ -944,8 +945,26 @@ func runnerRoleForQueue(name queue.QueueName) string {
 
 func replyPolicy(store storepkg.Store, workflowKind string, threadKey string, channelID string) (bool, string) {
 	for _, item := range store.ListThreadPolicies() {
-		if item.ThreadKey == threadKey && item.Muted {
+		if item.ThreadKey != threadKey {
+			continue
+		}
+		switch item.State {
+		case policy.ThreadStateMuted:
 			return false, "thread_muted"
+		case policy.ThreadStateMuteUntilMention:
+			return false, "thread_muted_until_mention"
+		case policy.ThreadStateClosed:
+			return false, "thread_closed"
+		case policy.ThreadStateObserveOnly:
+			return false, "thread_observe_only"
+		case policy.ThreadStateActive:
+			if strings.TrimSpace(threadKey) != "" {
+				return true, "thread_allowed"
+			}
+		default:
+			if item.Muted {
+				return false, "thread_muted"
+			}
 		}
 	}
 	if strings.HasPrefix(channelID, "D") {
