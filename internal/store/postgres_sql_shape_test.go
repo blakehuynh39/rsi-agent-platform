@@ -63,6 +63,22 @@ func TestPostgresProposalInsertKeepsTouchedFilesOnJSONColumn(t *testing.T) {
 	t.Fatal("proposal insert statement not found")
 }
 
+func TestPostgresLoaderDoesNotInvokeLegacyBackfills(t *testing.T) {
+	body, err := readPostgresSource(t)
+	if err != nil {
+		t.Fatalf("read postgres.go: %v", err)
+	}
+	source := string(body)
+	for _, pattern := range []string{
+		"backfillConversationCaseV2(",
+		"backfillActionOutcomeKnowledgeV3(",
+	} {
+		if strings.Contains(source, pattern) {
+			t.Fatalf("expected postgres loader to avoid legacy bootstrap backfills, found %q", pattern)
+		}
+	}
+}
+
 func readPostgresSource(t *testing.T) ([]byte, error) {
 	t.Helper()
 	return os.ReadFile(filepath.Join("postgres.go"))

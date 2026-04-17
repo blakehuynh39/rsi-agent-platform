@@ -152,6 +152,23 @@ func TestMigrationAdvisoryLockSerializesRunners(t *testing.T) {
 	}
 }
 
+func TestMigrationVersionsAreUniqueAndAscending(t *testing.T) {
+	migrations, err := listMigrations()
+	if err != nil {
+		t.Fatalf("list migrations: %v", err)
+	}
+	if len(migrations) == 0 {
+		t.Fatal("expected embedded migrations")
+	}
+	last := int64(0)
+	for i, migration := range migrations {
+		if i > 0 && migration.Version <= last {
+			t.Fatalf("expected strictly increasing migration versions, saw %d after %d (%s)", migration.Version, last, migration.Name)
+		}
+		last = migration.Version
+	}
+}
+
 func openTempDatabase(t *testing.T) (*sql.DB, func()) {
 	t.Helper()
 	baseURL := strings.TrimSpace(os.Getenv("RSI_TEST_POSTGRES_URL"))

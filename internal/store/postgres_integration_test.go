@@ -190,7 +190,7 @@ func TestPostgresRunProposalPromoterNormalizesBlankTargetFields(t *testing.T) {
 		t.Fatal("expected promoted proposal")
 	}
 
-	if _, err := store.db.Exec(`update candidate set target_layer = '', target_kind = '', target_ref = ''`); err != nil {
+	if _, err := store.db.Exec(`update improvement_candidate set target_layer = '', target_kind = '', target_ref = ''`); err != nil {
 		t.Fatalf("reset candidate target metadata: %v", err)
 	}
 	if _, err := store.db.Exec(`update proposal set target_layer = '', target_kind = '', target_ref = ''`); err != nil {
