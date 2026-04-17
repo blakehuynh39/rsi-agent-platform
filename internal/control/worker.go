@@ -28,6 +28,7 @@ import (
 const (
 	controlPhaseCollectContext = "collect_context"
 	controlPhaseReplyPost      = "reply_post"
+	partialCompletionNotice    = "Partial answer: I hit my iteration budget before I could finish a deeper pass. This is the best grounded answer so far."
 )
 
 type workflowContext struct {
@@ -186,6 +187,10 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	if err != nil {
 		return &workflowFailureError{failure: workflowFailureFromStructuredOutputError(runnerResp, err)}
 	}
+	completionVerdict := workflowCompletionVerdict(runnerResp.Raw)
+	if completionVerdict == "partial" {
+		runnerOutput = standardizePartialWorkflowReply(runnerOutput)
+	}
 	if ctx, err = refreshWorkflowContextState(store, ctx); err != nil {
 		return runnerPostProcessingFailure("refresh_workflow_context_after_structured_output", err)
 	}
@@ -227,6 +232,18 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		})
 	}
 	finalReasoning = append(finalReasoning, outcomeHypothesisReasoning(ctx.trace, ctx.workflow, runnerOutput.OutcomeHypotheses, runnerCompleted)...)
+	if completionVerdict == "partial" {
+		finalReasoning = append(finalReasoning, events.ReasoningStep{
+			ID:         fmt.Sprintf("reason-partial-completion-%d", runnerCompleted.UnixNano()),
+			TraceID:    ctx.trace.Summary.TraceID,
+			WorkflowID: ctx.trace.Summary.WorkflowID,
+			StepType:   "completion_contract",
+			Summary:    "Runner exhausted its iteration budget and returned a best-effort partial response.",
+			Confidence: 1.0,
+			Decision:   "partial_completion",
+			CreatedAt:  runnerCompleted,
+		})
+	}
 	finalReasoning = append(finalReasoning, events.ReasoningStep{
 		ID:         fmt.Sprintf("reason-final-%d", runnerCompleted.UnixNano()),
 		TraceID:    ctx.trace.Summary.TraceID,
@@ -295,7 +312,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner-blocked", ctx.trace.Summary.TraceID))
 	}
 	if strings.TrimSpace(proposedReplyAction.Kind) != "" {
-		replyAction, draftEvents, draftReasoning, err = draftSlackPostAction(cfg, store, queueName, ctx, runnerOutput, replyBody, allowed, policyVerdict, runnerCompleted)
+		replyAction, draftEvents, draftReasoning, err = draftSlackPostAction(cfg, store, queueName, ctx, runnerOutput, replyBody, allowed, policyVerdict, completionVerdict, runnerCompleted)
 		if err != nil {
 			return runnerPostProcessingFailure("draft_slack_post_action", err)
 		}
@@ -306,6 +323,12 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	if strings.TrimSpace(replyAction.ID) != "" {
 		runnerDescription = "Runner returned visible reasoning and an explicit Slack reply action."
 		runnerCommand = transition.CommandRunnerCompleted
+	}
+	if completionVerdict == "partial" {
+		runnerDescription = "Runner exhausted its iteration budget and returned a partial Slack reply."
+		if runnerCommand == transition.CommandRunnerCompletedNoReply {
+			runnerDescription = "Runner exhausted its iteration budget and returned a partial completion without a reply side effect."
+		}
 	}
 	expectedWorkflowState := transition.WorkflowStateCompleted
 	if runnerCommand == transition.CommandRunnerCompleted {
@@ -323,6 +346,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		"reply_action_id":    replyAction.ID,
 		"repair_attempted":   boolValue(runnerResp.Raw["repair_attempted"]),
 		"repair_succeeded":   boolValue(runnerResp.Raw["repair_succeeded"]),
+		"last_verdict":       lastVerdictForWorkflowCompletion(completionVerdict, runnerCommand),
 		"runner_diagnostics": runnerDiagnostics,
 		"trace_events":       append(runnerEvents, draftEvents...),
 		"reasoning_steps":    finalReasoning,
@@ -687,9 +711,13 @@ func maybeAdvanceWorkflowPhaseFromAction(cfg config.Config, store storepkg.Store
 				"last_error": workflowError,
 			})
 		default:
-			_, err = submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandReplyPosted, cfg.ServiceName, completedAt, map[string]any{
+			payload := map[string]any{
 				"resume_queue": string(queueName),
-			})
+			}
+			if verdict := strings.TrimSpace(stringFromMap(intent.RequestPayload, "last_verdict")); verdict != "" {
+				payload["last_verdict"] = verdict
+			}
+			_, err = submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandReplyPosted, cfg.ServiceName, completedAt, payload)
 		}
 		if err == nil {
 			_, _, err = store.ReconcileWorkflowTrace(ctx.workflow.ID)
@@ -806,7 +834,7 @@ func workflowUserPeerID(entries []conversation.Entry, scopeKind string, scopeID 
 	return fmt.Sprintf("session:%s:%s", scopeKind, scopeID)
 }
 
-func draftSlackPostAction(cfg config.Config, store storepkg.Store, resumeQueue queue.QueueName, ctx workflowContext, output runnerutil.StructuredOutput, replyBody string, allowed bool, policyVerdict string, createdAt time.Time) (action.Intent, []events.TraceEvent, []events.ReasoningStep, error) {
+func draftSlackPostAction(cfg config.Config, store storepkg.Store, resumeQueue queue.QueueName, ctx workflowContext, output runnerutil.StructuredOutput, replyBody string, allowed bool, policyVerdict string, completionVerdict string, createdAt time.Time) (action.Intent, []events.TraceEvent, []events.ReasoningStep, error) {
 	proposed := firstSlackPostAction(output.ProposedActions)
 	if strings.TrimSpace(proposed.Kind) == "" {
 		return action.Intent{}, nil, nil, errors.New("explicit slack_post action is required")
@@ -824,6 +852,9 @@ func draftSlackPostAction(cfg config.Config, store storepkg.Store, resumeQueue q
 		"final_body":     firstNonEmpty(finalBody, replyBody),
 		"policy_verdict": policyVerdict,
 		"resume_queue":   string(resumeQueue),
+	}
+	if verdict := lastVerdictForWorkflowCompletion(completionVerdict, transition.CommandReplyPosted); verdict != "" {
+		requestPayload["last_verdict"] = verdict
 	}
 
 	approvalState := "approved"
@@ -894,6 +925,58 @@ func draftSlackPostAction(cfg config.Config, store storepkg.Store, resumeQueue q
 			Description: "Drafted explicit Slack reply action from runner-authored side-effect contract.",
 		},
 	}, reasoning, nil
+}
+
+func workflowCompletionVerdict(raw map[string]any) string {
+	verdict := strings.TrimSpace(stringValue(raw["completion_verdict"]))
+	if verdict == "" {
+		return "complete"
+	}
+	return verdict
+}
+
+func standardizePartialWorkflowReply(output runnerutil.StructuredOutput) runnerutil.StructuredOutput {
+	output.ReplyDraft = standardizePartialReplyBody(output.ReplyDraft)
+	output.FinalAnswer = standardizePartialReplyBody(output.FinalAnswer)
+	for idx := range output.ProposedActions {
+		if !strings.EqualFold(strings.TrimSpace(output.ProposedActions[idx].Kind), string(action.KindSlackPost)) {
+			continue
+		}
+		if output.ProposedActions[idx].RequestPayload == nil {
+			output.ProposedActions[idx].RequestPayload = map[string]any{}
+		}
+		for _, key := range []string{"body", "draft_body", "final_body"} {
+			value := strings.TrimSpace(stringValueFromMap(output.ProposedActions[idx].RequestPayload, key))
+			if value == "" {
+				continue
+			}
+			output.ProposedActions[idx].RequestPayload[key] = standardizePartialReplyBody(value)
+		}
+	}
+	return output
+}
+
+func standardizePartialReplyBody(body string) string {
+	trimmed := strings.TrimSpace(body)
+	if trimmed == "" {
+		return ""
+	}
+	if strings.HasPrefix(trimmed, partialCompletionNotice) {
+		return trimmed
+	}
+	return partialCompletionNotice + "\n\n" + trimmed
+}
+
+func lastVerdictForWorkflowCompletion(completionVerdict string, command transition.WorkflowCommandKind) string {
+	if strings.TrimSpace(completionVerdict) != "partial" {
+		return ""
+	}
+	switch command {
+	case transition.CommandReplyPosted, transition.CommandRunnerCompletedNoReply:
+		return "partial"
+	default:
+		return ""
+	}
 }
 
 func recentConversationEntries(items []conversation.Entry) []clients.RunnerConversationEntry {
@@ -1922,6 +2005,9 @@ func mergeWorkflowRunnerDiagnostics(base map[string]any, raw map[string]any) map
 		diagnostics = map[string]any{}
 	}
 	for _, key := range []string{
+		"completion_verdict",
+		"termination_reason",
+		"max_iterations_reached",
 		"candidate_read_surfaces",
 		"selected_context_surfaces",
 		"memory_warnings",

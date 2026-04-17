@@ -15,15 +15,16 @@ import (
 )
 
 const (
-	workflowFailureRunnerMissingStructuredOutput = "runner_missing_structured_output"
-	workflowFailureRunnerInvalidRequest          = "runner_invalid_request"
-	workflowFailureRunnerNonOK                   = "runner_non_ok"
-	workflowFailureRunnerPostProcessing          = "runner_post_processing_failure"
-	workflowFailureRunnerStateInvariant          = "runner_state_transition_invariant_failed"
-	workflowFailureRunnerTransportTimeout        = "runner_transport_timeout"
-	workflowFailureRunnerStructuredOutputParse   = "runner_structured_output_parse_failure"
-	workflowFailureToolGatewayTimeout            = "tool_gateway_timeout"
-	workflowFailureToolGatewayUnavailable        = "tool_gateway_unavailable"
+	workflowFailureRunnerMissingStructuredOutput  = "runner_missing_structured_output"
+	workflowFailureRunnerInvalidRequest           = "runner_invalid_request"
+	workflowFailureRunnerNonOK                    = "runner_non_ok"
+	workflowFailureRunnerIterationBudgetExhausted = "runner_iteration_budget_exhausted"
+	workflowFailureRunnerPostProcessing           = "runner_post_processing_failure"
+	workflowFailureRunnerStateInvariant           = "runner_state_transition_invariant_failed"
+	workflowFailureRunnerTransportTimeout         = "runner_transport_timeout"
+	workflowFailureRunnerStructuredOutputParse    = "runner_structured_output_parse_failure"
+	workflowFailureToolGatewayTimeout             = "tool_gateway_timeout"
+	workflowFailureToolGatewayUnavailable         = "tool_gateway_unavailable"
 )
 
 type workflowFailure struct {

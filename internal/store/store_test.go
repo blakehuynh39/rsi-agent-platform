@@ -697,6 +697,9 @@ func TestMemoryStoreSubmitCommandWorkflowCompletesThroughReducerStates(t *testin
 			CommandKind: string(transition.CommandReplyPosted),
 			CommandID:   "cmd-workflow-reply-posted",
 			OccurredAt:  now.Add(3 * time.Second),
+			Payload: map[string]any{
+				"last_verdict": "partial",
+			},
 		},
 	}
 	for _, command := range commands {
@@ -724,6 +727,9 @@ func TestMemoryStoreSubmitCommandWorkflowCompletesThroughReducerStates(t *testin
 	}
 	if trace.Summary.Status != events.StatusCompleted {
 		t.Fatalf("expected completed trace summary, got %s", trace.Summary.Status)
+	}
+	if trace.Summary.LastVerdict != "partial" {
+		t.Fatalf("expected partial trace verdict, got %q", trace.Summary.LastVerdict)
 	}
 	if len(trace.Events) != initialEvents+2 {
 		t.Fatalf("expected workflow started and completed events, got %d new events", len(trace.Events)-initialEvents)

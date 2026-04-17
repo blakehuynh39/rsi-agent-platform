@@ -3062,7 +3062,9 @@ func (s *MemoryStore) projectWorkflowTraceLocked(workflow Workflow, command tran
 		return nil
 	}
 	commandKind := transition.WorkflowCommandKind(command.CommandKind)
-	update := TraceUpdate{}
+	update := TraceUpdate{
+		LastVerdict: optionalStringFromCommand(command, "last_verdict"),
+	}
 	switch commandKind {
 	case transition.CommandWorkflowStarted:
 		if traceHasEventType(trace, "workflow.started") {
@@ -3177,7 +3179,7 @@ func (s *MemoryStore) projectWorkflowTraceLocked(workflow Workflow, command tran
 	default:
 		return nil
 	}
-	if update.Status == nil && len(update.Events) == 0 && len(update.Artifacts) == 0 && len(update.Reasoning) == 0 {
+	if update.Status == nil && update.LastVerdict == nil && len(update.Events) == 0 && len(update.Artifacts) == 0 && len(update.Reasoning) == 0 {
 		return nil
 	}
 	_, err := s.applyTraceUpdateLocked(traceID, update)
