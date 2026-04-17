@@ -1,7 +1,19 @@
 # syntax=docker/dockerfile:1.7
 FROM python:3.13-slim-bookworm
 
-ARG HONCHO_REF=v3.0.6
+ARG HONCHO_SOURCE_REPO=https://github.com/blakehuynh39/honcho.git
+ARG HONCHO_SOURCE_BRANCH=codex/first-principles-agentic-workflow-hardening
+ARG HONCHO_SOURCE_COMMIT=832c08f884f7f4d62ee196f2f377883c8fc5011e
+ARG HONCHO_UPSTREAM_REPO=https://github.com/plastic-labs/honcho.git
+
+LABEL org.opencontainers.image.title="rsi-agent-platform-honcho" \
+      org.opencontainers.image.description="Pinned Honcho fork build used for RSI stage memory services." \
+      org.opencontainers.image.source="https://github.com/piplabs/rsi-agent-platform" \
+      io.storyprotocol.rsi.honcho.source_repo="${HONCHO_SOURCE_REPO}" \
+      io.storyprotocol.rsi.honcho.source_branch="${HONCHO_SOURCE_BRANCH}" \
+      io.storyprotocol.rsi.honcho.source_commit="${HONCHO_SOURCE_COMMIT}" \
+      io.storyprotocol.rsi.honcho.upstream_repo="${HONCHO_UPSTREAM_REPO}" \
+      io.storyprotocol.rsi.honcho.fork_reason="RSI currently pins a user fork until the maintained Honcho delta moves into a piplabs-owned fork."
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends git ca-certificates && \
@@ -18,15 +30,15 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV HOME=/app
 
-RUN git clone --depth 1 --branch "${HONCHO_REF}" https://github.com/plastic-labs/honcho.git /tmp/honcho-src && \
+# Clone the pinned fork branch, then lock the build to the exact reviewed commit.
+RUN git clone --branch "${HONCHO_SOURCE_BRANCH}" "${HONCHO_SOURCE_REPO}" /tmp/honcho-src && \
+    cd /tmp/honcho-src && \
+    git checkout "${HONCHO_SOURCE_COMMIT}" && \
     mv /tmp/honcho-src /app
 
 WORKDIR /app
 
-COPY honcho/apply_rsi_overlay.py /tmp/apply_rsi_overlay.py
 COPY honcho/rsi-entrypoint.sh /app/docker/rsi-entrypoint.sh
-
-RUN python /tmp/apply_rsi_overlay.py /app && rm -f /tmp/apply_rsi_overlay.py
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-group dev && \

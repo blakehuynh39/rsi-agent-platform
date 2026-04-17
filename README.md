@@ -10,7 +10,7 @@ the Python execution runtime for live, proactive, eval, proposal, and repo-chang
 - `cmd/improvement-plane`: trace/review APIs, eval/proposal cron mode, and embedded eval UI
 - `internal/control`: control-plane HTTP APIs plus Slack socket-mode surface
 - `internal/*`: shared contracts, storage, registries, and review/event logic
-- `honcho/`: pinned self-hosted Honcho image build for stage memory services
+- `honcho/`: pinned self-hosted Honcho image build for stage memory services, with the custom fork source documented in [`honcho/README.md`](./honcho/README.md)
 - `runner/`: Python Hermes runner wrapper
 - `ui/eval-web`: React + Vite review UI
 - `sandbox/`: sandbox runtime image definition
@@ -92,6 +92,11 @@ The CD workflow builds and pushes six stage images on `main`:
 - `rsi-agent-platform-runner:runner-<sha>`
 - `rsi-agent-platform-honcho:honcho-<sha>`
 - `rsi-agent-platform-sandbox:sandbox-<sha>`
+
+The Honcho image is currently built from a pinned commit in
+`blakehuynh39/honcho`, not from a vanilla upstream image. See
+[`honcho/README.md`](./honcho/README.md) for the exact fork commit currently in
+use and the planned migration path to a dedicated `piplabs/honcho` fork.
 
 After pushing images, CD updates
 `storyprotocol/story-deployments:rsi-platform/rsi-agent-platform/use1-stage.yaml`

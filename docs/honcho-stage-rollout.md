@@ -38,6 +38,10 @@ self-hosted Honcho service in the RSI platform deployment.
 
 ## Notes
 
+- The stage Honcho image is currently a custom RSI build pinned to a commit in
+  `blakehuynh39/honcho`, not a vanilla upstream Honcho image. See
+  [`honcho/README.md`](../honcho/README.md) for the exact source commit and the
+  eventual migration target to a dedicated `piplabs/honcho` fork.
 - The stage chart owns the `standard-rwo` compatibility `StorageClass` because
   the cluster only exposes `gp3` natively and older runner PVCs still reference
   `standard-rwo`.
