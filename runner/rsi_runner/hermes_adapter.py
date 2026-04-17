@@ -130,17 +130,25 @@ def _default_payload(canonical_name: str, payload: JsonObject) -> JsonObject:
         out["topic"] = task_prompt or context_summary
         out["scope_id"] = task_repo
     if canonical_name == "slack.history":
-        if task_channel_id:
-            out["channel_id"] = task_channel_id
-        if task_thread_ts:
-            out["thread_ts"] = task_thread_ts
+        surface = _default_slack_surface(payload)
+        if surface.get("channel_id"):
+            out["channel_id"] = str(surface.get("channel_id", "")).strip()
+        if surface.get("thread_ts"):
+            out["thread_ts"] = str(surface.get("thread_ts", "")).strip()
         if task_prompt:
             out["question"] = task_prompt
     if canonical_name == "slack.search":
-        if task_channel_id:
-            out["channel_ids"] = [task_channel_id]
+        channel_ids = _default_slack_channel_ids(payload)
+        if channel_ids:
+            out["channel_ids"] = channel_ids
         if task_prompt:
             out["query"] = task_prompt
+    if canonical_name == "github.repo_activity":
+        since, until = _activity_window(payload)
+        if since:
+            out["since"] = since
+        if until:
+            out["until"] = until
     if canonical_name == "rsi.workflow_context":
         out["trace_id"] = trace_id
     if canonical_name == "rsi.action_chain":
@@ -161,11 +169,82 @@ def _default_payload(canonical_name: str, payload: JsonObject) -> JsonObject:
     return out
 
 
+def _candidate_read_surfaces(payload: JsonObject) -> list[JsonObject]:
+    refs = payload.get("context_refs") or []
+    seen: set[str] = set()
+    out: list[JsonObject] = []
+    for item in refs:
+        if not isinstance(item, dict):
+            continue
+        if str(item.get("kind", "")).strip() != "candidate_read_surface":
+            continue
+        candidate = {
+            "channel_id": str(item.get("channel_id", "")).strip(),
+            "thread_ts": str(item.get("thread_ts", "")).strip(),
+            "ref": str(item.get("ref", "")).strip(),
+            "source": str(item.get("source", "")).strip(),
+        }
+        if not candidate["channel_id"] and not candidate["thread_ts"] and not candidate["ref"]:
+            continue
+        encoded = json.dumps(candidate, sort_keys=True)
+        if encoded in seen:
+            continue
+        seen.add(encoded)
+        out.append(candidate)
+    task_channel_id = str(payload.get("task_channel_id", "") or payload.get("channel_id", "")).strip()
+    task_thread_ts = str(payload.get("task_thread_ts", "") or payload.get("thread_ts", "")).strip()
+    if task_channel_id:
+        fallback = {
+            "channel_id": task_channel_id,
+            "thread_ts": task_thread_ts,
+            "ref": "",
+            "source": "task_binding",
+        }
+        encoded = json.dumps(fallback, sort_keys=True)
+        if encoded not in seen:
+            out.insert(0, fallback)
+    return out
+
+
+def _default_slack_surface(payload: JsonObject) -> JsonObject:
+    candidates = _candidate_read_surfaces(payload)
+    if candidates:
+        return candidates[0]
+    return {}
+
+
+def _default_slack_channel_ids(payload: JsonObject) -> list[str]:
+    out: list[str] = []
+    seen: set[str] = set()
+    for item in _candidate_read_surfaces(payload):
+        channel_id = str(item.get("channel_id", "")).strip()
+        if not channel_id or channel_id in seen:
+            continue
+        seen.add(channel_id)
+        out.append(channel_id)
+    return out
+
+
+def _activity_window(payload: JsonObject) -> tuple[str, str]:
+    refs = payload.get("context_refs") or []
+    for item in refs:
+        if not isinstance(item, dict):
+            continue
+        if str(item.get("kind", "")).strip() != "repo_activity_window":
+            continue
+        since = str(item.get("since", "")).strip()
+        until = str(item.get("until", "")).strip()
+        if since or until:
+            return since, until
+    return "", ""
+
+
 def _tool_handler(transport_name: str):
     canonical_name = _TRANSPORT_TO_CANONICAL[transport_name]
 
     def handler(args: JsonObject, task_id: str = "", **kwargs):
         payload = _active_context(task_id=task_id, **kwargs)
+        session_id = str(task_id or kwargs.get("task_id", "") or kwargs.get("session_id", "")).strip()
         base_url = _base_url_from_context(payload)
         if not base_url:
             return json.dumps({
@@ -184,6 +263,15 @@ def _tool_handler(transport_name: str):
         request_payload = _default_payload(canonical_name, payload)
         if isinstance(args, dict):
             request_payload.update(args)
+        if canonical_name in {"slack.history", "slack.search"} and session_id:
+            _append_event(
+                session_id,
+                "tool_call",
+                {
+                    "tool_name": canonical_name,
+                    "request_payload": request_payload,
+                },
+            )
         req = urlrequest.Request(
             f"{base_url.rstrip('/')}/api/tools/{canonical_name}/execute",
             data=json.dumps(request_payload).encode("utf-8"),

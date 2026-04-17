@@ -51,9 +51,14 @@ type RunnerContextRef struct {
 	Kind                             string         `json:"kind"`
 	Ref                              string         `json:"ref,omitempty"`
 	Summary                          string         `json:"summary,omitempty"`
+	Source                           string         `json:"source,omitempty"`
 	ToolCallID                       string         `json:"tool_call_id,omitempty"`
 	ToolName                         string         `json:"tool_name,omitempty"`
 	Status                           string         `json:"status,omitempty"`
+	ChannelID                        string         `json:"channel_id,omitempty"`
+	ThreadTS                         string         `json:"thread_ts,omitempty"`
+	Since                            string         `json:"since,omitempty"`
+	Until                            string         `json:"until,omitempty"`
 	StepType                         string         `json:"step_type,omitempty"`
 	Decision                         string         `json:"decision,omitempty"`
 	Confidence                       float64        `json:"confidence,omitempty"`

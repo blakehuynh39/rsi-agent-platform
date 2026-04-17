@@ -928,9 +928,27 @@ func (s *Service) rsiWorkflowContext(input map[string]interface{}) storepkg.Tool
 			assignments = append(assignments, item)
 		}
 	}
+	var workflowLine interface{}
+	if workflow.CaseID != "" {
+		if item, ok := s.store.GetWorkflowLine(workflow.CaseID); ok {
+			workflowLine = item
+		}
+	}
+	workflowAttempts := make([]interface{}, 0)
+	for _, item := range s.store.ListWorkflows() {
+		if workflow.CaseID != "" && item.CaseID == workflow.CaseID {
+			workflowAttempts = append(workflowAttempts, item)
+			continue
+		}
+		if item.ID == workflow.ID || item.TraceID == workflow.TraceID {
+			workflowAttempts = append(workflowAttempts, item)
+		}
+	}
 	summary := fmt.Sprintf("RSI workflow context loaded for workflow %s.", workflow.ID)
 	return s.result("rsi.workflow_context", input, summary, map[string]interface{}{
 		"workflow":                    workflow,
+		"workflow_line":               workflowLine,
+		"workflow_attempts":           workflowAttempts,
 		"trace_summary":               trace.Summary,
 		"recent_conversation_entries": recentEntries,
 		"assignments":                 assignments,

@@ -117,22 +117,8 @@ func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
 	}
 
 	contextActions := queuedActionEffectsForPlane(store, "control")
-	if len(contextActions) < 2 {
-		t.Fatalf("expected multiple control actions for context collection, got %d", len(contextActions))
-	}
-	for _, item := range contextActions {
-		actionID := item.AggregateID
-		if receipt, ok := store.GetCommandReceipt(actionCommandID(actionID, transition.CommandActionQueue, "")); !ok || receipt.MachineKind != transition.MachineAction {
-			t.Fatalf("expected action_queued receipt for %s, got ok=%t receipt=%+v", actionID, ok, receipt)
-		}
-	}
-	for _, item := range contextActions {
-		if err := processControlActionEffect(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), item); err != nil {
-			t.Fatalf("processControlActionEffect(context) error = %v", err)
-		}
-	}
-	if toolCalls != len(contextActions) {
-		t.Fatalf("expected one context tool call per queued action, got calls=%d actions=%d", toolCalls, len(contextActions))
+	if len(contextActions) != 0 {
+		t.Fatalf("expected no deterministic context actions once live hints are seeded directly into Hermes, got %d", len(contextActions))
 	}
 
 	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
@@ -171,11 +157,24 @@ func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
 	if len(trace.Reasoning) < 4 {
 		t.Fatalf("expected visible reasoning to be recorded, got %d steps", len(trace.Reasoning))
 	}
-	if len(trace.ToolCalls) != len(contextActions) {
-		t.Fatalf("expected tool call records to be persisted, got %d", len(trace.ToolCalls))
+	if len(trace.ToolCalls) != 0 {
+		t.Fatalf("expected no deterministic prefetch tool records, got %d", len(trace.ToolCalls))
 	}
 	if len(trace.SlackActions) != 1 {
 		t.Fatalf("expected one slack action record, got %d", len(trace.SlackActions))
+	}
+	foundSeededEvent := false
+	for _, event := range trace.Events {
+		if event.EventType == "context.seeded" {
+			foundSeededEvent = true
+			break
+		}
+	}
+	if !foundSeededEvent {
+		t.Fatal("expected trace to record context.seeded for seeded-open runner hints")
+	}
+	if toolCalls != 0 {
+		t.Fatalf("expected no control-plane tool prefetch calls, got %d", toolCalls)
 	}
 
 	if len(store.ListEvalRuns()) == 0 {
@@ -340,13 +339,44 @@ func TestControlActionPersistenceFailureFinalizesTraceAndQueuesEval(t *testing.T
 	if err := startWorkflowViaCommand(cfg, baseStore, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
 		t.Fatalf("startWorkflowViaCommand() error = %v", err)
 	}
-
-	contextActions := queuedActionEffectsForPlane(baseStore, "control")
-	if len(contextActions) == 0 {
-		t.Fatal("expected queued control action effects")
+	ctx, err := loadWorkflowContext(baseStore, workflowItem)
+	if err != nil {
+		t.Fatalf("loadWorkflowContext() error = %v", err)
 	}
-	failingAction := contextActions[0]
-	failingIntentID := failingAction.AggregateID
+	intent, created, err := ensureActionIntent(baseStore, action.Intent{
+		OwnerPlane:     "control",
+		ConversationID: ctx.trace.Summary.ConversationID,
+		CaseID:         ctx.trace.Summary.CaseID,
+		TraceID:        ctx.trace.Summary.TraceID,
+		Kind:           action.KindSlackPost,
+		PhaseKey:       controlPhaseReplyPost,
+		TargetRef:      ctx.ingestion.ChannelID,
+		RequestPayload: map[string]any{
+			"channel_id":   ctx.ingestion.ChannelID,
+			"thread_ts":    ctx.ingestion.ThreadTS,
+			"body":         "Draft reply",
+			"draft_body":   "Draft reply",
+			"final_body":   "Draft reply",
+			"resume_queue": string(queue.WorkflowQueue),
+		},
+		IdempotencyKey: "reply-persistence-failure",
+		ApprovalMode:   ctx.workflow.ApprovalMode,
+		ApprovalState:  "approved",
+		PolicyVerdict:  "allowed",
+		Status:         action.StatusQueued,
+		RequestedBy:    cfg.ServiceName,
+		Rationale:      "Post the reply back to Slack.",
+		CreatedAt:      time.Now().UTC(),
+		UpdatedAt:      time.Now().UTC(),
+	})
+	if err != nil {
+		t.Fatalf("ensureActionIntent() error = %v", err)
+	}
+	if !created {
+		t.Fatal("expected reply action intent to be created")
+	}
+	failingIntentID := intent.ID
+	failingAction := firstQueuedActionEffectByKind(t, baseStore, "control", action.KindSlackPost)
 	store := &failingActionCommandStore{
 		Store:        baseStore,
 		FailActionID: failingIntentID,
@@ -358,7 +388,7 @@ func TestControlActionPersistenceFailureFinalizesTraceAndQueuesEval(t *testing.T
 		},
 	}
 
-	err := processControlActionEffect(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), failingAction)
+	err = processControlActionEffect(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), failingAction)
 	if err == nil {
 		t.Fatal("expected persistence failure to bubble up")
 	}
@@ -404,21 +434,6 @@ func TestControlActionPersistenceFailureFinalizesTraceAndQueuesEval(t *testing.T
 	if !foundFailureEvent {
 		t.Fatal("expected explicit action.persistence_failed trace event")
 	}
-	if len(contextActions) > 1 {
-		remainingAction := contextActions[1]
-		remainingIntentID := remainingAction.AggregateID
-		if err := processControlActionEffect(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), remainingAction); err != nil {
-			t.Fatalf("processControlActionEffect(remaining) error = %v", err)
-		}
-		remainingIntent, ok := baseStore.GetActionIntent(remainingIntentID)
-		if !ok {
-			t.Fatal("expected remaining action intent to exist")
-		}
-		if remainingIntent.Status != action.StatusCanceled {
-			t.Fatalf("expected remaining action to be canceled after terminal failure, got %s", remainingIntent.Status)
-		}
-	}
-
 	trace, _ = baseStore.GetTrace(workflowItem.traceID)
 	if trace.Summary.Status != "needs-human" {
 		t.Fatalf("expected terminal needs-human trace, got %s", trace.Summary.Status)
@@ -1057,7 +1072,7 @@ func TestBuildRunnerTaskDefersToRunnerDefaultTaskBudget(t *testing.T) {
 		DefaultReasoningVerbosity: "verbose",
 	}
 
-	task := buildRunnerTask(cfg, store, "prod", ctx.trace, ctx.workflow, ctx.ingestion, "Context collected.", nil, nil)
+	task := buildRunnerTask(cfg, store, "prod", ctx.trace, ctx.workflow, ctx.ingestion, "Context collected.", nil)
 	if task.TimeoutSeconds != 0 {
 		t.Fatalf("expected workflow runner task timeout override to be omitted, got %d", task.TimeoutSeconds)
 	}
@@ -1365,7 +1380,7 @@ func TestBuildRunnerTaskUsesConfiguredTimeoutAndSlackBinding(t *testing.T) {
 		DefaultRepo:               "rsi-agent-platform",
 		DefaultReasoningVerbosity: "verbose",
 		ProdRunnerTaskTimeout:     300 * time.Second,
-	}, store, "prod", trace, workflow, ingestion, "context", nil, []string{"repo.context"})
+	}, store, "prod", trace, workflow, ingestion, "context", nil)
 
 	if task.TimeoutSeconds != 0 {
 		t.Fatalf("task timeout = %d, want 0", task.TimeoutSeconds)

@@ -9,7 +9,7 @@ RUN apt-get update && \
 
 COPY --from=ghcr.io/astral-sh/uv:0.9.24 /uv /bin/uv
 
-WORKDIR /app
+WORKDIR /tmp
 
 ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
@@ -18,7 +18,10 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV HOME=/app
 
-RUN git clone --depth 1 --branch "${HONCHO_REF}" https://github.com/plastic-labs/honcho.git /app
+RUN git clone --depth 1 --branch "${HONCHO_REF}" https://github.com/plastic-labs/honcho.git /tmp/honcho-src && \
+    mv /tmp/honcho-src /app
+
+WORKDIR /app
 
 COPY honcho/apply_rsi_overlay.py /tmp/apply_rsi_overlay.py
 COPY honcho/rsi-entrypoint.sh /app/docker/rsi-entrypoint.sh

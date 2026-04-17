@@ -143,9 +143,9 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	if runnerClient == nil {
 		return fmt.Errorf("runner client unavailable for queue %s", queueName)
 	}
-	contextSummary, contextRefs, toolNames := contextFromTrace(ctx.trace)
+	contextSummary, contextRefs := contextFromTrace(ctx.trace)
 	runnerStarted := time.Now().UTC()
-	runnerTask := buildRunnerTask(cfg, store, runnerRoleForQueue(queueName), ctx.trace, ctx.workflow, ctx.ingestion, contextSummary, contextRefs, toolNames)
+	runnerTask := buildRunnerTask(cfg, store, runnerRoleForQueue(queueName), ctx.trace, ctx.workflow, ctx.ingestion, contextSummary, contextRefs)
 	runnerResp, err := runnerClient.Execute(runnerTask)
 	if err != nil {
 		return &workflowFailureError{failure: workflowFailureFromRunnerError(err)}
@@ -190,12 +190,22 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		return err
 	}
 
-	allowed, policyVerdict := replyPolicy(store, ctx.workflow.Kind, ctx.trace.Summary.ThreadKey, ctx.ingestion.ChannelID)
-	replyBody := firstNonEmpty(strings.TrimSpace(runnerOutput.FinalAnswer), strings.TrimSpace(runnerOutput.ReplyDraft), strings.TrimSpace(runnerResp.Message))
-	replyAction, draftEvents, draftReasoning, err := draftSlackPostAction(cfg, store, queueName, ctx, runnerOutput, replyBody, allowed, policyVerdict, runnerCompleted)
-	if err != nil {
-		return err
+	proposedReplyAction := firstSlackPostAction(runnerOutput.ProposedActions)
+	replyBody := firstNonEmpty(
+		strings.TrimSpace(runnerOutput.FinalAnswer),
+		strings.TrimSpace(runnerOutput.ReplyDraft),
+		strings.TrimSpace(stringValueFromMap(proposedReplyAction.RequestPayload, "body")),
+		strings.TrimSpace(stringValueFromMap(proposedReplyAction.RequestPayload, "final_body")),
+		strings.TrimSpace(stringValueFromMap(proposedReplyAction.RequestPayload, "draft_body")),
+		strings.TrimSpace(runnerResp.Message),
+	)
+	replyChannelID := firstNonEmpty(strings.TrimSpace(stringValueFromMap(proposedReplyAction.RequestPayload, "channel_id")), ctx.ingestion.ChannelID)
+	replyThreadTS := firstNonEmpty(strings.TrimSpace(stringValueFromMap(proposedReplyAction.RequestPayload, "thread_ts")), ctx.ingestion.ThreadTS)
+	replyThreadKey := ctx.trace.Summary.ThreadKey
+	if replyChannelID != ctx.ingestion.ChannelID || replyThreadTS != ctx.ingestion.ThreadTS {
+		replyThreadKey = ""
 	}
+	allowed, policyVerdict := replyPolicy(store, ctx.workflow.Kind, replyThreadKey, replyChannelID)
 
 	finalReasoning := runnerutil.ToTraceReasoning(ctx.trace.Summary.TraceID, ctx.trace.Summary.WorkflowID, runnerOutput, runnerCompleted)
 	if runnerOutput.SelfCritique != "" {
@@ -210,7 +220,6 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		})
 	}
 	finalReasoning = append(finalReasoning, outcomeHypothesisReasoning(ctx.trace, ctx.workflow, runnerOutput.OutcomeHypotheses, runnerCompleted)...)
-	finalReasoning = append(finalReasoning, draftReasoning...)
 	finalReasoning = append(finalReasoning, events.ReasoningStep{
 		ID:         fmt.Sprintf("reason-final-%d", runnerCompleted.UnixNano()),
 		TraceID:    ctx.trace.Summary.TraceID,
@@ -221,14 +230,71 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		Decision:   replyBody,
 		CreatedAt:  runnerCompleted,
 	})
-	runnerDescription := "Runner returned visible reasoning and drafted reply action."
-	if strings.TrimSpace(replyAction.ID) == "" {
-		runnerDescription = "Runner returned visible reasoning."
+	runnerDiagnostics := cloneStringAnyMap(mapValue(runnerResp.Raw["runner_diagnostics"]))
+	runnerDiagnostics = mergeWorkflowRunnerDiagnostics(runnerDiagnostics, runnerResp.Raw)
+	runnerEvents := []events.TraceEvent{
+		{
+			TraceID:     ctx.trace.Summary.TraceID,
+			IngestionID: ctx.trace.Summary.IngestionID,
+			WorkflowID:  ctx.trace.Summary.WorkflowID,
+			Plane:       "execution",
+			Service:     "runner",
+			Actor:       ctx.workflow.AssignedBot,
+			EventType:   "runner.completed",
+			Status:      events.StatusCompleted,
+			StartedAt:   runnerStarted,
+			EndedAt:     &runnerCompleted,
+			Description: "Runner returned visible reasoning.",
+		},
 	}
-	runnerCommand := transition.CommandRunnerCompleted
-	if strings.TrimSpace(replyAction.ID) == "" {
-		runnerCommand = transition.CommandRunnerCompletedNoReply
+	var (
+		replyAction  action.Intent
+		draftEvents  []events.TraceEvent
+		draftReasoning []events.ReasoningStep
+	)
+	if strings.TrimSpace(replyBody) != "" && strings.TrimSpace(proposedReplyAction.Kind) == "" {
+		finalReasoning = append(finalReasoning, events.ReasoningStep{
+			ID:         fmt.Sprintf("reason-action-contract-%d", runnerCompleted.UnixNano()),
+			TraceID:    ctx.trace.Summary.TraceID,
+			WorkflowID: ctx.trace.Summary.WorkflowID,
+			StepType:   "action_contract_blocked",
+			Summary:    "Runner produced a reply draft but omitted the required explicit slack_post action contract.",
+			Confidence: 0.95,
+			Decision:   "needs_human",
+			CreatedAt:  runnerCompleted,
+		})
+		runnerEvents[0].Description = "Runner returned visible reasoning and a reply draft but omitted the explicit slack_post action."
+		if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowBlocked, cfg.ServiceName, runnerCompleted, map[string]any{
+			"last_error":       "runner produced a reply without the required explicit slack_post action",
+			"failure_class":    "missing_explicit_action_contract",
+			"failure_summary":  "Runner produced a reply draft but omitted the required explicit slack_post action.",
+			"runner_diagnostics": runnerDiagnostics,
+			"repair_attempted": boolValue(runnerResp.Raw["repair_attempted"]),
+			"repair_succeeded": boolValue(runnerResp.Raw["repair_succeeded"]),
+			"trace_events":     runnerEvents,
+			"reasoning_steps":  finalReasoning,
+		}); err != nil {
+			return err
+		}
+		if _, _, err := store.ReconcileWorkflowTrace(ctx.workflow.ID); err != nil {
+			return err
+		}
+		return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner-blocked", ctx.trace.Summary.TraceID))
 	}
+	if strings.TrimSpace(proposedReplyAction.Kind) != "" {
+		replyAction, draftEvents, draftReasoning, err = draftSlackPostAction(cfg, store, queueName, ctx, runnerOutput, replyBody, allowed, policyVerdict, runnerCompleted)
+		if err != nil {
+			return err
+		}
+	}
+	finalReasoning = append(finalReasoning, draftReasoning...)
+	runnerDescription := "Runner returned visible reasoning."
+	runnerCommand := transition.CommandRunnerCompletedNoReply
+	if strings.TrimSpace(replyAction.ID) != "" {
+		runnerDescription = "Runner returned visible reasoning and an explicit Slack reply action."
+		runnerCommand = transition.CommandRunnerCompleted
+	}
+	runnerEvents[0].Description = runnerDescription
 	if ctx, err = refreshWorkflowContextState(store, ctx); err != nil {
 		return err
 	}
@@ -240,21 +306,8 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		"reply_action_id":  replyAction.ID,
 		"repair_attempted": boolValue(runnerResp.Raw["repair_attempted"]),
 		"repair_succeeded": boolValue(runnerResp.Raw["repair_succeeded"]),
-		"trace_events": append([]events.TraceEvent{
-			{
-				TraceID:     ctx.trace.Summary.TraceID,
-				IngestionID: ctx.trace.Summary.IngestionID,
-				WorkflowID:  ctx.trace.Summary.WorkflowID,
-				Plane:       "execution",
-				Service:     "runner",
-				Actor:       ctx.workflow.AssignedBot,
-				EventType:   "runner.completed",
-				Status:      events.StatusCompleted,
-				StartedAt:   runnerStarted,
-				EndedAt:     &runnerCompleted,
-				Description: runnerDescription,
-			},
-		}, draftEvents...),
+		"runner_diagnostics": runnerDiagnostics,
+		"trace_events":       append(runnerEvents, draftEvents...),
 		"reasoning_steps": finalReasoning,
 	}); err != nil {
 		return err
@@ -275,10 +328,10 @@ func submitWorkflowContextCompleted(cfg config.Config, store storepkg.Store, ctx
 	if isTerminalTraceStatus(ctx.trace.Summary.Status) {
 		return nil
 	}
-	contextSummary, contextRefs, toolNames := contextFromTrace(ctx.trace)
-	if len(toolNames) > 0 {
+	contextSummary, contextRefs := contextFromTrace(ctx.trace)
+	if len(contextRefs) > 0 {
 		if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandContextCompleted, cfg.ServiceName, occurredAt, map[string]any{
-			"tool_count":   len(toolNames),
+			"tool_count":   len(contextRefs),
 			"resume_queue": string(resumeQueue),
 			"trace_events": []events.TraceEvent{
 				{
@@ -315,7 +368,7 @@ func submitWorkflowContextCompleted(cfg config.Config, store storepkg.Store, ctx
 					Summary:      firstNonEmpty(contextSummary, "No external context tools were required."),
 					EvidenceRefs: evidenceRefsFromContext(contextRefs),
 					Confidence:   0.82,
-					Decision:     strings.Join(toolNames, ","),
+					Decision:     fmt.Sprintf("persisted_context_refs:%d", len(contextRefs)),
 					CreatedAt:    occurredAt,
 				},
 			},
@@ -624,7 +677,7 @@ func maybeAdvanceWorkflowPhaseFromAction(cfg config.Config, store storepkg.Store
 	}
 }
 
-func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace events.Trace, workflow storepkg.Workflow, ingestion slackpkg.Ingestion, contextSummary string, contextRefs []clients.RunnerContextRef, toolNames []string) clients.RunnerTask {
+func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace events.Trace, workflow storepkg.Workflow, ingestion slackpkg.Ingestion, contextSummary string, contextRefs []clients.RunnerContextRef) clients.RunnerTask {
 	effectiveHarness := harness.ResolveEffectiveConfig(store, role, cfg.DefaultReasoningVerbosity)
 	var caseSummary *clients.RunnerCaseSummary
 	if caseRecord, ok := store.GetCase(trace.Summary.CaseID); ok {
@@ -643,23 +696,43 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	recentEntries := recentConversationEntries(store.ListConversationEntries(trace.Summary.ConversationID))
 	priorTraceRefs := priorTraceRefsForCase(store.ListTraces(), trace.Summary.CaseID, trace.Summary.TraceID)
 	sessionScopeKind, sessionScopeID, parentScopeKind, parentScopeID := workflowSessionScope(trace, workflow)
+	liveHints := workflowplan.BuildLiveHints(workflowplan.RuntimeConfig{
+		DefaultRepo:      cfg.DefaultRepo,
+		AllowedRepos:     append([]string(nil), cfg.AllowedTargetRepos...),
+		KnowledgeBaseURL: cfg.DefaultKnowledgeBaseURL,
+		SandboxNamespace: cfg.SandboxNamespace,
+	}, workflowplan.RequestContext{
+		Trace:          trace.Summary,
+		WorkflowID:     workflow.ID,
+		ConversationID: workflow.ConversationID,
+		CaseID:         workflow.CaseID,
+		WorkflowKind:   workflow.Kind,
+		AssignedBot:    workflow.AssignedBot,
+		Question:       ingestion.Text,
+		ChannelID:      ingestion.ChannelID,
+		ThreadTS:       ingestion.ThreadTS,
+	}, time.Now().UTC())
+	hintRefs := liveHintContextRefs(liveHints)
+	combinedContextRefs := append(append([]clients.RunnerContextRef{}, contextRefs...), hintRefs...)
+	combinedContextSummary := joinContextSummary(contextSummary, liveHintSummary(liveHints))
 	systemMessage := harness.ComposeSystemMessage(
-		"Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, and outcome_hypotheses. Do not assume actions from prose; emit them explicitly.",
+		"Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, and outcome_hypotheses. Start from persisted evidence, then choose governed tools and tool order yourself. If you intend to reply in Slack, you must emit an explicit proposed action with kind=slack_post; prose alone is not enough.",
 		effectiveHarness,
 	)
-	prompt := fmt.Sprintf("User request: %s\n\nRespond in-thread for intent=%s. Use the gathered context and cite concrete evidence when possible. If unsure, say so explicitly.", ingestion.Text, workflow.Intent)
+	prompt := fmt.Sprintf("User request: %s\n\nInvestigate within the governed read-only tool boundary. Start with the persisted evidence already attached to the session, then expand with tools as needed. Cite concrete evidence when possible. If you reply in Slack, default to the ingress thread unless you explicitly choose another governed target and policy allows it.", ingestion.Text)
+	repo := firstNonEmpty(liveHints.Repo, cfg.DefaultRepo)
 	return clients.RunnerTask{
 		TaskType:                  "workflow",
-		Repo:                      cfg.DefaultRepo,
+		Repo:                      repo,
 		RepoRef:                   "main",
 		Prompt:                    prompt,
 		SystemMessage:             systemMessage,
-		AllowedTools:              harness.ApplyToolPreference(toolNames, effectiveHarness.ToolPreferenceOrder),
+		AllowedTools:              nil,
 		AllowedCommands:           []string{},
 		TimeoutSeconds:            0,
 		ExpectedOutputs:           []string{"visible_reasoning", "final_answer"},
 		ArtifactDestination:       fmt.Sprintf("trace:%s", trace.Summary.TraceID),
-		ContextSummary:            contextSummary,
+		ContextSummary:            combinedContextSummary,
 		Intent:                    workflow.Intent,
 		TraceID:                   trace.Summary.TraceID,
 		WorkflowID:                trace.Summary.WorkflowID,
@@ -672,9 +745,9 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		CaseSummary:               caseSummary,
 		PriorTraceRefs:            priorTraceRefs,
 		RepoAllowlist:             cfg.AllowedTargetRepos,
-		ToolAllowlist:             harness.ApplyToolPreference(toolNames, effectiveHarness.ToolPreferenceOrder),
+		ToolAllowlist:             nil,
 		ResponseMode:              workflow.ResponseMode,
-		ContextRefs:               contextRefs,
+		ContextRefs:               combinedContextRefs,
 		ApprovalMode:              workflow.ApprovalMode,
 		ReasoningVerbosity:        effectiveHarness.ReasoningVerbosity,
 		RejectedProposalContext:   []clients.RunnerRejectedProposalContext{},
@@ -712,13 +785,20 @@ func workflowUserPeerID(entries []conversation.Entry, scopeKind string, scopeID 
 
 func draftSlackPostAction(cfg config.Config, store storepkg.Store, resumeQueue queue.QueueName, ctx workflowContext, output runnerutil.StructuredOutput, replyBody string, allowed bool, policyVerdict string, createdAt time.Time) (action.Intent, []events.TraceEvent, []events.ReasoningStep, error) {
 	proposed := firstSlackPostAction(output.ProposedActions)
+	if strings.TrimSpace(proposed.Kind) == "" {
+		return action.Intent{}, nil, nil, errors.New("explicit slack_post action is required")
+	}
+	channelID := firstNonEmpty(strings.TrimSpace(stringValueFromMap(proposed.RequestPayload, "channel_id")), ctx.ingestion.ChannelID)
+	threadTS := firstNonEmpty(strings.TrimSpace(stringValueFromMap(proposed.RequestPayload, "thread_ts")), ctx.ingestion.ThreadTS)
+	draftBody := firstNonEmpty(strings.TrimSpace(stringValueFromMap(proposed.RequestPayload, "draft_body")), output.ReplyDraft, replyBody)
+	finalBody := firstNonEmpty(strings.TrimSpace(stringValueFromMap(proposed.RequestPayload, "final_body")), strings.TrimSpace(stringValueFromMap(proposed.RequestPayload, "body")), replyBody)
 	idempotencyKey := firstNonEmpty(proposed.IdempotencyKey, fmt.Sprintf("%s:%s:%s", ctx.ingestion.ChannelID, ctx.ingestion.ThreadTS, ctx.trace.Summary.TraceID))
 	requestPayload := map[string]any{
-		"channel_id":     ctx.ingestion.ChannelID,
-		"thread_ts":      ctx.ingestion.ThreadTS,
-		"body":           replyBody,
-		"draft_body":     firstNonEmpty(output.ReplyDraft, replyBody),
-		"final_body":     replyBody,
+		"channel_id":     channelID,
+		"thread_ts":      threadTS,
+		"body":           firstNonEmpty(finalBody, replyBody),
+		"draft_body":     draftBody,
+		"final_body":     firstNonEmpty(finalBody, replyBody),
 		"policy_verdict": policyVerdict,
 		"resume_queue":   string(resumeQueue),
 	}
@@ -726,21 +806,7 @@ func draftSlackPostAction(cfg config.Config, store storepkg.Store, resumeQueue q
 	approvalState := "approved"
 	resolvedPolicyVerdict := policyVerdict
 	reasoning := []events.ReasoningStep{}
-	if proposed.Kind == "" {
-		approvalState = "missing_explicit_action"
-		resolvedPolicyVerdict = "missing_explicit_action"
-		requestPayload["blocked_reason"] = "missing_explicit_action"
-		reasoning = append(reasoning, events.ReasoningStep{
-			ID:         fmt.Sprintf("reason-slack-blocked-%d", createdAt.UnixNano()),
-			TraceID:    ctx.trace.Summary.TraceID,
-			WorkflowID: ctx.trace.Summary.WorkflowID,
-			StepType:   "action_blocked",
-			Summary:    "Blocked Slack posting because the runner did not emit an explicit slack_post action.",
-			Confidence: 0.95,
-			Decision:   "needs_human",
-			CreatedAt:  createdAt,
-		})
-	} else if !allowed {
+	if !allowed {
 		approvalState = "policy_blocked"
 		requestPayload["blocked_reason"] = policyVerdict
 		reasoning = append(reasoning, events.ReasoningStep{
@@ -775,7 +841,7 @@ func draftSlackPostAction(cfg config.Config, store storepkg.Store, resumeQueue q
 		TraceID:        ctx.trace.Summary.TraceID,
 		Kind:           action.KindSlackPost,
 		PhaseKey:       controlPhaseReplyPost,
-		TargetRef:      firstNonEmpty(proposed.TargetRef, ctx.ingestion.ChannelID),
+		TargetRef:      firstNonEmpty(proposed.TargetRef, channelID),
 		RequestPayload: requestPayload,
 		IdempotencyKey: idempotencyKey,
 		ApprovalMode:   ctx.workflow.ApprovalMode,
@@ -802,7 +868,7 @@ func draftSlackPostAction(cfg config.Config, store storepkg.Store, resumeQueue q
 			EventType:   "slack.reply.drafted",
 			Status:      events.StatusQueued,
 			StartedAt:   createdAt,
-			Description: "Drafted explicit Slack reply action.",
+			Description: "Drafted explicit Slack reply action from runner-authored side-effect contract.",
 		},
 	}, reasoning, nil
 }
@@ -1243,11 +1309,10 @@ func toolInputForIntent(cfg config.Config, trace events.TraceSummary, workflow s
 	}, time.Now().UTC())
 }
 
-func contextFromTrace(trace events.Trace) (string, []clients.RunnerContextRef, []string) {
-	contextRefs := make([]clients.RunnerContextRef, 0, len(trace.ToolCalls))
-	summaries := make([]string, 0, len(trace.ToolCalls))
-	toolNames := make([]string, 0, len(trace.ToolCalls))
-	for _, call := range trace.ToolCalls {
+func contextFromTrace(trace events.Trace) (string, []clients.RunnerContextRef) {
+	contextRefs := make([]clients.RunnerContextRef, 0, len(trace.ToolCalls)+len(trace.Reasoning)+len(trace.Events)+len(trace.SlackActions))
+	summaries := make([]string, 0, len(trace.ToolCalls)+len(trace.Reasoning)+len(trace.Events)+len(trace.SlackActions))
+	for _, call := range tailToolCalls(trace.ToolCalls, 8) {
 		contextRefs = append(contextRefs, clients.RunnerContextRef{
 			Kind:       "tool_call",
 			Ref:        firstNonEmpty(call.ToolCallID, call.ID),
@@ -1257,14 +1322,45 @@ func contextFromTrace(trace events.Trace) (string, []clients.RunnerContextRef, [
 			Status:     string(call.Status),
 		})
 		summaries = append(summaries, call.Summary)
-		if call.ToolName != "" {
-			toolNames = append(toolNames, call.ToolName)
-		}
 	}
-	if len(toolNames) == 0 {
-		toolNames = workflowplan.ToolPlan(trace.Summary.WorkflowKind, "", "", "", "")
+	for _, step := range tailReasoning(trace.Reasoning, 6) {
+		contextRefs = append(contextRefs, clients.RunnerContextRef{
+			Kind:       "reasoning_step",
+			Ref:        step.ID,
+			Summary:    step.Summary,
+			StepType:   step.StepType,
+			Decision:   step.Decision,
+			Confidence: step.Confidence,
+			TraceID:    step.TraceID,
+		})
+		summaries = append(summaries, step.Summary)
 	}
-	return strings.Join(summaries, " "), contextRefs, uniqueStrings(toolNames)
+	for _, event := range tailTraceEvents(trace.Events, 6) {
+		contextRefs = append(contextRefs, clients.RunnerContextRef{
+			Kind:        "trace_event",
+			Ref:         event.EventType,
+			Summary:     event.Description,
+			Status:      string(event.Status),
+			Plane:       event.Plane,
+			Service:     event.Service,
+			Description: event.Description,
+			TraceID:     event.TraceID,
+		})
+		summaries = append(summaries, event.Description)
+	}
+	for _, slackAction := range tailSlackActions(trace.SlackActions, 4) {
+		contextRefs = append(contextRefs, clients.RunnerContextRef{
+			Kind:      "slack_action",
+			Ref:       firstNonEmpty(slackAction.IdempotencyKey, slackAction.ID),
+			Summary:   firstNonEmpty(slackAction.FinalBody, slackAction.DraftBody),
+			Status:    slackAction.SendStatus,
+			ChannelID: slackAction.ChannelID,
+			ThreadTS:  slackAction.ThreadTS,
+			TraceID:   slackAction.TraceID,
+		})
+		summaries = append(summaries, firstNonEmpty(slackAction.FinalBody, slackAction.DraftBody))
+	}
+	return strings.Join(uniqueStrings(summaries), " "), contextRefs
 }
 
 func workflowOutcomeForTrace(store storepkg.Store, traceID string) (events.Status, string, string) {
@@ -1697,6 +1793,109 @@ func workflowTraceStatusMismatch(workflowStatus string, traceStatus events.Statu
 	}
 }
 
+func liveHintContextRefs(hints workflowplan.LiveHintSet) []clients.RunnerContextRef {
+	refs := make([]clients.RunnerContextRef, 0, 2+len(hints.PreferredTools)+len(hints.CandidateReadSurfaces))
+	if repo := strings.TrimSpace(hints.Repo); repo != "" {
+		refs = append(refs, clients.RunnerContextRef{
+			Kind:    "repo_target",
+			Ref:     repo,
+			Repo:    repo,
+			Summary: fmt.Sprintf("Target repository for live investigation: %s.", repo),
+		})
+	}
+	if hints.Since != "" && hints.Until != "" {
+		refs = append(refs, clients.RunnerContextRef{
+			Kind:    "repo_activity_window",
+			Ref:     fmt.Sprintf("%s..%s", hints.Since, hints.Until),
+			Summary: fmt.Sprintf("Suggested repository activity window from %s to %s.", hints.Since, hints.Until),
+			Since:   hints.Since,
+			Until:   hints.Until,
+		})
+	}
+	for _, toolName := range uniqueStrings(hints.PreferredTools) {
+		refs = append(refs, clients.RunnerContextRef{
+			Kind:     "preferred_tool_hint",
+			Ref:      toolName,
+			ToolName: toolName,
+			Summary:  fmt.Sprintf("Suggested starting tool: %s.", toolName),
+		})
+	}
+	for _, surface := range hints.CandidateReadSurfaces {
+		refs = append(refs, clients.RunnerContextRef{
+			Kind:      "candidate_read_surface",
+			Ref:       firstNonEmpty(surface.Ref, fmt.Sprintf("%s:%s", surface.ChannelID, surface.ThreadTS)),
+			Summary:   slackSurfaceHintSummary(surface),
+			Source:    surface.Source,
+			ChannelID: surface.ChannelID,
+			ThreadTS:  surface.ThreadTS,
+		})
+	}
+	return refs
+}
+
+func liveHintSummary(hints workflowplan.LiveHintSet) string {
+	parts := make([]string, 0, 4)
+	if repo := strings.TrimSpace(hints.Repo); repo != "" {
+		parts = append(parts, fmt.Sprintf("Target repo: %s.", repo))
+	}
+	if len(hints.CandidateReadSurfaces) > 0 {
+		parts = append(parts, fmt.Sprintf("Candidate Slack read surfaces: %d.", len(hints.CandidateReadSurfaces)))
+	}
+	if len(hints.PreferredTools) > 0 {
+		parts = append(parts, fmt.Sprintf("Preferred starting tools: %s.", strings.Join(uniqueStrings(hints.PreferredTools), ", ")))
+	}
+	if hints.Since != "" && hints.Until != "" {
+		parts = append(parts, fmt.Sprintf("Suggested repo-activity window: %s to %s.", hints.Since, hints.Until))
+	}
+	return strings.Join(parts, " ")
+}
+
+func slackSurfaceHintSummary(surface workflowplan.SlackSurfaceHint) string {
+	switch {
+	case strings.TrimSpace(surface.ChannelID) != "" && strings.TrimSpace(surface.ThreadTS) != "":
+		return fmt.Sprintf("Candidate Slack surface from %s: channel %s thread %s.", firstNonEmpty(surface.Source, "hint"), surface.ChannelID, surface.ThreadTS)
+	case strings.TrimSpace(surface.ChannelID) != "":
+		return fmt.Sprintf("Candidate Slack surface from %s: channel %s.", firstNonEmpty(surface.Source, "hint"), surface.ChannelID)
+	case strings.TrimSpace(surface.Ref) != "":
+		return fmt.Sprintf("Candidate Slack surface from %s: %s.", firstNonEmpty(surface.Source, "hint"), surface.Ref)
+	default:
+		return "Candidate Slack surface."
+	}
+}
+
+func joinContextSummary(parts ...string) string {
+	out := make([]string, 0, len(parts))
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+		out = append(out, part)
+	}
+	return strings.Join(out, "\n\n")
+}
+
+func mergeWorkflowRunnerDiagnostics(base map[string]any, raw map[string]any) map[string]any {
+	diagnostics := cloneStringAnyMap(base)
+	if diagnostics == nil {
+		diagnostics = map[string]any{}
+	}
+	for _, key := range []string{
+		"candidate_read_surfaces",
+		"selected_context_surfaces",
+		"memory_warnings",
+		"action_contract_repair_attempted",
+		"action_contract_repair_succeeded",
+		"action_contract_repair_error",
+		"action_contract_repair_response",
+	} {
+		if value, ok := raw[key]; ok && value != nil {
+			diagnostics[key] = value
+		}
+	}
+	return diagnostics
+}
+
 func queueNameFromString(raw string) queue.QueueName {
 	switch strings.TrimSpace(raw) {
 	case string(queue.ProactiveQueue):
@@ -1706,6 +1905,34 @@ func queueNameFromString(raw string) queue.QueueName {
 	default:
 		return queue.WorkflowQueue
 	}
+}
+
+func tailToolCalls(items []events.ToolCallRecord, limit int) []events.ToolCallRecord {
+	if len(items) <= limit {
+		return items
+	}
+	return items[len(items)-limit:]
+}
+
+func tailReasoning(items []events.ReasoningStep, limit int) []events.ReasoningStep {
+	if len(items) <= limit {
+		return items
+	}
+	return items[len(items)-limit:]
+}
+
+func tailTraceEvents(items []events.TraceEvent, limit int) []events.TraceEvent {
+	if len(items) <= limit {
+		return items
+	}
+	return items[len(items)-limit:]
+}
+
+func tailSlackActions(items []events.SlackActionRecord, limit int) []events.SlackActionRecord {
+	if len(items) <= limit {
+		return items
+	}
+	return items[len(items)-limit:]
 }
 
 func uniqueStrings(values []string) []string {

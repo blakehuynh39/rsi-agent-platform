@@ -36,6 +36,7 @@ class SessionContext:
 class MemoryTracker:
     reads: list[JsonObject] = field(default_factory=list)
     writes: list[JsonObject] = field(default_factory=list)
+    warnings: list[JsonObject] = field(default_factory=list)
 
     def record_read(self, kind: str, summary: str, source: str = "", ref: str = "") -> None:
         text = (summary or "").strip()
@@ -48,6 +49,12 @@ class MemoryTracker:
         if not text:
             return
         self.writes.append({"kind": kind, "summary": text, "source": source, "ref": ref})
+
+    def record_warning(self, kind: str, summary: str, source: str = "", ref: str = "") -> None:
+        text = (summary or "").strip()
+        if not text:
+            return
+        self.warnings.append({"kind": kind, "summary": text, "source": source, "ref": ref})
 
 
 class RunnerTaskLike(Protocol):
@@ -133,7 +140,16 @@ class SessionManager:
         original_prefetch = getattr(memory_manager, "prefetch_all", None)
         if callable(original_prefetch):
             def tracked_prefetch(query: str, *, session_id: str = "") -> str:
-                result = original_prefetch(query, session_id=session_id)
+                try:
+                    result = original_prefetch(query, session_id=session_id)
+                except Exception as exc:
+                    tracker.record_warning(
+                        "memory_prefetch_failed",
+                        truncate_text(str(exc), 320),
+                        source=self._config.memory_backend,
+                        ref=session_id or context.session_id,
+                    )
+                    return ""
                 if result and str(result).strip():
                     tracker.record_read("memory_prefetch", truncate_text(str(result), 800), source=self._config.memory_backend, ref=session_id or context.session_id)
                 return result
@@ -144,7 +160,16 @@ class SessionManager:
             def tracked_sync(user_content: str, assistant_content: str, *, session_id: str = "") -> None:
                 tracker.record_write("memory_sync_user", truncate_text(user_content, 320), source=self._config.memory_backend, ref=session_id or context.session_id)
                 tracker.record_write("memory_sync_assistant", truncate_text(assistant_content, 320), source=self._config.memory_backend, ref=session_id or context.session_id)
-                return original_sync(user_content, assistant_content, session_id=session_id)
+                try:
+                    return original_sync(user_content, assistant_content, session_id=session_id)
+                except Exception as exc:
+                    tracker.record_warning(
+                        "memory_sync_failed",
+                        truncate_text(str(exc), 320),
+                        source=self._config.memory_backend,
+                        ref=session_id or context.session_id,
+                    )
+                    return None
             memory_manager.sync_all = tracked_sync
         return tracker
 
@@ -173,6 +198,7 @@ class SessionManager:
             "session_db_path": context.session_db_path,
             "memory_reads": tracker.reads,
             "memory_writes": tracker.writes,
+            "memory_warnings": tracker.warnings,
         }
 
     def _get_db(self) -> Any:

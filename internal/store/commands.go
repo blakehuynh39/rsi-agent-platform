@@ -311,20 +311,55 @@ func (s *MemoryStore) appendWorkflowPlanningCommandsLocked(bundle *transitionPer
 	}
 	planning := workflowPlanningConfigFromCommand(parent)
 	resumeQueue := firstNonEmpty(stringFromCommand(parent, "resume_queue"), string(queue.WorkflowQueue))
-	repo := workflowplan.ResolveTargetRepo(planning, strings.TrimSpace(ingestion.Text))
-	toolNames := workflowplan.ToolPlan(workflow.Intent, strings.TrimSpace(ingestion.Text), repo, ingestion.ChannelID, ingestion.ThreadTS)
-	if len(toolNames) == 0 {
-		appendFollowOnCommand(bundle, parent, transition.CommandEnvelope{
-			MachineKind: transition.MachineWorkflow,
-			AggregateID: workflow.ID,
-			CommandKind: string(transition.CommandContextSkipped),
-			CommandID:   storeWorkflowCommandID(workflow.ID, transition.CommandContextSkipped),
-			Actor:       parent.Actor,
-			OccurredAt:  parent.OccurredAt,
-			Payload: map[string]any{
-				"tool_count":   0,
-				"resume_queue": resumeQueue,
-				"trace_events": []events.TraceEvent{{
+	hints := workflowplan.BuildLiveHints(planning, workflowplan.RequestContext{
+		Trace:          trace.Summary,
+		WorkflowID:     workflow.ID,
+		ConversationID: workflow.ConversationID,
+		CaseID:         workflow.CaseID,
+		WorkflowKind:   workflow.Kind,
+		AssignedBot:    workflow.AssignedBot,
+		Question:       strings.TrimSpace(ingestion.Text),
+		ChannelID:      ingestion.ChannelID,
+		ThreadTS:       ingestion.ThreadTS,
+	}, parent.OccurredAt)
+	summaryParts := make([]string, 0, 4)
+	if repo := strings.TrimSpace(hints.Repo); repo != "" {
+		summaryParts = append(summaryParts, fmt.Sprintf("Target repo: %s.", repo))
+	}
+	if len(hints.CandidateReadSurfaces) > 0 {
+		summaryParts = append(summaryParts, fmt.Sprintf("Candidate Slack read surfaces: %d.", len(hints.CandidateReadSurfaces)))
+	}
+	if len(hints.PreferredTools) > 0 {
+		summaryParts = append(summaryParts, fmt.Sprintf("Preferred starting tools: %s.", strings.Join(hints.PreferredTools, ", ")))
+	}
+	if hints.Since != "" && hints.Until != "" {
+		summaryParts = append(summaryParts, fmt.Sprintf("Suggested repo-activity window: %s to %s.", hints.Since, hints.Until))
+	}
+	seedSummary := firstNonEmpty(strings.Join(summaryParts, " "), "Seeded Hermes with governed live-investigation hints and delegated tool order to the runner.")
+	appendFollowOnCommand(bundle, parent, transition.CommandEnvelope{
+		MachineKind: transition.MachineWorkflow,
+		AggregateID: workflow.ID,
+		CommandKind: string(transition.CommandContextSkipped),
+		CommandID:   storeWorkflowCommandID(workflow.ID, transition.CommandContextSkipped),
+		Actor:       parent.Actor,
+		OccurredAt:  parent.OccurredAt,
+		Payload: map[string]any{
+			"tool_count":   0,
+			"resume_queue": resumeQueue,
+			"trace_events": []events.TraceEvent{
+				{
+					TraceID:     trace.Summary.TraceID,
+					IngestionID: trace.Summary.IngestionID,
+					WorkflowID:  trace.Summary.WorkflowID,
+					Plane:       "control",
+					Service:     firstNonEmpty(parent.Actor, "control-plane"),
+					Actor:       workflow.AssignedBot,
+					EventType:   "context.seeded",
+					Status:      events.StatusCompleted,
+					StartedAt:   parent.OccurredAt,
+					Description: seedSummary,
+				},
+				{
 					TraceID:     trace.Summary.TraceID,
 					IngestionID: trace.Summary.IngestionID,
 					WorkflowID:  trace.Summary.WorkflowID,
@@ -334,85 +369,23 @@ func (s *MemoryStore) appendWorkflowPlanningCommandsLocked(bundle *transitionPer
 					EventType:   "runner.started",
 					Status:      events.StatusRunning,
 					StartedAt:   parent.OccurredAt,
-					Description: "Runner task dispatched with verbose reasoning enabled.",
-				}},
-			},
-		}, "workflow planning determined no context actions were required")
-		return nil
-	}
-
-	traceEvents := make([]events.TraceEvent, 0, len(toolNames))
-	for _, toolName := range toolNames {
-		traceEvents = append(traceEvents, events.TraceEvent{
-			TraceID:     trace.Summary.TraceID,
-			IngestionID: trace.Summary.IngestionID,
-			WorkflowID:  trace.Summary.WorkflowID,
-			Plane:       "control",
-			Service:     "tool-gateway",
-			Actor:       workflow.AssignedBot,
-			EventType:   "tool.requested",
-			Status:      events.StatusQueued,
-			StartedAt:   parent.OccurredAt,
-			Description: fmt.Sprintf("Requested %s.", toolName),
-		})
-	}
-	appendFollowOnCommand(bundle, parent, transition.CommandEnvelope{
-		MachineKind: transition.MachineWorkflow,
-		AggregateID: workflow.ID,
-		CommandKind: string(transition.CommandContextActionsQueued),
-		CommandID:   storeWorkflowCommandID(workflow.ID, transition.CommandContextActionsQueued),
-		Actor:       parent.Actor,
-		OccurredAt:  parent.OccurredAt,
-		Payload: map[string]any{
-			"tool_count":   len(toolNames),
-			"resume_queue": resumeQueue,
-			"trace_events": traceEvents,
-		},
-	}, "workflow planning queued context actions")
-
-	for _, toolName := range toolNames {
-		idempotencyKey := fmt.Sprintf("%s:%s:%s", trace.Summary.TraceID, toolName, trace.Summary.TriggerEventID)
-		actionID := storeActionIntentIDFromIdempotencyKey(idempotencyKey)
-		appendFollowOnCommand(bundle, parent, transition.CommandEnvelope{
-			MachineKind: transition.MachineAction,
-			AggregateID: actionID,
-			CommandKind: string(transition.CommandActionQueue),
-			CommandID:   storeActionCommandID(actionID, transition.CommandActionQueue, ""),
-			Actor:       firstNonEmpty(parent.Actor, "control-plane"),
-			OccurredAt:  parent.OccurredAt,
-			Payload: map[string]any{
-				"owner_plane":     "control",
-				"conversation_id": trace.Summary.ConversationID,
-				"case_id":         trace.Summary.CaseID,
-				"trace_id":        trace.Summary.TraceID,
-				"kind":            string(action.KindToolRead),
-				"phase_key":       "collect_context",
-				"target_ref":      toolName,
-				"request_payload": mergeCommandMetadataPayload(
-					workflowplan.BuildToolRequestPayload(planning, workflowplan.RequestContext{
-						Trace:          trace.Summary,
-						WorkflowID:     workflow.ID,
-						ConversationID: workflow.ConversationID,
-						CaseID:         workflow.CaseID,
-						WorkflowKind:   workflow.Kind,
-						AssignedBot:    workflow.AssignedBot,
-						Question:       strings.TrimSpace(ingestion.Text),
-						ChannelID:      ingestion.ChannelID,
-						ThreadTS:       ingestion.ThreadTS,
-					}, parent.OccurredAt),
-					map[string]any{"resume_queue": resumeQueue},
-				),
-				"idempotency_key": idempotencyKey,
-				"approval_mode":   "not_required",
-				"approval_state":  "not_required",
-				"requested_by":    firstNonEmpty(parent.Actor, "control-plane"),
-				"rationale":       fmt.Sprintf("Collect context via %s.", toolName),
-				"evidence_refs": []events.EvidenceRef{
-					{Kind: "trace", Ref: trace.Summary.TraceID, Summary: trace.Summary.WorkflowKind},
+					Description: "Runner task dispatched with seeded governed context and open tool choice.",
 				},
 			},
-		}, "workflow planning queued context action")
-	}
+			"reasoning_steps": []events.ReasoningStep{
+				{
+					ID:         fmt.Sprintf("reason-live-hints-%d", parent.OccurredAt.UnixNano()),
+					TraceID:    trace.Summary.TraceID,
+					WorkflowID: trace.Summary.WorkflowID,
+					StepType:   "context_seeded",
+					Summary:    seedSummary,
+					Confidence: 0.83,
+					Decision:   "runner_selects_tool_order",
+					CreatedAt:  parent.OccurredAt,
+				},
+			},
+		},
+	}, "workflow planning seeded governed hints and let Hermes investigate directly")
 	return nil
 }
 
@@ -1937,7 +1910,13 @@ func persistCommandMutation(tx *sql.Tx, store *MemoryStore, result commandApplyR
 		if !ok {
 			return errors.New("workflow not found for persistence")
 		}
-		return replaceWorkflowScope(tx, workflow)
+		if err := replaceWorkflowScope(tx, workflow); err != nil {
+			return err
+		}
+		if strings.TrimSpace(workflow.TraceID) == "" {
+			return nil
+		}
+		return replaceTraceScope(tx, store, workflow.TraceID)
 	case transition.MachineWorkflowLine:
 		line, ok := store.workflowLines[result.receipt.AggregateID]
 		if !ok {
@@ -1960,7 +1939,16 @@ func persistCommandMutation(tx *sql.Tx, store *MemoryStore, result commandApplyR
 		if err := replaceActionIntentScope(tx, intent); err != nil {
 			return err
 		}
-		return replaceActionResultScope(tx, store, intent.ID)
+		if err := replaceActionResultScope(tx, store, intent.ID); err != nil {
+			return err
+		}
+		if strings.TrimSpace(intent.TraceID) == "" {
+			return nil
+		}
+		if _, ok := store.traces[intent.TraceID]; !ok {
+			return nil
+		}
+		return replaceTraceScope(tx, store, intent.TraceID)
 	case transition.MachineProblemLine:
 		switch transition.ProblemLineCommandKind(result.receipt.CommandKind) {
 		case transition.CommandProblemLineEvaluateTrace:
@@ -3107,9 +3095,11 @@ func (s *MemoryStore) projectWorkflowTraceLocked(workflow Workflow, command tran
 		}
 	case transition.CommandContextActionsQueued, transition.CommandContextSkipped, transition.CommandContextCompleted:
 		update.Events = append(update.Events, traceEventsFromCommand(command, "trace_events")...)
+		update.Artifacts = append(update.Artifacts, traceArtifactsFromCommand(command, "trace_artifacts")...)
 		update.Reasoning = append(update.Reasoning, reasoningStepsFromCommand(command, "reasoning_steps")...)
 	case transition.CommandRunnerCompleted:
 		update.Events = append(update.Events, traceEventsFromCommand(command, "trace_events")...)
+		update.Artifacts = append(update.Artifacts, traceArtifactsFromCommand(command, "trace_artifacts")...)
 		update.Reasoning = append(update.Reasoning, reasoningStepsFromCommand(command, "reasoning_steps")...)
 	case transition.CommandWorkflowBlocked:
 		if traceHasEventType(trace, "workflow.blocked") {
@@ -3133,6 +3123,8 @@ func (s *MemoryStore) projectWorkflowTraceLocked(workflow Workflow, command tran
 			Description: workflowLastErrorForCommand(command),
 		}}
 		update.Events = append(update.Events, traceEventsFromCommand(command, "trace_events")...)
+		update.Artifacts = append(update.Artifacts, traceArtifactsFromCommand(command, "trace_artifacts")...)
+		update.Reasoning = append(update.Reasoning, reasoningStepsFromCommand(command, "reasoning_steps")...)
 	case transition.CommandWorkflowFailed:
 		if traceHasEventType(trace, "workflow.failed") {
 			if trace.Summary.Status != events.StatusFailed {
@@ -3154,6 +3146,9 @@ func (s *MemoryStore) projectWorkflowTraceLocked(workflow Workflow, command tran
 			StartedAt:   command.OccurredAt,
 			Description: workflowLastErrorForCommand(command),
 		}}
+		update.Events = append(update.Events, traceEventsFromCommand(command, "trace_events")...)
+		update.Artifacts = append(update.Artifacts, traceArtifactsFromCommand(command, "trace_artifacts")...)
+		update.Reasoning = append(update.Reasoning, reasoningStepsFromCommand(command, "reasoning_steps")...)
 	case transition.CommandReplyPosted, transition.CommandRunnerCompletedNoReply:
 		if traceHasEventType(trace, "workflow.completed") {
 			if trace.Summary.Status != events.StatusCompleted {
@@ -3175,12 +3170,13 @@ func (s *MemoryStore) projectWorkflowTraceLocked(workflow Workflow, command tran
 			StartedAt:   command.OccurredAt,
 			Description: "Workflow completed.",
 		}}
+		update.Artifacts = append(update.Artifacts, traceArtifactsFromCommand(command, "trace_artifacts")...)
 		update.Events = append(traceEventsFromCommand(command, "trace_events"), update.Events...)
 		update.Reasoning = append(update.Reasoning, reasoningStepsFromCommand(command, "reasoning_steps")...)
 	default:
 		return nil
 	}
-	if update.Status == nil && len(update.Events) == 0 && len(update.Reasoning) == 0 {
+	if update.Status == nil && len(update.Events) == 0 && len(update.Artifacts) == 0 && len(update.Reasoning) == 0 {
 		return nil
 	}
 	_, err := s.applyTraceUpdateLocked(traceID, update)

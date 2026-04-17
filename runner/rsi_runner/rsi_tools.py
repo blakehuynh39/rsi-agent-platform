@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import json
 from typing import Any, Iterable, Protocol
 from urllib import error as urlerror
@@ -534,6 +534,7 @@ class ReadOnlyToolBinding:
     attempt_id: str = ""
     workspace_id: str = ""
     timeout_seconds: int = 30
+    selected_context_surfaces: list[JsonObject] = field(default_factory=list)
 
     def has_tool(self, name: str) -> bool:
         try:
@@ -553,6 +554,7 @@ class ReadOnlyToolBinding:
         canonical_name = canonical_tool_name(name)
         payload = self._default_payload(canonical_name)
         payload.update(args or {})
+        self._record_tool_selection(canonical_name, payload)
         req = urlrequest.Request(
             f"{self.base_url.rstrip('/')}/api/tools/{canonical_name}/execute",
             data=json.dumps(payload).encode("utf-8"),
@@ -618,6 +620,12 @@ class ReadOnlyToolBinding:
             }
         )
 
+    def diagnostics(self) -> JsonObject:
+        return {
+            "candidate_read_surfaces": self._candidate_read_surfaces(),
+            "selected_context_surfaces": list(self.selected_context_surfaces),
+        }
+
     def _default_payload(self, name: str) -> JsonObject:
         payload: JsonObject = {}
         if self.trace_id:
@@ -633,8 +641,9 @@ class ReadOnlyToolBinding:
             payload["topic"] = self.task_prompt or self.task_context_summary
             payload["scope_id"] = self.task_repo
         if name == "slack.history":
-            channel_id = self.task_channel_id or self._channel_id_from_context_refs()
-            thread_ts = self.task_thread_ts or self._thread_ts_from_context_refs()
+            surface = self._default_slack_surface()
+            channel_id = surface.get("channel_id", "")
+            thread_ts = surface.get("thread_ts", "")
             if channel_id:
                 payload["channel_id"] = channel_id
             if thread_ts:
@@ -642,11 +651,17 @@ class ReadOnlyToolBinding:
             if self.task_prompt:
                 payload["question"] = self.task_prompt
         if name == "slack.search":
-            channel_id = self.task_channel_id or self._channel_id_from_context_refs()
-            if channel_id:
-                payload["channel_ids"] = [channel_id]
+            channel_ids = self._default_slack_channel_ids()
+            if channel_ids:
+                payload["channel_ids"] = channel_ids
             if self.task_prompt:
                 payload["query"] = self.task_prompt
+        if name == "github.repo_activity":
+            since, until = self._activity_window_from_context_refs()
+            if since:
+                payload["since"] = since
+            if until:
+                payload["until"] = until
         if name == "rsi.workflow_context":
             payload["trace_id"] = self.trace_id
         if name == "rsi.action_chain":
@@ -668,6 +683,31 @@ class ReadOnlyToolBinding:
                 payload["attempt_id"] = self.attempt_id
         return payload
 
+    def _record_tool_selection(self, name: str, payload: JsonObject) -> None:
+        if name not in {"slack.history", "slack.search"}:
+            return
+        surface: JsonObject = {"tool_name": name}
+        if name == "slack.search":
+            channel_ids = payload.get("channel_ids")
+            if isinstance(channel_ids, list):
+                normalized = [str(item).strip() for item in channel_ids if str(item).strip()]
+                if normalized:
+                    surface["channel_ids"] = normalized
+                    surface["channel_id"] = normalized[0]
+        else:
+            channel_id = str(payload.get("channel_id", "")).strip()
+            thread_ts = str(payload.get("thread_ts", "")).strip()
+            if channel_id:
+                surface["channel_id"] = channel_id
+            if thread_ts:
+                surface["thread_ts"] = thread_ts
+        if len(surface) == 1:
+            return
+        encoded = json.dumps(surface, sort_keys=True)
+        existing = {json.dumps(item, sort_keys=True) for item in self.selected_context_surfaces}
+        if encoded not in existing:
+            self.selected_context_surfaces.append(surface)
+
     def _attempt_id_from_context_refs(self) -> str:
         for item in self.context_refs:
             if str(item.get("kind", "")).strip() != "change_attempt":
@@ -677,19 +717,70 @@ class ReadOnlyToolBinding:
                 return ref
         return ""
 
-    def _channel_id_from_context_refs(self) -> str:
+    def _candidate_read_surfaces(self) -> list[JsonObject]:
+        seen: set[str] = set()
+        out: list[JsonObject] = []
         for item in self.context_refs:
+            if str(item.get("kind", "")).strip() != "candidate_read_surface":
+                continue
             channel_id = str(item.get("channel_id", "")).strip()
-            if channel_id:
-                return channel_id
-        return ""
-
-    def _thread_ts_from_context_refs(self) -> str:
-        for item in self.context_refs:
             thread_ts = str(item.get("thread_ts", "")).strip()
-            if thread_ts:
-                return thread_ts
-        return ""
+            ref = str(item.get("ref", "")).strip()
+            if not channel_id and not thread_ts and not ref:
+                continue
+            candidate = {
+                "channel_id": channel_id,
+                "thread_ts": thread_ts,
+                "ref": ref,
+                "source": str(item.get("source", "")).strip(),
+            }
+            encoded = json.dumps(candidate, sort_keys=True)
+            if encoded in seen:
+                continue
+            seen.add(encoded)
+            out.append(candidate)
+        if self.task_channel_id:
+            fallback = {
+                "channel_id": self.task_channel_id,
+                "thread_ts": self.task_thread_ts,
+                "ref": "",
+                "source": "task_binding",
+            }
+            encoded = json.dumps(fallback, sort_keys=True)
+            if encoded not in seen:
+                out.insert(0, fallback)
+        return out
+
+    def _default_slack_surface(self) -> JsonObject:
+        candidates = self._candidate_read_surfaces()
+        if candidates:
+            return candidates[0]
+        return {
+            "channel_id": self.task_channel_id,
+            "thread_ts": self.task_thread_ts,
+            "source": "task_binding",
+        }
+
+    def _default_slack_channel_ids(self) -> list[str]:
+        out: list[str] = []
+        seen: set[str] = set()
+        for item in self._candidate_read_surfaces():
+            channel_id = str(item.get("channel_id", "")).strip()
+            if not channel_id or channel_id in seen:
+                continue
+            seen.add(channel_id)
+            out.append(channel_id)
+        return out
+
+    def _activity_window_from_context_refs(self) -> tuple[str, str]:
+        for item in self.context_refs:
+            if str(item.get("kind", "")).strip() != "repo_activity_window":
+                continue
+            since = str(item.get("since", "")).strip()
+            until = str(item.get("until", "")).strip()
+            if since or until:
+                return since, until
+        return "", ""
 
 
 class CompositeToolProvider:

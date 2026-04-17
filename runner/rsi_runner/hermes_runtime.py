@@ -686,6 +686,7 @@ class HermesRuntime:
             lifecycle_events = self._adapter.lifecycle_events(context.session_id)
             if timed_out:
                 finalized = self._session_manager.finalize(context, tracker)
+                observed = self._observability_metadata(agent, task, tracker)
                 timeout_kind = string_from_map(timeout_meta, "timeout_kind")
                 timeout_message = f"Hermes execution timed out after {effective_task_timeout}s."
                 if timeout_kind == "inactivity_timeout":
@@ -706,6 +707,7 @@ class HermesRuntime:
                         "tool_allowlist_effective": tool_policy.effective,
                         "tool_transport_allowlist_effective": tool_policy.transport_effective,
                         "blocked_tool_names": tool_policy.blocked,
+                        **observed,
                         "failure_class": "runner_transport_timeout",
                         "runner_diagnostics": self._runner_diagnostics(
                             tool_policy,
@@ -718,6 +720,7 @@ class HermesRuntime:
                             session_ready_issues=self._session_manager.ready_issues,
                             repair_attempted=False,
                             repair_succeeded=False,
+                            observed=observed,
                         ),
                         "lifecycle_events": lifecycle_events,
                         "termination_reason": timeout_kind or "task_timeout",
@@ -727,6 +730,7 @@ class HermesRuntime:
         except Exception as exc:
             diagnostics = self._provider_invalid_request_diagnostics(str(exc), tool_policy)
             activity = safe_activity_summary(agent) if agent is not None else {}
+            observed = self._observability_metadata(agent, task)
             raw = {
                 **self._base_raw(prompt=task.prompt, system_message=task.system_message),
                 "error": str(exc),
@@ -735,10 +739,14 @@ class HermesRuntime:
                 "tool_transport_allowlist_effective": tool_policy.transport_effective,
                 "tool_transport_map": tool_policy.custom_tool_transport_map,
                 "blocked_tool_names": tool_policy.blocked,
+                **observed,
             }
             if diagnostics is not None:
                 raw["failure_class"] = "runner_invalid_request"
-                raw["runner_diagnostics"] = diagnostics
+                merged = dict(diagnostics)
+                for key, value in observed.items():
+                    merged[key] = value
+                raw["runner_diagnostics"] = merged
             else:
                 raw["failure_class"] = "runner_non_ok"
                 raw["runner_diagnostics"] = self._runner_diagnostics(
@@ -751,6 +759,7 @@ class HermesRuntime:
                     session_ready_issues=self._session_manager.ready_issues,
                     repair_attempted=False,
                     repair_succeeded=False,
+                    observed=observed,
                 )
             return HermesExecutionResult(
                 ok=False,
@@ -761,6 +770,7 @@ class HermesRuntime:
 
         finalized = self._session_manager.finalize(context, tracker)
         lifecycle_events = self._adapter.lifecycle_events(context.session_id)
+        observed = self._observability_metadata(agent, task, tracker)
         return HermesExecutionResult(
             ok=True,
             message=response,
@@ -777,6 +787,8 @@ class HermesRuntime:
                 "tool_transport_allowlist_effective": tool_policy.transport_effective,
                 "tool_transport_map": tool_policy.custom_tool_transport_map,
                 "blocked_tool_names": tool_policy.blocked,
+                **observed,
+                "runner_diagnostics": observed,
                 "lifecycle_events": lifecycle_events,
                 "termination_reason": "normal_completion",
                 "max_iterations_reached": False,
@@ -833,6 +845,7 @@ class HermesRuntime:
         session_ready_issues: list[str] | None = None,
         repair_attempted: bool | None = None,
         repair_succeeded: bool | None = None,
+        observed: JsonObject | None = None,
     ) -> JsonObject:
         diagnostics: JsonObject = {
             "failure_kind": failure_kind,
@@ -875,12 +888,62 @@ class HermesRuntime:
             diagnostics["repair_attempted"] = repair_attempted
         if repair_succeeded is not None:
             diagnostics["repair_succeeded"] = repair_succeeded
+        for key, value in (observed or {}).items():
+            diagnostics[key] = value
         return diagnostics
+
+    def _candidate_read_surfaces_for_task(self, task: RunnerTaskRequest) -> list[JsonObject]:
+        surfaces: list[JsonObject] = []
+        seen: set[str] = set()
+        for item in task.context_refs:
+            if str(item.get("kind", "")).strip() != "candidate_read_surface":
+                continue
+            candidate = {
+                "channel_id": str(item.get("channel_id", "")).strip(),
+                "thread_ts": str(item.get("thread_ts", "")).strip(),
+                "ref": str(item.get("ref", "")).strip(),
+                "source": str(item.get("source", "")).strip(),
+            }
+            if not candidate["channel_id"] and not candidate["thread_ts"] and not candidate["ref"]:
+                continue
+            encoded = json.dumps(candidate, sort_keys=True)
+            if encoded in seen:
+                continue
+            seen.add(encoded)
+            surfaces.append(candidate)
+        if task.channel_id:
+            fallback = {
+                "channel_id": task.channel_id,
+                "thread_ts": task.thread_ts or "",
+                "ref": "",
+                "source": "task_binding",
+            }
+            encoded = json.dumps(fallback, sort_keys=True)
+            if encoded not in seen:
+                surfaces.insert(0, fallback)
+        return surfaces
+
+    def _observability_metadata(self, agent: Any | None, task: RunnerTaskRequest, tracker: Any | None = None) -> JsonObject:
+        observed: JsonObject = {
+            "candidate_read_surfaces": self._candidate_read_surfaces_for_task(task),
+            "selected_context_surfaces": [],
+            "memory_warnings": [],
+        }
+        binding = getattr(agent, "_rsi_readonly_tool_binding", None) if agent is not None else None
+        diagnostics = getattr(binding, "diagnostics", None)
+        if callable(diagnostics):
+            payload = diagnostics()
+            if isinstance(payload, dict):
+                observed.update(payload)
+        if tracker is not None and hasattr(tracker, "warnings"):
+            observed["memory_warnings"] = list(getattr(tracker, "warnings", []) or [])
+        return observed
 
     def _preflight_tool_policy_failure(self, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> HermesExecutionResult | None:
         _, _, invalid_tool_names = _transport_tool_policy(tool_policy.custom_tools, tool_policy.memory_tools)
         if not invalid_tool_names:
             return None
+        observed = self._observability_metadata(None, task)
         diagnostics = self._runner_diagnostics(
             tool_policy,
             failure_kind="invalid_request",
@@ -890,6 +953,7 @@ class HermesRuntime:
             invalid_tool_names=invalid_tool_names,
             repair_attempted=False,
             repair_succeeded=False,
+            observed=observed,
         )
         return HermesExecutionResult(
             ok=False,
@@ -902,6 +966,7 @@ class HermesRuntime:
                 "tool_transport_allowlist_effective": tool_policy.transport_effective,
                 "tool_transport_map": tool_policy.custom_tool_transport_map,
                 "blocked_tool_names": tool_policy.blocked,
+                **observed,
                 "failure_class": "runner_invalid_request",
                 "runner_diagnostics": diagnostics,
                 "repair_attempted": False,
@@ -1000,6 +1065,7 @@ class HermesRuntime:
     def _attach_tool_policy(self, agent: Any, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> None:
         current_tools = list(getattr(agent, "tools", []) or [])
         current_valid = set(getattr(agent, "valid_tool_names", set()) or set())
+        setattr(agent, "_rsi_readonly_tool_binding", None)
         native_governed_tools = self._native_governed_tools_enabled(task)
         allowed_names = set(tool_policy.effective)
         filtered_tools = current_tools
@@ -1035,9 +1101,10 @@ class HermesRuntime:
                 attempt_id=task.attempt_id or "",
                 workspace_id=task.workspace_id or "",
             )
+            setattr(agent, "_rsi_readonly_tool_binding", readonly_tools)
             agent._memory_manager = CompositeToolProvider(getattr(agent, "_memory_manager", None), readonly_tools)
         elif getattr(agent, "_memory_manager", None) is not None:
-            agent._memory_manager = CompositeToolProvider(getattr(agent, "_memory_manager", None), ReadOnlyToolBinding(
+            readonly_tools = ReadOnlyToolBinding(
                 base_url=self._config.tool_gateway_base_url or "",
                 allowed_tool_names=[],
                 task_repo=task.repo,
@@ -1053,7 +1120,9 @@ class HermesRuntime:
                 execution_mode=task.execution_mode or "",
                 attempt_id=task.attempt_id or "",
                 workspace_id=task.workspace_id or "",
-            ))
+            )
+            setattr(agent, "_rsi_readonly_tool_binding", readonly_tools)
+            agent._memory_manager = CompositeToolProvider(getattr(agent, "_memory_manager", None), readonly_tools)
         effective_names = set(tool_policy.effective)
         current_valid = {name for name in current_valid if name in effective_names and name not in BLOCKED_HONCHO_TOOLS}
         current_valid.update(custom_transport_names)
@@ -1154,14 +1223,17 @@ class HermesRuntime:
         if not result.ok:
             return result
         if invalid_request := self._provider_invalid_request_diagnostics(result.message, tool_policy):
+            diagnostics = dict(invalid_request)
+            for key, value in _json_object_or_empty(result.raw.get("runner_diagnostics")).items():
+                diagnostics[key] = value
             return HermesExecutionResult(
                 ok=False,
-                message=string_from_map(invalid_request, "provider_error_message") or "Provider rejected the runner request.",
+                message=string_from_map(diagnostics, "provider_error_message") or "Provider rejected the runner request.",
                 provider=result.provider,
                 raw={
                     **result.raw,
                     "failure_class": "runner_invalid_request",
-                    "runner_diagnostics": invalid_request,
+                    "runner_diagnostics": diagnostics,
                     "raw_response": result.message,
                     "repair_attempted": False,
                     "repair_succeeded": False,
@@ -1185,6 +1257,8 @@ class HermesRuntime:
                 if repair_result.ok:
                     if invalid_request := self._provider_invalid_request_diagnostics(repair_result.message, tool_policy):
                         diagnostics = dict(invalid_request)
+                        for key, value in _json_object_or_empty(repair_result.raw.get("runner_diagnostics")).items():
+                            diagnostics[key] = value
                         diagnostics["repair_attempted"] = True
                         diagnostics["repair_succeeded"] = False
                         return HermesExecutionResult(
@@ -1230,6 +1304,7 @@ class HermesRuntime:
                                     provider_error_message=str(repair_exc),
                                     repair_attempted=True,
                                     repair_succeeded=False,
+                                    observed=_json_object_or_empty(repair_result.raw.get("runner_diagnostics")),
                                 ),
                                 "structured_output_error": str(repair_exc),
                                 "raw_response": repair_result.message,
@@ -1276,6 +1351,7 @@ class HermesRuntime:
                             provider_error_message=str(exc),
                             repair_attempted=False,
                             repair_succeeded=False,
+                            observed=_json_object_or_empty(result.raw.get("runner_diagnostics")),
                         ),
                         "structured_output_error": str(exc),
                         "raw_response": result.message,
@@ -1283,6 +1359,39 @@ class HermesRuntime:
                         "repair_succeeded": False,
                     },
                 )
+        action_contract_repair_attempted = False
+        action_contract_repair_succeeded = False
+        action_contract_repair_error = ""
+        action_contract_repair_response = ""
+        if self._workflow_missing_explicit_reply_action(task, structured_output):
+            action_contract_repair_attempted = True
+            logger.info(
+                "workflow runner action-contract repair attempted trace_id=%s workflow_id=%s",
+                task.trace_id or "",
+                task.workflow_id or "",
+            )
+            repair_task = self._build_action_contract_repair_task(rendered_task, structured_output)
+            repair_result = self._execute_task_request(repair_task, tool_policy)
+            action_contract_repair_response = repair_result.message
+            if repair_result.ok:
+                try:
+                    repaired_output = self._extract_structured_output(repair_result.message)
+                except HermesStructuredOutputError as exc:
+                    action_contract_repair_error = str(exc)
+                else:
+                    if not self._workflow_missing_explicit_reply_action(task, repaired_output):
+                        structured_output = repaired_output
+                        result = repair_result
+                        action_contract_repair_succeeded = True
+                        logger.info(
+                            "workflow runner action-contract repair succeeded trace_id=%s workflow_id=%s",
+                            task.trace_id or "",
+                            task.workflow_id or "",
+                        )
+                    else:
+                        action_contract_repair_error = "Hermes repair response still omitted the required slack_post action."
+            else:
+                action_contract_repair_error = repair_result.message
         result.raw = {
             **result.raw,
             "role": self._role,
@@ -1327,10 +1436,25 @@ class HermesRuntime:
             "allowed_path_globs": task.allowed_path_globs,
             "repair_attempted": repair_attempted,
             "repair_succeeded": repair_succeeded,
+            "action_contract_repair_attempted": action_contract_repair_attempted,
+            "action_contract_repair_succeeded": action_contract_repair_succeeded,
             "structured_output": structured_output,
         }
         if repair_attempted:
             result.raw["repair_original_response"] = initial_response
+        runner_diagnostics = _json_object_or_empty(result.raw.get("runner_diagnostics"))
+        runner_diagnostics["candidate_read_surfaces"] = result.raw.get("candidate_read_surfaces", [])
+        runner_diagnostics["selected_context_surfaces"] = result.raw.get("selected_context_surfaces", [])
+        runner_diagnostics["memory_warnings"] = result.raw.get("memory_warnings", [])
+        runner_diagnostics["action_contract_repair_attempted"] = action_contract_repair_attempted
+        runner_diagnostics["action_contract_repair_succeeded"] = action_contract_repair_succeeded
+        if action_contract_repair_error:
+            result.raw["action_contract_repair_error"] = action_contract_repair_error
+            runner_diagnostics["action_contract_repair_error"] = action_contract_repair_error
+        if action_contract_repair_response:
+            result.raw["action_contract_repair_response"] = action_contract_repair_response
+            runner_diagnostics["action_contract_repair_response"] = action_contract_repair_response
+        result.raw["runner_diagnostics"] = runner_diagnostics
         return result
 
     def _render_task_prompt(self, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> str:
@@ -1466,6 +1590,34 @@ class HermesRuntime:
                 "Do not include markdown, explanations, code fences, or any text before or after the JSON object.",
                 "Previous invalid response:",
                 raw_response,
+            ]
+        )
+        return replace(task, prompt=repair_prompt)
+
+    def _workflow_missing_explicit_reply_action(self, task: RunnerTaskRequest, structured_output: JsonObject) -> bool:
+        if task.task_type != "workflow":
+            return False
+        final_answer = _string_or_json(structured_output.get("final_answer"))
+        reply_draft = _string_or_json(structured_output.get("reply_draft"))
+        if not final_answer and not reply_draft:
+            return False
+        for item in _normalize_proposed_actions(structured_output.get("proposed_actions")):
+            if _string_or_json(item.get("kind")) == "slack_post":
+                return False
+        return True
+
+    def _build_action_contract_repair_task(self, task: RunnerTaskRequest, structured_output: JsonObject) -> RunnerTaskRequest:
+        repair_prompt = "\n".join(
+            [
+                task.prompt,
+                "",
+                "Repair instruction: your previous structured output included a grounded reply but omitted the required explicit slack_post action.",
+                "Re-emit the full JSON object.",
+                "Preserve the final_answer and reply_draft unless a correction is required.",
+                "Include exactly one proposed action with kind=slack_post and a request_payload that carries the reply body.",
+                "Return only valid JSON with no markdown or surrounding commentary.",
+                "Previous structured output:",
+                json.dumps(structured_output, ensure_ascii=True, sort_keys=True),
             ]
         )
         return replace(task, prompt=repair_prompt)
