@@ -136,6 +136,11 @@ def _default_payload(canonical_name: str, payload: JsonObject) -> JsonObject:
             out["thread_ts"] = task_thread_ts
         if task_prompt:
             out["question"] = task_prompt
+    if canonical_name == "slack.search":
+        if task_channel_id:
+            out["channel_ids"] = [task_channel_id]
+        if task_prompt:
+            out["query"] = task_prompt
     if canonical_name == "rsi.workflow_context":
         out["trace_id"] = trace_id
     if canonical_name == "rsi.action_chain":

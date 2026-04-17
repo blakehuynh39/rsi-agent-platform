@@ -81,6 +81,20 @@ _READ_ONLY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
             },
         },
     },
+    "slack.search": {
+        "name": "slack.search",
+        "description": "Read-only Slack message search bounded to allowed channels and a time window.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string"},
+                "channel_ids": {"type": "array", "items": {"type": "string"}},
+                "since": {"type": "string"},
+                "until": {"type": "string"},
+                "limit": {"type": "integer"},
+            },
+        },
+    },
     "github.repo_activity": {
         "name": "github.repo_activity",
         "description": "Read-only GitHub activity window lookup for commits and pull requests.",
@@ -220,6 +234,18 @@ _READ_ONLY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
         "parameters": {
             "type": "object",
             "properties": {},
+        },
+    },
+    "rsi.runtime_deployment_facts": {
+        "name": "rsi.runtime_deployment_facts",
+        "description": "Read-only RSI deployment and runtime-configuration facts, including live Kubernetes deployment state when available.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "namespace": {"type": "string"},
+                "services": {"type": "array", "items": {"type": "string"}},
+                "service": {"type": "string"},
+            },
         },
     },
     "rsi.proposal_memory": {
@@ -615,6 +641,12 @@ class ReadOnlyToolBinding:
                 payload["thread_ts"] = thread_ts
             if self.task_prompt:
                 payload["question"] = self.task_prompt
+        if name == "slack.search":
+            channel_id = self.task_channel_id or self._channel_id_from_context_refs()
+            if channel_id:
+                payload["channel_ids"] = [channel_id]
+            if self.task_prompt:
+                payload["query"] = self.task_prompt
         if name == "rsi.workflow_context":
             payload["trace_id"] = self.trace_id
         if name == "rsi.action_chain":

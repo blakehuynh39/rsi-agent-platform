@@ -26,6 +26,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/sandbox"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -85,6 +86,8 @@ func (s *Service) Execute(name string, input map[string]interface{}) storepkg.To
 		return s.slackReply(input)
 	case "slack.history":
 		return s.slackHistory(input)
+	case "slack.search":
+		return s.slackSearch(input)
 	case "github.create_pr":
 		return s.githubCreatePR(input)
 	case "github.repo_context":
@@ -105,6 +108,8 @@ func (s *Service) Execute(name string, input map[string]interface{}) storepkg.To
 		return s.rsiRuntimeConfig(input)
 	case "rsi.runtime_health":
 		return s.rsiRuntimeHealth(input)
+	case "rsi.runtime_deployment_facts":
+		return s.rsiRuntimeDeploymentFacts(input)
 	case "rsi.proposal_memory":
 		return s.rsiProposalMemory(input)
 	case "rsi.candidate_context":
@@ -1005,27 +1010,17 @@ func (s *Service) rsiRunnerExecution(input map[string]interface{}) storepkg.Tool
 
 func (s *Service) rsiRuntimeConfig(input map[string]interface{}) storepkg.ToolResult {
 	output := map[string]interface{}{
-		"environment":                 s.cfg.Environment,
-		"default_repo":                s.cfg.DefaultRepo,
-		"allowed_target_repos":        append([]string(nil), s.cfg.AllowedTargetRepos...),
-		"default_reasoning_verbosity": s.cfg.DefaultReasoningVerbosity,
-		"active_proposal_cap":         s.cfg.DefaultProposalCap,
-		"runner_urls":                 s.cfg.RunnerURLs(),
-		"runner_timeouts_seconds": map[string]int{
-			"prod":      int(s.cfg.RunnerTimeoutForRole("prod").Seconds()),
-			"proactive": int(s.cfg.RunnerTimeoutForRole("proactive").Seconds()),
-			"eval":      int(s.cfg.RunnerTimeoutForRole("eval").Seconds()),
-			"proposal":  int(s.cfg.RunnerTimeoutForRole("proposal").Seconds()),
-		},
-		"runner_task_timeouts_seconds": map[string]int{
-			"prod":      int(s.cfg.RunnerTaskTimeoutForRole("prod").Seconds()),
-			"proactive": int(s.cfg.RunnerTaskTimeoutForRole("proactive").Seconds()),
-			"eval":      int(s.cfg.RunnerTaskTimeoutForRole("eval").Seconds()),
-			"proposal":  int(s.cfg.RunnerTaskTimeoutForRole("proposal").Seconds()),
-		},
-		"tool_gateway_base_url":   s.cfg.ToolGatewayBaseURL,
-		"honcho_runtime_base_url": s.cfg.HonchoRuntimeBaseURL,
-		"public_base_url":         s.cfg.PublicBaseURL,
+		"environment":                  s.cfg.Environment,
+		"default_repo":                 s.cfg.DefaultRepo,
+		"allowed_target_repos":         append([]string(nil), s.cfg.AllowedTargetRepos...),
+		"default_reasoning_verbosity":  s.cfg.DefaultReasoningVerbosity,
+		"active_proposal_cap":          s.cfg.DefaultProposalCap,
+		"runner_urls":                  s.cfg.RunnerURLs(),
+		"runner_timeouts_seconds":      runtimeTimeoutsSeconds(s.cfg),
+		"runner_task_timeouts_seconds": runtimeTaskTimeoutsSeconds(s.cfg),
+		"tool_gateway_base_url":        s.cfg.ToolGatewayBaseURL,
+		"honcho_runtime_base_url":      s.cfg.HonchoRuntimeBaseURL,
+		"public_base_url":              s.cfg.PublicBaseURL,
 	}
 	return s.result("rsi.runtime_config", input, "RSI runtime configuration summary loaded.", output, nil)
 }
@@ -1073,6 +1068,89 @@ func (s *Service) rsiRuntimeHealth(input map[string]interface{}) storepkg.ToolRe
 		"runners": runners,
 		"honcho":  honcho,
 	}, nil)
+}
+
+func (s *Service) rsiRuntimeDeploymentFacts(input map[string]interface{}) storepkg.ToolResult {
+	namespace := firstNonEmpty(stringValue(input["namespace"]), s.cfg.SandboxNamespace)
+	targets := runtimeDeploymentTargets(input)
+	output := map[string]interface{}{
+		"environment":                          s.cfg.Environment,
+		"namespace":                            namespace,
+		"service_targets":                      targets,
+		"runner_urls":                          s.cfg.RunnerURLs(),
+		"runner_timeouts_seconds":              runtimeTimeoutsSeconds(s.cfg),
+		"runner_task_timeouts_seconds":         runtimeTaskTimeoutsSeconds(s.cfg),
+		"tool_gateway_base_url":                s.cfg.ToolGatewayBaseURL,
+		"honcho_runtime_base_url":              s.cfg.HonchoRuntimeBaseURL,
+		"public_base_url":                      s.cfg.PublicBaseURL,
+		"slack_app_identity":                   s.cfg.SlackAppIdentity,
+		"slack_socket_mode_enabled":            s.cfg.SlackSocketModeEnabled,
+		"slack_bot_configured":                 strings.TrimSpace(s.cfg.SlackBotToken) != "",
+		"allowed_slack_channel_ids":            append([]string(nil), s.cfg.AllowedSlackChannelIDs...),
+		"hermes_native_governed_tools_enabled": s.cfg.HermesNativeGovernedToolsEnabled,
+		"kubernetes_available":                 s.kubeClient != nil,
+		"deployments":                          []map[string]interface{}{},
+	}
+	if s.kubeClient == nil {
+		output["kubernetes_error"] = "kubernetes client unavailable"
+		return s.result("rsi.runtime_deployment_facts", input, "RSI runtime deployment facts loaded from config only; Kubernetes client unavailable.", output, nil)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	deployments, err := s.kubeClient.AppsV1().Deployments(namespace).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		output["kubernetes_error"] = err.Error()
+		return s.result("rsi.runtime_deployment_facts", input, fmt.Sprintf("RSI runtime deployment facts loaded from config, but Kubernetes deployment lookup failed: %v", err), output, nil)
+	}
+
+	items := make([]map[string]interface{}, 0)
+	for _, deployment := range deployments.Items {
+		matchedTargets := matchingDeploymentTargets(deployment, targets)
+		if len(matchedTargets) == 0 {
+			continue
+		}
+		entry := map[string]interface{}{
+			"name":                deployment.Name,
+			"namespace":           deployment.Namespace,
+			"matched_targets":     matchedTargets,
+			"generation":          deployment.Generation,
+			"observed_generation": deployment.Status.ObservedGeneration,
+			"replicas":            deployment.Status.Replicas,
+			"ready_replicas":      deployment.Status.ReadyReplicas,
+			"updated_replicas":    deployment.Status.UpdatedReplicas,
+			"available_replicas":  deployment.Status.AvailableReplicas,
+			"images":              deploymentImages(deployment),
+		}
+		if !deployment.CreationTimestamp.IsZero() {
+			entry["created_at"] = deployment.CreationTimestamp.UTC().Format(time.RFC3339)
+		}
+		if condition, ok := deploymentCondition(deployment, appsv1.DeploymentProgressing); ok {
+			entry["progressing_status"] = string(condition.Status)
+			entry["progressing_reason"] = condition.Reason
+			entry["progressing_message"] = truncate(condition.Message, 400)
+			if !condition.LastUpdateTime.IsZero() {
+				entry["progressing_updated_at"] = condition.LastUpdateTime.UTC().Format(time.RFC3339)
+			}
+			if !condition.LastTransitionTime.IsZero() {
+				entry["progressing_transitioned_at"] = condition.LastTransitionTime.UTC().Format(time.RFC3339)
+			}
+		}
+		if condition, ok := deploymentCondition(deployment, appsv1.DeploymentAvailable); ok {
+			entry["available_status"] = string(condition.Status)
+			entry["available_reason"] = condition.Reason
+		}
+		items = append(items, entry)
+	}
+	sort.Slice(items, func(i, j int) bool {
+		return stringValue(items[i]["name"]) < stringValue(items[j]["name"])
+	})
+	output["deployments"] = items
+	summary := fmt.Sprintf("RSI runtime deployment facts loaded for %s with %d matching deployment(s).", namespace, len(items))
+	if len(items) == 0 {
+		summary = fmt.Sprintf("RSI runtime deployment facts loaded for %s with no matching deployments.", namespace)
+	}
+	return s.result("rsi.runtime_deployment_facts", input, summary, output, nil)
 }
 
 func (s *Service) rsiTraceContext(input map[string]interface{}) storepkg.ToolResult {
@@ -1394,6 +1472,86 @@ func (s *Service) slackHistory(input map[string]interface{}) storepkg.ToolResult
 	return s.result("slack.history", input, summary, output, nil)
 }
 
+func (s *Service) slackSearch(input map[string]interface{}) storepkg.ToolResult {
+	query := firstNonEmpty(strings.TrimSpace(stringValue(input["query"])), strings.TrimSpace(stringValue(input["question"])))
+	traceID := strings.TrimSpace(stringValue(input["trace_id"]))
+	boundChannelID, _ := s.boundSlackContext(traceID)
+	channelIDs := slackSearchChannelIDs(input, boundChannelID, s.cfg.AllowedSlackChannelIDs)
+	limit := slackSearchLimit(input)
+	since, until, err := parseActivityWindow(input)
+	output := map[string]interface{}{
+		"query":       query,
+		"channel_ids": channelIDs,
+		"limit":       limit,
+		"messages":    []map[string]interface{}{},
+	}
+	if strings.TrimSpace(query) == "" {
+		output["error"] = "missing query"
+		return s.failedResult("slack.search", input, "slack", "Slack search requires query or question.", output)
+	}
+	if len(channelIDs) == 0 {
+		output["error"] = "missing channel_ids"
+		return s.failedResult("slack.search", input, "slack", "Slack search requires at least one allowed channel.", output)
+	}
+	for _, channelID := range channelIDs {
+		if !s.slackHistoryChannelAllowed(channelID, boundChannelID) {
+			output["error"] = "channel_not_allowed"
+			return s.failedResult("slack.search", input, "slack", fmt.Sprintf("Slack search not permitted for channel %s.", channelID), output)
+		}
+	}
+	if err != nil {
+		output["error"] = err.Error()
+		return s.failedResult("slack.search", input, "slack", fmt.Sprintf("Slack search request invalid: %v", err), output)
+	}
+	output["since"] = since.UTC().Format(time.RFC3339)
+	output["until"] = until.UTC().Format(time.RFC3339)
+	if s.slackClient == nil {
+		output["error"] = "missing RSI_SLACK_BOT_TOKEN"
+		return s.unavailableResult("slack.search", input, "slack", "Slack search unavailable: bot token is not configured.", output)
+	}
+
+	params := slackapi.NewSearchParameters()
+	params.Sort = "timestamp"
+	params.SortDirection = "desc"
+	params.Count = minInt(maxInt(limit*4, 20), 100)
+	messages, err := s.slackClient.SearchMessages(query, params)
+	if err != nil {
+		output["error"] = err.Error()
+		return s.failedResult("slack.search", input, "slack", fmt.Sprintf("Slack search failed: %v", err), output)
+	}
+
+	matched := make([]map[string]interface{}, 0, minInt(limit, len(messages.Matches)))
+	for _, item := range messages.Matches {
+		channelID := strings.TrimSpace(item.Channel.ID)
+		if len(channelIDs) > 0 && !containsString(channelIDs, channelID) {
+			continue
+		}
+		ts, parseErr := parseFlexibleTimestamp(item.Timestamp)
+		if parseErr != nil {
+			continue
+		}
+		if ts.Before(since) || ts.After(until) {
+			continue
+		}
+		matched = append(matched, map[string]interface{}{
+			"channel_id":   channelID,
+			"channel_name": strings.TrimSpace(item.Channel.Name),
+			"ts":           strings.TrimSpace(item.Timestamp),
+			"user":         strings.TrimSpace(item.User),
+			"username":     strings.TrimSpace(item.Username),
+			"text":         truncate(strings.TrimSpace(item.Text), 2000),
+			"permalink":    strings.TrimSpace(item.Permalink),
+		})
+		if len(matched) >= limit {
+			break
+		}
+	}
+	output["messages"] = matched
+	output["search_total"] = messages.Total
+	summary := fmt.Sprintf("Slack search found %d matching message(s) for %q across %d allowed channel(s).", len(matched), query, len(channelIDs))
+	return s.result("slack.search", input, summary, output, nil)
+}
+
 func (s *Service) slackHistoryChannelAllowed(channelID string, boundChannelID string) bool {
 	channelID = strings.TrimSpace(channelID)
 	if channelID == "" {
@@ -1707,6 +1865,199 @@ func matchesKubernetesTarget(pod corev1.Pod, target string) bool {
 	return false
 }
 
+func matchingDeploymentTargets(deployment appsv1.Deployment, targets []string) []string {
+	matched := make([]string, 0, len(targets))
+	for _, target := range targets {
+		target = strings.TrimSpace(target)
+		if target == "" {
+			continue
+		}
+		if matchesDeploymentTarget(deployment, target) {
+			matched = append(matched, target)
+		}
+	}
+	return uniqueStrings(matched)
+}
+
+func matchesDeploymentTarget(deployment appsv1.Deployment, target string) bool {
+	target = strings.ToLower(strings.TrimSpace(target))
+	if target == "" {
+		return true
+	}
+	if strings.Contains(strings.ToLower(deployment.Name), target) {
+		return true
+	}
+	for key, value := range deployment.Labels {
+		if strings.Contains(strings.ToLower(key), target) || strings.Contains(strings.ToLower(value), target) {
+			return true
+		}
+	}
+	for _, container := range deployment.Spec.Template.Spec.Containers {
+		if strings.Contains(strings.ToLower(container.Name), target) || strings.Contains(strings.ToLower(container.Image), target) {
+			return true
+		}
+	}
+	return false
+}
+
+func deploymentImages(deployment appsv1.Deployment) []string {
+	images := make([]string, 0, len(deployment.Spec.Template.Spec.Containers))
+	for _, container := range deployment.Spec.Template.Spec.Containers {
+		images = append(images, strings.TrimSpace(container.Image))
+	}
+	sort.Strings(images)
+	return uniqueStrings(images)
+}
+
+func deploymentCondition(deployment appsv1.Deployment, targetType appsv1.DeploymentConditionType) (appsv1.DeploymentCondition, bool) {
+	for _, condition := range deployment.Status.Conditions {
+		if condition.Type == targetType {
+			return condition, true
+		}
+	}
+	return appsv1.DeploymentCondition{}, false
+}
+
+func runtimeDeploymentTargets(input map[string]interface{}) []string {
+	targets := make([]string, 0, 8)
+	targets = append(targets, stringSliceValue(input["services"])...)
+	if service := strings.TrimSpace(stringValue(input["service"])); service != "" {
+		targets = append(targets, service)
+	}
+	if len(targets) == 0 {
+		targets = append(targets,
+			"control-plane",
+			"tool-gateway",
+			"runner-prod",
+			"runner-proactive",
+			"runner-eval",
+			"runner-proposal",
+			"honcho",
+		)
+	}
+	normalized := make([]string, 0, len(targets))
+	for _, target := range targets {
+		target = strings.ToLower(strings.TrimSpace(target))
+		target = strings.NewReplacer("_", "-", " ", "-").Replace(target)
+		target = strings.Trim(target, "-")
+		if target == "" {
+			continue
+		}
+		normalized = append(normalized, target)
+	}
+	return uniqueStrings(normalized)
+}
+
+func runtimeTimeoutsSeconds(cfg config.Config) map[string]int {
+	return map[string]int{
+		"prod":      int(cfg.RunnerTimeoutForRole("prod").Seconds()),
+		"proactive": int(cfg.RunnerTimeoutForRole("proactive").Seconds()),
+		"eval":      int(cfg.RunnerTimeoutForRole("eval").Seconds()),
+		"proposal":  int(cfg.RunnerTimeoutForRole("proposal").Seconds()),
+	}
+}
+
+func runtimeTaskTimeoutsSeconds(cfg config.Config) map[string]int {
+	return map[string]int{
+		"prod":      int(cfg.RunnerTaskTimeoutForRole("prod").Seconds()),
+		"proactive": int(cfg.RunnerTaskTimeoutForRole("proactive").Seconds()),
+		"eval":      int(cfg.RunnerTaskTimeoutForRole("eval").Seconds()),
+		"proposal":  int(cfg.RunnerTaskTimeoutForRole("proposal").Seconds()),
+	}
+}
+
+func slackSearchChannelIDs(input map[string]interface{}, boundChannelID string, allowed []string) []string {
+	channelIDs := make([]string, 0, len(allowed)+1)
+	channelIDs = append(channelIDs, stringSliceValue(input["channel_ids"])...)
+	if channelID := strings.TrimSpace(stringValue(input["channel_id"])); channelID != "" {
+		channelIDs = append(channelIDs, channelID)
+	}
+	if len(channelIDs) == 0 {
+		if channelID := strings.TrimSpace(boundChannelID); channelID != "" {
+			channelIDs = append(channelIDs, channelID)
+		} else {
+			channelIDs = append(channelIDs, allowed...)
+		}
+	}
+	filtered := make([]string, 0, len(channelIDs))
+	for _, channelID := range channelIDs {
+		channelID = strings.ToUpper(strings.TrimSpace(channelID))
+		if !isLikelySlackChannelID(channelID) {
+			continue
+		}
+		filtered = append(filtered, channelID)
+	}
+	return uniqueStrings(filtered)
+}
+
+func slackSearchLimit(input map[string]interface{}) int {
+	switch raw := input["limit"].(type) {
+	case int:
+		return maxInt(1, minInt(raw, 50))
+	case int32:
+		return maxInt(1, minInt(int(raw), 50))
+	case int64:
+		return maxInt(1, minInt(int(raw), 50))
+	case float64:
+		return maxInt(1, minInt(int(raw), 50))
+	case json.Number:
+		if value, err := raw.Int64(); err == nil {
+			return maxInt(1, minInt(int(value), 50))
+		}
+	case string:
+		if value, err := strconv.Atoi(strings.TrimSpace(raw)); err == nil {
+			return maxInt(1, minInt(value, 50))
+		}
+	}
+	return 10
+}
+
+func stringSliceValue(value interface{}) []string {
+	switch typed := value.(type) {
+	case []string:
+		return append([]string(nil), typed...)
+	case []interface{}:
+		out := make([]string, 0, len(typed))
+		for _, item := range typed {
+			if text := strings.TrimSpace(stringValue(item)); text != "" {
+				out = append(out, text)
+			}
+		}
+		return out
+	case string:
+		text := strings.TrimSpace(typed)
+		if text == "" {
+			return nil
+		}
+		if !strings.Contains(text, ",") {
+			return []string{text}
+		}
+		parts := strings.Split(text, ",")
+		out := make([]string, 0, len(parts))
+		for _, part := range parts {
+			if item := strings.TrimSpace(part); item != "" {
+				out = append(out, item)
+			}
+		}
+		return out
+	default:
+		return nil
+	}
+}
+
+func isLikelySlackChannelID(value string) bool {
+	value = strings.ToUpper(strings.TrimSpace(value))
+	if len(value) < 2 {
+		return false
+	}
+	switch value[0] {
+	case 'C', 'D', 'G':
+		return true
+	default:
+		return false
+	}
+}
+
 func sanitizeToolName(name string) string {
 	return strings.NewReplacer(".", "-", "_", "-").Replace(strings.TrimSpace(name))
 }
@@ -1754,6 +2105,23 @@ func containsString(values []string, needle string) bool {
 		}
 	}
 	return false
+}
+
+func uniqueStrings(values []string) []string {
+	seen := make(map[string]struct{}, len(values))
+	out := make([]string, 0, len(values))
+	for _, value := range values {
+		value = strings.TrimSpace(value)
+		if value == "" {
+			continue
+		}
+		if _, ok := seen[value]; ok {
+			continue
+		}
+		seen[value] = struct{}{}
+		out = append(out, value)
+	}
+	return out
 }
 
 func truncate(value string, limit int) string {
@@ -1807,6 +2175,8 @@ func providerRefForTool(name string, output map[string]interface{}) string {
 		return firstNonEmpty(stringValue(output["ts"]), stringValue(output["thread_ts"]))
 	case "slack.history":
 		return firstNonEmpty(stringValue(output["thread_ts"]), stringValue(output["channel_id"]))
+	case "slack.search":
+		return stringValue(output["query"])
 	case "github.create_pr":
 		return stringValue(output["pr_url"])
 	case "github.repo_context":
@@ -1821,6 +2191,8 @@ func providerRefForTool(name string, output map[string]interface{}) string {
 		return stringValue(output["resource"])
 	case "knowledge.context":
 		return stringValue(output["topic"])
+	case "rsi.runtime_deployment_facts":
+		return stringValue(output["namespace"])
 	case "workspace.git_diff":
 		return stringValue(output["workspace_id"])
 	case "workspace.run_validation":

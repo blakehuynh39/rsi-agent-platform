@@ -21,6 +21,10 @@ import (
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
 	slackapi "github.com/slack-go/slack"
+	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kubefake "k8s.io/client-go/kubernetes/fake"
 )
 
 func TestGitHubCreatePRUsesExternalAPI(t *testing.T) {
@@ -555,6 +559,190 @@ func TestSlackHistoryUsesThreadRepliesForConversationQuestion(t *testing.T) {
 	}
 	if got := result.Output["scope"]; got != "thread" {
 		t.Fatalf("expected thread scope, got %#v", got)
+	}
+}
+
+func TestSlackSearchReturnsFilteredMessages(t *testing.T) {
+	var seenPath string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		seenPath = r.URL.Path
+		if err := r.ParseForm(); err != nil {
+			t.Fatalf("ParseForm() error = %v", err)
+		}
+		if got := r.Form.Get("query"); got != "control plane 5 minute timeout" {
+			t.Fatalf("expected query %q, got %q", "control plane 5 minute timeout", got)
+		}
+		switch r.URL.Path {
+		case "/search.messages":
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"ok": true,
+				"messages": map[string]any{
+					"total": 3,
+					"matches": []map[string]any{
+						{
+							"type":      "message",
+							"channel":   map[string]any{"id": "C123", "name": "rsi-platform"},
+							"user":      "U123",
+							"username":  "blake",
+							"ts":        "1775952000.000100",
+							"text":      "We bumped the control plane timeout to 5 minutes.",
+							"permalink": "https://example.test/C123/p1775952000000100",
+						},
+						{
+							"type":      "message",
+							"channel":   map[string]any{"id": "C999", "name": "other"},
+							"user":      "U999",
+							"username":  "other",
+							"ts":        "1775952001.000100",
+							"text":      "Wrong channel.",
+							"permalink": "https://example.test/C999/p1775952001000100",
+						},
+						{
+							"type":      "message",
+							"channel":   map[string]any{"id": "C123", "name": "rsi-platform"},
+							"user":      "U123",
+							"username":  "blake",
+							"ts":        "1775606400.000100",
+							"text":      "Outside the requested window.",
+							"permalink": "https://example.test/C123/p1775606400000100",
+						},
+					},
+				},
+			})
+		default:
+			t.Fatalf("unexpected slack path %s", r.URL.Path)
+		}
+	}))
+	defer server.Close()
+
+	service := NewService(config.Config{
+		SlackBotToken:          "xoxb-test",
+		AllowedSlackChannelIDs: []string{"C123", "C999"},
+	}, storepkg.NewMemoryStore())
+	service.slackClient = slackapi.New("xoxb-test", slackapi.OptionAPIURL(server.URL+"/"))
+
+	result := service.Execute("slack.search", map[string]interface{}{
+		"query":       "control plane 5 minute timeout",
+		"channel_ids": []interface{}{"C123"},
+		"since":       "2026-04-10T00:00:00Z",
+		"until":       "2026-04-17T00:00:00Z",
+		"limit":       1,
+	})
+
+	if seenPath != "/search.messages" {
+		t.Fatalf("expected search.messages, got %s", seenPath)
+	}
+	if result.Status != "ok" {
+		t.Fatalf("expected ok status, got %s %#v", result.Status, result.Output)
+	}
+	if got := result.Output["search_total"]; got != 3 {
+		t.Fatalf("expected search_total 3, got %#v", got)
+	}
+	channelIDs, ok := result.Output["channel_ids"].([]string)
+	if !ok || len(channelIDs) != 1 || channelIDs[0] != "C123" {
+		t.Fatalf("expected output channel_ids [C123], got %#v", result.Output["channel_ids"])
+	}
+	messages, ok := result.Output["messages"].([]map[string]interface{})
+	if !ok || len(messages) != 1 {
+		t.Fatalf("expected one filtered slack message, got %#v", result.Output["messages"])
+	}
+	if got := messages[0]["channel_id"]; got != "C123" {
+		t.Fatalf("expected message in channel C123, got %#v", got)
+	}
+}
+
+func TestRSIRuntimeDeploymentFactsReturnsDeploymentSummary(t *testing.T) {
+	service := NewService(config.Config{
+		Environment:                      "stage",
+		SandboxNamespace:                 "rsi-platform",
+		ToolGatewayBaseURL:               "http://tool-gateway.internal:8080",
+		HonchoRuntimeBaseURL:             "http://honcho.internal:8000",
+		PublicBaseURL:                    "https://staging-rsi-platform.storyprotocol.net",
+		ProdRunnerBaseURL:                "http://runner-prod.internal:8090",
+		ProactiveRunnerBaseURL:           "http://runner-proactive.internal:8090",
+		EvalRunnerBaseURL:                "http://runner-eval.internal:8090",
+		ProposalRunnerBaseURL:            "http://runner-proposal.internal:8090",
+		ProdRunnerTimeout:                330 * time.Second,
+		ProactiveRunnerTimeout:           60 * time.Second,
+		EvalRunnerTimeout:                330 * time.Second,
+		ProposalRunnerTimeout:            450 * time.Second,
+		ProdRunnerTaskTimeout:            300 * time.Second,
+		ProactiveRunnerTaskTimeout:       300 * time.Second,
+		EvalRunnerTaskTimeout:            300 * time.Second,
+		ProposalRunnerTaskTimeout:        420 * time.Second,
+		SlackAppIdentity:                 "rsi-stage",
+		SlackSocketModeEnabled:           true,
+		SlackBotToken:                    "xoxb-test",
+		AllowedSlackChannelIDs:           []string{"C123"},
+		HermesNativeGovernedToolsEnabled: true,
+	}, storepkg.NewMemoryStore())
+	service.kubeClient = kubefake.NewSimpleClientset(&appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:              "use1-stage-rsi-agent-platform-control-plane",
+			Namespace:         "rsi-platform",
+			CreationTimestamp: metav1.NewTime(time.Date(2026, time.April, 17, 0, 0, 0, 0, time.UTC)),
+			Labels:            map[string]string{"app.kubernetes.io/name": "control-plane"},
+		},
+		Spec: appsv1.DeploymentSpec{
+			Template: corev1.PodTemplateSpec{
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{Name: "control-plane", Image: "ghcr.io/piplabs/control-plane:abc123"},
+					},
+				},
+			},
+		},
+		Status: appsv1.DeploymentStatus{
+			ObservedGeneration: 3,
+			Replicas:           1,
+			ReadyReplicas:      1,
+			UpdatedReplicas:    1,
+			AvailableReplicas:  1,
+			Conditions: []appsv1.DeploymentCondition{
+				{
+					Type:               appsv1.DeploymentProgressing,
+					Status:             corev1.ConditionTrue,
+					Reason:             "NewReplicaSetAvailable",
+					Message:            "ReplicaSet is available",
+					LastUpdateTime:     metav1.NewTime(time.Date(2026, time.April, 17, 0, 1, 0, 0, time.UTC)),
+					LastTransitionTime: metav1.NewTime(time.Date(2026, time.April, 17, 0, 1, 0, 0, time.UTC)),
+				},
+				{
+					Type:   appsv1.DeploymentAvailable,
+					Status: corev1.ConditionTrue,
+					Reason: "MinimumReplicasAvailable",
+				},
+			},
+		},
+	})
+
+	result := service.Execute("rsi.runtime_deployment_facts", map[string]interface{}{
+		"service": "control plane",
+	})
+
+	if result.Status != "ok" {
+		t.Fatalf("expected ok status, got %s %#v", result.Status, result.Output)
+	}
+	if got := result.Output["namespace"]; got != "rsi-platform" {
+		t.Fatalf("expected namespace rsi-platform, got %#v", got)
+	}
+	targets, ok := result.Output["service_targets"].([]string)
+	if !ok || len(targets) != 1 || targets[0] != "control-plane" {
+		t.Fatalf("expected normalized service_targets [control-plane], got %#v", result.Output["service_targets"])
+	}
+	deployments, ok := result.Output["deployments"].([]map[string]interface{})
+	if !ok || len(deployments) != 1 {
+		t.Fatalf("expected one deployment summary, got %#v", result.Output["deployments"])
+	}
+	if got := deployments[0]["name"]; got != "use1-stage-rsi-agent-platform-control-plane" {
+		t.Fatalf("unexpected deployment name %#v", got)
+	}
+	if got := deployments[0]["available_status"]; got != "True" {
+		t.Fatalf("expected available_status=True, got %#v", got)
+	}
+	images, ok := deployments[0]["images"].([]string)
+	if !ok || len(images) != 1 || images[0] != "ghcr.io/piplabs/control-plane:abc123" {
+		t.Fatalf("unexpected images %#v", deployments[0]["images"])
 	}
 }
 

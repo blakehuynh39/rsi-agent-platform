@@ -39,8 +39,14 @@ func ToolPlan(intent string, question string, repo string, channelID string, thr
 			plan = append(plan, "github.repo_activity")
 		}
 	}
+	if ShouldUseSlackSearch(question, channelID) {
+		plan = append(plan, "slack.search")
+	}
 	if ShouldUseSlackHistory(question, repo, channelID, threadTS) {
 		plan = append(plan, "slack.history")
+	}
+	if ShouldUseRuntimeDeploymentFacts(question) {
+		plan = append(plan, "rsi.runtime_deployment_facts")
 	}
 	return plan
 }
@@ -153,6 +159,68 @@ func ShouldUseSlackHistory(question string, repo string, channelID string, threa
 		}
 	}
 	return ShouldUseGitHubRepoActivity(question, repo)
+}
+
+func ShouldUseSlackSearch(question string, channelID string) bool {
+	if strings.TrimSpace(channelID) == "" {
+		return false
+	}
+	text := strings.ToLower(strings.TrimSpace(question))
+	if text == "" {
+		return false
+	}
+	explicitPhrases := []string{
+		"search slack",
+		"did we discuss",
+		"have we discussed",
+		"have we talked",
+		"where did we decide",
+		"where was this decided",
+		"find the thread",
+		"find the conversation",
+		"mentioned in slack",
+		"discussed in slack",
+	}
+	for _, phrase := range explicitPhrases {
+		if strings.Contains(text, phrase) {
+			return true
+		}
+	}
+	return strings.Contains(text, "search") && (strings.Contains(text, "channel") || strings.Contains(text, "thread") || strings.Contains(text, "slack"))
+}
+
+func ShouldUseRuntimeDeploymentFacts(question string) bool {
+	text := strings.ToLower(strings.TrimSpace(question))
+	if text == "" {
+		return false
+	}
+	indicators := []string{
+		"deployment",
+		"deployments",
+		"rollout",
+		"image",
+		"images",
+		"tag",
+		"timeout",
+		"time out",
+		"5 minute",
+		"300s",
+		"configured",
+		"config",
+		"control plane",
+		"tool gateway",
+		"runner",
+		"honcho",
+		"slack app",
+		"allowed channel",
+		"channel ids",
+	}
+	for _, indicator := range indicators {
+		if strings.Contains(text, indicator) {
+			return true
+		}
+	}
+	return false
 }
 
 func RepoActivityWindow(question string, now time.Time) (string, string) {

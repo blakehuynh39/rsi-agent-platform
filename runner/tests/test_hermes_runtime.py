@@ -438,6 +438,64 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(payload["tool_name"], "slack.history")
         self.assertEqual(payload["transport_tool_name"], "slack_history")
 
+    def test_slack_search_binding_defaults_to_bound_channel_context(self) -> None:
+        captured: dict[str, object] = {}
+
+        class FakeResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb) -> bool:
+                return False
+
+            def read(self) -> bytes:
+                return json.dumps(
+                    {
+                        "status": "completed",
+                        "available": True,
+                        "summary": "Slack search loaded.",
+                        "provider": "slack",
+                        "provider_ref": "control plane timeout",
+                        "output": {"messages": []},
+                    }
+                ).encode("utf-8")
+
+        def fake_urlopen(req, timeout: int = 0):
+            captured["url"] = req.full_url
+            captured["timeout"] = timeout
+            captured["body"] = json.loads(req.data.decode("utf-8"))
+            return FakeResponse()
+
+        binding = ReadOnlyToolBinding(
+            base_url="http://tool-gateway.internal",
+            allowed_tool_names=["slack.search"],
+            task_repo="rsi-agent-platform",
+            task_repo_ref="main",
+            task_prompt="Where did we decide to bump the control plane to 5 minutes?",
+            task_channel_id="C123",
+            task_thread_ts="171000001.000100",
+            task_context_summary="workflow summary",
+            trace_id="trace-123",
+            session_scope_kind="conversation",
+            session_scope_id="conv-123",
+            context_refs=[],
+        )
+
+        with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_urlopen):
+            payload = json.loads(binding.handle_tool_call("slack_search", {}))
+
+        self.assertEqual(captured["url"], "http://tool-gateway.internal/api/tools/slack.search/execute")
+        self.assertEqual(
+            captured["body"],
+            {
+                "trace_id": "trace-123",
+                "channel_ids": ["C123"],
+                "query": "Where did we decide to bump the control plane to 5 minutes?",
+            },
+        )
+        self.assertEqual(payload["tool_name"], "slack.search")
+        self.assertEqual(payload["transport_tool_name"], "slack_search")
+
     def test_invalid_tool_name_preflight_fails_before_provider_execution(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {

@@ -65,7 +65,7 @@ func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
 		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
 		name = strings.TrimSuffix(name, "/execute")
 		switch name {
-		case "repo.context", "knowledge.context", "sentry.lookup", "kubernetes.inspect", "github.repo_activity", "slack.history", "rsi.workflow_context", "rsi.action_chain", "rsi.runtime_health":
+		case "repo.context", "knowledge.context", "sentry.lookup", "kubernetes.inspect", "github.repo_activity", "slack.history", "rsi.workflow_context", "rsi.action_chain", "rsi.runtime_health", "rsi.runtime_deployment_facts":
 			toolCalls++
 			_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
 				Name:          name,
