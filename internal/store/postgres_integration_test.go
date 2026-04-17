@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -206,6 +207,96 @@ func TestPostgresRunProposalPromoterNormalizesBlankTargetFields(t *testing.T) {
 		if strings.TrimSpace(current.TargetRef) == "" {
 			t.Fatalf("expected proposal target_ref to be normalized, got %+v", current)
 		}
+	}
+}
+
+func TestPostgresResetAppDataTruncatesPublicAndHonchoTables(t *testing.T) {
+	postgresURL, cleanup := openTempPostgresURL(t)
+	defer cleanup()
+
+	db, err := platformdb.OpenPostgres(postgresURL)
+	if err != nil {
+		t.Fatalf("open postgres: %v", err)
+	}
+	defer db.Close()
+	if _, err := platformdb.ApplyMigrations(db); err != nil {
+		t.Fatalf("apply migrations: %v", err)
+	}
+	if _, err := db.Exec(`insert into honcho.alembic_version (version_num) values ('baseline')`); err != nil {
+		t.Fatalf("seed honcho alembic version: %v", err)
+	}
+
+	store, err := NewPostgresStore(config.Config{
+		StoreBackend:       "postgres",
+		PostgresURL:        postgresURL,
+		DefaultProposalCap: 2,
+	})
+	if err != nil {
+		t.Fatalf("NewPostgresStore() error = %v", err)
+	}
+	defer store.db.Close()
+
+	if _, _, _, proposal := seedPromotableFailureProposal(t, store); proposal.ID == "" {
+		t.Fatal("expected proposal before reset")
+	}
+	if _, err := store.db.Exec(`insert into honcho.queue (payload, task_type, work_unit_key) values ('{}'::jsonb, 'memory_sync', 'queue-reset-test')`); err != nil {
+		t.Fatalf("seed honcho queue row: %v", err)
+	}
+
+	result, err := store.ResetAppData()
+	if err != nil {
+		t.Fatalf("ResetAppData() error = %v", err)
+	}
+	if result.Backend != "postgres" {
+		t.Fatalf("reset backend = %q, want postgres", result.Backend)
+	}
+	if !slices.Contains(result.TruncatedTables, "public.event_envelope") {
+		t.Fatalf("expected reset to truncate event_envelope, got %v", result.TruncatedTables)
+	}
+	if !slices.Contains(result.TruncatedTables, "honcho.queue") {
+		t.Fatalf("expected reset to truncate honcho.queue, got %v", result.TruncatedTables)
+	}
+
+	var eventCount int
+	if err := store.db.QueryRow(`select count(*) from public.event_envelope`).Scan(&eventCount); err != nil {
+		t.Fatalf("count event_envelope: %v", err)
+	}
+	if eventCount != 0 {
+		t.Fatalf("expected event_envelope to be empty, got %d rows", eventCount)
+	}
+
+	var queueCount int
+	if err := store.db.QueryRow(`select count(*) from honcho.queue`).Scan(&queueCount); err != nil {
+		t.Fatalf("count honcho.queue: %v", err)
+	}
+	if queueCount != 0 {
+		t.Fatalf("expected honcho.queue to be empty, got %d rows", queueCount)
+	}
+
+	var migrationCount int
+	if err := store.db.QueryRow(`select count(*) from public.rsi_schema_migrations`).Scan(&migrationCount); err != nil {
+		t.Fatalf("count rsi_schema_migrations: %v", err)
+	}
+	if migrationCount == 0 {
+		t.Fatal("expected schema migration records to be preserved")
+	}
+
+	var alembicCount int
+	if err := store.db.QueryRow(`select count(*) from honcho.alembic_version`).Scan(&alembicCount); err != nil {
+		t.Fatalf("count honcho.alembic_version: %v", err)
+	}
+	if alembicCount != 1 {
+		t.Fatalf("expected honcho alembic version to be preserved, got %d rows", alembicCount)
+	}
+
+	if len(store.ListConversations()) != 0 {
+		t.Fatal("expected reset store to have no conversations")
+	}
+	if len(store.ListTraces()) != 0 {
+		t.Fatal("expected reset store to have no traces")
+	}
+	if settings := store.GetSettings(); settings.ActiveProposalCap != 2 {
+		t.Fatalf("expected default proposal cap after reset, got %+v", settings)
 	}
 }
 

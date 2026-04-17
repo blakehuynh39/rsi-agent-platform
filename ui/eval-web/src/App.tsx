@@ -19,6 +19,7 @@ import type {
   ProposalDetailResponse,
   KnowledgeListResponse,
   KnowledgeDetailResponse,
+  AppDataResetResponse,
   RuntimeResponse,
   HarnessResponse,
   ViewState,
@@ -291,6 +292,14 @@ export function App() {
     onSuccess: refreshEverything
   });
 
+  const resetAppDataMutation = useMutation({
+    mutationFn: () => postJSON<AppDataResetResponse>(`/api/app-data/reset`, {}),
+    onSuccess: async () => {
+      navigate({ tab: "conversations" });
+      await refreshEverything();
+    }
+  });
+
   const proposalDecisionMutation = useMutation({
     mutationFn: (decision: string) =>
       postCommand(`/api/proposals/${viewState.proposal}/commands`, {
@@ -374,6 +383,14 @@ export function App() {
   }, [traceDetail?.trace.summary.trace_id]);
 
   const traceJudgments = traceDetail?.judgments_by_eval_run ?? {};
+  const resetAppDataError = resetAppDataMutation.error instanceof Error ? resetAppDataMutation.error.message : "";
+
+  const handleResetAppData = () => {
+    if (!window.confirm("Reset all RSI and Honcho app data? Schema versions stay intact, but every conversation, trace, proposal, and memory row will be deleted.")) {
+      return;
+    }
+    resetAppDataMutation.mutate();
+  };
 
   return (
     <div className="app-shell">
@@ -457,6 +474,31 @@ export function App() {
               </div>
             ))}
           </div>
+        </section>
+
+        <section className="operations-card danger-zone">
+          <div className="section-header">
+            <div>
+              <p className="eyebrow">Reset</p>
+              <h2>App data</h2>
+            </div>
+          </div>
+          <p className="danger-copy">
+            Truncate all RSI and Honcho app tables while preserving schema versions so the next e2e run starts from a clean slate.
+          </p>
+          <div className="button-row">
+            <button className="danger" onClick={handleResetAppData} disabled={resetAppDataMutation.isPending}>
+              {resetAppDataMutation.isPending ? "Resetting..." : "Reset app data"}
+            </button>
+          </div>
+          {resetAppDataMutation.isSuccess ? (
+            <p className="inline-feedback success">
+              Reset finished {formatTime(resetAppDataMutation.data?.reset_at)}.
+            </p>
+          ) : null}
+          {resetAppDataError ? (
+            <p className="inline-feedback error">{resetAppDataError}</p>
+          ) : null}
         </section>
       </aside>
 

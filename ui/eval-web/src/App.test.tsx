@@ -528,9 +528,17 @@ function renderApp() {
 describe("App", () => {
   beforeEach(() => {
     window.history.replaceState({}, "", "/");
-    vi.spyOn(globalThis, "fetch").mockImplementation((input: RequestInfo | URL) => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    vi.spyOn(globalThis, "fetch").mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
+      const method = init?.method ?? "GET";
       const payload =
+        method === "POST" && url.endsWith("/api/app-data/reset") ? {
+          backend: "postgres",
+          reset_at: "2026-04-11T12:45:00Z",
+          truncated_tables: ["public.event_envelope", "honcho.queue"],
+          preserved_tables: ["public.rsi_schema_migrations", "honcho.alembic_version"]
+        } :
         url.endsWith("/api/conversations") ? conversationListResponse :
         url.endsWith("/api/cases") ? casesListResponse :
         url.endsWith("/api/proposals") ? proposalListResponse :
@@ -630,5 +638,26 @@ describe("App", () => {
 
     expect(await screen.findByText("Evidence links")).toBeInTheDocument();
     expect(screen.getByText("Derived from the successful question trace.")).toBeInTheDocument();
+  });
+
+  it("posts reset app data after confirmation and returns to the conversations tab", async () => {
+    renderApp();
+
+    fireEvent.click(await screen.findByRole("button", { name: /Proposals/i }));
+    await waitFor(() => {
+      expect(window.location.search).toContain("tab=proposals");
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Reset app data" }));
+
+    await waitFor(() => {
+      expect(window.confirm).toHaveBeenCalled();
+      expect(globalThis.fetch).toHaveBeenCalledWith(
+        "/api/app-data/reset",
+        expect.objectContaining({ method: "POST" })
+      );
+      expect(window.location.search).toContain("tab=conversations");
+    });
+    expect(await screen.findByText(/Reset finished/i)).toBeInTheDocument();
   });
 });

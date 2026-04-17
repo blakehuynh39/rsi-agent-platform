@@ -96,6 +96,13 @@ type PromotionResult struct {
 	StaleProposalIDs []string `json:"stale_proposal_ids"`
 }
 
+type AppDataResetResult struct {
+	Backend         string    `json:"backend"`
+	ResetAt         time.Time `json:"reset_at"`
+	TruncatedTables []string  `json:"truncated_tables"`
+	PreservedTables []string  `json:"preserved_tables"`
+}
+
 type DerivedTraceRequest struct {
 	SourceTraceID  string    `json:"source_trace_id"`
 	ProposalID     string    `json:"proposal_id,omitempty"`

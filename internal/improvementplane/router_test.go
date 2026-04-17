@@ -531,6 +531,41 @@ func TestRouterFeedbackAndReplayRoutesSubmitProblemLineCommands(t *testing.T) {
 	}
 }
 
+func TestRouterResetAppDataRouteClearsStore(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	if len(store.ListConversations()) == 0 {
+		t.Fatal("expected seeded conversations before reset")
+	}
+	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
+
+	resetReq := httptest.NewRequest(http.MethodPost, "/api/app-data/reset", strings.NewReader(`{}`))
+	resetRec := httptest.NewRecorder()
+	router.ServeHTTP(resetRec, resetReq)
+	if resetRec.Code != http.StatusOK {
+		t.Fatalf("reset status = %d, want %d", resetRec.Code, http.StatusOK)
+	}
+
+	var payload storepkg.AppDataResetResult
+	if err := json.NewDecoder(resetRec.Body).Decode(&payload); err != nil {
+		t.Fatalf("decode reset payload: %v", err)
+	}
+	if payload.Backend != "memory" {
+		t.Fatalf("reset backend = %q, want memory", payload.Backend)
+	}
+	if len(store.ListConversations()) != 0 {
+		t.Fatal("expected conversations to be cleared")
+	}
+	if len(store.ListTraces()) != 0 {
+		t.Fatal("expected traces to be cleared")
+	}
+	if len(store.ListHarnessProfiles()) != 0 {
+		t.Fatal("expected harness profiles to be cleared")
+	}
+	if settings := store.GetSettings(); settings.ActiveProposalCap != 2 {
+		t.Fatalf("expected default proposal cap after reset, got %+v", settings)
+	}
+}
+
 func TestRouterProposalDetailAndRuntimeEndpoints(t *testing.T) {
 	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(w).Encode(map[string]any{

@@ -130,6 +130,11 @@ button:hover {
   padding: 18px;
 }
 
+.danger-zone {
+  border-color: rgba(144, 46, 34, 0.18);
+  background: linear-gradient(180deg, rgba(255, 246, 242, 0.92) 0%, rgba(255, 251, 248, 0.86) 100%);
+}
+
 .section-header,
 .pane-header,
 .detail-header,
@@ -211,6 +216,10 @@ button {
   color: #fff8f1;
 }
 
+button.danger {
+  background: linear-gradient(135deg, #b53d2e 0%, #7f241c 100%);
+}
+
 .secondary {
   background: #203447;
 }
@@ -243,6 +252,23 @@ button:disabled {
 .status-chip.eval {
   background: rgba(20, 96, 74, 0.12);
   color: #1a5a46;
+}
+
+.danger-copy,
+.inline-feedback {
+  margin: 0;
+}
+
+.danger-copy {
+  color: #6b3b32;
+}
+
+.inline-feedback.success {
+  color: #1a5a46;
+}
+
+.inline-feedback.error {
+  color: #8d2f23;
 }
 
 .runtime-list,

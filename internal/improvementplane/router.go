@@ -275,6 +275,14 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 	r.Get("/api/harness", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, buildHarnessOverview(cfg, store))
 	})
+	r.Post("/api/app-data/reset", func(w http.ResponseWriter, r *http.Request) {
+		result, err := store.ResetAppData()
+		if err != nil {
+			app.WriteError(w, http.StatusInternalServerError, err)
+			return
+		}
+		app.WriteJSON(w, http.StatusOK, result)
+	})
 	r.Get("/api/settings", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, store.GetSettings())
 	})

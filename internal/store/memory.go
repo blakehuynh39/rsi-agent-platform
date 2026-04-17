@@ -97,6 +97,7 @@ type Store interface {
 	ListRepoChangeJobs() []improvement.RepoChangeJob
 	ListPRAttempts() []improvement.PRAttempt
 	ListPostMergeReplays() []improvement.PostMergeReplay
+	ResetAppData() (AppDataResetResult, error)
 }
 
 type MemoryStore struct {
@@ -153,6 +154,65 @@ func NewMemoryStore() *MemoryStore {
 	s := newEmptyMemoryStore()
 	s.seedDefaults()
 	return s
+}
+
+func (s *MemoryStore) ResetAppData() (AppDataResetResult, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	replacement := newEmptyMemoryStore()
+	s.events = replacement.events
+	s.conversations = replacement.conversations
+	s.conversationEntries = replacement.conversationEntries
+	s.cases = replacement.cases
+	s.ingestions = replacement.ingestions
+	s.workflowLines = replacement.workflowLines
+	s.workflows = replacement.workflows
+	s.assignments = replacement.assignments
+	s.threadPolicies = replacement.threadPolicies
+	s.channelPolicy = replacement.channelPolicy
+	s.ownership = replacement.ownership
+	s.capabilities = replacement.capabilities
+	s.templates = replacement.templates
+	s.experiments = replacement.experiments
+	s.traces = replacement.traces
+	s.ratings = replacement.ratings
+	s.notes = replacement.notes
+	s.feedbackRecords = replacement.feedbackRecords
+	s.actionIntents = replacement.actionIntents
+	s.actionResults = replacement.actionResults
+	s.domainEvents = replacement.domainEvents
+	s.effectExecutions = replacement.effectExecutions
+	s.commandReceipts = replacement.commandReceipts
+	s.outcomes = replacement.outcomes
+	s.knowledgeEntries = replacement.knowledgeEntries
+	s.knowledgeEvidence = replacement.knowledgeEvidence
+	s.knowledgeReviews = replacement.knowledgeReviews
+	s.harnessProfiles = replacement.harnessProfiles
+	s.harnessOverlays = replacement.harnessOverlays
+	s.harnessExperiments = replacement.harnessExperiments
+	s.harnessSessionBindings = replacement.harnessSessionBindings
+	s.harnessExecutions = replacement.harnessExecutions
+	s.evalSuites = replacement.evalSuites
+	s.evalRuns = replacement.evalRuns
+	s.evalJudgments = replacement.evalJudgments
+	s.candidates = replacement.candidates
+	s.proposals = replacement.proposals
+	s.changeAttempts = replacement.changeAttempts
+	s.attemptWorkspaces = replacement.attemptWorkspaces
+	s.proposalMemory = replacement.proposalMemory
+	s.repoChangeJobs = replacement.repoChangeJobs
+	s.prAttempts = replacement.prAttempts
+	s.postMergeReplay = replacement.postMergeReplay
+	s.cronLeases = replacement.cronLeases
+	s.settings = replacement.settings
+
+	return AppDataResetResult{
+		Backend:         "memory",
+		ResetAt:         time.Now().UTC(),
+		TruncatedTables: []string{"memory_store"},
+		PreservedTables: []string{},
+	}, nil
 }
 
 func (s *MemoryStore) seedDefaults() {

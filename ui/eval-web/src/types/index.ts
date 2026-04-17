@@ -777,6 +777,13 @@ export type RuntimeResponse = {
   roles: NullableList<RuntimeRole>;
 };
 
+export type AppDataResetResponse = {
+  backend: string;
+  reset_at: string;
+  truncated_tables: NullableList<string>;
+  preserved_tables: NullableList<string>;
+};
+
 export type HarnessResponse = {
   profiles: NullableList<HarnessProfile>;
   overlays: NullableList<HarnessOverlay>;

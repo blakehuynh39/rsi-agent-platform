@@ -37,6 +37,32 @@ type sqlReader interface {
 	QueryRow(query string, args ...any) *sql.Row
 }
 
+const resettableAppTablesQuery = `
+select schemaname, tablename
+from pg_tables
+where schemaname in ('public', 'honcho')
+  and not (schemaname = 'public' and tablename = 'rsi_schema_migrations')
+  and not (schemaname = 'honcho' and tablename = 'alembic_version')
+order by schemaname, tablename`
+
+var preservedAppTables = []string{
+	"public.rsi_schema_migrations",
+	"honcho.alembic_version",
+}
+
+type appTableRef struct {
+	Schema string
+	Name   string
+}
+
+func (t appTableRef) String() string {
+	return t.Schema + "." + t.Name
+}
+
+func (t appTableRef) SQL() string {
+	return postgresQualifiedIdent(t.Schema, t.Name)
+}
+
 func OpenStore(cfg config.Config) (Store, error) {
 	switch strings.TrimSpace(cfg.StoreBackend) {
 	case "postgres":
@@ -73,8 +99,82 @@ func NewPostgresStore(cfg config.Config) (*PostgresStore, error) {
 	return store, nil
 }
 
+func (p *PostgresStore) ResetAppData() (AppDataResetResult, error) {
+	tx, err := p.db.Begin()
+	if err != nil {
+		return AppDataResetResult{}, err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	tables, err := loadResettableAppTables(tx)
+	if err != nil {
+		return AppDataResetResult{}, err
+	}
+	if len(tables) > 0 {
+		sqlTables := make([]string, 0, len(tables))
+		resultTables := make([]string, 0, len(tables))
+		for _, table := range tables {
+			sqlTables = append(sqlTables, table.SQL())
+			resultTables = append(resultTables, table.String())
+		}
+		if _, err := tx.Exec(`TRUNCATE TABLE ` + strings.Join(sqlTables, ", ") + ` RESTART IDENTITY CASCADE`); err != nil {
+			return AppDataResetResult{}, fmt.Errorf("truncate app data: %w", err)
+		}
+		if err := tx.Commit(); err != nil {
+			return AppDataResetResult{}, err
+		}
+		return AppDataResetResult{
+			Backend:         "postgres",
+			ResetAt:         time.Now().UTC(),
+			TruncatedTables: resultTables,
+			PreservedTables: append([]string(nil), preservedAppTables...),
+		}, nil
+	}
+
+	if err := tx.Commit(); err != nil {
+		return AppDataResetResult{}, err
+	}
+	return AppDataResetResult{
+		Backend:         "postgres",
+		ResetAt:         time.Now().UTC(),
+		TruncatedTables: []string{},
+		PreservedTables: append([]string(nil), preservedAppTables...),
+	}, nil
+}
+
 func (p *PostgresStore) SchemaStatus() platformdb.SchemaStatus {
 	return p.schemaStatus
+}
+
+func loadResettableAppTables(tx *sql.Tx) ([]appTableRef, error) {
+	rows, err := tx.Query(resettableAppTablesQuery)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	out := make([]appTableRef, 0)
+	for rows.Next() {
+		var item appTableRef
+		if err := rows.Scan(&item.Schema, &item.Name); err != nil {
+			return nil, err
+		}
+		out = append(out, item)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func postgresQualifiedIdent(parts ...string) string {
+	quoted := make([]string, 0, len(parts))
+	for _, part := range parts {
+		quoted = append(quoted, `"`+strings.ReplaceAll(part, `"`, `""`)+`"`)
+	}
+	return strings.Join(quoted, ".")
 }
 
 func (p *PostgresStore) ensureSeed(cfg config.Config) error {
