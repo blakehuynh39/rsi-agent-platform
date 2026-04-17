@@ -477,6 +477,112 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(result.raw["repair_attempted"])
         self.assertFalse(result.raw["repair_succeeded"])
 
+    def test_workflow_structured_output_is_normalized_to_contract_shape(self) -> None:
+        class MessyStructuredOutputAIAgent(FakeAIAgent):
+            def run_conversation(
+                self,
+                prompt: str,
+                system_message: str | None = None,
+                conversation_history: list[dict] | None = None,
+            ) -> dict:
+                type(self).last_prompt = prompt
+                type(self).last_system_message = system_message
+                type(self).last_history = conversation_history or []
+                return {
+                    "final_response": json.dumps(
+                        {
+                            "visible_reasoning": [
+                                "Loaded workflow context for the active trace.",
+                            ],
+                            "reply_draft": "Draft reply",
+                            "final_answer": "Final reply",
+                            "confidence": 0.91,
+                            "context_summary": {
+                                "time_window": "2026-04-10T05:01:43Z to 2026-04-17T05:01:43Z",
+                                "workflow_context": "Only the inbound Slack request was surfaced.",
+                            },
+                            "self_critique": "",
+                            "proposed_actions": [],
+                            "knowledge_drafts": [
+                                {
+                                    "kind": "investigation_gap",
+                                    "scope_type": "repo",
+                                    "scope_id": "depin-backend",
+                                    "title": "Gap in accessible evidence",
+                                    "summary": "The run lacked channel excerpts.",
+                                    "body": "Only the inbound Slack request was available.",
+                                    "confidence": 0.78,
+                                    "fresh_until": "2026-04-17T06:01:43Z",
+                                    "evidence_refs": [
+                                        "rsi.workflow_context.output.recent_conversation_entries",
+                                    ],
+                                }
+                            ],
+                            "outcome_hypotheses": [
+                                {
+                                    "outcome_type": "answer_limitation",
+                                    "success_condition": "Avoid unsupported claims.",
+                                    "measurement_ref": "final_answer",
+                                    "expected_time_horizon": "immediate",
+                                }
+                            ],
+                            "validation_plan": [
+                                "Check workflow context for actual discussion evidence.",
+                                "Check repo context for Numo-related activity.",
+                            ],
+                            "retry_assessment": {
+                                "failure_class": "runner_structured_output_parse_failure",
+                                "failure_summary": "non-canonical payload shape",
+                                "retry_decision": "retry",
+                                "material_hypothesis_change": True,
+                                "changed_files": ["runner/rsi_runner/hermes_runtime.py"],
+                            },
+                            "hypothesis_delta": "Need canonical string/object normalization.",
+                        }
+                    )
+                }
+
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the workflow.",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                    "user_peer_id": "user:alice",
+                }
+            }
+        )
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", MessyStructuredOutputAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        normalized = result.raw["structured_output"]
+        self.assertEqual(
+            normalized["context_summary"],
+            json.dumps(
+                {
+                    "time_window": "2026-04-10T05:01:43Z to 2026-04-17T05:01:43Z",
+                    "workflow_context": "Only the inbound Slack request was surfaced.",
+                },
+                ensure_ascii=True,
+                sort_keys=True,
+            ),
+        )
+        self.assertEqual(normalized["validation_plan"], "Check workflow context for actual discussion evidence.\nCheck repo context for Numo-related activity.")
+        self.assertEqual(normalized["visible_reasoning"][0]["step_type"], "analysis")
+        self.assertEqual(normalized["visible_reasoning"][0]["summary"], "Loaded workflow context for the active trace.")
+        self.assertEqual(
+            normalized["knowledge_drafts"][0]["evidence_refs"],
+            [{"kind": "reference", "ref": "rsi.workflow_context.output.recent_conversation_entries"}],
+        )
+
     def test_system_message_is_forwarded_to_hermes_run_conversation(self) -> None:
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager

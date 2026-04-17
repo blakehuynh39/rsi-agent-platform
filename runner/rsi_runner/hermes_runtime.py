@@ -56,6 +56,210 @@ def _string_list(value: JsonValue | None) -> list[str]:
     return [str(item) for item in value]
 
 
+def _string_list_or_empty(value: JsonValue | None) -> list[str]:
+    if isinstance(value, list):
+        out: list[str] = []
+        for item in value:
+            text = _string_or_json(item)
+            if text:
+                out.append(text)
+        return out
+    text = _string_or_json(value)
+    if not text:
+        return []
+    return [text]
+
+
+def _string_or_json(value: JsonValue | None) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value.strip()
+    if isinstance(value, list):
+        if all(not isinstance(item, (dict, list)) for item in value):
+            return "\n".join(part for part in (str(item).strip() for item in value) if part)
+        return json.dumps(value, ensure_ascii=True, sort_keys=True)
+    if isinstance(value, dict):
+        return json.dumps(value, ensure_ascii=True, sort_keys=True)
+    return str(value).strip()
+
+
+def _float_or_zero(value: JsonValue | None) -> float:
+    if isinstance(value, Number):
+        return float(value)
+    try:
+        return float(str(value).strip())
+    except (AttributeError, TypeError, ValueError):
+        return 0.0
+
+
+def _bool_or_false(value: JsonValue | None) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        text = value.strip().lower()
+        if text in {"1", "true", "t", "yes", "y", "on"}:
+            return True
+        if text in {"0", "false", "f", "no", "n", "off"}:
+            return False
+    return False
+
+
+def _normalize_evidence_refs(value: JsonValue | None) -> list[JsonObject]:
+    if not isinstance(value, list):
+        return []
+    out: list[JsonObject] = []
+    for item in value:
+        if isinstance(item, dict):
+            ref = _string_or_json(item.get("ref"))
+            if not ref:
+                continue
+            normalized: JsonObject = {
+                "kind": _string_or_json(item.get("kind")) or "reference",
+                "ref": ref,
+            }
+            summary = _string_or_json(item.get("summary"))
+            if summary:
+                normalized["summary"] = summary
+            out.append(normalized)
+            continue
+        ref = _string_or_json(item)
+        if not ref:
+            continue
+        out.append({"kind": "reference", "ref": ref})
+    return out
+
+
+def _normalize_visible_reasoning(value: JsonValue | None) -> list[JsonObject]:
+    if not isinstance(value, list):
+        return []
+    out: list[JsonObject] = []
+    for item in value:
+        if isinstance(item, dict):
+            summary = _string_or_json(item.get("summary")) or json.dumps(item, ensure_ascii=True, sort_keys=True)
+            out.append(
+                {
+                    "step_type": _string_or_json(item.get("step_type")) or "analysis",
+                    "summary": summary,
+                    "evidence_refs": _normalize_evidence_refs(item.get("evidence_refs")),
+                    "alternatives": _string_list_or_empty(item.get("alternatives")),
+                    "confidence": _float_or_zero(item.get("confidence")),
+                    "decision": _string_or_json(item.get("decision")),
+                }
+            )
+            continue
+        summary = _string_or_json(item)
+        if not summary:
+            continue
+        out.append(
+            {
+                "step_type": "analysis",
+                "summary": summary,
+                "evidence_refs": [],
+                "alternatives": [],
+                "confidence": 0.0,
+                "decision": "",
+            }
+        )
+    return out
+
+
+def _normalize_proposed_actions(value: JsonValue | None) -> list[JsonObject]:
+    if not isinstance(value, list):
+        return []
+    out: list[JsonObject] = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        request_payload = item.get("request_payload")
+        if not isinstance(request_payload, dict):
+            request_payload = {}
+        out.append(
+            {
+                "kind": _string_or_json(item.get("kind")),
+                "target_ref": _string_or_json(item.get("target_ref")),
+                "request_payload": request_payload,
+                "approval_mode": _string_or_json(item.get("approval_mode")),
+                "idempotency_key": _string_or_json(item.get("idempotency_key")),
+                "rationale": _string_or_json(item.get("rationale")),
+                "evidence_refs": _normalize_evidence_refs(item.get("evidence_refs")),
+            }
+        )
+    return out
+
+
+def _normalize_knowledge_drafts(value: JsonValue | None) -> list[JsonObject]:
+    if not isinstance(value, list):
+        return []
+    out: list[JsonObject] = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        out.append(
+            {
+                "kind": _string_or_json(item.get("kind")),
+                "scope_type": _string_or_json(item.get("scope_type")),
+                "scope_id": _string_or_json(item.get("scope_id")),
+                "title": _string_or_json(item.get("title")),
+                "summary": _string_or_json(item.get("summary")),
+                "body": _string_or_json(item.get("body")),
+                "confidence": _float_or_zero(item.get("confidence")),
+                "fresh_until": _string_or_json(item.get("fresh_until")),
+                "evidence_refs": _normalize_evidence_refs(item.get("evidence_refs")),
+            }
+        )
+    return out
+
+
+def _normalize_outcome_hypotheses(value: JsonValue | None) -> list[JsonObject]:
+    if not isinstance(value, list):
+        return []
+    out: list[JsonObject] = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        out.append(
+            {
+                "outcome_type": _string_or_json(item.get("outcome_type")),
+                "success_condition": _string_or_json(item.get("success_condition")),
+                "measurement_ref": _string_or_json(item.get("measurement_ref")),
+                "expected_time_horizon": _string_or_json(item.get("expected_time_horizon")),
+            }
+        )
+    return out
+
+
+def _normalize_retry_assessment(value: JsonValue | None) -> JsonObject:
+    if not isinstance(value, dict):
+        return {}
+    return {
+        "failure_class": _string_or_json(value.get("failure_class")),
+        "failure_summary": _string_or_json(value.get("failure_summary")),
+        "retry_decision": _string_or_json(value.get("retry_decision")),
+        "material_hypothesis_change": _bool_or_false(value.get("material_hypothesis_change")),
+        "changed_files": _string_list_or_empty(value.get("changed_files")),
+    }
+
+
+def _normalize_structured_output(payload: JsonObject) -> JsonObject:
+    normalized = dict(payload)
+    normalized["context_summary"] = _string_or_json(payload.get("context_summary"))
+    normalized["reply_draft"] = _string_or_json(payload.get("reply_draft"))
+    normalized["final_answer"] = _string_or_json(payload.get("final_answer"))
+    normalized["confidence"] = _float_or_zero(payload.get("confidence"))
+    normalized["self_critique"] = _string_or_json(payload.get("self_critique"))
+    normalized["visible_reasoning"] = _normalize_visible_reasoning(payload.get("visible_reasoning"))
+    normalized["proposed_actions"] = _normalize_proposed_actions(payload.get("proposed_actions"))
+    normalized["knowledge_drafts"] = _normalize_knowledge_drafts(payload.get("knowledge_drafts"))
+    normalized["outcome_hypotheses"] = _normalize_outcome_hypotheses(payload.get("outcome_hypotheses"))
+    normalized["change_plan"] = _string_or_json(payload.get("change_plan"))
+    normalized["repo_patch"] = _string_or_json(payload.get("repo_patch"))
+    normalized["validation_plan"] = _string_or_json(payload.get("validation_plan"))
+    normalized["retry_assessment"] = _normalize_retry_assessment(payload.get("retry_assessment"))
+    normalized["hypothesis_delta"] = _string_or_json(payload.get("hypothesis_delta"))
+    return normalized
+
+
 def _optional_string(value: JsonValue | None) -> str | None:
     if value is None:
         return None
@@ -1121,7 +1325,7 @@ class HermesRuntime:
             raise HermesStructuredOutputError("Hermes execution returned non-JSON output; structured output is required.") from exc
         if not isinstance(parsed, dict):
             raise HermesStructuredOutputError("Hermes execution returned a non-object JSON payload; structured output must be a JSON object.")
-        return parsed
+        return _normalize_structured_output(parsed)
 
     def _structured_output_repairable(self, exc: HermesStructuredOutputError) -> bool:
         message = str(exc).lower()
