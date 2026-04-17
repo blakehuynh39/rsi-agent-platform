@@ -11,16 +11,12 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
-	"github.com/piplabs/rsi-agent-platform/internal/operation"
-	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
 const attemptAutoRetryLimit = 3
-
-var errProposalAttemptNotMaterialized = errors.New("proposal attempt not materialized")
 
 func maxInt(a int, b int) int {
 	if a > b {
@@ -223,76 +219,6 @@ func attemptsForProposal(store storepkg.Store, proposalID string) []improvement.
 	return out
 }
 
-func ensureProposalAttempt(cfg config.Config, store storepkg.Store, proposal review.Proposal, sourceTrace events.Trace, item queue.WorkItem) (improvement.ChangeAttempt, events.Trace, error) {
-	if strings.TrimSpace(proposal.CurrentAttemptID) != "" {
-		if existing, ok := store.GetChangeAttempt(proposal.CurrentAttemptID); ok && !isAttemptTerminal(existing.State) {
-			trace, ok := store.GetTrace(existing.AttemptTraceID)
-			if !ok {
-				return improvement.ChangeAttempt{}, events.Trace{}, fmt.Errorf("attempt trace %s not found", existing.AttemptTraceID)
-			}
-			return existing, trace, nil
-		}
-	}
-	if latest, ok := latestAttemptForProposal(store, proposal.ID); ok && !isAttemptTerminal(latest.State) {
-		trace, ok := store.GetTrace(latest.AttemptTraceID)
-		if !ok {
-			return improvement.ChangeAttempt{}, events.Trace{}, fmt.Errorf("attempt trace %s not found", latest.AttemptTraceID)
-		}
-		return latest, trace, nil
-	}
-	return improvement.ChangeAttempt{}, events.Trace{}, errProposalAttemptNotMaterialized
-}
-
-func prepareProposalAttempt(cfg config.Config, proposal review.Proposal, sourceTrace events.Trace, item queue.WorkItem) (improvement.ChangeAttempt, storepkg.DerivedTraceRequest) {
-	nextNumber := int(intFromAny(item.Payload["attempt_number"]))
-	parentAttemptID := stringValue(item.Payload["parent_attempt"])
-	if nextNumber <= 0 {
-		nextNumber = proposal.AttemptCount + 1
-	}
-	if nextNumber <= 0 {
-		nextNumber = 1
-	}
-	trigger := improvement.AttemptTriggerProposalApproved
-	if raw := strings.TrimSpace(stringValue(item.Payload["trigger"])); raw != "" {
-		trigger = improvement.ChangeAttemptTrigger(raw)
-	}
-	now := time.Now().UTC()
-	attempt := improvement.ChangeAttempt{
-		ID:              fmt.Sprintf("attempt-%s-%02d", strings.ReplaceAll(strings.TrimSpace(proposal.ID), "/", "-"), nextNumber),
-		ProposalID:      proposal.ID,
-		CandidateKey:    proposal.CandidateKey,
-		AttemptNumber:   nextNumber,
-		TargetLayer:     proposal.TargetLayer,
-		TargetKind:      proposal.TargetKind,
-		TargetRef:       proposal.TargetRef,
-		Trigger:         trigger,
-		State:           improvement.AttemptStatePatchPlan,
-		ParentAttemptID: parentAttemptID,
-		BranchName:      buildAttemptBranchName(proposal.ID, nextNumber),
-		CreatedAt:       now,
-		UpdatedAt:       now,
-	}
-	if proposal.RecommendedInterventionKind == review.InterventionHarnessOverlay {
-		attempt.State = improvement.AttemptStateOverlayPlan
-	}
-	description := fmt.Sprintf("Queued remediation attempt %d for proposal %s triggered by %s.", nextNumber, proposal.ID, trigger)
-	traceReq := storepkg.DerivedTraceRequest{
-		SourceTraceID:  sourceTrace.Summary.TraceID,
-		ProposalID:     proposal.ID,
-		AttemptID:      attempt.ID,
-		ConversationID: proposal.ConversationID,
-		CaseID:         proposal.CaseID,
-		ThreadKey:      sourceTrace.Summary.ThreadKey,
-		WorkflowKind:   "proposal_attempt",
-		RequestedBy:    cfg.ServiceName,
-		Description:    description,
-		TriggerEventID: sourceTrace.Summary.TriggerEventID,
-		IngestionID:    sourceTrace.Summary.IngestionID,
-		CreatedAt:      now,
-	}
-	return attempt, traceReq
-}
-
 func buildAttemptBranchName(proposalID string, attemptNumber int) string {
 	return fmt.Sprintf("codex/%s/attempt-%02d", proposalID, attemptNumber)
 }
@@ -386,14 +312,17 @@ func shouldAutoRetryAttempt(attempt improvement.ChangeAttempt, failureClass stri
 	return attempt.AttemptNumber < attemptAutoRetryLimit
 }
 
-func latestActiveAttemptOperation(store storepkg.Store, attemptID string) (operation.Execution, bool) {
+func latestRelevantAttemptEffect(store storepkg.Store, attempt improvement.ChangeAttempt) (transition.EffectExecution, bool) {
 	var (
-		current   operation.Execution
+		current   transition.EffectExecution
 		found     bool
 		updatedAt time.Time
 	)
-	for _, item := range store.ListOperationsByScope(operation.ScopeAttempt, attemptID) {
-		if item.Status != operation.StatusQueued && item.Status != operation.StatusRunning {
+	for _, item := range store.ListEffectExecutionsByAggregate(transition.MachineAttempt, attempt.ID) {
+		if item.Status != transition.EffectQueued && item.Status != transition.EffectRunning {
+			continue
+		}
+		if !attemptEffectMatchesState(item.EffectKind, attempt.State) {
 			continue
 		}
 		if !found || item.UpdatedAt.After(updatedAt) {
@@ -405,36 +334,14 @@ func latestActiveAttemptOperation(store storepkg.Store, attemptID string) (opera
 	return current, found
 }
 
-func latestRelevantAttemptOperation(store storepkg.Store, attempt improvement.ChangeAttempt) (operation.Execution, bool) {
-	var (
-		current   operation.Execution
-		found     bool
-		updatedAt time.Time
-	)
-	for _, item := range store.ListOperationsByScope(operation.ScopeAttempt, attempt.ID) {
-		if item.Status != operation.StatusQueued && item.Status != operation.StatusRunning {
-			continue
-		}
-		if !attemptOperationMatchesState(strings.TrimSpace(item.OperationKind), attempt.State) {
-			continue
-		}
-		if !found || item.UpdatedAt.After(updatedAt) {
-			current = item
-			updatedAt = item.UpdatedAt
-			found = true
-		}
-	}
-	return current, found
-}
-
-func attemptOperationMatchesState(kind string, state improvement.ChangeAttemptState) bool {
+func attemptEffectMatchesState(kind transition.EffectKind, state improvement.ChangeAttemptState) bool {
 	switch state {
 	case improvement.AttemptStatePatchGenerated, improvement.AttemptStateOverlayGenerated:
-		return kind == "implement_attempt" || kind == "workspace_validate"
+		return kind == transition.EffectWorkspaceValidate
 	case improvement.AttemptStateValidationRunning, improvement.AttemptStateOverlayValidating:
-		return kind == "workspace_validate" || kind == "pr_open"
+		return kind == transition.EffectWorkspaceValidate || kind == transition.EffectObserveWorkspaceValidation || kind == transition.EffectOpenDraftPR
 	case improvement.AttemptStatePROpen, improvement.AttemptStateCIObserving:
-		return kind == "pr_open"
+		return false
 	case improvement.AttemptStateSandboxFailed,
 		improvement.AttemptStateCIFailed,
 		improvement.AttemptStateClosedUnmerged,
@@ -445,7 +352,7 @@ func attemptOperationMatchesState(kind string, state improvement.ChangeAttemptSt
 		improvement.AttemptStateOverlayActive:
 		return false
 	default:
-		return kind == "line_activate" || kind == "attempt_plan" || kind == "workspace_open" || kind == "implement_attempt" || kind == "workspace_validate" || kind == "pr_open"
+		return kind == transition.EffectOpenWorkspace || kind == transition.EffectInvokeRunner
 	}
 }
 
@@ -453,74 +360,74 @@ func failureAttemptCommand(store storepkg.Store, proposal review.Proposal, attem
 	if currentAttempt, ok := store.GetChangeAttempt(attempt.ID); ok {
 		attempt = currentAttempt
 	}
-	currentOp, ok := latestRelevantAttemptOperation(store, attempt)
-	currentOpKind := ""
-	currentOpID := ""
+	currentEffect, ok := latestRelevantAttemptEffect(store, attempt)
+	currentEffectKind := transition.EffectKind("")
+	currentOperationID := ""
 	if ok {
-		currentOpKind = strings.TrimSpace(currentOp.OperationKind)
-		currentOpID = strings.TrimSpace(currentOp.ID)
+		currentEffectKind = currentEffect.EffectKind
+		currentOperationID = strings.TrimSpace(stringValue(currentEffect.Payload["operation_id"]))
 	}
 	switch strings.TrimSpace(failureClass) {
 	case "ci_regression":
-		return transition.CommandAttemptCIFailed, currentOpID
+		return transition.CommandAttemptCIFailed, currentOperationID
 	case "closed_unmerged":
-		return transition.CommandAttemptClosedUnmerged, currentOpID
+		return transition.CommandAttemptClosedUnmerged, currentOperationID
 	case "stale_branch":
 		if retryable {
-			return transition.CommandPROpenFailedRetryable, currentOpID
+			return transition.CommandPROpenFailedRetryable, currentOperationID
 		}
-		return transition.CommandPROpenFailedReview, currentOpID
+		return transition.CommandPROpenFailedReview, currentOperationID
 	}
-	switch currentOpKind {
-	case "workspace_open":
+	switch currentEffectKind {
+	case transition.EffectOpenWorkspace:
 		if retryable {
-			return transition.CommandWorkspaceFailedRetryable, currentOpID
+			return transition.CommandWorkspaceFailedRetryable, currentOperationID
 		}
-		return transition.CommandWorkspaceFailedReview, currentOpID
-	case "workspace_validate":
+		return transition.CommandWorkspaceFailedReview, currentOperationID
+	case transition.EffectWorkspaceValidate, transition.EffectObserveWorkspaceValidation:
 		if retryable {
-			return transition.CommandValidationFailedRetryable, currentOpID
+			return transition.CommandValidationFailedRetryable, currentOperationID
 		}
-		return transition.CommandValidationFailedReview, currentOpID
-	case "pr_open":
+		return transition.CommandValidationFailedReview, currentOperationID
+	case transition.EffectOpenDraftPR:
 		if retryable {
-			return transition.CommandPROpenFailedRetryable, currentOpID
+			return transition.CommandPROpenFailedRetryable, currentOperationID
 		}
-		return transition.CommandPROpenFailedReview, currentOpID
-	case "implement_attempt":
+		return transition.CommandPROpenFailedReview, currentOperationID
+	case transition.EffectInvokeRunner:
 		if retryable {
-			return transition.CommandImplementationFailedRetryable, currentOpID
+			return transition.CommandImplementationFailedRetryable, currentOperationID
 		}
-		return transition.CommandImplementationFailedReview, currentOpID
+		return transition.CommandImplementationFailedReview, currentOperationID
 	}
 	switch attempt.State {
 	case improvement.AttemptStateValidationRunning, improvement.AttemptStateOverlayValidating:
 		if retryable {
-			return transition.CommandValidationFailedRetryable, currentOpID
+			return transition.CommandValidationFailedRetryable, currentOperationID
 		}
-		return transition.CommandValidationFailedReview, currentOpID
+		return transition.CommandValidationFailedReview, currentOperationID
 	case improvement.AttemptStatePROpen, improvement.AttemptStateCIObserving:
 		if retryable {
-			return transition.CommandPROpenFailedRetryable, currentOpID
+			return transition.CommandPROpenFailedRetryable, currentOperationID
 		}
-		return transition.CommandPROpenFailedReview, currentOpID
+		return transition.CommandPROpenFailedReview, currentOperationID
 	}
 	switch proposal.Status {
 	case review.ProposalRepoChangeQueued:
 		if retryable {
-			return transition.CommandWorkspaceFailedRetryable, currentOpID
+			return transition.CommandWorkspaceFailedRetryable, currentOperationID
 		}
-		return transition.CommandWorkspaceFailedReview, currentOpID
+		return transition.CommandWorkspaceFailedReview, currentOperationID
 	case review.ProposalValidationPending:
 		if retryable {
-			return transition.CommandValidationFailedRetryable, currentOpID
+			return transition.CommandValidationFailedRetryable, currentOperationID
 		}
-		return transition.CommandValidationFailedReview, currentOpID
+		return transition.CommandValidationFailedReview, currentOperationID
 	}
 	if retryable {
-		return transition.CommandImplementationFailedRetryable, currentOpID
+		return transition.CommandImplementationFailedRetryable, currentOperationID
 	}
-	return transition.CommandImplementationFailedReview, currentOpID
+	return transition.CommandImplementationFailedReview, currentOperationID
 }
 
 func attemptFailureTraceStatus(failureClass string, retryable bool) string {
@@ -635,41 +542,6 @@ func recordAttemptFailure(cfg config.Config, store storepkg.Store, proposal revi
 	}
 	commandID := fmt.Sprintf("cmd-proposal-attempt-failure:%s:%s", attempt.ID, failureClass)
 	return submitProposalCommand(store, proposal, proposalCommand, cfg.ServiceName, now, commandID, failureSummary)
-}
-
-func recordProposalPhaseAttemptFailure(cfg config.Config, store storepkg.Store, proposal review.Proposal, attempt improvement.ChangeAttempt, trace events.Trace, item queue.WorkItem, failureClass string, failureSummary string, materialChange bool, trigger improvement.ChangeAttemptTrigger, workspace *improvement.AttemptWorkspace, job *improvement.RepoChangeJob) error {
-	req := storepkg.ProposalAttemptPhaseFailure{
-		ProposalID:  proposal.ID,
-		WorkItemID:  item.ID,
-		OperationID: item.OperationID,
-		LastError:   failureSummary,
-	}
-	if err := store.FailProposalAttemptPhase(req); err != nil {
-		return err
-	}
-	payload := map[string]any{
-		"operation_id": item.OperationID,
-	}
-	if workspace != nil {
-		payload["workspace_id"] = workspace.ID
-		payload["workspace_namespace"] = workspace.Namespace
-		payload["workspace_job_name"] = workspace.JobName
-		payload["workspace_pod_name"] = workspace.PodName
-	}
-	if job != nil {
-		payload["job_id"] = job.ID
-		payload["sandbox_namespace"] = firstNonEmpty(job.SandboxNamespace, payloadString(payload["workspace_namespace"]))
-		payload["sandbox_job_name"] = firstNonEmpty(job.SandboxJobName, payloadString(payload["workspace_job_name"]))
-		payload["sandbox_pod_name"] = firstNonEmpty(job.SandboxPodName, payloadString(payload["workspace_pod_name"]))
-		payload["validation_ref"] = job.ValidationRef
-		payload["validation_error"] = failureSummary
-	}
-	if err := recordAttemptFailure(cfg, store, proposal, attempt, trace, failureClass, failureSummary, materialChange, trigger, attemptFailureTraceExtras{
-		Payload: payload,
-	}); err != nil {
-		return err
-	}
-	return errProposalPhaseFailed
 }
 
 func payloadString(raw any) string {

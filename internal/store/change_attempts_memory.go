@@ -39,22 +39,10 @@ func (s *MemoryStore) GetChangeAttempt(attemptID string) (improvement.ChangeAtte
 	return normalizeChangeAttempt(item), true
 }
 
-func (s *MemoryStore) UpsertChangeAttempt(item improvement.ChangeAttempt) (improvement.ChangeAttempt, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.upsertChangeAttemptLocked(item)
-}
-
 func (s *MemoryStore) StopProposalLine(proposalID string, requestedBy string, rationale string) (review.Proposal, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	return s.stopProposalLineLocked(proposalID, requestedBy, rationale)
-}
-
-func (s *MemoryStore) CreateDerivedTrace(req DerivedTraceRequest) (events.Trace, Workflow, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.createDerivedTraceLocked(req)
 }
 
 func (s *MemoryStore) createDerivedTraceLocked(req DerivedTraceRequest) (events.Trace, Workflow, error) {

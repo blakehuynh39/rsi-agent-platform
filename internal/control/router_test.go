@@ -155,7 +155,7 @@ func TestGitHubWebhookRejectsInvalidSignature(t *testing.T) {
 func TestGitHubWebhookIgnoresUnknownProposalWithoutWorkflow(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	initialOutcomes := len(store.ListOutcomes())
-	initialWorkItems := len(store.ListWorkItems())
+	initialTraces := len(store.ListTraces())
 	cfg := config.Config{
 		ServiceName:         "control-plane",
 		Environment:         "stage",
@@ -201,8 +201,8 @@ func TestGitHubWebhookIgnoresUnknownProposalWithoutWorkflow(t *testing.T) {
 	if len(store.ListOutcomes()) != initialOutcomes {
 		t.Fatalf("expected no new linked outcomes, got %d -> %d", initialOutcomes, len(store.ListOutcomes()))
 	}
-	if len(store.ListWorkItems()) != initialWorkItems {
-		t.Fatalf("expected no new workflow work items, got %d -> %d", initialWorkItems, len(store.ListWorkItems()))
+	if len(store.ListTraces()) != initialTraces {
+		t.Fatalf("expected no new workflow traces, got %d -> %d", initialTraces, len(store.ListTraces()))
 	}
 }
 
@@ -248,14 +248,14 @@ func TestLegacyThreadPolicyMutationRoutesAbsent(t *testing.T) {
 func TestGitHubWebhookClosedPRQueuesRetryForCurrentAttempt(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	proposal := store.ListProposals()[0]
-	if _, err := store.ReviewProposal(proposal.ID, review.ProposalReview{
+	if _, err := storepkg.ReviewProposalForTesting(store, proposal.ID, review.ProposalReview{
 		Decision:   string(review.ProposalApproved),
 		Rationale:  "Approved for recursive remediation.",
 		ReviewerID: "operator",
 	}); err != nil {
 		t.Fatalf("approve proposal: %v", err)
 	}
-	attempt, err := store.UpsertChangeAttempt(improvement.ChangeAttempt{
+	attempt, err := storepkg.SeedChangeAttemptForTesting(store, improvement.ChangeAttempt{
 		ProposalID:     proposal.ID,
 		CandidateKey:   proposal.CandidateKey,
 		AttemptNumber:  1,
@@ -352,14 +352,14 @@ func TestGitHubWebhookClosedPRQueuesRetryForCurrentAttempt(t *testing.T) {
 func TestGitHubWebhookOpenedPRRoutesProposalThroughCommand(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	proposal := store.ListProposals()[0]
-	if _, err := store.ReviewProposal(proposal.ID, review.ProposalReview{
+	if _, err := storepkg.ReviewProposalForTesting(store, proposal.ID, review.ProposalReview{
 		Decision:   string(review.ProposalApproved),
 		Rationale:  "Approved for recursive remediation.",
 		ReviewerID: "operator",
 	}); err != nil {
 		t.Fatalf("approve proposal: %v", err)
 	}
-	attempt, err := store.UpsertChangeAttempt(improvement.ChangeAttempt{
+	attempt, err := storepkg.SeedChangeAttemptForTesting(store, improvement.ChangeAttempt{
 		ProposalID:     proposal.ID,
 		CandidateKey:   proposal.CandidateKey,
 		AttemptNumber:  1,
@@ -445,14 +445,14 @@ func TestGitHubWebhookOpenedPRRoutesProposalThroughCommand(t *testing.T) {
 func TestGitHubWebhookMergedPRRoutesProposalThroughCommand(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	proposal := store.ListProposals()[0]
-	if _, err := store.ReviewProposal(proposal.ID, review.ProposalReview{
+	if _, err := storepkg.ReviewProposalForTesting(store, proposal.ID, review.ProposalReview{
 		Decision:   string(review.ProposalApproved),
 		Rationale:  "Approved for recursive remediation.",
 		ReviewerID: "operator",
 	}); err != nil {
 		t.Fatalf("approve proposal: %v", err)
 	}
-	attempt, err := store.UpsertChangeAttempt(improvement.ChangeAttempt{
+	attempt, err := storepkg.SeedChangeAttemptForTesting(store, improvement.ChangeAttempt{
 		ProposalID:     proposal.ID,
 		CandidateKey:   proposal.CandidateKey,
 		AttemptNumber:  1,

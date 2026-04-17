@@ -38,7 +38,6 @@ type commandApplyResult struct {
 	threadKey           string
 	attemptID           string
 	traceID             string
-	workItemID          string
 	candidateKey        string
 	evalRunID           string
 	evalJudgments       []evals.Judgment
@@ -1045,7 +1044,6 @@ func (s *MemoryStore) applyProposalCommandLocked(command transition.CommandEnvel
 		State:            proposal.Status,
 		InterventionKind: proposal.RecommendedInterventionKind,
 	}, command)
-	var workItem queue.WorkItem
 	attemptID := strings.TrimSpace(proposal.CurrentAttemptID)
 	traceID := ""
 	var nextAttemptCommand *transition.CommandEnvelope
@@ -1130,6 +1128,13 @@ func (s *MemoryStore) applyProposalCommandLocked(command transition.CommandEnvel
 			}
 			proposal = item
 		case transition.CommandProposalRetryAttempt:
+			if proposal.Status == review.ProposalFailedValidation {
+				item, err := s.updateProposalStatusLocked(command.AggregateID, review.ProposalApproved)
+				if err != nil {
+					return commandApplyResult{}, err
+				}
+				proposal = item
+			}
 			if nextProposal, nextAttempt, nextTraceID, nextPhaseCommand, handled, err := s.materializeApprovedProposalAttemptLocked(command, proposal); err != nil {
 				return commandApplyResult{}, err
 			} else if handled {
@@ -1140,11 +1145,6 @@ func (s *MemoryStore) applyProposalCommandLocked(command transition.CommandEnvel
 				suppressResumeFollowOn = true
 				break
 			}
-			item, err := s.resumeProposalExecutionLocked(command.AggregateID, command.Actor)
-			if err != nil {
-				return commandApplyResult{}, err
-			}
-			workItem = item
 			proposal = s.proposals[command.AggregateID]
 			attemptID = strings.TrimSpace(proposal.CurrentAttemptID)
 			suppressResumeFollowOn = true
@@ -1158,11 +1158,6 @@ func (s *MemoryStore) applyProposalCommandLocked(command transition.CommandEnvel
 				nextAttemptCommand = attemptFollowOnCommand(command, nextProposal, nextAttempt, nextTraceID, nextPhaseCommand)
 				break
 			}
-			item, err := s.resumeProposalExecutionLocked(command.AggregateID, command.Actor)
-			if err != nil {
-				return commandApplyResult{}, err
-			}
-			workItem = item
 			proposal = s.proposals[command.AggregateID]
 			attemptID = strings.TrimSpace(proposal.CurrentAttemptID)
 		default:
@@ -1173,12 +1168,11 @@ func (s *MemoryStore) applyProposalCommandLocked(command transition.CommandEnvel
 		return commandApplyResult{}, fmt.Errorf("unsupported proposal decision kind %s", decision.DecisionKind)
 	}
 	result := commandApplyResult{
-		receipt:    buildCommandReceipt(command, decision.TransitionDecision, command.OccurredAt, proposal.Version, firstNonEmpty(workItem.ID, proposal.ID)),
+		receipt:    buildCommandReceipt(command, decision.TransitionDecision, command.OccurredAt, proposal.Version, proposal.ID),
 		bundle:     buildCommandBundle(command, decision.TransitionDecision, proposal.Version),
 		proposalID: proposal.ID,
 		attemptID:  firstNonEmpty(attemptID, strings.TrimSpace(proposal.CurrentAttemptID)),
 		traceID:    traceID,
-		workItemID: strings.TrimSpace(workItem.ID),
 	}
 	if nextAttemptCommand != nil {
 		appendFollowOnCommand(&result.bundle, command, *nextAttemptCommand, "proposal materialized attempt and queued the first executable attempt command")
@@ -1261,24 +1255,6 @@ func (s *MemoryStore) materializeApprovedProposalAttemptLocked(command transitio
 	return proposal, recordedAttempt, createdTrace.Summary.TraceID, nextCommand, true, nil
 }
 
-func (s *MemoryStore) resumeApprovedProposalAttemptLocked(command transition.CommandEnvelope, proposal review.Proposal) (review.Proposal, improvement.ChangeAttempt, string, queue.WorkItem, bool, error) {
-	proposal, recordedAttempt, traceID, nextCommand, handled, err := s.materializeApprovedProposalAttemptLocked(command, proposal)
-	if err != nil || !handled {
-		return proposal, recordedAttempt, traceID, queue.WorkItem{}, handled, err
-	}
-	nextPhase, err := proposalPhaseKindForAttemptPlanCommand(nextCommand)
-	if err != nil {
-		return review.Proposal{}, improvement.ChangeAttempt{}, "", queue.WorkItem{}, false, err
-	}
-	nextOp := proposalPhaseOperationTemplate(nextPhase, proposal, recordedAttempt, firstNonEmpty(command.Actor, "formal-transition"))
-	nextItem := proposalPhaseWorkItemTemplate(nextPhase, proposal, recordedAttempt, firstNonEmpty(command.Actor, "formal-transition"), proposalPhaseWorkItemPayload(nextPhase, proposal, recordedAttempt, nil, nil))
-	_, queuedItem, _, err := s.ensureOperationWorkItemLocked(nextOp, nextItem)
-	if err != nil {
-		return review.Proposal{}, improvement.ChangeAttempt{}, "", queue.WorkItem{}, false, err
-	}
-	return proposal, recordedAttempt, traceID, queuedItem, true, nil
-}
-
 func (s *MemoryStore) supersedeNonCurrentActiveAttemptsLocked(proposalID string, keepAttemptID string, now time.Time) {
 	proposalID = strings.TrimSpace(proposalID)
 	keepAttemptID = strings.TrimSpace(keepAttemptID)
@@ -1325,29 +1301,6 @@ func (s *MemoryStore) supersedeNonCurrentActiveAttemptsLocked(proposalID string,
 		s.operations[opID] = item
 	}
 
-	for workID, item := range s.workItems {
-		if item.OperationID != "" {
-			if op, ok := s.operations[item.OperationID]; ok {
-				if _, stale := staleAttemptIDs[strings.TrimSpace(op.AttemptID)]; !stale {
-					continue
-				}
-			} else {
-				continue
-			}
-		} else {
-			continue
-		}
-		if item.Status != queue.WorkQueued && item.Status != queue.WorkLeased {
-			continue
-		}
-		item.Status = queue.WorkCanceled
-		item.LeaseOwner = ""
-		item.LeaseExpiresAt = nil
-		item.LastError = firstNonEmpty(item.LastError, "work item superseded by newer proposal attempt")
-		item.UpdatedAt = now
-		item.CompletedAt = &now
-		s.workItems[workID] = item
-	}
 }
 
 func proposalAttemptTriggerFromCommand(command transition.CommandEnvelope) improvement.ChangeAttemptTrigger {
@@ -1990,10 +1943,7 @@ func persistCommandMutation(tx *sql.Tx, store *MemoryStore, result commandApplyR
 				}
 			}
 		}
-		if err := persistProposalScopedOperations(tx, store, proposal.ID, result.attemptID); err != nil {
-			return err
-		}
-		return persistProposalScopedWorkItems(tx, store, proposal.ID, result.attemptID)
+		return persistProposalScopedOperations(tx, store, proposal.ID, result.attemptID)
 	case transition.MachineAttempt:
 		attempt, ok := store.changeAttempts[result.attemptID]
 		if !ok {
@@ -2044,7 +1994,7 @@ func persistCommandMutation(tx *sql.Tx, store *MemoryStore, result commandApplyR
 				}
 			}
 		}
-		return persistProposalScopedWorkItems(tx, store, attempt.ProposalID, attempt.ID)
+		return nil
 	case transition.MachineHarness:
 		if strings.TrimSpace(result.harnessOverlayID) != "" {
 			if err := replaceHarnessOverlayScope(tx, store, result.harnessOverlayID); err != nil {
@@ -2083,19 +2033,6 @@ func persistProposalScopedOperations(tx *sql.Tx, store *MemoryStore, proposalID 
 		return nil
 	}
 	return persistOperations(tx, temp)
-}
-
-func persistProposalScopedWorkItems(tx *sql.Tx, store *MemoryStore, proposalID string, attemptID string) error {
-	temp := newSubsetStore()
-	for _, item := range store.workItems {
-		if item.ProposalID == proposalID || (attemptID != "" && stringFromPayload(item.Payload, "attempt_id") == attemptID) {
-			temp.workItems[item.ID] = item
-		}
-	}
-	if len(temp.workItems) == 0 {
-		return nil
-	}
-	return persistWorkItems(tx, temp)
 }
 
 func buildCommandReceipt(command transition.CommandEnvelope, decision transition.TransitionDecision, updatedAt time.Time, version int64, resultRef string) transition.CommandReceipt {
@@ -2278,17 +2215,6 @@ func attemptFollowOnCommand(parent transition.CommandEnvelope, proposal review.P
 		Actor:       firstNonEmpty(parent.Actor, "formal-transition"),
 		OccurredAt:  parent.OccurredAt,
 		Payload:     payload,
-	}
-}
-
-func proposalPhaseKindForAttemptPlanCommand(kind transition.AttemptPhaseCommandKind) (string, error) {
-	switch kind {
-	case transition.CommandAttemptPlannedWorkspace:
-		return "workspace_open", nil
-	case transition.CommandAttemptPlannedImplement:
-		return "implement_attempt", nil
-	default:
-		return "", fmt.Errorf("unsupported attempt bootstrap command %q", kind)
 	}
 }
 
@@ -3728,154 +3654,4 @@ func (s *MemoryStore) stopProposalLineLocked(proposalID string, requestedBy stri
 		CreatedAt:         now,
 	})
 	return proposal, nil
-}
-
-func (s *MemoryStore) resumeProposalExecutionLocked(proposalID string, requestedBy string) (queue.WorkItem, error) {
-	return s.retryProposalRepoChangeLocked(proposalID, requestedBy)
-}
-
-func (s *MemoryStore) retryProposalRepoChangeLocked(proposalID string, requestedBy string) (queue.WorkItem, error) {
-	proposal, ok := s.proposals[proposalID]
-	if !ok {
-		return queue.WorkItem{}, errors.New("proposal not found")
-	}
-	if (proposal.Status == review.ProposalRepoChangeQueued || proposal.Status == review.ProposalValidationPending) && strings.TrimSpace(proposal.CurrentAttemptID) != "" {
-		currentAttemptID := strings.TrimSpace(proposal.CurrentAttemptID)
-		if active, ok := activeRepoChangeResumeOperation(listOperationsByScopeLocked(s.operations, operation.ScopeAttempt, currentAttemptID)); ok {
-			if item, ok := findWorkItemByOperationLocked(s.workItems, active.ID); ok && (item.Status == queue.WorkQueued || item.Status == queue.WorkLeased) {
-				return item, nil
-			}
-		}
-	}
-	if item, queued, err := s.reconcileProposalAttemptPhaseLocked(proposalID, requestedBy); err != nil {
-		return queue.WorkItem{}, err
-	} else if queued || item.ID != "" {
-		return item, nil
-	}
-	var repoJob improvement.RepoChangeJob
-	found := false
-	for _, item := range s.repoChangeJobs {
-		if item.ProposalID == proposalID && item.AttemptID == proposal.CurrentAttemptID {
-			repoJob = item
-			found = true
-			break
-		}
-	}
-	if !found && proposal.Status != review.ProposalApproved {
-		return queue.WorkItem{}, errors.New("repo change job not found")
-	}
-	now := time.Now().UTC()
-	switch proposal.Status {
-	case review.ProposalApproved:
-		command := transition.CommandEnvelope{
-			MachineKind: transition.MachineProposalLine,
-			AggregateID: proposal.ID,
-			CommandKind: string(transition.CommandProposalResumeExecution),
-			CommandID:   fmt.Sprintf("cmd-proposal-resume:%s:%d", proposal.ID, now.UnixNano()),
-			Actor:       requestedBy,
-			OccurredAt:  now,
-			Payload: map[string]any{
-				"trigger":        string(improvement.AttemptTriggerOperatorRetry),
-				"parent_attempt": proposal.CurrentAttemptID,
-				"candidate_key":  proposal.CandidateKey,
-				"risk_tier":      proposal.RiskTier,
-				"attempt_number": maxInt(1, proposal.AttemptCount+1),
-			},
-		}
-		if _, _, _, item, handled, err := s.resumeApprovedProposalAttemptLocked(command, proposal); err != nil {
-			return queue.WorkItem{}, err
-		} else if handled {
-			return item, nil
-		}
-		return queue.WorkItem{}, errors.New("approved proposal resume did not materialize follow-on work")
-	case review.ProposalRepoChangeQueued, review.ProposalFailedValidation:
-		if !found {
-			return queue.WorkItem{}, errors.New("repo change job not found")
-		}
-		repoJob.Status = string(review.ProposalRepoChangeQueued)
-		repoJob.ValidationError = ""
-		repoJob.ValidationRef = ""
-		repoJob.LogArtifactID = ""
-		repoJob.UpdatedAt = now
-		s.repoChangeJobs[repoJob.ID] = repoJob
-		proposal.Status = review.ProposalRepoChangeQueued
-		proposal.ActiveSlotConsuming = true
-		s.proposals[proposal.ID] = proposal
-		_, item, _, err := s.ensureOperationWorkItemLocked(operation.Execution{
-			ScopeKind:     operation.ScopeAttempt,
-			ScopeID:       repoJob.AttemptID,
-			OperationKind: "sandbox_launch",
-			OperationKey:  "sandbox_launch",
-			Status:        operation.StatusQueued,
-			Queue:         queue.SandboxQueue,
-			RequestedBy:   requestedBy,
-			TraceID:       proposal.TraceID,
-			ProposalID:    proposal.ID,
-			AttemptID:     repoJob.AttemptID,
-		}, queue.WorkItem{
-			Queue:          queue.SandboxQueue,
-			Kind:           "repo_change_job",
-			Status:         queue.WorkQueued,
-			TraceID:        proposal.TraceID,
-			ConversationID: proposal.ConversationID,
-			CaseID:         proposal.CaseID,
-			TriggerEventID: proposal.OriginTraceID,
-			ProposalID:     proposal.ID,
-			RepoScope:      repoJob.Repo,
-			RequestedBy:    requestedBy,
-			ApprovalMode:   "approved",
-			CreatedAt:      now,
-			UpdatedAt:      now,
-			Payload: map[string]interface{}{
-				"attempt_id":  repoJob.AttemptID,
-				"branch_name": repoJob.BranchName,
-				"base_ref":    repoJob.BaseRef,
-				"job_id":      repoJob.ID,
-			},
-		})
-		return item, err
-	case review.ProposalValidationPending:
-		if !found {
-			return queue.WorkItem{}, errors.New("repo change job not found")
-		}
-		_, item, _, err := s.ensureOperationWorkItemLocked(operation.Execution{
-			ScopeKind:     operation.ScopeAttempt,
-			ScopeID:       repoJob.AttemptID,
-			OperationKind: "pr_open",
-			OperationKey:  "pr_open",
-			Status:        operation.StatusQueued,
-			Queue:         queue.ImprovementActionQueue,
-			RequestedBy:   requestedBy,
-			TraceID:       proposal.TraceID,
-			ProposalID:    proposal.ID,
-			AttemptID:     repoJob.AttemptID,
-		}, queue.WorkItem{
-			Queue:          queue.ImprovementActionQueue,
-			Kind:           "draft_pr_open",
-			Status:         queue.WorkQueued,
-			TraceID:        proposal.TraceID,
-			ConversationID: proposal.ConversationID,
-			CaseID:         proposal.CaseID,
-			TriggerEventID: proposal.OriginTraceID,
-			ProposalID:     proposal.ID,
-			RepoScope:      repoJob.Repo,
-			RequestedBy:    requestedBy,
-			ApprovalMode:   "approved",
-			CreatedAt:      now,
-			UpdatedAt:      now,
-			Payload: map[string]interface{}{
-				"attempt_id":  repoJob.AttemptID,
-				"job_id":      repoJob.ID,
-				"job_name":    repoJob.SandboxJobName,
-				"namespace":   repoJob.SandboxNamespace,
-				"repo":        repoJob.Repo,
-				"branch_name": repoJob.BranchName,
-				"base_ref":    repoJob.BaseRef,
-			},
-		})
-		return item, err
-	default:
-		return queue.WorkItem{}, fmt.Errorf("proposal %s is not retryable", proposal.Status)
-	}
-	return queue.WorkItem{}, fmt.Errorf("proposal %s is not retryable", proposal.Status)
 }

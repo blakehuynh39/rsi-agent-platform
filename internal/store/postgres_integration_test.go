@@ -13,6 +13,7 @@ import (
 	platformdb "github.com/piplabs/rsi-agent-platform/internal/db"
 	"github.com/piplabs/rsi-agent-platform/internal/evals"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
+	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
@@ -85,28 +86,55 @@ func TestPostgresRetryProposalRepoChangePersistsSandboxRequeue(t *testing.T) {
 	defer store.db.Close()
 
 	_, _, _, proposal := seedPromotableFailureProposal(t, store)
-	if _, err := store.ReviewProposal(proposal.ID, review.ProposalReview{
+	approved, err := ReviewProposalForTesting(store, proposal.ID, review.ProposalReview{
 		Decision:   string(review.ProposalApproved),
 		Rationale:  "Proceed with repo-change work.",
 		ReviewerID: "alice",
-	}); err != nil {
+	})
+	if err != nil {
 		t.Fatalf("approve proposal: %v", err)
 	}
-	job, err := store.MaterializeApprovedProposal(proposal.ID, "alice")
-	if err != nil {
-		t.Fatalf("materialize proposal: %v", err)
+	if strings.TrimSpace(approved.CurrentAttemptID) == "" {
+		t.Fatalf("expected current attempt after approval, got %+v", approved)
 	}
-	if _, err := store.UpdateRepoChangeJobStatus(job.ID, string(review.ProposalFailedValidation)); err != nil {
-		t.Fatalf("update job status: %v", err)
+	now := time.Now().UTC()
+	if _, err := SeedRepoChangeJobForTesting(store, improvement.RepoChangeJob{
+		ID:               "job-postgres-retry-1",
+		ProposalID:       proposal.ID,
+		AttemptID:        approved.CurrentAttemptID,
+		ConversationID:   approved.ConversationID,
+		CaseID:           approved.CaseID,
+		OriginTraceID:    firstNonEmpty(approved.OriginTraceID, approved.TraceID),
+		CandidateKey:     approved.CandidateKey,
+		Status:           string(review.ProposalFailedValidation),
+		Repo:             "rsi-agent-platform",
+		BaseRef:          "main",
+		BranchName:       "codex/postgres-retry",
+		AllowedPathGlobs: []string{"internal/**"},
+		CreatedAt:        now,
+		UpdatedAt:        now,
+	}); err != nil {
+		t.Fatalf("upsert repo change job: %v", err)
 	}
 	submitProposalCommandForTest(t, store, proposal.ID, transition.CommandProposalMarkFailedValidation, "cmd-postgres-integration-proposal-failed-validation", nil)
 
-	item, err := store.RetryProposalRepoChange(proposal.ID, "alice")
+	receipt, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineProposalLine,
+		AggregateID: proposal.ID,
+		CommandKind: string(transition.CommandProposalRetryAttempt),
+		CommandID:   "cmd-postgres-integration-retry",
+		Actor:       "alice",
+		OccurredAt:  now.Add(time.Second),
+		Payload: map[string]any{
+			"reviewer_id": "alice",
+			"scope":       string(review.FeedbackScopeLine),
+		},
+	})
 	if err != nil {
-		t.Fatalf("RetryProposalRepoChange() error = %v", err)
+		t.Fatalf("SubmitCommand(proposal_retry_attempt) error = %v", err)
 	}
-	if item.Queue != "sandbox" {
-		t.Fatalf("expected sandbox work item, got %+v", item)
+	if receipt.DecisionKind == transition.DecisionReject {
+		t.Fatalf("expected retry command accepted, got %+v", receipt)
 	}
 
 	reloaded, err := NewPostgresStore(config.Config{
@@ -119,20 +147,37 @@ func TestPostgresRetryProposalRepoChangePersistsSandboxRequeue(t *testing.T) {
 	}
 	defer reloaded.db.Close()
 
-	jobs := reloaded.ListRepoChangeJobs()
-	if len(jobs) == 0 || jobs[0].Status != string(review.ProposalRepoChangeQueued) {
-		t.Fatalf("expected repo change job persisted in repo_change_queued, got %+v", jobs)
+	reloadedProposal, ok := findProposalByIDInPostgresIntegration(reloaded.ListProposals(), proposal.ID)
+	if !ok {
+		t.Fatalf("expected proposal %s after retry", proposal.ID)
 	}
-	found := false
-	for _, queued := range reloaded.ListWorkItems() {
-		if queued.ID == item.ID && queued.Queue == "sandbox" {
-			found = true
-			break
+	if strings.TrimSpace(reloadedProposal.CurrentAttemptID) == "" || reloadedProposal.CurrentAttemptID == approved.CurrentAttemptID {
+		t.Fatalf("expected retry to materialize a new current attempt, got %+v", reloadedProposal)
+	}
+	foundEffect := false
+	for _, effect := range reloaded.ListEffectExecutions() {
+		if effect.MachineKind != transition.MachineAttempt || effect.AggregateID != reloadedProposal.CurrentAttemptID || effect.Status != transition.EffectQueued {
+			continue
+		}
+		switch effect.EffectKind {
+		case transition.EffectOpenWorkspace, transition.EffectInvokeRunner:
+			foundEffect = true
+		default:
+			t.Fatalf("unexpected retry bootstrap effect %s", effect.EffectKind)
 		}
 	}
-	if !found {
-		t.Fatalf("expected retried sandbox work item %s to persist", item.ID)
+	if !foundEffect {
+		t.Fatalf("expected queued retry bootstrap effect for attempt %s", reloadedProposal.CurrentAttemptID)
 	}
+}
+
+func findProposalByIDInPostgresIntegration(items []review.Proposal, proposalID string) (review.Proposal, bool) {
+	for _, item := range items {
+		if item.ID == proposalID {
+			return item, true
+		}
+	}
+	return review.Proposal{}, false
 }
 
 func TestPostgresRunProposalPromoterNormalizesBlankTargetFields(t *testing.T) {
@@ -247,24 +292,17 @@ func seedPromotableFailureProposal(t *testing.T, store *PostgresStore) (events.T
 		t.Fatal("expected ingestion to be created")
 	}
 
-	traceID := ""
-	items := store.ListWorkItems()
-	if len(items) > 0 {
-		traceID = items[0].TraceID
+	traces := store.ListTraces()
+	if len(traces) == 0 {
+		t.Fatal("expected workflow trace after ingress")
 	}
-	if traceID == "" {
-		traces := store.ListTraces()
-		if len(traces) == 0 {
-			t.Fatal("expected workflow trace after ingress")
-		}
-		traceID = traces[0].TraceID
-	}
+	traceID := traces[0].TraceID
 	trace, ok := store.GetTrace(traceID)
 	if !ok {
 		t.Fatalf("expected trace %s", traceID)
 	}
 
-	description := `subsystem=shared-store failure_mode=action_result_primary_key_collision provider=github action_intent_id=action-002 work_item_id=work-003 kind=tool_read sqlstate=23505 constraint=action_result_pkey table=action_result error="duplicate key value violates unique constraint \"action_result_pkey\""`
+	description := `subsystem=shared-store failure_mode=action_result_primary_key_collision provider=github action_intent_id=action-002 effect_execution_id=eff-003 kind=tool_read sqlstate=23505 constraint=action_result_pkey table=action_result error="duplicate key value violates unique constraint \"action_result_pkey\""`
 	projectedAt := time.Now().UTC()
 	if receipt := submitProblemLineCommandForTest(t, store, traceID, transition.CommandProblemLineProjectTrace, "cmd-postgres-seed-project-trace", "integration", projectedAt, map[string]any{
 		"trace_id":        traceID,

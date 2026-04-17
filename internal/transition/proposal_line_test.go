@@ -61,11 +61,33 @@ func TestReduceProposalLineRetryRequestQueuesInternalResumeCommand(t *testing.T)
 	if decision.DecisionKind != DecisionAdvance {
 		t.Fatalf("expected advance, got %+v", decision)
 	}
-	if decision.NextState != review.ProposalRepoChangeQueued {
-		t.Fatalf("expected repo_change_queued next state, got %s", decision.NextState)
+	if decision.NextState != review.ProposalApproved {
+		t.Fatalf("expected approved next state, got %s", decision.NextState)
 	}
 	if len(decision.Commands) != 1 || decision.Commands[0].CommandKind != string(CommandProposalResumeExecution) {
 		t.Fatalf("expected internal resume command, got %+v", decision.Commands)
+	}
+}
+
+func TestReduceProposalLineRetryRequestNoopsWhenExecutionAlreadyActive(t *testing.T) {
+	decision := ReduceProposalLine(ProposalLineSnapshot{
+		State:            review.ProposalRepoChangeRunning,
+		InterventionKind: review.InterventionRepoChange,
+	}, CommandEnvelope{
+		MachineKind: MachineProposalLine,
+		AggregateID: "proposal-1",
+		CommandKind: string(CommandProposalRetryAttempt),
+		CommandID:   "cmd-proposal-retry-active",
+		OccurredAt:  time.Now().UTC(),
+	})
+	if decision.DecisionKind != DecisionNoop {
+		t.Fatalf("expected noop, got %+v", decision)
+	}
+	if decision.NextState != review.ProposalRepoChangeRunning {
+		t.Fatalf("expected repo_change_running next state, got %s", decision.NextState)
+	}
+	if len(decision.Commands) != 0 {
+		t.Fatalf("expected no follow-on commands, got %+v", decision.Commands)
 	}
 }
 

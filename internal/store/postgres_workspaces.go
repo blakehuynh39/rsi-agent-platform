@@ -45,7 +45,7 @@ func (p *PostgresStore) GetAttemptWorkspaceByAttempt(attemptID string) (improvem
 	return normalizeAttemptWorkspace(item), true
 }
 
-func (p *PostgresStore) UpsertAttemptWorkspace(item improvement.AttemptWorkspace) (improvement.AttemptWorkspace, error) {
+func (p *PostgresStore) upsertAttemptWorkspaceDirect(item improvement.AttemptWorkspace) (improvement.AttemptWorkspace, error) {
 	item = normalizeAttemptWorkspace(item)
 	now := time.Now().UTC()
 	if item.ID == "" {

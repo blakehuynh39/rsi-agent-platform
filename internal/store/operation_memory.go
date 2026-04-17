@@ -3,67 +3,12 @@ package store
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"errors"
 	"fmt"
-	"sort"
 	"strings"
 	"time"
 
 	"github.com/piplabs/rsi-agent-platform/internal/operation"
-	"github.com/piplabs/rsi-agent-platform/internal/queue"
 )
-
-func (s *MemoryStore) ListOperations() []operation.Execution {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	out := make([]operation.Execution, 0, len(s.operations))
-	for _, item := range s.operations {
-		out = append(out, item)
-	}
-	sort.Slice(out, func(i, j int) bool {
-		if out[i].UpdatedAt.Equal(out[j].UpdatedAt) {
-			return out[i].ID > out[j].ID
-		}
-		return out[i].UpdatedAt.After(out[j].UpdatedAt)
-	})
-	return out
-}
-
-func (s *MemoryStore) GetOperation(operationID string) (operation.Execution, bool) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	item, ok := s.operations[strings.TrimSpace(operationID)]
-	return item, ok
-}
-
-func (s *MemoryStore) ListOperationsByScope(scopeKind operation.ScopeKind, scopeID string) []operation.Execution {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	return listOperationsByScopeLocked(s.operations, scopeKind, scopeID)
-}
-
-func listOperationsByScopeLocked(items map[string]operation.Execution, scopeKind operation.ScopeKind, scopeID string) []operation.Execution {
-	out := []operation.Execution{}
-	scopeID = strings.TrimSpace(scopeID)
-	for _, item := range items {
-		if item.ScopeKind == scopeKind && item.ScopeID == scopeID {
-			out = append(out, item)
-		}
-	}
-	sort.Slice(out, func(i, j int) bool {
-		if out[i].UpdatedAt.Equal(out[j].UpdatedAt) {
-			return out[i].ID > out[j].ID
-		}
-		return out[i].UpdatedAt.After(out[j].UpdatedAt)
-	})
-	return out
-}
-
-func (s *MemoryStore) GetOrCreateOperation(item operation.Execution) (operation.Execution, bool, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.getOrCreateOperationLocked(item)
-}
 
 func (s *MemoryStore) getOrCreateOperationLocked(item operation.Execution) (operation.Execution, bool, error) {
 	normalized, err := normalizeOperationExecution(item)
@@ -75,63 +20,6 @@ func (s *MemoryStore) getOrCreateOperationLocked(item operation.Execution) (oper
 	}
 	s.operations[normalized.ID] = normalized
 	return normalized, true, nil
-}
-
-func (s *MemoryStore) ClaimOperation(operationID string, holder string) (operation.Execution, bool, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	item, ok := s.operations[strings.TrimSpace(operationID)]
-	if !ok {
-		return operation.Execution{}, false, errors.New("operation not found")
-	}
-	switch item.Status {
-	case operation.StatusQueued, operation.StatusFailed:
-	default:
-		return item, false, nil
-	}
-	now := time.Now().UTC()
-	item.Status = operation.StatusRunning
-	item.Holder = strings.TrimSpace(holder)
-	item.UpdatedAt = now
-	if item.StartedAt == nil {
-		item.StartedAt = &now
-	}
-	s.operations[item.ID] = item
-	return item, true, nil
-}
-
-func (s *MemoryStore) CompleteOperation(operationID string, resultRef string) (operation.Execution, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	item, ok := s.operations[strings.TrimSpace(operationID)]
-	if !ok {
-		return operation.Execution{}, errors.New("operation not found")
-	}
-	now := time.Now().UTC()
-	item.Status = operation.StatusCompleted
-	item.ResultRef = strings.TrimSpace(resultRef)
-	item.LastError = ""
-	item.UpdatedAt = now
-	item.CompletedAt = &now
-	s.operations[item.ID] = item
-	return item, nil
-}
-
-func (s *MemoryStore) FailOperation(operationID string, lastError string) (operation.Execution, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	item, ok := s.operations[strings.TrimSpace(operationID)]
-	if !ok {
-		return operation.Execution{}, errors.New("operation not found")
-	}
-	now := time.Now().UTC()
-	item.Status = operation.StatusFailed
-	item.LastError = strings.TrimSpace(lastError)
-	item.RetryCount++
-	item.UpdatedAt = now
-	item.CompletedAt = &now
-	s.operations[item.ID] = item
-	return item, nil
 }
 
 func normalizeOperationExecution(item operation.Execution) (operation.Execution, error) {
@@ -180,75 +68,6 @@ func findOperationLocked(items map[string]operation.Execution, scopeKind operati
 		}
 	}
 	return operation.Execution{}, false
-}
-
-func (s *MemoryStore) ensureOperationWorkItemLocked(op operation.Execution, item queue.WorkItem) (operation.Execution, queue.WorkItem, bool, error) {
-	return s.ensureOperationWorkItemLockedWithPolicy(op, item, false)
-}
-
-func (s *MemoryStore) ensureQueuedOperationWorkItemLocked(op operation.Execution, item queue.WorkItem) (operation.Execution, queue.WorkItem, bool, error) {
-	return s.ensureOperationWorkItemLockedWithPolicy(op, item, true)
-}
-
-func (s *MemoryStore) ensureOperationWorkItemLockedWithPolicy(op operation.Execution, item queue.WorkItem, reopenTerminal bool) (operation.Execution, queue.WorkItem, bool, error) {
-	createdOp, _, err := s.getOrCreateOperationLocked(op)
-	if err != nil {
-		return operation.Execution{}, queue.WorkItem{}, false, err
-	}
-	now := time.Now().UTC()
-	item.OperationID = createdOp.ID
-	for _, existing := range s.workItems {
-		if existing.OperationID == createdOp.ID {
-			if item.Status == queue.WorkQueued && shouldRequeueOperationForWorkItem(createdOp, existing.Status, reopenTerminal) {
-				createdOp.Status = operation.StatusQueued
-				createdOp.Holder = ""
-				createdOp.LastError = ""
-				createdOp.UpdatedAt = now
-				createdOp.CompletedAt = nil
-				if op.PayloadHash != "" {
-					createdOp.PayloadHash = op.PayloadHash
-				}
-				s.operations[createdOp.ID] = createdOp
-			}
-			if item.Status == queue.WorkQueued && (existing.Status == queue.WorkFailed || existing.Status == queue.WorkCanceled || (reopenTerminal && existing.Status == queue.WorkCompleted)) {
-				existing.Status = queue.WorkQueued
-				existing.Payload = cloneMetadata(item.Payload)
-				if existing.Payload == nil {
-					existing.Payload = map[string]interface{}{}
-				}
-				existing.LastError = ""
-				existing.LeaseOwner = ""
-				existing.LeaseExpiresAt = nil
-				existing.CompletedAt = nil
-				existing.UpdatedAt = now
-				s.workItems[existing.ID] = existing
-			}
-			return createdOp, existing, false, nil
-		}
-	}
-	if item.Status == queue.WorkQueued && shouldRequeueOperationForMissingWorkItem(createdOp, reopenTerminal) {
-		createdOp.Status = operation.StatusQueued
-		createdOp.Holder = ""
-		createdOp.LastError = ""
-		createdOp.UpdatedAt = now
-		createdOp.CompletedAt = nil
-		if op.PayloadHash != "" {
-			createdOp.PayloadHash = op.PayloadHash
-		}
-		s.operations[createdOp.ID] = createdOp
-	}
-	createdItem, err := s.enqueueWorkItemLocked(item)
-	if err != nil {
-		return operation.Execution{}, queue.WorkItem{}, false, err
-	}
-	return createdOp, createdItem, true, nil
-}
-
-func shouldRequeueOperationForWorkItem(op operation.Execution, status queue.WorkItemStatus, reopenTerminal bool) bool {
-	if status == queue.WorkQueued || status == queue.WorkLeased {
-		return false
-	}
-	return shouldRequeueOperationForMissingWorkItem(op, reopenTerminal)
 }
 
 func shouldRequeueOperationForMissingWorkItem(op operation.Execution, reopenTerminal bool) bool {

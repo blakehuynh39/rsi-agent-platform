@@ -21,7 +21,6 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/operation"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
-	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/registry"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	"github.com/piplabs/rsi-agent-platform/internal/slack"
@@ -53,13 +52,6 @@ type Store interface {
 	ClaimEffectExecution(effectID string, holder string, lease time.Duration) (transition.EffectExecution, bool, error)
 	CompleteEffectExecution(effectID string, resultRef string) (transition.EffectExecution, error)
 	FailEffectExecution(effectID string, lastError string) (transition.EffectExecution, error)
-	ListOperations() []operation.Execution
-	GetOperation(operationID string) (operation.Execution, bool)
-	ListOperationsByScope(scopeKind operation.ScopeKind, scopeID string) []operation.Execution
-	GetOrCreateOperation(item operation.Execution) (operation.Execution, bool, error)
-	ClaimOperation(operationID string, holder string) (operation.Execution, bool, error)
-	CompleteOperation(operationID string, resultRef string) (operation.Execution, error)
-	FailOperation(operationID string, lastError string) (operation.Execution, error)
 	ListOutcomes() []outcome.Record
 	ListKnowledgeEntries() []knowledge.Entry
 	GetKnowledgeEntry(knowledgeID string) (knowledge.Entry, bool)
@@ -95,16 +87,6 @@ type Store interface {
 	ListEvalRuns() []evals.Run
 	ListEvalJudgments(evalRunID string) []evals.Judgment
 	GetSettings() improvement.Settings
-	ListWorkItems() []queue.WorkItem
-	EnqueueWorkItem(item queue.WorkItem) (queue.WorkItem, error)
-	RescheduleWorkItem(id string, payload map[string]interface{}, lastError string, availableAt time.Time) (queue.WorkItem, error)
-	ClaimNextWorkItem(queues []queue.QueueName, holder string, lease time.Duration) (queue.WorkItem, bool, error)
-	CompleteWorkItem(id string) (queue.WorkItem, error)
-	FailWorkItem(id string, lastError string) (queue.WorkItem, error)
-	AdvanceProposalAttemptPhase(req ProposalAttemptPhaseAdvance) error
-	DeferProposalAttemptPhase(req ProposalAttemptPhaseDefer) error
-	FailProposalAttemptPhase(req ProposalAttemptPhaseFailure) error
-	ReconcileProposalAttemptPhase(proposalID string, requestedBy string) (queue.WorkItem, bool, error)
 	ListCandidates() []improvement.Candidate
 	ListProposalMemories() []review.ProposalMemory
 	GetProposalSlots() ProposalSlotState
@@ -151,7 +133,6 @@ type MemoryStore struct {
 	evalSuites             []evals.Suite
 	evalRuns               map[string]evals.Run
 	evalJudgments          map[string][]evals.Judgment
-	workItems              map[string]queue.WorkItem
 	candidates             map[string]improvement.Candidate
 	proposals              map[string]review.Proposal
 	changeAttempts         map[string]improvement.ChangeAttempt
@@ -1053,21 +1034,6 @@ func (s *MemoryStore) supersedeInFlightTracesLocked(caseID string, nextTraceID s
 		recomputeTraceSummary(&trace)
 		s.traces[traceID] = trace
 	}
-	for id, item := range s.workItems {
-		if item.CaseID != caseID {
-			continue
-		}
-		if item.Status != queue.WorkQueued && item.Status != queue.WorkLeased {
-			continue
-		}
-		item.Status = queue.WorkCanceled
-		item.LastError = fmt.Sprintf("superseded by trace %s", nextTraceID)
-		item.UpdatedAt = createdAt
-		item.CompletedAt = timePtr(createdAt)
-		item.LeaseOwner = ""
-		item.LeaseExpiresAt = nil
-		s.workItems[id] = item
-	}
 	for id, item := range s.actionIntents {
 		if item.CaseID != caseID {
 			continue
@@ -1296,53 +1262,6 @@ func (s *MemoryStore) addFeedbackLocked(record review.FeedbackRecord, createdAt 
 	return record, nil
 }
 
-func (s *MemoryStore) scheduleReplayLocked(traceID string, requestedBy string, createdAt time.Time) (queue.WorkItem, error) {
-	trace, ok := s.traces[traceID]
-	if !ok {
-		return queue.WorkItem{}, errors.New("trace not found")
-	}
-	item := queue.WorkItem{
-		Queue:          queue.EvalQueue,
-		Kind:           "trace_replay",
-		Status:         queue.WorkQueued,
-		TraceID:        traceID,
-		WorkflowID:     trace.Summary.WorkflowID,
-		IngestionID:    trace.Summary.IngestionID,
-		ConversationID: trace.Summary.ConversationID,
-		CaseID:         trace.Summary.CaseID,
-		TriggerEventID: trace.Summary.TriggerEventID,
-		ThreadKey:      trace.Summary.ThreadKey,
-		RequestedBy:    requestedBy,
-		ApprovalMode:   "ui",
-		CreatedAt:      createdAt,
-		UpdatedAt:      createdAt,
-	}
-	created, err := s.enqueueWorkItemLocked(item)
-	if err != nil {
-		return queue.WorkItem{}, err
-	}
-	stepStatus := events.StatusReplayed
-	trace.Summary.Status = events.StatusReplayed
-	trace.Events = append(trace.Events, events.TraceEvent{
-		TraceID:        traceID,
-		IngestionID:    trace.Summary.IngestionID,
-		WorkflowID:     trace.Summary.WorkflowID,
-		ConversationID: trace.Summary.ConversationID,
-		CaseID:         trace.Summary.CaseID,
-		TriggerEventID: trace.Summary.TriggerEventID,
-		Plane:          "improvement",
-		Service:        "improvement-plane",
-		Actor:          "replay-scheduler",
-		EventType:      "replay.queued",
-		Status:         stepStatus,
-		StartedAt:      createdAt,
-		Description:    "Replay queued for later evaluation.",
-	})
-	recomputeTraceSummary(&trace)
-	s.traces[traceID] = trace
-	return created, nil
-}
-
 func (s *MemoryStore) ListEvalSuites() []evals.Suite {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -1372,263 +1291,6 @@ func (s *MemoryStore) GetSettings() improvement.Settings {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return normalizedSettings(s.settings)
-}
-
-func (s *MemoryStore) ListWorkItems() []queue.WorkItem {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	out := make([]queue.WorkItem, 0, len(s.workItems))
-	for _, item := range s.workItems {
-		out = append(out, item)
-	}
-	sort.Slice(out, func(i, j int) bool {
-		if out[i].CreatedAt.Equal(out[j].CreatedAt) {
-			return out[i].ID < out[j].ID
-		}
-		return out[i].CreatedAt.After(out[j].CreatedAt)
-	})
-	return out
-}
-
-func (s *MemoryStore) EnqueueWorkItem(item queue.WorkItem) (queue.WorkItem, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.enqueueWorkItemLocked(item)
-}
-
-func (s *MemoryStore) RescheduleWorkItem(id string, payload map[string]interface{}, lastError string, availableAt time.Time) (queue.WorkItem, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	item, ok := s.workItems[id]
-	if !ok {
-		return queue.WorkItem{}, errors.New("work item not found")
-	}
-	if payload == nil {
-		payload = cloneMetadata(item.Payload)
-	}
-	if payload == nil {
-		payload = map[string]interface{}{}
-	}
-	if availableAt.IsZero() {
-		delete(payload, "retry_after_unix")
-	} else {
-		payload["retry_after_unix"] = availableAt.Unix()
-	}
-	item.Payload = payload
-	item.Status = queue.WorkQueued
-	item.LeaseOwner = ""
-	item.LeaseExpiresAt = nil
-	item.LastError = lastError
-	item.CompletedAt = nil
-	item.UpdatedAt = time.Now().UTC()
-	s.workItems[id] = item
-	if item.OperationID != "" {
-		if op, ok := s.operations[item.OperationID]; ok {
-			op.Status = operation.StatusQueued
-			op.Holder = ""
-			op.LastError = strings.TrimSpace(lastError)
-			op.UpdatedAt = item.UpdatedAt
-			op.CompletedAt = nil
-			s.operations[op.ID] = op
-		}
-	}
-	return item, nil
-}
-
-func (s *MemoryStore) enqueueWorkItemLocked(item queue.WorkItem) (queue.WorkItem, error) {
-	now := time.Now().UTC()
-	if item.ID == "" {
-		item.ID = nextID("work", len(s.workItems)+1)
-	}
-	if item.Status == "" {
-		item.Status = queue.WorkQueued
-	}
-	if item.CreatedAt.IsZero() {
-		item.CreatedAt = now
-	}
-	if item.UpdatedAt.IsZero() {
-		item.UpdatedAt = item.CreatedAt
-	}
-	if item.Payload == nil {
-		item.Payload = map[string]interface{}{}
-	}
-	if item.OperationID != "" {
-		for _, existing := range s.workItems {
-			if existing.OperationID == item.OperationID {
-				if item.Status == queue.WorkQueued && (existing.Status == queue.WorkFailed || existing.Status == queue.WorkCanceled) {
-					existing.Status = queue.WorkQueued
-					existing.Payload = cloneMetadata(item.Payload)
-					if existing.Payload == nil {
-						existing.Payload = map[string]interface{}{}
-					}
-					existing.LastError = ""
-					existing.LeaseOwner = ""
-					existing.LeaseExpiresAt = nil
-					existing.CompletedAt = nil
-					existing.UpdatedAt = now
-					s.workItems[existing.ID] = existing
-					if op, ok := s.operations[existing.OperationID]; ok {
-						op.Status = operation.StatusQueued
-						op.Holder = ""
-						op.LastError = ""
-						op.UpdatedAt = now
-						op.CompletedAt = nil
-						s.operations[existing.OperationID] = op
-					}
-				}
-				return existing, nil
-			}
-		}
-	}
-	if dedupeKey := workItemDedupeKey(item); dedupeKey != "" {
-		for _, existing := range s.workItems {
-			if existing.Queue != item.Queue || existing.Kind != item.Kind {
-				continue
-			}
-			if workItemDedupeKey(existing) != dedupeKey {
-				continue
-			}
-			if existing.Status == queue.WorkFailed || existing.Status == queue.WorkCanceled || existing.Status == queue.WorkCompleted {
-				continue
-			}
-			return existing, nil
-		}
-	}
-	s.workItems[item.ID] = item
-	return item, nil
-}
-
-func (s *MemoryStore) ClaimNextWorkItem(queuesToCheck []queue.QueueName, holder string, lease time.Duration) (queue.WorkItem, bool, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if holder == "" {
-		return queue.WorkItem{}, false, errors.New("holder is required")
-	}
-	if lease <= 0 {
-		lease = 30 * time.Second
-	}
-	queueFilter := map[queue.QueueName]struct{}{}
-	for _, name := range queuesToCheck {
-		queueFilter[name] = struct{}{}
-	}
-	now := time.Now().UTC()
-	candidates := make([]queue.WorkItem, 0, len(s.workItems))
-	for _, item := range s.workItems {
-		if len(queueFilter) > 0 {
-			if _, ok := queueFilter[item.Queue]; !ok {
-				continue
-			}
-		}
-		if item.OperationID != "" {
-			if op, ok := s.operations[item.OperationID]; ok {
-				switch op.Status {
-				case operation.StatusQueued, operation.StatusFailed:
-				default:
-					continue
-				}
-			}
-		}
-		if retryAfterUnix, ok := int64FromPayload(item.Payload, "retry_after_unix"); ok && retryAfterUnix > now.Unix() {
-			continue
-		}
-		expired := item.Status == queue.WorkLeased && item.LeaseExpiresAt != nil && item.LeaseExpiresAt.Before(now)
-		if item.Status == queue.WorkQueued || expired {
-			candidates = append(candidates, item)
-		}
-	}
-	sort.Slice(candidates, func(i, j int) bool {
-		if candidates[i].CreatedAt.Equal(candidates[j].CreatedAt) {
-			return candidates[i].ID < candidates[j].ID
-		}
-		return candidates[i].CreatedAt.Before(candidates[j].CreatedAt)
-	})
-	if len(candidates) == 0 {
-		return queue.WorkItem{}, false, nil
-	}
-	item := candidates[0]
-	expires := now.Add(lease)
-	item.Status = queue.WorkLeased
-	item.Attempts++
-	item.LeaseOwner = holder
-	item.LeaseExpiresAt = &expires
-	item.UpdatedAt = now
-	s.workItems[item.ID] = item
-	if item.OperationID != "" {
-		if op, ok := s.operations[item.OperationID]; ok {
-			op.Status = operation.StatusRunning
-			op.Holder = holder
-			op.UpdatedAt = now
-			if op.StartedAt == nil {
-				op.StartedAt = &now
-			}
-			s.operations[op.ID] = op
-		}
-	}
-	return item, true, nil
-}
-
-func (s *MemoryStore) CompleteWorkItem(id string) (queue.WorkItem, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	item, ok := s.workItems[id]
-	if !ok {
-		return queue.WorkItem{}, errors.New("work item not found")
-	}
-	if item.OperationID != "" {
-		if op, ok := s.operations[item.OperationID]; ok && isProposalAttemptPhaseOperation(item, op) {
-			return queue.WorkItem{}, fmt.Errorf("proposal phase work item %s must be finalized via proposal phase transition methods", item.ID)
-		}
-	}
-	now := time.Now().UTC()
-	item.Status = queue.WorkCompleted
-	item.UpdatedAt = now
-	item.CompletedAt = &now
-	item.LeaseOwner = ""
-	item.LeaseExpiresAt = nil
-	s.workItems[id] = item
-	if item.OperationID != "" {
-		if op, ok := s.operations[item.OperationID]; ok {
-			op.Status = operation.StatusCompleted
-			op.UpdatedAt = now
-			op.CompletedAt = &now
-			op.LastError = ""
-			s.operations[op.ID] = op
-		}
-	}
-	return item, nil
-}
-
-func (s *MemoryStore) FailWorkItem(id string, lastError string) (queue.WorkItem, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	item, ok := s.workItems[id]
-	if !ok {
-		return queue.WorkItem{}, errors.New("work item not found")
-	}
-	if item.OperationID != "" {
-		if op, ok := s.operations[item.OperationID]; ok && isProposalAttemptPhaseOperation(item, op) {
-			return queue.WorkItem{}, fmt.Errorf("proposal phase work item %s must be finalized via proposal phase transition methods", item.ID)
-		}
-	}
-	now := time.Now().UTC()
-	item.Status = queue.WorkFailed
-	item.LastError = lastError
-	item.UpdatedAt = now
-	item.CompletedAt = &now
-	item.LeaseOwner = ""
-	item.LeaseExpiresAt = nil
-	s.workItems[id] = item
-	if item.OperationID != "" {
-		if op, ok := s.operations[item.OperationID]; ok {
-			op.Status = operation.StatusFailed
-			op.LastError = lastError
-			op.UpdatedAt = now
-			op.CompletedAt = &now
-			op.RetryCount++
-			s.operations[op.ID] = op
-		}
-	}
-	return item, nil
 }
 
 func (s *MemoryStore) updateWorkflowStatusLocked(workflowID string, status string, lastError string) (Workflow, error) {
@@ -2470,191 +2132,6 @@ func (s *MemoryStore) ListProposals() []review.Proposal {
 	return out
 }
 
-func (s *MemoryStore) ReviewProposal(proposalID string, decision review.ProposalReview) (review.Proposal, error) {
-	commandKind, err := proposalCommandKindForDecision(decision.Decision)
-	if err != nil {
-		return review.Proposal{}, err
-	}
-	if decision.Scope == "" {
-		decision.Scope = review.FeedbackScopeLine
-	}
-	decision.IdempotencyKey = firstNonEmpty(strings.TrimSpace(decision.IdempotencyKey), proposalDecisionIdempotencyKey(proposalID, decision.Decision, decision.Scope))
-	commandID := fmt.Sprintf("cmd-proposal-review:%s", decision.IdempotencyKey)
-	if _, err := s.SubmitCommand(transition.CommandEnvelope{
-		MachineKind: transition.MachineProposalLine,
-		AggregateID: proposalID,
-		CommandKind: string(commandKind),
-		CommandID:   commandID,
-		Actor:       firstNonEmpty(decision.ReviewerID, "system"),
-		OccurredAt:  firstNonZeroTime(&decision.CreatedAt, time.Now().UTC()),
-		Payload: map[string]any{
-			"idempotency_key": decision.IdempotencyKey,
-			"rationale":       decision.Rationale,
-			"reviewer_id":     decision.ReviewerID,
-			"failure_class":   decision.FailureClass,
-			"failure_classes": append([]string(nil), decision.FailureClasses...),
-			"scope":           string(decision.Scope),
-		},
-	}); err != nil {
-		return review.Proposal{}, err
-	}
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	proposal, ok := s.proposals[proposalID]
-	if !ok {
-		return review.Proposal{}, errors.New("proposal not found")
-	}
-	return proposal, nil
-}
-
-func (s *MemoryStore) MaterializeApprovedProposal(proposalID string, requestedBy string) (improvement.RepoChangeJob, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	proposal, ok := s.proposals[proposalID]
-	if !ok {
-		return improvement.RepoChangeJob{}, errors.New("proposal not found")
-	}
-	if proposal.Status != review.ProposalApproved && proposal.Status != review.ProposalRepoChangeQueued && proposal.Status != review.ProposalRepoChangeRunning && proposal.Status != review.ProposalValidationPending && proposal.Status != review.ProposalPROpen {
-		return improvement.RepoChangeJob{}, fmt.Errorf("proposal %s is not approved for materialization", proposal.Status)
-	}
-	if !review.ProposalExecutableIntervention(proposal.RecommendedInterventionKind) {
-		return improvement.RepoChangeJob{}, fmt.Errorf("proposal %s recommends %s and cannot materialize a repo change", proposal.ID, proposal.RecommendedInterventionKind)
-	}
-	attempt, ok := s.changeAttempts[proposal.CurrentAttemptID]
-	if !ok {
-		for _, item := range s.changeAttempts {
-			if item.ProposalID == proposalID {
-				attempt = item
-				ok = true
-				break
-			}
-		}
-	}
-	if !ok {
-		now := time.Now().UTC()
-		attempt = normalizeChangeAttempt(improvement.ChangeAttempt{
-			ID:             nextID("attempt", len(s.changeAttempts)+1),
-			ProposalID:     proposal.ID,
-			CandidateKey:   proposal.CandidateKey,
-			AttemptNumber:  maxInt(1, proposal.AttemptCount+1),
-			TargetLayer:    proposal.TargetLayer,
-			TargetKind:     proposal.TargetKind,
-			TargetRef:      proposal.TargetRef,
-			Trigger:        improvement.AttemptTriggerProposalApproved,
-			State:          improvement.AttemptStatePatchPlan,
-			AttemptTraceID: firstNonEmpty(proposal.OriginTraceID, proposal.TraceID),
-			BranchName:     fmt.Sprintf("codex/%s/attempt-%02d", proposal.ID, maxInt(1, proposal.AttemptCount+1)),
-			CreatedAt:      now,
-			UpdatedAt:      now,
-		})
-		s.changeAttempts[attempt.ID] = attempt
-		proposal.CurrentAttemptID = attempt.ID
-		if proposal.AttemptCount < attempt.AttemptNumber {
-			proposal.AttemptCount = attempt.AttemptNumber
-		}
-		proposal.AutoRetryBudgetRemaining = maxInt(0, defaultProposalRetryBudget-attempt.AttemptNumber)
-		s.proposals[proposal.ID] = proposal
-	}
-	for _, existing := range s.repoChangeJobs {
-		if existing.ProposalID == proposalID && existing.AttemptID == attempt.ID {
-			return existing, nil
-		}
-	}
-	now := time.Now().UTC()
-	jobID := nextID("job", len(s.repoChangeJobs)+1)
-	job := improvement.RepoChangeJob{
-		ID:               jobID,
-		ProposalID:       proposal.ID,
-		AttemptID:        attempt.ID,
-		ConversationID:   proposal.ConversationID,
-		CaseID:           proposal.CaseID,
-		OriginTraceID:    firstNonEmpty(attempt.AttemptTraceID, proposal.OriginTraceID),
-		CandidateKey:     proposal.CandidateKey,
-		Status:           string(review.ProposalRepoChangeQueued),
-		Repo:             proposalRepo(proposal),
-		BaseRef:          "main",
-		BranchName:       firstNonEmpty(attempt.BranchName, fmt.Sprintf("codex/%s/%s", proposal.ID, attempt.ID)),
-		AllowedPathGlobs: []string{"cmd/**", "internal/**", "runner/**", "ui/**", "README.md", "Makefile"},
-		ContextSummary:   buildRepoChangeContext(proposal, s.proposalMemory),
-		CreatedAt:        now,
-		UpdatedAt:        now,
-	}
-	s.repoChangeJobs[jobID] = job
-	attempt.State = improvement.AttemptStatePatchGenerated
-	attempt.BranchName = job.BranchName
-	attempt.UpdatedAt = now
-	s.changeAttempts[attempt.ID] = normalizeChangeAttempt(attempt)
-	proposal.Status = review.ProposalRepoChangeQueued
-	proposal.ActiveSlotConsuming = true
-	s.proposals[proposal.ID] = proposal
-	_, _, _, _ = s.ensureOperationWorkItemLocked(operation.Execution{
-		ScopeKind:     operation.ScopeAttempt,
-		ScopeID:       attempt.ID,
-		OperationKind: "sandbox_launch",
-		OperationKey:  "sandbox_launch",
-		Status:        operation.StatusQueued,
-		Queue:         queue.SandboxQueue,
-		RequestedBy:   requestedBy,
-		TraceID:       firstNonEmpty(attempt.AttemptTraceID, proposal.TraceID),
-		ProposalID:    proposal.ID,
-		AttemptID:     attempt.ID,
-	}, queue.WorkItem{
-		Queue:          queue.SandboxQueue,
-		Kind:           "repo_change_job",
-		Status:         queue.WorkQueued,
-		TraceID:        firstNonEmpty(attempt.AttemptTraceID, proposal.TraceID),
-		ConversationID: proposal.ConversationID,
-		CaseID:         proposal.CaseID,
-		TriggerEventID: proposal.OriginTraceID,
-		ProposalID:     proposal.ID,
-		RepoScope:      job.Repo,
-		RequestedBy:    requestedBy,
-		ApprovalMode:   "approved",
-		CreatedAt:      now,
-		UpdatedAt:      now,
-		Payload: map[string]interface{}{
-			"attempt_id":  attempt.ID,
-			"branch_name": job.BranchName,
-			"base_ref":    job.BaseRef,
-			"job_id":      job.ID,
-		},
-	})
-	return job, nil
-}
-
-func (s *MemoryStore) RetryProposalRepoChange(proposalID string, requestedBy string) (queue.WorkItem, error) {
-	if _, err := s.SubmitCommand(transition.CommandEnvelope{
-		MachineKind: transition.MachineProposalLine,
-		AggregateID: proposalID,
-		CommandKind: string(transition.CommandProposalRetryAttempt),
-		CommandID:   nextUUID("cmd"),
-		Actor:       requestedBy,
-		OccurredAt:  time.Now().UTC(),
-		Payload: map[string]any{
-			"reviewer_id": requestedBy,
-			"scope":       string(review.FeedbackScopeLine),
-		},
-	}); err != nil {
-		return queue.WorkItem{}, err
-	}
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	proposal, ok := s.proposals[proposalID]
-	if !ok {
-		return queue.WorkItem{}, errors.New("proposal not found")
-	}
-	currentAttemptID := strings.TrimSpace(proposal.CurrentAttemptID)
-	if currentAttemptID == "" {
-		return queue.WorkItem{}, errors.New("proposal current attempt not found")
-	}
-	if active, ok := activeRepoChangeResumeOperation(listOperationsByScopeLocked(s.operations, operation.ScopeAttempt, currentAttemptID)); ok {
-		if item, ok := findWorkItemByOperationLocked(s.workItems, active.ID); ok && (item.Status == queue.WorkQueued || item.Status == queue.WorkLeased) {
-			return item, nil
-		}
-	}
-	return queue.WorkItem{}, nil
-}
-
 func buildRepoChangeContext(proposal review.Proposal, memories []review.ProposalMemory) string {
 	context := fmt.Sprintf("Proposal %s recommends %s on %s. Rationale: %s.", proposal.ID, firstNonEmpty(string(proposal.RecommendedInterventionKind), string(review.InterventionRepoChange)), firstNonEmpty(proposal.TargetSurface, proposal.ProposedScope), firstNonEmpty(proposal.RecommendedInterventionRationale, proposal.Summary))
 	for _, memory := range memories {
@@ -2686,25 +2163,6 @@ func (s *MemoryStore) ListRepoChangeJobs() []improvement.RepoChangeJob {
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].CreatedAt.After(out[j].CreatedAt) })
 	return out
-}
-
-func (s *MemoryStore) UpdateRepoChangeJobStatus(jobID string, status string) (improvement.RepoChangeJob, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	item, ok := s.repoChangeJobs[jobID]
-	if !ok {
-		return improvement.RepoChangeJob{}, errors.New("repo change job not found")
-	}
-	item.Status = status
-	item.UpdatedAt = time.Now().UTC()
-	s.repoChangeJobs[jobID] = item
-	return item, nil
-}
-
-func (s *MemoryStore) UpsertRepoChangeJob(job improvement.RepoChangeJob) (improvement.RepoChangeJob, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.upsertRepoChangeJobLocked(job)
 }
 
 func (s *MemoryStore) ListPRAttempts() []improvement.PRAttempt {
@@ -2866,16 +2324,6 @@ func nextID(prefix string, n int) string {
 		return fmt.Sprintf("%s-%03d", prefix, n)
 	}
 	return fmt.Sprintf("%s-%s", prefix, strings.ReplaceAll(uuid.NewString(), "-", ""))
-}
-
-func workItemDedupeKey(item queue.WorkItem) string {
-	if item.Payload == nil {
-		return ""
-	}
-	if raw, ok := item.Payload["dedupe_key"].(string); ok {
-		return strings.TrimSpace(raw)
-	}
-	return ""
 }
 
 func int64FromPayload(payload map[string]interface{}, key string) (int64, bool) {

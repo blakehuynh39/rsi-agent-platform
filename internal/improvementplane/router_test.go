@@ -14,7 +14,6 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
-	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
@@ -483,18 +482,39 @@ func TestRouterProposalDetailAndRuntimeEndpoints(t *testing.T) {
 	}
 	proposal := proposals[0]
 
-	if _, err := store.ReviewProposal(proposal.ID, review.ProposalReview{
+	approved, err := storepkg.ReviewProposalForTesting(store, proposal.ID, review.ProposalReview{
 		Decision:   string(review.ProposalApproved),
 		Rationale:  "Approved for repo change.",
 		ReviewerID: "operator",
-	}); err != nil {
+	})
+	if err != nil {
 		t.Fatalf("approve proposal: %v", err)
 	}
-	if _, err := store.MaterializeApprovedProposal(proposal.ID, "operator"); err != nil {
-		t.Fatalf("materialize approved proposal: %v", err)
+	if strings.TrimSpace(approved.CurrentAttemptID) == "" {
+		t.Fatalf("expected current attempt after approval, got %+v", approved)
+	}
+	now := time.Now().UTC()
+	if _, err := storepkg.SeedRepoChangeJobForTesting(store, improvement.RepoChangeJob{
+		ID:               "job-proposal-list-1",
+		ProposalID:       proposal.ID,
+		AttemptID:        approved.CurrentAttemptID,
+		ConversationID:   approved.ConversationID,
+		CaseID:           approved.CaseID,
+		OriginTraceID:    firstNonEmpty(approved.OriginTraceID, approved.TraceID),
+		CandidateKey:     approved.CandidateKey,
+		Status:           string(review.ProposalRepoChangeQueued),
+		Repo:             "rsi-agent-platform",
+		BaseRef:          "main",
+		BranchName:       "codex/proposal-test",
+		AllowedPathGlobs: []string{"internal/**"},
+		CreatedAt:        now,
+		UpdatedAt:        now,
+	}); err != nil {
+		t.Fatalf("upsert repo change job: %v", err)
 	}
 	if _, err := store.RecordPRAttempt(improvement.PRAttempt{
 		ProposalID:       proposal.ID,
+		AttemptID:        approved.CurrentAttemptID,
 		Repo:             "rsi-agent-platform",
 		BranchName:       "codex/proposal-test",
 		PRURL:            "https://github.com/piplabs/rsi-agent-platform/pull/42",
@@ -649,19 +669,35 @@ func TestRouterProposalRetryEndpoint(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	proposal := store.ListProposals()[0]
 
-	if _, err := store.ReviewProposal(proposal.ID, review.ProposalReview{
+	approved, err := storepkg.ReviewProposalForTesting(store, proposal.ID, review.ProposalReview{
 		Decision:   string(review.ProposalApproved),
 		Rationale:  "Proceed with repo-change work.",
 		ReviewerID: "operator",
-	}); err != nil {
+	})
+	if err != nil {
 		t.Fatalf("approve proposal: %v", err)
 	}
-	job, err := store.MaterializeApprovedProposal(proposal.ID, "operator")
-	if err != nil {
-		t.Fatalf("materialize approved proposal: %v", err)
+	if strings.TrimSpace(approved.CurrentAttemptID) == "" {
+		t.Fatalf("expected current attempt after approval, got %+v", approved)
 	}
-	if _, err := store.UpdateRepoChangeJobStatus(job.ID, string(review.ProposalFailedValidation)); err != nil {
-		t.Fatalf("update repo change job status: %v", err)
+	now := time.Now().UTC()
+	if _, err := storepkg.SeedRepoChangeJobForTesting(store, improvement.RepoChangeJob{
+		ID:               "job-router-retry-1",
+		ProposalID:       proposal.ID,
+		AttemptID:        approved.CurrentAttemptID,
+		ConversationID:   approved.ConversationID,
+		CaseID:           approved.CaseID,
+		OriginTraceID:    firstNonEmpty(approved.OriginTraceID, approved.TraceID),
+		CandidateKey:     approved.CandidateKey,
+		Status:           string(review.ProposalFailedValidation),
+		Repo:             "rsi-agent-platform",
+		BaseRef:          "main",
+		BranchName:       "codex/router-retry",
+		AllowedPathGlobs: []string{"internal/**"},
+		CreatedAt:        now,
+		UpdatedAt:        now,
+	}); err != nil {
+		t.Fatalf("upsert repo change job: %v", err)
 	}
 	if _, err := store.SubmitCommand(transition.CommandEnvelope{
 		MachineKind: transition.MachineProposalLine,
@@ -687,20 +723,35 @@ func TestRouterProposalRetryEndpoint(t *testing.T) {
 	if err := json.NewDecoder(rec.Body).Decode(&receipt); err != nil {
 		t.Fatalf("decode retry response: %v", err)
 	}
-	if receipt.ResultRef == "" {
-		t.Fatal("expected retry command to return a resumable work item ref")
+	if receipt.ResultRef != proposal.ID {
+		t.Fatalf("expected retry command result ref %s, got %s", proposal.ID, receipt.ResultRef)
 	}
-	if queued, ok := findWorkItemByID(store.ListWorkItems(), receipt.ResultRef); !ok {
-		t.Fatalf("expected work item %s to exist", receipt.ResultRef)
-	} else if queued.Queue != "sandbox" {
-		t.Fatalf("expected sandbox retry queue, got %q", queued.Queue)
+	updated, ok := findProposalByID(store.ListProposals(), proposal.ID)
+	if !ok {
+		t.Fatalf("expected proposal %s after retry", proposal.ID)
+	}
+	if strings.TrimSpace(updated.CurrentAttemptID) == "" {
+		t.Fatalf("expected retry to materialize a new current attempt, got %+v", updated)
+	}
+	foundRetryEffect := false
+	for _, effect := range store.ListEffectExecutions() {
+		if effect.MachineKind != transition.MachineAttempt || effect.AggregateID != updated.CurrentAttemptID || effect.Status != transition.EffectQueued {
+			continue
+		}
+		switch effect.EffectKind {
+		case transition.EffectOpenWorkspace, transition.EffectInvokeRunner:
+			foundRetryEffect = true
+		}
+	}
+	if !foundRetryEffect {
+		t.Fatalf("expected queued retry bootstrap effect for attempt %s", updated.CurrentAttemptID)
 	}
 }
 
 func TestRouterProposalStopEndpoint(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	proposal := store.ListProposals()[0]
-	if _, err := store.ReviewProposal(proposal.ID, review.ProposalReview{
+	if _, err := storepkg.ReviewProposalForTesting(store, proposal.ID, review.ProposalReview{
 		Decision:   string(review.ProposalApproved),
 		Rationale:  "Proceed with remediation.",
 		ReviewerID: "operator",
@@ -792,15 +843,6 @@ func TestLegacyMutationRoutesAbsent(t *testing.T) {
 			t.Fatalf("expected %s to be absent, got %d", path, rec.Code)
 		}
 	}
-}
-
-func findWorkItemByID(items []queue.WorkItem, workItemID string) (queue.WorkItem, bool) {
-	for _, item := range items {
-		if item.ID == workItemID {
-			return item, true
-		}
-	}
-	return queue.WorkItem{}, false
 }
 
 func findProposalByID(items []review.Proposal, proposalID string) (review.Proposal, bool) {

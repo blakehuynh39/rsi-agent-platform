@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"net/http"
 	"strings"
 	"time"
 
@@ -16,11 +15,9 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	"github.com/piplabs/rsi-agent-platform/internal/evals"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
-	"github.com/piplabs/rsi-agent-platform/internal/githubapp"
 	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
-	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	"github.com/piplabs/rsi-agent-platform/internal/runnerutil"
 	"github.com/piplabs/rsi-agent-platform/internal/sandbox"
@@ -29,11 +26,44 @@ import (
 )
 
 var (
-	errDeferredWorkItem     = errors.New("work item deferred for retry")
-	errDeferredEffect       = errors.New("effect deferred for retry")
-	errProposalPhaseHandled = errors.New("proposal phase finalized by repository transition")
-	errProposalPhaseFailed  = errors.New("proposal phase failed by repository transition")
+	errDeferredEffect = errors.New("effect deferred for retry")
 )
+
+type sandboxObservationRequest struct {
+	EffectID    string
+	OperationID string
+	ProposalID  string
+	AttemptID   string
+	TraceID     string
+	JobID       string
+	JobName     string
+	Namespace   string
+	Repo        string
+	BranchName  string
+	BaseRef     string
+}
+
+type draftPROpenRequest struct {
+	EffectID    string
+	OperationID string
+	ProposalID  string
+	AttemptID   string
+	TraceID     string
+	JobID       string
+	Repo        string
+	BranchName  string
+	BaseRef     string
+	Title       string
+	Body        string
+}
+
+type runnerExecutor interface {
+	Execute(task clients.RunnerTask) (clients.RunnerResponse, error)
+}
+
+type toolExecutor interface {
+	Execute(name string, input map[string]any) (storepkg.ToolResult, error)
+}
 
 func RunWorker(cfg config.Config, store storepkg.Store) error {
 	workerID := fmt.Sprintf("%s-worker", cfg.ServiceName)
@@ -109,19 +139,22 @@ func loadAttemptEffectContext(store storepkg.Store, effect transition.EffectExec
 }
 
 func effectStringValue(effect transition.EffectExecution, key string) string {
-	if value := strings.TrimSpace(stringValue(effect.Payload[key])); value != "" {
-		return value
-	}
-	payload := effectPayloadMap(effect.Payload["work_item_payload"])
-	return strings.TrimSpace(stringValue(payload[key]))
+	return strings.TrimSpace(stringValue(effect.Payload[key]))
 }
 
 func effectStringSliceValue(effect transition.EffectExecution, key string) []string {
-	if values := stringSliceFromAny(effect.Payload[key]); len(values) > 0 {
-		return values
+	return stringSliceFromAny(effect.Payload[key])
+}
+
+func workspaceMutationCallCount(trace events.Trace) int {
+	count := 0
+	for _, item := range trace.ToolCalls {
+		switch strings.TrimSpace(item.ToolName) {
+		case "workspace.write_file", "workspace.apply_patch":
+			count++
+		}
 	}
-	payload := effectPayloadMap(effect.Payload["work_item_payload"])
-	return stringSliceFromAny(payload[key])
+	return count
 }
 
 func workspaceCommandPayload(workspace improvement.AttemptWorkspace, job improvement.RepoChangeJob) map[string]any {
@@ -384,7 +417,7 @@ func processImplementAttemptEffect(cfg config.Config, store storepkg.Store, runn
 		return completeClaimedImprovementEffect(store, effect, attempt.ID)
 	}
 	if proposal.RecommendedInterventionKind == review.InterventionHarnessOverlay || proposal.TargetLayer == harness.TargetLayerHarnessOverlay {
-		if err := processHarnessOverlayProposal(cfg, store, attemptTrace, proposal, attempt, runnerResp, runnerOutput, runnerStarted); err != nil {
+		if err := processHarnessOverlayProposal(cfg, store, attemptTrace, proposal, attempt, operationID, runnerResp, runnerOutput, runnerStarted); err != nil {
 			_ = failClaimedImprovementEffect(store, effect, err.Error())
 			return err
 		}
@@ -715,12 +748,7 @@ func processEvalRun(cfg config.Config, store storepkg.Store, runnerClient runner
 		runnerErr    error
 	)
 	if runnerClient != nil {
-		runnerResp, runnerErr = runnerClient.Execute(buildEvalRunnerTask(cfg, store, trace, run, judgments, queue.WorkItem{
-			ID:          evalID,
-			Kind:        evalTrigger,
-			TraceID:     trace.Summary.TraceID,
-			OperationID: operationID,
-		}))
+		runnerResp, runnerErr = runnerClient.Execute(buildEvalRunnerTask(cfg, store, trace, run, judgments, evalID, evalTrigger, operationID))
 		if runnerErr == nil && !runnerResp.OK {
 			runnerErr = fmt.Errorf("eval runner returned non-ok result: %s", strings.TrimSpace(runnerResp.Message))
 		}
@@ -857,96 +885,17 @@ func processEvalRun(cfg config.Config, store storepkg.Store, runnerClient runner
 	return nil
 }
 
-func processProposalItem(cfg config.Config, store storepkg.Store, runnerClient runnerExecutor, toolClient toolExecutor, launcher sandbox.Launcher, launcherErr error, item queue.WorkItem) error {
-	if item.ProposalID == "" {
-		return fmt.Errorf("proposal work item %s missing proposal_id", item.ID)
-	}
-	operationKind := resolveProposalOperationKind(store, item)
-	if strings.TrimSpace(operationKind) == "" {
-		return fmt.Errorf("unsupported proposal operation for item %s", item.ID)
-	}
-	proposal, ok := findProposal(store.ListProposals(), item.ProposalID)
-	if !ok {
-		return fmt.Errorf("proposal %s not found", item.ProposalID)
-	}
-	if !proposalStatusAllowsPhaseExecution(proposal.Status, operationKind) {
-		return nil
-	}
-	if !review.ProposalExecutableIntervention(proposal.RecommendedInterventionKind) {
-		return nil
-	}
-	proposalTraceID := item.TraceID
-	if proposalTraceID == "" {
-		proposalTraceID = proposal.TraceID
-	}
-	trace, ok := store.GetTrace(proposalTraceID)
-	if !ok {
-		return nil
-	}
-	switch operationKind {
-	case proposalOperationLineActivate:
-		return requireProposalPhaseTerminal(processProposalLineActivate(cfg, store, proposal, trace, item), proposalOperationLineActivate)
-	case proposalOperationAttemptPlan:
-		return requireProposalPhaseTerminal(processProposalAttemptPlan(cfg, store, proposal, trace, item), proposalOperationAttemptPlan)
-	case proposalOperationWorkspaceOpen:
-		return requireProposalPhaseTerminal(processProposalWorkspaceOpen(cfg, store, launcher, launcherErr, proposal, trace, item), proposalOperationWorkspaceOpen)
-	case proposalOperationImplementAttempt:
-		return requireProposalPhaseTerminal(processProposalImplementAttempt(cfg, store, runnerClient, toolClient, proposal, trace, item), proposalOperationImplementAttempt)
-	case proposalOperationWorkspaceValidate:
-		return requireProposalPhaseTerminal(processProposalWorkspaceValidate(cfg, store, toolClient, proposal, trace, item), proposalOperationWorkspaceValidate)
-	default:
-		return fmt.Errorf("unsupported proposal operation for item %s", item.ID)
-	}
-}
-
-func proposalStatusAllowsPhaseExecution(status review.ProposalStatus, operationKind string) bool {
-	switch strings.TrimSpace(operationKind) {
-	case proposalOperationLineActivate, proposalOperationAttemptPlan:
-		return status == review.ProposalApproved
-	case proposalOperationWorkspaceOpen, proposalOperationImplementAttempt, proposalOperationWorkspaceValidate:
-		switch status {
-		case review.ProposalApproved,
-			review.ProposalRepoChangeQueued,
-			review.ProposalRepoChangeRunning,
-			review.ProposalValidationPending:
-			return true
-		default:
-			return false
-		}
-	default:
-		return false
-	}
-}
-
-func requireProposalPhaseTerminal(err error, phaseKind string) error {
-	if err == nil {
-		return fmt.Errorf("proposal phase %s returned without explicit repository finalization", phaseKind)
-	}
-	return err
-}
-
-func processSandboxItem(cfg config.Config, store storepkg.Store, launcher sandbox.Launcher, launcherErr error, item queue.WorkItem) error {
-	switch item.Kind {
-	case "repo_change_job":
-		return processSandboxLaunch(cfg, store, launcher, launcherErr, item)
-	case "watch_sandbox_job":
-		return processSandboxWatch(cfg, store, launcher, launcherErr, item)
-	default:
-		return fmt.Errorf("unsupported sandbox item kind %s", item.Kind)
-	}
-}
-
 func processWorkspaceValidationObservationEffect(cfg config.Config, store storepkg.Store, launcher sandbox.Launcher, launcherErr error, effect transition.EffectExecution) error {
-	item, err := sandboxObservationWorkItemForEffect(store, effect)
+	request, err := sandboxObservationRequestFromEffect(store, effect)
 	if err != nil {
 		return failClaimedImprovementEffect(store, effect, err.Error())
 	}
-	err = observeSandboxJob(cfg, store, launcher, launcherErr, item, func() error {
+	err = observeSandboxJob(cfg, store, launcher, launcherErr, request, func() error {
 		return errDeferredEffect
 	})
 	switch {
 	case err == nil:
-		resultRef := firstNonEmpty(stringValue(item.Payload["job_id"]), fmt.Sprintf("%s/%s", stringValue(item.Payload["namespace"]), stringValue(item.Payload["job_name"])))
+		resultRef := firstNonEmpty(request.JobID, fmt.Sprintf("%s/%s", request.Namespace, request.JobName))
 		return completeClaimedImprovementEffect(store, effect, resultRef)
 	case errors.Is(err, errDeferredEffect):
 		return errDeferredEffect
@@ -956,16 +905,12 @@ func processWorkspaceValidationObservationEffect(cfg config.Config, store storep
 	}
 }
 
-func processHarnessOverlayProposal(cfg config.Config, store storepkg.Store, trace events.Trace, proposal review.Proposal, attempt improvement.ChangeAttempt, runnerResp clients.RunnerResponse, runnerOutput runnerutil.StructuredOutput, runnerStarted time.Time) error {
+func processHarnessOverlayProposal(cfg config.Config, store storepkg.Store, trace events.Trace, proposal review.Proposal, attempt improvement.ChangeAttempt, operationID string, runnerResp clients.RunnerResponse, runnerOutput runnerutil.StructuredOutput, runnerStarted time.Time) error {
 	overlay, err := buildHarnessOverlayFromRunner(store, proposal, runnerOutput)
 	if err != nil {
 		return err
 	}
 	now := time.Now().UTC()
-	operationID := ""
-	if currentOp, ok := latestActiveAttemptOperation(store, attempt.ID); ok {
-		operationID = currentOp.ID
-	}
 	intentTemplate := improvementActionIntentBase(
 		cfg.ServiceName,
 		proposal,
@@ -1131,171 +1076,26 @@ func processHarnessOverlayProposal(cfg config.Config, store storepkg.Store, trac
 	)
 }
 
-func processSandboxLaunch(cfg config.Config, store storepkg.Store, launcher sandbox.Launcher, launcherErr error, item queue.WorkItem) error {
-	jobID := stringValue(item.Payload["job_id"])
-	if jobID == "" {
-		return fmt.Errorf("sandbox work item missing job_id")
-	}
-	repoJob, ok := findRepoChangeJob(store.ListRepoChangeJobs(), jobID)
-	if !ok {
-		return fmt.Errorf("repo change job %s not found", jobID)
-	}
-	trace, ok := store.GetTrace(item.TraceID)
-	if !ok {
-		return fmt.Errorf("trace %s not found", item.TraceID)
-	}
-	attemptID := firstNonEmpty(stringValue(item.Payload["attempt_id"]), repoJob.AttemptID)
-	attempt, _ := store.GetChangeAttempt(attemptID)
-	proposal, ok := findProposal(store.ListProposals(), item.ProposalID)
-	if !ok {
-		proposal = review.Proposal{
-			ID:             item.ProposalID,
-			ConversationID: repoJob.ConversationID,
-			CaseID:         repoJob.CaseID,
-		}
-	}
-	intent, err := ensureImprovementActionIntent(store, improvementActionIntentBase(
-		cfg.ServiceName,
-		proposal,
-		trace,
-		attemptID,
-		action.KindSandboxLaunch,
-		fmt.Sprintf("%s/%s", cfg.SandboxNamespace, repoJob.ID),
-		action.StatusQueued,
-		"Launch the sandbox job to validate the approved repo change.",
-		fmt.Sprintf("sandbox:%s", repoJob.ID),
-		map[string]any{
-			"job_id":      repoJob.ID,
-			"attempt_id":  attemptID,
-			"repo":        repoJob.Repo,
-			"branch_name": repoJob.BranchName,
-			"base_ref":    repoJob.BaseRef,
-		},
-		[]events.EvidenceRef{
-			{Kind: "proposal", Ref: item.ProposalID, Summary: repoJob.CandidateKey},
-			{Kind: "trace", Ref: trace.Summary.TraceID, Summary: trace.Summary.WorkflowKind},
-		},
-		time.Now().UTC(),
-	))
-	if err != nil {
-		return err
-	}
-	started := time.Now().UTC()
-	if _, err := submitImprovementActionCommand(store, intent.ID, transition.CommandActionStart, cfg.ServiceName, started, map[string]any{
-		"operation_id": item.OperationID,
-		"attempt_id":   attemptID,
-	}); err != nil {
-		return err
-	}
-	repoOwner := cfg.GitHubRepoOwner(repoJob.Repo)
-	repoName := cfg.GitHubRepoName(repoJob.Repo)
-	writeToken, err := githubapp.NewClient(
-		cfg.GitHubAppID,
-		cfg.GitHubInstallationIDForRepo(repoJob.Repo),
-		cfg.GitHubAppPrivateKey,
-		cfg.GitHubAPIBaseURL,
-		&http.Client{Timeout: 30 * time.Second},
-	).MintInstallationToken(context.Background(), []string{repoName})
-	if err != nil {
-		return fmt.Errorf("mint github app installation token for sandbox launch: %w", err)
-	}
-	request := sandbox.JobRequest{
-		TraceID:      trace.Summary.TraceID,
-		ProposalID:   item.ProposalID,
-		Repo:         repoName,
-		BaseRef:      repoJob.BaseRef,
-		RequestedBy:  cfg.ServiceName,
-		ArtifactPath: fmt.Sprintf("memory://sandbox/%s", repoJob.ID),
-		Env: map[string]string{
-			"GITHUB_TOKEN":        writeToken.Token,
-			"GITHUB_OWNER":        repoOwner,
-			"GITHUB_COMMIT_USER":  cfg.GitHubCommitUser,
-			"GITHUB_COMMIT_EMAIL": cfg.GitHubCommitEmail,
-			"RSI_BRANCH_NAME":     repoJob.BranchName,
-			"RSI_CONTEXT_SUMMARY": repoJob.ContextSummary,
-			"RSI_CHANGE_PLAN":     attempt.ChangePlan,
-			"RSI_REPO_PATCH":      attempt.RepoPatch,
-			"RSI_VALIDATION_PLAN": attempt.ValidationPlan,
-			"RSI_ATTEMPT_ID":      attemptID,
-			"RSI_REPO":            repoName,
-			"RSI_BASE_REF":        repoJob.BaseRef,
-			"RSI_PROPOSAL_ID":     item.ProposalID,
-		},
-		Commands: repoChangeCommands(),
-	}
-	if launcherErr != nil || launcher == nil {
-		completed := time.Now().UTC()
-		if _, err := submitImprovementActionCommand(store, intent.ID, transition.CommandActionBlock, cfg.ServiceName, completed, map[string]any{
-			"operation_id":   item.OperationID,
-			"attempt_id":     attemptID,
-			"executor":       "sandbox-runtime",
-			"provider":       "kubernetes",
-			"error_code":     "sandbox_unavailable",
-			"error_message":  firstNonEmpty(errorString(launcherErr), "sandbox launcher not configured"),
-			"started_at":     started,
-			"completed_at":   completed,
-			"policy_verdict": "sandbox_unavailable",
-		}); err != nil {
-			return err
-		}
-		if attempt.ID != "" && proposal.ID != "" {
-			return recordAttemptFailure(cfg, store, proposal, attempt, trace, "sandbox_failure", firstNonEmpty(errorString(launcherErr), "Sandbox launcher unavailable."), false, improvement.AttemptTriggerSandboxFailed)
-		}
-		return nil
-	}
-	session, _, err := launcher.Launch(context.Background(), request)
-	if err != nil {
-		completed := time.Now().UTC()
-		_, _ = submitImprovementActionCommand(store, intent.ID, transition.CommandActionFail, cfg.ServiceName, completed, map[string]any{
-			"operation_id":  item.OperationID,
-			"attempt_id":    attemptID,
-			"executor":      "sandbox-runtime",
-			"provider":      "kubernetes",
-			"error_code":    "sandbox_launch_failed",
-			"error_message": err.Error(),
-			"started_at":    started,
-			"completed_at":  completed,
-		})
-		if attempt.ID != "" && proposal.ID != "" {
-			return recordAttemptFailure(cfg, store, proposal, attempt, trace, "sandbox_failure", err.Error(), false, improvement.AttemptTriggerSandboxFailed)
-		}
-		return err
-	}
-	return applySandboxLaunchSuccess(cfg, store, proposal, attempt, trace, repoJob, item, session)
-}
-
-func processSandboxWatch(cfg config.Config, store storepkg.Store, launcher sandbox.Launcher, launcherErr error, item queue.WorkItem) error {
-	return observeSandboxJob(cfg, store, launcher, launcherErr, item, func() error {
-		return errDeferredWorkItem
-	})
-}
-
-func observeSandboxJob(cfg config.Config, store storepkg.Store, launcher sandbox.Launcher, launcherErr error, item queue.WorkItem, onPending func() error) error {
+func observeSandboxJob(cfg config.Config, store storepkg.Store, launcher sandbox.Launcher, launcherErr error, request sandboxObservationRequest, onPending func() error) error {
 	if launcherErr != nil {
 		return launcherErr
 	}
 	if launcher == nil {
 		return fmt.Errorf("sandbox launcher not configured")
 	}
-	jobName := stringValue(item.Payload["job_name"])
-	namespace := stringValue(item.Payload["namespace"])
-	repo := stringValue(item.Payload["repo"])
-	branchName := stringValue(item.Payload["branch_name"])
-	jobID := stringValue(item.Payload["job_id"])
-	attemptID := stringValue(item.Payload["attempt_id"])
-	if jobName == "" || namespace == "" {
-		return fmt.Errorf("sandbox watch item missing job metadata")
+	if request.JobName == "" || request.Namespace == "" {
+		return fmt.Errorf("sandbox observation request missing job metadata")
 	}
-	observation, err := launcher.ObserveJob(context.Background(), namespace, jobName)
+	observation, err := launcher.ObserveJob(context.Background(), request.Namespace, request.JobName)
 	if err != nil {
 		return err
 	}
-	trace, ok := store.GetTrace(item.TraceID)
+	trace, ok := store.GetTrace(request.TraceID)
 	if !ok {
-		return fmt.Errorf("trace %s not found", item.TraceID)
+		return fmt.Errorf("trace %s not found", request.TraceID)
 	}
-	proposal, _ := findProposal(store.ListProposals(), item.ProposalID)
-	attempt, _ := store.GetChangeAttempt(firstNonEmpty(attemptID, proposal.CurrentAttemptID))
+	proposal, _ := findProposal(store.ListProposals(), request.ProposalID)
+	attempt, _ := store.GetChangeAttempt(firstNonEmpty(request.AttemptID, proposal.CurrentAttemptID))
 	if !observation.JobSucceeded && !observation.JobFailed {
 		return onPending()
 	}
@@ -1303,10 +1103,10 @@ func observeSandboxJob(cfg config.Config, store storepkg.Store, launcher sandbox
 	statusArtifactID, logArtifactID, sandboxArtifacts := sandboxObservationArtifacts(trace.Summary.TraceID, observation, now)
 	if observation.JobFailed {
 		errorMessage := sandboxFailureMessage(observation)
-		intent, _ := findAttemptActionIntent(store, item.ProposalID, firstNonEmpty(attemptID, attempt.ID), action.KindSandboxLaunch)
+		intent, _ := findAttemptActionIntent(store, request.ProposalID, firstNonEmpty(request.AttemptID, attempt.ID), action.KindSandboxLaunch)
 		if intent.ID != "" {
 			if _, err := submitImprovementActionCommand(store, intent.ID, transition.CommandActionFail, cfg.ServiceName, now, map[string]any{
-				"operation_id":         item.OperationID,
+				"operation_id":         request.OperationID,
 				"attempt_id":           firstNonEmpty(intent.AttemptID, attempt.ID),
 				"executor":             "sandbox-runtime",
 				"provider":             "kubernetes",
@@ -1322,23 +1122,21 @@ func observeSandboxJob(cfg config.Config, store storepkg.Store, launcher sandbox
 		}
 		if attempt.ID != "" && proposal.ID != "" {
 			return recordAttemptFailure(cfg, store, proposal, attempt, trace, "sandbox_failure", errorMessage, false, improvement.AttemptTriggerSandboxFailed, attemptFailureTraceExtras{
-				Events: []events.TraceEvent{
-					{
-						TraceID:     trace.Summary.TraceID,
-						IngestionID: trace.Summary.IngestionID,
-						WorkflowID:  trace.Summary.WorkflowID,
-						Plane:       "execution",
-						Service:     cfg.ServiceName,
-						Actor:       "sandbox-launcher",
-						EventType:   "sandbox.job.failed",
-						Status:      events.StatusFailed,
-						StartedAt:   now,
-						Description: errorMessage,
-					},
-				},
+				Events: []events.TraceEvent{{
+					TraceID:     trace.Summary.TraceID,
+					IngestionID: trace.Summary.IngestionID,
+					WorkflowID:  trace.Summary.WorkflowID,
+					Plane:       "execution",
+					Service:     cfg.ServiceName,
+					Actor:       "sandbox-launcher",
+					EventType:   "sandbox.job.failed",
+					Status:      events.StatusFailed,
+					StartedAt:   now,
+					Description: errorMessage,
+				}},
 				Artifacts: sandboxArtifacts,
 				Payload: map[string]any{
-					"job_id":            jobID,
+					"job_id":            request.JobID,
 					"sandbox_namespace": observation.Namespace,
 					"sandbox_job_name":  observation.JobName,
 					"sandbox_pod_name":  observation.PodName,
@@ -1353,23 +1151,21 @@ func observeSandboxJob(cfg config.Config, store storepkg.Store, launcher sandbox
 			trace.Summary.TraceID,
 			cfg.ServiceName,
 			now,
-			fmt.Sprintf("cmd-problem-line:trace:sandbox-failed:%s:%s", trace.Summary.TraceID, item.ID),
+			fmt.Sprintf("cmd-problem-line:trace:sandbox-failed:%s:%s", trace.Summary.TraceID, request.EffectID),
 			storepkg.TraceUpdate{
 				Status: ptrStatus(events.StatusFailed),
-				Events: []events.TraceEvent{
-					{
-						TraceID:     trace.Summary.TraceID,
-						IngestionID: trace.Summary.IngestionID,
-						WorkflowID:  trace.Summary.WorkflowID,
-						Plane:       "execution",
-						Service:     cfg.ServiceName,
-						Actor:       "sandbox-launcher",
-						EventType:   "sandbox.job.failed",
-						Status:      events.StatusFailed,
-						StartedAt:   now,
-						Description: errorMessage,
-					},
-				},
+				Events: []events.TraceEvent{{
+					TraceID:     trace.Summary.TraceID,
+					IngestionID: trace.Summary.IngestionID,
+					WorkflowID:  trace.Summary.WorkflowID,
+					Plane:       "execution",
+					Service:     cfg.ServiceName,
+					Actor:       "sandbox-launcher",
+					EventType:   "sandbox.job.failed",
+					Status:      events.StatusFailed,
+					StartedAt:   now,
+					Description: errorMessage,
+				}},
 				Artifacts: sandboxArtifacts,
 			},
 		); err != nil {
@@ -1378,10 +1174,10 @@ func observeSandboxJob(cfg config.Config, store storepkg.Store, launcher sandbox
 		return nil
 	}
 
-	intent, _ := findAttemptActionIntent(store, item.ProposalID, firstNonEmpty(attemptID, attempt.ID), action.KindSandboxLaunch)
+	intent, _ := findAttemptActionIntent(store, request.ProposalID, firstNonEmpty(request.AttemptID, attempt.ID), action.KindSandboxLaunch)
 	if intent.ID != "" {
 		if _, err := submitImprovementActionCommand(store, intent.ID, transition.CommandActionSucceed, cfg.ServiceName, now, map[string]any{
-			"operation_id":         item.OperationID,
+			"operation_id":         request.OperationID,
 			"attempt_id":           firstNonEmpty(intent.AttemptID, attempt.ID),
 			"executor":             "sandbox-runtime",
 			"provider":             "kubernetes",
@@ -1393,113 +1189,84 @@ func observeSandboxJob(cfg config.Config, store storepkg.Store, launcher sandbox
 			return err
 		}
 	}
-	return applySandboxWatchSuccess(cfg, store, proposal, attempt, trace, item, repo, branchName, jobID, observation, sandboxArtifacts)
+	return applySandboxWatchSuccess(cfg, store, proposal, attempt, trace, request, observation, sandboxArtifacts)
 }
 
-func sandboxObservationWorkItemForEffect(store storepkg.Store, effect transition.EffectExecution) (queue.WorkItem, error) {
-	attemptID := firstNonEmpty(strings.TrimSpace(effect.AggregateID), strings.TrimSpace(stringValue(effect.Payload["attempt_id"])))
-	if attemptID == "" {
-		return queue.WorkItem{}, fmt.Errorf("observe_workspace_validation effect %s missing attempt_id", effect.ID)
+func sandboxObservationRequestFromEffect(store storepkg.Store, effect transition.EffectExecution) (sandboxObservationRequest, error) {
+	proposal, attempt, trace, err := loadAttemptEffectContext(store, effect)
+	if err != nil {
+		return sandboxObservationRequest{}, err
 	}
-	attempt, ok := store.GetChangeAttempt(attemptID)
-	if !ok {
-		return queue.WorkItem{}, fmt.Errorf("attempt %s not found", attemptID)
-	}
-	proposal, ok := findProposal(store.ListProposals(), attempt.ProposalID)
-	if !ok {
-		return queue.WorkItem{}, fmt.Errorf("proposal %s not found", attempt.ProposalID)
-	}
-	jobID := strings.TrimSpace(stringValue(effect.Payload["job_id"]))
+	jobID := firstNonEmpty(effectStringValue(effect, "job_id"), effectStringValue(effect, "workspace_job_id"))
 	job, jobOK := findRepoChangeJob(store.ListRepoChangeJobs(), jobID)
 	if !jobOK {
-		for _, candidate := range store.ListRepoChangeJobs() {
-			if candidate.AttemptID == attempt.ID {
-				job = candidate
-				jobOK = true
-				break
-			}
-		}
+		job, jobOK = findRepoChangeJobByAttempt(store.ListRepoChangeJobs(), attempt.ID)
 	}
-	item := queue.WorkItem{
-		ID:          effect.ID,
+	request := sandboxObservationRequest{
+		EffectID:    effect.ID,
 		OperationID: strings.TrimSpace(stringValue(effect.Payload["operation_id"])),
-		Queue:       queue.SandboxQueue,
-		Kind:        "watch_sandbox_job",
-		Status:      queue.WorkQueued,
-		TraceID: firstNonEmpty(
-			strings.TrimSpace(stringValue(effect.Payload["trace_id"])),
-			attempt.AttemptTraceID,
-			proposal.TraceID,
-		),
-		ProposalID: proposal.ID,
-		Payload: map[string]any{
-			"attempt_id":  attempt.ID,
-			"job_id":      firstNonEmpty(jobID, job.ID),
-			"job_name":    firstNonEmpty(strings.TrimSpace(stringValue(effect.Payload["sandbox_job_name"])), job.SandboxJobName),
-			"namespace":   firstNonEmpty(strings.TrimSpace(stringValue(effect.Payload["sandbox_namespace"])), job.SandboxNamespace),
-			"repo":        firstNonEmpty(strings.TrimSpace(stringValue(effect.Payload["repo"])), job.Repo),
-			"branch_name": firstNonEmpty(strings.TrimSpace(stringValue(effect.Payload["branch_name"])), job.BranchName),
-			"base_ref":    firstNonEmpty(strings.TrimSpace(stringValue(effect.Payload["base_ref"])), job.BaseRef),
-		},
+		ProposalID:  proposal.ID,
+		AttemptID:   attempt.ID,
+		TraceID:     trace.Summary.TraceID,
+		JobID:       firstNonEmpty(jobID, job.ID),
+		JobName:     firstNonEmpty(effectStringValue(effect, "sandbox_job_name"), effectStringValue(effect, "job_name"), job.SandboxJobName),
+		Namespace:   firstNonEmpty(effectStringValue(effect, "sandbox_namespace"), effectStringValue(effect, "namespace"), job.SandboxNamespace),
+		Repo:        firstNonEmpty(effectStringValue(effect, "repo"), job.Repo),
+		BranchName:  firstNonEmpty(effectStringValue(effect, "branch_name"), job.BranchName, attempt.BranchName),
+		BaseRef:     firstNonEmpty(effectStringValue(effect, "base_ref"), job.BaseRef, "main"),
 	}
-	if item.TraceID == "" {
-		return queue.WorkItem{}, fmt.Errorf("observe_workspace_validation effect %s missing trace_id", effect.ID)
+	if request.TraceID == "" {
+		return sandboxObservationRequest{}, fmt.Errorf("observe_workspace_validation effect %s missing trace_id", effect.ID)
 	}
-	if strings.TrimSpace(stringValue(item.Payload["job_name"])) == "" || strings.TrimSpace(stringValue(item.Payload["namespace"])) == "" {
-		return queue.WorkItem{}, fmt.Errorf("observe_workspace_validation effect %s missing sandbox job metadata", effect.ID)
+	if request.JobName == "" || request.Namespace == "" {
+		return sandboxObservationRequest{}, fmt.Errorf("observe_workspace_validation effect %s missing sandbox job metadata", effect.ID)
 	}
-	return item, nil
+	return request, nil
 }
 
-func applySandboxLaunchSuccess(cfg config.Config, store storepkg.Store, proposal review.Proposal, attempt improvement.ChangeAttempt, trace events.Trace, repoJob improvement.RepoChangeJob, item queue.WorkItem, session sandbox.Session) error {
+func applySandboxLaunchSuccess(cfg config.Config, store storepkg.Store, proposal review.Proposal, attempt improvement.ChangeAttempt, trace events.Trace, repoJob improvement.RepoChangeJob, request sandboxObservationRequest, session sandbox.Session) error {
 	now := time.Now().UTC()
 	attemptTrace := attemptTraceForChange(store, trace, attempt)
 	if attempt.ID != "" {
 		if err := submitAttemptCommand(store, attempt, transition.CommandValidationStarted, cfg.ServiceName, now, map[string]any{
-			"operation_id":       item.OperationID,
+			"operation_id":       request.OperationID,
 			"job_id":             repoJob.ID,
 			"sandbox_namespace":  session.Namespace,
 			"sandbox_job_name":   session.PodName,
 			"sandbox_pod_name":   session.PodName,
 			"validation_ref":     fmt.Sprintf("%s/%s", session.Namespace, session.PodName),
 			"validation_summary": fmt.Sprintf("Sandbox validation started in %s/%s.", session.Namespace, session.PodName),
-			"trace_events": []events.TraceEvent{
-				{
-					TraceID:     attemptTrace.Summary.TraceID,
-					IngestionID: attemptTrace.Summary.IngestionID,
-					WorkflowID:  attemptTrace.Summary.WorkflowID,
-					Plane:       "execution",
-					Service:     cfg.ServiceName,
-					Actor:       "sandbox-launcher",
-					EventType:   "sandbox.job.started",
-					Status:      events.StatusRunning,
-					StartedAt:   now,
-					Description: fmt.Sprintf("Launched sandbox job %s in namespace %s.", session.PodName, session.Namespace),
-				},
-			},
-			"trace_artifacts": []events.Artifact{
-				{
-					ID:          fmt.Sprintf("artifact-sandbox-launch-%d", now.UnixNano()),
-					TraceID:     attemptTrace.Summary.TraceID,
-					Kind:        "sandbox_job",
-					ContentType: "text/plain",
-					URL:         fmt.Sprintf("k8s://%s/jobs/%s", session.Namespace, session.PodName),
-					SizeBytes:   0,
-					Source:      "sandbox-runtime",
-				},
-			},
-			"reasoning_steps": []events.ReasoningStep{
-				{
-					ID:         fmt.Sprintf("reason-sandbox-launch-%d", now.UnixNano()),
-					TraceID:    attemptTrace.Summary.TraceID,
-					WorkflowID: attemptTrace.Summary.WorkflowID,
-					StepType:   "sandbox_launch",
-					Summary:    fmt.Sprintf("Launched real sandbox job for repo %s branch %s.", repoJob.Repo, repoJob.BranchName),
-					Confidence: 0.88,
-					Decision:   session.PodName,
-					CreatedAt:  now,
-				},
-			},
+			"trace_events": []events.TraceEvent{{
+				TraceID:     attemptTrace.Summary.TraceID,
+				IngestionID: attemptTrace.Summary.IngestionID,
+				WorkflowID:  attemptTrace.Summary.WorkflowID,
+				Plane:       "execution",
+				Service:     cfg.ServiceName,
+				Actor:       "sandbox-launcher",
+				EventType:   "sandbox.job.started",
+				Status:      events.StatusRunning,
+				StartedAt:   now,
+				Description: fmt.Sprintf("Launched sandbox job %s in namespace %s.", session.PodName, session.Namespace),
+			}},
+			"trace_artifacts": []events.Artifact{{
+				ID:          fmt.Sprintf("artifact-sandbox-launch-%d", now.UnixNano()),
+				TraceID:     attemptTrace.Summary.TraceID,
+				Kind:        "sandbox_job",
+				ContentType: "text/plain",
+				URL:         fmt.Sprintf("k8s://%s/jobs/%s", session.Namespace, session.PodName),
+				SizeBytes:   0,
+				Source:      "sandbox-runtime",
+			}},
+			"reasoning_steps": []events.ReasoningStep{{
+				ID:         fmt.Sprintf("reason-sandbox-launch-%d", now.UnixNano()),
+				TraceID:    attemptTrace.Summary.TraceID,
+				WorkflowID: attemptTrace.Summary.WorkflowID,
+				StepType:   "sandbox_launch",
+				Summary:    fmt.Sprintf("Launched real sandbox job for repo %s branch %s.", repoJob.Repo, repoJob.BranchName),
+				Confidence: 0.88,
+				Decision:   session.PodName,
+				CreatedAt:  now,
+			}},
 		}); err != nil {
 			return err
 		}
@@ -1520,53 +1287,48 @@ func applySandboxLaunchSuccess(cfg config.Config, store storepkg.Store, proposal
 	return nil
 }
 
-func applySandboxWatchSuccess(cfg config.Config, store storepkg.Store, proposal review.Proposal, attempt improvement.ChangeAttempt, trace events.Trace, item queue.WorkItem, repo string, branchName string, jobID string, observation sandbox.JobObservation, sandboxArtifacts []events.Artifact) error {
+func applySandboxWatchSuccess(cfg config.Config, store storepkg.Store, proposal review.Proposal, attempt improvement.ChangeAttempt, trace events.Trace, request sandboxObservationRequest, observation sandbox.JobObservation, sandboxArtifacts []events.Artifact) error {
 	now := time.Now().UTC()
 	attemptTrace := attemptTraceForChange(store, trace, attempt)
-	baseRef := firstNonEmpty(stringValue(item.Payload["base_ref"]), "main")
 	if attempt.ID != "" {
 		for i := range sandboxArtifacts {
 			sandboxArtifacts[i].TraceID = attemptTrace.Summary.TraceID
 		}
 		if err := submitAttemptCommand(store, attempt, transition.CommandValidationCompleted, cfg.ServiceName, now, map[string]any{
-			"operation_id":       item.OperationID,
-			"job_id":             jobID,
+			"operation_id":       request.OperationID,
+			"job_id":             request.JobID,
 			"sandbox_namespace":  observation.Namespace,
 			"sandbox_job_name":   observation.JobName,
 			"sandbox_pod_name":   observation.PodName,
 			"validation_ref":     fmt.Sprintf("%s/%s", observation.Namespace, observation.JobName),
 			"log_artifact_id":    sandboxLogArtifactID(sandboxArtifacts),
 			"validation_summary": fmt.Sprintf("Sandbox validation succeeded for %s.", observation.JobName),
-			"repo":               repo,
-			"branch_name":        branchName,
-			"base_ref":           baseRef,
-			"trace_events": []events.TraceEvent{
-				{
-					TraceID:     attemptTrace.Summary.TraceID,
-					IngestionID: attemptTrace.Summary.IngestionID,
-					WorkflowID:  attemptTrace.Summary.WorkflowID,
-					Plane:       "improvement",
-					Service:     cfg.ServiceName,
-					Actor:       "worker",
-					EventType:   "github.pr.queued",
-					Status:      events.StatusQueued,
-					StartedAt:   now,
-					Description: fmt.Sprintf("Sandbox job %s succeeded; queued draft PR open for branch %s.", observation.JobName, branchName),
-				},
-			},
+			"repo":               request.Repo,
+			"branch_name":        request.BranchName,
+			"base_ref":           firstNonEmpty(request.BaseRef, "main"),
+			"trace_events": []events.TraceEvent{{
+				TraceID:     attemptTrace.Summary.TraceID,
+				IngestionID: attemptTrace.Summary.IngestionID,
+				WorkflowID:  attemptTrace.Summary.WorkflowID,
+				Plane:       "improvement",
+				Service:     cfg.ServiceName,
+				Actor:       "worker",
+				EventType:   "github.pr.queued",
+				Status:      events.StatusQueued,
+				StartedAt:   now,
+				Description: fmt.Sprintf("Sandbox job %s succeeded; queued draft PR open for branch %s.", observation.JobName, request.BranchName),
+			}},
 			"trace_artifacts": sandboxArtifacts,
-			"reasoning_steps": []events.ReasoningStep{
-				{
-					ID:         fmt.Sprintf("reason-pr-open-%d", now.UnixNano()),
-					TraceID:    attemptTrace.Summary.TraceID,
-					WorkflowID: attemptTrace.Summary.WorkflowID,
-					StepType:   "pr_queue",
-					Summary:    fmt.Sprintf("Sandbox validation succeeded; queued draft PR open for branch %s.", branchName),
-					Confidence: 0.9,
-					Decision:   branchName,
-					CreatedAt:  now,
-				},
-			},
+			"reasoning_steps": []events.ReasoningStep{{
+				ID:         fmt.Sprintf("reason-pr-open-%d", now.UnixNano()),
+				TraceID:    attemptTrace.Summary.TraceID,
+				WorkflowID: attemptTrace.Summary.WorkflowID,
+				StepType:   "pr_queue",
+				Summary:    fmt.Sprintf("Sandbox validation succeeded; queued draft PR open for branch %s.", request.BranchName),
+				Confidence: 0.9,
+				Decision:   request.BranchName,
+				CreatedAt:  now,
+			}},
 		}); err != nil {
 			return err
 		}
@@ -1579,7 +1341,7 @@ func applySandboxWatchSuccess(cfg config.Config, store storepkg.Store, proposal 
 			cfg.ServiceName,
 			now,
 			fmt.Sprintf("cmd-proposal-validation-pending:%s:%s", proposal.ID, attempt.ID),
-			fmt.Sprintf("Sandbox validation succeeded for branch %s.", branchName),
+			fmt.Sprintf("Sandbox validation succeeded for branch %s.", request.BranchName),
 		); err != nil {
 			return err
 		}
@@ -1587,21 +1349,21 @@ func applySandboxWatchSuccess(cfg config.Config, store storepkg.Store, proposal 
 	return nil
 }
 
-func processDraftPROpen(cfg config.Config, store storepkg.Store, toolClient toolExecutor, item queue.WorkItem) error {
-	trace, ok := store.GetTrace(item.TraceID)
+func processDraftPROpen(cfg config.Config, store storepkg.Store, toolClient toolExecutor, request draftPROpenRequest) error {
+	trace, ok := store.GetTrace(request.TraceID)
 	if !ok {
-		return fmt.Errorf("trace %s not found", item.TraceID)
+		return fmt.Errorf("trace %s not found", request.TraceID)
 	}
-	repo := stringValue(item.Payload["repo"])
-	branchName := stringValue(item.Payload["branch_name"])
-	baseRef := firstNonEmpty(stringValue(item.Payload["base_ref"]), "main")
-	jobID := stringValue(item.Payload["job_id"])
-	attemptID := stringValue(item.Payload["attempt_id"])
-	title := firstNonEmpty(stringValue(item.Payload["title"]), fmt.Sprintf("RSI proposal %s attempt %s for %s", item.ProposalID, attemptID, repo))
-	body := firstNonEmpty(stringValue(item.Payload["body"]), fmt.Sprintf("Automated draft PR for proposal %s attempt %s after workspace validation.", item.ProposalID, attemptID))
+	proposal, _ := findProposal(store.ListProposals(), request.ProposalID)
+	attempt, _ := store.GetChangeAttempt(firstNonEmpty(request.AttemptID, proposal.CurrentAttemptID))
+	repo := request.Repo
+	branchName := request.BranchName
+	baseRef := firstNonEmpty(request.BaseRef, "main")
+	jobID := request.JobID
+	attemptID := firstNonEmpty(request.AttemptID, attempt.ID)
+	title := firstNonEmpty(request.Title, fmt.Sprintf("RSI proposal %s attempt %s for %s", request.ProposalID, attemptID, repo))
+	body := firstNonEmpty(request.Body, fmt.Sprintf("Automated draft PR for proposal %s attempt %s after workspace validation.", request.ProposalID, attemptID))
 	now := time.Now().UTC()
-	proposal, _ := findProposal(store.ListProposals(), item.ProposalID)
-	attempt, _ := store.GetChangeAttempt(firstNonEmpty(attemptID, proposal.CurrentAttemptID))
 	intent, err := ensureImprovementActionIntent(store, improvementActionIntentBase(
 		cfg.ServiceName,
 		proposal,
@@ -1613,14 +1375,14 @@ func processDraftPROpen(cfg config.Config, store storepkg.Store, toolClient tool
 		"Open a draft PR once sandbox validation succeeds.",
 		fmt.Sprintf("pr:%s:%s", attemptID, branchName),
 		map[string]any{
-			"proposal_id": item.ProposalID,
+			"proposal_id": request.ProposalID,
 			"attempt_id":  attemptID,
 			"repo":        repo,
 			"branch_name": branchName,
 			"base_ref":    baseRef,
 		},
 		[]events.EvidenceRef{
-			{Kind: "proposal", Ref: item.ProposalID, Summary: item.ProposalID},
+			{Kind: "proposal", Ref: request.ProposalID, Summary: request.ProposalID},
 			{Kind: "trace", Ref: trace.Summary.TraceID, Summary: trace.Summary.WorkflowKind},
 		},
 		now,
@@ -1629,27 +1391,25 @@ func processDraftPROpen(cfg config.Config, store storepkg.Store, toolClient tool
 		return err
 	}
 	if _, err := submitImprovementActionCommand(store, intent.ID, transition.CommandActionStart, cfg.ServiceName, now, map[string]any{
-		"operation_id": item.OperationID,
+		"operation_id": request.OperationID,
 		"attempt_id":   attemptID,
-		"trace_events": []events.TraceEvent{
-			{
-				TraceID:     trace.Summary.TraceID,
-				IngestionID: trace.Summary.IngestionID,
-				WorkflowID:  trace.Summary.WorkflowID,
-				Plane:       "improvement",
-				Service:     cfg.ServiceName,
-				Actor:       "worker",
-				EventType:   "github.pr.started",
-				Status:      events.StatusRunning,
-				StartedAt:   now,
-				Description: fmt.Sprintf("Opening draft PR for %s on branch %s.", repo, branchName),
-			},
-		},
+		"trace_events": []events.TraceEvent{{
+			TraceID:     trace.Summary.TraceID,
+			IngestionID: trace.Summary.IngestionID,
+			WorkflowID:  trace.Summary.WorkflowID,
+			Plane:       "improvement",
+			Service:     cfg.ServiceName,
+			Actor:       "worker",
+			EventType:   "github.pr.started",
+			Status:      events.StatusRunning,
+			StartedAt:   now,
+			Description: fmt.Sprintf("Opening draft PR for %s on branch %s.", repo, branchName),
+		}},
 	}); err != nil {
 		return err
 	}
 	prResult, execErr := toolClient.Execute("github.create_pr", map[string]any{
-		"proposal_id": item.ProposalID,
+		"proposal_id": request.ProposalID,
 		"attempt_id":  attemptID,
 		"repo":        repo,
 		"branch_name": branchName,
@@ -1664,7 +1424,7 @@ func processDraftPROpen(cfg config.Config, store storepkg.Store, toolClient tool
 		return err
 	}
 	if _, err := submitImprovementActionCommand(store, intent.ID, commandKind, cfg.ServiceName, completed, map[string]any{
-		"operation_id":  item.OperationID,
+		"operation_id":  request.OperationID,
 		"attempt_id":    attemptID,
 		"executor":      "tool-gateway",
 		"provider":      firstNonEmpty(prResult.Provider, "github"),
@@ -1692,39 +1452,35 @@ func processDraftPROpen(cfg config.Config, store storepkg.Store, toolClient tool
 	}
 	if attempt.ID != "" {
 		if err := submitAttemptCommand(store, attempt, transition.CommandAttemptPROpened, cfg.ServiceName, completed, map[string]any{
-			"operation_id": item.OperationID,
+			"operation_id": request.OperationID,
 			"job_id":       jobID,
 			"pr_url":       prURL,
 			"head_sha":     headSHA,
 			"repo":         repo,
 			"branch_name":  branchName,
-			"trace_events": []events.TraceEvent{
-				{
-					TraceID:     attemptTrace.Summary.TraceID,
-					IngestionID: attemptTrace.Summary.IngestionID,
-					WorkflowID:  attemptTrace.Summary.WorkflowID,
-					Plane:       "improvement",
-					Service:     cfg.ServiceName,
-					Actor:       "worker",
-					EventType:   "github.pr.completed",
-					Status:      events.StatusCompleted,
-					StartedAt:   now,
-					EndedAt:     ptrTime(completed),
-					Description: fmt.Sprintf("Opened draft PR for %s on branch %s.", repo, branchName),
-				},
-			},
-			"reasoning_steps": []events.ReasoningStep{
-				{
-					ID:         fmt.Sprintf("reason-pr-open-%d", completed.UnixNano()),
-					TraceID:    attemptTrace.Summary.TraceID,
-					WorkflowID: attemptTrace.Summary.WorkflowID,
-					StepType:   "pr_opened",
-					Summary:    fmt.Sprintf("Opened real draft PR for branch %s.", branchName),
-					Confidence: 0.9,
-					Decision:   prURL,
-					CreatedAt:  completed,
-				},
-			},
+			"trace_events": []events.TraceEvent{{
+				TraceID:     attemptTrace.Summary.TraceID,
+				IngestionID: attemptTrace.Summary.IngestionID,
+				WorkflowID:  attemptTrace.Summary.WorkflowID,
+				Plane:       "improvement",
+				Service:     cfg.ServiceName,
+				Actor:       "worker",
+				EventType:   "github.pr.completed",
+				Status:      events.StatusCompleted,
+				StartedAt:   now,
+				EndedAt:     ptrTime(completed),
+				Description: fmt.Sprintf("Opened draft PR for %s on branch %s.", repo, branchName),
+			}},
+			"reasoning_steps": []events.ReasoningStep{{
+				ID:         fmt.Sprintf("reason-pr-open-%d", completed.UnixNano()),
+				TraceID:    attemptTrace.Summary.TraceID,
+				WorkflowID: attemptTrace.Summary.WorkflowID,
+				StepType:   "pr_opened",
+				Summary:    fmt.Sprintf("Opened real draft PR for branch %s.", branchName),
+				Confidence: 0.9,
+				Decision:   prURL,
+				CreatedAt:  completed,
+			}},
 		}); err != nil {
 			return err
 		}
@@ -1746,135 +1502,66 @@ func processDraftPROpen(cfg config.Config, store storepkg.Store, toolClient tool
 }
 
 func processDraftPROpenEffect(cfg config.Config, store storepkg.Store, toolClient toolExecutor, effect transition.EffectExecution) error {
-	item, err := draftPROpenWorkItemForEffect(effect)
+	request, err := draftPROpenRequestFromEffect(store, effect)
 	if err != nil {
 		return failClaimedImprovementEffect(store, effect, err.Error())
 	}
-	if err := processDraftPROpen(cfg, store, toolClient, item); err != nil {
+	if err := processDraftPROpen(cfg, store, toolClient, request); err != nil {
 		_ = failClaimedImprovementEffect(store, effect, err.Error())
 		return err
 	}
-	if err := completeClaimedImprovementEffect(store, effect, item.ID); err != nil {
+	if err := completeClaimedImprovementEffect(store, effect, request.EffectID); err != nil {
 		return err
 	}
 	return nil
 }
 
-func draftPROpenWorkItemForEffect(effect transition.EffectExecution) (queue.WorkItem, error) {
-	workItemID := strings.TrimSpace(stringValue(effect.Payload["work_item_id"]))
-	payload := effectPayloadMap(effect.Payload["work_item_payload"])
-	if len(payload) == 0 {
-		payload = map[string]any{}
-		for _, key := range []string{"attempt_id", "job_id", "job_name", "namespace", "repo", "branch_name", "base_ref", "title", "body"} {
-			if value := strings.TrimSpace(stringValue(effect.Payload[key])); value != "" {
-				payload[key] = value
-			}
-		}
-	}
-	item := queue.WorkItem{
-		ID:             firstNonEmpty(workItemID, effect.ID),
-		OperationID:    strings.TrimSpace(stringValue(effect.Payload["operation_id"])),
-		Queue:          effectQueueName(stringValue(effect.Payload["queue"])),
-		Kind:           firstNonEmpty(stringValue(effect.Payload["work_item_kind"]), "draft_pr_open"),
-		Status:         queue.WorkQueued,
-		TraceID:        strings.TrimSpace(stringValue(effect.Payload["trace_id"])),
-		WorkflowID:     strings.TrimSpace(stringValue(effect.Payload["workflow_id"])),
-		IngestionID:    strings.TrimSpace(stringValue(effect.Payload["ingestion_id"])),
-		ConversationID: strings.TrimSpace(stringValue(effect.Payload["conversation_id"])),
-		CaseID:         strings.TrimSpace(stringValue(effect.Payload["case_id"])),
-		TriggerEventID: strings.TrimSpace(stringValue(effect.Payload["trigger_event_id"])),
-		ProposalID:     firstNonEmpty(strings.TrimSpace(stringValue(effect.Payload["proposal_id"])), strings.TrimSpace(stringValue(payload["proposal_id"]))),
-		ThreadKey:      strings.TrimSpace(stringValue(effect.Payload["thread_key"])),
-		Intent:         strings.TrimSpace(stringValue(effect.Payload["intent"])),
-		RepoScope:      strings.TrimSpace(stringValue(effect.Payload["repo_scope"])),
-		RequestedBy:    strings.TrimSpace(stringValue(effect.Payload["requested_by"])),
-		ApprovalMode:   strings.TrimSpace(stringValue(effect.Payload["approval_mode"])),
-		ResponseMode:   strings.TrimSpace(stringValue(effect.Payload["response_mode"])),
-		Payload:        payload,
-	}
-	if item.ProposalID == "" {
-		return queue.WorkItem{}, fmt.Errorf("open_draft_pr effect %s missing proposal_id", effect.ID)
-	}
-	if item.TraceID == "" {
-		return queue.WorkItem{}, fmt.Errorf("open_draft_pr effect %s missing trace_id", effect.ID)
-	}
-	if strings.TrimSpace(stringValue(item.Payload["attempt_id"])) == "" {
-		return queue.WorkItem{}, fmt.Errorf("open_draft_pr effect %s missing attempt_id", effect.ID)
-	}
-	return item, nil
-}
-
-func proposalPhaseWorkItemForEffect(store storepkg.Store, effect transition.EffectExecution) (queue.WorkItem, bool, error) {
-	workItemID := strings.TrimSpace(stringValue(effect.Payload["work_item_id"]))
-	if workItemID != "" {
-		if item, ok := workItemByID(store.ListWorkItems(), workItemID); ok {
-			return item, true, nil
-		}
-	}
-	operationID := strings.TrimSpace(stringValue(effect.Payload["operation_id"]))
-	if operationID != "" {
-		if item, ok := workItemByOperationID(store.ListWorkItems(), operationID); ok {
-			return item, true, nil
-		}
-	}
-	kind, err := proposalPhaseKindForEffect(effect)
+func draftPROpenRequestFromEffect(store storepkg.Store, effect transition.EffectExecution) (draftPROpenRequest, error) {
+	proposal, attempt, trace, err := loadAttemptEffectContext(store, effect)
 	if err != nil {
-		return queue.WorkItem{}, false, err
+		return draftPROpenRequest{}, err
 	}
-	payload := effectPayloadMap(effect.Payload["work_item_payload"])
-	item := queue.WorkItem{
-		ID:             firstNonEmpty(workItemID, effect.ID),
-		OperationID:    operationID,
-		Queue:          queue.ProposalQueue,
-		Kind:           kind,
-		Status:         queue.WorkQueued,
-		TraceID:        strings.TrimSpace(stringValue(effect.Payload["trace_id"])),
-		WorkflowID:     strings.TrimSpace(stringValue(effect.Payload["workflow_id"])),
-		IngestionID:    strings.TrimSpace(stringValue(effect.Payload["ingestion_id"])),
-		ConversationID: strings.TrimSpace(stringValue(effect.Payload["conversation_id"])),
-		CaseID:         strings.TrimSpace(stringValue(effect.Payload["case_id"])),
-		TriggerEventID: strings.TrimSpace(stringValue(effect.Payload["trigger_event_id"])),
-		ProposalID:     firstNonEmpty(strings.TrimSpace(stringValue(effect.Payload["proposal_id"])), strings.TrimSpace(stringValue(payload["proposal_id"]))),
-		ThreadKey:      strings.TrimSpace(stringValue(effect.Payload["thread_key"])),
-		Intent:         strings.TrimSpace(stringValue(effect.Payload["intent"])),
-		RepoScope:      strings.TrimSpace(stringValue(effect.Payload["repo_scope"])),
-		RequestedBy:    strings.TrimSpace(stringValue(effect.Payload["requested_by"])),
-		ApprovalMode:   strings.TrimSpace(stringValue(effect.Payload["approval_mode"])),
-		ResponseMode:   strings.TrimSpace(stringValue(effect.Payload["response_mode"])),
-		Payload:        payload,
+	workspace, _ := store.GetAttemptWorkspaceByAttempt(attempt.ID)
+	jobID := firstNonEmpty(effectStringValue(effect, "job_id"), effectStringValue(effect, "workspace_job_id"))
+	job, jobOK := findRepoChangeJob(store.ListRepoChangeJobs(), jobID)
+	if !jobOK {
+		job, _ = findRepoChangeJobByAttempt(store.ListRepoChangeJobs(), attempt.ID)
 	}
-	if item.Queue == "" {
-		item.Queue = queue.ProposalQueue
+	request := draftPROpenRequest{
+		EffectID:    effect.ID,
+		OperationID: strings.TrimSpace(stringValue(effect.Payload["operation_id"])),
+		ProposalID:  proposal.ID,
+		AttemptID:   attempt.ID,
+		TraceID:     trace.Summary.TraceID,
+		JobID:       firstNonEmpty(jobID, job.ID),
+		Repo:        firstNonEmpty(effectStringValue(effect, "repo"), workspace.Repo, job.Repo),
+		BranchName:  firstNonEmpty(effectStringValue(effect, "branch_name"), workspace.BranchName, job.BranchName, attempt.BranchName),
+		BaseRef:     firstNonEmpty(effectStringValue(effect, "base_ref"), workspace.BaseRef, job.BaseRef, "main"),
+		Title:       effectStringValue(effect, "title"),
+		Body:        effectStringValue(effect, "body"),
 	}
-	if item.ProposalID == "" {
-		return queue.WorkItem{}, false, fmt.Errorf("%s effect %s missing proposal_id", effect.EffectKind, effect.ID)
+	if request.ProposalID == "" {
+		return draftPROpenRequest{}, fmt.Errorf("open_draft_pr effect %s missing proposal_id", effect.ID)
 	}
-	if item.TraceID == "" {
-		return queue.WorkItem{}, false, fmt.Errorf("%s effect %s missing trace_id", effect.EffectKind, effect.ID)
+	if request.TraceID == "" {
+		return draftPROpenRequest{}, fmt.Errorf("open_draft_pr effect %s missing trace_id", effect.ID)
 	}
-	if strings.TrimSpace(stringValue(item.Payload["attempt_id"])) == "" {
-		return queue.WorkItem{}, false, fmt.Errorf("%s effect %s missing attempt_id", effect.EffectKind, effect.ID)
+	if request.AttemptID == "" {
+		return draftPROpenRequest{}, fmt.Errorf("open_draft_pr effect %s missing attempt_id", effect.ID)
 	}
-	return item, false, nil
+	if request.Repo == "" || request.BranchName == "" {
+		return draftPROpenRequest{}, fmt.Errorf("open_draft_pr effect %s missing repo metadata", effect.ID)
+	}
+	return request, nil
 }
 
-func proposalPhaseKindForEffect(effect transition.EffectExecution) (string, error) {
-	if kind := strings.TrimSpace(stringValue(effect.Payload["work_item_kind"])); kind != "" {
-		switch kind {
-		case proposalOperationWorkspaceOpen, proposalOperationImplementAttempt, proposalOperationWorkspaceValidate:
-			return kind, nil
+func findRepoChangeJobByAttempt(items []improvement.RepoChangeJob, attemptID string) (improvement.RepoChangeJob, bool) {
+	for _, item := range items {
+		if item.AttemptID == attemptID {
+			return item, true
 		}
 	}
-	switch effect.EffectKind {
-	case transition.EffectOpenWorkspace:
-		return proposalOperationWorkspaceOpen, nil
-	case transition.EffectInvokeRunner:
-		return proposalOperationImplementAttempt, nil
-	case transition.EffectWorkspaceValidate:
-		return proposalOperationWorkspaceValidate, nil
-	default:
-		return "", fmt.Errorf("unsupported proposal phase effect %s", effect.EffectKind)
-	}
+	return improvement.RepoChangeJob{}, false
 }
 
 func claimNextImprovementEffect(store storepkg.Store, holder string, lease time.Duration, sandboxObserveLease time.Duration) (transition.EffectExecution, bool, error) {
@@ -1940,24 +1627,6 @@ func findRepoChangeJob(items []improvement.RepoChangeJob, jobID string) (improve
 		}
 	}
 	return improvement.RepoChangeJob{}, false
-}
-
-func workItemByID(items []queue.WorkItem, workItemID string) (queue.WorkItem, bool) {
-	for _, item := range items {
-		if item.ID == workItemID {
-			return item, true
-		}
-	}
-	return queue.WorkItem{}, false
-}
-
-func workItemByOperationID(items []queue.WorkItem, operationID string) (queue.WorkItem, bool) {
-	for _, item := range items {
-		if item.OperationID == operationID {
-			return item, true
-		}
-	}
-	return queue.WorkItem{}, false
 }
 
 func sandboxObservationArtifacts(traceID string, observation sandbox.JobObservation, createdAt time.Time) (string, string, []events.Artifact) {
@@ -2036,7 +1705,7 @@ func filterProposalMemory(items []review.ProposalMemory, candidateKey string) []
 	return out
 }
 
-func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.Trace, run evals.Run, judgments []evals.Judgment, item queue.WorkItem) clients.RunnerTask {
+func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.Trace, run evals.Run, judgments []evals.Judgment, evalID string, evalTrigger string, operationID string) clients.RunnerTask {
 	effectiveHarness := harness.ResolveEffectiveConfig(store, "eval", cfg.DefaultReasoningVerbosity)
 	targetRepo := evalTargetRepo(cfg, store, trace)
 	repoAllowlist := scopedImprovementRepoAllowlist(targetRepo)
@@ -2044,12 +1713,12 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 	evalContextRefs := make([]clients.RunnerContextRef, 0, len(judgments)+1)
 	evalContextRefs = append(evalContextRefs, clients.RunnerContextRef{
 		Kind:     "eval_run",
-		Ref:      run.ID,
+		Ref:      firstNonEmpty(strings.TrimSpace(evalID), run.ID),
 		Summary:  run.OverallVerdict,
 		TraceID:  trace.Summary.TraceID,
 		ToolName: run.SuiteName,
 		Decision: run.Trigger,
-		Status:   string(item.Kind),
+		Status:   strings.TrimSpace(evalTrigger),
 	})
 	for _, judgment := range judgments {
 		evalContextRefs = append(evalContextRefs, clients.RunnerContextRef{
@@ -2064,6 +1733,13 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 	evalContextRefs = append(evalContextRefs, improvementTraceEvidenceRefs(trace)...)
 	evalContextRefs = append(evalContextRefs, improvementCandidateEvidenceRefs(store, trace, "")...)
 	evalContextRefs = append(evalContextRefs, improvementProposalMemoryRefs(store, "")...)
+	if strings.TrimSpace(operationID) != "" {
+		evalContextRefs = append(evalContextRefs, clients.RunnerContextRef{
+			Kind:    "attempt_effect",
+			Ref:     strings.TrimSpace(operationID),
+			Summary: "Current evaluation effect operation identifier.",
+		})
+	}
 	if targetRepo != "" {
 		evalContextRefs = append(evalContextRefs, clients.RunnerContextRef{
 			Kind:    "target_repo",
@@ -3067,34 +2743,6 @@ func clonePayload(payload map[string]interface{}) map[string]interface{} {
 		out[key] = value
 	}
 	return out
-}
-
-func effectPayloadMap(value interface{}) map[string]interface{} {
-	switch typed := value.(type) {
-	case map[string]interface{}:
-		return clonePayload(typed)
-	default:
-		return map[string]interface{}{}
-	}
-}
-
-func effectQueueName(value string) queue.QueueName {
-	switch strings.TrimSpace(value) {
-	case string(queue.WorkflowQueue):
-		return queue.WorkflowQueue
-	case string(queue.ProactiveQueue):
-		return queue.ProactiveQueue
-	case string(queue.ProposalQueue):
-		return queue.ProposalQueue
-	case string(queue.SandboxQueue):
-		return queue.SandboxQueue
-	case string(queue.ImprovementActionQueue):
-		return queue.ImprovementActionQueue
-	case string(queue.KnowledgeMaintenanceQueue):
-		return queue.KnowledgeMaintenanceQueue
-	default:
-		return queue.ImprovementActionQueue
-	}
 }
 
 func parseTimeOrNil(value string) *time.Time {

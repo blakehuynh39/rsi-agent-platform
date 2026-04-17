@@ -33,7 +33,7 @@ func (p *PostgresStore) GetChangeAttempt(attemptID string) (improvement.ChangeAt
 	return normalizeChangeAttempt(item), true
 }
 
-func (p *PostgresStore) UpsertChangeAttempt(item improvement.ChangeAttempt) (improvement.ChangeAttempt, error) {
+func (p *PostgresStore) upsertChangeAttemptDirect(item improvement.ChangeAttempt) (improvement.ChangeAttempt, error) {
 	item = normalizeChangeAttempt(item)
 	now := time.Now().UTC()
 	if item.ID == "" {
@@ -165,7 +165,7 @@ func (p *PostgresStore) StopProposalLine(proposalID string, requestedBy string, 
 	return proposal, nil
 }
 
-func (p *PostgresStore) CreateDerivedTrace(req DerivedTraceRequest) (events.Trace, Workflow, error) {
+func (p *PostgresStore) createDerivedTraceDirect(req DerivedTraceRequest) (events.Trace, Workflow, error) {
 	var (
 		trace    events.Trace
 		workflow Workflow

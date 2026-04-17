@@ -305,15 +305,14 @@ const proposalDetailResponse = {
       updated_at: "2026-04-11T12:30:00Z"
     }
   ],
-  operations: [
+  effects: [
     {
-      id: "op-001",
-      scope_kind: "proposal",
-      scope_id: "proposal-001",
-      operation_kind: "pr_open",
-      operation_key: "proposal-001:pr_open",
+      id: "eff-001",
+      machine_kind: "proposal_line",
+      aggregate_id: "proposal-001",
+      effect_kind: "open_draft_pr",
       status: "completed",
-      queue: "improvement",
+      idempotency_key: "proposal-001:pr_open",
       retry_count: 0,
       attempt_id: "attempt-001",
       started_at: "2026-04-11T12:28:00Z",

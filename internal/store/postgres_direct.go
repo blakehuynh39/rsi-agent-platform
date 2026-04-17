@@ -16,7 +16,6 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/operation"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
-	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 )
 
@@ -150,12 +149,6 @@ func replaceProposalReviewScope(tx *sql.Tx, store *MemoryStore, proposalID strin
 		temp.proposals[proposalID] = proposal
 	}
 	return persistProposalReviews(tx, temp)
-}
-
-func replaceWorkItemScope(tx *sql.Tx, item queue.WorkItem) error {
-	temp := newSubsetStore()
-	temp.workItems[item.ID] = item
-	return persistWorkItems(tx, temp)
 }
 
 func replaceThreadPolicyScope(tx *sql.Tx, item policy.ThreadPolicy) error {
@@ -762,25 +755,6 @@ func replaceEventMaterializationScope(tx *sql.Tx, store *MemoryStore, event inge
 			return err
 		}
 	}
-	for _, item := range store.workItems {
-		if _, ok := caseIDs[item.CaseID]; ok {
-			if err := replaceWorkItemScope(tx, item); err != nil {
-				return err
-			}
-			continue
-		}
-		if _, ok := traceIDs[item.TraceID]; ok {
-			if err := replaceWorkItemScope(tx, item); err != nil {
-				return err
-			}
-			continue
-		}
-		if _, ok := workflowIDs[item.WorkflowID]; ok {
-			if err := replaceWorkItemScope(tx, item); err != nil {
-				return err
-			}
-		}
-	}
 	for id, item := range store.actionIntents {
 		if _, ok := caseIDs[item.CaseID]; ok {
 			actionIntentIDs[id] = struct{}{}
@@ -846,145 +820,6 @@ func insertActionResult(tx *sql.Tx, item action.Result) error {
 		item.CompletedAt,
 	)
 	return err
-}
-
-func scanWorkItem(scanner rowScanner) (queue.WorkItem, error) {
-	var item queue.WorkItem
-	var queueName, status string
-	var operationID sql.NullString
-	var traceID, workflowID, ingestionID, conversationID, caseID, triggerEventID, proposalID, threadKey, intent, repoScope, requestedBy, approvalMode, responseMode, leaseOwner, lastError sql.NullString
-	var payload []byte
-	var leaseExpiresAt, completedAt sql.NullTime
-	if err := scanner.Scan(&item.ID, &operationID, &queueName, &item.Kind, &status, &traceID, &workflowID, &ingestionID, &conversationID, &caseID, &triggerEventID, &proposalID, &threadKey, &intent, &repoScope, &requestedBy, &approvalMode, &responseMode, &payload, &item.Attempts, &leaseOwner, &leaseExpiresAt, &lastError, &item.CreatedAt, &item.UpdatedAt, &completedAt); err != nil {
-		return queue.WorkItem{}, err
-	}
-	item.OperationID = operationID.String
-	item.Queue = queue.QueueName(queueName)
-	item.Status = queue.WorkItemStatus(status)
-	item.TraceID = traceID.String
-	item.WorkflowID = workflowID.String
-	item.IngestionID = ingestionID.String
-	item.ConversationID = conversationID.String
-	item.CaseID = caseID.String
-	item.TriggerEventID = triggerEventID.String
-	item.ProposalID = proposalID.String
-	item.ThreadKey = threadKey.String
-	item.Intent = intent.String
-	item.RepoScope = repoScope.String
-	item.RequestedBy = requestedBy.String
-	item.ApprovalMode = approvalMode.String
-	item.ResponseMode = responseMode.String
-	item.Payload = decodeJSON(payload, map[string]interface{}{})
-	item.LeaseOwner = leaseOwner.String
-	item.LastError = lastError.String
-	if leaseExpiresAt.Valid {
-		t := leaseExpiresAt.Time
-		item.LeaseExpiresAt = &t
-	}
-	if completedAt.Valid {
-		t := completedAt.Time
-		item.CompletedAt = &t
-	}
-	return item, nil
-}
-
-func workItemSelectColumns() string {
-	return `id, operation_id, queue, kind, status, trace_id, workflow_id, ingestion_id, conversation_id, case_id, trigger_event_id, proposal_id, thread_key, intent, repo_scope, requested_by, approval_mode, response_mode, payload, attempts, lease_owner, lease_expires_at, last_error, created_at, updated_at, completed_at`
-}
-
-func workItemSelectColumnsWithAlias(alias string) string {
-	columns := []string{
-		"id",
-		"operation_id",
-		"queue",
-		"kind",
-		"status",
-		"trace_id",
-		"workflow_id",
-		"ingestion_id",
-		"conversation_id",
-		"case_id",
-		"trigger_event_id",
-		"proposal_id",
-		"thread_key",
-		"intent",
-		"repo_scope",
-		"requested_by",
-		"approval_mode",
-		"response_mode",
-		"payload",
-		"attempts",
-		"lease_owner",
-		"lease_expires_at",
-		"last_error",
-		"created_at",
-		"updated_at",
-		"completed_at",
-	}
-	qualified := make([]string, 0, len(columns))
-	for _, column := range columns {
-		qualified = append(qualified, alias+"."+column)
-	}
-	return strings.Join(qualified, ", ")
-}
-
-func findExistingWorkItemByDedupe(tx *sql.Tx, item queue.WorkItem) (queue.WorkItem, bool, error) {
-	dedupeKey := workItemDedupeKey(item)
-	if dedupeKey == "" {
-		return queue.WorkItem{}, false, nil
-	}
-	if err := advisoryLock(tx, fmt.Sprintf("work-item:%s:%s:%s", item.Queue, item.Kind, dedupeKey)); err != nil {
-		return queue.WorkItem{}, false, err
-	}
-	row := tx.QueryRow(
-		`select `+workItemSelectColumns()+` from work_item where queue = $1 and kind = $2 and payload->>'dedupe_key' = $3 and status not in ($4, $5, $6) order by created_at desc, id desc limit 1`,
-		string(item.Queue),
-		item.Kind,
-		dedupeKey,
-		string(queue.WorkFailed),
-		string(queue.WorkCanceled),
-		string(queue.WorkCompleted),
-	)
-	existing, err := scanWorkItem(row)
-	if err == sql.ErrNoRows {
-		return queue.WorkItem{}, false, nil
-	}
-	if err != nil {
-		return queue.WorkItem{}, false, err
-	}
-	return existing, true, nil
-}
-
-func findExistingWorkItemByOperation(tx *sql.Tx, operationID string) (queue.WorkItem, bool, error) {
-	operationID = strings.TrimSpace(operationID)
-	if operationID == "" {
-		return queue.WorkItem{}, false, nil
-	}
-	if err := advisoryLock(tx, fmt.Sprintf("work-item:operation:%s", operationID)); err != nil {
-		return queue.WorkItem{}, false, err
-	}
-	row := tx.QueryRow(`select `+workItemSelectColumns()+` from work_item where operation_id = $1 order by created_at desc, id desc limit 1`, operationID)
-	existing, err := scanWorkItem(row)
-	if err == sql.ErrNoRows {
-		return queue.WorkItem{}, false, nil
-	}
-	if err != nil {
-		return queue.WorkItem{}, false, err
-	}
-	return existing, true, nil
-}
-
-func queuePredicate(queues []queue.QueueName, startIndex int) (string, []any) {
-	if len(queues) == 0 {
-		return "1=1", nil
-	}
-	parts := make([]string, 0, len(queues))
-	args := make([]any, 0, len(queues))
-	for idx, name := range queues {
-		parts = append(parts, fmt.Sprintf("$%d", startIndex+idx))
-		args = append(args, string(name))
-	}
-	return fmt.Sprintf("queue in (%s)", strings.Join(parts, ",")), args
 }
 
 func sameProposalDecision(current review.ProposalReview, incoming review.ProposalReview) bool {

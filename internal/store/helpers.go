@@ -11,7 +11,6 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/operation"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
-	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
@@ -48,7 +47,6 @@ func newEmptyMemoryStore() *MemoryStore {
 		proposals:              map[string]review.Proposal{},
 		changeAttempts:         map[string]improvement.ChangeAttempt{},
 		attemptWorkspaces:      map[string]improvement.AttemptWorkspace{},
-		workItems:              map[string]queue.WorkItem{},
 		repoChangeJobs:         map[string]improvement.RepoChangeJob{},
 		prAttempts:             map[string]improvement.PRAttempt{},
 		postMergeReplay:        map[string]improvement.PostMergeReplay{},

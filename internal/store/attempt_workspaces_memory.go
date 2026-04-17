@@ -45,12 +45,6 @@ func (s *MemoryStore) GetAttemptWorkspaceByAttempt(attemptID string) (improvemen
 	return improvement.AttemptWorkspace{}, false
 }
 
-func (s *MemoryStore) UpsertAttemptWorkspace(item improvement.AttemptWorkspace) (improvement.AttemptWorkspace, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.upsertAttemptWorkspaceLocked(item)
-}
-
 func normalizeAttemptWorkspace(item improvement.AttemptWorkspace) improvement.AttemptWorkspace {
 	item.ID = strings.TrimSpace(item.ID)
 	item.AttemptID = strings.TrimSpace(item.AttemptID)

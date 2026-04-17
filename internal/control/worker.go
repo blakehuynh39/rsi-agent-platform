@@ -35,6 +35,12 @@ type workflowContext struct {
 	ingestion slackpkg.Ingestion
 }
 
+type workflowLocator struct {
+	traceID     string
+	workflowID  string
+	ingestionID string
+}
+
 func RunWorker(cfg config.Config, store storepkg.Store) error {
 	runnerClients := map[string]*clients.RunnerClient{
 		"prod":      clients.NewRunnerClientWithTimeout(cfg.RunnerURLForRole("prod"), cfg.RunnerTimeoutForRole("prod")),
@@ -86,12 +92,12 @@ func startWorkflowViaCommand(cfg config.Config, store storepkg.Store, workflowID
 	return err
 }
 
-func finalizeWorkflowFailure(cfg config.Config, store storepkg.Store, item queue.WorkItem, procErr error) error {
+func finalizeWorkflowFailure(cfg config.Config, store storepkg.Store, workflow workflowLocator, procErr error) error {
 	now := time.Now().UTC()
-	if item.TraceID == "" {
+	if strings.TrimSpace(workflow.traceID) == "" {
 		return nil
 	}
-	if _, submitErr := submitWorkflowCommand(store, item.WorkflowID, transition.CommandWorkflowFailed, cfg.ServiceName, now, map[string]any{
+	if _, submitErr := submitWorkflowCommand(store, workflow.workflowID, transition.CommandWorkflowFailed, cfg.ServiceName, now, map[string]any{
 		"last_error": procErr.Error(),
 	}); submitErr != nil {
 		return submitErr
@@ -308,13 +314,6 @@ func processControlActionEffect(cfg config.Config, store storepkg.Store, toolCli
 	if !ok {
 		return failClaimedEffect(store, effect, fmt.Sprintf("action intent %s not found", actionID))
 	}
-	item := queue.WorkItem{
-		ID:          effect.ID,
-		OperationID: effect.ID,
-		Payload: map[string]any{
-			"resume_queue": stringFromMap(intent.RequestPayload, "resume_queue"),
-		},
-	}
 	if isTerminalActionStatus(intent.Status) {
 		if err := maybeAdvanceWorkflowPhaseFromAction(cfg, store, intent); err != nil {
 			_ = failClaimedEffect(store, effect, err.Error())
@@ -322,9 +321,7 @@ func processControlActionEffect(cfg config.Config, store storepkg.Store, toolCli
 		}
 		return completeClaimedEffect(store, effect, intent.ID)
 	}
-	ctx, err := loadWorkflowContext(store, queue.WorkItem{
-		TraceID: intent.TraceID,
-	})
+	ctx, err := loadWorkflowContext(store, workflowLocator{traceID: intent.TraceID})
 	if err != nil {
 		_ = failClaimedEffect(store, effect, err.Error())
 		return err
@@ -355,7 +352,7 @@ func processControlActionEffect(cfg config.Config, store storepkg.Store, toolCli
 	case action.KindToolRead:
 		if err := executeToolReadActionIntent(store, toolClient, intent); err != nil {
 			if isPostgresActionPersistenceError(err) {
-				if finalizeErr := finalizeControlActionPersistenceFailure(cfg, store, item, ctx, intent, err); finalizeErr != nil {
+				if finalizeErr := finalizeControlActionPersistenceFailure(cfg, store, effect, ctx, intent, err); finalizeErr != nil {
 					_ = failClaimedEffect(store, effect, finalizeErr.Error())
 					return fmt.Errorf("finalize control action persistence failure: %w (original error: %v)", finalizeErr, err)
 				}
@@ -366,7 +363,7 @@ func processControlActionEffect(cfg config.Config, store storepkg.Store, toolCli
 	case action.KindSlackPost:
 		if err := executeSlackPostActionIntent(cfg, store, toolClient, ctx, intent); err != nil {
 			if isPostgresActionPersistenceError(err) {
-				if finalizeErr := finalizeControlActionPersistenceFailure(cfg, store, item, ctx, intent, err); finalizeErr != nil {
+				if finalizeErr := finalizeControlActionPersistenceFailure(cfg, store, effect, ctx, intent, err); finalizeErr != nil {
 					_ = failClaimedEffect(store, effect, finalizeErr.Error())
 					return fmt.Errorf("finalize control action persistence failure: %w (original error: %v)", finalizeErr, err)
 				}
@@ -535,10 +532,10 @@ func maybeAdvanceWorkflowPhaseFromAction(cfg config.Config, store storepkg.Store
 	if !ok || isTerminalTraceStatus(trace.Summary.Status) {
 		return nil
 	}
-	ctx, err := loadWorkflowContext(store, queue.WorkItem{
-		TraceID:     intent.TraceID,
-		WorkflowID:  trace.Summary.WorkflowID,
-		IngestionID: trace.Summary.IngestionID,
+	ctx, err := loadWorkflowContext(store, workflowLocator{
+		traceID:     intent.TraceID,
+		workflowID:  trace.Summary.WorkflowID,
+		ingestionID: trace.Summary.IngestionID,
 	})
 	if err != nil {
 		return err
@@ -1043,22 +1040,22 @@ func statusString(value any, fallback string) string {
 	return fallback
 }
 
-func loadWorkflowContext(store storepkg.Store, item queue.WorkItem) (workflowContext, error) {
-	trace, ok := store.GetTrace(item.TraceID)
+func loadWorkflowContext(store storepkg.Store, workflow workflowLocator) (workflowContext, error) {
+	trace, ok := store.GetTrace(workflow.traceID)
 	if !ok {
-		return workflowContext{}, fmt.Errorf("trace %s not found", item.TraceID)
+		return workflowContext{}, fmt.Errorf("trace %s not found", workflow.traceID)
 	}
-	workflowID := firstNonEmpty(item.WorkflowID, trace.Summary.WorkflowID)
-	workflow, ok := findWorkflow(store.ListWorkflows(), workflowID)
+	workflowID := firstNonEmpty(workflow.workflowID, trace.Summary.WorkflowID)
+	record, ok := findWorkflow(store.ListWorkflows(), workflowID)
 	if !ok {
 		return workflowContext{}, fmt.Errorf("workflow %s not found", workflowID)
 	}
-	ingestionID := firstNonEmpty(item.IngestionID, trace.Summary.IngestionID)
+	ingestionID := firstNonEmpty(workflow.ingestionID, trace.Summary.IngestionID)
 	ingestion, ok := findIngestion(store.ListIngestions(), ingestionID)
 	if !ok {
 		return workflowContext{}, fmt.Errorf("ingestion %s not found", ingestionID)
 	}
-	return workflowContext{trace: trace, workflow: workflow, ingestion: ingestion}, nil
+	return workflowContext{trace: trace, workflow: record, ingestion: ingestion}, nil
 }
 
 func ensureActionIntent(store storepkg.Store, template action.Intent) (action.Intent, bool, error) {
@@ -1144,10 +1141,10 @@ func loadWorkflowContextForEffect(store storepkg.Store, effect transition.Effect
 	if !ok {
 		return workflowContext{}, "", fmt.Errorf("workflow %s not found", workflowID)
 	}
-	ctx, err := loadWorkflowContext(store, queue.WorkItem{
-		TraceID:     workflow.TraceID,
-		WorkflowID:  workflow.ID,
-		IngestionID: workflow.IngestionID,
+	ctx, err := loadWorkflowContext(store, workflowLocator{
+		traceID:     workflow.TraceID,
+		workflowID:  workflow.ID,
+		ingestionID: workflow.IngestionID,
 	})
 	if err != nil {
 		return workflowContext{}, "", err
@@ -1392,11 +1389,11 @@ type actionPersistenceFailure struct {
 	Table       string
 }
 
-func finalizeControlActionPersistenceFailure(cfg config.Config, store storepkg.Store, item queue.WorkItem, ctx workflowContext, intent action.Intent, execErr error) error {
+func finalizeControlActionPersistenceFailure(cfg config.Config, store storepkg.Store, effect transition.EffectExecution, ctx workflowContext, intent action.Intent, execErr error) error {
 	failure := classifyActionPersistenceFailure(intent, execErr)
 	now := time.Now().UTC()
 	if _, err := submitActionCommand(store, intent.ID, transition.CommandActionFail, cfg.ServiceName, now, map[string]any{
-		"operation_id":   firstNonEmpty(intent.OperationID, item.OperationID),
+		"operation_id":   firstNonEmpty(intent.OperationID, effect.ID),
 		"policy_verdict": firstNonEmpty(failure.FailureMode, "action_result_persistence_failure"),
 		"error_code":     "failed",
 		"error_message":  execErr.Error(),
@@ -1405,7 +1402,7 @@ func finalizeControlActionPersistenceFailure(cfg config.Config, store storepkg.S
 		return err
 	}
 
-	description := actionPersistenceFailureDescription(intent, item, failure, execErr)
+	description := actionPersistenceFailureDescription(intent, effect, failure, execErr)
 	if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowBlocked, cfg.ServiceName, now, map[string]any{
 		"last_error": description,
 		"trace_events": []events.TraceEvent{
@@ -1461,13 +1458,13 @@ func classifyActionPersistenceFailure(intent action.Intent, err error) actionPer
 	return failure
 }
 
-func actionPersistenceFailureDescription(intent action.Intent, item queue.WorkItem, failure actionPersistenceFailure, execErr error) string {
+func actionPersistenceFailureDescription(intent action.Intent, effect transition.EffectExecution, failure actionPersistenceFailure, execErr error) string {
 	parts := []string{
 		fmt.Sprintf("subsystem=%s", failure.Subsystem),
 		fmt.Sprintf("failure_mode=%s", failure.FailureMode),
 		fmt.Sprintf("provider=%s", firstNonEmpty(failure.Provider, "unknown")),
 		fmt.Sprintf("action_intent_id=%s", intent.ID),
-		fmt.Sprintf("work_item_id=%s", item.ID),
+		fmt.Sprintf("effect_execution_id=%s", effect.ID),
 		fmt.Sprintf("kind=%s", intent.Kind),
 	}
 	if failure.SQLState != "" {

@@ -53,7 +53,7 @@ func (f *workspaceLauncherStub) Exec(_ context.Context, _, podName string, _ []s
 func TestWorkspaceReadFileUsesResolvedPodAndFormalMetadataCommand(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	base := store.ListProposals()[0]
-	proposal, err := store.ReviewProposal(base.ID, review.ProposalReview{
+	proposal, err := storepkg.ReviewProposalForTesting(store, base.ID, review.ProposalReview{
 		Decision:   string(review.ProposalApproved),
 		Rationale:  "Proceed.",
 		ReviewerID: "tester",
@@ -72,7 +72,7 @@ func TestWorkspaceReadFileUsesResolvedPodAndFormalMetadataCommand(t *testing.T) 
 		t.Fatalf("SubmitCommand(proposal_mark_repo_change_running) error = %v", err)
 	}
 	now := time.Now().UTC()
-	attempt, err := store.UpsertChangeAttempt(improvement.ChangeAttempt{
+	attempt, err := storepkg.SeedChangeAttemptForTesting(store, improvement.ChangeAttempt{
 		ID:            "attempt-workspace-read",
 		ProposalID:    proposal.ID,
 		CandidateKey:  proposal.CandidateKey,
@@ -88,7 +88,7 @@ func TestWorkspaceReadFileUsesResolvedPodAndFormalMetadataCommand(t *testing.T) 
 	if err != nil {
 		t.Fatalf("UpsertChangeAttempt() error = %v", err)
 	}
-	workspace, err := store.UpsertAttemptWorkspace(improvement.AttemptWorkspace{
+	workspace, err := storepkg.SeedAttemptWorkspaceForTesting(store, improvement.AttemptWorkspace{
 		ID:         "workspace-read",
 		AttemptID:  attempt.ID,
 		ProposalID: proposal.ID,
@@ -141,7 +141,7 @@ func TestWorkspaceReadFileUsesResolvedPodAndFormalMetadataCommand(t *testing.T) 
 func TestWorkspaceRunValidationUsesFormalWorkspaceCommands(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	base := store.ListProposals()[0]
-	proposal, err := store.ReviewProposal(base.ID, review.ProposalReview{
+	proposal, err := storepkg.ReviewProposalForTesting(store, base.ID, review.ProposalReview{
 		Decision:   string(review.ProposalApproved),
 		Rationale:  "Proceed.",
 		ReviewerID: "tester",
@@ -160,7 +160,7 @@ func TestWorkspaceRunValidationUsesFormalWorkspaceCommands(t *testing.T) {
 		t.Fatalf("SubmitCommand(proposal_mark_repo_change_running) error = %v", err)
 	}
 	now := time.Now().UTC()
-	attempt, err := store.UpsertChangeAttempt(improvement.ChangeAttempt{
+	attempt, err := storepkg.SeedChangeAttemptForTesting(store, improvement.ChangeAttempt{
 		ID:            "attempt-workspace-validate",
 		ProposalID:    proposal.ID,
 		CandidateKey:  proposal.CandidateKey,
@@ -176,7 +176,7 @@ func TestWorkspaceRunValidationUsesFormalWorkspaceCommands(t *testing.T) {
 	if err != nil {
 		t.Fatalf("UpsertChangeAttempt() error = %v", err)
 	}
-	workspace, err := store.UpsertAttemptWorkspace(improvement.AttemptWorkspace{
+	workspace, err := storepkg.SeedAttemptWorkspaceForTesting(store, improvement.AttemptWorkspace{
 		ID:         "workspace-validate",
 		AttemptID:  attempt.ID,
 		ProposalID: proposal.ID,

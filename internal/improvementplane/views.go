@@ -15,11 +15,10 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
-	"github.com/piplabs/rsi-agent-platform/internal/operation"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
-	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
+	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
 type traceEvalSummary struct {
@@ -118,7 +117,6 @@ type traceDetailResponse struct {
 	FeedbackRecords    []review.FeedbackRecord     `json:"feedback_records"`
 	LinkedProposals    []review.Proposal           `json:"linked_proposals"`
 	HarnessExecutions  []harness.Execution         `json:"harness_executions"`
-	Operations         []operation.Execution       `json:"operations"`
 }
 
 type proposalDetailResponse struct {
@@ -126,7 +124,7 @@ type proposalDetailResponse struct {
 	CurrentPhase          *proposalCurrentPhaseSummary   `json:"current_phase,omitempty"`
 	Attempts              []improvement.ChangeAttempt    `json:"attempts"`
 	AttemptWorkspaces     []improvement.AttemptWorkspace `json:"attempt_workspaces"`
-	Operations            []operation.Execution          `json:"operations"`
+	Effects               []transition.EffectExecution   `json:"effects"`
 	Reviews               []review.ProposalReview        `json:"reviews"`
 	RelatedProposalMemory []review.ProposalMemory        `json:"related_proposal_memory"`
 	RepoChangeJobs        []improvement.RepoChangeJob    `json:"repo_change_jobs"`
@@ -142,20 +140,18 @@ type proposalDetailResponse struct {
 }
 
 type proposalCurrentPhaseSummary struct {
-	AttemptID            string               `json:"attempt_id,omitempty"`
-	OperationID          string               `json:"operation_id,omitempty"`
-	OperationKind        string               `json:"operation_kind,omitempty"`
-	OperationStatus      operation.Status     `json:"operation_status,omitempty"`
-	WorkItemID           string               `json:"work_item_id,omitempty"`
-	WorkItemStatus       queue.WorkItemStatus `json:"work_item_status,omitempty"`
-	ReconciliationNeeded bool                 `json:"reconciliation_needed"`
+	AttemptID            string                  `json:"attempt_id,omitempty"`
+	EffectID             string                  `json:"effect_id,omitempty"`
+	EffectKind           transition.EffectKind   `json:"effect_kind,omitempty"`
+	EffectStatus         transition.EffectStatus `json:"effect_status,omitempty"`
+	ReconciliationNeeded bool                    `json:"reconciliation_needed"`
 }
 
 type attemptDetailResponse struct {
 	Attempt           improvement.ChangeAttempt     `json:"attempt"`
 	Trace             *events.Trace                 `json:"trace,omitempty"`
 	Workspace         *improvement.AttemptWorkspace `json:"workspace,omitempty"`
-	Operations        []operation.Execution         `json:"operations"`
+	Effects           []transition.EffectExecution  `json:"effects"`
 	ActionIntents     []action.Intent               `json:"action_intents"`
 	ActionResults     []action.Result               `json:"action_results"`
 	Outcomes          []outcome.Record              `json:"outcomes"`
@@ -416,7 +412,6 @@ func buildTraceDetail(store storepkg.Repository, traceID string) (traceDetailRes
 		FeedbackRecords:    sliceOrEmpty(store.ListFeedback(traceID)),
 		LinkedProposals:    filterProposalsForTrace(normalizeProposals(store.ListProposals()), traceID),
 		HarnessExecutions:  sliceOrEmpty(filterHarnessExecutions(store.ListHarnessExecutions(), traceID, "")),
-		Operations:         sliceOrEmpty(store.ListOperationsByScope(operation.ScopeTrace, traceID)),
 	}, true
 }
 
@@ -435,13 +430,13 @@ func buildProposalDetail(store storepkg.Repository, proposalID string) (proposal
 	for _, item := range outcomes {
 		extraEvidence = append(extraEvidence, item.ID)
 	}
-	operations := sliceOrEmpty(proposalOperations(store, proposal.ID, attempts))
+	effects := sliceOrEmpty(proposalEffects(store, proposal.ID, attempts))
 	return proposalDetailResponse{
 		Proposal:              normalizeProposal(proposal),
-		CurrentPhase:          buildProposalCurrentPhase(store, proposal, attempts, operations),
+		CurrentPhase:          buildProposalCurrentPhase(proposal, attempts, effects),
 		Attempts:              sliceOrEmpty(attempts),
 		AttemptWorkspaces:     sliceOrEmpty(workspaces),
-		Operations:            operations,
+		Effects:               effects,
 		Reviews:               sliceOrEmpty(proposal.Reviews),
 		RelatedProposalMemory: sliceOrEmpty(filterProposalMemory(store.ListProposalMemories(), proposal.CandidateKey)),
 		RepoChangeJobs:        sliceOrEmpty(filterRepoChangeJobs(store.ListRepoChangeJobs(), proposal.ID)),
@@ -457,7 +452,7 @@ func buildProposalDetail(store storepkg.Repository, proposalID string) (proposal
 	}, true
 }
 
-func buildProposalCurrentPhase(store storepkg.Repository, proposal review.Proposal, attempts []improvement.ChangeAttempt, operations []operation.Execution) *proposalCurrentPhaseSummary {
+func buildProposalCurrentPhase(proposal review.Proposal, attempts []improvement.ChangeAttempt, effects []transition.EffectExecution) *proposalCurrentPhaseSummary {
 	currentAttemptID := strings.TrimSpace(proposal.CurrentAttemptID)
 	if currentAttemptID == "" {
 		return nil
@@ -469,18 +464,13 @@ func buildProposalCurrentPhase(store storepkg.Repository, proposal review.Propos
 			ReconciliationNeeded: true,
 		}
 	}
-	if op, ok := activeAttemptPhaseOperationView(operations, attempt.ID); ok {
-		summary := &proposalCurrentPhaseSummary{
-			AttemptID:       attempt.ID,
-			OperationID:     op.ID,
-			OperationKind:   op.OperationKind,
-			OperationStatus: op.Status,
+	if effect, ok := activeAttemptEffectView(effects, attempt.ID); ok {
+		return &proposalCurrentPhaseSummary{
+			AttemptID:    attempt.ID,
+			EffectID:     effect.ID,
+			EffectKind:   effect.EffectKind,
+			EffectStatus: effect.Status,
 		}
-		if item, ok := workItemByOperation(store.ListWorkItems(), op.ID); ok {
-			summary.WorkItemID = item.ID
-			summary.WorkItemStatus = item.Status
-		}
-		return summary
 	}
 	return &proposalCurrentPhaseSummary{
 		AttemptID:            attempt.ID,
@@ -498,19 +488,18 @@ func findAttemptByID(items []improvement.ChangeAttempt, attemptID string) (impro
 	return improvement.ChangeAttempt{}, false
 }
 
-func activeAttemptPhaseOperationView(items []operation.Execution, attemptID string) (operation.Execution, bool) {
-	var best operation.Execution
+func activeAttemptEffectView(items []transition.EffectExecution, attemptID string) (transition.EffectExecution, bool) {
+	var best transition.EffectExecution
 	found := false
 	attemptID = strings.TrimSpace(attemptID)
 	for _, item := range items {
-		if item.ScopeKind != operation.ScopeAttempt || strings.TrimSpace(item.ScopeID) != attemptID {
+		if item.MachineKind != transition.MachineAttempt {
 			continue
 		}
-		kind := strings.TrimSpace(item.OperationKind)
-		if !isProposalAttemptPhaseKindView(kind) && kind != "sandbox_launch" && kind != "pr_open" {
+		if strings.TrimSpace(item.AttemptID) != attemptID && strings.TrimSpace(item.AggregateID) != attemptID {
 			continue
 		}
-		if item.Status != operation.StatusQueued && item.Status != operation.StatusRunning {
+		if item.Status != transition.EffectQueued && item.Status != transition.EffectRunning {
 			continue
 		}
 		if !found || item.UpdatedAt.After(best.UpdatedAt) {
@@ -519,29 +508,6 @@ func activeAttemptPhaseOperationView(items []operation.Execution, attemptID stri
 		}
 	}
 	return best, found
-}
-
-func isProposalAttemptPhaseKindView(kind string) bool {
-	switch strings.TrimSpace(kind) {
-	case proposalOperationLineActivate,
-		proposalOperationAttemptPlan,
-		proposalOperationWorkspaceOpen,
-		proposalOperationImplementAttempt,
-		proposalOperationWorkspaceValidate:
-		return true
-	default:
-		return false
-	}
-}
-
-func workItemByOperation(items []queue.WorkItem, operationID string) (queue.WorkItem, bool) {
-	operationID = strings.TrimSpace(operationID)
-	for _, item := range items {
-		if strings.TrimSpace(item.OperationID) == operationID {
-			return item, true
-		}
-	}
-	return queue.WorkItem{}, false
 }
 
 func buildAttemptDetail(store storepkg.Repository, proposalID string, attemptID string) (attemptDetailResponse, bool) {
@@ -566,7 +532,7 @@ func buildAttemptDetail(store storepkg.Repository, proposalID string, attemptID 
 		Attempt:           attempt,
 		Trace:             trace,
 		Workspace:         workspace,
-		Operations:        sliceOrEmpty(store.ListOperationsByScope(operation.ScopeAttempt, attempt.ID)),
+		Effects:           sliceOrEmpty(store.ListEffectExecutionsByAggregate(transition.MachineAttempt, attempt.ID)),
 		ActionIntents:     sliceOrEmpty(actionIntents),
 		ActionResults:     sliceOrEmpty(flattenActionResults(store, actionIntents)),
 		Outcomes:          sliceOrEmpty(filterOutcomesByAttempt(listOutcomes(store, "", "", "", proposalID), attempt.ID)),
@@ -576,14 +542,14 @@ func buildAttemptDetail(store storepkg.Repository, proposalID string, attemptID 
 	}, true
 }
 
-func proposalOperations(store storepkg.Repository, proposalID string, attempts []improvement.ChangeAttempt) []operation.Execution {
-	items := sliceOrEmpty(store.ListOperationsByScope(operation.ScopeProposal, proposalID))
+func proposalEffects(store storepkg.Repository, proposalID string, attempts []improvement.ChangeAttempt) []transition.EffectExecution {
+	items := sliceOrEmpty(store.ListEffectExecutionsByAggregate(transition.MachineProposalLine, proposalID))
 	seen := make(map[string]struct{}, len(items))
 	for _, item := range items {
 		seen[item.ID] = struct{}{}
 	}
 	for _, attempt := range attempts {
-		for _, item := range store.ListOperationsByScope(operation.ScopeAttempt, attempt.ID) {
+		for _, item := range store.ListEffectExecutionsByAggregate(transition.MachineAttempt, attempt.ID) {
 			if _, ok := seen[item.ID]; ok {
 				continue
 			}

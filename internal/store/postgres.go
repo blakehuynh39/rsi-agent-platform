@@ -3,7 +3,6 @@ package store
 import (
 	"database/sql"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"slices"
 	"strings"
@@ -21,14 +20,11 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
-	"github.com/piplabs/rsi-agent-platform/internal/operation"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
-	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/registry"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	"github.com/piplabs/rsi-agent-platform/internal/slack"
-	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
 type PostgresStore struct {
@@ -218,9 +214,6 @@ func loadStore(r sqlReader) (*MemoryStore, error) {
 	if err := loadSettings(r, store); err != nil {
 		return nil, err
 	}
-	if err := loadWorkItems(r, store); err != nil {
-		return nil, err
-	}
 	if err := loadOperations(r, store); err != nil {
 		return nil, err
 	}
@@ -392,9 +385,6 @@ func persistStore(tx *sql.Tx, store *MemoryStore) error {
 		return err
 	}
 	if err := persistSettings(tx, store); err != nil {
-		return err
-	}
-	if err := persistWorkItems(tx, store); err != nil {
 		return err
 	}
 	if err := persistOperations(tx, store); err != nil {
@@ -1205,54 +1195,6 @@ func loadSettings(r sqlReader, store *MemoryStore) error {
 		}
 	}
 	store.settings = normalizedSettings(store.settings)
-	return rows.Err()
-}
-
-func loadWorkItems(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, operation_id, queue, kind, status, trace_id, workflow_id, ingestion_id, conversation_id, case_id, trigger_event_id, proposal_id, thread_key, intent, repo_scope, requested_by, approval_mode, response_mode, payload, attempts, lease_owner, lease_expires_at, last_error, created_at, updated_at, completed_at from work_item order by created_at asc`)
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var item queue.WorkItem
-		var queueName, status string
-		var operationID sql.NullString
-		var traceID, workflowID, ingestionID, conversationID, caseID, triggerEventID, proposalID, threadKey, intent, repoScope, requestedBy, approvalMode, responseMode, leaseOwner, lastError sql.NullString
-		var payload []byte
-		var leaseExpiresAt, completedAt sql.NullTime
-		if err := rows.Scan(&item.ID, &operationID, &queueName, &item.Kind, &status, &traceID, &workflowID, &ingestionID, &conversationID, &caseID, &triggerEventID, &proposalID, &threadKey, &intent, &repoScope, &requestedBy, &approvalMode, &responseMode, &payload, &item.Attempts, &leaseOwner, &leaseExpiresAt, &lastError, &item.CreatedAt, &item.UpdatedAt, &completedAt); err != nil {
-			return err
-		}
-		item.OperationID = operationID.String
-		item.Queue = queue.QueueName(queueName)
-		item.Status = queue.WorkItemStatus(status)
-		item.TraceID = traceID.String
-		item.WorkflowID = workflowID.String
-		item.IngestionID = ingestionID.String
-		item.ConversationID = conversationID.String
-		item.CaseID = caseID.String
-		item.TriggerEventID = triggerEventID.String
-		item.ProposalID = proposalID.String
-		item.ThreadKey = threadKey.String
-		item.Intent = intent.String
-		item.RepoScope = repoScope.String
-		item.RequestedBy = requestedBy.String
-		item.ApprovalMode = approvalMode.String
-		item.ResponseMode = responseMode.String
-		item.Payload = decodeJSON(payload, map[string]interface{}{})
-		item.LeaseOwner = leaseOwner.String
-		item.LastError = lastError.String
-		if leaseExpiresAt.Valid {
-			t := leaseExpiresAt.Time
-			item.LeaseExpiresAt = &t
-		}
-		if completedAt.Valid {
-			t := completedAt.Time
-			item.CompletedAt = &t
-		}
-		store.workItems[item.ID] = item
-	}
 	return rows.Err()
 }
 
@@ -2460,45 +2402,6 @@ func persistSettings(tx *sql.Tx, store *MemoryStore) error {
 	return nil
 }
 
-func persistWorkItems(tx *sql.Tx, store *MemoryStore) error {
-	keys := sortedMapKeys(store.workItems)
-	for _, key := range keys {
-		item := store.workItems[key]
-		if _, err := tx.Exec(`insert into work_item (id, operation_id, queue, kind, status, trace_id, workflow_id, ingestion_id, conversation_id, case_id, trigger_event_id, proposal_id, thread_key, intent, repo_scope, requested_by, approval_mode, response_mode, payload, attempts, lease_owner, lease_expires_at, last_error, created_at, updated_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19::jsonb,$20,$21,$22,$23,$24,$25,$26)
-			on conflict (id) do update set
-				operation_id = excluded.operation_id,
-				queue = excluded.queue,
-				kind = excluded.kind,
-				status = excluded.status,
-				trace_id = excluded.trace_id,
-				workflow_id = excluded.workflow_id,
-				ingestion_id = excluded.ingestion_id,
-				conversation_id = excluded.conversation_id,
-				case_id = excluded.case_id,
-				trigger_event_id = excluded.trigger_event_id,
-				proposal_id = excluded.proposal_id,
-				thread_key = excluded.thread_key,
-				intent = excluded.intent,
-				repo_scope = excluded.repo_scope,
-				requested_by = excluded.requested_by,
-				approval_mode = excluded.approval_mode,
-				response_mode = excluded.response_mode,
-				payload = excluded.payload,
-				attempts = excluded.attempts,
-				lease_owner = excluded.lease_owner,
-				lease_expires_at = excluded.lease_expires_at,
-				last_error = excluded.last_error,
-				created_at = excluded.created_at,
-				updated_at = excluded.updated_at,
-				completed_at = excluded.completed_at`,
-			item.ID, firstNonEmpty(item.OperationID), string(item.Queue), item.Kind, string(item.Status), nullString(item.TraceID), nullString(item.WorkflowID), nullString(item.IngestionID), nullString(item.ConversationID), nullString(item.CaseID), nullString(item.TriggerEventID), nullString(item.ProposalID), nullString(item.ThreadKey), nullString(item.Intent), nullString(item.RepoScope), nullString(item.RequestedBy), nullString(item.ApprovalMode), nullString(item.ResponseMode), jsonString(item.Payload), item.Attempts, nullString(item.LeaseOwner), nullTime(item.LeaseExpiresAt), nullString(item.LastError), item.CreatedAt, item.UpdatedAt, nullTime(item.CompletedAt),
-		); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func persistRepoChangeJobs(tx *sql.Tx, store *MemoryStore) error {
 	keys := sortedMapKeys(store.repoChangeJobs)
 	for _, key := range keys {
@@ -2744,17 +2647,6 @@ func backfillConversationCaseV2(store *MemoryStore) {
 			trace.SlackActions[i].CaseID = firstNonEmpty(trace.SlackActions[i].CaseID, trace.Summary.CaseID)
 		}
 		store.traces[traceID] = trace
-	}
-
-	for workID, item := range store.workItems {
-		if item.ConversationID == "" || item.CaseID == "" || item.TriggerEventID == "" {
-			if trace, ok := store.traces[item.TraceID]; ok {
-				item.ConversationID = firstNonEmpty(item.ConversationID, trace.Summary.ConversationID)
-				item.CaseID = firstNonEmpty(item.CaseID, trace.Summary.CaseID)
-				item.TriggerEventID = firstNonEmpty(item.TriggerEventID, trace.Summary.TriggerEventID)
-			}
-			store.workItems[workID] = item
-		}
 	}
 
 	for key, candidate := range store.candidates {
@@ -3325,239 +3217,6 @@ func (p *PostgresStore) GetSettings() improvement.Settings {
 	return store.GetSettings()
 }
 
-func (p *PostgresStore) ListWorkItems() []queue.WorkItem {
-	store, err := p.readStore()
-	if err != nil {
-		return nil
-	}
-	return store.ListWorkItems()
-}
-
-func (p *PostgresStore) EnqueueWorkItem(item queue.WorkItem) (created queue.WorkItem, err error) {
-	err = p.withTx(func(tx *sql.Tx) error {
-		now := time.Now().UTC()
-		if item.ID == "" {
-			item.ID = nextID("work", 0)
-		}
-		if item.Status == "" {
-			item.Status = queue.WorkQueued
-		}
-		if item.CreatedAt.IsZero() {
-			item.CreatedAt = now
-		}
-		if item.UpdatedAt.IsZero() {
-			item.UpdatedAt = item.CreatedAt
-		}
-		if item.Payload == nil {
-			item.Payload = map[string]interface{}{}
-		}
-		existingByOperation, ok, findErr := findExistingWorkItemByOperation(tx, item.OperationID)
-		if findErr != nil {
-			return findErr
-		}
-		if ok {
-			if item.Status == queue.WorkQueued && (existingByOperation.Status == queue.WorkFailed || existingByOperation.Status == queue.WorkCanceled) {
-				existingByOperation.Status = queue.WorkQueued
-				existingByOperation.Payload = cloneMetadata(item.Payload)
-				if existingByOperation.Payload == nil {
-					existingByOperation.Payload = map[string]interface{}{}
-				}
-				existingByOperation.LastError = ""
-				existingByOperation.LeaseOwner = ""
-				existingByOperation.LeaseExpiresAt = nil
-				existingByOperation.CompletedAt = nil
-				existingByOperation.UpdatedAt = now
-				if err := replaceWorkItemScope(tx, existingByOperation); err != nil {
-					return err
-				}
-				if existingByOperation.OperationID != "" {
-					if _, err := requeueOperationTx(tx, existingByOperation.OperationID, ""); err != nil {
-						return err
-					}
-				}
-				created = existingByOperation
-				return nil
-			}
-			created = existingByOperation
-			return nil
-		}
-		existing, ok, findErr := findExistingWorkItemByDedupe(tx, item)
-		if findErr != nil {
-			return findErr
-		}
-		if ok {
-			created = existing
-			return nil
-		}
-		if err := replaceWorkItemScope(tx, item); err != nil {
-			return err
-		}
-		created = item
-		return nil
-	})
-	return
-}
-
-func (p *PostgresStore) RescheduleWorkItem(id string, payload map[string]interface{}, lastError string, availableAt time.Time) (queue.WorkItem, error) {
-	return p.rescheduleWorkItemDirect(id, payload, lastError, availableAt)
-}
-
-func (p *PostgresStore) ClaimNextWorkItem(queues []queue.QueueName, holder string, lease time.Duration) (item queue.WorkItem, ok bool, err error) {
-	if holder == "" {
-		return queue.WorkItem{}, false, fmt.Errorf("holder is required")
-	}
-	if lease <= 0 {
-		lease = 30 * time.Second
-	}
-	err = p.withTx(func(tx *sql.Tx) error {
-		now := time.Now().UTC()
-		expires := now.Add(lease)
-		queueClause, queueArgs := queuePredicate(queues, 1)
-		statusQueuedArg := len(queueArgs) + 1
-		statusLeasedArg := len(queueArgs) + 2
-		nowArg := len(queueArgs) + 3
-		nowUnixArg := len(queueArgs) + 4
-		leasedStatusArg := len(queueArgs) + 5
-		holderArg := len(queueArgs) + 6
-		expiresArg := len(queueArgs) + 7
-		updatedArg := len(queueArgs) + 8
-		args := append(queueArgs,
-			string(queue.WorkQueued),
-			string(queue.WorkLeased),
-			now,
-			now.Unix(),
-			string(queue.WorkLeased),
-			holder,
-			expires,
-			now,
-		)
-		query := fmt.Sprintf(`
-with next_item as (
-	select id
-	from work_item
-	where %s
-	  and coalesce(nullif(payload->>'retry_after_unix', ''), '0')::bigint <= $%d
-	  and (status = $%d or (status = $%d and lease_expires_at is not null and lease_expires_at < $%d))
-	order by created_at asc, id asc
-	for update skip locked
-	limit 1
-)
-update work_item wi
-set status = $%d,
-	attempts = wi.attempts + 1,
-	lease_owner = $%d,
-	lease_expires_at = $%d,
-	updated_at = $%d,
-	completed_at = null
-from next_item
-where wi.id = next_item.id
-returning %s`, queueClause, nowUnixArg, statusQueuedArg, statusLeasedArg, nowArg, leasedStatusArg, holderArg, expiresArg, updatedArg, workItemSelectColumnsWithAlias("wi"))
-		row := tx.QueryRow(query, args...)
-		var scanErr error
-		item, scanErr = scanWorkItem(row)
-		if scanErr == sql.ErrNoRows {
-			ok = false
-			return nil
-		}
-		if scanErr != nil {
-			return scanErr
-		}
-		if item.OperationID != "" {
-			if _, claimed, claimErr := p.claimOperationTx(tx, item.OperationID, holder); claimErr != nil {
-				return claimErr
-			} else if !claimed {
-				row := tx.QueryRow(
-					`update work_item set status = $2, lease_owner = null, lease_expires_at = null, updated_at = $3, completed_at = $3, last_error = $4 where id = $1 returning `+workItemSelectColumns(),
-					item.ID,
-					string(queue.WorkCanceled),
-					now,
-					"operation already terminal",
-				)
-				item, scanErr = scanWorkItem(row)
-				if scanErr != nil {
-					return scanErr
-				}
-				ok = false
-				return nil
-			}
-		}
-		ok = true
-		return nil
-	})
-	return
-}
-
-func (p *PostgresStore) CompleteWorkItem(id string) (item queue.WorkItem, err error) {
-	err = p.withTx(func(tx *sql.Tx) error {
-		currentRow := tx.QueryRow(`select `+workItemSelectColumns()+` from work_item where id = $1`, id)
-		current, currentErr := scanWorkItem(currentRow)
-		if currentErr != nil {
-			return currentErr
-		}
-		if current.OperationID != "" {
-			op, opErr := selectOperationByIDTx(tx, current.OperationID)
-			if opErr != nil {
-				return opErr
-			}
-			if isProposalAttemptPhaseOperation(current, op) {
-				return fmt.Errorf("proposal phase work item %s must be finalized via proposal phase transition methods", current.ID)
-			}
-		}
-		now := time.Now().UTC()
-		row := tx.QueryRow(
-			`update work_item set status = $2, lease_owner = null, lease_expires_at = null, updated_at = $3, completed_at = $3 where id = $1 returning `+workItemSelectColumns(),
-			id,
-			string(queue.WorkCompleted),
-			now,
-		)
-		item, err = scanWorkItem(row)
-		if err != nil {
-			return err
-		}
-		if item.OperationID != "" {
-			_, err = completeOperationTx(tx, item.OperationID, item.ID)
-		}
-		return err
-	})
-	return
-}
-
-func (p *PostgresStore) FailWorkItem(id string, lastError string) (item queue.WorkItem, err error) {
-	err = p.withTx(func(tx *sql.Tx) error {
-		currentRow := tx.QueryRow(`select `+workItemSelectColumns()+` from work_item where id = $1`, id)
-		current, currentErr := scanWorkItem(currentRow)
-		if currentErr != nil {
-			return currentErr
-		}
-		if current.OperationID != "" {
-			op, opErr := selectOperationByIDTx(tx, current.OperationID)
-			if opErr != nil {
-				return opErr
-			}
-			if isProposalAttemptPhaseOperation(current, op) {
-				return fmt.Errorf("proposal phase work item %s must be finalized via proposal phase transition methods", current.ID)
-			}
-		}
-		now := time.Now().UTC()
-		row := tx.QueryRow(
-			`update work_item set status = $2, lease_owner = null, lease_expires_at = null, last_error = $3, updated_at = $4, completed_at = $4 where id = $1 returning `+workItemSelectColumns(),
-			id,
-			string(queue.WorkFailed),
-			lastError,
-			now,
-		)
-		item, err = scanWorkItem(row)
-		if err != nil {
-			return err
-		}
-		if item.OperationID != "" {
-			_, err = failOperationTx(tx, item.OperationID, lastError)
-		}
-		return err
-	})
-	return
-}
-
 func (p *PostgresStore) ListCandidates() []improvement.Candidate {
 	store, err := p.readStore()
 	if err != nil {
@@ -3590,105 +3249,12 @@ func (p *PostgresStore) ListProposals() []review.Proposal {
 	return store.ListProposals()
 }
 
-func (p *PostgresStore) ReviewProposal(proposalID string, decision review.ProposalReview) (review.Proposal, error) {
-	commandKind, err := proposalCommandKindForDecision(decision.Decision)
-	if err != nil {
-		return review.Proposal{}, err
-	}
-	if decision.Scope == "" {
-		decision.Scope = review.FeedbackScopeLine
-	}
-	decision.IdempotencyKey = firstNonEmpty(strings.TrimSpace(decision.IdempotencyKey), proposalDecisionIdempotencyKey(proposalID, decision.Decision, decision.Scope))
-	commandID := fmt.Sprintf("cmd-proposal-review:%s", decision.IdempotencyKey)
-	if _, err := p.SubmitCommand(transition.CommandEnvelope{
-		MachineKind: transition.MachineProposalLine,
-		AggregateID: proposalID,
-		CommandKind: string(commandKind),
-		CommandID:   commandID,
-		Actor:       firstNonEmpty(decision.ReviewerID, "system"),
-		OccurredAt:  firstNonZeroTime(&decision.CreatedAt, time.Now().UTC()),
-		Payload: map[string]any{
-			"idempotency_key": decision.IdempotencyKey,
-			"rationale":       decision.Rationale,
-			"reviewer_id":     decision.ReviewerID,
-			"failure_class":   decision.FailureClass,
-			"failure_classes": append([]string(nil), decision.FailureClasses...),
-			"scope":           string(decision.Scope),
-		},
-	}); err != nil {
-		return review.Proposal{}, err
-	}
-	store, err := p.readStore()
-	if err != nil {
-		return review.Proposal{}, err
-	}
-	for _, proposal := range store.ListProposals() {
-		if proposal.ID == proposalID {
-			return proposal, nil
-		}
-	}
-	return review.Proposal{}, errors.New("proposal not found")
-}
-
-func (p *PostgresStore) MaterializeApprovedProposal(proposalID string, requestedBy string) (improvement.RepoChangeJob, error) {
-	return p.materializeApprovedProposalDirect(proposalID, requestedBy)
-}
-
-func (p *PostgresStore) RetryProposalRepoChange(proposalID string, requestedBy string) (queue.WorkItem, error) {
-	if _, err := p.SubmitCommand(transition.CommandEnvelope{
-		MachineKind: transition.MachineProposalLine,
-		AggregateID: proposalID,
-		CommandKind: string(transition.CommandProposalRetryAttempt),
-		CommandID:   nextUUID("cmd"),
-		Actor:       requestedBy,
-		OccurredAt:  time.Now().UTC(),
-		Payload: map[string]any{
-			"reviewer_id": requestedBy,
-			"scope":       string(review.FeedbackScopeLine),
-		},
-	}); err != nil {
-		return queue.WorkItem{}, err
-	}
-	return p.normalizeRetryProposalWorkItem(proposalID, queue.WorkItem{}), nil
-}
-
-func (p *PostgresStore) normalizeRetryProposalWorkItem(proposalID string, fallback queue.WorkItem) queue.WorkItem {
-	store, err := p.readStore()
-	if err != nil {
-		return fallback
-	}
-	for _, proposal := range store.ListProposals() {
-		if proposal.ID != proposalID {
-			continue
-		}
-		currentAttemptID := strings.TrimSpace(proposal.CurrentAttemptID)
-		if currentAttemptID == "" {
-			return fallback
-		}
-		if active, ok := activeRepoChangeResumeOperation(store.ListOperationsByScope(operation.ScopeAttempt, currentAttemptID)); ok {
-			if item, ok := queuedOrLeasedWorkItemByOperation(store.ListWorkItems(), active.ID); ok {
-				return item
-			}
-		}
-		return fallback
-	}
-	return fallback
-}
-
 func (p *PostgresStore) ListRepoChangeJobs() []improvement.RepoChangeJob {
 	store, err := p.readStore()
 	if err != nil {
 		return nil
 	}
 	return store.ListRepoChangeJobs()
-}
-
-func (p *PostgresStore) UpdateRepoChangeJobStatus(jobID string, status string) (item improvement.RepoChangeJob, err error) {
-	return p.updateRepoChangeJobStatusDirect(jobID, status)
-}
-
-func (p *PostgresStore) UpsertRepoChangeJob(job improvement.RepoChangeJob) (improvement.RepoChangeJob, error) {
-	return p.upsertRepoChangeJobDirect(job)
 }
 
 func (p *PostgresStore) ListPRAttempts() []improvement.PRAttempt {

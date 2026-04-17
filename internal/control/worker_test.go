@@ -112,7 +112,7 @@ func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
 		DefaultReasoningVerbosity: "verbose",
 	}
 
-	if err := startWorkflowViaCommand(cfg, store, workflowItem.WorkflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
 		t.Fatalf("startWorkflowViaCommand() error = %v", err)
 	}
 
@@ -154,14 +154,14 @@ func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
 		t.Fatalf("processControlActionEffect(reply duplicate) error = %v", err)
 	}
 	if slackPosts != 1 {
-		t.Fatalf("expected 1 slack post, got %d; actions=%#v work_items=%#v", slackPosts, store.ListActionIntents(), store.ListWorkItems())
+		t.Fatalf("expected 1 slack post, got %d; actions=%#v", slackPosts, store.ListActionIntents())
 	}
 
-	trace, ok := store.GetTrace(workflowItem.TraceID)
+	trace, ok := store.GetTrace(workflowItem.traceID)
 	if !ok {
 		t.Fatal("expected updated trace")
 	}
-	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.WorkflowID)
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
 	if !ok {
 		t.Fatal("expected workflow to exist")
 	}
@@ -181,8 +181,8 @@ func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
 	if len(store.ListEvalRuns()) == 0 {
 		t.Fatal("expected workflow completion to trigger immediate problem-line evaluation")
 	}
-	assertWorkflowEffectStatus(t, store, workflowItem.WorkflowID, transition.EffectInvokeRunner, transition.EffectCompleted)
-	assertWorkflowEffectStatus(t, store, workflowItem.WorkflowID, transition.EffectPostSlackReply, transition.EffectCompleted)
+	assertWorkflowEffectStatus(t, store, workflowItem.workflowID, transition.EffectInvokeRunner, transition.EffectCompleted)
+	assertWorkflowEffectStatus(t, store, workflowItem.workflowID, transition.EffectPostSlackReply, transition.EffectCompleted)
 }
 
 func TestSupersededTraceDoesNotPostLateSlackReply(t *testing.T) {
@@ -254,7 +254,7 @@ func TestSupersededTraceDoesNotPostLateSlackReply(t *testing.T) {
 	}
 
 	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
-	if err := startWorkflowViaCommand(cfg, store, workflowItem.WorkflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
 		t.Fatalf("startWorkflowViaCommand() error = %v", err)
 	}
 	for _, item := range queuedActionEffectsForPlane(store, "control") {
@@ -337,7 +337,7 @@ func TestControlActionPersistenceFailureFinalizesTraceAndQueuesEval(t *testing.T
 	}
 
 	workflowItem := firstQueuedWorkflowItem(t, baseStore, "slack:")
-	if err := startWorkflowViaCommand(cfg, baseStore, workflowItem.WorkflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+	if err := startWorkflowViaCommand(cfg, baseStore, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
 		t.Fatalf("startWorkflowViaCommand() error = %v", err)
 	}
 
@@ -374,11 +374,11 @@ func TestControlActionPersistenceFailureFinalizesTraceAndQueuesEval(t *testing.T
 		t.Fatalf("expected runtime failure mode on intent, got %s", intent.PolicyVerdict)
 	}
 
-	trace, ok := baseStore.GetTrace(workflowItem.TraceID)
+	trace, ok := baseStore.GetTrace(workflowItem.traceID)
 	if !ok {
 		t.Fatal("expected trace to exist")
 	}
-	workflow, ok := findWorkflow(baseStore.ListWorkflows(), workflowItem.WorkflowID)
+	workflow, ok := findWorkflow(baseStore.ListWorkflows(), workflowItem.workflowID)
 	if !ok {
 		t.Fatal("expected workflow to exist")
 	}
@@ -419,14 +419,14 @@ func TestControlActionPersistenceFailureFinalizesTraceAndQueuesEval(t *testing.T
 		}
 	}
 
-	trace, _ = baseStore.GetTrace(workflowItem.TraceID)
+	trace, _ = baseStore.GetTrace(workflowItem.traceID)
 	if trace.Summary.Status != "needs-human" {
 		t.Fatalf("expected terminal needs-human trace, got %s", trace.Summary.Status)
 	}
 	if trace.Summary.EndedAt.IsZero() {
 		t.Fatal("expected terminal trace ended_at to be set")
 	}
-	workflow, ok = findWorkflow(baseStore.ListWorkflows(), workflowItem.WorkflowID)
+	workflow, ok = findWorkflow(baseStore.ListWorkflows(), workflowItem.workflowID)
 	if !ok {
 		t.Fatal("expected workflow to exist after reply resume")
 	}
@@ -601,11 +601,11 @@ func TestFinalizeWorkflowFailureQueuesEvalForFailedTrace(t *testing.T) {
 		t.Fatalf("finalizeWorkflowFailure() error = %v", err)
 	}
 
-	trace, ok := store.GetTrace(workflowItem.TraceID)
+	trace, ok := store.GetTrace(workflowItem.traceID)
 	if !ok {
 		t.Fatal("expected trace to exist")
 	}
-	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.WorkflowID)
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
 	if !ok {
 		t.Fatal("expected workflow to exist")
 	}
@@ -705,65 +705,23 @@ func containsString(items []string, target string) bool {
 	return false
 }
 
-func firstQueuedWorkItem(t *testing.T, store storepkg.Store, queueName queue.QueueName, kind string) queue.WorkItem {
-	t.Helper()
-	for _, item := range store.ListWorkItems() {
-		if item.Queue == queueName && item.Status == queue.WorkQueued && item.Kind == kind {
-			return item
-		}
-	}
-	t.Fatalf("expected queued work item queue=%s kind=%s", queueName, kind)
-	return queue.WorkItem{}
-}
-
-func firstQueuedWorkflowItem(t *testing.T, store storepkg.Store, threadPrefix string) queue.WorkItem {
+func firstQueuedWorkflowItem(t *testing.T, store storepkg.Store, threadPrefix string) workflowLocator {
 	t.Helper()
 	for _, trace := range store.ListTraces() {
 		if trace.Status != events.StatusQueued || !strings.HasPrefix(trace.ThreadKey, threadPrefix) {
 			continue
 		}
-		workflow, ok := findWorkflow(store.ListWorkflows(), trace.WorkflowID)
-		if !ok {
+		if _, ok := findWorkflow(store.ListWorkflows(), trace.WorkflowID); !ok {
 			continue
 		}
-		return queue.WorkItem{
-			Queue:          queue.WorkflowQueue,
-			Kind:           "run_workflow",
-			Status:         queue.WorkQueued,
-			TraceID:        trace.TraceID,
-			WorkflowID:     trace.WorkflowID,
-			IngestionID:    trace.IngestionID,
-			ConversationID: trace.ConversationID,
-			CaseID:         trace.CaseID,
-			TriggerEventID: trace.TriggerEventID,
-			ThreadKey:      trace.ThreadKey,
-			Intent:         workflow.Intent,
-			ApprovalMode:   workflow.ApprovalMode,
-			ResponseMode:   workflow.ResponseMode,
+		return workflowLocator{
+			traceID:     trace.TraceID,
+			workflowID:  trace.WorkflowID,
+			ingestionID: trace.IngestionID,
 		}
 	}
 	t.Fatalf("expected queued workflow item with thread prefix %s", threadPrefix)
-	return queue.WorkItem{}
-}
-
-func queuedWorkItemsForQueue(store storepkg.Store, queueName queue.QueueName) []queue.WorkItem {
-	out := make([]queue.WorkItem, 0)
-	for _, item := range store.ListWorkItems() {
-		if item.Queue == queueName && item.Status == queue.WorkQueued {
-			out = append(out, item)
-		}
-	}
-	return out
-}
-
-func countQueuedItems(store storepkg.Store, queueName queue.QueueName, kind string) int {
-	count := 0
-	for _, item := range store.ListWorkItems() {
-		if item.Queue == queueName && item.Status == queue.WorkQueued && item.Kind == kind {
-			count++
-		}
-	}
-	return count
+	return workflowLocator{}
 }
 
 func queuedActionEffectsForPlane(store storepkg.Store, ownerPlane string) []transition.EffectExecution {

@@ -222,7 +222,6 @@ export type TraceDetailResponse = {
   feedback_records: NullableList<FeedbackRecord>;
   linked_proposals: NullableList<Proposal>;
   harness_executions: NullableList<HarnessExecution>;
-  operations: NullableList<OperationExecution>;
 };
 
 export type EvalRun = CreatedAt & {
@@ -298,26 +297,23 @@ export type ActionResult = {
   completed_at: string;
 };
 
-export type OperationExecution = {
+export type EffectExecution = {
   id: string;
-  scope_kind: string;
-  scope_id: string;
-  operation_kind: string;
-  operation_key: string;
-  status: string;
-  queue: string;
-  requested_by?: string;
-  holder?: string;
-  trace_id?: string;
-  proposal_id?: string;
+  machine_kind: string;
+  aggregate_id: string;
   attempt_id?: string;
-  payload_hash?: string;
+  effect_kind: string;
+  status: string;
+  holder?: string;
+  idempotency_key: string;
+  payload?: JsonObject;
   result_ref?: string;
   last_error?: string;
   retry_count: number;
   created_at: string;
   updated_at: string;
   started_at?: string;
+  lease_expires_at?: string;
   completed_at?: string;
 };
 
@@ -578,9 +574,10 @@ export type ProposalResponse = {
 
 export type ProposalDetailResponse = {
   proposal: Proposal;
+  current_phase?: ProposalCurrentPhaseSummary;
   attempts: NullableList<ChangeAttempt>;
   attempt_workspaces: NullableList<AttemptWorkspace>;
-  operations: NullableList<OperationExecution>;
+  effects: NullableList<EffectExecution>;
   reviews: NullableList<ProposalReview>;
   related_proposal_memory: NullableList<ProposalMemory>;
   repo_change_jobs: NullableList<RepoChangeJob>;
@@ -593,6 +590,14 @@ export type ProposalDetailResponse = {
   outcomes: NullableList<OutcomeRecord>;
   knowledge_entries: NullableList<KnowledgeEntry>;
   harness_executions: NullableList<HarnessExecution>;
+};
+
+export type ProposalCurrentPhaseSummary = {
+  attempt_id?: string;
+  effect_id?: string;
+  effect_kind?: string;
+  effect_status?: string;
+  reconciliation_needed: boolean;
 };
 
 export type HarnessProfile = Timestamped & {

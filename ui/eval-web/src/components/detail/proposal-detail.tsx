@@ -16,8 +16,8 @@ export function ProposalDetail(props: {
   const actionResults = listOrEmpty(props.detail.action_results);
   const attempts = listOrEmpty(props.detail.attempts);
   const workspaces = listOrEmpty(props.detail.attempt_workspaces);
-  const operations = listOrEmpty(props.detail.operations);
-  const lineOperations = operations.filter((item) => item.scope_kind === "proposal");
+  const effects = listOrEmpty(props.detail.effects);
+  const lineEffects = effects.filter((item) => item.machine_kind === "proposal_line");
   return (
     <div className="detail-stack">
       <div className="detail-card">
@@ -110,7 +110,7 @@ export function ProposalDetail(props: {
             const attemptJobs = listOrEmpty(props.detail.repo_change_jobs).filter((job) => job.attempt_id === attempt.id);
             const attemptPRs = listOrEmpty(props.detail.pr_attempts).filter((item) => item.attempt_id === attempt.id);
             const attemptWorkspace = workspaces.find((item) => item.attempt_id === attempt.id);
-            const attemptOperations = operations.filter((item) => item.attempt_id === attempt.id || (item.scope_kind === "attempt" && item.scope_id === attempt.id));
+            const attemptEffects = effects.filter((item) => item.attempt_id === attempt.id || (item.machine_kind === "attempt" && item.aggregate_id === attempt.id));
             return (
               <div key={attempt.id} className="nested-card">
                 <div className="detail-row-header">
@@ -137,15 +137,15 @@ export function ProposalDetail(props: {
                 ) : null}
                 {attempt.validation_plan ? <p className="muted">Validation: {attempt.validation_plan}</p> : null}
                 {attempt.hypothesis_delta ? <p className="muted">Delta: {attempt.hypothesis_delta}</p> : null}
-                {attemptOperations.length ? (
+                {attemptEffects.length ? (
                   <div className="nested-list">
-                    {attemptOperations.map((item) => (
+                    {attemptEffects.map((item) => (
                       <div key={item.id} className="nested-card">
                         <div className="detail-row-header">
-                          <strong>{item.operation_kind}</strong>
+                          <strong>{item.effect_kind}</strong>
                           <small>{item.status}</small>
                         </div>
-                        <p className="detail-copy">{item.operation_key}{item.queue ? ` · ${item.queue}` : ""}</p>
+                        <p className="detail-copy">{item.idempotency_key}</p>
                         <p className="muted">
                           {item.started_at ? `Started ${formatTime(item.started_at)}` : "Not started"}
                           {item.completed_at ? ` · Completed ${formatTime(item.completed_at)}` : ""}
@@ -176,17 +176,17 @@ export function ProposalDetail(props: {
       </div>
 
       <div className="detail-card">
-        <h3>Operation ledger</h3>
+        <h3>Line effects</h3>
         <div className="nested-list">
-          {lineOperations.map((item) => (
+          {lineEffects.map((item) => (
             <div key={item.id} className="nested-card">
               <div className="detail-row-header">
-                <strong>{item.operation_kind}</strong>
+                <strong>{item.effect_kind}</strong>
                 <small>{item.status}</small>
               </div>
-              <p className="detail-copy">{item.operation_key}{item.queue ? ` · ${item.queue}` : ""}</p>
+              <p className="detail-copy">{item.idempotency_key}</p>
               <p className="muted">
-                Scope: {item.scope_kind}:{item.scope_id}
+                Aggregate: {item.machine_kind}:{item.aggregate_id}
                 {item.attempt_id ? ` · Attempt ${item.attempt_id}` : ""}
                 {typeof item.retry_count === "number" ? ` · Retries ${item.retry_count}` : ""}
               </p>
@@ -194,8 +194,8 @@ export function ProposalDetail(props: {
               {item.result_ref ? <p className="muted">Result: {item.result_ref}</p> : null}
             </div>
           ))}
-          {!lineOperations.length ? (
-            <div className="nested-card"><p className="detail-copy">No proposal-line operations recorded yet.</p></div>
+          {!lineEffects.length ? (
+            <div className="nested-card"><p className="detail-copy">No proposal-line effects recorded yet.</p></div>
           ) : null}
         </div>
       </div>

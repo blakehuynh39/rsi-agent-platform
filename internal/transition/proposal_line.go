@@ -153,17 +153,20 @@ func ReduceProposalLine(snapshot ProposalLineSnapshot, command CommandEnvelope) 
 		case CommandProposalNeedsReview:
 			return proposalLineAdvance(review.ProposalPendingReview, "proposal line returned to pending_review from external outcome", "proposal_line_needs_review")
 		case CommandProposalRetryAttempt:
-			return ProposalLineDecision{
-				TransitionDecision: TransitionDecision{
-					DecisionKind: DecisionAdvance,
-					Reason:       "retry requested for active proposal line",
-					Events: []DomainEventDescriptor{{
-						Kind: "proposal_line_retry_requested",
-					}},
-					Commands: proposalResumeCommands(command.AggregateID, snapshot.InterventionKind),
-				},
-				NextState: retryNextState(snapshot.State),
+			if snapshot.State == review.ProposalFailedValidation {
+				return ProposalLineDecision{
+					TransitionDecision: TransitionDecision{
+						DecisionKind: DecisionAdvance,
+						Reason:       "retry requested for failed validation line",
+						Events: []DomainEventDescriptor{{
+							Kind: "proposal_line_retry_requested",
+						}},
+						Commands: proposalResumeCommands(command.AggregateID, snapshot.InterventionKind),
+					},
+					NextState: review.ProposalApproved,
+				}
 			}
+			return proposalLineNoop(snapshot.State, "proposal line execution already in progress")
 		case CommandProposalStopLine:
 			return proposalLineAdvance(review.ProposalCanceled, "proposal line stopped", "proposal_line_stopped")
 		case CommandProposalResumeExecution:
@@ -221,11 +224,4 @@ func proposalResumeCommands(aggregateID string, interventionKind review.Proposal
 		AggregateID: aggregateID,
 		CommandKind: string(CommandProposalResumeExecution),
 	}}
-}
-
-func retryNextState(current review.ProposalStatus) review.ProposalStatus {
-	if current == review.ProposalFailedValidation {
-		return review.ProposalRepoChangeQueued
-	}
-	return current
 }
