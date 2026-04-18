@@ -1438,8 +1438,9 @@ func (s *Service) slackHistory(input map[string]interface{}) storepkg.ToolResult
 	traceID := strings.TrimSpace(stringValue(input["trace_id"]))
 	bound := s.boundSlackContext(traceID)
 	question := firstNonEmpty(strings.TrimSpace(stringValue(input["question"])), strings.TrimSpace(bound.Prompt))
-	contextualChannelIDs := slackMentionChannelIDs(question, bound.ChannelID, bound.ThreadTS, s.cfg.AllowedSlackChannelIDs)
-	channelID, threadTS := resolveSlackHistoryTarget(input, question, bound)
+	promptContext := slackPromptContext(bound.Prompt, question)
+	contextualChannelIDs := slackMentionChannelIDs(promptContext, bound.ChannelID, bound.ThreadTS, s.cfg.AllowedSlackChannelIDs)
+	channelID, threadTS := resolveSlackHistoryTarget(input, promptContext, bound)
 	scope := slackHistoryScope(input, question, threadTS)
 	limit := slackHistoryLimit(input)
 	oldest, latest, err := slackHistoryWindow(input)
@@ -1539,6 +1540,23 @@ func resolveSlackHistoryTarget(input map[string]interface{}, question string, bo
 	default:
 		return boundChannelID, boundThreadTS
 	}
+}
+
+func slackPromptContext(values ...string) string {
+	parts := make([]string, 0, len(values))
+	seen := map[string]struct{}{}
+	for _, value := range values {
+		value = strings.TrimSpace(value)
+		if value == "" {
+			continue
+		}
+		if _, ok := seen[value]; ok {
+			continue
+		}
+		seen[value] = struct{}{}
+		parts = append(parts, value)
+	}
+	return strings.Join(parts, "\n")
 }
 
 func derivedSlackThreadBindings(question string, ingressChannelID string, ingressThreadTS string) (map[string]string, map[string]string) {

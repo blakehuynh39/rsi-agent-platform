@@ -1,6 +1,7 @@
 import type { ConversationDetailResponse, TraceDetailResponse, TraceInspectorTab, NullableList, EvalJudgment } from "@/types";
 import { formatTime, listOrEmpty } from "@/hooks/api";
 import { TraceInspector } from "./trace-inspector";
+import { FormattedMessage } from "@/components/formatted-message";
 
 export function ConversationDetail(props: {
   detail: ConversationDetailResponse;
@@ -69,7 +70,9 @@ export function ConversationDetail(props: {
                   <strong>{entry.actor_type || "actor"}</strong>
                   <small>{formatTime(entry.created_at)}</small>
                 </div>
-                <p className="detail-copy">{entry.body}</p>
+                <p className="detail-copy">
+                  <FormattedMessage source={entry.source} text={entry.body} />
+                </p>
               </div>
             ))}
           </div>

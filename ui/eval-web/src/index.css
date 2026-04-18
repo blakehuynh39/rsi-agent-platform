@@ -408,6 +408,11 @@ button:disabled {
   line-height: 1.45;
 }
 
+.message-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .review-grid {
   display: grid;
   grid-template-columns: minmax(0, 320px) minmax(0, 1fr);

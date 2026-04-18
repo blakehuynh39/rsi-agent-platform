@@ -107,7 +107,7 @@ const conversationDetailResponse = {
       entry_type: "external_event",
       actor_id: "U123",
       actor_type: "user",
-      body: "How does the agent think through trace rendering?",
+      body: "Sharing context with <@U0ASDQKU3UL> in <#C0AKH5SNGKH> - see <https://example.com/runbook|runbook> <!here>",
       created_at: "2026-04-11T12:00:00Z"
     }
   ],
@@ -601,6 +601,20 @@ describe("App", () => {
     expect(await screen.findByText("Trace inspector")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "reasoning" }));
     expect(screen.getByText("goal_framing")).toBeInTheDocument();
+  });
+
+  it("renders Slack transcript entries without raw mrkdwn tokens", async () => {
+    renderApp();
+
+    fireEvent.click(await screen.findByRole("button", { name: /Need help understanding trace rendering/i }));
+
+    const transcriptEntries = await screen.findAllByText((_, element) =>
+      element?.classList.contains("detail-copy") &&
+      element.textContent === "Sharing context with @U0ASDQKU3UL in #C0AKH5SNGKH - see runbook @here"
+    );
+    expect(transcriptEntries.length).toBeGreaterThan(0);
+    expect(screen.queryByText(/<@U0ASDQKU3UL>/i)).not.toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "runbook" })[0]).toHaveAttribute("href", "https://example.com/runbook");
   });
 
   it("shows proposal detail with a clickable PR link", async () => {

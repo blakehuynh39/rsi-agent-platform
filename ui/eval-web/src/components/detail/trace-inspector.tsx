@@ -1,6 +1,7 @@
 import type { TraceDetailResponse, TraceInspectorTab, NullableList, EvalJudgment } from "@/types";
 import { formatTime, latestActionResult, listOrEmpty, scoreBadge } from "@/hooks/api";
 import { EmptyDetail } from "./empty-detail";
+import { FormattedMessage } from "@/components/formatted-message";
 
 export function TraceInspector(props: {
   selectedTraceId?: string;
@@ -134,7 +135,9 @@ export function TraceInspector(props: {
                     <strong>{entry.actor_type || "actor"}</strong>
                     <small>{formatTime(entry.created_at)}</small>
                   </div>
-                  <p className="detail-copy">{entry.body}</p>
+                  <p className="detail-copy">
+                    <FormattedMessage source={entry.source} text={entry.body} />
+                  </p>
                 </div>
               ))}
             </div>
@@ -215,7 +218,9 @@ export function TraceInspector(props: {
                 <strong>{action.send_status || "draft"}</strong>
                 <small>{formatTime(action.created_at)}</small>
               </div>
-              <p className="detail-copy">{action.final_body || action.draft_body}</p>
+              <p className="detail-copy">
+                <FormattedMessage source="slack" text={action.final_body || action.draft_body} />
+              </p>
             </div>
           ))}
         </div>
