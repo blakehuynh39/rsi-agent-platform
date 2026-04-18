@@ -25,6 +25,7 @@ from .rsi_tools import (
     IMPLEMENT_RSI_TOOL_NAMES,
     READ_ONLY_HONCHO_TOOLS,
     READ_ONLY_RSI_TOOL_NAMES,
+    READ_ONLY_WORKSPACE_RSI_TOOL_NAMES,
     ReadOnlyToolBinding,
     WORKSPACE_RSI_TOOL_NAMES,
     normalize_tool_names,
@@ -35,7 +36,7 @@ from .session_manager import SessionContext, SessionManager
 
 ROLE_TASK_TYPES = {
     "prod": {"general", "workflow", "prod"},
-    "proactive": {"general", "proactive"},
+    "proactive": {"general", "workflow", "proactive"},
     "eval": {"general", "eval"},
     "proposal": {"general", "proposal", "repo-change"},
 }
@@ -1104,6 +1105,8 @@ class HermesRuntime:
         requested = normalize_tool_names([*task.allowed_tools, *task.tool_allowlist])
         execution_mode = (task.execution_mode or "").strip().lower()
         permitted = set(self._default_policy_allowlist(execution_mode=execution_mode))
+        if self._config.tool_gateway_base_url and (task.workspace_id or task.attempt_id):
+            permitted.update(READ_ONLY_WORKSPACE_RSI_TOOL_NAMES)
         effective = normalize_tool_names(requested or sorted(permitted))
         effective = [name for name in effective if name in permitted]
         blocked = [name for name in requested if name not in permitted]
@@ -1272,10 +1275,11 @@ class HermesRuntime:
     def _compact_evidence_items(self, observed: JsonObject, *, limit: int = 20) -> list[JsonObject]:
         compact: list[JsonObject] = []
         for item in _json_object_list(observed.get("evidence_items"))[:limit]:
-            summary = _string_or_json(item.get("summary"))
+            summary = _string_or_json(item.get("summary")) or _string_or_json(item.get("snippet"))
             source_ref = first_non_empty(
                 _string_or_json(item.get("source_ref")),
                 _string_or_json(item.get("permalink")),
+                _string_or_json(item.get("url")),
                 _string_or_json(item.get("path")),
             )
             normalized: JsonObject = {
@@ -1284,7 +1288,31 @@ class HermesRuntime:
                 "source_ref": source_ref,
                 "tool_name": _string_or_json(item.get("tool_name")),
             }
-            for key in ("channel_id", "thread_ts", "path", "repo", "commit", "permalink"):
+            snippet = _string_or_json(item.get("snippet"))
+            if snippet:
+                normalized["snippet"] = snippet[:600]
+            for key in (
+                "author",
+                "actor",
+                "channel_id",
+                "thread_ts",
+                "message_ts",
+                "path",
+                "repo",
+                "ref",
+                "commit",
+                "sha",
+                "permalink",
+                "workflow_id",
+                "entry_type",
+                "default_branch",
+                "title",
+                "state",
+                "created_at",
+                "merged_at",
+                "committed_at",
+                "url",
+            ):
                 value = _string_or_json(item.get(key))
                 if value:
                     normalized[key] = value

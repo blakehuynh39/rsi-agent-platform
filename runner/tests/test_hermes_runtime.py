@@ -496,6 +496,68 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(payload["tool_name"], "slack.history")
         self.assertEqual(payload["transport_tool_name"], "slack_history")
 
+    def test_slack_history_binding_records_grounded_message_evidence_items(self) -> None:
+        class FakeResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb) -> bool:
+                return False
+
+            def read(self) -> bytes:
+                return json.dumps(
+                    {
+                        "status": "completed",
+                        "available": True,
+                        "summary": "Slack thread history loaded.",
+                        "provider": "slack",
+                        "provider_ref": "171000001.000100",
+                        "output": {
+                            "channel_id": "C123",
+                            "thread_ts": "171000001.000100",
+                            "messages": [
+                                {
+                                    "author_name": "blake",
+                                    "user": "U123",
+                                    "ts": "171000001.000100",
+                                    "thread_ts": "171000001.000100",
+                                    "text": "Pinned the timeout increase to five minutes for this rollout.",
+                                    "permalink": "https://slack.example/C123/p1710000010000100",
+                                }
+                            ],
+                        },
+                    }
+                ).encode("utf-8")
+
+        binding = ReadOnlyToolBinding(
+            base_url="http://tool-gateway.internal",
+            allowed_tool_names=["slack.history"],
+            task_repo="rsi-agent-platform",
+            task_repo_ref="main",
+            task_prompt="Summarize the thread.",
+            task_channel_id="C123",
+            task_thread_ts="171000001.000100",
+            task_context_summary="workflow summary",
+            trace_id="trace-123",
+            session_scope_kind="conversation",
+            session_scope_id="conv-123",
+            context_refs=[],
+        )
+
+        with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", return_value=FakeResponse()):
+            payload = json.loads(binding.handle_tool_call("slack_history", {}))
+
+        self.assertEqual(payload["status"], "completed")
+        evidence_items = binding.diagnostics()["evidence_items"]
+        self.assertEqual(len(evidence_items), 1)
+        self.assertEqual(evidence_items[0]["kind"], "slack_message")
+        self.assertEqual(evidence_items[0]["summary"], "[blake] Pinned the timeout increase to five minutes for this rollout.")
+        self.assertEqual(evidence_items[0]["snippet"], "Pinned the timeout increase to five minutes for this rollout.")
+        self.assertEqual(evidence_items[0]["author"], "blake")
+        self.assertEqual(evidence_items[0]["message_ts"], "171000001.000100")
+        self.assertEqual(evidence_items[0]["thread_ts"], "171000001.000100")
+        self.assertEqual(evidence_items[0]["source_ref"], "https://slack.example/C123/p1710000010000100")
+
     def test_slack_search_binding_defaults_to_bound_channel_context(self) -> None:
         captured: dict[str, object] = {}
 
@@ -553,6 +615,73 @@ class HermesRuntimeTests(unittest.TestCase):
         )
         self.assertEqual(payload["tool_name"], "slack.search")
         self.assertEqual(payload["transport_tool_name"], "slack_search")
+
+    def test_repo_context_binding_records_grounded_match_snippets(self) -> None:
+        class FakeResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb) -> bool:
+                return False
+
+            def read(self) -> bytes:
+                return json.dumps(
+                    {
+                        "status": "completed",
+                        "available": True,
+                        "summary": "GitHub-backed repo context loaded for piplabs/rsi-agent-platform with 1 relevant code match(es).",
+                        "provider": "github",
+                        "provider_ref": "https://github.com/piplabs/rsi-agent-platform",
+                        "output": {
+                            "repo": "rsi-agent-platform",
+                            "default_branch": "main",
+                            "description": "Runner support for bounded-stop workflow replies.",
+                            "html_url": "https://github.com/piplabs/rsi-agent-platform",
+                            "matches": [
+                                {
+                                    "path": "runner/rsi_runner/hermes_runtime.py",
+                                    "html_url": "https://github.com/piplabs/rsi-agent-platform/blob/main/runner/rsi_runner/hermes_runtime.py",
+                                    "snippet": "completion_verdict = partial when the reducer had enough grounded evidence",
+                                }
+                            ],
+                        },
+                    }
+                ).encode("utf-8")
+
+        binding = ReadOnlyToolBinding(
+            base_url="http://tool-gateway.internal",
+            allowed_tool_names=["repo.context"],
+            task_repo="rsi-agent-platform",
+            task_repo_ref="main",
+            task_prompt="Where is partial completion handled?",
+            task_channel_id="C123",
+            task_thread_ts="171000001.000100",
+            task_context_summary="workflow summary",
+            trace_id="trace-123",
+            session_scope_kind="conversation",
+            session_scope_id="conv-123",
+            context_refs=[],
+        )
+
+        with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", return_value=FakeResponse()):
+            payload = json.loads(binding.handle_tool_call("repo_context", {}))
+
+        self.assertEqual(payload["status"], "completed")
+        evidence_items = binding.diagnostics()["evidence_items"]
+        self.assertEqual(len(evidence_items), 2)
+        self.assertEqual(evidence_items[0]["kind"], "repo_context")
+        self.assertEqual(evidence_items[0]["snippet"], "Runner support for bounded-stop workflow replies.")
+        self.assertEqual(evidence_items[0]["default_branch"], "main")
+        self.assertEqual(evidence_items[1]["kind"], "repo_context_match")
+        self.assertEqual(
+            evidence_items[1]["snippet"],
+            "completion_verdict = partial when the reducer had enough grounded evidence",
+        )
+        self.assertEqual(evidence_items[1]["path"], "runner/rsi_runner/hermes_runtime.py")
+        self.assertEqual(
+            evidence_items[1]["source_ref"],
+            "https://github.com/piplabs/rsi-agent-platform/blob/main/runner/rsi_runner/hermes_runtime.py",
+        )
 
     def test_invalid_tool_name_preflight_fails_before_provider_execution(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -916,6 +1045,63 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("github.create_pr", result.raw["blocked_tool_names"])
         self.assertIn("repo_context", result.raw["tool_transport_allowlist_effective"])
         self.assertIn("knowledge_context", result.raw["tool_transport_allowlist_effective"])
+
+    def test_prod_role_with_bound_workspace_admits_read_only_workspace_tools(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Trace the workspace history for this file.",
+                    "allowed_tools": ["workspace.git_history", "workspace.read_file", "workspace.write_file"],
+                    "tool_allowlist": ["workspace.git_history", "workspace.read_file", "workspace.write_file"],
+                    "workspace_id": "workspace-123",
+                    "attempt_id": "attempt-123",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                    "user_peer_id": "user:alice",
+                }
+            }
+        )
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertIn("workspace_git_history", FakeAIAgent.last_valid_tool_names)
+        self.assertIn("workspace_read_file", FakeAIAgent.last_valid_tool_names)
+        self.assertNotIn("workspace_write_file", FakeAIAgent.last_valid_tool_names)
+        self.assertIn("workspace.git_history", result.raw["tool_allowlist_effective"])
+        self.assertIn("workspace.read_file", result.raw["tool_allowlist_effective"])
+        self.assertIn("workspace.write_file", result.raw["blocked_tool_names"])
+
+    def test_proactive_role_accepts_workflow_task_type(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the proactive workflow.",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:proactive",
+                    "user_peer_id": "user:alice",
+                }
+            }
+        )
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("proactive"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.raw["tool_policy_mode"], "enforced_read_only")
 
     def test_eval_task_timeout_returns_structured_timeout(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -1450,8 +1636,16 @@ class HermesRuntimeTests(unittest.TestCase):
                         "provider_ref": "search-1",
                     },
                     {
+                        "tool_name": "slack.history",
+                        "tool_call_id": "slack.history:2",
+                        "request": {"channel_id": "C123", "thread_ts": "171000001.000100"},
+                        "summary": "Loaded the bound Slack thread.",
+                        "status": "completed",
+                        "provider_ref": "slack-history-1",
+                    },
+                    {
                         "tool_name": "slack.search",
-                        "tool_call_id": "slack.search:2",
+                        "tool_call_id": "slack.search:3",
                         "request": {"query": "depin backend api numo"},
                         "summary": "missing_action_token",
                         "status": "error",
@@ -1461,10 +1655,23 @@ class HermesRuntimeTests(unittest.TestCase):
                     {
                         "kind": "repo_search_match",
                         "summary": "worker.go treats completion_verdict=partial as a normal success path.",
+                        "snippet": "if completion_verdict == partial { return nil }",
                         "source_ref": "internal/control/worker.go",
                         "tool_name": "repo.search",
                         "path": "internal/control/worker.go",
                         "repo": "rsi-agent-platform",
+                    },
+                    {
+                        "kind": "slack_message",
+                        "summary": "[blake] The reducer fallback is safe to ship once the ledger keeps snippets.",
+                        "snippet": "The reducer fallback is safe to ship once the ledger keeps snippets.",
+                        "source_ref": "https://slack.example/messages/1",
+                        "tool_name": "slack.history",
+                        "channel_id": "C123",
+                        "thread_ts": "171000001.000100",
+                        "message_ts": "171000001.000100",
+                        "author": "blake",
+                        "permalink": "https://slack.example/messages/1",
                     }
                 ],
             },
@@ -1474,9 +1681,13 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(ledger["user_request"], "Summarize the Slack thread.")
         self.assertEqual(ledger["reply_target"], {"channel_id": "C123", "thread_ts": "171000001.000100"})
         self.assertEqual(ledger["termination_reason"], "task_timeout")
-        self.assertEqual(len(ledger["tool_calls"]), 2)
+        self.assertEqual(len(ledger["tool_calls"]), 3)
         self.assertEqual(ledger["tool_calls"][0]["tool_name"], "repo.search")
         self.assertEqual(ledger["evidence_items"][0]["source_ref"], "internal/control/worker.go")
+        self.assertEqual(ledger["evidence_items"][0]["snippet"], "if completion_verdict == partial { return nil }")
+        self.assertEqual(ledger["evidence_items"][1]["tool_name"], "slack.history")
+        self.assertEqual(ledger["evidence_items"][1]["author"], "blake")
+        self.assertEqual(ledger["evidence_items"][1]["message_ts"], "171000001.000100")
         self.assertTrue(ledger["open_questions"])
 
     def test_runtime_metadata_reports_role_contract(self) -> None:

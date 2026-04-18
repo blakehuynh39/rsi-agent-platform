@@ -127,6 +127,12 @@ func (s *Service) Execute(name string, input map[string]interface{}) storepkg.To
 		return s.workspaceReadFile(input)
 	case "workspace.search":
 		return s.workspaceSearch(input)
+	case "workspace.git_history":
+		return s.workspaceGitHistory(input)
+	case "workspace.git_show":
+		return s.workspaceGitShow(input)
+	case "workspace.git_search":
+		return s.workspaceGitSearch(input)
 	case "workspace.write_file":
 		return s.workspaceWriteFile(input)
 	case "workspace.apply_patch":
@@ -1431,10 +1437,9 @@ func (s *Service) slackReply(input map[string]interface{}) storepkg.ToolResult {
 func (s *Service) slackHistory(input map[string]interface{}) storepkg.ToolResult {
 	traceID := strings.TrimSpace(stringValue(input["trace_id"]))
 	bound := s.boundSlackContext(traceID)
-	contextualChannelIDs := slackMentionChannelIDs(bound.Prompt, bound.ChannelID, bound.ThreadTS, s.cfg.AllowedSlackChannelIDs)
-	channelID := firstNonEmpty(strings.TrimSpace(stringValue(input["channel_id"])), bound.ChannelID)
-	threadTS := firstNonEmpty(strings.TrimSpace(stringValue(input["thread_ts"])), bound.ThreadTS)
-	question := strings.TrimSpace(stringValue(input["question"]))
+	question := firstNonEmpty(strings.TrimSpace(stringValue(input["question"])), strings.TrimSpace(bound.Prompt))
+	contextualChannelIDs := slackMentionChannelIDs(question, bound.ChannelID, bound.ThreadTS, s.cfg.AllowedSlackChannelIDs)
+	channelID, threadTS := resolveSlackHistoryTarget(input, question, bound)
 	scope := slackHistoryScope(input, question, threadTS)
 	limit := slackHistoryLimit(input)
 	oldest, latest, err := slackHistoryWindow(input)
@@ -1498,6 +1503,73 @@ func (s *Service) slackHistory(input map[string]interface{}) storepkg.ToolResult
 	output["next_cursor"] = history.ResponseMetaData.NextCursor
 	summary := fmt.Sprintf("Slack channel history loaded from %s with %d message(s).", channelID, len(history.Messages))
 	return s.result("slack.history", input, summary, output, nil)
+}
+
+func resolveSlackHistoryTarget(input map[string]interface{}, question string, bound boundSlackContext) (string, string) {
+	requestedChannelID := strings.TrimSpace(stringValue(input["channel_id"]))
+	requestedThreadTS := strings.TrimSpace(stringValue(input["thread_ts"]))
+	boundChannelID := strings.TrimSpace(bound.ChannelID)
+	boundThreadTS := strings.TrimSpace(bound.ThreadTS)
+	derivedThreadByChannel, derivedChannelByThread := derivedSlackThreadBindings(question, boundChannelID, boundThreadTS)
+
+	switch {
+	case requestedChannelID != "" && requestedThreadTS != "":
+		if requestedChannelID != boundChannelID && requestedThreadTS == boundThreadTS {
+			if derivedThread, ok := derivedThreadByChannel[requestedChannelID]; !ok || derivedThread != requestedThreadTS {
+				return requestedChannelID, ""
+			}
+		}
+		return requestedChannelID, requestedThreadTS
+	case requestedChannelID != "":
+		if requestedChannelID == boundChannelID {
+			return requestedChannelID, boundThreadTS
+		}
+		if derivedThread, ok := derivedThreadByChannel[requestedChannelID]; ok {
+			return requestedChannelID, derivedThread
+		}
+		return requestedChannelID, ""
+	case requestedThreadTS != "":
+		if requestedThreadTS == boundThreadTS {
+			return boundChannelID, requestedThreadTS
+		}
+		if derivedChannel, ok := derivedChannelByThread[requestedThreadTS]; ok {
+			return derivedChannel, requestedThreadTS
+		}
+		return "", requestedThreadTS
+	default:
+		return boundChannelID, boundThreadTS
+	}
+}
+
+func derivedSlackThreadBindings(question string, ingressChannelID string, ingressThreadTS string) (map[string]string, map[string]string) {
+	threadByChannel := map[string]string{}
+	channelByThread := map[string]string{}
+	ambiguousChannels := map[string]struct{}{}
+	ambiguousThreads := map[string]struct{}{}
+	for _, item := range workflowplan.CandidateReadSurfaces(question, ingressChannelID, ingressThreadTS) {
+		channelID := strings.TrimSpace(item.ChannelID)
+		threadTS := strings.TrimSpace(item.ThreadTS)
+		if channelID == "" || threadTS == "" {
+			continue
+		}
+		if _, blocked := ambiguousChannels[channelID]; !blocked {
+			if existing, ok := threadByChannel[channelID]; ok && existing != threadTS {
+				delete(threadByChannel, channelID)
+				ambiguousChannels[channelID] = struct{}{}
+			} else {
+				threadByChannel[channelID] = threadTS
+			}
+		}
+		if _, blocked := ambiguousThreads[threadTS]; !blocked {
+			if existing, ok := channelByThread[threadTS]; ok && existing != channelID {
+				delete(channelByThread, threadTS)
+				ambiguousThreads[threadTS] = struct{}{}
+			} else {
+				channelByThread[threadTS] = channelID
+			}
+		}
+	}
+	return threadByChannel, channelByThread
 }
 
 type boundSlackContext struct {
@@ -2411,6 +2483,12 @@ func providerRefForTool(name string, output map[string]interface{}) string {
 		return stringValue(output["resource"])
 	case "knowledge.context":
 		return stringValue(output["topic"])
+	case "workspace.git_history":
+		return stringValue(output["workspace_id"])
+	case "workspace.git_show":
+		return stringValue(output["workspace_id"])
+	case "workspace.git_search":
+		return stringValue(output["workspace_id"])
 	case "rsi.runtime_deployment_facts":
 		return stringValue(output["namespace"])
 	case "workspace.git_diff":

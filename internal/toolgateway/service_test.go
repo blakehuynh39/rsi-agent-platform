@@ -562,6 +562,122 @@ func TestSlackHistoryUsesThreadRepliesForConversationQuestion(t *testing.T) {
 	}
 }
 
+func TestSlackHistoryDoesNotCarryBoundThreadIntoDifferentChannel(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	traceID := seedSlackTrace(t, store, "C123", "171000001.000100", "Can you check <#C999> for the rollout update?")
+
+	var seenPath string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		seenPath = r.URL.Path
+		if err := r.ParseForm(); err != nil {
+			t.Fatalf("ParseForm() error = %v", err)
+		}
+		if got := r.Form.Get("channel"); got != "C999" {
+			t.Fatalf("expected channel C999, got %q", got)
+		}
+		if got := r.Form.Get("ts"); got != "" {
+			t.Fatalf("expected no thread ts for foreign channel fallback, got %q", got)
+		}
+		switch r.URL.Path {
+		case "/conversations.history":
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"ok":       true,
+				"has_more": false,
+				"messages": []map[string]any{
+					{"type": "message", "user": "U999", "text": "Channel-level rollout note.", "ts": "171000001.000200"},
+				},
+				"response_metadata": map[string]any{"next_cursor": ""},
+			})
+		default:
+			t.Fatalf("unexpected slack path %s", r.URL.Path)
+		}
+	}))
+	defer server.Close()
+
+	service := NewService(config.Config{
+		SlackBotToken:          "xoxb-test",
+		AllowedSlackChannelIDs: []string{"C123", "C999"},
+	}, store)
+	service.slackClient = slackapi.New("xoxb-test", slackapi.OptionAPIURL(server.URL+"/"))
+
+	result := service.Execute("slack.history", map[string]interface{}{
+		"trace_id":   traceID,
+		"channel_id": "C999",
+	})
+
+	if seenPath != "/conversations.history" {
+		t.Fatalf("expected conversations.history, got %s", seenPath)
+	}
+	if result.Status != "ok" {
+		t.Fatalf("expected ok status, got %s %#v", result.Status, result.Output)
+	}
+	if got := result.Output["thread_ts"]; got != "" {
+		t.Fatalf("expected cleared thread_ts for foreign channel, got %#v", got)
+	}
+	if got := result.Output["scope"]; got != "channel" {
+		t.Fatalf("expected channel scope, got %#v", got)
+	}
+}
+
+func TestSlackHistoryDerivesForeignThreadFromPermalink(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	traceID := seedSlackTrace(t, store, "C123", "171000001.000100", "Please inspect the linked Slack thread.")
+
+	var seenPath string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		seenPath = r.URL.Path
+		if err := r.ParseForm(); err != nil {
+			t.Fatalf("ParseForm() error = %v", err)
+		}
+		if got := r.Form.Get("channel"); got != "C999" {
+			t.Fatalf("expected channel C999, got %q", got)
+		}
+		if got := r.Form.Get("ts"); got != "171000002.000200" {
+			t.Fatalf("expected derived thread ts 171000002.000200, got %q", got)
+		}
+		switch r.URL.Path {
+		case "/conversations.replies":
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"ok":       true,
+				"has_more": false,
+				"messages": []map[string]any{
+					{"type": "message", "user": "U999", "text": "Foreign thread reply.", "ts": "171000002.000200", "thread_ts": "171000002.000200"},
+				},
+				"response_metadata": map[string]any{"next_cursor": ""},
+			})
+		default:
+			t.Fatalf("unexpected slack path %s", r.URL.Path)
+		}
+	}))
+	defer server.Close()
+
+	service := NewService(config.Config{
+		SlackBotToken:          "xoxb-test",
+		AllowedSlackChannelIDs: []string{"MENTIONS_ONLY"},
+	}, store)
+	service.slackClient = slackapi.New("xoxb-test", slackapi.OptionAPIURL(server.URL+"/"))
+
+	result := service.Execute("slack.history", map[string]interface{}{
+		"trace_id":   traceID,
+		"channel_id": "C999",
+		"scope":      "thread",
+		"question":   "Inspect https://example.slack.com/archives/C999/p171000002000200 for the rollout note.",
+	})
+
+	if seenPath != "/conversations.replies" {
+		t.Fatalf("expected conversations.replies, got %s", seenPath)
+	}
+	if result.Status != "ok" {
+		t.Fatalf("expected ok status, got %s %#v", result.Status, result.Output)
+	}
+	if got := result.Output["thread_ts"]; got != "171000002.000200" {
+		t.Fatalf("expected derived thread_ts, got %#v", got)
+	}
+	if got := result.Output["scope"]; got != "thread" {
+		t.Fatalf("expected thread scope, got %#v", got)
+	}
+}
+
 func TestSlackHistoryAllowsMentionedChannelWhenMentionsOnlyConfigured(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	now := time.Now().UTC()
@@ -1073,4 +1189,38 @@ func testGitHubAppPrivateKey(t *testing.T) string {
 		Type:  "RSA PRIVATE KEY",
 		Bytes: x509.MarshalPKCS1PrivateKey(privateKey),
 	}))
+}
+
+func seedSlackTrace(t *testing.T, store storepkg.Repository, channelID string, threadTS string, text string) string {
+	t.Helper()
+	now := time.Now().UTC()
+	receipt, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineIngress,
+		AggregateID: "slack:" + threadTS,
+		CommandKind: string(transition.CommandIngressRecordSlack),
+		CommandID:   "cmd-toolgateway-seed-slack-trace-" + threadTS,
+		Actor:       "tester",
+		OccurredAt:  now,
+		Payload: map[string]any{
+			"bot_role":   "orchestrator",
+			"team_id":    "T123",
+			"channel_id": channelID,
+			"thread_ts":  threadTS,
+			"user_id":    "U123",
+			"text":       text,
+			"ts":         threadTS,
+			"created_at": now,
+		},
+	})
+	if err != nil {
+		t.Fatalf("SubmitCommand(slack ingress) error = %v", err)
+	}
+	ingestionID := receipt.ResultRef
+	for _, workflow := range store.ListWorkflows() {
+		if workflow.IngestionID == ingestionID {
+			return workflow.TraceID
+		}
+	}
+	t.Fatal("expected trace for ingested slack conversation")
+	return ""
 }

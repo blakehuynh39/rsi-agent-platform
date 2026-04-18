@@ -304,6 +304,20 @@ def _truncate_text(value: Any, limit: int) -> str:
     return text[: max(0, limit - 1)] + "…"
 
 
+def first_non_empty(*values: Any) -> str:
+    for value in values:
+        text = _string_value(value)
+        if text:
+            return text
+    return ""
+
+
+def _set_non_empty_text(target: JsonObject, key: str, value: Any) -> None:
+    text = _string_value(value)
+    if text:
+        target[key] = text
+
+
 def _iso_timestamp(value: float) -> str:
     if value <= 0:
         return ""
@@ -345,6 +359,50 @@ _WORKSPACE_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
                 "attempt_id": {"type": "string"},
                 "path": {"type": "string"},
                 "pattern": {"type": "string"},
+            },
+            "required": ["pattern"],
+        },
+    },
+    "workspace.git_history": {
+        "name": "workspace.git_history",
+        "description": "Inspect commit history inside the governed attempt workspace.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "workspace_id": {"type": "string"},
+                "attempt_id": {"type": "string"},
+                "ref": {"type": "string"},
+                "path": {"type": "string"},
+                "limit": {"type": "integer"},
+            },
+        },
+    },
+    "workspace.git_show": {
+        "name": "workspace.git_show",
+        "description": "Inspect a historical commit or file revision inside the governed attempt workspace.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "workspace_id": {"type": "string"},
+                "attempt_id": {"type": "string"},
+                "ref": {"type": "string"},
+                "path": {"type": "string"},
+            },
+        },
+    },
+    "workspace.git_search": {
+        "name": "workspace.git_search",
+        "description": "Search workspace git history for commit messages or content changes.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "workspace_id": {"type": "string"},
+                "attempt_id": {"type": "string"},
+                "ref": {"type": "string"},
+                "path": {"type": "string"},
+                "pattern": {"type": "string"},
+                "search_type": {"type": "string"},
+                "limit": {"type": "integer"},
             },
             "required": ["pattern"],
         },
@@ -417,6 +475,14 @@ _TOOL_SCHEMAS = {**_READ_ONLY_TOOL_SCHEMAS, **_WORKSPACE_TOOL_SCHEMAS}
 _TRANSPORT_SAFE_TOOL_CHARS = frozenset("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-")
 
 READ_ONLY_RSI_TOOL_NAMES = tuple(sorted(_READ_ONLY_TOOL_SCHEMAS.keys()))
+READ_ONLY_WORKSPACE_RSI_TOOL_NAMES = (
+    "workspace.git_history",
+    "workspace.git_search",
+    "workspace.git_show",
+    "workspace.list_files",
+    "workspace.read_file",
+    "workspace.search",
+)
 WORKSPACE_RSI_TOOL_NAMES = tuple(sorted(_WORKSPACE_TOOL_SCHEMAS.keys()))
 IMPLEMENT_RSI_TOOL_NAMES = tuple(sorted(_TOOL_SCHEMAS.keys()))
 
@@ -779,6 +845,7 @@ class ReadOnlyToolBinding:
         extractors = {
             "slack.history": self._slack_history_evidence_items,
             "slack.search": self._slack_search_evidence_items,
+            "repo.context": self._repo_context_evidence_items,
             "repo.search": self._repo_search_evidence_items,
             "repo.read_file": self._repo_read_file_evidence_items,
             "github.repo_activity": self._github_repo_activity_evidence_items,
@@ -812,7 +879,14 @@ class ReadOnlyToolBinding:
         for message in messages[:6]:
             if not isinstance(message, dict):
                 continue
-            text = _truncate_text(message.get("text"), 500)
+            text = _truncate_text(
+                first_non_empty(
+                    _string_value(message.get("text")),
+                    _string_value(message.get("content")),
+                    _string_value(message.get("body")),
+                ),
+                500,
+            )
             if not text:
                 continue
             ts = _string_value(message.get("ts")) or _string_value(message.get("message_timestamp"))
@@ -823,19 +897,22 @@ class ReadOnlyToolBinding:
                 _string_value(message.get("author_name")),
                 _string_value(message.get("user")),
                 _string_value(message.get("user_id")),
+                _string_value(message.get("username")),
             )
             prefix = f"[{author}] " if author else ""
-            items.append(
-                {
-                    "kind": "slack_message",
-                    "summary": prefix + text,
-                    "source_ref": source_ref,
-                    "tool_name": "slack.history",
-                    "channel_id": channel_id,
-                    "thread_ts": thread_ts or ts,
-                    "permalink": _string_value(message.get("permalink")),
-                }
-            )
+            item: JsonObject = {
+                "kind": "slack_message",
+                "summary": prefix + text,
+                "snippet": text,
+                "source_ref": source_ref,
+                "tool_name": "slack.history",
+                "channel_id": channel_id,
+                "thread_ts": _string_value(message.get("thread_ts")) or thread_ts or ts,
+                "message_ts": ts,
+                "permalink": _string_value(message.get("permalink")),
+            }
+            _set_non_empty_text(item, "author", author)
+            items.append(item)
         return items
 
     def _slack_search_evidence_items(self, _request_payload: JsonObject, output: JsonObject) -> list[JsonObject]:
@@ -856,17 +933,60 @@ class ReadOnlyToolBinding:
                 source_ref = f"slack://{channel_id}/{ts}"
             author = first_non_empty(_string_value(message.get("author_name")), _string_value(message.get("author_user_id")))
             prefix = f"[{author}] " if author else ""
-            items.append(
-                {
-                    "kind": "slack_search_match",
-                    "summary": prefix + text,
-                    "source_ref": source_ref,
-                    "tool_name": "slack.search",
-                    "channel_id": channel_id,
-                    "thread_ts": ts,
-                    "permalink": _string_value(message.get("permalink")),
-                }
-            )
+            item: JsonObject = {
+                "kind": "slack_search_match",
+                "summary": prefix + text,
+                "snippet": text,
+                "source_ref": source_ref,
+                "tool_name": "slack.search",
+                "channel_id": channel_id,
+                "thread_ts": _string_value(message.get("thread_ts")) or ts,
+                "message_ts": ts,
+                "permalink": _string_value(message.get("permalink")),
+            }
+            _set_non_empty_text(item, "author", author)
+            items.append(item)
+        return items
+
+    def _repo_context_evidence_items(self, request_payload: JsonObject, output: JsonObject) -> list[JsonObject]:
+        repo = _string_value(output.get("repo")) or _string_value(request_payload.get("repo"))
+        default_branch = _string_value(output.get("default_branch"))
+        description = _truncate_text(output.get("description"), 400)
+        matches = output.get("matches")
+        items: list[JsonObject] = []
+        if description:
+            summary = f"Repository context for {repo}" if repo else "Repository context"
+            if default_branch:
+                summary += f" (default branch {default_branch})"
+            summary += f": {description}"
+            item: JsonObject = {
+                "kind": "repo_context",
+                "summary": _truncate_text(summary, 700),
+                "snippet": description,
+                "source_ref": first_non_empty(_string_value(output.get("html_url")), repo),
+                "tool_name": "repo.context",
+                "repo": repo,
+                "default_branch": default_branch,
+            }
+            items.append(item)
+        if not isinstance(matches, list):
+            return items
+        for match in matches[:4]:
+            if not isinstance(match, dict):
+                continue
+            path = _string_value(match.get("path"))
+            snippet = _truncate_text(match.get("snippet"), 500)
+            summary = first_non_empty(snippet, f"Repository context match in {path}")
+            item = {
+                "kind": "repo_context_match",
+                "summary": summary,
+                "snippet": snippet,
+                "source_ref": first_non_empty(_string_value(match.get("html_url")), path),
+                "tool_name": "repo.context",
+                "path": path,
+                "repo": repo,
+            }
+            items.append(item)
         return items
 
     def _repo_search_evidence_items(self, request_payload: JsonObject, output: JsonObject) -> list[JsonObject]:
@@ -886,6 +1006,7 @@ class ReadOnlyToolBinding:
                 {
                     "kind": "repo_search_match",
                     "summary": summary,
+                    "snippet": snippet,
                     "source_ref": first_non_empty(_string_value(match.get("html_url")), path),
                     "tool_name": "repo.search",
                     "path": path,
@@ -905,55 +1026,92 @@ class ReadOnlyToolBinding:
             {
                 "kind": "repo_file_excerpt",
                 "summary": f"{path} ({first_non_empty(ref, 'default branch')}): {excerpt}",
+                "snippet": excerpt,
                 "source_ref": path,
                 "tool_name": "repo.read_file",
                 "path": path,
                 "repo": repo,
+                "ref": ref,
             }
         ]
 
     def _github_repo_activity_evidence_items(self, request_payload: JsonObject, output: JsonObject) -> list[JsonObject]:
         repo = _string_value(output.get("repo")) or _string_value(request_payload.get("repo"))
-        summary = _truncate_text(output.get("summary"), 500)
         commits = output.get("commits")
         merged = output.get("merged_pull_requests")
         opened = output.get("opened_pull_requests")
-        highlights: list[str] = []
+        items: list[JsonObject] = []
         if isinstance(commits, list):
-            for item in commits[:2]:
-                if not isinstance(item, dict):
+            for commit in commits[:2]:
+                if not isinstance(commit, dict):
                     continue
-                title = first_non_empty(_string_value(item.get("message")), _string_value(item.get("title")), _string_value(item.get("sha")))
+                title = _truncate_text(
+                    first_non_empty(
+                        _string_value(commit.get("message")),
+                        _string_value(commit.get("title")),
+                        _string_value(commit.get("sha")),
+                    ),
+                    320,
+                )
                 if title:
-                    highlights.append(f"commit: {title}")
+                    item: JsonObject = {
+                        "kind": "github_commit",
+                        "summary": title,
+                        "source_ref": first_non_empty(_string_value(commit.get("url")), repo),
+                        "tool_name": "github.repo_activity",
+                        "repo": repo,
+                        "title": title,
+                    }
+                    _set_non_empty_text(item, "sha", commit.get("sha"))
+                    _set_non_empty_text(item, "author", commit.get("author"))
+                    _set_non_empty_text(item, "committed_at", commit.get("committed_at"))
+                    _set_non_empty_text(item, "url", commit.get("url"))
+                    items.append(item)
         if isinstance(merged, list):
-            for item in merged[:2]:
-                if not isinstance(item, dict):
+            for pull in merged[:2]:
+                if not isinstance(pull, dict):
                     continue
-                title = first_non_empty(_string_value(item.get("title")), _string_value(item.get("html_url")))
+                title = _truncate_text(first_non_empty(_string_value(pull.get("title")), _string_value(pull.get("url"))), 320)
                 if title:
-                    highlights.append(f"merged PR: {title}")
+                    item = {
+                        "kind": "github_pull_request",
+                        "summary": f"Merged PR: {title}",
+                        "source_ref": first_non_empty(_string_value(pull.get("url")), repo),
+                        "tool_name": "github.repo_activity",
+                        "repo": repo,
+                        "title": title,
+                        "state": "merged",
+                    }
+                    _set_non_empty_text(item, "author", pull.get("author"))
+                    _set_non_empty_text(item, "created_at", pull.get("created_at"))
+                    _set_non_empty_text(item, "merged_at", pull.get("merged_at"))
+                    _set_non_empty_text(item, "url", pull.get("url"))
+                    items.append(item)
         if isinstance(opened, list):
-            for item in opened[:1]:
-                if not isinstance(item, dict):
+            for pull in opened[:1]:
+                if not isinstance(pull, dict):
                     continue
-                title = first_non_empty(_string_value(item.get("title")), _string_value(item.get("html_url")))
+                title = _truncate_text(first_non_empty(_string_value(pull.get("title")), _string_value(pull.get("url"))), 320)
                 if title:
-                    highlights.append(f"opened PR: {title}")
-        if highlights:
-            summary = first_non_empty(summary, "") + ("\n" if summary else "") + "\n".join(highlights)
-        summary = _truncate_text(summary, 900)
+                    item = {
+                        "kind": "github_pull_request",
+                        "summary": f"Opened PR: {title}",
+                        "source_ref": first_non_empty(_string_value(pull.get("url")), repo),
+                        "tool_name": "github.repo_activity",
+                        "repo": repo,
+                        "title": title,
+                        "state": first_non_empty(_string_value(pull.get("state")), "open"),
+                    }
+                    _set_non_empty_text(item, "author", pull.get("author"))
+                    _set_non_empty_text(item, "created_at", pull.get("created_at"))
+                    _set_non_empty_text(item, "url", pull.get("url"))
+                    items.append(item)
+        if items:
+            return items
+        summary = _truncate_text(output.get("summary"), 900)
         if not summary:
             return []
-        return [
-            {
-                "kind": "github_activity_summary",
-                "summary": summary,
-                "source_ref": repo,
-                "tool_name": "github.repo_activity",
-                "repo": repo,
-            }
-        ]
+        return [{"kind": "github_activity_summary", "summary": summary, "source_ref": repo, "tool_name": "github.repo_activity", "repo": repo}]
 
     def _github_repo_context_evidence_items(self, request_payload: JsonObject, output: JsonObject) -> list[JsonObject]:
         repo = _string_value(request_payload.get("repo")) or _string_value(output.get("name"))
@@ -968,9 +1126,11 @@ class ReadOnlyToolBinding:
             {
                 "kind": "github_repo_context",
                 "summary": _truncate_text(summary, 700),
+                "snippet": description,
                 "source_ref": first_non_empty(_string_value(output.get("html_url")), repo),
                 "tool_name": "github.repo_context",
                 "repo": repo,
+                "default_branch": default_branch,
             }
         ]
 
@@ -979,24 +1139,53 @@ class ReadOnlyToolBinding:
         if not isinstance(workflow, dict):
             return []
         workflow_id = _string_value(workflow.get("id")) or _string_value(request_payload.get("workflow_id"))
-        parts = [
-            f"Workflow {workflow_id}",
-            f"status={_string_value(workflow.get('status')) or 'unknown'}",
-        ]
+        items: list[JsonObject] = []
+        parts = [f"Workflow {workflow_id}", f"status={_string_value(workflow.get('status')) or 'unknown'}"]
         last_verdict = _string_value(workflow.get("last_verdict"))
         if last_verdict:
             parts.append(f"last_verdict={last_verdict}")
         failure_summary = _truncate_text(workflow.get("failure_summary"), 240)
         if failure_summary:
             parts.append(f"failure={failure_summary}")
-        return [
+        items.append(
             {
                 "kind": "workflow_context",
                 "summary": "; ".join(part for part in parts if part),
                 "source_ref": workflow_id,
                 "tool_name": "rsi.workflow_context",
+                "workflow_id": workflow_id,
             }
-        ]
+        )
+        recent_entries = output.get("recent_conversation_entries")
+        if not isinstance(recent_entries, list):
+            return items
+        for entry in recent_entries[:4]:
+            if not isinstance(entry, dict):
+                continue
+            body = _truncate_text(
+                first_non_empty(
+                    _string_value(entry.get("body")),
+                    _string_value(entry.get("summary")),
+                    _string_value(entry.get("content")),
+                ),
+                500,
+            )
+            if not body:
+                continue
+            actor = first_non_empty(_string_value(entry.get("actor_id")), _string_value(entry.get("actor_type")))
+            item: JsonObject = {
+                "kind": "workflow_conversation_entry",
+                "summary": (f"[{actor}] " if actor else "") + body,
+                "snippet": body,
+                "source_ref": first_non_empty(_string_value(entry.get("id")), workflow_id),
+                "tool_name": "rsi.workflow_context",
+                "workflow_id": workflow_id,
+            }
+            _set_non_empty_text(item, "actor", actor)
+            _set_non_empty_text(item, "entry_type", entry.get("entry_type"))
+            _set_non_empty_text(item, "created_at", entry.get("created_at"))
+            items.append(item)
+        return items
 
     def _default_payload(self, name: str) -> JsonObject:
         payload: JsonObject = {}

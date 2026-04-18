@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/sandbox"
@@ -36,18 +37,23 @@ func (s *Service) workspaceListFiles(input map[string]interface{}) storepkg.Tool
 	if result != nil {
 		return *result
 	}
-	command := fmt.Sprintf("cd %s && find %s -mindepth 1 -maxdepth 4 | sort | sed 's#^\\./##' | head -200", shellQuote(workspaceRepoDir), shellQuote(firstNonEmpty(relPath, ".")))
+	scopes, result := s.workspaceReadScopes(workspace, relPath, "workspace.list_files", input)
+	if result != nil {
+		return *result
+	}
+	command := fmt.Sprintf("cd %s && find %s -mindepth 1 -maxdepth 4 | sort | sed 's#^\\./##' | head -200", shellQuote(workspaceRepoDir), shellQuoteJoin(scopes))
 	execResult, failed := s.execWorkspaceCommand(workspace, []string{"bash", "-lc", command}, "workspace.list_files", input)
 	if failed != nil {
 		return *failed
 	}
 	items := compactLines(execResult.Stdout)
 	summary := fmt.Sprintf("Workspace listed %d path(s) for attempt %s.", len(items), workspace.AttemptID)
+	scope := firstNonEmpty(relPath, strings.Join(scopes, ", "))
 	return s.result("workspace.list_files", input, summary, map[string]interface{}{
 		"workspace_id": workspace.ID,
 		"attempt_id":   workspace.AttemptID,
 		"repo":         workspace.Repo,
-		"path":         firstNonEmpty(relPath, "."),
+		"path":         scope,
 		"items":        items,
 	}, nil)
 }
@@ -60,6 +66,14 @@ func (s *Service) workspaceReadFile(input map[string]interface{}) storepkg.ToolR
 	relPath, result := s.workspacePathInput(input, "path", true, "workspace.read_file")
 	if result != nil {
 		return *result
+	}
+	if !workspaceAllowsPath(workspace, relPath) {
+		return s.failedResult("workspace.read_file", input, "sandbox", fmt.Sprintf("Workspace read path %s is not allowed.", relPath), map[string]interface{}{
+			"workspace_id": workspace.ID,
+			"attempt_id":   workspace.AttemptID,
+			"path":         relPath,
+			"error":        "disallowed_path",
+		})
 	}
 	command := fmt.Sprintf("cd %s && sed -n '1,260p' %s", shellQuote(workspaceRepoDir), shellQuote(relPath))
 	execResult, failed := s.execWorkspaceCommand(workspace, []string{"bash", "-lc", command}, "workspace.read_file", input)
@@ -90,8 +104,12 @@ func (s *Service) workspaceSearch(input map[string]interface{}) storepkg.ToolRes
 	if result != nil {
 		return *result
 	}
-	scope := firstNonEmpty(relPath, ".")
-	command := fmt.Sprintf("cd %s && rg -n --hidden --glob '!.git' %s %s | head -200", shellQuote(workspaceRepoDir), shellQuote(pattern), shellQuote(scope))
+	scopes, result := s.workspaceReadScopes(workspace, relPath, "workspace.search", input)
+	if result != nil {
+		return *result
+	}
+	scope := firstNonEmpty(relPath, strings.Join(scopes, ", "))
+	command := fmt.Sprintf("cd %s && rg -n --hidden --glob '!.git' %s %s | head -200", shellQuote(workspaceRepoDir), shellQuote(pattern), shellQuoteJoin(scopes))
 	execResult, failed := s.execWorkspaceCommand(workspace, []string{"bash", "-lc", command}, "workspace.search", input)
 	if failed != nil {
 		return *failed
@@ -105,6 +123,177 @@ func (s *Service) workspaceSearch(input map[string]interface{}) storepkg.ToolRes
 		"path":         scope,
 		"pattern":      pattern,
 		"matches":      matches,
+	}, nil)
+}
+
+func (s *Service) workspaceGitHistory(input map[string]interface{}) storepkg.ToolResult {
+	workspace, errResult := s.resolveWorkspace(input, "workspace.git_history")
+	if errResult != nil {
+		return *errResult
+	}
+	ref, result := s.workspaceGitRefInput(input, "ref", "HEAD", "workspace.git_history")
+	if result != nil {
+		return *result
+	}
+	relPath, result := s.workspacePathInput(input, "path", false, "workspace.git_history")
+	if result != nil {
+		return *result
+	}
+	scopes, result := s.workspaceReadScopes(workspace, relPath, "workspace.git_history", input)
+	if result != nil {
+		return *result
+	}
+	limit := workspaceLimitInput(input, "limit", 20, 1, 50)
+	command := []string{
+		"git", "-C", workspaceRepoDir, "log",
+		"--date=iso-strict",
+		"--no-color",
+		fmt.Sprintf("--max-count=%d", limit),
+		"--format=%H%x09%ad%x09%an%x09%s",
+	}
+	if relPath != "" {
+		command = append(command, "--follow")
+	}
+	command = append(command, ref)
+	command = append(command, "--")
+	command = append(command, scopes...)
+	execResult, failed := s.execWorkspaceCommand(workspace, command, "workspace.git_history", input)
+	if failed != nil {
+		return *failed
+	}
+	entries := parseWorkspaceGitLogEntries(execResult.Stdout)
+	scope := firstNonEmpty(relPath, strings.Join(scopes, ", "), ref)
+	summary := fmt.Sprintf("Workspace git history returned %d commit(s) for %s.", len(entries), scope)
+	return s.result("workspace.git_history", input, summary, map[string]interface{}{
+		"workspace_id": workspace.ID,
+		"attempt_id":   workspace.AttemptID,
+		"repo":         workspace.Repo,
+		"ref":          ref,
+		"path":         relPath,
+		"limit":        limit,
+		"entries":      entries,
+	}, nil)
+}
+
+func (s *Service) workspaceGitShow(input map[string]interface{}) storepkg.ToolResult {
+	workspace, errResult := s.resolveWorkspace(input, "workspace.git_show")
+	if errResult != nil {
+		return *errResult
+	}
+	ref, result := s.workspaceGitRefInput(input, "ref", "HEAD", "workspace.git_show")
+	if result != nil {
+		return *result
+	}
+	relPath, result := s.workspacePathInput(input, "path", false, "workspace.git_show")
+	if result != nil {
+		return *result
+	}
+	command := []string{"git", "-C", workspaceRepoDir}
+	mode := "commit"
+	contentLimit := 40000
+	if relPath != "" {
+		if !workspaceAllowsPath(workspace, relPath) {
+			return s.failedResult("workspace.git_show", input, "sandbox", fmt.Sprintf("Workspace git show path %s is not allowed.", relPath), map[string]interface{}{
+				"workspace_id": workspace.ID,
+				"attempt_id":   workspace.AttemptID,
+				"path":         relPath,
+				"error":        "disallowed_path",
+			})
+		}
+		mode = "file"
+		contentLimit = 12000
+		command = append(command, "show", "--no-color", fmt.Sprintf("%s:%s", ref, relPath))
+	} else {
+		if !workspaceAllowsRepoWideRead(workspace) {
+			return s.failedResult("workspace.git_show", input, "sandbox", "Workspace git show requires path when read scope is restricted.", map[string]interface{}{
+				"workspace_id": workspace.ID,
+				"attempt_id":   workspace.AttemptID,
+				"error":        "path_required_for_restricted_scope",
+			})
+		}
+		command = append(command, "show", "--stat", "--format=fuller", "--patch", "--no-ext-diff", "--no-color", ref)
+	}
+	execResult, failed := s.execWorkspaceCommand(workspace, command, "workspace.git_show", input)
+	if failed != nil {
+		return *failed
+	}
+	fullContent := strings.TrimSpace(execResult.Stdout)
+	content := truncate(fullContent, contentLimit)
+	summary := fmt.Sprintf("Workspace git show loaded %s.", ref)
+	if relPath != "" {
+		summary = fmt.Sprintf("Workspace git show loaded %s at %s.", relPath, ref)
+	}
+	return s.result("workspace.git_show", input, summary, map[string]interface{}{
+		"workspace_id":   workspace.ID,
+		"attempt_id":     workspace.AttemptID,
+		"repo":           workspace.Repo,
+		"ref":            ref,
+		"path":           relPath,
+		"mode":           mode,
+		"content":        content,
+		"content_length": len(fullContent),
+		"truncated":      len(fullContent) > len(content),
+	}, nil)
+}
+
+func (s *Service) workspaceGitSearch(input map[string]interface{}) storepkg.ToolResult {
+	workspace, errResult := s.resolveWorkspace(input, "workspace.git_search")
+	if errResult != nil {
+		return *errResult
+	}
+	pattern := strings.TrimSpace(stringValue(input["pattern"]))
+	if pattern == "" {
+		return s.failedResult("workspace.git_search", input, "sandbox", "Workspace git search requires pattern.", map[string]interface{}{"error": "missing_pattern"})
+	}
+	mode, result := s.workspaceGitSearchModeInput(input, "workspace.git_search")
+	if result != nil {
+		return *result
+	}
+	ref, result := s.workspaceGitRefInput(input, "ref", "HEAD", "workspace.git_search")
+	if result != nil {
+		return *result
+	}
+	relPath, result := s.workspacePathInput(input, "path", false, "workspace.git_search")
+	if result != nil {
+		return *result
+	}
+	scopes, result := s.workspaceReadScopes(workspace, relPath, "workspace.git_search", input)
+	if result != nil {
+		return *result
+	}
+	limit := workspaceLimitInput(input, "limit", 20, 1, 50)
+	command := []string{
+		"git", "-C", workspaceRepoDir, "log",
+		"--date=iso-strict",
+		"--no-color",
+		fmt.Sprintf("--max-count=%d", limit),
+		"--format=%H%x09%ad%x09%an%x09%s",
+	}
+	switch mode {
+	case "message":
+		command = append(command, "--fixed-strings", "--grep="+pattern)
+	default:
+		command = append(command, "-S", pattern)
+	}
+	command = append(command, ref)
+	command = append(command, "--")
+	command = append(command, scopes...)
+	execResult, failed := s.execWorkspaceCommand(workspace, command, "workspace.git_search", input)
+	if failed != nil {
+		return *failed
+	}
+	entries := parseWorkspaceGitLogEntries(execResult.Stdout)
+	summary := fmt.Sprintf("Workspace git search found %d commit(s) for %q.", len(entries), pattern)
+	return s.result("workspace.git_search", input, summary, map[string]interface{}{
+		"workspace_id": workspace.ID,
+		"attempt_id":   workspace.AttemptID,
+		"repo":         workspace.Repo,
+		"ref":          ref,
+		"path":         relPath,
+		"limit":        limit,
+		"pattern":      pattern,
+		"search_type":  mode,
+		"entries":      entries,
 	}, nil)
 }
 
@@ -374,6 +563,127 @@ func (s *Service) workspacePathInput(input map[string]interface{}, key string, r
 	return relPath, nil
 }
 
+func workspaceLimitInput(input map[string]interface{}, key string, defaultValue int, minValue int, maxValue int) int {
+	switch raw := input[key].(type) {
+	case int:
+		return maxInt(minValue, minInt(raw, maxValue))
+	case int32:
+		return maxInt(minValue, minInt(int(raw), maxValue))
+	case int64:
+		return maxInt(minValue, minInt(int(raw), maxValue))
+	case float64:
+		return maxInt(minValue, minInt(int(raw), maxValue))
+	case string:
+		if value, err := strconv.Atoi(strings.TrimSpace(raw)); err == nil {
+			return maxInt(minValue, minInt(value, maxValue))
+		}
+	}
+	return defaultValue
+}
+
+func (s *Service) workspaceGitRefInput(input map[string]interface{}, key string, defaultValue string, toolName string) (string, *storepkg.ToolResult) {
+	ref := firstNonEmpty(strings.TrimSpace(stringValue(input[key])), strings.TrimSpace(defaultValue))
+	if ref == "" {
+		result := s.failedResult(toolName, input, "sandbox", fmt.Sprintf("%s requires %s.", toolName, key), map[string]interface{}{"error": "missing_ref"})
+		return "", &result
+	}
+	if strings.HasPrefix(ref, "-") || strings.Contains(ref, ":") || len(ref) > 200 {
+		result := s.failedResult(toolName, input, "sandbox", fmt.Sprintf("%s ref %q is not allowed.", toolName, ref), map[string]interface{}{"error": "invalid_ref"})
+		return "", &result
+	}
+	for _, r := range ref {
+		if unicode.IsSpace(r) || unicode.IsControl(r) {
+			result := s.failedResult(toolName, input, "sandbox", fmt.Sprintf("%s ref %q is not allowed.", toolName, ref), map[string]interface{}{"error": "invalid_ref"})
+			return "", &result
+		}
+	}
+	return ref, nil
+}
+
+func (s *Service) workspaceGitSearchModeInput(input map[string]interface{}, toolName string) (string, *storepkg.ToolResult) {
+	mode := strings.ToLower(firstNonEmpty(strings.TrimSpace(stringValue(input["search_type"])), strings.TrimSpace(stringValue(input["mode"])), "changes"))
+	switch mode {
+	case "changes", "change", "diff":
+		return "changes", nil
+	case "message":
+		return "message", nil
+	default:
+		result := s.failedResult(toolName, input, "sandbox", fmt.Sprintf("%s search_type %q is not supported.", toolName, mode), map[string]interface{}{"error": "invalid_search_type"})
+		return "", &result
+	}
+}
+
+func (s *Service) workspaceReadScopes(workspace improvement.AttemptWorkspace, relPath string, toolName string, input map[string]interface{}) ([]string, *storepkg.ToolResult) {
+	if relPath != "" {
+		if !workspaceAllowsPath(workspace, relPath) {
+			result := s.failedResult(toolName, input, "sandbox", fmt.Sprintf("%s path %s is not allowed.", toolName, relPath), map[string]interface{}{
+				"workspace_id": workspace.ID,
+				"attempt_id":   workspace.AttemptID,
+				"path":         relPath,
+				"error":        "disallowed_path",
+			})
+			return nil, &result
+		}
+		return []string{relPath}, nil
+	}
+	return workspaceAllowedReadScopes(workspace), nil
+}
+
+func workspaceAllowedReadScopes(workspace improvement.AttemptWorkspace) []string {
+	if len(workspace.AllowedPathGlobs) == 0 {
+		return []string{"cmd", "internal", "runner", "ui", "README.md", "Makefile"}
+	}
+	seen := map[string]struct{}{}
+	scopes := make([]string, 0, len(workspace.AllowedPathGlobs))
+	for _, pattern := range workspace.AllowedPathGlobs {
+		scope := workspaceAllowedReadScope(pattern)
+		if scope == "." {
+			return []string{"."}
+		}
+		if scope == "" {
+			continue
+		}
+		if _, ok := seen[scope]; ok {
+			continue
+		}
+		seen[scope] = struct{}{}
+		scopes = append(scopes, scope)
+	}
+	if len(scopes) == 0 {
+		return []string{"."}
+	}
+	sort.Strings(scopes)
+	return scopes
+}
+
+func workspaceAllowedReadScope(pattern string) string {
+	pattern = filepath.ToSlash(strings.TrimSpace(pattern))
+	if pattern == "" {
+		return ""
+	}
+	wildcard := strings.IndexAny(pattern, "*?[")
+	if wildcard == -1 {
+		return strings.Trim(pattern, "/")
+	}
+	if wildcard == 0 {
+		return "."
+	}
+	scope := strings.TrimSuffix(pattern[:wildcard], "/")
+	if scope == "" {
+		return "."
+	}
+	return scope
+}
+
+func workspaceAllowsRepoWideRead(workspace improvement.AttemptWorkspace) bool {
+	for _, scope := range workspaceAllowedReadScopes(workspace) {
+		if scope == "." {
+			return true
+		}
+	}
+	return false
+}
+
 func workspaceAllowsPath(workspace improvement.AttemptWorkspace, relPath string) bool {
 	relPath = filepath.ToSlash(filepath.Clean(strings.TrimSpace(relPath)))
 	if relPath == "" || relPath == "." || strings.HasPrefix(relPath, "..") {
@@ -508,6 +818,33 @@ func gitStatusChangedFiles(status string) []string {
 	return files
 }
 
+func parseWorkspaceGitLogEntries(body string) []map[string]interface{} {
+	lines := compactLines(body)
+	entries := make([]map[string]interface{}, 0, len(lines))
+	for _, line := range lines {
+		parts := strings.SplitN(line, "\t", 4)
+		entry := map[string]interface{}{
+			"raw": line,
+		}
+		if len(parts) > 0 {
+			sha := strings.TrimSpace(parts[0])
+			entry["sha"] = sha
+			entry["short_sha"] = sha[:minInt(len(sha), 12)]
+		}
+		if len(parts) > 1 {
+			entry["date"] = strings.TrimSpace(parts[1])
+		}
+		if len(parts) > 2 {
+			entry["author"] = strings.TrimSpace(parts[2])
+		}
+		if len(parts) > 3 {
+			entry["subject"] = strings.TrimSpace(parts[3])
+		}
+		entries = append(entries, entry)
+	}
+	return entries
+}
+
 func compactLines(body string) []string {
 	lines := strings.Split(body, "\n")
 	out := make([]string, 0, len(lines))
@@ -522,4 +859,16 @@ func compactLines(body string) []string {
 
 func shellQuote(value string) string {
 	return "'" + strings.ReplaceAll(value, "'", `'"'"'`) + "'"
+}
+
+func shellQuoteJoin(values []string) string {
+	quoted := make([]string, 0, len(values))
+	for _, value := range values {
+		value = strings.TrimSpace(value)
+		if value == "" {
+			continue
+		}
+		quoted = append(quoted, shellQuote(value))
+	}
+	return strings.Join(quoted, " ")
 }

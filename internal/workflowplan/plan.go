@@ -181,9 +181,9 @@ func CandidateReadSurfaces(question string, ingressChannelID string, ingressThre
 			continue
 		}
 		appendSurface(SlackSurfaceHint{
-			ChannelID: ingressChannelID,
+			ChannelID: "",
 			ThreadTS:  match[1],
-			Ref:       slackSurfaceRef(ingressChannelID, match[1]),
+			Ref:       slackSurfaceRef("", match[1]),
 			Source:    "explicit_thread_ref",
 		})
 	}

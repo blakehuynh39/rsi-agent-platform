@@ -36,9 +36,55 @@ func TestToolPlanAddsRuntimeDeploymentFactsWithoutSlackSearchWhenNoChannelBindin
 	}
 }
 
+func TestCandidateReadSurfacesKeepsRawThreadRefsUnbound(t *testing.T) {
+	surfaces := CandidateReadSurfaces(
+		"Check <#COTHER> thread_ts=1776483985.407559 for the rollout note.",
+		"CINGRESS",
+		"1776483000.000100",
+	)
+
+	if !containsSurface(surfaces, SlackSurfaceHint{
+		ChannelID: "CINGRESS",
+		ThreadTS:  "1776483000.000100",
+		Source:    "ingress_thread",
+	}) {
+		t.Fatalf("expected ingress thread surface, got %#v", surfaces)
+	}
+	if !containsSurface(surfaces, SlackSurfaceHint{
+		ChannelID: "COTHER",
+		ThreadTS:  "",
+		Source:    "channel_mention",
+	}) {
+		t.Fatalf("expected mentioned channel surface, got %#v", surfaces)
+	}
+	if !containsSurface(surfaces, SlackSurfaceHint{
+		ChannelID: "",
+		ThreadTS:  "1776483985.407559",
+		Source:    "explicit_thread_ref",
+	}) {
+		t.Fatalf("expected unbound thread surface, got %#v", surfaces)
+	}
+	if containsSurface(surfaces, SlackSurfaceHint{
+		ChannelID: "CINGRESS",
+		ThreadTS:  "1776483985.407559",
+		Source:    "explicit_thread_ref",
+	}) {
+		t.Fatalf("did not expect explicit thread ref to inherit ingress channel, got %#v", surfaces)
+	}
+}
+
 func containsTool(plan []string, tool string) bool {
 	for _, item := range plan {
 		if item == tool {
+			return true
+		}
+	}
+	return false
+}
+
+func containsSurface(surfaces []SlackSurfaceHint, target SlackSurfaceHint) bool {
+	for _, item := range surfaces {
+		if item.ChannelID == target.ChannelID && item.ThreadTS == target.ThreadTS && item.Source == target.Source {
 			return true
 		}
 	}
