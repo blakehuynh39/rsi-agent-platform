@@ -78,7 +78,7 @@ func finalizeWorkflowFailureWithDetails(cfg config.Config, store storepkg.Store,
 		payload["retry_decision"] = "needs_human"
 		log.Printf("control-plane workflow moved_to_needs_human case=%s workflow=%s failure_class=%s", ctx.workflow.CaseID, ctx.workflow.ID, failure.Class)
 	}
-	if _, submitErr := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowFailed, cfg.ServiceName, time.Now().UTC(), payload); submitErr != nil {
+	if _, submitErr := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowExecutionFailed, cfg.ServiceName, time.Now().UTC(), payload); submitErr != nil {
 		return submitErr
 	}
 	if _, _, err := store.ReconcileWorkflowTrace(ctx.workflow.ID); err != nil {

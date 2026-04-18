@@ -51,10 +51,11 @@ func RunWorker(cfg config.Config, store storepkg.Store) error {
 		"prod":      clients.NewRunnerClientWithTimeout(cfg.RunnerURLForRole("prod"), cfg.RunnerTimeoutForRole("prod")),
 		"proactive": clients.NewRunnerClientWithTimeout(cfg.RunnerURLForRole("proactive"), cfg.RunnerTimeoutForRole("proactive")),
 	}
+	toolClient := clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL)
 	workerID := fmt.Sprintf("%s-worker", cfg.ServiceName)
 	runnerEffectLease := cfg.EffectLeaseDuration(cfg.WorkItemLeaseDuration, "prod", "proactive")
 	for {
-		effect, claimed, err := claimNextWorkflowRunnerEffect(store, workerID, runnerEffectLease)
+		effect, claimed, err := claimNextExecutionEffect(store, workerID, runnerEffectLease)
 		if err != nil {
 			return err
 		}
@@ -65,7 +66,7 @@ func RunWorker(cfg config.Config, store storepkg.Store) error {
 			time.Sleep(cfg.WorkerPollInterval)
 			continue
 		}
-		handleClaimedWorkflowRunnerEffect(cfg, store, runnerClients, effect)
+		handleClaimedExecutionEffect(cfg, store, runnerClients, toolClient, effect)
 	}
 }
 
@@ -130,6 +131,17 @@ func handleClaimedWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, 
 			log.Printf("control-plane runner effect=%s aggregate=%s fail_error=%v", effect.ID, effect.AggregateID, failErr)
 		}
 		log.Printf("control-plane runner effect=%s aggregate=%s error=%v", effect.ID, effect.AggregateID, err)
+	}
+}
+
+func handleClaimedExecutionEffect(cfg config.Config, store storepkg.Store, runnerClients map[string]*clients.RunnerClient, toolClient *clients.ToolGatewayClient, effect transition.EffectExecution) {
+	switch {
+	case effect.MachineKind == transition.MachineWorkflow && effect.EffectKind == transition.EffectInvokeRunner:
+		handleClaimedWorkflowRunnerEffect(cfg, store, runnerClients, effect)
+	case effect.MachineKind == transition.MachineQuestionRun:
+		handleClaimedQuestionRunEffect(cfg, store, runnerClients, toolClient, effect)
+	default:
+		_ = failClaimedEffect(store, effect, fmt.Sprintf("unsupported execution effect %s/%s", effect.MachineKind, effect.EffectKind))
 	}
 }
 
@@ -298,7 +310,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 			CreatedAt:  runnerCompleted,
 		})
 		runnerEvents[0].Description = "Runner returned visible reasoning and a reply draft but omitted the explicit slack_post action."
-		if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowBlocked, cfg.ServiceName, runnerCompleted, map[string]any{
+		if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowExecutionNeedsHuman, cfg.ServiceName, runnerCompleted, map[string]any{
 			"last_error":         "runner produced a reply without the required explicit slack_post action",
 			"failure_class":      "missing_explicit_action_contract",
 			"failure_summary":    "Runner produced a reply draft but omitted the required explicit slack_post action.",
@@ -309,7 +321,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 			"reasoning_steps":    finalReasoning,
 			"tool_calls":         runnerToolCalls,
 		}); err != nil {
-			return runnerPostProcessingFailure("submit_workflow_blocked", err)
+			return runnerPostProcessingFailure("submit_workflow_execution_needs_human", err)
 		}
 		if ctx, err = refreshWorkflowContextState(store, ctx); err != nil {
 			return err
@@ -331,7 +343,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	finalReasoning = append(finalReasoning, draftReasoning...)
 	runnerDescription := "Runner returned visible reasoning."
 	hasReplyAction := strings.TrimSpace(replyAction.ID) != ""
-	runnerCommand := transition.WorkflowRunnerCompletionCommand(completionVerdict, hasReplyAction)
+	runnerCommand := transition.WorkflowExecutionCompletionCommand(completionVerdict, hasReplyAction)
 	if hasReplyAction {
 		runnerDescription = "Runner returned visible reasoning and an explicit Slack reply action."
 	}
@@ -383,11 +395,23 @@ func submitWorkflowContextCompleted(cfg config.Config, store storepkg.Store, ctx
 	if isTerminalTraceStatus(ctx.trace.Summary.Status) {
 		return nil
 	}
+	executionStrategy := workflowExecutionStrategy(ctx.workflow)
+	executionRole := runnerRoleForQueue(resumeQueue)
+	executionStartedType := "runner.started"
+	executionStartedService := "runner"
+	executionStartedDescription := "Runner task dispatched with verbose reasoning enabled."
+	if executionStrategy == "read_heavy_slack_qna" {
+		executionStartedType = "question_run.started"
+		executionStartedService = cfg.ServiceName
+		executionStartedDescription = "Question-run child machine dispatched with deterministic compiler inputs."
+	}
 	contextSummary, contextRefs := contextFromTrace(ctx.trace)
 	if len(contextRefs) > 0 {
 		if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandContextCompleted, cfg.ServiceName, occurredAt, map[string]any{
-			"tool_count":   len(contextRefs),
-			"resume_queue": string(resumeQueue),
+			"tool_count":         len(contextRefs),
+			"resume_queue":       string(resumeQueue),
+			"execution_strategy": executionStrategy,
+			"execution_role":     executionRole,
 			"trace_events": []events.TraceEvent{
 				{
 					TraceID:     ctx.trace.Summary.TraceID,
@@ -406,12 +430,12 @@ func submitWorkflowContextCompleted(cfg config.Config, store storepkg.Store, ctx
 					IngestionID: ctx.trace.Summary.IngestionID,
 					WorkflowID:  ctx.trace.Summary.WorkflowID,
 					Plane:       "execution",
-					Service:     "runner",
+					Service:     executionStartedService,
 					Actor:       ctx.workflow.AssignedBot,
-					EventType:   "runner.started",
+					EventType:   executionStartedType,
 					Status:      events.StatusRunning,
 					StartedAt:   occurredAt,
-					Description: "Runner task dispatched with verbose reasoning enabled.",
+					Description: executionStartedDescription,
 				},
 			},
 			"reasoning_steps": []events.ReasoningStep{
@@ -423,7 +447,7 @@ func submitWorkflowContextCompleted(cfg config.Config, store storepkg.Store, ctx
 					Summary:      firstNonEmpty(contextSummary, "No external context tools were required."),
 					EvidenceRefs: evidenceRefsFromContext(contextRefs),
 					Confidence:   0.82,
-					Decision:     fmt.Sprintf("persisted_context_refs:%d", len(contextRefs)),
+					Decision:     firstNonEmpty(executionStrategy, fmt.Sprintf("persisted_context_refs:%d", len(contextRefs))),
 					CreatedAt:    occurredAt,
 				},
 			},
@@ -433,20 +457,22 @@ func submitWorkflowContextCompleted(cfg config.Config, store storepkg.Store, ctx
 		return nil
 	}
 	if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandContextSkipped, cfg.ServiceName, occurredAt, map[string]any{
-		"tool_count":   0,
-		"resume_queue": string(resumeQueue),
+		"tool_count":         0,
+		"resume_queue":       string(resumeQueue),
+		"execution_strategy": executionStrategy,
+		"execution_role":     executionRole,
 		"trace_events": []events.TraceEvent{
 			{
 				TraceID:     ctx.trace.Summary.TraceID,
 				IngestionID: ctx.trace.Summary.IngestionID,
 				WorkflowID:  ctx.trace.Summary.WorkflowID,
 				Plane:       "execution",
-				Service:     "runner",
+				Service:     executionStartedService,
 				Actor:       ctx.workflow.AssignedBot,
-				EventType:   "runner.started",
+				EventType:   executionStartedType,
 				Status:      events.StatusRunning,
 				StartedAt:   occurredAt,
-				Description: "Runner task dispatched with verbose reasoning enabled.",
+				Description: executionStartedDescription,
 			},
 		},
 	}); err != nil {
@@ -715,7 +741,7 @@ func maybeAdvanceWorkflowPhaseFromAction(cfg config.Config, store storepkg.Store
 		_, workflowStatus, workflowError := workflowOutcomeForTrace(store, ctx.trace.Summary.TraceID)
 		switch workflowStatus {
 		case "needs-human":
-			_, err = submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowBlocked, cfg.ServiceName, completedAt, map[string]any{
+			_, err = submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowExecutionNeedsHuman, cfg.ServiceName, completedAt, map[string]any{
 				"last_error": workflowError,
 			})
 		default:
@@ -1094,6 +1120,13 @@ func runnerRoleForQueue(name queue.QueueName) string {
 	default:
 		return "prod"
 	}
+}
+
+func workflowExecutionStrategy(workflow storepkg.Workflow) string {
+	if workflowplan.UseReadHeavySlackQnAStrategy(workflow.Intent, workflow.ResponseMode) {
+		return "read_heavy_slack_qna"
+	}
+	return ""
 }
 
 func replyPolicy(store storepkg.Store, workflowKind string, threadKey string, channelID string) (bool, string) {
@@ -1624,9 +1657,12 @@ func claimLatestWorkflowEffect(store storepkg.Store, workflowID string, kind tra
 	return store.ClaimEffectExecution(effect.ID, holder, lease)
 }
 
-func claimNextWorkflowRunnerEffect(store storepkg.Store, holder string, lease time.Duration) (transition.EffectExecution, bool, error) {
+func claimNextExecutionEffect(store storepkg.Store, holder string, lease time.Duration) (transition.EffectExecution, bool, error) {
 	for _, effect := range store.ListEffectExecutions() {
-		if effect.MachineKind != transition.MachineWorkflow || effect.EffectKind != transition.EffectInvokeRunner {
+		switch {
+		case effect.MachineKind == transition.MachineWorkflow && effect.EffectKind == transition.EffectInvokeRunner:
+		case effect.MachineKind == transition.MachineQuestionRun:
+		default:
 			continue
 		}
 		claimed, ok, err := store.ClaimEffectExecution(effect.ID, holder, lease)
@@ -1638,6 +1674,10 @@ func claimNextWorkflowRunnerEffect(store storepkg.Store, holder string, lease ti
 		}
 	}
 	return transition.EffectExecution{}, false, nil
+}
+
+func claimNextWorkflowRunnerEffect(store storepkg.Store, holder string, lease time.Duration) (transition.EffectExecution, bool, error) {
+	return claimNextExecutionEffect(store, holder, lease)
 }
 
 func claimNextActionEffect(store storepkg.Store, ownerPlane string, holder string, lease time.Duration) (transition.EffectExecution, bool, error) {
@@ -1758,7 +1798,7 @@ func finalizeControlActionPersistenceFailure(cfg config.Config, store storepkg.S
 	}
 
 	description := actionPersistenceFailureDescription(intent, effect, failure, execErr)
-	if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowBlocked, cfg.ServiceName, now, map[string]any{
+	if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowExecutionNeedsHuman, cfg.ServiceName, now, map[string]any{
 		"last_error": description,
 		"trace_events": []events.TraceEvent{
 			{

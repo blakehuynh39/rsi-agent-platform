@@ -6,7 +6,7 @@ const (
 	WorkflowStateQueued            WorkflowStateKind = "queued"
 	WorkflowStateCollectingContext WorkflowStateKind = "collecting_context"
 	WorkflowStateWaitingOnActions  WorkflowStateKind = "waiting_on_actions"
-	WorkflowStateReasoning         WorkflowStateKind = "reasoning"
+	WorkflowStateExecuting         WorkflowStateKind = "executing"
 	WorkflowStateReplyPending      WorkflowStateKind = "reply_pending"
 	WorkflowStateNeedsHuman        WorkflowStateKind = "needs_human"
 	WorkflowStateCompleted         WorkflowStateKind = "completed"
@@ -17,19 +17,19 @@ const (
 type WorkflowCommandKind string
 
 const (
-	CommandWorkflowStarted               WorkflowCommandKind = "workflow_started"
-	CommandContextActionsQueued          WorkflowCommandKind = "context_actions_queued"
-	CommandContextSkipped                WorkflowCommandKind = "context_skipped"
-	CommandContextCompleted              WorkflowCommandKind = "context_completed"
-	CommandRunnerCompleted               WorkflowCommandKind = "runner_completed"
-	CommandRunnerCompletedPartial        WorkflowCommandKind = "runner_completed_partial"
-	CommandRunnerCompletedNoReply        WorkflowCommandKind = "runner_completed_no_reply"
-	CommandRunnerCompletedPartialNoReply WorkflowCommandKind = "runner_completed_partial_no_reply"
-	CommandReplyPosted                   WorkflowCommandKind = "reply_posted"
-	CommandReplyPostedPartial            WorkflowCommandKind = "reply_posted_partial"
-	CommandWorkflowBlocked               WorkflowCommandKind = "workflow_blocked"
-	CommandWorkflowFailed                WorkflowCommandKind = "workflow_failed"
-	CommandWorkflowSuperseded            WorkflowCommandKind = "workflow_superseded"
+	CommandWorkflowStarted                          WorkflowCommandKind = "workflow_started"
+	CommandContextActionsQueued                     WorkflowCommandKind = "context_actions_queued"
+	CommandContextSkipped                           WorkflowCommandKind = "context_skipped"
+	CommandContextCompleted                         WorkflowCommandKind = "context_completed"
+	CommandWorkflowExecutionCompleted               WorkflowCommandKind = "workflow_execution_completed"
+	CommandWorkflowExecutionCompletedPartial        WorkflowCommandKind = "workflow_execution_completed_partial"
+	CommandWorkflowExecutionCompletedNoReply        WorkflowCommandKind = "workflow_execution_completed_no_reply"
+	CommandWorkflowExecutionCompletedPartialNoReply WorkflowCommandKind = "workflow_execution_completed_partial_no_reply"
+	CommandReplyPosted                              WorkflowCommandKind = "reply_posted"
+	CommandReplyPostedPartial                       WorkflowCommandKind = "reply_posted_partial"
+	CommandWorkflowExecutionNeedsHuman              WorkflowCommandKind = "workflow_execution_needs_human"
+	CommandWorkflowExecutionFailed                  WorkflowCommandKind = "workflow_execution_failed"
+	CommandWorkflowSuperseded                       WorkflowCommandKind = "workflow_superseded"
 )
 
 type WorkflowSnapshot struct {
@@ -49,39 +49,39 @@ type workflowReducer func(snapshot WorkflowSnapshot, command CommandEnvelope) Wo
 
 var workflowReducers = map[WorkflowStateKind]map[WorkflowCommandKind]workflowReducer{
 	WorkflowStateQueued: {
-		CommandWorkflowStarted:    reduceWorkflowStarted,
-		CommandWorkflowFailed:     reduceWorkflowFailed,
-		CommandWorkflowBlocked:    reduceWorkflowBlocked,
-		CommandWorkflowSuperseded: reduceWorkflowSuperseded,
+		CommandWorkflowStarted:             reduceWorkflowStarted,
+		CommandWorkflowExecutionFailed:     reduceWorkflowFailed,
+		CommandWorkflowExecutionNeedsHuman: reduceWorkflowNeedsHuman,
+		CommandWorkflowSuperseded:          reduceWorkflowSuperseded,
 	},
 	WorkflowStateCollectingContext: {
-		CommandContextActionsQueued: reduceContextActionsQueued,
-		CommandContextSkipped:       reduceContextSkipped,
-		CommandWorkflowFailed:       reduceWorkflowFailed,
-		CommandWorkflowBlocked:      reduceWorkflowBlocked,
-		CommandWorkflowSuperseded:   reduceWorkflowSuperseded,
+		CommandContextActionsQueued:        reduceContextActionsQueued,
+		CommandContextSkipped:              reduceContextSkipped,
+		CommandWorkflowExecutionFailed:     reduceWorkflowFailed,
+		CommandWorkflowExecutionNeedsHuman: reduceWorkflowNeedsHuman,
+		CommandWorkflowSuperseded:          reduceWorkflowSuperseded,
 	},
 	WorkflowStateWaitingOnActions: {
-		CommandContextCompleted:   reduceContextCompleted,
-		CommandWorkflowFailed:     reduceWorkflowFailed,
-		CommandWorkflowBlocked:    reduceWorkflowBlocked,
-		CommandWorkflowSuperseded: reduceWorkflowSuperseded,
+		CommandContextCompleted:            reduceContextCompleted,
+		CommandWorkflowExecutionFailed:     reduceWorkflowFailed,
+		CommandWorkflowExecutionNeedsHuman: reduceWorkflowNeedsHuman,
+		CommandWorkflowSuperseded:          reduceWorkflowSuperseded,
 	},
-	WorkflowStateReasoning: {
-		CommandRunnerCompleted:               reduceRunnerCompleted,
-		CommandRunnerCompletedPartial:        reduceRunnerCompletedPartial,
-		CommandRunnerCompletedNoReply:        reduceRunnerCompletedNoReply,
-		CommandRunnerCompletedPartialNoReply: reduceRunnerCompletedPartialNoReply,
-		CommandWorkflowFailed:                reduceWorkflowFailed,
-		CommandWorkflowBlocked:               reduceWorkflowBlocked,
-		CommandWorkflowSuperseded:            reduceWorkflowSuperseded,
+	WorkflowStateExecuting: {
+		CommandWorkflowExecutionCompleted:               reduceExecutionCompleted,
+		CommandWorkflowExecutionCompletedPartial:        reduceExecutionCompletedPartial,
+		CommandWorkflowExecutionCompletedNoReply:        reduceExecutionCompletedNoReply,
+		CommandWorkflowExecutionCompletedPartialNoReply: reduceExecutionCompletedPartialNoReply,
+		CommandWorkflowExecutionFailed:                  reduceWorkflowFailed,
+		CommandWorkflowExecutionNeedsHuman:              reduceWorkflowNeedsHuman,
+		CommandWorkflowSuperseded:                       reduceWorkflowSuperseded,
 	},
 	WorkflowStateReplyPending: {
-		CommandReplyPosted:        reduceReplyPosted,
-		CommandReplyPostedPartial: reduceReplyPostedPartial,
-		CommandWorkflowFailed:     reduceWorkflowFailed,
-		CommandWorkflowBlocked:    reduceWorkflowBlocked,
-		CommandWorkflowSuperseded: reduceWorkflowSuperseded,
+		CommandReplyPosted:                 reduceReplyPosted,
+		CommandReplyPostedPartial:          reduceReplyPostedPartial,
+		CommandWorkflowExecutionFailed:     reduceWorkflowFailed,
+		CommandWorkflowExecutionNeedsHuman: reduceWorkflowNeedsHuman,
+		CommandWorkflowSuperseded:          reduceWorkflowSuperseded,
 	},
 	WorkflowStateNeedsHuman: {
 		CommandWorkflowSuperseded: reduceWorkflowSuperseded,
@@ -138,60 +138,72 @@ func reduceContextActionsQueued(snapshot WorkflowSnapshot, _ CommandEnvelope) Wo
 	}
 }
 
-func reduceContextSkipped(snapshot WorkflowSnapshot, _ CommandEnvelope) WorkflowDecision {
+func reduceContextSkipped(snapshot WorkflowSnapshot, command CommandEnvelope) WorkflowDecision {
+	effects := []EffectRequest{}
+	reason := "no context actions were required and execution can start immediately"
+	if !workflowUsesChildExecution(command.Payload) {
+		effects = append(effects, EffectRequest{
+			Kind:           EffectInvokeRunner,
+			Status:         EffectQueued,
+			IdempotencyKey: "invoke_runner",
+		})
+		reason = "no context actions were required and legacy runner execution can start immediately"
+	}
 	return WorkflowDecision{
 		TransitionDecision: TransitionDecision{
 			DecisionKind: DecisionAdvance,
-			Reason:       "no context actions were required, runner can start immediately",
+			Reason:       reason,
 			Events: []DomainEventDescriptor{{
 				Kind: "workflow_context_skipped",
 			}},
-			Effects: []EffectRequest{{
-				Kind:           EffectInvokeRunner,
-				Status:         EffectQueued,
-				IdempotencyKey: "invoke_runner",
-			}},
+			Effects: effects,
 		},
-		NextState:     WorkflowStateReasoning,
+		NextState:     WorkflowStateExecuting,
 		ExpectedState: snapshot.State,
-		AllowedNext:   []WorkflowStateKind{WorkflowStateReasoning},
+		AllowedNext:   []WorkflowStateKind{WorkflowStateExecuting},
 	}
 }
 
-func reduceContextCompleted(snapshot WorkflowSnapshot, _ CommandEnvelope) WorkflowDecision {
+func reduceContextCompleted(snapshot WorkflowSnapshot, command CommandEnvelope) WorkflowDecision {
+	effects := []EffectRequest{}
+	reason := "context collection is complete and execution can proceed"
+	if !workflowUsesChildExecution(command.Payload) {
+		effects = append(effects, EffectRequest{
+			Kind:           EffectInvokeRunner,
+			Status:         EffectQueued,
+			IdempotencyKey: "invoke_runner",
+		})
+		reason = "context collection is complete and legacy runner execution can proceed"
+	}
 	return WorkflowDecision{
 		TransitionDecision: TransitionDecision{
 			DecisionKind: DecisionAdvance,
-			Reason:       "context collection is complete and the runner can reason over the gathered evidence",
+			Reason:       reason,
 			Events: []DomainEventDescriptor{{
 				Kind: "workflow_context_completed",
 			}},
-			Effects: []EffectRequest{{
-				Kind:           EffectInvokeRunner,
-				Status:         EffectQueued,
-				IdempotencyKey: "invoke_runner",
-			}},
+			Effects: effects,
 		},
-		NextState:     WorkflowStateReasoning,
+		NextState:     WorkflowStateExecuting,
 		ExpectedState: snapshot.State,
-		AllowedNext:   []WorkflowStateKind{WorkflowStateReasoning},
+		AllowedNext:   []WorkflowStateKind{WorkflowStateExecuting},
 	}
 }
 
-func reduceRunnerCompleted(snapshot WorkflowSnapshot, _ CommandEnvelope) WorkflowDecision {
-	return reduceRunnerCompletedWithReply(snapshot, false)
+func reduceExecutionCompleted(snapshot WorkflowSnapshot, _ CommandEnvelope) WorkflowDecision {
+	return reduceExecutionCompletedWithReply(snapshot, false)
 }
 
-func reduceRunnerCompletedPartial(snapshot WorkflowSnapshot, _ CommandEnvelope) WorkflowDecision {
-	return reduceRunnerCompletedWithReply(snapshot, true)
+func reduceExecutionCompletedPartial(snapshot WorkflowSnapshot, _ CommandEnvelope) WorkflowDecision {
+	return reduceExecutionCompletedWithReply(snapshot, true)
 }
 
-func reduceRunnerCompletedWithReply(snapshot WorkflowSnapshot, partial bool) WorkflowDecision {
-	reason := "runner finished and requested a reply side effect"
-	eventKind := "workflow_runner_completed"
+func reduceExecutionCompletedWithReply(snapshot WorkflowSnapshot, partial bool) WorkflowDecision {
+	reason := "workflow execution completed and requested a reply side effect"
+	eventKind := "workflow_execution_completed"
 	if partial {
-		reason = "runner finished with a partial answer and requested a reply side effect"
-		eventKind = "workflow_runner_completed_partial"
+		reason = "workflow execution completed partially and requested a reply side effect"
+		eventKind = "workflow_execution_completed_partial"
 	}
 	return WorkflowDecision{
 		TransitionDecision: TransitionDecision{
@@ -212,22 +224,22 @@ func reduceRunnerCompletedWithReply(snapshot WorkflowSnapshot, partial bool) Wor
 	}
 }
 
-func reduceRunnerCompletedNoReply(snapshot WorkflowSnapshot, _ CommandEnvelope) WorkflowDecision {
-	return reduceRunnerCompletedWithoutReply(snapshot, false)
+func reduceExecutionCompletedNoReply(snapshot WorkflowSnapshot, _ CommandEnvelope) WorkflowDecision {
+	return reduceExecutionCompletedWithoutReply(snapshot, false)
 }
 
-func reduceRunnerCompletedPartialNoReply(snapshot WorkflowSnapshot, _ CommandEnvelope) WorkflowDecision {
-	return reduceRunnerCompletedWithoutReply(snapshot, true)
+func reduceExecutionCompletedPartialNoReply(snapshot WorkflowSnapshot, _ CommandEnvelope) WorkflowDecision {
+	return reduceExecutionCompletedWithoutReply(snapshot, true)
 }
 
-func reduceRunnerCompletedWithoutReply(snapshot WorkflowSnapshot, partial bool) WorkflowDecision {
-	reason := "runner finished without a reply side effect and workflow can terminate"
-	eventKind := "workflow_runner_completed_no_reply"
-	trigger := "runner_completed_no_reply"
+func reduceExecutionCompletedWithoutReply(snapshot WorkflowSnapshot, partial bool) WorkflowDecision {
+	reason := "workflow execution finished without a reply side effect and workflow can terminate"
+	eventKind := "workflow_execution_completed_no_reply"
+	trigger := "workflow_execution_completed_no_reply"
 	if partial {
-		reason = "runner finished with a partial answer and no reply side effect, and workflow can terminate"
-		eventKind = "workflow_runner_completed_partial_no_reply"
-		trigger = "runner_completed_partial_no_reply"
+		reason = "workflow execution finished partially with no reply side effect, and workflow can terminate"
+		eventKind = "workflow_execution_completed_partial_no_reply"
+		trigger = "workflow_execution_completed_partial_no_reply"
 	}
 	return WorkflowDecision{
 		TransitionDecision: TransitionDecision{
@@ -276,15 +288,15 @@ func reduceReplyPostedWithVerdict(snapshot WorkflowSnapshot, partial bool) Workf
 	}
 }
 
-func reduceWorkflowBlocked(snapshot WorkflowSnapshot, _ CommandEnvelope) WorkflowDecision {
+func reduceWorkflowNeedsHuman(snapshot WorkflowSnapshot, _ CommandEnvelope) WorkflowDecision {
 	return WorkflowDecision{
 		TransitionDecision: TransitionDecision{
 			DecisionKind: DecisionAdvance,
-			Reason:       "workflow encountered a needs-human condition",
+			Reason:       "workflow execution encountered a needs-human condition",
 			Events: []DomainEventDescriptor{{
-				Kind: "workflow_blocked",
+				Kind: "workflow_execution_needs_human",
 			}},
-			Commands: workflowEvalCommands(snapshot.TraceID, "workflow_blocked"),
+			Commands: workflowEvalCommands(snapshot.TraceID, "workflow_execution_needs_human"),
 		},
 		NextState:     WorkflowStateNeedsHuman,
 		ExpectedState: snapshot.State,
@@ -296,11 +308,11 @@ func reduceWorkflowFailed(snapshot WorkflowSnapshot, _ CommandEnvelope) Workflow
 	return WorkflowDecision{
 		TransitionDecision: TransitionDecision{
 			DecisionKind: DecisionAdvance,
-			Reason:       "workflow encountered a terminal failure",
+			Reason:       "workflow execution encountered a terminal failure",
 			Events: []DomainEventDescriptor{{
-				Kind: "workflow_failed",
+				Kind: "workflow_execution_failed",
 			}},
-			Commands: workflowEvalCommands(snapshot.TraceID, "workflow_failed"),
+			Commands: workflowEvalCommands(snapshot.TraceID, "workflow_execution_failed"),
 		},
 		NextState:     WorkflowStateFailed,
 		ExpectedState: snapshot.State,
@@ -333,17 +345,17 @@ func rejectWorkflow(state WorkflowStateKind, command WorkflowCommandKind, reason
 	}
 }
 
-func WorkflowRunnerCompletionCommand(completionVerdict string, hasReplyAction bool) WorkflowCommandKind {
+func WorkflowExecutionCompletionCommand(completionVerdict string, hasReplyAction bool) WorkflowCommandKind {
 	if hasReplyAction {
 		if completionVerdict == "partial" {
-			return CommandRunnerCompletedPartial
+			return CommandWorkflowExecutionCompletedPartial
 		}
-		return CommandRunnerCompleted
+		return CommandWorkflowExecutionCompleted
 	}
 	if completionVerdict == "partial" {
-		return CommandRunnerCompletedPartialNoReply
+		return CommandWorkflowExecutionCompletedPartialNoReply
 	}
-	return CommandRunnerCompletedNoReply
+	return CommandWorkflowExecutionCompletedNoReply
 }
 
 func WorkflowReplyPostedCommand(completionVerdict string) WorkflowCommandKind {
@@ -355,11 +367,19 @@ func WorkflowReplyPostedCommand(completionVerdict string) WorkflowCommandKind {
 
 func WorkflowCommandLastVerdict(command WorkflowCommandKind) string {
 	switch command {
-	case CommandRunnerCompletedPartial, CommandRunnerCompletedPartialNoReply, CommandReplyPostedPartial:
+	case CommandWorkflowExecutionCompletedPartial, CommandWorkflowExecutionCompletedPartialNoReply, CommandReplyPostedPartial:
 		return "partial"
 	default:
 		return ""
 	}
+}
+
+func workflowUsesChildExecution(payload map[string]any) bool {
+	if payload == nil {
+		return false
+	}
+	value, _ := payload["execution_strategy"].(string)
+	return value == "read_heavy_slack_qna"
 }
 
 func workflowEvalCommands(traceID string, trigger string) []CommandDescriptor {

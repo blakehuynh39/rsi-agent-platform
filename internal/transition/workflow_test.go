@@ -21,10 +21,10 @@ func TestReduceWorkflowRejectsIllegalCombination(t *testing.T) {
 
 func TestReduceWorkflowRunnerCompletedQueuesReply(t *testing.T) {
 	decision := ReduceWorkflow(WorkflowSnapshot{
-		State: WorkflowStateReasoning,
+		State: WorkflowStateExecuting,
 	}, CommandEnvelope{
 		MachineKind: MachineWorkflow,
-		CommandKind: string(CommandRunnerCompleted),
+		CommandKind: string(CommandWorkflowExecutionCompleted),
 		CommandID:   "cmd-runner",
 		OccurredAt:  time.Now().UTC(),
 	})
@@ -39,12 +39,35 @@ func TestReduceWorkflowRunnerCompletedQueuesReply(t *testing.T) {
 	}
 }
 
-func TestReduceWorkflowRunnerCompletedPartialQueuesReply(t *testing.T) {
+func TestReduceWorkflowContextSkippedForReadHeavySlackQnASkipsGenericRunner(t *testing.T) {
 	decision := ReduceWorkflow(WorkflowSnapshot{
-		State: WorkflowStateReasoning,
+		State: WorkflowStateCollectingContext,
 	}, CommandEnvelope{
 		MachineKind: MachineWorkflow,
-		CommandKind: string(CommandRunnerCompletedPartial),
+		CommandKind: string(CommandContextSkipped),
+		CommandID:   "cmd-context-skipped-question-run",
+		OccurredAt:  time.Now().UTC(),
+		Payload: map[string]any{
+			"execution_strategy": "read_heavy_slack_qna",
+		},
+	})
+	if decision.DecisionKind != DecisionAdvance {
+		t.Fatalf("expected advance, got %+v", decision)
+	}
+	if decision.NextState != WorkflowStateExecuting {
+		t.Fatalf("expected executing, got %s", decision.NextState)
+	}
+	if len(decision.Effects) != 0 {
+		t.Fatalf("expected no invoke_runner effect for question_run strategy, got %+v", decision.Effects)
+	}
+}
+
+func TestReduceWorkflowRunnerCompletedPartialQueuesReply(t *testing.T) {
+	decision := ReduceWorkflow(WorkflowSnapshot{
+		State: WorkflowStateExecuting,
+	}, CommandEnvelope{
+		MachineKind: MachineWorkflow,
+		CommandKind: string(CommandWorkflowExecutionCompletedPartial),
 		CommandID:   "cmd-runner-partial",
 		OccurredAt:  time.Now().UTC(),
 	})
@@ -108,10 +131,10 @@ func TestReduceWorkflowReplyPostedPartialCompletesAndQueuesFollowOnEvalCommand(t
 }
 
 func TestWorkflowTransitionHelpersReturnPartialCommands(t *testing.T) {
-	if got := WorkflowRunnerCompletionCommand("partial", true); got != CommandRunnerCompletedPartial {
+	if got := WorkflowExecutionCompletionCommand("partial", true); got != CommandWorkflowExecutionCompletedPartial {
 		t.Fatalf("expected partial reply runner command, got %s", got)
 	}
-	if got := WorkflowRunnerCompletionCommand("partial", false); got != CommandRunnerCompletedPartialNoReply {
+	if got := WorkflowExecutionCompletionCommand("partial", false); got != CommandWorkflowExecutionCompletedPartialNoReply {
 		t.Fatalf("expected partial no-reply runner command, got %s", got)
 	}
 	if got := WorkflowReplyPostedCommand("partial"); got != CommandReplyPostedPartial {
@@ -127,7 +150,7 @@ func TestWorkflowTransitionTableExplicitForKnownStates(t *testing.T) {
 		WorkflowStateQueued,
 		WorkflowStateCollectingContext,
 		WorkflowStateWaitingOnActions,
-		WorkflowStateReasoning,
+		WorkflowStateExecuting,
 		WorkflowStateReplyPending,
 		WorkflowStateNeedsHuman,
 		WorkflowStateCompleted,
@@ -139,14 +162,14 @@ func TestWorkflowTransitionTableExplicitForKnownStates(t *testing.T) {
 		CommandContextActionsQueued,
 		CommandContextSkipped,
 		CommandContextCompleted,
-		CommandRunnerCompleted,
-		CommandRunnerCompletedPartial,
-		CommandRunnerCompletedNoReply,
-		CommandRunnerCompletedPartialNoReply,
+		CommandWorkflowExecutionCompleted,
+		CommandWorkflowExecutionCompletedPartial,
+		CommandWorkflowExecutionCompletedNoReply,
+		CommandWorkflowExecutionCompletedPartialNoReply,
 		CommandReplyPosted,
 		CommandReplyPostedPartial,
-		CommandWorkflowBlocked,
-		CommandWorkflowFailed,
+		CommandWorkflowExecutionNeedsHuman,
+		CommandWorkflowExecutionFailed,
 		CommandWorkflowSuperseded,
 	}
 	for _, state := range states {

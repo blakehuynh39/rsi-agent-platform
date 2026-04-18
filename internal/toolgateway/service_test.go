@@ -1132,7 +1132,7 @@ func TestRSITraceContextReturnsTraceEvidence(t *testing.T) {
 	if _, err := store.SubmitCommand(transition.CommandEnvelope{
 		MachineKind: transition.MachineWorkflow,
 		AggregateID: workflow.ID,
-		CommandKind: string(transition.CommandWorkflowFailed),
+		CommandKind: string(transition.CommandWorkflowExecutionFailed),
 		CommandID:   "cmd-toolgateway-trace-context-workflow-failed",
 		OccurredAt:  time.Now().UTC(),
 		Payload: map[string]any{

@@ -1079,6 +1079,164 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("workspace.read_file", result.raw["tool_allowlist_effective"])
         self.assertIn("workspace.write_file", result.raw["blocked_tool_names"])
 
+    def test_question_reduce_uses_direct_responses_reducer_without_hermes_loop(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "question_reduce",
+                    "repo": "depin-backend",
+                    "prompt": json.dumps(
+                        {
+                            "investigation_spec": {
+                                "user_request": "How did depin-backend API progress this week for the numo project?",
+                                "repo": "depin-backend",
+                                "project_key": "numo",
+                            },
+                            "evidence_ledger": {
+                                "user_request": "How did depin-backend API progress this week for the numo project?",
+                                "reply_target": {"channel_id": "C123", "thread_ts": "171000001.000100"},
+                                "evidence_items": [
+                                    {
+                                        "kind": "slack_message",
+                                        "summary": "[alice] Merged the pagination cleanup PR.",
+                                        "source_ref": "https://slack.example/messages/1",
+                                        "tool_name": "slack.history",
+                                    }
+                                ],
+                            },
+                            "runner_diagnostics": {
+                                "termination_reason": "task_timeout",
+                            },
+                        }
+                    ),
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                    "user_peer_id": "user:alice",
+                }
+            }
+        )
+        captured_requests: list[dict[str, object]] = []
+
+        def fake_urlopen(req, timeout: int = 0):
+            captured_requests.append(
+                {
+                    "url": req.full_url,
+                    "timeout": timeout,
+                    "body": json.loads(req.data.decode("utf-8")),
+                }
+            )
+            return FakeHTTPResponse(
+                {
+                    "id": "resp_question_reduce_1",
+                    "output_text": json.dumps(
+                        {
+                            "reply_markdown": "Partial rundown: pagination cleanup landed, but the weekly picture is incomplete.",
+                            "confidence": 0.68,
+                            "alignment_degraded": True,
+                            "alignment_notice": "NUMO alignment is degraded because no fresh canonical project ledger was available.",
+                        }
+                    ),
+                }
+            )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch("rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen), mock.patch.dict(
+            os.environ, runner_env("prod"), clear=True
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertIsNone(FakeAIAgent.last_kwargs)
+        self.assertEqual(len(captured_requests), 1)
+        self.assertEqual(captured_requests[0]["url"], "https://api.openai.com/v1/responses")
+        self.assertNotIn("tools", captured_requests[0]["body"])
+        self.assertEqual(result.raw["question_reduce_mode"], "direct_responses_api")
+        self.assertEqual(result.raw["completion_verdict"], "partial")
+        self.assertEqual(result.raw["termination_reason"], "task_timeout")
+        self.assertEqual(result.raw["structured_output"]["reply_markdown"], "Partial rundown: pagination cleanup landed, but the weekly picture is incomplete.")
+
+    def test_question_expand_query_hints_prevent_prompt_blob_leakage_into_tool_defaults(self) -> None:
+        captured: dict[str, object] = {}
+
+        class FakeResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb) -> bool:
+                return False
+
+            def read(self) -> bytes:
+                return json.dumps(
+                    {
+                        "status": "completed",
+                        "available": True,
+                        "summary": "Slack thread history loaded.",
+                        "provider": "slack",
+                        "provider_ref": "171000001.000100",
+                        "output": {"messages": []},
+                    }
+                ).encode("utf-8")
+
+        def fake_tool_urlopen(req, timeout: int = 0):
+            captured["body"] = json.loads(req.data.decode("utf-8"))
+            return FakeResponse()
+
+        binding = ReadOnlyToolBinding(
+            base_url="http://tool-gateway.internal",
+            allowed_tool_names=["slack.history", "slack.search", "knowledge.context", "repo.context"],
+            task_repo="depin-backend",
+            task_repo_ref="main",
+            task_prompt=json.dumps(
+                {
+                    "investigation_spec": {
+                        "user_request": "How did depin-backend API progress this week for the numo project?",
+                        "repo": "depin-backend",
+                        "project_key": "numo",
+                    },
+                    "evidence_ledger": {"open_questions": ["Need better Slack evidence."]},
+                }
+            ),
+            task_channel_id="C123",
+            task_thread_ts="171000001.000100",
+            task_context_summary="read-heavy qna",
+            trace_id="trace-123",
+            session_scope_kind="conversation",
+            session_scope_id="conv-123",
+            context_refs=[],
+            default_question="How did depin-backend API progress this week for the numo project?",
+            repo_question="How did depin-backend API progress this week for the numo project?",
+            knowledge_topic="numo",
+            knowledge_question="What are the current goals, constraints, and expected outcomes for numo?",
+            slack_history_focus="Extract the most relevant messages for answering: How did depin-backend API progress this week for the numo project?",
+            slack_search_query="depin-backend numo",
+        )
+
+        with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_tool_urlopen):
+            _ = json.loads(binding.handle_tool_call("slack_history", {}))
+        self.assertEqual(
+            captured["body"]["question"],
+            "Extract the most relevant messages for answering: How did depin-backend API progress this week for the numo project?",
+        )
+
+        with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_tool_urlopen):
+            _ = json.loads(binding.handle_tool_call("slack_search", {}))
+        self.assertEqual(captured["body"]["query"], "depin-backend numo")
+
+        with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_tool_urlopen):
+            _ = json.loads(binding.handle_tool_call("knowledge_context", {}))
+        self.assertEqual(captured["body"]["topic"], "numo")
+        self.assertEqual(captured["body"]["question"], "What are the current goals, constraints, and expected outcomes for numo?")
+
+        with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_tool_urlopen):
+            _ = json.loads(binding.handle_tool_call("repo_context", {}))
+        self.assertEqual(captured["body"]["question"], "How did depin-backend API progress this week for the numo project?")
+
     def test_proactive_role_accepts_workflow_task_type(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {

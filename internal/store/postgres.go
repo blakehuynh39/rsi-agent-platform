@@ -290,6 +290,9 @@ func loadStore(r sqlReader) (*MemoryStore, error) {
 	if err := loadWorkflows(r, store); err != nil {
 		return nil, err
 	}
+	if err := loadQuestionRuns(r, store); err != nil {
+		return nil, err
+	}
 	if err := loadAssignments(r, store); err != nil {
 		return nil, err
 	}
@@ -388,6 +391,7 @@ func persistStore(tx *sql.Tx, store *MemoryStore) error {
 		"trace_event",
 		"trace_summary",
 		"assignment",
+		"question_run",
 		"workflow_line",
 		"workflow",
 		"ingestion",
@@ -462,6 +466,9 @@ func persistStore(tx *sql.Tx, store *MemoryStore) error {
 		return err
 	}
 	if err := persistWorkflows(tx, store); err != nil {
+		return err
+	}
+	if err := persistQuestionRuns(tx, store); err != nil {
 		return err
 	}
 	if err := persistAssignments(tx, store); err != nil {

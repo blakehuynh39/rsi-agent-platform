@@ -111,6 +111,12 @@ def _default_payload(canonical_name: str, payload: JsonObject) -> JsonObject:
     task_channel_id = str(payload.get("task_channel_id", "") or payload.get("channel_id", "")).strip()
     task_thread_ts = str(payload.get("task_thread_ts", "") or payload.get("thread_ts", "")).strip()
     context_summary = str(payload.get("context_summary", "") or "").strip()
+    default_question = str(payload.get("task_default_question", "") or task_prompt).strip()
+    repo_question = str(payload.get("task_repo_question", "") or default_question or context_summary).strip()
+    knowledge_topic = str(payload.get("task_knowledge_topic", "") or context_summary or task_repo).strip()
+    knowledge_question = str(payload.get("task_knowledge_question", "") or default_question or context_summary).strip()
+    slack_history_focus = str(payload.get("task_slack_history_focus", "") or default_question).strip()
+    slack_search_query = str(payload.get("task_slack_search_query", "") or default_question).strip()
     session_scope_kind = str(payload.get("session_scope_kind", "") or "").strip()
     session_scope_id = str(payload.get("session_scope_id", "") or "").strip()
     trace_id = str(payload.get("trace_id", "") or "").strip()
@@ -123,11 +129,13 @@ def _default_payload(canonical_name: str, payload: JsonObject) -> JsonObject:
         out["repo"] = task_repo
     if canonical_name in {"repo.read_file", "repo.search"} and task_repo_ref:
         out["ref"] = task_repo_ref
-    if canonical_name == "repo.context":
-        out["question"] = task_prompt
+    if canonical_name == "repo.context" and repo_question:
+        out["question"] = repo_question
     if canonical_name == "knowledge.context":
-        out["question"] = task_prompt
-        out["topic"] = task_prompt or context_summary
+        if knowledge_question:
+            out["question"] = knowledge_question
+        if knowledge_topic:
+            out["topic"] = knowledge_topic
         out["scope_id"] = task_repo
     if canonical_name == "slack.history":
         surface = _default_slack_surface(payload)
@@ -135,14 +143,14 @@ def _default_payload(canonical_name: str, payload: JsonObject) -> JsonObject:
             out["channel_id"] = str(surface.get("channel_id", "")).strip()
         if surface.get("thread_ts"):
             out["thread_ts"] = str(surface.get("thread_ts", "")).strip()
-        if task_prompt:
-            out["question"] = task_prompt
+        if slack_history_focus:
+            out["question"] = slack_history_focus
     if canonical_name == "slack.search":
         channel_ids = _default_slack_channel_ids(payload)
         if channel_ids:
             out["channel_ids"] = channel_ids
-        if task_prompt:
-            out["query"] = task_prompt
+        if slack_search_query:
+            out["query"] = slack_search_query
     if canonical_name == "github.repo_activity":
         since, until = _activity_window(payload)
         if since:

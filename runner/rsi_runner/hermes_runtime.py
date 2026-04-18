@@ -35,8 +35,8 @@ from .rsi_tools import (
 from .session_manager import SessionContext, SessionManager
 
 ROLE_TASK_TYPES = {
-    "prod": {"general", "workflow", "prod"},
-    "proactive": {"general", "workflow", "proactive"},
+    "prod": {"general", "workflow", "prod", "question_expand", "question_reduce"},
+    "proactive": {"general", "workflow", "proactive", "question_expand", "question_reduce"},
     "eval": {"general", "eval"},
     "proposal": {"general", "proposal", "repo-change"},
 }
@@ -1104,10 +1104,24 @@ class HermesRuntime:
     def _resolve_tool_policy(self, task: RunnerTaskRequest) -> ToolPolicy:
         requested = normalize_tool_names([*task.allowed_tools, *task.tool_allowlist])
         execution_mode = (task.execution_mode or "").strip().lower()
+        if task.task_type == "question_reduce":
+            return ToolPolicy(
+                mode="no_tools",
+                requested=requested,
+                effective=[],
+                blocked=requested,
+                memory_tools=[],
+                custom_tools=[],
+                transport_effective=[],
+                custom_tool_transport_map={},
+            )
         permitted = set(self._default_policy_allowlist(execution_mode=execution_mode))
         if self._config.tool_gateway_base_url and (task.workspace_id or task.attempt_id):
             permitted.update(READ_ONLY_WORKSPACE_RSI_TOOL_NAMES)
-        effective = normalize_tool_names(requested or sorted(permitted))
+        fallback_allowlist = sorted(permitted)
+        if task.task_type == "question_expand" and requested:
+            fallback_allowlist = requested
+        effective = normalize_tool_names(requested or fallback_allowlist)
         effective = [name for name in effective if name in permitted]
         blocked = [name for name in requested if name not in permitted]
         memory_tools = sorted([name for name in effective if name in READ_ONLY_HONCHO_TOOLS])
@@ -1182,6 +1196,7 @@ class HermesRuntime:
         return max(0, timeout_seconds)
 
     def _stage_task_context(self, session_id: str, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> None:
+        query_hints = self._question_default_query_hints(task)
         self._adapter.stage_task_context(
             session_id,
             {
@@ -1199,6 +1214,12 @@ class HermesRuntime:
                 "workspace_id": task.workspace_id,
                 "execution_mode": task.execution_mode or "",
                 "context_summary": task.context_summary or "",
+                "task_default_question": query_hints.get("default_question", ""),
+                "task_repo_question": query_hints.get("repo_question", ""),
+                "task_knowledge_topic": query_hints.get("knowledge_topic", ""),
+                "task_knowledge_question": query_hints.get("knowledge_question", ""),
+                "task_slack_history_focus": query_hints.get("slack_history_focus", ""),
+                "task_slack_search_query": query_hints.get("slack_search_query", ""),
                 "context_refs": task.context_refs,
                 "tool_gateway_base_url": self._config.tool_gateway_base_url or "",
                 "tool_timeout_seconds": 30,
@@ -1237,6 +1258,50 @@ class HermesRuntime:
         if marker in prompt:
             return prompt.rsplit(marker, 1)[1].strip()
         return prompt
+
+    def _question_task_payload(self, task: RunnerTaskRequest) -> JsonObject:
+        if task.task_type not in {"question_expand", "question_reduce"}:
+            return {}
+        try:
+            parsed = json.loads(task.prompt)
+        except json.JSONDecodeError:
+            return {}
+        if not isinstance(parsed, dict):
+            return {}
+        return parsed
+
+    def _question_investigation_spec(self, task: RunnerTaskRequest) -> JsonObject:
+        return _json_object_or_empty(self._question_task_payload(task).get("investigation_spec"))
+
+    def _question_input_evidence_ledger(self, task: RunnerTaskRequest) -> JsonObject:
+        return _json_object_or_empty(self._question_task_payload(task).get("evidence_ledger"))
+
+    def _question_input_runner_diagnostics(self, task: RunnerTaskRequest) -> JsonObject:
+        return _json_object_or_empty(self._question_task_payload(task).get("runner_diagnostics"))
+
+    def _question_default_query_hints(self, task: RunnerTaskRequest) -> JsonObject:
+        original_prompt = self._original_task_prompt(task)
+        spec = self._question_investigation_spec(task)
+        repo = first_non_empty(_string_or_json(spec.get("repo")), task.repo)
+        project_key = _string_or_json(spec.get("project_key"))
+        user_request = first_non_empty(_string_or_json(spec.get("user_request")), original_prompt)
+        slack_query_parts = [part for part in [repo, project_key] if part]
+        slack_search_query = " ".join(slack_query_parts) if slack_query_parts else user_request
+        history_focus = user_request
+        if user_request:
+            history_focus = f"Extract the most relevant messages for answering: {user_request}"
+        knowledge_topic = first_non_empty(project_key, repo, task.context_summary or "", user_request)
+        knowledge_question = user_request
+        if project_key:
+            knowledge_question = f"What are the current goals, constraints, and expected outcomes for {project_key}?"
+        return {
+            "default_question": first_non_empty(user_request, original_prompt),
+            "repo_question": first_non_empty(user_request, original_prompt),
+            "knowledge_topic": knowledge_topic,
+            "knowledge_question": first_non_empty(knowledge_question, user_request, original_prompt),
+            "slack_history_focus": first_non_empty(history_focus, user_request, original_prompt),
+            "slack_search_query": first_non_empty(slack_search_query, user_request, original_prompt),
+        }
 
     def _compact_tool_calls(self, observed: JsonObject, *, limit: int = 12) -> list[JsonObject]:
         compact: list[JsonObject] = []
@@ -1356,7 +1421,44 @@ class HermesRuntime:
             ledger["workflow_id"] = task.workflow_id
         return ledger
 
+    def _build_question_evidence_ledger(self, task: RunnerTaskRequest, observed: JsonObject, termination_reason: str) -> JsonObject:
+        spec = self._question_investigation_spec(task)
+        input_ledger = dict(self._question_input_evidence_ledger(task))
+        tool_calls = self._merge_runtime_values(input_ledger.get("tool_calls"), self._compact_tool_calls(observed))
+        evidence_items = self._merge_runtime_values(input_ledger.get("evidence_items"), self._compact_evidence_items(observed))
+        open_questions = self._merge_runtime_values(
+            input_ledger.get("open_questions"),
+            self._evidence_open_questions(_json_object_list(tool_calls), _json_object_list(evidence_items)),
+        )
+        missing_evidence = self._merge_runtime_values(input_ledger.get("missing_evidence"), input_ledger.get("insufficiency_markers"))
+        ledger: JsonObject = {
+            "user_request": first_non_empty(_string_or_json(spec.get("user_request")), _string_or_json(input_ledger.get("user_request")), self._original_task_prompt(task)),
+            "reply_target": input_ledger.get("reply_target")
+            or {
+                "channel_id": task.channel_id or "",
+                "thread_ts": task.thread_ts or "",
+            },
+            "repo": first_non_empty(_string_or_json(spec.get("repo")), _string_or_json(input_ledger.get("repo")), task.repo),
+            "project_key": first_non_empty(_string_or_json(spec.get("project_key")), _string_or_json(input_ledger.get("project_key"))),
+            "since": first_non_empty(_string_or_json(spec.get("since")), _string_or_json(input_ledger.get("since"))),
+            "until": first_non_empty(_string_or_json(spec.get("until")), _string_or_json(input_ledger.get("until"))),
+            "alignment_required": _bool_or_false(_first_non_none(spec.get("alignment_required"), input_ledger.get("alignment_required"))),
+            "alignment_degraded": _bool_or_false(input_ledger.get("alignment_degraded")),
+            "termination_reason": termination_reason,
+            "tool_calls": tool_calls,
+            "evidence_items": evidence_items,
+            "open_questions": open_questions,
+            "missing_evidence": missing_evidence,
+            "draft_reply_candidates": self._merge_runtime_values(input_ledger.get("draft_reply_candidates")),
+        }
+        alignment_ledger = _json_object_or_empty(input_ledger.get("alignment_ledger"))
+        if alignment_ledger:
+            ledger["alignment_ledger"] = alignment_ledger
+        return ledger
+
     def _workflow_evidence_raw(self, task: RunnerTaskRequest, observed: JsonObject, termination_reason: str) -> JsonObject:
+        if task.task_type == "question_expand":
+            return {"evidence_ledger": self._build_question_evidence_ledger(task, observed, termination_reason)}
         if task.task_type != "workflow":
             return {}
         return {"evidence_ledger": self._build_evidence_ledger(task, observed, termination_reason)}
@@ -1447,33 +1549,25 @@ class HermesRuntime:
                     collected.append(candidate)
         return "\n".join(part for part in collected if part)
 
-    def _invoke_partial_reducer(
+    def _invoke_direct_json_response(
         self,
-        task: RunnerTaskRequest,
-        termination_reason: str,
-        evidence_ledger: JsonObject,
         *,
+        system_prompt: str,
+        user_prompt: str,
         timeout_seconds: int,
-        previous_error: str = "",
-        previous_response: str = "",
+        reasoning_effort: str = "low",
     ) -> PartialReducerAttemptResult:
         if self._provider != "openai" or not self._api_key:
             return PartialReducerAttemptResult(
                 ok=False,
                 response_text="",
                 structured_output={},
-                error="Direct bounded-stop reduction requires OpenAI Responses API credentials.",
+                error="Direct JSON reduction requires OpenAI Responses API credentials.",
                 provider_response_id="",
             )
-        system_prompt = self._partial_reducer_system_prompt()
-        user_prompt = self._partial_reducer_user_prompt(
-            task,
-            termination_reason,
-            evidence_ledger,
-            previous_error=previous_error,
-            previous_response=previous_response,
-        )
         payload = self._partial_reducer_request_payload(system_prompt, user_prompt)
+        if reasoning_effort and reasoning_effort != "low":
+            payload["reasoning"] = {"effort": reasoning_effort}
         req = urlrequest.Request(
             f"{self._base_url.rstrip('/')}/responses",
             data=json.dumps(payload).encode("utf-8"),
@@ -1492,7 +1586,7 @@ class HermesRuntime:
                 ok=False,
                 response_text="",
                 structured_output={},
-                error=f"Direct bounded-stop reducer returned {exc.code}: {detail[:2000]}",
+                error=f"Direct reducer returned {exc.code}: {detail[:2000]}",
                 provider_response_id="",
             )
         except (TimeoutError, socket.timeout) as exc:
@@ -1500,7 +1594,7 @@ class HermesRuntime:
                 ok=False,
                 response_text="",
                 structured_output={},
-                error=f"Direct bounded-stop reducer timed out after {max(1, timeout_seconds)}s: {exc}",
+                error=f"Direct reducer timed out after {max(1, timeout_seconds)}s: {exc}",
                 provider_response_id="",
             )
         except (urlerror.URLError, ConnectionError, OSError) as exc:
@@ -1508,7 +1602,7 @@ class HermesRuntime:
                 ok=False,
                 response_text="",
                 structured_output={},
-                error=f"Direct bounded-stop reducer request failed: {exc}",
+                error=f"Direct reducer request failed: {exc}",
                 provider_response_id="",
             )
         try:
@@ -1518,7 +1612,7 @@ class HermesRuntime:
                 ok=False,
                 response_text=body[:4000],
                 structured_output={},
-                error="Direct bounded-stop reducer returned invalid JSON.",
+                error="Direct reducer returned invalid JSON.",
                 provider_response_id="",
             )
         if not isinstance(parsed, dict):
@@ -1526,7 +1620,7 @@ class HermesRuntime:
                 ok=False,
                 response_text="",
                 structured_output={},
-                error="Direct bounded-stop reducer returned a non-object JSON payload.",
+                error="Direct reducer returned a non-object JSON payload.",
                 provider_response_id="",
             )
         response_text = self._responses_output_text(parsed)
@@ -1536,7 +1630,7 @@ class HermesRuntime:
                 ok=False,
                 response_text="",
                 structured_output={},
-                error="Direct bounded-stop reducer returned an empty response.",
+                error="Direct reducer returned an empty response.",
                 provider_response_id=provider_response_id,
             )
         try:
@@ -1555,6 +1649,131 @@ class HermesRuntime:
             structured_output=structured_output,
             error="",
             provider_response_id=provider_response_id,
+        )
+
+    def _invoke_partial_reducer(
+        self,
+        task: RunnerTaskRequest,
+        termination_reason: str,
+        evidence_ledger: JsonObject,
+        *,
+        timeout_seconds: int,
+        previous_error: str = "",
+        previous_response: str = "",
+    ) -> PartialReducerAttemptResult:
+        if self._provider != "openai" or not self._api_key:
+            return PartialReducerAttemptResult(
+                ok=False,
+                response_text="",
+                structured_output={},
+                error="Direct bounded-stop reduction requires OpenAI Responses API credentials.",
+                provider_response_id="",
+            )
+        return self._invoke_direct_json_response(
+            system_prompt=self._partial_reducer_system_prompt(),
+            user_prompt=self._partial_reducer_user_prompt(
+                task,
+                termination_reason,
+                evidence_ledger,
+                previous_error=previous_error,
+                previous_response=previous_response,
+            ),
+            timeout_seconds=timeout_seconds,
+            reasoning_effort="low",
+        )
+
+    def _question_reduce_system_prompt(self) -> str:
+        return "\n".join(
+            [
+                "You reduce a read-heavy RSI Slack Q&A evidence ledger into one final reply.",
+                "Use only the supplied investigation spec, evidence ledger, and runner diagnostics.",
+                "Do not call tools. Do not speculate beyond the supplied evidence.",
+                "Return only one JSON object with keys: reply_markdown, confidence, completion_verdict, termination_reason, alignment_degraded, alignment_notice.",
+                "reply_markdown must be grounded, concise, and ready for Slack posting.",
+                "Use completion_verdict=partial when the supplied diagnostics or ledger indicate a bounded stop such as task_timeout or iteration_budget_exhausted.",
+                "When alignment evidence is degraded, set alignment_degraded=true and explain the limitation in alignment_notice.",
+            ]
+        )
+
+    def _question_reduce_user_prompt(self, task: RunnerTaskRequest) -> str:
+        payload = self._question_task_payload(task)
+        return "\n\n".join(
+            [
+                "Reduce the following read-heavy Slack Q&A workflow into a final JSON reply.",
+                json.dumps(payload, ensure_ascii=True, sort_keys=True, indent=2),
+                "Return JSON only.",
+            ]
+        )
+
+    def _question_reduce_defaults(self, task: RunnerTaskRequest) -> tuple[str, str]:
+        ledger = self._question_input_evidence_ledger(task)
+        diagnostics = self._question_input_runner_diagnostics(task)
+        termination_reason = first_non_empty(
+            _string_or_json(diagnostics.get("termination_reason")),
+            _string_or_json(ledger.get("termination_reason")),
+            "normal_completion",
+        )
+        verdict = "partial" if termination_reason in {"task_timeout", "iteration_budget_exhausted"} else "complete"
+        return verdict, termination_reason
+
+    def _execute_question_reduce_task(self, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> HermesExecutionResult:
+        timeout_seconds = min(self._effective_task_timeout(task), max(1, self._transport_timeout_seconds - 5))
+        attempt = self._invoke_direct_json_response(
+            system_prompt=self._question_reduce_system_prompt(),
+            user_prompt=self._question_reduce_user_prompt(task),
+            timeout_seconds=timeout_seconds,
+            reasoning_effort="medium",
+        )
+        if not attempt.ok:
+            message = first_non_empty(attempt.error, "Question reducer failed.")
+            return HermesExecutionResult(
+                ok=False,
+                message=message,
+                provider=self._backend,
+                raw={
+                    **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                    "failure_class": "runner_non_ok",
+                    "runner_diagnostics": {
+                        "failure_kind": "question_reduce_failed",
+                        "provider_error_message": message,
+                    },
+                    "tool_policy_mode": tool_policy.mode,
+                    "tool_allowlist_effective": tool_policy.effective,
+                    "tool_transport_allowlist_effective": tool_policy.transport_effective,
+                    "blocked_tool_names": tool_policy.blocked,
+                    "task_timeout_seconds": self._effective_task_timeout(task),
+                    "transport_timeout_seconds": self._transport_timeout_seconds,
+                    "task_type": task.task_type,
+                },
+            )
+        completion_verdict, termination_reason = self._question_reduce_defaults(task)
+        structured_output = dict(attempt.structured_output)
+        structured_output["completion_verdict"] = first_non_empty(_string_or_json(structured_output.get("completion_verdict")), completion_verdict)
+        structured_output["termination_reason"] = first_non_empty(_string_or_json(structured_output.get("termination_reason")), termination_reason)
+        return HermesExecutionResult(
+            ok=True,
+            message=json.dumps(structured_output, ensure_ascii=True, sort_keys=True),
+            provider=self._backend,
+            raw={
+                **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                "task_timeout_seconds": self._effective_task_timeout(task),
+                "transport_timeout_seconds": self._transport_timeout_seconds,
+                "tool_policy_mode": tool_policy.mode,
+                "tool_allowlist_effective": tool_policy.effective,
+                "tool_transport_allowlist_effective": tool_policy.transport_effective,
+                "blocked_tool_names": tool_policy.blocked,
+                "runner_diagnostics": {
+                    "completion_verdict": structured_output["completion_verdict"],
+                    "termination_reason": structured_output["termination_reason"],
+                    "question_reduce_mode": "direct_responses_api",
+                },
+                "completion_verdict": structured_output["completion_verdict"],
+                "termination_reason": structured_output["termination_reason"],
+                "structured_output": structured_output,
+                "task_type": task.task_type,
+                "question_reduce_mode": "direct_responses_api",
+                "provider_response_id": attempt.provider_response_id,
+            },
         )
 
     def _partial_completion_idempotency_key(self, task: RunnerTaskRequest, termination_reason: str) -> str:
@@ -1916,6 +2135,7 @@ class HermesRuntime:
         native_governed_tools = self._native_governed_tools_enabled(task)
         allowed_names = set(tool_policy.effective)
         filtered_tools = current_tools
+        query_hints = self._question_default_query_hints(task)
         if native_governed_tools:
             allowed_transport_names = {
                 _transport_name_or_self(name)
@@ -1937,6 +2157,12 @@ class HermesRuntime:
                 task_repo=task.repo,
                 task_repo_ref=task.repo_ref or "",
                 task_prompt=task.prompt,
+                default_question=str(query_hints.get("default_question", "")),
+                repo_question=str(query_hints.get("repo_question", "")),
+                knowledge_topic=str(query_hints.get("knowledge_topic", "")),
+                knowledge_question=str(query_hints.get("knowledge_question", "")),
+                slack_history_focus=str(query_hints.get("slack_history_focus", "")),
+                slack_search_query=str(query_hints.get("slack_search_query", "")),
                 task_channel_id=task.channel_id or "",
                 task_thread_ts=task.thread_ts or "",
                 task_context_summary=task.context_summary or "",
@@ -1957,6 +2183,12 @@ class HermesRuntime:
                 task_repo=task.repo,
                 task_repo_ref=task.repo_ref or "",
                 task_prompt=task.prompt,
+                default_question=str(query_hints.get("default_question", "")),
+                repo_question=str(query_hints.get("repo_question", "")),
+                knowledge_topic=str(query_hints.get("knowledge_topic", "")),
+                knowledge_question=str(query_hints.get("knowledge_question", "")),
+                slack_history_focus=str(query_hints.get("slack_history_focus", "")),
+                slack_search_query=str(query_hints.get("slack_search_query", "")),
                 task_channel_id=task.channel_id or "",
                 task_thread_ts=task.thread_ts or "",
                 task_context_summary=task.context_summary or "",
@@ -2081,6 +2313,8 @@ class HermesRuntime:
                 raw={"role": self._role, "task_type": task.task_type},
             )
         tool_policy = self._resolve_tool_policy(task)
+        if task.task_type == "question_reduce":
+            return self._execute_question_reduce_task(task, tool_policy)
         prompt = self._render_task_prompt(task, tool_policy)
         rendered_task = replace(task, prompt=prompt)
         result = self._execute_task_request(rendered_task, tool_policy)
@@ -2372,6 +2606,14 @@ class HermesRuntime:
             f"Tool policy mode: {tool_policy.mode}",
             "Detailed RSI evidence is injected through the Hermes context engine rather than appended inline to this prompt.",
         ]
+        if task.task_type == "question_expand":
+            question_payload = self._question_task_payload(task)
+            parts.append("Expand the evidence ledger with bounded, grounded read-only retrieval.")
+            parts.append("Return only one JSON object with keys: tool_calls, evidence_items, open_questions, insufficiency_markers, confidence.")
+            parts.append("Do not answer the user. Do not emit reply text, actions, or knowledge drafts.")
+            parts.append("Use the current evidence ledger to close the most important remaining gaps only.")
+            parts.append(f"Question run payload:\n{json.dumps(question_payload, ensure_ascii=True, sort_keys=True, indent=2)}")
+            return "\n".join(parts)
         if task.repo_ref:
             parts.append(f"Repository ref: {task.repo_ref}")
         if task.intent:

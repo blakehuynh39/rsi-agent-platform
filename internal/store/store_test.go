@@ -687,7 +687,7 @@ func TestMemoryStoreSubmitCommandWorkflowCompletesThroughReducerStates(t *testin
 		{
 			MachineKind: transition.MachineWorkflow,
 			AggregateID: workflow.ID,
-			CommandKind: string(transition.CommandRunnerCompletedPartial),
+			CommandKind: string(transition.CommandWorkflowExecutionCompletedPartial),
 			CommandID:   "cmd-workflow-runner-completed",
 			OccurredAt:  now.Add(2 * time.Second),
 		},
@@ -758,7 +758,7 @@ func TestMemoryStoreSubmitCommandWorkflowFailurePersistsLastError(t *testing.T) 
 	if _, err := store.SubmitCommand(transition.CommandEnvelope{
 		MachineKind: transition.MachineWorkflow,
 		AggregateID: workflow.ID,
-		CommandKind: string(transition.CommandWorkflowFailed),
+		CommandKind: string(transition.CommandWorkflowExecutionFailed),
 		CommandID:   "cmd-workflow-failed",
 		OccurredAt:  now,
 		Payload: map[string]any{
@@ -999,9 +999,76 @@ func TestMemoryStoreSubmitCommandContextTransitionsProjectTraceArtifacts(t *test
 		}
 		t.Fatal("expected runner.started event to be projected from context_skipped")
 	})
+
+	t.Run("question run strategy delegates child execution", func(t *testing.T) {
+		store := NewMemoryStore()
+		workflow := store.ListWorkflows()[0]
+		trace, ok := store.GetTrace(workflow.TraceID)
+		if !ok {
+			t.Fatalf("expected trace %s", workflow.TraceID)
+		}
+		now := time.Now().UTC()
+		questionRunStarted := events.TraceEvent{
+			TraceID:     trace.Summary.TraceID,
+			IngestionID: trace.Summary.IngestionID,
+			WorkflowID:  trace.Summary.WorkflowID,
+			Plane:       "execution",
+			Service:     "control-plane",
+			Actor:       "arch",
+			EventType:   "question_run.started",
+			Status:      events.StatusRunning,
+			StartedAt:   now.Add(time.Second),
+			Description: "Question run child dispatched for read-heavy Slack Q&A.",
+		}
+		if _, err := store.SubmitCommand(transition.CommandEnvelope{
+			MachineKind: transition.MachineWorkflow,
+			AggregateID: workflow.ID,
+			CommandKind: string(transition.CommandWorkflowStarted),
+			CommandID:   "cmd-question-run-started",
+			OccurredAt:  now,
+		}); err != nil {
+			t.Fatalf("SubmitCommand(workflow_started) error = %v", err)
+		}
+		if _, err := store.SubmitCommand(transition.CommandEnvelope{
+			MachineKind: transition.MachineWorkflow,
+			AggregateID: workflow.ID,
+			CommandKind: string(transition.CommandContextSkipped),
+			CommandID:   "cmd-question-run-context-skipped",
+			OccurredAt:  now.Add(time.Second),
+			Payload: map[string]any{
+				"execution_strategy": "read_heavy_slack_qna",
+				"execution_role":     "prod",
+				"tool_count":         0,
+				"trace_events":       []events.TraceEvent{questionRunStarted},
+			},
+		}); err != nil {
+			t.Fatalf("SubmitCommand(context_skipped question_run) error = %v", err)
+		}
+		trace, ok = store.GetTrace(workflow.TraceID)
+		if !ok {
+			t.Fatalf("expected trace %s", workflow.TraceID)
+		}
+		found := false
+		for _, event := range trace.Events {
+			if event.EventType == "question_run.started" {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Fatal("expected question_run.started event to be projected from context_skipped")
+		}
+		effects := store.ListEffectExecutions()
+		for _, effect := range effects {
+			if effect.MachineKind == transition.MachineQuestionRun && effect.EffectKind == transition.EffectCompileInvestigationSpec {
+				return
+			}
+		}
+		t.Fatal("expected compile_investigation_spec effect to be queued for question_run strategy")
+	})
 }
 
-func TestMemoryStoreSubmitCommandWorkflowBlockedProjectsNeedsHumanTrace(t *testing.T) {
+func TestMemoryStoreSubmitCommandWorkflowExecutionNeedsHumanProjectsNeedsHumanTrace(t *testing.T) {
 	store := NewMemoryStore()
 	workflow := store.ListWorkflows()[0]
 	trace, ok := store.GetTrace(workflow.TraceID)
@@ -1014,14 +1081,14 @@ func TestMemoryStoreSubmitCommandWorkflowBlockedProjectsNeedsHumanTrace(t *testi
 	if _, err := store.SubmitCommand(transition.CommandEnvelope{
 		MachineKind: transition.MachineWorkflow,
 		AggregateID: workflow.ID,
-		CommandKind: string(transition.CommandWorkflowBlocked),
+		CommandKind: string(transition.CommandWorkflowExecutionNeedsHuman),
 		CommandID:   "cmd-workflow-blocked",
 		OccurredAt:  now,
 		Payload: map[string]any{
 			"last_error": "channel_autopost_disabled",
 		},
 	}); err != nil {
-		t.Fatalf("SubmitCommand(workflow_blocked) error = %v", err)
+		t.Fatalf("SubmitCommand(workflow_execution_needs_human) error = %v", err)
 	}
 
 	updated, ok := findWorkflowByID(store.ListWorkflows(), workflow.ID)
@@ -1050,7 +1117,7 @@ func TestMemoryStoreSubmitCommandWorkflowBlockedProjectsNeedsHumanTrace(t *testi
 	}
 }
 
-func TestMemoryStoreSubmitCommandWorkflowBlockedProjectsAttachedFailureArtifacts(t *testing.T) {
+func TestMemoryStoreSubmitCommandWorkflowExecutionNeedsHumanProjectsAttachedFailureArtifacts(t *testing.T) {
 	store := NewMemoryStore()
 	workflow := store.ListWorkflows()[0]
 	trace, ok := store.GetTrace(workflow.TraceID)
@@ -1077,7 +1144,7 @@ func TestMemoryStoreSubmitCommandWorkflowBlockedProjectsAttachedFailureArtifacts
 	if _, err := store.SubmitCommand(transition.CommandEnvelope{
 		MachineKind: transition.MachineWorkflow,
 		AggregateID: workflow.ID,
-		CommandKind: string(transition.CommandWorkflowBlocked),
+		CommandKind: string(transition.CommandWorkflowExecutionNeedsHuman),
 		CommandID:   "cmd-workflow-blocked-with-detail",
 		OccurredAt:  now,
 		Payload: map[string]any{
@@ -1085,7 +1152,7 @@ func TestMemoryStoreSubmitCommandWorkflowBlockedProjectsAttachedFailureArtifacts
 			"trace_events": []events.TraceEvent{detailEvent},
 		},
 	}); err != nil {
-		t.Fatalf("SubmitCommand(workflow_blocked) error = %v", err)
+		t.Fatalf("SubmitCommand(workflow_execution_needs_human) error = %v", err)
 	}
 
 	trace, ok = store.GetTrace(workflow.TraceID)
@@ -1102,7 +1169,7 @@ func TestMemoryStoreSubmitCommandWorkflowBlockedProjectsAttachedFailureArtifacts
 		}
 	}
 	if !found {
-		t.Fatal("expected action.persistence_failed event to be projected with workflow_blocked")
+		t.Fatal("expected action.persistence_failed event to be projected with workflow_execution_needs_human")
 	}
 }
 
@@ -1890,7 +1957,7 @@ func TestEvaluateTraceRunnerInvalidToolNameContractUsesWorkflowAttemptDiagnostic
 	if _, err := store.SubmitCommand(transition.CommandEnvelope{
 		MachineKind: transition.MachineWorkflow,
 		AggregateID: workflow.ID,
-		CommandKind: string(transition.CommandWorkflowFailed),
+		CommandKind: string(transition.CommandWorkflowExecutionFailed),
 		CommandID:   "cmd-workflow-invalid-tool-name",
 		OccurredAt:  now,
 		Payload: map[string]any{
@@ -1963,7 +2030,7 @@ func TestUngroundedFailedWorkflowCandidateStaysNeedsEvidenceAndDoesNotPromote(t 
 	if _, err := store.SubmitCommand(transition.CommandEnvelope{
 		MachineKind: transition.MachineWorkflow,
 		AggregateID: workflow.ID,
-		CommandKind: string(transition.CommandWorkflowFailed),
+		CommandKind: string(transition.CommandWorkflowExecutionFailed),
 		CommandID:   "cmd-workflow-generic-failure",
 		OccurredAt:  now,
 		Payload: map[string]any{

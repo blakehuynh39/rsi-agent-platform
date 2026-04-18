@@ -20,7 +20,7 @@ func (s *MemoryStore) applyWorkflowCommandMetadataLocked(workflowID string, comm
 		}
 		if failureSummary := strings.TrimSpace(stringFromCommand(command, "failure_summary")); failureSummary != "" {
 			s.workflows[i].FailureSummary = failureSummary
-		} else if transition.WorkflowCommandKind(command.CommandKind) == transition.CommandWorkflowFailed || transition.WorkflowCommandKind(command.CommandKind) == transition.CommandWorkflowBlocked {
+		} else if transition.WorkflowCommandKind(command.CommandKind) == transition.CommandWorkflowExecutionFailed || transition.WorkflowCommandKind(command.CommandKind) == transition.CommandWorkflowExecutionNeedsHuman {
 			s.workflows[i].FailureSummary = firstNonEmpty(s.workflows[i].FailureSummary, workflowLastErrorForCommand(command))
 		}
 		if retryDecision := strings.TrimSpace(stringFromCommand(command, "retry_decision")); retryDecision != "" {
@@ -50,7 +50,7 @@ func (s *MemoryStore) appendWorkflowLineFollowOnCommandLocked(bundle *transition
 		return
 	}
 	switch transition.WorkflowCommandKind(parent.CommandKind) {
-	case transition.CommandRunnerCompletedNoReply, transition.CommandRunnerCompletedPartialNoReply, transition.CommandReplyPosted, transition.CommandReplyPostedPartial:
+	case transition.CommandWorkflowExecutionCompletedNoReply, transition.CommandWorkflowExecutionCompletedPartialNoReply, transition.CommandReplyPosted, transition.CommandReplyPostedPartial:
 		appendFollowOnCommand(bundle, parent, transition.CommandEnvelope{
 			MachineKind: transition.MachineWorkflowLine,
 			AggregateID: caseID,
@@ -64,7 +64,7 @@ func (s *MemoryStore) appendWorkflowLineFollowOnCommandLocked(bundle *transition
 				"line_stop_reason":   string(parent.CommandKind),
 			},
 		}, "workflow attempt completed and the workflow line can close")
-	case transition.CommandWorkflowBlocked:
+	case transition.CommandWorkflowExecutionNeedsHuman:
 		appendFollowOnCommand(bundle, parent, transition.CommandEnvelope{
 			MachineKind: transition.MachineWorkflowLine,
 			AggregateID: caseID,
@@ -79,7 +79,7 @@ func (s *MemoryStore) appendWorkflowLineFollowOnCommandLocked(bundle *transition
 				"line_stop_reason":   firstNonEmpty(workflow.FailureClass, workflow.LastError, "needs_human"),
 			},
 		}, "workflow attempt needs human intervention and the workflow line must stop")
-	case transition.CommandWorkflowFailed:
+	case transition.CommandWorkflowExecutionFailed:
 		if strings.EqualFold(strings.TrimSpace(workflow.RetryDecision), "auto_retry") {
 			payload := map[string]any{
 				"source_workflow_id": workflow.ID,

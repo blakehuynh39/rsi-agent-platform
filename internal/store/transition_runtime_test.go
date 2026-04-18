@@ -101,7 +101,7 @@ func TestMemoryStoreCompleteEffectExecutionIsLedgerOnly(t *testing.T) {
 		Status:         transition.EffectQueued,
 		IdempotencyKey: workflow.ID + ":invoke_runner",
 		Payload: map[string]any{
-			"command_kind": string(transition.CommandWorkflowFailed),
+			"command_kind": string(transition.CommandWorkflowExecutionFailed),
 		},
 		CreatedAt: now,
 		UpdatedAt: now,
@@ -270,7 +270,7 @@ func TestPostgresCompleteEffectExecutionIsLedgerOnly(t *testing.T) {
 			Status:         transition.EffectQueued,
 			IdempotencyKey: workflow.ID + ":invoke_runner",
 			Payload: map[string]any{
-				"command_kind": string(transition.CommandWorkflowFailed),
+				"command_kind": string(transition.CommandWorkflowExecutionFailed),
 			},
 			CreatedAt: now,
 			UpdatedAt: now,

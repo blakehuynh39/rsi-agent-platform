@@ -1324,7 +1324,7 @@ func TestHandleClaimedWorkflowRunnerEffectWorkflowCommandPersistenceFailureFails
 	store := &failingWorkflowCommandStore{
 		Store:           baseStore,
 		FailWorkflowID:  workflowItem.workflowID,
-		FailCommandKind: transition.CommandRunnerCompleted,
+		FailCommandKind: transition.CommandWorkflowExecutionCompleted,
 		Err:             errors.New("workflow command persistence failed"),
 	}
 
@@ -1426,7 +1426,7 @@ func TestHandleClaimedWorkflowRunnerEffectRunnerCompletionInvariantFailureFailsW
 	store := &noopWorkflowCommandStore{
 		Store:           baseStore,
 		NoopWorkflowID:  workflowItem.workflowID,
-		NoopCommandKind: transition.CommandRunnerCompleted,
+		NoopCommandKind: transition.CommandWorkflowExecutionCompleted,
 	}
 
 	handleClaimedWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
@@ -1762,7 +1762,7 @@ func TestWorkflowRetryAtUsesSecondBackoffForSecondRetry(t *testing.T) {
 		t.Fatal("expected initial workflow to exist")
 	}
 	now := time.Now().UTC()
-	if _, err := submitWorkflowCommand(store, workflow.ID, transition.CommandWorkflowFailed, "tester", now, map[string]any{
+	if _, err := submitWorkflowCommand(store, workflow.ID, transition.CommandWorkflowExecutionFailed, "tester", now, map[string]any{
 		"last_error":      "provider unavailable",
 		"failure_class":   workflowFailureRunnerNonOK,
 		"failure_summary": "provider unavailable",
@@ -1808,7 +1808,7 @@ func TestFinalizeWorkflowFailureWithDetailsBudgetExhaustionMovesLineToNeedsHuman
 	}
 	now := time.Now().UTC()
 
-	if _, err := submitWorkflowCommand(store, workflow.ID, transition.CommandWorkflowFailed, "tester", now, map[string]any{
+	if _, err := submitWorkflowCommand(store, workflow.ID, transition.CommandWorkflowExecutionFailed, "tester", now, map[string]any{
 		"last_error":      "provider unavailable",
 		"failure_class":   workflowFailureRunnerNonOK,
 		"failure_summary": "provider unavailable",
@@ -1826,7 +1826,7 @@ func TestFinalizeWorkflowFailureWithDetailsBudgetExhaustionMovesLineToNeedsHuman
 		t.Fatalf("expected second attempt workflow %s", line.CurrentWorkflowID)
 	}
 
-	if _, err := submitWorkflowCommand(store, secondAttempt.ID, transition.CommandWorkflowFailed, "tester", now.Add(time.Second), map[string]any{
+	if _, err := submitWorkflowCommand(store, secondAttempt.ID, transition.CommandWorkflowExecutionFailed, "tester", now.Add(time.Second), map[string]any{
 		"last_error":      "provider unavailable again",
 		"failure_class":   workflowFailureRunnerNonOK,
 		"failure_summary": "provider unavailable again",

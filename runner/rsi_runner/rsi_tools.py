@@ -624,6 +624,12 @@ class ReadOnlyToolBinding:
     session_scope_kind: str
     session_scope_id: str
     context_refs: list[JsonObject]
+    default_question: str = ""
+    repo_question: str = ""
+    knowledge_topic: str = ""
+    knowledge_question: str = ""
+    slack_history_focus: str = ""
+    slack_search_query: str = ""
     execution_mode: str = ""
     attempt_id: str = ""
     workspace_id: str = ""
@@ -1189,17 +1195,25 @@ class ReadOnlyToolBinding:
 
     def _default_payload(self, name: str) -> JsonObject:
         payload: JsonObject = {}
+        default_question = first_non_empty(self.default_question, self.task_prompt)
+        repo_question = first_non_empty(self.repo_question, default_question, self.task_context_summary)
+        knowledge_topic = first_non_empty(self.knowledge_topic, self.task_context_summary, self.task_repo)
+        knowledge_question = first_non_empty(self.knowledge_question, default_question, self.task_context_summary)
+        slack_history_focus = first_non_empty(self.slack_history_focus, default_question)
+        slack_search_query = first_non_empty(self.slack_search_query, default_question)
         if self.trace_id:
             payload["trace_id"] = self.trace_id
         if name in {"repo.context", "repo.read_file", "repo.search", "github.repo_activity", "github.repo_context"} and self.task_repo:
             payload["repo"] = self.task_repo
         if name in {"repo.read_file", "repo.search"} and self.task_repo_ref:
             payload["ref"] = self.task_repo_ref
-        if name == "repo.context":
-            payload["question"] = self.task_prompt
+        if name == "repo.context" and repo_question:
+            payload["question"] = repo_question
         if name == "knowledge.context":
-            payload["question"] = self.task_prompt
-            payload["topic"] = self.task_prompt or self.task_context_summary
+            if knowledge_question:
+                payload["question"] = knowledge_question
+            if knowledge_topic:
+                payload["topic"] = knowledge_topic
             payload["scope_id"] = self.task_repo
         if name == "slack.history":
             surface = self._default_slack_surface()
@@ -1209,14 +1223,14 @@ class ReadOnlyToolBinding:
                 payload["channel_id"] = channel_id
             if thread_ts:
                 payload["thread_ts"] = thread_ts
-            if self.task_prompt:
-                payload["question"] = self.task_prompt
+            if slack_history_focus:
+                payload["question"] = slack_history_focus
         if name == "slack.search":
             channel_ids = self._default_slack_channel_ids()
             if channel_ids:
                 payload["channel_ids"] = channel_ids
-            if self.task_prompt:
-                payload["query"] = self.task_prompt
+            if slack_search_query:
+                payload["query"] = slack_search_query
         if name == "github.repo_activity":
             since, until = self._activity_window_from_context_refs()
             if since:
