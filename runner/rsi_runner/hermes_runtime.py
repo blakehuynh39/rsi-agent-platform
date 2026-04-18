@@ -6,6 +6,7 @@ import json
 import logging
 import os
 import re
+import socket
 import time
 from numbers import Number
 from typing import Any
@@ -1149,7 +1150,7 @@ class HermesRuntime:
         return bool((task.channel_id or "").strip() and (task.thread_ts or "").strip())
 
     def _partial_completion_finalization_reserve_seconds(self, task_timeout_seconds: int) -> int:
-        return max(10, min(30, max(0, task_timeout_seconds // 10)))
+        return min(180, max(10, task_timeout_seconds - 30))
 
     def _partial_completion_reasoning_timeout_seconds(self, task: RunnerTaskRequest, task_timeout_seconds: int) -> int:
         if not self._workflow_partial_completion_eligible(task):
@@ -1211,11 +1212,7 @@ class HermesRuntime:
         total = max(0, int(timeout_seconds or 0))
         if total <= 0:
             return []
-        first_attempt = max(1, min(total, int(total * 0.7) or 1))
-        retry_attempt = max(0, total - first_attempt)
-        if retry_attempt < 5:
-            return [total]
-        return [first_attempt, retry_attempt]
+        return [total]
 
     def _merge_runtime_values(self, *lists: Any) -> list[Any]:
         merged: list[Any] = []
@@ -1470,7 +1467,15 @@ class HermesRuntime:
                 error=f"Direct bounded-stop reducer returned {exc.code}: {detail[:2000]}",
                 provider_response_id="",
             )
-        except (urlerror.URLError, TimeoutError, ConnectionError, OSError) as exc:
+        except (TimeoutError, socket.timeout) as exc:
+            return PartialReducerAttemptResult(
+                ok=False,
+                response_text="",
+                structured_output={},
+                error=f"Direct bounded-stop reducer timed out after {max(1, timeout_seconds)}s: {exc}",
+                provider_response_id="",
+            )
+        except (urlerror.URLError, ConnectionError, OSError) as exc:
             return PartialReducerAttemptResult(
                 ok=False,
                 response_text="",
@@ -1584,6 +1589,8 @@ class HermesRuntime:
         partial_finalization_attempts: int = 0,
         partial_finalization_retry_attempted: bool = False,
         partial_finalization_retry_succeeded: bool = False,
+        partial_finalization_timeout_seconds: int = 0,
+        reducer_attempt_errors: list[str] | None = None,
     ) -> HermesExecutionResult:
         last_activity = _json_object_or_empty(stop_meta.get("last_activity"))
         timeout_kind = string_from_map(stop_meta, "timeout_kind")
@@ -1612,6 +1619,11 @@ class HermesRuntime:
         diagnostics["partial_finalization_attempts"] = partial_finalization_attempts
         diagnostics["partial_finalization_retry_attempted"] = partial_finalization_retry_attempted
         diagnostics["partial_finalization_retry_succeeded"] = partial_finalization_retry_succeeded
+        diagnostics["partial_finalization_timeout_seconds"] = partial_finalization_timeout_seconds
+        if self._provider_model:
+            diagnostics["reducer_model"] = self._provider_model
+        if reducer_attempt_errors:
+            diagnostics["reducer_attempt_errors"] = list(reducer_attempt_errors)
         raw: JsonObject = {
             **self._base_raw(prompt=task.prompt, system_message=task.system_message),
             **finalized,
@@ -1638,6 +1650,8 @@ class HermesRuntime:
             raw["recovery_error"] = recovery_error
         if recovery_response:
             raw["recovery_response"] = recovery_response
+        if reducer_attempt_errors:
+            raw["reducer_attempt_errors"] = list(reducer_attempt_errors)
         return HermesExecutionResult(
             ok=False,
             message=first_non_empty(recovery_error, message),
@@ -1762,7 +1776,10 @@ class HermesRuntime:
         last_error = ""
         last_response = ""
         last_provider_response_id = ""
+        attempt_errors: list[str] = []
+        last_attempt_timeout_seconds = 0
         for attempt_index, attempt_timeout_seconds in enumerate(attempt_budgets, start=1):
+            last_attempt_timeout_seconds = attempt_timeout_seconds
             attempt_result = self._invoke_partial_reducer(
                 task,
                 termination_reason,
@@ -1775,6 +1792,8 @@ class HermesRuntime:
             last_response = attempt_result.response_text
             last_provider_response_id = attempt_result.provider_response_id
             if not attempt_result.ok:
+                if attempt_result.error:
+                    attempt_errors.append(attempt_result.error)
                 continue
             structured_output, action_contract_synthesized = self._synthesize_partial_slack_post_action(
                 task,
@@ -1789,11 +1808,16 @@ class HermesRuntime:
             merged_runner_diagnostics["partial_finalization_attempts"] = attempt_index
             merged_runner_diagnostics["partial_finalization_retry_attempted"] = attempt_index > 1
             merged_runner_diagnostics["partial_finalization_retry_succeeded"] = attempt_index > 1
+            merged_runner_diagnostics["partial_finalization_timeout_seconds"] = attempt_timeout_seconds
             merged_runner_diagnostics["partial_completion_attempted"] = True
             merged_runner_diagnostics["partial_completion_succeeded"] = True
             merged_runner_diagnostics["completion_verdict"] = "partial"
             merged_runner_diagnostics["action_contract_repair_attempted"] = action_contract_synthesized
             merged_runner_diagnostics["action_contract_repair_succeeded"] = action_contract_synthesized
+            if self._provider_model:
+                merged_runner_diagnostics["reducer_model"] = self._provider_model
+            if attempt_errors:
+                merged_runner_diagnostics["reducer_attempt_errors"] = list(attempt_errors)
             max_iterations_reached = bool(stop_meta.get("max_iterations_reached")) or termination_reason == "iteration_budget_exhausted"
             for key in ("budget_used", "budget_max", "api_call_count", "current_tool", "last_activity_desc"):
                 if key in _json_object_or_empty(stop_meta.get("last_activity")):
@@ -1853,6 +1877,8 @@ class HermesRuntime:
             partial_finalization_attempts=len(attempt_budgets),
             partial_finalization_retry_attempted=len(attempt_budgets) > 1,
             partial_finalization_retry_succeeded=False,
+            partial_finalization_timeout_seconds=last_attempt_timeout_seconds,
+            reducer_attempt_errors=attempt_errors,
         )
 
     def _attach_tool_policy(self, agent: Any, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> None:

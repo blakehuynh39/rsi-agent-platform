@@ -791,6 +791,76 @@ func TestSlackSearchUsesAssistantSearchContextAndFiltersResults(t *testing.T) {
 	}
 }
 
+func TestSlackSearchPrefersConfiguredUserTokenWithoutActionToken(t *testing.T) {
+	var seenPath string
+	var seenAuth string
+	var seenActionToken any
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		seenPath = r.URL.Path
+		seenAuth = r.Header.Get("Authorization")
+		switch r.URL.Path {
+		case "/assistant.search.context":
+			var body map[string]any
+			if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+				t.Fatalf("Decode() error = %v", err)
+			}
+			seenActionToken = body["action_token"]
+			if got := body["context_channel_id"]; got != "C123" {
+				t.Fatalf("expected context_channel_id C123, got %#v", got)
+			}
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"ok": true,
+				"results": map[string]any{
+					"messages": []map[string]any{
+						{
+							"author_name":       "blake",
+							"author_user_id":    "U123",
+							"channel_id":        "C123",
+							"message_timestamp": "1775952000.000100",
+							"text":              "User-token backed Slack search result.",
+							"permalink":         "https://example.test/C123/p1775952000000100",
+						},
+					},
+				},
+			})
+		default:
+			t.Fatalf("unexpected slack path %s", r.URL.Path)
+		}
+	}))
+	defer server.Close()
+
+	service := NewService(config.Config{
+		SlackBotToken:          "xoxb-test",
+		SlackUserToken:         "xoxp-test",
+		AllowedSlackChannelIDs: []string{"C123"},
+	}, storepkg.NewMemoryStore())
+	service.slackAPIURL = server.URL + "/"
+
+	result := service.Execute("slack.search", map[string]interface{}{
+		"query":       "depin backend progress",
+		"channel_ids": []interface{}{"C123"},
+	})
+
+	if seenPath != "/assistant.search.context" {
+		t.Fatalf("expected assistant.search.context, got %s", seenPath)
+	}
+	if seenAuth != "Bearer xoxp-test" {
+		t.Fatalf("expected bearer user token, got %q", seenAuth)
+	}
+	if seenActionToken != nil {
+		t.Fatalf("expected no action_token in user-token request, got %#v", seenActionToken)
+	}
+	if result.Status != "ok" {
+		t.Fatalf("expected ok status, got %s %#v", result.Status, result.Output)
+	}
+	if got := result.Output["search_auth_mode"]; got != "user" {
+		t.Fatalf("expected search_auth_mode user, got %#v", got)
+	}
+	if got := result.Output["action_token_required"]; got != false {
+		t.Fatalf("expected action_token_required false, got %#v", got)
+	}
+}
+
 func TestRSIRuntimeDeploymentFactsReturnsDeploymentSummary(t *testing.T) {
 	service := NewService(config.Config{
 		Environment:                      "stage",

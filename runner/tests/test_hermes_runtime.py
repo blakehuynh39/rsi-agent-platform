@@ -1172,6 +1172,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(any("iteration_budget_exhausted" in message for message in BudgetReducerAIAgent.interrupt_messages))
         self.assertEqual(len(captured_requests), 1)
         self.assertEqual(captured_requests[0]["url"], "https://api.openai.com/v1/responses")
+        self.assertEqual(captured_requests[0]["timeout"], 180)
         self.assertNotIn("tools", captured_requests[0]["body"])
         self.assertIn('"termination_reason": "iteration_budget_exhausted"', str(captured_requests[0]["body"]["input"]))
         self.assertNotIn("Earlier thread message", str(captured_requests[0]["body"]["input"]))
@@ -1182,105 +1183,12 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(len(result.raw["evidence_ledger"]["evidence_items"]), 1)
         self.assertTrue(result.raw["evidence_ledger"]["open_questions"])
 
-    def test_workflow_iteration_budget_exhaustion_retries_direct_reducer_once_and_succeeds(self) -> None:
-        class RetryBudgetReducerAIAgent:
-            init_history: list[dict[str, object]] = []
-            created_instances = 0
-
-            def __init__(self, **kwargs) -> None:
-                type(self).created_instances += 1
-                self.instance_index = type(self).created_instances
-                type(self).init_history.append(dict(kwargs))
-
-            def run_conversation(
-                self,
-                prompt: str,
-                system_message: str | None = None,
-                conversation_history: list[dict] | None = None,
-                task_id: str | None = None,
-            ) -> dict[str, object]:
-                time.sleep(0.6)
-                return {"final_response": ""}
-
-            def interrupt(self, _message: str | None = None) -> None:
-                return None
-
-            def get_activity_summary(self) -> dict[str, object]:
-                budget_max = int(type(self).init_history[self.instance_index - 1].get("max_iterations", 1))
-                if self.instance_index == 1:
-                    return {
-                        "last_activity_desc": "iteration budget exhausted",
-                        "current_tool": "slack_history",
-                        "api_call_count": budget_max,
-                        "budget_used": budget_max,
-                        "budget_max": budget_max,
-                    }
-                return {
-                    "last_activity_desc": "repairing partial reply",
-                    "current_tool": "",
-                    "api_call_count": 0,
-                    "budget_used": 0,
-                    "budget_max": budget_max,
-                }
-
-        task = RunnerTaskRequest.from_payload(
-            {
-                "task": {
-                    "task_type": "workflow",
-                    "repo": "rsi-agent-platform",
-                    "prompt": "Summarize the Slack thread.",
-                    "channel_id": "C123",
-                    "thread_ts": "171000001.000100",
-                    "session_scope_kind": "conversation",
-                    "session_scope_id": "conv-123",
-                    "memory_backend": "honcho",
-                    "assistant_peer_id": "rsi:stage:prod",
-                    "user_peer_id": "user:alice",
-                }
-            }
-        )
-        captured_requests: list[dict[str, object]] = []
-
-        def fake_urlopen(req, timeout: int = 0):
-            captured_requests.append(
-                {
-                    "url": req.full_url,
-                    "timeout": timeout,
-                    "body": json.loads(req.data.decode("utf-8")),
-                }
-            )
-            if len(captured_requests) == 1:
-                return FakeHTTPResponse({"id": "resp_partial_retry_1", "output_text": "not valid json"})
-            return FakeHTTPResponse(
-                {
-                    "id": "resp_partial_retry_2",
-                    "output_text": json.dumps(
-                        partial_structured_output(reply_text="Partial answer after reducer retry.")
-                    ),
-                }
-            )
-
-        with mock.patch("rsi_runner.hermes_runtime.AIAgent", RetryBudgetReducerAIAgent), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch("rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen), mock.patch.dict(
-            os.environ, runner_env("prod"), clear=True
-        ):
+    def test_partial_completion_default_reserve_uses_single_three_minute_reducer_window(self) -> None:
+        with mock.patch.dict(os.environ, runner_env("prod"), clear=True):
             runtime = HermesRuntime(RunnerConfig.from_env())
-            result = runtime.execute_task(task)
 
-        self.assertTrue(result.ok)
-        self.assertEqual(result.raw["termination_reason"], "iteration_budget_exhausted")
-        self.assertEqual(result.raw["completion_verdict"], "partial")
-        self.assertFalse(result.raw["repair_attempted"])
-        self.assertFalse(result.raw["repair_succeeded"])
-        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_mode"], "direct_reducer")
-        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_attempts"], 2)
-        self.assertTrue(result.raw["runner_diagnostics"]["partial_finalization_retry_attempted"])
-        self.assertTrue(result.raw["runner_diagnostics"]["partial_finalization_retry_succeeded"])
-        self.assertEqual(RetryBudgetReducerAIAgent.created_instances, 1)
-        self.assertEqual(len(captured_requests), 2)
-        self.assertIn("Previous reducer attempt failed.", str(captured_requests[1]["body"]["input"]))
-        self.assertIn("not valid json", str(captured_requests[1]["body"]["input"]))
+        self.assertEqual(runtime._partial_completion_finalization_reserve_seconds(300), 180)
+        self.assertEqual(runtime._partial_completion_attempt_budgets(180), [180])
 
     def test_workflow_task_timeout_enters_partial_finalization_before_hard_deadline(self) -> None:
         class TimeoutReducerAIAgent:
@@ -1497,11 +1405,13 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(result.raw["runner_diagnostics"]["partial_completion_attempted"])
         self.assertFalse(result.raw["runner_diagnostics"]["partial_completion_succeeded"])
         self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_mode"], "direct_reducer")
-        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_attempts"], 2)
-        self.assertTrue(result.raw["runner_diagnostics"]["partial_finalization_retry_attempted"])
+        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_attempts"], 1)
+        self.assertFalse(result.raw["runner_diagnostics"]["partial_finalization_retry_attempted"])
         self.assertFalse(result.raw["runner_diagnostics"]["partial_finalization_retry_succeeded"])
+        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_timeout_seconds"], 180)
         self.assertEqual(InvalidReducerAIAgent.created_instances, 1)
-        self.assertEqual(len(captured_requests), 2)
+        self.assertEqual(len(captured_requests), 1)
+        self.assertEqual(captured_requests[0]["timeout"], 180)
         self.assertIn("structured output", result.message.lower())
 
     def test_workflow_evidence_ledger_projects_compact_tool_calls_and_evidence_items(self) -> None:

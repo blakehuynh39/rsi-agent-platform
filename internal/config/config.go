@@ -50,6 +50,7 @@ type Config struct {
 	SlackSocketModeEnabled             bool
 	SlackAppToken                      string
 	SlackBotToken                      string
+	SlackUserToken                     string
 	GitHubWebhookSecret                string
 	GitHubOwner                        string
 	GitHubAPIBaseURL                   string
@@ -142,6 +143,7 @@ func Load(serviceName string) Config {
 		SlackSocketModeEnabled:             boolEnv("RSI_SLACK_SOCKET_MODE_ENABLED", false),
 		SlackAppToken:                      stringEnv("RSI_SLACK_APP_TOKEN", ""),
 		SlackBotToken:                      stringEnv("RSI_SLACK_BOT_TOKEN", ""),
+		SlackUserToken:                     stringEnv("RSI_SLACK_USER_TOKEN", ""),
 		GitHubWebhookSecret:                stringEnv("RSI_GITHUB_WEBHOOK_SECRET", ""),
 		GitHubOwner:                        stringEnv("RSI_GITHUB_OWNER", ""),
 		GitHubAPIBaseURL:                   stringEnv("RSI_GITHUB_API_BASE_URL", "https://api.github.com"),

@@ -1044,6 +1044,8 @@ func (s *Service) rsiRuntimeConfig(input map[string]interface{}) storepkg.ToolRe
 		"tool_gateway_base_url":        s.cfg.ToolGatewayBaseURL,
 		"honcho_runtime_base_url":      s.cfg.HonchoRuntimeBaseURL,
 		"public_base_url":              s.cfg.PublicBaseURL,
+		"slack_search_auth_mode":       s.slackSearchAuthMode(),
+		"slack_user_token_configured":  strings.TrimSpace(s.cfg.SlackUserToken) != "",
 	}
 	return s.result("rsi.runtime_config", input, "RSI runtime configuration summary loaded.", output, nil)
 }
@@ -1109,6 +1111,8 @@ func (s *Service) rsiRuntimeDeploymentFacts(input map[string]interface{}) storep
 		"slack_app_identity":                   s.cfg.SlackAppIdentity,
 		"slack_socket_mode_enabled":            s.cfg.SlackSocketModeEnabled,
 		"slack_bot_configured":                 strings.TrimSpace(s.cfg.SlackBotToken) != "",
+		"slack_user_token_configured":          strings.TrimSpace(s.cfg.SlackUserToken) != "",
+		"slack_search_auth_mode":               s.slackSearchAuthMode(),
 		"allowed_slack_channel_ids":            append([]string(nil), s.cfg.AllowedSlackChannelIDs...),
 		"hermes_native_governed_tools_enabled": s.cfg.HermesNativeGovernedToolsEnabled,
 		"kubernetes_available":                 s.kubeClient != nil,
@@ -1512,12 +1516,14 @@ func (s *Service) slackSearch(input map[string]interface{}) storepkg.ToolResult 
 	limit := slackSearchLimit(input)
 	since, until, err := parseActivityWindow(input)
 	output := map[string]interface{}{
-		"query":                query,
-		"channel_ids":          channelIDs,
-		"limit":                limit,
-		"messages":             []map[string]interface{}{},
-		"search_api":           "assistant.search.context",
-		"action_token_present": strings.TrimSpace(bound.ActionToken) != "",
+		"query":                 query,
+		"channel_ids":           channelIDs,
+		"limit":                 limit,
+		"messages":              []map[string]interface{}{},
+		"search_api":            "assistant.search.context",
+		"action_token_present":  strings.TrimSpace(bound.ActionToken) != "",
+		"action_token_required": false,
+		"search_auth_mode":      "",
 	}
 	if strings.TrimSpace(query) == "" {
 		output["error"] = "missing_query"
@@ -1539,16 +1545,27 @@ func (s *Service) slackSearch(input map[string]interface{}) storepkg.ToolResult 
 	}
 	output["since"] = since.UTC().Format(time.RFC3339)
 	output["until"] = until.UTC().Format(time.RFC3339)
-	if strings.TrimSpace(s.cfg.SlackBotToken) == "" {
+	searchToken := ""
+	actionToken := ""
+	switch {
+	case strings.TrimSpace(s.cfg.SlackUserToken) != "":
+		searchToken = strings.TrimSpace(s.cfg.SlackUserToken)
+		output["search_auth_mode"] = "user"
+	case strings.TrimSpace(s.cfg.SlackBotToken) != "":
+		searchToken = strings.TrimSpace(s.cfg.SlackBotToken)
+		output["search_auth_mode"] = "bot"
+		output["action_token_required"] = true
+		actionToken = strings.TrimSpace(bound.ActionToken)
+	default:
 		output["error"] = "missing_slack_bot_token"
 		return s.unavailableResult("slack.search", input, "slack", "Slack search unavailable: bot token is not configured.", output)
 	}
-	if strings.TrimSpace(bound.ActionToken) == "" {
+	if output["search_auth_mode"] == "bot" && actionToken == "" {
 		output["error"] = "missing_action_token"
 		return s.unavailableResult("slack.search", input, "slack", "Slack search unavailable: the bound Slack event did not include an action token.", output)
 	}
 
-	messages, nextCursor, err := s.slackAssistantSearchMessages(query, bound.ActionToken, channelIDs, since, until, limit)
+	messages, nextCursor, err := s.slackAssistantSearchMessages(query, searchToken, actionToken, channelIDs, since, until, limit)
 	if err != nil {
 		output["error"] = err.Error()
 		return s.failedResult("slack.search", input, "slack", fmt.Sprintf("Slack search failed: %v", err), output)
@@ -1621,12 +1638,22 @@ func (s *Service) boundSlackContext(traceID string) boundSlackContext {
 	return ctx
 }
 
-func (s *Service) slackAssistantSearchMessages(query string, actionToken string, channelIDs []string, since time.Time, until time.Time, limit int) ([]map[string]interface{}, string, error) {
+func (s *Service) slackSearchAuthMode() string {
+	if strings.TrimSpace(s.cfg.SlackUserToken) != "" {
+		return "user"
+	}
+	if strings.TrimSpace(s.cfg.SlackBotToken) != "" {
+		return "bot"
+	}
+	return "unconfigured"
+}
+
+func (s *Service) slackAssistantSearchMessages(query string, authToken string, actionToken string, channelIDs []string, since time.Time, until time.Time, limit int) ([]map[string]interface{}, string, error) {
 	limit = maxInt(1, minInt(limit, 20))
 	deduped := map[string]map[string]interface{}{}
 	nextCursor := ""
 	for _, channelID := range uniqueStrings(channelIDs) {
-		messages, cursor, err := s.slackAssistantSearchChannel(query, actionToken, channelID, since, until, limit)
+		messages, cursor, err := s.slackAssistantSearchChannel(query, authToken, actionToken, channelID, since, until, limit)
 		if err != nil {
 			return nil, "", err
 		}
@@ -1665,10 +1692,9 @@ func (s *Service) slackAssistantSearchMessages(query string, actionToken string,
 	return matched, nextCursor, nil
 }
 
-func (s *Service) slackAssistantSearchChannel(query string, actionToken string, channelID string, since time.Time, until time.Time, limit int) ([]map[string]interface{}, string, error) {
+func (s *Service) slackAssistantSearchChannel(query string, authToken string, actionToken string, channelID string, since time.Time, until time.Time, limit int) ([]map[string]interface{}, string, error) {
 	payload := map[string]interface{}{
 		"query":                    query,
-		"action_token":             actionToken,
 		"context_channel_id":       channelID,
 		"channel_types":            []string{"public_channel", "private_channel", "mpim", "im"},
 		"content_types":            []string{"messages"},
@@ -1680,9 +1706,12 @@ func (s *Service) slackAssistantSearchChannel(query string, actionToken string, 
 		"before":                   until.Unix(),
 		"limit":                    maxInt(1, minInt(limit, 20)),
 	}
+	if strings.TrimSpace(actionToken) != "" {
+		payload["action_token"] = actionToken
+	}
 	var response map[string]interface{}
 	if err := s.apiJSON("POST", s.slackMethodURL("assistant.search.context"), payload, map[string]string{
-		"Authorization": "Bearer " + s.cfg.SlackBotToken,
+		"Authorization": "Bearer " + authToken,
 		"Content-Type":  "application/json",
 	}, &response); err != nil {
 		return nil, "", err
