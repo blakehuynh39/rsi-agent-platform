@@ -94,6 +94,7 @@ export type ConversationEntry = CreatedAt & {
   actor_id?: string;
   actor_type?: string;
   body: string;
+  metadata?: JsonObject;
 };
 
 export type ConversationDetailResponse = {

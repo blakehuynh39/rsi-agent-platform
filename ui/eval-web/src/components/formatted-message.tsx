@@ -1,8 +1,19 @@
 import type { ReactNode } from "react";
+import type { JsonObject } from "@/types";
 
 type TextSegment = {
   text: string;
   href?: string;
+};
+
+type SlackEntityLabels = {
+  userNames: Record<string, string>;
+  channelNames: Record<string, string>;
+};
+
+const emptySlackEntityLabels: SlackEntityLabels = {
+  userNames: {},
+  channelNames: {}
 };
 
 function decodeSlackEntities(text: string) {
@@ -19,15 +30,17 @@ function isLinkTarget(value: string) {
   return /^(https?:\/\/|mailto:)/i.test(value);
 }
 
-function parseSlackToken(token: string): TextSegment {
+function parseSlackToken(token: string, labels: SlackEntityLabels): TextSegment {
   const [value, label] = splitSlackToken(token);
 
   if (value.startsWith("@")) {
-    return { text: `@${label || value.slice(1)}` };
+    const id = value.slice(1);
+    return { text: `@${label || labels.userNames[id] || id}` };
   }
 
   if (value.startsWith("#")) {
-    return { text: `#${label || value.slice(1)}` };
+    const id = value.slice(1);
+    return { text: `#${label || labels.channelNames[id] || id}` };
   }
 
   if (value.startsWith("!subteam^")) {
@@ -56,7 +69,31 @@ function parseSlackToken(token: string): TextSegment {
   return { text: value };
 }
 
-export function slackMrkdwnToSegments(text: string): TextSegment[] {
+function stringRecordFromMetadataValue(value: unknown): Record<string, string> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+
+  const out: Record<string, string> = {};
+  for (const [key, item] of Object.entries(value)) {
+    if (typeof item !== "string") continue;
+    const trimmedKey = key.trim();
+    const trimmedValue = item.trim();
+    if (!trimmedKey || !trimmedValue) continue;
+    out[trimmedKey] = trimmedValue;
+  }
+  return out;
+}
+
+function slackEntityLabelsFromMetadata(metadata?: JsonObject): SlackEntityLabels {
+  if (!metadata) return emptySlackEntityLabels;
+  return {
+    userNames: stringRecordFromMetadataValue(metadata.slack_user_names),
+    channelNames: stringRecordFromMetadataValue(metadata.slack_channel_names)
+  };
+}
+
+export function slackMrkdwnToSegments(text: string, labels: SlackEntityLabels = emptySlackEntityLabels): TextSegment[] {
   const decoded = decodeSlackEntities(text);
   const matcher = /<([^>\n]+)>/g;
   const segments: TextSegment[] = [];
@@ -67,7 +104,7 @@ export function slackMrkdwnToSegments(text: string): TextSegment[] {
     if (match.index > cursor) {
       segments.push({ text: decoded.slice(cursor, match.index) });
     }
-    segments.push(parseSlackToken(match[1]));
+    segments.push(parseSlackToken(match[1], labels));
     cursor = match.index + match[0].length;
   }
 
@@ -78,8 +115,10 @@ export function slackMrkdwnToSegments(text: string): TextSegment[] {
   return segments;
 }
 
-export function FormattedMessage(props: { source?: string; text: string }) {
-  const segments = props.source === "slack" ? slackMrkdwnToSegments(props.text) : [{ text: props.text }];
+export function FormattedMessage(props: { source?: string; text: string; metadata?: JsonObject }) {
+  const segments = props.source === "slack"
+    ? slackMrkdwnToSegments(props.text, slackEntityLabelsFromMetadata(props.metadata))
+    : [{ text: props.text }];
 
   return (
     <span className="message-text">

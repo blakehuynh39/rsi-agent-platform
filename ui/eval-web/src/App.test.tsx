@@ -108,6 +108,14 @@ const conversationDetailResponse = {
       actor_id: "U123",
       actor_type: "user",
       body: "Sharing context with <@U0ASDQKU3UL> in <#C0AKH5SNGKH> - see <https://example.com/runbook|runbook> <!here>",
+      metadata: {
+        slack_user_names: {
+          U0ASDQKU3UL: "blake"
+        },
+        slack_channel_names: {
+          C0AKH5SNGKH: "depin-backend"
+        }
+      },
       created_at: "2026-04-11T12:00:00Z"
     }
   ],
@@ -610,7 +618,7 @@ describe("App", () => {
 
     const transcriptEntries = await screen.findAllByText((_, element) =>
       element?.classList.contains("detail-copy") &&
-      element.textContent === "Sharing context with @U0ASDQKU3UL in #C0AKH5SNGKH - see runbook @here"
+      element.textContent === "Sharing context with @blake in #depin-backend - see runbook @here"
     );
     expect(transcriptEntries.length).toBeGreaterThan(0);
     expect(screen.queryByText(/<@U0ASDQKU3UL>/i)).not.toBeInTheDocument();

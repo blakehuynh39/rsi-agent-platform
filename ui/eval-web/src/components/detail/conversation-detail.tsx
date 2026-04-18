@@ -71,7 +71,7 @@ export function ConversationDetail(props: {
                   <small>{formatTime(entry.created_at)}</small>
                 </div>
                 <p className="detail-copy">
-                  <FormattedMessage source={entry.source} text={entry.body} />
+                  <FormattedMessage source={entry.source} text={entry.body} metadata={entry.metadata} />
                 </p>
               </div>
             ))}

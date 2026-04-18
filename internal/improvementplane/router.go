@@ -22,6 +22,7 @@ import (
 
 func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 	r := app.NewBaseRouter(cfg)
+	transcriptResolver := newSlackTranscriptResolver(cfg.SlackBotToken)
 	r.Get("/api/conversations", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{"conversations": buildConversationList(store)})
 	})
@@ -32,6 +33,7 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 			app.WriteError(w, http.StatusNotFound, errors.New("conversation not found"))
 			return
 		}
+		payload.Transcript = enrichSlackTranscriptEntries(payload.Transcript, transcriptResolver)
 		app.WriteJSON(w, http.StatusOK, payload)
 	})
 	r.Get("/api/cases", func(w http.ResponseWriter, r *http.Request) {
@@ -159,6 +161,7 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 			app.WriteError(w, http.StatusNotFound, errors.New("trace not found"))
 			return
 		}
+		payload.TranscriptSlice = enrichSlackTranscriptEntries(payload.TranscriptSlice, transcriptResolver)
 		app.WriteJSON(w, http.StatusOK, payload)
 	})
 	r.Post("/api/traces/{traceID}/replay", func(w http.ResponseWriter, r *http.Request) {
