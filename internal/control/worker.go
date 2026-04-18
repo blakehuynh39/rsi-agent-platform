@@ -52,8 +52,9 @@ func RunWorker(cfg config.Config, store storepkg.Store) error {
 		"proactive": clients.NewRunnerClientWithTimeout(cfg.RunnerURLForRole("proactive"), cfg.RunnerTimeoutForRole("proactive")),
 	}
 	workerID := fmt.Sprintf("%s-worker", cfg.ServiceName)
+	runnerEffectLease := cfg.EffectLeaseDuration(cfg.WorkItemLeaseDuration, "prod", "proactive")
 	for {
-		effect, claimed, err := claimNextWorkflowRunnerEffect(store, workerID, cfg.WorkItemLeaseDuration)
+		effect, claimed, err := claimNextWorkflowRunnerEffect(store, workerID, runnerEffectLease)
 		if err != nil {
 			return err
 		}
@@ -1161,22 +1162,26 @@ func stringFromMap(item map[string]any, key string) string {
 
 func persistKnowledgeDrafts(store storepkg.Store, trace events.Trace, drafts []runnerutil.KnowledgeDraft, createdAt time.Time) error {
 	for idx, item := range drafts {
-		freshUntil := parseTimeOrNil(item.FreshUntil)
+		normalized, ok := runnerutil.NormalizeKnowledgeDraft(item, knowledge.ScopeCase, trace.Summary.CaseID)
+		if !ok {
+			continue
+		}
+		freshUntil := parseTimeOrNil(normalized.FreshUntil)
 		if _, err := runnerutil.PersistKnowledgeDraft(store, knowledge.Entry{
 			Tier:       knowledge.TierWorking,
-			Kind:       knowledge.Kind(firstNonEmpty(item.Kind, string(knowledge.KindFact))),
-			ScopeType:  knowledge.ScopeType(firstNonEmpty(item.ScopeType, string(knowledge.ScopeCase))),
-			ScopeID:    firstNonEmpty(item.ScopeID, trace.Summary.CaseID),
-			Title:      item.Title,
-			Summary:    item.Summary,
-			Body:       item.Body,
+			Kind:       knowledge.Kind(normalized.Kind),
+			ScopeType:  knowledge.ScopeType(normalized.ScopeType),
+			ScopeID:    normalized.ScopeID,
+			Title:      normalized.Title,
+			Summary:    normalized.Summary,
+			Body:       normalized.Body,
 			Status:     knowledge.StatusDraft,
-			Confidence: item.Confidence,
+			Confidence: normalized.Confidence,
 			FreshUntil: freshUntil,
 			SourceType: knowledge.SourceAgent,
 			CreatedAt:  createdAt,
 			UpdatedAt:  createdAt,
-		}, evidenceLinksFromDraft(item), "control-plane", trace.Summary.TraceID, idx, createdAt); err != nil {
+		}, evidenceLinksFromDraft(normalized), "control-plane", trace.Summary.TraceID, idx, createdAt); err != nil {
 			return err
 		}
 	}
@@ -1667,16 +1672,28 @@ func completeClaimedEffect(store storepkg.Store, effect transition.EffectExecuti
 	if strings.TrimSpace(effect.ID) == "" || effect.Status == transition.EffectCompleted {
 		return nil
 	}
-	_, err := store.CompleteEffectExecution(effect.ID, effect.Holder, resultRef)
-	return err
+	item, err := store.CompleteEffectExecution(effect.ID, effect.Holder, resultRef)
+	if err != nil {
+		return err
+	}
+	if item.Status != transition.EffectCompleted {
+		return fmt.Errorf("effect %s completion was not applied; current status=%s holder=%s", effect.ID, item.Status, item.Holder)
+	}
+	return nil
 }
 
 func failClaimedEffect(store storepkg.Store, effect transition.EffectExecution, lastError string) error {
 	if strings.TrimSpace(effect.ID) == "" || effect.Status == transition.EffectFailed {
 		return nil
 	}
-	_, err := store.FailEffectExecution(effect.ID, effect.Holder, lastError)
-	return err
+	item, err := store.FailEffectExecution(effect.ID, effect.Holder, lastError)
+	if err != nil {
+		return err
+	}
+	if item.Status != transition.EffectFailed {
+		return fmt.Errorf("effect %s failure was not applied; current status=%s holder=%s", effect.ID, item.Status, item.Holder)
+	}
+	return nil
 }
 
 func latestWorkflowEffect(store storepkg.Store, workflowID string, kind transition.EffectKind) (transition.EffectExecution, bool) {

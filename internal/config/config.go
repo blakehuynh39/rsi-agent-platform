@@ -270,6 +270,20 @@ func (c Config) RunnerTaskTimeoutForRole(role string) time.Duration {
 	}
 }
 
+func (c Config) EffectLeaseDuration(base time.Duration, roles ...string) time.Duration {
+	lease := base
+	for _, role := range roles {
+		timeout := c.RunnerTimeoutForRole(role)
+		if timeout <= 0 {
+			continue
+		}
+		if candidate := timeout + 30*time.Second; candidate > lease {
+			lease = candidate
+		}
+	}
+	return lease
+}
+
 func (c Config) GitHubRepoOwner(repo string) string {
 	repo = strings.TrimSpace(repo)
 	if owner, _, ok := splitGitHubRepo(repo); ok {

@@ -121,6 +121,9 @@ func listKnowledgeEntries(store storepkg.Repository, filters knowledgeFilters) [
 		if filters.ScopeID != "" && item.ScopeID != filters.ScopeID {
 			continue
 		}
+		if !knowledge.IsDisplayableEntry(item) {
+			continue
+		}
 		out = append(out, item)
 	}
 	sort.Slice(out, func(i, j int) bool {
@@ -158,6 +161,9 @@ func relatedKnowledgeEntries(store storepkg.Repository, conversationID string, c
 	out := make([]knowledge.Entry, 0)
 	seen := map[string]struct{}{}
 	for _, item := range store.ListKnowledgeEntries() {
+		if !knowledge.IsDisplayableEntry(item) {
+			continue
+		}
 		if conversationID != "" && item.ScopeType == knowledge.ScopeConversation && item.ScopeID == conversationID {
 			if _, ok := seen[item.ID]; !ok {
 				seen[item.ID] = struct{}{}

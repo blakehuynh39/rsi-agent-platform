@@ -75,7 +75,7 @@ func RunWorker(cfg config.Config, store storepkg.Store) error {
 	var toolClient toolExecutor = clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL)
 	launcher, launcherErr := sandbox.NewLauncher(cfg)
 	for {
-		effect, ok, err := claimNextImprovementEffect(store, workerID, cfg.WorkItemLeaseDuration, cfg.SandboxPollInterval)
+		effect, ok, err := claimNextImprovementEffect(cfg, store, workerID, cfg.WorkItemLeaseDuration, cfg.SandboxPollInterval)
 		if err != nil {
 			return err
 		}
@@ -1744,7 +1744,7 @@ func findRepoChangeJobByAttempt(items []improvement.RepoChangeJob, attemptID str
 	return improvement.RepoChangeJob{}, false
 }
 
-func claimNextImprovementEffect(store storepkg.Store, holder string, lease time.Duration, sandboxObserveLease time.Duration) (transition.EffectExecution, bool, error) {
+func claimNextImprovementEffect(cfg config.Config, store storepkg.Store, holder string, lease time.Duration, sandboxObserveLease time.Duration) (transition.EffectExecution, bool, error) {
 	for _, effect := range store.ListEffectExecutions() {
 		switch effect.MachineKind {
 		case transition.MachineProblemLine:
@@ -1765,7 +1765,9 @@ func claimNextImprovementEffect(store storepkg.Store, holder string, lease time.
 			continue
 		}
 		effectLease := lease
-		if effect.EffectKind == transition.EffectObserveWorkspaceValidation && sandboxObserveLease > 0 {
+		if effect.EffectKind == transition.EffectInvokeRunner {
+			effectLease = improvementRunnerEffectLease(cfg, effect, lease)
+		} else if effect.EffectKind == transition.EffectObserveWorkspaceValidation && sandboxObserveLease > 0 {
 			effectLease = sandboxObserveLease
 		}
 		claimed, ok, err := store.ClaimEffectExecution(effect.ID, holder, effectLease)
@@ -1783,16 +1785,39 @@ func completeClaimedImprovementEffect(store storepkg.Store, effect transition.Ef
 	if strings.TrimSpace(effect.ID) == "" || effect.Status == transition.EffectCompleted {
 		return nil
 	}
-	_, err := store.CompleteEffectExecution(effect.ID, effect.Holder, resultRef)
-	return err
+	item, err := store.CompleteEffectExecution(effect.ID, effect.Holder, resultRef)
+	if err != nil {
+		return err
+	}
+	if item.Status != transition.EffectCompleted {
+		return fmt.Errorf("effect %s completion was not applied; current status=%s holder=%s", effect.ID, item.Status, item.Holder)
+	}
+	return nil
 }
 
 func failClaimedImprovementEffect(store storepkg.Store, effect transition.EffectExecution, lastError string) error {
 	if strings.TrimSpace(effect.ID) == "" || effect.Status == transition.EffectFailed {
 		return nil
 	}
-	_, err := store.FailEffectExecution(effect.ID, effect.Holder, lastError)
-	return err
+	item, err := store.FailEffectExecution(effect.ID, effect.Holder, lastError)
+	if err != nil {
+		return err
+	}
+	if item.Status != transition.EffectFailed {
+		return fmt.Errorf("effect %s failure was not applied; current status=%s holder=%s", effect.ID, item.Status, item.Holder)
+	}
+	return nil
+}
+
+func improvementRunnerEffectLease(cfg config.Config, effect transition.EffectExecution, base time.Duration) time.Duration {
+	switch effect.MachineKind {
+	case transition.MachineProblemLine:
+		return cfg.EffectLeaseDuration(base, "eval")
+	case transition.MachineRuntimeDiagnosis, transition.MachineAttempt:
+		return cfg.EffectLeaseDuration(base, "proposal")
+	default:
+		return base
+	}
 }
 
 func attemptTraceForChange(store storepkg.Store, fallback events.Trace, attempt improvement.ChangeAttempt) events.Trace {
@@ -2713,15 +2738,19 @@ git push origin HEAD
 
 func persistImprovementKnowledgeDrafts(store storepkg.Store, drafts []runnerutil.KnowledgeDraft, trace events.Trace, proposalID string, createdAt time.Time) error {
 	for idx, item := range drafts {
-		scopeType := knowledge.ScopeType(firstNonEmpty(item.ScopeType, string(knowledge.ScopeCase)))
-		scopeID := firstNonEmpty(item.ScopeID, trace.Summary.CaseID)
-		if scopeType == knowledge.ScopeConversation {
-			scopeID = firstNonEmpty(item.ScopeID, trace.Summary.ConversationID)
+		defaultScopeType := knowledge.ScopeCase
+		defaultScopeID := trace.Summary.CaseID
+		if strings.TrimSpace(item.ScopeType) == string(knowledge.ScopeConversation) {
+			defaultScopeType = knowledge.ScopeConversation
+			defaultScopeID = trace.Summary.ConversationID
 		}
-		if scopeType == knowledge.ScopeGlobal {
-			scopeID = ""
+		normalized, ok := runnerutil.NormalizeKnowledgeDraft(item, defaultScopeType, defaultScopeID)
+		if !ok {
+			continue
 		}
-		links := improvementEvidenceLinksFromDraft(item)
+		scopeType := knowledge.ScopeType(normalized.ScopeType)
+		scopeID := normalized.ScopeID
+		links := improvementEvidenceLinksFromDraft(normalized)
 		if proposalID != "" {
 			links = append(links, knowledge.EvidenceLink{
 				EvidenceType:     "proposal",
@@ -2732,15 +2761,15 @@ func persistImprovementKnowledgeDrafts(store storepkg.Store, drafts []runnerutil
 		}
 		if _, err := runnerutil.PersistKnowledgeDraft(store, knowledge.Entry{
 			Tier:       knowledge.TierWorking,
-			Kind:       knowledge.Kind(firstNonEmpty(item.Kind, string(knowledge.KindFact))),
+			Kind:       knowledge.Kind(normalized.Kind),
 			ScopeType:  scopeType,
 			ScopeID:    scopeID,
-			Title:      item.Title,
-			Summary:    item.Summary,
-			Body:       item.Body,
+			Title:      normalized.Title,
+			Summary:    normalized.Summary,
+			Body:       normalized.Body,
 			Status:     knowledge.StatusDraft,
-			Confidence: item.Confidence,
-			FreshUntil: parseTimeOrNil(item.FreshUntil),
+			Confidence: normalized.Confidence,
+			FreshUntil: parseTimeOrNil(normalized.FreshUntil),
 			SourceType: knowledge.SourceAgent,
 			CreatedAt:  createdAt,
 			UpdatedAt:  createdAt,

@@ -66,11 +66,10 @@ func PersistKnowledgeDraft(store storepkg.Repository, entry knowledge.Entry, lin
 func knowledgeDraftAggregateID(entry knowledge.Entry, correlationKey string, ordinal int, occurredAt time.Time) string {
 	seed := strings.Join([]string{
 		strings.TrimSpace(correlationKey),
+		string(entry.Kind),
 		string(entry.ScopeType),
 		strings.TrimSpace(entry.ScopeID),
-		strings.TrimSpace(entry.Title),
 		fmt.Sprintf("%d", ordinal),
-		fmt.Sprintf("%d", occurredAt.UnixNano()),
 	}, "|")
 	sum := sha1.Sum([]byte(seed))
 	return fmt.Sprintf("knowledge-%x", sum[:8])

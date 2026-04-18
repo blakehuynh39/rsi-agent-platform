@@ -639,7 +639,7 @@ func TestProcessWorkspaceValidationObservationEffectDefersOnNonTerminalObservati
 	}); err != nil {
 		t.Fatalf("submitAttemptCommand(validation_started) error = %v", err)
 	}
-	effect, claimed, err := claimNextImprovementEffect(store, "tester", 30*time.Second, cfg.SandboxPollInterval)
+	effect, claimed, err := claimNextImprovementEffect(cfg, store, "tester", 30*time.Second, cfg.SandboxPollInterval)
 	if err != nil {
 		t.Fatalf("claimNextImprovementEffect() error = %v", err)
 	}
@@ -889,7 +889,7 @@ func TestProcessWorkspaceValidationObservationEffectUsesFormalAttemptAndProposal
 	}); err != nil {
 		t.Fatalf("applySandboxLaunchSuccess() error = %v", err)
 	}
-	effect, claimed, err := claimNextImprovementEffect(store, "tester", 30*time.Second, cfg.SandboxPollInterval)
+	effect, claimed, err := claimNextImprovementEffect(cfg, store, "tester", 30*time.Second, cfg.SandboxPollInterval)
 	if err != nil || !claimed {
 		t.Fatalf("claimNextImprovementEffect() claimed=%t err=%v", claimed, err)
 	}
@@ -1081,7 +1081,7 @@ func TestProcessWorkspaceValidationObservationEffectProjectsSandboxFailureViaAtt
 	}); err != nil {
 		t.Fatalf("applySandboxLaunchSuccess() error = %v", err)
 	}
-	effect, claimed, err := claimNextImprovementEffect(store, "tester", 30*time.Second, cfg.SandboxPollInterval)
+	effect, claimed, err := claimNextImprovementEffect(cfg, store, "tester", 30*time.Second, cfg.SandboxPollInterval)
 	if err != nil || !claimed {
 		t.Fatalf("claimNextImprovementEffect() claimed=%t err=%v", claimed, err)
 	}
