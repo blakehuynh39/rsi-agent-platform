@@ -9,6 +9,8 @@ import re
 import time
 from numbers import Number
 from typing import Any
+from urllib import error as urlerror
+from urllib import request as urlrequest
 
 from .json_types import JsonObject, JsonToolWrapperSchema, JsonValue
 
@@ -340,6 +342,15 @@ class HermesExecutionResult:
     message: str
     provider: str
     raw: JsonObject
+
+
+@dataclass
+class PartialReducerAttemptResult:
+    ok: bool
+    response_text: str
+    structured_output: JsonObject
+    error: str
+    provider_response_id: str
 
 
 @dataclass
@@ -711,6 +722,7 @@ class HermesRuntime:
                             "tool_transport_allowlist_effective": tool_policy.transport_effective,
                             "blocked_tool_names": tool_policy.blocked,
                             **observed,
+                            **self._workflow_evidence_raw(task, observed, timeout_kind),
                             "failure_class": "runner_transport_timeout",
                             "runner_diagnostics": self._runner_diagnostics(
                                 tool_policy,
@@ -748,6 +760,7 @@ class HermesRuntime:
                             "tool_transport_allowlist_effective": tool_policy.transport_effective,
                             "blocked_tool_names": tool_policy.blocked,
                             **observed,
+                            **self._workflow_evidence_raw(task, observed, "task_timeout"),
                             "failure_class": "runner_transport_timeout",
                             "runner_diagnostics": self._runner_diagnostics(
                                 tool_policy,
@@ -792,6 +805,7 @@ class HermesRuntime:
                 "tool_transport_map": tool_policy.custom_tool_transport_map,
                 "blocked_tool_names": tool_policy.blocked,
                 **observed,
+                **self._workflow_evidence_raw(task, observed, "exception"),
             }
             if diagnostics is not None:
                 raw["failure_class"] = "runner_invalid_request"
@@ -840,6 +854,7 @@ class HermesRuntime:
                 "tool_transport_map": tool_policy.custom_tool_transport_map,
                 "blocked_tool_names": tool_policy.blocked,
                 **observed,
+                **self._workflow_evidence_raw(task, observed, "normal_completion"),
                 "runner_diagnostics": {
                     **observed,
                     "termination_reason": "normal_completion",
@@ -1126,27 +1141,12 @@ class HermesRuntime:
         budget_max = latest_activity.get("budget_max", 0)
         return bool(budget_max and budget_used >= budget_max)
 
-    def _no_tools_recovery_policy(self) -> ToolPolicy:
-        return ToolPolicy(
-            mode="no_tools_recovery",
-            requested=[],
-            effective=[],
-            blocked=[],
-            memory_tools=[],
-            custom_tools=[],
-            transport_effective=[],
-            custom_tool_transport_map={},
-        )
-
     def _workflow_partial_completion_eligible(self, task: RunnerTaskRequest) -> bool:
         if task.task_type != "workflow":
             return False
         if self._role not in {"prod", "proactive"}:
             return False
         return bool((task.channel_id or "").strip() and (task.thread_ts or "").strip())
-
-    def _partial_completion_max_iterations(self) -> int:
-        return 3
 
     def _partial_completion_finalization_reserve_seconds(self, task_timeout_seconds: int) -> int:
         return max(10, min(30, max(0, task_timeout_seconds // 10)))
@@ -1207,32 +1207,15 @@ class HermesRuntime:
             },
         )
 
-    def _run_bounded_followup(
-        self,
-        task: RunnerTaskRequest,
-        tool_policy: ToolPolicy,
-        *,
-        timeout_seconds: int,
-        max_iterations_override: int,
-    ) -> tuple[str, str, JsonObject, JsonObject, list[JsonObject], JsonObject]:
-        context = self._session_manager.prepare(task)
-        self._stage_task_context(context.session_id, task, tool_policy)
-        agent = self._create_agent(task, context, max_iterations_override=max_iterations_override)
-        self._attach_tool_policy(agent, task, tool_policy)
-        tracker = self._session_manager.attach_tracking(agent, task, context)
-        termination_reason, run_result, stop_meta = self._run_with_deadlines(
-            agent,
-            task,
-            context,
-            timeout_seconds,
-            timeout_seconds,
-            timeout_seconds,
-        )
-        finalized = self._session_manager.finalize(context, tracker)
-        observed = self._observability_metadata(agent, task, tracker)
-        lifecycle_events = self._adapter.lifecycle_events(context.session_id)
-        response = str((run_result or {}).get("final_response", "") or "")
-        return termination_reason, response, finalized, observed, lifecycle_events, stop_meta
+    def _partial_completion_attempt_budgets(self, timeout_seconds: int) -> list[int]:
+        total = max(0, int(timeout_seconds or 0))
+        if total <= 0:
+            return []
+        first_attempt = max(1, min(total, int(total * 0.7) or 1))
+        retry_attempt = max(0, total - first_attempt)
+        if retry_attempt < 5:
+            return [total]
+        return [first_attempt, retry_attempt]
 
     def _merge_runtime_values(self, *lists: Any) -> list[Any]:
         merged: list[Any] = []
@@ -1248,23 +1231,298 @@ class HermesRuntime:
                 merged.append(item)
         return merged
 
-    def _merge_finalized_metadata(self, base: JsonObject, followup: JsonObject) -> JsonObject:
-        merged = dict(base)
-        for key, value in followup.items():
-            if key in {"memory_reads", "memory_writes", "memory_warnings"}:
-                merged[key] = self._merge_runtime_values(base.get(key), value)
-                continue
-            merged[key] = value
-        return merged
+    def _original_task_prompt(self, task: RunnerTaskRequest) -> str:
+        prompt = _string_or_json(task.prompt)
+        marker = "Task prompt:\n"
+        if marker in prompt:
+            return prompt.rsplit(marker, 1)[1].strip()
+        return prompt
 
-    def _merge_observed_metadata(self, base: JsonObject, followup: JsonObject) -> JsonObject:
-        merged = dict(base)
-        for key, value in followup.items():
-            if key in {"candidate_read_surfaces", "selected_context_surfaces", "memory_warnings", "tool_calls"}:
-                merged[key] = self._merge_runtime_values(base.get(key), value)
+    def _compact_tool_calls(self, observed: JsonObject, *, limit: int = 12) -> list[JsonObject]:
+        compact: list[JsonObject] = []
+        for item in _json_object_list(observed.get("tool_calls"))[:limit]:
+            tool_name = _string_or_json(item.get("tool_name"))
+            if not tool_name:
                 continue
-            merged[key] = value
-        return merged
+            normalized: JsonObject = {"tool_name": tool_name}
+            tool_call_id = first_non_empty(_string_or_json(item.get("tool_call_id")), _string_or_json(item.get("id")))
+            if tool_call_id:
+                normalized["tool_call_id"] = tool_call_id
+            request_payload = _json_object_or_empty(item.get("request"))
+            if request_payload:
+                normalized["request"] = request_payload
+            summary = _string_or_json(item.get("summary"))
+            if summary:
+                normalized["summary"] = summary[:400]
+            status = _string_or_json(item.get("status"))
+            if status:
+                normalized["status"] = status
+            provider_ref = _string_or_json(item.get("provider_ref"))
+            if provider_ref:
+                normalized["provider_ref"] = provider_ref
+            started_at = _string_or_json(item.get("started_at"))
+            if started_at:
+                normalized["started_at"] = started_at
+            completed_at = _string_or_json(item.get("completed_at"))
+            if completed_at:
+                normalized["completed_at"] = completed_at
+            raw_artifact_refs = item.get("raw_artifact_refs")
+            if isinstance(raw_artifact_refs, list) and raw_artifact_refs:
+                normalized["raw_artifact_refs"] = raw_artifact_refs[:4]
+            compact.append(normalized)
+        return compact
+
+    def _compact_evidence_items(self, observed: JsonObject, *, limit: int = 20) -> list[JsonObject]:
+        compact: list[JsonObject] = []
+        for item in _json_object_list(observed.get("evidence_items"))[:limit]:
+            summary = _string_or_json(item.get("summary"))
+            source_ref = first_non_empty(
+                _string_or_json(item.get("source_ref")),
+                _string_or_json(item.get("permalink")),
+                _string_or_json(item.get("path")),
+            )
+            normalized: JsonObject = {
+                "kind": _string_or_json(item.get("kind")) or "evidence",
+                "summary": summary[:400],
+                "source_ref": source_ref,
+                "tool_name": _string_or_json(item.get("tool_name")),
+            }
+            for key in ("channel_id", "thread_ts", "path", "repo", "commit", "permalink"):
+                value = _string_or_json(item.get(key))
+                if value:
+                    normalized[key] = value
+            compact.append(normalized)
+        return compact
+
+    def _evidence_open_questions(self, tool_calls: list[JsonObject], evidence_items: list[JsonObject]) -> list[str]:
+        questions: list[str] = []
+        if not evidence_items:
+            questions.append("No grounded evidence items were captured before the bounded stop.")
+        for item in tool_calls:
+            status = _string_or_json(item.get("status")).lower()
+            if not status or status in {"completed", "complete", "ok", "success"}:
+                continue
+            tool_name = _string_or_json(item.get("tool_name")) or "tool"
+            summary = _string_or_json(item.get("summary")) or status
+            questions.append(f"{tool_name}: {summary[:240]}")
+        deduped = self._merge_runtime_values(questions)
+        return [str(item) for item in deduped[:6]]
+
+    def _build_evidence_ledger(self, task: RunnerTaskRequest, observed: JsonObject, termination_reason: str) -> JsonObject:
+        tool_calls = self._compact_tool_calls(observed)
+        evidence_items = self._compact_evidence_items(observed)
+        ledger: JsonObject = {
+            "user_request": self._original_task_prompt(task),
+            "reply_target": {
+                "channel_id": task.channel_id or "",
+                "thread_ts": task.thread_ts or "",
+            },
+            "termination_reason": termination_reason,
+            "tool_calls": tool_calls,
+            "evidence_items": evidence_items,
+            "open_questions": self._evidence_open_questions(tool_calls, evidence_items),
+            "draft_reply_candidates": [],
+        }
+        if task.context_summary:
+            ledger["context_summary"] = task.context_summary
+        if task.trace_id:
+            ledger["trace_id"] = task.trace_id
+        if task.workflow_id:
+            ledger["workflow_id"] = task.workflow_id
+        return ledger
+
+    def _workflow_evidence_raw(self, task: RunnerTaskRequest, observed: JsonObject, termination_reason: str) -> JsonObject:
+        if task.task_type != "workflow":
+            return {}
+        return {"evidence_ledger": self._build_evidence_ledger(task, observed, termination_reason)}
+
+    def _partial_reducer_system_prompt(self) -> str:
+        return "\n".join(
+            [
+                "You finalize bounded-stop RSI Slack reply workflows.",
+                "Use only the supplied evidence ledger.",
+                "Do not call tools. Do not invent evidence. Do not speculate beyond the ledger.",
+                "Return only one JSON object with keys: visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, outcome_hypotheses, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta.",
+                "Produce a grounded best-effort partial reply when the evidence supports one.",
+                "If the evidence is incomplete, say so explicitly in final_answer and self_critique instead of guessing.",
+                "Keep visible_reasoning concise and grounded in the supplied ledger.",
+            ]
+        )
+
+    def _partial_reducer_user_prompt(
+        self,
+        task: RunnerTaskRequest,
+        termination_reason: str,
+        evidence_ledger: JsonObject,
+        *,
+        previous_error: str = "",
+        previous_response: str = "",
+    ) -> str:
+        parts = [
+            "Produce the final structured output for this bounded-stop Slack workflow reply.",
+            f"Bounded stop reason: {termination_reason}",
+            "Evidence ledger:",
+            json.dumps(evidence_ledger, ensure_ascii=True, sort_keys=True, indent=2),
+        ]
+        if previous_error:
+            parts.extend(
+                [
+                    "Previous reducer attempt failed.",
+                    f"Failure reason: {previous_error}",
+                ]
+            )
+        if previous_response:
+            parts.extend(
+                [
+                    "Previous reducer response excerpt:",
+                    _string_or_json(previous_response)[:1200],
+                ]
+            )
+        if task.channel_id and task.thread_ts:
+            parts.append(f"Target reply channel/thread: {task.channel_id} / {task.thread_ts}")
+        parts.append("Return JSON only.")
+        return "\n\n".join(part for part in parts if part)
+
+    def _partial_reducer_request_payload(self, system_prompt: str, user_prompt: str) -> JsonObject:
+        payload: JsonObject = {
+            "model": self._provider_model,
+            "instructions": system_prompt,
+            "input": user_prompt,
+            "parallel_tool_calls": False,
+            "max_output_tokens": 2000,
+            "text": {
+                "format": {"type": "json_object"},
+                "verbosity": "low",
+            },
+        }
+        if self._reasoning_config.get("enabled", True):
+            payload["reasoning"] = {"effort": "low"}
+        return payload
+
+    def _responses_output_text(self, payload: JsonObject) -> str:
+        direct = _string_or_json(payload.get("output_text"))
+        if direct:
+            return direct
+        collected: list[str] = []
+        for item in payload.get("output", []):
+            if not isinstance(item, dict):
+                continue
+            item_text = _string_or_json(item.get("text"))
+            if item_text:
+                collected.append(item_text)
+            for content in item.get("content", []):
+                if not isinstance(content, dict):
+                    continue
+                text = content.get("text")
+                if isinstance(text, dict):
+                    candidate = _string_or_json(text.get("value"))
+                else:
+                    candidate = _string_or_json(text)
+                if candidate:
+                    collected.append(candidate)
+        return "\n".join(part for part in collected if part)
+
+    def _invoke_partial_reducer(
+        self,
+        task: RunnerTaskRequest,
+        termination_reason: str,
+        evidence_ledger: JsonObject,
+        *,
+        timeout_seconds: int,
+        previous_error: str = "",
+        previous_response: str = "",
+    ) -> PartialReducerAttemptResult:
+        if self._provider != "openai" or not self._api_key:
+            return PartialReducerAttemptResult(
+                ok=False,
+                response_text="",
+                structured_output={},
+                error="Direct bounded-stop reduction requires OpenAI Responses API credentials.",
+                provider_response_id="",
+            )
+        system_prompt = self._partial_reducer_system_prompt()
+        user_prompt = self._partial_reducer_user_prompt(
+            task,
+            termination_reason,
+            evidence_ledger,
+            previous_error=previous_error,
+            previous_response=previous_response,
+        )
+        payload = self._partial_reducer_request_payload(system_prompt, user_prompt)
+        req = urlrequest.Request(
+            f"{self._base_url.rstrip('/')}/responses",
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Authorization": f"Bearer {self._api_key}",
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
+        try:
+            with urlrequest.urlopen(req, timeout=max(1, timeout_seconds)) as resp:
+                body = resp.read().decode("utf-8")
+        except urlerror.HTTPError as exc:
+            detail = exc.read().decode("utf-8", errors="replace")
+            return PartialReducerAttemptResult(
+                ok=False,
+                response_text="",
+                structured_output={},
+                error=f"Direct bounded-stop reducer returned {exc.code}: {detail[:2000]}",
+                provider_response_id="",
+            )
+        except (urlerror.URLError, TimeoutError, ConnectionError, OSError) as exc:
+            return PartialReducerAttemptResult(
+                ok=False,
+                response_text="",
+                structured_output={},
+                error=f"Direct bounded-stop reducer request failed: {exc}",
+                provider_response_id="",
+            )
+        try:
+            parsed = json.loads(body)
+        except json.JSONDecodeError:
+            return PartialReducerAttemptResult(
+                ok=False,
+                response_text=body[:4000],
+                structured_output={},
+                error="Direct bounded-stop reducer returned invalid JSON.",
+                provider_response_id="",
+            )
+        if not isinstance(parsed, dict):
+            return PartialReducerAttemptResult(
+                ok=False,
+                response_text="",
+                structured_output={},
+                error="Direct bounded-stop reducer returned a non-object JSON payload.",
+                provider_response_id="",
+            )
+        response_text = self._responses_output_text(parsed)
+        provider_response_id = _string_or_json(parsed.get("id"))
+        if not response_text:
+            return PartialReducerAttemptResult(
+                ok=False,
+                response_text="",
+                structured_output={},
+                error="Direct bounded-stop reducer returned an empty response.",
+                provider_response_id=provider_response_id,
+            )
+        try:
+            structured_output = self._extract_structured_output(response_text)
+        except HermesStructuredOutputError as exc:
+            return PartialReducerAttemptResult(
+                ok=False,
+                response_text=response_text,
+                structured_output={},
+                error=str(exc),
+                provider_response_id=provider_response_id,
+            )
+        return PartialReducerAttemptResult(
+            ok=True,
+            response_text=response_text,
+            structured_output=structured_output,
+            error="",
+            provider_response_id=provider_response_id,
+        )
 
     def _partial_completion_idempotency_key(self, task: RunnerTaskRequest, termination_reason: str) -> str:
         scope = first_non_empty(task.trace_id, task.workflow_id, task.session_scope_id, "workflow")
@@ -1321,11 +1579,15 @@ class HermesRuntime:
         termination_reason: str,
         recovery_error: str = "",
         recovery_response: str = "",
-        recovery_attempted: bool,
-        recovery_succeeded: bool,
+        partial_finalization_attempted: bool,
+        partial_finalization_succeeded: bool,
+        partial_finalization_attempts: int = 0,
+        partial_finalization_retry_attempted: bool = False,
+        partial_finalization_retry_succeeded: bool = False,
     ) -> HermesExecutionResult:
         last_activity = _json_object_or_empty(stop_meta.get("last_activity"))
         timeout_kind = string_from_map(stop_meta, "timeout_kind")
+        max_iterations_reached = bool(stop_meta.get("max_iterations_reached")) or termination_reason == "iteration_budget_exhausted"
         message = "Hermes could not finalize a partial workflow response before the bounded execution window closed."
         if termination_reason == "task_timeout":
             message = "Hermes hit the workflow time limit and could not finalize a partial workflow response."
@@ -1338,14 +1600,18 @@ class HermesRuntime:
             timeout_kind=timeout_kind or None,
             termination_reason=termination_reason,
             activity=last_activity,
-            max_iterations_reached=bool(stop_meta.get("max_iterations_reached")) or termination_reason == "iteration_budget_exhausted",
+            max_iterations_reached=max_iterations_reached,
             session_ready_issues=self._session_manager.ready_issues,
-            repair_attempted=recovery_attempted,
-            repair_succeeded=recovery_succeeded,
+            repair_attempted=False,
+            repair_succeeded=False,
             observed=observed,
         )
-        diagnostics["partial_completion_attempted"] = recovery_attempted
-        diagnostics["partial_completion_succeeded"] = recovery_succeeded
+        diagnostics["partial_completion_attempted"] = partial_finalization_attempted
+        diagnostics["partial_completion_succeeded"] = partial_finalization_succeeded
+        diagnostics["partial_finalization_mode"] = "direct_reducer"
+        diagnostics["partial_finalization_attempts"] = partial_finalization_attempts
+        diagnostics["partial_finalization_retry_attempted"] = partial_finalization_retry_attempted
+        diagnostics["partial_finalization_retry_succeeded"] = partial_finalization_retry_succeeded
         raw: JsonObject = {
             **self._base_raw(prompt=task.prompt, system_message=task.system_message),
             **finalized,
@@ -1359,13 +1625,14 @@ class HermesRuntime:
             "tool_transport_allowlist_effective": tool_policy.transport_effective,
             "blocked_tool_names": tool_policy.blocked,
             **observed,
+            **self._workflow_evidence_raw(task, observed, termination_reason),
             "failure_class": "runner_partial_completion_unrecoverable",
             "runner_diagnostics": diagnostics,
             "lifecycle_events": lifecycle_events,
             "termination_reason": termination_reason,
-            "max_iterations_reached": bool(stop_meta.get("max_iterations_reached")) or termination_reason == "iteration_budget_exhausted",
-            "partial_recovery_attempted": recovery_attempted,
-            "partial_recovery_succeeded": recovery_succeeded,
+            "max_iterations_reached": max_iterations_reached,
+            "partial_recovery_attempted": partial_finalization_attempted,
+            "partial_recovery_succeeded": partial_finalization_succeeded,
         }
         if recovery_error:
             raw["recovery_error"] = recovery_error
@@ -1376,38 +1643,6 @@ class HermesRuntime:
             message=first_non_empty(recovery_error, message),
             provider=self._backend,
             raw=raw,
-        )
-
-    def _build_partial_completion_task(
-        self,
-        task: RunnerTaskRequest,
-        termination_reason: str,
-        timeout_seconds: int,
-    ) -> RunnerTaskRequest:
-        recovery_instruction = "the previous run exhausted its iteration budget before it finished."
-        recovery_disclaimer = "If you include a reply, state clearly that it is partial because the iteration budget was exhausted."
-        if termination_reason == "task_timeout":
-            recovery_instruction = "the previous run hit its task timeout before it finished."
-            recovery_disclaimer = "If you include a reply, state clearly that it is partial because the workflow time limit was reached."
-        recovery_prompt = "\n".join(
-            [
-                task.prompt,
-                "",
-                f"Recovery instruction: {recovery_instruction}",
-                "Use only the evidence already present in this persisted session.",
-                "Do not call tools, do not ask for more context, and do not speculate beyond the existing evidence.",
-                "Return only a valid JSON object matching the required schema.",
-                "Produce the best grounded partial answer you can.",
-                recovery_disclaimer,
-                "If you include a reply, include exactly one proposed action with kind=slack_post and a request_payload carrying the reply body.",
-            ]
-        )
-        return replace(
-            task,
-            prompt=recovery_prompt,
-            allowed_tools=[],
-            tool_allowlist=[],
-            timeout_seconds=timeout_seconds,
         )
 
     def _partial_completion_failure(
@@ -1464,6 +1699,7 @@ class HermesRuntime:
             "tool_transport_allowlist_effective": tool_policy.transport_effective,
             "blocked_tool_names": tool_policy.blocked,
             **observed,
+            **self._workflow_evidence_raw(task, observed, termination_reason),
             "failure_class": failure_class,
             "runner_diagnostics": diagnostics,
             "lifecycle_events": lifecycle_events,
@@ -1493,6 +1729,7 @@ class HermesRuntime:
         termination_reason: str,
     ) -> HermesExecutionResult:
         recovery_timeout_seconds = self._partial_completion_timeout_seconds(task, termination_reason, stop_meta)
+        evidence_ledger = self._build_evidence_ledger(task, observed, termination_reason)
         if recovery_timeout_seconds <= 0:
             return self._partial_completion_unrecoverable_failure(
                 task,
@@ -1503,167 +1740,119 @@ class HermesRuntime:
                 lifecycle_events,
                 termination_reason=termination_reason,
                 recovery_error="The partial-completion finalization window expired before recovery could start.",
-                recovery_attempted=False,
-                recovery_succeeded=False,
+                partial_finalization_attempted=False,
+                partial_finalization_succeeded=False,
             )
 
-        recovery_policy = self._no_tools_recovery_policy()
-        recovery_task = self._build_partial_completion_task(task, termination_reason, recovery_timeout_seconds)
-        recovery_started_at = time.monotonic()
-        (
-            followup_termination_reason,
-            recovery_response,
-            recovery_finalized,
-            recovery_observed,
-            recovery_lifecycle_events,
-            recovery_stop_meta,
-        ) = self._run_bounded_followup(
-            recovery_task,
-            recovery_policy,
-            timeout_seconds=recovery_timeout_seconds,
-            max_iterations_override=self._partial_completion_max_iterations(),
-        )
-        merged_finalized = self._merge_finalized_metadata(finalized, recovery_finalized)
-        merged_observed = self._merge_observed_metadata(observed, recovery_observed)
-        merged_lifecycle_events = self._merge_runtime_values(lifecycle_events, recovery_lifecycle_events)
-        if followup_termination_reason != "normal_completion":
+        attempt_budgets = self._partial_completion_attempt_budgets(recovery_timeout_seconds)
+        if not attempt_budgets:
             return self._partial_completion_unrecoverable_failure(
                 task,
                 tool_policy,
-                merged_finalized,
-                merged_observed,
+                finalized,
+                observed,
                 stop_meta,
-                merged_lifecycle_events,
+                lifecycle_events,
                 termination_reason=termination_reason,
-                recovery_error=first_non_empty(
-                    string_from_map(recovery_stop_meta, "shutdown_error"),
-                    f"Partial completion followup ended with {followup_termination_reason}.",
-                ),
-                recovery_response=recovery_response,
-                recovery_attempted=True,
-                recovery_succeeded=False,
+                recovery_error="The partial-completion finalization window did not leave enough time for a reducer attempt.",
+                partial_finalization_attempted=False,
+                partial_finalization_succeeded=False,
             )
 
-        structured_output_error = ""
-        structured_output_repair_attempted = False
-        structured_output_repair_succeeded = False
-        try:
-            structured_output = self._extract_structured_output(recovery_response)
-        except HermesStructuredOutputError as exc:
-            structured_output_error = str(exc)
-            structured_output: JsonObject = {}
-            elapsed_seconds = max(0.0, time.monotonic() - recovery_started_at)
-            remaining_seconds = max(0, recovery_timeout_seconds - int(elapsed_seconds))
-            if self._config.workflow_runner_repair_attempts > 0 and self._structured_output_repairable(exc) and remaining_seconds > 0:
-                structured_output_repair_attempted = True
-                repair_task = self._build_structured_output_repair_task(recovery_task, recovery_response)
-                (
-                    repair_termination_reason,
-                    repair_response,
-                    repair_finalized,
-                    repair_observed,
-                    repair_lifecycle_events,
-                    repair_stop_meta,
-                ) = self._run_bounded_followup(
-                    repair_task,
-                    recovery_policy,
-                    timeout_seconds=remaining_seconds,
-                    max_iterations_override=1,
-                )
-                merged_finalized = self._merge_finalized_metadata(merged_finalized, repair_finalized)
-                merged_observed = self._merge_observed_metadata(merged_observed, repair_observed)
-                merged_lifecycle_events = self._merge_runtime_values(merged_lifecycle_events, repair_lifecycle_events)
-                if repair_termination_reason != "normal_completion":
-                    return self._partial_completion_unrecoverable_failure(
-                        task,
-                        tool_policy,
-                        merged_finalized,
-                        merged_observed,
-                        stop_meta,
-                        merged_lifecycle_events,
-                        termination_reason=termination_reason,
-                        recovery_error=first_non_empty(
-                            string_from_map(repair_stop_meta, "shutdown_error"),
-                            f"Partial completion repair ended with {repair_termination_reason}.",
-                        ),
-                        recovery_response=repair_response,
-                        recovery_attempted=True,
-                        recovery_succeeded=False,
-                    )
-                try:
-                    structured_output = self._extract_structured_output(repair_response)
-                    recovery_response = repair_response
-                    structured_output_repair_succeeded = True
-                    structured_output_error = ""
-                except HermesStructuredOutputError as repair_exc:
-                    structured_output_error = str(repair_exc)
-        if structured_output_error:
-            return self._partial_completion_unrecoverable_failure(
+        last_error = ""
+        last_response = ""
+        last_provider_response_id = ""
+        for attempt_index, attempt_timeout_seconds in enumerate(attempt_budgets, start=1):
+            attempt_result = self._invoke_partial_reducer(
                 task,
-                tool_policy,
-                merged_finalized,
-                merged_observed,
-                stop_meta,
-                merged_lifecycle_events,
-                termination_reason=termination_reason,
-                recovery_error=structured_output_error,
-                recovery_response=recovery_response,
-                recovery_attempted=True,
-                recovery_succeeded=False,
+                termination_reason,
+                evidence_ledger,
+                timeout_seconds=attempt_timeout_seconds,
+                previous_error=last_error if attempt_index > 1 else "",
+                previous_response=last_response if attempt_index > 1 else "",
+            )
+            last_error = attempt_result.error
+            last_response = attempt_result.response_text
+            last_provider_response_id = attempt_result.provider_response_id
+            if not attempt_result.ok:
+                continue
+            structured_output, action_contract_synthesized = self._synthesize_partial_slack_post_action(
+                task,
+                attempt_result.structured_output,
+                termination_reason,
+            )
+            response_text = json.dumps(structured_output, ensure_ascii=True, sort_keys=True)
+            merged_runner_diagnostics = dict(_json_object_or_empty(observed))
+            if last_provider_response_id:
+                merged_runner_diagnostics["partial_finalization_response_id"] = last_provider_response_id
+            merged_runner_diagnostics["partial_finalization_mode"] = "direct_reducer"
+            merged_runner_diagnostics["partial_finalization_attempts"] = attempt_index
+            merged_runner_diagnostics["partial_finalization_retry_attempted"] = attempt_index > 1
+            merged_runner_diagnostics["partial_finalization_retry_succeeded"] = attempt_index > 1
+            merged_runner_diagnostics["partial_completion_attempted"] = True
+            merged_runner_diagnostics["partial_completion_succeeded"] = True
+            merged_runner_diagnostics["completion_verdict"] = "partial"
+            merged_runner_diagnostics["action_contract_repair_attempted"] = action_contract_synthesized
+            merged_runner_diagnostics["action_contract_repair_succeeded"] = action_contract_synthesized
+            max_iterations_reached = bool(stop_meta.get("max_iterations_reached")) or termination_reason == "iteration_budget_exhausted"
+            for key in ("budget_used", "budget_max", "api_call_count", "current_tool", "last_activity_desc"):
+                if key in _json_object_or_empty(stop_meta.get("last_activity")):
+                    merged_runner_diagnostics[key] = _json_object_or_empty(stop_meta.get("last_activity")).get(key)
+            timeout_kind = string_from_map(stop_meta, "timeout_kind")
+            if timeout_kind:
+                merged_runner_diagnostics["timeout_kind"] = timeout_kind
+            merged_runner_diagnostics["termination_reason"] = termination_reason
+            merged_runner_diagnostics["max_iterations_reached"] = max_iterations_reached
+            merged_raw: JsonObject = {
+                **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                **finalized,
+                **stop_meta,
+                "task_timeout_seconds": self._effective_task_timeout(task),
+                "inactivity_timeout_seconds": self._effective_inactivity_timeout(self._effective_task_timeout(task)),
+                "transport_timeout_seconds": self._transport_timeout_seconds,
+                "max_iterations": self._max_iterations,
+                "tool_policy_mode": tool_policy.mode,
+                "tool_allowlist_effective": tool_policy.effective,
+                "tool_transport_allowlist_effective": tool_policy.transport_effective,
+                "blocked_tool_names": tool_policy.blocked,
+                **observed,
+                "evidence_ledger": evidence_ledger,
+                "runner_diagnostics": merged_runner_diagnostics,
+                "lifecycle_events": lifecycle_events,
+                "termination_reason": termination_reason,
+                "max_iterations_reached": max_iterations_reached,
+                "completion_verdict": "partial",
+                "partial_recovery_attempted": True,
+                "partial_recovery_succeeded": True,
+                "structured_output": structured_output,
+            }
+            if last_provider_response_id:
+                merged_raw["partial_finalization_response_id"] = last_provider_response_id
+            return HermesExecutionResult(
+                ok=True,
+                message=response_text,
+                provider=self._backend,
+                raw=merged_raw,
             )
 
-        structured_output, action_contract_synthesized = self._synthesize_partial_slack_post_action(task, structured_output, termination_reason)
-        recovery_response = json.dumps(structured_output, ensure_ascii=True, sort_keys=True)
-        merged_runner_diagnostics = dict(_json_object_or_empty(merged_observed))
-        for key in ("budget_used", "budget_max", "api_call_count", "current_tool", "last_activity_desc"):
-            if key in _json_object_or_empty(stop_meta.get("last_activity")):
-                merged_runner_diagnostics[key] = _json_object_or_empty(stop_meta.get("last_activity")).get(key)
-        timeout_kind = string_from_map(stop_meta, "timeout_kind")
-        if timeout_kind:
-            merged_runner_diagnostics["timeout_kind"] = timeout_kind
-        merged_runner_diagnostics["termination_reason"] = termination_reason
-        merged_runner_diagnostics["max_iterations_reached"] = bool(stop_meta.get("max_iterations_reached"))
-        merged_runner_diagnostics["completion_verdict"] = "partial"
-        merged_runner_diagnostics["recovery_attempted"] = True
-        merged_runner_diagnostics["recovery_succeeded"] = True
-        merged_runner_diagnostics["partial_completion_attempted"] = True
-        merged_runner_diagnostics["partial_completion_succeeded"] = True
-        merged_runner_diagnostics["structured_output_repair_attempted"] = structured_output_repair_attempted
-        merged_runner_diagnostics["structured_output_repair_succeeded"] = structured_output_repair_succeeded
-        merged_runner_diagnostics["action_contract_repair_attempted"] = action_contract_synthesized
-        merged_runner_diagnostics["action_contract_repair_succeeded"] = action_contract_synthesized
-
-        merged_raw: JsonObject = {
-            **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-            **merged_finalized,
-            **stop_meta,
-            "task_timeout_seconds": self._effective_task_timeout(task),
-            "inactivity_timeout_seconds": self._effective_inactivity_timeout(self._effective_task_timeout(task)),
-            "transport_timeout_seconds": self._transport_timeout_seconds,
-            "max_iterations": self._max_iterations,
-            "tool_policy_mode": tool_policy.mode,
-            "tool_allowlist_effective": tool_policy.effective,
-            "tool_transport_allowlist_effective": tool_policy.transport_effective,
-            "blocked_tool_names": tool_policy.blocked,
-            **merged_observed,
-            "runner_diagnostics": merged_runner_diagnostics,
-            "lifecycle_events": merged_lifecycle_events,
-            "termination_reason": termination_reason,
-            "max_iterations_reached": bool(stop_meta.get("max_iterations_reached")),
-            "completion_verdict": "partial",
-            "partial_recovery_attempted": True,
-            "partial_recovery_succeeded": True,
-            "partial_recovery_max_iterations": self._partial_completion_max_iterations(),
-            "structured_output": structured_output,
-        }
-        if structured_output_repair_attempted:
-            merged_raw["repair_attempted"] = True
-            merged_raw["repair_succeeded"] = structured_output_repair_succeeded
-        return HermesExecutionResult(
-            ok=True,
-            message=recovery_response,
-            provider=self._backend,
-            raw=merged_raw,
+        return self._partial_completion_unrecoverable_failure(
+            task,
+            tool_policy,
+            finalized,
+            observed,
+            stop_meta,
+            lifecycle_events,
+            termination_reason=termination_reason,
+            recovery_error=first_non_empty(
+                last_error,
+                "Direct bounded-stop reducer could not produce valid structured output.",
+            ),
+            recovery_response=last_response,
+            partial_finalization_attempted=True,
+            partial_finalization_succeeded=False,
+            partial_finalization_attempts=len(attempt_budgets),
+            partial_finalization_retry_attempted=len(attempt_budgets) > 1,
+            partial_finalization_retry_succeeded=False,
         )
 
     def _attach_tool_policy(self, agent: Any, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> None:
@@ -1843,179 +2032,211 @@ class HermesRuntime:
         result = self._execute_task_request(rendered_task, tool_policy)
         if not result.ok:
             return result
-        repair_tool_policy = tool_policy
-        if string_from_map(_json_object_or_empty(result.raw), "completion_verdict") == "partial":
-            repair_tool_policy = self._no_tools_recovery_policy()
-        if invalid_request := self._provider_invalid_request_diagnostics(result.message, repair_tool_policy):
-            diagnostics = dict(invalid_request)
-            for key, value in _json_object_or_empty(result.raw.get("runner_diagnostics")).items():
-                diagnostics[key] = value
-            return HermesExecutionResult(
-                ok=False,
-                message=string_from_map(diagnostics, "provider_error_message") or "Provider rejected the runner request.",
-                provider=result.provider,
-                raw={
-                    **result.raw,
-                    "failure_class": "runner_invalid_request",
-                    "runner_diagnostics": diagnostics,
-                    "raw_response": result.message,
-                    "repair_attempted": False,
-                    "repair_succeeded": False,
-                },
-            )
+        completion_verdict = string_from_map(_json_object_or_empty(result.raw), "completion_verdict")
         initial_response = result.message
         repair_attempted = False
         repair_succeeded = False
-        try:
-            structured_output = self._extract_structured_output(result.message)
-        except HermesStructuredOutputError as exc:
-            if task.task_type == "workflow" and self._config.workflow_runner_repair_attempts > 0 and self._structured_output_repairable(exc):
-                repair_attempted = True
-                logger.info(
-                    "workflow runner structured-output repair attempted trace_id=%s workflow_id=%s",
-                    task.trace_id or "",
-                    task.workflow_id or "",
-                )
-                repair_task = self._build_structured_output_repair_task(rendered_task, result.message)
-                repair_result = self._execute_task_request(repair_task, repair_tool_policy)
-                if repair_result.ok:
-                    if invalid_request := self._provider_invalid_request_diagnostics(repair_result.message, repair_tool_policy):
-                        diagnostics = dict(invalid_request)
-                        for key, value in _json_object_or_empty(repair_result.raw.get("runner_diagnostics")).items():
-                            diagnostics[key] = value
-                        diagnostics["repair_attempted"] = True
-                        diagnostics["repair_succeeded"] = False
-                        return HermesExecutionResult(
-                            ok=False,
-                            message=string_from_map(diagnostics, "provider_error_message") or "Provider rejected the runner request.",
-                            provider=repair_result.provider,
-                            raw={
-                                **repair_result.raw,
-                                "failure_class": "runner_invalid_request",
-                                "runner_diagnostics": diagnostics,
-                                "raw_response": repair_result.message,
-                                "repair_attempted": True,
-                                "repair_succeeded": False,
-                                "repair_original_response": result.message,
-                            },
-                        )
-                    try:
-                        structured_output = self._extract_structured_output(repair_result.message)
-                        result = repair_result
-                        repair_succeeded = True
-                        logger.info(
-                            "workflow runner structured-output repair succeeded trace_id=%s workflow_id=%s",
-                            task.trace_id or "",
-                            task.workflow_id or "",
-                        )
-                    except HermesStructuredOutputError as repair_exc:
-                        logger.warning(
-                            "workflow runner structured-output repair failed trace_id=%s workflow_id=%s error=%s",
-                            task.trace_id or "",
-                            task.workflow_id or "",
-                            repair_exc,
-                        )
-                        return HermesExecutionResult(
-                            ok=False,
-                            message=str(repair_exc),
-                            provider=repair_result.provider,
-                            raw={
-                                **repair_result.raw,
-                                "failure_class": "runner_structured_output_parse_failure",
-                                "runner_diagnostics": self._runner_diagnostics(
-                                    repair_tool_policy,
-                                    failure_kind="structured_output_parse_failure",
-                                    provider_error_message=str(repair_exc),
-                                    repair_attempted=True,
-                                    repair_succeeded=False,
-                                    observed=_json_object_or_empty(repair_result.raw.get("runner_diagnostics")),
-                                ),
-                                "structured_output_error": str(repair_exc),
-                                "raw_response": repair_result.message,
-                                "repair_attempted": True,
-                                "repair_succeeded": False,
-                                "repair_original_response": result.message,
-                            },
-                        )
-                else:
-                    logger.warning(
-                        "workflow runner structured-output repair failed trace_id=%s workflow_id=%s error=%s",
-                        task.trace_id or "",
-                        task.workflow_id or "",
-                        repair_result.message,
-                    )
-                    return HermesExecutionResult(
-                        ok=False,
-                        message=repair_result.message,
-                        provider=repair_result.provider,
-                        raw={
-                            **repair_result.raw,
-                            "runner_diagnostics": {
-                                **_json_object_or_empty(repair_result.raw.get("runner_diagnostics")),
-                                "repair_attempted": True,
-                                "repair_succeeded": False,
-                            } if repair_result.raw.get("runner_diagnostics") is not None else repair_result.raw.get("runner_diagnostics"),
-                            "raw_response": repair_result.message,
-                            "repair_attempted": True,
-                            "repair_succeeded": False,
-                            "repair_original_response": result.message,
-                        },
-                    )
-            else:
+        action_contract_repair_attempted = False
+        action_contract_repair_succeeded = False
+        action_contract_repair_error = ""
+        action_contract_repair_response = ""
+        if completion_verdict == "partial":
+            structured_output_payload = _json_object_or_empty(result.raw.get("structured_output"))
+            if not structured_output_payload:
+                message = "Bounded-stop partial completion did not return structured output."
                 return HermesExecutionResult(
                     ok=False,
-                    message=str(exc),
+                    message=message,
                     provider=result.provider,
                     raw={
                         **result.raw,
                         "failure_class": "runner_structured_output_parse_failure",
                         "runner_diagnostics": self._runner_diagnostics(
-                            repair_tool_policy,
+                            tool_policy,
                             failure_kind="structured_output_parse_failure",
-                            provider_error_message=str(exc),
+                            provider_error_message=message,
                             repair_attempted=False,
                             repair_succeeded=False,
                             observed=_json_object_or_empty(result.raw.get("runner_diagnostics")),
                         ),
-                        "structured_output_error": str(exc),
+                        "structured_output_error": message,
+                        "repair_attempted": False,
+                        "repair_succeeded": False,
+                    },
+                )
+            structured_output = _normalize_structured_output(structured_output_payload)
+            partial_runner_diagnostics = _json_object_or_empty(result.raw.get("runner_diagnostics"))
+            action_contract_repair_attempted = _bool_or_false(
+                result.raw.get("action_contract_repair_attempted")
+            ) or _bool_or_false(partial_runner_diagnostics.get("action_contract_repair_attempted"))
+            action_contract_repair_succeeded = _bool_or_false(
+                result.raw.get("action_contract_repair_succeeded")
+            ) or _bool_or_false(partial_runner_diagnostics.get("action_contract_repair_succeeded"))
+        else:
+            repair_tool_policy = tool_policy
+            if invalid_request := self._provider_invalid_request_diagnostics(result.message, repair_tool_policy):
+                diagnostics = dict(invalid_request)
+                for key, value in _json_object_or_empty(result.raw.get("runner_diagnostics")).items():
+                    diagnostics[key] = value
+                return HermesExecutionResult(
+                    ok=False,
+                    message=string_from_map(diagnostics, "provider_error_message") or "Provider rejected the runner request.",
+                    provider=result.provider,
+                    raw={
+                        **result.raw,
+                        "failure_class": "runner_invalid_request",
+                        "runner_diagnostics": diagnostics,
                         "raw_response": result.message,
                         "repair_attempted": False,
                         "repair_succeeded": False,
                     },
                 )
-        action_contract_repair_attempted = False
-        action_contract_repair_succeeded = False
-        action_contract_repair_error = ""
-        action_contract_repair_response = ""
-        if self._workflow_missing_explicit_reply_action(task, structured_output):
-            action_contract_repair_attempted = True
-            logger.info(
-                "workflow runner action-contract repair attempted trace_id=%s workflow_id=%s",
-                task.trace_id or "",
-                task.workflow_id or "",
-            )
-            repair_task = self._build_action_contract_repair_task(rendered_task, structured_output)
-            repair_result = self._execute_task_request(repair_task, repair_tool_policy)
-            action_contract_repair_response = repair_result.message
-            if repair_result.ok:
-                try:
-                    repaired_output = self._extract_structured_output(repair_result.message)
-                except HermesStructuredOutputError as exc:
-                    action_contract_repair_error = str(exc)
-                else:
-                    if not self._workflow_missing_explicit_reply_action(task, repaired_output):
-                        structured_output = repaired_output
-                        result = repair_result
-                        action_contract_repair_succeeded = True
-                        logger.info(
-                            "workflow runner action-contract repair succeeded trace_id=%s workflow_id=%s",
+            try:
+                structured_output = self._extract_structured_output(result.message)
+            except HermesStructuredOutputError as exc:
+                if task.task_type == "workflow" and self._config.workflow_runner_repair_attempts > 0 and self._structured_output_repairable(exc):
+                    repair_attempted = True
+                    logger.info(
+                        "workflow runner structured-output repair attempted trace_id=%s workflow_id=%s",
+                        task.trace_id or "",
+                        task.workflow_id or "",
+                    )
+                    repair_task = self._build_structured_output_repair_task(rendered_task, result.message)
+                    repair_result = self._execute_task_request(repair_task, repair_tool_policy)
+                    if repair_result.ok:
+                        if invalid_request := self._provider_invalid_request_diagnostics(repair_result.message, repair_tool_policy):
+                            diagnostics = dict(invalid_request)
+                            for key, value in _json_object_or_empty(repair_result.raw.get("runner_diagnostics")).items():
+                                diagnostics[key] = value
+                            diagnostics["repair_attempted"] = True
+                            diagnostics["repair_succeeded"] = False
+                            return HermesExecutionResult(
+                                ok=False,
+                                message=string_from_map(diagnostics, "provider_error_message") or "Provider rejected the runner request.",
+                                provider=repair_result.provider,
+                                raw={
+                                    **repair_result.raw,
+                                    "failure_class": "runner_invalid_request",
+                                    "runner_diagnostics": diagnostics,
+                                    "raw_response": repair_result.message,
+                                    "repair_attempted": True,
+                                    "repair_succeeded": False,
+                                    "repair_original_response": result.message,
+                                },
+                            )
+                        try:
+                            structured_output = self._extract_structured_output(repair_result.message)
+                            result = repair_result
+                            repair_succeeded = True
+                            logger.info(
+                                "workflow runner structured-output repair succeeded trace_id=%s workflow_id=%s",
+                                task.trace_id or "",
+                                task.workflow_id or "",
+                            )
+                        except HermesStructuredOutputError as repair_exc:
+                            logger.warning(
+                                "workflow runner structured-output repair failed trace_id=%s workflow_id=%s error=%s",
+                                task.trace_id or "",
+                                task.workflow_id or "",
+                                repair_exc,
+                            )
+                            return HermesExecutionResult(
+                                ok=False,
+                                message=str(repair_exc),
+                                provider=repair_result.provider,
+                                raw={
+                                    **repair_result.raw,
+                                    "failure_class": "runner_structured_output_parse_failure",
+                                    "runner_diagnostics": self._runner_diagnostics(
+                                        repair_tool_policy,
+                                        failure_kind="structured_output_parse_failure",
+                                        provider_error_message=str(repair_exc),
+                                        repair_attempted=True,
+                                        repair_succeeded=False,
+                                        observed=_json_object_or_empty(repair_result.raw.get("runner_diagnostics")),
+                                    ),
+                                    "structured_output_error": str(repair_exc),
+                                    "raw_response": repair_result.message,
+                                    "repair_attempted": True,
+                                    "repair_succeeded": False,
+                                    "repair_original_response": result.message,
+                                },
+                            )
+                    else:
+                        logger.warning(
+                            "workflow runner structured-output repair failed trace_id=%s workflow_id=%s error=%s",
                             task.trace_id or "",
                             task.workflow_id or "",
+                            repair_result.message,
                         )
+                        return HermesExecutionResult(
+                            ok=False,
+                            message=repair_result.message,
+                            provider=repair_result.provider,
+                            raw={
+                                **repair_result.raw,
+                                "runner_diagnostics": {
+                                    **_json_object_or_empty(repair_result.raw.get("runner_diagnostics")),
+                                    "repair_attempted": True,
+                                    "repair_succeeded": False,
+                                } if repair_result.raw.get("runner_diagnostics") is not None else repair_result.raw.get("runner_diagnostics"),
+                                "raw_response": repair_result.message,
+                                "repair_attempted": True,
+                                "repair_succeeded": False,
+                                "repair_original_response": result.message,
+                            },
+                        )
+                else:
+                    return HermesExecutionResult(
+                        ok=False,
+                        message=str(exc),
+                        provider=result.provider,
+                        raw={
+                            **result.raw,
+                            "failure_class": "runner_structured_output_parse_failure",
+                            "runner_diagnostics": self._runner_diagnostics(
+                                repair_tool_policy,
+                                failure_kind="structured_output_parse_failure",
+                                provider_error_message=str(exc),
+                                repair_attempted=False,
+                                repair_succeeded=False,
+                                observed=_json_object_or_empty(result.raw.get("runner_diagnostics")),
+                            ),
+                            "structured_output_error": str(exc),
+                            "raw_response": result.message,
+                            "repair_attempted": False,
+                            "repair_succeeded": False,
+                        },
+                    )
+            if self._workflow_missing_explicit_reply_action(task, structured_output):
+                action_contract_repair_attempted = True
+                logger.info(
+                    "workflow runner action-contract repair attempted trace_id=%s workflow_id=%s",
+                    task.trace_id or "",
+                    task.workflow_id or "",
+                )
+                repair_task = self._build_action_contract_repair_task(rendered_task, structured_output)
+                repair_result = self._execute_task_request(repair_task, repair_tool_policy)
+                action_contract_repair_response = repair_result.message
+                if repair_result.ok:
+                    try:
+                        repaired_output = self._extract_structured_output(repair_result.message)
+                    except HermesStructuredOutputError as exc:
+                        action_contract_repair_error = str(exc)
                     else:
-                        action_contract_repair_error = "Hermes repair response still omitted the required slack_post action."
-            else:
-                action_contract_repair_error = repair_result.message
+                        if not self._workflow_missing_explicit_reply_action(task, repaired_output):
+                            structured_output = repaired_output
+                            result = repair_result
+                            action_contract_repair_succeeded = True
+                            logger.info(
+                                "workflow runner action-contract repair succeeded trace_id=%s workflow_id=%s",
+                                task.trace_id or "",
+                                task.workflow_id or "",
+                            )
+                        else:
+                            action_contract_repair_error = "Hermes repair response still omitted the required slack_post action."
+                else:
+                    action_contract_repair_error = repair_result.message
         existing_repair_attempted = bool(result.raw.get("repair_attempted"))
         existing_repair_succeeded = bool(result.raw.get("repair_succeeded"))
         result.raw = {

@@ -173,6 +173,52 @@ class FakeSessionManager:
         }
 
 
+class FakeHTTPResponse:
+    def __init__(self, payload: dict[str, object]) -> None:
+        self._body = json.dumps(payload).encode("utf-8")
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> bool:
+        return False
+
+    def read(self) -> bytes:
+        return self._body
+
+
+def partial_structured_output(
+    *,
+    reply_text: str,
+    proposed_actions: list[dict[str, object]] | None = None,
+    context_summary: str = "Partial answer grounded in bounded-stop evidence.",
+) -> dict[str, object]:
+    return {
+        "visible_reasoning": [
+            {
+                "step_type": "analysis",
+                "summary": "Condensed the captured evidence into a grounded partial answer.",
+                "alternatives": [],
+                "confidence": 0.71,
+                "decision": "post_partial_reply",
+            }
+        ],
+        "reply_draft": reply_text,
+        "final_answer": reply_text,
+        "confidence": 0.71,
+        "context_summary": context_summary,
+        "self_critique": "More time or reads could improve coverage.",
+        "proposed_actions": proposed_actions or [],
+        "knowledge_drafts": [],
+        "outcome_hypotheses": [],
+        "change_plan": "",
+        "repo_patch": "",
+        "validation_plan": "",
+        "retry_assessment": {},
+        "hypothesis_delta": "",
+    }
+
+
 class HermesRuntimeTests(unittest.TestCase):
     def setUp(self) -> None:
         FakeAIAgent.last_kwargs = None
@@ -976,7 +1022,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(FakeAIAgent.last_interrupt_message, "runner iteration_budget_exhausted")
 
     def test_workflow_iteration_budget_exhaustion_recovers_partial_completion_without_tools(self) -> None:
-        class BudgetRecoveryAIAgent:
+        class BudgetReducerAIAgent:
             init_history: list[dict[str, object]] = []
             run_history: list[dict[str, object]] = []
             interrupt_messages: list[str] = []
@@ -1009,44 +1055,8 @@ class HermesRuntimeTests(unittest.TestCase):
                         "task_id": task_id,
                     }
                 )
-                if self.instance_index == 1:
-                    time.sleep(0.6)
-                    return {"final_response": ""}
-                return {
-                    "final_response": json.dumps(
-                        {
-                            "visible_reasoning": [
-                                {
-                                    "step_type": "analysis",
-                                    "summary": "Recovered a partial answer from the persisted session context.",
-                                    "alternatives": [],
-                                    "confidence": 0.72,
-                                    "decision": "post_partial_reply",
-                                }
-                            ],
-                            "reply_draft": "Partial answer: grounded summary so far.",
-                            "final_answer": "Partial answer: grounded summary so far.",
-                            "confidence": 0.72,
-                            "context_summary": "Recovered from the persisted session without new tools.",
-                            "self_critique": "Additional repository and Slack reads would improve coverage.",
-                            "proposed_actions": [
-                                {
-                                    "kind": "slack_post",
-                                    "target_ref": "C123",
-                                    "request_payload": {
-                                        "body": "Partial answer: grounded summary so far.",
-                                    },
-                                    "approval_mode": "not_required",
-                                    "idempotency_key": "partial-reply-1",
-                                    "rationale": "Post the grounded partial answer.",
-                                    "evidence_refs": [],
-                                }
-                            ],
-                            "knowledge_drafts": [],
-                            "outcome_hypotheses": [],
-                        }
-                    )
-                }
+                time.sleep(0.6)
+                return {"final_response": ""}
 
             def interrupt(self, message: str | None = None) -> None:
                 type(self).interrupt_messages.append(message or "")
@@ -1085,9 +1095,62 @@ class HermesRuntimeTests(unittest.TestCase):
                 }
             }
         )
+        captured_requests: list[dict[str, object]] = []
+        observed = {
+            "candidate_read_surfaces": [{"channel_id": "C123", "thread_ts": "171000001.000100", "ref": "", "source": "task_binding"}],
+            "selected_context_surfaces": [{"channel_id": "C123", "thread_ts": "171000001.000100", "scope": "bound_thread"}],
+            "memory_warnings": [],
+            "tool_calls": [
+                {
+                    "tool_name": "slack.history",
+                    "tool_call_id": "slack.history:1",
+                    "request": {"channel_id": "C123", "thread_ts": "171000001.000100"},
+                    "summary": "Loaded the bound Slack thread.",
+                    "status": "completed",
+                    "provider_ref": "slack-history-1",
+                },
+                {
+                    "tool_name": "slack.search",
+                    "tool_call_id": "slack.search:2",
+                    "request": {"query": "depin backend api numo"},
+                    "summary": "slack.search is unavailable in this workflow because the bound Slack event has no action_token.",
+                    "status": "error",
+                },
+            ],
+            "evidence_items": [
+                {
+                    "kind": "slack_message",
+                    "summary": "The thread discussed depin-backend API progress for the numo project.",
+                    "source_ref": "https://slack.example/messages/1",
+                    "tool_name": "slack.history",
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "permalink": "https://slack.example/messages/1",
+                }
+            ],
+        }
 
-        with mock.patch("rsi_runner.hermes_runtime.AIAgent", BudgetRecoveryAIAgent), mock.patch(
+        def fake_urlopen(req, timeout: int = 0):
+            captured_requests.append(
+                {
+                    "url": req.full_url,
+                    "timeout": timeout,
+                    "body": json.loads(req.data.decode("utf-8")),
+                }
+            )
+            return FakeHTTPResponse(
+                {
+                    "id": "resp_partial_1",
+                    "output_text": json.dumps(
+                        partial_structured_output(reply_text="Partial answer: grounded summary so far.", proposed_actions=[])
+                    ),
+                }
+            )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", BudgetReducerAIAgent), mock.patch(
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch("rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen), mock.patch.object(
+            HermesRuntime, "_observability_metadata", return_value=observed
         ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
             runtime = HermesRuntime(RunnerConfig.from_env())
             result = runtime.execute_task(task)
@@ -1099,20 +1162,28 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["runner_diagnostics"]["completion_verdict"], "partial")
         self.assertEqual(result.raw["runner_diagnostics"]["budget_used"], 20)
         self.assertEqual(result.raw["runner_diagnostics"]["budget_max"], 20)
-        self.assertEqual(len(BudgetRecoveryAIAgent.init_history), 2)
-        self.assertEqual(BudgetRecoveryAIAgent.init_history[0]["session_id"], BudgetRecoveryAIAgent.init_history[1]["session_id"])
-        self.assertEqual(BudgetRecoveryAIAgent.init_history[0]["max_iterations"], 20)
-        self.assertEqual(BudgetRecoveryAIAgent.init_history[1]["max_iterations"], 3)
-        self.assertEqual(result.raw["partial_recovery_max_iterations"], 3)
-        self.assertIn("repo_context", BudgetRecoveryAIAgent.run_history[0]["valid_tool_names"])
-        self.assertEqual(BudgetRecoveryAIAgent.run_history[1]["valid_tool_names"], [])
-        self.assertEqual(BudgetRecoveryAIAgent.run_history[1]["tool_names"], [])
-        self.assertIn("Recovery instruction", BudgetRecoveryAIAgent.run_history[1]["prompt"])
-        self.assertEqual(BudgetRecoveryAIAgent.run_history[1]["history"], [{"role": "user", "content": "Earlier thread message"}])
-        self.assertTrue(any("iteration_budget_exhausted" in message for message in BudgetRecoveryAIAgent.interrupt_messages))
+        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_mode"], "direct_reducer")
+        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_attempts"], 1)
+        self.assertFalse(result.raw["runner_diagnostics"]["partial_finalization_retry_attempted"])
+        self.assertFalse(result.raw["runner_diagnostics"]["partial_finalization_retry_succeeded"])
+        self.assertEqual(BudgetReducerAIAgent.created_instances, 1)
+        self.assertEqual(BudgetReducerAIAgent.init_history[0]["max_iterations"], 20)
+        self.assertIn("repo_context", BudgetReducerAIAgent.run_history[0]["valid_tool_names"])
+        self.assertTrue(any("iteration_budget_exhausted" in message for message in BudgetReducerAIAgent.interrupt_messages))
+        self.assertEqual(len(captured_requests), 1)
+        self.assertEqual(captured_requests[0]["url"], "https://api.openai.com/v1/responses")
+        self.assertNotIn("tools", captured_requests[0]["body"])
+        self.assertIn('"termination_reason": "iteration_budget_exhausted"', str(captured_requests[0]["body"]["input"]))
+        self.assertNotIn("Earlier thread message", str(captured_requests[0]["body"]["input"]))
+        self.assertEqual(result.raw["structured_output"]["proposed_actions"][0]["kind"], "slack_post")
+        self.assertTrue(result.raw["action_contract_repair_attempted"])
+        self.assertTrue(result.raw["action_contract_repair_succeeded"])
+        self.assertEqual(result.raw["evidence_ledger"]["tool_calls"][0]["tool_name"], "slack.history")
+        self.assertEqual(len(result.raw["evidence_ledger"]["evidence_items"]), 1)
+        self.assertTrue(result.raw["evidence_ledger"]["open_questions"])
 
-    def test_workflow_iteration_budget_exhaustion_repairs_partial_finalization_output(self) -> None:
-        class RepairingPartialAIAgent:
+    def test_workflow_iteration_budget_exhaustion_retries_direct_reducer_once_and_succeeds(self) -> None:
+        class RetryBudgetReducerAIAgent:
             init_history: list[dict[str, object]] = []
             created_instances = 0
 
@@ -1128,46 +1199,8 @@ class HermesRuntimeTests(unittest.TestCase):
                 conversation_history: list[dict] | None = None,
                 task_id: str | None = None,
             ) -> dict[str, object]:
-                if self.instance_index == 1:
-                    time.sleep(0.6)
-                    return {"final_response": ""}
-                if self.instance_index == 2:
-                    return {"final_response": "not valid json"}
-                return {
-                    "final_response": json.dumps(
-                        {
-                            "visible_reasoning": [
-                                {
-                                    "step_type": "analysis",
-                                    "summary": "Recovered and repaired a partial answer.",
-                                    "alternatives": [],
-                                    "confidence": 0.74,
-                                    "decision": "post_partial_reply",
-                                }
-                            ],
-                            "reply_draft": "Partial answer after repair.",
-                            "final_answer": "Partial answer after repair.",
-                            "confidence": 0.74,
-                            "context_summary": "Recovered from persisted session evidence after structured-output repair.",
-                            "self_critique": "Fresh reads would improve coverage.",
-                            "proposed_actions": [
-                                {
-                                    "kind": "slack_post",
-                                    "target_ref": "C123",
-                                    "request_payload": {
-                                        "body": "Partial answer after repair.",
-                                    },
-                                    "approval_mode": "not_required",
-                                    "idempotency_key": "partial-reply-repaired-1",
-                                    "rationale": "Post the grounded partial answer.",
-                                    "evidence_refs": [],
-                                }
-                            ],
-                            "knowledge_drafts": [],
-                            "outcome_hypotheses": [],
-                        }
-                    )
-                }
+                time.sleep(0.6)
+                return {"final_response": ""}
 
             def interrupt(self, _message: str | None = None) -> None:
                 return None
@@ -1206,25 +1239,51 @@ class HermesRuntimeTests(unittest.TestCase):
                 }
             }
         )
+        captured_requests: list[dict[str, object]] = []
 
-        with mock.patch("rsi_runner.hermes_runtime.AIAgent", RepairingPartialAIAgent), mock.patch(
+        def fake_urlopen(req, timeout: int = 0):
+            captured_requests.append(
+                {
+                    "url": req.full_url,
+                    "timeout": timeout,
+                    "body": json.loads(req.data.decode("utf-8")),
+                }
+            )
+            if len(captured_requests) == 1:
+                return FakeHTTPResponse({"id": "resp_partial_retry_1", "output_text": "not valid json"})
+            return FakeHTTPResponse(
+                {
+                    "id": "resp_partial_retry_2",
+                    "output_text": json.dumps(
+                        partial_structured_output(reply_text="Partial answer after reducer retry.")
+                    ),
+                }
+            )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", RetryBudgetReducerAIAgent), mock.patch(
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+        ), mock.patch("rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen), mock.patch.dict(
+            os.environ, runner_env("prod"), clear=True
+        ):
             runtime = HermesRuntime(RunnerConfig.from_env())
             result = runtime.execute_task(task)
 
         self.assertTrue(result.ok)
         self.assertEqual(result.raw["termination_reason"], "iteration_budget_exhausted")
         self.assertEqual(result.raw["completion_verdict"], "partial")
-        self.assertTrue(result.raw["repair_attempted"])
-        self.assertTrue(result.raw["repair_succeeded"])
-        self.assertEqual(RepairingPartialAIAgent.created_instances, 3)
-        self.assertEqual(RepairingPartialAIAgent.init_history[0]["max_iterations"], 20)
-        self.assertEqual(RepairingPartialAIAgent.init_history[1]["max_iterations"], 3)
-        self.assertEqual(RepairingPartialAIAgent.init_history[2]["max_iterations"], 1)
+        self.assertFalse(result.raw["repair_attempted"])
+        self.assertFalse(result.raw["repair_succeeded"])
+        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_mode"], "direct_reducer")
+        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_attempts"], 2)
+        self.assertTrue(result.raw["runner_diagnostics"]["partial_finalization_retry_attempted"])
+        self.assertTrue(result.raw["runner_diagnostics"]["partial_finalization_retry_succeeded"])
+        self.assertEqual(RetryBudgetReducerAIAgent.created_instances, 1)
+        self.assertEqual(len(captured_requests), 2)
+        self.assertIn("Previous reducer attempt failed.", str(captured_requests[1]["body"]["input"]))
+        self.assertIn("not valid json", str(captured_requests[1]["body"]["input"]))
 
     def test_workflow_task_timeout_enters_partial_finalization_before_hard_deadline(self) -> None:
-        class TimeoutRecoveryAIAgent:
+        class TimeoutReducerAIAgent:
             init_history: list[dict[str, object]] = []
             run_history: list[dict[str, object]] = []
             interrupt_messages: list[str] = []
@@ -1257,44 +1316,8 @@ class HermesRuntimeTests(unittest.TestCase):
                         "task_id": task_id,
                     }
                 )
-                if self.instance_index == 1:
-                    time.sleep(1.2)
-                    return {"final_response": ""}
-                return {
-                    "final_response": json.dumps(
-                        {
-                            "visible_reasoning": [
-                                {
-                                    "step_type": "analysis",
-                                    "summary": "Recovered a partial answer from the persisted session context after the timeout.",
-                                    "alternatives": [],
-                                    "confidence": 0.68,
-                                    "decision": "post_partial_reply",
-                                }
-                            ],
-                            "reply_draft": "Partial answer: grounded summary so far.",
-                            "final_answer": "Partial answer: grounded summary so far.",
-                            "confidence": 0.68,
-                            "context_summary": "Recovered from the persisted session without new tools after the timeout.",
-                            "self_critique": "Additional Slack reads would improve coverage.",
-                            "proposed_actions": [
-                                {
-                                    "kind": "slack_post",
-                                    "target_ref": "C123",
-                                    "request_payload": {
-                                        "body": "Partial answer: grounded summary so far.",
-                                    },
-                                    "approval_mode": "not_required",
-                                    "idempotency_key": "partial-reply-timeout-1",
-                                    "rationale": "Post the grounded partial answer.",
-                                    "evidence_refs": [],
-                                }
-                            ],
-                            "knowledge_drafts": [],
-                            "outcome_hypotheses": [],
-                        }
-                    )
-                }
+                time.sleep(1.2)
+                return {"final_response": ""}
 
             def interrupt(self, message: str | None = None) -> None:
                 type(self).interrupt_messages.append(message or "")
@@ -1333,14 +1356,33 @@ class HermesRuntimeTests(unittest.TestCase):
                 }
             }
         )
+        captured_requests: list[dict[str, object]] = []
 
-        with mock.patch("rsi_runner.hermes_runtime.AIAgent", TimeoutRecoveryAIAgent), mock.patch(
+        def fake_urlopen(req, timeout: int = 0):
+            captured_requests.append(
+                {
+                    "url": req.full_url,
+                    "timeout": timeout,
+                    "body": json.loads(req.data.decode("utf-8")),
+                }
+            )
+            return FakeHTTPResponse(
+                {
+                    "id": "resp_timeout_partial",
+                    "output_text": json.dumps(partial_structured_output(reply_text="Partial answer after timeout.")),
+                }
+            )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", TimeoutReducerAIAgent), mock.patch(
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(
+        ), mock.patch("rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen), mock.patch.dict(
             os.environ,
             {**runner_env("prod"), "RSI_RUNNER_PROD_TASK_TIMEOUT": "20s"},
             clear=True,
-        ), mock.patch("rsi_runner.hermes_runtime.time.monotonic", side_effect=[100.0, 110.0, 111.0, 112.0]):
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.time.monotonic",
+            side_effect=[100.0, 110.0],
+        ):
             runtime = HermesRuntime(RunnerConfig.from_env())
             result = runtime.execute_task(task)
 
@@ -1356,21 +1398,17 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["runner_diagnostics"]["timeout_kind"], "task_timeout")
         self.assertEqual(result.raw["runner_diagnostics"]["budget_used"], 9)
         self.assertEqual(result.raw["runner_diagnostics"]["budget_max"], 20)
-        self.assertEqual(len(TimeoutRecoveryAIAgent.init_history), 2)
-        self.assertEqual(TimeoutRecoveryAIAgent.init_history[0]["session_id"], TimeoutRecoveryAIAgent.init_history[1]["session_id"])
-        self.assertEqual(TimeoutRecoveryAIAgent.init_history[0]["max_iterations"], 20)
-        self.assertEqual(TimeoutRecoveryAIAgent.init_history[1]["max_iterations"], 3)
-        self.assertEqual(result.raw["partial_recovery_max_iterations"], 3)
-        self.assertIn("repo_context", TimeoutRecoveryAIAgent.run_history[0]["valid_tool_names"])
-        self.assertEqual(TimeoutRecoveryAIAgent.run_history[1]["valid_tool_names"], [])
-        self.assertEqual(TimeoutRecoveryAIAgent.run_history[1]["tool_names"], [])
-        self.assertIn("task timeout", TimeoutRecoveryAIAgent.run_history[1]["prompt"])
-        self.assertIn("workflow time limit", TimeoutRecoveryAIAgent.run_history[1]["prompt"])
-        self.assertEqual(TimeoutRecoveryAIAgent.run_history[1]["history"], [{"role": "user", "content": "Earlier thread message"}])
-        self.assertTrue(any(message == "runner task_timeout after 10s" for message in TimeoutRecoveryAIAgent.interrupt_messages))
+        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_mode"], "direct_reducer")
+        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_attempts"], 1)
+        self.assertFalse(result.raw["runner_diagnostics"]["partial_finalization_retry_attempted"])
+        self.assertEqual(TimeoutReducerAIAgent.created_instances, 1)
+        self.assertEqual(len(captured_requests), 1)
+        self.assertIn('"termination_reason": "task_timeout"', str(captured_requests[0]["body"]["input"]))
+        self.assertNotIn("Earlier thread message", str(captured_requests[0]["body"]["input"]))
+        self.assertTrue(any(message == "runner task_timeout after 10s" for message in TimeoutReducerAIAgent.interrupt_messages))
 
-    def test_workflow_iteration_budget_exhaustion_fails_when_recovery_output_is_invalid(self) -> None:
-        class InvalidRecoveryAIAgent:
+    def test_workflow_iteration_budget_exhaustion_fails_when_direct_reducer_cannot_return_valid_output(self) -> None:
+        class InvalidReducerAIAgent:
             init_history: list[dict[str, object]] = []
             created_instances = 0
 
@@ -1386,10 +1424,8 @@ class HermesRuntimeTests(unittest.TestCase):
                 conversation_history: list[dict] | None = None,
                 task_id: str | None = None,
             ) -> dict[str, object]:
-                if self.instance_index == 1:
-                    time.sleep(0.6)
-                    return {"final_response": ""}
-                return {"final_response": "not valid json"}
+                time.sleep(0.6)
+                return {"final_response": ""}
 
             def interrupt(self, message: str | None = None) -> None:
                 return None
@@ -1428,10 +1464,25 @@ class HermesRuntimeTests(unittest.TestCase):
                 }
             }
         )
+        captured_requests: list[dict[str, object]] = []
 
-        with mock.patch("rsi_runner.hermes_runtime.AIAgent", InvalidRecoveryAIAgent), mock.patch(
+        def fake_urlopen(req, timeout: int = 0):
+            captured_requests.append(
+                {
+                    "url": req.full_url,
+                    "timeout": timeout,
+                    "body": json.loads(req.data.decode("utf-8")),
+                }
+            )
+            if len(captured_requests) == 1:
+                return FakeHTTPResponse({"id": "resp_fail_1", "output_text": "not valid json"})
+            return FakeHTTPResponse({"id": "resp_fail_2", "output_text": "still not valid json"})
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", InvalidReducerAIAgent), mock.patch(
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+        ), mock.patch("rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen), mock.patch.dict(
+            os.environ, runner_env("prod"), clear=True
+        ):
             runtime = HermesRuntime(RunnerConfig.from_env())
             result = runtime.execute_task(task)
 
@@ -1445,7 +1496,78 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertFalse(result.raw["partial_recovery_succeeded"])
         self.assertTrue(result.raw["runner_diagnostics"]["partial_completion_attempted"])
         self.assertFalse(result.raw["runner_diagnostics"]["partial_completion_succeeded"])
+        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_mode"], "direct_reducer")
+        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_attempts"], 2)
+        self.assertTrue(result.raw["runner_diagnostics"]["partial_finalization_retry_attempted"])
+        self.assertFalse(result.raw["runner_diagnostics"]["partial_finalization_retry_succeeded"])
+        self.assertEqual(InvalidReducerAIAgent.created_instances, 1)
+        self.assertEqual(len(captured_requests), 2)
         self.assertIn("structured output", result.message.lower())
+
+    def test_workflow_evidence_ledger_projects_compact_tool_calls_and_evidence_items(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the Slack thread.",
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "trace_id": "trace-123",
+                    "workflow_id": "wf-123",
+                    "context_summary": "Slack and repo context were being gathered.",
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        rendered = runtime._render_task_prompt(task, runtime._resolve_tool_policy(task))
+        task_with_rendered_prompt = RunnerTaskRequest.from_payload({"task": {**task.__dict__, "prompt": rendered}})
+        ledger = runtime._build_evidence_ledger(
+            task_with_rendered_prompt,
+            {
+                "tool_calls": [
+                    {
+                        "tool_name": "repo.search",
+                        "tool_call_id": "repo.search:1",
+                        "request": {"path": "internal/control", "pattern": "completion_verdict"},
+                        "summary": "Found reducer handling in worker.go.",
+                        "status": "completed",
+                        "provider_ref": "search-1",
+                    },
+                    {
+                        "tool_name": "slack.search",
+                        "tool_call_id": "slack.search:2",
+                        "request": {"query": "depin backend api numo"},
+                        "summary": "missing_action_token",
+                        "status": "error",
+                    },
+                ],
+                "evidence_items": [
+                    {
+                        "kind": "repo_search_match",
+                        "summary": "worker.go treats completion_verdict=partial as a normal success path.",
+                        "source_ref": "internal/control/worker.go",
+                        "tool_name": "repo.search",
+                        "path": "internal/control/worker.go",
+                        "repo": "rsi-agent-platform",
+                    }
+                ],
+            },
+            "task_timeout",
+        )
+
+        self.assertEqual(ledger["user_request"], "Summarize the Slack thread.")
+        self.assertEqual(ledger["reply_target"], {"channel_id": "C123", "thread_ts": "171000001.000100"})
+        self.assertEqual(ledger["termination_reason"], "task_timeout")
+        self.assertEqual(len(ledger["tool_calls"]), 2)
+        self.assertEqual(ledger["tool_calls"][0]["tool_name"], "repo.search")
+        self.assertEqual(ledger["evidence_items"][0]["source_ref"], "internal/control/worker.go")
+        self.assertTrue(ledger["open_questions"])
 
     def test_runtime_metadata_reports_role_contract(self) -> None:
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
