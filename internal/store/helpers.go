@@ -47,6 +47,7 @@ func newEmptyMemoryStore() *MemoryStore {
 		proposals:              map[string]review.Proposal{},
 		changeAttempts:         map[string]improvement.ChangeAttempt{},
 		attemptWorkspaces:      map[string]improvement.AttemptWorkspace{},
+		validationRuns:         map[string]improvement.ValidationRun{},
 		repoChangeJobs:         map[string]improvement.RepoChangeJob{},
 		prAttempts:             map[string]improvement.PRAttempt{},
 		postMergeReplay:        map[string]improvement.PostMergeReplay{},

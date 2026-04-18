@@ -48,6 +48,7 @@ type Store interface {
 	GetCommandReceipt(commandID string) (transition.CommandReceipt, bool)
 	RecordCommandReceipt(item transition.CommandReceipt) (transition.CommandReceipt, bool, error)
 	SubmitCommand(command transition.CommandEnvelope) (transition.CommandReceipt, error)
+	QueueEffectExecution(effect transition.EffectExecution) (transition.EffectExecution, bool, error)
 	ClaimEffectExecution(effectID string, holder string, lease time.Duration) (transition.EffectExecution, bool, error)
 	CompleteEffectExecution(effectID string, holder string, resultRef string) (transition.EffectExecution, error)
 	FailEffectExecution(effectID string, holder string, lastError string) (transition.EffectExecution, error)
@@ -67,6 +68,7 @@ type Store interface {
 	ListChangeAttempts() []improvement.ChangeAttempt
 	GetChangeAttempt(attemptID string) (improvement.ChangeAttempt, bool)
 	ListAttemptWorkspaces() []improvement.AttemptWorkspace
+	RecordAttemptWorkspace(workspace improvement.AttemptWorkspace) (improvement.AttemptWorkspace, error)
 	GetAttemptWorkspace(workspaceID string) (improvement.AttemptWorkspace, bool)
 	GetAttemptWorkspaceByAttempt(attemptID string) (improvement.AttemptWorkspace, bool)
 	ListIngestions() []slack.Ingestion
@@ -95,8 +97,11 @@ type Store interface {
 	ListProposalMemories() []review.ProposalMemory
 	GetProposalSlots() ProposalSlotState
 	ListProposals() []review.Proposal
+	ListValidationRuns() []improvement.ValidationRun
+	RecordValidationRun(run improvement.ValidationRun) (improvement.ValidationRun, error)
 	ListRepoChangeJobs() []improvement.RepoChangeJob
 	ListPRAttempts() []improvement.PRAttempt
+	RecordPRAttempt(attempt improvement.PRAttempt) (improvement.PRAttempt, error)
 	ListPostMergeReplays() []improvement.PostMergeReplay
 	ResetAppData() (AppDataResetResult, error)
 }
@@ -143,6 +148,7 @@ type MemoryStore struct {
 	proposals              map[string]review.Proposal
 	changeAttempts         map[string]improvement.ChangeAttempt
 	attemptWorkspaces      map[string]improvement.AttemptWorkspace
+	validationRuns         map[string]improvement.ValidationRun
 	proposalMemory         []review.ProposalMemory
 	repoChangeJobs         map[string]improvement.RepoChangeJob
 	prAttempts             map[string]improvement.PRAttempt
@@ -201,6 +207,7 @@ func (s *MemoryStore) ResetAppData() (AppDataResetResult, error) {
 	s.proposals = replacement.proposals
 	s.changeAttempts = replacement.changeAttempts
 	s.attemptWorkspaces = replacement.attemptWorkspaces
+	s.validationRuns = replacement.validationRuns
 	s.proposalMemory = replacement.proposalMemory
 	s.repoChangeJobs = replacement.repoChangeJobs
 	s.prAttempts = replacement.prAttempts

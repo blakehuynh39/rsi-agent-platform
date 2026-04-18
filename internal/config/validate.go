@@ -114,7 +114,7 @@ func (c Config) validateImprovementPlane(issues *[]string) {
 	if c.RuntimeMode == "serve" {
 		addRequiredURL(issues, "RSI_HONCHO_RUNTIME_BASE_URL", c.HonchoRuntimeBaseURL, c.nonLocalhostRequired())
 	}
-	if c.RuntimeMode == "worker" {
+	if c.RuntimeMode == "worker" || c.RuntimeMode == "reconcile" {
 		addRequiredString(issues, "RSI_GITHUB_APP_ID", c.GitHubAppID)
 		addRequiredString(issues, "RSI_GITHUB_APP_INSTALLATION_ID", c.GitHubAppInstallationID)
 		addRequiredString(issues, "RSI_GITHUB_APP_PRIVATE_KEY", c.GitHubAppPrivateKey)

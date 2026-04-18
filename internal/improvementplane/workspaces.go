@@ -23,14 +23,18 @@ func ensureAttemptWorkspace(cfg config.Config, store storepkg.Store, launcher sa
 		return improvement.AttemptWorkspace{}, false, fmt.Errorf("sandbox launcher not configured")
 	}
 	if workspace, ok := store.GetAttemptWorkspaceByAttempt(attempt.ID); ok {
-		if workspace.PodName == "" && workspace.JobName != "" {
-			if podName, err := launcher.ResolvePod(context.Background(), workspace.Namespace, workspace.JobName); err == nil {
-				workspace.PodName = podName
-				workspace.Status = improvement.WorkspaceReady
-				workspace.UpdatedAt = time.Now().UTC()
+		if workspaceSessionMissingProviderIdentity(workspace) {
+			workspace.Repairable = true
+		} else {
+			if workspace.PodName == "" && workspace.JobName != "" {
+				if podName, err := launcher.ResolvePod(context.Background(), workspace.Namespace, workspace.JobName); err == nil {
+					workspace.PodName = podName
+					workspace.Status = improvement.WorkspaceReady
+					workspace.UpdatedAt = time.Now().UTC()
+				}
 			}
+			return workspace, workspace.PodName != "", nil
 		}
-		return workspace, workspace.PodName != "", nil
 	}
 
 	targetRepo := proposalTargetRepo(cfg, proposal)

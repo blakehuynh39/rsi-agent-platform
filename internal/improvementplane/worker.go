@@ -622,17 +622,8 @@ func processWorkspaceValidateEffect(cfg config.Config, store storepkg.Store, too
 	}
 	branchName := firstNonEmpty(effectStringValue(effect, "branch_name"), workspace.BranchName, attempt.BranchName)
 	baseRef := firstNonEmpty(effectStringValue(effect, "base_ref"), workspace.BaseRef, "main")
-	title := effectStringValue(effect, "title")
-	body := effectStringValue(effect, "body")
-	if title == "" || body == "" {
-		if err := recordAttemptFailure(cfg, store, proposal, attempt, attemptTrace, "insufficient_evidence", "Proposal implement run completed without requesting a governed draft PR open.", true, improvement.AttemptTriggerProposalApproved, attemptFailureTraceExtras{
-			Payload: attemptFailurePayload(&workspace, &job, "Proposal implement run completed without requesting a governed draft PR open."),
-		}); err != nil {
-			_ = failClaimedImprovementEffect(store, effect, err.Error())
-			return err
-		}
-		return completeClaimedImprovementEffect(store, effect, attempt.ID)
-	}
+	title := firstNonEmpty(effectStringValue(effect, "title"), fmt.Sprintf("RSI proposal %s attempt %s for %s", proposal.ID, attempt.ID, proposalTargetRepo(cfg, proposal)))
+	body := firstNonEmpty(effectStringValue(effect, "body"), fmt.Sprintf("Automated draft PR for proposal %s attempt %s after workspace validation.", proposal.ID, attempt.ID))
 	now := time.Now().UTC()
 	payload := workspaceCommandPayload(workspace, job)
 	payload["operation_id"] = operationID

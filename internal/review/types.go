@@ -12,6 +12,8 @@ const (
 	ProposalQueuedForPromotion ProposalStatus = "queued_for_promotion"
 	ProposalPendingReview      ProposalStatus = "pending_review"
 	ProposalApproved           ProposalStatus = "approved"
+	ProposalInProgress         ProposalStatus = "in_progress"
+	ProposalNeedsReview        ProposalStatus = "needs_review"
 	ProposalRepoChangeQueued   ProposalStatus = "repo_change_queued"
 	ProposalRepoChangeRunning  ProposalStatus = "repo_change_running"
 	ProposalValidationPending  ProposalStatus = "validation_pending"
@@ -26,10 +28,21 @@ const (
 
 func ConsumesActiveProposalSlot(status ProposalStatus) bool {
 	switch status {
-	case ProposalPendingReview, ProposalApproved, ProposalRepoChangeQueued, ProposalRepoChangeRunning, ProposalValidationPending, ProposalPROpen:
+	case ProposalPendingReview, ProposalApproved, ProposalInProgress, ProposalNeedsReview, ProposalRepoChangeQueued, ProposalRepoChangeRunning, ProposalValidationPending, ProposalPROpen:
 		return true
 	default:
 		return false
+	}
+}
+
+func PublicProposalStatus(status ProposalStatus) ProposalStatus {
+	switch status {
+	case ProposalRepoChangeQueued, ProposalRepoChangeRunning, ProposalValidationPending, ProposalPROpen:
+		return ProposalInProgress
+	case ProposalFailedValidation:
+		return ProposalNeedsReview
+	default:
+		return status
 	}
 }
 

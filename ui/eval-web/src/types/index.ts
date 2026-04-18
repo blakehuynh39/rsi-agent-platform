@@ -529,10 +529,31 @@ export type RepoChangeJob = {
   updated_at?: string;
 };
 
+export type ValidationRun = Timestamped & {
+  id: string;
+  proposal_id: string;
+  attempt_id?: string;
+  workspace_id?: string;
+  operation_id?: string;
+  generation?: number;
+  repo?: string;
+  branch_name?: string;
+  command?: string;
+  status: string;
+  sandbox_namespace?: string;
+  sandbox_job_name?: string;
+  sandbox_pod_name?: string;
+  validation_ref?: string;
+  error_message?: string;
+  log_artifact_id?: string;
+};
+
 export type PRAttempt = CreatedAt & {
   id: string;
   proposal_id: string;
   attempt_id?: string;
+  operation_id?: string;
+  generation?: number;
   repo?: string;
   branch_name?: string;
   pr_url?: string;
@@ -545,6 +566,8 @@ export type AttemptWorkspace = Timestamped & {
   id: string;
   attempt_id: string;
   proposal_id: string;
+  operation_id?: string;
+  generation?: number;
   repo: string;
   base_ref?: string;
   branch_name: string;
@@ -552,6 +575,8 @@ export type AttemptWorkspace = Timestamped & {
   job_name?: string;
   pod_name?: string;
   status: string;
+  last_error?: string;
+  repairable?: boolean;
   allowed_path_globs?: NullableList<string>;
   head_sha?: string;
   diff_summary?: string;
@@ -622,11 +647,11 @@ export type ProposalDetailResponse = {
   proposal: Proposal;
   current_phase?: ProposalCurrentPhaseSummary;
   attempts: NullableList<ChangeAttempt>;
-  attempt_workspaces: NullableList<AttemptWorkspace>;
+  workspace_sessions: NullableList<AttemptWorkspace>;
   effects: NullableList<EffectExecution>;
   reviews: NullableList<ProposalReview>;
   related_proposal_memory: NullableList<ProposalMemory>;
-  repo_change_jobs: NullableList<RepoChangeJob>;
+  validation_runs: NullableList<ValidationRun>;
   pr_attempts: NullableList<PRAttempt>;
   post_merge_replays: NullableList<PostMergeReplay>;
   linked_trace_summaries: NullableList<TraceAttemptSummary>;
@@ -640,6 +665,9 @@ export type ProposalDetailResponse = {
 
 export type ProposalCurrentPhaseSummary = {
   attempt_id?: string;
+  attempt_state?: string;
+  required_resource_kind?: string;
+  reconcile_status?: string;
   effect_id?: string;
   effect_kind?: string;
   effect_status?: string;

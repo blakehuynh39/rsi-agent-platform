@@ -125,6 +125,12 @@ const (
 type ChangeAttemptState string
 
 const (
+	AttemptStatePlanned                ChangeAttemptState = "planned"
+	AttemptStateWorkspaceRequired      ChangeAttemptState = "workspace_required"
+	AttemptStateImplementationRequired ChangeAttemptState = "implementation_required"
+	AttemptStateValidationRequired     ChangeAttemptState = "validation_required"
+	AttemptStatePRRequired             ChangeAttemptState = "pr_required"
+	AttemptStateObservingCI            ChangeAttemptState = "observing_ci"
 	AttemptStatePatchPlan           ChangeAttemptState = "patch_plan"
 	AttemptStateInvestigateComplete ChangeAttemptState = "investigate_complete"
 	AttemptStatePatchGenerated      ChangeAttemptState = "patch_generated"
@@ -195,6 +201,8 @@ type AttemptWorkspace struct {
 	ID               string                 `json:"id"`
 	AttemptID        string                 `json:"attempt_id"`
 	ProposalID       string                 `json:"proposal_id"`
+	OperationID      string                 `json:"operation_id,omitempty"`
+	Generation       int                    `json:"generation,omitempty"`
 	Repo             string                 `json:"repo"`
 	BaseRef          string                 `json:"base_ref"`
 	BranchName       string                 `json:"branch_name"`
@@ -202,12 +210,47 @@ type AttemptWorkspace struct {
 	JobName          string                 `json:"job_name,omitempty"`
 	PodName          string                 `json:"pod_name,omitempty"`
 	Status           AttemptWorkspaceStatus `json:"status"`
+	LastError        string                 `json:"last_error,omitempty"`
+	Repairable       bool                   `json:"repairable,omitempty"`
 	AllowedPathGlobs []string               `json:"allowed_path_globs,omitempty"`
 	HeadSHA          string                 `json:"head_sha,omitempty"`
 	DiffSummary      string                 `json:"diff_summary,omitempty"`
 	CreatedAt        time.Time              `json:"created_at"`
 	UpdatedAt        time.Time              `json:"updated_at"`
 	ExpiresAt        *time.Time             `json:"expires_at,omitempty"`
+}
+
+type ValidationRunStatus string
+
+const (
+	ValidationRunRequested ValidationRunStatus = "requested"
+	ValidationRunRunning   ValidationRunStatus = "running"
+	ValidationRunPassed    ValidationRunStatus = "passed"
+	ValidationRunFailed    ValidationRunStatus = "failed"
+)
+
+type ValidationRun struct {
+	ID               string              `json:"id"`
+	ProposalID       string              `json:"proposal_id"`
+	AttemptID        string              `json:"attempt_id,omitempty"`
+	ConversationID   string              `json:"conversation_id,omitempty"`
+	CaseID           string              `json:"case_id,omitempty"`
+	OriginTraceID    string              `json:"origin_trace_id,omitempty"`
+	WorkspaceID      string              `json:"workspace_id,omitempty"`
+	OperationID      string              `json:"operation_id,omitempty"`
+	Generation       int                 `json:"generation,omitempty"`
+	Repo             string              `json:"repo"`
+	BranchName       string              `json:"branch_name"`
+	Command          string              `json:"command,omitempty"`
+	Status           ValidationRunStatus `json:"status"`
+	SandboxNamespace string              `json:"sandbox_namespace,omitempty"`
+	SandboxJobName   string              `json:"sandbox_job_name,omitempty"`
+	SandboxPodName   string              `json:"sandbox_pod_name,omitempty"`
+	ValidationRef    string              `json:"validation_ref,omitempty"`
+	ErrorMessage     string              `json:"error_message,omitempty"`
+	LogArtifactID    string              `json:"log_artifact_id,omitempty"`
+	CreatedAt        time.Time           `json:"created_at"`
+	UpdatedAt        time.Time           `json:"updated_at"`
 }
 
 type RepoChangeJob struct {
@@ -241,6 +284,8 @@ type PRAttempt struct {
 	ConversationID   string    `json:"conversation_id,omitempty"`
 	CaseID           string    `json:"case_id,omitempty"`
 	OriginTraceID    string    `json:"origin_trace_id,omitempty"`
+	OperationID      string    `json:"operation_id,omitempty"`
+	Generation       int       `json:"generation,omitempty"`
 	Repo             string    `json:"repo"`
 	BranchName       string    `json:"branch_name"`
 	PRURL            string    `json:"pr_url,omitempty"`
@@ -271,4 +316,21 @@ type CronLease struct {
 type Settings struct {
 	ActiveProposalCap int       `json:"active_proposal_cap"`
 	UpdatedAt         time.Time `json:"updated_at"`
+}
+
+func PublicAttemptState(state ChangeAttemptState) ChangeAttemptState {
+	switch state {
+	case AttemptStatePatchPlan, AttemptStateInvestigateComplete:
+		return AttemptStateWorkspaceRequired
+	case AttemptStatePatchGenerated:
+		return AttemptStateValidationRequired
+	case AttemptStateValidationRunning:
+		return AttemptStatePRRequired
+	case AttemptStateCIObserving, AttemptStatePROpen:
+		return AttemptStateObservingCI
+	case AttemptStateSandboxFailed:
+		return AttemptStateNeedsReview
+	default:
+		return state
+	}
 }

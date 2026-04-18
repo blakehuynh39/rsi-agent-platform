@@ -271,9 +271,9 @@ const proposalListResponse = {
       title: "Improve trace rendering",
       category: "architecture",
       summary: "Split detail payloads into conversation, case, and trace evidence objects.",
-      status: "pr_open",
+      status: "in_progress",
       repo_change_status: "validation_pending",
-      pr_status: "pr_open",
+      pr_status: "open",
       pr_url: "https://github.com/piplabs/rsi-agent-platform/pull/42",
       candidate_key: "improvement-plane:detail-contracts",
       risk_tier: "medium",
@@ -300,6 +300,12 @@ const proposalListResponse = {
 
 const proposalDetailResponse = {
   proposal: proposalListResponse.proposals[0],
+  current_phase: {
+    attempt_id: "attempt-001",
+    attempt_state: "observing_ci",
+    reconcile_status: "healthy",
+    reconciliation_needed: false
+  },
   attempts: [
     {
       id: "attempt-001",
@@ -310,7 +316,7 @@ const proposalDetailResponse = {
       target_kind: "repo",
       target_ref: "rsi-agent-platform",
       trigger: "proposal_approved",
-      state: "pr_open",
+      state: "observing_ci",
       branch_name: "codex/proposal-001",
       diff_summary: "Update persistence contract.",
       changed_files: ["internal/store/postgres.go"],
@@ -321,11 +327,13 @@ const proposalDetailResponse = {
       updated_at: "2026-04-11T12:30:00Z"
     }
   ],
-  attempt_workspaces: [
+  workspace_sessions: [
     {
       id: "workspace-001",
       attempt_id: "attempt-001",
       proposal_id: "proposal-001",
+      operation_id: "attempt-001:workspace:001",
+      generation: 1,
       repo: "rsi-agent-platform",
       base_ref: "main",
       branch_name: "codex/proposal-001",
@@ -355,15 +363,16 @@ const proposalDetailResponse = {
   ],
   reviews: [],
   related_proposal_memory: [],
-  repo_change_jobs: [
+  validation_runs: [
     {
-      id: "job-001",
+      id: "validation-001",
       proposal_id: "proposal-001",
-      status: "pr_open",
+      attempt_id: "attempt-001",
+      workspace_id: "workspace-001",
       repo: "rsi-agent-platform",
       branch_name: "codex/proposal-001",
-      context_summary: "Detail payload refactor.",
-      validation_error: "",
+      command: "make test",
+      status: "passed",
       validation_ref: "rsi-platform/rsi-sandbox-trace-001",
       sandbox_namespace: "rsi-platform",
       sandbox_job_name: "rsi-sandbox-trace-001",
@@ -378,8 +387,8 @@ const proposalDetailResponse = {
       id: "pr-001",
       proposal_id: "proposal-001",
       pr_url: "https://github.com/piplabs/rsi-agent-platform/pull/42",
-      status: "pr_open",
-      validation_status: "pending",
+      status: "open",
+      validation_status: "passed",
       created_at: "2026-04-11T12:30:00Z"
     }
   ],

@@ -12,8 +12,8 @@ import (
 )
 
 func main() {
-	mode := flag.String("mode", "serve", "serve, cron, worker, or migrate")
-	once := flag.Bool("once", false, "run one cron tick and exit")
+	mode := flag.String("mode", "serve", "serve, cron, reconcile, worker, or migrate")
+	once := flag.Bool("once", false, "run one cron/reconcile tick and exit")
 	flag.Parse()
 
 	cfg, err := config.Load("improvement-plane").ValidatedFor("improvement-plane", *mode)
@@ -51,6 +51,19 @@ func main() {
 	if *mode == "worker" {
 		log.Printf("starting %s kind=%s mode=%s poll=%s dependencies=%v", cfg.ServiceName, cfg.ServiceKind, cfg.RuntimeMode, cfg.WorkerPollInterval, cfg.DependencyTargets())
 		if err := improvementplane.RunWorker(cfg, store); err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
+	if *mode == "reconcile" {
+		log.Printf("starting %s kind=%s mode=%s poll=%s dependencies=%v", cfg.ServiceName, cfg.ServiceKind, cfg.RuntimeMode, cfg.WorkerPollInterval, cfg.DependencyTargets())
+		if *once {
+			if err := improvementplane.RunReconcilePass(cfg, store); err != nil {
+				log.Fatal(err)
+			}
+			return
+		}
+		if err := improvementplane.RunReconciler(cfg, store); err != nil {
 			log.Fatal(err)
 		}
 		return

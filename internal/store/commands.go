@@ -1586,6 +1586,9 @@ func (s *MemoryStore) applyAttemptCommandLocked(command transition.CommandEnvelo
 		if err != nil {
 			return commandApplyResult{}, err
 		}
+		if err := s.applyValidationRunForAttemptCommandLocked(proposal, attempt, command); err != nil {
+			return commandApplyResult{}, err
+		}
 		prAttemptID := ""
 		if transition.AttemptPhaseCommandKind(command.CommandKind) == transition.CommandAttemptPROpened {
 			recorded, err := s.recordPRAttemptLocked(prAttemptFromAttemptCommand(proposal, attempt, command))
@@ -1694,6 +1697,52 @@ func (s *MemoryStore) applyRepoChangeJobForAttemptCommandLocked(proposal review.
 	return err
 }
 
+func (s *MemoryStore) applyValidationRunForAttemptCommandLocked(proposal review.Proposal, attempt improvement.ChangeAttempt, command transition.CommandEnvelope) error {
+	switch transition.AttemptPhaseCommandKind(command.CommandKind) {
+	case transition.CommandValidationStarted,
+		transition.CommandValidationCompleted,
+		transition.CommandValidationFailedRetryable,
+		transition.CommandValidationFailedReview:
+	default:
+		return nil
+	}
+	run, ok := validationRunForAttemptCommandLocked(s.validationRuns, attempt.ID, command)
+	if !ok {
+		created, createOK := validationRunFromAttemptCommandLocked(s.attemptWorkspaces, proposal, attempt, command, s.validationRuns)
+		if !createOK {
+			return nil
+		}
+		run = created
+	}
+	run.UpdatedAt = command.OccurredAt
+	run.OperationID = firstNonEmpty(stringFromCommand(command, "operation_id"), run.OperationID)
+	if generation := int(floatFromCommand(command, "operation_generation")); generation > 0 {
+		run.Generation = generation
+	}
+	run.WorkspaceID = firstNonEmpty(stringFromCommand(command, "workspace_id"), run.WorkspaceID)
+	run.Command = firstNonEmpty(stringFromCommand(command, "validation_command"), run.Command)
+	run.Repo = firstNonEmpty(stringFromCommand(command, "repo"), run.Repo)
+	run.BranchName = firstNonEmpty(stringFromCommand(command, "branch_name"), run.BranchName)
+	run.SandboxNamespace = firstNonEmpty(stringFromCommand(command, "sandbox_namespace"), run.SandboxNamespace)
+	run.SandboxJobName = firstNonEmpty(stringFromCommand(command, "sandbox_job_name"), run.SandboxJobName)
+	run.SandboxPodName = firstNonEmpty(stringFromCommand(command, "sandbox_pod_name"), run.SandboxPodName)
+	run.ValidationRef = firstNonEmpty(stringFromCommand(command, "validation_ref"), run.ValidationRef)
+	run.LogArtifactID = firstNonEmpty(stringFromCommand(command, "log_artifact_id"), run.LogArtifactID)
+	switch transition.AttemptPhaseCommandKind(command.CommandKind) {
+	case transition.CommandValidationStarted:
+		run.Status = improvement.ValidationRunRunning
+		run.ErrorMessage = ""
+	case transition.CommandValidationCompleted:
+		run.Status = improvement.ValidationRunPassed
+		run.ErrorMessage = ""
+	case transition.CommandValidationFailedRetryable, transition.CommandValidationFailedReview:
+		run.Status = improvement.ValidationRunFailed
+		run.ErrorMessage = firstNonEmpty(stringFromCommand(command, "validation_error"), stringFromCommand(command, "failure_summary"), run.ErrorMessage)
+	}
+	_, err := s.recordValidationRunLocked(run)
+	return err
+}
+
 func (s *MemoryStore) applyAttemptWorkspaceForCommandLocked(attempt improvement.ChangeAttempt, command transition.CommandEnvelope) (string, error) {
 	workspace, ok := attemptWorkspaceForCommandLocked(s.attemptWorkspaces, attempt.ID, stringFromCommand(command, "workspace_id"))
 	createdWorkspace := false
@@ -1707,6 +1756,14 @@ func (s *MemoryStore) applyAttemptWorkspaceForCommandLocked(attempt improvement.
 	}
 	updated := workspace
 	touched := createdWorkspace
+	if operationID := stringFromCommand(command, "operation_id"); operationID != "" && operationID != updated.OperationID {
+		updated.OperationID = operationID
+		touched = true
+	}
+	if generation := int(floatFromCommand(command, "operation_generation")); generation > 0 && generation != updated.Generation {
+		updated.Generation = generation
+		touched = true
+	}
 	if namespace := firstNonEmpty(stringFromCommand(command, "workspace_namespace"), stringFromCommand(command, "sandbox_namespace")); namespace != "" && namespace != updated.Namespace {
 		updated.Namespace = namespace
 		touched = true
@@ -1725,6 +1782,10 @@ func (s *MemoryStore) applyAttemptWorkspaceForCommandLocked(attempt improvement.
 	}
 	if diffSummary := stringFromCommand(command, "diff_summary"); diffSummary != "" && diffSummary != updated.DiffSummary {
 		updated.DiffSummary = diffSummary
+		touched = true
+	}
+	if lastError := firstNonEmpty(stringFromCommand(command, "validation_error"), stringFromCommand(command, "failure_summary")); lastError != "" && lastError != updated.LastError {
+		updated.LastError = lastError
 		touched = true
 	}
 	if repo := stringFromCommand(command, "repo"); repo != "" && repo != updated.Repo {
@@ -1749,9 +1810,25 @@ func (s *MemoryStore) applyAttemptWorkspaceForCommandLocked(attempt improvement.
 			updated.Status = improvement.WorkspaceQueued
 			touched = true
 		}
+		if updated.LastError != "" {
+			updated.LastError = ""
+			touched = true
+		}
+		if updated.Repairable {
+			updated.Repairable = false
+			touched = true
+		}
 	case transition.CommandWorkspaceReady:
 		if updated.Status != improvement.WorkspaceReady {
 			updated.Status = improvement.WorkspaceReady
+			touched = true
+		}
+		if updated.LastError != "" {
+			updated.LastError = ""
+			touched = true
+		}
+		if updated.Repairable {
+			updated.Repairable = false
 			touched = true
 		}
 	case transition.CommandAttemptRunnerStarted:
@@ -1784,6 +1861,14 @@ func (s *MemoryStore) applyAttemptWorkspaceForCommandLocked(attempt improvement.
 			updated.Status = improvement.WorkspaceCompleted
 			touched = true
 		}
+		if updated.LastError != "" {
+			updated.LastError = ""
+			touched = true
+		}
+		if updated.Repairable {
+			updated.Repairable = false
+			touched = true
+		}
 	case transition.CommandWorkspaceFailedRetryable,
 		transition.CommandWorkspaceFailedReview,
 		transition.CommandImplementationFailedRetryable,
@@ -1796,6 +1881,14 @@ func (s *MemoryStore) applyAttemptWorkspaceForCommandLocked(attempt improvement.
 			updated.Status = improvement.WorkspaceFailed
 			touched = true
 		}
+		if !updated.Repairable {
+			updated.Repairable = true
+			touched = true
+		}
+	}
+	if workspaceSessionMissingProviderIdentity(updated) && updated.Status != improvement.WorkspaceQueued && !updated.Repairable {
+		updated.Repairable = true
+		touched = true
 	}
 	if !touched {
 		return "", nil
@@ -1827,15 +1920,89 @@ func attemptWorkspaceFromCommand(attempt improvement.ChangeAttempt, command tran
 		ID:               workspaceID,
 		AttemptID:        attempt.ID,
 		ProposalID:       attempt.ProposalID,
+		OperationID:      stringFromCommand(command, "operation_id"),
+		Generation:       int(floatFromCommand(command, "operation_generation")),
 		Repo:             repo,
 		BaseRef:          baseRef,
 		BranchName:       branchName,
 		Namespace:        namespace,
 		JobName:          jobName,
 		PodName:          podName,
+		LastError:        firstNonEmpty(stringFromCommand(command, "validation_error"), stringFromCommand(command, "failure_summary")),
 		AllowedPathGlobs: stringSliceFromCommand(command, "allowed_path_globs"),
 		CreatedAt:        now,
 		UpdatedAt:        now,
+	}, true
+}
+
+func validationRunForAttemptCommandLocked(items map[string]improvement.ValidationRun, attemptID string, command transition.CommandEnvelope) (improvement.ValidationRun, bool) {
+	if runID := strings.TrimSpace(stringFromCommand(command, "validation_run_id")); runID != "" {
+		if item, ok := items[runID]; ok {
+			return item, true
+		}
+	}
+	operationID := strings.TrimSpace(stringFromCommand(command, "operation_id"))
+	var latest improvement.ValidationRun
+	found := false
+	for _, item := range items {
+		if strings.TrimSpace(item.AttemptID) != strings.TrimSpace(attemptID) {
+			continue
+		}
+		if operationID != "" && strings.TrimSpace(item.OperationID) == operationID {
+			return item, true
+		}
+		if !found || item.CreatedAt.After(latest.CreatedAt) {
+			latest = item
+			found = true
+		}
+	}
+	return latest, found
+}
+
+func validationRunFromAttemptCommandLocked(workspaces map[string]improvement.AttemptWorkspace, proposal review.Proposal, attempt improvement.ChangeAttempt, command transition.CommandEnvelope, existing map[string]improvement.ValidationRun) (improvement.ValidationRun, bool) {
+	workspace, _ := attemptWorkspaceForCommandLocked(workspaces, attempt.ID, stringFromCommand(command, "workspace_id"))
+	repo := firstNonEmpty(stringFromCommand(command, "repo"), workspace.Repo)
+	branchName := firstNonEmpty(stringFromCommand(command, "branch_name"), workspace.BranchName, attempt.BranchName)
+	commandText := stringFromCommand(command, "validation_command")
+	if repo == "" && branchName == "" && commandText == "" && workspace.ID == "" {
+		return improvement.ValidationRun{}, false
+	}
+	generation := int(floatFromCommand(command, "operation_generation"))
+	if generation <= 0 {
+		for _, item := range existing {
+			if item.AttemptID == attempt.ID && item.Generation >= generation {
+				generation = item.Generation + 1
+			}
+		}
+		if generation <= 0 {
+			generation = 1
+		}
+	}
+	runID := strings.TrimSpace(stringFromCommand(command, "validation_run_id"))
+	if runID == "" {
+		runID = fmt.Sprintf("validation-%s-%03d", attempt.ID, generation)
+	}
+	return improvement.ValidationRun{
+		ID:               runID,
+		ProposalID:       attempt.ProposalID,
+		AttemptID:        attempt.ID,
+		ConversationID:   proposal.ConversationID,
+		CaseID:           proposal.CaseID,
+		OriginTraceID:    firstNonEmpty(attempt.AttemptTraceID, proposal.OriginTraceID, proposal.TraceID),
+		WorkspaceID:      firstNonEmpty(stringFromCommand(command, "workspace_id"), workspace.ID),
+		OperationID:      stringFromCommand(command, "operation_id"),
+		Generation:       generation,
+		Repo:             repo,
+		BranchName:       branchName,
+		Command:          commandText,
+		Status:           improvement.ValidationRunRequested,
+		SandboxNamespace: firstNonEmpty(stringFromCommand(command, "sandbox_namespace"), workspace.Namespace),
+		SandboxJobName:   firstNonEmpty(stringFromCommand(command, "sandbox_job_name"), workspace.JobName),
+		SandboxPodName:   firstNonEmpty(stringFromCommand(command, "sandbox_pod_name"), workspace.PodName),
+		ValidationRef:    stringFromCommand(command, "validation_ref"),
+		LogArtifactID:    stringFromCommand(command, "log_artifact_id"),
+		CreatedAt:        command.OccurredAt,
+		UpdatedAt:        command.OccurredAt,
 	}, true
 }
 
@@ -2536,16 +2703,20 @@ func prAttemptFromAttemptCommand(proposal review.Proposal, attempt improvement.C
 		ConversationID:   proposal.ConversationID,
 		CaseID:           proposal.CaseID,
 		OriginTraceID:    firstNonEmpty(attempt.AttemptTraceID, proposal.OriginTraceID, proposal.TraceID),
+		OperationID:      stringFromCommand(command, "operation_id"),
+		Generation:       int(floatFromCommand(command, "operation_generation")),
 		Repo:             stringFromCommand(command, "repo"),
 		BranchName:       firstNonEmpty(stringFromCommand(command, "branch_name"), attempt.BranchName),
 		PRURL:            stringFromCommand(command, "pr_url"),
 		HeadSHA:          firstNonEmpty(stringFromCommand(command, "head_sha"), attempt.HeadSHA),
-		Status:           string(review.ProposalPROpen),
+		Status:           "open",
 		ValidationStatus: firstNonEmpty(stringFromCommand(command, "validation_status"), "pending"),
 		CreatedAt:        timeFromCommand(command, "created_at", command.OccurredAt),
 	}
 	if prID := strings.TrimSpace(stringFromCommand(command, "pr_attempt_id")); prID != "" {
 		item.ID = prID
+	} else {
+		item.ID = fmt.Sprintf("pr-%s", attempt.ID)
 	}
 	return item
 }

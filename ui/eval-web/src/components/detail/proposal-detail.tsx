@@ -11,12 +11,14 @@ export function ProposalDetail(props: {
   canRetry: boolean;
   canStop: boolean;
 }) {
-  const prAttempt = listOrEmpty(props.detail.pr_attempts)[0];
+  const prAttempt = listOrEmpty(props.detail.pr_attempts).find((item) => Boolean(item.pr_url)) ?? listOrEmpty(props.detail.pr_attempts)[0];
   const actionIntents = listOrEmpty(props.detail.action_intents);
   const actionResults = listOrEmpty(props.detail.action_results);
   const attempts = listOrEmpty(props.detail.attempts);
-  const workspaces = listOrEmpty(props.detail.attempt_workspaces);
+  const workspaces = listOrEmpty(props.detail.workspace_sessions);
+  const validationRuns = listOrEmpty(props.detail.validation_runs);
   const effects = listOrEmpty(props.detail.effects);
+  const currentPhase = props.detail.current_phase;
   const lineEffects = effects.filter((item) => item.machine_kind === "proposal_line");
   return (
     <div className="detail-stack">
@@ -49,6 +51,23 @@ export function ProposalDetail(props: {
           <div><dt>Last failure</dt><dd>{props.detail.proposal.last_failure_class || "n/a"}</dd></div>
         </dl>
         <div className="nested-list">
+          {currentPhase ? (
+            <div className="nested-card">
+              <div className="detail-row-header">
+                <strong>Current phase</strong>
+                <small>{currentPhase.attempt_state || props.detail.proposal.status}</small>
+              </div>
+              <p className="muted">
+                Reconcile: {currentPhase.reconcile_status || (currentPhase.reconciliation_needed ? "reconciliation_needed" : "healthy")}
+                {currentPhase.required_resource_kind ? ` · waiting on ${currentPhase.required_resource_kind}` : ""}
+              </p>
+              <p className="muted">
+                Attempt: {currentPhase.attempt_id || props.detail.proposal.current_attempt_id || "n/a"}
+                {currentPhase.effect_kind ? ` · Effect ${currentPhase.effect_kind}` : ""}
+                {currentPhase.effect_status ? ` (${currentPhase.effect_status})` : ""}
+              </p>
+            </div>
+          ) : null}
           <div className="nested-card">
             <div className="detail-row-header">
               <strong>Recommended intervention</strong>
@@ -107,7 +126,7 @@ export function ProposalDetail(props: {
         <h3>Attempts</h3>
         <div className="nested-list">
           {attempts.map((attempt) => {
-            const attemptJobs = listOrEmpty(props.detail.repo_change_jobs).filter((job) => job.attempt_id === attempt.id);
+            const attemptRuns = validationRuns.filter((run) => run.attempt_id === attempt.id);
             const attemptPRs = listOrEmpty(props.detail.pr_attempts).filter((item) => item.attempt_id === attempt.id);
             const attemptWorkspace = workspaces.find((item) => item.attempt_id === attempt.id);
             const attemptEffects = effects.filter((item) => item.attempt_id === attempt.id || (item.machine_kind === "attempt" && item.aggregate_id === attempt.id));
@@ -128,6 +147,8 @@ export function ProposalDetail(props: {
                     {attemptWorkspace.pod_name ? ` · pod ${attemptWorkspace.pod_name}` : ""}
                   </p>
                 ) : null}
+                {attemptWorkspace?.repairable ? <p className="muted">Workspace repairable{attemptWorkspace.last_error ? ` · ${attemptWorkspace.last_error}` : ""}</p> : null}
+                {attemptWorkspace?.operation_id ? <p className="muted">Workspace op: {attemptWorkspace.operation_id}{typeof attemptWorkspace.generation === "number" ? ` · generation ${attemptWorkspace.generation}` : ""}</p> : null}
                 {attemptWorkspace?.diff_summary ? <p className="muted">Diff: {attemptWorkspace.diff_summary}</p> : null}
                 {listOrEmpty(attemptWorkspace?.allowed_path_globs).length ? (
                   <p className="muted">Allowed paths: {listOrEmpty(attemptWorkspace?.allowed_path_globs).join(", ")}</p>
@@ -157,8 +178,13 @@ export function ProposalDetail(props: {
                     ))}
                   </div>
                 ) : null}
-                {attemptJobs.map((job) => (
-                  <p key={job.id} className="muted">Sandbox: {job.status}{job.sandbox_job_name ? ` · ${job.sandbox_job_name}` : ""}{job.validation_error ? ` · ${job.validation_error}` : ""}</p>
+                {attemptRuns.map((run) => (
+                  <p key={run.id} className="muted">
+                    Validation: {run.status}
+                    {run.command ? ` · ${run.command}` : ""}
+                    {run.sandbox_job_name ? ` · ${run.sandbox_job_name}` : ""}
+                    {run.error_message ? ` · ${run.error_message}` : ""}
+                  </p>
                 ))}
                 {attemptPRs.map((item) => (
                   <p key={item.id} className="muted">
@@ -201,7 +227,7 @@ export function ProposalDetail(props: {
       </div>
 
       <div className="detail-card">
-        <h3>Linked traces and PR path</h3>
+        <h3>Linked traces and child resources</h3>
         <div className="nested-list">
           {listOrEmpty(props.detail.linked_trace_summaries).map((trace) => (
             <div key={trace.trace_id} className="nested-card">
@@ -212,15 +238,27 @@ export function ProposalDetail(props: {
               <p className="detail-copy">{trace.workflow_kind} · {formatTime(trace.started_at)}</p>
             </div>
           ))}
-          {listOrEmpty(props.detail.repo_change_jobs).map((job) => (
-            <div key={job.id} className="nested-card">
+          {workspaces.map((workspace) => (
+            <div key={workspace.id} className="nested-card">
               <div className="detail-row-header">
-                <strong>{job.repo}</strong>
-                <small>{job.status}</small>
+                <strong>{workspace.repo}</strong>
+                <small>{workspace.status}</small>
               </div>
-              <p className="detail-copy">{job.branch_name}</p>
-              {job.validation_error ? <p className="muted">Validation: {job.validation_error}</p> : null}
-              {job.validation_ref ? <p className="muted">Sandbox ref: {job.validation_ref}</p> : null}
+              <p className="detail-copy">{workspace.branch_name}</p>
+              {workspace.pod_name ? <p className="muted">Pod: {workspace.pod_name}</p> : null}
+              {workspace.last_error ? <p className="muted">Error: {workspace.last_error}</p> : null}
+            </div>
+          ))}
+          {validationRuns.map((run) => (
+            <div key={run.id} className="nested-card">
+              <div className="detail-row-header">
+                <strong>{run.repo}</strong>
+                <small>{run.status}</small>
+              </div>
+              <p className="detail-copy">{run.branch_name}</p>
+              {run.command ? <p className="muted">Command: {run.command}</p> : null}
+              {run.validation_ref ? <p className="muted">Validation ref: {run.validation_ref}</p> : null}
+              {run.error_message ? <p className="muted">Error: {run.error_message}</p> : null}
             </div>
           ))}
           {listOrEmpty(props.detail.pr_attempts).map((attempt) => (

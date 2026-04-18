@@ -68,6 +68,51 @@ func (s *MemoryStore) RecordCommandReceipt(item transition.CommandReceipt) (tran
 	return s.recordCommandReceiptLocked(item)
 }
 
+func (s *MemoryStore) QueueEffectExecution(effect transition.EffectExecution) (transition.EffectExecution, bool, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	effect.ID = strings.TrimSpace(effect.ID)
+	effect.AggregateID = strings.TrimSpace(effect.AggregateID)
+	effect.AttemptID = strings.TrimSpace(effect.AttemptID)
+	effect.IdempotencyKey = strings.TrimSpace(effect.IdempotencyKey)
+	if effect.ID == "" {
+		return transition.EffectExecution{}, false, errors.New("effect execution id is required")
+	}
+	if effect.MachineKind == "" {
+		return transition.EffectExecution{}, false, errors.New("machine kind is required")
+	}
+	if effect.AggregateID == "" {
+		return transition.EffectExecution{}, false, errors.New("aggregate id is required")
+	}
+	if effect.EffectKind == "" {
+		return transition.EffectExecution{}, false, errors.New("effect kind is required")
+	}
+	if effect.IdempotencyKey == "" {
+		return transition.EffectExecution{}, false, errors.New("idempotency key is required")
+	}
+	for _, existing := range s.effectExecutions {
+		if existing.IdempotencyKey == effect.IdempotencyKey {
+			return existing, false, nil
+		}
+	}
+	now := time.Now().UTC()
+	if effect.Status == "" {
+		effect.Status = transition.EffectQueued
+	}
+	if effect.Payload == nil {
+		effect.Payload = map[string]any{}
+	}
+	if effect.CreatedAt.IsZero() {
+		effect.CreatedAt = now
+	}
+	if effect.UpdatedAt.IsZero() || effect.UpdatedAt.Before(effect.CreatedAt) {
+		effect.UpdatedAt = effect.CreatedAt
+	}
+	s.effectExecutions[effect.ID] = effect
+	return effect, true, nil
+}
+
 func (s *MemoryStore) recordCommandReceiptLocked(item transition.CommandReceipt) (transition.CommandReceipt, bool, error) {
 	item.CommandID = strings.TrimSpace(item.CommandID)
 	if item.CommandID == "" {

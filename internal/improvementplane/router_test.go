@@ -707,14 +707,20 @@ func TestRouterProposalDetailAndRuntimeEndpoints(t *testing.T) {
 	if err := json.NewDecoder(proposalRec.Body).Decode(&proposalPayload); err != nil {
 		t.Fatalf("decode proposal detail: %v", err)
 	}
-	if items, ok := proposalPayload["repo_change_jobs"].([]any); !ok || len(items) == 0 {
-		t.Fatal("expected repo_change_jobs array with at least one item")
+	if items, ok := proposalPayload["workspace_sessions"].([]any); !ok || len(items) == 0 {
+		t.Fatal("expected workspace_sessions array with at least one item")
+	}
+	if items, ok := proposalPayload["validation_runs"].([]any); !ok || len(items) == 0 {
+		t.Fatal("expected validation_runs array with at least one item")
 	}
 	if items, ok := proposalPayload["pr_attempts"].([]any); !ok || len(items) == 0 {
 		t.Fatal("expected pr_attempts array with at least one item")
 	}
 	if items, ok := proposalPayload["attempts"].([]any); !ok || len(items) == 0 {
 		t.Fatal("expected attempts array with at least one item")
+	}
+	if _, ok := proposalPayload["current_phase"].(map[string]any); !ok {
+		t.Fatal("expected current_phase object in proposal detail")
 	}
 	if items, ok := proposalPayload["linked_trace_summaries"].([]any); !ok || len(items) == 0 {
 		t.Fatal("expected linked_trace_summaries array with at least one item")

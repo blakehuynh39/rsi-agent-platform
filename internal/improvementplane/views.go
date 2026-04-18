@@ -171,11 +171,11 @@ type proposalDetailResponse struct {
 	Proposal              review.Proposal                `json:"proposal"`
 	CurrentPhase          *proposalCurrentPhaseSummary   `json:"current_phase,omitempty"`
 	Attempts              []improvement.ChangeAttempt    `json:"attempts"`
-	AttemptWorkspaces     []improvement.AttemptWorkspace `json:"attempt_workspaces"`
+	WorkspaceSessions     []improvement.AttemptWorkspace `json:"workspace_sessions"`
 	Effects               []transition.EffectExecution   `json:"effects"`
 	Reviews               []review.ProposalReview        `json:"reviews"`
 	RelatedProposalMemory []review.ProposalMemory        `json:"related_proposal_memory"`
-	RepoChangeJobs        []improvement.RepoChangeJob    `json:"repo_change_jobs"`
+	ValidationRuns        []improvement.ValidationRun    `json:"validation_runs"`
 	PRAttempts            []improvement.PRAttempt        `json:"pr_attempts"`
 	PostMergeReplays      []improvement.PostMergeReplay  `json:"post_merge_replays"`
 	LinkedTraceSummaries  []traceAttemptSummary          `json:"linked_trace_summaries"`
@@ -188,11 +188,14 @@ type proposalDetailResponse struct {
 }
 
 type proposalCurrentPhaseSummary struct {
-	AttemptID            string                  `json:"attempt_id,omitempty"`
-	EffectID             string                  `json:"effect_id,omitempty"`
-	EffectKind           transition.EffectKind   `json:"effect_kind,omitempty"`
-	EffectStatus         transition.EffectStatus `json:"effect_status,omitempty"`
-	ReconciliationNeeded bool                    `json:"reconciliation_needed"`
+	AttemptID            string                          `json:"attempt_id,omitempty"`
+	AttemptState         improvement.ChangeAttemptState  `json:"attempt_state,omitempty"`
+	RequiredResourceKind string                          `json:"required_resource_kind,omitempty"`
+	ReconcileStatus      string                          `json:"reconcile_status,omitempty"`
+	EffectID             string                          `json:"effect_id,omitempty"`
+	EffectKind           transition.EffectKind           `json:"effect_kind,omitempty"`
+	EffectStatus         transition.EffectStatus         `json:"effect_status,omitempty"`
+	ReconciliationNeeded bool                            `json:"reconciliation_needed"`
 }
 
 type attemptDetailResponse struct {
@@ -203,7 +206,7 @@ type attemptDetailResponse struct {
 	ActionIntents     []action.Intent               `json:"action_intents"`
 	ActionResults     []action.Result               `json:"action_results"`
 	Outcomes          []outcome.Record              `json:"outcomes"`
-	RepoChangeJobs    []improvement.RepoChangeJob   `json:"repo_change_jobs"`
+	ValidationRuns    []improvement.ValidationRun   `json:"validation_runs"`
 	PRAttempts        []improvement.PRAttempt       `json:"pr_attempts"`
 	HarnessExecutions []harness.Execution           `json:"harness_executions"`
 }
@@ -500,6 +503,7 @@ func buildProposalDetail(store storepkg.Repository, proposalID string) (proposal
 	actionIntents := listActionIntents(store, actionFilters{ProposalID: proposal.ID})
 	outcomes := listOutcomes(store, proposal.ConversationID, proposal.CaseID, "", proposal.ID)
 	workspaces := filterAttemptWorkspacesByProposal(store.ListAttemptWorkspaces(), proposal.ID)
+	validationRuns := validationRunsForProposalDetail(store, proposal.ID)
 	extraEvidence := append([]string{}, proposal.EvidenceTraceIDs...)
 	extraEvidence = appendUniqueStrings(extraEvidence, proposal.OriginTraceID, proposal.TraceID)
 	for _, item := range outcomes {
@@ -508,13 +512,13 @@ func buildProposalDetail(store storepkg.Repository, proposalID string) (proposal
 	effects := sliceOrEmpty(proposalEffects(store, proposal.ID, attempts))
 	return proposalDetailResponse{
 		Proposal:              normalizeProposal(proposal),
-		CurrentPhase:          buildProposalCurrentPhase(proposal, attempts, effects),
-		Attempts:              sliceOrEmpty(attempts),
-		AttemptWorkspaces:     sliceOrEmpty(workspaces),
+		CurrentPhase:          buildProposalCurrentPhase(proposal, attempts, workspaces, validationRuns, store.ListPRAttempts(), effects),
+		Attempts:              sliceOrEmpty(normalizeAttempts(attempts)),
+		WorkspaceSessions:     sliceOrEmpty(workspaces),
 		Effects:               effects,
 		Reviews:               sliceOrEmpty(proposal.Reviews),
 		RelatedProposalMemory: sliceOrEmpty(filterProposalMemory(store.ListProposalMemories(), proposal.CandidateKey)),
-		RepoChangeJobs:        sliceOrEmpty(filterRepoChangeJobs(store.ListRepoChangeJobs(), proposal.ID)),
+		ValidationRuns:        sliceOrEmpty(validationRuns),
 		PRAttempts:            sliceOrEmpty(filterPRAttempts(store.ListPRAttempts(), proposal.ID)),
 		PostMergeReplays:      sliceOrEmpty(filterPostMergeReplays(store.ListPostMergeReplays(), proposal.ID)),
 		LinkedTraceSummaries:  traceSummaries,
@@ -527,7 +531,7 @@ func buildProposalDetail(store storepkg.Repository, proposalID string) (proposal
 	}, true
 }
 
-func buildProposalCurrentPhase(proposal review.Proposal, attempts []improvement.ChangeAttempt, effects []transition.EffectExecution) *proposalCurrentPhaseSummary {
+func buildProposalCurrentPhase(proposal review.Proposal, attempts []improvement.ChangeAttempt, workspaces []improvement.AttemptWorkspace, validationRuns []improvement.ValidationRun, prAttempts []improvement.PRAttempt, effects []transition.EffectExecution) *proposalCurrentPhaseSummary {
 	currentAttemptID := strings.TrimSpace(proposal.CurrentAttemptID)
 	if currentAttemptID == "" {
 		return nil
@@ -536,20 +540,30 @@ func buildProposalCurrentPhase(proposal review.Proposal, attempts []improvement.
 	if !ok {
 		return &proposalCurrentPhaseSummary{
 			AttemptID:            currentAttemptID,
+			ReconcileStatus:      reconcileStatusReconciliationNeeded,
 			ReconciliationNeeded: true,
 		}
 	}
+	publicState := improvement.PublicAttemptState(attempt.State)
+	requiredResourceKind := requiredResourceKindForAttemptState(publicState)
 	if effect, ok := activeAttemptEffectView(effects, attempt.ID); ok {
 		return &proposalCurrentPhaseSummary{
-			AttemptID:    attempt.ID,
-			EffectID:     effect.ID,
-			EffectKind:   effect.EffectKind,
-			EffectStatus: effect.Status,
+			AttemptID:            attempt.ID,
+			AttemptState:         publicState,
+			RequiredResourceKind: requiredResourceKind,
+			ReconcileStatus:      reconcileStatusEffectInFlight,
+			EffectID:             effect.ID,
+			EffectKind:           effect.EffectKind,
+			EffectStatus:         effect.Status,
 		}
 	}
+	reconcileStatus := reconcileStatusForAttempt(publicState, attempt.ID, workspaces, validationRuns, prAttempts)
 	return &proposalCurrentPhaseSummary{
 		AttemptID:            attempt.ID,
-		ReconciliationNeeded: !isAttemptTerminal(attempt.State),
+		AttemptState:         publicState,
+		RequiredResourceKind: requiredResourceKind,
+		ReconcileStatus:      reconcileStatus,
+		ReconciliationNeeded: reconcileStatus == reconcileStatusReconciliationNeeded,
 	}
 }
 
@@ -604,14 +618,14 @@ func buildAttemptDetail(store storepkg.Repository, proposalID string, attemptID 
 	}
 	actionIntents := filterActionIntentsByAttempt(listActionIntents(store, actionFilters{ProposalID: proposalID}), attempt.ID)
 	return attemptDetailResponse{
-		Attempt:           attempt,
+		Attempt:           normalizeAttempt(attempt),
 		Trace:             trace,
 		Workspace:         workspace,
 		Effects:           sliceOrEmpty(store.ListEffectExecutionsByAggregate(transition.MachineAttempt, attempt.ID)),
 		ActionIntents:     sliceOrEmpty(actionIntents),
 		ActionResults:     sliceOrEmpty(flattenActionResults(store, actionIntents)),
 		Outcomes:          sliceOrEmpty(filterOutcomesByAttempt(listOutcomes(store, "", "", "", proposalID), attempt.ID)),
-		RepoChangeJobs:    sliceOrEmpty(filterRepoChangeJobsByAttempt(store.ListRepoChangeJobs(), proposalID, attempt.ID)),
+		ValidationRuns:    sliceOrEmpty(filterValidationRunsByAttempt(store.ListValidationRuns(), proposalID, attempt.ID)),
 		PRAttempts:        sliceOrEmpty(filterPRAttemptsByAttempt(store.ListPRAttempts(), proposalID, attempt.ID)),
 		HarnessExecutions: sliceOrEmpty(filterHarnessExecutions(store.ListHarnessExecutions(), attempt.AttemptTraceID, proposalID)),
 	}, true
@@ -1173,9 +1187,25 @@ func filterPRAttempts(items []improvement.PRAttempt, proposalID string) []improv
 	out := make([]improvement.PRAttempt, 0)
 	for _, item := range items {
 		if item.ProposalID == proposalID {
+			out = append(out, normalizePRAttemptView(item))
+		}
+	}
+	return out
+}
+
+func filterValidationRuns(items []improvement.ValidationRun, proposalID string) []improvement.ValidationRun {
+	out := make([]improvement.ValidationRun, 0)
+	for _, item := range items {
+		if item.ProposalID == proposalID {
 			out = append(out, item)
 		}
 	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].CreatedAt.Equal(out[j].CreatedAt) {
+			return out[i].ID > out[j].ID
+		}
+		return out[i].CreatedAt.After(out[j].CreatedAt)
+	})
 	return out
 }
 
@@ -1193,9 +1223,58 @@ func filterPRAttemptsByAttempt(items []improvement.PRAttempt, proposalID string,
 	out := make([]improvement.PRAttempt, 0)
 	for _, item := range items {
 		if item.ProposalID == proposalID && item.AttemptID == attemptID {
-			out = append(out, item)
+			out = append(out, normalizePRAttemptView(item))
 		}
 	}
+	return out
+}
+
+func validationRunsForProposalDetail(store storepkg.Repository, proposalID string) []improvement.ValidationRun {
+	items := filterValidationRuns(store.ListValidationRuns(), proposalID)
+	if len(items) > 0 {
+		return items
+	}
+	return synthesizeLegacyValidationRuns(filterRepoChangeJobs(store.ListRepoChangeJobs(), proposalID))
+}
+
+func synthesizeLegacyValidationRuns(items []improvement.RepoChangeJob) []improvement.ValidationRun {
+	out := make([]improvement.ValidationRun, 0, len(items))
+	for _, item := range items {
+		status := improvement.ValidationRunRunning
+		switch strings.TrimSpace(item.Status) {
+		case string(review.ProposalRepoChangeQueued):
+			status = improvement.ValidationRunRequested
+		case string(review.ProposalValidationPending), string(review.ProposalPROpen):
+			status = improvement.ValidationRunPassed
+		case string(review.ProposalFailedValidation):
+			status = improvement.ValidationRunFailed
+		}
+		out = append(out, improvement.ValidationRun{
+			ID:               "legacy-" + item.ID,
+			ProposalID:       item.ProposalID,
+			AttemptID:        item.AttemptID,
+			ConversationID:   item.ConversationID,
+			CaseID:           item.CaseID,
+			OriginTraceID:    item.OriginTraceID,
+			Repo:             item.Repo,
+			BranchName:       item.BranchName,
+			Status:           status,
+			SandboxNamespace: item.SandboxNamespace,
+			SandboxJobName:   item.SandboxJobName,
+			SandboxPodName:   item.SandboxPodName,
+			ValidationRef:    item.ValidationRef,
+			ErrorMessage:     item.ValidationError,
+			LogArtifactID:    item.LogArtifactID,
+			CreatedAt:        item.CreatedAt,
+			UpdatedAt:        item.UpdatedAt,
+		})
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].CreatedAt.Equal(out[j].CreatedAt) {
+			return out[i].ID > out[j].ID
+		}
+		return out[i].CreatedAt.After(out[j].CreatedAt)
+	})
 	return out
 }
 
@@ -1288,12 +1367,36 @@ func normalizeProposals(items []review.Proposal) []review.Proposal {
 	return out
 }
 
+func normalizeAttempts(items []improvement.ChangeAttempt) []improvement.ChangeAttempt {
+	out := make([]improvement.ChangeAttempt, 0, len(items))
+	for _, item := range items {
+		out = append(out, normalizeAttempt(item))
+	}
+	return out
+}
+
 func normalizeProposal(item review.Proposal) review.Proposal {
+	item.Status = review.PublicProposalStatus(item.Status)
+	item.ActiveSlotConsuming = review.ConsumesActiveProposalSlot(item.Status)
 	item.SourceEvalIDs = sliceOrEmpty(item.SourceEvalIDs)
 	item.EvidenceArtifactIDs = sliceOrEmpty(item.EvidenceArtifactIDs)
 	item.PriorSimilarProposalIDs = sliceOrEmpty(item.PriorSimilarProposalIDs)
 	item.EvidenceTraceIDs = sliceOrEmpty(item.EvidenceTraceIDs)
 	item.Reviews = sliceOrEmpty(item.Reviews)
+	return item
+}
+
+func normalizeAttempt(item improvement.ChangeAttempt) improvement.ChangeAttempt {
+	item.State = improvement.PublicAttemptState(item.State)
+	item.ChangedFiles = sliceOrEmpty(item.ChangedFiles)
+	return item
+}
+
+func normalizePRAttemptView(item improvement.PRAttempt) improvement.PRAttempt {
+	switch strings.TrimSpace(item.Status) {
+	case string(review.ProposalPROpen):
+		item.Status = "open"
+	}
 	return item
 }
 

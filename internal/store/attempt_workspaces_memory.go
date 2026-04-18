@@ -33,6 +33,12 @@ func (s *MemoryStore) GetAttemptWorkspace(workspaceID string) (improvement.Attem
 	return normalizeAttemptWorkspace(item), true
 }
 
+func (s *MemoryStore) RecordAttemptWorkspace(workspace improvement.AttemptWorkspace) (improvement.AttemptWorkspace, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.upsertAttemptWorkspaceLocked(workspace)
+}
+
 func (s *MemoryStore) GetAttemptWorkspaceByAttempt(attemptID string) (improvement.AttemptWorkspace, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -49,6 +55,7 @@ func normalizeAttemptWorkspace(item improvement.AttemptWorkspace) improvement.At
 	item.ID = strings.TrimSpace(item.ID)
 	item.AttemptID = strings.TrimSpace(item.AttemptID)
 	item.ProposalID = strings.TrimSpace(item.ProposalID)
+	item.OperationID = strings.TrimSpace(item.OperationID)
 	item.Repo = strings.TrimSpace(item.Repo)
 	item.BaseRef = firstNonEmpty(strings.TrimSpace(item.BaseRef), "main")
 	item.BranchName = strings.TrimSpace(item.BranchName)
@@ -61,7 +68,15 @@ func normalizeAttemptWorkspace(item improvement.AttemptWorkspace) improvement.At
 	if item.AllowedPathGlobs == nil {
 		item.AllowedPathGlobs = []string{}
 	}
+	item.LastError = strings.TrimSpace(item.LastError)
 	item.HeadSHA = strings.TrimSpace(item.HeadSHA)
 	item.DiffSummary = strings.TrimSpace(item.DiffSummary)
+	if workspaceSessionMissingProviderIdentity(item) && item.Status != improvement.WorkspaceQueued {
+		item.Repairable = true
+	}
 	return item
+}
+
+func workspaceSessionMissingProviderIdentity(item improvement.AttemptWorkspace) bool {
+	return item.Namespace == "" || item.JobName == ""
 }

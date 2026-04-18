@@ -37,11 +37,19 @@ import { HarnessDetail } from "@/components/detail/harness-detail";
 const ACTIVE_PROPOSAL_STATES = new Set([
   "pending_review",
   "approved",
-  "repo_change_queued",
-  "repo_change_running",
-  "validation_pending",
-  "pr_open"
+  "in_progress",
+  "needs_review"
 ]);
+
+function canRetryProposal(detail: ProposalDetailResponse) {
+  if (detail.proposal.status === "approved") {
+    return true;
+  }
+  if (detail.proposal.status !== "needs_review") {
+    return false;
+  }
+  return Boolean(detail.current_phase?.attempt_id || detail.proposal.current_attempt_id);
+}
 
 function knowledgeCommandKind(decision: string) {
   switch (decision) {
@@ -66,6 +74,8 @@ function proposalCommandKind(decision: string) {
       return "proposal_reject_line";
     case "dismissed":
       return "proposal_dismiss_line";
+    case "merged":
+      return "proposal_mark_merged";
     default:
       throw new Error(`Unsupported proposal decision: ${decision}`);
   }
@@ -618,7 +628,7 @@ export function App() {
                           <strong>{proposal.title}</strong>
                           <p>{proposal.status} · {proposal.recommended_intervention_kind || "repo_change"} · {proposal.candidate_key}</p>
                         </div>
-                        <span className="status-chip">{proposal.pr_status || proposal.repo_change_status || proposal.status}</span>
+                        <span className="status-chip">{proposal.status}</span>
                       </div>
                       <p className="trace-thread">{proposal.summary}</p>
                     <dl className="mini-metrics">
@@ -791,7 +801,7 @@ export function App() {
             onDecision={(decision) => proposalDecisionMutation.mutate(decision)}
             onRetry={() => proposalRetryMutation.mutate()}
             onStop={() => proposalStopMutation.mutate()}
-            canRetry={["approved", "repo_change_queued", "failed_validation", "validation_pending"].includes(proposalDetailQuery.data.proposal.status)}
+            canRetry={canRetryProposal(proposalDetailQuery.data)}
             canStop={ACTIVE_PROPOSAL_STATES.has(proposalDetailQuery.data.proposal.status)}
           />
         ) : (

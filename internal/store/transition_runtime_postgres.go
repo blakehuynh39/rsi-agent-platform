@@ -118,6 +118,64 @@ func (p *PostgresStore) RecordCommandReceipt(item transition.CommandReceipt) (cr
 	return
 }
 
+func (p *PostgresStore) QueueEffectExecution(effect transition.EffectExecution) (created transition.EffectExecution, wasCreated bool, err error) {
+	effect.ID = strings.TrimSpace(effect.ID)
+	effect.AggregateID = strings.TrimSpace(effect.AggregateID)
+	effect.AttemptID = strings.TrimSpace(effect.AttemptID)
+	effect.IdempotencyKey = strings.TrimSpace(effect.IdempotencyKey)
+	if effect.ID == "" {
+		return transition.EffectExecution{}, false, fmt.Errorf("effect execution id is required")
+	}
+	if effect.MachineKind == "" {
+		return transition.EffectExecution{}, false, fmt.Errorf("machine kind is required")
+	}
+	if effect.AggregateID == "" {
+		return transition.EffectExecution{}, false, fmt.Errorf("aggregate id is required")
+	}
+	if effect.EffectKind == "" {
+		return transition.EffectExecution{}, false, fmt.Errorf("effect kind is required")
+	}
+	if effect.IdempotencyKey == "" {
+		return transition.EffectExecution{}, false, fmt.Errorf("idempotency key is required")
+	}
+	now := time.Now().UTC()
+	if effect.Status == "" {
+		effect.Status = transition.EffectQueued
+	}
+	if effect.Payload == nil {
+		effect.Payload = map[string]any{}
+	}
+	if effect.CreatedAt.IsZero() {
+		effect.CreatedAt = now
+	}
+	if effect.UpdatedAt.IsZero() || effect.UpdatedAt.Before(effect.CreatedAt) {
+		effect.UpdatedAt = effect.CreatedAt
+	}
+	err = p.withTx(func(tx *sql.Tx) error {
+		if err := advisoryLock(tx, "effect-execution:"+effect.IdempotencyKey); err != nil {
+			return err
+		}
+		row := tx.QueryRow(`select `+effectExecutionSelectColumns()+` from effect_execution where idempotency_key = $1`, effect.IdempotencyKey)
+		existing, scanErr := scanEffectExecution(row)
+		if scanErr == nil {
+			created = existing
+			wasCreated = false
+			return nil
+		}
+		if scanErr != sql.ErrNoRows {
+			return scanErr
+		}
+		if err := persistEffectExecutions(tx, []transition.EffectExecution{effect}); err != nil {
+			return err
+		}
+		row = tx.QueryRow(`select `+effectExecutionSelectColumns()+` from effect_execution where idempotency_key = $1`, effect.IdempotencyKey)
+		created, scanErr = scanEffectExecution(row)
+		wasCreated = scanErr == nil
+		return scanErr
+	})
+	return
+}
+
 func (p *PostgresStore) ClaimEffectExecution(effectID string, holder string, lease time.Duration) (item transition.EffectExecution, claimed bool, err error) {
 	err = p.withTx(func(tx *sql.Tx) error {
 		now := time.Now().UTC()

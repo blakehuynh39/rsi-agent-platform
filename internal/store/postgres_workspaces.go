@@ -45,6 +45,10 @@ func (p *PostgresStore) GetAttemptWorkspaceByAttempt(attemptID string) (improvem
 	return normalizeAttemptWorkspace(item), true
 }
 
+func (p *PostgresStore) RecordAttemptWorkspace(item improvement.AttemptWorkspace) (improvement.AttemptWorkspace, error) {
+	return p.upsertAttemptWorkspaceDirect(item)
+}
+
 func (p *PostgresStore) upsertAttemptWorkspaceDirect(item improvement.AttemptWorkspace) (improvement.AttemptWorkspace, error) {
 	item = normalizeAttemptWorkspace(item)
 	now := time.Now().UTC()
