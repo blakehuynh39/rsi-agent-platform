@@ -6,6 +6,7 @@ import hashlib
 import json
 import logging
 import os
+from pathlib import Path
 import re
 import socket
 import time
@@ -358,6 +359,24 @@ class PartialReducerAttemptResult:
 
 
 @dataclass
+class NativeExecutionRecorder:
+    path: Path
+
+    def record(self, event: str, payload: JsonObject | None = None) -> None:
+        item = {
+            "event": str(event or "").strip(),
+            "recorded_at_unix": time.time(),
+            **(payload or {}),
+        }
+        try:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            with self.path.open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps(item, ensure_ascii=True, sort_keys=True) + "\n")
+        except Exception as exc:
+            logger.warning("native execution log append failed path=%s event=%s error=%s", self.path, event, exc)
+
+
+@dataclass
 class RunnerTaskRequest:
     task_type: str
     repo: str
@@ -580,6 +599,80 @@ class HermesRuntime:
             "honcho_session_strategy": self._config.honcho_session_strategy,
             "honcho_ai_peer": self._config.honcho_ai_peer,
             "issues": self._session_manager.ready_issues,
+        }
+
+    def _native_execution_log_root(self) -> Path:
+        return Path(self._config.hermes_home) / "rsi_runtime" / "native_executions"
+
+    def _native_execution_scope(self, task: RunnerTaskRequest) -> str:
+        return first_non_empty(
+            task.trace_id,
+            task.workflow_id,
+            task.session_scope_id,
+            task.conversation_id,
+            task.channel_id,
+            task.task_type,
+            "execution",
+        )
+
+    def _native_execution_slug(self, value: str) -> str:
+        text = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(value or "").strip())
+        text = text.strip("._-")
+        return text or "unknown"
+
+    def _create_native_execution_recorder(self, task: RunnerTaskRequest, *, label: str) -> NativeExecutionRecorder:
+        filename = (
+            f"{self._native_execution_slug(task.task_type)}"
+            f"-{self._native_execution_slug(label)}"
+            f"-{self._native_execution_slug(self._native_execution_scope(task))}"
+            f"-{time.time_ns()}.jsonl"
+        )
+        return NativeExecutionRecorder(self._native_execution_log_root() / filename)
+
+    def _attach_native_execution_log_path(
+        self,
+        raw: JsonObject,
+        recorder: NativeExecutionRecorder | None,
+    ) -> JsonObject:
+        if recorder is None:
+            return raw
+        out = dict(raw)
+        out["native_execution_log_path"] = str(recorder.path)
+        return out
+
+    def _native_execution_started_payload(self, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> JsonObject:
+        mcp_servers = []
+        for server in task.mcp_servers:
+            if not isinstance(server, dict):
+                continue
+            mcp_servers.append(
+                {
+                    "server_label": _string_or_json(server.get("server_label")),
+                    "server_url": _string_or_json(server.get("server_url")),
+                    "profile": _string_or_json(server.get("profile")),
+                    "allowed_tools": server.get("allowed_tools"),
+                    "require_approval": _string_or_json(server.get("require_approval")),
+                    "headers": _json_object_or_empty(server.get("headers")),
+                }
+            )
+        return {
+            "task_type": task.task_type,
+            "trace_id": task.trace_id or "",
+            "workflow_id": task.workflow_id or "",
+            "conversation_id": task.conversation_id or "",
+            "channel_id": task.channel_id or "",
+            "thread_ts": task.thread_ts or "",
+            "session_scope_kind": task.session_scope_kind or "",
+            "session_scope_id": task.session_scope_id or "",
+            "tool_policy_mode": tool_policy.mode,
+            "tool_allowlist_effective": tool_policy.effective,
+            "tool_transport_allowlist_effective": tool_policy.transport_effective,
+            "blocked_tool_names": tool_policy.blocked,
+            "allowed_tools": task.allowed_tools,
+            "timeout_seconds": self._effective_task_timeout(task),
+            "transport_timeout_seconds": self._transport_timeout_seconds,
+            "model": self._provider_model,
+            "mcp_servers": mcp_servers,
         }
 
     def execute(self, prompt: str, system_message: str | None = None) -> HermesExecutionResult:
@@ -1575,8 +1668,18 @@ class HermesRuntime:
         user_prompt: str,
         timeout_seconds: int,
         reasoning_effort: str = "low",
+        recorder: NativeExecutionRecorder | None = None,
+        operation: str = "direct_json_response",
     ) -> PartialReducerAttemptResult:
         if self._provider != "openai" or not self._api_key:
+            if recorder is not None:
+                recorder.record(
+                    "direct_response_failed",
+                    {
+                        "operation": operation,
+                        "error": "Direct JSON reduction requires OpenAI Responses API credentials.",
+                    },
+                )
             return PartialReducerAttemptResult(
                 ok=False,
                 response_text="",
@@ -1587,6 +1690,15 @@ class HermesRuntime:
         payload = self._partial_reducer_request_payload(system_prompt, user_prompt)
         if reasoning_effort and reasoning_effort != "low":
             payload["reasoning"] = {"effort": reasoning_effort}
+        if recorder is not None:
+            recorder.record(
+                "direct_response_request",
+                {
+                    "operation": operation,
+                    "timeout_seconds": timeout_seconds,
+                    "payload": payload,
+                },
+            )
         req = urlrequest.Request(
             f"{self._base_url.rstrip('/')}/responses",
             data=json.dumps(payload).encode("utf-8"),
@@ -1601,6 +1713,14 @@ class HermesRuntime:
                 body = resp.read().decode("utf-8")
         except urlerror.HTTPError as exc:
             detail = exc.read().decode("utf-8", errors="replace")
+            if recorder is not None:
+                recorder.record(
+                    "direct_response_failed",
+                    {
+                        "operation": operation,
+                        "error": f"HTTP {exc.code}: {detail[:4000]}",
+                    },
+                )
             return PartialReducerAttemptResult(
                 ok=False,
                 response_text="",
@@ -1609,6 +1729,14 @@ class HermesRuntime:
                 provider_response_id="",
             )
         except (TimeoutError, socket.timeout) as exc:
+            if recorder is not None:
+                recorder.record(
+                    "direct_response_failed",
+                    {
+                        "operation": operation,
+                        "error": str(exc),
+                    },
+                )
             return PartialReducerAttemptResult(
                 ok=False,
                 response_text="",
@@ -1617,6 +1745,14 @@ class HermesRuntime:
                 provider_response_id="",
             )
         except (urlerror.URLError, ConnectionError, OSError) as exc:
+            if recorder is not None:
+                recorder.record(
+                    "direct_response_failed",
+                    {
+                        "operation": operation,
+                        "error": str(exc),
+                    },
+                )
             return PartialReducerAttemptResult(
                 ok=False,
                 response_text="",
@@ -1627,6 +1763,14 @@ class HermesRuntime:
         try:
             parsed = json.loads(body)
         except json.JSONDecodeError:
+            if recorder is not None:
+                recorder.record(
+                    "direct_response_invalid_json",
+                    {
+                        "operation": operation,
+                        "body_excerpt": body[:4000],
+                    },
+                )
             return PartialReducerAttemptResult(
                 ok=False,
                 response_text=body[:4000],
@@ -1635,6 +1779,14 @@ class HermesRuntime:
                 provider_response_id="",
             )
         if not isinstance(parsed, dict):
+            if recorder is not None:
+                recorder.record(
+                    "direct_response_invalid_shape",
+                    {
+                        "operation": operation,
+                        "payload": parsed if isinstance(parsed, list) else {"value": _string_or_json(parsed)},
+                    },
+                )
             return PartialReducerAttemptResult(
                 ok=False,
                 response_text="",
@@ -1644,6 +1796,15 @@ class HermesRuntime:
             )
         response_text = self._responses_output_text(parsed)
         provider_response_id = _string_or_json(parsed.get("id"))
+        if recorder is not None:
+            recorder.record(
+                "direct_response_response",
+                {
+                    "operation": operation,
+                    "provider_response_id": provider_response_id,
+                    "payload": parsed,
+                },
+            )
         if not response_text:
             return PartialReducerAttemptResult(
                 ok=False,
@@ -2089,6 +2250,7 @@ class HermesRuntime:
         structured_output: JsonObject | None = None,
         provider_response_id: str = "",
         mcp_calls: list[JsonObject] | None = None,
+        recorder: NativeExecutionRecorder | None = None,
     ) -> HermesExecutionResult:
         structured_output = dict(structured_output or {})
         mcp_calls = list(mcp_calls or [])
@@ -2125,39 +2287,77 @@ class HermesRuntime:
         if provider_response_id:
             raw["provider_response_id"] = provider_response_id
         message = json.dumps(structured_output or ledger, ensure_ascii=True, sort_keys=True)
-        return HermesExecutionResult(ok=True, message=message, provider=self._backend, raw=raw)
+        return HermesExecutionResult(
+            ok=True,
+            message=message,
+            provider=self._backend,
+            raw=self._attach_native_execution_log_path(raw, recorder),
+        )
 
     def _execute_openai_native_task(self, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> HermesExecutionResult:
         is_question_gather = task.task_type == "question_gather"
+        recorder = self._create_native_execution_recorder(
+            task,
+            label="question_gather" if is_question_gather else "native_workflow",
+        )
+        recorder.record(
+            "execution_started",
+            {
+                **self._native_execution_started_payload(task, tool_policy),
+                "question_gather": is_question_gather,
+            },
+        )
         if self._provider != "openai" or not self._api_key:
             return HermesExecutionResult(
                 ok=False,
                 message="OpenAI Responses API credentials are required for native MCP workflow execution.",
                 provider=self._backend,
-                raw={
-                    **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-                    "failure_class": "runner_non_ok",
-                    "native_mcp_enabled": True,
-                },
+                raw=self._attach_native_execution_log_path(
+                    {
+                        **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                        "failure_class": "runner_non_ok",
+                        "native_mcp_enabled": True,
+                    },
+                    recorder,
+                ),
             )
         if preflight := self._preflight_tool_policy_failure(task, tool_policy):
+            preflight.raw = self._attach_native_execution_log_path(_json_object_or_empty(preflight.raw), recorder)
+            recorder.record(
+                "execution_failed",
+                {
+                    "failure_class": _string_or_json(preflight.raw.get("failure_class")) or "runner_invalid_request",
+                    "error": preflight.message,
+                },
+            )
             return preflight
         try:
             resolved_mcp_servers, send_tool_names = self._resolved_task_mcp_servers(task)
         except RuntimeError as exc:
+            recorder.record(
+                "execution_failed",
+                {
+                    "failure_class": "runner_non_ok",
+                    "failure_kind": "slack_mcp_unavailable",
+                    "error": str(exc),
+                },
+            )
             return HermesExecutionResult(
                 ok=False,
                 message=str(exc),
                 provider=self._backend,
-                raw={
-                    **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-                    "failure_class": "runner_non_ok",
-                    "native_mcp_enabled": True,
-                    "runner_diagnostics": {
-                        "failure_kind": "slack_mcp_unavailable",
-                        "provider_error_message": str(exc),
+                raw=self._attach_native_execution_log_path(
+                    {
+                        **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                        "failure_class": "runner_non_ok",
+                        "native_mcp_enabled": True,
+                        "runner_diagnostics": {
+                            "failure_kind": "slack_mcp_unavailable",
+                            "provider_error_message": str(exc),
+                        },
                     },
-                },
+                    recorder,
+                ),
             )
         binding = ReadOnlyToolBinding(
             base_url=self._config.tool_gateway_base_url or "",
@@ -2184,6 +2384,14 @@ class HermesRuntime:
         )
         tools = [*self._direct_function_tools(tool_policy), *resolved_mcp_servers]
         if preflight := self._preflight_direct_function_tool_failure(task, tools):
+            preflight.raw = self._attach_native_execution_log_path(_json_object_or_empty(preflight.raw), recorder)
+            recorder.record(
+                "execution_failed",
+                {
+                    "failure_class": _string_or_json(preflight.raw.get("failure_class")) or "runner_invalid_tool_schema",
+                    "error": preflight.message,
+                },
+            )
             return preflight
         timeout_seconds = min(self._effective_task_timeout(task), max(1, self._transport_timeout_seconds - 5))
         user_prompt = self._direct_task_user_prompt(task)
@@ -2199,6 +2407,15 @@ class HermesRuntime:
             elapsed_seconds = max(0, int(time.monotonic() - started_at))
             remaining = max(1, timeout_seconds - elapsed_seconds)
             if is_question_gather and elapsed_seconds >= timeout_seconds:
+                recorder.record(
+                    "execution_completed",
+                    {
+                        "ok": True,
+                        "termination_reason": "task_timeout",
+                        "completion_verdict": "partial",
+                        "provider_response_id": previous_response_id,
+                    },
+                )
                 return self._question_gather_result(
                     task,
                     tool_policy,
@@ -2207,6 +2424,7 @@ class HermesRuntime:
                     completion_verdict="partial",
                     provider_response_id=previous_response_id,
                     mcp_calls=accumulated_mcp_calls,
+                    recorder=recorder,
                 )
             payload: JsonObject = {
                 "model": self._provider_model,
@@ -2224,6 +2442,15 @@ class HermesRuntime:
                 payload["previous_response_id"] = previous_response_id
             if self._reasoning_config.get("enabled", True):
                 payload["reasoning"] = {"effort": self._reasoning_effort}
+            recorder.record(
+                "responses_request",
+                {
+                    "round": rounds + 1,
+                    "remaining_timeout_seconds": remaining,
+                    "previous_response_id": previous_response_id,
+                    "payload": payload,
+                },
+            )
             req = urlrequest.Request(
                 f"{self._base_url.rstrip('/')}/responses",
                 data=json.dumps(payload).encode("utf-8"),
@@ -2238,22 +2465,42 @@ class HermesRuntime:
                     body = resp.read().decode("utf-8")
             except urlerror.HTTPError as exc:
                 detail = exc.read().decode("utf-8", errors="replace")
+                recorder.record(
+                    "execution_failed",
+                    {
+                        "failure_class": "runner_non_ok",
+                        "error": f"HTTP {exc.code}: {detail[:4000]}",
+                    },
+                )
                 return HermesExecutionResult(
                     ok=False,
                     message=f"Native workflow executor returned {exc.code}: {detail[:2000]}",
                     provider=self._backend,
-                    raw={
-                        **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-                        "failure_class": "runner_non_ok",
-                        "native_mcp_enabled": True,
-                        "reply_delivery_attempted": reply_delivery_attempted,
-                        "reply_delivery": reply_delivery or {},
-                        "mcp_calls": accumulated_mcp_calls,
-                        "tool_calls": self._merge_runtime_values(binding.diagnostics().get("tool_calls"), accumulated_mcp_calls),
-                    },
+                    raw=self._attach_native_execution_log_path(
+                        {
+                            **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                            "failure_class": "runner_non_ok",
+                            "native_mcp_enabled": True,
+                            "reply_delivery_attempted": reply_delivery_attempted,
+                            "reply_delivery": reply_delivery or {},
+                            "mcp_calls": accumulated_mcp_calls,
+                            "tool_calls": self._merge_runtime_values(binding.diagnostics().get("tool_calls"), accumulated_mcp_calls),
+                        },
+                        recorder,
+                    ),
                 )
             except (TimeoutError, socket.timeout, urlerror.URLError, ConnectionError, OSError) as exc:
                 if is_question_gather and isinstance(exc, (TimeoutError, socket.timeout)):
+                    recorder.record(
+                        "execution_completed",
+                        {
+                            "ok": True,
+                            "termination_reason": "task_timeout",
+                            "completion_verdict": "partial",
+                            "provider_response_id": previous_response_id,
+                            "error": str(exc),
+                        },
+                    )
                     return self._question_gather_result(
                         task,
                         tool_policy,
@@ -2262,54 +2509,101 @@ class HermesRuntime:
                         completion_verdict="partial",
                         provider_response_id=previous_response_id,
                         mcp_calls=accumulated_mcp_calls,
+                        recorder=recorder,
                     )
                 failure_class = "runner_transport_timeout"
                 if reply_delivery_attempted:
                     failure_class = "runner_reply_delivery_uncertain"
+                recorder.record(
+                    "execution_failed",
+                    {
+                        "failure_class": failure_class,
+                        "error": str(exc),
+                        "reply_delivery_attempted": reply_delivery_attempted,
+                    },
+                )
                 return HermesExecutionResult(
                     ok=False,
                     message=f"Native workflow executor timed out after {max(1, remaining)}s: {exc}",
                     provider=self._backend,
-                    raw={
-                        **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-                        "failure_class": failure_class,
-                        "native_mcp_enabled": True,
-                        "reply_delivery_attempted": reply_delivery_attempted,
-                        "reply_delivery": reply_delivery or {},
-                        "mcp_calls": accumulated_mcp_calls,
-                        "tool_calls": self._merge_runtime_values(binding.diagnostics().get("tool_calls"), accumulated_mcp_calls),
-                    },
+                    raw=self._attach_native_execution_log_path(
+                        {
+                            **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                            "failure_class": failure_class,
+                            "native_mcp_enabled": True,
+                            "reply_delivery_attempted": reply_delivery_attempted,
+                            "reply_delivery": reply_delivery or {},
+                            "mcp_calls": accumulated_mcp_calls,
+                            "tool_calls": self._merge_runtime_values(binding.diagnostics().get("tool_calls"), accumulated_mcp_calls),
+                        },
+                        recorder,
+                    ),
                 )
             try:
                 parsed = json.loads(body)
             except json.JSONDecodeError:
+                recorder.record(
+                    "responses_response_invalid_json",
+                    {
+                        "round": rounds + 1,
+                        "body_excerpt": body[:4000],
+                    },
+                )
                 return HermesExecutionResult(
                     ok=False,
                     message="Native workflow executor returned invalid JSON.",
                     provider=self._backend,
-                    raw={
-                        **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-                        "failure_class": "runner_non_ok",
-                        "native_mcp_enabled": True,
-                    },
+                    raw=self._attach_native_execution_log_path(
+                        {
+                            **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                            "failure_class": "runner_non_ok",
+                            "native_mcp_enabled": True,
+                        },
+                        recorder,
+                    ),
                 )
             if not isinstance(parsed, dict):
+                recorder.record(
+                    "responses_response_invalid_shape",
+                    {
+                        "round": rounds + 1,
+                        "payload": parsed if isinstance(parsed, list) else {"value": _string_or_json(parsed)},
+                    },
+                )
                 return HermesExecutionResult(
                     ok=False,
                     message="Native workflow executor returned a non-object JSON payload.",
                     provider=self._backend,
-                    raw={
-                        **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-                        "failure_class": "runner_non_ok",
-                        "native_mcp_enabled": True,
-                    },
+                    raw=self._attach_native_execution_log_path(
+                        {
+                            **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                            "failure_class": "runner_non_ok",
+                            "native_mcp_enabled": True,
+                        },
+                        recorder,
+                    ),
                 )
+            recorder.record(
+                "responses_response",
+                {
+                    "round": rounds + 1,
+                    "payload": parsed,
+                },
+            )
             previous_response_id = _string_or_json(parsed.get("id"))
             normalized_mcp_calls, latest_reply_delivery, latest_reply_attempted = self._normalize_mcp_calls(
                 parsed,
                 send_tool_names=send_tool_names,
                 task=task,
             )
+            if normalized_mcp_calls:
+                recorder.record(
+                    "mcp_calls_observed",
+                    {
+                        "round": rounds + 1,
+                        "mcp_calls": normalized_mcp_calls,
+                    },
+                )
             accumulated_mcp_calls = self._merge_runtime_values(accumulated_mcp_calls, normalized_mcp_calls)
             reply_delivery_attempted = reply_delivery_attempted or latest_reply_attempted
             if latest_reply_delivery is not None:
@@ -2320,6 +2614,15 @@ class HermesRuntime:
             if had_tool_round:
                 if rounds >= self._max_iterations:
                     if is_question_gather:
+                        recorder.record(
+                            "execution_completed",
+                            {
+                                "ok": True,
+                                "termination_reason": "iteration_budget_exhausted",
+                                "completion_verdict": "partial",
+                                "provider_response_id": previous_response_id,
+                            },
+                        )
                         return self._question_gather_result(
                             task,
                             tool_policy,
@@ -2328,20 +2631,31 @@ class HermesRuntime:
                             completion_verdict="partial",
                             provider_response_id=previous_response_id,
                             mcp_calls=accumulated_mcp_calls,
+                            recorder=recorder,
                         )
+                    recorder.record(
+                        "execution_failed",
+                        {
+                            "failure_class": "runner_iteration_budget_exhausted",
+                            "error": "Native workflow executor exhausted its function-call budget.",
+                        },
+                    )
                     return HermesExecutionResult(
                         ok=False,
                         message="Native workflow executor exhausted its function-call budget.",
                         provider=self._backend,
-                        raw={
-                            **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-                            "failure_class": "runner_iteration_budget_exhausted",
-                            "native_mcp_enabled": True,
-                            "reply_delivery_attempted": reply_delivery_attempted,
-                            "reply_delivery": reply_delivery or {},
-                            "mcp_calls": accumulated_mcp_calls,
-                            "tool_calls": self._merge_runtime_values(binding.diagnostics().get("tool_calls"), accumulated_mcp_calls),
-                        },
+                        raw=self._attach_native_execution_log_path(
+                            {
+                                **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                                "failure_class": "runner_iteration_budget_exhausted",
+                                "native_mcp_enabled": True,
+                                "reply_delivery_attempted": reply_delivery_attempted,
+                                "reply_delivery": reply_delivery or {},
+                                "mcp_calls": accumulated_mcp_calls,
+                                "tool_calls": self._merge_runtime_values(binding.diagnostics().get("tool_calls"), accumulated_mcp_calls),
+                            },
+                            recorder,
+                        ),
                     )
                 outputs: list[JsonObject] = []
                 for call in function_calls:
@@ -2364,24 +2678,49 @@ class HermesRuntime:
                             "output": output_text,
                         }
                     )
+                if outputs:
+                    recorder.record(
+                        "function_call_outputs",
+                        {
+                            "round": rounds + 1,
+                            "outputs": outputs,
+                        },
+                    )
                 current_input = outputs if outputs else []
                 rounds += 1
                 continue
             if not response_text:
                 if normalized_mcp_calls:
+                    recorder.record(
+                        "continuation_without_output_text",
+                        {
+                            "round": rounds + 1,
+                            "provider_response_id": previous_response_id,
+                        },
+                    )
                     current_input = []
                     continue
+                recorder.record(
+                    "execution_failed",
+                    {
+                        "failure_class": "runner_non_ok",
+                        "error": "Native workflow executor returned an empty response.",
+                    },
+                )
                 return HermesExecutionResult(
                     ok=False,
                     message="Native workflow executor returned an empty response.",
                     provider=self._backend,
-                    raw={
-                        **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-                        "failure_class": "runner_non_ok",
-                        "native_mcp_enabled": True,
-                        "mcp_calls": accumulated_mcp_calls,
-                        "tool_calls": self._merge_runtime_values(binding.diagnostics().get("tool_calls"), accumulated_mcp_calls),
-                    },
+                    raw=self._attach_native_execution_log_path(
+                        {
+                            **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                            "failure_class": "runner_non_ok",
+                            "native_mcp_enabled": True,
+                            "mcp_calls": accumulated_mcp_calls,
+                            "tool_calls": self._merge_runtime_values(binding.diagnostics().get("tool_calls"), accumulated_mcp_calls),
+                        },
+                        recorder,
+                    ),
                 )
             try:
                 structured_output = self._extract_structured_output(response_text)
@@ -2389,23 +2728,43 @@ class HermesRuntime:
                 failure_class = "runner_structured_output_parse_failure"
                 if reply_delivery_attempted:
                     failure_class = "runner_reply_delivery_uncertain"
+                recorder.record(
+                    "execution_failed",
+                    {
+                        "failure_class": failure_class,
+                        "error": str(exc),
+                        "structured_output_error": str(exc),
+                    },
+                )
                 return HermesExecutionResult(
                     ok=False,
                     message=str(exc),
                     provider=self._backend,
-                    raw={
-                        **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-                        "failure_class": failure_class,
-                        "native_mcp_enabled": True,
-                        "reply_delivery_attempted": reply_delivery_attempted,
-                        "reply_delivery": reply_delivery or {},
-                        "mcp_calls": accumulated_mcp_calls,
-                        "tool_calls": self._merge_runtime_values(binding.diagnostics().get("tool_calls"), accumulated_mcp_calls),
-                        "structured_output_error": str(exc),
-                    },
+                    raw=self._attach_native_execution_log_path(
+                        {
+                            **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                            "failure_class": failure_class,
+                            "native_mcp_enabled": True,
+                            "reply_delivery_attempted": reply_delivery_attempted,
+                            "reply_delivery": reply_delivery or {},
+                            "mcp_calls": accumulated_mcp_calls,
+                            "tool_calls": self._merge_runtime_values(binding.diagnostics().get("tool_calls"), accumulated_mcp_calls),
+                            "structured_output_error": str(exc),
+                        },
+                        recorder,
+                    ),
                 )
             observed = binding.diagnostics()
             if is_question_gather:
+                recorder.record(
+                    "execution_completed",
+                    {
+                        "ok": True,
+                        "termination_reason": "normal_completion",
+                        "completion_verdict": "complete",
+                        "provider_response_id": previous_response_id,
+                    },
+                )
                 return self._question_gather_result(
                     task,
                     tool_policy,
@@ -2415,6 +2774,7 @@ class HermesRuntime:
                     structured_output=structured_output,
                     provider_response_id=previous_response_id,
                     mcp_calls=accumulated_mcp_calls,
+                    recorder=recorder,
                 )
             tool_calls = self._merge_runtime_values(_json_object_list(observed.get("tool_calls")), accumulated_mcp_calls)
             raw: JsonObject = {
@@ -2439,11 +2799,20 @@ class HermesRuntime:
             }
             if reply_delivery is not None:
                 raw["reply_delivery"] = reply_delivery
+            recorder.record(
+                "execution_completed",
+                {
+                    "ok": True,
+                    "termination_reason": "normal_completion",
+                    "provider_response_id": previous_response_id,
+                    "reply_delivery_attempted": reply_delivery_attempted,
+                },
+            )
             return HermesExecutionResult(
                 ok=True,
                 message=json.dumps(structured_output, ensure_ascii=True, sort_keys=True),
                 provider=self._backend,
-                raw=raw,
+                raw=self._attach_native_execution_log_path(raw, recorder),
             )
 
     def _invoke_partial_reducer(
@@ -2513,62 +2882,95 @@ class HermesRuntime:
 
     def _execute_question_reduce_task(self, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> HermesExecutionResult:
         timeout_seconds = min(self._effective_task_timeout(task), max(1, self._transport_timeout_seconds - 5))
+        recorder = self._create_native_execution_recorder(task, label="question_reduce")
+        recorder.record(
+            "execution_started",
+            {
+                **self._native_execution_started_payload(task, tool_policy),
+                "question_reduce": True,
+            },
+        )
         attempt = self._invoke_direct_json_response(
             system_prompt=self._question_reduce_system_prompt(),
             user_prompt=self._question_reduce_user_prompt(task),
             timeout_seconds=timeout_seconds,
             reasoning_effort="medium",
+            recorder=recorder,
+            operation="question_reduce",
         )
         if not attempt.ok:
             message = first_non_empty(attempt.error, "Question reducer failed.")
+            recorder.record(
+                "execution_failed",
+                {
+                    "failure_class": "runner_non_ok",
+                    "failure_kind": "question_reduce_failed",
+                    "error": message,
+                },
+            )
             return HermesExecutionResult(
                 ok=False,
                 message=message,
                 provider=self._backend,
-                raw={
-                    **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-                    "failure_class": "runner_non_ok",
-                    "runner_diagnostics": {
-                        "failure_kind": "question_reduce_failed",
-                        "provider_error_message": message,
+                raw=self._attach_native_execution_log_path(
+                    {
+                        **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                        "failure_class": "runner_non_ok",
+                        "runner_diagnostics": {
+                            "failure_kind": "question_reduce_failed",
+                            "provider_error_message": message,
+                        },
+                        "tool_policy_mode": tool_policy.mode,
+                        "tool_allowlist_effective": tool_policy.effective,
+                        "tool_transport_allowlist_effective": tool_policy.transport_effective,
+                        "blocked_tool_names": tool_policy.blocked,
+                        "task_timeout_seconds": self._effective_task_timeout(task),
+                        "transport_timeout_seconds": self._transport_timeout_seconds,
+                        "task_type": task.task_type,
                     },
-                    "tool_policy_mode": tool_policy.mode,
-                    "tool_allowlist_effective": tool_policy.effective,
-                    "tool_transport_allowlist_effective": tool_policy.transport_effective,
-                    "blocked_tool_names": tool_policy.blocked,
-                    "task_timeout_seconds": self._effective_task_timeout(task),
-                    "transport_timeout_seconds": self._transport_timeout_seconds,
-                    "task_type": task.task_type,
-                },
+                    recorder,
+                ),
             )
         completion_verdict, termination_reason = self._question_reduce_defaults(task)
         structured_output = dict(attempt.structured_output)
         structured_output["completion_verdict"] = first_non_empty(_string_or_json(structured_output.get("completion_verdict")), completion_verdict)
         structured_output["termination_reason"] = first_non_empty(_string_or_json(structured_output.get("termination_reason")), termination_reason)
+        recorder.record(
+            "execution_completed",
+            {
+                "ok": True,
+                "completion_verdict": structured_output["completion_verdict"],
+                "termination_reason": structured_output["termination_reason"],
+                "provider_response_id": attempt.provider_response_id,
+            },
+        )
         return HermesExecutionResult(
             ok=True,
             message=json.dumps(structured_output, ensure_ascii=True, sort_keys=True),
             provider=self._backend,
-            raw={
-                **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-                "task_timeout_seconds": self._effective_task_timeout(task),
-                "transport_timeout_seconds": self._transport_timeout_seconds,
-                "tool_policy_mode": tool_policy.mode,
-                "tool_allowlist_effective": tool_policy.effective,
-                "tool_transport_allowlist_effective": tool_policy.transport_effective,
-                "blocked_tool_names": tool_policy.blocked,
-                "runner_diagnostics": {
+            raw=self._attach_native_execution_log_path(
+                {
+                    **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                    "task_timeout_seconds": self._effective_task_timeout(task),
+                    "transport_timeout_seconds": self._transport_timeout_seconds,
+                    "tool_policy_mode": tool_policy.mode,
+                    "tool_allowlist_effective": tool_policy.effective,
+                    "tool_transport_allowlist_effective": tool_policy.transport_effective,
+                    "blocked_tool_names": tool_policy.blocked,
+                    "runner_diagnostics": {
+                        "completion_verdict": structured_output["completion_verdict"],
+                        "termination_reason": structured_output["termination_reason"],
+                        "question_reduce_mode": "direct_responses_api",
+                    },
                     "completion_verdict": structured_output["completion_verdict"],
                     "termination_reason": structured_output["termination_reason"],
+                    "structured_output": structured_output,
+                    "task_type": task.task_type,
                     "question_reduce_mode": "direct_responses_api",
+                    "provider_response_id": attempt.provider_response_id,
                 },
-                "completion_verdict": structured_output["completion_verdict"],
-                "termination_reason": structured_output["termination_reason"],
-                "structured_output": structured_output,
-                "task_type": task.task_type,
-                "question_reduce_mode": "direct_responses_api",
-                "provider_response_id": attempt.provider_response_id,
-            },
+                recorder,
+            ),
         )
 
     def _partial_completion_idempotency_key(self, task: RunnerTaskRequest, termination_reason: str) -> str:

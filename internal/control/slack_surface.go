@@ -16,6 +16,7 @@ import (
 
 	"github.com/piplabs/rsi-agent-platform/internal/app"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
+	"github.com/piplabs/rsi-agent-platform/internal/debuglog"
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
@@ -126,6 +127,13 @@ func (s *slackSurfaceRuntime) handleEventsAPIEvent(eventsAPIEvent slackevents.Ev
 			return
 		}
 		envelope.Prompt = slackpkg.CanonicalizePromptEnvelope(envelope, s.resolver)
+		if s.cfg.VerboseTraceLogging {
+			log.Printf(
+				"slack-surface identity=%s app_mention_envelope=%s",
+				s.cfg.SlackAppIdentity,
+				debuglog.JSON(envelope, s.cfg.VerboseTraceLogLimit),
+			)
+		}
 		createdAt := envelope.CreatedAt
 		if createdAt.IsZero() {
 			createdAt = time.Now().UTC()
@@ -157,6 +165,13 @@ func (s *slackSurfaceRuntime) handleEventsAPIEvent(eventsAPIEvent slackevents.Ev
 			return
 		}
 		envelope.Prompt = slackpkg.CanonicalizePromptEnvelope(envelope, s.resolver)
+		if s.cfg.VerboseTraceLogging {
+			log.Printf(
+				"slack-surface identity=%s dm_envelope=%s",
+				s.cfg.SlackAppIdentity,
+				debuglog.JSON(envelope, s.cfg.VerboseTraceLogLimit),
+			)
+		}
 		createdAt := envelope.CreatedAt
 		if createdAt.IsZero() {
 			createdAt = time.Now().UTC()

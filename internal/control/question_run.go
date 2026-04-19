@@ -3,6 +3,7 @@ package control
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
 	"time"
@@ -10,6 +11,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/action"
 	"github.com/piplabs/rsi-agent-platform/internal/clients"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
+	"github.com/piplabs/rsi-agent-platform/internal/debuglog"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
@@ -76,6 +78,15 @@ func processQuestionRunEffect(cfg config.Config, store storepkg.Store, runnerCli
 
 func processCompileInvestigationSpec(cfg config.Config, store storepkg.Store, ctx questionRunContext, queueName queue.QueueName, occurredAt time.Time) error {
 	spec := buildInvestigationSpec(cfg, ctx.workflow, ctx.ingestion, ctx.trace)
+	if cfg.VerboseTraceLogging {
+		log.Printf(
+			"control-plane question-run compile_spec trace=%s workflow=%s question_run=%s spec=%s",
+			ctx.trace.Summary.TraceID,
+			ctx.workflow.ID,
+			ctx.questionRun.ID,
+			debuglog.JSON(spec, cfg.VerboseTraceLogLimit),
+		)
+	}
 	_, err := submitQuestionRunCommand(store, ctx.questionRun.ID, transition.CommandInvestigationSpecBuilt, cfg.ServiceName, occurredAt, map[string]any{
 		"workflow_id":        ctx.workflow.ID,
 		"trace_id":           ctx.trace.Summary.TraceID,
@@ -96,9 +107,29 @@ func processGatherEvidence(cfg config.Config, store storepkg.Store, runnerClient
 		return fmt.Errorf("runner client unavailable for queue %s", queueName)
 	}
 	task := buildQuestionGatherTask(cfg, store, ctx, queueName)
+	if cfg.VerboseTraceLogging {
+		log.Printf(
+			"control-plane question-run gather_request trace=%s workflow=%s question_run=%s queue=%s task=%s",
+			ctx.trace.Summary.TraceID,
+			ctx.workflow.ID,
+			ctx.questionRun.ID,
+			queueName,
+			debuglog.JSON(task, cfg.VerboseTraceLogLimit),
+		)
+	}
 	resp, err := runnerClient.Execute(task)
 	if err != nil {
 		return err
+	}
+	if cfg.VerboseTraceLogging {
+		log.Printf(
+			"control-plane question-run gather_response trace=%s workflow=%s question_run=%s ok=%t response=%s",
+			ctx.trace.Summary.TraceID,
+			ctx.workflow.ID,
+			ctx.questionRun.ID,
+			resp.OK,
+			debuglog.JSON(resp, cfg.VerboseTraceLogLimit),
+		)
 	}
 	if !resp.OK {
 		return fmt.Errorf("%s", firstNonEmpty(resp.Message, "question_run gather failed"))
@@ -287,9 +318,29 @@ func processExpandEvidence(cfg config.Config, store storepkg.Store, runnerClient
 		return fmt.Errorf("runner client unavailable for queue %s", queueName)
 	}
 	task := buildQuestionExpandTask(cfg, store, ctx)
+	if cfg.VerboseTraceLogging {
+		log.Printf(
+			"control-plane question-run expand_request trace=%s workflow=%s question_run=%s queue=%s task=%s",
+			ctx.trace.Summary.TraceID,
+			ctx.workflow.ID,
+			ctx.questionRun.ID,
+			queueName,
+			debuglog.JSON(task, cfg.VerboseTraceLogLimit),
+		)
+	}
 	resp, err := runnerClient.Execute(task)
 	if err != nil {
 		return err
+	}
+	if cfg.VerboseTraceLogging {
+		log.Printf(
+			"control-plane question-run expand_response trace=%s workflow=%s question_run=%s ok=%t response=%s",
+			ctx.trace.Summary.TraceID,
+			ctx.workflow.ID,
+			ctx.questionRun.ID,
+			resp.OK,
+			debuglog.JSON(resp, cfg.VerboseTraceLogLimit),
+		)
 	}
 	if !resp.OK {
 		terminationReason := strings.TrimSpace(stringValue(resp.Raw["termination_reason"]))
@@ -339,9 +390,29 @@ func processReduceReply(cfg config.Config, store storepkg.Store, runnerClients m
 		return fmt.Errorf("runner client unavailable for queue %s", queueName)
 	}
 	task := buildQuestionReduceTask(cfg, store, ctx, queueName)
+	if cfg.VerboseTraceLogging {
+		log.Printf(
+			"control-plane question-run reduce_request trace=%s workflow=%s question_run=%s queue=%s task=%s",
+			ctx.trace.Summary.TraceID,
+			ctx.workflow.ID,
+			ctx.questionRun.ID,
+			queueName,
+			debuglog.JSON(task, cfg.VerboseTraceLogLimit),
+		)
+	}
 	resp, err := runnerClient.Execute(task)
 	if err != nil {
 		return err
+	}
+	if cfg.VerboseTraceLogging {
+		log.Printf(
+			"control-plane question-run reduce_response trace=%s workflow=%s question_run=%s ok=%t response=%s",
+			ctx.trace.Summary.TraceID,
+			ctx.workflow.ID,
+			ctx.questionRun.ID,
+			resp.OK,
+			debuglog.JSON(resp, cfg.VerboseTraceLogLimit),
+		)
 	}
 	if !resp.OK {
 		return fmt.Errorf("%s", firstNonEmpty(resp.Message, "question_run reducer failed"))

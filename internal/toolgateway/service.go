@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"path"
@@ -21,6 +22,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/clients"
 	"github.com/piplabs/rsi-agent-platform/internal/cluster"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
+	"github.com/piplabs/rsi-agent-platform/internal/debuglog"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/githubapp"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
@@ -71,85 +73,100 @@ func NewService(cfg config.Config, store storepkg.Repository) *Service {
 }
 
 func (s *Service) Execute(name string, input map[string]interface{}) storepkg.ToolResult {
+	if s.cfg.VerboseTraceLogging {
+		log.Printf("tool-gateway execute_start tool=%s input=%s", strings.TrimSpace(name), debuglog.JSON(input, s.cfg.VerboseTraceLogLimit))
+	}
+	var result storepkg.ToolResult
 	switch name {
 	case "repo.context":
-		return s.repoContext(input)
+		result = s.repoContext(input)
 	case "repo.read_file":
-		return s.repoReadFile(input)
+		result = s.repoReadFile(input)
 	case "repo.search":
-		return s.repoSearch(input)
+		result = s.repoSearch(input)
 	case "knowledge.context":
-		return s.knowledgeContext(input)
+		result = s.knowledgeContext(input)
 	case "sentry.lookup":
-		return s.sentryLookup(input)
+		result = s.sentryLookup(input)
 	case "kubernetes.inspect":
-		return s.kubernetesInspect(input)
+		result = s.kubernetesInspect(input)
 	case "kubernetes.logs":
-		return s.kubernetesLogs(input)
+		result = s.kubernetesLogs(input)
 	case "kubernetes.events":
-		return s.kubernetesEvents(input)
+		result = s.kubernetesEvents(input)
 	case "slack.reply":
-		return s.slackReply(input)
+		result = s.slackReply(input)
 	case "slack.history":
-		return s.slackHistory(input)
+		result = s.slackHistory(input)
 	case "slack.search":
-		return s.slackSearch(input)
+		result = s.slackSearch(input)
 	case "github.create_pr":
-		return s.githubCreatePR(input)
+		result = s.githubCreatePR(input)
 	case "github.repo_context":
-		return s.githubRepoContext(input)
+		result = s.githubRepoContext(input)
 	case "github.repo_activity":
-		return s.githubRepoActivity(input)
+		result = s.githubRepoActivity(input)
 	case "cloudflare.inspect":
-		return s.cloudflareInspect(input)
+		result = s.cloudflareInspect(input)
 	case "rsi.trace_context":
-		return s.rsiTraceContext(input)
+		result = s.rsiTraceContext(input)
 	case "rsi.workflow_context":
-		return s.rsiWorkflowContext(input)
+		result = s.rsiWorkflowContext(input)
 	case "rsi.action_chain":
-		return s.rsiActionChain(input)
+		result = s.rsiActionChain(input)
 	case "rsi.runner_execution":
-		return s.rsiRunnerExecution(input)
+		result = s.rsiRunnerExecution(input)
 	case "rsi.runtime_config":
-		return s.rsiRuntimeConfig(input)
+		result = s.rsiRuntimeConfig(input)
 	case "rsi.runtime_health":
-		return s.rsiRuntimeHealth(input)
+		result = s.rsiRuntimeHealth(input)
 	case "rsi.runtime_deployment_facts":
-		return s.rsiRuntimeDeploymentFacts(input)
+		result = s.rsiRuntimeDeploymentFacts(input)
 	case "rsi.proposal_memory":
-		return s.rsiProposalMemory(input)
+		result = s.rsiProposalMemory(input)
 	case "rsi.candidate_context":
-		return s.rsiCandidateContext(input)
+		result = s.rsiCandidateContext(input)
 	case "rsi.attempt_context":
-		return s.rsiAttemptContext(input)
+		result = s.rsiAttemptContext(input)
 	case "workspace.list_files":
-		return s.workspaceListFiles(input)
+		result = s.workspaceListFiles(input)
 	case "workspace.read_file":
-		return s.workspaceReadFile(input)
+		result = s.workspaceReadFile(input)
 	case "workspace.search":
-		return s.workspaceSearch(input)
+		result = s.workspaceSearch(input)
 	case "workspace.git_history":
-		return s.workspaceGitHistory(input)
+		result = s.workspaceGitHistory(input)
 	case "workspace.git_show":
-		return s.workspaceGitShow(input)
+		result = s.workspaceGitShow(input)
 	case "workspace.git_search":
-		return s.workspaceGitSearch(input)
+		result = s.workspaceGitSearch(input)
 	case "workspace.write_file":
-		return s.workspaceWriteFile(input)
+		result = s.workspaceWriteFile(input)
 	case "workspace.apply_patch":
-		return s.workspaceApplyPatch(input)
+		result = s.workspaceApplyPatch(input)
 	case "workspace.git_status":
-		return s.workspaceGitStatus(input)
+		result = s.workspaceGitStatus(input)
 	case "workspace.git_diff":
-		return s.workspaceGitDiff(input)
+		result = s.workspaceGitDiff(input)
 	case "workspace.run_validation":
-		return s.workspaceRunValidation(input)
+		result = s.workspaceRunValidation(input)
 	default:
-		return s.unavailableResult(name, input, "tool-gateway", fmt.Sprintf("Tool %s is not registered in the governed tool gateway.", strings.TrimSpace(name)), map[string]interface{}{
+		result = s.unavailableResult(name, input, "tool-gateway", fmt.Sprintf("Tool %s is not registered in the governed tool gateway.", strings.TrimSpace(name)), map[string]interface{}{
 			"tool_name": strings.TrimSpace(name),
 			"error":     "unknown_tool",
 		})
 	}
+	if s.cfg.VerboseTraceLogging {
+		log.Printf(
+			"tool-gateway execute_end tool=%s status=%s available=%t summary=%q output=%s",
+			strings.TrimSpace(name),
+			strings.TrimSpace(result.Status),
+			result.Available,
+			strings.TrimSpace(result.Summary),
+			debuglog.JSON(result.Output, s.cfg.VerboseTraceLogLimit),
+		)
+	}
+	return result
 }
 
 func (s *Service) repoContext(input map[string]interface{}) storepkg.ToolResult {

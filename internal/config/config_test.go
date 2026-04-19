@@ -54,6 +54,20 @@ func TestRunnerTaskTimeoutDefaultsUseExpandedBudgets(t *testing.T) {
 	}
 }
 
+func TestLoadReadsVerboseTraceLoggingEnv(t *testing.T) {
+	t.Setenv("RSI_VERBOSE_TRACE_LOGGING", "true")
+	t.Setenv("RSI_VERBOSE_TRACE_LOG_LIMIT", "4242")
+
+	cfg := Load("control-plane")
+
+	if !cfg.VerboseTraceLogging {
+		t.Fatal("expected verbose trace logging to be enabled")
+	}
+	if cfg.VerboseTraceLogLimit != 4242 {
+		t.Fatalf("verbose trace log limit = %d, want 4242", cfg.VerboseTraceLogLimit)
+	}
+}
+
 func assertPanics(t *testing.T, fn func()) {
 	t.Helper()
 	defer func() {

@@ -246,6 +246,17 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(config.honcho_workspace, "rsi-stage")
         self.assertEqual(config.honcho_environment_effective, "production")
 
+    def test_config_reads_verbose_trace_logging(self) -> None:
+        with mock.patch.dict(
+            os.environ,
+            {**runner_env("eval"), "RSI_VERBOSE_TRACE_LOGGING": "true", "RSI_VERBOSE_TRACE_LOG_LIMIT": "2048"},
+            clear=True,
+        ):
+            config = RunnerConfig.from_env()
+
+        self.assertTrue(config.verbose_trace_logging)
+        self.assertEqual(config.verbose_trace_log_limit, 2048)
+
     def test_config_rejects_timeout_contract_drift(self) -> None:
         with mock.patch.dict(
             os.environ,
@@ -1201,13 +1212,19 @@ class HermesRuntimeTests(unittest.TestCase):
                 }
             )
 
-        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch("rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen), mock.patch.dict(
-            os.environ, runner_env("prod"), clear=True
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.AIAgent", FakeAIAgent
+        ), mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch(
+            "rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen
+        ), mock.patch.dict(
+            os.environ, {**runner_env("prod"), "HERMES_HOME": tempdir}, clear=True
         ):
             runtime = HermesRuntime(RunnerConfig.from_env())
             result = runtime.execute_task(task)
+            log_path = result.raw["native_execution_log_path"]
+            self.assertTrue(os.path.exists(log_path))
+            with open(log_path, encoding="utf-8") as handle:
+                events = [json.loads(line) for line in handle if line.strip()]
 
         self.assertTrue(result.ok)
         self.assertIsNone(FakeAIAgent.last_kwargs)
@@ -1218,6 +1235,11 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["completion_verdict"], "partial")
         self.assertEqual(result.raw["termination_reason"], "task_timeout")
         self.assertEqual(result.raw["structured_output"]["reply_markdown"], "Partial rundown: pagination cleanup landed, but the weekly picture is incomplete.")
+        self.assertEqual(events[0]["event"], "execution_started")
+        self.assertEqual(events[1]["event"], "direct_response_request")
+        self.assertEqual(events[2]["event"], "direct_response_response")
+        self.assertEqual(events[-1]["event"], "execution_completed")
+        self.assertEqual(events[-1]["termination_reason"], "task_timeout")
 
     def test_transport_tool_schemas_are_openai_strict(self) -> None:
         def strict_schema_violations(node: object, path: str) -> list[str]:
@@ -1457,13 +1479,17 @@ class HermesRuntimeTests(unittest.TestCase):
             "RSI_SLACK_MCP_ENABLED": "true",
             "RSI_SLACK_USER_TOKEN": "slack-mcp-test-token",
         }
-        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch(
-            "rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen
-        ), mock.patch.dict(
-            os.environ, env, clear=True
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch("rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen), mock.patch.dict(
+            os.environ, {**env, "HERMES_HOME": tempdir}, clear=True
         ):
             runtime = HermesRuntime(RunnerConfig.from_env())
             result = runtime.execute_task(task)
+            log_path = result.raw["native_execution_log_path"]
+            self.assertTrue(os.path.exists(log_path))
+            with open(log_path, encoding="utf-8") as handle:
+                events = [json.loads(line) for line in handle if line.strip()]
 
         self.assertTrue(result.ok)
         self.assertEqual(slack_methods, ["initialize", "notifications/initialized", "tools/list"])
@@ -1493,6 +1519,12 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("slack.mcp.get_thread", tool_names)
         self.assertIn("slack.mcp.send_message", tool_names)
         self.assertEqual(result.raw["structured_output"]["final_answer"], "Final reply from Slack MCP.")
+        event_names = [item["event"] for item in events]
+        self.assertIn("responses_request", event_names)
+        self.assertIn("responses_response", event_names)
+        self.assertIn("mcp_calls_observed", event_names)
+        self.assertIn("function_call_outputs", event_names)
+        self.assertEqual(events[-1]["event"], "execution_completed")
 
     def test_native_mcp_reply_profile_fails_closed_when_send_tool_discovery_is_ambiguous(self) -> None:
         task = RunnerTaskRequest.from_payload(

@@ -83,6 +83,8 @@ type Config struct {
 	DefaultReasoningVerbosity          string
 	DefaultProposalCap                 int
 	ProposalPromoterInterval           time.Duration
+	VerboseTraceLogging                bool
+	VerboseTraceLogLimit               int
 	WorkflowRunnerRepairAttempts       int
 	WorkflowAutoRetryEnabled           bool
 	WorkflowAutoRetryMaxAttempts       int
@@ -176,6 +178,8 @@ func Load(serviceName string) Config {
 		DefaultReasoningVerbosity:          stringEnv("RSI_REASONING_VERBOSITY", ""),
 		DefaultProposalCap:                 intEnv("RSI_ACTIVE_PROPOSAL_CAP", 0),
 		ProposalPromoterInterval:           durationEnv("RSI_PROPOSAL_PROMOTER_INTERVAL", 0),
+		VerboseTraceLogging:                boolEnv("RSI_VERBOSE_TRACE_LOGGING", false),
+		VerboseTraceLogLimit:               intEnv("RSI_VERBOSE_TRACE_LOG_LIMIT", 100000),
 		WorkflowRunnerRepairAttempts:       intEnv("RSI_WORKFLOW_RUNNER_REPAIR_ATTEMPTS", 1),
 		WorkflowAutoRetryEnabled:           boolEnv("RSI_WORKFLOW_AUTO_RETRY_ENABLED", false),
 		WorkflowAutoRetryMaxAttempts:       intEnv("RSI_WORKFLOW_AUTO_RETRY_MAX_ATTEMPTS", 3),
