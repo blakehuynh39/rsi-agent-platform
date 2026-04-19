@@ -1653,6 +1653,81 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["reply_delivery"]["body"], "Final reply from Slack MCP.")
         self.assertEqual(result.raw["reply_delivery"]["tool_name"], "slack.mcp.send_message")
 
+    def test_native_question_expand_guards_json_input_prompt(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "question_expand",
+                    "repo": "depin-backend",
+                    "prompt": json.dumps(
+                        {
+                            "investigation_spec": {
+                                "user_request": "How did depin-backend api progress this week for numo?",
+                                "repo": "depin-backend",
+                                "project_key": "numo",
+                            },
+                            "evidence_ledger": {
+                                "evidence_items": [],
+                                "open_questions": ["Need grounded Slack evidence from linked channels."],
+                            },
+                        }
+                    ),
+                    "system_message": "Use only governed read-only tools. Return only JSON with tool_calls, evidence_items, open_questions, insufficiency_markers, and confidence.",
+                    "mcp_servers": [{"server_label": "slack", "profile": "slack_mcp_read"}],
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "trace_id": "trace-123",
+                    "workflow_id": "wf-123",
+                }
+            }
+        )
+        captured_requests: list[dict[str, object]] = []
+
+        def fake_urlopen(req, timeout: int = 0):
+            self.assertEqual(req.full_url, "https://api.openai.com/v1/responses")
+            body = json.loads(req.data.decode("utf-8"))
+            captured_requests.append({"timeout": timeout, "body": body})
+            return FakeHTTPResponse(
+                {
+                    "id": "resp-question-expand-1",
+                    "output_text": json.dumps(
+                        {
+                            "tool_calls": [],
+                            "evidence_items": [],
+                            "open_questions": ["Need grounded Slack evidence from linked channels."],
+                            "insufficiency_markers": ["slack evidence missing"],
+                            "confidence": 0.41,
+                        }
+                    ),
+                }
+            )
+
+        env = {
+            **runner_env("prod"),
+            "RSI_SLACK_MCP_ENABLED": "true",
+            "RSI_SLACK_USER_TOKEN": "slack-mcp-test-token",
+        }
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ, env, clear=True
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            with mock.patch.object(runtime, "_resolved_task_mcp_servers", return_value=([], set())), mock.patch(
+                "rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen
+            ):
+                result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(len(captured_requests), 1)
+        request_body = captured_requests[0]["body"]
+        self.assertEqual(request_body["text"]["format"]["type"], "json_object")
+        self.assertIn("json", request_body["input"].lower())
+        self.assertTrue(request_body["input"].startswith("Return a JSON object only."))
+        self.assertIn('"investigation_spec"', request_body["input"])
+        self.assertEqual(
+            result.raw["structured_output"]["insufficiency_markers"],
+            ["slack evidence missing"],
+        )
+
     def test_question_expand_query_hints_prevent_prompt_blob_leakage_into_tool_defaults(self) -> None:
         captured: dict[str, object] = {}
 

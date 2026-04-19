@@ -1531,7 +1531,7 @@ class HermesRuntime:
         payload: JsonObject = {
             "model": self._provider_model,
             "instructions": system_prompt,
-            "input": user_prompt,
+            "input": self._json_object_input_prompt(user_prompt),
             "parallel_tool_calls": False,
             "max_output_tokens": 2000,
             "text": {
@@ -1792,9 +1792,18 @@ class HermesRuntime:
                 return True
         return False
 
+    def _json_object_input_prompt(self, prompt: str) -> str:
+        text = str(prompt or "").strip()
+        if "json" in text.lower():
+            return text
+        prefix = "Return a JSON object only."
+        if not text:
+            return prefix
+        return f"{prefix}\n\n{text}"
+
     def _direct_task_user_prompt(self, task: RunnerTaskRequest) -> str:
         if task.task_type in {"question_expand", "question_reduce"}:
-            return task.prompt
+            return self._json_object_input_prompt(task.prompt)
         payload: JsonObject = {
             "user_request": self._original_task_prompt(task),
             "reply_target": {
@@ -1810,13 +1819,15 @@ class HermesRuntime:
             "trace_id": task.trace_id or "",
             "workflow_id": task.workflow_id or "",
         }
-        return "\n".join(
-            [
-                "Complete the following Slack-bound RSI workflow.",
-                "Use Slack MCP for Slack investigation and governed function tools for repo, GitHub, knowledge, RSI context, and workspace reads.",
-                "Return JSON only.",
-                json.dumps(payload, ensure_ascii=True, sort_keys=True, indent=2),
-            ]
+        return self._json_object_input_prompt(
+            "\n".join(
+                [
+                    "Complete the following Slack-bound RSI workflow.",
+                    "Use Slack MCP for Slack investigation and governed function tools for repo, GitHub, knowledge, RSI context, and workspace reads.",
+                    "Return JSON only.",
+                    json.dumps(payload, ensure_ascii=True, sort_keys=True, indent=2),
+                ]
+            )
         )
 
     def _direct_function_tools(self, tool_policy: ToolPolicy) -> list[JsonObject]:
