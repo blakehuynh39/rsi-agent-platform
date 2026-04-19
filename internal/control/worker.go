@@ -929,6 +929,7 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	combinedContextSummary := joinContextSummary(contextSummary, liveHintSummary(liveHints))
 	allowed, _ := replyPolicy(store, workflow.Kind, trace.Summary.ThreadKey, ingestion.ChannelID)
 	mcpServers := slackMCPServersForReply(allowed, ingestion.ChannelID, ingestion.ThreadTS)
+	allowedTools := workflowRunnerAllowedTools(liveHints, len(mcpServers) > 0)
 	systemMessage := harness.ComposeSystemMessage(
 		workflowRunnerSystemMessage(len(mcpServers) > 0, allowed),
 		effectiveHarness,
@@ -942,7 +943,7 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		Prompt:                    prompt,
 		SystemMessage:             systemMessage,
 		MCPServers:                mcpServers,
-		AllowedTools:              nil,
+		AllowedTools:              allowedTools,
 		AllowedCommands:           []string{},
 		TimeoutSeconds:            0,
 		ExpectedOutputs:           []string{"visible_reasoning", "final_answer"},
@@ -1302,6 +1303,24 @@ func workflowExecutionStrategy(workflow storepkg.Workflow) string {
 		return "read_heavy_slack_qna"
 	}
 	return ""
+}
+
+func workflowRunnerAllowedTools(hints workflowplan.LiveHintSet, useSlackMCP bool) []string {
+	allowed := make([]string, 0, len(hints.PreferredTools))
+	for _, toolName := range uniqueStrings(hints.PreferredTools) {
+		trimmed := strings.TrimSpace(toolName)
+		if trimmed == "" {
+			continue
+		}
+		if useSlackMCP {
+			switch trimmed {
+			case "slack.history", "slack.search", "slack.reply":
+				continue
+			}
+		}
+		allowed = append(allowed, trimmed)
+	}
+	return uniqueStrings(allowed)
 }
 
 func slackMCPServersForRead(channelID string, threadTS string) []clients.RunnerMCPServer {

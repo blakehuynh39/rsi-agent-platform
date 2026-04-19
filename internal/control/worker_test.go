@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -2368,6 +2369,67 @@ func TestBuildRunnerTaskUsesConfiguredTimeoutAndSlackBinding(t *testing.T) {
 	}
 	if task.ThreadTS != ingestion.ThreadTS {
 		t.Fatalf("thread ts = %q, want %q", task.ThreadTS, ingestion.ThreadTS)
+	}
+}
+
+func TestBuildRunnerTaskBoundsNativeMCPToolSurface(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatalf("expected trace %s", workflowItem.traceID)
+	}
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatalf("expected workflow %s", workflowItem.workflowID)
+	}
+	ingestion, ok := findIngestion(store.ListIngestions(), workflowItem.ingestionID)
+	if !ok {
+		t.Fatalf("expected ingestion %s", workflowItem.ingestionID)
+	}
+	task := buildRunnerTask(config.Config{
+		Environment:               "stage",
+		DefaultRepo:               "rsi-agent-platform",
+		AllowedTargetRepos:        []string{"depin-backend", "rsi-agent-platform"},
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+	}, store, "prod", trace, workflow, ingestion, "context", nil)
+
+	if len(task.MCPServers) != 1 {
+		t.Fatalf("expected one Slack MCP server, got %#v", task.MCPServers)
+	}
+	if task.MCPServers[0].Profile != "slack_mcp_reply" {
+		t.Fatalf("expected reply-capable Slack MCP profile, got %#v", task.MCPServers)
+	}
+	liveHints := workflowplan.BuildLiveHints(workflowplan.RuntimeConfig{
+		DefaultRepo:      "rsi-agent-platform",
+		AllowedRepos:     []string{"depin-backend", "rsi-agent-platform"},
+		KnowledgeBaseURL: "https://example.test/kb",
+		SandboxNamespace: "rsi-platform",
+	}, workflowplan.RequestContext{
+		Trace:          trace.Summary,
+		WorkflowID:     workflow.ID,
+		ConversationID: workflow.ConversationID,
+		CaseID:         workflow.CaseID,
+		WorkflowKind:   workflow.Kind,
+		AssignedBot:    workflow.AssignedBot,
+		Question:       ingestion.Text,
+		ChannelID:      ingestion.ChannelID,
+		ThreadTS:       ingestion.ThreadTS,
+		EntityRefs:     append([]slackpkg.EntityRef(nil), ingestion.EntityRefs...),
+	}, time.Now().UTC())
+	expectedTools := workflowRunnerAllowedTools(liveHints, true)
+	if len(expectedTools) == 0 {
+		t.Fatalf("expected non-empty bounded tool surface from live hints")
+	}
+	if !reflect.DeepEqual(task.AllowedTools, expectedTools) {
+		t.Fatalf("expected allowed tools %#v, got %#v", expectedTools, task.AllowedTools)
+	}
+	for _, forbidden := range []string{"slack.history", "slack.search", "slack.reply", "cloudflare.inspect"} {
+		if containsString(task.AllowedTools, forbidden) {
+			t.Fatalf("expected %s to be absent from bounded tool surface, got %#v", forbidden, task.AllowedTools)
+		}
 	}
 }
 

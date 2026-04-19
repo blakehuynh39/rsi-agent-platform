@@ -1834,6 +1834,59 @@ class HermesRuntime:
             )
         return out
 
+    def _openai_schema_open_object_paths(self, schema: JsonValue | None, path: str) -> list[str]:
+        violations: list[str] = []
+        if isinstance(schema, dict):
+            if _string_or_json(schema.get("type")) == "object" and schema.get("additionalProperties") is not False:
+                violations.append(path)
+            for key, value in schema.items():
+                child_path = f"{path}.{key}" if path else key
+                violations.extend(self._openai_schema_open_object_paths(value, child_path))
+            return violations
+        if isinstance(schema, list):
+            for idx, item in enumerate(schema):
+                violations.extend(self._openai_schema_open_object_paths(item, f"{path}[{idx}]"))
+        return violations
+
+    def _openai_function_schema_violations(self, tools: list[JsonObject]) -> list[JsonObject]:
+        violations: list[JsonObject] = []
+        for tool in tools:
+            if _string_or_json(tool.get("type")) != "function":
+                continue
+            tool_name = first_non_empty(
+                _string_or_json(tool.get("name")),
+                _string_or_json(_json_object_or_empty(tool.get("function")).get("name")),
+                "unknown_function",
+            )
+            missing_paths = self._openai_schema_open_object_paths(tool.get("parameters"), "parameters")
+            if not missing_paths:
+                continue
+            violations.append({"tool_name": tool_name, "paths": missing_paths})
+        return violations
+
+    def _preflight_direct_function_tool_failure(self, task: RunnerTaskRequest, tools: list[JsonObject]) -> HermesExecutionResult | None:
+        violations = self._openai_function_schema_violations(tools)
+        if not violations:
+            return None
+        tool_names = ", ".join(item["tool_name"] for item in violations[:5])
+        if len(violations) > 5:
+            tool_names = f"{tool_names} (+{len(violations) - 5} more)"
+        return HermesExecutionResult(
+            ok=False,
+            message=f"Native workflow executor refused invalid function schema(s) before dispatch: {tool_names}.",
+            provider=self._backend,
+            raw={
+                **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                "failure_class": "runner_invalid_tool_schema",
+                "native_mcp_enabled": True,
+                "invalid_tool_schemas": violations,
+                "runner_diagnostics": {
+                    "failure_kind": "invalid_tool_schema",
+                    "invalid_tool_schemas": violations,
+                },
+            },
+        )
+
     def _resolved_task_mcp_servers(self, task: RunnerTaskRequest) -> tuple[list[JsonObject], set[str]]:
         resolved: list[JsonObject] = []
         send_tool_names: set[str] = set()
@@ -2029,6 +2082,8 @@ class HermesRuntime:
             workspace_id=task.workspace_id or "",
         )
         tools = [*self._direct_function_tools(tool_policy), *resolved_mcp_servers]
+        if preflight := self._preflight_direct_function_tool_failure(task, tools):
+            return preflight
         timeout_seconds = min(self._effective_task_timeout(task), max(1, self._transport_timeout_seconds - 5))
         user_prompt = self._direct_task_user_prompt(task)
         instructions = first_non_empty(task.system_message or "", "Return valid JSON only.")

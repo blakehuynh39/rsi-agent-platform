@@ -544,6 +544,17 @@ def canonical_tool_name(name: str) -> str:
     raise ValueError(f"tool name {tool!r} is not recognized")
 
 
+def _strict_json_schema(value: Any) -> Any:
+    if isinstance(value, dict):
+        out = {key: _strict_json_schema(item) for key, item in value.items()}
+        if out.get("type") == "object":
+            out.setdefault("additionalProperties", False)
+        return out
+    if isinstance(value, list):
+        return [_strict_json_schema(item) for item in value]
+    return value
+
+
 def tool_schema_wrappers(names: Iterable[str]) -> list[JsonToolWrapperSchema]:
     wrappers: list[JsonToolWrapperSchema] = []
     for name in names:
@@ -552,6 +563,8 @@ def tool_schema_wrappers(names: Iterable[str]) -> list[JsonToolWrapperSchema]:
             continue
         wrapped = deepcopy(schema)
         wrapped["name"] = tool_transport_name(name)
+        if "parameters" in wrapped:
+            wrapped["parameters"] = _strict_json_schema(wrapped.get("parameters"))
         wrappers.append({"type": "function", "function": wrapped})
     return wrappers
 
@@ -562,6 +575,8 @@ def transport_tool_schema(name: str) -> JsonToolFunctionSchema:
         raise KeyError(name)
     wrapped = deepcopy(schema)
     wrapped["name"] = tool_transport_name(name)
+    if "parameters" in wrapped:
+        wrapped["parameters"] = _strict_json_schema(wrapped.get("parameters"))
     return wrapped
 
 

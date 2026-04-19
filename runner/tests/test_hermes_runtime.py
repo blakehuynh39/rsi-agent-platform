@@ -10,7 +10,7 @@ from unittest import mock
 
 from rsi_runner.config import RunnerConfig, RunnerConfigError
 from rsi_runner.hermes_runtime import HermesRuntime, RunnerTaskRequest
-from rsi_runner.rsi_tools import ReadOnlyToolBinding, tool_schema_wrappers
+from rsi_runner.rsi_tools import ReadOnlyToolBinding, governed_toolset_definitions, tool_schema_wrappers, transport_tool_schema
 from rsi_runner.session_manager import SessionManager
 
 
@@ -1160,6 +1160,79 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["completion_verdict"], "partial")
         self.assertEqual(result.raw["termination_reason"], "task_timeout")
         self.assertEqual(result.raw["structured_output"]["reply_markdown"], "Partial rundown: pagination cleanup landed, but the weekly picture is incomplete.")
+
+    def test_transport_tool_schemas_are_openai_strict(self) -> None:
+        def missing_closed_objects(node: object, path: str) -> list[str]:
+            violations: list[str] = []
+            if isinstance(node, dict):
+                if node.get("type") == "object" and node.get("additionalProperties") is not False:
+                    violations.append(path)
+                for key, value in node.items():
+                    violations.extend(missing_closed_objects(value, f"{path}.{key}"))
+                return violations
+            if isinstance(node, list):
+                for idx, value in enumerate(node):
+                    violations.extend(missing_closed_objects(value, f"{path}[{idx}]"))
+            return violations
+
+        cloudflare = transport_tool_schema("cloudflare.inspect")
+        self.assertFalse(cloudflare["parameters"]["additionalProperties"])
+
+        invalid: dict[str, list[str]] = {}
+        for item in governed_toolset_definitions():
+            schema = item["schema"]
+            paths = missing_closed_objects(schema.get("parameters"), "parameters")
+            if paths:
+                invalid[schema["name"]] = paths
+        self.assertEqual(invalid, {})
+
+    def test_native_mcp_preflight_rejects_invalid_function_schema_before_dispatch(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Reply in Slack.",
+                    "allowed_tools": ["repo.context"],
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "mcp_servers": [{"server_label": "slack", "profile": "slack_mcp_read"}],
+                }
+            }
+        )
+
+        env = {
+            **runner_env("prod"),
+            "RSI_SLACK_MCP_ENABLED": "true",
+            "RSI_SLACK_USER_TOKEN": "slack-mcp-test-token",
+        }
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ, env, clear=True
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            with mock.patch.object(runtime, "_resolved_task_mcp_servers", return_value=([], set())), mock.patch.object(
+                runtime,
+                "_direct_function_tools",
+                return_value=[
+                    {
+                        "type": "function",
+                        "name": "broken_tool",
+                        "description": "Broken schema.",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {"repo": {"type": "string"}},
+                        },
+                        "strict": True,
+                    }
+                ],
+            ), mock.patch("rsi_runner.hermes_runtime.urlrequest.urlopen") as urlopen:
+                result = runtime.execute_task(task)
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.raw["failure_class"], "runner_invalid_tool_schema")
+        self.assertEqual(result.raw["runner_diagnostics"]["failure_kind"], "invalid_tool_schema")
+        self.assertEqual(result.raw["invalid_tool_schemas"][0]["tool_name"], "broken_tool")
+        self.assertEqual(urlopen.call_count, 0)
 
     def test_native_mcp_workflow_uses_responses_with_function_tools_and_reply_delivery(self) -> None:
         task = RunnerTaskRequest.from_payload(
