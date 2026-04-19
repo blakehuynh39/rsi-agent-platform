@@ -1347,7 +1347,7 @@ func mergeEvidenceDelta(ledger questionrun.EvidenceLedger, delta questionrun.Evi
 
 func isQuestionRunBoundedStop(terminationReason string) bool {
 	switch strings.TrimSpace(terminationReason) {
-	case "task_timeout", "iteration_budget_exhausted":
+	case "task_timeout", "iteration_budget_exhausted", "output_token_budget_exhausted":
 		return true
 	default:
 		return false

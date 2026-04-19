@@ -38,6 +38,7 @@ class RunnerConfig:
     task_timeout_seconds: int
     inactivity_timeout_seconds: int
     transport_timeout_seconds: int
+    native_max_output_tokens: int
     tool_policy_mode: str
     workflow_runner_repair_attempts: int
     hermes_native_governed_tools_enabled: bool
@@ -72,6 +73,10 @@ class RunnerConfig:
         task_timeout_seconds = role_task_timeout_seconds(role)
         inactivity_timeout_seconds = role_inactivity_timeout_seconds(role, task_timeout_seconds)
         transport_timeout_seconds = role_transport_timeout_seconds(role)
+        native_max_output_tokens = parse_positive_int(
+            required_env("RSI_RUNNER_NATIVE_MAX_OUTPUT_TOKENS"),
+            "RSI_RUNNER_NATIVE_MAX_OUTPUT_TOKENS",
+        )
         validate_timeout_contract(
             role,
             task_timeout_seconds,
@@ -118,6 +123,7 @@ class RunnerConfig:
             task_timeout_seconds=task_timeout_seconds,
             inactivity_timeout_seconds=inactivity_timeout_seconds,
             transport_timeout_seconds=transport_timeout_seconds,
+            native_max_output_tokens=native_max_output_tokens,
             tool_policy_mode=tool_policy_mode,
             workflow_runner_repair_attempts=workflow_runner_repair_attempts,
             hermes_native_governed_tools_enabled=hermes_native_governed_tools_enabled,

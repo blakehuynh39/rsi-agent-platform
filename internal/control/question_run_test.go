@@ -248,6 +248,12 @@ func TestBuildQuestionReduceTaskKeepsReducerNoToolsWhenReplyBlocked(t *testing.T
 	}
 }
 
+func TestIsQuestionRunBoundedStopIncludesOutputTokenBudgetExhaustion(t *testing.T) {
+	if !isQuestionRunBoundedStop("output_token_budget_exhausted") {
+		t.Fatal("expected output_token_budget_exhausted to be treated as a bounded stop")
+	}
+}
+
 func TestBuildQuestionGatherTaskUsesFullReasoningWindowAndTrimsNoisyTools(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")

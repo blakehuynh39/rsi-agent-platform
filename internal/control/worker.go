@@ -33,6 +33,7 @@ const (
 	partialCompletionNoticeGeneric         = "Partial answer: I had to stop before I could finish a deeper pass. This is the best grounded answer so far."
 	partialCompletionNoticeIterationBudget = "Partial answer: I hit my iteration budget before I could finish a deeper pass. This is the best grounded answer so far."
 	partialCompletionNoticeTaskTimeout     = "Partial answer: I hit the workflow time limit before I could finish a deeper pass. This is the best grounded answer so far."
+	partialCompletionNoticeOutputBudget    = "Partial answer: I hit my response output budget before I could finish a deeper pass. This is the best grounded answer so far."
 )
 
 type workflowContext struct {
@@ -1151,6 +1152,8 @@ func partialCompletionNoticeForTerminationReason(terminationReason string) strin
 		return partialCompletionNoticeIterationBudget
 	case "task_timeout":
 		return partialCompletionNoticeTaskTimeout
+	case "output_token_budget_exhausted":
+		return partialCompletionNoticeOutputBudget
 	default:
 		return partialCompletionNoticeGeneric
 	}
@@ -1162,6 +1165,8 @@ func partialCompletionReasoningSummary(terminationReason string) string {
 		return "Runner exhausted its iteration budget and returned a best-effort partial response."
 	case "task_timeout":
 		return "Runner hit the workflow time limit and returned a best-effort partial response."
+	case "output_token_budget_exhausted":
+		return "Runner exhausted its response output budget and returned a best-effort partial response."
 	default:
 		return "Runner stopped early and returned a best-effort partial response."
 	}
@@ -1179,6 +1184,11 @@ func partialCompletionRunnerDescription(terminationReason string, hasReplyAction
 			return "Runner hit the workflow time limit and returned a partial Slack reply."
 		}
 		return "Runner hit the workflow time limit and returned a partial completion without a reply side effect."
+	case "output_token_budget_exhausted":
+		if hasReplyAction {
+			return "Runner exhausted its response output budget and returned a partial Slack reply."
+		}
+		return "Runner exhausted its response output budget and returned a partial completion without a reply side effect."
 	default:
 		if hasReplyAction {
 			return "Runner returned a partial Slack reply."

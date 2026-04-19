@@ -45,6 +45,7 @@ def runner_env(role: str = "prod") -> dict[str, str]:
         "RSI_RUNNER_PROACTIVE_TIMEOUT": "60s",
         "RSI_RUNNER_EVAL_TIMEOUT": "330s",
         "RSI_RUNNER_PROPOSAL_TIMEOUT": "450s",
+        "RSI_RUNNER_NATIVE_MAX_OUTPUT_TOKENS": "15000",
         "HONCHO_API_KEY": "honcho-test-key",
         "OPENAI_API_KEY": "openai-test-key",
     }
@@ -245,6 +246,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(config.memory_backend, "honcho")
         self.assertEqual(config.honcho_workspace, "rsi-stage")
         self.assertEqual(config.honcho_environment_effective, "production")
+        self.assertEqual(config.native_max_output_tokens, 15000)
 
     def test_config_reads_verbose_trace_logging(self) -> None:
         with mock.patch.dict(
@@ -263,6 +265,13 @@ class HermesRuntimeTests(unittest.TestCase):
             {**runner_env("eval"), "RSI_RUNNER_EVAL_TASK_TIMEOUT": "328s", "RSI_RUNNER_EVAL_TIMEOUT": "330s"},
             clear=True,
         ):
+            with self.assertRaises(RunnerConfigError):
+                RunnerConfig.from_env()
+
+    def test_config_requires_explicit_native_output_token_budget(self) -> None:
+        env = runner_env("eval")
+        env.pop("RSI_RUNNER_NATIVE_MAX_OUTPUT_TOKENS", None)
+        with mock.patch.dict(os.environ, env, clear=True):
             with self.assertRaises(RunnerConfigError):
                 RunnerConfig.from_env()
 
@@ -1240,6 +1249,111 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(events[2]["event"], "direct_response_response")
         self.assertEqual(events[-1]["event"], "execution_completed")
         self.assertEqual(events[-1]["termination_reason"], "task_timeout")
+
+    def test_question_gather_treats_max_output_tokens_as_partial_bounded_stop(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "question_gather",
+                    "repo": "depin-backend",
+                    "prompt": json.dumps(
+                        {
+                            "investigation_spec": {
+                                "user_request": "Did the linked Slack thread confirm the upload fix?",
+                                "repo": "depin-backend",
+                            },
+                            "evidence_ledger": {
+                                "reply_target": {"channel_id": "C123", "thread_ts": "171000001.000100"},
+                                "evidence_items": [
+                                    {
+                                        "kind": "slack_message",
+                                        "summary": "[alice] The linked thread discussed the upload fix.",
+                                        "source_ref": "https://slack.example/messages/1",
+                                        "tool_name": "slack.mcp.get_thread",
+                                    }
+                                ],
+                                "open_questions": ["Need to confirm whether the linked thread contained a final resolution."],
+                            },
+                        }
+                    ),
+                    "system_message": "Use read-only tools and return JSON only.",
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "trace_id": "trace-123",
+                    "workflow_id": "wf-123",
+                    "mcp_servers": [{"server_label": "slack", "profile": "slack_mcp_read"}],
+                }
+            }
+        )
+        captured_requests: list[dict[str, object]] = []
+
+        def fake_urlopen(req, timeout: int = 0):
+            body = json.loads(req.data.decode("utf-8"))
+            captured_requests.append({"timeout": timeout, "body": body})
+            return FakeHTTPResponse(
+                {
+                    "id": "resp-question-gather-1",
+                    "status": "incomplete",
+                    "incomplete_details": {"reason": "max_output_tokens"},
+                    "usage": {
+                        "output_tokens": 15000,
+                        "output_tokens_details": {"reasoning_tokens": 14950},
+                    },
+                    "output": [{"type": "reasoning"}],
+                }
+            )
+
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ, runner_env("prod"), clear=True
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            with mock.patch.object(runtime, "_resolved_task_mcp_servers", return_value=([], set())), mock.patch.object(
+                runtime, "_direct_function_tools", return_value=[]
+            ), mock.patch("rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen):
+                result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(len(captured_requests), 1)
+        self.assertEqual(captured_requests[0]["body"]["max_output_tokens"], 15000)
+        self.assertEqual(result.raw["completion_verdict"], "partial")
+        self.assertEqual(result.raw["termination_reason"], "output_token_budget_exhausted")
+        self.assertEqual(result.raw["provider_response_id"], "resp-question-gather-1")
+        self.assertEqual(result.raw["runner_diagnostics"]["provider_status"], "incomplete")
+        self.assertEqual(result.raw["runner_diagnostics"]["provider_incomplete_reason"], "max_output_tokens")
+        self.assertEqual(result.raw["evidence_ledger"]["termination_reason"], "output_token_budget_exhausted")
+        self.assertEqual(result.raw["evidence_ledger"]["evidence_items"][0]["tool_name"], "slack.mcp.get_thread")
+
+    def test_question_reduce_defaults_partial_for_output_token_budget_exhaustion(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "question_reduce",
+                    "repo": "depin-backend",
+                    "prompt": json.dumps(
+                        {
+                            "investigation_spec": {
+                                "user_request": "Did the linked Slack thread confirm the upload fix?",
+                                "repo": "depin-backend",
+                            },
+                            "evidence_ledger": {
+                                "termination_reason": "output_token_budget_exhausted",
+                            },
+                            "runner_diagnostics": {
+                                "termination_reason": "output_token_budget_exhausted",
+                            },
+                        }
+                    ),
+                }
+            }
+        )
+
+        with mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        verdict, termination_reason = runtime._question_reduce_defaults(task)
+
+        self.assertEqual(verdict, "partial")
+        self.assertEqual(termination_reason, "output_token_budget_exhausted")
 
     def test_transport_tool_schemas_are_openai_strict(self) -> None:
         def strict_schema_violations(node: object, path: str) -> list[str]:
@@ -2473,6 +2587,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(runtime.metadata["task_timeout_seconds"], 300)
         self.assertEqual(runtime.metadata["inactivity_timeout_seconds"], 300)
         self.assertEqual(runtime.metadata["transport_timeout_seconds"], 330)
+        self.assertEqual(runtime.metadata["native_max_output_tokens"], 15000)
 
     def test_eval_role_rejects_repo_change_task(self) -> None:
         task = RunnerTaskRequest.from_payload(

@@ -47,6 +47,13 @@ ROLE_TASK_TYPES = {
 logger = logging.getLogger(__name__)
 
 NATIVE_HERMES_DIAGNOSE_TOOLS = frozenset({"todo", "session_search"})
+QUESTION_RUN_BOUNDED_STOP_TERMINATION_REASONS = frozenset(
+    {
+        "task_timeout",
+        "iteration_budget_exhausted",
+        "output_token_budget_exhausted",
+    }
+)
 
 
 def _json_object_or_empty(value: JsonValue | None) -> JsonObject:
@@ -513,6 +520,7 @@ class HermesRuntime:
         self._default_task_timeout_seconds = config.task_timeout_seconds
         self._default_inactivity_timeout_seconds = config.inactivity_timeout_seconds
         self._transport_timeout_seconds = config.transport_timeout_seconds
+        self._native_max_output_tokens = config.native_max_output_tokens
         self._tool_policy_mode = config.tool_policy_mode
         self._slack_mcp_discovery_error = ""
         self._slack_mcp_tool_cache: list[JsonObject] | None = None
@@ -581,6 +589,7 @@ class HermesRuntime:
             "task_timeout_seconds": self._default_task_timeout_seconds,
             "inactivity_timeout_seconds": self._default_inactivity_timeout_seconds,
             "transport_timeout_seconds": self._transport_timeout_seconds,
+            "native_max_output_tokens": self._native_max_output_tokens,
             "tool_policy_mode": self._tool_policy_mode,
             "tool_allowlist_effective": self._default_policy_allowlist(execution_mode=""),
             "blocked_tool_names": [],
@@ -1661,6 +1670,10 @@ class HermesRuntime:
                     collected.append(candidate)
         return "\n".join(part for part in collected if part)
 
+    def _responses_incomplete_reason(self, payload: JsonObject) -> str:
+        details = _json_object_or_empty(payload.get("incomplete_details"))
+        return _string_or_json(details.get("reason"))
+
     def _invoke_direct_json_response(
         self,
         *,
@@ -2251,6 +2264,7 @@ class HermesRuntime:
         provider_response_id: str = "",
         mcp_calls: list[JsonObject] | None = None,
         recorder: NativeExecutionRecorder | None = None,
+        runner_diagnostics_extra: JsonObject | None = None,
     ) -> HermesExecutionResult:
         structured_output = dict(structured_output or {})
         mcp_calls = list(mcp_calls or [])
@@ -2282,6 +2296,11 @@ class HermesRuntime:
                 "termination_reason": termination_reason,
             },
         }
+        if runner_diagnostics_extra:
+            raw["runner_diagnostics"] = {
+                **_json_object_or_empty(raw.get("runner_diagnostics")),
+                **runner_diagnostics_extra,
+            }
         if structured_output:
             raw["structured_output"] = structured_output
         if provider_response_id:
@@ -2432,7 +2451,7 @@ class HermesRuntime:
                 "input": current_input,
                 "parallel_tool_calls": False,
                 "tools": tools,
-                "max_output_tokens": 4000,
+                "max_output_tokens": self._native_max_output_tokens,
                 "text": {
                     "format": {"type": "json_object"},
                     "verbosity": "low",
@@ -2608,6 +2627,33 @@ class HermesRuntime:
             reply_delivery_attempted = reply_delivery_attempted or latest_reply_attempted
             if latest_reply_delivery is not None:
                 reply_delivery = latest_reply_delivery
+            incomplete_reason = self._responses_incomplete_reason(parsed)
+            if is_question_gather and incomplete_reason == "max_output_tokens":
+                recorder.record(
+                    "execution_completed",
+                    {
+                        "ok": True,
+                        "termination_reason": "output_token_budget_exhausted",
+                        "completion_verdict": "partial",
+                        "provider_response_id": previous_response_id,
+                        "provider_status": _string_or_json(parsed.get("status")),
+                        "provider_incomplete_reason": incomplete_reason,
+                    },
+                )
+                return self._question_gather_result(
+                    task,
+                    tool_policy,
+                    binding.diagnostics(),
+                    termination_reason="output_token_budget_exhausted",
+                    completion_verdict="partial",
+                    provider_response_id=previous_response_id,
+                    mcp_calls=accumulated_mcp_calls,
+                    recorder=recorder,
+                    runner_diagnostics_extra={
+                        "provider_status": _string_or_json(parsed.get("status")),
+                        "provider_incomplete_reason": incomplete_reason,
+                    },
+                )
             function_calls = self._responses_function_calls(parsed)
             response_text = self._responses_output_text(parsed)
             had_tool_round = bool(function_calls) or (bool(normalized_mcp_calls) and not response_text)
@@ -2854,7 +2900,7 @@ class HermesRuntime:
                 "Do not call tools. Do not speculate beyond the supplied evidence.",
                 "Return only one JSON object with keys: reply_markdown, confidence, completion_verdict, termination_reason.",
                 "reply_markdown must be grounded, concise, and ready for Slack posting.",
-                "Use completion_verdict=partial when the supplied diagnostics or ledger indicate a bounded stop such as task_timeout or iteration_budget_exhausted.",
+                "Use completion_verdict=partial when the supplied diagnostics or ledger indicate a bounded stop such as task_timeout, iteration_budget_exhausted, or output_token_budget_exhausted.",
                 "If the evidence is incomplete, say that directly in reply_markdown instead of pretending the evidence was stronger than it was.",
             ]
         )
@@ -2877,7 +2923,7 @@ class HermesRuntime:
             _string_or_json(ledger.get("termination_reason")),
             "normal_completion",
         )
-        verdict = "partial" if termination_reason in {"task_timeout", "iteration_budget_exhausted"} else "complete"
+        verdict = "partial" if termination_reason in QUESTION_RUN_BOUNDED_STOP_TERMINATION_REASONS else "complete"
         return verdict, termination_reason
 
     def _execute_question_reduce_task(self, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> HermesExecutionResult:

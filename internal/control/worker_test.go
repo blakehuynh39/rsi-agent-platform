@@ -994,6 +994,18 @@ func TestWorkflowNativeMCPReplyDeliveryUncertainMovesNeedsHuman(t *testing.T) {
 	}
 }
 
+func TestPartialCompletionHelpersCoverOutputTokenBudgetExhaustion(t *testing.T) {
+	if got := partialCompletionNoticeForTerminationReason("output_token_budget_exhausted"); got != partialCompletionNoticeOutputBudget {
+		t.Fatalf("unexpected output-budget notice: %q", got)
+	}
+	if got := partialCompletionReasoningSummary("output_token_budget_exhausted"); !strings.Contains(got, "response output budget") {
+		t.Fatalf("unexpected output-budget reasoning summary: %q", got)
+	}
+	if got := partialCompletionRunnerDescription("output_token_budget_exhausted", true); !strings.Contains(got, "response output budget") {
+		t.Fatalf("unexpected output-budget runner description: %q", got)
+	}
+}
+
 func TestSupersededTraceDoesNotPostLateSlackReply(t *testing.T) {
 	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(w).Encode(map[string]any{
