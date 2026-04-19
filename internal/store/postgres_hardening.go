@@ -267,7 +267,8 @@ func selectEventBySourceDedupeTx(tx *sql.Tx, source ingestion.Source, dedupeKey 
 func selectIngestionByEventIDTx(tx *sql.Tx, eventID string) (slack.Ingestion, bool, error) {
 	var item slack.Ingestion
 	var threadTS, intent, botRole sql.NullString
-	err := tx.QueryRow(`select id, event_id, conversation_id, case_id, thread_key, thread_ts, workflow_hint, intent, bot_role, source, channel_id, user_id, text, created_at from ingestion where event_id = $1 order by created_at desc limit 1`, eventID).Scan(&item.ID, &item.EventID, &item.ConversationID, &item.CaseID, &item.ThreadKey, &threadTS, &item.WorkflowHint, &intent, &botRole, &item.Source, &item.ChannelID, &item.UserID, &item.Text, &item.CreatedAt)
+	var entityRefs []byte
+	err := tx.QueryRow(`select id, event_id, conversation_id, case_id, thread_key, thread_ts, workflow_hint, intent, bot_role, source, channel_id, user_id, text, entity_refs, created_at from ingestion where event_id = $1 order by created_at desc limit 1`, eventID).Scan(&item.ID, &item.EventID, &item.ConversationID, &item.CaseID, &item.ThreadKey, &threadTS, &item.WorkflowHint, &intent, &botRole, &item.Source, &item.ChannelID, &item.UserID, &item.Text, &entityRefs, &item.CreatedAt)
 	if err == sql.ErrNoRows {
 		return slack.Ingestion{}, false, nil
 	}
@@ -277,6 +278,7 @@ func selectIngestionByEventIDTx(tx *sql.Tx, eventID string) (slack.Ingestion, bo
 	item.ThreadTS = threadTS.String
 	item.Intent = intent.String
 	item.BotRole = slack.BotRole(botRole.String)
+	item.EntityRefs = decodeJSON(entityRefs, []slack.EntityRef{})
 	return item, true, nil
 }
 
@@ -301,6 +303,7 @@ func buildSlackEventEnvelope(envelope slack.SlackEnvelope) ingestion.EventEnvelo
 			"conversation_key": conversationKey,
 			"bot_role":         envelope.BotRole,
 			"files":            envelope.Files,
+			"entity_refs":      envelope.EntityRefs,
 		},
 		CreatedAt: envelope.CreatedAt,
 	}
@@ -580,6 +583,7 @@ func (p *PostgresStore) createIngestionDirect(envelope slack.SlackEnvelope) (cre
 			ChannelID:      channelID,
 			UserID:         userID,
 			Text:           event.NormalizedProblemStatement,
+			EntityRefs:     slack.EntityRefsFromValue(event.Metadata["entity_refs"]),
 			CreatedAt:      createdAt,
 		}
 		temp = newSubsetStore()

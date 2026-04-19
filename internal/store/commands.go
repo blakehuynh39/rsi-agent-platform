@@ -329,6 +329,7 @@ func (s *MemoryStore) appendWorkflowPlanningCommandsLocked(bundle *transitionPer
 		Question:       strings.TrimSpace(ingestion.Text),
 		ChannelID:      ingestion.ChannelID,
 		ThreadTS:       ingestion.ThreadTS,
+		EntityRefs:     append([]slack.EntityRef(nil), ingestion.EntityRefs...),
 	}, parent.OccurredAt)
 	summaryParts := make([]string, 0, 4)
 	if repo := strings.TrimSpace(hints.Repo); repo != "" {
@@ -3081,6 +3082,7 @@ func slackEnvelopeFromCommand(command transition.CommandEnvelope) slack.SlackEnv
 		Text:        stringFromCommand(command, "text"),
 		TS:          stringFromCommand(command, "ts"),
 		Files:       stringSliceFromCommand(command, "files"),
+		EntityRefs:  slack.EntityRefsFromValue(command.Payload["entity_refs"]),
 		CreatedAt:   firstNonZeroTime(optionalTimeFromCommand(command, "created_at"), command.OccurredAt),
 	}
 }
@@ -3325,6 +3327,7 @@ func (s *MemoryStore) projectWorkflowTraceLocked(workflow Workflow, command tran
 		update.Artifacts = append(update.Artifacts, traceArtifactsFromCommand(command, "trace_artifacts")...)
 		update.Reasoning = append(update.Reasoning, reasoningStepsFromCommand(command, "reasoning_steps")...)
 		update.ToolCalls = append(update.ToolCalls, toolCallRecordsFromCommand(command, "tool_calls")...)
+		update.SlackActions = append(update.SlackActions, slackActionsFromCommand(command, "slack_actions")...)
 	case transition.CommandWorkflowExecutionNeedsHuman:
 		if traceHasEventType(trace, "workflow.blocked") {
 			if trace.Summary.Status != events.StatusNeedsHuman {
@@ -3350,6 +3353,7 @@ func (s *MemoryStore) projectWorkflowTraceLocked(workflow Workflow, command tran
 		update.Artifacts = append(update.Artifacts, traceArtifactsFromCommand(command, "trace_artifacts")...)
 		update.Reasoning = append(update.Reasoning, reasoningStepsFromCommand(command, "reasoning_steps")...)
 		update.ToolCalls = append(update.ToolCalls, toolCallRecordsFromCommand(command, "tool_calls")...)
+		update.SlackActions = append(update.SlackActions, slackActionsFromCommand(command, "slack_actions")...)
 	case transition.CommandWorkflowExecutionFailed:
 		if traceHasEventType(trace, "workflow.failed") {
 			if trace.Summary.Status != events.StatusFailed {
@@ -3375,6 +3379,7 @@ func (s *MemoryStore) projectWorkflowTraceLocked(workflow Workflow, command tran
 		update.Artifacts = append(update.Artifacts, traceArtifactsFromCommand(command, "trace_artifacts")...)
 		update.Reasoning = append(update.Reasoning, reasoningStepsFromCommand(command, "reasoning_steps")...)
 		update.ToolCalls = append(update.ToolCalls, toolCallRecordsFromCommand(command, "tool_calls")...)
+		update.SlackActions = append(update.SlackActions, slackActionsFromCommand(command, "slack_actions")...)
 	case transition.CommandReplyPosted, transition.CommandReplyPostedPartial, transition.CommandWorkflowExecutionCompletedNoReply, transition.CommandWorkflowExecutionCompletedPartialNoReply:
 		if traceHasEventType(trace, "workflow.completed") {
 			if trace.Summary.Status != events.StatusCompleted {
@@ -3404,10 +3409,11 @@ func (s *MemoryStore) projectWorkflowTraceLocked(workflow Workflow, command tran
 		update.Events = append(traceEventsFromCommand(command, "trace_events"), update.Events...)
 		update.Reasoning = append(update.Reasoning, reasoningStepsFromCommand(command, "reasoning_steps")...)
 		update.ToolCalls = append(update.ToolCalls, toolCallRecordsFromCommand(command, "tool_calls")...)
+		update.SlackActions = append(update.SlackActions, slackActionsFromCommand(command, "slack_actions")...)
 	default:
 		return nil
 	}
-	if update.Status == nil && update.LastVerdict == nil && len(update.Events) == 0 && len(update.Artifacts) == 0 && len(update.Reasoning) == 0 && len(update.ToolCalls) == 0 {
+	if update.Status == nil && update.LastVerdict == nil && len(update.Events) == 0 && len(update.Artifacts) == 0 && len(update.Reasoning) == 0 && len(update.ToolCalls) == 0 && len(update.SlackActions) == 0 {
 		return nil
 	}
 	_, err := s.applyTraceUpdateLocked(traceID, update)

@@ -13,23 +13,30 @@ describe("slackMrkdwnToSegments", () => {
         }
       )
     ).toEqual([
-      { text: "Ping " },
-      { text: "@blake" },
-      { text: " in " },
-      { text: "#ops-incidents" },
-      { text: " & review " },
+      { text: "Ping @blake in #ops-incidents & review " },
       { text: "runbook", href: "https://example.com/runbook" },
-      { text: " " },
-      { text: "@here" }
+      { text: " @here" }
     ]);
   });
 
   it("falls back to raw Slack IDs when no display labels are available", () => {
-    expect(slackMrkdwnToSegments("Ping <@U0ASDQKU3UL> in <#C0AKH5SNGKH>")).toEqual([
-      { text: "Ping " },
-      { text: "@U0ASDQKU3UL" },
-      { text: " in " },
-      { text: "#C0AKH5SNGKH" }
+    expect(slackMrkdwnToSegments("Ping <@U0ASDQKU3UL> in <#C0AKH5SNGKH>")).toEqual([{ text: "Ping @U0ASDQKU3UL in #C0AKH5SNGKH" }]);
+  });
+
+  it("uses resolved Slack user and channel names for bare Slack IDs in plain text", () => {
+    expect(
+      slackMrkdwnToSegments(
+        "Hello @U0ASDQKU3UL, please check #C0AKH5SNGKH and #C0AL7EKNHDF.",
+        {
+          userNames: { U0ASDQKU3UL: "blake" },
+          channelNames: {
+            C0AKH5SNGKH: "depin-backend",
+            C0AL7EKNHDF: "numo-project"
+          }
+        }
+      )
+    ).toEqual([
+      { text: "Hello @blake, please check #depin-backend and #numo-project." }
     ]);
   });
 });

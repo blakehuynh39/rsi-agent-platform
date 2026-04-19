@@ -1,6 +1,10 @@
 package workflowplan
 
-import "testing"
+import (
+	"testing"
+
+	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
+)
 
 func TestToolPlanAddsSlackSearchAndRuntimeDeploymentFactsForSlackDiscoveryQuestion(t *testing.T) {
 	plan := ToolPlan(
@@ -70,6 +74,59 @@ func TestCandidateReadSurfacesKeepsRawThreadRefsUnbound(t *testing.T) {
 		Source:    "explicit_thread_ref",
 	}) {
 		t.Fatalf("did not expect explicit thread ref to inherit ingress channel, got %#v", surfaces)
+	}
+}
+
+func TestCandidateReadSurfacesParsesPlainSlackChannelIDs(t *testing.T) {
+	surfaces := CandidateReadSurfaces(
+		"Please review #C0AKH5SNGKH and #C0AL7EKNHDF for the latest NUMO discussion.",
+		"CINGRESS",
+		"1776483000.000100",
+	)
+
+	if !containsSurface(surfaces, SlackSurfaceHint{
+		ChannelID: "CINGRESS",
+		ThreadTS:  "1776483000.000100",
+		Source:    "ingress_thread",
+	}) {
+		t.Fatalf("expected ingress thread surface, got %#v", surfaces)
+	}
+	if !containsSurface(surfaces, SlackSurfaceHint{
+		ChannelID: "C0AKH5SNGKH",
+		Source:    "channel_mention",
+	}) {
+		t.Fatalf("expected first plain channel mention surface, got %#v", surfaces)
+	}
+	if !containsSurface(surfaces, SlackSurfaceHint{
+		ChannelID: "C0AL7EKNHDF",
+		Source:    "channel_mention",
+	}) {
+		t.Fatalf("expected second plain channel mention surface, got %#v", surfaces)
+	}
+}
+
+func TestCandidateReadSurfacesForContextPrefersStructuredEntityRefs(t *testing.T) {
+	surfaces := CandidateReadSurfacesForContext(RequestContext{
+		Question:  "Please use the latest discussions from Slack for this summary.",
+		ChannelID: "CINGRESS",
+		ThreadTS:  "1776483000.000100",
+		EntityRefs: []slackpkg.EntityRef{
+			{Kind: slackpkg.EntityChannel, ID: "C0AKH5SNGKH", Source: "mrkdwn"},
+			{Kind: slackpkg.EntityChannel, ID: "C0AL7EKNHDF", Source: "mrkdwn"},
+		},
+	})
+
+	if !containsSurface(surfaces, SlackSurfaceHint{
+		ChannelID: "C0AKH5SNGKH",
+		Source:    "entity_ref",
+	}) {
+		t.Fatalf("expected first structured channel surface, got %#v", surfaces)
+	}
+	if !containsSurface(surfaces, SlackSurfaceHint{
+		ChannelID: "C0AL7EKNHDF",
+		Source:    "entity_ref",
+	}) {
+		t.Fatalf("expected second structured channel surface, got %#v", surfaces)
 	}
 }
 

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/piplabs/rsi-agent-platform/internal/events"
+	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 )
 
 type RuntimeConfig struct {
@@ -26,6 +27,7 @@ type RequestContext struct {
 	Question       string
 	ChannelID      string
 	ThreadTS       string
+	EntityRefs     []slackpkg.EntityRef
 }
 
 type SlackSurfaceHint struct {
@@ -44,9 +46,10 @@ type LiveHintSet struct {
 }
 
 var (
-	slackPermalinkPattern  = regexp.MustCompile(`https://[^\s>]+/archives/([A-Z0-9]+)/p(\d{10,})`)
-	slackChannelTagPattern = regexp.MustCompile(`<#([A-Z0-9]+)(?:\|[^>]+)?>`)
-	slackThreadTSPattern   = regexp.MustCompile(`(?:thread(?:_ts)?|ts)\D+(\d{10}\.\d{6})`)
+	slackPermalinkPattern    = regexp.MustCompile(`https://[^\s>]+/archives/([A-Z0-9]+)/p(\d{10,})`)
+	slackChannelTagPattern   = regexp.MustCompile(`<#([A-Z0-9]+)(?:\|[^>]+)?>`)
+	plainSlackChannelPattern = regexp.MustCompile(`(^|[^A-Za-z0-9])#([A-Z0-9]{8,})($|[^A-Za-z0-9])`)
+	slackThreadTSPattern     = regexp.MustCompile(`(?:thread(?:_ts)?|ts)\D+(\d{10}\.\d{6})`)
 )
 
 func ToolPlan(intent string, question string, repo string, channelID string, threadTS string) []string {
@@ -80,7 +83,7 @@ func BuildLiveHints(cfg RuntimeConfig, ctx RequestContext, now time.Time) LiveHi
 	return LiveHintSet{
 		Repo:                  repo,
 		PreferredTools:        ToolPlan(ctx.WorkflowKind, ctx.Question, repo, ctx.ChannelID, ctx.ThreadTS),
-		CandidateReadSurfaces: CandidateReadSurfaces(ctx.Question, ctx.ChannelID, ctx.ThreadTS),
+		CandidateReadSurfaces: CandidateReadSurfacesForContext(ctx),
 		Since:                 since,
 		Until:                 until,
 	}
@@ -128,6 +131,14 @@ func UseReadHeavySlackQnAStrategy(intent string, responseMode string) bool {
 }
 
 func CandidateReadSurfaces(question string, ingressChannelID string, ingressThreadTS string) []SlackSurfaceHint {
+	return candidateReadSurfaces(question, ingressChannelID, ingressThreadTS, nil)
+}
+
+func CandidateReadSurfacesForContext(ctx RequestContext) []SlackSurfaceHint {
+	return candidateReadSurfaces(ctx.Question, ctx.ChannelID, ctx.ThreadTS, ctx.EntityRefs)
+}
+
+func candidateReadSurfaces(question string, ingressChannelID string, ingressThreadTS string, entityRefs []slackpkg.EntityRef) []SlackSurfaceHint {
 	seen := map[string]struct{}{}
 	out := make([]SlackSurfaceHint, 0, 4)
 	appendSurface := func(item SlackSurfaceHint) {
@@ -155,6 +166,17 @@ func CandidateReadSurfaces(question string, ingressChannelID string, ingressThre
 		})
 	}
 
+	for _, item := range entityRefs {
+		if item.Kind != slackpkg.EntityChannel || strings.TrimSpace(item.ID) == "" {
+			continue
+		}
+		appendSurface(SlackSurfaceHint{
+			ChannelID: item.ID,
+			Ref:       slackSurfaceRef(item.ID, ""),
+			Source:    "entity_ref",
+		})
+	}
+
 	text := strings.TrimSpace(question)
 	if text == "" {
 		return out
@@ -178,6 +200,16 @@ func CandidateReadSurfaces(question string, ingressChannelID string, ingressThre
 		appendSurface(SlackSurfaceHint{
 			ChannelID: match[1],
 			Ref:       slackSurfaceRef(match[1], ""),
+			Source:    "channel_mention",
+		})
+	}
+	for _, match := range plainSlackChannelPattern.FindAllStringSubmatch(text, -1) {
+		if len(match) < 3 {
+			continue
+		}
+		appendSurface(SlackSurfaceHint{
+			ChannelID: match[2],
+			Ref:       slackSurfaceRef(match[2], ""),
 			Source:    "channel_mention",
 		})
 	}

@@ -16,6 +16,8 @@ const emptySlackEntityLabels: SlackEntityLabels = {
   channelNames: {}
 };
 
+const plainSlackEntityPattern = /(^|[^A-Za-z0-9])([@#])([A-Z0-9]{8,})(?=$|[^A-Za-z0-9])/g;
+
 function decodeSlackEntities(text: string) {
   return text.replaceAll("&amp;", "&").replaceAll("&lt;", "<").replaceAll("&gt;", ">");
 }
@@ -93,6 +95,64 @@ function slackEntityLabelsFromMetadata(metadata?: JsonObject): SlackEntityLabels
   };
 }
 
+function plainSlackEntitySegment(prefix: "@" | "#", id: string, labels: SlackEntityLabels): TextSegment {
+  if (prefix === "@") {
+    return { text: `@${labels.userNames[id] || id}` };
+  }
+  return { text: `#${labels.channelNames[id] || id}` };
+}
+
+function expandPlainSlackEntitySegments(segments: TextSegment[], labels: SlackEntityLabels): TextSegment[] {
+  const out: TextSegment[] = [];
+
+  for (const segment of segments) {
+    if (segment.href || !segment.text) {
+      out.push(segment);
+      continue;
+    }
+
+    let cursor = 0;
+    plainSlackEntityPattern.lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = plainSlackEntityPattern.exec(segment.text)) !== null) {
+      const boundary = match[1] || "";
+      const prefix = match[2] as "@" | "#";
+      const id = match[3];
+      const tokenStart = match.index + boundary.length;
+      const tokenEnd = tokenStart + prefix.length + id.length;
+
+      if (match.index > cursor) {
+        out.push({ text: segment.text.slice(cursor, match.index) });
+      }
+      if (boundary) {
+        out.push({ text: boundary });
+      }
+      out.push(plainSlackEntitySegment(prefix, id, labels));
+      cursor = tokenEnd;
+    }
+
+    if (cursor < segment.text.length) {
+      out.push({ text: segment.text.slice(cursor) });
+    }
+  }
+
+  return out;
+}
+
+function mergeAdjacentTextSegments(segments: TextSegment[]): TextSegment[] {
+  const out: TextSegment[] = [];
+  for (const segment of segments) {
+    const previous = out[out.length - 1];
+    if (!segment.href && previous && !previous.href) {
+      previous.text += segment.text;
+      continue;
+    }
+    out.push({ ...segment });
+  }
+  return out;
+}
+
 export function slackMrkdwnToSegments(text: string, labels: SlackEntityLabels = emptySlackEntityLabels): TextSegment[] {
   const decoded = decodeSlackEntities(text);
   const matcher = /<([^>\n]+)>/g;
@@ -112,7 +172,7 @@ export function slackMrkdwnToSegments(text: string, labels: SlackEntityLabels = 
     segments.push({ text: decoded.slice(cursor) });
   }
 
-  return segments;
+  return mergeAdjacentTextSegments(expandPlainSlackEntitySegments(segments, labels));
 }
 
 export function FormattedMessage(props: { source?: string; text: string; metadata?: JsonObject }) {

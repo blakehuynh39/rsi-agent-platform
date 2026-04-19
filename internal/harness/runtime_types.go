@@ -32,6 +32,11 @@ type RuntimeResponse struct {
 	Available                  bool     `json:"available"`
 	HermesAvailable            bool     `json:"hermes_available"`
 	OpenAIConfigured           bool     `json:"openai_configured"`
+	SlackMCPEnabled            bool     `json:"slack_mcp_enabled,omitempty"`
+	SlackMCPConfigured         bool     `json:"slack_mcp_configured,omitempty"`
+	SlackMCPAvailable          bool     `json:"slack_mcp_available,omitempty"`
+	SlackMCPServerURL          string   `json:"slack_mcp_server_url,omitempty"`
+	SlackMCPToolCount          int      `json:"slack_mcp_tool_count,omitempty"`
 	PersistenceEnabled         bool     `json:"persistence_enabled"`
 	SessionContinuityStatus    string   `json:"session_continuity_status"`
 	HermesHome                 string   `json:"hermes_home,omitempty"`

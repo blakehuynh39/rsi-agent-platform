@@ -29,6 +29,7 @@ import (
 const (
 	controlPhaseCollectContext             = "collect_context"
 	controlPhaseReplyPost                  = "reply_post"
+	defaultSlackMCPServerURL               = "https://mcp.slack.com/mcp"
 	partialCompletionNoticeGeneric         = "Partial answer: I had to stop before I could finish a deeper pass. This is the best grounded answer so far."
 	partialCompletionNoticeIterationBudget = "Partial answer: I hit my iteration budget before I could finish a deeper pass. This is the best grounded answer so far."
 	partialCompletionNoticeTaskTimeout     = "Partial answer: I hit the workflow time limit before I could finish a deeper pass. This is the best grounded answer so far."
@@ -197,6 +198,61 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		return completeClaimedEffect(store, effect, ctx.trace.Summary.TraceID)
 	}
 	if !runnerResp.OK {
+		if strings.TrimSpace(stringValue(runnerResp.Raw["failure_class"])) == "runner_reply_delivery_uncertain" {
+			runnerCompleted := time.Now().UTC()
+			runnerDiagnostics := cloneStringAnyMap(mapValue(runnerResp.Raw["runner_diagnostics"]))
+			runnerDiagnostics = mergeWorkflowRunnerDiagnostics(runnerDiagnostics, runnerResp.Raw)
+			runnerToolCalls := bindRunnerToolCallRecords(toolCallRecordsFromRunnerRaw(runnerResp.Raw), ctx.trace, ctx.workflow)
+			payload := map[string]any{
+				"last_error":         firstNonEmpty(strings.TrimSpace(runnerResp.Message), "runner reply delivery became uncertain after a Slack MCP write attempt"),
+				"failure_class":      "runner_reply_delivery_uncertain",
+				"failure_summary":    "Runner attempted a Slack MCP write but did not complete with a durable delivery contract, so the workflow requires human review to avoid duplicate posting.",
+				"runner_diagnostics": runnerDiagnostics,
+				"tool_calls":         runnerToolCalls,
+				"trace_events": []events.TraceEvent{
+					{
+						TraceID:     ctx.trace.Summary.TraceID,
+						IngestionID: ctx.trace.Summary.IngestionID,
+						WorkflowID:  ctx.trace.Summary.WorkflowID,
+						Plane:       "execution",
+						Service:     "runner",
+						Actor:       ctx.workflow.AssignedBot,
+						EventType:   "runner.reply_delivery_uncertain",
+						Status:      events.StatusNeedsHuman,
+						StartedAt:   runnerStarted,
+						EndedAt:     &runnerCompleted,
+						Description: "Runner attempted a Slack MCP reply but delivery could not be finalized safely.",
+					},
+				},
+				"reasoning_steps": []events.ReasoningStep{
+					{
+						ID:         fmt.Sprintf("reason-reply-delivery-uncertain-%d", runnerCompleted.UnixNano()),
+						TraceID:    ctx.trace.Summary.TraceID,
+						WorkflowID: ctx.trace.Summary.WorkflowID,
+						StepType:   "reply_delivery_uncertain",
+						Summary:    "Runner attempted a Slack MCP write but the final delivery contract was not durable enough to safely retry automatically.",
+						Confidence: 1.0,
+						Decision:   "needs_human",
+						CreatedAt:  runnerCompleted,
+					},
+				},
+			}
+			if replyDelivery, ok := workflowReplyDelivery(runnerResp.Raw, ctx.ingestion.ChannelID, ctx.ingestion.ThreadTS); ok {
+				replyDelivery.TraceID = ctx.trace.Summary.TraceID
+				replyDelivery.WorkflowID = ctx.workflow.ID
+				replyDelivery.ConversationID = ctx.trace.Summary.ConversationID
+				replyDelivery.CaseID = ctx.trace.Summary.CaseID
+				replyDelivery.CreatedAt = runnerCompleted
+				payload["slack_actions"] = []events.SlackActionRecord{replyDelivery}
+			}
+			if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowExecutionNeedsHuman, cfg.ServiceName, runnerCompleted, payload); err != nil {
+				return runnerPostProcessingFailure("submit_runner_reply_delivery_uncertain", err)
+			}
+			if _, _, err := store.ReconcileWorkflowTrace(ctx.workflow.ID); err != nil {
+				return err
+			}
+			return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner-reply-delivery-uncertain", ctx.trace.Summary.TraceID))
+		}
 		return &workflowFailureError{failure: workflowFailureFromRunnerResponse(runnerResp)}
 	}
 	runnerOutput, err := runnerutil.ParseStructuredOutput(runnerResp)
@@ -235,6 +291,11 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		replyThreadKey = ""
 	}
 	allowed, policyVerdict := replyPolicy(store, ctx.workflow.Kind, replyThreadKey, replyChannelID)
+	nativeMCPEnabled := workflowNativeMCPEnabled(runnerResp.Raw)
+	replyDelivery, hasReplyDelivery := workflowReplyDelivery(runnerResp.Raw, replyChannelID, replyThreadTS)
+	if hasReplyDelivery && strings.TrimSpace(replyBody) == "" {
+		replyBody = strings.TrimSpace(replyDelivery.FinalBody)
+	}
 
 	finalReasoning := runnerutil.ToTraceReasoning(ctx.trace.Summary.TraceID, ctx.trace.Summary.WorkflowID, runnerOutput, runnerCompleted)
 	if runnerOutput.SelfCritique != "" {
@@ -297,8 +358,9 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		replyAction    action.Intent
 		draftEvents    []events.TraceEvent
 		draftReasoning []events.ReasoningStep
+		slackActions   []events.SlackActionRecord
 	)
-	if strings.TrimSpace(replyBody) != "" && strings.TrimSpace(proposedReplyAction.Kind) == "" {
+	if strings.TrimSpace(replyBody) != "" && strings.TrimSpace(proposedReplyAction.Kind) == "" && !nativeMCPEnabled {
 		finalReasoning = append(finalReasoning, events.ReasoningStep{
 			ID:         fmt.Sprintf("reason-action-contract-%d", runnerCompleted.UnixNano()),
 			TraceID:    ctx.trace.Summary.TraceID,
@@ -334,7 +396,70 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		}
 		return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner-blocked", ctx.trace.Summary.TraceID))
 	}
-	if strings.TrimSpace(proposedReplyAction.Kind) != "" {
+	if nativeMCPEnabled && strings.TrimSpace(replyBody) != "" && !hasReplyDelivery && strings.TrimSpace(proposedReplyAction.Kind) == "" {
+		summary := "Runner produced a grounded reply but did not report a durable Slack MCP reply_delivery."
+		if !allowed {
+			summary = fmt.Sprintf("Runner produced a grounded reply but Slack posting is blocked by policy: %s.", policyVerdict)
+		}
+		finalReasoning = append(finalReasoning, events.ReasoningStep{
+			ID:         fmt.Sprintf("reason-mcp-reply-missing-%d", runnerCompleted.UnixNano()),
+			TraceID:    ctx.trace.Summary.TraceID,
+			WorkflowID: ctx.trace.Summary.WorkflowID,
+			StepType:   "reply_delivery_missing",
+			Summary:    summary,
+			Confidence: 0.95,
+			Decision:   "needs_human",
+			CreatedAt:  runnerCompleted,
+		})
+		if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowExecutionNeedsHuman, cfg.ServiceName, runnerCompleted, map[string]any{
+			"last_error":         summary,
+			"failure_class":      "missing_reply_delivery",
+			"failure_summary":    summary,
+			"runner_diagnostics": runnerDiagnostics,
+			"trace_events":       runnerEvents,
+			"reasoning_steps":    finalReasoning,
+			"tool_calls":         runnerToolCalls,
+		}); err != nil {
+			return runnerPostProcessingFailure("submit_workflow_execution_needs_human_missing_reply_delivery", err)
+		}
+		if _, _, err := store.ReconcileWorkflowTrace(ctx.workflow.ID); err != nil {
+			return err
+		}
+		return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner-mcp-needs-human", ctx.trace.Summary.TraceID))
+	}
+	if hasReplyDelivery {
+		replyDelivery.TraceID = ctx.trace.Summary.TraceID
+		replyDelivery.WorkflowID = ctx.workflow.ID
+		replyDelivery.ConversationID = ctx.trace.Summary.ConversationID
+		replyDelivery.CaseID = ctx.trace.Summary.CaseID
+		replyDelivery.PolicyVerdict = policyVerdict
+		replyDelivery.CreatedAt = runnerCompleted
+		slackActions = []events.SlackActionRecord{replyDelivery}
+		runnerEvents = append(runnerEvents, events.TraceEvent{
+			TraceID:     ctx.trace.Summary.TraceID,
+			IngestionID: ctx.trace.Summary.IngestionID,
+			WorkflowID:  ctx.trace.Summary.WorkflowID,
+			Plane:       "execution",
+			Service:     "runner",
+			Actor:       ctx.workflow.AssignedBot,
+			EventType:   "slack.reply.posted",
+			Status:      events.StatusCompleted,
+			StartedAt:   runnerStarted,
+			EndedAt:     &runnerCompleted,
+			Description: "Runner delivered the final Slack reply through Slack MCP.",
+		})
+		finalReasoning = append(finalReasoning, events.ReasoningStep{
+			ID:         fmt.Sprintf("reason-reply-delivered-%d", runnerCompleted.UnixNano()),
+			TraceID:    ctx.trace.Summary.TraceID,
+			WorkflowID: ctx.trace.Summary.WorkflowID,
+			StepType:   "reply_delivery",
+			Summary:    "Runner delivered the final Slack reply through Slack MCP.",
+			Confidence: 1.0,
+			Decision:   "reply_delivered",
+			CreatedAt:  runnerCompleted,
+		})
+	}
+	if !hasReplyDelivery && strings.TrimSpace(proposedReplyAction.Kind) != "" {
 		replyAction, draftEvents, draftReasoning, err = draftSlackPostAction(cfg, store, queueName, ctx, runnerOutput, replyBody, allowed, policyVerdict, completionVerdict, runnerCompleted)
 		if err != nil {
 			return runnerPostProcessingFailure("draft_slack_post_action", err)
@@ -346,6 +471,8 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	runnerCommand := transition.WorkflowExecutionCompletionCommand(completionVerdict, hasReplyAction)
 	if hasReplyAction {
 		runnerDescription = "Runner returned visible reasoning and an explicit Slack reply action."
+	} else if hasReplyDelivery {
+		runnerDescription = "Runner returned visible reasoning and delivered a Slack reply through Slack MCP."
 	}
 	if completionVerdict == "partial" {
 		runnerDescription = partialCompletionRunnerDescription(terminationReason, hasReplyAction)
@@ -370,6 +497,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		"trace_events":       append(runnerEvents, draftEvents...),
 		"reasoning_steps":    finalReasoning,
 		"tool_calls":         runnerToolCalls,
+		"slack_actions":      slackActions,
 	}); err != nil {
 		return runnerPostProcessingFailure("submit_runner_completion", err)
 	}
@@ -794,15 +922,18 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		Question:       ingestion.Text,
 		ChannelID:      ingestion.ChannelID,
 		ThreadTS:       ingestion.ThreadTS,
+		EntityRefs:     append([]slackpkg.EntityRef(nil), ingestion.EntityRefs...),
 	}, time.Now().UTC())
 	hintRefs := liveHintContextRefs(liveHints)
 	combinedContextRefs := append(append([]clients.RunnerContextRef{}, contextRefs...), hintRefs...)
 	combinedContextSummary := joinContextSummary(contextSummary, liveHintSummary(liveHints))
+	allowed, _ := replyPolicy(store, workflow.Kind, trace.Summary.ThreadKey, ingestion.ChannelID)
+	mcpServers := slackMCPServersForReply(allowed, ingestion.ChannelID, ingestion.ThreadTS)
 	systemMessage := harness.ComposeSystemMessage(
-		"Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, and outcome_hypotheses. Start from persisted evidence, then choose governed tools and tool order yourself. If you intend to reply in Slack, you must emit an explicit proposed action with kind=slack_post; prose alone is not enough.",
+		workflowRunnerSystemMessage(len(mcpServers) > 0, allowed),
 		effectiveHarness,
 	)
-	prompt := fmt.Sprintf("User request: %s\n\nInvestigate within the governed read-only tool boundary. Start with the persisted evidence already attached to the session, then expand with tools as needed. Cite concrete evidence when possible. If you reply in Slack, default to the ingress thread unless you explicitly choose another governed target and policy allows it.", ingestion.Text)
+	prompt := fmt.Sprintf("User request: %s\n\nInvestigate within the governed tool boundary. Start with the attached persisted evidence and context, then expand with tools as needed. Cite concrete evidence when possible. Default any Slack reply to the ingress thread.", ingestion.Text)
 	repo := firstNonEmpty(liveHints.Repo, cfg.DefaultRepo)
 	return clients.RunnerTask{
 		TaskType:                  "workflow",
@@ -810,6 +941,7 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		RepoRef:                   "main",
 		Prompt:                    prompt,
 		SystemMessage:             systemMessage,
+		MCPServers:                mcpServers,
 		AllowedTools:              nil,
 		AllowedCommands:           []string{},
 		TimeoutSeconds:            0,
@@ -844,6 +976,16 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		AssistantPeerID:           fmt.Sprintf("rsi:%s:%s", cfg.Environment, role),
 		UserPeerID:                workflowUserPeerID(store.ListConversationEntries(trace.Summary.ConversationID), sessionScopeKind, sessionScopeID),
 	}
+}
+
+func workflowRunnerSystemMessage(useSlackMCP bool, replyAllowed bool) string {
+	if !useSlackMCP {
+		return "Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, and outcome_hypotheses. Start from persisted evidence, then choose governed tools and tool order yourself. If you intend to reply in Slack, you must emit an explicit proposed action with kind=slack_post; prose alone is not enough."
+	}
+	if replyAllowed {
+		return "Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, and outcome_hypotheses. Use Slack MCP for Slack investigation. Use governed repo, GitHub, knowledge, RSI, and workspace tools for non-Slack evidence. If you have a grounded final answer, send exactly one Slack reply to the bound ingress thread using Slack MCP, then return the JSON object. Do not emit a slack_post action contract."
+	}
+	return "Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, and outcome_hypotheses. Use Slack MCP for Slack investigation and governed repo, GitHub, knowledge, RSI, and workspace tools for non-Slack evidence. Slack posting is blocked by policy for this workflow, so do not send any Slack messages."
 }
 
 func workflowSessionScope(trace events.Trace, workflow storepkg.Workflow) (string, string, string, string) {
@@ -967,6 +1109,39 @@ func workflowCompletionVerdict(raw map[string]any) string {
 
 func workflowTerminationReason(raw map[string]any) string {
 	return strings.TrimSpace(stringValue(raw["termination_reason"]))
+}
+
+func workflowNativeMCPEnabled(raw map[string]any) bool {
+	return boolValue(raw["native_mcp_enabled"])
+}
+
+func workflowReplyDelivery(raw map[string]any, fallbackChannelID string, fallbackThreadTS string) (events.SlackActionRecord, bool) {
+	value, ok := raw["reply_delivery"]
+	if !ok || value == nil {
+		return events.SlackActionRecord{}, false
+	}
+	payload, err := json.Marshal(value)
+	if err != nil {
+		return events.SlackActionRecord{}, false
+	}
+	var item map[string]any
+	if err := json.Unmarshal(payload, &item); err != nil {
+		return events.SlackActionRecord{}, false
+	}
+	body := firstNonEmpty(
+		strings.TrimSpace(stringValueFromMap(item, "body")),
+		strings.TrimSpace(stringValueFromMap(item, "body_excerpt")),
+	)
+	record := events.SlackActionRecord{
+		ID:             firstNonEmpty(strings.TrimSpace(stringValueFromMap(item, "tool_call_id")), fmt.Sprintf("runner-reply-%x", sha1.Sum([]byte(body)))),
+		ChannelID:      firstNonEmpty(strings.TrimSpace(stringValueFromMap(item, "channel_id")), fallbackChannelID),
+		ThreadTS:       firstNonEmpty(strings.TrimSpace(stringValueFromMap(item, "thread_ts")), fallbackThreadTS),
+		IdempotencyKey: firstNonEmpty(strings.TrimSpace(stringValueFromMap(item, "body_sha1")), strings.TrimSpace(stringValueFromMap(item, "tool_call_id"))),
+		DraftBody:      body,
+		FinalBody:      body,
+		SendStatus:     firstNonEmpty(strings.TrimSpace(stringValueFromMap(item, "send_status")), "posted"),
+	}
+	return record, true
 }
 
 func partialCompletionNoticeForTerminationReason(terminationReason string) string {
@@ -1127,6 +1302,34 @@ func workflowExecutionStrategy(workflow storepkg.Workflow) string {
 		return "read_heavy_slack_qna"
 	}
 	return ""
+}
+
+func slackMCPServersForRead(channelID string, threadTS string) []clients.RunnerMCPServer {
+	if strings.TrimSpace(channelID) == "" {
+		return nil
+	}
+	return []clients.RunnerMCPServer{
+		{
+			ServerLabel: "slack",
+			ServerURL:   defaultSlackMCPServerURL,
+			Profile:     "slack_mcp_read",
+			Headers: map[string]string{
+				"X-RSI-Channel-ID": channelID,
+				"X-RSI-Thread-TS":  threadTS,
+			},
+		},
+	}
+}
+
+func slackMCPServersForReply(allowed bool, channelID string, threadTS string) []clients.RunnerMCPServer {
+	servers := slackMCPServersForRead(channelID, threadTS)
+	if len(servers) == 0 {
+		return nil
+	}
+	if allowed {
+		servers[0].Profile = "slack_mcp_reply"
+	}
+	return servers
 }
 
 func replyPolicy(store storepkg.Store, workflowKind string, threadKey string, channelID string) (bool, string) {
@@ -1515,6 +1718,7 @@ func toolInputForIntent(cfg config.Config, trace events.TraceSummary, workflow s
 		Question:       ingestion.Text,
 		ChannelID:      ingestion.ChannelID,
 		ThreadTS:       ingestion.ThreadTS,
+		EntityRefs:     append([]slackpkg.EntityRef(nil), ingestion.EntityRefs...),
 	}, time.Now().UTC())
 }
 

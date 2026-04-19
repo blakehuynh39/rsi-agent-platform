@@ -25,6 +25,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/githubapp"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/sandbox"
+	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 	"github.com/piplabs/rsi-agent-platform/internal/workflowplan"
 	appsv1 "k8s.io/api/apps/v1"
@@ -1439,7 +1440,7 @@ func (s *Service) slackHistory(input map[string]interface{}) storepkg.ToolResult
 	bound := s.boundSlackContext(traceID)
 	question := firstNonEmpty(strings.TrimSpace(stringValue(input["question"])), strings.TrimSpace(bound.Prompt))
 	promptContext := slackPromptContext(bound.Prompt, question)
-	contextualChannelIDs := slackMentionChannelIDs(promptContext, bound.ChannelID, bound.ThreadTS, s.cfg.AllowedSlackChannelIDs)
+	contextualChannelIDs := slackMentionChannelIDs(promptContext, bound.ChannelID, bound.ThreadTS, bound.EntityRefs, s.cfg.AllowedSlackChannelIDs)
 	channelID, threadTS := resolveSlackHistoryTarget(input, promptContext, bound)
 	scope := slackHistoryScope(input, question, threadTS)
 	limit := slackHistoryLimit(input)
@@ -1511,7 +1512,7 @@ func resolveSlackHistoryTarget(input map[string]interface{}, question string, bo
 	requestedThreadTS := strings.TrimSpace(stringValue(input["thread_ts"]))
 	boundChannelID := strings.TrimSpace(bound.ChannelID)
 	boundThreadTS := strings.TrimSpace(bound.ThreadTS)
-	derivedThreadByChannel, derivedChannelByThread := derivedSlackThreadBindings(question, boundChannelID, boundThreadTS)
+	derivedThreadByChannel, derivedChannelByThread := derivedSlackThreadBindings(question, boundChannelID, boundThreadTS, bound.EntityRefs)
 
 	switch {
 	case requestedChannelID != "" && requestedThreadTS != "":
@@ -1559,12 +1560,17 @@ func slackPromptContext(values ...string) string {
 	return strings.Join(parts, "\n")
 }
 
-func derivedSlackThreadBindings(question string, ingressChannelID string, ingressThreadTS string) (map[string]string, map[string]string) {
+func derivedSlackThreadBindings(question string, ingressChannelID string, ingressThreadTS string, entityRefs []slackpkg.EntityRef) (map[string]string, map[string]string) {
 	threadByChannel := map[string]string{}
 	channelByThread := map[string]string{}
 	ambiguousChannels := map[string]struct{}{}
 	ambiguousThreads := map[string]struct{}{}
-	for _, item := range workflowplan.CandidateReadSurfaces(question, ingressChannelID, ingressThreadTS) {
+	for _, item := range workflowplan.CandidateReadSurfacesForContext(workflowplan.RequestContext{
+		Question:   question,
+		ChannelID:  ingressChannelID,
+		ThreadTS:   ingressThreadTS,
+		EntityRefs: entityRefs,
+	}) {
 		channelID := strings.TrimSpace(item.ChannelID)
 		threadTS := strings.TrimSpace(item.ThreadTS)
 		if channelID == "" || threadTS == "" {
@@ -1595,13 +1601,14 @@ type boundSlackContext struct {
 	ThreadTS    string
 	Prompt      string
 	ActionToken string
+	EntityRefs  []slackpkg.EntityRef
 }
 
 func (s *Service) slackSearch(input map[string]interface{}) storepkg.ToolResult {
 	query := firstNonEmpty(strings.TrimSpace(stringValue(input["query"])), strings.TrimSpace(stringValue(input["question"])))
 	traceID := strings.TrimSpace(stringValue(input["trace_id"]))
 	bound := s.boundSlackContext(traceID)
-	contextualChannelIDs := slackMentionChannelIDs(bound.Prompt, bound.ChannelID, bound.ThreadTS, s.cfg.AllowedSlackChannelIDs)
+	contextualChannelIDs := slackMentionChannelIDs(bound.Prompt, bound.ChannelID, bound.ThreadTS, bound.EntityRefs, s.cfg.AllowedSlackChannelIDs)
 	channelIDs := slackSearchChannelIDs(input, bound.ChannelID, s.cfg.AllowedSlackChannelIDs, contextualChannelIDs)
 	limit := slackSearchLimit(input)
 	since, until, err := parseActivityWindow(input)
@@ -1708,9 +1715,10 @@ func (s *Service) boundSlackContext(traceID string) boundSlackContext {
 			continue
 		}
 		ctx = boundSlackContext{
-			ChannelID: strings.TrimSpace(item.ChannelID),
-			ThreadTS:  strings.TrimSpace(item.ThreadTS),
-			Prompt:    strings.TrimSpace(item.Text),
+			ChannelID:  strings.TrimSpace(item.ChannelID),
+			ThreadTS:   strings.TrimSpace(item.ThreadTS),
+			Prompt:     strings.TrimSpace(item.Text),
+			EntityRefs: append([]slackpkg.EntityRef(nil), item.EntityRefs...),
 		}
 		eventID = strings.TrimSpace(item.EventID)
 		break
@@ -2265,11 +2273,16 @@ func slackSearchChannelIDs(input map[string]interface{}, boundChannelID string, 
 	return uniqueStrings(filtered)
 }
 
-func slackMentionChannelIDs(question string, ingressChannelID string, ingressThreadTS string, allowed []string) []string {
+func slackMentionChannelIDs(question string, ingressChannelID string, ingressThreadTS string, entityRefs []slackpkg.EntityRef, allowed []string) []string {
 	if !containsString(allowed, slackMentionsOnlySentinel) {
 		return nil
 	}
-	hints := workflowplan.CandidateReadSurfaces(question, ingressChannelID, ingressThreadTS)
+	hints := workflowplan.CandidateReadSurfacesForContext(workflowplan.RequestContext{
+		Question:   question,
+		ChannelID:  ingressChannelID,
+		ThreadTS:   ingressThreadTS,
+		EntityRefs: entityRefs,
+	})
 	out := make([]string, 0, len(hints))
 	for _, item := range hints {
 		channelID := strings.TrimSpace(item.ChannelID)

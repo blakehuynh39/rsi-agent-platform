@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import concurrent.futures
 from dataclasses import dataclass, replace
+import hashlib
 import json
 import logging
 import os
@@ -29,6 +30,7 @@ from .rsi_tools import (
     ReadOnlyToolBinding,
     WORKSPACE_RSI_TOOL_NAMES,
     normalize_tool_names,
+    transport_tool_schema,
     tool_transport_name,
     tool_schema_wrappers,
 )
@@ -401,6 +403,7 @@ class RunnerTaskRequest:
     workspace_repo: str | None
     workspace_branch: str | None
     allowed_path_globs: list[str]
+    mcp_servers: list[JsonObject]
 
     @classmethod
     def from_payload(cls, payload: JsonObject) -> "RunnerTaskRequest":
@@ -450,6 +453,7 @@ class RunnerTaskRequest:
             workspace_repo=_optional_string(task.get("workspace_repo")),
             workspace_branch=_optional_string(task.get("workspace_branch")),
             allowed_path_globs=_string_list(task.get("allowed_path_globs")),
+            mcp_servers=_json_object_list(task.get("mcp_servers")),
         )
 
 
@@ -491,6 +495,9 @@ class HermesRuntime:
         self._default_inactivity_timeout_seconds = config.inactivity_timeout_seconds
         self._transport_timeout_seconds = config.transport_timeout_seconds
         self._tool_policy_mode = config.tool_policy_mode
+        self._slack_mcp_discovery_error = ""
+        self._slack_mcp_tool_cache: list[JsonObject] | None = None
+        self._slack_mcp_send_tool_name = ""
         self._configure_runtime()
         self._available = AIAgent is not None and self._runtime_has_credentials() and self._session_manager.available
 
@@ -539,6 +546,11 @@ class HermesRuntime:
             "available": self.available,
             "hermes_available": AIAgent is not None,
             "openai_configured": self._openai_configured,
+            "slack_mcp_enabled": self._config.slack_mcp_enabled,
+            "slack_mcp_configured": self._config.slack_mcp_enabled and self._config.slack_user_token_configured,
+            "slack_mcp_available": self._slack_mcp_available(),
+            "slack_mcp_server_url": self._config.slack_mcp_server_url,
+            "slack_mcp_tool_count": len(self._slack_mcp_tools()),
             "persistence_enabled": self._session_manager.available,
             "session_continuity_status": "ok" if self._session_manager.available else "degraded",
             "hermes_home": self._session_manager.hermes_home,
@@ -1104,7 +1116,8 @@ class HermesRuntime:
     def _resolve_tool_policy(self, task: RunnerTaskRequest) -> ToolPolicy:
         requested = normalize_tool_names([*task.allowed_tools, *task.tool_allowlist])
         execution_mode = (task.execution_mode or "").strip().lower()
-        if task.task_type == "question_reduce":
+        using_native_mcp = self._task_uses_native_mcp(task)
+        if task.task_type == "question_reduce" and not using_native_mcp:
             return ToolPolicy(
                 mode="no_tools",
                 requested=requested,
@@ -1121,9 +1134,13 @@ class HermesRuntime:
         fallback_allowlist = sorted(permitted)
         if task.task_type == "question_expand" and requested:
             fallback_allowlist = requested
+        if using_native_mcp:
+            fallback_allowlist = [name for name in fallback_allowlist if name not in {"slack.history", "slack.search", "slack.reply"} and name not in READ_ONLY_HONCHO_TOOLS]
         effective = normalize_tool_names(requested or fallback_allowlist)
+        if using_native_mcp:
+            effective = [name for name in effective if name not in {"slack.history", "slack.search", "slack.reply"} and name not in READ_ONLY_HONCHO_TOOLS]
         effective = [name for name in effective if name in permitted]
-        blocked = [name for name in requested if name not in permitted]
+        blocked = [name for name in requested if name not in permitted and name not in {"slack.history", "slack.search", "slack.reply"}]
         memory_tools = sorted([name for name in effective if name in READ_ONLY_HONCHO_TOOLS])
         custom_tools = sorted([name for name in effective if name in IMPLEMENT_RSI_TOOL_NAMES])
         transport_effective, custom_tool_transport_map, _ = _transport_tool_policy(custom_tools, memory_tools)
@@ -1650,6 +1667,581 @@ class HermesRuntime:
             error="",
             provider_response_id=provider_response_id,
         )
+
+    def _slack_mcp_request(self, method: str, params: JsonObject | None = None, *, notification: bool = False) -> JsonObject:
+        if not self._config.slack_mcp_enabled:
+            raise RuntimeError("Slack MCP is disabled.")
+        token = first_non_empty(os.getenv("RSI_SLACK_USER_TOKEN"), "")
+        if not token:
+            raise RuntimeError("Slack user token is not configured.")
+        request_id = None if notification else method.replace("/", "_")
+        payload: JsonObject = {
+            "jsonrpc": "2.0",
+            "method": method,
+            "params": params or {},
+        }
+        if request_id is not None:
+            payload["id"] = request_id
+        req = urlrequest.Request(
+            self._config.slack_mcp_server_url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
+        try:
+            with urlrequest.urlopen(req, timeout=15) as resp:
+                body = resp.read().decode("utf-8")
+        except urlerror.HTTPError as exc:
+            detail = exc.read().decode("utf-8", errors="replace")
+            raise RuntimeError(f"Slack MCP {method} returned {exc.code}: {detail[:2000]}") from exc
+        except (TimeoutError, socket.timeout, urlerror.URLError, ConnectionError, OSError) as exc:
+            raise RuntimeError(f"Slack MCP {method} request failed: {exc}") from exc
+        if notification:
+            return {}
+        try:
+            parsed = json.loads(body)
+        except json.JSONDecodeError as exc:
+            raise RuntimeError("Slack MCP returned invalid JSON.") from exc
+        if not isinstance(parsed, dict):
+            raise RuntimeError("Slack MCP returned a non-object JSON payload.")
+        error_payload = _json_object_or_empty(parsed.get("error"))
+        if error_payload:
+            raise RuntimeError(first_non_empty(_string_or_json(error_payload.get("message")), "Slack MCP returned an error."))
+        return _json_object_or_empty(parsed.get("result"))
+
+    def _slack_mcp_tools(self) -> list[JsonObject]:
+        if self._slack_mcp_tool_cache is not None:
+            return list(self._slack_mcp_tool_cache)
+        if not self._config.slack_mcp_enabled:
+            self._slack_mcp_tool_cache = []
+            return []
+        try:
+            _ = self._slack_mcp_request(
+                "initialize",
+                {
+                    "protocolVersion": "2025-03-26",
+                    "capabilities": {},
+                    "clientInfo": {"name": "rsi-agent-platform", "version": "0.1.0"},
+                },
+            )
+            try:
+                self._slack_mcp_request("notifications/initialized", {}, notification=True)
+            except RuntimeError:
+                pass
+            result = self._slack_mcp_request("tools/list", {})
+            tools = _json_object_list(result.get("tools"))
+            self._slack_mcp_tool_cache = tools
+            self._slack_mcp_discovery_error = ""
+            return list(tools)
+        except RuntimeError as exc:
+            self._slack_mcp_tool_cache = []
+            self._slack_mcp_discovery_error = str(exc)
+            return []
+
+    def _slack_mcp_available(self) -> bool:
+        if not self._config.slack_mcp_enabled or not self._config.slack_user_token_configured:
+            return False
+        return len(self._slack_mcp_tools()) > 0
+
+    def _slack_mcp_send_tool_name_or_error(self) -> str:
+        if self._slack_mcp_send_tool_name:
+            return self._slack_mcp_send_tool_name
+        candidates: list[str] = []
+        exact_order = [
+            "send_message",
+            "slack_send_message",
+            "conversations_add_message",
+            "add_message",
+            "post_message",
+        ]
+        exact_hits = [name for name in exact_order if any(_string_or_json(tool.get("name")) == name for tool in self._slack_mcp_tools())]
+        if len(exact_hits) == 1:
+            self._slack_mcp_send_tool_name = exact_hits[0]
+            return self._slack_mcp_send_tool_name
+        for tool in self._slack_mcp_tools():
+            name = _string_or_json(tool.get("name"))
+            description = _string_or_json(tool.get("description")).lower()
+            annotations = _json_object_or_empty(tool.get("annotations"))
+            read_only = _bool_or_false(annotations.get("readOnlyHint"))
+            lowered = name.lower()
+            if read_only:
+                continue
+            if "canvas" in lowered or "canvas" in description or "draft" in lowered or "draft" in description:
+                continue
+            if ("send" in lowered or "post" in lowered or "message" in lowered) and ("message" in description or "send" in description or "post" in description):
+                candidates.append(name)
+        candidates = normalize_tool_names(candidates)
+        if len(candidates) != 1:
+            raise RuntimeError(f"Slack MCP send-message tool discovery expected exactly one candidate, got {candidates or ['none']}.")
+        self._slack_mcp_send_tool_name = candidates[0]
+        return self._slack_mcp_send_tool_name
+
+    def _task_uses_native_mcp(self, task: RunnerTaskRequest) -> bool:
+        if self._provider != "openai":
+            return False
+        if task.task_type not in {"workflow", "question_expand", "question_reduce"}:
+            return False
+        return len(task.mcp_servers) > 0
+
+    def _task_slack_mcp_write_enabled(self, task: RunnerTaskRequest) -> bool:
+        for server in task.mcp_servers:
+            if _string_or_json(server.get("profile")) == "slack_mcp_reply":
+                return True
+        return False
+
+    def _direct_task_user_prompt(self, task: RunnerTaskRequest) -> str:
+        if task.task_type in {"question_expand", "question_reduce"}:
+            return task.prompt
+        payload: JsonObject = {
+            "user_request": self._original_task_prompt(task),
+            "reply_target": {
+                "channel_id": task.channel_id or "",
+                "thread_ts": task.thread_ts or "",
+            },
+            "context_summary": task.context_summary or "",
+            "recent_conversation_entries": task.recent_conversation_entries,
+            "case_summary": task.case_summary or {},
+            "prior_trace_refs": task.prior_trace_refs,
+            "context_refs": task.context_refs,
+            "response_mode": task.response_mode or "",
+            "trace_id": task.trace_id or "",
+            "workflow_id": task.workflow_id or "",
+        }
+        return "\n".join(
+            [
+                "Complete the following Slack-bound RSI workflow.",
+                "Use Slack MCP for Slack investigation and governed function tools for repo, GitHub, knowledge, RSI context, and workspace reads.",
+                "Return JSON only.",
+                json.dumps(payload, ensure_ascii=True, sort_keys=True, indent=2),
+            ]
+        )
+
+    def _direct_function_tools(self, tool_policy: ToolPolicy) -> list[JsonObject]:
+        out: list[JsonObject] = []
+        for name in tool_policy.custom_tools:
+            schema = transport_tool_schema(name)
+            out.append(
+                {
+                    "type": "function",
+                    "name": _string_or_json(schema.get("name")),
+                    "description": _string_or_json(schema.get("description")),
+                    "parameters": _json_object_or_empty(schema.get("parameters")),
+                    "strict": True,
+                }
+            )
+        return out
+
+    def _resolved_task_mcp_servers(self, task: RunnerTaskRequest) -> tuple[list[JsonObject], set[str]]:
+        resolved: list[JsonObject] = []
+        send_tool_names: set[str] = set()
+        for server in task.mcp_servers:
+            label = first_non_empty(_string_or_json(server.get("server_label")), "slack")
+            profile = _string_or_json(server.get("profile"))
+            server_url = first_non_empty(_string_or_json(server.get("server_url")), self._config.slack_mcp_server_url)
+            item: JsonObject = {
+                "type": "mcp",
+                "server_label": label,
+                "server_url": server_url,
+                "require_approval": server.get("require_approval") or "never",
+            }
+            headers = _json_object_or_empty(server.get("headers"))
+            if headers:
+                item["headers"] = headers
+            authorization = first_non_empty(_string_or_json(server.get("authorization")), os.getenv("RSI_SLACK_USER_TOKEN"), "")
+            if not authorization:
+                raise RuntimeError("Slack user token is not configured.")
+            item["authorization"] = authorization
+            if profile == "slack_mcp_read":
+                item["allowed_tools"] = {"read_only": True}
+            elif profile == "slack_mcp_reply":
+                send_tool_name = self._slack_mcp_send_tool_name_or_error()
+                send_tool_names.add(send_tool_name)
+                read_tool_names = []
+                for tool in self._slack_mcp_tools():
+                    annotations = _json_object_or_empty(tool.get("annotations"))
+                    if _bool_or_false(annotations.get("readOnlyHint")):
+                        read_tool_names.append(_string_or_json(tool.get("name")))
+                item["allowed_tools"] = {"tool_names": normalize_tool_names([*read_tool_names, send_tool_name])}
+            else:
+                allowed_tools = _json_object_or_empty(server.get("allowed_tools"))
+                if allowed_tools:
+                    item["allowed_tools"] = allowed_tools
+            resolved.append(item)
+        return resolved, send_tool_names
+
+    def _responses_function_calls(self, payload: JsonObject) -> list[JsonObject]:
+        calls: list[JsonObject] = []
+        for item in _json_object_list(payload.get("output")):
+            item_type = _string_or_json(item.get("type"))
+            if item_type not in {"function_call", "custom_tool_call"}:
+                continue
+            calls.append(item)
+        return calls
+
+    def _normalize_mcp_calls(
+        self,
+        payload: JsonObject,
+        *,
+        send_tool_names: set[str],
+        task: RunnerTaskRequest,
+    ) -> tuple[list[JsonObject], JsonObject | None, bool]:
+        normalized: list[JsonObject] = []
+        reply_delivery: JsonObject | None = None
+        reply_attempted = False
+        for item in _json_object_list(payload.get("output")):
+            if _string_or_json(item.get("type")) != "mcp_call":
+                continue
+            name = _string_or_json(item.get("name"))
+            arguments_text = _string_or_json(item.get("arguments"))
+            request_payload = {}
+            if arguments_text:
+                try:
+                    parsed_args = json.loads(arguments_text)
+                except json.JSONDecodeError:
+                    parsed_args = {}
+                if isinstance(parsed_args, dict):
+                    request_payload = parsed_args
+            status = _string_or_json(item.get("status")) or "completed"
+            output_text = _string_or_json(item.get("output"))
+            error_text = _string_or_json(item.get("error"))
+            summary = first_non_empty(error_text, output_text, status)[:400]
+            call_id = first_non_empty(_string_or_json(item.get("id")), _string_or_json(item.get("call_id")), name)
+            normalized.append(
+                {
+                    "id": first_non_empty(_string_or_json(item.get("id")), f"runner-tool-record-{call_id}"),
+                    "tool_name": f"slack.mcp.{name}",
+                    "tool_call_id": call_id,
+                    "request": request_payload,
+                    "summary": summary,
+                    "approval_state": "not_required",
+                    "interpretation_summary": summary,
+                    "status": status,
+                    "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                }
+            )
+            if name in send_tool_names:
+                reply_attempted = True
+                if status in {"completed", "complete", "ok", "success"} and reply_delivery is None:
+                    channel_id = first_non_empty(
+                        _string_or_json(request_payload.get("channel_id")),
+                        _string_or_json(request_payload.get("channel")),
+                        _string_or_json(request_payload.get("conversation_id")),
+                        task.channel_id or "",
+                    )
+                    thread_ts = first_non_empty(
+                        _string_or_json(request_payload.get("thread_ts")),
+                        _string_or_json(request_payload.get("thread")),
+                        task.thread_ts or "",
+                    )
+                    body = first_non_empty(
+                        _string_or_json(request_payload.get("body")),
+                        _string_or_json(request_payload.get("text")),
+                        _string_or_json(request_payload.get("message")),
+                        _string_or_json(request_payload.get("content")),
+                        _string_or_json(request_payload.get("markdown")),
+                    )
+                    provider_ref = ""
+                    if output_text:
+                        try:
+                            parsed_output = json.loads(output_text)
+                        except json.JSONDecodeError:
+                            parsed_output = {}
+                        if isinstance(parsed_output, dict):
+                            provider_ref = first_non_empty(
+                                _string_or_json(parsed_output.get("message_ts")),
+                                _string_or_json(parsed_output.get("ts")),
+                                _string_or_json(parsed_output.get("id")),
+                            )
+                            if not body:
+                                body = first_non_empty(
+                                    _string_or_json(parsed_output.get("body")),
+                                    _string_or_json(parsed_output.get("text")),
+                                    _string_or_json(parsed_output.get("message")),
+                                )
+                    reply_delivery = {
+                        "channel_id": channel_id,
+                        "thread_ts": thread_ts,
+                        "body": body,
+                        "body_sha1": hashlib.sha1(body.encode("utf-8")).hexdigest() if body else "",
+                        "body_excerpt": body[:500],
+                        "tool_call_id": call_id,
+                        "tool_name": f"slack.mcp.{name}",
+                        "provider_ref": provider_ref,
+                        "send_status": "posted",
+                    }
+        return normalized, reply_delivery, reply_attempted
+
+    def _execute_openai_native_task(self, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> HermesExecutionResult:
+        if self._provider != "openai" or not self._api_key:
+            return HermesExecutionResult(
+                ok=False,
+                message="OpenAI Responses API credentials are required for native MCP workflow execution.",
+                provider=self._backend,
+                raw={
+                    **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                    "failure_class": "runner_non_ok",
+                    "native_mcp_enabled": True,
+                },
+            )
+        if preflight := self._preflight_tool_policy_failure(task, tool_policy):
+            return preflight
+        try:
+            resolved_mcp_servers, send_tool_names = self._resolved_task_mcp_servers(task)
+        except RuntimeError as exc:
+            return HermesExecutionResult(
+                ok=False,
+                message=str(exc),
+                provider=self._backend,
+                raw={
+                    **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                    "failure_class": "runner_non_ok",
+                    "native_mcp_enabled": True,
+                    "runner_diagnostics": {
+                        "failure_kind": "slack_mcp_unavailable",
+                        "provider_error_message": str(exc),
+                    },
+                },
+            )
+        binding = ReadOnlyToolBinding(
+            base_url=self._config.tool_gateway_base_url or "",
+            allowed_tool_names=tool_policy.custom_tools,
+            task_repo=task.repo,
+            task_repo_ref=task.repo_ref or "",
+            task_prompt=task.prompt,
+            default_question=str(self._question_default_query_hints(task).get("default_question", "")),
+            repo_question=str(self._question_default_query_hints(task).get("repo_question", "")),
+            knowledge_topic=str(self._question_default_query_hints(task).get("knowledge_topic", "")),
+            knowledge_question=str(self._question_default_query_hints(task).get("knowledge_question", "")),
+            slack_history_focus=str(self._question_default_query_hints(task).get("slack_history_focus", "")),
+            slack_search_query=str(self._question_default_query_hints(task).get("slack_search_query", "")),
+            task_channel_id=task.channel_id or "",
+            task_thread_ts=task.thread_ts or "",
+            task_context_summary=task.context_summary or "",
+            trace_id=task.trace_id or "",
+            session_scope_kind=task.session_scope_kind or "",
+            session_scope_id=task.session_scope_id or "",
+            context_refs=task.context_refs,
+            execution_mode=task.execution_mode or "",
+            attempt_id=task.attempt_id or "",
+            workspace_id=task.workspace_id or "",
+        )
+        tools = [*self._direct_function_tools(tool_policy), *resolved_mcp_servers]
+        timeout_seconds = min(self._effective_task_timeout(task), max(1, self._transport_timeout_seconds - 5))
+        user_prompt = self._direct_task_user_prompt(task)
+        instructions = first_non_empty(task.system_message or "", "Return valid JSON only.")
+        previous_response_id = ""
+        current_input: JsonValue = user_prompt
+        accumulated_mcp_calls: list[JsonObject] = []
+        reply_delivery: JsonObject | None = None
+        reply_delivery_attempted = False
+        rounds = 0
+        while True:
+            remaining = timeout_seconds
+            payload: JsonObject = {
+                "model": self._provider_model,
+                "instructions": instructions,
+                "input": current_input,
+                "parallel_tool_calls": False,
+                "tools": tools,
+                "max_output_tokens": 4000,
+                "text": {
+                    "format": {"type": "json_object"},
+                    "verbosity": "low",
+                },
+            }
+            if previous_response_id:
+                payload["previous_response_id"] = previous_response_id
+            if self._reasoning_config.get("enabled", True):
+                payload["reasoning"] = {"effort": self._reasoning_effort}
+            req = urlrequest.Request(
+                f"{self._base_url.rstrip('/')}/responses",
+                data=json.dumps(payload).encode("utf-8"),
+                headers={
+                    "Authorization": f"Bearer {self._api_key}",
+                    "Content-Type": "application/json",
+                },
+                method="POST",
+            )
+            try:
+                with urlrequest.urlopen(req, timeout=max(1, remaining)) as resp:
+                    body = resp.read().decode("utf-8")
+            except urlerror.HTTPError as exc:
+                detail = exc.read().decode("utf-8", errors="replace")
+                return HermesExecutionResult(
+                    ok=False,
+                    message=f"Native workflow executor returned {exc.code}: {detail[:2000]}",
+                    provider=self._backend,
+                    raw={
+                        **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                        "failure_class": "runner_non_ok",
+                        "native_mcp_enabled": True,
+                        "reply_delivery_attempted": reply_delivery_attempted,
+                        "reply_delivery": reply_delivery or {},
+                        "mcp_calls": accumulated_mcp_calls,
+                        "tool_calls": self._merge_runtime_values(binding.diagnostics().get("tool_calls"), accumulated_mcp_calls),
+                    },
+                )
+            except (TimeoutError, socket.timeout, urlerror.URLError, ConnectionError, OSError) as exc:
+                failure_class = "runner_transport_timeout"
+                if reply_delivery_attempted:
+                    failure_class = "runner_reply_delivery_uncertain"
+                return HermesExecutionResult(
+                    ok=False,
+                    message=f"Native workflow executor timed out after {max(1, remaining)}s: {exc}",
+                    provider=self._backend,
+                    raw={
+                        **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                        "failure_class": failure_class,
+                        "native_mcp_enabled": True,
+                        "reply_delivery_attempted": reply_delivery_attempted,
+                        "reply_delivery": reply_delivery or {},
+                        "mcp_calls": accumulated_mcp_calls,
+                        "tool_calls": self._merge_runtime_values(binding.diagnostics().get("tool_calls"), accumulated_mcp_calls),
+                    },
+                )
+            try:
+                parsed = json.loads(body)
+            except json.JSONDecodeError:
+                return HermesExecutionResult(
+                    ok=False,
+                    message="Native workflow executor returned invalid JSON.",
+                    provider=self._backend,
+                    raw={
+                        **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                        "failure_class": "runner_non_ok",
+                        "native_mcp_enabled": True,
+                    },
+                )
+            if not isinstance(parsed, dict):
+                return HermesExecutionResult(
+                    ok=False,
+                    message="Native workflow executor returned a non-object JSON payload.",
+                    provider=self._backend,
+                    raw={
+                        **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                        "failure_class": "runner_non_ok",
+                        "native_mcp_enabled": True,
+                    },
+                )
+            previous_response_id = _string_or_json(parsed.get("id"))
+            normalized_mcp_calls, latest_reply_delivery, latest_reply_attempted = self._normalize_mcp_calls(
+                parsed,
+                send_tool_names=send_tool_names,
+                task=task,
+            )
+            accumulated_mcp_calls = self._merge_runtime_values(accumulated_mcp_calls, normalized_mcp_calls)
+            reply_delivery_attempted = reply_delivery_attempted or latest_reply_attempted
+            if latest_reply_delivery is not None:
+                reply_delivery = latest_reply_delivery
+            function_calls = self._responses_function_calls(parsed)
+            if function_calls:
+                if rounds >= self._max_iterations:
+                    return HermesExecutionResult(
+                        ok=False,
+                        message="Native workflow executor exhausted its function-call budget.",
+                        provider=self._backend,
+                        raw={
+                            **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                            "failure_class": "runner_iteration_budget_exhausted",
+                            "native_mcp_enabled": True,
+                            "reply_delivery_attempted": reply_delivery_attempted,
+                            "reply_delivery": reply_delivery or {},
+                            "mcp_calls": accumulated_mcp_calls,
+                            "tool_calls": self._merge_runtime_values(binding.diagnostics().get("tool_calls"), accumulated_mcp_calls),
+                        },
+                    )
+                outputs: list[JsonObject] = []
+                for call in function_calls:
+                    name = _string_or_json(call.get("name"))
+                    call_id = first_non_empty(_string_or_json(call.get("call_id")), _string_or_json(call.get("id")), name)
+                    arguments_text = _string_or_json(call.get("arguments")) or _string_or_json(call.get("input"))
+                    arguments = {}
+                    if arguments_text:
+                        try:
+                            parsed_args = json.loads(arguments_text)
+                        except json.JSONDecodeError:
+                            parsed_args = {}
+                        if isinstance(parsed_args, dict):
+                            arguments = parsed_args
+                    output_text = binding.handle_tool_call(name, arguments)
+                    outputs.append(
+                        {
+                            "type": "function_call_output",
+                            "call_id": call_id,
+                            "output": output_text,
+                        }
+                    )
+                current_input = outputs
+                rounds += 1
+                continue
+            response_text = self._responses_output_text(parsed)
+            if not response_text:
+                return HermesExecutionResult(
+                    ok=False,
+                    message="Native workflow executor returned an empty response.",
+                    provider=self._backend,
+                    raw={
+                        **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                        "failure_class": "runner_non_ok",
+                        "native_mcp_enabled": True,
+                        "mcp_calls": accumulated_mcp_calls,
+                        "tool_calls": self._merge_runtime_values(binding.diagnostics().get("tool_calls"), accumulated_mcp_calls),
+                    },
+                )
+            try:
+                structured_output = self._extract_structured_output(response_text)
+            except HermesStructuredOutputError as exc:
+                failure_class = "runner_structured_output_parse_failure"
+                if reply_delivery_attempted:
+                    failure_class = "runner_reply_delivery_uncertain"
+                return HermesExecutionResult(
+                    ok=False,
+                    message=str(exc),
+                    provider=self._backend,
+                    raw={
+                        **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                        "failure_class": failure_class,
+                        "native_mcp_enabled": True,
+                        "reply_delivery_attempted": reply_delivery_attempted,
+                        "reply_delivery": reply_delivery or {},
+                        "mcp_calls": accumulated_mcp_calls,
+                        "tool_calls": self._merge_runtime_values(binding.diagnostics().get("tool_calls"), accumulated_mcp_calls),
+                        "structured_output_error": str(exc),
+                    },
+                )
+            observed = binding.diagnostics()
+            tool_calls = self._merge_runtime_values(_json_object_list(observed.get("tool_calls")), accumulated_mcp_calls)
+            raw: JsonObject = {
+                **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                "native_mcp_enabled": True,
+                "mcp_calls": accumulated_mcp_calls,
+                "tool_calls": tool_calls,
+                "reply_delivery_attempted": reply_delivery_attempted,
+                "structured_output": structured_output,
+                "provider_response_id": previous_response_id,
+                "task_timeout_seconds": self._effective_task_timeout(task),
+                "transport_timeout_seconds": self._transport_timeout_seconds,
+                "tool_policy_mode": tool_policy.mode,
+                "tool_allowlist_effective": tool_policy.effective,
+                "tool_transport_allowlist_effective": tool_policy.transport_effective,
+                "blocked_tool_names": tool_policy.blocked,
+                "runner_diagnostics": {
+                    "native_execution_mode": "openai_responses_mcp",
+                    "native_mcp_enabled": True,
+                    "reply_delivery_attempted": reply_delivery_attempted,
+                },
+            }
+            if reply_delivery is not None:
+                raw["reply_delivery"] = reply_delivery
+            return HermesExecutionResult(
+                ok=True,
+                message=json.dumps(structured_output, ensure_ascii=True, sort_keys=True),
+                provider=self._backend,
+                raw=raw,
+            )
 
     def _invoke_partial_reducer(
         self,
@@ -2313,6 +2905,14 @@ class HermesRuntime:
                 raw={"role": self._role, "task_type": task.task_type},
             )
         tool_policy = self._resolve_tool_policy(task)
+        if self._task_uses_native_mcp(task):
+            result = self._execute_openai_native_task(task, tool_policy)
+            if result.ok:
+                result.raw = {
+                    **result.raw,
+                    "mcp_servers": task.mcp_servers,
+                }
+            return result
         if task.task_type == "question_reduce":
             return self._execute_question_reduce_task(task, tool_policy)
         prompt = self._render_task_prompt(task, tool_policy)
@@ -2569,6 +3169,7 @@ class HermesRuntime:
             "workspace_repo": task.workspace_repo,
             "workspace_branch": task.workspace_branch,
             "allowed_path_globs": task.allowed_path_globs,
+            "mcp_servers": task.mcp_servers,
             "repair_attempted": repair_attempted or existing_repair_attempted,
             "repair_succeeded": repair_succeeded or existing_repair_succeeded,
             "action_contract_repair_attempted": action_contract_repair_attempted,

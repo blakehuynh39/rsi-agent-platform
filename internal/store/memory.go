@@ -659,6 +659,7 @@ func (s *MemoryStore) createIngestionLocked(envelope slack.SlackEnvelope) (slack
 			"conversation_key": conversationKey,
 			"bot_role":         envelope.BotRole,
 			"files":            envelope.Files,
+			"entity_refs":      envelope.EntityRefs,
 		},
 		CreatedAt: envelope.CreatedAt,
 	}
@@ -803,6 +804,7 @@ func (s *MemoryStore) materializeWorkflowLocked(event ingestion.EventEnvelope) {
 		ChannelID:      channelID,
 		UserID:         userID,
 		Text:           event.NormalizedProblemStatement,
+		EntityRefs:     slack.EntityRefsFromValue(event.Metadata["entity_refs"]),
 		CreatedAt:      createdAt,
 	}
 	s.ingestions = append(s.ingestions, ingestionItem)

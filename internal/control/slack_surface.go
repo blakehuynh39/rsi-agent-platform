@@ -204,6 +204,7 @@ func (s *slackSurfaceRuntime) buildMentionEnvelope(teamID string, event *slackev
 		UserID:      event.User,
 		Text:        event.Text,
 		TS:          event.TimeStamp,
+		EntityRefs:  slackpkg.ExtractEntityRefs(event.Text),
 		CreatedAt:   parseSlackTimestamp(event.TimeStamp),
 	}, true
 }
@@ -231,6 +232,7 @@ func (s *slackSurfaceRuntime) buildDirectMessageEnvelope(teamID string, event *s
 		UserID:      event.User,
 		Text:        event.Text,
 		TS:          event.TimeStamp,
+		EntityRefs:  slackpkg.ExtractEntityRefs(event.Text),
 		CreatedAt:   parseSlackTimestamp(event.TimeStamp),
 	}, true
 }

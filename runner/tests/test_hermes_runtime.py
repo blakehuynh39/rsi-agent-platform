@@ -1161,6 +1161,345 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["termination_reason"], "task_timeout")
         self.assertEqual(result.raw["structured_output"]["reply_markdown"], "Partial rundown: pagination cleanup landed, but the weekly picture is incomplete.")
 
+    def test_native_mcp_workflow_uses_responses_with_function_tools_and_reply_delivery(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the latest Slack thread and reply in-thread.",
+                    "system_message": "Return only valid JSON.",
+                    "allowed_tools": ["repo.context", "slack.history", "slack.reply"],
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "context_summary": "Slack-bound workflow",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                    "user_peer_id": "user:alice",
+                    "mcp_servers": [
+                        {
+                            "server_label": "slack",
+                            "profile": "slack_mcp_reply",
+                            "headers": {"X-RSI-Channel-ID": "C123", "X-RSI-Thread-TS": "171000001.000100"},
+                        }
+                    ],
+                }
+            }
+        )
+        responses_requests: list[dict[str, object]] = []
+        slack_methods: list[str] = []
+        tool_gateway_requests: list[dict[str, object]] = []
+
+        def fake_urlopen(req, timeout: int = 0):
+            body = json.loads(req.data.decode("utf-8"))
+            if req.full_url == "https://mcp.slack.com/mcp":
+                method = body["method"]
+                slack_methods.append(method)
+                if method == "initialize":
+                    return FakeHTTPResponse({"result": {}})
+                if method == "notifications/initialized":
+                    return FakeHTTPResponse({})
+                if method == "tools/list":
+                    return FakeHTTPResponse(
+                        {
+                            "result": {
+                                "tools": [
+                                    {
+                                        "name": "get_thread",
+                                        "description": "Read a Slack thread.",
+                                        "annotations": {"readOnlyHint": True},
+                                    },
+                                    {
+                                        "name": "search_messages",
+                                        "description": "Search Slack messages.",
+                                        "annotations": {"readOnlyHint": True},
+                                    },
+                                    {
+                                        "name": "send_message",
+                                        "description": "Send a message to Slack.",
+                                    },
+                                ]
+                            }
+                        }
+                    )
+                raise AssertionError(f"unexpected Slack MCP method {method}")
+            if req.full_url == "https://api.openai.com/v1/responses":
+                responses_requests.append({"timeout": timeout, "body": body})
+                if len(responses_requests) == 1:
+                    return FakeHTTPResponse(
+                        {
+                            "id": "resp-native-1",
+                            "output": [
+                                {
+                                    "type": "mcp_call",
+                                    "id": "mcp-read-1",
+                                    "name": "get_thread",
+                                    "arguments": json.dumps({"channel_id": "C123", "thread_ts": "171000001.000100"}),
+                                    "status": "completed",
+                                    "output": json.dumps({"messages": [{"text": "Thread summary"}]}),
+                                },
+                                {
+                                    "type": "function_call",
+                                    "id": "fc-1",
+                                    "call_id": "repo-context-1",
+                                    "name": "repo_context",
+                                    "arguments": json.dumps({"repo": "rsi-agent-platform", "question": "What changed this week?"}),
+                                },
+                            ],
+                        }
+                    )
+                return FakeHTTPResponse(
+                    {
+                        "id": "resp-native-2",
+                        "output": [
+                            {
+                                "type": "mcp_call",
+                                "id": "mcp-send-1",
+                                "name": "send_message",
+                                "arguments": json.dumps(
+                                    {
+                                        "channel_id": "C123",
+                                        "thread_ts": "171000001.000100",
+                                        "text": "Final reply from Slack MCP.",
+                                    }
+                                ),
+                                "status": "completed",
+                                "output": json.dumps({"ts": "171000001.000100", "text": "Final reply from Slack MCP."}),
+                            }
+                        ],
+                        "output_text": json.dumps(
+                            {
+                                "visible_reasoning": [],
+                                "reply_draft": "Final reply from Slack MCP.",
+                                "final_answer": "Final reply from Slack MCP.",
+                                "confidence": 0.87,
+                                "context_summary": "Grounded in Slack and repo evidence.",
+                                "self_critique": "None.",
+                                "proposed_actions": [],
+                                "knowledge_drafts": [],
+                                "outcome_hypotheses": [],
+                            }
+                        ),
+                    }
+                )
+            if req.full_url == "http://tool-gateway.internal:8080/api/tools/repo.context/execute":
+                tool_gateway_requests.append(body)
+                return FakeHTTPResponse(
+                    {
+                        "status": "completed",
+                        "available": True,
+                        "summary": "Repo context loaded.",
+                        "provider": "repo",
+                        "provider_ref": "repo-context-1",
+                        "tool_call_id": "repo.context:1",
+                        "output": {"files": [{"path": "README.md", "summary": "Updated project overview."}]},
+                    }
+                )
+            raise AssertionError(f"unexpected urlopen target {req.full_url}")
+
+        env = {
+            **runner_env("prod"),
+            "RSI_SLACK_MCP_ENABLED": "true",
+            "RSI_SLACK_USER_TOKEN": "slack-mcp-test-token",
+        }
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch(
+            "rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen
+        ), mock.patch.dict(
+            os.environ, env, clear=True
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(slack_methods, ["initialize", "notifications/initialized", "tools/list"])
+        self.assertEqual(len(responses_requests), 2)
+        self.assertEqual(responses_requests[0]["timeout"], 300)
+        first_tools = responses_requests[0]["body"]["tools"]
+        self.assertTrue(any(tool["type"] == "function" and tool["name"] == "repo_context" for tool in first_tools))
+        mcp_tools = [tool for tool in first_tools if tool["type"] == "mcp"]
+        self.assertEqual(len(mcp_tools), 1)
+        self.assertEqual(mcp_tools[0]["server_label"], "slack")
+        self.assertEqual(mcp_tools[0]["authorization"], "slack-mcp-test-token")
+        self.assertEqual(
+            mcp_tools[0]["allowed_tools"]["tool_names"],
+            ["get_thread", "search_messages", "send_message"],
+        )
+        self.assertEqual(responses_requests[1]["body"]["previous_response_id"], "resp-native-1")
+        self.assertEqual(responses_requests[1]["body"]["input"][0]["type"], "function_call_output")
+        self.assertEqual(tool_gateway_requests[0]["repo"], "rsi-agent-platform")
+        self.assertTrue(result.raw["native_mcp_enabled"])
+        self.assertEqual(result.raw["runner_diagnostics"]["native_execution_mode"], "openai_responses_mcp")
+        self.assertEqual(result.raw["reply_delivery"]["channel_id"], "C123")
+        self.assertEqual(result.raw["reply_delivery"]["thread_ts"], "171000001.000100")
+        self.assertEqual(result.raw["reply_delivery"]["body"], "Final reply from Slack MCP.")
+        self.assertEqual(result.raw["reply_delivery"]["tool_name"], "slack.mcp.send_message")
+        tool_names = [item["tool_name"] for item in result.raw["tool_calls"]]
+        self.assertIn("repo.context", tool_names)
+        self.assertIn("slack.mcp.get_thread", tool_names)
+        self.assertIn("slack.mcp.send_message", tool_names)
+        self.assertEqual(result.raw["structured_output"]["final_answer"], "Final reply from Slack MCP.")
+
+    def test_native_mcp_reply_profile_fails_closed_when_send_tool_discovery_is_ambiguous(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Reply in Slack.",
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "mcp_servers": [{"server_label": "slack", "profile": "slack_mcp_reply"}],
+                }
+            }
+        )
+        runtime_requests: list[str] = []
+
+        def fake_runtime_urlopen(req, timeout: int = 0):
+            body = json.loads(req.data.decode("utf-8"))
+            runtime_requests.append(body["method"])
+            if body["method"] == "initialize":
+                return FakeHTTPResponse({"result": {}})
+            if body["method"] == "notifications/initialized":
+                return FakeHTTPResponse({})
+            if body["method"] == "tools/list":
+                return FakeHTTPResponse(
+                    {
+                        "result": {
+                            "tools": [
+                                {"name": "send_message", "description": "Send a message to Slack."},
+                                {"name": "post_message", "description": "Post a message to Slack."},
+                            ]
+                        }
+                    }
+                )
+            raise AssertionError(f"unexpected method {body['method']}")
+
+        env = {
+            **runner_env("prod"),
+            "RSI_SLACK_MCP_ENABLED": "true",
+            "RSI_SLACK_USER_TOKEN": "slack-mcp-test-token",
+        }
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch(
+            "rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_runtime_urlopen
+        ), mock.patch.dict(os.environ, env, clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertFalse(result.ok)
+        self.assertEqual(runtime_requests, ["initialize", "notifications/initialized", "tools/list"])
+        self.assertEqual(result.raw["failure_class"], "runner_non_ok")
+        self.assertTrue(result.raw["native_mcp_enabled"])
+        self.assertIn("expected exactly one candidate", result.message)
+
+    def test_native_mcp_write_timeout_returns_reply_delivery_uncertain(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the thread and reply in-thread.",
+                    "allowed_tools": ["repo.context"],
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "mcp_servers": [{"server_label": "slack", "profile": "slack_mcp_reply"}],
+                }
+            }
+        )
+        responses_seen = 0
+
+        def fake_urlopen(req, timeout: int = 0):
+            nonlocal responses_seen
+            body = json.loads(req.data.decode("utf-8"))
+            if req.full_url == "https://mcp.slack.com/mcp":
+                if body["method"] == "initialize":
+                    return FakeHTTPResponse({"result": {}})
+                if body["method"] == "notifications/initialized":
+                    return FakeHTTPResponse({})
+                if body["method"] == "tools/list":
+                    return FakeHTTPResponse(
+                        {
+                            "result": {
+                                "tools": [
+                                    {
+                                        "name": "get_thread",
+                                        "description": "Read a Slack thread.",
+                                        "annotations": {"readOnlyHint": True},
+                                    },
+                                    {"name": "send_message", "description": "Send a message to Slack."},
+                                ]
+                            }
+                        }
+                    )
+                raise AssertionError(f"unexpected Slack MCP method {body['method']}")
+            if req.full_url == "https://api.openai.com/v1/responses":
+                responses_seen += 1
+                if responses_seen == 1:
+                    return FakeHTTPResponse(
+                        {
+                            "id": "resp-native-timeout-1",
+                            "output": [
+                                {
+                                    "type": "mcp_call",
+                                    "id": "mcp-send-1",
+                                    "name": "send_message",
+                                    "arguments": json.dumps(
+                                        {
+                                            "channel_id": "C123",
+                                            "thread_ts": "171000001.000100",
+                                            "text": "Final reply from Slack MCP.",
+                                        }
+                                    ),
+                                    "status": "completed",
+                                    "output": json.dumps({"ts": "171000001.000100", "text": "Final reply from Slack MCP."}),
+                                },
+                                {
+                                    "type": "function_call",
+                                    "id": "fc-timeout-1",
+                                    "call_id": "repo-context-timeout-1",
+                                    "name": "repo_context",
+                                    "arguments": json.dumps({"repo": "rsi-agent-platform", "question": "What changed?"}),
+                                },
+                            ],
+                        }
+                    )
+                raise TimeoutError("simulated timeout after Slack write")
+            if req.full_url == "http://tool-gateway.internal:8080/api/tools/repo.context/execute":
+                return FakeHTTPResponse(
+                    {
+                        "status": "completed",
+                        "available": True,
+                        "summary": "Repo context loaded.",
+                        "provider": "repo",
+                        "provider_ref": "repo-context-timeout-1",
+                        "tool_call_id": "repo.context:1",
+                        "output": {"files": []},
+                    }
+                )
+            raise AssertionError(f"unexpected runtime target {req.full_url}")
+
+        env = {
+            **runner_env("prod"),
+            "RSI_SLACK_MCP_ENABLED": "true",
+            "RSI_SLACK_USER_TOKEN": "slack-mcp-test-token",
+        }
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch(
+            "rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen
+        ), mock.patch.dict(
+            os.environ, env, clear=True
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.raw["failure_class"], "runner_reply_delivery_uncertain")
+        self.assertTrue(result.raw["native_mcp_enabled"])
+        self.assertTrue(result.raw["reply_delivery_attempted"])
+        self.assertEqual(result.raw["reply_delivery"]["channel_id"], "C123")
+        self.assertEqual(result.raw["reply_delivery"]["body"], "Final reply from Slack MCP.")
+        self.assertEqual(result.raw["reply_delivery"]["tool_name"], "slack.mcp.send_message")
+
     def test_question_expand_query_hints_prevent_prompt_blob_leakage_into_tool_defaults(self) -> None:
         captured: dict[str, object] = {}
 

@@ -110,6 +110,7 @@ type RunnerTask struct {
 	RepoRef                   string                          `json:"repo_ref,omitempty"`
 	Prompt                    string                          `json:"prompt"`
 	SystemMessage             string                          `json:"system_message,omitempty"`
+	MCPServers                []RunnerMCPServer               `json:"mcp_servers,omitempty"`
 	AllowedTools              []string                        `json:"allowed_tools,omitempty"`
 	AllowedCommands           []string                        `json:"allowed_commands,omitempty"`
 	TimeoutSeconds            int                             `json:"timeout_seconds,omitempty"`
@@ -149,6 +150,16 @@ type RunnerTask struct {
 	WorkspaceRepo             string                          `json:"workspace_repo,omitempty"`
 	WorkspaceBranch           string                          `json:"workspace_branch,omitempty"`
 	AllowedPathGlobs          []string                        `json:"allowed_path_globs,omitempty"`
+}
+
+type RunnerMCPServer struct {
+	ServerLabel     string            `json:"server_label,omitempty"`
+	ServerURL       string            `json:"server_url,omitempty"`
+	Authorization   string            `json:"authorization,omitempty"`
+	AllowedTools    map[string]any    `json:"allowed_tools,omitempty"`
+	RequireApproval any               `json:"require_approval,omitempty"`
+	Headers         map[string]string `json:"headers,omitempty"`
+	Profile         string            `json:"profile,omitempty"`
 }
 
 type RunnerResponse struct {

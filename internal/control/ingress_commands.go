@@ -46,6 +46,7 @@ func submitIngressSlackCommand(cfg config.Config, store storepkg.Store, envelope
 		"text":         envelope.Text,
 		"ts":           envelope.TS,
 		"files":        envelope.Files,
+		"entity_refs":  envelope.EntityRefs,
 		"created_at":   envelope.CreatedAt,
 	}
 	mergeIngressRuntimePayload(payload, cfg)

@@ -641,6 +641,358 @@ func TestWorkflowPartialCompletionBlockedByPolicyMovesNeedsHuman(t *testing.T) {
 	}
 }
 
+func TestWorkflowNativeMCPReplyDeliveryCompletesWithoutQueuedSlackReply(t *testing.T) {
+	var runnerRequest map[string]any
+	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := json.NewDecoder(r.Body).Decode(&runnerRequest); err != nil {
+			t.Fatalf("decode runner request: %v", err)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":       true,
+			"provider": "openai",
+			"message":  `{"visible_reasoning":[],"reply_draft":"Final reply from Slack MCP.","final_answer":"Final reply from Slack MCP.","confidence":0.88,"context_summary":"Grounded in Slack MCP evidence.","self_critique":"","proposed_actions":[],"knowledge_drafts":[],"outcome_hypotheses":[]}`,
+			"raw": map[string]any{
+				"native_mcp_enabled": true,
+				"reply_delivery": map[string]any{
+					"channel_id":   "D123",
+					"thread_ts":    "171000001.000100",
+					"body":         "Final reply from Slack MCP.",
+					"body_sha1":    "delivery-sha1",
+					"body_excerpt": "Final reply from Slack MCP.",
+					"tool_call_id": "mcp-send-1",
+					"tool_name":    "slack.mcp.send_message",
+					"provider_ref": "171000001.000100",
+					"send_status":  "posted",
+				},
+				"tool_calls": []any{
+					map[string]any{
+						"id":             "runner-tool-record-mcp-send-1",
+						"tool_name":      "slack.mcp.send_message",
+						"tool_call_id":   "mcp-send-1",
+						"request":        map[string]any{"channel_id": "D123", "thread_ts": "171000001.000100"},
+						"summary":        "Posted Slack reply through MCP.",
+						"status":         "completed",
+						"created_at":     "2026-04-18T20:00:00Z",
+						"approval_state": "not_required",
+					},
+				},
+				"structured_output": map[string]any{
+					"visible_reasoning":  []any{},
+					"reply_draft":        "Final reply from Slack MCP.",
+					"final_answer":       "Final reply from Slack MCP.",
+					"confidence":         0.88,
+					"context_summary":    "Grounded in Slack MCP evidence.",
+					"self_critique":      "",
+					"proposed_actions":   []any{},
+					"knowledge_drafts":   []any{},
+					"outcome_hypotheses": []any{},
+				},
+				"runner_diagnostics": map[string]any{
+					"native_execution_mode":    "openai_responses_mcp",
+					"native_mcp_enabled":       true,
+					"reply_delivery_attempted": true,
+				},
+			},
+		})
+	}))
+	defer runner.Close()
+
+	toolGatewayCalls := 0
+	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		toolGatewayCalls++
+		t.Fatalf("unexpected tool gateway invocation %s", r.URL.Path)
+	}))
+	defer toolGateway.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             runner.URL,
+		ToolGatewayBaseURL:        toolGateway.URL,
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect); err != nil {
+		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
+	}
+
+	taskPayload := mapValue(runnerRequest["task"])
+	mcpServers, ok := taskPayload["mcp_servers"].([]any)
+	if len(mcpServers) != 1 {
+		t.Fatalf("expected one MCP server in runner request, got %#v", mcpServers)
+	}
+	if got := stringFromMap(mapValue(mcpServers[0]), "profile"); got != "slack_mcp_reply" {
+		t.Fatalf("expected slack_mcp_reply profile, got %q", got)
+	}
+	if toolGatewayCalls != 0 {
+		t.Fatalf("expected no tool gateway calls, got %d", toolGatewayCalls)
+	}
+	if queued := queuedActionEffectsForPlane(store, "control"); len(queued) != 0 {
+		t.Fatalf("expected no queued control actions, got %#v", queued)
+	}
+	if intents := store.ListActionIntents(); len(intents) != 0 {
+		t.Fatalf("expected no action intents, got %#v", intents)
+	}
+
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatal("expected workflow to exist")
+	}
+	if workflow.Status != "completed" {
+		t.Fatalf("expected completed workflow, got %s", workflow.Status)
+	}
+
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatal("expected trace to exist")
+	}
+	if trace.Summary.Status != events.StatusCompleted {
+		t.Fatalf("expected completed trace, got %s", trace.Summary.Status)
+	}
+	if len(trace.SlackActions) != 1 {
+		t.Fatalf("expected one Slack action record, got %d", len(trace.SlackActions))
+	}
+	if trace.SlackActions[0].ID != "mcp-send-1" {
+		t.Fatalf("expected reply_delivery tool call id to persist as action id, got %#v", trace.SlackActions[0])
+	}
+	if trace.SlackActions[0].IdempotencyKey != "delivery-sha1" {
+		t.Fatalf("expected reply body digest to persist as idempotency key, got %#v", trace.SlackActions[0])
+	}
+	if trace.SlackActions[0].FinalBody != "Final reply from Slack MCP." {
+		t.Fatalf("expected final body to persist, got %#v", trace.SlackActions[0])
+	}
+	if trace.SlackActions[0].SendStatus != "posted" {
+		t.Fatalf("expected posted send status, got %#v", trace.SlackActions[0])
+	}
+}
+
+func TestWorkflowNativeMCPMissingReplyDeliveryMovesNeedsHuman(t *testing.T) {
+	var runnerRequest map[string]any
+	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := json.NewDecoder(r.Body).Decode(&runnerRequest); err != nil {
+			t.Fatalf("decode runner request: %v", err)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":       true,
+			"provider": "openai",
+			"message":  `{"visible_reasoning":[],"reply_draft":"Final reply from Slack MCP.","final_answer":"Final reply from Slack MCP.","confidence":0.71,"context_summary":"Grounded answer.","self_critique":"","proposed_actions":[],"knowledge_drafts":[],"outcome_hypotheses":[]}`,
+			"raw": map[string]any{
+				"native_mcp_enabled": true,
+				"structured_output": map[string]any{
+					"visible_reasoning":  []any{},
+					"reply_draft":        "Final reply from Slack MCP.",
+					"final_answer":       "Final reply from Slack MCP.",
+					"confidence":         0.71,
+					"context_summary":    "Grounded answer.",
+					"self_critique":      "",
+					"proposed_actions":   []any{},
+					"knowledge_drafts":   []any{},
+					"outcome_hypotheses": []any{},
+				},
+				"runner_diagnostics": map[string]any{
+					"native_execution_mode": "openai_responses_mcp",
+					"native_mcp_enabled":    true,
+				},
+			},
+		})
+	}))
+	defer runner.Close()
+
+	toolGatewayCalls := 0
+	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		toolGatewayCalls++
+		t.Fatalf("unexpected tool gateway invocation %s", r.URL.Path)
+	}))
+	defer toolGateway.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             runner.URL,
+		ToolGatewayBaseURL:        toolGateway.URL,
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect); err != nil {
+		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
+	}
+
+	taskPayload := mapValue(runnerRequest["task"])
+	mcpServers, ok := taskPayload["mcp_servers"].([]any)
+	if len(mcpServers) != 1 {
+		t.Fatalf("expected one MCP server in runner request, got %#v", mcpServers)
+	}
+	if got := stringFromMap(mapValue(mcpServers[0]), "profile"); got != "slack_mcp_reply" {
+		t.Fatalf("expected slack_mcp_reply profile, got %q", got)
+	}
+	if toolGatewayCalls != 0 {
+		t.Fatalf("expected no tool gateway calls, got %d", toolGatewayCalls)
+	}
+	if queued := queuedActionEffectsForPlane(store, "control"); len(queued) != 0 {
+		t.Fatalf("expected no queued control actions, got %#v", queued)
+	}
+
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatal("expected workflow to exist")
+	}
+	if workflow.Status != "needs_human" {
+		t.Fatalf("expected needs_human workflow, got %s", workflow.Status)
+	}
+	if workflow.FailureClass != "missing_reply_delivery" {
+		t.Fatalf("expected missing_reply_delivery failure class, got %#v", workflow)
+	}
+
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatal("expected trace to exist")
+	}
+	if trace.Summary.Status != events.StatusNeedsHuman {
+		t.Fatalf("expected needs_human trace, got %s", trace.Summary.Status)
+	}
+	if len(trace.SlackActions) != 0 {
+		t.Fatalf("expected no Slack actions when reply_delivery is missing, got %#v", trace.SlackActions)
+	}
+}
+
+func TestWorkflowNativeMCPReplyDeliveryUncertainMovesNeedsHuman(t *testing.T) {
+	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":       false,
+			"provider": "openai",
+			"message":  "reply delivery is uncertain after a Slack MCP write attempt",
+			"raw": map[string]any{
+				"failure_class":      "runner_reply_delivery_uncertain",
+				"native_mcp_enabled": true,
+				"completion_verdict": "complete",
+				"termination_reason": "normal_completion",
+				"reply_delivery": map[string]any{
+					"channel_id":   "D123",
+					"thread_ts":    "171000001.000100",
+					"body":         "Final reply from Slack MCP.",
+					"body_sha1":    "delivery-sha1",
+					"body_excerpt": "Final reply from Slack MCP.",
+					"tool_call_id": "mcp-send-1",
+					"tool_name":    "slack.mcp.send_message",
+					"provider_ref": "171000001.000100",
+					"send_status":  "posted",
+				},
+				"tool_calls": []any{
+					map[string]any{
+						"id":             "runner-tool-record-mcp-send-1",
+						"tool_name":      "slack.mcp.send_message",
+						"tool_call_id":   "mcp-send-1",
+						"request":        map[string]any{"channel_id": "D123", "thread_ts": "171000001.000100"},
+						"summary":        "Posted Slack reply through MCP.",
+						"status":         "completed",
+						"created_at":     "2026-04-18T20:00:00Z",
+						"approval_state": "not_required",
+					},
+				},
+				"runner_diagnostics": map[string]any{
+					"native_execution_mode":    "openai_responses_mcp",
+					"native_mcp_enabled":       true,
+					"reply_delivery_attempted": true,
+				},
+			},
+		})
+	}))
+	defer runner.Close()
+
+	toolGatewayCalls := 0
+	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		toolGatewayCalls++
+		t.Fatalf("unexpected tool gateway invocation %s", r.URL.Path)
+	}))
+	defer toolGateway.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             runner.URL,
+		ToolGatewayBaseURL:        toolGateway.URL,
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect); err != nil {
+		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
+	}
+
+	if toolGatewayCalls != 0 {
+		t.Fatalf("expected no tool gateway calls, got %d", toolGatewayCalls)
+	}
+	if queued := queuedActionEffectsForPlane(store, "control"); len(queued) != 0 {
+		t.Fatalf("expected no queued control actions, got %#v", queued)
+	}
+
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatal("expected workflow to exist")
+	}
+	if workflow.Status != "needs_human" {
+		t.Fatalf("expected needs_human workflow, got %s", workflow.Status)
+	}
+	if workflow.FailureClass != "runner_reply_delivery_uncertain" {
+		t.Fatalf("expected runner_reply_delivery_uncertain failure class, got %#v", workflow)
+	}
+
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatal("expected trace to exist")
+	}
+	if trace.Summary.Status != events.StatusNeedsHuman {
+		t.Fatalf("expected needs_human trace, got %s", trace.Summary.Status)
+	}
+	if len(trace.SlackActions) != 1 {
+		t.Fatalf("expected one persisted uncertain Slack action, got %#v", trace.SlackActions)
+	}
+	if trace.SlackActions[0].ID != "mcp-send-1" {
+		t.Fatalf("expected uncertain reply_delivery action id, got %#v", trace.SlackActions[0])
+	}
+	if trace.SlackActions[0].IdempotencyKey != "delivery-sha1" {
+		t.Fatalf("expected uncertain reply body digest idempotency key, got %#v", trace.SlackActions[0])
+	}
+	if trace.SlackActions[0].SendStatus != "posted" {
+		t.Fatalf("expected persisted send status on uncertain delivery, got %#v", trace.SlackActions[0])
+	}
+}
+
 func TestSupersededTraceDoesNotPostLateSlackReply(t *testing.T) {
 	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(w).Encode(map[string]any{

@@ -107,7 +107,7 @@ const conversationDetailResponse = {
       entry_type: "external_event",
       actor_id: "U123",
       actor_type: "user",
-      body: "Sharing context with <@U0ASDQKU3UL> in <#C0AKH5SNGKH> - see <https://example.com/runbook|runbook> <!here>",
+      body: "Sharing context with @U0ASDQKU3UL in #C0AKH5SNGKH - see <https://example.com/runbook|runbook> <!here>",
       metadata: {
         slack_user_names: {
           U0ASDQKU3UL: "blake"
@@ -611,7 +611,7 @@ describe("App", () => {
     expect(screen.getByText("goal_framing")).toBeInTheDocument();
   });
 
-  it("renders Slack transcript entries without raw mrkdwn tokens", async () => {
+  it("renders Slack transcript entries with readable Slack names and channel labels", async () => {
     renderApp();
 
     fireEvent.click(await screen.findByRole("button", { name: /Need help understanding trace rendering/i }));
@@ -621,7 +621,8 @@ describe("App", () => {
       element.textContent === "Sharing context with @blake in #depin-backend - see runbook @here"
     );
     expect(transcriptEntries.length).toBeGreaterThan(0);
-    expect(screen.queryByText(/<@U0ASDQKU3UL>/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/@U0ASDQKU3UL/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/#C0AKH5SNGKH/i)).not.toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: "runbook" })[0]).toHaveAttribute("href", "https://example.com/runbook");
   });
 

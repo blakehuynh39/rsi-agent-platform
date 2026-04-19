@@ -298,6 +298,42 @@ func processReduceReply(cfg config.Config, store storepkg.Store, runnerClients m
 		return err
 	}
 	if !resp.OK {
+		if strings.TrimSpace(stringValue(resp.Raw["failure_class"])) == "runner_reply_delivery_uncertain" {
+			replyMarkdown := strings.TrimSpace(stringValueFromMap(mapValue(resp.Raw["reply_delivery"]), "body"))
+			result := questionrun.Result{
+				ReplyMarkdown:     replyMarkdown,
+				CompletionVerdict: firstNonEmpty(strings.TrimSpace(stringValue(resp.Raw["completion_verdict"])), "complete"),
+				TerminationReason: firstNonEmpty(strings.TrimSpace(stringValue(resp.Raw["termination_reason"])), "normal_completion"),
+				AlignmentDegraded: ctx.questionRun.EvidenceLedger.AlignmentDegraded,
+				AlignmentNotice:   "",
+				Confidence:        0,
+			}
+			slackActions := []events.SlackActionRecord{}
+			if replyDelivery, ok := workflowReplyDelivery(resp.Raw, ctx.ingestion.ChannelID, ctx.ingestion.ThreadTS); ok {
+				replyDelivery.TraceID = ctx.trace.Summary.TraceID
+				replyDelivery.WorkflowID = ctx.workflow.ID
+				replyDelivery.ConversationID = ctx.trace.Summary.ConversationID
+				replyDelivery.CaseID = ctx.trace.Summary.CaseID
+				replyDelivery.CreatedAt = occurredAt
+				slackActions = append(slackActions, replyDelivery)
+			}
+			_, err := submitQuestionRunCommand(store, ctx.questionRun.ID, transition.CommandReplyBlocked, cfg.ServiceName, occurredAt, map[string]any{
+				"workflow_id":        ctx.workflow.ID,
+				"trace_id":           ctx.trace.Summary.TraceID,
+				"conversation_id":    ctx.trace.Summary.ConversationID,
+				"case_id":            ctx.trace.Summary.CaseID,
+				"ingestion_id":       ctx.ingestion.ID,
+				"result":             result,
+				"last_error":         "runner reply delivery became uncertain after a Slack MCP write attempt",
+				"failure_class":      "runner_reply_delivery_uncertain",
+				"failure_summary":    "Question-run reducer attempted a Slack MCP reply but delivery could not be finalized safely.",
+				"runner_diagnostics": mergeWorkflowRunnerDiagnostics(cloneAnyMap(ctx.questionRun.RunnerDiagnostics), resp.Raw),
+				"reasoning_steps":    []events.ReasoningStep{},
+				"tool_calls":         traceToolCallsFromQuestionRunLedger(ctx, questionRunToolCallsFromRunnerRaw(resp.Raw), occurredAt),
+				"slack_actions":      slackActions,
+			})
+			return err
+		}
 		return fmt.Errorf("%s", firstNonEmpty(resp.Message, "question_run reducer failed"))
 	}
 	result, err := parseQuestionRunStructuredOutput[questionrun.Result](resp)
@@ -323,6 +359,11 @@ func processReduceReply(cfg config.Config, store storepkg.Store, runnerClients m
 	reasoningSteps := questionRunReasoningSteps(ctx, result, occurredAt)
 	toolCalls := traceToolCallsFromQuestionRunLedger(ctx, ctx.questionRun.EvidenceLedger.ToolCalls, occurredAt)
 	allowed, policyVerdict := replyPolicy(store, ctx.workflow.Kind, ctx.trace.Summary.ThreadKey, ctx.ingestion.ChannelID)
+	nativeMCPEnabled := workflowNativeMCPEnabled(resp.Raw)
+	replyDelivery, hasReplyDelivery := workflowReplyDelivery(resp.Raw, ctx.ingestion.ChannelID, ctx.ingestion.ThreadTS)
+	if hasReplyDelivery && strings.TrimSpace(result.ReplyMarkdown) == "" {
+		result.ReplyMarkdown = strings.TrimSpace(replyDelivery.FinalBody)
+	}
 	if !allowed && strings.TrimSpace(result.ReplyMarkdown) != "" {
 		_, err := submitQuestionRunCommand(store, ctx.questionRun.ID, transition.CommandReplyBlocked, cfg.ServiceName, occurredAt, map[string]any{
 			"workflow_id":        ctx.workflow.ID,
@@ -340,7 +381,34 @@ func processReduceReply(cfg config.Config, store storepkg.Store, runnerClients m
 		})
 		return err
 	}
-	if strings.TrimSpace(result.ReplyMarkdown) != "" {
+	slackActions := []events.SlackActionRecord{}
+	if hasReplyDelivery {
+		replyDelivery.TraceID = ctx.trace.Summary.TraceID
+		replyDelivery.WorkflowID = ctx.workflow.ID
+		replyDelivery.ConversationID = ctx.trace.Summary.ConversationID
+		replyDelivery.CaseID = ctx.trace.Summary.CaseID
+		replyDelivery.PolicyVerdict = policyVerdict
+		replyDelivery.CreatedAt = occurredAt
+		slackActions = append(slackActions, replyDelivery)
+	}
+	if nativeMCPEnabled && strings.TrimSpace(result.ReplyMarkdown) != "" && !hasReplyDelivery {
+		_, err := submitQuestionRunCommand(store, ctx.questionRun.ID, transition.CommandReplyBlocked, cfg.ServiceName, occurredAt, map[string]any{
+			"workflow_id":        ctx.workflow.ID,
+			"trace_id":           ctx.trace.Summary.TraceID,
+			"conversation_id":    ctx.trace.Summary.ConversationID,
+			"case_id":            ctx.trace.Summary.CaseID,
+			"ingestion_id":       ctx.ingestion.ID,
+			"result":             result,
+			"last_error":         "question_run reducer produced a reply but did not report Slack MCP reply_delivery",
+			"failure_class":      "missing_reply_delivery",
+			"failure_summary":    "Question-run reducer produced a grounded reply but did not report a durable Slack MCP reply_delivery.",
+			"runner_diagnostics": mergeWorkflowRunnerDiagnostics(cloneAnyMap(ctx.questionRun.RunnerDiagnostics), resp.Raw),
+			"reasoning_steps":    reasoningSteps,
+			"tool_calls":         toolCalls,
+		})
+		return err
+	}
+	if !hasReplyDelivery && strings.TrimSpace(result.ReplyMarkdown) != "" {
 		output := questionRunStructuredOutputForReply(ctx, result)
 		intent, _, _, err := draftSlackPostAction(cfg, store, queueName, ctx.workflowContext, output, result.ReplyMarkdown, true, policyVerdict, result.CompletionVerdict, occurredAt)
 		if err != nil {
@@ -363,6 +431,7 @@ func processReduceReply(cfg config.Config, store storepkg.Store, runnerClients m
 		"runner_diagnostics": mergeWorkflowRunnerDiagnostics(cloneAnyMap(ctx.questionRun.RunnerDiagnostics), resp.Raw),
 		"reasoning_steps":    reasoningSteps,
 		"tool_calls":         toolCalls,
+		"slack_actions":      slackActions,
 	})
 	return err
 }
@@ -451,6 +520,7 @@ func buildInvestigationSpec(cfg config.Config, workflow storepkg.Workflow, inges
 		Question:       ingestion.Text,
 		ChannelID:      ingestion.ChannelID,
 		ThreadTS:       ingestion.ThreadTS,
+		EntityRefs:     append([]slackpkg.EntityRef(nil), ingestion.EntityRefs...),
 	}, now)
 	surfaces := make([]questionrun.SlackSurface, 0, len(hints.CandidateReadSurfaces))
 	for _, item := range hints.CandidateReadSurfaces {
@@ -864,8 +934,13 @@ func deriveOpenQuestions(spec questionrun.InvestigationSpec, ledger questionrun.
 	if !hasEvidenceKind(ledger.EvidenceItems, "slack_message", "slack_search_match") {
 		out = append(out, "Need better Slack discussion evidence from the referenced channels or thread.")
 	}
-	if strings.TrimSpace(spec.Repo) != "" && !hasEvidenceKind(ledger.EvidenceItems, "github_commit", "github_pull_request", "github_activity_summary", "repo_context_match", "repo_context") {
-		out = append(out, fmt.Sprintf("Need more repository activity evidence for %s.", spec.Repo))
+	if strings.TrimSpace(spec.Repo) != "" && !hasRepoEvidence(ledger.EvidenceItems) {
+		out = append(out, fmt.Sprintf("Need repository activity evidence for %s before reducing the reply.", spec.Repo))
+	}
+	for _, surface := range referencedReadSurfaces(spec.ReadSurfaces) {
+		if !hasSlackEvidenceForSurface(ledger.EvidenceItems, surface) {
+			out = append(out, fmt.Sprintf("Need Slack discussion evidence from referenced channel %s before reducing the reply.", surface.ChannelID))
+		}
 	}
 	return uniqueStrings(out)
 }
@@ -883,15 +958,57 @@ func hasEvidenceKind(items []questionrun.EvidenceItem, kinds ...string) bool {
 	return false
 }
 
+func hasRepoEvidence(items []questionrun.EvidenceItem) bool {
+	return hasEvidenceKind(items, "github_commit", "github_pull_request", "github_activity_summary", "repo_context_match", "repo_context")
+}
+
+func referencedReadSurfaces(items []questionrun.SlackSurface) []questionrun.SlackSurface {
+	out := make([]questionrun.SlackSurface, 0, len(items))
+	seen := map[string]struct{}{}
+	for _, item := range items {
+		if strings.TrimSpace(item.ChannelID) == "" {
+			continue
+		}
+		if item.Source == "ingress_thread" {
+			continue
+		}
+		key := strings.Join([]string{item.ChannelID, item.ThreadTS, item.Source}, "|")
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+		out = append(out, item)
+	}
+	return out
+}
+
+func hasSlackEvidenceForSurface(items []questionrun.EvidenceItem, surface questionrun.SlackSurface) bool {
+	for _, item := range items {
+		if item.Kind != "slack_message" && item.Kind != "slack_search_match" {
+			continue
+		}
+		if strings.TrimSpace(item.ChannelID) != strings.TrimSpace(surface.ChannelID) {
+			continue
+		}
+		if strings.TrimSpace(surface.ThreadTS) != "" && strings.TrimSpace(item.ThreadTS) != strings.TrimSpace(surface.ThreadTS) {
+			continue
+		}
+		return true
+	}
+	return false
+}
+
 func buildQuestionExpandTask(cfg config.Config, store storepkg.Store, ctx questionRunContext) clients.RunnerTask {
 	sessionScopeKind, sessionScopeID, parentScopeKind, parentScopeID := workflowSessionScope(ctx.trace, ctx.workflow)
+	mcpServers := slackMCPServersForRead(ctx.ingestion.ChannelID, ctx.ingestion.ThreadTS)
 	return clients.RunnerTask{
 		TaskType:                  "question_expand",
 		Repo:                      firstNonEmpty(ctx.questionRun.InvestigationSpec.Repo, cfg.DefaultRepo),
 		RepoRef:                   "main",
 		Prompt:                    questionExpandPrompt(ctx.questionRun.InvestigationSpec, ctx.questionRun.EvidenceLedger),
 		SystemMessage:             "Use only governed read-only tools. Return only JSON with tool_calls, evidence_items, open_questions, insufficiency_markers, and confidence. Do not answer the user, do not propose actions, and do not emit knowledge drafts.",
-		AllowedTools:              questionExpandAllowedTools(ctx.questionRun.InvestigationSpec),
+		MCPServers:                mcpServers,
+		AllowedTools:              questionExpandAllowedTools(ctx.questionRun.InvestigationSpec, len(mcpServers) > 0),
 		AllowedCommands:           []string{},
 		ExpectedOutputs:           []string{"evidence_delta"},
 		ArtifactDestination:       fmt.Sprintf("trace:%s", ctx.trace.Summary.TraceID),
@@ -919,13 +1036,25 @@ func buildQuestionExpandTask(cfg config.Config, store storepkg.Store, ctx questi
 func buildQuestionReduceTask(cfg config.Config, store storepkg.Store, ctx questionRunContext) clients.RunnerTask {
 	sessionScopeKind, sessionScopeID, parentScopeKind, parentScopeID := workflowSessionScope(ctx.trace, ctx.workflow)
 	effectiveHarness := harness.ResolveEffectiveConfig(store, runnerRoleForQueue(roleQueueName(ctx.questionRun.Role)), cfg.DefaultReasoningVerbosity)
+	allowed, _ := replyPolicy(store, ctx.workflow.Kind, ctx.trace.Summary.ThreadKey, ctx.ingestion.ChannelID)
+	mcpServers := slackMCPServersForReply(allowed, ctx.ingestion.ChannelID, ctx.ingestion.ThreadTS)
+	systemMessage := "Return only JSON with reply_markdown, confidence, completion_verdict, termination_reason, alignment_degraded, and alignment_notice. Use only the supplied evidence ledger. No tools, no actions, no knowledge drafts."
+	allowedTools := []string{}
+	if len(mcpServers) > 0 {
+		systemMessage = "Return only JSON with reply_markdown, confidence, completion_verdict, termination_reason, alignment_degraded, and alignment_notice. Use Slack MCP for final Slack verification. Use governed repo, GitHub, knowledge, RSI, and workspace reads only if they materially improve the answer. If Slack reply posting is allowed and you have a grounded final answer, send exactly one reply to the bound ingress thread using Slack MCP before returning JSON. Do not emit a slack_post action contract."
+		if !allowed {
+			systemMessage = "Return only JSON with reply_markdown, confidence, completion_verdict, termination_reason, alignment_degraded, and alignment_notice. Use Slack MCP and governed repo, GitHub, knowledge, RSI, and workspace reads only if they materially improve the answer. Slack posting is blocked by policy for this workflow, so do not send any Slack messages."
+		}
+		allowedTools = questionReduceAllowedTools(ctx.questionRun.InvestigationSpec)
+	}
 	return clients.RunnerTask{
 		TaskType:               "question_reduce",
 		Repo:                   firstNonEmpty(ctx.questionRun.InvestigationSpec.Repo, cfg.DefaultRepo),
 		RepoRef:                "main",
 		Prompt:                 questionReducePrompt(ctx.questionRun.InvestigationSpec, ctx.questionRun.EvidenceLedger, ctx.questionRun.RunnerDiagnostics),
-		SystemMessage:          "Return only JSON with reply_markdown, confidence, completion_verdict, termination_reason, alignment_degraded, and alignment_notice. Use only the supplied evidence ledger. No tools, no actions, no knowledge drafts.",
-		AllowedTools:           []string{},
+		SystemMessage:          systemMessage,
+		MCPServers:             mcpServers,
+		AllowedTools:           allowedTools,
 		AllowedCommands:        []string{},
 		ExpectedOutputs:        []string{"reply_markdown"},
 		ArtifactDestination:    fmt.Sprintf("trace:%s", ctx.trace.Summary.TraceID),
@@ -949,13 +1078,21 @@ func buildQuestionReduceTask(cfg config.Config, store storepkg.Store, ctx questi
 	}
 }
 
-func questionExpandAllowedTools(spec questionrun.InvestigationSpec) []string {
+func questionExpandAllowedTools(spec questionrun.InvestigationSpec, useSlackMCP bool) []string {
 	allowed := []string{}
 	if strings.TrimSpace(spec.Repo) != "" {
 		allowed = append(allowed, "repo.context", "repo.search", "repo.read_file", "github.repo_activity", "github.repo_context")
 	}
-	if len(spec.ReadSurfaces) > 0 {
+	if !useSlackMCP && len(spec.ReadSurfaces) > 0 {
 		allowed = append(allowed, "slack.history", "slack.search")
+	}
+	return uniqueStrings(allowed)
+}
+
+func questionReduceAllowedTools(spec questionrun.InvestigationSpec) []string {
+	allowed := []string{}
+	if strings.TrimSpace(spec.Repo) != "" {
+		allowed = append(allowed, "repo.context", "repo.search", "repo.read_file", "github.repo_activity", "github.repo_context", "knowledge.context")
 	}
 	return uniqueStrings(allowed)
 }

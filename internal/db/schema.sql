@@ -56,6 +56,7 @@ create table if not exists ingestion (
   channel_id text not null,
   user_id text not null,
   text text not null,
+  entity_refs jsonb not null default '[]'::jsonb,
   created_at timestamptz not null default now()
 );
 
@@ -736,6 +737,7 @@ alter table if exists ingestion add column if not exists case_id text;
 alter table if exists ingestion add column if not exists thread_ts text;
 alter table if exists ingestion add column if not exists intent text;
 alter table if exists ingestion add column if not exists bot_role text;
+alter table if exists ingestion add column if not exists entity_refs jsonb not null default '[]'::jsonb;
 
 alter table if exists workflow add column if not exists ingestion_id text;
 alter table if exists workflow add column if not exists trace_id text;
