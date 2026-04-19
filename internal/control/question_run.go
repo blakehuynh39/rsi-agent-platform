@@ -1008,7 +1008,7 @@ func buildQuestionGatherTask(cfg config.Config, store storepkg.Store, ctx questi
 	effectiveHarness := harness.ResolveEffectiveConfig(store, role, cfg.DefaultReasoningVerbosity)
 	mcpServers := slackMCPServersForRead(ctx.ingestion.ChannelID, ctx.ingestion.ThreadTS)
 	totalTimeout := cfg.RunnerTaskTimeoutForRole(role)
-	timeoutSeconds := int((totalTimeout - questionRunFinalizationReserveSeconds(totalTimeout)) / time.Second)
+	timeoutSeconds := int(questionRunGatherTimeout(totalTimeout) / time.Second)
 	if timeoutSeconds <= 0 {
 		timeoutSeconds = int(totalTimeout / time.Second)
 	}
@@ -1017,7 +1017,7 @@ func buildQuestionGatherTask(cfg config.Config, store storepkg.Store, ctx questi
 		Repo:                      firstNonEmpty(ctx.questionRun.InvestigationSpec.Repo, cfg.DefaultRepo),
 		RepoRef:                   "main",
 		Prompt:                    questionGatherPrompt(ctx.questionRun.InvestigationSpec, ctx.questionRun.EvidenceLedger),
-		SystemMessage:             "You are in the Slack Q&A evidence-gather phase. Use Slack MCP for Slack reads and governed repo, GitHub, knowledge, RSI, and workspace reads for non-Slack evidence. Gather grounded evidence only. Do not answer the user. Do not send Slack messages. Return JSON only with tool_calls, evidence_items, open_questions, draft_reply_candidates, insufficiency_markers, and confidence.",
+		SystemMessage:             questionGatherSystemMessage(ctx.questionRun.InvestigationSpec),
 		MCPServers:                mcpServers,
 		AllowedTools:              questionGatherAllowedTools(ctx.questionRun.InvestigationSpec),
 		AllowedCommands:           []string{},
@@ -1095,7 +1095,9 @@ func questionGatherAllowedTools(spec questionrun.InvestigationSpec) []string {
 	if strings.TrimSpace(spec.Repo) != "" {
 		allowed = append(allowed, "repo.context", "repo.search", "repo.read_file", "github.repo_activity", "github.repo_context")
 	}
-	allowed = append(allowed, "knowledge.context", "rsi.workflow_context", "rsi.trace_context")
+	if spec.AlignmentRequired || strings.TrimSpace(spec.ProjectKey) != "" {
+		allowed = append(allowed, "knowledge.context")
+	}
 	return uniqueStrings(allowed)
 }
 
@@ -1107,9 +1109,72 @@ func questionGatherPrompt(spec questionrun.InvestigationSpec, ledger questionrun
 	payload := map[string]any{
 		"investigation_spec": spec,
 		"evidence_ledger":    ledger,
+		"gather_contract": map[string]any{
+			"objective":        "Collect enough grounded evidence to answer the Slack question well without exhaustively searching every surface.",
+			"retrieval_budget": maxInt(spec.RetrievalBudget, 1),
+			"coverage_targets": questionGatherCoverageTargets(spec),
+			"tooling_preferences": []string{
+				"Use Slack MCP reads for Slack evidence.",
+				"Use github.repo_activity and github.repo_context before broader repo search.",
+				"Use repo.search or repo.read_file only when a specific file, subsystem, or claim needs verification.",
+			},
+			"stopping_rules": []string{
+				"Stop once you have enough grounded evidence to answer the user request and cite the important surfaces.",
+				"Do not repeatedly reread the same Slack channel or thread when existing evidence already covers it.",
+				"If alignment evidence is thin, record the gap in open_questions or insufficiency_markers instead of broadening search indefinitely.",
+				"Do not draft the final answer in this phase.",
+			},
+		},
 	}
 	body, _ := json.Marshal(payload)
 	return string(body)
+}
+
+func questionRunGatherTimeout(total time.Duration) time.Duration {
+	reasoningWindow := total - questionRunFinalizationReserveSeconds(total)
+	if reasoningWindow <= 0 {
+		return total
+	}
+	return reasoningWindow
+}
+
+func questionGatherSystemMessage(spec questionrun.InvestigationSpec) string {
+	parts := []string{
+		"You are in the Slack Q&A evidence-gather phase.",
+		"Gather grounded evidence only; do not answer the user and do not send Slack messages.",
+		"Prefer targeted Slack MCP reads plus governed repo and GitHub reads over broad exploratory loops.",
+		"Use repo.search and repo.read_file only when a concrete file or subsystem needs verification.",
+		"Stop once the evidence ledger covers the question, the bound thread, and the explicitly referenced Slack surfaces.",
+		"Return JSON only with tool_calls, evidence_items, open_questions, draft_reply_candidates, insufficiency_markers, and confidence.",
+	}
+	if spec.AlignmentRequired {
+		parts = append(parts, "If alignment evidence is incomplete, record that uncertainty explicitly instead of continuing wide searches.")
+	}
+	return strings.Join(parts, " ")
+}
+
+func questionGatherCoverageTargets(spec questionrun.InvestigationSpec) []string {
+	targets := []string{
+		fmt.Sprintf("Capture the main request from the bound reply target %s/%s.", firstNonEmpty(strings.TrimSpace(spec.ReplyTarget.ChannelID), "unknown-channel"), firstNonEmpty(strings.TrimSpace(spec.ReplyTarget.ThreadTS), "no-thread")),
+	}
+	if repo := strings.TrimSpace(spec.Repo); repo != "" {
+		targets = append(targets, fmt.Sprintf("Capture recent repository progress for %s between %s and %s.", repo, firstNonEmpty(strings.TrimSpace(spec.Since), "the relevant start"), firstNonEmpty(strings.TrimSpace(spec.Until), "now")))
+	}
+	for _, surface := range spec.ReadSurfaces {
+		channelID := strings.TrimSpace(surface.ChannelID)
+		if channelID == "" {
+			continue
+		}
+		if threadTS := strings.TrimSpace(surface.ThreadTS); threadTS != "" {
+			targets = append(targets, fmt.Sprintf("Capture the salient evidence from Slack thread %s/%s.", channelID, threadTS))
+			continue
+		}
+		targets = append(targets, fmt.Sprintf("Capture the salient evidence from Slack channel %s.", channelID))
+	}
+	if spec.AlignmentRequired || strings.TrimSpace(spec.ProjectKey) != "" {
+		targets = append(targets, fmt.Sprintf("Capture the strongest available evidence about alignment with %s.", firstNonEmpty(strings.TrimSpace(spec.ProjectKey), "the referenced project")))
+	}
+	return uniqueStrings(targets)
 }
 
 func questionExpandPrompt(spec questionrun.InvestigationSpec, ledger questionrun.EvidenceLedger) string {
@@ -1348,6 +1413,13 @@ func truncate(value string, limit int) string {
 
 func minInt(left int, right int) int {
 	if left < right {
+		return left
+	}
+	return right
+}
+
+func maxInt(left int, right int) int {
+	if left > right {
 		return left
 	}
 	return right

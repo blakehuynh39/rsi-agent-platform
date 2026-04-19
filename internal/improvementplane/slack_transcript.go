@@ -67,7 +67,7 @@ func (r *slackAPITranscriptResolver) UserName(userID string) (string, bool) {
 }
 
 func (r *slackAPITranscriptResolver) ChannelName(channelID string) (string, bool) {
-	channelID = strings.TrimSpace(channelID)
+	channelID = strings.ToUpper(strings.TrimSpace(channelID))
 	if channelID == "" {
 		return "", false
 	}
@@ -78,12 +78,10 @@ func (r *slackAPITranscriptResolver) ChannelName(channelID string) (string, bool
 	}
 	r.mu.Unlock()
 
-	channel, err := r.client.GetConversationInfo(&slackapi.GetConversationInfoInput{ChannelID: channelID})
-	if err != nil {
+	name, ok := slackpkg.ResolveChannelName(r.client, channelID)
+	if !ok {
 		return "", false
 	}
-
-	name := strings.TrimSpace(channel.Name)
 	r.mu.Lock()
 	if name != "" {
 		r.channelNames[channelID] = name

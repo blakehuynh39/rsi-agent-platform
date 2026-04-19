@@ -248,6 +248,73 @@ func TestBuildQuestionReduceTaskKeepsReducerNoToolsWhenReplyBlocked(t *testing.T
 	}
 }
 
+func TestBuildQuestionGatherTaskUsesFullReasoningWindowAndTrimsNoisyTools(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	ctx, err := loadWorkflowContext(store, workflowItem)
+	if err != nil {
+		t.Fatalf("loadWorkflowContext() error = %v", err)
+	}
+
+	task := buildQuestionGatherTask(config.Config{
+		Environment:               "stage",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultReasoningVerbosity: "verbose",
+		ProdRunnerTaskTimeout:     5 * time.Minute,
+	}, store, questionRunContext{
+		workflowContext: ctx,
+		questionRun: storepkg.QuestionRun{
+			Role: "prod",
+			InvestigationSpec: questionrun.InvestigationSpec{
+				UserRequest:       "Summarize depin-backend progress this week in accordance with numo.",
+				ReplyTarget:       questionrun.ReplyTarget{ChannelID: "CINGRESS", ThreadTS: "171000001.000100"},
+				Repo:              "depin-backend",
+				ProjectKey:        "numo",
+				Since:             "2026-04-11T00:00:00Z",
+				Until:             "2026-04-18T00:00:00Z",
+				AlignmentRequired: true,
+				RetrievalBudget:   20,
+				ReadSurfaces: []questionrun.SlackSurface{
+					{ChannelID: "CINGRESS", ThreadTS: "171000001.000100", Source: "ingress_thread"},
+					{ChannelID: "C0AKH5SNGKH", Source: "channel_mention"},
+				},
+			},
+		},
+	}, queue.WorkflowQueue)
+
+	if task.TimeoutSeconds != 270 {
+		t.Fatalf("expected gather timeout to use full reasoning window, got %d", task.TimeoutSeconds)
+	}
+	if containsStringExact(task.AllowedTools, "rsi.workflow_context") || containsStringExact(task.AllowedTools, "rsi.trace_context") {
+		t.Fatalf("expected noisy RSI context tools to be removed, got %#v", task.AllowedTools)
+	}
+	for _, expected := range []string{"knowledge.context", "github.repo_activity", "github.repo_context", "repo.context"} {
+		if !containsStringExact(task.AllowedTools, expected) {
+			t.Fatalf("expected %s in allowed gather tools, got %#v", expected, task.AllowedTools)
+		}
+	}
+	if !strings.Contains(task.SystemMessage, "Stop once the evidence ledger covers the question") {
+		t.Fatalf("expected explicit stop condition in system prompt, got %q", task.SystemMessage)
+	}
+	if !strings.Contains(task.Prompt, "\"gather_contract\"") {
+		t.Fatalf("expected structured gather contract in prompt payload, got %q", task.Prompt)
+	}
+}
+
+func TestQuestionGatherAllowedToolsSkipsKnowledgeWithoutProjectContext(t *testing.T) {
+	allowed := questionGatherAllowedTools(questionrun.InvestigationSpec{
+		UserRequest: "Summarize recent repo activity.",
+		Repo:        "depin-backend",
+	})
+
+	if containsStringExact(allowed, "knowledge.context") {
+		t.Fatalf("expected no knowledge context without project or alignment need, got %#v", allowed)
+	}
+	if containsStringExact(allowed, "rsi.workflow_context") || containsStringExact(allowed, "rsi.trace_context") {
+		t.Fatalf("expected no RSI self-inspection tools, got %#v", allowed)
+	}
+}
+
 func containsQuestionRunSurface(surfaces []questionrun.SlackSurface, target questionrun.SlackSurface) bool {
 	for _, item := range surfaces {
 		if item.ChannelID == target.ChannelID && item.ThreadTS == target.ThreadTS && item.Source == target.Source {

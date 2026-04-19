@@ -73,11 +73,10 @@ func (r *slackAPIEntityResolver) ChannelName(channelID string) (string, bool) {
 	}
 	r.mu.Unlock()
 
-	channel, err := r.client.GetConversationInfo(&slackapi.GetConversationInfoInput{ChannelID: channelID})
-	if err != nil {
+	value, ok := ResolveChannelName(r.client, channelID)
+	if !ok {
 		return "", false
 	}
-	value := strings.TrimSpace(channel.Name)
 
 	r.mu.Lock()
 	r.channelNames[channelID] = value
