@@ -5,14 +5,15 @@ type QuestionRunState string
 const (
 	QuestionRunStateQueued                    QuestionRunState = "queued"
 	QuestionRunStateCompilingSpec             QuestionRunState = "compiling_spec"
-	QuestionRunStateRefreshingAlignmentLedger QuestionRunState = "refreshing_alignment_ledger"
-	QuestionRunStateCollectingSeedEvidence    QuestionRunState = "collecting_seed_evidence"
-	QuestionRunStateExpandingEvidence         QuestionRunState = "expanding_evidence"
+	QuestionRunStateGatheringEvidence         QuestionRunState = "gathering_evidence"
 	QuestionRunStateReducing                  QuestionRunState = "reducing"
 	QuestionRunStateCompleted                 QuestionRunState = "completed"
 	QuestionRunStateNeedsHuman                QuestionRunState = "needs_human"
 	QuestionRunStateFailed                    QuestionRunState = "failed"
 	QuestionRunStateSuperseded                QuestionRunState = "superseded"
+	QuestionRunStateRefreshingAlignmentLedger QuestionRunState = "refreshing_alignment_ledger"
+	QuestionRunStateCollectingSeedEvidence    QuestionRunState = "collecting_seed_evidence"
+	QuestionRunStateExpandingEvidence         QuestionRunState = "expanding_evidence"
 )
 
 type QuestionRunCommandKind string
@@ -20,15 +21,17 @@ type QuestionRunCommandKind string
 const (
 	CommandQuestionRunStarted      QuestionRunCommandKind = "question_run_started"
 	CommandInvestigationSpecBuilt  QuestionRunCommandKind = "investigation_spec_built"
-	CommandAlignmentLedgerReady    QuestionRunCommandKind = "alignment_ledger_ready"
-	CommandAlignmentLedgerDegraded QuestionRunCommandKind = "alignment_ledger_degraded"
-	CommandSeedEvidenceCollected   QuestionRunCommandKind = "seed_evidence_collected"
-	CommandEvidenceExpanded        QuestionRunCommandKind = "evidence_expanded"
+	CommandEvidenceGathered        QuestionRunCommandKind = "evidence_gathered"
+	CommandEvidenceGatheredPartial QuestionRunCommandKind = "evidence_gathered_partial"
 	CommandReplyReduced            QuestionRunCommandKind = "reply_reduced"
 	CommandReplyReducedPartial     QuestionRunCommandKind = "reply_reduced_partial"
 	CommandReplyBlocked            QuestionRunCommandKind = "reply_blocked"
 	CommandQuestionRunFailed       QuestionRunCommandKind = "question_run_failed"
 	CommandQuestionRunSuperseded   QuestionRunCommandKind = "question_run_superseded"
+	CommandAlignmentLedgerReady    QuestionRunCommandKind = "alignment_ledger_ready"
+	CommandAlignmentLedgerDegraded QuestionRunCommandKind = "alignment_ledger_degraded"
+	CommandSeedEvidenceCollected   QuestionRunCommandKind = "seed_evidence_collected"
+	CommandEvidenceExpanded        QuestionRunCommandKind = "evidence_expanded"
 )
 
 type QuestionRunSnapshot struct {
@@ -58,40 +61,22 @@ func ReduceQuestionRun(snapshot QuestionRunSnapshot, command CommandEnvelope) Qu
 	case QuestionRunStateCompilingSpec:
 		switch QuestionRunCommandKind(command.CommandKind) {
 		case CommandInvestigationSpecBuilt:
-			if commandPayloadBool(command, "alignment_required") {
-				return questionRunAdvance(current, QuestionRunStateRefreshingAlignmentLedger, "investigation spec built and alignment ledger refresh queued", "question_run_investigation_spec_built", EffectRefreshAlignmentLedger, "refresh_alignment_ledger")
+			return questionRunAdvance(current, QuestionRunStateGatheringEvidence, "investigation spec built and evidence gathering queued", "question_run_investigation_spec_built", EffectGatherEvidence, "gather_evidence")
+		case CommandQuestionRunFailed:
+			return questionRunFailure(current)
+		case CommandQuestionRunSuperseded:
+			return questionRunSuperseded(current)
+		}
+	case QuestionRunStateGatheringEvidence:
+		switch QuestionRunCommandKind(command.CommandKind) {
+		case CommandEvidenceGathered, CommandEvidenceGatheredPartial:
+			eventKind := "question_run_evidence_gathered"
+			reason := "evidence gathered and reducer queued"
+			if QuestionRunCommandKind(command.CommandKind) == CommandEvidenceGatheredPartial {
+				eventKind = "question_run_evidence_gathered_partial"
+				reason = "evidence gathered partially and reducer queued"
 			}
-			return questionRunAdvance(current, QuestionRunStateCollectingSeedEvidence, "investigation spec built and seed evidence collection queued", "question_run_investigation_spec_built", EffectCollectSeedEvidence, "collect_seed_evidence")
-		case CommandQuestionRunFailed:
-			return questionRunFailure(current)
-		case CommandQuestionRunSuperseded:
-			return questionRunSuperseded(current)
-		}
-	case QuestionRunStateRefreshingAlignmentLedger:
-		switch QuestionRunCommandKind(command.CommandKind) {
-		case CommandAlignmentLedgerReady, CommandAlignmentLedgerDegraded:
-			return questionRunAdvance(current, QuestionRunStateCollectingSeedEvidence, "alignment ledger ready and seed evidence collection queued", "question_run_alignment_ledger_ready", EffectCollectSeedEvidence, "collect_seed_evidence")
-		case CommandQuestionRunFailed:
-			return questionRunFailure(current)
-		case CommandQuestionRunSuperseded:
-			return questionRunSuperseded(current)
-		}
-	case QuestionRunStateCollectingSeedEvidence:
-		switch QuestionRunCommandKind(command.CommandKind) {
-		case CommandSeedEvidenceCollected:
-			if commandPayloadBool(command, "should_expand") {
-				return questionRunAdvance(current, QuestionRunStateExpandingEvidence, "seed evidence collected and bounded expansion queued", "question_run_seed_evidence_collected", EffectExpandEvidence, "expand_evidence")
-			}
-			return questionRunAdvance(current, QuestionRunStateReducing, "seed evidence collected and reducer queued", "question_run_seed_evidence_collected", EffectReduceReply, "reduce_reply")
-		case CommandQuestionRunFailed:
-			return questionRunFailure(current)
-		case CommandQuestionRunSuperseded:
-			return questionRunSuperseded(current)
-		}
-	case QuestionRunStateExpandingEvidence:
-		switch QuestionRunCommandKind(command.CommandKind) {
-		case CommandEvidenceExpanded:
-			return questionRunAdvance(current, QuestionRunStateReducing, "bounded evidence expansion complete and reducer queued", "question_run_evidence_expanded", EffectReduceReply, "reduce_reply")
+			return questionRunAdvance(current, QuestionRunStateReducing, reason, eventKind, EffectReduceReply, "reduce_reply")
 		case CommandQuestionRunFailed:
 			return questionRunFailure(current)
 		case CommandQuestionRunSuperseded:

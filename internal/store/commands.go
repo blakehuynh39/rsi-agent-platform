@@ -3083,6 +3083,7 @@ func slackEnvelopeFromCommand(command transition.CommandEnvelope) slack.SlackEnv
 		TS:          stringFromCommand(command, "ts"),
 		Files:       stringSliceFromCommand(command, "files"),
 		EntityRefs:  slack.EntityRefsFromValue(command.Payload["entity_refs"]),
+		Prompt:      slack.PromptEnvelopeFromValue(command.Payload["prompt_envelope"]),
 		CreatedAt:   firstNonZeroTime(optionalTimeFromCommand(command, "created_at"), command.OccurredAt),
 	}
 }

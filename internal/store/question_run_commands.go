@@ -200,8 +200,10 @@ func questionRunResultFromCommand(command transition.CommandEnvelope, key string
 
 func evidenceLedgerFromInvestigationSpec(spec questionrun.InvestigationSpec) questionrun.EvidenceLedger {
 	return questionrun.EvidenceLedger{
+		InvestigationSpec: &spec,
 		UserRequest:       spec.UserRequest,
 		ReplyTarget:       spec.ReplyTarget,
+		Prompt:            spec.Prompt,
 		Repo:              spec.Repo,
 		ProjectKey:        spec.ProjectKey,
 		Since:             spec.Since,

@@ -23,45 +23,39 @@ func TestReduceQuestionRunQueuedStartsCompilation(t *testing.T) {
 	}
 }
 
-func TestReduceQuestionRunAlignmentRequiredQueuesLedgerRefresh(t *testing.T) {
+func TestReduceQuestionRunSpecBuiltQueuesGatherEvidence(t *testing.T) {
 	decision := ReduceQuestionRun(QuestionRunSnapshot{State: QuestionRunStateCompilingSpec}, CommandEnvelope{
 		MachineKind: MachineQuestionRun,
 		CommandKind: string(CommandInvestigationSpecBuilt),
 		CommandID:   "cmd-question-run-spec",
 		OccurredAt:  time.Now().UTC(),
-		Payload: map[string]any{
-			"alignment_required": true,
-		},
 	})
 	if decision.DecisionKind != DecisionAdvance {
 		t.Fatalf("expected advance, got %+v", decision)
 	}
-	if decision.NextState != QuestionRunStateRefreshingAlignmentLedger {
-		t.Fatalf("expected refreshing_alignment_ledger, got %s", decision.NextState)
+	if decision.NextState != QuestionRunStateGatheringEvidence {
+		t.Fatalf("expected gathering_evidence, got %s", decision.NextState)
 	}
-	if len(decision.Effects) != 1 || decision.Effects[0].Kind != EffectRefreshAlignmentLedger {
-		t.Fatalf("expected refresh_alignment_ledger effect, got %+v", decision.Effects)
+	if len(decision.Effects) != 1 || decision.Effects[0].Kind != EffectGatherEvidence {
+		t.Fatalf("expected gather_evidence effect, got %+v", decision.Effects)
 	}
 }
 
-func TestReduceQuestionRunSeedEvidenceWithOpenGapsQueuesExpansion(t *testing.T) {
-	decision := ReduceQuestionRun(QuestionRunSnapshot{State: QuestionRunStateCollectingSeedEvidence}, CommandEnvelope{
+func TestReduceQuestionRunGatheredEvidenceQueuesReduce(t *testing.T) {
+	decision := ReduceQuestionRun(QuestionRunSnapshot{State: QuestionRunStateGatheringEvidence}, CommandEnvelope{
 		MachineKind: MachineQuestionRun,
-		CommandKind: string(CommandSeedEvidenceCollected),
-		CommandID:   "cmd-question-run-seed",
+		CommandKind: string(CommandEvidenceGatheredPartial),
+		CommandID:   "cmd-question-run-gather",
 		OccurredAt:  time.Now().UTC(),
-		Payload: map[string]any{
-			"should_expand": true,
-		},
 	})
 	if decision.DecisionKind != DecisionAdvance {
 		t.Fatalf("expected advance, got %+v", decision)
 	}
-	if decision.NextState != QuestionRunStateExpandingEvidence {
-		t.Fatalf("expected expanding_evidence, got %s", decision.NextState)
+	if decision.NextState != QuestionRunStateReducing {
+		t.Fatalf("expected reducing, got %s", decision.NextState)
 	}
-	if len(decision.Effects) != 1 || decision.Effects[0].Kind != EffectExpandEvidence {
-		t.Fatalf("expected expand_evidence effect, got %+v", decision.Effects)
+	if len(decision.Effects) != 1 || decision.Effects[0].Kind != EffectReduceReply {
+		t.Fatalf("expected reduce_reply effect, got %+v", decision.Effects)
 	}
 }
 

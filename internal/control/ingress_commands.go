@@ -37,17 +37,18 @@ func submitIngressEventCommand(cfg config.Config, store storepkg.Store, event in
 func submitIngressSlackCommand(cfg config.Config, store storepkg.Store, envelope slack.SlackEnvelope, actor string, occurredAt time.Time, commandID string) (transition.CommandReceipt, error) {
 	aggregateID := ingressAggregateID("slack", firstNonEmpty(envelope.TS, envelope.ThreadTS, envelope.ChannelID))
 	payload := map[string]any{
-		"bot_role":     string(envelope.BotRole),
-		"team_id":      envelope.TeamID,
-		"channel_id":   envelope.ChannelID,
-		"thread_ts":    envelope.ThreadTS,
-		"action_token": envelope.ActionToken,
-		"user_id":      envelope.UserID,
-		"text":         envelope.Text,
-		"ts":           envelope.TS,
-		"files":        envelope.Files,
-		"entity_refs":  envelope.EntityRefs,
-		"created_at":   envelope.CreatedAt,
+		"bot_role":        string(envelope.BotRole),
+		"team_id":         envelope.TeamID,
+		"channel_id":      envelope.ChannelID,
+		"thread_ts":       envelope.ThreadTS,
+		"action_token":    envelope.ActionToken,
+		"user_id":         envelope.UserID,
+		"text":            envelope.Text,
+		"ts":              envelope.TS,
+		"files":           envelope.Files,
+		"entity_refs":     envelope.EntityRefs,
+		"prompt_envelope": envelope.Prompt,
+		"created_at":      envelope.CreatedAt,
 	}
 	mergeIngressRuntimePayload(payload, cfg)
 	return submitIngressCommand(store, aggregateID, transition.CommandIngressRecordSlack, actor, occurredAt, commandID, payload)

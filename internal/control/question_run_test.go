@@ -8,6 +8,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/questionrun"
+	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
@@ -159,7 +160,7 @@ func TestDeriveOpenQuestionsRequiresRepoAndReferencedChannelCoverage(t *testing.
 	}
 }
 
-func TestBuildQuestionReduceTaskUsesSlackMCPReplyProfileWhenReplyAllowed(t *testing.T) {
+func TestBuildQuestionReduceTaskDisablesMCPAndTools(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
 	ctx, err := loadWorkflowContext(store, workflowItem)
@@ -171,6 +172,7 @@ func TestBuildQuestionReduceTaskUsesSlackMCPReplyProfileWhenReplyAllowed(t *test
 		Environment:               "stage",
 		DefaultRepo:               "rsi-agent-platform",
 		DefaultReasoningVerbosity: "verbose",
+		ProdRunnerTaskTimeout:     5 * time.Minute,
 	}, store, questionRunContext{
 		workflowContext: ctx,
 		questionRun: storepkg.QuestionRun{
@@ -181,29 +183,23 @@ func TestBuildQuestionReduceTaskUsesSlackMCPReplyProfileWhenReplyAllowed(t *test
 			},
 			RunnerDiagnostics: map[string]any{},
 		},
-	})
+	}, queue.WorkflowQueue)
 
-	if len(task.MCPServers) != 1 {
-		t.Fatalf("expected one MCP server, got %#v", task.MCPServers)
+	if len(task.MCPServers) != 0 {
+		t.Fatalf("expected no MCP servers, got %#v", task.MCPServers)
 	}
-	if task.MCPServers[0].Profile != "slack_mcp_reply" {
-		t.Fatalf("expected slack_mcp_reply profile, got %#v", task.MCPServers)
+	if len(task.AllowedTools) != 0 {
+		t.Fatalf("expected no tools in reduce phase, got %#v", task.AllowedTools)
 	}
-	if !containsStringExact(task.AllowedTools, "repo.context") {
-		t.Fatalf("expected repo.context to remain available, got %#v", task.AllowedTools)
+	if !strings.Contains(task.SystemMessage, "Do not call tools") {
+		t.Fatalf("expected no-tools reducer prompt, got %q", task.SystemMessage)
 	}
-	if containsStringExact(task.AllowedTools, "slack.history") || containsStringExact(task.AllowedTools, "slack.search") || containsStringExact(task.AllowedTools, "slack.reply") {
-		t.Fatalf("expected legacy Slack tools to be absent, got %#v", task.AllowedTools)
-	}
-	if !strings.Contains(task.SystemMessage, "send exactly one reply") {
-		t.Fatalf("expected reply-capable MCP system prompt, got %q", task.SystemMessage)
-	}
-	if task.MCPServers[0].Headers["X-RSI-Channel-ID"] != ctx.ingestion.ChannelID {
-		t.Fatalf("expected bound channel header, got %#v", task.MCPServers[0].Headers)
+	if task.TimeoutSeconds != 30 {
+		t.Fatalf("expected 30 second reducer reserve, got %d", task.TimeoutSeconds)
 	}
 }
 
-func TestBuildQuestionReduceTaskUsesReadOnlySlackMCPWhenReplyBlocked(t *testing.T) {
+func TestBuildQuestionReduceTaskKeepsReducerNoToolsWhenReplyBlocked(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
 	ctx, err := loadWorkflowContext(store, workflowItem)
@@ -228,6 +224,7 @@ func TestBuildQuestionReduceTaskUsesReadOnlySlackMCPWhenReplyBlocked(t *testing.
 		Environment:               "stage",
 		DefaultRepo:               "rsi-agent-platform",
 		DefaultReasoningVerbosity: "verbose",
+		ProdRunnerTaskTimeout:     5 * time.Minute,
 	}, store, questionRunContext{
 		workflowContext: ctx,
 		questionRun: storepkg.QuestionRun{
@@ -238,19 +235,16 @@ func TestBuildQuestionReduceTaskUsesReadOnlySlackMCPWhenReplyBlocked(t *testing.
 			},
 			RunnerDiagnostics: map[string]any{},
 		},
-	})
+	}, queue.WorkflowQueue)
 
-	if len(task.MCPServers) != 1 {
-		t.Fatalf("expected one MCP server, got %#v", task.MCPServers)
+	if len(task.MCPServers) != 0 {
+		t.Fatalf("expected no MCP servers, got %#v", task.MCPServers)
 	}
-	if task.MCPServers[0].Profile != "slack_mcp_read" {
-		t.Fatalf("expected slack_mcp_read profile when blocked, got %#v", task.MCPServers)
+	if len(task.AllowedTools) != 0 {
+		t.Fatalf("expected no reducer tools when reply is blocked, got %#v", task.AllowedTools)
 	}
-	if task.AllowedTools == nil || !containsStringExact(task.AllowedTools, "repo.context") {
-		t.Fatalf("expected governed repo reads to remain available, got %#v", task.AllowedTools)
-	}
-	if !strings.Contains(task.SystemMessage, "Slack posting is blocked by policy") {
-		t.Fatalf("expected blocked-posting MCP system prompt, got %q", task.SystemMessage)
+	if !strings.Contains(task.SystemMessage, "Do not send Slack messages") {
+		t.Fatalf("expected deterministic control-plane delivery prompt, got %q", task.SystemMessage)
 	}
 }
 

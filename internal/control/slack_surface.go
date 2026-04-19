@@ -67,6 +67,7 @@ type slackSurfaceRuntime struct {
 	cfg         config.Config
 	store       storepkg.Store
 	client      *socketmode.Client
+	resolver    slackpkg.EntityResolver
 	allowedChan map[string]struct{}
 }
 
@@ -83,6 +84,7 @@ func newSlackSurfaceRuntime(cfg config.Config, store storepkg.Store) *slackSurfa
 		cfg:         cfg,
 		store:       store,
 		client:      socketmode.New(api),
+		resolver:    slackpkg.NewEntityResolver(firstNonEmpty(cfg.SlackUserToken, cfg.SlackBotToken)),
 		allowedChan: allowed,
 	}
 }
@@ -123,6 +125,7 @@ func (s *slackSurfaceRuntime) handleEventsAPIEvent(eventsAPIEvent slackevents.Ev
 		if !ok {
 			return
 		}
+		envelope.Prompt = slackpkg.CanonicalizePromptEnvelope(envelope, s.resolver)
 		createdAt := envelope.CreatedAt
 		if createdAt.IsZero() {
 			createdAt = time.Now().UTC()
@@ -153,6 +156,7 @@ func (s *slackSurfaceRuntime) handleEventsAPIEvent(eventsAPIEvent slackevents.Ev
 		if !ok {
 			return
 		}
+		envelope.Prompt = slackpkg.CanonicalizePromptEnvelope(envelope, s.resolver)
 		createdAt := envelope.CreatedAt
 		if createdAt.IsZero() {
 			createdAt = time.Now().UTC()
@@ -206,6 +210,7 @@ func (s *slackSurfaceRuntime) buildMentionEnvelope(teamID string, event *slackev
 		TS:          event.TimeStamp,
 		EntityRefs:  slackpkg.ExtractEntityRefs(event.Text),
 		CreatedAt:   parseSlackTimestamp(event.TimeStamp),
+		Prompt:      slackpkg.SlackPromptEnvelope{},
 	}, true
 }
 
@@ -234,6 +239,7 @@ func (s *slackSurfaceRuntime) buildDirectMessageEnvelope(teamID string, event *s
 		TS:          event.TimeStamp,
 		EntityRefs:  slackpkg.ExtractEntityRefs(event.Text),
 		CreatedAt:   parseSlackTimestamp(event.TimeStamp),
+		Prompt:      slackpkg.SlackPromptEnvelope{},
 	}, true
 }
 

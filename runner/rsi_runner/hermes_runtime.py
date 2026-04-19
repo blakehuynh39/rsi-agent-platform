@@ -37,8 +37,8 @@ from .rsi_tools import (
 from .session_manager import SessionContext, SessionManager
 
 ROLE_TASK_TYPES = {
-    "prod": {"general", "workflow", "prod", "question_expand", "question_reduce"},
-    "proactive": {"general", "workflow", "proactive", "question_expand", "question_reduce"},
+    "prod": {"general", "workflow", "prod", "question_gather", "question_reduce", "question_expand"},
+    "proactive": {"general", "workflow", "proactive", "question_gather", "question_reduce", "question_expand"},
     "eval": {"general", "eval"},
     "proposal": {"general", "proposal", "repo-change"},
 }
@@ -1132,7 +1132,7 @@ class HermesRuntime:
         if self._config.tool_gateway_base_url and (task.workspace_id or task.attempt_id):
             permitted.update(READ_ONLY_WORKSPACE_RSI_TOOL_NAMES)
         fallback_allowlist = sorted(permitted)
-        if task.task_type == "question_expand" and requested:
+        if task.task_type in {"question_gather", "question_expand"} and requested:
             fallback_allowlist = requested
         if using_native_mcp:
             fallback_allowlist = [name for name in fallback_allowlist if name not in {"slack.history", "slack.search", "slack.reply"} and name not in READ_ONLY_HONCHO_TOOLS]
@@ -1277,7 +1277,7 @@ class HermesRuntime:
         return prompt
 
     def _question_task_payload(self, task: RunnerTaskRequest) -> JsonObject:
-        if task.task_type not in {"question_expand", "question_reduce"}:
+        if task.task_type not in {"question_gather", "question_expand", "question_reduce"}:
             return {}
         try:
             parsed = json.loads(task.prompt)
@@ -1449,12 +1449,14 @@ class HermesRuntime:
         )
         missing_evidence = self._merge_runtime_values(input_ledger.get("missing_evidence"), input_ledger.get("insufficiency_markers"))
         ledger: JsonObject = {
+            "investigation_spec": spec,
             "user_request": first_non_empty(_string_or_json(spec.get("user_request")), _string_or_json(input_ledger.get("user_request")), self._original_task_prompt(task)),
             "reply_target": input_ledger.get("reply_target")
             or {
                 "channel_id": task.channel_id or "",
                 "thread_ts": task.thread_ts or "",
             },
+            "prompt_envelope": _json_object_or_empty(_first_non_none(spec.get("prompt_envelope"), input_ledger.get("prompt_envelope"))),
             "repo": first_non_empty(_string_or_json(spec.get("repo")), _string_or_json(input_ledger.get("repo")), task.repo),
             "project_key": first_non_empty(_string_or_json(spec.get("project_key")), _string_or_json(input_ledger.get("project_key"))),
             "since": first_non_empty(_string_or_json(spec.get("since")), _string_or_json(input_ledger.get("since"))),
@@ -1474,7 +1476,7 @@ class HermesRuntime:
         return ledger
 
     def _workflow_evidence_raw(self, task: RunnerTaskRequest, observed: JsonObject, termination_reason: str) -> JsonObject:
-        if task.task_type == "question_expand":
+        if task.task_type in {"question_gather", "question_expand"}:
             return {"evidence_ledger": self._build_question_evidence_ledger(task, observed, termination_reason)}
         if task.task_type != "workflow":
             return {}
@@ -1782,7 +1784,7 @@ class HermesRuntime:
     def _task_uses_native_mcp(self, task: RunnerTaskRequest) -> bool:
         if self._provider != "openai":
             return False
-        if task.task_type not in {"workflow", "question_expand", "question_reduce"}:
+        if task.task_type not in {"workflow", "question_gather", "question_expand", "question_reduce"}:
             return False
         return len(task.mcp_servers) > 0
 
@@ -1802,7 +1804,7 @@ class HermesRuntime:
         return f"{prefix}\n\n{text}"
 
     def _direct_task_user_prompt(self, task: RunnerTaskRequest) -> str:
-        if task.task_type in {"question_expand", "question_reduce"}:
+        if task.task_type in {"question_gather", "question_expand", "question_reduce"}:
             return self._json_object_input_prompt(task.prompt)
         payload: JsonObject = {
             "user_request": self._original_task_prompt(task),
@@ -2062,7 +2064,71 @@ class HermesRuntime:
                     }
         return normalized, reply_delivery, reply_attempted
 
+    def _merge_question_gather_delta(self, ledger: JsonObject, structured_output: JsonObject) -> JsonObject:
+        merged = dict(ledger)
+        if not structured_output:
+            return merged
+        merged["tool_calls"] = self._merge_runtime_values(merged.get("tool_calls"), structured_output.get("tool_calls"))
+        merged["evidence_items"] = self._merge_runtime_values(merged.get("evidence_items"), structured_output.get("evidence_items"))
+        merged["open_questions"] = self._merge_runtime_values(merged.get("open_questions"), structured_output.get("open_questions"))
+        merged["missing_evidence"] = self._merge_runtime_values(merged.get("missing_evidence"), structured_output.get("insufficiency_markers"))
+        merged["draft_reply_candidates"] = self._merge_runtime_values(
+            merged.get("draft_reply_candidates"),
+            structured_output.get("draft_reply_candidates"),
+        )
+        return merged
+
+    def _question_gather_result(
+        self,
+        task: RunnerTaskRequest,
+        tool_policy: ToolPolicy,
+        observed: JsonObject,
+        *,
+        termination_reason: str,
+        completion_verdict: str,
+        structured_output: JsonObject | None = None,
+        provider_response_id: str = "",
+        mcp_calls: list[JsonObject] | None = None,
+    ) -> HermesExecutionResult:
+        structured_output = dict(structured_output or {})
+        mcp_calls = list(mcp_calls or [])
+        tool_calls = self._merge_runtime_values(_json_object_list(observed.get("tool_calls")), mcp_calls)
+        ledger = self._build_question_evidence_ledger(
+            task,
+            {**observed, "tool_calls": tool_calls},
+            termination_reason,
+        )
+        ledger = self._merge_question_gather_delta(ledger, structured_output)
+        raw: JsonObject = {
+            **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+            "native_mcp_enabled": True,
+            "mcp_calls": mcp_calls,
+            "tool_calls": tool_calls,
+            "evidence_ledger": ledger,
+            "completion_verdict": completion_verdict,
+            "termination_reason": termination_reason,
+            "task_timeout_seconds": self._effective_task_timeout(task),
+            "transport_timeout_seconds": self._transport_timeout_seconds,
+            "tool_policy_mode": tool_policy.mode,
+            "tool_allowlist_effective": tool_policy.effective,
+            "tool_transport_allowlist_effective": tool_policy.transport_effective,
+            "blocked_tool_names": tool_policy.blocked,
+            "runner_diagnostics": {
+                "native_execution_mode": "openai_responses_mcp",
+                "question_gather_mode": "openai_responses_mcp",
+                "completion_verdict": completion_verdict,
+                "termination_reason": termination_reason,
+            },
+        }
+        if structured_output:
+            raw["structured_output"] = structured_output
+        if provider_response_id:
+            raw["provider_response_id"] = provider_response_id
+        message = json.dumps(structured_output or ledger, ensure_ascii=True, sort_keys=True)
+        return HermesExecutionResult(ok=True, message=message, provider=self._backend, raw=raw)
+
     def _execute_openai_native_task(self, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> HermesExecutionResult:
+        is_question_gather = task.task_type == "question_gather"
         if self._provider != "openai" or not self._api_key:
             return HermesExecutionResult(
                 ok=False,
@@ -2128,8 +2194,20 @@ class HermesRuntime:
         reply_delivery: JsonObject | None = None
         reply_delivery_attempted = False
         rounds = 0
+        started_at = time.monotonic()
         while True:
-            remaining = timeout_seconds
+            elapsed_seconds = max(0, int(time.monotonic() - started_at))
+            remaining = max(1, timeout_seconds - elapsed_seconds)
+            if is_question_gather and elapsed_seconds >= timeout_seconds:
+                return self._question_gather_result(
+                    task,
+                    tool_policy,
+                    binding.diagnostics(),
+                    termination_reason="task_timeout",
+                    completion_verdict="partial",
+                    provider_response_id=previous_response_id,
+                    mcp_calls=accumulated_mcp_calls,
+                )
             payload: JsonObject = {
                 "model": self._provider_model,
                 "instructions": instructions,
@@ -2175,6 +2253,16 @@ class HermesRuntime:
                     },
                 )
             except (TimeoutError, socket.timeout, urlerror.URLError, ConnectionError, OSError) as exc:
+                if is_question_gather and isinstance(exc, (TimeoutError, socket.timeout)):
+                    return self._question_gather_result(
+                        task,
+                        tool_policy,
+                        binding.diagnostics(),
+                        termination_reason="task_timeout",
+                        completion_verdict="partial",
+                        provider_response_id=previous_response_id,
+                        mcp_calls=accumulated_mcp_calls,
+                    )
                 failure_class = "runner_transport_timeout"
                 if reply_delivery_attempted:
                     failure_class = "runner_reply_delivery_uncertain"
@@ -2227,8 +2315,20 @@ class HermesRuntime:
             if latest_reply_delivery is not None:
                 reply_delivery = latest_reply_delivery
             function_calls = self._responses_function_calls(parsed)
-            if function_calls:
+            response_text = self._responses_output_text(parsed)
+            had_tool_round = bool(function_calls) or (bool(normalized_mcp_calls) and not response_text)
+            if had_tool_round:
                 if rounds >= self._max_iterations:
+                    if is_question_gather:
+                        return self._question_gather_result(
+                            task,
+                            tool_policy,
+                            binding.diagnostics(),
+                            termination_reason="iteration_budget_exhausted",
+                            completion_verdict="partial",
+                            provider_response_id=previous_response_id,
+                            mcp_calls=accumulated_mcp_calls,
+                        )
                     return HermesExecutionResult(
                         ok=False,
                         message="Native workflow executor exhausted its function-call budget.",
@@ -2264,11 +2364,13 @@ class HermesRuntime:
                             "output": output_text,
                         }
                     )
-                current_input = outputs
+                current_input = outputs if outputs else []
                 rounds += 1
                 continue
-            response_text = self._responses_output_text(parsed)
             if not response_text:
+                if normalized_mcp_calls:
+                    current_input = []
+                    continue
                 return HermesExecutionResult(
                     ok=False,
                     message="Native workflow executor returned an empty response.",
@@ -2303,6 +2405,17 @@ class HermesRuntime:
                     },
                 )
             observed = binding.diagnostics()
+            if is_question_gather:
+                return self._question_gather_result(
+                    task,
+                    tool_policy,
+                    observed,
+                    termination_reason="normal_completion",
+                    completion_verdict="complete",
+                    structured_output=structured_output,
+                    provider_response_id=previous_response_id,
+                    mcp_calls=accumulated_mcp_calls,
+                )
             tool_calls = self._merge_runtime_values(_json_object_list(observed.get("tool_calls")), accumulated_mcp_calls)
             raw: JsonObject = {
                 **self._base_raw(prompt=task.prompt, system_message=task.system_message),
@@ -2370,10 +2483,10 @@ class HermesRuntime:
                 "You reduce a read-heavy RSI Slack Q&A evidence ledger into one final reply.",
                 "Use only the supplied investigation spec, evidence ledger, and runner diagnostics.",
                 "Do not call tools. Do not speculate beyond the supplied evidence.",
-                "Return only one JSON object with keys: reply_markdown, confidence, completion_verdict, termination_reason, alignment_degraded, alignment_notice.",
+                "Return only one JSON object with keys: reply_markdown, confidence, completion_verdict, termination_reason.",
                 "reply_markdown must be grounded, concise, and ready for Slack posting.",
                 "Use completion_verdict=partial when the supplied diagnostics or ledger indicate a bounded stop such as task_timeout or iteration_budget_exhausted.",
-                "When alignment evidence is degraded, set alignment_degraded=true and explain the limitation in alignment_notice.",
+                "If the evidence is incomplete, say that directly in reply_markdown instead of pretending the evidence was stronger than it was.",
             ]
         )
 
@@ -3297,9 +3410,9 @@ class HermesRuntime:
             f"Tool policy mode: {tool_policy.mode}",
             "Detailed RSI evidence is injected through the Hermes context engine rather than appended inline to this prompt.",
         ]
-        if task.task_type == "question_expand":
+        if task.task_type in {"question_gather", "question_expand"}:
             question_payload = self._question_task_payload(task)
-            parts.append("Expand the evidence ledger with bounded, grounded read-only retrieval.")
+            parts.append("Gather evidence for the Slack Q&A ledger with bounded, grounded read-only retrieval.")
             parts.append("Return only one JSON object with keys: tool_calls, evidence_items, open_questions, insufficiency_markers, confidence.")
             parts.append("Do not answer the user. Do not emit reply text, actions, or knowledge drafts.")
             parts.append("Use the current evidence ledger to close the most important remaining gaps only.")

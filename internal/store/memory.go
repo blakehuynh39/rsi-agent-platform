@@ -641,25 +641,30 @@ func (s *MemoryStore) ListIngestions() []slack.Ingestion {
 
 func (s *MemoryStore) createIngestionLocked(envelope slack.SlackEnvelope) (slack.Ingestion, error) {
 	conversationKey := slackConversationKey(envelope)
+	prompt := slack.PromptEnvelopeFromValue(envelope.Prompt)
+	normalizedText := firstNonEmpty(prompt.RenderedText, strings.TrimSpace(envelope.Text))
 	event := ingestion.EventEnvelope{
 		Source:                     ingestion.SourceSlack,
 		SourceEventID:              envelope.TS,
 		ThreadKey:                  conversationKey,
 		DedupeKey:                  envelope.TS,
-		Severity:                   severityFromText(envelope.Text),
-		NormalizedProblemStatement: envelope.Text,
+		Severity:                   severityFromText(normalizedText),
+		NormalizedProblemStatement: normalizedText,
 		OwnershipHint:              "platform",
-		WorkflowHint:               deriveWorkflowHint(envelope.Text),
+		WorkflowHint:               deriveWorkflowHint(normalizedText),
 		Metadata: map[string]interface{}{
-			"team_id":          envelope.TeamID,
-			"channel_id":       envelope.ChannelID,
-			"user_id":          envelope.UserID,
-			"thread_ts":        envelope.ThreadTS,
-			"action_token":     envelope.ActionToken,
-			"conversation_key": conversationKey,
-			"bot_role":         envelope.BotRole,
-			"files":            envelope.Files,
-			"entity_refs":      envelope.EntityRefs,
+			"team_id":             envelope.TeamID,
+			"channel_id":          envelope.ChannelID,
+			"user_id":             envelope.UserID,
+			"thread_ts":           envelope.ThreadTS,
+			"action_token":        envelope.ActionToken,
+			"conversation_key":    conversationKey,
+			"bot_role":            envelope.BotRole,
+			"files":               envelope.Files,
+			"entity_refs":         envelope.EntityRefs,
+			"prompt_envelope":     prompt,
+			"slack_user_names":    slack.PromptEnvelopeUserNames(prompt),
+			"slack_channel_names": slack.PromptEnvelopeChannelNames(prompt),
 		},
 		CreatedAt: envelope.CreatedAt,
 	}
@@ -805,6 +810,7 @@ func (s *MemoryStore) materializeWorkflowLocked(event ingestion.EventEnvelope) {
 		UserID:         userID,
 		Text:           event.NormalizedProblemStatement,
 		EntityRefs:     slack.EntityRefsFromValue(event.Metadata["entity_refs"]),
+		Prompt:         slack.PromptEnvelopeFromValue(event.Metadata["prompt_envelope"]),
 		CreatedAt:      createdAt,
 	}
 	s.ingestions = append(s.ingestions, ingestionItem)

@@ -925,7 +925,7 @@ func loadKnowledgeReviews(r sqlReader, store *MemoryStore) error {
 }
 
 func loadIngestions(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, event_id, conversation_id, case_id, thread_key, thread_ts, workflow_hint, intent, bot_role, source, channel_id, user_id, text, entity_refs, created_at from ingestion order by created_at desc`)
+	rows, err := r.Query(`select id, event_id, conversation_id, case_id, thread_key, thread_ts, workflow_hint, intent, bot_role, source, channel_id, user_id, text, entity_refs, prompt_envelope, created_at from ingestion order by created_at desc`)
 	if err != nil {
 		return err
 	}
@@ -933,8 +933,8 @@ func loadIngestions(r sqlReader, store *MemoryStore) error {
 	for rows.Next() {
 		var item slack.Ingestion
 		var eventID, conversationID, caseID, threadTS, intent, botRole sql.NullString
-		var entityRefs []byte
-		if err := rows.Scan(&item.ID, &eventID, &conversationID, &caseID, &item.ThreadKey, &threadTS, &item.WorkflowHint, &intent, &botRole, &item.Source, &item.ChannelID, &item.UserID, &item.Text, &entityRefs, &item.CreatedAt); err != nil {
+		var entityRefs, promptEnvelope []byte
+		if err := rows.Scan(&item.ID, &eventID, &conversationID, &caseID, &item.ThreadKey, &threadTS, &item.WorkflowHint, &intent, &botRole, &item.Source, &item.ChannelID, &item.UserID, &item.Text, &entityRefs, &promptEnvelope, &item.CreatedAt); err != nil {
 			return err
 		}
 		item.EventID = eventID.String
@@ -944,6 +944,7 @@ func loadIngestions(r sqlReader, store *MemoryStore) error {
 		item.Intent = intent.String
 		item.BotRole = slack.BotRole(botRole.String)
 		item.EntityRefs = decodeJSON(entityRefs, []slack.EntityRef{})
+		item.Prompt = decodeJSON(promptEnvelope, slack.SlackPromptEnvelope{})
 		store.ingestions = append(store.ingestions, item)
 	}
 	return rows.Err()
@@ -1940,7 +1941,7 @@ func persistKnowledgeReviews(tx *sql.Tx, store *MemoryStore) error {
 
 func persistIngestions(tx *sql.Tx, store *MemoryStore) error {
 	for _, item := range store.ingestions {
-		if _, err := tx.Exec(`insert into ingestion (id, event_id, conversation_id, case_id, thread_key, thread_ts, workflow_hint, intent, bot_role, source, channel_id, user_id, text, entity_refs, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14::jsonb,$15)
+		if _, err := tx.Exec(`insert into ingestion (id, event_id, conversation_id, case_id, thread_key, thread_ts, workflow_hint, intent, bot_role, source, channel_id, user_id, text, entity_refs, prompt_envelope, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14::jsonb,$15::jsonb,$16)
 			on conflict (id) do update set
 				event_id = excluded.event_id,
 				conversation_id = excluded.conversation_id,
@@ -1955,8 +1956,9 @@ func persistIngestions(tx *sql.Tx, store *MemoryStore) error {
 				user_id = excluded.user_id,
 				text = excluded.text,
 				entity_refs = excluded.entity_refs,
+				prompt_envelope = excluded.prompt_envelope,
 				created_at = excluded.created_at`,
-			item.ID, nullString(item.EventID), nullString(item.ConversationID), nullString(item.CaseID), item.ThreadKey, nullString(item.ThreadTS), item.WorkflowHint, nullString(item.Intent), nullString(string(item.BotRole)), item.Source, item.ChannelID, item.UserID, item.Text, jsonString(item.EntityRefs), item.CreatedAt,
+			item.ID, nullString(item.EventID), nullString(item.ConversationID), nullString(item.CaseID), item.ThreadKey, nullString(item.ThreadTS), item.WorkflowHint, nullString(item.Intent), nullString(string(item.BotRole)), item.Source, item.ChannelID, item.UserID, item.Text, jsonString(item.EntityRefs), jsonString(item.Prompt), item.CreatedAt,
 		); err != nil {
 			return err
 		}

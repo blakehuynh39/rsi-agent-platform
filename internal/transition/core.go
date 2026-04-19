@@ -36,6 +36,7 @@ const (
 	EffectInvokeRunner               EffectKind = "invoke_runner"
 	EffectPostSlackReply             EffectKind = "post_slack_reply"
 	EffectCompileInvestigationSpec   EffectKind = "compile_investigation_spec"
+	EffectGatherEvidence             EffectKind = "gather_evidence"
 	EffectRefreshAlignmentLedger     EffectKind = "refresh_alignment_ledger"
 	EffectCollectSeedEvidence        EffectKind = "collect_seed_evidence"
 	EffectExpandEvidence             EffectKind = "expand_evidence"
