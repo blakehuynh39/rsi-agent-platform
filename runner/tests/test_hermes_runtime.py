@@ -616,6 +616,64 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(payload["tool_name"], "slack.search")
         self.assertEqual(payload["transport_tool_name"], "slack_search")
 
+    def test_readonly_tool_binding_null_args_do_not_clobber_defaults(self) -> None:
+        captured: dict[str, object] = {}
+
+        class FakeResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb) -> bool:
+                return False
+
+            def read(self) -> bytes:
+                return json.dumps(
+                    {
+                        "status": "completed",
+                        "available": True,
+                        "summary": "Repo context loaded.",
+                        "provider": "github",
+                        "provider_ref": "https://github.com/piplabs/rsi-agent-platform",
+                        "output": {},
+                    }
+                ).encode("utf-8")
+
+        def fake_urlopen(req, timeout: int = 0):
+            captured["url"] = req.full_url
+            captured["timeout"] = timeout
+            captured["body"] = json.loads(req.data.decode("utf-8"))
+            return FakeResponse()
+
+        binding = ReadOnlyToolBinding(
+            base_url="http://tool-gateway.internal",
+            allowed_tool_names=["repo.context"],
+            task_repo="rsi-agent-platform",
+            task_repo_ref="main",
+            task_prompt="Summarize the latest workflow fix.",
+            task_channel_id="C123",
+            task_thread_ts="171000001.000100",
+            task_context_summary="workflow summary",
+            trace_id="trace-123",
+            session_scope_kind="conversation",
+            session_scope_id="conv-123",
+            context_refs=[],
+        )
+
+        with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_urlopen):
+            payload = json.loads(binding.handle_tool_call("repo_context", {"repo": None, "question": None}))
+
+        self.assertEqual(captured["url"], "http://tool-gateway.internal/api/tools/repo.context/execute")
+        self.assertEqual(
+            captured["body"],
+            {
+                "trace_id": "trace-123",
+                "repo": "rsi-agent-platform",
+                "question": "Summarize the latest workflow fix.",
+            },
+        )
+        self.assertEqual(payload["tool_name"], "repo.context")
+        self.assertEqual(payload["transport_tool_name"], "repo_context")
+
     def test_repo_context_binding_records_grounded_match_snippets(self) -> None:
         class FakeResponse:
             def __enter__(self):
@@ -1162,26 +1220,46 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["structured_output"]["reply_markdown"], "Partial rundown: pagination cleanup landed, but the weekly picture is incomplete.")
 
     def test_transport_tool_schemas_are_openai_strict(self) -> None:
-        def missing_closed_objects(node: object, path: str) -> list[str]:
+        def strict_schema_violations(node: object, path: str) -> list[str]:
             violations: list[str] = []
             if isinstance(node, dict):
-                if node.get("type") == "object" and node.get("additionalProperties") is not False:
-                    violations.append(path)
+                if node.get("type") == "object":
+                    properties = node.get("properties") or {}
+                    if node.get("additionalProperties") is not False:
+                        violations.append(f"{path}:additionalProperties")
+                    required = node.get("required")
+                    if not isinstance(required, list):
+                        violations.append(f"{path}:required")
+                    else:
+                        missing = [key for key in properties if key not in required]
+                        if missing:
+                            violations.append(f"{path}:missing_required={','.join(missing)}")
                 for key, value in node.items():
-                    violations.extend(missing_closed_objects(value, f"{path}.{key}"))
+                    violations.extend(strict_schema_violations(value, f"{path}.{key}"))
                 return violations
             if isinstance(node, list):
                 for idx, value in enumerate(node):
-                    violations.extend(missing_closed_objects(value, f"{path}[{idx}]"))
+                    violations.extend(strict_schema_violations(value, f"{path}[{idx}]"))
             return violations
 
         cloudflare = transport_tool_schema("cloudflare.inspect")
+        self.assertEqual(cloudflare["parameters"]["required"], ["resource"])
+        self.assertEqual(cloudflare["parameters"]["properties"]["resource"]["type"], ["string", "null"])
         self.assertFalse(cloudflare["parameters"]["additionalProperties"])
+
+        repo_read_file = transport_tool_schema("repo.read_file")
+        self.assertEqual(repo_read_file["parameters"]["required"], ["repo", "path", "ref"])
+        self.assertEqual(repo_read_file["parameters"]["properties"]["repo"]["type"], ["string", "null"])
+        self.assertEqual(repo_read_file["parameters"]["properties"]["path"]["type"], "string")
+        self.assertEqual(repo_read_file["parameters"]["properties"]["ref"]["type"], ["string", "null"])
+
+        runtime_config = transport_tool_schema("rsi.runtime_config")
+        self.assertEqual(runtime_config["parameters"]["required"], [])
 
         invalid: dict[str, list[str]] = {}
         for item in governed_toolset_definitions():
             schema = item["schema"]
-            paths = missing_closed_objects(schema.get("parameters"), "parameters")
+            paths = strict_schema_violations(schema.get("parameters"), "parameters")
             if paths:
                 invalid[schema["name"]] = paths
         self.assertEqual(invalid, {})
@@ -1232,6 +1310,8 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["failure_class"], "runner_invalid_tool_schema")
         self.assertEqual(result.raw["runner_diagnostics"]["failure_kind"], "invalid_tool_schema")
         self.assertEqual(result.raw["invalid_tool_schemas"][0]["tool_name"], "broken_tool")
+        violation_kinds = {item["kind"] for item in result.raw["invalid_tool_schemas"][0]["violations"]}
+        self.assertEqual(violation_kinds, {"additional_properties_not_false", "missing_required"})
         self.assertEqual(urlopen.call_count, 0)
 
     def test_native_mcp_workflow_uses_responses_with_function_tools_and_reply_delivery(self) -> None:

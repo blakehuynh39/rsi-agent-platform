@@ -544,11 +544,45 @@ def canonical_tool_name(name: str) -> str:
     raise ValueError(f"tool name {tool!r} is not recognized")
 
 
+def _nullable_json_schema(value: Any) -> Any:
+    if not isinstance(value, dict):
+        return value
+    out = deepcopy(value)
+    schema_type = out.get("type")
+    if isinstance(schema_type, str):
+        if schema_type != "null":
+            out["type"] = [schema_type, "null"]
+        return out
+    if isinstance(schema_type, list):
+        normalized = [item for item in schema_type if isinstance(item, str)]
+        if "null" not in normalized:
+            out["type"] = [*schema_type, "null"]
+        return out
+    enum_values = out.get("enum")
+    if isinstance(enum_values, list) and None not in enum_values:
+        out["enum"] = [*enum_values, None]
+    return out
+
+
 def _strict_json_schema(value: Any) -> Any:
     if isinstance(value, dict):
         out = {key: _strict_json_schema(item) for key, item in value.items()}
         if out.get("type") == "object":
-            out.setdefault("additionalProperties", False)
+            properties = out.get("properties")
+            if isinstance(properties, dict):
+                existing_required = {
+                    str(item).strip()
+                    for item in out.get("required", [])
+                    if isinstance(item, str) and str(item).strip()
+                }
+                ordered_keys = list(properties.keys())
+                for key in ordered_keys:
+                    if key not in existing_required:
+                        properties[key] = _nullable_json_schema(properties[key])
+                out["required"] = ordered_keys
+            else:
+                out["required"] = []
+            out["additionalProperties"] = False
         return out
     if isinstance(value, list):
         return [_strict_json_schema(item) for item in value]
@@ -671,7 +705,7 @@ class ReadOnlyToolBinding:
         transport_name = tool_transport_name(name)
         canonical_name = canonical_tool_name(name)
         payload = self._default_payload(canonical_name)
-        payload.update(args or {})
+        payload.update({key: value for key, value in (args or {}).items() if value is not None})
         self._record_tool_selection(canonical_name, payload)
         call_started_at = time.time()
         tool_call_id = self._next_tool_call_id(canonical_name)

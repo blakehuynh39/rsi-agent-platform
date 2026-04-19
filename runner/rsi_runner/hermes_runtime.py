@@ -1834,18 +1834,42 @@ class HermesRuntime:
             )
         return out
 
-    def _openai_schema_open_object_paths(self, schema: JsonValue | None, path: str) -> list[str]:
-        violations: list[str] = []
+    def _openai_schema_violations(self, schema: JsonValue | None, path: str) -> list[JsonObject]:
+        violations: list[JsonObject] = []
         if isinstance(schema, dict):
-            if _string_or_json(schema.get("type")) == "object" and schema.get("additionalProperties") is not False:
-                violations.append(path)
+            if _string_or_json(schema.get("type")) == "object":
+                if schema.get("additionalProperties") is not False:
+                    violations.append({"path": path, "kind": "additional_properties_not_false"})
+                properties = _json_object_or_empty(schema.get("properties"))
+                property_names = list(properties.keys())
+                required = schema.get("required")
+                if not isinstance(required, list):
+                    violations.append(
+                        {
+                            "path": path,
+                            "kind": "missing_required",
+                            "required_keys": property_names,
+                        }
+                    )
+                else:
+                    required_names = {name for name in _string_list(required) if name}
+                    missing_required = [name for name in property_names if name not in required_names]
+                    if missing_required:
+                        violations.append(
+                            {
+                                "path": path,
+                                "kind": "required_missing_properties",
+                                "required_keys": property_names,
+                                "missing_keys": missing_required,
+                            }
+                        )
             for key, value in schema.items():
                 child_path = f"{path}.{key}" if path else key
-                violations.extend(self._openai_schema_open_object_paths(value, child_path))
+                violations.extend(self._openai_schema_violations(value, child_path))
             return violations
         if isinstance(schema, list):
             for idx, item in enumerate(schema):
-                violations.extend(self._openai_schema_open_object_paths(item, f"{path}[{idx}]"))
+                violations.extend(self._openai_schema_violations(item, f"{path}[{idx}]"))
         return violations
 
     def _openai_function_schema_violations(self, tools: list[JsonObject]) -> list[JsonObject]:
@@ -1858,10 +1882,10 @@ class HermesRuntime:
                 _string_or_json(_json_object_or_empty(tool.get("function")).get("name")),
                 "unknown_function",
             )
-            missing_paths = self._openai_schema_open_object_paths(tool.get("parameters"), "parameters")
-            if not missing_paths:
+            schema_violations = self._openai_schema_violations(tool.get("parameters"), "parameters")
+            if not schema_violations:
                 continue
-            violations.append({"tool_name": tool_name, "paths": missing_paths})
+            violations.append({"tool_name": tool_name, "violations": schema_violations})
         return violations
 
     def _preflight_direct_function_tool_failure(self, task: RunnerTaskRequest, tools: list[JsonObject]) -> HermesExecutionResult | None:
