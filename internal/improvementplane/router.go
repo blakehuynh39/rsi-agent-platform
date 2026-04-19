@@ -21,8 +21,11 @@ import (
 )
 
 func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
+	return newRouterWithTranscriptResolver(cfg, store, newSlackTranscriptResolver(firstNonEmptyString(cfg.SlackUserToken, cfg.SlackBotToken)))
+}
+
+func newRouterWithTranscriptResolver(cfg config.Config, store storepkg.Repository, transcriptResolver slackTranscriptResolver) http.Handler {
 	r := app.NewBaseRouter(cfg)
-	transcriptResolver := newSlackTranscriptResolver(cfg.SlackBotToken)
 	r.Get("/api/conversations", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{"conversations": buildConversationList(store)})
 	})

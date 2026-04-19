@@ -1,7 +1,6 @@
 package improvementplane
 
 import (
-	"regexp"
 	"strings"
 	"sync"
 
@@ -9,16 +8,12 @@ import (
 
 	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
+	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 )
 
 const (
 	slackUserNamesMetadataKey    = "slack_user_names"
 	slackChannelNamesMetadataKey = "slack_channel_names"
-)
-
-var (
-	slackUserMentionPattern    = regexp.MustCompile(`<@([A-Z0-9]+)(?:\|[^>]+)?>`)
-	slackChannelMentionPattern = regexp.MustCompile(`<#([A-Z0-9]+)(?:\|[^>]+)?>`)
 )
 
 type slackTranscriptResolver interface {
@@ -127,11 +122,10 @@ func enrichSlackTranscriptEntries(entries []conversation.Entry, resolver slackTr
 	copy(out, entries)
 	changed := false
 	for index, entry := range out {
-		if entry.Source != ingestion.SourceSlack || !strings.Contains(entry.Body, "<") {
+		if entry.Source != ingestion.SourceSlack {
 			continue
 		}
-		userIDs := slackEntityIDs(entry.Body, slackUserMentionPattern)
-		channelIDs := slackEntityIDs(entry.Body, slackChannelMentionPattern)
+		userIDs, channelIDs := slackTranscriptEntityIDs(entry)
 		if len(userIDs) == 0 && len(channelIDs) == 0 {
 			continue
 		}
@@ -178,28 +172,39 @@ func enrichSlackTranscriptEntries(entries []conversation.Entry, resolver slackTr
 	return out
 }
 
-func slackEntityIDs(body string, pattern *regexp.Regexp) []string {
-	matches := pattern.FindAllStringSubmatch(body, -1)
-	if len(matches) == 0 {
-		return nil
-	}
-	out := make([]string, 0, len(matches))
-	seen := make(map[string]struct{}, len(matches))
-	for _, match := range matches {
-		if len(match) < 2 {
-			continue
-		}
-		id := strings.TrimSpace(match[1])
+func slackTranscriptEntityIDs(entry conversation.Entry) ([]string, []string) {
+	seenUsers := map[string]struct{}{}
+	seenChannels := map[string]struct{}{}
+	userIDs := []string{}
+	channelIDs := []string{}
+	appendEntity := func(item slackpkg.EntityRef) {
+		id := strings.ToUpper(strings.TrimSpace(item.ID))
 		if id == "" {
-			continue
+			return
 		}
-		if _, ok := seen[id]; ok {
-			continue
+		switch item.Kind {
+		case slackpkg.EntityUser:
+			if _, ok := seenUsers[id]; ok {
+				return
+			}
+			seenUsers[id] = struct{}{}
+			userIDs = append(userIDs, id)
+		case slackpkg.EntityChannel:
+			if _, ok := seenChannels[id]; ok {
+				return
+			}
+			seenChannels[id] = struct{}{}
+			channelIDs = append(channelIDs, id)
 		}
-		seen[id] = struct{}{}
-		out = append(out, id)
 	}
-	return out
+
+	for _, item := range slackpkg.ExtractEntityRefs(entry.Body) {
+		appendEntity(item)
+	}
+	for _, item := range slackpkg.EntityRefsFromValue(entry.Metadata["entity_refs"]) {
+		appendEntity(item)
+	}
+	return userIDs, channelIDs
 }
 
 func cloneConversationMetadata(metadata map[string]interface{}) map[string]interface{} {

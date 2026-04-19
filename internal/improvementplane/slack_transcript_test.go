@@ -60,6 +60,42 @@ func TestEnrichSlackTranscriptEntriesAddsResolvedSlackLabels(t *testing.T) {
 	}
 }
 
+func TestEnrichSlackTranscriptEntriesAddsResolvedSlackLabelsForPlainTextBodies(t *testing.T) {
+	entries := []conversation.Entry{
+		{
+			ID:     "entry-plain",
+			Source: ingestion.SourceSlack,
+			Body:   "Hello @U0ASDQKU3UL, please review #C0AKH5SNGKH and #C0AL7EKNHDF.",
+			Metadata: map[string]interface{}{
+				"entity_refs": []map[string]any{
+					{"kind": "user", "id": "U0ASDQKU3UL", "source": "plain_text"},
+					{"kind": "channel", "id": "C0AKH5SNGKH", "source": "plain_text"},
+					{"kind": "channel", "id": "C0AL7EKNHDF", "source": "plain_text"},
+				},
+			},
+		},
+	}
+
+	got := enrichSlackTranscriptEntries(entries, stubSlackTranscriptResolver{
+		userNames: map[string]string{
+			"U0ASDQKU3UL": "blake",
+		},
+		channelNames: map[string]string{
+			"C0AKH5SNGKH": "depin-backend",
+			"C0AL7EKNHDF": "numo-project",
+		},
+	})
+
+	userNames := metadataStringMap(got[0].Metadata[slackUserNamesMetadataKey])
+	channelNames := metadataStringMap(got[0].Metadata[slackChannelNamesMetadataKey])
+	if userNames["U0ASDQKU3UL"] != "blake" {
+		t.Fatalf("expected resolved user name for plain text transcript, got %#v", userNames)
+	}
+	if channelNames["C0AKH5SNGKH"] != "depin-backend" || channelNames["C0AL7EKNHDF"] != "numo-project" {
+		t.Fatalf("expected resolved channel names for plain text transcript, got %#v", channelNames)
+	}
+}
+
 func TestEnrichSlackTranscriptEntriesSkipsNonSlackEntries(t *testing.T) {
 	entries := []conversation.Entry{
 		{

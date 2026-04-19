@@ -435,6 +435,106 @@ func TestRouterConversationCaseAndTraceEndpoints(t *testing.T) {
 	}
 }
 
+func TestRouterConversationDetailEnrichesPlainSlackTranscriptEntities(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	receipt, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineIngress,
+		AggregateID: "slack:171000111.000100",
+		CommandKind: string(transition.CommandIngressRecordSlack),
+		CommandID:   "cmd-router-transcript-plain-text",
+		Actor:       "tester",
+		OccurredAt:  now,
+		Payload: map[string]any{
+			"bot_role":   "orchestrator",
+			"team_id":    "T123",
+			"channel_id": "C123",
+			"thread_ts":  "171000111.000100",
+			"user_id":    "U123",
+			"text":       "Hello @U0ASDQKU3UL, please review #C0AKH5SNGKH and #C0AL7EKNHDF.",
+			"ts":         "171000111.000100",
+			"entity_refs": []map[string]any{
+				{"kind": "user", "id": "U0ASDQKU3UL", "source": "plain_text"},
+				{"kind": "channel", "id": "C0AKH5SNGKH", "source": "plain_text"},
+				{"kind": "channel", "id": "C0AL7EKNHDF", "source": "plain_text"},
+			},
+			"created_at": now,
+		},
+	})
+	if err != nil {
+		t.Fatalf("SubmitCommand(slack ingress) error = %v", err)
+	}
+
+	ingestionID := strings.TrimSpace(receipt.ResultRef)
+	if ingestionID == "" {
+		t.Fatal("expected ingestion result ref")
+	}
+	conversationID := ""
+	for _, item := range store.ListIngestions() {
+		if item.ID == ingestionID {
+			conversationID = item.ConversationID
+			break
+		}
+	}
+	if conversationID == "" {
+		t.Fatalf("expected conversation for ingestion %s", ingestionID)
+	}
+
+	router := newRouterWithTranscriptResolver(config.Config{PublicBaseURL: "http://example.test"}, store, stubSlackTranscriptResolver{
+		userNames: map[string]string{
+			"U0ASDQKU3UL": "blake",
+		},
+		channelNames: map[string]string{
+			"C0AKH5SNGKH": "depin-backend",
+			"C0AL7EKNHDF": "numo-project",
+		},
+	})
+
+	req := httptest.NewRequest(http.MethodGet, "/api/conversations/"+conversationID, nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("conversation detail status = %d, want %d", rec.Code, http.StatusOK)
+	}
+
+	var payload map[string]any
+	if err := json.NewDecoder(rec.Body).Decode(&payload); err != nil {
+		t.Fatalf("decode conversation detail: %v", err)
+	}
+	transcript, ok := payload["transcript"].([]any)
+	if !ok || len(transcript) != 1 {
+		t.Fatalf("expected one transcript entry, got %#v", payload["transcript"])
+	}
+	entry, ok := transcript[0].(map[string]any)
+	if !ok {
+		t.Fatalf("expected transcript entry object, got %#v", transcript[0])
+	}
+	metadata, ok := entry["metadata"].(map[string]any)
+	if !ok {
+		t.Fatalf("expected transcript metadata object, got %#v", entry["metadata"])
+	}
+	userNames, ok := metadata[slackUserNamesMetadataKey].(map[string]any)
+	if !ok {
+		t.Fatalf("expected resolved slack_user_names metadata, got %#v", metadata[slackUserNamesMetadataKey])
+	}
+	gotUserName, _ := userNames["U0ASDQKU3UL"].(string)
+	if got := strings.TrimSpace(gotUserName); got != "blake" {
+		t.Fatalf("expected resolved user label, got %q in %#v", got, userNames)
+	}
+	channelNames, ok := metadata[slackChannelNamesMetadataKey].(map[string]any)
+	if !ok {
+		t.Fatalf("expected resolved slack_channel_names metadata, got %#v", metadata[slackChannelNamesMetadataKey])
+	}
+	gotPrimaryChannel, _ := channelNames["C0AKH5SNGKH"].(string)
+	if got := strings.TrimSpace(gotPrimaryChannel); got != "depin-backend" {
+		t.Fatalf("expected depin-backend channel label, got %q in %#v", got, channelNames)
+	}
+	gotSecondaryChannel, _ := channelNames["C0AL7EKNHDF"].(string)
+	if got := strings.TrimSpace(gotSecondaryChannel); got != "numo-project" {
+		t.Fatalf("expected numo-project channel label, got %q in %#v", got, channelNames)
+	}
+}
+
 func TestRouterFeedbackAndReplayRoutesSubmitProblemLineCommands(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	traceID := store.ListTraces()[0].TraceID
