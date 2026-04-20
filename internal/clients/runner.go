@@ -160,6 +160,7 @@ type RunnerMCPServer struct {
 	AllowedTools        map[string]any    `json:"allowed_tools,omitempty"`
 	RequireApproval     any               `json:"require_approval,omitempty"`
 	Headers             map[string]string `json:"headers,omitempty"`
+	HeaderEnvVars       map[string]string `json:"header_env_vars,omitempty"`
 	Profile             string            `json:"profile,omitempty"`
 }
 

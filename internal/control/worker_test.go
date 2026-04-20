@@ -2469,6 +2469,7 @@ func TestBuildRunnerTaskIncludesNotionMCPWhenEnabled(t *testing.T) {
 		DefaultReasoningVerbosity:    "verbose",
 		NotionMCPEnabled:             true,
 		NotionMCPServerURL:           "https://mcp.notion.com/mcp",
+		NotionMCPHeaderEnvVars:       map[string]string{"CF-Access-Client-Id": "RSI_NOTION_MCP_CF_ACCESS_CLIENT_ID"},
 		NotionMCPAuthorizationEnvVar: "RSI_NOTION_MCP_AUTHORIZATION",
 	}, store, "prod", trace, workflow, ingestion, "context", nil)
 
@@ -2483,6 +2484,9 @@ func TestBuildRunnerTaskIncludesNotionMCPWhenEnabled(t *testing.T) {
 	}
 	if task.MCPServers[1].AuthorizationEnvVar != "RSI_NOTION_MCP_AUTHORIZATION" {
 		t.Fatalf("unexpected notion auth env var %#v", task.MCPServers[1])
+	}
+	if !reflect.DeepEqual(task.MCPServers[1].HeaderEnvVars, map[string]string{"CF-Access-Client-Id": "RSI_NOTION_MCP_CF_ACCESS_CLIENT_ID"}) {
+		t.Fatalf("unexpected notion header env vars %#v", task.MCPServers[1].HeaderEnvVars)
 	}
 	if !reflect.DeepEqual(task.MCPServers[1].AllowedTools, map[string]any{"read_only": true}) {
 		t.Fatalf("expected read-only notion tool surface, got %#v", task.MCPServers[1].AllowedTools)

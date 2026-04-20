@@ -1,6 +1,7 @@
 package control
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -334,6 +335,7 @@ func TestBuildQuestionGatherTaskIncludesNotionMCPWhenEnabled(t *testing.T) {
 		DefaultReasoningVerbosity:    "verbose",
 		NotionMCPEnabled:             true,
 		NotionMCPServerURL:           "https://mcp.notion.com/mcp",
+		NotionMCPHeaderEnvVars:       map[string]string{"CF-Access-Client-Secret": "RSI_NOTION_MCP_CF_ACCESS_CLIENT_SECRET"},
 		NotionMCPAuthorizationEnvVar: "RSI_NOTION_MCP_AUTHORIZATION",
 	}, store, questionRunContext{
 		workflowContext: ctx,
@@ -356,6 +358,9 @@ func TestBuildQuestionGatherTaskIncludesNotionMCPWhenEnabled(t *testing.T) {
 	}
 	if task.MCPServers[1].ServerLabel != "notion" {
 		t.Fatalf("expected notion MCP server, got %#v", task.MCPServers[1])
+	}
+	if !reflect.DeepEqual(task.MCPServers[1].HeaderEnvVars, map[string]string{"CF-Access-Client-Secret": "RSI_NOTION_MCP_CF_ACCESS_CLIENT_SECRET"}) {
+		t.Fatalf("unexpected notion header env vars %#v", task.MCPServers[1].HeaderEnvVars)
 	}
 	if !strings.Contains(task.SystemMessage, "Use Notion MCP search and fetch when the user request, pasted links, or gathered evidence point to Notion workspace content.") {
 		t.Fatalf("expected notion-specific gather instruction, got %q", task.SystemMessage)

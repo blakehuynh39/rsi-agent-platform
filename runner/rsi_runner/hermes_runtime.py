@@ -2133,6 +2133,16 @@ class HermesRuntime:
                 "require_approval": server.get("require_approval") or "never",
             }
             headers = _json_object_or_empty(server.get("headers"))
+            header_env_vars = _json_object_or_empty(server.get("header_env_vars"))
+            if header_env_vars:
+                headers = dict(headers)
+                for header_name, env_var in header_env_vars.items():
+                    if not isinstance(header_name, str) or not isinstance(env_var, str):
+                        continue
+                    env_value = first_non_empty(os.getenv(env_var), "")
+                    if not env_value:
+                        raise RuntimeError(f"MCP header env var {env_var} is not configured.")
+                    headers[header_name] = env_value
             if headers:
                 item["headers"] = headers
             authorization = _string_or_json(server.get("authorization"))

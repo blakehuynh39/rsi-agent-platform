@@ -1428,10 +1428,27 @@ func notionMCPServersForRead(cfg config.Config) []clients.RunnerMCPServer {
 		Profile:      "notion_mcp_read",
 		AllowedTools: map[string]any{"read_only": true},
 	}
+	if len(cfg.NotionMCPHeaders) > 0 {
+		server.Headers = cloneStringMap(cfg.NotionMCPHeaders)
+	}
+	if len(cfg.NotionMCPHeaderEnvVars) > 0 {
+		server.HeaderEnvVars = cloneStringMap(cfg.NotionMCPHeaderEnvVars)
+	}
 	if authEnvVar := strings.TrimSpace(cfg.NotionMCPAuthorizationEnvVar); authEnvVar != "" {
 		server.AuthorizationEnvVar = authEnvVar
 	}
 	return []clients.RunnerMCPServer{server}
+}
+
+func cloneStringMap(input map[string]string) map[string]string {
+	if len(input) == 0 {
+		return nil
+	}
+	out := make(map[string]string, len(input))
+	for key, value := range input {
+		out[key] = value
+	}
+	return out
 }
 
 func hasSlackMCPServer(servers []clients.RunnerMCPServer) bool {
