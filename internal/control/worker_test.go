@@ -17,6 +17,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
+	"github.com/piplabs/rsi-agent-platform/internal/runnerutil"
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
@@ -651,7 +652,7 @@ func TestWorkflowNativeMCPReplyDeliveryCompletesWithoutQueuedSlackReply(t *testi
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"ok":       true,
 			"provider": "openai",
-			"message":  `{"visible_reasoning":[],"reply_draft":"Final reply from Slack MCP.","final_answer":"Final reply from Slack MCP.","confidence":0.88,"context_summary":"Grounded in Slack MCP evidence.","self_critique":"","proposed_actions":[],"knowledge_drafts":[],"outcome_hypotheses":[]}`,
+			"message":  `{"visible_reasoning":[],"reply_draft":"Final reply from Slack MCP.","final_answer":"Final reply from Slack MCP.","confidence":0.88,"context_summary":"Grounded in Slack MCP evidence.","self_critique":"","proposed_actions":[],"knowledge_drafts":[],"outcome_hypotheses":[],"produced_artifacts":[{"kind":"diagram","artifact_refs":["artifact://structured-diagram"]}]}`,
 			"raw": map[string]any{
 				"native_mcp_enabled": true,
 				"reply_delivery": map[string]any{
@@ -664,6 +665,9 @@ func TestWorkflowNativeMCPReplyDeliveryCompletesWithoutQueuedSlackReply(t *testi
 					"tool_name":    "slack.mcp.send_message",
 					"provider_ref": "171000001.000100",
 					"send_status":  "posted",
+					"artifact_refs": []any{
+						"artifact://delivery-proof",
+					},
 				},
 				"tool_calls": []any{
 					map[string]any{
@@ -684,6 +688,14 @@ func TestWorkflowNativeMCPReplyDeliveryCompletesWithoutQueuedSlackReply(t *testi
 					"confidence":         0.88,
 					"context_summary":    "Grounded in Slack MCP evidence.",
 					"self_critique":      "",
+					"produced_artifacts": []any{
+						map[string]any{
+							"kind": "diagram",
+							"artifact_refs": []any{
+								"artifact://structured-diagram",
+							},
+						},
+					},
 					"proposed_actions":   []any{},
 					"knowledge_drafts":   []any{},
 					"outcome_hypotheses": []any{},
@@ -776,6 +788,9 @@ func TestWorkflowNativeMCPReplyDeliveryCompletesWithoutQueuedSlackReply(t *testi
 	}
 	if trace.SlackActions[0].SendStatus != "posted" {
 		t.Fatalf("expected posted send status, got %#v", trace.SlackActions[0])
+	}
+	if !reflect.DeepEqual(trace.SlackActions[0].ArtifactRefs, []string{"artifact://delivery-proof", "artifact://structured-diagram"}) {
+		t.Fatalf("expected merged delivery and structured artifact refs, got %#v", trace.SlackActions[0].ArtifactRefs)
 	}
 }
 
@@ -2438,10 +2453,265 @@ func TestBuildRunnerTaskBoundsNativeMCPToolSurface(t *testing.T) {
 	if !reflect.DeepEqual(task.AllowedTools, expectedTools) {
 		t.Fatalf("expected allowed tools %#v, got %#v", expectedTools, task.AllowedTools)
 	}
-	for _, forbidden := range []string{"slack.history", "slack.search", "slack.reply", "cloudflare.inspect"} {
+	for _, expected := range []string{"cloudflare.inspect", "kubernetes.events", "repo.read_file", "repo.search", "rsi.trace_context"} {
+		if !containsString(task.AllowedTools, expected) {
+			t.Fatalf("expected %s in bounded tool surface, got %#v", expected, task.AllowedTools)
+		}
+	}
+	for _, forbidden := range []string{"slack.history", "slack.search", "slack.reply"} {
 		if containsString(task.AllowedTools, forbidden) {
 			t.Fatalf("expected %s to be absent from bounded tool surface, got %#v", forbidden, task.AllowedTools)
 		}
+	}
+}
+
+func TestProcessWorkflowRunnerEffectKeepsFeatureRequestQuestionOnAgenticWorkflowPath(t *testing.T) {
+	classifierCalls := 0
+	workflowCalls := 0
+	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var payload struct {
+			Task clients.RunnerTask `json:"task"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("decode runner payload: %v", err)
+		}
+		switch payload.Task.TaskType {
+		case "general":
+			classifierCalls++
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"ok":       true,
+				"provider": "fake",
+				"message":  `{"workflow_kind":"architecture","rationale":"This is a read-heavy progress and alignment question, not a build request.","confidence":0.93}`,
+				"raw": map[string]any{
+					"structured_output": map[string]any{
+						"workflow_kind": "architecture",
+						"rationale":     "This is a read-heavy progress and alignment question, not a build request.",
+						"confidence":    0.93,
+					},
+				},
+			})
+		case "workflow":
+			workflowCalls++
+			if payload.Task.Intent != "question" {
+				t.Fatalf("expected workflow intent question after classification, got %#v", payload.Task)
+			}
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"ok":       true,
+				"provider": "fake",
+				"message":  `{"final_answer":"Here is the rundown.","confidence":0.88}`,
+				"raw": map[string]any{
+					"native_mcp_enabled": true,
+					"structured_output": map[string]any{
+						"final_answer":    "Here is the rundown.",
+						"reply_draft":     "Here is the rundown.",
+						"confidence":      0.88,
+						"context_summary": "Grounded in repo and Slack evidence.",
+					},
+					"reply_delivery": map[string]any{
+						"channel_id":  payload.Task.ChannelID,
+						"thread_ts":   payload.Task.ThreadTS,
+						"body":        "Here is the rundown.",
+						"send_status": "posted",
+					},
+				},
+			})
+		default:
+			t.Fatalf("unexpected task type %#v", payload.Task)
+		}
+	}))
+	defer runner.Close()
+
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	receipt, err := store.SubmitCommand(transition.CommandEnvelope{
+		MachineKind: transition.MachineIngress,
+		AggregateID: "slack:171000555.000100",
+		CommandKind: string(transition.CommandIngressRecordSlack),
+		CommandID:   "cmd-test-feature-request-reroute",
+		Actor:       "tester",
+		OccurredAt:  now,
+		Payload: map[string]any{
+			"bot_role":   "orchestrator",
+			"team_id":    "T123",
+			"channel_id": "D123",
+			"thread_ts":  "171000555.000100",
+			"user_id":    "U123",
+			"text":       "I need a quick rundown of how depin-backend progressed this week and whether it is aligned with numo.",
+			"ts":         "171000555.000100",
+			"created_at": now,
+		},
+	})
+	if err != nil {
+		t.Fatalf("SubmitCommand(slack ingress) error = %v", err)
+	}
+	ingestion, ok := findIngestion(store.ListIngestions(), receipt.ResultRef)
+	if !ok {
+		t.Fatalf("expected ingestion %s", receipt.ResultRef)
+	}
+	var trace events.Trace
+	for _, item := range store.ListTraces() {
+		if item.IngestionID != ingestion.ID {
+			continue
+		}
+		loaded, loadedOK := store.GetTrace(item.TraceID)
+		if !loadedOK {
+			t.Fatalf("expected trace %s", item.TraceID)
+		}
+		trace = loaded
+		break
+	}
+	if trace.Summary.TraceID == "" {
+		t.Fatal("expected trace for ingested feature-request candidate")
+	}
+	workflow, ok := findWorkflow(store.ListWorkflows(), trace.Summary.WorkflowID)
+	if !ok {
+		t.Fatalf("expected workflow %s", trace.Summary.WorkflowID)
+	}
+	if workflow.Kind != "feature-request" {
+		t.Fatalf("expected heuristic feature-request workflow, got %#v", workflow)
+	}
+
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		Environment:               "stage",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"depin-backend", "rsi-agent-platform"},
+		RunnerBaseURL:             runner.URL,
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+	}
+	if err := startWorkflowViaCommand(cfg, store, workflow.ID, now.Add(time.Second), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+
+	var runnerEffect transition.EffectExecution
+	for _, effect := range store.ListEffectExecutionsByAggregate(transition.MachineWorkflow, workflow.ID) {
+		if effect.EffectKind != transition.EffectInvokeRunner || effect.Status != transition.EffectQueued {
+			continue
+		}
+		claimed, claimedOK, claimErr := store.ClaimEffectExecution(effect.ID, "tester", 30*time.Second)
+		if claimErr != nil {
+			t.Fatalf("ClaimEffectExecution(%s) error = %v", effect.ID, claimErr)
+		}
+		if !claimedOK {
+			t.Fatalf("expected to claim runner effect %s", effect.ID)
+		}
+		runnerEffect = claimed
+		break
+	}
+	if runnerEffect.ID == "" {
+		t.Fatal("expected queued workflow runner effect")
+	}
+
+	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect); err != nil {
+		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
+	}
+	if classifierCalls != 1 {
+		t.Fatalf("expected exactly one classifier call, got %d", classifierCalls)
+	}
+	if workflowCalls != 1 {
+		t.Fatalf("expected exactly one workflow runner call, got %d", workflowCalls)
+	}
+	assertWorkflowEffectStatus(t, store, workflow.ID, transition.EffectInvokeRunner, transition.EffectCompleted)
+
+	questionRuns := store.ListQuestionRuns()
+	if len(questionRuns) != 0 {
+		t.Fatalf("expected no question runs after agentic workflow execution, got %#v", questionRuns)
+	}
+}
+
+func TestBuildRunnerTaskRequestsDiagramArtifact(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatalf("expected trace %s", workflowItem.traceID)
+	}
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatalf("expected workflow %s", workflowItem.workflowID)
+	}
+	ingestion, ok := findIngestion(store.ListIngestions(), workflowItem.ingestionID)
+	if !ok {
+		t.Fatalf("expected ingestion %s", workflowItem.ingestionID)
+	}
+	ingestion.Text = "@RSI can you draw an architecture diagram of depin-backend? Use /architecture-diagram skill"
+	task := buildRunnerTask(config.Config{
+		Environment:               "stage",
+		DefaultRepo:               "rsi-agent-platform",
+		AllowedTargetRepos:        []string{"depin-backend", "rsi-agent-platform"},
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+	}, store, "prod", trace, workflow, ingestion, "context", nil)
+	if !task.ArtifactOptional {
+		t.Fatalf("expected requested artifact to be optional, got %#v", task)
+	}
+	if len(task.RequestedArtifacts) != 1 || task.RequestedArtifacts[0].Kind != "diagram" {
+		t.Fatalf("expected one requested diagram artifact, got %#v", task.RequestedArtifacts)
+	}
+	if !containsString(task.ExpectedOutputs, "produced_artifacts") {
+		t.Fatalf("expected produced_artifacts in expected outputs, got %#v", task.ExpectedOutputs)
+	}
+}
+
+func TestBuildRunnerTaskUsesPromptEnvelopeForArtifactDetection(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatalf("expected trace %s", workflowItem.traceID)
+	}
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatalf("expected workflow %s", workflowItem.workflowID)
+	}
+	ingestion, ok := findIngestion(store.ListIngestions(), workflowItem.ingestionID)
+	if !ok {
+		t.Fatalf("expected ingestion %s", workflowItem.ingestionID)
+	}
+	ingestion.Text = "Summarize the architecture work."
+	ingestion.Prompt = slackpkg.SlackPromptEnvelope{
+		RawText:      "@RSI can you draw an architecture diagram of depin-backend? Use /architecture-diagram skill",
+		RenderedText: "@RSI can you draw an architecture diagram of depin-backend? Use /architecture-diagram skill",
+	}
+
+	task := buildRunnerTask(config.Config{
+		Environment:               "stage",
+		DefaultRepo:               "rsi-agent-platform",
+		AllowedTargetRepos:        []string{"depin-backend", "rsi-agent-platform"},
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+	}, store, "prod", trace, workflow, ingestion, "context", nil)
+	if len(task.RequestedArtifacts) != 1 || task.RequestedArtifacts[0].Kind != "diagram" {
+		t.Fatalf("expected one requested diagram artifact from prompt envelope, got %#v", task.RequestedArtifacts)
+	}
+}
+
+func TestTraceArtifactsFromProducedArtifactsUsesUniqueStableIDs(t *testing.T) {
+	items := []runnerutil.ProducedArtifact{
+		{Kind: "diagram", ArtifactRefs: []string{"artifact://diagram-1"}},
+		{Kind: "rendered_output", ArtifactRefs: []string{"artifact://render-1"}},
+	}
+
+	artifacts := traceArtifactsFromProducedArtifacts("trace-123", items)
+	if len(artifacts) != 2 {
+		t.Fatalf("expected two trace artifacts, got %#v", artifacts)
+	}
+	if artifacts[0].ID == artifacts[1].ID {
+		t.Fatalf("expected unique artifact IDs, got %#v", artifacts)
+	}
+
+	again := traceArtifactsFromProducedArtifacts("trace-123", items)
+	if len(again) != 2 {
+		t.Fatalf("expected two trace artifacts on second run, got %#v", again)
+	}
+	if artifacts[0].ID != again[0].ID || artifacts[1].ID != again[1].ID {
+		t.Fatalf("expected stable artifact IDs across repeated projections, got first=%#v second=%#v", artifacts, again)
 	}
 }
 

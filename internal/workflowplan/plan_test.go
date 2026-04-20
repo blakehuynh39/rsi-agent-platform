@@ -130,6 +130,43 @@ func TestCandidateReadSurfacesForContextPrefersStructuredEntityRefs(t *testing.T
 	}
 }
 
+func TestRequestedArtifactsForUserRequestDetectsDiagramAndRenderedOutput(t *testing.T) {
+	items := RequestedArtifactsForUserRequest("Please draw an architecture diagram and attach the rendered output.")
+	if len(items) != 2 {
+		t.Fatalf("expected two requested artifacts, got %#v", items)
+	}
+	if items[0].Kind != "diagram" {
+		t.Fatalf("expected diagram artifact first, got %#v", items)
+	}
+	if items[1].Kind != "rendered_output" {
+		t.Fatalf("expected rendered_output artifact second, got %#v", items)
+	}
+}
+
+func TestRequestedArtifactsForUserRequestDedupesRepeatedSignals(t *testing.T) {
+	items := RequestedArtifactsForUserRequest("Use /architecture-diagram and draw a system diagram, then render an attachment attached to the reply.")
+	if len(items) != 2 {
+		t.Fatalf("expected deduped artifacts, got %#v", items)
+	}
+}
+
+func TestRequestedArtifactsForPromptUsesRenderedPromptText(t *testing.T) {
+	items := RequestedArtifactsForPrompt("Summarize the architecture work.", slackpkg.SlackPromptEnvelope{
+		RawText:      "@RSI can you draw an architecture diagram using /architecture-diagram",
+		RenderedText: "@RSI can you draw an architecture diagram using /architecture-diagram",
+	})
+	if len(items) != 1 || items[0].Kind != "diagram" {
+		t.Fatalf("expected diagram artifact from prompt envelope, got %#v", items)
+	}
+}
+
+func TestRequestedArtifactsForUserRequestDoesNotTriggerRenderedOutputOnBareRender(t *testing.T) {
+	items := RequestedArtifactsForUserRequest("Please render a summary of the rollout status.")
+	if len(items) != 0 {
+		t.Fatalf("expected no requested artifacts for bare render phrasing, got %#v", items)
+	}
+}
+
 func containsTool(plan []string, tool string) bool {
 	for _, item := range plan {
 		if item == tool {

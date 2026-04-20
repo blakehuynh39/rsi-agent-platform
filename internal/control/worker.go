@@ -22,6 +22,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/runnerutil"
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
+	"github.com/piplabs/rsi-agent-platform/internal/toolcatalog"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
 	"github.com/piplabs/rsi-agent-platform/internal/workflowplan"
 )
@@ -164,9 +165,14 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	if runnerClient == nil {
 		return fmt.Errorf("runner client unavailable for queue %s", queueName)
 	}
+	effectiveWorkflow := ctx.workflow
+	classification := classifyWorkflowExecution(cfg, store, runnerClient, runnerRoleForQueue(queueName), ctx.trace, ctx.workflow, ctx.ingestion)
+	if classification.Source == "ai_classifier" {
+		effectiveWorkflow = classification.Workflow
+	}
 	contextSummary, contextRefs := contextFromTrace(ctx.trace)
 	runnerStarted := time.Now().UTC()
-	runnerTask := buildRunnerTask(cfg, store, runnerRoleForQueue(queueName), ctx.trace, ctx.workflow, ctx.ingestion, contextSummary, contextRefs)
+	runnerTask := buildRunnerTask(cfg, store, runnerRoleForQueue(queueName), ctx.trace, effectiveWorkflow, ctx.ingestion, contextSummary, contextRefs)
 	runnerResp, err := runnerClient.Execute(runnerTask)
 	if err != nil {
 		return &workflowFailureError{failure: workflowFailureFromRunnerError(err)}
@@ -276,6 +282,13 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	if err := persistKnowledgeDrafts(store, ctx.trace, runnerOutput.KnowledgeDrafts, runnerCompleted); err != nil {
 		return runnerPostProcessingFailure("persist_knowledge_drafts", err)
 	}
+	traceArtifacts := traceArtifactsFromProducedArtifacts(ctx.trace.Summary.TraceID, runnerOutput.ProducedArtifacts)
+	artifactRequested := len(runnerTask.RequestedArtifacts) > 0
+	artifactProduced := len(traceArtifacts) > 0
+	artifactFailureReason := strings.TrimSpace(runnerOutput.ArtifactFailureReason)
+	if artifactRequested && !artifactProduced && artifactFailureReason == "" {
+		artifactFailureReason = "Artifact generation did not complete."
+	}
 
 	proposedReplyAction := firstSlackPostAction(runnerOutput.ProposedActions)
 	replyBody := firstNonEmpty(
@@ -334,8 +347,33 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		Decision:   replyBody,
 		CreatedAt:  runnerCompleted,
 	})
+	if artifactRequested {
+		summary := fmt.Sprintf("Artifact request resulted in %d produced artifact(s).", len(traceArtifacts))
+		decision := "artifact_produced"
+		if !artifactProduced {
+			summary = firstNonEmpty(artifactFailureReason, "Artifact production did not complete.")
+			decision = "artifact_missing"
+		}
+		finalReasoning = append(finalReasoning, events.ReasoningStep{
+			ID:         fmt.Sprintf("reason-artifact-%d", runnerCompleted.UnixNano()),
+			TraceID:    ctx.trace.Summary.TraceID,
+			WorkflowID: ctx.trace.Summary.WorkflowID,
+			StepType:   "artifact_delivery",
+			Summary:    summary,
+			Confidence: runnerOutput.Confidence,
+			Decision:   decision,
+			CreatedAt:  runnerCompleted,
+		})
+	}
 	runnerDiagnostics := cloneStringAnyMap(mapValue(runnerResp.Raw["runner_diagnostics"]))
 	runnerDiagnostics = mergeWorkflowRunnerDiagnostics(runnerDiagnostics, runnerResp.Raw)
+	if artifactRequested {
+		runnerDiagnostics["requested_artifacts"] = runnerTask.RequestedArtifacts
+		runnerDiagnostics["artifact_optional"] = runnerTask.ArtifactOptional
+	}
+	if artifactFailureReason != "" {
+		runnerDiagnostics["artifact_failure_reason"] = artifactFailureReason
+	}
 	runnerToolCalls := bindRunnerToolCallRecords(
 		toolCallRecordsFromRunnerRaw(runnerResp.Raw),
 		ctx.trace,
@@ -382,6 +420,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 			"repair_attempted":   boolValue(runnerResp.Raw["repair_attempted"]),
 			"repair_succeeded":   boolValue(runnerResp.Raw["repair_succeeded"]),
 			"trace_events":       runnerEvents,
+			"trace_artifacts":    traceArtifacts,
 			"reasoning_steps":    finalReasoning,
 			"tool_calls":         runnerToolCalls,
 		}); err != nil {
@@ -419,6 +458,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 			"failure_summary":    summary,
 			"runner_diagnostics": runnerDiagnostics,
 			"trace_events":       runnerEvents,
+			"trace_artifacts":    traceArtifacts,
 			"reasoning_steps":    finalReasoning,
 			"tool_calls":         runnerToolCalls,
 		}); err != nil {
@@ -435,6 +475,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		replyDelivery.ConversationID = ctx.trace.Summary.ConversationID
 		replyDelivery.CaseID = ctx.trace.Summary.CaseID
 		replyDelivery.PolicyVerdict = policyVerdict
+		replyDelivery.ArtifactRefs = uniqueStrings(append(replyDelivery.ArtifactRefs, producedArtifactRefs(runnerOutput.ProducedArtifacts)...))
 		replyDelivery.CreatedAt = runnerCompleted
 		slackActions = []events.SlackActionRecord{replyDelivery}
 		runnerEvents = append(runnerEvents, events.TraceEvent{
@@ -497,6 +538,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		"repair_succeeded":   boolValue(runnerResp.Raw["repair_succeeded"]),
 		"runner_diagnostics": runnerDiagnostics,
 		"trace_events":       append(runnerEvents, draftEvents...),
+		"trace_artifacts":    traceArtifacts,
 		"reasoning_steps":    finalReasoning,
 		"tool_calls":         runnerToolCalls,
 		"slack_actions":      slackActions,
@@ -525,22 +567,15 @@ func submitWorkflowContextCompleted(cfg config.Config, store storepkg.Store, ctx
 	if isTerminalTraceStatus(ctx.trace.Summary.Status) {
 		return nil
 	}
-	executionStrategy := workflowExecutionStrategy(ctx.workflow)
 	executionRole := runnerRoleForQueue(resumeQueue)
 	executionStartedType := "runner.started"
 	executionStartedService := "runner"
 	executionStartedDescription := "Runner task dispatched with verbose reasoning enabled."
-	if executionStrategy == "read_heavy_slack_qna" {
-		executionStartedType = "question_run.started"
-		executionStartedService = cfg.ServiceName
-		executionStartedDescription = "Question-run child machine dispatched with deterministic compiler inputs."
-	}
 	contextSummary, contextRefs := contextFromTrace(ctx.trace)
 	if len(contextRefs) > 0 {
 		if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandContextCompleted, cfg.ServiceName, occurredAt, map[string]any{
 			"tool_count":         len(contextRefs),
 			"resume_queue":       string(resumeQueue),
-			"execution_strategy": executionStrategy,
 			"execution_role":     executionRole,
 			"trace_events": []events.TraceEvent{
 				{
@@ -577,7 +612,7 @@ func submitWorkflowContextCompleted(cfg config.Config, store storepkg.Store, ctx
 					Summary:      firstNonEmpty(contextSummary, "No external context tools were required."),
 					EvidenceRefs: evidenceRefsFromContext(contextRefs),
 					Confidence:   0.82,
-					Decision:     firstNonEmpty(executionStrategy, fmt.Sprintf("persisted_context_refs:%d", len(contextRefs))),
+					Decision:     fmt.Sprintf("persisted_context_refs:%d", len(contextRefs)),
 					CreatedAt:    occurredAt,
 				},
 			},
@@ -589,7 +624,6 @@ func submitWorkflowContextCompleted(cfg config.Config, store storepkg.Store, ctx
 	if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandContextSkipped, cfg.ServiceName, occurredAt, map[string]any{
 		"tool_count":         0,
 		"resume_queue":       string(resumeQueue),
-		"execution_strategy": executionStrategy,
 		"execution_role":     executionRole,
 		"trace_events": []events.TraceEvent{
 			{
@@ -756,6 +790,7 @@ func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, toolC
 		FinalBody:      firstNonEmpty(finalBody, body),
 		PolicyVerdict:  firstNonEmpty(intent.PolicyVerdict, blockedReason),
 		SendStatus:     "draft_only",
+		ArtifactRefs:   append([]string(nil), stringSliceFromMap(intent.RequestPayload, "artifact_refs")...),
 		CreatedAt:      started,
 	}
 	replyEffect, _, err := claimWorkflowEffectByPayload(
@@ -788,7 +823,7 @@ func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, toolC
 		})
 		actionStatus = actionStatusFromToolResult(result, execErr)
 		summary = toolResultSummary(result, execErr)
-		baseRecord.ArtifactRefs = append([]string(nil), result.RawArtifactRefs...)
+		baseRecord.ArtifactRefs = uniqueStrings(append(baseRecord.ArtifactRefs, result.RawArtifactRefs...))
 		baseRecord.SendStatus = slackSendStatus(actionStatus, result)
 	}
 	if blockedReason != "" {
@@ -932,12 +967,20 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	allowed, _ := replyPolicy(store, workflow.Kind, trace.Summary.ThreadKey, ingestion.ChannelID)
 	mcpServers := workflowMCPServers(cfg, allowed, ingestion.ChannelID, ingestion.ThreadTS)
 	allowedTools := workflowRunnerAllowedTools(liveHints, hasSlackMCPServer(mcpServers))
+	requestedArtifacts := requestedArtifactsForIngestion(ingestion)
 	systemMessage := harness.ComposeSystemMessage(
-		workflowRunnerSystemMessage(hasSlackMCPServer(mcpServers), hasNotionMCPServer(mcpServers), allowed),
+		workflowRunnerSystemMessage(hasSlackMCPServer(mcpServers), hasNotionMCPServer(mcpServers), allowed, requestedArtifacts),
 		effectiveHarness,
 	)
 	prompt := fmt.Sprintf("User request: %s\n\nInvestigate within the governed tool boundary. Start with the attached persisted evidence and context, then expand with tools as needed. Cite concrete evidence when possible. Default any Slack reply to the ingress thread.", ingestion.Text)
+	if len(requestedArtifacts) > 0 {
+		prompt = fmt.Sprintf("%s\n\nRequested artifacts: %s\nIf an artifact cannot be produced, explain why in artifact_failure_reason and still return the best grounded reply you can.", prompt, mustJSONString(requestedArtifacts))
+	}
 	repo := firstNonEmpty(liveHints.Repo, cfg.DefaultRepo)
+	expectedOutputs := []string{"visible_reasoning", "final_answer"}
+	if len(requestedArtifacts) > 0 {
+		expectedOutputs = append(expectedOutputs, "produced_artifacts", "artifact_failure_reason")
+	}
 	return clients.RunnerTask{
 		TaskType:                  "workflow",
 		Repo:                      repo,
@@ -948,8 +991,10 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		AllowedTools:              allowedTools,
 		AllowedCommands:           []string{},
 		TimeoutSeconds:            0,
-		ExpectedOutputs:           []string{"visible_reasoning", "final_answer"},
+		ExpectedOutputs:           expectedOutputs,
 		ArtifactDestination:       fmt.Sprintf("trace:%s", trace.Summary.TraceID),
+		RequestedArtifacts:        requestedArtifacts,
+		ArtifactOptional:          len(requestedArtifacts) > 0,
 		ContextSummary:            combinedContextSummary,
 		Intent:                    workflow.Intent,
 		TraceID:                   trace.Summary.TraceID,
@@ -981,15 +1026,19 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	}
 }
 
-func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyAllowed bool) string {
+func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyAllowed bool, requestedArtifacts []clients.RunnerRequestedArtifact) string {
 	if !useSlackMCP {
 		parts := []string{
 			"Return explicit visible reasoning only. Do not include hidden chain-of-thought.",
-			"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, and outcome_hypotheses.",
+			"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, outcome_hypotheses, produced_artifacts, and artifact_failure_reason.",
 			"Start from persisted evidence, then choose governed tools and tool order yourself.",
+			"You may use Hermes-native skills when they materially help satisfy the request.",
 		}
 		if useNotionMCP {
 			parts = append(parts, "Use Notion MCP for Notion workspace search and page fetches when relevant.")
+		}
+		if len(requestedArtifacts) > 0 {
+			parts = append(parts, "Artifact production was requested. If you produce one, include it in produced_artifacts. If you cannot, set artifact_failure_reason and still provide the best grounded reply.")
 		}
 		parts = append(parts, "If you intend to reply in Slack, you must emit an explicit proposed action with kind=slack_post; prose alone is not enough.")
 		return strings.Join(parts, " ")
@@ -997,22 +1046,30 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyAllow
 	if replyAllowed {
 		parts := []string{
 			"Return explicit visible reasoning only. Do not include hidden chain-of-thought.",
-			"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, and outcome_hypotheses.",
+			"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, outcome_hypotheses, produced_artifacts, and artifact_failure_reason.",
 			"Use Slack MCP for Slack investigation.",
+			"You may use Hermes-native skills when they materially help satisfy the request.",
 		}
 		if useNotionMCP {
 			parts = append(parts, "Use Notion MCP for Notion workspace search and page fetches when relevant.")
+		}
+		if len(requestedArtifacts) > 0 {
+			parts = append(parts, "Artifact production was requested. If you produce one, include it in produced_artifacts. If you cannot, set artifact_failure_reason and still provide the best grounded reply.")
 		}
 		parts = append(parts, "Use governed repo, GitHub, knowledge, RSI, and workspace tools for non-Slack evidence.", "If you have a grounded final answer, send exactly one Slack reply to the bound ingress thread using Slack MCP, then return the JSON object.", "Do not emit a slack_post action contract.")
 		return strings.Join(parts, " ")
 	}
 	parts := []string{
 		"Return explicit visible reasoning only. Do not include hidden chain-of-thought.",
-		"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, and outcome_hypotheses.",
+		"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, outcome_hypotheses, produced_artifacts, and artifact_failure_reason.",
 		"Use Slack MCP for Slack investigation.",
+		"You may use Hermes-native skills when they materially help satisfy the request.",
 	}
 	if useNotionMCP {
 		parts = append(parts, "Use Notion MCP for Notion workspace search and page fetches when relevant.")
+	}
+	if len(requestedArtifacts) > 0 {
+		parts = append(parts, "Artifact production was requested. If you produce one, include it in produced_artifacts. If you cannot, set artifact_failure_reason and still provide the best grounded reply.")
 	}
 	parts = append(parts, "Use governed repo, GitHub, knowledge, RSI, and workspace tools for non-Slack evidence.", "Slack posting is blocked by policy for this workflow, so do not send any Slack messages.")
 	return strings.Join(parts, " ")
@@ -1057,6 +1114,9 @@ func draftSlackPostAction(cfg config.Config, store storepkg.Store, resumeQueue q
 		"policy_verdict":         policyVerdict,
 		"resume_queue":           string(resumeQueue),
 		"workflow_reply_command": string(transition.WorkflowReplyPostedCommand(completionVerdict)),
+	}
+	if artifactRefs := producedArtifactRefs(output.ProducedArtifacts); len(artifactRefs) > 0 {
+		requestPayload["artifact_refs"] = artifactRefs
 	}
 
 	approvalState := "approved"
@@ -1170,6 +1230,7 @@ func workflowReplyDelivery(raw map[string]any, fallbackChannelID string, fallbac
 		DraftBody:      body,
 		FinalBody:      body,
 		SendStatus:     firstNonEmpty(strings.TrimSpace(stringValueFromMap(item, "send_status")), "posted"),
+		ArtifactRefs:   append([]string(nil), stringSliceFromMap(item, "artifact_refs")...),
 	}
 	return record, true
 }
@@ -1336,16 +1397,70 @@ func runnerRoleForQueue(name queue.QueueName) string {
 	}
 }
 
-func workflowExecutionStrategy(workflow storepkg.Workflow) string {
-	if workflowplan.UseReadHeavySlackQnAStrategy(workflow.Intent, workflow.ResponseMode) {
-		return "read_heavy_slack_qna"
+func requestedArtifactsForPrompt(userRequest string, prompt any) []clients.RunnerRequestedArtifact {
+	specs := workflowplan.RequestedArtifactsForPrompt(userRequest, prompt)
+	if len(specs) == 0 {
+		return nil
 	}
-	return ""
+	out := make([]clients.RunnerRequestedArtifact, 0, len(specs))
+	for _, item := range specs {
+		out = append(out, clients.RunnerRequestedArtifact{
+			Kind:        item.Kind,
+			Description: item.Description,
+		})
+	}
+	return out
+}
+
+func requestedArtifactsForIngestion(ingestion slackpkg.Ingestion) []clients.RunnerRequestedArtifact {
+	return requestedArtifactsForPrompt(ingestion.Text, ingestion.Prompt)
+}
+
+func producedArtifactRefs(items []runnerutil.ProducedArtifact) []string {
+	out := []string{}
+	for _, item := range items {
+		out = append(out, item.ArtifactRefs...)
+	}
+	return uniqueStrings(out)
+}
+
+func traceArtifactsFromProducedArtifacts(traceID string, items []runnerutil.ProducedArtifact) []events.Artifact {
+	if strings.TrimSpace(traceID) == "" || len(items) == 0 {
+		return nil
+	}
+	out := make([]events.Artifact, 0, len(items))
+	seen := map[string]struct{}{}
+	for _, item := range items {
+		for _, ref := range item.ArtifactRefs {
+			ref = strings.TrimSpace(ref)
+			if ref == "" {
+				continue
+			}
+			key := fmt.Sprintf("%s:%s", strings.TrimSpace(item.Kind), ref)
+			if _, ok := seen[key]; ok {
+				continue
+			}
+			seen[key] = struct{}{}
+			sum := sha1.Sum([]byte(strings.Join([]string{traceID, strings.TrimSpace(item.Kind), ref}, "|")))
+			out = append(out, events.Artifact{
+				ID:          fmt.Sprintf("artifact-workflow-%x", sum),
+				TraceID:     traceID,
+				Kind:        firstNonEmpty(strings.TrimSpace(item.Kind), "workflow_artifact"),
+				ContentType: "",
+				URL:         ref,
+				SizeBytes:   0,
+				Source:      "runner",
+			})
+		}
+	}
+	return out
 }
 
 func workflowRunnerAllowedTools(hints workflowplan.LiveHintSet, useSlackMCP bool) []string {
-	allowed := make([]string, 0, len(hints.PreferredTools))
-	for _, toolName := range uniqueStrings(hints.PreferredTools) {
+	allowed := append([]string{}, toolcatalog.GovernedReadOnlyToolNames()...)
+	allowed = append(allowed, hints.PreferredTools...)
+	out := make([]string, 0, len(allowed))
+	for _, toolName := range uniqueStrings(allowed) {
 		trimmed := strings.TrimSpace(toolName)
 		if trimmed == "" {
 			continue
@@ -1356,9 +1471,9 @@ func workflowRunnerAllowedTools(hints workflowplan.LiveHintSet, useSlackMCP bool
 				continue
 			}
 		}
-		allowed = append(allowed, trimmed)
+		out = append(out, trimmed)
 	}
-	return uniqueStrings(allowed)
+	return uniqueStrings(out)
 }
 
 func appendMCPServers(groups ...[]clients.RunnerMCPServer) []clients.RunnerMCPServer {

@@ -23,6 +23,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/runnerutil"
 	"github.com/piplabs/rsi-agent-platform/internal/sandbox"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
+	"github.com/piplabs/rsi-agent-platform/internal/toolcatalog"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
@@ -2347,46 +2348,11 @@ func scopedImprovementRepoAllowlist(primary string) []string {
 }
 
 func improvementBaseToolNames() []string {
-	return []string{
-		"repo.context",
-		"repo.read_file",
-		"repo.search",
-		"knowledge.context",
-		"rsi.trace_context",
-		"rsi.workflow_context",
-		"rsi.action_chain",
-		"rsi.runner_execution",
-		"rsi.runtime_config",
-		"rsi.runtime_health",
-		"rsi.runtime_deployment_facts",
-		"rsi.proposal_memory",
-		"rsi.candidate_context",
-		"rsi.attempt_context",
-		"slack.search",
-		"github.repo_activity",
-		"github.repo_context",
-		"sentry.lookup",
-		"kubernetes.inspect",
-		"kubernetes.logs",
-		"kubernetes.events",
-		"cloudflare.inspect",
-	}
+	return toolcatalog.GovernedReadOnlyToolNames()
 }
 
 func improvementWorkspaceToolNames() []string {
-	return []string{
-		"workspace.list_files",
-		"workspace.read_file",
-		"workspace.search",
-		"workspace.git_history",
-		"workspace.git_show",
-		"workspace.git_search",
-		"workspace.write_file",
-		"workspace.apply_patch",
-		"workspace.git_status",
-		"workspace.git_diff",
-		"workspace.run_validation",
-	}
+	return toolcatalog.GovernedWorkspaceToolNames()
 }
 
 func evalSessionScope(store storepkg.Store, trace events.Trace, run evals.Run) (string, string) {

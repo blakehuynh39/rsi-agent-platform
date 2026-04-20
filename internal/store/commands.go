@@ -315,10 +315,6 @@ func (s *MemoryStore) appendWorkflowPlanningCommandsLocked(bundle *transitionPer
 	}
 	planning := workflowPlanningConfigFromCommand(parent)
 	resumeQueue := firstNonEmpty(stringFromCommand(parent, "resume_queue"), string(queue.WorkflowQueue))
-	executionStrategy := ""
-	if workflowplan.UseReadHeavySlackQnAStrategy(workflow.Intent, workflow.ResponseMode) {
-		executionStrategy = "read_heavy_slack_qna"
-	}
 	hints := workflowplan.BuildLiveHints(planning, workflowplan.RequestContext{
 		Trace:          trace.Summary,
 		WorkflowID:     workflow.ID,
@@ -347,11 +343,6 @@ func (s *MemoryStore) appendWorkflowPlanningCommandsLocked(bundle *transitionPer
 	seedSummary := firstNonEmpty(strings.Join(summaryParts, " "), "Seeded governed execution hints from deterministic workflow planning.")
 	executionStartedType := "runner.started"
 	executionStartedDescription := "Runner task dispatched with seeded governed context and open tool choice."
-	if executionStrategy == "read_heavy_slack_qna" {
-		seedSummary = firstNonEmpty(strings.Join(summaryParts, " "), "Seeded the read-heavy Slack Q&A child machine with deterministic repo, time-window, and Slack-surface hints.")
-		executionStartedType = "question_run.started"
-		executionStartedDescription = "Question-run child machine dispatched with deterministic investigation hints."
-	}
 	appendFollowOnCommand(bundle, parent, transition.CommandEnvelope{
 		MachineKind: transition.MachineWorkflow,
 		AggregateID: workflow.ID,
@@ -362,7 +353,6 @@ func (s *MemoryStore) appendWorkflowPlanningCommandsLocked(bundle *transitionPer
 		Payload: map[string]any{
 			"tool_count":         0,
 			"resume_queue":       resumeQueue,
-			"execution_strategy": executionStrategy,
 			"execution_role":     executionRoleFromQueue(resumeQueue),
 			"trace_events": []events.TraceEvent{
 				{
@@ -398,7 +388,7 @@ func (s *MemoryStore) appendWorkflowPlanningCommandsLocked(bundle *transitionPer
 					StepType:   "context_seeded",
 					Summary:    seedSummary,
 					Confidence: 0.83,
-					Decision:   firstNonEmpty(executionStrategy, "legacy_runner_execution"),
+					Decision:   "governed_runner_execution",
 					CreatedAt:  parent.OccurredAt,
 				},
 			},

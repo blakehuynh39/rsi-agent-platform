@@ -259,6 +259,48 @@ def _normalize_retry_assessment(value: JsonValue | None) -> JsonObject:
     }
 
 
+def _normalize_requested_artifacts(value: JsonValue | None) -> list[JsonObject]:
+    if not isinstance(value, list):
+        return []
+    out: list[JsonObject] = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        kind = _string_or_json(item.get("kind"))
+        if not kind:
+            continue
+        out.append(
+            {
+                "kind": kind,
+                "description": _string_or_json(item.get("description")),
+            }
+        )
+    return out
+
+
+def _normalize_produced_artifacts(value: JsonValue | None) -> list[JsonObject]:
+    if not isinstance(value, list):
+        return []
+    out: list[JsonObject] = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        kind = _string_or_json(item.get("kind"))
+        refs = _string_list_or_empty(item.get("artifact_refs"))
+        if not kind and not refs:
+            continue
+        out.append(
+            {
+                "kind": kind,
+                "title": _string_or_json(item.get("title")),
+                "artifact_refs": refs,
+                "delivery_status": _string_or_json(item.get("delivery_status")),
+                "failure_reason": _string_or_json(item.get("failure_reason")),
+            }
+        )
+    return out
+
+
 def _normalize_structured_output(payload: JsonObject) -> JsonObject:
     normalized = dict(payload)
     normalized["context_summary"] = _string_or_json(payload.get("context_summary"))
@@ -270,6 +312,8 @@ def _normalize_structured_output(payload: JsonObject) -> JsonObject:
     normalized["proposed_actions"] = _normalize_proposed_actions(payload.get("proposed_actions"))
     normalized["knowledge_drafts"] = _normalize_knowledge_drafts(payload.get("knowledge_drafts"))
     normalized["outcome_hypotheses"] = _normalize_outcome_hypotheses(payload.get("outcome_hypotheses"))
+    normalized["produced_artifacts"] = _normalize_produced_artifacts(payload.get("produced_artifacts"))
+    normalized["artifact_failure_reason"] = _string_or_json(payload.get("artifact_failure_reason"))
     normalized["change_plan"] = _string_or_json(payload.get("change_plan"))
     normalized["repo_patch"] = _string_or_json(payload.get("repo_patch"))
     normalized["validation_plan"] = _string_or_json(payload.get("validation_plan"))
@@ -395,6 +439,8 @@ class RunnerTaskRequest:
     timeout_seconds: int
     expected_outputs: list[str]
     artifact_destination: str | None
+    requested_artifacts: list[JsonObject]
+    artifact_optional: bool
     context_summary: str | None
     rejected_proposal_context: list[JsonObject]
     execution_mode: str | None
@@ -445,6 +491,8 @@ class RunnerTaskRequest:
             timeout_seconds=int(task.get("timeout_seconds", 900)),
             expected_outputs=_string_list(task.get("expected_outputs")),
             artifact_destination=_optional_string(task.get("artifact_destination")),
+            requested_artifacts=_normalize_requested_artifacts(task.get("requested_artifacts")),
+            artifact_optional=_bool_or_false(task.get("artifact_optional")),
             context_summary=_optional_string(task.get("context_summary")),
             rejected_proposal_context=_json_object_list(task.get("rejected_proposal_context")),
             execution_mode=_optional_string(task.get("execution_mode")),
@@ -1625,6 +1673,9 @@ class HermesRuntime:
             "open_questions": self._evidence_open_questions(tool_calls, evidence_items),
             "draft_reply_candidates": [],
         }
+        if task.requested_artifacts:
+            ledger["requested_artifacts"] = list(task.requested_artifacts)
+            ledger["artifact_optional"] = task.artifact_optional
         if task.context_summary:
             ledger["context_summary"] = task.context_summary
         if task.trace_id:
@@ -1683,7 +1734,7 @@ class HermesRuntime:
                 "You finalize bounded-stop RSI Slack reply workflows.",
                 "Use only the supplied evidence ledger.",
                 "Do not call tools. Do not invent evidence. Do not speculate beyond the ledger.",
-                "Return only one JSON object with keys: visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, outcome_hypotheses, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta.",
+                "Return only one JSON object with keys: visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, outcome_hypotheses, produced_artifacts, artifact_failure_reason, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta.",
                 "Produce a grounded best-effort partial reply when the evidence supports one.",
                 "If the evidence is incomplete, say so explicitly in final_answer and self_critique instead of guessing.",
                 "Keep visible_reasoning concise and grounded in the supplied ledger.",
@@ -2832,7 +2883,40 @@ class HermesRuntime:
                         "provider_incomplete_reason": incomplete_reason,
                     },
                 )
-            if self._workflow_partial_completion_eligible(task) and incomplete_reason == "max_output_tokens":
+            if incomplete_reason == "max_output_tokens" and reply_delivery_attempted:
+                recorder.record(
+                    "execution_failed",
+                    {
+                        "failure_class": "runner_reply_delivery_uncertain",
+                        "error": "Native workflow executor exhausted its output budget after attempting reply delivery.",
+                        "provider_status": _string_or_json(parsed.get("status")),
+                        "provider_incomplete_reason": incomplete_reason,
+                    },
+                )
+                return HermesExecutionResult(
+                    ok=False,
+                    message="Native workflow executor exhausted its output budget after attempting reply delivery.",
+                    provider=self._backend,
+                    raw=self._attach_native_execution_log_path(
+                        {
+                            **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                            "failure_class": "runner_reply_delivery_uncertain",
+                            "native_mcp_enabled": True,
+                            "reply_delivery_attempted": reply_delivery_attempted,
+                            "reply_delivery": reply_delivery or {},
+                            "provider_status": _string_or_json(parsed.get("status")),
+                            "provider_incomplete_reason": incomplete_reason,
+                            "mcp_calls": accumulated_mcp_calls,
+                            "tool_calls": self._merge_runtime_values(binding.diagnostics().get("tool_calls"), accumulated_mcp_calls),
+                        },
+                        recorder,
+                    ),
+                )
+            if (
+                self._workflow_partial_completion_eligible(task)
+                and incomplete_reason == "max_output_tokens"
+                and not reply_delivery_attempted
+            ):
                 stop_meta = self._native_stop_meta(
                     "output_token_budget_exhausted",
                     started_at=started_at,
@@ -2857,6 +2941,31 @@ class HermesRuntime:
             had_tool_round = bool(function_calls) or (bool(normalized_mcp_calls) and not response_text)
             if had_tool_round:
                 if rounds >= self._max_iterations:
+                    if reply_delivery_attempted:
+                        recorder.record(
+                            "execution_failed",
+                            {
+                                "failure_class": "runner_reply_delivery_uncertain",
+                                "error": "Native workflow executor exhausted its function-call budget after attempting reply delivery.",
+                            },
+                        )
+                        return HermesExecutionResult(
+                            ok=False,
+                            message="Native workflow executor exhausted its function-call budget after attempting reply delivery.",
+                            provider=self._backend,
+                            raw=self._attach_native_execution_log_path(
+                                {
+                                    **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                                    "failure_class": "runner_reply_delivery_uncertain",
+                                    "native_mcp_enabled": True,
+                                    "reply_delivery_attempted": reply_delivery_attempted,
+                                    "reply_delivery": reply_delivery or {},
+                                    "mcp_calls": accumulated_mcp_calls,
+                                    "tool_calls": self._merge_runtime_values(binding.diagnostics().get("tool_calls"), accumulated_mcp_calls),
+                                },
+                                recorder,
+                            ),
+                        )
                     if is_question_gather:
                         recorder.record(
                             "execution_completed",
@@ -2877,7 +2986,7 @@ class HermesRuntime:
                             mcp_calls=accumulated_mcp_calls,
                             recorder=recorder,
                         )
-                    if self._workflow_partial_completion_eligible(task):
+                    if self._workflow_partial_completion_eligible(task) and not reply_delivery_attempted:
                         current_tool = ""
                         if function_calls:
                             current_tool = _string_or_json(function_calls[0].get("name"))
@@ -3265,6 +3374,11 @@ class HermesRuntime:
             if _string_or_json(item.get("kind")) != "slack_post"
         ]
         request_payload: JsonObject = {"body": reply_body}
+        artifact_refs = []
+        for item in _normalize_produced_artifacts(structured_output.get("produced_artifacts")):
+            artifact_refs.extend(_string_list_or_empty(item.get("artifact_refs")))
+        if artifact_refs:
+            request_payload["artifact_refs"] = artifact_refs
         if task.channel_id:
             request_payload["channel_id"] = task.channel_id
         if task.thread_ts:
@@ -4131,6 +4245,12 @@ class HermesRuntime:
             parts.append(f"Expected outputs: {', '.join(task.expected_outputs)}")
         if task.artifact_destination:
             parts.append(f"Artifact destination: {task.artifact_destination}")
+        if task.requested_artifacts:
+            parts.append(f"Requested artifacts: {json.dumps(task.requested_artifacts, ensure_ascii=True, sort_keys=True)}")
+            if task.artifact_optional:
+                parts.append("Artifact production is requested but optional; if an artifact cannot be produced, explain why in artifact_failure_reason and still return the best grounded reply.")
+            else:
+                parts.append("Artifact production is required when the evidence and tools allow it; if it cannot be produced, explain why in artifact_failure_reason.")
         if task.rejected_proposal_context:
             parts.append(f"Prior rejected/dismissed context: {json.dumps(task.rejected_proposal_context)}")
         if task.response_mode:
@@ -4164,7 +4284,7 @@ class HermesRuntime:
             )
         else:
             parts.append(
-                "Return a JSON object with keys: visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, outcome_hypotheses, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta."
+                "Return a JSON object with keys: visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, outcome_hypotheses, produced_artifacts, artifact_failure_reason, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta."
             )
             parts.append(
                 "Each proposed action must include: kind, target_ref, request_payload, approval_mode, idempotency_key, rationale, evidence_refs."
@@ -4174,6 +4294,9 @@ class HermesRuntime:
             )
             parts.append(
                 "Each outcome hypothesis must include: outcome_type, success_condition, measurement_ref, expected_time_horizon."
+            )
+            parts.append(
+                "Each produced artifact must include: kind, title, artifact_refs, delivery_status, failure_reason."
             )
         if execution_mode == "implement":
             parts.append(
@@ -4235,7 +4358,7 @@ class HermesRuntime:
                 "",
                 "Repair instruction: your previous structured output included a grounded reply but omitted the required explicit slack_post action.",
                 "Re-emit the full JSON object.",
-                "Preserve the final_answer and reply_draft unless a correction is required.",
+                "Preserve the final_answer, reply_draft, produced_artifacts, and artifact_failure_reason unless a correction is required.",
                 "Include exactly one proposed action with kind=slack_post and a request_payload that carries the reply body.",
                 "Return only valid JSON with no markdown or surrounding commentary.",
                 "Previous structured output:",

@@ -138,25 +138,19 @@ func reduceContextActionsQueued(snapshot WorkflowSnapshot, _ CommandEnvelope) Wo
 	}
 }
 
-func reduceContextSkipped(snapshot WorkflowSnapshot, command CommandEnvelope) WorkflowDecision {
-	effects := []EffectRequest{}
-	reason := "no context actions were required and execution can start immediately"
-	if !workflowUsesChildExecution(command.Payload) {
-		effects = append(effects, EffectRequest{
-			Kind:           EffectInvokeRunner,
-			Status:         EffectQueued,
-			IdempotencyKey: "invoke_runner",
-		})
-		reason = "no context actions were required and legacy runner execution can start immediately"
-	}
+func reduceContextSkipped(snapshot WorkflowSnapshot, _ CommandEnvelope) WorkflowDecision {
 	return WorkflowDecision{
 		TransitionDecision: TransitionDecision{
 			DecisionKind: DecisionAdvance,
-			Reason:       reason,
+			Reason:       "no context actions were required and execution can start immediately",
 			Events: []DomainEventDescriptor{{
 				Kind: "workflow_context_skipped",
 			}},
-			Effects: effects,
+			Effects: []EffectRequest{{
+				Kind:           EffectInvokeRunner,
+				Status:         EffectQueued,
+				IdempotencyKey: "invoke_runner",
+			}},
 		},
 		NextState:     WorkflowStateExecuting,
 		ExpectedState: snapshot.State,
@@ -164,25 +158,19 @@ func reduceContextSkipped(snapshot WorkflowSnapshot, command CommandEnvelope) Wo
 	}
 }
 
-func reduceContextCompleted(snapshot WorkflowSnapshot, command CommandEnvelope) WorkflowDecision {
-	effects := []EffectRequest{}
-	reason := "context collection is complete and execution can proceed"
-	if !workflowUsesChildExecution(command.Payload) {
-		effects = append(effects, EffectRequest{
-			Kind:           EffectInvokeRunner,
-			Status:         EffectQueued,
-			IdempotencyKey: "invoke_runner",
-		})
-		reason = "context collection is complete and legacy runner execution can proceed"
-	}
+func reduceContextCompleted(snapshot WorkflowSnapshot, _ CommandEnvelope) WorkflowDecision {
 	return WorkflowDecision{
 		TransitionDecision: TransitionDecision{
 			DecisionKind: DecisionAdvance,
-			Reason:       reason,
+			Reason:       "context collection is complete and execution can proceed",
 			Events: []DomainEventDescriptor{{
 				Kind: "workflow_context_completed",
 			}},
-			Effects: effects,
+			Effects: []EffectRequest{{
+				Kind:           EffectInvokeRunner,
+				Status:         EffectQueued,
+				IdempotencyKey: "invoke_runner",
+			}},
 		},
 		NextState:     WorkflowStateExecuting,
 		ExpectedState: snapshot.State,
@@ -372,14 +360,6 @@ func WorkflowCommandLastVerdict(command WorkflowCommandKind) string {
 	default:
 		return ""
 	}
-}
-
-func workflowUsesChildExecution(payload map[string]any) bool {
-	if payload == nil {
-		return false
-	}
-	value, _ := payload["execution_strategy"].(string)
-	return value == "read_heavy_slack_qna"
 }
 
 func workflowEvalCommands(traceID string, trigger string) []CommandDescriptor {

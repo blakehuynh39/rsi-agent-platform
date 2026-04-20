@@ -39,7 +39,7 @@ func TestReduceWorkflowRunnerCompletedQueuesReply(t *testing.T) {
 	}
 }
 
-func TestReduceWorkflowContextSkippedForReadHeavySlackQnASkipsGenericRunner(t *testing.T) {
+func TestReduceWorkflowContextSkippedIgnoresLegacyQuestionRunExecutionStrategy(t *testing.T) {
 	decision := ReduceWorkflow(WorkflowSnapshot{
 		State: WorkflowStateCollectingContext,
 	}, CommandEnvelope{
@@ -57,8 +57,8 @@ func TestReduceWorkflowContextSkippedForReadHeavySlackQnASkipsGenericRunner(t *t
 	if decision.NextState != WorkflowStateExecuting {
 		t.Fatalf("expected executing, got %s", decision.NextState)
 	}
-	if len(decision.Effects) != 0 {
-		t.Fatalf("expected no invoke_runner effect for question_run strategy, got %+v", decision.Effects)
+	if len(decision.Effects) != 1 || decision.Effects[0].Kind != EffectInvokeRunner {
+		t.Fatalf("expected invoke_runner effect even with legacy execution_strategy, got %+v", decision.Effects)
 	}
 }
 

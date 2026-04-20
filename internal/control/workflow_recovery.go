@@ -312,6 +312,26 @@ func stringValueFromMap(values map[string]any, key string) string {
 	return stringValue(values[key])
 }
 
+func stringSliceFromMap(values map[string]any, key string) []string {
+	if len(values) == 0 {
+		return nil
+	}
+	switch typed := values[key].(type) {
+	case []string:
+		return append([]string(nil), typed...)
+	case []any:
+		out := make([]string, 0, len(typed))
+		for _, item := range typed {
+			if value := stringValue(item); value != "" {
+				out = append(out, value)
+			}
+		}
+		return out
+	default:
+		return nil
+	}
+}
+
 func cloneStringAnyMap(input map[string]any) map[string]any {
 	if len(input) == 0 {
 		return nil

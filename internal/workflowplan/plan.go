@@ -125,11 +125,6 @@ func BuildToolRequestPayload(cfg RuntimeConfig, ctx RequestContext, now time.Tim
 	}
 }
 
-func UseReadHeavySlackQnAStrategy(intent string, responseMode string) bool {
-	return strings.EqualFold(strings.TrimSpace(intent), "question") &&
-		strings.EqualFold(strings.TrimSpace(responseMode), "reply_in_thread")
-}
-
 func CandidateReadSurfaces(question string, ingressChannelID string, ingressThreadTS string) []SlackSurfaceHint {
 	return candidateReadSurfaces(question, ingressChannelID, ingressThreadTS, nil)
 }

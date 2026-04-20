@@ -104,6 +104,11 @@ type RunnerContextRef struct {
 	AllowedPathGlobs                 []string       `json:"allowed_path_globs,omitempty"`
 }
 
+type RunnerRequestedArtifact struct {
+	Kind        string `json:"kind"`
+	Description string `json:"description,omitempty"`
+}
+
 type RunnerTask struct {
 	TaskType                  string                          `json:"task_type"`
 	Repo                      string                          `json:"repo"`
@@ -116,6 +121,8 @@ type RunnerTask struct {
 	TimeoutSeconds            int                             `json:"timeout_seconds,omitempty"`
 	ExpectedOutputs           []string                        `json:"expected_outputs,omitempty"`
 	ArtifactDestination       string                          `json:"artifact_destination,omitempty"`
+	RequestedArtifacts        []RunnerRequestedArtifact       `json:"requested_artifacts,omitempty"`
+	ArtifactOptional          bool                            `json:"artifact_optional,omitempty"`
 	ContextSummary            string                          `json:"context_summary,omitempty"`
 	RejectedProposalContext   []RunnerRejectedProposalContext `json:"rejected_proposal_context,omitempty"`
 	ExecutionMode             string                          `json:"execution_mode,omitempty"`

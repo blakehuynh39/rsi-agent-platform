@@ -24,6 +24,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	"github.com/piplabs/rsi-agent-platform/internal/slack"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
+	"github.com/piplabs/rsi-agent-platform/internal/workflowplan"
 )
 
 const (
@@ -1587,6 +1588,12 @@ func (s *MemoryStore) buildJudgments(trace events.Trace, event *ingestion.EventE
 		taskScore = 0.58
 		taskReason = "High-severity event without strong evidence of a complete remediation."
 	}
+	if artifactRequestedByEvent(event) && !traceHasUserFacingArtifact(trace) {
+		if taskScore > 0.62 {
+			taskReason = "The user requested an artifact deliverable, but the trace did not record a produced artifact."
+		}
+		taskScore = minFloat(taskScore, 0.62)
+	}
 	judgments = append(judgments, evals.Judgment{
 		ID:        nextID("judge", 1+len(judgments)),
 		Layer:     evals.LayerTaskQuality,
@@ -2136,6 +2143,36 @@ func confidenceScoreForCandidate(recurrence int, judgments []evals.Judgment) flo
 
 func priorityScore(expectedImpact, novelty, confidence, freshness float64, recurrence int) float64 {
 	return expectedImpact*0.35 + novelty*0.2 + confidence*0.25 + freshness*0.1 + minFloat(float64(recurrence)/5.0, 0.1)
+}
+
+func artifactRequestedByEvent(event *ingestion.EventEnvelope) bool {
+	if event == nil {
+		return false
+	}
+	return len(workflowplan.RequestedArtifactsForPrompt(event.NormalizedProblemStatement, eventPromptEnvelope(event))) > 0
+}
+
+func eventPromptEnvelope(event *ingestion.EventEnvelope) any {
+	if event == nil || event.Metadata == nil {
+		return nil
+	}
+	return event.Metadata["prompt_envelope"]
+}
+
+func traceHasUserFacingArtifact(trace events.Trace) bool {
+	for _, artifact := range trace.Artifacts {
+		kind := strings.TrimSpace(strings.ToLower(artifact.Kind))
+		if kind == "" || kind == "event_payload" {
+			continue
+		}
+		return true
+	}
+	for _, action := range trace.SlackActions {
+		if len(action.ArtifactRefs) > 0 {
+			return true
+		}
+	}
+	return false
 }
 
 func collectArtifactIDs(trace events.Trace) []string {

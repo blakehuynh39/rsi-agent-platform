@@ -10,9 +10,11 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/evals"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
+	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
+	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
@@ -228,6 +230,57 @@ func loadPromotionResultForReceipt(store interface {
 		}, nil
 	}
 	return PromotionResult{}, errors.New("promotion result event not found")
+}
+
+func TestBuildJudgmentsPreservesRuntimeFailureReasonWhenArtifactPenaltyApplies(t *testing.T) {
+	store := NewMemoryStore()
+	trace := events.Trace{
+		Summary: events.TraceSummary{
+			TraceID: "trace-1",
+			Status:  events.StatusFailed,
+		},
+		Events: []events.TraceEvent{
+			{
+				EventType:   "workflow.failed",
+				Description: "runner response missing structured_output",
+			},
+		},
+	}
+	event := &ingestion.EventEnvelope{
+		ID:                         "evt-1",
+		NormalizedProblemStatement: "Draw an architecture diagram for the failing workflow.",
+	}
+
+	judgments := store.buildJudgments(trace, event, nil, nil)
+	if len(judgments) < 2 {
+		t.Fatalf("expected task-quality judgment, got %#v", judgments)
+	}
+	taskQuality := judgments[1]
+	if taskQuality.Layer != evals.LayerTaskQuality {
+		t.Fatalf("expected task-quality judgment at index 1, got %#v", taskQuality)
+	}
+	if taskQuality.Score != 0.22 {
+		t.Fatalf("expected runtime-failure score to be preserved, got %#v", taskQuality)
+	}
+	if taskQuality.Rationale != "RSI runtime failure prevented the workflow from completing the user-facing action." {
+		t.Fatalf("expected runtime-failure rationale to be preserved, got %#v", taskQuality)
+	}
+}
+
+func TestArtifactRequestedByEventUsesPromptEnvelopeText(t *testing.T) {
+	event := &ingestion.EventEnvelope{
+		ID:                         "evt-1",
+		NormalizedProblemStatement: "Summarize the architecture work.",
+		Metadata: map[string]any{
+			"prompt_envelope": slackpkg.SlackPromptEnvelope{
+				RawText:      "@RSI can you draw an architecture diagram of depin-backend? Use /architecture-diagram skill",
+				RenderedText: "@RSI can you draw an architecture diagram of depin-backend? Use /architecture-diagram skill",
+			},
+		},
+	}
+	if !artifactRequestedByEvent(event) {
+		t.Fatalf("expected artifact request detection to use prompt envelope text")
+	}
 }
 
 func boolFromAnyForTest(raw any) bool {
@@ -1000,25 +1053,20 @@ func TestMemoryStoreSubmitCommandContextTransitionsProjectTraceArtifacts(t *test
 		t.Fatal("expected runner.started event to be projected from context_skipped")
 	})
 
-	t.Run("question run strategy delegates child execution", func(t *testing.T) {
+	t.Run("legacy question run strategy is ignored", func(t *testing.T) {
 		store := NewMemoryStore()
 		workflow := store.ListWorkflows()[0]
-		trace, ok := store.GetTrace(workflow.TraceID)
-		if !ok {
-			t.Fatalf("expected trace %s", workflow.TraceID)
-		}
 		now := time.Now().UTC()
-		questionRunStarted := events.TraceEvent{
-			TraceID:     trace.Summary.TraceID,
-			IngestionID: trace.Summary.IngestionID,
-			WorkflowID:  trace.Summary.WorkflowID,
+		runnerStarted := events.TraceEvent{
+			TraceID:     workflow.TraceID,
+			WorkflowID:  workflow.ID,
 			Plane:       "execution",
-			Service:     "control-plane",
+			Service:     "runner",
 			Actor:       "arch",
-			EventType:   "question_run.started",
+			EventType:   "runner.started",
 			Status:      events.StatusRunning,
 			StartedAt:   now.Add(time.Second),
-			Description: "Question run child dispatched for read-heavy Slack Q&A.",
+			Description: "Runner task dispatched with verbose reasoning enabled.",
 		}
 		if _, err := store.SubmitCommand(transition.CommandEnvelope{
 			MachineKind: transition.MachineWorkflow,
@@ -1039,32 +1087,31 @@ func TestMemoryStoreSubmitCommandContextTransitionsProjectTraceArtifacts(t *test
 				"execution_strategy": "read_heavy_slack_qna",
 				"execution_role":     "prod",
 				"tool_count":         0,
-				"trace_events":       []events.TraceEvent{questionRunStarted},
+				"trace_events":       []events.TraceEvent{runnerStarted},
 			},
 		}); err != nil {
 			t.Fatalf("SubmitCommand(context_skipped question_run) error = %v", err)
 		}
-		trace, ok = store.GetTrace(workflow.TraceID)
+		trace, ok := store.GetTrace(workflow.TraceID)
 		if !ok {
 			t.Fatalf("expected trace %s", workflow.TraceID)
 		}
-		found := false
+		foundRunnerStarted := false
 		for _, event := range trace.Events {
-			if event.EventType == "question_run.started" {
-				found = true
-				break
+			if event.EventType == "runner.started" {
+				foundRunnerStarted = true
 			}
 		}
-		if !found {
-			t.Fatal("expected question_run.started event to be projected from context_skipped")
+		if !foundRunnerStarted {
+			t.Fatal("expected runner.started event to be projected from context_skipped")
 		}
 		effects := store.ListEffectExecutions()
 		for _, effect := range effects {
-			if effect.MachineKind == transition.MachineQuestionRun && effect.EffectKind == transition.EffectCompileInvestigationSpec {
+			if effect.MachineKind == transition.MachineWorkflow && effect.EffectKind == transition.EffectInvokeRunner {
 				return
 			}
 		}
-		t.Fatal("expected compile_investigation_spec effect to be queued for question_run strategy")
+		t.Fatal("expected invoke_runner effect to be queued even with legacy execution_strategy")
 	})
 }
 
