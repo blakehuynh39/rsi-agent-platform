@@ -436,7 +436,7 @@ def register(ctx):
 def _build_plugin_module() -> str:
     return _PLUGIN_MODULE_TEMPLATE.replace(
         "__PLUGIN_TOOLS__",
-        json.dumps(governed_toolset_definitions(), sort_keys=True),
+        repr(governed_toolset_definitions()),
     )
 
 

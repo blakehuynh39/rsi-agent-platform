@@ -9,6 +9,7 @@ import unittest
 from unittest import mock
 
 from rsi_runner.config import RunnerConfig, RunnerConfigError
+from rsi_runner.hermes_adapter import _build_plugin_module
 from rsi_runner.hermes_mcp_adapter import TaskScopedMCPCleanupResult, TaskScopedMCPRegistration, TaskScopedMCPServer
 from rsi_runner.hermes_runtime import HermesRuntime, RunnerTaskRequest
 from rsi_runner.rsi_tools import ReadOnlyToolBinding, governed_toolset_definitions, tool_schema_wrappers, transport_tool_schema
@@ -259,6 +260,13 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertTrue(config.verbose_trace_logging)
         self.assertEqual(config.verbose_trace_log_limit, 2048)
+
+    def test_context_engine_plugin_module_compiles_as_python(self) -> None:
+        source = _build_plugin_module()
+
+        compile(source, "rsi_context_engine/__init__.py", "exec")
+        self.assertNotIn(": false", source)
+        self.assertIn(": False", source)
 
     def test_config_rejects_timeout_contract_drift(self) -> None:
         with mock.patch.dict(
