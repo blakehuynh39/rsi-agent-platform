@@ -153,13 +153,14 @@ type RunnerTask struct {
 }
 
 type RunnerMCPServer struct {
-	ServerLabel     string            `json:"server_label,omitempty"`
-	ServerURL       string            `json:"server_url,omitempty"`
-	Authorization   string            `json:"authorization,omitempty"`
-	AllowedTools    map[string]any    `json:"allowed_tools,omitempty"`
-	RequireApproval any               `json:"require_approval,omitempty"`
-	Headers         map[string]string `json:"headers,omitempty"`
-	Profile         string            `json:"profile,omitempty"`
+	ServerLabel         string            `json:"server_label,omitempty"`
+	ServerURL           string            `json:"server_url,omitempty"`
+	Authorization       string            `json:"authorization,omitempty"`
+	AuthorizationEnvVar string            `json:"authorization_env_var,omitempty"`
+	AllowedTools        map[string]any    `json:"allowed_tools,omitempty"`
+	RequireApproval     any               `json:"require_approval,omitempty"`
+	Headers             map[string]string `json:"headers,omitempty"`
+	Profile             string            `json:"profile,omitempty"`
 }
 
 type RunnerResponse struct {

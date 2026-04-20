@@ -69,6 +69,10 @@ For `openai/*` models, the runner uses Hermes directly and forwards the configur
 `control-plane --mode slack-surface` uses the Slack env contract:
 `RSI_SLACK_APP_IDENTITY`, `RSI_SLACK_SOCKET_MODE_ENABLED`, `RSI_SLACK_APP_TOKEN`, and `RSI_SLACK_BOT_TOKEN`.
 For long-lived governed `slack.search` and Slack MCP workflow execution, configure `RSI_SLACK_USER_TOKEN` with a Slack user token (`xoxp-...`).
+For governed Notion MCP reads in workflow and Slack Q&A gather tasks, configure
+`RSI_NOTION_MCP_ENABLED=true`, optionally override `RSI_NOTION_MCP_SERVER_URL`,
+and set `RSI_NOTION_MCP_AUTHORIZATION_ENV_VAR` to the env var name that runner
+pods should use for Notion MCP auth (defaults to `RSI_NOTION_MCP_AUTHORIZATION`).
 
 ## CI/CD
 

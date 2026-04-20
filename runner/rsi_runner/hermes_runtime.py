@@ -1968,6 +1968,18 @@ class HermesRuntime:
                 return True
         return False
 
+    def _task_has_mcp_server(self, task: RunnerTaskRequest, *, server_label: str = "", profiles: set[str] | None = None) -> bool:
+        wanted_label = server_label.strip().lower()
+        wanted_profiles = {item.strip().lower() for item in (profiles or set()) if item.strip()}
+        for server in task.mcp_servers:
+            label = _string_or_json(server.get("server_label")).lower()
+            profile = _string_or_json(server.get("profile")).lower()
+            if wanted_label and label == wanted_label:
+                return True
+            if wanted_profiles and profile in wanted_profiles:
+                return True
+        return False
+
     def _json_object_input_prompt(self, prompt: str) -> str:
         text = str(prompt or "").strip()
         if "json" in text.lower():
@@ -1980,6 +1992,11 @@ class HermesRuntime:
     def _direct_task_user_prompt(self, task: RunnerTaskRequest) -> str:
         if task.task_type in {"question_gather", "question_expand", "question_reduce"}:
             return self._json_object_input_prompt(task.prompt)
+        mcp_instructions: list[str] = []
+        if self._task_has_mcp_server(task, server_label="slack", profiles={"slack_mcp_read", "slack_mcp_reply"}):
+            mcp_instructions.append("Use Slack MCP for Slack investigation and reply delivery when available.")
+        if self._task_has_mcp_server(task, server_label="notion", profiles={"notion_mcp_read"}):
+            mcp_instructions.append("Use Notion MCP for Notion workspace search and page fetches when relevant.")
         payload: JsonObject = {
             "user_request": self._original_task_prompt(task),
             "reply_target": {
@@ -1999,7 +2016,8 @@ class HermesRuntime:
             "\n".join(
                 [
                     "Complete the following Slack-bound RSI workflow.",
-                    "Use Slack MCP for Slack investigation and governed function tools for repo, GitHub, knowledge, RSI context, and workspace reads.",
+                    *mcp_instructions,
+                    "Use governed function tools for repo, GitHub, knowledge, RSI context, and workspace reads.",
                     "Return JSON only.",
                     json.dumps(payload, ensure_ascii=True, sort_keys=True, indent=2),
                 ]
@@ -2102,9 +2120,12 @@ class HermesRuntime:
         resolved: list[JsonObject] = []
         send_tool_names: set[str] = set()
         for server in task.mcp_servers:
-            label = first_non_empty(_string_or_json(server.get("server_label")), "slack")
+            label = first_non_empty(_string_or_json(server.get("server_label")), "mcp")
             profile = _string_or_json(server.get("profile"))
-            server_url = first_non_empty(_string_or_json(server.get("server_url")), self._config.slack_mcp_server_url)
+            default_server_url = self._config.slack_mcp_server_url if profile in {"slack_mcp_read", "slack_mcp_reply"} else ""
+            server_url = first_non_empty(_string_or_json(server.get("server_url")), default_server_url)
+            if not server_url:
+                raise RuntimeError(f"MCP server URL is required for server '{label}'.")
             item: JsonObject = {
                 "type": "mcp",
                 "server_label": label,
@@ -2114,10 +2135,18 @@ class HermesRuntime:
             headers = _json_object_or_empty(server.get("headers"))
             if headers:
                 item["headers"] = headers
-            authorization = first_non_empty(_string_or_json(server.get("authorization")), os.getenv("RSI_SLACK_USER_TOKEN"), "")
-            if not authorization:
-                raise RuntimeError("Slack user token is not configured.")
-            item["authorization"] = authorization
+            authorization = _string_or_json(server.get("authorization"))
+            authorization_env_var = _string_or_json(server.get("authorization_env_var"))
+            if not authorization and authorization_env_var:
+                authorization = first_non_empty(os.getenv(authorization_env_var), "")
+                if not authorization:
+                    raise RuntimeError(f"MCP authorization env var {authorization_env_var} is not configured.")
+            if not authorization and profile in {"slack_mcp_read", "slack_mcp_reply"}:
+                authorization = first_non_empty(os.getenv("RSI_SLACK_USER_TOKEN"), "")
+                if not authorization:
+                    raise RuntimeError("Slack user token is not configured.")
+            if authorization:
+                item["authorization"] = authorization
             if profile == "slack_mcp_read":
                 item["allowed_tools"] = {"read_only": True}
             elif profile == "slack_mcp_reply":

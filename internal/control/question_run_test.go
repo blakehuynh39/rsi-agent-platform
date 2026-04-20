@@ -321,6 +321,50 @@ func TestQuestionGatherAllowedToolsSkipsKnowledgeWithoutProjectContext(t *testin
 	}
 }
 
+func TestBuildQuestionGatherTaskIncludesNotionMCPWhenEnabled(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	ctx, err := loadWorkflowContext(store, workflowItem)
+	if err != nil {
+		t.Fatalf("loadWorkflowContext() error = %v", err)
+	}
+	task := buildQuestionGatherTask(config.Config{
+		Environment:                  "stage",
+		DefaultRepo:                  "rsi-agent-platform",
+		DefaultReasoningVerbosity:    "verbose",
+		NotionMCPEnabled:             true,
+		NotionMCPServerURL:           "https://mcp.notion.com/mcp",
+		NotionMCPAuthorizationEnvVar: "RSI_NOTION_MCP_AUTHORIZATION",
+	}, store, questionRunContext{
+		workflowContext: ctx,
+		questionRun: storepkg.QuestionRun{
+			Role: "prod",
+			InvestigationSpec: questionrun.InvestigationSpec{
+				UserRequest: "Use the linked Notion plan and summarize depin-backend progress this week in accordance with numo.",
+				ReplyTarget: questionrun.ReplyTarget{ChannelID: "CINGRESS", ThreadTS: "171000001.000100"},
+				Repo:        "depin-backend",
+				ProjectKey:  "numo",
+				ReadSurfaces: []questionrun.SlackSurface{
+					{ChannelID: "CINGRESS", ThreadTS: "171000001.000100", Source: "ingress_thread"},
+				},
+			},
+		},
+	}, queue.WorkflowQueue)
+
+	if len(task.MCPServers) != 2 {
+		t.Fatalf("expected Slack and Notion MCP servers, got %#v", task.MCPServers)
+	}
+	if task.MCPServers[1].ServerLabel != "notion" {
+		t.Fatalf("expected notion MCP server, got %#v", task.MCPServers[1])
+	}
+	if !strings.Contains(task.SystemMessage, "Use Notion MCP search and fetch when the user request, pasted links, or gathered evidence point to Notion workspace content.") {
+		t.Fatalf("expected notion-specific gather instruction, got %q", task.SystemMessage)
+	}
+	if !strings.Contains(task.Prompt, "Use Notion MCP search and fetch for Notion workspace evidence") {
+		t.Fatalf("expected notion MCP preference in gather prompt, got %q", task.Prompt)
+	}
+}
+
 func containsQuestionRunSurface(surfaces []questionrun.SlackSurface, target questionrun.SlackSurface) bool {
 	for _, item := range surfaces {
 		if item.ChannelID == target.ChannelID && item.ThreadTS == target.ThreadTS && item.Source == target.Source {

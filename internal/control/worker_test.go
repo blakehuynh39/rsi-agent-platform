@@ -2445,6 +2445,53 @@ func TestBuildRunnerTaskBoundsNativeMCPToolSurface(t *testing.T) {
 	}
 }
 
+func TestBuildRunnerTaskIncludesNotionMCPWhenEnabled(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatalf("expected trace %s", workflowItem.traceID)
+	}
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatalf("expected workflow %s", workflowItem.workflowID)
+	}
+	ingestion, ok := findIngestion(store.ListIngestions(), workflowItem.ingestionID)
+	if !ok {
+		t.Fatalf("expected ingestion %s", workflowItem.ingestionID)
+	}
+	task := buildRunnerTask(config.Config{
+		Environment:                  "stage",
+		DefaultRepo:                  "rsi-agent-platform",
+		AllowedTargetRepos:           []string{"depin-backend", "rsi-agent-platform"},
+		DefaultKnowledgeBaseURL:      "https://example.test/kb",
+		SandboxNamespace:             "rsi-platform",
+		DefaultReasoningVerbosity:    "verbose",
+		NotionMCPEnabled:             true,
+		NotionMCPServerURL:           "https://mcp.notion.com/mcp",
+		NotionMCPAuthorizationEnvVar: "RSI_NOTION_MCP_AUTHORIZATION",
+	}, store, "prod", trace, workflow, ingestion, "context", nil)
+
+	if len(task.MCPServers) != 2 {
+		t.Fatalf("expected Slack and Notion MCP servers, got %#v", task.MCPServers)
+	}
+	if task.MCPServers[0].Profile != "slack_mcp_reply" {
+		t.Fatalf("expected first MCP server to remain Slack reply, got %#v", task.MCPServers)
+	}
+	if task.MCPServers[1].ServerLabel != "notion" {
+		t.Fatalf("expected notion MCP server, got %#v", task.MCPServers[1])
+	}
+	if task.MCPServers[1].AuthorizationEnvVar != "RSI_NOTION_MCP_AUTHORIZATION" {
+		t.Fatalf("unexpected notion auth env var %#v", task.MCPServers[1])
+	}
+	if !reflect.DeepEqual(task.MCPServers[1].AllowedTools, map[string]any{"read_only": true}) {
+		t.Fatalf("expected read-only notion tool surface, got %#v", task.MCPServers[1].AllowedTools)
+	}
+	if !strings.Contains(task.SystemMessage, "Use Notion MCP for Notion workspace search and page fetches when relevant.") {
+		t.Fatalf("expected notion MCP instruction in system prompt, got %q", task.SystemMessage)
+	}
+}
+
 func containsString(items []string, target string) bool {
 	for _, item := range items {
 		if item == target {

@@ -51,6 +51,9 @@ type Config struct {
 	SlackAppToken                      string
 	SlackBotToken                      string
 	SlackUserToken                     string
+	NotionMCPEnabled                   bool
+	NotionMCPServerURL                 string
+	NotionMCPAuthorizationEnvVar       string
 	GitHubWebhookSecret                string
 	GitHubOwner                        string
 	GitHubAPIBaseURL                   string
@@ -146,6 +149,9 @@ func Load(serviceName string) Config {
 		SlackAppToken:                      stringEnv("RSI_SLACK_APP_TOKEN", ""),
 		SlackBotToken:                      stringEnv("RSI_SLACK_BOT_TOKEN", ""),
 		SlackUserToken:                     stringEnv("RSI_SLACK_USER_TOKEN", ""),
+		NotionMCPEnabled:                   boolEnv("RSI_NOTION_MCP_ENABLED", false),
+		NotionMCPServerURL:                 stringEnv("RSI_NOTION_MCP_SERVER_URL", "https://mcp.notion.com/mcp"),
+		NotionMCPAuthorizationEnvVar:       stringEnv("RSI_NOTION_MCP_AUTHORIZATION_ENV_VAR", "RSI_NOTION_MCP_AUTHORIZATION"),
 		GitHubWebhookSecret:                stringEnv("RSI_GITHUB_WEBHOOK_SECRET", ""),
 		GitHubOwner:                        stringEnv("RSI_GITHUB_OWNER", ""),
 		GitHubAPIBaseURL:                   stringEnv("RSI_GITHUB_API_BASE_URL", "https://api.github.com"),

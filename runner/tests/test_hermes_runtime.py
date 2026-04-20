@@ -1692,6 +1692,96 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(result.raw["native_mcp_enabled"])
         self.assertIn("expected exactly one candidate", result.message)
 
+    def test_resolved_task_mcp_servers_supports_custom_authorization_env_var(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Search Notion.",
+                    "mcp_servers": [
+                        {
+                            "server_label": "notion",
+                            "server_url": "https://mcp.notion.com/mcp",
+                            "authorization_env_var": "RSI_NOTION_MCP_AUTHORIZATION",
+                            "allowed_tools": {"tool_names": ["search", "fetch"]},
+                        }
+                    ],
+                }
+            }
+        )
+
+        env = {
+            **runner_env("prod"),
+            "RSI_NOTION_MCP_AUTHORIZATION": "notion-oauth-token",
+        }
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ, env, clear=True
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            resolved, send_tool_names = runtime._resolved_task_mcp_servers(task)
+
+        self.assertEqual(send_tool_names, set())
+        self.assertEqual(len(resolved), 1)
+        self.assertEqual(resolved[0]["server_label"], "notion")
+        self.assertEqual(resolved[0]["server_url"], "https://mcp.notion.com/mcp")
+        self.assertEqual(resolved[0]["authorization"], "notion-oauth-token")
+        self.assertEqual(resolved[0]["allowed_tools"]["tool_names"], ["search", "fetch"])
+
+    def test_resolved_task_mcp_servers_allows_custom_server_without_authorization(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Read docs.",
+                    "mcp_servers": [
+                        {
+                            "server_label": "docs",
+                            "server_url": "https://developers.openai.com/mcp",
+                            "allowed_tools": {"read_only": True},
+                        }
+                    ],
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ, runner_env("prod"), clear=True
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            resolved, _ = runtime._resolved_task_mcp_servers(task)
+
+        self.assertEqual(len(resolved), 1)
+        self.assertNotIn("authorization", resolved[0])
+        self.assertEqual(resolved[0]["server_label"], "docs")
+        self.assertEqual(resolved[0]["allowed_tools"], {"read_only": True})
+
+    def test_resolved_task_mcp_servers_fails_when_custom_authorization_env_var_is_missing(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Search Notion.",
+                    "mcp_servers": [
+                        {
+                            "server_label": "notion",
+                            "server_url": "https://mcp.notion.com/mcp",
+                            "authorization_env_var": "RSI_NOTION_MCP_AUTHORIZATION",
+                        }
+                    ],
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ, runner_env("prod"), clear=True
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            with self.assertRaisesRegex(RuntimeError, "RSI_NOTION_MCP_AUTHORIZATION"):
+                runtime._resolved_task_mcp_servers(task)
+
     def test_native_mcp_write_timeout_returns_reply_delivery_uncertain(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {

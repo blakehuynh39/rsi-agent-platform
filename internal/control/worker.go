@@ -30,6 +30,7 @@ const (
 	controlPhaseCollectContext             = "collect_context"
 	controlPhaseReplyPost                  = "reply_post"
 	defaultSlackMCPServerURL               = "https://mcp.slack.com/mcp"
+	defaultNotionMCPServerURL              = "https://mcp.notion.com/mcp"
 	partialCompletionNoticeGeneric         = "Partial answer: I had to stop before I could finish a deeper pass. This is the best grounded answer so far."
 	partialCompletionNoticeIterationBudget = "Partial answer: I hit my iteration budget before I could finish a deeper pass. This is the best grounded answer so far."
 	partialCompletionNoticeTaskTimeout     = "Partial answer: I hit the workflow time limit before I could finish a deeper pass. This is the best grounded answer so far."
@@ -929,10 +930,10 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	combinedContextRefs := append(append([]clients.RunnerContextRef{}, contextRefs...), hintRefs...)
 	combinedContextSummary := joinContextSummary(contextSummary, liveHintSummary(liveHints))
 	allowed, _ := replyPolicy(store, workflow.Kind, trace.Summary.ThreadKey, ingestion.ChannelID)
-	mcpServers := slackMCPServersForReply(allowed, ingestion.ChannelID, ingestion.ThreadTS)
-	allowedTools := workflowRunnerAllowedTools(liveHints, len(mcpServers) > 0)
+	mcpServers := workflowMCPServers(cfg, allowed, ingestion.ChannelID, ingestion.ThreadTS)
+	allowedTools := workflowRunnerAllowedTools(liveHints, hasSlackMCPServer(mcpServers))
 	systemMessage := harness.ComposeSystemMessage(
-		workflowRunnerSystemMessage(len(mcpServers) > 0, allowed),
+		workflowRunnerSystemMessage(hasSlackMCPServer(mcpServers), hasNotionMCPServer(mcpServers), allowed),
 		effectiveHarness,
 	)
 	prompt := fmt.Sprintf("User request: %s\n\nInvestigate within the governed tool boundary. Start with the attached persisted evidence and context, then expand with tools as needed. Cite concrete evidence when possible. Default any Slack reply to the ingress thread.", ingestion.Text)
@@ -980,14 +981,41 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	}
 }
 
-func workflowRunnerSystemMessage(useSlackMCP bool, replyAllowed bool) string {
+func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyAllowed bool) string {
 	if !useSlackMCP {
-		return "Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, and outcome_hypotheses. Start from persisted evidence, then choose governed tools and tool order yourself. If you intend to reply in Slack, you must emit an explicit proposed action with kind=slack_post; prose alone is not enough."
+		parts := []string{
+			"Return explicit visible reasoning only. Do not include hidden chain-of-thought.",
+			"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, and outcome_hypotheses.",
+			"Start from persisted evidence, then choose governed tools and tool order yourself.",
+		}
+		if useNotionMCP {
+			parts = append(parts, "Use Notion MCP for Notion workspace search and page fetches when relevant.")
+		}
+		parts = append(parts, "If you intend to reply in Slack, you must emit an explicit proposed action with kind=slack_post; prose alone is not enough.")
+		return strings.Join(parts, " ")
 	}
 	if replyAllowed {
-		return "Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, and outcome_hypotheses. Use Slack MCP for Slack investigation. Use governed repo, GitHub, knowledge, RSI, and workspace tools for non-Slack evidence. If you have a grounded final answer, send exactly one Slack reply to the bound ingress thread using Slack MCP, then return the JSON object. Do not emit a slack_post action contract."
+		parts := []string{
+			"Return explicit visible reasoning only. Do not include hidden chain-of-thought.",
+			"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, and outcome_hypotheses.",
+			"Use Slack MCP for Slack investigation.",
+		}
+		if useNotionMCP {
+			parts = append(parts, "Use Notion MCP for Notion workspace search and page fetches when relevant.")
+		}
+		parts = append(parts, "Use governed repo, GitHub, knowledge, RSI, and workspace tools for non-Slack evidence.", "If you have a grounded final answer, send exactly one Slack reply to the bound ingress thread using Slack MCP, then return the JSON object.", "Do not emit a slack_post action contract.")
+		return strings.Join(parts, " ")
 	}
-	return "Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, and outcome_hypotheses. Use Slack MCP for Slack investigation and governed repo, GitHub, knowledge, RSI, and workspace tools for non-Slack evidence. Slack posting is blocked by policy for this workflow, so do not send any Slack messages."
+	parts := []string{
+		"Return explicit visible reasoning only. Do not include hidden chain-of-thought.",
+		"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, and outcome_hypotheses.",
+		"Use Slack MCP for Slack investigation.",
+	}
+	if useNotionMCP {
+		parts = append(parts, "Use Notion MCP for Notion workspace search and page fetches when relevant.")
+	}
+	parts = append(parts, "Use governed repo, GitHub, knowledge, RSI, and workspace tools for non-Slack evidence.", "Slack posting is blocked by policy for this workflow, so do not send any Slack messages.")
+	return strings.Join(parts, " ")
 }
 
 func workflowSessionScope(trace events.Trace, workflow storepkg.Workflow) (string, string, string, string) {
@@ -1333,6 +1361,31 @@ func workflowRunnerAllowedTools(hints workflowplan.LiveHintSet, useSlackMCP bool
 	return uniqueStrings(allowed)
 }
 
+func appendMCPServers(groups ...[]clients.RunnerMCPServer) []clients.RunnerMCPServer {
+	out := []clients.RunnerMCPServer{}
+	for _, group := range groups {
+		out = append(out, group...)
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
+}
+
+func workflowMCPServers(cfg config.Config, replyAllowed bool, channelID string, threadTS string) []clients.RunnerMCPServer {
+	return appendMCPServers(
+		slackMCPServersForReply(replyAllowed, channelID, threadTS),
+		notionMCPServersForRead(cfg),
+	)
+}
+
+func questionGatherMCPServers(cfg config.Config, channelID string, threadTS string) []clients.RunnerMCPServer {
+	return appendMCPServers(
+		slackMCPServersForRead(channelID, threadTS),
+		notionMCPServersForRead(cfg),
+	)
+}
+
 func slackMCPServersForRead(channelID string, threadTS string) []clients.RunnerMCPServer {
 	if strings.TrimSpace(channelID) == "" {
 		return nil
@@ -1359,6 +1412,51 @@ func slackMCPServersForReply(allowed bool, channelID string, threadTS string) []
 		servers[0].Profile = "slack_mcp_reply"
 	}
 	return servers
+}
+
+func notionMCPServersForRead(cfg config.Config) []clients.RunnerMCPServer {
+	if !cfg.NotionMCPEnabled {
+		return nil
+	}
+	serverURL := strings.TrimSpace(cfg.NotionMCPServerURL)
+	if serverURL == "" {
+		serverURL = defaultNotionMCPServerURL
+	}
+	server := clients.RunnerMCPServer{
+		ServerLabel:  "notion",
+		ServerURL:    serverURL,
+		Profile:      "notion_mcp_read",
+		AllowedTools: map[string]any{"read_only": true},
+	}
+	if authEnvVar := strings.TrimSpace(cfg.NotionMCPAuthorizationEnvVar); authEnvVar != "" {
+		server.AuthorizationEnvVar = authEnvVar
+	}
+	return []clients.RunnerMCPServer{server}
+}
+
+func hasSlackMCPServer(servers []clients.RunnerMCPServer) bool {
+	for _, server := range servers {
+		profile := strings.TrimSpace(server.Profile)
+		if profile == "slack_mcp_read" || profile == "slack_mcp_reply" {
+			return true
+		}
+		if strings.EqualFold(strings.TrimSpace(server.ServerLabel), "slack") {
+			return true
+		}
+	}
+	return false
+}
+
+func hasNotionMCPServer(servers []clients.RunnerMCPServer) bool {
+	for _, server := range servers {
+		if strings.EqualFold(strings.TrimSpace(server.Profile), "notion_mcp_read") {
+			return true
+		}
+		if strings.EqualFold(strings.TrimSpace(server.ServerLabel), "notion") {
+			return true
+		}
+	}
+	return false
 }
 
 func replyPolicy(store storepkg.Store, workflowKind string, threadKey string, channelID string) (bool, string) {
