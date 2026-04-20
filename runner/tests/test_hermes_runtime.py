@@ -38,10 +38,10 @@ def runner_env(role: str = "prod") -> dict[str, str]:
         "RSI_RUNNER_PROACTIVE_MAX_ITERATIONS": "20",
         "RSI_RUNNER_EVAL_TASK_TIMEOUT": "300s",
         "RSI_RUNNER_PROPOSAL_TASK_TIMEOUT": "420s",
-        "RSI_RUNNER_PROD_TASK_TIMEOUT": "300s",
+        "RSI_RUNNER_PROD_TASK_TIMEOUT": "900s",
         "RSI_RUNNER_EVAL_INACTIVITY_TIMEOUT": "240s",
         "RSI_RUNNER_PROPOSAL_INACTIVITY_TIMEOUT": "360s",
-        "RSI_RUNNER_PROD_TIMEOUT": "330s",
+        "RSI_RUNNER_PROD_TIMEOUT": "930s",
         "RSI_RUNNER_PROACTIVE_TIMEOUT": "60s",
         "RSI_RUNNER_EVAL_TIMEOUT": "330s",
         "RSI_RUNNER_PROPOSAL_TIMEOUT": "450s",
@@ -1118,8 +1118,8 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("knowledge_context", FakeAIAgent.last_valid_tool_names)
         self.assertNotIn("github.create_pr", FakeAIAgent.last_valid_tool_names)
         self.assertEqual(result.raw["tool_policy_mode"], "enforced_read_only")
-        self.assertEqual(result.raw["task_timeout_seconds"], 300)
-        self.assertEqual(result.raw["transport_timeout_seconds"], 330)
+        self.assertEqual(result.raw["task_timeout_seconds"], 900)
+        self.assertEqual(result.raw["transport_timeout_seconds"], 930)
         self.assertIn("github.create_pr", result.raw["blocked_tool_names"])
         self.assertIn("repo_context", result.raw["tool_transport_allowlist_effective"])
         self.assertIn("knowledge_context", result.raw["tool_transport_allowlist_effective"])
@@ -1608,7 +1608,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(result.ok)
         self.assertEqual(slack_methods, ["initialize", "notifications/initialized", "tools/list"])
         self.assertEqual(len(responses_requests), 2)
-        self.assertEqual(responses_requests[0]["timeout"], 300)
+        self.assertEqual(responses_requests[0]["timeout"], 900)
         first_tools = responses_requests[0]["body"]["tools"]
         self.assertTrue(any(tool["type"] == "function" and tool["name"] == "repo_context" for tool in first_tools))
         mcp_tools = [tool for tool in first_tools if tool["type"] == "mcp"]
@@ -2674,9 +2674,9 @@ class HermesRuntimeTests(unittest.TestCase):
             runtime = HermesRuntime(RunnerConfig.from_env())
 
         self.assertEqual(runtime.metadata["max_iterations"], 20)
-        self.assertEqual(runtime.metadata["task_timeout_seconds"], 300)
-        self.assertEqual(runtime.metadata["inactivity_timeout_seconds"], 300)
-        self.assertEqual(runtime.metadata["transport_timeout_seconds"], 330)
+        self.assertEqual(runtime.metadata["task_timeout_seconds"], 900)
+        self.assertEqual(runtime.metadata["inactivity_timeout_seconds"], 900)
+        self.assertEqual(runtime.metadata["transport_timeout_seconds"], 930)
         self.assertEqual(runtime.metadata["native_max_output_tokens"], 15000)
 
     def test_eval_role_rejects_repo_change_task(self) -> None:
