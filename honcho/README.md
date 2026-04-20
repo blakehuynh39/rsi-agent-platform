@@ -9,8 +9,8 @@ The build is not a vanilla upstream Honcho image. It is pinned to a reviewed
 commit in the user fork:
 
 - source repo: `https://github.com/blakehuynh39/honcho`
-- source branch: `codex/first-principles-agentic-workflow-hardening`
-- source commit: `832c08f884f7f4d62ee196f2f377883c8fc5011e`
+- source branch: `main`
+- source commit: `e9d84785704e3aee36dd10adf11b3e42ea944605`
 - upstream base repo: `https://github.com/plastic-labs/honcho`
 
 The current build path is:
@@ -27,10 +27,10 @@ unchanged.
 The fork exists because RSI currently needs Honcho behavior that is not yet
 available from a piplabs-owned fork or an upstream release, including:
 
-- GPT-5 tool and reasoning requests routed through the OpenAI Responses API
-- Honcho runtime settings that expose and honor RSI's configured
-  `reasoning_effort`
-- Honcho runtime introspection at `/runtimez`
+- Honcho runtime introspection at `/runtimez`, which `improvement-plane`
+  queries directly
+- a controlled pinned source of truth in the fork while RSI continues to ship
+  and validate Honcho updates independently of upstream release timing
 
 If the pinned fork commit changes, update this document in the same change.
 
