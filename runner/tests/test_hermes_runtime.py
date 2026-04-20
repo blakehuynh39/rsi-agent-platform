@@ -21,7 +21,7 @@ def runner_env(role: str = "prod") -> dict[str, str]:
         "RSI_RUNNER_PORT": "8090",
         "RSI_RUNNER_MODEL": "openai/gpt-5.4",
         "RSI_RUNNER_REASONING_EFFORT": "xhigh",
-        "RSI_HERMES_PIN": "0e336b0e717027cbb81fcb5816246b7aec2d4a47",
+        "RSI_HERMES_PIN": "4a0358d2e741eb049a6ffb9b8e610db946a4fec5",
         "RSI_RUNNER_PUBLIC_BASE_URL": "https://staging-rsi-platform.storyprotocol.net",
         "RSI_TOOL_GATEWAY_BASE_URL": "http://tool-gateway.internal:8080",
         "HERMES_HOME": "/tmp/hermes",
@@ -390,7 +390,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["honcho_write_frequency"], "async")
         self.assertEqual(result.raw["honcho_session_strategy"], "hybrid")
         self.assertEqual(result.raw["honcho_ai_peer"], "rsi:stage:eval")
-        self.assertEqual(result.raw["hermes_pin"], "0e336b0e717027cbb81fcb5816246b7aec2d4a47")
+        self.assertEqual(result.raw["hermes_pin"], "4a0358d2e741eb049a6ffb9b8e610db946a4fec5")
         self.assertIn("structured_output", result.raw)
         self.assertEqual(result.raw["structured_output"]["final_answer"], "Final reply")
 
@@ -2662,7 +2662,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(runtime.metadata["inactivity_timeout_seconds"], 360)
         self.assertEqual(runtime.metadata["transport_timeout_seconds"], 450)
         self.assertEqual(runtime.metadata["tool_policy_mode"], "enforced_read_only")
-        self.assertEqual(runtime.metadata["hermes_pin"], "0e336b0e717027cbb81fcb5816246b7aec2d4a47")
+        self.assertEqual(runtime.metadata["hermes_pin"], "4a0358d2e741eb049a6ffb9b8e610db946a4fec5")
         self.assertEqual(runtime.metadata["session_continuity_status"], "ok")
         self.assertEqual(runtime.metadata["honcho_environment_effective"], "production")
         self.assertIn("repo.context", runtime.metadata["tool_allowlist_effective"])
