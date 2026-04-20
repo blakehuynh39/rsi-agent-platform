@@ -38,6 +38,20 @@ Example task MCP server entry for Notion's hosted MCP:
 }
 ```
 
+Example task MCP server entry for a self-hosted `notion-mcp-server` protected by
+`AUTH_TOKEN`:
+
+```json
+{
+  "server_label": "notion",
+  "server_url": "http://notion-mcp:3000/mcp",
+  "authorization_env_var": "RSI_NOTION_MCP_AUTHORIZATION",
+  "allowed_tools": {
+    "read_only": true
+  }
+}
+```
+
 ## Important constraint
 
 Notion's hosted MCP requires user OAuth and is not a good fit for unattended,
@@ -49,9 +63,18 @@ two viable patterns:
 2. Self-host Notion's open-source MCP server with a Notion integration token,
    then point Hermes at that server instead.
 
-The runner also supports unauthenticated remote MCP servers, so a self-hosted
-Notion MCP proxy can be exposed behind your own network controls without forcing
-the runner to send a bearer token.
+The official self-hosted `notion-mcp-server` runtime contract is:
+
+- `NOTION_TOKEN`: the Notion integration token used by the server to call the
+  Notion API.
+- `AUTH_TOKEN`: optional bearer token the server expects on inbound HTTP MCP
+  requests.
+- streamable HTTP transport on `/mcp`, with port `3000` by default.
+
+The runner also supports unauthenticated remote MCP servers. If you expose a
+self-hosted Notion MCP service only behind trusted network controls, you can
+leave `RSI_NOTION_MCP_AUTHORIZATION_ENV_VAR` empty and RSI will omit the bearer
+token entirely.
 
 ## RSI platform envs
 
@@ -60,16 +83,26 @@ question-gather runner tasks, set:
 
 ```bash
 RSI_NOTION_MCP_ENABLED=true
-RSI_NOTION_MCP_SERVER_URL=https://mcp.notion.com/mcp
+RSI_NOTION_MCP_SERVER_URL=http://notion-mcp:3000/mcp
 RSI_NOTION_MCP_AUTHORIZATION_ENV_VAR=RSI_NOTION_MCP_AUTHORIZATION
 ```
 
-Then provide the actual bearer value to runner processes via:
+For the recommended self-hosted deployment, configure the Notion MCP server with:
+
+```bash
+NOTION_TOKEN=ntn_...
+AUTH_TOKEN=...
+```
+
+Then provide the same inbound bearer token to runner processes via:
 
 ```bash
 RSI_NOTION_MCP_AUTHORIZATION=...
 ```
 
-For the hosted Notion MCP, that bearer value must be a valid user OAuth access
-token for the target workspace. For the self-hosted server, it can be omitted
-or replaced with whatever auth your deployment expects.
+If the self-hosted service is intentionally unauthenticated, set
+`RSI_NOTION_MCP_AUTHORIZATION_ENV_VAR=` and do not inject
+`RSI_NOTION_MCP_AUTHORIZATION` into runner pods.
+
+For the hosted Notion MCP, the runner bearer value must instead be a valid user
+OAuth access token for the target workspace.

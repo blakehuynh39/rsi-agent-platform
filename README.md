@@ -73,6 +73,13 @@ For governed Notion MCP reads in workflow and Slack Q&A gather tasks, configure
 `RSI_NOTION_MCP_ENABLED=true`, optionally override `RSI_NOTION_MCP_SERVER_URL`,
 and set `RSI_NOTION_MCP_AUTHORIZATION_ENV_VAR` to the env var name that runner
 pods should use for Notion MCP auth (defaults to `RSI_NOTION_MCP_AUTHORIZATION`).
+For a self-hosted `notion-mcp-server`, point `RSI_NOTION_MCP_SERVER_URL` at the
+internal `/mcp` endpoint (for example `http://notion-mcp:3000/mcp`). The
+self-hosted server uses `NOTION_TOKEN` for upstream Notion API access; if you
+enable its HTTP bearer auth via `AUTH_TOKEN`, set
+`RSI_NOTION_MCP_AUTHORIZATION_ENV_VAR` to a runner env that contains that same
+bearer token. If the internal service is intentionally unauthenticated behind
+network controls, set `RSI_NOTION_MCP_AUTHORIZATION_ENV_VAR` to an empty string.
 
 ## CI/CD
 
