@@ -28,6 +28,13 @@ func GovernedReadOnlyToolNames() []string {
 	}
 }
 
+// ImprovementReadOnlyToolNames intentionally exposes the full governed read
+// surface, including Slack transcript access, so improvement/eval runs can
+// inspect the same evidence sources as user-facing workflows.
+func ImprovementReadOnlyToolNames() []string {
+	return append([]string{}, GovernedReadOnlyToolNames()...)
+}
+
 func GovernedWorkspaceToolNames() []string {
 	return []string{
 		"workspace.list_files",

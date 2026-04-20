@@ -2348,7 +2348,7 @@ func scopedImprovementRepoAllowlist(primary string) []string {
 }
 
 func improvementBaseToolNames() []string {
-	return toolcatalog.GovernedReadOnlyToolNames()
+	return toolcatalog.ImprovementReadOnlyToolNames()
 }
 
 func improvementWorkspaceToolNames() []string {
