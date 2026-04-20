@@ -5,7 +5,7 @@ import types
 import unittest
 from unittest import mock
 
-from rsi_runner.hermes_mcp_adapter import HermesTaskScopedMCPAdapter
+from rsi_runner.hermes_mcp_adapter import HermesTaskScopedMCPAdapter, TaskScopedMCPRegistration
 
 
 class FakeServerTask:
@@ -19,7 +19,8 @@ class FakeServerTask:
 
 
 class FakeMCPToolModule:
-    def __init__(self) -> None:
+    def __init__(self, *, mcp_available: bool = True) -> None:
+        self._MCP_AVAILABLE = mcp_available
         self._servers: dict[str, FakeServerTask] = {}
         self.shutdown_log: list[str] = []
 
@@ -255,6 +256,52 @@ class HermesTaskScopedMCPAdapterTests(unittest.TestCase):
         self.assertEqual(cleanup.cleaned_server_names, registration.server_names)
         self.assertEqual(fake_mcp_tool.shutdown_log, registration.server_names)
         self.assertEqual(fake_mcp_tool._servers, {})
+
+    def test_register_task_servers_fails_clearly_when_mcp_sdk_extra_is_unavailable(self) -> None:
+        task = types.SimpleNamespace(
+            trace_id="trace-no-sdk",
+            workflow_id="wf-no-sdk",
+            conversation_id="",
+            session_scope_id="",
+            task_type="workflow",
+            mcp_servers=[
+                {
+                    "server_label": "notion",
+                    "profile": "notion_mcp_read",
+                    "server_url": "https://mcp.notion.com/mcp",
+                }
+            ],
+        )
+        adapter = HermesTaskScopedMCPAdapter()
+        fake_mcp_tool = FakeMCPToolModule(mcp_available=False)
+
+        with mock.patch.object(adapter, "_load_hermes_mcp_tool", return_value=fake_mcp_tool):
+            with self.assertRaisesRegex(RuntimeError, "MCP SDK extra is unavailable"):
+                adapter.register_task_servers(task)
+
+    def test_cleanup_marks_missing_server_as_failed(self) -> None:
+        registration = TaskScopedMCPRegistration(
+            servers=[
+                types.SimpleNamespace(
+                    source_label="notion",
+                    profile="notion_mcp_read",
+                    server_name="rsi-task-missing",
+                    toolset_alias="mcp-rsi-task-missing",
+                    included_tool_names=["search"],
+                    hermes_config={},
+                )
+            ]
+        )
+        adapter = HermesTaskScopedMCPAdapter()
+        fake_mcp_tool = FakeMCPToolModule()
+
+        with mock.patch.object(adapter, "_load_hermes_mcp_tool", return_value=fake_mcp_tool):
+            cleanup = adapter.cleanup_registration(registration)
+
+        self.assertEqual(cleanup.status, "cleanup_failed")
+        self.assertEqual(cleanup.cleaned_server_names, [])
+        self.assertEqual(cleanup.failed_server_names, ["rsi-task-missing"])
+        self.assertIn("server not registered", cleanup.errors[0])
 
 
 if __name__ == "__main__":

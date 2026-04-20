@@ -115,20 +115,24 @@ class HermesTaskScopedMCPAdapter:
             return TaskScopedMCPRegistration()
 
         mcp_tool = self._load_hermes_mcp_tool()
+        if not self._mcp_runtime_available(mcp_tool):
+            raise RuntimeError("Hermes MCP runtime is installed, but the MCP SDK extra is unavailable in this environment.")
         configs = {server.server_name: server.hermes_config for server in servers}
         try:
-            registered_names = list(mcp_tool.register_mcp_servers(configs))
+            mcp_tool.register_mcp_servers(configs)
         except Exception as exc:  # pragma: no cover - depends on external Hermes runtime
             raise RuntimeError(f"Failed to register Hermes MCP servers for this task: {exc}") from exc
 
         missing = [
             server_name
             for server_name in configs
-            if server_name not in registered_names and server_name not in getattr(mcp_tool, "_servers", {})
+            if server_name not in getattr(mcp_tool, "_servers", {})
         ]
         if missing:
             cleanup_result = self.cleanup_registration(TaskScopedMCPRegistration(servers=servers))
             cleanup_error = f" Cleanup status: {cleanup_result.status}."
+            if cleanup_result.errors:
+                cleanup_error = f"{cleanup_error} Cleanup errors: {cleanup_result.errors}."
             raise RuntimeError(f"Hermes MCP registration did not connect expected servers: {missing}.{cleanup_error}")
         return TaskScopedMCPRegistration(servers=servers)
 
@@ -160,9 +164,12 @@ class HermesTaskScopedMCPAdapter:
         errors: list[str] = []
         for server in registration.servers:
             server_task = getattr(mcp_tool, "_servers", {}).get(server.server_name)
+            if server_task is None:
+                failed.append(server.server_name)
+                errors.append(f"{server.server_name}: server not registered in Hermes MCP runtime")
+                continue
             try:
-                if server_task is not None:
-                    mcp_tool._run_on_mcp_loop(server_task.shutdown())
+                mcp_tool._run_on_mcp_loop(server_task.shutdown())
                 cleaned.append(server.server_name)
             except Exception as exc:  # pragma: no cover - depends on external Hermes runtime
                 failed.append(server.server_name)
@@ -299,3 +306,6 @@ class HermesTaskScopedMCPAdapter:
         except (ImportError, ModuleNotFoundError) as exc:  # pragma: no cover - depends on external Hermes install
             raise RuntimeError("Hermes MCP runtime is not installed in this environment.") from exc
         return mcp_tool
+
+    def _mcp_runtime_available(self, mcp_tool: Any) -> bool:
+        return bool(getattr(mcp_tool, "_MCP_AVAILABLE", True))
