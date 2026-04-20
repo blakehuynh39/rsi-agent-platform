@@ -1608,7 +1608,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(result.ok)
         self.assertEqual(slack_methods, ["initialize", "notifications/initialized", "tools/list"])
         self.assertEqual(len(responses_requests), 2)
-        self.assertEqual(responses_requests[0]["timeout"], 900)
+        self.assertEqual(responses_requests[0]["timeout"], 720)
         first_tools = responses_requests[0]["body"]["tools"]
         self.assertTrue(any(tool["type"] == "function" and tool["name"] == "repo_context" for tool in first_tools))
         mcp_tools = [tool for tool in first_tools if tool["type"] == "mcp"]
@@ -1639,6 +1639,364 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("mcp_calls_observed", event_names)
         self.assertIn("function_call_outputs", event_names)
         self.assertEqual(events[-1]["event"], "execution_completed")
+
+    def test_native_mcp_workflow_iteration_budget_exhaustion_recovers_partial_completion(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the latest Slack thread and reply in-thread.",
+                    "system_message": "Return only valid JSON.",
+                    "allowed_tools": ["repo.context"],
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "mcp_servers": [{"server_label": "notion", "server_url": "https://mcp.notion.com/mcp"}],
+                }
+            }
+        )
+        responses_requests: list[dict[str, object]] = []
+        tool_gateway_requests: list[dict[str, object]] = []
+
+        def fake_urlopen(req, timeout: int = 0):
+            body = json.loads(req.data.decode("utf-8"))
+            if req.full_url == "https://api.openai.com/v1/responses":
+                responses_requests.append({"timeout": timeout, "body": body})
+                if len(responses_requests) == 1:
+                    return FakeHTTPResponse(
+                        {
+                            "id": "resp-native-1",
+                            "output": [
+                                {
+                                    "type": "mcp_call",
+                                    "id": "mcp-read-1",
+                                    "name": "search",
+                                    "arguments": json.dumps({"query": "Numo rollout status"}),
+                                    "status": "completed",
+                                    "output": json.dumps({"results": [{"title": "Numo TODO"}]}),
+                                },
+                                {
+                                    "type": "function_call",
+                                    "id": "fc-1",
+                                    "call_id": "repo-context-1",
+                                    "name": "repo_context",
+                                    "arguments": json.dumps(
+                                        {"repo": "rsi-agent-platform", "question": "What changed in the workflow code?"}
+                                    ),
+                                },
+                            ],
+                        }
+                    )
+                if len(responses_requests) == 2:
+                    return FakeHTTPResponse(
+                        {
+                            "id": "resp-native-2",
+                            "output": [
+                                {
+                                    "type": "function_call",
+                                    "id": "fc-2",
+                                    "call_id": "repo-context-2",
+                                    "name": "repo_context",
+                                    "arguments": json.dumps(
+                                        {"repo": "rsi-agent-platform", "question": "What is still missing?"}
+                                    ),
+                                }
+                            ],
+                        }
+                    )
+                return FakeHTTPResponse(
+                    {
+                        "id": "resp-partial-1",
+                        "output_text": json.dumps(
+                            partial_structured_output(
+                                reply_text="Partial answer after hitting the native iteration cap.",
+                                proposed_actions=[],
+                            )
+                        ),
+                    }
+                )
+            if req.full_url == "http://tool-gateway.internal:8080/api/tools/repo.context/execute":
+                tool_gateway_requests.append({"timeout": timeout, "body": body})
+                return FakeHTTPResponse(
+                    {
+                        "status": "completed",
+                        "available": True,
+                        "summary": "Repo context loaded.",
+                        "provider": "repo",
+                        "provider_ref": "repo-context-1",
+                        "tool_call_id": "repo.context:1",
+                        "output": {"files": [{"path": "runner/rsi_runner/hermes_runtime.py", "summary": "workflow logic"}]},
+                    }
+                )
+            raise AssertionError(f"unexpected urlopen target {req.full_url}")
+
+        env = {**runner_env("prod"), "RSI_RUNNER_PROD_MAX_ITERATIONS": "1"}
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch("rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen), mock.patch.dict(
+            os.environ, {**env, "HERMES_HOME": tempdir}, clear=True
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            with mock.patch.object(runtime, "_resolved_task_mcp_servers", return_value=([], set())):
+                result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.raw["completion_verdict"], "partial")
+        self.assertEqual(result.raw["termination_reason"], "iteration_budget_exhausted")
+        self.assertTrue(result.raw["max_iterations_reached"])
+        self.assertEqual(result.raw["runner_diagnostics"]["completion_verdict"], "partial")
+        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_mode"], "direct_reducer")
+        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_attempts"], 1)
+        self.assertEqual(result.raw["runner_diagnostics"]["budget_used"], 1)
+        self.assertEqual(result.raw["runner_diagnostics"]["budget_max"], 1)
+        self.assertEqual(len(responses_requests), 3)
+        self.assertEqual(responses_requests[0]["timeout"], 720)
+        self.assertEqual(responses_requests[1]["body"]["previous_response_id"], "resp-native-1")
+        self.assertEqual(responses_requests[2]["timeout"], 180)
+        self.assertNotIn("tools", responses_requests[2]["body"])
+        self.assertEqual(tool_gateway_requests[0]["body"]["repo"], "rsi-agent-platform")
+        self.assertEqual(result.raw["mcp_calls"][0]["tool_name"], "slack.mcp.search")
+        tool_names = [item["tool_name"] for item in result.raw["tool_calls"]]
+        self.assertIn("repo.context", tool_names)
+        self.assertIn("slack.mcp.search", tool_names)
+        self.assertEqual(result.raw["structured_output"]["proposed_actions"][0]["kind"], "slack_post")
+        self.assertTrue(result.raw["action_contract_repair_attempted"])
+        self.assertTrue(result.raw["action_contract_repair_succeeded"])
+
+    def test_native_mcp_workflow_max_output_tokens_recovers_partial_completion(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the latest Slack thread and reply in-thread.",
+                    "allowed_tools": ["repo.context"],
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "mcp_servers": [{"server_label": "notion", "server_url": "https://mcp.notion.com/mcp"}],
+                }
+            }
+        )
+        responses_requests: list[dict[str, object]] = []
+
+        def fake_urlopen(req, timeout: int = 0):
+            body = json.loads(req.data.decode("utf-8"))
+            if req.full_url == "https://api.openai.com/v1/responses":
+                responses_requests.append({"timeout": timeout, "body": body})
+                if len(responses_requests) == 1:
+                    return FakeHTTPResponse(
+                        {
+                            "id": "resp-native-1",
+                            "output": [
+                                {
+                                    "type": "function_call",
+                                    "id": "fc-1",
+                                    "call_id": "repo-context-1",
+                                    "name": "repo_context",
+                                    "arguments": json.dumps(
+                                        {"repo": "rsi-agent-platform", "question": "What did the workflow collect?"}
+                                    ),
+                                }
+                            ],
+                        }
+                    )
+                if len(responses_requests) == 2:
+                    return FakeHTTPResponse(
+                        {
+                            "id": "resp-native-2",
+                            "status": "incomplete",
+                            "incomplete_details": {"reason": "max_output_tokens"},
+                            "output": [
+                                {
+                                    "type": "mcp_call",
+                                    "id": "mcp-read-1",
+                                    "name": "fetch",
+                                    "arguments": json.dumps({"id": "page-123"}),
+                                    "status": "completed",
+                                    "output": json.dumps({"title": "Numo TODO"}),
+                                }
+                            ],
+                        }
+                    )
+                return FakeHTTPResponse(
+                    {
+                        "id": "resp-partial-2",
+                        "output_text": json.dumps(
+                            partial_structured_output(
+                                reply_text="Partial answer after hitting the output token cap.",
+                                proposed_actions=[],
+                            )
+                        ),
+                    }
+                )
+            if req.full_url == "http://tool-gateway.internal:8080/api/tools/repo.context/execute":
+                return FakeHTTPResponse(
+                    {
+                        "status": "completed",
+                        "available": True,
+                        "summary": "Repo context loaded.",
+                        "provider": "repo",
+                        "provider_ref": "repo-context-1",
+                        "tool_call_id": "repo.context:1",
+                        "output": {"files": [{"path": "README.md", "summary": "Updated overview."}]},
+                    }
+                )
+            raise AssertionError(f"unexpected urlopen target {req.full_url}")
+
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch(
+            "rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            with mock.patch.object(runtime, "_resolved_task_mcp_servers", return_value=([], set())):
+                result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.raw["completion_verdict"], "partial")
+        self.assertEqual(result.raw["termination_reason"], "output_token_budget_exhausted")
+        self.assertEqual(result.raw["provider_incomplete_reason"], "max_output_tokens")
+        self.assertEqual(result.raw["runner_diagnostics"]["completion_verdict"], "partial")
+        self.assertEqual(result.raw["runner_diagnostics"]["termination_reason"], "output_token_budget_exhausted")
+        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_mode"], "direct_reducer")
+        self.assertEqual(len(responses_requests), 3)
+        self.assertEqual(result.raw["mcp_calls"][0]["tool_name"], "slack.mcp.fetch")
+        tool_names = [item["tool_name"] for item in result.raw["tool_calls"]]
+        self.assertIn("repo.context", tool_names)
+        self.assertIn("slack.mcp.fetch", tool_names)
+        self.assertEqual(result.raw["structured_output"]["proposed_actions"][0]["kind"], "slack_post")
+
+    def test_native_mcp_workflow_request_timeout_recovers_partial_completion_with_reserved_headroom(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the latest Slack thread and reply in-thread.",
+                    "allowed_tools": ["repo.context"],
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "mcp_servers": [{"server_label": "notion", "server_url": "https://mcp.notion.com/mcp"}],
+                }
+            }
+        )
+        responses_requests: list[dict[str, object]] = []
+
+        def fake_urlopen(req, timeout: int = 0):
+            body = json.loads(req.data.decode("utf-8"))
+            if req.full_url == "https://api.openai.com/v1/responses":
+                responses_requests.append({"timeout": timeout, "body": body})
+                if len(responses_requests) == 1:
+                    raise TimeoutError("native request timed out")
+                return FakeHTTPResponse(
+                    {
+                        "id": "resp-partial-timeout",
+                        "output_text": json.dumps(
+                            partial_structured_output(
+                                reply_text="Partial answer after native request timeout.",
+                                proposed_actions=[],
+                            )
+                        ),
+                    }
+                )
+            raise AssertionError(f"unexpected urlopen target {req.full_url}")
+
+        env = {**runner_env("prod"), "RSI_RUNNER_PROD_TASK_TIMEOUT": "20s"}
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch(
+            "rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen
+        ), mock.patch.dict(os.environ, env, clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            with mock.patch.object(runtime, "_resolved_task_mcp_servers", return_value=([], set())):
+                result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.raw["completion_verdict"], "partial")
+        self.assertEqual(result.raw["termination_reason"], "task_timeout")
+        self.assertEqual(result.raw["timeout_kind"], "task_timeout")
+        self.assertEqual(result.raw["task_timeout_seconds"], 20)
+        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_mode"], "direct_reducer")
+        self.assertEqual(len(responses_requests), 2)
+        self.assertEqual(responses_requests[0]["timeout"], 10)
+        self.assertEqual(responses_requests[1]["timeout"], 10)
+        self.assertNotIn("tools", responses_requests[1]["body"])
+        self.assertEqual(result.raw["structured_output"]["proposed_actions"][0]["kind"], "slack_post")
+
+    def test_native_mcp_workflow_iteration_budget_exhaustion_still_fails_when_partial_recovery_is_ineligible(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the latest workflow state.",
+                    "allowed_tools": ["repo.context"],
+                    "mcp_servers": [{"server_label": "notion", "server_url": "https://mcp.notion.com/mcp"}],
+                }
+            }
+        )
+        responses_requests: list[dict[str, object]] = []
+
+        def fake_urlopen(req, timeout: int = 0):
+            body = json.loads(req.data.decode("utf-8"))
+            if req.full_url == "https://api.openai.com/v1/responses":
+                responses_requests.append({"timeout": timeout, "body": body})
+                if len(responses_requests) == 1:
+                    return FakeHTTPResponse(
+                        {
+                            "id": "resp-native-1",
+                            "output": [
+                                {
+                                    "type": "function_call",
+                                    "id": "fc-1",
+                                    "call_id": "repo-context-1",
+                                    "name": "repo_context",
+                                    "arguments": json.dumps(
+                                        {"repo": "rsi-agent-platform", "question": "What changed in the workflow code?"}
+                                    ),
+                                }
+                            ],
+                        }
+                    )
+                return FakeHTTPResponse(
+                    {
+                        "id": "resp-native-2",
+                        "output": [
+                            {
+                                "type": "function_call",
+                                "id": "fc-2",
+                                "call_id": "repo-context-2",
+                                "name": "repo_context",
+                                "arguments": json.dumps(
+                                    {"repo": "rsi-agent-platform", "question": "What is still missing?"}
+                                ),
+                            }
+                        ],
+                    }
+                )
+            if req.full_url == "http://tool-gateway.internal:8080/api/tools/repo.context/execute":
+                return FakeHTTPResponse(
+                    {
+                        "status": "completed",
+                        "available": True,
+                        "summary": "Repo context loaded.",
+                        "provider": "repo",
+                        "provider_ref": "repo-context-1",
+                        "tool_call_id": "repo.context:1",
+                        "output": {"files": [{"path": "runner/rsi_runner/hermes_runtime.py", "summary": "workflow logic"}]},
+                    }
+                )
+            raise AssertionError(f"unexpected urlopen target {req.full_url}")
+
+        env = {**runner_env("prod"), "RSI_RUNNER_PROD_MAX_ITERATIONS": "1"}
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch(
+            "rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen
+        ), mock.patch.dict(os.environ, env, clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            with mock.patch.object(runtime, "_resolved_task_mcp_servers", return_value=([], set())):
+                result = runtime.execute_task(task)
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.raw["failure_class"], "runner_iteration_budget_exhausted")
+        self.assertTrue(result.raw["native_mcp_enabled"])
+        self.assertIn("function-call budget", result.message)
+        self.assertEqual(len(responses_requests), 2)
 
     def test_native_mcp_reply_profile_fails_closed_when_send_tool_discovery_is_ambiguous(self) -> None:
         task = RunnerTaskRequest.from_payload(

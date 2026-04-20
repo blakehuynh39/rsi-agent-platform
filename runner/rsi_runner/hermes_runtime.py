@@ -1357,6 +1357,99 @@ class HermesRuntime:
             return []
         return [total]
 
+    def _native_stop_meta(
+        self,
+        termination_reason: str,
+        *,
+        started_at: float,
+        rounds: int,
+        current_tool: str = "",
+        last_activity_desc: str = "",
+        provider_status: str = "",
+        provider_incomplete_reason: str = "",
+    ) -> JsonObject:
+        budget_used = max(0, rounds)
+        if termination_reason == "iteration_budget_exhausted":
+            budget_used = max(budget_used, self._max_iterations)
+        last_activity: JsonObject = {
+            "api_call_count": budget_used,
+            "budget_used": budget_used,
+            "budget_max": self._max_iterations,
+        }
+        if current_tool:
+            last_activity["current_tool"] = current_tool
+        if last_activity_desc:
+            last_activity["last_activity_desc"] = last_activity_desc
+        meta: JsonObject = {
+            "termination_reason": termination_reason,
+            "stopped_after_seconds": max(0, int(time.monotonic() - started_at)),
+            "last_activity": last_activity,
+        }
+        if termination_reason == "iteration_budget_exhausted":
+            meta["max_iterations_reached"] = True
+        if termination_reason == "task_timeout":
+            meta["timeout_kind"] = "task_timeout"
+        if provider_status:
+            meta["provider_status"] = provider_status
+        if provider_incomplete_reason:
+            meta["provider_incomplete_reason"] = provider_incomplete_reason
+        return meta
+
+    def _finalize_native_partial_completion(
+        self,
+        task: RunnerTaskRequest,
+        tool_policy: ToolPolicy,
+        binding: ReadOnlyToolBinding,
+        *,
+        recorder: NativeExecutionRecorder,
+        termination_reason: str,
+        stop_meta: JsonObject,
+        accumulated_mcp_calls: list[JsonObject],
+        reply_delivery_attempted: bool,
+        reply_delivery: JsonObject | None,
+    ) -> HermesExecutionResult:
+        tool_calls = self._merge_runtime_values(binding.diagnostics().get("tool_calls"), accumulated_mcp_calls)
+        observed: JsonObject = {
+            **binding.diagnostics(),
+            "native_mcp_enabled": True,
+            "mcp_calls": accumulated_mcp_calls,
+            "tool_calls": tool_calls,
+            "reply_delivery_attempted": reply_delivery_attempted,
+        }
+        if reply_delivery is not None:
+            observed["reply_delivery"] = reply_delivery
+        result = self._finalize_partial_completion(
+            task,
+            tool_policy,
+            {},
+            observed,
+            stop_meta,
+            [],
+            termination_reason=termination_reason,
+        )
+        if result.ok:
+            recorder.record(
+                "execution_completed",
+                {
+                    "ok": True,
+                    "termination_reason": termination_reason,
+                    "completion_verdict": "partial",
+                    "partial_finalization": True,
+                },
+            )
+        else:
+            recorder.record(
+                "execution_failed",
+                {
+                    "failure_class": _string_or_json(result.raw.get("failure_class")) or "runner_partial_completion_unrecoverable",
+                    "error": result.message,
+                    "termination_reason": termination_reason,
+                    "partial_finalization": True,
+                },
+            )
+        result.raw = self._attach_native_execution_log_path(_json_object_or_empty(result.raw), recorder)
+        return result
+
     def _merge_runtime_values(self, *lists: Any) -> list[Any]:
         merged: list[Any] = []
         seen: set[str] = set()
@@ -2451,7 +2544,9 @@ class HermesRuntime:
                 },
             )
             return preflight
-        timeout_seconds = min(self._effective_task_timeout(task), max(1, self._transport_timeout_seconds - 5))
+        effective_task_timeout = self._effective_task_timeout(task)
+        reasoning_timeout_seconds = self._partial_completion_reasoning_timeout_seconds(task, effective_task_timeout)
+        timeout_seconds = min(reasoning_timeout_seconds, max(1, self._transport_timeout_seconds - 5))
         user_prompt = self._direct_task_user_prompt(task)
         instructions = first_non_empty(task.system_message or "", "Return valid JSON only.")
         previous_response_id = ""
@@ -2483,6 +2578,28 @@ class HermesRuntime:
                     provider_response_id=previous_response_id,
                     mcp_calls=accumulated_mcp_calls,
                     recorder=recorder,
+                )
+            if (
+                elapsed_seconds >= timeout_seconds
+                and self._workflow_partial_completion_eligible(task)
+                and not reply_delivery_attempted
+            ):
+                stop_meta = self._native_stop_meta(
+                    "task_timeout",
+                    started_at=started_at,
+                    rounds=rounds,
+                    last_activity_desc="native workflow reasoning timeout reached",
+                )
+                return self._finalize_native_partial_completion(
+                    task,
+                    tool_policy,
+                    binding,
+                    recorder=recorder,
+                    termination_reason="task_timeout",
+                    stop_meta=stop_meta,
+                    accumulated_mcp_calls=accumulated_mcp_calls,
+                    reply_delivery_attempted=reply_delivery_attempted,
+                    reply_delivery=reply_delivery,
                 )
             payload: JsonObject = {
                 "model": self._provider_model,
@@ -2568,6 +2685,28 @@ class HermesRuntime:
                         provider_response_id=previous_response_id,
                         mcp_calls=accumulated_mcp_calls,
                         recorder=recorder,
+                    )
+                if (
+                    self._workflow_partial_completion_eligible(task)
+                    and not reply_delivery_attempted
+                    and isinstance(exc, (TimeoutError, socket.timeout))
+                ):
+                    stop_meta = self._native_stop_meta(
+                        "task_timeout",
+                        started_at=started_at,
+                        rounds=rounds,
+                        last_activity_desc="native workflow request timed out",
+                    )
+                    return self._finalize_native_partial_completion(
+                        task,
+                        tool_policy,
+                        binding,
+                        recorder=recorder,
+                        termination_reason="task_timeout",
+                        stop_meta=stop_meta,
+                        accumulated_mcp_calls=accumulated_mcp_calls,
+                        reply_delivery_attempted=reply_delivery_attempted,
+                        reply_delivery=reply_delivery,
                     )
                 failure_class = "runner_transport_timeout"
                 if reply_delivery_attempted:
@@ -2693,6 +2832,26 @@ class HermesRuntime:
                         "provider_incomplete_reason": incomplete_reason,
                     },
                 )
+            if self._workflow_partial_completion_eligible(task) and incomplete_reason == "max_output_tokens":
+                stop_meta = self._native_stop_meta(
+                    "output_token_budget_exhausted",
+                    started_at=started_at,
+                    rounds=rounds,
+                    last_activity_desc="native workflow output token budget exhausted",
+                    provider_status=_string_or_json(parsed.get("status")),
+                    provider_incomplete_reason=incomplete_reason,
+                )
+                return self._finalize_native_partial_completion(
+                    task,
+                    tool_policy,
+                    binding,
+                    recorder=recorder,
+                    termination_reason="output_token_budget_exhausted",
+                    stop_meta=stop_meta,
+                    accumulated_mcp_calls=accumulated_mcp_calls,
+                    reply_delivery_attempted=reply_delivery_attempted,
+                    reply_delivery=reply_delivery,
+                )
             function_calls = self._responses_function_calls(parsed)
             response_text = self._responses_output_text(parsed)
             had_tool_round = bool(function_calls) or (bool(normalized_mcp_calls) and not response_text)
@@ -2717,6 +2876,30 @@ class HermesRuntime:
                             provider_response_id=previous_response_id,
                             mcp_calls=accumulated_mcp_calls,
                             recorder=recorder,
+                        )
+                    if self._workflow_partial_completion_eligible(task):
+                        current_tool = ""
+                        if function_calls:
+                            current_tool = _string_or_json(function_calls[0].get("name"))
+                        elif normalized_mcp_calls:
+                            current_tool = _string_or_json(normalized_mcp_calls[-1].get("tool_name"))
+                        stop_meta = self._native_stop_meta(
+                            "iteration_budget_exhausted",
+                            started_at=started_at,
+                            rounds=rounds,
+                            current_tool=current_tool,
+                            last_activity_desc="native workflow function-call budget exhausted",
+                        )
+                        return self._finalize_native_partial_completion(
+                            task,
+                            tool_policy,
+                            binding,
+                            recorder=recorder,
+                            termination_reason="iteration_budget_exhausted",
+                            stop_meta=stop_meta,
+                            accumulated_mcp_calls=accumulated_mcp_calls,
+                            reply_delivery_attempted=reply_delivery_attempted,
+                            reply_delivery=reply_delivery,
                         )
                     recorder.record(
                         "execution_failed",
@@ -3598,9 +3781,14 @@ class HermesRuntime:
         if self._task_uses_native_mcp(task):
             result = self._execute_openai_native_task(task, tool_policy)
             if result.ok:
+                runner_diagnostics = _json_object_or_empty(result.raw.get("runner_diagnostics"))
                 result.raw = {
                     **result.raw,
                     "mcp_servers": task.mcp_servers,
+                    "action_contract_repair_attempted": _bool_or_false(result.raw.get("action_contract_repair_attempted"))
+                    or _bool_or_false(runner_diagnostics.get("action_contract_repair_attempted")),
+                    "action_contract_repair_succeeded": _bool_or_false(result.raw.get("action_contract_repair_succeeded"))
+                    or _bool_or_false(runner_diagnostics.get("action_contract_repair_succeeded")),
                 }
             return result
         if task.task_type == "question_reduce":
