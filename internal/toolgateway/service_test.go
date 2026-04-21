@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -454,6 +455,148 @@ func TestSlackReplyWithoutTokenIsBlocked(t *testing.T) {
 	}
 	if result.Available {
 		t.Fatal("expected unavailable slack provider when token is missing")
+	}
+}
+
+func TestSlackUploadFileUsesExternalUploadFlow(t *testing.T) {
+	var (
+		seenToken       string
+		uploadedBody    string
+		seenThreadTS    string
+		seenChannelID   string
+		seenTitle       string
+		seenSnippetType string
+		seenAltTxt      string
+	)
+	var server *httptest.Server
+	server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/files.getUploadURLExternal":
+			if err := r.ParseForm(); err != nil {
+				t.Fatalf("ParseForm() error = %v", err)
+			}
+			seenToken = r.Form.Get("token")
+			seenSnippetType = r.Form.Get("snippet_type")
+			seenAltTxt = r.Form.Get("alt_txt")
+			if got := r.Form.Get("filename"); got != "diagram.svg" {
+				t.Fatalf("expected filename diagram.svg, got %q", got)
+			}
+			if got := r.Form.Get("length"); got == "" {
+				t.Fatalf("expected file length in request")
+			}
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"ok":         true,
+				"upload_url": server.URL + "/upload",
+				"file_id":    "F123",
+			})
+		case "/upload":
+			body, err := io.ReadAll(r.Body)
+			if err != nil {
+				t.Fatalf("ReadAll() error = %v", err)
+			}
+			uploadedBody = string(body)
+			w.WriteHeader(http.StatusOK)
+		case "/files.completeUploadExternal":
+			if err := r.ParseForm(); err != nil {
+				t.Fatalf("ParseForm() error = %v", err)
+			}
+			seenToken = r.Form.Get("token")
+			seenChannelID = r.Form.Get("channel_id")
+			seenThreadTS = r.Form.Get("thread_ts")
+			filesJSON := r.Form.Get("files")
+			var files []map[string]any
+			if err := json.Unmarshal([]byte(filesJSON), &files); err != nil {
+				t.Fatalf("Unmarshal(files) error = %v", err)
+			}
+			if len(files) != 1 || files[0]["id"] != "F123" {
+				t.Fatalf("unexpected files payload %#v", files)
+			}
+			seenTitle = stringValue(files[0]["title"])
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"ok": true,
+				"files": []map[string]any{
+					{"id": "F123", "title": "Architecture Diagram"},
+				},
+			})
+		case "/files.info":
+			if err := r.ParseForm(); err != nil {
+				t.Fatalf("ParseForm() error = %v", err)
+			}
+			seenToken = r.Form.Get("token")
+			if got := r.Form.Get("file"); got != "F123" {
+				t.Fatalf("expected file F123, got %q", got)
+			}
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"ok": true,
+				"file": map[string]any{
+					"id":        "F123",
+					"title":     "Architecture Diagram",
+					"mimetype":  "image/svg+xml",
+					"filetype":  "svg",
+					"permalink": "https://example.slack.com/files/F123",
+					"size":      len("<svg>diagram</svg>"),
+				},
+			})
+		default:
+			t.Fatalf("unexpected slack path %s", r.URL.Path)
+		}
+	}))
+	defer server.Close()
+
+	service := NewService(config.Config{
+		SlackBotToken: "xoxb-test",
+	}, storepkg.NewMemoryStore())
+	service.slackAPIURL = server.URL + "/"
+
+	result := service.Execute("slack.upload_file", map[string]interface{}{
+		"channel_id":      "C123",
+		"thread_ts":       "171000001.000100",
+		"filename":        "diagram.svg",
+		"title":           "Architecture Diagram",
+		"content":         "<svg>diagram</svg>",
+		"initial_comment": "Attached diagram",
+		"alt_txt":         "Architecture diagram",
+		"snippet_type":    "svg",
+	})
+
+	if seenToken != "xoxb-test" {
+		t.Fatalf("expected bot token xoxb-test, got %q", seenToken)
+	}
+	if !strings.Contains(uploadedBody, "<svg>diagram</svg>") {
+		t.Fatalf("unexpected uploaded body %q", uploadedBody)
+	}
+	if seenChannelID != "C123" {
+		t.Fatalf("expected channel C123, got %q", seenChannelID)
+	}
+	if seenThreadTS != "171000001.000100" {
+		t.Fatalf("expected thread ts, got %q", seenThreadTS)
+	}
+	if seenTitle != "Architecture Diagram" {
+		t.Fatalf("expected title Architecture Diagram, got %q", seenTitle)
+	}
+	if seenSnippetType != "svg" {
+		t.Fatalf("expected snippet_type svg, got %q", seenSnippetType)
+	}
+	if seenAltTxt != "Architecture diagram" {
+		t.Fatalf("expected alt_txt Architecture diagram, got %q", seenAltTxt)
+	}
+	if result.Status != "ok" {
+		t.Fatalf("expected ok status, got %s %#v", result.Status, result.Output)
+	}
+	if got := result.Output["file_id"]; got != "F123" {
+		t.Fatalf("expected file_id F123, got %#v", got)
+	}
+	if got := result.ProviderRef; got != "F123" {
+		t.Fatalf("expected provider ref F123, got %#v", got)
+	}
+	if got := result.Output["permalink"]; got != "https://example.slack.com/files/F123" {
+		t.Fatalf("expected permalink, got %#v", got)
+	}
+	if len(result.RawArtifactRefs) != 2 {
+		t.Fatalf("expected two artifact refs, got %#v", result.RawArtifactRefs)
+	}
+	if result.RawArtifactRefs[0] != "slack-file://F123" || result.RawArtifactRefs[1] != "https://example.slack.com/files/F123" {
+		t.Fatalf("unexpected artifact refs %#v", result.RawArtifactRefs)
 	}
 }
 

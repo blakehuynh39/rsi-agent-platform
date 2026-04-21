@@ -96,6 +96,8 @@ func (s *Service) Execute(name string, input map[string]interface{}) storepkg.To
 		result = s.kubernetesEvents(input)
 	case "slack.reply":
 		result = s.slackReply(input)
+	case "slack.upload_file":
+		result = s.slackUploadFile(input)
 	case "slack.history":
 		result = s.slackHistory(input)
 	case "slack.search":
@@ -1452,6 +1454,99 @@ func (s *Service) slackReply(input map[string]interface{}) storepkg.ToolResult {
 	return s.result("slack.reply", input, summary, output, nil)
 }
 
+func (s *Service) slackUploadFile(input map[string]interface{}) storepkg.ToolResult {
+	channelID := strings.TrimSpace(stringValue(input["channel_id"]))
+	threadTS := strings.TrimSpace(stringValue(input["thread_ts"]))
+	filename := strings.TrimSpace(stringValue(input["filename"]))
+	title := strings.TrimSpace(stringValue(input["title"]))
+	content := stringValue(input["content"])
+	contentBase64 := strings.TrimSpace(stringValue(input["content_base64"]))
+	initialComment := stringValue(input["initial_comment"])
+	altTxt := strings.TrimSpace(stringValue(input["alt_txt"]))
+	snippetType := strings.TrimSpace(stringValue(input["snippet_type"]))
+	dryRun := boolValue(input["dry_run"])
+	output := map[string]interface{}{
+		"channel_id": channelID,
+		"thread_ts":  threadTS,
+		"filename":   filename,
+		"title":      title,
+		"uploaded":   false,
+	}
+	if channelID == "" || filename == "" {
+		return s.failedResult("slack.upload_file", input, "slack", "Slack file upload missing channel or filename.", output)
+	}
+	var data []byte
+	switch {
+	case contentBase64 != "":
+		decoded, err := base64.StdEncoding.DecodeString(contentBase64)
+		if err != nil {
+			output["error"] = err.Error()
+			return s.failedResult("slack.upload_file", input, "slack", fmt.Sprintf("Slack file upload invalid base64 payload: %v", err), output)
+		}
+		data = decoded
+	case content != "":
+		data = []byte(content)
+	default:
+		return s.failedResult("slack.upload_file", input, "slack", "Slack file upload missing file content.", output)
+	}
+	if len(data) == 0 {
+		return s.failedResult("slack.upload_file", input, "slack", "Slack file upload content is empty.", output)
+	}
+	output["size_bytes"] = len(data)
+	if !dryRun && strings.TrimSpace(s.cfg.SlackBotToken) == "" {
+		output["error"] = "missing RSI_SLACK_BOT_TOKEN"
+		return s.unavailableResult("slack.upload_file", input, "slack", "Slack file upload unavailable: bot token is not configured.", output)
+	}
+	if dryRun {
+		return s.result("slack.upload_file", input, "Slack file upload dry-run generated.", output, nil)
+	}
+	client := slackapi.New(
+		s.cfg.SlackBotToken,
+		slackapi.OptionAPIURL(s.slackAPIURL),
+		slackapi.OptionHTTPClient(s.httpClient),
+	)
+	uploaded, err := client.UploadFileContext(context.Background(), slackapi.UploadFileParameters{
+		Reader:          bytes.NewReader(data),
+		FileSize:        len(data),
+		Filename:        filename,
+		Title:           title,
+		InitialComment:  initialComment,
+		Channel:         channelID,
+		ThreadTimestamp: threadTS,
+		AltTxt:          altTxt,
+		SnippetType:     snippetType,
+	})
+	if err != nil {
+		output["error"] = err.Error()
+		return s.failedResult("slack.upload_file", input, "slack", fmt.Sprintf("Slack file upload failed: %v", err), output)
+	}
+	output["uploaded"] = true
+	output["file_id"] = uploaded.ID
+	if uploaded.Title != "" {
+		output["title"] = uploaded.Title
+	}
+	refs := []string{}
+	if uploaded.ID != "" {
+		refs = append(refs, "slack-file://"+uploaded.ID)
+		if info, _, _, infoErr := client.GetFileInfoContext(context.Background(), uploaded.ID, 1, 1); infoErr == nil {
+			if info.Permalink != "" {
+				output["permalink"] = info.Permalink
+				refs = append(refs, info.Permalink)
+			}
+			if info.Mimetype != "" {
+				output["mimetype"] = info.Mimetype
+			}
+			if info.Filetype != "" {
+				output["filetype"] = info.Filetype
+			}
+			if info.Size > 0 {
+				output["size_bytes"] = info.Size
+			}
+		}
+	}
+	return s.result("slack.upload_file", input, fmt.Sprintf("Slack file %s uploaded to %s.", filename, channelID), output, refs)
+}
+
 func (s *Service) slackHistory(input map[string]interface{}) storepkg.ToolResult {
 	traceID := strings.TrimSpace(stringValue(input["trace_id"]))
 	bound := s.boundSlackContext(traceID)
@@ -2513,6 +2608,8 @@ func providerRefForTool(name string, output map[string]interface{}) string {
 	switch name {
 	case "slack.reply":
 		return firstNonEmpty(stringValue(output["ts"]), stringValue(output["thread_ts"]))
+	case "slack.upload_file":
+		return firstNonEmpty(stringValue(output["file_id"]), stringValue(output["permalink"]), stringValue(output["thread_ts"]))
 	case "slack.history":
 		return firstNonEmpty(stringValue(output["thread_ts"]), stringValue(output["channel_id"]))
 	case "slack.search":

@@ -966,7 +966,7 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	combinedContextSummary := joinContextSummary(contextSummary, liveHintSummary(liveHints))
 	allowed, _ := replyPolicy(store, workflow.Kind, trace.Summary.ThreadKey, ingestion.ChannelID)
 	mcpServers := workflowMCPServers(cfg, allowed, ingestion.ChannelID, ingestion.ThreadTS)
-	allowedTools := workflowRunnerAllowedTools(liveHints, hasSlackMCPServer(mcpServers))
+	allowedTools := workflowRunnerAllowedTools(liveHints, hasSlackMCPServer(mcpServers), allowed)
 	requestedArtifacts := requestedArtifactsForIngestion(ingestion)
 	replyDeliveryMode := workflowReplyDeliveryMode(hasSlackMCPServer(mcpServers), allowed)
 	requestedSkills := workflowplan.RequestedSkillsForPrompt(ingestion.Text, ingestion.Prompt)
@@ -1044,7 +1044,7 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliv
 		if len(requestedArtifacts) > 0 {
 			parts = append(parts, "Artifact production was requested. If you produce one, include it in produced_artifacts. If you cannot, set artifact_failure_reason and still provide the best grounded reply.")
 		}
-		parts = append(parts, "If you intend to reply in Slack, you must emit an explicit proposed action with kind=slack_post; prose alone is not enough.", "Do not set reply_delivery for mediated replies.")
+		parts = append(parts, "Use slack.upload_file when you need to attach a generated file to the bound Slack thread; Slack MCP send_message and mediated slack_post are text-only.", "If you intend to reply in Slack, you must emit an explicit proposed action with kind=slack_post; prose alone is not enough.", "Do not set reply_delivery for mediated replies.")
 		return strings.Join(parts, " ")
 	}
 	if replyDeliveryMode == "direct" {
@@ -1060,7 +1060,7 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliv
 		if len(requestedArtifacts) > 0 {
 			parts = append(parts, "Artifact production was requested. If you produce one, include it in produced_artifacts. If you cannot, set artifact_failure_reason and still provide the best grounded reply.")
 		}
-		parts = append(parts, "Use governed repo, GitHub, knowledge, RSI, and workspace tools for non-Slack evidence.", "If you have a grounded final answer, send exactly one Slack reply to the bound ingress thread using Slack MCP, then return the JSON object.", "Do not emit a slack_post action contract.", "Include reply_delivery describing the direct Slack delivery with status, channel_id, thread_ts, body, tool_call_id, tool_name, provider_ref, and message_link.")
+		parts = append(parts, "Use governed repo, GitHub, knowledge, RSI, and workspace tools for non-Slack evidence.", "Use slack.upload_file when you need to attach a generated file to the bound Slack thread; Slack MCP send_message is text-only.", "If you have a grounded final answer, send exactly one Slack reply to the bound ingress thread using Slack MCP, then return the JSON object.", "Do not emit a slack_post action contract.", "Include reply_delivery describing the direct Slack delivery with status, channel_id, thread_ts, body, tool_call_id, tool_name, provider_ref, and message_link.")
 		return strings.Join(parts, " ")
 	}
 	parts := []string{
@@ -1490,9 +1490,12 @@ func traceArtifactsFromProducedArtifacts(traceID string, items []runnerutil.Prod
 	return out
 }
 
-func workflowRunnerAllowedTools(hints workflowplan.LiveHintSet, useSlackMCP bool) []string {
+func workflowRunnerAllowedTools(hints workflowplan.LiveHintSet, useSlackMCP bool, replyAllowed bool) []string {
 	allowed := append([]string{}, toolcatalog.GovernedReadOnlyToolNames()...)
 	allowed = append(allowed, hints.PreferredTools...)
+	if replyAllowed {
+		allowed = append(allowed, "slack.upload_file")
+	}
 	out := make([]string, 0, len(allowed))
 	for _, toolName := range uniqueStrings(allowed) {
 		trimmed := strings.TrimSpace(toolName)

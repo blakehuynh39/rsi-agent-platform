@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import base64
 import json
 import os
+from pathlib import Path
 import tempfile
 import time
 import types
@@ -818,6 +820,175 @@ class HermesRuntimeTests(unittest.TestCase):
         )
         self.assertEqual(payload["tool_name"], "repo.context")
         self.assertEqual(payload["transport_tool_name"], "repo_context")
+
+    def test_slack_upload_file_binding_defaults_to_bound_thread(self) -> None:
+        captured: dict[str, object] = {}
+
+        class FakeResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb) -> bool:
+                return False
+
+            def read(self) -> bytes:
+                return json.dumps(
+                    {
+                        "status": "completed",
+                        "available": True,
+                        "summary": "Slack file uploaded.",
+                        "provider": "slack",
+                        "provider_ref": "F123",
+                        "output": {"uploaded": True, "file_id": "F123"},
+                    }
+                ).encode("utf-8")
+
+        def fake_urlopen(req, timeout: int = 0):
+            captured["url"] = req.full_url
+            captured["timeout"] = timeout
+            captured["body"] = json.loads(req.data.decode("utf-8"))
+            return FakeResponse()
+
+        binding = ReadOnlyToolBinding(
+            base_url="http://tool-gateway.internal",
+            allowed_tool_names=["slack.upload_file"],
+            task_repo="rsi-agent-platform",
+            task_repo_ref="main",
+            task_prompt="Reply with the generated file.",
+            task_channel_id="C123",
+            task_thread_ts="171000001.000100",
+            task_context_summary="workflow summary",
+            trace_id="trace-123",
+            session_scope_kind="conversation",
+            session_scope_id="conv-123",
+            context_refs=[],
+        )
+
+        with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_urlopen):
+            payload = json.loads(binding.handle_tool_call("slack_upload_file", {"filename": "diagram.svg", "content": "<svg />"}))
+
+        self.assertEqual(captured["url"], "http://tool-gateway.internal/api/tools/slack.upload_file/execute")
+        self.assertEqual(
+            captured["body"],
+            {
+                "trace_id": "trace-123",
+                "channel_id": "C123",
+                "thread_ts": "171000001.000100",
+                "filename": "diagram.svg",
+                "content": "<svg />",
+            },
+        )
+        self.assertEqual(payload["tool_name"], "slack.upload_file")
+        self.assertEqual(payload["transport_tool_name"], "slack_upload_file")
+
+    def test_slack_upload_file_binding_reads_local_path_and_forwards_base64(self) -> None:
+        captured: dict[str, object] = {}
+
+        class FakeResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb) -> bool:
+                return False
+
+            def read(self) -> bytes:
+                return json.dumps(
+                    {
+                        "status": "completed",
+                        "available": True,
+                        "summary": "Slack file uploaded.",
+                        "provider": "slack",
+                        "provider_ref": "F456",
+                        "output": {"uploaded": True, "file_id": "F456"},
+                    }
+                ).encode("utf-8")
+
+        def fake_urlopen(req, timeout: int = 0):
+            captured["body"] = json.loads(req.data.decode("utf-8"))
+            return FakeResponse()
+
+        binding = ReadOnlyToolBinding(
+            base_url="http://tool-gateway.internal",
+            allowed_tool_names=["slack.upload_file"],
+            task_repo="rsi-agent-platform",
+            task_repo_ref="main",
+            task_prompt="Reply with the generated file.",
+            task_channel_id="C123",
+            task_thread_ts="171000001.000100",
+            task_context_summary="workflow summary",
+            trace_id="trace-123",
+            session_scope_kind="conversation",
+            session_scope_id="conv-123",
+            context_refs=[],
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            file_path = Path(tmpdir) / "diagram.svg"
+            file_path.write_text("<svg>generated</svg>", encoding="utf-8")
+            with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_urlopen):
+                payload = json.loads(binding.handle_tool_call("slack_upload_file", {"path": str(file_path)}))
+
+        body = captured["body"]
+        self.assertEqual(body["channel_id"], "C123")
+        self.assertEqual(body["thread_ts"], "171000001.000100")
+        self.assertEqual(body["filename"], "diagram.svg")
+        self.assertEqual(Path(body["path"]).name, "diagram.svg")
+        self.assertEqual(base64.b64decode(body["content_base64"]).decode("utf-8"), "<svg>generated</svg>")
+        self.assertEqual(payload["tool_name"], "slack.upload_file")
+        self.assertEqual(payload["transport_tool_name"], "slack_upload_file")
+
+    def test_slack_upload_file_binding_reads_file_artifact_ref(self) -> None:
+        captured: dict[str, object] = {}
+
+        class FakeResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb) -> bool:
+                return False
+
+            def read(self) -> bytes:
+                return json.dumps(
+                    {
+                        "status": "completed",
+                        "available": True,
+                        "summary": "Slack file uploaded.",
+                        "provider": "slack",
+                        "provider_ref": "F789",
+                        "output": {"uploaded": True, "file_id": "F789"},
+                    }
+                ).encode("utf-8")
+
+        def fake_urlopen(req, timeout: int = 0):
+            captured["body"] = json.loads(req.data.decode("utf-8"))
+            return FakeResponse()
+
+        binding = ReadOnlyToolBinding(
+            base_url="http://tool-gateway.internal",
+            allowed_tool_names=["slack.upload_file"],
+            task_repo="rsi-agent-platform",
+            task_repo_ref="main",
+            task_prompt="Reply with the generated file.",
+            task_channel_id="C123",
+            task_thread_ts="171000001.000100",
+            task_context_summary="workflow summary",
+            trace_id="trace-123",
+            session_scope_kind="conversation",
+            session_scope_id="conv-123",
+            context_refs=[],
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            file_path = Path(tmpdir) / "diagram.png"
+            file_path.write_bytes(b"\x89PNG\r\n")
+            artifact_ref = file_path.as_uri()
+            with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_urlopen):
+                _ = json.loads(binding.handle_tool_call("slack_upload_file", {"artifact_ref": artifact_ref}))
+
+        body = captured["body"]
+        self.assertEqual(body["filename"], "diagram.png")
+        self.assertEqual(Path(body["path"]).name, "diagram.png")
+        self.assertEqual(base64.b64decode(body["content_base64"]), b"\x89PNG\r\n")
 
     def test_repo_context_binding_records_grounded_match_snippets(self) -> None:
         class FakeResponse:
@@ -1775,6 +1946,16 @@ class HermesRuntimeTests(unittest.TestCase):
                 invalid[schema["name"]] = paths
         self.assertEqual(invalid, {})
 
+    def test_default_policy_allowlist_includes_slack_upload_file_when_tool_gateway_enabled(self) -> None:
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ, runner_env("prod"), clear=True
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        allowlist = runtime._default_policy_allowlist(execution_mode="")
+
+        self.assertIn("slack.upload_file", allowlist)
+
     def test_workflow_with_mcp_routes_through_hermes_loop_and_records_agentic_diagnostics(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
@@ -1926,7 +2107,8 @@ class HermesRuntimeTests(unittest.TestCase):
                     "task_type": "workflow",
                     "repo": "rsi-agent-platform",
                     "prompt": "Investigate and reply.",
-                    "allowed_tools": ["repo.context", "slack.history"],
+                    "allowed_tools": ["repo.context", "slack.upload_file"],
+                    "reply_delivery_mode": "direct",
                 }
             }
         )
@@ -1951,10 +2133,12 @@ class HermesRuntimeTests(unittest.TestCase):
         tool_names = sorted(tool["function"]["name"] for tool in agent.tools)
         self.assertIn("search_messages", tool_names)
         self.assertIn("send_message", tool_names)
+        self.assertIn("slack_upload_file", tool_names)
         self.assertIn("todo_write", tool_names)
         self.assertIn("repo_context", agent.valid_tool_names)
         self.assertIn("search_messages", agent.valid_tool_names)
         self.assertIn("send_message", agent.valid_tool_names)
+        self.assertIn("slack_upload_file", agent.valid_tool_names)
         self.assertIn("todo_write", agent.valid_tool_names)
 
     def test_task_scoped_mcp_adapter_fails_closed_for_custom_read_only_server_without_tool_names(self) -> None:

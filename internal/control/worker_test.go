@@ -2540,14 +2540,14 @@ func TestBuildRunnerTaskBoundsNativeMCPToolSurface(t *testing.T) {
 		ThreadTS:       ingestion.ThreadTS,
 		EntityRefs:     append([]slackpkg.EntityRef(nil), ingestion.EntityRefs...),
 	}, time.Now().UTC())
-	expectedTools := workflowRunnerAllowedTools(liveHints, true)
+	expectedTools := workflowRunnerAllowedTools(liveHints, true, true)
 	if len(expectedTools) == 0 {
 		t.Fatalf("expected non-empty bounded tool surface from live hints")
 	}
 	if !reflect.DeepEqual(task.AllowedTools, expectedTools) {
 		t.Fatalf("expected allowed tools %#v, got %#v", expectedTools, task.AllowedTools)
 	}
-	for _, expected := range []string{"cloudflare.inspect", "kubernetes.events", "repo.read_file", "repo.search", "rsi.trace_context"} {
+	for _, expected := range []string{"cloudflare.inspect", "kubernetes.events", "repo.read_file", "repo.search", "rsi.trace_context", "slack.upload_file"} {
 		if !containsString(task.AllowedTools, expected) {
 			t.Fatalf("expected %s in bounded tool surface, got %#v", expected, task.AllowedTools)
 		}

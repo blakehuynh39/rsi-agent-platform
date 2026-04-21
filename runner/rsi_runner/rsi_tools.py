@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import base64
 from copy import deepcopy
 from dataclasses import dataclass, field
 import json
+from pathlib import Path
 import time
 from typing import Any, Iterable, Protocol
 from urllib import error as urlerror
+from urllib import parse as urlparse
 from urllib import request as urlrequest
 
 from .json_types import JsonObject, JsonToolFunctionSchema, JsonToolWrapperSchema
@@ -13,6 +16,7 @@ from .json_types import JsonObject, JsonToolFunctionSchema, JsonToolWrapperSchem
 
 READ_ONLY_HONCHO_TOOLS = frozenset({"honcho_profile", "honcho_search", "honcho_context"})
 BLOCKED_HONCHO_TOOLS = frozenset({"honcho_conclude"})
+_LOCAL_UPLOAD_MAX_BYTES = 10 * 1024 * 1024
 
 
 _READ_ONLY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
@@ -93,6 +97,26 @@ _READ_ONLY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
                 "since": {"type": "string"},
                 "until": {"type": "string"},
                 "limit": {"type": "integer"},
+            },
+        },
+    },
+    "slack.upload_file": {
+        "name": "slack.upload_file",
+        "description": "Upload a generated file into the bound Slack thread or an allowed channel using inline text, base64 content, or a local runner file path / file:// artifact reference.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "channel_id": {"type": "string"},
+                "thread_ts": {"type": "string"},
+                "filename": {"type": "string"},
+                "title": {"type": "string"},
+                "content": {"type": "string"},
+                "content_base64": {"type": "string"},
+                "path": {"type": "string"},
+                "artifact_ref": {"type": "string"},
+                "initial_comment": {"type": "string"},
+                "alt_txt": {"type": "string"},
+                "snippet_type": {"type": "string"},
             },
         },
     },
@@ -706,9 +730,30 @@ class ReadOnlyToolBinding:
         canonical_name = canonical_tool_name(name)
         payload = self._default_payload(canonical_name)
         payload.update({key: value for key, value in (args or {}).items() if value is not None})
-        self._record_tool_selection(canonical_name, payload)
-        call_started_at = time.time()
         tool_call_id = self._next_tool_call_id(canonical_name)
+        call_started_at = time.time()
+        try:
+            payload = self._prepare_tool_payload(canonical_name, payload)
+        except (OSError, ValueError) as exc:
+            summary = str(exc).strip() or f"{canonical_name} payload preparation failed"
+            self._record_tool_call(
+                canonical_name=canonical_name,
+                tool_call_id=tool_call_id,
+                request_payload=payload,
+                started_at=call_started_at,
+                completed_at=time.time(),
+                status="failed",
+                summary=summary,
+            )
+            return json.dumps(
+                {
+                    "tool_name": canonical_name,
+                    "transport_tool_name": transport_name,
+                    "status": "error",
+                    "error": summary,
+                }
+            )
+        self._record_tool_selection(canonical_name, payload)
         req = urlrequest.Request(
             f"{self.base_url.rstrip('/')}/api/tools/{canonical_name}/execute",
             data=json.dumps(payload).encode("utf-8"),
@@ -830,6 +875,57 @@ class ReadOnlyToolBinding:
                 "tool_call_id": tool_call_id,
             }
         )
+
+    def _prepare_tool_payload(self, canonical_name: str, payload: JsonObject) -> JsonObject:
+        if canonical_name != "slack.upload_file":
+            return payload
+        return self._resolve_slack_upload_payload(payload)
+
+    def _resolve_slack_upload_payload(self, payload: JsonObject) -> JsonObject:
+        if _string_value(payload.get("content")) or _string_value(payload.get("content_base64")):
+            return payload
+        resolved_path = self._resolve_local_upload_path(payload)
+        if resolved_path is None:
+            return payload
+        stat = resolved_path.stat()
+        if stat.st_size <= 0:
+            raise ValueError(f"slack.upload_file local file is empty: {resolved_path}")
+        if stat.st_size > _LOCAL_UPLOAD_MAX_BYTES:
+            raise ValueError(
+                f"slack.upload_file local file exceeds {_LOCAL_UPLOAD_MAX_BYTES} bytes: {resolved_path}"
+            )
+        updated = dict(payload)
+        updated["content_base64"] = base64.b64encode(resolved_path.read_bytes()).decode("ascii")
+        updated["filename"] = first_non_empty(_string_value(updated.get("filename")), resolved_path.name)
+        updated["path"] = str(resolved_path)
+        return updated
+
+    def _resolve_local_upload_path(self, payload: JsonObject) -> Path | None:
+        raw_path = first_non_empty(_string_value(payload.get("path")), _string_value(payload.get("artifact_ref")))
+        if not raw_path:
+            return None
+        candidate = raw_path.strip()
+        if not candidate:
+            return None
+        if "://" in candidate:
+            parsed = urlparse.urlparse(candidate)
+            if parsed.scheme != "file":
+                return None
+            path_text = urlparse.unquote(parsed.path or "")
+        else:
+            path_text = candidate
+        if not path_text:
+            raise ValueError("slack.upload_file file artifact_ref is missing a path")
+        path = Path(path_text).expanduser()
+        if not path.is_absolute():
+            path = (Path.cwd() / path).resolve()
+        else:
+            path = path.resolve()
+        if not path.exists():
+            raise ValueError(f"slack.upload_file local file does not exist: {path}")
+        if not path.is_file():
+            raise ValueError(f"slack.upload_file local path is not a file: {path}")
+        return path
 
     def diagnostics(self) -> JsonObject:
         return {
@@ -1280,6 +1376,14 @@ class ReadOnlyToolBinding:
                 payload["channel_ids"] = channel_ids
             if slack_search_query:
                 payload["query"] = slack_search_query
+        if name == "slack.upload_file":
+            surface = self._default_slack_surface()
+            channel_id = surface.get("channel_id", "")
+            thread_ts = surface.get("thread_ts", "")
+            if channel_id:
+                payload["channel_id"] = channel_id
+            if thread_ts:
+                payload["thread_ts"] = thread_ts
         if name == "github.repo_activity":
             since, until = self._activity_window_from_context_refs()
             if since:
