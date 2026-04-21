@@ -84,10 +84,29 @@ class RunnerHandler(BaseHTTPRequestHandler):
         if self.path == "/runtimez":
             self._json(200, self.runtime.metadata)
             return
+        if self.path.startswith("/internal/hermes-executions/"):
+            execution_id = self.path.rsplit("/", 1)[-1]
+            payload = self.runtime.executor_status(execution_id)
+            if payload:
+                self._json(200, payload)
+            else:
+                self._json(404, {"error": "not found"})
+            return
         self._json(404, {"error": "not found"})
 
     def do_POST(self) -> None:  # noqa: N802
-        if self.path != "/execute":
+        if self.path.startswith("/internal/hermes-executions/") and self.path.endswith("/cancel"):
+            execution_id = self.path.removeprefix("/internal/hermes-executions/").removesuffix("/cancel").strip("/")
+            payload = self.runtime.cancel_execution(execution_id)
+            status = 200 if execution_id else 400
+            self._json(status, payload)
+            return
+
+        if self.config.hermes_executor_service_only and self.path == "/execute":
+            self._json(404, {"error": "not found"})
+            return
+
+        if self.path not in {"/execute", "/internal/hermes-executions"}:
             self._json(404, {"error": "not found"})
             return
 

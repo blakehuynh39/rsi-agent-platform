@@ -271,12 +271,13 @@ def _tool_handler(transport_name: str):
         request_payload = _default_payload(canonical_name, payload)
         if isinstance(args, dict):
             request_payload.update(args)
-        if canonical_name in {"slack.history", "slack.search"} and session_id:
+        if session_id:
             _append_event(
                 session_id,
-                "tool_call",
+                "tool_call_started",
                 {
                     "tool_name": canonical_name,
+                    "transport_tool_name": transport_name,
                     "request_payload": request_payload,
                 },
             )
@@ -292,38 +293,50 @@ def _tool_handler(transport_name: str):
                 body = resp.read().decode("utf-8")
         except urlerror.HTTPError as exc:
             detail = exc.read().decode("utf-8", errors="replace")
-            return json.dumps({
+            failure = {
                 "tool_name": canonical_name,
                 "transport_tool_name": transport_name,
                 "status": "error",
                 "error": f"tool gateway returned {exc.code}: {detail}",
-            })
+            }
+            if session_id:
+                _append_event(session_id, "tool_call_completed", failure)
+            return json.dumps(failure)
         except (urlerror.URLError, TimeoutError, ConnectionError, OSError) as exc:
-            return json.dumps({
+            failure = {
                 "tool_name": canonical_name,
                 "transport_tool_name": transport_name,
                 "status": "error",
                 "error": f"tool gateway request failed: {exc}",
-            })
+            }
+            if session_id:
+                _append_event(session_id, "tool_call_completed", failure)
+            return json.dumps(failure)
 
         try:
             parsed = json.loads(body)
         except json.JSONDecodeError:
-            return json.dumps({
+            failure = {
                 "tool_name": canonical_name,
                 "transport_tool_name": transport_name,
                 "status": "error",
                 "error": "tool gateway returned invalid JSON",
                 "body": body[:8000],
-            })
+            }
+            if session_id:
+                _append_event(session_id, "tool_call_completed", failure)
+            return json.dumps(failure)
         if not isinstance(parsed, dict):
-            return json.dumps({
+            failure = {
                 "tool_name": canonical_name,
                 "transport_tool_name": transport_name,
                 "status": "error",
                 "error": "tool gateway returned a non-object JSON payload",
-            })
-        return json.dumps({
+            }
+            if session_id:
+                _append_event(session_id, "tool_call_completed", failure)
+            return json.dumps(failure)
+        result = {
             "tool_name": canonical_name,
             "transport_tool_name": transport_name,
             "status": parsed.get("status", ""),
@@ -334,7 +347,10 @@ def _tool_handler(transport_name: str):
             "approval_state": parsed.get("approval_state", ""),
             "output": parsed.get("output", {}),
             "raw_artifact_refs": parsed.get("raw_artifact_refs", []),
-        })
+        }
+        if session_id:
+            _append_event(session_id, "tool_call_completed", result)
+        return json.dumps(result)
 
     return handler
 

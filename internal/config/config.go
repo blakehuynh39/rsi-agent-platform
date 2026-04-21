@@ -29,6 +29,7 @@ type Config struct {
 	ProposalQueueURL                   string
 	SandboxQueueURL                    string
 	RunnerBaseURL                      string
+	HermesExecutorBaseURL              string
 	ProdRunnerBaseURL                  string
 	ProactiveRunnerBaseURL             string
 	EvalRunnerBaseURL                  string
@@ -129,6 +130,7 @@ func Load(serviceName string) Config {
 		ProposalQueueURL:                   stringEnv("RSI_PROPOSAL_QUEUE_URL", ""),
 		SandboxQueueURL:                    stringEnv("RSI_SANDBOX_QUEUE_URL", ""),
 		RunnerBaseURL:                      runnerBaseURL,
+		HermesExecutorBaseURL:              stringEnv("RSI_HERMES_EXECUTOR_BASE_URL", ""),
 		ProdRunnerBaseURL:                  stringEnv("RSI_RUNNER_PROD_BASE_URL", ""),
 		ProactiveRunnerBaseURL:             stringEnv("RSI_RUNNER_PROACTIVE_BASE_URL", ""),
 		EvalRunnerBaseURL:                  stringEnv("RSI_RUNNER_EVAL_BASE_URL", ""),

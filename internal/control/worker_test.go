@@ -66,6 +66,7 @@ func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
 	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
 		name = strings.TrimSuffix(name, "/execute")
+		name = strings.TrimSuffix(name, "/internal/hermes-executions")
 		switch name {
 		case "repo.context", "knowledge.context", "sentry.lookup", "kubernetes.inspect", "github.repo_activity", "slack.history", "rsi.workflow_context", "rsi.action_chain", "rsi.runtime_health", "rsi.runtime_deployment_facts":
 			toolCalls++
@@ -186,6 +187,187 @@ func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
 	assertWorkflowEffectStatus(t, store, workflowItem.workflowID, transition.EffectPostSlackReply, transition.EffectCompleted)
 }
 
+func TestWorkflowRunnerUsesHermesExecutorWhenConfigured(t *testing.T) {
+	fallbackRunner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		t.Fatalf("unexpected fallback runner call to %s", r.URL.Path)
+	}))
+	defer fallbackRunner.Close()
+
+	var executorPath string
+	var executorTask clients.RunnerTask
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		executorPath = r.URL.Path
+		var payload struct {
+			Task clients.RunnerTask `json:"task"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("Decode() error = %v", err)
+		}
+		executorTask = payload.Task
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":       true,
+			"provider": "fake-executor",
+			"message":  `{"visible_reasoning":[{"step_type":"analysis","summary":"Collected context and prepared a reply.","confidence":0.91,"decision":"reply_in_thread"}],"reply_draft":"Draft reply","final_answer":"Final reply","confidence":0.91,"context_summary":"Repo and KB context collected.","self_critique":"Follow up if channel policy changes.","proposed_actions":[{"kind":"slack_post","target_ref":"CENG","idempotency_key":"reply-action-executor-1","rationale":"Post the answer back into Slack."}]}`,
+			"raw": map[string]any{
+				"structured_output": map[string]any{
+					"visible_reasoning": []any{
+						map[string]any{
+							"step_type":  "analysis",
+							"summary":    "Collected context and prepared a reply.",
+							"confidence": 0.91,
+							"decision":   "reply_in_thread",
+						},
+					},
+					"reply_draft":     "Draft reply",
+					"final_answer":    "Final reply",
+					"confidence":      0.91,
+					"context_summary": "Repo and KB context collected.",
+					"self_critique":   "Follow up if channel policy changes.",
+					"proposed_actions": []any{
+						map[string]any{
+							"kind":            "slack_post",
+							"target_ref":      "CENG",
+							"idempotency_key": "reply-action-executor-1",
+							"rationale":       "Post the answer back into Slack.",
+						},
+					},
+					"knowledge_drafts":   []any{},
+					"outcome_hypotheses": []any{},
+				},
+			},
+		})
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             fallbackRunner.URL,
+		HermesExecutorBaseURL:     executor.URL,
+		ToolGatewayBaseURL:        "http://tool-gateway.invalid",
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+		ProdRunnerTimeout:         930 * time.Second,
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect); err != nil {
+		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
+	}
+
+	if executorPath != "/internal/hermes-executions" {
+		t.Fatalf("executor path = %q, want /internal/hermes-executions", executorPath)
+	}
+	if executorTask.OperationID != runnerEffect.ID {
+		t.Fatalf("executor operation_id = %q, want %q", executorTask.OperationID, runnerEffect.ID)
+	}
+	if !strings.HasPrefix(executorTask.ExecutionID, "hexec-") {
+		t.Fatalf("executor execution_id = %q, want hexec-*", executorTask.ExecutionID)
+	}
+	if executorTask.WorkflowID != workflowItem.workflowID {
+		t.Fatalf("executor workflow_id = %q, want %q", executorTask.WorkflowID, workflowItem.workflowID)
+	}
+}
+
+func TestWorkflowRunnerUsesRunnerExecuteWhenHermesExecutorIsUnset(t *testing.T) {
+	var runnerPath string
+	var runnerTask clients.RunnerTask
+	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		runnerPath = r.URL.Path
+		if runnerPath != "/execute" {
+			t.Fatalf("unexpected runner path %q", runnerPath)
+		}
+		var payload struct {
+			Task clients.RunnerTask `json:"task"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("Decode() error = %v", err)
+		}
+		runnerTask = payload.Task
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":       true,
+			"provider": "fake-runner",
+			"message":  `{"visible_reasoning":[{"step_type":"analysis","summary":"Collected context and prepared a reply.","confidence":0.91,"decision":"reply_in_thread"}],"reply_draft":"Draft reply","final_answer":"Final reply","confidence":0.91,"context_summary":"Repo and KB context collected.","self_critique":"Follow up if channel policy changes.","proposed_actions":[{"kind":"slack_post","target_ref":"CENG","idempotency_key":"reply-action-runner-1","rationale":"Post the answer back into Slack."}]}`,
+			"raw": map[string]any{
+				"structured_output": map[string]any{
+					"visible_reasoning": []any{
+						map[string]any{
+							"step_type":  "analysis",
+							"summary":    "Collected context and prepared a reply.",
+							"confidence": 0.91,
+							"decision":   "reply_in_thread",
+						},
+					},
+					"reply_draft":     "Draft reply",
+					"final_answer":    "Final reply",
+					"confidence":      0.91,
+					"context_summary": "Repo and KB context collected.",
+					"self_critique":   "Follow up if channel policy changes.",
+					"proposed_actions": []any{
+						map[string]any{
+							"kind":            "slack_post",
+							"target_ref":      "CENG",
+							"idempotency_key": "reply-action-runner-1",
+							"rationale":       "Post the answer back into Slack.",
+						},
+					},
+					"knowledge_drafts":   []any{},
+					"outcome_hypotheses": []any{},
+				},
+			},
+		})
+	}))
+	defer runner.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             runner.URL,
+		ToolGatewayBaseURL:        "http://tool-gateway.invalid",
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+		ProdRunnerTimeout:         930 * time.Second,
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect); err != nil {
+		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
+	}
+
+	if runnerPath != "/execute" {
+		t.Fatalf("runner path = %q, want /execute", runnerPath)
+	}
+	if runnerTask.OperationID != runnerEffect.ID {
+		t.Fatalf("runner operation_id = %q, want %q", runnerTask.OperationID, runnerEffect.ID)
+	}
+	if !strings.HasPrefix(runnerTask.ExecutionID, "hexec-") {
+		t.Fatalf("runner execution_id = %q, want hexec-*", runnerTask.ExecutionID)
+	}
+	if runnerTask.WorkflowID != workflowItem.workflowID {
+		t.Fatalf("runner workflow_id = %q, want %q", runnerTask.WorkflowID, workflowItem.workflowID)
+	}
+}
+
 func TestWorkflowRunnerSystemMessageOmitsSlackMCPWhenUnavailableInNoneMode(t *testing.T) {
 	message := workflowRunnerSystemMessage(false, false, "none", nil)
 	if strings.Contains(message, "Use Slack MCP for Slack investigation.") {
@@ -264,6 +446,7 @@ func TestWorkflowPartialCompletionPostsStandardizedReplyAndPersistsVerdict(t *te
 	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
 		name = strings.TrimSuffix(name, "/execute")
+		name = strings.TrimSuffix(name, "/internal/hermes-executions")
 		if name != "slack.reply" {
 			t.Fatalf("unexpected tool invocation %s", name)
 		}
@@ -433,6 +616,7 @@ func TestWorkflowTaskTimeoutPartialCompletionPostsTimeoutNoticeAndPersistsVerdic
 	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
 		name = strings.TrimSuffix(name, "/execute")
+		name = strings.TrimSuffix(name, "/internal/hermes-executions")
 		if name != "slack.reply" {
 			t.Fatalf("unexpected tool invocation %s", name)
 		}
@@ -590,6 +774,7 @@ func TestWorkflowPartialCompletionBlockedByPolicyMovesNeedsHuman(t *testing.T) {
 	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
 		name = strings.TrimSuffix(name, "/execute")
+		name = strings.TrimSuffix(name, "/internal/hermes-executions")
 		if name == "slack.reply" {
 			slackPosts++
 		}
@@ -1154,6 +1339,7 @@ func TestSupersededTraceDoesNotPostLateSlackReply(t *testing.T) {
 	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
 		name = strings.TrimSuffix(name, "/execute")
+		name = strings.TrimSuffix(name, "/internal/hermes-executions")
 		if name == "slack.reply" {
 			slackPosts++
 		}
@@ -1241,6 +1427,7 @@ func TestControlActionPersistenceFailureFinalizesTraceAndQueuesEval(t *testing.T
 	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
 		name = strings.TrimSuffix(name, "/execute")
+		name = strings.TrimSuffix(name, "/internal/hermes-executions")
 		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
 			Name:          name,
 			ToolCallID:    name + "-call",
@@ -1452,6 +1639,7 @@ func TestExecuteSlackPostActionIntentClaimsMatchingReplyEffect(t *testing.T) {
 	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
 		name = strings.TrimSuffix(name, "/execute")
+		name = strings.TrimSuffix(name, "/internal/hermes-executions")
 		if name != "slack.reply" {
 			t.Fatalf("unexpected tool invocation %s", name)
 		}
@@ -1647,6 +1835,7 @@ func TestHandleClaimedWorkflowRunnerEffectFinalizesStructuredOutputFailure(t *te
 	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
 		name = strings.TrimSuffix(name, "/execute")
+		name = strings.TrimSuffix(name, "/internal/hermes-executions")
 		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
 			Name:          name,
 			ToolCallID:    name + "-call",
@@ -1758,6 +1947,7 @@ func TestHandleClaimedWorkflowRunnerEffectWorkflowCommandPersistenceFailureFails
 	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
 		name = strings.TrimSuffix(name, "/execute")
+		name = strings.TrimSuffix(name, "/internal/hermes-executions")
 		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
 			Name:          name,
 			ToolCallID:    name + "-call",
@@ -1860,6 +2050,7 @@ func TestHandleClaimedWorkflowRunnerEffectRunnerCompletionInvariantFailureFailsW
 	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
 		name = strings.TrimSuffix(name, "/execute")
+		name = strings.TrimSuffix(name, "/internal/hermes-executions")
 		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
 			Name:          name,
 			ToolCallID:    name + "-call",
@@ -1944,6 +2135,7 @@ func TestHandleClaimedWorkflowRunnerEffectNonOKSchedulesSuccessorAttempt(t *test
 	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
 		name = strings.TrimSuffix(name, "/execute")
+		name = strings.TrimSuffix(name, "/internal/hermes-executions")
 		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
 			Name:          name,
 			ToolCallID:    name + "-call",
@@ -2076,6 +2268,7 @@ func TestHandleClaimedWorkflowRunnerEffectInvalidRequestUsesRunnerDiagnosticsAnd
 	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
 		name = strings.TrimSuffix(name, "/execute")
+		name = strings.TrimSuffix(name, "/internal/hermes-executions")
 		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
 			Name:          name,
 			ToolCallID:    name + "-call",

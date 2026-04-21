@@ -35,6 +35,29 @@ func TestControlPlaneValidationRejectsLocalhostAndVaultRuntimeValues(t *testing.
 	}
 }
 
+func TestControlPlaneDependencyTargetsIncludeHermesExecutorWhenConfigured(t *testing.T) {
+	cfg := validControlPlaneConfig()
+	cfg.HermesExecutorBaseURL = "http://use1-stage-rsi-agent-platform-hermes-executor:8090"
+
+	targets := cfg.DependencyTargets()
+	if got := targets["hermes_executor"]; got != cfg.HermesExecutorBaseURL {
+		t.Fatalf("DependencyTargets()[hermes_executor] = %q, want %q", got, cfg.HermesExecutorBaseURL)
+	}
+}
+
+func TestControlPlaneValidationRejectsInvalidHermesExecutorURL(t *testing.T) {
+	cfg := validControlPlaneConfig()
+	cfg.HermesExecutorBaseURL = "not-a-url"
+
+	_, err := cfg.ValidatedFor("control-plane", "serve")
+	if err == nil {
+		t.Fatal("expected validation error")
+	}
+	if !strings.Contains(err.Error(), "RSI_HERMES_EXECUTOR_BASE_URL must be a valid absolute URL") {
+		t.Fatalf("unexpected validation error: %v", err)
+	}
+}
+
 func TestSlackSurfaceValidationRequiresSlackContract(t *testing.T) {
 	cfg := validControlPlaneConfig()
 

@@ -42,6 +42,9 @@ class RunnerConfig:
     native_max_output_tokens: int
     tool_policy_mode: str
     workflow_runner_repair_attempts: int
+    hermes_executor_enabled: bool
+    hermes_executor_service_only: bool
+    hermes_executor_workspace_root: str
     hermes_native_governed_tools_enabled: bool
     slack_mcp_enabled: bool
     slack_mcp_server_url: str
@@ -87,6 +90,9 @@ class RunnerConfig:
         )
         tool_policy_mode = role_tool_policy_mode(role)
         workflow_runner_repair_attempts = parse_non_negative_int(optional_env("RSI_WORKFLOW_RUNNER_REPAIR_ATTEMPTS") or "1", "RSI_WORKFLOW_RUNNER_REPAIR_ATTEMPTS")
+        hermes_executor_enabled = parse_bool(optional_env("RSI_HERMES_EXECUTOR_ENABLED") or "false", "RSI_HERMES_EXECUTOR_ENABLED")
+        hermes_executor_service_only = parse_bool(optional_env("RSI_HERMES_EXECUTOR_SERVICE_ONLY") or "false", "RSI_HERMES_EXECUTOR_SERVICE_ONLY")
+        hermes_executor_workspace_root = optional_env("RSI_HERMES_EXECUTOR_WORKSPACE_ROOT") or "/workspace"
         hermes_native_governed_tools_enabled = parse_bool(optional_env("RSI_HERMES_NATIVE_GOVERNED_TOOLS_ENABLED") or "false", "RSI_HERMES_NATIVE_GOVERNED_TOOLS_ENABLED")
         slack_mcp_enabled = parse_bool(optional_env("RSI_SLACK_MCP_ENABLED") or "false", "RSI_SLACK_MCP_ENABLED")
         slack_mcp_server_url = optional_url_env("RSI_SLACK_MCP_SERVER_URL") or "https://mcp.slack.com/mcp"
@@ -129,6 +135,9 @@ class RunnerConfig:
             native_max_output_tokens=native_max_output_tokens,
             tool_policy_mode=tool_policy_mode,
             workflow_runner_repair_attempts=workflow_runner_repair_attempts,
+            hermes_executor_enabled=hermes_executor_enabled,
+            hermes_executor_service_only=hermes_executor_service_only,
+            hermes_executor_workspace_root=hermes_executor_workspace_root,
             hermes_native_governed_tools_enabled=hermes_native_governed_tools_enabled,
             slack_mcp_enabled=slack_mcp_enabled,
             slack_mcp_server_url=slack_mcp_server_url,

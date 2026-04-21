@@ -131,6 +131,7 @@ type RunnerTask struct {
 	TraceID                   string                          `json:"trace_id,omitempty"`
 	WorkflowID                string                          `json:"workflow_id,omitempty"`
 	OperationID               string                          `json:"operation_id,omitempty"`
+	ExecutionID               string                          `json:"execution_id,omitempty"`
 	ConversationID            string                          `json:"conversation_id,omitempty"`
 	CaseID                    string                          `json:"case_id,omitempty"`
 	ChannelID                 string                          `json:"channel_id,omitempty"`
@@ -181,6 +182,22 @@ type RunnerResponse struct {
 	Raw      map[string]interface{} `json:"raw"`
 }
 
+type HermesExecutionRequest struct {
+	Task RunnerTask `json:"task"`
+}
+
+type HermesExecutionResult = RunnerResponse
+
+type HermesExecutionStatus struct {
+	ExecutionID       string `json:"execution_id,omitempty"`
+	Status            string `json:"status,omitempty"`
+	WorkspaceRoot     string `json:"workspace_root,omitempty"`
+	SessionID         string `json:"session_id,omitempty"`
+	TerminationReason string `json:"termination_reason,omitempty"`
+	CompletionVerdict string `json:"completion_verdict,omitempty"`
+	Message           string `json:"message,omitempty"`
+}
+
 type RuntimeResponse = harness.RuntimeResponse
 
 type RunnerClient struct {
@@ -203,6 +220,30 @@ func (c *RunnerClient) Execute(task RunnerTask) (RunnerResponse, error) {
 	var out RunnerResponse
 	if err := doJSON(c.httpClient, http.MethodPost, c.baseURL+"/execute", map[string]RunnerTask{"task": task}, &out, "runner"); err != nil {
 		return RunnerResponse{}, err
+	}
+	return out, nil
+}
+
+func (c *RunnerClient) ExecuteHermesExecution(task RunnerTask) (HermesExecutionResult, error) {
+	var out HermesExecutionResult
+	if err := doJSON(c.httpClient, http.MethodPost, c.baseURL+"/internal/hermes-executions", HermesExecutionRequest{Task: task}, &out, "hermes executor"); err != nil {
+		return HermesExecutionResult{}, err
+	}
+	return out, nil
+}
+
+func (c *RunnerClient) HermesExecutionStatus(executionID string) (HermesExecutionStatus, error) {
+	var out HermesExecutionStatus
+	if err := doJSON(c.httpClient, http.MethodGet, c.baseURL+"/internal/hermes-executions/"+executionID, nil, &out, "hermes executor status"); err != nil {
+		return HermesExecutionStatus{}, err
+	}
+	return out, nil
+}
+
+func (c *RunnerClient) CancelHermesExecution(executionID string) (HermesExecutionStatus, error) {
+	var out HermesExecutionStatus
+	if err := doJSON(c.httpClient, http.MethodPost, c.baseURL+"/internal/hermes-executions/"+executionID+"/cancel", map[string]any{}, &out, "hermes executor cancel"); err != nil {
+		return HermesExecutionStatus{}, err
 	}
 	return out, nil
 }

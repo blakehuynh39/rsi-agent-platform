@@ -21,7 +21,7 @@ def _string(value: Any) -> str:
     return str(value).strip()
 
 
-def execution_observation_id(operation_id: str, trace_id: str, workflow_id: str, session_id: str) -> str:
+def execution_observation_id(operation_id: str, trace_id: str, workflow_id: str, session_id: str, invocation_id: str = "") -> str:
     primary = _string(operation_id)
     seed = primary or "|".join(
         item
@@ -29,6 +29,7 @@ def execution_observation_id(operation_id: str, trace_id: str, workflow_id: str,
             _string(trace_id),
             _string(workflow_id),
             _string(session_id),
+            _string(invocation_id),
         ]
         if item
     ) or f"runner:{time.time_ns()}"
@@ -48,6 +49,7 @@ class ObservationEmitter:
     seq: int = 0
     sink_status: str = "not_configured"
     sink_errors: list[str] = field(default_factory=list)
+    invocation_id: str = ""
 
     @classmethod
     def create(
@@ -59,8 +61,10 @@ class ObservationEmitter:
         operation_id: str,
         role: str,
         hermes_session_id: str,
+        execution_id: str = "",
     ) -> "ObservationEmitter":
-        execution_id = execution_observation_id(operation_id, trace_id, workflow_id, hermes_session_id)
+        invocation_id = f"invoke-{time.time_ns()}"
+        resolved_execution_id = _string(execution_id) or execution_observation_id(operation_id, trace_id, workflow_id, hermes_session_id, invocation_id)
         sink_status = "configured" if config.tool_gateway_base_url else "not_configured"
         return cls(
             config=config,
@@ -69,8 +73,9 @@ class ObservationEmitter:
             operation_id=_string(operation_id),
             role=_string(role),
             hermes_session_id=_string(hermes_session_id),
-            execution_id=execution_id,
+            execution_id=resolved_execution_id,
             sink_status=sink_status,
+            invocation_id=invocation_id,
         )
 
     def emit(self, *, phase: str, event_type: str, status: str = "", payload: JsonObject | None = None) -> None:
@@ -88,6 +93,7 @@ class ObservationEmitter:
             "seq": self.seq,
             "payload": payload or {},
             "recorded_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "invocation_id": self.invocation_id,
         }
         logger.info("runner observation %s", json.dumps(item, ensure_ascii=True, sort_keys=True))
         if not self.config.tool_gateway_base_url:

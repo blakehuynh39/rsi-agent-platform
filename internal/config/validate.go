@@ -38,6 +38,9 @@ func (c Config) DependencyTargets() map[string]string {
 	if c.ToolGatewayBaseURL != "" {
 		targets["tool_gateway"] = c.ToolGatewayBaseURL
 	}
+	if c.HermesExecutorBaseURL != "" {
+		targets["hermes_executor"] = c.HermesExecutorBaseURL
+	}
 	if c.HonchoRuntimeBaseURL != "" {
 		targets["honcho_runtime"] = c.HonchoRuntimeBaseURL
 	}
@@ -81,6 +84,9 @@ func (c Config) validateControlPlane(issues *[]string) {
 	addRequiredURL(issues, "RSI_TOOL_GATEWAY_BASE_URL", c.ToolGatewayBaseURL, c.nonLocalhostRequired())
 	addRequiredURL(issues, "RSI_RUNNER_PROD_BASE_URL", c.ProdRunnerBaseURL, c.nonLocalhostRequired())
 	addRequiredURL(issues, "RSI_RUNNER_PROACTIVE_BASE_URL", c.ProactiveRunnerBaseURL, c.nonLocalhostRequired())
+	if strings.TrimSpace(c.HermesExecutorBaseURL) != "" {
+		addRequiredURL(issues, "RSI_HERMES_EXECUTOR_BASE_URL", c.HermesExecutorBaseURL, c.nonLocalhostRequired())
+	}
 	addRequiredString(issues, "RSI_DEFAULT_REPO", c.DefaultRepo)
 	addRequiredString(issues, "RSI_KNOWLEDGE_BASE_URL", c.DefaultKnowledgeBaseURL)
 	addRequiredList(issues, "RSI_ALLOWED_TARGET_REPOS", c.AllowedTargetRepos)

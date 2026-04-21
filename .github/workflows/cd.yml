@@ -16,6 +16,7 @@ env:
   AWS_REGION: us-east-1
   GO_IMAGE_REPOSITORY: rsi-agent-platform
   RUNNER_IMAGE_REPOSITORY: rsi-agent-platform-runner
+  HERMES_EXECUTOR_IMAGE_REPOSITORY: rsi-agent-platform-hermes-executor
   HONCHO_IMAGE_REPOSITORY: rsi-agent-platform-honcho
   SANDBOX_IMAGE_REPOSITORY: rsi-agent-platform-sandbox
   IMAGE_VERSION: ${{ github.sha }}
@@ -25,6 +26,7 @@ env:
   TOOL_GATEWAY_TAG: tool-gateway-${{ github.sha }}
   IMPROVEMENT_PLANE_TAG: improvement-plane-${{ github.sha }}
   RUNNER_TAG: runner-${{ github.sha }}
+  HERMES_EXECUTOR_TAG: hermes-executor-${{ github.sha }}
   HONCHO_TAG: honcho-${{ github.sha }}
   SANDBOX_TAG: sandbox-${{ github.sha }}
 
@@ -118,6 +120,11 @@ jobs:
             dockerfile: ./runner/Dockerfile
             repository: rsi-agent-platform-runner
             tag_prefix: runner
+            build_args: ""
+          - name: hermes-executor
+            dockerfile: ./runner/Dockerfile.hermes-executor
+            repository: rsi-agent-platform-hermes-executor
+            tag_prefix: hermes-executor
             build_args: ""
           - name: honcho
             dockerfile: ./honcho/Dockerfile
@@ -222,14 +229,18 @@ jobs:
         run: |
           set -euo pipefail
 
-          python3 "${GITHUB_WORKSPACE}/scripts/update_story_deployments_tags.py" \
-            --file "${{ env.STORY_DEPLOYMENTS_VALUES_FILE }}" \
-            --control-plane-tag "${{ env.CONTROL_PLANE_TAG }}" \
-            --tool-gateway-tag "${{ env.TOOL_GATEWAY_TAG }}" \
-            --improvement-plane-tag "${{ env.IMPROVEMENT_PLANE_TAG }}" \
-            --runner-tag "${{ env.RUNNER_TAG }}" \
-            --honcho-tag "${{ env.HONCHO_TAG }}" \
+          args=(
+            --file "${{ env.STORY_DEPLOYMENTS_VALUES_FILE }}"
+            --control-plane-tag "${{ env.CONTROL_PLANE_TAG }}"
+            --tool-gateway-tag "${{ env.TOOL_GATEWAY_TAG }}"
+            --improvement-plane-tag "${{ env.IMPROVEMENT_PLANE_TAG }}"
+            --runner-tag "${{ env.RUNNER_TAG }}"
+            --hermes-executor-tag "${{ env.HERMES_EXECUTOR_TAG }}"
+            --honcho-tag "${{ env.HONCHO_TAG }}"
             --sandbox-tag "${{ env.SANDBOX_TAG }}"
+          )
+
+          python3 "${GITHUB_WORKSPACE}/scripts/update_story_deployments_tags.py" "${args[@]}"
 
           git diff -- "${{ env.STORY_DEPLOYMENTS_VALUES_FILE }}"
 

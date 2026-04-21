@@ -17,6 +17,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--tool-gateway-tag", required=True)
     parser.add_argument("--improvement-plane-tag", required=True)
     parser.add_argument("--runner-tag", required=True)
+    parser.add_argument("--hermes-executor-tag", default="")
     parser.add_argument("--honcho-tag", required=True)
     parser.add_argument("--sandbox-tag", required=True)
     return parser.parse_args()
@@ -68,17 +69,17 @@ def update_tags(path: Path, updates: dict[tuple[str, ...], str]) -> None:
 
 def main() -> None:
     args = parse_args()
-    update_tags(
-        Path(args.file),
-        {
-            ("controlPlane", "image", "tag"): args.control_plane_tag,
-            ("toolGateway", "image", "tag"): args.tool_gateway_tag,
-            ("improvementPlane", "image", "tag"): args.improvement_plane_tag,
-            ("runner", "image", "tag"): args.runner_tag,
-            ("honcho", "image", "tag"): args.honcho_tag,
-            ("sandboxRuntime", "image", "tag"): args.sandbox_tag,
-        },
-    )
+    updates: dict[tuple[str, ...], str] = {
+        ("controlPlane", "image", "tag"): args.control_plane_tag,
+        ("toolGateway", "image", "tag"): args.tool_gateway_tag,
+        ("improvementPlane", "image", "tag"): args.improvement_plane_tag,
+        ("runner", "image", "tag"): args.runner_tag,
+        ("honcho", "image", "tag"): args.honcho_tag,
+        ("sandboxRuntime", "image", "tag"): args.sandbox_tag,
+    }
+    if args.hermes_executor_tag:
+        updates[("hermesExecutor", "image", "tag")] = args.hermes_executor_tag
+    update_tags(Path(args.file), updates)
 
 
 if __name__ == "__main__":

@@ -172,9 +172,22 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	}
 	contextSummary, contextRefs := contextFromTrace(ctx.trace)
 	runnerStarted := time.Now().UTC()
-	runnerTask := buildRunnerTask(cfg, store, runnerRoleForQueue(queueName), ctx.trace, effectiveWorkflow, ctx.ingestion, contextSummary, contextRefs)
+	runnerRole := runnerRoleForQueue(queueName)
+	runnerTask := buildRunnerTask(cfg, store, runnerRole, ctx.trace, effectiveWorkflow, ctx.ingestion, contextSummary, contextRefs)
 	runnerTask.OperationID = effect.ID
-	runnerResp, err := runnerClient.Execute(runnerTask)
+	runnerTask.ExecutionID = workflowExecutionID(effect.ID, runnerStarted)
+	hermesExecutorBaseURL := strings.TrimSpace(cfg.HermesExecutorBaseURL)
+	useHermesExecutor := hermesExecutorBaseURL != ""
+	executorClient := runnerClient
+	if useHermesExecutor {
+		executorClient = clients.NewRunnerClientWithTimeout(hermesExecutorBaseURL, cfg.RunnerTimeoutForRole(runnerRole))
+	}
+	var runnerResp clients.RunnerResponse
+	if useHermesExecutor {
+		runnerResp, err = executorClient.ExecuteHermesExecution(runnerTask)
+	} else {
+		runnerResp, err = executorClient.Execute(runnerTask)
+	}
 	if err != nil {
 		return &workflowFailureError{failure: workflowFailureFromRunnerError(err)}
 	}
@@ -558,6 +571,11 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		}
 	}
 	return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner", ctx.trace.Summary.TraceID))
+}
+
+func workflowExecutionID(operationID string, startedAt time.Time) string {
+	sum := sha1.Sum([]byte(strings.TrimSpace(operationID) + "|" + startedAt.UTC().Format(time.RFC3339Nano)))
+	return fmt.Sprintf("hexec-%x", sum[:8])
 }
 
 func submitWorkflowContextCompleted(cfg config.Config, store storepkg.Store, ctx workflowContext, resumeQueue queue.QueueName, occurredAt time.Time) error {
