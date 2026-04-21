@@ -866,7 +866,7 @@ class HermesRuntime:
     def _skill_mentions_from_text(self, text: str) -> list[str]:
         seen: set[str] = set()
         out: list[str] = []
-        for match in re.finditer(r"(?:(?<=^)|(?<=[\s(]))/([A-Za-z0-9][A-Za-z0-9_-]*)\b", text or ""):
+        for match in re.finditer(r"(?:^|[\s(])/([A-Za-z0-9][A-Za-z0-9_-]*)\b", text or ""):
             identifier = match.group(1).replace("_", "-").strip().lower()
             if not identifier or identifier in seen:
                 continue

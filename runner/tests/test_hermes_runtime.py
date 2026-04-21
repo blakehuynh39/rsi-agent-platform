@@ -1395,6 +1395,17 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(runtime.metadata["bundled_skills_available"])
         self.assertEqual(runtime.metadata["bundled_skills_sync_status"], "synced")
 
+    def test_skill_mentions_detect_leading_slash_command(self) -> None:
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        self.assertEqual(
+            runtime._skill_mentions_from_text("/architecture-diagram map the active depin services"),
+            ["architecture-diagram"],
+        )
+
     def test_workflow_task_expands_explicit_slash_skill_before_render(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
