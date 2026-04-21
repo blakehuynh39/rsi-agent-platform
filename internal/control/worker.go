@@ -969,6 +969,7 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	allowedTools := workflowRunnerAllowedTools(liveHints, hasSlackMCPServer(mcpServers))
 	requestedArtifacts := requestedArtifactsForIngestion(ingestion)
 	replyDeliveryMode := workflowReplyDeliveryMode(hasSlackMCPServer(mcpServers), allowed)
+	requestedSkills := workflowplan.RequestedSkillsForPrompt(ingestion.Text, ingestion.Prompt)
 	systemMessage := harness.ComposeSystemMessage(
 		workflowRunnerSystemMessage(hasSlackMCPServer(mcpServers), hasNotionMCPServer(mcpServers), replyDeliveryMode, requestedArtifacts),
 		effectiveHarness,
@@ -988,6 +989,7 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		RepoRef:                   "main",
 		Prompt:                    prompt,
 		SystemMessage:             systemMessage,
+		RequestedSkills:           requestedSkills,
 		MCPServers:                mcpServers,
 		AllowedTools:              allowedTools,
 		AllowedCommands:           []string{},

@@ -2784,6 +2784,42 @@ func TestBuildRunnerTaskUsesPromptEnvelopeForArtifactDetection(t *testing.T) {
 	if len(task.RequestedArtifacts) != 1 || task.RequestedArtifacts[0].Kind != "diagram" {
 		t.Fatalf("expected one requested diagram artifact from prompt envelope, got %#v", task.RequestedArtifacts)
 	}
+	if len(task.RequestedSkills) != 1 || task.RequestedSkills[0] != "architecture-diagram" {
+		t.Fatalf("expected requested architecture skill from prompt envelope, got %#v", task.RequestedSkills)
+	}
+}
+
+func TestBuildRunnerTaskDoesNotAutoRequestArchitectureSkillFromDiagramIntent(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatalf("expected trace %s", workflowItem.traceID)
+	}
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatalf("expected workflow %s", workflowItem.workflowID)
+	}
+	workflow.Kind = "architecture"
+	workflow.Intent = "system-diagram"
+	ingestion, ok := findIngestion(store.ListIngestions(), workflowItem.ingestionID)
+	if !ok {
+		t.Fatalf("expected ingestion %s", workflowItem.ingestionID)
+	}
+	ingestion.Text = "@RSI can you draw the system architecture for depin-backend?"
+
+	task := buildRunnerTask(config.Config{
+		Environment:               "stage",
+		DefaultRepo:               "rsi-agent-platform",
+		AllowedTargetRepos:        []string{"depin-backend", "rsi-agent-platform"},
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+	}, store, "prod", trace, workflow, ingestion, "context", nil)
+
+	if len(task.RequestedSkills) != 0 {
+		t.Fatalf("expected no automatic architecture-diagram skill hint, got %#v", task.RequestedSkills)
+	}
 }
 
 func TestTraceArtifactsFromProducedArtifactsUsesUniqueStableIDs(t *testing.T) {

@@ -115,6 +115,7 @@ type RunnerTask struct {
 	RepoRef                   string                          `json:"repo_ref,omitempty"`
 	Prompt                    string                          `json:"prompt"`
 	SystemMessage             string                          `json:"system_message,omitempty"`
+	RequestedSkills           []string                        `json:"requested_skills,omitempty"`
 	MCPServers                []RunnerMCPServer               `json:"mcp_servers,omitempty"`
 	AllowedTools              []string                        `json:"allowed_tools,omitempty"`
 	AllowedCommands           []string                        `json:"allowed_commands,omitempty"`

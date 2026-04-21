@@ -167,6 +167,49 @@ func TestRequestedArtifactsForUserRequestDoesNotTriggerRenderedOutputOnBareRende
 	}
 }
 
+func TestRequestedSkillsForPromptIncludesExplicitMention(t *testing.T) {
+	items := RequestedSkillsForPrompt(
+		"Please use /architecture-diagram for this system diagram.",
+		nil,
+	)
+	if len(items) != 1 || items[0] != "architecture-diagram" {
+		t.Fatalf("expected one deduped architecture skill, got %#v", items)
+	}
+}
+
+func TestRequestedSkillsForPromptDetectsArchitectureDiagramFromEnvelope(t *testing.T) {
+	items := RequestedSkillsForPrompt(
+		"Summarize the architecture work.",
+		slackpkg.SlackPromptEnvelope{
+			RawText:      "@RSI can you draw an architecture diagram of depin-backend? Use /architecture-diagram skill",
+			RenderedText: "@RSI can you draw an architecture diagram of depin-backend? Use /architecture-diagram skill",
+		},
+	)
+	if len(items) != 1 || items[0] != "architecture-diagram" {
+		t.Fatalf("expected architecture-diagram from prompt envelope, got %#v", items)
+	}
+}
+
+func TestRequestedSkillsForPromptDoesNotAddAutomaticArchitectureHint(t *testing.T) {
+	items := RequestedSkillsForPrompt(
+		"Please draw the architecture of depin-backend.",
+		nil,
+	)
+	if len(items) != 0 {
+		t.Fatalf("expected no automatic architecture-diagram hint, got %#v", items)
+	}
+}
+
+func TestRequestedSkillsForPromptDoesNotTriggerOnBareSystemLanguage(t *testing.T) {
+	items := RequestedSkillsForPrompt(
+		"What system calls does this make?",
+		nil,
+	)
+	if len(items) != 0 {
+		t.Fatalf("expected no architecture-diagram hint for bare system language, got %#v", items)
+	}
+}
+
 func containsTool(plan []string, tool string) bool {
 	for _, item := range plan {
 		if item == tool {

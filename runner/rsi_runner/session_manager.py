@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 import hashlib
 import json
+import os
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -12,6 +13,11 @@ try:
     from hermes_state import SessionDB  # type: ignore
 except (ImportError, ModuleNotFoundError):  # pragma: no cover - depends on Hermes install
     SessionDB = None
+
+try:
+    from tools.skills_sync import sync_skills  # type: ignore
+except (ImportError, ModuleNotFoundError):  # pragma: no cover - depends on Hermes install
+    sync_skills = None
 
 from .config import RunnerConfig
 
@@ -72,6 +78,12 @@ class SessionManager:
         self._config = config
         self._hermes_home = Path(config.hermes_home)
         self._session_db_path = self._hermes_home / "state.db"
+        self._skills_dir = self._hermes_home / "skills"
+        bundled_override = str(os.getenv("HERMES_BUNDLED_SKILLS", "") or "").strip()
+        self._bundled_skills_path = Path(bundled_override).expanduser() if bundled_override else None
+        self._bundled_skills_available = bool(self._bundled_skills_path and self._bundled_skills_path.exists())
+        self._bundled_skills_sync_status = "not_configured"
+        self._bundled_skills_sync_error = ""
         self._db = None
         self._ready_issues = self._configure_home()
 
@@ -90,6 +102,26 @@ class SessionManager:
     @property
     def hermes_home(self) -> str:
         return str(self._hermes_home)
+
+    @property
+    def skills_dir(self) -> str:
+        return str(self._skills_dir)
+
+    @property
+    def bundled_skills_available(self) -> bool:
+        return self._bundled_skills_available
+
+    @property
+    def bundled_skills_sync_status(self) -> str:
+        return self._bundled_skills_sync_status
+
+    @property
+    def bundled_skills_sync_error(self) -> str:
+        return self._bundled_skills_sync_error
+
+    @property
+    def skills_healthy(self) -> bool:
+        return self._bundled_skills_sync_status not in {"failed"}
 
     @property
     def session_db(self) -> Any:
@@ -226,6 +258,7 @@ class SessionManager:
             self._write_honcho_config()
         except Exception as exc:  # pragma: no cover - OS-specific failure
             issues.append(f"configure Hermes persistence failed: {exc}")
+        self._sync_bundled_skills()
         if SessionDB is None:
             issues.append("Hermes SessionDB is unavailable in this environment.")
         else:
@@ -263,6 +296,23 @@ class SessionManager:
         if self._config.honcho_base_url:
             payload["baseUrl"] = self._config.honcho_base_url
         honcho_path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+
+    def _sync_bundled_skills(self) -> None:
+        if not self._bundled_skills_available:
+            self._bundled_skills_sync_status = "not_configured"
+            return
+        if sync_skills is None:
+            self._bundled_skills_sync_status = "sync_unavailable"
+            self._bundled_skills_sync_error = "Hermes skills_sync module is unavailable in this environment."
+            return
+        try:
+            sync_skills(quiet=True)
+        except Exception as exc:
+            self._bundled_skills_sync_status = "failed"
+            self._bundled_skills_sync_error = str(exc)
+            return
+        self._bundled_skills_sync_status = "synced"
+        self._bundled_skills_sync_error = ""
 
 
 def stable_session_id(role: str, scope_kind: str, scope_id: str) -> str:

@@ -136,6 +136,11 @@ class FakeSessionManager:
         self.available = True
         self.hermes_home = "/var/lib/hermes"
         self.session_db_path = "/var/lib/hermes/state.db"
+        self.skills_dir = "/var/lib/hermes/skills"
+        self.bundled_skills_available = True
+        self.bundled_skills_sync_status = "synced"
+        self.bundled_skills_sync_error = ""
+        self.skills_healthy = True
         self.session_db = object()
         self.honcho_available = True
 
@@ -295,7 +300,10 @@ class HermesRuntimeTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tempdir, mock.patch(
             "rsi_runner.session_manager.SessionDB", FakeSessionDB
-        ), mock.patch.dict(os.environ, {**runner_env("eval"), "HERMES_HOME": tempdir}, clear=True):
+        ), mock.patch(
+            "rsi_runner.session_manager.sync_skills"
+        ) as sync_mock, mock.patch.dict(os.environ, {**runner_env("eval"), "HERMES_HOME": tempdir}, clear=True):
+            sync_mock.return_value = {"copied": ["architecture-diagram"]}
             config = RunnerConfig.from_env()
             SessionManager(config)
 
@@ -303,6 +311,76 @@ class HermesRuntimeTests(unittest.TestCase):
                 payload = json.load(fh)
 
         self.assertEqual(payload["environment"], "production")
+
+    def test_session_manager_syncs_bundled_skills_when_configured(self) -> None:
+        class FakeSessionDB:
+            def __init__(self, db_path: str) -> None:
+                self.db_path = db_path
+
+            def get_messages_as_conversation(self, _session_id: str) -> list[dict[str, object]]:
+                return []
+
+        with tempfile.TemporaryDirectory() as tempdir, tempfile.TemporaryDirectory() as bundled, mock.patch(
+            "rsi_runner.session_manager.SessionDB", FakeSessionDB
+        ), mock.patch.dict(os.environ, {**runner_env("eval"), "HERMES_HOME": tempdir}, clear=True):
+            with mock.patch("rsi_runner.session_manager.sync_skills") as sync_mock, mock.patch.dict(
+                os.environ,
+                {**runner_env("eval"), "HERMES_HOME": tempdir, "HERMES_BUNDLED_SKILLS": bundled},
+                clear=True,
+            ):
+                sync_mock.return_value = {"copied": ["architecture-diagram"]}
+                config = RunnerConfig.from_env()
+                manager = SessionManager(config)
+
+        self.assertEqual(manager.skills_dir, os.path.join(tempdir, "skills"))
+        self.assertTrue(manager.bundled_skills_available)
+        self.assertEqual(manager.bundled_skills_sync_status, "synced")
+        self.assertEqual(manager.bundled_skills_sync_error, "")
+
+    def test_session_manager_records_skill_sync_failure_without_disabling_runner(self) -> None:
+        class FakeSessionDB:
+            def __init__(self, db_path: str) -> None:
+                self.db_path = db_path
+
+            def get_messages_as_conversation(self, _session_id: str) -> list[dict[str, object]]:
+                return []
+
+        with tempfile.TemporaryDirectory() as tempdir, tempfile.TemporaryDirectory() as bundled, mock.patch(
+            "rsi_runner.session_manager.SessionDB", FakeSessionDB
+        ), mock.patch("rsi_runner.session_manager.sync_skills", side_effect=RuntimeError("sync failed")), mock.patch.dict(
+            os.environ,
+            {**runner_env("eval"), "HERMES_HOME": tempdir, "HERMES_BUNDLED_SKILLS": bundled},
+            clear=True,
+        ):
+            config = RunnerConfig.from_env()
+            manager = SessionManager(config)
+
+        self.assertTrue(manager.available)
+        self.assertEqual(manager.bundled_skills_sync_status, "failed")
+        self.assertEqual(manager.bundled_skills_sync_error, "sync failed")
+        self.assertFalse(manager.skills_healthy)
+
+    def test_session_manager_reports_not_configured_before_sync_unavailable(self) -> None:
+        class FakeSessionDB:
+            def __init__(self, db_path: str) -> None:
+                self.db_path = db_path
+
+            def get_messages_as_conversation(self, _session_id: str) -> list[dict[str, object]]:
+                return []
+
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.session_manager.SessionDB", FakeSessionDB
+        ), mock.patch("rsi_runner.session_manager.sync_skills", None), mock.patch.dict(
+            os.environ,
+            {**runner_env("eval"), "HERMES_HOME": tempdir},
+            clear=True,
+        ):
+            config = RunnerConfig.from_env()
+            manager = SessionManager(config)
+
+        self.assertFalse(manager.bundled_skills_available)
+        self.assertEqual(manager.bundled_skills_sync_status, "not_configured")
+        self.assertEqual(manager.bundled_skills_sync_error, "")
 
     def test_runner_task_request_normalizes_non_list_payload_fields(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -374,6 +452,20 @@ class HermesRuntimeTests(unittest.TestCase):
             [{"kind": "diagram", "description": "Render the requested system diagram."}],
         )
         self.assertTrue(task.artifact_optional)
+
+    def test_runner_task_request_normalizes_requested_skills(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Use the architecture skill.",
+                    "requested_skills": ["architecture_diagram", "architecture-diagram", "", 1],
+                }
+            }
+        )
+
+        self.assertEqual(task.requested_skills, ["architecture-diagram"])
 
     def test_openai_models_use_persisted_hermes_sessions_with_xhigh(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -836,6 +928,7 @@ class HermesRuntimeTests(unittest.TestCase):
     def test_workflow_non_json_output_repairs_successfully(self) -> None:
         class RepairingAIAgent(FakeAIAgent):
             calls = 0
+            prompts: list[str] = []
 
             def run_conversation(
                 self,
@@ -845,6 +938,7 @@ class HermesRuntimeTests(unittest.TestCase):
                 task_id: str | None = None,
             ) -> dict:
                 type(self).calls += 1
+                type(self).prompts.append(prompt)
                 type(self).last_prompt = prompt
                 type(self).last_system_message = system_message
                 type(self).last_history = conversation_history or []
@@ -871,7 +965,8 @@ class HermesRuntimeTests(unittest.TestCase):
                 "task": {
                     "task_type": "workflow",
                     "repo": "rsi-agent-platform",
-                    "prompt": "Summarize the workflow.",
+                    "prompt": "User request: Please use /architecture-diagram skill and summarize the workflow.\n\nInvestigate within the governed tool boundary.",
+                    "requested_skills": ["architecture-diagram"],
                     "session_scope_kind": "conversation",
                     "session_scope_id": "conv-123",
                     "memory_backend": "honcho",
@@ -882,6 +977,15 @@ class HermesRuntimeTests(unittest.TestCase):
         )
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", RepairingAIAgent), mock.patch(
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.build_skill_invocation_message",
+            return_value=None,
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.build_preloaded_skills_prompt",
+            return_value=("[PRELOADED architecture-diagram]", ["architecture-diagram"], []),
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.resolve_skill_command_key",
+            return_value="/architecture-diagram",
         ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
             runtime = HermesRuntime(RunnerConfig.from_env())
             result = runtime.execute_task(task)
@@ -891,6 +995,9 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(result.raw["repair_succeeded"])
         self.assertEqual(result.raw["structured_output"]["final_answer"], "Final reply")
         self.assertEqual(result.raw["repair_original_response"], "plain text response")
+        self.assertGreaterEqual(len(RepairingAIAgent.prompts), 2)
+        self.assertEqual(RepairingAIAgent.prompts[1].count("Runner role:"), 1)
+        self.assertEqual(RepairingAIAgent.prompts[1].count("[PRELOADED architecture-diagram]"), 1)
 
     def test_workflow_non_json_output_fails_closed_after_single_repair(self) -> None:
         class UnstructuredAIAgent(FakeAIAgent):
@@ -1051,6 +1158,28 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(FakeAIAgent.last_prompt, "User prompt")
         self.assertEqual(FakeAIAgent.last_system_message, "System directive")
 
+    def test_execute_does_not_expand_skills_for_adhoc_prompts(self) -> None:
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.build_skill_invocation_message",
+            return_value="[INVOKED architecture-diagram]",
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.build_preloaded_skills_prompt",
+            return_value=("[PRELOADED architecture-diagram]", ["architecture-diagram"], []),
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.resolve_skill_command_key",
+            return_value="/architecture-diagram",
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute("/architecture-diagram map the active depin services", system_message="System directive")
+
+        self.assertTrue(result.ok)
+        self.assertEqual(FakeAIAgent.last_prompt, "/architecture-diagram map the active depin services")
+        self.assertNotIn("[INVOKED architecture-diagram]", FakeAIAgent.last_prompt)
+        self.assertNotIn("[PRELOADED architecture-diagram]", FakeAIAgent.last_prompt)
+        self.assertEqual(FakeAIAgent.last_system_message, "System directive")
+
     def test_runtime_reports_degraded_when_session_manager_unavailable(self) -> None:
         class BrokenSessionManager(FakeSessionManager):
             def __init__(self, config) -> None:
@@ -1084,6 +1213,202 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(runtime.metadata["honcho_write_frequency"], "async")
         self.assertEqual(runtime.metadata["honcho_session_strategy"], "hybrid")
         self.assertEqual(runtime.metadata["honcho_ai_peer"], "rsi:stage:proposal")
+
+    def test_runtime_metadata_exposes_skill_runtime_state(self) -> None:
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        self.assertEqual(runtime.metadata["skills_dir"], "/var/lib/hermes/skills")
+        self.assertTrue(runtime.metadata["bundled_skills_available"])
+        self.assertEqual(runtime.metadata["bundled_skills_sync_status"], "synced")
+
+    def test_workflow_task_expands_explicit_slash_skill_before_render(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "/architecture-diagram map the active depin services",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-001",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch("rsi_runner.hermes_runtime.resolve_skill_command_key", return_value="/architecture-diagram"), mock.patch(
+            "rsi_runner.hermes_runtime.build_skill_invocation_message",
+            return_value="[INVOKED architecture-diagram]",
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.build_preloaded_skills_prompt",
+            return_value=("", [], []),
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertIn("[INVOKED architecture-diagram]", FakeAIAgent.last_prompt)
+        self.assertEqual(result.raw["requested_skills"], ["architecture-diagram"])
+        self.assertEqual(result.raw["resolved_skills"], ["architecture-diagram"])
+        self.assertEqual(result.raw["missing_skills"], [])
+        self.assertEqual(result.raw["skill_injection_mode"], "slash_command")
+
+    def test_workflow_task_preloads_inline_and_requested_skills_once(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "User request: Please use /architecture-diagram skill for this system diagram.\n\nInvestigate within the governed tool boundary.",
+                    "requested_skills": ["architecture-diagram"],
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-001",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch("rsi_runner.hermes_runtime.resolve_skill_command_key", return_value="/architecture-diagram"), mock.patch(
+            "rsi_runner.hermes_runtime.build_skill_invocation_message",
+            return_value=None,
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.build_preloaded_skills_prompt",
+            return_value=("[PRELOADED architecture-diagram]", ["architecture-diagram"], []),
+        ) as preload_mock, mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(preload_mock.call_args.args[0], ["architecture-diagram"])
+        self.assertIn("[PRELOADED architecture-diagram]", FakeAIAgent.last_prompt)
+        self.assertEqual(result.raw["requested_skills"], ["architecture-diagram"])
+        self.assertEqual(result.raw["resolved_skills"], ["architecture-diagram"])
+        self.assertEqual(result.raw["missing_skills"], [])
+        self.assertEqual(result.raw["skill_injection_mode"], "preloaded")
+
+    def test_action_contract_repair_does_not_reexpand_skills_or_rerender_prompt(self) -> None:
+        class ActionRepairAIAgent(FakeAIAgent):
+            calls = 0
+            prompts: list[str] = []
+
+            def run_conversation(
+                self,
+                prompt: str,
+                system_message: str | None = None,
+                conversation_history: list[dict] | None = None,
+                task_id: str | None = None,
+            ) -> dict[str, object]:
+                type(self).calls += 1
+                type(self).prompts.append(prompt)
+                type(self).last_prompt = prompt
+                type(self).last_system_message = system_message
+                type(self).last_history = conversation_history or []
+                payload = {
+                    "visible_reasoning": [],
+                    "reply_draft": "Draft reply",
+                    "final_answer": "Final reply",
+                    "confidence": 0.91,
+                    "context_summary": "Repo and KB context collected.",
+                    "self_critique": "",
+                    "knowledge_drafts": [],
+                    "outcome_hypotheses": [],
+                    "produced_artifacts": [],
+                    "artifact_failure_reason": "",
+                }
+                if type(self).calls == 1:
+                    payload["proposed_actions"] = []
+                else:
+                    payload["proposed_actions"] = [
+                        {
+                            "kind": "slack_post",
+                            "target_ref": "slack:thread",
+                            "request_payload": {"body": "Final reply"},
+                            "approval_mode": "deterministic",
+                            "idempotency_key": "reply-1",
+                            "rationale": "Reply in thread",
+                            "evidence_refs": [],
+                        }
+                    ]
+                return {"final_response": json.dumps(payload)}
+
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "User request: Please use /architecture-diagram skill and summarize the workflow.\n\nInvestigate within the governed tool boundary.",
+                    "requested_skills": ["architecture-diagram"],
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                    "user_peer_id": "user:alice",
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", ActionRepairAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.build_skill_invocation_message",
+            return_value=None,
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.build_preloaded_skills_prompt",
+            return_value=("[PRELOADED architecture-diagram]", ["architecture-diagram"], []),
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.resolve_skill_command_key",
+            return_value="/architecture-diagram",
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertTrue(result.raw["action_contract_repair_attempted"])
+        self.assertTrue(result.raw["action_contract_repair_succeeded"])
+        self.assertEqual(ActionRepairAIAgent.prompts[1].count("Runner role:"), 1)
+        self.assertEqual(ActionRepairAIAgent.prompts[1].count("[PRELOADED architecture-diagram]"), 1)
+
+    def test_missing_requested_skill_is_recorded_without_failing_workflow(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "User request: Please use /missing-skill.\n\nInvestigate within the governed tool boundary.",
+                    "requested_skills": ["missing-skill"],
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-001",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.build_skill_invocation_message",
+            return_value=None,
+        ), mock.patch("rsi_runner.hermes_runtime.resolve_skill_command_key", return_value=None), mock.patch(
+            "rsi_runner.hermes_runtime.build_preloaded_skills_prompt",
+            return_value=("", [], ["missing-skill"]),
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.raw["requested_skills"], ["missing-skill"])
+        self.assertEqual(result.raw["resolved_skills"], [])
+        self.assertEqual(result.raw["missing_skills"], ["missing-skill"])
+        self.assertEqual(result.raw["skill_injection_mode"], "preloaded")
 
     def test_proposal_role_enforces_read_only_tool_policy(self) -> None:
         task = RunnerTaskRequest.from_payload(

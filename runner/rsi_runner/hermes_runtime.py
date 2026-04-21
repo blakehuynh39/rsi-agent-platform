@@ -278,6 +278,25 @@ def _normalize_requested_artifacts(value: JsonValue | None) -> list[JsonObject]:
     return out
 
 
+def _normalize_requested_skills(value: JsonValue | None) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    out: list[str] = []
+    seen: set[str] = set()
+    for item in value:
+        if not isinstance(item, str):
+            continue
+        normalized = item.strip().replace("_", "-").lower()
+        normalized = normalized.lstrip("/")
+        if not normalized or not re.fullmatch(r"[a-z0-9][a-z0-9-]*", normalized):
+            continue
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        out.append(normalized)
+    return out
+
+
 def _normalize_produced_artifacts(value: JsonValue | None) -> list[JsonObject]:
     if not isinstance(value, list):
         return []
@@ -383,8 +402,16 @@ def _transport_name_or_self(name: str) -> str:
 try:
     from run_agent import AIAgent  # type: ignore
     from hermes_constants import parse_reasoning_effort  # type: ignore
+    from agent.skill_commands import (  # type: ignore
+        build_preloaded_skills_prompt,
+        build_skill_invocation_message,
+        resolve_skill_command_key,
+    )
 except (ImportError, ModuleNotFoundError):  # pragma: no cover - import depends on external Hermes install
     AIAgent = None
+    build_preloaded_skills_prompt = None
+    build_skill_invocation_message = None
+    resolve_skill_command_key = None
 
     def parse_reasoning_effort(effort: str) -> JsonObject | None:
         level = (effort or "").strip().lower()
@@ -439,6 +466,7 @@ class RunnerTaskRequest:
     repo_ref: str | None
     prompt: str
     system_message: str | None
+    requested_skills: list[str]
     allowed_tools: list[str]
     allowed_commands: list[str]
     timeout_seconds: int
@@ -492,6 +520,7 @@ class RunnerTaskRequest:
             repo_ref=_optional_string(task.get("repo_ref")),
             prompt=_required_string(_first_non_none(task.get("prompt"), payload.get("prompt")), ""),
             system_message=_optional_string(_first_non_none(task.get("system_message"), payload.get("system_message"))),
+            requested_skills=_normalize_requested_skills(task.get("requested_skills")),
             allowed_tools=_string_list(task.get("allowed_tools")),
             allowed_commands=_string_list(task.get("allowed_commands")),
             timeout_seconds=int(task.get("timeout_seconds", 900)),
@@ -622,7 +651,7 @@ class HermesRuntime:
     def metadata(self) -> JsonObject:
         adapter_meta = self._adapter.metadata
         return {
-            "status": "ok" if self.available else "degraded",
+            "status": "ok" if self.available and self._session_manager.skills_healthy else "degraded",
             "role": self._role,
             "backend": self._backend,
             "provider": self._provider,
@@ -642,6 +671,10 @@ class HermesRuntime:
             "session_continuity_status": "ok" if self._session_manager.available else "degraded",
             "hermes_home": self._session_manager.hermes_home,
             "session_db_path": self._session_manager.session_db_path,
+            "skills_dir": self._session_manager.skills_dir,
+            "bundled_skills_available": self._session_manager.bundled_skills_available,
+            "bundled_skills_sync_status": self._session_manager.bundled_skills_sync_status,
+            "bundled_skills_sync_error": self._session_manager.bundled_skills_sync_error,
             "hermes_version": adapter_meta.version,
             "hermes_pin": adapter_meta.pin,
             "memory_backend": self._config.memory_backend,
@@ -759,7 +792,12 @@ class HermesRuntime:
                 }
             }
         )
-        return self._execute_task_request(task, self._resolve_tool_policy(task))
+        return self._execute_task_request(
+            task,
+            self._resolve_tool_policy(task),
+            render_prompt=False,
+            expand_skills=False,
+        )
 
     def _native_governed_tools_enabled(self, task: RunnerTaskRequest) -> bool:
         if not self._config.hermes_native_governed_tools_enabled:
@@ -815,6 +853,112 @@ class HermesRuntime:
             agent_kwargs["api_key"] = self._api_key
         return AIAgent(**agent_kwargs)
 
+    def _extract_user_request_text(self, prompt: str) -> str:
+        text = str(prompt or "")
+        if not text:
+            return ""
+        if text.startswith("User request: "):
+            remainder = text[len("User request: "):]
+            first_block, _, _ = remainder.partition("\n\n")
+            return first_block.strip()
+        return text.strip()
+
+    def _skill_mentions_from_text(self, text: str) -> list[str]:
+        seen: set[str] = set()
+        out: list[str] = []
+        for match in re.finditer(r"(?:(?<=^)|(?<=[\s(]))/([A-Za-z0-9][A-Za-z0-9_-]*)\b", text or ""):
+            identifier = match.group(1).replace("_", "-").strip().lower()
+            if not identifier or identifier in seen:
+                continue
+            seen.add(identifier)
+            out.append(identifier)
+        return out
+
+    def _skill_runtime_requested(self, task: RunnerTaskRequest) -> list[str]:
+        requested = [name.replace("_", "-").strip().lower() for name in task.requested_skills if str(name or "").strip()]
+        return normalize_tool_names(requested)
+
+    def _expand_task_skills(self, task: RunnerTaskRequest, context: SessionContext) -> tuple[RunnerTaskRequest, JsonObject]:
+        diagnostics: JsonObject = {
+            "requested_skills": [],
+            "resolved_skills": [],
+            "missing_skills": [],
+            "skill_injection_mode": "none",
+        }
+        user_request = self._extract_user_request_text(task.prompt)
+        explicit_mentions = self._skill_mentions_from_text(user_request)
+        requested_skills = []
+        seen_requested: set[str] = set()
+        for identifier in [*explicit_mentions, *self._skill_runtime_requested(task)]:
+            normalized = identifier.replace("_", "-").strip().lower()
+            if not normalized or normalized in seen_requested:
+                continue
+            seen_requested.add(normalized)
+            requested_skills.append(normalized)
+        diagnostics["requested_skills"] = list(requested_skills)
+        if not requested_skills:
+            return task, diagnostics
+        if build_skill_invocation_message is None or build_preloaded_skills_prompt is None or resolve_skill_command_key is None:
+            diagnostics["missing_skills"] = list(requested_skills)
+            diagnostics["skill_injection_mode"] = "helpers_unavailable"
+            return task, diagnostics
+
+        prompt_prefix_parts: list[str] = []
+        resolved_skills: list[str] = []
+        missing_skills: list[str] = []
+        injection_modes: list[str] = []
+
+        remaining_preloads = list(requested_skills)
+        stripped_request = user_request.lstrip()
+        if stripped_request.startswith("/"):
+            command, _, user_instruction = stripped_request.partition(" ")
+            command_key = resolve_skill_command_key(command.lstrip("/"))
+            if command_key:
+                invocation_message = build_skill_invocation_message(
+                    command_key,
+                    user_instruction=user_instruction.strip(),
+                    task_id=context.session_id,
+                )
+                if invocation_message:
+                    prompt_prefix_parts.append(invocation_message)
+                    resolved_identifier = command_key.lstrip("/").replace("_", "-").strip().lower()
+                    resolved_skills.append(resolved_identifier)
+                    remaining_preloads = [item for item in remaining_preloads if item != resolved_identifier]
+                    injection_modes.append("slash_command")
+            else:
+                unresolved = command.lstrip("/").replace("_", "-").strip().lower()
+                if unresolved:
+                    missing_skills.append(unresolved)
+
+        if remaining_preloads:
+            preloaded_prompt, loaded_skill_names, missing_identifiers = build_preloaded_skills_prompt(
+                remaining_preloads,
+                task_id=context.session_id,
+            )
+            if preloaded_prompt:
+                prompt_prefix_parts.append(preloaded_prompt)
+            if preloaded_prompt or loaded_skill_names or missing_identifiers:
+                injection_modes.append("preloaded")
+            for name in loaded_skill_names:
+                normalized = str(name or "").replace("_", "-").strip().lower()
+                if normalized:
+                    resolved_skills.append(normalized)
+            for identifier in missing_identifiers:
+                normalized = str(identifier or "").replace("_", "-").strip().lower()
+                if normalized:
+                    missing_skills.append(normalized)
+
+        resolved_skills = normalize_tool_names(resolved_skills)
+        missing_skills = normalize_tool_names([item for item in missing_skills if item not in resolved_skills])
+        diagnostics["resolved_skills"] = resolved_skills
+        diagnostics["missing_skills"] = missing_skills
+        diagnostics["skill_injection_mode"] = "+".join(injection_modes) if injection_modes else "none"
+
+        if not prompt_prefix_parts:
+            return task, diagnostics
+        expanded_prompt = "\n\n".join([*prompt_prefix_parts, task.prompt])
+        return replace(task, prompt=expanded_prompt), diagnostics
+
     def _execute_task_request(
         self,
         task: RunnerTaskRequest,
@@ -822,6 +966,8 @@ class HermesRuntime:
         *,
         allow_partial_recovery: bool = True,
         max_iterations_override: int | None = None,
+        render_prompt: bool = True,
+        expand_skills: bool = True,
     ) -> HermesExecutionResult:
         if AIAgent is None:
             return HermesExecutionResult(
@@ -849,6 +995,16 @@ class HermesRuntime:
             return preflight
 
         context = self._session_manager.prepare(task)
+        skill_diagnostics: JsonObject = {
+            "requested_skills": [],
+            "resolved_skills": [],
+            "missing_skills": [],
+            "skill_injection_mode": "none",
+        }
+        if expand_skills:
+            task, skill_diagnostics = self._expand_task_skills(task, context)
+        if render_prompt:
+            task = replace(task, prompt=self._render_task_prompt(task, tool_policy))
         effective_task_timeout = self._effective_task_timeout(task)
         effective_inactivity_timeout = self._effective_inactivity_timeout(effective_task_timeout)
         reasoning_timeout_seconds = self._partial_completion_reasoning_timeout_seconds(task, effective_task_timeout)
@@ -907,7 +1063,7 @@ class HermesRuntime:
             lifecycle_events = self._adapter.lifecycle_events(context.session_id)
             if termination_reason != "normal_completion":
                 finalized = self._session_manager.finalize(context, tracker)
-                observed = self._observability_metadata(agent, task, tracker)
+                observed = self._observability_metadata(agent, task, tracker, skill_diagnostics=skill_diagnostics)
                 last_activity = _json_object_or_empty(stop_meta.get("last_activity"))
                 if termination_reason in {"task_timeout", "iteration_budget_exhausted"} and allow_partial_recovery and self._workflow_partial_completion_eligible(task):
                     result = self._finalize_partial_completion(
@@ -1018,7 +1174,7 @@ class HermesRuntime:
         except Exception as exc:
             diagnostics = self._provider_invalid_request_diagnostics(str(exc), tool_policy)
             activity = safe_activity_summary(agent) if agent is not None else {}
-            observed = self._observability_metadata(agent, task)
+            observed = self._observability_metadata(agent, task, skill_diagnostics=skill_diagnostics)
             raw = {
                 **self._base_raw(prompt=task.prompt, system_message=task.system_message),
                 "error": str(exc),
@@ -1069,7 +1225,7 @@ class HermesRuntime:
 
         finalized = self._session_manager.finalize(context, tracker)
         lifecycle_events = self._adapter.lifecycle_events(context.session_id)
-        observed = self._observability_metadata(agent, task, tracker)
+        observed = self._observability_metadata(agent, task, tracker, skill_diagnostics=skill_diagnostics)
         result = HermesExecutionResult(
             ok=True,
             message=response,
@@ -1137,6 +1293,10 @@ class HermesRuntime:
             "honcho_write_frequency": self._config.honcho_write_frequency,
             "honcho_session_strategy": self._config.honcho_session_strategy,
             "honcho_ai_peer": self._config.honcho_ai_peer,
+            "skills_dir": self._session_manager.skills_dir,
+            "bundled_skills_available": self._session_manager.bundled_skills_available,
+            "bundled_skills_sync_status": self._session_manager.bundled_skills_sync_status,
+            "bundled_skills_sync_error": self._session_manager.bundled_skills_sync_error,
             "prompt": prompt,
             "system_message": system_message,
         }
@@ -1260,12 +1420,24 @@ class HermesRuntime:
                 surfaces.insert(0, fallback)
         return surfaces
 
-    def _observability_metadata(self, agent: Any | None, task: RunnerTaskRequest, tracker: Any | None = None) -> JsonObject:
+    def _observability_metadata(
+        self,
+        agent: Any | None,
+        task: RunnerTaskRequest,
+        tracker: Any | None = None,
+        *,
+        skill_diagnostics: JsonObject | None = None,
+    ) -> JsonObject:
         observed: JsonObject = {
             "candidate_read_surfaces": self._candidate_read_surfaces_for_task(task),
             "selected_context_surfaces": [],
             "memory_warnings": [],
+            "skills_dir": self._session_manager.skills_dir,
+            "bundled_skills_available": self._session_manager.bundled_skills_available,
+            "bundled_skills_sync_status": self._session_manager.bundled_skills_sync_status,
         }
+        if self._session_manager.bundled_skills_sync_error:
+            observed["bundled_skills_sync_error"] = self._session_manager.bundled_skills_sync_error
         binding = getattr(agent, "_rsi_readonly_tool_binding", None) if agent is not None else None
         diagnostics = getattr(binding, "diagnostics", None)
         if callable(diagnostics):
@@ -1274,6 +1446,8 @@ class HermesRuntime:
                 observed.update(payload)
         if tracker is not None and hasattr(tracker, "warnings"):
             observed["memory_warnings"] = list(getattr(tracker, "warnings", []) or [])
+        if skill_diagnostics:
+            observed.update(skill_diagnostics)
         return observed
 
     def _preflight_tool_policy_failure(self, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> HermesExecutionResult | None:
@@ -2931,11 +3105,14 @@ class HermesRuntime:
         tool_policy = self._resolve_tool_policy(task)
         if task.task_type == "question_reduce":
             return self._execute_question_reduce_task(task, tool_policy)
-        prompt = self._render_task_prompt(task, tool_policy)
-        rendered_task = replace(task, prompt=prompt)
-        result = self._execute_task_request(rendered_task, tool_policy)
+        result = self._execute_task_request(task, tool_policy)
         if not result.ok:
             return result
+        rendered_task = replace(
+            task,
+            prompt=_string_or_json(result.raw.get("prompt")) or task.prompt,
+            system_message=_optional_string(result.raw.get("system_message")) or task.system_message,
+        )
         completion_verdict = string_from_map(_json_object_or_empty(result.raw), "completion_verdict")
         initial_response = result.message
         repair_attempted = False
@@ -3006,7 +3183,12 @@ class HermesRuntime:
                         task.workflow_id or "",
                     )
                     repair_task = self._build_structured_output_repair_task(rendered_task, result.message)
-                    repair_result = self._execute_task_request(repair_task, repair_tool_policy)
+                    repair_result = self._execute_task_request(
+                        repair_task,
+                        repair_tool_policy,
+                        render_prompt=False,
+                        expand_skills=False,
+                    )
                     if repair_result.ok:
                         if invalid_request := self._provider_invalid_request_diagnostics(repair_result.message, repair_tool_policy):
                             diagnostics = dict(invalid_request)
@@ -3130,7 +3312,12 @@ class HermesRuntime:
                     task.workflow_id or "",
                 )
                 repair_task = self._build_action_contract_repair_task(rendered_task, structured_output)
-                repair_result = self._execute_task_request(repair_task, repair_tool_policy)
+                repair_result = self._execute_task_request(
+                    repair_task,
+                    repair_tool_policy,
+                    render_prompt=False,
+                    expand_skills=False,
+                )
                 action_contract_repair_response = repair_result.message
                 if repair_result.ok:
                     try:
@@ -3286,6 +3473,8 @@ class HermesRuntime:
                 parts.append("Artifact production is requested but optional; if an artifact cannot be produced, explain why in artifact_failure_reason and still return the best grounded reply.")
             else:
                 parts.append("Artifact production is required when the evidence and tools allow it; if it cannot be produced, explain why in artifact_failure_reason.")
+        if task.requested_skills:
+            parts.append(f"Requested skills: {', '.join(task.requested_skills)}")
         if task.rejected_proposal_context:
             parts.append(f"Prior rejected/dismissed context: {json.dumps(task.rejected_proposal_context)}")
         if task.response_mode:
