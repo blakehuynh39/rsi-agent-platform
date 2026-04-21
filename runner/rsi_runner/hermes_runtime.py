@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import concurrent.futures
 from dataclasses import dataclass, replace
+import hashlib
 import json
 import logging
 import os
@@ -309,6 +310,11 @@ def _normalize_structured_output(payload: JsonObject) -> JsonObject:
     normalized["self_critique"] = _string_or_json(payload.get("self_critique"))
     normalized["visible_reasoning"] = _normalize_visible_reasoning(payload.get("visible_reasoning"))
     normalized["proposed_actions"] = _normalize_proposed_actions(payload.get("proposed_actions"))
+    reply_delivery = _json_object_or_empty(payload.get("reply_delivery"))
+    if reply_delivery:
+        normalized["reply_delivery"] = reply_delivery
+    else:
+        normalized.pop("reply_delivery", None)
     normalized["knowledge_drafts"] = _normalize_knowledge_drafts(payload.get("knowledge_drafts"))
     normalized["outcome_hypotheses"] = _normalize_outcome_hypotheses(payload.get("outcome_hypotheses"))
     normalized["produced_artifacts"] = _normalize_produced_artifacts(payload.get("produced_artifacts"))
@@ -457,6 +463,7 @@ class RunnerTaskRequest:
     repo_allowlist: list[str]
     tool_allowlist: list[str]
     response_mode: str | None
+    reply_delivery_mode: str | None
     context_refs: list[JsonObject]
     approval_mode: str | None
     reasoning_verbosity: str | None
@@ -509,6 +516,7 @@ class RunnerTaskRequest:
             repo_allowlist=_string_list(task.get("repo_allowlist")),
             tool_allowlist=_string_list(task.get("tool_allowlist")),
             response_mode=_optional_string(task.get("response_mode")),
+            reply_delivery_mode=_optional_string(task.get("reply_delivery_mode")),
             context_refs=_json_object_list(task.get("context_refs")),
             approval_mode=_optional_string(task.get("approval_mode")),
             reasoning_verbosity=_optional_string(task.get("reasoning_verbosity")),
@@ -2272,13 +2280,116 @@ class HermesRuntime:
         scope = first_non_empty(task.trace_id, task.workflow_id, task.session_scope_id, "workflow")
         return f"partial-{termination_reason}-{scope}"
 
+    def _workflow_reply_delivery_mode(self, task: RunnerTaskRequest) -> str:
+        mode = (task.reply_delivery_mode or "").strip().lower()
+        if mode in {"direct", "mediated", "none"}:
+            return mode
+        return "mediated"
+
+    def _workflow_requires_explicit_reply_action(self, task: RunnerTaskRequest) -> bool:
+        return task.task_type == "workflow" and self._workflow_reply_delivery_mode(task) == "mediated"
+
+    def _workflow_allows_fallback_reply_action(self, task: RunnerTaskRequest) -> bool:
+        return task.task_type == "workflow" and self._workflow_reply_delivery_mode(task) != "none"
+
+    def _looks_like_slack_send_tool_name(self, tool_name_value: str) -> bool:
+        return "slack_send_message" in (tool_name_value or "").strip().lower()
+
+    def _parse_json_object_maybe(self, value: Any) -> JsonObject:
+        if isinstance(value, dict):
+            return value
+        text = _string_or_json(value)
+        if not text:
+            return {}
+        try:
+            parsed = json.loads(text)
+        except json.JSONDecodeError:
+            return {}
+        return parsed if isinstance(parsed, dict) else {}
+
+    def _reply_delivery_from_session_delta(
+        self,
+        task: RunnerTaskRequest,
+        structured_output: JsonObject,
+        session_messages_delta: list[JsonObject],
+    ) -> JsonObject:
+        if self._workflow_reply_delivery_mode(task) != "direct":
+            return {}
+        tool_results: dict[str, JsonObject] = {}
+        for item in session_messages_delta:
+            if _string_or_json(item.get("role")) != "tool":
+                continue
+            tool_call_id = first_non_empty(
+                _string_or_json(item.get("tool_call_id")),
+                _string_or_json(item.get("call_id")),
+                _string_or_json(item.get("id")),
+            )
+            if not tool_call_id:
+                continue
+            payload = self._parse_json_object_maybe(item.get("content"))
+            result_payload = self._parse_json_object_maybe(payload.get("result")) if payload else {}
+            merged = dict(payload)
+            if result_payload:
+                merged["result"] = result_payload
+            tool_results[tool_call_id] = merged
+        for item in reversed(session_messages_delta):
+            if _string_or_json(item.get("role")) != "assistant":
+                continue
+            for tool_call in reversed(_json_object_list(item.get("tool_calls"))):
+                function_payload = _json_object_or_empty(tool_call.get("function"))
+                tool_name_value = _string_or_json(function_payload.get("name"))
+                if not self._looks_like_slack_send_tool_name(tool_name_value):
+                    continue
+                request_payload = self._parse_json_object_maybe(function_payload.get("arguments"))
+                body = first_non_empty(
+                    _string_or_json(request_payload.get("message")),
+                    _string_or_json(request_payload.get("text")),
+                    _string_or_json(structured_output.get("final_answer")),
+                    _string_or_json(structured_output.get("reply_draft")),
+                )
+                tool_call_id = first_non_empty(
+                    _string_or_json(tool_call.get("call_id")),
+                    _string_or_json(tool_call.get("id")),
+                )
+                result_payload = tool_results.get(tool_call_id, {})
+                result_data = _json_object_or_empty(result_payload.get("result"))
+                message_context = _json_object_or_empty(result_data.get("message_context"))
+                provider_ref = first_non_empty(
+                    _string_or_json(message_context.get("message_ts")),
+                    _string_or_json(result_payload.get("provider_ref")),
+                )
+                message_link = _string_or_json(result_data.get("message_link"))
+                if not provider_ref and not message_link:
+                    continue
+                artifact_refs = _string_list_or_empty(result_payload.get("raw_artifact_refs"))
+                body_sha1 = hashlib.sha1(body.encode("utf-8")).hexdigest() if body else ""
+                return {
+                    "status": "posted",
+                    "channel_id": first_non_empty(_string_or_json(request_payload.get("channel_id")), task.channel_id or ""),
+                    "thread_ts": first_non_empty(_string_or_json(request_payload.get("thread_ts")), task.thread_ts or ""),
+                    "body": body,
+                    "body_sha1": body_sha1,
+                    "body_excerpt": body[:280],
+                    "tool_call_id": tool_call_id,
+                    "tool_name": tool_name_value,
+                    "provider_ref": provider_ref,
+                    "message_link": message_link,
+                    "artifact_refs": artifact_refs,
+                }
+        return {}
+
     def _synthesize_partial_slack_post_action(
         self,
         task: RunnerTaskRequest,
         structured_output: JsonObject,
         termination_reason: str,
     ) -> tuple[JsonObject, bool]:
-        if not self._workflow_missing_explicit_reply_action(task, structured_output):
+        if not self._workflow_allows_fallback_reply_action(task):
+            return structured_output, False
+        for item in _normalize_proposed_actions(structured_output.get("proposed_actions")):
+            if _string_or_json(item.get("kind")) == "slack_post":
+                return structured_output, False
+        if _json_object_or_empty(structured_output.get("reply_delivery")):
             return structured_output, False
         reply_body = first_non_empty(
             _string_or_json(structured_output.get("final_answer")),
@@ -2883,7 +2994,7 @@ class HermesRuntime:
                         "repair_attempted": False,
                         "repair_succeeded": False,
                     },
-                )
+                    )
             try:
                 structured_output = self._extract_structured_output(result.message)
             except HermesStructuredOutputError as exc:
@@ -3001,6 +3112,16 @@ class HermesRuntime:
                             "repair_succeeded": False,
                         },
                     )
+            reply_delivery = _json_object_or_empty(structured_output.get("reply_delivery"))
+            if not reply_delivery:
+                reply_delivery = self._reply_delivery_from_session_delta(
+                    task,
+                    structured_output,
+                    _json_object_list(result.raw.get("session_messages_delta")),
+                )
+            if reply_delivery:
+                structured_output["reply_delivery"] = reply_delivery
+                result.raw["reply_delivery"] = reply_delivery
             if self._workflow_missing_explicit_reply_action(task, structured_output):
                 action_contract_repair_attempted = True
                 logger.info(
@@ -3057,6 +3178,7 @@ class HermesRuntime:
             "tool_allowlist_effective": tool_policy.effective,
             "blocked_tool_names": tool_policy.blocked,
             "response_mode": task.response_mode,
+            "reply_delivery_mode": task.reply_delivery_mode,
             "context_refs": task.context_refs,
             "approval_mode": task.approval_mode,
             "reasoning_verbosity": task.reasoning_verbosity,
@@ -3168,6 +3290,8 @@ class HermesRuntime:
             parts.append(f"Prior rejected/dismissed context: {json.dumps(task.rejected_proposal_context)}")
         if task.response_mode:
             parts.append(f"Response mode: {task.response_mode}")
+        if task.reply_delivery_mode:
+            parts.append(f"Reply delivery mode: {task.reply_delivery_mode}")
         if task.approval_mode:
             parts.append(f"Approval mode: {task.approval_mode}")
         if task.reasoning_verbosity:
@@ -3197,7 +3321,7 @@ class HermesRuntime:
             )
         else:
             parts.append(
-                "Return a JSON object with keys: visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, outcome_hypotheses, produced_artifacts, artifact_failure_reason, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta."
+                "Return a JSON object with keys: visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, reply_delivery, knowledge_drafts, outcome_hypotheses, produced_artifacts, artifact_failure_reason, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta."
             )
             parts.append(
                 "Each proposed action must include: kind, target_ref, request_payload, approval_mode, idempotency_key, rationale, evidence_refs."
@@ -3253,7 +3377,7 @@ class HermesRuntime:
         return replace(task, prompt=repair_prompt)
 
     def _workflow_missing_explicit_reply_action(self, task: RunnerTaskRequest, structured_output: JsonObject) -> bool:
-        if task.task_type != "workflow":
+        if not self._workflow_requires_explicit_reply_action(task):
             return False
         final_answer = _string_or_json(structured_output.get("final_answer"))
         reply_draft = _string_or_json(structured_output.get("reply_draft"))

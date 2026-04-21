@@ -306,7 +306,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		replyThreadKey = ""
 	}
 	allowed, policyVerdict := replyPolicy(store, ctx.workflow.Kind, replyThreadKey, replyChannelID)
-	nativeMCPEnabled := workflowNativeMCPEnabled(runnerResp.Raw)
+	replyDeliveryMode := normalizeReplyDeliveryMode(runnerTask.ReplyDeliveryMode)
 	replyDelivery, hasReplyDelivery := workflowReplyDelivery(runnerResp.Raw, replyChannelID, replyThreadTS)
 	if hasReplyDelivery && strings.TrimSpace(replyBody) == "" {
 		replyBody = strings.TrimSpace(replyDelivery.FinalBody)
@@ -400,7 +400,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		draftReasoning []events.ReasoningStep
 		slackActions   []events.SlackActionRecord
 	)
-	if strings.TrimSpace(replyBody) != "" && strings.TrimSpace(proposedReplyAction.Kind) == "" && !nativeMCPEnabled {
+	if strings.TrimSpace(replyBody) != "" && strings.TrimSpace(proposedReplyAction.Kind) == "" && replyDeliveryMode == "mediated" {
 		finalReasoning = append(finalReasoning, events.ReasoningStep{
 			ID:         fmt.Sprintf("reason-action-contract-%d", runnerCompleted.UnixNano()),
 			TraceID:    ctx.trace.Summary.TraceID,
@@ -437,7 +437,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		}
 		return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner-blocked", ctx.trace.Summary.TraceID))
 	}
-	if nativeMCPEnabled && strings.TrimSpace(replyBody) != "" && !hasReplyDelivery && strings.TrimSpace(proposedReplyAction.Kind) == "" {
+	if replyDeliveryMode == "direct" && strings.TrimSpace(replyBody) != "" && !hasReplyDelivery && strings.TrimSpace(proposedReplyAction.Kind) == "" {
 		summary := "Runner produced a grounded reply but did not report a durable Slack MCP reply_delivery."
 		if !allowed {
 			summary = fmt.Sprintf("Runner produced a grounded reply but Slack posting is blocked by policy: %s.", policyVerdict)
@@ -574,9 +574,9 @@ func submitWorkflowContextCompleted(cfg config.Config, store storepkg.Store, ctx
 	contextSummary, contextRefs := contextFromTrace(ctx.trace)
 	if len(contextRefs) > 0 {
 		if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandContextCompleted, cfg.ServiceName, occurredAt, map[string]any{
-			"tool_count":         len(contextRefs),
-			"resume_queue":       string(resumeQueue),
-			"execution_role":     executionRole,
+			"tool_count":     len(contextRefs),
+			"resume_queue":   string(resumeQueue),
+			"execution_role": executionRole,
 			"trace_events": []events.TraceEvent{
 				{
 					TraceID:     ctx.trace.Summary.TraceID,
@@ -622,9 +622,9 @@ func submitWorkflowContextCompleted(cfg config.Config, store storepkg.Store, ctx
 		return nil
 	}
 	if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandContextSkipped, cfg.ServiceName, occurredAt, map[string]any{
-		"tool_count":         0,
-		"resume_queue":       string(resumeQueue),
-		"execution_role":     executionRole,
+		"tool_count":     0,
+		"resume_queue":   string(resumeQueue),
+		"execution_role": executionRole,
 		"trace_events": []events.TraceEvent{
 			{
 				TraceID:     ctx.trace.Summary.TraceID,
@@ -968,8 +968,9 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	mcpServers := workflowMCPServers(cfg, allowed, ingestion.ChannelID, ingestion.ThreadTS)
 	allowedTools := workflowRunnerAllowedTools(liveHints, hasSlackMCPServer(mcpServers))
 	requestedArtifacts := requestedArtifactsForIngestion(ingestion)
+	replyDeliveryMode := workflowReplyDeliveryMode(hasSlackMCPServer(mcpServers), allowed)
 	systemMessage := harness.ComposeSystemMessage(
-		workflowRunnerSystemMessage(hasSlackMCPServer(mcpServers), hasNotionMCPServer(mcpServers), allowed, requestedArtifacts),
+		workflowRunnerSystemMessage(hasSlackMCPServer(mcpServers), hasNotionMCPServer(mcpServers), replyDeliveryMode, requestedArtifacts),
 		effectiveHarness,
 	)
 	prompt := fmt.Sprintf("User request: %s\n\nInvestigate within the governed tool boundary. Start with the attached persisted evidence and context, then expand with tools as needed. Cite concrete evidence when possible. Default any Slack reply to the ingress thread.", ingestion.Text)
@@ -1010,6 +1011,7 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		RepoAllowlist:             cfg.AllowedTargetRepos,
 		ToolAllowlist:             nil,
 		ResponseMode:              workflow.ResponseMode,
+		ReplyDeliveryMode:         replyDeliveryMode,
 		ContextRefs:               combinedContextRefs,
 		ApprovalMode:              workflow.ApprovalMode,
 		ReasoningVerbosity:        effectiveHarness.ReasoningVerbosity,
@@ -1026,11 +1028,11 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	}
 }
 
-func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyAllowed bool, requestedArtifacts []clients.RunnerRequestedArtifact) string {
-	if !useSlackMCP {
+func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliveryMode string, requestedArtifacts []clients.RunnerRequestedArtifact) string {
+	if replyDeliveryMode == "mediated" {
 		parts := []string{
 			"Return explicit visible reasoning only. Do not include hidden chain-of-thought.",
-			"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, outcome_hypotheses, produced_artifacts, and artifact_failure_reason.",
+			"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, reply_delivery, knowledge_drafts, outcome_hypotheses, produced_artifacts, and artifact_failure_reason.",
 			"Start from persisted evidence, then choose governed tools and tool order yourself.",
 			"You may use Hermes-native skills when they materially help satisfy the request.",
 		}
@@ -1040,13 +1042,13 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyAllow
 		if len(requestedArtifacts) > 0 {
 			parts = append(parts, "Artifact production was requested. If you produce one, include it in produced_artifacts. If you cannot, set artifact_failure_reason and still provide the best grounded reply.")
 		}
-		parts = append(parts, "If you intend to reply in Slack, you must emit an explicit proposed action with kind=slack_post; prose alone is not enough.")
+		parts = append(parts, "If you intend to reply in Slack, you must emit an explicit proposed action with kind=slack_post; prose alone is not enough.", "Do not set reply_delivery for mediated replies.")
 		return strings.Join(parts, " ")
 	}
-	if replyAllowed {
+	if replyDeliveryMode == "direct" {
 		parts := []string{
 			"Return explicit visible reasoning only. Do not include hidden chain-of-thought.",
-			"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, outcome_hypotheses, produced_artifacts, and artifact_failure_reason.",
+			"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, reply_delivery, knowledge_drafts, outcome_hypotheses, produced_artifacts, and artifact_failure_reason.",
 			"Use Slack MCP for Slack investigation.",
 			"You may use Hermes-native skills when they materially help satisfy the request.",
 		}
@@ -1056,14 +1058,16 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyAllow
 		if len(requestedArtifacts) > 0 {
 			parts = append(parts, "Artifact production was requested. If you produce one, include it in produced_artifacts. If you cannot, set artifact_failure_reason and still provide the best grounded reply.")
 		}
-		parts = append(parts, "Use governed repo, GitHub, knowledge, RSI, and workspace tools for non-Slack evidence.", "If you have a grounded final answer, send exactly one Slack reply to the bound ingress thread using Slack MCP, then return the JSON object.", "Do not emit a slack_post action contract.")
+		parts = append(parts, "Use governed repo, GitHub, knowledge, RSI, and workspace tools for non-Slack evidence.", "If you have a grounded final answer, send exactly one Slack reply to the bound ingress thread using Slack MCP, then return the JSON object.", "Do not emit a slack_post action contract.", "Include reply_delivery describing the direct Slack delivery with status, channel_id, thread_ts, body, tool_call_id, tool_name, provider_ref, and message_link.")
 		return strings.Join(parts, " ")
 	}
 	parts := []string{
 		"Return explicit visible reasoning only. Do not include hidden chain-of-thought.",
-		"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, outcome_hypotheses, produced_artifacts, and artifact_failure_reason.",
-		"Use Slack MCP for Slack investigation.",
+		"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, reply_delivery, knowledge_drafts, outcome_hypotheses, produced_artifacts, and artifact_failure_reason.",
 		"You may use Hermes-native skills when they materially help satisfy the request.",
+	}
+	if useSlackMCP {
+		parts = append(parts, "Use Slack MCP for Slack investigation.")
 	}
 	if useNotionMCP {
 		parts = append(parts, "Use Notion MCP for Notion workspace search and page fetches when relevant.")
@@ -1071,8 +1075,19 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyAllow
 	if len(requestedArtifacts) > 0 {
 		parts = append(parts, "Artifact production was requested. If you produce one, include it in produced_artifacts. If you cannot, set artifact_failure_reason and still provide the best grounded reply.")
 	}
-	parts = append(parts, "Use governed repo, GitHub, knowledge, RSI, and workspace tools for non-Slack evidence.", "Slack posting is blocked by policy for this workflow, so do not send any Slack messages.")
+	parts = append(parts, "Use governed repo, GitHub, knowledge, RSI, and workspace tools for non-Slack evidence.", "Slack posting is blocked by policy for this workflow, so do not send any Slack messages.", "Leave reply_delivery empty when no Slack reply was delivered.")
 	return strings.Join(parts, " ")
+}
+
+func workflowReplyDeliveryMode(useSlackMCP bool, replyAllowed bool) string {
+	switch {
+	case useSlackMCP && replyAllowed:
+		return "direct"
+	case replyAllowed:
+		return "mediated"
+	default:
+		return "none"
+	}
 }
 
 func workflowSessionScope(trace events.Trace, workflow storepkg.Workflow) (string, string, string, string) {
@@ -1201,12 +1216,20 @@ func workflowTerminationReason(raw map[string]any) string {
 	return strings.TrimSpace(stringValue(raw["termination_reason"]))
 }
 
-func workflowNativeMCPEnabled(raw map[string]any) bool {
-	return boolValue(raw["native_mcp_enabled"])
+func normalizeReplyDeliveryMode(value string) string {
+	switch strings.ToLower(strings.TrimSpace(value)) {
+	case "direct", "mediated", "none":
+		return strings.ToLower(strings.TrimSpace(value))
+	default:
+		return "mediated"
+	}
 }
 
 func workflowReplyDelivery(raw map[string]any, fallbackChannelID string, fallbackThreadTS string) (events.SlackActionRecord, bool) {
 	value, ok := raw["reply_delivery"]
+	if !ok || value == nil {
+		value, ok = mapValue(raw["structured_output"])["reply_delivery"]
+	}
 	if !ok || value == nil {
 		return events.SlackActionRecord{}, false
 	}
@@ -1218,10 +1241,19 @@ func workflowReplyDelivery(raw map[string]any, fallbackChannelID string, fallbac
 	if err := json.Unmarshal(payload, &item); err != nil {
 		return events.SlackActionRecord{}, false
 	}
+	if len(item) == 0 {
+		return events.SlackActionRecord{}, false
+	}
 	body := firstNonEmpty(
 		strings.TrimSpace(stringValueFromMap(item, "body")),
 		strings.TrimSpace(stringValueFromMap(item, "body_excerpt")),
 	)
+	if body == "" &&
+		strings.TrimSpace(stringValueFromMap(item, "tool_call_id")) == "" &&
+		strings.TrimSpace(stringValueFromMap(item, "provider_ref")) == "" &&
+		strings.TrimSpace(stringValueFromMap(item, "message_link")) == "" {
+		return events.SlackActionRecord{}, false
+	}
 	record := events.SlackActionRecord{
 		ID:             firstNonEmpty(strings.TrimSpace(stringValueFromMap(item, "tool_call_id")), fmt.Sprintf("runner-reply-%x", sha1.Sum([]byte(body)))),
 		ChannelID:      firstNonEmpty(strings.TrimSpace(stringValueFromMap(item, "channel_id")), fallbackChannelID),

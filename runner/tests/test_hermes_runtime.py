@@ -173,6 +173,7 @@ class FakeSessionManager:
             "session_db_path": context.session_db_path,
             "memory_reads": tracker.reads,
             "memory_writes": tracker.writes,
+            "session_messages_delta": [],
         }
 
 
@@ -2083,6 +2084,83 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertEqual(runtime._partial_completion_finalization_reserve_seconds(300), 180)
         self.assertEqual(runtime._partial_completion_attempt_budgets(180), [180])
+
+    def test_workflow_direct_reply_delivery_uses_session_delta_without_action_repair(self) -> None:
+        class DirectReplySessionManager(FakeSessionManager):
+            def finalize(self, context: types.SimpleNamespace, tracker: FakeTracker) -> dict[str, object]:
+                payload = super().finalize(context, tracker)
+                payload["session_messages_delta"] = [
+                    {
+                        "role": "assistant",
+                        "tool_calls": [
+                            {
+                                "id": "call_send_1",
+                                "call_id": "call_send_1",
+                                "function": {
+                                    "name": "mcp_rsi_task_trace_123_0_slack_deadbeef_slack_send_message",
+                                    "arguments": json.dumps(
+                                        {
+                                            "channel_id": "C123",
+                                            "thread_ts": "171000001.000100",
+                                            "message": "Final reply",
+                                        }
+                                    ),
+                                },
+                            }
+                        ],
+                    },
+                    {
+                        "role": "tool",
+                        "tool_call_id": "call_send_1",
+                        "content": json.dumps(
+                            {
+                                "result": json.dumps(
+                                    {
+                                        "message_link": "https://storyprotocol.slack.com/archives/C123/p171000001000100",
+                                        "message_context": {
+                                            "message_ts": "171000001.000100",
+                                            "channel_id": "C123",
+                                        },
+                                    }
+                                )
+                            }
+                        ),
+                    },
+                ]
+                return payload
+
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Answer the thread and post directly.",
+                    "trace_id": "trace-123",
+                    "workflow_id": "wf-123",
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "reply_delivery_mode": "direct",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", DirectReplySessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertFalse(result.raw["action_contract_repair_attempted"])
+        self.assertFalse(result.raw["action_contract_repair_succeeded"])
+        self.assertEqual(result.raw["reply_delivery"]["status"], "posted")
+        self.assertEqual(result.raw["reply_delivery"]["channel_id"], "C123")
+        self.assertEqual(result.raw["reply_delivery"]["thread_ts"], "171000001.000100")
+        self.assertEqual(result.raw["reply_delivery"]["tool_call_id"], "call_send_1")
+        self.assertEqual(result.raw["reply_delivery"]["provider_ref"], "171000001.000100")
+        self.assertEqual(result.raw["structured_output"]["reply_delivery"]["status"], "posted")
 
     def test_workflow_task_timeout_enters_partial_finalization_before_hard_deadline(self) -> None:
         class TimeoutReducerAIAgent:

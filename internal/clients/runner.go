@@ -140,6 +140,7 @@ type RunnerTask struct {
 	RepoAllowlist             []string                        `json:"repo_allowlist,omitempty"`
 	ToolAllowlist             []string                        `json:"tool_allowlist,omitempty"`
 	ResponseMode              string                          `json:"response_mode,omitempty"`
+	ReplyDeliveryMode         string                          `json:"reply_delivery_mode,omitempty"`
 	ContextRefs               []RunnerContextRef              `json:"context_refs,omitempty"`
 	ApprovalMode              string                          `json:"approval_mode,omitempty"`
 	ReasoningVerbosity        string                          `json:"reasoning_verbosity,omitempty"`

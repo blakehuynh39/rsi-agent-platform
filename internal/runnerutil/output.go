@@ -56,6 +56,21 @@ type ProducedArtifact struct {
 	FailureReason  string   `json:"failure_reason,omitempty"`
 }
 
+type ReplyDelivery struct {
+	Status        string   `json:"status,omitempty"`
+	ChannelID     string   `json:"channel_id,omitempty"`
+	ThreadTS      string   `json:"thread_ts,omitempty"`
+	Body          string   `json:"body,omitempty"`
+	BodySHA1      string   `json:"body_sha1,omitempty"`
+	BodyExcerpt   string   `json:"body_excerpt,omitempty"`
+	ToolCallID    string   `json:"tool_call_id,omitempty"`
+	ToolName      string   `json:"tool_name,omitempty"`
+	ProviderRef   string   `json:"provider_ref,omitempty"`
+	MessageLink   string   `json:"message_link,omitempty"`
+	ArtifactRefs  []string `json:"artifact_refs,omitempty"`
+	FailureReason string   `json:"failure_reason,omitempty"`
+}
+
 type RetryAssessment struct {
 	FailureClass             string   `json:"failure_class,omitempty"`
 	FailureSummary           string   `json:"failure_summary,omitempty"`
@@ -72,6 +87,7 @@ type StructuredOutput struct {
 	SelfCritique          string              `json:"self_critique"`
 	VisibleReasoning      []Step              `json:"visible_reasoning"`
 	ProposedActions       []ProposedAction    `json:"proposed_actions"`
+	ReplyDelivery         ReplyDelivery       `json:"reply_delivery,omitempty"`
 	KnowledgeDrafts       []KnowledgeDraft    `json:"knowledge_drafts"`
 	OutcomeHypotheses     []OutcomeHypothesis `json:"outcome_hypotheses"`
 	ProducedArtifacts     []ProducedArtifact  `json:"produced_artifacts"`

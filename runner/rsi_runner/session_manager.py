@@ -175,6 +175,8 @@ class SessionManager:
 
     def finalize(self, context: SessionContext, tracker: MemoryTracker) -> JsonObject:
         db = self._get_db()
+        history: list[JsonObject] = list(context.conversation_history)
+        delta: list[JsonObject] = []
         if db is not None:
             history = list(db.get_messages_as_conversation(context.session_id) or [])
             if len(history) > len(context.conversation_history):
@@ -184,6 +186,10 @@ class SessionManager:
                     source="session_db",
                     ref=context.session_id,
                 )
+            if len(history) >= len(context.conversation_history):
+                delta = history[len(context.conversation_history):]
+            else:
+                delta = history
         return {
             "hermes_session_id": context.session_id,
             "parent_session_id": context.parent_session_id,
@@ -199,6 +205,7 @@ class SessionManager:
             "memory_reads": tracker.reads,
             "memory_writes": tracker.writes,
             "memory_warnings": tracker.warnings,
+            "session_messages_delta": delta,
         }
 
     def _get_db(self) -> Any:
