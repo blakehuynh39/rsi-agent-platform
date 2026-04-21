@@ -20,6 +20,7 @@ from .json_types import JsonObject, JsonToolWrapperSchema, JsonValue
 from .config import RunnerConfig
 from .hermes_adapter import HermesAdapter
 from .hermes_mcp_adapter import HermesTaskScopedMCPAdapter, TaskScopedMCPRegistration
+from .observability import ObservationEmitter
 from .rsi_tools import (
     BLOCKED_HONCHO_TOOLS,
     CompositeToolProvider,
@@ -35,7 +36,7 @@ from .rsi_tools import (
     tool_transport_name,
     tool_schema_wrappers,
 )
-from .session_manager import SessionContext, SessionManager
+from .session_manager import SessionContext, SessionManager, stable_session_id
 
 ROLE_TASK_TYPES = {
     "prod": {"general", "workflow", "prod", "question_gather", "question_reduce", "question_expand"},
@@ -52,6 +53,15 @@ QUESTION_RUN_BOUNDED_STOP_TERMINATION_REASONS = frozenset(
         "task_timeout",
         "iteration_budget_exhausted",
         "output_token_budget_exhausted",
+    }
+)
+ARTIFACT_RENDER_NATIVE_TOOL_NAMES = frozenset({"write_file", "read_file", "search_files", "skill_view"})
+ARTIFACT_RENDER_RSI_TOOL_NAMES = frozenset(
+    {
+        "workspace.list_files",
+        "workspace.read_file",
+        "workspace.search",
+        "workspace.write_file",
     }
 )
 
@@ -320,6 +330,29 @@ def _normalize_produced_artifacts(value: JsonValue | None) -> list[JsonObject]:
     return out
 
 
+def _normalize_artifact_render_briefs(value: JsonValue | None) -> list[JsonObject]:
+    if not isinstance(value, list):
+        return []
+    out: list[JsonObject] = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        kind = _string_or_json(item.get("kind"))
+        if not kind:
+            continue
+        out.append(
+            {
+                "kind": kind,
+                "skill": _string_or_json(item.get("skill")),
+                "title": _string_or_json(item.get("title")),
+                "render_prompt": _string_or_json(item.get("render_prompt")),
+                "inputs": _json_object_or_empty(item.get("inputs")),
+                "output_path_hint": _string_or_json(item.get("output_path_hint")),
+            }
+        )
+    return out
+
+
 def _normalize_structured_output(payload: JsonObject) -> JsonObject:
     normalized = dict(payload)
     normalized["context_summary"] = _string_or_json(payload.get("context_summary"))
@@ -336,6 +369,7 @@ def _normalize_structured_output(payload: JsonObject) -> JsonObject:
         normalized.pop("reply_delivery", None)
     normalized["knowledge_drafts"] = _normalize_knowledge_drafts(payload.get("knowledge_drafts"))
     normalized["outcome_hypotheses"] = _normalize_outcome_hypotheses(payload.get("outcome_hypotheses"))
+    normalized["artifact_render_briefs"] = _normalize_artifact_render_briefs(payload.get("artifact_render_briefs"))
     normalized["produced_artifacts"] = _normalize_produced_artifacts(payload.get("produced_artifacts"))
     normalized["artifact_failure_reason"] = _string_or_json(payload.get("artifact_failure_reason"))
     normalized["change_plan"] = _string_or_json(payload.get("change_plan"))
@@ -480,6 +514,7 @@ class RunnerTaskRequest:
     intent: str | None
     trace_id: str | None
     workflow_id: str | None
+    operation_id: str | None
     conversation_id: str | None
     case_id: str | None
     channel_id: str | None
@@ -510,6 +545,7 @@ class RunnerTaskRequest:
     workspace_branch: str | None
     allowed_path_globs: list[str]
     mcp_servers: list[JsonObject]
+    execution_phase: str | None
 
     @classmethod
     def from_payload(cls, payload: JsonObject) -> "RunnerTaskRequest":
@@ -534,6 +570,7 @@ class RunnerTaskRequest:
             intent=_optional_string(task.get("intent")),
             trace_id=_optional_string(task.get("trace_id")),
             workflow_id=_optional_string(task.get("workflow_id")),
+            operation_id=_optional_string(task.get("operation_id")),
             conversation_id=_optional_string(task.get("conversation_id")),
             case_id=_optional_string(task.get("case_id")),
             channel_id=_optional_string(task.get("channel_id")),
@@ -564,6 +601,7 @@ class RunnerTaskRequest:
             workspace_branch=_optional_string(task.get("workspace_branch")),
             allowed_path_globs=_string_list(task.get("allowed_path_globs")),
             mcp_servers=_json_object_list(task.get("mcp_servers")),
+            execution_phase=_optional_string(task.get("execution_phase")),
         )
 
 
@@ -647,9 +685,16 @@ class HermesRuntime:
     def available(self) -> bool:
         return self._available
 
+    def _hermes_config_parity_status(self) -> str:
+        return str(getattr(self._session_manager, "hermes_config_parity_status", "unknown") or "unknown").strip()
+
+    def _hermes_config_parity_error(self) -> str:
+        return str(getattr(self._session_manager, "hermes_config_parity_error", "") or "").strip()
+
     @property
     def metadata(self) -> JsonObject:
         adapter_meta = self._adapter.metadata
+        observation_sink_configured = bool(self._config.tool_gateway_base_url)
         return {
             "status": "ok" if self.available and self._session_manager.skills_healthy else "degraded",
             "role": self._role,
@@ -675,6 +720,11 @@ class HermesRuntime:
             "bundled_skills_available": self._session_manager.bundled_skills_available,
             "bundled_skills_sync_status": self._session_manager.bundled_skills_sync_status,
             "bundled_skills_sync_error": self._session_manager.bundled_skills_sync_error,
+            "hermes_config_parity_status": self._hermes_config_parity_status(),
+            "hermes_config_parity_error": self._hermes_config_parity_error(),
+            "observation_sink_configured": observation_sink_configured,
+            "observation_sink_status": "configured" if observation_sink_configured else "not_configured",
+            "direct_delivery_phase_enabled": True,
             "hermes_version": adapter_meta.version,
             "hermes_pin": adapter_meta.pin,
             "memory_backend": self._config.memory_backend,
@@ -806,9 +856,62 @@ class HermesRuntime:
             return False
         return (task.execution_mode or "").strip().lower() in {"diagnose", "implement"}
 
+    def _execution_phase(self, task: RunnerTaskRequest) -> str:
+        return (task.execution_phase or "").strip().lower() or "main"
+
+    def _task_uses_artifact_phases(self, task: RunnerTaskRequest) -> bool:
+        return (
+            task.task_type == "workflow"
+            and self._execution_phase(task) == "main"
+            and len(task.requested_artifacts) > 0
+        )
+
+    def _phase_max_iterations_override(self, task: RunnerTaskRequest) -> int | None:
+        phase = self._execution_phase(task)
+        if phase == "render":
+            return 4
+        if phase == "deliver":
+            return 3
+        return None
+
+    def _artifact_phase_budgets(self, task: RunnerTaskRequest) -> JsonObject:
+        total = self._effective_task_timeout(task)
+        reserve_for_investigate = max(1, min(60, int(total * 0.45)))
+        desired = {
+            "render": min(180, max(45, int(total * 0.25))),
+            "deliver": min(60, max(30, int(total * 0.1))),
+            "reducer_reserve": min(180, max(60, int(total * 0.2))),
+        }
+        available_for_other = max(0, total - reserve_for_investigate)
+        desired_other = sum(desired.values())
+        if desired_other <= available_for_other:
+            render_budget = desired["render"]
+            deliver_budget = desired["deliver"]
+            reducer_reserve = desired["reducer_reserve"]
+        elif desired_other <= 0 or available_for_other <= 0:
+            render_budget = 0
+            deliver_budget = 0
+            reducer_reserve = 0
+        else:
+            scale = available_for_other / desired_other
+            render_budget = int(desired["render"] * scale)
+            deliver_budget = int(desired["deliver"] * scale)
+            reducer_reserve = int(desired["reducer_reserve"] * scale)
+        investigate_budget = max(1, total - render_budget - deliver_budget - reducer_reserve)
+        return {
+            "investigate": investigate_budget,
+            "render": render_budget,
+            "deliver": deliver_budget,
+            "reducer_reserve": reducer_reserve,
+            "total": total,
+        }
+
     def _native_toolsets_for_task(self, task: RunnerTaskRequest, *, extra_toolsets: list[str] | None = None) -> list[str]:
         toolsets: list[str] = []
-        if task.task_type in {"workflow", "question_gather", "question_expand"} or self._native_governed_tools_enabled(task):
+        execution_phase = self._execution_phase(task)
+        if execution_phase not in {"render", "deliver"} and (
+            task.task_type in {"workflow", "question_gather", "question_expand"} or self._native_governed_tools_enabled(task)
+        ):
             toolsets.extend(["todo", "session_search"])
         if self._native_governed_tools_enabled(task):
             execution_mode = (task.execution_mode or "").strip().lower()
@@ -964,6 +1067,7 @@ class HermesRuntime:
         task: RunnerTaskRequest,
         tool_policy: ToolPolicy,
         *,
+        observer: ObservationEmitter | None = None,
         allow_partial_recovery: bool = True,
         max_iterations_override: int | None = None,
         render_prompt: bool = True,
@@ -995,6 +1099,36 @@ class HermesRuntime:
             return preflight
 
         context = self._session_manager.prepare(task)
+        execution_phase = self._execution_phase(task)
+        if observer is not None:
+            observer.emit(
+                phase=execution_phase,
+                event_type="session.prepared",
+                status="completed",
+                payload={
+                    "session_id": context.session_id,
+                    "parent_session_id": context.parent_session_id,
+                },
+            )
+            observer.emit(
+                phase=execution_phase,
+                event_type="hermes.config",
+                status=self._hermes_config_parity_status(),
+                payload={
+                    "skills_dir": self._session_manager.skills_dir,
+                    "config_parity_error": self._hermes_config_parity_error(),
+                },
+            )
+            observer.emit(
+                phase=execution_phase,
+                event_type="skills.sync",
+                status=self._session_manager.bundled_skills_sync_status,
+                payload={
+                    "bundled_skills_available": self._session_manager.bundled_skills_available,
+                    "sync_error": self._session_manager.bundled_skills_sync_error,
+                },
+            )
+            observer.emit(phase=execution_phase, event_type="phase.started", status="running")
         skill_diagnostics: JsonObject = {
             "requested_skills": [],
             "resolved_skills": [],
@@ -1003,6 +1137,13 @@ class HermesRuntime:
         }
         if expand_skills:
             task, skill_diagnostics = self._expand_task_skills(task, context)
+        if observer is not None:
+            observer.emit(
+                phase=execution_phase,
+                event_type="skills.expanded",
+                status="completed",
+                payload=skill_diagnostics,
+            )
         if render_prompt:
             task = replace(task, prompt=self._render_task_prompt(task, tool_policy))
         effective_task_timeout = self._effective_task_timeout(task)
@@ -1018,6 +1159,13 @@ class HermesRuntime:
             try:
                 agentic_mcp_registration = self._mcp_adapter.register_task_servers(task)
             except RuntimeError as exc:
+                if observer is not None:
+                    observer.emit(
+                        phase=execution_phase,
+                        event_type="mcp.registration",
+                        status="failed",
+                        payload={"error": str(exc)},
+                    )
                 result = HermesExecutionResult(
                     ok=False,
                     message=str(exc),
@@ -1042,6 +1190,17 @@ class HermesRuntime:
                     },
                 )
                 return result
+            if observer is not None:
+                observer.emit(
+                    phase=execution_phase,
+                    event_type="mcp.registration",
+                    status="completed",
+                    payload={
+                        "enabled": agentic_mcp_registration.enabled,
+                        "server_names": agentic_mcp_registration.server_names,
+                        "toolsets": agentic_mcp_registration.enabled_toolsets,
+                    },
+                )
             agent = self._create_agent(
                 task,
                 context,
@@ -1050,7 +1209,7 @@ class HermesRuntime:
                     task, extra_toolsets=agentic_mcp_registration.enabled_toolsets
                 ),
             )
-            self._attach_tool_policy(agent, task, tool_policy)
+            self._attach_tool_policy(agent, task, tool_policy, observer=observer)
             tracker = self._session_manager.attach_tracking(agent, task, context)
             termination_reason, run_result, stop_meta = self._run_with_deadlines(
                 agent,
@@ -1059,11 +1218,12 @@ class HermesRuntime:
                 effective_task_timeout,
                 effective_inactivity_timeout,
                 reasoning_timeout_seconds,
+                observer=observer,
             )
             lifecycle_events = self._adapter.lifecycle_events(context.session_id)
             if termination_reason != "normal_completion":
                 finalized = self._session_manager.finalize(context, tracker)
-                observed = self._observability_metadata(agent, task, tracker, skill_diagnostics=skill_diagnostics)
+                observed = self._observability_metadata(agent, task, tracker, skill_diagnostics=skill_diagnostics, observer=observer)
                 last_activity = _json_object_or_empty(stop_meta.get("last_activity"))
                 if termination_reason in {"task_timeout", "iteration_budget_exhausted"} and allow_partial_recovery and self._workflow_partial_completion_eligible(task):
                     result = self._finalize_partial_completion(
@@ -1074,6 +1234,7 @@ class HermesRuntime:
                         stop_meta,
                         lifecycle_events,
                         termination_reason=termination_reason,
+                        observer=observer,
                     )
                     return result
                 if termination_reason == "inactivity_timeout":
@@ -1174,7 +1335,7 @@ class HermesRuntime:
         except Exception as exc:
             diagnostics = self._provider_invalid_request_diagnostics(str(exc), tool_policy)
             activity = safe_activity_summary(agent) if agent is not None else {}
-            observed = self._observability_metadata(agent, task, skill_diagnostics=skill_diagnostics)
+            observed = self._observability_metadata(agent, task, skill_diagnostics=skill_diagnostics, observer=observer)
             raw = {
                 **self._base_raw(prompt=task.prompt, system_message=task.system_message),
                 "error": str(exc),
@@ -1222,10 +1383,27 @@ class HermesRuntime:
                     cleanup_status=cleanup_result.status,
                     cleanup_errors=cleanup_result.errors,
                 )
+            if observer is not None:
+                observer.emit(
+                    phase=execution_phase,
+                    event_type="mcp.cleanup",
+                    status=cleanup_result.status,
+                    payload={"errors": cleanup_result.errors},
+                )
+                if result is not None:
+                    observer.emit(
+                        phase=execution_phase,
+                        event_type="phase.completed",
+                        status="completed" if result.ok else "failed",
+                        payload={
+                            "termination_reason": _string_or_json(_json_object_or_empty(result.raw).get("termination_reason")),
+                            "completion_verdict": _string_or_json(_json_object_or_empty(result.raw).get("completion_verdict")),
+                        },
+                    )
 
         finalized = self._session_manager.finalize(context, tracker)
         lifecycle_events = self._adapter.lifecycle_events(context.session_id)
-        observed = self._observability_metadata(agent, task, tracker, skill_diagnostics=skill_diagnostics)
+        observed = self._observability_metadata(agent, task, tracker, skill_diagnostics=skill_diagnostics, observer=observer)
         result = HermesExecutionResult(
             ok=True,
             message=response,
@@ -1427,6 +1605,7 @@ class HermesRuntime:
         tracker: Any | None = None,
         *,
         skill_diagnostics: JsonObject | None = None,
+        observer: ObservationEmitter | None = None,
     ) -> JsonObject:
         observed: JsonObject = {
             "candidate_read_surfaces": self._candidate_read_surfaces_for_task(task),
@@ -1448,6 +1627,8 @@ class HermesRuntime:
             observed["memory_warnings"] = list(getattr(tracker, "warnings", []) or [])
         if skill_diagnostics:
             observed.update(skill_diagnostics)
+        if observer is not None:
+            observed.update(observer.diagnostics())
         return observed
 
     def _preflight_tool_policy_failure(self, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> HermesExecutionResult | None:
@@ -1540,6 +1721,7 @@ class HermesRuntime:
     def _resolve_tool_policy(self, task: RunnerTaskRequest) -> ToolPolicy:
         requested = normalize_tool_names([*task.allowed_tools, *task.tool_allowlist])
         execution_mode = (task.execution_mode or "").strip().lower()
+        execution_phase = self._execution_phase(task)
         if task.task_type == "question_reduce":
             return ToolPolicy(
                 mode="no_tools",
@@ -1554,11 +1736,19 @@ class HermesRuntime:
         permitted = set(self._default_policy_allowlist(execution_mode=execution_mode))
         if self._config.tool_gateway_base_url and (task.workspace_id or task.attempt_id):
             permitted.update(READ_ONLY_WORKSPACE_RSI_TOOL_NAMES)
+            if execution_phase == "render":
+                permitted.update(ARTIFACT_RENDER_RSI_TOOL_NAMES)
         fallback_allowlist = sorted(permitted)
         if task.task_type in {"question_gather", "question_expand"} and requested:
             fallback_allowlist = requested
         effective = normalize_tool_names(requested or fallback_allowlist)
         effective = [name for name in effective if name in permitted]
+        if execution_phase == "investigate":
+            effective = [name for name in effective if name not in {"slack.reply", "slack.upload_file"}]
+        elif execution_phase == "render":
+            effective = [name for name in effective if name in ARTIFACT_RENDER_RSI_TOOL_NAMES]
+        elif execution_phase == "deliver":
+            effective = [name for name in effective if name in {"slack.upload_file"}]
         blocked = [name for name in requested if name not in permitted and name not in {"slack.history", "slack.search", "slack.reply"}]
         memory_tools = sorted([name for name in effective if name in READ_ONLY_HONCHO_TOOLS])
         custom_tools = sorted([name for name in effective if name in IMPLEMENT_RSI_TOOL_NAMES])
@@ -2770,9 +2960,20 @@ class HermesRuntime:
         lifecycle_events: list[JsonObject],
         *,
         termination_reason: str,
+        observer: ObservationEmitter | None = None,
     ) -> HermesExecutionResult:
         recovery_timeout_seconds = self._partial_completion_timeout_seconds(task, termination_reason, stop_meta)
         evidence_ledger = self._build_evidence_ledger(task, observed, termination_reason)
+        if observer is not None:
+            observer.emit(
+                phase=self._execution_phase(task),
+                event_type="reducer.started",
+                status="running",
+                payload={
+                    "termination_reason": termination_reason,
+                    "timeout_seconds": recovery_timeout_seconds,
+                },
+            )
         if recovery_timeout_seconds <= 0:
             return self._partial_completion_unrecoverable_failure(
                 task,
@@ -2881,6 +3082,16 @@ class HermesRuntime:
             }
             if last_provider_response_id:
                 merged_raw["partial_finalization_response_id"] = last_provider_response_id
+            if observer is not None:
+                observer.emit(
+                    phase=self._execution_phase(task),
+                    event_type="reducer.completed",
+                    status="completed",
+                    payload={
+                        "attempts": attempt_index,
+                        "termination_reason": termination_reason,
+                    },
+                )
             return HermesExecutionResult(
                 ok=True,
                 message=response_text,
@@ -2888,6 +3099,17 @@ class HermesRuntime:
                 raw=merged_raw,
             )
 
+        if observer is not None:
+            observer.emit(
+                phase=self._execution_phase(task),
+                event_type="reducer.completed",
+                status="failed",
+                payload={
+                    "attempts": len(attempt_budgets),
+                    "termination_reason": termination_reason,
+                    "errors": attempt_errors,
+                },
+            )
         return self._partial_completion_unrecoverable_failure(
             task,
             tool_policy,
@@ -2910,15 +3132,28 @@ class HermesRuntime:
             reducer_attempt_errors=attempt_errors,
         )
 
-    def _attach_tool_policy(self, agent: Any, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> None:
+    def _preserved_native_tool_names(self, task: RunnerTaskRequest, current_tools: list[JsonToolWrapperSchema]) -> set[str]:
+        execution_phase = self._execution_phase(task)
+        names = {name for name in (tool_name(tool) for tool in current_tools) if name}
+        if execution_phase == "render":
+            return {
+                name
+                for name in names
+                if name in ARTIFACT_RENDER_NATIVE_TOOL_NAMES or name.startswith("mcp_")
+            }
+        if execution_phase == "deliver":
+            return {name for name in names if name.startswith("mcp_")}
+        if task.task_type in {"workflow", "question_gather", "question_expand"}:
+            return names
+        return set()
+
+    def _attach_tool_policy(self, agent: Any, task: RunnerTaskRequest, tool_policy: ToolPolicy, *, observer: ObservationEmitter | None = None) -> None:
         current_tools = list(getattr(agent, "tools", []) or [])
         current_valid = set(getattr(agent, "valid_tool_names", set()) or set())
         setattr(agent, "_rsi_readonly_tool_binding", None)
         native_governed_tools = self._native_governed_tools_enabled(task)
         allowed_names = set(tool_policy.effective)
-        preserved_tool_names = set()
-        if task.task_type in {"workflow", "question_gather", "question_expand"}:
-            preserved_tool_names = {name for name in (tool_name(tool) for tool in current_tools) if name}
+        preserved_tool_names = self._preserved_native_tool_names(task, current_tools)
         filtered_tools = current_tools
         query_hints = self._question_default_query_hints(task)
         if native_governed_tools:
@@ -2957,8 +3192,10 @@ class HermesRuntime:
                 session_scope_id=task.session_scope_id or "",
                 context_refs=task.context_refs,
                 execution_mode=task.execution_mode or "",
+                execution_phase=task.execution_phase or "",
                 attempt_id=task.attempt_id or "",
                 workspace_id=task.workspace_id or "",
+                observer=observer,
             )
             setattr(agent, "_rsi_readonly_tool_binding", readonly_tools)
             agent._memory_manager = CompositeToolProvider(getattr(agent, "_memory_manager", None), readonly_tools)
@@ -2983,8 +3220,10 @@ class HermesRuntime:
                 session_scope_id=task.session_scope_id or "",
                 context_refs=task.context_refs,
                 execution_mode=task.execution_mode or "",
+                execution_phase=task.execution_phase or "",
                 attempt_id=task.attempt_id or "",
                 workspace_id=task.workspace_id or "",
+                observer=observer,
             )
             setattr(agent, "_rsi_readonly_tool_binding", readonly_tools)
             agent._memory_manager = CompositeToolProvider(getattr(agent, "_memory_manager", None), readonly_tools)
@@ -3006,8 +3245,21 @@ class HermesRuntime:
         timeout_seconds: int,
         inactivity_timeout_seconds: int,
         reasoning_timeout_seconds: int,
+        *,
+        observer: ObservationEmitter | None = None,
     ) -> tuple[str, JsonObject | None, JsonObject]:
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        if observer is not None:
+            observer.emit(
+                phase=self._execution_phase(task),
+                event_type="model.call.started",
+                status="running",
+                payload={
+                    "timeout_seconds": timeout_seconds,
+                    "reasoning_timeout_seconds": reasoning_timeout_seconds,
+                    "inactivity_timeout_seconds": inactivity_timeout_seconds,
+                },
+            )
         future = executor.submit(
             agent.run_conversation,
             task.prompt,
@@ -3022,6 +3274,16 @@ class HermesRuntime:
                     result = future.result(timeout=0.25)
                     activity = safe_activity_summary(agent)
                     termination_reason = "iteration_budget_exhausted" if self._budget_exhausted(activity) else "normal_completion"
+                    if observer is not None:
+                        observer.emit(
+                            phase=self._execution_phase(task),
+                            event_type="model.call.completed",
+                            status="completed",
+                            payload={
+                                "termination_reason": termination_reason,
+                                "activity": activity,
+                            },
+                        )
                     return termination_reason, result, {
                         "last_activity": activity,
                         "last_tool_invoked": string_from_map(activity, "current_tool"),
@@ -3035,6 +3297,8 @@ class HermesRuntime:
                             future,
                             "iteration_budget_exhausted",
                             activity,
+                            observer=observer,
+                            phase=self._execution_phase(task),
                         )
                     elapsed_seconds = max(0.0, time.monotonic() - started_at)
                     idle_seconds = inactivity_seconds(activity, elapsed_seconds)
@@ -3045,6 +3309,8 @@ class HermesRuntime:
                             "task_timeout",
                             activity,
                             duration_seconds=reasoning_timeout_seconds,
+                            observer=observer,
+                            phase=self._execution_phase(task),
                         )
                     if inactivity_timeout_seconds > 0 and idle_seconds >= float(inactivity_timeout_seconds):
                         return self._interrupt_execution(
@@ -3053,6 +3319,8 @@ class HermesRuntime:
                             "inactivity_timeout",
                             activity,
                             duration_seconds=inactivity_timeout_seconds,
+                            observer=observer,
+                            phase=self._execution_phase(task),
                         )
         finally:
             executor.shutdown(wait=False, cancel_futures=True)
@@ -3065,7 +3333,19 @@ class HermesRuntime:
         activity: JsonObject,
         *,
         duration_seconds: int = 0,
+        observer: ObservationEmitter | None = None,
+        phase: str = "main",
     ) -> tuple[str, JsonObject | None, JsonObject]:
+        if observer is not None:
+            observer.emit(
+                phase=phase,
+                event_type="execution.interrupt",
+                status=termination_reason,
+                payload={
+                    "duration_seconds": duration_seconds,
+                    "activity": activity,
+                },
+            )
         if duration_seconds > 0:
             agent.interrupt(f"runner {termination_reason} after {duration_seconds}s")
         else:
@@ -3092,9 +3372,31 @@ class HermesRuntime:
             meta["stopped_after_seconds"] = duration_seconds
         if shutdown_error:
             meta["shutdown_error"] = shutdown_error
+        if observer is not None:
+            observer.emit(
+                phase=phase,
+                event_type="model.call.completed",
+                status=termination_reason,
+                payload=meta,
+            )
         return termination_reason, None, meta
 
     def execute_task(self, task: RunnerTaskRequest) -> HermesExecutionResult:
+        observer = ObservationEmitter.create(
+            self._config,
+            trace_id=task.trace_id or "",
+            workflow_id=task.workflow_id or "",
+            operation_id=task.operation_id or "",
+            role=self._role,
+            hermes_session_id=stable_session_id(
+                self._role,
+                first_non_empty(task.session_scope_kind, "role"),
+                first_non_empty(task.session_scope_id, self._role),
+            ),
+        )
+        return self._execute_task_internal(task, observer=observer)
+
+    def _execute_task_internal(self, task: RunnerTaskRequest, *, observer: ObservationEmitter | None = None) -> HermesExecutionResult:
         if task.task_type not in ROLE_TASK_TYPES.get(self._role, {self._role}):
             return HermesExecutionResult(
                 ok=False,
@@ -3105,7 +3407,14 @@ class HermesRuntime:
         tool_policy = self._resolve_tool_policy(task)
         if task.task_type == "question_reduce":
             return self._execute_question_reduce_task(task, tool_policy)
-        result = self._execute_task_request(task, tool_policy)
+        if self._task_uses_artifact_phases(task):
+            return self._execute_artifact_workflow_task(task, tool_policy, observer=observer)
+        result = self._execute_task_request(
+            task,
+            tool_policy,
+            observer=observer,
+            max_iterations_override=self._phase_max_iterations_override(task),
+        )
         if not result.ok:
             return result
         rendered_task = replace(
@@ -3186,6 +3495,7 @@ class HermesRuntime:
                     repair_result = self._execute_task_request(
                         repair_task,
                         repair_tool_policy,
+                        observer=observer,
                         render_prompt=False,
                         expand_skills=False,
                     )
@@ -3315,6 +3625,7 @@ class HermesRuntime:
                 repair_result = self._execute_task_request(
                     repair_task,
                     repair_tool_policy,
+                    observer=observer,
                     render_prompt=False,
                     expand_skills=False,
                 )
@@ -3357,6 +3668,7 @@ class HermesRuntime:
             "intent": task.intent,
             "trace_id": task.trace_id,
             "workflow_id": task.workflow_id,
+            "operation_id": task.operation_id,
             "channel_id": task.channel_id,
             "thread_ts": task.thread_ts,
             "repo_allowlist": task.repo_allowlist,
@@ -3384,6 +3696,7 @@ class HermesRuntime:
             "workspace_branch": task.workspace_branch,
             "allowed_path_globs": task.allowed_path_globs,
             "mcp_servers": task.mcp_servers,
+            "execution_phase": task.execution_phase,
             "repair_attempted": repair_attempted or existing_repair_attempted,
             "repair_succeeded": repair_succeeded or existing_repair_succeeded,
             "action_contract_repair_attempted": action_contract_repair_attempted,
@@ -3398,6 +3711,9 @@ class HermesRuntime:
         runner_diagnostics["memory_warnings"] = result.raw.get("memory_warnings", [])
         runner_diagnostics["action_contract_repair_attempted"] = action_contract_repair_attempted
         runner_diagnostics["action_contract_repair_succeeded"] = action_contract_repair_succeeded
+        if observer is not None:
+            for key, value in observer.diagnostics().items():
+                runner_diagnostics[key] = value
         if action_contract_repair_error:
             result.raw["action_contract_repair_error"] = action_contract_repair_error
             runner_diagnostics["action_contract_repair_error"] = action_contract_repair_error
@@ -3406,6 +3722,361 @@ class HermesRuntime:
             runner_diagnostics["action_contract_repair_response"] = action_contract_repair_response
         result.raw["runner_diagnostics"] = runner_diagnostics
         return result
+
+    def _artifact_output_root(self, task: RunnerTaskRequest) -> Path:
+        scope = first_non_empty(task.trace_id, task.workflow_id, task.session_scope_id, "artifact-workflow")
+        path = Path(self._config.hermes_home) / "rsi_runtime" / "artifacts" / scope
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    def _artifact_output_extension(self, kind: str, skill: str) -> str:
+        if kind == "diagram" and skill == "architecture-diagram":
+            return ".html"
+        if kind == "diagram":
+            return ".svg"
+        return ".txt"
+
+    def _artifact_default_skill(self, task: RunnerTaskRequest, brief: JsonObject) -> str:
+        skill = _string_or_json(brief.get("skill"))
+        if skill:
+            return skill
+        if task.requested_skills:
+            return task.requested_skills[0]
+        if _string_or_json(brief.get("kind")) == "diagram":
+            return "architecture-diagram"
+        return ""
+
+    def _artifact_render_briefs(self, task: RunnerTaskRequest, structured_output: JsonObject) -> list[JsonObject]:
+        briefs = _normalize_artifact_render_briefs(structured_output.get("artifact_render_briefs"))
+        if briefs:
+            return briefs
+        fallback: list[JsonObject] = []
+        for index, requested in enumerate(task.requested_artifacts, start=1):
+            kind = _string_or_json(requested.get("kind"))
+            if not kind:
+                continue
+            skill = task.requested_skills[0] if task.requested_skills else ("architecture-diagram" if kind == "diagram" else "")
+            fallback.append(
+                {
+                    "kind": kind,
+                    "skill": skill,
+                    "title": _string_or_json(requested.get("description")) or f"{kind}-{index}",
+                    "render_prompt": _string_or_json(requested.get("description"))
+                    or self._extract_user_request_text(task.prompt),
+                    "inputs": {},
+                    "output_path_hint": "",
+                }
+            )
+        return fallback
+
+    def _investigate_mcp_servers(self, task: RunnerTaskRequest) -> list[JsonObject]:
+        servers: list[JsonObject] = []
+        for server in task.mcp_servers:
+            item = dict(server)
+            if _string_or_json(item.get("profile")) == "slack_mcp_reply":
+                item["profile"] = "slack_mcp_read"
+            servers.append(item)
+        return servers
+
+    def _remove_delivery_tools(self, allowed_tools: list[str]) -> list[str]:
+        return [item for item in allowed_tools if item != "slack.upload_file"]
+
+    def _append_system_message(self, task: RunnerTaskRequest, extra: str) -> str | None:
+        return "\n\n".join(part for part in [task.system_message or "", extra.strip()] if part.strip()) or None
+
+    def _build_artifact_investigate_task(self, task: RunnerTaskRequest, budgets: JsonObject) -> RunnerTaskRequest:
+        prompt = "\n\n".join(
+            [
+                task.prompt,
+                "Artifact workflow contract:",
+                "Do not render files, upload files, or send Slack messages in this phase.",
+                "Investigate and distill the request into one or more artifact_render_briefs with compact grounded inputs.",
+                "Return final_answer, reply_draft, context_summary, artifact_render_briefs, produced_artifacts, and artifact_failure_reason in the structured output.",
+            ]
+        )
+        return replace(
+            task,
+            prompt=prompt,
+            system_message=self._append_system_message(
+                task,
+                "Investigation phase only. Slack delivery is disabled in this phase. Produce compact artifact_render_briefs instead of generating artifacts now.",
+            ),
+            allowed_tools=self._remove_delivery_tools(task.allowed_tools),
+            requested_artifacts=[],
+            mcp_servers=self._investigate_mcp_servers(task),
+            reply_delivery_mode="none",
+            timeout_seconds=int(budgets.get("investigate") or 0),
+            execution_phase="investigate",
+        )
+
+    def _build_artifact_render_task(
+        self,
+        task: RunnerTaskRequest,
+        brief: JsonObject,
+        investigate_output: JsonObject,
+        budgets: JsonObject,
+        index: int,
+    ) -> RunnerTaskRequest:
+        kind = _string_or_json(brief.get("kind"))
+        skill = self._artifact_default_skill(task, brief)
+        title = _string_or_json(brief.get("title")) or f"{kind}-{index + 1}"
+        extension = self._artifact_output_extension(kind, skill)
+        output_path = _string_or_json(brief.get("output_path_hint"))
+        if not output_path:
+            output_path = str((self._artifact_output_root(task) / f"{title.replace(' ', '-').lower()}{extension}").resolve())
+        render_prompt = "\n\n".join(
+            [
+                f"Artifact render phase for {kind}.",
+                f"Selected skill: {skill or 'none'}",
+                f"Output path: {output_path}",
+                f"Grounded context summary: {_string_or_json(investigate_output.get('context_summary'))}",
+                f"Grounded final answer: {_string_or_json(investigate_output.get('final_answer'))}",
+                f"Render brief: {json.dumps(brief, ensure_ascii=True, sort_keys=True)}",
+                "Generate the artifact only. Save it to the output path. Do not send Slack messages.",
+                "Return structured output with produced_artifacts and artifact_failure_reason. produced_artifacts must include file:// artifact refs for saved files.",
+            ]
+        )
+        return replace(
+            task,
+            prompt=render_prompt,
+            system_message=self._append_system_message(
+                task,
+                "Render phase only. Do not investigate broadly. Do not send Slack messages. Use file-writing tools and the selected skill to generate the artifact.",
+            ),
+            requested_skills=[skill] if skill else [],
+            requested_artifacts=[{"kind": kind, "description": title}],
+            allowed_tools=[],
+            mcp_servers=[],
+            reply_delivery_mode="none",
+            timeout_seconds=int(budgets.get("render") or 0),
+            context_summary=_string_or_json(investigate_output.get("context_summary")),
+            execution_mode="artifact_render",
+            execution_phase="render",
+        )
+
+    def _build_artifact_delivery_task(
+        self,
+        task: RunnerTaskRequest,
+        investigate_output: JsonObject,
+        produced_artifacts: list[JsonObject],
+        budgets: JsonObject,
+    ) -> RunnerTaskRequest:
+        prompt = "\n\n".join(
+            [
+                "Artifact delivery phase.",
+                f"Final reply body: {_string_or_json(investigate_output.get('final_answer')) or _string_or_json(investigate_output.get('reply_draft'))}",
+                f"Produced artifacts: {json.dumps(produced_artifacts, ensure_ascii=True, sort_keys=True)}",
+                "If produced_artifacts contain file:// artifact refs, upload them to the bound Slack thread using slack.upload_file before sending the final Slack reply.",
+                "Send exactly one Slack reply via Slack MCP and return reply_delivery plus produced_artifacts. Do not perform repo or knowledge investigation.",
+            ]
+        )
+        return replace(
+            task,
+            prompt=prompt,
+            system_message=self._append_system_message(
+                task,
+                "Delivery phase only. Do not investigate. Upload any produced file artifacts to Slack if needed, then send exactly one final reply.",
+            ),
+            requested_skills=[],
+            requested_artifacts=[],
+            timeout_seconds=int(budgets.get("deliver") or 0),
+            context_summary=_string_or_json(investigate_output.get("context_summary")),
+            execution_phase="deliver",
+        )
+
+    def _synthesized_slack_post_action(self, task: RunnerTaskRequest, body: str, produced_artifacts: list[JsonObject]) -> list[JsonObject]:
+        if not body:
+            return []
+        payload: JsonObject = {"body": body}
+        artifact_refs: list[str] = []
+        for artifact in produced_artifacts:
+            artifact_refs.extend(_string_list_or_empty(artifact.get("artifact_refs")))
+        if artifact_refs:
+            payload["artifact_refs"] = artifact_refs
+        if task.channel_id:
+            payload["channel_id"] = task.channel_id
+        if task.thread_ts:
+            payload["thread_ts"] = task.thread_ts
+        return [
+            {
+                "kind": "slack_post",
+                "target_ref": first_non_empty(task.channel_id, task.thread_ts, task.trace_id),
+                "request_payload": payload,
+                "approval_mode": "not_required",
+                "idempotency_key": hashlib.sha1(body.encode("utf-8")).hexdigest(),
+                "rationale": "Fallback to mediated Slack delivery after direct delivery phase failure.",
+                "evidence_refs": [],
+            }
+        ]
+
+    def _merge_artifact_phase_result(
+        self,
+        task: RunnerTaskRequest,
+        investigate_result: HermesExecutionResult,
+        investigate_output: JsonObject,
+        produced_artifacts: list[JsonObject],
+        artifact_failure_reason: str,
+        *,
+        delivery_result: HermesExecutionResult | None = None,
+        delivery_output: JsonObject | None = None,
+        direct_delivery_failed: str = "",
+        observer: ObservationEmitter | None = None,
+    ) -> HermesExecutionResult:
+        final_output = dict(investigate_output)
+        final_output["artifact_render_briefs"] = _normalize_artifact_render_briefs(investigate_output.get("artifact_render_briefs"))
+        final_output["produced_artifacts"] = _normalize_produced_artifacts(produced_artifacts)
+        final_output["artifact_failure_reason"] = artifact_failure_reason
+        if delivery_output:
+            if _json_object_or_empty(delivery_output.get("reply_delivery")):
+                final_output["reply_delivery"] = _json_object_or_empty(delivery_output.get("reply_delivery"))
+            if _normalize_proposed_actions(delivery_output.get("proposed_actions")):
+                final_output["proposed_actions"] = _normalize_proposed_actions(delivery_output.get("proposed_actions"))
+        if direct_delivery_failed and not _json_object_or_empty(final_output.get("reply_delivery")):
+            final_output["proposed_actions"] = self._synthesized_slack_post_action(
+                task,
+                _string_or_json(final_output.get("final_answer")) or _string_or_json(final_output.get("reply_draft")),
+                produced_artifacts,
+            )
+        base_raw = dict(delivery_result.raw if delivery_result is not None else investigate_result.raw)
+        runner_diagnostics = _json_object_or_empty(base_raw.get("runner_diagnostics"))
+        budgets = self._artifact_phase_budgets(task)
+        runner_diagnostics["artifact_phase_budgets"] = budgets
+        runner_diagnostics["artifact_phase_enabled"] = True
+        if direct_delivery_failed:
+            runner_diagnostics["direct_delivery_phase_failed"] = direct_delivery_failed
+        if observer is not None:
+            for key, value in observer.diagnostics().items():
+                runner_diagnostics[key] = value
+        base_raw.update(
+            {
+                "operation_id": task.operation_id,
+                "execution_phase": task.execution_phase,
+                "completion_verdict": _string_or_json(base_raw.get("completion_verdict")) or "complete",
+                "structured_output": final_output,
+                "produced_artifacts": produced_artifacts,
+                "artifact_failure_reason": artifact_failure_reason,
+                "runner_diagnostics": runner_diagnostics,
+            }
+        )
+        return HermesExecutionResult(
+            ok=True,
+            message=json.dumps(final_output, ensure_ascii=True, sort_keys=True),
+            provider=delivery_result.provider if delivery_result is not None else investigate_result.provider,
+            raw=base_raw,
+        )
+
+    def _execute_artifact_workflow_task(
+        self,
+        task: RunnerTaskRequest,
+        tool_policy: ToolPolicy,
+        *,
+        observer: ObservationEmitter | None = None,
+    ) -> HermesExecutionResult:
+        budgets = self._artifact_phase_budgets(task)
+        if observer is not None:
+            observer.emit(
+                phase="main",
+                event_type="artifact.pipeline.started",
+                status="running",
+                payload=budgets,
+            )
+        investigate_task = self._build_artifact_investigate_task(task, budgets)
+        investigate_result = self._execute_task_internal(investigate_task, observer=observer)
+        if not investigate_result.ok:
+            return investigate_result
+        investigate_output = _normalize_structured_output(_json_object_or_empty(investigate_result.raw.get("structured_output")))
+        render_briefs = self._artifact_render_briefs(task, investigate_output)
+        produced_artifacts: list[JsonObject] = []
+        artifact_failure_reasons: list[str] = []
+        if not render_briefs:
+            artifact_failure_reasons.append(
+                first_non_empty(
+                    _string_or_json(investigate_output.get("artifact_failure_reason")),
+                    "Artifact investigation completed without artifact_render_briefs.",
+                )
+            )
+        for index, brief in enumerate(render_briefs):
+            render_task = self._build_artifact_render_task(task, brief, investigate_output, budgets, index)
+            render_result = self._execute_task_internal(render_task, observer=observer)
+            if not render_result.ok:
+                artifact_failure_reasons.append(render_result.message)
+                continue
+            render_output = _normalize_structured_output(_json_object_or_empty(render_result.raw.get("structured_output")))
+            rendered_artifacts = _normalize_produced_artifacts(render_output.get("produced_artifacts"))
+            produced_artifacts.extend(rendered_artifacts)
+            for artifact in rendered_artifacts:
+                if observer is not None:
+                    observer.emit(
+                        phase="render",
+                        event_type="artifact.file.written",
+                        status="completed",
+                        payload=artifact,
+                    )
+            render_failure = _string_or_json(render_output.get("artifact_failure_reason"))
+            if render_failure:
+                artifact_failure_reasons.append(render_failure)
+        produced_artifacts = _normalize_produced_artifacts(produced_artifacts)
+        artifact_failure_reason = "; ".join(item for item in artifact_failure_reasons if item)
+        reply_delivery_mode = self._workflow_reply_delivery_mode(task)
+        if reply_delivery_mode == "direct":
+            if observer is not None:
+                observer.emit(phase="deliver", event_type="direct_delivery.started", status="running")
+            deliver_task = self._build_artifact_delivery_task(task, investigate_output, produced_artifacts, budgets)
+            deliver_result = self._execute_task_internal(deliver_task, observer=observer)
+            if deliver_result.ok:
+                deliver_output = _normalize_structured_output(_json_object_or_empty(deliver_result.raw.get("structured_output")))
+                if observer is not None:
+                    observer.emit(
+                        phase="deliver",
+                        event_type="direct_delivery.completed",
+                        status="completed" if _json_object_or_empty(deliver_output.get("reply_delivery")) else "fallback",
+                    )
+                if _json_object_or_empty(deliver_output.get("reply_delivery")):
+                    return self._merge_artifact_phase_result(
+                        task,
+                        investigate_result,
+                        investigate_output,
+                        produced_artifacts,
+                        artifact_failure_reason,
+                        delivery_result=deliver_result,
+                        delivery_output=deliver_output,
+                        observer=observer,
+                    )
+                return self._merge_artifact_phase_result(
+                    task,
+                    investigate_result,
+                    investigate_output,
+                    produced_artifacts,
+                    artifact_failure_reason,
+                    delivery_result=deliver_result,
+                    delivery_output=deliver_output,
+                    direct_delivery_failed="direct delivery phase completed without reply_delivery",
+                    observer=observer,
+                )
+            if observer is not None:
+                observer.emit(
+                    phase="deliver",
+                    event_type="direct_delivery.completed",
+                    status="failed",
+                    payload={"error": deliver_result.message},
+                )
+            return self._merge_artifact_phase_result(
+                task,
+                investigate_result,
+                investigate_output,
+                produced_artifacts,
+                artifact_failure_reason,
+                direct_delivery_failed=deliver_result.message,
+                observer=observer,
+            )
+        return self._merge_artifact_phase_result(
+            task,
+            investigate_result,
+            investigate_output,
+            produced_artifacts,
+            artifact_failure_reason,
+            observer=observer,
+        )
 
     def _render_task_prompt(self, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> str:
         parts = [

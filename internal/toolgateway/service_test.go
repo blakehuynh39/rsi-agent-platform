@@ -17,6 +17,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/action"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
+	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
@@ -1318,6 +1319,161 @@ func TestRSITraceContextReturnsTraceEvidence(t *testing.T) {
 	}
 	if _, ok := result.Output["harness_executions"].([]interface{}); !ok {
 		t.Fatalf("expected harness_executions in output, got %#v", result.Output["harness_executions"])
+	}
+}
+
+func TestRuntimeObservationsPersistAndSurfaceThroughTraceAndRunnerViews(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	workflow := store.ListWorkflows()[0]
+	now := time.Now().UTC()
+	execution, err := store.RecordHarnessExecution(harness.Execution{
+		ID:               "hexec-observation",
+		OperationID:      "op-observation",
+		TraceID:          workflow.TraceID,
+		Role:             "prod",
+		SessionScopeKind: "conversation",
+		SessionScopeID:   "conv-observation",
+		HermesSessionID:  "session-observation",
+		CreatedAt:        now,
+	})
+	if err != nil {
+		t.Fatalf("RecordHarnessExecution error = %v", err)
+	}
+	service := NewService(config.Config{}, store)
+
+	status, payload := service.RecordRuntimeObservation(map[string]interface{}{
+		"execution_id":      execution.ID,
+		"operation_id":      execution.OperationID,
+		"trace_id":          workflow.TraceID,
+		"workflow_id":       workflow.ID,
+		"hermes_session_id": execution.HermesSessionID,
+		"role":              execution.Role,
+		"phase":             "render",
+		"event_type":        "artifact.file.written",
+		"status":            "completed",
+		"seq":               1,
+		"payload": map[string]interface{}{
+			"artifact_ref": "file:///tmp/depin-backend.html",
+		},
+		"recorded_at": now.Format(time.RFC3339),
+	})
+	if status != http.StatusOK {
+		t.Fatalf("RecordRuntimeObservation status = %d payload=%#v", status, payload)
+	}
+
+	runnerResult := service.Execute("rsi.runner_execution", map[string]interface{}{
+		"trace_id": workflow.TraceID,
+	})
+	if runnerResult.Status != "ok" {
+		t.Fatalf("expected ok runner result, got %s %#v", runnerResult.Status, runnerResult.Output)
+	}
+	observationGroups, ok := runnerResult.Output["harness_execution_observations"].(map[string][]interface{})
+	if !ok {
+		t.Fatalf("expected grouped observations, got %#v", runnerResult.Output["harness_execution_observations"])
+	}
+	if len(observationGroups[execution.ID]) != 1 {
+		t.Fatalf("expected one grouped observation for %s, got %#v", execution.ID, observationGroups)
+	}
+	groupedObservation, ok := observationGroups[execution.ID][0].(harness.ExecutionObservation)
+	if !ok {
+		t.Fatalf("expected harness observation payload, got %#v", observationGroups[execution.ID][0])
+	}
+	if groupedObservation.EventType != "artifact.file.written" {
+		t.Fatalf("unexpected grouped observation %#v", groupedObservation)
+	}
+
+	traceResult := service.Execute("rsi.trace_context", map[string]interface{}{
+		"trace_id": workflow.TraceID,
+	})
+	if traceResult.Status != "ok" {
+		t.Fatalf("expected ok trace result, got %s %#v", traceResult.Status, traceResult.Output)
+	}
+	observations, ok := traceResult.Output["harness_execution_observations"].([]interface{})
+	if !ok || len(observations) != 1 {
+		t.Fatalf("expected flat trace observations, got %#v", traceResult.Output["harness_execution_observations"])
+	}
+	traceObservation, ok := observations[0].(harness.ExecutionObservation)
+	if !ok {
+		t.Fatalf("expected harness observation in trace output, got %#v", observations[0])
+	}
+	if traceObservation.ExecutionID != execution.ID || traceObservation.Phase != "render" {
+		t.Fatalf("unexpected trace observation %#v", traceObservation)
+	}
+}
+
+func TestRSIRunnerExecutionFiltersObservationsByProposalID(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	executionA, err := store.RecordHarnessExecution(harness.Execution{
+		ID:               "hexec-proposal-a",
+		ProposalID:       "proposal-a",
+		Role:             "prod",
+		SessionScopeKind: "conversation",
+		SessionScopeID:   "conv-a",
+		HermesSessionID:  "session-a",
+		CreatedAt:        now,
+	})
+	if err != nil {
+		t.Fatalf("RecordHarnessExecution(a) error = %v", err)
+	}
+	executionB, err := store.RecordHarnessExecution(harness.Execution{
+		ID:               "hexec-proposal-b",
+		ProposalID:       "proposal-b",
+		Role:             "prod",
+		SessionScopeKind: "conversation",
+		SessionScopeID:   "conv-b",
+		HermesSessionID:  "session-b",
+		CreatedAt:        now,
+	})
+	if err != nil {
+		t.Fatalf("RecordHarnessExecution(b) error = %v", err)
+	}
+	if _, err := store.RecordHarnessExecutionObservation(harness.ExecutionObservation{
+		ExecutionID: executionA.ID,
+		Role:        "prod",
+		Phase:       "render",
+		EventType:   "artifact.file.written",
+		Status:      "completed",
+		Seq:         1,
+		RecordedAt:  now,
+	}); err != nil {
+		t.Fatalf("RecordHarnessExecutionObservation(a) error = %v", err)
+	}
+	if _, err := store.RecordHarnessExecutionObservation(harness.ExecutionObservation{
+		ExecutionID: executionB.ID,
+		Role:        "prod",
+		Phase:       "render",
+		EventType:   "artifact.file.written",
+		Status:      "completed",
+		Seq:         1,
+		RecordedAt:  now,
+	}); err != nil {
+		t.Fatalf("RecordHarnessExecutionObservation(b) error = %v", err)
+	}
+
+	service := NewService(config.Config{}, store)
+	result := service.Execute("rsi.runner_execution", map[string]interface{}{
+		"proposal_id": "proposal-a",
+	})
+	if result.Status != "ok" {
+		t.Fatalf("expected ok status, got %s %#v", result.Status, result.Output)
+	}
+	executions, ok := result.Output["harness_executions"].([]interface{})
+	if !ok || len(executions) != 1 {
+		t.Fatalf("expected one filtered harness execution, got %#v", result.Output["harness_executions"])
+	}
+	observationGroups, ok := result.Output["harness_execution_observations"].(map[string][]interface{})
+	if !ok {
+		t.Fatalf("expected grouped observations, got %#v", result.Output["harness_execution_observations"])
+	}
+	if len(observationGroups) != 1 {
+		t.Fatalf("expected one filtered observation group, got %#v", observationGroups)
+	}
+	if _, ok := observationGroups[executionA.ID]; !ok {
+		t.Fatalf("expected observation group for %s, got %#v", executionA.ID, observationGroups)
+	}
+	if _, ok := observationGroups[executionB.ID]; ok {
+		t.Fatalf("did not expect observation group for %s, got %#v", executionB.ID, observationGroups)
 	}
 }
 

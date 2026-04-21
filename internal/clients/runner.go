@@ -130,6 +130,7 @@ type RunnerTask struct {
 	Intent                    string                          `json:"intent,omitempty"`
 	TraceID                   string                          `json:"trace_id,omitempty"`
 	WorkflowID                string                          `json:"workflow_id,omitempty"`
+	OperationID               string                          `json:"operation_id,omitempty"`
 	ConversationID            string                          `json:"conversation_id,omitempty"`
 	CaseID                    string                          `json:"case_id,omitempty"`
 	ChannelID                 string                          `json:"channel_id,omitempty"`

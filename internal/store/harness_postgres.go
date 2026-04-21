@@ -395,6 +395,76 @@ func (p *PostgresStore) RecordHarnessExecution(item harness.Execution) (harness.
 	return item, nil
 }
 
+func (p *PostgresStore) ListHarnessExecutionObservations() []harness.ExecutionObservation {
+	rows, err := p.db.Query(`
+		select id, execution_id, operation_id, trace_id, workflow_id, hermes_session_id, role, phase, event_type, status, seq, payload, recorded_at
+		from harness_execution_observation
+		order by recorded_at desc, execution_id asc, seq asc, id asc
+	`)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	out := []harness.ExecutionObservation{}
+	for rows.Next() {
+		item, err := scanHarnessExecutionObservation(rows)
+		if err != nil {
+			return nil
+		}
+		out = append(out, item)
+	}
+	return out
+}
+
+func (p *PostgresStore) RecordHarnessExecutionObservation(item harness.ExecutionObservation) (harness.ExecutionObservation, error) {
+	item = normalizeHarnessExecutionObservation(item)
+	now := time.Now().UTC()
+	if item.ID == "" {
+		item.ID = nextUUID("hexobs")
+	}
+	if item.RecordedAt.IsZero() {
+		item.RecordedAt = now
+	}
+	var persistedID string
+	if err := p.db.QueryRow(`
+		insert into harness_execution_observation (
+			id, execution_id, operation_id, trace_id, workflow_id, hermes_session_id, role, phase, event_type, status, seq, payload, recorded_at
+		) values (
+			$1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::jsonb,$13
+		)
+		on conflict (execution_id, seq) do update set
+			operation_id = excluded.operation_id,
+			trace_id = excluded.trace_id,
+			workflow_id = excluded.workflow_id,
+			hermes_session_id = excluded.hermes_session_id,
+			role = excluded.role,
+			phase = excluded.phase,
+			event_type = excluded.event_type,
+			status = excluded.status,
+			payload = excluded.payload,
+			recorded_at = excluded.recorded_at
+		returning id
+	`,
+		item.ID,
+		item.ExecutionID,
+		item.OperationID,
+		item.TraceID,
+		item.WorkflowID,
+		item.HermesSessionID,
+		item.Role,
+		item.Phase,
+		item.EventType,
+		item.Status,
+		item.Seq,
+		jsonString(item.Payload),
+		item.RecordedAt,
+	).Scan(&persistedID); err != nil {
+		return harness.ExecutionObservation{}, err
+	}
+	item.ID = persistedID
+	return item, nil
+}
+
 type harnessScanner interface {
 	Scan(dest ...any) error
 }
@@ -586,6 +656,45 @@ func scanHarnessExecution(scanner harnessScanner) (harness.Execution, error) {
 	item.MemoryReads = decodeJSON(memoryReads, []harness.MemoryArtifact{})
 	item.MemoryWrites = decodeJSON(memoryWrites, []harness.MemoryArtifact{})
 	return normalizeHarnessExecution(item), nil
+}
+
+func scanHarnessExecutionObservation(scanner harnessScanner) (harness.ExecutionObservation, error) {
+	var (
+		item            harness.ExecutionObservation
+		operationID     sql.NullString
+		traceID         sql.NullString
+		workflowID      sql.NullString
+		hermesSessionID sql.NullString
+		role            sql.NullString
+		status          sql.NullString
+		payload         []byte
+	)
+	err := scanner.Scan(
+		&item.ID,
+		&item.ExecutionID,
+		&operationID,
+		&traceID,
+		&workflowID,
+		&hermesSessionID,
+		&role,
+		&item.Phase,
+		&item.EventType,
+		&status,
+		&item.Seq,
+		&payload,
+		&item.RecordedAt,
+	)
+	if err != nil {
+		return harness.ExecutionObservation{}, err
+	}
+	item.OperationID = operationID.String
+	item.TraceID = traceID.String
+	item.WorkflowID = workflowID.String
+	item.HermesSessionID = hermesSessionID.String
+	item.Role = role.String
+	item.Status = status.String
+	item.Payload = decodeJSON(payload, map[string]any{})
+	return normalizeHarnessExecutionObservation(item), nil
 }
 
 func nextUUID(prefix string) string {

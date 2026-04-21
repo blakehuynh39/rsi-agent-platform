@@ -20,6 +20,7 @@ class RunnerConfig:
     port: int
     model: str
     reasoning_effort: str
+    openai_base_url: str
     hermes_pin: str
     public_base_url: str
     tool_gateway_base_url: str | None
@@ -55,6 +56,7 @@ class RunnerConfig:
         port = parse_port(required_env("RSI_RUNNER_PORT"))
         model = required_env("RSI_RUNNER_MODEL")
         reasoning_effort = required_env("RSI_RUNNER_REASONING_EFFORT")
+        openai_base_url = optional_url_env("RSI_OPENAI_BASE_URL") or optional_url_env("OPENAI_BASE_URL") or "https://api.openai.com/v1"
         hermes_pin = optional_env("RSI_HERMES_PIN")
         public_base_url = required_url_env("RSI_RUNNER_PUBLIC_BASE_URL")
         tool_gateway_base_url = optional_url_env("RSI_TOOL_GATEWAY_BASE_URL")
@@ -105,6 +107,7 @@ class RunnerConfig:
             port=port,
             model=model,
             reasoning_effort=reasoning_effort,
+            openai_base_url=openai_base_url,
             hermes_pin=hermes_pin,
             public_base_url=public_base_url,
             tool_gateway_base_url=tool_gateway_base_url or None,

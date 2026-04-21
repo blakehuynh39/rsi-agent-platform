@@ -12,6 +12,7 @@ from urllib import parse as urlparse
 from urllib import request as urlrequest
 
 from .json_types import JsonObject, JsonToolFunctionSchema, JsonToolWrapperSchema
+from .observability import ObservationEmitter
 
 
 READ_ONLY_HONCHO_TOOLS = frozenset({"honcho_profile", "honcho_search", "honcho_context"})
@@ -704,12 +705,14 @@ class ReadOnlyToolBinding:
     slack_history_focus: str = ""
     slack_search_query: str = ""
     execution_mode: str = ""
+    execution_phase: str = ""
     attempt_id: str = ""
     workspace_id: str = ""
     timeout_seconds: int = 30
     selected_context_surfaces: list[JsonObject] = field(default_factory=list)
     tool_calls: list[JsonObject] = field(default_factory=list)
     evidence_items: list[JsonObject] = field(default_factory=list)
+    observer: ObservationEmitter | None = None
     _tool_call_counter: int = 0
 
     def has_tool(self, name: str) -> bool:
@@ -725,6 +728,12 @@ class ReadOnlyToolBinding:
             out.append(tool_transport_name(name))
         return out
 
+    def _observation_phase(self) -> str:
+        phase = (self.execution_phase or "").strip().lower()
+        if phase:
+            return phase
+        return "render" if self.execution_mode == "artifact_render" else "investigate"
+
     def handle_tool_call(self, name: str, args: JsonObject) -> str:
         transport_name = tool_transport_name(name)
         canonical_name = canonical_tool_name(name)
@@ -732,6 +741,16 @@ class ReadOnlyToolBinding:
         payload.update({key: value for key, value in (args or {}).items() if value is not None})
         tool_call_id = self._next_tool_call_id(canonical_name)
         call_started_at = time.time()
+        if self.observer is not None:
+            self.observer.emit(
+                phase=self._observation_phase(),
+                event_type="tool.call.started",
+                status="running",
+                payload={
+                    "tool_name": canonical_name,
+                    "tool_call_id": tool_call_id,
+                },
+            )
         try:
             payload = self._prepare_tool_payload(canonical_name, payload)
         except (OSError, ValueError) as exc:
@@ -971,6 +990,20 @@ class ReadOnlyToolBinding:
                 "created_at": _iso_timestamp(completed_at or started_at),
             }
         )
+        if self.observer is not None:
+            self.observer.emit(
+                phase=self._observation_phase(),
+                event_type="tool.call.completed",
+                status=(status or "").strip(),
+                payload={
+                    "tool_name": canonical_name,
+                    "tool_call_id": tool_call_id,
+                    "summary": (summary or "").strip(),
+                    "provider_ref": provider_ref,
+                    "approval_state": approval_state,
+                    "artifact_refs": _string_list(raw_artifact_refs),
+                },
+            )
         self.evidence_items.extend(
             self._extract_evidence_items(
                 canonical_name=canonical_name,

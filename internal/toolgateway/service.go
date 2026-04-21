@@ -25,6 +25,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/debuglog"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/githubapp"
+	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/sandbox"
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
@@ -46,6 +47,47 @@ type Service struct {
 	slackAPIURL string
 	kubeClient  kubernetes.Interface
 	launcher    sandbox.Launcher
+}
+
+func (s *Service) RecordRuntimeObservation(input map[string]interface{}) (int, map[string]interface{}) {
+	item := harness.ExecutionObservation{
+		ID:              strings.TrimSpace(stringValue(input["id"])),
+		ExecutionID:     strings.TrimSpace(stringValue(input["execution_id"])),
+		OperationID:     strings.TrimSpace(stringValue(input["operation_id"])),
+		TraceID:         strings.TrimSpace(stringValue(input["trace_id"])),
+		WorkflowID:      strings.TrimSpace(stringValue(input["workflow_id"])),
+		HermesSessionID: strings.TrimSpace(stringValue(input["hermes_session_id"])),
+		Role:            strings.TrimSpace(stringValue(input["role"])),
+		Phase:           strings.TrimSpace(stringValue(input["phase"])),
+		EventType:       strings.TrimSpace(stringValue(input["event_type"])),
+		Status:          strings.TrimSpace(stringValue(input["status"])),
+		Seq:             intValue(input["seq"]),
+		Payload:         mapValue(input["payload"]),
+	}
+	recordedAt := strings.TrimSpace(stringValue(input["recorded_at"]))
+	if recordedAt != "" {
+		if parsed, err := time.Parse(time.RFC3339, recordedAt); err == nil {
+			item.RecordedAt = parsed.UTC()
+		}
+	}
+	if item.ExecutionID == "" || item.Phase == "" || item.EventType == "" {
+		return http.StatusBadRequest, map[string]interface{}{
+			"error":        "missing required observation fields",
+			"execution_id": item.ExecutionID,
+			"phase":        item.Phase,
+			"event_type":   item.EventType,
+		}
+	}
+	recorded, err := s.store.RecordHarnessExecutionObservation(item)
+	if err != nil {
+		return http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		}
+	}
+	return http.StatusOK, map[string]interface{}{
+		"status":      "ok",
+		"observation": recorded,
+	}
 }
 
 func NewService(cfg config.Config, store storepkg.Repository) *Service {
@@ -1036,6 +1078,8 @@ func (s *Service) rsiRunnerExecution(input map[string]interface{}) storepkg.Tool
 	proposalID := strings.TrimSpace(stringValue(input["proposal_id"]))
 	role := strings.TrimSpace(stringValue(input["role"]))
 	executions := make([]interface{}, 0)
+	observationsByExecution := map[string][]interface{}{}
+	selectedExecutionIDs := map[string]struct{}{}
 	for _, item := range s.store.ListHarnessExecutions() {
 		if traceID != "" && item.TraceID != traceID {
 			continue
@@ -1047,13 +1091,29 @@ func (s *Service) rsiRunnerExecution(input map[string]interface{}) storepkg.Tool
 			continue
 		}
 		executions = append(executions, item)
+		selectedExecutionIDs[item.ID] = struct{}{}
 	}
-	summary := fmt.Sprintf("RSI runner execution lookup returned %d harness execution(s).", len(executions))
+	for _, item := range s.store.ListHarnessExecutionObservations() {
+		if traceID != "" && item.TraceID != traceID {
+			continue
+		}
+		if proposalID != "" {
+			if _, ok := selectedExecutionIDs[item.ExecutionID]; !ok {
+				continue
+			}
+		}
+		if role != "" && item.Role != role {
+			continue
+		}
+		observationsByExecution[item.ExecutionID] = append(observationsByExecution[item.ExecutionID], item)
+	}
+	summary := fmt.Sprintf("RSI runner execution lookup returned %d harness execution(s) and %d observation group(s).", len(executions), len(observationsByExecution))
 	return s.result("rsi.runner_execution", input, summary, map[string]interface{}{
-		"trace_id":           traceID,
-		"proposal_id":        proposalID,
-		"role":               role,
-		"harness_executions": executions,
+		"trace_id":                       traceID,
+		"proposal_id":                    proposalID,
+		"role":                           role,
+		"harness_executions":             executions,
+		"harness_execution_observations": observationsByExecution,
 	}, nil)
 }
 
@@ -1267,6 +1327,12 @@ func (s *Service) rsiTraceContext(input map[string]interface{}) storepkg.ToolRes
 			harnessExecutions = append(harnessExecutions, execution)
 		}
 	}
+	harnessExecutionObservations := make([]interface{}, 0)
+	for _, observation := range s.store.ListHarnessExecutionObservations() {
+		if observation.TraceID == traceID {
+			harnessExecutionObservations = append(harnessExecutionObservations, observation)
+		}
+	}
 	runtimeDiagnoses := make([]interface{}, 0)
 	for _, diagnosis := range s.store.ListRuntimeDiagnoses() {
 		if diagnosis.LatestTraceID == traceID || (trace.Summary.CaseID != "" && diagnosis.CaseID == trace.Summary.CaseID) {
@@ -1277,21 +1343,22 @@ func (s *Service) rsiTraceContext(input map[string]interface{}) storepkg.ToolRes
 			runtimeDiagnoses = append(runtimeDiagnoses, diagnosis)
 		}
 	}
-	summary := fmt.Sprintf("RSI trace context loaded for %s with %d events, %d workflow attempt(s), %d runtime diagnosis record(s), and %d linked proposals.", traceID, len(trace.Events), len(workflowAttempts), len(runtimeDiagnoses), len(linkedProposals))
+	summary := fmt.Sprintf("RSI trace context loaded for %s with %d events, %d workflow attempt(s), %d runtime diagnosis record(s), %d harness observation(s), and %d linked proposals.", traceID, len(trace.Events), len(workflowAttempts), len(runtimeDiagnoses), len(harnessExecutionObservations), len(linkedProposals))
 	return s.result("rsi.trace_context", input, summary, map[string]interface{}{
-		"trace":              trace.Summary,
-		"workflow_line":      workflowLine,
-		"workflow_attempts":  workflowAttempts,
-		"runtime_diagnoses":  runtimeDiagnoses,
-		"harness_executions": harnessExecutions,
-		"events":             trace.Events,
-		"artifacts":          trace.Artifacts,
-		"reasoning":          trace.Reasoning,
-		"tool_calls":         trace.ToolCalls,
-		"slack_actions":      trace.SlackActions,
-		"eval_runs":          evalRuns,
-		"eval_judgments":     evalJudgments,
-		"linked_proposals":   linkedProposals,
+		"trace":                          trace.Summary,
+		"workflow_line":                  workflowLine,
+		"workflow_attempts":              workflowAttempts,
+		"runtime_diagnoses":              runtimeDiagnoses,
+		"harness_executions":             harnessExecutions,
+		"harness_execution_observations": harnessExecutionObservations,
+		"events":                         trace.Events,
+		"artifacts":                      trace.Artifacts,
+		"reasoning":                      trace.Reasoning,
+		"tool_calls":                     trace.ToolCalls,
+		"slack_actions":                  trace.SlackActions,
+		"eval_runs":                      evalRuns,
+		"eval_judgments":                 evalJudgments,
+		"linked_proposals":               linkedProposals,
 	}, nil)
 }
 
@@ -2512,6 +2579,27 @@ func mapValue(value interface{}) map[string]interface{} {
 		return typed
 	}
 	return map[string]interface{}{}
+}
+
+func intValue(value interface{}) int {
+	switch typed := value.(type) {
+	case int:
+		return typed
+	case int32:
+		return int(typed)
+	case int64:
+		return int(typed)
+	case float64:
+		return int(typed)
+	case json.Number:
+		item, _ := typed.Int64()
+		return int(item)
+	case string:
+		item, _ := strconv.Atoi(strings.TrimSpace(typed))
+		return item
+	default:
+		return 0
+	}
 }
 
 func stringValueFromMap(values map[string]interface{}, key string) string {

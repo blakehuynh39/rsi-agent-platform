@@ -66,6 +66,8 @@ type Store interface {
 	ListHarnessExperiments() []harness.Experiment
 	ListHarnessSessionBindings() []harness.SessionBinding
 	ListHarnessExecutions() []harness.Execution
+	ListHarnessExecutionObservations() []harness.ExecutionObservation
+	RecordHarnessExecutionObservation(item harness.ExecutionObservation) (harness.ExecutionObservation, error)
 	ListChangeAttempts() []improvement.ChangeAttempt
 	GetChangeAttempt(attemptID string) (improvement.ChangeAttempt, bool)
 	ListAttemptWorkspaces() []improvement.AttemptWorkspace
@@ -110,55 +112,56 @@ type Store interface {
 }
 
 type MemoryStore struct {
-	mu                     sync.RWMutex
-	events                 []ingestion.EventEnvelope
-	conversations          map[string]conversation.Conversation
-	conversationEntries    []conversation.Entry
-	cases                  map[string]conversation.Case
-	ingestions             []slack.Ingestion
-	workflowLines          map[string]WorkflowLine
-	workflows              []Workflow
-	questionRuns           map[string]QuestionRun
-	assignments            []Assignment
-	threadPolicies         map[string]policy.ThreadPolicy
-	channelPolicy          []policy.ChannelPolicy
-	ownership              []registry.OwnershipRecord
-	capabilities           []registry.CapabilityRecord
-	templates              []registry.WorkflowTemplate
-	experiments            []registry.ExperimentRecord
-	traces                 map[string]events.Trace
-	ratings                map[string][]review.HumanRating
-	notes                  map[string][]review.ImprovementNote
-	feedbackRecords        map[string][]review.FeedbackRecord
-	actionIntents          map[string]action.Intent
-	actionResults          map[string][]action.Result
-	domainEvents           []transition.DomainEvent
-	effectExecutions       map[string]transition.EffectExecution
-	commandReceipts        map[string]transition.CommandReceipt
-	outcomes               map[string]outcome.Record
-	knowledgeEntries       map[string]knowledge.Entry
-	knowledgeEvidence      map[string][]knowledge.EvidenceLink
-	knowledgeReviews       map[string][]knowledge.Review
-	harnessProfiles        map[string]harness.Profile
-	harnessOverlays        map[string]harness.Overlay
-	harnessExperiments     map[string]harness.Experiment
-	harnessSessionBindings map[string]harness.SessionBinding
-	harnessExecutions      []harness.Execution
-	evalSuites             []evals.Suite
-	evalRuns               map[string]evals.Run
-	evalJudgments          map[string][]evals.Judgment
-	candidates             map[string]improvement.Candidate
-	runtimeDiagnoses       map[string]improvement.RuntimeDiagnosis
-	proposals              map[string]review.Proposal
-	changeAttempts         map[string]improvement.ChangeAttempt
-	attemptWorkspaces      map[string]improvement.AttemptWorkspace
-	validationRuns         map[string]improvement.ValidationRun
-	proposalMemory         []review.ProposalMemory
-	repoChangeJobs         map[string]improvement.RepoChangeJob
-	prAttempts             map[string]improvement.PRAttempt
-	postMergeReplay        map[string]improvement.PostMergeReplay
-	cronLeases             map[string]improvement.CronLease
-	settings               improvement.Settings
+	mu                           sync.RWMutex
+	events                       []ingestion.EventEnvelope
+	conversations                map[string]conversation.Conversation
+	conversationEntries          []conversation.Entry
+	cases                        map[string]conversation.Case
+	ingestions                   []slack.Ingestion
+	workflowLines                map[string]WorkflowLine
+	workflows                    []Workflow
+	questionRuns                 map[string]QuestionRun
+	assignments                  []Assignment
+	threadPolicies               map[string]policy.ThreadPolicy
+	channelPolicy                []policy.ChannelPolicy
+	ownership                    []registry.OwnershipRecord
+	capabilities                 []registry.CapabilityRecord
+	templates                    []registry.WorkflowTemplate
+	experiments                  []registry.ExperimentRecord
+	traces                       map[string]events.Trace
+	ratings                      map[string][]review.HumanRating
+	notes                        map[string][]review.ImprovementNote
+	feedbackRecords              map[string][]review.FeedbackRecord
+	actionIntents                map[string]action.Intent
+	actionResults                map[string][]action.Result
+	domainEvents                 []transition.DomainEvent
+	effectExecutions             map[string]transition.EffectExecution
+	commandReceipts              map[string]transition.CommandReceipt
+	outcomes                     map[string]outcome.Record
+	knowledgeEntries             map[string]knowledge.Entry
+	knowledgeEvidence            map[string][]knowledge.EvidenceLink
+	knowledgeReviews             map[string][]knowledge.Review
+	harnessProfiles              map[string]harness.Profile
+	harnessOverlays              map[string]harness.Overlay
+	harnessExperiments           map[string]harness.Experiment
+	harnessSessionBindings       map[string]harness.SessionBinding
+	harnessExecutions            []harness.Execution
+	harnessExecutionObservations []harness.ExecutionObservation
+	evalSuites                   []evals.Suite
+	evalRuns                     map[string]evals.Run
+	evalJudgments                map[string][]evals.Judgment
+	candidates                   map[string]improvement.Candidate
+	runtimeDiagnoses             map[string]improvement.RuntimeDiagnosis
+	proposals                    map[string]review.Proposal
+	changeAttempts               map[string]improvement.ChangeAttempt
+	attemptWorkspaces            map[string]improvement.AttemptWorkspace
+	validationRuns               map[string]improvement.ValidationRun
+	proposalMemory               []review.ProposalMemory
+	repoChangeJobs               map[string]improvement.RepoChangeJob
+	prAttempts                   map[string]improvement.PRAttempt
+	postMergeReplay              map[string]improvement.PostMergeReplay
+	cronLeases                   map[string]improvement.CronLease
+	settings                     improvement.Settings
 }
 
 func NewMemoryStore() *MemoryStore {
@@ -205,6 +208,7 @@ func (s *MemoryStore) ResetAppData() (AppDataResetResult, error) {
 	s.harnessExperiments = replacement.harnessExperiments
 	s.harnessSessionBindings = replacement.harnessSessionBindings
 	s.harnessExecutions = replacement.harnessExecutions
+	s.harnessExecutionObservations = replacement.harnessExecutionObservations
 	s.evalSuites = replacement.evalSuites
 	s.evalRuns = replacement.evalRuns
 	s.evalJudgments = replacement.evalJudgments

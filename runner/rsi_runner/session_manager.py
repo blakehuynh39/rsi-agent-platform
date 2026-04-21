@@ -84,6 +84,8 @@ class SessionManager:
         self._bundled_skills_available = bool(self._bundled_skills_path and self._bundled_skills_path.exists())
         self._bundled_skills_sync_status = "not_configured"
         self._bundled_skills_sync_error = ""
+        self._hermes_config_parity_status = "pending"
+        self._hermes_config_parity_error = ""
         self._db = None
         self._ready_issues = self._configure_home()
 
@@ -118,6 +120,14 @@ class SessionManager:
     @property
     def bundled_skills_sync_error(self) -> str:
         return self._bundled_skills_sync_error
+
+    @property
+    def hermes_config_parity_status(self) -> str:
+        return self._hermes_config_parity_status
+
+    @property
+    def hermes_config_parity_error(self) -> str:
+        return self._hermes_config_parity_error
 
     @property
     def skills_healthy(self) -> bool:
@@ -255,9 +265,14 @@ class SessionManager:
             return [f"create HERMES_HOME failed: {exc}"]
         try:
             self._write_hermes_config()
+        except Exception as exc:  # pragma: no cover - OS-specific failure
+            self._hermes_config_parity_status = "failed"
+            self._hermes_config_parity_error = str(exc)
+            issues.append(f"configure Hermes persistence failed: {exc}")
+        try:
             self._write_honcho_config()
         except Exception as exc:  # pragma: no cover - OS-specific failure
-            issues.append(f"configure Hermes persistence failed: {exc}")
+            issues.append(f"configure Honcho persistence failed: {exc}")
         self._sync_bundled_skills()
         if SessionDB is None:
             issues.append("Hermes SessionDB is unavailable in this environment.")
@@ -270,11 +285,20 @@ class SessionManager:
 
     def _write_hermes_config(self) -> None:
         config_path = self._hermes_home / "config.yaml"
+        configured_model = str(self._config.model or "").strip()
+        provider_model = configured_model.split("/", 1)[1] if configured_model.startswith("openai/") else configured_model
         content = (
+            "model:\n"
+            f"  default: {json.dumps(provider_model)}\n"
+            "  provider: custom\n"
+            f"  base_url: {json.dumps(self._config.openai_base_url)}\n"
+            "  api_key: \"\"\n"
             "memory:\n"
             "  provider: honcho\n"
         )
         config_path.write_text(content, encoding="utf-8")
+        self._hermes_config_parity_status = "configured"
+        self._hermes_config_parity_error = ""
 
     def _write_honcho_config(self) -> None:
         honcho_path = self._hermes_home / "honcho.json"

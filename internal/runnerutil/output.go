@@ -56,6 +56,15 @@ type ProducedArtifact struct {
 	FailureReason  string   `json:"failure_reason,omitempty"`
 }
 
+type ArtifactRenderBrief struct {
+	Kind           string         `json:"kind"`
+	Skill          string         `json:"skill,omitempty"`
+	Title          string         `json:"title,omitempty"`
+	RenderPrompt   string         `json:"render_prompt,omitempty"`
+	Inputs         map[string]any `json:"inputs,omitempty"`
+	OutputPathHint string         `json:"output_path_hint,omitempty"`
+}
+
 type ReplyDelivery struct {
 	Status        string   `json:"status,omitempty"`
 	ChannelID     string   `json:"channel_id,omitempty"`
@@ -80,23 +89,24 @@ type RetryAssessment struct {
 }
 
 type StructuredOutput struct {
-	ContextSummary        string              `json:"context_summary"`
-	ReplyDraft            string              `json:"reply_draft"`
-	FinalAnswer           string              `json:"final_answer"`
-	Confidence            float64             `json:"confidence"`
-	SelfCritique          string              `json:"self_critique"`
-	VisibleReasoning      []Step              `json:"visible_reasoning"`
-	ProposedActions       []ProposedAction    `json:"proposed_actions"`
-	ReplyDelivery         ReplyDelivery       `json:"reply_delivery,omitempty"`
-	KnowledgeDrafts       []KnowledgeDraft    `json:"knowledge_drafts"`
-	OutcomeHypotheses     []OutcomeHypothesis `json:"outcome_hypotheses"`
-	ProducedArtifacts     []ProducedArtifact  `json:"produced_artifacts"`
-	ArtifactFailureReason string              `json:"artifact_failure_reason,omitempty"`
-	ChangePlan            string              `json:"change_plan,omitempty"`
-	RepoPatch             string              `json:"repo_patch,omitempty"`
-	ValidationPlan        string              `json:"validation_plan,omitempty"`
-	RetryAssessment       RetryAssessment     `json:"retry_assessment,omitempty"`
-	HypothesisDelta       string              `json:"hypothesis_delta,omitempty"`
+	ContextSummary        string                `json:"context_summary"`
+	ReplyDraft            string                `json:"reply_draft"`
+	FinalAnswer           string                `json:"final_answer"`
+	Confidence            float64               `json:"confidence"`
+	SelfCritique          string                `json:"self_critique"`
+	VisibleReasoning      []Step                `json:"visible_reasoning"`
+	ProposedActions       []ProposedAction      `json:"proposed_actions"`
+	ReplyDelivery         ReplyDelivery         `json:"reply_delivery,omitempty"`
+	KnowledgeDrafts       []KnowledgeDraft      `json:"knowledge_drafts"`
+	OutcomeHypotheses     []OutcomeHypothesis   `json:"outcome_hypotheses"`
+	ArtifactRenderBriefs  []ArtifactRenderBrief `json:"artifact_render_briefs,omitempty"`
+	ProducedArtifacts     []ProducedArtifact    `json:"produced_artifacts"`
+	ArtifactFailureReason string                `json:"artifact_failure_reason,omitempty"`
+	ChangePlan            string                `json:"change_plan,omitempty"`
+	RepoPatch             string                `json:"repo_patch,omitempty"`
+	ValidationPlan        string                `json:"validation_plan,omitempty"`
+	RetryAssessment       RetryAssessment       `json:"retry_assessment,omitempty"`
+	HypothesisDelta       string                `json:"hypothesis_delta,omitempty"`
 }
 
 type RuntimeDiagnosisOutput struct {

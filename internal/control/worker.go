@@ -173,6 +173,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	contextSummary, contextRefs := contextFromTrace(ctx.trace)
 	runnerStarted := time.Now().UTC()
 	runnerTask := buildRunnerTask(cfg, store, runnerRoleForQueue(queueName), ctx.trace, effectiveWorkflow, ctx.ingestion, contextSummary, contextRefs)
+	runnerTask.OperationID = effect.ID
 	runnerResp, err := runnerClient.Execute(runnerTask)
 	if err != nil {
 		return &workflowFailureError{failure: workflowFailureFromRunnerError(err)}

@@ -245,6 +245,50 @@ func (s *MemoryStore) recordHarnessExecutionLocked(item harness.Execution) (harn
 	return item, nil
 }
 
+func (s *MemoryStore) ListHarnessExecutionObservations() []harness.ExecutionObservation {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	out := append([]harness.ExecutionObservation(nil), s.harnessExecutionObservations...)
+	for i := range out {
+		out[i] = normalizeHarnessExecutionObservation(out[i])
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].RecordedAt.Equal(out[j].RecordedAt) {
+			if out[i].ExecutionID == out[j].ExecutionID {
+				if out[i].Seq == out[j].Seq {
+					return out[i].ID < out[j].ID
+				}
+				return out[i].Seq < out[j].Seq
+			}
+			return out[i].ExecutionID < out[j].ExecutionID
+		}
+		return out[i].RecordedAt.After(out[j].RecordedAt)
+	})
+	return out
+}
+
+func (s *MemoryStore) RecordHarnessExecutionObservation(item harness.ExecutionObservation) (harness.ExecutionObservation, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	now := time.Now().UTC()
+	item = normalizeHarnessExecutionObservation(item)
+	if item.ID == "" {
+		item.ID = nextUUID("hexobs")
+	}
+	if item.RecordedAt.IsZero() {
+		item.RecordedAt = now
+	}
+	for i, existing := range s.harnessExecutionObservations {
+		if existing.ExecutionID == item.ExecutionID && existing.Seq == item.Seq {
+			item.ID = existing.ID
+			s.harnessExecutionObservations[i] = item
+			return item, nil
+		}
+	}
+	s.harnessExecutionObservations = append(s.harnessExecutionObservations, item)
+	return item, nil
+}
+
 func harnessSessionBindingKey(role, scopeKind, scopeID string) string {
 	return strings.TrimSpace(role) + "|" + strings.TrimSpace(scopeKind) + "|" + strings.TrimSpace(scopeID)
 }
@@ -296,6 +340,26 @@ func normalizeHarnessExecution(item harness.Execution) harness.Execution {
 	item.OperationID = strings.TrimSpace(item.OperationID)
 	item.MemoryReads = memoryArtifactsOrEmpty(item.MemoryReads)
 	item.MemoryWrites = memoryArtifactsOrEmpty(item.MemoryWrites)
+	return item
+}
+
+func normalizeHarnessExecutionObservation(item harness.ExecutionObservation) harness.ExecutionObservation {
+	item.ID = strings.TrimSpace(item.ID)
+	item.ExecutionID = strings.TrimSpace(item.ExecutionID)
+	item.OperationID = strings.TrimSpace(item.OperationID)
+	item.TraceID = strings.TrimSpace(item.TraceID)
+	item.WorkflowID = strings.TrimSpace(item.WorkflowID)
+	item.HermesSessionID = strings.TrimSpace(item.HermesSessionID)
+	item.Role = strings.TrimSpace(item.Role)
+	item.Phase = strings.TrimSpace(item.Phase)
+	item.EventType = strings.TrimSpace(item.EventType)
+	item.Status = strings.TrimSpace(item.Status)
+	if item.Payload == nil {
+		item.Payload = map[string]any{}
+	}
+	if item.Seq < 0 {
+		item.Seq = 0
+	}
 	return item
 }
 

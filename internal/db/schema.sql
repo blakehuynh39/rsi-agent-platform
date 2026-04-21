@@ -1074,6 +1074,27 @@ create index if not exists harness_execution_trace_idx on harness_execution (tra
 create index if not exists harness_execution_proposal_idx on harness_execution (proposal_id, created_at desc);
 create index if not exists harness_execution_role_scope_idx on harness_execution (role, session_scope_kind, session_scope_id, created_at desc);
 
+create table if not exists harness_execution_observation (
+  id text primary key,
+  execution_id text not null,
+  operation_id text not null default '',
+  trace_id text not null default '',
+  workflow_id text not null default '',
+  hermes_session_id text not null default '',
+  role text not null default '',
+  phase text not null,
+  event_type text not null,
+  status text not null default '',
+  seq integer not null,
+  payload jsonb not null default '{}'::jsonb,
+  recorded_at timestamptz not null default now(),
+  unique (execution_id, seq)
+);
+
+create index if not exists harness_execution_observation_trace_idx on harness_execution_observation (trace_id, recorded_at desc, seq asc);
+create index if not exists harness_execution_observation_operation_idx on harness_execution_observation (operation_id, recorded_at desc, seq asc);
+create index if not exists harness_execution_observation_session_idx on harness_execution_observation (hermes_session_id, recorded_at desc, seq asc);
+
 insert into harness_profile (
   id,
   role,

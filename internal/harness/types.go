@@ -131,3 +131,19 @@ type Execution struct {
 	MemoryWrites            []MemoryArtifact `json:"memory_writes,omitempty"`
 	CreatedAt               time.Time        `json:"created_at"`
 }
+
+type ExecutionObservation struct {
+	ID              string         `json:"id"`
+	ExecutionID     string         `json:"execution_id"`
+	OperationID     string         `json:"operation_id,omitempty"`
+	TraceID         string         `json:"trace_id,omitempty"`
+	WorkflowID      string         `json:"workflow_id,omitempty"`
+	HermesSessionID string         `json:"hermes_session_id,omitempty"`
+	Role            string         `json:"role,omitempty"`
+	Phase           string         `json:"phase"`
+	EventType       string         `json:"event_type"`
+	Status          string         `json:"status,omitempty"`
+	Seq             int            `json:"seq"`
+	Payload         map[string]any `json:"payload,omitempty"`
+	RecordedAt      time.Time      `json:"recorded_at"`
+}

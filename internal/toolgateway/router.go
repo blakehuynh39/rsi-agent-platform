@@ -26,5 +26,11 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 		_ = json.NewDecoder(r.Body).Decode(&input)
 		app.WriteJSON(w, http.StatusOK, service.Execute(toolName, input))
 	})
+	r.Post("/api/runtime/observations", func(w http.ResponseWriter, r *http.Request) {
+		payload := map[string]interface{}{}
+		_ = json.NewDecoder(r.Body).Decode(&payload)
+		status, out := service.RecordRuntimeObservation(payload)
+		app.WriteJSON(w, status, out)
+	})
 	return r
 }

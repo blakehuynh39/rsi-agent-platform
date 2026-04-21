@@ -9,6 +9,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/action"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	platformdb "github.com/piplabs/rsi-agent-platform/internal/db"
+	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
@@ -267,6 +268,121 @@ func TestPostgresReviewProposalIsIdempotent(t *testing.T) {
 	}
 	if !foundEffect {
 		t.Fatal("expected one queued attempt bootstrap effect after idempotent proposal approval")
+	}
+}
+
+func TestPostgresRecordHarnessExecutionObservationAllowsEmptyOptionalIDs(t *testing.T) {
+	postgresURL, cleanup := openTempPostgresURL(t)
+	defer cleanup()
+
+	db, err := platformdb.OpenPostgres(postgresURL)
+	if err != nil {
+		t.Fatalf("open postgres: %v", err)
+	}
+	defer db.Close()
+	if _, err := platformdb.ApplyMigrations(db); err != nil {
+		t.Fatalf("apply migrations: %v", err)
+	}
+
+	store, err := NewPostgresStore(config.Config{
+		StoreBackend: "postgres",
+		PostgresURL:  postgresURL,
+	})
+	if err != nil {
+		t.Fatalf("NewPostgresStore() error = %v", err)
+	}
+	defer store.db.Close()
+
+	execution, err := store.RecordHarnessExecution(harness.Execution{
+		ID:               "hexec-observation-empty",
+		Role:             "prod",
+		SessionScopeKind: "conversation",
+		SessionScopeID:   "conv-observation-empty",
+		HermesSessionID:  "session-observation-empty",
+		CreatedAt:        time.Now().UTC(),
+	})
+	if err != nil {
+		t.Fatalf("RecordHarnessExecution() error = %v", err)
+	}
+
+	observation, err := store.RecordHarnessExecutionObservation(harness.ExecutionObservation{
+		ExecutionID: execution.ID,
+		Phase:       "render",
+		EventType:   "artifact.file.written",
+		Status:      "completed",
+		Seq:         1,
+		Payload: map[string]any{
+			"artifact_ref": "file:///tmp/diagram.html",
+		},
+	})
+	if err != nil {
+		t.Fatalf("RecordHarnessExecutionObservation() error = %v", err)
+	}
+	if observation.OperationID != "" || observation.TraceID != "" || observation.WorkflowID != "" {
+		t.Fatalf("expected empty optional ids to round-trip as empty strings, got %+v", observation)
+	}
+}
+
+func TestPostgresRecordHarnessExecutionObservationReturnsPersistedIDOnConflict(t *testing.T) {
+	postgresURL, cleanup := openTempPostgresURL(t)
+	defer cleanup()
+
+	db, err := platformdb.OpenPostgres(postgresURL)
+	if err != nil {
+		t.Fatalf("open postgres: %v", err)
+	}
+	defer db.Close()
+	if _, err := platformdb.ApplyMigrations(db); err != nil {
+		t.Fatalf("apply migrations: %v", err)
+	}
+
+	store, err := NewPostgresStore(config.Config{
+		StoreBackend: "postgres",
+		PostgresURL:  postgresURL,
+	})
+	if err != nil {
+		t.Fatalf("NewPostgresStore() error = %v", err)
+	}
+	defer store.db.Close()
+
+	execution, err := store.RecordHarnessExecution(harness.Execution{
+		ID:               "hexec-observation-conflict",
+		Role:             "prod",
+		SessionScopeKind: "conversation",
+		SessionScopeID:   "conv-observation-conflict",
+		HermesSessionID:  "session-observation-conflict",
+		CreatedAt:        time.Now().UTC(),
+	})
+	if err != nil {
+		t.Fatalf("RecordHarnessExecution() error = %v", err)
+	}
+
+	first, err := store.RecordHarnessExecutionObservation(harness.ExecutionObservation{
+		ID:          "hexobs-first",
+		ExecutionID: execution.ID,
+		Phase:       "investigate",
+		EventType:   "phase.started",
+		Status:      "running",
+		Seq:         1,
+		Payload:     map[string]any{"attempt": 1},
+	})
+	if err != nil {
+		t.Fatalf("RecordHarnessExecutionObservation(first) error = %v", err)
+	}
+	second, err := store.RecordHarnessExecutionObservation(harness.ExecutionObservation{
+		ID:          "hexobs-second",
+		ExecutionID: execution.ID,
+		Phase:       "investigate",
+		EventType:   "phase.started",
+		Status:      "completed",
+		Seq:         1,
+		Payload:     map[string]any{"attempt": 2},
+	})
+	if err != nil {
+		t.Fatalf("RecordHarnessExecutionObservation(second) error = %v", err)
+	}
+	if second.ID != first.ID {
+		t.Fatalf("expected upsert to return persisted observation id %q, got %q", first.ID, second.ID)
 	}
 }
 
