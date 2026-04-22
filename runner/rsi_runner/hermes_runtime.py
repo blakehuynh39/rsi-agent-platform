@@ -70,6 +70,31 @@ ARTIFACT_RENDER_RSI_TOOL_NAMES = frozenset(
         "workspace.write_file",
     }
 )
+_NATIVE_EXECUTOR_RESULT_MARKER = "RSI_EXECUTOR_RESULT::"
+_NATIVE_EXECUTOR_OUTPUT_CHUNK_CHARS = 8 * 1024
+_SENSITIVE_ENV_KEY_FRAGMENTS = (
+    "authorization",
+    "api_key",
+    "apikey",
+    "token",
+    "secret",
+    "private_key",
+    "password",
+)
+_SENSITIVE_OUTPUT_PATTERNS = (
+    (
+        re.compile(r"(?i)\b(bearer)\s+([A-Za-z0-9._~+/=-]{8,})"),
+        lambda match: f"{match.group(1)} [redacted]",
+    ),
+    (
+        re.compile(r"\b(xox[baprs]-[A-Za-z0-9-]{8,})\b"),
+        lambda _match: "[redacted-slack-token]",
+    ),
+    (
+        re.compile(r"\b(sk-[A-Za-z0-9_-]{8,})\b"),
+        lambda _match: "[redacted-openai-key]",
+    ),
+)
 
 
 def _json_object_or_empty(value: JsonValue | None) -> JsonObject:
@@ -123,6 +148,35 @@ def _truncate_string(value: Any, limit: int) -> str:
     if len(text) <= limit:
         return text
     return text[: max(0, limit - 1)] + "…"
+
+
+def _is_sensitive_env_key(name: str) -> bool:
+    lower = str(name or "").strip().lower()
+    if not lower:
+        return False
+    return any(fragment in lower for fragment in _SENSITIVE_ENV_KEY_FRAGMENTS)
+
+
+def _sensitive_env_values(env: dict[str, str] | None = None) -> list[str]:
+    source = env or os.environ
+    values: list[str] = []
+    for key, value in source.items():
+        if not _is_sensitive_env_key(key):
+            continue
+        secret = str(value or "").strip()
+        if len(secret) < 8:
+            continue
+        values.append(secret)
+    return sorted(set(values), key=len, reverse=True)
+
+
+def _redact_subprocess_output(text: str, *, secret_values: list[str]) -> str:
+    redacted = str(text or "")
+    for pattern, replacement in _SENSITIVE_OUTPUT_PATTERNS:
+        redacted = pattern.sub(replacement, redacted)
+    for secret in secret_values:
+        redacted = redacted.replace(secret, "[redacted]")
+    return redacted
 
 
 def _float_or_zero(value: JsonValue | None) -> float:
@@ -1602,17 +1656,73 @@ class HermesRuntime:
         }
 
     def _parse_native_executor_stdout(self, stdout: str) -> JsonObject:
-        marker = "RSI_EXECUTOR_RESULT::"
         payload = ""
         for line in str(stdout or "").splitlines():
-            if line.startswith(marker):
-                payload = line[len(marker) :].strip()
+            if line.startswith(_NATIVE_EXECUTOR_RESULT_MARKER):
+                payload = line[len(_NATIVE_EXECUTOR_RESULT_MARKER) :].strip()
         if not payload:
             raise ValueError("native Hermes executor did not emit a parseable result payload")
         parsed = json.loads(payload)
         if not isinstance(parsed, dict):
             raise ValueError("native Hermes executor returned a non-object result payload")
         return parsed
+
+    def _read_native_executor_stream(
+        self,
+        stream: Any,
+        *,
+        stream_name: str,
+        phase: str,
+        observer: ObservationEmitter | None,
+        chunk_store: list[str],
+        secret_values: list[str],
+        result_detected: threading.Event,
+    ) -> None:
+        chunk_index = 0
+        marker_tail = ""
+        marker_window = max(0, len(_NATIVE_EXECUTOR_RESULT_MARKER) - 1)
+        try:
+            while True:
+                chunk = stream.read(_NATIVE_EXECUTOR_OUTPUT_CHUNK_CHARS)
+                if not chunk:
+                    break
+                chunk_store.append(chunk)
+                contains_result_marker = False
+                if stream_name == "stdout":
+                    combined = marker_tail + chunk
+                    contains_result_marker = _NATIVE_EXECUTOR_RESULT_MARKER in combined
+                    if contains_result_marker and observer is not None and not result_detected.is_set():
+                        result_detected.set()
+                        observer.emit(
+                            phase=phase,
+                            event_type="executor.result.detected",
+                            status="completed",
+                            payload={
+                                "stream": stream_name,
+                                "chunk_index": chunk_index,
+                            },
+                        )
+                    marker_tail = combined[-marker_window:] if marker_window else ""
+                if observer is not None:
+                    redacted_chunk = _redact_subprocess_output(chunk, secret_values=secret_values)
+                    observer.emit(
+                        phase=phase,
+                        event_type="executor.subprocess.output",
+                        status="streaming",
+                        payload={
+                            "stream": stream_name,
+                            "chunk_text": redacted_chunk,
+                            "chunk_bytes": len(chunk.encode("utf-8")),
+                            "chunk_index": chunk_index,
+                            "contains_result_marker": contains_result_marker,
+                        },
+                    )
+                chunk_index += 1
+        finally:
+            try:
+                stream.close()
+            except Exception:
+                pass
 
     def _store_executor_result(self, execution_id: str, payload: JsonObject) -> None:
         key = str(execution_id or "").strip()
@@ -1622,35 +1732,6 @@ class HermesRuntime:
         if len(self._executor_recent_results) > 128:
             oldest = next(iter(self._executor_recent_results))
             self._executor_recent_results.pop(oldest, None)
-
-    def _spawn_stream_reader(self, stream: Any) -> tuple[list[str], threading.Thread | None]:
-        chunks: list[str] = []
-        if stream is None:
-            return chunks, None
-
-        def _reader() -> None:
-            try:
-                while True:
-                    chunk = stream.read(4096)
-                    if not chunk:
-                        break
-                    chunks.append(chunk)
-            except Exception:
-                return
-
-        thread = threading.Thread(target=_reader, daemon=True)
-        thread.start()
-        return chunks, thread
-
-    def _join_stream_reader(self, stream: Any, thread: threading.Thread | None, chunks: list[str]) -> str:
-        if thread is not None:
-            thread.join(timeout=1)
-        try:
-            if stream is not None:
-                stream.close()
-        except Exception:
-            pass
-        return "".join(chunks)
 
     def _execute_native_workflow_task_request(
         self,
@@ -1786,6 +1867,8 @@ class HermesRuntime:
         request_file = request_dir / "request.json"
         request_file.write_text(json.dumps(request_payload, indent=2, sort_keys=True), encoding="utf-8")
         worker_cmd = [sys.executable, "-m", "rsi_runner.hermes_executor_worker", str(request_file)]
+        env_copy = os.environ.copy()
+        secret_values = _sensitive_env_values(env_copy)
         if observer is not None:
             observer.emit(
                 phase=execution_phase,
@@ -1797,6 +1880,15 @@ class HermesRuntime:
                     "workspace_root": str(workspace_root),
                 },
             )
+            observer.emit(
+                phase=execution_phase,
+                event_type="executor.subprocess.started",
+                status="running",
+                payload={
+                    "cmd": worker_cmd[:-1] + ["[request.json]"],
+                    "workspace_root": str(workspace_root),
+                },
+            )
         completed_stdout = ""
         completed_stderr = ""
         completed_returncode = -1
@@ -1805,13 +1897,51 @@ class HermesRuntime:
         process = subprocess.Popen(
             worker_cmd,
             cwd=str(workspace_root),
-            env=os.environ.copy(),
+            env=env_copy,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
         )
-        stdout_chunks, stdout_reader = self._spawn_stream_reader(getattr(process, "stdout", None))
-        stderr_chunks, stderr_reader = self._spawn_stream_reader(getattr(process, "stderr", None))
+        stdout_chunks: list[str] = []
+        stderr_chunks: list[str] = []
+        result_detected = threading.Event()
+        reader_threads: list[threading.Thread] = []
+        if process.stdout is not None:
+            thread = threading.Thread(
+                target=self._read_native_executor_stream,
+                args=(
+                    process.stdout,
+                ),
+                kwargs={
+                    "stream_name": "stdout",
+                    "phase": execution_phase,
+                    "observer": observer,
+                    "chunk_store": stdout_chunks,
+                    "secret_values": secret_values,
+                    "result_detected": result_detected,
+                },
+                daemon=True,
+            )
+            thread.start()
+            reader_threads.append(thread)
+        if process.stderr is not None:
+            thread = threading.Thread(
+                target=self._read_native_executor_stream,
+                args=(
+                    process.stderr,
+                ),
+                kwargs={
+                    "stream_name": "stderr",
+                    "phase": execution_phase,
+                    "observer": observer,
+                    "chunk_store": stderr_chunks,
+                    "secret_values": secret_values,
+                    "result_detected": result_detected,
+                },
+                daemon=True,
+            )
+            thread.start()
+            reader_threads.append(thread)
         with self._executor_process_lock:
             self._executor_processes[execution_id] = process
         started_at = time.monotonic()
@@ -1834,27 +1964,26 @@ class HermesRuntime:
                     pass
                 try:
                     process.wait(timeout=5)
-                except (subprocess.TimeoutExpired, AttributeError):
+                except subprocess.TimeoutExpired:
                     try:
                         process.kill()
                     except OSError:
                         pass
                     try:
                         process.wait(timeout=5)
-                    except (subprocess.TimeoutExpired, AttributeError):
+                    except subprocess.TimeoutExpired:
                         pass
             else:
-                try:
-                    process.wait()
-                except AttributeError:
-                    pass
+                process.wait()
             completed_returncode = int(process.returncode or 0)
         finally:
             with self._executor_process_lock:
                 self._executor_processes.pop(execution_id, None)
                 self._executor_cancel_requests.discard(execution_id)
-            completed_stdout = self._join_stream_reader(getattr(process, "stdout", None), stdout_reader, stdout_chunks)
-            completed_stderr = self._join_stream_reader(getattr(process, "stderr", None), stderr_reader, stderr_chunks)
+            for thread in reader_threads:
+                thread.join(timeout=5)
+            completed_stdout = "".join(stdout_chunks)
+            completed_stderr = "".join(stderr_chunks)
             shutil.rmtree(request_dir, ignore_errors=True)
 
         if timed_out or cancelled:
@@ -1871,6 +2000,20 @@ class HermesRuntime:
                 )
             termination_reason = "cancelled" if cancelled else "task_timeout"
             stop_meta: JsonObject = {"termination_reason": termination_reason, "last_activity": {}}
+            if observer is not None:
+                observer.emit(
+                    phase=execution_phase,
+                    event_type="executor.subprocess.completed",
+                    status=termination_reason,
+                    payload={
+                        "engine": "hermes_cli_subprocess",
+                        "returncode": completed_returncode,
+                        "termination_reason": termination_reason,
+                        "parsed_result_ok": False,
+                        "workspace_root": str(workspace_root),
+                        "artifact_output_dir": str((workspace_root / "artifacts").resolve()),
+                    },
+                )
             if not cancelled and allow_partial_recovery and self._workflow_partial_completion_eligible(task):
                 return self._finalize_partial_completion(
                     task,
@@ -1928,6 +2071,7 @@ class HermesRuntime:
             parsed_result = self._parse_native_executor_stdout(completed_stdout)
         except (ValueError, json.JSONDecodeError) as exc:
             parse_error = str(exc)
+        redacted_completed_stderr = _redact_subprocess_output(completed_stderr, secret_values=secret_values)
         finalized = self._session_manager.finalize(context, tracker)
         lifecycle_events = self._adapter.lifecycle_events(context.session_id)
         observed = self._observability_metadata(None, task, tracker, skill_diagnostics=skill_diagnostics, observer=observer)
@@ -1937,8 +2081,22 @@ class HermesRuntime:
                 event_type="model.call.completed",
                 status="completed" if completed_returncode == 0 and not parse_error else "failed",
                 payload={
+                    "engine": "hermes_cli_subprocess",
                     "returncode": completed_returncode,
-                    "stderr": _truncate_string(completed_stderr, 4000),
+                    "stderr": _truncate_string(redacted_completed_stderr, 4000),
+                },
+            )
+            observer.emit(
+                phase=execution_phase,
+                event_type="executor.subprocess.completed",
+                status="completed" if completed_returncode == 0 and not parse_error else "failed",
+                payload={
+                    "engine": "hermes_cli_subprocess",
+                    "returncode": completed_returncode,
+                    "termination_reason": "",
+                    "parsed_result_ok": completed_returncode == 0 and not parse_error,
+                    "workspace_root": str(workspace_root),
+                    "artifact_output_dir": str((workspace_root / "artifacts").resolve()),
                 },
             )
         cleanup_result = self._mcp_adapter.cleanup_registration(agentic_mcp_registration)
@@ -1958,13 +2116,13 @@ class HermesRuntime:
             "native_executor_workspace_root": str(workspace_root),
             "native_executor_toolsets": toolsets,
             "native_executor_returncode": completed_returncode,
-            "native_executor_stderr": _truncate_string(completed_stderr, 4000),
+            "native_executor_stderr": _truncate_string(redacted_completed_stderr, 4000),
         }
         if parse_error or not parsed_result or not _bool_or_false(parsed_result.get("ok")):
             message = first_non_empty(
                 _string_or_json(parsed_result.get("error")),
                 parse_error,
-                _truncate_string(completed_stderr, 4000),
+                _truncate_string(redacted_completed_stderr, 4000),
                 "Hermes native executor failed.",
             )
             result = HermesExecutionResult(

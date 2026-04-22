@@ -34,6 +34,11 @@ export function TraceInspector(props: {
   const traceDetail = props.traceDetail;
   const trace = traceDetail.trace;
   const inspectorTabs: TraceInspectorTab[] = ["overview", "timeline", "reasoning", "tools", "actions", "slack", "outcomes", "evals", "feedback", "proposals"];
+  const runtimeSummary = traceDetail.runtime_summary;
+  const executorObservations = listOrEmpty(traceDetail.harness_execution_observations);
+  const recentExecutorOutput = executorObservations
+    .filter((item) => item.event_type === "executor.subprocess.output")
+    .slice(-20);
 
   return (
     <div className="detail-card">
@@ -70,7 +75,22 @@ export function TraceInspector(props: {
             <div><dt>Outcomes</dt><dd>{listOrEmpty(props.traceDetail.outcomes).length}</dd></div>
             <div><dt>Knowledge</dt><dd>{listOrEmpty(props.traceDetail.knowledge_entries).length}</dd></div>
             <div><dt>Harness runs</dt><dd>{listOrEmpty(props.traceDetail.harness_executions).length}</dd></div>
+            <div><dt>Runtime source</dt><dd>{runtimeSummary?.runtime_source || "none"}</dd></div>
+            <div><dt>Execution</dt><dd>{runtimeSummary?.execution_id || "none"}</dd></div>
+            <div><dt>Phase</dt><dd>{runtimeSummary?.phase || "none"}</dd></div>
+            <div><dt>Latest event</dt><dd>{runtimeSummary?.event_type || "none"}</dd></div>
+            <div><dt>Runtime status</dt><dd>{runtimeSummary?.status || "none"}</dd></div>
+            <div><dt>Engine</dt><dd>{runtimeSummary?.engine || "none"}</dd></div>
           </dl>
+          {runtimeSummary ? (
+            <div className="detail-card">
+              <h3>Executor runtime</h3>
+              <dl className="overview-grid">
+                <div><dt>Recorded</dt><dd>{formatTime(runtimeSummary.recorded_at)}</dd></div>
+                <div><dt>Workspace</dt><dd>{runtimeSummary.workspace_root || "none"}</dd></div>
+              </dl>
+            </div>
+          ) : null}
           {props.traceDetail.workflow_line ? (
             <div className="detail-card">
               <h3>Workflow line</h3>
@@ -123,6 +143,28 @@ export function TraceInspector(props: {
                     {listOrEmpty(item.memory_writes).length ? <p className="muted">Writes: {listOrEmpty(item.memory_writes).map((memory) => memory.summary).join(" • ")}</p> : null}
                   </div>
                 ))}
+              </div>
+            </div>
+          ) : null}
+          {recentExecutorOutput.length ? (
+            <div className="detail-card">
+              <h3>Recent executor output</h3>
+              <div className="nested-list">
+                {recentExecutorOutput.map((item) => {
+                  const payload = item.payload || {};
+                  const chunkText = typeof payload.chunk_text === "string" ? payload.chunk_text : "";
+                  const stream = typeof payload.stream === "string" ? payload.stream : "output";
+                  const chunkIndex = typeof payload.chunk_index === "number" ? payload.chunk_index : item.seq;
+                  return (
+                    <div key={`${item.execution_id}-${item.seq}`} className="nested-card">
+                      <div className="detail-row-header">
+                        <strong>{stream}</strong>
+                        <small>chunk {chunkIndex} · {formatTime(item.recorded_at)}</small>
+                      </div>
+                      <pre className="detail-copy" style={{ whiteSpace: "pre-wrap" }}>{chunkText || "[empty]"}</pre>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ) : null}

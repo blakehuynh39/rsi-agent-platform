@@ -38,6 +38,17 @@ export type TraceEvalSummary = CreatedAt & {
   suite_name: string;
 };
 
+export type ExecutorRuntimeSummary = {
+  recorded_at: string;
+  execution_id: string;
+  runtime_source?: string;
+  phase?: string;
+  event_type?: string;
+  status?: string;
+  engine?: string;
+  workspace_root?: string;
+};
+
 export type TraceAttemptSummary = {
   trace_id: string;
   conversation_id: string;
@@ -53,6 +64,7 @@ export type TraceAttemptSummary = {
   tool_call_count: number;
   slack_action_count: number;
   latest_eval?: TraceEvalSummary;
+  runtime_summary?: ExecutorRuntimeSummary;
 };
 
 export type CaseSummary = {
@@ -191,6 +203,22 @@ export type Artifact = {
   source: string;
 };
 
+export type HarnessExecutionObservation = {
+  recorded_at: string;
+  id: string;
+  execution_id: string;
+  operation_id?: string;
+  trace_id?: string;
+  workflow_id?: string;
+  hermes_session_id?: string;
+  role?: string;
+  phase: string;
+  event_type: string;
+  status?: string;
+  seq: number;
+  payload?: Record<string, unknown>;
+};
+
 export type TraceDetailResponse = {
   trace: {
     summary: {
@@ -229,6 +257,8 @@ export type TraceDetailResponse = {
   feedback_records: NullableList<FeedbackRecord>;
   linked_proposals: NullableList<Proposal>;
   harness_executions: NullableList<HarnessExecution>;
+  harness_execution_observations: NullableList<HarnessExecutionObservation>;
+  runtime_summary?: ExecutorRuntimeSummary;
 };
 
 export type WorkflowLineSummary = {

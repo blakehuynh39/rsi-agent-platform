@@ -29,21 +29,33 @@ type traceEvalSummary struct {
 	SuiteName string    `json:"suite_name"`
 }
 
+type executorRuntimeSummary struct {
+	ExecutionID   string    `json:"execution_id"`
+	RuntimeSource string    `json:"runtime_source,omitempty"`
+	Phase         string    `json:"phase,omitempty"`
+	EventType     string    `json:"event_type,omitempty"`
+	Status        string    `json:"status,omitempty"`
+	RecordedAt    time.Time `json:"recorded_at"`
+	Engine        string    `json:"engine,omitempty"`
+	WorkspaceRoot string    `json:"workspace_root,omitempty"`
+}
+
 type traceAttemptSummary struct {
-	TraceID           string            `json:"trace_id"`
-	ConversationID    string            `json:"conversation_id"`
-	CaseID            string            `json:"case_id"`
-	TriggerEventID    string            `json:"trigger_event_id"`
-	SupersedesTraceID string            `json:"supersedes_trace_id,omitempty"`
-	WorkflowKind      string            `json:"workflow_kind"`
-	Status            events.Status     `json:"status"`
-	ThreadKey         string            `json:"thread_key"`
-	StartedAt         time.Time         `json:"started_at"`
-	EventCount        int               `json:"event_count"`
-	ReasoningCount    int               `json:"reasoning_count"`
-	ToolCallCount     int               `json:"tool_call_count"`
-	SlackActionCount  int               `json:"slack_action_count"`
-	LatestEval        *traceEvalSummary `json:"latest_eval,omitempty"`
+	TraceID           string                  `json:"trace_id"`
+	ConversationID    string                  `json:"conversation_id"`
+	CaseID            string                  `json:"case_id"`
+	TriggerEventID    string                  `json:"trigger_event_id"`
+	SupersedesTraceID string                  `json:"supersedes_trace_id,omitempty"`
+	WorkflowKind      string                  `json:"workflow_kind"`
+	Status            events.Status           `json:"status"`
+	ThreadKey         string                  `json:"thread_key"`
+	StartedAt         time.Time               `json:"started_at"`
+	EventCount        int                     `json:"event_count"`
+	ReasoningCount    int                     `json:"reasoning_count"`
+	ToolCallCount     int                     `json:"tool_call_count"`
+	SlackActionCount  int                     `json:"slack_action_count"`
+	LatestEval        *traceEvalSummary       `json:"latest_eval,omitempty"`
+	RuntimeSummary    *executorRuntimeSummary `json:"runtime_summary,omitempty"`
 }
 
 type workflowLineSummary struct {
@@ -149,22 +161,24 @@ type caseDetailResponse struct {
 }
 
 type traceDetailResponse struct {
-	Trace              events.Trace                   `json:"trace"`
-	Conversation       conversationListItem           `json:"conversation"`
-	Case               *caseSummary                   `json:"case,omitempty"`
-	WorkflowLine       *workflowLineSummary           `json:"workflow_line,omitempty"`
-	WorkflowAttempts   []workflowAttemptSummary       `json:"workflow_attempts"`
-	RuntimeDiagnoses   []improvement.RuntimeDiagnosis `json:"runtime_diagnoses"`
-	TranscriptSlice    []conversation.Entry           `json:"transcript_slice"`
-	LinkedEvalRuns     []evals.Run                    `json:"linked_eval_runs"`
-	JudgmentsByEvalRun map[string][]evals.Judgment    `json:"judgments_by_eval_run"`
-	ActionIntents      []action.Intent                `json:"action_intents"`
-	ActionResults      []action.Result                `json:"action_results"`
-	Outcomes           []outcome.Record               `json:"outcomes"`
-	KnowledgeEntries   []knowledge.Entry              `json:"knowledge_entries"`
-	FeedbackRecords    []review.FeedbackRecord        `json:"feedback_records"`
-	LinkedProposals    []review.Proposal              `json:"linked_proposals"`
-	HarnessExecutions  []harness.Execution            `json:"harness_executions"`
+	Trace                        events.Trace                   `json:"trace"`
+	Conversation                 conversationListItem           `json:"conversation"`
+	Case                         *caseSummary                   `json:"case,omitempty"`
+	WorkflowLine                 *workflowLineSummary           `json:"workflow_line,omitempty"`
+	WorkflowAttempts             []workflowAttemptSummary       `json:"workflow_attempts"`
+	RuntimeDiagnoses             []improvement.RuntimeDiagnosis `json:"runtime_diagnoses"`
+	TranscriptSlice              []conversation.Entry           `json:"transcript_slice"`
+	LinkedEvalRuns               []evals.Run                    `json:"linked_eval_runs"`
+	JudgmentsByEvalRun           map[string][]evals.Judgment    `json:"judgments_by_eval_run"`
+	ActionIntents                []action.Intent                `json:"action_intents"`
+	ActionResults                []action.Result                `json:"action_results"`
+	Outcomes                     []outcome.Record               `json:"outcomes"`
+	KnowledgeEntries             []knowledge.Entry              `json:"knowledge_entries"`
+	FeedbackRecords              []review.FeedbackRecord        `json:"feedback_records"`
+	LinkedProposals              []review.Proposal              `json:"linked_proposals"`
+	HarnessExecutions            []harness.Execution            `json:"harness_executions"`
+	HarnessExecutionObservations []harness.ExecutionObservation `json:"harness_execution_observations"`
+	RuntimeSummary               *executorRuntimeSummary        `json:"runtime_summary,omitempty"`
 }
 
 type proposalDetailResponse struct {
@@ -188,14 +202,14 @@ type proposalDetailResponse struct {
 }
 
 type proposalCurrentPhaseSummary struct {
-	AttemptID            string                          `json:"attempt_id,omitempty"`
-	AttemptState         improvement.ChangeAttemptState  `json:"attempt_state,omitempty"`
-	RequiredResourceKind string                          `json:"required_resource_kind,omitempty"`
-	ReconcileStatus      string                          `json:"reconcile_status,omitempty"`
-	EffectID             string                          `json:"effect_id,omitempty"`
-	EffectKind           transition.EffectKind           `json:"effect_kind,omitempty"`
-	EffectStatus         transition.EffectStatus         `json:"effect_status,omitempty"`
-	ReconciliationNeeded bool                            `json:"reconciliation_needed"`
+	AttemptID            string                         `json:"attempt_id,omitempty"`
+	AttemptState         improvement.ChangeAttemptState `json:"attempt_state,omitempty"`
+	RequiredResourceKind string                         `json:"required_resource_kind,omitempty"`
+	ReconcileStatus      string                         `json:"reconcile_status,omitempty"`
+	EffectID             string                         `json:"effect_id,omitempty"`
+	EffectKind           transition.EffectKind          `json:"effect_kind,omitempty"`
+	EffectStatus         transition.EffectStatus        `json:"effect_status,omitempty"`
+	ReconciliationNeeded bool                           `json:"reconciliation_needed"`
 }
 
 type attemptDetailResponse struct {
@@ -330,7 +344,7 @@ func buildConversationList(store storepkg.Repository) []conversationListItem {
 	traces := store.ListTraces()
 	proposals := normalizeProposals(store.ListProposals())
 	latestEvalByTrace := latestEvalRunByTrace(store.ListEvalRuns())
-	traceSummaries := buildTraceSummaries(traces, latestEvalByTrace)
+	traceSummaries := buildTraceSummaries(traces, latestEvalByTrace, nil, nil)
 	tracesByConversation := map[string][]traceAttemptSummary{}
 	for _, item := range traceSummaries {
 		tracesByConversation[item.ConversationID] = append(tracesByConversation[item.ConversationID], item)
@@ -384,7 +398,7 @@ func buildConversationDetail(store storepkg.Repository, conversationID string) (
 	proposals := normalizeProposals(store.ListProposals())
 	traces := traceSummariesForConversation(store.ListTraces(), conversationID)
 	latestEvalByTrace := latestEvalRunByTrace(store.ListEvalRuns())
-	traceSummaries := buildTraceSummaries(traces, latestEvalByTrace)
+	traceSummaries := buildTraceSummaries(traces, latestEvalByTrace, store.ListHarnessExecutions(), store.ListHarnessExecutionObservations())
 	workflowAttempts := workflowAttemptsForConversation(store.ListWorkflows(), store.ListTraces(), conversationID)
 	caseIndex := buildCaseSummaryIndex(store, store.ListTraces(), proposals)
 	cases := casesForConversation(store.ListCases(), conversationID, caseIndex)
@@ -425,7 +439,7 @@ func buildCaseDetail(store storepkg.Repository, caseID string) (caseDetailRespon
 	}
 	traces := traceSummariesForCase(store.ListTraces(), caseID)
 	latestEvalByTrace := latestEvalRunByTrace(store.ListEvalRuns())
-	traceSummaries := buildTraceSummaries(traces, latestEvalByTrace)
+	traceSummaries := buildTraceSummaries(traces, latestEvalByTrace, store.ListHarnessExecutions(), store.ListHarnessExecutionObservations())
 	workflowAttempts := workflowAttemptsForCase(store.ListWorkflows(), store.ListTraces(), caseID)
 	return caseDetailResponse{
 		Case:             *caseItem,
@@ -473,23 +487,27 @@ func buildTraceDetail(store storepkg.Repository, traceID string) (traceDetailRes
 	for _, item := range outcomes {
 		extraEvidence = append(extraEvidence, item.ID)
 	}
+	harnessExecutions := sliceOrEmpty(filterHarnessExecutions(store.ListHarnessExecutions(), traceID, ""))
+	harnessExecutionObservations := sliceOrEmpty(filterHarnessExecutionObservations(store.ListHarnessExecutionObservations(), traceID, ""))
 	return traceDetailResponse{
-		Trace:              trace,
-		Conversation:       conversationSummary,
-		Case:               caseIndex[trace.Summary.CaseID],
-		WorkflowLine:       workflowLineForCase(store.ListWorkflowLines(), trace.Summary.CaseID),
-		WorkflowAttempts:   workflowAttemptsForCase(store.ListWorkflows(), store.ListTraces(), trace.Summary.CaseID),
-		RuntimeDiagnoses:   sliceOrEmpty(runtimeDiagnosesForTrace(store.ListRuntimeDiagnoses(), trace, candidateKey)),
-		TranscriptSlice:    transcriptSlice(store.ListConversationEntries(trace.Summary.ConversationID), trace.Summary.TriggerEventID),
-		LinkedEvalRuns:     runs,
-		JudgmentsByEvalRun: judgments,
-		ActionIntents:      sliceOrEmpty(actionIntents),
-		ActionResults:      sliceOrEmpty(flattenActionResults(store, actionIntents)),
-		Outcomes:           sliceOrEmpty(outcomes),
-		KnowledgeEntries:   sliceOrEmpty(relatedKnowledgeEntries(store, trace.Summary.ConversationID, trace.Summary.CaseID, traceID, "", extraEvidence...)),
-		FeedbackRecords:    sliceOrEmpty(store.ListFeedback(traceID)),
-		LinkedProposals:    filterProposalsForTrace(normalizeProposals(store.ListProposals()), traceID),
-		HarnessExecutions:  sliceOrEmpty(filterHarnessExecutions(store.ListHarnessExecutions(), traceID, "")),
+		Trace:                        trace,
+		Conversation:                 conversationSummary,
+		Case:                         caseIndex[trace.Summary.CaseID],
+		WorkflowLine:                 workflowLineForCase(store.ListWorkflowLines(), trace.Summary.CaseID),
+		WorkflowAttempts:             workflowAttemptsForCase(store.ListWorkflows(), store.ListTraces(), trace.Summary.CaseID),
+		RuntimeDiagnoses:             sliceOrEmpty(runtimeDiagnosesForTrace(store.ListRuntimeDiagnoses(), trace, candidateKey)),
+		TranscriptSlice:              transcriptSlice(store.ListConversationEntries(trace.Summary.ConversationID), trace.Summary.TriggerEventID),
+		LinkedEvalRuns:               runs,
+		JudgmentsByEvalRun:           judgments,
+		ActionIntents:                sliceOrEmpty(actionIntents),
+		ActionResults:                sliceOrEmpty(flattenActionResults(store, actionIntents)),
+		Outcomes:                     sliceOrEmpty(outcomes),
+		KnowledgeEntries:             sliceOrEmpty(relatedKnowledgeEntries(store, trace.Summary.ConversationID, trace.Summary.CaseID, traceID, "", extraEvidence...)),
+		FeedbackRecords:              sliceOrEmpty(store.ListFeedback(traceID)),
+		LinkedProposals:              filterProposalsForTrace(normalizeProposals(store.ListProposals()), traceID),
+		HarnessExecutions:            harnessExecutions,
+		HarnessExecutionObservations: harnessExecutionObservations,
+		RuntimeSummary:               deriveExecutorRuntimeSummary(harnessExecutions, harnessExecutionObservations),
 	}, true
 }
 
@@ -1030,9 +1048,19 @@ func casesForConversation(cases []conversation.Case, conversationID string, inde
 	return out
 }
 
-func buildTraceSummaries(traces []events.TraceSummary, latestEvalByTrace map[string]evals.Run) []traceAttemptSummary {
+func buildTraceSummaries(traces []events.TraceSummary, latestEvalByTrace map[string]evals.Run, executions []harness.Execution, observations []harness.ExecutionObservation) []traceAttemptSummary {
+	executionsByTrace := map[string][]harness.Execution{}
+	for _, item := range executions {
+		if strings.TrimSpace(item.TraceID) == "" {
+			continue
+		}
+		executionsByTrace[item.TraceID] = append(executionsByTrace[item.TraceID], item)
+	}
+	observationsByTrace := harnessExecutionObservationsByTrace(observations)
 	out := make([]traceAttemptSummary, 0, len(traces))
 	for _, trace := range traces {
+		traceExecutions := executionsByTrace[trace.TraceID]
+		traceObservations := observationsByTrace[trace.TraceID]
 		item := traceAttemptSummary{
 			TraceID:           trace.TraceID,
 			ConversationID:    trace.ConversationID,
@@ -1047,6 +1075,7 @@ func buildTraceSummaries(traces []events.TraceSummary, latestEvalByTrace map[str
 			ReasoningCount:    trace.ReasoningStepCount,
 			ToolCallCount:     trace.ToolCallCount,
 			SlackActionCount:  trace.SlackActionCount,
+			RuntimeSummary:    deriveExecutorRuntimeSummary(traceExecutions, traceObservations),
 		}
 		if run, ok := latestEvalByTrace[trace.TraceID]; ok {
 			item.LatestEval = &traceEvalSummary{
@@ -1060,6 +1089,95 @@ func buildTraceSummaries(traces []events.TraceSummary, latestEvalByTrace map[str
 		out = append(out, item)
 	}
 	return out
+}
+
+func harnessExecutionObservationsByTrace(items []harness.ExecutionObservation) map[string][]harness.ExecutionObservation {
+	index := map[string][]harness.ExecutionObservation{}
+	for _, item := range items {
+		traceID := strings.TrimSpace(item.TraceID)
+		if traceID == "" {
+			continue
+		}
+		index[traceID] = append(index[traceID], item)
+	}
+	for traceID, traceItems := range index {
+		sort.Slice(traceItems, func(i, j int) bool {
+			if traceItems[i].RecordedAt.Equal(traceItems[j].RecordedAt) {
+				return traceItems[i].Seq < traceItems[j].Seq
+			}
+			return traceItems[i].RecordedAt.Before(traceItems[j].RecordedAt)
+		})
+		index[traceID] = traceItems
+	}
+	return index
+}
+
+func filterHarnessExecutionObservations(items []harness.ExecutionObservation, traceID string, executionID string) []harness.ExecutionObservation {
+	out := make([]harness.ExecutionObservation, 0)
+	for _, item := range items {
+		if traceID != "" && item.TraceID != traceID {
+			continue
+		}
+		if executionID != "" && item.ExecutionID != executionID {
+			continue
+		}
+		out = append(out, item)
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].RecordedAt.Equal(out[j].RecordedAt) {
+			return out[i].Seq < out[j].Seq
+		}
+		return out[i].RecordedAt.Before(out[j].RecordedAt)
+	})
+	return out
+}
+
+func deriveExecutorRuntimeSummary(executions []harness.Execution, observations []harness.ExecutionObservation) *executorRuntimeSummary {
+	if len(executions) == 0 && len(observations) == 0 {
+		return nil
+	}
+	summary := &executorRuntimeSummary{}
+	if len(observations) > 0 {
+		latest := observations[0]
+		for _, item := range observations[1:] {
+			if item.RecordedAt.After(latest.RecordedAt) || (item.RecordedAt.Equal(latest.RecordedAt) && item.Seq > latest.Seq) {
+				latest = item
+			}
+		}
+		summary.ExecutionID = latest.ExecutionID
+		summary.Phase = latest.Phase
+		summary.EventType = latest.EventType
+		summary.Status = latest.Status
+		summary.RecordedAt = latest.RecordedAt
+		for i := len(observations) - 1; i >= 0; i-- {
+			payload := observations[i].Payload
+			if summary.Engine == "" {
+				summary.Engine = strings.TrimSpace(stringValue(payload["engine"]))
+			}
+			if summary.WorkspaceRoot == "" {
+				summary.WorkspaceRoot = strings.TrimSpace(stringValue(payload["workspace_root"]))
+			}
+			if summary.WorkspaceRoot == "" {
+				summary.WorkspaceRoot = strings.TrimSpace(stringValue(payload["artifact_output_dir"]))
+			}
+		}
+	}
+	if summary.ExecutionID == "" && len(executions) > 0 {
+		latestExecution := executions[0]
+		for _, item := range executions[1:] {
+			if item.CreatedAt.After(latestExecution.CreatedAt) {
+				latestExecution = item
+			}
+		}
+		summary.ExecutionID = latestExecution.ID
+		summary.RecordedAt = latestExecution.CreatedAt
+	}
+	if summary.Engine == "hermes_cli_subprocess" {
+		summary.RuntimeSource = "hermes-executor"
+	} else if summary.ExecutionID != "" {
+		summary.RuntimeSource = "runner-prod"
+	}
+	return summary
 }
 
 func traceSummariesForConversation(traces []events.TraceSummary, conversationID string) []events.TraceSummary {
@@ -1345,7 +1463,7 @@ func linkTraceSummaries(items []events.TraceSummary, proposal review.Proposal, r
 			out = append(out, trace)
 		}
 	}
-	return buildTraceSummaries(out, map[string]evals.Run{})
+	return buildTraceSummaries(out, map[string]evals.Run{}, nil, nil)
 }
 
 func proposalLinkedTraceIDs(proposal review.Proposal, replays []improvement.PostMergeReplay) []string {

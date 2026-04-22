@@ -5,6 +5,7 @@ import io
 import json
 import os
 from pathlib import Path
+import subprocess
 import tempfile
 import threading
 import time
@@ -186,6 +187,29 @@ class FakeSessionManager:
             "memory_reads": tracker.reads,
             "memory_writes": tracker.writes,
             "session_messages_delta": [],
+        }
+
+
+class RecordingObserver:
+    def __init__(self) -> None:
+        self.execution_id = "hexec-test"
+        self.events: list[dict[str, object]] = []
+
+    def emit(self, *, phase: str, event_type: str, status: str = "", payload: dict[str, object] | None = None) -> None:
+        self.events.append(
+            {
+                "phase": phase,
+                "event_type": event_type,
+                "status": status,
+                "payload": payload or {},
+            }
+        )
+
+    def diagnostics(self) -> dict[str, object]:
+        return {
+            "observation_execution_id": self.execution_id,
+            "observation_sink_status": "ok",
+            "observation_seq": len(self.events),
         }
 
 
@@ -375,8 +399,9 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertEqual(first, second)
 
-    def test_join_stream_reader_waits_for_reader_before_closing_stream(self) -> None:
+    def test_read_native_executor_stream_waits_for_read_completion_before_closing(self) -> None:
         finished = threading.Event()
+        result_detected = threading.Event()
 
         class SlowStream:
             def __init__(self) -> None:
@@ -401,10 +426,18 @@ class HermesRuntimeTests(unittest.TestCase):
             runtime = HermesRuntime(RunnerConfig.from_env())
 
         stream = SlowStream()
-        chunks, reader = runtime._spawn_stream_reader(stream)
-        joined = runtime._join_stream_reader(stream, reader, chunks)
+        chunks: list[str] = []
+        runtime._read_native_executor_stream(
+            stream,
+            stream_name="stderr",
+            phase="investigate",
+            observer=None,
+            chunk_store=chunks,
+            secret_values=[],
+            result_detected=result_detected,
+        )
 
-        self.assertEqual(joined, "chunk")
+        self.assertEqual("".join(chunks), "chunk")
         self.assertTrue(finished.is_set())
         self.assertFalse(stream.closed_before_finish)
 
@@ -1654,7 +1687,7 @@ class HermesRuntimeTests(unittest.TestCase):
                 return 0
 
             def wait(self, timeout=None):
-                return 0
+                return self.returncode
 
             def communicate(self, timeout=None):
                 raise AssertionError("native executor path should not rely on communicate() once pipes are drained asynchronously")
@@ -1755,7 +1788,7 @@ class HermesRuntimeTests(unittest.TestCase):
                 return 0
 
             def wait(self, timeout=None):
-                return 0
+                return self.returncode
 
             def communicate(self, timeout=None):
                 raise AssertionError("native executor path should not rely on communicate() once pipes are drained asynchronously")
@@ -1810,6 +1843,189 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(runtime.executor_status("hexec-explicit")["status"], "completed")
         self.assertEqual(runtime.executor_status("hexec-explicit")["execution_id"], "hexec-explicit")
         self.assertEqual(runtime.executor_status("rsi-prod-conversation-123"), {})
+
+    def test_native_executor_streams_output_detects_result_and_redacts_secrets(self) -> None:
+        structured = json.dumps(
+            {
+                "visible_reasoning": [],
+                "reply_draft": "Draft reply",
+                "final_answer": "Final reply",
+                "confidence": 0.9,
+                "context_summary": "Grounded context",
+                "self_critique": "",
+                "proposed_actions": [],
+                "knowledge_drafts": [],
+                "outcome_hypotheses": [],
+                "produced_artifacts": [],
+                "artifact_failure_reason": "",
+            }
+        )
+
+        class FakePopen:
+            def __init__(self, cmd, cwd, env, stdout, stderr, text):
+                payload = {
+                    "ok": True,
+                    "response": structured,
+                    "result": {"final_response": structured},
+                    "session_id": "rsi-prod-conversation-123",
+                }
+                self.returncode = 0
+                self.stdout = io.StringIO(
+                    "prelude\n"
+                    "RSI_EXECUTOR_RESULT::"
+                    + json.dumps(payload, sort_keys=True)
+                    + "\n"
+                )
+                self.stderr = io.StringIO(
+                    "Authorization: Bearer secret-bearer-token\n"
+                    "slack=xoxb-123456789-secret\n"
+                    "openai=sk-secret-openai-key\n"
+                    "aws=aws-session-secret\n"
+                    "env=openai-test-key\n"
+                )
+
+            def poll(self):
+                return 0
+
+            def wait(self, timeout=None):
+                return self.returncode
+
+            def terminate(self):
+                self.returncode = -15
+
+            def kill(self):
+                self.returncode = -9
+
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.AIAgent", FakeAIAgent
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.subprocess.Popen", side_effect=FakePopen
+        ), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_ENABLED": "true",
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
+                "AWS_SESSION_TOKEN": "aws-session-secret",
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            observer = RecordingObserver()
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "depin-backend",
+                        "prompt": "User prompt",
+                        "trace_id": "trace-123",
+                        "workflow_id": "wf-123",
+                        "operation_id": "op-123",
+                        "session_scope_kind": "conversation",
+                        "session_scope_id": "conv-123",
+                        "memory_backend": "honcho",
+                        "assistant_peer_id": "rsi:stage:prod",
+                    }
+                }
+            )
+            result = runtime._execute_native_workflow_task_request(
+                task,
+                runtime._resolve_tool_policy(task),
+                observer=observer,
+            )
+
+        self.assertTrue(result.ok)
+        output_events = [event for event in observer.events if event["event_type"] == "executor.subprocess.output"]
+        self.assertGreaterEqual(len(output_events), 2)
+        stdout_events = [event for event in output_events if event["payload"].get("stream") == "stdout"]
+        stderr_events = [event for event in output_events if event["payload"].get("stream") == "stderr"]
+        self.assertTrue(any(event["payload"].get("contains_result_marker") for event in stdout_events))
+        self.assertTrue(any(event["event_type"] == "executor.result.detected" for event in observer.events))
+        self.assertTrue(any(event["event_type"] == "executor.subprocess.completed" for event in observer.events))
+        stderr_text = "\n".join(str(event["payload"].get("chunk_text", "")) for event in stderr_events)
+        self.assertIn("Bearer [redacted]", stderr_text)
+        self.assertIn("[redacted-slack-token]", stderr_text)
+        self.assertIn("[redacted-openai-key]", stderr_text)
+        self.assertIn("[redacted]", stderr_text)
+        self.assertNotIn("secret-bearer-token", stderr_text)
+        self.assertNotIn("xoxb-123456789-secret", stderr_text)
+        self.assertNotIn("sk-secret-openai-key", stderr_text)
+        self.assertNotIn("aws-session-secret", stderr_text)
+        self.assertNotIn("openai-test-key", stderr_text)
+        self.assertNotIn("secret-bearer-token", result.raw["native_executor_stderr"])
+        self.assertNotIn("xoxb-123456789-secret", result.raw["native_executor_stderr"])
+
+    def test_native_executor_timeout_path_keeps_waits_bounded_after_failed_kill(self) -> None:
+        wait_calls: list[object] = []
+
+        class FakePopen:
+            def __init__(self, cmd, cwd, env, stdout, stderr, text):
+                self.returncode = 0
+                self.stdout = io.StringIO("")
+                self.stderr = io.StringIO("")
+
+            def poll(self):
+                return None
+
+            def wait(self, timeout=None):
+                wait_calls.append(timeout)
+                if timeout == 5:
+                    raise subprocess.TimeoutExpired(cmd="worker", timeout=5)
+                return self.returncode
+
+            def terminate(self):
+                self.returncode = -15
+
+            def kill(self):
+                raise OSError("kill failed")
+
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.AIAgent", FakeAIAgent
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.subprocess.Popen", side_effect=FakePopen
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.time.monotonic", side_effect=[0.0, 7.0]
+        ), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_ENABLED": "true",
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
+                "RSI_RUNNER_PROD_TASK_TIMEOUT": "1s",
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "depin-backend",
+                        "prompt": "User prompt",
+                        "trace_id": "trace-123",
+                        "workflow_id": "wf-123",
+                        "operation_id": "op-123",
+                        "session_scope_kind": "conversation",
+                        "session_scope_id": "conv-123",
+                        "memory_backend": "honcho",
+                        "assistant_peer_id": "rsi:stage:prod",
+                    }
+                }
+            )
+            result = runtime._execute_native_workflow_task_request(
+                task,
+                runtime._resolve_tool_policy(task),
+                observer=None,
+            )
+
+        self.assertFalse(result.ok)
+        self.assertEqual(wait_calls, [5, 5])
 
     def test_execute_does_not_expand_skills_for_adhoc_prompts(self) -> None:
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(

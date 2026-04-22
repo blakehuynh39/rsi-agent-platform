@@ -5,6 +5,7 @@ import hashlib
 import http.client
 import json
 import logging
+import threading
 import time
 from typing import Any
 from urllib.parse import urlparse
@@ -50,6 +51,7 @@ class ObservationEmitter:
     sink_status: str = "not_configured"
     sink_errors: list[str] = field(default_factory=list)
     invocation_id: str = ""
+    _lock: threading.Lock = field(default_factory=threading.Lock)
 
     @classmethod
     def create(
@@ -79,34 +81,37 @@ class ObservationEmitter:
         )
 
     def emit(self, *, phase: str, event_type: str, status: str = "", payload: JsonObject | None = None) -> None:
-        self.seq += 1
-        item: JsonObject = {
-            "execution_id": self.execution_id,
-            "operation_id": self.operation_id,
-            "trace_id": self.trace_id,
-            "workflow_id": self.workflow_id,
-            "hermes_session_id": self.hermes_session_id,
-            "role": self.role,
-            "phase": _string(phase),
-            "event_type": _string(event_type),
-            "status": _string(status),
-            "seq": self.seq,
-            "payload": payload or {},
-            "recorded_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "invocation_id": self.invocation_id,
-        }
+        with self._lock:
+            self.seq += 1
+            item: JsonObject = {
+                "execution_id": self.execution_id,
+                "operation_id": self.operation_id,
+                "trace_id": self.trace_id,
+                "workflow_id": self.workflow_id,
+                "hermes_session_id": self.hermes_session_id,
+                "role": self.role,
+                "phase": _string(phase),
+                "event_type": _string(event_type),
+                "status": _string(status),
+                "seq": self.seq,
+                "payload": payload or {},
+                "recorded_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                "invocation_id": self.invocation_id,
+            }
         logger.info("runner observation %s", json.dumps(item, ensure_ascii=True, sort_keys=True))
         if not self.config.tool_gateway_base_url:
             return
         body = json.dumps(item, ensure_ascii=True, sort_keys=True).encode("utf-8")
         try:
             self._post_observation(body)
-            self.sink_status = "ok"
+            with self._lock:
+                self.sink_status = "ok"
         except (TimeoutError, OSError, ValueError) as exc:
-            self.sink_status = "degraded"
-            error_text = _string(exc)
-            if error_text:
-                self.sink_errors.append(error_text)
+            with self._lock:
+                self.sink_status = "degraded"
+                error_text = _string(exc)
+                if error_text:
+                    self.sink_errors.append(error_text)
 
     def _post_observation(self, body: bytes) -> None:
         parsed = urlparse(f"{self.config.tool_gateway_base_url.rstrip('/')}/api/runtime/observations")

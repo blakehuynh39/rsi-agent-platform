@@ -11,6 +11,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/action"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
+	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
@@ -230,6 +231,27 @@ func TestRouterConversationCaseAndTraceEndpoints(t *testing.T) {
 			EvidenceRef:  events.EvidenceRef{Kind: "trace", Ref: trace.Summary.TraceID, Summary: trace.Summary.WorkflowKind},
 		},
 	}, "router-conversation-knowledge")
+	if _, err := store.RecordHarnessExecutionObservation(harness.ExecutionObservation{
+		ExecutionID: "hexec-router-trace",
+		OperationID: "op-router-trace",
+		TraceID:     trace.Summary.TraceID,
+		WorkflowID:  "workflow-router-trace",
+		Role:        "prod",
+		Phase:       "investigate",
+		EventType:   "executor.subprocess.output",
+		Status:      "streaming",
+		Seq:         1,
+		RecordedAt:  now,
+		Payload: map[string]any{
+			"engine":         "hermes_cli_subprocess",
+			"workspace_root": "/workspace/router-trace",
+			"stream":         "stderr",
+			"chunk_text":     "executor output",
+			"chunk_index":    0,
+		},
+	}); err != nil {
+		t.Fatalf("RecordHarnessExecutionObservation() error = %v", err)
+	}
 	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
 
 	listReq := httptest.NewRequest(http.MethodGet, "/api/conversations", nil)
@@ -336,6 +358,9 @@ func TestRouterConversationCaseAndTraceEndpoints(t *testing.T) {
 	if traceID == "" {
 		t.Fatal("expected trace_id in trace attempts")
 	}
+	if runtimeSummary, ok := traceSummary["runtime_summary"].(map[string]any); !ok || runtimeSummary["runtime_source"] != "hermes-executor" {
+		t.Fatal("expected trace attempt summary to include executor runtime summary")
+	}
 	traceReq := httptest.NewRequest(http.MethodGet, "/api/traces/"+traceID, nil)
 	traceRec := httptest.NewRecorder()
 	router.ServeHTTP(traceRec, traceReq)
@@ -379,6 +404,12 @@ func TestRouterConversationCaseAndTraceEndpoints(t *testing.T) {
 	}
 	if items, ok := tracePayload["knowledge_entries"].([]any); !ok || len(items) == 0 {
 		t.Fatal("expected knowledge_entries to be a non-empty JSON array")
+	}
+	if items, ok := tracePayload["harness_execution_observations"].([]any); !ok || len(items) == 0 {
+		t.Fatal("expected harness_execution_observations to be a non-empty JSON array")
+	}
+	if runtimeSummary, ok := tracePayload["runtime_summary"].(map[string]any); !ok || runtimeSummary["runtime_source"] != "hermes-executor" {
+		t.Fatal("expected trace detail payload to include executor runtime summary")
 	}
 
 	workflowAttemptSummary, _ := workflowAttempts[0].(map[string]any)
