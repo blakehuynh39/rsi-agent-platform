@@ -1623,6 +1623,35 @@ class HermesRuntime:
             oldest = next(iter(self._executor_recent_results))
             self._executor_recent_results.pop(oldest, None)
 
+    def _spawn_stream_reader(self, stream: Any) -> tuple[list[str], threading.Thread | None]:
+        chunks: list[str] = []
+        if stream is None:
+            return chunks, None
+
+        def _reader() -> None:
+            try:
+                while True:
+                    chunk = stream.read(4096)
+                    if not chunk:
+                        break
+                    chunks.append(chunk)
+            except Exception:
+                return
+
+        thread = threading.Thread(target=_reader, daemon=True)
+        thread.start()
+        return chunks, thread
+
+    def _join_stream_reader(self, stream: Any, thread: threading.Thread | None, chunks: list[str]) -> str:
+        if thread is not None:
+            thread.join(timeout=1)
+        try:
+            if stream is not None:
+                stream.close()
+        except Exception:
+            pass
+        return "".join(chunks)
+
     def _execute_native_workflow_task_request(
         self,
         task: RunnerTaskRequest,
@@ -1781,6 +1810,8 @@ class HermesRuntime:
             stderr=subprocess.PIPE,
             text=True,
         )
+        stdout_chunks, stdout_reader = self._spawn_stream_reader(getattr(process, "stdout", None))
+        stderr_chunks, stderr_reader = self._spawn_stream_reader(getattr(process, "stderr", None))
         with self._executor_process_lock:
             self._executor_processes[execution_id] = process
         started_at = time.monotonic()
@@ -1802,20 +1833,28 @@ class HermesRuntime:
                 except OSError:
                     pass
                 try:
-                    completed_stdout, completed_stderr = process.communicate(timeout=5)
-                except subprocess.TimeoutExpired:
+                    process.wait(timeout=5)
+                except (subprocess.TimeoutExpired, AttributeError):
                     try:
                         process.kill()
                     except OSError:
                         pass
-                    completed_stdout, completed_stderr = process.communicate()
+                    try:
+                        process.wait(timeout=5)
+                    except (subprocess.TimeoutExpired, AttributeError):
+                        pass
             else:
-                completed_stdout, completed_stderr = process.communicate()
+                try:
+                    process.wait()
+                except AttributeError:
+                    pass
             completed_returncode = int(process.returncode or 0)
         finally:
             with self._executor_process_lock:
                 self._executor_processes.pop(execution_id, None)
                 self._executor_cancel_requests.discard(execution_id)
+            completed_stdout = self._join_stream_reader(getattr(process, "stdout", None), stdout_reader, stdout_chunks)
+            completed_stderr = self._join_stream_reader(getattr(process, "stderr", None), stderr_reader, stderr_chunks)
             shutil.rmtree(request_dir, ignore_errors=True)
 
         if timed_out or cancelled:

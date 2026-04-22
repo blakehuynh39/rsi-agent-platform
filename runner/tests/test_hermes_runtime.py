@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import base64
+import io
 import json
 import os
 from pathlib import Path
 import tempfile
+import threading
 import time
 import types
 import unittest
@@ -372,6 +374,39 @@ class HermesRuntimeTests(unittest.TestCase):
         second = execution_observation_id("op-1", "trace-1", "wf-1", "sess-1", "invoke-b")
 
         self.assertEqual(first, second)
+
+    def test_join_stream_reader_waits_for_reader_before_closing_stream(self) -> None:
+        finished = threading.Event()
+
+        class SlowStream:
+            def __init__(self) -> None:
+                self.closed_before_finish = False
+                self.calls = 0
+
+            def read(self, _size: int) -> str:
+                if self.calls == 0:
+                    self.calls += 1
+                    time.sleep(0.05)
+                    return "chunk"
+                finished.set()
+                return ""
+
+            def close(self) -> None:
+                if not finished.is_set():
+                    self.closed_before_finish = True
+
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ, runner_env("prod"), clear=True
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        stream = SlowStream()
+        chunks, reader = runtime._spawn_stream_reader(stream)
+        joined = runtime._join_stream_reader(stream, reader, chunks)
+
+        self.assertEqual(joined, "chunk")
+        self.assertTrue(finished.is_set())
+        self.assertFalse(stream.closed_before_finish)
 
     def test_session_manager_writes_hermes_cli_parity_model_config(self) -> None:
         class FakeSessionDB:
@@ -1602,15 +1637,14 @@ class HermesRuntimeTests(unittest.TestCase):
                 request_paths.append(request_path)
                 request = json.loads(request_path.read_text(encoding="utf-8"))
                 self.returncode = 0
-                self._stdout = ""
-                self._stderr = ""
-                self._communicated = False
                 self._payload = {
                     "ok": True,
                     "response": structured,
                     "result": {"final_response": structured},
                     "session_id": "rsi-prod-conversation-123",
                 }
+                self.stdout = io.StringIO("noise\nRSI_EXECUTOR_RESULT::" + json.dumps(self._payload, sort_keys=True) + "\n")
+                self.stderr = io.StringIO("")
                 self._request = request
                 self._cwd = cwd
                 self._text = text
@@ -1619,10 +1653,11 @@ class HermesRuntimeTests(unittest.TestCase):
             def poll(self):
                 return 0
 
+            def wait(self, timeout=None):
+                return 0
+
             def communicate(self, timeout=None):
-                self._communicated = True
-                self._stdout = "noise\nRSI_EXECUTOR_RESULT::" + json.dumps(self._payload, sort_keys=True) + "\n"
-                return self._stdout, self._stderr
+                raise AssertionError("native executor path should not rely on communicate() once pipes are drained asynchronously")
 
             def terminate(self):
                 self.returncode = -15
@@ -1707,21 +1742,23 @@ class HermesRuntimeTests(unittest.TestCase):
         class FakePopen:
             def __init__(self, cmd, cwd, env, stdout, stderr, text):
                 self.returncode = 0
-                self._stdout = ""
-                self._stderr = ""
                 self._payload = {
                     "ok": True,
                     "response": structured,
                     "result": {"final_response": structured},
                     "session_id": "rsi-prod-conversation-123",
                 }
+                self.stdout = io.StringIO("RSI_EXECUTOR_RESULT::" + json.dumps(self._payload, sort_keys=True) + "\n")
+                self.stderr = io.StringIO("")
 
             def poll(self):
                 return 0
 
+            def wait(self, timeout=None):
+                return 0
+
             def communicate(self, timeout=None):
-                self._stdout = "RSI_EXECUTOR_RESULT::" + json.dumps(self._payload, sort_keys=True) + "\n"
-                return self._stdout, self._stderr
+                raise AssertionError("native executor path should not rely on communicate() once pipes are drained asynchronously")
 
             def terminate(self):
                 self.returncode = -15
