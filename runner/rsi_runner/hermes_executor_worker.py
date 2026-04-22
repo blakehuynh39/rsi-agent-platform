@@ -4,6 +4,7 @@ import json
 import logging
 import os
 from pathlib import Path
+import tempfile
 import sys
 from typing import Any
 
@@ -44,6 +45,23 @@ def _string(value: Any) -> str:
 def _result(payload: dict[str, Any]) -> None:
     sys.stdout.write(_RESULT_PREFIX + json.dumps(payload, ensure_ascii=True, sort_keys=True) + "\n")
     sys.stdout.flush()
+
+
+def _persist_result(payload: dict[str, Any], result_path_arg: str) -> Path:
+    result_path = Path(result_path_arg).expanduser().resolve()
+    result_path.parent.mkdir(parents=True, exist_ok=True)
+    fd, temp_path_arg = tempfile.mkstemp(prefix=result_path.name + ".", suffix=".tmp", dir=str(result_path.parent))
+    temp_path = Path(temp_path_arg)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle, ensure_ascii=True, sort_keys=True)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temp_path, result_path)
+    finally:
+        if temp_path.exists():
+            temp_path.unlink(missing_ok=True)
+    return result_path
 
 
 def _load_request(path_arg: str) -> dict[str, Any]:
@@ -128,10 +146,14 @@ def _runtime_override(payload: dict[str, Any]) -> dict[str, Any]:
 
 def main() -> None:
     _configure_logging()
+    exit_code = 0
     try:
         if len(sys.argv) < 2:
             raise RuntimeError("executor worker request path is required")
         payload = _load_request(sys.argv[1])
+        result_path = _string(payload.get("result_path"))
+        if not result_path:
+            raise RuntimeError("result_path is required for native Hermes execution.")
         workdir = _string(payload.get("workdir"))
         if workdir:
             os.chdir(workdir)
@@ -155,24 +177,37 @@ def main() -> None:
             response = _string(result.get("final_response"))
         if not response:
             response = _string(result)
-        _result(
-            {
-                "ok": not (isinstance(result, dict) and bool(result.get("failed"))),
-                "response": response,
-                "result": result if isinstance(result, dict) else {"value": response},
-                "session_id": session_id,
-            }
-        )
+        output = {
+            "ok": not (isinstance(result, dict) and bool(result.get("failed"))),
+            "response": response,
+            "result": result if isinstance(result, dict) else {"value": response},
+            "session_id": session_id,
+        }
+        _persist_result(output, result_path)
+        _result(output)
     except Exception as exc:  # pragma: no cover - exercised via subprocess integration
         logger.exception("native Hermes executor worker failed")
-        _result(
-            {
+        exit_code = 1
+        try:
+            payload = locals().get("payload")
+            result_path = _string(payload.get("result_path")) if isinstance(payload, dict) else ""
+            output = {
                 "ok": False,
                 "error": str(exc),
                 "session_id": "",
             }
-        )
-        raise SystemExit(1) from exc
+            if result_path:
+                _persist_result(output, result_path)
+            _result(output)
+        except Exception:
+            logger.exception("failed to persist native Hermes executor error result")
+    logging.shutdown()
+    try:
+        sys.stdout.flush()
+        sys.stderr.flush()
+    except Exception:
+        pass
+    os._exit(exit_code)
 
 
 if __name__ == "__main__":

@@ -5,6 +5,7 @@ import io
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import tempfile
 import threading
@@ -1676,7 +1677,8 @@ class HermesRuntimeTests(unittest.TestCase):
                     "result": {"final_response": structured},
                     "session_id": "rsi-prod-conversation-123",
                 }
-                self.stdout = io.StringIO("noise\nRSI_EXECUTOR_RESULT::" + json.dumps(self._payload, sort_keys=True) + "\n")
+                Path(request["result_path"]).write_text(json.dumps(self._payload, sort_keys=True), encoding="utf-8")
+                self.stdout = io.StringIO("noise only\n")
                 self.stderr = io.StringIO("")
                 self._request = request
                 self._cwd = cwd
@@ -1705,6 +1707,7 @@ class HermesRuntimeTests(unittest.TestCase):
             self.assertEqual(process._request["requested_skills"], ["architecture-diagram"])
             self.assertIn("todo", process._request["toolsets"])
             self.assertIn("rsi-governed-readonly", process._request["toolsets"])
+            self.assertTrue(process._request["result_path"])
             self.assertNotIn("api_key", process._request["runtime"])
             self.assertEqual(cwd, os.path.join(tempdir, "op-123"))
             self.assertTrue(process._text)
@@ -1774,6 +1777,7 @@ class HermesRuntimeTests(unittest.TestCase):
 
         class FakePopen:
             def __init__(self, cmd, cwd, env, stdout, stderr, text):
+                request = json.loads(Path(cmd[-1]).read_text(encoding="utf-8"))
                 self.returncode = 0
                 self._payload = {
                     "ok": True,
@@ -1781,7 +1785,8 @@ class HermesRuntimeTests(unittest.TestCase):
                     "result": {"final_response": structured},
                     "session_id": "rsi-prod-conversation-123",
                 }
-                self.stdout = io.StringIO("RSI_EXECUTOR_RESULT::" + json.dumps(self._payload, sort_keys=True) + "\n")
+                Path(request["result_path"]).write_text(json.dumps(self._payload, sort_keys=True), encoding="utf-8")
+                self.stdout = io.StringIO("")
                 self.stderr = io.StringIO("")
 
             def poll(self):
@@ -1863,6 +1868,7 @@ class HermesRuntimeTests(unittest.TestCase):
 
         class FakePopen:
             def __init__(self, cmd, cwd, env, stdout, stderr, text):
+                request = json.loads(Path(cmd[-1]).read_text(encoding="utf-8"))
                 payload = {
                     "ok": True,
                     "response": structured,
@@ -1870,6 +1876,7 @@ class HermesRuntimeTests(unittest.TestCase):
                     "session_id": "rsi-prod-conversation-123",
                 }
                 self.returncode = 0
+                Path(request["result_path"]).write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
                 self.stdout = io.StringIO(
                     "prelude\n"
                     "RSI_EXECUTOR_RESULT::"
@@ -1957,6 +1964,172 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertNotIn("openai-test-key", stderr_text)
         self.assertNotIn("secret-bearer-token", result.raw["native_executor_stderr"])
         self.assertNotIn("xoxb-123456789-secret", result.raw["native_executor_stderr"])
+        self.assertTrue(any(event["event_type"] == "executor.result.persisted" for event in observer.events))
+        self.assertTrue(any(event["event_type"] == "executor.result.loaded" for event in observer.events))
+
+    def test_native_executor_requires_result_file_for_success(self) -> None:
+        class FakePopen:
+            def __init__(self, cmd, cwd, env, stdout, stderr, text):
+                self.returncode = 0
+                self.stdout = io.StringIO("")
+                self.stderr = io.StringIO("")
+
+            def poll(self):
+                return 0
+
+            def wait(self, timeout=None):
+                return self.returncode
+
+            def terminate(self):
+                self.returncode = -15
+
+            def kill(self):
+                self.returncode = -9
+
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.AIAgent", FakeAIAgent
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.subprocess.Popen", side_effect=FakePopen
+        ), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_ENABLED": "true",
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "depin-backend",
+                        "prompt": "User prompt",
+                        "trace_id": "trace-123",
+                        "workflow_id": "wf-123",
+                        "operation_id": "op-123",
+                        "session_scope_kind": "conversation",
+                        "session_scope_id": "conv-123",
+                        "memory_backend": "honcho",
+                        "assistant_peer_id": "rsi:stage:prod",
+                    }
+                }
+            )
+            result = runtime._execute_native_workflow_task_request(
+                task,
+                runtime._resolve_tool_policy(task),
+                observer=RecordingObserver(),
+            )
+
+        self.assertFalse(result.ok)
+        self.assertIn("result file", result.message)
+
+    def test_native_executor_result_stat_failure_does_not_break_loaded_result(self) -> None:
+        structured = json.dumps(
+            {
+                "visible_reasoning": [],
+                "reply_draft": "Draft reply",
+                "final_answer": "Final reply",
+                "confidence": 0.9,
+                "context_summary": "Grounded context",
+                "self_critique": "",
+                "proposed_actions": [],
+                "knowledge_drafts": [],
+                "outcome_hypotheses": [],
+                "produced_artifacts": [],
+                "artifact_failure_reason": "",
+            }
+        )
+        result_paths: list[Path] = []
+
+        class FakePopen:
+            def __init__(self, cmd, cwd, env, stdout, stderr, text):
+                request = json.loads(Path(cmd[-1]).read_text(encoding="utf-8"))
+                payload = {
+                    "ok": True,
+                    "response": structured,
+                    "result": {"final_response": structured},
+                    "session_id": "rsi-prod-conversation-123",
+                }
+                result_path = Path(request["result_path"])
+                result_paths.append(result_path)
+                result_path.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+                self.returncode = 0
+                self.stdout = io.StringIO("")
+                self.stderr = io.StringIO("")
+
+            def poll(self):
+                return 0
+
+            def wait(self, timeout=None):
+                return self.returncode
+
+            def terminate(self):
+                self.returncode = -15
+
+            def kill(self):
+                self.returncode = -9
+
+        original_stat = Path.stat
+        stat_calls: dict[str, int] = {}
+
+        def flaky_stat(path: Path, *args, **kwargs):
+            path_key = str(Path(path))
+            stat_calls[path_key] = stat_calls.get(path_key, 0) + 1
+            if result_paths and Path(path) == result_paths[0] and stat_calls[path_key] >= 2:
+                raise OSError("stat failed")
+            return original_stat(path, *args, **kwargs)
+
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.AIAgent", FakeAIAgent
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.subprocess.Popen", side_effect=FakePopen
+        ), mock.patch(
+            "pathlib.Path.stat", new=flaky_stat
+        ), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_ENABLED": "true",
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            observer = RecordingObserver()
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "depin-backend",
+                        "prompt": "User prompt",
+                        "trace_id": "trace-123",
+                        "workflow_id": "wf-123",
+                        "operation_id": "op-123",
+                        "session_scope_kind": "conversation",
+                        "session_scope_id": "conv-123",
+                        "memory_backend": "honcho",
+                        "assistant_peer_id": "rsi:stage:prod",
+                    }
+                }
+            )
+            result = runtime._execute_native_workflow_task_request(
+                task,
+                runtime._resolve_tool_policy(task),
+                observer=observer,
+            )
+
+        self.assertTrue(result.ok)
+        persisted_events = [event for event in observer.events if event["event_type"] == "executor.result.persisted"]
+        self.assertEqual(len(persisted_events), 1)
+        self.assertIsNone(persisted_events[0]["payload"].get("bytes"))
 
     def test_native_executor_timeout_path_keeps_waits_bounded_after_failed_kill(self) -> None:
         wait_calls: list[object] = []
@@ -2026,6 +2199,98 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertFalse(result.ok)
         self.assertEqual(wait_calls, [5, 5])
+
+    def test_native_executor_cleans_request_dir_when_postprocess_raises(self) -> None:
+        request_paths: list[Path] = []
+        cleaned_paths: list[Path] = []
+
+        class FakePopen:
+            def __init__(self, cmd, cwd, env, stdout, stderr, text):
+                request_path = Path(cmd[-1])
+                request = json.loads(request_path.read_text(encoding="utf-8"))
+                request_paths.append(request_path)
+                Path(request["result_path"]).write_text(
+                    json.dumps(
+                        {
+                            "ok": True,
+                            "response": "{}",
+                            "result": {"final_response": "{}"},
+                            "session_id": "rsi-prod-conversation-123",
+                        },
+                        sort_keys=True,
+                    ),
+                    encoding="utf-8",
+                )
+                self.returncode = 0
+                self.stdout = io.StringIO("")
+                self.stderr = io.StringIO("")
+
+            def poll(self):
+                return 0
+
+            def wait(self, timeout=None):
+                return self.returncode
+
+            def terminate(self):
+                self.returncode = -15
+
+            def kill(self):
+                self.returncode = -9
+
+        original_rmtree = shutil.rmtree
+
+        def tracking_rmtree(path, *args, **kwargs):
+            cleaned_paths.append(Path(path))
+            return original_rmtree(path, *args, **kwargs)
+
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.AIAgent", FakeAIAgent
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.subprocess.Popen", side_effect=FakePopen
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.shutil.rmtree", side_effect=tracking_rmtree
+        ), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_ENABLED": "true",
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "depin-backend",
+                        "prompt": "User prompt",
+                        "trace_id": "trace-123",
+                        "workflow_id": "wf-123",
+                        "operation_id": "op-123",
+                        "session_scope_kind": "conversation",
+                        "session_scope_id": "conv-123",
+                        "memory_backend": "honcho",
+                        "assistant_peer_id": "rsi:stage:prod",
+                    }
+                }
+            )
+            with mock.patch.object(
+                runtime._session_manager, "finalize", side_effect=RuntimeError("finalize exploded")
+            ):
+                with self.assertRaisesRegex(RuntimeError, "finalize exploded"):
+                    runtime._execute_native_workflow_task_request(
+                        task,
+                        runtime._resolve_tool_policy(task),
+                        observer=RecordingObserver(),
+                    )
+
+        self.assertEqual(len(request_paths), 1)
+        self.assertIn(request_paths[0].parent, cleaned_paths)
+        self.assertFalse(request_paths[0].parent.exists())
 
     def test_execute_does_not_expand_skills_for_adhoc_prompts(self) -> None:
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
@@ -3718,8 +3983,7 @@ class HermesRuntimeTests(unittest.TestCase):
                     "repo": "rsi-agent-platform",
                     "prompt": "Render the artifact using the workspace.",
                     "execution_phase": "render",
-                    "workspace_id": "workspace-123",
-                    "attempt_id": "attempt-123",
+                    "execution_mode": "artifact_render",
                     "allowed_tools": [
                         "workspace.write_file",
                         "workspace.read_file",
@@ -3743,12 +4007,14 @@ class HermesRuntimeTests(unittest.TestCase):
         ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
             runtime = HermesRuntime(RunnerConfig.from_env())
             tool_policy = runtime._resolve_tool_policy(task)
+            native_toolsets = runtime._native_toolsets_for_task(task)
 
         self.assertIn("workspace.write_file", tool_policy.effective)
         self.assertIn("workspace.read_file", tool_policy.effective)
         self.assertNotIn("workspace.git_history", tool_policy.effective)
         self.assertNotIn("repo.context", tool_policy.effective)
         self.assertNotIn("slack.upload_file", tool_policy.effective)
+        self.assertIn("rsi-governed-workspace", native_toolsets)
 
     def test_artifact_render_briefs_fallback_uses_user_request_text(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -3774,6 +4040,83 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(briefs[0]["skill"], "architecture-diagram")
         self.assertEqual(briefs[0]["title"], "diagram-1")
         self.assertEqual(briefs[0]["render_prompt"], "/architecture-diagram map the services and data flows")
+
+    def test_artifact_render_briefs_hydrate_missing_fields(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "depin-backend",
+                    "prompt": "Render the backend diagram",
+                    "requested_skills": ["architecture-diagram"],
+                    "requested_artifacts": [{"kind": "diagram", "description": "Backend architecture"}],
+                    "trace_id": "trace-brief",
+                }
+            }
+        )
+
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.AIAgent", FakeAIAgent
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, {**runner_env("prod"), "HERMES_HOME": tempdir}, clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            briefs = runtime._artifact_render_briefs(
+                task,
+                {
+                    "final_answer": "Grounded answer",
+                    "context_summary": "Grounded summary",
+                    "artifact_render_briefs": [
+                        {
+                            "kind": "diagram",
+                            "skill": "",
+                            "title": "",
+                            "render_prompt": "",
+                            "inputs": {},
+                            "output_path_hint": "",
+                        }
+                    ],
+                },
+            )
+
+        self.assertEqual(len(briefs), 1)
+        self.assertEqual(briefs[0]["skill"], "architecture-diagram")
+        self.assertEqual(briefs[0]["title"], "Backend architecture")
+        self.assertIn("Grounded answer", briefs[0]["render_prompt"])
+        self.assertTrue(briefs[0]["output_path_hint"].endswith(".html"))
+
+    def test_artifact_delivery_without_artifacts_disables_upload_tool(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "depin-backend",
+                    "prompt": "Deliver the result",
+                    "reply_delivery_mode": "direct",
+                    "allowed_tools": ["slack.upload_file"],
+                    "tool_allowlist": ["slack.upload_file"],
+                    "mcp_servers": [{"name": "slack", "profile": "slack_mcp_reply"}],
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            deliver_task = runtime._build_artifact_delivery_task(
+                task,
+                {"final_answer": "Reply body", "context_summary": "Summary"},
+                [],
+                {"deliver": 60},
+            )
+            tool_policy = runtime._resolve_tool_policy(deliver_task)
+
+        self.assertEqual(deliver_task.allowed_tools, [])
+        self.assertEqual(deliver_task.tool_allowlist, [])
+        self.assertEqual(tool_policy.effective, [])
+        self.assertIn("Slack MCP", deliver_task.prompt)
+        self.assertIn("Do not call slack.upload_file", deliver_task.prompt)
 
     def test_workflow_task_timeout_enters_partial_finalization_before_hard_deadline(self) -> None:
         class TimeoutReducerAIAgent:

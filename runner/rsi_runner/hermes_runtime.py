@@ -992,7 +992,9 @@ class HermesRuntime:
         ):
             toolsets.extend(["todo", "session_search"])
         add_workflow_governed_readonly = task.task_type == "workflow" and self._config.tool_gateway_base_url
-        add_workflow_governed_workspace = add_workflow_governed_readonly and execution_mode == "implement"
+        add_workflow_governed_workspace = add_workflow_governed_readonly and (
+            execution_mode in {"implement", "artifact_render"} or execution_phase == "render"
+        )
         if add_workflow_governed_readonly:
             toolsets.append(HERMES_GOVERNED_READONLY_TOOLSET)
         if add_workflow_governed_workspace:
@@ -1000,7 +1002,7 @@ class HermesRuntime:
         if native_governed_tools:
             if not add_workflow_governed_readonly:
                 toolsets.append(HERMES_GOVERNED_READONLY_TOOLSET)
-            if execution_mode == "implement" and not add_workflow_governed_workspace:
+            if (execution_mode in {"implement", "artifact_render"} or execution_phase == "render") and not add_workflow_governed_workspace:
                 toolsets.append(HERMES_GOVERNED_WORKSPACE_TOOLSET)
         if extra_toolsets:
             toolsets.extend(extra_toolsets)
@@ -1636,6 +1638,7 @@ class HermesRuntime:
         toolsets: list[str],
         max_iterations: int,
         workdir: Path,
+        result_path: Path,
     ) -> JsonObject:
         return {
             "session_id": context.session_id,
@@ -1648,6 +1651,7 @@ class HermesRuntime:
             "model": self._provider_model,
             "max_iterations": max_iterations,
             "workdir": str(workdir),
+            "result_path": str(result_path),
             "runtime": {
                 "provider": self._provider_hint or "custom",
                 "base_url": self._base_url,
@@ -1665,6 +1669,12 @@ class HermesRuntime:
         parsed = json.loads(payload)
         if not isinstance(parsed, dict):
             raise ValueError("native Hermes executor returned a non-object result payload")
+        return parsed
+
+    def _load_native_executor_result_file(self, result_path: Path) -> JsonObject:
+        parsed = json.loads(result_path.read_text(encoding="utf-8"))
+        if not isinstance(parsed, dict):
+            raise ValueError("native Hermes executor result file did not contain a JSON object")
         return parsed
 
     def _read_native_executor_stream(
@@ -1855,16 +1865,18 @@ class HermesRuntime:
                 payload=skill_diagnostics,
             )
 
+        execution_id = observer.execution_id if observer is not None else first_non_empty(task.execution_id, context.session_id)
+        request_dir = Path(tempfile.mkdtemp(prefix="rsi-native-executor-"))
+        request_file = request_dir / "request.json"
+        result_file = request_dir / "result.json"
         request_payload = self._native_executor_request_payload(
             task,
             context,
             toolsets=toolsets,
             max_iterations=configured_max_iterations,
             workdir=workspace_root,
+            result_path=result_file,
         )
-        execution_id = observer.execution_id if observer is not None else first_non_empty(task.execution_id, context.session_id)
-        request_dir = Path(tempfile.mkdtemp(prefix="rsi-native-executor-"))
-        request_file = request_dir / "request.json"
         request_file.write_text(json.dumps(request_payload, indent=2, sort_keys=True), encoding="utf-8")
         worker_cmd = [sys.executable, "-m", "rsi_runner.hermes_executor_worker", str(request_file)]
         env_copy = os.environ.copy()
@@ -1984,13 +1996,231 @@ class HermesRuntime:
                 thread.join(timeout=5)
             completed_stdout = "".join(stdout_chunks)
             completed_stderr = "".join(stderr_chunks)
-            shutil.rmtree(request_dir, ignore_errors=True)
 
-        if timed_out or cancelled:
+        try:
+            parsed_result: JsonObject = {}
+            parse_error = ""
+            result_file_present = result_file.exists()
+            if result_file_present:
+                try:
+                    parsed_result = self._load_native_executor_result_file(result_file)
+                    if observer is not None:
+                        result_file_bytes: int | None = None
+                        try:
+                            result_file_bytes = result_file.stat().st_size
+                        except OSError:
+                            result_file_bytes = None
+                        observer.emit(
+                            phase=execution_phase,
+                            event_type="executor.result.persisted",
+                            status="completed",
+                            payload={"path": str(result_file), "bytes": result_file_bytes},
+                        )
+                        observer.emit(
+                            phase=execution_phase,
+                            event_type="executor.result.loaded",
+                            status="completed",
+                            payload={"path": str(result_file)},
+                        )
+                except (OSError, ValueError, json.JSONDecodeError) as exc:
+                    parse_error = str(exc)
+            if not parsed_result and not parse_error:
+                try:
+                    parsed_result = self._parse_native_executor_stdout(completed_stdout)
+                except (ValueError, json.JSONDecodeError) as exc:
+                    parse_error = str(exc)
+            redacted_completed_stderr = _redact_subprocess_output(completed_stderr, secret_values=secret_values)
+
+            if (timed_out or cancelled) and not parsed_result:
+                finalized = self._session_manager.finalize(context, tracker)
+                lifecycle_events = self._adapter.lifecycle_events(context.session_id)
+                observed = self._observability_metadata(None, task, tracker, skill_diagnostics=skill_diagnostics, observer=observer)
+                cleanup_result = self._mcp_adapter.cleanup_registration(agentic_mcp_registration)
+                if observer is not None:
+                    observer.emit(
+                        phase=execution_phase,
+                        event_type="model.call.completed",
+                        status="cancelled" if cancelled else "task_timeout",
+                        payload={
+                            "engine": "hermes_cli_subprocess",
+                            "returncode": completed_returncode,
+                            "stderr": _truncate_string(redacted_completed_stderr, 4000),
+                        },
+                    )
+                    observer.emit(
+                        phase=execution_phase,
+                        event_type="mcp.cleanup",
+                        status=cleanup_result.status,
+                        payload={"errors": cleanup_result.errors},
+                    )
+                termination_reason = "cancelled" if cancelled else "task_timeout"
+                stop_meta: JsonObject = {"termination_reason": termination_reason, "last_activity": {}}
+                if observer is not None:
+                    observer.emit(
+                        phase=execution_phase,
+                        event_type="executor.subprocess.completed",
+                        status=termination_reason,
+                        payload={
+                            "engine": "hermes_cli_subprocess",
+                            "returncode": completed_returncode,
+                            "termination_reason": termination_reason,
+                            "parsed_result_ok": False,
+                            "workspace_root": str(workspace_root),
+                            "artifact_output_dir": str((workspace_root / "artifacts").resolve()),
+                        },
+                    )
+                if not cancelled and allow_partial_recovery and self._workflow_partial_completion_eligible(task):
+                    return self._finalize_partial_completion(
+                        task,
+                        tool_policy,
+                        finalized,
+                        observed,
+                        stop_meta,
+                        lifecycle_events,
+                        termination_reason=termination_reason,
+                        observer=observer,
+                    )
+                result = HermesExecutionResult(
+                    ok=False,
+                    message="Hermes native executor was cancelled." if cancelled else f"Hermes native executor timed out after {effective_task_timeout}s.",
+                    provider="hermes-native-executor",
+                    raw={
+                        **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                        **finalized,
+                        **observed,
+                        **self._workflow_evidence_raw(task, observed, termination_reason),
+                        "failure_class": "runner_cancelled" if cancelled else "runner_transport_timeout",
+                        "runner_diagnostics": self._runner_diagnostics(
+                            tool_policy,
+                            failure_kind="cancelled" if cancelled else "transport_timeout",
+                            provider_error_message="Hermes native executor was cancelled." if cancelled else f"Hermes native executor timed out after {effective_task_timeout}s.",
+                            timeout_kind=termination_reason,
+                            termination_reason=termination_reason,
+                            session_ready_issues=self._session_manager.ready_issues,
+                            repair_attempted=False,
+                            repair_succeeded=False,
+                            observed=observed,
+                        ),
+                        "lifecycle_events": lifecycle_events,
+                        "termination_reason": termination_reason,
+                        "native_executor_mode": "subprocess",
+                    },
+                )
+                self._store_executor_result(
+                    execution_id,
+                    {
+                        "execution_id": execution_id,
+                        "status": "cancelled" if cancelled else "failed",
+                        "workspace_root": str(workspace_root),
+                        "session_id": context.session_id,
+                        "termination_reason": termination_reason,
+                        "completion_verdict": "",
+                        "message": result.message,
+                    },
+                )
+                return result
             finalized = self._session_manager.finalize(context, tracker)
             lifecycle_events = self._adapter.lifecycle_events(context.session_id)
             observed = self._observability_metadata(None, task, tracker, skill_diagnostics=skill_diagnostics, observer=observer)
+            parsed_result_loaded = bool(parsed_result) and not parse_error
+            if observer is not None:
+                observer.emit(
+                    phase=execution_phase,
+                    event_type="model.call.completed",
+                    status="completed" if parsed_result_loaded else "failed",
+                    payload={
+                        "engine": "hermes_cli_subprocess",
+                        "returncode": completed_returncode,
+                        "stderr": _truncate_string(redacted_completed_stderr, 4000),
+                    },
+                )
+                observer.emit(
+                    phase=execution_phase,
+                    event_type="executor.subprocess.completed",
+                    status="completed" if parsed_result_loaded else "failed",
+                    payload={
+                        "engine": "hermes_cli_subprocess",
+                        "returncode": completed_returncode,
+                        "termination_reason": "",
+                        "parsed_result_ok": parsed_result_loaded,
+                        "workspace_root": str(workspace_root),
+                        "artifact_output_dir": str((workspace_root / "artifacts").resolve()),
+                    },
+                )
             cleanup_result = self._mcp_adapter.cleanup_registration(agentic_mcp_registration)
+            base_raw = {
+                **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                **finalized,
+                **observed,
+                "task_timeout_seconds": effective_task_timeout,
+                "max_iterations": configured_max_iterations,
+                "tool_policy_mode": tool_policy.mode,
+                "tool_allowlist_effective": tool_policy.effective,
+                "tool_transport_allowlist_effective": tool_policy.transport_effective,
+                "tool_transport_map": tool_policy.custom_tool_transport_map,
+                "blocked_tool_names": tool_policy.blocked,
+                "lifecycle_events": lifecycle_events,
+                "native_executor_mode": "subprocess",
+                "native_executor_workspace_root": str(workspace_root),
+                "native_executor_toolsets": toolsets,
+                "native_executor_returncode": completed_returncode,
+                "native_executor_stderr": _truncate_string(redacted_completed_stderr, 4000),
+            }
+            if parse_error or not parsed_result or not _bool_or_false(parsed_result.get("ok")):
+                message = first_non_empty(
+                    _string_or_json(parsed_result.get("error")),
+                    "native Hermes executor exited without a result file" if not result_file_present else "",
+                    parse_error,
+                    _truncate_string(redacted_completed_stderr, 4000),
+                    "Hermes native executor failed.",
+                )
+                result = HermesExecutionResult(
+                    ok=False,
+                    message=message,
+                    provider="hermes-native-executor",
+                    raw={
+                        **base_raw,
+                        **self._workflow_evidence_raw(task, observed, "exception"),
+                        "failure_class": "runner_non_ok",
+                        "runner_diagnostics": self._runner_diagnostics(
+                            tool_policy,
+                            failure_kind="execution_error",
+                            provider_error_message=message,
+                            termination_reason="exception",
+                            session_ready_issues=self._session_manager.ready_issues,
+                            repair_attempted=False,
+                            repair_succeeded=False,
+                            observed=observed,
+                        ),
+                    },
+                )
+            else:
+                result = HermesExecutionResult(
+                    ok=True,
+                    message=_string_or_json(parsed_result.get("response")),
+                    provider="hermes-native-executor",
+                    raw={
+                        **base_raw,
+                        **self._workflow_evidence_raw(task, observed, "normal_completion"),
+                        "runner_diagnostics": {
+                            **observed,
+                            "termination_reason": "normal_completion",
+                            "max_iterations_reached": False,
+                            "completion_verdict": "complete",
+                        },
+                        "termination_reason": "normal_completion",
+                        "max_iterations_reached": False,
+                        "completion_verdict": "complete",
+                        "harness_profile_id": task.harness_profile_id,
+                        "effective_overlay_version": task.harness_overlay_version,
+                    },
+                )
+            result.raw = self._attach_agentic_mcp_diagnostics(
+                _json_object_or_empty(result.raw),
+                agentic_mcp_registration,
+                cleanup_status=cleanup_result.status,
+                cleanup_errors=cleanup_result.errors,
+            )
             if observer is not None:
                 observer.emit(
                     phase=execution_phase,
@@ -1998,209 +2228,30 @@ class HermesRuntime:
                     status=cleanup_result.status,
                     payload={"errors": cleanup_result.errors},
                 )
-            termination_reason = "cancelled" if cancelled else "task_timeout"
-            stop_meta: JsonObject = {"termination_reason": termination_reason, "last_activity": {}}
-            if observer is not None:
                 observer.emit(
                     phase=execution_phase,
-                    event_type="executor.subprocess.completed",
-                    status=termination_reason,
+                    event_type="phase.completed",
+                    status="completed" if result.ok else "failed",
                     payload={
-                        "engine": "hermes_cli_subprocess",
-                        "returncode": completed_returncode,
-                        "termination_reason": termination_reason,
-                        "parsed_result_ok": False,
-                        "workspace_root": str(workspace_root),
-                        "artifact_output_dir": str((workspace_root / "artifacts").resolve()),
+                        "termination_reason": _string_or_json(_json_object_or_empty(result.raw).get("termination_reason")),
+                        "completion_verdict": _string_or_json(_json_object_or_empty(result.raw).get("completion_verdict")),
                     },
                 )
-            if not cancelled and allow_partial_recovery and self._workflow_partial_completion_eligible(task):
-                return self._finalize_partial_completion(
-                    task,
-                    tool_policy,
-                    finalized,
-                    observed,
-                    stop_meta,
-                    lifecycle_events,
-                    termination_reason=termination_reason,
-                    observer=observer,
-                )
-            result = HermesExecutionResult(
-                ok=False,
-                message="Hermes native executor was cancelled." if cancelled else f"Hermes native executor timed out after {effective_task_timeout}s.",
-                provider="hermes-native-executor",
-                raw={
-                    **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-                    **finalized,
-                    **observed,
-                    **self._workflow_evidence_raw(task, observed, termination_reason),
-                    "failure_class": "runner_cancelled" if cancelled else "runner_transport_timeout",
-                    "runner_diagnostics": self._runner_diagnostics(
-                        tool_policy,
-                        failure_kind="cancelled" if cancelled else "transport_timeout",
-                        provider_error_message="Hermes native executor was cancelled." if cancelled else f"Hermes native executor timed out after {effective_task_timeout}s.",
-                        timeout_kind=termination_reason,
-                        termination_reason=termination_reason,
-                        session_ready_issues=self._session_manager.ready_issues,
-                        repair_attempted=False,
-                        repair_succeeded=False,
-                        observed=observed,
-                    ),
-                    "lifecycle_events": lifecycle_events,
-                    "termination_reason": termination_reason,
-                    "native_executor_mode": "subprocess",
-                },
-            )
             self._store_executor_result(
                 execution_id,
                 {
                     "execution_id": execution_id,
-                    "status": "cancelled" if cancelled else "failed",
+                    "status": "completed" if result.ok else "failed",
                     "workspace_root": str(workspace_root),
                     "session_id": context.session_id,
-                    "termination_reason": termination_reason,
-                    "completion_verdict": "",
+                    "termination_reason": _string_or_json(_json_object_or_empty(result.raw).get("termination_reason")),
+                    "completion_verdict": _string_or_json(_json_object_or_empty(result.raw).get("completion_verdict")),
                     "message": result.message,
                 },
             )
             return result
-
-        parsed_result: JsonObject = {}
-        parse_error = ""
-        try:
-            parsed_result = self._parse_native_executor_stdout(completed_stdout)
-        except (ValueError, json.JSONDecodeError) as exc:
-            parse_error = str(exc)
-        redacted_completed_stderr = _redact_subprocess_output(completed_stderr, secret_values=secret_values)
-        finalized = self._session_manager.finalize(context, tracker)
-        lifecycle_events = self._adapter.lifecycle_events(context.session_id)
-        observed = self._observability_metadata(None, task, tracker, skill_diagnostics=skill_diagnostics, observer=observer)
-        if observer is not None:
-            observer.emit(
-                phase=execution_phase,
-                event_type="model.call.completed",
-                status="completed" if completed_returncode == 0 and not parse_error else "failed",
-                payload={
-                    "engine": "hermes_cli_subprocess",
-                    "returncode": completed_returncode,
-                    "stderr": _truncate_string(redacted_completed_stderr, 4000),
-                },
-            )
-            observer.emit(
-                phase=execution_phase,
-                event_type="executor.subprocess.completed",
-                status="completed" if completed_returncode == 0 and not parse_error else "failed",
-                payload={
-                    "engine": "hermes_cli_subprocess",
-                    "returncode": completed_returncode,
-                    "termination_reason": "",
-                    "parsed_result_ok": completed_returncode == 0 and not parse_error,
-                    "workspace_root": str(workspace_root),
-                    "artifact_output_dir": str((workspace_root / "artifacts").resolve()),
-                },
-            )
-        cleanup_result = self._mcp_adapter.cleanup_registration(agentic_mcp_registration)
-        base_raw = {
-            **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-            **finalized,
-            **observed,
-            "task_timeout_seconds": effective_task_timeout,
-            "max_iterations": configured_max_iterations,
-            "tool_policy_mode": tool_policy.mode,
-            "tool_allowlist_effective": tool_policy.effective,
-            "tool_transport_allowlist_effective": tool_policy.transport_effective,
-            "tool_transport_map": tool_policy.custom_tool_transport_map,
-            "blocked_tool_names": tool_policy.blocked,
-            "lifecycle_events": lifecycle_events,
-            "native_executor_mode": "subprocess",
-            "native_executor_workspace_root": str(workspace_root),
-            "native_executor_toolsets": toolsets,
-            "native_executor_returncode": completed_returncode,
-            "native_executor_stderr": _truncate_string(redacted_completed_stderr, 4000),
-        }
-        if parse_error or not parsed_result or not _bool_or_false(parsed_result.get("ok")):
-            message = first_non_empty(
-                _string_or_json(parsed_result.get("error")),
-                parse_error,
-                _truncate_string(redacted_completed_stderr, 4000),
-                "Hermes native executor failed.",
-            )
-            result = HermesExecutionResult(
-                ok=False,
-                message=message,
-                provider="hermes-native-executor",
-                raw={
-                    **base_raw,
-                    **self._workflow_evidence_raw(task, observed, "exception"),
-                    "failure_class": "runner_non_ok",
-                    "runner_diagnostics": self._runner_diagnostics(
-                        tool_policy,
-                        failure_kind="execution_error",
-                        provider_error_message=message,
-                        termination_reason="exception",
-                        session_ready_issues=self._session_manager.ready_issues,
-                        repair_attempted=False,
-                        repair_succeeded=False,
-                        observed=observed,
-                    ),
-                },
-            )
-        else:
-            result = HermesExecutionResult(
-                ok=True,
-                message=_string_or_json(parsed_result.get("response")),
-                provider="hermes-native-executor",
-                raw={
-                    **base_raw,
-                    **self._workflow_evidence_raw(task, observed, "normal_completion"),
-                    "runner_diagnostics": {
-                        **observed,
-                        "termination_reason": "normal_completion",
-                        "max_iterations_reached": False,
-                        "completion_verdict": "complete",
-                    },
-                    "termination_reason": "normal_completion",
-                    "max_iterations_reached": False,
-                    "completion_verdict": "complete",
-                    "harness_profile_id": task.harness_profile_id,
-                    "effective_overlay_version": task.harness_overlay_version,
-                },
-            )
-        result.raw = self._attach_agentic_mcp_diagnostics(
-            _json_object_or_empty(result.raw),
-            agentic_mcp_registration,
-            cleanup_status=cleanup_result.status,
-            cleanup_errors=cleanup_result.errors,
-        )
-        if observer is not None:
-            observer.emit(
-                phase=execution_phase,
-                event_type="mcp.cleanup",
-                status=cleanup_result.status,
-                payload={"errors": cleanup_result.errors},
-            )
-            observer.emit(
-                phase=execution_phase,
-                event_type="phase.completed",
-                status="completed" if result.ok else "failed",
-                payload={
-                    "termination_reason": _string_or_json(_json_object_or_empty(result.raw).get("termination_reason")),
-                    "completion_verdict": _string_or_json(_json_object_or_empty(result.raw).get("completion_verdict")),
-                },
-            )
-        self._store_executor_result(
-            execution_id,
-            {
-                "execution_id": execution_id,
-                "status": "completed" if result.ok else "failed",
-                "workspace_root": str(workspace_root),
-                "session_id": context.session_id,
-                "termination_reason": _string_or_json(_json_object_or_empty(result.raw).get("termination_reason")),
-                "completion_verdict": _string_or_json(_json_object_or_empty(result.raw).get("completion_verdict")),
-                "message": result.message,
-            },
-        )
-        return result
+        finally:
+            shutil.rmtree(request_dir, ignore_errors=True)
 
     def _runner_diagnostics(
         self,
@@ -2459,8 +2510,9 @@ class HermesRuntime:
         permitted = set(self._default_policy_allowlist(execution_mode=execution_mode))
         if self._config.tool_gateway_base_url and (task.workspace_id or task.attempt_id):
             permitted.update(READ_ONLY_WORKSPACE_RSI_TOOL_NAMES)
-            if execution_phase == "render":
-                permitted.update(ARTIFACT_RENDER_RSI_TOOL_NAMES)
+        if self._config.tool_gateway_base_url and execution_phase == "render":
+            permitted.update(READ_ONLY_WORKSPACE_RSI_TOOL_NAMES)
+            permitted.update(ARTIFACT_RENDER_RSI_TOOL_NAMES)
         fallback_allowlist = sorted(permitted)
         if task.task_type in {"question_gather", "question_expand"} and requested:
             fallback_allowlist = requested
@@ -2471,7 +2523,7 @@ class HermesRuntime:
         elif execution_phase == "render":
             effective = [name for name in effective if name in ARTIFACT_RENDER_RSI_TOOL_NAMES]
         elif execution_phase == "deliver":
-            effective = [name for name in effective if name in {"slack.upload_file"}]
+            effective = ["slack.upload_file"] if "slack.upload_file" in requested else []
         blocked = [name for name in requested if name not in permitted and name not in {"slack.history", "slack.search", "slack.reply"}]
         memory_tools = sorted([name for name in effective if name in READ_ONLY_HONCHO_TOOLS])
         custom_tools = sorted([name for name in effective if name in IMPLEMENT_RSI_TOOL_NAMES])
@@ -4482,6 +4534,50 @@ class HermesRuntime:
             return ".svg"
         return ".txt"
 
+    def _artifact_output_path(self, task: RunnerTaskRequest, *, kind: str, skill: str, title: str) -> str:
+        safe_title = title.replace(" ", "-").lower()
+        extension = self._artifact_output_extension(kind, skill)
+        return str((self._artifact_output_root(task) / f"{safe_title}{extension}").resolve())
+
+    def _artifact_brief_title(self, task: RunnerTaskRequest, brief: JsonObject, *, index: int) -> str:
+        title = _string_or_json(brief.get("title"))
+        if title:
+            return title
+        if index - 1 < len(task.requested_artifacts):
+            requested_title = _string_or_json(task.requested_artifacts[index - 1].get("description"))
+            if requested_title:
+                return requested_title
+        kind = _string_or_json(brief.get("kind")) or "artifact"
+        return f"{kind}-{index}"
+
+    def _artifact_brief_render_prompt(
+        self,
+        task: RunnerTaskRequest,
+        structured_output: JsonObject,
+        brief: JsonObject,
+        *,
+        title: str,
+        index: int,
+    ) -> str:
+        render_prompt = _string_or_json(brief.get("render_prompt"))
+        if render_prompt:
+            return render_prompt
+        requested_description = ""
+        if index - 1 < len(task.requested_artifacts):
+            requested_description = _string_or_json(task.requested_artifacts[index - 1].get("description"))
+        grounded_final_answer = _string_or_json(structured_output.get("final_answer"))
+        grounded_context_summary = _string_or_json(structured_output.get("context_summary"))
+        if not requested_description and not grounded_final_answer and not grounded_context_summary:
+            return self._extract_user_request_text(task.prompt)
+        parts = [
+            requested_description,
+            f"Render the requested artifact titled {title}.",
+            grounded_final_answer,
+            grounded_context_summary,
+        ]
+        synthesized = "\n\n".join(part for part in parts if part)
+        return synthesized or self._extract_user_request_text(task.prompt)
+
     def _artifact_default_skill(self, task: RunnerTaskRequest, brief: JsonObject) -> str:
         skill = _string_or_json(brief.get("skill"))
         if skill:
@@ -4495,22 +4591,53 @@ class HermesRuntime:
     def _artifact_render_briefs(self, task: RunnerTaskRequest, structured_output: JsonObject) -> list[JsonObject]:
         briefs = _normalize_artifact_render_briefs(structured_output.get("artifact_render_briefs"))
         if briefs:
-            return briefs
+            hydrated: list[JsonObject] = []
+            for index, brief in enumerate(briefs, start=1):
+                kind = _string_or_json(brief.get("kind"))
+                if not kind:
+                    continue
+                skill = self._artifact_default_skill(task, brief)
+                title = self._artifact_brief_title(task, brief, index=index)
+                hydrated.append(
+                    {
+                        "kind": kind,
+                        "skill": skill,
+                        "title": title,
+                        "render_prompt": self._artifact_brief_render_prompt(
+                            task,
+                            structured_output,
+                            brief,
+                            title=title,
+                            index=index,
+                        ),
+                        "inputs": _json_object_or_empty(brief.get("inputs")),
+                        "output_path_hint": _string_or_json(brief.get("output_path_hint"))
+                        or self._artifact_output_path(task, kind=kind, skill=skill, title=title),
+                    }
+                )
+            return hydrated
         fallback: list[JsonObject] = []
         for index, requested in enumerate(task.requested_artifacts, start=1):
             kind = _string_or_json(requested.get("kind"))
             if not kind:
                 continue
-            skill = task.requested_skills[0] if task.requested_skills else ("architecture-diagram" if kind == "diagram" else "")
+            brief = {"kind": kind, "title": _string_or_json(requested.get("description"))}
+            skill = self._artifact_default_skill(task, brief)
+            title = self._artifact_brief_title(task, brief, index=index)
             fallback.append(
                 {
                     "kind": kind,
                     "skill": skill,
-                    "title": _string_or_json(requested.get("description")) or f"{kind}-{index}",
-                    "render_prompt": _string_or_json(requested.get("description"))
-                    or self._extract_user_request_text(task.prompt),
+                    "title": title,
+                    "render_prompt": self._artifact_brief_render_prompt(
+                        task,
+                        structured_output,
+                        brief,
+                        title=title,
+                        index=index,
+                    ),
                     "inputs": {},
-                    "output_path_hint": "",
+                    "output_path_hint": self._artifact_output_path(task, kind=kind, skill=skill, title=title),
                 }
             )
         return fallback
@@ -4565,11 +4692,10 @@ class HermesRuntime:
     ) -> RunnerTaskRequest:
         kind = _string_or_json(brief.get("kind"))
         skill = self._artifact_default_skill(task, brief)
-        title = _string_or_json(brief.get("title")) or f"{kind}-{index + 1}"
-        extension = self._artifact_output_extension(kind, skill)
-        output_path = _string_or_json(brief.get("output_path_hint"))
-        if not output_path:
-            output_path = str((self._artifact_output_root(task) / f"{title.replace(' ', '-').lower()}{extension}").resolve())
+        title = self._artifact_brief_title(task, brief, index=index + 1)
+        output_path = _string_or_json(brief.get("output_path_hint")) or self._artifact_output_path(
+            task, kind=kind, skill=skill, title=title
+        )
         render_prompt = "\n\n".join(
             [
                 f"Artifact render phase for {kind}.",
@@ -4607,24 +4733,46 @@ class HermesRuntime:
         produced_artifacts: list[JsonObject],
         budgets: JsonObject,
     ) -> RunnerTaskRequest:
-        prompt = "\n\n".join(
-            [
-                "Artifact delivery phase.",
-                f"Final reply body: {_string_or_json(investigate_output.get('final_answer')) or _string_or_json(investigate_output.get('reply_draft'))}",
-                f"Produced artifacts: {json.dumps(produced_artifacts, ensure_ascii=True, sort_keys=True)}",
-                "If produced_artifacts contain file:// artifact refs, upload them to the bound Slack thread using slack.upload_file before sending the final Slack reply.",
-                "Send exactly one Slack reply via Slack MCP and return reply_delivery plus produced_artifacts. Do not perform repo or knowledge investigation.",
-            ]
-        )
+        artifact_refs: list[str] = []
+        for artifact in produced_artifacts:
+            artifact_refs.extend(_string_list_or_empty(artifact.get("artifact_refs")))
+        has_artifacts = bool(artifact_refs)
+        if has_artifacts:
+            prompt = "\n\n".join(
+                [
+                    "Artifact delivery phase.",
+                    f"Final reply body: {_string_or_json(investigate_output.get('final_answer')) or _string_or_json(investigate_output.get('reply_draft'))}",
+                    f"Produced artifacts: {json.dumps(produced_artifacts, ensure_ascii=True, sort_keys=True)}",
+                    "Upload the produced file artifacts to the bound Slack thread using slack.upload_file.",
+                    "Pass the final reply body as initial_comment on the upload.",
+                    "Do not send a second Slack message after uploading.",
+                    "Return reply_delivery plus produced_artifacts. Do not perform repo or knowledge investigation.",
+                ]
+            )
+            system_message = (
+                "Delivery phase only. Do not investigate. Upload the produced artifacts once and use the upload initial comment as the single direct reply."
+            )
+            allowed_tools = ["slack.upload_file"]
+        else:
+            prompt = "\n\n".join(
+                [
+                    "Artifact delivery phase.",
+                    f"Final reply body: {_string_or_json(investigate_output.get('final_answer')) or _string_or_json(investigate_output.get('reply_draft'))}",
+                    "No file artifacts were produced.",
+                    "Send exactly one final Slack reply via Slack MCP.",
+                    "Do not call slack.upload_file. Do not perform repo or knowledge investigation.",
+                ]
+            )
+            system_message = "Delivery phase only. Do not investigate. Send exactly one final Slack reply via Slack MCP."
+            allowed_tools = []
         return replace(
             task,
             prompt=prompt,
-            system_message=self._append_system_message(
-                task,
-                "Delivery phase only. Do not investigate. Upload any produced file artifacts to Slack if needed, then send exactly one final reply.",
-            ),
+            system_message=self._append_system_message(task, system_message),
             requested_skills=[],
             requested_artifacts=[],
+            allowed_tools=allowed_tools,
+            tool_allowlist=allowed_tools,
             timeout_seconds=int(budgets.get("deliver") or 0),
             context_summary=_string_or_json(investigate_output.get("context_summary")),
             execution_phase="deliver",
