@@ -109,8 +109,11 @@ class HermesTaskScopedMCPAdapter:
         self._slack_read_tool_names_resolver = slack_read_tool_names_resolver
         self._slack_send_tool_name_resolver = slack_send_tool_name_resolver
 
-    def register_task_servers(self, task: Any) -> TaskScopedMCPRegistration:
-        servers = self._translate_task_servers(task)
+    def plan_task_servers(self, task: Any) -> TaskScopedMCPRegistration:
+        return TaskScopedMCPRegistration(servers=self._translate_task_servers(task))
+
+    def register_prepared_servers(self, registration: TaskScopedMCPRegistration) -> TaskScopedMCPRegistration:
+        servers = list(registration.servers)
         if not servers:
             return TaskScopedMCPRegistration()
 
@@ -135,6 +138,9 @@ class HermesTaskScopedMCPAdapter:
                 cleanup_error = f"{cleanup_error} Cleanup errors: {cleanup_result.errors}."
             raise RuntimeError(f"Hermes MCP registration did not connect expected servers: {missing}.{cleanup_error}")
         return TaskScopedMCPRegistration(servers=servers)
+
+    def register_task_servers(self, task: Any) -> TaskScopedMCPRegistration:
+        return self.register_prepared_servers(self.plan_task_servers(task))
 
     def cleanup_registration(self, registration: TaskScopedMCPRegistration) -> TaskScopedMCPCleanupResult:
         if not registration.enabled:

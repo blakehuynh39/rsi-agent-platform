@@ -95,8 +95,6 @@ _SENSITIVE_OUTPUT_PATTERNS = (
         lambda _match: "[redacted-openai-key]",
     ),
 )
-
-
 def _json_object_or_empty(value: JsonValue | None) -> JsonObject:
     if isinstance(value, dict):
         return value
@@ -407,10 +405,13 @@ def _normalize_artifact_render_briefs(value: JsonValue | None) -> list[JsonObjec
         kind = _string_or_json(item.get("kind"))
         if not kind:
             continue
+        requested_skill = _string_or_json(_first_non_none(item.get("requested_skill"), item.get("skill")))
+        normalized_skill = _normalize_skill_identifier(requested_skill)
         out.append(
             {
                 "kind": kind,
-                "skill": _string_or_json(item.get("skill")),
+                "requested_skill": requested_skill,
+                "skill": normalized_skill,
                 "title": _string_or_json(item.get("title")),
                 "render_prompt": _string_or_json(item.get("render_prompt")),
                 "inputs": _json_object_or_empty(item.get("inputs")),
@@ -454,6 +455,13 @@ def _optional_string(value: JsonValue | None) -> str | None:
         text = value.strip()
         return text or None
     return str(value)
+
+
+def _normalize_skill_identifier(value: JsonValue | None) -> str:
+    normalized = _normalize_requested_skills([_string_or_json(value)])
+    if normalized:
+        return normalized[0]
+    return ""
 
 
 def _required_string(value: JsonValue | None, default: str) -> str:
@@ -1636,6 +1644,7 @@ class HermesRuntime:
         context: SessionContext,
         *,
         toolsets: list[str],
+        task_scoped_mcp_registration: TaskScopedMCPRegistration,
         max_iterations: int,
         workdir: Path,
         result_path: Path,
@@ -1648,6 +1657,17 @@ class HermesRuntime:
             "system_message": task.system_message or "",
             "requested_skills": list(task.requested_skills),
             "toolsets": list(toolsets),
+            "task_scoped_mcp_servers": [
+                {
+                    "source_label": server.source_label,
+                    "profile": server.profile,
+                    "server_name": server.server_name,
+                    "toolset_alias": server.toolset_alias,
+                    "included_tool_names": list(server.included_tool_names),
+                    "hermes_config": dict(server.hermes_config),
+                }
+                for server in task_scoped_mcp_registration.servers
+            ],
             "model": self._provider_model,
             "max_iterations": max_iterations,
             "workdir": str(workdir),
@@ -1715,6 +1735,9 @@ class HermesRuntime:
                     marker_tail = combined[-marker_window:] if marker_window else ""
                 if observer is not None:
                     redacted_chunk = _redact_subprocess_output(chunk, secret_values=secret_values)
+                    if not redacted_chunk:
+                        chunk_index += 1
+                        continue
                     observer.emit(
                         phase=phase,
                         event_type="executor.subprocess.output",
@@ -1722,7 +1745,7 @@ class HermesRuntime:
                         payload={
                             "stream": stream_name,
                             "chunk_text": redacted_chunk,
-                            "chunk_bytes": len(chunk.encode("utf-8")),
+                            "chunk_bytes": len(redacted_chunk.encode("utf-8")),
                             "chunk_index": chunk_index,
                             "contains_result_marker": contains_result_marker,
                         },
@@ -1809,7 +1832,7 @@ class HermesRuntime:
 
         agentic_mcp_registration = TaskScopedMCPRegistration()
         try:
-            agentic_mcp_registration = self._mcp_adapter.register_task_servers(task)
+            agentic_mcp_registration = self._mcp_adapter.plan_task_servers(task)
         except RuntimeError as exc:
             if observer is not None:
                 observer.emit(
@@ -1840,11 +1863,12 @@ class HermesRuntime:
             observer.emit(
                 phase=execution_phase,
                 event_type="mcp.registration",
-                status="completed",
+                status="planned",
                 payload={
                     "enabled": agentic_mcp_registration.enabled,
                     "server_names": agentic_mcp_registration.server_names,
                     "toolsets": agentic_mcp_registration.enabled_toolsets,
+                    "registration_mode": "worker_subprocess",
                 },
             )
 
@@ -1873,6 +1897,7 @@ class HermesRuntime:
             task,
             context,
             toolsets=toolsets,
+            task_scoped_mcp_registration=agentic_mcp_registration,
             max_iterations=configured_max_iterations,
             workdir=workspace_root,
             result_path=result_file,
@@ -2035,7 +2060,8 @@ class HermesRuntime:
                 finalized = self._session_manager.finalize(context, tracker)
                 lifecycle_events = self._adapter.lifecycle_events(context.session_id)
                 observed = self._observability_metadata(None, task, tracker, skill_diagnostics=skill_diagnostics, observer=observer)
-                cleanup_result = self._mcp_adapter.cleanup_registration(agentic_mcp_registration)
+                cleanup_status = "not_needed" if not agentic_mcp_registration.enabled else "worker_unavailable"
+                cleanup_errors: list[str] = []
                 if observer is not None:
                     observer.emit(
                         phase=execution_phase,
@@ -2050,8 +2076,8 @@ class HermesRuntime:
                     observer.emit(
                         phase=execution_phase,
                         event_type="mcp.cleanup",
-                        status=cleanup_result.status,
-                        payload={"errors": cleanup_result.errors},
+                        status=cleanup_status,
+                        payload={"errors": cleanup_errors},
                     )
                 termination_reason = "cancelled" if cancelled else "task_timeout"
                 stop_meta: JsonObject = {"termination_reason": termination_reason, "last_activity": {}}
@@ -2106,6 +2132,12 @@ class HermesRuntime:
                         "native_executor_mode": "subprocess",
                     },
                 )
+                result.raw = self._attach_agentic_mcp_diagnostics(
+                    _json_object_or_empty(result.raw),
+                    agentic_mcp_registration,
+                    cleanup_status=cleanup_status,
+                    cleanup_errors=cleanup_errors,
+                )
                 self._store_executor_result(
                     execution_id,
                     {
@@ -2123,6 +2155,10 @@ class HermesRuntime:
             lifecycle_events = self._adapter.lifecycle_events(context.session_id)
             observed = self._observability_metadata(None, task, tracker, skill_diagnostics=skill_diagnostics, observer=observer)
             parsed_result_loaded = bool(parsed_result) and not parse_error
+            cleanup_status = _string_or_json(parsed_result.get("mcp_cleanup_status"))
+            if not cleanup_status:
+                cleanup_status = "not_needed" if not agentic_mcp_registration.enabled else "worker_unreported"
+            cleanup_errors = _string_list(parsed_result.get("mcp_cleanup_errors"))
             if observer is not None:
                 observer.emit(
                     phase=execution_phase,
@@ -2147,7 +2183,6 @@ class HermesRuntime:
                         "artifact_output_dir": str((workspace_root / "artifacts").resolve()),
                     },
                 )
-            cleanup_result = self._mcp_adapter.cleanup_registration(agentic_mcp_registration)
             base_raw = {
                 **self._base_raw(prompt=task.prompt, system_message=task.system_message),
                 **finalized,
@@ -2192,6 +2227,8 @@ class HermesRuntime:
                             repair_succeeded=False,
                             observed=observed,
                         ),
+                        "artifact_failure_reason": message if execution_phase == "render" else "",
+                        "requested_skills": list(task.requested_skills),
                     },
                 )
             else:
@@ -2218,15 +2255,15 @@ class HermesRuntime:
             result.raw = self._attach_agentic_mcp_diagnostics(
                 _json_object_or_empty(result.raw),
                 agentic_mcp_registration,
-                cleanup_status=cleanup_result.status,
-                cleanup_errors=cleanup_result.errors,
+                cleanup_status=cleanup_status,
+                cleanup_errors=cleanup_errors,
             )
             if observer is not None:
                 observer.emit(
                     phase=execution_phase,
                     event_type="mcp.cleanup",
-                    status=cleanup_result.status,
-                    payload={"errors": cleanup_result.errors},
+                    status=cleanup_status,
+                    payload={"errors": cleanup_errors},
                 )
                 observer.emit(
                     phase=execution_phase,
@@ -2235,6 +2272,9 @@ class HermesRuntime:
                     payload={
                         "termination_reason": _string_or_json(_json_object_or_empty(result.raw).get("termination_reason")),
                         "completion_verdict": _string_or_json(_json_object_or_empty(result.raw).get("completion_verdict")),
+                        "artifact_failure_reason": _string_or_json(_json_object_or_empty(result.raw).get("artifact_failure_reason")),
+                        "requested_skills": list(task.requested_skills),
+                        "resolved_skills": list(skill_diagnostics.get("resolved_skills") or []),
                     },
                 )
             self._store_executor_result(
@@ -4579,14 +4619,24 @@ class HermesRuntime:
         return synthesized or self._extract_user_request_text(task.prompt)
 
     def _artifact_default_skill(self, task: RunnerTaskRequest, brief: JsonObject) -> str:
-        skill = _string_or_json(brief.get("skill"))
-        if skill:
-            return skill
+        requested_brief_skill = _string_or_json(first_non_empty(brief.get("requested_skill"), brief.get("skill")))
+        if requested_brief_skill:
+            return _normalize_skill_identifier(requested_brief_skill)
         if task.requested_skills:
-            return task.requested_skills[0]
+            return _normalize_skill_identifier(task.requested_skills[0])
         if _string_or_json(brief.get("kind")) == "diagram":
             return "architecture-diagram"
         return ""
+
+    def _artifact_render_skill_diagnostics(self, task: RunnerTaskRequest, brief: JsonObject) -> JsonObject:
+        requested_skill = _string_or_json(first_non_empty(brief.get("requested_skill"), brief.get("skill")))
+        if not requested_skill and task.requested_skills:
+            requested_skill = _string_or_json(task.requested_skills[0])
+        resolved_skill = self._artifact_default_skill(task, brief)
+        return {
+            "requested_skills": [requested_skill] if requested_skill else [],
+            "resolved_skills": [resolved_skill] if resolved_skill else [],
+        }
 
     def _artifact_render_briefs(self, task: RunnerTaskRequest, structured_output: JsonObject) -> list[JsonObject]:
         briefs = _normalize_artifact_render_briefs(structured_output.get("artifact_render_briefs"))
@@ -4602,6 +4652,7 @@ class HermesRuntime:
                     {
                         "kind": kind,
                         "skill": skill,
+                        "requested_skill": _string_or_json(first_non_empty(brief.get("requested_skill"), brief.get("skill"))),
                         "title": title,
                         "render_prompt": self._artifact_brief_render_prompt(
                             task,
@@ -4628,6 +4679,7 @@ class HermesRuntime:
                 {
                     "kind": kind,
                     "skill": skill,
+                    "requested_skill": _string_or_json(first_non_empty(brief.get("requested_skill"), brief.get("skill"))),
                     "title": title,
                     "render_prompt": self._artifact_brief_render_prompt(
                         task,
@@ -4696,10 +4748,15 @@ class HermesRuntime:
         output_path = _string_or_json(brief.get("output_path_hint")) or self._artifact_output_path(
             task, kind=kind, skill=skill, title=title
         )
+        skill_diagnostics = self._artifact_render_skill_diagnostics(task, brief)
+        requested_skill_input = "none"
+        if skill_diagnostics["requested_skills"]:
+            requested_skill_input = _string_or_json(skill_diagnostics["requested_skills"][0]) or "none"
         render_prompt = "\n\n".join(
             [
                 f"Artifact render phase for {kind}.",
                 f"Selected skill: {skill or 'none'}",
+                f"Requested skill input: {requested_skill_input}",
                 f"Output path: {output_path}",
                 f"Grounded context summary: {_string_or_json(investigate_output.get('context_summary'))}",
                 f"Grounded final answer: {_string_or_json(investigate_output.get('final_answer'))}",
@@ -4732,6 +4789,8 @@ class HermesRuntime:
         investigate_output: JsonObject,
         produced_artifacts: list[JsonObject],
         budgets: JsonObject,
+        *,
+        artifact_failure_reason: str = "",
     ) -> RunnerTaskRequest:
         artifact_refs: list[str] = []
         for artifact in produced_artifacts:
@@ -4753,18 +4812,21 @@ class HermesRuntime:
                 "Delivery phase only. Do not investigate. Upload the produced artifacts once and use the upload initial comment as the single direct reply."
             )
             allowed_tools = ["slack.upload_file"]
+            delivery_branch = "artifact_upload"
         else:
             prompt = "\n\n".join(
                 [
                     "Artifact delivery phase.",
                     f"Final reply body: {_string_or_json(investigate_output.get('final_answer')) or _string_or_json(investigate_output.get('reply_draft'))}",
                     "No file artifacts were produced.",
+                    f"Render failure reason: {artifact_failure_reason or 'none'}",
                     "Send exactly one final Slack reply via Slack MCP.",
                     "Do not call slack.upload_file. Do not perform repo or knowledge investigation.",
                 ]
             )
             system_message = "Delivery phase only. Do not investigate. Send exactly one final Slack reply via Slack MCP."
             allowed_tools = []
+            delivery_branch = "text_only"
         return replace(
             task,
             prompt=prompt,
@@ -4776,6 +4838,14 @@ class HermesRuntime:
             timeout_seconds=int(budgets.get("deliver") or 0),
             context_summary=_string_or_json(investigate_output.get("context_summary")),
             execution_phase="deliver",
+            context_refs=[
+                *task.context_refs,
+                {
+                    "kind": "artifact_delivery_branch",
+                    "ref": delivery_branch,
+                    "summary": f"Artifact delivery branch selected: {delivery_branch}.",
+                },
+            ],
         )
 
     def _synthesized_slack_post_action(self, task: RunnerTaskRequest, body: str, produced_artifacts: list[JsonObject]) -> list[JsonObject]:
@@ -4838,6 +4908,9 @@ class HermesRuntime:
         runner_diagnostics["artifact_phase_enabled"] = True
         if direct_delivery_failed:
             runner_diagnostics["direct_delivery_phase_failed"] = direct_delivery_failed
+        runner_diagnostics["artifact_delivery_branch"] = "artifact_upload" if produced_artifacts else "text_only"
+        if artifact_failure_reason:
+            runner_diagnostics["artifact_render_failure_reason"] = artifact_failure_reason
         if observer is not None:
             for key, value in observer.diagnostics().items():
                 runner_diagnostics[key] = value
@@ -4891,6 +4964,31 @@ class HermesRuntime:
             )
         for index, brief in enumerate(render_briefs):
             render_task = self._build_artifact_render_task(task, brief, investigate_output, budgets, index)
+            render_skill = _normalize_skill_identifier(
+                first_non_empty(
+                    brief.get("requested_skill"),
+                    brief.get("skill"),
+                    render_task.requested_skills[0] if render_task.requested_skills else "",
+                )
+            )
+            if not render_skill:
+                render_failure = "Artifact render skill identifier is invalid after normalization."
+                artifact_failure_reasons.append(render_failure)
+                if observer is not None:
+                    skill_diagnostics = self._artifact_render_skill_diagnostics(task, brief)
+                    observer.emit(
+                        phase="render",
+                        event_type="phase.completed",
+                        status="failed",
+                        payload={
+                            "completion_verdict": "",
+                            "termination_reason": "invalid_render_skill",
+                            "artifact_failure_reason": render_failure,
+                            "requested_skills": skill_diagnostics["requested_skills"],
+                            "resolved_skills": skill_diagnostics["resolved_skills"],
+                        },
+                    )
+                continue
             render_result = self._execute_task_internal(render_task, observer=observer)
             if not render_result.ok:
                 artifact_failure_reasons.append(render_result.message)
@@ -4914,8 +5012,19 @@ class HermesRuntime:
         reply_delivery_mode = self._workflow_reply_delivery_mode(task)
         if reply_delivery_mode == "direct":
             if observer is not None:
-                observer.emit(phase="deliver", event_type="direct_delivery.started", status="running")
-            deliver_task = self._build_artifact_delivery_task(task, investigate_output, produced_artifacts, budgets)
+                observer.emit(
+                    phase="deliver",
+                    event_type="direct_delivery.started",
+                    status="running",
+                    payload={"delivery_branch": "artifact_upload" if produced_artifacts else "text_only"},
+                )
+            deliver_task = self._build_artifact_delivery_task(
+                task,
+                investigate_output,
+                produced_artifacts,
+                budgets,
+                artifact_failure_reason=artifact_failure_reason,
+            )
             deliver_result = self._execute_task_internal(deliver_task, observer=observer)
             if deliver_result.ok:
                 deliver_output = _normalize_structured_output(_json_object_or_empty(deliver_result.raw.get("structured_output")))

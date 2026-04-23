@@ -1664,6 +1664,18 @@ class HermesRuntimeTests(unittest.TestCase):
             }
         )
         request_paths: list[Path] = []
+        mcp_registration = TaskScopedMCPRegistration(
+            servers=[
+                TaskScopedMCPServer(
+                    source_label="slack",
+                    profile="slack_mcp_reply",
+                    server_name="rsi-task-trace-123-0-slack-abc",
+                    toolset_alias="mcp-rsi-task-trace-123-0-slack-abc",
+                    included_tool_names=["slack_send_message"],
+                    hermes_config={"url": "https://mcp.slack.com/mcp"},
+                )
+            ]
+        )
 
         class FakePopen:
             def __init__(self, cmd, cwd, env, stdout, stderr, text):
@@ -1673,6 +1685,8 @@ class HermesRuntimeTests(unittest.TestCase):
                 self.returncode = 0
                 self._payload = {
                     "ok": True,
+                    "mcp_cleanup_errors": [],
+                    "mcp_cleanup_status": "cleaned",
                     "response": structured,
                     "result": {"final_response": structured},
                     "session_id": "rsi-prod-conversation-123",
@@ -1707,6 +1721,20 @@ class HermesRuntimeTests(unittest.TestCase):
             self.assertEqual(process._request["requested_skills"], ["architecture-diagram"])
             self.assertIn("todo", process._request["toolsets"])
             self.assertIn("rsi-governed-readonly", process._request["toolsets"])
+            self.assertIn("mcp-rsi-task-trace-123-0-slack-abc", process._request["toolsets"])
+            self.assertEqual(
+                process._request["task_scoped_mcp_servers"],
+                [
+                    {
+                        "source_label": "slack",
+                        "profile": "slack_mcp_reply",
+                        "server_name": "rsi-task-trace-123-0-slack-abc",
+                        "toolset_alias": "mcp-rsi-task-trace-123-0-slack-abc",
+                        "included_tool_names": ["slack_send_message"],
+                        "hermes_config": {"url": "https://mcp.slack.com/mcp"},
+                    }
+                ],
+            )
             self.assertTrue(process._request["result_path"])
             self.assertNotIn("api_key", process._request["runtime"])
             self.assertEqual(cwd, os.path.join(tempdir, "op-123"))
@@ -1730,31 +1758,34 @@ class HermesRuntimeTests(unittest.TestCase):
             clear=True,
         ):
             runtime = HermesRuntime(RunnerConfig.from_env())
-            task = RunnerTaskRequest.from_payload(
-                {
-                    "task": {
-                        "task_type": "workflow",
-                        "repo": "depin-backend",
-                        "prompt": "User prompt",
-                        "system_message": "System directive",
-                        "trace_id": "trace-123",
-                        "workflow_id": "wf-123",
-                        "operation_id": "op-123",
-                        "session_scope_kind": "conversation",
-                        "session_scope_id": "conv-123",
-                        "memory_backend": "honcho",
-                        "assistant_peer_id": "rsi:stage:prod",
-                        "requested_skills": ["architecture-diagram"],
+            with mock.patch.object(runtime._mcp_adapter, "plan_task_servers", return_value=mcp_registration):
+                task = RunnerTaskRequest.from_payload(
+                    {
+                        "task": {
+                            "task_type": "workflow",
+                            "repo": "depin-backend",
+                            "prompt": "User prompt",
+                            "system_message": "System directive",
+                            "trace_id": "trace-123",
+                            "workflow_id": "wf-123",
+                            "operation_id": "op-123",
+                            "session_scope_kind": "conversation",
+                            "session_scope_id": "conv-123",
+                            "memory_backend": "honcho",
+                            "assistant_peer_id": "rsi:stage:prod",
+                            "requested_skills": ["architecture-diagram"],
+                            "mcp_servers": [{"server_label": "slack", "profile": "slack_mcp_reply"}],
+                        }
                     }
-                }
-            )
-            result = runtime.execute_task(task)
+                )
+                result = runtime.execute_task(task)
 
         self.assertTrue(result.ok)
         self.assertEqual(result.provider, "hermes-native-executor")
         self.assertEqual(result.raw["native_executor_mode"], "subprocess")
         self.assertEqual(result.raw["structured_output"]["final_answer"], "Final reply")
         self.assertEqual(result.raw["system_message"], "System directive")
+        self.assertEqual(result.raw["runner_diagnostics"]["agentic_mcp_cleanup_status"], "cleaned")
         self.assertEqual(len(request_paths), 1)
         self.assertFalse(request_paths[0].exists())
 
@@ -1871,6 +1902,8 @@ class HermesRuntimeTests(unittest.TestCase):
                 request = json.loads(Path(cmd[-1]).read_text(encoding="utf-8"))
                 payload = {
                     "ok": True,
+                    "mcp_cleanup_errors": [],
+                    "mcp_cleanup_status": "cleaned",
                     "response": structured,
                     "result": {"final_response": structured},
                     "session_id": "rsi-prod-conversation-123",
@@ -1952,7 +1985,9 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(any(event["payload"].get("contains_result_marker") for event in stdout_events))
         self.assertTrue(any(event["event_type"] == "executor.result.detected" for event in observer.events))
         self.assertTrue(any(event["event_type"] == "executor.subprocess.completed" for event in observer.events))
+        stdout_text = "\n".join(str(event["payload"].get("chunk_text", "")) for event in stdout_events)
         stderr_text = "\n".join(str(event["payload"].get("chunk_text", "")) for event in stderr_events)
+        self.assertIn("prelude", stdout_text)
         self.assertIn("Bearer [redacted]", stderr_text)
         self.assertIn("[redacted-slack-token]", stderr_text)
         self.assertIn("[redacted-openai-key]", stderr_text)
@@ -3793,7 +3828,7 @@ class HermesRuntimeTests(unittest.TestCase):
                         "artifact_render_briefs": [
                             {
                                 "kind": "diagram",
-                                "skill": "architecture-diagram",
+                                "skill": "/architecture-diagram",
                                 "title": "DePIN Backend",
                                 "render_prompt": "Render the grounded depin backend architecture.",
                                 "inputs": {"services": ["depin-api", "ip-registration-worker"]},
@@ -4085,6 +4120,177 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("Grounded answer", briefs[0]["render_prompt"])
         self.assertTrue(briefs[0]["output_path_hint"].endswith(".html"))
 
+    def test_artifact_render_briefs_normalize_slash_prefixed_skill(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "depin-backend",
+                    "prompt": "Render the backend diagram",
+                    "requested_skills": ["architecture-diagram"],
+                    "requested_artifacts": [{"kind": "diagram", "description": "Backend architecture"}],
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            briefs = runtime._artifact_render_briefs(
+                task,
+                {
+                    "final_answer": "Grounded answer",
+                    "context_summary": "Grounded summary",
+                    "artifact_render_briefs": [
+                        {
+                            "kind": "diagram",
+                            "skill": "/architecture-diagram",
+                            "title": "Backend architecture",
+                            "render_prompt": "Render it",
+                            "inputs": {},
+                            "output_path_hint": "",
+                        }
+                    ],
+                },
+            )
+            render_task = runtime._build_artifact_render_task(task, briefs[0], {"context_summary": "", "final_answer": ""}, {"render": 60}, 0)
+
+        self.assertEqual(briefs[0]["skill"], "architecture-diagram")
+        self.assertEqual(render_task.requested_skills, ["architecture-diagram"])
+        self.assertIn("Selected skill: architecture-diagram", render_task.prompt)
+
+    def test_artifact_render_briefs_tolerate_non_string_skill_fields(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "depin-backend",
+                    "prompt": "Render the backend diagram",
+                    "requested_skills": ["architecture-diagram"],
+                    "requested_artifacts": [{"kind": "diagram", "description": "Backend architecture"}],
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            briefs = runtime._artifact_render_briefs(
+                task,
+                {
+                    "artifact_render_briefs": [
+                        {
+                            "kind": "diagram",
+                            "requested_skill": {"unexpected": "shape"},
+                            "title": "Backend architecture",
+                            "render_prompt": "Render it",
+                            "inputs": {},
+                            "output_path_hint": "",
+                        },
+                        {
+                            "kind": "diagram",
+                            "skill": 123,
+                            "title": "Backend architecture 2",
+                            "render_prompt": "Render it again",
+                            "inputs": {},
+                            "output_path_hint": "",
+                        },
+                    ]
+                },
+            )
+
+        self.assertEqual(len(briefs), 2)
+        self.assertEqual(briefs[0]["requested_skill"], '{"unexpected": "shape"}')
+        self.assertEqual(briefs[0]["skill"], "")
+        self.assertEqual(briefs[1]["requested_skill"], "123")
+        self.assertEqual(briefs[1]["skill"], "123")
+
+    def test_artifact_render_invalid_skill_stays_structured(self) -> None:
+        class InvalidSkillAIAgent:
+            run_history: list[dict[str, object]] = []
+
+            def __init__(self, **kwargs) -> None:
+                self._kwargs = kwargs
+
+            def run_conversation(self, prompt: str, system_message: str | None = None, conversation_history=None, task_id: str | None = None):
+                if "Investigation phase only" in (system_message or ""):
+                    payload = {
+                        "visible_reasoning": [],
+                        "reply_draft": "Grounded answer without diagram.",
+                        "final_answer": "Grounded answer without diagram.",
+                        "confidence": 0.8,
+                        "context_summary": "Compact grounded context.",
+                        "self_critique": "",
+                        "proposed_actions": [],
+                        "knowledge_drafts": [],
+                        "outcome_hypotheses": [],
+                        "produced_artifacts": [],
+                        "artifact_failure_reason": "",
+                        "artifact_render_briefs": [
+                            {
+                                "kind": "diagram",
+                                "skill": "/bad skill!",
+                                "title": "Broken diagram",
+                                "render_prompt": "Render a diagram",
+                                "inputs": {},
+                                "output_path_hint": "",
+                            }
+                        ],
+                    }
+                else:
+                    payload = {
+                        "visible_reasoning": [],
+                        "reply_draft": "Grounded answer without diagram.",
+                        "final_answer": "Grounded answer without diagram.",
+                        "confidence": 0.8,
+                        "context_summary": "Delivery only.",
+                        "self_critique": "",
+                        "proposed_actions": [],
+                        "knowledge_drafts": [],
+                        "outcome_hypotheses": [],
+                        "produced_artifacts": [],
+                        "artifact_failure_reason": "",
+                    }
+                type(self).run_history.append({"system_message": system_message or "", "prompt": prompt})
+                return {"final_response": json.dumps(payload)}
+
+            def interrupt(self, _message: str | None = None) -> None:
+                return None
+
+            def get_activity_summary(self) -> dict[str, object]:
+                return {"last_activity_desc": "completed", "current_tool": "", "api_call_count": 1, "budget_used": 1, "budget_max": 4}
+
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.AIAgent", InvalidSkillAIAgent
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, {**runner_env("prod"), "HERMES_HOME": tempdir}, clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "depin-backend",
+                        "prompt": "Draw the grounded deployment architecture and attach the diagram.",
+                        "trace_id": "trace-invalid-skill",
+                        "workflow_id": "wf-invalid-skill",
+                        "reply_delivery_mode": "none",
+                        "requested_skills": ["architecture-diagram"],
+                        "requested_artifacts": [{"kind": "diagram", "description": "Architecture diagram"}],
+                        "session_scope_kind": "conversation",
+                        "session_scope_id": "conv-invalid-skill",
+                    }
+                }
+            )
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertEqual([entry["system_message"] for entry in InvalidSkillAIAgent.run_history].count(""), 0)
+        self.assertIn("Artifact render skill identifier is invalid after normalization.", result.raw["structured_output"]["artifact_failure_reason"])
+        self.assertEqual(result.raw["structured_output"]["produced_artifacts"], [])
+
     def test_artifact_delivery_without_artifacts_disables_upload_tool(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
@@ -4116,6 +4322,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(deliver_task.tool_allowlist, [])
         self.assertEqual(tool_policy.effective, [])
         self.assertIn("Slack MCP", deliver_task.prompt)
+        self.assertIn("Render failure reason: none", deliver_task.prompt)
         self.assertIn("Do not call slack.upload_file", deliver_task.prompt)
 
     def test_workflow_task_timeout_enters_partial_finalization_before_hard_deadline(self) -> None:
