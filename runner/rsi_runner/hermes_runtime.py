@@ -95,6 +95,12 @@ _SENSITIVE_OUTPUT_PATTERNS = (
         lambda _match: "[redacted-openai-key]",
     ),
 )
+_BENIGN_MCP_TOOLSET_WARNING = re.compile(
+    r"Warning: Unknown toolsets:\s*\n(?:mcp-[^\n]*(?:\n|$))+\n*",
+    re.MULTILINE,
+)
+
+
 def _json_object_or_empty(value: JsonValue | None) -> JsonObject:
     if isinstance(value, dict):
         return value
@@ -175,6 +181,10 @@ def _redact_subprocess_output(text: str, *, secret_values: list[str]) -> str:
     for secret in secret_values:
         redacted = redacted.replace(secret, "[redacted]")
     return redacted
+
+
+def _suppress_benign_subprocess_output(text: str) -> str:
+    return _BENIGN_MCP_TOOLSET_WARNING.sub("", str(text or ""))
 
 
 def _float_or_zero(value: JsonValue | None) -> float:
@@ -446,6 +456,51 @@ def _normalize_structured_output(payload: JsonObject) -> JsonObject:
     normalized["retry_assessment"] = _normalize_retry_assessment(payload.get("retry_assessment"))
     normalized["hypothesis_delta"] = _string_or_json(payload.get("hypothesis_delta"))
     return normalized
+
+
+def _native_artifact_paths_from_events(value: JsonValue | None) -> list[str]:
+    out: list[str] = []
+    seen: set[str] = set()
+    for item in _json_object_list(value):
+        if _string_or_json(item.get("event_type")) != "artifact.write.completed":
+            continue
+        payload = _json_object_or_empty(item.get("payload"))
+        path = _string_or_json(payload.get("path"))
+        if not path or path in seen:
+            continue
+        seen.add(path)
+        out.append(path)
+    return out
+
+
+def _native_artifact_event_details(value: JsonValue | None) -> JsonObject:
+    details: JsonObject = {
+        "artifact_output_dir": "",
+        "artifact_persistence_tool": "",
+        "requested_output_path": "",
+        "saved_paths": [],
+        "save_error": "",
+    }
+    saved_paths = _native_artifact_paths_from_events(value)
+    if saved_paths:
+        details["saved_paths"] = saved_paths
+    for item in _json_object_list(value):
+        payload = _json_object_or_empty(item.get("payload"))
+        event_type = _string_or_json(item.get("event_type"))
+        tool_name = _string_or_json(payload.get("tool_name"))
+        artifact_output_dir = _string_or_json(payload.get("artifact_output_dir"))
+        if artifact_output_dir:
+            details["artifact_output_dir"] = artifact_output_dir
+        if tool_name:
+            details["artifact_persistence_tool"] = tool_name
+        requested_path = _string_or_json(payload.get("requested_path"))
+        if requested_path:
+            details["requested_output_path"] = requested_path
+        if event_type == "artifact.write.failed":
+            save_error = _string_or_json(payload.get("error"))
+            if save_error:
+                details["save_error"] = save_error
+    return details
 
 
 def _optional_string(value: JsonValue | None) -> str | None:
@@ -1655,6 +1710,7 @@ class HermesRuntime:
             "conversation_history": list(context.conversation_history),
             "prompt": task.prompt,
             "system_message": task.system_message or "",
+            "execution_phase": self._execution_phase(task),
             "requested_skills": list(task.requested_skills),
             "toolsets": list(toolsets),
             "task_scoped_mcp_servers": [
@@ -1672,6 +1728,7 @@ class HermesRuntime:
             "max_iterations": max_iterations,
             "workdir": str(workdir),
             "result_path": str(result_path),
+            "artifact_output_dir": _string_or_json(task.artifact_destination) or str((workdir / "artifacts").resolve()),
             "runtime": {
                 "provider": self._provider_hint or "custom",
                 "base_url": self._base_url,
@@ -1734,7 +1791,9 @@ class HermesRuntime:
                         )
                     marker_tail = combined[-marker_window:] if marker_window else ""
                 if observer is not None:
-                    redacted_chunk = _redact_subprocess_output(chunk, secret_values=secret_values)
+                    redacted_chunk = _suppress_benign_subprocess_output(
+                        _redact_subprocess_output(chunk, secret_values=secret_values)
+                    )
                     if not redacted_chunk:
                         chunk_index += 1
                         continue
@@ -1875,6 +1934,12 @@ class HermesRuntime:
         effective_task_timeout = self._effective_task_timeout(task)
         configured_max_iterations = max_iterations_override if max_iterations_override and max_iterations_override > 0 else self._max_iterations
         toolsets = self._native_toolsets_for_task(task, extra_toolsets=agentic_mcp_registration.enabled_toolsets)
+        if execution_phase == "render":
+            toolsets = [
+                item
+                for item in toolsets
+                if item not in {HERMES_GOVERNED_READONLY_TOOLSET, HERMES_GOVERNED_WORKSPACE_TOOLSET}
+            ]
         skill_diagnostics: JsonObject = {
             "requested_skills": list(task.requested_skills),
             "resolved_skills": list(task.requested_skills),
@@ -2019,8 +2084,8 @@ class HermesRuntime:
                 self._executor_cancel_requests.discard(execution_id)
             for thread in reader_threads:
                 thread.join(timeout=5)
-            completed_stdout = "".join(stdout_chunks)
-            completed_stderr = "".join(stderr_chunks)
+            completed_stdout = _suppress_benign_subprocess_output("".join(stdout_chunks))
+            completed_stderr = _suppress_benign_subprocess_output("".join(stderr_chunks))
 
         try:
             parsed_result: JsonObject = {}
@@ -2055,6 +2120,17 @@ class HermesRuntime:
                 except (ValueError, json.JSONDecodeError) as exc:
                     parse_error = str(exc)
             redacted_completed_stderr = _redact_subprocess_output(completed_stderr, secret_values=secret_values)
+            artifact_tool_events = _json_object_list(parsed_result.get("artifact_tool_events"))
+            native_artifact_paths = _native_artifact_paths_from_events(artifact_tool_events)
+            artifact_event_details = _native_artifact_event_details(artifact_tool_events)
+            if observer is not None:
+                for event in artifact_tool_events:
+                    observer.emit(
+                        phase=execution_phase,
+                        event_type=_string_or_json(event.get("event_type")),
+                        status=_string_or_json(event.get("status")),
+                        payload=_json_object_or_empty(event.get("payload")),
+                    )
 
             if (timed_out or cancelled) and not parsed_result:
                 finalized = self._session_manager.finalize(context, tracker)
@@ -2200,6 +2276,9 @@ class HermesRuntime:
                 "native_executor_toolsets": toolsets,
                 "native_executor_returncode": completed_returncode,
                 "native_executor_stderr": _truncate_string(redacted_completed_stderr, 4000),
+                "artifact_tool_events": artifact_tool_events,
+                "native_artifact_paths": native_artifact_paths,
+                **artifact_event_details,
             }
             if parse_error or not parsed_result or not _bool_or_false(parsed_result.get("ok")):
                 message = first_non_empty(
@@ -2273,6 +2352,11 @@ class HermesRuntime:
                         "termination_reason": _string_or_json(_json_object_or_empty(result.raw).get("termination_reason")),
                         "completion_verdict": _string_or_json(_json_object_or_empty(result.raw).get("completion_verdict")),
                         "artifact_failure_reason": _string_or_json(_json_object_or_empty(result.raw).get("artifact_failure_reason")),
+                        "artifact_output_dir": _string_or_json(_json_object_or_empty(result.raw).get("artifact_output_dir")),
+                        "artifact_persistence_tool": _string_or_json(_json_object_or_empty(result.raw).get("artifact_persistence_tool")),
+                        "requested_output_path": _string_or_json(_json_object_or_empty(result.raw).get("requested_output_path")),
+                        "saved_paths": _string_list_or_empty(_json_object_or_empty(result.raw).get("saved_paths")),
+                        "save_error": _string_or_json(_json_object_or_empty(result.raw).get("save_error")),
                         "requested_skills": list(task.requested_skills),
                         "resolved_skills": list(skill_diagnostics.get("resolved_skills") or []),
                     },
@@ -4752,6 +4836,16 @@ class HermesRuntime:
         requested_skill_input = "none"
         if skill_diagnostics["requested_skills"]:
             requested_skill_input = _string_or_json(skill_diagnostics["requested_skills"][0]) or "none"
+        native_render_instructions = "Use file-writing tools to generate the artifact."
+        native_render_system_message = "Use file-writing tools and the selected skill to generate the artifact."
+        if self._native_executor_enabled_for_task(task):
+            native_render_instructions = (
+                "Use artifact_list_files and artifact_write_file "
+                "to inspect and save files only within the native artifact directory."
+            )
+            native_render_system_message = (
+                "Use artifact_write_file to persist the artifact inside the staged native artifact directory."
+            )
         render_prompt = "\n\n".join(
             [
                 f"Artifact render phase for {kind}.",
@@ -4761,7 +4855,7 @@ class HermesRuntime:
                 f"Grounded context summary: {_string_or_json(investigate_output.get('context_summary'))}",
                 f"Grounded final answer: {_string_or_json(investigate_output.get('final_answer'))}",
                 f"Render brief: {json.dumps(brief, ensure_ascii=True, sort_keys=True)}",
-                "Generate the artifact only. Save it to the output path. Do not send Slack messages.",
+                f"Generate the artifact only. Save it to the output path. {native_render_instructions} Do not send Slack messages.",
                 "Return structured output with produced_artifacts and artifact_failure_reason. produced_artifacts must include file:// artifact refs for saved files.",
             ]
         )
@@ -4770,7 +4864,7 @@ class HermesRuntime:
             prompt=render_prompt,
             system_message=self._append_system_message(
                 task,
-                "Render phase only. Do not investigate broadly. Do not send Slack messages. Use file-writing tools and the selected skill to generate the artifact.",
+                f"Render phase only. Do not investigate broadly. Do not send Slack messages. {native_render_system_message}",
             ),
             requested_skills=[skill] if skill else [],
             requested_artifacts=[{"kind": kind, "description": title}],
@@ -4940,6 +5034,11 @@ class HermesRuntime:
         observer: ObservationEmitter | None = None,
     ) -> HermesExecutionResult:
         budgets = self._artifact_phase_budgets(task)
+        phase_task = task
+        if self._native_executor_enabled_for_task(task):
+            artifact_root = (self._native_executor_workspace_root(task) / "artifacts").resolve()
+            artifact_root.mkdir(parents=True, exist_ok=True)
+            phase_task = replace(task, artifact_destination=str(artifact_root))
         if observer is not None:
             observer.emit(
                 phase="main",
@@ -4947,12 +5046,12 @@ class HermesRuntime:
                 status="running",
                 payload=budgets,
             )
-        investigate_task = self._build_artifact_investigate_task(task, budgets)
+        investigate_task = self._build_artifact_investigate_task(phase_task, budgets)
         investigate_result = self._execute_task_internal(investigate_task, observer=observer)
         if not investigate_result.ok:
             return investigate_result
         investigate_output = _normalize_structured_output(_json_object_or_empty(investigate_result.raw.get("structured_output")))
-        render_briefs = self._artifact_render_briefs(task, investigate_output)
+        render_briefs = self._artifact_render_briefs(phase_task, investigate_output)
         produced_artifacts: list[JsonObject] = []
         artifact_failure_reasons: list[str] = []
         if not render_briefs:
@@ -4963,7 +5062,7 @@ class HermesRuntime:
                 )
             )
         for index, brief in enumerate(render_briefs):
-            render_task = self._build_artifact_render_task(task, brief, investigate_output, budgets, index)
+            render_task = self._build_artifact_render_task(phase_task, brief, investigate_output, budgets, index)
             render_skill = _normalize_skill_identifier(
                 first_non_empty(
                     brief.get("requested_skill"),
@@ -4975,7 +5074,7 @@ class HermesRuntime:
                 render_failure = "Artifact render skill identifier is invalid after normalization."
                 artifact_failure_reasons.append(render_failure)
                 if observer is not None:
-                    skill_diagnostics = self._artifact_render_skill_diagnostics(task, brief)
+                    skill_diagnostics = self._artifact_render_skill_diagnostics(phase_task, brief)
                     observer.emit(
                         phase="render",
                         event_type="phase.completed",
@@ -4991,10 +5090,29 @@ class HermesRuntime:
                 continue
             render_result = self._execute_task_internal(render_task, observer=observer)
             if not render_result.ok:
-                artifact_failure_reasons.append(render_result.message)
+                artifact_failure_reasons.append(
+                    first_non_empty(
+                        _string_or_json(_json_object_or_empty(render_result.raw).get("artifact_failure_reason")),
+                        render_result.message,
+                    )
+                )
                 continue
             render_output = _normalize_structured_output(_json_object_or_empty(render_result.raw.get("structured_output")))
             rendered_artifacts = _normalize_produced_artifacts(render_output.get("produced_artifacts"))
+            native_artifact_paths = _string_list_or_empty(render_result.raw.get("native_artifact_paths"))
+            if not rendered_artifacts and native_artifact_paths:
+                kind = _string_or_json(brief.get("kind"))
+                title = self._artifact_brief_title(phase_task, brief, index=index + 1)
+                rendered_artifacts = [
+                    {
+                        "kind": kind,
+                        "title": Path(path).name or title,
+                        "artifact_refs": [f"file://{path}"],
+                        "delivery_status": "generated",
+                        "failure_reason": "",
+                    }
+                    for path in native_artifact_paths
+                ]
             produced_artifacts.extend(rendered_artifacts)
             for artifact in rendered_artifacts:
                 if observer is not None:
@@ -5019,7 +5137,7 @@ class HermesRuntime:
                     payload={"delivery_branch": "artifact_upload" if produced_artifacts else "text_only"},
                 )
             deliver_task = self._build_artifact_delivery_task(
-                task,
+                phase_task,
                 investigate_output,
                 produced_artifacts,
                 budgets,

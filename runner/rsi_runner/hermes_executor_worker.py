@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 import json
 import logging
 import os
@@ -8,6 +9,7 @@ import tempfile
 import sys
 from typing import Any
 
+from .rsi_tools import normalize_tool_names, _strict_json_schema
 from .hermes_mcp_adapter import HermesTaskScopedMCPAdapter, TaskScopedMCPRegistration, TaskScopedMCPServer
 
 try:
@@ -28,6 +30,34 @@ except (ImportError, ModuleNotFoundError):  # pragma: no cover - depends on Herm
 
 logger = logging.getLogger(__name__)
 _RESULT_PREFIX = "RSI_EXECUTOR_RESULT::"
+_ARTIFACT_LIST_FILES_TOOL = "artifact.list_files"
+_ARTIFACT_WRITE_FILE_TOOL = "artifact.write_file"
+_ARTIFACT_LIST_FILES_TRANSPORT = "artifact_list_files"
+_ARTIFACT_WRITE_FILE_TRANSPORT = "artifact_write_file"
+_ARTIFACT_TOOL_SCHEMAS = {
+    _ARTIFACT_LIST_FILES_TOOL: {
+        "name": _ARTIFACT_LIST_FILES_TOOL,
+        "description": "List files inside the native executor artifact output directory.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "path": {"type": "string"},
+            },
+        },
+    },
+    _ARTIFACT_WRITE_FILE_TOOL: {
+        "name": _ARTIFACT_WRITE_FILE_TOOL,
+        "description": "Write file content inside the native executor artifact output directory.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "path": {"type": "string"},
+                "content": {"type": "string"},
+            },
+            "required": ["path", "content"],
+        },
+    },
+}
 
 
 def _json_object(value: Any) -> dict[str, Any]:
@@ -47,6 +77,189 @@ def _string(value: Any) -> str:
 def _result(payload: dict[str, Any]) -> None:
     sys.stdout.write(_RESULT_PREFIX + json.dumps(payload, ensure_ascii=True, sort_keys=True) + "\n")
     sys.stdout.flush()
+
+
+
+
+def _artifact_tool_schema_wrappers() -> list[dict[str, Any]]:
+    wrappers: list[dict[str, Any]] = []
+    for canonical_name, transport_name in (
+        (_ARTIFACT_LIST_FILES_TOOL, _ARTIFACT_LIST_FILES_TRANSPORT),
+        (_ARTIFACT_WRITE_FILE_TOOL, _ARTIFACT_WRITE_FILE_TRANSPORT),
+    ):
+        schema = _ARTIFACT_TOOL_SCHEMAS[canonical_name]
+        wrapped = deepcopy(schema)
+        wrapped["name"] = transport_name
+        parameters = wrapped.get("parameters")
+        if isinstance(parameters, dict):
+            wrapped["parameters"] = _strict_json_schema(parameters)
+        wrappers.append({"type": "function", "function": wrapped})
+    return wrappers
+
+
+class _OverlayToolProvider:
+    def __init__(self, base_manager: Any | None, overlay: Any) -> None:
+        self._base_manager = base_manager
+        self._overlay = overlay
+
+    def has_tool(self, name: str) -> bool:
+        if self._overlay.has_tool(name):
+            return True
+        if self._base_manager is None:
+            return False
+        has_tool = getattr(self._base_manager, "has_tool", None)
+        return bool(callable(has_tool) and has_tool(name))
+
+    def handle_tool_call(self, name: str, args: dict[str, Any], **kwargs: Any) -> str:
+        if self._overlay.has_tool(name):
+            return self._overlay.handle_tool_call(name, args)
+        if self._base_manager is None:
+            raise ValueError(f"unknown tool {name}")
+        return self._base_manager.handle_tool_call(name, args, **kwargs)
+
+    def build_system_prompt(self) -> str:
+        parts: list[str] = []
+        if self._base_manager is not None:
+            builder = getattr(self._base_manager, "build_system_prompt", None)
+            if callable(builder):
+                base_prompt = builder()
+                if base_prompt:
+                    parts.append(str(base_prompt).strip())
+        overlay_prompt = self._overlay.build_system_prompt()
+        if overlay_prompt:
+            parts.append(str(overlay_prompt).strip())
+        return "\n\n".join(part for part in parts if part)
+
+    def __getattr__(self, name: str) -> Any:
+        if self._base_manager is None:
+            raise AttributeError(name)
+        return getattr(self._base_manager, name)
+
+
+class _LocalArtifactToolBinding:
+    def __init__(self, artifact_output_dir: Path) -> None:
+        self._artifact_output_dir = artifact_output_dir.expanduser().resolve()
+        self._artifact_output_dir.mkdir(parents=True, exist_ok=True)
+        self._events: list[dict[str, Any]] = []
+
+    @property
+    def events(self) -> list[dict[str, Any]]:
+        return list(self._events)
+
+    def has_tool(self, name: str) -> bool:
+        return str(name or "").strip() in set(self.tool_names())
+
+    def tool_names(self) -> list[str]:
+        return normalize_tool_names(
+            [
+                _ARTIFACT_LIST_FILES_TRANSPORT,
+                _ARTIFACT_WRITE_FILE_TRANSPORT,
+            ]
+        )
+
+    def build_system_prompt(self) -> str:
+        return (
+            "Local artifact tools are available for this render. "
+            f"Use {_ARTIFACT_LIST_FILES_TRANSPORT} and {_ARTIFACT_WRITE_FILE_TRANSPORT} "
+            f"only within {self._artifact_output_dir}."
+        )
+
+    def handle_tool_call(self, name: str, args: dict[str, Any], **_kwargs: Any) -> str:
+        transport_name = str(name or "").strip()
+        if transport_name == _ARTIFACT_LIST_FILES_TRANSPORT:
+            return self._handle_list_files(args)
+        if transport_name == _ARTIFACT_WRITE_FILE_TRANSPORT:
+            return self._handle_write_file(args)
+        raise ValueError(f"unknown tool {name}")
+
+    def _record_event(self, event_type: str, status: str, payload: dict[str, Any]) -> None:
+        self._events.append(
+            {
+                "event_type": event_type,
+                "status": status,
+                "payload": payload,
+            }
+        )
+
+    def _resolve_path(self, value: Any) -> Path:
+        raw = _string(value)
+        candidate = Path(raw).expanduser() if raw.startswith("/") else (self._artifact_output_dir / raw)
+        resolved = candidate.resolve()
+        try:
+            resolved.relative_to(self._artifact_output_dir)
+        except ValueError as exc:
+            raise ValueError("artifact_path_outside_root") from exc
+        return resolved
+
+    def _entry(self, path: Path) -> dict[str, Any]:
+        stat = path.stat()
+        return {
+            "name": path.name,
+            "path": str(path),
+            "is_dir": path.is_dir(),
+            "size_bytes": 0 if path.is_dir() else stat.st_size,
+        }
+
+    def _handle_list_files(self, args: dict[str, Any]) -> str:
+        target = self._resolve_path(args.get("path") or "")
+        entries: list[dict[str, Any]] = []
+        if target.exists():
+            if target.is_dir():
+                entries = [self._entry(item) for item in sorted(target.iterdir())]
+            else:
+                entries = [self._entry(target)]
+        payload = {
+            "tool_name": _ARTIFACT_LIST_FILES_TOOL,
+            "status": "ok",
+            "summary": f"Listed {len(entries)} item(s) in the native artifact directory.",
+            "output": {
+                "artifact_output_dir": str(self._artifact_output_dir),
+                "path": str(target),
+                "entries": entries,
+            },
+        }
+        return json.dumps(payload, ensure_ascii=True, sort_keys=True)
+
+    def _handle_write_file(self, args: dict[str, Any]) -> str:
+        requested_path = _string(args.get("path"))
+        started_payload = {
+            "tool_name": _ARTIFACT_WRITE_FILE_TOOL,
+            "requested_path": requested_path,
+            "artifact_output_dir": str(self._artifact_output_dir),
+        }
+        self._record_event("artifact.write.started", "running", started_payload)
+        try:
+            target = self._resolve_path(requested_path)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            content = _string(args.get("content"))
+            target.write_text(content, encoding="utf-8")
+            completed_payload = {
+                "tool_name": _ARTIFACT_WRITE_FILE_TOOL,
+                "path": str(target),
+                "artifact_output_dir": str(self._artifact_output_dir),
+                "bytes_written": len(content.encode("utf-8")),
+            }
+            self._record_event("artifact.write.completed", "completed", completed_payload)
+            return json.dumps(
+                {
+                    "tool_name": _ARTIFACT_WRITE_FILE_TOOL,
+                    "status": "ok",
+                    "summary": f"Wrote artifact file to {target}.",
+                    "output": completed_payload,
+                    "raw_artifact_refs": [f"file://{target}"],
+                },
+                ensure_ascii=True,
+                sort_keys=True,
+            )
+        except Exception as exc:
+            failed_payload = {
+                "tool_name": _ARTIFACT_WRITE_FILE_TOOL,
+                "requested_path": requested_path,
+                "artifact_output_dir": str(self._artifact_output_dir),
+                "error": str(exc),
+            }
+            self._record_event("artifact.write.failed", "failed", failed_payload)
+            raise RuntimeError(str(exc)) from exc
 
 
 def _persist_result(payload: dict[str, Any], result_path_arg: str) -> Path:
@@ -168,6 +381,25 @@ def _runtime_override(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _attach_local_artifact_tools(cli: object, payload: dict[str, Any]) -> _LocalArtifactToolBinding | None:
+    execution_phase = _string(payload.get("execution_phase"))
+    artifact_output_dir = _string(payload.get("artifact_output_dir"))
+    if execution_phase != "render" or not artifact_output_dir:
+        return None
+    binding = _LocalArtifactToolBinding(Path(artifact_output_dir))
+    agent = getattr(cli, "agent", None)
+    if agent is None:
+        return binding
+    current_tools = list(getattr(agent, "tools", []) or [])
+    current_tools.extend(_artifact_tool_schema_wrappers())
+    agent.tools = current_tools
+    current_valid = set(getattr(agent, "valid_tool_names", set()) or set())
+    current_valid.update(binding.tool_names())
+    agent.valid_tool_names = current_valid
+    agent._memory_manager = _OverlayToolProvider(getattr(agent, "_memory_manager", None), binding)
+    return binding
+
+
 def main() -> None:
     _configure_logging()
     exit_code = 0
@@ -195,6 +427,7 @@ def main() -> None:
             route_label="rsi_executor",
         ):
             raise RuntimeError("HermesCLI failed to initialize an agent.")
+        artifact_tools = _attach_local_artifact_tools(cli, payload)
         cli.agent.quiet_mode = True
         result = cli.agent.run_conversation(
             user_message=_string(payload.get("prompt")),
@@ -213,6 +446,7 @@ def main() -> None:
             "response": response,
             "result": result if isinstance(result, dict) else {"value": response},
             "session_id": session_id,
+            "artifact_tool_events": artifact_tools.events if artifact_tools is not None else [],
         }
         cleanup_result = mcp_adapter.cleanup_registration(mcp_registration)
         output["mcp_cleanup_errors"] = list(cleanup_result.errors)
@@ -226,12 +460,14 @@ def main() -> None:
             payload = locals().get("payload")
             result_path = _string(payload.get("result_path")) if isinstance(payload, dict) else ""
             cleanup_result = mcp_adapter.cleanup_registration(mcp_registration)
+            artifact_tools = locals().get("artifact_tools")
             output = {
                 "ok": False,
                 "error": str(exc),
+                "session_id": _string(payload.get("session_id")) if isinstance(payload, dict) else "",
+                "artifact_tool_events": list(getattr(artifact_tools, "events", []) or []),
                 "mcp_cleanup_errors": list(cleanup_result.errors),
                 "mcp_cleanup_status": cleanup_result.status,
-                "session_id": "",
             }
             if result_path:
                 _persist_result(output, result_path)
