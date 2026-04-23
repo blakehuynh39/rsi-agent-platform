@@ -171,6 +171,10 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		effectiveWorkflow = classification.Workflow
 	}
 	contextSummary, contextRefs := contextFromTrace(ctx.trace)
+	if extraSummary, extraRefs := prefetchBoundSlackThreadContext(cfg, ctx.trace.Summary, effectiveWorkflow, ctx.ingestion); extraSummary != "" || len(extraRefs) > 0 {
+		contextSummary = joinContextSummary(contextSummary, extraSummary)
+		contextRefs = append(contextRefs, extraRefs...)
+	}
 	runnerStarted := time.Now().UTC()
 	runnerRole := runnerRoleForQueue(queueName)
 	runnerTask := buildRunnerTask(cfg, store, runnerRole, ctx.trace, effectiveWorkflow, ctx.ingestion, contextSummary, contextRefs)
@@ -975,7 +979,7 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		CaseID:         workflow.CaseID,
 		WorkflowKind:   workflow.Kind,
 		AssignedBot:    workflow.AssignedBot,
-		Question:       ingestion.Text,
+		Question:       runnerUserRequest(ingestion),
 		ChannelID:      ingestion.ChannelID,
 		ThreadTS:       ingestion.ThreadTS,
 		EntityRefs:     append([]slackpkg.EntityRef(nil), ingestion.EntityRefs...),
@@ -988,12 +992,20 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	allowedTools := workflowRunnerAllowedTools(liveHints, hasSlackMCPServer(mcpServers), allowed)
 	requestedArtifacts := requestedArtifactsForIngestion(ingestion)
 	replyDeliveryMode := workflowReplyDeliveryMode(hasSlackMCPServer(mcpServers), allowed)
-	requestedSkills := workflowplan.RequestedSkillsForPrompt(ingestion.Text, ingestion.Prompt)
+	requestedSkills := workflowplan.RequestedSkillsForPrompt(runnerUserRequest(ingestion), ingestion.Prompt)
 	systemMessage := harness.ComposeSystemMessage(
 		workflowRunnerSystemMessage(hasSlackMCPServer(mcpServers), hasNotionMCPServer(mcpServers), replyDeliveryMode, requestedArtifacts),
 		effectiveHarness,
 	)
-	prompt := fmt.Sprintf("User request: %s\n\nInvestigate within the governed tool boundary. Start with the attached persisted evidence and context, then expand with tools as needed. Cite concrete evidence when possible. Default any Slack reply to the ingress thread.", ingestion.Text)
+	userRequest := runnerUserRequest(ingestion)
+	promptParts := []string{
+		fmt.Sprintf("User request: %s", userRequest),
+	}
+	if hasAttachedBoundSlackThreadContext(contextRefs, ingestion) {
+		promptParts = append(promptParts, "Bound Slack thread context is attached in the task evidence. Recover the main request from that thread context before answering, and treat the latest inbound message as a follow-up within that thread.")
+	}
+	promptParts = append(promptParts, "Investigate within the governed tool boundary. Start with the attached persisted evidence and context, then expand with tools as needed. Cite concrete evidence when possible. Default any Slack reply to the ingress thread.")
+	prompt := strings.Join(promptParts, "\n\n")
 	if len(requestedArtifacts) > 0 {
 		prompt = fmt.Sprintf("%s\n\nRequested artifacts: %s\nIf an artifact cannot be produced, explain why in artifact_failure_reason and still return the best grounded reply you can.", prompt, mustJSONString(requestedArtifacts))
 	}
@@ -1466,7 +1478,97 @@ func requestedArtifactsForPrompt(userRequest string, prompt any) []clients.Runne
 }
 
 func requestedArtifactsForIngestion(ingestion slackpkg.Ingestion) []clients.RunnerRequestedArtifact {
-	return requestedArtifactsForPrompt(ingestion.Text, ingestion.Prompt)
+	return requestedArtifactsForPrompt(runnerUserRequest(ingestion), ingestion.Prompt)
+}
+
+func runnerUserRequest(ingestion slackpkg.Ingestion) string {
+	return firstNonEmpty(strings.TrimSpace(ingestion.Prompt.RenderedText), strings.TrimSpace(ingestion.Text))
+}
+
+func shouldAttachBoundSlackThreadContext(ingestion slackpkg.Ingestion) bool {
+	return strings.TrimSpace(ingestion.ChannelID) != "" && strings.TrimSpace(ingestion.ThreadTS) != ""
+}
+
+func hasAttachedBoundSlackThreadContext(contextRefs []clients.RunnerContextRef, ingestion slackpkg.Ingestion) bool {
+	if !shouldAttachBoundSlackThreadContext(ingestion) {
+		return false
+	}
+	for _, ref := range contextRefs {
+		if ref.ToolName == "slack.history" && ref.ChannelID == ingestion.ChannelID && ref.ThreadTS == ingestion.ThreadTS {
+			return true
+		}
+	}
+	return false
+}
+
+func prefetchBoundSlackThreadContext(cfg config.Config, trace events.TraceSummary, workflow storepkg.Workflow, ingestion slackpkg.Ingestion) (string, []clients.RunnerContextRef) {
+	if !shouldAttachBoundSlackThreadContext(ingestion) || strings.TrimSpace(cfg.ToolGatewayBaseURL) == "" {
+		return "", nil
+	}
+	result, err := clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL).Execute("slack.history", map[string]any{
+		"trace_id":    trace.TraceID,
+		"workflow_id": workflow.ID,
+		"channel_id":  ingestion.ChannelID,
+		"thread_ts":   ingestion.ThreadTS,
+		"limit":       12,
+	})
+	if err != nil || !result.Available {
+		return "", nil
+	}
+	summary := summarizeBoundSlackThreadHistory(result)
+	if strings.TrimSpace(summary) == "" {
+		return "", nil
+	}
+	ref := clients.RunnerContextRef{
+		Kind:       "tool_call",
+		Ref:        firstNonEmpty(strings.TrimSpace(result.ProviderRef), strings.TrimSpace(result.ToolCallID), fmt.Sprintf("%s/%s", ingestion.ChannelID, ingestion.ThreadTS)),
+		Summary:    summary,
+		ToolCallID: strings.TrimSpace(result.ToolCallID),
+		ToolName:   "slack.history",
+		Status:     strings.TrimSpace(result.Status),
+		ChannelID:  ingestion.ChannelID,
+		ThreadTS:   ingestion.ThreadTS,
+		Source:     "prefetched_slack_thread",
+		TraceID:    trace.TraceID,
+	}
+	return summary, []clients.RunnerContextRef{ref}
+}
+
+func summarizeBoundSlackThreadHistory(result storepkg.ToolResult) string {
+	output := result.Output
+	rawMessages, _ := output["messages"].([]interface{})
+	if len(rawMessages) == 0 {
+		return strings.TrimSpace(result.Summary)
+	}
+	lines := make([]string, 0, len(rawMessages))
+	for _, raw := range rawMessages {
+		item, ok := raw.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		text := compactWhitespace(strings.TrimSpace(stringValue(item["text"])))
+		if text == "" {
+			continue
+		}
+		actor := firstNonEmpty(
+			compactWhitespace(strings.TrimSpace(stringValue(item["username"]))),
+			compactWhitespace(strings.TrimSpace(stringValue(item["user"]))),
+			compactWhitespace(strings.TrimSpace(stringValue(item["bot_id"]))),
+			"unknown",
+		)
+		lines = append(lines, fmt.Sprintf("%s: %s", actor, text))
+		if len(lines) == 4 {
+			break
+		}
+	}
+	if len(lines) == 0 {
+		return strings.TrimSpace(result.Summary)
+	}
+	return fmt.Sprintf("Bound Slack thread history: %s", strings.Join(lines, " | "))
+}
+
+func compactWhitespace(text string) string {
+	return strings.Join(strings.Fields(strings.TrimSpace(text)), " ")
 }
 
 func producedArtifactRefs(items []runnerutil.ProducedArtifact) []string {

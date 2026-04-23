@@ -61,7 +61,7 @@ func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
 	}))
 	defer runner.Close()
 
-	toolCalls := 0
+	toolCalls := []string{}
 	slackPosts := 0
 	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
@@ -69,7 +69,7 @@ func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
 		name = strings.TrimSuffix(name, "/internal/hermes-executions")
 		switch name {
 		case "repo.context", "knowledge.context", "sentry.lookup", "kubernetes.inspect", "github.repo_activity", "slack.history", "rsi.workflow_context", "rsi.action_chain", "rsi.runtime_health", "rsi.runtime_deployment_facts":
-			toolCalls++
+			toolCalls = append(toolCalls, name)
 			_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
 				Name:          name,
 				ToolCallID:    name + "-call",
@@ -176,8 +176,8 @@ func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
 	if !foundSeededEvent {
 		t.Fatal("expected trace to record context.seeded for seeded-open runner hints")
 	}
-	if toolCalls != 0 {
-		t.Fatalf("expected no control-plane tool prefetch calls, got %d", toolCalls)
+	if !reflect.DeepEqual(toolCalls, []string{"slack.history"}) {
+		t.Fatalf("expected one bound-thread slack.history prefetch call, got %#v", toolCalls)
 	}
 
 	if len(store.ListEvalRuns()) == 0 {
@@ -276,6 +276,147 @@ func TestWorkflowRunnerUsesHermesExecutorWhenConfigured(t *testing.T) {
 	}
 	if executorTask.WorkflowID != workflowItem.workflowID {
 		t.Fatalf("executor workflow_id = %q, want %q", executorTask.WorkflowID, workflowItem.workflowID)
+	}
+}
+
+func TestWorkflowRunnerAttachesBoundSlackThreadContext(t *testing.T) {
+	var executorTask clients.RunnerTask
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var payload struct {
+			Task clients.RunnerTask `json:"task"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("Decode() error = %v", err)
+		}
+		executorTask = payload.Task
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":       true,
+			"provider": "fake-executor",
+			"message":  `{"visible_reasoning":[{"step_type":"analysis","summary":"Recovered the parent thread request and prepared a reply.","confidence":0.93,"decision":"reply_in_thread"}],"reply_draft":"Draft reply","final_answer":"Final reply","confidence":0.93,"context_summary":"Bound Slack thread was reviewed.","self_critique":"None.","proposed_actions":[{"kind":"slack_post","target_ref":"CENG","idempotency_key":"reply-action-thread-prefetch-1","rationale":"Post the answer back into Slack."}]}`,
+			"raw": map[string]any{
+				"structured_output": map[string]any{
+					"visible_reasoning": []any{
+						map[string]any{
+							"step_type":  "analysis",
+							"summary":    "Recovered the parent thread request and prepared a reply.",
+							"confidence": 0.93,
+							"decision":   "reply_in_thread",
+						},
+					},
+					"reply_draft":     "Draft reply",
+					"final_answer":    "Final reply",
+					"confidence":      0.93,
+					"context_summary": "Bound Slack thread was reviewed.",
+					"self_critique":   "None.",
+					"proposed_actions": []any{
+						map[string]any{
+							"kind":            "slack_post",
+							"target_ref":      "CENG",
+							"idempotency_key": "reply-action-thread-prefetch-1",
+							"rationale":       "Post the answer back into Slack.",
+						},
+					},
+					"knowledge_drafts":   []any{},
+					"outcome_hypotheses": []any{},
+				},
+			},
+		})
+	}))
+	defer executor.Close()
+
+	toolCalls := []string{}
+	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
+		name = strings.TrimSuffix(name, "/execute")
+		toolCalls = append(toolCalls, name)
+		if name != "slack.history" {
+			t.Fatalf("unexpected tool invocation %s", name)
+		}
+		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
+			Name:          name,
+			ToolCallID:    "slack-history-prefetch-1",
+			Approved:      true,
+			ApprovalState: "not_required",
+			Status:        "completed",
+			Available:     true,
+			Provider:      "slack",
+			ProviderRef:   "171000001.000100",
+			Summary:       "Slack thread history loaded from D123 with 2 message(s).",
+			Input:         map[string]any{"channel_id": "D123", "thread_ts": "171000001.000100"},
+			Output: map[string]any{
+				"channel_id": "D123",
+				"thread_ts":  "171000001.000100",
+				"messages": []any{
+					map[string]any{
+						"user":      "UALLEN",
+						"username":  "Allen",
+						"text":      "@Blake @Aiwei where can i see the SoT on the schema for campaigns (aka tasks)?",
+						"ts":        "171000001.000100",
+						"thread_ts": "171000001.000100",
+					},
+					map[string]any{
+						"user":      "UBLAKE",
+						"username":  "Blake",
+						"text":      "@RSI pls help",
+						"ts":        "171000002.000100",
+						"thread_ts": "171000001.000100",
+					},
+				},
+			},
+		})
+	}))
+	defer toolGateway.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             executor.URL,
+		HermesExecutorBaseURL:     executor.URL,
+		ToolGatewayBaseURL:        toolGateway.URL,
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+		ProdRunnerTimeout:         930 * time.Second,
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect); err != nil {
+		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
+	}
+
+	if !strings.Contains(executorTask.Prompt, "Bound Slack thread context is attached in the task evidence") {
+		t.Fatalf("expected bound-thread prompt guidance, got %q", executorTask.Prompt)
+	}
+	if !strings.Contains(executorTask.ContextSummary, "Allen: @Blake @Aiwei where can i see the SoT on the schema for campaigns") {
+		t.Fatalf("expected parent question in context summary, got %q", executorTask.ContextSummary)
+	}
+	found := false
+	for _, ref := range executorTask.ContextRefs {
+		if ref.ToolName != "slack.history" {
+			continue
+		}
+		if !strings.Contains(ref.Summary, "Allen: @Blake @Aiwei where can i see the SoT on the schema for campaigns") {
+			t.Fatalf("expected parent question in prefetched ref, got %#v", ref)
+		}
+		if ref.ChannelID != executorTask.ChannelID || ref.ThreadTS != executorTask.ThreadTS {
+			t.Fatalf("expected bound Slack identifiers, got %#v", ref)
+		}
+		found = true
+	}
+	if !found {
+		t.Fatalf("expected slack.history context ref, got %#v", executorTask.ContextRefs)
+	}
+	if !reflect.DeepEqual(toolCalls, []string{"slack.history"}) {
+		t.Fatalf("expected one slack.history prefetch call, got %#v", toolCalls)
 	}
 }
 
@@ -447,6 +588,22 @@ func TestWorkflowPartialCompletionPostsStandardizedReplyAndPersistsVerdict(t *te
 		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
 		name = strings.TrimSuffix(name, "/execute")
 		name = strings.TrimSuffix(name, "/internal/hermes-executions")
+		if name == "slack.history" {
+			_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
+				Name:          name,
+				ToolCallID:    "slack-history-prefetch-partial",
+				Approved:      true,
+				ApprovalState: "not_required",
+				Status:        "completed",
+				Available:     true,
+				Provider:      "slack",
+				ProviderRef:   "171000001.000100",
+				Summary:       "Slack thread history loaded.",
+				Input:         map[string]any{},
+				Output:        map[string]any{"messages": []any{}},
+			})
+			return
+		}
 		if name != "slack.reply" {
 			t.Fatalf("unexpected tool invocation %s", name)
 		}
@@ -617,6 +774,22 @@ func TestWorkflowTaskTimeoutPartialCompletionPostsTimeoutNoticeAndPersistsVerdic
 		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
 		name = strings.TrimSuffix(name, "/execute")
 		name = strings.TrimSuffix(name, "/internal/hermes-executions")
+		if name == "slack.history" {
+			_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
+				Name:          name,
+				ToolCallID:    "slack-history-prefetch-timeout-partial",
+				Approved:      true,
+				ApprovalState: "not_required",
+				Status:        "completed",
+				Available:     true,
+				Provider:      "slack",
+				ProviderRef:   "171000001.000100",
+				Summary:       "Slack thread history loaded.",
+				Input:         map[string]any{},
+				Output:        map[string]any{"messages": []any{}},
+			})
+			return
+		}
 		if name != "slack.reply" {
 			t.Fatalf("unexpected tool invocation %s", name)
 		}
@@ -775,6 +948,22 @@ func TestWorkflowPartialCompletionBlockedByPolicyMovesNeedsHuman(t *testing.T) {
 		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
 		name = strings.TrimSuffix(name, "/execute")
 		name = strings.TrimSuffix(name, "/internal/hermes-executions")
+		if name == "slack.history" {
+			_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
+				Name:          name,
+				ToolCallID:    "slack-history-prefetch-blocked-partial",
+				Approved:      true,
+				ApprovalState: "not_required",
+				Status:        "completed",
+				Available:     true,
+				Provider:      "slack",
+				ProviderRef:   "171000001.000100",
+				Summary:       "Slack thread history loaded.",
+				Input:         map[string]any{},
+				Output:        map[string]any{"messages": []any{}},
+			})
+			return
+		}
 		if name == "slack.reply" {
 			slackPosts++
 		}
@@ -905,10 +1094,27 @@ func TestWorkflowNativeMCPReplyDeliveryCompletesWithoutQueuedSlackReply(t *testi
 	}))
 	defer runner.Close()
 
-	toolGatewayCalls := 0
+	toolGatewayCalls := []string{}
 	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		toolGatewayCalls++
-		t.Fatalf("unexpected tool gateway invocation %s", r.URL.Path)
+		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
+		name = strings.TrimSuffix(name, "/execute")
+		toolGatewayCalls = append(toolGatewayCalls, name)
+		if name != "slack.history" {
+			t.Fatalf("unexpected tool gateway invocation %s", r.URL.Path)
+		}
+		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
+			Name:          name,
+			ToolCallID:    "slack-history-prefetch-direct",
+			Approved:      true,
+			ApprovalState: "not_required",
+			Status:        "completed",
+			Available:     true,
+			Provider:      "slack",
+			ProviderRef:   "171000001.000100",
+			Summary:       "Slack thread history loaded.",
+			Input:         map[string]any{},
+			Output:        map[string]any{"messages": []any{}},
+		})
 	}))
 	defer toolGateway.Close()
 
@@ -947,8 +1153,8 @@ func TestWorkflowNativeMCPReplyDeliveryCompletesWithoutQueuedSlackReply(t *testi
 	if got := stringFromMap(taskPayload, "reply_delivery_mode"); got != "direct" {
 		t.Fatalf("expected direct reply delivery mode, got %q", got)
 	}
-	if toolGatewayCalls != 0 {
-		t.Fatalf("expected no tool gateway calls, got %d", toolGatewayCalls)
+	if !reflect.DeepEqual(toolGatewayCalls, []string{"slack.history"}) {
+		t.Fatalf("expected only slack.history prefetch call, got %#v", toolGatewayCalls)
 	}
 	if queued := queuedActionEffectsForPlane(store, "control"); len(queued) != 0 {
 		t.Fatalf("expected no queued control actions, got %#v", queued)
@@ -1024,10 +1230,27 @@ func TestWorkflowNativeMCPMissingReplyDeliveryMovesNeedsHuman(t *testing.T) {
 	}))
 	defer runner.Close()
 
-	toolGatewayCalls := 0
+	toolGatewayCalls := []string{}
 	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		toolGatewayCalls++
-		t.Fatalf("unexpected tool gateway invocation %s", r.URL.Path)
+		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
+		name = strings.TrimSuffix(name, "/execute")
+		toolGatewayCalls = append(toolGatewayCalls, name)
+		if name != "slack.history" {
+			t.Fatalf("unexpected tool gateway invocation %s", r.URL.Path)
+		}
+		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
+			Name:          name,
+			ToolCallID:    "slack-history-prefetch-missing-reply-delivery",
+			Approved:      true,
+			ApprovalState: "not_required",
+			Status:        "completed",
+			Available:     true,
+			Provider:      "slack",
+			ProviderRef:   "171000001.000100",
+			Summary:       "Slack thread history loaded.",
+			Input:         map[string]any{},
+			Output:        map[string]any{"messages": []any{}},
+		})
 	}))
 	defer toolGateway.Close()
 
@@ -1066,8 +1289,8 @@ func TestWorkflowNativeMCPMissingReplyDeliveryMovesNeedsHuman(t *testing.T) {
 	if got := stringFromMap(taskPayload, "reply_delivery_mode"); got != "direct" {
 		t.Fatalf("expected direct reply delivery mode, got %q", got)
 	}
-	if toolGatewayCalls != 0 {
-		t.Fatalf("expected no tool gateway calls, got %d", toolGatewayCalls)
+	if !reflect.DeepEqual(toolGatewayCalls, []string{"slack.history"}) {
+		t.Fatalf("expected only slack.history prefetch call, got %#v", toolGatewayCalls)
 	}
 	if queued := queuedActionEffectsForPlane(store, "control"); len(queued) != 0 {
 		t.Fatalf("expected no queued control actions, got %#v", queued)
@@ -1218,10 +1441,27 @@ func TestWorkflowNativeMCPReplyDeliveryUncertainMovesNeedsHuman(t *testing.T) {
 	}))
 	defer runner.Close()
 
-	toolGatewayCalls := 0
+	toolGatewayCalls := []string{}
 	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		toolGatewayCalls++
-		t.Fatalf("unexpected tool gateway invocation %s", r.URL.Path)
+		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
+		name = strings.TrimSuffix(name, "/execute")
+		toolGatewayCalls = append(toolGatewayCalls, name)
+		if name != "slack.history" {
+			t.Fatalf("unexpected tool gateway invocation %s", r.URL.Path)
+		}
+		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
+			Name:          name,
+			ToolCallID:    "slack-history-prefetch-uncertain-delivery",
+			Approved:      true,
+			ApprovalState: "not_required",
+			Status:        "completed",
+			Available:     true,
+			Provider:      "slack",
+			ProviderRef:   "171000001.000100",
+			Summary:       "Slack thread history loaded.",
+			Input:         map[string]any{},
+			Output:        map[string]any{"messages": []any{}},
+		})
 	}))
 	defer toolGateway.Close()
 
@@ -1249,8 +1489,8 @@ func TestWorkflowNativeMCPReplyDeliveryUncertainMovesNeedsHuman(t *testing.T) {
 		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
 	}
 
-	if toolGatewayCalls != 0 {
-		t.Fatalf("expected no tool gateway calls, got %d", toolGatewayCalls)
+	if !reflect.DeepEqual(toolGatewayCalls, []string{"slack.history"}) {
+		t.Fatalf("expected only slack.history prefetch call, got %#v", toolGatewayCalls)
 	}
 	if queued := queuedActionEffectsForPlane(store, "control"); len(queued) != 0 {
 		t.Fatalf("expected no queued control actions, got %#v", queued)
