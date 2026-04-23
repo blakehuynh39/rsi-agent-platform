@@ -4111,6 +4111,33 @@ class HermesRuntimeTests(unittest.TestCase):
             budgets["total"],
         )
 
+    def test_architecture_diagram_render_budget_gets_five_minutes(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "depin-backend",
+                    "prompt": "Render an architecture diagram artifact.",
+                    "timeout_seconds": 900,
+                    "requested_skills": ["architecture-diagram"],
+                    "requested_artifacts": [{"kind": "diagram", "description": "Architecture diagram"}],
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            budgets = runtime._artifact_phase_budgets(task)
+
+        self.assertEqual(budgets["total"], 900)
+        self.assertEqual(budgets["render"], 300)
+        self.assertLessEqual(
+            budgets["investigate"] + budgets["render"] + budgets["deliver"] + budgets["reducer_reserve"],
+            budgets["total"],
+        )
+
     def test_artifact_investigate_task_clears_requested_artifacts(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {

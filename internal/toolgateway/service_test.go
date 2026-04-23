@@ -601,7 +601,7 @@ func TestSlackUploadFileUsesExternalUploadFlow(t *testing.T) {
 	}
 }
 
-func TestSlackHistoryUsesChannelHistoryForProgressQuestion(t *testing.T) {
+func TestSlackHistoryUsesBoundThreadWhenThreadTSIsPresent(t *testing.T) {
 	var seenPath string
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		seenPath = r.URL.Path
@@ -614,13 +614,16 @@ func TestSlackHistoryUsesChannelHistoryForProgressQuestion(t *testing.T) {
 		if got := r.Form.Get("limit"); got != "25" {
 			t.Fatalf("expected default limit 25, got %q", got)
 		}
+		if got := r.Form.Get("ts"); got != "171000001.000100" {
+			t.Fatalf("expected thread ts 171000001.000100, got %q", got)
+		}
 		switch r.URL.Path {
-		case "/conversations.history":
+		case "/conversations.replies":
 			_ = json.NewEncoder(w).Encode(map[string]any{
 				"ok":       true,
 				"has_more": false,
 				"messages": []map[string]any{
-					{"type": "message", "user": "U123", "text": "Raised the control-plane budget and added Slack reads.", "ts": "171000001.000100"},
+					{"type": "message", "user": "U123", "text": "Raised the control-plane budget and added Slack reads.", "ts": "171000001.000100", "thread_ts": "171000001.000100"},
 				},
 				"response_metadata": map[string]any{"next_cursor": ""},
 			})
@@ -642,14 +645,14 @@ func TestSlackHistoryUsesChannelHistoryForProgressQuestion(t *testing.T) {
 		"question":   "How did depin-backend progress in the last week?",
 	})
 
-	if seenPath != "/conversations.history" {
-		t.Fatalf("expected conversations.history, got %s", seenPath)
+	if seenPath != "/conversations.replies" {
+		t.Fatalf("expected conversations.replies, got %s", seenPath)
 	}
 	if result.Status != "ok" {
 		t.Fatalf("expected ok status, got %s %#v", result.Status, result.Output)
 	}
-	if got := result.Output["scope"]; got != "channel" {
-		t.Fatalf("expected channel scope, got %#v", got)
+	if got := result.Output["scope"]; got != "thread" {
+		t.Fatalf("expected thread scope, got %#v", got)
 	}
 	messages, ok := result.Output["messages"].([]map[string]interface{})
 	if !ok || len(messages) != 1 {

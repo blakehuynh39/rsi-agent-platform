@@ -1016,8 +1016,12 @@ class HermesRuntime:
     def _artifact_phase_budgets(self, task: RunnerTaskRequest) -> JsonObject:
         total = self._effective_task_timeout(task)
         reserve_for_investigate = max(1, min(60, int(total * 0.45)))
+        architecture_diagram_requested = "architecture-diagram" in normalize_tool_names(task.requested_skills)
+        desired_render = min(180, max(45, int(total * 0.25)))
+        if architecture_diagram_requested:
+            desired_render = 300
         desired = {
-            "render": min(180, max(45, int(total * 0.25))),
+            "render": desired_render,
             "deliver": min(60, max(30, int(total * 0.1))),
             "reducer_reserve": min(180, max(60, int(total * 0.2))),
         }

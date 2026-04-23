@@ -2064,26 +2064,8 @@ func slackHistoryScope(input map[string]interface{}, question string, threadTS s
 	if strings.TrimSpace(threadTS) == "" {
 		return "channel"
 	}
-	text := strings.ToLower(strings.TrimSpace(question))
-	if text == "" {
-		return "thread"
-	}
-	threadIndicators := []string{
-		"thread",
-		"conversation",
-		"convo",
-		"reply",
-		"replied",
-		"said",
-		"latest convo",
-		"latest conversation",
-	}
-	for _, indicator := range threadIndicators {
-		if strings.Contains(text, indicator) {
-			return "thread"
-		}
-	}
-	return "channel"
+	_ = question
+	return "thread"
 }
 
 func slackHistoryLimit(input map[string]interface{}) int {
