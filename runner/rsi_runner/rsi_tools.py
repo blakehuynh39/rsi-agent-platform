@@ -928,7 +928,7 @@ class ReadOnlyToolBinding:
             return None
         if "://" in candidate:
             parsed = urlparse.urlparse(candidate)
-            if parsed.scheme != "file":
+            if parsed.scheme not in {"file", "hermes-file"}:
                 return None
             path_text = urlparse.unquote(parsed.path or "")
         else:

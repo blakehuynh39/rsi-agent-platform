@@ -45,6 +45,9 @@ class RunnerConfig:
     hermes_executor_enabled: bool
     hermes_executor_service_only: bool
     hermes_executor_workspace_root: str
+    hermes_computer_root: str
+    hermes_run_root: str
+    hermes_artifact_root: str
     hermes_native_governed_tools_enabled: bool
     slack_mcp_enabled: bool
     slack_mcp_server_url: str
@@ -93,6 +96,9 @@ class RunnerConfig:
         hermes_executor_enabled = parse_bool(optional_env("RSI_HERMES_EXECUTOR_ENABLED") or "false", "RSI_HERMES_EXECUTOR_ENABLED")
         hermes_executor_service_only = parse_bool(optional_env("RSI_HERMES_EXECUTOR_SERVICE_ONLY") or "false", "RSI_HERMES_EXECUTOR_SERVICE_ONLY")
         hermes_executor_workspace_root = optional_env("RSI_HERMES_EXECUTOR_WORKSPACE_ROOT") or "/workspace"
+        hermes_computer_root = optional_env("RSI_HERMES_COMPUTER_ROOT") or path_join(hermes_executor_workspace_root, "company")
+        hermes_run_root = optional_env("RSI_HERMES_RUN_ROOT") or path_join(hermes_computer_root, ".rsi", "runs")
+        hermes_artifact_root = optional_env("RSI_HERMES_ARTIFACT_ROOT") or path_join(hermes_computer_root, "artifacts")
         hermes_native_governed_tools_enabled = parse_bool(optional_env("RSI_HERMES_NATIVE_GOVERNED_TOOLS_ENABLED") or "false", "RSI_HERMES_NATIVE_GOVERNED_TOOLS_ENABLED")
         slack_mcp_enabled = parse_bool(optional_env("RSI_SLACK_MCP_ENABLED") or "false", "RSI_SLACK_MCP_ENABLED")
         slack_mcp_server_url = optional_url_env("RSI_SLACK_MCP_SERVER_URL") or "https://mcp.slack.com/mcp"
@@ -138,6 +144,9 @@ class RunnerConfig:
             hermes_executor_enabled=hermes_executor_enabled,
             hermes_executor_service_only=hermes_executor_service_only,
             hermes_executor_workspace_root=hermes_executor_workspace_root,
+            hermes_computer_root=hermes_computer_root,
+            hermes_run_root=hermes_run_root,
+            hermes_artifact_root=hermes_artifact_root,
             hermes_native_governed_tools_enabled=hermes_native_governed_tools_enabled,
             slack_mcp_enabled=slack_mcp_enabled,
             slack_mcp_server_url=slack_mcp_server_url,
@@ -179,6 +188,14 @@ def optional_url_env(name: str) -> str:
     if not parsed.scheme or not parsed.netloc:
         raise RunnerConfigError(f"{name} must be a valid absolute URL")
     return value
+
+
+def path_join(*parts: str) -> str:
+    stripped = [str(part or "").strip().strip("/") for part in parts if str(part or "").strip()]
+    if not stripped:
+        return ""
+    prefix = "/" if str(parts[0] or "").strip().startswith("/") else ""
+    return prefix + "/".join(stripped)
 
 
 def parse_port(raw: str) -> int:

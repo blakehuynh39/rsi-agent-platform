@@ -5,7 +5,6 @@ import io
 import json
 import os
 from pathlib import Path
-import shutil
 import subprocess
 import tempfile
 import threading
@@ -31,7 +30,7 @@ def runner_env(role: str = "prod") -> dict[str, str]:
         "RSI_RUNNER_PORT": "8090",
         "RSI_RUNNER_MODEL": "openai/gpt-5.4",
         "RSI_RUNNER_REASONING_EFFORT": "xhigh",
-        "RSI_HERMES_PIN": "4a0358d2e741eb049a6ffb9b8e610db946a4fec5",
+        "RSI_HERMES_PIN": "c95c6bdb7c5f507a9a18399d9d2523fa483cf157",
         "RSI_RUNNER_PUBLIC_BASE_URL": "https://staging-rsi-platform.storyprotocol.net",
         "RSI_TOOL_GATEWAY_BASE_URL": "http://tool-gateway.internal:8080",
         "HERMES_HOME": "/tmp/hermes",
@@ -316,6 +315,9 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(config.hermes_executor_enabled)
         self.assertTrue(config.hermes_executor_service_only)
         self.assertEqual(config.hermes_executor_workspace_root, "/var/lib/hermes-executor")
+        self.assertEqual(config.hermes_computer_root, "/var/lib/hermes-executor/company")
+        self.assertEqual(config.hermes_run_root, "/var/lib/hermes-executor/company/.rsi/runs")
+        self.assertEqual(config.hermes_artifact_root, "/var/lib/hermes-executor/company/artifacts")
 
     def test_context_engine_plugin_module_compiles_as_python(self) -> None:
         source = _build_plugin_module()
@@ -752,7 +754,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["honcho_write_frequency"], "async")
         self.assertEqual(result.raw["honcho_session_strategy"], "hybrid")
         self.assertEqual(result.raw["honcho_ai_peer"], "rsi:stage:eval")
-        self.assertEqual(result.raw["hermes_pin"], "4a0358d2e741eb049a6ffb9b8e610db946a4fec5")
+        self.assertEqual(result.raw["hermes_pin"], "c95c6bdb7c5f507a9a18399d9d2523fa483cf157")
         self.assertIn("structured_output", result.raw)
         self.assertEqual(result.raw["structured_output"]["final_answer"], "Final reply")
 
@@ -1665,6 +1667,7 @@ class HermesRuntimeTests(unittest.TestCase):
             }
         )
         request_paths: list[Path] = []
+        run_dir_exists_before_temp_cleanup = False
         mcp_registration = TaskScopedMCPRegistration(
             servers=[
                 TaskScopedMCPServer(
@@ -1738,7 +1741,7 @@ class HermesRuntimeTests(unittest.TestCase):
             )
             self.assertTrue(process._request["result_path"])
             self.assertNotIn("api_key", process._request["runtime"])
-            self.assertEqual(cwd, os.path.join(tempdir, "op-123"))
+            self.assertEqual(cwd, str((Path(tempdir) / "company").resolve()))
             self.assertTrue(process._text)
             return process
 
@@ -1780,6 +1783,9 @@ class HermesRuntimeTests(unittest.TestCase):
                     }
                 )
                 result = runtime.execute_task(task)
+            run_dir_exists_before_temp_cleanup = bool(
+                request_paths and request_paths[0].parent.exists() and request_paths[0].exists()
+            )
 
         self.assertTrue(result.ok)
         self.assertEqual(result.provider, "hermes-native-executor")
@@ -1788,7 +1794,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["system_message"], "System directive")
         self.assertEqual(result.raw["runner_diagnostics"]["agentic_mcp_cleanup_status"], "cleaned")
         self.assertEqual(len(request_paths), 1)
-        self.assertFalse(request_paths[0].exists())
+        self.assertTrue(run_dir_exists_before_temp_cleanup)
 
     def test_native_render_request_payload_uses_local_artifact_dir_and_strips_governed_toolsets(self) -> None:
         structured = json.dumps(
@@ -2361,9 +2367,9 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertFalse(result.ok)
         self.assertEqual(wait_calls, [5, 5])
 
-    def test_native_executor_cleans_request_dir_when_postprocess_raises(self) -> None:
+    def test_native_executor_persists_run_dir_when_postprocess_raises(self) -> None:
         request_paths: list[Path] = []
-        cleaned_paths: list[Path] = []
+        run_dir_exists_before_temp_cleanup = False
 
         class FakePopen:
             def __init__(self, cmd, cwd, env, stdout, stderr, text):
@@ -2398,20 +2404,12 @@ class HermesRuntimeTests(unittest.TestCase):
             def kill(self):
                 self.returncode = -9
 
-        original_rmtree = shutil.rmtree
-
-        def tracking_rmtree(path, *args, **kwargs):
-            cleaned_paths.append(Path(path))
-            return original_rmtree(path, *args, **kwargs)
-
         with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir, mock.patch(
             "rsi_runner.hermes_runtime.AIAgent", FakeAIAgent
         ), mock.patch(
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
         ), mock.patch(
             "rsi_runner.hermes_runtime.subprocess.Popen", side_effect=FakePopen
-        ), mock.patch(
-            "rsi_runner.hermes_runtime.shutil.rmtree", side_effect=tracking_rmtree
         ), mock.patch.dict(
             os.environ,
             {
@@ -2448,10 +2446,10 @@ class HermesRuntimeTests(unittest.TestCase):
                         runtime._resolve_tool_policy(task),
                         observer=RecordingObserver(),
                     )
+            run_dir_exists_before_temp_cleanup = bool(request_paths and request_paths[0].parent.exists() and request_paths[0].exists())
 
         self.assertEqual(len(request_paths), 1)
-        self.assertIn(request_paths[0].parent, cleaned_paths)
-        self.assertFalse(request_paths[0].parent.exists())
+        self.assertTrue(run_dir_exists_before_temp_cleanup)
 
     def test_execute_does_not_expand_skills_for_adhoc_prompts(self) -> None:
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
@@ -4293,7 +4291,7 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertTrue(result.ok)
         self.assertEqual([item.execution_phase for item in executed_tasks], ["investigate", "render", "deliver"])
-        expected_artifact_root = str((Path(tempdir) / "op-artifacts" / "artifacts").resolve())
+        expected_artifact_root = str((Path(tempdir) / "company" / "artifacts" / "depin-backend" / time.strftime("%Y-%m-%d", time.gmtime()) / "op-artifacts").resolve())
         self.assertTrue(all(item.artifact_destination == expected_artifact_root for item in executed_tasks))
         self.assertIn(f"Output path: {expected_artifact_root}", executed_tasks[1].prompt)
         self.assertNotIn("/var/lib/hermes/rsi_runtime/artifacts", executed_tasks[1].prompt)
@@ -4989,7 +4987,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(runtime.metadata["inactivity_timeout_seconds"], 360)
         self.assertEqual(runtime.metadata["transport_timeout_seconds"], 450)
         self.assertEqual(runtime.metadata["tool_policy_mode"], "enforced_read_only")
-        self.assertEqual(runtime.metadata["hermes_pin"], "4a0358d2e741eb049a6ffb9b8e610db946a4fec5")
+        self.assertEqual(runtime.metadata["hermes_pin"], "c95c6bdb7c5f507a9a18399d9d2523fa483cf157")
         self.assertEqual(runtime.metadata["session_continuity_status"], "ok")
         self.assertEqual(runtime.metadata["honcho_environment_effective"], "production")
         self.assertIn("repo.context", runtime.metadata["tool_allowlist_effective"])

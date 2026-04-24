@@ -270,50 +270,54 @@ type proposalListItem struct {
 }
 
 type runtimeRoleStatus struct {
-	Role                       string   `json:"role"`
-	ReportedRole               string   `json:"reported_role,omitempty"`
-	BaseURL                    string   `json:"base_url"`
-	TimeoutSeconds             int      `json:"timeout_seconds"`
-	TaskTimeoutSeconds         int      `json:"task_timeout_seconds"`
-	InactivityTimeoutSeconds   int      `json:"inactivity_timeout_seconds"`
-	MaxIterations              int      `json:"max_iterations"`
-	Status                     string   `json:"status"`
-	Backend                    string   `json:"backend"`
-	Provider                   string   `json:"provider"`
-	Model                      string   `json:"model"`
-	ProviderModel              string   `json:"provider_model,omitempty"`
-	APIMode                    string   `json:"api_mode,omitempty"`
-	ReasoningEffort            string   `json:"reasoning_effort"`
-	HermesVersion              string   `json:"hermes_version,omitempty"`
-	HermesPin                  string   `json:"hermes_pin,omitempty"`
-	ToolPolicyMode             string   `json:"tool_policy_mode,omitempty"`
-	ToolAllowlistEffective     []string `json:"tool_allowlist_effective,omitempty"`
-	BlockedToolNames           []string `json:"blocked_tool_names,omitempty"`
-	Available                  bool     `json:"available"`
-	Healthy                    bool     `json:"healthy"`
-	OpenAIConfigured           bool     `json:"openai_configured"`
-	HermesAvailable            bool     `json:"hermes_available"`
-	PersistenceEnabled         bool     `json:"persistence_enabled"`
-	SessionContinuityStatus    string   `json:"session_continuity_status,omitempty"`
-	HermesHome                 string   `json:"hermes_home,omitempty"`
-	SessionDBPath              string   `json:"session_db_path,omitempty"`
-	ContextEngineMode          string   `json:"context_engine_mode,omitempty"`
-	ContextEngineStatus        string   `json:"context_engine_status,omitempty"`
-	LifecycleHookStatus        string   `json:"lifecycle_hook_status,omitempty"`
-	MemoryBackend              string   `json:"memory_backend,omitempty"`
-	HonchoConfigured           bool     `json:"honcho_configured"`
-	HonchoAvailable            bool     `json:"honcho_available"`
-	HonchoBaseURL              string   `json:"honcho_base_url,omitempty"`
-	HonchoWorkspace            string   `json:"honcho_workspace,omitempty"`
-	HonchoEnvironment          string   `json:"honcho_environment,omitempty"`
-	HonchoEnvironmentEffective string   `json:"honcho_environment_effective,omitempty"`
-	HonchoRecallMode           string   `json:"honcho_recall_mode,omitempty"`
-	HonchoWriteFrequency       string   `json:"honcho_write_frequency,omitempty"`
-	HonchoSessionStrategy      string   `json:"honcho_session_strategy,omitempty"`
-	HonchoAIPeer               string   `json:"honcho_ai_peer,omitempty"`
-	HarnessProfileID           string   `json:"harness_profile_id,omitempty"`
-	ActiveOverlayVersion       string   `json:"active_overlay_version,omitempty"`
-	Error                      string   `json:"error,omitempty"`
+	Role                        string   `json:"role"`
+	ReportedRole                string   `json:"reported_role,omitempty"`
+	BaseURL                     string   `json:"base_url"`
+	TimeoutSeconds              int      `json:"timeout_seconds"`
+	TaskTimeoutSeconds          int      `json:"task_timeout_seconds"`
+	InactivityTimeoutSeconds    int      `json:"inactivity_timeout_seconds"`
+	MaxIterations               int      `json:"max_iterations"`
+	Status                      string   `json:"status"`
+	Backend                     string   `json:"backend"`
+	Provider                    string   `json:"provider"`
+	Model                       string   `json:"model"`
+	ProviderModel               string   `json:"provider_model,omitempty"`
+	APIMode                     string   `json:"api_mode,omitempty"`
+	ReasoningEffort             string   `json:"reasoning_effort"`
+	HermesVersion               string   `json:"hermes_version,omitempty"`
+	HermesPin                   string   `json:"hermes_pin,omitempty"`
+	ToolPolicyMode              string   `json:"tool_policy_mode,omitempty"`
+	ToolAllowlistEffective      []string `json:"tool_allowlist_effective,omitempty"`
+	BlockedToolNames            []string `json:"blocked_tool_names,omitempty"`
+	Available                   bool     `json:"available"`
+	Healthy                     bool     `json:"healthy"`
+	OpenAIConfigured            bool     `json:"openai_configured"`
+	HermesAvailable             bool     `json:"hermes_available"`
+	PersistenceEnabled          bool     `json:"persistence_enabled"`
+	SessionContinuityStatus     string   `json:"session_continuity_status,omitempty"`
+	HermesHome                  string   `json:"hermes_home,omitempty"`
+	HermesExecutorWorkspaceRoot string   `json:"hermes_executor_workspace_root,omitempty"`
+	HermesComputerRoot          string   `json:"hermes_computer_root,omitempty"`
+	HermesRunRoot               string   `json:"hermes_run_root,omitempty"`
+	HermesArtifactRoot          string   `json:"hermes_artifact_root,omitempty"`
+	SessionDBPath               string   `json:"session_db_path,omitempty"`
+	ContextEngineMode           string   `json:"context_engine_mode,omitempty"`
+	ContextEngineStatus         string   `json:"context_engine_status,omitempty"`
+	LifecycleHookStatus         string   `json:"lifecycle_hook_status,omitempty"`
+	MemoryBackend               string   `json:"memory_backend,omitempty"`
+	HonchoConfigured            bool     `json:"honcho_configured"`
+	HonchoAvailable             bool     `json:"honcho_available"`
+	HonchoBaseURL               string   `json:"honcho_base_url,omitempty"`
+	HonchoWorkspace             string   `json:"honcho_workspace,omitempty"`
+	HonchoEnvironment           string   `json:"honcho_environment,omitempty"`
+	HonchoEnvironmentEffective  string   `json:"honcho_environment_effective,omitempty"`
+	HonchoRecallMode            string   `json:"honcho_recall_mode,omitempty"`
+	HonchoWriteFrequency        string   `json:"honcho_write_frequency,omitempty"`
+	HonchoSessionStrategy       string   `json:"honcho_session_strategy,omitempty"`
+	HonchoAIPeer                string   `json:"honcho_ai_peer,omitempty"`
+	HarnessProfileID            string   `json:"harness_profile_id,omitempty"`
+	ActiveOverlayVersion        string   `json:"active_overlay_version,omitempty"`
+	Error                       string   `json:"error,omitempty"`
 }
 
 type honchoRuntimeStatus struct {
@@ -917,6 +921,10 @@ func buildRuntimeStatus(cfg config.Config, store storepkg.Repository) []runtimeR
 		item.PersistenceEnabled = resp.PersistenceEnabled
 		item.SessionContinuityStatus = resp.SessionContinuityStatus
 		item.HermesHome = resp.HermesHome
+		item.HermesExecutorWorkspaceRoot = resp.HermesExecutorWorkspaceRoot
+		item.HermesComputerRoot = resp.HermesComputerRoot
+		item.HermesRunRoot = resp.HermesRunRoot
+		item.HermesArtifactRoot = resp.HermesArtifactRoot
 		item.SessionDBPath = resp.SessionDBPath
 		item.ContextEngineMode = resp.ContextEngineMode
 		item.ContextEngineStatus = resp.ContextEngineStatus

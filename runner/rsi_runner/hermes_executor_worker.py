@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import hashlib
 import json
 import logging
 import os
@@ -233,11 +234,18 @@ class _LocalArtifactToolBinding:
             target.parent.mkdir(parents=True, exist_ok=True)
             content = _string(args.get("content"))
             target.write_text(content, encoding="utf-8")
+            content_bytes = content.encode("utf-8")
+            file_ref = f"file://{target}"
             completed_payload = {
                 "tool_name": _ARTIFACT_WRITE_FILE_TOOL,
                 "path": str(target),
+                "workspace_path": str(target),
+                "file_ref": file_ref,
                 "artifact_output_dir": str(self._artifact_output_dir),
-                "bytes_written": len(content.encode("utf-8")),
+                "bytes_written": len(content_bytes),
+                "size_bytes": len(content_bytes),
+                "sha256": hashlib.sha256(content_bytes).hexdigest(),
+                "share_status": "local",
             }
             self._record_event("artifact.write.completed", "completed", completed_payload)
             return json.dumps(
@@ -246,7 +254,7 @@ class _LocalArtifactToolBinding:
                     "status": "ok",
                     "summary": f"Wrote artifact file to {target}.",
                     "output": completed_payload,
-                    "raw_artifact_refs": [f"file://{target}"],
+                    "raw_artifact_refs": [file_ref],
                 },
                 ensure_ascii=True,
                 sort_keys=True,
