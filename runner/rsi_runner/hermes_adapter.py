@@ -24,18 +24,21 @@ description: "RSI governed context injection, native governed tools, and lifecyc
 
 _PLUGIN_MODULE_TEMPLATE = """from __future__ import annotations
 
+import base64
 import json
 import hashlib
 import os
 import time
 from pathlib import Path
 from urllib import error as urlerror
+from urllib import parse as urlparse
 from urllib import request as urlrequest
 
 
 _PLUGIN_TOOLS = __PLUGIN_TOOLS__
 _TRANSPORT_TO_CANONICAL = {item["transport_name"]: item["canonical_name"] for item in _PLUGIN_TOOLS}
 _ARTIFACT_CANONICAL_NAMES = {"artifact.list_files", "artifact.write_file"}
+_LOCAL_UPLOAD_MAX_BYTES = 10 * 1024 * 1024
 
 
 def _runtime_root() -> Path:
@@ -116,6 +119,10 @@ def _first_non_empty(*values) -> str:
         if text:
             return text
     return ""
+
+
+def _string_value(value) -> str:
+    return str(value or "").strip()
 
 
 def _artifact_output_dir(payload: JsonObject) -> Path:
@@ -379,6 +386,14 @@ def _default_payload(canonical_name: str, payload: JsonObject) -> JsonObject:
             out["channel_ids"] = channel_ids
         if slack_search_query:
             out["query"] = slack_search_query
+    if canonical_name == "slack.upload_file":
+        surface = _default_slack_surface(payload)
+        channel_id = str(surface.get("channel_id", "") or task_channel_id).strip()
+        thread_ts = str(surface.get("thread_ts", "") or task_thread_ts).strip()
+        if channel_id:
+            out["channel_id"] = channel_id
+        if thread_ts:
+            out["thread_ts"] = thread_ts
     if canonical_name == "github.repo_activity":
         since, until = _activity_window(payload)
         if since:
@@ -475,6 +490,86 @@ def _activity_window(payload: JsonObject) -> tuple[str, str]:
     return "", ""
 
 
+def _allowed_upload_roots(payload: JsonObject) -> list[Path]:
+    roots: list[Path] = []
+    for value in [
+        payload.get("artifact_output_dir"),
+        payload.get("hermes_computer_root"),
+        payload.get("hermes_artifact_root"),
+    ]:
+        text = _string_value(value)
+        if text:
+            roots.append(Path(text).expanduser().resolve())
+    workspace_policy = payload.get("workspace_policy")
+    if isinstance(workspace_policy, dict):
+        for item in workspace_policy.get("allowed_path_roots") or []:
+            text = _string_value(item)
+            if text:
+                roots.append(Path(text).expanduser().resolve())
+    deduped: list[Path] = []
+    seen: set[str] = set()
+    for root in roots:
+        key = str(root)
+        if key not in seen:
+            seen.add(key)
+            deduped.append(root)
+    return deduped
+
+
+def _path_is_under(path: Path, root: Path) -> bool:
+    try:
+        path.relative_to(root)
+        return True
+    except ValueError:
+        return False
+
+
+def _resolve_slack_upload_path(payload: JsonObject) -> Path | None:
+    raw_path = _first_non_empty(_string_value(payload.get("path")), _string_value(payload.get("artifact_ref")))
+    if not raw_path:
+        return None
+    candidate = raw_path.strip()
+    if "://" in candidate:
+        parsed = urlparse.urlparse(candidate)
+        if parsed.scheme not in {"file", "hermes-file"}:
+            return None
+        path_text = urlparse.unquote(parsed.path or "")
+    else:
+        path_text = candidate
+    if not path_text:
+        raise ValueError("slack.upload_file file artifact_ref is missing a path")
+    path = Path(path_text).expanduser()
+    path = path.resolve() if path.is_absolute() else (Path.cwd() / path).resolve()
+    roots = _allowed_upload_roots(payload)
+    if not roots:
+        raise ValueError("slack.upload_file no allowed upload roots configured")
+    if not any(_path_is_under(path, root) for root in roots):
+        raise ValueError("slack.upload_file local file is outside allowed workspace roots")
+    if not path.exists():
+        raise ValueError(f"slack.upload_file local file does not exist: {path}")
+    if not path.is_file():
+        raise ValueError(f"slack.upload_file local path is not a file: {path}")
+    return path
+
+
+def _resolve_slack_upload_payload(payload: JsonObject) -> JsonObject:
+    if _string_value(payload.get("content")) or _string_value(payload.get("content_base64")):
+        return payload
+    resolved_path = _resolve_slack_upload_path(payload)
+    if resolved_path is None:
+        return payload
+    stat = resolved_path.stat()
+    if stat.st_size <= 0:
+        raise ValueError(f"slack.upload_file local file is empty: {resolved_path}")
+    if stat.st_size > _LOCAL_UPLOAD_MAX_BYTES:
+        raise ValueError(f"slack.upload_file local file exceeds {_LOCAL_UPLOAD_MAX_BYTES} bytes: {resolved_path}")
+    updated = dict(payload)
+    updated["content_base64"] = base64.b64encode(resolved_path.read_bytes()).decode("ascii")
+    updated["filename"] = _first_non_empty(_string_value(updated.get("filename")), resolved_path.name)
+    updated["path"] = str(resolved_path)
+    return updated
+
+
 def _tool_handler(transport_name: str):
     canonical_name = _TRANSPORT_TO_CANONICAL[transport_name]
 
@@ -511,6 +606,24 @@ def _tool_handler(transport_name: str):
                     "request_payload": request_payload,
                 },
             )
+        if canonical_name == "slack.upload_file":
+            try:
+                upload_payload = dict(payload)
+                upload_payload.update({k: request_payload[k] for k in ["content", "content_base64", "filename", "path", "artifact_ref"] if k in request_payload})
+                resolved_payload = _resolve_slack_upload_payload(upload_payload)
+                for key in ["content", "content_base64", "filename", "path"]:
+                    if key in resolved_payload:
+                        request_payload[key] = resolved_payload[key]
+            except Exception as exc:
+                failure = {
+                    "tool_name": canonical_name,
+                    "transport_tool_name": transport_name,
+                    "status": "error",
+                    "error": str(exc),
+                }
+                if session_id:
+                    _append_event(session_id, "tool_call_completed", failure)
+                return json.dumps(failure)
         req = urlrequest.Request(
             f"{base_url.rstrip('/')}/api/tools/{canonical_name}/execute",
             data=json.dumps(request_payload).encode("utf-8"),

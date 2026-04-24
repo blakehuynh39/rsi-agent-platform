@@ -68,6 +68,14 @@ QUESTION_RUN_BOUNDED_STOP_TERMINATION_REASONS = frozenset(
         "output_token_budget_exhausted",
     }
 )
+ARTIFACT_RENDER_FALLBACK_BLOCKED_TERMINATION_REASONS = frozenset(
+    {
+        *QUESTION_RUN_BOUNDED_STOP_TERMINATION_REASONS,
+        "cancelled",
+        "inactivity_timeout",
+    }
+)
+DIRECT_DELIVERY_SUCCESS_STATUSES = frozenset({"posted", "sent", "uploaded", "completed", "ok", "success", "shared"})
 ARTIFACT_RENDER_NATIVE_TOOL_NAMES = frozenset({"write_file", "read_file", "search_files", "skill_view"})
 ARTIFACT_RENDER_RSI_TOOL_NAMES = frozenset(
     {
@@ -1092,10 +1100,21 @@ class HermesRuntime:
         reply_delivery = _json_object_or_empty(delivery_output.get("reply_delivery"))
         status = _string_or_json(reply_delivery.get("status")).lower()
         shared = bool(_string_or_json(reply_delivery.get("provider_ref")) or _string_or_json(reply_delivery.get("message_link")))
-        shared = shared or status in {"posted", "sent", "uploaded", "completed", "ok", "success", "shared"}
+        shared = shared or status in DIRECT_DELIVERY_SUCCESS_STATUSES
         if not shared:
             return artifacts
         return [{**artifact, "share_status": "shared"} for artifact in artifacts]
+
+    def _reply_delivery_succeeded(self, delivery_output: JsonObject) -> bool:
+        reply_delivery = _json_object_or_empty(delivery_output.get("reply_delivery"))
+        if not reply_delivery:
+            return False
+        status = _string_or_json(reply_delivery.get("status")).lower()
+        if status == "failed":
+            return False
+        return status in DIRECT_DELIVERY_SUCCESS_STATUSES or bool(
+            _string_or_json(reply_delivery.get("provider_ref")) or _string_or_json(reply_delivery.get("message_link"))
+        )
 
     def _create_native_execution_recorder(self, task: RunnerTaskRequest, *, label: str) -> NativeExecutionRecorder:
         filename = (
@@ -5175,7 +5194,13 @@ class HermesRuntime:
             "resolved_skills": [resolved_skill] if resolved_skill else [],
         }
 
-    def _artifact_render_briefs(self, task: RunnerTaskRequest, structured_output: JsonObject) -> list[JsonObject]:
+    def _artifact_render_briefs(
+        self,
+        task: RunnerTaskRequest,
+        structured_output: JsonObject,
+        *,
+        allow_fallback: bool = True,
+    ) -> list[JsonObject]:
         briefs = _normalize_artifact_render_briefs(structured_output.get("artifact_render_briefs"))
         if briefs:
             hydrated: list[JsonObject] = []
@@ -5204,6 +5229,8 @@ class HermesRuntime:
                     }
                 )
             return hydrated
+        if not allow_fallback:
+            return []
         fallback: list[JsonObject] = []
         for index, requested in enumerate(task.requested_artifacts, start=1):
             kind = _string_or_json(requested.get("kind"))
@@ -5230,6 +5257,18 @@ class HermesRuntime:
                 }
             )
         return fallback
+
+    def _artifact_render_fallback_block_reason(self, investigate_result: HermesExecutionResult) -> str:
+        termination_reason = _string_or_json(investigate_result.raw.get("termination_reason"))
+        completion_verdict = _string_or_json(investigate_result.raw.get("completion_verdict"))
+        if termination_reason in ARTIFACT_RENDER_FALLBACK_BLOCKED_TERMINATION_REASONS:
+            return f"Artifact render skipped because investigation ended with {termination_reason} before producing renderable briefs."
+        if completion_verdict == "partial":
+            return "Artifact render skipped because investigation was only partially completed and produced no renderable briefs."
+        return ""
+
+    def _allow_artifact_render_fallback(self, investigate_result: HermesExecutionResult) -> bool:
+        return not self._artifact_render_fallback_block_reason(investigate_result)
 
     def _investigate_mcp_servers(self, task: RunnerTaskRequest) -> list[JsonObject]:
         servers: list[JsonObject] = []
@@ -5443,12 +5482,14 @@ class HermesRuntime:
                 final_output["reply_delivery"] = _json_object_or_empty(delivery_output.get("reply_delivery"))
             if _normalize_proposed_actions(delivery_output.get("proposed_actions")):
                 final_output["proposed_actions"] = _normalize_proposed_actions(delivery_output.get("proposed_actions"))
-        if direct_delivery_failed and not _json_object_or_empty(final_output.get("reply_delivery")):
-            final_output["proposed_actions"] = self._synthesized_slack_post_action(
+        if direct_delivery_failed:
+            synthesized_actions = self._synthesized_slack_post_action(
                 task,
                 _string_or_json(final_output.get("final_answer")) or _string_or_json(final_output.get("reply_draft")),
                 produced_artifacts,
             )
+            if synthesized_actions:
+                final_output["proposed_actions"] = synthesized_actions
         base_raw = dict(delivery_result.raw if delivery_result is not None else investigate_result.raw)
         runner_diagnostics = _json_object_or_empty(base_raw.get("runner_diagnostics"))
         budgets = self._artifact_phase_budgets(task)
@@ -5515,16 +5556,31 @@ class HermesRuntime:
         if not investigate_result.ok:
             return investigate_result
         investigate_output = _normalize_structured_output(_json_object_or_empty(investigate_result.raw.get("structured_output")))
-        render_briefs = self._artifact_render_briefs(phase_task, investigate_output)
+        render_briefs = self._artifact_render_briefs(
+            phase_task,
+            investigate_output,
+            allow_fallback=self._allow_artifact_render_fallback(investigate_result),
+        )
         produced_artifacts: list[JsonObject] = []
         artifact_failure_reasons: list[str] = []
         if not render_briefs:
-            artifact_failure_reasons.append(
-                first_non_empty(
-                    _string_or_json(investigate_output.get("artifact_failure_reason")),
-                    "Artifact investigation completed without artifact_render_briefs.",
-                )
+            render_skip_reason = first_non_empty(
+                _string_or_json(investigate_output.get("artifact_failure_reason")),
+                self._artifact_render_fallback_block_reason(investigate_result),
+                "Artifact investigation completed without artifact_render_briefs.",
             )
+            artifact_failure_reasons.append(render_skip_reason)
+            if observer is not None:
+                observer.emit(
+                    phase="render",
+                    event_type="phase.completed",
+                    status="skipped",
+                    payload={
+                        "completion_verdict": _string_or_json(investigate_result.raw.get("completion_verdict")),
+                        "termination_reason": _string_or_json(investigate_result.raw.get("termination_reason")),
+                        "artifact_failure_reason": render_skip_reason,
+                    },
+                )
         for index, brief in enumerate(render_briefs):
             render_task = self._build_artifact_render_task(phase_task, brief, investigate_output, budgets, index)
             render_skill = _normalize_skill_identifier(
@@ -5604,13 +5660,15 @@ class HermesRuntime:
             deliver_result = self._execute_task_internal(deliver_task, observer=observer)
             if deliver_result.ok:
                 deliver_output = _normalize_structured_output(_json_object_or_empty(deliver_result.raw.get("structured_output")))
+                reply_delivery = _json_object_or_empty(deliver_output.get("reply_delivery"))
+                delivery_succeeded = self._reply_delivery_succeeded(deliver_output)
                 if observer is not None:
                     observer.emit(
                         phase="deliver",
                         event_type="direct_delivery.completed",
-                        status="completed" if _json_object_or_empty(deliver_output.get("reply_delivery")) else "fallback",
+                        status="completed" if delivery_succeeded else ("failed" if reply_delivery else "fallback"),
                     )
-                if _json_object_or_empty(deliver_output.get("reply_delivery")):
+                if delivery_succeeded:
                     return self._merge_artifact_phase_result(
                         task,
                         investigate_result,
@@ -5619,6 +5677,19 @@ class HermesRuntime:
                         artifact_failure_reason,
                         delivery_result=deliver_result,
                         delivery_output=deliver_output,
+                        observer=observer,
+                    )
+                if reply_delivery:
+                    delivery_status = _string_or_json(reply_delivery.get("status")) or "unknown"
+                    return self._merge_artifact_phase_result(
+                        task,
+                        investigate_result,
+                        investigate_output,
+                        produced_artifacts,
+                        artifact_failure_reason,
+                        delivery_result=deliver_result,
+                        delivery_output=deliver_output,
+                        direct_delivery_failed=f"direct delivery phase reported unsuccessful status {delivery_status}",
                         observer=observer,
                     )
                 return self._merge_artifact_phase_result(
