@@ -2,6 +2,7 @@ package runnerutil
 
 import (
 	"testing"
+	"time"
 
 	"github.com/piplabs/rsi-agent-platform/internal/clients"
 )
@@ -103,5 +104,41 @@ func TestParseStructuredOutputLegacyReplyDeliveryStatus(t *testing.T) {
 	}
 	if out.ReplyDelivery.ChannelID != "C456" {
 		t.Fatalf("ReplyDelivery.ChannelID = %q, want %q", out.ReplyDelivery.ChannelID, "C456")
+	}
+}
+
+func TestExecutionLedgerEventsFromRunnerRaw(t *testing.T) {
+	occurredAt := time.Date(2026, 4, 24, 12, 0, 0, 0, time.UTC)
+	items := ExecutionLedgerEventsFromRunnerRaw(map[string]any{
+		"execution_envelope": map[string]any{
+			"contract_version": "execution-envelope/v1",
+			"execution_id":     "hexec-123",
+			"operation_id":     "eff-123",
+			"trace_id":         "trace-123",
+			"workflow_id":      "wf-123",
+			"ledger_events": []any{
+				map[string]any{
+					"event_id":        "ledger-1",
+					"kind":            "artifact.created",
+					"phase_id":        "render",
+					"status":          "completed",
+					"sequence":        7,
+					"idempotency_key": "idem-1",
+					"payload": map[string]any{
+						"file_ref": "file:///workspace/company/artifacts/a.html",
+					},
+					"recorded_at": "2026-04-24T12:01:02Z",
+				},
+			},
+		},
+	}, occurredAt)
+	if len(items) != 1 {
+		t.Fatalf("ledger events = %#v", items)
+	}
+	if items[0].ExecutionID != "hexec-123" || items[0].Seq != 7 || items[0].Kind != "artifact.created" {
+		t.Fatalf("unexpected event: %#v", items[0])
+	}
+	if items[0].RecordedAt.Equal(occurredAt) {
+		t.Fatalf("expected recorded_at from envelope, got fallback")
 	}
 }

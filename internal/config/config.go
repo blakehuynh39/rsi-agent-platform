@@ -100,6 +100,7 @@ type Config struct {
 	HermesRunRoot                      string
 	HermesArtifactRoot                 string
 	ExecutionEnvelopeV1Enabled         bool
+	ExecutionLedgerFirstProjection     bool
 	RunnerPlannerMode                  string
 	RuntimeDiagnosisEnabled            bool
 	RuntimeDiagnosisLogFallbackEnabled bool
@@ -206,6 +207,7 @@ func Load(serviceName string) Config {
 		HermesRunRoot:                      stringEnv("RSI_HERMES_RUN_ROOT", "/workspace/company/.rsi/runs"),
 		HermesArtifactRoot:                 stringEnv("RSI_HERMES_ARTIFACT_ROOT", "/workspace/company/artifacts"),
 		ExecutionEnvelopeV1Enabled:         boolEnv("RSI_EXECUTION_ENVELOPE_V1_ENABLED", true),
+		ExecutionLedgerFirstProjection:     boolEnv("RSI_EXECUTION_LEDGER_FIRST_PROJECTION_ENABLED", false),
 		RunnerPlannerMode:                  stringEnv("RSI_RUNNER_PLANNER_MODE", "runner_first"),
 		RuntimeDiagnosisEnabled:            boolEnv("RSI_RUNTIME_DIAGNOSIS_ENABLED", false),
 		RuntimeDiagnosisLogFallbackEnabled: boolEnv("RSI_RUNTIME_DIAGNOSIS_LOG_FALLBACK_ENABLED", false),

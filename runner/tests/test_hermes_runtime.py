@@ -14,6 +14,7 @@ import unittest
 from unittest import mock
 
 from rsi_runner.config import RunnerConfig, RunnerConfigError
+from rsi_runner.execution_contract import HermesCompanyComputer
 from rsi_runner.hermes_adapter import _build_plugin_module
 from rsi_runner.hermes_agent_adapter import HermesAgentAdapter, HermesContractStatus, validate_hermes_contract
 from rsi_runner.hermes_mcp_adapter import TaskScopedMCPCleanupResult, TaskScopedMCPRegistration, TaskScopedMCPServer
@@ -4596,7 +4597,15 @@ class HermesRuntimeTests(unittest.TestCase):
         envelope = result.raw["execution_envelope"]
         self.assertEqual(envelope["contract_version"], "execution-envelope/v1")
         self.assertEqual(envelope["execution_plan"]["mode"], "runner_first")
-        self.assertEqual([item["phase_type"] for item in envelope["phase_runs"]], ["investigate", "render", "deliver"])
+        self.assertEqual([item["phase_type"] for item in envelope["phase_runs"]], ["plan", "investigate", "render", "deliver", "reflect"])
+        planned_events = [item for item in envelope["ledger_events"] if item["kind"] == "phase.planned"]
+        self.assertEqual(len(planned_events), len(envelope["phase_runs"]))
+        self.assertEqual(
+            [item["phase_id"] for item in planned_events],
+            [item["phase_id"] for item in envelope["phase_runs"]],
+        )
+        self.assertEqual({item["payload"]["status"] for item in planned_events}, {"planned"})
+        self.assertEqual([item["payload"].get("output_refs") for item in planned_events], [[] for _ in planned_events])
         self.assertEqual(envelope["artifacts"][0]["file_ref"], artifact_ref)
         self.assertIn("workspace_path", envelope["artifacts"][0])
         self.assertIn("sha256", envelope["artifacts"][0])
@@ -4633,6 +4642,30 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["failure_class"], "runner_contract_failed")
         self.assertEqual(result.raw["execution_envelope"]["completion"]["termination_reason"], "runner_contract_failed")
         self.assertIn("Unknown capability lease aws_admin.", result.message)
+
+    def test_observation_ledger_event_preserves_empty_payload(self) -> None:
+        computer = HermesCompanyComputer(
+            computer_root="/workspace/company",
+            run_root="/workspace/company/.rsi/runs",
+            artifact_root="/workspace/company/artifacts",
+            hermes_pin=HERMES_TEST_PIN,
+        )
+        event = computer._ledger_event_from_observation(
+            {
+                "execution_id": "hexec-test",
+                "hermes_session_id": "session-test",
+                "event_type": "phase.started",
+                "phase": "operate",
+                "payload": {},
+                "role": "prod",
+                "seq": 1,
+                "status": "running",
+            },
+            sequence=1,
+            execution_id="hexec-test",
+        )
+
+        self.assertEqual(event["payload"], {})
 
     def test_artifact_phase_budgets_never_exceed_total_timeout(self) -> None:
         task = RunnerTaskRequest.from_payload(

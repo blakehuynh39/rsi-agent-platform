@@ -44,13 +44,14 @@ func NewBaseRouter(cfg config.Config) *chi.Mux {
 	})
 	r.Get("/api/meta", func(w http.ResponseWriter, r *http.Request) {
 		WriteJSON(w, http.StatusOK, map[string]interface{}{
-			"service":                 cfg.ServiceName,
-			"service_kind":            cfg.ServiceKind,
-			"mode":                    cfg.RuntimeMode,
-			"env":                     cfg.Environment,
-			"config_validated":        cfg.ConfigValidated,
-			"store_backend":           cfg.StoreBackend,
-			"default_repo":            cfg.DefaultRepo,
+			"service":          cfg.ServiceName,
+			"service_kind":     cfg.ServiceKind,
+			"mode":             cfg.RuntimeMode,
+			"env":              cfg.Environment,
+			"config_validated": cfg.ConfigValidated,
+			"store_backend":    cfg.StoreBackend,
+			"default_repo":     cfg.DefaultRepo,
+			"execution_ledger_first_projection_enabled": cfg.ExecutionLedgerFirstProjection,
 			"dependencies":            cfg.DependencyTargets(),
 			"schema_current_version":  cfg.SchemaVersionCurrent,
 			"schema_expected_version": cfg.SchemaVersionExpected,

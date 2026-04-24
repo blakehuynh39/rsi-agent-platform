@@ -22,6 +22,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/runnerutil"
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
+	"github.com/piplabs/rsi-agent-platform/internal/timeutil"
 	"github.com/piplabs/rsi-agent-platform/internal/toolcatalog"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
 	"github.com/piplabs/rsi-agent-platform/internal/workflowplan"
@@ -241,6 +242,13 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	); err != nil {
 		return runnerPostProcessingFailure("persist_harness_execution", err)
 	}
+	ledgerEvents := runnerutil.ExecutionLedgerEventsFromRunnerRaw(runnerResp.Raw, runnerStarted)
+	useLedgerFirst := cfg.ExecutionLedgerFirstProjection && len(ledgerEvents) > 0
+	if len(ledgerEvents) > 0 {
+		if err := store.RecordExecutionLedgerEvents(ledgerEvents); err != nil {
+			return runnerPostProcessingFailure("persist_execution_ledger", err)
+		}
+	}
 	if ctx, err = refreshWorkflowContextState(store, ctx); err != nil {
 		return runnerPostProcessingFailure("refresh_workflow_context_after_harness_execution", err)
 	}
@@ -253,6 +261,9 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 			runnerDiagnostics := cloneStringAnyMap(mapValue(runnerResp.Raw["runner_diagnostics"]))
 			runnerDiagnostics = mergeWorkflowRunnerDiagnostics(runnerDiagnostics, runnerResp.Raw)
 			runnerToolCalls := bindRunnerToolCallRecords(toolCallRecordsFromRunnerRaw(runnerResp.Raw), ctx.trace, ctx.workflow)
+			if useLedgerFirst {
+				runnerToolCalls = bindRunnerToolCallRecords(toolCallRecordsFromExecutionLedger(ledgerEvents, runnerCompleted), ctx.trace, ctx.workflow)
+			}
 			payload := map[string]any{
 				"last_error":         firstNonEmpty(strings.TrimSpace(runnerResp.Message), "runner reply delivery became uncertain after a Slack MCP write attempt"),
 				"failure_class":      "runner_reply_delivery_uncertain",
@@ -306,6 +317,11 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		failure := workflowFailureFromRunnerResponse(runnerResp)
 		if runnerOutput, parseErr := runnerutil.ParseStructuredOutput(runnerResp); parseErr == nil {
 			failure.TraceArtifacts = traceArtifactsFromProducedArtifacts(ctx.trace.Summary.TraceID, runnerOutput.ProducedArtifacts)
+			if useLedgerFirst {
+				if ledgerArtifacts := traceArtifactsFromExecutionLedger(ctx.trace.Summary.TraceID, ledgerEvents); len(ledgerArtifacts) > 0 {
+					failure.TraceArtifacts = ledgerArtifacts
+				}
+			}
 			if len(failure.TraceArtifacts) > 0 {
 				completedAt := time.Now().UTC()
 				failure.ReasoningSteps = append(failure.ReasoningSteps, events.ReasoningStep{
@@ -342,6 +358,11 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		return runnerPostProcessingFailure("persist_knowledge_drafts", err)
 	}
 	traceArtifacts := traceArtifactsFromProducedArtifacts(ctx.trace.Summary.TraceID, runnerOutput.ProducedArtifacts)
+	if useLedgerFirst {
+		if ledgerArtifacts := traceArtifactsFromExecutionLedger(ctx.trace.Summary.TraceID, ledgerEvents); len(ledgerArtifacts) > 0 {
+			traceArtifacts = ledgerArtifacts
+		}
+	}
 	artifactRequested := len(runnerTask.RequestedArtifacts) > 0
 	artifactProduced := len(traceArtifacts) > 0
 	artifactFailureReason := strings.TrimSpace(runnerOutput.ArtifactFailureReason)
@@ -366,7 +387,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	}
 	allowed, policyVerdict := replyPolicy(store, ctx.workflow.Kind, replyThreadKey, replyChannelID)
 	replyDeliveryMode := clients.NormalizeRunnerReplyDeliveryMode(runnerTask.ReplyDeliveryMode)
-	replyDelivery, hasReplyDelivery := workflowReplyDelivery(runnerResp.Raw, replyChannelID, replyThreadTS)
+	replyDelivery, hasReplyDelivery := workflowReplyDeliveryProjection(runnerResp.Raw, ledgerEvents, useLedgerFirst, replyChannelID, replyThreadTS, runnerCompleted)
 	if hasReplyDelivery && strings.TrimSpace(replyBody) == "" {
 		replyBody = strings.TrimSpace(replyDelivery.FinalBody)
 	}
@@ -438,6 +459,13 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		ctx.trace,
 		ctx.workflow,
 	)
+	if useLedgerFirst {
+		runnerToolCalls = bindRunnerToolCallRecords(
+			toolCallRecordsFromExecutionLedger(ledgerEvents, runnerCompleted),
+			ctx.trace,
+			ctx.workflow,
+		)
+	}
 	runnerEvents := []events.TraceEvent{
 		{
 			TraceID:     ctx.trace.Summary.TraceID,
@@ -452,6 +480,9 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 			EndedAt:     &runnerCompleted,
 			Description: "Runner returned visible reasoning.",
 		},
+	}
+	if useLedgerFirst {
+		runnerEvents = append(runnerEvents, traceEventsFromExecutionLedger(ctx.trace, ctx.workflow, ledgerEvents, runnerStarted, runnerCompleted)...)
 	}
 	var (
 		replyAction    action.Intent
@@ -1448,17 +1479,93 @@ func workflowReplyDelivery(raw map[string]any, fallbackChannelID string, fallbac
 		strings.TrimSpace(stringValueFromMap(item, "message_link")) == "" {
 		return events.SlackActionRecord{}, false
 	}
-	record := events.SlackActionRecord{
-		ID:             firstNonEmpty(strings.TrimSpace(stringValueFromMap(item, "tool_call_id")), fmt.Sprintf("runner-reply-%x", sha1.Sum([]byte(body)))),
+	record := slackActionRecordFromDeliveryMap(item, fallbackChannelID, fallbackThreadTS, time.Now().UTC())
+	if strings.TrimSpace(record.FinalBody) == "" {
+		record.DraftBody = body
+		record.FinalBody = body
+	}
+	if strings.TrimSpace(record.ID) == "" {
+		record.ID = firstNonEmpty(strings.TrimSpace(stringValueFromMap(item, "tool_call_id")), fmt.Sprintf("runner-reply-%x", sha1.Sum([]byte(body))))
+	}
+	if strings.TrimSpace(record.SendStatus) == "" {
+		if len(mapValue(raw["execution_envelope"])) == 0 {
+			record.SendStatus = "posted"
+		} else {
+			return events.SlackActionRecord{}, false
+		}
+	}
+	if len(mapValue(raw["execution_envelope"])) > 0 && !slackDeliveryStatusSucceeded(record.SendStatus) {
+		return events.SlackActionRecord{}, false
+	}
+	return record, true
+}
+
+func workflowReplyDeliveryProjection(raw map[string]any, ledgerEvents []events.ExecutionLedgerEvent, useLedgerFirst bool, fallbackChannelID string, fallbackThreadTS string, createdAt time.Time) (events.SlackActionRecord, bool) {
+	rawDelivery, hasRawDelivery := workflowReplyDelivery(raw, fallbackChannelID, fallbackThreadTS)
+	if !useLedgerFirst {
+		return rawDelivery, hasRawDelivery
+	}
+	if ledgerDelivery, ok := workflowReplyDeliveryFromExecutionLedger(ledgerEvents, fallbackChannelID, fallbackThreadTS, createdAt); ok {
+		return ledgerDelivery, true
+	}
+	return rawDelivery, hasRawDelivery
+}
+
+func workflowReplyDeliveryFromExecutionLedger(items []events.ExecutionLedgerEvent, fallbackChannelID string, fallbackThreadTS string, createdAt time.Time) (events.SlackActionRecord, bool) {
+	for i := len(items) - 1; i >= 0; i-- {
+		item := items[i]
+		if !strings.HasPrefix(strings.TrimSpace(item.Kind), "slack.") {
+			continue
+		}
+		status := firstNonEmpty(strings.TrimSpace(item.Status), strings.TrimSpace(stringValueFromMap(item.Payload, "send_status")), strings.TrimSpace(stringValueFromMap(item.Payload, "status")))
+		if !slackDeliveryStatusSucceeded(status) {
+			continue
+		}
+		record := slackActionRecordFromDeliveryMap(item.Payload, fallbackChannelID, fallbackThreadTS, createdAt)
+		record.ID = firstNonEmpty(record.ID, item.ID)
+		record.IdempotencyKey = firstNonEmpty(record.IdempotencyKey, item.IdempotencyKey, item.ID)
+		record.SendStatus = status
+		if strings.TrimSpace(record.FinalBody) == "" &&
+			strings.TrimSpace(record.DraftBody) == "" &&
+			len(record.ArtifactRefs) == 0 &&
+			strings.TrimSpace(stringValueFromMap(item.Payload, "provider_ref")) == "" &&
+			strings.TrimSpace(stringValueFromMap(item.Payload, "message_link")) == "" {
+			continue
+		}
+		return record, true
+	}
+	return events.SlackActionRecord{}, false
+}
+
+func slackActionRecordFromDeliveryMap(item map[string]any, fallbackChannelID string, fallbackThreadTS string, createdAt time.Time) events.SlackActionRecord {
+	body := firstNonEmpty(
+		strings.TrimSpace(stringValueFromMap(item, "body")),
+		strings.TrimSpace(stringValueFromMap(item, "body_excerpt")),
+	)
+	status := firstNonEmpty(
+		strings.TrimSpace(stringValueFromMap(item, "send_status")),
+		strings.TrimSpace(stringValueFromMap(item, "status")),
+	)
+	return events.SlackActionRecord{
+		ID:             strings.TrimSpace(stringValueFromMap(item, "tool_call_id")),
 		ChannelID:      firstNonEmpty(strings.TrimSpace(stringValueFromMap(item, "channel_id")), fallbackChannelID),
 		ThreadTS:       firstNonEmpty(strings.TrimSpace(stringValueFromMap(item, "thread_ts")), fallbackThreadTS),
 		IdempotencyKey: firstNonEmpty(strings.TrimSpace(stringValueFromMap(item, "body_sha1")), strings.TrimSpace(stringValueFromMap(item, "tool_call_id"))),
 		DraftBody:      body,
 		FinalBody:      body,
-		SendStatus:     firstNonEmpty(strings.TrimSpace(stringValueFromMap(item, "send_status")), "posted"),
+		SendStatus:     status,
 		ArtifactRefs:   append([]string(nil), stringSliceFromMap(item, "artifact_refs")...),
+		CreatedAt:      createdAt,
 	}
-	return record, true
+}
+
+func slackDeliveryStatusSucceeded(status string) bool {
+	switch strings.ToLower(strings.TrimSpace(status)) {
+	case "posted", "sent", "uploaded", "completed", "ok", "success", "shared":
+		return true
+	default:
+		return false
+	}
 }
 
 func partialCompletionNoticeForTerminationReason(terminationReason string) string {
@@ -2175,6 +2282,40 @@ func statusString(value any, fallback string) string {
 		return fallback
 	}
 	return fallback
+}
+
+func int64Value(value any) int64 {
+	switch typed := value.(type) {
+	case int:
+		return int64(typed)
+	case int8:
+		return int64(typed)
+	case int16:
+		return int64(typed)
+	case int32:
+		return int64(typed)
+	case int64:
+		return typed
+	case uint:
+		return int64(typed)
+	case uint8:
+		return int64(typed)
+	case uint16:
+		return int64(typed)
+	case uint32:
+		return int64(typed)
+	case uint64:
+		if typed > uint64(^uint64(0)>>1) {
+			return 0
+		}
+		return int64(typed)
+	case float32:
+		return int64(typed)
+	case float64:
+		return int64(typed)
+	default:
+		return 0
+	}
 }
 
 func loadWorkflowContext(store storepkg.Store, workflow workflowLocator) (workflowContext, error) {
@@ -2962,6 +3103,147 @@ func toolCallRecordsFromRunnerRaw(raw map[string]any) []events.ToolCallRecord {
 		return []events.ToolCallRecord{single}
 	}
 	return nil
+}
+
+func traceEventsFromExecutionLedger(trace events.Trace, workflow storepkg.Workflow, items []events.ExecutionLedgerEvent, startedAt time.Time, completedAt time.Time) []events.TraceEvent {
+	out := make([]events.TraceEvent, 0)
+	for _, item := range items {
+		kind := strings.TrimSpace(item.Kind)
+		if kind == "" {
+			continue
+		}
+		if !strings.HasPrefix(kind, "phase.") && !strings.HasPrefix(kind, "failure.") && !strings.HasPrefix(kind, "slack.") {
+			continue
+		}
+		status := events.StatusCompleted
+		switch strings.ToLower(strings.TrimSpace(item.Status)) {
+		case "failed", "error":
+			status = events.StatusFailed
+		case "needs-human", "needs_human", "uncertain":
+			status = events.StatusNeedsHuman
+		case "running":
+			status = events.StatusRunning
+		case "skipped":
+			status = events.StatusSuppressed
+		case "planned":
+			status = events.StatusQueued
+		}
+		recordedAt := item.RecordedAt
+		if recordedAt.IsZero() {
+			recordedAt = completedAt
+		}
+		eventStarted := startedAt
+		if item.RecordedAt.After(startedAt) {
+			eventStarted = item.RecordedAt
+		}
+		if recordedAt.Before(eventStarted) {
+			recordedAt = eventStarted
+		}
+		out = append(out, events.TraceEvent{
+			TraceID:        trace.Summary.TraceID,
+			IngestionID:    trace.Summary.IngestionID,
+			WorkflowID:     trace.Summary.WorkflowID,
+			ConversationID: trace.Summary.ConversationID,
+			CaseID:         trace.Summary.CaseID,
+			Plane:          "execution",
+			Service:        "runner-ledger",
+		Actor:          workflow.AssignedBot,
+		EventType:      "ledger." + kind,
+		Status:         status,
+		StartedAt:      eventStarted,
+		EndedAt:        timeutil.PtrTime(recordedAt),
+		Description:    ledgerEventDescription(item),
+		})
+	}
+	return out
+}
+
+func ledgerEventDescription(item events.ExecutionLedgerEvent) string {
+	if summary := strings.TrimSpace(stringValueFromMap(item.Payload, "summary")); summary != "" {
+		return summary
+	}
+	if reason := strings.TrimSpace(stringValueFromMap(item.Payload, "failure_reason")); reason != "" {
+		return reason
+	}
+	if reason := strings.TrimSpace(stringValueFromMap(item.Payload, "reason")); reason != "" {
+		return reason
+	}
+	if phaseType := strings.TrimSpace(stringValueFromMap(item.Payload, "phase_type")); phaseType != "" {
+		return fmt.Sprintf("%s %s.", phaseType, strings.TrimSpace(item.Status))
+	}
+	return strings.TrimSpace(item.Kind)
+}
+
+func traceArtifactsFromExecutionLedger(traceID string, items []events.ExecutionLedgerEvent) []events.Artifact {
+	if strings.TrimSpace(traceID) == "" || len(items) == 0 {
+		return nil
+	}
+	produced := make([]runnerutil.ProducedArtifact, 0)
+	for _, item := range items {
+		if item.Kind != "artifact.created" && item.Kind != "file.written" {
+			continue
+		}
+		payload := item.Payload
+		refs := stringSliceFromMap(payload, "artifact_refs")
+		fileRef := strings.TrimSpace(stringValueFromMap(payload, "file_ref"))
+		workspacePath := strings.TrimSpace(stringValueFromMap(payload, "workspace_path"))
+		if len(refs) == 0 && fileRef != "" {
+			refs = []string{fileRef}
+		}
+		if len(refs) == 0 && workspacePath != "" {
+			refs = []string{"file://" + workspacePath}
+		}
+		if len(refs) == 0 {
+			continue
+		}
+		produced = append(produced, runnerutil.ProducedArtifact{
+			Kind:          firstNonEmpty(strings.TrimSpace(stringValueFromMap(payload, "kind")), "workflow_artifact"),
+			ArtifactRefs:  refs,
+			FileRef:       fileRef,
+			SizeBytes:     int64Value(payload["size_bytes"]),
+			SHA256:        strings.TrimSpace(stringValueFromMap(payload, "sha256")),
+			ShareStatus:   strings.TrimSpace(stringValueFromMap(payload, "share_status")),
+			WorkspacePath: workspacePath,
+		})
+	}
+	return traceArtifactsFromProducedArtifacts(traceID, produced)
+}
+
+func toolCallRecordsFromExecutionLedger(items []events.ExecutionLedgerEvent, createdAt time.Time) []events.ToolCallRecord {
+	out := make([]events.ToolCallRecord, 0)
+	for index, item := range items {
+		if !strings.HasPrefix(strings.TrimSpace(item.Kind), "tool.") {
+			continue
+		}
+		payload := item.Payload
+		toolName := firstNonEmpty(
+			strings.TrimSpace(stringValueFromMap(payload, "tool_name")),
+			strings.TrimSpace(stringValueFromMap(payload, "name")),
+			strings.TrimPrefix(strings.TrimSpace(item.Kind), "tool."),
+		)
+		toolCallID := firstNonEmpty(
+			strings.TrimSpace(stringValueFromMap(payload, "tool_call_id")),
+			strings.TrimSpace(stringValueFromMap(payload, "call_id")),
+			strings.TrimSpace(item.ID),
+		)
+		if toolName == "" && toolCallID == "" {
+			continue
+		}
+		recordedAt := item.RecordedAt
+		if recordedAt.IsZero() {
+			recordedAt = createdAt
+		}
+		out = append(out, events.ToolCallRecord{
+			ID:         firstNonEmpty(strings.TrimSpace(item.ID), fmt.Sprintf("runner-ledger-tool-%d", index)),
+			ToolName:   toolName,
+			ToolCallID: toolCallID,
+			Request:    payload,
+			Summary:    strings.TrimSpace(item.Kind),
+			Status:     strings.TrimSpace(item.Status),
+			CreatedAt:  recordedAt,
+		})
+	}
+	return out
 }
 
 func toolCallRecordsFromExecutionEnvelope(raw map[string]any) []events.ToolCallRecord {

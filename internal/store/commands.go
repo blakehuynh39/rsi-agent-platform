@@ -22,6 +22,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	"github.com/piplabs/rsi-agent-platform/internal/slack"
+	"github.com/piplabs/rsi-agent-platform/internal/timeutil"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
 	"github.com/piplabs/rsi-agent-platform/internal/workflowplan"
 )
@@ -3134,10 +3135,6 @@ func firstNonEmptyMap(primary map[string]any, fallback map[string]any) map[strin
 	return fallback
 }
 
-func ptrTime(value time.Time) *time.Time {
-	return &value
-}
-
 func ptrStatus(status events.Status) *events.Status {
 	return &status
 }
@@ -3190,7 +3187,7 @@ func (s *MemoryStore) projectActionTraceLocked(intent action.Intent, command tra
 				EventType:   eventType,
 				Status:      eventStatus,
 				StartedAt:   startedAt,
-				EndedAt:     ptrTime(completedAt),
+				EndedAt:     timeutil.PtrTime(completedAt),
 				Description: summary,
 			})
 			update.ToolCalls = []events.ToolCallRecord{{
@@ -3236,7 +3233,7 @@ func (s *MemoryStore) projectActionTraceLocked(intent action.Intent, command tra
 				EventType:   eventType,
 				Status:      eventStatus,
 				StartedAt:   startedAt,
-				EndedAt:     ptrTime(completedAt),
+				EndedAt:     timeutil.PtrTime(completedAt),
 				Description: summary,
 			})
 			update.SlackActions = []events.SlackActionRecord{{

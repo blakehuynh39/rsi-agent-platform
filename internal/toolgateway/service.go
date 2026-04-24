@@ -1119,19 +1119,22 @@ func (s *Service) rsiRunnerExecution(input map[string]interface{}) storepkg.Tool
 
 func (s *Service) rsiRuntimeConfig(input map[string]interface{}) storepkg.ToolResult {
 	output := map[string]interface{}{
-		"environment":                  s.cfg.Environment,
-		"default_repo":                 s.cfg.DefaultRepo,
-		"allowed_target_repos":         append([]string(nil), s.cfg.AllowedTargetRepos...),
-		"default_reasoning_verbosity":  s.cfg.DefaultReasoningVerbosity,
-		"active_proposal_cap":          s.cfg.DefaultProposalCap,
-		"runner_urls":                  s.cfg.RunnerURLs(),
-		"runner_timeouts_seconds":      runtimeTimeoutsSeconds(s.cfg),
-		"runner_task_timeouts_seconds": runtimeTaskTimeoutsSeconds(s.cfg),
-		"tool_gateway_base_url":        s.cfg.ToolGatewayBaseURL,
-		"honcho_runtime_base_url":      s.cfg.HonchoRuntimeBaseURL,
-		"public_base_url":              s.cfg.PublicBaseURL,
-		"slack_search_auth_mode":       s.slackSearchAuthMode(),
-		"slack_user_token_configured":  strings.TrimSpace(s.cfg.SlackUserToken) != "",
+		"environment":                               s.cfg.Environment,
+		"default_repo":                              s.cfg.DefaultRepo,
+		"allowed_target_repos":                      append([]string(nil), s.cfg.AllowedTargetRepos...),
+		"default_reasoning_verbosity":               s.cfg.DefaultReasoningVerbosity,
+		"active_proposal_cap":                       s.cfg.DefaultProposalCap,
+		"runner_urls":                               s.cfg.RunnerURLs(),
+		"runner_timeouts_seconds":                   runtimeTimeoutsSeconds(s.cfg),
+		"runner_task_timeouts_seconds":              runtimeTaskTimeoutsSeconds(s.cfg),
+		"execution_envelope_v1_enabled":             s.cfg.ExecutionEnvelopeV1Enabled,
+		"execution_ledger_first_projection_enabled": s.cfg.ExecutionLedgerFirstProjection,
+		"runner_planner_mode":                       s.cfg.RunnerPlannerMode,
+		"tool_gateway_base_url":                     s.cfg.ToolGatewayBaseURL,
+		"honcho_runtime_base_url":                   s.cfg.HonchoRuntimeBaseURL,
+		"public_base_url":                           s.cfg.PublicBaseURL,
+		"slack_search_auth_mode":                    s.slackSearchAuthMode(),
+		"slack_user_token_configured":               strings.TrimSpace(s.cfg.SlackUserToken) != "",
 	}
 	return s.result("rsi.runtime_config", input, "RSI runtime configuration summary loaded.", output, nil)
 }

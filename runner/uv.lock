@@ -637,7 +637,7 @@ wheels = [
 [[package]]
 name = "hermes-agent"
 version = "0.11.0"
-source = { git = "https://github.com/NousResearch/hermes-agent.git?rev=6051fba9dc326ceddbe81147a14b10102f4256a3#6051fba9dc326ceddbe81147a14b10102f4256a3" }
+source = { git = "https://github.com/NousResearch/hermes-agent.git?rev=6f1eed3968318dc1d6ca3fb3ded2de6fc8e50308#6f1eed3968318dc1d6ca3fb3ded2de6fc8e50308" }
 dependencies = [
     { name = "anthropic" },
     { name = "edge-tts" },
@@ -1721,7 +1721,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "hermes-agent", extras = ["honcho", "mcp"], git = "https://github.com/NousResearch/hermes-agent.git?rev=6051fba9dc326ceddbe81147a14b10102f4256a3" }]
+requires-dist = [{ name = "hermes-agent", extras = ["honcho", "mcp"], git = "https://github.com/NousResearch/hermes-agent.git?rev=6f1eed3968318dc1d6ca3fb3ded2de6fc8e50308" }]
 
 [[package]]
 name = "sniffio"

@@ -51,6 +51,7 @@ class ObservationEmitter:
     sink_status: str = "not_configured"
     sink_errors: list[str] = field(default_factory=list)
     invocation_id: str = ""
+    _events: list[JsonObject] = field(default_factory=list)
     _lock: threading.Lock = field(default_factory=threading.Lock)
 
     @classmethod
@@ -98,6 +99,7 @@ class ObservationEmitter:
                 "recorded_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                 "invocation_id": self.invocation_id,
             }
+            self._events.append(dict(item))
         logger.info("runner observation %s", json.dumps(item, ensure_ascii=True, sort_keys=True))
         if not self.config.tool_gateway_base_url:
             return
@@ -140,3 +142,7 @@ class ObservationEmitter:
         if self.sink_errors:
             out["observation_sink_errors"] = list(self.sink_errors[-5:])
         return out
+
+    def events(self) -> list[JsonObject]:
+        with self._lock:
+            return [dict(item) for item in self._events]

@@ -40,6 +40,7 @@ type RuntimeResponse struct {
 	HermesContractStatus        *HermesContractStatus `json:"hermes_contract_status,omitempty"`
 	ExecutionContractVersion    string                `json:"execution_contract_version,omitempty"`
 	ExecutionEnvelopeV1Enabled  bool                  `json:"execution_envelope_v1_enabled,omitempty"`
+	ExecutionLedgerFirstEnabled bool                  `json:"execution_ledger_first_projection_enabled,omitempty"`
 	CompanyComputerRoot         string                `json:"company_computer_root,omitempty"`
 	RunnerPlannerMode           string                `json:"runner_planner_mode,omitempty"`
 	RequiredCapabilities        []string              `json:"required_capabilities,omitempty"`

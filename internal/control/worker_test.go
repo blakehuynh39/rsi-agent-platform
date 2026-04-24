@@ -3664,7 +3664,7 @@ func TestTraceArtifactsFromProducedArtifactsKeepsEachRefURL(t *testing.T) {
 	}
 }
 
-func TestWorkflowReplyDeliveryPrefersExecutionEnvelope(t *testing.T) {
+func TestWorkflowReplyDeliveryRejectsFailedExecutionEnvelopeDelivery(t *testing.T) {
 	record, ok := workflowReplyDelivery(map[string]any{
 		"reply_delivery": map[string]any{
 			"body":       "legacy top-level reply",
@@ -3690,14 +3690,122 @@ func TestWorkflowReplyDeliveryPrefersExecutionEnvelope(t *testing.T) {
 			},
 		},
 	}, "C-fallback", "T-fallback")
+	if ok {
+		t.Fatalf("failed envelope delivery must not count as a posted reply: %#v", record)
+	}
+}
+
+func TestWorkflowReplyDeliveryFromExecutionLedgerRequiresSuccessfulStatus(t *testing.T) {
+	createdAt := time.Now().UTC()
+	_, ok := workflowReplyDeliveryFromExecutionLedger([]events.ExecutionLedgerEvent{
+		{
+			ID:          "ledger-failed",
+			ExecutionID: "hexec-1",
+			Kind:        "slack.message.sent",
+			Status:      "failed",
+			Seq:         1,
+			Payload: map[string]any{
+				"body":        "failed reply",
+				"channel_id":  "C123",
+				"thread_ts":   "171000001.000100",
+				"send_status": "failed",
+			},
+			RecordedAt: createdAt,
+		},
+	}, "C-fallback", "T-fallback", createdAt)
+	if ok {
+		t.Fatal("failed ledger delivery must not satisfy direct Slack delivery")
+	}
+	record, ok := workflowReplyDeliveryFromExecutionLedger([]events.ExecutionLedgerEvent{
+		{
+			ID:             "ledger-sent",
+			ExecutionID:    "hexec-1",
+			Kind:           "slack.message.sent",
+			Status:         "posted",
+			Seq:            2,
+			IdempotencyKey: "idem-1",
+			Payload: map[string]any{
+				"body":        "posted reply",
+				"channel_id":  "C123",
+				"thread_ts":   "171000001.000100",
+				"send_status": "posted",
+			},
+			RecordedAt: createdAt,
+		},
+	}, "C-fallback", "T-fallback", createdAt)
 	if !ok {
-		t.Fatalf("expected reply delivery record")
+		t.Fatal("expected successful ledger delivery")
 	}
-	if record.FinalBody != "envelope reply" || record.ChannelID != "C-envelope" || record.ThreadTS != "T-envelope" {
-		t.Fatalf("expected envelope delivery to win, got %#v", record)
+	if record.FinalBody != "posted reply" || record.IdempotencyKey != "idem-1" {
+		t.Fatalf("unexpected ledger delivery projection: %#v", record)
 	}
-	if record.SendStatus != "failed" {
-		t.Fatalf("expected envelope send_status to project, got %#v", record)
+}
+
+func TestWorkflowReplyDeliveryProjectionFallsBackWhenLedgerHasNoSuccessfulDelivery(t *testing.T) {
+	createdAt := time.Now().UTC()
+	raw := map[string]any{
+		"reply_delivery": map[string]any{
+			"body":        "raw posted reply",
+			"channel_id":  "C-raw",
+			"thread_ts":   "T-raw",
+			"send_status": "posted",
+		},
+	}
+	record, ok := workflowReplyDeliveryProjection(raw, []events.ExecutionLedgerEvent{
+		{
+			ID:          "ledger-observed",
+			ExecutionID: "hexec-1",
+			Kind:        "slack.message.sent",
+			Status:      "observed",
+			Seq:         1,
+			Payload: map[string]any{
+				"body":        "ledger reply",
+				"channel_id":  "C-ledger",
+				"thread_ts":   "T-ledger",
+				"send_status": "observed",
+			},
+			RecordedAt: createdAt,
+		},
+	}, true, "C-fallback", "T-fallback", createdAt)
+	if !ok {
+		t.Fatal("expected raw delivery fallback when ledger has no successful delivery projection")
+	}
+	if record.FinalBody != "raw posted reply" || record.ChannelID != "C-raw" {
+		t.Fatalf("unexpected fallback delivery: %#v", record)
+	}
+}
+
+func TestWorkflowReplyDeliveryProjectionPrefersSuccessfulLedgerDelivery(t *testing.T) {
+	createdAt := time.Now().UTC()
+	raw := map[string]any{
+		"reply_delivery": map[string]any{
+			"body":        "raw posted reply",
+			"channel_id":  "C-raw",
+			"thread_ts":   "T-raw",
+			"send_status": "posted",
+		},
+	}
+	record, ok := workflowReplyDeliveryProjection(raw, []events.ExecutionLedgerEvent{
+		{
+			ID:          "ledger-sent",
+			ExecutionID: "hexec-1",
+			Kind:        "slack.message.sent",
+			Status:      "posted",
+			Seq:         1,
+			Payload: map[string]any{
+				"body":        "ledger posted reply",
+				"channel_id":  "C-ledger",
+				"thread_ts":   "T-ledger",
+				"send_status": "posted",
+			},
+			RecordedAt: createdAt,
+		},
+	}, true, "C-fallback", "T-fallback", createdAt)
+	if !ok {
+		t.Fatal("expected successful ledger delivery")
+	}
+	if record.FinalBody != "ledger posted reply" || record.ChannelID != "C-ledger" {
+		t.Fatalf("expected ledger delivery to win, got %#v", record)
 	}
 }
 

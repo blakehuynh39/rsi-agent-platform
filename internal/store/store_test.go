@@ -1220,6 +1220,52 @@ func TestMemoryStoreSubmitCommandWorkflowExecutionNeedsHumanProjectsAttachedFail
 	}
 }
 
+func TestMemoryStoreRecordExecutionLedgerEventsIsIdempotent(t *testing.T) {
+	store := NewMemoryStore()
+	now := time.Now().UTC()
+	err := store.RecordExecutionLedgerEvents([]events.ExecutionLedgerEvent{
+		{
+			ID:          "xled-first",
+			ExecutionID: "hexec-1",
+			TraceID:     "trace-1",
+			WorkflowID:  "wf-1",
+			PhaseID:     "render",
+			Kind:        "artifact.created",
+			Status:      "completed",
+			Seq:         1,
+			Payload:     map[string]any{"file_ref": "file:///workspace/company/artifacts/a.html"},
+			RecordedAt:  now,
+		},
+	})
+	if err != nil {
+		t.Fatalf("RecordExecutionLedgerEvents(first) error = %v", err)
+	}
+	err = store.RecordExecutionLedgerEvents([]events.ExecutionLedgerEvent{
+		{
+			ID:          "xled-second",
+			ExecutionID: "hexec-1",
+			TraceID:     "trace-1",
+			WorkflowID:  "wf-1",
+			PhaseID:     "render",
+			Kind:        "artifact.created",
+			Status:      "completed",
+			Seq:         1,
+			Payload:     map[string]any{"file_ref": "file:///workspace/company/artifacts/b.html"},
+			RecordedAt:  now.Add(time.Second),
+		},
+	})
+	if err != nil {
+		t.Fatalf("RecordExecutionLedgerEvents(second) error = %v", err)
+	}
+	items := store.ListExecutionLedgerEvents()
+	if len(items) != 1 {
+		t.Fatalf("ledger events = %#v", items)
+	}
+	if got := stringFromPayload(items[0].Payload, "file_ref"); got != "file:///workspace/company/artifacts/b.html" {
+		t.Fatalf("file_ref = %q", got)
+	}
+}
+
 func TestMemoryStoreSubmitCommandActionQueueCreatesIntent(t *testing.T) {
 	store := NewMemoryStore()
 	trace := store.ListTraces()[0]

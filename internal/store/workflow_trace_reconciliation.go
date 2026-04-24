@@ -8,6 +8,7 @@ import (
 
 	"github.com/piplabs/rsi-agent-platform/internal/action"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
+	"github.com/piplabs/rsi-agent-platform/internal/timeutil"
 )
 
 func (s *MemoryStore) ReconcileWorkflowTrace(workflowID string) (events.Trace, bool, error) {
@@ -172,7 +173,7 @@ func (s *MemoryStore) reconcileProjectedActionTraceLocked(trace events.Trace, wo
 				EventType:   eventType,
 				Status:      eventStatus,
 				StartedAt:   startedAt,
-				EndedAt:     ptrTime(completedAt),
+				EndedAt:     timeutil.PtrTime(completedAt),
 				Description: summary,
 			})
 			update.ToolCalls = append(update.ToolCalls, events.ToolCallRecord{
@@ -215,7 +216,7 @@ func (s *MemoryStore) reconcileProjectedActionTraceLocked(trace events.Trace, wo
 				EventType:   eventType,
 				Status:      eventStatus,
 				StartedAt:   startedAt,
-				EndedAt:     ptrTime(completedAt),
+				EndedAt:     timeutil.PtrTime(completedAt),
 				Description: summary,
 			})
 			update.SlackActions = append(update.SlackActions, events.SlackActionRecord{

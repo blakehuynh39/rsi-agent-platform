@@ -103,6 +103,21 @@ type SlackActionRecord struct {
 	CreatedAt      time.Time `json:"created_at"`
 }
 
+type ExecutionLedgerEvent struct {
+	ID             string         `json:"id"`
+	ExecutionID    string         `json:"execution_id"`
+	OperationID    string         `json:"operation_id,omitempty"`
+	TraceID        string         `json:"trace_id,omitempty"`
+	WorkflowID     string         `json:"workflow_id,omitempty"`
+	PhaseID        string         `json:"phase_id,omitempty"`
+	Kind           string         `json:"kind"`
+	Status         string         `json:"status,omitempty"`
+	Seq            int            `json:"seq"`
+	IdempotencyKey string         `json:"idempotency_key,omitempty"`
+	Payload        map[string]any `json:"payload,omitempty"`
+	RecordedAt     time.Time      `json:"recorded_at"`
+}
+
 type TraceSummary struct {
 	TraceID            string    `json:"trace_id"`
 	IngestionID        string    `json:"ingestion_id"`

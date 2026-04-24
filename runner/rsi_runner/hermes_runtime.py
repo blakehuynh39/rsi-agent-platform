@@ -945,6 +945,7 @@ class HermesRuntime:
             "direct_delivery_phase_enabled": True,
             "execution_contract_version": EXECUTION_CONTRACT_VERSION,
             "execution_envelope_v1_enabled": self._config.execution_envelope_v1_enabled,
+            "execution_ledger_first_projection_enabled": self._config.execution_ledger_first_projection_enabled,
             "company_computer_root": self._config.hermes_computer_root,
             "runner_planner_mode": self._config.runner_planner_mode or RUNNER_PLANNER_MODE,
             "required_capabilities": sorted(ALLOWED_CAPABILITIES),
@@ -4767,6 +4768,13 @@ class HermesRuntime:
                     self._executor_final_status(task, result, execution_id=observer.execution_id, status="failed"),
                 )
                 return result
+            for phase in self._company_computer.planned_phase_runs(task):
+                observer.emit(
+                    phase=_string_or_json(phase.get("phase_id")),
+                    event_type="phase.planned",
+                    status="planned",
+                    payload=phase,
+                )
         result = self._execute_task_internal(task, observer=observer)
         if self._config.execution_envelope_v1_enabled:
             result = self._company_computer.attach_envelope(task, result, observer=observer)

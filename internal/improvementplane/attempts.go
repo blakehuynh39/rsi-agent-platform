@@ -13,6 +13,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
+	"github.com/piplabs/rsi-agent-platform/internal/timeutil"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
@@ -459,7 +460,7 @@ func attemptFailureTraceEvents(cfg config.Config, trace events.Trace, failureCla
 			EventType:   "github.pr.blocked",
 			Status:      status,
 			StartedAt:   now,
-			EndedAt:     ptrTime(now),
+			EndedAt:     timeutil.PtrTime(now),
 			Description: failureSummary,
 		})
 	}
@@ -473,7 +474,7 @@ func attemptFailureTraceEvents(cfg config.Config, trace events.Trace, failureCla
 		EventType:   "change_attempt.failed",
 		Status:      events.StatusFailed,
 		StartedAt:   now,
-		EndedAt:     ptrTime(now),
+		EndedAt:     timeutil.PtrTime(now),
 		Description: failureSummary,
 	})
 	return items

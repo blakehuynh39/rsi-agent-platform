@@ -23,6 +23,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/runnerutil"
 	"github.com/piplabs/rsi-agent-platform/internal/sandbox"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
+	"github.com/piplabs/rsi-agent-platform/internal/timeutil"
 	"github.com/piplabs/rsi-agent-platform/internal/toolcatalog"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
@@ -390,6 +391,10 @@ func processImplementAttemptEffect(cfg config.Config, store storepkg.Store, runn
 				_ = failClaimedImprovementEffect(store, effect, err.Error())
 				return err
 			}
+			if err := persistExecutionLedgerFromRunner(store, runnerResp, runnerStarted); err != nil {
+				_ = failClaimedImprovementEffect(store, effect, err.Error())
+				return err
+			}
 			var parseErr error
 			runnerOutput, parseErr = runnerutil.ParseStructuredOutput(runnerResp)
 			if parseErr != nil {
@@ -413,7 +418,7 @@ func processImplementAttemptEffect(cfg config.Config, store storepkg.Store, runn
 				EventType:   "runner.failed",
 				Status:      events.StatusFailed,
 				StartedAt:   runnerStarted,
-				EndedAt:     ptrTime(time.Now().UTC()),
+				EndedAt:     timeutil.PtrTime(time.Now().UTC()),
 				Description: fmt.Sprintf("Proposal runner failed; effect will be retried after %s: %v", retryAt.Format(time.RFC3339), runnerErr),
 			}},
 		}); err != nil {
@@ -530,7 +535,7 @@ func processImplementAttemptEffect(cfg config.Config, store storepkg.Store, runn
 			EventType:   "runner.completed",
 			Status:      events.StatusCompleted,
 			StartedAt:   runnerStarted,
-			EndedAt:     ptrTime(now),
+			EndedAt:     timeutil.PtrTime(now),
 			Description: fmt.Sprintf("Proposal runner returned repo-change rationale using %s.", runnerRuntimeLabel(runnerResp)),
 		}},
 		"reasoning_steps": reasoning,
@@ -829,6 +834,10 @@ func processRuntimeDiagnosisEffect(cfg config.Config, store storepkg.Store, runn
 				_ = failClaimedImprovementEffect(store, effect, err.Error())
 				return err
 			}
+			if err := persistExecutionLedgerFromRunner(store, runnerResp, startedAt); err != nil {
+				_ = failClaimedImprovementEffect(store, effect, err.Error())
+				return err
+			}
 			var parseErr error
 			runnerOutput, parseErr = runnerutil.ParseRuntimeDiagnosisOutput(runnerResp)
 			if parseErr != nil {
@@ -950,6 +959,9 @@ func processEvalRun(cfg config.Config, store storepkg.Store, runnerClient runner
 			); err != nil {
 				return err
 			}
+			if err := persistExecutionLedgerFromRunner(store, runnerResp, runnerStarted); err != nil {
+				return err
+			}
 			var parseErr error
 			runnerOutput, parseErr = runnerutil.ParseStructuredOutput(runnerResp)
 			if parseErr != nil {
@@ -1000,7 +1012,7 @@ func processEvalRun(cfg config.Config, store storepkg.Store, runnerClient runner
 		EventType:   "runner.completed",
 		Status:      events.StatusCompleted,
 		StartedAt:   runnerStarted,
-		EndedAt:     ptrTime(completed),
+		EndedAt:     timeutil.PtrTime(completed),
 		Description: fmt.Sprintf("Eval runner returned summary using %s.", runnerRuntimeLabel(runnerResp)),
 	}
 	if runnerErr != nil {
@@ -1050,7 +1062,7 @@ func processEvalRun(cfg config.Config, store storepkg.Store, runnerClient runner
 					EventType:   "eval.completed",
 					Status:      events.StatusCompleted,
 					StartedAt:   started,
-					EndedAt:     ptrTime(completed),
+					EndedAt:     timeutil.PtrTime(completed),
 					Description: fmt.Sprintf("Eval %s completed with verdict %s.", run.ID, run.OverallVerdict),
 				},
 				runnerEvent,
@@ -1221,7 +1233,7 @@ func processHarnessOverlayProposal(cfg config.Config, store storepkg.Store, trac
 				EventType:   "runner.completed",
 				Status:      events.StatusCompleted,
 				StartedAt:   runnerStarted,
-				EndedAt:     ptrTime(now),
+				EndedAt:     timeutil.PtrTime(now),
 				Description: fmt.Sprintf("Proposal runner returned harness overlay rationale using %s.", runnerRuntimeLabel(runnerResp)),
 			},
 			{
@@ -1234,7 +1246,7 @@ func processHarnessOverlayProposal(cfg config.Config, store storepkg.Store, trac
 				EventType:   "harness.overlay.activated",
 				Status:      events.StatusCompleted,
 				StartedAt:   now,
-				EndedAt:     ptrTime(now),
+				EndedAt:     timeutil.PtrTime(now),
 				Description: fmt.Sprintf("Activated harness overlay %s for role %s.", overlay.Version, overlay.Role),
 			},
 		},
@@ -1649,7 +1661,7 @@ func processDraftPROpen(cfg config.Config, store storepkg.Store, toolClient tool
 				EventType:   "github.pr.completed",
 				Status:      events.StatusCompleted,
 				StartedAt:   now,
-				EndedAt:     ptrTime(completed),
+				EndedAt:     timeutil.PtrTime(completed),
 				Description: fmt.Sprintf("Opened draft PR for %s on branch %s.", repo, branchName),
 			}},
 			"reasoning_steps": []events.ReasoningStep{{
@@ -3247,8 +3259,12 @@ func runnerRuntimeLabel(resp clients.RunnerResponse) string {
 	return fmt.Sprintf("%s %s effort=%s", resp.Provider, model, effort)
 }
 
-func ptrTime(value time.Time) *time.Time {
-	return &value
+func persistExecutionLedgerFromRunner(store storepkg.Store, resp clients.RunnerResponse, occurredAt time.Time) error {
+	events := runnerutil.ExecutionLedgerEventsFromRunnerRaw(resp.Raw, occurredAt)
+	if len(events) == 0 {
+		return nil
+	}
+	return store.RecordExecutionLedgerEvents(events)
 }
 
 func ptrStatus(status events.Status) *events.Status {

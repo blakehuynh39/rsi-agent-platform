@@ -69,6 +69,8 @@ type Store interface {
 	ListHarnessExecutions() []harness.Execution
 	ListHarnessExecutionObservations() []harness.ExecutionObservation
 	RecordHarnessExecutionObservation(item harness.ExecutionObservation) (harness.ExecutionObservation, error)
+	ListExecutionLedgerEvents() []events.ExecutionLedgerEvent
+	RecordExecutionLedgerEvents(items []events.ExecutionLedgerEvent) error
 	ListChangeAttempts() []improvement.ChangeAttempt
 	GetChangeAttempt(attemptID string) (improvement.ChangeAttempt, bool)
 	ListAttemptWorkspaces() []improvement.AttemptWorkspace
@@ -148,6 +150,7 @@ type MemoryStore struct {
 	harnessSessionBindings       map[string]harness.SessionBinding
 	harnessExecutions            []harness.Execution
 	harnessExecutionObservations []harness.ExecutionObservation
+	executionLedgerEvents        []events.ExecutionLedgerEvent
 	evalSuites                   []evals.Suite
 	evalRuns                     map[string]evals.Run
 	evalJudgments                map[string][]evals.Judgment
@@ -210,6 +213,7 @@ func (s *MemoryStore) ResetAppData() (AppDataResetResult, error) {
 	s.harnessSessionBindings = replacement.harnessSessionBindings
 	s.harnessExecutions = replacement.harnessExecutions
 	s.harnessExecutionObservations = replacement.harnessExecutionObservations
+	s.executionLedgerEvents = replacement.executionLedgerEvents
 	s.evalSuites = replacement.evalSuites
 	s.evalRuns = replacement.evalRuns
 	s.evalJudgments = replacement.evalJudgments

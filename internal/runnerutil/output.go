@@ -1,6 +1,7 @@
 package runnerutil
 
 import (
+	"crypto/sha1"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -185,12 +186,14 @@ type PhaseRun struct {
 }
 
 type LedgerEvent struct {
-	EventID    string         `json:"event_id,omitempty"`
-	Kind       string         `json:"kind,omitempty"`
-	PhaseID    string         `json:"phase_id,omitempty"`
-	Status     string         `json:"status,omitempty"`
-	RecordedAt string         `json:"recorded_at,omitempty"`
-	Payload    map[string]any `json:"payload,omitempty"`
+	EventID        string         `json:"event_id,omitempty"`
+	Kind           string         `json:"kind,omitempty"`
+	PhaseID        string         `json:"phase_id,omitempty"`
+	Status         string         `json:"status,omitempty"`
+	Sequence       int            `json:"sequence,omitempty"`
+	IdempotencyKey string         `json:"idempotency_key,omitempty"`
+	RecordedAt     string         `json:"recorded_at,omitempty"`
+	Payload        map[string]any `json:"payload,omitempty"`
 }
 
 type EnvelopeCompletion struct {
@@ -242,6 +245,56 @@ func ParseStructuredOutput(resp clients.RunnerResponse) (StructuredOutput, error
 	return out, nil
 }
 
+func ExecutionLedgerEventsFromRunnerRaw(raw map[string]any, occurredAt time.Time) []events.ExecutionLedgerEvent {
+	envelope, ok, err := ParseExecutionEnvelope(clients.RunnerResponse{Raw: raw})
+	if err != nil || !ok {
+		return nil
+	}
+	return ExecutionLedgerEventsFromEnvelope(envelope, occurredAt)
+}
+
+func ExecutionLedgerEventsFromEnvelope(envelope ExecutionEnvelope, occurredAt time.Time) []events.ExecutionLedgerEvent {
+	executionID := strings.TrimSpace(envelope.ExecutionID)
+	if executionID == "" || len(envelope.LedgerEvents) == 0 {
+		return nil
+	}
+	out := make([]events.ExecutionLedgerEvent, 0, len(envelope.LedgerEvents))
+	for index, item := range envelope.LedgerEvents {
+		seq := item.Sequence
+		if seq <= 0 {
+			seq = index + 1
+		}
+		recordedAt := occurredAt
+		if parsed, err := time.Parse(time.RFC3339, strings.TrimSpace(item.RecordedAt)); err == nil {
+			recordedAt = parsed
+		}
+		payload := item.Payload
+		if payload == nil {
+			payload = map[string]any{}
+		}
+		id := strings.TrimSpace(item.EventID)
+		if id == "" {
+			sum := sha1.Sum([]byte(fmt.Sprintf("%s|%d|%s|%s", executionID, seq, item.Kind, item.PhaseID)))
+			id = fmt.Sprintf("xled-%x", sum[:8])
+		}
+		out = append(out, events.ExecutionLedgerEvent{
+			ID:             id,
+			ExecutionID:    executionID,
+			OperationID:    strings.TrimSpace(envelope.OperationID),
+			TraceID:        strings.TrimSpace(envelope.TraceID),
+			WorkflowID:     strings.TrimSpace(envelope.WorkflowID),
+			PhaseID:        strings.TrimSpace(item.PhaseID),
+			Kind:           strings.TrimSpace(item.Kind),
+			Status:         strings.TrimSpace(item.Status),
+			Seq:            seq,
+			IdempotencyKey: strings.TrimSpace(item.IdempotencyKey),
+			Payload:        payload,
+			RecordedAt:     recordedAt,
+		})
+	}
+	return out
+}
+
 func StructuredOutputFromEnvelope(envelope ExecutionEnvelope, resp clients.RunnerResponse) (StructuredOutput, error) {
 	var out StructuredOutput
 	if raw, ok := resp.Raw["structured_output"]; ok && raw != nil {
@@ -253,13 +306,13 @@ func StructuredOutputFromEnvelope(envelope ExecutionEnvelope, resp clients.Runne
 			return StructuredOutput{}, fmt.Errorf("parse runner structured_output projection: %w", err)
 		}
 	}
-	if out.FinalAnswer == "" {
+	if out.FinalAnswer == "" && envelope.FinalResponse != "" {
 		out.FinalAnswer = envelope.FinalResponse
 	}
-	if len(out.ProducedArtifacts) == 0 {
+	if len(out.ProducedArtifacts) == 0 && len(envelope.Artifacts) > 0 {
 		out.ProducedArtifacts = append([]ProducedArtifact(nil), envelope.Artifacts...)
 	}
-	if strings.TrimSpace(out.ReplyDelivery.Status) == "" && len(envelope.Deliveries) > 0 {
+	if out.ReplyDelivery.Status == "" && len(envelope.Deliveries) > 0 {
 		out.ReplyDelivery = envelope.Deliveries[0]
 	}
 	if out.VisibleReasoning == nil {

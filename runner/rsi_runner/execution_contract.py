@@ -282,15 +282,30 @@ def phase_run(
     return item
 
 
-def ledger_event(kind: str, *, phase_id: str = "", status: str = "", payload: JsonObject | None = None) -> JsonObject:
-    return {
-        "event_id": f"ledger-{hashlib.sha1((kind + phase_id + str(time.time_ns())).encode('utf-8')).hexdigest()[:16]}",
+def ledger_event(
+    kind: str,
+    *,
+    phase_id: str = "",
+    status: str = "",
+    payload: JsonObject | None = None,
+    sequence: int | None = None,
+    idempotency_key: str = "",
+    recorded_at: str = "",
+    event_id: str = "",
+) -> JsonObject:
+    item: JsonObject = {
+        "event_id": event_id or f"ledger-{hashlib.sha1((kind + phase_id + str(time.time_ns())).encode('utf-8')).hexdigest()[:16]}",
         "kind": kind,
         "phase_id": phase_id,
         "status": status,
-        "recorded_at": _now(),
+        "recorded_at": recorded_at or _now(),
         "payload": payload or {},
     }
+    if sequence is not None:
+        item["sequence"] = sequence
+    if idempotency_key:
+        item["idempotency_key"] = idempotency_key
+    return item
 
 
 def artifact_record(item: JsonObject, *, execution_id: str) -> JsonObject:
@@ -381,6 +396,45 @@ class HermesCompanyComputer:
         explicit = normalize_capability_leases(getattr(task, "capability_leases", []))
         return explicit or default_capability_leases(task)
 
+    def planned_phase_runs(self, task: Any) -> list[JsonObject]:
+        phases: list[tuple[str, str]] = []
+        task_type = _string(getattr(task, "task_type", "")).lower()
+        explicit_phase = _string(getattr(task, "execution_phase", ""))
+        requested_artifacts = _json_object_list(getattr(task, "requested_artifacts", []))
+        reply_delivery_mode = _string(getattr(task, "reply_delivery_mode", "")).lower()
+        if explicit_phase:
+            phase_type = phase_type_for_task(task)
+            phases.append((explicit_phase, phase_type))
+        elif task_type in {"eval"}:
+            phases.extend([("plan", "plan"), ("reflect", "reflect")])
+        elif task_type in {"proposal", "repo-change"}:
+            phases.extend([("plan", "plan"), ("operate", "operate"), ("reflect", "reflect")])
+        elif task_type in {"workflow", "prod", "proactive"} and requested_artifacts:
+            phases.extend([("plan", "plan"), ("investigate", "investigate"), ("render", "render")])
+            if reply_delivery_mode in {"direct", "mediated"}:
+                phases.append(("deliver", "deliver"))
+            phases.append(("reflect", "reflect"))
+        else:
+            phases.extend([("plan", "plan"), ("operate", phase_type_for_task(task))])
+            if reply_delivery_mode == "direct":
+                phases.append(("deliver", "deliver"))
+            phases.append(("reflect", "reflect"))
+        out: list[JsonObject] = []
+        seen: set[str] = set()
+        for phase_id, phase_type in phases:
+            if phase_id in seen:
+                continue
+            seen.add(phase_id)
+            out.append(
+                phase_run(
+                    phase_id=phase_id,
+                    phase_type=phase_type,
+                    status="planned",
+                    required_leases=required_capabilities_for_phase(phase_type, task),
+                )
+            )
+        return out
+
     def validate_task(self, task: Any) -> ContractValidationResult:
         explicit_contract = _string(getattr(task, "contract_version", "")) == EXECUTION_CONTRACT_VERSION
         leases = normalize_capability_leases(getattr(task, "capability_leases", []))
@@ -388,16 +442,7 @@ class HermesCompanyComputer:
         if not validation.ok:
             return validation
         effective_leases = leases or default_capability_leases(task)
-        phase_type = phase_type_for_task(task)
-        phases = [
-            phase_run(
-                phase_id=_string(getattr(task, "execution_phase", "")) or "main",
-                phase_type=phase_type,
-                status="planned",
-                required_leases=required_capabilities_for_phase(phase_type, task),
-            )
-        ]
-        phase_validation = validate_phase_leases(phases, effective_leases)
+        phase_validation = validate_phase_leases(self.planned_phase_runs(task), effective_leases)
         if not phase_validation.ok:
             return phase_validation
         return ContractValidationResult(ok=True, errors=[])
@@ -412,7 +457,15 @@ class HermesCompanyComputer:
         structured_output = _json_object(raw.get("structured_output"))
         artifacts = self._artifact_records(task, raw, structured_output, execution_id=execution_id)
         deliveries = self._delivery_records(raw, structured_output, execution_id=execution_id)
-        phase_runs = self._phase_runs(task, raw, result_ok=bool(getattr(result, "ok", False)), artifacts=artifacts, deliveries=deliveries)
+        observer_events = self._observer_events(observer)
+        phase_runs = self._phase_runs(
+            task,
+            raw,
+            result_ok=bool(getattr(result, "ok", False)),
+            artifacts=artifacts,
+            deliveries=deliveries,
+            observer_events=observer_events,
+        )
         leases = self.task_leases(task)
         phase_validation = validate_phase_leases(phase_runs, leases)
         if not phase_validation.ok:
@@ -422,11 +475,22 @@ class HermesCompanyComputer:
                 "failure_kind": "runner_contract_failed",
                 "contract_errors": list(phase_validation.errors),
             }
-        ledger_events = self._ledger_events(raw, phase_runs, artifacts, deliveries)
+        ledger_events = self._ledger_events(
+            raw,
+            phase_runs,
+            artifacts,
+            deliveries,
+            observer_events=observer_events,
+            execution_id=execution_id,
+        )
         memory_events = [event for event in ledger_events if _string(event.get("kind")).startswith("memory.")]
         final_response = _string(structured_output.get("final_answer")) or _string(structured_output.get("reply_draft")) or _string(getattr(result, "message", ""))
         completion_verdict = _string(raw.get("completion_verdict")) or _string(structured_output.get("completion_verdict")) or ("failed" if not getattr(result, "ok", False) else "complete")
         termination_reason = _string(raw.get("termination_reason")) or _string(structured_output.get("termination_reason")) or ("failure" if not getattr(result, "ok", False) else "normal_completion")
+        phase_failed = any(_string(phase.get("status")).lower() == "failed" for phase in phase_runs)
+        if phase_failed and completion_verdict == "complete":
+            completion_verdict = "failed"
+            termination_reason = "phase_failed"
         envelope: JsonObject = {
             "contract_version": EXECUTION_CONTRACT_VERSION,
             "execution_id": execution_id,
@@ -468,7 +532,7 @@ class HermesCompanyComputer:
                 "termination_reason": termination_reason,
                 "partial": completion_verdict == "partial",
                 "max_iterations_reached": _bool(raw.get("max_iterations_reached")),
-                "ok": bool(getattr(result, "ok", False)) and phase_validation.ok,
+                "ok": bool(getattr(result, "ok", False)) and phase_validation.ok and not phase_failed,
             },
             "final_response": final_response,
         }
@@ -476,8 +540,9 @@ class HermesCompanyComputer:
             envelope["completion"]["ok"] = False
             envelope["completion"]["termination_reason"] = "runner_contract_failed"
             envelope["completion"]["completion_verdict"] = "failed"
+            next_sequence = len(envelope["ledger_events"]) + 1
             envelope["ledger_events"].append(
-                ledger_event("failure.contract", phase_id="main", status="failed", payload={"errors": list(phase_validation.errors)})
+                ledger_event("failure.contract", phase_id="main", status="failed", payload={"errors": list(phase_validation.errors)}, sequence=next_sequence)
             )
         raw["execution_envelope"] = envelope
         raw["structured_output"] = structured_output_from_envelope(envelope, structured_output)
@@ -546,7 +611,25 @@ class HermesCompanyComputer:
             out.append(record)
         return out
 
-    def _phase_runs(self, task: Any, raw: JsonObject, *, result_ok: bool, artifacts: list[JsonObject], deliveries: list[JsonObject]) -> list[JsonObject]:
+    def _observer_events(self, observer: Any | None) -> list[JsonObject]:
+        if observer is None or not hasattr(observer, "events"):
+            return []
+        try:
+            return _json_object_list(observer.events())
+        except Exception:
+            return []
+
+    def _phase_runs(
+        self,
+        task: Any,
+        raw: JsonObject,
+        *,
+        result_ok: bool,
+        artifacts: list[JsonObject],
+        deliveries: list[JsonObject],
+        observer_events: list[JsonObject],
+    ) -> list[JsonObject]:
+        planned = self.planned_phase_runs(task)
         explicit_phase = _string(getattr(task, "execution_phase", ""))
         phase_type = phase_type_for_task(task)
         status = "completed" if result_ok else "failed"
@@ -559,57 +642,153 @@ class HermesCompanyComputer:
             ref = _string(delivery.get("message_link")) or _string(delivery.get("provider_ref"))
             if ref:
                 output_refs.append(ref)
+        observed_phase_status: dict[str, JsonObject] = {}
+        for event in observer_events:
+            if _string(event.get("event_type")) == "phase.completed":
+                phase_id = _string(event.get("phase"))
+                if phase_id:
+                    payload = _json_object(event.get("payload"))
+                    observed_phase_status[phase_id] = {
+                        "status": _string(event.get("status")) or "completed",
+                        "completion_verdict": _string(payload.get("completion_verdict")),
+                        "termination_reason": _string(payload.get("termination_reason")),
+                    }
         diagnostics = _json_object(raw.get("runner_diagnostics"))
         if _bool(diagnostics.get("artifact_phase_enabled")) and not explicit_phase:
             render_status = "completed" if artifacts else ("failed" if _string(raw.get("artifact_failure_reason")) else "skipped")
             deliver_status = "completed" if deliveries else ("skipped" if _string(getattr(task, "reply_delivery_mode", "")).lower() != "direct" else "failed")
+            if deliveries and _string(deliveries[0].get("send_status")).lower() not in {"posted", "sent", "uploaded", "completed", "ok", "success", "shared"}:
+                deliver_status = "failed"
             deliver_completion_verdict = ""
             if deliver_status == "completed":
                 deliver_completion_verdict = _string(diagnostics.get("artifact_delivery_completion_verdict")) or completion_verdict
+            phase_map: dict[str, JsonObject] = {str(item.get("phase_id")): dict(item) for item in planned}
+            investigate_observed = observed_phase_status.get("investigate", {})
+            phase_map["investigate"] = phase_run(
+                phase_id="investigate",
+                phase_type="investigate",
+                status=_string(investigate_observed.get("status")) or ("completed" if result_ok else "failed"),
+                required_leases=required_capabilities_for_phase("investigate", task),
+                completion_verdict=_string(investigate_observed.get("completion_verdict")) or _string(diagnostics.get("artifact_investigate_completion_verdict")) or completion_verdict,
+                termination_reason=_string(investigate_observed.get("termination_reason")) or _string(diagnostics.get("artifact_investigate_termination_reason")) or termination_reason,
+            )
+            render_observed = observed_phase_status.get("render", {})
+            phase_map["render"] = phase_run(
+                phase_id="render",
+                phase_type="render",
+                status=_string(render_observed.get("status")) or render_status,
+                required_leases=required_capabilities_for_phase("render", task),
+                output_refs=[ref for artifact in artifacts for ref in _string_list(artifact.get("artifact_refs"))],
+                completion_verdict=_string(render_observed.get("completion_verdict")) or (completion_verdict if render_status == "completed" else ""),
+                termination_reason=_string(render_observed.get("termination_reason")) or (_string(raw.get("artifact_failure_reason")) if render_status != "completed" else "normal_completion"),
+                failure_class="artifact_render_failed" if render_status == "failed" else "",
+                failure_reason=_string(raw.get("artifact_failure_reason")) if render_status == "failed" else "",
+            )
+            deliver_observed = observed_phase_status.get("deliver", {})
+            phase_map["deliver"] = phase_run(
+                phase_id="deliver",
+                phase_type="deliver",
+                status=_string(deliver_observed.get("status")) or deliver_status,
+                required_leases=required_capabilities_for_phase("deliver", task),
+                input_refs=[ref for artifact in artifacts for ref in _string_list(artifact.get("artifact_refs"))],
+                output_refs=output_refs,
+                completion_verdict=_string(deliver_observed.get("completion_verdict")) or deliver_completion_verdict,
+                termination_reason=_string(deliver_observed.get("termination_reason")) or (_string(diagnostics.get("direct_delivery_phase_failed")) if deliver_status == "failed" else ("normal_completion" if deliver_status == "completed" else "skipped")),
+                failure_class="artifact_delivery_failed" if deliver_status == "failed" else "",
+                failure_reason=_string(diagnostics.get("direct_delivery_phase_failed")) if deliver_status == "failed" else "",
+            )
+            reflect_observed = observed_phase_status.get("reflect", {})
+            phase_map["reflect"] = phase_run(
+                phase_id="reflect",
+                phase_type="reflect",
+                status=_string(reflect_observed.get("status")) or ("completed" if result_ok else "failed"),
+                required_leases=required_capabilities_for_phase("reflect", task),
+                completion_verdict=_string(reflect_observed.get("completion_verdict")) or completion_verdict,
+                termination_reason=_string(reflect_observed.get("termination_reason")) or termination_reason,
+            )
+            plan_observed = observed_phase_status.get("plan", {})
+            phase_map["plan"] = phase_run(
+                phase_id="plan",
+                phase_type="plan",
+                status=_string(plan_observed.get("status")) or "completed",
+                required_leases=required_capabilities_for_phase("plan", task),
+                completion_verdict=_string(plan_observed.get("completion_verdict")) or "complete",
+                termination_reason=_string(plan_observed.get("termination_reason")) or "phase_graph_created",
+            )
             return [
-                phase_run(
-                    phase_id="investigate",
-                    phase_type="investigate",
-                    status="completed" if result_ok else "failed",
-                    required_leases=required_capabilities_for_phase("investigate", task),
-                    completion_verdict=_string(diagnostics.get("artifact_investigate_completion_verdict")) or completion_verdict,
-                    termination_reason=_string(diagnostics.get("artifact_investigate_termination_reason")) or termination_reason,
-                ),
-                phase_run(
-                    phase_id="render",
-                    phase_type="render",
-                    status=render_status,
-                    required_leases=required_capabilities_for_phase("render", task),
-                    output_refs=[ref for artifact in artifacts for ref in _string_list(artifact.get("artifact_refs"))],
-                    completion_verdict=completion_verdict if render_status == "completed" else "",
-                    termination_reason=_string(raw.get("artifact_failure_reason")) if render_status != "completed" else "normal_completion",
-                    failure_class="artifact_render_failed" if render_status == "failed" else "",
-                    failure_reason=_string(raw.get("artifact_failure_reason")) if render_status == "failed" else "",
-                ),
-                phase_run(
+                phase_map[_string(item.get("phase_id"))]
+                for item in planned
+                if _string(item.get("phase_id")) in phase_map
+            ]
+        if len(planned) > 1 and not explicit_phase:
+            phase_map = {str(item.get("phase_id")): dict(item) for item in planned}
+            main_phase_id = "operate" if "operate" in phase_map else ("reflect" if "reflect" in phase_map else _string(planned[-1].get("phase_id")))
+            plan_observed = observed_phase_status.get("plan", {})
+            phase_map["plan"] = phase_run(
+                phase_id="plan",
+                phase_type="plan",
+                status=_string(plan_observed.get("status")) or "completed",
+                required_leases=required_capabilities_for_phase("plan", task),
+                completion_verdict=_string(plan_observed.get("completion_verdict")) or "complete",
+                termination_reason=_string(plan_observed.get("termination_reason")) or "phase_graph_created",
+            )
+            main_observed = observed_phase_status.get(main_phase_id, {})
+            phase_map[main_phase_id] = phase_run(
+                phase_id=main_phase_id,
+                phase_type=_string(phase_map[main_phase_id].get("phase_type")) or phase_type,
+                status=_string(main_observed.get("status")) or status,
+                required_leases=required_capabilities_for_phase(_string(phase_map[main_phase_id].get("phase_type")) or phase_type, task),
+                input_refs=[],
+                output_refs=output_refs,
+                completion_verdict=_string(main_observed.get("completion_verdict")) or completion_verdict,
+                termination_reason=_string(main_observed.get("termination_reason")) or termination_reason,
+                failure_class=_string(raw.get("failure_class")) if not result_ok else "",
+                failure_reason=(_string(raw.get("structured_output_error")) or _string(raw.get("artifact_failure_reason"))) if not result_ok else "",
+            )
+            if "deliver" in phase_map:
+                delivery_status = "completed" if deliveries else ("skipped" if _string(getattr(task, "reply_delivery_mode", "")).lower() != "direct" else "failed")
+                if deliveries and _string(deliveries[0].get("send_status")).lower() not in {"posted", "sent", "uploaded", "completed", "ok", "success", "shared"}:
+                    delivery_status = "failed"
+                deliver_observed = observed_phase_status.get("deliver", {})
+                phase_map["deliver"] = phase_run(
                     phase_id="deliver",
                     phase_type="deliver",
-                    status=deliver_status,
+                    status=_string(deliver_observed.get("status")) or delivery_status,
                     required_leases=required_capabilities_for_phase("deliver", task),
-                    input_refs=[ref for artifact in artifacts for ref in _string_list(artifact.get("artifact_refs"))],
+                    input_refs=output_refs,
                     output_refs=output_refs,
-                    completion_verdict=deliver_completion_verdict,
-                    termination_reason=_string(diagnostics.get("direct_delivery_phase_failed")) if deliver_status == "failed" else ("normal_completion" if deliver_status == "completed" else "skipped"),
-                    failure_class="artifact_delivery_failed" if deliver_status == "failed" else "",
-                    failure_reason=_string(diagnostics.get("direct_delivery_phase_failed")) if deliver_status == "failed" else "",
-                ),
+                    completion_verdict=_string(deliver_observed.get("completion_verdict")) or (completion_verdict if delivery_status == "completed" else ""),
+                    termination_reason=_string(deliver_observed.get("termination_reason")) or ("normal_completion" if delivery_status == "completed" else delivery_status),
+                    failure_class="reply_delivery_failed" if delivery_status == "failed" else "",
+                    failure_reason="direct delivery was not acknowledged" if delivery_status == "failed" else "",
+                )
+            if "reflect" in phase_map and main_phase_id != "reflect":
+                reflect_observed = observed_phase_status.get("reflect", {})
+                phase_map["reflect"] = phase_run(
+                    phase_id="reflect",
+                    phase_type="reflect",
+                    status=_string(reflect_observed.get("status")) or ("completed" if result_ok else "failed"),
+                    required_leases=required_capabilities_for_phase("reflect", task),
+                    completion_verdict=_string(reflect_observed.get("completion_verdict")) or completion_verdict,
+                    termination_reason=_string(reflect_observed.get("termination_reason")) or termination_reason,
+                )
+            return [
+                phase_map[_string(item.get("phase_id"))]
+                for item in planned
+                if _string(item.get("phase_id")) in phase_map
             ]
         phase_id = explicit_phase or "main"
+        phase_observed = observed_phase_status.get(phase_id, {})
         return [
             phase_run(
                 phase_id=phase_id,
                 phase_type=phase_type,
-                status=status,
+                status=_string(phase_observed.get("status")) or status,
                 required_leases=required_capabilities_for_phase(phase_type, task),
                 input_refs=[],
                 output_refs=output_refs,
-                completion_verdict=completion_verdict,
-                termination_reason=termination_reason,
+                completion_verdict=_string(phase_observed.get("completion_verdict")) or completion_verdict,
+                termination_reason=_string(phase_observed.get("termination_reason")) or termination_reason,
                 failure_class=_string(raw.get("failure_class")) if not result_ok else "",
                 failure_reason=_string(raw.get("structured_output_error")) or _string(raw.get("artifact_failure_reason")) if not result_ok else "",
             )
@@ -621,12 +800,39 @@ class HermesCompanyComputer:
         phase_runs: list[JsonObject],
         artifacts: list[JsonObject],
         deliveries: list[JsonObject],
+        *,
+        observer_events: list[JsonObject],
+        execution_id: str,
     ) -> list[JsonObject]:
         events: list[JsonObject] = []
+        sequence = 0
         for phase in phase_runs:
             phase_id = _string(phase.get("phase_id"))
-            events.append(ledger_event("phase.started", phase_id=phase_id, status="running", payload={"phase_type": phase.get("phase_type")}))
-            events.append(ledger_event("phase.completed", phase_id=phase_id, status=_string(phase.get("status")), payload=phase))
+            planned_payload = {
+                key: value
+                for key, value in phase.items()
+                if key not in {"completion_verdict", "failure", "output_refs", "termination_reason"}
+            }
+            planned_payload["status"] = "planned"
+            planned_payload["output_refs"] = []
+            sequence += 1
+            events.append(ledger_event("phase.planned", phase_id=phase_id, status="planned", payload=planned_payload, sequence=sequence))
+        for item in observer_events:
+            if _string(item.get("event_type")) == "phase.planned":
+                continue
+            sequence += 1
+            events.append(self._ledger_event_from_observation(item, sequence=sequence, execution_id=execution_id))
+        observed_phase_completions = {
+            _string(item.get("phase_id"))
+            for item in events
+            if _string(item.get("kind")) == "phase.completed" and _string(item.get("phase_id"))
+        }
+        for phase in phase_runs:
+            phase_id = _string(phase.get("phase_id"))
+            if phase_id in observed_phase_completions:
+                continue
+            sequence += 1
+            events.append(ledger_event("phase.completed", phase_id=phase_id, status=_string(phase.get("status")), payload=phase, sequence=sequence))
         for item in _json_object_list(raw.get("lifecycle_events")):
             kind = _string(item.get("event_type")) or _string(item.get("event")) or "model.lifecycle"
             if "memory" in kind.lower() or "honcho" in kind.lower():
@@ -640,18 +846,69 @@ class HermesCompanyComputer:
                 mapped = f"tool.{kind}"
             else:
                 mapped = f"model.{kind}"
-            events.append(ledger_event(mapped, phase_id=_string(item.get("phase")) or "main", status=_string(item.get("status")), payload=item))
+            sequence += 1
+            events.append(ledger_event(mapped, phase_id=_string(item.get("phase")) or "main", status=_string(item.get("status")), payload=item, sequence=sequence))
         for item in _json_object_list(raw.get("artifact_tool_events")):
             kind = _string(item.get("event_type")) or "artifact.tool_event"
             mapped = kind if kind.startswith("artifact.") else f"artifact.{kind}"
-            events.append(ledger_event(mapped, phase_id=_string(item.get("phase")) or "render", status=_string(item.get("status")), payload=item))
+            sequence += 1
+            events.append(ledger_event(mapped, phase_id=_string(item.get("phase")) or "render", status=_string(item.get("status")), payload=item, sequence=sequence))
         for artifact in artifacts:
-            events.append(ledger_event("artifact.created", phase_id="render", status="completed", payload=artifact))
+            sequence += 1
+            events.append(ledger_event("artifact.created", phase_id="render", status="completed", payload=artifact, sequence=sequence))
             if _string(artifact.get("workspace_path")):
-                events.append(ledger_event("file.written", phase_id="render", status="completed", payload=artifact))
+                sequence += 1
+                events.append(ledger_event("file.written", phase_id="render", status="completed", payload=artifact, sequence=sequence))
         for delivery in deliveries:
-            events.append(ledger_event("slack.message.sent", phase_id="deliver", status=_string(delivery.get("send_status")), payload=delivery))
+            sequence += 1
+            events.append(
+                ledger_event(
+                    "slack.message.sent",
+                    phase_id="deliver",
+                    status=_string(delivery.get("send_status")),
+                    payload=delivery,
+                    sequence=sequence,
+                    idempotency_key=_string(delivery.get("body_sha1")) or _string(delivery.get("delivery_id")),
+                )
+            )
         failure_class = _string(raw.get("failure_class"))
         if failure_class:
-            events.append(ledger_event("failure.runner", phase_id="main", status="failed", payload={"failure_class": failure_class, "diagnostics": _json_object(raw.get("runner_diagnostics"))}))
+            sequence += 1
+            events.append(ledger_event("failure.runner", phase_id="main", status="failed", payload={"failure_class": failure_class, "diagnostics": _json_object(raw.get("runner_diagnostics"))}, sequence=sequence))
         return events
+
+    def _ledger_event_from_observation(self, item: JsonObject, *, sequence: int, execution_id: str) -> JsonObject:
+        event_type = _string(item.get("event_type")) or "model.lifecycle"
+        phase_id = _string(item.get("phase")) or "main"
+        kind = event_type
+        lower = event_type.lower()
+        if lower.startswith("direct_delivery."):
+            kind = "slack." + event_type
+        elif lower.startswith("artifact.pipeline."):
+            kind = "phase." + event_type
+        elif lower.startswith("artifact.file."):
+            kind = "file." + event_type.removeprefix("artifact.file.")
+        elif lower.startswith("artifact."):
+            kind = event_type
+        elif lower.startswith("phase."):
+            kind = event_type
+        elif lower.startswith("model."):
+            kind = event_type
+        elif "memory" in lower or "honcho" in lower:
+            kind = "memory.lifecycle"
+        elif lower.startswith("tool."):
+            kind = event_type
+        else:
+            kind = "model." + event_type
+        event_id_seed = "|".join([execution_id, str(item.get("seq") or sequence), kind, phase_id])
+        raw_payload = item.get("payload")
+        payload = dict(raw_payload) if isinstance(raw_payload, dict) else {}
+        return ledger_event(
+            kind,
+            phase_id=phase_id,
+            status=_string(item.get("status")),
+            payload=payload,
+            sequence=sequence,
+            recorded_at=_string(item.get("recorded_at")),
+            event_id=f"ledger-{hashlib.sha1(event_id_seed.encode('utf-8')).hexdigest()[:16]}",
+        )
