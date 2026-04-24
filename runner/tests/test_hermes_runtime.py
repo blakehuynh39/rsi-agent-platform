@@ -15,7 +15,7 @@ from unittest import mock
 
 from rsi_runner.config import RunnerConfig, RunnerConfigError
 from rsi_runner.hermes_adapter import _build_plugin_module
-from rsi_runner.hermes_executor_worker import _LocalArtifactToolBinding
+from rsi_runner.hermes_executor_worker import _LocalArtifactToolBinding, _initialize_cli_agent
 from rsi_runner.hermes_mcp_adapter import TaskScopedMCPCleanupResult, TaskScopedMCPRegistration, TaskScopedMCPServer
 from rsi_runner.hermes_runtime import HermesExecutionResult, HermesRuntime, RunnerTaskRequest
 from rsi_runner.observability import execution_observation_id
@@ -30,7 +30,7 @@ def runner_env(role: str = "prod") -> dict[str, str]:
         "RSI_RUNNER_PORT": "8090",
         "RSI_RUNNER_MODEL": "openai/gpt-5.4",
         "RSI_RUNNER_REASONING_EFFORT": "xhigh",
-        "RSI_HERMES_PIN": "c95c6bdb7c5f507a9a18399d9d2523fa483cf157",
+        "RSI_HERMES_PIN": "6fdbf2f2d76cf37393e657bf37ceda3d84589200",
         "RSI_RUNNER_PUBLIC_BASE_URL": "https://staging-rsi-platform.storyprotocol.net",
         "RSI_TOOL_GATEWAY_BASE_URL": "http://tool-gateway.internal:8080",
         "HERMES_HOME": "/tmp/hermes",
@@ -754,7 +754,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["honcho_write_frequency"], "async")
         self.assertEqual(result.raw["honcho_session_strategy"], "hybrid")
         self.assertEqual(result.raw["honcho_ai_peer"], "rsi:stage:eval")
-        self.assertEqual(result.raw["hermes_pin"], "c95c6bdb7c5f507a9a18399d9d2523fa483cf157")
+        self.assertEqual(result.raw["hermes_pin"], "6fdbf2f2d76cf37393e657bf37ceda3d84589200")
         self.assertIn("structured_output", result.raw)
         self.assertEqual(result.raw["structured_output"]["final_answer"], "Final reply")
 
@@ -1915,6 +1915,46 @@ class HermesRuntimeTests(unittest.TestCase):
                     "artifact_write_file",
                     {"path": "../escape.html", "content": "nope"},
                 )
+
+    def test_native_worker_initializes_current_hermes_cli_signature(self) -> None:
+        class CurrentHermesCLI:
+            init_kwargs: dict[str, object] | None = None
+
+            def _init_agent(self, *, model_override=None, runtime_override=None):
+                type(self).init_kwargs = {
+                    "model_override": model_override,
+                    "runtime_override": runtime_override,
+                }
+                return True
+
+        payload = {
+            "model": "openai/gpt-5.4",
+            "runtime": {
+                "api_key": "test-key",
+                "base_url": "https://api.openai.com/v1",
+                "provider": "openai",
+                "api_mode": "codex_responses",
+            },
+        }
+
+        cli = CurrentHermesCLI()
+        _initialize_cli_agent(cli, payload)
+
+        self.assertEqual(
+            CurrentHermesCLI.init_kwargs,
+            {
+                "model_override": "openai/gpt-5.4",
+                "runtime_override": {
+                    "api_key": "test-key",
+                    "base_url": "https://api.openai.com/v1",
+                    "provider": "openai",
+                    "api_mode": "codex_responses",
+                    "command": None,
+                    "args": [],
+                    "credential_pool": None,
+                },
+            },
+        )
 
     def test_native_executor_stores_final_status_under_explicit_execution_id_without_observer(self) -> None:
         structured = json.dumps(
@@ -4987,7 +5027,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(runtime.metadata["inactivity_timeout_seconds"], 360)
         self.assertEqual(runtime.metadata["transport_timeout_seconds"], 450)
         self.assertEqual(runtime.metadata["tool_policy_mode"], "enforced_read_only")
-        self.assertEqual(runtime.metadata["hermes_pin"], "c95c6bdb7c5f507a9a18399d9d2523fa483cf157")
+        self.assertEqual(runtime.metadata["hermes_pin"], "6fdbf2f2d76cf37393e657bf37ceda3d84589200")
         self.assertEqual(runtime.metadata["session_continuity_status"], "ok")
         self.assertEqual(runtime.metadata["honcho_environment_effective"], "production")
         self.assertIn("repo.context", runtime.metadata["tool_allowlist_effective"])

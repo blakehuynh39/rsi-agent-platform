@@ -389,6 +389,15 @@ def _runtime_override(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _initialize_cli_agent(cli: object, payload: dict[str, Any]) -> None:
+    runtime = _runtime_override(payload)
+    if not cli._init_agent(
+        model_override=_string(payload.get("model")) or None,
+        runtime_override=runtime,
+    ):
+        raise RuntimeError("HermesCLI failed to initialize an agent.")
+
+
 def _attach_local_artifact_tools(cli: object, payload: dict[str, Any]) -> _LocalArtifactToolBinding | None:
     execution_phase = _string(payload.get("execution_phase"))
     artifact_output_dir = _string(payload.get("artifact_output_dir"))
@@ -428,13 +437,7 @@ def main() -> None:
             mcp_adapter.register_prepared_servers(mcp_registration)
         cli, session_id = _prepare_cli_session(payload)
         cli._session_db = _prepare_session_db(payload, session_id, _string(cli.system_prompt))
-        runtime = _runtime_override(payload)
-        if not cli._init_agent(
-            model_override=_string(payload.get("model")) or None,
-            runtime_override=runtime,
-            route_label="rsi_executor",
-        ):
-            raise RuntimeError("HermesCLI failed to initialize an agent.")
+        _initialize_cli_agent(cli, payload)
         artifact_tools = _attach_local_artifact_tools(cli, payload)
         cli.agent.quiet_mode = True
         result = cli.agent.run_conversation(
