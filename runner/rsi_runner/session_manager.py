@@ -295,6 +295,9 @@ class SessionManager:
             "  api_key: \"\"\n"
             "memory:\n"
             "  provider: honcho\n"
+            "plugins:\n"
+            "  enabled:\n"
+            "    - rsi_context_engine\n"
         )
         config_path.write_text(content, encoding="utf-8")
         self._hermes_config_parity_status = "configured"
