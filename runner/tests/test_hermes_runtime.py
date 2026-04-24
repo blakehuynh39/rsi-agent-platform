@@ -470,6 +470,9 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("provider: custom", config_text)
         self.assertIn('base_url: "https://api.openai.com/v1"', config_text)
         self.assertIn('api_key: ""', config_text)
+        self.assertIn("plugins:", config_text)
+        self.assertIn("  enabled:", config_text)
+        self.assertIn("    - rsi_context_engine", config_text)
         self.assertEqual(manager.hermes_config_parity_status, "configured")
         self.assertEqual(manager.hermes_config_parity_error, "")
 
