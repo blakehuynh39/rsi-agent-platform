@@ -16,17 +16,20 @@ import (
 )
 
 const (
-	workflowFailureRunnerMissingStructuredOutput  = "runner_missing_structured_output"
-	workflowFailureRunnerInvalidRequest           = "runner_invalid_request"
-	workflowFailureRunnerNonOK                    = "runner_non_ok"
-	workflowFailureRunnerIterationBudgetExhausted = "runner_iteration_budget_exhausted"
-	workflowFailureRunnerPartialCompletionBroken  = "runner_partial_completion_unrecoverable"
-	workflowFailureRunnerPostProcessing           = "runner_post_processing_failure"
-	workflowFailureRunnerStateInvariant           = "runner_state_transition_invariant_failed"
-	workflowFailureRunnerTransportTimeout         = "runner_transport_timeout"
-	workflowFailureRunnerStructuredOutputParse    = "runner_structured_output_parse_failure"
-	workflowFailureToolGatewayTimeout             = "tool_gateway_timeout"
-	workflowFailureToolGatewayUnavailable         = "tool_gateway_unavailable"
+	workflowFailureRunnerMissingStructuredOutput    = "runner_missing_structured_output"
+	workflowFailureRunnerInvalidRequest             = "runner_invalid_request"
+	workflowFailureRunnerNonOK                      = "runner_non_ok"
+	workflowFailureRunnerIterationBudgetExhausted   = "runner_iteration_budget_exhausted"
+	workflowFailureRunnerPartialCompletionBroken    = "runner_partial_completion_unrecoverable"
+	workflowFailureRunnerPostProcessing             = "runner_post_processing_failure"
+	workflowFailureRunnerStateInvariant             = "runner_state_transition_invariant_failed"
+	workflowFailureRunnerTransportTimeout           = "runner_transport_timeout"
+	workflowFailureRunnerExecutorStatusUnavailable  = "runner_executor_status_unavailable"
+	workflowFailureRunnerExecutorStatusUnrecognized = "runner_executor_status_unrecognized"
+	workflowFailureRunnerExecutorResultUnavailable  = "runner_executor_result_unavailable"
+	workflowFailureRunnerStructuredOutputParse      = "runner_structured_output_parse_failure"
+	workflowFailureToolGatewayTimeout               = "tool_gateway_timeout"
+	workflowFailureToolGatewayUnavailable           = "tool_gateway_unavailable"
 )
 
 type workflowFailure struct {
@@ -34,6 +37,8 @@ type workflowFailure struct {
 	Summary           string
 	RunnerDiagnostics map[string]any
 	ToolCalls         []events.ToolCallRecord
+	TraceArtifacts    []events.Artifact
+	ReasoningSteps    []events.ReasoningStep
 	RepairAttempted   bool
 	RepairSucceeded   bool
 	Retryable         bool
@@ -68,6 +73,12 @@ func finalizeWorkflowFailureWithDetails(cfg config.Config, store storepkg.Store,
 	}
 	if len(failure.ToolCalls) > 0 {
 		payload["tool_calls"] = bindRunnerToolCallRecords(failure.ToolCalls, ctx.trace, ctx.workflow)
+	}
+	if len(failure.TraceArtifacts) > 0 {
+		payload["trace_artifacts"] = append([]events.Artifact(nil), failure.TraceArtifacts...)
+	}
+	if len(failure.ReasoningSteps) > 0 {
+		payload["reasoning_steps"] = append([]events.ReasoningStep(nil), failure.ReasoningSteps...)
 	}
 	if retryAt, ok := workflowRetryAt(cfg, store, ctx.workflow, failure); ok {
 		retryDecision = "auto_retry"

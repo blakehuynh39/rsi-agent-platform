@@ -10,6 +10,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/harness"
+	"github.com/piplabs/rsi-agent-platform/internal/runnerutil"
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
@@ -136,6 +137,16 @@ func buildWorkflowClassificationTask(
 		MemoryBackend:             harness.DefaultMemoryBackend,
 		AssistantPeerID:           fmt.Sprintf("rsi:%s:%s", cfg.Environment, role),
 		UserPeerID:                workflowUserPeerID(store.ListConversationEntries(trace.Summary.ConversationID), sessionScopeKind, sessionScopeID),
+		ContractVersion:           clients.RunnerExecutionContractVersion,
+		ExecutionIntent: map[string]any{
+			"kind":                "workflow_classification",
+			"intent":              workflow.Intent,
+			"runner_planner_mode": firstNonEmpty(cfg.RunnerPlannerMode, "runner_first"),
+		},
+		CapabilityLeases: questionCapabilityLeases(false),
+		DeliveryPolicy:   runnerDeliveryPolicy(ingestion.ChannelID, ingestion.ThreadTS, "none", trace.Summary.TraceID),
+		WorkspacePolicy:  runnerutil.WorkspacePolicyFromConfig(cfg),
+		ApprovalPolicy:   runnerApprovalPolicy(false),
 	}
 }
 

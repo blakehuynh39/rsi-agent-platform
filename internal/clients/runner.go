@@ -2,6 +2,7 @@ package clients
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/piplabs/rsi-agent-platform/internal/harness"
@@ -109,6 +110,127 @@ type RunnerRequestedArtifact struct {
 	Description string `json:"description,omitempty"`
 }
 
+const RunnerExecutionContractVersion = "execution-envelope/v1"
+
+type RunnerCapabilityLease struct {
+	LeaseID     string         `json:"lease_id,omitempty"`
+	Capability  string         `json:"capability"`
+	Scope       map[string]any `json:"scope,omitempty"`
+	Constraints map[string]any `json:"constraints,omitempty"`
+	Granted     bool           `json:"granted"`
+}
+
+type RunnerDeliveryPolicy struct {
+	BoundChannelID     string `json:"bound_channel_id,omitempty"`
+	BoundThreadTS      string `json:"bound_thread_ts,omitempty"`
+	DirectSendAllowed  bool   `json:"direct_send_allowed"`
+	UploadAllowed      bool   `json:"upload_allowed"`
+	IdempotencyKeyBase string `json:"idempotency_key_base,omitempty"`
+}
+
+type RunnerWorkspacePolicy struct {
+	ComputerRoot     string   `json:"computer_root,omitempty"`
+	RunRoot          string   `json:"run_root,omitempty"`
+	ArtifactRoot     string   `json:"artifact_root,omitempty"`
+	AllowedPathRoots []string `json:"allowed_path_roots,omitempty"`
+}
+
+type RunnerApprovalPolicy struct {
+	DirectSlackAllowed               bool     `json:"direct_slack_allowed"`
+	RequiresApproval                 []string `json:"requires_approval,omitempty"`
+	PlatformMutationsExecuteDirectly bool     `json:"platform_mutations_execute_directly"`
+}
+
+func NewRunnerCapabilityLease(capability string, scope map[string]any) RunnerCapabilityLease {
+	capability = strings.TrimSpace(capability)
+	return RunnerCapabilityLease{
+		LeaseID:    "lease-" + strings.ReplaceAll(capability, "_", "-"),
+		Capability: capability,
+		Scope:      scope,
+		Granted:    true,
+	}
+}
+
+func RunnerCapabilityLeases(capabilities ...string) []RunnerCapabilityLease {
+	out := make([]RunnerCapabilityLease, 0, len(capabilities))
+	seen := map[string]struct{}{}
+	for _, capability := range capabilities {
+		capability = strings.TrimSpace(capability)
+		if capability == "" {
+			continue
+		}
+		if _, ok := seen[capability]; ok {
+			continue
+		}
+		seen[capability] = struct{}{}
+		out = append(out, NewRunnerCapabilityLease(capability, nil))
+	}
+	return out
+}
+
+func NewRunnerDeliveryPolicy(channelID string, threadTS string, replyDeliveryMode string, idempotencyKeyBase string) *RunnerDeliveryPolicy {
+	mode := NormalizeRunnerReplyDeliveryMode(replyDeliveryMode)
+	return &RunnerDeliveryPolicy{
+		BoundChannelID:     strings.TrimSpace(channelID),
+		BoundThreadTS:      strings.TrimSpace(threadTS),
+		DirectSendAllowed:  mode == "direct",
+		UploadAllowed:      mode == "direct" || mode == "mediated",
+		IdempotencyKeyBase: strings.TrimSpace(idempotencyKeyBase),
+	}
+}
+
+func NewRunnerWorkspacePolicy(computerRoot string, runRoot string, artifactRoot string) *RunnerWorkspacePolicy {
+	roots := compactRunnerStrings(computerRoot, runRoot, artifactRoot)
+	return &RunnerWorkspacePolicy{
+		ComputerRoot:     strings.TrimSpace(computerRoot),
+		RunRoot:          strings.TrimSpace(runRoot),
+		ArtifactRoot:     strings.TrimSpace(artifactRoot),
+		AllowedPathRoots: roots,
+	}
+}
+
+func NewRunnerApprovalPolicy(directSlackAllowed bool) *RunnerApprovalPolicy {
+	return &RunnerApprovalPolicy{
+		DirectSlackAllowed: directSlackAllowed,
+		RequiresApproval: []string{
+			"repo_merge",
+			"platform_config",
+			"deployment",
+			"k8s_mutation",
+			"aws_iac",
+			"destructive_action",
+			"harness_platform_behavior_change",
+		},
+		PlatformMutationsExecuteDirectly: false,
+	}
+}
+
+func NormalizeRunnerReplyDeliveryMode(value string) string {
+	switch strings.ToLower(strings.TrimSpace(value)) {
+	case "direct", "mediated", "none":
+		return strings.ToLower(strings.TrimSpace(value))
+	default:
+		return "mediated"
+	}
+}
+
+func compactRunnerStrings(values ...string) []string {
+	out := make([]string, 0, len(values))
+	seen := map[string]struct{}{}
+	for _, value := range values {
+		value = strings.TrimSpace(value)
+		if value == "" {
+			continue
+		}
+		if _, ok := seen[value]; ok {
+			continue
+		}
+		seen[value] = struct{}{}
+		out = append(out, value)
+	}
+	return out
+}
+
 type RunnerTask struct {
 	TaskType                  string                          `json:"task_type"`
 	Repo                      string                          `json:"repo"`
@@ -161,6 +283,12 @@ type RunnerTask struct {
 	WorkspaceRepo             string                          `json:"workspace_repo,omitempty"`
 	WorkspaceBranch           string                          `json:"workspace_branch,omitempty"`
 	AllowedPathGlobs          []string                        `json:"allowed_path_globs,omitempty"`
+	ContractVersion           string                          `json:"contract_version,omitempty"`
+	ExecutionIntent           map[string]any                  `json:"execution_intent,omitempty"`
+	CapabilityLeases          []RunnerCapabilityLease         `json:"capability_leases,omitempty"`
+	DeliveryPolicy            *RunnerDeliveryPolicy           `json:"delivery_policy,omitempty"`
+	WorkspacePolicy           *RunnerWorkspacePolicy          `json:"workspace_policy,omitempty"`
+	ApprovalPolicy            *RunnerApprovalPolicy           `json:"approval_policy,omitempty"`
 }
 
 type RunnerMCPServer struct {
@@ -189,13 +317,18 @@ type HermesExecutionRequest struct {
 type HermesExecutionResult = RunnerResponse
 
 type HermesExecutionStatus struct {
-	ExecutionID       string `json:"execution_id,omitempty"`
-	Status            string `json:"status,omitempty"`
-	WorkspaceRoot     string `json:"workspace_root,omitempty"`
-	SessionID         string `json:"session_id,omitempty"`
-	TerminationReason string `json:"termination_reason,omitempty"`
-	CompletionVerdict string `json:"completion_verdict,omitempty"`
-	Message           string `json:"message,omitempty"`
+	ExecutionID       string          `json:"execution_id,omitempty"`
+	OperationID       string          `json:"operation_id,omitempty"`
+	TraceID           string          `json:"trace_id,omitempty"`
+	WorkflowID        string          `json:"workflow_id,omitempty"`
+	Phase             string          `json:"phase,omitempty"`
+	Status            string          `json:"status,omitempty"`
+	WorkspaceRoot     string          `json:"workspace_root,omitempty"`
+	SessionID         string          `json:"session_id,omitempty"`
+	TerminationReason string          `json:"termination_reason,omitempty"`
+	CompletionVerdict string          `json:"completion_verdict,omitempty"`
+	Message           string          `json:"message,omitempty"`
+	Result            *RunnerResponse `json:"result,omitempty"`
 }
 
 type RuntimeResponse = harness.RuntimeResponse

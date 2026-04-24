@@ -49,11 +49,17 @@ type OutcomeHypothesis struct {
 }
 
 type ProducedArtifact struct {
-	Kind           string   `json:"kind"`
-	Title          string   `json:"title,omitempty"`
-	ArtifactRefs   []string `json:"artifact_refs,omitempty"`
-	DeliveryStatus string   `json:"delivery_status,omitempty"`
-	FailureReason  string   `json:"failure_reason,omitempty"`
+	Kind                 string   `json:"kind"`
+	Title                string   `json:"title,omitempty"`
+	ArtifactRefs         []string `json:"artifact_refs,omitempty"`
+	DeliveryStatus       string   `json:"delivery_status,omitempty"`
+	FailureReason        string   `json:"failure_reason,omitempty"`
+	WorkspacePath        string   `json:"workspace_path,omitempty"`
+	FileRef              string   `json:"file_ref,omitempty"`
+	SizeBytes            int64    `json:"size_bytes,omitempty"`
+	SHA256               string   `json:"sha256,omitempty"`
+	CreatedByExecutionID string   `json:"created_by_execution_id,omitempty"`
+	ShareStatus          string   `json:"share_status,omitempty"`
 }
 
 type ArtifactRenderBrief struct {
@@ -66,7 +72,7 @@ type ArtifactRenderBrief struct {
 }
 
 type ReplyDelivery struct {
-	Status        string   `json:"status,omitempty"`
+	Status        string   `json:"send_status,omitempty"`
 	ChannelID     string   `json:"channel_id,omitempty"`
 	ThreadTS      string   `json:"thread_ts,omitempty"`
 	Body          string   `json:"body,omitempty"`
@@ -78,6 +84,23 @@ type ReplyDelivery struct {
 	MessageLink   string   `json:"message_link,omitempty"`
 	ArtifactRefs  []string `json:"artifact_refs,omitempty"`
 	FailureReason string   `json:"failure_reason,omitempty"`
+}
+
+func (rd *ReplyDelivery) UnmarshalJSON(data []byte) error {
+	type Alias ReplyDelivery
+	aux := &struct {
+		LegacyStatus string `json:"status,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(rd),
+	}
+	if err := json.Unmarshal(data, aux); err != nil {
+		return err
+	}
+	if rd.Status == "" && aux.LegacyStatus != "" {
+		rd.Status = aux.LegacyStatus
+	}
+	return nil
 }
 
 type RetryAssessment struct {
@@ -121,7 +144,89 @@ type RuntimeDiagnosisOutput struct {
 	ValidationPlan  string   `json:"validation_plan"`
 }
 
+type ExecutionEnvelope struct {
+	ContractVersion  string             `json:"contract_version"`
+	ExecutionID      string             `json:"execution_id,omitempty"`
+	OperationID      string             `json:"operation_id,omitempty"`
+	TraceID          string             `json:"trace_id,omitempty"`
+	WorkflowID       string             `json:"workflow_id,omitempty"`
+	SessionID        string             `json:"session_id,omitempty"`
+	ExecutionIntent  map[string]any     `json:"execution_intent,omitempty"`
+	CapabilityLeases []map[string]any   `json:"capability_leases,omitempty"`
+	DeliveryPolicy   map[string]any     `json:"delivery_policy,omitempty"`
+	WorkspacePolicy  map[string]any     `json:"workspace_policy,omitempty"`
+	ApprovalPolicy   map[string]any     `json:"approval_policy,omitempty"`
+	ExecutionPlan    ExecutionPlan      `json:"execution_plan,omitempty"`
+	PhaseRuns        []PhaseRun         `json:"phase_runs,omitempty"`
+	LedgerEvents     []LedgerEvent      `json:"ledger_events,omitempty"`
+	Artifacts        []ProducedArtifact `json:"artifacts,omitempty"`
+	Deliveries       []ReplyDelivery    `json:"deliveries,omitempty"`
+	MemoryEvents     []LedgerEvent      `json:"memory_events,omitempty"`
+	Completion       EnvelopeCompletion `json:"completion,omitempty"`
+	FinalResponse    string             `json:"final_response,omitempty"`
+}
+
+type ExecutionPlan struct {
+	Planner string           `json:"planner,omitempty"`
+	Mode    string           `json:"mode,omitempty"`
+	Phases  []map[string]any `json:"phases,omitempty"`
+}
+
+type PhaseRun struct {
+	PhaseID           string         `json:"phase_id,omitempty"`
+	PhaseType         string         `json:"phase_type,omitempty"`
+	Status            string         `json:"status,omitempty"`
+	RequiredLeases    []string       `json:"required_leases,omitempty"`
+	InputRefs         []string       `json:"input_refs,omitempty"`
+	OutputRefs        []string       `json:"output_refs,omitempty"`
+	CompletionVerdict string         `json:"completion_verdict,omitempty"`
+	TerminationReason string         `json:"termination_reason,omitempty"`
+	Failure           map[string]any `json:"failure,omitempty"`
+}
+
+type LedgerEvent struct {
+	EventID    string         `json:"event_id,omitempty"`
+	Kind       string         `json:"kind,omitempty"`
+	PhaseID    string         `json:"phase_id,omitempty"`
+	Status     string         `json:"status,omitempty"`
+	RecordedAt string         `json:"recorded_at,omitempty"`
+	Payload    map[string]any `json:"payload,omitempty"`
+}
+
+type EnvelopeCompletion struct {
+	CompletionVerdict    string `json:"completion_verdict,omitempty"`
+	TerminationReason    string `json:"termination_reason,omitempty"`
+	Partial              bool   `json:"partial,omitempty"`
+	MaxIterationsReached bool   `json:"max_iterations_reached,omitempty"`
+	OK                   bool   `json:"ok,omitempty"`
+}
+
+func ParseExecutionEnvelope(resp clients.RunnerResponse) (ExecutionEnvelope, bool, error) {
+	raw, ok := resp.Raw["execution_envelope"]
+	if !ok || raw == nil {
+		return ExecutionEnvelope{}, false, nil
+	}
+	data, err := json.Marshal(raw)
+	if err != nil {
+		return ExecutionEnvelope{}, true, fmt.Errorf("marshal runner execution_envelope: %w", err)
+	}
+	var out ExecutionEnvelope
+	if err := json.Unmarshal(data, &out); err != nil {
+		return ExecutionEnvelope{}, true, fmt.Errorf("parse runner execution_envelope: %w", err)
+	}
+	if strings.TrimSpace(out.ContractVersion) == "" {
+		return ExecutionEnvelope{}, true, fmt.Errorf("parse runner execution_envelope: contract_version is required")
+	}
+	return out, true, nil
+}
+
 func ParseStructuredOutput(resp clients.RunnerResponse) (StructuredOutput, error) {
+	if envelope, ok, err := ParseExecutionEnvelope(resp); ok || err != nil {
+		if err != nil {
+			return StructuredOutput{}, err
+		}
+		return StructuredOutputFromEnvelope(envelope, resp)
+	}
 	raw, ok := resp.Raw["structured_output"]
 	if !ok {
 		return StructuredOutput{}, fmt.Errorf("runner response missing structured_output")
@@ -133,6 +238,41 @@ func ParseStructuredOutput(resp clients.RunnerResponse) (StructuredOutput, error
 	var out StructuredOutput
 	if err := json.Unmarshal(data, &out); err != nil {
 		return StructuredOutput{}, fmt.Errorf("parse runner structured_output: %w", err)
+	}
+	return out, nil
+}
+
+func StructuredOutputFromEnvelope(envelope ExecutionEnvelope, resp clients.RunnerResponse) (StructuredOutput, error) {
+	var out StructuredOutput
+	if raw, ok := resp.Raw["structured_output"]; ok && raw != nil {
+		data, err := json.Marshal(raw)
+		if err != nil {
+			return StructuredOutput{}, fmt.Errorf("marshal runner structured_output projection: %w", err)
+		}
+		if err := json.Unmarshal(data, &out); err != nil {
+			return StructuredOutput{}, fmt.Errorf("parse runner structured_output projection: %w", err)
+		}
+	}
+	if out.FinalAnswer == "" {
+		out.FinalAnswer = envelope.FinalResponse
+	}
+	if len(out.ProducedArtifacts) == 0 {
+		out.ProducedArtifacts = append([]ProducedArtifact(nil), envelope.Artifacts...)
+	}
+	if strings.TrimSpace(out.ReplyDelivery.Status) == "" && len(envelope.Deliveries) > 0 {
+		out.ReplyDelivery = envelope.Deliveries[0]
+	}
+	if out.VisibleReasoning == nil {
+		out.VisibleReasoning = []Step{}
+	}
+	if out.ProposedActions == nil {
+		out.ProposedActions = []ProposedAction{}
+	}
+	if out.KnowledgeDrafts == nil {
+		out.KnowledgeDrafts = []KnowledgeDraft{}
+	}
+	if out.OutcomeHypotheses == nil {
+		out.OutcomeHypotheses = []OutcomeHypothesis{}
 	}
 	return out, nil
 }

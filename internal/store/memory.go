@@ -51,6 +51,7 @@ type Store interface {
 	SubmitCommand(command transition.CommandEnvelope) (transition.CommandReceipt, error)
 	QueueEffectExecution(effect transition.EffectExecution) (transition.EffectExecution, bool, error)
 	ClaimEffectExecution(effectID string, holder string, lease time.Duration) (transition.EffectExecution, bool, error)
+	DeferEffectExecution(effectID string, holder string, lease time.Duration, reason string) (transition.EffectExecution, error)
 	CompleteEffectExecution(effectID string, holder string, resultRef string) (transition.EffectExecution, error)
 	FailEffectExecution(effectID string, holder string, lastError string) (transition.EffectExecution, error)
 	ReconcileWorkflowTrace(workflowID string) (events.Trace, bool, error)

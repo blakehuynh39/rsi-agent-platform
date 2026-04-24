@@ -543,6 +543,32 @@ _CANONICAL_TO_TRANSPORT_TOOL_NAMES, _TRANSPORT_TO_CANONICAL_TOOL_NAMES = _build_
 
 HERMES_GOVERNED_READONLY_TOOLSET = "rsi-governed-readonly"
 HERMES_GOVERNED_WORKSPACE_TOOLSET = "rsi-governed-workspace"
+HERMES_ARTIFACT_TOOLSET = "rsi-artifacts"
+
+_ARTIFACT_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
+    "artifact.list_files": {
+        "name": "artifact.list_files",
+        "description": "List files inside the staged Hermes artifact output directory.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "path": {"type": "string"},
+            },
+        },
+    },
+    "artifact.write_file": {
+        "name": "artifact.write_file",
+        "description": "Write file content inside the staged Hermes artifact output directory.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "path": {"type": "string"},
+                "content": {"type": "string"},
+            },
+            "required": ["path", "content"],
+        },
+    },
+}
 
 
 def tool_transport_name(name: str) -> str:
@@ -659,6 +685,29 @@ def governed_toolset_definitions() -> list[JsonObject]:
                 }
             )
     return definitions
+
+
+def _artifact_toolset_definitions() -> list[JsonObject]:
+    definitions: list[JsonObject] = []
+    for canonical_name, schema in _ARTIFACT_TOOL_SCHEMAS.items():
+        transport_name = _canonical_to_transport_tool_name(canonical_name)
+        wrapped = deepcopy(schema)
+        wrapped["name"] = transport_name
+        if "parameters" in wrapped:
+            wrapped["parameters"] = _strict_json_schema(wrapped.get("parameters"))
+        definitions.append(
+            {
+                "canonical_name": canonical_name,
+                "transport_name": transport_name,
+                "toolset": HERMES_ARTIFACT_TOOLSET,
+                "schema": wrapped,
+            }
+        )
+    return definitions
+
+
+def rsi_plugin_toolset_definitions() -> list[JsonObject]:
+    return [*governed_toolset_definitions(), *_artifact_toolset_definitions()]
 
 
 def normalize_tool_names(values: Iterable[str]) -> list[str]:

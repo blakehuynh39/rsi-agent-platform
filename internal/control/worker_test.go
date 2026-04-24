@@ -279,6 +279,352 @@ func TestWorkflowRunnerUsesHermesExecutorWhenConfigured(t *testing.T) {
 	}
 }
 
+func TestWorkflowExecutionIDIsStableForEffectRecovery(t *testing.T) {
+	started := time.Date(2026, 4, 24, 8, 30, 0, 0, time.UTC)
+	first := workflowExecutionID("eff-recover", started)
+	second := workflowExecutionID("eff-recover", started.Add(10*time.Minute))
+	if first != second {
+		t.Fatalf("expected execution id to be stable for operation recovery, got %q and %q", first, second)
+	}
+	if first == workflowExecutionID("eff-other", started) {
+		t.Fatalf("expected operation id to affect execution id")
+	}
+}
+
+func TestWorkflowRunnerRecoversCompletedHermesExecutorResult(t *testing.T) {
+	var expectedExecutionID string
+	statusCalls := 0
+	executeCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == http.MethodGet && r.URL.Path == "/internal/hermes-executions/"+expectedExecutionID:
+			statusCalls++
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"execution_id": expectedExecutionID,
+				"status":       "completed",
+				"result": map[string]any{
+					"ok":       true,
+					"provider": "fake-executor",
+					"message":  "Recovered reply",
+					"raw": map[string]any{
+						"structured_output": map[string]any{
+							"visible_reasoning": []any{
+								map[string]any{
+									"step_type":  "analysis",
+									"summary":    "Recovered the existing Hermes execution result.",
+									"confidence": 1.0,
+									"decision":   "project_existing_result",
+								},
+							},
+							"reply_draft":     "Recovered reply",
+							"final_answer":    "Recovered reply",
+							"confidence":      1.0,
+							"context_summary": "Recovered from durable Hermes executor status.",
+							"self_critique":   "",
+							"reply_delivery": map[string]any{
+								"status":       "posted",
+								"channel_id":   "CENG",
+								"thread_ts":    "171000001.000100",
+								"body":         "Recovered reply",
+								"provider_ref": "171000001.000200",
+							},
+							"proposed_actions":       []any{},
+							"knowledge_drafts":       []any{},
+							"outcome_hypotheses":     []any{},
+							"produced_artifacts":     []any{},
+							"completion_verdict":     "complete",
+							"termination_reason":     "normal_completion",
+							"artifact_render_briefs": []any{},
+						},
+						"completion_verdict": "complete",
+						"termination_reason": "normal_completion",
+					},
+				},
+			})
+		case r.Method == http.MethodPost && r.URL.Path == "/internal/hermes-executions":
+			executeCalls++
+			t.Fatalf("unexpected duplicate Hermes executor launch")
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             executor.URL,
+		HermesExecutorBaseURL:     executor.URL,
+		ToolGatewayBaseURL:        "http://tool-gateway.invalid",
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+		ProdRunnerTimeout:         930 * time.Second,
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	expectedExecutionID = workflowExecutionID(runnerEffect.ID, time.Now().UTC())
+	started := time.Now().Add(-2 * time.Minute).UTC()
+	runnerEffect.StartedAt = &started
+	runnerEffect.UpdatedAt = time.Now().UTC()
+	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect); err != nil {
+		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
+	}
+
+	if statusCalls != 1 {
+		t.Fatalf("expected one executor status recovery call, got %d", statusCalls)
+	}
+	if executeCalls != 0 {
+		t.Fatalf("expected no duplicate executor launches, got %d", executeCalls)
+	}
+	assertWorkflowEffectStatus(t, store, workflowItem.workflowID, transition.EffectInvokeRunner, transition.EffectCompleted)
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatal("expected trace")
+	}
+	if len(trace.SlackActions) != 1 || trace.SlackActions[0].FinalBody != "Recovered reply" {
+		t.Fatalf("expected recovered Slack action projection, got %#v", trace.SlackActions)
+	}
+}
+
+func TestWorkflowRunnerRecoveryFailsClosedOnUnknownHermesExecutorStatus(t *testing.T) {
+	var expectedExecutionID string
+	statusCalls := 0
+	executeCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == http.MethodGet && r.URL.Path == "/internal/hermes-executions/"+expectedExecutionID:
+			statusCalls++
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"execution_id": expectedExecutionID,
+				"status":       "paused",
+			})
+		case r.Method == http.MethodPost && r.URL.Path == "/internal/hermes-executions":
+			executeCalls++
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"ok":       true,
+				"provider": "fake-executor",
+				"message":  "duplicate run should not launch",
+				"raw": map[string]any{
+					"structured_output": map[string]any{
+						"final_answer": "duplicate run should not launch",
+					},
+				},
+			})
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             executor.URL,
+		HermesExecutorBaseURL:     executor.URL,
+		ToolGatewayBaseURL:        "http://tool-gateway.invalid",
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+		ProdRunnerTimeout:         930 * time.Second,
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	expectedExecutionID = workflowExecutionID(runnerEffect.ID, time.Now().UTC())
+	started := time.Now().Add(-2 * time.Minute).UTC()
+	runnerEffect.StartedAt = &started
+	runnerEffect.UpdatedAt = time.Now().UTC()
+	err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect)
+	if err == nil {
+		t.Fatalf("expected unknown Hermes executor status to fail closed")
+	}
+	var detailed *workflowFailureError
+	if !errors.As(err, &detailed) {
+		t.Fatalf("expected workflowFailureError, got %T: %v", err, err)
+	}
+	if detailed.failure.Class != workflowFailureRunnerExecutorStatusUnrecognized {
+		t.Fatalf("failure class = %q, want %q", detailed.failure.Class, workflowFailureRunnerExecutorStatusUnrecognized)
+	}
+	if detailed.failure.RunnerDiagnostics["executor_status"] != "paused" {
+		t.Fatalf("expected executor_status diagnostic, got %#v", detailed.failure.RunnerDiagnostics)
+	}
+	if statusCalls != 1 {
+		t.Fatalf("expected one executor status recovery call, got %d", statusCalls)
+	}
+	if executeCalls != 0 {
+		t.Fatalf("expected no duplicate executor launches, got %d", executeCalls)
+	}
+}
+
+func TestWorkflowRunnerRecoveryDefersStillRunningHermesExecutor(t *testing.T) {
+	var expectedExecutionID string
+	statusCalls := 0
+	executeCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == http.MethodGet && r.URL.Path == "/internal/hermes-executions/"+expectedExecutionID:
+			statusCalls++
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"execution_id": expectedExecutionID,
+				"status":       "running",
+			})
+		case r.Method == http.MethodPost && r.URL.Path == "/internal/hermes-executions":
+			executeCalls++
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"ok":       true,
+				"provider": "fake-executor",
+				"message":  "duplicate run should not launch",
+			})
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             executor.URL,
+		HermesExecutorBaseURL:     executor.URL,
+		ToolGatewayBaseURL:        "http://tool-gateway.invalid",
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+		ProdRunnerTimeout:         930 * time.Second,
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+
+	claimed := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	expectedExecutionID = workflowExecutionID(claimed.ID, time.Now().UTC())
+	started := time.Now().Add(-2 * time.Minute).UTC()
+	claimed.StartedAt = &started
+	claimed.UpdatedAt = time.Now().UTC()
+
+	handleClaimedWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, claimed)
+
+	if statusCalls != 1 {
+		t.Fatalf("expected one executor status recovery call, got %d", statusCalls)
+	}
+	if executeCalls != 0 {
+		t.Fatalf("expected no duplicate executor launches, got %d", executeCalls)
+	}
+	effect, ok := workflowEffectByPayload(store, workflowItem.workflowID, transition.EffectInvokeRunner, "", "")
+	if !ok {
+		t.Fatal("expected workflow runner effect")
+	}
+	if effect.Status != transition.EffectRunning {
+		t.Fatalf("expected effect to remain running while deferred, got %s", effect.Status)
+	}
+	if effect.Holder != "" {
+		t.Fatalf("expected deferred effect holder to be released, got %q", effect.Holder)
+	}
+	if effect.LeaseExpiresAt == nil || !effect.LeaseExpiresAt.After(time.Now().UTC()) {
+		t.Fatalf("expected deferred effect lease expiry in the future, got %#v", effect.LeaseExpiresAt)
+	}
+	if !strings.Contains(effect.LastError, "still running") {
+		t.Fatalf("expected observable still-running reason, got %q", effect.LastError)
+	}
+}
+
+func TestWorkflowRunnerFailurePreservesProducedArtifacts(t *testing.T) {
+	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":       false,
+			"provider": "fake",
+			"message":  "direct delivery timed out after artifact render",
+			"raw": map[string]any{
+				"failure_class": "runner_transport_timeout",
+				"structured_output": map[string]any{
+					"visible_reasoning":  []any{},
+					"reply_draft":        "Artifact was generated but delivery timed out.",
+					"final_answer":       "Artifact was generated but delivery timed out.",
+					"confidence":         0.8,
+					"context_summary":    "Render completed before delivery failed.",
+					"self_critique":      "",
+					"proposed_actions":   []any{},
+					"knowledge_drafts":   []any{},
+					"outcome_hypotheses": []any{},
+					"produced_artifacts": []any{
+						map[string]any{
+							"kind":           "diagram",
+							"title":          "Architecture",
+							"artifact_refs":  []any{"file:///workspace/company/artifacts/diagram.html"},
+							"workspace_path": "/workspace/company/artifacts/diagram.html",
+							"file_ref":       "file:///workspace/company/artifacts/diagram.html",
+							"size_bytes":     42,
+						},
+					},
+				},
+			},
+		})
+	}))
+	defer runner.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             runner.URL,
+		ToolGatewayBaseURL:        "http://tool-gateway.invalid",
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	handleClaimedWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect)
+
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatal("expected trace")
+	}
+	if len(trace.Artifacts) == 0 {
+		t.Fatalf("expected runner failure to preserve produced artifacts")
+	}
+	found := false
+	for _, artifact := range trace.Artifacts {
+		if artifact.URL == "file:///workspace/company/artifacts/diagram.html" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected workspace artifact URL in trace artifacts, got %#v", trace.Artifacts)
+	}
+}
+
 func TestWorkflowRunnerAttachesBoundSlackThreadContext(t *testing.T) {
 	var executorTask clients.RunnerTask
 	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -2924,6 +3270,18 @@ func TestBuildRunnerTaskUsesConfiguredTimeoutAndSlackBinding(t *testing.T) {
 	if task.ThreadTS != ingestion.ThreadTS {
 		t.Fatalf("thread ts = %q, want %q", task.ThreadTS, ingestion.ThreadTS)
 	}
+	if task.ContractVersion != clients.RunnerExecutionContractVersion {
+		t.Fatalf("contract_version = %q, want %q", task.ContractVersion, clients.RunnerExecutionContractVersion)
+	}
+	if !runnerTaskHasCapability(task, "artifact_write") || !runnerTaskHasCapability(task, "slack_send") || !runnerTaskHasCapability(task, "memory_write") {
+		t.Fatalf("expected runner-first workflow capabilities, got %#v", task.CapabilityLeases)
+	}
+	if task.DeliveryPolicy == nil || !task.DeliveryPolicy.DirectSendAllowed || !task.DeliveryPolicy.UploadAllowed {
+		t.Fatalf("expected direct delivery policy, got %#v", task.DeliveryPolicy)
+	}
+	if task.WorkspacePolicy == nil || task.WorkspacePolicy.ComputerRoot != "/workspace/company" {
+		t.Fatalf("expected company workspace policy, got %#v", task.WorkspacePolicy)
+	}
 }
 
 func TestBuildRunnerTaskBoundsNativeMCPToolSurface(t *testing.T) {
@@ -3278,6 +3636,71 @@ func TestTraceArtifactsFromProducedArtifactsUsesUniqueStableIDs(t *testing.T) {
 	}
 }
 
+func TestTraceArtifactsFromProducedArtifactsKeepsEachRefURL(t *testing.T) {
+	items := []runnerutil.ProducedArtifact{
+		{
+			Kind:         "diagram",
+			ArtifactRefs: []string{"hermes-file://workspace/company/diagram.html", "slack://file/F123"},
+			FileRef:      "file:///workspace/company/diagram.html",
+			SizeBytes:    42,
+		},
+	}
+
+	artifacts := traceArtifactsFromProducedArtifacts("trace-123", items)
+	if len(artifacts) != 3 {
+		t.Fatalf("expected one artifact per ref, got %#v", artifacts)
+	}
+	urlSet := map[string]bool{}
+	for _, artifact := range artifacts {
+		urlSet[artifact.URL] = true
+		if artifact.SizeBytes != 42 {
+			t.Fatalf("expected size to project, got %#v", artifacts)
+		}
+	}
+	for _, expected := range []string{"hermes-file://workspace/company/diagram.html", "slack://file/F123", "file:///workspace/company/diagram.html"} {
+		if !urlSet[expected] {
+			t.Fatalf("missing artifact URL %q in %#v", expected, artifacts)
+		}
+	}
+}
+
+func TestWorkflowReplyDeliveryPrefersExecutionEnvelope(t *testing.T) {
+	record, ok := workflowReplyDelivery(map[string]any{
+		"reply_delivery": map[string]any{
+			"body":       "legacy top-level reply",
+			"channel_id": "C-legacy",
+			"thread_ts":  "T-legacy",
+		},
+		"structured_output": map[string]any{
+			"reply_delivery": map[string]any{
+				"body":       "legacy structured reply",
+				"channel_id": "C-structured",
+				"thread_ts":  "T-structured",
+			},
+		},
+		"execution_envelope": map[string]any{
+			"deliveries": []any{
+				map[string]any{
+					"body":         "envelope reply",
+					"channel_id":   "C-envelope",
+					"thread_ts":    "T-envelope",
+					"tool_call_id": "tool-call-envelope",
+					"send_status":  "failed",
+				},
+			},
+		},
+	}, "C-fallback", "T-fallback")
+	if !ok {
+		t.Fatalf("expected reply delivery record")
+	}
+	if record.FinalBody != "envelope reply" || record.ChannelID != "C-envelope" || record.ThreadTS != "T-envelope" {
+		t.Fatalf("expected envelope delivery to win, got %#v", record)
+	}
+	if record.SendStatus != "failed" {
+		t.Fatalf("expected envelope send_status to project, got %#v", record)
+	}
+}
+
 func TestBuildRunnerTaskIncludesNotionMCPWhenEnabled(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
@@ -3546,4 +3969,13 @@ func (s *noopWorkflowCommandStore) SubmitCommand(command transition.CommandEnvel
 		}, nil
 	}
 	return s.Store.SubmitCommand(command)
+}
+
+func runnerTaskHasCapability(task clients.RunnerTask, capability string) bool {
+	for _, lease := range task.CapabilityLeases {
+		if lease.Capability == capability && lease.Granted {
+			return true
+		}
+	}
+	return false
 }

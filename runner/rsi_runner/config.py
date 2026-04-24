@@ -49,6 +49,8 @@ class RunnerConfig:
     hermes_run_root: str
     hermes_artifact_root: str
     hermes_native_governed_tools_enabled: bool
+    execution_envelope_v1_enabled: bool
+    runner_planner_mode: str
     slack_mcp_enabled: bool
     slack_mcp_server_url: str
     slack_user_token_configured: bool
@@ -100,6 +102,8 @@ class RunnerConfig:
         hermes_run_root = optional_env("RSI_HERMES_RUN_ROOT") or path_join(hermes_computer_root, ".rsi", "runs")
         hermes_artifact_root = optional_env("RSI_HERMES_ARTIFACT_ROOT") or path_join(hermes_computer_root, "artifacts")
         hermes_native_governed_tools_enabled = parse_bool(optional_env("RSI_HERMES_NATIVE_GOVERNED_TOOLS_ENABLED") or "false", "RSI_HERMES_NATIVE_GOVERNED_TOOLS_ENABLED")
+        execution_envelope_v1_enabled = parse_bool(optional_env("RSI_EXECUTION_ENVELOPE_V1_ENABLED") or "true", "RSI_EXECUTION_ENVELOPE_V1_ENABLED")
+        runner_planner_mode = optional_env("RSI_RUNNER_PLANNER_MODE") or "runner_first"
         slack_mcp_enabled = parse_bool(optional_env("RSI_SLACK_MCP_ENABLED") or "false", "RSI_SLACK_MCP_ENABLED")
         slack_mcp_server_url = optional_url_env("RSI_SLACK_MCP_SERVER_URL") or "https://mcp.slack.com/mcp"
         slack_user_token = optional_env("RSI_SLACK_USER_TOKEN")
@@ -148,6 +152,8 @@ class RunnerConfig:
             hermes_run_root=hermes_run_root,
             hermes_artifact_root=hermes_artifact_root,
             hermes_native_governed_tools_enabled=hermes_native_governed_tools_enabled,
+            execution_envelope_v1_enabled=execution_envelope_v1_enabled,
+            runner_planner_mode=runner_planner_mode,
             slack_mcp_enabled=slack_mcp_enabled,
             slack_mcp_server_url=slack_mcp_server_url,
             slack_user_token_configured=bool(slack_user_token),

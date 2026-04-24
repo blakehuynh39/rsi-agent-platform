@@ -2028,6 +2028,18 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 		MemoryBackend:             harness.DefaultMemoryBackend,
 		AssistantPeerID:           fmt.Sprintf("rsi:%s:eval", cfg.Environment),
 		UserPeerID:                fmt.Sprintf("line:%s", sessionScopeID),
+		ContractVersion:           clients.RunnerExecutionContractVersion,
+		ExecutionIntent: map[string]any{
+			"kind":                "eval",
+			"intent":              trace.Summary.WorkflowKind,
+			"runner_planner_mode": firstNonEmpty(cfg.RunnerPlannerMode, "runner_first"),
+			"eval_id":             firstNonEmpty(strings.TrimSpace(evalID), run.ID),
+			"operation_id":        strings.TrimSpace(operationID),
+		},
+		CapabilityLeases: improvementCapabilityLeases(false),
+		DeliveryPolicy:   improvementDeliveryPolicy(trace.Summary.TraceID),
+		WorkspacePolicy:  runnerutil.WorkspacePolicyFromConfig(cfg),
+		ApprovalPolicy:   improvementApprovalPolicy(false),
 	}
 }
 
@@ -2201,6 +2213,19 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 		WorkspaceRepo:             workspaceRepoValue(workspace),
 		WorkspaceBranch:           workspaceBranchValue(workspace),
 		AllowedPathGlobs:          workspaceAllowedPathGlobsValue(workspace),
+		ContractVersion:           clients.RunnerExecutionContractVersion,
+		ExecutionIntent: map[string]any{
+			"kind":                "proposal",
+			"intent":              trace.Summary.WorkflowKind,
+			"runner_planner_mode": firstNonEmpty(cfg.RunnerPlannerMode, "runner_first"),
+			"proposal_id":         proposal.ID,
+			"attempt_id":          attempt.ID,
+			"execution_mode":      executionMode,
+		},
+		CapabilityLeases: improvementCapabilityLeases(workspace != nil),
+		DeliveryPolicy:   improvementDeliveryPolicy(trace.Summary.TraceID),
+		WorkspacePolicy:  runnerutil.WorkspacePolicyFromConfig(cfg),
+		ApprovalPolicy:   improvementApprovalPolicy(false),
 	}
 }
 
@@ -2303,6 +2328,18 @@ func buildRuntimeDiagnosisRunnerTask(cfg config.Config, store storepkg.Store, di
 		MemoryBackend:             harness.DefaultMemoryBackend,
 		AssistantPeerID:           fmt.Sprintf("rsi:%s:proposal", cfg.Environment),
 		UserPeerID:                fmt.Sprintf("runtime_diagnosis:%s", firstNonEmpty(strings.TrimSpace(diagnosis.SessionScopeID), runtimeDiagnosisSessionScopeID(candidate.CandidateKey, targetRepo))),
+		ContractVersion:           clients.RunnerExecutionContractVersion,
+		ExecutionIntent: map[string]any{
+			"kind":                "runtime_diagnosis",
+			"intent":              trace.Summary.WorkflowKind,
+			"runner_planner_mode": firstNonEmpty(cfg.RunnerPlannerMode, "runner_first"),
+			"diagnosis_id":        diagnosis.ID,
+			"candidate_key":       candidate.CandidateKey,
+		},
+		CapabilityLeases: improvementCapabilityLeases(false),
+		DeliveryPolicy:   improvementDeliveryPolicy(trace.Summary.TraceID),
+		WorkspacePolicy:  runnerutil.WorkspacePolicyFromConfig(cfg),
+		ApprovalPolicy:   improvementApprovalPolicy(false),
 	}
 }
 
@@ -3170,6 +3207,22 @@ func firstNonEmpty(values ...string) string {
 		}
 	}
 	return ""
+}
+
+func improvementCapabilityLeases(workspaceWrite bool) []clients.RunnerCapabilityLease {
+	capabilities := []string{"read_context", "workspace_read", "memory_read", "memory_write", "platform_mutation_request"}
+	if workspaceWrite {
+		capabilities = append(capabilities, "workspace_write")
+	}
+	return clients.RunnerCapabilityLeases(capabilities...)
+}
+
+func improvementDeliveryPolicy(traceID string) *clients.RunnerDeliveryPolicy {
+	return clients.NewRunnerDeliveryPolicy("", "", "none", traceID)
+}
+
+func improvementApprovalPolicy(directSlackAllowed bool) *clients.RunnerApprovalPolicy {
+	return clients.NewRunnerApprovalPolicy(directSlackAllowed)
 }
 
 func confidenceOr(fallback float64, candidate float64) float64 {

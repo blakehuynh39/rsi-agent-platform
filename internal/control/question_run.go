@@ -1113,6 +1113,17 @@ func buildQuestionGatherTask(cfg config.Config, store storepkg.Store, ctx questi
 		MemoryBackend:             harness.DefaultMemoryBackend,
 		AssistantPeerID:           fmt.Sprintf("rsi:%s:%s", cfg.Environment, role),
 		UserPeerID:                workflowUserPeerID(store.ListConversationEntries(ctx.trace.Summary.ConversationID), sessionScopeKind, sessionScopeID),
+		ContractVersion:           clients.RunnerExecutionContractVersion,
+		ExecutionIntent: map[string]any{
+			"kind":                "question_gather",
+			"intent":              ctx.workflow.Intent,
+			"runner_planner_mode": firstNonEmpty(cfg.RunnerPlannerMode, "runner_first"),
+			"question_run_id":     ctx.questionRun.ID,
+		},
+		CapabilityLeases: questionCapabilityLeases(true),
+		DeliveryPolicy:   runnerDeliveryPolicy(ctx.ingestion.ChannelID, ctx.ingestion.ThreadTS, "none", ctx.trace.Summary.TraceID),
+		WorkspacePolicy:  runnerutil.WorkspacePolicyFromConfig(cfg),
+		ApprovalPolicy:   runnerApprovalPolicy(false),
 	}
 }
 
@@ -1158,7 +1169,26 @@ func buildQuestionReduceTask(cfg config.Config, store storepkg.Store, ctx questi
 		MemoryBackend:          harness.DefaultMemoryBackend,
 		AssistantPeerID:        fmt.Sprintf("rsi:%s:%s", cfg.Environment, role),
 		UserPeerID:             workflowUserPeerID(store.ListConversationEntries(ctx.trace.Summary.ConversationID), sessionScopeKind, sessionScopeID),
+		ContractVersion:        clients.RunnerExecutionContractVersion,
+		ExecutionIntent: map[string]any{
+			"kind":                "question_reduce",
+			"intent":              ctx.workflow.Intent,
+			"runner_planner_mode": firstNonEmpty(cfg.RunnerPlannerMode, "runner_first"),
+			"question_run_id":     ctx.questionRun.ID,
+		},
+		CapabilityLeases: questionCapabilityLeases(false),
+		DeliveryPolicy:   runnerDeliveryPolicy(ctx.ingestion.ChannelID, ctx.ingestion.ThreadTS, "none", ctx.trace.Summary.TraceID),
+		WorkspacePolicy:  runnerutil.WorkspacePolicyFromConfig(cfg),
+		ApprovalPolicy:   runnerApprovalPolicy(false),
 	}
+}
+
+func questionCapabilityLeases(includeSlackRead bool) []clients.RunnerCapabilityLease {
+	capabilities := []string{"read_context", "memory_read", "memory_write"}
+	if includeSlackRead {
+		capabilities = append(capabilities, "slack_read", "workspace_read")
+	}
+	return clients.RunnerCapabilityLeases(capabilities...)
 }
 
 func questionGatherAllowedTools(spec questionrun.InvestigationSpec) []string {

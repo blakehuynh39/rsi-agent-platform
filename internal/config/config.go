@@ -96,6 +96,11 @@ type Config struct {
 	WorkflowAutoRetryMaxAttempts       int
 	WorkflowAutoRetryBackoffSeconds    []int
 	HermesNativeGovernedToolsEnabled   bool
+	HermesComputerRoot                 string
+	HermesRunRoot                      string
+	HermesArtifactRoot                 string
+	ExecutionEnvelopeV1Enabled         bool
+	RunnerPlannerMode                  string
 	RuntimeDiagnosisEnabled            bool
 	RuntimeDiagnosisLogFallbackEnabled bool
 }
@@ -197,6 +202,11 @@ func Load(serviceName string) Config {
 		WorkflowAutoRetryMaxAttempts:       intEnv("RSI_WORKFLOW_AUTO_RETRY_MAX_ATTEMPTS", 3),
 		WorkflowAutoRetryBackoffSeconds:    intListEnv("RSI_WORKFLOW_AUTO_RETRY_BACKOFF_SECONDS", []int{15, 60}),
 		HermesNativeGovernedToolsEnabled:   boolEnv("RSI_HERMES_NATIVE_GOVERNED_TOOLS_ENABLED", false),
+		HermesComputerRoot:                 stringEnv("RSI_HERMES_COMPUTER_ROOT", "/workspace/company"),
+		HermesRunRoot:                      stringEnv("RSI_HERMES_RUN_ROOT", "/workspace/company/.rsi/runs"),
+		HermesArtifactRoot:                 stringEnv("RSI_HERMES_ARTIFACT_ROOT", "/workspace/company/artifacts"),
+		ExecutionEnvelopeV1Enabled:         boolEnv("RSI_EXECUTION_ENVELOPE_V1_ENABLED", true),
+		RunnerPlannerMode:                  stringEnv("RSI_RUNNER_PLANNER_MODE", "runner_first"),
 		RuntimeDiagnosisEnabled:            boolEnv("RSI_RUNTIME_DIAGNOSIS_ENABLED", false),
 		RuntimeDiagnosisLogFallbackEnabled: boolEnv("RSI_RUNTIME_DIAGNOSIS_LOG_FALLBACK_ENABLED", false),
 	}

@@ -257,6 +257,42 @@ func (p *PostgresStore) CompleteEffectExecution(effectID string, holder string, 
 	return
 }
 
+func (p *PostgresStore) DeferEffectExecution(effectID string, holder string, lease time.Duration, reason string) (item transition.EffectExecution, err error) {
+	err = p.withTx(func(tx *sql.Tx) error {
+		now := time.Now().UTC()
+		expires := now
+		if lease > 0 {
+			expires = now.Add(lease)
+		}
+		row := tx.QueryRow(`
+			update effect_execution
+			set holder = '',
+				last_error = $2,
+				updated_at = $3,
+				lease_expires_at = $4,
+				completed_at = null
+			where id = $1
+			  and status = $5
+			  and holder = $6
+			  and (lease_expires_at is null or lease_expires_at > $3)
+			returning `+effectExecutionSelectColumns(),
+			strings.TrimSpace(effectID),
+			strings.TrimSpace(reason),
+			now,
+			expires,
+			string(transition.EffectRunning),
+			strings.TrimSpace(holder),
+		)
+		item, err = scanEffectExecution(row)
+		if err == sql.ErrNoRows {
+			row = tx.QueryRow(`select `+effectExecutionSelectColumns()+` from effect_execution where id = $1`, strings.TrimSpace(effectID))
+			item, err = scanEffectExecution(row)
+		}
+		return err
+	})
+	return
+}
+
 func (p *PostgresStore) FailEffectExecution(effectID string, holder string, lastError string) (item transition.EffectExecution, err error) {
 	err = p.withTx(func(tx *sql.Tx) error {
 		now := time.Now().UTC()

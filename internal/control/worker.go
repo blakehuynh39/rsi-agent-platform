@@ -36,7 +36,10 @@ const (
 	partialCompletionNoticeIterationBudget = "Partial answer: I hit my iteration budget before I could finish a deeper pass. This is the best grounded answer so far."
 	partialCompletionNoticeTaskTimeout     = "Partial answer: I hit the workflow time limit before I could finish a deeper pass. This is the best grounded answer so far."
 	partialCompletionNoticeOutputBudget    = "Partial answer: I hit my response output budget before I could finish a deeper pass. This is the best grounded answer so far."
+	hermesExecutionRecoveryPollDelay       = 15 * time.Second
 )
+
+var errHermesExecutionStillRunning = errors.New("existing Hermes execution is still running")
 
 type workflowContext struct {
 	trace     events.Trace
@@ -118,6 +121,16 @@ func finalizeWorkflowFailure(cfg config.Config, store storepkg.Store, workflow w
 func handleClaimedWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runnerClients map[string]*clients.RunnerClient, effect transition.EffectExecution) {
 	workflow, _ := workflowLocatorForEffect(store, effect)
 	if err := processWorkflowRunnerEffect(cfg, store, runnerClients, effect); err != nil {
+		if errors.Is(err, errHermesExecutionStillRunning) {
+			reason := "Hermes executor status is still running; deferred effect for recovery polling."
+			if deferErr := deferClaimedEffect(store, effect, hermesExecutionRecoveryPollDelay, reason); deferErr != nil {
+				_ = failClaimedEffect(store, effect, deferErr.Error())
+				log.Printf("control-plane runner effect=%s aggregate=%s defer_existing_hermes_execution_error=%v", effect.ID, effect.AggregateID, deferErr)
+			} else {
+				log.Printf("control-plane runner effect=%s aggregate=%s deferred_existing_hermes_execution", effect.ID, effect.AggregateID)
+			}
+			return
+		}
 		var detailed *workflowFailureError
 		if errors.As(err, &detailed) && detailed != nil {
 			if finalizeErr := finalizeWorkflowFailureWithDetails(cfg, store, workflow, detailed.failure); finalizeErr != nil {
@@ -188,7 +201,18 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	}
 	var runnerResp clients.RunnerResponse
 	if useHermesExecutor {
-		runnerResp, err = executorClient.ExecuteHermesExecution(runnerTask)
+		if shouldRecoverHermesExecution(effect) {
+			recovered, waitForExisting, recoverErr := recoverHermesExecutionResult(executorClient, runnerTask.ExecutionID)
+			if recoverErr != nil {
+				return recoverErr
+			}
+			if waitForExisting {
+				return errHermesExecutionStillRunning
+			}
+			runnerResp = recovered
+		} else {
+			runnerResp, err = executorClient.ExecuteHermesExecution(runnerTask)
+		}
 	} else {
 		runnerResp, err = executorClient.Execute(runnerTask)
 	}
@@ -279,7 +303,24 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 			}
 			return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner-reply-delivery-uncertain", ctx.trace.Summary.TraceID))
 		}
-		return &workflowFailureError{failure: workflowFailureFromRunnerResponse(runnerResp)}
+		failure := workflowFailureFromRunnerResponse(runnerResp)
+		if runnerOutput, parseErr := runnerutil.ParseStructuredOutput(runnerResp); parseErr == nil {
+			failure.TraceArtifacts = traceArtifactsFromProducedArtifacts(ctx.trace.Summary.TraceID, runnerOutput.ProducedArtifacts)
+			if len(failure.TraceArtifacts) > 0 {
+				completedAt := time.Now().UTC()
+				failure.ReasoningSteps = append(failure.ReasoningSteps, events.ReasoningStep{
+					ID:         fmt.Sprintf("reason-runner-failed-artifacts-%d", completedAt.UnixNano()),
+					TraceID:    ctx.trace.Summary.TraceID,
+					WorkflowID: ctx.trace.Summary.WorkflowID,
+					StepType:   "artifact_delivery",
+					Summary:    fmt.Sprintf("Runner failed after producing %d artifact(s); preserving the workspace artifact records.", len(failure.TraceArtifacts)),
+					Confidence: 1.0,
+					Decision:   "artifacts_preserved_after_runner_failure",
+					CreatedAt:  completedAt,
+				})
+			}
+		}
+		return &workflowFailureError{failure: failure}
 	}
 	runnerOutput, err := runnerutil.ParseStructuredOutput(runnerResp)
 	if err != nil {
@@ -324,7 +365,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		replyThreadKey = ""
 	}
 	allowed, policyVerdict := replyPolicy(store, ctx.workflow.Kind, replyThreadKey, replyChannelID)
-	replyDeliveryMode := normalizeReplyDeliveryMode(runnerTask.ReplyDeliveryMode)
+	replyDeliveryMode := clients.NormalizeRunnerReplyDeliveryMode(runnerTask.ReplyDeliveryMode)
 	replyDelivery, hasReplyDelivery := workflowReplyDelivery(runnerResp.Raw, replyChannelID, replyThreadTS)
 	if hasReplyDelivery && strings.TrimSpace(replyBody) == "" {
 		replyBody = strings.TrimSpace(replyDelivery.FinalBody)
@@ -578,8 +619,73 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 }
 
 func workflowExecutionID(operationID string, startedAt time.Time) string {
-	sum := sha1.Sum([]byte(strings.TrimSpace(operationID) + "|" + startedAt.UTC().Format(time.RFC3339Nano)))
+	seed := strings.TrimSpace(operationID)
+	if seed == "" {
+		seed = startedAt.UTC().Format(time.RFC3339Nano)
+	}
+	sum := sha1.Sum([]byte(seed))
 	return fmt.Sprintf("hexec-%x", sum[:8])
+}
+
+func shouldRecoverHermesExecution(effect transition.EffectExecution) bool {
+	if effect.StartedAt == nil || effect.UpdatedAt.IsZero() {
+		return false
+	}
+	return !effect.StartedAt.Equal(effect.UpdatedAt)
+}
+
+func recoverHermesExecutionResult(client *clients.RunnerClient, executionID string) (clients.RunnerResponse, bool, error) {
+	status, err := client.HermesExecutionStatus(executionID)
+	if err != nil {
+		if strings.Contains(err.Error(), "returned 404") {
+			return hermesExecutorRecoveryFailure(
+				executionID,
+				workflowFailureRunnerExecutorStatusUnavailable,
+				"Hermes executor status was unavailable for a previously started execution; refusing to launch a duplicate run.",
+				"",
+			), false, nil
+		}
+		return clients.RunnerResponse{}, false, fmt.Errorf("check Hermes execution status %s: %w", executionID, err)
+	}
+	if status.Result != nil {
+		return *status.Result, false, nil
+	}
+	switch strings.ToLower(strings.TrimSpace(status.Status)) {
+	case "running", "accepted", "cancelling":
+		return clients.RunnerResponse{}, true, nil
+	case "completed", "failed", "cancelled", "orphaned":
+		return hermesExecutorRecoveryFailure(
+			executionID,
+			workflowFailureRunnerExecutorResultUnavailable,
+			"Hermes executor reached a terminal state but did not expose a durable result; refusing to launch a duplicate run.",
+			status.Status,
+		), false, nil
+	default:
+		statusText := strings.TrimSpace(status.Status)
+		return hermesExecutorRecoveryFailure(
+			executionID,
+			workflowFailureRunnerExecutorStatusUnrecognized,
+			fmt.Sprintf("Hermes executor returned unrecognized status %q for a previously started execution; refusing to launch a duplicate run.", statusText),
+			statusText,
+		), false, nil
+	}
+}
+
+func hermesExecutorRecoveryFailure(executionID string, failureClass string, message string, status string) clients.RunnerResponse {
+	return clients.RunnerResponse{
+		OK:       false,
+		Message:  message,
+		Provider: "hermes-executor",
+		Raw: map[string]any{
+			"failure_class": failureClass,
+			"runner_diagnostics": map[string]any{
+				"execution_id":           strings.TrimSpace(executionID),
+				"executor_status":        strings.TrimSpace(status),
+				"provider_error_message": strings.TrimSpace(message),
+				"recovery_decision":      "fail_closed_no_duplicate_execution",
+			},
+		},
+	}
 }
 
 func submitWorkflowContextCompleted(cfg config.Config, store storepkg.Store, ctx workflowContext, resumeQueue queue.QueueName, occurredAt time.Time) error {
@@ -993,11 +1099,11 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	requestedArtifacts := requestedArtifactsForIngestion(ingestion)
 	replyDeliveryMode := workflowReplyDeliveryMode(hasSlackMCPServer(mcpServers), allowed)
 	requestedSkills := workflowplan.RequestedSkillsForPrompt(runnerUserRequest(ingestion), ingestion.Prompt)
+	userRequest := runnerUserRequest(ingestion)
 	systemMessage := harness.ComposeSystemMessage(
 		workflowRunnerSystemMessage(hasSlackMCPServer(mcpServers), hasNotionMCPServer(mcpServers), replyDeliveryMode, requestedArtifacts),
 		effectiveHarness,
 	)
-	userRequest := runnerUserRequest(ingestion)
 	promptParts := []string{
 		fmt.Sprintf("User request: %s", userRequest),
 	}
@@ -1058,7 +1164,45 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		MemoryBackend:             harness.DefaultMemoryBackend,
 		AssistantPeerID:           fmt.Sprintf("rsi:%s:%s", cfg.Environment, role),
 		UserPeerID:                workflowUserPeerID(store.ListConversationEntries(trace.Summary.ConversationID), sessionScopeKind, sessionScopeID),
+		ContractVersion:           clients.RunnerExecutionContractVersion,
+		ExecutionIntent: map[string]any{
+			"kind":                workflow.Kind,
+			"intent":              workflow.Intent,
+			"user_request":        userRequest,
+			"runner_planner_mode": firstNonEmpty(cfg.RunnerPlannerMode, "runner_first"),
+		},
+		CapabilityLeases: workflowCapabilityLeases(replyDeliveryMode),
+		DeliveryPolicy:   runnerDeliveryPolicy(ingestion.ChannelID, ingestion.ThreadTS, replyDeliveryMode, trace.Summary.TraceID),
+		WorkspacePolicy:  runnerutil.WorkspacePolicyFromConfig(cfg),
+		ApprovalPolicy:   runnerApprovalPolicy(replyDeliveryMode == "direct"),
 	}
+}
+
+func workflowCapabilityLeases(replyDeliveryMode string) []clients.RunnerCapabilityLease {
+	capabilities := []string{
+		"read_context",
+		"workspace_read",
+		"artifact_write",
+		"slack_read",
+		"memory_read",
+		"memory_write",
+		"platform_mutation_request",
+	}
+	switch clients.NormalizeRunnerReplyDeliveryMode(replyDeliveryMode) {
+	case "direct":
+		capabilities = append(capabilities, "slack_send", "slack_upload")
+	case "mediated":
+		capabilities = append(capabilities, "slack_upload")
+	}
+	return clients.RunnerCapabilityLeases(capabilities...)
+}
+
+func runnerDeliveryPolicy(channelID string, threadTS string, replyDeliveryMode string, traceID string) *clients.RunnerDeliveryPolicy {
+	return clients.NewRunnerDeliveryPolicy(channelID, threadTS, replyDeliveryMode, strings.Join(nonEmptyStrings(channelID, threadTS, traceID), ":"))
+}
+
+func runnerApprovalPolicy(directSlackAllowed bool) *clients.RunnerApprovalPolicy {
+	return clients.NewRunnerApprovalPolicy(directSlackAllowed)
 }
 
 func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliveryMode string, requestedArtifacts []clients.RunnerRequestedArtifact) string {
@@ -1066,7 +1210,8 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliv
 		parts := []string{
 			"Return explicit visible reasoning only. Do not include hidden chain-of-thought.",
 			"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, reply_delivery, knowledge_drafts, outcome_hypotheses, produced_artifacts, and artifact_failure_reason.",
-			"Start from persisted evidence, then choose governed tools and tool order yourself.",
+			"Start from persisted evidence, then choose governed tools, files, and tool order yourself within the supplied capability leases and policies.",
+			"Treat DeliveryPolicy, WorkspacePolicy, ApprovalPolicy, and CapabilityLease as the execution contract; do not infer platform permissions from prose.",
 			"You may use Hermes-native skills when they materially help satisfy the request.",
 		}
 		if useNotionMCP {
@@ -1082,6 +1227,7 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliv
 		parts := []string{
 			"Return explicit visible reasoning only. Do not include hidden chain-of-thought.",
 			"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, reply_delivery, knowledge_drafts, outcome_hypotheses, produced_artifacts, and artifact_failure_reason.",
+			"Treat DeliveryPolicy, WorkspacePolicy, ApprovalPolicy, and CapabilityLease as the execution contract; do not infer platform permissions from prose.",
 			"Use Slack MCP for Slack investigation.",
 			"You may use Hermes-native skills when they materially help satisfy the request.",
 		}
@@ -1097,6 +1243,7 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliv
 	parts := []string{
 		"Return explicit visible reasoning only. Do not include hidden chain-of-thought.",
 		"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, reply_delivery, knowledge_drafts, outcome_hypotheses, produced_artifacts, and artifact_failure_reason.",
+		"Treat DeliveryPolicy, WorkspacePolicy, ApprovalPolicy, and CapabilityLease as the execution contract; do not infer platform permissions from prose.",
 		"You may use Hermes-native skills when they materially help satisfy the request.",
 	}
 	if useSlackMCP {
@@ -1238,6 +1385,12 @@ func draftSlackPostAction(cfg config.Config, store storepkg.Store, resumeQueue q
 }
 
 func workflowCompletionVerdict(raw map[string]any) string {
+	if completion := mapValue(mapValue(raw["execution_envelope"])["completion"]); len(completion) > 0 {
+		verdict := strings.TrimSpace(stringValueFromMap(completion, "completion_verdict"))
+		if verdict != "" {
+			return verdict
+		}
+	}
 	verdict := strings.TrimSpace(stringValue(raw["completion_verdict"]))
 	if verdict == "" {
 		return "complete"
@@ -1246,20 +1399,28 @@ func workflowCompletionVerdict(raw map[string]any) string {
 }
 
 func workflowTerminationReason(raw map[string]any) string {
+	if completion := mapValue(mapValue(raw["execution_envelope"])["completion"]); len(completion) > 0 {
+		reason := strings.TrimSpace(stringValueFromMap(completion, "termination_reason"))
+		if reason != "" {
+			return reason
+		}
+	}
 	return strings.TrimSpace(stringValue(raw["termination_reason"]))
 }
 
-func normalizeReplyDeliveryMode(value string) string {
-	switch strings.ToLower(strings.TrimSpace(value)) {
-	case "direct", "mediated", "none":
-		return strings.ToLower(strings.TrimSpace(value))
-	default:
-		return "mediated"
-	}
-}
-
 func workflowReplyDelivery(raw map[string]any, fallbackChannelID string, fallbackThreadTS string) (events.SlackActionRecord, bool) {
-	value, ok := raw["reply_delivery"]
+	var value any
+	var ok bool
+	if len(mapValue(raw["execution_envelope"])) > 0 {
+		deliveries, _ := mapValue(raw["execution_envelope"])["deliveries"].([]any)
+		if len(deliveries) > 0 {
+			value = deliveries[0]
+			ok = true
+		}
+	}
+	if !ok || value == nil {
+		value, ok = raw["reply_delivery"]
+	}
 	if !ok || value == nil {
 		value, ok = mapValue(raw["structured_output"])["reply_delivery"]
 	}
@@ -1575,6 +1736,9 @@ func producedArtifactRefs(items []runnerutil.ProducedArtifact) []string {
 	out := []string{}
 	for _, item := range items {
 		out = append(out, item.ArtifactRefs...)
+		if strings.TrimSpace(item.FileRef) != "" {
+			out = append(out, strings.TrimSpace(item.FileRef))
+		}
 	}
 	return uniqueStrings(out)
 }
@@ -1586,7 +1750,11 @@ func traceArtifactsFromProducedArtifacts(traceID string, items []runnerutil.Prod
 	out := make([]events.Artifact, 0, len(items))
 	seen := map[string]struct{}{}
 	for _, item := range items {
-		for _, ref := range item.ArtifactRefs {
+		refs := append([]string{}, item.ArtifactRefs...)
+		if strings.TrimSpace(item.FileRef) != "" {
+			refs = append(refs, item.FileRef)
+		}
+		for _, ref := range refs {
 			ref = strings.TrimSpace(ref)
 			if ref == "" {
 				continue
@@ -1603,7 +1771,7 @@ func traceArtifactsFromProducedArtifacts(traceID string, items []runnerutil.Prod
 				Kind:        firstNonEmpty(strings.TrimSpace(item.Kind), "workflow_artifact"),
 				ContentType: "",
 				URL:         ref,
-				SizeBytes:   0,
+				SizeBytes:   item.SizeBytes,
 				Source:      "runner",
 			})
 		}
@@ -1988,6 +2156,17 @@ func firstNonEmpty(values ...string) string {
 	return ""
 }
 
+func nonEmptyStrings(values ...string) []string {
+	out := make([]string, 0, len(values))
+	for _, value := range values {
+		trimmed := strings.TrimSpace(value)
+		if trimmed != "" {
+			out = append(out, trimmed)
+		}
+	}
+	return out
+}
+
 func statusString(value any, fallback string) string {
 	if posted, ok := value.(bool); ok {
 		if posted {
@@ -2339,6 +2518,20 @@ func completeClaimedEffect(store storepkg.Store, effect transition.EffectExecuti
 	}
 	if item.Status != transition.EffectCompleted {
 		return fmt.Errorf("effect %s completion was not applied; current status=%s holder=%s", effect.ID, item.Status, item.Holder)
+	}
+	return nil
+}
+
+func deferClaimedEffect(store storepkg.Store, effect transition.EffectExecution, lease time.Duration, reason string) error {
+	if strings.TrimSpace(effect.ID) == "" {
+		return nil
+	}
+	item, err := store.DeferEffectExecution(effect.ID, effect.Holder, lease, reason)
+	if err != nil {
+		return err
+	}
+	if item.Status != transition.EffectRunning || strings.TrimSpace(item.Holder) != "" || item.LeaseExpiresAt == nil {
+		return fmt.Errorf("effect %s deferral was not applied; current status=%s holder=%s", effect.ID, item.Status, item.Holder)
 	}
 	return nil
 }
@@ -2749,6 +2942,9 @@ func mergeWorkflowRunnerDiagnostics(base map[string]any, raw map[string]any) map
 }
 
 func toolCallRecordsFromRunnerRaw(raw map[string]any) []events.ToolCallRecord {
+	if records := toolCallRecordsFromExecutionEnvelope(raw); len(records) > 0 {
+		return records
+	}
 	value, ok := raw["tool_calls"]
 	if !ok || value == nil {
 		return nil
@@ -2766,6 +2962,49 @@ func toolCallRecordsFromRunnerRaw(raw map[string]any) []events.ToolCallRecord {
 		return []events.ToolCallRecord{single}
 	}
 	return nil
+}
+
+func toolCallRecordsFromExecutionEnvelope(raw map[string]any) []events.ToolCallRecord {
+	envelope := mapValue(raw["execution_envelope"])
+	if len(envelope) == 0 {
+		return nil
+	}
+	items, _ := envelope["ledger_events"].([]any)
+	if len(items) == 0 {
+		return nil
+	}
+	out := make([]events.ToolCallRecord, 0)
+	for index, value := range items {
+		item := mapValue(value)
+		kind := strings.TrimSpace(stringValueFromMap(item, "kind"))
+		if !strings.HasPrefix(kind, "tool.") {
+			continue
+		}
+		payload := mapValue(item["payload"])
+		toolName := firstNonEmpty(
+			strings.TrimSpace(stringValueFromMap(payload, "tool_name")),
+			strings.TrimSpace(stringValueFromMap(payload, "name")),
+			strings.TrimPrefix(kind, "tool."),
+		)
+		toolCallID := firstNonEmpty(
+			strings.TrimSpace(stringValueFromMap(payload, "tool_call_id")),
+			strings.TrimSpace(stringValueFromMap(payload, "call_id")),
+			strings.TrimSpace(stringValueFromMap(item, "event_id")),
+		)
+		if toolName == "" && toolCallID == "" {
+			continue
+		}
+		out = append(out, events.ToolCallRecord{
+			ID:         firstNonEmpty(strings.TrimSpace(stringValueFromMap(item, "event_id")), fmt.Sprintf("runner-ledger-tool-%d", index)),
+			ToolName:   toolName,
+			ToolCallID: toolCallID,
+			Request:    payload,
+			Summary:    kind,
+			Status:     strings.TrimSpace(stringValueFromMap(item, "status")),
+			CreatedAt:  time.Now().UTC(),
+		})
+	}
+	return out
 }
 
 func bindRunnerToolCallRecords(records []events.ToolCallRecord, trace events.Trace, workflow storepkg.Workflow) []events.ToolCallRecord {

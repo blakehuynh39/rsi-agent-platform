@@ -192,6 +192,35 @@ func (s *MemoryStore) CompleteEffectExecution(effectID string, holder string, re
 	return item, nil
 }
 
+func (s *MemoryStore) DeferEffectExecution(effectID string, holder string, lease time.Duration, reason string) (transition.EffectExecution, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	item, ok := s.effectExecutions[strings.TrimSpace(effectID)]
+	if !ok {
+		return transition.EffectExecution{}, errors.New("effect execution not found")
+	}
+	switch item.Status {
+	case transition.EffectCompleted, transition.EffectCanceled, transition.EffectSuperseded:
+		return item, nil
+	}
+	now := time.Now().UTC()
+	if !effectExecutionLeaseHeldBy(item, holder, now) {
+		return item, nil
+	}
+	expires := now
+	if lease > 0 {
+		expires = now.Add(lease)
+	}
+	item.Status = transition.EffectRunning
+	item.LastError = strings.TrimSpace(reason)
+	item.Holder = ""
+	item.UpdatedAt = now
+	item.LeaseExpiresAt = &expires
+	item.CompletedAt = nil
+	s.effectExecutions[item.ID] = item
+	return item, nil
+}
+
 func (s *MemoryStore) FailEffectExecution(effectID string, holder string, lastError string) (transition.EffectExecution, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()

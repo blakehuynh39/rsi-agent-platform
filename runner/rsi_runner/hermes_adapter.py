@@ -8,7 +8,7 @@ from pathlib import Path
 from .json_types import JsonObject
 
 from .config import RunnerConfig
-from .rsi_tools import governed_toolset_definitions
+from .rsi_tools import rsi_plugin_toolset_definitions
 
 try:
     from hermes_cli.plugins import discover_plugins  # type: ignore
@@ -25,6 +25,7 @@ description: "RSI governed context injection, native governed tools, and lifecyc
 _PLUGIN_MODULE_TEMPLATE = """from __future__ import annotations
 
 import json
+import hashlib
 import os
 import time
 from pathlib import Path
@@ -34,6 +35,7 @@ from urllib import request as urlrequest
 
 _PLUGIN_TOOLS = __PLUGIN_TOOLS__
 _TRANSPORT_TO_CANONICAL = {item["transport_name"]: item["canonical_name"] for item in _PLUGIN_TOOLS}
+_ARTIFACT_CANONICAL_NAMES = {"artifact.list_files", "artifact.write_file"}
 
 
 def _runtime_root() -> Path:
@@ -95,6 +97,10 @@ def _tool_gateway_available() -> bool:
     return bool(str(os.getenv("RSI_TOOL_GATEWAY_BASE_URL", "") or "").strip())
 
 
+def _artifact_tools_available() -> bool:
+    return True
+
+
 def _allowed_tool_names(payload: JsonObject) -> set[str]:
     raw = payload.get("tool_allowlist_effective") or []
     return {str(item).strip() for item in raw if str(item).strip()}
@@ -102,6 +108,228 @@ def _allowed_tool_names(payload: JsonObject) -> set[str]:
 
 def _base_url_from_context(payload: JsonObject) -> str:
     return str(payload.get("tool_gateway_base_url", "") or os.getenv("RSI_TOOL_GATEWAY_BASE_URL", "")).strip()
+
+
+def _first_non_empty(*values) -> str:
+    for value in values:
+        text = str(value or "").strip()
+        if text:
+            return text
+    return ""
+
+
+def _artifact_output_dir(payload: JsonObject) -> Path:
+    raw = str(payload.get("artifact_output_dir", "") or "").strip()
+    if not raw:
+        raise RuntimeError("artifact_output_dir unavailable for this session")
+    root = Path(raw).expanduser().resolve()
+    root.mkdir(parents=True, exist_ok=True)
+    return root
+
+
+def _artifact_output_dir_text(payload: JsonObject) -> str:
+    try:
+        return str(_artifact_output_dir(payload))
+    except Exception:
+        return str(payload.get("artifact_output_dir", "") or "").strip()
+
+
+def _artifact_path(payload: JsonObject, requested_path) -> tuple[str, Path]:
+    root = _artifact_output_dir(payload)
+    raw = str(requested_path or "").strip()
+    candidate = Path(raw).expanduser() if raw.startswith("/") else (root / raw)
+    resolved = candidate.resolve()
+    try:
+        resolved.relative_to(root)
+    except ValueError as exc:
+        raise ValueError("artifact_path_outside_root") from exc
+    return raw, resolved
+
+
+def _artifact_entry(path: Path) -> JsonObject:
+    stat = path.stat()
+    return {
+        "name": path.name,
+        "path": str(path),
+        "is_dir": path.is_dir(),
+        "size_bytes": 0 if path.is_dir() else stat.st_size,
+    }
+
+
+def _artifact_handler(canonical_name: str, transport_name: str, args: JsonObject, task_id: str = "", **kwargs):
+    payload = _active_context(task_id=task_id, **kwargs)
+    session_id = str(task_id or kwargs.get("task_id", "") or kwargs.get("session_id", "")).strip()
+    safe_args = args if isinstance(args, dict) else {}
+    if canonical_name == "artifact.list_files":
+        requested_path = str(safe_args.get("path", "") or "").strip()
+        try:
+            requested_path, target = _artifact_path(payload, requested_path)
+            entries = []
+            if target.exists():
+                if target.is_dir():
+                    entries = [_artifact_entry(item) for item in sorted(target.iterdir())]
+                else:
+                    entries = [_artifact_entry(target)]
+            output = {
+                "artifact_output_dir": str(_artifact_output_dir(payload)),
+                "requested_path": requested_path,
+                "path": str(target),
+                "entries": entries,
+            }
+            if session_id:
+                _append_event(
+                    session_id,
+                    "artifact.list.completed",
+                    {
+                        "event_type": "artifact.list.completed",
+                        "status": "completed",
+                        "payload": {
+                            "tool_name": canonical_name,
+                            "transport_tool_name": transport_name,
+                            **output,
+                        },
+                    },
+                )
+            return json.dumps(
+                {
+                    "tool_name": canonical_name,
+                    "transport_tool_name": transport_name,
+                    "status": "ok",
+                    "summary": f"Listed {len(entries)} item(s) in the native artifact directory.",
+                    "output": output,
+                },
+                sort_keys=True,
+            )
+        except Exception as exc:
+            failed_payload = {
+                "tool_name": canonical_name,
+                "transport_tool_name": transport_name,
+                "requested_path": requested_path,
+                "artifact_output_dir": _artifact_output_dir_text(payload),
+                "error": str(exc),
+            }
+            if session_id:
+                _append_event(
+                    session_id,
+                    "artifact.list.failed",
+                    {
+                        "event_type": "artifact.list.failed",
+                        "status": "failed",
+                        "payload": failed_payload,
+                    },
+                )
+            return json.dumps(
+                {
+                    "tool_name": canonical_name,
+                    "transport_tool_name": transport_name,
+                    "status": "error",
+                    "error": str(exc),
+                    "output": failed_payload,
+                },
+                sort_keys=True,
+            )
+    if canonical_name == "artifact.write_file":
+        requested_path = str(safe_args.get("path", "") or "").strip()
+        try:
+            artifact_dir = str(_artifact_output_dir(payload))
+            started_payload = {
+                "tool_name": canonical_name,
+                "transport_tool_name": transport_name,
+                "requested_path": requested_path,
+                "artifact_output_dir": artifact_dir,
+            }
+            if session_id:
+                _append_event(
+                    session_id,
+                    "artifact.write.started",
+                    {
+                        "event_type": "artifact.write.started",
+                        "status": "running",
+                        "payload": started_payload,
+                    },
+                )
+            _, target = _artifact_path(payload, requested_path)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            content = str(safe_args.get("content", "") or "")
+            target.write_text(content, encoding="utf-8")
+            content_bytes = content.encode("utf-8")
+            file_ref = f"file://{target}"
+            completed_payload = {
+                "tool_name": canonical_name,
+                "transport_tool_name": transport_name,
+                "path": str(target),
+                "workspace_path": str(target),
+                "file_ref": file_ref,
+                "artifact_output_dir": str(_artifact_output_dir(payload)),
+                "bytes_written": len(content_bytes),
+                "size_bytes": len(content_bytes),
+                "sha256": hashlib.sha256(content_bytes).hexdigest(),
+                "created_by_execution_id": _first_non_empty(
+                    payload.get("execution_id"),
+                    payload.get("operation_id"),
+                    payload.get("trace_id"),
+                ),
+                "share_status": "local",
+            }
+            if session_id:
+                _append_event(
+                    session_id,
+                    "artifact.write.completed",
+                    {
+                        "event_type": "artifact.write.completed",
+                        "status": "completed",
+                        "payload": completed_payload,
+                    },
+                )
+            return json.dumps(
+                {
+                    "tool_name": canonical_name,
+                    "transport_tool_name": transport_name,
+                    "status": "ok",
+                    "summary": f"Wrote artifact file to {target}.",
+                    "output": completed_payload,
+                    "raw_artifact_refs": [file_ref],
+                },
+                sort_keys=True,
+            )
+        except Exception as exc:
+            try:
+                artifact_dir_for_error = str(_artifact_output_dir(payload))
+            except Exception:
+                artifact_dir_for_error = ""
+            failed_payload = {
+                "tool_name": canonical_name,
+                "transport_tool_name": transport_name,
+                "requested_path": requested_path,
+                "artifact_output_dir": artifact_dir_for_error or _artifact_output_dir_text(payload),
+                "error": str(exc),
+            }
+            if session_id:
+                _append_event(
+                    session_id,
+                    "artifact.write.failed",
+                    {
+                        "event_type": "artifact.write.failed",
+                        "status": "failed",
+                        "payload": failed_payload,
+                    },
+                )
+            return json.dumps(
+                {
+                    "tool_name": canonical_name,
+                    "transport_tool_name": transport_name,
+                    "status": "error",
+                    "error": str(exc),
+                    "output": failed_payload,
+                },
+                sort_keys=True,
+            )
+    return json.dumps({
+        "tool_name": canonical_name,
+        "transport_tool_name": transport_name,
+        "status": "error",
+        "error": "unknown RSI artifact tool",
+    }, sort_keys=True)
 
 
 def _default_payload(canonical_name: str, payload: JsonObject) -> JsonObject:
@@ -251,6 +479,8 @@ def _tool_handler(transport_name: str):
     canonical_name = _TRANSPORT_TO_CANONICAL[transport_name]
 
     def handler(args: JsonObject, task_id: str = "", **kwargs):
+        if canonical_name in _ARTIFACT_CANONICAL_NAMES:
+            return _artifact_handler(canonical_name, transport_name, args, task_id=task_id, **kwargs)
         payload = _active_context(task_id=task_id, **kwargs)
         session_id = str(task_id or kwargs.get("task_id", "") or kwargs.get("session_id", "")).strip()
         base_url = _base_url_from_context(payload)
@@ -435,12 +665,13 @@ def on_session_end(session_id: str, **kwargs):
 
 def register(ctx):
     for item in _PLUGIN_TOOLS:
+        canonical_name = str(item["canonical_name"])
         ctx.register_tool(
             name=str(item["transport_name"]),
             toolset=str(item["toolset"]),
             schema=dict(item["schema"]),
             handler=_tool_handler(str(item["transport_name"])),
-            check_fn=_tool_gateway_available,
+            check_fn=_artifact_tools_available if canonical_name in _ARTIFACT_CANONICAL_NAMES else _tool_gateway_available,
             description=str(item["schema"].get("description", "")),
         )
     ctx.register_hook("pre_llm_call", pre_llm_call)
@@ -452,7 +683,7 @@ def register(ctx):
 def _build_plugin_module() -> str:
     return _PLUGIN_MODULE_TEMPLATE.replace(
         "__PLUGIN_TOOLS__",
-        repr(governed_toolset_definitions()),
+        repr(rsi_plugin_toolset_definitions()),
     )
 
 
@@ -514,7 +745,7 @@ class HermesContextEngine:
             (self._plugin_dir / "plugin.yaml").write_text(_PLUGIN_MANIFEST, encoding="utf-8")
             (self._plugin_dir / "__init__.py").write_text(_build_plugin_module(), encoding="utf-8")
             if callable(discover_plugins):
-                discover_plugins()
+                discover_plugins(force=True)
             self._status = "ready"
         except Exception as exc:  # pragma: no cover - filesystem/env dependent
             self._install_error = str(exc)

@@ -15,12 +15,20 @@ from unittest import mock
 
 from rsi_runner.config import RunnerConfig, RunnerConfigError
 from rsi_runner.hermes_adapter import _build_plugin_module
-from rsi_runner.hermes_executor_worker import _LocalArtifactToolBinding, _initialize_cli_agent
+from rsi_runner.hermes_agent_adapter import HermesAgentAdapter, HermesContractStatus, validate_hermes_contract
 from rsi_runner.hermes_mcp_adapter import TaskScopedMCPCleanupResult, TaskScopedMCPRegistration, TaskScopedMCPServer
 from rsi_runner.hermes_runtime import HermesExecutionResult, HermesRuntime, RunnerTaskRequest
 from rsi_runner.observability import execution_observation_id
-from rsi_runner.rsi_tools import ReadOnlyToolBinding, governed_toolset_definitions, tool_schema_wrappers, transport_tool_schema
+from rsi_runner.rsi_tools import (
+    ReadOnlyToolBinding,
+    governed_toolset_definitions,
+    tool_schema_wrappers,
+    transport_tool_schema,
+)
 from rsi_runner.session_manager import SessionManager
+
+
+HERMES_TEST_PIN = "6051fba9dc326ceddbe81147a14b10102f4256a3"
 
 
 def runner_env(role: str = "prod") -> dict[str, str]:
@@ -30,10 +38,13 @@ def runner_env(role: str = "prod") -> dict[str, str]:
         "RSI_RUNNER_PORT": "8090",
         "RSI_RUNNER_MODEL": "openai/gpt-5.4",
         "RSI_RUNNER_REASONING_EFFORT": "xhigh",
-        "RSI_HERMES_PIN": "6fdbf2f2d76cf37393e657bf37ceda3d84589200",
+        "RSI_HERMES_PIN": HERMES_TEST_PIN,
         "RSI_RUNNER_PUBLIC_BASE_URL": "https://staging-rsi-platform.storyprotocol.net",
         "RSI_TOOL_GATEWAY_BASE_URL": "http://tool-gateway.internal:8080",
         "HERMES_HOME": "/tmp/hermes",
+        "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": "/tmp/hermes/workspace",
+        "RSI_EXECUTION_ENVELOPE_V1_ENABLED": "true",
+        "RSI_RUNNER_PLANNER_MODE": "runner_first",
         "RSI_RUNNER_MEMORY_BACKEND": "honcho",
         "RSI_HONCHO_WORKSPACE": "rsi-stage",
         "RSI_HONCHO_RECALL_MODE": "hybrid",
@@ -152,6 +163,12 @@ class FakeSessionManager:
         self.skills_healthy = True
         self.session_db = object()
         self.honcho_available = True
+        hermes_home = Path(_config.hermes_home)
+        hermes_home.mkdir(parents=True, exist_ok=True)
+        hermes_home.joinpath("config.yaml").write_text(
+            "plugins:\n  enabled:\n    - rsi_context_engine\n",
+            encoding="utf-8",
+        )
 
     def prepare(self, task: RunnerTaskRequest):
         return types.SimpleNamespace(
@@ -271,6 +288,25 @@ class HermesRuntimeTests(unittest.TestCase):
         FakeAIAgent.last_interrupt_message = None
         FakeAIAgent.sleep_seconds = 0.0
         FakeAIAgent.budget_used = 1
+        self._runtime_contract_patch = mock.patch(
+            "rsi_runner.hermes_runtime.validate_hermes_contract",
+            return_value=HermesContractStatus(
+                ok=True,
+                expected_pin=HERMES_TEST_PIN,
+                installed_commit=HERMES_TEST_PIN,
+                hermes_version="test",
+                api_signature_status="ok",
+                pin_status="ok",
+                plugin_status="ok",
+                required_toolsets=["rsi-governed-readonly"],
+                toolset_status={"rsi-governed-readonly": "ok"},
+                session_db_status="ok",
+                errors=[],
+                checked_at_unix=1.0,
+            ),
+        )
+        self._runtime_contract_patch.start()
+        self.addCleanup(self._runtime_contract_patch.stop)
 
     def test_config_requires_explicit_env(self) -> None:
         with mock.patch.dict(os.environ, {}, clear=True):
@@ -327,6 +363,155 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn(": False", source)
         self.assertIn("tool_call_started", source)
         self.assertIn("tool_call_completed", source)
+        self.assertIn("artifact_write_file", source)
+
+    def test_hermes_contract_rejects_missing_pin(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(os.environ, {"HERMES_HOME": tempdir}, clear=True):
+            Path(tempdir, "config.yaml").write_text("plugins:\n  enabled:\n    - rsi_context_engine\n", encoding="utf-8")
+            status = validate_hermes_contract(
+                expected_pin="",
+                hermes_home=tempdir,
+                session_db=object(),
+                required_toolsets=[],
+            )
+
+        self.assertFalse(status.ok)
+        self.assertEqual(status.pin_status, "missing_expected_pin")
+        self.assertIn("RSI_HERMES_PIN is required.", status.errors)
+
+    def test_hermes_contract_rejects_pin_mismatch(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(os.environ, {"HERMES_HOME": tempdir}, clear=True), mock.patch(
+            "rsi_runner.hermes_agent_adapter._read_direct_url_commit",
+            return_value=("0.0.0", "cafebabe"),
+        ):
+            Path(tempdir, "config.yaml").write_text("plugins:\n  enabled:\n    - rsi_context_engine\n", encoding="utf-8")
+            status = validate_hermes_contract(
+                expected_pin="deadbeef",
+                hermes_home=tempdir,
+                session_db=object(),
+                required_toolsets=[],
+            )
+
+        self.assertFalse(status.ok)
+        self.assertEqual(status.pin_status, "mismatch")
+
+    def test_hermes_contract_rejects_missing_plugin_enablement(self) -> None:
+        plugin_manager = types.SimpleNamespace(list_plugins=lambda: [{"enabled": True, "name": "rsi_context_engine"}])
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(os.environ, {"HERMES_HOME": tempdir}, clear=True), mock.patch(
+            "rsi_runner.hermes_agent_adapter.discover_plugins",
+            side_effect=lambda force=False: None,
+        ), mock.patch(
+            "rsi_runner.hermes_agent_adapter.get_plugin_manager",
+            return_value=plugin_manager,
+        ):
+            status = validate_hermes_contract(
+                expected_pin=HERMES_TEST_PIN,
+                hermes_home=tempdir,
+                session_db=object(),
+                required_toolsets=[],
+            )
+
+        self.assertFalse(status.ok)
+        self.assertEqual(status.plugin_status, "config_missing")
+        self.assertIn("rsi_context_engine is not enabled in Hermes config.", status.errors)
+
+    def test_hermes_contract_rejects_missing_session_db_and_toolset(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(os.environ, {"HERMES_HOME": tempdir}, clear=True), mock.patch(
+            "rsi_runner.hermes_agent_adapter.validate_toolset",
+            side_effect=lambda _name: False,
+        ):
+            Path(tempdir, "config.yaml").write_text("plugins:\n  enabled:\n    - rsi_context_engine\n", encoding="utf-8")
+            status = validate_hermes_contract(
+                expected_pin=HERMES_TEST_PIN,
+                hermes_home=tempdir,
+                session_db=None,
+                required_toolsets=["rsi-missing-toolset"],
+            )
+
+        self.assertFalse(status.ok)
+        self.assertEqual(status.session_db_status, "missing")
+        self.assertEqual(status.toolset_status["rsi-missing-toolset"], "failed")
+
+    def test_hermes_contract_rejects_missing_toolset_validation_api_once(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(os.environ, {"HERMES_HOME": tempdir}, clear=True), mock.patch(
+            "rsi_runner.hermes_agent_adapter.validate_toolset",
+            None,
+        ):
+            Path(tempdir, "config.yaml").write_text("plugins:\n  enabled:\n    - rsi_context_engine\n", encoding="utf-8")
+            status = validate_hermes_contract(
+                expected_pin=HERMES_TEST_PIN,
+                hermes_home=tempdir,
+                session_db=object(),
+                required_toolsets=["rsi-missing-toolset-a", "rsi-missing-toolset-b"],
+            )
+
+        self.assertFalse(status.ok)
+        self.assertEqual(status.toolset_status["rsi-missing-toolset-a"], "validate_api_missing")
+        self.assertEqual(status.toolset_status["rsi-missing-toolset-b"], "validate_api_missing")
+        self.assertEqual(status.errors.count("Hermes toolset validation API is unavailable."), 1)
+
+    def test_hermes_agent_adapter_marks_incomplete_native_result_partial(self) -> None:
+        adapter = HermesAgentAdapter({"session_id": "session-1", "max_iterations": 20})
+
+        meta = adapter._completion_meta({"completed": False, "api_calls": 20, "final_response": "{}"})
+
+        self.assertEqual(meta["termination_reason"], "iteration_budget_exhausted")
+        self.assertEqual(meta["completion_verdict"], "partial")
+        self.assertTrue(meta["max_iterations_reached"])
+        self.assertFalse(meta["native_result_completed"])
+
+    def test_hermes_contract_rejects_missing_aiagent_kwargs(self) -> None:
+        class BadAIAgent:
+            def __init__(self, model=None):
+                pass
+
+            def run_conversation(self, user_message=None):
+                return {}
+
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(os.environ, {"HERMES_HOME": tempdir}, clear=True), mock.patch(
+            "rsi_runner.hermes_agent_adapter.AIAgent", BadAIAgent
+        ):
+            Path(tempdir, "config.yaml").write_text("plugins:\n  enabled:\n    - rsi_context_engine\n", encoding="utf-8")
+            status = validate_hermes_contract(
+                expected_pin=HERMES_TEST_PIN,
+                hermes_home=tempdir,
+                session_db=object(),
+                required_toolsets=[],
+            )
+
+        self.assertFalse(status.ok)
+        self.assertEqual(status.api_signature_status, "failed")
+        self.assertTrue(any("AIAgent.__init__ missing" in error for error in status.errors))
+
+    def test_hermes_agent_adapter_prefers_hermes_api_key_for_non_openai_runtime(self) -> None:
+        class CaptureAIAgent:
+            last_kwargs: dict[str, object] = {}
+
+            def __init__(self, **kwargs) -> None:
+                type(self).last_kwargs = kwargs
+
+        with mock.patch("rsi_runner.hermes_agent_adapter.AIAgent", CaptureAIAgent), mock.patch.dict(
+            os.environ,
+            {
+                "RSI_HERMES_API_KEY": "hermes-key",
+                "OPENAI_API_KEY": "openai-key",
+            },
+            clear=True,
+        ):
+            adapter = HermesAgentAdapter(
+                {
+                    "model": "custom-model",
+                    "runtime": {
+                        "provider": "custom",
+                        "api_mode": "",
+                        "base_url": "https://models.internal.example",
+                    },
+                    "toolsets": [],
+                }
+            )
+            adapter._create_agent("session-1", object(), "")
+
+        self.assertEqual(CaptureAIAgent.last_kwargs["api_key"], "hermes-key")
 
     def test_config_rejects_timeout_contract_drift(self) -> None:
         with mock.patch.dict(
@@ -757,7 +942,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["honcho_write_frequency"], "async")
         self.assertEqual(result.raw["honcho_session_strategy"], "hybrid")
         self.assertEqual(result.raw["honcho_ai_peer"], "rsi:stage:eval")
-        self.assertEqual(result.raw["hermes_pin"], "6fdbf2f2d76cf37393e657bf37ceda3d84589200")
+        self.assertEqual(result.raw["hermes_pin"], HERMES_TEST_PIN)
         self.assertIn("structured_output", result.raw)
         self.assertEqual(result.raw["structured_output"]["final_answer"], "Final reply")
 
@@ -811,7 +996,9 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(result.ok)
         native_mock.assert_called_once()
         standard_mock.assert_not_called()
-        self.assertEqual(runtime.executor_status("hexec-test-routing")["status"], "running")
+        status = runtime.executor_status("hexec-test-routing")
+        self.assertEqual(status["status"], "completed")
+        self.assertTrue(status["result"]["ok"])
 
     def test_rsi_tool_wrappers_use_transport_names_and_reverse_map_to_canonical_gateway_ids(self) -> None:
         wrappers = tool_schema_wrappers(["repo.context", "rsi.workflow_context"])
@@ -907,6 +1094,63 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(process.terminated)
         self.assertEqual(status["status"], "cancelling")
         self.assertEqual(runtime.executor_status("hexec-cancel")["status"], "cancelling")
+
+    def test_executor_status_persists_completed_result_for_recovery(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as workspace_root, mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_COMPUTER_ROOT": str(Path(workspace_root) / "company"),
+                "RSI_HERMES_RUN_ROOT": str(Path(workspace_root) / "company" / ".rsi" / "runs"),
+                "RSI_HERMES_ARTIFACT_ROOT": str(Path(workspace_root) / "company" / "artifacts"),
+            },
+            clear=True,
+        ):
+            first = HermesRuntime(RunnerConfig.from_env())
+            first._store_executor_result(
+                "hexec-persist",
+                {
+                    "execution_id": "hexec-persist",
+                    "status": "completed",
+                    "result": {
+                        "ok": True,
+                        "message": "Recovered",
+                        "provider": "fake",
+                        "raw": {"structured_output": {"final_answer": "Recovered"}},
+                    },
+                },
+            )
+            second = HermesRuntime(RunnerConfig.from_env())
+            status = second.executor_status("hexec-persist")
+
+        self.assertEqual(status["status"], "completed")
+        self.assertTrue(status["result"]["ok"])
+        self.assertEqual(status["result"]["raw"]["structured_output"]["final_answer"], "Recovered")
+
+    def test_executor_status_marks_persisted_running_without_process_as_orphaned(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as workspace_root, mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_COMPUTER_ROOT": str(Path(workspace_root) / "company"),
+                "RSI_HERMES_RUN_ROOT": str(Path(workspace_root) / "company" / ".rsi" / "runs"),
+                "RSI_HERMES_ARTIFACT_ROOT": str(Path(workspace_root) / "company" / "artifacts"),
+            },
+            clear=True,
+        ):
+            first = HermesRuntime(RunnerConfig.from_env())
+            first._store_executor_result("hexec-orphan", {"execution_id": "hexec-orphan", "status": "running"})
+            second = HermesRuntime(RunnerConfig.from_env())
+            status = second.executor_status("hexec-orphan")
+
+        self.assertEqual(status["status"], "orphaned")
+        self.assertIn("no local execution process", status["message"])
 
     def test_slack_history_binding_defaults_to_bound_channel_context(self) -> None:
         captured: dict[str, object] = {}
@@ -1799,6 +2043,90 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(len(request_paths), 1)
         self.assertTrue(run_dir_exists_before_temp_cleanup)
 
+    def test_native_executor_incomplete_result_preserves_partial_contract(self) -> None:
+        structured = json.dumps(
+            partial_structured_output(
+                reply_text="Grounded but partial answer.",
+                proposed_actions=[],
+            )
+        )
+        captured_requests: list[dict[str, object]] = []
+
+        class FakePopen:
+            def __init__(self, cmd, cwd, env, stdout, stderr, text):
+                request = json.loads(Path(cmd[-1]).read_text(encoding="utf-8"))
+                captured_requests.append(request)
+                self.returncode = 0
+                payload = {
+                    "ok": True,
+                    "mcp_cleanup_errors": [],
+                    "mcp_cleanup_status": "cleaned",
+                    "response": structured,
+                    "result": {
+                        "final_response": structured,
+                        "completed": False,
+                        "api_calls": 20,
+                        "partial": False,
+                        "interrupted": False,
+                    },
+                    "session_id": "rsi-prod-conversation-123",
+                }
+                Path(request["result_path"]).write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+                self.stdout = io.StringIO("")
+                self.stderr = io.StringIO("")
+
+            def poll(self):
+                return 0
+
+            def wait(self, timeout=None):
+                return self.returncode
+
+            def terminate(self):
+                self.returncode = -15
+
+            def kill(self):
+                self.returncode = -9
+
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Investigate the latest trace.",
+                    "trace_id": "trace-partial-native",
+                    "workflow_id": "wf-partial-native",
+                    "operation_id": "op-partial-native",
+                    "reply_delivery_mode": "none",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-partial-native",
+                }
+            }
+        )
+
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch("rsi_runner.hermes_runtime.subprocess.Popen", FakePopen), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "RSI_HERMES_EXECUTOR_ENABLED": "true",
+                "RSI_HERMES_EXECUTOR_SERVICE_ONLY": "true",
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.raw["completion_verdict"], "partial")
+        self.assertEqual(result.raw["termination_reason"], "iteration_budget_exhausted")
+        self.assertTrue(result.raw["max_iterations_reached"])
+        self.assertEqual(result.raw["structured_output"]["final_answer"], "Grounded but partial answer.")
+        self.assertEqual(result.raw["runner_diagnostics"]["completion_verdict"], "partial")
+        self.assertEqual(captured_requests[0]["phase_contract"]["history_policy"], "session")
+        self.assertIn("rsi-governed-readonly", captured_requests[0]["phase_contract"]["required_toolsets"])
+
     def test_native_render_request_payload_uses_local_artifact_dir_and_strips_governed_toolsets(self) -> None:
         structured = json.dumps(
             {
@@ -1814,6 +2142,18 @@ class HermesRuntimeTests(unittest.TestCase):
                 "produced_artifacts": [],
                 "artifact_failure_reason": "",
             }
+        )
+        mcp_registration = TaskScopedMCPRegistration(
+            servers=[
+                TaskScopedMCPServer(
+                    source_label="render-context",
+                    profile="custom_read_only",
+                    server_name="rsi-task-render-context",
+                    toolset_alias="mcp-render-context",
+                    included_tool_names=["fetch_context"],
+                    hermes_config={},
+                )
+            ]
         )
 
         def fake_popen(cmd, cwd, env, stdout, stderr, text):
@@ -1835,6 +2175,13 @@ class HermesRuntimeTests(unittest.TestCase):
             self.assertEqual(request["artifact_output_dir"], str((Path(tempdir) / "op-render" / "artifacts").resolve()))
             self.assertNotIn("rsi-governed-readonly", request["toolsets"])
             self.assertNotIn("rsi-governed-workspace", request["toolsets"])
+            self.assertIn("rsi-artifacts", request["toolsets"])
+            self.assertIn("mcp-render-context", request["toolsets"])
+            self.assertEqual(len(request["toolsets"]), len(set(request["toolsets"])))
+            self.assertEqual(request["conversation_history"], [])
+            self.assertEqual(request["phase_contract"]["history_policy"], "empty")
+            self.assertEqual(request["phase_contract"]["required_toolsets"], ["rsi-artifacts"])
+            self.assertEqual(request["phase_contract"]["missing_required_toolsets"], [])
 
             class FakePopen:
                 def __init__(self) -> None:
@@ -1891,73 +2238,71 @@ class HermesRuntimeTests(unittest.TestCase):
                         "session_scope_id": "conv-render",
                         "memory_backend": "honcho",
                         "assistant_peer_id": "rsi:stage:prod",
+                        "mcp_servers": [{"server_label": "render-context", "profile": "custom_read_only"}],
                     }
                 }
             )
-            result = runtime._execute_native_workflow_task_request(
-                task,
-                runtime._resolve_tool_policy(task),
-                observer=RecordingObserver(),
-            )
+            with mock.patch.object(runtime._mcp_adapter, "plan_task_servers", return_value=mcp_registration):
+                result = runtime._execute_native_workflow_task_request(
+                    task,
+                    runtime._resolve_tool_policy(task),
+                    observer=RecordingObserver(),
+                )
 
         self.assertTrue(result.ok)
 
-    def test_local_artifact_tool_binding_rejects_writes_outside_root(self) -> None:
-        with tempfile.TemporaryDirectory() as tempdir:
-            binding = _LocalArtifactToolBinding(Path(tempdir))
-            payload = json.loads(
-                binding.handle_tool_call(
-                    "artifact_write_file",
-                    {"path": "diagram.html", "content": "<html></html>"},
-                )
+    def test_plugin_artifact_write_creates_workspace_metadata_and_lifecycle_events(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as artifact_dir, mock.patch.dict(
+            os.environ, {"HERMES_HOME": hermes_home}, clear=True
+        ):
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            session_id = "sess-artifact"
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "artifact_output_dir": artifact_dir,
+                        "execution_id": "exec-artifact",
+                    }
+                ),
+                encoding="utf-8",
             )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+            handler = namespace["_tool_handler"]("artifact_write_file")
+            list_handler = namespace["_tool_handler"]("artifact_list_files")
+
+            payload = json.loads(handler({"path": "diagram.html", "content": "<html></html>"}, task_id=session_id))
+            escaped = json.loads(handler({"path": "../escape.html", "content": "nope"}, task_id=session_id))
+            listed = json.loads(list_handler({"path": ""}, task_id=session_id))
+            list_escaped = json.loads(list_handler({"path": "../escape.html"}, task_id=session_id))
+            non_dict_args = json.loads(handler("not a dict", task_id=session_id))
+            events_path = Path(hermes_home, "rsi_runtime", "lifecycle", f"{session_id}.jsonl")
+            events = [json.loads(line) for line in events_path.read_text(encoding="utf-8").splitlines()]
             self.assertEqual(payload["status"], "ok")
-            self.assertTrue((Path(tempdir) / "diagram.html").exists())
-            with self.assertRaises(RuntimeError):
-                binding.handle_tool_call(
-                    "artifact_write_file",
-                    {"path": "../escape.html", "content": "nope"},
-                )
+            self.assertTrue(Path(artifact_dir, "diagram.html").exists())
+            self.assertEqual(payload["output"]["workspace_path"], str(Path(artifact_dir, "diagram.html").resolve()))
+            self.assertEqual(payload["output"]["created_by_execution_id"], "exec-artifact")
+            self.assertEqual(payload["output"]["share_status"], "local")
+            self.assertEqual(escaped["status"], "error")
+            self.assertIn("artifact_path_outside_root", escaped["error"])
+            self.assertEqual(listed["status"], "ok")
+            self.assertEqual(list_escaped["status"], "error")
+            self.assertIn("artifact_path_outside_root", list_escaped["error"])
+            self.assertEqual(non_dict_args["status"], "error")
+            self.assertNotIn("object has no attribute", non_dict_args["error"])
+            self.assertIn("artifact.write.started", [event["event"] for event in events])
+            self.assertIn("artifact.write.completed", [event["event"] for event in events])
+            self.assertIn("artifact.write.failed", [event["event"] for event in events])
+            self.assertIn("artifact.list.completed", [event["event"] for event in events])
+            self.assertIn("artifact.list.failed", [event["event"] for event in events])
 
-    def test_native_worker_initializes_current_hermes_cli_signature(self) -> None:
-        class CurrentHermesCLI:
-            init_kwargs: dict[str, object] | None = None
+    def test_native_worker_uses_aiagent_adapter_not_hermes_cli(self) -> None:
+        source = Path(__file__).parents[1].joinpath("rsi_runner", "hermes_executor_worker.py").read_text(encoding="utf-8")
 
-            def _init_agent(self, *, model_override=None, runtime_override=None):
-                type(self).init_kwargs = {
-                    "model_override": model_override,
-                    "runtime_override": runtime_override,
-                }
-                return True
-
-        payload = {
-            "model": "openai/gpt-5.4",
-            "runtime": {
-                "api_key": "test-key",
-                "base_url": "https://api.openai.com/v1",
-                "provider": "openai",
-                "api_mode": "codex_responses",
-            },
-        }
-
-        cli = CurrentHermesCLI()
-        _initialize_cli_agent(cli, payload)
-
-        self.assertEqual(
-            CurrentHermesCLI.init_kwargs,
-            {
-                "model_override": "openai/gpt-5.4",
-                "runtime_override": {
-                    "api_key": "test-key",
-                    "base_url": "https://api.openai.com/v1",
-                    "provider": "openai",
-                    "api_mode": "codex_responses",
-                    "command": None,
-                    "args": [],
-                    "credential_pool": None,
-                },
-            },
-        )
+        self.assertIn("HermesAgentAdapter", source)
+        self.assertNotIn("HermesCLI", source)
+        self.assertNotIn("_init_agent", source)
 
     def test_native_executor_stores_final_status_under_explicit_execution_id_without_observer(self) -> None:
         structured = json.dumps(
@@ -2884,6 +3229,55 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(toolsets.count("rsi-governed-readonly"), 1)
         self.assertEqual(toolsets.count("rsi-governed-workspace"), 0)
 
+    def test_workflow_artifact_toolset_requires_artifact_task_scope(self) -> None:
+        lease_only_task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Investigate the active workflow.",
+                    "execution_mode": "diagnose",
+                    "capability_leases": [
+                        {"capability": "artifact_write", "granted": True},
+                    ],
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                    "user_peer_id": "user:alice",
+                }
+            }
+        )
+        requested_artifact_task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Draw a diagram.",
+                    "execution_mode": "diagnose",
+                    "capability_leases": [
+                        {"capability": "artifact_write", "granted": True},
+                    ],
+                    "requested_artifacts": [{"kind": "diagram", "description": "Architecture diagram"}],
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                    "user_peer_id": "user:alice",
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ,
+            runner_env("prod"),
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        self.assertNotIn("rsi-artifacts", runtime._native_toolsets_for_task(lease_only_task))
+        self.assertIn("rsi-artifacts", runtime._native_toolsets_for_task(requested_artifact_task))
+
     def test_prod_role_uses_governed_read_only_tool_policy(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
@@ -3021,7 +3415,13 @@ class HermesRuntimeTests(unittest.TestCase):
         ), mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch(
             "rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen
         ), mock.patch.dict(
-            os.environ, {**runner_env("prod"), "HERMES_HOME": tempdir}, clear=True
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": tempdir,
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": str(Path(tempdir) / "workspace"),
+            },
+            clear=True,
         ):
             runtime = HermesRuntime(RunnerConfig.from_env())
             result = runtime.execute_task(task)
@@ -4122,6 +4522,46 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["reply_delivery"]["status"], "posted")
         self.assertEqual(result.raw["runner_diagnostics"]["artifact_phase_enabled"], True)
         self.assertEqual(result.raw["runner_diagnostics"]["observation_seq"] > 0, True)
+        envelope = result.raw["execution_envelope"]
+        self.assertEqual(envelope["contract_version"], "execution-envelope/v1")
+        self.assertEqual(envelope["execution_plan"]["mode"], "runner_first")
+        self.assertEqual([item["phase_type"] for item in envelope["phase_runs"]], ["investigate", "render", "deliver"])
+        self.assertEqual(envelope["artifacts"][0]["file_ref"], artifact_ref)
+        self.assertIn("workspace_path", envelope["artifacts"][0])
+        self.assertIn("sha256", envelope["artifacts"][0])
+        self.assertEqual(envelope["deliveries"][0]["send_status"], "posted")
+        self.assertIn("artifact.created", {item["kind"] for item in envelope["ledger_events"]})
+        self.assertIn("slack.message.sent", {item["kind"] for item in envelope["ledger_events"]})
+        slack_events = [item for item in envelope["ledger_events"] if item["kind"] == "slack.message.sent"]
+        self.assertEqual(slack_events[0]["status"], "posted")
+
+    def test_execution_envelope_contract_fails_closed_for_unknown_capability(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Answer safely.",
+                    "trace_id": "trace-contract",
+                    "workflow_id": "wf-contract",
+                    "contract_version": "execution-envelope/v1",
+                    "capability_leases": [{"capability": "aws_admin"}],
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-contract",
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.raw["failure_class"], "runner_contract_failed")
+        self.assertEqual(result.raw["execution_envelope"]["completion"]["termination_reason"], "runner_contract_failed")
+        self.assertIn("Unknown capability lease aws_admin.", result.message)
 
     def test_artifact_phase_budgets_never_exceed_total_timeout(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -5030,7 +5470,12 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(runtime.metadata["inactivity_timeout_seconds"], 360)
         self.assertEqual(runtime.metadata["transport_timeout_seconds"], 450)
         self.assertEqual(runtime.metadata["tool_policy_mode"], "enforced_read_only")
-        self.assertEqual(runtime.metadata["hermes_pin"], "6fdbf2f2d76cf37393e657bf37ceda3d84589200")
+        self.assertEqual(runtime.metadata["hermes_pin"], HERMES_TEST_PIN)
+        self.assertEqual(runtime.metadata["execution_contract_version"], "execution-envelope/v1")
+        self.assertEqual(runtime.metadata["runner_planner_mode"], "runner_first")
+        self.assertEqual(runtime.metadata["company_computer_root"], "/tmp/hermes/workspace/company")
+        self.assertIn("artifact_write", runtime.metadata["required_capabilities"])
+        self.assertEqual(runtime.metadata["honcho_runtime_status"]["workspace"], "rsi-stage")
         self.assertEqual(runtime.metadata["session_continuity_status"], "ok")
         self.assertEqual(runtime.metadata["honcho_environment_effective"], "production")
         self.assertIn("repo.context", runtime.metadata["tool_allowlist_effective"])

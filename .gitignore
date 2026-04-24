@@ -8,9 +8,10 @@ coverage/
 *.log
 *.out
 *.test
+__pycache__/
+*.py[cod]
 .env
 .env.*
 ui/eval-web/node_modules/
 ui/eval-web/.vite/
 runner/.venv/
-

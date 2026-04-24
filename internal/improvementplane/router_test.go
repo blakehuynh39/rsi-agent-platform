@@ -243,7 +243,7 @@ func TestRouterConversationCaseAndTraceEndpoints(t *testing.T) {
 		Seq:         1,
 		RecordedAt:  now,
 		Payload: map[string]any{
-			"engine":         "hermes_cli_subprocess",
+			"engine":         "hermes_aiagent_subprocess",
 			"workspace_root": "/workspace/router-trace",
 			"stream":         "stderr",
 			"chunk_text":     "executor output",
