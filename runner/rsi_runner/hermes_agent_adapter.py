@@ -53,6 +53,7 @@ _REQUIRED_AIAgent_INIT_PARAMS = frozenset(
         "platform",
         "provider",
         "quiet_mode",
+        "reasoning_callback",
         "reasoning_config",
         "request_overrides",
         "session_db",
@@ -60,7 +61,11 @@ _REQUIRED_AIAgent_INIT_PARAMS = frozenset(
         "skip_context_files",
         "skip_memory",
         "status_callback",
+        "stream_delta_callback",
+        "thinking_callback",
         "tool_complete_callback",
+        "tool_gen_callback",
+        "tool_progress_callback",
         "tool_start_callback",
     }
 )
@@ -112,6 +117,19 @@ def _jsonable(value: Any) -> Any:
         if isinstance(value, (list, tuple, set)):
             return [_jsonable(item) for item in value]
         return str(value)
+
+
+def _bounded_jsonable(value: Any, *, limit: int = 100000) -> Any:
+    jsonable = _jsonable(value)
+    if isinstance(jsonable, str):
+        if len(jsonable) > limit:
+            return jsonable[: max(0, limit - 1)] + "…"
+        return jsonable
+    if isinstance(jsonable, dict):
+        return {str(key): _bounded_jsonable(item, limit=limit) for key, item in jsonable.items()}
+    if isinstance(jsonable, list):
+        return [_bounded_jsonable(item, limit=limit) for item in jsonable]
+    return jsonable
 
 
 def _read_direct_url_commit() -> tuple[str, str]:
@@ -219,6 +237,7 @@ class _LifecycleWriter:
     def record(self, event: str, payload: JsonObject | None = None) -> None:
         item = {
             "event": _string(event),
+            "event_type": _string(event),
             "recorded_at_unix": time.time(),
             "session_id": self._session_id,
             **(payload or {}),
@@ -493,9 +512,14 @@ class HermesAgentAdapter:
             skip_context_files=True,
             skip_memory=False,
             persist_session=True,
-            tool_start_callback=self._callback("tool_call_started"),
-            tool_complete_callback=self._callback("tool_call_completed"),
-            status_callback=self._callback("model.status"),
+            reasoning_callback=self._reasoning_callback,
+            stream_delta_callback=self._stream_delta_callback,
+            thinking_callback=self._thinking_callback,
+            tool_gen_callback=self._tool_generation_callback,
+            tool_progress_callback=self._tool_progress_callback,
+            tool_start_callback=self._tool_start_callback,
+            tool_complete_callback=self._tool_complete_callback,
+            status_callback=self._status_callback,
         )
 
     def _completion_meta(self, result: Any) -> JsonObject:
@@ -532,12 +556,112 @@ class HermesAgentAdapter:
             "native_result_api_calls": api_calls,
         }
 
-    def _callback(self, event: str):
-        def handler(*args: Any, **kwargs: Any) -> None:
-            payload: JsonObject = {
-                "args": _jsonable(list(args)),
-                "kwargs": _jsonable(kwargs),
-            }
-            self._lifecycle.record(event, payload)
+    def _record_lifecycle(self, event_type: str, *, status: str = "", payload: JsonObject | None = None) -> None:
+        self._lifecycle.record(
+            event_type,
+            {
+                "status": _string(status),
+                "payload": _bounded_jsonable(payload or {}),
+            },
+        )
 
-        return handler
+    def _reasoning_callback(self, text: Any) -> None:
+        self._record_lifecycle(
+            "model.reasoning.delta",
+            status="streaming",
+            payload={"delta": _string(text)},
+        )
+
+    def _stream_delta_callback(self, text: Any) -> None:
+        if text is None:
+            self._record_lifecycle("model.output.delta", status="completed", payload={"delta": ""})
+            return
+        self._record_lifecycle(
+            "model.output.delta",
+            status="streaming",
+            payload={"delta": _string(text)},
+        )
+
+    def _thinking_callback(self, text: Any) -> None:
+        message = _string(text)
+        self._record_lifecycle(
+            "model.thinking",
+            status="running" if message else "completed",
+            payload={"text": message},
+        )
+
+    def _tool_generation_callback(self, tool_name: Any) -> None:
+        self._record_lifecycle(
+            "tool.generation.started",
+            status="running",
+            payload={"tool_name": _string(tool_name)},
+        )
+
+    def _tool_progress_callback(self, *args: Any, **kwargs: Any) -> None:
+        progress_event = _string(args[0] if args else kwargs.get("event"))
+        tool_name = _string(args[1] if len(args) > 1 else kwargs.get("tool_name"))
+        preview = _string(args[2] if len(args) > 2 else kwargs.get("preview"))
+        tool_args = args[3] if len(args) > 3 else kwargs.get("args")
+        event_type = "tool.call.progress"
+        status = "running"
+        if progress_event == "_thinking":
+            event_type = "model.thinking"
+            status = "running" if preview else "completed"
+        elif progress_event == "reasoning.available":
+            event_type = "model.reasoning.delta"
+            status = "completed"
+        elif progress_event == "tool.completed":
+            status = "failed" if bool(kwargs.get("is_error")) else "completed"
+        self._record_lifecycle(
+            event_type,
+            status=status,
+            payload={
+                "progress_event": progress_event,
+                "tool_name": tool_name,
+                "preview": preview,
+                "args": _bounded_jsonable(tool_args),
+                "duration_seconds": kwargs.get("duration"),
+                "is_error": bool(kwargs.get("is_error")),
+                "raw_args": _bounded_jsonable(list(args)),
+                "raw_kwargs": _bounded_jsonable(kwargs),
+            },
+        )
+
+    def _tool_start_callback(self, tool_call_id: Any, tool_name: Any, args: Any) -> None:
+        self._record_lifecycle(
+            "tool.call.started",
+            status="running",
+            payload={
+                "tool_call_id": _string(tool_call_id),
+                "tool_name": _string(tool_name),
+                "args": _bounded_jsonable(args),
+            },
+        )
+
+    def _tool_complete_callback(self, tool_call_id: Any, tool_name: Any, args: Any, result: Any) -> None:
+        result_text = _string(result)
+        failed = result_text.strip().lower().startswith("error:")
+        self._record_lifecycle(
+            "tool.call.completed",
+            status="failed" if failed else "completed",
+            payload={
+                "tool_call_id": _string(tool_call_id),
+                "tool_name": _string(tool_name),
+                "args": _bounded_jsonable(args),
+                "result": _bounded_jsonable(result),
+            },
+        )
+
+    def _status_callback(self, *args: Any, **kwargs: Any) -> None:
+        status_kind = _string(args[0] if args else kwargs.get("status_kind"))
+        message = _string(args[1] if len(args) > 1 else kwargs.get("message"))
+        self._record_lifecycle(
+            "model.status",
+            status=status_kind or "status",
+            payload={
+                "status_kind": status_kind,
+                "message": message,
+                "raw_args": _bounded_jsonable(list(args)),
+                "raw_kwargs": _bounded_jsonable(kwargs),
+            },
+        )

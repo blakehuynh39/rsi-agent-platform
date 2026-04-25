@@ -55,6 +55,19 @@ func TestRunnerClientExecute(t *testing.T) {
 	}
 }
 
+func TestRunnerClientExtendsHTTPTimeoutForExplicitTaskBudget(t *testing.T) {
+	client := NewRunnerClientWithTimeout("http://runner.test", time.Second)
+
+	httpClient := client.httpClientForTask(RunnerTask{TaskType: "workflow", TimeoutSeconds: 1800})
+
+	if httpClient.Timeout != 1830*time.Second {
+		t.Fatalf("extended timeout = %s, want 1830s", httpClient.Timeout)
+	}
+	if client.httpClientForTask(RunnerTask{TaskType: "workflow"}).Timeout != time.Second {
+		t.Fatalf("expected default timeout for ordinary task")
+	}
+}
+
 func TestToolGatewayClientExecute(t *testing.T) {
 	errCh := make(chan error, 1)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

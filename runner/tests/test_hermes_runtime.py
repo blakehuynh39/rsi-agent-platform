@@ -18,7 +18,7 @@ from rsi_runner.execution_contract import HermesCompanyComputer
 from rsi_runner.hermes_adapter import HermesAdapter, _build_plugin_module
 from rsi_runner.hermes_agent_adapter import HermesAgentAdapter, HermesContractStatus, validate_hermes_contract
 from rsi_runner.hermes_mcp_adapter import TaskScopedMCPCleanupResult, TaskScopedMCPRegistration, TaskScopedMCPServer
-from rsi_runner.hermes_runtime import HermesExecutionResult, HermesRuntime, RunnerTaskRequest
+from rsi_runner.hermes_runtime import HermesExecutionResult, HermesRuntime, RunnerTaskRequest, _NativeLifecycleTailer
 from rsi_runner.observability import execution_observation_id
 from rsi_runner.rsi_tools import (
     ReadOnlyToolBinding,
@@ -657,6 +657,95 @@ class HermesRuntimeTests(unittest.TestCase):
             adapter._create_agent("session-1", object(), "")
 
         self.assertEqual(CaptureAIAgent.last_kwargs["api_key"], "hermes-key")
+        for name in [
+            "reasoning_callback",
+            "stream_delta_callback",
+            "thinking_callback",
+            "tool_gen_callback",
+            "tool_progress_callback",
+            "tool_start_callback",
+            "tool_complete_callback",
+            "status_callback",
+        ]:
+            self.assertTrue(callable(CaptureAIAgent.last_kwargs[name]), name)
+
+    def test_hermes_agent_adapter_normalizes_stream_callbacks_to_lifecycle_events(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(os.environ, {"HERMES_HOME": tempdir}, clear=True):
+            adapter = HermesAgentAdapter({"session_id": "session-callbacks"})
+            adapter._reasoning_callback("private surfaced reasoning")
+            adapter._stream_delta_callback("visible output")
+            adapter._thinking_callback("thinking")
+            adapter._tool_generation_callback("terminal")
+            adapter._tool_progress_callback("tool.completed", "terminal", None, None, duration=1.2, is_error=False)
+            adapter._tool_start_callback("call-1", "terminal", {"cmd": "pwd"})
+            adapter._tool_complete_callback("call-1", "terminal", {"cmd": "pwd"}, "ok")
+            adapter._status_callback("lifecycle", "context loaded")
+
+            events = [
+                json.loads(line)
+                for line in adapter.lifecycle_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+
+        self.assertEqual(
+            [item["event_type"] for item in events],
+            [
+                "model.reasoning.delta",
+                "model.output.delta",
+                "model.thinking",
+                "tool.generation.started",
+                "tool.call.progress",
+                "tool.call.started",
+                "tool.call.completed",
+                "model.status",
+            ],
+        )
+        self.assertEqual(events[0]["payload"]["delta"], "private surfaced reasoning")
+        self.assertEqual(events[5]["payload"]["tool_name"], "terminal")
+
+    def test_native_lifecycle_tailer_emits_redacted_live_observations(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir:
+            path = Path(tempdir) / "session.jsonl"
+            observer = RecordingObserver()
+            emitted: list[dict[str, object]] = []
+
+            def emit_event(target, phase, item, *, secret_values):
+                payload = item.get("payload", {})
+                if isinstance(payload, dict):
+                    payload = {
+                        key: str(value).replace("secret-token", "[redacted]")
+                        for key, value in payload.items()
+                    }
+                target.emit(phase=phase, event_type=str(item.get("event_type")), status=str(item.get("status")), payload=payload)
+                emitted.append(item)
+
+            tailer = _NativeLifecycleTailer(
+                path=path,
+                phase="investigate",
+                observer=observer,
+                secret_values=["secret-token"],
+                emit_event=emit_event,
+            )
+            tailer.start()
+            path.write_text(
+                json.dumps(
+                    {
+                        "event_type": "model.output.delta",
+                        "status": "streaming",
+                        "payload": {"delta": "hello secret-token"},
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            deadline = time.time() + 2
+            while not observer.events and time.time() < deadline:
+                time.sleep(0.05)
+            tailer.stop()
+
+        self.assertEqual(tailer.emitted, 1)
+        self.assertEqual(observer.events[0]["event_type"], "model.output.delta")
+        self.assertEqual(observer.events[0]["payload"]["delta"], "hello [redacted]")
 
     def test_config_rejects_timeout_contract_drift(self) -> None:
         with mock.patch.dict(
@@ -2717,7 +2806,7 @@ class HermesRuntimeTests(unittest.TestCase):
             )
 
         self.assertTrue(result.ok)
-        output_events = [event for event in observer.events if event["event_type"] == "executor.subprocess.output"]
+        output_events = [event for event in observer.events if event["event_type"] == "terminal.output"]
         self.assertGreaterEqual(len(output_events), 2)
         stdout_events = [event for event in output_events if event["payload"].get("stream") == "stdout"]
         stderr_events = [event for event in output_events if event["payload"].get("stream") == "stderr"]
@@ -4872,6 +4961,40 @@ class HermesRuntimeTests(unittest.TestCase):
             budgets["total"],
         )
 
+    def test_explicit_artifact_timeout_can_exceed_default_task_timeout(self) -> None:
+        env = {
+            **runner_env("prod"),
+            "RSI_RUNNER_PROD_TIMEOUT": "1830s",
+            "RSI_RUNNER_PROD_TASK_TIMEOUT": "900s",
+            "RSI_RUNNER_PROD_ARTIFACT_MAX_ITERATIONS": "40",
+        }
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "depin-backend",
+                    "prompt": "Render an architecture diagram artifact.",
+                    "timeout_seconds": 1800,
+                    "requested_skills": ["architecture-diagram"],
+                    "requested_artifacts": [{"kind": "diagram", "description": "Architecture diagram"}],
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, env, clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        self.assertEqual(runtime._effective_task_timeout(task), 1800)
+        self.assertEqual(runtime._phase_max_iterations_override(task), 40)
+        budgets = runtime._artifact_phase_budgets(task)
+        self.assertEqual(budgets["total"], 1800)
+        self.assertEqual(budgets["investigate"], 1260)
+        self.assertEqual(budgets["render"], 300)
+        self.assertEqual(budgets["deliver"], 60)
+        self.assertEqual(budgets["reducer_reserve"], 180)
+
     def test_artifact_investigate_task_clears_requested_artifacts(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
@@ -5110,6 +5233,144 @@ class HermesRuntimeTests(unittest.TestCase):
             result.raw["structured_output"]["artifact_failure_reason"],
         )
         self.assertEqual(result.raw["runner_diagnostics"]["artifact_delivery_branch"], "text_only")
+
+    def test_artifact_workflow_renders_grounded_timeout_evidence_brief(self) -> None:
+        executed_tasks: list[RunnerTaskRequest] = []
+
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir:
+
+            def fake_execute_task_internal(task: RunnerTaskRequest, observer=None):
+                executed_tasks.append(task)
+                if task.execution_phase == "investigate":
+                    return HermesExecutionResult(
+                        ok=True,
+                        message="investigate timeout",
+                        provider="test",
+                        raw={
+                            "completion_verdict": "partial",
+                            "termination_reason": "task_timeout",
+                            "structured_output": {
+                                "final_answer": "Partial answer from grounded evidence.",
+                                "reply_draft": "Partial answer from grounded evidence.",
+                                "context_summary": "story-deployments and Kubernetes evidence were loaded.",
+                                "artifact_render_briefs": [],
+                                "produced_artifacts": [],
+                                "artifact_failure_reason": "",
+                            },
+                            "evidence_ledger": {
+                                "termination_reason": "task_timeout",
+                                "tool_calls": [
+                                    {
+                                        "tool_name": "repo.read_file",
+                                        "request": {
+                                            "repo": "story-deployments",
+                                            "path": "story/depin-backend/use1-prod.yaml",
+                                        },
+                                        "status": "ok",
+                                        "summary": "Repository file story/depin-backend/use1-prod.yaml loaded.",
+                                    },
+                                    {
+                                        "tool_name": "kubernetes.inspect",
+                                        "request": {"namespace": "story", "target": "depin-backend"},
+                                        "status": "ok",
+                                        "summary": "Kubernetes inspection found two running pods.",
+                                    },
+                                ],
+                                "evidence_items": [
+                                    {
+                                        "kind": "repo_file",
+                                        "summary": "Production depin-backend Helm values.",
+                                        "source_ref": "story/depin-backend/use1-prod.yaml",
+                                        "path": "story/depin-backend/use1-prod.yaml",
+                                        "repo": "story-deployments",
+                                        "tool_name": "repo.read_file",
+                                    },
+                                    {
+                                        "kind": "kubernetes_inspect",
+                                        "summary": "Live namespace story has two running pods.",
+                                        "source_ref": "kubernetes://story/depin-backend",
+                                        "tool_name": "kubernetes.inspect",
+                                    },
+                                ],
+                                "open_questions": [],
+                            },
+                        },
+                    )
+                if task.execution_phase == "render":
+                    self.assertIn("bounded-stop investigation", task.prompt)
+                    self.assertIn("story/depin-backend/use1-prod.yaml", task.prompt)
+                    self.assertIn("kubernetes://story/depin-backend", task.prompt)
+                    artifact_path = Path(task.artifact_destination) / "architecture.html"
+                    artifact_path.parent.mkdir(parents=True, exist_ok=True)
+                    artifact_path.write_text("<html>diagram</html>", encoding="utf-8")
+                    return HermesExecutionResult(
+                        ok=True,
+                        message="render",
+                        provider="test",
+                        raw={
+                            "structured_output": {
+                                "produced_artifacts": [
+                                    {
+                                        "kind": "diagram",
+                                        "title": "Architecture diagram",
+                                        "workspace_path": str(artifact_path),
+                                        "file_ref": f"file://{artifact_path}",
+                                        "artifact_refs": [f"file://{artifact_path}"],
+                                    }
+                                ]
+                            }
+                        },
+                    )
+                self.assertEqual(task.execution_phase, "deliver")
+                self.assertIn("slack.upload_file", task.allowed_tools)
+                self.assertIn("Produced artifacts:", task.prompt)
+                return HermesExecutionResult(
+                    ok=True,
+                    message="deliver",
+                    provider="test",
+                    raw={"structured_output": {"reply_delivery": {"status": "uploaded", "provider_ref": "slack-file-1"}}},
+                )
+
+            with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+                "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+            ), mock.patch.dict(
+                os.environ,
+                {
+                    **runner_env("prod"),
+                    "HERMES_HOME": hermes_home,
+                    "RSI_HERMES_EXECUTOR_ENABLED": "true",
+                    "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
+                },
+                clear=True,
+            ):
+                runtime = HermesRuntime(RunnerConfig.from_env())
+                runtime._execute_task_internal = fake_execute_task_internal  # type: ignore[method-assign]
+                task = RunnerTaskRequest.from_payload(
+                    {
+                        "task": {
+                            "task_type": "workflow",
+                            "repo": "depin-backend",
+                            "prompt": "Render the architecture diagram from repo and story-deployments.",
+                            "trace_id": "trace-artifacts-grounded-timeout",
+                            "workflow_id": "wf-artifacts-grounded-timeout",
+                            "operation_id": "op-artifacts-grounded-timeout",
+                            "channel_id": "C123",
+                            "thread_ts": "171000001.000100",
+                            "reply_delivery_mode": "direct",
+                            "requested_skills": ["architecture-diagram"],
+                            "requested_artifacts": [{"kind": "diagram", "description": "Architecture diagram"}],
+                        }
+                    }
+                )
+                result = runtime._execute_artifact_workflow_task(task, runtime._resolve_tool_policy(task))
+
+        self.assertTrue(result.ok)
+        self.assertEqual([item.execution_phase for item in executed_tasks], ["investigate", "render", "deliver"])
+        self.assertEqual(result.raw["runner_diagnostics"]["artifact_delivery_branch"], "artifact_upload")
+        self.assertEqual(result.raw["structured_output"]["reply_delivery"]["status"], "uploaded")
+        self.assertTrue(result.raw["structured_output"]["produced_artifacts"])
+        self.assertEqual(result.raw["structured_output"]["produced_artifacts"][0]["share_status"], "shared")
+        self.assertIn("artifact_render_briefs", result.raw["structured_output"])
 
     def test_artifact_workflow_synthesizes_native_artifacts_for_delivery(self) -> None:
         executed_tasks: list[RunnerTaskRequest] = []
@@ -5954,6 +6215,149 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(ledger["evidence_items"][1]["path"], "story/depin-ip-registration/use1-stage.yaml")
         self.assertNotIn("No grounded evidence", " ".join(ledger["open_questions"]))
 
+    def test_workflow_evidence_ledger_preserves_late_sot_evidence_after_long_run(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "depin-backend",
+                    "prompt": "Draw all depin-backend architecture using the repo plus story-deployments as source of truth.",
+                    "requested_artifacts": [{"kind": "diagram", "description": "Architecture diagram."}],
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "trace_id": "trace-long-sot-run",
+                    "workflow_id": "wf-long-sot-run",
+                }
+            }
+        )
+        tool_calls: list[dict[str, object]] = []
+        evidence_items: list[dict[str, object]] = []
+        for index in range(72):
+            tool_calls.append(
+                {
+                    "tool_name": "repo.search",
+                    "tool_call_id": f"repo.search:{index}",
+                    "request": {"repo": "depin-backend", "pattern": f"old-api-{index}"},
+                    "summary": f"Found early depin backend source evidence {index}.",
+                    "status": "completed",
+                }
+            )
+            evidence_items.append(
+                {
+                    "kind": "repo_search_match",
+                    "summary": f"Early depin backend source evidence {index}.",
+                    "source_ref": f"docs/old-{index}.md",
+                    "tool_name": "repo.search",
+                    "path": f"docs/old-{index}.md",
+                    "repo": "depin-backend",
+                }
+            )
+        tool_calls.extend(
+            [
+                {
+                    "tool_name": "repo.read_file",
+                    "tool_call_id": "repo.read_file:stage-api",
+                    "request": {"repo": "story-deployments", "path": "story/depin-backend/use1-prod.yaml"},
+                    "summary": "Read deployed depin-backend API values from story-deployments.",
+                    "status": "completed",
+                },
+                {
+                    "tool_name": "repo.read_file",
+                    "tool_call_id": "repo.read_file:stage-worker",
+                    "request": {"repo": "story-deployments", "path": "story/depin-ip-registration/use1-prod.yaml"},
+                    "summary": "Read deployed ip-registration worker values from story-deployments.",
+                    "status": "completed",
+                },
+                {
+                    "tool_name": "repo.read_file",
+                    "tool_call_id": "repo.read_file:applicationset",
+                    "request": {"repo": "story-deployments", "path": "applicationset/use1-prod.yaml"},
+                    "summary": "Read Argo applicationset values for story deployments.",
+                    "status": "completed",
+                },
+                {
+                    "tool_name": "kubernetes.inspect",
+                    "tool_call_id": "kubernetes.inspect:depin",
+                    "request": {"namespace": "story", "target": "depin-backend"},
+                    "summary": "Live namespace story has two running depin-backend pods.",
+                    "status": "completed",
+                },
+            ]
+        )
+        evidence_items.extend(
+            [
+                {
+                    "kind": "repo_file",
+                    "summary": "Production depin-backend API Helm values.",
+                    "source_ref": "story/depin-backend/use1-prod.yaml",
+                    "tool_name": "repo.read_file",
+                    "path": "story/depin-backend/use1-prod.yaml",
+                    "repo": "story-deployments",
+                },
+                {
+                    "kind": "repo_file",
+                    "summary": "Production depin-ip-registration Helm values.",
+                    "source_ref": "story/depin-ip-registration/use1-prod.yaml",
+                    "tool_name": "repo.read_file",
+                    "path": "story/depin-ip-registration/use1-prod.yaml",
+                    "repo": "story-deployments",
+                },
+                {
+                    "kind": "repo_file",
+                    "summary": "Production applicationset values.",
+                    "source_ref": "applicationset/use1-prod.yaml",
+                    "tool_name": "repo.read_file",
+                    "path": "applicationset/use1-prod.yaml",
+                    "repo": "story-deployments",
+                },
+                {
+                    "kind": "kubernetes_inspect",
+                    "summary": "Live namespace story has two running depin-backend pods.",
+                    "source_ref": "kubernetes://story/depin-backend",
+                    "tool_name": "kubernetes.inspect",
+                },
+            ]
+        )
+        for index in range(36):
+            tool_calls.append(
+                {
+                    "tool_name": "terminal.run",
+                    "tool_call_id": f"terminal.run:{index}",
+                    "request": {"command": f"printf trailing-{index}"},
+                    "summary": f"Trailing terminal observation {index}.",
+                    "status": "completed",
+                }
+            )
+            evidence_items.append(
+                {
+                    "kind": "terminal_output",
+                    "summary": f"Trailing non-SoT output {index}.",
+                    "source_ref": f"terminal://trailing-{index}",
+                    "tool_name": "terminal.run",
+                }
+            )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        ledger = runtime._build_evidence_ledger(task, {"tool_calls": tool_calls, "evidence_items": evidence_items}, "task_timeout")
+        tool_blob = json.dumps(ledger["tool_calls"], sort_keys=True)
+        evidence_blob = json.dumps(ledger["evidence_items"], sort_keys=True)
+
+        self.assertLessEqual(len(ledger["tool_calls"]), 30)
+        self.assertLessEqual(len(ledger["evidence_items"]), 40)
+        self.assertIn("story/depin-backend/use1-prod.yaml", tool_blob)
+        self.assertIn("story/depin-ip-registration/use1-prod.yaml", tool_blob)
+        self.assertIn("applicationset/use1-prod.yaml", tool_blob)
+        self.assertIn("kubernetes.inspect", tool_blob)
+        self.assertIn("story/depin-backend/use1-prod.yaml", evidence_blob)
+        self.assertIn("story/depin-ip-registration/use1-prod.yaml", evidence_blob)
+        self.assertIn("applicationset/use1-prod.yaml", evidence_blob)
+        self.assertIn("kubernetes://story/depin-backend", evidence_blob)
+        self.assertNotIn("No grounded evidence", " ".join(ledger["open_questions"]))
+
     def test_hermes_adapter_keeps_lifecycle_history_beyond_last_eight_events(self) -> None:
         with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(
             os.environ,
@@ -6093,6 +6497,29 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(runtime.metadata["inactivity_timeout_seconds"], 900)
         self.assertEqual(runtime.metadata["transport_timeout_seconds"], 930)
         self.assertEqual(runtime.metadata["native_max_output_tokens"], 15000)
+
+    def test_prod_task_timeout_defaults_to_900_when_transport_is_extended(self) -> None:
+        env = {**runner_env("prod"), "RSI_RUNNER_PROD_TIMEOUT": "1830s"}
+        env.pop("RSI_RUNNER_PROD_TASK_TIMEOUT", None)
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Investigate normally.",
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, env, clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        self.assertEqual(task.timeout_seconds, 0)
+        self.assertEqual(runtime.metadata["task_timeout_seconds"], 900)
+        self.assertEqual(runtime.metadata["transport_timeout_seconds"], 1830)
+        self.assertEqual(runtime._effective_task_timeout(task), 900)
 
     def test_eval_role_rejects_repo_change_task(self) -> None:
         task = RunnerTaskRequest.from_payload(

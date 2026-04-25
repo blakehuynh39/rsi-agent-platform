@@ -78,15 +78,52 @@ func (s *Service) RecordRuntimeObservation(input map[string]interface{}) (int, m
 			"event_type":   item.EventType,
 		}
 	}
+	if item.Seq <= 0 {
+		return http.StatusBadRequest, map[string]interface{}{
+			"error": "observation seq must be greater than zero",
+			"seq":   item.Seq,
+		}
+	}
 	recorded, err := s.store.RecordHarnessExecutionObservation(item)
 	if err != nil {
 		return http.StatusInternalServerError, map[string]interface{}{
 			"error": err.Error(),
 		}
 	}
+	ledgerPayload := map[string]interface{}{}
+	for key, value := range recorded.Payload {
+		ledgerPayload[key] = value
+	}
+	ledgerPayload["observation_id"] = recorded.ID
+	if recorded.Role != "" {
+		ledgerPayload["role"] = recorded.Role
+	}
+	if recorded.HermesSessionID != "" {
+		ledgerPayload["hermes_session_id"] = recorded.HermesSessionID
+	}
+	idempotencyKey := strings.TrimSpace(stringValue(ledgerPayload["idempotency_key"]))
+	ledgerEvent := events.ExecutionLedgerEvent{
+		ExecutionID:    recorded.ExecutionID,
+		OperationID:    recorded.OperationID,
+		TraceID:        recorded.TraceID,
+		WorkflowID:     recorded.WorkflowID,
+		PhaseID:        recorded.Phase,
+		Kind:           recorded.EventType,
+		Status:         recorded.Status,
+		Seq:            recorded.Seq,
+		IdempotencyKey: idempotencyKey,
+		Payload:        ledgerPayload,
+		RecordedAt:     recorded.RecordedAt,
+	}
+	if err := s.store.RecordExecutionLedgerEvents([]events.ExecutionLedgerEvent{ledgerEvent}); err != nil {
+		return http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		}
+	}
 	return http.StatusOK, map[string]interface{}{
-		"status":      "ok",
-		"observation": recorded,
+		"status":       "ok",
+		"observation":  recorded,
+		"ledger_event": ledgerEvent,
 	}
 }
 

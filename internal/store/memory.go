@@ -70,6 +70,7 @@ type Store interface {
 	ListHarnessExecutionObservations() []harness.ExecutionObservation
 	RecordHarnessExecutionObservation(item harness.ExecutionObservation) (harness.ExecutionObservation, error)
 	ListExecutionLedgerEvents() []events.ExecutionLedgerEvent
+	ListExecutionLedgerEventsByTrace(traceID string) []events.ExecutionLedgerEvent
 	RecordExecutionLedgerEvents(items []events.ExecutionLedgerEvent) error
 	ListChangeAttempts() []improvement.ChangeAttempt
 	GetChangeAttempt(attemptID string) (improvement.ChangeAttempt, bool)

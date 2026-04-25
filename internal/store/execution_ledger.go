@@ -32,6 +32,30 @@ func (s *MemoryStore) ListExecutionLedgerEvents() []events.ExecutionLedgerEvent 
 	return out
 }
 
+func (s *MemoryStore) ListExecutionLedgerEventsByTrace(traceID string) []events.ExecutionLedgerEvent {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	out := []events.ExecutionLedgerEvent{}
+	for _, item := range s.executionLedgerEvents {
+		if item.TraceID == traceID {
+			out = append(out, normalizeExecutionLedgerEvent(item))
+		}
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].RecordedAt.Equal(out[j].RecordedAt) {
+			if out[i].ExecutionID == out[j].ExecutionID {
+				if out[i].Seq == out[j].Seq {
+					return out[i].ID < out[j].ID
+				}
+				return out[i].Seq < out[j].Seq
+			}
+			return out[i].ExecutionID < out[j].ExecutionID
+		}
+		return out[i].RecordedAt.Before(out[j].RecordedAt)
+	})
+	return out
+}
+
 func (s *MemoryStore) RecordExecutionLedgerEvents(items []events.ExecutionLedgerEvent) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -72,6 +96,28 @@ func (p *PostgresStore) ListExecutionLedgerEvents() []events.ExecutionLedgerEven
 		from execution_ledger_event
 		order by recorded_at desc, execution_id asc, seq asc, id asc
 	`)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	out := []events.ExecutionLedgerEvent{}
+	for rows.Next() {
+		item, err := scanExecutionLedgerEvent(rows)
+		if err != nil {
+			return nil
+		}
+		out = append(out, item)
+	}
+	return out
+}
+
+func (p *PostgresStore) ListExecutionLedgerEventsByTrace(traceID string) []events.ExecutionLedgerEvent {
+	rows, err := p.db.Query(`
+		select id, execution_id, operation_id, trace_id, workflow_id, phase_id, kind, status, seq, idempotency_key, payload, recorded_at
+		from execution_ledger_event
+		where trace_id = $1
+		order by recorded_at asc, execution_id asc, seq asc, id asc
+	`, traceID)
 	if err != nil {
 		return nil
 	}

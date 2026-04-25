@@ -13,6 +13,7 @@ import (
 
 	"github.com/piplabs/rsi-agent-platform/internal/app"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
+	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	"github.com/piplabs/rsi-agent-platform/internal/reviewui"
@@ -166,6 +167,14 @@ func newRouterWithTranscriptResolver(cfg config.Config, store storepkg.Repositor
 		}
 		payload.TranscriptSlice = enrichSlackTranscriptEntries(payload.TranscriptSlice, transcriptResolver)
 		app.WriteJSON(w, http.StatusOK, payload)
+	})
+	r.Get("/api/traces/{traceID}/stream", func(w http.ResponseWriter, r *http.Request) {
+		traceID := chi.URLParam(r, "traceID")
+		if _, ok := store.GetTrace(traceID); !ok {
+			app.WriteError(w, http.StatusNotFound, errors.New("trace not found"))
+			return
+		}
+		streamTraceLedgerEvents(w, r, store, traceID)
 	})
 	r.Post("/api/traces/{traceID}/replay", func(w http.ResponseWriter, r *http.Request) {
 		traceID := chi.URLParam(r, "traceID")
@@ -334,6 +343,113 @@ func newRouterWithTranscriptResolver(cfg config.Config, store storepkg.Repositor
 	ui := reviewui.NewHandler(cfg.PublicBaseURL)
 	r.Handle("/*", ui)
 	return r
+}
+
+func streamTraceLedgerEvents(w http.ResponseWriter, r *http.Request, store storepkg.Repository, traceID string) {
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		app.WriteError(w, http.StatusInternalServerError, errors.New("streaming not supported"))
+		return
+	}
+	scope := strings.TrimSpace(r.URL.Query().Get("scope"))
+	if scope == "" {
+		scope = "all"
+	}
+	lastEventID := strings.TrimSpace(r.Header.Get("Last-Event-ID"))
+	if queryAfter := strings.TrimSpace(r.URL.Query().Get("after")); queryAfter != "" {
+		lastEventID = queryAfter
+	}
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache, no-transform")
+	w.Header().Set("Connection", "keep-alive")
+	w.Header().Set("X-Accel-Buffering", "no")
+
+	sent := map[string]bool{}
+	sendBatch := func(backfill bool) {
+		items := traceLedgerStreamEvents(store, traceID, scope)
+		if backfill && lastEventID != "" {
+			resumeIndex := -1
+			for index, item := range items {
+				if item.ID == lastEventID {
+					resumeIndex = index
+					break
+				}
+			}
+			if resumeIndex >= 0 {
+				for _, item := range items[:resumeIndex+1] {
+					if item.ID != "" {
+						sent[item.ID] = true
+					}
+				}
+				items = items[resumeIndex+1:]
+			}
+		}
+		for _, item := range items {
+			if item.ID == "" || sent[item.ID] {
+				continue
+			}
+			writeSSELedgerEvent(w, item)
+			sent[item.ID] = true
+		}
+		flusher.Flush()
+	}
+
+	sendBatch(true)
+	heartbeat := time.NewTicker(15 * time.Second)
+	poll := time.NewTicker(1 * time.Second)
+	defer heartbeat.Stop()
+	defer poll.Stop()
+	for {
+		select {
+		case <-r.Context().Done():
+			return
+		case <-poll.C:
+			sendBatch(false)
+		case <-heartbeat.C:
+			_, _ = fmt.Fprint(w, ": heartbeat\n\n")
+			flusher.Flush()
+		}
+	}
+}
+
+func traceLedgerStreamEvents(store storepkg.Repository, traceID string, scope string) []events.ExecutionLedgerEvent {
+	items := []events.ExecutionLedgerEvent{}
+	for _, item := range store.ListExecutionLedgerEventsByTrace(traceID) {
+		if !ledgerEventMatchesScope(item, scope) {
+			continue
+		}
+		items = append(items, item)
+	}
+	return items
+}
+
+func ledgerEventMatchesScope(item events.ExecutionLedgerEvent, scope string) bool {
+	normalized := strings.TrimSpace(strings.ToLower(scope))
+	if normalized == "" || normalized == "all" {
+		return true
+	}
+	role := strings.TrimSpace(strings.ToLower(stringValue(item.Payload["role"])))
+	switch normalized {
+	case "main":
+		return role == "" || role == "prod" || role == "proactive"
+	case "eval":
+		return role == "eval"
+	case "proposal":
+		return role == "proposal"
+	default:
+		return true
+	}
+}
+
+func writeSSELedgerEvent(w http.ResponseWriter, item events.ExecutionLedgerEvent) {
+	payload, err := json.Marshal(item)
+	if err != nil {
+		return
+	}
+	id := strings.NewReplacer("\n", "", "\r", "").Replace(item.ID)
+	_, _ = fmt.Fprintf(w, "id: %s\n", id)
+	_, _ = fmt.Fprint(w, "event: ledger\n")
+	_, _ = fmt.Fprintf(w, "data: %s\n\n", payload)
 }
 
 func sliceOrEmpty[T any](items []T) []T {

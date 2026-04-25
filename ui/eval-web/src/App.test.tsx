@@ -542,8 +542,39 @@ function renderApp() {
   );
 }
 
+class MockEventSource {
+  static instances: MockEventSource[] = [];
+  url: string;
+  onopen: (() => void) | null = null;
+  onerror: (() => void) | null = null;
+  private listeners: Record<string, ((event: MessageEvent) => void)[]> = {};
+
+  constructor(url: string) {
+    this.url = url;
+    MockEventSource.instances.push(this);
+  }
+
+  addEventListener(type: string, listener: EventListener) {
+    this.listeners[type] = [...(this.listeners[type] || []), listener as (event: MessageEvent) => void];
+  }
+
+  removeEventListener(type: string, listener: EventListener) {
+    this.listeners[type] = (this.listeners[type] || []).filter((item) => item !== listener);
+  }
+
+  emit(type: string, data: unknown) {
+    const event = { data: JSON.stringify(data) } as MessageEvent;
+    for (const listener of this.listeners[type] || []) {
+      listener(event);
+    }
+  }
+
+  close() {}
+}
+
 describe("App", () => {
   beforeEach(() => {
+    MockEventSource.instances = [];
     window.history.replaceState({}, "", "/");
     vi.spyOn(window, "confirm").mockReturnValue(true);
     vi.spyOn(globalThis, "fetch").mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
@@ -583,6 +614,7 @@ describe("App", () => {
   afterEach(() => {
     cleanup();
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it("defaults to conversations with no detail selection", async () => {
@@ -609,6 +641,34 @@ describe("App", () => {
     expect(await screen.findByText("Trace inspector")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "reasoning" }));
     expect(screen.getByText("goal_framing")).toBeInTheDocument();
+  });
+
+  it("streams live trace ledger events into the Live tab", async () => {
+    vi.stubGlobal("EventSource", MockEventSource);
+    renderApp();
+
+    fireEvent.click(await screen.findByRole("button", { name: /Need help understanding trace rendering/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /trace-001/i }));
+    expect(await screen.findByText("Trace inspector")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "live" }));
+
+    await waitFor(() => expect(MockEventSource.instances.length).toBe(1));
+    expect(MockEventSource.instances[0].url).toBe("/api/traces/trace-001/stream?scope=all");
+    MockEventSource.instances[0].emit("ledger", {
+      id: "xled-live-1",
+      execution_id: "hexec-live",
+      trace_id: "trace-001",
+      workflow_id: "wf-001",
+      phase_id: "investigate",
+      kind: "model.reasoning.delta",
+      status: "streaming",
+      seq: 1,
+      recorded_at: "2026-04-11T12:02:00Z",
+      payload: { delta: "reading repo files" }
+    });
+
+    expect(await screen.findByText("model.reasoning.delta")).toBeInTheDocument();
+    expect(screen.getByText("reading repo files")).toBeInTheDocument();
   });
 
   it("renders Slack transcript entries with readable Slack names and channel labels", async () => {

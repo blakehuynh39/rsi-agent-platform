@@ -44,6 +44,8 @@ type Config struct {
 	ProactiveRunnerTaskTimeout         time.Duration
 	EvalRunnerTaskTimeout              time.Duration
 	ProposalRunnerTaskTimeout          time.Duration
+	ProdRunnerArtifactTaskTimeout      time.Duration
+	ProdRunnerArtifactTransportTimeout time.Duration
 	WorkerPollInterval                 time.Duration
 	WorkItemLeaseDuration              time.Duration
 	SandboxPollInterval                time.Duration
@@ -151,6 +153,8 @@ func Load(serviceName string) Config {
 		ProactiveRunnerTaskTimeout:         durationEnv("RSI_RUNNER_PROACTIVE_TASK_TIMEOUT", defaultProactiveRunnerTaskTimeout),
 		EvalRunnerTaskTimeout:              durationEnv("RSI_RUNNER_EVAL_TASK_TIMEOUT", defaultEvalRunnerTaskTimeout),
 		ProposalRunnerTaskTimeout:          durationEnv("RSI_RUNNER_PROPOSAL_TASK_TIMEOUT", defaultProposalRunnerTaskTimeout),
+		ProdRunnerArtifactTaskTimeout:      durationEnv("RSI_RUNNER_PROD_ARTIFACT_TASK_TIMEOUT", 0),
+		ProdRunnerArtifactTransportTimeout: durationEnv("RSI_RUNNER_PROD_ARTIFACT_TRANSPORT_TIMEOUT", 0),
 		WorkerPollInterval:                 durationEnv("RSI_WORKER_POLL_INTERVAL", 5*time.Second),
 		WorkItemLeaseDuration:              durationEnv("RSI_WORK_ITEM_LEASE_DURATION", 30*time.Second),
 		SandboxPollInterval:                durationEnv("RSI_SANDBOX_POLL_INTERVAL", 10*time.Second),
@@ -298,10 +302,31 @@ func (c Config) RunnerTaskTimeoutForRole(role string) time.Duration {
 	}
 }
 
+func (c Config) RunnerArtifactTaskTimeoutForRole(role string) time.Duration {
+	switch strings.TrimSpace(role) {
+	case "prod":
+		return c.ProdRunnerArtifactTaskTimeout
+	default:
+		return 0
+	}
+}
+
+func (c Config) RunnerArtifactTransportTimeoutForRole(role string) time.Duration {
+	switch strings.TrimSpace(role) {
+	case "prod":
+		return c.ProdRunnerArtifactTransportTimeout
+	default:
+		return 0
+	}
+}
+
 func (c Config) EffectLeaseDuration(base time.Duration, roles ...string) time.Duration {
 	lease := base
 	for _, role := range roles {
 		timeout := c.RunnerTimeoutForRole(role)
+		if artifactTimeout := c.RunnerArtifactTransportTimeoutForRole(role); artifactTimeout > timeout {
+			timeout = artifactTimeout
+		}
 		if timeout <= 0 {
 			continue
 		}

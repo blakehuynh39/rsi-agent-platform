@@ -1363,6 +1363,16 @@ func TestRuntimeObservationsPersistAndSurfaceThroughTraceAndRunnerViews(t *testi
 	if status != http.StatusOK {
 		t.Fatalf("RecordRuntimeObservation status = %d payload=%#v", status, payload)
 	}
+	ledgerEvents := store.ListExecutionLedgerEvents()
+	if len(ledgerEvents) != 1 {
+		t.Fatalf("expected one immediate ledger event, got %#v", ledgerEvents)
+	}
+	if ledgerEvents[0].Kind != "artifact.file.written" || ledgerEvents[0].TraceID != workflow.TraceID {
+		t.Fatalf("unexpected ledger event %#v", ledgerEvents[0])
+	}
+	if ledgerEvents[0].Payload["role"] != execution.Role {
+		t.Fatalf("expected ledger payload role %q, got %#v", execution.Role, ledgerEvents[0].Payload)
+	}
 
 	runnerResult := service.Execute("rsi.runner_execution", map[string]interface{}{
 		"trace_id": workflow.TraceID,

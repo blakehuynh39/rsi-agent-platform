@@ -3300,12 +3300,13 @@ func TestBuildRunnerTaskBoundsNativeMCPToolSurface(t *testing.T) {
 		t.Fatalf("expected ingestion %s", workflowItem.ingestionID)
 	}
 	task := buildRunnerTask(config.Config{
-		Environment:               "stage",
-		DefaultRepo:               "rsi-agent-platform",
-		AllowedTargetRepos:        []string{"depin-backend", "rsi-agent-platform"},
-		DefaultKnowledgeBaseURL:   "https://example.test/kb",
-		SandboxNamespace:          "rsi-platform",
-		DefaultReasoningVerbosity: "verbose",
+		Environment:                   "stage",
+		DefaultRepo:                   "rsi-agent-platform",
+		AllowedTargetRepos:            []string{"depin-backend", "rsi-agent-platform"},
+		DefaultKnowledgeBaseURL:       "https://example.test/kb",
+		SandboxNamespace:              "rsi-platform",
+		DefaultReasoningVerbosity:     "verbose",
+		ProdRunnerArtifactTaskTimeout: 30 * time.Minute,
 	}, store, "prod", trace, workflow, ingestion, "context", nil)
 
 	if len(task.MCPServers) != 1 {
@@ -3525,12 +3526,13 @@ func TestBuildRunnerTaskRequestsDiagramArtifact(t *testing.T) {
 	}
 	ingestion.Text = "@RSI can you draw an architecture diagram of depin-backend? Use /architecture-diagram skill"
 	task := buildRunnerTask(config.Config{
-		Environment:               "stage",
-		DefaultRepo:               "rsi-agent-platform",
-		AllowedTargetRepos:        []string{"depin-backend", "rsi-agent-platform"},
-		DefaultKnowledgeBaseURL:   "https://example.test/kb",
-		SandboxNamespace:          "rsi-platform",
-		DefaultReasoningVerbosity: "verbose",
+		Environment:                   "stage",
+		DefaultRepo:                   "rsi-agent-platform",
+		AllowedTargetRepos:            []string{"depin-backend", "rsi-agent-platform"},
+		DefaultKnowledgeBaseURL:       "https://example.test/kb",
+		SandboxNamespace:              "rsi-platform",
+		DefaultReasoningVerbosity:     "verbose",
+		ProdRunnerArtifactTaskTimeout: 30 * time.Minute,
 	}, store, "prod", trace, workflow, ingestion, "context", nil)
 	if !task.ArtifactOptional {
 		t.Fatalf("expected requested artifact to be optional, got %#v", task)
@@ -3540,6 +3542,9 @@ func TestBuildRunnerTaskRequestsDiagramArtifact(t *testing.T) {
 	}
 	if !containsString(task.ExpectedOutputs, "produced_artifacts") {
 		t.Fatalf("expected produced_artifacts in expected outputs, got %#v", task.ExpectedOutputs)
+	}
+	if task.TimeoutSeconds != 1800 {
+		t.Fatalf("expected artifact timeout override, got %d", task.TimeoutSeconds)
 	}
 }
 

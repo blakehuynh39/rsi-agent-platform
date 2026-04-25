@@ -1,7 +1,141 @@
-import type { TraceDetailResponse, TraceInspectorTab, NullableList, EvalJudgment } from "@/types";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import type { TraceDetailResponse, TraceInspectorTab, NullableList, EvalJudgment, ExecutionLedgerEvent } from "@/types";
 import { formatTime, latestActionResult, listOrEmpty, scoreBadge } from "@/hooks/api";
 import { EmptyDetail } from "./empty-detail";
 import { FormattedMessage } from "@/components/formatted-message";
+
+const LIVE_EVENT_LIMIT = 500;
+const LIVE_EVENT_FAMILIES = ["all", "model", "tool", "terminal", "artifact", "slack", "notion", "mcp", "phase", "failure"];
+
+function eventFamily(kind: string) {
+  const prefix = (kind || "").split(".")[0] || "event";
+  if (prefix === "executor" || prefix === "command") {
+    return "terminal";
+  }
+  return prefix;
+}
+
+function payloadText(payload: Record<string, unknown> | undefined, keys: string[]) {
+  if (!payload) {
+    return "";
+  }
+  for (const key of keys) {
+    const value = payload[key];
+    if (typeof value === "string" && value.trim()) {
+      return value;
+    }
+  }
+  return "";
+}
+
+function LiveTraceStream(props: { traceID: string }) {
+  const [events, setEvents] = useState<ExecutionLedgerEvent[]>([]);
+  const [status, setStatus] = useState("connecting");
+  const [familyFilter, setFamilyFilter] = useState("all");
+  const [autoscroll, setAutoscroll] = useState(true);
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    setEvents([]);
+    setStatus("connecting");
+    setAutoscroll(true);
+    if (typeof EventSource === "undefined") {
+      setStatus("stream unavailable");
+      return;
+    }
+    const source = new EventSource(`/api/traces/${props.traceID}/stream?scope=all`);
+    const onLedger = (event: MessageEvent) => {
+      try {
+        const parsed = JSON.parse(event.data) as ExecutionLedgerEvent;
+        setEvents((current) => {
+          if (!parsed.id || current.some((item) => item.id === parsed.id)) {
+            return current;
+          }
+          return [...current, parsed].slice(-LIVE_EVENT_LIMIT);
+        });
+        setStatus("live");
+      } catch {
+        setStatus("parse error");
+      }
+    };
+    source.addEventListener("ledger", onLedger as EventListener);
+    source.onopen = () => setStatus("live");
+    source.onerror = () => setStatus("reconnecting");
+    return () => {
+      source.removeEventListener("ledger", onLedger as EventListener);
+      source.close();
+    };
+  }, [props.traceID]);
+
+  const visibleEvents = useMemo(
+    () => events.filter((item) => familyFilter === "all" || eventFamily(item.kind) === familyFilter),
+    [events, familyFilter]
+  );
+
+  useEffect(() => {
+    if (!autoscroll || !viewportRef.current) {
+      return;
+    }
+    viewportRef.current.scrollTop = viewportRef.current.scrollHeight;
+  }, [visibleEvents, autoscroll]);
+
+  const handleScroll = () => {
+    const node = viewportRef.current;
+    if (!node) {
+      return;
+    }
+    const nearBottom = node.scrollHeight - node.scrollTop - node.clientHeight < 32;
+    setAutoscroll(nearBottom);
+  };
+
+  return (
+    <div className="detail-section-body">
+      <div className="live-toolbar">
+        <div>
+          <strong>Live execution stream</strong>
+          <p className="muted">{status} · {events.length} events</p>
+        </div>
+        <div className="button-row">
+          {LIVE_EVENT_FAMILIES.map((family) => (
+            <button key={family} className={familyFilter === family ? "segment-button active" : "segment-button"} onClick={() => setFamilyFilter(family)}>
+              {family}
+            </button>
+          ))}
+          <button className="secondary" onClick={() => setAutoscroll(true)}>{autoscroll ? "Auto" : "Resume"}</button>
+        </div>
+      </div>
+      <div className="live-stream" ref={viewportRef} onScroll={handleScroll}>
+        {visibleEvents.map((item) => (
+          <LiveEventRow key={item.id} event={item} />
+        ))}
+        {!visibleEvents.length ? <div className="nested-card"><p className="detail-copy">Waiting for live runner events.</p></div> : null}
+      </div>
+    </div>
+  );
+}
+
+function LiveEventRow(props: { event: ExecutionLedgerEvent }) {
+  const event = props.event;
+  const payload = event.payload || {};
+  const family = eventFamily(event.kind);
+  const primaryText = payloadText(payload, ["delta", "text", "message", "summary", "chunk_text", "preview", "error"]);
+  const toolName = payloadText(payload, ["tool_name"]);
+  return (
+    <div className={`live-event ${family}`}>
+      <div className="detail-row-header">
+        <strong>{event.kind}</strong>
+        <small>{event.status || "event"} · {event.phase_id || "main"} · #{event.seq} · {formatTime(event.recorded_at)}</small>
+      </div>
+      {toolName ? <p className="muted">{toolName}</p> : null}
+      {primaryText ? <pre className="detail-copy live-event-text">{primaryText}</pre> : null}
+      <details>
+        <summary>raw</summary>
+        <pre className="detail-copy live-event-json">{JSON.stringify(event, null, 2)}</pre>
+      </details>
+    </div>
+  );
+}
 
 export function TraceInspector(props: {
   selectedTraceId?: string;
@@ -33,11 +167,11 @@ export function TraceInspector(props: {
 
   const traceDetail = props.traceDetail;
   const trace = traceDetail.trace;
-  const inspectorTabs: TraceInspectorTab[] = ["overview", "timeline", "reasoning", "tools", "actions", "slack", "outcomes", "evals", "feedback", "proposals"];
+  const inspectorTabs: TraceInspectorTab[] = ["live", "overview", "timeline", "reasoning", "tools", "actions", "slack", "outcomes", "evals", "feedback", "proposals"];
   const runtimeSummary = traceDetail.runtime_summary;
   const executorObservations = listOrEmpty(traceDetail.harness_execution_observations);
   const recentExecutorOutput = executorObservations
-    .filter((item) => item.event_type === "executor.subprocess.output")
+    .filter((item) => item.event_type === "terminal.output" || item.event_type === "executor.subprocess.output")
     .slice(-20);
 
   return (
@@ -59,6 +193,8 @@ export function TraceInspector(props: {
           </button>
         ))}
       </div>
+
+      {props.tab === "live" ? <LiveTraceStream traceID={trace.summary.trace_id} /> : null}
 
       {props.tab === "overview" ? (
         <div className="detail-section-body">

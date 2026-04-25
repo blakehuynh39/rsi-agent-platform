@@ -282,6 +282,74 @@ button:disabled {
   gap: 12px;
 }
 
+.live-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.live-toolbar .button-row {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.live-stream {
+  max-height: 620px;
+  overflow: auto;
+  border: 1px solid rgba(24, 32, 42, 0.1);
+  border-radius: 8px;
+  background: #11161d;
+  padding: 12px;
+}
+
+.live-event {
+  border-left: 3px solid #6b7280;
+  background: #f7f3eb;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+}
+
+.live-event.model {
+  border-left-color: #3a6f8f;
+}
+
+.live-event.tool,
+.live-event.mcp {
+  border-left-color: #7a5a23;
+}
+
+.live-event.artifact {
+  border-left-color: #2a7858;
+}
+
+.live-event.slack,
+.live-event.notion {
+  border-left-color: #5d5795;
+}
+
+.live-event.failure {
+  border-left-color: #9b3328;
+}
+
+.live-event-text,
+.live-event-json {
+  max-width: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.live-event details {
+  margin-top: 8px;
+}
+
+.live-event summary {
+  cursor: pointer;
+  color: #5a6671;
+  font-size: 12px;
+}
+
 .runtime-row,
 .detail-row,
 .nested-card {

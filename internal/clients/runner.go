@@ -351,7 +351,7 @@ func NewRunnerClientWithTimeout(baseURL string, timeout time.Duration) *RunnerCl
 
 func (c *RunnerClient) Execute(task RunnerTask) (RunnerResponse, error) {
 	var out RunnerResponse
-	if err := doJSON(c.httpClient, http.MethodPost, c.baseURL+"/execute", map[string]RunnerTask{"task": task}, &out, "runner"); err != nil {
+	if err := doJSON(c.httpClientForTask(task), http.MethodPost, c.baseURL+"/execute", map[string]RunnerTask{"task": task}, &out, "runner"); err != nil {
 		return RunnerResponse{}, err
 	}
 	return out, nil
@@ -359,10 +359,21 @@ func (c *RunnerClient) Execute(task RunnerTask) (RunnerResponse, error) {
 
 func (c *RunnerClient) ExecuteHermesExecution(task RunnerTask) (HermesExecutionResult, error) {
 	var out HermesExecutionResult
-	if err := doJSON(c.httpClient, http.MethodPost, c.baseURL+"/internal/hermes-executions", HermesExecutionRequest{Task: task}, &out, "hermes executor"); err != nil {
+	if err := doJSON(c.httpClientForTask(task), http.MethodPost, c.baseURL+"/internal/hermes-executions", HermesExecutionRequest{Task: task}, &out, "hermes executor"); err != nil {
 		return HermesExecutionResult{}, err
 	}
 	return out, nil
+}
+
+func (c *RunnerClient) httpClientForTask(task RunnerTask) *http.Client {
+	if task.TimeoutSeconds <= 0 {
+		return c.httpClient
+	}
+	required := time.Duration(task.TimeoutSeconds+30) * time.Second
+	if required <= c.httpClient.Timeout {
+		return c.httpClient
+	}
+	return newHTTPClient(required)
 }
 
 func (c *RunnerClient) HermesExecutionStatus(executionID string) (HermesExecutionStatus, error) {

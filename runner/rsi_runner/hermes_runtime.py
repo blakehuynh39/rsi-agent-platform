@@ -78,6 +78,20 @@ ARTIFACT_RENDER_FALLBACK_BLOCKED_TERMINATION_REASONS = frozenset(
     }
 )
 DIRECT_DELIVERY_SUCCESS_STATUSES = frozenset({"posted", "sent", "uploaded", "completed", "ok", "success", "shared"})
+GROUNDED_EVIDENCE_TOOL_NAMES = frozenset(
+    {
+        "repo.read_file",
+        "repo.context",
+        "repo.search",
+        "github.repo_context",
+        "github.repo_activity",
+        "kubernetes.inspect",
+        "kubernetes.events",
+        "knowledge.context",
+        "rsi.runtime_deployment_facts",
+        "slack.history",
+    }
+)
 ARTIFACT_RENDER_NATIVE_TOOL_NAMES = frozenset({"write_file", "read_file", "search_files", "skill_view"})
 ARTIFACT_RENDER_RSI_TOOL_NAMES = frozenset(
     {
@@ -200,8 +214,112 @@ def _redact_subprocess_output(text: str, *, secret_values: list[str]) -> str:
     return redacted
 
 
+def _redact_json_value(value: Any, *, secret_values: list[str], limit: int) -> Any:
+    if isinstance(value, str):
+        return _truncate_string(_redact_subprocess_output(value, secret_values=secret_values), limit)
+    if isinstance(value, dict):
+        return {str(key): _redact_json_value(item, secret_values=secret_values, limit=limit) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_redact_json_value(item, secret_values=secret_values, limit=limit) for item in value]
+    return value
+
+
 def _suppress_benign_subprocess_output(text: str) -> str:
     return _BENIGN_MCP_TOOLSET_WARNING.sub("", str(text or ""))
+
+
+class _NativeLifecycleTailer:
+    def __init__(
+        self,
+        *,
+        path: Path,
+        phase: str,
+        observer: ObservationEmitter,
+        secret_values: list[str],
+        emit_event: Any,
+        start_at_end: bool = False,
+    ) -> None:
+        self._path = path
+        self._phase = phase
+        self._observer = observer
+        self._secret_values = secret_values
+        self._emit_event = emit_event
+        self._stop = threading.Event()
+        self._thread: threading.Thread | None = None
+        self._offset = 0
+        self._buffer = ""
+        self.emitted = 0
+        if start_at_end:
+            try:
+                self._offset = self._path.stat().st_size
+            except OSError:
+                self._offset = 0
+
+    def start(self) -> None:
+        self._thread = threading.Thread(target=self._run, name="rsi-hermes-lifecycle-tailer", daemon=True)
+        self._thread.start()
+
+    def stop(self) -> None:
+        self._stop.set()
+        if self._thread is not None:
+            self._thread.join(timeout=5)
+            if not self._thread.is_alive():
+                self.drain()
+
+    def drain(self) -> None:
+        self._read_available()
+        if self._buffer.strip():
+            self._emit_line(self._buffer)
+        self._buffer = ""
+
+    def _run(self) -> None:
+        while not self._stop.is_set():
+            self._read_available()
+            self._stop.wait(0.25)
+        self._read_available()
+
+    def _read_available(self) -> None:
+        try:
+            stat = self._path.stat()
+        except OSError:
+            return
+        if stat.st_size < self._offset:
+            self._offset = 0
+            self._buffer = ""
+        if stat.st_size == self._offset:
+            return
+        try:
+            with self._path.open("rb") as handle:
+                handle.seek(self._offset)
+                data = handle.read()
+                self._offset = handle.tell()
+        except OSError:
+            return
+        if not data:
+            return
+        self._buffer += data.decode("utf-8", errors="replace")
+        parts = self._buffer.split("\n")
+        self._buffer = parts.pop() if not self._buffer.endswith("\n") else ""
+        for line in parts:
+            self._emit_line(line)
+
+    def _emit_line(self, line: str) -> None:
+        text = line.strip()
+        if not text:
+            return
+        try:
+            item = json.loads(text)
+        except json.JSONDecodeError:
+            return
+        if not isinstance(item, dict):
+            return
+        self._emit_event(
+            self._observer,
+            self._phase,
+            item,
+            secret_values=self._secret_values,
+        )
+        self.emitted += 1
 
 
 def _float_or_zero(value: JsonValue | None) -> float:
@@ -758,7 +876,7 @@ class RunnerTaskRequest:
             requested_skills=_normalize_requested_skills(task.get("requested_skills")),
             allowed_tools=_string_list(task.get("allowed_tools")),
             allowed_commands=_string_list(task.get("allowed_commands")),
-            timeout_seconds=int(task.get("timeout_seconds", 900)),
+            timeout_seconds=int(task.get("timeout_seconds", 0) or 0),
             expected_outputs=_string_list(task.get("expected_outputs")),
             artifact_destination=_optional_string(task.get("artifact_destination")),
             requested_artifacts=_normalize_requested_artifacts(task.get("requested_artifacts")),
@@ -851,6 +969,7 @@ class HermesRuntime:
             hermes_pin=config.hermes_pin,
         )
         self._max_iterations = config.max_iterations
+        self._artifact_max_iterations = config.artifact_max_iterations
         self._default_task_timeout_seconds = config.task_timeout_seconds
         self._default_inactivity_timeout_seconds = config.inactivity_timeout_seconds
         self._transport_timeout_seconds = config.transport_timeout_seconds
@@ -1099,9 +1218,32 @@ class HermesRuntime:
             "hermes_contract_status": self._contract_status.to_dict(),
             "memory_backend": self._config.memory_backend,
             "max_iterations": self._max_iterations,
+            "artifact_max_iterations": self._artifact_max_iterations,
             "task_timeout_seconds": self._default_task_timeout_seconds,
             "inactivity_timeout_seconds": self._default_inactivity_timeout_seconds,
             "transport_timeout_seconds": self._transport_timeout_seconds,
+            "live_stream_status": "configured" if observation_sink_configured else "not_configured",
+            "hermes_stream_callback_surfaces": [
+                "reasoning_callback",
+                "stream_delta_callback",
+                "thinking_callback",
+                "tool_gen_callback",
+                "tool_progress_callback",
+                "tool_start_callback",
+                "tool_complete_callback",
+                "status_callback",
+            ],
+            "artifact_phase_budget_reference": self._artifact_phase_budgets(
+                RunnerTaskRequest.from_payload(
+                    {
+                        "task_type": "workflow",
+                        "repo": "rsi-agent-platform",
+                        "prompt": "",
+                        "requested_artifacts": [{"kind": "diagram"}],
+                        "timeout_seconds": self._default_task_timeout_seconds,
+                    }
+                )
+            ),
             "native_max_output_tokens": self._native_max_output_tokens,
             "tool_policy_mode": self._tool_policy_mode,
             "hermes_executor_enabled": self._config.hermes_executor_enabled,
@@ -1372,6 +1514,11 @@ class HermesRuntime:
             return 4
         if phase == "deliver":
             return 3
+        if self._artifact_max_iterations > 0 and (
+            phase == "investigate"
+            or "architecture-diagram" in normalize_tool_names(task.requested_skills)
+        ):
+            return self._artifact_max_iterations
         return None
 
     def _artifact_phase_budgets(self, task: RunnerTaskRequest) -> JsonObject:
@@ -2320,9 +2467,10 @@ class HermesRuntime:
                         continue
                     observer.emit(
                         phase=phase,
-                        event_type="executor.subprocess.output",
+                        event_type="terminal.output",
                         status="streaming",
                         payload={
+                            "legacy_event_type": "executor.subprocess.output",
                             "stream": stream_name,
                             "chunk_text": redacted_chunk,
                             "chunk_bytes": len(redacted_chunk.encode("utf-8")),
@@ -2336,6 +2484,48 @@ class HermesRuntime:
                 stream.close()
             except Exception:
                 pass
+
+    def _native_lifecycle_path(self, session_id: str) -> Path:
+        return Path(self._config.hermes_home).expanduser() / "rsi_runtime" / "lifecycle" / f"{session_id}.jsonl"
+
+    def _emit_native_lifecycle_event(
+        self,
+        observer: ObservationEmitter,
+        phase: str,
+        item: JsonObject,
+        *,
+        secret_values: list[str],
+    ) -> None:
+        event_type = _string_or_json(item.get("event_type")) or _string_or_json(item.get("event"))
+        if not event_type:
+            return
+        payload = _json_object_or_empty(item.get("payload"))
+        if not payload:
+            payload = {
+                key: value
+                for key, value in item.items()
+                if key not in {"event", "event_type", "status", "recorded_at", "recorded_at_unix", "session_id"}
+            }
+        redacted_payload = _json_object_or_empty(
+            _redact_json_value(
+                payload,
+                secret_values=secret_values,
+                limit=self._config.verbose_trace_log_limit,
+            )
+        )
+        recorded_at_unix = item.get("recorded_at_unix")
+        if recorded_at_unix is not None:
+            redacted_payload["recorded_at_unix"] = recorded_at_unix
+        session_id = _string_or_json(item.get("session_id"))
+        if session_id:
+            redacted_payload["hermes_session_id"] = session_id
+        redacted_payload["source"] = "hermes_lifecycle"
+        observer.emit(
+            phase=phase,
+            event_type=event_type,
+            status=_string_or_json(item.get("status")),
+            payload=redacted_payload,
+        )
 
     def _store_executor_result(self, execution_id: str, payload: JsonObject) -> None:
         key = str(execution_id or "").strip()
@@ -2625,6 +2815,16 @@ class HermesRuntime:
         completed_returncode = -1
         timed_out = False
         cancelled = False
+        lifecycle_tailer: _NativeLifecycleTailer | None = None
+        if observer is not None:
+            lifecycle_tailer = _NativeLifecycleTailer(
+                path=self._native_lifecycle_path(context.session_id),
+                phase=execution_phase,
+                observer=observer,
+                secret_values=secret_values,
+                emit_event=self._emit_native_lifecycle_event,
+                start_at_end=True,
+            )
         process = subprocess.Popen(
             worker_cmd,
             cwd=str(workspace_root),
@@ -2633,6 +2833,8 @@ class HermesRuntime:
             stderr=subprocess.PIPE,
             text=True,
         )
+        if lifecycle_tailer is not None:
+            lifecycle_tailer.start()
         stdout_chunks: list[str] = []
         stderr_chunks: list[str] = []
         result_detected = threading.Event()
@@ -2711,6 +2913,8 @@ class HermesRuntime:
             with self._executor_process_lock:
                 self._executor_processes.pop(execution_id, None)
                 self._executor_cancel_requests.discard(execution_id)
+            if lifecycle_tailer is not None:
+                lifecycle_tailer.stop()
             for thread in reader_threads:
                 thread.join(timeout=5)
             completed_stdout = _suppress_benign_subprocess_output("".join(stdout_chunks))
@@ -3558,9 +3762,7 @@ class HermesRuntime:
 
     def _effective_task_timeout(self, task: RunnerTaskRequest) -> int:
         requested = int(task.timeout_seconds or 0)
-        candidates = [self._default_task_timeout_seconds]
-        if requested > 0:
-            candidates.append(requested)
+        candidates = [requested] if requested > 0 else [self._default_task_timeout_seconds]
         if self._transport_timeout_seconds > 5:
             candidates.append(self._transport_timeout_seconds - 5)
         return max(1, min(value for value in candidates if value > 0))
@@ -3731,9 +3933,165 @@ class HermesRuntime:
             "slack_search_query": first_non_empty(slack_search_query, user_request, original_prompt),
         }
 
-    def _compact_tool_calls(self, observed: JsonObject, *, limit: int = 12) -> list[JsonObject]:
+    def _evidence_salience_terms(self, task: RunnerTaskRequest) -> list[str]:
+        values: list[str] = [
+            _string_or_json(task.repo),
+            _string_or_json(task.context_summary),
+            self._original_task_prompt(task),
+            _string_or_json(task.execution_intent),
+            _string_or_json(task.requested_artifacts),
+        ]
+        spec = self._question_investigation_spec(task)
+        if spec:
+            values.extend(
+                [
+                    _string_or_json(spec.get("repo")),
+                    _string_or_json(spec.get("project_key")),
+                    _string_or_json(spec.get("user_request")),
+                    _string_or_json(spec.get("required_sources")),
+                ]
+            )
+        stopwords = {
+            "about",
+            "after",
+            "agent",
+            "architecture",
+            "artifact",
+            "backend",
+            "before",
+            "company",
+            "context",
+            "current",
+            "diagram",
+            "draw",
+            "from",
+            "investigate",
+            "latest",
+            "please",
+            "repo",
+            "render",
+            "request",
+            "source",
+            "task",
+            "that",
+            "their",
+            "thread",
+            "truth",
+            "using",
+            "with",
+        }
+        terms: list[str] = []
+        for value in values:
+            if not value:
+                continue
+            lower = value.lower()
+            for match in re.findall(r"[a-z0-9][a-z0-9._/-]{2,}", lower):
+                cleaned = match.strip("._/-")
+                if len(cleaned) < 3 or cleaned in stopwords:
+                    continue
+                terms.append(cleaned)
+                for part in re.split(r"[._/-]+", cleaned):
+                    if len(part) >= 4 and part not in stopwords:
+                        terms.append(part)
+        return [str(item) for item in self._merge_runtime_values(terms)[:48]]
+
+    def _observation_salience_text(self, item: JsonObject) -> str:
+        parts: list[str] = []
+        for key in (
+            "tool_name",
+            "kind",
+            "summary",
+            "snippet",
+            "source_ref",
+            "provider_ref",
+            "path",
+            "repo",
+            "ref",
+            "url",
+            "permalink",
+            "request",
+            "output",
+        ):
+            text = _string_or_json(item.get(key))
+            if text:
+                parts.append(text)
+        return "\n".join(parts).lower()[:12000]
+
+    def _observation_selection_key(self, item: JsonObject) -> str:
+        return "|".join(
+            [
+                _string_or_json(item.get("tool_call_id")),
+                _string_or_json(item.get("id")),
+                _string_or_json(item.get("tool_name")),
+                _string_or_json(item.get("source_ref")),
+                _string_or_json(item.get("path")),
+                _string_or_json(item.get("repo")),
+                _string_or_json(item.get("permalink")),
+                _string_or_json(item.get("url")),
+                _string_or_json(item.get("provider_ref")),
+                _string_or_json(item.get("summary"))[:160],
+            ]
+        )
+
+    def _observation_salience_score(self, item: JsonObject, terms: list[str]) -> int:
+        text = self._observation_salience_text(item)
+        score = 0
+        for term in terms:
+            if term and term in text:
+                score += 25 if any(separator in term for separator in ("-", "/", ".")) else 10
+        tool_name = _string_or_json(item.get("tool_name"))
+        if tool_name in GROUNDED_EVIDENCE_TOOL_NAMES:
+            score += 20
+        if _string_or_json(item.get("source_ref")) or _string_or_json(item.get("path")):
+            score += 6
+        status = _string_or_json(item.get("status")).lower()
+        if status and status not in {"completed", "complete", "ok", "success"}:
+            score += 12
+        if any(marker in text for marker in ("helm", "deployment", "namespace", "pod", "runtime")):
+            score += 8
+        return score
+
+    def _select_compact_observations(self, items: list[JsonObject], task: RunnerTaskRequest | None, *, limit: int) -> list[JsonObject]:
+        if len(items) <= limit:
+            return items
+        terms = self._evidence_salience_terms(task) if task is not None else []
+        selected: dict[str, tuple[int, JsonObject]] = {}
+
+        def add(index: int, item: JsonObject) -> None:
+            key = self._observation_selection_key(item)
+            if not key.strip("|"):
+                key = f"idx:{index}"
+            selected.setdefault(key, (index, item))
+
+        head_count = min(4, max(1, limit // 5))
+        tail_count = min(8, max(2, limit // 4))
+        for index, item in enumerate(items[:head_count]):
+            add(index, item)
+        tail_start = max(0, len(items) - tail_count)
+        for offset, item in enumerate(items[tail_start:], start=tail_start):
+            add(offset, item)
+
+        ranked = sorted(
+            (
+                (self._observation_salience_score(item, terms), index, item)
+                for index, item in enumerate(items)
+            ),
+            key=lambda entry: (-entry[0], entry[1]),
+        )
+        for score, index, item in ranked:
+            if score <= 0:
+                break
+            add(index, item)
+            if len(selected) >= limit:
+                break
+        return [item for _index, item in sorted(selected.values(), key=lambda entry: entry[0])[:limit]]
+
+    def _compact_tool_calls(
+        self, observed: JsonObject, *, task: RunnerTaskRequest | None = None, limit: int = 30
+    ) -> list[JsonObject]:
         compact: list[JsonObject] = []
-        for item in _json_object_list(observed.get("tool_calls"))[:limit]:
+        items = self._select_compact_observations(_json_object_list(observed.get("tool_calls")), task, limit=limit)
+        for item in items:
             tool_name = _string_or_json(item.get("tool_name"))
             if not tool_name:
                 continue
@@ -3765,9 +4123,12 @@ class HermesRuntime:
             compact.append(normalized)
         return compact
 
-    def _compact_evidence_items(self, observed: JsonObject, *, limit: int = 20) -> list[JsonObject]:
+    def _compact_evidence_items(
+        self, observed: JsonObject, *, task: RunnerTaskRequest | None = None, limit: int = 40
+    ) -> list[JsonObject]:
         compact: list[JsonObject] = []
-        for item in _json_object_list(observed.get("evidence_items"))[:limit]:
+        items = self._select_compact_observations(_json_object_list(observed.get("evidence_items")), task, limit=limit)
+        for item in items:
             summary = _string_or_json(item.get("summary")) or _string_or_json(item.get("snippet"))
             source_ref = first_non_empty(
                 _string_or_json(item.get("source_ref")),
@@ -3827,8 +4188,8 @@ class HermesRuntime:
         return [str(item) for item in deduped[:6]]
 
     def _build_evidence_ledger(self, task: RunnerTaskRequest, observed: JsonObject, termination_reason: str) -> JsonObject:
-        tool_calls = self._compact_tool_calls(observed)
-        evidence_items = self._compact_evidence_items(observed)
+        tool_calls = self._compact_tool_calls(observed, task=task)
+        evidence_items = self._compact_evidence_items(observed, task=task)
         ledger: JsonObject = {
             "user_request": self._original_task_prompt(task),
             "reply_target": {
@@ -3855,8 +4216,10 @@ class HermesRuntime:
     def _build_question_evidence_ledger(self, task: RunnerTaskRequest, observed: JsonObject, termination_reason: str) -> JsonObject:
         spec = self._question_investigation_spec(task)
         input_ledger = dict(self._question_input_evidence_ledger(task))
-        tool_calls = self._merge_runtime_values(input_ledger.get("tool_calls"), self._compact_tool_calls(observed))
-        evidence_items = self._merge_runtime_values(input_ledger.get("evidence_items"), self._compact_evidence_items(observed))
+        tool_calls = self._merge_runtime_values(input_ledger.get("tool_calls"), self._compact_tool_calls(observed, task=task))
+        evidence_items = self._merge_runtime_values(
+            input_ledger.get("evidence_items"), self._compact_evidence_items(observed, task=task)
+        )
         open_questions = self._merge_runtime_values(
             input_ledger.get("open_questions"),
             self._evidence_open_questions(_json_object_list(tool_calls), _json_object_list(evidence_items)),
@@ -5731,6 +6094,85 @@ class HermesRuntime:
     def _allow_artifact_render_fallback(self, investigate_result: HermesExecutionResult) -> bool:
         return not self._artifact_render_fallback_block_reason(investigate_result)
 
+    def _evidence_ledger_has_grounded_artifact_inputs(self, ledger: JsonObject) -> bool:
+        grounding_count = 0
+        for item in _json_object_list(ledger.get("evidence_items")):
+            has_source = any(
+                _string_or_json(item.get(key))
+                for key in ("source_ref", "path", "repo", "permalink", "url", "ref", "commit", "sha")
+            )
+            has_content = bool(_string_or_json(item.get("summary")) or _string_or_json(item.get("snippet")))
+            tool_name = _string_or_json(item.get("tool_name"))
+            if has_source and has_content and tool_name and tool_name in GROUNDED_EVIDENCE_TOOL_NAMES:
+                grounding_count += 1
+        for item in _json_object_list(ledger.get("tool_calls")):
+            tool_name = _string_or_json(item.get("tool_name"))
+            if tool_name not in GROUNDED_EVIDENCE_TOOL_NAMES:
+                continue
+            status = _string_or_json(item.get("status")).lower()
+            if status and status not in {"completed", "complete", "ok", "success"}:
+                continue
+            if _string_or_json(item.get("summary")) or _json_object_or_empty(item.get("request")):
+                grounding_count += 1
+        return grounding_count > 0
+
+    def _artifact_render_briefs_from_grounded_timeout(
+        self,
+        task: RunnerTaskRequest,
+        structured_output: JsonObject,
+        investigate_result: HermesExecutionResult,
+    ) -> list[JsonObject]:
+        block_reason = self._artifact_render_fallback_block_reason(investigate_result)
+        if not block_reason:
+            return []
+        ledger = _json_object_or_empty(investigate_result.raw.get("evidence_ledger"))
+        if not ledger or not self._evidence_ledger_has_grounded_artifact_inputs(ledger):
+            return []
+        compact_ledger: JsonObject = {
+            "termination_reason": _string_or_json(ledger.get("termination_reason")),
+            "tool_calls": _json_object_list(ledger.get("tool_calls")),
+            "evidence_items": _json_object_list(ledger.get("evidence_items")),
+            "open_questions": _string_list_or_empty(ledger.get("open_questions")),
+        }
+        requested_artifacts = _json_object_list(ledger.get("requested_artifacts")) or task.requested_artifacts
+        if requested_artifacts:
+            compact_ledger["requested_artifacts"] = requested_artifacts
+        ledger_text = json.dumps(compact_ledger, ensure_ascii=True, sort_keys=True)
+        if len(ledger_text) > 24000:
+            ledger_text = ledger_text[:24000] + "\n...[truncated compact evidence ledger]"
+        briefs: list[JsonObject] = []
+        for index, requested in enumerate(task.requested_artifacts, start=1):
+            kind = _string_or_json(requested.get("kind"))
+            if not kind:
+                continue
+            title = _string_or_json(requested.get("description")) or f"{kind}-{index}"
+            brief: JsonObject = {"kind": kind, "title": title}
+            skill = self._artifact_default_skill(task, brief)
+            prompt_parts = [
+                "Render the requested artifact from a bounded-stop investigation.",
+                "Use the compact evidence ledger below as the grounded source of truth.",
+                "Do not claim a source was missing when that source appears in the evidence ledger.",
+                "Represent unresolved questions explicitly instead of inventing missing facts.",
+                f"User request: {self._original_task_prompt(task)}",
+                f"Requested artifact: {json.dumps(requested, ensure_ascii=True, sort_keys=True)}",
+                f"Bounded-stop reason: {block_reason}",
+                f"Investigation answer: {_string_or_json(structured_output.get('final_answer'))}",
+                f"Investigation context: {_string_or_json(structured_output.get('context_summary'))}",
+                f"Compact evidence ledger:\n{ledger_text}",
+            ]
+            briefs.append(
+                {
+                    "kind": kind,
+                    "skill": skill,
+                    "requested_skill": _string_or_json(task.requested_skills[0] if task.requested_skills else ""),
+                    "title": title,
+                    "render_prompt": "\n\n".join(part for part in prompt_parts if part),
+                    "inputs": {"evidence_ledger": compact_ledger},
+                    "output_path_hint": self._artifact_output_path(task, kind=kind, skill=skill, title=title),
+                }
+            )
+        return briefs
+
     def _investigate_mcp_servers(self, task: RunnerTaskRequest) -> list[JsonObject]:
         servers: list[JsonObject] = []
         for server in task.mcp_servers:
@@ -6051,6 +6493,10 @@ class HermesRuntime:
             investigate_output,
             allow_fallback=self._allow_artifact_render_fallback(investigate_result),
         )
+        if not render_briefs:
+            render_briefs = self._artifact_render_briefs_from_grounded_timeout(phase_task, investigate_output, investigate_result)
+            if render_briefs:
+                investigate_output["artifact_render_briefs"] = render_briefs
         produced_artifacts: list[JsonObject] = []
         artifact_failure_reasons: list[str] = []
         if not render_briefs:
@@ -6326,7 +6772,7 @@ class HermesRuntime:
             parts.append(f"Effective harness overlay: {task.harness_overlay_version}")
         if task.memory_backend:
             parts.append(f"Memory backend: {task.memory_backend}")
-        parts.append(f"Timeout seconds: {task.timeout_seconds}")
+        parts.append(f"Timeout seconds: {self._effective_task_timeout(task)}")
         execution_mode = (task.execution_mode or "").strip().lower()
         if self._config.hermes_native_terminal_enabled:
             parts.append("Use only the effective governed-tool allowlist above plus the native company-computer toolsets listed in the phase contract.")

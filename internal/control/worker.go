@@ -1151,6 +1151,7 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	if len(requestedArtifacts) > 0 {
 		expectedOutputs = append(expectedOutputs, "produced_artifacts", "artifact_failure_reason")
 	}
+	timeoutSeconds := workflowArtifactTimeoutSeconds(cfg, role, requestedArtifacts, requestedSkills)
 	return clients.RunnerTask{
 		TaskType:                  "workflow",
 		Repo:                      repo,
@@ -1161,7 +1162,7 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		MCPServers:                mcpServers,
 		AllowedTools:              allowedTools,
 		AllowedCommands:           []string{},
-		TimeoutSeconds:            0,
+		TimeoutSeconds:            timeoutSeconds,
 		ExpectedOutputs:           expectedOutputs,
 		ArtifactDestination:       fmt.Sprintf("trace:%s", trace.Summary.TraceID),
 		RequestedArtifacts:        requestedArtifacts,
@@ -1747,6 +1748,26 @@ func requestedArtifactsForPrompt(userRequest string, prompt any) []clients.Runne
 
 func requestedArtifactsForIngestion(ingestion slackpkg.Ingestion) []clients.RunnerRequestedArtifact {
 	return requestedArtifactsForPrompt(runnerUserRequest(ingestion), ingestion.Prompt)
+}
+
+func workflowArtifactTimeoutSeconds(cfg config.Config, role string, artifacts []clients.RunnerRequestedArtifact, requestedSkills []string) int {
+	if len(artifacts) == 0 && !hasRequestedSkill(requestedSkills, "architecture-diagram") {
+		return 0
+	}
+	timeout := cfg.RunnerArtifactTaskTimeoutForRole(role)
+	if timeout <= 0 {
+		return 0
+	}
+	return int(timeout / time.Second)
+}
+
+func hasRequestedSkill(requestedSkills []string, target string) bool {
+	for _, item := range requestedSkills {
+		if item == target {
+			return true
+		}
+	}
+	return false
 }
 
 func runnerUserRequest(ingestion slackpkg.Ingestion) string {
@@ -3147,12 +3168,12 @@ func traceEventsFromExecutionLedger(trace events.Trace, workflow storepkg.Workfl
 			CaseID:         trace.Summary.CaseID,
 			Plane:          "execution",
 			Service:        "runner-ledger",
-		Actor:          workflow.AssignedBot,
-		EventType:      "ledger." + kind,
-		Status:         status,
-		StartedAt:      eventStarted,
-		EndedAt:        timeutil.PtrTime(recordedAt),
-		Description:    ledgerEventDescription(item),
+			Actor:          workflow.AssignedBot,
+			EventType:      "ledger." + kind,
+			Status:         status,
+			StartedAt:      eventStarted,
+			EndedAt:        timeutil.PtrTime(recordedAt),
+			Description:    ledgerEventDescription(item),
 		})
 	}
 	return out

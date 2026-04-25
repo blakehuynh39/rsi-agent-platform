@@ -20,6 +20,7 @@ export type TabKey = "conversations" | "cases" | "proposals" | "knowledge" | "ha
 export type ProposalSegment = "active" | "candidates" | "history";
 export type KnowledgeSegment = "working" | "review" | "canonical" | "stale";
 export type TraceInspectorTab =
+  | "live"
   | "overview"
   | "timeline"
   | "reasoning"
@@ -216,6 +217,21 @@ export type HarnessExecutionObservation = {
   event_type: string;
   status?: string;
   seq: number;
+  payload?: Record<string, unknown>;
+};
+
+export type ExecutionLedgerEvent = {
+  recorded_at: string;
+  id: string;
+  execution_id: string;
+  operation_id?: string;
+  trace_id?: string;
+  workflow_id?: string;
+  phase_id?: string;
+  kind: string;
+  status?: string;
+  seq: number;
+  idempotency_key?: string;
   payload?: Record<string, unknown>;
 };
 

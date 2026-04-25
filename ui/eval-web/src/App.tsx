@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import type {
   TabKey,
@@ -40,6 +40,20 @@ const ACTIVE_PROPOSAL_STATES = new Set([
   "in_progress",
   "needs_review"
 ]);
+
+const RUNNING_TRACE_STATES = new Set([
+  "active",
+  "in_progress",
+  "pending",
+  "processing",
+  "queued",
+  "running",
+  "started"
+]);
+
+function defaultTraceInspectorTabForStatus(status?: string): TraceInspectorTab {
+  return status && RUNNING_TRACE_STATES.has(status.toLowerCase()) ? "live" : "overview";
+}
 
 function canRetryProposal(detail: ProposalDetailResponse) {
   if (detail.proposal.status === "approved") {
@@ -87,6 +101,7 @@ export function App() {
   const [proposalSegment, setProposalSegment] = useState<ProposalSegment>("active");
   const [knowledgeSegment, setKnowledgeSegment] = useState<KnowledgeSegment>("working");
   const [traceInspectorTab, setTraceInspectorTab] = useState<TraceInspectorTab>("overview");
+  const defaultedTraceTabRef = useRef<string | undefined>();
   const [proposalCapInput, setProposalCapInput] = useState("2");
   const [feedbackTargetType, setFeedbackTargetType] = useState("trace");
   const [feedbackTargetID, setFeedbackTargetID] = useState("");
@@ -154,6 +169,20 @@ export function App() {
     queryFn: () => getJSON<TraceDetailResponse>(`/api/traces/${viewState.trace}`),
     enabled: Boolean(viewState.trace)
   });
+
+  useEffect(() => {
+    if (!viewState.trace) {
+      defaultedTraceTabRef.current = undefined;
+      setTraceInspectorTab("overview");
+      return;
+    }
+    const traceSummary = traceDetailQuery.data?.trace.summary;
+    if (!traceSummary || traceSummary.trace_id !== viewState.trace || defaultedTraceTabRef.current === viewState.trace) {
+      return;
+    }
+    setTraceInspectorTab(defaultTraceInspectorTabForStatus(traceSummary.status));
+    defaultedTraceTabRef.current = viewState.trace;
+  }, [traceDetailQuery.data, viewState.trace]);
 
   const proposalDetailQuery = useQuery({
     queryKey: ["proposal", viewState.proposal],

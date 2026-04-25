@@ -1,6 +1,7 @@
 package improvementplane
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -463,6 +464,104 @@ func TestRouterConversationCaseAndTraceEndpoints(t *testing.T) {
 	router.ServeHTTP(knowledgeDetailRec, knowledgeDetailReq)
 	if knowledgeDetailRec.Code != http.StatusOK {
 		t.Fatalf("knowledge detail status = %d, want %d", knowledgeDetailRec.Code, http.StatusOK)
+	}
+}
+
+func TestTraceStreamBackfillsLedgerEventsAndFiltersScope(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	traceID := store.ListTraces()[0].TraceID
+	now := time.Now().UTC()
+	if err := store.RecordExecutionLedgerEvents([]events.ExecutionLedgerEvent{
+		{
+			ExecutionID: "hexec-main",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-main",
+			PhaseID:     "investigate",
+			Kind:        "model.output.delta",
+			Status:      "streaming",
+			Seq:         1,
+			Payload:     map[string]any{"role": "prod", "delta": "hello"},
+			RecordedAt:  now,
+		},
+		{
+			ExecutionID: "hexec-eval",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-eval",
+			PhaseID:     "eval",
+			Kind:        "model.output.delta",
+			Status:      "streaming",
+			Seq:         1,
+			Payload:     map[string]any{"role": "eval", "delta": "eval"},
+			RecordedAt:  now.Add(time.Millisecond),
+		},
+	}); err != nil {
+		t.Fatalf("RecordExecutionLedgerEvents() error = %v", err)
+	}
+	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	req := httptest.NewRequest(http.MethodGet, "/api/traces/"+traceID+"/stream?scope=main", nil).WithContext(ctx)
+	rec := httptest.NewRecorder()
+
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("stream status = %d body=%s", rec.Code, rec.Body.String())
+	}
+	body := rec.Body.String()
+	if !strings.Contains(body, "event: ledger") || !strings.Contains(body, "hello") {
+		t.Fatalf("expected backfilled ledger event, got %q", body)
+	}
+	if strings.Contains(body, "eval") {
+		t.Fatalf("expected scope filter to hide eval event, got %q", body)
+	}
+}
+
+func TestTraceStreamBackfillsAllEventsWhenResumeIDIsMissing(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	traceID := store.ListTraces()[0].TraceID
+	now := time.Now().UTC()
+	if err := store.RecordExecutionLedgerEvents([]events.ExecutionLedgerEvent{
+		{
+			ExecutionID: "hexec-main",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-main",
+			PhaseID:     "investigate",
+			Kind:        "model.output.delta",
+			Status:      "streaming",
+			Seq:         1,
+			Payload:     map[string]any{"role": "prod", "delta": "first"},
+			RecordedAt:  now,
+		},
+		{
+			ExecutionID: "hexec-main",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-main",
+			PhaseID:     "investigate",
+			Kind:        "tool.call.completed",
+			Status:      "completed",
+			Seq:         2,
+			Payload:     map[string]any{"role": "prod", "summary": "second"},
+			RecordedAt:  now.Add(time.Millisecond),
+		},
+	}); err != nil {
+		t.Fatalf("RecordExecutionLedgerEvents() error = %v", err)
+	}
+	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	req := httptest.NewRequest(http.MethodGet, "/api/traces/"+traceID+"/stream?scope=main", nil).WithContext(ctx)
+	req.Header.Set("Last-Event-ID", "xled-stale")
+	rec := httptest.NewRecorder()
+
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("stream status = %d body=%s", rec.Code, rec.Body.String())
+	}
+	body := rec.Body.String()
+	if !strings.Contains(body, "first") || !strings.Contains(body, "second") {
+		t.Fatalf("expected stale resume id to backfill all events, got %q", body)
 	}
 }
 
