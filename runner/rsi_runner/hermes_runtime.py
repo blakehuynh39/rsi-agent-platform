@@ -45,6 +45,7 @@ from .rsi_tools import (
     READ_ONLY_WORKSPACE_RSI_TOOL_NAMES,
     ReadOnlyToolBinding,
     WORKSPACE_RSI_TOOL_NAMES,
+    canonical_tool_name,
     normalize_tool_names,
     tool_transport_name,
     tool_schema_wrappers,
@@ -1602,7 +1603,14 @@ class HermesRuntime:
             lifecycle_events = self._adapter.lifecycle_events(context.session_id)
             if termination_reason != "normal_completion":
                 finalized = self._session_manager.finalize(context, tracker)
-                observed = self._observability_metadata(agent, task, tracker, skill_diagnostics=skill_diagnostics, observer=observer)
+                observed = self._observability_metadata(
+                    agent,
+                    task,
+                    tracker,
+                    skill_diagnostics=skill_diagnostics,
+                    observer=observer,
+                    lifecycle_events=lifecycle_events,
+                )
                 last_activity = _json_object_or_empty(stop_meta.get("last_activity"))
                 if termination_reason in {"task_timeout", "iteration_budget_exhausted"} and allow_partial_recovery and self._workflow_partial_completion_eligible(task):
                     result = self._finalize_partial_completion(
@@ -1714,7 +1722,14 @@ class HermesRuntime:
         except Exception as exc:
             diagnostics = self._provider_invalid_request_diagnostics(str(exc), tool_policy)
             activity = safe_activity_summary(agent) if agent is not None else {}
-            observed = self._observability_metadata(agent, task, skill_diagnostics=skill_diagnostics, observer=observer)
+            lifecycle_events = self._adapter.lifecycle_events(context.session_id)
+            observed = self._observability_metadata(
+                agent,
+                task,
+                skill_diagnostics=skill_diagnostics,
+                observer=observer,
+                lifecycle_events=lifecycle_events,
+            )
             raw = {
                 **self._base_raw(prompt=task.prompt, system_message=task.system_message),
                 "error": str(exc),
@@ -1725,6 +1740,7 @@ class HermesRuntime:
                 "blocked_tool_names": tool_policy.blocked,
                 **observed,
                 **self._workflow_evidence_raw(task, observed, "exception"),
+                "lifecycle_events": lifecycle_events,
             }
             if diagnostics is not None:
                 raw["failure_class"] = "runner_invalid_request"
@@ -1782,7 +1798,14 @@ class HermesRuntime:
 
         finalized = self._session_manager.finalize(context, tracker)
         lifecycle_events = self._adapter.lifecycle_events(context.session_id)
-        observed = self._observability_metadata(agent, task, tracker, skill_diagnostics=skill_diagnostics, observer=observer)
+        observed = self._observability_metadata(
+            agent,
+            task,
+            tracker,
+            skill_diagnostics=skill_diagnostics,
+            observer=observer,
+            lifecycle_events=lifecycle_events,
+        )
         result = HermesExecutionResult(
             ok=True,
             message=response,
@@ -2553,7 +2576,14 @@ class HermesRuntime:
         if (timed_out or cancelled) and not parsed_result:
             finalized = self._session_manager.finalize(context, tracker)
             lifecycle_events = self._adapter.lifecycle_events(context.session_id)
-            observed = self._observability_metadata(None, task, tracker, skill_diagnostics=skill_diagnostics, observer=observer)
+            observed = self._observability_metadata(
+                None,
+                task,
+                tracker,
+                skill_diagnostics=skill_diagnostics,
+                observer=observer,
+                lifecycle_events=lifecycle_events,
+            )
             cleanup_status = "not_needed" if not agentic_mcp_registration.enabled else "worker_unavailable"
             cleanup_errors: list[str] = []
             if observer is not None:
@@ -2652,7 +2682,14 @@ class HermesRuntime:
             return result
         finalized = self._session_manager.finalize(context, tracker)
         lifecycle_events = self._adapter.lifecycle_events(context.session_id)
-        observed = self._observability_metadata(None, task, tracker, skill_diagnostics=skill_diagnostics, observer=observer)
+        observed = self._observability_metadata(
+            None,
+            task,
+            tracker,
+            skill_diagnostics=skill_diagnostics,
+            observer=observer,
+            lifecycle_events=lifecycle_events,
+        )
         parsed_result_loaded = bool(parsed_result) and not parse_error
         completion_meta = self._native_executor_completion_meta(parsed_result, configured_max_iterations) if parsed_result_loaded else {
             "termination_reason": "exception",
@@ -2947,6 +2984,7 @@ class HermesRuntime:
         *,
         skill_diagnostics: JsonObject | None = None,
         observer: ObservationEmitter | None = None,
+        lifecycle_events: list[JsonObject] | None = None,
     ) -> JsonObject:
         observed: JsonObject = {
             "candidate_read_surfaces": self._candidate_read_surfaces_for_task(task),
@@ -2970,7 +3008,229 @@ class HermesRuntime:
             observed.update(skill_diagnostics)
         if observer is not None:
             observed.update(observer.diagnostics())
+        if lifecycle_events:
+            lifecycle_observed = self._lifecycle_observability_metadata(task, lifecycle_events)
+            if lifecycle_observed.get("tool_calls"):
+                observed["tool_calls"] = self._merge_runtime_values(
+                    observed.get("tool_calls"),
+                    lifecycle_observed.get("tool_calls"),
+                )
+            if lifecycle_observed.get("evidence_items"):
+                observed["evidence_items"] = self._merge_runtime_values(
+                    observed.get("evidence_items"),
+                    lifecycle_observed.get("evidence_items"),
+                )
+            if lifecycle_observed.get("selected_context_surfaces"):
+                observed["selected_context_surfaces"] = self._merge_runtime_values(
+                    observed.get("selected_context_surfaces"),
+                    lifecycle_observed.get("selected_context_surfaces"),
+                )
         return observed
+
+    def _lifecycle_observability_metadata(self, task: RunnerTaskRequest, lifecycle_events: list[JsonObject]) -> JsonObject:
+        tool_calls: list[JsonObject] = []
+        evidence_items: list[JsonObject] = []
+        selected_context_surfaces: list[JsonObject] = []
+        started_by_id: dict[str, JsonObject] = {}
+        started_by_name: dict[str, list[JsonObject]] = {}
+        extractor = ReadOnlyToolBinding(
+            base_url="",
+            allowed_tool_names=[],
+            task_repo=task.repo,
+            task_repo_ref=task.repo_ref,
+            task_prompt=self._original_task_prompt(task),
+            task_channel_id=task.channel_id,
+            task_thread_ts=task.thread_ts,
+            task_context_summary=task.context_summary,
+            trace_id=task.trace_id,
+            session_scope_kind=task.session_scope_kind,
+            session_scope_id=task.session_scope_id,
+            context_refs=list(task.context_refs),
+        )
+        for index, item in enumerate(lifecycle_events):
+            event_name = self._lifecycle_event_name(item)
+            if event_name not in {"tool_call_started", "tool_call_completed"}:
+                continue
+            tool_name = self._lifecycle_tool_name(item)
+            if not tool_name:
+                continue
+            tool_call_id = self._lifecycle_tool_call_id(item) or f"{tool_name}:{index + 1}"
+            request_payload = self._lifecycle_request_payload(item)
+            if event_name == "tool_call_started":
+                if request_payload:
+                    started_by_id[tool_call_id] = request_payload
+                    started_by_name.setdefault(tool_name, []).append(request_payload)
+                continue
+            if not request_payload:
+                request_payload = started_by_id.get(tool_call_id, {})
+            if not request_payload and started_by_name.get(tool_name):
+                request_payload = started_by_name[tool_name].pop(0)
+            output_payload = self._lifecycle_output_payload(item)
+            status = first_non_empty(
+                _string_or_json(item.get("status")),
+                _string_or_json(output_payload.get("status")),
+                "completed",
+            )
+            summary = first_non_empty(
+                _string_or_json(item.get("summary")),
+                _string_or_json(output_payload.get("summary")),
+                status,
+                tool_name,
+            )
+            provider_ref = first_non_empty(
+                _string_or_json(item.get("provider_ref")),
+                _string_or_json(output_payload.get("provider_ref")),
+            )
+            raw_artifact_refs = _string_list_or_empty(item.get("raw_artifact_refs") or output_payload.get("raw_artifact_refs"))
+            tool_record: JsonObject = {
+                "id": f"runner-lifecycle-tool-{hashlib.sha1((tool_call_id + tool_name).encode('utf-8')).hexdigest()[:12]}",
+                "tool_name": tool_name,
+                "tool_call_id": tool_call_id,
+                "request": dict(request_payload),
+                "summary": summary,
+                "status": status,
+                "provider_ref": provider_ref,
+                "raw_artifact_refs": raw_artifact_refs,
+            }
+            if recorded_at := self._lifecycle_recorded_at(item):
+                tool_record["completed_at"] = recorded_at
+                tool_record["created_at"] = recorded_at
+            tool_calls.append(tool_record)
+            evidence_items.extend(
+                extractor._extract_evidence_items(
+                    canonical_name=tool_name,
+                    tool_call_id=tool_call_id,
+                    request_payload=request_payload,
+                    output_payload=output_payload,
+                    summary=summary,
+                    provider_ref=provider_ref,
+                )
+            )
+            if tool_name == "slack.history":
+                channel_id = first_non_empty(_string_or_json(request_payload.get("channel_id")), task.channel_id)
+                thread_ts = first_non_empty(_string_or_json(request_payload.get("thread_ts")), task.thread_ts)
+                if channel_id or thread_ts:
+                    selected_context_surfaces.append(
+                        {
+                            "channel_id": channel_id,
+                            "thread_ts": thread_ts,
+                            "scope": "bound_thread" if thread_ts else "channel",
+                            "source": "native_lifecycle",
+                        }
+                    )
+        return {
+            "tool_calls": tool_calls,
+            "evidence_items": evidence_items,
+            "selected_context_surfaces": selected_context_surfaces,
+        }
+
+    def _lifecycle_event_name(self, item: JsonObject) -> str:
+        raw = first_non_empty(_string_or_json(item.get("event_type")), _string_or_json(item.get("event"))).replace(".", "_")
+        return raw.strip().lower()
+
+    def _lifecycle_recorded_at(self, item: JsonObject) -> str:
+        recorded_at = _string_or_json(item.get("recorded_at"))
+        if recorded_at:
+            return recorded_at
+        recorded_at_unix = item.get("recorded_at_unix")
+        if isinstance(recorded_at_unix, Number):
+            return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(float(recorded_at_unix)))
+        return ""
+
+    def _lifecycle_tool_name(self, item: JsonObject) -> str:
+        candidates: list[Any] = [
+            item.get("tool_name"),
+            item.get("name"),
+            item.get("transport_tool_name"),
+        ]
+        kwargs = _json_object_or_empty(item.get("kwargs"))
+        candidates.extend([kwargs.get("tool_name"), kwargs.get("name"), kwargs.get("function_name")])
+        for key in ("tool_call", "tool", "function"):
+            nested = _json_object_or_empty(kwargs.get(key))
+            candidates.extend([nested.get("tool_name"), nested.get("name"), nested.get("function_name")])
+        args = item.get("args")
+        if isinstance(args, list):
+            for arg in args:
+                if isinstance(arg, str):
+                    candidates.append(arg)
+                elif isinstance(arg, dict):
+                    candidates.extend([arg.get("tool_name"), arg.get("name"), arg.get("function_name")])
+                    function = _json_object_or_empty(arg.get("function"))
+                    candidates.extend([function.get("tool_name"), function.get("name"), function.get("function_name")])
+        for candidate in candidates:
+            name = _string_or_json(candidate)
+            if not name or name in {"tool_call_started", "tool_call_completed", "tool.call.started", "tool.call.completed"}:
+                continue
+            try:
+                return canonical_tool_name(name)
+            except ValueError:
+                continue
+        return ""
+
+    def _lifecycle_tool_call_id(self, item: JsonObject) -> str:
+        candidates: list[Any] = [item.get("tool_call_id"), item.get("call_id"), item.get("id")]
+        kwargs = _json_object_or_empty(item.get("kwargs"))
+        candidates.extend([kwargs.get("tool_call_id"), kwargs.get("call_id"), kwargs.get("id")])
+        args = item.get("args")
+        if isinstance(args, list):
+            for arg in args:
+                if isinstance(arg, dict):
+                    candidates.extend([arg.get("tool_call_id"), arg.get("call_id"), arg.get("id")])
+        for candidate in candidates:
+            value = _string_or_json(candidate)
+            if value:
+                return value
+        return ""
+
+    def _lifecycle_request_payload(self, item: JsonObject) -> JsonObject:
+        for value in (item.get("request_payload"), item.get("request"), item.get("arguments")):
+            parsed = self._parse_json_object_maybe(value)
+            if parsed:
+                return parsed
+        kwargs = _json_object_or_empty(item.get("kwargs"))
+        for value in (kwargs.get("request_payload"), kwargs.get("request"), kwargs.get("arguments")):
+            parsed = self._parse_json_object_maybe(value)
+            if parsed:
+                return parsed
+        args = item.get("args")
+        if isinstance(args, list):
+            for arg in args:
+                parsed = self._parse_json_object_maybe(arg)
+                if parsed:
+                    for key in ("request_payload", "request", "arguments"):
+                        nested = self._parse_json_object_maybe(parsed.get(key))
+                        if nested:
+                            return nested
+        return {}
+
+    def _lifecycle_output_payload(self, item: JsonObject) -> JsonObject:
+        for value in (item.get("output"), item.get("result"), item.get("response")):
+            parsed = self._parse_json_object_maybe(value)
+            if parsed:
+                if output := _json_object_or_empty(parsed.get("output")):
+                    return output
+                if result := self._parse_json_object_maybe(parsed.get("result")):
+                    if output := _json_object_or_empty(result.get("output")):
+                        return output
+                    return result
+                return parsed
+        kwargs = _json_object_or_empty(item.get("kwargs"))
+        for value in (kwargs.get("output"), kwargs.get("result"), kwargs.get("response")):
+            parsed = self._parse_json_object_maybe(value)
+            if parsed:
+                if output := _json_object_or_empty(parsed.get("output")):
+                    return output
+                return parsed
+        args = item.get("args")
+        if isinstance(args, list):
+            for arg in args:
+                parsed = self._parse_json_object_maybe(arg)
+                if parsed:
+                    if output := _json_object_or_empty(parsed.get("output")):
+                        return output
+                    if result := self._parse_json_object_maybe(parsed.get("result")):
+                        return result
+        return {}
 
     def _preflight_tool_policy_failure(self, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> HermesExecutionResult | None:
         _, _, invalid_tool_names = _transport_tool_policy(tool_policy.custom_tools, tool_policy.memory_tools)
@@ -5499,6 +5759,19 @@ class HermesRuntime:
             if synthesized_actions:
                 final_output["proposed_actions"] = synthesized_actions
         base_raw = dict(delivery_result.raw if delivery_result is not None else investigate_result.raw)
+        phase_lifecycle_events = self._merge_runtime_values(
+            _json_object_list(investigate_result.raw.get("lifecycle_events")),
+            _json_object_list(base_raw.get("lifecycle_events")),
+        )
+        phase_tool_calls = self._merge_runtime_values(
+            _json_object_list(investigate_result.raw.get("tool_calls")),
+            _json_object_list(base_raw.get("tool_calls")),
+        )
+        phase_evidence_items = self._merge_runtime_values(
+            _json_object_list(investigate_result.raw.get("evidence_items")),
+            _json_object_list(base_raw.get("evidence_items")),
+        )
+        investigate_evidence_ledger = _json_object_or_empty(investigate_result.raw.get("evidence_ledger"))
         runner_diagnostics = _json_object_or_empty(base_raw.get("runner_diagnostics"))
         budgets = self._artifact_phase_budgets(task)
         runner_diagnostics["artifact_phase_budgets"] = budgets
@@ -5521,17 +5794,33 @@ class HermesRuntime:
         if observer is not None:
             for key, value in observer.diagnostics().items():
                 runner_diagnostics[key] = value
+        final_completion_verdict = _string_or_json(base_raw.get("completion_verdict")) or "complete"
+        final_termination_reason = _string_or_json(base_raw.get("termination_reason")) or "normal_completion"
+        investigate_completion_verdict = _string_or_json(investigate_result.raw.get("completion_verdict"))
+        investigate_termination_reason = _string_or_json(investigate_result.raw.get("termination_reason"))
+        if investigate_completion_verdict == "partial":
+            final_completion_verdict = "partial"
+            final_termination_reason = investigate_termination_reason or final_termination_reason
         base_raw.update(
             {
                 "operation_id": task.operation_id,
                 "execution_phase": task.execution_phase,
-                "completion_verdict": _string_or_json(base_raw.get("completion_verdict")) or "complete",
+                "completion_verdict": final_completion_verdict,
+                "termination_reason": final_termination_reason,
                 "structured_output": final_output,
                 "produced_artifacts": produced_artifacts,
                 "artifact_failure_reason": artifact_failure_reason,
                 "runner_diagnostics": runner_diagnostics,
             }
         )
+        if phase_lifecycle_events:
+            base_raw["lifecycle_events"] = phase_lifecycle_events
+        if phase_tool_calls:
+            base_raw["tool_calls"] = phase_tool_calls
+        if phase_evidence_items:
+            base_raw["evidence_items"] = phase_evidence_items
+        if investigate_evidence_ledger:
+            base_raw["evidence_ledger"] = investigate_evidence_ledger
         return HermesExecutionResult(
             ok=True,
             message=json.dumps(final_output, ensure_ascii=True, sort_keys=True),

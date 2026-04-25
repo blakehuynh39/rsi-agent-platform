@@ -836,7 +836,7 @@ class HermesContextEngine:
         tmp_path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
         tmp_path.replace(path)
 
-    def lifecycle_events(self, session_id: str) -> list[JsonObject]:
+    def lifecycle_events(self, session_id: str, *, limit: int = 256) -> list[JsonObject]:
         path = self._lifecycle_dir / f"{session_id}.jsonl"
         if not path.exists():
             return []
@@ -848,7 +848,9 @@ class HermesContextEngine:
             if not isinstance(parsed, dict):
                 raise RuntimeError(f"Invalid RSI lifecycle event payload for session {session_id}.")
             out.append(parsed)
-        return out[-8:]
+        if limit <= 0:
+            return out
+        return out[-limit:]
 
     def _install(self) -> None:
         try:
@@ -884,8 +886,8 @@ class HermesAdapter:
     def stage_task_context(self, session_id: str, payload: JsonObject) -> None:
         self._context_engine.stage_context(session_id, payload)
 
-    def lifecycle_events(self, session_id: str) -> list[JsonObject]:
-        return self._context_engine.lifecycle_events(session_id)
+    def lifecycle_events(self, session_id: str, *, limit: int = 256) -> list[JsonObject]:
+        return self._context_engine.lifecycle_events(session_id, limit=limit)
 
     def _detect_version(self) -> str:
         try:

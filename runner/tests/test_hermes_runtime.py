@@ -15,7 +15,7 @@ from unittest import mock
 
 from rsi_runner.config import RunnerConfig, RunnerConfigError
 from rsi_runner.execution_contract import HermesCompanyComputer
-from rsi_runner.hermes_adapter import _build_plugin_module
+from rsi_runner.hermes_adapter import HermesAdapter, _build_plugin_module
 from rsi_runner.hermes_agent_adapter import HermesAgentAdapter, HermesContractStatus, validate_hermes_contract
 from rsi_runner.hermes_mcp_adapter import TaskScopedMCPCleanupResult, TaskScopedMCPRegistration, TaskScopedMCPServer
 from rsi_runner.hermes_runtime import HermesExecutionResult, HermesRuntime, RunnerTaskRequest
@@ -5736,6 +5736,181 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(ledger["evidence_items"][1]["author"], "blake")
         self.assertEqual(ledger["evidence_items"][1]["message_ts"], "171000001.000100")
         self.assertTrue(ledger["open_questions"])
+
+    def test_workflow_evidence_ledger_folds_native_lifecycle_tool_events(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "depin-backend",
+                    "prompt": "Draw the depin-backend architecture from repo and story-deployments.",
+                    "requested_artifacts": [{"kind": "diagram", "description": "Architecture diagram."}],
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "trace_id": "trace-native-lifecycle",
+                    "workflow_id": "wf-native-lifecycle",
+                }
+            }
+        )
+        lifecycle_events = [
+            {
+                "event": "tool_call_started",
+                "recorded_at_unix": 1710000001.0,
+                "tool_name": "repo.search",
+                "request_payload": {"repo": "story-deployments", "pattern": "depin-backend"},
+            },
+            {
+                "event": "tool_call_completed",
+                "recorded_at_unix": 1710000002.0,
+                "tool_name": "repo.search",
+                "status": "completed",
+                "summary": "Found depin backend deployment values.",
+                "provider_ref": "story-deployments",
+                "output": {
+                    "repo": "story-deployments",
+                    "pattern": "depin-backend",
+                    "matches": [
+                        {
+                            "path": "story/depin-backend/use1-stage.yaml",
+                            "snippet": "replicaCount: 2\nimage:\n  repository: depin-backend-api",
+                        }
+                    ],
+                },
+            },
+            {
+                "event": "tool_call_completed",
+                "recorded_at_unix": 1710000003.0,
+                "tool_name": "repo.read_file",
+                "status": "completed",
+                "summary": "Read deployed worker values.",
+                "output": {
+                    "repo": "story-deployments",
+                    "path": "story/depin-ip-registration/use1-stage.yaml",
+                    "content": "poller:\n  enabled: true\nsubmitter:\n  enabled: true\nconfirmer:\n  enabled: true",
+                },
+            },
+        ]
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        observed = runtime._observability_metadata(None, task, lifecycle_events=lifecycle_events)
+        ledger = runtime._build_evidence_ledger(task, observed, "task_timeout")
+
+        self.assertEqual([item["tool_name"] for item in ledger["tool_calls"]], ["repo.search", "repo.read_file"])
+        self.assertEqual(ledger["tool_calls"][0]["request"], {"repo": "story-deployments", "pattern": "depin-backend"})
+        self.assertEqual(ledger["evidence_items"][0]["path"], "story/depin-backend/use1-stage.yaml")
+        self.assertIn("replicaCount: 2", ledger["evidence_items"][0]["snippet"])
+        self.assertEqual(ledger["evidence_items"][1]["path"], "story/depin-ip-registration/use1-stage.yaml")
+        self.assertNotIn("No grounded evidence", " ".join(ledger["open_questions"]))
+
+    def test_hermes_adapter_keeps_lifecycle_history_beyond_last_eight_events(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(
+            os.environ,
+            {**runner_env("prod"), "HERMES_HOME": tempdir},
+            clear=True,
+        ):
+            adapter = HermesAdapter(RunnerConfig.from_env())
+            lifecycle_dir = Path(tempdir) / "rsi_runtime" / "lifecycle"
+            lifecycle_dir.mkdir(parents=True, exist_ok=True)
+            lifecycle_path = lifecycle_dir / "session-123.jsonl"
+            lifecycle_path.write_text(
+                "\n".join(json.dumps({"event": "tool_call_completed", "tool_name": "repo.search", "seq": index}) for index in range(12)),
+                encoding="utf-8",
+            )
+
+            events = adapter.lifecycle_events("session-123")
+
+        self.assertEqual(len(events), 12)
+        self.assertEqual(events[0]["seq"], 0)
+        self.assertEqual(events[-1]["seq"], 11)
+
+    def test_artifact_phase_merge_preserves_investigation_lifecycle_and_partial_verdict(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "depin-backend",
+                    "prompt": "Draw the depin-backend architecture.",
+                    "requested_artifacts": [{"kind": "diagram", "description": "Architecture diagram."}],
+                    "reply_delivery_mode": "direct",
+                    "trace_id": "trace-artifact-merge",
+                    "workflow_id": "wf-artifact-merge",
+                    "operation_id": "op-artifact-merge",
+                }
+            }
+        )
+        investigate_result = HermesExecutionResult(
+            ok=True,
+            message="partial",
+            provider="hermes-native-executor",
+            raw={
+                "completion_verdict": "partial",
+                "termination_reason": "task_timeout",
+                "structured_output": {
+                    "final_answer": "Partial grounded answer.",
+                    "reply_draft": "Partial grounded answer.",
+                    "artifact_render_briefs": [],
+                    "produced_artifacts": [],
+                },
+                "lifecycle_events": [
+                    {
+                        "event": "tool_call_completed",
+                        "tool_name": "repo.search",
+                        "summary": "Found deployed values.",
+                    }
+                ],
+                "tool_calls": [{"tool_name": "repo.search", "tool_call_id": "repo.search:1"}],
+                "evidence_items": [{"kind": "repo_search_match", "summary": "Found deployed values."}],
+                "evidence_ledger": {"tool_calls": [{"tool_name": "repo.search"}], "evidence_items": [{"summary": "Found deployed values."}]},
+                "runner_diagnostics": {"completion_verdict": "partial"},
+            },
+        )
+        delivery_result = HermesExecutionResult(
+            ok=True,
+            message="delivered",
+            provider="hermes-native-executor",
+            raw={
+                "completion_verdict": "complete",
+                "termination_reason": "normal_completion",
+                "structured_output": {
+                    "reply_delivery": {
+                        "status": "sent",
+                        "channel_id": "C123",
+                        "thread_ts": "171000001.000100",
+                    }
+                },
+                "lifecycle_events": [
+                    {
+                        "event": "tool_call_completed",
+                        "tool_name": "slack.reply",
+                        "summary": "Sent Slack reply.",
+                    }
+                ],
+                "runner_diagnostics": {"completion_verdict": "complete"},
+            },
+        )
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        merged = runtime._merge_artifact_phase_result(
+            task,
+            investigate_result,
+            investigate_result.raw["structured_output"],
+            [],
+            "render skipped after timeout",
+            delivery_result=delivery_result,
+            delivery_output=delivery_result.raw["structured_output"],
+        )
+
+        self.assertEqual(merged.raw["completion_verdict"], "partial")
+        self.assertEqual(merged.raw["termination_reason"], "task_timeout")
+        self.assertEqual([item["tool_name"] for item in merged.raw["lifecycle_events"]], ["repo.search", "slack.reply"])
+        self.assertEqual(merged.raw["evidence_ledger"]["tool_calls"][0]["tool_name"], "repo.search")
+        self.assertEqual(merged.raw["tool_calls"][0]["tool_name"], "repo.search")
 
     def test_runtime_metadata_reports_role_contract(self) -> None:
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
