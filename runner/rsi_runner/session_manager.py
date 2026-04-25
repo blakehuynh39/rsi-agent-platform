@@ -295,6 +295,16 @@ class SessionManager:
             "  api_key: \"\"\n"
             "memory:\n"
             "  provider: honcho\n"
+        )
+        if self._config.hermes_native_terminal_enabled:
+            content += (
+                "terminal:\n"
+                f"  backend: {json.dumps(self._config.hermes_terminal_env)}\n"
+                f"  cwd: {json.dumps(self._config.hermes_terminal_cwd)}\n"
+                f"  timeout: {self._config.hermes_terminal_timeout_seconds}\n"
+                f"  lifetime_seconds: {self._config.hermes_terminal_lifetime_seconds}\n"
+            )
+        content += (
             "plugins:\n"
             "  enabled:\n"
             "    - rsi_context_engine\n"

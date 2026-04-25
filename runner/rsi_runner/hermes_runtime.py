@@ -62,6 +62,7 @@ ROLE_TASK_TYPES = {
 logger = logging.getLogger(__name__)
 
 NATIVE_HERMES_DIAGNOSE_TOOLS = frozenset({"todo", "session_search"})
+DEFAULT_HERMES_NATIVE_TOOLSETS = ("terminal", "file")
 QUESTION_RUN_BOUNDED_STOP_TERMINATION_REASONS = frozenset(
     {
         "task_timeout",
@@ -512,6 +513,13 @@ def _path_from_file_ref(value: str) -> str:
     return urlparse.unquote(parsed.path or "")
 
 
+def _absolute_path_without_resolving(value: str) -> Path:
+    path = Path(str(value or "")).expanduser()
+    if path.is_absolute():
+        return path
+    return Path.cwd() / path
+
+
 def _native_artifact_paths_from_events(value: JsonValue | None) -> list[str]:
     out: list[str] = []
     seen: set[str] = set()
@@ -860,19 +868,155 @@ class HermesRuntime:
         self._executor_processes: dict[str, subprocess.Popen[str]] = {}
         self._executor_process_lock = threading.Lock()
         self._executor_cancel_requests: set[str] = set()
+        self._company_computer_bootstrap_status = self._configure_company_computer_substrate()
         self._configure_runtime()
+        required_toolsets = [HERMES_GOVERNED_READONLY_TOOLSET]
+        required_toolsets.extend(self._hermes_native_toolsets())
         self._contract_status = validate_hermes_contract(
             expected_pin=config.hermes_pin,
             hermes_home=config.hermes_home,
             session_db=self._session_manager.session_db,
-            required_toolsets=[HERMES_GOVERNED_READONLY_TOOLSET],
+            required_toolsets=required_toolsets,
         )
         self._available = (
             AIAgent is not None
             and self._runtime_has_credentials()
             and self._session_manager.available
+            and bool(self._company_computer_bootstrap_status.get("ok"))
             and self._contract_status.ok
         )
+
+    def _hermes_native_toolsets(self) -> list[str]:
+        if not self._config.hermes_native_terminal_enabled:
+            return []
+        return normalize_tool_names(self._config.hermes_native_toolsets or list(DEFAULT_HERMES_NATIVE_TOOLSETS))
+
+    def _configure_company_computer_substrate(self) -> JsonObject:
+        status: JsonObject = {
+            "ok": True,
+            "status": "disabled",
+            "errors": [],
+            "terminal_enabled": self._config.hermes_native_terminal_enabled,
+            "kubernetes_context_enabled": self._config.hermes_kubernetes_context_enabled,
+            "computer_root": self._config.hermes_computer_root,
+            "terminal_cwd": self._config.hermes_terminal_cwd,
+            "bin_dir": self._config.hermes_company_bin_dir,
+            "kubeconfig_path": self._config.hermes_kubeconfig_path if self._config.hermes_kubernetes_context_enabled else "",
+        }
+        if not self._config.hermes_native_terminal_enabled and not self._config.hermes_kubernetes_context_enabled:
+            return status
+        try:
+            root = Path(self._config.hermes_computer_root).expanduser().resolve()
+            root.mkdir(parents=True, exist_ok=True)
+            if self._config.hermes_native_terminal_enabled:
+                terminal_cwd = Path(self._config.hermes_terminal_cwd).expanduser().resolve()
+                bin_dir = Path(self._config.hermes_company_bin_dir).expanduser().resolve()
+                terminal_cwd.mkdir(parents=True, exist_ok=True)
+                bin_dir.mkdir(parents=True, exist_ok=True)
+                os.environ["TERMINAL_ENV"] = self._config.hermes_terminal_env
+                os.environ["TERMINAL_CWD"] = str(terminal_cwd)
+                os.environ["TERMINAL_TIMEOUT"] = str(self._config.hermes_terminal_timeout_seconds)
+                os.environ["TERMINAL_LIFETIME_SECONDS"] = str(self._config.hermes_terminal_lifetime_seconds)
+                os.environ["TERMINAL_LOCAL_PERSISTENT"] = "true" if self._config.hermes_terminal_local_persistent else "false"
+                path_entries = [item for item in os.environ.get("PATH", "").split(os.pathsep) if item]
+                if str(bin_dir) not in path_entries:
+                    os.environ["PATH"] = os.pathsep.join([str(bin_dir), *path_entries])
+                status.update(
+                    {
+                        "status": "configured",
+                        "terminal_cwd": str(terminal_cwd),
+                        "bin_dir": str(bin_dir),
+                        "terminal_env": self._config.hermes_terminal_env,
+                        "terminal_timeout_seconds": self._config.hermes_terminal_timeout_seconds,
+                        "terminal_lifetime_seconds": self._config.hermes_terminal_lifetime_seconds,
+                    }
+                )
+            if self._config.hermes_kubernetes_context_enabled:
+                kubeconfig_path = self._write_company_kubeconfig()
+                os.environ["KUBECONFIG"] = str(kubeconfig_path)
+                status["kubeconfig_path"] = str(kubeconfig_path)
+                status["kubernetes_auth"] = "service_account_token_file"
+                status["status"] = "configured"
+            self._write_company_computer_manifest(status)
+        except Exception as exc:
+            errors = [str(exc)]
+            status["ok"] = False
+            status["status"] = "failed"
+            status["errors"] = errors
+        return status
+
+    def _write_company_kubeconfig(self) -> Path:
+        token_path = _absolute_path_without_resolving(self._config.hermes_kubernetes_service_account_token_path)
+        ca_path = _absolute_path_without_resolving(self._config.hermes_kubernetes_service_account_ca_path)
+        namespace_path = _absolute_path_without_resolving(self._config.hermes_kubernetes_service_account_namespace_path)
+        host = first_non_empty(os.getenv("KUBERNETES_SERVICE_HOST"), "")
+        port = first_non_empty(os.getenv("KUBERNETES_SERVICE_PORT"), "443")
+        if not host:
+            raise RuntimeError("KUBERNETES_SERVICE_HOST is required when RSI_HERMES_KUBERNETES_CONTEXT_ENABLED=true")
+        if not token_path.is_file():
+            raise RuntimeError(f"Kubernetes service account token file is unavailable: {token_path}")
+        if not ca_path.is_file():
+            raise RuntimeError(f"Kubernetes service account CA file is unavailable: {ca_path}")
+        namespace = "default"
+        if namespace_path.is_file():
+            namespace = namespace_path.read_text(encoding="utf-8").strip() or namespace
+        kubeconfig_path = Path(self._config.hermes_kubeconfig_path.split(os.pathsep)[0]).expanduser().resolve()
+        kubeconfig_path.parent.mkdir(parents=True, exist_ok=True)
+        if ":" in host:
+            host = f"[{host}]"
+        content = "\n".join(
+            [
+                "apiVersion: v1",
+                "kind: Config",
+                "clusters:",
+                "- name: in-cluster",
+                "  cluster:",
+                f"    server: https://{host}:{port}",
+                f"    certificate-authority: {ca_path}",
+                "users:",
+                "- name: hermes-executor",
+                "  user:",
+                f"    tokenFile: {token_path}",
+                "contexts:",
+                "- name: hermes-company-computer",
+                "  context:",
+                "    cluster: in-cluster",
+                "    user: hermes-executor",
+                f"    namespace: {namespace}",
+                "current-context: hermes-company-computer",
+                "",
+            ]
+        )
+        temp_path = kubeconfig_path.with_suffix(kubeconfig_path.suffix + ".tmp")
+        temp_path.write_text(content, encoding="utf-8")
+        temp_path.chmod(0o600)
+        temp_path.replace(kubeconfig_path)
+        return kubeconfig_path
+
+    def _write_company_computer_manifest(self, status: JsonObject) -> None:
+        manifest_path = Path(self._config.hermes_computer_root).expanduser().resolve() / ".rsi" / "computer.json"
+        manifest_path.parent.mkdir(parents=True, exist_ok=True)
+        manifest = {
+            "company_computer_root": self._config.hermes_computer_root,
+            "run_root": self._config.hermes_run_root,
+            "artifact_root": self._config.hermes_artifact_root,
+            "native_terminal_enabled": self._config.hermes_native_terminal_enabled,
+            "native_toolsets": self._hermes_native_toolsets(),
+            "terminal": {
+                "backend": self._config.hermes_terminal_env,
+                "cwd": self._config.hermes_terminal_cwd,
+                "timeout_seconds": self._config.hermes_terminal_timeout_seconds,
+                "lifetime_seconds": self._config.hermes_terminal_lifetime_seconds,
+                "bin_dir": self._config.hermes_company_bin_dir,
+            },
+            "kubernetes_context": {
+                "enabled": self._config.hermes_kubernetes_context_enabled,
+                "kubeconfig_path": self._config.hermes_kubeconfig_path if self._config.hermes_kubernetes_context_enabled else "",
+                "auth": "service_account_token_file" if self._config.hermes_kubernetes_context_enabled else "",
+            },
+            "bootstrap_status": status,
+        }
+        manifest_path.write_text(json.dumps(manifest, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8")
 
     def _configure_runtime(self) -> None:
         if self._configured_model.startswith("openai/"):
@@ -966,6 +1110,16 @@ class HermesRuntime:
             "hermes_computer_root": self._config.hermes_computer_root,
             "hermes_run_root": self._config.hermes_run_root,
             "hermes_artifact_root": self._config.hermes_artifact_root,
+            "hermes_native_terminal_enabled": self._config.hermes_native_terminal_enabled,
+            "hermes_native_toolsets": self._hermes_native_toolsets(),
+            "hermes_terminal_env": self._config.hermes_terminal_env,
+            "hermes_terminal_cwd": self._config.hermes_terminal_cwd,
+            "hermes_terminal_timeout_seconds": self._config.hermes_terminal_timeout_seconds,
+            "hermes_terminal_lifetime_seconds": self._config.hermes_terminal_lifetime_seconds,
+            "hermes_company_bin_dir": self._config.hermes_company_bin_dir,
+            "hermes_kubernetes_context_enabled": self._config.hermes_kubernetes_context_enabled,
+            "hermes_kubeconfig_path": self._config.hermes_kubeconfig_path if self._config.hermes_kubernetes_context_enabled else "",
+            "company_computer_bootstrap_status": dict(self._company_computer_bootstrap_status),
             "tool_allowlist_effective": self._default_policy_allowlist(execution_mode=""),
             "blocked_tool_names": [],
             "context_engine_mode": adapter_meta.context_engine_mode,
@@ -1278,6 +1432,7 @@ class HermesRuntime:
                 toolsets.append(HERMES_GOVERNED_READONLY_TOOLSET)
             if (execution_mode in {"implement", "artifact_render"} or execution_phase == "render") and not add_workflow_governed_workspace:
                 toolsets.append(HERMES_GOVERNED_WORKSPACE_TOOLSET)
+        toolsets.extend(self._hermes_native_toolsets())
         if execution_phase == "render" or (
             task.task_type == "workflow"
             and (execution_mode == "artifact_render" or len(task.requested_artifacts) > 0)
@@ -1870,6 +2025,13 @@ class HermesRuntime:
             "hermes_computer_root": self._config.hermes_computer_root,
             "hermes_run_root": self._config.hermes_run_root,
             "hermes_artifact_root": self._config.hermes_artifact_root,
+            "hermes_native_terminal_enabled": self._config.hermes_native_terminal_enabled,
+            "hermes_native_toolsets": self._hermes_native_toolsets(),
+            "hermes_terminal_cwd": self._config.hermes_terminal_cwd,
+            "hermes_company_bin_dir": self._config.hermes_company_bin_dir,
+            "hermes_kubernetes_context_enabled": self._config.hermes_kubernetes_context_enabled,
+            "hermes_kubeconfig_path": self._config.hermes_kubeconfig_path if self._config.hermes_kubernetes_context_enabled else "",
+            "company_computer_bootstrap_status": dict(self._company_computer_bootstrap_status),
             "honcho_base_url": self._config.honcho_base_url or "",
             "honcho_workspace": self._config.honcho_workspace,
             "honcho_environment": self._config.honcho_environment,
@@ -1995,6 +2157,7 @@ class HermesRuntime:
             required_toolsets.append(HERMES_ARTIFACT_TOOLSET)
         elif task.task_type == "workflow" and execution_phase not in {"deliver"} and self._config.tool_gateway_base_url:
             required_toolsets.append(HERMES_GOVERNED_READONLY_TOOLSET)
+        required_toolsets.extend(self._hermes_native_toolsets())
         return {
             "execution_phase": execution_phase,
             "history_policy": "empty" if execution_phase in {"render", "deliver"} else "session",
@@ -2073,6 +2236,13 @@ class HermesRuntime:
             "hermes_computer_root": self._config.hermes_computer_root,
             "hermes_run_root": self._config.hermes_run_root,
             "hermes_artifact_root": self._config.hermes_artifact_root,
+            "hermes_native_terminal_enabled": self._config.hermes_native_terminal_enabled,
+            "hermes_native_toolsets": self._hermes_native_toolsets(),
+            "hermes_terminal_cwd": self._config.hermes_terminal_cwd,
+            "hermes_company_bin_dir": self._config.hermes_company_bin_dir,
+            "hermes_kubernetes_context_enabled": self._config.hermes_kubernetes_context_enabled,
+            "hermes_kubeconfig_path": self._config.hermes_kubeconfig_path if self._config.hermes_kubernetes_context_enabled else "",
+            "company_computer_bootstrap_status": dict(self._company_computer_bootstrap_status),
             "run_dir": str(result_path.parent),
             "contract_version": task.contract_version or EXECUTION_CONTRACT_VERSION,
             "execution_intent": task.execution_intent,
@@ -2254,6 +2424,23 @@ class HermesRuntime:
                         "failure_kind": "hermes_contract_failed",
                         "termination_reason": "hermes_contract_failed",
                         "contract_errors": list(self._contract_status.errors),
+                    },
+                },
+            )
+        if not bool(self._company_computer_bootstrap_status.get("ok")):
+            errors = _string_list_or_empty(self._company_computer_bootstrap_status.get("errors"))
+            message = "Hermes company-computer bootstrap failed: " + "; ".join(errors)
+            return HermesExecutionResult(
+                ok=False,
+                message=message,
+                provider="hermes-native-executor",
+                raw={
+                    **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                    "failure_class": "hermes_company_computer_bootstrap_failed",
+                    "runner_diagnostics": {
+                        "failure_kind": "hermes_company_computer_bootstrap_failed",
+                        "termination_reason": "hermes_company_computer_bootstrap_failed",
+                        "bootstrap_errors": errors,
                     },
                 },
             )
@@ -3448,6 +3635,12 @@ class HermesRuntime:
                 "hermes_computer_root": self._config.hermes_computer_root,
                 "hermes_run_root": self._config.hermes_run_root,
                 "hermes_artifact_root": self._config.hermes_artifact_root,
+                "hermes_native_terminal_enabled": self._config.hermes_native_terminal_enabled,
+                "hermes_native_toolsets": self._hermes_native_toolsets(),
+                "hermes_terminal_cwd": self._config.hermes_terminal_cwd,
+                "hermes_company_bin_dir": self._config.hermes_company_bin_dir,
+                "hermes_kubernetes_context_enabled": self._config.hermes_kubernetes_context_enabled,
+                "hermes_kubeconfig_path": self._config.hermes_kubeconfig_path if self._config.hermes_kubernetes_context_enabled else "",
                 "context_summary": task.context_summary or "",
                 "task_default_question": query_hints.get("default_question", ""),
                 "task_repo_question": query_hints.get("repo_question", ""),
@@ -6059,6 +6252,16 @@ class HermesRuntime:
             parts.append(f"Execution mode: {task.execution_mode}")
         parts.append(f"Execution contract: {task.contract_version or EXECUTION_CONTRACT_VERSION}")
         parts.append(f"Runner planner mode: {self._config.runner_planner_mode or RUNNER_PLANNER_MODE}")
+        if self._config.hermes_native_terminal_enabled:
+            parts.append(
+                "Native company-computer toolsets enabled: "
+                f"{', '.join(self._hermes_native_toolsets())}. Use the terminal for ordinary CLI work from "
+                f"{self._config.hermes_terminal_cwd}; install reusable CLI binaries under {self._config.hermes_company_bin_dir}."
+            )
+            if self._config.hermes_kubernetes_context_enabled:
+                parts.append(
+                    "Kubernetes read context is available to terminal-native CLIs through KUBECONFIG. Cluster mutations are blocked by policy/RBAC and must become approval intents."
+                )
         if task.capability_leases:
             parts.append(f"Capability leases: {json.dumps(task.capability_leases, ensure_ascii=True, sort_keys=True)}")
         if task.delivery_policy:
@@ -6125,7 +6328,11 @@ class HermesRuntime:
             parts.append(f"Memory backend: {task.memory_backend}")
         parts.append(f"Timeout seconds: {task.timeout_seconds}")
         execution_mode = (task.execution_mode or "").strip().lower()
-        parts.append("Use only the effective tool allowlist above. Eval is read-only. Proposal investigate mode is read-only. Proposal diagnose mode is read-only and must stay grounded in persisted evidence before expanding to repo or log reads. Proposal implement mode may mutate only through governed workspace tools inside the bound workspace; it must not mutate GitHub directly, launch jobs, or post to Slack.")
+        if self._config.hermes_native_terminal_enabled:
+            parts.append("Use only the effective governed-tool allowlist above plus the native company-computer toolsets listed in the phase contract.")
+        else:
+            parts.append("Use only the effective tool allowlist above.")
+        parts.append("Eval is read-only. Proposal investigate mode is read-only. Proposal diagnose mode is read-only and must stay grounded in persisted evidence before expanding to repo or log reads. Proposal implement mode may mutate only through governed workspace tools inside the bound workspace; it must not mutate GitHub directly, launch jobs, or post to Slack.")
         if execution_mode == "diagnose":
             parts.append(
                 "Return a JSON object with keys: status, subsystem, failure_mode, summary, evidence_refs, missing_evidence, recommended_fix, target_surface, validation_plan."

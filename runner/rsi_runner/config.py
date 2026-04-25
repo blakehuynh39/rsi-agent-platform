@@ -49,6 +49,19 @@ class RunnerConfig:
     hermes_run_root: str
     hermes_artifact_root: str
     hermes_native_governed_tools_enabled: bool
+    hermes_native_terminal_enabled: bool
+    hermes_native_toolsets: list[str]
+    hermes_terminal_env: str
+    hermes_terminal_cwd: str
+    hermes_terminal_timeout_seconds: int
+    hermes_terminal_lifetime_seconds: int
+    hermes_terminal_local_persistent: bool
+    hermes_company_bin_dir: str
+    hermes_kubernetes_context_enabled: bool
+    hermes_kubeconfig_path: str
+    hermes_kubernetes_service_account_token_path: str
+    hermes_kubernetes_service_account_ca_path: str
+    hermes_kubernetes_service_account_namespace_path: str
     execution_envelope_v1_enabled: bool
     execution_ledger_first_projection_enabled: bool
     runner_planner_mode: str
@@ -103,6 +116,19 @@ class RunnerConfig:
         hermes_run_root = optional_env("RSI_HERMES_RUN_ROOT") or path_join(hermes_computer_root, ".rsi", "runs")
         hermes_artifact_root = optional_env("RSI_HERMES_ARTIFACT_ROOT") or path_join(hermes_computer_root, "artifacts")
         hermes_native_governed_tools_enabled = parse_bool(optional_env("RSI_HERMES_NATIVE_GOVERNED_TOOLS_ENABLED") or "false", "RSI_HERMES_NATIVE_GOVERNED_TOOLS_ENABLED")
+        hermes_native_terminal_enabled = parse_bool(optional_env("RSI_HERMES_NATIVE_TERMINAL_ENABLED") or "false", "RSI_HERMES_NATIVE_TERMINAL_ENABLED")
+        hermes_native_toolsets = parse_csv_list(optional_env("RSI_HERMES_NATIVE_TOOLSETS") or "terminal,file")
+        hermes_terminal_env = optional_env("TERMINAL_ENV") or "local"
+        hermes_terminal_cwd = optional_env("TERMINAL_CWD") or hermes_computer_root
+        hermes_terminal_timeout_seconds = parse_positive_int(optional_env("TERMINAL_TIMEOUT") or "180", "TERMINAL_TIMEOUT")
+        hermes_terminal_lifetime_seconds = parse_positive_int(optional_env("TERMINAL_LIFETIME_SECONDS") or "900", "TERMINAL_LIFETIME_SECONDS")
+        hermes_terminal_local_persistent = parse_bool(optional_env("TERMINAL_LOCAL_PERSISTENT") or "true", "TERMINAL_LOCAL_PERSISTENT")
+        hermes_company_bin_dir = optional_env("RSI_HERMES_COMPANY_BIN_DIR") or path_join(hermes_computer_root, ".rsi", "bin")
+        hermes_kubernetes_context_enabled = parse_bool(optional_env("RSI_HERMES_KUBERNETES_CONTEXT_ENABLED") or "false", "RSI_HERMES_KUBERNETES_CONTEXT_ENABLED")
+        hermes_kubeconfig_path = optional_env("KUBECONFIG") or path_join(hermes_computer_root, ".rsi", "kube", "config")
+        hermes_kubernetes_service_account_token_path = optional_env("RSI_HERMES_KUBERNETES_SERVICE_ACCOUNT_TOKEN_PATH") or "/var/run/secrets/kubernetes.io/serviceaccount/token"
+        hermes_kubernetes_service_account_ca_path = optional_env("RSI_HERMES_KUBERNETES_SERVICE_ACCOUNT_CA_PATH") or "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+        hermes_kubernetes_service_account_namespace_path = optional_env("RSI_HERMES_KUBERNETES_SERVICE_ACCOUNT_NAMESPACE_PATH") or "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
         execution_envelope_v1_enabled = parse_bool(optional_env("RSI_EXECUTION_ENVELOPE_V1_ENABLED") or "true", "RSI_EXECUTION_ENVELOPE_V1_ENABLED")
         execution_ledger_first_projection_enabled = parse_bool(optional_env("RSI_EXECUTION_LEDGER_FIRST_PROJECTION_ENABLED") or "false", "RSI_EXECUTION_LEDGER_FIRST_PROJECTION_ENABLED")
         runner_planner_mode = optional_env("RSI_RUNNER_PLANNER_MODE") or "runner_first"
@@ -154,6 +180,19 @@ class RunnerConfig:
             hermes_run_root=hermes_run_root,
             hermes_artifact_root=hermes_artifact_root,
             hermes_native_governed_tools_enabled=hermes_native_governed_tools_enabled,
+            hermes_native_terminal_enabled=hermes_native_terminal_enabled,
+            hermes_native_toolsets=hermes_native_toolsets,
+            hermes_terminal_env=hermes_terminal_env,
+            hermes_terminal_cwd=hermes_terminal_cwd,
+            hermes_terminal_timeout_seconds=hermes_terminal_timeout_seconds,
+            hermes_terminal_lifetime_seconds=hermes_terminal_lifetime_seconds,
+            hermes_terminal_local_persistent=hermes_terminal_local_persistent,
+            hermes_company_bin_dir=hermes_company_bin_dir,
+            hermes_kubernetes_context_enabled=hermes_kubernetes_context_enabled,
+            hermes_kubeconfig_path=hermes_kubeconfig_path,
+            hermes_kubernetes_service_account_token_path=hermes_kubernetes_service_account_token_path,
+            hermes_kubernetes_service_account_ca_path=hermes_kubernetes_service_account_ca_path,
+            hermes_kubernetes_service_account_namespace_path=hermes_kubernetes_service_account_namespace_path,
             execution_envelope_v1_enabled=execution_envelope_v1_enabled,
             execution_ledger_first_projection_enabled=execution_ledger_first_projection_enabled,
             runner_planner_mode=runner_planner_mode,
@@ -310,6 +349,18 @@ def parse_bool(raw: str, name: str) -> bool:
     if text in {"0", "false", "f", "no", "n", "off"}:
         return False
     raise RunnerConfigError(f"{name} must be a boolean")
+
+
+def parse_csv_list(raw: str) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for item in str(raw or "").split(","):
+        value = item.strip()
+        if not value or value in seen:
+            continue
+        seen.add(value)
+        out.append(value)
+    return out
 
 
 _DURATION_RE = re.compile(r"^(?P<value>\d+(?:\.\d+)?)(?P<unit>ms|s|m)?$")

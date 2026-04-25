@@ -29,7 +29,7 @@ from rsi_runner.rsi_tools import (
 from rsi_runner.session_manager import SessionManager
 
 
-HERMES_TEST_PIN = "6051fba9dc326ceddbe81147a14b10102f4256a3"
+HERMES_TEST_PIN = "3e61703b08f475c9982cf4099d049eeac232a7a1"
 
 
 def runner_env(role: str = "prod") -> dict[str, str]:
@@ -344,6 +344,15 @@ class HermesRuntimeTests(unittest.TestCase):
                 "RSI_HERMES_EXECUTOR_ENABLED": "true",
                 "RSI_HERMES_EXECUTOR_SERVICE_ONLY": "true",
                 "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": "/var/lib/hermes-executor",
+                "RSI_HERMES_NATIVE_TERMINAL_ENABLED": "true",
+                "TERMINAL_ENV": "local",
+                "TERMINAL_CWD": "/var/lib/hermes-executor/company",
+                "TERMINAL_TIMEOUT": "240",
+                "TERMINAL_LIFETIME_SECONDS": "1200",
+                "TERMINAL_LOCAL_PERSISTENT": "false",
+                "RSI_HERMES_COMPANY_BIN_DIR": "/var/lib/hermes-executor/company/.rsi/bin",
+                "RSI_HERMES_KUBERNETES_CONTEXT_ENABLED": "true",
+                "KUBECONFIG": "/var/lib/hermes-executor/company/.rsi/kube/config",
             },
             clear=True,
         ):
@@ -355,6 +364,16 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(config.hermes_computer_root, "/var/lib/hermes-executor/company")
         self.assertEqual(config.hermes_run_root, "/var/lib/hermes-executor/company/.rsi/runs")
         self.assertEqual(config.hermes_artifact_root, "/var/lib/hermes-executor/company/artifacts")
+        self.assertTrue(config.hermes_native_terminal_enabled)
+        self.assertEqual(config.hermes_native_toolsets, ["terminal", "file"])
+        self.assertEqual(config.hermes_terminal_env, "local")
+        self.assertEqual(config.hermes_terminal_cwd, "/var/lib/hermes-executor/company")
+        self.assertEqual(config.hermes_terminal_timeout_seconds, 240)
+        self.assertEqual(config.hermes_terminal_lifetime_seconds, 1200)
+        self.assertFalse(config.hermes_terminal_local_persistent)
+        self.assertEqual(config.hermes_company_bin_dir, "/var/lib/hermes-executor/company/.rsi/bin")
+        self.assertTrue(config.hermes_kubernetes_context_enabled)
+        self.assertEqual(config.hermes_kubeconfig_path, "/var/lib/hermes-executor/company/.rsi/kube/config")
 
     def test_context_engine_plugin_module_compiles_as_python(self) -> None:
         source = _build_plugin_module()
@@ -365,6 +384,131 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("tool_call_started", source)
         self.assertIn("tool_call_completed", source)
         self.assertIn("artifact_write_file", source)
+
+    def test_native_workflow_enables_configured_company_computer_toolsets(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Inspect the company computer.",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-terminal",
+                }
+            }
+        )
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "RSI_HERMES_EXECUTOR_ENABLED": "true",
+                "RSI_HERMES_NATIVE_TERMINAL_ENABLED": "true",
+                "RSI_HERMES_NATIVE_TOOLSETS": "hermes-api-server",
+                "TERMINAL_CWD": "/tmp/hermes/workspace/company",
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        toolsets = runtime._native_toolsets_for_task(task)
+        phase_contract = runtime._native_executor_phase_contract(task, toolsets)
+
+        self.assertIn("hermes-api-server", toolsets)
+        self.assertIn("hermes-api-server", phase_contract["required_toolsets"])
+        self.assertNotIn("hermes-api-server", runtime._resolve_tool_policy(task).effective)
+
+    def test_company_computer_bootstrap_writes_service_account_kubeconfig_for_terminal(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir, tempfile.TemporaryDirectory() as computer_root:
+            service_account = Path(tempdir, "serviceaccount")
+            service_account.mkdir(parents=True)
+            service_account_data = Path(tempdir, "serviceaccount-data")
+            service_account_data.mkdir(parents=True)
+            token_path = service_account / "token"
+            ca_path = service_account / "ca.crt"
+            namespace_path = service_account / "namespace"
+            token_target = service_account_data / "token"
+            ca_target = service_account_data / "ca.crt"
+            token_target.write_text("token-value", encoding="utf-8")
+            ca_target.write_text("ca-value", encoding="utf-8")
+            token_path.symlink_to(token_target)
+            ca_path.symlink_to(ca_target)
+            namespace_path.write_text("rsi-platform", encoding="utf-8")
+            kubeconfig_path = Path(computer_root, ".rsi", "kube", "config")
+            captured_env: dict[str, str] = {}
+            with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+                os.environ,
+                {
+                    **runner_env("prod"),
+                    "HERMES_HOME": str(Path(tempdir, "hermes-home")),
+                    "RSI_HERMES_EXECUTOR_ENABLED": "true",
+                    "RSI_HERMES_COMPUTER_ROOT": computer_root,
+                    "RSI_HERMES_NATIVE_TERMINAL_ENABLED": "true",
+                    "RSI_HERMES_KUBERNETES_CONTEXT_ENABLED": "true",
+                    "KUBECONFIG": str(kubeconfig_path),
+                    "KUBERNETES_SERVICE_HOST": "10.0.0.1",
+                    "KUBERNETES_SERVICE_PORT": "443",
+                    "RSI_HERMES_KUBERNETES_SERVICE_ACCOUNT_TOKEN_PATH": str(token_path),
+                    "RSI_HERMES_KUBERNETES_SERVICE_ACCOUNT_CA_PATH": str(ca_path),
+                    "RSI_HERMES_KUBERNETES_SERVICE_ACCOUNT_NAMESPACE_PATH": str(namespace_path),
+                },
+                clear=True,
+            ):
+                runtime = HermesRuntime(RunnerConfig.from_env())
+                captured_env = {
+                    "TERMINAL_CWD": os.environ["TERMINAL_CWD"],
+                    "PATH": os.environ["PATH"],
+                    "KUBECONFIG": os.environ["KUBECONFIG"],
+                }
+
+            kubeconfig = kubeconfig_path.read_text(encoding="utf-8")
+            manifest = json.loads(Path(computer_root, ".rsi", "computer.json").read_text(encoding="utf-8"))
+
+        self.assertTrue(runtime.metadata["company_computer_bootstrap_status"]["ok"])
+        self.assertEqual(captured_env["TERMINAL_CWD"], str(Path(computer_root).resolve()))
+        self.assertTrue(captured_env["PATH"].split(os.pathsep)[0].endswith("/.rsi/bin"))
+        self.assertEqual(captured_env["KUBECONFIG"], str(kubeconfig_path.resolve()))
+        self.assertIn("server: https://10.0.0.1:443", kubeconfig)
+        self.assertIn(f"tokenFile: {token_path}", kubeconfig)
+        self.assertIn(f"certificate-authority: {ca_path}", kubeconfig)
+        self.assertNotIn(str(token_target), kubeconfig)
+        self.assertNotIn(str(ca_target), kubeconfig)
+        self.assertIn("namespace: rsi-platform", kubeconfig)
+        self.assertEqual(manifest["terminal"]["bin_dir"], str(Path(computer_root, ".rsi", "bin")))
+        self.assertEqual(manifest["native_toolsets"], ["terminal", "file"])
+
+    def test_company_computer_bootstrap_failure_fails_closed(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Inspect Kubernetes.",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-kube-fail",
+                }
+            }
+        )
+        with tempfile.TemporaryDirectory() as tempdir, tempfile.TemporaryDirectory() as computer_root, mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": str(Path(tempdir, "hermes-home")),
+                "RSI_HERMES_EXECUTOR_ENABLED": "true",
+                "RSI_HERMES_COMPUTER_ROOT": computer_root,
+                "RSI_HERMES_NATIVE_TERMINAL_ENABLED": "true",
+                "RSI_HERMES_KUBERNETES_CONTEXT_ENABLED": "true",
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime._execute_native_workflow_task_request(task, runtime._resolve_tool_policy(task))
+
+        self.assertFalse(runtime.available)
+        self.assertFalse(runtime.metadata["company_computer_bootstrap_status"]["ok"])
+        self.assertFalse(result.ok)
+        self.assertEqual(result.raw["failure_class"], "hermes_company_computer_bootstrap_failed")
 
     def test_hermes_contract_rejects_missing_pin(self) -> None:
         with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(os.environ, {"HERMES_HOME": tempdir}, clear=True):
@@ -643,7 +787,7 @@ class HermesRuntimeTests(unittest.TestCase):
             "rsi_runner.session_manager.SessionDB", FakeSessionDB
         ), mock.patch("rsi_runner.session_manager.sync_skills") as sync_mock, mock.patch.dict(
             os.environ,
-            {**runner_env("prod"), "HERMES_HOME": tempdir, "OPENAI_BASE_URL": "https://api.openai.com/v1"},
+            {**runner_env("prod"), "HERMES_HOME": tempdir, "OPENAI_BASE_URL": "https://api.openai.com/v1", "RSI_HERMES_NATIVE_TERMINAL_ENABLED": "true"},
             clear=True,
         ):
             sync_mock.return_value = {"copied": ["architecture-diagram"]}
@@ -656,6 +800,11 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("provider: custom", config_text)
         self.assertIn('base_url: "https://api.openai.com/v1"', config_text)
         self.assertIn('api_key: ""', config_text)
+        self.assertIn("terminal:", config_text)
+        self.assertIn('backend: "local"', config_text)
+        self.assertIn('cwd: "/tmp/hermes/workspace/company"', config_text)
+        self.assertIn("timeout: 180", config_text)
+        self.assertIn("lifetime_seconds: 900", config_text)
         self.assertIn("plugins:", config_text)
         self.assertIn("  enabled:", config_text)
         self.assertIn("    - rsi_context_engine", config_text)
