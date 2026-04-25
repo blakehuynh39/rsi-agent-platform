@@ -1461,6 +1461,10 @@ class ReadOnlyToolBinding:
                 payload["since"] = since
             if until:
                 payload["until"] = until
+        if name == "rsi.runtime_deployment_facts":
+            targets = self._runtime_deployment_targets_from_context_refs()
+            if targets:
+                payload["services"] = targets
         if name == "rsi.workflow_context":
             payload["trace_id"] = self.trace_id
         if name == "rsi.action_chain":
@@ -1584,6 +1588,27 @@ class ReadOnlyToolBinding:
             if since or until:
                 return since, until
         return "", ""
+
+    def _runtime_deployment_targets_from_context_refs(self) -> list[str]:
+        out: list[str] = []
+        seen: set[str] = set()
+        for item in self.context_refs:
+            if str(item.get("kind", "")).strip() != "runtime_deployment_targets":
+                continue
+            raw_values: list[Any] = []
+            services = item.get("services")
+            if isinstance(services, list):
+                raw_values.extend(services)
+            target_ref = str(item.get("target_ref") or item.get("ref") or "").strip()
+            if target_ref:
+                raw_values.extend(target_ref.split(","))
+            for value in raw_values:
+                text = str(value or "").strip()
+                if not text or text in seen:
+                    continue
+                seen.add(text)
+                out.append(text)
+        return out
 
 
 class CompositeToolProvider:

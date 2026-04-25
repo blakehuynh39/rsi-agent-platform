@@ -551,8 +551,10 @@ func (s *Service) kubernetesInspect(input map[string]interface{}) storepkg.ToolR
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	matchedPods := make([]map[string]interface{}, 0)
+	matchedDeployments := make([]map[string]interface{}, 0)
 	matchedEvents := make([]map[string]interface{}, 0)
 	namespaceErrors := map[string]string{}
+	deploymentErrors := map[string]string{}
 	for _, namespace := range namespaces {
 		pods, err := s.kubeClient.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{})
 		if err != nil {
@@ -563,6 +565,10 @@ func (s *Service) kubernetesInspect(input map[string]interface{}) storepkg.ToolR
 			continue
 		}
 		eventsList, _ := s.kubeClient.CoreV1().Events(namespace).List(ctx, metav1.ListOptions{})
+		deployments, err := s.kubeClient.AppsV1().Deployments(namespace).List(ctx, metav1.ListOptions{})
+		if err != nil {
+			deploymentErrors[firstNonEmpty(namespace, "all")] = err.Error()
+		}
 		for _, pod := range pods.Items {
 			if target != "" && !matchesKubernetesTarget(pod, target) {
 				continue
@@ -574,6 +580,14 @@ func (s *Service) kubernetesInspect(input map[string]interface{}) storepkg.ToolR
 				"node":      pod.Spec.NodeName,
 				"reason":    pod.Status.Reason,
 			})
+		}
+		if err == nil {
+			for _, deployment := range deployments.Items {
+				if target != "" && !matchesDeploymentTarget(deployment, target) {
+					continue
+				}
+				matchedDeployments = append(matchedDeployments, deploymentInspectionSummary(deployment, target))
+			}
 		}
 		for _, event := range eventsList.Items {
 			if target != "" && !strings.Contains(strings.ToLower(event.InvolvedObject.Name), strings.ToLower(target)) {
@@ -596,16 +610,20 @@ func (s *Service) kubernetesInspect(input map[string]interface{}) storepkg.ToolR
 			"namespace_errors": namespaceErrors,
 		})
 	}
-	summary := fmt.Sprintf("Kubernetes inspection found %d pods and %d events in %s for target %s.", len(matchedPods), len(matchedEvents), namespaceListLabel(namespaces), firstNonEmpty(target, "all"))
+	summary := fmt.Sprintf("Kubernetes inspection found %d pod(s), %d deployment(s), and %d event(s) in %s for target %s.", len(matchedPods), len(matchedDeployments), len(matchedEvents), namespaceListLabel(namespaces), firstNonEmpty(target, "all"))
 	output := map[string]interface{}{
-		"namespace":  namespaceOutputValue(namespaces),
-		"namespaces": append([]string(nil), namespaces...),
-		"target":     target,
-		"pods":       matchedPods,
-		"events":     matchedEvents,
+		"namespace":   namespaceOutputValue(namespaces),
+		"namespaces":  append([]string(nil), namespaces...),
+		"target":      target,
+		"pods":        matchedPods,
+		"deployments": matchedDeployments,
+		"events":      matchedEvents,
 	}
 	if len(namespaceErrors) > 0 {
 		output["namespace_errors"] = namespaceErrors
+	}
+	if len(deploymentErrors) > 0 {
+		output["deployment_errors"] = deploymentErrors
 	}
 	return s.result("kubernetes.inspect", input, summary, output, nil)
 }
@@ -2538,6 +2556,36 @@ func matchingDeploymentTargets(deployment appsv1.Deployment, targets []string) [
 	return uniqueStrings(matched)
 }
 
+func deploymentInspectionSummary(deployment appsv1.Deployment, target string) map[string]interface{} {
+	entry := map[string]interface{}{
+		"name":                deployment.Name,
+		"namespace":           deployment.Namespace,
+		"generation":          deployment.Generation,
+		"observed_generation": deployment.Status.ObservedGeneration,
+		"replicas":            deployment.Status.Replicas,
+		"ready_replicas":      deployment.Status.ReadyReplicas,
+		"updated_replicas":    deployment.Status.UpdatedReplicas,
+		"available_replicas":  deployment.Status.AvailableReplicas,
+		"images":              deploymentImages(deployment),
+	}
+	if target = strings.TrimSpace(target); target != "" {
+		entry["matched_targets"] = matchingDeploymentTargets(deployment, []string{target})
+	}
+	if !deployment.CreationTimestamp.IsZero() {
+		entry["created_at"] = deployment.CreationTimestamp.UTC().Format(time.RFC3339)
+	}
+	if condition, ok := deploymentCondition(deployment, appsv1.DeploymentProgressing); ok {
+		entry["progressing_status"] = string(condition.Status)
+		entry["progressing_reason"] = condition.Reason
+		entry["progressing_message"] = truncate(condition.Message, 400)
+	}
+	if condition, ok := deploymentCondition(deployment, appsv1.DeploymentAvailable); ok {
+		entry["available_status"] = string(condition.Status)
+		entry["available_reason"] = condition.Reason
+	}
+	return entry
+}
+
 func matchesDeploymentTarget(deployment appsv1.Deployment, target string) bool {
 	target = strings.ToLower(strings.TrimSpace(target))
 	if target == "" {
@@ -2582,6 +2630,9 @@ func runtimeDeploymentTargets(input map[string]interface{}) []string {
 	targets = append(targets, stringSliceValue(input["services"])...)
 	if service := strings.TrimSpace(stringValue(input["service"])); service != "" {
 		targets = append(targets, service)
+	}
+	if len(targets) == 0 {
+		targets = append(targets, workflowplan.DeploymentTargetsForRepo(stringValue(input["repo"]))...)
 	}
 	if len(targets) == 0 {
 		targets = append(targets,

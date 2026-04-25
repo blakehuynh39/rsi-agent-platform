@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import hashlib
+import json
 from pathlib import Path
+import shutil
 import time
 from typing import Any
 
@@ -66,6 +68,24 @@ def _string_list(value: Any) -> list[str]:
         if text:
             out.append(text)
     return out
+
+
+def _safe_path_segment(value: Any, default: str) -> str:
+    text = _string(value)
+    out = "".join(ch if ch.isalnum() or ch in {"-", "_", "."} else "-" for ch in text).strip(".-")
+    return out[:96] or default
+
+
+def _json_object_from_string(value: Any) -> JsonObject:
+    if isinstance(value, dict):
+        return value
+    if not isinstance(value, str) or not value.strip():
+        return {}
+    try:
+        parsed = json.loads(value)
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return {}
+    return parsed if isinstance(parsed, dict) else {}
 
 
 def _bool(value: Any) -> bool:
@@ -454,10 +474,10 @@ class HermesCompanyComputer:
         execution_id = _string(getattr(observer, "execution_id", "")) or _string(getattr(task, "execution_id", ""))
         if not execution_id:
             execution_id = _string(raw.get("execution_id")) or _string(raw.get("observation_execution_id")) or f"hexec-{time.time_ns()}"
-        structured_output = _json_object(raw.get("structured_output"))
-        artifacts = self._artifact_records(task, raw, structured_output, execution_id=execution_id)
-        deliveries = self._delivery_records(raw, structured_output, execution_id=execution_id)
         observer_events = self._observer_events(observer)
+        structured_output = _json_object(raw.get("structured_output"))
+        artifacts = self._artifact_records(task, raw, structured_output, observer_events=observer_events, execution_id=execution_id)
+        deliveries = self._delivery_records(raw, structured_output, execution_id=execution_id)
         phase_runs = self._phase_runs(
             task,
             raw,
@@ -578,13 +598,22 @@ class HermesCompanyComputer:
             },
         }
 
-    def _artifact_records(self, task: Any, raw: JsonObject, structured_output: JsonObject, *, execution_id: str) -> list[JsonObject]:
+    def _artifact_records(
+        self,
+        task: Any,
+        raw: JsonObject,
+        structured_output: JsonObject,
+        *,
+        observer_events: list[JsonObject] | None = None,
+        execution_id: str,
+    ) -> list[JsonObject]:
         items: list[JsonObject] = []
         items.extend(_json_object_list(structured_output.get("produced_artifacts")))
         items.extend(_json_object_list(raw.get("produced_artifacts")))
         seen_refs: set[str] = set()
         for path in _string_list(raw.get("native_artifact_paths")):
             items.append({"kind": "artifact", "workspace_path": path, "file_ref": f"file://{path}", "artifact_refs": [f"file://{path}"]})
+        items.extend(self._generic_file_write_artifacts(task, observer_events or [], execution_id=execution_id))
         out: list[JsonObject] = []
         for item in items:
             record = artifact_record(item, execution_id=execution_id)
@@ -595,6 +624,129 @@ class HermesCompanyComputer:
                 seen_refs.add(key)
             out.append(record)
         return out
+
+    def _generic_file_write_artifacts(self, task: Any, observer_events: list[JsonObject], *, execution_id: str) -> list[JsonObject]:
+        if not self._task_has_artifact_intent(task):
+            return []
+        out: list[JsonObject] = []
+        for event in observer_events:
+            if _string(event.get("event_type")) != "tool.call.completed" or _string(event.get("status")).lower() != "completed":
+                continue
+            payload = _json_object(event.get("payload"))
+            tool_name = _string(payload.get("tool_name")).lower()
+            if tool_name not in {"write_file", "workspace_write_file", "workspace.write_file"}:
+                continue
+            args = _json_object(payload.get("args"))
+            source_path = self._resolve_workspace_path(task, args.get("path") or payload.get("path"))
+            if source_path is None or not self._path_allowed_for_artifact(task, source_path) or not source_path.is_file():
+                continue
+            artifact_path = self._canonical_artifact_path(task, source_path)
+            source_text = str(source_path)
+            if artifact_path != source_path:
+                try:
+                    artifact_path.parent.mkdir(parents=True, exist_ok=True)
+                    if artifact_path.exists() and source_path.resolve() != artifact_path.resolve():
+                        artifact_path = self._dedupe_artifact_path(artifact_path)
+                    shutil.copy2(source_path, artifact_path)
+                except OSError:
+                    artifact_path = source_path
+            result = _json_object_from_string(payload.get("result"))
+            size_bytes = result.get("bytes_written") if isinstance(result.get("bytes_written"), int) else 0
+            item: JsonObject = {
+                "kind": self._requested_artifact_kind(task),
+                "title": artifact_path.name,
+                "workspace_path": str(artifact_path),
+                "file_ref": f"file://{artifact_path}",
+                "artifact_refs": [f"file://{artifact_path}"],
+                "size_bytes": size_bytes,
+                "created_by_execution_id": execution_id,
+                "share_status": "local",
+                "source": "generic_write_file",
+            }
+            if str(artifact_path) != source_text:
+                item["source_workspace_path"] = source_text
+            out.append(item)
+        return out
+
+    def _task_has_artifact_intent(self, task: Any) -> bool:
+        if _json_object_list(getattr(task, "requested_artifacts", [])):
+            return True
+        for lease in _json_object_list(getattr(task, "capability_leases", [])):
+            if _string(lease.get("capability")) == ARTIFACT_WRITE and _bool(lease.get("granted", True)):
+                return True
+        intent = _json_object(getattr(task, "execution_intent", {}))
+        haystack = " ".join(
+            _string(intent.get(key)).lower()
+            for key in ("kind", "intent", "user_request", "task_type")
+        )
+        return any(marker in haystack for marker in ("artifact", "diagram", "architecture"))
+
+    def _requested_artifact_kind(self, task: Any) -> str:
+        requested = _json_object_list(getattr(task, "requested_artifacts", []))
+        if requested:
+            return _string(requested[0].get("kind")) or "artifact"
+        intent = _json_object(getattr(task, "execution_intent", {}))
+        return _string(intent.get("kind")) or "artifact"
+
+    def _workspace_policy(self, task: Any) -> JsonObject:
+        return _json_object(getattr(task, "workspace_policy", {})) or default_workspace_policy(
+            task,
+            computer_root=self.computer_root,
+            run_root=self.run_root,
+            artifact_root=self.artifact_root,
+        )
+
+    def _resolve_workspace_path(self, task: Any, path_value: Any) -> Path | None:
+        path_text = _string(path_value)
+        if not path_text:
+            return None
+        path = Path(path_text).expanduser()
+        if path.is_absolute():
+            return path
+        policy = self._workspace_policy(task)
+        root = _string(policy.get("computer_root")) or self.computer_root
+        return Path(root).expanduser() / path
+
+    def _path_allowed_for_artifact(self, task: Any, path: Path) -> bool:
+        try:
+            resolved = path.resolve()
+        except OSError:
+            resolved = path.absolute()
+        policy = self._workspace_policy(task)
+        roots = _string_list(policy.get("allowed_path_roots")) or [self.computer_root, self.run_root, self.artifact_root]
+        for root in roots:
+            if not root:
+                continue
+            try:
+                resolved.relative_to(Path(root).expanduser().resolve())
+                return True
+            except (OSError, ValueError):
+                continue
+        return False
+
+    def _canonical_artifact_path(self, task: Any, source_path: Path) -> Path:
+        try:
+            resolved_source = source_path.resolve()
+        except OSError:
+            resolved_source = source_path.absolute()
+        policy = self._workspace_policy(task)
+        artifact_root = Path(_string(policy.get("artifact_root")) or self.artifact_root).expanduser()
+        try:
+            resolved_source.relative_to(artifact_root.resolve())
+            return resolved_source
+        except (OSError, ValueError):
+            pass
+        intent = _json_object(getattr(task, "execution_intent", {}))
+        repo = _safe_path_segment(getattr(task, "repo", "") or intent.get("repo"), "workspace")
+        operation = _safe_path_segment(getattr(task, "operation_id", "") or getattr(task, "trace_id", ""), "manual")
+        return artifact_root / repo / time.strftime("%Y-%m-%d", time.gmtime()) / operation / source_path.name
+
+    def _dedupe_artifact_path(self, path: Path) -> Path:
+        for index in range(2, 1000):
+            candidate = path.with_name(f"{path.stem}-{index}{path.suffix}")
+            if not candidate.exists():
+                return candidate
+        return path.with_name(f"{path.stem}-{time.time_ns()}{path.suffix}")
 
     def _delivery_records(self, raw: JsonObject, structured_output: JsonObject, *, execution_id: str) -> list[JsonObject]:
         candidates = [_json_object(raw.get("reply_delivery")), _json_object(structured_output.get("reply_delivery"))]

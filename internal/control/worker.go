@@ -3041,6 +3041,16 @@ func liveHintContextRefs(hints workflowplan.LiveHintSet) []clients.RunnerContext
 			Namespaces: append([]string(nil), hints.KubernetesReadNamespaces...),
 		})
 	}
+	if len(hints.DeploymentTargets) > 0 {
+		refs = append(refs, clients.RunnerContextRef{
+			Kind:      "runtime_deployment_targets",
+			Ref:       strings.Join(hints.DeploymentTargets, ","),
+			Summary:   fmt.Sprintf("Runtime deployment targets for live infra lookup: %s.", strings.Join(hints.DeploymentTargets, ", ")),
+			ToolName:  "rsi.runtime_deployment_facts",
+			TargetRef: strings.Join(hints.DeploymentTargets, ","),
+			Repo:      hints.Repo,
+		})
+	}
 	for _, surface := range hints.CandidateReadSurfaces {
 		refs = append(refs, clients.RunnerContextRef{
 			Kind:      "candidate_read_surface",
@@ -3067,6 +3077,9 @@ func liveHintSummary(hints workflowplan.LiveHintSet) string {
 	}
 	if len(hints.KubernetesReadNamespaces) > 0 {
 		parts = append(parts, fmt.Sprintf("Kubernetes read namespaces: %s.", strings.Join(hints.KubernetesReadNamespaces, ", ")))
+	}
+	if len(hints.DeploymentTargets) > 0 {
+		parts = append(parts, fmt.Sprintf("Runtime deployment targets: %s.", strings.Join(hints.DeploymentTargets, ", ")))
 	}
 	if hints.Since != "" && hints.Until != "" {
 		parts = append(parts, fmt.Sprintf("Suggested repo-activity window: %s to %s.", hints.Since, hints.Until))

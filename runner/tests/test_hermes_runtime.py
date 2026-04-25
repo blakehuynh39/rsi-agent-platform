@@ -443,6 +443,34 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertEqual(payload["namespace"], "story")
 
+    def test_readonly_binding_defaults_runtime_deployment_targets(self) -> None:
+        binding = ReadOnlyToolBinding(
+            base_url="http://tool-gateway.internal:8080",
+            allowed_tool_names=["rsi.runtime_deployment_facts"],
+            task_repo="depin-backend",
+            task_repo_ref="main",
+            task_prompt="Draw the deployed architecture.",
+            task_channel_id="C123",
+            task_thread_ts="1777151223.424979",
+            task_context_summary="",
+            trace_id="trace-123",
+            session_scope_kind="conversation",
+            session_scope_id="conv-123",
+            context_refs=[
+                {
+                    "kind": "runtime_deployment_targets",
+                    "target_ref": "depin-backend,depin-ip-registration",
+                    "tool_name": "rsi.runtime_deployment_facts",
+                }
+            ],
+            kubernetes_read_namespaces=["story", "rsi-platform"],
+        )
+
+        payload = binding._default_payload("rsi.runtime_deployment_facts")
+
+        self.assertEqual(payload["services"], ["depin-backend", "depin-ip-registration"])
+        self.assertNotIn("namespace", payload)
+
     def test_native_workflow_enables_configured_company_computer_toolsets(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
@@ -4978,6 +5006,75 @@ class HermesRuntimeTests(unittest.TestCase):
         )
 
         self.assertEqual(event["payload"], {})
+
+    def test_execution_envelope_promotes_generic_write_file_for_artifact_intent(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir:
+            computer_root = Path(tempdir) / "company"
+            artifact_root = computer_root / "artifacts"
+            computer_root.mkdir(parents=True)
+            source_path = computer_root / "depin-backend-architecture.html"
+            source_path.write_text("<html><body><svg></svg></body></html>", encoding="utf-8")
+            task = types.SimpleNamespace(
+                task_type="workflow",
+                repo="depin-backend",
+                trace_id="trace-artifact",
+                workflow_id="wf-artifact",
+                operation_id="op-artifact",
+                requested_artifacts=[],
+                capability_leases=[{"capability": "artifact_write", "granted": True}],
+                execution_intent={"kind": "architecture", "user_request": "draw an architecture diagram"},
+                workspace_policy={
+                    "computer_root": str(computer_root),
+                    "run_root": str(computer_root / ".rsi" / "runs"),
+                    "artifact_root": str(artifact_root),
+                    "allowed_path_roots": [str(computer_root), str(artifact_root)],
+                },
+            )
+            observer = types.SimpleNamespace(
+                execution_id="hexec-artifact",
+                events=lambda: [
+                    {
+                        "execution_id": "hexec-artifact",
+                        "trace_id": "trace-artifact",
+                        "workflow_id": "wf-artifact",
+                        "event_type": "tool.call.completed",
+                        "phase": "main",
+                        "status": "completed",
+                        "seq": 7,
+                        "payload": {
+                            "tool_name": "write_file",
+                            "tool_call_id": "call-write",
+                            "args": {"path": "depin-backend-architecture.html"},
+                            "result": json.dumps({"bytes_written": source_path.stat().st_size}),
+                        },
+                        "recorded_at": "2026-04-25T23:20:00Z",
+                    }
+                ],
+            )
+            result = types.SimpleNamespace(
+                ok=True,
+                message="done",
+                raw={"structured_output": {"final_answer": "done"}},
+            )
+            computer = HermesCompanyComputer(
+                computer_root=str(computer_root),
+                run_root=str(computer_root / ".rsi" / "runs"),
+                artifact_root=str(artifact_root),
+                hermes_pin=HERMES_TEST_PIN,
+            )
+
+            result = computer.attach_envelope(task, result, observer=observer)
+
+            artifact = result.raw["execution_envelope"]["artifacts"][0]
+            artifact_path = Path(artifact["workspace_path"])
+            self.assertEqual(artifact["kind"], "architecture")
+            self.assertTrue(str(artifact_path).startswith(str(artifact_root)))
+            self.assertTrue(artifact_path.exists())
+            self.assertNotEqual(str(artifact_path), str(source_path))
+            self.assertEqual(result.raw["structured_output"]["produced_artifacts"][0]["file_ref"], artifact["file_ref"])
+            ledger_kinds = {item["kind"] for item in result.raw["execution_envelope"]["ledger_events"]}
+            self.assertIn("artifact.created", ledger_kinds)
+            self.assertIn("file.written", ledger_kinds)
 
     def test_artifact_phase_budgets_never_exceed_total_timeout(self) -> None:
         task = RunnerTaskRequest.from_payload(

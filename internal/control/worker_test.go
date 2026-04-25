@@ -2966,8 +2966,8 @@ func TestBuildRunnerTaskCarriesKubernetesReadScope(t *testing.T) {
 	}
 	cfg := config.Config{
 		Environment:               "stage",
-		DefaultRepo:               "rsi-agent-platform",
-		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		DefaultRepo:               "depin-backend",
+		AllowedTargetRepos:        []string{"depin-backend", "rsi-agent-platform"},
 		DefaultKnowledgeBaseURL:   "https://example.test/kb",
 		KubernetesReadNamespaces:  []string{"story"},
 		SandboxNamespace:          "rsi-platform",
@@ -2982,16 +2982,29 @@ func TestBuildRunnerTaskCarriesKubernetesReadScope(t *testing.T) {
 	if !strings.Contains(task.Prompt, "Kubernetes read scope: story, rsi-platform") {
 		t.Fatalf("expected prompt to advertise Kubernetes read scope, got %q", task.Prompt)
 	}
+	if !strings.Contains(task.ContextSummary, "Runtime deployment targets: depin-backend, depin-ip-registration") {
+		t.Fatalf("expected context summary to advertise depin deployment targets, got %q", task.ContextSummary)
+	}
 	var readScope map[string]any
+	var deploymentTargetRef string
 	for _, lease := range task.CapabilityLeases {
 		if lease.Capability == "read_context" {
 			readScope = lease.Scope
 			break
 		}
 	}
+	for _, ref := range task.ContextRefs {
+		if ref.Kind == "runtime_deployment_targets" {
+			deploymentTargetRef = ref.TargetRef
+			break
+		}
+	}
 	namespaces, ok := readScope["kubernetes_read_namespaces"].([]string)
 	if !ok || len(namespaces) != 2 || namespaces[0] != "story" || namespaces[1] != "rsi-platform" {
 		t.Fatalf("expected read_context lease Kubernetes scope, got %#v", readScope)
+	}
+	if deploymentTargetRef != "depin-backend,depin-ip-registration" {
+		t.Fatalf("expected depin runtime deployment target ref, got %q", deploymentTargetRef)
 	}
 }
 

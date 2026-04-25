@@ -44,6 +44,7 @@ type LiveHintSet struct {
 	PreferredTools           []string           `json:"preferred_tools,omitempty"`
 	CandidateReadSurfaces    []SlackSurfaceHint `json:"candidate_read_surfaces,omitempty"`
 	KubernetesReadNamespaces []string           `json:"kubernetes_read_namespaces,omitempty"`
+	DeploymentTargets        []string           `json:"deployment_targets,omitempty"`
 	Since                    string             `json:"since,omitempty"`
 	Until                    string             `json:"until,omitempty"`
 }
@@ -88,6 +89,7 @@ func BuildLiveHints(cfg RuntimeConfig, ctx RequestContext, now time.Time) LiveHi
 		PreferredTools:           ToolPlan(ctx.WorkflowKind, ctx.Question, repo, ctx.ChannelID, ctx.ThreadTS),
 		CandidateReadSurfaces:    CandidateReadSurfacesForContext(ctx),
 		KubernetesReadNamespaces: config.CompactUniqueStrings(cfg.KubernetesReadNamespaces),
+		DeploymentTargets:        DeploymentTargetsForRepo(repo),
 		Since:                    since,
 		Until:                    until,
 	}
@@ -114,6 +116,7 @@ func BuildToolRequestPayload(cfg RuntimeConfig, ctx RequestContext, now time.Tim
 		"topic":                      ctx.Question,
 		"scope_id":                   repo,
 		"service":                    ctx.AssignedBot,
+		"services":                   DeploymentTargetsForRepo(repo),
 		"alert":                      ctx.Question,
 		"namespace":                  cfg.SandboxNamespace,
 		"kubernetes_read_namespaces": config.CompactUniqueStrings(cfg.KubernetesReadNamespaces),
@@ -127,6 +130,15 @@ func BuildToolRequestPayload(cfg RuntimeConfig, ctx RequestContext, now time.Tim
 		"case_id":                    caseID,
 		"since":                      since,
 		"until":                      until,
+	}
+}
+
+func DeploymentTargetsForRepo(repo string) []string {
+	switch strings.ToLower(strings.TrimSpace(repo)) {
+	case "depin-backend":
+		return []string{"depin-backend", "depin-ip-registration"}
+	default:
+		return nil
 	}
 }
 

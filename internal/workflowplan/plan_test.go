@@ -2,6 +2,7 @@ package workflowplan
 
 import (
 	"testing"
+	"time"
 
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 )
@@ -37,6 +38,19 @@ func TestToolPlanAddsRuntimeDeploymentFactsWithoutSlackSearchWhenNoChannelBindin
 	}
 	if containsTool(plan, "slack.search") {
 		t.Fatalf("did not expect slack.search in plan without a bound channel, got %#v", plan)
+	}
+}
+
+func TestBuildLiveHintsCarriesDepinRuntimeDeploymentTargets(t *testing.T) {
+	hints := BuildLiveHints(RuntimeConfig{
+		DefaultRepo:              "depin-backend",
+		KubernetesReadNamespaces: []string{"story", "rsi-platform"},
+	}, RequestContext{
+		Question: "Draw the depin-backend architecture.",
+	}, time.Unix(0, 0).UTC())
+
+	if len(hints.DeploymentTargets) != 2 || hints.DeploymentTargets[0] != "depin-backend" || hints.DeploymentTargets[1] != "depin-ip-registration" {
+		t.Fatalf("deployment targets = %#v", hints.DeploymentTargets)
 	}
 }
 

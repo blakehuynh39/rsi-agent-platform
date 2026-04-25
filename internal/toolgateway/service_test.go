@@ -1298,6 +1298,63 @@ func TestKubernetesInspectBlocksNamespaceOutsideConfiguredReadScope(t *testing.T
 	}
 }
 
+func TestRuntimeDeploymentFactsUsesDepinRepoTargets(t *testing.T) {
+	service := NewService(config.Config{
+		KubernetesReadNamespaces: []string{"story"},
+	}, storepkg.NewMemoryStore())
+	service.kubeClient = kubefake.NewSimpleClientset(
+		&appsv1.Deployment{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "use1-stage-depin-backend",
+				Namespace: "story",
+			},
+			Spec: appsv1.DeploymentSpec{
+				Template: corev1.PodTemplateSpec{
+					Spec: corev1.PodSpec{
+						Containers: []corev1.Container{{
+							Name:  "api",
+							Image: "example.test/depin-backend-api:abc123",
+						}},
+					},
+				},
+			},
+			Status: appsv1.DeploymentStatus{Replicas: 2, ReadyReplicas: 2, AvailableReplicas: 2},
+		},
+		&appsv1.Deployment{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "use1-stage-depin-ip-registration-submitter",
+				Namespace: "story",
+			},
+			Spec: appsv1.DeploymentSpec{
+				Template: corev1.PodTemplateSpec{
+					Spec: corev1.PodSpec{
+						Containers: []corev1.Container{{
+							Name:  "submitter",
+							Image: "example.test/depin-backend-ip-registration:abc123",
+						}},
+					},
+				},
+			},
+		},
+	)
+
+	result := service.Execute("rsi.runtime_deployment_facts", map[string]interface{}{
+		"repo": "depin-backend",
+	})
+
+	if result.Status != "ok" {
+		t.Fatalf("expected ok status, got %s %#v", result.Status, result.Output)
+	}
+	targets, ok := result.Output["service_targets"].([]string)
+	if !ok || len(targets) != 2 || targets[0] != "depin-backend" || targets[1] != "depin-ip-registration" {
+		t.Fatalf("unexpected service targets %#v", result.Output["service_targets"])
+	}
+	deployments, ok := result.Output["deployments"].([]map[string]interface{})
+	if !ok || len(deployments) != 2 {
+		t.Fatalf("expected API and ip-registration deployments, got %#v", result.Output["deployments"])
+	}
+}
+
 func TestKubernetesInspectTreatsForbiddenNamespaceAsPolicyBlocked(t *testing.T) {
 	service := NewService(config.Config{}, storepkg.NewMemoryStore())
 	client := kubefake.NewSimpleClientset()
@@ -1371,6 +1428,61 @@ func TestKubernetesInspectFansOutAcrossConfiguredReadNamespaces(t *testing.T) {
 	}
 }
 
+func TestKubernetesInspectIncludesScaledToZeroDeployments(t *testing.T) {
+	service := NewService(config.Config{
+		KubernetesReadNamespaces: []string{"story"},
+	}, storepkg.NewMemoryStore())
+	service.kubeClient = kubefake.NewSimpleClientset(
+		&appsv1.Deployment{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "use1-stage-depin-ip-registration-poller",
+				Namespace: "story",
+				Labels:    map[string]string{"app.kubernetes.io/name": "depin-ip-registration"},
+			},
+			Spec: appsv1.DeploymentSpec{
+				Replicas: int32Ptr(0),
+				Template: corev1.PodTemplateSpec{
+					Spec: corev1.PodSpec{
+						Containers: []corev1.Container{{
+							Name:  "poller",
+							Image: "783268398689.dkr.ecr.us-east-1.amazonaws.com/depin-backend-ip-registration:abc123",
+						}},
+					},
+				},
+			},
+			Status: appsv1.DeploymentStatus{
+				ObservedGeneration: 7,
+				Replicas:           0,
+				ReadyReplicas:      0,
+				UpdatedReplicas:    0,
+				AvailableReplicas:  0,
+			},
+		},
+	)
+
+	result := service.Execute("kubernetes.inspect", map[string]interface{}{
+		"target": "ip-registration",
+	})
+
+	if result.Status != "ok" {
+		t.Fatalf("expected ok status, got %s %#v", result.Status, result.Output)
+	}
+	pods, ok := result.Output["pods"].([]map[string]interface{})
+	if !ok || len(pods) != 0 {
+		t.Fatalf("expected no pods for scaled-to-zero worker, got %#v", result.Output["pods"])
+	}
+	deployments, ok := result.Output["deployments"].([]map[string]interface{})
+	if !ok || len(deployments) != 1 {
+		t.Fatalf("expected one matching deployment, got %#v", result.Output["deployments"])
+	}
+	if got := deployments[0]["name"]; got != "use1-stage-depin-ip-registration-poller" {
+		t.Fatalf("unexpected deployment name %#v", got)
+	}
+	if got := deployments[0]["replicas"]; got != int32(0) {
+		t.Fatalf("expected replicas=0 for scaled-to-zero worker, got %#v", got)
+	}
+}
+
 func TestRSITraceContextReturnsTraceEvidence(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	workflow := store.ListWorkflows()[0]
@@ -1425,6 +1537,10 @@ func TestRSITraceContextReturnsTraceEvidence(t *testing.T) {
 	if _, ok := result.Output["harness_executions"].([]interface{}); !ok {
 		t.Fatalf("expected harness_executions in output, got %#v", result.Output["harness_executions"])
 	}
+}
+
+func int32Ptr(value int32) *int32 {
+	return &value
 }
 
 func TestRuntimeObservationsPersistAndSurfaceThroughTraceAndRunnerViews(t *testing.T) {
