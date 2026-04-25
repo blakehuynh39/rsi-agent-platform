@@ -1932,6 +1932,7 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 	targetRepo := evalTargetRepo(cfg, store, trace)
 	repoAllowlist := scopedImprovementRepoAllowlist(targetRepo)
 	toolAllowlist := improvementReadOnlyTools(effectiveHarness)
+	kubernetesReadNamespaceScope := cfg.KubernetesReadNamespaceScope()
 	candidateKey := ""
 	if candidate, ok := latestCandidateForTrace(store, trace.Summary.TraceID); ok {
 		candidateKey = candidate.CandidateKey
@@ -2040,6 +2041,7 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 		MemoryBackend:             harness.DefaultMemoryBackend,
 		AssistantPeerID:           fmt.Sprintf("rsi:%s:eval", cfg.Environment),
 		UserPeerID:                fmt.Sprintf("line:%s", sessionScopeID),
+		KubernetesReadNamespaces:  kubernetesReadNamespaceScope,
 		ContractVersion:           clients.RunnerExecutionContractVersion,
 		ExecutionIntent: map[string]any{
 			"kind":                "eval",
@@ -2048,7 +2050,7 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 			"eval_id":             firstNonEmpty(strings.TrimSpace(evalID), run.ID),
 			"operation_id":        strings.TrimSpace(operationID),
 		},
-		CapabilityLeases: improvementCapabilityLeases(false),
+		CapabilityLeases: improvementCapabilityLeases(false, kubernetesReadNamespaceScope),
 		DeliveryPolicy:   improvementDeliveryPolicy(trace.Summary.TraceID),
 		WorkspacePolicy:  runnerutil.WorkspacePolicyFromConfig(cfg),
 		ApprovalPolicy:   improvementApprovalPolicy(false),
@@ -2060,6 +2062,7 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 	targetRepo := proposalTargetRepo(cfg, proposal)
 	repoAllowlist := scopedImprovementRepoAllowlist(targetRepo)
 	sessionScopeID := proposalSessionScopeID(proposal, targetRepo)
+	kubernetesReadNamespaceScope := cfg.KubernetesReadNamespaceScope()
 	executionMode := "investigate"
 	toolAllowlist := improvementReadOnlyTools(effectiveHarness)
 	if workspace != nil {
@@ -2225,6 +2228,7 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 		WorkspaceRepo:             workspaceRepoValue(workspace),
 		WorkspaceBranch:           workspaceBranchValue(workspace),
 		AllowedPathGlobs:          workspaceAllowedPathGlobsValue(workspace),
+		KubernetesReadNamespaces:  kubernetesReadNamespaceScope,
 		ContractVersion:           clients.RunnerExecutionContractVersion,
 		ExecutionIntent: map[string]any{
 			"kind":                "proposal",
@@ -2234,7 +2238,7 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 			"attempt_id":          attempt.ID,
 			"execution_mode":      executionMode,
 		},
-		CapabilityLeases: improvementCapabilityLeases(workspace != nil),
+		CapabilityLeases: improvementCapabilityLeases(workspace != nil, kubernetesReadNamespaceScope),
 		DeliveryPolicy:   improvementDeliveryPolicy(trace.Summary.TraceID),
 		WorkspacePolicy:  runnerutil.WorkspacePolicyFromConfig(cfg),
 		ApprovalPolicy:   improvementApprovalPolicy(false),
@@ -2244,6 +2248,7 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 func buildRuntimeDiagnosisRunnerTask(cfg config.Config, store storepkg.Store, diagnosis improvement.RuntimeDiagnosis, candidate improvement.Candidate, trace events.Trace) clients.RunnerTask {
 	effectiveHarness := harness.ResolveEffectiveConfig(store, "proposal", cfg.DefaultReasoningVerbosity)
 	targetRepo := firstNonEmpty(strings.TrimSpace(diagnosis.Repo), runtimeDiagnosisTargetRepo(cfg, candidate), cfg.DefaultRepo)
+	kubernetesReadNamespaceScope := cfg.KubernetesReadNamespaceScope()
 	toolAllowlist := runtimeDiagnosisRunnerTools(cfg.RuntimeDiagnosisLogFallbackEnabled)
 	contextRefs := []clients.RunnerContextRef{
 		{
@@ -2340,6 +2345,7 @@ func buildRuntimeDiagnosisRunnerTask(cfg config.Config, store storepkg.Store, di
 		MemoryBackend:             harness.DefaultMemoryBackend,
 		AssistantPeerID:           fmt.Sprintf("rsi:%s:proposal", cfg.Environment),
 		UserPeerID:                fmt.Sprintf("runtime_diagnosis:%s", firstNonEmpty(strings.TrimSpace(diagnosis.SessionScopeID), runtimeDiagnosisSessionScopeID(candidate.CandidateKey, targetRepo))),
+		KubernetesReadNamespaces:  kubernetesReadNamespaceScope,
 		ContractVersion:           clients.RunnerExecutionContractVersion,
 		ExecutionIntent: map[string]any{
 			"kind":                "runtime_diagnosis",
@@ -2348,7 +2354,7 @@ func buildRuntimeDiagnosisRunnerTask(cfg config.Config, store storepkg.Store, di
 			"diagnosis_id":        diagnosis.ID,
 			"candidate_key":       candidate.CandidateKey,
 		},
-		CapabilityLeases: improvementCapabilityLeases(false),
+		CapabilityLeases: improvementCapabilityLeases(false, kubernetesReadNamespaceScope),
 		DeliveryPolicy:   improvementDeliveryPolicy(trace.Summary.TraceID),
 		WorkspacePolicy:  runnerutil.WorkspacePolicyFromConfig(cfg),
 		ApprovalPolicy:   improvementApprovalPolicy(false),
@@ -3221,12 +3227,13 @@ func firstNonEmpty(values ...string) string {
 	return ""
 }
 
-func improvementCapabilityLeases(workspaceWrite bool) []clients.RunnerCapabilityLease {
+func improvementCapabilityLeases(workspaceWrite bool, kubernetesReadNamespaces []string) []clients.RunnerCapabilityLease {
 	capabilities := []string{"read_context", "workspace_read", "memory_read", "memory_write", "platform_mutation_request"}
 	if workspaceWrite {
 		capabilities = append(capabilities, "workspace_write")
 	}
-	return clients.RunnerCapabilityLeases(capabilities...)
+	leases := clients.RunnerCapabilityLeases(capabilities...)
+	return clients.AttachKubernetesReadNamespacesToLeases(leases, kubernetesReadNamespaces)
 }
 
 func improvementDeliveryPolicy(traceID string) *clients.RunnerDeliveryPolicy {

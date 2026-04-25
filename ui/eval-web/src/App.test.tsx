@@ -664,11 +664,44 @@ describe("App", () => {
       status: "streaming",
       seq: 1,
       recorded_at: "2026-04-11T12:02:00Z",
-      payload: { delta: "reading repo files" }
+      payload: { delta: "reading " }
+    });
+    MockEventSource.instances[0].emit("ledger", {
+      id: "xled-live-2",
+      execution_id: "hexec-live",
+      trace_id: "trace-001",
+      workflow_id: "wf-001",
+      phase_id: "investigate",
+      kind: "model.reasoning.delta",
+      status: "streaming",
+      seq: 2,
+      recorded_at: "2026-04-11T12:02:01Z",
+      payload: { delta: "repo files" }
+    });
+    MockEventSource.instances[0].emit("ledger", {
+      id: "xled-live-3",
+      execution_id: "hexec-live",
+      trace_id: "trace-001",
+      workflow_id: "wf-001",
+      phase_id: "investigate",
+      kind: "tool.call.completed",
+      status: "completed",
+      seq: 3,
+      recorded_at: "2026-04-11T12:02:02Z",
+      payload: {
+        tool_name: "repo_read_file",
+        result: JSON.stringify({
+          status: "ok",
+          summary: "Repository file README.md loaded."
+        })
+      }
     });
 
-    expect(await screen.findByText("model.reasoning.delta")).toBeInTheDocument();
+    expect(await screen.findByText("Reasoning stream")).toBeInTheDocument();
+    expect(screen.getByText("model.reasoning.delta · 2 chunks")).toBeInTheDocument();
     expect(screen.getByText("reading repo files")).toBeInTheDocument();
+    expect(screen.getByText("Tool completed: repo_read_file")).toBeInTheDocument();
+    expect(screen.getByText("Repository file README.md loaded. · status: ok")).toBeInTheDocument();
   });
 
   it("renders Slack transcript entries with readable Slack names and channel labels", async () => {

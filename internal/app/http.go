@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -20,7 +21,7 @@ func NewBaseRouter(cfg config.Config) *chi.Mux {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Logger)
-	r.Use(middleware.Timeout(15 * time.Second))
+	r.Use(timeoutExceptEventStreams(15 * time.Second))
 	r.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		WriteJSON(w, http.StatusOK, map[string]string{"status": "ok", "service": cfg.ServiceName})
 	})
@@ -59,6 +60,27 @@ func NewBaseRouter(cfg config.Config) *chi.Mux {
 		})
 	})
 	return r
+}
+
+func timeoutExceptEventStreams(timeout time.Duration) func(http.Handler) http.Handler {
+	timeoutMiddleware := middleware.Timeout(timeout)
+	return func(next http.Handler) http.Handler {
+		timed := timeoutMiddleware(next)
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if requestIsEventStream(r) {
+				next.ServeHTTP(w, r)
+				return
+			}
+			timed.ServeHTTP(w, r)
+		})
+	}
+}
+
+func requestIsEventStream(r *http.Request) bool {
+	if r == nil || r.URL == nil {
+		return false
+	}
+	return strings.HasSuffix(strings.TrimRight(r.URL.Path, "/"), "/stream")
 }
 
 func WriteError(w http.ResponseWriter, status int, err error) {

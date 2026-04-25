@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import base64
 from copy import deepcopy
 from dataclasses import dataclass, field
 import json
@@ -13,11 +12,11 @@ from urllib import request as urlrequest
 
 from .json_types import JsonObject, JsonToolFunctionSchema, JsonToolWrapperSchema
 from .observability import ObservationEmitter
+from .slack_uploads import prepare_local_slack_upload_payload
 
 
 READ_ONLY_HONCHO_TOOLS = frozenset({"honcho_profile", "honcho_search", "honcho_context"})
 BLOCKED_HONCHO_TOOLS = frozenset({"honcho_conclude"})
-_LOCAL_UPLOAD_MAX_BYTES = 10 * 1024 * 1024
 
 
 _READ_ONLY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
@@ -157,7 +156,7 @@ _READ_ONLY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     },
     "kubernetes.inspect": {
         "name": "kubernetes.inspect",
-        "description": "Read-only Kubernetes pod and event inspection for a namespace and target selector.",
+        "description": "Read-only Kubernetes pod and event inspection within the configured namespace scope. Omit namespace to search all allowed namespaces.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -169,7 +168,7 @@ _READ_ONLY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     },
     "kubernetes.logs": {
         "name": "kubernetes.logs",
-        "description": "Read-only Kubernetes pod log lookup for a namespace and target or pod name.",
+        "description": "Read-only Kubernetes pod log lookup within the configured namespace scope. Omit namespace to search all allowed namespaces.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -182,7 +181,7 @@ _READ_ONLY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     },
     "kubernetes.events": {
         "name": "kubernetes.events",
-        "description": "Read-only Kubernetes event lookup for a namespace and target selector.",
+        "description": "Read-only Kubernetes event lookup within the configured namespace scope. Omit namespace to search all allowed namespaces.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -264,7 +263,7 @@ _READ_ONLY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     },
     "rsi.runtime_deployment_facts": {
         "name": "rsi.runtime_deployment_facts",
-        "description": "Read-only RSI deployment and runtime-configuration facts, including live Kubernetes deployment state when available.",
+        "description": "Read-only RSI deployment and runtime-configuration facts, including live Kubernetes deployment state across the configured namespace scope when available.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -757,6 +756,7 @@ class ReadOnlyToolBinding:
     execution_phase: str = ""
     attempt_id: str = ""
     workspace_id: str = ""
+    kubernetes_read_namespaces: list[str] = field(default_factory=list)
     timeout_seconds: int = 30
     selected_context_surfaces: list[JsonObject] = field(default_factory=list)
     tool_calls: list[JsonObject] = field(default_factory=list)
@@ -955,18 +955,7 @@ class ReadOnlyToolBinding:
         resolved_path = self._resolve_local_upload_path(payload)
         if resolved_path is None:
             return payload
-        stat = resolved_path.stat()
-        if stat.st_size <= 0:
-            raise ValueError(f"slack.upload_file local file is empty: {resolved_path}")
-        if stat.st_size > _LOCAL_UPLOAD_MAX_BYTES:
-            raise ValueError(
-                f"slack.upload_file local file exceeds {_LOCAL_UPLOAD_MAX_BYTES} bytes: {resolved_path}"
-            )
-        updated = dict(payload)
-        updated["content_base64"] = base64.b64encode(resolved_path.read_bytes()).decode("ascii")
-        updated["filename"] = first_non_empty(_string_value(updated.get("filename")), resolved_path.name)
-        updated["path"] = str(resolved_path)
-        return updated
+        return prepare_local_slack_upload_payload(payload, resolved_path)
 
     def _resolve_local_upload_path(self, payload: JsonObject) -> Path | None:
         raw_path = first_non_empty(_string_value(payload.get("path")), _string_value(payload.get("artifact_ref")))
@@ -1486,6 +1475,10 @@ class ReadOnlyToolBinding:
             attempt_id = self._attempt_id_from_context_refs()
             if attempt_id:
                 payload["attempt_id"] = attempt_id
+        if name in {"kubernetes.inspect", "kubernetes.logs", "kubernetes.events", "rsi.runtime_deployment_facts"}:
+            namespaces = _string_list(self.kubernetes_read_namespaces)
+            if len(namespaces) == 1:
+                payload["namespace"] = namespaces[0]
         if name.startswith("workspace."):
             if self.workspace_id:
                 payload["workspace_id"] = self.workspace_id

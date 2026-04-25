@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -25,8 +26,12 @@ import (
 	slackapi "github.com/slack-go/slack"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	kubefake "k8s.io/client-go/kubernetes/fake"
+	k8stesting "k8s.io/client-go/testing"
 )
 
 func TestGitHubCreatePRUsesExternalAPI(t *testing.T) {
@@ -1266,6 +1271,103 @@ func TestRSIRuntimeDeploymentFactsReturnsDeploymentSummary(t *testing.T) {
 	images, ok := deployments[0]["images"].([]string)
 	if !ok || len(images) != 1 || images[0] != "ghcr.io/piplabs/control-plane:abc123" {
 		t.Fatalf("unexpected images %#v", deployments[0]["images"])
+	}
+}
+
+func TestKubernetesInspectBlocksNamespaceOutsideConfiguredReadScope(t *testing.T) {
+	service := NewService(config.Config{
+		KubernetesReadNamespaces: []string{"story", "rsi-platform"},
+		SandboxNamespace:         "rsi-platform",
+	}, storepkg.NewMemoryStore())
+	service.kubeClient = kubefake.NewSimpleClientset()
+
+	result := service.Execute("kubernetes.inspect", map[string]interface{}{
+		"namespace": "match-maker",
+		"target":    "match-maker-agent",
+	})
+
+	if result.Status != "blocked" {
+		t.Fatalf("expected blocked status, got %s %#v", result.Status, result.Output)
+	}
+	if got := result.Output["error"]; got != "namespace_not_allowed" {
+		t.Fatalf("expected namespace_not_allowed, got %#v", got)
+	}
+	allowed, ok := result.Output["allowed_namespaces"].([]string)
+	if !ok || len(allowed) != 2 || allowed[0] != "story" || allowed[1] != "rsi-platform" {
+		t.Fatalf("unexpected allowed namespaces %#v", result.Output["allowed_namespaces"])
+	}
+}
+
+func TestKubernetesInspectTreatsForbiddenNamespaceAsPolicyBlocked(t *testing.T) {
+	service := NewService(config.Config{}, storepkg.NewMemoryStore())
+	client := kubefake.NewSimpleClientset()
+	client.Fake.PrependReactor("list", "pods", func(action k8stesting.Action) (bool, runtime.Object, error) {
+		return true, nil, apierrors.NewForbidden(schema.GroupResource{Resource: "pods"}, action.GetNamespace(), errors.New("rbac denied"))
+	})
+	service.kubeClient = client
+
+	result := service.Execute("kubernetes.inspect", map[string]interface{}{
+		"namespace": "match-maker",
+		"target":    "match-maker-agent",
+	})
+
+	if result.Status != "blocked" {
+		t.Fatalf("expected blocked status, got %s %#v", result.Status, result.Output)
+	}
+	if got := result.Output["error_class"]; got != "kubernetes_forbidden" {
+		t.Fatalf("expected kubernetes_forbidden, got %#v", got)
+	}
+}
+
+func TestKubernetesInspectFansOutAcrossConfiguredReadNamespaces(t *testing.T) {
+	service := NewService(config.Config{
+		KubernetesReadNamespaces: []string{"story", "rsi-platform"},
+		SandboxNamespace:         "rsi-platform",
+	}, storepkg.NewMemoryStore())
+	service.kubeClient = kubefake.NewSimpleClientset(
+		&corev1.Pod{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "use1-stage-depin-backend-7c9d",
+				Namespace: "story",
+				Labels:    map[string]string{"app.kubernetes.io/name": "depin-backend"},
+			},
+			Status: corev1.PodStatus{Phase: corev1.PodRunning},
+		},
+		&corev1.Pod{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "use1-stage-rsi-agent-platform-control-plane-5f8d",
+				Namespace: "rsi-platform",
+				Labels:    map[string]string{"app.kubernetes.io/name": "control-plane"},
+			},
+			Status: corev1.PodStatus{Phase: corev1.PodRunning},
+		},
+		&corev1.Pod{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "use1-stage-match-maker-agent-6d4c",
+				Namespace: "match-maker",
+				Labels:    map[string]string{"app.kubernetes.io/name": "match-maker"},
+			},
+			Status: corev1.PodStatus{Phase: corev1.PodRunning},
+		},
+	)
+
+	result := service.Execute("kubernetes.inspect", map[string]interface{}{
+		"target": "depin-backend",
+	})
+
+	if result.Status != "ok" {
+		t.Fatalf("expected ok status, got %s %#v", result.Status, result.Output)
+	}
+	namespaces, ok := result.Output["namespaces"].([]string)
+	if !ok || len(namespaces) != 2 || namespaces[0] != "story" || namespaces[1] != "rsi-platform" {
+		t.Fatalf("unexpected namespaces %#v", result.Output["namespaces"])
+	}
+	pods, ok := result.Output["pods"].([]map[string]interface{})
+	if !ok || len(pods) != 1 {
+		t.Fatalf("expected one matching pod, got %#v", result.Output["pods"])
+	}
+	if got := pods[0]["namespace"]; got != "story" {
+		t.Fatalf("expected story namespace pod, got %#v", pods[0])
 	}
 }
 

@@ -1105,10 +1105,11 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	priorTraceRefs := priorTraceRefsForCase(store.ListTraces(), trace.Summary.CaseID, trace.Summary.TraceID)
 	sessionScopeKind, sessionScopeID, parentScopeKind, parentScopeID := workflowSessionScope(trace, workflow)
 	liveHints := workflowplan.BuildLiveHints(workflowplan.RuntimeConfig{
-		DefaultRepo:      cfg.DefaultRepo,
-		AllowedRepos:     append([]string(nil), cfg.AllowedTargetRepos...),
-		KnowledgeBaseURL: cfg.DefaultKnowledgeBaseURL,
-		SandboxNamespace: cfg.SandboxNamespace,
+		DefaultRepo:              cfg.DefaultRepo,
+		AllowedRepos:             append([]string(nil), cfg.AllowedTargetRepos...),
+		KnowledgeBaseURL:         cfg.DefaultKnowledgeBaseURL,
+		SandboxNamespace:         cfg.SandboxNamespace,
+		KubernetesReadNamespaces: cfg.KubernetesReadNamespaceScope(),
 	}, workflowplan.RequestContext{
 		Trace:          trace.Summary,
 		WorkflowID:     workflow.ID,
@@ -1135,6 +1136,7 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		workflowRunnerSystemMessage(hasSlackMCPServer(mcpServers), hasNotionMCPServer(mcpServers), replyDeliveryMode, requestedArtifacts),
 		effectiveHarness,
 	)
+	kubernetesReadNamespaceScope := cfg.KubernetesReadNamespaceScope()
 	promptParts := []string{
 		fmt.Sprintf("User request: %s", userRequest),
 	}
@@ -1142,6 +1144,9 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		promptParts = append(promptParts, "Bound Slack thread context is attached in the task evidence. Recover the main request from that thread context before answering, and treat the latest inbound message as a follow-up within that thread.")
 	}
 	promptParts = append(promptParts, "Investigate within the governed tool boundary. Start with the attached persisted evidence and context, then expand with tools as needed. Cite concrete evidence when possible. Default any Slack reply to the ingress thread.")
+	if len(kubernetesReadNamespaceScope) > 0 {
+		promptParts = append(promptParts, fmt.Sprintf("Kubernetes read scope: %s. For governed Kubernetes tools, omit namespace when you need to search the full allowed scope; otherwise use only one of these namespaces. Do not probe unlisted or archived namespaces.", strings.Join(kubernetesReadNamespaceScope, ", ")))
+	}
 	prompt := strings.Join(promptParts, "\n\n")
 	if len(requestedArtifacts) > 0 {
 		prompt = fmt.Sprintf("%s\n\nRequested artifacts: %s\nIf an artifact cannot be produced, explain why in artifact_failure_reason and still return the best grounded reply you can.", prompt, mustJSONString(requestedArtifacts))
@@ -1196,6 +1201,7 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		MemoryBackend:             harness.DefaultMemoryBackend,
 		AssistantPeerID:           fmt.Sprintf("rsi:%s:%s", cfg.Environment, role),
 		UserPeerID:                workflowUserPeerID(store.ListConversationEntries(trace.Summary.ConversationID), sessionScopeKind, sessionScopeID),
+		KubernetesReadNamespaces:  kubernetesReadNamespaceScope,
 		ContractVersion:           clients.RunnerExecutionContractVersion,
 		ExecutionIntent: map[string]any{
 			"kind":                workflow.Kind,
@@ -1203,14 +1209,14 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 			"user_request":        userRequest,
 			"runner_planner_mode": firstNonEmpty(cfg.RunnerPlannerMode, "runner_first"),
 		},
-		CapabilityLeases: workflowCapabilityLeases(replyDeliveryMode),
+		CapabilityLeases: workflowCapabilityLeases(replyDeliveryMode, kubernetesReadNamespaceScope),
 		DeliveryPolicy:   runnerDeliveryPolicy(ingestion.ChannelID, ingestion.ThreadTS, replyDeliveryMode, trace.Summary.TraceID),
 		WorkspacePolicy:  runnerutil.WorkspacePolicyFromConfig(cfg),
 		ApprovalPolicy:   runnerApprovalPolicy(replyDeliveryMode == "direct"),
 	}
 }
 
-func workflowCapabilityLeases(replyDeliveryMode string) []clients.RunnerCapabilityLease {
+func workflowCapabilityLeases(replyDeliveryMode string, kubernetesReadNamespaces []string) []clients.RunnerCapabilityLease {
 	capabilities := []string{
 		"read_context",
 		"workspace_read",
@@ -1226,7 +1232,8 @@ func workflowCapabilityLeases(replyDeliveryMode string) []clients.RunnerCapabili
 	case "mediated":
 		capabilities = append(capabilities, "slack_upload")
 	}
-	return clients.RunnerCapabilityLeases(capabilities...)
+	leases := clients.RunnerCapabilityLeases(capabilities...)
+	return clients.AttachKubernetesReadNamespacesToLeases(leases, kubernetesReadNamespaces)
 }
 
 func runnerDeliveryPolicy(channelID string, threadTS string, replyDeliveryMode string, traceID string) *clients.RunnerDeliveryPolicy {
@@ -2462,10 +2469,11 @@ func workflowLocatorForEffect(store storepkg.Store, effect transition.EffectExec
 
 func toolInputForIntent(cfg config.Config, trace events.TraceSummary, workflow storepkg.Workflow, ingestion slackpkg.Ingestion) map[string]any {
 	return workflowplan.BuildToolRequestPayload(workflowplan.RuntimeConfig{
-		DefaultRepo:      cfg.DefaultRepo,
-		AllowedRepos:     append([]string(nil), cfg.AllowedTargetRepos...),
-		KnowledgeBaseURL: cfg.DefaultKnowledgeBaseURL,
-		SandboxNamespace: cfg.SandboxNamespace,
+		DefaultRepo:              cfg.DefaultRepo,
+		AllowedRepos:             append([]string(nil), cfg.AllowedTargetRepos...),
+		KnowledgeBaseURL:         cfg.DefaultKnowledgeBaseURL,
+		SandboxNamespace:         cfg.SandboxNamespace,
+		KubernetesReadNamespaces: cfg.KubernetesReadNamespaceScope(),
 	}, workflowplan.RequestContext{
 		Trace:          trace,
 		WorkflowID:     workflow.ID,
@@ -3024,6 +3032,15 @@ func liveHintContextRefs(hints workflowplan.LiveHintSet) []clients.RunnerContext
 			Summary:  fmt.Sprintf("Suggested starting tool: %s.", toolName),
 		})
 	}
+	if len(hints.KubernetesReadNamespaces) > 0 {
+		refs = append(refs, clients.RunnerContextRef{
+			Kind:       "kubernetes_read_scope",
+			Ref:        strings.Join(hints.KubernetesReadNamespaces, ","),
+			Summary:    fmt.Sprintf("Kubernetes read namespace scope: %s.", strings.Join(hints.KubernetesReadNamespaces, ", ")),
+			ToolName:   "kubernetes.*",
+			Namespaces: append([]string(nil), hints.KubernetesReadNamespaces...),
+		})
+	}
 	for _, surface := range hints.CandidateReadSurfaces {
 		refs = append(refs, clients.RunnerContextRef{
 			Kind:      "candidate_read_surface",
@@ -3047,6 +3064,9 @@ func liveHintSummary(hints workflowplan.LiveHintSet) string {
 	}
 	if len(hints.PreferredTools) > 0 {
 		parts = append(parts, fmt.Sprintf("Preferred starting tools: %s.", strings.Join(uniqueStrings(hints.PreferredTools), ", ")))
+	}
+	if len(hints.KubernetesReadNamespaces) > 0 {
+		parts = append(parts, fmt.Sprintf("Kubernetes read namespaces: %s.", strings.Join(hints.KubernetesReadNamespaces, ", ")))
 	}
 	if hints.Since != "" && hints.Until != "" {
 		parts = append(parts, fmt.Sprintf("Suggested repo-activity window: %s to %s.", hints.Since, hints.Until))
@@ -3232,37 +3252,24 @@ func traceArtifactsFromExecutionLedger(traceID string, items []events.ExecutionL
 
 func toolCallRecordsFromExecutionLedger(items []events.ExecutionLedgerEvent, createdAt time.Time) []events.ToolCallRecord {
 	out := make([]events.ToolCallRecord, 0)
+	seen := map[string]int{}
 	for index, item := range items {
-		if !strings.HasPrefix(strings.TrimSpace(item.Kind), "tool.") {
-			continue
-		}
-		payload := item.Payload
-		toolName := firstNonEmpty(
-			strings.TrimSpace(stringValueFromMap(payload, "tool_name")),
-			strings.TrimSpace(stringValueFromMap(payload, "name")),
-			strings.TrimPrefix(strings.TrimSpace(item.Kind), "tool."),
-		)
-		toolCallID := firstNonEmpty(
-			strings.TrimSpace(stringValueFromMap(payload, "tool_call_id")),
-			strings.TrimSpace(stringValueFromMap(payload, "call_id")),
-			strings.TrimSpace(item.ID),
-		)
-		if toolName == "" && toolCallID == "" {
-			continue
-		}
 		recordedAt := item.RecordedAt
 		if recordedAt.IsZero() {
 			recordedAt = createdAt
 		}
-		out = append(out, events.ToolCallRecord{
-			ID:         firstNonEmpty(strings.TrimSpace(item.ID), fmt.Sprintf("runner-ledger-tool-%d", index)),
-			ToolName:   toolName,
-			ToolCallID: toolCallID,
-			Request:    payload,
-			Summary:    strings.TrimSpace(item.Kind),
-			Status:     strings.TrimSpace(item.Status),
-			CreatedAt:  recordedAt,
-		})
+		record, ok := toolCallRecordFromLedgerFields(
+			strings.TrimSpace(item.ID),
+			strings.TrimSpace(item.Kind),
+			strings.TrimSpace(item.Status),
+			item.Payload,
+			recordedAt,
+			index,
+		)
+		if !ok {
+			continue
+		}
+		out = appendOrReplaceToolCallRecord(out, seen, record)
 	}
 	return out
 }
@@ -3277,37 +3284,125 @@ func toolCallRecordsFromExecutionEnvelope(raw map[string]any) []events.ToolCallR
 		return nil
 	}
 	out := make([]events.ToolCallRecord, 0)
+	seen := map[string]int{}
 	for index, value := range items {
 		item := mapValue(value)
 		kind := strings.TrimSpace(stringValueFromMap(item, "kind"))
-		if !strings.HasPrefix(kind, "tool.") {
-			continue
-		}
 		payload := mapValue(item["payload"])
-		toolName := firstNonEmpty(
-			strings.TrimSpace(stringValueFromMap(payload, "tool_name")),
-			strings.TrimSpace(stringValueFromMap(payload, "name")),
-			strings.TrimPrefix(kind, "tool."),
-		)
-		toolCallID := firstNonEmpty(
-			strings.TrimSpace(stringValueFromMap(payload, "tool_call_id")),
-			strings.TrimSpace(stringValueFromMap(payload, "call_id")),
+		record, ok := toolCallRecordFromLedgerFields(
 			strings.TrimSpace(stringValueFromMap(item, "event_id")),
+			kind,
+			strings.TrimSpace(stringValueFromMap(item, "status")),
+			payload,
+			time.Now().UTC(),
+			index,
 		)
-		if toolName == "" && toolCallID == "" {
+		if !ok {
 			continue
 		}
-		out = append(out, events.ToolCallRecord{
-			ID:         firstNonEmpty(strings.TrimSpace(stringValueFromMap(item, "event_id")), fmt.Sprintf("runner-ledger-tool-%d", index)),
-			ToolName:   toolName,
-			ToolCallID: toolCallID,
-			Request:    payload,
-			Summary:    kind,
-			Status:     strings.TrimSpace(stringValueFromMap(item, "status")),
-			CreatedAt:  time.Now().UTC(),
-		})
+		out = appendOrReplaceToolCallRecord(out, seen, record)
 	}
 	return out
+}
+
+func toolCallRecordFromLedgerFields(id string, kind string, status string, payload map[string]any, createdAt time.Time, index int) (events.ToolCallRecord, bool) {
+	if !isProjectedToolCallLedgerKind(kind) {
+		return events.ToolCallRecord{}, false
+	}
+	result := toolCallResultPayload(payload)
+	toolName := firstNonEmpty(
+		strings.TrimSpace(stringValueFromMap(payload, "tool_name")),
+		strings.TrimSpace(stringValueFromMap(payload, "name")),
+		strings.TrimSpace(stringValueFromMap(result, "transport_tool_name")),
+		strings.TrimSpace(stringValueFromMap(result, "tool_name")),
+	)
+	toolCallID := firstNonEmpty(
+		strings.TrimSpace(stringValueFromMap(payload, "tool_call_id")),
+		strings.TrimSpace(stringValueFromMap(payload, "call_id")),
+		strings.TrimSpace(id),
+	)
+	if toolName == "" && toolCallID == "" {
+		return events.ToolCallRecord{}, false
+	}
+	summary := firstNonEmpty(
+		strings.TrimSpace(stringValueFromMap(result, "summary")),
+		strings.TrimSpace(stringValueFromMap(payload, "summary")),
+		strings.TrimSpace(kind),
+	)
+	rawArtifactRefs := stringSliceFromMap(result, "raw_artifact_refs")
+	if len(rawArtifactRefs) == 0 {
+		rawArtifactRefs = stringSliceFromMap(payload, "raw_artifact_refs")
+	}
+	if len(rawArtifactRefs) == 0 {
+		rawArtifactRefs = stringSliceFromMap(payload, "artifact_refs")
+	}
+	return events.ToolCallRecord{
+		ID:                    firstNonEmpty(strings.TrimSpace(id), fmt.Sprintf("runner-ledger-tool-%d", index)),
+		ToolName:              toolName,
+		ToolCallID:            toolCallID,
+		Request:               payload,
+		Summary:               summary,
+		RawArtifactRefs:       rawArtifactRefs,
+		ApprovalState:         firstNonEmpty(strings.TrimSpace(stringValueFromMap(result, "approval_state")), strings.TrimSpace(stringValueFromMap(payload, "approval_state"))),
+		InterpretationSummary: summary,
+		Status:                projectedToolCallStatus(status, strings.TrimSpace(stringValueFromMap(result, "status"))),
+		CreatedAt:             createdAt,
+	}, true
+}
+
+func isProjectedToolCallLedgerKind(kind string) bool {
+	switch strings.ToLower(strings.TrimSpace(kind)) {
+	case "tool.call.completed", "tool.call.failed", "tool.call.error", "tool.tool_call_completed", "tool_call_completed":
+		return true
+	default:
+		return false
+	}
+}
+
+func toolCallResultPayload(payload map[string]any) map[string]any {
+	if len(payload) == 0 {
+		return nil
+	}
+	switch result := payload["result"].(type) {
+	case map[string]any:
+		return cloneStringAnyMap(result)
+	case string:
+		var parsed map[string]any
+		if err := json.Unmarshal([]byte(result), &parsed); err == nil {
+			return parsed
+		}
+	}
+	return nil
+}
+
+func projectedToolCallStatus(eventStatus string, resultStatus string) string {
+	switch strings.ToLower(strings.TrimSpace(resultStatus)) {
+	case "failed", "failure", "error", "blocked":
+		return "failed"
+	case "ok", "success", "succeeded", "completed":
+		return "completed"
+	}
+	switch strings.ToLower(strings.TrimSpace(eventStatus)) {
+	case "ok", "success", "succeeded", "completed":
+		return "completed"
+	case "failed", "failure", "error", "blocked":
+		return "failed"
+	default:
+		return strings.TrimSpace(eventStatus)
+	}
+}
+
+func appendOrReplaceToolCallRecord(records []events.ToolCallRecord, seen map[string]int, record events.ToolCallRecord) []events.ToolCallRecord {
+	key := firstNonEmpty(record.ToolCallID, record.ID)
+	if key == "" {
+		return append(records, record)
+	}
+	if existing, ok := seen[key]; ok {
+		records[existing] = record
+		return records
+	}
+	seen[key] = len(records)
+	return append(records, record)
 }
 
 func bindRunnerToolCallRecords(records []events.ToolCallRecord, trace events.Trace, workflow storepkg.Workflow) []events.ToolCallRecord {

@@ -24,7 +24,6 @@ description: "RSI governed context injection, native governed tools, and lifecyc
 
 _PLUGIN_MODULE_TEMPLATE = """from __future__ import annotations
 
-import base64
 import json
 import hashlib
 import os
@@ -34,11 +33,12 @@ from urllib import error as urlerror
 from urllib import parse as urlparse
 from urllib import request as urlrequest
 
+from rsi_runner.slack_uploads import prepare_local_slack_upload_payload
+
 
 _PLUGIN_TOOLS = __PLUGIN_TOOLS__
 _TRANSPORT_TO_CANONICAL = {item["transport_name"]: item["canonical_name"] for item in _PLUGIN_TOOLS}
 _ARTIFACT_CANONICAL_NAMES = {"artifact.list_files", "artifact.write_file"}
-_LOCAL_UPLOAD_MAX_BYTES = 10 * 1024 * 1024
 
 
 def _runtime_root() -> Path:
@@ -123,6 +123,20 @@ def _first_non_empty(*values) -> str:
 
 def _string_value(value) -> str:
     return str(value or "").strip()
+
+
+def _string_list(value) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    out: list[str] = []
+    seen: set[str] = set()
+    for item in value:
+        text = _string_value(item)
+        if not text or text in seen:
+            continue
+        seen.add(text)
+        out.append(text)
+    return out
 
 
 def _artifact_output_dir(payload: JsonObject) -> Path:
@@ -412,6 +426,10 @@ def _default_payload(canonical_name: str, payload: JsonObject) -> JsonObject:
         out["candidate_key"] = session_scope_id
     if canonical_name == "rsi.attempt_context" and attempt_id:
         out["attempt_id"] = attempt_id
+    if canonical_name in {"kubernetes.inspect", "kubernetes.logs", "kubernetes.events", "rsi.runtime_deployment_facts"}:
+        namespaces = _string_list(payload.get("kubernetes_read_namespaces"))
+        if len(namespaces) == 1:
+            out["namespace"] = namespaces[0]
     if canonical_name.startswith("workspace."):
         if workspace_id:
             out["workspace_id"] = workspace_id
@@ -558,16 +576,7 @@ def _resolve_slack_upload_payload(payload: JsonObject) -> JsonObject:
     resolved_path = _resolve_slack_upload_path(payload)
     if resolved_path is None:
         return payload
-    stat = resolved_path.stat()
-    if stat.st_size <= 0:
-        raise ValueError(f"slack.upload_file local file is empty: {resolved_path}")
-    if stat.st_size > _LOCAL_UPLOAD_MAX_BYTES:
-        raise ValueError(f"slack.upload_file local file exceeds {_LOCAL_UPLOAD_MAX_BYTES} bytes: {resolved_path}")
-    updated = dict(payload)
-    updated["content_base64"] = base64.b64encode(resolved_path.read_bytes()).decode("ascii")
-    updated["filename"] = _first_non_empty(_string_value(updated.get("filename")), resolved_path.name)
-    updated["path"] = str(resolved_path)
-    return updated
+    return prepare_local_slack_upload_payload(payload, resolved_path)
 
 
 def _tool_handler(transport_name: str):
@@ -611,7 +620,7 @@ def _tool_handler(transport_name: str):
                 upload_payload = dict(payload)
                 upload_payload.update({k: request_payload[k] for k in ["content", "content_base64", "filename", "path", "artifact_ref"] if k in request_payload})
                 resolved_payload = _resolve_slack_upload_payload(upload_payload)
-                for key in ["content", "content_base64", "filename", "path"]:
+                for key in ["content", "content_base64", "filename", "path", "title", "alt_txt", "source_path", "rendered_from_path"]:
                     if key in resolved_payload:
                         request_payload[key] = resolved_payload[key]
             except Exception as exc:

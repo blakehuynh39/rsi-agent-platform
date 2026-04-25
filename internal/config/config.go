@@ -78,6 +78,7 @@ type Config struct {
 	CloudflareAPIBaseURL               string
 	KubeconfigPath                     string
 	KubernetesContext                  string
+	KubernetesReadNamespaces           []string
 	SandboxNamespace                   string
 	SandboxImage                       string
 	SandboxServiceAccount              string
@@ -187,6 +188,7 @@ func Load(serviceName string) Config {
 		CloudflareAPIBaseURL:               stringEnv("RSI_CLOUDFLARE_API_BASE_URL", ""),
 		KubeconfigPath:                     stringEnv("RSI_KUBECONFIG", ""),
 		KubernetesContext:                  stringEnv("RSI_KUBERNETES_CONTEXT", ""),
+		KubernetesReadNamespaces:           listEnv("RSI_KUBERNETES_READ_NAMESPACES"),
 		SandboxNamespace:                   stringEnv("RSI_SANDBOX_NAMESPACE", ""),
 		SandboxImage:                       stringEnv("RSI_SANDBOX_IMAGE", ""),
 		SandboxServiceAccount:              stringEnv("RSI_SANDBOX_SERVICE_ACCOUNT_NAME", ""),
@@ -320,6 +322,13 @@ func (c Config) RunnerArtifactTransportTimeoutForRole(role string) time.Duration
 	}
 }
 
+func (c Config) KubernetesReadNamespaceScope() []string {
+	if len(c.KubernetesReadNamespaces) == 0 {
+		return nil
+	}
+	return CompactUniqueStrings(append(append([]string{}, c.KubernetesReadNamespaces...), c.SandboxNamespace))
+}
+
 func (c Config) EffectLeaseDuration(base time.Duration, roles ...string) time.Duration {
 	lease := base
 	for _, role := range roles {
@@ -402,6 +411,23 @@ func listEnv(key string) []string {
 			panic(fmt.Errorf("%s must not contain empty list entries: %q", key, raw))
 		}
 		out = append(out, part)
+	}
+	return out
+}
+
+func CompactUniqueStrings(values []string) []string {
+	out := make([]string, 0, len(values))
+	seen := map[string]struct{}{}
+	for _, value := range values {
+		value = strings.TrimSpace(value)
+		if value == "" {
+			continue
+		}
+		if _, ok := seen[value]; ok {
+			continue
+		}
+		seen[value] = struct{}{}
+		out = append(out, value)
 	}
 	return out
 }

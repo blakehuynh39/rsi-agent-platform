@@ -33,6 +33,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/workflowplan"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -472,179 +473,310 @@ func (s *Service) sentryLookup(input map[string]interface{}) storepkg.ToolResult
 	}, nil)
 }
 
+func (s *Service) kubernetesReadNamespaces(input map[string]interface{}, toolName string) ([]string, *storepkg.ToolResult) {
+	requested := strings.TrimSpace(stringValue(input["namespace"]))
+	allowed := s.cfg.KubernetesReadNamespaceScope()
+	if requested != "" {
+		if len(allowed) > 0 && !containsString(allowed, requested) {
+			result := s.blockedResult(toolName, input, "kubernetes", fmt.Sprintf("Kubernetes namespace %s is outside the configured read scope (%s).", requested, strings.Join(allowed, ", ")), map[string]interface{}{
+				"namespace":           requested,
+				"requested_namespace": requested,
+				"allowed_namespaces":  append([]string(nil), allowed...),
+				"error":               "namespace_not_allowed",
+			})
+			return nil, &result
+		}
+		return []string{requested}, nil
+	}
+	if len(allowed) > 0 {
+		return append([]string(nil), allowed...), nil
+	}
+	return []string{strings.TrimSpace(s.cfg.SandboxNamespace)}, nil
+}
+
+func namespaceListLabel(namespaces []string) string {
+	normalized := compactNonEmptyStrings(namespaces)
+	if len(normalized) == 0 {
+		return "all namespaces"
+	}
+	return strings.Join(normalized, ", ")
+}
+
+func namespaceOutputValue(namespaces []string) string {
+	if len(namespaces) == 1 {
+		return strings.TrimSpace(namespaces[0])
+	}
+	return ""
+}
+
+func compactNonEmptyStrings(values []string) []string {
+	out := make([]string, 0, len(values))
+	for _, value := range values {
+		value = strings.TrimSpace(value)
+		if value != "" {
+			out = append(out, value)
+		}
+	}
+	return out
+}
+
+func (s *Service) kubernetesForbiddenResult(toolName string, input map[string]interface{}, namespace string, target string, err error) storepkg.ToolResult {
+	allowed := s.cfg.KubernetesReadNamespaceScope()
+	return s.blockedResult(toolName, input, "kubernetes", fmt.Sprintf("Kubernetes namespace %s is not readable by the configured identity: %v", firstNonEmpty(namespace, "all namespaces"), err), map[string]interface{}{
+		"namespace":           namespace,
+		"requested_namespace": strings.TrimSpace(stringValue(input["namespace"])),
+		"target":              target,
+		"allowed_namespaces":  append([]string(nil), allowed...),
+		"error":               err.Error(),
+		"error_class":         "kubernetes_forbidden",
+	})
+}
+
 func (s *Service) kubernetesInspect(input map[string]interface{}) storepkg.ToolResult {
-	namespace := firstNonEmpty(stringValue(input["namespace"]), s.cfg.SandboxNamespace)
+	namespaces, blocked := s.kubernetesReadNamespaces(input, "kubernetes.inspect")
+	if blocked != nil {
+		return *blocked
+	}
 	target := firstNonEmpty(stringValue(input["target"]), stringValue(input["service"]))
 	if s.kubeClient == nil {
-		summary := fmt.Sprintf("Kubernetes inspection unavailable for %s/%s.", namespace, firstNonEmpty(target, "unknown"))
+		summary := fmt.Sprintf("Kubernetes inspection unavailable for %s/%s.", namespaceListLabel(namespaces), firstNonEmpty(target, "unknown"))
 		return s.unavailableResult("kubernetes.inspect", input, "kubernetes", summary, map[string]interface{}{
-			"namespace": namespace,
-			"target":    target,
-			"error":     "kubernetes client unavailable",
+			"namespace":  namespaceOutputValue(namespaces),
+			"namespaces": append([]string(nil), namespaces...),
+			"target":     target,
+			"error":      "kubernetes client unavailable",
 		})
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	pods, err := s.kubeClient.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{})
-	if err != nil {
-		return s.failedResult("kubernetes.inspect", input, "kubernetes", fmt.Sprintf("Kubernetes inspection failed: %v", err), map[string]interface{}{
-			"namespace": namespace,
-			"target":    target,
-			"error":     err.Error(),
-		})
-	}
-	eventsList, _ := s.kubeClient.CoreV1().Events(namespace).List(ctx, metav1.ListOptions{})
 	matchedPods := make([]map[string]interface{}, 0)
-	for _, pod := range pods.Items {
-		if target != "" && !matchesKubernetesTarget(pod, target) {
-			continue
-		}
-		matchedPods = append(matchedPods, map[string]interface{}{
-			"name":   pod.Name,
-			"phase":  string(pod.Status.Phase),
-			"node":   pod.Spec.NodeName,
-			"reason": pod.Status.Reason,
-		})
-	}
 	matchedEvents := make([]map[string]interface{}, 0)
-	for _, event := range eventsList.Items {
-		if target != "" && !strings.Contains(strings.ToLower(event.InvolvedObject.Name), strings.ToLower(target)) {
+	namespaceErrors := map[string]string{}
+	for _, namespace := range namespaces {
+		pods, err := s.kubeClient.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{})
+		if err != nil {
+			if len(namespaces) == 1 && apierrors.IsForbidden(err) {
+				return s.kubernetesForbiddenResult("kubernetes.inspect", input, namespace, target, err)
+			}
+			namespaceErrors[firstNonEmpty(namespace, "all")] = err.Error()
 			continue
 		}
-		matchedEvents = append(matchedEvents, map[string]interface{}{
-			"name":    event.Name,
-			"reason":  event.Reason,
-			"message": event.Message,
-			"type":    event.Type,
+		eventsList, _ := s.kubeClient.CoreV1().Events(namespace).List(ctx, metav1.ListOptions{})
+		for _, pod := range pods.Items {
+			if target != "" && !matchesKubernetesTarget(pod, target) {
+				continue
+			}
+			matchedPods = append(matchedPods, map[string]interface{}{
+				"name":      pod.Name,
+				"namespace": pod.Namespace,
+				"phase":     string(pod.Status.Phase),
+				"node":      pod.Spec.NodeName,
+				"reason":    pod.Status.Reason,
+			})
+		}
+		for _, event := range eventsList.Items {
+			if target != "" && !strings.Contains(strings.ToLower(event.InvolvedObject.Name), strings.ToLower(target)) {
+				continue
+			}
+			matchedEvents = append(matchedEvents, map[string]interface{}{
+				"name":      event.Name,
+				"namespace": event.Namespace,
+				"reason":    event.Reason,
+				"message":   event.Message,
+				"type":      event.Type,
+			})
+		}
+	}
+	if len(namespaceErrors) == len(namespaces) && len(namespaces) > 0 {
+		return s.failedResult("kubernetes.inspect", input, "kubernetes", fmt.Sprintf("Kubernetes inspection failed in every requested namespace: %v", namespaceErrors), map[string]interface{}{
+			"namespace":        namespaceOutputValue(namespaces),
+			"namespaces":       append([]string(nil), namespaces...),
+			"target":           target,
+			"namespace_errors": namespaceErrors,
 		})
 	}
-	summary := fmt.Sprintf("Kubernetes inspection found %d pods and %d events in %s for target %s.", len(matchedPods), len(matchedEvents), namespace, firstNonEmpty(target, "all"))
-	return s.result("kubernetes.inspect", input, summary, map[string]interface{}{
-		"namespace": namespace,
-		"target":    target,
-		"pods":      matchedPods,
-		"events":    matchedEvents,
-	}, nil)
+	summary := fmt.Sprintf("Kubernetes inspection found %d pods and %d events in %s for target %s.", len(matchedPods), len(matchedEvents), namespaceListLabel(namespaces), firstNonEmpty(target, "all"))
+	output := map[string]interface{}{
+		"namespace":  namespaceOutputValue(namespaces),
+		"namespaces": append([]string(nil), namespaces...),
+		"target":     target,
+		"pods":       matchedPods,
+		"events":     matchedEvents,
+	}
+	if len(namespaceErrors) > 0 {
+		output["namespace_errors"] = namespaceErrors
+	}
+	return s.result("kubernetes.inspect", input, summary, output, nil)
 }
 
 func (s *Service) kubernetesLogs(input map[string]interface{}) storepkg.ToolResult {
-	namespace := firstNonEmpty(stringValue(input["namespace"]), s.cfg.SandboxNamespace)
+	namespaces, blocked := s.kubernetesReadNamespaces(input, "kubernetes.logs")
+	if blocked != nil {
+		return *blocked
+	}
 	target := firstNonEmpty(stringValue(input["target"]), stringValue(input["pod_name"]), stringValue(input["service"]))
 	if s.kubeClient == nil {
-		summary := fmt.Sprintf("Kubernetes logs unavailable for %s/%s.", namespace, firstNonEmpty(target, "unknown"))
+		summary := fmt.Sprintf("Kubernetes logs unavailable for %s/%s.", namespaceListLabel(namespaces), firstNonEmpty(target, "unknown"))
 		return s.unavailableResult("kubernetes.logs", input, "kubernetes", summary, map[string]interface{}{
-			"namespace": namespace,
-			"target":    target,
-			"error":     "kubernetes client unavailable",
+			"namespace":  namespaceOutputValue(namespaces),
+			"namespaces": append([]string(nil), namespaces...),
+			"target":     target,
+			"error":      "kubernetes client unavailable",
 		})
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	pods, err := s.kubeClient.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{})
-	if err != nil {
-		return s.failedResult("kubernetes.logs", input, "kubernetes", fmt.Sprintf("Kubernetes logs failed: %v", err), map[string]interface{}{
-			"namespace": namespace,
-			"target":    target,
-			"error":     err.Error(),
-		})
-	}
 	logs := make([]map[string]interface{}, 0)
-	for _, pod := range pods.Items {
-		if target != "" && !matchesKubernetesTarget(pod, target) && !strings.EqualFold(pod.Name, target) {
-			continue
-		}
-		var container string
-		if len(pod.Spec.Containers) > 0 {
-			container = pod.Spec.Containers[0].Name
-		}
-		if explicit := strings.TrimSpace(stringValue(input["container"])); explicit != "" {
-			container = explicit
-		}
-		tailLines := int64(80)
-		req := s.kubeClient.CoreV1().Pods(namespace).GetLogs(pod.Name, &corev1.PodLogOptions{
-			Container: container,
-			TailLines: &tailLines,
-		})
-		stream, err := req.Stream(ctx)
+	namespaceErrors := map[string]string{}
+	for _, namespace := range namespaces {
+		pods, err := s.kubeClient.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{})
 		if err != nil {
-			logs = append(logs, map[string]interface{}{
-				"pod_name":  pod.Name,
-				"container": container,
-				"error":     err.Error(),
-			})
+			if len(namespaces) == 1 && apierrors.IsForbidden(err) {
+				return s.kubernetesForbiddenResult("kubernetes.logs", input, namespace, target, err)
+			}
+			namespaceErrors[firstNonEmpty(namespace, "all")] = err.Error()
 			continue
 		}
-		data, readErr := io.ReadAll(stream)
-		_ = stream.Close()
-		if readErr != nil {
+		for _, pod := range pods.Items {
+			if target != "" && !matchesKubernetesTarget(pod, target) && !strings.EqualFold(pod.Name, target) {
+				continue
+			}
+			var container string
+			if len(pod.Spec.Containers) > 0 {
+				container = pod.Spec.Containers[0].Name
+			}
+			if explicit := strings.TrimSpace(stringValue(input["container"])); explicit != "" {
+				container = explicit
+			}
+			tailLines := int64(80)
+			req := s.kubeClient.CoreV1().Pods(namespace).GetLogs(pod.Name, &corev1.PodLogOptions{
+				Container: container,
+				TailLines: &tailLines,
+			})
+			stream, err := req.Stream(ctx)
+			if err != nil {
+				logs = append(logs, map[string]interface{}{
+					"pod_name":  pod.Name,
+					"namespace": pod.Namespace,
+					"container": container,
+					"error":     err.Error(),
+				})
+				continue
+			}
+			data, readErr := io.ReadAll(stream)
+			_ = stream.Close()
+			if readErr != nil {
+				logs = append(logs, map[string]interface{}{
+					"pod_name":  pod.Name,
+					"namespace": pod.Namespace,
+					"container": container,
+					"error":     readErr.Error(),
+				})
+				continue
+			}
 			logs = append(logs, map[string]interface{}{
 				"pod_name":  pod.Name,
+				"namespace": pod.Namespace,
 				"container": container,
-				"error":     readErr.Error(),
+				"log_tail":  truncate(string(data), 4000),
 			})
-			continue
+			if len(logs) == 3 {
+				break
+			}
 		}
-		logs = append(logs, map[string]interface{}{
-			"pod_name":  pod.Name,
-			"container": container,
-			"log_tail":  truncate(string(data), 4000),
-		})
 		if len(logs) == 3 {
 			break
 		}
 	}
-	summary := fmt.Sprintf("Kubernetes logs loaded for %d pod(s) in %s.", len(logs), namespace)
-	return s.result("kubernetes.logs", input, summary, map[string]interface{}{
-		"namespace": namespace,
-		"target":    target,
-		"logs":      logs,
-	}, nil)
+	if len(namespaceErrors) == len(namespaces) && len(namespaces) > 0 {
+		return s.failedResult("kubernetes.logs", input, "kubernetes", fmt.Sprintf("Kubernetes logs failed in every requested namespace: %v", namespaceErrors), map[string]interface{}{
+			"namespace":        namespaceOutputValue(namespaces),
+			"namespaces":       append([]string(nil), namespaces...),
+			"target":           target,
+			"namespace_errors": namespaceErrors,
+		})
+	}
+	summary := fmt.Sprintf("Kubernetes logs loaded for %d pod(s) in %s.", len(logs), namespaceListLabel(namespaces))
+	output := map[string]interface{}{
+		"namespace":  namespaceOutputValue(namespaces),
+		"namespaces": append([]string(nil), namespaces...),
+		"target":     target,
+		"logs":       logs,
+	}
+	if len(namespaceErrors) > 0 {
+		output["namespace_errors"] = namespaceErrors
+	}
+	return s.result("kubernetes.logs", input, summary, output, nil)
 }
 
 func (s *Service) kubernetesEvents(input map[string]interface{}) storepkg.ToolResult {
-	namespace := firstNonEmpty(stringValue(input["namespace"]), s.cfg.SandboxNamespace)
+	namespaces, blocked := s.kubernetesReadNamespaces(input, "kubernetes.events")
+	if blocked != nil {
+		return *blocked
+	}
 	target := firstNonEmpty(stringValue(input["target"]), stringValue(input["service"]))
 	if s.kubeClient == nil {
-		summary := fmt.Sprintf("Kubernetes events unavailable for %s/%s.", namespace, firstNonEmpty(target, "unknown"))
+		summary := fmt.Sprintf("Kubernetes events unavailable for %s/%s.", namespaceListLabel(namespaces), firstNonEmpty(target, "unknown"))
 		return s.unavailableResult("kubernetes.events", input, "kubernetes", summary, map[string]interface{}{
-			"namespace": namespace,
-			"target":    target,
-			"error":     "kubernetes client unavailable",
+			"namespace":  namespaceOutputValue(namespaces),
+			"namespaces": append([]string(nil), namespaces...),
+			"target":     target,
+			"error":      "kubernetes client unavailable",
 		})
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	eventsList, err := s.kubeClient.CoreV1().Events(namespace).List(ctx, metav1.ListOptions{})
-	if err != nil {
-		return s.failedResult("kubernetes.events", input, "kubernetes", fmt.Sprintf("Kubernetes events failed: %v", err), map[string]interface{}{
-			"namespace": namespace,
-			"target":    target,
-			"error":     err.Error(),
-		})
-	}
 	items := make([]map[string]interface{}, 0)
-	for _, event := range eventsList.Items {
-		if target != "" && !strings.Contains(strings.ToLower(event.InvolvedObject.Name), strings.ToLower(target)) {
+	namespaceErrors := map[string]string{}
+	for _, namespace := range namespaces {
+		eventsList, err := s.kubeClient.CoreV1().Events(namespace).List(ctx, metav1.ListOptions{})
+		if err != nil {
+			if len(namespaces) == 1 && apierrors.IsForbidden(err) {
+				return s.kubernetesForbiddenResult("kubernetes.events", input, namespace, target, err)
+			}
+			namespaceErrors[firstNonEmpty(namespace, "all")] = err.Error()
 			continue
 		}
-		items = append(items, map[string]interface{}{
-			"name":            event.Name,
-			"involved_object": event.InvolvedObject.Name,
-			"reason":          event.Reason,
-			"type":            event.Type,
-			"message":         event.Message,
-		})
+		for _, event := range eventsList.Items {
+			if target != "" && !strings.Contains(strings.ToLower(event.InvolvedObject.Name), strings.ToLower(target)) {
+				continue
+			}
+			items = append(items, map[string]interface{}{
+				"name":            event.Name,
+				"namespace":       event.Namespace,
+				"involved_object": event.InvolvedObject.Name,
+				"reason":          event.Reason,
+				"type":            event.Type,
+				"message":         event.Message,
+			})
+			if len(items) == 20 {
+				break
+			}
+		}
 		if len(items) == 20 {
 			break
 		}
 	}
-	summary := fmt.Sprintf("Kubernetes events loaded for %d event(s) in %s.", len(items), namespace)
-	return s.result("kubernetes.events", input, summary, map[string]interface{}{
-		"namespace": namespace,
-		"target":    target,
-		"events":    items,
-	}, nil)
+	if len(namespaceErrors) == len(namespaces) && len(namespaces) > 0 {
+		return s.failedResult("kubernetes.events", input, "kubernetes", fmt.Sprintf("Kubernetes events failed in every requested namespace: %v", namespaceErrors), map[string]interface{}{
+			"namespace":        namespaceOutputValue(namespaces),
+			"namespaces":       append([]string(nil), namespaces...),
+			"target":           target,
+			"namespace_errors": namespaceErrors,
+		})
+	}
+	summary := fmt.Sprintf("Kubernetes events loaded for %d event(s) in %s.", len(items), namespaceListLabel(namespaces))
+	output := map[string]interface{}{
+		"namespace":  namespaceOutputValue(namespaces),
+		"namespaces": append([]string(nil), namespaces...),
+		"target":     target,
+		"events":     items,
+	}
+	if len(namespaceErrors) > 0 {
+		output["namespace_errors"] = namespaceErrors
+	}
+	return s.result("kubernetes.events", input, summary, output, nil)
 }
 
 func (s *Service) githubRepoContext(input map[string]interface{}) storepkg.ToolResult {
@@ -1167,6 +1299,7 @@ func (s *Service) rsiRuntimeConfig(input map[string]interface{}) storepkg.ToolRe
 		"execution_envelope_v1_enabled":             s.cfg.ExecutionEnvelopeV1Enabled,
 		"execution_ledger_first_projection_enabled": s.cfg.ExecutionLedgerFirstProjection,
 		"runner_planner_mode":                       s.cfg.RunnerPlannerMode,
+		"kubernetes_read_namespaces":                s.cfg.KubernetesReadNamespaceScope(),
 		"tool_gateway_base_url":                     s.cfg.ToolGatewayBaseURL,
 		"honcho_runtime_base_url":                   s.cfg.HonchoRuntimeBaseURL,
 		"public_base_url":                           s.cfg.PublicBaseURL,
@@ -1222,11 +1355,16 @@ func (s *Service) rsiRuntimeHealth(input map[string]interface{}) storepkg.ToolRe
 }
 
 func (s *Service) rsiRuntimeDeploymentFacts(input map[string]interface{}) storepkg.ToolResult {
-	namespace := firstNonEmpty(stringValue(input["namespace"]), s.cfg.SandboxNamespace)
+	namespaces, blocked := s.kubernetesReadNamespaces(input, "rsi.runtime_deployment_facts")
+	if blocked != nil {
+		return *blocked
+	}
 	targets := runtimeDeploymentTargets(input)
 	output := map[string]interface{}{
 		"environment":                          s.cfg.Environment,
-		"namespace":                            namespace,
+		"namespace":                            namespaceOutputValue(namespaces),
+		"namespaces":                           append([]string(nil), namespaces...),
+		"allowed_kubernetes_read_namespaces":   append([]string(nil), s.cfg.KubernetesReadNamespaceScope()...),
 		"service_targets":                      targets,
 		"runner_urls":                          s.cfg.RunnerURLs(),
 		"runner_timeouts_seconds":              runtimeTimeoutsSeconds(s.cfg),
@@ -1251,57 +1389,71 @@ func (s *Service) rsiRuntimeDeploymentFacts(input map[string]interface{}) storep
 
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	deployments, err := s.kubeClient.AppsV1().Deployments(namespace).List(ctx, metav1.ListOptions{})
-	if err != nil {
-		output["kubernetes_error"] = err.Error()
-		return s.result("rsi.runtime_deployment_facts", input, fmt.Sprintf("RSI runtime deployment facts loaded from config, but Kubernetes deployment lookup failed: %v", err), output, nil)
-	}
 
 	items := make([]map[string]interface{}, 0)
-	for _, deployment := range deployments.Items {
-		matchedTargets := matchingDeploymentTargets(deployment, targets)
-		if len(matchedTargets) == 0 {
+	namespaceErrors := map[string]string{}
+	for _, namespace := range namespaces {
+		deployments, err := s.kubeClient.AppsV1().Deployments(namespace).List(ctx, metav1.ListOptions{})
+		if err != nil {
+			if len(namespaces) == 1 && apierrors.IsForbidden(err) {
+				return s.kubernetesForbiddenResult("rsi.runtime_deployment_facts", input, namespace, strings.Join(targets, ","), err)
+			}
+			namespaceErrors[firstNonEmpty(namespace, "all")] = err.Error()
 			continue
 		}
-		entry := map[string]interface{}{
-			"name":                deployment.Name,
-			"namespace":           deployment.Namespace,
-			"matched_targets":     matchedTargets,
-			"generation":          deployment.Generation,
-			"observed_generation": deployment.Status.ObservedGeneration,
-			"replicas":            deployment.Status.Replicas,
-			"ready_replicas":      deployment.Status.ReadyReplicas,
-			"updated_replicas":    deployment.Status.UpdatedReplicas,
-			"available_replicas":  deployment.Status.AvailableReplicas,
-			"images":              deploymentImages(deployment),
-		}
-		if !deployment.CreationTimestamp.IsZero() {
-			entry["created_at"] = deployment.CreationTimestamp.UTC().Format(time.RFC3339)
-		}
-		if condition, ok := deploymentCondition(deployment, appsv1.DeploymentProgressing); ok {
-			entry["progressing_status"] = string(condition.Status)
-			entry["progressing_reason"] = condition.Reason
-			entry["progressing_message"] = truncate(condition.Message, 400)
-			if !condition.LastUpdateTime.IsZero() {
-				entry["progressing_updated_at"] = condition.LastUpdateTime.UTC().Format(time.RFC3339)
+		for _, deployment := range deployments.Items {
+			matchedTargets := matchingDeploymentTargets(deployment, targets)
+			if len(matchedTargets) == 0 {
+				continue
 			}
-			if !condition.LastTransitionTime.IsZero() {
-				entry["progressing_transitioned_at"] = condition.LastTransitionTime.UTC().Format(time.RFC3339)
+			entry := map[string]interface{}{
+				"name":                deployment.Name,
+				"namespace":           deployment.Namespace,
+				"matched_targets":     matchedTargets,
+				"generation":          deployment.Generation,
+				"observed_generation": deployment.Status.ObservedGeneration,
+				"replicas":            deployment.Status.Replicas,
+				"ready_replicas":      deployment.Status.ReadyReplicas,
+				"updated_replicas":    deployment.Status.UpdatedReplicas,
+				"available_replicas":  deployment.Status.AvailableReplicas,
+				"images":              deploymentImages(deployment),
 			}
+			if !deployment.CreationTimestamp.IsZero() {
+				entry["created_at"] = deployment.CreationTimestamp.UTC().Format(time.RFC3339)
+			}
+			if condition, ok := deploymentCondition(deployment, appsv1.DeploymentProgressing); ok {
+				entry["progressing_status"] = string(condition.Status)
+				entry["progressing_reason"] = condition.Reason
+				entry["progressing_message"] = truncate(condition.Message, 400)
+				if !condition.LastUpdateTime.IsZero() {
+					entry["progressing_updated_at"] = condition.LastUpdateTime.UTC().Format(time.RFC3339)
+				}
+				if !condition.LastTransitionTime.IsZero() {
+					entry["progressing_transitioned_at"] = condition.LastTransitionTime.UTC().Format(time.RFC3339)
+				}
+			}
+			if condition, ok := deploymentCondition(deployment, appsv1.DeploymentAvailable); ok {
+				entry["available_status"] = string(condition.Status)
+				entry["available_reason"] = condition.Reason
+			}
+			items = append(items, entry)
 		}
-		if condition, ok := deploymentCondition(deployment, appsv1.DeploymentAvailable); ok {
-			entry["available_status"] = string(condition.Status)
-			entry["available_reason"] = condition.Reason
-		}
-		items = append(items, entry)
+	}
+	if len(namespaceErrors) == len(namespaces) && len(namespaces) > 0 {
+		output["kubernetes_error"] = fmt.Sprintf("deployment lookup failed in every requested namespace: %v", namespaceErrors)
+		output["namespace_errors"] = namespaceErrors
+		return s.result("rsi.runtime_deployment_facts", input, fmt.Sprintf("RSI runtime deployment facts loaded from config, but Kubernetes deployment lookup failed in every requested namespace: %v", namespaceErrors), output, nil)
 	}
 	sort.Slice(items, func(i, j int) bool {
 		return stringValue(items[i]["name"]) < stringValue(items[j]["name"])
 	})
 	output["deployments"] = items
-	summary := fmt.Sprintf("RSI runtime deployment facts loaded for %s with %d matching deployment(s).", namespace, len(items))
+	if len(namespaceErrors) > 0 {
+		output["namespace_errors"] = namespaceErrors
+	}
+	summary := fmt.Sprintf("RSI runtime deployment facts loaded for %s with %d matching deployment(s).", namespaceListLabel(namespaces), len(items))
 	if len(items) == 0 {
-		summary = fmt.Sprintf("RSI runtime deployment facts loaded for %s with no matching deployments.", namespace)
+		summary = fmt.Sprintf("RSI runtime deployment facts loaded for %s with no matching deployments.", namespaceListLabel(namespaces))
 	}
 	return s.result("rsi.runtime_deployment_facts", input, summary, output, nil)
 }
@@ -2242,6 +2394,28 @@ func (s *Service) unavailableResult(name string, input map[string]interface{}, p
 		Status:        "blocked",
 		Available:     false,
 		Provider:      provider,
+		ExecutedAt:    time.Now().UTC(),
+		Input:         input,
+		Output:        output,
+		Summary:       summary,
+		Metadata: map[string]interface{}{
+			"tool_name": name,
+			"provider":  provider,
+		},
+	}
+	return result
+}
+
+func (s *Service) blockedResult(name string, input map[string]interface{}, provider string, summary string, output map[string]interface{}) storepkg.ToolResult {
+	result := storepkg.ToolResult{
+		Name:          name,
+		ToolCallID:    newToolCallID(name),
+		Approved:      false,
+		ApprovalState: "policy_blocked",
+		Status:        "blocked",
+		Available:     true,
+		Provider:      provider,
+		ProviderRef:   providerRefForTool(name, output),
 		ExecutedAt:    time.Now().UTC(),
 		Input:         input,
 		Output:        output,

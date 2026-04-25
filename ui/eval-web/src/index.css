@@ -340,6 +340,27 @@ button:disabled {
   overflow-wrap: anywhere;
 }
 
+.live-event-kind {
+  margin-top: 4px;
+  font-size: 0.78rem;
+}
+
+.live-event-text {
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.58);
+  padding: 10px;
+  font-family: "IBM Plex Sans", "Avenir Next", "Segoe UI", sans-serif;
+}
+
+.live-event-json {
+  max-height: 260px;
+  overflow: auto;
+  border-radius: 8px;
+  background: rgba(17, 22, 29, 0.06);
+  padding: 10px;
+  font-size: 0.78rem;
+}
+
 .live-event details {
   margin-top: 8px;
 }

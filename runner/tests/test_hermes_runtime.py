@@ -385,6 +385,64 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("tool_call_completed", source)
         self.assertIn("artifact_write_file", source)
 
+    def test_runner_task_reads_kubernetes_namespace_scope(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "depin-backend",
+                    "prompt": "Inspect runtime.",
+                    "kubernetes_read_namespaces": ["story", "rsi-platform"],
+                }
+            }
+        )
+
+        self.assertEqual(task.kubernetes_read_namespaces, ["story", "rsi-platform"])
+
+    def test_task_prompt_advertises_kubernetes_read_scope(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "depin-backend",
+                    "prompt": "Inspect runtime.",
+                    "kubernetes_read_namespaces": ["story", "rsi-platform"],
+                }
+            }
+        )
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ,
+            runner_env("prod"),
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        prompt = runtime._render_task_prompt(task, runtime._resolve_tool_policy(task))
+
+        self.assertIn("Kubernetes read namespace scope: story, rsi-platform", prompt)
+        self.assertIn("do not probe unlisted or archived namespaces", prompt)
+
+    def test_readonly_binding_defaults_single_kubernetes_namespace(self) -> None:
+        binding = ReadOnlyToolBinding(
+            base_url="http://tool-gateway.internal:8080",
+            allowed_tool_names=["kubernetes.inspect"],
+            task_repo="depin-backend",
+            task_repo_ref="main",
+            task_prompt="Inspect runtime.",
+            task_channel_id="C123",
+            task_thread_ts="1777151223.424979",
+            task_context_summary="",
+            trace_id="trace-123",
+            session_scope_kind="conversation",
+            session_scope_id="conv-123",
+            context_refs=[],
+            kubernetes_read_namespaces=["story"],
+        )
+
+        payload = binding._default_payload("kubernetes.inspect")
+
+        self.assertEqual(payload["namespace"], "story")
+
     def test_native_workflow_enables_configured_company_computer_toolsets(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
@@ -1732,15 +1790,22 @@ class HermesRuntimeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             file_path = Path(tmpdir) / "diagram.svg"
             file_path.write_text("<svg>generated</svg>", encoding="utf-8")
-            with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_urlopen):
+            def fake_render(cmd, check: bool, capture_output: bool, timeout: int):
+                Path(cmd[cmd.index("-o") + 1]).write_bytes(b"\x89PNG\r\n")
+                return subprocess.CompletedProcess(cmd, 0)
+
+            with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_urlopen), mock.patch(
+                "rsi_runner.slack_uploads.shutil.which", return_value="/usr/bin/rsvg-convert"
+            ), mock.patch("rsi_runner.slack_uploads.subprocess.run", side_effect=fake_render):
                 payload = json.loads(binding.handle_tool_call("slack_upload_file", {"path": str(file_path)}))
 
         body = captured["body"]
         self.assertEqual(body["channel_id"], "C123")
         self.assertEqual(body["thread_ts"], "171000001.000100")
-        self.assertEqual(body["filename"], "diagram.svg")
-        self.assertEqual(Path(body["path"]).name, "diagram.svg")
-        self.assertEqual(base64.b64decode(body["content_base64"]).decode("utf-8"), "<svg>generated</svg>")
+        self.assertEqual(body["filename"], "diagram.png")
+        self.assertEqual(Path(body["path"]).name, "diagram.png")
+        self.assertEqual(Path(body["source_path"]).name, "diagram.svg")
+        self.assertEqual(base64.b64decode(body["content_base64"]), b"\x89PNG\r\n")
         self.assertEqual(payload["tool_name"], "slack.upload_file")
         self.assertEqual(payload["transport_tool_name"], "slack_upload_file")
 
@@ -2567,7 +2632,7 @@ class HermesRuntimeTests(unittest.TestCase):
             os.environ, {"HERMES_HOME": hermes_home}, clear=True
         ):
             artifact_path = Path(artifact_dir, "diagram.html")
-            artifact_path.write_text("<html>diagram</html>", encoding="utf-8")
+            artifact_path.write_text("<html><body><svg width='10' height='10'><rect width='10' height='10'/></svg></body></html>", encoding="utf-8")
             context_dir = Path(hermes_home, "rsi_runtime", "context")
             context_dir.mkdir(parents=True, exist_ok=True)
             session_id = "sess-upload"
@@ -2587,24 +2652,33 @@ class HermesRuntimeTests(unittest.TestCase):
             namespace: dict[str, object] = {}
             exec(_build_plugin_module(), namespace)
             namespace["urlrequest"].urlopen = fake_urlopen
-            handler = namespace["_tool_handler"]("slack_upload_file")
-            payload = json.loads(
-                handler(
-                    {
-                        "artifact_ref": artifact_path.as_uri(),
-                        "initial_comment": "Attached.",
-                    },
-                    task_id=session_id,
+
+            def fake_render(cmd, check: bool, capture_output: bool, timeout: int):
+                Path(cmd[cmd.index("-o") + 1]).write_bytes(b"\x89PNG\r\n")
+                return subprocess.CompletedProcess(cmd, 0)
+
+            with mock.patch("rsi_runner.slack_uploads.shutil.which", return_value="/usr/bin/rsvg-convert"), mock.patch(
+                "rsi_runner.slack_uploads.subprocess.run", side_effect=fake_render
+            ):
+                handler = namespace["_tool_handler"]("slack_upload_file")
+                payload = json.loads(
+                    handler(
+                        {
+                            "artifact_ref": artifact_path.as_uri(),
+                            "initial_comment": "Attached.",
+                        },
+                        task_id=session_id,
+                    )
                 )
-            )
 
         body = captured["body"]
         self.assertEqual(captured["url"], "http://tool-gateway.internal/api/tools/slack.upload_file/execute")
         self.assertEqual(body["channel_id"], "C123")
         self.assertEqual(body["thread_ts"], "171000001.000100")
-        self.assertEqual(body["filename"], "diagram.html")
-        self.assertEqual(Path(body["path"]).name, "diagram.html")
-        self.assertEqual(base64.b64decode(body["content_base64"]).decode("utf-8"), "<html>diagram</html>")
+        self.assertEqual(body["filename"], "diagram.png")
+        self.assertEqual(Path(body["path"]).name, "diagram.png")
+        self.assertEqual(Path(body["source_path"]).name, "diagram.html")
+        self.assertEqual(base64.b64decode(body["content_base64"]), b"\x89PNG\r\n")
         self.assertEqual(payload["status"], "completed")
 
     def test_native_worker_uses_aiagent_adapter_not_hermes_cli(self) -> None:
@@ -5320,10 +5394,12 @@ class HermesRuntimeTests(unittest.TestCase):
                                 ]
                             }
                         },
-                    )
+                )
                 self.assertEqual(task.execution_phase, "deliver")
                 self.assertIn("slack.upload_file", task.allowed_tools)
-                self.assertIn("Produced artifacts:", task.prompt)
+                self.assertIn("Artifact refs for slack.upload_file tool input only", task.prompt)
+                self.assertIn("never echo these refs", task.prompt)
+                self.assertNotIn("Produced artifacts:", task.prompt)
                 return HermesExecutionResult(
                     ok=True,
                     message="deliver",
@@ -5412,7 +5488,9 @@ class HermesRuntimeTests(unittest.TestCase):
                     },
                 )
             self.assertEqual(task.allowed_tools, ["slack.upload_file"])
-            self.assertIn("Produced artifacts:", task.prompt)
+            self.assertIn("Artifact refs for slack.upload_file tool input only", task.prompt)
+            self.assertIn("never echo these refs", task.prompt)
+            self.assertNotIn("Produced artifacts:", task.prompt)
             return HermesExecutionResult(
                 ok=True,
                 message="deliver",

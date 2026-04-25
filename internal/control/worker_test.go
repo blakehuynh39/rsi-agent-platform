@@ -2957,6 +2957,44 @@ func TestBuildRunnerTaskDefersToRunnerDefaultTaskBudget(t *testing.T) {
 	}
 }
 
+func TestBuildRunnerTaskCarriesKubernetesReadScope(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	ctx, err := loadWorkflowContext(store, workflowItem)
+	if err != nil {
+		t.Fatalf("loadWorkflowContext() error = %v", err)
+	}
+	cfg := config.Config{
+		Environment:               "stage",
+		DefaultRepo:               "rsi-agent-platform",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		KubernetesReadNamespaces:  []string{"story"},
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+	}
+
+	task := buildRunnerTask(cfg, store, "prod", ctx.trace, ctx.workflow, ctx.ingestion, "Context collected.", nil)
+
+	if got := task.KubernetesReadNamespaces; len(got) != 2 || got[0] != "story" || got[1] != "rsi-platform" {
+		t.Fatalf("kubernetes read namespaces = %#v, want story+rsi-platform", got)
+	}
+	if !strings.Contains(task.Prompt, "Kubernetes read scope: story, rsi-platform") {
+		t.Fatalf("expected prompt to advertise Kubernetes read scope, got %q", task.Prompt)
+	}
+	var readScope map[string]any
+	for _, lease := range task.CapabilityLeases {
+		if lease.Capability == "read_context" {
+			readScope = lease.Scope
+			break
+		}
+	}
+	namespaces, ok := readScope["kubernetes_read_namespaces"].([]string)
+	if !ok || len(namespaces) != 2 || namespaces[0] != "story" || namespaces[1] != "rsi-platform" {
+		t.Fatalf("expected read_context lease Kubernetes scope, got %#v", readScope)
+	}
+}
+
 func TestWorkflowRetryAtSkipsRetryAfterReplyPostBegins(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
@@ -3666,6 +3704,128 @@ func TestTraceArtifactsFromProducedArtifactsKeepsEachRefURL(t *testing.T) {
 		if !urlSet[expected] {
 			t.Fatalf("missing artifact URL %q in %#v", expected, artifacts)
 		}
+	}
+}
+
+func TestToolCallRecordsFromExecutionLedgerProjectsTerminalCallsOnly(t *testing.T) {
+	createdAt := time.Date(2026, 4, 25, 21, 8, 0, 0, time.UTC)
+	items := []events.ExecutionLedgerEvent{
+		{
+			ID:     "ledger-start",
+			Kind:   "tool.call.started",
+			Status: "running",
+			Payload: map[string]any{
+				"tool_name":    "kubernetes_inspect",
+				"tool_call_id": "call-k8s-1",
+				"args":         map[string]any{"namespace": "story"},
+			},
+			RecordedAt: createdAt,
+		},
+		{
+			ID:     "ledger-progress-running",
+			Kind:   "tool.call.progress",
+			Status: "running",
+			Payload: map[string]any{
+				"tool_name":      "kubernetes_inspect",
+				"progress_event": "tool.started",
+			},
+			RecordedAt: createdAt,
+		},
+		{
+			ID:     "ledger-progress-completed",
+			Kind:   "tool.call.progress",
+			Status: "completed",
+			Payload: map[string]any{
+				"tool_name":      "kubernetes_inspect",
+				"progress_event": "tool.completed",
+			},
+			RecordedAt: createdAt,
+		},
+		{
+			ID:     "ledger-completed",
+			Kind:   "tool.call.completed",
+			Status: "completed",
+			Payload: map[string]any{
+				"tool_name":    "kubernetes_inspect",
+				"tool_call_id": "call-k8s-1",
+				"args":         map[string]any{"namespace": "story"},
+				"result": `{
+					"status": "failed",
+					"summary": "Kubernetes inspection failed: pods is forbidden",
+					"approval_state": "not_required",
+					"raw_artifact_refs": ["artifact://k8s/failure"]
+				}`,
+			},
+			RecordedAt: createdAt.Add(time.Second),
+		},
+	}
+
+	records := toolCallRecordsFromExecutionLedger(items, createdAt)
+	if len(records) != 1 {
+		t.Fatalf("expected one terminal projected tool call, got %#v", records)
+	}
+	record := records[0]
+	if record.ToolName != "kubernetes_inspect" || record.ToolCallID != "call-k8s-1" {
+		t.Fatalf("unexpected projected tool identity: %#v", record)
+	}
+	if record.Status != "failed" {
+		t.Fatalf("expected failed status from tool result payload, got %#v", record)
+	}
+	if record.Summary != "Kubernetes inspection failed: pods is forbidden" {
+		t.Fatalf("expected result summary to project, got %#v", record)
+	}
+	if record.ApprovalState != "not_required" || !reflect.DeepEqual(record.RawArtifactRefs, []string{"artifact://k8s/failure"}) {
+		t.Fatalf("expected result metadata to project, got %#v", record)
+	}
+}
+
+func TestToolCallRecordsFromExecutionEnvelopeProjectsTerminalCallsOnly(t *testing.T) {
+	raw := map[string]any{
+		"execution_envelope": map[string]any{
+			"contract_version": "execution-envelope/v1",
+			"execution_id":     "hexec-1",
+			"ledger_events": []any{
+				map[string]any{
+					"event_id": "ledger-start",
+					"kind":     "tool.call.started",
+					"status":   "running",
+					"payload": map[string]any{
+						"tool_name":    "repo_search",
+						"tool_call_id": "call-repo-1",
+					},
+				},
+				map[string]any{
+					"event_id": "ledger-progress",
+					"kind":     "tool.call.progress",
+					"status":   "completed",
+					"payload": map[string]any{
+						"tool_name":      "repo_search",
+						"progress_event": "tool.completed",
+					},
+				},
+				map[string]any{
+					"event_id": "ledger-completed",
+					"kind":     "tool.call.completed",
+					"status":   "completed",
+					"payload": map[string]any{
+						"tool_name":    "repo_search",
+						"tool_call_id": "call-repo-1",
+						"result": map[string]any{
+							"status":  "ok",
+							"summary": "Found 4 matches.",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	records := toolCallRecordsFromRunnerRaw(raw)
+	if len(records) != 1 {
+		t.Fatalf("expected one terminal envelope tool call, got %#v", records)
+	}
+	if records[0].ToolCallID != "call-repo-1" || records[0].Status != "completed" || records[0].Summary != "Found 4 matches." {
+		t.Fatalf("unexpected envelope tool projection: %#v", records[0])
 	}
 }
 

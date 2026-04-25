@@ -395,7 +395,7 @@ func streamTraceLedgerEvents(w http.ResponseWriter, r *http.Request, store store
 	}
 
 	sendBatch(true)
-	heartbeat := time.NewTicker(15 * time.Second)
+	heartbeat := time.NewTicker(10 * time.Second)
 	poll := time.NewTicker(1 * time.Second)
 	defer heartbeat.Stop()
 	defer poll.Stop()

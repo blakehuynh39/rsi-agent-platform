@@ -855,6 +855,7 @@ class RunnerTaskRequest:
     workspace_repo: str | None
     workspace_branch: str | None
     allowed_path_globs: list[str]
+    kubernetes_read_namespaces: list[str]
     mcp_servers: list[JsonObject]
     execution_phase: str | None
     contract_version: str | None
@@ -918,6 +919,7 @@ class RunnerTaskRequest:
             workspace_repo=_optional_string(task.get("workspace_repo")),
             workspace_branch=_optional_string(task.get("workspace_branch")),
             allowed_path_globs=_string_list(task.get("allowed_path_globs")),
+            kubernetes_read_namespaces=_string_list(task.get("kubernetes_read_namespaces")),
             mcp_servers=_json_object_list(task.get("mcp_servers")),
             execution_phase=_optional_string(task.get("execution_phase")),
             contract_version=_optional_string(task.get("contract_version")),
@@ -2268,6 +2270,7 @@ class HermesRuntime:
             "requested_artifacts": task.requested_artifacts,
             "requested_skills": task.requested_skills,
             "context_refs": task.context_refs,
+            "kubernetes_read_namespaces": task.kubernetes_read_namespaces,
             "contract_version": task.contract_version or EXECUTION_CONTRACT_VERSION,
             "execution_intent": task.execution_intent,
             "capability_leases": task.capability_leases or self._company_computer.task_leases(task),
@@ -2389,6 +2392,7 @@ class HermesRuntime:
             "hermes_company_bin_dir": self._config.hermes_company_bin_dir,
             "hermes_kubernetes_context_enabled": self._config.hermes_kubernetes_context_enabled,
             "hermes_kubeconfig_path": self._config.hermes_kubeconfig_path if self._config.hermes_kubernetes_context_enabled else "",
+            "kubernetes_read_namespaces": list(task.kubernetes_read_namespaces),
             "company_computer_bootstrap_status": dict(self._company_computer_bootstrap_status),
             "run_dir": str(result_path.parent),
             "contract_version": task.contract_version or EXECUTION_CONTRACT_VERSION,
@@ -3437,6 +3441,7 @@ class HermesRuntime:
             session_scope_kind=task.session_scope_kind,
             session_scope_id=task.session_scope_id,
             context_refs=list(task.context_refs),
+            kubernetes_read_namespaces=list(task.kubernetes_read_namespaces),
         )
         for index, item in enumerate(lifecycle_events):
             event_name = self._lifecycle_event_name(item)
@@ -3843,6 +3848,7 @@ class HermesRuntime:
                 "hermes_company_bin_dir": self._config.hermes_company_bin_dir,
                 "hermes_kubernetes_context_enabled": self._config.hermes_kubernetes_context_enabled,
                 "hermes_kubeconfig_path": self._config.hermes_kubeconfig_path if self._config.hermes_kubernetes_context_enabled else "",
+                "kubernetes_read_namespaces": list(task.kubernetes_read_namespaces),
                 "context_summary": task.context_summary or "",
                 "task_default_question": query_hints.get("default_question", ""),
                 "task_repo_question": query_hints.get("repo_question", ""),
@@ -5360,6 +5366,7 @@ class HermesRuntime:
                 execution_phase=task.execution_phase or "",
                 attempt_id=task.attempt_id or "",
                 workspace_id=task.workspace_id or "",
+                kubernetes_read_namespaces=list(task.kubernetes_read_namespaces),
                 observer=observer,
             )
             setattr(agent, "_rsi_readonly_tool_binding", readonly_tools)
@@ -5388,6 +5395,7 @@ class HermesRuntime:
                 execution_phase=task.execution_phase or "",
                 attempt_id=task.attempt_id or "",
                 workspace_id=task.workspace_id or "",
+                kubernetes_read_namespaces=list(task.kubernetes_read_namespaces),
                 observer=observer,
             )
             setattr(agent, "_rsi_readonly_tool_binding", readonly_tools)
@@ -6286,15 +6294,22 @@ class HermesRuntime:
             artifact_refs.extend(_string_list_or_empty(artifact.get("artifact_refs")))
         has_artifacts = bool(artifact_refs)
         if has_artifacts:
+            upload_manifest = "\n".join(
+                f"- {ref}"
+                for ref in artifact_refs
+                if _string_or_json(ref)
+            )
             prompt = "\n\n".join(
                 [
                     "Artifact delivery phase.",
                     f"Final reply body: {_string_or_json(investigate_output.get('final_answer')) or _string_or_json(investigate_output.get('reply_draft'))}",
-                    f"Produced artifacts: {json.dumps(produced_artifacts, ensure_ascii=True, sort_keys=True)}",
+                    "Artifact refs for slack.upload_file tool input only; never echo these refs, file paths, or produced_artifacts JSON in Slack-visible text.",
+                    upload_manifest,
                     "Upload the produced file artifacts to the bound Slack thread using slack.upload_file.",
+                    "If an artifact ref points to HTML or SVG, pass the artifact_ref/path as-is; the governed upload adapter will render and upload a PNG preview instead of source code.",
                     "Pass the final reply body as initial_comment on the upload.",
                     "Do not send a second Slack message after uploading.",
-                    "Return reply_delivery plus produced_artifacts. Do not perform repo or knowledge investigation.",
+                    "Return reply_delivery plus produced_artifacts in structured output only. Do not perform repo or knowledge investigation.",
                 ]
             )
             system_message = (
@@ -6708,6 +6723,12 @@ class HermesRuntime:
                 parts.append(
                     "Kubernetes read context is available to terminal-native CLIs through KUBECONFIG. Cluster mutations are blocked by policy/RBAC and must become approval intents."
                 )
+        if task.kubernetes_read_namespaces:
+            namespace_scope = ", ".join(task.kubernetes_read_namespaces)
+            parts.append(
+                "Kubernetes read namespace scope: "
+                f"{namespace_scope}. Use kubectl only with these namespaces. For governed Kubernetes tools, omit namespace when a lookup should span the full allowed scope, and do not probe unlisted or archived namespaces."
+            )
         if task.capability_leases:
             parts.append(f"Capability leases: {json.dumps(task.capability_leases, ensure_ascii=True, sort_keys=True)}")
         if task.delivery_policy:

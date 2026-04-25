@@ -6,15 +6,17 @@ import (
 	"strings"
 	"time"
 
+	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 )
 
 type RuntimeConfig struct {
-	DefaultRepo      string
-	AllowedRepos     []string
-	KnowledgeBaseURL string
-	SandboxNamespace string
+	DefaultRepo              string
+	AllowedRepos             []string
+	KnowledgeBaseURL         string
+	SandboxNamespace         string
+	KubernetesReadNamespaces []string
 }
 
 type RequestContext struct {
@@ -38,11 +40,12 @@ type SlackSurfaceHint struct {
 }
 
 type LiveHintSet struct {
-	Repo                  string             `json:"repo,omitempty"`
-	PreferredTools        []string           `json:"preferred_tools,omitempty"`
-	CandidateReadSurfaces []SlackSurfaceHint `json:"candidate_read_surfaces,omitempty"`
-	Since                 string             `json:"since,omitempty"`
-	Until                 string             `json:"until,omitempty"`
+	Repo                     string             `json:"repo,omitempty"`
+	PreferredTools           []string           `json:"preferred_tools,omitempty"`
+	CandidateReadSurfaces    []SlackSurfaceHint `json:"candidate_read_surfaces,omitempty"`
+	KubernetesReadNamespaces []string           `json:"kubernetes_read_namespaces,omitempty"`
+	Since                    string             `json:"since,omitempty"`
+	Until                    string             `json:"until,omitempty"`
 }
 
 var (
@@ -81,11 +84,12 @@ func BuildLiveHints(cfg RuntimeConfig, ctx RequestContext, now time.Time) LiveHi
 	repo := ResolveTargetRepo(cfg, ctx.Question)
 	since, until := RepoActivityWindow(ctx.Question, now)
 	return LiveHintSet{
-		Repo:                  repo,
-		PreferredTools:        ToolPlan(ctx.WorkflowKind, ctx.Question, repo, ctx.ChannelID, ctx.ThreadTS),
-		CandidateReadSurfaces: CandidateReadSurfacesForContext(ctx),
-		Since:                 since,
-		Until:                 until,
+		Repo:                     repo,
+		PreferredTools:           ToolPlan(ctx.WorkflowKind, ctx.Question, repo, ctx.ChannelID, ctx.ThreadTS),
+		CandidateReadSurfaces:    CandidateReadSurfacesForContext(ctx),
+		KubernetesReadNamespaces: config.CompactUniqueStrings(cfg.KubernetesReadNamespaces),
+		Since:                    since,
+		Until:                    until,
 	}
 }
 
@@ -105,23 +109,24 @@ func BuildToolRequestPayload(cfg RuntimeConfig, ctx RequestContext, now time.Tim
 		caseID = ctx.CaseID
 	}
 	return map[string]any{
-		"repo":               repo,
-		"question":           ctx.Question,
-		"topic":              ctx.Question,
-		"scope_id":           repo,
-		"service":            ctx.AssignedBot,
-		"alert":              ctx.Question,
-		"namespace":          cfg.SandboxNamespace,
-		"target":             ctx.WorkflowKind,
-		"knowledge_base_url": cfg.KnowledgeBaseURL,
-		"channel_id":         ctx.ChannelID,
-		"thread_ts":          ctx.ThreadTS,
-		"trace_id":           ctx.Trace.TraceID,
-		"workflow_id":        workflowID,
-		"conversation_id":    conversationID,
-		"case_id":            caseID,
-		"since":              since,
-		"until":              until,
+		"repo":                       repo,
+		"question":                   ctx.Question,
+		"topic":                      ctx.Question,
+		"scope_id":                   repo,
+		"service":                    ctx.AssignedBot,
+		"alert":                      ctx.Question,
+		"namespace":                  cfg.SandboxNamespace,
+		"kubernetes_read_namespaces": config.CompactUniqueStrings(cfg.KubernetesReadNamespaces),
+		"target":                     ctx.WorkflowKind,
+		"knowledge_base_url":         cfg.KnowledgeBaseURL,
+		"channel_id":                 ctx.ChannelID,
+		"thread_ts":                  ctx.ThreadTS,
+		"trace_id":                   ctx.Trace.TraceID,
+		"workflow_id":                workflowID,
+		"conversation_id":            conversationID,
+		"case_id":                    caseID,
+		"since":                      since,
+		"until":                      until,
 	}
 }
 

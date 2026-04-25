@@ -143,7 +143,7 @@ func buildWorkflowClassificationTask(
 			"intent":              workflow.Intent,
 			"runner_planner_mode": firstNonEmpty(cfg.RunnerPlannerMode, "runner_first"),
 		},
-		CapabilityLeases: questionCapabilityLeases(false),
+		CapabilityLeases: questionCapabilityLeases(false, nil),
 		DeliveryPolicy:   runnerDeliveryPolicy(ingestion.ChannelID, ingestion.ThreadTS, "none", trace.Summary.TraceID),
 		WorkspacePolicy:  runnerutil.WorkspacePolicyFromConfig(cfg),
 		ApprovalPolicy:   runnerApprovalPolicy(false),

@@ -68,6 +68,32 @@ func TestLoadReadsVerboseTraceLoggingEnv(t *testing.T) {
 	}
 }
 
+func TestKubernetesReadNamespaceScopeAddsSandboxNamespaceWhenConfigured(t *testing.T) {
+	cfg := Config{
+		KubernetesReadNamespaces: []string{"story", "rsi-platform", "story"},
+		SandboxNamespace:         "rsi-platform",
+	}
+
+	got := cfg.KubernetesReadNamespaceScope()
+	want := []string{"story", "rsi-platform"}
+	if len(got) != len(want) {
+		t.Fatalf("scope = %#v, want %#v", got, want)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("scope = %#v, want %#v", got, want)
+		}
+	}
+}
+
+func TestKubernetesReadNamespaceScopeUnsetPreservesLegacyUnscopedBehavior(t *testing.T) {
+	cfg := Config{SandboxNamespace: "rsi-platform"}
+
+	if got := cfg.KubernetesReadNamespaceScope(); len(got) != 0 {
+		t.Fatalf("scope = %#v, want empty", got)
+	}
+}
+
 func assertPanics(t *testing.T, fn func()) {
 	t.Helper()
 	defer func() {

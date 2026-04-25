@@ -103,6 +103,7 @@ type RunnerContextRef struct {
 	MaterialRiskSummary              string         `json:"material_risk_summary,omitempty"`
 	RecommendedDisposition           string         `json:"recommended_disposition,omitempty"`
 	AllowedPathGlobs                 []string       `json:"allowed_path_globs,omitempty"`
+	Namespaces                       []string       `json:"namespaces,omitempty"`
 }
 
 type RunnerRequestedArtifact struct {
@@ -166,6 +167,22 @@ func RunnerCapabilityLeases(capabilities ...string) []RunnerCapabilityLease {
 		out = append(out, NewRunnerCapabilityLease(capability, nil))
 	}
 	return out
+}
+
+func AttachKubernetesReadNamespacesToLeases(leases []RunnerCapabilityLease, kubernetesReadNamespaces []string) []RunnerCapabilityLease {
+	if len(kubernetesReadNamespaces) == 0 {
+		return leases
+	}
+	for index := range leases {
+		if leases[index].Capability != "read_context" {
+			continue
+		}
+		leases[index].Scope = map[string]any{
+			"kubernetes_read_namespaces": append([]string(nil), kubernetesReadNamespaces...),
+		}
+		break
+	}
+	return leases
 }
 
 func NewRunnerDeliveryPolicy(channelID string, threadTS string, replyDeliveryMode string, idempotencyKeyBase string) *RunnerDeliveryPolicy {
@@ -283,6 +300,7 @@ type RunnerTask struct {
 	WorkspaceRepo             string                          `json:"workspace_repo,omitempty"`
 	WorkspaceBranch           string                          `json:"workspace_branch,omitempty"`
 	AllowedPathGlobs          []string                        `json:"allowed_path_globs,omitempty"`
+	KubernetesReadNamespaces  []string                        `json:"kubernetes_read_namespaces,omitempty"`
 	ContractVersion           string                          `json:"contract_version,omitempty"`
 	ExecutionIntent           map[string]any                  `json:"execution_intent,omitempty"`
 	CapabilityLeases          []RunnerCapabilityLease         `json:"capability_leases,omitempty"`

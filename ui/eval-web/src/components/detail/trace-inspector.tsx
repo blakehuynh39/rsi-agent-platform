@@ -7,10 +7,38 @@ import { FormattedMessage } from "@/components/formatted-message";
 
 const LIVE_EVENT_LIMIT = 500;
 const LIVE_EVENT_FAMILIES = ["all", "model", "tool", "terminal", "artifact", "slack", "notion", "mcp", "phase", "failure"];
+const LIVE_DELTA_KINDS = new Set(["model.reasoning.delta", "model.output.delta", "terminal.output", "executor.subprocess.output"]);
+const COMPACT_METADATA_KEYS = new Set([
+  "hermes_session_id",
+  "observation_id",
+  "recorded_at_unix",
+  "role",
+  "source"
+]);
+
+type LiveStreamItem = {
+  id: string;
+  kind: string;
+  status?: string;
+  phase_id?: string;
+  seq: number;
+  seq_end: number;
+  recorded_at: string;
+  count: number;
+  event: ExecutionLedgerEvent;
+  events: ExecutionLedgerEvent[];
+  text?: string;
+};
 
 function eventFamily(kind: string) {
+  if (kind.startsWith("tool_")) {
+    return "tool";
+  }
+  if (kind === "file.written") {
+    return "artifact";
+  }
   const prefix = (kind || "").split(".")[0] || "event";
-  if (prefix === "executor" || prefix === "command") {
+  if (prefix === "executor" || prefix === "command" || prefix === "terminal") {
     return "terminal";
   }
   return prefix;
@@ -27,6 +55,179 @@ function payloadText(payload: Record<string, unknown> | undefined, keys: string[
     }
   }
   return "";
+}
+
+function liveDeltaText(event: ExecutionLedgerEvent) {
+  if (!LIVE_DELTA_KINDS.has(event.kind)) {
+    return "";
+  }
+  const payload = event.payload;
+  if (!payload) {
+    return "";
+  }
+  for (const key of ["delta", "chunk_text", "text", "message"]) {
+    const value = payload[key];
+    if (typeof value === "string") {
+      return value;
+    }
+  }
+  return "";
+}
+
+function canMergeLiveDelta(current: LiveStreamItem | undefined, event: ExecutionLedgerEvent) {
+  if (!current || !current.text || !LIVE_DELTA_KINDS.has(event.kind)) {
+    return false;
+  }
+  return (
+    current.kind === event.kind &&
+    current.event.execution_id === event.execution_id &&
+    (current.phase_id || "") === (event.phase_id || "") &&
+    event.seq === current.seq_end + 1
+  );
+}
+
+function buildLiveStreamItems(events: ExecutionLedgerEvent[]) {
+  return events.reduce<LiveStreamItem[]>((items, event) => {
+    const delta = liveDeltaText(event);
+    const previous = items[items.length - 1];
+    if (delta && canMergeLiveDelta(previous, event)) {
+      previous.text = `${previous.text || ""}${delta}`;
+      previous.seq_end = event.seq;
+      previous.recorded_at = event.recorded_at;
+      previous.count += 1;
+      previous.event = event;
+      previous.events.push(event);
+      return items;
+    }
+
+    items.push({
+      id: delta ? `${event.kind}:${event.execution_id}:${event.phase_id || "main"}:${event.seq}` : event.id,
+      kind: event.kind,
+      status: event.status,
+      phase_id: event.phase_id,
+      seq: event.seq,
+      seq_end: event.seq,
+      recorded_at: event.recorded_at,
+      count: 1,
+      event,
+      events: [event],
+      text: delta || undefined
+    });
+    return items;
+  }, []);
+}
+
+function parseToolResultSummary(value: unknown) {
+  if (typeof value !== "string" || !value.trim().startsWith("{")) {
+    return "";
+  }
+  try {
+    const parsed = JSON.parse(value) as Record<string, unknown>;
+    return [
+      typeof parsed.summary === "string" ? parsed.summary : "",
+      typeof parsed.status === "string" ? `status: ${parsed.status}` : "",
+      typeof parsed.provider_ref === "string" ? parsed.provider_ref : ""
+    ].filter(Boolean).join(" · ");
+  } catch {
+    return "";
+  }
+}
+
+function truncateText(value: string, limit = 900) {
+  if (value.length <= limit) {
+    return value;
+  }
+  return `${value.slice(0, limit).trimEnd()}...`;
+}
+
+function compactValue(value: unknown): unknown {
+  if (typeof value === "string") {
+    const parsedSummary = parseToolResultSummary(value);
+    return parsedSummary || truncateText(value);
+  }
+  if (Array.isArray(value)) {
+    return value.slice(0, 8).map(compactValue);
+  }
+  if (value && typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [key, nested] of Object.entries(value as Record<string, unknown>)) {
+      if (COMPACT_METADATA_KEYS.has(key)) {
+        continue;
+      }
+      out[key] = compactValue(nested);
+    }
+    return out;
+  }
+  return value;
+}
+
+function compactEventDetails(item: LiveStreamItem) {
+  const base: Record<string, unknown> = {
+    kind: item.kind,
+    status: item.status || "event",
+    phase_id: item.phase_id || "main",
+    seq: item.count > 1 ? `${item.seq}-${item.seq_end}` : item.seq,
+    recorded_at: item.recorded_at,
+    event_count: item.count
+  };
+  const payload = compactValue(item.event.payload || {}) as Record<string, unknown>;
+  if (item.count > 1) {
+    base.first_event_id = item.events[0]?.id;
+    base.last_event_id = item.events[item.events.length - 1]?.id;
+    base.characters = item.text?.length || 0;
+  }
+  return { ...base, payload };
+}
+
+function eventTitle(item: LiveStreamItem) {
+  const payload = item.event.payload || {};
+  const toolName = payloadText(payload, ["tool_name", "name"]);
+  switch (item.kind) {
+    case "model.reasoning.delta":
+      return "Reasoning stream";
+    case "model.output.delta":
+      return "Assistant output";
+    case "model.thinking":
+      return "Thinking";
+    case "tool.call.started":
+      return toolName ? `Tool started: ${toolName}` : "Tool started";
+    case "tool.call.progress":
+      return toolName ? `Tool progress: ${toolName}` : "Tool progress";
+    case "tool.call.completed":
+      return toolName ? `Tool completed: ${toolName}` : "Tool completed";
+    case "tool.generation.started":
+      return "Tool generation";
+    case "artifact.created":
+    case "file.written":
+      return "Artifact written";
+    case "slack.message.sent":
+    case "slack.upload.completed":
+      return "Slack delivery";
+    default:
+      return item.kind;
+  }
+}
+
+function eventPrimaryText(item: LiveStreamItem) {
+  if (item.text) {
+    return item.text;
+  }
+  const payload = item.event.payload || {};
+  const parsedResult = parseToolResultSummary(payload.result);
+  if (parsedResult) {
+    return parsedResult;
+  }
+  return payloadText(payload, [
+    "summary",
+    "result_summary",
+    "message",
+    "text",
+    "chunk_text",
+    "preview",
+    "error",
+    "failure_reason",
+    "reason"
+  ]);
 }
 
 function LiveTraceStream(props: { traceID: string }) {
@@ -68,9 +269,10 @@ function LiveTraceStream(props: { traceID: string }) {
     };
   }, [props.traceID]);
 
+  const streamItems = useMemo(() => buildLiveStreamItems(events), [events]);
   const visibleEvents = useMemo(
-    () => events.filter((item) => familyFilter === "all" || eventFamily(item.kind) === familyFilter),
-    [events, familyFilter]
+    () => streamItems.filter((item) => familyFilter === "all" || eventFamily(item.kind) === familyFilter),
+    [streamItems, familyFilter]
   );
 
   useEffect(() => {
@@ -94,7 +296,7 @@ function LiveTraceStream(props: { traceID: string }) {
       <div className="live-toolbar">
         <div>
           <strong>Live execution stream</strong>
-          <p className="muted">{status} · {events.length} events</p>
+          <p className="muted">{status} · {events.length} events · {streamItems.length} rows</p>
         </div>
         <div className="button-row">
           {LIVE_EVENT_FAMILIES.map((family) => (
@@ -107,7 +309,7 @@ function LiveTraceStream(props: { traceID: string }) {
       </div>
       <div className="live-stream" ref={viewportRef} onScroll={handleScroll}>
         {visibleEvents.map((item) => (
-          <LiveEventRow key={item.id} event={item} />
+          <LiveEventRow key={item.id} item={item} />
         ))}
         {!visibleEvents.length ? <div className="nested-card"><p className="detail-copy">Waiting for live runner events.</p></div> : null}
       </div>
@@ -115,23 +317,25 @@ function LiveTraceStream(props: { traceID: string }) {
   );
 }
 
-function LiveEventRow(props: { event: ExecutionLedgerEvent }) {
-  const event = props.event;
-  const payload = event.payload || {};
-  const family = eventFamily(event.kind);
-  const primaryText = payloadText(payload, ["delta", "text", "message", "summary", "chunk_text", "preview", "error"]);
-  const toolName = payloadText(payload, ["tool_name"]);
+function LiveEventRow(props: { item: LiveStreamItem }) {
+  const item = props.item;
+  const payload = item.event.payload || {};
+  const family = eventFamily(item.kind);
+  const primaryText = eventPrimaryText(item);
+  const toolName = payloadText(payload, ["tool_name", "name"]);
+  const seqText = item.count > 1 ? `#${item.seq}-${item.seq_end}` : `#${item.seq}`;
   return (
     <div className={`live-event ${family}`}>
       <div className="detail-row-header">
-        <strong>{event.kind}</strong>
-        <small>{event.status || "event"} · {event.phase_id || "main"} · #{event.seq} · {formatTime(event.recorded_at)}</small>
+        <strong>{eventTitle(item)}</strong>
+        <small>{item.status || "event"} · {item.phase_id || "main"} · {seqText} · {formatTime(item.recorded_at)}</small>
       </div>
-      {toolName ? <p className="muted">{toolName}</p> : null}
+      <p className="muted live-event-kind">{item.kind}{item.count > 1 ? ` · ${item.count} chunks` : ""}</p>
+      {toolName && !eventTitle(item).includes(toolName) ? <p className="muted">{toolName}</p> : null}
       {primaryText ? <pre className="detail-copy live-event-text">{primaryText}</pre> : null}
       <details>
-        <summary>raw</summary>
-        <pre className="detail-copy live-event-json">{JSON.stringify(event, null, 2)}</pre>
+        <summary>details</summary>
+        <pre className="detail-copy live-event-json">{JSON.stringify(compactEventDetails(item), null, 2)}</pre>
       </details>
     </div>
   );

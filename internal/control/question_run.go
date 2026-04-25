@@ -564,10 +564,11 @@ func buildInvestigationSpec(cfg config.Config, workflow storepkg.Workflow, inges
 	now := time.Now().UTC()
 	userRequest := firstNonEmpty(strings.TrimSpace(ingestion.Prompt.RenderedText), strings.TrimSpace(ingestion.Text))
 	hints := workflowplan.BuildLiveHints(workflowplan.RuntimeConfig{
-		DefaultRepo:      cfg.DefaultRepo,
-		AllowedRepos:     append([]string(nil), cfg.AllowedTargetRepos...),
-		KnowledgeBaseURL: cfg.DefaultKnowledgeBaseURL,
-		SandboxNamespace: cfg.SandboxNamespace,
+		DefaultRepo:              cfg.DefaultRepo,
+		AllowedRepos:             append([]string(nil), cfg.AllowedTargetRepos...),
+		KnowledgeBaseURL:         cfg.DefaultKnowledgeBaseURL,
+		SandboxNamespace:         cfg.SandboxNamespace,
+		KubernetesReadNamespaces: cfg.KubernetesReadNamespaceScope(),
 	}, workflowplan.RequestContext{
 		Trace:          trace.Summary,
 		WorkflowID:     workflow.ID,
@@ -1083,6 +1084,7 @@ func buildQuestionGatherTask(cfg config.Config, store storepkg.Store, ctx questi
 	if timeoutSeconds <= 0 {
 		timeoutSeconds = int(totalTimeout / time.Second)
 	}
+	kubernetesReadNamespaceScope := cfg.KubernetesReadNamespaceScope()
 	return clients.RunnerTask{
 		TaskType:                  "question_gather",
 		Repo:                      firstNonEmpty(ctx.questionRun.InvestigationSpec.Repo, cfg.DefaultRepo),
@@ -1113,6 +1115,7 @@ func buildQuestionGatherTask(cfg config.Config, store storepkg.Store, ctx questi
 		MemoryBackend:             harness.DefaultMemoryBackend,
 		AssistantPeerID:           fmt.Sprintf("rsi:%s:%s", cfg.Environment, role),
 		UserPeerID:                workflowUserPeerID(store.ListConversationEntries(ctx.trace.Summary.ConversationID), sessionScopeKind, sessionScopeID),
+		KubernetesReadNamespaces:  kubernetesReadNamespaceScope,
 		ContractVersion:           clients.RunnerExecutionContractVersion,
 		ExecutionIntent: map[string]any{
 			"kind":                "question_gather",
@@ -1120,7 +1123,7 @@ func buildQuestionGatherTask(cfg config.Config, store storepkg.Store, ctx questi
 			"runner_planner_mode": firstNonEmpty(cfg.RunnerPlannerMode, "runner_first"),
 			"question_run_id":     ctx.questionRun.ID,
 		},
-		CapabilityLeases: questionCapabilityLeases(true),
+		CapabilityLeases: questionCapabilityLeases(true, kubernetesReadNamespaceScope),
 		DeliveryPolicy:   runnerDeliveryPolicy(ctx.ingestion.ChannelID, ctx.ingestion.ThreadTS, "none", ctx.trace.Summary.TraceID),
 		WorkspacePolicy:  runnerutil.WorkspacePolicyFromConfig(cfg),
 		ApprovalPolicy:   runnerApprovalPolicy(false),
@@ -1176,19 +1179,20 @@ func buildQuestionReduceTask(cfg config.Config, store storepkg.Store, ctx questi
 			"runner_planner_mode": firstNonEmpty(cfg.RunnerPlannerMode, "runner_first"),
 			"question_run_id":     ctx.questionRun.ID,
 		},
-		CapabilityLeases: questionCapabilityLeases(false),
+		CapabilityLeases: questionCapabilityLeases(false, nil),
 		DeliveryPolicy:   runnerDeliveryPolicy(ctx.ingestion.ChannelID, ctx.ingestion.ThreadTS, "none", ctx.trace.Summary.TraceID),
 		WorkspacePolicy:  runnerutil.WorkspacePolicyFromConfig(cfg),
 		ApprovalPolicy:   runnerApprovalPolicy(false),
 	}
 }
 
-func questionCapabilityLeases(includeSlackRead bool) []clients.RunnerCapabilityLease {
+func questionCapabilityLeases(includeSlackRead bool, kubernetesReadNamespaces []string) []clients.RunnerCapabilityLease {
 	capabilities := []string{"read_context", "memory_read", "memory_write"}
 	if includeSlackRead {
 		capabilities = append(capabilities, "slack_read", "workspace_read")
 	}
-	return clients.RunnerCapabilityLeases(capabilities...)
+	leases := clients.RunnerCapabilityLeases(capabilities...)
+	return clients.AttachKubernetesReadNamespacesToLeases(leases, kubernetesReadNamespaces)
 }
 
 func questionGatherAllowedTools(spec questionrun.InvestigationSpec) []string {
