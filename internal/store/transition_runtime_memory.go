@@ -109,6 +109,7 @@ func (s *MemoryStore) QueueEffectExecution(effect transition.EffectExecution) (t
 	if effect.UpdatedAt.IsZero() || effect.UpdatedAt.Before(effect.CreatedAt) {
 		effect.UpdatedAt = effect.CreatedAt
 	}
+	effect = normalizeEffectScheduling(effect)
 	s.effectExecutions[effect.ID] = effect
 	return effect, true, nil
 }
@@ -132,6 +133,70 @@ func (s *MemoryStore) recordCommandReceiptLocked(item transition.CommandReceipt)
 	return item, true, nil
 }
 
+func (s *MemoryStore) ClaimNextEffectExecution(holder string, lease time.Duration, queueNames []string, maxPerScope int) (transition.EffectExecution, bool, error) {
+	return s.ClaimNextEffectExecutionForKinds(holder, lease, queueNames, maxPerScope, nil)
+}
+
+func (s *MemoryStore) ClaimNextEffectExecutionForKinds(holder string, lease time.Duration, queueNames []string, maxPerScope int, selectors []EffectClaimSelector) (transition.EffectExecution, bool, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	now := time.Now().UTC()
+	allowed := map[string]struct{}{}
+	for _, queueName := range queueNames {
+		queueName = strings.TrimSpace(queueName)
+		if queueName != "" {
+			allowed[queueName] = struct{}{}
+		}
+	}
+	if len(allowed) == 0 {
+		return transition.EffectExecution{}, false, nil
+	}
+	activeByScope := map[string]int{}
+	for _, item := range s.effectExecutions {
+		item = normalizeEffectScheduling(item)
+		if effectRunningBlocksScope(item, now) && queueNameAllowed(item.QueueName, allowed) && effectMatchesClaimSelectors(item, selectors) {
+			activeByScope[item.ScopeKey]++
+		}
+	}
+	var selected transition.EffectExecution
+	selectedOK := false
+	for _, item := range s.effectExecutions {
+		item = normalizeEffectScheduling(item)
+		if !queueNameAllowed(item.QueueName, allowed) || !effectMatchesClaimSelectors(item, selectors) || !effectAvailableForClaim(item, now, lease) {
+			continue
+		}
+		if maxPerScope > 0 && activeByScope[item.ScopeKey] >= maxPerScope {
+			continue
+		}
+		if !selectedOK ||
+			item.Priority > selected.Priority ||
+			(item.Priority == selected.Priority && item.CreatedAt.Before(selected.CreatedAt)) ||
+			(item.Priority == selected.Priority && item.CreatedAt.Equal(selected.CreatedAt) && item.ID < selected.ID) {
+			selected = item
+			selectedOK = true
+		}
+	}
+	if !selectedOK {
+		return transition.EffectExecution{}, false, nil
+	}
+	selected.Status = transition.EffectRunning
+	selected.Holder = strings.TrimSpace(holder)
+	selected.UpdatedAt = now
+	if selected.StartedAt == nil {
+		selected.StartedAt = &now
+	}
+	if lease > 0 {
+		expires := now.Add(lease)
+		selected.LeaseExpiresAt = &expires
+	} else {
+		selected.LeaseExpiresAt = nil
+	}
+	selected.NotBefore = nil
+	selected.CompletedAt = nil
+	s.effectExecutions[selected.ID] = selected
+	return selected, true, nil
+}
+
 func (s *MemoryStore) ClaimEffectExecution(effectID string, holder string, lease time.Duration) (transition.EffectExecution, bool, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -140,10 +205,13 @@ func (s *MemoryStore) ClaimEffectExecution(effectID string, holder string, lease
 		return transition.EffectExecution{}, false, errors.New("effect execution not found")
 	}
 	now := time.Now().UTC()
+	if item.NotBefore != nil && item.NotBefore.After(now) {
+		return item, false, nil
+	}
 	switch item.Status {
 	case transition.EffectQueued, transition.EffectFailed:
 	case transition.EffectRunning:
-		if item.LeaseExpiresAt == nil || item.LeaseExpiresAt.After(now) {
+		if !effectRunningClaimable(item, now) {
 			return item, false, nil
 		}
 	default:
@@ -161,6 +229,7 @@ func (s *MemoryStore) ClaimEffectExecution(effectID string, holder string, lease
 	} else {
 		item.LeaseExpiresAt = nil
 	}
+	item.NotBefore = nil
 	item.CompletedAt = nil
 	s.effectExecutions[item.ID] = item
 	return item, true, nil
@@ -187,6 +256,7 @@ func (s *MemoryStore) CompleteEffectExecution(effectID string, holder string, re
 	item.Holder = ""
 	item.UpdatedAt = now
 	item.LeaseExpiresAt = nil
+	item.NotBefore = nil
 	item.CompletedAt = &now
 	s.effectExecutions[item.ID] = item
 	return item, nil
@@ -216,6 +286,7 @@ func (s *MemoryStore) DeferEffectExecution(effectID string, holder string, lease
 	item.Holder = ""
 	item.UpdatedAt = now
 	item.LeaseExpiresAt = &expires
+	item.NotBefore = &expires
 	item.CompletedAt = nil
 	s.effectExecutions[item.ID] = item
 	return item, nil
@@ -242,6 +313,7 @@ func (s *MemoryStore) FailEffectExecution(effectID string, holder string, lastEr
 	item.RetryCount++
 	item.UpdatedAt = now
 	item.LeaseExpiresAt = nil
+	item.NotBefore = nil
 	item.CompletedAt = &now
 	s.effectExecutions[item.ID] = item
 	return item, nil
@@ -262,6 +334,7 @@ func (s *MemoryStore) appendTransitionBundleLocked(bundle transitionPersistBundl
 		s.domainEvents = append(s.domainEvents, bundle.Events...)
 	}
 	for _, item := range bundle.Effects {
+		item = normalizeEffectScheduling(item)
 		s.effectExecutions[item.ID] = item
 	}
 }

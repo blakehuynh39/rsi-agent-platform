@@ -27,6 +27,7 @@ const (
 	workflowFailureRunnerExecutorStatusUnavailable  = "runner_executor_status_unavailable"
 	workflowFailureRunnerExecutorStatusUnrecognized = "runner_executor_status_unrecognized"
 	workflowFailureRunnerExecutorResultUnavailable  = "runner_executor_result_unavailable"
+	workflowFailureRunnerExecutionCancelled         = "runner_execution_cancelled"
 	workflowFailureRunnerStructuredOutputParse      = "runner_structured_output_parse_failure"
 	workflowFailureToolGatewayTimeout               = "tool_gateway_timeout"
 	workflowFailureToolGatewayUnavailable           = "tool_gateway_unavailable"

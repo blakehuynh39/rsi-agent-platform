@@ -2,11 +2,16 @@ package app
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
+	"os"
+	"os/signal"
 	"path"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -36,12 +41,34 @@ func NewBaseRouter(cfg config.Config) *chi.Mux {
 			"schema_current_version":  cfg.SchemaVersionCurrent,
 			"schema_expected_version": cfg.SchemaVersionExpected,
 			"schema_state":            cfg.SchemaCompatibility,
+			"drain_status":            drainStatus(),
 		}
-		if !cfg.ConfigValidated {
+		draining := IsDraining()
+		configValid := cfg.ConfigValidated
+		if draining && !configValid {
+			status = http.StatusServiceUnavailable
+			payload["status"] = "draining_not_ready"
+		} else if draining {
+			status = http.StatusServiceUnavailable
+			payload["status"] = "draining"
+		} else if !configValid {
 			status = http.StatusServiceUnavailable
 			payload["status"] = "not_ready"
 		}
 		WriteJSON(w, status, payload)
+	})
+	startDrain := func(w http.ResponseWriter, r *http.Request) {
+		StartDrain()
+		payload := drainStatusPayload()
+		payload["accepted"] = true
+		WriteJSON(w, http.StatusAccepted, payload)
+	}
+	// Drain hooks are intentionally unauthenticated. They are internal-only
+	// operational endpoints protected by cluster/network boundaries, and need to
+	// remain usable during rollout/drain incidents without extra auth wiring.
+	r.Post("/internal/drain/start", startDrain)
+	r.Get("/internal/drain/status", func(w http.ResponseWriter, r *http.Request) {
+		WriteJSON(w, http.StatusOK, drainStatusPayload())
 	})
 	r.Get("/api/meta", func(w http.ResponseWriter, r *http.Request) {
 		WriteJSON(w, http.StatusOK, map[string]interface{}{
@@ -53,10 +80,14 @@ func NewBaseRouter(cfg config.Config) *chi.Mux {
 			"store_backend":    cfg.StoreBackend,
 			"default_repo":     cfg.DefaultRepo,
 			"execution_ledger_first_projection_enabled": cfg.ExecutionLedgerFirstProjection,
-			"dependencies":            cfg.DependencyTargets(),
-			"schema_current_version":  cfg.SchemaVersionCurrent,
-			"schema_expected_version": cfg.SchemaVersionExpected,
-			"schema_state":            cfg.SchemaCompatibility,
+			"effect_scheduler_mode":                     EffectSchedulerModeName(cfg.EffectFairClaimEnabled),
+			"async_hermes_execution_enabled":            cfg.AsyncHermesExecutionEnabled,
+			"deployment_active_execution_policy":        cfg.DeploymentActiveExecutionPolicy,
+			"dependencies":                              cfg.DependencyTargets(),
+			"schema_current_version":                    cfg.SchemaVersionCurrent,
+			"schema_expected_version":                   cfg.SchemaVersionExpected,
+			"schema_state":                              cfg.SchemaCompatibility,
+			"drain_status":                              drainStatus(),
 		})
 	})
 	return r
@@ -99,7 +130,80 @@ func WriteJSON(w http.ResponseWriter, status int, payload interface{}) {
 
 func ListenAndServe(cfg config.Config, handler http.Handler) error {
 	addr := fmt.Sprintf(":%d", cfg.HTTPPort)
-	return http.ListenAndServe(addr, handler)
+	listener, err := net.Listen("tcp", addr)
+	if err != nil {
+		return err
+	}
+	server := &http.Server{Addr: addr, Handler: handler}
+	signalCh := make(chan os.Signal, 2)
+	signal.Notify(signalCh, syscall.SIGINT, syscall.SIGTERM)
+	defer signal.Stop(signalCh)
+	errCh := make(chan error, 1)
+	go func() {
+		errCh <- server.Serve(listener)
+	}()
+	select {
+	case err := <-errCh:
+		if err == http.ErrServerClosed {
+			return nil
+		}
+		return err
+	case <-signalCh:
+		StartDrain()
+		if err := shutdownHTTPServer(server); err != nil {
+			return err
+		}
+		select {
+		case err := <-errCh:
+			if err != nil && err != http.ErrServerClosed {
+				return err
+			}
+		default:
+		}
+		return nil
+	case <-DrainStarted():
+		if err := shutdownHTTPServer(server); err != nil {
+			return err
+		}
+		select {
+		case err := <-errCh:
+			if err != nil && err != http.ErrServerClosed {
+				return err
+			}
+		default:
+		}
+		return nil
+	}
+}
+
+func shutdownHTTPServer(server *http.Server) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 25*time.Second)
+	defer cancel()
+	if err := server.Shutdown(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
+func drainStatus() string {
+	if IsDraining() {
+		return "draining"
+	}
+	return "active"
+}
+
+func drainStatusPayload() map[string]any {
+	return map[string]any{
+		"drain_status": drainStatus(),
+		"draining":     IsDraining(),
+	}
+}
+
+func EffectSchedulerModeName(enabled bool) string {
+	if enabled {
+		return "fair_claim"
+	}
+	return "legacy_list_scan"
 }
 
 func SanitizedTracePath(traceID string) string {

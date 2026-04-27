@@ -1,6 +1,7 @@
 package store
 
 import (
+	"context"
 	"crypto/sha1"
 	"database/sql"
 	"encoding/json"
@@ -53,23 +54,42 @@ type commandApplyResult struct {
 }
 
 func (s *MemoryStore) SubmitCommand(command transition.CommandEnvelope) (transition.CommandReceipt, error) {
-	s.mu.Lock()
+	return s.SubmitCommandContext(context.Background(), command)
+}
+
+func (s *MemoryStore) SubmitCommandContext(ctx context.Context, command transition.CommandEnvelope) (transition.CommandReceipt, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	if err := s.mu.LockContext(ctx); err != nil {
+		return transition.CommandReceipt{}, err
+	}
 	defer s.mu.Unlock()
+	if err := ctx.Err(); err != nil {
+		return transition.CommandReceipt{}, err
+	}
 	return s.submitCommandChainLocked(command)
 }
 
 func (p *PostgresStore) SubmitCommand(command transition.CommandEnvelope) (receipt transition.CommandReceipt, err error) {
-	err = p.withTx(func(tx *sql.Tx) error {
+	return p.SubmitCommandContext(context.Background(), command)
+}
+
+func (p *PostgresStore) SubmitCommandContext(ctx context.Context, command transition.CommandEnvelope) (receipt transition.CommandReceipt, err error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	err = p.withTxContext(ctx, func(tx *sql.Tx) error {
 		command = normalizeCommandEnvelope(command)
-		if err := advisoryLock(tx, "command:"+command.CommandID); err != nil {
+		if err := advisoryLockContext(ctx, tx, "command:"+command.CommandID); err != nil {
 			return err
 		}
 		if command.AggregateID != "" {
-			if err := advisoryLock(tx, fmt.Sprintf("aggregate:%s:%s", command.MachineKind, command.AggregateID)); err != nil {
+			if err := advisoryLockContext(ctx, tx, fmt.Sprintf("aggregate:%s:%s", command.MachineKind, command.AggregateID)); err != nil {
 				return err
 			}
 		}
-		existing, scanErr := scanCommandReceipt(tx.QueryRow(`select command_id, machine_kind, aggregate_id, command_kind, causation_id, actor, decision_kind, reason, aggregate_version, result_ref, created_at, updated_at from command_receipt where command_id = $1`, strings.TrimSpace(command.CommandID)))
+		existing, scanErr := scanCommandReceipt(tx.QueryRowContext(ctx, `select command_id, machine_kind, aggregate_id, command_kind, causation_id, actor, decision_kind, reason, aggregate_version, result_ref, created_at, updated_at from command_receipt where command_id = $1`, strings.TrimSpace(command.CommandID)))
 		if scanErr == nil {
 			receipt = existing
 			return nil
@@ -77,18 +97,30 @@ func (p *PostgresStore) SubmitCommand(command transition.CommandEnvelope) (recei
 		if scanErr != sql.ErrNoRows {
 			return scanErr
 		}
+		if err := ctx.Err(); err != nil {
+			return err
+		}
 		store, loadErr := loadStore(tx)
 		if loadErr != nil {
 			return loadErr
+		}
+		if err := ctx.Err(); err != nil {
+			return err
 		}
 		rootReceipt, results, receipts, events, effects, execErr := store.executeCommandChainLocked(command)
 		if execErr != nil {
 			return execErr
 		}
 		for _, result := range results {
+			if err := ctx.Err(); err != nil {
+				return err
+			}
 			if persistErr := persistCommandMutation(tx, store, result); persistErr != nil {
 				return persistErr
 			}
+		}
+		if err := ctx.Err(); err != nil {
+			return err
 		}
 		if persistErr := persistDomainEvents(tx, events); persistErr != nil {
 			return persistErr
@@ -316,6 +348,7 @@ func (s *MemoryStore) appendWorkflowPlanningCommandsLocked(bundle *transitionPer
 	}
 	planning := workflowPlanningConfigFromCommand(parent)
 	resumeQueue := firstNonEmpty(stringFromCommand(parent, "resume_queue"), string(queue.WorkflowQueue))
+	requestedArtifacts := workflowplan.RequestedArtifactsForPrompt(strings.TrimSpace(ingestion.Text), ingestion.Prompt)
 	hints := workflowplan.BuildLiveHints(planning, workflowplan.RequestContext{
 		Trace:          trace.Summary,
 		WorkflowID:     workflow.ID,
@@ -352,9 +385,21 @@ func (s *MemoryStore) appendWorkflowPlanningCommandsLocked(bundle *transitionPer
 		Actor:       parent.Actor,
 		OccurredAt:  parent.OccurredAt,
 		Payload: map[string]any{
-			"tool_count":         0,
-			"resume_queue":       resumeQueue,
-			"execution_role":     executionRoleFromQueue(resumeQueue),
+			"tool_count":               0,
+			"resume_queue":             resumeQueue,
+			"execution_role":           executionRoleFromQueue(resumeQueue),
+			"conversation_id":          workflow.ConversationID,
+			"case_id":                  workflow.CaseID,
+			"trace_id":                 trace.Summary.TraceID,
+			"thread_key":               workflow.ThreadKey,
+			"workflow_kind":            workflow.Kind,
+			"requested_artifact_count": len(requestedArtifacts),
+			"task_class": func() string {
+				if len(requestedArtifacts) > 0 {
+					return effectTaskClassArtifact
+				}
+				return effectTaskClassSimple
+			}(),
 			"trace_events": []events.TraceEvent{
 				{
 					TraceID:     trace.Summary.TraceID,

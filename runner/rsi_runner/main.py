@@ -5,6 +5,8 @@ import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import logging
 import os
+import signal
+import threading
 
 from .json_types import JsonObject
 
@@ -12,6 +14,7 @@ from .config import RunnerConfig, RunnerConfigError
 from .hermes_runtime import HermesRuntime, RunnerTaskRequest
 
 logger = logging.getLogger(__name__)
+_DRAINING = threading.Event()
 
 _SENSITIVE_KEY_FRAGMENTS = (
     "authorization",
@@ -78,11 +81,17 @@ class RunnerHandler(BaseHTTPRequestHandler):
             self._json(200, self.runtime.metadata)
             return
         if self.path == "/readyz":
-            status = 200 if self.runtime.available else 503
-            self._json(status, self.runtime.metadata)
+            payload = dict(self.runtime.metadata)
+            payload["drain_status"] = "draining" if _DRAINING.is_set() else "active"
+            status = 200 if self.runtime.available and not _DRAINING.is_set() else 503
+            self._json(status, payload)
             return
         if self.path == "/runtimez":
             self._json(200, self.runtime.metadata)
+            return
+        if self.path == "/internal/drain/status":
+            status = "draining" if _DRAINING.is_set() else "active"
+            self._json(200, {"status": status, "drain_status": status})
             return
         if self.path.startswith("/internal/hermes-executions/"):
             execution_id = self.path.rsplit("/", 1)[-1]
@@ -102,12 +111,20 @@ class RunnerHandler(BaseHTTPRequestHandler):
             self._json(status, payload)
             return
 
+        if self.path == "/internal/drain/start":
+            _DRAINING.set()
+            self._json(202, {"status": "draining", "drain_status": "draining"})
+            return
+
         if self.config.hermes_executor_service_only and self.path == "/execute":
             self._json(404, {"error": "not found"})
             return
 
         if self.path not in {"/execute", "/internal/hermes-executions"}:
             self._json(404, {"error": "not found"})
+            return
+        if _DRAINING.is_set():
+            self._json(503, {"error": "runner is draining", "drain_status": "draining"})
             return
 
         content_length = int(self.headers.get("Content-Length", "0"))
@@ -130,6 +147,10 @@ class RunnerHandler(BaseHTTPRequestHandler):
             logger.info("runner execute request payload=%s", _json_for_log(payload, self.config.verbose_trace_log_limit))
         if "task" in payload or "task_type" in payload:
             task = RunnerTaskRequest.from_payload(payload)
+            if self.path == "/internal/hermes-executions" and bool(payload.get("async")):
+                accepted = self.runtime.start_executor_task(task)
+                self._json(202, accepted)
+                return
             result = self.runtime.execute_task(task)
         else:
             prompt = payload.get("prompt", "")
@@ -175,8 +196,36 @@ def run_server() -> None:
     RunnerHandler.runtime = runtime
 
     server = ThreadingHTTPServer((config.host, config.port), RunnerHandler)
+
+    def _start_drain(_signum, _frame) -> None:
+        _DRAINING.set()
+        
+        def _shutdown_after_drain() -> None:
+            logger.info("rsi-runner draining, waiting for in-flight executions to complete")
+            with runtime._executor_process_lock:
+                active_threads = list(runtime._executor_threads.values())
+                active_processes = list(runtime._executor_processes.values())
+            for thread in active_threads:
+                if thread.is_alive():
+                    thread.join(timeout=25.0)
+            for process in active_processes:
+                if process.poll() is None:
+                    try:
+                        process.wait(timeout=25.0)
+                    except Exception:
+                        pass
+            logger.info("rsi-runner drain complete, shutting down server")
+            server.shutdown()
+        
+        threading.Thread(target=_shutdown_after_drain, name="rsi-runner-shutdown", daemon=True).start()
+
+    signal.signal(signal.SIGTERM, _start_drain)
+    signal.signal(signal.SIGINT, _start_drain)
     logger.info("rsi-runner listening on %s:%s role=%s", config.host, config.port, config.role)
-    server.serve_forever()
+    try:
+        server.serve_forever()
+    finally:
+        server.server_close()
 
 
 def run_once() -> None:

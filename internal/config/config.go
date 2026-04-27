@@ -98,6 +98,14 @@ type Config struct {
 	WorkflowAutoRetryEnabled           bool
 	WorkflowAutoRetryMaxAttempts       int
 	WorkflowAutoRetryBackoffSeconds    []int
+	SlackAckAfterDurableIngress        bool
+	SlackDurableIngressAckTimeout      time.Duration
+	EffectFairClaimEnabled             bool
+	EffectMaxConcurrentPerScope        int
+	AsyncHermesExecutionEnabled        bool
+	HermesExecutionHeartbeatTimeout    time.Duration
+	DrainEnabled                       bool
+	DeploymentActiveExecutionPolicy    string
 	HermesNativeGovernedToolsEnabled   bool
 	HermesComputerRoot                 string
 	HermesRunRoot                      string
@@ -208,6 +216,14 @@ func Load(serviceName string) Config {
 		WorkflowAutoRetryEnabled:           boolEnv("RSI_WORKFLOW_AUTO_RETRY_ENABLED", false),
 		WorkflowAutoRetryMaxAttempts:       intEnv("RSI_WORKFLOW_AUTO_RETRY_MAX_ATTEMPTS", 3),
 		WorkflowAutoRetryBackoffSeconds:    intListEnv("RSI_WORKFLOW_AUTO_RETRY_BACKOFF_SECONDS", []int{15, 60}),
+		SlackAckAfterDurableIngress:        boolEnv("RSI_SLACK_ACK_AFTER_DURABLE_INGRESS", false),
+		SlackDurableIngressAckTimeout:      durationEnv("RSI_SLACK_DURABLE_INGRESS_ACK_TIMEOUT", 2*time.Second),
+		EffectFairClaimEnabled:             boolEnv("RSI_EFFECT_FAIR_CLAIM_ENABLED", false),
+		EffectMaxConcurrentPerScope:        intEnv("RSI_EFFECT_MAX_CONCURRENT_PER_SCOPE", 1),
+		AsyncHermesExecutionEnabled:        boolEnv("RSI_ASYNC_HERMES_EXECUTION_ENABLED", false),
+		HermesExecutionHeartbeatTimeout:    durationEnv("RSI_HERMES_EXECUTION_HEARTBEAT_TIMEOUT", 120*time.Second),
+		DrainEnabled:                       boolEnv("RSI_DRAIN_ENABLED", false),
+		DeploymentActiveExecutionPolicy:    stringEnv("RSI_DEPLOYMENT_ACTIVE_EXECUTION_POLICY", ""),
 		HermesNativeGovernedToolsEnabled:   boolEnv("RSI_HERMES_NATIVE_GOVERNED_TOOLS_ENABLED", false),
 		HermesComputerRoot:                 stringEnv("RSI_HERMES_COMPUTER_ROOT", "/workspace/company"),
 		HermesRunRoot:                      stringEnv("RSI_HERMES_RUN_ROOT", "/workspace/company/.rsi/runs"),

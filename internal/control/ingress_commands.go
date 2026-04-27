@@ -1,6 +1,7 @@
 package control
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
@@ -34,7 +35,12 @@ func submitIngressEventCommand(cfg config.Config, store storepkg.Store, event in
 	return submitIngressCommand(store, aggregateID, transition.CommandIngressRecordEvent, actor, occurredAt, commandID, payload)
 }
 
-func submitIngressSlackCommand(cfg config.Config, store storepkg.Store, envelope slack.SlackEnvelope, actor string, occurredAt time.Time, commandID string) (transition.CommandReceipt, error) {
+func submitIngressSlackCommand(ctx context.Context, cfg config.Config, store storepkg.Store, envelope slack.SlackEnvelope, actor string, occurredAt time.Time, commandID string) (transition.CommandReceipt, error) {
+	select {
+	case <-ctx.Done():
+		return transition.CommandReceipt{}, ctx.Err()
+	default:
+	}
 	aggregateID := ingressAggregateID("slack", firstNonEmpty(envelope.TS, envelope.ThreadTS, envelope.ChannelID))
 	payload := map[string]any{
 		"bot_role":        string(envelope.BotRole),
@@ -51,11 +57,19 @@ func submitIngressSlackCommand(cfg config.Config, store storepkg.Store, envelope
 		"created_at":      envelope.CreatedAt,
 	}
 	mergeIngressRuntimePayload(payload, cfg)
-	return submitIngressCommand(store, aggregateID, transition.CommandIngressRecordSlack, actor, occurredAt, commandID, payload)
+	receipt, err := submitIngressCommandContext(ctx, store, aggregateID, transition.CommandIngressRecordSlack, actor, occurredAt, commandID, payload)
+	return receipt, err
 }
 
 func submitIngressCommand(store storepkg.Store, aggregateID string, kind transition.IngressCommandKind, actor string, occurredAt time.Time, commandID string, payload map[string]any) (transition.CommandReceipt, error) {
-	receipt, err := store.SubmitCommand(transition.CommandEnvelope{
+	return submitIngressCommandContext(context.Background(), store, aggregateID, kind, actor, occurredAt, commandID, payload)
+}
+
+func submitIngressCommandContext(ctx context.Context, store storepkg.Store, aggregateID string, kind transition.IngressCommandKind, actor string, occurredAt time.Time, commandID string, payload map[string]any) (transition.CommandReceipt, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	receipt, err := store.SubmitCommandContext(ctx, transition.CommandEnvelope{
 		MachineKind: transition.MachineIngress,
 		AggregateID: strings.TrimSpace(aggregateID),
 		CommandKind: string(kind),

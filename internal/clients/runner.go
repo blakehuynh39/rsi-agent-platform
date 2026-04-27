@@ -329,7 +329,8 @@ type RunnerResponse struct {
 }
 
 type HermesExecutionRequest struct {
-	Task RunnerTask `json:"task"`
+	Task  RunnerTask `json:"task"`
+	Async bool       `json:"async,omitempty"`
 }
 
 type HermesExecutionResult = RunnerResponse
@@ -379,6 +380,14 @@ func (c *RunnerClient) ExecuteHermesExecution(task RunnerTask) (HermesExecutionR
 	var out HermesExecutionResult
 	if err := doJSON(c.httpClientForTask(task), http.MethodPost, c.baseURL+"/internal/hermes-executions", HermesExecutionRequest{Task: task}, &out, "hermes executor"); err != nil {
 		return HermesExecutionResult{}, err
+	}
+	return out, nil
+}
+
+func (c *RunnerClient) StartHermesExecution(task RunnerTask) (HermesExecutionStatus, error) {
+	var out HermesExecutionStatus
+	if err := doJSON(c.httpClientForTask(task), http.MethodPost, c.baseURL+"/internal/hermes-executions", HermesExecutionRequest{Task: task, Async: true}, &out, "hermes executor start"); err != nil {
+		return HermesExecutionStatus{}, err
 	}
 	return out, nil
 }

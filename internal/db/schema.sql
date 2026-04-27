@@ -1773,6 +1773,11 @@ create table if not exists effect_execution (
   effect_kind text not null,
   status text not null,
   idempotency_key text not null,
+  queue_name text not null default 'workflow',
+  scope_key text not null default '',
+  task_class text not null default 'simple',
+  priority integer not null default 0,
+  not_before timestamptz,
   payload jsonb not null default '{}'::jsonb,
   result_ref text not null default '',
   last_error text not null default '',
@@ -1797,11 +1802,55 @@ alter table if exists effect_execution
   add column if not exists retry_count integer not null default 0;
 alter table if exists effect_execution
   add column if not exists lease_expires_at timestamptz;
+alter table if exists effect_execution
+  add column if not exists queue_name text not null default 'workflow';
+alter table if exists effect_execution
+  add column if not exists scope_key text not null default '';
+alter table if exists effect_execution
+  add column if not exists task_class text not null default 'simple';
+alter table if exists effect_execution
+  add column if not exists priority integer not null default 0;
+alter table if exists effect_execution
+  add column if not exists not_before timestamptz;
 
 create index if not exists effect_execution_aggregate_idx
   on effect_execution (machine_kind, aggregate_id, updated_at desc);
 create index if not exists effect_execution_status_idx
   on effect_execution (status, updated_at desc);
+create index if not exists effect_execution_claim_idx
+  on effect_execution (queue_name, status, priority desc, created_at asc);
+create index if not exists effect_execution_scope_idx
+  on effect_execution (scope_key, status, lease_expires_at);
+
+create table if not exists runner_execution (
+  execution_id text primary key,
+  operation_id text not null default '',
+  workflow_id text not null default '',
+  trace_id text not null default '',
+  conversation_id text not null default '',
+  case_id text not null default '',
+  role text not null default '',
+  status text not null,
+  task jsonb not null default '{}'::jsonb,
+  result jsonb not null default '{}'::jsonb,
+  failure_class text not null default '',
+  holder text not null default '',
+  retry_count integer not null default 0,
+  cancel_requested boolean not null default false,
+  heartbeat_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  started_at timestamptz,
+  completed_at timestamptz
+);
+
+create index if not exists runner_execution_active_idx
+  on runner_execution (status, updated_at desc)
+  where status in ('queued','accepted','starting','running','cancelling','cancel_requested');
+create index if not exists runner_execution_case_idx
+  on runner_execution (case_id, trace_id, status);
+create index if not exists runner_execution_operation_idx
+  on runner_execution (operation_id, updated_at desc);
 
 create table if not exists command_receipt (
   command_id text primary key,

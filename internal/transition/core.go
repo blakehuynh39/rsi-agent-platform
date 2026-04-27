@@ -135,6 +135,11 @@ type EffectExecution struct {
 	Status         EffectStatus   `json:"status"`
 	Holder         string         `json:"holder,omitempty"`
 	IdempotencyKey string         `json:"idempotency_key"`
+	QueueName      string         `json:"queue_name,omitempty"`
+	ScopeKey       string         `json:"scope_key,omitempty"`
+	TaskClass      string         `json:"task_class,omitempty"`
+	Priority       int            `json:"priority,omitempty"`
+	NotBefore      *time.Time     `json:"not_before,omitempty"`
 	Payload        map[string]any `json:"payload,omitempty"`
 	ResultRef      string         `json:"result_ref,omitempty"`
 	LastError      string         `json:"last_error,omitempty"`

@@ -38,26 +38,48 @@ type Workflow struct {
 }
 
 type QuestionRun struct {
-	ID                string                       `json:"id"`
-	WorkflowID        string                       `json:"workflow_id"`
-	TraceID           string                       `json:"trace_id,omitempty"`
-	ConversationID    string                       `json:"conversation_id,omitempty"`
-	CaseID            string                       `json:"case_id,omitempty"`
-	IngestionID       string                       `json:"ingestion_id,omitempty"`
-	Role              string                       `json:"role,omitempty"`
-	Strategy          string                       `json:"strategy,omitempty"`
-	Status            string                       `json:"status"`
+	ID                string                        `json:"id"`
+	WorkflowID        string                        `json:"workflow_id"`
+	TraceID           string                        `json:"trace_id,omitempty"`
+	ConversationID    string                        `json:"conversation_id,omitempty"`
+	CaseID            string                        `json:"case_id,omitempty"`
+	IngestionID       string                        `json:"ingestion_id,omitempty"`
+	Role              string                        `json:"role,omitempty"`
+	Strategy          string                        `json:"strategy,omitempty"`
+	Status            string                        `json:"status"`
 	InvestigationSpec questionrun.InvestigationSpec `json:"investigation_spec,omitempty"`
-	EvidenceLedger    questionrun.EvidenceLedger   `json:"evidence_ledger,omitempty"`
-	Result            questionrun.Result           `json:"result,omitempty"`
-	FailureClass      string                       `json:"failure_class,omitempty"`
-	FailureSummary    string                       `json:"failure_summary,omitempty"`
-	LastError         string                       `json:"last_error,omitempty"`
-	RunnerDiagnostics map[string]any               `json:"runner_diagnostics,omitempty"`
-	Version           int64                        `json:"version"`
-	CreatedAt         time.Time                    `json:"created_at"`
-	UpdatedAt         time.Time                    `json:"updated_at"`
-	CompletedAt       *time.Time                   `json:"completed_at,omitempty"`
+	EvidenceLedger    questionrun.EvidenceLedger    `json:"evidence_ledger,omitempty"`
+	Result            questionrun.Result            `json:"result,omitempty"`
+	FailureClass      string                        `json:"failure_class,omitempty"`
+	FailureSummary    string                        `json:"failure_summary,omitempty"`
+	LastError         string                        `json:"last_error,omitempty"`
+	RunnerDiagnostics map[string]any                `json:"runner_diagnostics,omitempty"`
+	Version           int64                         `json:"version"`
+	CreatedAt         time.Time                     `json:"created_at"`
+	UpdatedAt         time.Time                     `json:"updated_at"`
+	CompletedAt       *time.Time                    `json:"completed_at,omitempty"`
+}
+
+type RunnerExecution struct {
+	ExecutionID     string         `json:"execution_id"`
+	OperationID     string         `json:"operation_id,omitempty"`
+	WorkflowID      string         `json:"workflow_id,omitempty"`
+	TraceID         string         `json:"trace_id,omitempty"`
+	ConversationID  string         `json:"conversation_id,omitempty"`
+	CaseID          string         `json:"case_id,omitempty"`
+	Role            string         `json:"role,omitempty"`
+	Status          string         `json:"status"`
+	Task            map[string]any `json:"task,omitempty"`
+	Result          map[string]any `json:"result,omitempty"`
+	FailureClass    string         `json:"failure_class,omitempty"`
+	Holder          string         `json:"holder,omitempty"`
+	RetryCount      int            `json:"retry_count,omitempty"`
+	CancelRequested bool           `json:"cancel_requested,omitempty"`
+	HeartbeatAt     *time.Time     `json:"heartbeat_at,omitempty"`
+	CreatedAt       time.Time      `json:"created_at"`
+	UpdatedAt       time.Time      `json:"updated_at"`
+	StartedAt       *time.Time     `json:"started_at,omitempty"`
+	CompletedAt     *time.Time     `json:"completed_at,omitempty"`
 }
 
 type WorkflowLine struct {

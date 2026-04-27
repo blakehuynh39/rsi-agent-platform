@@ -1,6 +1,7 @@
 package store
 
 import (
+	"context"
 	"errors"
 	"strings"
 	"testing"
@@ -62,6 +63,51 @@ func queueActionIntentForTest(t *testing.T, store interface {
 		t.Fatalf("expected action intent %s", intent.ID)
 	}
 	return item
+}
+
+func TestMemoryStoreSubmitCommandContextCancellationDoesNotPoisonLock(t *testing.T) {
+	store := NewMemoryStore()
+	store.mu.Lock()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	defer cancel()
+	_, err := store.SubmitCommandContext(ctx, transition.CommandEnvelope{
+		MachineKind: transition.MachineAction,
+		AggregateID: "action-timeout",
+		CommandKind: string(transition.CommandActionQueue),
+		CommandID:   "cmd-timeout",
+		OccurredAt:  time.Now().UTC(),
+		Payload: map[string]any{
+			"kind": string(action.KindSlackPost),
+		},
+	})
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("SubmitCommandContext error = %v, want context deadline", err)
+	}
+	store.mu.Unlock()
+
+	done := make(chan error, 1)
+	go func() {
+		_, submitErr := store.SubmitCommand(transition.CommandEnvelope{
+			MachineKind: transition.MachineAction,
+			AggregateID: "action-after-timeout",
+			CommandKind: string(transition.CommandActionQueue),
+			CommandID:   "cmd-after-timeout",
+			OccurredAt:  time.Now().UTC(),
+			Payload: map[string]any{
+				"kind": string(action.KindSlackPost),
+			},
+		})
+		done <- submitErr
+	}()
+	select {
+	case submitErr := <-done:
+		if submitErr != nil {
+			t.Fatalf("SubmitCommand after canceled context error = %v", submitErr)
+		}
+	case <-time.After(200 * time.Millisecond):
+		t.Fatal("SubmitCommand after canceled context blocked; memory store lock was poisoned")
+	}
 }
 
 func submitActionCommandForTest(t *testing.T, store interface {

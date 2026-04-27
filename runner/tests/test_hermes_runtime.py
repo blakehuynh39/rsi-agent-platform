@@ -1455,27 +1455,36 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(status["result"]["ok"])
         self.assertEqual(status["result"]["raw"]["structured_output"]["final_answer"], "Recovered")
 
-    def test_executor_status_marks_persisted_running_without_process_as_orphaned(self) -> None:
-        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as workspace_root, mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(
-            os.environ,
-            {
-                **runner_env("prod"),
-                "HERMES_HOME": hermes_home,
-                "RSI_HERMES_COMPUTER_ROOT": str(Path(workspace_root) / "company"),
-                "RSI_HERMES_RUN_ROOT": str(Path(workspace_root) / "company" / ".rsi" / "runs"),
-                "RSI_HERMES_ARTIFACT_ROOT": str(Path(workspace_root) / "company" / "artifacts"),
-            },
-            clear=True,
-        ):
-            first = HermesRuntime(RunnerConfig.from_env())
-            first._store_executor_result("hexec-orphan", {"execution_id": "hexec-orphan", "status": "running"})
-            second = HermesRuntime(RunnerConfig.from_env())
-            status = second.executor_status("hexec-orphan")
+    def test_executor_status_marks_persisted_active_without_process_as_orphaned(self) -> None:
+        for persisted_status in ("running", "starting", "cancel_requested"):
+            with self.subTest(persisted_status=persisted_status):
+                with (
+                    tempfile.TemporaryDirectory() as hermes_home,
+                    tempfile.TemporaryDirectory() as workspace_root,
+                    mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager),
+                    mock.patch.dict(
+                        os.environ,
+                        {
+                            **runner_env("prod"),
+                            "HERMES_HOME": hermes_home,
+                            "RSI_HERMES_COMPUTER_ROOT": str(Path(workspace_root) / "company"),
+                            "RSI_HERMES_RUN_ROOT": str(Path(workspace_root) / "company" / ".rsi" / "runs"),
+                            "RSI_HERMES_ARTIFACT_ROOT": str(Path(workspace_root) / "company" / "artifacts"),
+                        },
+                        clear=True,
+                    ),
+                ):
+                    execution_id = f"hexec-orphan-{persisted_status}"
+                    first = HermesRuntime(RunnerConfig.from_env())
+                    first._store_executor_result(
+                        execution_id,
+                        {"execution_id": execution_id, "status": persisted_status},
+                    )
+                    second = HermesRuntime(RunnerConfig.from_env())
+                    status = second.executor_status(execution_id)
 
-        self.assertEqual(status["status"], "orphaned")
-        self.assertIn("no local execution process", status["message"])
+                self.assertEqual(status["status"], "orphaned")
+                self.assertIn("no local execution process", status["message"])
 
     def test_slack_history_binding_defaults_to_bound_channel_context(self) -> None:
         captured: dict[str, object] = {}

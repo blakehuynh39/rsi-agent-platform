@@ -11,6 +11,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/piplabs/rsi-agent-platform/internal/action"
+	"github.com/piplabs/rsi-agent-platform/internal/app"
 	"github.com/piplabs/rsi-agent-platform/internal/clients"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/conversation"
@@ -55,6 +56,9 @@ type workflowLocator struct {
 }
 
 func RunWorker(cfg config.Config, store storepkg.Store) error {
+	if cfg.DrainEnabled {
+		app.InstallSignalDrain()
+	}
 	runnerClients := map[string]*clients.RunnerClient{
 		"prod":      clients.NewRunnerClientWithTimeout(cfg.RunnerURLForRole("prod"), cfg.RunnerTimeoutForRole("prod")),
 		"proactive": clients.NewRunnerClientWithTimeout(cfg.RunnerURLForRole("proactive"), cfg.RunnerTimeoutForRole("proactive")),
@@ -63,7 +67,11 @@ func RunWorker(cfg config.Config, store storepkg.Store) error {
 	workerID := fmt.Sprintf("%s-worker", cfg.ServiceName)
 	runnerEffectLease := cfg.EffectLeaseDuration(cfg.WorkItemLeaseDuration, "prod", "proactive")
 	for {
-		effect, claimed, err := claimNextExecutionEffect(store, workerID, runnerEffectLease)
+		if app.IsDraining() {
+			log.Printf("control-plane worker draining; stopped claiming new effects")
+			return nil
+		}
+		effect, claimed, err := claimNextExecutionEffect(cfg, store, workerID, runnerEffectLease)
 		if err != nil {
 			return err
 		}
@@ -79,15 +87,32 @@ func RunWorker(cfg config.Config, store storepkg.Store) error {
 }
 
 func RunActionWorker(cfg config.Config, store storepkg.Store) error {
+	if cfg.DrainEnabled {
+		app.InstallSignalDrain()
+	}
 	toolClient := clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL)
 	workerID := fmt.Sprintf("%s-action-worker", cfg.ServiceName)
 	for {
-		effect, ok, err := claimNextActionEffect(store, "control", workerID, cfg.WorkItemLeaseDuration)
+		if app.IsDraining() {
+			log.Printf("control-plane action worker draining; stopped claiming new effects")
+			return nil
+		}
+		effect, ok, err := claimNextActionEffect(cfg, store, "control", workerID, cfg.WorkItemLeaseDuration)
 		if err != nil {
 			return err
 		}
 		if !ok {
 			time.Sleep(cfg.WorkerPollInterval)
+			continue
+		}
+		if app.IsDraining() {
+			runtime := newWorkflowRuntimeCoordinator(config.Config{}, store)
+			if err := runtime.deferClaimedEffectForDrain(effect); err != nil {
+				_ = failClaimedEffect(store, effect, err.Error())
+				log.Printf("control-plane action worker effect=%s aggregate=%s drain_defer_error=%v", effect.ID, effect.AggregateID, err)
+			} else {
+				log.Printf("control-plane action worker effect=%s aggregate=%s deferred_for_deployment_drain", effect.ID, effect.AggregateID)
+			}
 			continue
 		}
 		if err := processControlActionEffect(cfg, store, toolClient, effect); err != nil {
@@ -153,6 +178,16 @@ func handleClaimedWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, 
 }
 
 func handleClaimedExecutionEffect(cfg config.Config, store storepkg.Store, runnerClients map[string]*clients.RunnerClient, toolClient *clients.ToolGatewayClient, effect transition.EffectExecution) {
+	if app.IsDraining() {
+		runtime := newWorkflowRuntimeCoordinator(config.Config{}, store)
+		if err := runtime.deferClaimedEffectForDrain(effect); err != nil {
+			_ = failClaimedEffect(store, effect, err.Error())
+			log.Printf("control-plane effect=%s aggregate=%s drain_defer_error=%v", effect.ID, effect.AggregateID, err)
+		} else {
+			log.Printf("control-plane effect=%s aggregate=%s deferred_for_deployment_drain", effect.ID, effect.AggregateID)
+		}
+		return
+	}
 	switch {
 	case effect.MachineKind == transition.MachineWorkflow && effect.EffectKind == transition.EffectInvokeRunner:
 		handleClaimedWorkflowRunnerEffect(cfg, store, runnerClients, effect)
@@ -199,9 +234,19 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	executorClient := runnerClient
 	if useHermesExecutor {
 		executorClient = clients.NewRunnerClientWithTimeout(hermesExecutorBaseURL, cfg.RunnerTimeoutForRole(runnerRole))
+		cancelSupersededHermesExecutions(store, executorClient, ctx.workflow.CaseID, ctx.trace.Summary.TraceID)
 	}
 	var runnerResp clients.RunnerResponse
-	if useHermesExecutor {
+	if useHermesExecutor && cfg.AsyncHermesExecutionEnabled {
+		var waitForExisting bool
+		runnerResp, waitForExisting, err = executeOrPollAsyncHermesExecution(cfg, store, executorClient, runnerTask, effect, runnerRole, ctx, runnerStarted)
+		if err != nil {
+			return err
+		}
+		if waitForExisting {
+			return errHermesExecutionStillRunning
+		}
+	} else if useHermesExecutor {
 		if shouldRecoverHermesExecution(effect) {
 			recovered, waitForExisting, recoverErr := recoverHermesExecutionResult(executorClient, runnerTask.ExecutionID)
 			if recoverErr != nil {
@@ -663,60 +708,6 @@ func shouldRecoverHermesExecution(effect transition.EffectExecution) bool {
 		return false
 	}
 	return !effect.StartedAt.Equal(effect.UpdatedAt)
-}
-
-func recoverHermesExecutionResult(client *clients.RunnerClient, executionID string) (clients.RunnerResponse, bool, error) {
-	status, err := client.HermesExecutionStatus(executionID)
-	if err != nil {
-		if strings.Contains(err.Error(), "returned 404") {
-			return hermesExecutorRecoveryFailure(
-				executionID,
-				workflowFailureRunnerExecutorStatusUnavailable,
-				"Hermes executor status was unavailable for a previously started execution; refusing to launch a duplicate run.",
-				"",
-			), false, nil
-		}
-		return clients.RunnerResponse{}, false, fmt.Errorf("check Hermes execution status %s: %w", executionID, err)
-	}
-	if status.Result != nil {
-		return *status.Result, false, nil
-	}
-	switch strings.ToLower(strings.TrimSpace(status.Status)) {
-	case "running", "accepted", "cancelling":
-		return clients.RunnerResponse{}, true, nil
-	case "completed", "failed", "cancelled", "orphaned":
-		return hermesExecutorRecoveryFailure(
-			executionID,
-			workflowFailureRunnerExecutorResultUnavailable,
-			"Hermes executor reached a terminal state but did not expose a durable result; refusing to launch a duplicate run.",
-			status.Status,
-		), false, nil
-	default:
-		statusText := strings.TrimSpace(status.Status)
-		return hermesExecutorRecoveryFailure(
-			executionID,
-			workflowFailureRunnerExecutorStatusUnrecognized,
-			fmt.Sprintf("Hermes executor returned unrecognized status %q for a previously started execution; refusing to launch a duplicate run.", statusText),
-			statusText,
-		), false, nil
-	}
-}
-
-func hermesExecutorRecoveryFailure(executionID string, failureClass string, message string, status string) clients.RunnerResponse {
-	return clients.RunnerResponse{
-		OK:       false,
-		Message:  message,
-		Provider: "hermes-executor",
-		Raw: map[string]any{
-			"failure_class": failureClass,
-			"runner_diagnostics": map[string]any{
-				"execution_id":           strings.TrimSpace(executionID),
-				"executor_status":        strings.TrimSpace(status),
-				"provider_error_message": strings.TrimSpace(message),
-				"recovery_decision":      "fail_closed_no_duplicate_execution",
-			},
-		},
-	}
 }
 
 func submitWorkflowContextCompleted(cfg config.Config, store storepkg.Store, ctx workflowContext, resumeQueue queue.QueueName, occurredAt time.Time) error {
@@ -2627,7 +2618,19 @@ func claimLatestWorkflowEffect(store storepkg.Store, workflowID string, kind tra
 	return store.ClaimEffectExecution(effect.ID, holder, lease)
 }
 
-func claimNextExecutionEffect(store storepkg.Store, holder string, lease time.Duration) (transition.EffectExecution, bool, error) {
+func claimNextExecutionEffect(cfg config.Config, store storepkg.Store, holder string, lease time.Duration) (transition.EffectExecution, bool, error) {
+	if cfg.EffectFairClaimEnabled {
+		return store.ClaimNextEffectExecutionForKinds(
+			holder,
+			lease,
+			[]string{string(queue.WorkflowQueue), string(queue.ProactiveQueue)},
+			cfg.EffectMaxConcurrentPerScope,
+			[]storepkg.EffectClaimSelector{
+				{MachineKind: transition.MachineWorkflow, EffectKind: transition.EffectInvokeRunner},
+				{MachineKind: transition.MachineQuestionRun},
+			},
+		)
+	}
 	for _, effect := range store.ListEffectExecutions() {
 		switch {
 		case effect.MachineKind == transition.MachineWorkflow && effect.EffectKind == transition.EffectInvokeRunner:
@@ -2646,12 +2649,25 @@ func claimNextExecutionEffect(store storepkg.Store, holder string, lease time.Du
 	return transition.EffectExecution{}, false, nil
 }
 
-func claimNextWorkflowRunnerEffect(store storepkg.Store, holder string, lease time.Duration) (transition.EffectExecution, bool, error) {
-	return claimNextExecutionEffect(store, holder, lease)
-}
-
-func claimNextActionEffect(store storepkg.Store, ownerPlane string, holder string, lease time.Duration) (transition.EffectExecution, bool, error) {
+func claimNextActionEffect(cfg config.Config, store storepkg.Store, ownerPlane string, holder string, lease time.Duration) (transition.EffectExecution, bool, error) {
 	ownerPlane = strings.TrimSpace(ownerPlane)
+	if cfg.EffectFairClaimEnabled {
+		selector := storepkg.EffectClaimSelector{MachineKind: transition.MachineAction, EffectKind: transition.EffectInvokeAction}
+		if ownerPlane != "" {
+			selector.PayloadEquals = map[string]string{"owner_plane": ownerPlane}
+		}
+		claimed, ok, err := store.ClaimNextEffectExecutionForKinds(
+			holder,
+			lease,
+			[]string{"action"},
+			cfg.EffectMaxConcurrentPerScope,
+			[]storepkg.EffectClaimSelector{selector},
+		)
+		if err != nil || !ok {
+			return claimed, ok, err
+		}
+		return claimed, true, nil
+	}
 	for _, effect := range store.ListEffectExecutions() {
 		if effect.MachineKind != transition.MachineAction || effect.EffectKind != transition.EffectInvokeAction {
 			continue
@@ -2682,42 +2698,24 @@ func completeClaimedEffect(store storepkg.Store, effect transition.EffectExecuti
 	if strings.TrimSpace(effect.ID) == "" || effect.Status == transition.EffectCompleted {
 		return nil
 	}
-	item, err := store.CompleteEffectExecution(effect.ID, effect.Holder, resultRef)
-	if err != nil {
-		return err
-	}
-	if item.Status != transition.EffectCompleted {
-		return fmt.Errorf("effect %s completion was not applied; current status=%s holder=%s", effect.ID, item.Status, item.Holder)
-	}
-	return nil
+	runtime := newWorkflowRuntimeCoordinator(config.Config{}, store)
+	return runtime.completeClaimedEffect(effect, resultRef)
 }
 
 func deferClaimedEffect(store storepkg.Store, effect transition.EffectExecution, lease time.Duration, reason string) error {
 	if strings.TrimSpace(effect.ID) == "" {
 		return nil
 	}
-	item, err := store.DeferEffectExecution(effect.ID, effect.Holder, lease, reason)
-	if err != nil {
-		return err
-	}
-	if item.Status != transition.EffectRunning || strings.TrimSpace(item.Holder) != "" || item.LeaseExpiresAt == nil {
-		return fmt.Errorf("effect %s deferral was not applied; current status=%s holder=%s", effect.ID, item.Status, item.Holder)
-	}
-	return nil
+	runtime := newWorkflowRuntimeCoordinator(config.Config{}, store)
+	return runtime.deferClaimedEffect(effect, lease, reason)
 }
 
 func failClaimedEffect(store storepkg.Store, effect transition.EffectExecution, lastError string) error {
 	if strings.TrimSpace(effect.ID) == "" || effect.Status == transition.EffectFailed {
 		return nil
 	}
-	item, err := store.FailEffectExecution(effect.ID, effect.Holder, lastError)
-	if err != nil {
-		return err
-	}
-	if item.Status != transition.EffectFailed {
-		return fmt.Errorf("effect %s failure was not applied; current status=%s holder=%s", effect.ID, item.Status, item.Holder)
-	}
-	return nil
+	runtime := newWorkflowRuntimeCoordinator(config.Config{}, store)
+	return runtime.failClaimedEffect(effect, lastError)
 }
 
 func latestWorkflowEffect(store storepkg.Store, workflowID string, kind transition.EffectKind) (transition.EffectExecution, bool) {

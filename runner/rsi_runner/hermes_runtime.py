@@ -32,7 +32,7 @@ from .execution_contract import (
     RUNNER_PLANNER_MODE,
     HermesCompanyComputer,
 )
-from .observability import ObservationEmitter
+from .observability import ObservationEmitter, execution_observation_id
 from .rsi_tools import (
     BLOCKED_HONCHO_TOOLS,
     CompositeToolProvider,
@@ -987,7 +987,8 @@ class HermesRuntime:
         )
         self._executor_recent_results: dict[str, JsonObject] = {}
         self._executor_processes: dict[str, subprocess.Popen[str]] = {}
-        self._executor_process_lock = threading.Lock()
+        self._executor_threads: dict[str, threading.Thread] = {}
+        self._executor_process_lock = threading.RLock()
         self._executor_cancel_requests: set[str] = set()
         self._company_computer_bootstrap_status = self._configure_company_computer_substrate()
         self._configure_runtime()
@@ -2197,12 +2198,76 @@ class HermesRuntime:
             "system_message": system_message,
         }
 
+    def start_executor_task(self, task: RunnerTaskRequest) -> JsonObject:
+        execution_id = _string_or_json(task.execution_id) or execution_observation_id(
+            task.operation_id or "",
+            task.trace_id or "",
+            task.workflow_id or "",
+            "",
+        )
+        task.execution_id = execution_id
+        
+        with self._executor_process_lock:
+            if execution_id in self._executor_threads or execution_id in self._executor_processes:
+                existing = self.executor_status(execution_id)
+                return existing
+            
+            existing = self.executor_status(execution_id)
+            existing_status = str(existing.get("status") or "").strip().lower()
+            if existing_status in {"accepted", "running", "cancelling", "completed", "failed", "cancelled"}:
+                return existing
+            
+            accepted = {
+                "execution_id": execution_id,
+                "operation_id": task.operation_id or "",
+                "trace_id": task.trace_id or "",
+                "workflow_id": task.workflow_id or "",
+                "status": "accepted",
+                "message": "Execution accepted.",
+                "phase": self._execution_phase(task),
+            }
+
+            def _run() -> None:
+                try:
+                    self.execute_task(task)
+                except Exception as exc:  # pragma: no cover - background fault protection
+                    logger.exception("async Hermes execution failed execution_id=%s", execution_id)
+                    result = HermesExecutionResult(
+                        ok=False,
+                        message=f"Async Hermes execution failed: {exc}",
+                        provider="hermes-executor",
+                        raw={"failure_class": "runner_executor_async_failed", "error": str(exc)},
+                    )
+                    self._store_executor_result(
+                        execution_id,
+                        self._executor_final_status(task, result, execution_id=execution_id, status="failed"),
+                    )
+                finally:
+                    with self._executor_process_lock:
+                        self._executor_threads.pop(execution_id, None)
+
+            self._store_executor_result(execution_id, accepted)
+            thread = threading.Thread(target=_run, name=f"rsi-hermes-exec-{execution_id}", daemon=True)
+            self._executor_threads[execution_id] = thread
+            thread.start()
+            return accepted
+
     def executor_status(self, execution_id: str) -> JsonObject:
         key = str(execution_id or "").strip()
         if not key:
             return {}
         cached = self._executor_recent_results.get(key)
         if cached:
+            cached_status = str(cached.get("status") or "").strip().lower()
+            if cached_status in {"running", "accepted", "starting", "cancelling", "cancel_requested"}:
+                with self._executor_process_lock:
+                    active = key in self._executor_processes or key in self._executor_threads
+                if not active:
+                    orphaned = dict(cached)
+                    orphaned["status"] = "orphaned"
+                    orphaned["message"] = "Cached executor status was running, but no local execution process is active."
+                    self._executor_recent_results[key] = orphaned
+                    return orphaned
             return dict(cached)
         path = self._executor_status_path(key)
         try:
@@ -2214,9 +2279,9 @@ class HermesRuntime:
             return {}
         if not isinstance(payload, dict):
             return {}
-        if str(payload.get("status") or "").strip().lower() in {"running", "accepted", "cancelling"}:
+        if str(payload.get("status") or "").strip().lower() in {"running", "accepted", "starting", "cancelling", "cancel_requested"}:
             with self._executor_process_lock:
-                active = key in self._executor_processes
+                active = key in self._executor_processes or key in self._executor_threads
             if not active:
                 payload = dict(payload)
                 payload["status"] = "orphaned"

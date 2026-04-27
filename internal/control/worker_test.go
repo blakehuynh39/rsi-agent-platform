@@ -12,6 +12,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/piplabs/rsi-agent-platform/internal/action"
+	"github.com/piplabs/rsi-agent-platform/internal/app"
 	"github.com/piplabs/rsi-agent-platform/internal/clients"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
@@ -276,6 +277,1602 @@ func TestWorkflowRunnerUsesHermesExecutorWhenConfigured(t *testing.T) {
 	}
 	if executorTask.WorkflowID != workflowItem.workflowID {
 		t.Fatalf("executor workflow_id = %q, want %q", executorTask.WorkflowID, workflowItem.workflowID)
+	}
+}
+
+func TestWorkflowRunnerStartsAsyncHermesExecutionAndDefersEffect(t *testing.T) {
+	fallbackRunner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		t.Fatalf("unexpected fallback runner call to %s", r.URL.Path)
+	}))
+	defer fallbackRunner.Close()
+
+	startCalls := 0
+	var started clients.HermesExecutionRequest
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/internal/hermes-executions" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		startCalls++
+		if err := json.NewDecoder(r.Body).Decode(&started); err != nil {
+			t.Fatalf("Decode() error = %v", err)
+		}
+		_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+			ExecutionID: started.Task.ExecutionID,
+			OperationID: started.Task.OperationID,
+			WorkflowID:  started.Task.WorkflowID,
+			TraceID:     started.Task.TraceID,
+			Status:      "accepted",
+		})
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	cfg := config.Config{
+		ServiceName:                     "control-plane",
+		DefaultRepo:                     "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:         "https://example.test/kb",
+		AllowedTargetRepos:              []string{"rsi-agent-platform"},
+		RunnerBaseURL:                   fallbackRunner.URL,
+		HermesExecutorBaseURL:           executor.URL,
+		ToolGatewayBaseURL:              "http://tool-gateway.invalid",
+		SandboxNamespace:                "rsi-platform",
+		DefaultReasoningVerbosity:       "verbose",
+		ProdRunnerTimeout:               930 * time.Second,
+		AsyncHermesExecutionEnabled:     true,
+		HermesExecutionHeartbeatTimeout: 120 * time.Second,
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+	claimed := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+
+	handleClaimedWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, claimed)
+
+	if startCalls != 1 {
+		t.Fatalf("expected one async executor start call, got %d", startCalls)
+	}
+	if !started.Async {
+		t.Fatalf("expected async executor request, got %#v", started)
+	}
+	if started.Task.OperationID != claimed.ID {
+		t.Fatalf("operation_id = %q, want %q", started.Task.OperationID, claimed.ID)
+	}
+	record, ok := store.GetRunnerExecution(started.Task.ExecutionID)
+	if !ok {
+		t.Fatalf("expected runner execution %s to be durable", started.Task.ExecutionID)
+	}
+	if record.Status != "accepted" {
+		t.Fatalf("runner execution status = %q, want accepted", record.Status)
+	}
+	expectedHolder := runnerExecutionHolder(started.Task.ExecutionID)
+	if record.Holder != expectedHolder {
+		t.Fatalf("runner execution holder = %q, want %q", record.Holder, expectedHolder)
+	}
+	if got := stringValue(started.Task.ExecutionIntent["runner_execution_holder"]); got != expectedHolder {
+		t.Fatalf("runner task execution holder = %q, want %q", got, expectedHolder)
+	}
+	effect, ok := workflowEffectByPayload(store, workflowItem.workflowID, transition.EffectInvokeRunner, "", "")
+	if !ok {
+		t.Fatal("expected workflow runner effect")
+	}
+	if effect.Status != transition.EffectRunning || effect.Holder != "" || effect.NotBefore == nil {
+		t.Fatalf("expected async start to defer running effect for polling, got %+v", effect)
+	}
+}
+
+func TestWorkflowRunnerAsyncImmediateResultTerminalizesRunnerExecution(t *testing.T) {
+	startCalls := 0
+	var started clients.HermesExecutionRequest
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/internal/hermes-executions" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		startCalls++
+		if err := json.NewDecoder(r.Body).Decode(&started); err != nil {
+			t.Fatalf("Decode() error = %v", err)
+		}
+		_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+			ExecutionID: started.Task.ExecutionID,
+			OperationID: started.Task.OperationID,
+			WorkflowID:  started.Task.WorkflowID,
+			TraceID:     started.Task.TraceID,
+			Status:      "completed",
+			Result: &clients.RunnerResponse{
+				OK:       true,
+				Provider: "fake-executor",
+				Message:  "Immediate async result",
+				Raw: map[string]any{
+					"structured_output": map[string]any{
+						"visible_reasoning": []any{
+							map[string]any{
+								"step_type":  "analysis",
+								"summary":    "Executor returned immediately.",
+								"confidence": 1.0,
+								"decision":   "complete",
+							},
+						},
+						"reply_draft":            "Immediate async result",
+						"final_answer":           "Immediate async result",
+						"confidence":             1.0,
+						"context_summary":        "Executor returned a completed async result.",
+						"self_critique":          "",
+						"proposed_actions":       []any{},
+						"knowledge_drafts":       []any{},
+						"outcome_hypotheses":     []any{},
+						"produced_artifacts":     []any{},
+						"completion_verdict":     "complete",
+						"termination_reason":     "normal_completion",
+						"reply_delivery":         map[string]any{},
+						"artifact_render_briefs": []any{},
+					},
+				},
+			},
+		})
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	cfg := config.Config{
+		ServiceName:                     "control-plane",
+		DefaultRepo:                     "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:         "https://example.test/kb",
+		AllowedTargetRepos:              []string{"rsi-agent-platform"},
+		RunnerBaseURL:                   executor.URL,
+		HermesExecutorBaseURL:           executor.URL,
+		ToolGatewayBaseURL:              "http://tool-gateway.invalid",
+		SandboxNamespace:                "rsi-platform",
+		DefaultReasoningVerbosity:       "verbose",
+		ProdRunnerTimeout:               930 * time.Second,
+		AsyncHermesExecutionEnabled:     true,
+		HermesExecutionHeartbeatTimeout: 120 * time.Second,
+	}
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+	claimed := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+
+	handleClaimedWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, claimed)
+
+	if startCalls != 1 {
+		t.Fatalf("expected one async executor start call, got %d", startCalls)
+	}
+	record, ok := store.GetRunnerExecution(started.Task.ExecutionID)
+	if !ok {
+		t.Fatalf("expected runner execution %s", started.Task.ExecutionID)
+	}
+	if record.Status != "completed" || record.CompletedAt == nil {
+		t.Fatalf("expected completed runner execution with completed_at, got %+v", record)
+	}
+	expectedHolder := runnerExecutionHolder(started.Task.ExecutionID)
+	if record.Holder != expectedHolder {
+		t.Fatalf("runner execution holder = %q, want %q", record.Holder, expectedHolder)
+	}
+	if len(record.Result) == 0 {
+		t.Fatalf("expected completed runner execution to persist result")
+	}
+	for _, active := range store.ListActiveRunnerExecutions() {
+		if active.ExecutionID == started.Task.ExecutionID {
+			t.Fatalf("immediate completed execution should not remain active: %+v", active)
+		}
+	}
+	assertWorkflowEffectStatus(t, store, workflowItem.workflowID, transition.EffectInvokeRunner, transition.EffectCompleted)
+}
+
+func TestWorkflowRunnerAsyncHeartbeatExpiryFailsClosed(t *testing.T) {
+	var expectedExecutionID string
+	statusCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == http.MethodGet && r.URL.Path == "/internal/hermes-executions/"+expectedExecutionID:
+			statusCalls++
+			http.Error(w, "executor unavailable", http.StatusServiceUnavailable)
+		case r.Method == http.MethodPost && r.URL.Path == "/internal/hermes-executions":
+			t.Fatalf("stale heartbeat with unreachable executor must not launch duplicate execution")
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	cfg := config.Config{
+		ServiceName:                     "control-plane",
+		DefaultRepo:                     "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:         "https://example.test/kb",
+		AllowedTargetRepos:              []string{"rsi-agent-platform"},
+		RunnerBaseURL:                   executor.URL,
+		HermesExecutorBaseURL:           executor.URL,
+		ToolGatewayBaseURL:              "http://tool-gateway.invalid",
+		SandboxNamespace:                "rsi-platform",
+		DefaultReasoningVerbosity:       "verbose",
+		ProdRunnerTimeout:               930 * time.Second,
+		AsyncHermesExecutionEnabled:     true,
+		HermesExecutionHeartbeatTimeout: 120 * time.Second,
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+	claimed := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatalf("expected workflow %s", workflowItem.workflowID)
+	}
+	expectedExecutionID = workflowExecutionID(claimed.ID, time.Now().UTC())
+	staleHeartbeat := time.Now().Add(-5 * time.Minute).UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:    expectedExecutionID,
+		OperationID:    claimed.ID,
+		WorkflowID:     workflowItem.workflowID,
+		TraceID:        workflowItem.traceID,
+		ConversationID: workflow.ConversationID,
+		CaseID:         workflow.CaseID,
+		Status:         "running",
+		HeartbeatAt:    &staleHeartbeat,
+		CreatedAt:      staleHeartbeat,
+		UpdatedAt:      staleHeartbeat,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	handleClaimedWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, claimed)
+
+	if statusCalls != 1 {
+		t.Fatalf("expected one status poll, got %d", statusCalls)
+	}
+	record, ok := store.GetRunnerExecution(expectedExecutionID)
+	if !ok {
+		t.Fatalf("expected runner execution %s", expectedExecutionID)
+	}
+	if record.Status != "failed" || record.CompletedAt == nil {
+		t.Fatalf("expected stale execution to fail closed, got %+v", record)
+	}
+	if record.FailureClass != workflowFailureRunnerExecutorStatusUnavailable {
+		t.Fatalf("failure_class = %q, want %q", record.FailureClass, workflowFailureRunnerExecutorStatusUnavailable)
+	}
+	effect, ok := workflowEffectByPayload(store, workflowItem.workflowID, transition.EffectInvokeRunner, "", "")
+	if !ok {
+		t.Fatal("expected workflow runner effect")
+	}
+	if effect.Status != transition.EffectCompleted {
+		t.Fatalf("expected heartbeat failure to finalize the claimed effect, got %+v", effect)
+	}
+}
+
+func TestAsyncHermesExecutionStartTimeoutFailsClosedOnFirstAttempt(t *testing.T) {
+	startCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/internal/hermes-executions" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		startCalls++
+		http.Error(w, "executor unavailable", http.StatusServiceUnavailable)
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{HermesExecutionHeartbeatTimeout: time.Nanosecond},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-start-timeout"},
+		transition.EffectExecution{ID: "eff-start-timeout"},
+		"prod",
+		workflowContext{
+			trace: events.Trace{Summary: events.TraceSummary{TraceID: "trace-start-timeout"}},
+			workflow: storepkg.Workflow{
+				ID:             "wf-start-timeout",
+				ConversationID: "conv-start-timeout",
+				CaseID:         "case-start-timeout",
+			},
+		},
+		now,
+	)
+	if startCalls != 1 {
+		t.Fatalf("start calls = %d, want 1", startCalls)
+	}
+	if wait {
+		t.Fatal("expired start attempt should fail closed, not defer")
+	}
+	if resp.OK {
+		t.Fatalf("expected no successful runner response, got %+v", resp)
+	}
+	var workflowErr *workflowFailureError
+	if !errors.As(err, &workflowErr) {
+		t.Fatalf("error = %v, want workflowFailureError", err)
+	}
+	if workflowErr.failure.Class != workflowFailureRunnerTransportTimeout {
+		t.Fatalf("failure class = %q, want %q", workflowErr.failure.Class, workflowFailureRunnerTransportTimeout)
+	}
+	record, ok := store.GetRunnerExecution("hexec-start-timeout")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "failed" || record.CompletedAt == nil {
+		t.Fatalf("expected failed runner execution, got %+v", record)
+	}
+}
+
+func TestAsyncHermesExecutionStartFailureUsesExistingQueuedFreshness(t *testing.T) {
+	statusCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || r.URL.Path != "/internal/hermes-executions/hexec-existing-queued-stale" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		statusCalls++
+		http.Error(w, "executor unavailable", http.StatusServiceUnavailable)
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	startedAt := time.Now().Add(-5 * time.Minute).UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID: "hexec-existing-queued-stale",
+		Status:      "queued",
+		CreatedAt:   startedAt,
+		UpdatedAt:   startedAt,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{HermesExecutionHeartbeatTimeout: time.Minute},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-existing-queued-stale"},
+		transition.EffectExecution{ID: "eff-existing-queued-stale"},
+		"prod",
+		workflowContext{},
+		time.Now().UTC(),
+	)
+	if statusCalls != 1 {
+		t.Fatalf("status calls = %d, want 1", statusCalls)
+	}
+	if wait || resp.OK {
+		t.Fatalf("stale queued start failure should fail closed, wait=%t resp=%+v", wait, resp)
+	}
+	var workflowErr *workflowFailureError
+	if !errors.As(err, &workflowErr) {
+		t.Fatalf("executeOrPollAsyncHermesExecution() error = %v, want workflowFailureError", err)
+	}
+	if workflowErr.failure.Class != workflowFailureRunnerTransportTimeout {
+		t.Fatalf("failure class = %q, want %q", workflowErr.failure.Class, workflowFailureRunnerTransportTimeout)
+	}
+	record, ok := store.GetRunnerExecution("hexec-existing-queued-stale")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "failed" || record.CompletedAt == nil || record.HeartbeatAt == nil {
+		t.Fatalf("expected failed runner execution with terminal heartbeat, got %+v", record)
+	}
+}
+
+func TestAsyncHermesExecutionFreshQueuedRecoveryErrorDoesNotStartDuplicate(t *testing.T) {
+	statusCalls := 0
+	startCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == http.MethodGet && r.URL.Path == "/internal/hermes-executions/hexec-existing-queued-fresh":
+			statusCalls++
+			http.Error(w, "executor unavailable", http.StatusServiceUnavailable)
+		case r.Method == http.MethodPost && r.URL.Path == "/internal/hermes-executions":
+			startCalls++
+			t.Fatalf("fresh queued recovery error must not start duplicate Hermes execution")
+		default:
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	startedAt := time.Now().Add(-10 * time.Second).UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID: "hexec-existing-queued-fresh",
+		Status:      "queued",
+		CreatedAt:   startedAt,
+		UpdatedAt:   startedAt,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{HermesExecutionHeartbeatTimeout: time.Minute},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-existing-queued-fresh"},
+		transition.EffectExecution{ID: "eff-existing-queued-fresh"},
+		"prod",
+		workflowContext{},
+		time.Now().UTC(),
+	)
+	if !errors.Is(err, errHermesExecutionStillRunning) || !wait || resp.OK {
+		t.Fatalf("fresh queued recovery error result = resp=%+v wait=%t err=%v", resp, wait, err)
+	}
+	if statusCalls != 1 || startCalls != 0 {
+		t.Fatalf("status calls=%d start calls=%d, want 1/0", statusCalls, startCalls)
+	}
+	record, ok := store.GetRunnerExecution("hexec-existing-queued-fresh")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "queued" || record.CompletedAt != nil {
+		t.Fatalf("fresh queued recovery error should leave queued record deferred, got %+v", record)
+	}
+}
+
+func TestAsyncHermesExecutionQueuedRecoveryPersistsCompletedResult(t *testing.T) {
+	statusCalls := 0
+	startCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == http.MethodGet && r.URL.Path == "/internal/hermes-executions/hexec-queued-recovered":
+			statusCalls++
+			_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+				ExecutionID: "hexec-queued-recovered",
+				Status:      "completed",
+				Result: &clients.RunnerResponse{
+					OK:       true,
+					Provider: "hermes-executor",
+					Message:  "recovered",
+					Raw:      map[string]any{"structured_output": map[string]any{"final_answer": "recovered"}},
+				},
+			})
+		case r.Method == http.MethodPost && r.URL.Path == "/internal/hermes-executions":
+			startCalls++
+			t.Fatalf("queued recovery must not start duplicate Hermes execution")
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	now := time.Now().Add(-time.Minute).UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID: "hexec-queued-recovered",
+		Status:      "queued",
+		Holder:      "hermes-executor:hexec-queued-recovered",
+		CreatedAt:   now,
+		UpdatedAt:   now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{HermesExecutionHeartbeatTimeout: time.Minute},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-queued-recovered"},
+		transition.EffectExecution{ID: "eff-queued-recovered"},
+		"prod",
+		workflowContext{},
+		time.Now().UTC(),
+	)
+	if err != nil || wait || !resp.OK || resp.Message != "recovered" {
+		t.Fatalf("queued recovery result = resp=%+v wait=%t err=%v", resp, wait, err)
+	}
+	if statusCalls != 1 || startCalls != 0 {
+		t.Fatalf("status calls=%d start calls=%d, want 1/0", statusCalls, startCalls)
+	}
+	record, ok := store.GetRunnerExecution("hexec-queued-recovered")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "completed" || record.CompletedAt == nil || record.HeartbeatAt == nil {
+		t.Fatalf("queued recovery should persist completed record, got %+v", record)
+	}
+	if stored, ok := runnerResponseFromMap(record.Result); !ok || !stored.OK || stored.Message != "recovered" {
+		t.Fatalf("expected persisted recovered response, ok=%t stored=%+v", ok, stored)
+	}
+}
+
+func TestAsyncHermesExecutionQueuedRecoveryPersistsStillRunningStatus(t *testing.T) {
+	statusCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || r.URL.Path != "/internal/hermes-executions/hexec-queued-running" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		statusCalls++
+		_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+			ExecutionID: "hexec-queued-running",
+			Status:      "running",
+		})
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	now := time.Now().Add(-time.Minute).UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID: "hexec-queued-running",
+		Status:      "queued",
+		Holder:      "hermes-executor:hexec-queued-running",
+		CreatedAt:   now,
+		UpdatedAt:   now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{HermesExecutionHeartbeatTimeout: time.Minute},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-queued-running"},
+		transition.EffectExecution{ID: "eff-queued-running"},
+		"prod",
+		workflowContext{},
+		time.Now().UTC(),
+	)
+	if !errors.Is(err, errHermesExecutionStillRunning) || !wait || resp.OK {
+		t.Fatalf("queued running recovery result = resp=%+v wait=%t err=%v", resp, wait, err)
+	}
+	if statusCalls != 1 {
+		t.Fatalf("status calls=%d, want 1", statusCalls)
+	}
+	record, ok := store.GetRunnerExecution("hexec-queued-running")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "running" || record.HeartbeatAt == nil {
+		t.Fatalf("queued recovery should persist running heartbeat, got %+v", record)
+	}
+}
+
+func TestAsyncHermesExecutionQueuedRecoveryTimesOutInsteadOfDeferringForever(t *testing.T) {
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || r.URL.Path != "/internal/hermes-executions/hexec-queued-wedged" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+			ExecutionID: "hexec-queued-wedged",
+			Status:      "queued",
+		})
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	startedAt := time.Now().Add(-5 * time.Minute).UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID: "hexec-queued-wedged",
+		Status:      "queued",
+		Holder:      "hermes-executor:hexec-queued-wedged",
+		CreatedAt:   startedAt,
+		UpdatedAt:   startedAt,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{HermesExecutionHeartbeatTimeout: time.Minute},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-queued-wedged"},
+		transition.EffectExecution{ID: "eff-queued-wedged"},
+		"prod",
+		workflowContext{},
+		time.Now().UTC(),
+	)
+	if err != nil || wait || resp.OK {
+		t.Fatalf("queued wedged recovery result = resp=%+v wait=%t err=%v", resp, wait, err)
+	}
+	if got := stringValue(resp.Raw["failure_class"]); got != workflowFailureRunnerExecutorStatusUnavailable {
+		t.Fatalf("failure_class = %q, want %q", got, workflowFailureRunnerExecutorStatusUnavailable)
+	}
+	record, ok := store.GetRunnerExecution("hexec-queued-wedged")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "failed" || record.CompletedAt == nil {
+		t.Fatalf("queued wedged recovery should fail closed, got %+v", record)
+	}
+}
+
+func TestAsyncHermesExecutionQueuedPollTimesOutInsteadOfDeferringForever(t *testing.T) {
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || r.URL.Path != "/internal/hermes-executions/hexec-running-queued-wedged" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+			ExecutionID: "hexec-running-queued-wedged",
+			Status:      "queued",
+		})
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	heartbeat := time.Now().Add(-5 * time.Minute).UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID: "hexec-running-queued-wedged",
+		Status:      "running",
+		Holder:      "hermes-executor:hexec-running-queued-wedged",
+		HeartbeatAt: &heartbeat,
+		CreatedAt:   heartbeat,
+		UpdatedAt:   heartbeat,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{HermesExecutionHeartbeatTimeout: time.Minute},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-running-queued-wedged"},
+		transition.EffectExecution{ID: "eff-running-queued-wedged"},
+		"prod",
+		workflowContext{},
+		time.Now().UTC(),
+	)
+	if err != nil || wait || resp.OK {
+		t.Fatalf("queued polling timeout result = resp=%+v wait=%t err=%v", resp, wait, err)
+	}
+	if got := stringValue(resp.Raw["failure_class"]); got != workflowFailureRunnerExecutorStatusUnavailable {
+		t.Fatalf("failure_class = %q, want %q", got, workflowFailureRunnerExecutorStatusUnavailable)
+	}
+	record, ok := store.GetRunnerExecution("hexec-running-queued-wedged")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "failed" || record.CompletedAt == nil {
+		t.Fatalf("queued polling timeout should fail closed, got %+v", record)
+	}
+}
+
+func TestAsyncHermesExecutionStartCASDoesNotOverwriteConcurrentHeartbeat(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	startCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/internal/hermes-executions" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		startCalls++
+		heartbeat := time.Now().UTC()
+		if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+			ExecutionID: "hexec-start-race",
+			Status:      "running",
+			Holder:      "hermes-executor:hexec-start-race",
+			HeartbeatAt: &heartbeat,
+			UpdatedAt:   heartbeat,
+		}); err != nil {
+			t.Fatalf("RecordRunnerExecution(concurrent heartbeat) error = %v", err)
+		}
+		_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+			ExecutionID: "hexec-start-race",
+			Status:      "accepted",
+		})
+	}))
+	defer executor.Close()
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{HermesExecutionHeartbeatTimeout: time.Minute},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-start-race"},
+		transition.EffectExecution{ID: "eff-start-race"},
+		"prod",
+		workflowContext{},
+		time.Now().UTC(),
+	)
+	if !errors.Is(err, errHermesExecutionStillRunning) || !wait || resp.OK {
+		t.Fatalf("start race result = resp=%+v wait=%t err=%v", resp, wait, err)
+	}
+	if startCalls != 1 {
+		t.Fatalf("start calls=%d, want 1", startCalls)
+	}
+	record, ok := store.GetRunnerExecution("hexec-start-race")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "running" {
+		t.Fatalf("concurrent heartbeat should not be overwritten by accepted start status: %+v", record)
+	}
+}
+
+func TestAsyncHermesExecutionStatusTimeoutUsesCreatedAtWithoutHeartbeat(t *testing.T) {
+	statusCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || r.URL.Path != "/internal/hermes-executions/hexec-no-heartbeat-stale" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		statusCalls++
+		http.Error(w, "executor unavailable", http.StatusServiceUnavailable)
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	createdAt := now.Add(-5 * time.Minute)
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID: "hexec-no-heartbeat-stale",
+		Status:      "running",
+		Holder:      "hermes-executor:old",
+		CreatedAt:   createdAt,
+		UpdatedAt:   now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	_, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{HermesExecutionHeartbeatTimeout: time.Minute},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-no-heartbeat-stale"},
+		transition.EffectExecution{ID: "eff-no-heartbeat-stale"},
+		"prod",
+		workflowContext{},
+		now,
+	)
+	if statusCalls != 1 {
+		t.Fatalf("status calls = %d, want 1", statusCalls)
+	}
+	if err != errHermesExecutionStillRunning {
+		t.Fatalf("executeOrPollAsyncHermesExecution() error = %v, want errHermesExecutionStillRunning", err)
+	}
+	if !wait {
+		t.Fatalf("running execution without heartbeat should defer (wait=true), got wait=%t", wait)
+	}
+	record, ok := store.GetRunnerExecution("hexec-no-heartbeat-stale")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status == "failed" {
+		t.Fatalf("execution should not be failed when no heartbeat reference available, got %+v", record)
+	}
+}
+
+func TestAsyncHermesExecutionPollResultAfterConcurrentCancelIsNonDeliverable(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	heartbeat := now.Add(-10 * time.Second)
+	executionID := "hexec-poll-cancel-race"
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID: executionID,
+		CaseID:      "case-1",
+		TraceID:     "trace-old",
+		Status:      "running",
+		Holder:      runnerExecutionHolder(executionID),
+		HeartbeatAt: &heartbeat,
+		CreatedAt:   heartbeat,
+		UpdatedAt:   heartbeat,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	statusCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || r.URL.Path != "/internal/hermes-executions/"+executionID {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		statusCalls++
+		if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+			ExecutionID:     executionID,
+			Status:          "cancel_requested",
+			CancelRequested: true,
+			FailureClass:    workflowFailureRunnerExecutionCancelled,
+			UpdatedAt:       time.Now().UTC(),
+		}); err != nil {
+			t.Fatalf("RecordRunnerExecution(concurrent cancel) error = %v", err)
+		}
+		_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+			ExecutionID: executionID,
+			Status:      "completed",
+			Result: &clients.RunnerResponse{
+				OK:       true,
+				Provider: "hermes-executor",
+				Message:  "late success",
+				Raw:      map[string]any{"structured_output": map[string]any{"final_answer": "late success"}},
+			},
+		})
+	}))
+	defer executor.Close()
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{HermesExecutionHeartbeatTimeout: time.Minute},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: executionID},
+		transition.EffectExecution{ID: "eff-poll-cancel-race"},
+		"prod",
+		workflowContext{},
+		now,
+	)
+	if statusCalls != 1 {
+		t.Fatalf("status calls = %d, want 1", statusCalls)
+	}
+	var failure *workflowFailureError
+	if !errors.As(err, &failure) || failure.failure.Class != workflowFailureRunnerExecutionCancelled {
+		t.Fatalf("executeOrPollAsyncHermesExecution() error = %v, want cancellation failure", err)
+	}
+	if wait || resp.OK {
+		t.Fatalf("late cancelled result must not be deliverable, resp=%+v wait=%t", resp, wait)
+	}
+	record, ok := store.GetRunnerExecution(executionID)
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "cancelled" || !record.CancelRequested || record.FailureClass != workflowFailureRunnerExecutionCancelled {
+		t.Fatalf("concurrent cancellation should dominate late result, got %+v", record)
+	}
+}
+
+func TestAsyncHermesExecutionCancelRequestedRunningDispatchesCancel(t *testing.T) {
+	cancelCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/internal/hermes-executions/hexec-cancel-running/cancel" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		cancelCalls++
+		_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+			ExecutionID: "hexec-cancel-running",
+			Status:      "cancelling",
+		})
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:     "hexec-cancel-running",
+		Status:          "running",
+		CancelRequested: true,
+		HeartbeatAt:     &now,
+		CreatedAt:       now,
+		UpdatedAt:       now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-cancel-running"},
+		transition.EffectExecution{ID: "eff-cancel-running"},
+		"prod",
+		workflowContext{},
+		now,
+	)
+	if err != nil {
+		t.Fatalf("executeOrPollAsyncHermesExecution() error = %v", err)
+	}
+	if !wait || resp.OK {
+		t.Fatalf("cancel-requested running execution should defer without deliverable response, wait=%t resp=%+v", wait, resp)
+	}
+	if cancelCalls != 1 {
+		t.Fatalf("cancel calls=%d, want 1", cancelCalls)
+	}
+	record, ok := store.GetRunnerExecution("hexec-cancel-running")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "cancelling" || !record.CancelRequested {
+		t.Fatalf("expected cancel dispatch to move running record to cancelling, got %+v", record)
+	}
+}
+
+func TestAsyncHermesExecutionCancelRequestedDispatchesCancelAndDefers(t *testing.T) {
+	cancelCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/internal/hermes-executions/hexec-cancelled/cancel" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		cancelCalls++
+		_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+			ExecutionID: "hexec-cancelled",
+			Status:      "cancelling",
+		})
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:     "hexec-cancelled",
+		Status:          "cancel_requested",
+		CancelRequested: true,
+		HeartbeatAt:     &now,
+		CreatedAt:       now,
+		UpdatedAt:       now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-cancelled"},
+		transition.EffectExecution{ID: "eff-cancelled"},
+		"prod",
+		workflowContext{},
+		now,
+	)
+	if err != nil {
+		t.Fatalf("executeOrPollAsyncHermesExecution() error = %v", err)
+	}
+	if !wait {
+		t.Fatal("cancel-requested execution should defer after dispatching cancellation")
+	}
+	if resp.OK {
+		t.Fatalf("expected no successful runner response while cancellation is in progress, got %+v", resp)
+	}
+	if cancelCalls != 1 {
+		t.Fatalf("cancel calls = %d, want 1", cancelCalls)
+	}
+	record, ok := store.GetRunnerExecution("hexec-cancelled")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "cancelling" || !record.CancelRequested {
+		t.Fatalf("runner execution should be marked cancelling after cancel dispatch, got %+v", record)
+	}
+	if len(store.ListActiveRunnerExecutions()) != 1 {
+		t.Fatalf("cancelling runner execution should remain active until terminal status, got %+v", store.ListActiveRunnerExecutions())
+	}
+}
+
+func TestAsyncHermesExecutionCancelRetryDoesNotRefreshRunnerHeartbeat(t *testing.T) {
+	cancelCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/internal/hermes-executions/hexec-cancel-error/cancel" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		cancelCalls++
+		http.Error(w, "temporarily unavailable", http.StatusBadGateway)
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	heartbeat := now.Add(-30 * time.Second)
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:     "hexec-cancel-error",
+		Status:          "cancel_requested",
+		Holder:          "hermes-executor:hexec-cancel-error",
+		CancelRequested: true,
+		HeartbeatAt:     &heartbeat,
+		CreatedAt:       now.Add(-time.Minute),
+		UpdatedAt:       heartbeat,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{HermesExecutionHeartbeatTimeout: time.Minute},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-cancel-error"},
+		transition.EffectExecution{ID: "eff-cancel-error"},
+		"prod",
+		workflowContext{},
+		now,
+	)
+	if !errors.Is(err, errHermesExecutionStillRunning) || !wait || resp.OK {
+		t.Fatalf("cancel retry result = resp=%+v wait=%t err=%v", resp, wait, err)
+	}
+	if cancelCalls != 1 {
+		t.Fatalf("cancel calls = %d, want 1", cancelCalls)
+	}
+	record, ok := store.GetRunnerExecution("hexec-cancel-error")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "cancelling" || !record.CancelRequested {
+		t.Fatalf("cancel retry should preserve cancellation state, got %+v", record)
+	}
+	if record.HeartbeatAt == nil || !record.HeartbeatAt.Equal(heartbeat) {
+		t.Fatalf("cancel retry must not refresh runner heartbeat, got %+v want %v", record.HeartbeatAt, heartbeat)
+	}
+	if !record.UpdatedAt.After(heartbeat) {
+		t.Fatalf("cancel retry should update audit timestamp without extending heartbeat, got %+v", record)
+	}
+}
+
+func TestAsyncHermesExecutionCancelRequestedSuccessfulResultIsPersistedButNotDeliverable(t *testing.T) {
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/internal/hermes-executions/hexec-cancel-success/cancel" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+			ExecutionID: "hexec-cancel-success",
+			Status:      "cancelling",
+			Result: &clients.RunnerResponse{
+				OK:       true,
+				Provider: "hermes-executor",
+				Message:  "completed before cancellation landed",
+				Raw:      map[string]any{},
+			},
+		})
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:     "hexec-cancel-success",
+		Status:          "cancel_requested",
+		CancelRequested: true,
+		HeartbeatAt:     &now,
+		CreatedAt:       now,
+		UpdatedAt:       now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-cancel-success"},
+		transition.EffectExecution{ID: "eff-cancel-success"},
+		"prod",
+		workflowContext{},
+		now,
+	)
+	if wait {
+		t.Fatal("successful cancel race should not defer")
+	}
+	if resp.OK {
+		t.Fatalf("successful cancel race must not return a deliverable response, got %+v", resp)
+	}
+	var workflowErr *workflowFailureError
+	if !errors.As(err, &workflowErr) {
+		t.Fatalf("executeOrPollAsyncHermesExecution() error = %v, want workflowFailureError", err)
+	}
+	if workflowErr.failure.Class != workflowFailureRunnerExecutionCancelled {
+		t.Fatalf("failure class = %q, want %q", workflowErr.failure.Class, workflowFailureRunnerExecutionCancelled)
+	}
+	record, ok := store.GetRunnerExecution("hexec-cancel-success")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "cancelled" || record.CompletedAt == nil || record.FailureClass != workflowFailureRunnerExecutionCancelled {
+		t.Fatalf("successful cancel race should persist non-deliverable cancelled status, got %+v", record)
+	}
+	if stored, ok := runnerResponseFromMap(record.Result); !ok || !stored.OK || stored.Message != "completed before cancellation landed" {
+		t.Fatalf("expected audit result to be preserved, ok=%t stored=%+v", ok, stored)
+	}
+}
+
+func TestAsyncHermesExecutionCancelRequestedFailedResultUsesCancellationFailureClass(t *testing.T) {
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/internal/hermes-executions/hexec-cancel-failed-result/cancel" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+			ExecutionID: "hexec-cancel-failed-result",
+			Status:      "failed",
+			Result: &clients.RunnerResponse{
+				OK:       false,
+				Provider: "hermes-executor",
+				Message:  "failed before cancellation landed",
+				Raw:      map[string]any{"failure_class": "worker_failed"},
+			},
+		})
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:     "hexec-cancel-failed-result",
+		Status:          "cancel_requested",
+		CancelRequested: true,
+		HeartbeatAt:     &now,
+		CreatedAt:       now,
+		UpdatedAt:       now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-cancel-failed-result"},
+		transition.EffectExecution{ID: "eff-cancel-failed-result"},
+		"prod",
+		workflowContext{},
+		now,
+	)
+	if wait || resp.OK {
+		t.Fatalf("failed cancel race should not return a deliverable response, wait=%t resp=%+v", wait, resp)
+	}
+	var workflowErr *workflowFailureError
+	if !errors.As(err, &workflowErr) || workflowErr.failure.Class != workflowFailureRunnerExecutionCancelled {
+		t.Fatalf("executeOrPollAsyncHermesExecution() error = %v, want cancellation workflow failure", err)
+	}
+	record, ok := store.GetRunnerExecution("hexec-cancel-failed-result")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "cancelled" || record.FailureClass != workflowFailureRunnerExecutionCancelled {
+		t.Fatalf("failed cancel race should persist cancellation failure class, got %+v", record)
+	}
+	if stored, ok := runnerResponseFromMap(record.Result); !ok || stored.OK || stringValue(stored.Raw["failure_class"]) != "worker_failed" {
+		t.Fatalf("expected original audit result to be preserved, ok=%t stored=%+v", ok, stored)
+	}
+}
+
+func TestAsyncHermesExecutionCancelRequestedCompletedWithoutResultFailsResultUnavailable(t *testing.T) {
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/internal/hermes-executions/hexec-cancel-completed/cancel" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+			ExecutionID: "hexec-cancel-completed",
+			Status:      "completed",
+		})
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:     "hexec-cancel-completed",
+		Status:          "cancel_requested",
+		CancelRequested: true,
+		HeartbeatAt:     &now,
+		CreatedAt:       now,
+		UpdatedAt:       now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-cancel-completed"},
+		transition.EffectExecution{ID: "eff-cancel-completed"},
+		"prod",
+		workflowContext{},
+		now,
+	)
+	var failure *workflowFailureError
+	if !errors.As(err, &failure) || failure.failure.Class != workflowFailureRunnerExecutionCancelled {
+		t.Fatalf("executeOrPollAsyncHermesExecution() error = %v, want cancellation failure", err)
+	}
+	if wait || resp.OK {
+		t.Fatalf("completed-without-result cancel race should not be deliverable, wait=%t resp=%+v", wait, resp)
+	}
+	record, ok := store.GetRunnerExecution("hexec-cancel-completed")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "cancelled" || record.CompletedAt == nil || record.FailureClass != workflowFailureRunnerExecutionCancelled {
+		t.Fatalf("completed-without-result cancel race should persist cancelled audit record, got %+v", record)
+	}
+}
+
+func TestRecoverHermesExecutionResultTreatsActiveStatusesAsStillRunning(t *testing.T) {
+	for _, status := range []string{"queued", "starting", "cancel_requested"} {
+		t.Run(status, func(t *testing.T) {
+			executionID := "hexec-" + status
+			executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != http.MethodGet || r.URL.Path != "/internal/hermes-executions/"+executionID {
+					t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+				}
+				_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+					ExecutionID: executionID,
+					Status:      status,
+				})
+			}))
+			defer executor.Close()
+
+			resp, wait, err := recoverHermesExecutionResult(clients.NewRunnerClient(executor.URL), executionID)
+			if err != nil {
+				t.Fatalf("recoverHermesExecutionResult() error = %v", err)
+			}
+			if !wait || resp.OK {
+				t.Fatalf("recoverHermesExecutionResult() = resp=%+v wait=%t, want still running", resp, wait)
+			}
+		})
+	}
+}
+
+func TestAsyncHermesExecutionCancellingDoesNotRedispatchCancel(t *testing.T) {
+	cancelCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/internal/hermes-executions/hexec-cancelling/cancel" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		cancelCalls++
+		_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+			ExecutionID: "hexec-cancelling",
+			Status:      "cancelling",
+		})
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:     "hexec-cancelling",
+		Status:          "cancelling",
+		CancelRequested: true,
+		HeartbeatAt:     &now,
+		CreatedAt:       now,
+		UpdatedAt:       now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-cancelling"},
+		transition.EffectExecution{ID: "eff-cancelling"},
+		"prod",
+		workflowContext{},
+		now,
+	)
+	if err != nil {
+		t.Fatalf("executeOrPollAsyncHermesExecution() error = %v", err)
+	}
+	if !wait || resp.OK {
+		t.Fatalf("cancelling execution should defer without success, wait=%t resp=%+v", wait, resp)
+	}
+	if cancelCalls != 1 {
+		t.Fatalf("cancel calls = %d, want 1", cancelCalls)
+	}
+}
+
+func TestHandleClaimedExecutionEffectDefersWhenDraining(t *testing.T) {
+	app.StopDrainForTest()
+	defer app.StopDrainForTest()
+
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	effect := transition.EffectExecution{
+		ID:             "eff-drain-claimed",
+		MachineKind:    transition.MachineWorkflow,
+		AggregateID:    "wf-drain",
+		EffectKind:     transition.EffectInvokeRunner,
+		Status:         transition.EffectRunning,
+		Holder:         "worker-1",
+		IdempotencyKey: "eff-drain-claimed-key",
+		QueueName:      string(queue.WorkflowQueue),
+		ScopeKey:       "conv-drain",
+		Payload:        map[string]any{},
+		CreatedAt:      now,
+		UpdatedAt:      now,
+	}
+	if _, _, err := store.QueueEffectExecution(effect); err != nil {
+		t.Fatalf("QueueEffectExecution() error = %v", err)
+	}
+
+	app.StartDrain()
+	handleClaimedExecutionEffect(config.Config{}, store, nil, nil, effect)
+
+	var updated transition.EffectExecution
+	for _, item := range store.ListEffectExecutions() {
+		if item.ID == effect.ID {
+			updated = item
+			break
+		}
+	}
+	if updated.ID == "" {
+		t.Fatal("expected effect to remain recorded")
+	}
+	if updated.Status != transition.EffectRunning || updated.Holder != "" || updated.LastError != "deployment_shutdown" || updated.NotBefore == nil || updated.LeaseExpiresAt == nil {
+		t.Fatalf("claimed effect should be deferred for drain, got %+v", updated)
+	}
+}
+
+func TestAsyncHermesExecutionUsesStoredTerminalRecordWithoutPolling(t *testing.T) {
+	statusCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		statusCalls++
+		http.Error(w, "unexpected poll", http.StatusInternalServerError)
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	expected := clients.RunnerResponse{
+		OK:       false,
+		Message:  "stored terminal failure",
+		Provider: "hermes-executor",
+		Raw: map[string]any{
+			"failure_class": workflowFailureRunnerExecutorStatusUnavailable,
+		},
+	}
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:  "hexec-terminal",
+		Status:       "failed",
+		Result:       runnerResponseMap(expected),
+		FailureClass: workflowFailureRunnerExecutorStatusUnavailable,
+		HeartbeatAt:  &now,
+		CompletedAt:  &now,
+		CreatedAt:    now,
+		UpdatedAt:    now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{HermesExecutionHeartbeatTimeout: 120 * time.Second},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-terminal"},
+		transition.EffectExecution{ID: "eff-terminal"},
+		"prod",
+		workflowContext{},
+		now,
+	)
+	if err != nil {
+		t.Fatalf("executeOrPollAsyncHermesExecution() error = %v", err)
+	}
+	if wait {
+		t.Fatal("terminal stored record should not defer")
+	}
+	if statusCalls != 0 {
+		t.Fatalf("executor status calls = %d, want 0", statusCalls)
+	}
+	if resp.Message != expected.Message || resp.OK {
+		t.Fatalf("response = %+v, want stored failure %+v", resp, expected)
+	}
+}
+
+func TestAsyncHermesExecutionCancelledTerminalResultReturnsCancellationFailure(t *testing.T) {
+	statusCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		statusCalls++
+		http.Error(w, "unexpected poll", http.StatusInternalServerError)
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:     "hexec-cancelled-terminal",
+		Status:          "cancelled",
+		Result:          runnerResponseMap(clients.RunnerResponse{OK: true, Message: "late successful result", Provider: "hermes-executor", Raw: map[string]any{}}),
+		CancelRequested: true,
+		HeartbeatAt:     &now,
+		CompletedAt:     &now,
+		CreatedAt:       now,
+		UpdatedAt:       now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-cancelled-terminal"},
+		transition.EffectExecution{ID: "eff-cancelled-terminal"},
+		"prod",
+		workflowContext{},
+		now,
+	)
+	if wait {
+		t.Fatal("cancelled terminal record should not defer")
+	}
+	if resp.OK {
+		t.Fatalf("cancelled terminal record should not return stored success: %+v", resp)
+	}
+	var workflowErr *workflowFailureError
+	if !errors.As(err, &workflowErr) {
+		t.Fatalf("expected workflow cancellation failure, got %v", err)
+	}
+	if workflowErr.failure.Class != workflowFailureRunnerExecutionCancelled {
+		t.Fatalf("failure class = %q, want %q", workflowErr.failure.Class, workflowFailureRunnerExecutionCancelled)
+	}
+	if statusCalls != 0 {
+		t.Fatalf("executor status calls = %d, want 0", statusCalls)
+	}
+}
+
+func TestRunnerResponseFromMapRejectsMalformedTerminalResult(t *testing.T) {
+	if resp, ok := runnerResponseFromMap(map[string]any{"status": "completed"}); ok {
+		t.Fatalf("malformed result should not decode as runner response: %+v", resp)
+	}
+	resp, ok := runnerResponseFromMap(map[string]any{
+		"ok":       false,
+		"message":  "durable failure",
+		"provider": "hermes-executor",
+		"raw": map[string]any{
+			"failure_class": workflowFailureRunnerExecutorResultUnavailable,
+		},
+	})
+	if !ok {
+		t.Fatal("expected canonical runner response to decode")
+	}
+	if resp.OK || resp.Message != "durable failure" || resp.Raw["failure_class"] != workflowFailureRunnerExecutorResultUnavailable {
+		t.Fatalf("unexpected decoded runner response: %+v", resp)
+	}
+}
+
+func TestCancelSupersededHermesExecutionsSendsCancelRequestedOnce(t *testing.T) {
+	cancelCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/internal/hermes-executions/hexec-old/cancel" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		cancelCalls++
+		_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+			ExecutionID: "hexec-old",
+			Status:      "cancelling",
+		})
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID: "hexec-old",
+		CaseID:      "case-1",
+		TraceID:     "trace-old",
+		Status:      "running",
+		HeartbeatAt: &now,
+		CreatedAt:   now,
+		UpdatedAt:   now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	client := clients.NewRunnerClient(executor.URL)
+	cancelSupersededHermesExecutions(store, client, "case-1", "trace-current")
+	cancelSupersededHermesExecutions(store, client, "case-1", "trace-current")
+
+	if cancelCalls != 1 {
+		t.Fatalf("cancel calls = %d, want 1", cancelCalls)
+	}
+	record, ok := store.GetRunnerExecution("hexec-old")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "cancelling" || !record.CancelRequested {
+		t.Fatalf("expected cancel dispatch to move record to cancelling, got %+v", record)
+	}
+}
+
+func TestCancelSupersededHermesExecutionsDispatchesCancelRequestedStatus(t *testing.T) {
+	cancelCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/internal/hermes-executions/hexec-superseded/cancel" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		cancelCalls++
+		_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+			ExecutionID: "hexec-superseded",
+			Status:      "cancelling",
+		})
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:     "hexec-superseded",
+		CaseID:          "case-1",
+		TraceID:         "trace-old",
+		Status:          "cancel_requested",
+		CancelRequested: true,
+		HeartbeatAt:     &now,
+		CreatedAt:       now,
+		UpdatedAt:       now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	client := clients.NewRunnerClient(executor.URL)
+	cancelSupersededHermesExecutions(store, client, "case-1", "trace-current")
+
+	if cancelCalls != 1 {
+		t.Fatalf("cancel calls = %d, want 1 (must dispatch cancel for cancel_requested status)", cancelCalls)
+	}
+	record, ok := store.GetRunnerExecution("hexec-superseded")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "cancelling" || !record.CancelRequested {
+		t.Fatalf("expected cancel dispatch to move record to cancelling, got %+v", record)
+	}
+}
+
+func TestCancelSupersededHermesExecutionsRetriesAfterCancelRPCError(t *testing.T) {
+	cancelCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/internal/hermes-executions/hexec-retry-cancel/cancel" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		cancelCalls++
+		http.Error(w, "temporarily unavailable", http.StatusBadGateway)
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	heartbeat := now.Add(-30 * time.Second)
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:     "hexec-retry-cancel",
+		CaseID:          "case-1",
+		TraceID:         "trace-old",
+		Status:          "cancel_requested",
+		CancelRequested: true,
+		HeartbeatAt:     &heartbeat,
+		CreatedAt:       now.Add(-time.Minute),
+		UpdatedAt:       heartbeat,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	client := clients.NewRunnerClient(executor.URL)
+	cancelSupersededHermesExecutions(store, client, "case-1", "trace-current")
+	cancelSupersededHermesExecutions(store, client, "case-1", "trace-current")
+
+	if cancelCalls != 2 {
+		t.Fatalf("cancel calls = %d, want 2", cancelCalls)
+	}
+	record, ok := store.GetRunnerExecution("hexec-retry-cancel")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "cancel_requested" || !record.CancelRequested {
+		t.Fatalf("cancel RPC errors should preserve retryable cancel_requested state, got %+v", record)
+	}
+	if record.HeartbeatAt == nil || !record.HeartbeatAt.Equal(heartbeat) {
+		t.Fatalf("cancel RPC errors must not refresh heartbeat, got %+v want %v", record.HeartbeatAt, heartbeat)
+	}
+}
+
+func TestCancelSupersededHermesExecutionsTerminalWithoutResultPersistsFailure(t *testing.T) {
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/internal/hermes-executions/hexec-old-completed/cancel" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+			ExecutionID: "hexec-old-completed",
+			Status:      "completed",
+		})
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:  "hexec-old-completed",
+		CaseID:       "case-1",
+		TraceID:      "trace-old",
+		Status:       "running",
+		FailureClass: "trace_superseded",
+		HeartbeatAt:  &now,
+		CreatedAt:    now,
+		UpdatedAt:    now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	cancelSupersededHermesExecutions(store, clients.NewRunnerClient(executor.URL), "case-1", "trace-current")
+
+	record, ok := store.GetRunnerExecution("hexec-old-completed")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "failed" || record.CompletedAt == nil || record.FailureClass != "trace_superseded" {
+		t.Fatalf("terminal-without-result superseded execution should persist failure result, got %+v", record)
+	}
+	resp, ok := runnerResponseFromMap(record.Result)
+	if !ok || resp.OK || stringValue(resp.Raw["failure_class"]) != "trace_superseded" {
+		t.Fatalf("expected durable result-unavailable response, ok=%t resp=%+v", ok, resp)
+	}
+	diagnostics := mapValue(resp.Raw["runner_diagnostics"])
+	if stringValue(diagnostics["result_failure_class"]) != workflowFailureRunnerExecutorResultUnavailable {
+		t.Fatalf("expected result-unavailable diagnostics, got %+v", diagnostics)
 	}
 }
 
@@ -2350,6 +3947,27 @@ func TestExecuteSlackPostActionIntentClaimsMatchingReplyEffect(t *testing.T) {
 	}
 }
 
+func TestClaimNextActionEffectFairClaimOnlyUsesActionQueue(t *testing.T) {
+	store := &claimQueueCaptureStore{Store: storepkg.NewMemoryStore()}
+
+	_, ok, err := claimNextActionEffect(
+		config.Config{EffectFairClaimEnabled: true, EffectMaxConcurrentPerScope: 1},
+		store,
+		"control",
+		"worker-1",
+		time.Minute,
+	)
+	if err != nil {
+		t.Fatalf("claimNextActionEffect() error = %v", err)
+	}
+	if ok {
+		t.Fatal("capture store should not return a claim")
+	}
+	if len(store.queueNames) != 1 || store.queueNames[0] != "action" {
+		t.Fatalf("action fair claim queues = %#v, want only action queue", store.queueNames)
+	}
+}
+
 func TestFinalizeWorkflowFailureQueuesEvalForFailedTrace(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
@@ -4154,6 +5772,16 @@ type effectSelectionStore struct {
 	completed  []string
 	failed     []string
 	resultRefs map[string]string
+}
+
+type claimQueueCaptureStore struct {
+	storepkg.Store
+	queueNames []string
+}
+
+func (s *claimQueueCaptureStore) ClaimNextEffectExecutionForKinds(holder string, lease time.Duration, queueNames []string, maxPerScope int, selectors []storepkg.EffectClaimSelector) (transition.EffectExecution, bool, error) {
+	s.queueNames = append([]string{}, queueNames...)
+	return transition.EffectExecution{}, false, nil
 }
 
 func (s *effectSelectionStore) ListEffectExecutionsByAggregate(machineKind transition.MachineKind, aggregateID string) []transition.EffectExecution {

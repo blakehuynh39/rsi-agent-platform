@@ -1,6 +1,7 @@
 package control
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -19,6 +20,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/debuglog"
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
+	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
 const slackMentionsOnlySentinel = "MENTIONS_ONLY"
@@ -37,13 +39,27 @@ func RunSlackSurface(cfg config.Config, store storepkg.Store) error {
 		return errors.New("slack-surface mode requires RSI_SLACK_BOT_TOKEN")
 	}
 
+	if cfg.DrainEnabled {
+		app.InstallSignalDrain()
+	}
 	runtime := newSlackSurfaceRuntime(cfg, store)
-	var group errgroup.Group
+	rootCtx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	group, ctx := errgroup.WithContext(rootCtx)
 	group.Go(func() error {
 		log.Printf("starting %s slack-surface identity=%s on :%d", cfg.ServiceName, cfg.SlackAppIdentity, cfg.HTTPPort)
-		return app.ListenAndServe(cfg, newSlackSurfaceRouter(cfg))
+		err := app.ListenAndServe(cfg, newSlackSurfaceRouter(cfg))
+		cancel()
+		return err
 	})
-	group.Go(runtime.run)
+	group.Go(func() error {
+		err := runtime.run(ctx)
+		if err != nil {
+			app.StartDrain()
+			cancel()
+		}
+		return err
+	})
 	return group.Wait()
 }
 
@@ -90,41 +106,76 @@ func newSlackSurfaceRuntime(cfg config.Config, store storepkg.Store) *slackSurfa
 	}
 }
 
-func (s *slackSurfaceRuntime) run() error {
-	go s.client.Run()
-	for evt := range s.client.Events {
-		switch evt.Type {
-		case socketmode.EventTypeConnecting:
-			log.Printf("slack-surface identity=%s connecting", s.cfg.SlackAppIdentity)
-		case socketmode.EventTypeConnected:
-			log.Printf("slack-surface identity=%s connected", s.cfg.SlackAppIdentity)
-		case socketmode.EventTypeConnectionError:
-			log.Printf("slack-surface identity=%s connection error: %v", s.cfg.SlackAppIdentity, evt.Data)
-		case socketmode.EventTypeEventsAPI:
-			eventsAPIEvent, ok := evt.Data.(slackevents.EventsAPIEvent)
+func (s *slackSurfaceRuntime) run(parentCtx context.Context) error {
+	if parentCtx == nil {
+		parentCtx = context.Background()
+	}
+	ctx, cancel := context.WithCancel(parentCtx)
+	defer cancel()
+	go s.watchDrain(ctx, cancel)
+	go s.client.RunContext(ctx)
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		case evt, ok := <-s.client.Events:
 			if !ok {
-				s.client.Ack(*evt.Request)
-				continue
+				if ctx.Err() != nil || app.IsDraining() {
+					return nil
+				}
+				return errors.New("slack socket mode event channel closed")
 			}
-			s.client.Ack(*evt.Request)
-			s.handleEventsAPIEvent(eventsAPIEvent)
+			if ctx.Err() != nil || app.IsDraining() {
+				return nil
+			}
+			switch evt.Type {
+			case socketmode.EventTypeConnecting:
+				log.Printf("slack-surface identity=%s connecting", s.cfg.SlackAppIdentity)
+			case socketmode.EventTypeConnected:
+				log.Printf("slack-surface identity=%s connected", s.cfg.SlackAppIdentity)
+			case socketmode.EventTypeConnectionError:
+				log.Printf("slack-surface identity=%s connection error: %v", s.cfg.SlackAppIdentity, evt.Data)
+			case socketmode.EventTypeEventsAPI:
+				eventsAPIEvent, ok := evt.Data.(slackevents.EventsAPIEvent)
+				if !ok {
+					s.client.Ack(*evt.Request)
+					continue
+				}
+				if s.cfg.SlackAckAfterDurableIngress {
+					if s.handleEventsAPIEvent(ctx, eventsAPIEvent) {
+						s.client.Ack(*evt.Request)
+					}
+					continue
+				}
+				s.client.Ack(*evt.Request)
+				s.handleEventsAPIEvent(ctx, eventsAPIEvent)
+			}
 		}
 	}
-	return errors.New("slack socket mode event channel closed")
 }
 
-func (s *slackSurfaceRuntime) handleEventsAPIEvent(eventsAPIEvent slackevents.EventsAPIEvent) {
-	if eventsAPIEvent.Type != slackevents.CallbackEvent {
+func (s *slackSurfaceRuntime) watchDrain(ctx context.Context, cancel context.CancelFunc) {
+	select {
+	case <-ctx.Done():
 		return
+	case <-app.DrainStarted():
+		cancel()
+		return
+	}
+}
+
+func (s *slackSurfaceRuntime) handleEventsAPIEvent(ctx context.Context, eventsAPIEvent slackevents.EventsAPIEvent) bool {
+	if eventsAPIEvent.Type != slackevents.CallbackEvent {
+		return true
 	}
 	switch event := eventsAPIEvent.InnerEvent.Data.(type) {
 	case *slackevents.AppMentionEvent:
 		if event == nil {
-			return
+			return true
 		}
 		envelope, ok := s.buildMentionEnvelope(eventsAPIEvent.TeamID, event)
 		if !ok {
-			return
+			return true
 		}
 		envelope.Prompt = slackpkg.CanonicalizePromptEnvelope(envelope, s.resolver)
 		if s.cfg.VerboseTraceLogging {
@@ -138,31 +189,25 @@ func (s *slackSurfaceRuntime) handleEventsAPIEvent(eventsAPIEvent slackevents.Ev
 		if createdAt.IsZero() {
 			createdAt = time.Now().UTC()
 		}
-		receipt, err := submitIngressSlackCommand(
-			s.cfg,
-			s.store,
-			envelope,
-			s.cfg.ServiceName,
-			createdAt,
-			"cmd-ingress:slack:"+ingressAggregateID("slack", firstNonEmpty(envelope.TS, envelope.ThreadTS, envelope.ChannelID)),
-		)
+		receipt, err := s.submitIngressSlackCommandWithAckBudget(ctx, envelope, createdAt)
 		if err != nil {
 			log.Printf("slack-surface identity=%s ingestion error=%v", s.cfg.SlackAppIdentity, err)
-			return
+			return false
 		}
 		created, err := loadSlackIngestionFromReceipt(s.store, receipt)
 		if err != nil {
 			log.Printf("slack-surface identity=%s ingestion load error=%v", s.cfg.SlackAppIdentity, err)
-			return
+		} else {
+			log.Printf("slack-surface identity=%s ingested thread=%s ingestion=%s", s.cfg.SlackAppIdentity, created.ThreadKey, created.ID)
 		}
-		log.Printf("slack-surface identity=%s ingested thread=%s ingestion=%s", s.cfg.SlackAppIdentity, created.ThreadKey, created.ID)
+		return true
 	case *slackevents.MessageEvent:
 		if event == nil {
-			return
+			return true
 		}
 		envelope, ok := s.buildDirectMessageEnvelope(eventsAPIEvent.TeamID, event)
 		if !ok {
-			return
+			return true
 		}
 		envelope.Prompt = slackpkg.CanonicalizePromptEnvelope(envelope, s.resolver)
 		if s.cfg.VerboseTraceLogging {
@@ -176,27 +221,54 @@ func (s *slackSurfaceRuntime) handleEventsAPIEvent(eventsAPIEvent slackevents.Ev
 		if createdAt.IsZero() {
 			createdAt = time.Now().UTC()
 		}
-		receipt, err := submitIngressSlackCommand(
-			s.cfg,
-			s.store,
-			envelope,
-			s.cfg.ServiceName,
-			createdAt,
-			"cmd-ingress:slack:"+ingressAggregateID("slack", firstNonEmpty(envelope.TS, envelope.ThreadTS, envelope.ChannelID)),
-		)
+		receipt, err := s.submitIngressSlackCommandWithAckBudget(ctx, envelope, createdAt)
 		if err != nil {
 			log.Printf("slack-surface identity=%s ingestion error=%v", s.cfg.SlackAppIdentity, err)
-			return
+			return false
 		}
 		created, err := loadSlackIngestionFromReceipt(s.store, receipt)
 		if err != nil {
 			log.Printf("slack-surface identity=%s ingestion load error=%v", s.cfg.SlackAppIdentity, err)
-			return
+		} else {
+			log.Printf("slack-surface identity=%s ingested thread=%s ingestion=%s", s.cfg.SlackAppIdentity, created.ThreadKey, created.ID)
 		}
-		log.Printf("slack-surface identity=%s ingested thread=%s ingestion=%s", s.cfg.SlackAppIdentity, created.ThreadKey, created.ID)
+		return true
 	default:
-		return
+		return true
 	}
+}
+
+func (s *slackSurfaceRuntime) submitIngressSlackCommandWithAckBudget(parentCtx context.Context, envelope slackpkg.SlackEnvelope, createdAt time.Time) (transition.CommandReceipt, error) {
+	ctx, cancel, _ := s.ingressContext(parentCtx)
+	defer cancel()
+	receipt, err := submitIngressSlackCommand(
+		ctx,
+		s.cfg,
+		s.store,
+		envelope,
+		s.cfg.ServiceName,
+		createdAt,
+		"cmd-ingress:slack:"+ingressAggregateID("slack", firstNonEmpty(envelope.TS, envelope.ThreadTS, envelope.ChannelID)),
+	)
+	if err != nil {
+		return transition.CommandReceipt{}, err
+	}
+	return receipt, nil
+}
+
+func (s *slackSurfaceRuntime) ingressContext(parentCtx context.Context) (context.Context, context.CancelFunc, time.Duration) {
+	if parentCtx == nil {
+		parentCtx = context.Background()
+	}
+	if !s.cfg.SlackAckAfterDurableIngress {
+		return context.Background(), func() {}, 0
+	}
+	timeout := s.cfg.SlackDurableIngressAckTimeout
+	if timeout <= 0 {
+		timeout = 2 * time.Second
+	}
+	ctx, cancel := context.WithTimeout(parentCtx, timeout)
+	return ctx, cancel, timeout
 }
 
 func (s *slackSurfaceRuntime) buildMentionEnvelope(teamID string, event *slackevents.AppMentionEvent) (slackpkg.SlackEnvelope, bool) {

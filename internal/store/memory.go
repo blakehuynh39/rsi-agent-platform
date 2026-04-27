@@ -1,12 +1,12 @@
 package store
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"sort"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -49,11 +49,20 @@ type Store interface {
 	GetCommandReceipt(commandID string) (transition.CommandReceipt, bool)
 	RecordCommandReceipt(item transition.CommandReceipt) (transition.CommandReceipt, bool, error)
 	SubmitCommand(command transition.CommandEnvelope) (transition.CommandReceipt, error)
+	SubmitCommandContext(ctx context.Context, command transition.CommandEnvelope) (transition.CommandReceipt, error)
 	QueueEffectExecution(effect transition.EffectExecution) (transition.EffectExecution, bool, error)
 	ClaimEffectExecution(effectID string, holder string, lease time.Duration) (transition.EffectExecution, bool, error)
+	ClaimNextEffectExecution(holder string, lease time.Duration, queueNames []string, maxPerScope int) (transition.EffectExecution, bool, error)
+	ClaimNextEffectExecutionForKinds(holder string, lease time.Duration, queueNames []string, maxPerScope int, selectors []EffectClaimSelector) (transition.EffectExecution, bool, error)
 	DeferEffectExecution(effectID string, holder string, lease time.Duration, reason string) (transition.EffectExecution, error)
 	CompleteEffectExecution(effectID string, holder string, resultRef string) (transition.EffectExecution, error)
 	FailEffectExecution(effectID string, holder string, lastError string) (transition.EffectExecution, error)
+	ListRunnerExecutions() []RunnerExecution
+	ListActiveRunnerExecutions() []RunnerExecution
+	GetRunnerExecution(executionID string) (RunnerExecution, bool)
+	RecordRunnerExecution(item RunnerExecution) (RunnerExecution, error)
+	RecordRunnerExecutionWithHolderCAS(item RunnerExecution, expectedOldHolder string, expectedHeartbeatAt *time.Time) (RunnerExecution, error)
+	CancelRunnerExecutionsForCase(caseID string, exceptTraceID string, reason string) []RunnerExecution
 	ReconcileWorkflowTrace(workflowID string) (events.Trace, bool, error)
 	ListOutcomes() []outcome.Record
 	ListKnowledgeEntries() []knowledge.Entry
@@ -116,7 +125,7 @@ type Store interface {
 }
 
 type MemoryStore struct {
-	mu                           sync.RWMutex
+	mu                           contextRWMutex
 	events                       []ingestion.EventEnvelope
 	conversations                map[string]conversation.Conversation
 	conversationEntries          []conversation.Entry
@@ -140,6 +149,7 @@ type MemoryStore struct {
 	actionResults                map[string][]action.Result
 	domainEvents                 []transition.DomainEvent
 	effectExecutions             map[string]transition.EffectExecution
+	runnerExecutions             map[string]RunnerExecution
 	commandReceipts              map[string]transition.CommandReceipt
 	outcomes                     map[string]outcome.Record
 	knowledgeEntries             map[string]knowledge.Entry
@@ -1134,6 +1144,10 @@ func (s *MemoryStore) upsertWorkflowLocked(item Workflow) {
 }
 
 func (s *MemoryStore) supersedeInFlightTracesLocked(caseID string, nextTraceID string, triggerEventID string, createdAt time.Time) string {
+	caseID = strings.TrimSpace(caseID)
+	if caseID == "" {
+		return ""
+	}
 	var supersedes string
 	for traceID, trace := range s.traces {
 		if trace.Summary.CaseID != caseID {
@@ -1190,6 +1204,23 @@ func (s *MemoryStore) supersedeInFlightTracesLocked(caseID string, nextTraceID s
 			StartedAt:      createdAt,
 			CompletedAt:    createdAt,
 		})
+	}
+	runnerExecutionUpdates := map[string]RunnerExecution{}
+	for id, item := range s.runnerExecutions {
+		candidate := normalizeRunnerExecution(item)
+		if candidate.CaseID != caseID || candidate.TraceID == nextTraceID || !runnerExecutionStatusActive(candidate.Status) {
+			continue
+		}
+		if strings.ToLower(strings.TrimSpace(candidate.Status)) != "cancelling" {
+			candidate.Status = "cancel_requested"
+		}
+		candidate.CancelRequested = true
+		candidate.FailureClass = firstNonEmpty(candidate.FailureClass, "trace_superseded")
+		candidate.UpdatedAt = createdAt
+		runnerExecutionUpdates[id] = candidate
+	}
+	for id, item := range runnerExecutionUpdates {
+		s.runnerExecutions[id] = item
 	}
 	return supersedes
 }

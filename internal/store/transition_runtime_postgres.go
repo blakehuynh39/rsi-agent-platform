@@ -151,6 +151,7 @@ func (p *PostgresStore) QueueEffectExecution(effect transition.EffectExecution) 
 	if effect.UpdatedAt.IsZero() || effect.UpdatedAt.Before(effect.CreatedAt) {
 		effect.UpdatedAt = effect.CreatedAt
 	}
+	effect = normalizeEffectScheduling(effect)
 	err = p.withTx(func(tx *sql.Tx) error {
 		if err := advisoryLock(tx, "effect-execution:"+effect.IdempotencyKey); err != nil {
 			return err
@@ -181,8 +182,7 @@ func (p *PostgresStore) ClaimEffectExecution(effectID string, holder string, lea
 		now := time.Now().UTC()
 		var leaseExpires any
 		if lease > 0 {
-			expires := now.Add(lease)
-			leaseExpires = expires
+			leaseExpires = now.Add(lease)
 		}
 		row := tx.QueryRow(`
 			update effect_execution
@@ -190,13 +190,17 @@ func (p *PostgresStore) ClaimEffectExecution(effectID string, holder string, lea
 				holder = $3,
 				updated_at = $4,
 				started_at = coalesce(started_at, $4),
-				lease_expires_at = $5,
+				lease_expires_at = $5::timestamptz,
+				not_before = null,
 				completed_at = null
 			where id = $1
-			  and (
-				status in ($6, $7)
-				or (status = $8 and (lease_expires_at is null or lease_expires_at <= $4))
-			  )
+			  and (not_before is null or not_before <= $4)
+				  and (
+					status in ($6, $7)
+					or (status = $8 and (
+						lease_expires_at is not null and lease_expires_at <= $4
+					))
+				  )
 			returning `+effectExecutionSelectColumns(),
 			strings.TrimSpace(effectID),
 			string(transition.EffectRunning),
@@ -220,6 +224,154 @@ func (p *PostgresStore) ClaimEffectExecution(effectID string, holder string, lea
 	return
 }
 
+func (p *PostgresStore) ClaimNextEffectExecution(holder string, lease time.Duration, queueNames []string, maxPerScope int) (item transition.EffectExecution, claimed bool, err error) {
+	return p.ClaimNextEffectExecutionForKinds(holder, lease, queueNames, maxPerScope, nil)
+}
+
+func (p *PostgresStore) ClaimNextEffectExecutionForKinds(holder string, lease time.Duration, queueNames []string, maxPerScope int, selectors []EffectClaimSelector) (item transition.EffectExecution, claimed bool, err error) {
+	err = p.withTx(func(tx *sql.Tx) error {
+		now := time.Now().UTC()
+		var leaseExpires any
+		if lease > 0 {
+			leaseExpires = now.Add(lease)
+		}
+		args := []any{
+			string(transition.EffectRunning),
+			strings.TrimSpace(holder),
+			now,
+			leaseExpires,
+			string(transition.EffectQueued),
+			string(transition.EffectFailed),
+			maxPerScope,
+		}
+		queueFilter := ""
+		hasNonEmptyQueue := false
+		for _, queueName := range queueNames {
+			queueName = strings.TrimSpace(queueName)
+			if queueName == "" {
+				continue
+			}
+			hasNonEmptyQueue = true
+			args = append(args, queueName)
+			if queueFilter == "" {
+				queueFilter = fmt.Sprintf(" and e.queue_name in ($%d", len(args))
+			} else {
+				queueFilter += fmt.Sprintf(", $%d", len(args))
+			}
+		}
+		if !hasNonEmptyQueue {
+			return nil
+		}
+		if queueFilter != "" {
+			queueFilter += ")"
+		}
+		selectorGroups := []string{}
+		for _, selector := range selectors {
+			parts := []string{}
+			if selector.MachineKind != "" {
+				args = append(args, string(selector.MachineKind))
+				parts = append(parts, fmt.Sprintf("e.machine_kind = $%d", len(args)))
+			}
+			if selector.EffectKind != "" {
+				args = append(args, string(selector.EffectKind))
+				parts = append(parts, fmt.Sprintf("e.effect_kind = $%d", len(args)))
+			}
+			for key, expected := range selector.PayloadEquals {
+				key = strings.TrimSpace(key)
+				if key == "" {
+					continue
+				}
+				args = append(args, key, strings.TrimSpace(expected))
+				parts = append(parts, fmt.Sprintf("lower(trim(coalesce(e.payload ->> $%d, ''))) = lower($%d)", len(args)-1, len(args)))
+			}
+			if len(parts) > 0 {
+				selectorGroups = append(selectorGroups, "("+strings.Join(parts, " and ")+")")
+			}
+		}
+		selectorFilter := ""
+		if len(selectorGroups) > 0 {
+			selectorFilter = " and (" + strings.Join(selectorGroups, " or ") + ")"
+		}
+		queueFilterForActive := strings.ReplaceAll(queueFilter, "e.", "active.")
+		selectorFilterForActive := strings.ReplaceAll(selectorFilter, "e.", "active.")
+		query := `
+			with eligible as (
+				select
+					e.id,
+					coalesce(nullif(e.scope_key, ''), e.id) as lock_scope,
+					e.priority,
+					e.created_at,
+					row_number() over (
+						partition by coalesce(nullif(e.scope_key, ''), e.id)
+						order by e.priority desc, e.created_at asc, e.id asc
+					) as scope_rank
+					from effect_execution e
+					where (
+							e.status in ($5, $6)
+							or (e.status = $1 and (
+								e.lease_expires_at is not null and e.lease_expires_at <= $3
+							))
+						)
+				  and (e.not_before is null or e.not_before <= $3)
+				  and (
+					$7 <= 0
+					or coalesce((
+						select count(*)
+						from effect_execution active
+						where coalesce(nullif(active.scope_key, ''), active.id) = coalesce(nullif(e.scope_key, ''), e.id)
+								  and active.status = $1
+								  and (
+									active.lease_expires_at is null
+									or active.lease_expires_at > $3
+									or (active.not_before is not null and active.not_before > $3)
+								  )` + queueFilterForActive + selectorFilterForActive + `
+							), 0) < $7
+				  )` + queueFilter + selectorFilter + `
+			),
+			candidates as (
+				select e.id, eligible.lock_scope, e.priority, e.created_at
+				from effect_execution e
+				join eligible on eligible.id = e.id
+				where eligible.scope_rank = 1
+				order by e.priority desc, e.created_at asc, e.id asc
+				for update skip locked
+			),
+			locked_candidate as (
+				select c.id
+				from candidates c
+				where $7 <= 0 or pg_try_advisory_xact_lock(hashtext('rsi-effect-scope'), hashtext(c.lock_scope))
+				order by c.priority desc, c.created_at asc, c.id asc
+				limit 1
+			)
+			update effect_execution
+			set status = $1,
+				holder = $2,
+				updated_at = $3,
+				started_at = coalesce(started_at, $3),
+				lease_expires_at = $4::timestamptz,
+				not_before = null,
+				completed_at = null
+			where id = (select id from locked_candidate)
+				  and (
+					    status in ($5, $6)
+					    or (status = $1 and (
+							lease_expires_at is not null and lease_expires_at <= $3
+						))
+					  )
+			  and (not_before is null or not_before <= $3)
+			returning ` + effectExecutionSelectColumns()
+		row := tx.QueryRow(query, args...)
+		item, err = scanEffectExecution(row)
+		if err == sql.ErrNoRows {
+			claimed = false
+			return nil
+		}
+		claimed = err == nil
+		return err
+	})
+	return
+}
+
 func (p *PostgresStore) CompleteEffectExecution(effectID string, holder string, resultRef string) (item transition.EffectExecution, err error) {
 	err = p.withTx(func(tx *sql.Tx) error {
 		now := time.Now().UTC()
@@ -231,6 +383,7 @@ func (p *PostgresStore) CompleteEffectExecution(effectID string, holder string, 
 				last_error = '',
 				updated_at = $4,
 				lease_expires_at = null,
+				not_before = null,
 				completed_at = $4
 			where id = $1
 			  and status = $5
@@ -270,6 +423,7 @@ func (p *PostgresStore) DeferEffectExecution(effectID string, holder string, lea
 				last_error = $2,
 				updated_at = $3,
 				lease_expires_at = $4,
+				not_before = $4,
 				completed_at = null
 			where id = $1
 			  and status = $5
@@ -304,6 +458,7 @@ func (p *PostgresStore) FailEffectExecution(effectID string, holder string, last
 				retry_count = retry_count + 1,
 				updated_at = $4,
 				lease_expires_at = null,
+				not_before = null,
 				completed_at = $4
 			where id = $1
 			  and status = $5
@@ -328,7 +483,7 @@ func (p *PostgresStore) FailEffectExecution(effectID string, holder string, last
 }
 
 func effectExecutionSelectColumns() string {
-	return `id, machine_kind, aggregate_id, attempt_id, effect_kind, status, holder, idempotency_key, payload, result_ref, last_error, retry_count, created_at, updated_at, started_at, lease_expires_at, completed_at`
+	return `id, machine_kind, aggregate_id, attempt_id, effect_kind, status, holder, idempotency_key, queue_name, scope_key, task_class, priority, not_before, payload, result_ref, last_error, retry_count, created_at, updated_at, started_at, lease_expires_at, completed_at`
 }
 
 func scanDomainEvent(scanner rowScanner) (transition.DomainEvent, error) {
@@ -358,14 +513,18 @@ func scanEffectExecution(scanner rowScanner) (transition.EffectExecution, error)
 	var item transition.EffectExecution
 	var machineKind, effectKind, status string
 	var payload []byte
-	var startedAt, leaseExpiresAt, completedAt sql.NullTime
-	if err := scanner.Scan(&item.ID, &machineKind, &item.AggregateID, &item.AttemptID, &effectKind, &status, &item.Holder, &item.IdempotencyKey, &payload, &item.ResultRef, &item.LastError, &item.RetryCount, &item.CreatedAt, &item.UpdatedAt, &startedAt, &leaseExpiresAt, &completedAt); err != nil {
+	var startedAt, leaseExpiresAt, completedAt, notBefore sql.NullTime
+	if err := scanner.Scan(&item.ID, &machineKind, &item.AggregateID, &item.AttemptID, &effectKind, &status, &item.Holder, &item.IdempotencyKey, &item.QueueName, &item.ScopeKey, &item.TaskClass, &item.Priority, &notBefore, &payload, &item.ResultRef, &item.LastError, &item.RetryCount, &item.CreatedAt, &item.UpdatedAt, &startedAt, &leaseExpiresAt, &completedAt); err != nil {
 		return transition.EffectExecution{}, err
 	}
 	item.MachineKind = transition.MachineKind(machineKind)
 	item.EffectKind = transition.EffectKind(effectKind)
 	item.Status = transition.EffectStatus(status)
 	item.Payload = decodeJSON(payload, map[string]any{})
+	if notBefore.Valid {
+		t := notBefore.Time
+		item.NotBefore = &t
+	}
 	if startedAt.Valid {
 		t := startedAt.Time
 		item.StartedAt = &t
@@ -378,5 +537,5 @@ func scanEffectExecution(scanner rowScanner) (transition.EffectExecution, error)
 		t := completedAt.Time
 		item.CompletedAt = &t
 	}
-	return item, nil
+	return normalizeEffectScheduling(item), nil
 }

@@ -249,6 +249,458 @@ func TestEventAndIngestionRoutesSubmitIngressCommands(t *testing.T) {
 	}
 }
 
+func TestInternalActiveExecutionsBlocksDeploymentWhenPolicyRequiresIt(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID: "hexec-active",
+		OperationID: "eff-active",
+		WorkflowID:  "wf-active",
+		TraceID:     "trace-active",
+		CaseID:      "case-active",
+		Status:      "running",
+		HeartbeatAt: &now,
+		CreatedAt:   now,
+		UpdatedAt:   now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+	router := NewRouter(config.Config{
+		ServiceName:                     "control-plane",
+		Environment:                     "development",
+		DeploymentActiveExecutionPolicy: "block",
+	}, store)
+
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/internal/executions/active", nil))
+
+	if rec.Code != http.StatusConflict {
+		t.Fatalf("status = %d, want %d; body=%s", rec.Code, http.StatusConflict, rec.Body.String())
+	}
+	var payload map[string]any
+	if err := json.Unmarshal(rec.Body.Bytes(), &payload); err != nil {
+		t.Fatalf("Unmarshal() error = %v", err)
+	}
+	if got := int(payload["active_execution_count"].(float64)); got != 1 {
+		t.Fatalf("active_execution_count = %d, want 1", got)
+	}
+	if payload["deployment_policy"] != "block" {
+		t.Fatalf("deployment_policy = %#v, want block", payload["deployment_policy"])
+	}
+}
+
+func TestInternalActiveExecutionsReconcilesStaleCancellationBeforeDeployGate(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	stale := time.Now().Add(-5 * time.Minute).UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:     "hexec-stale-cancel",
+		OperationID:     "eff-stale-cancel",
+		WorkflowID:      "wf-stale-cancel",
+		TraceID:         "trace-stale-cancel",
+		CaseID:          "case-stale-cancel",
+		Status:          "cancel_requested",
+		CancelRequested: true,
+		HeartbeatAt:     &stale,
+		CreatedAt:       stale,
+		UpdatedAt:       stale,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+	router := NewRouter(config.Config{
+		ServiceName:                     "control-plane",
+		Environment:                     "stage",
+		DeploymentActiveExecutionPolicy: "block",
+		HermesExecutionHeartbeatTimeout: time.Minute,
+	}, store)
+
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/internal/executions/active", nil))
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d; body=%s", rec.Code, http.StatusOK, rec.Body.String())
+	}
+	var payload map[string]any
+	if err := json.Unmarshal(rec.Body.Bytes(), &payload); err != nil {
+		t.Fatalf("Unmarshal() error = %v", err)
+	}
+	if got := int(payload["active_execution_count"].(float64)); got != 0 {
+		t.Fatalf("active_execution_count = %d, want 0", got)
+	}
+	record, ok := store.GetRunnerExecution("hexec-stale-cancel")
+	if !ok {
+		t.Fatal("expected runner execution")
+	}
+	if record.Status != "cancelled" || record.CompletedAt == nil || record.FailureClass != workflowFailureRunnerExecutionCancelled {
+		t.Fatalf("stale cancellation should terminalize as cancelled before deploy gate, got %+v", record)
+	}
+}
+
+func TestInternalActiveExecutionsReconcilesStaleCancellationWithoutHeartbeat(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	stale := time.Now().Add(-5 * time.Minute).UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:     "hexec-stale-cancel-no-heartbeat",
+		WorkflowID:      "wf-stale-cancel-no-heartbeat",
+		TraceID:         "trace-stale-cancel-no-heartbeat",
+		CaseID:          "case-stale-cancel-no-heartbeat",
+		Status:          "cancel_requested",
+		CancelRequested: true,
+		CreatedAt:       stale,
+		UpdatedAt:       stale,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+	router := NewRouter(config.Config{
+		ServiceName:                     "control-plane",
+		Environment:                     "stage",
+		DeploymentActiveExecutionPolicy: "block",
+		HermesExecutionHeartbeatTimeout: time.Minute,
+	}, store)
+
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/internal/executions/active", nil))
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d; body=%s", rec.Code, http.StatusOK, rec.Body.String())
+	}
+	record, ok := store.GetRunnerExecution("hexec-stale-cancel-no-heartbeat")
+	if !ok {
+		t.Fatal("expected runner execution")
+	}
+	if record.Status != "cancelled" || record.CompletedAt == nil || record.FailureClass != workflowFailureRunnerExecutionCancelled {
+		t.Fatalf("stale cancellation without heartbeat should terminalize as cancelled before deploy gate, got %+v", record)
+	}
+}
+
+func TestRunnerExecutionHeartbeatRejectsTerminalAndRequiresHolder(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID: "hexec-terminal",
+		Status:      "completed",
+		Result:      map[string]any{"ok": true},
+		Holder:      "worker-1",
+		HeartbeatAt: &now,
+		CompletedAt: &now,
+		CreatedAt:   now,
+		UpdatedAt:   now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+	router := NewRouter(config.Config{ServiceName: "control-plane", Environment: "development"}, store)
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/internal/runner-executions/hexec-terminal/heartbeat", bytes.NewReader([]byte(`{"holder":"worker-1","status":"running"}`)))
+	router.ServeHTTP(rec, req)
+	if rec.Code != http.StatusConflict {
+		t.Fatalf("terminal heartbeat status = %d, want %d; body=%s", rec.Code, http.StatusConflict, rec.Body.String())
+	}
+
+	record, ok := store.GetRunnerExecution("hexec-terminal")
+	if !ok {
+		t.Fatal("expected runner execution")
+	}
+	if record.Status != "completed" || record.CompletedAt == nil || record.Result["ok"] != true {
+		t.Fatalf("terminal record mutated: %+v", record)
+	}
+}
+
+func TestRunnerExecutionHeartbeatMissingHolderIsBadRequest(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID: "hexec-missing-holder",
+		Status:      "running",
+		Holder:      "worker-1",
+		HeartbeatAt: &now,
+		CreatedAt:   now,
+		UpdatedAt:   now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+	router := NewRouter(config.Config{ServiceName: "control-plane", Environment: "development"}, store)
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/internal/runner-executions/hexec-missing-holder/heartbeat", bytes.NewReader([]byte(`{"status":"running"}`)))
+	router.ServeHTTP(rec, req)
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("missing heartbeat holder status = %d, want %d; body=%s", rec.Code, http.StatusBadRequest, rec.Body.String())
+	}
+}
+
+func TestRunnerExecutionHeartbeatAcceptsSameHolderWithoutPriorHeartbeat(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID: "hexec-no-heartbeat",
+		Status:      "running",
+		Holder:      "worker-1",
+		CreatedAt:   now,
+		UpdatedAt:   now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+	router := NewRouter(config.Config{ServiceName: "control-plane", Environment: "development"}, store)
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/internal/runner-executions/hexec-no-heartbeat/heartbeat", bytes.NewReader([]byte(`{"holder":"worker-1","status":"running"}`)))
+	router.ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("heartbeat status = %d, want %d; body=%s", rec.Code, http.StatusOK, rec.Body.String())
+	}
+	record, ok := store.GetRunnerExecution("hexec-no-heartbeat")
+	if !ok {
+		t.Fatal("expected runner execution")
+	}
+	if record.HeartbeatAt == nil || record.Holder != "worker-1" || record.Status != "running" {
+		t.Fatalf("heartbeat did not update same-holder record without prior heartbeat: %+v", record)
+	}
+}
+
+func TestRunnerExecutionCompleteRejectsHolderMismatch(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID: "hexec-running",
+		Status:      "running",
+		Holder:      "worker-1",
+		HeartbeatAt: &now,
+		CreatedAt:   now,
+		UpdatedAt:   now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+	router := NewRouter(config.Config{ServiceName: "control-plane", Environment: "development"}, store)
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/internal/runner-executions/hexec-running/complete", bytes.NewReader([]byte(`{"holder":"worker-2","status":"completed"}`)))
+	router.ServeHTTP(rec, req)
+	if rec.Code != http.StatusForbidden {
+		t.Fatalf("holder mismatch status = %d, want %d; body=%s", rec.Code, http.StatusForbidden, rec.Body.String())
+	}
+	record, _ := store.GetRunnerExecution("hexec-running")
+	if record.Status != "running" || record.CompletedAt != nil {
+		t.Fatalf("holder mismatch mutated record: %+v", record)
+	}
+}
+
+func TestRunnerExecutionCompleteMissingHolderIsBadRequest(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID: "hexec-complete-missing-holder",
+		Status:      "running",
+		Holder:      "worker-1",
+		HeartbeatAt: &now,
+		CreatedAt:   now,
+		UpdatedAt:   now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+	router := NewRouter(config.Config{ServiceName: "control-plane", Environment: "development"}, store)
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/internal/runner-executions/hexec-complete-missing-holder/complete", bytes.NewReader([]byte(`{"status":"completed","result":{"ok":true}}`)))
+	router.ServeHTTP(rec, req)
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("missing complete holder status = %d, want %d; body=%s", rec.Code, http.StatusBadRequest, rec.Body.String())
+	}
+}
+
+func TestRunnerExecutionCompleteAcceptsSameHolderWithoutPriorHeartbeat(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID: "hexec-complete-no-heartbeat",
+		Status:      "running",
+		Holder:      "worker-1",
+		CreatedAt:   now,
+		UpdatedAt:   now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+	router := NewRouter(config.Config{ServiceName: "control-plane", Environment: "development"}, store)
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/internal/runner-executions/hexec-complete-no-heartbeat/complete", bytes.NewReader([]byte(`{"holder":"worker-1","status":"completed","result":{"ok":true,"message":"done","provider":"hermes-executor","raw":{}}}`)))
+	router.ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("complete status = %d, want %d; body=%s", rec.Code, http.StatusOK, rec.Body.String())
+	}
+	record, ok := store.GetRunnerExecution("hexec-complete-no-heartbeat")
+	if !ok {
+		t.Fatal("expected runner execution")
+	}
+	if record.Status != "completed" || record.CompletedAt == nil || record.Result["ok"] != true {
+		t.Fatalf("complete did not terminalize same-holder record without prior heartbeat: %+v", record)
+	}
+}
+
+func TestRunnerExecutionCompleteAfterCancellationNormalizesFailedStatusToCancelled(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:     "hexec-cancel-complete-failed",
+		Status:          "cancel_requested",
+		Holder:          "worker-1",
+		CancelRequested: true,
+		HeartbeatAt:     &now,
+		CreatedAt:       now,
+		UpdatedAt:       now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+	router := NewRouter(config.Config{ServiceName: "control-plane", Environment: "development"}, store)
+
+	body := []byte(`{
+		"holder":"worker-1",
+		"status":"failed",
+		"failure_class":"worker_failed",
+		"result":{"ok":false,"message":"worker failed after cancellation","provider":"hermes-executor","raw":{"failure_class":"worker_failed"}}
+	}`)
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/internal/runner-executions/hexec-cancel-complete-failed/complete", bytes.NewReader(body))
+	router.ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("complete status = %d, want %d; body=%s", rec.Code, http.StatusOK, rec.Body.String())
+	}
+	record, ok := store.GetRunnerExecution("hexec-cancel-complete-failed")
+	if !ok {
+		t.Fatal("expected runner execution")
+	}
+	if record.Status != "cancelled" || !record.CancelRequested || record.CompletedAt == nil || record.FailureClass != workflowFailureRunnerExecutionCancelled {
+		t.Fatalf("cancelled completion should dominate failed worker status, got %+v", record)
+	}
+	if record.Result["ok"] != false {
+		t.Fatalf("audit result should be preserved, got %+v", record.Result)
+	}
+}
+
+func TestValidateRunnerExecutionHolderMarksStaleTakeover(t *testing.T) {
+	staleHeartbeat := time.Now().Add(-5 * time.Minute).UTC()
+	cas, err := validateRunnerExecutionHolder(
+		config.Config{HermesExecutionHeartbeatTimeout: time.Minute},
+		storepkg.RunnerExecution{
+			ExecutionID: "hexec-stale",
+			Status:      "running",
+			Holder:      "hermes-executor:old",
+			HeartbeatAt: &staleHeartbeat,
+			CreatedAt:   staleHeartbeat,
+			UpdatedAt:   staleHeartbeat,
+		},
+		"hermes-executor:new",
+	)
+	if err != nil {
+		t.Fatalf("validateRunnerExecutionHolder() error = %v", err)
+	}
+	if cas.ExpectedHolder != "hermes-executor:old" {
+		t.Fatalf("cas = %+v, want stale takeover from old holder", cas)
+	}
+}
+
+func TestValidateRunnerExecutionHolderUsesCreatedAtWithoutHeartbeat(t *testing.T) {
+	now := time.Now().UTC()
+	createdAt := now.Add(-5 * time.Minute)
+	_, err := validateRunnerExecutionHolder(
+		config.Config{HermesExecutionHeartbeatTimeout: time.Minute},
+		storepkg.RunnerExecution{
+			ExecutionID: "hexec-stale-created",
+			Status:      "running",
+			Holder:      "hermes-executor:old",
+			CreatedAt:   createdAt,
+			UpdatedAt:   now,
+		},
+		"hermes-executor:new",
+	)
+	if err == nil {
+		t.Fatalf("validateRunnerExecutionHolder() expected holder mismatch error when no heartbeat reference available")
+	}
+}
+
+func TestValidateRunnerExecutionHolderRejectsStartedAtOnlyTakeover(t *testing.T) {
+	now := time.Now().UTC()
+	startedAt := now.Add(-5 * time.Minute)
+	_, err := validateRunnerExecutionHolder(
+		config.Config{HermesExecutionHeartbeatTimeout: time.Minute},
+		storepkg.RunnerExecution{
+			ExecutionID: "hexec-stale-started",
+			Status:      "running",
+			Holder:      "hermes-executor:old",
+			StartedAt:   &startedAt,
+			CreatedAt:   startedAt,
+			UpdatedAt:   now,
+		},
+		"hermes-executor:new",
+	)
+	if err == nil {
+		t.Fatalf("validateRunnerExecutionHolder() expected holder mismatch when active execution has no heartbeat")
+	}
+}
+
+func TestRunnerExecutionHeartbeatRejectsCancelRequestedWithoutMutation(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	heartbeat := now.Add(-30 * time.Second)
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:     "hexec-cancel-requested",
+		Status:          "cancel_requested",
+		Holder:          "worker-1",
+		CancelRequested: true,
+		HeartbeatAt:     &heartbeat,
+		CreatedAt:       now.Add(-time.Minute),
+		UpdatedAt:       heartbeat,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+	router := NewRouter(config.Config{ServiceName: "control-plane", Environment: "development"}, store)
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/internal/runner-executions/hexec-cancel-requested/heartbeat", bytes.NewReader([]byte(`{"holder":"worker-1","status":"running"}`)))
+	router.ServeHTTP(rec, req)
+	if rec.Code != http.StatusConflict {
+		t.Fatalf("heartbeat status = %d, want %d; body=%s", rec.Code, http.StatusConflict, rec.Body.String())
+	}
+	record, ok := store.GetRunnerExecution("hexec-cancel-requested")
+	if !ok {
+		t.Fatal("expected runner execution")
+	}
+	if record.Holder != "worker-1" || record.Status != "cancel_requested" || record.HeartbeatAt == nil || record.HeartbeatAt.Before(heartbeat) {
+		t.Fatalf("cancel-requested heartbeat should keep status but refresh heartbeat_at, got %+v", record)
+	}
+}
+
+func TestRunnerExecutionHeartbeatRefreshesCancelRequested(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	heartbeat := now.Add(-30 * time.Second)
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:     "hexec-cancel-refresh",
+		Status:          "cancel_requested",
+		Holder:          "worker-1",
+		CancelRequested: true,
+		HeartbeatAt:     &heartbeat,
+		CreatedAt:       now.Add(-time.Minute),
+		UpdatedAt:       heartbeat,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+	router := NewRouter(config.Config{ServiceName: "control-plane", Environment: "stage"}, store)
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/internal/runner-executions/hexec-cancel-refresh/heartbeat", bytes.NewReader([]byte(`{"holder":"worker-1","status":"cancel_requested"}`)))
+	router.ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("heartbeat status = %d, want %d; body=%s", rec.Code, http.StatusOK, rec.Body.String())
+	}
+	record, ok := store.GetRunnerExecution("hexec-cancel-refresh")
+	if !ok {
+		t.Fatal("expected runner execution")
+	}
+	if record.Status != "cancel_requested" || record.HeartbeatAt == nil || !record.HeartbeatAt.After(heartbeat) {
+		t.Fatalf("cancel-requested heartbeat should refresh without changing lifecycle state, got %+v", record)
+	}
+}
+
 func TestGitHubWebhookRejectsInvalidSignature(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	cfg := config.Config{

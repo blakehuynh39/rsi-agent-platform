@@ -1,10 +1,13 @@
 package control
 
 import (
+	"context"
 	"testing"
+	"time"
 
 	"github.com/slack-go/slack/slackevents"
 
+	"github.com/piplabs/rsi-agent-platform/internal/app"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
@@ -69,7 +72,7 @@ func TestSlackSurfaceIgnoresAmbientMessageEvents(t *testing.T) {
 	}, store)
 	before := len(store.ListIngestions())
 
-	runtime.handleEventsAPIEvent(slackevents.EventsAPIEvent{
+	runtime.handleEventsAPIEvent(context.Background(), slackevents.EventsAPIEvent{
 		Type:   slackevents.CallbackEvent,
 		TeamID: "T123",
 		InnerEvent: slackevents.EventsAPIInnerEvent{
@@ -96,7 +99,7 @@ func TestSlackSurfaceAcceptsDirectMessages(t *testing.T) {
 	}, store)
 	before := len(store.ListIngestions())
 
-	runtime.handleEventsAPIEvent(slackevents.EventsAPIEvent{
+	runtime.handleEventsAPIEvent(context.Background(), slackevents.EventsAPIEvent{
 		Type:   slackevents.CallbackEvent,
 		TeamID: "T123",
 		InnerEvent: slackevents.EventsAPIInnerEvent{
@@ -125,5 +128,89 @@ func TestSlackSurfaceAcceptsDirectMessages(t *testing.T) {
 	}
 	if !found {
 		t.Fatal("expected DM ingestion to be present")
+	}
+}
+
+func TestSlackSurfaceIngressContextOnlyUsesTimeoutForDurableAckMode(t *testing.T) {
+	legacy := newSlackSurfaceRuntime(config.Config{
+		SlackAckAfterDurableIngress:   false,
+		SlackDurableIngressAckTimeout: time.Nanosecond,
+	}, storepkg.NewMemoryStore())
+	parent, parentCancel := context.WithCancel(context.Background())
+	parentCancel()
+	ctx, cancel, timeout := legacy.ingressContext(parent)
+	defer cancel()
+	if timeout != 0 {
+		t.Fatalf("legacy ack-first mode timeout = %s, want none", timeout)
+	}
+	if _, ok := ctx.Deadline(); ok {
+		t.Fatal("legacy ack-first mode should not cap ingestion after Slack has already been acked")
+	}
+	select {
+	case <-ctx.Done():
+		t.Fatal("legacy ack-first mode should not inherit parent cancellation after Slack has already been acked")
+	default:
+	}
+
+	durable := newSlackSurfaceRuntime(config.Config{
+		SlackAckAfterDurableIngress:   true,
+		SlackDurableIngressAckTimeout: 50 * time.Millisecond,
+	}, storepkg.NewMemoryStore())
+	durableParent, durableParentCancel := context.WithCancel(context.Background())
+	ctx, cancel, timeout = durable.ingressContext(durableParent)
+	defer cancel()
+	if timeout != 50*time.Millisecond {
+		t.Fatalf("durable ack mode timeout = %s, want 50ms", timeout)
+	}
+	if _, ok := ctx.Deadline(); !ok {
+		t.Fatal("durable ack mode should bound ingress before acknowledging Slack")
+	}
+	durableParentCancel()
+	select {
+	case <-ctx.Done():
+	case <-time.After(time.Second):
+		t.Fatal("durable ack mode should inherit parent cancellation before Slack is acknowledged")
+	}
+}
+
+func TestSlackSurfaceDrainWatcherCancelsWhenDrainStartsEvenIfDrainFlagDisabled(t *testing.T) {
+	app.StopDrainForTest()
+	defer app.StopDrainForTest()
+
+	runtime := newSlackSurfaceRuntime(config.Config{DrainEnabled: false}, storepkg.NewMemoryStore())
+	ctx, stop := context.WithCancel(context.Background())
+	defer stop()
+	cancelled := make(chan struct{})
+	go runtime.watchDrain(ctx, func() {
+		stop()
+		close(cancelled)
+	})
+
+	app.StartDrain()
+	select {
+	case <-cancelled:
+	case <-time.After(time.Second):
+		t.Fatal("expected Slack drain watcher to cancel after global drain starts")
+	}
+}
+
+func TestSlackSurfaceDrainWatcherCancelsWhenDrainAlreadyStarted(t *testing.T) {
+	app.StopDrainForTest()
+	defer app.StopDrainForTest()
+	app.StartDrain()
+
+	runtime := newSlackSurfaceRuntime(config.Config{DrainEnabled: false}, storepkg.NewMemoryStore())
+	ctx, stop := context.WithCancel(context.Background())
+	defer stop()
+	cancelled := make(chan struct{})
+	go runtime.watchDrain(ctx, func() {
+		stop()
+		close(cancelled)
+	})
+
+	select {
+	case <-cancelled:
+	case <-time.After(100 * time.Millisecond):
+		t.Fatal("expected Slack drain watcher to cancel immediately when drain already started")
 	}
 }

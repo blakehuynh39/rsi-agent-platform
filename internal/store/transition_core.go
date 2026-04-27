@@ -35,11 +35,17 @@ func persistDomainEvents(tx *sql.Tx, items []transition.DomainEvent) error {
 
 func persistEffectExecutions(tx *sql.Tx, items []transition.EffectExecution) error {
 	for _, item := range items {
-		if _, err := tx.Exec(`insert into effect_execution (id, machine_kind, aggregate_id, attempt_id, effect_kind, status, holder, idempotency_key, payload, result_ref, last_error, retry_count, created_at, updated_at, started_at, lease_expires_at, completed_at)
-			values ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10,$11,$12,$13,$14,$15,$16,$17)
+		item = normalizeEffectScheduling(item)
+		if _, err := tx.Exec(`insert into effect_execution (id, machine_kind, aggregate_id, attempt_id, effect_kind, status, holder, idempotency_key, queue_name, scope_key, task_class, priority, not_before, payload, result_ref, last_error, retry_count, created_at, updated_at, started_at, lease_expires_at, completed_at)
+			values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14::jsonb,$15,$16,$17,$18,$19,$20,$21,$22)
 			on conflict (idempotency_key) do update set
 				status = excluded.status,
 				holder = excluded.holder,
+				queue_name = excluded.queue_name,
+				scope_key = excluded.scope_key,
+				task_class = excluded.task_class,
+				priority = excluded.priority,
+				not_before = excluded.not_before,
 				payload = excluded.payload,
 				result_ref = excluded.result_ref,
 				last_error = excluded.last_error,
@@ -56,6 +62,11 @@ func persistEffectExecutions(tx *sql.Tx, items []transition.EffectExecution) err
 			string(item.Status),
 			firstNonEmpty(item.Holder),
 			item.IdempotencyKey,
+			item.QueueName,
+			item.ScopeKey,
+			item.TaskClass,
+			item.Priority,
+			nullTime(item.NotBefore),
 			jsonString(item.Payload),
 			firstNonEmpty(item.ResultRef),
 			firstNonEmpty(item.LastError),

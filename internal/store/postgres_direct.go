@@ -1,6 +1,7 @@
 package store
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"strings"
@@ -23,7 +24,14 @@ type rowScanner interface {
 }
 
 func (p *PostgresStore) withTx(fn func(tx *sql.Tx) error) error {
-	tx, err := p.db.Begin()
+	return p.withTxContext(context.Background(), fn)
+}
+
+func (p *PostgresStore) withTxContext(ctx context.Context, fn func(tx *sql.Tx) error) error {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	tx, err := p.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
@@ -50,7 +58,11 @@ func (p *PostgresStore) withProposalLockedStoreTx(proposalID string, fn func(tx 
 }
 
 func advisoryLock(tx *sql.Tx, key string) error {
-	_, err := tx.Exec(`select pg_advisory_xact_lock(hashtext($1)::bigint)`, key)
+	return advisoryLockContext(context.Background(), tx, key)
+}
+
+func advisoryLockContext(ctx context.Context, tx *sql.Tx, key string) error {
+	_, err := tx.ExecContext(ctx, `select pg_advisory_xact_lock(hashtext($1)::bigint)`, key)
 	return err
 }
 
