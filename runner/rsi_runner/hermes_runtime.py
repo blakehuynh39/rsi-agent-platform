@@ -78,6 +78,10 @@ ARTIFACT_RENDER_FALLBACK_BLOCKED_TERMINATION_REASONS = frozenset(
     }
 )
 DIRECT_DELIVERY_SUCCESS_STATUSES = frozenset({"posted", "sent", "uploaded", "completed", "ok", "success", "shared"})
+ARTIFACT_INVESTIGATE_TIMEOUT_SECONDS = 30 * 60
+ARTIFACT_RENDER_TIMEOUT_SECONDS = 30 * 60
+ARTIFACT_DELIVER_TIMEOUT_SECONDS = 5 * 60
+ARTIFACT_REDUCER_RESERVE_SECONDS = 3 * 60
 GROUNDED_EVIDENCE_TOOL_NAMES = frozenset(
     {
         "repo.read_file",
@@ -1526,32 +1530,31 @@ class HermesRuntime:
 
     def _artifact_phase_budgets(self, task: RunnerTaskRequest) -> JsonObject:
         total = self._effective_task_timeout(task)
-        reserve_for_investigate = max(1, min(60, int(total * 0.45)))
-        architecture_diagram_requested = "architecture-diagram" in normalize_tool_names(task.requested_skills)
-        desired_render = min(180, max(45, int(total * 0.25)))
-        if architecture_diagram_requested:
-            desired_render = 300
         desired = {
-            "render": desired_render,
-            "deliver": min(60, max(30, int(total * 0.1))),
-            "reducer_reserve": min(180, max(60, int(total * 0.2))),
+            "investigate": ARTIFACT_INVESTIGATE_TIMEOUT_SECONDS,
+            "render": ARTIFACT_RENDER_TIMEOUT_SECONDS,
+            "deliver": ARTIFACT_DELIVER_TIMEOUT_SECONDS,
         }
-        available_for_other = max(0, total - reserve_for_investigate)
-        desired_other = sum(desired.values())
-        if desired_other <= available_for_other:
+        desired_phase_total = sum(desired.values())
+        if total >= desired_phase_total:
+            investigate_budget = desired["investigate"]
             render_budget = desired["render"]
             deliver_budget = desired["deliver"]
-            reducer_reserve = desired["reducer_reserve"]
-        elif desired_other <= 0 or available_for_other <= 0:
+            reducer_reserve = min(ARTIFACT_REDUCER_RESERVE_SECONDS, total - desired_phase_total)
+        elif total <= 0:
+            investigate_budget = 0
             render_budget = 0
             deliver_budget = 0
             reducer_reserve = 0
         else:
-            scale = available_for_other / desired_other
-            render_budget = int(desired["render"] * scale)
-            deliver_budget = int(desired["deliver"] * scale)
-            reducer_reserve = int(desired["reducer_reserve"] * scale)
-        investigate_budget = max(1, total - render_budget - deliver_budget - reducer_reserve)
+            scale = total / desired_phase_total
+            investigate_budget = max(1, int(desired["investigate"] * scale))
+            render_budget = max(0, int(desired["render"] * scale))
+            deliver_budget = max(0, int(desired["deliver"] * scale))
+            reducer_reserve = 0
+            overflow = investigate_budget + render_budget + deliver_budget - total
+            if overflow > 0:
+                investigate_budget = max(1, investigate_budget - overflow)
         return {
             "investigate": investigate_budget,
             "render": render_budget,

@@ -5114,7 +5114,7 @@ class HermesRuntimeTests(unittest.TestCase):
             budgets["total"],
         )
 
-    def test_architecture_diagram_render_budget_gets_five_minutes(self) -> None:
+    def test_artifact_phase_budgets_scale_when_total_is_small(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
                 "task": {
@@ -5135,7 +5135,8 @@ class HermesRuntimeTests(unittest.TestCase):
             budgets = runtime._artifact_phase_budgets(task)
 
         self.assertEqual(budgets["total"], 900)
-        self.assertEqual(budgets["render"], 300)
+        self.assertGreater(budgets["investigate"], budgets["deliver"])
+        self.assertEqual(budgets["investigate"], budgets["render"])
         self.assertLessEqual(
             budgets["investigate"] + budgets["render"] + budgets["deliver"] + budgets["reducer_reserve"],
             budgets["total"],
@@ -5144,7 +5145,7 @@ class HermesRuntimeTests(unittest.TestCase):
     def test_explicit_artifact_timeout_can_exceed_default_task_timeout(self) -> None:
         env = {
             **runner_env("prod"),
-            "RSI_RUNNER_PROD_TIMEOUT": "1830s",
+            "RSI_RUNNER_PROD_TIMEOUT": "4110s",
             "RSI_RUNNER_PROD_TASK_TIMEOUT": "900s",
             "RSI_RUNNER_PROD_ARTIFACT_MAX_ITERATIONS": "40",
         }
@@ -5154,7 +5155,7 @@ class HermesRuntimeTests(unittest.TestCase):
                     "task_type": "workflow",
                     "repo": "depin-backend",
                     "prompt": "Render an architecture diagram artifact.",
-                    "timeout_seconds": 1800,
+                    "timeout_seconds": 4080,
                     "requested_skills": ["architecture-diagram"],
                     "requested_artifacts": [{"kind": "diagram", "description": "Architecture diagram"}],
                 }
@@ -5166,13 +5167,13 @@ class HermesRuntimeTests(unittest.TestCase):
         ), mock.patch.dict(os.environ, env, clear=True):
             runtime = HermesRuntime(RunnerConfig.from_env())
 
-        self.assertEqual(runtime._effective_task_timeout(task), 1800)
+        self.assertEqual(runtime._effective_task_timeout(task), 4080)
         self.assertEqual(runtime._phase_max_iterations_override(task), 40)
         budgets = runtime._artifact_phase_budgets(task)
-        self.assertEqual(budgets["total"], 1800)
-        self.assertEqual(budgets["investigate"], 1260)
-        self.assertEqual(budgets["render"], 300)
-        self.assertEqual(budgets["deliver"], 60)
+        self.assertEqual(budgets["total"], 4080)
+        self.assertEqual(budgets["investigate"], 1800)
+        self.assertEqual(budgets["render"], 1800)
+        self.assertEqual(budgets["deliver"], 300)
         self.assertEqual(budgets["reducer_reserve"], 180)
 
     def test_artifact_investigate_task_clears_requested_artifacts(self) -> None:
