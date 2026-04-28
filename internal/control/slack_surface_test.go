@@ -122,12 +122,40 @@ func TestSlackSurfaceAcceptsDirectMessages(t *testing.T) {
 	found := false
 	for _, ingestion := range ingestions {
 		if ingestion.ChannelID == "D123" && ingestion.Text == "can you explain what happened in #ops" {
+			if ingestion.ThreadTS != "" {
+				t.Fatalf("top-level DM should not be forced into a thread, got thread_ts=%q", ingestion.ThreadTS)
+			}
 			found = true
 			break
 		}
 	}
 	if !found {
 		t.Fatal("expected DM ingestion to be present")
+	}
+}
+
+func TestSlackSurfaceIgnoresLowSignalDirectMessages(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	runtime := newSlackSurfaceRuntime(config.Config{SlackAppIdentity: "rsi"}, store)
+	before := len(store.ListIngestions())
+
+	runtime.handleEventsAPIEvent(context.Background(), slackevents.EventsAPIEvent{
+		Type:   slackevents.CallbackEvent,
+		TeamID: "T123",
+		InnerEvent: slackevents.EventsAPIInnerEvent{
+			Type: "message",
+			Data: &slackevents.MessageEvent{
+				Channel:     "D123",
+				ChannelType: "im",
+				User:        "U123",
+				Text:        "\U0001F44D",
+				TimeStamp:   "171000002.000100",
+			},
+		},
+	})
+
+	if got := len(store.ListIngestions()); got != before {
+		t.Fatalf("expected no ingestion for low-signal DM, before=%d after=%d", before, got)
 	}
 }
 

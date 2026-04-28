@@ -315,6 +315,24 @@ func TestRouterConversationCaseAndTraceEndpoints(t *testing.T) {
 		t.Fatal("expected linked_proposals to be a JSON array")
 	}
 
+	pagedReq := httptest.NewRequest(http.MethodGet, "/api/conversations/"+conversationID+"?include=transcript&transcript_limit=1", nil)
+	pagedRec := httptest.NewRecorder()
+	router.ServeHTTP(pagedRec, pagedReq)
+	if pagedRec.Code != http.StatusOK {
+		t.Fatalf("paged conversation detail status = %d, want %d", pagedRec.Code, http.StatusOK)
+	}
+	var pagedPayload map[string]any
+	if err := json.NewDecoder(pagedRec.Body).Decode(&pagedPayload); err != nil {
+		t.Fatalf("decode paged conversation detail: %v", err)
+	}
+	transcript, ok := pagedPayload["transcript"].([]any)
+	if !ok || len(transcript) > 1 {
+		t.Fatalf("expected bounded transcript payload, got %#v", pagedPayload["transcript"])
+	}
+	if traces, ok := pagedPayload["trace_attempts"].([]any); !ok || len(traces) != 0 {
+		t.Fatalf("expected trace attempts to be omitted by include filter, got %#v", pagedPayload["trace_attempts"])
+	}
+
 	caseReq := httptest.NewRequest(http.MethodGet, "/api/cases", nil)
 	caseRec := httptest.NewRecorder()
 	router.ServeHTTP(caseRec, caseReq)

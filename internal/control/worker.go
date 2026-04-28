@@ -49,6 +49,13 @@ type workflowContext struct {
 	ingestion slackpkg.Ingestion
 }
 
+type resolvedWorkflowIntent struct {
+	UserRequest        string
+	PlanningQuestion   string
+	RequestedArtifacts []clients.RunnerRequestedArtifact
+	RequestedSkills    []string
+}
+
 type workflowLocator struct {
 	traceID     string
 	workflowID  string
@@ -364,7 +371,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 			failure.TraceArtifacts = traceArtifactsFromProducedArtifacts(ctx.trace.Summary.TraceID, runnerOutput.ProducedArtifacts)
 			if useLedgerFirst {
 				if ledgerArtifacts := traceArtifactsFromExecutionLedger(ctx.trace.Summary.TraceID, ledgerEvents); len(ledgerArtifacts) > 0 {
-					failure.TraceArtifacts = ledgerArtifacts
+					failure.TraceArtifacts = mergeTraceArtifacts(failure.TraceArtifacts, ledgerArtifacts)
 				}
 			}
 			if len(failure.TraceArtifacts) > 0 {
@@ -405,7 +412,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	traceArtifacts := traceArtifactsFromProducedArtifacts(ctx.trace.Summary.TraceID, runnerOutput.ProducedArtifacts)
 	if useLedgerFirst {
 		if ledgerArtifacts := traceArtifactsFromExecutionLedger(ctx.trace.Summary.TraceID, ledgerEvents); len(ledgerArtifacts) > 0 {
-			traceArtifacts = ledgerArtifacts
+			traceArtifacts = mergeTraceArtifacts(traceArtifacts, ledgerArtifacts)
 		}
 	}
 	artifactRequested := len(runnerTask.RequestedArtifacts) > 0
@@ -433,6 +440,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	allowed, policyVerdict := replyPolicy(store, ctx.workflow.Kind, replyThreadKey, replyChannelID)
 	replyDeliveryMode := clients.NormalizeRunnerReplyDeliveryMode(runnerTask.ReplyDeliveryMode)
 	replyDelivery, hasReplyDelivery := workflowReplyDeliveryProjection(runnerResp.Raw, ledgerEvents, useLedgerFirst, replyChannelID, replyThreadTS, runnerCompleted)
+	replyDeliverySucceeded := hasReplyDelivery && events.SlackDeliveryStatusSucceeded(replyDelivery.SendStatus)
 	if hasReplyDelivery && strings.TrimSpace(replyBody) == "" {
 		replyBody = strings.TrimSpace(replyDelivery.FinalBody)
 	}
@@ -572,10 +580,12 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		}
 		return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner-blocked", ctx.trace.Summary.TraceID))
 	}
-	if replyDeliveryMode == "direct" && strings.TrimSpace(replyBody) != "" && !hasReplyDelivery && strings.TrimSpace(proposedReplyAction.Kind) == "" {
+	if replyDeliveryMode == "direct" && strings.TrimSpace(replyBody) != "" && !replyDeliverySucceeded && strings.TrimSpace(proposedReplyAction.Kind) == "" {
 		summary := "Runner produced a grounded reply but did not report a durable Slack MCP reply_delivery."
 		if !allowed {
 			summary = fmt.Sprintf("Runner produced a grounded reply but Slack posting is blocked by policy: %s.", policyVerdict)
+		} else if hasReplyDelivery {
+			summary = fmt.Sprintf("Runner produced a grounded reply but Slack delivery ended with status %q.", replyDelivery.SendStatus)
 		}
 		finalReasoning = append(finalReasoning, events.ReasoningStep{
 			ID:         fmt.Sprintf("reason-mcp-reply-missing-%d", runnerCompleted.UnixNano()),
@@ -587,16 +597,27 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 			Decision:   "needs_human",
 			CreatedAt:  runnerCompleted,
 		})
-		if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowExecutionNeedsHuman, cfg.ServiceName, runnerCompleted, map[string]any{
+		payload := map[string]any{
 			"last_error":         summary,
-			"failure_class":      "missing_reply_delivery",
+			"failure_class":      map[bool]string{true: "reply_delivery_failed", false: "missing_reply_delivery"}[hasReplyDelivery],
 			"failure_summary":    summary,
 			"runner_diagnostics": runnerDiagnostics,
 			"trace_events":       runnerEvents,
 			"trace_artifacts":    traceArtifacts,
 			"reasoning_steps":    finalReasoning,
 			"tool_calls":         runnerToolCalls,
-		}); err != nil {
+		}
+		if hasReplyDelivery {
+			replyDelivery.TraceID = ctx.trace.Summary.TraceID
+			replyDelivery.WorkflowID = ctx.workflow.ID
+			replyDelivery.ConversationID = ctx.trace.Summary.ConversationID
+			replyDelivery.CaseID = ctx.trace.Summary.CaseID
+			replyDelivery.PolicyVerdict = policyVerdict
+			replyDelivery.ArtifactRefs = uniqueStrings(append(replyDelivery.ArtifactRefs, producedArtifactRefs(runnerOutput.ProducedArtifacts)...))
+			replyDelivery.CreatedAt = runnerCompleted
+			payload["slack_actions"] = []events.SlackActionRecord{replyDelivery}
+		}
+		if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowExecutionNeedsHuman, cfg.ServiceName, runnerCompleted, payload); err != nil {
 			return runnerPostProcessingFailure("submit_workflow_execution_needs_human_missing_reply_delivery", err)
 		}
 		if _, _, err := store.ReconcileWorkflowTrace(ctx.workflow.ID); err != nil {
@@ -604,7 +625,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		}
 		return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner-mcp-needs-human", ctx.trace.Summary.TraceID))
 	}
-	if hasReplyDelivery {
+	if replyDeliverySucceeded {
 		replyDelivery.TraceID = ctx.trace.Summary.TraceID
 		replyDelivery.WorkflowID = ctx.workflow.ID
 		replyDelivery.ConversationID = ctx.trace.Summary.ConversationID
@@ -637,7 +658,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 			CreatedAt:  runnerCompleted,
 		})
 	}
-	if !hasReplyDelivery && strings.TrimSpace(proposedReplyAction.Kind) != "" {
+	if !replyDeliverySucceeded && strings.TrimSpace(proposedReplyAction.Kind) != "" {
 		replyAction, draftEvents, draftReasoning, err = draftSlackPostAction(cfg, store, queueName, ctx, runnerOutput, replyBody, allowed, policyVerdict, completionVerdict, runnerCompleted)
 		if err != nil {
 			return runnerPostProcessingFailure("draft_slack_post_action", err)
@@ -649,7 +670,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	runnerCommand := transition.WorkflowExecutionCompletionCommand(completionVerdict, hasReplyAction)
 	if hasReplyAction {
 		runnerDescription = "Runner returned visible reasoning and an explicit Slack reply action."
-	} else if hasReplyDelivery {
+	} else if replyDeliverySucceeded {
 		runnerDescription = "Runner returned visible reasoning and delivered a Slack reply through Slack MCP."
 	}
 	if completionVerdict == "partial" {
@@ -1095,6 +1116,7 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	recentEntries := recentConversationEntries(store.ListConversationEntries(trace.Summary.ConversationID))
 	priorTraceRefs := priorTraceRefsForCase(store.ListTraces(), trace.Summary.CaseID, trace.Summary.TraceID)
 	sessionScopeKind, sessionScopeID, parentScopeKind, parentScopeID := workflowSessionScope(trace, workflow)
+	resolvedIntent := resolveWorkflowIntent(ingestion, contextRefs, recentEntries)
 	liveHints := workflowplan.BuildLiveHints(workflowplan.RuntimeConfig{
 		DefaultRepo:              cfg.DefaultRepo,
 		AllowedRepos:             append([]string(nil), cfg.AllowedTargetRepos...),
@@ -1108,7 +1130,7 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		CaseID:         workflow.CaseID,
 		WorkflowKind:   workflow.Kind,
 		AssignedBot:    workflow.AssignedBot,
-		Question:       runnerUserRequest(ingestion),
+		Question:       resolvedIntent.PlanningQuestion,
 		ChannelID:      ingestion.ChannelID,
 		ThreadTS:       ingestion.ThreadTS,
 		EntityRefs:     append([]slackpkg.EntityRef(nil), ingestion.EntityRefs...),
@@ -1119,10 +1141,10 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	allowed, _ := replyPolicy(store, workflow.Kind, trace.Summary.ThreadKey, ingestion.ChannelID)
 	mcpServers := workflowMCPServers(cfg, allowed, ingestion.ChannelID, ingestion.ThreadTS)
 	allowedTools := workflowRunnerAllowedTools(liveHints, hasSlackMCPServer(mcpServers), allowed)
-	requestedArtifacts := requestedArtifactsForIngestion(ingestion)
+	requestedArtifacts := resolvedIntent.RequestedArtifacts
 	replyDeliveryMode := workflowReplyDeliveryMode(hasSlackMCPServer(mcpServers), allowed)
-	requestedSkills := workflowplan.RequestedSkillsForPrompt(runnerUserRequest(ingestion), ingestion.Prompt)
-	userRequest := runnerUserRequest(ingestion)
+	requestedSkills := resolvedIntent.RequestedSkills
+	userRequest := resolvedIntent.UserRequest
 	systemMessage := harness.ComposeSystemMessage(
 		workflowRunnerSystemMessage(hasSlackMCPServer(mcpServers), hasNotionMCPServer(mcpServers), replyDeliveryMode, requestedArtifacts),
 		effectiveHarness,
@@ -1267,7 +1289,7 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliv
 		if len(requestedArtifacts) > 0 {
 			parts = append(parts, "Artifact production was requested. If you produce one, include it in produced_artifacts. If you cannot, set artifact_failure_reason and still provide the best grounded reply.")
 		}
-		parts = append(parts, "Use governed repo, GitHub, knowledge, RSI, and workspace tools for non-Slack evidence.", "Use slack.upload_file when you need to attach a generated file to the bound Slack thread; Slack MCP send_message is text-only.", "If you have a grounded final answer, send exactly one Slack reply to the bound ingress thread using Slack MCP, then return the JSON object.", "Do not emit a slack_post action contract.", "Include reply_delivery describing the direct Slack delivery with status, channel_id, thread_ts, body, tool_call_id, tool_name, provider_ref, and message_link.")
+		parts = append(parts, "Use governed repo, GitHub, knowledge, RSI, and workspace tools for non-Slack evidence.", "Use slack.upload_file when you need to attach a generated file to the bound Slack delivery target; Slack MCP send_message is text-only.", "If you have a grounded final answer, send exactly one Slack reply to the bound delivery target using Slack MCP, then return the JSON object.", "Do not emit a slack_post action contract.", "Include reply_delivery describing the direct Slack delivery with status, channel_id, thread_ts when a thread exists, body, tool_call_id, tool_name, provider_ref, and message_link.")
 		return strings.Join(parts, " ")
 	}
 	parts := []string{
@@ -1493,8 +1515,8 @@ func workflowReplyDelivery(raw map[string]any, fallbackChannelID string, fallbac
 			return events.SlackActionRecord{}, false
 		}
 	}
-	if len(mapValue(raw["execution_envelope"])) > 0 && !slackDeliveryStatusSucceeded(record.SendStatus) {
-		return events.SlackActionRecord{}, false
+	if len(mapValue(raw["execution_envelope"])) > 0 && !events.SlackDeliveryStatusSucceeded(record.SendStatus) {
+		return record, true
 	}
 	return record, true
 }
@@ -1511,15 +1533,14 @@ func workflowReplyDeliveryProjection(raw map[string]any, ledgerEvents []events.E
 }
 
 func workflowReplyDeliveryFromExecutionLedger(items []events.ExecutionLedgerEvent, fallbackChannelID string, fallbackThreadTS string, createdAt time.Time) (events.SlackActionRecord, bool) {
+	var latestAttempt events.SlackActionRecord
+	hasLatestAttempt := false
 	for i := len(items) - 1; i >= 0; i-- {
 		item := items[i]
 		if !strings.HasPrefix(strings.TrimSpace(item.Kind), "slack.") {
 			continue
 		}
 		status := firstNonEmpty(strings.TrimSpace(item.Status), strings.TrimSpace(stringValueFromMap(item.Payload, "send_status")), strings.TrimSpace(stringValueFromMap(item.Payload, "status")))
-		if !slackDeliveryStatusSucceeded(status) {
-			continue
-		}
 		record := slackActionRecordFromDeliveryMap(item.Payload, fallbackChannelID, fallbackThreadTS, createdAt)
 		record.ID = firstNonEmpty(record.ID, item.ID)
 		record.IdempotencyKey = firstNonEmpty(record.IdempotencyKey, item.IdempotencyKey, item.ID)
@@ -1531,7 +1552,17 @@ func workflowReplyDeliveryFromExecutionLedger(items []events.ExecutionLedgerEven
 			strings.TrimSpace(stringValueFromMap(item.Payload, "message_link")) == "" {
 			continue
 		}
+		if !events.SlackDeliveryStatusSucceeded(status) {
+			if !hasLatestAttempt {
+				latestAttempt = record
+				hasLatestAttempt = true
+			}
+			continue
+		}
 		return record, true
+	}
+	if hasLatestAttempt {
+		return latestAttempt, true
 	}
 	return events.SlackActionRecord{}, false
 }
@@ -1555,15 +1586,6 @@ func slackActionRecordFromDeliveryMap(item map[string]any, fallbackChannelID str
 		SendStatus:     status,
 		ArtifactRefs:   append([]string(nil), stringSliceFromMap(item, "artifact_refs")...),
 		CreatedAt:      createdAt,
-	}
-}
-
-func slackDeliveryStatusSucceeded(status string) bool {
-	switch strings.ToLower(strings.TrimSpace(status)) {
-	case "posted", "sent", "uploaded", "completed", "ok", "success", "shared":
-		return true
-	default:
-		return false
 	}
 }
 
@@ -1744,8 +1766,48 @@ func requestedArtifactsForPrompt(userRequest string, prompt any) []clients.Runne
 	return out
 }
 
-func requestedArtifactsForIngestion(ingestion slackpkg.Ingestion) []clients.RunnerRequestedArtifact {
-	return requestedArtifactsForPrompt(runnerUserRequest(ingestion), ingestion.Prompt)
+func resolveWorkflowIntent(ingestion slackpkg.Ingestion, contextRefs []clients.RunnerContextRef, recentEntries []clients.RunnerConversationEntry) resolvedWorkflowIntent {
+	userRequest := runnerUserRequest(ingestion)
+	contextText := workflowIntentContextText(contextRefs, recentEntries)
+	planningQuestion := strings.TrimSpace(userRequest)
+	if strings.TrimSpace(contextText) != "" {
+		planningQuestion = strings.TrimSpace(strings.Join(nonEmptyStrings(planningQuestion, contextText), "\n\n"))
+	}
+	requestedArtifacts := requestedArtifactsForPrompt(planningQuestion, ingestion.Prompt)
+	requestedSkills := workflowplan.RequestedSkillsForPrompt(planningQuestion, ingestion.Prompt)
+	requestedSkills = impliedSkillsForRequestedArtifacts(requestedSkills, requestedArtifacts)
+	return resolvedWorkflowIntent{
+		UserRequest:        userRequest,
+		PlanningQuestion:   firstNonEmpty(planningQuestion, userRequest),
+		RequestedArtifacts: requestedArtifacts,
+		RequestedSkills:    requestedSkills,
+	}
+}
+
+func workflowIntentContextText(contextRefs []clients.RunnerContextRef, recentEntries []clients.RunnerConversationEntry) string {
+	parts := make([]string, 0, len(contextRefs)+len(recentEntries))
+	for _, ref := range contextRefs {
+		if ref.Source == "prefetched_slack_thread" || (ref.Kind == "tool_call" && ref.ToolName == "slack.history") {
+			parts = append(parts, strings.TrimSpace(ref.Summary))
+		}
+	}
+	for _, entry := range recentEntries {
+		if strings.TrimSpace(entry.Body) == "" {
+			continue
+		}
+		parts = append(parts, fmt.Sprintf("%s: %s", firstNonEmpty(entry.ActorType, "participant"), strings.TrimSpace(entry.Body)))
+	}
+	return strings.Join(nonEmptyStrings(parts...), "\n")
+}
+
+func impliedSkillsForRequestedArtifacts(skills []string, artifacts []clients.RunnerRequestedArtifact) []string {
+	out := append([]string{}, skills...)
+	for _, artifact := range artifacts {
+		if strings.EqualFold(strings.TrimSpace(artifact.Kind), "diagram") {
+			out = append(out, "architecture-diagram")
+		}
+	}
+	return uniqueStrings(out)
 }
 
 func workflowArtifactTimeoutSeconds(cfg config.Config, role string, artifacts []clients.RunnerRequestedArtifact, requestedSkills []string) int {
@@ -1900,6 +1962,26 @@ func traceArtifactsFromProducedArtifacts(traceID string, items []runnerutil.Prod
 				SizeBytes:   item.SizeBytes,
 				Source:      "runner",
 			})
+		}
+	}
+	return out
+}
+
+func mergeTraceArtifacts(groups ...[]events.Artifact) []events.Artifact {
+	out := make([]events.Artifact, 0)
+	seen := map[string]struct{}{}
+	for _, group := range groups {
+		for _, item := range group {
+			key := storepkg.TraceArtifactDedupKey(item)
+			if key == "" {
+				out = append(out, item)
+				continue
+			}
+			if _, ok := seen[key]; ok {
+				continue
+			}
+			seen[key] = struct{}{}
+			out = append(out, item)
 		}
 	}
 	return out
@@ -3024,10 +3106,9 @@ func liveHintContextRefs(hints workflowplan.LiveHintSet) []clients.RunnerContext
 	}
 	for _, toolName := range uniqueStrings(hints.PreferredTools) {
 		refs = append(refs, clients.RunnerContextRef{
-			Kind:     "preferred_tool_hint",
-			Ref:      toolName,
-			ToolName: toolName,
-			Summary:  fmt.Sprintf("Suggested starting tool: %s.", toolName),
+			Kind:    "preferred_tool_hint",
+			Ref:     toolName,
+			Summary: fmt.Sprintf("Suggested starting tool: %s.", toolName),
 		})
 	}
 	if len(hints.KubernetesReadNamespaces) > 0 {
@@ -3232,15 +3313,25 @@ func traceArtifactsFromExecutionLedger(traceID string, items []events.ExecutionL
 	}
 	produced := make([]runnerutil.ProducedArtifact, 0)
 	for _, item := range items {
-		if item.Kind != "artifact.created" && item.Kind != "file.written" {
+		if item.Kind != "artifact.created" && item.Kind != "artifact.manifest" && item.Kind != "artifact.rendered" && item.Kind != "artifact.file.written" && item.Kind != "file.written" {
 			continue
 		}
 		payload := item.Payload
 		refs := stringSliceFromMap(payload, "artifact_refs")
 		fileRef := strings.TrimSpace(stringValueFromMap(payload, "file_ref"))
 		workspacePath := strings.TrimSpace(stringValueFromMap(payload, "workspace_path"))
+		sourcePath := strings.TrimSpace(stringValueFromMap(payload, "source_path"))
+		renderedPath := strings.TrimSpace(stringValueFromMap(payload, "rendered_path"))
+		previewPath := strings.TrimSpace(stringValueFromMap(payload, "preview_path"))
+		url := strings.TrimSpace(stringValueFromMap(payload, "url"))
 		if len(refs) == 0 && fileRef != "" {
 			refs = []string{fileRef}
+		}
+		for _, path := range []string{renderedPath, previewPath, sourcePath, url} {
+			if strings.TrimSpace(path) == "" {
+				continue
+			}
+			refs = append(refs, path)
 		}
 		if len(refs) == 0 && workspacePath != "" {
 			refs = []string{"file://" + workspacePath}
@@ -3255,7 +3346,7 @@ func traceArtifactsFromExecutionLedger(traceID string, items []events.ExecutionL
 			SizeBytes:     int64Value(payload["size_bytes"]),
 			SHA256:        strings.TrimSpace(stringValueFromMap(payload, "sha256")),
 			ShareStatus:   strings.TrimSpace(stringValueFromMap(payload, "share_status")),
-			WorkspacePath: workspacePath,
+			WorkspacePath: firstNonEmpty(workspacePath, renderedPath, previewPath, sourcePath),
 		})
 	}
 	return traceArtifactsFromProducedArtifacts(traceID, produced)

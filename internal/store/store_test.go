@@ -250,6 +250,15 @@ func findEvalRunForReceipt(store interface {
 	return evals.Run{}, nil, false
 }
 
+func hasFailedJudgmentCategory(judgments []evals.Judgment, category string) bool {
+	for _, judgment := range judgments {
+		if judgment.Category == category && !judgment.Passed {
+			return true
+		}
+	}
+	return false
+}
+
 func loadPromotionResultForReceipt(store interface {
 	ListDomainEvents() []transition.DomainEvent
 	GetProposalSlots() ProposalSlotState
@@ -1977,6 +1986,51 @@ func TestEvaluateTraceRuntimeFailureCreatesRootCauseCandidate(t *testing.T) {
 	}
 	if !strings.Contains(candidate.Hypothesis, "action result") {
 		t.Fatalf("expected hypothesis to mention action result failure, got %q", candidate.Hypothesis)
+	}
+}
+
+func TestEvaluateTraceRoutesDeliveryFailureSeparately(t *testing.T) {
+	store := NewMemoryStore()
+	traceID := store.ListTraces()[0].TraceID
+	trace, ok := store.GetTrace(traceID)
+	if !ok {
+		t.Fatalf("expected trace %s", traceID)
+	}
+	now := time.Now().UTC()
+	if receipt := submitProblemLineCommandForTest(t, store, traceID, transition.CommandProblemLineProjectTrace, "cmd-problem-line-project-delivery-failure", "tester", now, map[string]any{
+		"trace_id":        traceID,
+		"trace_status":    string(events.StatusNeedsHuman),
+		"workflow_status": "needs-human",
+		"workflow_error":  "Slack delivery ended with channel_not_found",
+		"slack_actions": []events.SlackActionRecord{{
+			ID:             "mcp-send-1",
+			TraceID:        trace.Summary.TraceID,
+			WorkflowID:     trace.Summary.WorkflowID,
+			ConversationID: trace.Summary.ConversationID,
+			CaseID:         trace.Summary.CaseID,
+			ChannelID:      "D123",
+			ThreadTS:       "171000002.000100",
+			IdempotencyKey: "delivery-sha1",
+			FinalBody:      "Final reply.",
+			SendStatus:     "channel_not_found",
+			CreatedAt:      now,
+		}},
+	}); receipt.DecisionKind != transition.DecisionAdvance {
+		t.Fatalf("expected advance receipt, got %+v", receipt)
+	}
+
+	evalReceipt := submitProblemLineCommandForTest(t, store, traceID, transition.CommandProblemLineEvaluateTrace, "cmd-problem-line-evaluate-delivery-failure", "tester", now.Add(time.Second), map[string]any{
+		"trigger": "test",
+	})
+	_, judgments, ok := findEvalRunForReceipt(store, evalReceipt)
+	if !ok {
+		t.Fatalf("expected eval run %s", evalReceipt.ResultRef)
+	}
+	if !hasFailedJudgmentCategory(judgments, "delivery_reliability") {
+		t.Fatalf("expected failed delivery_reliability judgment, got %#v", judgments)
+	}
+	if hasFailedJudgmentCategory(judgments, "architecture_health") {
+		t.Fatalf("delivery failure should not create architecture failure, got %#v", judgments)
 	}
 }
 

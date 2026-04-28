@@ -419,6 +419,19 @@ func (s *MemoryStore) ListConversationEntries(conversationID string) []conversat
 	return out
 }
 
+func (s *MemoryStore) ListConversationEntriesPage(conversationID string, opts ConversationEntryPageOptions) ConversationEntryPage {
+	entries := s.ListConversationEntries(conversationID)
+	limit := opts.Limit
+	if limit <= 0 {
+		return ConversationEntryPage{Entries: entries, Limit: limit, HasMore: false}
+	}
+	hasMore := len(entries) > limit
+	if hasMore {
+		entries = entries[:limit]
+	}
+	return ConversationEntryPage{Entries: entries, Limit: limit, HasMore: hasMore}
+}
+
 func (s *MemoryStore) ListCases() []conversation.Case {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -806,7 +819,7 @@ func (s *MemoryStore) materializeWorkflowLocked(event ingestion.EventEnvelope) {
 	if userID == "" {
 		userID = "system"
 	}
-	if threadTS == "" {
+	if threadTS == "" && !strings.HasPrefix(channelID, "D") {
 		threadTS = event.SourceEventID
 	}
 
@@ -1509,7 +1522,7 @@ func (s *MemoryStore) applyTraceUpdateLocked(traceID string, update TraceUpdate)
 		trace.Summary.LastVerdict = *update.LastVerdict
 	}
 	trace.Events = append(trace.Events, update.Events...)
-	trace.Artifacts = append(trace.Artifacts, update.Artifacts...)
+	trace.Artifacts = appendTraceArtifacts(trace.Artifacts, update.Artifacts)
 	trace.Reasoning = append(trace.Reasoning, update.Reasoning...)
 	trace.ToolCalls = append(trace.ToolCalls, update.ToolCalls...)
 	trace.SlackActions = append(trace.SlackActions, update.SlackActions...)
@@ -1538,6 +1551,43 @@ func (s *MemoryStore) applyTraceUpdateLocked(traceID string, update TraceUpdate)
 		}
 	}
 	return trace, nil
+}
+
+func appendTraceArtifacts(existing []events.Artifact, incoming ...[]events.Artifact) []events.Artifact {
+	out := append([]events.Artifact{}, existing...)
+	seen := map[string]struct{}{}
+	for _, item := range out {
+		key := TraceArtifactDedupKey(item)
+		if key == "" {
+			continue
+		}
+		seen[key] = struct{}{}
+	}
+	for _, group := range incoming {
+		for _, item := range group {
+			key := TraceArtifactDedupKey(item)
+			if key == "" {
+				out = append(out, item)
+				continue
+			}
+			if _, ok := seen[key]; ok {
+				continue
+			}
+			seen[key] = struct{}{}
+			out = append(out, item)
+		}
+	}
+	return out
+}
+
+func TraceArtifactDedupKey(item events.Artifact) string {
+	if strings.TrimSpace(item.ID) != "" {
+		return strings.TrimSpace(item.ID)
+	}
+	if strings.TrimSpace(item.URL) != "" {
+		return strings.TrimSpace(item.Kind) + "|" + strings.TrimSpace(item.URL)
+	}
+	return ""
 }
 
 func isTerminalTraceStatusValue(status events.Status) bool {
@@ -1609,7 +1659,7 @@ func (s *MemoryStore) buildJudgments(trace events.Trace, event *ingestion.EventE
 	judgments = append(judgments, evals.Judgment{
 		ID:        nextID("judge", 1+len(judgments)),
 		Layer:     evals.LayerDeterministic,
-		Category:  "policy_and_reliability",
+		Category:  "state_accounting",
 		Score:     deterministicScore,
 		Passed:    deterministicScore >= 0.7,
 		Rationale: deterministicReason,
@@ -1629,27 +1679,66 @@ func (s *MemoryStore) buildJudgments(trace events.Trace, event *ingestion.EventE
 		taskScore = 0.58
 		taskReason = "High-severity event without strong evidence of a complete remediation."
 	}
-	if artifactRequestedByEvent(event) && !traceHasUserFacingArtifact(trace) {
-		if taskScore > 0.62 {
-			taskReason = "The user requested an artifact deliverable, but the trace did not record a produced artifact."
-		}
-		taskScore = minFloat(taskScore, 0.62)
-	}
 	judgments = append(judgments, evals.Judgment{
 		ID:        nextID("judge", 1+len(judgments)),
 		Layer:     evals.LayerTaskQuality,
-		Category:  "task_quality",
+		Category:  "reasoning_quality",
 		Score:     taskScore,
 		Passed:    taskScore >= 0.7,
 		Rationale: taskReason,
 		CreatedAt: now,
 	})
 
+	artifactScore := 0.82
+	artifactReason := "No required artifact deliverable was missing."
+	if artifactRequestedByEvent(event) {
+		if traceHasUserFacingArtifact(trace) {
+			artifactReason = "Requested artifact deliverable was recorded on the trace."
+		} else {
+			artifactScore = 0.42
+			artifactReason = "The user requested an artifact deliverable, but the trace did not record a produced artifact."
+		}
+	}
+	judgments = append(judgments, evals.Judgment{
+		ID:        nextID("judge", 1+len(judgments)),
+		Layer:     evals.LayerTaskQuality,
+		Category:  "artifact_quality",
+		Score:     artifactScore,
+		Passed:    artifactScore >= 0.7,
+		Rationale: artifactReason,
+		CreatedAt: now,
+	})
+
+	deliveryScore := 0.84
+	deliveryReason := "No failed user-visible delivery was recorded."
+	if traceHasFailedSlackDelivery(trace) {
+		deliveryScore = 0.25
+		deliveryReason = "The workflow produced a reply but Slack delivery failed or was not durably accounted for."
+	} else if traceHasSuccessfulSlackDelivery(trace) {
+		deliveryReason = "Slack delivery completed and was durably recorded."
+	} else if trace.Summary.Status == events.StatusNeedsHuman || trace.Summary.Status == events.StatusFailed {
+		deliveryScore = 0.5
+		deliveryReason = "Workflow did not reach a user-visible delivery terminal state."
+	}
+	judgments = append(judgments, evals.Judgment{
+		ID:        nextID("judge", 1+len(judgments)),
+		Layer:     evals.LayerDeterministic,
+		Category:  "delivery_reliability",
+		Score:     deliveryScore,
+		Passed:    deliveryScore >= 0.7,
+		Rationale: deliveryReason,
+		CreatedAt: now,
+	})
+
 	architectureScore := 0.8
 	architectureReason := "Architecture boundary and recursive improvement controls look healthy."
-	if hasRuntimeFailure {
+	if hasRuntimeFailure && (runtimeFailure.Subsystem == "delivery" || runtimeFailure.FailureMode == "state_accounting_after_delivery") {
+		architectureReason = "Architecture score held neutral because the failure belongs to delivery/state accounting, not reasoning architecture."
+	} else if hasRuntimeFailure {
 		architectureScore = 0.24
 		architectureReason = fmt.Sprintf("Trace evidence points to an RSI %s runtime failure: %s.", runtimeFailure.Subsystem, runtimeFailure.FailureMode)
+	} else if traceHasFailedSlackDelivery(trace) {
+		architectureReason = "Architecture score held neutral because the failure belongs to delivery reliability."
 	} else if event != nil && event.OwnershipHint == "platform" && (containsAny(event.NormalizedProblemStatement, []string{"proposal", "eval", "closed-loop", "architecture"}) || event.Source == ingestion.SourceSentry) {
 		architectureScore = 0.54
 		architectureReason = "Platform-level event suggests architectural debt or missing self-improvement guardrails."
@@ -1779,7 +1868,7 @@ func (s *MemoryStore) updateCandidateLocked(trace events.Trace, event *ingestion
 	candidate.NewEvidenceSinceLastRejection = hasNewEvidenceSinceLastRejection(s.proposalMemory, candidate.CandidateKey, run.CreatedAt, candidate.RecurrenceCount)
 	candidate.LastEvaluatedAt = now
 	candidate.UpdatedAt = now
-	if candidate.RecurrenceCount >= 2 || run.OverallScore < 0.65 {
+	if candidate.RecurrenceCount >= 2 || run.OverallScore < 0.65 || hasSevereFailedJudgment(judgments) {
 		candidate.Status = improvement.CandidateQueued
 	} else {
 		candidate.Status = improvement.CandidateNeedsEvidence
@@ -1792,6 +1881,15 @@ func (s *MemoryStore) updateCandidateLocked(trace events.Trace, event *ingestion
 		candidate.PriorityScore *= 0.4
 	}
 	s.candidates[key] = candidate
+}
+
+func hasSevereFailedJudgment(judgments []evals.Judgment) bool {
+	for _, judgment := range judgments {
+		if !judgment.Passed && judgment.Score <= 0.5 {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *MemoryStore) candidateKeyForTrace(trace events.Trace, event *ingestion.EventEnvelope) string {
@@ -1928,6 +2026,14 @@ func (s *MemoryStore) runtimeFailureFromWorkflowAttempts(trace events.Trace) (ru
 				ProposedScope: "runner + control-plane + improvement-plane",
 			}, true
 		case failureClass == "runner_missing_structured_output":
+			if traceHasUserFacingArtifact(trace) || traceHasSuccessfulSlackDelivery(trace) {
+				return runtimeFailureEvidence{
+					Subsystem:     "control-plane",
+					FailureMode:   "state_accounting_after_delivery",
+					Hypothesis:    "Reconcile terminal workflow state from durable artifact manifests and delivery receipts before scoring the parent runner response as failed.",
+					ProposedScope: "control-plane + shared-store",
+				}, true
+			}
 			return runtimeFailureEvidence{
 				Subsystem:     "runner",
 				FailureMode:   "runner_missing_structured_output",
@@ -1947,6 +2053,13 @@ func (s *MemoryStore) runtimeFailureFromWorkflowAttempts(trace events.Trace) (ru
 				FailureMode:   "runner_transport_timeout",
 				Hypothesis:    "Treat runner transport timeouts as terminal runtime evidence with explicit diagnostics so the platform can distinguish network failures from model-output problems.",
 				ProposedScope: "runner + control-plane",
+			}, true
+		case failureClass == "reply_delivery_failed" || failureClass == "missing_reply_delivery" || failureClass == "runner_reply_delivery_uncertain":
+			return runtimeFailureEvidence{
+				Subsystem:     "delivery",
+				FailureMode:   failureClass,
+				Hypothesis:    "Treat Slack delivery attempts and provider errors as first-class receipts so failed DM/channel delivery routes create targeted delivery reliability pressure.",
+				ProposedScope: "control-plane + tool-gateway",
 			}, true
 		case failureClass == "runner_partial_completion_unrecoverable":
 			return runtimeFailureEvidence{
@@ -2210,6 +2323,28 @@ func traceHasUserFacingArtifact(trace events.Trace) bool {
 	}
 	for _, action := range trace.SlackActions {
 		if len(action.ArtifactRefs) > 0 {
+			return true
+		}
+	}
+	return false
+}
+
+func traceHasSuccessfulSlackDelivery(trace events.Trace) bool {
+	for _, action := range trace.SlackActions {
+		if events.SlackDeliveryStatusSucceeded(action.SendStatus) {
+			return true
+		}
+	}
+	return false
+}
+
+func traceHasFailedSlackDelivery(trace events.Trace) bool {
+	for _, action := range trace.SlackActions {
+		status := strings.TrimSpace(action.SendStatus)
+		if status == "" {
+			continue
+		}
+		if !events.SlackDeliveryStatusSucceeded(status) {
 			return true
 		}
 	}
@@ -2509,7 +2644,7 @@ func targetLayerForCandidate(trace events.Trace, subsystem, failureMode, interve
 		return harness.TargetLayerHarnessOverlay
 	case strings.TrimSpace(trace.Summary.WorkflowKind) == "proposal":
 		return harness.TargetLayerPlatformRuntime
-	case strings.TrimSpace(subsystem) == "control-plane", strings.TrimSpace(subsystem) == "improvement-plane", strings.TrimSpace(subsystem) == "shared-store", strings.TrimSpace(subsystem) == "tool-gateway":
+	case strings.TrimSpace(subsystem) == "control-plane", strings.TrimSpace(subsystem) == "improvement-plane", strings.TrimSpace(subsystem) == "shared-store", strings.TrimSpace(subsystem) == "tool-gateway", strings.TrimSpace(subsystem) == "delivery":
 		return harness.TargetLayerRepoChange
 	default:
 		return harness.TargetLayerRepoChange

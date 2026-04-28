@@ -1,6 +1,9 @@
 package events
 
-import "time"
+import (
+	"strings"
+	"time"
+)
 
 type Status string
 
@@ -146,4 +149,14 @@ type Trace struct {
 	Reasoning    []ReasoningStep     `json:"reasoning"`
 	ToolCalls    []ToolCallRecord    `json:"tool_calls"`
 	SlackActions []SlackActionRecord `json:"slack_actions"`
+}
+
+// SlackDeliveryStatusSucceeded returns true if the status indicates a successful delivery.
+func SlackDeliveryStatusSucceeded(status string) bool {
+	switch strings.ToLower(strings.TrimSpace(status)) {
+	case "posted", "sent", "uploaded", "completed", "ok", "success", "shared":
+		return true
+	default:
+		return false
+	}
 }

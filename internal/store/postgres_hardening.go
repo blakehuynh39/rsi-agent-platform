@@ -459,7 +459,7 @@ func (p *PostgresStore) createIngestionDirect(envelope slack.SlackEnvelope) (cre
 		if userID == "" {
 			userID = "system"
 		}
-		if threadTS == "" {
+		if threadTS == "" && !strings.HasPrefix(channelID, "D") {
 			threadTS = event.SourceEventID
 		}
 		externalKey := conversationKeyForEvent(event)

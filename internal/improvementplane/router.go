@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -32,7 +33,8 @@ func newRouterWithTranscriptResolver(cfg config.Config, store storepkg.Repositor
 	})
 	r.Get("/api/conversations/{conversationID}", func(w http.ResponseWriter, r *http.Request) {
 		conversationID := chi.URLParam(r, "conversationID")
-		payload, ok := buildConversationDetail(store, conversationID)
+		opts := conversationDetailOptionsFromRequest(r)
+		payload, ok := buildConversationDetailWithOptions(store, conversationID, opts)
 		if !ok {
 			app.WriteError(w, http.StatusNotFound, errors.New("conversation not found"))
 			return
@@ -457,6 +459,27 @@ func sliceOrEmpty[T any](items []T) []T {
 		return []T{}
 	}
 	return items
+}
+
+func conversationDetailOptionsFromRequest(r *http.Request) conversationDetailOptions {
+	values := r.URL.Query()
+	includes := map[string]bool{}
+	for _, raw := range values["include"] {
+		for _, item := range strings.Split(raw, ",") {
+			item = strings.TrimSpace(item)
+			if item == "" {
+				continue
+			}
+			includes[item] = true
+		}
+	}
+	limit := 0
+	if raw := strings.TrimSpace(values.Get("transcript_limit")); raw != "" {
+		if parsed, err := strconv.Atoi(raw); err == nil && parsed > 0 {
+			limit = parsed
+		}
+	}
+	return conversationDetailOptions{Includes: includes, TranscriptLimit: limit}
 }
 
 func normalizeProposalSlots(state storepkg.ProposalSlotState) storepkg.ProposalSlotState {

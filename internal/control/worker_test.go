@@ -3340,6 +3340,67 @@ func TestWorkflowEmptyReplyDeliveryMovesNeedsHuman(t *testing.T) {
 	}
 }
 
+func TestWorkflowFailedReplyDeliveryPersistsSlackAction(t *testing.T) {
+	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":       true,
+			"provider": "openai",
+			"message":  `{"visible_reasoning":[],"reply_draft":"Final reply.","final_answer":"Final reply.","confidence":0.71,"context_summary":"Grounded answer.","self_critique":"","proposed_actions":[],"reply_delivery":{"channel_id":"D123","thread_ts":"171000002.000100","body":"Final reply.","body_sha1":"delivery-sha1","tool_call_id":"mcp-send-1","send_status":"channel_not_found"},"knowledge_drafts":[],"outcome_hypotheses":[]}`,
+			"raw": map[string]any{
+				"structured_output": map[string]any{
+					"visible_reasoning":  []any{},
+					"reply_draft":        "Final reply.",
+					"final_answer":       "Final reply.",
+					"confidence":         0.71,
+					"context_summary":    "Grounded answer.",
+					"self_critique":      "",
+					"proposed_actions":   []any{},
+					"reply_delivery":     map[string]any{"channel_id": "D123", "thread_ts": "171000002.000100", "body": "Final reply.", "body_sha1": "delivery-sha1", "tool_call_id": "mcp-send-1", "send_status": "channel_not_found"},
+					"knowledge_drafts":   []any{},
+					"outcome_hypotheses": []any{},
+				},
+			},
+		})
+	}))
+	defer runner.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             runner.URL,
+		ToolGatewayBaseURL:        "http://unused.invalid",
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{"prod": clients.NewRunnerClient(cfg.RunnerBaseURL)}, runnerEffect); err != nil {
+		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
+	}
+
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatal("expected workflow to exist")
+	}
+	if workflow.Status != "needs_human" || workflow.FailureClass != "reply_delivery_failed" {
+		t.Fatalf("expected reply delivery failure needs_human workflow, got %#v", workflow)
+	}
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatal("expected trace to exist")
+	}
+	if len(trace.SlackActions) != 1 || trace.SlackActions[0].SendStatus != "channel_not_found" {
+		t.Fatalf("expected failed delivery Slack action to persist, got %#v", trace.SlackActions)
+	}
+}
+
 func TestWorkflowNativeMCPReplyDeliveryUncertainMovesNeedsHuman(t *testing.T) {
 	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(w).Encode(map[string]any{
@@ -4953,6 +5014,44 @@ func TestBuildRunnerTaskUsesConfiguredTimeoutAndSlackBinding(t *testing.T) {
 	}
 }
 
+func TestBuildRunnerTaskAllowsTopLevelDirectMessageDelivery(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatalf("expected trace %s", workflowItem.traceID)
+	}
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatalf("expected workflow %s", workflowItem.workflowID)
+	}
+	ingestion, ok := findIngestion(store.ListIngestions(), workflowItem.ingestionID)
+	if !ok {
+		t.Fatalf("expected ingestion %s", workflowItem.ingestionID)
+	}
+	ingestion.ChannelID = "D123"
+	ingestion.ThreadTS = ""
+
+	task := buildRunnerTask(config.Config{
+		Environment:               "stage",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultReasoningVerbosity: "verbose",
+	}, store, "prod", trace, workflow, ingestion, "context", nil)
+
+	if task.ThreadTS != "" {
+		t.Fatalf("top-level DM task should not invent thread ts, got %q", task.ThreadTS)
+	}
+	if task.DeliveryPolicy == nil {
+		t.Fatal("expected delivery policy")
+	}
+	if task.DeliveryPolicy.BoundChannelID != "D123" || task.DeliveryPolicy.BoundThreadTS != "" {
+		t.Fatalf("expected channel-only DM delivery policy, got %#v", task.DeliveryPolicy)
+	}
+	if task.DeliveryPolicy.TargetSurface != "direct_message" {
+		t.Fatalf("expected direct_message target surface, got %#v", task.DeliveryPolicy)
+	}
+}
+
 func TestBuildRunnerTaskBoundsNativeMCPToolSurface(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
@@ -5254,7 +5353,7 @@ func TestBuildRunnerTaskUsesPromptEnvelopeForArtifactDetection(t *testing.T) {
 	}
 }
 
-func TestBuildRunnerTaskDoesNotAutoRequestArchitectureSkillFromDiagramIntent(t *testing.T) {
+func TestBuildRunnerTaskUsesBoundThreadContextForArtifactDetection(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
 	trace, ok := store.GetTrace(workflowItem.traceID)
@@ -5265,13 +5364,18 @@ func TestBuildRunnerTaskDoesNotAutoRequestArchitectureSkillFromDiagramIntent(t *
 	if !ok {
 		t.Fatalf("expected workflow %s", workflowItem.workflowID)
 	}
-	workflow.Kind = "architecture"
-	workflow.Intent = "system-diagram"
 	ingestion, ok := findIngestion(store.ListIngestions(), workflowItem.ingestionID)
 	if !ok {
 		t.Fatalf("expected ingestion %s", workflowItem.ingestionID)
 	}
-	ingestion.Text = "@RSI can you draw the system architecture for depin-backend?"
+	ingestion.Text = "@RSI can you help with the above"
+	contextRefs := []clients.RunnerContextRef{{
+		ToolName:  "slack.history",
+		Source:    "prefetched_slack_thread",
+		ChannelID: ingestion.ChannelID,
+		ThreadTS:  ingestion.ThreadTS,
+		Summary:   "Bound Slack thread history: Blake: @RSI can you draw an architecture diagram of depin-backend? Use /architecture-diagram skill | Blake: @RSI can you help with the above",
+	}}
 
 	task := buildRunnerTask(config.Config{
 		Environment:               "stage",
@@ -5280,10 +5384,19 @@ func TestBuildRunnerTaskDoesNotAutoRequestArchitectureSkillFromDiagramIntent(t *
 		DefaultKnowledgeBaseURL:   "https://example.test/kb",
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
-	}, store, "prod", trace, workflow, ingestion, "context", nil)
+	}, store, "prod", trace, workflow, ingestion, "context", contextRefs)
 
-	if len(task.RequestedSkills) != 0 {
-		t.Fatalf("expected no automatic architecture-diagram skill hint, got %#v", task.RequestedSkills)
+	if len(task.RequestedArtifacts) != 1 || task.RequestedArtifacts[0].Kind != "diagram" {
+		t.Fatalf("expected bound thread context to request a diagram artifact, got %#v", task.RequestedArtifacts)
+	}
+	if !containsString(task.RequestedSkills, "architecture-diagram") {
+		t.Fatalf("expected bound thread context to request architecture-diagram, got %#v", task.RequestedSkills)
+	}
+	if !strings.Contains(task.ExecutionIntent["user_request"].(string), "help with the above") {
+		t.Fatalf("expected user request to remain the triggering message, got %#v", task.ExecutionIntent)
+	}
+	if !strings.Contains(task.Prompt, "help with the above") {
+		t.Fatalf("expected prompt to include triggering request, got %q", task.Prompt)
 	}
 }
 
@@ -5334,6 +5447,32 @@ func TestTraceArtifactsFromProducedArtifactsKeepsEachRefURL(t *testing.T) {
 	for _, expected := range []string{"hermes-file://workspace/company/diagram.html", "slack://file/F123", "file:///workspace/company/diagram.html"} {
 		if !urlSet[expected] {
 			t.Fatalf("missing artifact URL %q in %#v", expected, artifacts)
+		}
+	}
+}
+
+func TestTraceArtifactsFromExecutionLedgerIncludesArtifactManifestPaths(t *testing.T) {
+	items := []events.ExecutionLedgerEvent{{
+		Kind: "artifact.manifest",
+		Payload: map[string]any{
+			"kind":          "diagram",
+			"rendered_path": "file:///tmp/diagram.png",
+			"preview_path":  "slack-file://F123",
+			"source_path":   "file:///tmp/diagram.html",
+		},
+	}}
+
+	artifacts := traceArtifactsFromExecutionLedger("trace-123", items)
+	if len(artifacts) != 3 {
+		t.Fatalf("expected manifest paths to become trace artifacts, got %#v", artifacts)
+	}
+	urlSet := map[string]bool{}
+	for _, artifact := range artifacts {
+		urlSet[artifact.URL] = true
+	}
+	for _, expected := range []string{"file:///tmp/diagram.png", "slack-file://F123", "file:///tmp/diagram.html"} {
+		if !urlSet[expected] {
+			t.Fatalf("missing manifest artifact URL %q in %#v", expected, artifacts)
 		}
 	}
 }
@@ -5460,7 +5599,7 @@ func TestToolCallRecordsFromExecutionEnvelopeProjectsTerminalCallsOnly(t *testin
 	}
 }
 
-func TestWorkflowReplyDeliveryRejectsFailedExecutionEnvelopeDelivery(t *testing.T) {
+func TestWorkflowReplyDeliveryRecordsFailedExecutionEnvelopeDeliveryAttempt(t *testing.T) {
 	record, ok := workflowReplyDelivery(map[string]any{
 		"reply_delivery": map[string]any{
 			"body":       "legacy top-level reply",
@@ -5486,14 +5625,14 @@ func TestWorkflowReplyDeliveryRejectsFailedExecutionEnvelopeDelivery(t *testing.
 			},
 		},
 	}, "C-fallback", "T-fallback")
-	if ok {
-		t.Fatalf("failed envelope delivery must not count as a posted reply: %#v", record)
+	if !ok || record.SendStatus != "failed" {
+		t.Fatalf("expected failed envelope delivery attempt to be recorded, got ok=%t record=%#v", ok, record)
 	}
 }
 
-func TestWorkflowReplyDeliveryFromExecutionLedgerRequiresSuccessfulStatus(t *testing.T) {
+func TestWorkflowReplyDeliveryFromExecutionLedgerRecordsFailedStatus(t *testing.T) {
 	createdAt := time.Now().UTC()
-	_, ok := workflowReplyDeliveryFromExecutionLedger([]events.ExecutionLedgerEvent{
+	record, ok := workflowReplyDeliveryFromExecutionLedger([]events.ExecutionLedgerEvent{
 		{
 			ID:          "ledger-failed",
 			ExecutionID: "hexec-1",
@@ -5509,10 +5648,10 @@ func TestWorkflowReplyDeliveryFromExecutionLedgerRequiresSuccessfulStatus(t *tes
 			RecordedAt: createdAt,
 		},
 	}, "C-fallback", "T-fallback", createdAt)
-	if ok {
-		t.Fatal("failed ledger delivery must not satisfy direct Slack delivery")
+	if !ok || record.SendStatus != "failed" {
+		t.Fatalf("expected failed ledger delivery attempt to be recorded, got ok=%t record=%#v", ok, record)
 	}
-	record, ok := workflowReplyDeliveryFromExecutionLedger([]events.ExecutionLedgerEvent{
+	record, ok = workflowReplyDeliveryFromExecutionLedger([]events.ExecutionLedgerEvent{
 		{
 			ID:             "ledger-sent",
 			ExecutionID:    "hexec-1",
@@ -5537,7 +5676,7 @@ func TestWorkflowReplyDeliveryFromExecutionLedgerRequiresSuccessfulStatus(t *tes
 	}
 }
 
-func TestWorkflowReplyDeliveryProjectionFallsBackWhenLedgerHasNoSuccessfulDelivery(t *testing.T) {
+func TestWorkflowReplyDeliveryProjectionPrefersLedgerDeliveryAttempt(t *testing.T) {
 	createdAt := time.Now().UTC()
 	raw := map[string]any{
 		"reply_delivery": map[string]any{
@@ -5564,10 +5703,10 @@ func TestWorkflowReplyDeliveryProjectionFallsBackWhenLedgerHasNoSuccessfulDelive
 		},
 	}, true, "C-fallback", "T-fallback", createdAt)
 	if !ok {
-		t.Fatal("expected raw delivery fallback when ledger has no successful delivery projection")
+		t.Fatal("expected ledger delivery attempt projection")
 	}
-	if record.FinalBody != "raw posted reply" || record.ChannelID != "C-raw" {
-		t.Fatalf("unexpected fallback delivery: %#v", record)
+	if record.FinalBody != "ledger reply" || record.ChannelID != "C-ledger" || record.SendStatus != "observed" {
+		t.Fatalf("unexpected ledger delivery attempt: %#v", record)
 	}
 }
 
@@ -5595,6 +5734,20 @@ func TestWorkflowReplyDeliveryProjectionPrefersSuccessfulLedgerDelivery(t *testi
 				"send_status": "posted",
 			},
 			RecordedAt: createdAt,
+		},
+		{
+			ID:          "ledger-failed-retry",
+			ExecutionID: "hexec-1",
+			Kind:        "slack.message.sent",
+			Status:      "failed",
+			Seq:         2,
+			Payload: map[string]any{
+				"body":        "failed retry",
+				"channel_id":  "C-ledger",
+				"thread_ts":   "T-ledger",
+				"send_status": "failed",
+			},
+			RecordedAt: createdAt.Add(time.Second),
 		},
 	}, true, "C-fallback", "T-fallback", createdAt)
 	if !ok {

@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
@@ -311,10 +312,11 @@ func (s *slackSurfaceRuntime) buildDirectMessageEnvelope(teamID string, event *s
 	if event.SubType != "" || event.BotID != "" {
 		return slackpkg.SlackEnvelope{}, false
 	}
-	threadTS := strings.TrimSpace(event.ThreadTimeStamp)
-	if threadTS == "" {
-		threadTS = strings.TrimSpace(event.TimeStamp)
+	if lowSignalDirectMessage(event.Text) {
+		log.Printf("slack-surface identity=%s ignored low-signal direct message channel=%s ts=%s", s.cfg.SlackAppIdentity, event.Channel, event.TimeStamp)
+		return slackpkg.SlackEnvelope{}, false
 	}
+	threadTS := strings.TrimSpace(event.ThreadTimeStamp)
 	return slackpkg.SlackEnvelope{
 		BotRole:     slackRoleFromIdentity(s.cfg.SlackAppIdentity),
 		TeamID:      teamID,
@@ -328,6 +330,21 @@ func (s *slackSurfaceRuntime) buildDirectMessageEnvelope(teamID string, event *s
 		CreatedAt:   parseSlackTimestamp(event.TimeStamp),
 		Prompt:      slackpkg.SlackPromptEnvelope{},
 	}, true
+}
+
+func lowSignalDirectMessage(text string) bool {
+	trimmed := strings.TrimSpace(text)
+	if trimmed == "" {
+		return true
+	}
+	hasLetterOrDigit := false
+	for _, r := range trimmed {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) {
+			hasLetterOrDigit = true
+			break
+		}
+	}
+	return !hasLetterOrDigit
 }
 
 func slackActionToken(thread *slackevents.AssistantThreadActionToken) string {

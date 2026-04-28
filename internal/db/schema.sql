@@ -289,6 +289,7 @@ create table if not exists conversation_entry (
 );
 
 create index if not exists conversation_entry_conv_idx on conversation_entry (conversation_id, created_at asc);
+create index if not exists conversation_entry_conv_created_id_idx on conversation_entry (conversation_id, created_at asc, id asc);
 create unique index if not exists conversation_entry_external_event_idx on conversation_entry (conversation_id, event_id, entry_type) where entry_type = 'external_event' and event_id is not null;
 create unique index if not exists conversation_entry_slack_action_idx on conversation_entry (conversation_id, source_event_id, entry_type) where entry_type = 'slack_action' and source_event_id is not null;
 
@@ -762,6 +763,7 @@ alter table if exists trace_summary add column if not exists supersedes_trace_id
 alter table if exists trace_summary add column if not exists reasoning_step_count integer not null default 0;
 alter table if exists trace_summary add column if not exists tool_call_count integer not null default 0;
 alter table if exists trace_summary add column if not exists slack_action_count integer not null default 0;
+create index if not exists trace_summary_conversation_started_idx on trace_summary (conversation_id, started_at desc);
 
 alter table if exists trace_event add column if not exists conversation_id text;
 alter table if exists trace_event add column if not exists case_id text;

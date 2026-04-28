@@ -143,6 +143,17 @@ type conversationDetailResponse struct {
 	Outcomes         []outcome.Record               `json:"outcomes"`
 	KnowledgeEntries []knowledge.Entry              `json:"knowledge_entries"`
 	LinkedProposals  []review.Proposal              `json:"linked_proposals"`
+	TranscriptPage   *transcriptPageSummary         `json:"transcript_page,omitempty"`
+}
+
+type transcriptPageSummary struct {
+	Limit   int  `json:"limit,omitempty"`
+	HasMore bool `json:"has_more"`
+}
+
+type conversationDetailOptions struct {
+	Includes        map[string]bool
+	TranscriptLimit int
 }
 
 type caseDetailResponse struct {
@@ -395,37 +406,102 @@ func buildConversationList(store storepkg.Repository) []conversationListItem {
 	return out
 }
 
-func buildConversationDetail(store storepkg.Repository, conversationID string) (conversationDetailResponse, bool) {
+func buildConversationDetailWithOptions(store storepkg.Repository, conversationID string, opts conversationDetailOptions) (conversationDetailResponse, bool) {
 	item, ok := store.GetConversation(conversationID)
 	if !ok {
 		return conversationDetailResponse{}, false
 	}
-	proposals := normalizeProposals(store.ListProposals())
-	traces := traceSummariesForConversation(store.ListTraces(), conversationID)
-	latestEvalByTrace := latestEvalRunByTrace(store.ListEvalRuns())
-	traceSummaries := buildTraceSummaries(traces, latestEvalByTrace, store.ListHarnessExecutions(), store.ListHarnessExecutionObservations())
-	workflowAttempts := workflowAttemptsForConversation(store.ListWorkflows(), store.ListTraces(), conversationID)
-	caseIndex := buildCaseSummaryIndex(store, store.ListTraces(), proposals)
-	cases := casesForConversation(store.ListCases(), conversationID, caseIndex)
+	proposals := []review.Proposal{}
+	if conversationDetailIncludes(opts, "proposals") || conversationDetailIncludes(opts, "cases") || conversationDetailIncludes(opts, "traces") {
+		proposals = normalizeProposals(store.ListProposals())
+	}
+	traces := []events.TraceSummary{}
+	if conversationDetailIncludes(opts, "traces") || conversationDetailIncludes(opts, "cases") || conversationDetailIncludes(opts, "workflows") {
+		traces = traceSummariesForConversation(store.ListTraces(), conversationID)
+	}
+	traceSummaries := []traceAttemptSummary{}
+	if conversationDetailIncludes(opts, "traces") {
+		latestEvalByTrace := latestEvalRunByTrace(store.ListEvalRuns())
+		traceSummaries = buildTraceSummaries(traces, latestEvalByTrace, store.ListHarnessExecutions(), store.ListHarnessExecutionObservations())
+	}
+	workflowAttempts := []workflowAttemptSummary{}
+	if conversationDetailIncludes(opts, "workflows") {
+		workflowAttempts = workflowAttemptsForConversation(store.ListWorkflows(), store.ListTraces(), conversationID)
+	}
+	caseIndex := map[string]*caseSummary{}
+	if conversationDetailIncludes(opts, "cases") {
+		caseIndex = buildCaseSummaryIndex(store, store.ListTraces(), proposals)
+	}
+	cases := []caseSummary{}
+	if conversationDetailIncludes(opts, "cases") {
+		cases = casesForConversation(store.ListCases(), conversationID, caseIndex)
+	}
 	var workflowLine *workflowLineSummary
 	if active := caseIndex[item.ActiveCaseID]; active != nil {
 		workflowLine = workflowLineForCase(store.ListWorkflowLines(), active.CaseID)
+	}
+	transcript := []conversation.Entry{}
+	var transcriptPage *transcriptPageSummary
+	if conversationDetailIncludes(opts, "transcript") {
+		if pager, ok := store.(storepkg.ConversationEntryPager); ok && opts.TranscriptLimit > 0 {
+			page := pager.ListConversationEntriesPage(conversationID, storepkg.ConversationEntryPageOptions{Limit: opts.TranscriptLimit})
+			transcript = page.Entries
+			transcriptPage = &transcriptPageSummary{Limit: page.Limit, HasMore: page.HasMore}
+		} else {
+			transcript = store.ListConversationEntries(conversationID)
+			if opts.TranscriptLimit > 0 && len(transcript) > opts.TranscriptLimit {
+				transcript = transcript[:opts.TranscriptLimit]
+				transcriptPage = &transcriptPageSummary{Limit: opts.TranscriptLimit, HasMore: true}
+			}
+		}
+	}
+	actionIntents := []action.Intent{}
+	if conversationDetailIncludes(opts, "actions") {
+		actionIntents = listActionIntents(store, actionFilters{ConversationID: conversationID})
+	}
+	runtimeDiagnoses := []improvement.RuntimeDiagnosis{}
+	if conversationDetailIncludes(opts, "runtime") {
+		runtimeDiagnoses = runtimeDiagnosesForConversation(store.ListRuntimeDiagnoses(), conversationID)
+	}
+	outcomes := []outcome.Record{}
+	if conversationDetailIncludes(opts, "outcomes") {
+		outcomes = listOutcomes(store, conversationID, "", "", "")
+	}
+	knowledgeEntries := []knowledge.Entry{}
+	if conversationDetailIncludes(opts, "knowledge") {
+		knowledgeEntries = relatedKnowledgeEntries(store, conversationID, "", "", "")
+	}
+	linkedProposals := []review.Proposal{}
+	if conversationDetailIncludes(opts, "proposals") {
+		linkedProposals = filterProposalsByConversation(proposals, conversationID)
+	}
+	actionResults := []action.Result{}
+	if conversationDetailIncludes(opts, "actions") {
+		actionResults = flattenActionResults(store, actionIntents)
 	}
 	return conversationDetailResponse{
 		Conversation:     item,
 		ActiveCase:       caseIndex[item.ActiveCaseID],
 		WorkflowLine:     workflowLine,
 		WorkflowAttempts: workflowAttempts,
-		RuntimeDiagnoses: sliceOrEmpty(runtimeDiagnosesForConversation(store.ListRuntimeDiagnoses(), conversationID)),
+		RuntimeDiagnoses: sliceOrEmpty(runtimeDiagnoses),
 		Cases:            cases,
-		Transcript:       sliceOrEmpty(store.ListConversationEntries(conversationID)),
+		Transcript:       sliceOrEmpty(transcript),
+		TranscriptPage:   transcriptPage,
 		TraceAttempts:    traceSummaries,
-		ActionIntents:    sliceOrEmpty(listActionIntents(store, actionFilters{ConversationID: conversationID})),
-		ActionResults:    sliceOrEmpty(flattenActionResults(store, listActionIntents(store, actionFilters{ConversationID: conversationID}))),
-		Outcomes:         sliceOrEmpty(listOutcomes(store, conversationID, "", "", "")),
-		KnowledgeEntries: sliceOrEmpty(relatedKnowledgeEntries(store, conversationID, "", "", "")),
-		LinkedProposals:  filterProposalsByConversation(proposals, conversationID),
+		ActionIntents:    sliceOrEmpty(actionIntents),
+		ActionResults:    sliceOrEmpty(actionResults),
+		Outcomes:         sliceOrEmpty(outcomes),
+		KnowledgeEntries: sliceOrEmpty(knowledgeEntries),
+		LinkedProposals:  sliceOrEmpty(linkedProposals),
 	}, true
+}
+
+func conversationDetailIncludes(opts conversationDetailOptions, section string) bool {
+	if len(opts.Includes) == 0 {
+		return true
+	}
+	return opts.Includes["all"] || opts.Includes[section]
 }
 
 func buildCaseList(store storepkg.Repository) []caseSummary {

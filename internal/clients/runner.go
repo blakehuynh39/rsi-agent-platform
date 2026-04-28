@@ -124,6 +124,7 @@ type RunnerCapabilityLease struct {
 type RunnerDeliveryPolicy struct {
 	BoundChannelID     string `json:"bound_channel_id,omitempty"`
 	BoundThreadTS      string `json:"bound_thread_ts,omitempty"`
+	TargetSurface      string `json:"target_surface,omitempty"`
 	DirectSendAllowed  bool   `json:"direct_send_allowed"`
 	UploadAllowed      bool   `json:"upload_allowed"`
 	IdempotencyKeyBase string `json:"idempotency_key_base,omitempty"`
@@ -187,9 +188,17 @@ func AttachKubernetesReadNamespacesToLeases(leases []RunnerCapabilityLease, kube
 
 func NewRunnerDeliveryPolicy(channelID string, threadTS string, replyDeliveryMode string, idempotencyKeyBase string) *RunnerDeliveryPolicy {
 	mode := NormalizeRunnerReplyDeliveryMode(replyDeliveryMode)
+	targetSurface := "channel"
+	if strings.TrimSpace(threadTS) != "" {
+		targetSurface = "thread"
+	}
+	if strings.HasPrefix(strings.TrimSpace(channelID), "D") && strings.TrimSpace(threadTS) == "" {
+		targetSurface = "direct_message"
+	}
 	return &RunnerDeliveryPolicy{
 		BoundChannelID:     strings.TrimSpace(channelID),
 		BoundThreadTS:      strings.TrimSpace(threadTS),
+		TargetSurface:      targetSurface,
 		DirectSendAllowed:  mode == "direct",
 		UploadAllowed:      mode == "direct" || mode == "mediated",
 		IdempotencyKeyBase: strings.TrimSpace(idempotencyKeyBase),
