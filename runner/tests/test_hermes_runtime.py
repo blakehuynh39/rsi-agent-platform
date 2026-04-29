@@ -4222,7 +4222,11 @@ class HermesRuntimeTests(unittest.TestCase):
                     profile="notion_mcp_read",
                     server_name="rsi-task-trace-workflow-456-0-notion-abc",
                     toolset_alias="mcp-rsi-task-trace-workflow-456-0-notion-abc",
-                    included_tool_names=["search", "fetch"],
+                    included_tool_names=[
+                        "API-post-search",
+                        "API-retrieve-a-page",
+                        "API-get-block-children",
+                    ],
                     hermes_config={},
                 )
             ]

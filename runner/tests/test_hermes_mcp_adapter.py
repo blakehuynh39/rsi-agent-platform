@@ -9,9 +9,10 @@ from rsi_runner.hermes_mcp_adapter import HermesTaskScopedMCPAdapter, TaskScoped
 
 
 class FakeServerTask:
-    def __init__(self, name: str, shutdown_log: list[str]) -> None:
+    def __init__(self, name: str, shutdown_log: list[str], discovered_tool_names: list[str]) -> None:
         self.name = name
         self._shutdown_log = shutdown_log
+        self._tools = [types.SimpleNamespace(name=tool_name) for tool_name in discovered_tool_names]
 
     def shutdown(self) -> dict[str, object]:
         self._shutdown_log.append(self.name)
@@ -19,14 +20,22 @@ class FakeServerTask:
 
 
 class FakeMCPToolModule:
-    def __init__(self, *, mcp_available: bool = True) -> None:
+    def __init__(self, *, mcp_available: bool = True, discovered_tool_names: list[str] | None = None) -> None:
         self._MCP_AVAILABLE = mcp_available
         self._servers: dict[str, FakeServerTask] = {}
         self.shutdown_log: list[str] = []
+        self.discovered_tool_names = discovered_tool_names
 
     def register_mcp_servers(self, configs: dict[str, dict[str, object]]) -> list[str]:
-        for name in configs:
-            self._servers[name] = FakeServerTask(name, self.shutdown_log)
+        for name, config in configs.items():
+            tools_config = config.get("tools") if isinstance(config, dict) else {}
+            include = []
+            if isinstance(tools_config, dict):
+                include = [str(item) for item in tools_config.get("include") or []]
+            discovered_tool_names = list(
+                self.discovered_tool_names if self.discovered_tool_names is not None else include
+            )
+            self._servers[name] = FakeServerTask(name, self.shutdown_log, discovered_tool_names)
         return list(configs.keys())
 
     def _run_on_mcp_loop(self, value):
@@ -74,7 +83,7 @@ class HermesTaskScopedMCPAdapterTests(unittest.TestCase):
         )
         self.assertTrue(server.toolset_alias.startswith("mcp-rsi-task-trace-123-0-slack-"))
 
-    def test_notion_read_profile_defaults_to_search_and_fetch(self) -> None:
+    def test_notion_read_profile_defaults_to_notion_api_read_tools(self) -> None:
         task = types.SimpleNamespace(
             trace_id="trace-456",
             workflow_id="wf-456",
@@ -93,7 +102,14 @@ class HermesTaskScopedMCPAdapterTests(unittest.TestCase):
 
         translated = adapter._translate_task_servers(task)
 
-        self.assertEqual(translated[0].hermes_config["tools"]["include"], ["search", "fetch"])
+        self.assertEqual(
+            translated[0].hermes_config["tools"],
+            {
+                "include": ["API-post-search", "API-retrieve-a-page", "API-get-block-children"],
+                "resources": False,
+                "prompts": False,
+            },
+        )
 
     def test_custom_server_authorization_env_var_populates_bearer_header(self) -> None:
         task = types.SimpleNamespace(
@@ -277,6 +293,28 @@ class HermesTaskScopedMCPAdapterTests(unittest.TestCase):
 
         with mock.patch.object(adapter, "_load_hermes_mcp_tool", return_value=fake_mcp_tool):
             with self.assertRaisesRegex(RuntimeError, "MCP SDK extra is unavailable"):
+                adapter.register_task_servers(task)
+
+    def test_register_task_servers_fails_when_included_tools_are_not_exposed(self) -> None:
+        task = types.SimpleNamespace(
+            trace_id="trace-missing-tool",
+            workflow_id="wf-missing-tool",
+            conversation_id="",
+            session_scope_id="",
+            task_type="workflow",
+            mcp_servers=[
+                {
+                    "server_label": "notion",
+                    "profile": "notion_mcp_read",
+                    "server_url": "https://mcp.notion.com/mcp",
+                }
+            ],
+        )
+        adapter = HermesTaskScopedMCPAdapter()
+        fake_mcp_tool = FakeMCPToolModule(discovered_tool_names=["API-post-search"])
+
+        with mock.patch.object(adapter, "_load_hermes_mcp_tool", return_value=fake_mcp_tool):
+            with self.assertRaisesRegex(RuntimeError, "did not expose included tool"):
                 adapter.register_task_servers(task)
 
     def test_cleanup_marks_missing_server_as_failed(self) -> None:

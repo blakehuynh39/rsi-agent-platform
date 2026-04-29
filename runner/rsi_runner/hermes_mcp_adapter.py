@@ -10,6 +10,13 @@ from .json_types import JsonObject, JsonValue
 from .rsi_tools import normalize_tool_names
 
 
+NOTION_MCP_READ_TOOL_NAMES = [
+    "API-post-search",
+    "API-retrieve-a-page",
+    "API-get-block-children",
+]
+
+
 def _json_object_or_empty(value: JsonValue | None) -> JsonObject:
     if isinstance(value, dict):
         return value
@@ -137,6 +144,14 @@ class HermesTaskScopedMCPAdapter:
             if cleanup_result.errors:
                 cleanup_error = f"{cleanup_error} Cleanup errors: {cleanup_result.errors}."
             raise RuntimeError(f"Hermes MCP registration did not connect expected servers: {missing}.{cleanup_error}")
+        validation_errors = self._included_tool_validation_errors(mcp_tool, servers)
+        if validation_errors:
+            cleanup_result = self.cleanup_registration(TaskScopedMCPRegistration(servers=servers))
+            cleanup_error = f" Cleanup status: {cleanup_result.status}."
+            if cleanup_result.errors:
+                cleanup_error = f"{cleanup_error} Cleanup errors: {cleanup_result.errors}."
+            joined_errors = " ".join(validation_errors)
+            raise RuntimeError(f"Hermes MCP registration did not expose expected included tools. {joined_errors}{cleanup_error}")
         return TaskScopedMCPRegistration(servers=servers)
 
     def register_task_servers(self, task: Any) -> TaskScopedMCPRegistration:
@@ -246,7 +261,7 @@ class HermesTaskScopedMCPAdapter:
         if headers:
             hermes_config["headers"] = headers
         if included_tool_names:
-            hermes_config["tools"] = {"include": included_tool_names}
+            hermes_config["tools"] = self._tools_config_for_profile(profile, included_tool_names)
 
         server_name = self._task_scoped_server_name(task, label=label, server_url=server_url, index=index)
         return TaskScopedMCPServer(
@@ -274,12 +289,46 @@ class HermesTaskScopedMCPAdapter:
                 raise RuntimeError("Slack MCP reply-tool discovery returned no tools.")
             return tool_names
         if profile == "notion_mcp_read":
-            return ["search", "fetch"]
+            return list(NOTION_MCP_READ_TOOL_NAMES)
         if _bool_or_false(allowed_tools.get("read_only")):
             raise RuntimeError(
                 f"MCP server '{label}' requested read_only access without explicit tool_names; refusing to expose the full server."
             )
         return []
+
+    def _tools_config_for_profile(self, profile: str, included_tool_names: list[str]) -> JsonObject:
+        tools_config: JsonObject = {"include": included_tool_names}
+        if profile == "notion_mcp_read":
+            tools_config["resources"] = False
+            tools_config["prompts"] = False
+        return tools_config
+
+    def _included_tool_validation_errors(self, mcp_tool: Any, servers: list[TaskScopedMCPServer]) -> list[str]:
+        errors: list[str] = []
+        live_servers = getattr(mcp_tool, "_servers", {})
+        for server in servers:
+            if not server.included_tool_names:
+                continue
+            server_task = live_servers.get(server.server_name) if isinstance(live_servers, dict) else None
+            if server_task is None:
+                continue
+            discovered_tools = {
+                str(getattr(tool, "name", "")).strip()
+                for tool in getattr(server_task, "_tools", [])
+                if str(getattr(tool, "name", "")).strip()
+            }
+            if not discovered_tools:
+                continue
+            missing = [tool_name for tool_name in server.included_tool_names if tool_name not in discovered_tools]
+            if missing:
+                discovered_preview = ", ".join(sorted(discovered_tools)[:20])
+                if len(discovered_tools) > 20:
+                    discovered_preview = f"{discovered_preview}, ..."
+                errors.append(
+                    f"Server '{server.source_label}' did not expose included tool(s): {', '.join(missing)}. "
+                    f"Discovered tools: {discovered_preview}."
+                )
+        return errors
 
     def _resolve_slack_read_tool_names(self) -> list[str]:
         if self._slack_read_tool_names_resolver is None:

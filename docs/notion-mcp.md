@@ -71,6 +71,17 @@ The official self-hosted `notion-mcp-server` runtime contract is:
   requests.
 - streamable HTTP transport on `/mcp`, with port `3000` by default.
 
+The self-hosted `mcp/notion` server exposes Notion API tool names rather than
+generic `search` / `fetch` tools. The runner's `notion_mcp_read` profile maps
+read-only access to:
+
+- `API-post-search`
+- `API-retrieve-a-page`
+- `API-get-block-children`
+
+It also disables generic MCP resource and prompt utility tools for Notion,
+because this server does not implement MCP resources/prompts.
+
 The runner also supports unauthenticated remote MCP servers. If you expose a
 self-hosted Notion MCP service only behind trusted network controls, you can
 leave `RSI_NOTION_MCP_AUTHORIZATION_ENV_VAR` empty and RSI will omit the bearer
