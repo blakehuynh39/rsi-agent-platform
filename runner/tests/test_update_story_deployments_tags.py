@@ -16,7 +16,7 @@ def load_script_module():
 
 
 class UpdateStoryDeploymentsTagsTest(unittest.TestCase):
-    def test_updates_hermes_learner_independently(self) -> None:
+    def test_updates_hermes_skill_exporter_independently(self) -> None:
         module = load_script_module()
         with tempfile.TemporaryDirectory() as raw:
             values = Path(raw) / "values.yaml"
@@ -29,9 +29,9 @@ class UpdateStoryDeploymentsTagsTest(unittest.TestCase):
                         "hermesExecutor:",
                         "  image:",
                         '    tag: "hermes-executor-old"',
-                        "hermesLearner:",
+                        "hermesSkillExporter:",
                         "  image:",
-                        '    tag: "hermes-learner-old"',
+                        '    tag: "hermes-skill-exporter-old"',
                     ]
                 )
                 + "\n",
@@ -42,15 +42,15 @@ class UpdateStoryDeploymentsTagsTest(unittest.TestCase):
                 {
                     ("runner", "image", "tag"): "runner-new",
                     ("hermesExecutor", "image", "tag"): "hermes-executor-new",
-                    ("hermesLearner", "image", "tag"): "hermes-learner-new",
+                    ("hermesSkillExporter", "image", "tag"): "hermes-skill-exporter-new",
                 },
             )
             rendered = values.read_text(encoding="utf-8")
             self.assertIn('tag: "runner-new"', rendered)
             self.assertIn('tag: "hermes-executor-new"', rendered)
-            self.assertIn('tag: "hermes-learner-new"', rendered)
+            self.assertIn('tag: "hermes-skill-exporter-new"', rendered)
 
-    def test_missing_hermes_learner_path_fails_loudly(self) -> None:
+    def test_missing_hermes_skill_exporter_path_fails_loudly(self) -> None:
         module = load_script_module()
         with tempfile.TemporaryDirectory() as raw:
             values = Path(raw) / "values.yaml"
@@ -70,10 +70,10 @@ class UpdateStoryDeploymentsTagsTest(unittest.TestCase):
                     values,
                     {
                         ("runner", "image", "tag"): "runner-new",
-                        ("hermesLearner", "image", "tag"): "hermes-learner-new",
+                        ("hermesSkillExporter", "image", "tag"): "hermes-skill-exporter-new",
                     },
                 )
-            self.assertIn("hermesLearner.image.tag", str(raised.exception))
+            self.assertIn("hermesSkillExporter.image.tag", str(raised.exception))
 
 
 if __name__ == "__main__":

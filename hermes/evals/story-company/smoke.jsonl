@@ -1,1 +1,0 @@
-{"id":"story-company-pack-smoke","prompt":"Explain how Story company knowledge should use repository code and story-deployments as source of truth.","assertions":[{"type":"contains","value":"story-deployments"},{"type":"contains","value":"source of truth"}],"provenance":{"source":"knowledge/story-company/README.md","owner":"rsi-agent-platform"}}
