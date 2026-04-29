@@ -17,6 +17,7 @@ env:
   GO_IMAGE_REPOSITORY: rsi-agent-platform
   RUNNER_IMAGE_REPOSITORY: rsi-agent-platform-runner
   HERMES_EXECUTOR_IMAGE_REPOSITORY: rsi-agent-platform-hermes-executor
+  HERMES_LEARNER_IMAGE_REPOSITORY: rsi-agent-platform-hermes-learner
   HONCHO_IMAGE_REPOSITORY: rsi-agent-platform-honcho
   SANDBOX_IMAGE_REPOSITORY: rsi-agent-platform-sandbox
   IMAGE_VERSION: ${{ github.sha }}
@@ -27,6 +28,7 @@ env:
   IMPROVEMENT_PLANE_TAG: improvement-plane-${{ github.sha }}
   RUNNER_TAG: runner-${{ github.sha }}
   HERMES_EXECUTOR_TAG: hermes-executor-${{ github.sha }}
+  HERMES_LEARNER_TAG: hermes-learner-${{ github.sha }}
   HONCHO_TAG: honcho-${{ github.sha }}
   SANDBOX_TAG: sandbox-${{ github.sha }}
 
@@ -125,6 +127,11 @@ jobs:
             dockerfile: ./runner/Dockerfile.hermes-executor
             repository: rsi-agent-platform-hermes-executor
             tag_prefix: hermes-executor
+            build_args: ""
+          - name: hermes-learner
+            dockerfile: ./runner/Dockerfile.hermes-learner
+            repository: rsi-agent-platform-hermes-learner
+            tag_prefix: hermes-learner
             build_args: ""
           - name: honcho
             dockerfile: ./honcho/Dockerfile
@@ -236,6 +243,7 @@ jobs:
             --improvement-plane-tag "${{ env.IMPROVEMENT_PLANE_TAG }}"
             --runner-tag "${{ env.RUNNER_TAG }}"
             --hermes-executor-tag "${{ env.HERMES_EXECUTOR_TAG }}"
+            --hermes-learner-tag "${{ env.HERMES_LEARNER_TAG }}"
             --honcho-tag "${{ env.HONCHO_TAG }}"
             --sandbox-tag "${{ env.SANDBOX_TAG }}"
           )
