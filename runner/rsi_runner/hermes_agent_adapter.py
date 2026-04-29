@@ -78,6 +78,12 @@ def _string(value: Any) -> str:
     return str(value).strip()
 
 
+def _stream_text(value: Any) -> str:
+    if value is None:
+        return ""
+    return str(value)
+
+
 def _json_object(value: Any) -> JsonObject:
     return value if isinstance(value, dict) else {}
 
@@ -569,7 +575,7 @@ class HermesAgentAdapter:
         self._record_lifecycle(
             "model.reasoning.delta",
             status="streaming",
-            payload={"delta": _string(text)},
+            payload={"delta": _stream_text(text)},
         )
 
     def _stream_delta_callback(self, text: Any) -> None:
@@ -579,7 +585,7 @@ class HermesAgentAdapter:
         self._record_lifecycle(
             "model.output.delta",
             status="streaming",
-            payload={"delta": _string(text)},
+            payload={"delta": _stream_text(text)},
         )
 
     def _thinking_callback(self, text: Any) -> None:

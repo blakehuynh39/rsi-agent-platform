@@ -189,6 +189,12 @@ def _truncate_string(value: Any, limit: int) -> str:
     return text[: max(0, limit - 1)] + "…"
 
 
+def _truncate_raw_string(value: str, limit: int) -> str:
+    if len(value) <= limit:
+        return value
+    return value[: max(0, limit - 1)] + "…"
+
+
 def _is_sensitive_env_key(name: str) -> bool:
     lower = str(name or "").strip().lower()
     if not lower:
@@ -220,7 +226,7 @@ def _redact_subprocess_output(text: str, *, secret_values: list[str]) -> str:
 
 def _redact_json_value(value: Any, *, secret_values: list[str], limit: int) -> Any:
     if isinstance(value, str):
-        return _truncate_string(_redact_subprocess_output(value, secret_values=secret_values), limit)
+        return _truncate_raw_string(_redact_subprocess_output(value, secret_values=secret_values), limit)
     if isinstance(value, dict):
         return {str(key): _redact_json_value(item, secret_values=secret_values, limit=limit) for key, item in value.items()}
     if isinstance(value, list):

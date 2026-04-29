@@ -758,8 +758,8 @@ class HermesRuntimeTests(unittest.TestCase):
     def test_hermes_agent_adapter_normalizes_stream_callbacks_to_lifecycle_events(self) -> None:
         with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(os.environ, {"HERMES_HOME": tempdir}, clear=True):
             adapter = HermesAgentAdapter({"session_id": "session-callbacks"})
-            adapter._reasoning_callback("private surfaced reasoning")
-            adapter._stream_delta_callback("visible output")
+            adapter._reasoning_callback(" private surfaced reasoning")
+            adapter._stream_delta_callback(" visible output")
             adapter._thinking_callback("thinking")
             adapter._tool_generation_callback("terminal")
             adapter._tool_progress_callback("tool.completed", "terminal", None, None, duration=1.2, is_error=False)
@@ -786,7 +786,8 @@ class HermesRuntimeTests(unittest.TestCase):
                 "model.status",
             ],
         )
-        self.assertEqual(events[0]["payload"]["delta"], "private surfaced reasoning")
+        self.assertEqual(events[0]["payload"]["delta"], " private surfaced reasoning")
+        self.assertEqual(events[1]["payload"]["delta"], " visible output")
         self.assertEqual(events[5]["payload"]["tool_name"], "terminal")
 
     def test_native_lifecycle_tailer_emits_redacted_live_observations(self) -> None:
@@ -832,6 +833,25 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(tailer.emitted, 1)
         self.assertEqual(observer.events[0]["event_type"], "model.output.delta")
         self.assertEqual(observer.events[0]["payload"]["delta"], "hello [redacted]")
+
+    def test_native_lifecycle_emission_preserves_stream_delta_whitespace(self) -> None:
+        with mock.patch.dict(os.environ, runner_env(), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+        observer = RecordingObserver()
+
+        runtime._emit_native_lifecycle_event(
+            observer,
+            "investigate",
+            {
+                "event_type": "model.reasoning.delta",
+                "status": "streaming",
+                "payload": {"delta": " hello secret-token"},
+            },
+            secret_values=["secret-token"],
+        )
+
+        self.assertEqual(observer.events[0]["event_type"], "model.reasoning.delta")
+        self.assertEqual(observer.events[0]["payload"]["delta"], " hello [redacted]")
 
     def test_config_rejects_timeout_contract_drift(self) -> None:
         with mock.patch.dict(
