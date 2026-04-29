@@ -51,6 +51,12 @@ const RUNNING_TRACE_STATES = new Set([
   "started"
 ]);
 
+const CONVERSATION_DETAIL_QUERY = "include=cases,traces,workflows,transcript,proposals&transcript_limit=50";
+
+function countLabel(loaded: boolean, count: number) {
+  return loaded ? String(count) : "...";
+}
+
 function defaultTraceInspectorTabForStatus(status?: string): TraceInspectorTab {
   return status && RUNNING_TRACE_STATES.has(status.toLowerCase()) ? "live" : "overview";
 }
@@ -110,6 +116,7 @@ export function App() {
   const [feedbackNotes, setFeedbackNotes] = useState("");
   const [proposalRationale, setProposalRationale] = useState("");
   const [knowledgeReviewRationale, setKnowledgeReviewRationale] = useState("");
+  const [loadSecondaryData, setLoadSecondaryData] = useState(false);
 
   useEffect(() => {
     const handlePopState = () => setViewState(readViewState());
@@ -122,39 +129,51 @@ export function App() {
     setViewState(next);
   };
 
+  const wantsConversations = viewState.tab === "conversations" || Boolean(viewState.conversation) || loadSecondaryData;
+  const wantsCases = viewState.tab === "cases" || Boolean(viewState.case) || loadSecondaryData;
+  const wantsProposals = viewState.tab === "proposals" || Boolean(viewState.proposal) || loadSecondaryData;
+  const wantsKnowledge = viewState.tab === "knowledge" || Boolean(viewState.knowledge) || loadSecondaryData;
+  const wantsHarness = viewState.tab === "harness" || Boolean(viewState.role) || loadSecondaryData;
+
   const conversationsQuery = useQuery({
     queryKey: ["conversations"],
-    queryFn: () => getJSON<{ conversations: ConversationListItem[] }>("/api/conversations")
+    queryFn: () => getJSON<{ conversations: ConversationListItem[] }>("/api/conversations"),
+    enabled: wantsConversations
   });
 
   const casesQuery = useQuery({
     queryKey: ["cases"],
-    queryFn: () => getJSON<{ cases: CaseSummary[] }>("/api/cases")
+    queryFn: () => getJSON<{ cases: CaseSummary[] }>("/api/cases"),
+    enabled: wantsCases
   });
 
   const proposalsQuery = useQuery({
     queryKey: ["proposals"],
-    queryFn: () => getJSON<ProposalResponse>("/api/proposals")
+    queryFn: () => getJSON<ProposalResponse>("/api/proposals"),
+    enabled: wantsProposals
   });
 
   const knowledgeQuery = useQuery({
     queryKey: ["knowledge"],
-    queryFn: () => getJSON<KnowledgeListResponse>("/api/knowledge")
+    queryFn: () => getJSON<KnowledgeListResponse>("/api/knowledge"),
+    enabled: wantsKnowledge
   });
 
   const runtimeQuery = useQuery({
     queryKey: ["runtime"],
-    queryFn: () => getJSON<RuntimeResponse>("/api/runtime")
+    queryFn: () => getJSON<RuntimeResponse>("/api/runtime"),
+    enabled: wantsHarness
   });
 
   const harnessQuery = useQuery({
     queryKey: ["harness"],
-    queryFn: () => getJSON<HarnessResponse>("/api/harness")
+    queryFn: () => getJSON<HarnessResponse>("/api/harness"),
+    enabled: wantsHarness
   });
 
   const conversationDetailQuery = useQuery({
     queryKey: ["conversation", viewState.conversation],
-    queryFn: () => getJSON<ConversationDetailResponse>(`/api/conversations/${viewState.conversation}`),
+    queryFn: () => getJSON<ConversationDetailResponse>(`/api/conversations/${viewState.conversation}?${CONVERSATION_DETAIL_QUERY}`),
     enabled: Boolean(viewState.tab === "conversations" && viewState.conversation)
   });
 
@@ -169,6 +188,32 @@ export function App() {
     queryFn: () => getJSON<TraceDetailResponse>(`/api/traces/${viewState.trace}`),
     enabled: Boolean(viewState.trace)
   });
+
+  useEffect(() => {
+    if (loadSecondaryData) {
+      return;
+    }
+    const waitingForConversation =
+      viewState.tab === "conversations" &&
+      Boolean(viewState.conversation) &&
+      !conversationDetailQuery.isFetched &&
+      conversationDetailQuery.fetchStatus !== "idle";
+    const waitingForTrace = Boolean(viewState.trace) && !traceDetailQuery.isFetched && traceDetailQuery.fetchStatus !== "idle";
+    if (waitingForConversation || waitingForTrace) {
+      return;
+    }
+    const timeout = window.setTimeout(() => setLoadSecondaryData(true), 400);
+    return () => window.clearTimeout(timeout);
+  }, [
+    loadSecondaryData,
+    viewState.tab,
+    viewState.conversation,
+    viewState.trace,
+    conversationDetailQuery.isFetched,
+    conversationDetailQuery.fetchStatus,
+    traceDetailQuery.isFetched,
+    traceDetailQuery.fetchStatus
+  ]);
 
   useEffect(() => {
     if (!viewState.trace) {
@@ -213,34 +258,34 @@ export function App() {
   }, [proposalsQuery.data?.settings?.active_proposal_cap]);
 
   useEffect(() => {
-    if (viewState.conversation && !conversations.some((item) => item.conversation_id === viewState.conversation)) {
+    if (viewState.conversation && conversationsQuery.isSuccess && !conversations.some((item) => item.conversation_id === viewState.conversation)) {
       navigate({ tab: "conversations" });
     }
-  }, [viewState.conversation, conversations]);
+  }, [viewState.conversation, conversations, conversationsQuery.isSuccess]);
 
   useEffect(() => {
-    if (viewState.case && !cases.some((item) => item.case_id === viewState.case)) {
+    if (viewState.case && casesQuery.isSuccess && !cases.some((item) => item.case_id === viewState.case)) {
       navigate({ tab: "cases" });
     }
-  }, [viewState.case, cases]);
+  }, [viewState.case, cases, casesQuery.isSuccess]);
 
   useEffect(() => {
-    if (viewState.proposal && !proposals.some((item) => item.id === viewState.proposal)) {
+    if (viewState.proposal && proposalsQuery.isSuccess && !proposals.some((item) => item.id === viewState.proposal)) {
       navigate({ tab: "proposals" });
     }
-  }, [viewState.proposal, proposals]);
+  }, [viewState.proposal, proposals, proposalsQuery.isSuccess]);
 
   useEffect(() => {
-    if (viewState.knowledge && !knowledgeEntries.some((item) => item.id === viewState.knowledge)) {
+    if (viewState.knowledge && knowledgeQuery.isSuccess && !knowledgeEntries.some((item) => item.id === viewState.knowledge)) {
       navigate({ tab: "knowledge" });
     }
-  }, [viewState.knowledge, knowledgeEntries]);
+  }, [viewState.knowledge, knowledgeEntries, knowledgeQuery.isSuccess]);
 
   useEffect(() => {
-    if (viewState.role && !harnessRoles.some((item) => item.role === viewState.role)) {
+    if (viewState.role && harnessQuery.isSuccess && !harnessRoles.some((item) => item.role === viewState.role)) {
       navigate({ tab: "harness" });
     }
-  }, [viewState.role, harnessRoles]);
+  }, [viewState.role, harnessRoles, harnessQuery.isSuccess]);
 
   const refreshEverything = async () => {
     await Promise.all([
@@ -445,23 +490,23 @@ export function App() {
         <nav className="tab-nav" aria-label="Sections">
           <button className={viewState.tab === "conversations" ? "tab-button active" : "tab-button"} onClick={() => navigate({ tab: "conversations" })}>
             <span>Conversations</span>
-            <strong>{conversations.length}</strong>
+            <strong>{countLabel(conversationsQuery.isFetched, conversations.length)}</strong>
           </button>
           <button className={viewState.tab === "cases" ? "tab-button active" : "tab-button"} onClick={() => navigate({ tab: "cases" })}>
             <span>Cases</span>
-            <strong>{cases.length}</strong>
+            <strong>{countLabel(casesQuery.isFetched, cases.length)}</strong>
           </button>
           <button className={viewState.tab === "proposals" ? "tab-button active" : "tab-button"} onClick={() => navigate({ tab: "proposals" })}>
             <span>Proposals</span>
-            <strong>{proposals.length}</strong>
+            <strong>{countLabel(proposalsQuery.isFetched, proposals.length)}</strong>
           </button>
           <button className={viewState.tab === "knowledge" ? "tab-button active" : "tab-button"} onClick={() => navigate({ tab: "knowledge" })}>
             <span>Knowledge</span>
-            <strong>{knowledgeEntries.length}</strong>
+            <strong>{countLabel(knowledgeQuery.isFetched, knowledgeEntries.length)}</strong>
           </button>
           <button className={viewState.tab === "harness" ? "tab-button active" : "tab-button"} onClick={() => navigate({ tab: "harness" })}>
             <span>Harness</span>
-            <strong>{harnessRoles.length}</strong>
+            <strong>{countLabel(harnessQuery.isFetched, harnessRoles.length)}</strong>
           </button>
         </nav>
 
@@ -471,21 +516,21 @@ export function App() {
               <p className="eyebrow">Operations</p>
               <h2>Proposal cap</h2>
             </div>
-            <span className="status-chip">{proposalSlotState?.active ?? 0}/{proposalSlotState?.cap ?? 0}</span>
+            <span className="status-chip">{proposalSlotState ? `${proposalSlotState.active}/${proposalSlotState.cap}` : "..."}</span>
           </div>
           <dl className="slot-grid">
-            <div><dt>Active</dt><dd>{proposalSlotState?.active ?? 0}</dd></div>
-            <div><dt>Available</dt><dd>{proposalSlotState?.available ?? 0}</dd></div>
-            <div><dt>Stale</dt><dd>{listOrEmpty(proposalSlotState?.stale_proposal_ids).length}</dd></div>
-            <div><dt>Candidates</dt><dd>{candidates.length}</dd></div>
+            <div><dt>Active</dt><dd>{proposalSlotState ? proposalSlotState.active : "..."}</dd></div>
+            <div><dt>Available</dt><dd>{proposalSlotState ? proposalSlotState.available : "..."}</dd></div>
+            <div><dt>Stale</dt><dd>{proposalSlotState ? listOrEmpty(proposalSlotState.stale_proposal_ids).length : "..."}</dd></div>
+            <div><dt>Candidates</dt><dd>{proposalsQuery.isFetched ? candidates.length : "..."}</dd></div>
           </dl>
           <label className="field">
             Active proposal cap
             <input type="number" min={1} value={proposalCapInput} onChange={(event) => setProposalCapInput(event.target.value)} />
           </label>
           <div className="button-row">
-            <button onClick={() => settingsMutation.mutate()} disabled={settingsMutation.isPending}>Save cap</button>
-            <button className="secondary" onClick={() => promoteMutation.mutate()} disabled={promoteMutation.isPending || (proposalSlotState?.available ?? 0) === 0}>
+            <button onClick={() => settingsMutation.mutate()} disabled={settingsMutation.isPending || !proposalSlotState}>Save cap</button>
+            <button className="secondary" onClick={() => promoteMutation.mutate()} disabled={promoteMutation.isPending || !proposalSlotState || proposalSlotState.available === 0}>
               Run promoter
             </button>
           </div>

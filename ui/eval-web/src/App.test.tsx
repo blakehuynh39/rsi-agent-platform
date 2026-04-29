@@ -579,24 +579,42 @@ describe("App", () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
     vi.spyOn(globalThis, "fetch").mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
+      const path = new URL(url, window.location.origin).pathname;
       const method = init?.method ?? "GET";
       const payload =
-        method === "POST" && url.endsWith("/api/app-data/reset") ? {
+        method === "POST" && path === "/api/app-data/reset" ? {
           backend: "postgres",
           reset_at: "2026-04-11T12:45:00Z",
           truncated_tables: ["public.event_envelope", "honcho.queue"],
           preserved_tables: ["public.rsi_schema_migrations", "honcho.alembic_version"]
         } :
-        url.endsWith("/api/conversations") ? conversationListResponse :
-        url.endsWith("/api/cases") ? casesListResponse :
-        url.endsWith("/api/proposals") ? proposalListResponse :
-        url.endsWith("/api/knowledge") ? knowledgeListResponse :
-        url.endsWith("/api/runtime") ? runtimeResponse :
-        url.endsWith("/api/harness") ? harnessResponse :
-        url.endsWith("/api/conversations/conv-001") ? conversationDetailResponse :
-        url.endsWith("/api/traces/trace-001") ? traceDetailResponse :
-        url.endsWith("/api/proposals/proposal-001") ? proposalDetailResponse :
-        url.endsWith("/api/knowledge/knowledge-001") ? knowledgeDetailResponse :
+        path === "/api/conversations" ? conversationListResponse :
+        path === "/api/cases" ? casesListResponse :
+        path === "/api/proposals" ? proposalListResponse :
+        path === "/api/knowledge" ? knowledgeListResponse :
+        path === "/api/runtime" ? runtimeResponse :
+        path === "/api/harness" ? harnessResponse :
+        path === "/api/conversations/conv-001" ? conversationDetailResponse :
+        path === "/api/traces/trace-001" ? traceDetailResponse :
+        path === "/api/traces/trace-001/ledger" ? {
+          events: [
+            {
+              id: "xled-older-0",
+              execution_id: "hexec-live",
+              trace_id: "trace-001",
+              workflow_id: "wf-001",
+              phase_id: "investigate",
+              kind: "model.reasoning.delta",
+              status: "streaming",
+              seq: 0,
+              recorded_at: "2026-04-11T12:01:59Z",
+              payload: { role: "prod", delta: "older" }
+            }
+          ],
+          paging: { has_more: false, next_before: "" }
+        } :
+        path === "/api/proposals/proposal-001" ? proposalDetailResponse :
+        path === "/api/knowledge/knowledge-001" ? knowledgeDetailResponse :
         undefined;
 
       if (!payload) {
@@ -653,7 +671,7 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: "live" }));
 
     await waitFor(() => expect(MockEventSource.instances.length).toBe(1));
-    expect(MockEventSource.instances[0].url).toBe("/api/traces/trace-001/stream?scope=all");
+    expect(MockEventSource.instances[0].url).toBe("/api/traces/trace-001/stream?scope=main&limit=100");
     MockEventSource.instances[0].emit("ledger", {
       id: "xled-live-1",
       execution_id: "hexec-live",
@@ -684,11 +702,42 @@ describe("App", () => {
       trace_id: "trace-001",
       workflow_id: "wf-001",
       phase_id: "investigate",
-      kind: "tool.call.completed",
-      status: "completed",
+      kind: "tool.call.started",
+      status: "running",
       seq: 3,
       recorded_at: "2026-04-11T12:02:02Z",
       payload: {
+        tool_call_id: "tool-1",
+        tool_name: "repo_read_file"
+      }
+    });
+    MockEventSource.instances[0].emit("ledger", {
+      id: "xled-live-4",
+      execution_id: "hexec-live",
+      trace_id: "trace-001",
+      workflow_id: "wf-001",
+      phase_id: "investigate",
+      kind: "tool.call.progress",
+      status: "running",
+      seq: 4,
+      recorded_at: "2026-04-11T12:02:03Z",
+      payload: {
+        tool_call_id: "tool-1",
+        tool_name: "repo_read_file"
+      }
+    });
+    MockEventSource.instances[0].emit("ledger", {
+      id: "xled-live-5",
+      execution_id: "hexec-live",
+      trace_id: "trace-001",
+      workflow_id: "wf-001",
+      phase_id: "investigate",
+      kind: "tool.call.completed",
+      status: "completed",
+      seq: 5,
+      recorded_at: "2026-04-11T12:02:04Z",
+      payload: {
+        tool_call_id: "tool-1",
         tool_name: "repo_read_file",
         result: JSON.stringify({
           status: "ok",
@@ -700,8 +749,44 @@ describe("App", () => {
     expect(await screen.findByText("Reasoning stream")).toBeInTheDocument();
     expect(screen.getByText("model.reasoning.delta · 2 chunks")).toBeInTheDocument();
     expect(screen.getByText("reading repo files")).toBeInTheDocument();
-    expect(screen.getByText("Tool completed: repo_read_file")).toBeInTheDocument();
+    expect(screen.getByText("repo_read_file")).toBeInTheDocument();
+    expect(screen.getByText("3 updates")).toBeInTheDocument();
     expect(screen.getByText("Repository file README.md loaded. · status: ok")).toBeInTheDocument();
+  });
+
+  it("probes ledger history before showing the Load older control", async () => {
+    vi.stubGlobal("EventSource", MockEventSource);
+    renderApp();
+
+    fireEvent.click(await screen.findByRole("button", { name: /Need help understanding trace rendering/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /trace-001/i }));
+    expect(await screen.findByText("Trace inspector")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "live" }));
+
+    await waitFor(() => expect(MockEventSource.instances.length).toBe(1));
+    for (let seq = 1; seq <= 100; seq += 1) {
+      MockEventSource.instances[0].emit("ledger", {
+        id: `xled-page-${seq}`,
+        execution_id: "hexec-live",
+        trace_id: "trace-001",
+        workflow_id: "wf-001",
+        phase_id: "investigate",
+        kind: "model.reasoning.delta",
+        status: "streaming",
+        seq,
+        recorded_at: `2026-04-11T12:02:${String(seq % 60).padStart(2, "0")}Z`,
+        payload: { role: "prod", delta: `chunk ${seq} ` }
+      });
+    }
+
+    await waitFor(() => {
+      expect(
+        vi.mocked(globalThis.fetch).mock.calls.some(([input]) =>
+          String(input).includes("/api/traces/trace-001/ledger?scope=main&limit=1&before=xled-page-1")
+        )
+      ).toBe(true);
+    });
+    expect(await screen.findByRole("button", { name: "Load older" })).toBeInTheDocument();
   });
 
   it("renders Slack transcript entries with readable Slack names and channel labels", async () => {

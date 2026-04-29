@@ -218,6 +218,8 @@ create table if not exists trace_event (
   latency_ms bigint default 0
 );
 
+create index if not exists trace_event_trace_started_idx on trace_event (trace_id, started_at asc);
+
 create table if not exists artifact (
   id text primary key,
   trace_id text not null,
@@ -227,6 +229,8 @@ create table if not exists artifact (
   size_bytes bigint not null default 0,
   source text not null
 );
+
+create index if not exists artifact_trace_idx on artifact (trace_id, id);
 
 create table if not exists human_rating (
   id bigserial primary key,
@@ -1898,6 +1902,8 @@ create index if not exists execution_ledger_event_execution_idx
   on execution_ledger_event (execution_id, seq asc);
 create index if not exists execution_ledger_event_trace_idx
   on execution_ledger_event (trace_id, recorded_at desc, seq asc);
+create index if not exists execution_ledger_event_trace_page_idx
+  on execution_ledger_event (trace_id, recorded_at desc, execution_id desc, seq desc, id desc);
 create index if not exists execution_ledger_event_workflow_idx
   on execution_ledger_event (workflow_id, recorded_at desc, seq asc);
 create index if not exists execution_ledger_event_kind_idx

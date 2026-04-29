@@ -10,6 +10,17 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 )
 
+type ExecutionLedgerPageOptions struct {
+	Limit    int
+	BeforeID string
+	Scope    string
+}
+
+type ExecutionLedgerPage struct {
+	Events  []events.ExecutionLedgerEvent
+	HasMore bool
+}
+
 func (s *MemoryStore) ListExecutionLedgerEvents() []events.ExecutionLedgerEvent {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -54,6 +65,30 @@ func (s *MemoryStore) ListExecutionLedgerEventsByTrace(traceID string) []events.
 		return out[i].RecordedAt.Before(out[j].RecordedAt)
 	})
 	return out
+}
+
+func (s *MemoryStore) ListExecutionLedgerEventsByTracePage(traceID string, opts ExecutionLedgerPageOptions) ExecutionLedgerPage {
+	limit := opts.Limit
+	if limit <= 0 {
+		limit = 100
+	}
+	allItems := s.ListExecutionLedgerEventsByTrace(traceID)
+	items := filterExecutionLedgerEventsByScope(allItems, opts.Scope)
+	end := len(items)
+	if opts.BeforeID != "" {
+		for index, item := range items {
+			if item.ID == opts.BeforeID {
+				end = index
+				break
+			}
+		}
+	}
+	start := end - limit
+	if start < 0 {
+		start = 0
+	}
+	page := append([]events.ExecutionLedgerEvent(nil), items[start:end]...)
+	return ExecutionLedgerPage{Events: page, HasMore: start > 0}
 }
 
 func (s *MemoryStore) RecordExecutionLedgerEvents(items []events.ExecutionLedgerEvent) error {
@@ -131,6 +166,33 @@ func (p *PostgresStore) ListExecutionLedgerEventsByTrace(traceID string) []event
 		out = append(out, item)
 	}
 	return out
+}
+
+func (p *PostgresStore) ListExecutionLedgerEventsByTracePage(traceID string, opts ExecutionLedgerPageOptions) ExecutionLedgerPage {
+	limit := opts.Limit
+	if limit <= 0 {
+		limit = 100
+	}
+	if limit > 500 {
+		limit = 500
+	}
+	allItems := p.ListExecutionLedgerEventsByTrace(traceID)
+	items := filterExecutionLedgerEventsByScope(allItems, opts.Scope)
+	end := len(items)
+	if strings.TrimSpace(opts.BeforeID) != "" {
+		for index, item := range items {
+			if item.ID == strings.TrimSpace(opts.BeforeID) {
+				end = index
+				break
+			}
+		}
+	}
+	start := end - limit
+	if start < 0 {
+		start = 0
+	}
+	page := append([]events.ExecutionLedgerEvent(nil), items[start:end]...)
+	return ExecutionLedgerPage{Events: page, HasMore: start > 0}
 }
 
 func (p *PostgresStore) RecordExecutionLedgerEvents(items []events.ExecutionLedgerEvent) error {
@@ -245,4 +307,50 @@ func executionLedgerEventKey(item events.ExecutionLedgerEvent) string {
 		return ""
 	}
 	return strings.TrimSpace(item.ExecutionID) + "|" + strconv.Itoa(item.Seq)
+}
+
+func filterExecutionLedgerEventsByScope(items []events.ExecutionLedgerEvent, scope string) []events.ExecutionLedgerEvent {
+	normalized := strings.TrimSpace(strings.ToLower(scope))
+	if normalized == "" || normalized == "all" {
+		return items
+	}
+	out := make([]events.ExecutionLedgerEvent, 0, len(items))
+	for _, item := range items {
+		if LedgerEventMatchesScope(item, normalized) {
+			out = append(out, item)
+		}
+	}
+	return out
+}
+
+func LedgerEventMatchesScope(item events.ExecutionLedgerEvent, normalizedScope string) bool {
+	if normalizedScope == "" || normalizedScope == "all" {
+		return true
+	}
+	role := strings.TrimSpace(strings.ToLower(stringValueFromPayload(item.Payload, "role")))
+	switch normalizedScope {
+	case "main":
+		return role == "" || role == "prod" || role == "proactive"
+	case "eval":
+		return role == "eval"
+	case "proposal":
+		return role == "proposal"
+	default:
+		return true
+	}
+}
+
+func stringValueFromPayload(payload map[string]any, key string) string {
+	value, ok := payload[key]
+	if !ok {
+		return ""
+	}
+	switch typed := value.(type) {
+	case string:
+		return typed
+	case nil:
+		return ""
+	default:
+		return ""
+	}
 }

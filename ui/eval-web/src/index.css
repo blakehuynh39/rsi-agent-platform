@@ -295,20 +295,33 @@ button:disabled {
 }
 
 .live-stream {
-  max-height: 620px;
+  max-height: 560px;
   overflow: auto;
   border: 1px solid rgba(24, 32, 42, 0.1);
   border-radius: 8px;
   background: #11161d;
-  padding: 12px;
+  padding: 10px;
 }
 
 .live-event {
   border-left: 3px solid #6b7280;
   background: #f7f3eb;
   border-radius: 8px;
-  margin-bottom: 10px;
-  padding: 10px 12px;
+  margin-bottom: 8px;
+  padding: 9px 11px;
+}
+
+.live-history-button {
+  width: 100%;
+  margin: 0 0 8px;
+}
+
+.live-event .detail-row-header strong {
+  font-size: 0.95rem;
+}
+
+.live-event .detail-row-header small {
+  color: #5a6671;
 }
 
 .live-event.model {
@@ -341,14 +354,16 @@ button:disabled {
 }
 
 .live-event-kind {
-  margin-top: 4px;
+  margin-top: 3px;
   font-size: 0.78rem;
 }
 
 .live-event-text {
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.58);
-  padding: 10px;
+  max-height: 180px;
+  overflow: auto;
+  padding: 8px;
   font-family: "IBM Plex Sans", "Avenir Next", "Segoe UI", sans-serif;
 }
 

@@ -2703,104 +2703,119 @@ func (p *PostgresStore) ListEvents() []ingestion.EventEnvelope {
 }
 
 func (p *PostgresStore) ListConversations() []conversation.Conversation {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadConversations(p.db, store); err != nil {
 		return nil
 	}
 	return store.ListConversations()
 }
 
 func (p *PostgresStore) GetConversation(conversationID string) (conversation.Conversation, bool) {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadConversations(p.db, store); err != nil {
 		return conversation.Conversation{}, false
 	}
 	return store.GetConversation(conversationID)
 }
 
 func (p *PostgresStore) ListConversationEntries(conversationID string) []conversation.Entry {
-	store, err := p.readStore()
+	rows, err := p.db.Query(`select id, conversation_id, event_id, trace_id, source, source_event_id, entry_type, actor_id, actor_type, body, metadata, created_at
+from conversation_entry
+where conversation_id = $1
+order by created_at asc, id asc`, conversationID)
 	if err != nil {
 		return nil
 	}
-	return store.ListConversationEntries(conversationID)
+	defer rows.Close()
+	entries := []conversation.Entry{}
+	for rows.Next() {
+		item, scanErr := scanConversationEntry(rows)
+		if scanErr != nil {
+			return nil
+		}
+		entries = append(entries, item)
+	}
+	if err := rows.Err(); err != nil {
+		return nil
+	}
+	return entries
 }
 
 func (p *PostgresStore) ListCases() []conversation.Case {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadCases(p.db, store); err != nil {
 		return nil
 	}
 	return store.ListCases()
 }
 
 func (p *PostgresStore) GetCase(caseID string) (conversation.Case, bool) {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadCases(p.db, store); err != nil {
 		return conversation.Case{}, false
 	}
 	return store.GetCase(caseID)
 }
 
 func (p *PostgresStore) ListActionIntents() []action.Intent {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadActionIntents(p.db, store); err != nil {
 		return nil
 	}
 	return store.ListActionIntents()
 }
 
 func (p *PostgresStore) GetActionIntent(actionID string) (action.Intent, bool) {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadActionIntents(p.db, store); err != nil {
 		return action.Intent{}, false
 	}
 	return store.GetActionIntent(actionID)
 }
 
 func (p *PostgresStore) ListActionResults(actionIntentID string) []action.Result {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadActionResults(p.db, store); err != nil {
 		return nil
 	}
 	return store.ListActionResults(actionIntentID)
 }
 
 func (p *PostgresStore) ListOutcomes() []outcome.Record {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadOutcomes(p.db, store); err != nil {
 		return nil
 	}
 	return store.ListOutcomes()
 }
 
 func (p *PostgresStore) ListKnowledgeEntries() []knowledge.Entry {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadKnowledgeEntries(p.db, store); err != nil {
 		return nil
 	}
 	return store.ListKnowledgeEntries()
 }
 
 func (p *PostgresStore) GetKnowledgeEntry(knowledgeID string) (knowledge.Entry, bool) {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadKnowledgeEntries(p.db, store); err != nil {
 		return knowledge.Entry{}, false
 	}
 	return store.GetKnowledgeEntry(knowledgeID)
 }
 
 func (p *PostgresStore) ListKnowledgeEvidenceLinks(knowledgeID string) []knowledge.EvidenceLink {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadKnowledgeEvidence(p.db, store); err != nil {
 		return nil
 	}
 	return store.ListKnowledgeEvidenceLinks(knowledgeID)
 }
 
 func (p *PostgresStore) ListKnowledgeReviews(knowledgeID string) []knowledge.Review {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadKnowledgeReviews(p.db, store); err != nil {
 		return nil
 	}
 	return store.ListKnowledgeReviews(knowledgeID)
@@ -2815,8 +2830,8 @@ func (p *PostgresStore) ListIngestions() []slack.Ingestion {
 }
 
 func (p *PostgresStore) ListWorkflows() []Workflow {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadWorkflows(p.db, store); err != nil {
 		return nil
 	}
 	return store.ListWorkflows()
@@ -2879,19 +2894,206 @@ func (p *PostgresStore) ListExperiments() []registry.ExperimentRecord {
 }
 
 func (p *PostgresStore) ListTraces() []events.TraceSummary {
-	store, err := p.readStore()
+	rows, err := p.db.Query(`select trace_id, ingestion_id, workflow_id, conversation_id, case_id, trigger_event_id, supersedes_trace_id, thread_key, workflow_kind, status, last_verdict, started_at, ended_at, event_count, artifact_count, reasoning_step_count, tool_call_count, slack_action_count from trace_summary order by started_at desc`)
 	if err != nil {
 		return nil
 	}
-	return store.ListTraces()
+	defer rows.Close()
+	out := []events.TraceSummary{}
+	for rows.Next() {
+		summary, err := scanTraceSummary(rows)
+		if err != nil {
+			return nil
+		}
+		out = append(out, summary)
+	}
+	if err := rows.Err(); err != nil {
+		return nil
+	}
+	return out
 }
 
 func (p *PostgresStore) GetTrace(traceID string) (events.Trace, bool) {
-	store, err := p.readStore()
-	if err != nil {
+	summary, ok := p.getTraceSummary(traceID)
+	if !ok {
 		return events.Trace{}, false
 	}
-	return store.GetTrace(traceID)
+	trace := events.Trace{Summary: summary}
+	trace.Events = p.listTraceEventsByTrace(traceID)
+	trace.Artifacts = p.listArtifactsByTrace(traceID)
+	trace.Reasoning = p.listReasoningStepsByTrace(traceID)
+	trace.ToolCalls = p.listToolCallsByTrace(traceID)
+	trace.SlackActions = p.listSlackActionsByTrace(traceID)
+	recomputeTraceSummary(&trace)
+	return trace, true
+}
+
+func (p *PostgresStore) getTraceSummary(traceID string) (events.TraceSummary, bool) {
+	row := p.db.QueryRow(`select trace_id, ingestion_id, workflow_id, conversation_id, case_id, trigger_event_id, supersedes_trace_id, thread_key, workflow_kind, status, last_verdict, started_at, ended_at, event_count, artifact_count, reasoning_step_count, tool_call_count, slack_action_count from trace_summary where trace_id = $1`, traceID)
+	summary, err := scanTraceSummary(row)
+	if err != nil {
+		return events.TraceSummary{}, false
+	}
+	return summary, true
+}
+
+type traceSummaryScanner interface {
+	Scan(dest ...any) error
+}
+
+func scanTraceSummary(row traceSummaryScanner) (events.TraceSummary, error) {
+	var summary events.TraceSummary
+	var status string
+	var conversationID, caseID, triggerEventID, supersedesTraceID, lastVerdict sql.NullString
+	if err := row.Scan(&summary.TraceID, &summary.IngestionID, &summary.WorkflowID, &conversationID, &caseID, &triggerEventID, &supersedesTraceID, &summary.ThreadKey, &summary.WorkflowKind, &status, &lastVerdict, &summary.StartedAt, &summary.EndedAt, &summary.EventCount, &summary.ArtifactCount, &summary.ReasoningStepCount, &summary.ToolCallCount, &summary.SlackActionCount); err != nil {
+		return events.TraceSummary{}, err
+	}
+	summary.ConversationID = conversationID.String
+	summary.CaseID = caseID.String
+	summary.TriggerEventID = triggerEventID.String
+	summary.SupersedesTraceID = supersedesTraceID.String
+	summary.Status = events.Status(status)
+	summary.LastVerdict = lastVerdict.String
+	return summary, nil
+}
+
+func (p *PostgresStore) listTraceEventsByTrace(traceID string) []events.TraceEvent {
+	rows, err := p.db.Query(`select trace_id, ingestion_id, workflow_id, conversation_id, case_id, trigger_event_id, parent_event_id, plane, service, actor, event_type, status, started_at, ended_at, payload_ref, artifact_ref, cost_tokens, latency_ms, description from trace_event where trace_id = $1 order by started_at asc`, traceID)
+	if err != nil {
+		return []events.TraceEvent{}
+	}
+	defer rows.Close()
+	out := []events.TraceEvent{}
+	for rows.Next() {
+		var item events.TraceEvent
+		var status string
+		var conversationID, caseID, triggerEventID, parentEvent, payloadRef, artifactRef, description sql.NullString
+		var endedAt sql.NullTime
+		if err := rows.Scan(&item.TraceID, &item.IngestionID, &item.WorkflowID, &conversationID, &caseID, &triggerEventID, &parentEvent, &item.Plane, &item.Service, &item.Actor, &item.EventType, &status, &item.StartedAt, &endedAt, &payloadRef, &artifactRef, &item.CostTokens, &item.LatencyMs, &description); err != nil {
+			return []events.TraceEvent{}
+		}
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.TriggerEventID = triggerEventID.String
+		item.Status = events.Status(status)
+		item.ParentEvent = parentEvent.String
+		item.PayloadRef = payloadRef.String
+		item.ArtifactRef = artifactRef.String
+		item.Description = description.String
+		if endedAt.Valid {
+			t := endedAt.Time
+			item.EndedAt = &t
+		}
+		out = append(out, item)
+	}
+	return out
+}
+
+func (p *PostgresStore) listArtifactsByTrace(traceID string) []events.Artifact {
+	rows, err := p.db.Query(`select id, trace_id, kind, content_type, url, size_bytes, source from artifact where trace_id = $1 order by id`, traceID)
+	if err != nil {
+		return []events.Artifact{}
+	}
+	defer rows.Close()
+	out := []events.Artifact{}
+	for rows.Next() {
+		var item events.Artifact
+		if err := rows.Scan(&item.ID, &item.TraceID, &item.Kind, &item.ContentType, &item.URL, &item.SizeBytes, &item.Source); err != nil {
+			return []events.Artifact{}
+		}
+		out = append(out, item)
+	}
+	return out
+}
+
+func (p *PostgresStore) listReasoningStepsByTrace(traceID string) []events.ReasoningStep {
+	rows, err := p.db.Query(`select id, trace_id, workflow_id, conversation_id, case_id, step_type, summary, evidence_refs, alternatives, confidence, decision, created_at from reasoning_step where trace_id = $1 order by created_at asc`, traceID)
+	if err != nil {
+		return []events.ReasoningStep{}
+	}
+	defer rows.Close()
+	out := []events.ReasoningStep{}
+	for rows.Next() {
+		var item events.ReasoningStep
+		var workflowID, conversationID, caseID, decision sql.NullString
+		var evidenceRefs, alternatives []byte
+		if err := rows.Scan(&item.ID, &item.TraceID, &workflowID, &conversationID, &caseID, &item.StepType, &item.Summary, &evidenceRefs, &alternatives, &item.Confidence, &decision, &item.CreatedAt); err != nil {
+			return []events.ReasoningStep{}
+		}
+		item.WorkflowID = workflowID.String
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.Decision = decision.String
+		item.EvidenceRefs = decodeJSON(evidenceRefs, []events.EvidenceRef{})
+		item.Alternatives = decodeJSON(alternatives, []string{})
+		out = append(out, item)
+	}
+	return out
+}
+
+func (p *PostgresStore) listToolCallsByTrace(traceID string) []events.ToolCallRecord {
+	rows, err := p.db.Query(`select id, trace_id, workflow_id, conversation_id, case_id, tool_name, tool_call_id, request, summary, raw_artifact_refs, approval_state, interpretation_summary, status, created_at from tool_call_record where trace_id = $1 order by created_at asc`, traceID)
+	if err != nil {
+		return []events.ToolCallRecord{}
+	}
+	defer rows.Close()
+	out := []events.ToolCallRecord{}
+	for rows.Next() {
+		var item events.ToolCallRecord
+		var workflowID, conversationID, caseID, summary, approvalState, interpretationSummary, status sql.NullString
+		var request, rawArtifactRefs []byte
+		if err := rows.Scan(&item.ID, &item.TraceID, &workflowID, &conversationID, &caseID, &item.ToolName, &item.ToolCallID, &request, &summary, &rawArtifactRefs, &approvalState, &interpretationSummary, &status, &item.CreatedAt); err != nil {
+			return []events.ToolCallRecord{}
+		}
+		item.WorkflowID = workflowID.String
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.Request = decodeJSON(request, map[string]interface{}{})
+		item.Summary = summary.String
+		item.RawArtifactRefs = decodeJSON(rawArtifactRefs, []string{})
+		item.ApprovalState = approvalState.String
+		item.InterpretationSummary = interpretationSummary.String
+		item.Status = status.String
+		out = append(out, item)
+	}
+	return out
+}
+
+func (p *PostgresStore) listSlackActionsByTrace(traceID string) []events.SlackActionRecord {
+	rows, err := p.db.Query(`select id, trace_id, workflow_id, conversation_id, case_id, channel_id, thread_ts, idempotency_key, draft_body, final_body, policy_verdict, send_status, artifact_refs, created_at from slack_action_record where trace_id = $1 order by created_at asc`, traceID)
+	if err != nil {
+		return []events.SlackActionRecord{}
+	}
+	defer rows.Close()
+	out := []events.SlackActionRecord{}
+	for rows.Next() {
+		var item events.SlackActionRecord
+		var workflowID, conversationID, caseID, channelID, threadTS, draftBody, finalBody, policyVerdict, sendStatus sql.NullString
+		var artifactRefs []byte
+		if err := rows.Scan(&item.ID, &item.TraceID, &workflowID, &conversationID, &caseID, &channelID, &threadTS, &item.IdempotencyKey, &draftBody, &finalBody, &policyVerdict, &sendStatus, &artifactRefs, &item.CreatedAt); err != nil {
+			return []events.SlackActionRecord{}
+		}
+		item.WorkflowID = workflowID.String
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.ChannelID = channelID.String
+		item.ThreadTS = threadTS.String
+		item.DraftBody = draftBody.String
+		item.FinalBody = finalBody.String
+		item.PolicyVerdict = policyVerdict.String
+		item.SendStatus = sendStatus.String
+		item.ArtifactRefs = decodeJSON(artifactRefs, []string{})
+		out = append(out, item)
+	}
+	return out
+}
+
+func (p *PostgresStore) TraceExists(traceID string) bool {
+	var exists bool
+	if err := p.db.QueryRow(`select exists (select 1 from trace_summary where trace_id = $1)`, traceID).Scan(&exists); err != nil {
+		return false
+	}
+	return exists
 }
 
 func (p *PostgresStore) ListRatings(traceID string) []review.HumanRating {
@@ -2911,8 +3113,8 @@ func (p *PostgresStore) ListImprovementNotes(traceID string) []review.Improvemen
 }
 
 func (p *PostgresStore) ListFeedback(traceID string) []review.FeedbackRecord {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadFeedback(p.db, store); err != nil {
 		return []review.FeedbackRecord{}
 	}
 	return store.ListFeedback(traceID)
@@ -2927,72 +3129,78 @@ func (p *PostgresStore) ListEvalSuites() []evals.Suite {
 }
 
 func (p *PostgresStore) ListEvalRuns() []evals.Run {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadEvalRuns(p.db, store); err != nil {
 		return nil
 	}
 	return store.ListEvalRuns()
 }
 
 func (p *PostgresStore) ListEvalJudgments(evalRunID string) []evals.Judgment {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadEvalJudgments(p.db, store); err != nil {
 		return nil
 	}
 	return store.ListEvalJudgments(evalRunID)
 }
 
 func (p *PostgresStore) GetSettings() improvement.Settings {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadSettings(p.db, store); err != nil {
 		return improvement.Settings{ActiveProposalCap: defaultProposalSlotCap}
 	}
 	return store.GetSettings()
 }
 
 func (p *PostgresStore) ListCandidates() []improvement.Candidate {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadCandidates(p.db, store); err != nil {
 		return nil
 	}
 	return store.ListCandidates()
 }
 
 func (p *PostgresStore) ListProposalMemories() []review.ProposalMemory {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadProposalMemory(p.db, store); err != nil {
 		return nil
 	}
 	return store.ListProposalMemories()
 }
 
 func (p *PostgresStore) GetProposalSlots() ProposalSlotState {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadProposals(p.db, store); err != nil {
+		return ProposalSlotState{Cap: defaultProposalSlotCap}
+	}
+	if err := loadSettings(p.db, store); err != nil {
 		return ProposalSlotState{Cap: defaultProposalSlotCap}
 	}
 	return store.GetProposalSlots()
 }
 
 func (p *PostgresStore) ListProposals() []review.Proposal {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadProposals(p.db, store); err != nil {
+		return nil
+	}
+	if err := loadProposalReviews(p.db, store); err != nil {
 		return nil
 	}
 	return store.ListProposals()
 }
 
 func (p *PostgresStore) ListRepoChangeJobs() []improvement.RepoChangeJob {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadRepoChangeJobs(p.db, store); err != nil {
 		return nil
 	}
 	return store.ListRepoChangeJobs()
 }
 
 func (p *PostgresStore) ListPRAttempts() []improvement.PRAttempt {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadPRAttempts(p.db, store); err != nil {
 		return nil
 	}
 	return store.ListPRAttempts()
@@ -3003,8 +3211,8 @@ func (p *PostgresStore) RecordPRAttempt(attempt improvement.PRAttempt) (item imp
 }
 
 func (p *PostgresStore) ListPostMergeReplays() []improvement.PostMergeReplay {
-	store, err := p.readStore()
-	if err != nil {
+	store := newEmptyMemoryStore()
+	if err := loadPostMergeReplays(p.db, store); err != nil {
 		return nil
 	}
 	return store.ListPostMergeReplays()

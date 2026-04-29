@@ -172,11 +172,33 @@ func newRouterWithTranscriptResolver(cfg config.Config, store storepkg.Repositor
 	})
 	r.Get("/api/traces/{traceID}/stream", func(w http.ResponseWriter, r *http.Request) {
 		traceID := chi.URLParam(r, "traceID")
-		if _, ok := store.GetTrace(traceID); !ok {
+		if !traceExistsForStream(store, traceID) {
 			app.WriteError(w, http.StatusNotFound, errors.New("trace not found"))
 			return
 		}
 		streamTraceLedgerEvents(w, r, store, traceID)
+	})
+	r.Get("/api/traces/{traceID}/ledger", func(w http.ResponseWriter, r *http.Request) {
+		traceID := chi.URLParam(r, "traceID")
+		if !traceExistsForStream(store, traceID) {
+			app.WriteError(w, http.StatusNotFound, errors.New("trace not found"))
+			return
+		}
+		scope := strings.TrimSpace(r.URL.Query().Get("scope"))
+		if scope == "" {
+			scope = "main"
+		}
+		limit := streamLimitFromRequest(r)
+		beforeID := strings.TrimSpace(r.URL.Query().Get("before"))
+		page := traceLedgerEventPage(store, traceID, scope, limit, beforeID)
+		app.WriteJSON(w, http.StatusOK, map[string]any{
+			"events": sliceOrEmpty(page.Events),
+			"paging": map[string]any{
+				"limit":       limit,
+				"has_more":    page.HasMore,
+				"next_before": nextLedgerBeforeCursor(page.Events, page.HasMore),
+			},
+		})
 	})
 	r.Post("/api/traces/{traceID}/replay", func(w http.ResponseWriter, r *http.Request) {
 		traceID := chi.URLParam(r, "traceID")
@@ -347,6 +369,14 @@ func newRouterWithTranscriptResolver(cfg config.Config, store storepkg.Repositor
 	return r
 }
 
+func traceExistsForStream(store storepkg.Repository, traceID string) bool {
+	if checker, ok := store.(interface{ TraceExists(string) bool }); ok {
+		return checker.TraceExists(traceID)
+	}
+	_, ok := store.GetTrace(traceID)
+	return ok
+}
+
 func streamTraceLedgerEvents(w http.ResponseWriter, r *http.Request, store storepkg.Repository, traceID string) {
 	flusher, ok := w.(http.Flusher)
 	if !ok {
@@ -361,6 +391,7 @@ func streamTraceLedgerEvents(w http.ResponseWriter, r *http.Request, store store
 	if queryAfter := strings.TrimSpace(r.URL.Query().Get("after")); queryAfter != "" {
 		lastEventID = queryAfter
 	}
+	limit := streamLimitFromRequest(r)
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache, no-transform")
 	w.Header().Set("Connection", "keep-alive")
@@ -368,7 +399,8 @@ func streamTraceLedgerEvents(w http.ResponseWriter, r *http.Request, store store
 
 	sent := map[string]bool{}
 	sendBatch := func(backfill bool) {
-		items := traceLedgerStreamEvents(store, traceID, scope)
+		batchLimit := limit
+		items := traceLedgerStreamEvents(store, traceID, scope, batchLimit)
 		if backfill && lastEventID != "" {
 			resumeIndex := -1
 			for index, item := range items {
@@ -414,33 +446,80 @@ func streamTraceLedgerEvents(w http.ResponseWriter, r *http.Request, store store
 	}
 }
 
-func traceLedgerStreamEvents(store storepkg.Repository, traceID string, scope string) []events.ExecutionLedgerEvent {
+func traceLedgerStreamEvents(store storepkg.Repository, traceID string, scope string, limit int) []events.ExecutionLedgerEvent {
+	normalized := strings.TrimSpace(strings.ToLower(scope))
 	items := []events.ExecutionLedgerEvent{}
 	for _, item := range store.ListExecutionLedgerEventsByTrace(traceID) {
-		if !ledgerEventMatchesScope(item, scope) {
+		if !storepkg.LedgerEventMatchesScope(item, normalized) {
 			continue
 		}
 		items = append(items, item)
 	}
+	if limit > 0 && len(items) > limit {
+		items = items[len(items)-limit:]
+	}
 	return items
 }
 
-func ledgerEventMatchesScope(item events.ExecutionLedgerEvent, scope string) bool {
+type executionLedgerPager interface {
+	ListExecutionLedgerEventsByTracePage(traceID string, opts storepkg.ExecutionLedgerPageOptions) storepkg.ExecutionLedgerPage
+}
+
+func traceLedgerEventPage(store storepkg.Repository, traceID string, scope string, limit int, beforeID string) storepkg.ExecutionLedgerPage {
+	if pager, ok := store.(executionLedgerPager); ok {
+		return pager.ListExecutionLedgerEventsByTracePage(traceID, storepkg.ExecutionLedgerPageOptions{
+			Limit:    limit,
+			BeforeID: beforeID,
+			Scope:    scope,
+		})
+	}
 	normalized := strings.TrimSpace(strings.ToLower(scope))
-	if normalized == "" || normalized == "all" {
-		return true
+	items := []events.ExecutionLedgerEvent{}
+	for _, item := range store.ListExecutionLedgerEventsByTrace(traceID) {
+		if !storepkg.LedgerEventMatchesScope(item, normalized) {
+			continue
+		}
+		items = append(items, item)
 	}
-	role := strings.TrimSpace(strings.ToLower(stringValue(item.Payload["role"])))
-	switch normalized {
-	case "main":
-		return role == "" || role == "prod" || role == "proactive"
-	case "eval":
-		return role == "eval"
-	case "proposal":
-		return role == "proposal"
-	default:
-		return true
+	end := len(items)
+	if beforeID != "" {
+		for index, item := range items {
+			if item.ID == beforeID {
+				end = index
+				break
+			}
+		}
 	}
+	start := end - limit
+	if start < 0 {
+		start = 0
+	}
+	page := append([]events.ExecutionLedgerEvent(nil), items[start:end]...)
+	return storepkg.ExecutionLedgerPage{Events: page, HasMore: start > 0}
+}
+
+func nextLedgerBeforeCursor(items []events.ExecutionLedgerEvent, hasMore bool) string {
+	if !hasMore || len(items) == 0 {
+		return ""
+	}
+	return items[0].ID
+}
+
+func streamLimitFromRequest(r *http.Request) int {
+	const defaultLimit = 100
+	const maxLimit = 500
+	raw := strings.TrimSpace(r.URL.Query().Get("limit"))
+	if raw == "" {
+		return defaultLimit
+	}
+	parsed, err := strconv.Atoi(raw)
+	if err != nil || parsed <= 0 {
+		return defaultLimit
+	}
+	if parsed > maxLimit {
+		return maxLimit
+	}
+	return parsed
 }
 
 func writeSSELedgerEvent(w http.ResponseWriter, item events.ExecutionLedgerEvent) {

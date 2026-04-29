@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { TraceDetailResponse, TraceInspectorTab, NullableList, EvalJudgment, ExecutionLedgerEvent } from "@/types";
-import { formatTime, latestActionResult, listOrEmpty, scoreBadge } from "@/hooks/api";
+import { formatTime, getJSON, latestActionResult, listOrEmpty, scoreBadge } from "@/hooks/api";
 import { EmptyDetail } from "./empty-detail";
 import { FormattedMessage } from "@/components/formatted-message";
 
-const LIVE_EVENT_LIMIT = 500;
+const LIVE_EVENT_PAGE_SIZE = 100;
+const LIVE_EVENT_LIMIT = 1000;
 const LIVE_EVENT_FAMILIES = ["all", "model", "tool", "terminal", "artifact", "slack", "notion", "mcp", "phase", "failure"];
 const LIVE_DELTA_KINDS = new Set(["model.reasoning.delta", "model.output.delta", "terminal.output", "executor.subprocess.output"]);
+const TOOL_LIFECYCLE_KINDS = new Set(["tool.call.started", "tool.call.progress", "tool.call.completed"]);
 const COMPACT_METADATA_KEYS = new Set([
   "hermes_session_id",
   "observation_id",
@@ -28,6 +30,15 @@ type LiveStreamItem = {
   event: ExecutionLedgerEvent;
   events: ExecutionLedgerEvent[];
   text?: string;
+  toolCallKey?: string;
+};
+
+type LiveLedgerPageResponse = {
+  events: ExecutionLedgerEvent[];
+  paging: {
+    has_more: boolean;
+    next_before?: string;
+  };
 };
 
 function eventFamily(kind: string) {
@@ -53,6 +64,39 @@ function payloadText(payload: Record<string, unknown> | undefined, keys: string[
     if (typeof value === "string" && value.trim()) {
       return value;
     }
+  }
+  return "";
+}
+
+function isToolLifecycleKind(kind: string) {
+  return TOOL_LIFECYCLE_KINDS.has(kind);
+}
+
+function compactToolName(value: string) {
+  let name = value.trim();
+  if (!name) {
+    return "";
+  }
+  const mcpTaskMatch = name.match(/^mcp_rsi_task_trace_[A-Za-z0-9-]+_\d+_(.+)$/);
+  if (mcpTaskMatch?.[1]) {
+    name = mcpTaskMatch[1];
+  }
+  name = name.replace(/^[a-z]+_[a-f0-9]{6,}_/, "");
+  return name;
+}
+
+function toolCallKey(event: ExecutionLedgerEvent) {
+  if (!isToolLifecycleKind(event.kind)) {
+    return "";
+  }
+  const payload = event.payload || {};
+  const callID = payloadText(payload, ["tool_call_id", "call_id", "id"]);
+  const toolName = payloadText(payload, ["tool_name", "name"]);
+  if (callID) {
+    return `${event.execution_id}:${callID}`;
+  }
+  if (toolName) {
+    return `${event.execution_id}:${event.phase_id || "main"}:${toolName}`;
   }
   return "";
 }
@@ -87,7 +131,39 @@ function canMergeLiveDelta(current: LiveStreamItem | undefined, event: Execution
 }
 
 function buildLiveStreamItems(events: ExecutionLedgerEvent[]) {
+  const groupedToolItems = new Map<string, LiveStreamItem>();
   return events.reduce<LiveStreamItem[]>((items, event) => {
+    const toolKey = toolCallKey(event);
+    if (toolKey) {
+      const existing = groupedToolItems.get(toolKey);
+      if (existing) {
+        existing.kind = event.kind;
+        existing.status = event.status;
+        existing.seq_end = event.seq;
+        existing.recorded_at = event.recorded_at;
+        existing.count += 1;
+        existing.event = event;
+        existing.events.push(event);
+        return items;
+      }
+      const item: LiveStreamItem = {
+        id: `tool:${toolKey}`,
+        kind: event.kind,
+        status: event.status,
+        phase_id: event.phase_id,
+        seq: event.seq,
+        seq_end: event.seq,
+        recorded_at: event.recorded_at,
+        count: 1,
+        event,
+        events: [event],
+        toolCallKey: toolKey
+      };
+      groupedToolItems.set(toolKey, item);
+      items.push(item);
+      return items;
+    }
+
     const delta = liveDeltaText(event);
     const previous = items[items.length - 1];
     if (delta && canMergeLiveDelta(previous, event)) {
@@ -182,6 +258,7 @@ function compactEventDetails(item: LiveStreamItem) {
 function eventTitle(item: LiveStreamItem) {
   const payload = item.event.payload || {};
   const toolName = payloadText(payload, ["tool_name", "name"]);
+  const shortToolName = compactToolName(toolName);
   switch (item.kind) {
     case "model.reasoning.delta":
       return "Reasoning stream";
@@ -190,11 +267,9 @@ function eventTitle(item: LiveStreamItem) {
     case "model.thinking":
       return "Thinking";
     case "tool.call.started":
-      return toolName ? `Tool started: ${toolName}` : "Tool started";
     case "tool.call.progress":
-      return toolName ? `Tool progress: ${toolName}` : "Tool progress";
     case "tool.call.completed":
-      return toolName ? `Tool completed: ${toolName}` : "Tool completed";
+      return shortToolName || "Tool call";
     case "tool.generation.started":
       return "Tool generation";
     case "artifact.created":
@@ -212,22 +287,28 @@ function eventPrimaryText(item: LiveStreamItem) {
   if (item.text) {
     return item.text;
   }
-  const payload = item.event.payload || {};
-  const parsedResult = parseToolResultSummary(payload.result);
-  if (parsedResult) {
-    return parsedResult;
+  for (let i = item.events.length - 1; i >= 0; i--) {
+    const payload = item.events[i]?.payload || {};
+    const parsedResult = parseToolResultSummary(payload.result);
+    if (parsedResult) {
+      return parsedResult;
+    }
+    const text = payloadText(payload, [
+      "summary",
+      "result_summary",
+      "message",
+      "text",
+      "chunk_text",
+      "preview",
+      "error",
+      "failure_reason",
+      "reason"
+    ]);
+    if (text) {
+      return text;
+    }
   }
-  return payloadText(payload, [
-    "summary",
-    "result_summary",
-    "message",
-    "text",
-    "chunk_text",
-    "preview",
-    "error",
-    "failure_reason",
-    "reason"
-  ]);
+  return "";
 }
 
 function LiveTraceStream(props: { traceID: string }) {
@@ -235,17 +316,23 @@ function LiveTraceStream(props: { traceID: string }) {
   const [status, setStatus] = useState("connecting");
   const [familyFilter, setFamilyFilter] = useState("all");
   const [autoscroll, setAutoscroll] = useState(true);
+  const [hasOlderEvents, setHasOlderEvents] = useState(false);
+  const [loadingOlderEvents, setLoadingOlderEvents] = useState(false);
   const viewportRef = useRef<HTMLDivElement | null>(null);
+  const olderProbeKeyRef = useRef("");
 
   useEffect(() => {
     setEvents([]);
     setStatus("connecting");
     setAutoscroll(true);
+    setHasOlderEvents(false);
+    setLoadingOlderEvents(false);
+    olderProbeKeyRef.current = "";
     if (typeof EventSource === "undefined") {
       setStatus("stream unavailable");
       return;
     }
-    const source = new EventSource(`/api/traces/${props.traceID}/stream?scope=all`);
+    const source = new EventSource(`/api/traces/${props.traceID}/stream?scope=main&limit=${LIVE_EVENT_PAGE_SIZE}`);
     const onLedger = (event: MessageEvent) => {
       try {
         const parsed = JSON.parse(event.data) as ExecutionLedgerEvent;
@@ -269,6 +356,40 @@ function LiveTraceStream(props: { traceID: string }) {
     };
   }, [props.traceID]);
 
+  const oldestEventID = events[0]?.id || "";
+
+  useEffect(() => {
+    if (hasOlderEvents || loadingOlderEvents || events.length < LIVE_EVENT_PAGE_SIZE || !oldestEventID) {
+      return;
+    }
+    const probeKey = `${props.traceID}:${oldestEventID}`;
+    if (olderProbeKeyRef.current === probeKey) {
+      return;
+    }
+    olderProbeKeyRef.current = probeKey;
+    let cancelled = false;
+    getJSON<LiveLedgerPageResponse>(
+      `/api/traces/${props.traceID}/ledger?scope=main&limit=1&before=${encodeURIComponent(oldestEventID)}`
+    )
+      .then((page) => {
+        if (cancelled) {
+          olderProbeKeyRef.current = "";
+          return;
+        }
+        if (listOrEmpty(page.events).length > 0 || Boolean(page.paging?.has_more)) {
+          setHasOlderEvents(true);
+        }
+      })
+      .catch(() => {
+        if (olderProbeKeyRef.current === probeKey) {
+          olderProbeKeyRef.current = "";
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [props.traceID, events.length, oldestEventID, hasOlderEvents, loadingOlderEvents]);
+
   const streamItems = useMemo(() => buildLiveStreamItems(events), [events]);
   const visibleEvents = useMemo(
     () => streamItems.filter((item) => familyFilter === "all" || eventFamily(item.kind) === familyFilter),
@@ -291,6 +412,36 @@ function LiveTraceStream(props: { traceID: string }) {
     setAutoscroll(nearBottom);
   };
 
+  const loadOlderEvents = async () => {
+    const beforeID = events[0]?.id;
+    if (!beforeID || loadingOlderEvents) {
+      return;
+    }
+    setLoadingOlderEvents(true);
+    setAutoscroll(false);
+    try {
+      const page = await getJSON<LiveLedgerPageResponse>(
+        `/api/traces/${props.traceID}/ledger?scope=main&limit=${LIVE_EVENT_PAGE_SIZE}&before=${encodeURIComponent(beforeID)}`
+      );
+      setEvents((current) => {
+        const seen = new Set<string>();
+        const merged = [...listOrEmpty(page.events), ...current].filter((item) => {
+          if (!item.id || seen.has(item.id)) {
+            return false;
+          }
+          seen.add(item.id);
+          return true;
+        });
+        return merged.slice(-LIVE_EVENT_LIMIT);
+      });
+      setHasOlderEvents(Boolean(page.paging?.has_more));
+    } catch {
+      setStatus("history unavailable");
+    } finally {
+      setLoadingOlderEvents(false);
+    }
+  };
+
   return (
     <div className="detail-section-body">
       <div className="live-toolbar">
@@ -308,6 +459,11 @@ function LiveTraceStream(props: { traceID: string }) {
         </div>
       </div>
       <div className="live-stream" ref={viewportRef} onScroll={handleScroll}>
+        {hasOlderEvents ? (
+          <button className="live-history-button secondary" onClick={loadOlderEvents} disabled={loadingOlderEvents}>
+            {loadingOlderEvents ? "Loading older" : "Load older"}
+          </button>
+        ) : null}
         {visibleEvents.map((item) => (
           <LiveEventRow key={item.id} item={item} />
         ))}
@@ -323,18 +479,22 @@ function LiveEventRow(props: { item: LiveStreamItem }) {
   const family = eventFamily(item.kind);
   const primaryText = eventPrimaryText(item);
   const toolName = payloadText(payload, ["tool_name", "name"]);
+  const shortToolName = compactToolName(toolName);
   const seqText = item.count > 1 ? `#${item.seq}-${item.seq_end}` : `#${item.seq}`;
+  const kindText = isToolLifecycleKind(item.kind)
+    ? `${item.count} ${item.count === 1 ? "update" : "updates"}`
+    : `${item.kind}${item.count > 1 ? ` · ${item.count} chunks` : ""}`;
   return (
     <div className={`live-event ${family}`}>
       <div className="detail-row-header">
         <strong>{eventTitle(item)}</strong>
         <small>{item.status || "event"} · {item.phase_id || "main"} · {seqText} · {formatTime(item.recorded_at)}</small>
       </div>
-      <p className="muted live-event-kind">{item.kind}{item.count > 1 ? ` · ${item.count} chunks` : ""}</p>
-      {toolName && !eventTitle(item).includes(toolName) ? <p className="muted">{toolName}</p> : null}
+      <p className="muted live-event-kind">{kindText}</p>
+      {toolName && shortToolName && shortToolName !== toolName && !eventTitle(item).includes(shortToolName) ? <p className="muted">{shortToolName}</p> : null}
       {primaryText ? <pre className="detail-copy live-event-text">{primaryText}</pre> : null}
       <details>
-        <summary>details</summary>
+        <summary>payload</summary>
         <pre className="detail-copy live-event-json">{JSON.stringify(compactEventDetails(item), null, 2)}</pre>
       </details>
     </div>

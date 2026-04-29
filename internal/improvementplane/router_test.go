@@ -583,6 +583,156 @@ func TestTraceStreamBackfillsAllEventsWhenResumeIDIsMissing(t *testing.T) {
 	}
 }
 
+func TestTraceStreamBackfillHonorsLimit(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	traceID := store.ListTraces()[0].TraceID
+	now := time.Now().UTC()
+	if err := store.RecordExecutionLedgerEvents([]events.ExecutionLedgerEvent{
+		{
+			ID:          "xled-limit-1",
+			ExecutionID: "hexec-limit",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-limit",
+			Kind:        "model.output.delta",
+			Status:      "streaming",
+			Seq:         1,
+			Payload:     map[string]any{"role": "prod", "delta": "oldest"},
+			RecordedAt:  now,
+		},
+		{
+			ID:          "xled-limit-2",
+			ExecutionID: "hexec-limit",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-limit",
+			Kind:        "model.output.delta",
+			Status:      "streaming",
+			Seq:         2,
+			Payload:     map[string]any{"role": "prod", "delta": "middle"},
+			RecordedAt:  now.Add(time.Millisecond),
+		},
+		{
+			ID:          "xled-limit-3",
+			ExecutionID: "hexec-limit",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-limit",
+			Kind:        "model.output.delta",
+			Status:      "streaming",
+			Seq:         3,
+			Payload:     map[string]any{"role": "prod", "delta": "latest"},
+			RecordedAt:  now.Add(2 * time.Millisecond),
+		},
+	}); err != nil {
+		t.Fatalf("RecordExecutionLedgerEvents() error = %v", err)
+	}
+	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	req := httptest.NewRequest(http.MethodGet, "/api/traces/"+traceID+"/stream?scope=main&limit=2", nil).WithContext(ctx)
+	rec := httptest.NewRecorder()
+
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("stream status = %d body=%s", rec.Code, rec.Body.String())
+	}
+	body := rec.Body.String()
+	if strings.Contains(body, "oldest") {
+		t.Fatalf("expected initial stream backfill to omit oldest event, got %q", body)
+	}
+	if !strings.Contains(body, "middle") || !strings.Contains(body, "latest") {
+		t.Fatalf("expected initial stream backfill to include latest limited events, got %q", body)
+	}
+}
+
+func TestTraceLedgerEndpointPaginatesOlderEvents(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	traceID := store.ListTraces()[0].TraceID
+	now := time.Now().UTC()
+	if err := store.RecordExecutionLedgerEvents([]events.ExecutionLedgerEvent{
+		{
+			ID:          "xled-page-1",
+			ExecutionID: "hexec-page",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-page",
+			Kind:        "model.output.delta",
+			Status:      "streaming",
+			Seq:         1,
+			Payload:     map[string]any{"role": "prod", "delta": "oldest"},
+			RecordedAt:  now,
+		},
+		{
+			ID:          "xled-page-2",
+			ExecutionID: "hexec-page",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-page",
+			Kind:        "model.output.delta",
+			Status:      "streaming",
+			Seq:         2,
+			Payload:     map[string]any{"role": "prod", "delta": "middle"},
+			RecordedAt:  now.Add(time.Millisecond),
+		},
+		{
+			ID:          "xled-page-3",
+			ExecutionID: "hexec-page",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-page",
+			Kind:        "tool.call.completed",
+			Status:      "completed",
+			Seq:         3,
+			Payload:     map[string]any{"role": "prod", "summary": "latest"},
+			RecordedAt:  now.Add(2 * time.Millisecond),
+		},
+	}); err != nil {
+		t.Fatalf("RecordExecutionLedgerEvents() error = %v", err)
+	}
+	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/traces/"+traceID+"/ledger?scope=main&limit=2", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("ledger status = %d body=%s", rec.Code, rec.Body.String())
+	}
+	var latest struct {
+		Events []events.ExecutionLedgerEvent `json:"events"`
+		Paging struct {
+			HasMore    bool   `json:"has_more"`
+			NextBefore string `json:"next_before"`
+		} `json:"paging"`
+	}
+	if err := json.Unmarshal(rec.Body.Bytes(), &latest); err != nil {
+		t.Fatalf("decode latest page: %v", err)
+	}
+	if len(latest.Events) != 2 || latest.Events[0].ID != "xled-page-2" || latest.Events[1].ID != "xled-page-3" {
+		t.Fatalf("expected latest two chronological events, got %#v", latest.Events)
+	}
+	if !latest.Paging.HasMore || latest.Paging.NextBefore != "xled-page-2" {
+		t.Fatalf("expected older page cursor, got %#v", latest.Paging)
+	}
+
+	req = httptest.NewRequest(http.MethodGet, "/api/traces/"+traceID+"/ledger?scope=main&limit=2&before="+latest.Paging.NextBefore, nil)
+	rec = httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("older ledger status = %d body=%s", rec.Code, rec.Body.String())
+	}
+	var older struct {
+		Events []events.ExecutionLedgerEvent `json:"events"`
+		Paging struct {
+			HasMore bool `json:"has_more"`
+		} `json:"paging"`
+	}
+	if err := json.Unmarshal(rec.Body.Bytes(), &older); err != nil {
+		t.Fatalf("decode older page: %v", err)
+	}
+	if len(older.Events) != 1 || older.Events[0].ID != "xled-page-1" {
+		t.Fatalf("expected only older event, got %#v", older.Events)
+	}
+	if older.Paging.HasMore {
+		t.Fatalf("expected no more older pages")
+	}
+}
+
 func TestRouterConversationDetailEnrichesPlainSlackTranscriptEntities(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	now := time.Now().UTC()
