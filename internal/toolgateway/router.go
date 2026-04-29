@@ -26,6 +26,12 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 		_ = json.NewDecoder(r.Body).Decode(&input)
 		app.WriteJSON(w, http.StatusOK, service.Execute(toolName, input))
 	})
+	r.Post("/api/github/installation-token", func(w http.ResponseWriter, r *http.Request) {
+		input := map[string]interface{}{}
+		_ = json.NewDecoder(r.Body).Decode(&input)
+		status, out := service.GitHubInstallationToken(input)
+		app.WriteJSON(w, status, out)
+	})
 	r.Post("/api/runtime/observations", func(w http.ResponseWriter, r *http.Request) {
 		payload := map[string]interface{}{}
 		_ = json.NewDecoder(r.Body).Decode(&payload)

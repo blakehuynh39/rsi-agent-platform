@@ -270,7 +270,7 @@ func (s *MemoryStore) seedDefaults() {
 	s.capabilities = []registry.CapabilityRecord{
 		{Name: "sentry.query", Kind: "tool", AllowedBots: []string{"oncall"}, ApprovalNeeded: false},
 		{Name: "k8s.logs", Kind: "tool", AllowedBots: []string{"oncall"}, ApprovalNeeded: false},
-		{Name: "github.create_issue", Kind: "tool", AllowedBots: []string{"fr"}, ApprovalNeeded: false},
+		{Name: "github.cli_credentials", Kind: "credential", AllowedBots: []string{"oncall", "fr", "arch"}, ApprovalNeeded: false},
 		{Name: "github.create_pr", Kind: "tool", AllowedBots: []string{"oncall", "fr", "arch"}, ApprovalNeeded: true},
 		{Name: "repo.answer_question", Kind: "skill", AllowedBots: []string{"arch"}, ApprovalNeeded: false},
 	}

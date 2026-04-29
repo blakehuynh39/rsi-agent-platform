@@ -1272,7 +1272,7 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliv
 		if len(requestedArtifacts) > 0 {
 			parts = append(parts, "Artifact production was requested. If you produce one, include it in produced_artifacts. If you cannot, set artifact_failure_reason and still provide the best grounded reply.")
 		}
-		parts = append(parts, "Use slack.upload_file when you need to attach a generated file to the bound Slack thread; Slack MCP send_message and mediated slack_post are text-only.", "If you intend to reply in Slack, you must emit an explicit proposed action with kind=slack_post; prose alone is not enough.", "Do not set reply_delivery for mediated replies.")
+		parts = append(parts, "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "Use slack.upload_file when you need to attach a generated file to the bound Slack thread; Slack MCP send_message and mediated slack_post are text-only.", "If you intend to reply in Slack, you must emit an explicit proposed action with kind=slack_post; prose alone is not enough.", "Do not set reply_delivery for mediated replies.")
 		return strings.Join(parts, " ")
 	}
 	if replyDeliveryMode == "direct" {
@@ -1289,7 +1289,7 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliv
 		if len(requestedArtifacts) > 0 {
 			parts = append(parts, "Artifact production was requested. If you produce one, include it in produced_artifacts. If you cannot, set artifact_failure_reason and still provide the best grounded reply.")
 		}
-		parts = append(parts, "Use governed repo, GitHub, knowledge, RSI, and workspace tools for non-Slack evidence.", "Use slack.upload_file when you need to attach a generated file to the bound Slack delivery target; Slack MCP send_message is text-only.", "If you have a grounded final answer, send exactly one Slack reply to the bound delivery target using Slack MCP, then return the JSON object.", "Do not emit a slack_post action contract.", "Include reply_delivery describing the direct Slack delivery with status, channel_id, thread_ts when a thread exists, body, tool_call_id, tool_name, provider_ref, and message_link.")
+		parts = append(parts, "Use governed repo, GitHub, knowledge, RSI, and workspace tools for non-Slack evidence.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "Use slack.upload_file when you need to attach a generated file to the bound Slack delivery target; Slack MCP send_message is text-only.", "If you have a grounded final answer, send exactly one Slack reply to the bound delivery target using Slack MCP, then return the JSON object.", "Do not emit a slack_post action contract.", "Include reply_delivery describing the direct Slack delivery with status, channel_id, thread_ts when a thread exists, body, tool_call_id, tool_name, provider_ref, and message_link.")
 		return strings.Join(parts, " ")
 	}
 	parts := []string{
@@ -1307,7 +1307,7 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliv
 	if len(requestedArtifacts) > 0 {
 		parts = append(parts, "Artifact production was requested. If you produce one, include it in produced_artifacts. If you cannot, set artifact_failure_reason and still provide the best grounded reply.")
 	}
-	parts = append(parts, "Use governed repo, GitHub, knowledge, RSI, and workspace tools for non-Slack evidence.", "Slack posting is blocked by policy for this workflow, so do not send any Slack messages.", "Leave reply_delivery empty when no Slack reply was delivered.")
+	parts = append(parts, "Use governed repo, GitHub, knowledge, RSI, and workspace tools for non-Slack evidence.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "Slack posting is blocked by policy for this workflow, so do not send any Slack messages.", "Leave reply_delivery empty when no Slack reply was delivered.")
 	return strings.Join(parts, " ")
 }
 

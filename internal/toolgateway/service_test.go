@@ -115,6 +115,83 @@ func TestGitHubCreatePRRequiresAppConfig(t *testing.T) {
 	}
 }
 
+func TestGitHubInstallationTokenUsesAppTokenForAllowedRepos(t *testing.T) {
+	privateKey := testGitHubAppPrivateKey(t)
+	var (
+		seenAppAuth string
+		seenRepos   []string
+	)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/app/installations/456/access_tokens":
+			seenAppAuth = r.Header.Get("Authorization")
+			var body map[string][]string
+			if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+				t.Fatalf("decode token body: %v", err)
+			}
+			seenRepos = body["repositories"]
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
+				"token":      "installation-token",
+				"expires_at": "2026-04-14T00:00:00Z",
+			})
+		default:
+			t.Fatalf("unexpected path %s", r.URL.Path)
+		}
+	}))
+	defer server.Close()
+
+	service := NewService(config.Config{
+		GitHubAppID:             "123",
+		GitHubAppInstallationID: "456",
+		GitHubAppPrivateKey:     privateKey,
+		GitHubOwner:             "piplabs",
+		GitHubAPIBaseURL:        server.URL,
+		DefaultRepo:             "rsi-agent-platform",
+		AllowedTargetRepos:      []string{"rsi-agent-platform", "depin-backend"},
+	}, storepkg.NewMemoryStore())
+
+	status, out := service.GitHubInstallationToken(map[string]interface{}{
+		"repo":  "rsi-agent-platform",
+		"repos": []interface{}{"rsi-agent-platform", "depin-backend", "other-repo"},
+	})
+
+	if status != http.StatusOK {
+		t.Fatalf("expected ok status, got %d %#v", status, out)
+	}
+	if seenAppAuth == "" {
+		t.Fatalf("expected app auth header")
+	}
+	if strings.Join(seenRepos, ",") != "rsi-agent-platform,depin-backend" {
+		t.Fatalf("unexpected scoped repos %#v", seenRepos)
+	}
+	if out["token"] != "installation-token" {
+		t.Fatalf("unexpected token payload %#v", out)
+	}
+	if skipped := out["skipped_repositories"].([]map[string]interface{}); len(skipped) != 1 || skipped[0]["repo"] != "other-repo" {
+		t.Fatalf("unexpected skipped repos %#v", out["skipped_repositories"])
+	}
+}
+
+func TestGitHubInstallationTokenRejectsPrimaryRepoOutsideAllowlist(t *testing.T) {
+	service := NewService(config.Config{
+		GitHubOwner:        "piplabs",
+		GitHubAPIBaseURL:   "https://api.github.com",
+		DefaultRepo:        "rsi-agent-platform",
+		AllowedTargetRepos: []string{"rsi-agent-platform"},
+	}, storepkg.NewMemoryStore())
+
+	status, out := service.GitHubInstallationToken(map[string]interface{}{
+		"repo": "other-repo",
+	})
+
+	if status != http.StatusForbidden {
+		t.Fatalf("expected forbidden status, got %d %#v", status, out)
+	}
+	if out["error"] != "repo_not_allowed" {
+		t.Fatalf("unexpected output %#v", out)
+	}
+}
+
 func TestUnknownToolIsRejectedWithoutFallback(t *testing.T) {
 	service := NewService(config.Config{
 		DefaultRepo: "rsi-agent-platform",

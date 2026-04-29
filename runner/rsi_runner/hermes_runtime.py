@@ -2390,6 +2390,74 @@ class HermesRuntime:
             "missing_required_toolsets": [item for item in required_toolsets if item not in set(toolsets)],
         }
 
+    def _github_cli_environment(self, task: RunnerTaskRequest) -> tuple[dict[str, str], JsonObject]:
+        status: JsonObject = {
+            "configured": False,
+            "status": "disabled",
+            "reason": "",
+            "repo": task.repo,
+            "repositories": [],
+        }
+        if not self._config.hermes_native_terminal_enabled:
+            status["reason"] = "native_terminal_disabled"
+            return {}, status
+        if self._role not in {"prod", "proactive"}:
+            status["reason"] = "runner_role_not_eligible"
+            return {}, status
+        if not self._config.tool_gateway_base_url:
+            status["reason"] = "tool_gateway_unavailable"
+            return {}, status
+        repo = str(task.repo or "").strip()
+        if not repo:
+            status["reason"] = "missing_repo"
+            return {}, status
+        repos = normalize_tool_names([repo, *task.repo_allowlist])
+        payload = {"repo": repo, "repos": repos}
+        endpoint = self._config.tool_gateway_base_url.rstrip("/") + "/api/github/installation-token"
+        request = urlrequest.Request(
+            endpoint,
+            data=json.dumps(payload, ensure_ascii=True, sort_keys=True).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urlrequest.urlopen(request, timeout=15) as response:
+                parsed = json.loads(response.read().decode("utf-8"))
+        except urlerror.HTTPError as exc:
+            body = ""
+            try:
+                body = exc.read().decode("utf-8")
+            except Exception:
+                body = ""
+            status.update({"status": "failed", "reason": f"http_{exc.code}", "error": _truncate_string(body, 1000)})
+            return {}, status
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            status.update({"status": "failed", "reason": "request_failed", "error": str(exc)})
+            return {}, status
+        parsed_object = _json_object_or_empty(parsed)
+        token = _string_or_json(parsed_object.get("token"))
+        if not token:
+            status.update({"status": "failed", "reason": "missing_token", "error": _string_or_json(parsed_object.get("error"))})
+            return {}, status
+        repositories = _string_list_or_empty(parsed_object.get("repositories"))
+        status.update(
+            {
+                "configured": True,
+                "status": "configured",
+                "reason": "",
+                "owner": _string_or_json(parsed_object.get("owner")),
+                "repo": _string_or_json(parsed_object.get("repo")) or repo,
+                "repositories": repositories,
+                "expires_at": _string_or_json(parsed_object.get("expires_at")),
+                "skipped_repositories": _json_object_list(parsed_object.get("skipped_repositories")),
+            }
+        )
+        return {
+            "GH_TOKEN": token,
+            "GITHUB_TOKEN": token,
+            "GH_PROMPT_DISABLED": "1",
+        }, status
+
     def _native_executor_completion_meta(self, parsed_result: JsonObject, max_iterations: int) -> JsonObject:
         result_payload = _json_object_or_empty(parsed_result.get("result"))
         completed_value = result_payload.get("completed")
@@ -2427,6 +2495,7 @@ class HermesRuntime:
         workdir: Path,
         result_path: Path,
         phase_contract: JsonObject,
+        github_cli_credentials: JsonObject,
     ) -> JsonObject:
         return {
             "session_id": context.session_id,
@@ -2466,6 +2535,7 @@ class HermesRuntime:
             "hermes_company_bin_dir": self._config.hermes_company_bin_dir,
             "hermes_kubernetes_context_enabled": self._config.hermes_kubernetes_context_enabled,
             "hermes_kubeconfig_path": self._config.hermes_kubeconfig_path if self._config.hermes_kubernetes_context_enabled else "",
+            "github_cli_credentials": dict(github_cli_credentials),
             "kubernetes_read_namespaces": list(task.kubernetes_read_namespaces),
             "company_computer_bootstrap_status": dict(self._company_computer_bootstrap_status),
             "run_dir": str(result_path.parent),
@@ -2836,6 +2906,20 @@ class HermesRuntime:
                     "termination_reason": "hermes_phase_contract_failed",
                 },
             )
+        request_dir = self._native_run_dir(task)
+        github_cli_env, github_cli_credentials = self._github_cli_environment(task)
+        if github_cli_env:
+            gh_config_dir = request_dir / "gh-config"
+            gh_config_dir.mkdir(parents=True, exist_ok=True)
+            github_cli_env["GH_CONFIG_DIR"] = str(gh_config_dir)
+            github_cli_credentials["gh_config_dir"] = str(gh_config_dir)
+        if observer is not None:
+            observer.emit(
+                phase=execution_phase,
+                event_type="github.credentials",
+                status=_string_or_json(github_cli_credentials.get("status")) or "disabled",
+                payload=github_cli_credentials,
+            )
         skill_diagnostics: JsonObject = {
             "requested_skills": list(task.requested_skills),
             "resolved_skills": list(task.requested_skills),
@@ -2851,7 +2935,6 @@ class HermesRuntime:
             )
 
         execution_id = observer.execution_id if observer is not None else first_non_empty(task.execution_id, context.session_id)
-        request_dir = self._native_run_dir(task)
         request_file = request_dir / "request.json"
         result_file = request_dir / "result.json"
         request_payload = self._native_executor_request_payload(
@@ -2863,10 +2946,12 @@ class HermesRuntime:
             workdir=workspace_root,
             result_path=result_file,
             phase_contract=phase_contract,
+            github_cli_credentials=github_cli_credentials,
         )
         request_file.write_text(json.dumps(request_payload, indent=2, sort_keys=True), encoding="utf-8")
         worker_cmd = [sys.executable, "-m", "rsi_runner.hermes_executor_worker", str(request_file)]
         env_copy = os.environ.copy()
+        env_copy.update(github_cli_env)
         secret_values = _sensitive_env_values(env_copy)
         if observer is not None:
             observer.emit(
@@ -3123,6 +3208,7 @@ class HermesRuntime:
                     "lifecycle_events": lifecycle_events,
                     "termination_reason": termination_reason,
                     "native_executor_mode": "subprocess",
+                    "github_cli_credentials": github_cli_credentials,
                 },
             )
             result.raw = self._attach_agentic_mcp_diagnostics(
@@ -3217,6 +3303,7 @@ class HermesRuntime:
             "native_executor_returncode": completed_returncode,
             "native_executor_stderr": _truncate_string(redacted_completed_stderr, 4000),
             "native_executor_contract_status": _json_object_or_empty(parsed_result.get("contract_status")),
+            "github_cli_credentials": github_cli_credentials,
             "artifact_tool_events": artifact_tool_events,
             "native_artifact_paths": native_artifact_paths,
             "phase_contract": phase_contract,
@@ -6792,6 +6879,9 @@ class HermesRuntime:
                 "Native company-computer toolsets enabled: "
                 f"{', '.join(self._hermes_native_toolsets())}. Use the terminal for ordinary CLI work from "
                 f"{self._config.hermes_terminal_cwd}; install reusable CLI binaries under {self._config.hermes_company_bin_dir}."
+            )
+            parts.append(
+                "The GitHub CLI is available on the company computer image. When GH_TOKEN/GITHUB_TOKEN are present, use normal gh commands for explicitly requested GitHub issue, PR, comment, and review work; those operations do not need an approval intent unless they merge code or match a listed approval category."
             )
             if self._config.hermes_kubernetes_context_enabled:
                 parts.append(

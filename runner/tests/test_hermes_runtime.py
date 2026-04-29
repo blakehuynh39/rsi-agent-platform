@@ -503,6 +503,71 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("hermes-api-server", phase_contract["required_toolsets"])
         self.assertNotIn("hermes-api-server", runtime._resolve_tool_policy(task).effective)
 
+    def test_native_terminal_loads_github_cli_credentials_from_tool_gateway(self) -> None:
+        captured: dict[str, object] = {}
+
+        class FakeResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb) -> bool:
+                return False
+
+            def read(self) -> bytes:
+                return json.dumps(
+                    {
+                        "token": "github-installation-token",
+                        "token_type": "bearer",
+                        "owner": "piplabs",
+                        "repo": "rsi-agent-platform",
+                        "repositories": ["piplabs/rsi-agent-platform", "piplabs/depin-backend"],
+                        "expires_at": "2026-04-29T22:00:00Z",
+                    }
+                ).encode("utf-8")
+
+        def fake_urlopen(req, timeout: int = 0):
+            captured["url"] = req.full_url
+            captured["timeout"] = timeout
+            captured["body"] = json.loads(req.data.decode("utf-8"))
+            return FakeResponse()
+
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "repo_allowlist": ["rsi-agent-platform", "depin-backend"],
+                    "prompt": "Create the requested GitHub issue.",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-gh",
+                }
+            }
+        )
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch("rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": str(Path(tempdir, "hermes-home")),
+                "RSI_HERMES_COMPUTER_ROOT": str(Path(tempdir, "company")),
+                "RSI_HERMES_NATIVE_TERMINAL_ENABLED": "true",
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            env, status = runtime._github_cli_environment(task)
+
+        self.assertEqual(captured["url"], "http://tool-gateway.internal:8080/api/github/installation-token")
+        self.assertEqual(captured["timeout"], 15)
+        self.assertEqual(captured["body"], {"repo": "rsi-agent-platform", "repos": ["rsi-agent-platform", "depin-backend"]})
+        self.assertEqual(env["GH_TOKEN"], "github-installation-token")
+        self.assertEqual(env["GITHUB_TOKEN"], "github-installation-token")
+        self.assertEqual(env["GH_PROMPT_DISABLED"], "1")
+        self.assertTrue(status["configured"])
+        self.assertEqual(status["repositories"], ["piplabs/rsi-agent-platform", "piplabs/depin-backend"])
+        self.assertNotIn("token", status)
+
     def test_company_computer_bootstrap_writes_service_account_kubeconfig_for_terminal(self) -> None:
         with tempfile.TemporaryDirectory() as tempdir, tempfile.TemporaryDirectory() as computer_root:
             service_account = Path(tempdir, "serviceaccount")

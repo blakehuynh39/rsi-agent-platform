@@ -1052,15 +1052,26 @@ func (s *Service) githubCreatePR(input map[string]interface{}) storepkg.ToolResu
 	base := firstNonEmpty(stringValue(input["base_ref"]), "main")
 	title := firstNonEmpty(stringValue(input["title"]), fmt.Sprintf("RSI proposal for %s", repoName))
 	body := firstNonEmpty(stringValue(input["body"]), "Automated draft PR from RSI platform.")
+	output := map[string]interface{}{
+		"repo":                 repoName,
+		"owner":                owner,
+		"head":                 head,
+		"base":                 base,
+		"title":                title,
+		"allowed_target_repos": append([]string(nil), s.cfg.AllowedTargetRepos...),
+	}
+	if head == "" {
+		output["error"] = "missing_head"
+		return s.failedResult("github.create_pr", input, "github", "GitHub PR creation requires branch_name or head.", output)
+	}
+	if !s.githubMutationRepoAllowed(repo) {
+		output["error"] = "repo_not_allowed"
+		return s.blockedResult("github.create_pr", input, "github", fmt.Sprintf("GitHub PR creation blocked for repo %s/%s; repo is not in the governed allowlist.", owner, repoName), output)
+	}
 	writeToken, err := s.githubInstallationToken(repo)
 	if err != nil {
-		return s.unavailableResult("github.create_pr", input, "github", "GitHub App authentication not configured; refusing draft PR execution.", map[string]interface{}{
-			"repo":  repoName,
-			"owner": owner,
-			"head":  head,
-			"base":  base,
-			"error": err.Error(),
-		})
+		output["error"] = err.Error()
+		return s.unavailableResult("github.create_pr", input, "github", "GitHub App authentication not configured; refusing draft PR execution.", output)
 	}
 	requestBody := map[string]interface{}{
 		"title": title,
@@ -1075,24 +1086,113 @@ func (s *Service) githubCreatePR(input map[string]interface{}) storepkg.ToolResu
 		"Authorization": "Bearer " + writeToken,
 		"Accept":        "application/vnd.github+json",
 	}, &response); err != nil {
-		return s.failedResult("github.create_pr", input, "github", fmt.Sprintf("GitHub PR creation failed: %v", err), map[string]interface{}{
-			"repo":  repoName,
-			"owner": owner,
-			"head":  head,
-			"base":  base,
-			"error": err.Error(),
-		})
+		output["error"] = err.Error()
+		return s.failedResult("github.create_pr", input, "github", fmt.Sprintf("GitHub PR creation failed: %v", err), output)
 	}
+	output["body"] = body
+	output["pr_url"] = stringValue(response["html_url"])
+	output["number"] = response["number"]
+	output["response"] = response
 	summary := fmt.Sprintf("Draft PR opened for %s/%s:%s.", owner, repoName, head)
-	return s.result("github.create_pr", input, summary, map[string]interface{}{
-		"repo":     repoName,
-		"owner":    owner,
-		"head":     head,
-		"base":     base,
-		"pr_url":   stringValue(response["html_url"]),
-		"number":   response["number"],
-		"response": response,
-	}, nil)
+	return s.result("github.create_pr", input, summary, output, nil)
+}
+
+func (s *Service) GitHubInstallationToken(input map[string]interface{}) (int, map[string]interface{}) {
+	primaryRepo := firstNonEmpty(stringValue(input["repo"]), stringValue(input["repository"]), s.cfg.DefaultRepo)
+	requestedRepos := stringSliceValue(input["repos"])
+	if primaryRepo == "" && len(requestedRepos) > 0 {
+		primaryRepo = requestedRepos[0]
+	}
+	owner := s.cfg.GitHubRepoOwner(primaryRepo)
+	repoName := s.cfg.GitHubRepoName(primaryRepo)
+	output := map[string]interface{}{
+		"repo":                 repoName,
+		"owner":                owner,
+		"allowed_target_repos": append([]string(nil), s.cfg.AllowedTargetRepos...),
+	}
+	if strings.TrimSpace(primaryRepo) == "" {
+		output["error"] = "missing_repo"
+		return http.StatusBadRequest, output
+	}
+	if !s.githubMutationRepoAllowed(primaryRepo) {
+		output["error"] = "repo_not_allowed"
+		return http.StatusForbidden, output
+	}
+	candidates := append([]string{primaryRepo}, requestedRepos...)
+	repositoryNames := make([]string, 0, len(candidates))
+	repositoryRefs := make([]string, 0, len(candidates))
+	skipped := make([]map[string]interface{}, 0)
+	seen := map[string]struct{}{}
+	for _, candidate := range candidates {
+		candidate = strings.TrimSpace(candidate)
+		if candidate == "" {
+			continue
+		}
+		if !s.githubMutationRepoAllowed(candidate) {
+			skipped = append(skipped, map[string]interface{}{"repo": candidate, "reason": "repo_not_allowed"})
+			continue
+		}
+		candidateOwner := s.cfg.GitHubRepoOwner(candidate)
+		if !strings.EqualFold(strings.TrimSpace(candidateOwner), strings.TrimSpace(owner)) {
+			skipped = append(skipped, map[string]interface{}{"repo": candidate, "reason": "different_owner"})
+			continue
+		}
+		candidateName := s.cfg.GitHubRepoName(candidate)
+		if candidateName == "" {
+			continue
+		}
+		key := strings.ToLower(candidateName)
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+		repositoryNames = append(repositoryNames, candidateName)
+		repositoryRefs = append(repositoryRefs, fmt.Sprintf("%s/%s", owner, candidateName))
+	}
+	if len(repositoryNames) == 0 {
+		output["error"] = "no_allowed_repositories"
+		output["skipped_repositories"] = skipped
+		return http.StatusForbidden, output
+	}
+	token, err := s.githubInstallationTokenForRepos(primaryRepo, repositoryNames)
+	if err != nil {
+		output["error"] = err.Error()
+		output["repositories"] = repositoryRefs
+		output["skipped_repositories"] = skipped
+		return http.StatusServiceUnavailable, output
+	}
+	output["token"] = token.Token
+	output["token_type"] = "bearer"
+	output["expires_at"] = token.ExpiresAt.Format(time.RFC3339)
+	output["repositories"] = repositoryRefs
+	output["repository_names"] = repositoryNames
+	output["skipped_repositories"] = skipped
+	return http.StatusOK, output
+}
+
+func (s *Service) githubMutationRepoAllowed(repo string) bool {
+	if strings.TrimSpace(repo) == "" {
+		return false
+	}
+	allowedRepos := stringSliceValue(s.cfg.AllowedTargetRepos)
+	if len(allowedRepos) == 0 {
+		return strings.TrimSpace(s.cfg.DefaultRepo) != "" && s.githubRepoMatches(repo, s.cfg.DefaultRepo)
+	}
+	for _, allowed := range allowedRepos {
+		if s.githubRepoMatches(repo, allowed) {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *Service) githubRepoMatches(candidate string, allowed string) bool {
+	candidateOwner := s.cfg.GitHubRepoOwner(candidate)
+	candidateName := s.cfg.GitHubRepoName(candidate)
+	allowedOwner := s.cfg.GitHubRepoOwner(allowed)
+	allowedName := s.cfg.GitHubRepoName(allowed)
+	return strings.EqualFold(strings.TrimSpace(candidateOwner), strings.TrimSpace(allowedOwner)) &&
+		strings.EqualFold(strings.TrimSpace(candidateName), strings.TrimSpace(allowedName))
 }
 
 func (s *Service) cloudflareInspect(input map[string]interface{}) storepkg.ToolResult {
@@ -2513,17 +2613,25 @@ func (s *Service) apiJSON(method string, endpoint string, body interface{}, head
 }
 
 func (s *Service) githubInstallationToken(repo string) (string, error) {
+	token, err := s.githubInstallationTokenForRepos(repo, []string{s.cfg.GitHubRepoName(repo)})
+	if err != nil {
+		return "", err
+	}
+	return token.Token, nil
+}
+
+func (s *Service) githubInstallationTokenForRepos(repo string, repositories []string) (githubapp.InstallationToken, error) {
 	token, err := githubapp.NewClient(
 		s.cfg.GitHubAppID,
 		s.cfg.GitHubInstallationIDForRepo(repo),
 		s.cfg.GitHubAppPrivateKey,
 		s.cfg.GitHubAPIBaseURL,
 		s.httpClient,
-	).MintInstallationToken(context.Background(), []string{s.cfg.GitHubRepoName(repo)})
+	).MintInstallationToken(context.Background(), repositories)
 	if err != nil {
-		return "", err
+		return githubapp.InstallationToken{}, err
 	}
-	return token.Token, nil
+	return token, nil
 }
 
 func matchesKubernetesTarget(pod corev1.Pod, target string) bool {

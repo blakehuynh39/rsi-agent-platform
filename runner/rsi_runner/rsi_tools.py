@@ -142,6 +142,9 @@ _READ_ONLY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
             },
         },
     },
+}
+
+_READ_ONLY_TOOL_SCHEMAS.update({
     "sentry.lookup": {
         "name": "sentry.lookup",
         "description": "Read-only Sentry issue lookup for a service, alert, or query.",
@@ -304,7 +307,7 @@ _READ_ONLY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
             },
         },
     },
-}
+})
 
 
 def _string_list(value: Any) -> list[str]:
@@ -1643,7 +1646,7 @@ class CompositeToolProvider:
         if readonly_names:
             parts.append(
                 "Additional governed RSI tools are available through the platform tool gateway. "
-                f"Available tools: {readonly_names}. GitHub mutation, Slack posting, and unmanaged shell access remain blocked."
+                f"Available tools: {readonly_names}. GitHub mutations are not exposed as governed RSI tools; when native terminal credentials are available, use gh from the company-computer terminal for explicitly requested issue, PR, or review work."
             )
         return "\n\n".join(part for part in parts if part)
 
