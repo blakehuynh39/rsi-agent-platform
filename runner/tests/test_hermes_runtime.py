@@ -1396,7 +1396,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(FakeAIAgent.last_kwargs["reasoning_config"], {"enabled": True, "effort": "xhigh"})
         self.assertEqual(FakeAIAgent.last_kwargs["enabled_toolsets"], [])
         self.assertEqual(FakeAIAgent.last_kwargs["session_id"], "rsi-prod-conversation-123")
-        self.assertTrue(FakeAIAgent.last_kwargs["persist_session"])
+        self.assertNotIn("persist_session", FakeAIAgent.last_kwargs)
         self.assertFalse(FakeAIAgent.last_kwargs["skip_memory"])
         self.assertEqual(FakeAIAgent.last_history, [{"role": "user", "content": "Earlier thread message"}])
         self.assertEqual(result.raw["model"], "openrouter/deepseek/deepseek-v4-pro")

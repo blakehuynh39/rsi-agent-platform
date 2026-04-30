@@ -1588,7 +1588,6 @@ class HermesRuntime:
             else self._native_toolsets_for_task(task),
             "skip_context_files": True,
             "skip_memory": False,
-            "persist_session": True,
             "max_iterations": configured_max_iterations,
             "session_id": context.session_id,
             "parent_session_id": context.parent_session_id or None,
@@ -4608,7 +4607,6 @@ class HermesRuntime:
             "enabled_toolsets": [],
             "skip_context_files": True,
             "skip_memory": True,
-            "persist_session": False,
             "max_iterations": 1,
             "session_id": session_id,
         }
