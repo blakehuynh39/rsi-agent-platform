@@ -17,6 +17,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--improvement-plane-tag", required=True)
     parser.add_argument("--hermes-executor-tag", required=True)
     parser.add_argument("--hermes-skill-exporter-tag", required=True)
+    parser.add_argument("--hermes-skill-installer-tag", required=True)
+    parser.add_argument("--hermes-skill-installer-source-ref", default="")
     parser.add_argument("--honcho-tag", required=True)
     return parser.parse_args()
 
@@ -26,7 +28,7 @@ def is_mapping_start(value: str) -> bool:
     return stripped == "" or stripped.startswith("&")
 
 
-def update_tags(path: Path, updates: dict[tuple[str, ...], str]) -> None:
+def update_tags(path: Path, updates: dict[tuple[str, ...], str | bool]) -> None:
     lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
     stack: list[tuple[int, str]] = []
     seen: set[tuple[str, ...]] = set()
@@ -50,9 +52,14 @@ def update_tags(path: Path, updates: dict[tuple[str, ...], str]) -> None:
         current_path = tuple([item[1] for item in stack] + [key])
         if current_path in updates:
             prefix = line[: len(line) - len(stripped)]
-            lines[index] = f'{prefix}{key}: "{updates[current_path]}"\n'
+            update_value = updates[current_path]
+            if isinstance(update_value, bool):
+                rendered_value = "true" if update_value else "false"
+            else:
+                rendered_value = f'"{update_value}"'
+            lines[index] = f"{prefix}{key}: {rendered_value}\n"
             seen.add(current_path)
-            value = updates[current_path]
+            value = str(update_value)
 
         if is_mapping_start(value):
             stack.append((indent, key))
@@ -67,13 +74,17 @@ def update_tags(path: Path, updates: dict[tuple[str, ...], str]) -> None:
 
 def main() -> None:
     args = parse_args()
-    updates: dict[tuple[str, ...], str] = {
+    updates: dict[tuple[str, ...], str | bool] = {
         ("controlPlane", "image", "tag"): args.control_plane_tag,
         ("improvementPlane", "image", "tag"): args.improvement_plane_tag,
         ("hermesExecutor", "image", "tag"): args.hermes_executor_tag,
         ("hermesSkillExporter", "image", "tag"): args.hermes_skill_exporter_tag,
+        ("hermesSkillInstaller", "image", "tag"): args.hermes_skill_installer_tag,
         ("honcho", "image", "tag"): args.honcho_tag,
     }
+    if args.hermes_skill_installer_source_ref:
+        updates[("hermesSkillInstaller", "enabled")] = True
+        updates[("hermesSkillInstaller", "config", "RSI_HERMES_SKILL_INSTALLER_SOURCE_REF")] = args.hermes_skill_installer_source_ref
     update_tags(Path(args.file), updates)
 
 

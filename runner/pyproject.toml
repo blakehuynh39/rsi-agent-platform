@@ -15,6 +15,7 @@ dependencies = [
 [project.scripts]
 rsi-runner = "rsi_runner.main:main"
 hermes-skill-exporter = "rsi_runner.hermes_skill_exporter:main"
+hermes-skill-installer = "rsi_runner.hermes_skill_installer:main"
 
 [tool.setuptools.packages.find]
 include = ["rsi_runner"]

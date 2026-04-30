@@ -12,6 +12,7 @@ ci: ui-test ui-build
 		echo "Skipping Postgres integration tests; set RSI_TEST_POSTGRES_URL to enable them."; \
 	fi
 	$(GO) build ./cmd/...
+	PYTHONPATH=runner $(PYTHON) scripts/validate_hermes_assets.py
 	PYTHONPATH=runner $(PYTHON) -m unittest discover -s runner/tests
 
 test: ui-build

@@ -17,6 +17,7 @@ env:
   GO_IMAGE_REPOSITORY: rsi-agent-platform
   HERMES_EXECUTOR_IMAGE_REPOSITORY: rsi-agent-platform-hermes-executor
   HERMES_SKILL_EXPORTER_IMAGE_REPOSITORY: rsi-agent-platform-hermes-skill-exporter
+  HERMES_SKILL_INSTALLER_IMAGE_REPOSITORY: rsi-agent-platform-hermes-skill-installer
   HONCHO_IMAGE_REPOSITORY: rsi-agent-platform-honcho
   IMAGE_VERSION: ${{ github.sha }}
   STORY_DEPLOYMENTS_REPOSITORY: storyprotocol/story-deployments
@@ -25,6 +26,7 @@ env:
   IMPROVEMENT_PLANE_TAG: improvement-plane-${{ github.sha }}
   HERMES_EXECUTOR_TAG: hermes-executor-${{ github.sha }}
   HERMES_SKILL_EXPORTER_TAG: hermes-skill-exporter-${{ github.sha }}
+  HERMES_SKILL_INSTALLER_TAG: hermes-skill-installer-${{ github.sha }}
   HONCHO_TAG: honcho-${{ github.sha }}
 
 permissions:
@@ -117,6 +119,11 @@ jobs:
             repository: rsi-agent-platform-hermes-skill-exporter
             tag_prefix: hermes-skill-exporter
             build_args: ""
+          - name: hermes-skill-installer
+            dockerfile: ./runner/Dockerfile.hermes-skill-installer
+            repository: rsi-agent-platform-hermes-skill-installer
+            tag_prefix: hermes-skill-installer
+            build_args: ""
           - name: honcho
             dockerfile: ./honcho/Dockerfile
             repository: rsi-agent-platform-honcho
@@ -201,6 +208,37 @@ jobs:
           fi
 
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Detect reviewed Hermes skill changes
+        id: reviewed-skills
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          before="${{ github.event.before }}"
+          if [[ "$before" =~ ^0+$ ]]; then
+            changed_files="$(git diff-tree --no-commit-id --name-only -r "${{ github.sha }}" -- hermes/skills/story-company || true)"
+          else
+            changed_files="$(git diff --name-only "$before" "${{ github.sha }}" -- hermes/skills/story-company || true)"
+          fi
+
+          if [ -n "$changed_files" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            {
+              echo "files<<EOF"
+              echo "$changed_files"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Checkout story-deployments (main)
         uses: actions/checkout@v6
@@ -221,8 +259,12 @@ jobs:
             --improvement-plane-tag "${{ env.IMPROVEMENT_PLANE_TAG }}"
             --hermes-executor-tag "${{ env.HERMES_EXECUTOR_TAG }}"
             --hermes-skill-exporter-tag "${{ env.HERMES_SKILL_EXPORTER_TAG }}"
+            --hermes-skill-installer-tag "${{ env.HERMES_SKILL_INSTALLER_TAG }}"
             --honcho-tag "${{ env.HONCHO_TAG }}"
           )
+          if [ "${{ steps.reviewed-skills.outputs.changed }}" = "true" ]; then
+            args+=(--hermes-skill-installer-source-ref "${{ github.sha }}")
+          fi
 
           python3 "${GITHUB_WORKSPACE}/scripts/update_story_deployments_tags.py" "${args[@]}"
 

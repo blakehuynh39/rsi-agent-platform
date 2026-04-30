@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "capabilities": [
+    {
+      "name": "executor-cli-tools",
+      "type": "cli",
+      "source_of_truth": "runner/Dockerfile.hermes-executor",
+      "runtime_surface": "Hermes executor terminal"
+    },
+    {
+      "name": "executor-mcp-servers",
+      "type": "mcp",
+      "source_of_truth": "story-deployments rsi-platform/rsi-agent-platform values",
+      "runtime_surface": "Hermes native mcp_servers configuration"
+    },
+    {
+      "name": "executor-api-credentials",
+      "type": "credential",
+      "source_of_truth": "story-infra-aws Vault/IRSA wiring",
+      "runtime_surface": "executor pod environment or mounted files"
+    },
+    {
+      "name": "story-company-skills",
+      "type": "skill",
+      "source_of_truth": "hermes/skills/story-company",
+      "runtime_surface": "$HERMES_HOME/skills/story-company"
+    }
+  ]
+}

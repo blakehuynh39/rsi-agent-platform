@@ -32,6 +32,12 @@ class UpdateStoryDeploymentsTagsTest(unittest.TestCase):
                         "hermesSkillExporter:",
                         "  image:",
                         '    tag: "hermes-skill-exporter-old"',
+                        "hermesSkillInstaller:",
+                        "  enabled: false",
+                        "  image:",
+                        '    tag: "hermes-skill-installer-old"',
+                        "  config:",
+                        '    RSI_HERMES_SKILL_INSTALLER_SOURCE_REF: "old-ref"',
                     ]
                 )
                 + "\n",
@@ -43,12 +49,18 @@ class UpdateStoryDeploymentsTagsTest(unittest.TestCase):
                     ("runner", "image", "tag"): "runner-new",
                     ("hermesExecutor", "image", "tag"): "hermes-executor-new",
                     ("hermesSkillExporter", "image", "tag"): "hermes-skill-exporter-new",
+                    ("hermesSkillInstaller", "enabled"): True,
+                    ("hermesSkillInstaller", "image", "tag"): "hermes-skill-installer-new",
+                    ("hermesSkillInstaller", "config", "RSI_HERMES_SKILL_INSTALLER_SOURCE_REF"): "new-ref",
                 },
             )
             rendered = values.read_text(encoding="utf-8")
             self.assertIn('tag: "runner-new"', rendered)
             self.assertIn('tag: "hermes-executor-new"', rendered)
             self.assertIn('tag: "hermes-skill-exporter-new"', rendered)
+            self.assertIn("enabled: true", rendered)
+            self.assertIn('tag: "hermes-skill-installer-new"', rendered)
+            self.assertIn('RSI_HERMES_SKILL_INSTALLER_SOURCE_REF: "new-ref"', rendered)
 
     def test_missing_hermes_skill_exporter_path_fails_loudly(self) -> None:
         module = load_script_module()
@@ -71,9 +83,12 @@ class UpdateStoryDeploymentsTagsTest(unittest.TestCase):
                     {
                         ("runner", "image", "tag"): "runner-new",
                         ("hermesSkillExporter", "image", "tag"): "hermes-skill-exporter-new",
+                        ("hermesSkillInstaller", "image", "tag"): "hermes-skill-installer-new",
                     },
                 )
-            self.assertIn("hermesSkillExporter.image.tag", str(raised.exception))
+            message = str(raised.exception)
+            self.assertIn("hermesSkillExporter.image.tag", message)
+            self.assertIn("hermesSkillInstaller.image.tag", message)
 
 
 if __name__ == "__main__":

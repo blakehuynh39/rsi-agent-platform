@@ -1,0 +1,14 @@
+FROM python:3.11-slim
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends git ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY runner/rsi_runner /app/rsi_runner
+
+RUN pip install --no-cache-dir "PyJWT[crypto]>=2.8,<3"
+
+ENV RSI_HERMES_SKILL_INSTALLER_ENABLED=true
+
+CMD ["python", "-m", "rsi_runner.hermes_skill_installer"]
