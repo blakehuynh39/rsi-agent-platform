@@ -17,7 +17,6 @@ env:
   GO_IMAGE_REPOSITORY: rsi-agent-platform
   HERMES_EXECUTOR_IMAGE_REPOSITORY: rsi-agent-platform-hermes-executor
   HERMES_SKILL_EXPORTER_IMAGE_REPOSITORY: rsi-agent-platform-hermes-skill-exporter
-  HERMES_SKILL_INSTALLER_IMAGE_REPOSITORY: rsi-agent-platform-hermes-skill-installer
   HONCHO_IMAGE_REPOSITORY: rsi-agent-platform-honcho
   IMAGE_VERSION: ${{ github.sha }}
   STORY_DEPLOYMENTS_REPOSITORY: storyprotocol/story-deployments
@@ -26,7 +25,7 @@ env:
   IMPROVEMENT_PLANE_TAG: improvement-plane-${{ github.sha }}
   HERMES_EXECUTOR_TAG: hermes-executor-${{ github.sha }}
   HERMES_SKILL_EXPORTER_TAG: hermes-skill-exporter-${{ github.sha }}
-  HERMES_SKILL_INSTALLER_TAG: hermes-skill-installer-${{ github.sha }}
+  HERMES_SKILL_INSTALLER_TAG: hermes-skill-exporter-${{ github.sha }}
   HONCHO_TAG: honcho-${{ github.sha }}
 
 permissions:
@@ -118,11 +117,6 @@ jobs:
             dockerfile: ./runner/Dockerfile.hermes-skill-exporter
             repository: rsi-agent-platform-hermes-skill-exporter
             tag_prefix: hermes-skill-exporter
-            build_args: ""
-          - name: hermes-skill-installer
-            dockerfile: ./runner/Dockerfile.hermes-skill-installer
-            repository: rsi-agent-platform-hermes-skill-installer
-            tag_prefix: hermes-skill-installer
             build_args: ""
           - name: honcho
             dockerfile: ./honcho/Dockerfile

@@ -35,7 +35,7 @@ class UpdateStoryDeploymentsTagsTest(unittest.TestCase):
                         "hermesSkillInstaller:",
                         "  enabled: false",
                         "  image:",
-                        '    tag: "hermes-skill-installer-old"',
+                        '    tag: "hermes-skill-exporter-old"',
                         "  config:",
                         '    RSI_HERMES_SKILL_INSTALLER_SOURCE_REF: "old-ref"',
                     ]
@@ -50,7 +50,7 @@ class UpdateStoryDeploymentsTagsTest(unittest.TestCase):
                     ("hermesExecutor", "image", "tag"): "hermes-executor-new",
                     ("hermesSkillExporter", "image", "tag"): "hermes-skill-exporter-new",
                     ("hermesSkillInstaller", "enabled"): True,
-                    ("hermesSkillInstaller", "image", "tag"): "hermes-skill-installer-new",
+                    ("hermesSkillInstaller", "image", "tag"): "hermes-skill-exporter-new",
                     ("hermesSkillInstaller", "config", "RSI_HERMES_SKILL_INSTALLER_SOURCE_REF"): "new-ref",
                 },
             )
@@ -59,7 +59,7 @@ class UpdateStoryDeploymentsTagsTest(unittest.TestCase):
             self.assertIn('tag: "hermes-executor-new"', rendered)
             self.assertIn('tag: "hermes-skill-exporter-new"', rendered)
             self.assertIn("enabled: true", rendered)
-            self.assertIn('tag: "hermes-skill-installer-new"', rendered)
+            self.assertNotIn('tag: "hermes-skill-installer-new"', rendered)
             self.assertIn('RSI_HERMES_SKILL_INSTALLER_SOURCE_REF: "new-ref"', rendered)
 
     def test_missing_hermes_skill_exporter_path_fails_loudly(self) -> None:
