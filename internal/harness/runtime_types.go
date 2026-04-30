@@ -29,6 +29,9 @@ type HermesContractStatus struct {
 type RuntimeResponse struct {
 	Status                      string                `json:"status"`
 	Role                        string                `json:"role"`
+	ExecutorInstanceID          string                `json:"executor_instance_id,omitempty"`
+	DrainStatus                 string                `json:"drain_status,omitempty"`
+	ActiveExecutionCount        int                   `json:"active_execution_count,omitempty"`
 	Backend                     string                `json:"backend"`
 	Provider                    string                `json:"provider"`
 	Model                       string                `json:"model"`

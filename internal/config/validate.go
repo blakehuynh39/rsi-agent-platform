@@ -41,6 +41,9 @@ func (c Config) DependencyTargets() map[string]string {
 	if c.HermesExecutorBaseURL != "" {
 		targets["hermes_executor"] = c.HermesExecutorBaseURL
 	}
+	for index, target := range c.HermesExecutorPoolURLs {
+		targets[fmt.Sprintf("hermes_executor_pool_%d", index)] = target
+	}
 	if c.HonchoRuntimeBaseURL != "" {
 		targets["honcho_runtime"] = c.HonchoRuntimeBaseURL
 	}
@@ -82,10 +85,15 @@ func (c Config) validate() []string {
 func (c Config) validateControlPlane(issues *[]string) {
 	c.validateCommonPlaneConfig(issues)
 	addRequiredURL(issues, "RSI_TOOL_GATEWAY_BASE_URL", c.ToolGatewayBaseURL, c.nonLocalhostRequired())
-	addRequiredURL(issues, "RSI_RUNNER_PROD_BASE_URL", c.ProdRunnerBaseURL, c.nonLocalhostRequired())
-	addRequiredURL(issues, "RSI_RUNNER_PROACTIVE_BASE_URL", c.ProactiveRunnerBaseURL, c.nonLocalhostRequired())
+	if len(c.HermesExecutorURLs()) == 0 {
+		addRequiredURL(issues, "RSI_RUNNER_PROD_BASE_URL", c.ProdRunnerBaseURL, c.nonLocalhostRequired())
+		addRequiredURL(issues, "RSI_RUNNER_PROACTIVE_BASE_URL", c.ProactiveRunnerBaseURL, c.nonLocalhostRequired())
+	}
 	if strings.TrimSpace(c.HermesExecutorBaseURL) != "" {
 		addRequiredURL(issues, "RSI_HERMES_EXECUTOR_BASE_URL", c.HermesExecutorBaseURL, c.nonLocalhostRequired())
+	}
+	for _, target := range c.HermesExecutorPoolURLs {
+		addRequiredURL(issues, "RSI_HERMES_EXECUTOR_POOL_URLS", target, c.nonLocalhostRequired())
 	}
 	addRequiredString(issues, "RSI_DEFAULT_REPO", c.DefaultRepo)
 	addRequiredString(issues, "RSI_KNOWLEDGE_BASE_URL", c.DefaultKnowledgeBaseURL)
@@ -108,13 +116,15 @@ func (c Config) validateImprovementPlane(issues *[]string) {
 		return
 	}
 	addRequiredURL(issues, "RSI_TOOL_GATEWAY_BASE_URL", c.ToolGatewayBaseURL, c.nonLocalhostRequired())
-	addRequiredURL(issues, "RSI_RUNNER_EVAL_BASE_URL", c.EvalRunnerBaseURL, c.nonLocalhostRequired())
-	addRequiredURL(issues, "RSI_RUNNER_PROPOSAL_BASE_URL", c.ProposalRunnerBaseURL, c.nonLocalhostRequired())
-	if c.DefaultProposalCap <= 0 {
-		*issues = append(*issues, "RSI_ACTIVE_PROPOSAL_CAP must be set to a positive integer")
-	}
-	if c.ProposalPromoterInterval <= 0 {
-		*issues = append(*issues, "RSI_PROPOSAL_PROMOTER_INTERVAL must be set to a positive duration")
+	if c.RuntimeMode == "worker" || c.RuntimeMode == "reconcile" || c.RuntimeMode == "cron" {
+		addRequiredURL(issues, "RSI_RUNNER_EVAL_BASE_URL", c.EvalRunnerBaseURL, c.nonLocalhostRequired())
+		addRequiredURL(issues, "RSI_RUNNER_PROPOSAL_BASE_URL", c.ProposalRunnerBaseURL, c.nonLocalhostRequired())
+		if c.DefaultProposalCap <= 0 {
+			*issues = append(*issues, "RSI_ACTIVE_PROPOSAL_CAP must be set to a positive integer")
+		}
+		if c.ProposalPromoterInterval <= 0 {
+			*issues = append(*issues, "RSI_PROPOSAL_PROMOTER_INTERVAL must be set to a positive duration")
+		}
 	}
 	addRequiredString(issues, "RSI_REASONING_VERBOSITY", c.DefaultReasoningVerbosity)
 	if c.RuntimeMode == "serve" {

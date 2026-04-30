@@ -58,6 +58,20 @@ func TestControlPlaneValidationRejectsInvalidHermesExecutorURL(t *testing.T) {
 	}
 }
 
+func TestControlPlaneValidationAllowsHermesExecutorPoolWithoutLegacyRunnerURLs(t *testing.T) {
+	cfg := validControlPlaneConfig()
+	cfg.ProdRunnerBaseURL = ""
+	cfg.ProactiveRunnerBaseURL = ""
+	cfg.HermesExecutorPoolURLs = []string{
+		"http://use1-stage-rsi-agent-platform-hermes-executor-0.use1-stage-rsi-agent-platform-hermes-executor-headless:8090",
+		"http://use1-stage-rsi-agent-platform-hermes-executor-1.use1-stage-rsi-agent-platform-hermes-executor-headless:8090",
+	}
+
+	if _, err := cfg.ValidatedFor("control-plane", "serve"); err != nil {
+		t.Fatalf("ValidatedFor() error = %v", err)
+	}
+}
+
 func TestSlackSurfaceValidationRequiresSlackContract(t *testing.T) {
 	cfg := validControlPlaneConfig()
 
@@ -96,12 +110,31 @@ func TestImprovementPlaneValidationRequiresExplicitPromoterInterval(t *testing.T
 		ProposalPromoterInterval:  0,
 	}
 
-	_, err := cfg.ValidatedFor("improvement-plane", "serve")
+	_, err := cfg.ValidatedFor("improvement-plane", "cron")
 	if err == nil {
 		t.Fatal("expected validation error")
 	}
 	if !strings.Contains(err.Error(), "RSI_PROPOSAL_PROMOTER_INTERVAL must be set to a positive duration") {
 		t.Fatalf("unexpected validation error: %v", err)
+	}
+}
+
+func TestImprovementPlaneServeValidationAllowsObservabilityOnlyMode(t *testing.T) {
+	cfg := Config{
+		ServiceName:               "improvement-plane",
+		ServiceKind:               "improvement-plane",
+		Environment:               "stage",
+		HTTPPort:                  8080,
+		StoreBackend:              "postgres",
+		PostgresURL:               "postgres://user:pass@db.example/rsi",
+		PublicBaseURL:             "https://staging-rsi-platform.storyprotocol.net",
+		ToolGatewayBaseURL:        "http://use1-stage-rsi-agent-platform-tool-gateway:8080",
+		HonchoRuntimeBaseURL:      "http://use1-stage-rsi-agent-platform-honcho-api:8000",
+		DefaultReasoningVerbosity: "verbose",
+	}
+
+	if _, err := cfg.ValidatedFor("improvement-plane", "serve"); err != nil {
+		t.Fatalf("ValidatedFor() error = %v", err)
 	}
 }
 

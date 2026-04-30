@@ -30,6 +30,7 @@ type Config struct {
 	SandboxQueueURL                    string
 	RunnerBaseURL                      string
 	HermesExecutorBaseURL              string
+	HermesExecutorPoolURLs             []string
 	ProdRunnerBaseURL                  string
 	ProactiveRunnerBaseURL             string
 	EvalRunnerBaseURL                  string
@@ -148,6 +149,7 @@ func Load(serviceName string) Config {
 		SandboxQueueURL:                    stringEnv("RSI_SANDBOX_QUEUE_URL", ""),
 		RunnerBaseURL:                      runnerBaseURL,
 		HermesExecutorBaseURL:              stringEnv("RSI_HERMES_EXECUTOR_BASE_URL", ""),
+		HermesExecutorPoolURLs:             listEnv("RSI_HERMES_EXECUTOR_POOL_URLS"),
 		ProdRunnerBaseURL:                  stringEnv("RSI_RUNNER_PROD_BASE_URL", ""),
 		ProactiveRunnerBaseURL:             stringEnv("RSI_RUNNER_PROACTIVE_BASE_URL", ""),
 		EvalRunnerBaseURL:                  stringEnv("RSI_RUNNER_EVAL_BASE_URL", ""),
@@ -258,6 +260,14 @@ func (c Config) RunnerURLs() map[string]string {
 		"eval":      c.RunnerURLForRole("eval"),
 		"proposal":  c.RunnerURLForRole("proposal"),
 	}
+}
+
+func (c Config) HermesExecutorURLs() []string {
+	values := append([]string(nil), c.HermesExecutorPoolURLs...)
+	if len(values) == 0 && strings.TrimSpace(c.HermesExecutorBaseURL) != "" {
+		values = append(values, c.HermesExecutorBaseURL)
+	}
+	return CompactUniqueStrings(values)
 }
 
 func (c Config) RunnerTimeoutForRole(role string) time.Duration {

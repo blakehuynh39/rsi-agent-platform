@@ -377,6 +377,13 @@ func NewRunnerClientWithTimeout(baseURL string, timeout time.Duration) *RunnerCl
 	}
 }
 
+func (c *RunnerClient) BaseURL() string {
+	if c == nil {
+		return ""
+	}
+	return c.baseURL
+}
+
 func (c *RunnerClient) Execute(task RunnerTask) (RunnerResponse, error) {
 	var out RunnerResponse
 	if err := doJSON(c.httpClientForTask(task), http.MethodPost, c.baseURL+"/execute", map[string]RunnerTask{"task": task}, &out, "runner"); err != nil {
@@ -431,6 +438,14 @@ func (c *RunnerClient) CancelHermesExecution(executionID string) (HermesExecutio
 func (c *RunnerClient) Runtime() (RuntimeResponse, error) {
 	var out RuntimeResponse
 	if err := doJSON(c.httpClient, http.MethodGet, c.baseURL+"/runtimez", nil, &out, "runner"); err != nil {
+		return RuntimeResponse{}, err
+	}
+	return out, nil
+}
+
+func (c *RunnerClient) Ready() (RuntimeResponse, error) {
+	var out RuntimeResponse
+	if err := doJSON(c.httpClient, http.MethodGet, c.baseURL+"/readyz", nil, &out, "runner ready"); err != nil {
 		return RuntimeResponse{}, err
 	}
 	return out, nil

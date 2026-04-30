@@ -1190,6 +1190,8 @@ class HermesRuntime:
         return {
             "status": "ok" if self.available and self._session_manager.skills_healthy else "degraded",
             "role": self._role,
+            "executor_instance_id": self._config.executor_instance_id,
+            "active_execution_count": self.active_execution_count(),
             "backend": self._backend,
             "provider": self._provider,
             "model": self._configured_model,
@@ -1299,6 +1301,10 @@ class HermesRuntime:
             "honcho_ai_peer": self._config.honcho_ai_peer,
             "issues": self._session_manager.ready_issues,
         }
+
+    def active_execution_count(self) -> int:
+        with self._executor_process_lock:
+            return sum(1 for thread in self._executor_threads.values() if thread.is_alive())
 
     def _native_execution_log_root(self) -> Path:
         return Path(self._config.hermes_home) / "rsi_runtime" / "native_executions"

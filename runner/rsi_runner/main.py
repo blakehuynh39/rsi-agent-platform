@@ -7,6 +7,7 @@ import logging
 import os
 import signal
 import threading
+import time
 
 from .json_types import JsonObject
 
@@ -202,16 +203,20 @@ def run_server() -> None:
         
         def _shutdown_after_drain() -> None:
             logger.info("rsi-runner draining, waiting for in-flight executions to complete")
+            drain_timeout = float(max(1, config.drain_timeout_seconds))
+            deadline = time.monotonic() + drain_timeout
             with runtime._executor_process_lock:
                 active_threads = list(runtime._executor_threads.values())
                 active_processes = list(runtime._executor_processes.values())
             for thread in active_threads:
                 if thread.is_alive():
-                    thread.join(timeout=25.0)
+                    remaining = max(0, deadline - time.monotonic())
+                    thread.join(timeout=remaining)
             for process in active_processes:
                 if process.poll() is None:
                     try:
-                        process.wait(timeout=25.0)
+                        remaining = max(0, deadline - time.monotonic())
+                        process.wait(timeout=remaining)
                     except Exception:
                         pass
             logger.info("rsi-runner drain complete, shutting down server")

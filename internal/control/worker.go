@@ -66,9 +66,11 @@ func RunWorker(cfg config.Config, store storepkg.Store) error {
 	if cfg.DrainEnabled {
 		app.InstallSignalDrain()
 	}
-	runnerClients := map[string]*clients.RunnerClient{
-		"prod":      clients.NewRunnerClientWithTimeout(cfg.RunnerURLForRole("prod"), cfg.RunnerTimeoutForRole("prod")),
-		"proactive": clients.NewRunnerClientWithTimeout(cfg.RunnerURLForRole("proactive"), cfg.RunnerTimeoutForRole("proactive")),
+	runnerClients := map[string]*clients.RunnerClient{}
+	for _, role := range []string{"prod", "proactive"} {
+		if baseURL := strings.TrimSpace(cfg.RunnerURLForRole(role)); baseURL != "" {
+			runnerClients[role] = clients.NewRunnerClientWithTimeout(baseURL, cfg.RunnerTimeoutForRole(role))
+		}
 	}
 	toolClient := clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL)
 	workerID := fmt.Sprintf("%s-worker", cfg.ServiceName)
@@ -217,12 +219,19 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	if isTerminalWorkflowStatus(ctx.workflow.Status) || isTerminalTraceStatus(ctx.trace.Summary.Status) {
 		return completeClaimedEffect(store, effect, ctx.trace.Summary.TraceID)
 	}
-	runnerClient := runnerClients[runnerRoleForQueue(queueName)]
-	if runnerClient == nil {
+	runnerRole := runnerRoleForQueue(queueName)
+	runnerClient := runnerClients[runnerRole]
+	hermesExecutorURLs := cfg.HermesExecutorURLs()
+	hermesExecutorBaseURL := ""
+	if len(hermesExecutorURLs) > 0 {
+		hermesExecutorBaseURL = strings.TrimSpace(hermesExecutorURLs[0])
+	}
+	useHermesExecutor := hermesExecutorBaseURL != ""
+	if runnerClient == nil && !useHermesExecutor {
 		return fmt.Errorf("runner client unavailable for queue %s", queueName)
 	}
 	effectiveWorkflow := ctx.workflow
-	classification := classifyWorkflowExecution(cfg, store, runnerClient, runnerRoleForQueue(queueName), ctx.trace, ctx.workflow, ctx.ingestion)
+	classification := classifyWorkflowExecution(cfg, store, runnerClient, runnerRole, ctx.trace, ctx.workflow, ctx.ingestion)
 	if classification.Source == "ai_classifier" {
 		effectiveWorkflow = classification.Workflow
 	}
@@ -232,16 +241,13 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		contextRefs = append(contextRefs, extraRefs...)
 	}
 	runnerStarted := time.Now().UTC()
-	runnerRole := runnerRoleForQueue(queueName)
 	runnerTask := buildRunnerTask(cfg, store, runnerRole, ctx.trace, effectiveWorkflow, ctx.ingestion, contextSummary, contextRefs)
 	runnerTask.OperationID = effect.ID
 	runnerTask.ExecutionID = workflowExecutionID(effect.ID, runnerStarted)
-	hermesExecutorBaseURL := strings.TrimSpace(cfg.HermesExecutorBaseURL)
-	useHermesExecutor := hermesExecutorBaseURL != ""
 	executorClient := runnerClient
 	if useHermesExecutor {
 		executorClient = clients.NewRunnerClientWithTimeout(hermesExecutorBaseURL, cfg.RunnerTimeoutForRole(runnerRole))
-		cancelSupersededHermesExecutions(store, executorClient, ctx.workflow.CaseID, ctx.trace.Summary.TraceID)
+		cancelSupersededHermesExecutions(cfg, store, executorClient, ctx.workflow.CaseID, ctx.trace.Summary.TraceID)
 	}
 	var runnerResp clients.RunnerResponse
 	if useHermesExecutor && cfg.AsyncHermesExecutionEnabled {

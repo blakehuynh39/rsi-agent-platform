@@ -1836,6 +1836,8 @@ create table if not exists runner_execution (
   conversation_id text not null default '',
   case_id text not null default '',
   role text not null default '',
+  executor_instance_id text not null default '',
+  executor_base_url text not null default '',
   status text not null,
   task jsonb not null default '{}'::jsonb,
   result jsonb not null default '{}'::jsonb,
@@ -1857,6 +1859,9 @@ create index if not exists runner_execution_case_idx
   on runner_execution (case_id, trace_id, status);
 create index if not exists runner_execution_operation_idx
   on runner_execution (operation_id, updated_at desc);
+create index if not exists runner_execution_executor_idx
+  on runner_execution (executor_instance_id, status, updated_at desc)
+  where status in ('queued','accepted','starting','running','cancelling','cancel_requested');
 
 create table if not exists command_receipt (
   command_id text primary key,

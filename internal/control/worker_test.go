@@ -189,11 +189,6 @@ func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
 }
 
 func TestWorkflowRunnerUsesHermesExecutorWhenConfigured(t *testing.T) {
-	fallbackRunner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		t.Fatalf("unexpected fallback runner call to %s", r.URL.Path)
-	}))
-	defer fallbackRunner.Close()
-
 	var executorPath string
 	var executorTask clients.RunnerTask
 	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -247,7 +242,6 @@ func TestWorkflowRunnerUsesHermesExecutorWhenConfigured(t *testing.T) {
 		DefaultRepo:               "rsi-agent-platform",
 		DefaultKnowledgeBaseURL:   "https://example.test/kb",
 		AllowedTargetRepos:        []string{"rsi-agent-platform"},
-		RunnerBaseURL:             fallbackRunner.URL,
 		HermesExecutorBaseURL:     executor.URL,
 		ToolGatewayBaseURL:        "http://tool-gateway.invalid",
 		SandboxNamespace:          "rsi-platform",
@@ -260,9 +254,7 @@ func TestWorkflowRunnerUsesHermesExecutorWhenConfigured(t *testing.T) {
 	}
 
 	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
-	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
-		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
-	}, runnerEffect); err != nil {
+	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{}, runnerEffect); err != nil {
 		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
 	}
 
@@ -1725,8 +1717,8 @@ func TestCancelSupersededHermesExecutionsSendsCancelRequestedOnce(t *testing.T) 
 	}
 
 	client := clients.NewRunnerClient(executor.URL)
-	cancelSupersededHermesExecutions(store, client, "case-1", "trace-current")
-	cancelSupersededHermesExecutions(store, client, "case-1", "trace-current")
+	cancelSupersededHermesExecutions(config.Config{}, store, client, "case-1", "trace-current")
+	cancelSupersededHermesExecutions(config.Config{}, store, client, "case-1", "trace-current")
 
 	if cancelCalls != 1 {
 		t.Fatalf("cancel calls = %d, want 1", cancelCalls)
@@ -1770,7 +1762,7 @@ func TestCancelSupersededHermesExecutionsDispatchesCancelRequestedStatus(t *test
 	}
 
 	client := clients.NewRunnerClient(executor.URL)
-	cancelSupersededHermesExecutions(store, client, "case-1", "trace-current")
+	cancelSupersededHermesExecutions(config.Config{}, store, client, "case-1", "trace-current")
 
 	if cancelCalls != 1 {
 		t.Fatalf("cancel calls = %d, want 1 (must dispatch cancel for cancel_requested status)", cancelCalls)
@@ -1812,8 +1804,8 @@ func TestCancelSupersededHermesExecutionsRetriesAfterCancelRPCError(t *testing.T
 	}
 
 	client := clients.NewRunnerClient(executor.URL)
-	cancelSupersededHermesExecutions(store, client, "case-1", "trace-current")
-	cancelSupersededHermesExecutions(store, client, "case-1", "trace-current")
+	cancelSupersededHermesExecutions(config.Config{}, store, client, "case-1", "trace-current")
+	cancelSupersededHermesExecutions(config.Config{}, store, client, "case-1", "trace-current")
 
 	if cancelCalls != 2 {
 		t.Fatalf("cancel calls = %d, want 2", cancelCalls)
@@ -1857,7 +1849,7 @@ func TestCancelSupersededHermesExecutionsTerminalWithoutResultPersistsFailure(t 
 		t.Fatalf("RecordRunnerExecution() error = %v", err)
 	}
 
-	cancelSupersededHermesExecutions(store, clients.NewRunnerClient(executor.URL), "case-1", "trace-current")
+	cancelSupersededHermesExecutions(config.Config{}, store, clients.NewRunnerClient(executor.URL), "case-1", "trace-current")
 
 	record, ok := store.GetRunnerExecution("hexec-old-completed")
 	if !ok {

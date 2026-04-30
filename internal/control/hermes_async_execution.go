@@ -76,13 +76,13 @@ func recoverHermesExecutionResult(client *clients.RunnerClient, executionID stri
 	return recovery.response, recovery.stillRunning, nil
 }
 
-func cancelSupersededHermesExecutions(store storepkg.Store, client *clients.RunnerClient, caseID string, currentTraceID string) {
+func cancelSupersededHermesExecutions(cfg config.Config, store storepkg.Store, client *clients.RunnerClient, caseID string, currentTraceID string) {
 	caseID = strings.TrimSpace(caseID)
 	currentTraceID = strings.TrimSpace(currentTraceID)
 	if caseID == "" || currentTraceID == "" {
 		return
 	}
-	runtime := newWorkflowRuntimeCoordinator(config.Config{}, store)
+	runtime := newWorkflowRuntimeCoordinator(cfg, store)
 	for _, item := range store.ListActiveRunnerExecutions() {
 		itemTraceID := strings.TrimSpace(item.TraceID)
 		if strings.TrimSpace(item.CaseID) != caseID || itemTraceID == "" || itemTraceID == currentTraceID {
@@ -92,7 +92,12 @@ func cancelSupersededHermesExecutions(store storepkg.Store, client *clients.Runn
 		if itemStatus == "cancelling" {
 			continue
 		}
-		status, err := client.CancelHermesExecution(item.ExecutionID)
+		itemClient := newHermesExecutorPool(cfg, firstNonEmpty(item.Role, "prod"), client).clientForRecord(item)
+		if itemClient == nil {
+			log.Printf("control-plane cancel superseded Hermes execution=%s trace=%s skipped: no executor endpoint recorded", item.ExecutionID, item.TraceID)
+			continue
+		}
+		status, err := itemClient.CancelHermesExecution(item.ExecutionID)
 		if err != nil {
 			update := storepkg.RunnerExecution{
 				ExecutionID:     item.ExecutionID,
@@ -184,11 +189,16 @@ func cancelSupersededHermesExecutions(store storepkg.Store, client *clients.Runn
 func executeOrPollAsyncHermesExecution(cfg config.Config, store storepkg.Store, client *clients.RunnerClient, task clients.RunnerTask, effect transition.EffectExecution, role string, ctx workflowContext, startedAt time.Time) (clients.RunnerResponse, bool, error) {
 	now := time.Now().UTC()
 	runtime := newWorkflowRuntimeCoordinator(cfg, store)
+	executorPool := newHermesExecutorPool(cfg, role, client)
 	executionHolder := runnerExecutionHolder(task.ExecutionID)
 	task = runnerTaskWithExecutionHolder(task, executionHolder)
 	record, exists := store.GetRunnerExecution(task.ExecutionID)
+	recordClient := executorPool.clientForRecord(record)
+	if recordClient == nil {
+		recordClient = client
+	}
 	if exists && record.CancelRequested && !storepkg.RunnerExecutionStatusTerminal(record.Status) {
-		status, err := client.CancelHermesExecution(task.ExecutionID)
+		status, err := recordClient.CancelHermesExecution(task.ExecutionID)
 		if err != nil {
 			if cfg.HermesExecutionHeartbeatTimeout > 0 {
 				failureNow := time.Now().UTC()
@@ -315,8 +325,12 @@ func executeOrPollAsyncHermesExecution(cfg config.Config, store storepkg.Store, 
 			if startFailureReferenceTime.IsZero() {
 				startFailureReferenceTime = runnerExecutionHeartbeatReferenceTime(record)
 			}
-		} else {
-			recovery, err := recoverHermesExecution(client, task.ExecutionID)
+		} else if strings.TrimSpace(record.ExecutorBaseURL) != "" || len(cfg.HermesExecutorPoolURLs) == 0 {
+			recordClient = executorPool.clientForRecord(record)
+			if recordClient == nil {
+				recordClient = client
+			}
+			recovery, err := recoverHermesExecution(recordClient, task.ExecutionID)
 			if err != nil {
 				failureNow := time.Now().UTC()
 				referenceTime := startFailureReferenceTime
@@ -398,7 +412,7 @@ func executeOrPollAsyncHermesExecution(cfg config.Config, store storepkg.Store, 
 				return recovery.response, false, nil
 			}
 		}
-		status, err := client.StartHermesExecution(task)
+		status, endpoint, err := executorPool.startExecution(task)
 		if err != nil {
 			failureNow := time.Now().UTC()
 			referenceTime := startFailureReferenceTime
@@ -415,13 +429,15 @@ func executeOrPollAsyncHermesExecution(cfg config.Config, store storepkg.Store, 
 				}
 				completedAt := failureNow
 				_, _ = runtime.recordRunnerExecution(storepkg.RunnerExecution{
-					ExecutionID:  task.ExecutionID,
-					Status:       "failed",
-					Result:       runnerResponseMap(failureResp),
-					FailureClass: failure.Class,
-					HeartbeatAt:  &failureNow,
-					CompletedAt:  &completedAt,
-					UpdatedAt:    failureNow,
+					ExecutionID:        task.ExecutionID,
+					Status:             "failed",
+					Result:             runnerResponseMap(failureResp),
+					FailureClass:       failure.Class,
+					ExecutorInstanceID: record.ExecutorInstanceID,
+					ExecutorBaseURL:    record.ExecutorBaseURL,
+					HeartbeatAt:        &failureNow,
+					CompletedAt:        &completedAt,
+					UpdatedAt:          failureNow,
 				})
 				return clients.RunnerResponse{}, false, &workflowFailureError{failure: failure}
 			}
@@ -436,23 +452,25 @@ func executeOrPollAsyncHermesExecution(cfg config.Config, store storepkg.Store, 
 				recordStatus = "failed"
 			}
 			updated, err := runtime.recordRunnerExecutionWithHolderCAS(storepkg.RunnerExecution{
-				ExecutionID:    task.ExecutionID,
-				OperationID:    effect.ID,
-				WorkflowID:     ctx.workflow.ID,
-				TraceID:        ctx.trace.Summary.TraceID,
-				ConversationID: ctx.workflow.ConversationID,
-				CaseID:         ctx.workflow.CaseID,
-				Role:           role,
-				Status:         recordStatus,
-				Holder:         executionHolder,
-				Task:           runnerTaskMap(task),
-				Result:         runnerResponseMap(*status.Result),
-				FailureClass:   stringValue(status.Result.Raw["failure_class"]),
-				HeartbeatAt:    &startCompletedAt,
-				StartedAt:      &startedAt,
-				CompletedAt:    &completedAt,
-				CreatedAt:      now,
-				UpdatedAt:      startCompletedAt,
+				ExecutionID:        task.ExecutionID,
+				OperationID:        effect.ID,
+				WorkflowID:         ctx.workflow.ID,
+				TraceID:            ctx.trace.Summary.TraceID,
+				ConversationID:     ctx.workflow.ConversationID,
+				CaseID:             ctx.workflow.CaseID,
+				Role:               role,
+				ExecutorInstanceID: endpoint.instanceID,
+				ExecutorBaseURL:    endpoint.baseURL,
+				Status:             recordStatus,
+				Holder:             executionHolder,
+				Task:               runnerTaskMap(task),
+				Result:             runnerResponseMap(*status.Result),
+				FailureClass:       stringValue(status.Result.Raw["failure_class"]),
+				HeartbeatAt:        &startCompletedAt,
+				StartedAt:          &startedAt,
+				CompletedAt:        &completedAt,
+				CreatedAt:          now,
+				UpdatedAt:          startCompletedAt,
 			}, expectedRunnerExecutionHolder(record), record.HeartbeatAt)
 			if err != nil {
 				if errors.Is(err, storepkg.ErrHolderCASMismatch) {
@@ -466,20 +484,22 @@ func executeOrPollAsyncHermesExecution(cfg config.Config, store storepkg.Store, 
 			return *status.Result, false, nil
 		}
 		if _, err := runtime.recordRunnerExecutionWithHolderCAS(storepkg.RunnerExecution{
-			ExecutionID:    task.ExecutionID,
-			OperationID:    effect.ID,
-			WorkflowID:     ctx.workflow.ID,
-			TraceID:        ctx.trace.Summary.TraceID,
-			ConversationID: ctx.workflow.ConversationID,
-			CaseID:         ctx.workflow.CaseID,
-			Role:           role,
-			Status:         statusText,
-			Holder:         executionHolder,
-			Task:           runnerTaskMap(task),
-			HeartbeatAt:    &startCompletedAt,
-			StartedAt:      &startedAt,
-			CreatedAt:      now,
-			UpdatedAt:      startCompletedAt,
+			ExecutionID:        task.ExecutionID,
+			OperationID:        effect.ID,
+			WorkflowID:         ctx.workflow.ID,
+			TraceID:            ctx.trace.Summary.TraceID,
+			ConversationID:     ctx.workflow.ConversationID,
+			CaseID:             ctx.workflow.CaseID,
+			Role:               role,
+			ExecutorInstanceID: endpoint.instanceID,
+			ExecutorBaseURL:    endpoint.baseURL,
+			Status:             statusText,
+			Holder:             executionHolder,
+			Task:               runnerTaskMap(task),
+			HeartbeatAt:        &startCompletedAt,
+			StartedAt:          &startedAt,
+			CreatedAt:          now,
+			UpdatedAt:          startCompletedAt,
 		}, expectedRunnerExecutionHolder(record), record.HeartbeatAt); err != nil {
 			if errors.Is(err, storepkg.ErrHolderCASMismatch) {
 				return clients.RunnerResponse{}, true, errHermesExecutionStillRunning
@@ -488,7 +508,11 @@ func executeOrPollAsyncHermesExecution(cfg config.Config, store storepkg.Store, 
 		}
 		return clients.RunnerResponse{}, true, nil
 	}
-	status, err := client.HermesExecutionStatus(task.ExecutionID)
+	recordClient = executorPool.clientForRecord(record)
+	if recordClient == nil {
+		recordClient = client
+	}
+	status, err := recordClient.HermesExecutionStatus(task.ExecutionID)
 	if err != nil {
 		if strings.Contains(err.Error(), "returned 404") {
 			failureNow := time.Now().UTC()

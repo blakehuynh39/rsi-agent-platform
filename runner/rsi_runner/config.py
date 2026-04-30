@@ -17,6 +17,7 @@ DEFAULT_PROD_TASK_TIMEOUT_SECONDS = 900
 @dataclass
 class RunnerConfig:
     role: str
+    executor_instance_id: str
     host: str
     port: int
     model: str
@@ -73,10 +74,12 @@ class RunnerConfig:
     slack_user_token_configured: bool
     verbose_trace_logging: bool
     verbose_trace_log_limit: int
+    drain_timeout_seconds: int
 
     @classmethod
     def from_env(cls) -> "RunnerConfig":
         role = required_env("RSI_RUNNER_ROLE")
+        executor_instance_id = optional_env("RSI_HERMES_EXECUTOR_INSTANCE_ID") or optional_env("HOSTNAME") or role
         host = required_env("RSI_RUNNER_HOST")
         port = parse_port(required_env("RSI_RUNNER_PORT"))
         model = required_env("RSI_RUNNER_MODEL")
@@ -142,6 +145,7 @@ class RunnerConfig:
         slack_user_token = optional_env("RSI_SLACK_USER_TOKEN")
         verbose_trace_logging = parse_bool(optional_env("RSI_VERBOSE_TRACE_LOGGING") or "false", "RSI_VERBOSE_TRACE_LOGGING")
         verbose_trace_log_limit = parse_non_negative_int(optional_env("RSI_VERBOSE_TRACE_LOG_LIMIT") or "100000", "RSI_VERBOSE_TRACE_LOG_LIMIT")
+        drain_timeout_seconds = parse_positive_int(optional_env("RSI_RUNNER_DRAIN_TIMEOUT_SECONDS") or "900", "RSI_RUNNER_DRAIN_TIMEOUT_SECONDS")
         if not model.startswith("openrouter/") or len(model.split("/", 1)) < 2 or not model.split("/", 1)[1]:
             raise RunnerConfigError("RSI_RUNNER_MODEL must use the openrouter/<model> form")
         if not openrouter_api_key:
@@ -154,6 +158,7 @@ class RunnerConfig:
             raise RunnerConfigError("RSI_TOOL_GATEWAY_BASE_URL is required for eval and proposal runner roles")
         return cls(
             role=role,
+            executor_instance_id=executor_instance_id,
             host=host,
             port=port,
             model=model,
@@ -210,6 +215,7 @@ class RunnerConfig:
             slack_user_token_configured=bool(slack_user_token),
             verbose_trace_logging=verbose_trace_logging,
             verbose_trace_log_limit=max(1024, verbose_trace_log_limit),
+            drain_timeout_seconds=drain_timeout_seconds,
         )
 
 

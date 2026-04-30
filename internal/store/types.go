@@ -61,25 +61,27 @@ type QuestionRun struct {
 }
 
 type RunnerExecution struct {
-	ExecutionID     string         `json:"execution_id"`
-	OperationID     string         `json:"operation_id,omitempty"`
-	WorkflowID      string         `json:"workflow_id,omitempty"`
-	TraceID         string         `json:"trace_id,omitempty"`
-	ConversationID  string         `json:"conversation_id,omitempty"`
-	CaseID          string         `json:"case_id,omitempty"`
-	Role            string         `json:"role,omitempty"`
-	Status          string         `json:"status"`
-	Task            map[string]any `json:"task,omitempty"`
-	Result          map[string]any `json:"result,omitempty"`
-	FailureClass    string         `json:"failure_class,omitempty"`
-	Holder          string         `json:"holder,omitempty"`
-	RetryCount      int            `json:"retry_count,omitempty"`
-	CancelRequested bool           `json:"cancel_requested,omitempty"`
-	HeartbeatAt     *time.Time     `json:"heartbeat_at,omitempty"`
-	CreatedAt       time.Time      `json:"created_at"`
-	UpdatedAt       time.Time      `json:"updated_at"`
-	StartedAt       *time.Time     `json:"started_at,omitempty"`
-	CompletedAt     *time.Time     `json:"completed_at,omitempty"`
+	ExecutionID        string         `json:"execution_id"`
+	OperationID        string         `json:"operation_id,omitempty"`
+	WorkflowID         string         `json:"workflow_id,omitempty"`
+	TraceID            string         `json:"trace_id,omitempty"`
+	ConversationID     string         `json:"conversation_id,omitempty"`
+	CaseID             string         `json:"case_id,omitempty"`
+	Role               string         `json:"role,omitempty"`
+	ExecutorInstanceID string         `json:"executor_instance_id,omitempty"`
+	ExecutorBaseURL    string         `json:"executor_base_url,omitempty"`
+	Status             string         `json:"status"`
+	Task               map[string]any `json:"task,omitempty"`
+	Result             map[string]any `json:"result,omitempty"`
+	FailureClass       string         `json:"failure_class,omitempty"`
+	Holder             string         `json:"holder,omitempty"`
+	RetryCount         int            `json:"retry_count,omitempty"`
+	CancelRequested    bool           `json:"cancel_requested,omitempty"`
+	HeartbeatAt        *time.Time     `json:"heartbeat_at,omitempty"`
+	CreatedAt          time.Time      `json:"created_at"`
+	UpdatedAt          time.Time      `json:"updated_at"`
+	StartedAt          *time.Time     `json:"started_at,omitempty"`
+	CompletedAt        *time.Time     `json:"completed_at,omitempty"`
 }
 
 type WorkflowLine struct {

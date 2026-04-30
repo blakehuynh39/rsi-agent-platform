@@ -249,6 +249,8 @@ func normalizeRunnerExecution(item RunnerExecution) RunnerExecution {
 	item.ConversationID = strings.TrimSpace(item.ConversationID)
 	item.CaseID = strings.TrimSpace(item.CaseID)
 	item.Role = strings.TrimSpace(item.Role)
+	item.ExecutorInstanceID = strings.TrimSpace(item.ExecutorInstanceID)
+	item.ExecutorBaseURL = strings.TrimSpace(item.ExecutorBaseURL)
 	item.Status = strings.ToLower(strings.TrimSpace(item.Status))
 	if item.Status == "" {
 		item.Status = "queued"
@@ -295,6 +297,8 @@ func mergeRunnerExecution(existing RunnerExecution, next RunnerExecution) Runner
 		existing.ConversationID = firstNonEmpty(next.ConversationID, existing.ConversationID)
 		existing.CaseID = firstNonEmpty(next.CaseID, existing.CaseID)
 		existing.Role = firstNonEmpty(next.Role, existing.Role)
+		existing.ExecutorInstanceID = firstNonEmpty(next.ExecutorInstanceID, existing.ExecutorInstanceID)
+		existing.ExecutorBaseURL = firstNonEmpty(next.ExecutorBaseURL, existing.ExecutorBaseURL)
 		return existing
 	}
 	existing.OperationID = firstNonEmpty(next.OperationID, existing.OperationID)
@@ -303,6 +307,8 @@ func mergeRunnerExecution(existing RunnerExecution, next RunnerExecution) Runner
 	existing.ConversationID = firstNonEmpty(next.ConversationID, existing.ConversationID)
 	existing.CaseID = firstNonEmpty(next.CaseID, existing.CaseID)
 	existing.Role = firstNonEmpty(next.Role, existing.Role)
+	existing.ExecutorInstanceID = firstNonEmpty(next.ExecutorInstanceID, existing.ExecutorInstanceID)
+	existing.ExecutorBaseURL = firstNonEmpty(next.ExecutorBaseURL, existing.ExecutorBaseURL)
 	existingStatusLower := strings.ToLower(strings.TrimSpace(existing.Status))
 	if existing.CancelRequested && nextStatusProvided {
 		nextStatusLower := strings.ToLower(strings.TrimSpace(next.Status))
@@ -420,8 +426,8 @@ func selectRunnerExecutionForUpdate(tx *sql.Tx, executionID string) (RunnerExecu
 
 func insertRunnerExecutionRow(tx *sql.Tx, item RunnerExecution) (RunnerExecution, error) {
 	item = normalizeRunnerExecution(item)
-	row := tx.QueryRow(`insert into runner_execution (execution_id, operation_id, workflow_id, trace_id, conversation_id, case_id, role, status, task, result, failure_class, holder, retry_count, cancel_requested, heartbeat_at, created_at, updated_at, started_at, completed_at)
-		values ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10::jsonb,$11,$12,$13,$14,$15,$16,$17,$18,$19)
+	row := tx.QueryRow(`insert into runner_execution (execution_id, operation_id, workflow_id, trace_id, conversation_id, case_id, role, executor_instance_id, executor_base_url, status, task, result, failure_class, holder, retry_count, cancel_requested, heartbeat_at, created_at, updated_at, started_at, completed_at)
+		values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb,$12::jsonb,$13,$14,$15,$16,$17,$18,$19,$20,$21)
 		returning `+runnerExecutionSelectColumns(),
 		item.ExecutionID,
 		item.OperationID,
@@ -430,6 +436,8 @@ func insertRunnerExecutionRow(tx *sql.Tx, item RunnerExecution) (RunnerExecution
 		item.ConversationID,
 		item.CaseID,
 		item.Role,
+		item.ExecutorInstanceID,
+		item.ExecutorBaseURL,
 		item.Status,
 		jsonString(item.Task),
 		jsonString(item.Result),
@@ -455,18 +463,20 @@ func updateRunnerExecutionRow(tx *sql.Tx, item RunnerExecution) (RunnerExecution
 			conversation_id = $5,
 			case_id = $6,
 			role = $7,
-			status = $8,
-			task = $9::jsonb,
-			result = $10::jsonb,
-			failure_class = $11,
-			holder = $12,
-			retry_count = $13,
-			cancel_requested = $14,
-			heartbeat_at = $15,
-			created_at = $16,
-			updated_at = $17,
-			started_at = $18,
-			completed_at = $19
+			executor_instance_id = $8,
+			executor_base_url = $9,
+			status = $10,
+			task = $11::jsonb,
+			result = $12::jsonb,
+			failure_class = $13,
+			holder = $14,
+			retry_count = $15,
+			cancel_requested = $16,
+			heartbeat_at = $17,
+			created_at = $18,
+			updated_at = $19,
+			started_at = $20,
+			completed_at = $21
 		where execution_id = $1
 		returning `+runnerExecutionSelectColumns(),
 		item.ExecutionID,
@@ -476,6 +486,8 @@ func updateRunnerExecutionRow(tx *sql.Tx, item RunnerExecution) (RunnerExecution
 		item.ConversationID,
 		item.CaseID,
 		item.Role,
+		item.ExecutorInstanceID,
+		item.ExecutorBaseURL,
 		item.Status,
 		jsonString(item.Task),
 		jsonString(item.Result),
@@ -502,14 +514,14 @@ func sortRunnerExecutions(items []RunnerExecution) {
 }
 
 func runnerExecutionSelectColumns() string {
-	return `execution_id, operation_id, workflow_id, trace_id, conversation_id, case_id, role, status, task, result, failure_class, holder, retry_count, cancel_requested, heartbeat_at, created_at, updated_at, started_at, completed_at`
+	return `execution_id, operation_id, workflow_id, trace_id, conversation_id, case_id, role, executor_instance_id, executor_base_url, status, task, result, failure_class, holder, retry_count, cancel_requested, heartbeat_at, created_at, updated_at, started_at, completed_at`
 }
 
 func scanRunnerExecution(scanner rowScanner) (RunnerExecution, error) {
 	var item RunnerExecution
 	var task, result []byte
 	var heartbeatAt, startedAt, completedAt sql.NullTime
-	if err := scanner.Scan(&item.ExecutionID, &item.OperationID, &item.WorkflowID, &item.TraceID, &item.ConversationID, &item.CaseID, &item.Role, &item.Status, &task, &result, &item.FailureClass, &item.Holder, &item.RetryCount, &item.CancelRequested, &heartbeatAt, &item.CreatedAt, &item.UpdatedAt, &startedAt, &completedAt); err != nil {
+	if err := scanner.Scan(&item.ExecutionID, &item.OperationID, &item.WorkflowID, &item.TraceID, &item.ConversationID, &item.CaseID, &item.Role, &item.ExecutorInstanceID, &item.ExecutorBaseURL, &item.Status, &task, &result, &item.FailureClass, &item.Holder, &item.RetryCount, &item.CancelRequested, &heartbeatAt, &item.CreatedAt, &item.UpdatedAt, &startedAt, &completedAt); err != nil {
 		return RunnerExecution{}, err
 	}
 	item.Task = decodeJSON(task, map[string]any{})
