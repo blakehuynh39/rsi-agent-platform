@@ -92,6 +92,10 @@ def _json_list(value: Any) -> list[Any]:
     return value if isinstance(value, list) else []
 
 
+def _string_list(value: Any) -> list[str]:
+    return [_string(item) for item in _json_list(value) if _string(item)]
+
+
 def _bool(value: Any) -> bool:
     if isinstance(value, bool):
         return value
@@ -170,27 +174,8 @@ def _status_text(ok: bool) -> str:
     return "ok" if ok else "failed"
 
 
-def _runtime_api_key(runtime: JsonObject) -> str | None:
-    explicit = _string(runtime.get("api_key"))
-    if explicit:
-        return explicit
-    api_mode = _string(runtime.get("api_mode")).lower()
-    provider = _string(runtime.get("provider")).lower()
-    base_url = _string(runtime.get("base_url")).lower()
-    openai_selected = api_mode == "codex_responses" or provider == "openai" or "api.openai.com" in base_url
-    if openai_selected:
-        return (
-            os.getenv("RSI_OPENAI_API_KEY")
-            or os.getenv("OPENAI_API_KEY")
-            or os.getenv("RSI_HERMES_API_KEY")
-            or None
-        )
-    return (
-        os.getenv("RSI_HERMES_API_KEY")
-        or os.getenv("RSI_OPENAI_API_KEY")
-        or os.getenv("OPENAI_API_KEY")
-        or None
-    )
+def _runtime_api_key() -> str | None:
+    return os.getenv("RSI_OPENROUTER_API_KEY") or os.getenv("OPENROUTER_API_KEY") or None
 
 
 @dataclass
@@ -499,34 +484,55 @@ class HermesAgentAdapter:
         if AIAgent is None:
             raise RuntimeError("run_agent.AIAgent is unavailable.")
         runtime = _json_object(self._payload.get("runtime"))
-        return AIAgent(
-            model=_string(self._payload.get("model")),
-            api_key=_runtime_api_key(runtime),
-            base_url=_string(runtime.get("base_url")) or None,
-            provider=_string(runtime.get("provider")) or None,
-            api_mode=_string(runtime.get("api_mode")) or None,
-            max_iterations=max(1, int(self._payload.get("max_iterations") or 1)),
-            enabled_toolsets=[_string(item) for item in _json_list(self._payload.get("toolsets")) if _string(item)],
-            quiet_mode=True,
-            ephemeral_system_prompt=system_prompt or None,
-            reasoning_config=_json_object(self._payload.get("reasoning_config")),
-            request_overrides=_json_object(self._payload.get("request_overrides")),
-            session_id=session_id,
-            parent_session_id=_string(self._payload.get("parent_session_id")) or None,
-            platform="rsi",
-            session_db=session_db,
-            skip_context_files=True,
-            skip_memory=False,
-            persist_session=True,
-            reasoning_callback=self._reasoning_callback,
-            stream_delta_callback=self._stream_delta_callback,
-            thinking_callback=self._thinking_callback,
-            tool_gen_callback=self._tool_generation_callback,
-            tool_progress_callback=self._tool_progress_callback,
-            tool_start_callback=self._tool_start_callback,
-            tool_complete_callback=self._tool_complete_callback,
-            status_callback=self._status_callback,
-        )
+        runtime_provider = _string(runtime.get("provider")) or "openrouter"
+        if runtime_provider != "openrouter":
+            raise RuntimeError("Hermes native execution only supports the OpenRouter runtime provider.")
+        agent_kwargs: JsonObject = {
+            "model": _string(self._payload.get("model")),
+            "api_key": _runtime_api_key(),
+            "base_url": _string(runtime.get("base_url")) or None,
+            "provider": runtime_provider,
+            "api_mode": _string(runtime.get("api_mode")) or None,
+            "max_iterations": max(1, int(self._payload.get("max_iterations") or 1)),
+            "enabled_toolsets": _string_list(self._payload.get("toolsets")),
+            "quiet_mode": True,
+            "ephemeral_system_prompt": system_prompt or None,
+            "reasoning_config": _json_object(self._payload.get("reasoning_config")),
+            "request_overrides": _json_object(self._payload.get("request_overrides")),
+            "session_id": session_id,
+            "parent_session_id": _string(self._payload.get("parent_session_id")) or None,
+            "platform": "rsi",
+            "session_db": session_db,
+            "skip_context_files": True,
+            "skip_memory": False,
+            "persist_session": True,
+            "reasoning_callback": self._reasoning_callback,
+            "stream_delta_callback": self._stream_delta_callback,
+            "thinking_callback": self._thinking_callback,
+            "tool_gen_callback": self._tool_generation_callback,
+            "tool_progress_callback": self._tool_progress_callback,
+            "tool_start_callback": self._tool_start_callback,
+            "tool_complete_callback": self._tool_complete_callback,
+            "status_callback": self._status_callback,
+        }
+        provider_routing = _json_object(runtime.get("provider_routing"))
+        if provider_routing:
+            allowed = _string_list(provider_routing.get("only"))
+            ignored = _string_list(provider_routing.get("ignore"))
+            order = _string_list(provider_routing.get("order"))
+            if allowed:
+                agent_kwargs["providers_allowed"] = allowed
+            if ignored:
+                agent_kwargs["providers_ignored"] = ignored
+            if order:
+                agent_kwargs["providers_order"] = order
+            if _string(provider_routing.get("sort")):
+                agent_kwargs["provider_sort"] = _string(provider_routing.get("sort"))
+            if "require_parameters" in provider_routing:
+                agent_kwargs["provider_require_parameters"] = _bool(provider_routing.get("require_parameters"))
+            if _string(provider_routing.get("data_collection")):
+                agent_kwargs["provider_data_collection"] = _string(provider_routing.get("data_collection"))
+        return AIAgent(**agent_kwargs)
 
     def _completion_meta(self, result: Any) -> JsonObject:
         if not isinstance(result, dict):

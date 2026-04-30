@@ -22,6 +22,24 @@ except (ImportError, ModuleNotFoundError):  # pragma: no cover - depends on Herm
 from .config import RunnerConfig
 
 
+def _render_provider_routing(provider_routing: dict[str, object]) -> str:
+    lines = ["provider_routing:"]
+    for key in ("only", "ignore", "order"):
+        value = provider_routing.get(key)
+        if isinstance(value, list) and value:
+            lines.append(f"  {key}:")
+            for item in value:
+                lines.append(f"    - {json.dumps(str(item))}")
+    for key in ("sort", "data_collection"):
+        value = provider_routing.get(key)
+        if isinstance(value, str) and value:
+            lines.append(f"  {key}: {json.dumps(value)}")
+    value = provider_routing.get("require_parameters")
+    if isinstance(value, bool):
+        lines.append(f"  require_parameters: {str(value).lower()}")
+    return "\n".join(lines) + "\n"
+
+
 @dataclass
 class SessionContext:
     session_id: str
@@ -286,13 +304,16 @@ class SessionManager:
     def _write_hermes_config(self) -> None:
         config_path = self._hermes_home / "config.yaml"
         configured_model = str(self._config.model or "").strip()
-        provider_model = configured_model.split("/", 1)[1] if configured_model.startswith("openai/") else configured_model
-        content = (
-            "model:\n"
-            f"  default: {json.dumps(provider_model)}\n"
-            "  provider: custom\n"
-            f"  base_url: {json.dumps(self._config.openai_base_url)}\n"
-            "  api_key: \"\"\n"
+        provider_model = configured_model.split("/", 1)[1]
+        provider_routing = dict(self._config.openrouter_provider_routing or {})
+
+        content = "model:\n"
+        content += f"  default: {json.dumps(provider_model)}\n"
+        content += "  provider: openrouter\n"
+        content += "  api_key: \"\"\n"
+        if provider_routing:
+            content += _render_provider_routing(provider_routing)
+        content += (
             "memory:\n"
             "  provider: honcho\n"
         )

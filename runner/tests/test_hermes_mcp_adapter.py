@@ -234,7 +234,7 @@ class HermesTaskScopedMCPAdapterTests(unittest.TestCase):
             mcp_servers=[
                 {
                     "server_label": "docs",
-                    "server_url": "https://developers.openai.com/mcp",
+                    "server_url": "https://docs.example.com/mcp",
                     "allowed_tools": {"read_only": True},
                 }
             ],

@@ -21,7 +21,8 @@ class RunnerConfig:
     port: int
     model: str
     reasoning_effort: str
-    openai_base_url: str
+    openrouter_api_key_configured: bool
+    openrouter_provider_routing: dict[str, object]
     hermes_pin: str
     public_base_url: str
     tool_gateway_base_url: str | None
@@ -80,7 +81,8 @@ class RunnerConfig:
         port = parse_port(required_env("RSI_RUNNER_PORT"))
         model = required_env("RSI_RUNNER_MODEL")
         reasoning_effort = required_env("RSI_RUNNER_REASONING_EFFORT")
-        openai_base_url = optional_url_env("RSI_OPENAI_BASE_URL") or optional_url_env("OPENAI_BASE_URL") or "https://api.openai.com/v1"
+        openrouter_api_key = optional_env("RSI_OPENROUTER_API_KEY") or optional_env("OPENROUTER_API_KEY")
+        openrouter_provider_routing = parse_openrouter_provider_routing()
         hermes_pin = optional_env("RSI_HERMES_PIN")
         public_base_url = required_url_env("RSI_RUNNER_PUBLIC_BASE_URL")
         tool_gateway_base_url = optional_url_env("RSI_TOOL_GATEWAY_BASE_URL")
@@ -140,8 +142,10 @@ class RunnerConfig:
         slack_user_token = optional_env("RSI_SLACK_USER_TOKEN")
         verbose_trace_logging = parse_bool(optional_env("RSI_VERBOSE_TRACE_LOGGING") or "false", "RSI_VERBOSE_TRACE_LOGGING")
         verbose_trace_log_limit = parse_non_negative_int(optional_env("RSI_VERBOSE_TRACE_LOG_LIMIT") or "100000", "RSI_VERBOSE_TRACE_LOG_LIMIT")
-        if model.startswith("openai/"):
-            required_env("OPENAI_API_KEY")
+        if not model.startswith("openrouter/") or len(model.split("/", 1)) < 2 or not model.split("/", 1)[1]:
+            raise RunnerConfigError("RSI_RUNNER_MODEL must use the openrouter/<model> form")
+        if not openrouter_api_key:
+            raise RunnerConfigError("RSI_OPENROUTER_API_KEY or OPENROUTER_API_KEY is required when RSI_RUNNER_MODEL starts with openrouter/")
         if memory_backend != "honcho":
             raise RunnerConfigError("RSI_RUNNER_MEMORY_BACKEND must be set to honcho")
         if not honcho_api_key and not honcho_base_url:
@@ -154,7 +158,8 @@ class RunnerConfig:
             port=port,
             model=model,
             reasoning_effort=reasoning_effort,
-            openai_base_url=openai_base_url,
+            openrouter_api_key_configured=bool(openrouter_api_key),
+            openrouter_provider_routing=openrouter_provider_routing,
             hermes_pin=hermes_pin,
             public_base_url=public_base_url,
             tool_gateway_base_url=tool_gateway_base_url or None,
@@ -379,6 +384,34 @@ def parse_csv_list(raw: str) -> list[str]:
         seen.add(value)
         out.append(value)
     return out
+
+
+def parse_openrouter_provider_routing() -> dict[str, object]:
+    routing: dict[str, object] = {}
+    only = parse_csv_list(optional_env("RSI_OPENROUTER_PROVIDER_ONLY") or "")
+    ignore = parse_csv_list(optional_env("RSI_OPENROUTER_PROVIDER_IGNORE") or "")
+    order = parse_csv_list(optional_env("RSI_OPENROUTER_PROVIDER_ORDER") or "")
+    sort = optional_env("RSI_OPENROUTER_PROVIDER_SORT")
+    require_parameters = optional_env("RSI_OPENROUTER_REQUIRE_PARAMETERS")
+    data_collection = optional_env("RSI_OPENROUTER_DATA_COLLECTION")
+
+    if only:
+        routing["only"] = only
+    if ignore:
+        routing["ignore"] = ignore
+    if order:
+        routing["order"] = order
+    if sort:
+        if sort not in {"price", "throughput", "latency"}:
+            raise RunnerConfigError("RSI_OPENROUTER_PROVIDER_SORT must be one of: price, throughput, latency")
+        routing["sort"] = sort
+    if require_parameters:
+        routing["require_parameters"] = parse_bool(require_parameters, "RSI_OPENROUTER_REQUIRE_PARAMETERS")
+    if data_collection:
+        if data_collection not in {"allow", "deny"}:
+            raise RunnerConfigError("RSI_OPENROUTER_DATA_COLLECTION must be one of: allow, deny")
+        routing["data_collection"] = data_collection
+    return routing
 
 
 _DURATION_RE = re.compile(r"^(?P<value>\d+(?:\.\d+)?)(?P<unit>ms|s|m)?$")

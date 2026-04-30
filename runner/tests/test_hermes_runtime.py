@@ -37,8 +37,11 @@ def runner_env(role: str = "prod") -> dict[str, str]:
         "RSI_RUNNER_ROLE": role,
         "RSI_RUNNER_HOST": "0.0.0.0",
         "RSI_RUNNER_PORT": "8090",
-        "RSI_RUNNER_MODEL": "openai/gpt-5.4",
+        "RSI_RUNNER_MODEL": "openrouter/deepseek/deepseek-v4-pro",
         "RSI_RUNNER_REASONING_EFFORT": "xhigh",
+        "RSI_OPENROUTER_PROVIDER_ONLY": "deepseek",
+        "RSI_OPENROUTER_PROVIDER_ORDER": "deepseek",
+        "RSI_OPENROUTER_REQUIRE_PARAMETERS": "true",
         "RSI_HERMES_PIN": HERMES_TEST_PIN,
         "RSI_RUNNER_PUBLIC_BASE_URL": "https://staging-rsi-platform.storyprotocol.net",
         "RSI_TOOL_GATEWAY_BASE_URL": "http://tool-gateway.internal:8080",
@@ -68,8 +71,12 @@ def runner_env(role: str = "prod") -> dict[str, str]:
         "RSI_RUNNER_PROPOSAL_TIMEOUT": "450s",
         "RSI_RUNNER_NATIVE_MAX_OUTPUT_TOKENS": "15000",
         "HONCHO_API_KEY": "honcho-test-key",
-        "OPENAI_API_KEY": "openai-test-key",
+        "OPENROUTER_API_KEY": "openrouter-test-key",
     }
+
+
+def openrouter_runner_env(role: str = "prod") -> dict[str, str]:
+    return runner_env(role)
 
 
 class FakeAIAgent:
@@ -314,16 +321,37 @@ class HermesRuntimeTests(unittest.TestCase):
             with self.assertRaises(RunnerConfigError):
                 RunnerConfig.from_env()
 
-    def test_config_reads_explicit_gpt54_xhigh_and_honcho(self) -> None:
+    def test_config_reads_explicit_openrouter_xhigh_and_honcho(self) -> None:
         with mock.patch.dict(os.environ, runner_env("eval"), clear=True):
             config = RunnerConfig.from_env()
 
-        self.assertEqual(config.model, "openai/gpt-5.4")
+        self.assertEqual(config.model, "openrouter/deepseek/deepseek-v4-pro")
         self.assertEqual(config.reasoning_effort, "xhigh")
         self.assertEqual(config.memory_backend, "honcho")
         self.assertEqual(config.honcho_workspace, "rsi-stage")
         self.assertEqual(config.honcho_environment_effective, "production")
         self.assertEqual(config.native_max_output_tokens, 15000)
+
+    def test_config_reads_openrouter_routing_and_requires_key(self) -> None:
+        env = openrouter_runner_env("eval")
+        with mock.patch.dict(os.environ, env, clear=True):
+            config = RunnerConfig.from_env()
+
+        self.assertEqual(config.model, "openrouter/deepseek/deepseek-v4-pro")
+        self.assertTrue(config.openrouter_api_key_configured)
+        self.assertEqual(
+            config.openrouter_provider_routing,
+            {
+                "only": ["deepseek"],
+                "order": ["deepseek"],
+                "require_parameters": True,
+            },
+        )
+
+        env.pop("OPENROUTER_API_KEY")
+        with mock.patch.dict(os.environ, env, clear=True):
+            with self.assertRaisesRegex(RunnerConfigError, "OPENROUTER_API_KEY"):
+                RunnerConfig.from_env()
 
     def test_config_reads_verbose_trace_logging(self) -> None:
         with mock.patch.dict(
@@ -779,7 +807,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(status.api_signature_status, "failed")
         self.assertTrue(any("AIAgent.__init__ missing" in error for error in status.errors))
 
-    def test_hermes_agent_adapter_prefers_hermes_api_key_for_non_openai_runtime(self) -> None:
+    def test_hermes_agent_adapter_rejects_custom_runtime_provider(self) -> None:
         class CaptureAIAgent:
             last_kwargs: dict[str, object] = {}
 
@@ -789,8 +817,7 @@ class HermesRuntimeTests(unittest.TestCase):
         with mock.patch("rsi_runner.hermes_agent_adapter.AIAgent", CaptureAIAgent), mock.patch.dict(
             os.environ,
             {
-                "RSI_HERMES_API_KEY": "hermes-key",
-                "OPENAI_API_KEY": "openai-key",
+                "OPENROUTER_API_KEY": "openrouter-key",
             },
             clear=True,
         ):
@@ -805,20 +832,46 @@ class HermesRuntimeTests(unittest.TestCase):
                     "toolsets": [],
                 }
             )
+            with self.assertRaisesRegex(RuntimeError, "OpenRouter"):
+                adapter._create_agent("session-1", object(), "")
+
+    def test_hermes_agent_adapter_uses_openrouter_key_and_provider_routing(self) -> None:
+        class CaptureAIAgent:
+            last_kwargs: dict[str, object] = {}
+
+            def __init__(self, **kwargs) -> None:
+                type(self).last_kwargs = kwargs
+
+        with mock.patch("rsi_runner.hermes_agent_adapter.AIAgent", CaptureAIAgent), mock.patch.dict(
+            os.environ,
+            {
+                "OPENROUTER_API_KEY": "openrouter-key",
+            },
+            clear=True,
+        ):
+            adapter = HermesAgentAdapter(
+                {
+                    "model": "deepseek/deepseek-v4-pro",
+                    "runtime": {
+                        "provider": "openrouter",
+                        "api_mode": "",
+                        "base_url": "",
+                        "provider_routing": {
+                            "only": ["deepseek"],
+                            "order": ["deepseek"],
+                            "require_parameters": True,
+                        },
+                    },
+                    "toolsets": [],
+                }
+            )
             adapter._create_agent("session-1", object(), "")
 
-        self.assertEqual(CaptureAIAgent.last_kwargs["api_key"], "hermes-key")
-        for name in [
-            "reasoning_callback",
-            "stream_delta_callback",
-            "thinking_callback",
-            "tool_gen_callback",
-            "tool_progress_callback",
-            "tool_start_callback",
-            "tool_complete_callback",
-            "status_callback",
-        ]:
-            self.assertTrue(callable(CaptureAIAgent.last_kwargs[name]), name)
+        self.assertEqual(CaptureAIAgent.last_kwargs["api_key"], "openrouter-key")
+        self.assertEqual(CaptureAIAgent.last_kwargs["provider"], "openrouter")
+        self.assertEqual(CaptureAIAgent.last_kwargs["providers_allowed"], ["deepseek"])
+        self.assertEqual(CaptureAIAgent.last_kwargs["providers_order"], ["deepseek"])
+        self.assertTrue(CaptureAIAgent.last_kwargs["provider_require_parameters"])
 
     def test_hermes_agent_adapter_normalizes_stream_callbacks_to_lifecycle_events(self) -> None:
         with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(os.environ, {"HERMES_HOME": tempdir}, clear=True):
@@ -1047,7 +1100,7 @@ class HermesRuntimeTests(unittest.TestCase):
             "rsi_runner.session_manager.SessionDB", FakeSessionDB
         ), mock.patch("rsi_runner.session_manager.sync_skills") as sync_mock, mock.patch.dict(
             os.environ,
-            {**runner_env("prod"), "HERMES_HOME": tempdir, "OPENAI_BASE_URL": "https://api.openai.com/v1", "RSI_HERMES_NATIVE_TERMINAL_ENABLED": "true"},
+            {**runner_env("prod"), "HERMES_HOME": tempdir, "RSI_HERMES_NATIVE_TERMINAL_ENABLED": "true"},
             clear=True,
         ):
             sync_mock.return_value = {"copied": ["architecture-diagram"]}
@@ -1056,10 +1109,14 @@ class HermesRuntimeTests(unittest.TestCase):
             config_text = Path(tempdir, "config.yaml").read_text(encoding="utf-8")
 
         self.assertIn("model:", config_text)
-        self.assertIn('default: "gpt-5.4"', config_text)
-        self.assertIn("provider: custom", config_text)
-        self.assertIn('base_url: "https://api.openai.com/v1"', config_text)
+        self.assertIn('default: "deepseek/deepseek-v4-pro"', config_text)
+        self.assertIn("provider: openrouter", config_text)
+        self.assertNotIn("base_url:", config_text)
         self.assertIn('api_key: ""', config_text)
+        self.assertIn("provider_routing:", config_text)
+        self.assertIn('  only:\n    - "deepseek"', config_text)
+        self.assertIn('  order:\n    - "deepseek"', config_text)
+        self.assertIn("  require_parameters: true", config_text)
         self.assertIn("terminal:", config_text)
         self.assertIn('backend: "local"', config_text)
         self.assertIn('cwd: "/tmp/hermes/workspace/company"', config_text)
@@ -1070,6 +1127,36 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("    - rsi_context_engine", config_text)
         self.assertEqual(manager.hermes_config_parity_status, "configured")
         self.assertEqual(manager.hermes_config_parity_error, "")
+
+    def test_session_manager_writes_native_openrouter_model_config(self) -> None:
+        class FakeSessionDB:
+            def __init__(self, db_path: str) -> None:
+                self.db_path = db_path
+
+            def get_messages_as_conversation(self, _session_id: str) -> list[dict[str, object]]:
+                return []
+
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.session_manager.SessionDB", FakeSessionDB
+        ), mock.patch("rsi_runner.session_manager.sync_skills") as sync_mock, mock.patch.dict(
+            os.environ,
+            {**openrouter_runner_env("prod"), "HERMES_HOME": tempdir},
+            clear=True,
+        ):
+            sync_mock.return_value = {"copied": ["architecture-diagram"]}
+            config = RunnerConfig.from_env()
+            SessionManager(config)
+            config_text = Path(tempdir, "config.yaml").read_text(encoding="utf-8")
+
+        self.assertIn("model:", config_text)
+        self.assertIn('default: "deepseek/deepseek-v4-pro"', config_text)
+        self.assertIn("provider: openrouter", config_text)
+        self.assertNotIn("base_url:", config_text)
+        self.assertIn("provider_routing:", config_text)
+        self.assertIn('  only:\n    - "deepseek"', config_text)
+        self.assertIn('  order:\n    - "deepseek"', config_text)
+        self.assertIn("  require_parameters: true", config_text)
+        self.assertIn("plugins:", config_text)
 
     def test_session_manager_quotes_yaml_sensitive_model_values(self) -> None:
         class FakeSessionDB:
@@ -1086,8 +1173,7 @@ class HermesRuntimeTests(unittest.TestCase):
             {
                 **runner_env("prod"),
                 "HERMES_HOME": tempdir,
-                "RSI_RUNNER_MODEL": "openai/gpt-5.4:beta # unsafe",
-                "OPENAI_BASE_URL": "https://api.openai.com/v1?x=#frag",
+                "RSI_RUNNER_MODEL": "openrouter/deepseek/deepseek-v4-pro:beta # unsafe",
             },
             clear=True,
         ):
@@ -1096,8 +1182,8 @@ class HermesRuntimeTests(unittest.TestCase):
             SessionManager(config)
             config_text = Path(tempdir, "config.yaml").read_text(encoding="utf-8")
 
-        self.assertIn('default: "gpt-5.4:beta # unsafe"', config_text)
-        self.assertIn('base_url: "https://api.openai.com/v1?x=#frag"', config_text)
+        self.assertIn('default: "deepseek/deepseek-v4-pro:beta # unsafe"', config_text)
+        self.assertNotIn("base_url:", config_text)
 
     def test_session_manager_records_skill_sync_failure_without_disabling_runner(self) -> None:
         class FakeSessionDB:
@@ -1304,7 +1390,7 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertEqual(task.requested_skills, ["architecture-diagram"])
 
-    def test_openai_models_use_persisted_hermes_sessions_with_xhigh(self) -> None:
+    def test_openrouter_models_use_persisted_hermes_sessions_with_xhigh(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
                 "task": {
@@ -1330,18 +1416,25 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertTrue(result.ok)
         self.assertEqual(result.provider, "hermes-aiagent")
-        self.assertEqual(FakeAIAgent.last_kwargs["model"], "gpt-5.4")
-        self.assertEqual(FakeAIAgent.last_kwargs["api_mode"], "codex_responses")
-        self.assertEqual(FakeAIAgent.last_kwargs["provider"], "custom")
+        self.assertEqual(FakeAIAgent.last_kwargs["model"], "deepseek/deepseek-v4-pro")
+        self.assertNotIn("api_mode", FakeAIAgent.last_kwargs)
+        self.assertNotIn("base_url", FakeAIAgent.last_kwargs)
+        self.assertEqual(FakeAIAgent.last_kwargs["provider"], "openrouter")
+        self.assertEqual(FakeAIAgent.last_kwargs["api_key"], "openrouter-test-key")
+        self.assertEqual(FakeAIAgent.last_kwargs["providers_allowed"], ["deepseek"])
+        self.assertEqual(FakeAIAgent.last_kwargs["providers_order"], ["deepseek"])
+        self.assertTrue(FakeAIAgent.last_kwargs["provider_require_parameters"])
         self.assertEqual(FakeAIAgent.last_kwargs["reasoning_config"], {"enabled": True, "effort": "xhigh"})
         self.assertEqual(FakeAIAgent.last_kwargs["enabled_toolsets"], [])
         self.assertEqual(FakeAIAgent.last_kwargs["session_id"], "rsi-prod-conversation-123")
         self.assertTrue(FakeAIAgent.last_kwargs["persist_session"])
         self.assertFalse(FakeAIAgent.last_kwargs["skip_memory"])
         self.assertEqual(FakeAIAgent.last_history, [{"role": "user", "content": "Earlier thread message"}])
-        self.assertEqual(result.raw["model"], "openai/gpt-5.4")
-        self.assertEqual(result.raw["provider_model"], "gpt-5.4")
-        self.assertEqual(result.raw["api_mode"], "codex_responses")
+        self.assertEqual(result.raw["model"], "openrouter/deepseek/deepseek-v4-pro")
+        self.assertEqual(result.raw["provider"], "openrouter")
+        self.assertEqual(result.raw["provider_model"], "deepseek/deepseek-v4-pro")
+        self.assertEqual(result.raw["api_mode"], "")
+        self.assertEqual(result.raw["provider_routing"]["only"], ["deepseek"])
         self.assertEqual(result.raw["reasoning_effort"], "xhigh")
         self.assertEqual(result.raw["hermes_session_id"], "rsi-prod-conversation-123")
         self.assertEqual(result.raw["memory_backend"], "honcho")
@@ -1355,6 +1448,43 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["hermes_pin"], HERMES_TEST_PIN)
         self.assertIn("structured_output", result.raw)
         self.assertEqual(result.raw["structured_output"]["final_answer"], "Final reply")
+
+    def test_openrouter_models_use_native_provider_and_routing(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "eval",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the eval.",
+                    "trace_id": "trace-123",
+                    "workflow_id": "wf-123",
+                    "session_scope_kind": "eval_line",
+                    "session_scope_id": "shared-store:openrouter",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:eval",
+                    "user_peer_id": "operator:alice",
+                }
+            }
+        )
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, openrouter_runner_env("eval"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(FakeAIAgent.last_kwargs["model"], "deepseek/deepseek-v4-pro")
+        self.assertEqual(FakeAIAgent.last_kwargs["provider"], "openrouter")
+        self.assertNotIn("api_mode", FakeAIAgent.last_kwargs)
+        self.assertNotIn("base_url", FakeAIAgent.last_kwargs)
+        self.assertEqual(FakeAIAgent.last_kwargs["api_key"], "openrouter-test-key")
+        self.assertEqual(FakeAIAgent.last_kwargs["providers_allowed"], ["deepseek"])
+        self.assertEqual(FakeAIAgent.last_kwargs["providers_order"], ["deepseek"])
+        self.assertTrue(FakeAIAgent.last_kwargs["provider_require_parameters"])
+        self.assertEqual(result.raw["model"], "openrouter/deepseek/deepseek-v4-pro")
+        self.assertEqual(result.raw["provider"], "openrouter")
+        self.assertEqual(result.raw["provider_model"], "deepseek/deepseek-v4-pro")
+        self.assertEqual(result.raw["provider_routing"]["only"], ["deepseek"])
 
     def test_execute_task_routes_workflow_to_native_executor_when_enabled(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -2943,9 +3073,9 @@ class HermesRuntimeTests(unittest.TestCase):
                 self.stderr = io.StringIO(
                     "Authorization: Bearer secret-bearer-token\n"
                     "slack=xoxb-123456789-secret\n"
-                    "openai=sk-secret-openai-key\n"
+                    "openrouter=sk-secret-openrouter-key\n"
                     "aws=aws-session-secret\n"
-                    "env=openai-test-key\n"
+                    "env=openrouter-test-key\n"
                 )
 
             def poll(self):
@@ -3016,13 +3146,13 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("prelude", stdout_text)
         self.assertIn("Bearer [redacted]", stderr_text)
         self.assertIn("[redacted-slack-token]", stderr_text)
-        self.assertIn("[redacted-openai-key]", stderr_text)
+        self.assertIn("[redacted-api-key]", stderr_text)
         self.assertIn("[redacted]", stderr_text)
         self.assertNotIn("secret-bearer-token", stderr_text)
         self.assertNotIn("xoxb-123456789-secret", stderr_text)
-        self.assertNotIn("sk-secret-openai-key", stderr_text)
+        self.assertNotIn("sk-secret-openrouter-key", stderr_text)
         self.assertNotIn("aws-session-secret", stderr_text)
-        self.assertNotIn("openai-test-key", stderr_text)
+        self.assertNotIn("openrouter-test-key", stderr_text)
         self.assertNotIn("secret-bearer-token", result.raw["native_executor_stderr"])
         self.assertNotIn("xoxb-123456789-secret", result.raw["native_executor_stderr"])
         self.assertTrue(any(event["event_type"] == "executor.result.persisted" for event in observer.events))
@@ -3852,7 +3982,40 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("workspace.read_file", result.raw["tool_allowlist_effective"])
         self.assertIn("workspace.write_file", result.raw["blocked_tool_names"])
 
-    def test_question_reduce_uses_direct_responses_reducer_without_hermes_loop(self) -> None:
+    def test_question_reduce_uses_openrouter_hermes_reducer_without_tools(self) -> None:
+        class QuestionReducerAIAgent:
+            last_kwargs: dict[str, object] = {}
+            run_history: list[dict[str, object]] = []
+
+            def __init__(self, **kwargs) -> None:
+                type(self).last_kwargs = kwargs
+
+            def run_conversation(
+                self,
+                prompt: str,
+                system_message: str | None = None,
+                conversation_history: list[dict] | None = None,
+                task_id: str | None = None,
+            ) -> dict[str, object]:
+                type(self).run_history.append(
+                    {
+                        "prompt": prompt,
+                        "system_message": system_message,
+                        "history": list(conversation_history or []),
+                        "task_id": task_id,
+                    }
+                )
+                return {
+                    "final_response": json.dumps(
+                        {
+                            "reply_markdown": "Partial rundown: pagination cleanup landed, but the weekly picture is incomplete.",
+                            "confidence": 0.68,
+                            "alignment_degraded": True,
+                            "alignment_notice": "NUMO alignment is degraded because no fresh canonical project ledger was available.",
+                        }
+                    )
+                }
+
         task = RunnerTaskRequest.from_payload(
             {
                 "task": {
@@ -3892,34 +4055,9 @@ class HermesRuntimeTests(unittest.TestCase):
                 }
             }
         )
-        captured_requests: list[dict[str, object]] = []
-
-        def fake_urlopen(req, timeout: int = 0):
-            captured_requests.append(
-                {
-                    "url": req.full_url,
-                    "timeout": timeout,
-                    "body": json.loads(req.data.decode("utf-8")),
-                }
-            )
-            return FakeHTTPResponse(
-                {
-                    "id": "resp_question_reduce_1",
-                    "output_text": json.dumps(
-                        {
-                            "reply_markdown": "Partial rundown: pagination cleanup landed, but the weekly picture is incomplete.",
-                            "confidence": 0.68,
-                            "alignment_degraded": True,
-                            "alignment_notice": "NUMO alignment is degraded because no fresh canonical project ledger was available.",
-                        }
-                    ),
-                }
-            )
 
         with tempfile.TemporaryDirectory() as tempdir, mock.patch(
-            "rsi_runner.hermes_runtime.AIAgent", FakeAIAgent
-        ), mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch(
-            "rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen
+            "rsi_runner.hermes_runtime.AIAgent", QuestionReducerAIAgent
         ), mock.patch.dict(
             os.environ,
             {
@@ -3928,7 +4066,7 @@ class HermesRuntimeTests(unittest.TestCase):
                 "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": str(Path(tempdir) / "workspace"),
             },
             clear=True,
-        ):
+        ), mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager):
             runtime = HermesRuntime(RunnerConfig.from_env())
             result = runtime.execute_task(task)
             log_path = result.raw["native_execution_log_path"]
@@ -3937,17 +4075,16 @@ class HermesRuntimeTests(unittest.TestCase):
                 events = [json.loads(line) for line in handle if line.strip()]
 
         self.assertTrue(result.ok)
-        self.assertIsNone(FakeAIAgent.last_kwargs)
-        self.assertEqual(len(captured_requests), 1)
-        self.assertEqual(captured_requests[0]["url"], "https://api.openai.com/v1/responses")
-        self.assertNotIn("tools", captured_requests[0]["body"])
-        self.assertEqual(result.raw["question_reduce_mode"], "direct_responses_api")
+        self.assertEqual(QuestionReducerAIAgent.last_kwargs["provider"], "openrouter")
+        self.assertEqual(QuestionReducerAIAgent.last_kwargs["enabled_toolsets"], [])
+        self.assertEqual(QuestionReducerAIAgent.run_history[0]["history"], [])
+        self.assertEqual(result.raw["question_reduce_mode"], "hermes_reducer")
         self.assertEqual(result.raw["completion_verdict"], "partial")
         self.assertEqual(result.raw["termination_reason"], "task_timeout")
         self.assertEqual(result.raw["structured_output"]["reply_markdown"], "Partial rundown: pagination cleanup landed, but the weekly picture is incomplete.")
         self.assertEqual(events[0]["event"], "execution_started")
-        self.assertEqual(events[1]["event"], "direct_response_request")
-        self.assertEqual(events[2]["event"], "direct_response_response")
+        self.assertEqual(events[1]["event"], "hermes_reducer_request")
+        self.assertEqual(events[2]["event"], "hermes_reducer_response")
         self.assertEqual(events[-1]["event"], "execution_completed")
         self.assertEqual(events[-1]["termination_reason"], "task_timeout")
 
@@ -4045,7 +4182,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(verdict, "partial")
         self.assertEqual(termination_reason, "output_token_budget_exhausted")
 
-    def test_transport_tool_schemas_are_openai_strict(self) -> None:
+    def test_transport_tool_schemas_are_provider_strict(self) -> None:
         def strict_schema_violations(node: object, path: str) -> list[str]:
             violations: list[str] = []
             if isinstance(node, dict):
@@ -4304,7 +4441,7 @@ class HermesRuntimeTests(unittest.TestCase):
                     "mcp_servers": [
                         {
                             "server_label": "docs",
-                            "server_url": "https://developers.openai.com/mcp",
+                            "server_url": "https://docs.example.com/mcp",
                             "allowed_tools": {"read_only": True},
                         }
                     ],
@@ -4612,6 +4749,15 @@ class HermesRuntimeTests(unittest.TestCase):
                         "task_id": task_id,
                     }
                 )
+                if self.instance_index > 1:
+                    return {
+                        "final_response": json.dumps(
+                            partial_structured_output(
+                                reply_text="Partial answer: grounded summary so far.",
+                                proposed_actions=[],
+                            )
+                        )
+                    }
                 time.sleep(0.6)
                 return {"final_response": ""}
 
@@ -4652,7 +4798,6 @@ class HermesRuntimeTests(unittest.TestCase):
                 }
             }
         )
-        captured_requests: list[dict[str, object]] = []
         observed = {
             "candidate_read_surfaces": [{"channel_id": "C123", "thread_ts": "171000001.000100", "ref": "", "source": "task_binding"}],
             "selected_context_surfaces": [{"channel_id": "C123", "thread_ts": "171000001.000100", "scope": "bound_thread"}],
@@ -4687,26 +4832,9 @@ class HermesRuntimeTests(unittest.TestCase):
             ],
         }
 
-        def fake_urlopen(req, timeout: int = 0):
-            captured_requests.append(
-                {
-                    "url": req.full_url,
-                    "timeout": timeout,
-                    "body": json.loads(req.data.decode("utf-8")),
-                }
-            )
-            return FakeHTTPResponse(
-                {
-                    "id": "resp_partial_1",
-                    "output_text": json.dumps(
-                        partial_structured_output(reply_text="Partial answer: grounded summary so far.", proposed_actions=[])
-                    ),
-                }
-            )
-
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", BudgetReducerAIAgent), mock.patch(
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch("rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen), mock.patch.object(
+        ), mock.patch.object(
             HermesRuntime, "_observability_metadata", return_value=observed
         ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
             runtime = HermesRuntime(RunnerConfig.from_env())
@@ -4719,20 +4847,20 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["runner_diagnostics"]["completion_verdict"], "partial")
         self.assertEqual(result.raw["runner_diagnostics"]["budget_used"], 20)
         self.assertEqual(result.raw["runner_diagnostics"]["budget_max"], 20)
-        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_mode"], "direct_reducer")
+        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_mode"], "hermes_reducer")
         self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_attempts"], 1)
         self.assertFalse(result.raw["runner_diagnostics"]["partial_finalization_retry_attempted"])
         self.assertFalse(result.raw["runner_diagnostics"]["partial_finalization_retry_succeeded"])
-        self.assertEqual(BudgetReducerAIAgent.created_instances, 1)
+        self.assertEqual(BudgetReducerAIAgent.created_instances, 2)
         self.assertEqual(BudgetReducerAIAgent.init_history[0]["max_iterations"], 20)
+        self.assertEqual(BudgetReducerAIAgent.init_history[1]["max_iterations"], 1)
+        self.assertEqual(BudgetReducerAIAgent.init_history[1]["enabled_toolsets"], [])
+        self.assertEqual(BudgetReducerAIAgent.init_history[1]["provider"], "openrouter")
         self.assertIn("repo_context", BudgetReducerAIAgent.run_history[0]["valid_tool_names"])
+        self.assertEqual(BudgetReducerAIAgent.run_history[1]["valid_tool_names"], [])
+        self.assertIn('"termination_reason": "iteration_budget_exhausted"', BudgetReducerAIAgent.run_history[1]["prompt"])
+        self.assertNotIn("Earlier thread message", BudgetReducerAIAgent.run_history[1]["prompt"])
         self.assertTrue(any("iteration_budget_exhausted" in message for message in BudgetReducerAIAgent.interrupt_messages))
-        self.assertEqual(len(captured_requests), 1)
-        self.assertEqual(captured_requests[0]["url"], "https://api.openai.com/v1/responses")
-        self.assertEqual(captured_requests[0]["timeout"], 180)
-        self.assertNotIn("tools", captured_requests[0]["body"])
-        self.assertIn('"termination_reason": "iteration_budget_exhausted"', str(captured_requests[0]["body"]["input"]))
-        self.assertNotIn("Earlier thread message", str(captured_requests[0]["body"]["input"]))
         self.assertEqual(result.raw["structured_output"]["proposed_actions"][0]["kind"], "slack_post")
         self.assertTrue(result.raw["action_contract_repair_attempted"])
         self.assertTrue(result.raw["action_contract_repair_succeeded"])
@@ -6137,6 +6265,12 @@ class HermesRuntimeTests(unittest.TestCase):
                         "task_id": task_id,
                     }
                 )
+                if self.instance_index > 1:
+                    return {
+                        "final_response": json.dumps(
+                            partial_structured_output(reply_text="Partial answer after timeout.")
+                        )
+                    }
                 time.sleep(1.2)
                 return {"final_response": ""}
 
@@ -6177,26 +6311,9 @@ class HermesRuntimeTests(unittest.TestCase):
                 }
             }
         )
-        captured_requests: list[dict[str, object]] = []
-
-        def fake_urlopen(req, timeout: int = 0):
-            captured_requests.append(
-                {
-                    "url": req.full_url,
-                    "timeout": timeout,
-                    "body": json.loads(req.data.decode("utf-8")),
-                }
-            )
-            return FakeHTTPResponse(
-                {
-                    "id": "resp_timeout_partial",
-                    "output_text": json.dumps(partial_structured_output(reply_text="Partial answer after timeout.")),
-                }
-            )
-
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", TimeoutReducerAIAgent), mock.patch(
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch("rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen), mock.patch.dict(
+        ), mock.patch.dict(
             os.environ,
             {**runner_env("prod"), "RSI_RUNNER_PROD_TASK_TIMEOUT": "20s"},
             clear=True,
@@ -6219,16 +6336,17 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["runner_diagnostics"]["timeout_kind"], "task_timeout")
         self.assertEqual(result.raw["runner_diagnostics"]["budget_used"], 9)
         self.assertEqual(result.raw["runner_diagnostics"]["budget_max"], 20)
-        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_mode"], "direct_reducer")
+        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_mode"], "hermes_reducer")
         self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_attempts"], 1)
         self.assertFalse(result.raw["runner_diagnostics"]["partial_finalization_retry_attempted"])
-        self.assertEqual(TimeoutReducerAIAgent.created_instances, 1)
-        self.assertEqual(len(captured_requests), 1)
-        self.assertIn('"termination_reason": "task_timeout"', str(captured_requests[0]["body"]["input"]))
-        self.assertNotIn("Earlier thread message", str(captured_requests[0]["body"]["input"]))
+        self.assertEqual(TimeoutReducerAIAgent.created_instances, 2)
+        self.assertEqual(TimeoutReducerAIAgent.init_history[1]["enabled_toolsets"], [])
+        self.assertEqual(TimeoutReducerAIAgent.run_history[1]["valid_tool_names"], [])
+        self.assertIn('"termination_reason": "task_timeout"', TimeoutReducerAIAgent.run_history[1]["prompt"])
+        self.assertNotIn("Earlier thread message", TimeoutReducerAIAgent.run_history[1]["prompt"])
         self.assertTrue(any(message == "runner task_timeout after 10s" for message in TimeoutReducerAIAgent.interrupt_messages))
 
-    def test_workflow_iteration_budget_exhaustion_fails_when_direct_reducer_cannot_return_valid_output(self) -> None:
+    def test_workflow_iteration_budget_exhaustion_fails_when_hermes_reducer_cannot_return_valid_output(self) -> None:
         class InvalidReducerAIAgent:
             init_history: list[dict[str, object]] = []
             created_instances = 0
@@ -6285,23 +6403,9 @@ class HermesRuntimeTests(unittest.TestCase):
                 }
             }
         )
-        captured_requests: list[dict[str, object]] = []
-
-        def fake_urlopen(req, timeout: int = 0):
-            captured_requests.append(
-                {
-                    "url": req.full_url,
-                    "timeout": timeout,
-                    "body": json.loads(req.data.decode("utf-8")),
-                }
-            )
-            if len(captured_requests) == 1:
-                return FakeHTTPResponse({"id": "resp_fail_1", "output_text": "not valid json"})
-            return FakeHTTPResponse({"id": "resp_fail_2", "output_text": "still not valid json"})
-
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", InvalidReducerAIAgent), mock.patch(
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch("rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen), mock.patch.dict(
+        ), mock.patch.dict(
             os.environ, runner_env("prod"), clear=True
         ):
             runtime = HermesRuntime(RunnerConfig.from_env())
@@ -6317,14 +6421,14 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertFalse(result.raw["partial_recovery_succeeded"])
         self.assertTrue(result.raw["runner_diagnostics"]["partial_completion_attempted"])
         self.assertFalse(result.raw["runner_diagnostics"]["partial_completion_succeeded"])
-        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_mode"], "direct_reducer")
+        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_mode"], "hermes_reducer")
         self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_attempts"], 1)
         self.assertFalse(result.raw["runner_diagnostics"]["partial_finalization_retry_attempted"])
         self.assertFalse(result.raw["runner_diagnostics"]["partial_finalization_retry_succeeded"])
         self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_timeout_seconds"], 180)
-        self.assertEqual(InvalidReducerAIAgent.created_instances, 1)
-        self.assertEqual(len(captured_requests), 1)
-        self.assertEqual(captured_requests[0]["timeout"], 180)
+        self.assertEqual(InvalidReducerAIAgent.created_instances, 2)
+        self.assertEqual(InvalidReducerAIAgent.init_history[1]["enabled_toolsets"], [])
+        self.assertEqual(InvalidReducerAIAgent.init_history[1]["provider"], "openrouter")
         self.assertIn("structured output", result.message.lower())
 
     def test_workflow_evidence_ledger_projects_compact_tool_calls_and_evidence_items(self) -> None:

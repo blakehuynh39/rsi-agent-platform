@@ -127,7 +127,7 @@ _SENSITIVE_OUTPUT_PATTERNS = (
     ),
     (
         re.compile(r"\b(sk-[A-Za-z0-9_-]{8,})\b"),
-        lambda _match: "[redacted-openai-key]",
+        lambda _match: "[redacted-api-key]",
     ),
 )
 _BENIGN_MCP_TOOLSET_WARNING = re.compile(
@@ -970,8 +970,9 @@ class HermesRuntime:
         self._api_key = ""
         self._provider_model = config.model
         self._provider_hint = ""
+        self._provider_routing = dict(config.openrouter_provider_routing or {})
         self._reasoning_config = parse_reasoning_effort(config.reasoning_effort) or {"enabled": True, "effort": "medium"}
-        self._openai_configured = False
+        self._openrouter_configured = False
         self._session_manager = SessionManager(config)
         self._adapter = HermesAdapter(config)
         self._company_computer = HermesCompanyComputer(
@@ -1151,30 +1152,26 @@ class HermesRuntime:
         manifest_path.write_text(json.dumps(manifest, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8")
 
     def _configure_runtime(self) -> None:
-        if self._configured_model.startswith("openai/"):
-            self._provider = "openai"
-            self._provider_hint = "custom"
-            self._provider_model = self._configured_model.split("/", 1)[1]
-            self._api_mode = "codex_responses"
-            self._base_url = first_non_empty(
-                os.getenv("RSI_OPENAI_BASE_URL"),
-                os.getenv("OPENAI_BASE_URL"),
-                "https://api.openai.com/v1",
-            )
-            self._api_key = first_non_empty(os.getenv("RSI_OPENAI_API_KEY"), os.getenv("OPENAI_API_KEY"))
-            self._openai_configured = bool(self._api_key)
-            return
-
-        self._provider = first_non_empty(os.getenv("RSI_HERMES_PROVIDER"), "hermes")
-        self._provider_hint = first_non_empty(os.getenv("RSI_HERMES_PROVIDER_HINT"), "")
-        self._base_url = first_non_empty(os.getenv("RSI_HERMES_BASE_URL"), "")
-        self._api_key = first_non_empty(os.getenv("RSI_HERMES_API_KEY"), "")
-        self._api_mode = first_non_empty(os.getenv("RSI_HERMES_API_MODE"), "")
+        self._provider = "openrouter"
+        self._provider_hint = "openrouter"
+        self._provider_model = self._configured_model.split("/", 1)[1]
+        self._api_mode = ""
+        self._base_url = first_non_empty(
+            os.getenv("RSI_OPENROUTER_BASE_URL"),
+            os.getenv("OPENROUTER_BASE_URL"),
+            "",
+        )
+        self._api_key = first_non_empty(
+            os.getenv("RSI_OPENROUTER_API_KEY"),
+            os.getenv("OPENROUTER_API_KEY"),
+        )
+        self._openrouter_configured = bool(self._api_key)
 
     def _runtime_has_credentials(self) -> bool:
-        if self._configured_model.startswith("openai/"):
-            return bool(self._api_key)
-        return True
+        return bool(self._api_key)
+
+    def _runtime_credentials_error_message(self) -> str:
+        return "Hermes OpenRouter runtime selected but RSI_OPENROUTER_API_KEY / OPENROUTER_API_KEY is not configured."
 
     @property
     def available(self) -> bool:
@@ -1197,11 +1194,12 @@ class HermesRuntime:
             "provider": self._provider,
             "model": self._configured_model,
             "provider_model": self._provider_model,
+            "provider_routing": dict(self._provider_routing) if self._provider == "openrouter" else {},
             "reasoning_effort": self._reasoning_effort,
             "api_mode": self._api_mode,
             "available": self.available,
             "hermes_available": AIAgent is not None,
-            "openai_configured": self._openai_configured,
+            "openrouter_configured": self._openrouter_configured,
             "slack_mcp_enabled": self._config.slack_mcp_enabled,
             "slack_mcp_configured": self._config.slack_mcp_enabled and self._config.slack_user_token_configured,
             "slack_mcp_available": self._slack_mcp_available(),
@@ -1633,7 +1631,24 @@ class HermesRuntime:
             agent_kwargs["base_url"] = self._base_url
         if self._api_key:
             agent_kwargs["api_key"] = self._api_key
+        self._apply_openrouter_provider_routing(agent_kwargs)
         return AIAgent(**agent_kwargs)
+
+    def _apply_openrouter_provider_routing(self, agent_kwargs: JsonObject) -> None:
+        if not self._provider_routing:
+            return
+        if isinstance(self._provider_routing.get("only"), list):
+            agent_kwargs["providers_allowed"] = list(self._provider_routing["only"])  # type: ignore[index]
+        if isinstance(self._provider_routing.get("ignore"), list):
+            agent_kwargs["providers_ignored"] = list(self._provider_routing["ignore"])  # type: ignore[index]
+        if isinstance(self._provider_routing.get("order"), list):
+            agent_kwargs["providers_order"] = list(self._provider_routing["order"])  # type: ignore[index]
+        if isinstance(self._provider_routing.get("sort"), str):
+            agent_kwargs["provider_sort"] = self._provider_routing["sort"]
+        if isinstance(self._provider_routing.get("require_parameters"), bool):
+            agent_kwargs["provider_require_parameters"] = self._provider_routing["require_parameters"]
+        if isinstance(self._provider_routing.get("data_collection"), str):
+            agent_kwargs["provider_data_collection"] = self._provider_routing["data_collection"]
 
     def _extract_user_request_text(self, prompt: str) -> str:
         text = str(prompt or "")
@@ -1777,7 +1792,7 @@ class HermesRuntime:
         if not self._runtime_has_credentials():
             return HermesExecutionResult(
                 ok=False,
-                message="Hermes OpenAI runtime selected but RSI_OPENAI_API_KEY / OPENAI_API_KEY is not configured.",
+                message=self._runtime_credentials_error_message(),
                 provider=self._backend,
                 raw=self._base_raw(prompt=task.prompt, system_message=task.system_message),
             )
@@ -2170,6 +2185,7 @@ class HermesRuntime:
             "api_mode": self._api_mode,
             "model": self._configured_model,
             "provider_model": self._provider_model,
+            "provider_routing": dict(self._provider_routing) if self._provider == "openrouter" else {},
             "reasoning_effort": self._reasoning_effort,
             "reasoning_config": self._reasoning_config,
             "hermes_version": adapter_meta.version,
@@ -2546,9 +2562,10 @@ class HermesRuntime:
             "workspace_policy": task.workspace_policy,
             "approval_policy": task.approval_policy,
             "runtime": {
-                "provider": self._provider_hint or "custom",
+                "provider": self._provider_hint,
                 "base_url": self._base_url,
                 "api_mode": self._api_mode,
+                "provider_routing": dict(self._provider_routing) if self._provider == "openrouter" else {},
             },
         }
 
@@ -2746,7 +2763,7 @@ class HermesRuntime:
         if not self._runtime_has_credentials():
             return HermesExecutionResult(
                 ok=False,
-                message="Hermes OpenAI runtime selected but RSI_OPENAI_API_KEY / OPENAI_API_KEY is not configured.",
+                message=self._runtime_credentials_error_message(),
                 provider="hermes-native-executor",
                 raw=self._base_raw(prompt=task.prompt, system_message=task.system_message),
             )
@@ -4473,219 +4490,6 @@ class HermesRuntime:
         parts.append("Return JSON only.")
         return "\n\n".join(part for part in parts if part)
 
-    def _partial_reducer_request_payload(self, system_prompt: str, user_prompt: str) -> JsonObject:
-        payload: JsonObject = {
-            "model": self._provider_model,
-            "instructions": system_prompt,
-            "input": self._json_object_input_prompt(user_prompt),
-            "parallel_tool_calls": False,
-            "max_output_tokens": 2000,
-            "text": {
-                "format": {"type": "json_object"},
-                "verbosity": "low",
-            },
-        }
-        if self._reasoning_config.get("enabled", True):
-            payload["reasoning"] = {"effort": "low"}
-        return payload
-
-    def _responses_output_text(self, payload: JsonObject) -> str:
-        direct = _string_or_json(payload.get("output_text"))
-        if direct:
-            return direct
-        collected: list[str] = []
-        for item in payload.get("output", []):
-            if not isinstance(item, dict):
-                continue
-            item_text = _string_or_json(item.get("text"))
-            if item_text:
-                collected.append(item_text)
-            for content in item.get("content", []):
-                if not isinstance(content, dict):
-                    continue
-                text = content.get("text")
-                if isinstance(text, dict):
-                    candidate = _string_or_json(text.get("value"))
-                else:
-                    candidate = _string_or_json(text)
-                if candidate:
-                    collected.append(candidate)
-        return "\n".join(part for part in collected if part)
-
-    def _responses_incomplete_reason(self, payload: JsonObject) -> str:
-        details = _json_object_or_empty(payload.get("incomplete_details"))
-        return _string_or_json(details.get("reason"))
-
-    def _invoke_direct_json_response(
-        self,
-        *,
-        system_prompt: str,
-        user_prompt: str,
-        timeout_seconds: int,
-        reasoning_effort: str = "low",
-        recorder: NativeExecutionRecorder | None = None,
-        operation: str = "direct_json_response",
-    ) -> PartialReducerAttemptResult:
-        if self._provider != "openai" or not self._api_key:
-            if recorder is not None:
-                recorder.record(
-                    "direct_response_failed",
-                    {
-                        "operation": operation,
-                        "error": "Direct JSON reduction requires OpenAI Responses API credentials.",
-                    },
-                )
-            return PartialReducerAttemptResult(
-                ok=False,
-                response_text="",
-                structured_output={},
-                error="Direct JSON reduction requires OpenAI Responses API credentials.",
-                provider_response_id="",
-            )
-        payload = self._partial_reducer_request_payload(system_prompt, user_prompt)
-        if reasoning_effort and reasoning_effort != "low":
-            payload["reasoning"] = {"effort": reasoning_effort}
-        if recorder is not None:
-            recorder.record(
-                "direct_response_request",
-                {
-                    "operation": operation,
-                    "timeout_seconds": timeout_seconds,
-                    "payload": payload,
-                },
-            )
-        req = urlrequest.Request(
-            f"{self._base_url.rstrip('/')}/responses",
-            data=json.dumps(payload).encode("utf-8"),
-            headers={
-                "Authorization": f"Bearer {self._api_key}",
-                "Content-Type": "application/json",
-            },
-            method="POST",
-        )
-        try:
-            with urlrequest.urlopen(req, timeout=max(1, timeout_seconds)) as resp:
-                body = resp.read().decode("utf-8")
-        except urlerror.HTTPError as exc:
-            detail = exc.read().decode("utf-8", errors="replace")
-            if recorder is not None:
-                recorder.record(
-                    "direct_response_failed",
-                    {
-                        "operation": operation,
-                        "error": f"HTTP {exc.code}: {detail[:4000]}",
-                    },
-                )
-            return PartialReducerAttemptResult(
-                ok=False,
-                response_text="",
-                structured_output={},
-                error=f"Direct reducer returned {exc.code}: {detail[:2000]}",
-                provider_response_id="",
-            )
-        except (TimeoutError, socket.timeout) as exc:
-            if recorder is not None:
-                recorder.record(
-                    "direct_response_failed",
-                    {
-                        "operation": operation,
-                        "error": str(exc),
-                    },
-                )
-            return PartialReducerAttemptResult(
-                ok=False,
-                response_text="",
-                structured_output={},
-                error=f"Direct reducer timed out after {max(1, timeout_seconds)}s: {exc}",
-                provider_response_id="",
-            )
-        except (urlerror.URLError, ConnectionError, OSError) as exc:
-            if recorder is not None:
-                recorder.record(
-                    "direct_response_failed",
-                    {
-                        "operation": operation,
-                        "error": str(exc),
-                    },
-                )
-            return PartialReducerAttemptResult(
-                ok=False,
-                response_text="",
-                structured_output={},
-                error=f"Direct reducer request failed: {exc}",
-                provider_response_id="",
-            )
-        try:
-            parsed = json.loads(body)
-        except json.JSONDecodeError:
-            if recorder is not None:
-                recorder.record(
-                    "direct_response_invalid_json",
-                    {
-                        "operation": operation,
-                        "body_excerpt": body[:4000],
-                    },
-                )
-            return PartialReducerAttemptResult(
-                ok=False,
-                response_text=body[:4000],
-                structured_output={},
-                error="Direct reducer returned invalid JSON.",
-                provider_response_id="",
-            )
-        if not isinstance(parsed, dict):
-            if recorder is not None:
-                recorder.record(
-                    "direct_response_invalid_shape",
-                    {
-                        "operation": operation,
-                        "payload": parsed if isinstance(parsed, list) else {"value": _string_or_json(parsed)},
-                    },
-                )
-            return PartialReducerAttemptResult(
-                ok=False,
-                response_text="",
-                structured_output={},
-                error="Direct reducer returned a non-object JSON payload.",
-                provider_response_id="",
-            )
-        response_text = self._responses_output_text(parsed)
-        provider_response_id = _string_or_json(parsed.get("id"))
-        if recorder is not None:
-            recorder.record(
-                "direct_response_response",
-                {
-                    "operation": operation,
-                    "provider_response_id": provider_response_id,
-                    "payload": parsed,
-                },
-            )
-        if not response_text:
-            return PartialReducerAttemptResult(
-                ok=False,
-                response_text="",
-                structured_output={},
-                error="Direct reducer returned an empty response.",
-                provider_response_id=provider_response_id,
-            )
-        try:
-            structured_output = self._extract_structured_output(response_text)
-        except HermesStructuredOutputError as exc:
-            return PartialReducerAttemptResult(
-                ok=False,
-                response_text=response_text,
-                structured_output={},
-                error=str(exc),
-                provider_response_id=provider_response_id,
-            )
-        return PartialReducerAttemptResult(
-            ok=True,
-            response_text=response_text,
-            structured_output=structured_output,
-            error="",
-            provider_response_id=provider_response_id,
-        )
-
     def _slack_mcp_request(self, method: str, params: JsonObject | None = None, *, notification: bool = False) -> JsonObject:
         if not self._config.slack_mcp_enabled:
             raise RuntimeError("Slack MCP is disabled.")
@@ -4814,6 +4618,123 @@ class HermesRuntime:
             return prefix
         return f"{prefix}\n\n{text}"
 
+    def _invoke_hermes_json_reducer(
+        self,
+        *,
+        system_prompt: str,
+        user_prompt: str,
+        timeout_seconds: int,
+        reasoning_effort: str,
+        normalize_workflow_output: bool,
+        recorder: NativeExecutionRecorder | None = None,
+        operation: str = "hermes_json_reducer",
+    ) -> PartialReducerAttemptResult:
+        if AIAgent is None:
+            return PartialReducerAttemptResult(
+                ok=False,
+                response_text="",
+                structured_output={},
+                error="Hermes reducer is unavailable.",
+                provider_response_id="",
+            )
+        if not self._api_key:
+            return PartialReducerAttemptResult(
+                ok=False,
+                response_text="",
+                structured_output={},
+                error=self._runtime_credentials_error_message(),
+                provider_response_id="",
+            )
+        session_id = f"rsi-{self._role}-{operation}-{int(time.time() * 1000)}"
+        agent_kwargs: JsonObject = {
+            "model": self._provider_model,
+            "provider": "openrouter",
+            "api_key": self._api_key,
+            "quiet_mode": True,
+            "reasoning_config": parse_reasoning_effort(reasoning_effort) or {"enabled": True, "effort": reasoning_effort},
+            "enabled_toolsets": [],
+            "skip_context_files": True,
+            "skip_memory": True,
+            "persist_session": False,
+            "max_iterations": 1,
+            "session_id": session_id,
+        }
+        if self._base_url:
+            agent_kwargs["base_url"] = self._base_url
+        self._apply_openrouter_provider_routing(agent_kwargs)
+        if recorder is not None:
+            recorder.record(
+                "hermes_reducer_request",
+                {
+                    "operation": operation,
+                    "timeout_seconds": timeout_seconds,
+                    "model": self._provider_model,
+                    "provider": self._provider,
+                    "provider_routing": dict(self._provider_routing),
+                },
+            )
+        agent = AIAgent(**agent_kwargs)
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        future = executor.submit(agent.run_conversation, user_prompt, system_prompt, [], session_id)
+        try:
+            result = future.result(timeout=max(1, timeout_seconds))
+        except concurrent.futures.TimeoutError:
+            if hasattr(agent, "interrupt"):
+                try:
+                    agent.interrupt(f"runner {operation} timeout after {timeout_seconds}s")
+                except Exception:
+                    pass
+            return PartialReducerAttemptResult(
+                ok=False,
+                response_text="",
+                structured_output={},
+                error=f"Hermes reducer timed out after {timeout_seconds}s.",
+                provider_response_id="",
+            )
+        except Exception as exc:
+            return PartialReducerAttemptResult(
+                ok=False,
+                response_text="",
+                structured_output={},
+                error=str(exc),
+                provider_response_id="",
+            )
+        finally:
+            executor.shutdown(wait=False, cancel_futures=True)
+        response_text = str((result or {}).get("final_response", "") or "")
+        provider_response_id = first_non_empty(
+            _string_or_json((result or {}).get("provider_response_id")),
+            _string_or_json((result or {}).get("response_id")),
+        )
+        try:
+            parsed = json.loads(response_text)
+            if not isinstance(parsed, dict):
+                raise ValueError("Hermes reducer returned non-object JSON.")
+            structured_output = _normalize_structured_output(parsed) if normalize_workflow_output else parsed
+        except Exception as exc:
+            return PartialReducerAttemptResult(
+                ok=False,
+                response_text=response_text,
+                structured_output={},
+                error=f"Hermes reducer failed to return valid structured output: invalid JSON: {exc}",
+                provider_response_id=provider_response_id,
+            )
+        if recorder is not None:
+            recorder.record(
+                "hermes_reducer_response",
+                {
+                    "operation": operation,
+                    "provider_response_id": provider_response_id,
+                },
+            )
+        return PartialReducerAttemptResult(
+            ok=True,
+            response_text=response_text,
+            structured_output=structured_output,
+            error="",
+            provider_response_id=provider_response_id,
+        )
+
     def _invoke_partial_reducer(
         self,
         task: RunnerTaskRequest,
@@ -4824,15 +4745,7 @@ class HermesRuntime:
         previous_error: str = "",
         previous_response: str = "",
     ) -> PartialReducerAttemptResult:
-        if self._provider != "openai" or not self._api_key:
-            return PartialReducerAttemptResult(
-                ok=False,
-                response_text="",
-                structured_output={},
-                error="Direct bounded-stop reduction requires OpenAI Responses API credentials.",
-                provider_response_id="",
-            )
-        return self._invoke_direct_json_response(
+        return self._invoke_hermes_json_reducer(
             system_prompt=self._partial_reducer_system_prompt(),
             user_prompt=self._partial_reducer_user_prompt(
                 task,
@@ -4843,6 +4756,8 @@ class HermesRuntime:
             ),
             timeout_seconds=timeout_seconds,
             reasoning_effort="low",
+            normalize_workflow_output=True,
+            operation="partial_reducer",
         )
 
     def _question_reduce_system_prompt(self) -> str:
@@ -4889,11 +4804,12 @@ class HermesRuntime:
                 "question_reduce": True,
             },
         )
-        attempt = self._invoke_direct_json_response(
+        attempt = self._invoke_hermes_json_reducer(
             system_prompt=self._question_reduce_system_prompt(),
             user_prompt=self._question_reduce_user_prompt(task),
             timeout_seconds=timeout_seconds,
             reasoning_effort="medium",
+            normalize_workflow_output=False,
             recorder=recorder,
             operation="question_reduce",
         )
@@ -4959,13 +4875,13 @@ class HermesRuntime:
                     "runner_diagnostics": {
                         "completion_verdict": structured_output["completion_verdict"],
                         "termination_reason": structured_output["termination_reason"],
-                        "question_reduce_mode": "direct_responses_api",
+                        "question_reduce_mode": "hermes_reducer",
                     },
                     "completion_verdict": structured_output["completion_verdict"],
                     "termination_reason": structured_output["termination_reason"],
                     "structured_output": structured_output,
                     "task_type": task.task_type,
-                    "question_reduce_mode": "direct_responses_api",
+                    "question_reduce_mode": "hermes_reducer",
                     "provider_response_id": attempt.provider_response_id,
                 },
                 recorder,
@@ -5166,7 +5082,7 @@ class HermesRuntime:
         )
         diagnostics["partial_completion_attempted"] = partial_finalization_attempted
         diagnostics["partial_completion_succeeded"] = partial_finalization_succeeded
-        diagnostics["partial_finalization_mode"] = "direct_reducer"
+        diagnostics["partial_finalization_mode"] = "hermes_reducer"
         diagnostics["partial_finalization_attempts"] = partial_finalization_attempts
         diagnostics["partial_finalization_retry_attempted"] = partial_finalization_retry_attempted
         diagnostics["partial_finalization_retry_succeeded"] = partial_finalization_retry_succeeded
@@ -5366,7 +5282,7 @@ class HermesRuntime:
             merged_runner_diagnostics = dict(_json_object_or_empty(observed))
             if last_provider_response_id:
                 merged_runner_diagnostics["partial_finalization_response_id"] = last_provider_response_id
-            merged_runner_diagnostics["partial_finalization_mode"] = "direct_reducer"
+            merged_runner_diagnostics["partial_finalization_mode"] = "hermes_reducer"
             merged_runner_diagnostics["partial_finalization_attempts"] = attempt_index
             merged_runner_diagnostics["partial_finalization_retry_attempted"] = attempt_index > 1
             merged_runner_diagnostics["partial_finalization_retry_succeeded"] = attempt_index > 1
@@ -5452,7 +5368,7 @@ class HermesRuntime:
             termination_reason=termination_reason,
             recovery_error=first_non_empty(
                 last_error,
-                "Direct bounded-stop reducer could not produce valid structured output.",
+                "Hermes bounded-stop reducer could not produce valid structured output.",
             ),
             recovery_response=last_response,
             partial_finalization_attempted=True,

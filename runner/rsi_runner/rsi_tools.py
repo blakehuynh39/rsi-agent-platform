@@ -524,7 +524,7 @@ def _canonical_to_transport_tool_name(name: str) -> str:
         raise ValueError("tool name is empty")
     transport = canonical.replace(".", "_")
     if not _is_transport_safe_tool_name(transport):
-        raise ValueError(f"tool name {canonical!r} cannot be mapped to an OpenAI-safe transport name")
+        raise ValueError(f"tool name {canonical!r} cannot be mapped to a provider-safe transport name")
     return transport
 
 

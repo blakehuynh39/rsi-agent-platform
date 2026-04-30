@@ -1718,10 +1718,14 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "hermes-agent", extra = ["honcho", "mcp"] },
+    { name = "pyjwt", extra = ["crypto"] },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "hermes-agent", extras = ["honcho", "mcp"], git = "https://github.com/NousResearch/hermes-agent.git?rev=3e61703b08f475c9982cf4099d049eeac232a7a1" }]
+requires-dist = [
+    { name = "hermes-agent", extras = ["honcho", "mcp"], git = "https://github.com/NousResearch/hermes-agent.git?rev=3e61703b08f475c9982cf4099d049eeac232a7a1" },
+    { name = "pyjwt", extras = ["crypto"], specifier = ">=2.8,<3" },
+]
 
 [[package]]
 name = "sniffio"
