@@ -6840,6 +6840,54 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(runtime.metadata["transport_timeout_seconds"], 930)
         self.assertEqual(runtime.metadata["native_max_output_tokens"], 15000)
 
+    def test_runtime_metadata_probes_slack_mcp(self) -> None:
+        class FakeResponse:
+            def __init__(self, payload: dict[str, object]) -> None:
+                self._payload = payload
+
+            def __enter__(self) -> "FakeResponse":
+                return self
+
+            def __exit__(self, *_args: object) -> None:
+                return None
+
+            def read(self) -> bytes:
+                return json.dumps(self._payload).encode("utf-8")
+
+        observed_methods: list[str] = []
+
+        def fake_urlopen(req, timeout: int = 0):
+            payload = json.loads(req.data.decode("utf-8"))
+            method = str(payload["method"])
+            observed_methods.append(method)
+            if method == "tools/list":
+                return FakeResponse(
+                    {
+                        "jsonrpc": "2.0",
+                        "id": payload.get("id"),
+                        "result": {"tools": [{"name": "search_messages", "description": "Search Slack"}]},
+                    }
+                )
+            return FakeResponse({"jsonrpc": "2.0", "id": payload.get("id"), "result": {}})
+
+        env = {
+            **runner_env("prod"),
+            "RSI_SLACK_MCP_ENABLED": "true",
+            "RSI_SLACK_USER_TOKEN": "xoxp-test",
+            "RSI_SLACK_MCP_SERVER_URL": "https://slack-mcp.test/mcp",
+        }
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch("rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen), mock.patch.dict(
+            os.environ, env, clear=True
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            metadata = runtime.metadata
+
+        self.assertTrue(metadata["slack_mcp_available"])
+        self.assertEqual(metadata["slack_mcp_tool_count"], 1)
+        self.assertEqual(observed_methods, ["initialize", "notifications/initialized", "tools/list"])
+
     def test_prod_task_timeout_defaults_to_900_when_transport_is_extended(self) -> None:
         env = {**runner_env("prod"), "RSI_RUNNER_PROD_TIMEOUT": "1830s"}
         env.pop("RSI_RUNNER_PROD_TASK_TIMEOUT", None)

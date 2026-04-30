@@ -469,7 +469,7 @@ class GitSkillExporter:
         env = dict(os.environ)
         env["GIT_TERMINAL_PROMPT"] = "0"
         completed = subprocess.run(
-            ["git", *args],
+            ["git", "-c", f"safe.directory={cwd.resolve()}", *args],
             cwd=str(cwd),
             env=env,
             text=True,

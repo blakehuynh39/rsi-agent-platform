@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
+from unittest import mock
 
 from rsi_runner.hermes_skill_installer import (
     EMPTY_TREE_HASH,
@@ -11,6 +13,7 @@ from rsi_runner.hermes_skill_installer import (
     InstallerConfig,
     InstallerConfigError,
     InstallerError,
+    SkillSourceCheckout,
     SkillInstaller,
     build_tree_snapshot,
 )
@@ -156,6 +159,18 @@ class HermesSkillInstallerTest(unittest.TestCase):
                     lock_timeout_seconds=1.0,
                     github_auth=GitHubAuthConfig(),
                 )
+
+    def test_checkout_git_commands_allow_state_root_checkouts_with_different_owner(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            checkout = Path(raw)
+            with mock.patch("rsi_runner.hermes_skill_installer.subprocess.run") as run:
+                run.return_value = subprocess.CompletedProcess(args=[], returncode=0, stdout="", stderr="")
+
+                SkillSourceCheckout._git(checkout, "remote", "add", "origin", "https://example.invalid/repo.git")
+
+            command = run.call_args.args[0]
+            self.assertEqual("git", command[0])
+            self.assertIn(f"safe.directory={checkout.resolve()}", command)
 
 
 if __name__ == "__main__":

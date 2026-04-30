@@ -4,12 +4,15 @@ import json
 import os
 from pathlib import Path
 import sqlite3
+import subprocess
 import tempfile
 import unittest
+from unittest import mock
 
 from rsi_runner.hermes_skill_exporter import (
     ExporterConfig,
     ExporterConfigError,
+    GitSkillExporter,
     SkillExportLoop,
     build_skill_snapshot,
     validate_export_paths,
@@ -239,6 +242,18 @@ class HermesSkillExporterTest(unittest.TestCase):
             (config.skills_root / ".bundled_manifest").write_text("changed\n", encoding="utf-8")
             second = build_skill_snapshot(config.skills_root)
             self.assertEqual(first.tree_hash, second.tree_hash)
+
+    def test_git_commands_allow_state_root_checkouts_with_different_owner(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            checkout = Path(raw)
+            with mock.patch("rsi_runner.hermes_skill_exporter.subprocess.run") as run:
+                run.return_value = subprocess.CompletedProcess(args=[], returncode=0, stdout="", stderr="")
+
+                GitSkillExporter._git(checkout, "remote", "add", "origin", "https://example.invalid/repo.git")
+
+            command = run.call_args.args[0]
+            self.assertEqual("git", command[0])
+            self.assertIn(f"safe.directory={checkout.resolve()}", command)
 
 
 if __name__ == "__main__":

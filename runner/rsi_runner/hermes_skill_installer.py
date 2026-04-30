@@ -354,7 +354,14 @@ class SkillSourceCheckout:
     def _git(cwd: Path, *args: str) -> None:
         env = dict(os.environ)
         env["GIT_TERMINAL_PROMPT"] = "0"
-        completed = subprocess.run(["git", *args], cwd=str(cwd), env=env, text=True, capture_output=True, check=False)
+        completed = subprocess.run(
+            ["git", "-c", f"safe.directory={cwd.resolve()}", *args],
+            cwd=str(cwd),
+            env=env,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
         if completed.returncode != 0:
             redact_pattern = re.compile(r"x-access-token:[^@\s]+")
             redacted = redact_pattern.sub("x-access-token:***", completed.stderr or completed.stdout)

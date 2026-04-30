@@ -16,7 +16,9 @@ import time
 import uuid
 from numbers import Number
 from typing import Any
+from urllib import error as urlerror
 from urllib import parse as urlparse
+from urllib import request as urlrequest
 
 from .json_types import JsonObject, JsonToolWrapperSchema, JsonValue
 
