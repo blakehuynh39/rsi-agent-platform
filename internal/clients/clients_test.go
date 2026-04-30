@@ -7,8 +7,6 @@ import (
 	"net/http/httptest"
 	"testing"
 	"time"
-
-	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
 
 func TestRunnerClientExecute(t *testing.T) {
@@ -65,52 +63,6 @@ func TestRunnerClientExtendsHTTPTimeoutForExplicitTaskBudget(t *testing.T) {
 	}
 	if client.httpClientForTask(RunnerTask{TaskType: "workflow"}).Timeout != time.Second {
 		t.Fatalf("expected default timeout for ordinary task")
-	}
-}
-
-func TestToolGatewayClientExecute(t *testing.T) {
-	errCh := make(chan error, 1)
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost || r.URL.Path != "/api/tools/slack.reply/execute" {
-			errCh <- fmt.Errorf("unexpected request %s %s", r.Method, r.URL.Path)
-			http.Error(w, "unexpected request", http.StatusBadRequest)
-			return
-		}
-		var body map[string]any
-		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-			errCh <- fmt.Errorf("decode request: %w", err)
-			http.Error(w, "decode request", http.StatusBadRequest)
-			return
-		}
-		if body["channel_id"] != "C123" {
-			errCh <- fmt.Errorf("unexpected body: %#v", body)
-			http.Error(w, "unexpected body", http.StatusBadRequest)
-			return
-		}
-		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
-			Name:        "slack.reply",
-			ToolCallID:  "call-1",
-			Provider:    "slack",
-			ProviderRef: "171000001.000100",
-			Available:   true,
-			Status:      "completed",
-			Summary:     "posted",
-		})
-	}))
-	defer server.Close()
-
-	client := NewToolGatewayClient(server.URL)
-	resp, err := client.Execute("slack.reply", map[string]any{"channel_id": "C123"})
-	if err != nil {
-		t.Fatalf("Execute() error = %v", err)
-	}
-	select {
-	case handlerErr := <-errCh:
-		t.Fatal(handlerErr)
-	default:
-	}
-	if resp.Provider != "slack" || resp.ProviderRef != "171000001.000100" {
-		t.Fatalf("unexpected response: %+v", resp)
 	}
 }
 

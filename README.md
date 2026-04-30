@@ -6,7 +6,6 @@ the Python execution runtime for live, proactive, eval, proposal, and repo-chang
 ## Layout
 
 - `cmd/control-plane`: Slack ingress, workflow/session APIs, routing, policy, approval, orchestration
-- `cmd/tool-gateway`: typed integration facade
 - `cmd/improvement-plane`: trace/review APIs, eval/proposal cron mode, and embedded eval UI
 - `internal/control`: control-plane HTTP APIs plus Slack socket-mode surface
 - `internal/*`: shared contracts, storage, registries, and review/event logic
@@ -68,8 +67,8 @@ For `openai/*` models, the runner uses Hermes directly and forwards the configur
 
 `control-plane --mode slack-surface` uses the Slack env contract:
 `RSI_SLACK_APP_IDENTITY`, `RSI_SLACK_SOCKET_MODE_ENABLED`, `RSI_SLACK_APP_TOKEN`, and `RSI_SLACK_BOT_TOKEN`.
-For long-lived governed `slack.search` and Slack MCP workflow execution, configure `RSI_SLACK_USER_TOKEN` with a Slack user token (`xoxp-...`).
-For governed Notion MCP reads in workflow and Slack Q&A gather tasks, configure
+For long-lived Slack search and Slack MCP workflow execution, configure `RSI_SLACK_USER_TOKEN` with a Slack user token (`xoxp-...`).
+For Notion MCP reads in workflow and Slack Q&A gather tasks, configure
 `RSI_NOTION_MCP_ENABLED=true`, optionally override `RSI_NOTION_MCP_SERVER_URL`,
 and set `RSI_NOTION_MCP_AUTHORIZATION_ENV_VAR` to the env var name that runner
 pods should use for Notion MCP auth (defaults to `RSI_NOTION_MCP_AUTHORIZATION`).
@@ -96,14 +95,13 @@ The stage acceptance runbook for the persistence hardening rollout lives at
 The Honcho stage rollout and rollback runbook lives at
 [`docs/honcho-stage-rollout.md`](./docs/honcho-stage-rollout.md).
 
-The CD workflow builds and pushes six stage images on `main`:
+The CD workflow builds and pushes five stage images on `main`:
 
 - `rsi-agent-platform:control-plane-<sha>`
-- `rsi-agent-platform:tool-gateway-<sha>`
 - `rsi-agent-platform:improvement-plane-<sha>`
-- `rsi-agent-platform-runner:runner-<sha>`
+- `rsi-agent-platform-hermes-executor:hermes-executor-<sha>`
+- `rsi-agent-platform-hermes-skill-exporter:hermes-skill-exporter-<sha>`
 - `rsi-agent-platform-honcho:honcho-<sha>`
-- `rsi-agent-platform-sandbox:sandbox-<sha>`
 
 The Honcho image is currently built from a pinned commit in
 `blakehuynh39/honcho`, not from a vanilla upstream image. See

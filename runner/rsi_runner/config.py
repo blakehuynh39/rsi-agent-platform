@@ -26,7 +26,6 @@ class RunnerConfig:
     openrouter_provider_routing: dict[str, object]
     hermes_pin: str
     public_base_url: str
-    tool_gateway_base_url: str | None
     hermes_home: str
     memory_backend: str
     honcho_workspace: str
@@ -52,7 +51,6 @@ class RunnerConfig:
     hermes_computer_root: str
     hermes_run_root: str
     hermes_artifact_root: str
-    hermes_native_governed_tools_enabled: bool
     hermes_native_terminal_enabled: bool
     hermes_native_toolsets: list[str]
     hermes_terminal_env: str
@@ -88,7 +86,6 @@ class RunnerConfig:
         openrouter_provider_routing = parse_openrouter_provider_routing()
         hermes_pin = optional_env("RSI_HERMES_PIN")
         public_base_url = required_url_env("RSI_RUNNER_PUBLIC_BASE_URL")
-        tool_gateway_base_url = optional_url_env("RSI_TOOL_GATEWAY_BASE_URL")
         hermes_home = required_env("HERMES_HOME")
         memory_backend = required_env("RSI_RUNNER_MEMORY_BACKEND")
         honcho_workspace = required_env("RSI_HONCHO_WORKSPACE")
@@ -123,7 +120,6 @@ class RunnerConfig:
         hermes_computer_root = optional_env("RSI_HERMES_COMPUTER_ROOT") or path_join(hermes_executor_workspace_root, "company")
         hermes_run_root = optional_env("RSI_HERMES_RUN_ROOT") or path_join(hermes_computer_root, ".rsi", "runs")
         hermes_artifact_root = optional_env("RSI_HERMES_ARTIFACT_ROOT") or path_join(hermes_computer_root, "artifacts")
-        hermes_native_governed_tools_enabled = parse_bool(optional_env("RSI_HERMES_NATIVE_GOVERNED_TOOLS_ENABLED") or "false", "RSI_HERMES_NATIVE_GOVERNED_TOOLS_ENABLED")
         hermes_native_terminal_enabled = parse_bool(optional_env("RSI_HERMES_NATIVE_TERMINAL_ENABLED") or "false", "RSI_HERMES_NATIVE_TERMINAL_ENABLED")
         hermes_native_toolsets = parse_csv_list(optional_env("RSI_HERMES_NATIVE_TOOLSETS") or "terminal,file")
         hermes_terminal_env = optional_env("TERMINAL_ENV") or "local"
@@ -154,8 +150,6 @@ class RunnerConfig:
             raise RunnerConfigError("RSI_RUNNER_MEMORY_BACKEND must be set to honcho")
         if not honcho_api_key and not honcho_base_url:
             raise RunnerConfigError("HONCHO_API_KEY or RSI_HONCHO_BASE_URL is required when RSI_RUNNER_MEMORY_BACKEND=honcho")
-        if role in {"eval", "proposal"} and not tool_gateway_base_url:
-            raise RunnerConfigError("RSI_TOOL_GATEWAY_BASE_URL is required for eval and proposal runner roles")
         return cls(
             role=role,
             executor_instance_id=executor_instance_id,
@@ -167,7 +161,6 @@ class RunnerConfig:
             openrouter_provider_routing=openrouter_provider_routing,
             hermes_pin=hermes_pin,
             public_base_url=public_base_url,
-            tool_gateway_base_url=tool_gateway_base_url or None,
             hermes_home=hermes_home,
             memory_backend=memory_backend,
             honcho_workspace=honcho_workspace,
@@ -193,7 +186,6 @@ class RunnerConfig:
             hermes_computer_root=hermes_computer_root,
             hermes_run_root=hermes_run_root,
             hermes_artifact_root=hermes_artifact_root,
-            hermes_native_governed_tools_enabled=hermes_native_governed_tools_enabled,
             hermes_native_terminal_enabled=hermes_native_terminal_enabled,
             hermes_native_toolsets=hermes_native_toolsets,
             hermes_terminal_env=hermes_terminal_env,

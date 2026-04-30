@@ -35,9 +35,6 @@ func (c Config) DependencyTargets() map[string]string {
 	targets := map[string]string{
 		"public_base_url": c.PublicBaseURL,
 	}
-	if c.ToolGatewayBaseURL != "" {
-		targets["tool_gateway"] = c.ToolGatewayBaseURL
-	}
 	if c.HermesExecutorBaseURL != "" {
 		targets["hermes_executor"] = c.HermesExecutorBaseURL
 	}
@@ -74,8 +71,6 @@ func (c Config) validate() []string {
 		c.validateControlPlane(&issues)
 	case "improvement-plane":
 		c.validateImprovementPlane(&issues)
-	case "tool-gateway":
-		c.validateToolGateway(&issues)
 	}
 
 	sort.Strings(issues)
@@ -84,7 +79,6 @@ func (c Config) validate() []string {
 
 func (c Config) validateControlPlane(issues *[]string) {
 	c.validateCommonPlaneConfig(issues)
-	addRequiredURL(issues, "RSI_TOOL_GATEWAY_BASE_URL", c.ToolGatewayBaseURL, c.nonLocalhostRequired())
 	if len(c.HermesExecutorURLs()) == 0 {
 		addRequiredURL(issues, "RSI_RUNNER_PROD_BASE_URL", c.ProdRunnerBaseURL, c.nonLocalhostRequired())
 		addRequiredURL(issues, "RSI_RUNNER_PROACTIVE_BASE_URL", c.ProactiveRunnerBaseURL, c.nonLocalhostRequired())
@@ -115,7 +109,6 @@ func (c Config) validateImprovementPlane(issues *[]string) {
 	if c.RuntimeMode == "migrate" {
 		return
 	}
-	addRequiredURL(issues, "RSI_TOOL_GATEWAY_BASE_URL", c.ToolGatewayBaseURL, c.nonLocalhostRequired())
 	if c.RuntimeMode == "worker" || c.RuntimeMode == "reconcile" || c.RuntimeMode == "cron" {
 		addRequiredURL(issues, "RSI_RUNNER_EVAL_BASE_URL", c.EvalRunnerBaseURL, c.nonLocalhostRequired())
 		addRequiredURL(issues, "RSI_RUNNER_PROPOSAL_BASE_URL", c.ProposalRunnerBaseURL, c.nonLocalhostRequired())
@@ -149,21 +142,6 @@ func (c Config) validateImprovementPlane(issues *[]string) {
 		}
 		c.validateGitHubInstallations(issues)
 	}
-}
-
-func (c Config) validateToolGateway(issues *[]string) {
-	c.validateCommonPlaneConfig(issues)
-	addRequiredString(issues, "RSI_SLACK_BOT_TOKEN", c.SlackBotToken)
-	addRequiredString(issues, "RSI_GITHUB_APP_ID", c.GitHubAppID)
-	addRequiredString(issues, "RSI_GITHUB_APP_INSTALLATION_ID", c.GitHubAppInstallationID)
-	addRequiredString(issues, "RSI_GITHUB_APP_PRIVATE_KEY", c.GitHubAppPrivateKey)
-	addRequiredString(issues, "RSI_GITHUB_OWNER", c.GitHubOwner)
-	addRequiredURL(issues, "RSI_GITHUB_API_BASE_URL", c.GitHubAPIBaseURL, false)
-	addRequiredString(issues, "RSI_SENTRY_AUTH_TOKEN", c.SentryAuthToken)
-	addRequiredString(issues, "RSI_SENTRY_ORGANIZATION", c.SentryOrganization)
-	addRequiredURL(issues, "RSI_SENTRY_API_BASE_URL", c.SentryAPIBaseURL, false)
-	addRequiredString(issues, "RSI_KNOWLEDGE_BASE_URL", c.DefaultKnowledgeBaseURL)
-	c.validateGitHubInstallations(issues)
 }
 
 func (c Config) validateGitHubInstallations(issues *[]string) {

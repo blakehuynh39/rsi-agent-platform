@@ -20,7 +20,6 @@ func TestLoadDoesNotInferStoreBackend(t *testing.T) {
 func TestControlPlaneValidationRejectsLocalhostAndVaultRuntimeValues(t *testing.T) {
 	cfg := validControlPlaneConfig()
 	cfg.PublicBaseURL = "http://localhost:8080"
-	cfg.ToolGatewayBaseURL = "vault:secret/data/use1-stage/rsi-agent-platform#TOOL_GATEWAY"
 
 	_, err := cfg.ValidatedFor("control-plane", "serve")
 	if err == nil {
@@ -29,9 +28,6 @@ func TestControlPlaneValidationRejectsLocalhostAndVaultRuntimeValues(t *testing.
 	message := err.Error()
 	if !strings.Contains(message, "RSI_PUBLIC_BASE_URL may not point to localhost in stage/prod") {
 		t.Fatalf("expected localhost validation message, got %s", message)
-	}
-	if !strings.Contains(message, "RSI_TOOL_GATEWAY_BASE_URL must be resolved at runtime and may not start with vault:") {
-		t.Fatalf("expected vault validation message, got %s", message)
 	}
 }
 
@@ -102,7 +98,6 @@ func TestImprovementPlaneValidationRequiresExplicitPromoterInterval(t *testing.T
 		StoreBackend:              "postgres",
 		PostgresURL:               "postgres://user:pass@db.example/rsi",
 		PublicBaseURL:             "https://staging-rsi-platform.storyprotocol.net",
-		ToolGatewayBaseURL:        "http://use1-stage-rsi-agent-platform-tool-gateway:8080",
 		EvalRunnerBaseURL:         "http://use1-stage-rsi-agent-platform-runner-eval:8090",
 		ProposalRunnerBaseURL:     "http://use1-stage-rsi-agent-platform-runner-proposal:8090",
 		DefaultProposalCap:        2,
@@ -128,7 +123,6 @@ func TestImprovementPlaneServeValidationAllowsObservabilityOnlyMode(t *testing.T
 		StoreBackend:              "postgres",
 		PostgresURL:               "postgres://user:pass@db.example/rsi",
 		PublicBaseURL:             "https://staging-rsi-platform.storyprotocol.net",
-		ToolGatewayBaseURL:        "http://use1-stage-rsi-agent-platform-tool-gateway:8080",
 		HonchoRuntimeBaseURL:      "http://use1-stage-rsi-agent-platform-honcho-api:8000",
 		DefaultReasoningVerbosity: "verbose",
 	}
@@ -147,7 +141,6 @@ func TestImprovementPlaneServeValidationRequiresHonchoRuntimeURL(t *testing.T) {
 		StoreBackend:              "postgres",
 		PostgresURL:               "postgres://user:pass@db.example/rsi",
 		PublicBaseURL:             "https://staging-rsi-platform.storyprotocol.net",
-		ToolGatewayBaseURL:        "http://use1-stage-rsi-agent-platform-tool-gateway:8080",
 		EvalRunnerBaseURL:         "http://use1-stage-rsi-agent-platform-runner-eval:8090",
 		ProposalRunnerBaseURL:     "http://use1-stage-rsi-agent-platform-runner-proposal:8090",
 		DefaultProposalCap:        2,
@@ -173,7 +166,6 @@ func TestImprovementPlaneWorkerValidationRequiresSandboxAndGitIdentity(t *testin
 		StoreBackend:              "postgres",
 		PostgresURL:               "postgres://user:pass@db.example/rsi",
 		PublicBaseURL:             "https://staging-rsi-platform.storyprotocol.net",
-		ToolGatewayBaseURL:        "http://use1-stage-rsi-agent-platform-tool-gateway:8080",
 		EvalRunnerBaseURL:         "http://use1-stage-rsi-agent-platform-runner-eval:8090",
 		ProposalRunnerBaseURL:     "http://use1-stage-rsi-agent-platform-runner-proposal:8090",
 		DefaultProposalCap:        2,
@@ -215,7 +207,6 @@ func TestImprovementPlaneWorkerValidationAcceptsGitHubAppContract(t *testing.T) 
 		StoreBackend:              "postgres",
 		PostgresURL:               "postgres://user:pass@db.example/rsi",
 		PublicBaseURL:             "https://staging-rsi-platform.storyprotocol.net",
-		ToolGatewayBaseURL:        "http://use1-stage-rsi-agent-platform-tool-gateway:8080",
 		EvalRunnerBaseURL:         "http://use1-stage-rsi-agent-platform-runner-eval:8090",
 		ProposalRunnerBaseURL:     "http://use1-stage-rsi-agent-platform-runner-proposal:8090",
 		DefaultProposalCap:        2,
@@ -242,93 +233,36 @@ func TestImprovementPlaneWorkerValidationAcceptsGitHubAppContract(t *testing.T) 
 	}
 }
 
-func TestToolGatewayValidationRequiresGitHubApp(t *testing.T) {
-	cfg := Config{
-		ServiceName:               "tool-gateway",
-		ServiceKind:               "tool-gateway",
-		Environment:               "stage",
-		HTTPPort:                  8080,
-		StoreBackend:              "postgres",
-		PostgresURL:               "postgres://user:pass@db.example/rsi",
-		PublicBaseURL:             "https://staging-rsi-platform.storyprotocol.net",
-		SlackBotToken:             "xoxb-token",
-		GitHubOwner:               "piplabs",
-		GitHubAPIBaseURL:          "https://api.github.com",
-		SentryAuthToken:           "sentry-token",
-		SentryOrganization:        "story-protocol",
-		SentryAPIBaseURL:          "https://sentry.io/api/0",
-		DefaultKnowledgeBaseURL:   "https://staging-depin.storyprotocol.net/openapi.json",
-		DefaultReasoningVerbosity: "verbose",
-	}
-
-	_, err := cfg.ValidatedFor("tool-gateway", "serve")
-	if err == nil {
-		t.Fatal("expected tool-gateway validation error")
-	}
-	for _, required := range []string{
-		"RSI_GITHUB_APP_ID is required",
-		"RSI_GITHUB_APP_INSTALLATION_ID is required",
-		"RSI_GITHUB_APP_PRIVATE_KEY is required",
-	} {
-		if !strings.Contains(err.Error(), required) {
-			t.Fatalf("unexpected validation error: %v", err)
-		}
-	}
-}
-
-func TestToolGatewayValidationAcceptsGitHubAppContract(t *testing.T) {
-	cfg := Config{
-		ServiceName:               "tool-gateway",
-		ServiceKind:               "tool-gateway",
-		Environment:               "stage",
-		HTTPPort:                  8080,
-		StoreBackend:              "postgres",
-		PostgresURL:               "postgres://user:pass@db.example/rsi",
-		PublicBaseURL:             "https://staging-rsi-platform.storyprotocol.net",
-		SlackBotToken:             "xoxb-token",
-		GitHubAppID:               "123",
-		GitHubAppInstallationID:   "456",
-		GitHubAppInstallationIDs:  map[string]string{"storyprotocol": "789"},
-		GitHubAppPrivateKey:       "-----BEGIN RSA PRIVATE KEY-----\nkey\n-----END RSA PRIVATE KEY-----",
-		GitHubOwner:               "piplabs",
-		GitHubRepoOwners:          map[string]string{"story-api": "storyprotocol"},
-		GitHubAPIBaseURL:          "https://api.github.com",
-		SentryAuthToken:           "sentry-token",
-		SentryOrganization:        "story-protocol",
-		SentryAPIBaseURL:          "https://sentry.io/api/0",
-		DefaultKnowledgeBaseURL:   "https://staging-depin.storyprotocol.net/openapi.json",
-		DefaultReasoningVerbosity: "verbose",
-	}
-
-	if _, err := cfg.ValidatedFor("tool-gateway", "serve"); err != nil {
-		t.Fatalf("unexpected validation error: %v", err)
-	}
-}
-
 func TestValidationRequiresInstallationForMappedRepoOwner(t *testing.T) {
 	cfg := Config{
-		ServiceName:               "tool-gateway",
-		ServiceKind:               "tool-gateway",
+		ServiceName:               "improvement-plane",
+		ServiceKind:               "improvement-plane",
 		Environment:               "stage",
 		HTTPPort:                  8080,
 		StoreBackend:              "postgres",
 		PostgresURL:               "postgres://user:pass@db.example/rsi",
 		PublicBaseURL:             "https://staging-rsi-platform.storyprotocol.net",
-		SlackBotToken:             "xoxb-token",
+		EvalRunnerBaseURL:         "http://use1-stage-rsi-agent-platform-runner-eval:8090",
+		ProposalRunnerBaseURL:     "http://use1-stage-rsi-agent-platform-runner-proposal:8090",
+		DefaultProposalCap:        2,
+		ProposalPromoterInterval:  15 * time.Minute,
 		GitHubAppID:               "123",
 		GitHubAppInstallationID:   "456",
 		GitHubAppPrivateKey:       "-----BEGIN RSA PRIVATE KEY-----\nkey\n-----END RSA PRIVATE KEY-----",
 		GitHubOwner:               "piplabs",
 		GitHubRepoOwners:          map[string]string{"story-api": "storyprotocol"},
 		GitHubAPIBaseURL:          "https://api.github.com",
-		SentryAuthToken:           "sentry-token",
-		SentryOrganization:        "story-protocol",
-		SentryAPIBaseURL:          "https://sentry.io/api/0",
-		DefaultKnowledgeBaseURL:   "https://staging-depin.storyprotocol.net/openapi.json",
 		DefaultReasoningVerbosity: "verbose",
+		GitHubCommitUser:          "rsi-agent-platform-bot",
+		GitHubCommitEmail:         "rsi-agent-platform-bot@users.noreply.github.com",
+		SandboxNamespace:          "rsi-platform",
+		SandboxImage:              "sandbox-image",
+		SandboxServiceAccount:     "rsi-sandbox",
+		SandboxJobTTLSeconds:      3600,
+		SandboxDeadlineSeconds:    1800,
 	}
 
-	_, err := cfg.ValidatedFor("tool-gateway", "serve")
+	_, err := cfg.ValidatedFor("improvement-plane", "worker")
 	if err == nil {
 		t.Fatal("expected validation error")
 	}
@@ -388,7 +322,6 @@ func validControlPlaneConfig() Config {
 		StoreBackend:              "postgres",
 		PostgresURL:               "postgres://user:pass@db.example/rsi",
 		PublicBaseURL:             "https://staging-rsi-platform.storyprotocol.net",
-		ToolGatewayBaseURL:        "http://use1-stage-rsi-agent-platform-tool-gateway:8080",
 		ProdRunnerBaseURL:         "http://use1-stage-rsi-agent-platform-runner-prod:8090",
 		ProactiveRunnerBaseURL:    "http://use1-stage-rsi-agent-platform-runner-proactive:8090",
 		DefaultRepo:               "depin-backend",

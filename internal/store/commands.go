@@ -374,9 +374,9 @@ func (s *MemoryStore) appendWorkflowPlanningCommandsLocked(bundle *transitionPer
 	if hints.Since != "" && hints.Until != "" {
 		summaryParts = append(summaryParts, fmt.Sprintf("Suggested repo-activity window: %s to %s.", hints.Since, hints.Until))
 	}
-	seedSummary := firstNonEmpty(strings.Join(summaryParts, " "), "Seeded governed execution hints from deterministic workflow planning.")
+	seedSummary := firstNonEmpty(strings.Join(summaryParts, " "), "Seeded native execution hints from deterministic workflow planning.")
 	executionStartedType := "runner.started"
-	executionStartedDescription := "Runner task dispatched with seeded governed context and open tool choice."
+	executionStartedDescription := "Runner task dispatched with seeded native context and open tool choice."
 	appendFollowOnCommand(bundle, parent, transition.CommandEnvelope{
 		MachineKind: transition.MachineWorkflow,
 		AggregateID: workflow.ID,
@@ -434,12 +434,12 @@ func (s *MemoryStore) appendWorkflowPlanningCommandsLocked(bundle *transitionPer
 					StepType:   "context_seeded",
 					Summary:    seedSummary,
 					Confidence: 0.83,
-					Decision:   "governed_runner_execution",
+					Decision:   "native_hermes_execution",
 					CreatedAt:  parent.OccurredAt,
 				},
 			},
 		},
-	}, "workflow planning seeded governed execution hints")
+	}, "workflow planning seeded native execution hints")
 	return nil
 }
 
@@ -3227,7 +3227,7 @@ func (s *MemoryStore) projectActionTraceLocked(intent action.Intent, command tra
 				IngestionID: trace.Summary.IngestionID,
 				WorkflowID:  trace.Summary.WorkflowID,
 				Plane:       "control",
-				Service:     firstNonEmpty(stringFromCommand(command, "executor"), "tool-gateway"),
+				Service:     firstNonEmpty(stringFromCommand(command, "executor"), "control-plane"),
 				Actor:       workflow.AssignedBot,
 				EventType:   eventType,
 				Status:      eventStatus,
@@ -3273,7 +3273,7 @@ func (s *MemoryStore) projectActionTraceLocked(intent action.Intent, command tra
 				IngestionID: trace.Summary.IngestionID,
 				WorkflowID:  trace.Summary.WorkflowID,
 				Plane:       "edge",
-				Service:     firstNonEmpty(stringFromCommand(command, "executor"), "tool-gateway"),
+				Service:     firstNonEmpty(stringFromCommand(command, "executor"), "control-plane"),
 				Actor:       workflow.AssignedBot,
 				EventType:   eventType,
 				Status:      eventStatus,

@@ -64,7 +64,7 @@ func shouldQueueRuntimeDiagnosis(candidate improvement.Candidate) bool {
 		return true
 	}
 	switch strings.TrimSpace(candidate.Subsystem) {
-	case "runner", "control-plane", "improvement-plane", "tool-gateway", "shared-store", "platform":
+	case "runner", "control-plane", "improvement-plane", "shared-store", "platform":
 		return true
 	default:
 		return false

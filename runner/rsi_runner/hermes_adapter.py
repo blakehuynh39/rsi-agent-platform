@@ -18,7 +18,7 @@ except (ImportError, ModuleNotFoundError):  # pragma: no cover - depends on Herm
 
 _PLUGIN_MANIFEST = """name: rsi_context_engine
 version: "1.1.0"
-description: "RSI governed context injection, native governed tools, and lifecycle capture"
+description: "RSI context injection and lifecycle capture"
 """
 
 
@@ -97,7 +97,7 @@ def _active_context(task_id: str = "", **kwargs) -> JsonObject:
 
 
 def _tool_gateway_available() -> bool:
-    return bool(str(os.getenv("RSI_TOOL_GATEWAY_BASE_URL", "") or "").strip())
+    return False
 
 
 def _artifact_tools_available() -> bool:
@@ -110,7 +110,7 @@ def _allowed_tool_names(payload: JsonObject) -> set[str]:
 
 
 def _base_url_from_context(payload: JsonObject) -> str:
-    return str(payload.get("tool_gateway_base_url", "") or os.getenv("RSI_TOOL_GATEWAY_BASE_URL", "")).strip()
+    return ""
 
 
 def _first_non_empty(*values) -> str:
@@ -585,124 +585,12 @@ def _tool_handler(transport_name: str):
     def handler(args: JsonObject, task_id: str = "", **kwargs):
         if canonical_name in _ARTIFACT_CANONICAL_NAMES:
             return _artifact_handler(canonical_name, transport_name, args, task_id=task_id, **kwargs)
-        payload = _active_context(task_id=task_id, **kwargs)
-        session_id = str(task_id or kwargs.get("task_id", "") or kwargs.get("session_id", "")).strip()
-        base_url = _base_url_from_context(payload)
-        if not base_url:
-            return json.dumps({
-                "tool_name": canonical_name,
-                "transport_tool_name": transport_name,
-                "status": "error",
-                "error": "tool gateway base url unavailable",
-            })
-        if canonical_name not in _allowed_tool_names(payload):
-            return json.dumps({
-                "tool_name": canonical_name,
-                "transport_tool_name": transport_name,
-                "status": "error",
-                "error": "tool not allowed for this governed session",
-            })
-        request_payload = _default_payload(canonical_name, payload)
-        if isinstance(args, dict):
-            request_payload.update(args)
-        if session_id:
-            _append_event(
-                session_id,
-                "tool_call_started",
-                {
-                    "tool_name": canonical_name,
-                    "transport_tool_name": transport_name,
-                    "request_payload": request_payload,
-                },
-            )
-        if canonical_name == "slack.upload_file":
-            try:
-                upload_payload = dict(payload)
-                upload_payload.update({k: request_payload[k] for k in ["content", "content_base64", "filename", "path", "artifact_ref"] if k in request_payload})
-                resolved_payload = _resolve_slack_upload_payload(upload_payload)
-                for key in ["content", "content_base64", "filename", "path", "title", "alt_txt", "source_path", "rendered_from_path"]:
-                    if key in resolved_payload:
-                        request_payload[key] = resolved_payload[key]
-            except Exception as exc:
-                failure = {
-                    "tool_name": canonical_name,
-                    "transport_tool_name": transport_name,
-                    "status": "error",
-                    "error": str(exc),
-                }
-                if session_id:
-                    _append_event(session_id, "tool_call_completed", failure)
-                return json.dumps(failure)
-        req = urlrequest.Request(
-            f"{base_url.rstrip('/')}/api/tools/{canonical_name}/execute",
-            data=json.dumps(request_payload).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        try:
-            timeout_seconds = int(payload.get("tool_timeout_seconds", 30) or 30)
-            with urlrequest.urlopen(req, timeout=timeout_seconds) as resp:
-                body = resp.read().decode("utf-8")
-        except urlerror.HTTPError as exc:
-            detail = exc.read().decode("utf-8", errors="replace")
-            failure = {
-                "tool_name": canonical_name,
-                "transport_tool_name": transport_name,
-                "status": "error",
-                "error": f"tool gateway returned {exc.code}: {detail}",
-            }
-            if session_id:
-                _append_event(session_id, "tool_call_completed", failure)
-            return json.dumps(failure)
-        except (urlerror.URLError, TimeoutError, ConnectionError, OSError) as exc:
-            failure = {
-                "tool_name": canonical_name,
-                "transport_tool_name": transport_name,
-                "status": "error",
-                "error": f"tool gateway request failed: {exc}",
-            }
-            if session_id:
-                _append_event(session_id, "tool_call_completed", failure)
-            return json.dumps(failure)
-
-        try:
-            parsed = json.loads(body)
-        except json.JSONDecodeError:
-            failure = {
-                "tool_name": canonical_name,
-                "transport_tool_name": transport_name,
-                "status": "error",
-                "error": "tool gateway returned invalid JSON",
-                "body": body[:8000],
-            }
-            if session_id:
-                _append_event(session_id, "tool_call_completed", failure)
-            return json.dumps(failure)
-        if not isinstance(parsed, dict):
-            failure = {
-                "tool_name": canonical_name,
-                "transport_tool_name": transport_name,
-                "status": "error",
-                "error": "tool gateway returned a non-object JSON payload",
-            }
-            if session_id:
-                _append_event(session_id, "tool_call_completed", failure)
-            return json.dumps(failure)
-        result = {
+        return json.dumps({
             "tool_name": canonical_name,
             "transport_tool_name": transport_name,
-            "status": parsed.get("status", ""),
-            "available": parsed.get("available", True),
-            "summary": parsed.get("summary", ""),
-            "provider": parsed.get("provider", ""),
-            "provider_ref": parsed.get("provider_ref", ""),
-            "approval_state": parsed.get("approval_state", ""),
-            "output": parsed.get("output", {}),
-            "raw_artifact_refs": parsed.get("raw_artifact_refs", []),
-        }
-        if session_id:
-            _append_event(session_id, "tool_call_completed", result)
-        return json.dumps(result)
+            "status": "error",
+            "error": "legacy RSI tool removed; use native Hermes tools, MCP, or the terminal",
+        })
 
     return handler
 
@@ -723,7 +611,7 @@ def _render_context(payload: JsonObject) -> str:
         parts.append(_json_block("Context refs", refs))
     tool_allowlist = payload.get("tool_allowlist_effective") or []
     if tool_allowlist:
-        parts.append("Governed tool allowlist: " + ", ".join(str(item) for item in tool_allowlist))
+        parts.append("Tool allowlist: " + ", ".join(str(item) for item in tool_allowlist))
     blocked = payload.get("blocked_tool_names") or []
     if blocked:
         parts.append("Blocked tools by RSI policy: " + ", ".join(str(item) for item in blocked))
@@ -758,7 +646,7 @@ def pre_llm_call(session_id: str, **kwargs):
     )
     if not rendered:
         return None
-    return {"context": "RSI governed context engine\\n\\n" + rendered}
+    return {"context": "RSI context engine\\n\\n" + rendered}
 
 
 def on_session_start(session_id: str, **kwargs):
@@ -816,7 +704,6 @@ class HermesAdapterMetadata:
     context_engine_mode: str
     context_engine_status: str
     lifecycle_hook_status: str
-    governed_tools_status: str
 
 
 class HermesContextEngine:
@@ -889,7 +776,6 @@ class HermesAdapter:
             context_engine_mode="pre_llm_call_plugin",
             context_engine_status=self._context_engine.status,
             lifecycle_hook_status=self._context_engine.status,
-            governed_tools_status=self._context_engine.status if self._config.hermes_native_governed_tools_enabled else "disabled",
         )
 
     def stage_task_context(self, session_id: str, payload: JsonObject) -> None:

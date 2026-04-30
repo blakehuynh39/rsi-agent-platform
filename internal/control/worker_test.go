@@ -26,6 +26,7 @@ import (
 )
 
 func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
+	t.Skip("platform Slack post actions were removed; Hermes native Slack MCP owns reply delivery")
 	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"ok":       true,
@@ -111,7 +112,6 @@ func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
 		DefaultKnowledgeBaseURL:   "https://example.test/kb",
 		AllowedTargetRepos:        []string{"rsi-agent-platform"},
 		RunnerBaseURL:             runner.URL,
-		ToolGatewayBaseURL:        toolGateway.URL,
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
 	}
@@ -137,10 +137,10 @@ func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
 	if receipt, ok := store.GetCommandReceipt(actionCommandID(replyActionID, transition.CommandActionQueue, "")); !ok || receipt.MachineKind != transition.MachineAction {
 		t.Fatalf("expected action_queued receipt for reply action %s, got ok=%t receipt=%+v", replyActionID, ok, receipt)
 	}
-	if err := processControlActionEffect(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), replyAction); err != nil {
+	if err := processControlActionEffect(cfg, store, replyAction); err != nil {
 		t.Fatalf("processControlActionEffect(reply) error = %v", err)
 	}
-	if err := processControlActionEffect(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), replyAction); err != nil {
+	if err := processControlActionEffect(cfg, store, replyAction); err != nil {
 		t.Fatalf("processControlActionEffect(reply duplicate) error = %v", err)
 	}
 	if slackPosts != 1 {
@@ -243,7 +243,6 @@ func TestWorkflowRunnerUsesHermesExecutorWhenConfigured(t *testing.T) {
 		DefaultKnowledgeBaseURL:   "https://example.test/kb",
 		AllowedTargetRepos:        []string{"rsi-agent-platform"},
 		HermesExecutorBaseURL:     executor.URL,
-		ToolGatewayBaseURL:        "http://tool-gateway.invalid",
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
 		ProdRunnerTimeout:         930 * time.Second,
@@ -307,7 +306,6 @@ func TestWorkflowRunnerStartsAsyncHermesExecutionAndDefersEffect(t *testing.T) {
 		AllowedTargetRepos:              []string{"rsi-agent-platform"},
 		RunnerBaseURL:                   fallbackRunner.URL,
 		HermesExecutorBaseURL:           executor.URL,
-		ToolGatewayBaseURL:              "http://tool-gateway.invalid",
 		SandboxNamespace:                "rsi-platform",
 		DefaultReasoningVerbosity:       "verbose",
 		ProdRunnerTimeout:               930 * time.Second,
@@ -416,7 +414,6 @@ func TestWorkflowRunnerAsyncImmediateResultTerminalizesRunnerExecution(t *testin
 		AllowedTargetRepos:              []string{"rsi-agent-platform"},
 		RunnerBaseURL:                   executor.URL,
 		HermesExecutorBaseURL:           executor.URL,
-		ToolGatewayBaseURL:              "http://tool-gateway.invalid",
 		SandboxNamespace:                "rsi-platform",
 		DefaultReasoningVerbosity:       "verbose",
 		ProdRunnerTimeout:               930 * time.Second,
@@ -482,7 +479,6 @@ func TestWorkflowRunnerAsyncHeartbeatExpiryFailsClosed(t *testing.T) {
 		AllowedTargetRepos:              []string{"rsi-agent-platform"},
 		RunnerBaseURL:                   executor.URL,
 		HermesExecutorBaseURL:           executor.URL,
-		ToolGatewayBaseURL:              "http://tool-gateway.invalid",
 		SandboxNamespace:                "rsi-platform",
 		DefaultReasoningVerbosity:       "verbose",
 		ProdRunnerTimeout:               930 * time.Second,
@@ -1545,7 +1541,7 @@ func TestHandleClaimedExecutionEffectDefersWhenDraining(t *testing.T) {
 	}
 
 	app.StartDrain()
-	handleClaimedExecutionEffect(config.Config{}, store, nil, nil, effect)
+	handleClaimedExecutionEffect(config.Config{}, store, nil, effect)
 
 	var updated transition.EffectExecution
 	for _, item := range store.ListEffectExecutions() {
@@ -1948,7 +1944,6 @@ func TestWorkflowRunnerRecoversCompletedHermesExecutorResult(t *testing.T) {
 		AllowedTargetRepos:        []string{"rsi-agent-platform"},
 		RunnerBaseURL:             executor.URL,
 		HermesExecutorBaseURL:     executor.URL,
-		ToolGatewayBaseURL:        "http://tool-gateway.invalid",
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
 		ProdRunnerTimeout:         930 * time.Second,
@@ -2024,7 +2019,6 @@ func TestWorkflowRunnerRecoveryFailsClosedOnUnknownHermesExecutorStatus(t *testi
 		AllowedTargetRepos:        []string{"rsi-agent-platform"},
 		RunnerBaseURL:             executor.URL,
 		HermesExecutorBaseURL:     executor.URL,
-		ToolGatewayBaseURL:        "http://tool-gateway.invalid",
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
 		ProdRunnerTimeout:         930 * time.Second,
@@ -2097,7 +2091,6 @@ func TestWorkflowRunnerRecoveryDefersStillRunningHermesExecutor(t *testing.T) {
 		AllowedTargetRepos:        []string{"rsi-agent-platform"},
 		RunnerBaseURL:             executor.URL,
 		HermesExecutorBaseURL:     executor.URL,
-		ToolGatewayBaseURL:        "http://tool-gateway.invalid",
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
 		ProdRunnerTimeout:         930 * time.Second,
@@ -2183,7 +2176,6 @@ func TestWorkflowRunnerFailurePreservesProducedArtifacts(t *testing.T) {
 		DefaultKnowledgeBaseURL:   "https://example.test/kb",
 		AllowedTargetRepos:        []string{"rsi-agent-platform"},
 		RunnerBaseURL:             runner.URL,
-		ToolGatewayBaseURL:        "http://tool-gateway.invalid",
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
 	}
@@ -2311,7 +2303,6 @@ func TestWorkflowRunnerAttachesBoundSlackThreadContext(t *testing.T) {
 		AllowedTargetRepos:        []string{"rsi-agent-platform"},
 		RunnerBaseURL:             executor.URL,
 		HermesExecutorBaseURL:     executor.URL,
-		ToolGatewayBaseURL:        toolGateway.URL,
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
 		ProdRunnerTimeout:         930 * time.Second,
@@ -2328,30 +2319,16 @@ func TestWorkflowRunnerAttachesBoundSlackThreadContext(t *testing.T) {
 		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
 	}
 
-	if !strings.Contains(executorTask.Prompt, "Bound Slack thread context is attached in the task evidence") {
+	if !strings.Contains(executorTask.Prompt, "Start with the attached persisted evidence and context") {
 		t.Fatalf("expected bound-thread prompt guidance, got %q", executorTask.Prompt)
 	}
-	if !strings.Contains(executorTask.ContextSummary, "Allen: @Blake @Aiwei where can i see the SoT on the schema for campaigns") {
-		t.Fatalf("expected parent question in context summary, got %q", executorTask.ContextSummary)
-	}
-	found := false
 	for _, ref := range executorTask.ContextRefs {
-		if ref.ToolName != "slack.history" {
-			continue
+		if ref.ToolName == "slack.history" {
+			t.Fatalf("expected no platform Slack prefetch context refs after gateway removal, got %#v", executorTask.ContextRefs)
 		}
-		if !strings.Contains(ref.Summary, "Allen: @Blake @Aiwei where can i see the SoT on the schema for campaigns") {
-			t.Fatalf("expected parent question in prefetched ref, got %#v", ref)
-		}
-		if ref.ChannelID != executorTask.ChannelID || ref.ThreadTS != executorTask.ThreadTS {
-			t.Fatalf("expected bound Slack identifiers, got %#v", ref)
-		}
-		found = true
 	}
-	if !found {
-		t.Fatalf("expected slack.history context ref, got %#v", executorTask.ContextRefs)
-	}
-	if !reflect.DeepEqual(toolCalls, []string{"slack.history"}) {
-		t.Fatalf("expected one slack.history prefetch call, got %#v", toolCalls)
+	if len(toolCalls) != 0 {
+		t.Fatalf("expected no platform Slack prefetch calls after gateway removal, got %#v", toolCalls)
 	}
 }
 
@@ -2413,7 +2390,6 @@ func TestWorkflowRunnerUsesRunnerExecuteWhenHermesExecutorIsUnset(t *testing.T) 
 		DefaultKnowledgeBaseURL:   "https://example.test/kb",
 		AllowedTargetRepos:        []string{"rsi-agent-platform"},
 		RunnerBaseURL:             runner.URL,
-		ToolGatewayBaseURL:        "http://tool-gateway.invalid",
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
 		ProdRunnerTimeout:         930 * time.Second,
@@ -2455,6 +2431,7 @@ func TestWorkflowRunnerSystemMessageOmitsSlackMCPWhenUnavailableInNoneMode(t *te
 }
 
 func TestWorkflowPartialCompletionPostsStandardizedReplyAndPersistsVerdict(t *testing.T) {
+	t.Skip("platform Slack post actions were removed; Hermes native Slack MCP owns partial reply delivery")
 	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"ok":       true,
@@ -2571,7 +2548,6 @@ func TestWorkflowPartialCompletionPostsStandardizedReplyAndPersistsVerdict(t *te
 		DefaultKnowledgeBaseURL:   "https://example.test/kb",
 		AllowedTargetRepos:        []string{"rsi-agent-platform"},
 		RunnerBaseURL:             runner.URL,
-		ToolGatewayBaseURL:        toolGateway.URL,
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
 	}
@@ -2595,7 +2571,7 @@ func TestWorkflowPartialCompletionPostsStandardizedReplyAndPersistsVerdict(t *te
 	if got := stringFromMap(replyIntent.RequestPayload, "workflow_reply_command"); got != string(transition.CommandReplyPostedPartial) {
 		t.Fatalf("expected partial reply-posted command in action payload, got %q", got)
 	}
-	if err := processControlActionEffect(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), replyAction); err != nil {
+	if err := processControlActionEffect(cfg, store, replyAction); err != nil {
 		t.Fatalf("processControlActionEffect(reply) error = %v", err)
 	}
 
@@ -2653,6 +2629,7 @@ func TestWorkflowPartialCompletionPostsStandardizedReplyAndPersistsVerdict(t *te
 }
 
 func TestWorkflowTaskTimeoutPartialCompletionPostsTimeoutNoticeAndPersistsVerdict(t *testing.T) {
+	t.Skip("platform Slack post actions were removed; Hermes native Slack MCP owns timeout reply delivery")
 	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"ok":       true,
@@ -2757,7 +2734,6 @@ func TestWorkflowTaskTimeoutPartialCompletionPostsTimeoutNoticeAndPersistsVerdic
 		DefaultKnowledgeBaseURL:   "https://example.test/kb",
 		AllowedTargetRepos:        []string{"rsi-agent-platform"},
 		RunnerBaseURL:             runner.URL,
-		ToolGatewayBaseURL:        toolGateway.URL,
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
 	}
@@ -2781,7 +2757,7 @@ func TestWorkflowTaskTimeoutPartialCompletionPostsTimeoutNoticeAndPersistsVerdic
 	if got := stringFromMap(replyIntent.RequestPayload, "workflow_reply_command"); got != string(transition.CommandReplyPostedPartial) {
 		t.Fatalf("expected partial reply-posted command in action payload, got %q", got)
 	}
-	if err := processControlActionEffect(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), replyAction); err != nil {
+	if err := processControlActionEffect(cfg, store, replyAction); err != nil {
 		t.Fatalf("processControlActionEffect(reply) error = %v", err)
 	}
 
@@ -2914,7 +2890,6 @@ func TestWorkflowPartialCompletionBlockedByPolicyMovesNeedsHuman(t *testing.T) {
 		DefaultKnowledgeBaseURL:   "https://example.test/kb",
 		AllowedTargetRepos:        []string{"rsi-agent-platform"},
 		RunnerBaseURL:             runner.URL,
-		ToolGatewayBaseURL:        toolGateway.URL,
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
 	}
@@ -2931,7 +2906,7 @@ func TestWorkflowPartialCompletionBlockedByPolicyMovesNeedsHuman(t *testing.T) {
 	}
 
 	replyAction := firstQueuedActionEffectByKind(t, store, "control", action.KindSlackPost)
-	if err := processControlActionEffect(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), replyAction); err != nil {
+	if err := processControlActionEffect(cfg, store, replyAction); err != nil {
 		t.Fatalf("processControlActionEffect(reply) error = %v", err)
 	}
 
@@ -3061,7 +3036,6 @@ func TestWorkflowNativeMCPReplyDeliveryCompletesWithoutQueuedSlackReply(t *testi
 		DefaultKnowledgeBaseURL:   "https://example.test/kb",
 		AllowedTargetRepos:        []string{"rsi-agent-platform"},
 		RunnerBaseURL:             runner.URL,
-		ToolGatewayBaseURL:        toolGateway.URL,
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
 	}
@@ -3088,8 +3062,8 @@ func TestWorkflowNativeMCPReplyDeliveryCompletesWithoutQueuedSlackReply(t *testi
 	if got := stringFromMap(taskPayload, "reply_delivery_mode"); got != "direct" {
 		t.Fatalf("expected direct reply delivery mode, got %q", got)
 	}
-	if !reflect.DeepEqual(toolGatewayCalls, []string{"slack.history"}) {
-		t.Fatalf("expected only slack.history prefetch call, got %#v", toolGatewayCalls)
+	if len(toolGatewayCalls) != 0 {
+		t.Fatalf("expected no platform Slack prefetch calls, got %#v", toolGatewayCalls)
 	}
 	if queued := queuedActionEffectsForPlane(store, "control"); len(queued) != 0 {
 		t.Fatalf("expected no queued control actions, got %#v", queued)
@@ -3197,7 +3171,6 @@ func TestWorkflowNativeMCPMissingReplyDeliveryMovesNeedsHuman(t *testing.T) {
 		DefaultKnowledgeBaseURL:   "https://example.test/kb",
 		AllowedTargetRepos:        []string{"rsi-agent-platform"},
 		RunnerBaseURL:             runner.URL,
-		ToolGatewayBaseURL:        toolGateway.URL,
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
 	}
@@ -3224,8 +3197,8 @@ func TestWorkflowNativeMCPMissingReplyDeliveryMovesNeedsHuman(t *testing.T) {
 	if got := stringFromMap(taskPayload, "reply_delivery_mode"); got != "direct" {
 		t.Fatalf("expected direct reply delivery mode, got %q", got)
 	}
-	if !reflect.DeepEqual(toolGatewayCalls, []string{"slack.history"}) {
-		t.Fatalf("expected only slack.history prefetch call, got %#v", toolGatewayCalls)
+	if len(toolGatewayCalls) != 0 {
+		t.Fatalf("expected no platform Slack prefetch calls, got %#v", toolGatewayCalls)
 	}
 	if queued := queuedActionEffectsForPlane(store, "control"); len(queued) != 0 {
 		t.Fatalf("expected no queued control actions, got %#v", queued)
@@ -3291,7 +3264,6 @@ func TestWorkflowEmptyReplyDeliveryMovesNeedsHuman(t *testing.T) {
 		DefaultKnowledgeBaseURL:   "https://example.test/kb",
 		AllowedTargetRepos:        []string{"rsi-agent-platform"},
 		RunnerBaseURL:             runner.URL,
-		ToolGatewayBaseURL:        "http://unused.invalid",
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
 	}
@@ -3364,7 +3336,6 @@ func TestWorkflowFailedReplyDeliveryPersistsSlackAction(t *testing.T) {
 		DefaultKnowledgeBaseURL:   "https://example.test/kb",
 		AllowedTargetRepos:        []string{"rsi-agent-platform"},
 		RunnerBaseURL:             runner.URL,
-		ToolGatewayBaseURL:        "http://unused.invalid",
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
 	}
@@ -3469,7 +3440,6 @@ func TestWorkflowNativeMCPReplyDeliveryUncertainMovesNeedsHuman(t *testing.T) {
 		DefaultKnowledgeBaseURL:   "https://example.test/kb",
 		AllowedTargetRepos:        []string{"rsi-agent-platform"},
 		RunnerBaseURL:             runner.URL,
-		ToolGatewayBaseURL:        toolGateway.URL,
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
 	}
@@ -3485,8 +3455,8 @@ func TestWorkflowNativeMCPReplyDeliveryUncertainMovesNeedsHuman(t *testing.T) {
 		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
 	}
 
-	if !reflect.DeepEqual(toolGatewayCalls, []string{"slack.history"}) {
-		t.Fatalf("expected only slack.history prefetch call, got %#v", toolGatewayCalls)
+	if len(toolGatewayCalls) != 0 {
+		t.Fatalf("expected no platform Slack prefetch calls, got %#v", toolGatewayCalls)
 	}
 	if queued := queuedActionEffectsForPlane(store, "control"); len(queued) != 0 {
 		t.Fatalf("expected no queued control actions, got %#v", queued)
@@ -3600,7 +3570,6 @@ func TestSupersededTraceDoesNotPostLateSlackReply(t *testing.T) {
 		DefaultKnowledgeBaseURL:   "https://example.test/kb",
 		AllowedTargetRepos:        []string{"rsi-agent-platform"},
 		RunnerBaseURL:             runner.URL,
-		ToolGatewayBaseURL:        toolGateway.URL,
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
 	}
@@ -3610,7 +3579,7 @@ func TestSupersededTraceDoesNotPostLateSlackReply(t *testing.T) {
 		t.Fatalf("startWorkflowViaCommand() error = %v", err)
 	}
 	for _, item := range queuedActionEffectsForPlane(store, "control") {
-		if err := processControlActionEffect(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), item); err != nil {
+		if err := processControlActionEffect(cfg, store, item); err != nil {
 			t.Fatalf("processControlActionEffect(context) error = %v", err)
 		}
 	}
@@ -3651,7 +3620,7 @@ func TestSupersededTraceDoesNotPostLateSlackReply(t *testing.T) {
 		t.Fatalf("SubmitCommand(ingress_record_event) error = %v", err)
 	}
 
-	if err := processControlActionEffect(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), oldReplyAction); err != nil {
+	if err := processControlActionEffect(cfg, store, oldReplyAction); err != nil {
 		t.Fatalf("processControlActionEffect(old reply) error = %v", err)
 	}
 	if slackPosts != 0 {
@@ -3684,7 +3653,6 @@ func TestControlActionPersistenceFailureFinalizesTraceAndQueuesEval(t *testing.T
 		DefaultRepo:               "rsi-agent-platform",
 		DefaultKnowledgeBaseURL:   "https://example.test/kb",
 		AllowedTargetRepos:        []string{"rsi-agent-platform"},
-		ToolGatewayBaseURL:        toolGateway.URL,
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
 	}
@@ -3742,7 +3710,7 @@ func TestControlActionPersistenceFailureFinalizesTraceAndQueuesEval(t *testing.T
 		},
 	}
 
-	err = processControlActionEffect(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), failingAction)
+	err = processControlActionEffect(cfg, store, failingAction)
 	if err == nil {
 		t.Fatal("expected persistence failure to bubble up")
 	}
@@ -3871,6 +3839,7 @@ func TestReplyPolicyStillBlocksUnknownChannels(t *testing.T) {
 }
 
 func TestExecuteSlackPostActionIntentClaimsMatchingReplyEffect(t *testing.T) {
+	t.Skip("platform Slack post actions were removed; Hermes native Slack MCP owns reply delivery")
 	slackPosts := 0
 	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
@@ -3979,10 +3948,9 @@ func TestExecuteSlackPostActionIntentClaimsMatchingReplyEffect(t *testing.T) {
 	}
 
 	cfg := config.Config{
-		ServiceName:        "control-plane",
-		ToolGatewayBaseURL: toolGateway.URL,
+		ServiceName: "control-plane",
 	}
-	if err := executeSlackPostActionIntent(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), ctx, intent); err != nil {
+	if err := executeSlackPostActionIntent(cfg, store, ctx, intent); err != nil {
 		t.Fatalf("executeSlackPostActionIntent() error = %v", err)
 	}
 
@@ -4115,7 +4083,6 @@ func TestHandleClaimedWorkflowRunnerEffectFinalizesStructuredOutputFailure(t *te
 		DefaultKnowledgeBaseURL:   "https://example.test/kb",
 		AllowedTargetRepos:        []string{"rsi-agent-platform"},
 		RunnerBaseURL:             runner.URL,
-		ToolGatewayBaseURL:        toolGateway.URL,
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
 	}
@@ -4125,7 +4092,7 @@ func TestHandleClaimedWorkflowRunnerEffectFinalizesStructuredOutputFailure(t *te
 	}
 
 	for _, item := range queuedActionEffectsForPlane(store, "control") {
-		if err := processControlActionEffect(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), item); err != nil {
+		if err := processControlActionEffect(cfg, store, item); err != nil {
 			t.Fatalf("processControlActionEffect(context) error = %v", err)
 		}
 	}
@@ -4227,7 +4194,6 @@ func TestHandleClaimedWorkflowRunnerEffectWorkflowCommandPersistenceFailureFails
 		DefaultKnowledgeBaseURL:   "https://example.test/kb",
 		AllowedTargetRepos:        []string{"rsi-agent-platform"},
 		RunnerBaseURL:             runner.URL,
-		ToolGatewayBaseURL:        toolGateway.URL,
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
 	}
@@ -4236,7 +4202,7 @@ func TestHandleClaimedWorkflowRunnerEffectWorkflowCommandPersistenceFailureFails
 		t.Fatalf("startWorkflowViaCommand() error = %v", err)
 	}
 	for _, item := range queuedActionEffectsForPlane(baseStore, "control") {
-		if err := processControlActionEffect(cfg, baseStore, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), item); err != nil {
+		if err := processControlActionEffect(cfg, baseStore, item); err != nil {
 			t.Fatalf("processControlActionEffect(context) error = %v", err)
 		}
 	}
@@ -4330,7 +4296,6 @@ func TestHandleClaimedWorkflowRunnerEffectRunnerCompletionInvariantFailureFailsW
 		DefaultKnowledgeBaseURL:   "https://example.test/kb",
 		AllowedTargetRepos:        []string{"rsi-agent-platform"},
 		RunnerBaseURL:             runner.URL,
-		ToolGatewayBaseURL:        toolGateway.URL,
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
 	}
@@ -4339,7 +4304,7 @@ func TestHandleClaimedWorkflowRunnerEffectRunnerCompletionInvariantFailureFailsW
 		t.Fatalf("startWorkflowViaCommand() error = %v", err)
 	}
 	for _, item := range queuedActionEffectsForPlane(baseStore, "control") {
-		if err := processControlActionEffect(cfg, baseStore, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), item); err != nil {
+		if err := processControlActionEffect(cfg, baseStore, item); err != nil {
 			t.Fatalf("processControlActionEffect(context) error = %v", err)
 		}
 	}
@@ -4419,7 +4384,6 @@ func TestHandleClaimedWorkflowRunnerEffectNonOKSchedulesSuccessorAttempt(t *test
 		DefaultKnowledgeBaseURL:         "https://example.test/kb",
 		AllowedTargetRepos:              []string{"rsi-agent-platform"},
 		RunnerBaseURL:                   runner.URL,
-		ToolGatewayBaseURL:              toolGateway.URL,
 		SandboxNamespace:                "rsi-platform",
 		DefaultReasoningVerbosity:       "verbose",
 		WorkflowAutoRetryEnabled:        true,
@@ -4431,7 +4395,7 @@ func TestHandleClaimedWorkflowRunnerEffectNonOKSchedulesSuccessorAttempt(t *test
 		t.Fatalf("startWorkflowViaCommand() error = %v", err)
 	}
 	for _, item := range queuedActionEffectsForPlane(store, "control") {
-		if err := processControlActionEffect(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), item); err != nil {
+		if err := processControlActionEffect(cfg, store, item); err != nil {
 			t.Fatalf("processControlActionEffect(context) error = %v", err)
 		}
 	}
@@ -4552,7 +4516,6 @@ func TestHandleClaimedWorkflowRunnerEffectInvalidRequestUsesRunnerDiagnosticsAnd
 		DefaultKnowledgeBaseURL:         "https://example.test/kb",
 		AllowedTargetRepos:              []string{"rsi-agent-platform"},
 		RunnerBaseURL:                   runner.URL,
-		ToolGatewayBaseURL:              toolGateway.URL,
 		SandboxNamespace:                "rsi-platform",
 		DefaultReasoningVerbosity:       "verbose",
 		WorkflowAutoRetryEnabled:        true,
@@ -4564,7 +4527,7 @@ func TestHandleClaimedWorkflowRunnerEffectInvalidRequestUsesRunnerDiagnosticsAnd
 		t.Fatalf("startWorkflowViaCommand() error = %v", err)
 	}
 	for _, item := range queuedActionEffectsForPlane(store, "control") {
-		if err := processControlActionEffect(cfg, store, clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL), item); err != nil {
+		if err := processControlActionEffect(cfg, store, item); err != nil {
 			t.Fatalf("processControlActionEffect(context) error = %v", err)
 		}
 	}

@@ -2059,7 +2059,7 @@ func (s *MemoryStore) runtimeFailureFromWorkflowAttempts(trace events.Trace) (ru
 				Subsystem:     "delivery",
 				FailureMode:   failureClass,
 				Hypothesis:    "Treat Slack delivery attempts and provider errors as first-class receipts so failed DM/channel delivery routes create targeted delivery reliability pressure.",
-				ProposedScope: "control-plane + tool-gateway",
+				ProposedScope: "control-plane + native Hermes tools",
 			}, true
 		case failureClass == "runner_partial_completion_unrecoverable":
 			return runtimeFailureEvidence{
@@ -2128,14 +2128,14 @@ func runtimeFailureFromRSIToolCall(trace events.Trace) (runtimeFailureEvidence, 
 				Subsystem:     "control-plane",
 				FailureMode:   "workflow_context_binding_failure",
 				Hypothesis:    "Bind RSI workflow-context reads to the active workflow and trace so the control loop always gathers scoped evidence before calling the runner.",
-				ProposedScope: "control-plane + tool-gateway",
+				ProposedScope: "control-plane + native Hermes tools",
 			}, true
 		}
 		return runtimeFailureEvidence{
 			Subsystem:     "control-plane",
 			FailureMode:   runtimeFailureModeForToolName(toolName),
 			Hypothesis:    fmt.Sprintf("Stabilize internal RSI tool reads so %s cannot fail mid-workflow and strand the control loop before evaluation.", toolName),
-			ProposedScope: "control-plane + tool-gateway",
+			ProposedScope: "control-plane + native Hermes tools",
 		}, true
 	}
 	return runtimeFailureEvidence{}, false
@@ -2241,7 +2241,7 @@ func traceEventTagValue(description string, key string) string {
 func runtimeFailureHypothesis(subsystem string, failureMode string) string {
 	switch failureMode {
 	case "runner_invalid_tool_name_contract":
-		return "Normalize dotted RSI tool IDs to OpenAI-safe transport names in the runner, reverse-map tool calls back to canonical IDs before tool-gateway execution, and persist invalid-request diagnostics instead of collapsing them into structured-output parse failures."
+		return "Normalize native Hermes tool IDs before model execution and persist invalid-request diagnostics instead of collapsing them into structured-output parse failures."
 	case "action_result_primary_key_collision":
 		return "Fix shared-store action result keying and control-plane terminalization so action result collisions cannot wedge traces before eval."
 	case "postgres_unique_constraint_violation":
@@ -2644,7 +2644,7 @@ func targetLayerForCandidate(trace events.Trace, subsystem, failureMode, interve
 		return harness.TargetLayerHarnessOverlay
 	case strings.TrimSpace(trace.Summary.WorkflowKind) == "proposal":
 		return harness.TargetLayerPlatformRuntime
-	case strings.TrimSpace(subsystem) == "control-plane", strings.TrimSpace(subsystem) == "improvement-plane", strings.TrimSpace(subsystem) == "shared-store", strings.TrimSpace(subsystem) == "tool-gateway", strings.TrimSpace(subsystem) == "delivery":
+	case strings.TrimSpace(subsystem) == "control-plane", strings.TrimSpace(subsystem) == "improvement-plane", strings.TrimSpace(subsystem) == "shared-store", strings.TrimSpace(subsystem) == "delivery":
 		return harness.TargetLayerRepoChange
 	default:
 		return harness.TargetLayerRepoChange

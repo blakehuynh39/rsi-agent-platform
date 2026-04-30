@@ -14,7 +14,6 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Update RSI image tags in story-deployments values.")
     parser.add_argument("--file", required=True, help="Path to the story-deployments values file.")
     parser.add_argument("--control-plane-tag", required=True)
-    parser.add_argument("--tool-gateway-tag", required=True)
     parser.add_argument("--improvement-plane-tag", required=True)
     parser.add_argument("--hermes-executor-tag", required=True)
     parser.add_argument("--hermes-skill-exporter-tag", required=True)
@@ -70,7 +69,6 @@ def main() -> None:
     args = parse_args()
     updates: dict[tuple[str, ...], str] = {
         ("controlPlane", "image", "tag"): args.control_plane_tag,
-        ("toolGateway", "image", "tag"): args.tool_gateway_tag,
         ("improvementPlane", "image", "tag"): args.improvement_plane_tag,
         ("hermesExecutor", "image", "tag"): args.hermes_executor_tag,
         ("hermesSkillExporter", "image", "tag"): args.hermes_skill_exporter_tag,

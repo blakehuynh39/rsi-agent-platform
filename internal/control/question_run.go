@@ -33,13 +33,13 @@ type questionRunContext struct {
 	questionRun storepkg.QuestionRun
 }
 
-func handleClaimedQuestionRunEffect(cfg config.Config, store storepkg.Store, runnerClients map[string]*clients.RunnerClient, toolClient *clients.ToolGatewayClient, effect transition.EffectExecution) {
+func handleClaimedQuestionRunEffect(cfg config.Config, store storepkg.Store, runnerClients map[string]*clients.RunnerClient, effect transition.EffectExecution) {
 	ctx, queueName, err := loadQuestionRunContextForEffect(store, effect)
 	if err != nil {
 		_ = failClaimedEffect(store, effect, err.Error())
 		return
 	}
-	if err := processQuestionRunEffect(cfg, store, runnerClients, toolClient, ctx, queueName, effect); err != nil {
+	if err := processQuestionRunEffect(cfg, store, runnerClients, ctx, queueName, effect); err != nil {
 		finalizeErr := finalizeQuestionRunFailure(cfg, store, ctx, err, time.Now().UTC())
 		if finalizeErr != nil {
 			_ = failClaimedEffect(store, effect, finalizeErr.Error())
@@ -55,7 +55,7 @@ func handleClaimedQuestionRunEffect(cfg config.Config, store storepkg.Store, run
 	}
 }
 
-func processQuestionRunEffect(cfg config.Config, store storepkg.Store, runnerClients map[string]*clients.RunnerClient, toolClient *clients.ToolGatewayClient, ctx questionRunContext, queueName queue.QueueName, effect transition.EffectExecution) error {
+func processQuestionRunEffect(cfg config.Config, store storepkg.Store, runnerClients map[string]*clients.RunnerClient, ctx questionRunContext, queueName queue.QueueName, effect transition.EffectExecution) error {
 	refreshed, err := refreshQuestionRunContextState(store, ctx)
 	if err != nil {
 		return err
@@ -168,146 +168,6 @@ func processGatherEvidence(cfg config.Config, store storepkg.Store, runnerClient
 		"ingestion_id":       ctx.ingestion.ID,
 		"evidence_ledger":    ledger,
 		"runner_diagnostics": runnerDiagnostics,
-	})
-	return err
-}
-
-func processRefreshAlignmentLedger(cfg config.Config, store storepkg.Store, toolClient *clients.ToolGatewayClient, ctx questionRunContext, occurredAt time.Time) error {
-	spec := ctx.questionRun.InvestigationSpec
-	ledger := ctx.questionRun.EvidenceLedger
-	projectKey := strings.TrimSpace(spec.ProjectKey)
-	channelIDs := uniqueNonEmptyChannelIDs(spec.ReadSurfaces)
-	toolCalls := append([]questionrun.ToolCall(nil), ledger.ToolCalls...)
-	evidenceItems := append([]questionrun.EvidenceItem(nil), ledger.EvidenceItems...)
-	sources := []string{}
-	knowledgeResult, knowledgeItems, knowledgeCall := executeQuestionRunTool(toolClient, "knowledge.context", map[string]any{
-		"topic":    projectKey,
-		"scope_id": spec.Repo,
-	})
-	toolCalls = append(toolCalls, knowledgeCall)
-	evidenceItems = append(evidenceItems, knowledgeItems...)
-	if sourceRefs := evidenceSourceRefs(knowledgeItems); len(sourceRefs) > 0 {
-		sources = append(sources, sourceRefs...)
-	}
-	if projectKey != "" && len(channelIDs) > 0 {
-		searchResult, searchItems, searchCall := executeQuestionRunTool(toolClient, "slack.search", map[string]any{
-			"query":       projectKey,
-			"channel_ids": channelIDs,
-			"trace_id":    ctx.trace.Summary.TraceID,
-			"limit":       8,
-		})
-		toolCalls = append(toolCalls, searchCall)
-		evidenceItems = append(evidenceItems, searchItems...)
-		if sourceRefs := evidenceSourceRefs(searchItems); len(sourceRefs) > 0 {
-			sources = append(sources, sourceRefs...)
-		}
-		_ = searchResult
-	}
-	evidenceItems = dedupeEvidenceItems(evidenceItems)
-	toolCalls = dedupeQuestionRunToolCalls(toolCalls)
-	alignmentLedger := questionrun.ProjectAlignmentLedger{
-		ProjectKey:       projectKey,
-		RequiredOutcomes: topEvidenceSummaries(evidenceItems, 4),
-		Constraints:      []string{},
-		OpenQuestions:    []string{},
-		Sources:          uniqueStrings(sources),
-		EvidenceItems:    evidenceItems[:minInt(len(evidenceItems), 8)],
-	}
-	if len(alignmentLedger.EvidenceItems) == 0 {
-		alignmentLedger.Degraded = true
-		alignmentLedger.DegradedReason = firstNonEmpty(
-			toolResultSummary(knowledgeResult, nil),
-			"no grounded alignment evidence was available",
-		)
-		alignmentLedger.OpenQuestions = []string{
-			fmt.Sprintf("Need a canonical alignment source for %s.", firstNonEmpty(projectKey, "the referenced project")),
-		}
-		alignmentLedger.Summary = fmt.Sprintf("Alignment ledger for %s is degraded: %s.", firstNonEmpty(projectKey, "the referenced project"), alignmentLedger.DegradedReason)
-	} else {
-		alignmentLedger.Summary = fmt.Sprintf("Alignment ledger refreshed for %s from %d grounded evidence item(s).", firstNonEmpty(projectKey, "the referenced project"), len(alignmentLedger.EvidenceItems))
-		if knowledgeID, err := persistAlignmentLedger(store, ctx, alignmentLedger, occurredAt); err == nil {
-			alignmentLedger.KnowledgeEntryID = knowledgeID
-		}
-	}
-	ledger.ToolCalls = toolCalls
-	ledger.EvidenceItems = dedupeEvidenceItems(evidenceItems)
-	ledger.AlignmentLedger = &alignmentLedger
-	ledger.AlignmentRequired = true
-	ledger.AlignmentDegraded = alignmentLedger.Degraded
-	commandKind := transition.CommandAlignmentLedgerReady
-	if alignmentLedger.Degraded {
-		commandKind = transition.CommandAlignmentLedgerDegraded
-	}
-	_, err := submitQuestionRunCommand(store, ctx.questionRun.ID, commandKind, cfg.ServiceName, occurredAt, map[string]any{
-		"workflow_id":      ctx.workflow.ID,
-		"trace_id":         ctx.trace.Summary.TraceID,
-		"conversation_id":  ctx.trace.Summary.ConversationID,
-		"case_id":          ctx.trace.Summary.CaseID,
-		"ingestion_id":     ctx.ingestion.ID,
-		"alignment_ledger": alignmentLedger,
-		"evidence_ledger":  ledger,
-	})
-	return err
-}
-
-func processCollectSeedEvidence(cfg config.Config, store storepkg.Store, toolClient *clients.ToolGatewayClient, ctx questionRunContext, occurredAt time.Time) error {
-	spec := ctx.questionRun.InvestigationSpec
-	ledger := ctx.questionRun.EvidenceLedger
-	toolCalls := append([]questionrun.ToolCall(nil), ledger.ToolCalls...)
-	evidenceItems := append([]questionrun.EvidenceItem(nil), ledger.EvidenceItems...)
-	if strings.TrimSpace(spec.Repo) != "" {
-		_, items, call := executeQuestionRunTool(toolClient, "repo.context", map[string]any{
-			"repo":     spec.Repo,
-			"question": spec.UserRequest,
-		})
-		toolCalls = append(toolCalls, call)
-		evidenceItems = append(evidenceItems, items...)
-		_, activityItems, activityCall := executeQuestionRunTool(toolClient, "github.repo_activity", map[string]any{
-			"repo":  spec.Repo,
-			"since": spec.Since,
-			"until": spec.Until,
-		})
-		toolCalls = append(toolCalls, activityCall)
-		evidenceItems = append(evidenceItems, activityItems...)
-	}
-	searchQuery := slackSearchQueryForSpec(spec)
-	for _, surface := range spec.ReadSurfaces {
-		if surface.ChannelID == "" {
-			continue
-		}
-		if surface.ThreadTS != "" {
-			_, items, call := executeQuestionRunTool(toolClient, "slack.history", map[string]any{
-				"channel_id": surface.ChannelID,
-				"thread_ts":  surface.ThreadTS,
-				"trace_id":   ctx.trace.Summary.TraceID,
-				"limit":      12,
-			})
-			toolCalls = append(toolCalls, call)
-			evidenceItems = append(evidenceItems, items...)
-			continue
-		}
-		_, items, call := executeQuestionRunTool(toolClient, "slack.search", map[string]any{
-			"query":       searchQuery,
-			"channel_ids": []string{surface.ChannelID},
-			"trace_id":    ctx.trace.Summary.TraceID,
-			"limit":       8,
-		})
-		toolCalls = append(toolCalls, call)
-		evidenceItems = append(evidenceItems, items...)
-	}
-	ledger.ToolCalls = dedupeQuestionRunToolCalls(toolCalls)
-	ledger.EvidenceItems = dedupeEvidenceItems(evidenceItems)
-	ledger.OpenQuestions = deriveOpenQuestions(spec, ledger)
-	ledger.MissingEvidence = append([]string(nil), ledger.OpenQuestions...)
-	shouldExpand := spec.AllowExpansion && len(ledger.OpenQuestions) > 0
-	_, err := submitQuestionRunCommand(store, ctx.questionRun.ID, transition.CommandSeedEvidenceCollected, cfg.ServiceName, occurredAt, map[string]any{
-		"workflow_id":     ctx.workflow.ID,
-		"trace_id":        ctx.trace.Summary.TraceID,
-		"conversation_id": ctx.trace.Summary.ConversationID,
-		"case_id":         ctx.trace.Summary.CaseID,
-		"ingestion_id":    ctx.ingestion.ID,
-		"evidence_ledger": ledger,
-		"should_expand":   shouldExpand,
 	})
 	return err
 }
@@ -693,26 +553,6 @@ func evidenceLinksFromQuestionRun(items []questionrun.EvidenceItem) []knowledge.
 		})
 	}
 	return out
-}
-
-func executeQuestionRunTool(toolClient *clients.ToolGatewayClient, name string, input map[string]any) (storepkg.ToolResult, []questionrun.EvidenceItem, questionrun.ToolCall) {
-	result, err := toolClient.Execute(name, input)
-	summary := toolResultSummary(result, err)
-	call := questionrun.ToolCall{
-		ToolName:        name,
-		ToolCallID:      firstNonEmpty(result.ToolCallID, name),
-		Request:         cloneAnyMap(input),
-		Summary:         summary,
-		Status:          firstNonEmpty(result.Status, "failed"),
-		ProviderRef:     result.ProviderRef,
-		RawArtifactRefs: append([]string(nil), result.RawArtifactRefs...),
-	}
-	if err != nil {
-		call.Status = "failed"
-		call.Summary = err.Error()
-		return storepkg.ToolResult{}, nil, call
-	}
-	return result, extractQuestionRunEvidenceItems(name, input, result.Output, result.Summary), call
 }
 
 func extractQuestionRunEvidenceItems(toolName string, request map[string]any, output map[string]any, summary string) []questionrun.EvidenceItem {

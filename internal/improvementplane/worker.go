@@ -68,13 +68,25 @@ type toolExecutor interface {
 	Execute(name string, input map[string]any) (storepkg.ToolResult, error)
 }
 
+type removedToolExecutor struct{}
+
+func (removedToolExecutor) Execute(name string, input map[string]any) (storepkg.ToolResult, error) {
+	return storepkg.ToolResult{
+		Name:      name,
+		Available: false,
+		Status:    "failed",
+		Summary:   "platform tool gateway has been removed; migrate this improvement-plane action to native Hermes execution",
+		Input:     clonePayload(input),
+	}, errors.New("platform tool gateway has been removed; migrate this improvement-plane action to native Hermes execution")
+}
+
 func RunWorker(cfg config.Config, store storepkg.Store) error {
 	workerID := fmt.Sprintf("%s-worker", cfg.ServiceName)
 	runnerClients := map[string]runnerExecutor{
 		"eval":     clients.NewRunnerClientWithTimeout(cfg.RunnerURLForRole("eval"), cfg.RunnerTimeoutForRole("eval")),
 		"proposal": clients.NewRunnerClientWithTimeout(cfg.RunnerURLForRole("proposal"), cfg.RunnerTimeoutForRole("proposal")),
 	}
-	var toolClient toolExecutor = clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL)
+	var toolClient toolExecutor = removedToolExecutor{}
 	launcher, launcherErr := sandbox.NewLauncher(cfg)
 	for {
 		effect, ok, err := claimNextImprovementEffect(cfg, store, workerID, cfg.WorkItemLeaseDuration, cfg.SandboxPollInterval)
@@ -652,7 +664,7 @@ func processWorkspaceValidateEffect(cfg config.Config, store storepkg.Store, too
 		EventType:   "workspace.validation.completed",
 		Status:      events.StatusQueued,
 		StartedAt:   now,
-		Description: fmt.Sprintf("Validated workspace %s and queued governed draft PR open for branch %s.", workspace.ID, branchName),
+		Description: fmt.Sprintf("Validated workspace %s and queued draft PR open for branch %s.", workspace.ID, branchName),
 	}}
 	payload["trace_artifacts"] = []events.Artifact{
 		{
@@ -1619,7 +1631,7 @@ func processDraftPROpen(cfg config.Config, store storepkg.Store, toolClient tool
 	if _, err := submitImprovementActionCommand(store, intent.ID, commandKind, cfg.ServiceName, completed, map[string]any{
 		"operation_id":  request.OperationID,
 		"attempt_id":    attemptID,
-		"executor":      "tool-gateway",
+		"executor":      "native-hermes-required",
 		"provider":      firstNonEmpty(prResult.Provider, "github"),
 		"provider_ref":  prResult.ProviderRef,
 		"error_code":    improvementActionErrorCode(actionStatus),
@@ -2129,7 +2141,7 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 	contextRefs = append(contextRefs, improvementProposalMemoryRefs(store, proposal.CandidateKey)...)
 	contextRefs = append(contextRefs, improvementAttemptHistoryRefs(store, proposal.ID, attempt.ID)...)
 	prompt := fmt.Sprintf(
-		"Execute approved intervention attempt %d for proposal %s. Candidate=%s risk=%s scope=%s summary=%s. The approved intervention kind is %s with rationale %q, target surface %q, and validation plan %q. The authoritative target repository is %s. Start from the dense evidence pack: latest failing trace evidence, persisted workflow-attempt diagnostics, root-cause metadata, prior rejected or dismissed proposal memory, and prior attempt failures. Use rsi.trace_context first when you need more persisted runtime detail; use rsi.runner_execution or kubernetes.logs only if the persisted diagnostics are absent or incomplete. If recalled memory mentions a different repository, treat it as stale unless the supplied evidence pack explicitly supports it. Investigate the approved scope, ground the implementation in concrete files within %s, and return explicit visible reasoning, change_plan, validation_plan, retry_assessment, hypothesis_delta, and any governed proposed_actions needed for the next platform step.",
+		"Execute approved intervention attempt %d for proposal %s. Candidate=%s risk=%s scope=%s summary=%s. The approved intervention kind is %s with rationale %q, target surface %q, and validation plan %q. The authoritative target repository is %s. Start from the dense evidence pack: latest failing trace evidence, persisted workflow-attempt diagnostics, root-cause metadata, prior rejected or dismissed proposal memory, and prior attempt failures. Use native Hermes tools, MCP, and persisted trace evidence when you need more runtime detail. If recalled memory mentions a different repository, treat it as stale unless the supplied evidence pack explicitly supports it. Investigate the approved scope, ground the implementation in concrete files within %s, and return explicit visible reasoning, change_plan, validation_plan, retry_assessment, hypothesis_delta, and any proposed_actions needed for the next platform step.",
 		attempt.AttemptNumber,
 		proposal.ID,
 		proposal.CandidateKey,
@@ -2145,7 +2157,7 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 	)
 	if workspace != nil {
 		prompt = fmt.Sprintf(
-			"Implement approved repo-change attempt %d for proposal %s inside governed workspace %s. Candidate=%s risk=%s scope=%s summary=%s. The approved intervention rationale is %q, target surface is %q, and validation plan is %q. The authoritative repository is %s on branch %s. Use workspace tools to inspect, edit, diff, and validate only inside the allowed path globs. You must make at least one justified in-scope workspace mutation when recommending a repo change; if no safe in-scope mutation is warranted, return retry_assessment with a concrete failure_class and do not request PR open. The authoritative patch is the workspace git diff, not repo_patch text. Validation must be grounded in the same workspace. After validation succeeds, decide whether opening a draft PR is warranted; if yes, include exactly one proposed action kind=%q with title, body, branch_name, and base_ref in request_payload. Do not mutate GitHub directly.",
+			"Implement approved repo-change attempt %d for proposal %s inside workspace %s. Candidate=%s risk=%s scope=%s summary=%s. The approved intervention rationale is %q, target surface is %q, and validation plan is %q. The authoritative repository is %s on branch %s. Use native Hermes file, terminal, git, and MCP tools to inspect, edit, diff, and validate only inside the allowed path globs. You must make at least one justified in-scope workspace mutation when recommending a repo change; if no safe in-scope mutation is warranted, return retry_assessment with a concrete failure_class and do not request PR open. The authoritative patch is the workspace git diff, not repo_patch text. Validation must be grounded in the same workspace. After validation succeeds, decide whether opening a draft PR is warranted; if yes, include exactly one proposed action kind=%q with title, body, branch_name, and base_ref in request_payload. Do not mutate GitHub directly.",
 			attempt.AttemptNumber,
 			proposal.ID,
 			workspace.ID,

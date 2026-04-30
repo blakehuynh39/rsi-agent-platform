@@ -35,7 +35,6 @@ type Config struct {
 	ProactiveRunnerBaseURL             string
 	EvalRunnerBaseURL                  string
 	ProposalRunnerBaseURL              string
-	ToolGatewayBaseURL                 string
 	HonchoRuntimeBaseURL               string
 	ProdRunnerTimeout                  time.Duration
 	ProactiveRunnerTimeout             time.Duration
@@ -107,7 +106,6 @@ type Config struct {
 	HermesExecutionHeartbeatTimeout    time.Duration
 	DrainEnabled                       bool
 	DeploymentActiveExecutionPolicy    string
-	HermesNativeGovernedToolsEnabled   bool
 	HermesComputerRoot                 string
 	HermesRunRoot                      string
 	HermesArtifactRoot                 string
@@ -154,7 +152,6 @@ func Load(serviceName string) Config {
 		ProactiveRunnerBaseURL:             stringEnv("RSI_RUNNER_PROACTIVE_BASE_URL", ""),
 		EvalRunnerBaseURL:                  stringEnv("RSI_RUNNER_EVAL_BASE_URL", ""),
 		ProposalRunnerBaseURL:              stringEnv("RSI_RUNNER_PROPOSAL_BASE_URL", ""),
-		ToolGatewayBaseURL:                 stringEnv("RSI_TOOL_GATEWAY_BASE_URL", ""),
 		HonchoRuntimeBaseURL:               stringEnv("RSI_HONCHO_RUNTIME_BASE_URL", ""),
 		ProdRunnerTimeout:                  durationEnv("RSI_RUNNER_PROD_TIMEOUT", defaultProdRunnerTimeout),
 		ProactiveRunnerTimeout:             durationEnv("RSI_RUNNER_PROACTIVE_TIMEOUT", defaultProactiveRunnerTimeout),
@@ -226,7 +223,6 @@ func Load(serviceName string) Config {
 		HermesExecutionHeartbeatTimeout:    durationEnv("RSI_HERMES_EXECUTION_HEARTBEAT_TIMEOUT", 120*time.Second),
 		DrainEnabled:                       boolEnv("RSI_DRAIN_ENABLED", false),
 		DeploymentActiveExecutionPolicy:    stringEnv("RSI_DEPLOYMENT_ACTIVE_EXECUTION_POLICY", ""),
-		HermesNativeGovernedToolsEnabled:   boolEnv("RSI_HERMES_NATIVE_GOVERNED_TOOLS_ENABLED", false),
 		HermesComputerRoot:                 stringEnv("RSI_HERMES_COMPUTER_ROOT", "/workspace/company"),
 		HermesRunRoot:                      stringEnv("RSI_HERMES_RUN_ROOT", "/workspace/company/.rsi/runs"),
 		HermesArtifactRoot:                 stringEnv("RSI_HERMES_ARTIFACT_ROOT", "/workspace/company/artifacts"),

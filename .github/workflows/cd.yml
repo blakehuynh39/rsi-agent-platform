@@ -22,7 +22,6 @@ env:
   STORY_DEPLOYMENTS_REPOSITORY: storyprotocol/story-deployments
   STORY_DEPLOYMENTS_VALUES_FILE: rsi-platform/rsi-agent-platform/use1-stage.yaml
   CONTROL_PLANE_TAG: control-plane-${{ github.sha }}
-  TOOL_GATEWAY_TAG: tool-gateway-${{ github.sha }}
   IMPROVEMENT_PLANE_TAG: improvement-plane-${{ github.sha }}
   HERMES_EXECUTOR_TAG: hermes-executor-${{ github.sha }}
   HERMES_SKILL_EXPORTER_TAG: hermes-skill-exporter-${{ github.sha }}
@@ -102,12 +101,6 @@ jobs:
             tag_prefix: control-plane
             build_args: |
               SERVICE=control-plane
-          - name: tool-gateway
-            dockerfile: ./Dockerfile
-            repository: rsi-agent-platform
-            tag_prefix: tool-gateway
-            build_args: |
-              SERVICE=tool-gateway
           - name: improvement-plane
             dockerfile: ./Dockerfile
             repository: rsi-agent-platform
@@ -225,7 +218,6 @@ jobs:
           args=(
             --file "${{ env.STORY_DEPLOYMENTS_VALUES_FILE }}"
             --control-plane-tag "${{ env.CONTROL_PLANE_TAG }}"
-            --tool-gateway-tag "${{ env.TOOL_GATEWAY_TAG }}"
             --improvement-plane-tag "${{ env.IMPROVEMENT_PLANE_TAG }}"
             --hermes-executor-tag "${{ env.HERMES_EXECUTOR_TAG }}"
             --hermes-skill-exporter-tag "${{ env.HERMES_SKILL_EXPORTER_TAG }}"

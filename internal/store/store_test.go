@@ -1013,7 +1013,7 @@ func TestMemoryStoreSubmitCommandContextTransitionsProjectTraceArtifacts(t *test
 			IngestionID: trace.Summary.IngestionID,
 			WorkflowID:  trace.Summary.WorkflowID,
 			Plane:       "control",
-			Service:     "tool-gateway",
+			Service:     "native-hermes-required",
 			Actor:       "arch",
 			EventType:   "tool.requested",
 			Status:      events.StatusQueued,
@@ -1445,7 +1445,7 @@ func TestMemoryStoreSubmitCommandActionExecutionPersistsResult(t *testing.T) {
 			OccurredAt:  completed,
 			Payload: map[string]any{
 				"operation_id": "op-action-test",
-				"executor":     "tool-gateway",
+				"executor":     "native-hermes-required",
 				"provider":     "github",
 				"provider_ref": "provider-ref",
 				"started_at":   started,
@@ -1560,7 +1560,7 @@ func TestMemoryStoreSubmitCommandProjectsToolReadTrace(t *testing.T) {
 			OccurredAt:  completed,
 			Payload: map[string]any{
 				"operation_id":    "op-project-tool",
-				"executor":        "tool-gateway",
+				"executor":        "native-hermes-required",
 				"provider":        "github",
 				"provider_ref":    "tool-provider-ref",
 				"tool_call_id":    "tool-call-1",
@@ -1652,7 +1652,7 @@ func TestMemoryStoreSubmitCommandProjectsSlackReplyTrace(t *testing.T) {
 			OccurredAt:  completed,
 			Payload: map[string]any{
 				"operation_id":  "op-project-slack",
-				"executor":      "tool-gateway",
+				"executor":      "native-hermes-required",
 				"provider":      "slack",
 				"provider_ref":  "thread-reply-ref",
 				"summary":       "Posted Slack reply.",
@@ -2057,7 +2057,7 @@ func TestEvaluateTraceWorkflowContextBindingFailureCreatesRootCauseCandidate(t *
 				CaseID:         trace.Summary.CaseID,
 				TriggerEventID: trace.Summary.TriggerEventID,
 				Plane:          "control",
-				Service:        "tool-gateway",
+				Service:        "native-hermes-required",
 				Actor:          "arch",
 				EventType:      "tool.failed",
 				Status:         events.StatusNeedsHuman,
@@ -2134,7 +2134,7 @@ func TestEvaluateTraceWorkflowContextBindingFailureCreatesRootCauseCandidate(t *
 	if !strings.Contains(strings.ToLower(candidate.Hypothesis), "workflow") {
 		t.Fatalf("expected hypothesis to mention workflow binding, got %q", candidate.Hypothesis)
 	}
-	if candidate.ProposedScope != "control-plane + tool-gateway" {
+	if candidate.ProposedScope != "control-plane + native Hermes tools" {
 		t.Fatalf("expected bounded scope, got %q", candidate.ProposedScope)
 	}
 }

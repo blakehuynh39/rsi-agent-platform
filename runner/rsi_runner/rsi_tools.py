@@ -33,7 +33,7 @@ _READ_ONLY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     },
     "repo.read_file": {
         "name": "repo.read_file",
-        "description": "Read a file from the governed repository at a specific ref.",
+        "description": "Read a file from the repository at a specific ref.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -46,7 +46,7 @@ _READ_ONLY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     },
     "repo.search": {
         "name": "repo.search",
-        "description": "Search for text in the governed repository using the provider-backed code search surface.",
+        "description": "Search for text in the repository using the provider-backed code search surface.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -353,7 +353,7 @@ def _iso_timestamp(value: float) -> str:
 _WORKSPACE_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     "workspace.list_files": {
         "name": "workspace.list_files",
-        "description": "List files inside the governed attempt workspace.",
+        "description": "List files inside the attempt workspace.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -365,7 +365,7 @@ _WORKSPACE_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     },
     "workspace.read_file": {
         "name": "workspace.read_file",
-        "description": "Read a file from the governed attempt workspace.",
+        "description": "Read a file from the attempt workspace.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -378,7 +378,7 @@ _WORKSPACE_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     },
     "workspace.search": {
         "name": "workspace.search",
-        "description": "Search for text within the governed attempt workspace using ripgrep.",
+        "description": "Search for text within the attempt workspace using ripgrep.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -392,7 +392,7 @@ _WORKSPACE_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     },
     "workspace.git_history": {
         "name": "workspace.git_history",
-        "description": "Inspect commit history inside the governed attempt workspace.",
+        "description": "Inspect commit history inside the attempt workspace.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -406,7 +406,7 @@ _WORKSPACE_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     },
     "workspace.git_show": {
         "name": "workspace.git_show",
-        "description": "Inspect a historical commit or file revision inside the governed attempt workspace.",
+        "description": "Inspect a historical commit or file revision inside the attempt workspace.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -436,7 +436,7 @@ _WORKSPACE_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     },
     "workspace.write_file": {
         "name": "workspace.write_file",
-        "description": "Write file content inside the governed attempt workspace.",
+        "description": "Write file content inside the attempt workspace.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -450,7 +450,7 @@ _WORKSPACE_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     },
     "workspace.apply_patch": {
         "name": "workspace.apply_patch",
-        "description": "Apply a unified diff patch inside the governed attempt workspace.",
+        "description": "Apply a unified diff patch inside the attempt workspace.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -463,7 +463,7 @@ _WORKSPACE_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     },
     "workspace.git_status": {
         "name": "workspace.git_status",
-        "description": "Inspect git status inside the governed attempt workspace.",
+        "description": "Inspect git status inside the attempt workspace.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -474,7 +474,7 @@ _WORKSPACE_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     },
     "workspace.git_diff": {
         "name": "workspace.git_diff",
-        "description": "Inspect the current git diff inside the governed attempt workspace.",
+        "description": "Inspect the current git diff inside the attempt workspace.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -485,7 +485,7 @@ _WORKSPACE_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     },
     "workspace.run_validation": {
         "name": "workspace.run_validation",
-        "description": "Run bounded validation inside the governed attempt workspace.",
+        "description": "Run bounded validation inside the attempt workspace.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -543,8 +543,6 @@ def _build_tool_transport_maps() -> tuple[dict[str, str], dict[str, str]]:
 
 _CANONICAL_TO_TRANSPORT_TOOL_NAMES, _TRANSPORT_TO_CANONICAL_TOOL_NAMES = _build_tool_transport_maps()
 
-HERMES_GOVERNED_READONLY_TOOLSET = "rsi-governed-readonly"
-HERMES_GOVERNED_WORKSPACE_TOOLSET = "rsi-governed-workspace"
 HERMES_ARTIFACT_TOOLSET = "rsi-artifacts"
 
 _ARTIFACT_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
@@ -667,28 +665,6 @@ def transport_tool_schema(name: str) -> JsonToolFunctionSchema:
     return wrapped
 
 
-def governed_toolset_names() -> dict[str, list[str]]:
-    return {
-        HERMES_GOVERNED_READONLY_TOOLSET: list(READ_ONLY_RSI_TOOL_NAMES),
-        HERMES_GOVERNED_WORKSPACE_TOOLSET: list(WORKSPACE_RSI_TOOL_NAMES),
-    }
-
-
-def governed_toolset_definitions() -> list[JsonObject]:
-    definitions: list[JsonObject] = []
-    for toolset, names in governed_toolset_names().items():
-        for canonical_name in names:
-            definitions.append(
-                {
-                    "canonical_name": canonical_name,
-                    "transport_name": tool_transport_name(canonical_name),
-                    "toolset": toolset,
-                    "schema": transport_tool_schema(canonical_name),
-                }
-            )
-    return definitions
-
-
 def _artifact_toolset_definitions() -> list[JsonObject]:
     definitions: list[JsonObject] = []
     for canonical_name, schema in _ARTIFACT_TOOL_SCHEMAS.items():
@@ -709,7 +685,7 @@ def _artifact_toolset_definitions() -> list[JsonObject]:
 
 
 def rsi_plugin_toolset_definitions() -> list[JsonObject]:
-    return [*governed_toolset_definitions(), *_artifact_toolset_definitions()]
+    return _artifact_toolset_definitions()
 
 
 def normalize_tool_names(values: Iterable[str]) -> list[str]:
@@ -1645,8 +1621,8 @@ class CompositeToolProvider:
         readonly_names = ", ".join(self._readonly_tools.tool_names())
         if readonly_names:
             parts.append(
-                "Additional governed RSI tools are available through the platform tool gateway. "
-                f"Available tools: {readonly_names}. GitHub mutations are not exposed as governed RSI tools; when native terminal credentials are available, use gh from the company-computer terminal for explicitly requested issue, PR, or review work."
+                "Additional RSI tools are available through the native Hermes plugin. "
+                f"Available tools: {readonly_names}. When native terminal credentials are available, use gh from the company-computer terminal for explicitly requested issue, PR, or review work."
             )
         return "\n\n".join(part for part in parts if part)
 

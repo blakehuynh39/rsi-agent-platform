@@ -204,7 +204,7 @@ const traceDetailResponse = {
       id: "action-result-001",
       action_intent_id: "action-001",
       attempt_number: 1,
-      executor: "tool-gateway",
+      executor: "native-hermes",
       provider: "slack",
       status: "succeeded",
       started_at: "2026-04-11T12:03:00Z",

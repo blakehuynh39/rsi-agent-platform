@@ -22,7 +22,6 @@ from rsi_runner.hermes_runtime import HermesExecutionResult, HermesRuntime, Runn
 from rsi_runner.observability import execution_observation_id
 from rsi_runner.rsi_tools import (
     ReadOnlyToolBinding,
-    governed_toolset_definitions,
     tool_schema_wrappers,
     transport_tool_schema,
 )
@@ -44,7 +43,6 @@ def runner_env(role: str = "prod") -> dict[str, str]:
         "RSI_OPENROUTER_REQUIRE_PARAMETERS": "true",
         "RSI_HERMES_PIN": HERMES_TEST_PIN,
         "RSI_RUNNER_PUBLIC_BASE_URL": "https://staging-rsi-platform.storyprotocol.net",
-        "RSI_TOOL_GATEWAY_BASE_URL": "http://tool-gateway.internal:8080",
         "HERMES_HOME": "/tmp/hermes",
         "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": "/tmp/hermes/workspace",
         "RSI_EXECUTION_ENVELOPE_V1_ENABLED": "true",
@@ -306,8 +304,8 @@ class HermesRuntimeTests(unittest.TestCase):
                 api_signature_status="ok",
                 pin_status="ok",
                 plugin_status="ok",
-                required_toolsets=["rsi-governed-readonly"],
-                toolset_status={"rsi-governed-readonly": "ok"},
+                required_toolsets=["hermes-api-server"],
+                toolset_status={"hermes-api-server": "ok"},
                 session_db_status="ok",
                 errors=[],
                 checked_at_unix=1.0,
@@ -409,8 +407,8 @@ class HermesRuntimeTests(unittest.TestCase):
         compile(source, "rsi_context_engine/__init__.py", "exec")
         self.assertNotIn(": false", source)
         self.assertIn(": False", source)
-        self.assertIn("tool_call_started", source)
-        self.assertIn("tool_call_completed", source)
+        self.assertIn("artifact.write.started", source)
+        self.assertIn("artifact.write.completed", source)
         self.assertIn("artifact_write_file", source)
 
     def test_runner_task_reads_kubernetes_namespace_scope(self) -> None:
@@ -531,34 +529,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("hermes-api-server", phase_contract["required_toolsets"])
         self.assertNotIn("hermes-api-server", runtime._resolve_tool_policy(task).effective)
 
-    def test_native_terminal_loads_github_cli_credentials_from_tool_gateway(self) -> None:
-        captured: dict[str, object] = {}
-
-        class FakeResponse:
-            def __enter__(self):
-                return self
-
-            def __exit__(self, exc_type, exc, tb) -> bool:
-                return False
-
-            def read(self) -> bytes:
-                return json.dumps(
-                    {
-                        "token": "github-installation-token",
-                        "token_type": "bearer",
-                        "owner": "piplabs",
-                        "repo": "rsi-agent-platform",
-                        "repositories": ["piplabs/rsi-agent-platform", "piplabs/depin-backend"],
-                        "expires_at": "2026-04-29T22:00:00Z",
-                    }
-                ).encode("utf-8")
-
-        def fake_urlopen(req, timeout: int = 0):
-            captured["url"] = req.full_url
-            captured["timeout"] = timeout
-            captured["body"] = json.loads(req.data.decode("utf-8"))
-            return FakeResponse()
-
+    def test_native_terminal_loads_github_cli_credentials_from_pod_environment(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
                 "task": {
@@ -573,27 +544,25 @@ class HermesRuntimeTests(unittest.TestCase):
         )
         with tempfile.TemporaryDirectory() as tempdir, mock.patch(
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch("rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen), mock.patch.dict(
+        ), mock.patch.dict(
             os.environ,
             {
                 **runner_env("prod"),
                 "HERMES_HOME": str(Path(tempdir, "hermes-home")),
                 "RSI_HERMES_COMPUTER_ROOT": str(Path(tempdir, "company")),
                 "RSI_HERMES_NATIVE_TERMINAL_ENABLED": "true",
+                "GH_TOKEN": "github-installation-token",
             },
             clear=True,
         ):
             runtime = HermesRuntime(RunnerConfig.from_env())
             env, status = runtime._github_cli_environment(task)
 
-        self.assertEqual(captured["url"], "http://tool-gateway.internal:8080/api/github/installation-token")
-        self.assertEqual(captured["timeout"], 15)
-        self.assertEqual(captured["body"], {"repo": "rsi-agent-platform", "repos": ["rsi-agent-platform", "depin-backend"]})
         self.assertEqual(env["GH_TOKEN"], "github-installation-token")
         self.assertEqual(env["GITHUB_TOKEN"], "github-installation-token")
         self.assertEqual(env["GH_PROMPT_DISABLED"], "1")
         self.assertTrue(status["configured"])
-        self.assertEqual(status["repositories"], ["piplabs/rsi-agent-platform", "piplabs/depin-backend"])
+        self.assertEqual(status["repositories"], ["rsi-agent-platform", "depin-backend"])
         self.assertNotIn("token", status)
 
     def test_company_computer_bootstrap_writes_service_account_kubeconfig_for_terminal(self) -> None:
@@ -2212,13 +2181,9 @@ class HermesRuntimeTests(unittest.TestCase):
             runtime = HermesRuntime(RunnerConfig.from_env())
             result = runtime.execute_task(task)
 
-        self.assertFalse(result.ok)
-        self.assertEqual(result.raw["failure_class"], "runner_invalid_request")
-        self.assertNotIn("structured_output_error", result.raw)
-        self.assertEqual(result.raw["runner_diagnostics"]["failure_kind"], "invalid_request")
-        self.assertEqual(result.raw["runner_diagnostics"]["provider_error_param"], "tools[0].name")
-        self.assertEqual(result.raw["runner_diagnostics"]["invalid_tool_names"], ["repo.context"])
-        self.assertIsNone(FakeAIAgent.last_kwargs)
+        self.assertTrue(result.ok)
+        self.assertNotIn("runner_invalid_request", json.dumps(result.raw))
+        self.assertIsNotNone(FakeAIAgent.last_kwargs)
 
     def test_workflow_non_json_output_repairs_successfully(self) -> None:
         class RepairingAIAgent(FakeAIAgent):
@@ -2527,7 +2492,7 @@ class HermesRuntimeTests(unittest.TestCase):
             self.assertEqual(process._request["system_message"], "System directive")
             self.assertEqual(process._request["requested_skills"], ["architecture-diagram"])
             self.assertIn("todo", process._request["toolsets"])
-            self.assertIn("rsi-governed-readonly", process._request["toolsets"])
+            self.assertNotIn("rsi-governed-readonly", process._request["toolsets"])
             self.assertIn("mcp-rsi-task-trace-123-0-slack-abc", process._request["toolsets"])
             self.assertEqual(
                 process._request["task_scoped_mcp_servers"],
@@ -2681,7 +2646,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["structured_output"]["final_answer"], "Grounded but partial answer.")
         self.assertEqual(result.raw["runner_diagnostics"]["completion_verdict"], "partial")
         self.assertEqual(captured_requests[0]["phase_contract"]["history_policy"], "session")
-        self.assertIn("rsi-governed-readonly", captured_requests[0]["phase_contract"]["required_toolsets"])
+        self.assertNotIn("rsi-governed-readonly", captured_requests[0]["phase_contract"]["required_toolsets"])
 
     def test_native_render_request_payload_uses_local_artifact_dir_and_strips_governed_toolsets(self) -> None:
         structured = json.dumps(
@@ -2896,13 +2861,16 @@ class HermesRuntimeTests(unittest.TestCase):
                         "task_channel_id": "C123",
                         "task_thread_ts": "171000001.000100",
                         "tool_allowlist_effective": ["slack.upload_file"],
-                        "tool_gateway_base_url": "http://tool-gateway.internal",
                     }
                 ),
                 encoding="utf-8",
             )
             namespace: dict[str, object] = {}
             exec(_build_plugin_module(), namespace)
+            self.assertNotIn("slack_upload_file", namespace["_TRANSPORT_TO_CANONICAL"])
+            with self.assertRaises(KeyError):
+                namespace["_tool_handler"]("slack_upload_file")
+            return
             namespace["urlrequest"].urlopen = fake_urlopen
 
             def fake_render(cmd, check: bool, capture_output: bool, timeout: int):
@@ -3541,8 +3509,8 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(runtime.metadata["bundled_skills_available"])
         self.assertEqual(runtime.metadata["bundled_skills_sync_status"], "synced")
         self.assertEqual(runtime.metadata["hermes_config_parity_status"], "configured")
-        self.assertTrue(runtime.metadata["observation_sink_configured"])
-        self.assertEqual(runtime.metadata["observation_sink_status"], "configured")
+        self.assertFalse(runtime.metadata["observation_sink_configured"])
+        self.assertEqual(runtime.metadata["observation_sink_status"], "not_configured")
         self.assertTrue(runtime.metadata["direct_delivery_phase_enabled"])
 
     def test_skill_mentions_detect_leading_slash_command(self) -> None:
@@ -3767,17 +3735,17 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertTrue(result.ok)
         self.assertEqual(FakeAIAgent.last_kwargs["max_iterations"], 5)
-        self.assertIn("repo_context", FakeAIAgent.last_valid_tool_names)
-        self.assertIn("rsi_candidate_context", FakeAIAgent.last_valid_tool_names)
+        self.assertNotIn("repo_context", FakeAIAgent.last_valid_tool_names)
+        self.assertNotIn("rsi_candidate_context", FakeAIAgent.last_valid_tool_names)
         self.assertNotIn("github.create_pr", FakeAIAgent.last_valid_tool_names)
         self.assertNotIn("honcho_conclude", FakeAIAgent.last_valid_tool_names)
         self.assertEqual(result.raw["tool_policy_mode"], "enforced_read_only")
         self.assertIn("github.create_pr", result.raw["blocked_tool_names"])
         self.assertIn("honcho_conclude", result.raw["blocked_tool_names"])
-        self.assertIn("repo.context", result.raw["tool_allowlist_effective"])
-        self.assertIn("rsi.candidate_context", result.raw["tool_allowlist_effective"])
-        self.assertIn("repo_context", result.raw["tool_transport_allowlist_effective"])
-        self.assertIn("rsi_candidate_context", result.raw["tool_transport_allowlist_effective"])
+        self.assertNotIn("repo.context", result.raw["tool_allowlist_effective"])
+        self.assertNotIn("rsi.candidate_context", result.raw["tool_allowlist_effective"])
+        self.assertNotIn("repo_context", result.raw["tool_transport_allowlist_effective"])
+        self.assertNotIn("rsi_candidate_context", result.raw["tool_transport_allowlist_effective"])
 
     def test_proposal_role_keeps_helper_toolsets_for_governed_tasks(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -3797,7 +3765,7 @@ class HermesRuntimeTests(unittest.TestCase):
 
         with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
             os.environ,
-            {**runner_env("proposal"), "RSI_HERMES_NATIVE_GOVERNED_TOOLS_ENABLED": "true"},
+            runner_env("proposal"),
             clear=True,
         ):
             runtime = HermesRuntime(RunnerConfig.from_env())
@@ -3807,7 +3775,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("todo", toolsets)
         self.assertIn("session_search", toolsets)
 
-    def test_workflow_toolsets_do_not_duplicate_governed_entries(self) -> None:
+    def test_workflow_toolsets_never_include_governed_entries(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
                 "task": {
@@ -3826,15 +3794,15 @@ class HermesRuntimeTests(unittest.TestCase):
 
         with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
             os.environ,
-            {**runner_env("proposal"), "RSI_TOOL_GATEWAY_BASE_URL": "http://tool-gateway.test", "RSI_HERMES_NATIVE_GOVERNED_TOOLS_ENABLED": "true"},
+            runner_env("proposal"),
             clear=True,
         ):
             runtime = HermesRuntime(RunnerConfig.from_env())
 
         toolsets = runtime._native_toolsets_for_task(task)
 
-        self.assertEqual(toolsets.count("rsi-governed-readonly"), 1)
-        self.assertEqual(toolsets.count("rsi-governed-workspace"), 1)
+        self.assertEqual(toolsets.count("rsi-governed-readonly"), 0)
+        self.assertEqual(toolsets.count("rsi-governed-workspace"), 0)
 
     def test_read_only_workflow_toolsets_do_not_include_workspace_writes(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -3855,14 +3823,14 @@ class HermesRuntimeTests(unittest.TestCase):
 
         with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
             os.environ,
-            {**runner_env("prod"), "RSI_TOOL_GATEWAY_BASE_URL": "http://tool-gateway.test"},
+            runner_env("prod"),
             clear=True,
         ):
             runtime = HermesRuntime(RunnerConfig.from_env())
 
         toolsets = runtime._native_toolsets_for_task(task)
 
-        self.assertEqual(toolsets.count("rsi-governed-readonly"), 1)
+        self.assertEqual(toolsets.count("rsi-governed-readonly"), 0)
         self.assertEqual(toolsets.count("rsi-governed-workspace"), 0)
 
     def test_workflow_artifact_toolset_requires_artifact_task_scope(self) -> None:
@@ -3939,15 +3907,15 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertTrue(result.ok)
         self.assertEqual(FakeAIAgent.last_kwargs["max_iterations"], 20)
-        self.assertIn("repo_context", FakeAIAgent.last_valid_tool_names)
-        self.assertIn("knowledge_context", FakeAIAgent.last_valid_tool_names)
+        self.assertNotIn("repo_context", FakeAIAgent.last_valid_tool_names)
+        self.assertNotIn("knowledge_context", FakeAIAgent.last_valid_tool_names)
         self.assertNotIn("github.create_pr", FakeAIAgent.last_valid_tool_names)
         self.assertEqual(result.raw["tool_policy_mode"], "enforced_read_only")
         self.assertEqual(result.raw["task_timeout_seconds"], 900)
         self.assertEqual(result.raw["transport_timeout_seconds"], 930)
         self.assertIn("github.create_pr", result.raw["blocked_tool_names"])
-        self.assertIn("repo_context", result.raw["tool_transport_allowlist_effective"])
-        self.assertIn("knowledge_context", result.raw["tool_transport_allowlist_effective"])
+        self.assertNotIn("repo_context", result.raw["tool_transport_allowlist_effective"])
+        self.assertNotIn("knowledge_context", result.raw["tool_transport_allowlist_effective"])
 
     def test_prod_role_with_bound_workspace_admits_read_only_workspace_tools(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -3975,11 +3943,11 @@ class HermesRuntimeTests(unittest.TestCase):
             result = runtime.execute_task(task)
 
         self.assertTrue(result.ok)
-        self.assertIn("workspace_git_history", FakeAIAgent.last_valid_tool_names)
-        self.assertIn("workspace_read_file", FakeAIAgent.last_valid_tool_names)
+        self.assertNotIn("workspace_git_history", FakeAIAgent.last_valid_tool_names)
+        self.assertNotIn("workspace_read_file", FakeAIAgent.last_valid_tool_names)
         self.assertNotIn("workspace_write_file", FakeAIAgent.last_valid_tool_names)
-        self.assertIn("workspace.git_history", result.raw["tool_allowlist_effective"])
-        self.assertIn("workspace.read_file", result.raw["tool_allowlist_effective"])
+        self.assertNotIn("workspace.git_history", result.raw["tool_allowlist_effective"])
+        self.assertNotIn("workspace.read_file", result.raw["tool_allowlist_effective"])
         self.assertIn("workspace.write_file", result.raw["blocked_tool_names"])
 
     def test_question_reduce_uses_openrouter_hermes_reducer_without_tools(self) -> None:
@@ -4135,13 +4103,12 @@ class HermesRuntimeTests(unittest.TestCase):
             runtime = HermesRuntime(RunnerConfig.from_env())
             with mock.patch.object(runtime._mcp_adapter, "register_task_servers", return_value=registration) as register_mock, mock.patch.object(
                 runtime._mcp_adapter, "cleanup_registration", side_effect=fake_cleanup
-            ) as cleanup_mock, mock.patch("rsi_runner.hermes_runtime.urlrequest.urlopen") as urlopen:
+            ) as cleanup_mock:
                 result = runtime.execute_task(task)
 
         self.assertTrue(result.ok)
         self.assertEqual(register_mock.call_count, 1)
         self.assertEqual(cleanup_mock.call_count, 1)
-        self.assertEqual(urlopen.call_count, 0)
         self.assertEqual(
             FakeAIAgent.last_kwargs["enabled_toolsets"],
             ["todo", "session_search", "mcp-rsi-task-trace-123-0-slack-abc"],
@@ -4220,14 +4187,15 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(runtime_config["parameters"]["required"], [])
 
         invalid: dict[str, list[str]] = {}
-        for item in governed_toolset_definitions():
+        from rsi_runner.rsi_tools import rsi_plugin_toolset_definitions
+        for item in rsi_plugin_toolset_definitions():
             schema = item["schema"]
             paths = strict_schema_violations(schema.get("parameters"), "parameters")
             if paths:
                 invalid[schema["name"]] = paths
         self.assertEqual(invalid, {})
 
-    def test_default_policy_allowlist_includes_slack_upload_file_when_tool_gateway_enabled(self) -> None:
+    def test_default_policy_allowlist_excludes_removed_slack_upload_file(self) -> None:
         with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
             os.environ, runner_env("prod"), clear=True
         ):
@@ -4235,7 +4203,7 @@ class HermesRuntimeTests(unittest.TestCase):
 
         allowlist = runtime._default_policy_allowlist(execution_mode="")
 
-        self.assertIn("slack.upload_file", allowlist)
+        self.assertNotIn("slack.upload_file", allowlist)
 
     def test_workflow_with_mcp_routes_through_hermes_loop_and_records_agentic_diagnostics(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -4283,19 +4251,17 @@ class HermesRuntimeTests(unittest.TestCase):
             runtime = HermesRuntime(RunnerConfig.from_env())
             with mock.patch.object(runtime._mcp_adapter, "register_task_servers", return_value=registration) as register_mock, mock.patch.object(
                 runtime._mcp_adapter, "cleanup_registration", side_effect=fake_cleanup
-            ) as cleanup_mock, mock.patch("rsi_runner.hermes_runtime.urlrequest.urlopen") as urlopen:
+            ) as cleanup_mock:
                 result = runtime.execute_task(task)
 
         self.assertTrue(result.ok)
         self.assertGreaterEqual(register_mock.call_count, 1)
         self.assertGreaterEqual(cleanup_mock.call_count, 1)
-        self.assertEqual(urlopen.call_count, 0)
         self.assertEqual(
             FakeAIAgent.last_kwargs["enabled_toolsets"],
             [
                 "todo",
                 "session_search",
-                "rsi-governed-readonly",
                 "mcp-rsi-task-trace-workflow-123-0-slack-abc",
             ],
         )
@@ -4423,12 +4389,10 @@ class HermesRuntimeTests(unittest.TestCase):
         tool_names = sorted(tool["function"]["name"] for tool in agent.tools)
         self.assertIn("search_messages", tool_names)
         self.assertIn("send_message", tool_names)
-        self.assertIn("slack_upload_file", tool_names)
         self.assertIn("todo_write", tool_names)
-        self.assertIn("repo_context", agent.valid_tool_names)
+        self.assertNotIn("repo_context", agent.valid_tool_names)
         self.assertIn("search_messages", agent.valid_tool_names)
         self.assertIn("send_message", agent.valid_tool_names)
-        self.assertIn("slack_upload_file", agent.valid_tool_names)
         self.assertIn("todo_write", agent.valid_tool_names)
 
     def test_task_scoped_mcp_adapter_fails_closed_for_custom_read_only_server_without_tool_names(self) -> None:
@@ -4856,7 +4820,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(BudgetReducerAIAgent.init_history[1]["max_iterations"], 1)
         self.assertEqual(BudgetReducerAIAgent.init_history[1]["enabled_toolsets"], [])
         self.assertEqual(BudgetReducerAIAgent.init_history[1]["provider"], "openrouter")
-        self.assertIn("repo_context", BudgetReducerAIAgent.run_history[0]["valid_tool_names"])
+        self.assertNotIn("repo_context", BudgetReducerAIAgent.run_history[0]["valid_tool_names"])
         self.assertEqual(BudgetReducerAIAgent.run_history[1]["valid_tool_names"], [])
         self.assertIn('"termination_reason": "iteration_budget_exhausted"', BudgetReducerAIAgent.run_history[1]["prompt"])
         self.assertNotIn("Earlier thread message", BudgetReducerAIAgent.run_history[1]["prompt"])
@@ -5152,7 +5116,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("Grounded context summary: Compact grounded context for render.", ArtifactWorkflowAIAgent.run_history[1]["prompt"])
         self.assertNotIn("repo_context", ArtifactWorkflowAIAgent.run_history[1]["valid_tool_names"])
         self.assertNotIn("repo_context", ArtifactWorkflowAIAgent.run_history[2]["valid_tool_names"])
-        self.assertIn("slack_upload_file", ArtifactWorkflowAIAgent.run_history[2]["valid_tool_names"])
+        self.assertNotIn("slack_upload_file", ArtifactWorkflowAIAgent.run_history[2]["valid_tool_names"])
         produced = result.raw["structured_output"]["produced_artifacts"]
         self.assertEqual(len(produced), 1)
         self.assertTrue(artifact_ref.startswith("file://"))
@@ -5452,12 +5416,12 @@ class HermesRuntimeTests(unittest.TestCase):
             tool_policy = runtime._resolve_tool_policy(task)
             native_toolsets = runtime._native_toolsets_for_task(task)
 
-        self.assertIn("workspace.write_file", tool_policy.effective)
-        self.assertIn("workspace.read_file", tool_policy.effective)
+        self.assertNotIn("workspace.write_file", tool_policy.effective)
+        self.assertNotIn("workspace.read_file", tool_policy.effective)
         self.assertNotIn("workspace.git_history", tool_policy.effective)
         self.assertNotIn("repo.context", tool_policy.effective)
         self.assertNotIn("slack.upload_file", tool_policy.effective)
-        self.assertIn("rsi-governed-workspace", native_toolsets)
+        self.assertNotIn("rsi-governed-workspace", native_toolsets)
 
     def test_artifact_workflow_preserves_native_artifact_destination_across_phases(self) -> None:
         executed_tasks: list[RunnerTaskRequest] = []
@@ -6862,7 +6826,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(runtime.metadata["honcho_runtime_status"]["workspace"], "rsi-stage")
         self.assertEqual(runtime.metadata["session_continuity_status"], "ok")
         self.assertEqual(runtime.metadata["honcho_environment_effective"], "production")
-        self.assertIn("repo.context", runtime.metadata["tool_allowlist_effective"])
+        self.assertNotIn("repo.context", runtime.metadata["tool_allowlist_effective"])
 
     def test_prod_runtime_metadata_reports_live_contract(self) -> None:
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(

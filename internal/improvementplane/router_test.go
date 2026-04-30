@@ -188,7 +188,7 @@ func TestRouterConversationCaseAndTraceEndpoints(t *testing.T) {
 		Kind:           action.KindSlackPost,
 		CreatedAt:      now,
 	}, "router-conversation", map[string]any{
-		"executor":     "tool-gateway",
+		"executor":     "native-hermes-required",
 		"provider":     "slack",
 		"provider_ref": "slack-provider-ref",
 	})
@@ -848,7 +848,7 @@ func TestRouterFeedbackAndReplayRoutesSubmitProblemLineCommands(t *testing.T) {
 		Kind:           action.KindToolRead,
 		CreatedAt:      now,
 	}, "router-feedback", map[string]any{
-		"executor":     "tool-gateway",
+		"executor":     "native-hermes-required",
 		"provider":     "github",
 		"provider_ref": "repo-activity-ref",
 	})

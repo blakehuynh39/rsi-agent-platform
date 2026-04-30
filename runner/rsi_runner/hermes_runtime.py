@@ -16,9 +16,7 @@ import time
 import uuid
 from numbers import Number
 from typing import Any
-from urllib import error as urlerror
 from urllib import parse as urlparse
-from urllib import request as urlrequest
 
 from .json_types import JsonObject, JsonToolWrapperSchema, JsonValue
 
@@ -35,20 +33,11 @@ from .execution_contract import (
 from .observability import ObservationEmitter, execution_observation_id
 from .rsi_tools import (
     BLOCKED_HONCHO_TOOLS,
-    CompositeToolProvider,
     HERMES_ARTIFACT_TOOLSET,
-    HERMES_GOVERNED_READONLY_TOOLSET,
-    HERMES_GOVERNED_WORKSPACE_TOOLSET,
-    IMPLEMENT_RSI_TOOL_NAMES,
     READ_ONLY_HONCHO_TOOLS,
-    READ_ONLY_RSI_TOOL_NAMES,
-    READ_ONLY_WORKSPACE_RSI_TOOL_NAMES,
-    ReadOnlyToolBinding,
-    WORKSPACE_RSI_TOOL_NAMES,
     canonical_tool_name,
     normalize_tool_names,
     tool_transport_name,
-    tool_schema_wrappers,
 )
 from .session_manager import MemoryTracker, SessionContext, SessionManager, stable_session_id
 
@@ -61,7 +50,6 @@ ROLE_TASK_TYPES = {
 
 logger = logging.getLogger(__name__)
 
-NATIVE_HERMES_DIAGNOSE_TOOLS = frozenset({"todo", "session_search"})
 DEFAULT_HERMES_NATIVE_TOOLSETS = ("terminal", "file")
 QUESTION_RUN_BOUNDED_STOP_TERMINATION_REASONS = frozenset(
     {
@@ -1003,8 +991,7 @@ class HermesRuntime:
         self._executor_cancel_requests: set[str] = set()
         self._company_computer_bootstrap_status = self._configure_company_computer_substrate()
         self._configure_runtime()
-        required_toolsets = [HERMES_GOVERNED_READONLY_TOOLSET]
-        required_toolsets.extend(self._hermes_native_toolsets())
+        required_toolsets = self._hermes_native_toolsets()
         self._contract_status = validate_hermes_contract(
             expected_pin=config.hermes_pin,
             hermes_home=config.hermes_home,
@@ -1186,7 +1173,7 @@ class HermesRuntime:
     @property
     def metadata(self) -> JsonObject:
         adapter_meta = self._adapter.metadata
-        observation_sink_configured = bool(self._config.tool_gateway_base_url)
+        observation_sink_configured = False
         return {
             "status": "ok" if self.available and self._session_manager.skills_healthy else "degraded",
             "role": self._role,
@@ -1280,7 +1267,6 @@ class HermesRuntime:
             "context_engine_mode": adapter_meta.context_engine_mode,
             "context_engine_status": adapter_meta.context_engine_status,
             "lifecycle_hook_status": adapter_meta.lifecycle_hook_status,
-            "governed_tools_status": adapter_meta.governed_tools_status,
             "honcho_configured": self._config.honcho_api_key_configured or bool(self._config.honcho_base_url),
             "honcho_available": self._session_manager.honcho_available,
             "honcho_runtime_status": {
@@ -1508,13 +1494,6 @@ class HermesRuntime:
             expand_skills=False,
         )
 
-    def _native_governed_tools_enabled(self, task: RunnerTaskRequest) -> bool:
-        if not self._config.hermes_native_governed_tools_enabled:
-            return False
-        if self._role != "proposal":
-            return False
-        return (task.execution_mode or "").strip().lower() in {"diagnose", "implement"}
-
     def _execution_phase(self, task: RunnerTaskRequest) -> str:
         return (task.execution_phase or "").strip().lower() or "main"
 
@@ -1576,25 +1555,9 @@ class HermesRuntime:
     def _native_toolsets_for_task(self, task: RunnerTaskRequest, *, extra_toolsets: list[str] | None = None) -> list[str]:
         toolsets: list[str] = []
         execution_phase = self._execution_phase(task)
-        native_governed_tools = self._native_governed_tools_enabled(task)
         execution_mode = (task.execution_mode or "").strip().lower()
-        if execution_phase not in {"render", "deliver"} and (
-            task.task_type in {"workflow", "question_gather", "question_expand"} or native_governed_tools
-        ):
+        if execution_phase not in {"render", "deliver"} and task.task_type in {"workflow", "question_gather", "question_expand", "proposal"}:
             toolsets.extend(["todo", "session_search"])
-        add_workflow_governed_readonly = task.task_type == "workflow" and self._config.tool_gateway_base_url
-        add_workflow_governed_workspace = add_workflow_governed_readonly and (
-            execution_mode in {"implement", "artifact_render"} or execution_phase == "render"
-        )
-        if add_workflow_governed_readonly:
-            toolsets.append(HERMES_GOVERNED_READONLY_TOOLSET)
-        if add_workflow_governed_workspace:
-            toolsets.append(HERMES_GOVERNED_WORKSPACE_TOOLSET)
-        if native_governed_tools:
-            if not add_workflow_governed_readonly:
-                toolsets.append(HERMES_GOVERNED_READONLY_TOOLSET)
-            if (execution_mode in {"implement", "artifact_render"} or execution_phase == "render") and not add_workflow_governed_workspace:
-                toolsets.append(HERMES_GOVERNED_WORKSPACE_TOOLSET)
         toolsets.extend(self._hermes_native_toolsets())
         if execution_phase == "render" or (
             task.task_type == "workflow"
@@ -2200,7 +2163,6 @@ class HermesRuntime:
             "context_engine_mode": adapter_meta.context_engine_mode,
             "context_engine_status": adapter_meta.context_engine_status,
             "lifecycle_hook_status": adapter_meta.lifecycle_hook_status,
-            "governed_tools_status": adapter_meta.governed_tools_status,
             "base_url": self._base_url,
             "hermes_executor_workspace_root": self._config.hermes_executor_workspace_root,
             "hermes_computer_root": self._config.hermes_computer_root,
@@ -2401,8 +2363,6 @@ class HermesRuntime:
         required_toolsets: list[str] = []
         if execution_phase == "render":
             required_toolsets.append(HERMES_ARTIFACT_TOOLSET)
-        elif task.task_type == "workflow" and execution_phase not in {"deliver"} and self._config.tool_gateway_base_url:
-            required_toolsets.append(HERMES_GOVERNED_READONLY_TOOLSET)
         required_toolsets.extend(self._hermes_native_toolsets())
         return {
             "execution_phase": execution_phase,
@@ -2426,52 +2386,23 @@ class HermesRuntime:
         if self._role not in {"prod", "proactive"}:
             status["reason"] = "runner_role_not_eligible"
             return {}, status
-        if not self._config.tool_gateway_base_url:
-            status["reason"] = "tool_gateway_unavailable"
-            return {}, status
         repo = str(task.repo or "").strip()
         if not repo:
             status["reason"] = "missing_repo"
             return {}, status
         repos = normalize_tool_names([repo, *task.repo_allowlist])
-        payload = {"repo": repo, "repos": repos}
-        endpoint = self._config.tool_gateway_base_url.rstrip("/") + "/api/github/installation-token"
-        request = urlrequest.Request(
-            endpoint,
-            data=json.dumps(payload, ensure_ascii=True, sort_keys=True).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        try:
-            with urlrequest.urlopen(request, timeout=15) as response:
-                parsed = json.loads(response.read().decode("utf-8"))
-        except urlerror.HTTPError as exc:
-            body = ""
-            try:
-                body = exc.read().decode("utf-8")
-            except Exception:
-                body = ""
-            status.update({"status": "failed", "reason": f"http_{exc.code}", "error": _truncate_string(body, 1000)})
-            return {}, status
-        except (OSError, ValueError, json.JSONDecodeError) as exc:
-            status.update({"status": "failed", "reason": "request_failed", "error": str(exc)})
-            return {}, status
-        parsed_object = _json_object_or_empty(parsed)
-        token = _string_or_json(parsed_object.get("token"))
+        token = str(os.getenv("GH_TOKEN", "") or os.getenv("GITHUB_TOKEN", "") or "").strip()
         if not token:
-            status.update({"status": "failed", "reason": "missing_token", "error": _string_or_json(parsed_object.get("error"))})
+            status.update({"status": "failed", "reason": "missing_github_token"})
             return {}, status
-        repositories = _string_list_or_empty(parsed_object.get("repositories"))
         status.update(
             {
                 "configured": True,
                 "status": "configured",
-                "reason": "",
-                "owner": _string_or_json(parsed_object.get("owner")),
-                "repo": _string_or_json(parsed_object.get("repo")) or repo,
-                "repositories": repositories,
-                "expires_at": _string_or_json(parsed_object.get("expires_at")),
-                "skipped_repositories": _json_object_list(parsed_object.get("skipped_repositories")),
+                "reason": "pod_environment",
+                "repo": repo,
+                "repositories": repos,
+                "provider_ref": "pod_environment",
             }
         )
         return {
@@ -2898,12 +2829,6 @@ class HermesRuntime:
         effective_task_timeout = self._effective_task_timeout(task)
         configured_max_iterations = max_iterations_override if max_iterations_override and max_iterations_override > 0 else self._max_iterations
         toolsets = self._native_toolsets_for_task(task)
-        if execution_phase == "render":
-            toolsets = [
-                item
-                for item in toolsets
-                if item not in {HERMES_GOVERNED_READONLY_TOOLSET, HERMES_GOVERNED_WORKSPACE_TOOLSET}
-            ]
         toolsets = normalize_tool_names([*toolsets, *agentic_mcp_registration.enabled_toolsets])
         phase_contract = self._native_executor_phase_contract(task, toolsets)
         missing_phase_toolsets = _string_list_or_empty(phase_contract.get("missing_required_toolsets"))
@@ -3612,21 +3537,6 @@ class HermesRuntime:
         selected_context_surfaces: list[JsonObject] = []
         started_by_id: dict[str, JsonObject] = {}
         started_by_name: dict[str, list[JsonObject]] = {}
-        extractor = ReadOnlyToolBinding(
-            base_url="",
-            allowed_tool_names=[],
-            task_repo=task.repo,
-            task_repo_ref=task.repo_ref,
-            task_prompt=self._original_task_prompt(task),
-            task_channel_id=task.channel_id,
-            task_thread_ts=task.thread_ts,
-            task_context_summary=task.context_summary,
-            trace_id=task.trace_id,
-            session_scope_kind=task.session_scope_kind,
-            session_scope_id=task.session_scope_id,
-            context_refs=list(task.context_refs),
-            kubernetes_read_namespaces=list(task.kubernetes_read_namespaces),
-        )
         for index, item in enumerate(lifecycle_events):
             event_name = self._lifecycle_event_name(item)
             if event_name not in {"tool_call_started", "tool_call_completed"}:
@@ -3677,10 +3587,9 @@ class HermesRuntime:
                 tool_record["created_at"] = recorded_at
             tool_calls.append(tool_record)
             evidence_items.extend(
-                extractor._extract_evidence_items(
-                    canonical_name=tool_name,
+                self._native_lifecycle_evidence_items(
+                    tool_name=tool_name,
                     tool_call_id=tool_call_id,
-                    request_payload=request_payload,
                     output_payload=output_payload,
                     summary=summary,
                     provider_ref=provider_ref,
@@ -3703,6 +3612,54 @@ class HermesRuntime:
             "evidence_items": evidence_items,
             "selected_context_surfaces": selected_context_surfaces,
         }
+
+    def _native_lifecycle_evidence_items(
+        self,
+        *,
+        tool_name: str,
+        tool_call_id: str,
+        output_payload: JsonObject,
+        summary: str,
+        provider_ref: str,
+    ) -> list[JsonObject]:
+        items: list[JsonObject] = []
+        if tool_name == "repo.search":
+            for index, match in enumerate(output_payload.get("matches") if isinstance(output_payload.get("matches"), list) else []):
+                if not isinstance(match, dict):
+                    continue
+                path = _string_or_json(match.get("path"))
+                snippet = _string_or_json(match.get("snippet"))
+                if not path and not snippet:
+                    continue
+                items.append(
+                    {
+                        "id": f"{tool_call_id}:match:{index + 1}",
+                        "source": "native_lifecycle",
+                        "tool_name": tool_name,
+                        "tool_call_id": tool_call_id,
+                        "path": path,
+                        "snippet": snippet,
+                        "summary": summary,
+                        "provider_ref": provider_ref,
+                    }
+                )
+        if tool_name == "repo.read_file":
+            path = _string_or_json(output_payload.get("path"))
+            content = _string_or_json(output_payload.get("content"))
+            if path or content:
+                items.append(
+                    {
+                        "id": f"{tool_call_id}:file",
+                        "source": "native_lifecycle",
+                        "tool_name": tool_name,
+                        "tool_call_id": tool_call_id,
+                        "path": path,
+                        "snippet": content[:4000],
+                        "summary": summary,
+                        "provider_ref": provider_ref,
+                    }
+                )
+        return items
 
     def _lifecycle_event_name(self, item: JsonObject) -> str:
         raw = first_non_empty(_string_or_json(item.get("event_type")), _string_or_json(item.get("event"))).replace(".", "_")
@@ -3891,12 +3848,6 @@ class HermesRuntime:
 
     def _default_policy_allowlist(self, execution_mode: str) -> list[str]:
         permitted = set(READ_ONLY_HONCHO_TOOLS)
-        if self._config.tool_gateway_base_url:
-            permitted.update(READ_ONLY_RSI_TOOL_NAMES)
-        if self._role == "proposal" and self._config.hermes_native_governed_tools_enabled and execution_mode.strip().lower() == "diagnose":
-            permitted.update(NATIVE_HERMES_DIAGNOSE_TOOLS)
-        if self._role == "proposal" and execution_mode.strip().lower() == "implement":
-            permitted.update(WORKSPACE_RSI_TOOL_NAMES)
         return sorted(permitted)
 
     def _resolve_tool_policy(self, task: RunnerTaskRequest) -> ToolPolicy:
@@ -3915,11 +3866,6 @@ class HermesRuntime:
                 custom_tool_transport_map={},
             )
         permitted = set(self._default_policy_allowlist(execution_mode=execution_mode))
-        if self._config.tool_gateway_base_url and (task.workspace_id or task.attempt_id):
-            permitted.update(READ_ONLY_WORKSPACE_RSI_TOOL_NAMES)
-        if self._config.tool_gateway_base_url and execution_phase == "render":
-            permitted.update(READ_ONLY_WORKSPACE_RSI_TOOL_NAMES)
-            permitted.update(ARTIFACT_RENDER_RSI_TOOL_NAMES)
         fallback_allowlist = sorted(permitted)
         if task.task_type in {"question_gather", "question_expand"} and requested:
             fallback_allowlist = requested
@@ -3933,11 +3879,11 @@ class HermesRuntime:
             effective = ["slack.upload_file"] if "slack.upload_file" in requested else []
         blocked = [name for name in requested if name not in permitted and name not in {"slack.history", "slack.search", "slack.reply"}]
         memory_tools = sorted([name for name in effective if name in READ_ONLY_HONCHO_TOOLS])
-        custom_tools = sorted([name for name in effective if name in IMPLEMENT_RSI_TOOL_NAMES])
+        custom_tools: list[str] = []
         transport_effective, custom_tool_transport_map, _ = _transport_tool_policy(custom_tools, memory_tools)
         mode = self._tool_policy_mode
         if self._role == "proposal" and execution_mode == "implement":
-            mode = "governed_workspace"
+            mode = "native_workspace"
         return ToolPolicy(
             mode=mode,
             requested=requested,
@@ -4041,7 +3987,6 @@ class HermesRuntime:
                 "task_slack_history_focus": query_hints.get("slack_history_focus", ""),
                 "task_slack_search_query": query_hints.get("slack_search_query", ""),
                 "context_refs": task.context_refs,
-                "tool_gateway_base_url": self._config.tool_gateway_base_url or "",
                 "tool_timeout_seconds": 30,
                 "tool_allowlist_effective": tool_policy.effective,
                 "tool_transport_allowlist_effective": tool_policy.transport_effective,
@@ -5405,92 +5350,8 @@ class HermesRuntime:
         current_tools = list(getattr(agent, "tools", []) or [])
         current_valid = set(getattr(agent, "valid_tool_names", set()) or set())
         setattr(agent, "_rsi_readonly_tool_binding", None)
-        native_governed_tools = self._native_governed_tools_enabled(task)
-        allowed_names = set(tool_policy.effective)
-        preserved_tool_names = self._preserved_native_tool_names(task, current_tools)
-        filtered_tools = current_tools
-        query_hints = self._question_default_query_hints(task)
-        if native_governed_tools:
-            allowed_transport_names = {
-                _transport_name_or_self(name)
-                for name in tool_policy.effective
-                if name not in BLOCKED_HONCHO_TOOLS
-            }
-            allowed_transport_names.update(preserved_tool_names)
-            filtered_tools = [tool for tool in current_tools if tool_name(tool) in allowed_transport_names]
-            agent.tools = filtered_tools
-            agent.valid_tool_names = {name for name in current_valid if name in allowed_transport_names}
-            return
-        filtered_tools = [tool for tool in current_tools if tool_name(tool) in allowed_names or tool_name(tool) in preserved_tool_names]
-        custom_tool_names = [name for name in tool_policy.custom_tools if self._config.tool_gateway_base_url]
-        custom_transport_names = [tool_policy.custom_tool_transport_map[name] for name in custom_tool_names if name in tool_policy.custom_tool_transport_map]
-        if custom_tool_names:
-            filtered_tools.extend(tool_schema_wrappers(custom_tool_names))
-            readonly_tools = ReadOnlyToolBinding(
-                base_url=self._config.tool_gateway_base_url or "",
-                allowed_tool_names=custom_tool_names,
-                task_repo=task.repo,
-                task_repo_ref=task.repo_ref or "",
-                task_prompt=task.prompt,
-                default_question=str(query_hints.get("default_question", "")),
-                repo_question=str(query_hints.get("repo_question", "")),
-                knowledge_topic=str(query_hints.get("knowledge_topic", "")),
-                knowledge_question=str(query_hints.get("knowledge_question", "")),
-                slack_history_focus=str(query_hints.get("slack_history_focus", "")),
-                slack_search_query=str(query_hints.get("slack_search_query", "")),
-                task_channel_id=task.channel_id or "",
-                task_thread_ts=task.thread_ts or "",
-                task_context_summary=task.context_summary or "",
-                trace_id=task.trace_id or "",
-                session_scope_kind=task.session_scope_kind or "",
-                session_scope_id=task.session_scope_id or "",
-                context_refs=task.context_refs,
-                execution_mode=task.execution_mode or "",
-                execution_phase=task.execution_phase or "",
-                attempt_id=task.attempt_id or "",
-                workspace_id=task.workspace_id or "",
-                kubernetes_read_namespaces=list(task.kubernetes_read_namespaces),
-                observer=observer,
-            )
-            setattr(agent, "_rsi_readonly_tool_binding", readonly_tools)
-            agent._memory_manager = CompositeToolProvider(getattr(agent, "_memory_manager", None), readonly_tools)
-        elif getattr(agent, "_memory_manager", None) is not None:
-            readonly_tools = ReadOnlyToolBinding(
-                base_url=self._config.tool_gateway_base_url or "",
-                allowed_tool_names=[],
-                task_repo=task.repo,
-                task_repo_ref=task.repo_ref or "",
-                task_prompt=task.prompt,
-                default_question=str(query_hints.get("default_question", "")),
-                repo_question=str(query_hints.get("repo_question", "")),
-                knowledge_topic=str(query_hints.get("knowledge_topic", "")),
-                knowledge_question=str(query_hints.get("knowledge_question", "")),
-                slack_history_focus=str(query_hints.get("slack_history_focus", "")),
-                slack_search_query=str(query_hints.get("slack_search_query", "")),
-                task_channel_id=task.channel_id or "",
-                task_thread_ts=task.thread_ts or "",
-                task_context_summary=task.context_summary or "",
-                trace_id=task.trace_id or "",
-                session_scope_kind=task.session_scope_kind or "",
-                session_scope_id=task.session_scope_id or "",
-                context_refs=task.context_refs,
-                execution_mode=task.execution_mode or "",
-                execution_phase=task.execution_phase or "",
-                attempt_id=task.attempt_id or "",
-                workspace_id=task.workspace_id or "",
-                kubernetes_read_namespaces=list(task.kubernetes_read_namespaces),
-                observer=observer,
-            )
-            setattr(agent, "_rsi_readonly_tool_binding", readonly_tools)
-            agent._memory_manager = CompositeToolProvider(getattr(agent, "_memory_manager", None), readonly_tools)
-        effective_names = set(tool_policy.effective)
-        current_valid = {
-            name
-            for name in current_valid
-            if (name in effective_names and name not in BLOCKED_HONCHO_TOOLS) or name in preserved_tool_names
-        }
-        current_valid.update(custom_transport_names)
-        agent.tools = filtered_tools
+        current_valid = {name for name in current_valid if name not in BLOCKED_HONCHO_TOOLS}
+        agent.tools = [tool for tool in current_tools if tool_name(tool) not in BLOCKED_HONCHO_TOOLS]
         agent.valid_tool_names = current_valid
 
     def _run_with_deadlines(
@@ -6389,7 +6250,7 @@ class HermesRuntime:
                     "Artifact refs for slack.upload_file tool input only; never echo these refs, file paths, or produced_artifacts JSON in Slack-visible text.",
                     upload_manifest,
                     "Upload the produced file artifacts to the bound Slack thread using slack.upload_file.",
-                    "If an artifact ref points to HTML or SVG, pass the artifact_ref/path as-is; the governed upload adapter will render and upload a PNG preview instead of source code.",
+                    "If an artifact ref points to HTML or SVG, pass the artifact_ref/path as-is; native artifact delivery will render and upload a PNG preview instead of source code.",
                     "Pass the final reply body as initial_comment on the upload.",
                     "Do not send a second Slack message after uploading.",
                     "Return reply_delivery plus produced_artifacts in structured output only. Do not perform repo or knowledge investigation.",
@@ -6813,7 +6674,7 @@ class HermesRuntime:
             namespace_scope = ", ".join(task.kubernetes_read_namespaces)
             parts.append(
                 "Kubernetes read namespace scope: "
-                f"{namespace_scope}. Use kubectl only with these namespaces. For governed Kubernetes tools, omit namespace when a lookup should span the full allowed scope, and do not probe unlisted or archived namespaces."
+                f"{namespace_scope}. Use kubectl only with these namespaces and do not probe unlisted or archived namespaces."
             )
         if task.capability_leases:
             parts.append(f"Capability leases: {json.dumps(task.capability_leases, ensure_ascii=True, sort_keys=True)}")
@@ -6882,10 +6743,10 @@ class HermesRuntime:
         parts.append(f"Timeout seconds: {self._effective_task_timeout(task)}")
         execution_mode = (task.execution_mode or "").strip().lower()
         if self._config.hermes_native_terminal_enabled:
-            parts.append("Use only the effective governed-tool allowlist above plus the native company-computer toolsets listed in the phase contract.")
+            parts.append("Use the native company-computer toolsets listed in the phase contract plus any effective MCP/tool allowlist above.")
         else:
             parts.append("Use only the effective tool allowlist above.")
-        parts.append("Eval is read-only. Proposal investigate mode is read-only. Proposal diagnose mode is read-only and must stay grounded in persisted evidence before expanding to repo or log reads. Proposal implement mode may mutate only through governed workspace tools inside the bound workspace; it must not mutate GitHub directly, launch jobs, or post to Slack.")
+        parts.append("Eval is read-only. Proposal investigate mode is read-only. Proposal diagnose mode is read-only and must stay grounded in persisted evidence before expanding to repo or log reads. Proposal implement mode may mutate only through native Hermes tools inside the bound workspace; it must not merge code, launch privileged jobs, or post to Slack unless the task contract explicitly allows it.")
         if execution_mode == "diagnose":
             parts.append(
                 "Return a JSON object with keys: status, subsystem, failure_mode, summary, evidence_refs, missing_evidence, recommended_fix, target_surface, validation_plan."

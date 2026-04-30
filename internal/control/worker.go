@@ -72,7 +72,6 @@ func RunWorker(cfg config.Config, store storepkg.Store) error {
 			runnerClients[role] = clients.NewRunnerClientWithTimeout(baseURL, cfg.RunnerTimeoutForRole(role))
 		}
 	}
-	toolClient := clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL)
 	workerID := fmt.Sprintf("%s-worker", cfg.ServiceName)
 	runnerEffectLease := cfg.EffectLeaseDuration(cfg.WorkItemLeaseDuration, "prod", "proactive")
 	for {
@@ -91,7 +90,7 @@ func RunWorker(cfg config.Config, store storepkg.Store) error {
 			time.Sleep(cfg.WorkerPollInterval)
 			continue
 		}
-		handleClaimedExecutionEffect(cfg, store, runnerClients, toolClient, effect)
+		handleClaimedExecutionEffect(cfg, store, runnerClients, effect)
 	}
 }
 
@@ -99,7 +98,6 @@ func RunActionWorker(cfg config.Config, store storepkg.Store) error {
 	if cfg.DrainEnabled {
 		app.InstallSignalDrain()
 	}
-	toolClient := clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL)
 	workerID := fmt.Sprintf("%s-action-worker", cfg.ServiceName)
 	for {
 		if app.IsDraining() {
@@ -124,7 +122,7 @@ func RunActionWorker(cfg config.Config, store storepkg.Store) error {
 			}
 			continue
 		}
-		if err := processControlActionEffect(cfg, store, toolClient, effect); err != nil {
+		if err := processControlActionEffect(cfg, store, effect); err != nil {
 			log.Printf("control-plane action worker effect=%s aggregate=%s error=%v", effect.ID, effect.AggregateID, err)
 			continue
 		}
@@ -186,7 +184,7 @@ func handleClaimedWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, 
 	}
 }
 
-func handleClaimedExecutionEffect(cfg config.Config, store storepkg.Store, runnerClients map[string]*clients.RunnerClient, toolClient *clients.ToolGatewayClient, effect transition.EffectExecution) {
+func handleClaimedExecutionEffect(cfg config.Config, store storepkg.Store, runnerClients map[string]*clients.RunnerClient, effect transition.EffectExecution) {
 	if app.IsDraining() {
 		runtime := newWorkflowRuntimeCoordinator(config.Config{}, store)
 		if err := runtime.deferClaimedEffectForDrain(effect); err != nil {
@@ -201,7 +199,7 @@ func handleClaimedExecutionEffect(cfg config.Config, store storepkg.Store, runne
 	case effect.MachineKind == transition.MachineWorkflow && effect.EffectKind == transition.EffectInvokeRunner:
 		handleClaimedWorkflowRunnerEffect(cfg, store, runnerClients, effect)
 	case effect.MachineKind == transition.MachineQuestionRun:
-		handleClaimedQuestionRunEffect(cfg, store, runnerClients, toolClient, effect)
+		handleClaimedQuestionRunEffect(cfg, store, runnerClients, effect)
 	default:
 		_ = failClaimedEffect(store, effect, fmt.Sprintf("unsupported execution effect %s/%s", effect.MachineKind, effect.EffectKind))
 	}
@@ -823,7 +821,7 @@ func submitWorkflowContextCompleted(cfg config.Config, store storepkg.Store, ctx
 	return nil
 }
 
-func processControlActionEffect(cfg config.Config, store storepkg.Store, toolClient *clients.ToolGatewayClient, effect transition.EffectExecution) error {
+func processControlActionEffect(cfg config.Config, store storepkg.Store, effect transition.EffectExecution) error {
 	actionID := strings.TrimSpace(effect.AggregateID)
 	if actionID == "" {
 		return failClaimedEffect(store, effect, "invoke_action effect missing aggregate id")
@@ -875,7 +873,7 @@ func processControlActionEffect(cfg config.Config, store storepkg.Store, toolCli
 
 	switch intent.Kind {
 	case action.KindToolRead:
-		if err := executeToolReadActionIntent(store, toolClient, intent); err != nil {
+		if err := executeRemovedToolActionIntent(store, intent, "tool_read actions were removed with the platform tool gateway; route this work through Hermes-native tools instead"); err != nil {
 			if isPostgresActionPersistenceError(err) {
 				if finalizeErr := finalizeControlActionPersistenceFailure(cfg, store, effect, ctx, intent, err); finalizeErr != nil {
 					_ = failClaimedEffect(store, effect, finalizeErr.Error())
@@ -888,12 +886,14 @@ func processControlActionEffect(cfg config.Config, store storepkg.Store, toolCli
 			return err
 		}
 	case action.KindSlackPost:
-		if err := executeSlackPostActionIntent(cfg, store, toolClient, ctx, intent); err != nil {
+		if err := executeSlackPostActionIntent(cfg, store, ctx, intent); err != nil {
 			if isPostgresActionPersistenceError(err) {
 				if finalizeErr := finalizeControlActionPersistenceFailure(cfg, store, effect, ctx, intent, err); finalizeErr != nil {
 					_ = failClaimedEffect(store, effect, finalizeErr.Error())
 					return fmt.Errorf("finalize control action persistence failure: %w (original error: %v)", finalizeErr, err)
 				}
+			} else if updatedIntent, ok := store.GetActionIntent(actionID); ok {
+				_ = maybeAdvanceWorkflowPhaseFromAction(cfg, store, updatedIntent)
 			}
 			_ = failClaimedEffect(store, effect, err.Error())
 			return err
@@ -911,42 +911,32 @@ func processControlActionEffect(cfg config.Config, store storepkg.Store, toolCli
 	return completeClaimedEffect(store, effect, intent.ID)
 }
 
-func executeToolReadActionIntent(store storepkg.Store, toolClient *clients.ToolGatewayClient, intent action.Intent) error {
+func executeRemovedToolActionIntent(store storepkg.Store, intent action.Intent, message string) error {
 	started := time.Now().UTC()
-	requestPayload := cloneAnyMap(intent.RequestPayload)
-	delete(requestPayload, "resume_queue")
-	result, execErr := toolClient.Execute(intent.TargetRef, requestPayload)
 	completed := time.Now().UTC()
-	actionStatus := actionStatusFromToolResult(result, execErr)
-	summary := toolResultSummary(result, execErr)
-	commandKind, err := actionCommandForStatus(actionStatus)
+	commandKind, err := actionCommandForStatus(action.StatusFailed)
 	if err != nil {
 		return err
 	}
-	if _, err := submitActionCommand(store, intent.ID, commandKind, "tool-gateway", completed, map[string]any{
-		"operation_id":   intent.OperationID,
-		"approval_state": firstNonEmpty(result.ApprovalState, intent.ApprovalState),
-		"executor":       "tool-gateway",
-		"provider":       firstNonEmpty(result.Provider, providerForToolName(intent.TargetRef)),
-		"provider_ref":   result.ProviderRef,
-		"error_code":     actionErrorCode(actionStatus),
-		"error_message":  actionErrorMessage(result, execErr),
-		"started_at":     started,
-		"completed_at":   completed,
-		"summary":        summary,
-		"tool_call_id":   firstNonEmpty(result.ToolCallID, intent.ID),
-		"request_payload": firstNonEmptyMap(
-			result.Input,
-			intent.RequestPayload,
-		),
-		"raw_artifact_refs": append([]string(nil), result.RawArtifactRefs...),
+	if _, err := submitActionCommand(store, intent.ID, commandKind, "control-plane", completed, map[string]any{
+		"operation_id":    intent.OperationID,
+		"approval_state":  intent.ApprovalState,
+		"executor":        "native-hermes-required",
+		"provider":        providerForToolName(intent.TargetRef),
+		"error_code":      actionErrorCode(action.StatusFailed),
+		"error_message":   message,
+		"started_at":      started,
+		"completed_at":    completed,
+		"summary":         message,
+		"tool_call_id":    intent.ID,
+		"request_payload": cloneAnyMap(intent.RequestPayload),
 	}); err != nil {
 		return err
 	}
-	return nil
+	return fmt.Errorf("%s", message)
 }
 
-func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, toolClient *clients.ToolGatewayClient, ctx workflowContext, intent action.Intent) error {
+func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, ctx workflowContext, intent action.Intent) error {
 	started := time.Now().UTC()
 	draftBody := stringFromMap(intent.RequestPayload, "draft_body")
 	finalBody := stringFromMap(intent.RequestPayload, "final_body")
@@ -994,11 +984,7 @@ func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, toolC
 		actionStatus = action.StatusBlocked
 		summary = blockedReason
 	} else {
-		result, execErr = toolClient.Execute("slack.reply", map[string]any{
-			"channel_id": channelID,
-			"thread_ts":  threadTS,
-			"body":       body,
-		})
+		execErr = errors.New("slack_post actions were removed with the platform tool gateway; Hermes must reply directly through Slack MCP")
 		actionStatus = actionStatusFromToolResult(result, execErr)
 		summary = toolResultSummary(result, execErr)
 		baseRecord.ArtifactRefs = uniqueStrings(append(baseRecord.ArtifactRefs, result.RawArtifactRefs...))
@@ -1017,7 +1003,7 @@ func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, toolC
 		"operation_id":   intent.OperationID,
 		"approval_state": firstNonEmpty(result.ApprovalState, intent.ApprovalState),
 		"policy_verdict": firstNonEmpty(intent.PolicyVerdict, blockedReason),
-		"executor":       firstNonEmpty(result.Provider, "tool-gateway"),
+		"executor":       firstNonEmpty(result.Provider, "native-hermes-required"),
 		"provider":       firstNonEmpty(result.Provider, "slack"),
 		"provider_ref":   firstNonEmpty(result.ProviderRef, threadTS),
 		"error_code":     actionErrorCode(actionStatus),
@@ -1048,6 +1034,9 @@ func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, toolC
 
 	if actionStatus == action.StatusSucceeded && strings.TrimSpace(baseRecord.SendStatus) == "" {
 		baseRecord.SendStatus = "posted"
+	}
+	if execErr != nil {
+		return execErr
 	}
 	return nil
 }
@@ -1162,9 +1151,9 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	if hasAttachedBoundSlackThreadContext(contextRefs, ingestion) {
 		promptParts = append(promptParts, "Bound Slack thread context is attached in the task evidence. Recover the main request from that thread context before answering, and treat the latest inbound message as a follow-up within that thread.")
 	}
-	promptParts = append(promptParts, "Investigate within the governed tool boundary. Start with the attached persisted evidence and context, then expand with tools as needed. Cite concrete evidence when possible. Default any Slack reply to the ingress thread.")
+	promptParts = append(promptParts, "Investigate with native Hermes tools, MCP, and the company-computer terminal. Start with the attached persisted evidence and context, then expand with tools as needed. Cite concrete evidence when possible. Default any Slack reply to the ingress thread.")
 	if len(kubernetesReadNamespaceScope) > 0 {
-		promptParts = append(promptParts, fmt.Sprintf("Kubernetes read scope: %s. For governed Kubernetes tools, omit namespace when you need to search the full allowed scope; otherwise use only one of these namespaces. Do not probe unlisted or archived namespaces.", strings.Join(kubernetesReadNamespaceScope, ", ")))
+		promptParts = append(promptParts, fmt.Sprintf("Kubernetes read scope: %s. Use only one of these namespaces and do not probe unlisted or archived namespaces.", strings.Join(kubernetesReadNamespaceScope, ", ")))
 	}
 	prompt := strings.Join(promptParts, "\n\n")
 	if len(requestedArtifacts) > 0 {
@@ -1268,7 +1257,7 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliv
 		parts := []string{
 			"Return explicit visible reasoning only. Do not include hidden chain-of-thought.",
 			"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, reply_delivery, knowledge_drafts, outcome_hypotheses, produced_artifacts, and artifact_failure_reason.",
-			"Start from persisted evidence, then choose governed tools, files, and tool order yourself within the supplied capability leases and policies.",
+			"Start from persisted evidence, then choose native Hermes tools, files, and tool order yourself within the supplied capability leases and policies.",
 			"Treat DeliveryPolicy, WorkspacePolicy, ApprovalPolicy, and CapabilityLease as the execution contract; do not infer platform permissions from prose.",
 			"You may use Hermes-native skills when they materially help satisfy the request.",
 		}
@@ -1278,7 +1267,7 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliv
 		if len(requestedArtifacts) > 0 {
 			parts = append(parts, "Artifact production was requested. If you produce one, include it in produced_artifacts. If you cannot, set artifact_failure_reason and still provide the best grounded reply.")
 		}
-		parts = append(parts, "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "Use slack.upload_file when you need to attach a generated file to the bound Slack thread; Slack MCP send_message and mediated slack_post are text-only.", "If you intend to reply in Slack, you must emit an explicit proposed action with kind=slack_post; prose alone is not enough.", "Do not set reply_delivery for mediated replies.")
+		parts = append(parts, "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "Use native Slack MCP delivery when you need to attach or send content to the bound Slack thread.", "If you intend to reply in Slack, you must emit an explicit proposed action with kind=slack_post; prose alone is not enough.", "Do not set reply_delivery for mediated replies.")
 		return strings.Join(parts, " ")
 	}
 	if replyDeliveryMode == "direct" {
@@ -1295,7 +1284,7 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliv
 		if len(requestedArtifacts) > 0 {
 			parts = append(parts, "Artifact production was requested. If you produce one, include it in produced_artifacts. If you cannot, set artifact_failure_reason and still provide the best grounded reply.")
 		}
-		parts = append(parts, "Use governed repo, GitHub, knowledge, RSI, and workspace tools for non-Slack evidence.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "Use slack.upload_file when you need to attach a generated file to the bound Slack delivery target; Slack MCP send_message is text-only.", "If you have a grounded final answer, send exactly one Slack reply to the bound delivery target using Slack MCP, then return the JSON object.", "Do not emit a slack_post action contract.", "Include reply_delivery describing the direct Slack delivery with status, channel_id, thread_ts when a thread exists, body, tool_call_id, tool_name, provider_ref, and message_link.")
+		parts = append(parts, "Use native repo, GitHub, knowledge, RSI, MCP, and workspace tools for non-Slack evidence.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "Use native Slack MCP delivery when you need to attach or send content to the bound Slack delivery target.", "If you have a grounded final answer, send exactly one Slack reply to the bound delivery target using Slack MCP, then return the JSON object.", "Do not emit a slack_post action contract.", "Include reply_delivery describing the direct Slack delivery with status, channel_id, thread_ts when a thread exists, body, tool_call_id, tool_name, provider_ref, and message_link.")
 		return strings.Join(parts, " ")
 	}
 	parts := []string{
@@ -1313,7 +1302,7 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliv
 	if len(requestedArtifacts) > 0 {
 		parts = append(parts, "Artifact production was requested. If you produce one, include it in produced_artifacts. If you cannot, set artifact_failure_reason and still provide the best grounded reply.")
 	}
-	parts = append(parts, "Use governed repo, GitHub, knowledge, RSI, and workspace tools for non-Slack evidence.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "Slack posting is blocked by policy for this workflow, so do not send any Slack messages.", "Leave reply_delivery empty when no Slack reply was delivered.")
+	parts = append(parts, "Use native repo, GitHub, knowledge, RSI, MCP, and workspace tools for non-Slack evidence.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "Slack posting is blocked by policy for this workflow, so do not send any Slack messages.", "Leave reply_delivery empty when no Slack reply was delivered.")
 	return strings.Join(parts, " ")
 }
 
@@ -1857,69 +1846,7 @@ func hasAttachedBoundSlackThreadContext(contextRefs []clients.RunnerContextRef, 
 }
 
 func prefetchBoundSlackThreadContext(cfg config.Config, trace events.TraceSummary, workflow storepkg.Workflow, ingestion slackpkg.Ingestion) (string, []clients.RunnerContextRef) {
-	if !shouldAttachBoundSlackThreadContext(ingestion) || strings.TrimSpace(cfg.ToolGatewayBaseURL) == "" {
-		return "", nil
-	}
-	result, err := clients.NewToolGatewayClient(cfg.ToolGatewayBaseURL).Execute("slack.history", map[string]any{
-		"trace_id":    trace.TraceID,
-		"workflow_id": workflow.ID,
-		"channel_id":  ingestion.ChannelID,
-		"thread_ts":   ingestion.ThreadTS,
-		"limit":       12,
-	})
-	if err != nil || !result.Available {
-		return "", nil
-	}
-	summary := summarizeBoundSlackThreadHistory(result)
-	if strings.TrimSpace(summary) == "" {
-		return "", nil
-	}
-	ref := clients.RunnerContextRef{
-		Kind:       "tool_call",
-		Ref:        firstNonEmpty(strings.TrimSpace(result.ProviderRef), strings.TrimSpace(result.ToolCallID), fmt.Sprintf("%s/%s", ingestion.ChannelID, ingestion.ThreadTS)),
-		Summary:    summary,
-		ToolCallID: strings.TrimSpace(result.ToolCallID),
-		ToolName:   "slack.history",
-		Status:     strings.TrimSpace(result.Status),
-		ChannelID:  ingestion.ChannelID,
-		ThreadTS:   ingestion.ThreadTS,
-		Source:     "prefetched_slack_thread",
-		TraceID:    trace.TraceID,
-	}
-	return summary, []clients.RunnerContextRef{ref}
-}
-
-func summarizeBoundSlackThreadHistory(result storepkg.ToolResult) string {
-	output := result.Output
-	rawMessages, _ := output["messages"].([]interface{})
-	if len(rawMessages) == 0 {
-		return strings.TrimSpace(result.Summary)
-	}
-	lines := make([]string, 0, len(rawMessages))
-	for _, raw := range rawMessages {
-		item, ok := raw.(map[string]interface{})
-		if !ok {
-			continue
-		}
-		text := compactWhitespace(strings.TrimSpace(stringValue(item["text"])))
-		if text == "" {
-			continue
-		}
-		actor := firstNonEmpty(
-			compactWhitespace(strings.TrimSpace(stringValue(item["username"]))),
-			compactWhitespace(strings.TrimSpace(stringValue(item["user"]))),
-			compactWhitespace(strings.TrimSpace(stringValue(item["bot_id"]))),
-			"unknown",
-		)
-		lines = append(lines, fmt.Sprintf("%s: %s", actor, text))
-		if len(lines) == 4 {
-			break
-		}
-	}
-	if len(lines) == 0 {
-		return strings.TrimSpace(result.Summary)
-	}
-	return fmt.Sprintf("Bound Slack thread history: %s", strings.Join(lines, " | "))
+	return "", nil
 }
 
 func compactWhitespace(text string) string {
