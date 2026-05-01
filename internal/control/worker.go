@@ -216,6 +216,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	if isTerminalWorkflowStatus(ctx.workflow.Status) || isTerminalTraceStatus(ctx.trace.Summary.Status) {
 		return completeClaimedEffect(store, effect, ctx.trace.Summary.TraceID)
 	}
+	postWorkflowOperatorTraceACK(cfg, store, ctx.trace.Summary, ctx.ingestion)
 	runnerRole := runnerRoleForQueue(queueName)
 	runnerClient := runnerClients[runnerRole]
 	hermesExecutorURLs := cfg.HermesExecutorURLs()
@@ -1216,14 +1217,14 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 			"user_request":        userRequest,
 			"runner_planner_mode": firstNonEmpty(cfg.RunnerPlannerMode, "runner_first"),
 		},
-		CapabilityLeases: workflowCapabilityLeases(replyDeliveryMode, kubernetesReadNamespaceScope),
+		CapabilityLeases: workflowCapabilityLeases(replyDeliveryMode, requestedArtifacts, kubernetesReadNamespaceScope),
 		DeliveryPolicy:   runnerDeliveryPolicy(ingestion.ChannelID, ingestion.ThreadTS, replyDeliveryMode, trace.Summary.TraceID),
 		WorkspacePolicy:  runnerutil.WorkspacePolicyFromConfig(cfg),
 		ApprovalPolicy:   runnerApprovalPolicy(replyDeliveryMode == "direct"),
 	}
 }
 
-func workflowCapabilityLeases(replyDeliveryMode string, kubernetesReadNamespaces []string) []clients.RunnerCapabilityLease {
+func workflowCapabilityLeases(replyDeliveryMode string, requestedArtifacts []clients.RunnerRequestedArtifact, kubernetesReadNamespaces []string) []clients.RunnerCapabilityLease {
 	capabilities := []string{
 		"read_context",
 		"workspace_read",
@@ -1236,6 +1237,9 @@ func workflowCapabilityLeases(replyDeliveryMode string, kubernetesReadNamespaces
 	switch clients.NormalizeRunnerReplyDeliveryMode(replyDeliveryMode) {
 	case "direct":
 		capabilities = append(capabilities, "slack_send")
+		if len(requestedArtifacts) > 0 {
+			capabilities = append(capabilities, "slack_upload")
+		}
 	}
 	leases := clients.RunnerCapabilityLeases(capabilities...)
 	return clients.AttachKubernetesReadNamespacesToLeases(leases, kubernetesReadNamespaces)

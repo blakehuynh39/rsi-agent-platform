@@ -145,6 +145,36 @@ func TestSlackSurfaceOperatorTraceACKIsIdempotent(t *testing.T) {
 	}
 }
 
+func TestSlackSurfaceDoesNotPostOperatorACKDuringIngress(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	runtime := newSlackSurfaceRuntime(config.Config{
+		ServiceName:            "rsi-slack-surface",
+		SlackAppIdentity:       "rsi",
+		PublicBaseURL:          "https://staging-rsi-platform.storyprotocol.net",
+		AllowedSlackChannelIDs: []string{"C123"},
+	}, store)
+	poster := &fakeSlackPoster{}
+	runtime.slackAPI = poster
+
+	runtime.handleEventsAPIEvent(context.Background(), slackevents.EventsAPIEvent{
+		Type:   slackevents.CallbackEvent,
+		TeamID: "T123",
+		InnerEvent: slackevents.EventsAPIInnerEvent{
+			Type: "app_mention",
+			Data: &slackevents.AppMentionEvent{
+				Channel:   "C123",
+				User:      "U123",
+				Text:      "<@U_RSI> investigate this",
+				TimeStamp: "171000001.000100",
+			},
+		},
+	})
+
+	if len(poster.calls) != 0 {
+		t.Fatalf("expected Slack ingress not to post trace ACK before workflow worker owns the trace, got %d calls", len(poster.calls))
+	}
+}
+
 func TestSlackSurfaceBuildMentionEnvelopeAllowsMentionOnlySentinel(t *testing.T) {
 	runtime := newSlackSurfaceRuntime(config.Config{
 		SlackAppIdentity:       "rsi",

@@ -5257,6 +5257,9 @@ func TestBuildRunnerTaskRequestsDiagramArtifact(t *testing.T) {
 	if !containsString(task.ExpectedOutputs, "produced_artifacts") {
 		t.Fatalf("expected produced_artifacts in expected outputs, got %#v", task.ExpectedOutputs)
 	}
+	if !runnerTaskHasCapability(task, "slack_upload") {
+		t.Fatalf("expected direct artifact workflow to lease slack_upload, got %#v", task.CapabilityLeases)
+	}
 	if task.TimeoutSeconds != 1800 {
 		t.Fatalf("expected artifact timeout override, got %d", task.TimeoutSeconds)
 	}

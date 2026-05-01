@@ -208,7 +208,6 @@ func (s *slackSurfaceRuntime) handleEventsAPIEvent(ctx context.Context, eventsAP
 			log.Printf("slack-surface identity=%s ingestion load error=%v", s.cfg.SlackAppIdentity, err)
 		} else {
 			log.Printf("slack-surface identity=%s ingested thread=%s ingestion=%s", s.cfg.SlackAppIdentity, created.ThreadKey, created.ID)
-			s.enqueueOperatorTraceACK(created)
 		}
 		return true
 	case *slackevents.MessageEvent:
@@ -241,19 +240,11 @@ func (s *slackSurfaceRuntime) handleEventsAPIEvent(ctx context.Context, eventsAP
 			log.Printf("slack-surface identity=%s ingestion load error=%v", s.cfg.SlackAppIdentity, err)
 		} else {
 			log.Printf("slack-surface identity=%s ingested thread=%s ingestion=%s", s.cfg.SlackAppIdentity, created.ThreadKey, created.ID)
-			s.enqueueOperatorTraceACK(created)
 		}
 		return true
 	default:
 		return true
 	}
-}
-
-func (s *slackSurfaceRuntime) enqueueOperatorTraceACK(ingestion slackpkg.Ingestion) {
-	if strings.TrimSpace(s.cfg.PublicBaseURL) == "" || strings.TrimSpace(ingestion.ChannelID) == "" || strings.TrimSpace(ingestion.ID) == "" {
-		return
-	}
-	go s.postOperatorTraceACK(context.Background(), ingestion)
 }
 
 func (s *slackSurfaceRuntime) postOperatorTraceACK(parentCtx context.Context, ingestion slackpkg.Ingestion) {
@@ -262,21 +253,51 @@ func (s *slackSurfaceRuntime) postOperatorTraceACK(parentCtx context.Context, in
 		log.Printf("slack-surface identity=%s operator_ack skipped ingestion=%s reason=trace_not_found", s.cfg.SlackAppIdentity, ingestion.ID)
 		return
 	}
-	traceURL := operatorTraceURL(s.cfg.PublicBaseURL, trace.ConversationID, trace.TraceID)
+	postOperatorTraceACKForTrace(parentCtx, s.cfg, s.store, s.slackAPI, trace, ingestion)
+}
+
+func postWorkflowOperatorTraceACK(cfg config.Config, store storepkg.Store, trace events.TraceSummary, ingestion slackpkg.Ingestion) {
+	if strings.TrimSpace(ingestion.ChannelID) == "" || strings.TrimSpace(ingestion.ID) == "" {
+		return
+	}
+	if strings.TrimSpace(cfg.PublicBaseURL) == "" {
+		return
+	}
+	if strings.TrimSpace(cfg.SlackBotToken) == "" {
+		recordOperatorTraceACK(cfg, store, trace, ingestion, "failed", map[string]any{
+			"error": "RSI_SLACK_BOT_TOKEN is not configured",
+		})
+		return
+	}
+	postOperatorTraceACKForTrace(context.Background(), cfg, store, slack.New(cfg.SlackBotToken), trace, ingestion)
+}
+
+func postOperatorTraceACKForTrace(parentCtx context.Context, cfg config.Config, store storepkg.Store, slackAPI slackMessagePoster, trace events.TraceSummary, ingestion slackpkg.Ingestion) {
+	if parentCtx == nil {
+		parentCtx = context.Background()
+	}
+	traceURL := operatorTraceURL(cfg.PublicBaseURL, trace.ConversationID, trace.TraceID)
 	if traceURL == "" {
-		s.recordOperatorTraceACK(trace, ingestion, "failed", map[string]any{
+		recordOperatorTraceACK(cfg, store, trace, ingestion, "failed", map[string]any{
 			"error": "RSI_PUBLIC_BASE_URL is not configured",
+		})
+		return
+	}
+	if slackAPI == nil {
+		recordOperatorTraceACK(cfg, store, trace, ingestion, "failed", map[string]any{
+			"error":     "Slack API client is not configured",
+			"trace_url": traceURL,
 		})
 		return
 	}
 	claimID := "cmd-slack-operator-ack:" + strings.TrimSpace(ingestion.ID)
 	now := time.Now().UTC()
-	_, claimed, err := s.store.RecordCommandReceipt(transition.CommandReceipt{
+	_, claimed, err := store.RecordCommandReceipt(transition.CommandReceipt{
 		CommandID:        claimID,
 		MachineKind:      transition.MachineIngress,
 		AggregateID:      ingestion.ID,
 		CommandKind:      "slack_operator_ack",
-		Actor:            s.cfg.ServiceName,
+		Actor:            cfg.ServiceName,
 		DecisionKind:     transition.DecisionAdvance,
 		Reason:           "visible Slack trace ACK claimed",
 		AggregateVersion: 1,
@@ -285,8 +306,8 @@ func (s *slackSurfaceRuntime) postOperatorTraceACK(parentCtx context.Context, in
 		UpdatedAt:        now,
 	})
 	if err != nil {
-		log.Printf("slack-surface identity=%s operator_ack claim error ingestion=%s trace=%s error=%v", s.cfg.SlackAppIdentity, ingestion.ID, trace.TraceID, err)
-		s.recordOperatorTraceACK(trace, ingestion, "failed", map[string]any{"error": err.Error(), "trace_url": traceURL})
+		log.Printf("slack operator_ack claim error service=%s identity=%s ingestion=%s trace=%s error=%v", cfg.ServiceName, cfg.SlackAppIdentity, ingestion.ID, trace.TraceID, err)
+		recordOperatorTraceACK(cfg, store, trace, ingestion, "failed", map[string]any{"error": err.Error(), "trace_url": traceURL})
 		return
 	}
 	if !claimed {
@@ -304,10 +325,10 @@ func (s *slackSurfaceRuntime) postOperatorTraceACK(parentCtx context.Context, in
 	if threadTS := strings.TrimSpace(ingestion.ThreadTS); threadTS != "" {
 		options = append(options, slack.MsgOptionTS(threadTS))
 	}
-	channelID, messageTS, err := s.slackAPI.PostMessageContext(ctx, ingestion.ChannelID, options...)
+	channelID, messageTS, err := slackAPI.PostMessageContext(ctx, ingestion.ChannelID, options...)
 	if err != nil {
-		log.Printf("slack-surface identity=%s operator_ack failed ingestion=%s trace=%s channel=%s thread=%s error=%v", s.cfg.SlackAppIdentity, ingestion.ID, trace.TraceID, ingestion.ChannelID, ingestion.ThreadTS, err)
-		s.recordOperatorTraceACK(trace, ingestion, "failed", map[string]any{
+		log.Printf("slack operator_ack failed service=%s identity=%s ingestion=%s trace=%s channel=%s thread=%s error=%v", cfg.ServiceName, cfg.SlackAppIdentity, ingestion.ID, trace.TraceID, ingestion.ChannelID, ingestion.ThreadTS, err)
+		recordOperatorTraceACK(cfg, store, trace, ingestion, "failed", map[string]any{
 			"error":      err.Error(),
 			"trace_url":  traceURL,
 			"channel_id": ingestion.ChannelID,
@@ -315,7 +336,7 @@ func (s *slackSurfaceRuntime) postOperatorTraceACK(parentCtx context.Context, in
 		})
 		return
 	}
-	s.recordOperatorTraceACK(trace, ingestion, "delivered", map[string]any{
+	recordOperatorTraceACK(cfg, store, trace, ingestion, "delivered", map[string]any{
 		"channel_id": firstNonEmpty(channelID, ingestion.ChannelID),
 		"thread_ts":  ingestion.ThreadTS,
 		"message_ts": messageTS,
@@ -324,7 +345,7 @@ func (s *slackSurfaceRuntime) postOperatorTraceACK(parentCtx context.Context, in
 	})
 }
 
-func (s *slackSurfaceRuntime) recordOperatorTraceACK(trace events.TraceSummary, ingestion slackpkg.Ingestion, status string, payload map[string]any) {
+func recordOperatorTraceACK(cfg config.Config, store storepkg.Store, trace events.TraceSummary, ingestion slackpkg.Ingestion, status string, payload map[string]any) {
 	if strings.TrimSpace(trace.TraceID) == "" {
 		return
 	}
@@ -334,7 +355,7 @@ func (s *slackSurfaceRuntime) recordOperatorTraceACK(trace events.TraceSummary, 
 	payload["ingestion_id"] = ingestion.ID
 	payload["conversation_id"] = trace.ConversationID
 	payload["trace_id"] = trace.TraceID
-	err := s.store.RecordExecutionLedgerEvents([]events.ExecutionLedgerEvent{
+	err := store.RecordExecutionLedgerEvents([]events.ExecutionLedgerEvent{
 		{
 			ExecutionID:    "slack-operator-ack:" + firstNonEmpty(ingestion.ID, trace.TraceID),
 			TraceID:        trace.TraceID,
@@ -349,7 +370,7 @@ func (s *slackSurfaceRuntime) recordOperatorTraceACK(trace events.TraceSummary, 
 		},
 	})
 	if err != nil {
-		log.Printf("slack-surface identity=%s operator_ack ledger error ingestion=%s trace=%s error=%v", s.cfg.SlackAppIdentity, ingestion.ID, trace.TraceID, err)
+		log.Printf("slack operator_ack ledger error service=%s identity=%s ingestion=%s trace=%s error=%v", cfg.ServiceName, cfg.SlackAppIdentity, ingestion.ID, trace.TraceID, err)
 	}
 }
 
