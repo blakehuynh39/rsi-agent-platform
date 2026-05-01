@@ -34,7 +34,7 @@ permissions:
 
 concurrency:
   group: rsi-agent-platform-cd-main
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   validate:
@@ -189,7 +189,7 @@ jobs:
     if: ${{ github.event_name != 'workflow_dispatch' || inputs.skip_story_deployments_bump != true }}
     concurrency:
       group: story-deployments-tag-bump-rsi-agent-platform
-      cancel-in-progress: false
+      cancel-in-progress: true
     steps:
       - name: Verify story-deployments token is configured
         shell: bash
