@@ -606,7 +606,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("hermes-api-server", phase_contract["required_toolsets"])
         self.assertNotIn("hermes-api-server", runtime._resolve_tool_policy(task).effective)
 
-    def test_native_terminal_loads_github_cli_credentials_from_pod_environment(self) -> None:
+    def test_native_terminal_refuses_pod_github_token_without_app_credentials(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
                 "task": {
@@ -635,11 +635,11 @@ class HermesRuntimeTests(unittest.TestCase):
             runtime = HermesRuntime(RunnerConfig.from_env())
             env, status = runtime._github_cli_environment(task)
 
-        self.assertEqual(env["GH_TOKEN"], "github-installation-token")
-        self.assertEqual(env["GITHUB_TOKEN"], "github-installation-token")
-        self.assertEqual(env["GH_PROMPT_DISABLED"], "1")
-        self.assertTrue(status["configured"])
-        self.assertEqual(status["repositories"], ["rsi-agent-platform", "depin-backend"])
+        self.assertEqual(env, {})
+        self.assertFalse(status["configured"])
+        self.assertEqual(status["status"], "failed")
+        self.assertEqual(status["reason"], "missing_github_app_credentials")
+        self.assertIn("RSI_GITHUB_APP_ID", status["missing"])
         self.assertNotIn("token", status)
 
     def test_native_terminal_mints_github_cli_credentials_from_app_environment(self) -> None:
@@ -2849,6 +2849,51 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["runner_diagnostics"]["agentic_mcp_cleanup_status"], "cleaned")
         self.assertEqual(len(request_paths), 1)
         self.assertTrue(run_dir_exists_before_temp_cleanup)
+
+    def test_native_executor_fails_before_subprocess_when_github_app_credentials_missing(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "depin-backend",
+                    "prompt": "Read the private repo.",
+                    "trace_id": "trace-gh-required",
+                    "workflow_id": "wf-gh-required",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-gh-required",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                }
+            }
+        )
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.AIAgent", FakeAIAgent
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.subprocess.Popen",
+            side_effect=AssertionError("Hermes subprocess must not start without GitHub App credentials"),
+        ) as popen_mock, mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_ENABLED": "true",
+                "RSI_HERMES_NATIVE_TERMINAL_ENABLED": "true",
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
+                "GH_TOKEN": "ignored-pod-token",
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.provider, "hermes-native-executor")
+        self.assertEqual(result.raw["failure_class"], "github_app_credentials_unavailable")
+        self.assertEqual(result.raw["termination_reason"], "github_app_credentials_unavailable")
+        self.assertEqual(result.raw["github_credentials"]["reason"], "missing_github_app_credentials")
+        popen_mock.assert_not_called()
 
     def test_native_executor_incomplete_result_preserves_partial_contract(self) -> None:
         structured = json.dumps(

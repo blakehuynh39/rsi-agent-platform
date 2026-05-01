@@ -2556,31 +2556,24 @@ class HermesRuntime:
             status["reason"] = "missing_repo"
             return {}, status
         repos = normalize_tool_names([repo, *task.repo_allowlist])
-        token = str(os.getenv("GH_TOKEN", "") or os.getenv("GITHUB_TOKEN", "") or "").strip()
-        provider_ref = "pod_environment"
-        expires_at = ""
-        installation_id = ""
-        owner = self._github_owner_for_repo(repo)
+        token, app_status = self._github_app_installation_token(repo, repos)
         if not token:
-            token, app_status = self._github_app_installation_token(repo, repos)
-            if not token:
-                status.update(app_status)
-                return {}, status
-            provider_ref = "github_app_installation"
-            expires_at = _string_or_json(app_status.get("expires_at"))
-            installation_id = _string_or_json(app_status.get("installation_id"))
-            owner = _string_or_json(app_status.get("owner")) or owner
+            status.update(app_status)
+            return {}, status
+        owner = _string_or_json(app_status.get("owner")) or self._github_owner_for_repo(repo)
         status.update(
             {
                 "configured": True,
                 "status": "configured",
-                "reason": provider_ref,
+                "reason": "github_app_installation",
                 "repo": repo,
-                "repositories": repos,
-                "provider_ref": provider_ref,
+                "repositories": _string_list_or_empty(app_status.get("repositories")) or repos,
+                "provider_ref": "github_app_installation",
                 "owner": owner,
             }
         )
+        expires_at = _string_or_json(app_status.get("expires_at"))
+        installation_id = _string_or_json(app_status.get("installation_id"))
         if expires_at:
             status["expires_at"] = expires_at
         if installation_id:
@@ -2633,7 +2626,7 @@ class HermesRuntime:
         status: JsonObject = {
             "configured": False,
             "status": "failed",
-            "reason": "missing_github_token",
+            "reason": "github_app_token_unavailable",
             "repo": repo,
             "repositories": scoped_repos,
             "owner": owner,
@@ -3182,6 +3175,29 @@ class HermesRuntime:
                 event_type="github.credentials",
                 status=_string_or_json(github_cli_credentials.get("status")) or "disabled",
                 payload=github_cli_credentials,
+            )
+        if _string_or_json(github_cli_credentials.get("status")) == "failed":
+            reason = _string_or_json(github_cli_credentials.get("reason")) or "unknown"
+            message = f"Native Hermes GitHub App credentials unavailable: {reason}"
+            return HermesExecutionResult(
+                ok=False,
+                message=message,
+                provider="hermes-native-executor",
+                raw={
+                    **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                    "failure_class": "github_app_credentials_unavailable",
+                    "github_credentials": github_cli_credentials,
+                    "runner_diagnostics": self._runner_diagnostics(
+                        tool_policy,
+                        failure_kind="github_app_credentials_unavailable",
+                        provider_error_message=message,
+                        termination_reason="github_app_credentials_unavailable",
+                        session_ready_issues=self._session_manager.ready_issues,
+                        repair_attempted=False,
+                        repair_succeeded=False,
+                    ),
+                    "termination_reason": "github_app_credentials_unavailable",
+                },
             )
         skill_diagnostics: JsonObject = {
             "requested_skills": list(task.requested_skills),
@@ -6981,7 +6997,7 @@ class HermesRuntime:
                 f"{self._config.hermes_terminal_cwd}; install reusable CLI binaries under {self._config.hermes_company_bin_dir}."
             )
             parts.append(
-                "The GitHub CLI is available on the company computer image. When GH_TOKEN/GITHUB_TOKEN are present, use normal gh commands for explicitly requested GitHub issue, PR, comment, and review work; those operations do not need an approval intent unless they merge code or match a listed approval category."
+                "The GitHub CLI is available on the company computer image and is authenticated per request with the configured GitHub App installation. If GitHub App credentials cannot be minted, execution fails before Hermes starts instead of falling back to another token source."
             )
             if self._config.hermes_kubernetes_context_enabled:
                 parts.append(
