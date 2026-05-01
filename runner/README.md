@@ -18,3 +18,15 @@ Default runtime:
 - Hermes `api_mode=codex_responses` for `openai/*` models
 
 `/runtimez` reports the effective role, backend, provider, model, API mode, and reasoning effort so improvement-plane can surface the live runtime configuration in the operator UI.
+
+## Hermes Fork Pin
+
+The executor image installs `hermes-agent` from the RSI infra fork:
+
+- source repo: `https://github.com/blakehuynh39/hermes-agent.git`
+- current pin: `182101f5769eeba361cfeba29b6e490de13d955d`
+
+Keep that fork's `main` branch containing the pinned commit before merging an
+RSI platform pin bump. Do not pin the executor image to upstream
+`NousResearch/hermes-agent` for infra-specific patches; upstream can lag or
+decline changes that are only needed for the Story company-computer runtime.

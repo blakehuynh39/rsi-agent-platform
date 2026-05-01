@@ -28,7 +28,7 @@ from rsi_runner.rsi_tools import (
 from rsi_runner.session_manager import SessionManager
 
 
-HERMES_TEST_PIN = "b9bdb3c667bfd2135f85e2df57d0ab296e53b7ff"
+HERMES_TEST_PIN = "182101f5769eeba361cfeba29b6e490de13d955d"
 
 
 def runner_env(role: str = "prod") -> dict[str, str]:
@@ -1567,6 +1567,7 @@ class HermesRuntimeTests(unittest.TestCase):
         standard_mock.assert_not_called()
         status = runtime.executor_status("hexec-test-routing")
         self.assertEqual(status["status"], "completed")
+        self.assertEqual(status["executor_instance_id"], "prod")
         self.assertTrue(status["result"]["ok"])
 
     def test_rsi_tool_wrappers_use_transport_names_and_reverse_map_to_canonical_gateway_ids(self) -> None:
@@ -3057,6 +3058,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(result.ok)
         self.assertEqual(runtime.executor_status("hexec-explicit")["status"], "completed")
         self.assertEqual(runtime.executor_status("hexec-explicit")["execution_id"], "hexec-explicit")
+        self.assertEqual(runtime.executor_status("hexec-explicit")["executor_instance_id"], "prod")
         self.assertEqual(runtime.executor_status("rsi-prod-conversation-123"), {})
 
     def test_native_executor_streams_output_detects_result_and_redacts_secrets(self) -> None:

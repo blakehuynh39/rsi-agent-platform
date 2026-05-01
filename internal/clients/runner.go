@@ -345,18 +345,20 @@ type HermesExecutionRequest struct {
 type HermesExecutionResult = RunnerResponse
 
 type HermesExecutionStatus struct {
-	ExecutionID       string          `json:"execution_id,omitempty"`
-	OperationID       string          `json:"operation_id,omitempty"`
-	TraceID           string          `json:"trace_id,omitempty"`
-	WorkflowID        string          `json:"workflow_id,omitempty"`
-	Phase             string          `json:"phase,omitempty"`
-	Status            string          `json:"status,omitempty"`
-	WorkspaceRoot     string          `json:"workspace_root,omitempty"`
-	SessionID         string          `json:"session_id,omitempty"`
-	TerminationReason string          `json:"termination_reason,omitempty"`
-	CompletionVerdict string          `json:"completion_verdict,omitempty"`
-	Message           string          `json:"message,omitempty"`
-	Result            *RunnerResponse `json:"result,omitempty"`
+	ExecutionID        string          `json:"execution_id,omitempty"`
+	OperationID        string          `json:"operation_id,omitempty"`
+	TraceID            string          `json:"trace_id,omitempty"`
+	WorkflowID         string          `json:"workflow_id,omitempty"`
+	ExecutorInstanceID string          `json:"executor_instance_id,omitempty"`
+	ExecutorBaseURL    string          `json:"executor_base_url,omitempty"`
+	Phase              string          `json:"phase,omitempty"`
+	Status             string          `json:"status,omitempty"`
+	WorkspaceRoot      string          `json:"workspace_root,omitempty"`
+	SessionID          string          `json:"session_id,omitempty"`
+	TerminationReason  string          `json:"termination_reason,omitempty"`
+	CompletionVerdict  string          `json:"completion_verdict,omitempty"`
+	Message            string          `json:"message,omitempty"`
+	Result             *RunnerResponse `json:"result,omitempty"`
 }
 
 type RuntimeResponse = harness.RuntimeResponse
