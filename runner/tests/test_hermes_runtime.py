@@ -3556,6 +3556,76 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(any(event["event_type"] == "executor.result.persisted" for event in observer.events))
         self.assertTrue(any(event["event_type"] == "executor.result.loaded" for event in observer.events))
 
+    def test_native_executor_stream_activity_counts_even_when_output_is_suppressed(self) -> None:
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        activities: list[str] = []
+        chunks: list[str] = []
+        observer = RecordingObserver()
+
+        runtime._read_native_executor_stream(
+            io.StringIO("Warning: Unknown toolsets: \nmcp-test-slack\n\n"),
+            stream_name="stdout",
+            phase="main",
+            observer=observer,
+            chunk_store=chunks,
+            secret_values=[],
+            result_detected=threading.Event(),
+            activity_callback=activities.append,
+        )
+
+        self.assertEqual(activities, ["stdout output"])
+        self.assertEqual(len(chunks), 1)
+        self.assertFalse([event for event in observer.events if event["event_type"] == "terminal.output"])
+
+    def test_native_lifecycle_tailer_reports_activity_for_lifecycle_events(self) -> None:
+        activities: list[str] = []
+        observer = RecordingObserver()
+
+        def emit_event(
+            target_observer: RecordingObserver,
+            phase: str,
+            item: dict[str, object],
+            *,
+            secret_values: list[str],
+        ) -> None:
+            target_observer.emit(
+                phase=phase,
+                event_type=str(item.get("event_type") or ""),
+                status=str(item.get("status") or ""),
+                payload={"secret_count": len(secret_values)},
+            )
+
+        with tempfile.TemporaryDirectory() as tempdir:
+            path = Path(tempdir) / "lifecycle.jsonl"
+            path.write_text(
+                json.dumps({"event_type": "tool.generation.started", "status": "running"}) + "\n",
+                encoding="utf-8",
+            )
+            tailer = _NativeLifecycleTailer(
+                path=path,
+                phase="main",
+                observer=observer,
+                secret_values=[],
+                emit_event=emit_event,
+                activity_callback=activities.append,
+            )
+            tailer.drain()
+
+        self.assertEqual(activities, ["lifecycle:tool.generation.started:running"])
+        self.assertEqual(observer.events[0]["event_type"], "tool.generation.started")
+
+    def test_native_executor_subprocess_uses_inactivity_guard_not_wall_clock_task_kill(self) -> None:
+        source = Path(__file__).parents[1].joinpath("rsi_runner", "hermes_runtime.py").read_text(encoding="utf-8")
+        method = source.split("def _execute_native_workflow_task_request", 1)[1].split("\n    def ", 1)[0]
+
+        self.assertNotIn("effective_task_timeout + 5", method)
+        self.assertIn("executor.inactivity_timeout", method)
+        self.assertIn("effective_inactivity_timeout", method)
+
     def test_redaction_masks_unknown_secret_values_by_key_shape(self) -> None:
         text = "\n".join(
             [

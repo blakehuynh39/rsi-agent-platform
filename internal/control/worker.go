@@ -1590,6 +1590,8 @@ func partialCompletionNoticeForTerminationReason(terminationReason string) strin
 		return partialCompletionNoticeIterationBudget
 	case "task_timeout":
 		return partialCompletionNoticeTaskTimeout
+	case "inactivity_timeout":
+		return partialCompletionNoticeTaskTimeout
 	case "output_token_budget_exhausted":
 		return partialCompletionNoticeOutputBudget
 	default:
@@ -1603,6 +1605,8 @@ func partialCompletionReasoningSummary(terminationReason string) string {
 		return "Runner exhausted its iteration budget and returned a best-effort partial response."
 	case "task_timeout":
 		return "Runner hit the workflow time limit and returned a best-effort partial response."
+	case "inactivity_timeout":
+		return "Runner hit the workflow inactivity limit and returned a best-effort partial response."
 	case "output_token_budget_exhausted":
 		return "Runner exhausted its response output budget and returned a best-effort partial response."
 	default:
@@ -1622,6 +1626,11 @@ func partialCompletionRunnerDescription(terminationReason string, hasReplyAction
 			return "Runner hit the workflow time limit and returned a partial Slack reply."
 		}
 		return "Runner hit the workflow time limit and returned a partial completion without a reply side effect."
+	case "inactivity_timeout":
+		if hasReplyAction {
+			return "Runner hit the workflow inactivity limit and returned a partial Slack reply."
+		}
+		return "Runner hit the workflow inactivity limit and returned a partial completion without a reply side effect."
 	case "output_token_budget_exhausted":
 		if hasReplyAction {
 			return "Runner exhausted its response output budget and returned a partial Slack reply."

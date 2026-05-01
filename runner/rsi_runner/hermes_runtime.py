@@ -57,6 +57,7 @@ DEFAULT_HERMES_NATIVE_TOOLSETS = ("terminal", "file")
 QUESTION_RUN_BOUNDED_STOP_TERMINATION_REASONS = frozenset(
     {
         "task_timeout",
+        "inactivity_timeout",
         "iteration_budget_exhausted",
         "output_token_budget_exhausted",
     }
@@ -304,6 +305,7 @@ class _NativeLifecycleTailer:
         observer: ObservationEmitter,
         secret_values: list[str],
         emit_event: Any,
+        activity_callback: Any | None = None,
         start_at_end: bool = False,
     ) -> None:
         self._path = path
@@ -311,6 +313,7 @@ class _NativeLifecycleTailer:
         self._observer = observer
         self._secret_values = secret_values
         self._emit_event = emit_event
+        self._activity_callback = activity_callback
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
         self._offset = 0
@@ -380,6 +383,10 @@ class _NativeLifecycleTailer:
             return
         if not isinstance(item, dict):
             return
+        if self._activity_callback is not None:
+            event_type = str(item.get("event_type") or item.get("event") or "lifecycle").strip()
+            status = str(item.get("status") or "").strip()
+            self._activity_callback(f"lifecycle:{event_type}:{status}" if status else f"lifecycle:{event_type}")
         self._emit_event(
             self._observer,
             self._phase,
@@ -2110,7 +2117,7 @@ class HermesRuntime:
                     lifecycle_events=lifecycle_events,
                 )
                 last_activity = _json_object_or_empty(stop_meta.get("last_activity"))
-                if termination_reason in {"task_timeout", "iteration_budget_exhausted"} and allow_partial_recovery and self._workflow_partial_completion_eligible(task):
+                if termination_reason in QUESTION_RUN_BOUNDED_STOP_TERMINATION_REASONS and allow_partial_recovery and self._workflow_partial_completion_eligible(task):
                     result = self._finalize_partial_completion(
                         task,
                         tool_policy,
@@ -2872,6 +2879,7 @@ class HermesRuntime:
         chunk_store: list[str],
         secret_values: list[str],
         result_detected: threading.Event,
+        activity_callback: Any | None = None,
     ) -> None:
         chunk_index = 0
         marker_tail = ""
@@ -2881,6 +2889,8 @@ class HermesRuntime:
                 chunk = stream.read(_NATIVE_EXECUTOR_OUTPUT_CHUNK_CHARS)
                 if not chunk:
                     break
+                if activity_callback is not None:
+                    activity_callback(f"{stream_name} output")
                 chunk_store.append(chunk)
                 contains_result_marker = False
                 if stream_name == "stdout":
@@ -3166,6 +3176,7 @@ class HermesRuntime:
             )
 
         effective_task_timeout = self._effective_task_timeout(task)
+        effective_inactivity_timeout = self._effective_inactivity_timeout(effective_task_timeout)
         configured_max_iterations = max_iterations_override if max_iterations_override and max_iterations_override > 0 else self._max_iterations
         toolsets = self._native_toolsets_for_task(task)
         toolsets = normalize_tool_names([*toolsets, *agentic_mcp_registration.enabled_toolsets])
@@ -3279,6 +3290,8 @@ class HermesRuntime:
                     "engine": "hermes_aiagent_subprocess",
                     "toolsets": toolsets,
                     "workspace_root": str(workspace_root),
+                    "task_timeout_seconds": effective_task_timeout,
+                    "inactivity_timeout_seconds": effective_inactivity_timeout,
                 },
             )
             observer.emit(
@@ -3295,6 +3308,29 @@ class HermesRuntime:
         completed_returncode = -1
         timed_out = False
         cancelled = False
+        timeout_reason = ""
+        timeout_idle_seconds = 0.0
+        timeout_last_activity_desc = ""
+        started_at = time.monotonic()
+        activity_lock = threading.Lock()
+        last_activity_at = started_at
+        last_activity_desc = "executor.subprocess.started"
+
+        def mark_executor_activity(description: str) -> None:
+            nonlocal last_activity_at, last_activity_desc
+            desc = str(description or "").strip() or "executor activity"
+            with activity_lock:
+                last_activity_at = time.monotonic()
+                last_activity_desc = desc
+
+        def executor_activity_snapshot(now: float | None = None) -> tuple[float, str, float]:
+            current = time.monotonic() if now is None else now
+            with activity_lock:
+                idle = max(0.0, current - last_activity_at)
+                desc = last_activity_desc
+                at = last_activity_at
+            return idle, desc, at
+
         lifecycle_tailer: _NativeLifecycleTailer | None = None
         if observer is not None:
             lifecycle_tailer = _NativeLifecycleTailer(
@@ -3303,6 +3339,7 @@ class HermesRuntime:
                 observer=observer,
                 secret_values=secret_values,
                 emit_event=self._emit_native_lifecycle_event,
+                activity_callback=mark_executor_activity,
                 start_at_end=True,
             )
         process = subprocess.Popen(
@@ -3332,6 +3369,7 @@ class HermesRuntime:
                     "chunk_store": stdout_chunks,
                     "secret_values": secret_values,
                     "result_detected": result_detected,
+                    "activity_callback": mark_executor_activity,
                 },
                 daemon=True,
             )
@@ -3350,6 +3388,7 @@ class HermesRuntime:
                     "chunk_store": stderr_chunks,
                     "secret_values": secret_values,
                     "result_detected": result_detected,
+                    "activity_callback": mark_executor_activity,
                 },
                 daemon=True,
             )
@@ -3357,7 +3396,6 @@ class HermesRuntime:
             reader_threads.append(thread)
         with self._executor_process_lock:
             self._executor_processes[execution_id] = process
-        started_at = time.monotonic()
         try:
             while True:
                 with self._executor_process_lock:
@@ -3366,8 +3404,26 @@ class HermesRuntime:
                         break
                 if process.poll() is not None:
                     break
-                if time.monotonic()-started_at > (effective_task_timeout + 5):
+                now = time.monotonic()
+                idle_seconds, idle_desc, idle_at = executor_activity_snapshot(now)
+                if effective_inactivity_timeout > 0 and idle_seconds > float(effective_inactivity_timeout):
                     timed_out = True
+                    timeout_reason = "inactivity_timeout"
+                    timeout_idle_seconds = idle_seconds
+                    timeout_last_activity_desc = idle_desc
+                    if observer is not None:
+                        observer.emit(
+                            phase=execution_phase,
+                            event_type="executor.inactivity_timeout",
+                            status="inactivity_timeout",
+                            payload={
+                                "idle_seconds": round(idle_seconds, 3),
+                                "inactivity_timeout_seconds": effective_inactivity_timeout,
+                                "last_activity_desc": idle_desc,
+                                "last_activity_at_monotonic": round(idle_at, 3),
+                                "elapsed_seconds": round(max(0.0, now - started_at), 3),
+                            },
+                        )
                     break
                 time.sleep(0.25)
             if cancelled or timed_out:
@@ -3461,7 +3517,7 @@ class HermesRuntime:
                 observer.emit(
                     phase=execution_phase,
                     event_type="model.call.completed",
-                    status="cancelled" if cancelled else "task_timeout",
+                    status="cancelled" if cancelled else timeout_reason or "inactivity_timeout",
                     payload={
                         "engine": "hermes_aiagent_subprocess",
                         "returncode": completed_returncode,
@@ -3474,8 +3530,18 @@ class HermesRuntime:
                     status=cleanup_status,
                     payload={"errors": cleanup_errors},
                 )
-            termination_reason = "cancelled" if cancelled else "task_timeout"
-            stop_meta: JsonObject = {"termination_reason": termination_reason, "last_activity": {}}
+            termination_reason = "cancelled" if cancelled else timeout_reason or "inactivity_timeout"
+            stop_meta: JsonObject = {
+                "termination_reason": termination_reason,
+                "last_activity": {
+                    "last_activity_desc": timeout_last_activity_desc,
+                    "idle_seconds": round(timeout_idle_seconds, 3),
+                },
+            }
+            if not cancelled:
+                stop_meta["timeout_kind"] = termination_reason
+                stop_meta["inactivity_timeout_seconds"] = effective_inactivity_timeout
+                stop_meta["stopped_after_seconds"] = int(effective_inactivity_timeout)
             if observer is not None:
                 observer.emit(
                     phase=execution_phase,
@@ -3485,6 +3551,7 @@ class HermesRuntime:
                         "engine": "hermes_aiagent_subprocess",
                         "returncode": completed_returncode,
                         "termination_reason": termination_reason,
+                        "timeout_kind": "" if cancelled else termination_reason,
                         "parsed_result_ok": False,
                         "workspace_root": str(workspace_root),
                         "artifact_output_dir": str(self._native_artifact_destination(task)),
@@ -3503,19 +3570,22 @@ class HermesRuntime:
                 )
             result = HermesExecutionResult(
                 ok=False,
-                message="Hermes native executor was cancelled." if cancelled else f"Hermes native executor timed out after {effective_task_timeout}s.",
+                message="Hermes native executor was cancelled." if cancelled else f"Hermes native executor hit inactivity timeout after {effective_inactivity_timeout}s.",
                 provider="hermes-native-executor",
                 raw={
                     **self._base_raw(prompt=task.prompt, system_message=task.system_message),
                     **finalized,
                     **observed,
                     **self._workflow_evidence_raw(task, observed, termination_reason),
+                    **stop_meta,
+                    "task_timeout_seconds": effective_task_timeout,
+                    "inactivity_timeout_seconds": effective_inactivity_timeout,
                     "failure_class": "runner_cancelled" if cancelled else "runner_transport_timeout",
                     "runner_diagnostics": self._runner_diagnostics(
                         tool_policy,
                         failure_kind="cancelled" if cancelled else "transport_timeout",
-                        provider_error_message="Hermes native executor was cancelled." if cancelled else f"Hermes native executor timed out after {effective_task_timeout}s.",
-                        timeout_kind=termination_reason,
+                        provider_error_message="Hermes native executor was cancelled." if cancelled else f"Hermes native executor hit inactivity timeout after {effective_inactivity_timeout}s.",
+                        timeout_kind="" if cancelled else termination_reason,
                         termination_reason=termination_reason,
                         session_ready_issues=self._session_manager.ready_issues,
                         repair_attempted=False,
@@ -3608,6 +3678,7 @@ class HermesRuntime:
             **finalized,
             **observed,
             "task_timeout_seconds": effective_task_timeout,
+            "inactivity_timeout_seconds": effective_inactivity_timeout,
             "max_iterations": configured_max_iterations,
             "tool_policy_mode": tool_policy.mode,
             "tool_allowlist_effective": tool_policy.effective,
