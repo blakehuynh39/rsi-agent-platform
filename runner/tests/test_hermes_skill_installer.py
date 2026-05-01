@@ -155,6 +155,37 @@ class HermesSkillInstallerTest(unittest.TestCase):
                 SkillInstaller(config).run()
             self.assertFalse((config.skills_root / "story-company").exists())
 
+    def test_source_validation_requires_hermes_skill_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            repo = root / "repo"
+            source_root = repo / "hermes/skills/story-company"
+            skill_dir = source_root / "missing-metadata"
+            skill_dir.mkdir(parents=True, exist_ok=True)
+            skill_dir.joinpath("SKILL.md").write_text("# Missing Metadata\n", encoding="utf-8")
+            target_hash = build_tree_snapshot(source_root, excluded_relative_paths={"manifest.json"}).tree_hash
+            source_root.joinpath("manifest.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "pack_version": "1",
+                        "source_commit": "local",
+                        "expected_previous_live_tree_hash": EMPTY_TREE_HASH,
+                        "target_skill_tree_hash": target_hash,
+                    },
+                    ensure_ascii=True,
+                    indent=2,
+                    sort_keys=True,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            config = self.make_config(root, repo)
+
+            with self.assertRaisesRegex(InstallerError, "skill metadata missing name"):
+                SkillInstaller(config).run()
+            self.assertFalse((config.skills_root / "story-company").exists())
+
     def test_validate_only_checks_manifest_without_touching_live_skills(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)

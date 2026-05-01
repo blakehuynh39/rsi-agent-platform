@@ -181,6 +181,49 @@ def scan_for_secret_values(root: Path, *, excluded_relative_paths: set[str] | No
                 raise InstallerError(f"secret-like value detected in skill pack: {rel}")
 
 
+def _parse_skill_frontmatter(content: str) -> dict[str, Any]:
+    try:
+        from agent.skill_utils import parse_frontmatter  # type: ignore
+
+        frontmatter, _body = parse_frontmatter(content)
+        return frontmatter if isinstance(frontmatter, dict) else {}
+    except Exception:
+        if not content.startswith("---"):
+            return {}
+        _start, _sep, remainder = content.partition("\n")
+        yaml_text, sep, _body = remainder.partition("\n---")
+        if not sep:
+            return {}
+        frontmatter: dict[str, Any] = {}
+        for line in yaml_text.splitlines():
+            key, sep, value = line.partition(":")
+            if sep:
+                frontmatter[key.strip()] = value.strip().strip("'\"")
+        return frontmatter
+
+
+def validate_skill_metadata(root: Path) -> None:
+    if not root.exists():
+        raise InstallerError(f"source skill root does not exist: {root}")
+    for path in sorted(root.rglob("SKILL.md")):
+        rel = path.relative_to(root).as_posix()
+        try:
+            text = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError as exc:
+            raise InstallerError(f"skill file must be utf-8 text: {rel}") from exc
+        frontmatter = _parse_skill_frontmatter(text)
+        name = str(frontmatter.get("name") or "").strip()
+        description = str(frontmatter.get("description") or "").strip()
+        if not name:
+            raise InstallerError(f"skill metadata missing name: {rel}")
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,63}", name):
+            raise InstallerError(f"skill metadata name must be a valid Hermes skill identifier: {rel}")
+        if not description:
+            raise InstallerError(f"skill metadata missing description: {rel}")
+        if len(description) > 1024:
+            raise InstallerError(f"skill metadata description exceeds 1024 characters: {rel}")
+
+
 @dataclass(frozen=True)
 class SkillPackManifest:
     schema_version: int
@@ -407,6 +450,7 @@ class SkillInstaller:
 
     def _validate_source(self, source_root: Path, manifest: SkillPackManifest) -> TreeSnapshot:
         scan_for_secret_values(source_root, excluded_relative_paths={MANIFEST_NAME})
+        validate_skill_metadata(source_root)
         source_snapshot = build_tree_snapshot(source_root, excluded_relative_paths={MANIFEST_NAME})
         if source_snapshot.tree_hash != manifest.target_skill_tree_hash:
             raise InstallerError(

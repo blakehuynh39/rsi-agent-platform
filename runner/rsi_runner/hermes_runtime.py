@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import concurrent.futures
 from dataclasses import dataclass, replace
+import base64
 import hashlib
 import json
 import logging
@@ -124,12 +125,42 @@ _BENIGN_MCP_TOOLSET_WARNING = re.compile(
     r"Warning: Unknown toolsets:\s*\n(?:mcp-[^\n]*(?:\n|$))+\n*",
     re.MULTILINE,
 )
-
-
 def _json_object_or_empty(value: JsonValue | None) -> JsonObject:
     if isinstance(value, dict):
         return value
     return {}
+
+
+def _env_map(name: str) -> dict[str, str]:
+    raw = str(os.getenv(name, "") or "").strip()
+    if not raw:
+        return {}
+    out: dict[str, str] = {}
+    for part in raw.split(","):
+        item = part.strip()
+        if not item:
+            continue
+        key, sep, value = item.partition("=")
+        if not sep:
+            continue
+        key = key.strip()
+        value = value.strip()
+        if key and value:
+            out[key] = value
+    return out
+
+
+def _normalize_private_key(raw: str) -> str:
+    value = raw.strip()
+    if "\\n" in value and "\n" not in value:
+        value = value.replace("\\n", "\n")
+    if "BEGIN" in value:
+        return value
+    try:
+        decoded = base64.b64decode(value).decode("utf-8")
+    except Exception:
+        return value
+    return decoded if "BEGIN" in decoded else value
 
 
 def _json_object_list(value: JsonValue | None) -> list[JsonObject]:
@@ -1772,6 +1803,19 @@ class HermesRuntime:
         requested = [name.replace("_", "-").strip().lower() for name in task.requested_skills if str(name or "").strip()]
         return normalize_tool_names(requested)
 
+    def _requested_skills(self, task: RunnerTaskRequest) -> list[str]:
+        user_request = self._extract_user_request_text(task.prompt)
+        explicit_mentions = self._skill_mentions_from_text(user_request)
+        requested_skills: list[str] = []
+        seen_requested: set[str] = set()
+        for identifier in [*explicit_mentions, *self._skill_runtime_requested(task)]:
+            normalized = identifier.replace("_", "-").strip().lower()
+            if not normalized or normalized in seen_requested:
+                continue
+            seen_requested.add(normalized)
+            requested_skills.append(normalized)
+        return requested_skills
+
     def _expand_task_skills(self, task: RunnerTaskRequest, context: SessionContext) -> tuple[RunnerTaskRequest, JsonObject]:
         diagnostics: JsonObject = {
             "requested_skills": [],
@@ -1780,15 +1824,7 @@ class HermesRuntime:
             "skill_injection_mode": "none",
         }
         user_request = self._extract_user_request_text(task.prompt)
-        explicit_mentions = self._skill_mentions_from_text(user_request)
-        requested_skills = []
-        seen_requested: set[str] = set()
-        for identifier in [*explicit_mentions, *self._skill_runtime_requested(task)]:
-            normalized = identifier.replace("_", "-").strip().lower()
-            if not normalized or normalized in seen_requested:
-                continue
-            seen_requested.add(normalized)
-            requested_skills.append(normalized)
+        requested_skills = self._requested_skills(task)
         diagnostics["requested_skills"] = list(requested_skills)
         if not requested_skills:
             return task, diagnostics
@@ -2521,24 +2557,166 @@ class HermesRuntime:
             return {}, status
         repos = normalize_tool_names([repo, *task.repo_allowlist])
         token = str(os.getenv("GH_TOKEN", "") or os.getenv("GITHUB_TOKEN", "") or "").strip()
+        provider_ref = "pod_environment"
+        expires_at = ""
+        installation_id = ""
+        owner = self._github_owner_for_repo(repo)
         if not token:
-            status.update({"status": "failed", "reason": "missing_github_token"})
-            return {}, status
+            token, app_status = self._github_app_installation_token(repo, repos)
+            if not token:
+                status.update(app_status)
+                return {}, status
+            provider_ref = "github_app_installation"
+            expires_at = _string_or_json(app_status.get("expires_at"))
+            installation_id = _string_or_json(app_status.get("installation_id"))
+            owner = _string_or_json(app_status.get("owner")) or owner
         status.update(
             {
                 "configured": True,
                 "status": "configured",
-                "reason": "pod_environment",
+                "reason": provider_ref,
                 "repo": repo,
                 "repositories": repos,
-                "provider_ref": "pod_environment",
+                "provider_ref": provider_ref,
+                "owner": owner,
             }
         )
+        if expires_at:
+            status["expires_at"] = expires_at
+        if installation_id:
+            status["installation_id"] = installation_id
         return {
             "GH_TOKEN": token,
             "GITHUB_TOKEN": token,
             "GH_PROMPT_DISABLED": "1",
         }, status
+
+    def _github_owner_for_repo(self, repo: str) -> str:
+        repo = str(repo or "").strip()
+        owner_hint, repo_name = self._github_repo_parts(repo)
+        if owner_hint:
+            return owner_hint
+        repo_owners = _env_map("RSI_GITHUB_REPO_OWNERS")
+        owner = repo_owners.get(repo) or repo_owners.get(repo_name) or os.getenv("RSI_GITHUB_OWNER", "")
+        return str(owner or "").strip()
+
+    def _github_repo_parts(self, repo: str) -> tuple[str, str]:
+        repo = str(repo or "").strip()
+        if "/" not in repo:
+            return "", repo
+        owner, _, name = repo.partition("/")
+        return owner.strip(), name.strip()
+
+    def _github_repositories_for_owner(self, owner: str, repos: list[str]) -> list[str]:
+        owner = str(owner or "").strip()
+        repo_owners = _env_map("RSI_GITHUB_REPO_OWNERS")
+        default_owner = str(os.getenv("RSI_GITHUB_OWNER", "") or "").strip()
+        out: list[str] = []
+        for repo in repos:
+            repo = str(repo or "").strip()
+            if not repo:
+                continue
+            owner_hint, repo_name = self._github_repo_parts(repo)
+            repo_owner = owner_hint or repo_owners.get(repo) or repo_owners.get(repo_name) or default_owner
+            if repo_owner == owner:
+                out.append(repo_name)
+        return normalize_tool_names(out)
+
+    def _github_app_installation_token(self, repo: str, repos: list[str]) -> tuple[str, JsonObject]:
+        app_id = str(os.getenv("RSI_GITHUB_APP_ID", "") or "").strip()
+        private_key = _normalize_private_key(str(os.getenv("RSI_GITHUB_APP_PRIVATE_KEY", "") or ""))
+        api_base_url = str(os.getenv("RSI_GITHUB_API_BASE_URL", "https://api.github.com") or "https://api.github.com").rstrip("/")
+        owner = self._github_owner_for_repo(repo)
+        installation_ids = _env_map("RSI_GITHUB_APP_INSTALLATION_IDS")
+        installation_id = installation_ids.get(owner) or str(os.getenv("RSI_GITHUB_APP_INSTALLATION_ID", "") or "").strip()
+        scoped_repos = self._github_repositories_for_owner(owner, repos)
+        status: JsonObject = {
+            "configured": False,
+            "status": "failed",
+            "reason": "missing_github_token",
+            "repo": repo,
+            "repositories": scoped_repos,
+            "owner": owner,
+            "installation_id": installation_id,
+        }
+        missing = [
+            name
+            for name, value in (
+                ("RSI_GITHUB_APP_ID", app_id),
+                ("RSI_GITHUB_APP_PRIVATE_KEY", private_key),
+                ("RSI_GITHUB_APP_INSTALLATION_ID", installation_id),
+                ("RSI_GITHUB_OWNER", owner),
+            )
+            if not value
+        ]
+        if missing:
+            status["reason"] = "missing_github_app_credentials"
+            status["missing"] = missing
+            return "", status
+        try:
+            import jwt  # type: ignore
+        except ImportError:
+            status["reason"] = "missing_pyjwt"
+            return "", status
+        now = int(time.time())
+        try:
+            app_jwt = jwt.encode({"iat": now - 60, "exp": now + 540, "iss": app_id}, private_key, algorithm="RS256")
+        except Exception as exc:
+            status["reason"] = "github_app_jwt_failed"
+            status["error"] = str(exc)
+            return "", status
+        body: JsonObject = {}
+        if scoped_repos:
+            body["repositories"] = scoped_repos
+        request = urlrequest.Request(
+            f"{api_base_url}/app/installations/{installation_id}/access_tokens",
+            data=json.dumps(body).encode("utf-8"),
+            method="POST",
+            headers={
+                "Accept": "application/vnd.github+json",
+                "Authorization": f"Bearer {app_jwt}",
+                "Content-Type": "application/json",
+            },
+        )
+        try:
+            with urlrequest.urlopen(request, timeout=30) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+        except urlerror.HTTPError as exc:
+            error_body = exc.read(2048).decode("utf-8", errors="replace")
+            status["reason"] = "github_app_token_request_failed"
+            status["http_status"] = exc.code
+            status["error"] = _redact_subprocess_output(error_body, secret_values=_sensitive_env_values(dict(os.environ)))
+            return "", status
+        except Exception as exc:
+            status["reason"] = "github_app_token_request_failed"
+            status["error"] = str(exc)
+            return "", status
+        token = str(payload.get("token") or "").strip()
+        if not token:
+            status["reason"] = "github_app_token_response_missing_token"
+            return "", status
+        status.update(
+            {
+                "configured": True,
+                "status": "configured",
+                "reason": "github_app_installation",
+                "expires_at": str(payload.get("expires_at") or ""),
+            }
+        )
+        return token, status
+
+    def _write_git_askpass(self, request_dir: Path) -> Path:
+        askpass_path = request_dir / "git-askpass.sh"
+        askpass_path.write_text(
+            "#!/bin/sh\n"
+            "case \"$1\" in\n"
+            "  *Username*) printf '%s\\n' 'x-access-token' ;;\n"
+            "  *) printf '%s\\n' \"$GH_TOKEN\" ;;\n"
+            "esac\n",
+            encoding="utf-8",
+        )
+        askpass_path.chmod(0o700)
+        return askpass_path
 
     def _native_executor_completion_meta(self, parsed_result: JsonObject, max_iterations: int) -> JsonObject:
         result_payload = _json_object_or_empty(parsed_result.get("result"))
@@ -2984,6 +3162,9 @@ class HermesRuntime:
                     "termination_reason": "hermes_phase_contract_failed",
                 },
             )
+        requested_skills = self._requested_skills(task)
+        if requested_skills != task.requested_skills:
+            task = replace(task, requested_skills=requested_skills)
         request_dir = self._native_run_dir(task)
         github_cli_env, github_cli_credentials = self._github_cli_environment(task)
         if github_cli_env:
@@ -2991,6 +3172,10 @@ class HermesRuntime:
             gh_config_dir.mkdir(parents=True, exist_ok=True)
             github_cli_env["GH_CONFIG_DIR"] = str(gh_config_dir)
             github_cli_credentials["gh_config_dir"] = str(gh_config_dir)
+            askpass_path = self._write_git_askpass(request_dir)
+            github_cli_env["GIT_ASKPASS"] = str(askpass_path)
+            github_cli_env["GIT_TERMINAL_PROMPT"] = "0"
+            github_cli_credentials["git_askpass_configured"] = True
         if observer is not None:
             observer.emit(
                 phase=execution_phase,
