@@ -213,6 +213,15 @@ jobs:
           token: ${{ secrets.STORY_DEPLOYMENTS_PUSH_TOKEN }}
           path: story-deployments
 
+      - name: Extract Hermes pin from platform checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          hermes_pin="$(python3 scripts/extract_hermes_pin.py --pyproject runner/pyproject.toml)"
+          echo "HERMES_PIN=${hermes_pin}" >> "${GITHUB_ENV}"
+          echo "Hermes pin: ${hermes_pin}"
+
       - name: Update RSI image tags in story-deployments
         working-directory: story-deployments
         run: |
@@ -226,10 +235,16 @@ jobs:
             --hermes-skill-exporter-tag "${{ env.HERMES_SKILL_EXPORTER_TAG }}"
             --hermes-skill-installer-tag "${{ env.HERMES_SKILL_INSTALLER_TAG }}"
             --hermes-skill-installer-source-ref "${{ github.sha }}"
+            --hermes-pin "${HERMES_PIN}"
             --honcho-tag "${{ env.HONCHO_TAG }}"
           )
 
           python3 "${GITHUB_WORKSPACE}/scripts/update_story_deployments_tags.py" "${args[@]}"
+
+          if ! grep -Fq "RSI_HERMES_PIN: \"${HERMES_PIN}\"" "${{ env.STORY_DEPLOYMENTS_VALUES_FILE }}"; then
+            echo "::error::story-deployments values did not receive RSI_HERMES_PIN=${HERMES_PIN}"
+            exit 1
+          fi
 
           git diff -- "${{ env.STORY_DEPLOYMENTS_VALUES_FILE }}"
 

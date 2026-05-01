@@ -19,6 +19,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--hermes-skill-exporter-tag", required=True)
     parser.add_argument("--hermes-skill-installer-tag", required=True)
     parser.add_argument("--hermes-skill-installer-source-ref", default="")
+    parser.add_argument("--hermes-pin", required=True)
     parser.add_argument("--honcho-tag", required=True)
     return parser.parse_args()
 
@@ -109,6 +110,12 @@ def main() -> None:
         }
     else:
         alternative_updates = {}
+    alternative_updates[
+        (
+            ("runnerCommonConfig", "RSI_HERMES_PIN"),
+            ("globalEnv", "RSI_HERMES_PIN"),
+        )
+    ] = args.hermes_pin
     update_tags(Path(args.file), updates, alternative_updates)
 
 

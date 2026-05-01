@@ -101,6 +101,73 @@ class UpdateStoryDeploymentsTagsTest(unittest.TestCase):
             self.assertIn('tag: "hermes-skill-exporter-new"', rendered)
             self.assertIn('RSI_HERMES_SKILL_INSTALLER_SOURCE_REF: "new-ref"', rendered)
 
+    def test_updates_hermes_pin_in_runner_common_config(self) -> None:
+        module = load_script_module()
+        with tempfile.TemporaryDirectory() as raw:
+            values = Path(raw) / "values.yaml"
+            values.write_text(
+                "\n".join(
+                    [
+                        "runnerCommonConfig: &runnerCommonConfig",
+                        '  RSI_HERMES_PIN: "old-pin"',
+                        "hermesExecutor:",
+                        "  image:",
+                        '    tag: "hermes-executor-old"',
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            module.update_tags(
+                values,
+                {
+                    ("hermesExecutor", "image", "tag"): "hermes-executor-new",
+                },
+                {
+                    (
+                        ("runnerCommonConfig", "RSI_HERMES_PIN"),
+                        ("globalEnv", "RSI_HERMES_PIN"),
+                    ): "0123456789abcdef0123456789abcdef01234567",
+                },
+            )
+
+            rendered = values.read_text(encoding="utf-8")
+            self.assertIn('tag: "hermes-executor-new"', rendered)
+            self.assertIn('RSI_HERMES_PIN: "0123456789abcdef0123456789abcdef01234567"', rendered)
+
+    def test_missing_hermes_pin_path_fails_loudly(self) -> None:
+        module = load_script_module()
+        with tempfile.TemporaryDirectory() as raw:
+            values = Path(raw) / "values.yaml"
+            values.write_text(
+                "\n".join(
+                    [
+                        "hermesExecutor:",
+                        "  image:",
+                        '    tag: "hermes-executor-old"',
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            with self.assertRaises(SystemExit) as raised:
+                module.update_tags(
+                    values,
+                    {
+                        ("hermesExecutor", "image", "tag"): "hermes-executor-new",
+                    },
+                    {
+                        (
+                            ("runnerCommonConfig", "RSI_HERMES_PIN"),
+                            ("globalEnv", "RSI_HERMES_PIN"),
+                        ): "0123456789abcdef0123456789abcdef01234567",
+                    },
+                )
+
+            message = str(raised.exception)
+            self.assertIn("runnerCommonConfig.RSI_HERMES_PIN", message)
+            self.assertIn("globalEnv.RSI_HERMES_PIN", message)
+
     def test_missing_hermes_skill_installer_source_ref_alternatives_fail_loudly(self) -> None:
         module = load_script_module()
         with tempfile.TemporaryDirectory() as raw:
