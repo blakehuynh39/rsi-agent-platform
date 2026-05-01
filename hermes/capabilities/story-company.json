@@ -20,6 +20,18 @@
       "runtime_surface": "executor pod environment or mounted files"
     },
     {
+      "name": "prod-depin-admin-read",
+      "type": "credential",
+      "source_of_truth": "prod depin Vault value copied into stage RSI Vault plus story-deployments executor env wiring",
+      "runtime_surface": "DEPIN_ADMIN_BASE_URL, DEPIN_ADMIN_READ_API_KEY_HEADER, DEPIN_ADMIN_READ_API_KEY"
+    },
+    {
+      "name": "prod-depin-api-context",
+      "type": "api_contract",
+      "source_of_truth": "https://depin.storyprotocol.net/openapi.json, piplabs/depin-backend, piplabs/cloudflare",
+      "runtime_surface": "depin-prod-admin-read Hermes skill"
+    },
+    {
       "name": "story-company-skills",
       "type": "skill",
       "source_of_truth": "hermes/skills/story-company",
