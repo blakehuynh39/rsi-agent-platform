@@ -13,41 +13,49 @@ func loadRuntimeDiagnoses(r sqlReader, store *MemoryStore) error {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var item improvement.RuntimeDiagnosis
-		var conversationID, caseID, latestTraceID, subsystem, failureMode, summary, recommendedFix, targetSurface, validationPlan, sessionScopeKind, sessionScopeID, lastError sql.NullString
-		var evidenceRefs, missingEvidence, lastResult []byte
-		var lastAttemptedAt, promotedAt sql.NullTime
-		var status string
-		if err := rows.Scan(&item.ID, &item.CandidateKey, &item.Repo, &conversationID, &caseID, &latestTraceID, &status, &subsystem, &failureMode, &summary, &evidenceRefs, &missingEvidence, &recommendedFix, &targetSurface, &validationPlan, &sessionScopeKind, &sessionScopeID, &lastResult, &lastError, &lastAttemptedAt, &promotedAt, &item.CreatedAt, &item.UpdatedAt); err != nil {
+		item, err := scanRuntimeDiagnosis(rows)
+		if err != nil {
 			return err
-		}
-		item.ConversationID = conversationID.String
-		item.CaseID = caseID.String
-		item.LatestTraceID = latestTraceID.String
-		item.Status = improvement.RuntimeDiagnosisStatus(status)
-		item.Subsystem = subsystem.String
-		item.FailureMode = failureMode.String
-		item.Summary = summary.String
-		item.EvidenceRefs = decodeJSON(evidenceRefs, []string{})
-		item.MissingEvidence = decodeJSON(missingEvidence, []string{})
-		item.RecommendedFix = recommendedFix.String
-		item.TargetSurface = targetSurface.String
-		item.ValidationPlan = validationPlan.String
-		item.SessionScopeKind = sessionScopeKind.String
-		item.SessionScopeID = sessionScopeID.String
-		item.LastResult = decodeJSON(lastResult, map[string]any{})
-		item.LastError = lastError.String
-		if lastAttemptedAt.Valid {
-			t := lastAttemptedAt.Time
-			item.LastAttemptedAt = &t
-		}
-		if promotedAt.Valid {
-			t := promotedAt.Time
-			item.PromotedAt = &t
 		}
 		store.runtimeDiagnoses[item.ID] = item
 	}
 	return rows.Err()
+}
+
+func scanRuntimeDiagnosis(scanner interface{ Scan(dest ...any) error }) (improvement.RuntimeDiagnosis, error) {
+	var item improvement.RuntimeDiagnosis
+	var conversationID, caseID, latestTraceID, subsystem, failureMode, summary, recommendedFix, targetSurface, validationPlan, sessionScopeKind, sessionScopeID, lastError sql.NullString
+	var evidenceRefs, missingEvidence, lastResult []byte
+	var lastAttemptedAt, promotedAt sql.NullTime
+	var status string
+	if err := scanner.Scan(&item.ID, &item.CandidateKey, &item.Repo, &conversationID, &caseID, &latestTraceID, &status, &subsystem, &failureMode, &summary, &evidenceRefs, &missingEvidence, &recommendedFix, &targetSurface, &validationPlan, &sessionScopeKind, &sessionScopeID, &lastResult, &lastError, &lastAttemptedAt, &promotedAt, &item.CreatedAt, &item.UpdatedAt); err != nil {
+		return improvement.RuntimeDiagnosis{}, err
+	}
+	item.ConversationID = conversationID.String
+	item.CaseID = caseID.String
+	item.LatestTraceID = latestTraceID.String
+	item.Status = improvement.RuntimeDiagnosisStatus(status)
+	item.Subsystem = subsystem.String
+	item.FailureMode = failureMode.String
+	item.Summary = summary.String
+	item.EvidenceRefs = decodeJSON(evidenceRefs, []string{})
+	item.MissingEvidence = decodeJSON(missingEvidence, []string{})
+	item.RecommendedFix = recommendedFix.String
+	item.TargetSurface = targetSurface.String
+	item.ValidationPlan = validationPlan.String
+	item.SessionScopeKind = sessionScopeKind.String
+	item.SessionScopeID = sessionScopeID.String
+	item.LastResult = decodeJSON(lastResult, map[string]any{})
+	item.LastError = lastError.String
+	if lastAttemptedAt.Valid {
+		t := lastAttemptedAt.Time
+		item.LastAttemptedAt = &t
+	}
+	if promotedAt.Valid {
+		t := promotedAt.Time
+		item.PromotedAt = &t
+	}
+	return item, nil
 }
 
 func persistRuntimeDiagnoses(tx *sql.Tx, store *MemoryStore) error {
@@ -114,6 +122,23 @@ func (p *PostgresStore) ListRuntimeDiagnoses() []improvement.RuntimeDiagnosis {
 		return nil
 	}
 	return store.ListRuntimeDiagnoses()
+}
+
+func (p *PostgresStore) ListRuntimeDiagnosesForTraceContext(traceID string, caseID string, candidateKey string) []improvement.RuntimeDiagnosis {
+	rows, err := p.db.Query(`select id, candidate_key, repo, conversation_id, case_id, latest_trace_id, status, subsystem, failure_mode, summary, evidence_refs, missing_evidence, recommended_fix, target_surface, validation_plan, session_scope_kind, session_scope_id, last_result, last_error, last_attempted_at, promoted_at, created_at, updated_at from runtime_diagnosis where ($1 <> '' and latest_trace_id = $1) or ($2 <> '' and case_id = $2) or ($3 <> '' and candidate_key = $3) order by updated_at desc`, traceID, caseID, candidateKey)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	out := []improvement.RuntimeDiagnosis{}
+	for rows.Next() {
+		item, err := scanRuntimeDiagnosis(rows)
+		if err != nil {
+			return nil
+		}
+		out = append(out, item)
+	}
+	return out
 }
 
 func (p *PostgresStore) GetRuntimeDiagnosis(diagnosisID string) (improvement.RuntimeDiagnosis, bool) {

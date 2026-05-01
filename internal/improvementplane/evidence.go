@@ -36,7 +36,7 @@ type knowledgeFilters struct {
 }
 
 func listActionIntents(store storepkg.Repository, filters actionFilters) []action.Intent {
-	items := store.ListActionIntents()
+	items := storeActionIntents(store, filters)
 	out := make([]action.Intent, 0)
 	for _, item := range items {
 		if filters.ConversationID != "" && item.ConversationID != filters.ConversationID {
@@ -82,7 +82,7 @@ func flattenActionResults(store storepkg.Repository, intents []action.Intent) []
 }
 
 func listOutcomes(store storepkg.Repository, conversationID string, caseID string, traceID string, proposalID string) []outcome.Record {
-	items := store.ListOutcomes()
+	items := storeOutcomes(store, conversationID, caseID, traceID, proposalID)
 	out := make([]outcome.Record, 0)
 	for _, item := range items {
 		if conversationID != "" && item.ConversationID != conversationID {

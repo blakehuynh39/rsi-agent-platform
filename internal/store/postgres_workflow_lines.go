@@ -90,9 +90,25 @@ func (p *PostgresStore) ListWorkflowLines() []WorkflowLine {
 }
 
 func (p *PostgresStore) GetWorkflowLine(caseID string) (WorkflowLine, bool) {
-	store, err := p.readStore()
-	if err != nil {
+	row := p.db.QueryRow(`select case_id, conversation_id, status, current_workflow_id, latest_workflow_id, attempt_count, auto_retry_budget_remaining, last_failure_class, next_retry_action, retry_after, line_stop_reason, version, created_at, updated_at, completed_at from workflow_line where case_id = $1`, caseID)
+	var item WorkflowLine
+	var currentWorkflowID, latestWorkflowID, lastFailureClass, nextRetryAction, lineStopReason sql.NullString
+	var retryAfter, completedAt sql.NullTime
+	if err := row.Scan(&item.CaseID, &item.ConversationID, &item.Status, &currentWorkflowID, &latestWorkflowID, &item.AttemptCount, &item.AutoRetryBudgetRemaining, &lastFailureClass, &nextRetryAction, &retryAfter, &lineStopReason, &item.Version, &item.CreatedAt, &item.UpdatedAt, &completedAt); err != nil {
 		return WorkflowLine{}, false
 	}
-	return store.GetWorkflowLine(caseID)
+	item.CurrentWorkflowID = currentWorkflowID.String
+	item.LatestWorkflowID = latestWorkflowID.String
+	item.LastFailureClass = lastFailureClass.String
+	item.NextRetryAction = nextRetryAction.String
+	item.LineStopReason = lineStopReason.String
+	if retryAfter.Valid {
+		t := retryAfter.Time
+		item.RetryAfter = &t
+	}
+	if completedAt.Valid {
+		t := completedAt.Time
+		item.CompletedAt = &t
+	}
+	return normalizeWorkflowLine(item), true
 }

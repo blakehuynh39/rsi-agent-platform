@@ -176,23 +176,55 @@ func (p *PostgresStore) ListExecutionLedgerEventsByTracePage(traceID string, opt
 	if limit > 500 {
 		limit = 500
 	}
-	allItems := p.ListExecutionLedgerEventsByTrace(traceID)
-	items := filterExecutionLedgerEventsByScope(allItems, opts.Scope)
-	end := len(items)
-	if strings.TrimSpace(opts.BeforeID) != "" {
-		for index, item := range items {
-			if item.ID == strings.TrimSpace(opts.BeforeID) {
-				end = index
-				break
-			}
+	scope := strings.TrimSpace(strings.ToLower(opts.Scope))
+	beforeID := strings.TrimSpace(opts.BeforeID)
+	rows, err := p.db.Query(`
+		with cursor_event as (
+			select recorded_at, execution_id, seq, id
+			from execution_ledger_event
+			where id = $3
+			limit 1
+		),
+		page as (
+			select id, execution_id, operation_id, trace_id, workflow_id, phase_id, kind, status, seq, idempotency_key, payload, recorded_at
+			from execution_ledger_event e
+			where e.trace_id = $1
+				and (
+					$4 = '' or $4 = 'all'
+					or ($4 = 'main' and coalesce(e.payload->>'role', '') in ('', 'prod', 'proactive'))
+					or ($4 = 'eval' and coalesce(e.payload->>'role', '') = 'eval')
+					or ($4 = 'proposal' and coalesce(e.payload->>'role', '') = 'proposal')
+					or $4 not in ('main', 'eval', 'proposal')
+				)
+				and (
+					$3 = ''
+					or not exists (select 1 from cursor_event)
+					or (e.recorded_at, e.execution_id, e.seq, e.id) < (select recorded_at, execution_id, seq, id from cursor_event)
+				)
+			order by e.recorded_at desc, e.execution_id desc, e.seq desc, e.id desc
+			limit $2
+		)
+		select id, execution_id, operation_id, trace_id, workflow_id, phase_id, kind, status, seq, idempotency_key, payload, recorded_at
+		from page
+		order by recorded_at asc, execution_id asc, seq asc, id asc
+	`, traceID, limit+1, beforeID, scope)
+	if err != nil {
+		return ExecutionLedgerPage{}
+	}
+	defer rows.Close()
+	items := []events.ExecutionLedgerEvent{}
+	for rows.Next() {
+		item, err := scanExecutionLedgerEvent(rows)
+		if err != nil {
+			return ExecutionLedgerPage{}
 		}
+		items = append(items, item)
 	}
-	start := end - limit
-	if start < 0 {
-		start = 0
+	hasMore := len(items) > limit
+	if hasMore {
+		items = items[1:]
 	}
-	page := append([]events.ExecutionLedgerEvent(nil), items[start:end]...)
-	return ExecutionLedgerPage{Events: page, HasMore: start > 0}
+	return ExecutionLedgerPage{Events: items, HasMore: hasMore}
 }
 
 func (p *PostgresStore) RecordExecutionLedgerEvents(items []events.ExecutionLedgerEvent) error {

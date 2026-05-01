@@ -35,6 +35,10 @@ func latestAttemptForProposal(store storepkg.Store, proposalID string) (improvem
 }
 
 func latestCandidateForTrace(store storepkg.Store, traceID string) (improvement.Candidate, bool) {
+	return storeLatestCandidateForTrace(store, traceID)
+}
+
+func latestCandidateForTraceByScan(store storepkg.Store, traceID string) (improvement.Candidate, bool) {
 	var (
 		best   improvement.Candidate
 		found  bool

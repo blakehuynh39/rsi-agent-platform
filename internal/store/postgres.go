@@ -2711,11 +2711,20 @@ func (p *PostgresStore) ListConversations() []conversation.Conversation {
 }
 
 func (p *PostgresStore) GetConversation(conversationID string) (conversation.Conversation, bool) {
-	store := newEmptyMemoryStore()
-	if err := loadConversations(p.db, store); err != nil {
+	row := p.db.QueryRow(`select id, source, external_key, external_conversation, title, status, participant_ids, active_case_id, latest_event_id, created_at, updated_at from conversation where id = $1`, conversationID)
+	var item conversation.Conversation
+	var source, status string
+	var participantIDs []byte
+	var activeCaseID, latestEventID sql.NullString
+	if err := row.Scan(&item.ID, &source, &item.ExternalKey, &item.ExternalConversation, &item.Title, &status, &participantIDs, &activeCaseID, &latestEventID, &item.CreatedAt, &item.UpdatedAt); err != nil {
 		return conversation.Conversation{}, false
 	}
-	return store.GetConversation(conversationID)
+	item.Source = ingestion.Source(source)
+	item.Status = conversation.Status(status)
+	item.ParticipantIDs = decodeJSON(participantIDs, []string{})
+	item.ActiveCaseID = activeCaseID.String
+	item.LatestEventID = latestEventID.String
+	return item, true
 }
 
 func (p *PostgresStore) ListConversationEntries(conversationID string) []conversation.Entry {
@@ -2750,11 +2759,32 @@ func (p *PostgresStore) ListCases() []conversation.Case {
 }
 
 func (p *PostgresStore) GetCase(caseID string) (conversation.Case, bool) {
-	store := newEmptyMemoryStore()
-	if err := loadCases(p.db, store); err != nil {
+	row := p.db.QueryRow(`select id, conversation_id, kind, intent, title, summary, status, approval_mode, response_mode, assigned_bot, opened_by_event_id, closed_by_event_id, latest_trace_id, resolution_state, resolved_at, latest_outcome_id, outcome_score, superseded_by_case_id, created_at, updated_at, closed_at from case_record where id = $1`, caseID)
+	var item conversation.Case
+	var status string
+	var approvalMode, responseMode, openedByEventID, closedByEventID, latestTraceID, resolutionState, latestOutcomeID, supersededByCaseID sql.NullString
+	var resolvedAt, closedAt sql.NullTime
+	if err := row.Scan(&item.ID, &item.ConversationID, &item.Kind, &item.Intent, &item.Title, &item.Summary, &status, &approvalMode, &responseMode, &item.AssignedBot, &openedByEventID, &closedByEventID, &latestTraceID, &resolutionState, &resolvedAt, &latestOutcomeID, &item.OutcomeScore, &supersededByCaseID, &item.CreatedAt, &item.UpdatedAt, &closedAt); err != nil {
 		return conversation.Case{}, false
 	}
-	return store.GetCase(caseID)
+	item.Status = conversation.CaseStatus(status)
+	item.ApprovalMode = approvalMode.String
+	item.ResponseMode = responseMode.String
+	item.OpenedByEventID = openedByEventID.String
+	item.ClosedByEventID = closedByEventID.String
+	item.LatestTraceID = latestTraceID.String
+	item.ResolutionState = conversation.ResolutionState(resolutionState.String)
+	item.LatestOutcomeID = latestOutcomeID.String
+	item.SupersededByCaseID = supersededByCaseID.String
+	if resolvedAt.Valid {
+		t := resolvedAt.Time
+		item.ResolvedAt = &t
+	}
+	if closedAt.Valid {
+		t := closedAt.Time
+		item.ClosedAt = &t
+	}
+	return item, true
 }
 
 func (p *PostgresStore) ListActionIntents() []action.Intent {
@@ -3113,11 +3143,30 @@ func (p *PostgresStore) ListImprovementNotes(traceID string) []review.Improvemen
 }
 
 func (p *PostgresStore) ListFeedback(traceID string) []review.FeedbackRecord {
-	store := newEmptyMemoryStore()
-	if err := loadFeedback(p.db, store); err != nil {
+	rows, err := p.db.Query(`select id, conversation_id, case_id, trace_id, target_type, target_id, score, verdict, labels, notes, reviewer_id, created_at from feedback_record where trace_id = $1 order by created_at asc`, traceID)
+	if err != nil {
 		return []review.FeedbackRecord{}
 	}
-	return store.ListFeedback(traceID)
+	defer rows.Close()
+	out := []review.FeedbackRecord{}
+	for rows.Next() {
+		var item review.FeedbackRecord
+		var conversationID, caseID, traceIDValue, verdict, notes sql.NullString
+		var labels []byte
+		var targetType string
+		if err := rows.Scan(&item.ID, &conversationID, &caseID, &traceIDValue, &targetType, &item.TargetID, &item.Score, &verdict, &labels, &notes, &item.ReviewerID, &item.CreatedAt); err != nil {
+			return []review.FeedbackRecord{}
+		}
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.TraceID = traceIDValue.String
+		item.TargetType = review.FeedbackTargetType(targetType)
+		item.Verdict = verdict.String
+		item.Labels = decodeJSON(labels, []string{})
+		item.Notes = notes.String
+		out = append(out, item)
+	}
+	return out
 }
 
 func (p *PostgresStore) ListEvalSuites() []evals.Suite {
@@ -3137,11 +3186,22 @@ func (p *PostgresStore) ListEvalRuns() []evals.Run {
 }
 
 func (p *PostgresStore) ListEvalJudgments(evalRunID string) []evals.Judgment {
-	store := newEmptyMemoryStore()
-	if err := loadEvalJudgments(p.db, store); err != nil {
+	rows, err := p.db.Query(`select id, eval_run_id, layer, category, score, passed, rationale, created_at from eval_judgment where eval_run_id = $1 order by created_at asc`, evalRunID)
+	if err != nil {
 		return nil
 	}
-	return store.ListEvalJudgments(evalRunID)
+	defer rows.Close()
+	out := []evals.Judgment{}
+	for rows.Next() {
+		var item evals.Judgment
+		var layer string
+		if err := rows.Scan(&item.ID, &item.EvalRunID, &layer, &item.Category, &item.Score, &item.Passed, &item.Rationale, &item.CreatedAt); err != nil {
+			return nil
+		}
+		item.Layer = evals.Layer(layer)
+		out = append(out, item)
+	}
+	return out
 }
 
 func (p *PostgresStore) GetSettings() improvement.Settings {

@@ -413,32 +413,34 @@ func buildConversationDetailWithOptions(store storepkg.Repository, conversationI
 	}
 	proposals := []review.Proposal{}
 	if conversationDetailIncludes(opts, "proposals") || conversationDetailIncludes(opts, "cases") || conversationDetailIncludes(opts, "traces") {
-		proposals = normalizeProposals(store.ListProposals())
+		proposals = storeProposalsByConversation(store, conversationID)
 	}
 	traces := []events.TraceSummary{}
 	if conversationDetailIncludes(opts, "traces") || conversationDetailIncludes(opts, "cases") || conversationDetailIncludes(opts, "workflows") {
-		traces = traceSummariesForConversation(store.ListTraces(), conversationID)
+		traces = storeTraceSummariesForConversation(store, conversationID)
 	}
 	traceSummaries := []traceAttemptSummary{}
 	if conversationDetailIncludes(opts, "traces") {
-		latestEvalByTrace := latestEvalRunByTrace(store.ListEvalRuns())
-		traceSummaries = buildTraceSummaries(traces, latestEvalByTrace, store.ListHarnessExecutions(), store.ListHarnessExecutionObservations())
+		latestEvalByTrace := latestEvalRunByTrace(storeEvalRunsForTraceSummaries(store, traces))
+		traceSummaries = buildTraceSummaries(traces, latestEvalByTrace, storeHarnessExecutionsForTraces(store, traces), storeHarnessExecutionObservationsForTraces(store, traces))
 	}
 	workflowAttempts := []workflowAttemptSummary{}
 	if conversationDetailIncludes(opts, "workflows") {
-		workflowAttempts = workflowAttemptsForConversation(store.ListWorkflows(), store.ListTraces(), conversationID)
+		workflowAttempts = workflowAttemptsForConversation(storeWorkflowsForConversation(store, conversationID), traces, conversationID)
 	}
 	caseIndex := map[string]*caseSummary{}
 	if conversationDetailIncludes(opts, "cases") {
-		caseIndex = buildCaseSummaryIndex(store, store.ListTraces(), proposals)
+		caseIndex = caseSummaryIndexForConversation(store, conversationID, traces, proposals)
 	}
 	cases := []caseSummary{}
 	if conversationDetailIncludes(opts, "cases") {
-		cases = casesForConversation(store.ListCases(), conversationID, caseIndex)
+		cases = casesForConversation(storeCasesForConversation(store, conversationID), conversationID, caseIndex)
 	}
 	var workflowLine *workflowLineSummary
 	if active := caseIndex[item.ActiveCaseID]; active != nil {
-		workflowLine = workflowLineForCase(store.ListWorkflowLines(), active.CaseID)
+		if line, ok := store.GetWorkflowLine(active.CaseID); ok {
+			workflowLine = workflowLineForCase([]storepkg.WorkflowLine{line}, active.CaseID)
+		}
 	}
 	transcript := []conversation.Entry{}
 	var transcriptPage *transcriptPageSummary
@@ -509,32 +511,35 @@ func buildCaseList(store storepkg.Repository) []caseSummary {
 }
 
 func buildCaseDetail(store storepkg.Repository, caseID string) (caseDetailResponse, bool) {
-	caseIndex := buildCaseSummaryIndex(store, store.ListTraces(), normalizeProposals(store.ListProposals()))
-	caseItem, ok := caseIndex[caseID]
+	caseItem, ok := caseSummaryForCaseID(store, caseID)
 	if !ok {
 		return caseDetailResponse{}, false
 	}
-	conversationSummary, ok := findConversationSummary(buildConversationList(store), caseItem.ConversationID)
+	conversationSummary, ok := buildConversationSummaryForID(store, caseItem.ConversationID)
 	if !ok {
 		return caseDetailResponse{}, false
 	}
-	traces := traceSummariesForCase(store.ListTraces(), caseID)
-	latestEvalByTrace := latestEvalRunByTrace(store.ListEvalRuns())
-	traceSummaries := buildTraceSummaries(traces, latestEvalByTrace, store.ListHarnessExecutions(), store.ListHarnessExecutionObservations())
-	workflowAttempts := workflowAttemptsForCase(store.ListWorkflows(), store.ListTraces(), caseID)
+	traces := storeTraceSummariesForCase(store, caseID)
+	latestEvalByTrace := latestEvalRunByTrace(storeEvalRunsForTraceSummaries(store, traces))
+	traceSummaries := buildTraceSummaries(traces, latestEvalByTrace, storeHarnessExecutionsForTraces(store, traces), storeHarnessExecutionObservationsForTraces(store, traces))
+	workflowAttempts := workflowAttemptsForCase(storeWorkflowsForCase(store, caseID), traces, caseID)
+	workflowLine := (*workflowLineSummary)(nil)
+	if line, ok := store.GetWorkflowLine(caseID); ok {
+		workflowLine = workflowLineForCase([]storepkg.WorkflowLine{line}, caseID)
+	}
 	return caseDetailResponse{
 		Case:             *caseItem,
 		Conversation:     conversationSummary,
-		WorkflowLine:     workflowLineForCase(store.ListWorkflowLines(), caseID),
+		WorkflowLine:     workflowLine,
 		WorkflowAttempts: workflowAttempts,
 		RuntimeDiagnoses: sliceOrEmpty(runtimeDiagnosesForCase(store.ListRuntimeDiagnoses(), caseID)),
 		TraceAttempts:    traceSummaries,
-		LatestEvalRuns:   latestEvalRunsForTraceSet(store.ListEvalRuns(), traceSummaries),
+		LatestEvalRuns:   latestEvalRunsForTraceSet(storeEvalRunsForTraceSummaries(store, traces), traceSummaries),
 		ActionIntents:    sliceOrEmpty(listActionIntents(store, actionFilters{CaseID: caseID})),
 		ActionResults:    sliceOrEmpty(flattenActionResults(store, listActionIntents(store, actionFilters{CaseID: caseID}))),
 		Outcomes:         sliceOrEmpty(listOutcomes(store, "", caseID, "", "")),
 		KnowledgeEntries: sliceOrEmpty(relatedKnowledgeEntries(store, conversationSummary.ConversationID, caseID, "", "")),
-		LinkedProposals:  filterProposalsByCase(normalizeProposals(store.ListProposals()), caseID),
+		LinkedProposals:  storeProposalsByCase(store, caseID),
 	}, true
 }
 
@@ -548,14 +553,13 @@ func buildTraceDetail(store storepkg.Repository, traceID string) (traceDetailRes
 	if candidate, ok := latestCandidateForTrace(store, trace.Summary.TraceID); ok {
 		candidateKey = candidate.CandidateKey
 	}
-	runs := filterEvalRunsForTrace(store.ListEvalRuns(), traceID)
+	runs := storeEvalRunsForTrace(store, traceID)
 	judgments := map[string][]evals.Judgment{}
 	for _, run := range runs {
 		judgments[run.ID] = sliceOrEmpty(store.ListEvalJudgments(run.ID))
 	}
-	conversations := buildConversationList(store)
-	conversationSummary, _ := findConversationSummary(conversations, trace.Summary.ConversationID)
-	caseIndex := buildCaseSummaryIndex(store, store.ListTraces(), normalizeProposals(store.ListProposals()))
+	conversationSummary, _ := buildConversationSummaryForID(store, trace.Summary.ConversationID)
+	caseSummary, _ := caseSummaryForCaseID(store, trace.Summary.CaseID)
 	actionIntents := listActionIntents(store, actionFilters{TraceID: traceID})
 	outcomes := listOutcomes(store, trace.Summary.ConversationID, trace.Summary.CaseID, traceID, "")
 	extraEvidence := make([]string, 0, len(trace.Reasoning)+len(trace.ToolCalls)+len(outcomes))
@@ -568,15 +572,20 @@ func buildTraceDetail(store storepkg.Repository, traceID string) (traceDetailRes
 	for _, item := range outcomes {
 		extraEvidence = append(extraEvidence, item.ID)
 	}
-	harnessExecutions := sliceOrEmpty(filterHarnessExecutions(store.ListHarnessExecutions(), traceID, ""))
-	harnessExecutionObservations := sliceOrEmpty(filterHarnessExecutionObservations(store.ListHarnessExecutionObservations(), traceID, ""))
+	harnessExecutions := sliceOrEmpty(filterHarnessExecutions(storeHarnessExecutionsForTraceIDs(store, []string{traceID}), traceID, ""))
+	harnessExecutionObservations := sliceOrEmpty(filterHarnessExecutionObservations(storeHarnessExecutionObservationsForTraceIDs(store, []string{traceID}), traceID, ""))
+	workflowLine := (*workflowLineSummary)(nil)
+	if line, ok := store.GetWorkflowLine(trace.Summary.CaseID); ok {
+		workflowLine = workflowLineForCase([]storepkg.WorkflowLine{line}, trace.Summary.CaseID)
+	}
+	caseTraces := storeTraceSummariesForCase(store, trace.Summary.CaseID)
 	return traceDetailResponse{
 		Trace:                        trace,
 		Conversation:                 conversationSummary,
-		Case:                         caseIndex[trace.Summary.CaseID],
-		WorkflowLine:                 workflowLineForCase(store.ListWorkflowLines(), trace.Summary.CaseID),
-		WorkflowAttempts:             workflowAttemptsForCase(store.ListWorkflows(), store.ListTraces(), trace.Summary.CaseID),
-		RuntimeDiagnoses:             sliceOrEmpty(runtimeDiagnosesForTrace(store.ListRuntimeDiagnoses(), trace, candidateKey)),
+		Case:                         caseSummary,
+		WorkflowLine:                 workflowLine,
+		WorkflowAttempts:             workflowAttemptsForCase(storeWorkflowsForCase(store, trace.Summary.CaseID), caseTraces, trace.Summary.CaseID),
+		RuntimeDiagnoses:             sliceOrEmpty(storeRuntimeDiagnosesForTrace(store, trace, candidateKey)),
 		TranscriptSlice:              transcriptSlice(store.ListConversationEntries(trace.Summary.ConversationID), trace.Summary.TriggerEventID),
 		LinkedEvalRuns:               runs,
 		JudgmentsByEvalRun:           judgments,
@@ -585,7 +594,7 @@ func buildTraceDetail(store storepkg.Repository, traceID string) (traceDetailRes
 		Outcomes:                     sliceOrEmpty(outcomes),
 		KnowledgeEntries:             sliceOrEmpty(relatedKnowledgeEntries(store, trace.Summary.ConversationID, trace.Summary.CaseID, traceID, "", extraEvidence...)),
 		FeedbackRecords:              sliceOrEmpty(store.ListFeedback(traceID)),
-		LinkedProposals:              filterProposalsForTrace(normalizeProposals(store.ListProposals()), traceID),
+		LinkedProposals:              storeProposalsByTrace(store, traceID),
 		HarnessExecutions:            harnessExecutions,
 		HarnessExecutionObservations: harnessExecutionObservations,
 		RuntimeSummary:               deriveExecutorRuntimeSummary(harnessExecutions, harnessExecutionObservations),

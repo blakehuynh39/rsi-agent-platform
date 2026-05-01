@@ -1,8 +1,11 @@
 package improvementplane
 
 import (
+	"context"
+	"net/http"
 	"strings"
 	"sync"
+	"time"
 
 	slackapi "github.com/slack-go/slack"
 
@@ -12,8 +15,10 @@ import (
 )
 
 const (
-	slackUserNamesMetadataKey    = "slack_user_names"
-	slackChannelNamesMetadataKey = "slack_channel_names"
+	slackUserNamesMetadataKey     = "slack_user_names"
+	slackChannelNamesMetadataKey  = "slack_channel_names"
+	slackTranscriptResolveBackoff = 5 * time.Minute
+	slackTranscriptResolveTimeout = 2 * time.Second
 )
 
 type slackTranscriptResolver interface {
@@ -24,9 +29,13 @@ type slackTranscriptResolver interface {
 type slackAPITranscriptResolver struct {
 	client *slackapi.Client
 
-	mu           sync.Mutex
-	userNames    map[string]string
-	channelNames map[string]string
+	mu                   sync.Mutex
+	userNames            map[string]string
+	channelNames         map[string]string
+	userInFlight         map[string]bool
+	channelInFlight      map[string]bool
+	userLastAttemptAt    map[string]time.Time
+	channelLastAttemptAt map[string]time.Time
 }
 
 func newSlackTranscriptResolver(botToken string) slackTranscriptResolver {
@@ -34,14 +43,18 @@ func newSlackTranscriptResolver(botToken string) slackTranscriptResolver {
 		return nil
 	}
 	return &slackAPITranscriptResolver{
-		client:       slackapi.New(botToken),
-		userNames:    map[string]string{},
-		channelNames: map[string]string{},
+		client:               slackapi.New(botToken, slackapi.OptionHTTPClient(&http.Client{Timeout: slackTranscriptResolveTimeout})),
+		userNames:            map[string]string{},
+		channelNames:         map[string]string{},
+		userInFlight:         map[string]bool{},
+		channelInFlight:      map[string]bool{},
+		userLastAttemptAt:    map[string]time.Time{},
+		channelLastAttemptAt: map[string]time.Time{},
 	}
 }
 
 func (r *slackAPITranscriptResolver) UserName(userID string) (string, bool) {
-	userID = strings.TrimSpace(userID)
+	userID = strings.ToUpper(strings.TrimSpace(userID))
 	if userID == "" {
 		return "", false
 	}
@@ -50,20 +63,36 @@ func (r *slackAPITranscriptResolver) UserName(userID string) (string, bool) {
 		r.mu.Unlock()
 		return name, name != ""
 	}
-	r.mu.Unlock()
-
-	user, err := r.client.GetUserInfo(userID)
-	if err != nil {
+	if r.userInFlight[userID] || time.Since(r.userLastAttemptAt[userID]) < slackTranscriptResolveBackoff {
+		r.mu.Unlock()
 		return "", false
 	}
+	r.userInFlight[userID] = true
+	r.userLastAttemptAt[userID] = time.Now()
+	r.mu.Unlock()
 
+	go r.resolveUserName(userID)
+	return "", false
+}
+
+func (r *slackAPITranscriptResolver) resolveUserName(userID string) {
+	defer func() {
+		r.mu.Lock()
+		delete(r.userInFlight, userID)
+		r.mu.Unlock()
+	}()
+	ctx, cancel := context.WithTimeout(context.Background(), slackTranscriptResolveTimeout)
+	defer cancel()
+	user, err := r.client.GetUserInfoContext(ctx, userID)
+	if err != nil {
+		return
+	}
 	name := slackUserDisplayName(user)
 	r.mu.Lock()
 	if name != "" {
 		r.userNames[userID] = name
 	}
 	r.mu.Unlock()
-	return name, name != ""
 }
 
 func (r *slackAPITranscriptResolver) ChannelName(channelID string) (string, bool) {
@@ -76,18 +105,33 @@ func (r *slackAPITranscriptResolver) ChannelName(channelID string) (string, bool
 		r.mu.Unlock()
 		return name, name != ""
 	}
+	if r.channelInFlight[channelID] || time.Since(r.channelLastAttemptAt[channelID]) < slackTranscriptResolveBackoff {
+		r.mu.Unlock()
+		return "", false
+	}
+	r.channelInFlight[channelID] = true
+	r.channelLastAttemptAt[channelID] = time.Now()
 	r.mu.Unlock()
 
+	go r.resolveChannelName(channelID)
+	return "", false
+}
+
+func (r *slackAPITranscriptResolver) resolveChannelName(channelID string) {
+	defer func() {
+		r.mu.Lock()
+		delete(r.channelInFlight, channelID)
+		r.mu.Unlock()
+	}()
 	name, ok := slackpkg.ResolveChannelName(r.client, channelID)
 	if !ok {
-		return "", false
+		return
 	}
 	r.mu.Lock()
 	if name != "" {
 		r.channelNames[channelID] = name
 	}
 	r.mu.Unlock()
-	return name, name != ""
 }
 
 func slackUserDisplayName(user *slackapi.User) string {
