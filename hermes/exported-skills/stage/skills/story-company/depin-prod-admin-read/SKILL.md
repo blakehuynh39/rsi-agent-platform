@@ -1,3 +1,8 @@
+---
+name: depin-prod-admin-read
+description: "Read production Numo/depin admin user and submission stats with the mounted read-only API key."
+---
+
 # Depin Prod Admin Read
 
 Use this skill when a Story request asks for live Numo/depin user stats, submission stats, admin user lookup, or production depin API route context.
