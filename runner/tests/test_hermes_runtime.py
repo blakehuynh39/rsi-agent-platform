@@ -2679,6 +2679,60 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(result.raw["repair_attempted"])
         self.assertFalse(result.raw["repair_succeeded"])
 
+    def test_workflow_accepts_json_code_fenced_structured_output(self) -> None:
+        class FencedStructuredOutputAIAgent(FakeAIAgent):
+            def run_conversation(
+                self,
+                prompt: str,
+                system_message: str | None = None,
+                conversation_history: list[dict] | None = None,
+                task_id: str | None = None,
+            ) -> dict:
+                type(self).last_prompt = prompt
+                type(self).last_system_message = system_message
+                type(self).last_history = conversation_history or []
+                return {
+                    "final_response": "```json\n"
+                    + json.dumps(
+                        {
+                            "visible_reasoning": "Validated the workflow and sent the reply.",
+                            "final_answer": "Created the requested follow-up.",
+                            "confidence": 0.91,
+                            "context_summary": "The response is complete.",
+                            "proposed_actions": [],
+                            "knowledge_drafts": [],
+                            "outcome_hypotheses": [],
+                            "produced_artifacts": [],
+                            "artifact_failure_reason": "",
+                        }
+                    )
+                    + "\n```"
+                }
+
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the workflow.",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                    "user_peer_id": "user:alice",
+                }
+            }
+        )
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FencedStructuredOutputAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertFalse(result.raw["repair_attempted"])
+        self.assertEqual(result.raw["structured_output"]["final_answer"], "Created the requested follow-up.")
+
     def test_workflow_structured_output_is_normalized_to_contract_shape(self) -> None:
         class MessyStructuredOutputAIAgent(FakeAIAgent):
             def run_conversation(

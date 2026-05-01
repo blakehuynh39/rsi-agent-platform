@@ -693,6 +693,19 @@ def _normalize_structured_output(payload: JsonObject) -> JsonObject:
     return normalized
 
 
+def _unwrap_json_code_fence(text: str) -> str:
+    value = str(text or "").strip()
+    if not value.startswith("```"):
+        return value
+    lines = value.splitlines()
+    if len(lines) < 3 or lines[-1].strip() != "```":
+        return value
+    opener = lines[0].strip().lower()
+    if opener not in {"```", "```json"}:
+        return value
+    return "\n".join(lines[1:-1]).strip()
+
+
 def _path_from_file_ref(value: str) -> str:
     text = str(value or "").strip()
     if not text:
@@ -7236,6 +7249,7 @@ class HermesRuntime:
         text = (message or "").strip()
         if not text:
             raise HermesStructuredOutputError("Hermes execution returned an empty response; structured output is required.")
+        text = _unwrap_json_code_fence(text)
         try:
             parsed = json.loads(text)
         except json.JSONDecodeError as exc:
