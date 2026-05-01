@@ -1,6 +1,11 @@
 ---
 name: depin-prod-admin-read
-description: "Read production Numo/depin admin user and submission stats with the mounted read-only API key."
+description: "Live prod Numo/depin user/submission stats admin reads."
+version: 1.0.1
+metadata:
+  hermes:
+    tags: [numo, depin, production, prod, admin, read-only, user-stats, users, submissions, api, vault]
+    related_skills: [github-auth, native-mcp]
 ---
 
 # Depin Prod Admin Read
