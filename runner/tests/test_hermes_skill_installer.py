@@ -186,6 +186,28 @@ class HermesSkillInstallerTest(unittest.TestCase):
                 SkillInstaller(config).run()
             self.assertFalse((config.skills_root / "story-company").exists())
 
+    def test_canonical_story_company_manifest_matches_pack(self) -> None:
+        source_root = Path(__file__).resolve().parents[2] / "hermes/skills/story-company"
+        manifest = json.loads(source_root.joinpath("manifest.json").read_text(encoding="utf-8"))
+
+        computed = build_tree_snapshot(source_root, excluded_relative_paths={"manifest.json"}).tree_hash
+
+        self.assertEqual(manifest["target_skill_tree_hash"], computed)
+
+    def test_depin_prod_admin_read_skill_has_activation_metadata(self) -> None:
+        skill_path = Path(__file__).resolve().parents[2] / "hermes/skills/story-company/depin-prod-admin-read/SKILL.md"
+        text = skill_path.read_text(encoding="utf-8")
+        frontmatter = text.split("---", 2)[1]
+        description_line = next(line for line in frontmatter.splitlines() if line.startswith("description:"))
+        description = description_line.split(":", 1)[1].strip().strip('"')
+
+        self.assertLessEqual(len(description), 60)
+        for token in ("prod", "numo", "depin", "user", "submission", "stats", "admin"):
+            self.assertIn(token, description.lower())
+        self.assertIn("metadata:\n  hermes:", frontmatter)
+        for tag in ("numo", "depin", "production", "admin", "user-stats", "submissions", "vault"):
+            self.assertIn(tag, frontmatter)
+
     def test_validate_only_checks_manifest_without_touching_live_skills(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
