@@ -98,6 +98,34 @@ class HermesSkillInstallerTest(unittest.TestCase):
             self.assertEqual("unchanged", result["status"])
             self.assertFalse(result["changed"])
 
+    def test_install_staging_uses_skills_filesystem_when_state_root_differs(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            repo = root / "repo"
+            self.make_pack(repo)
+            config = InstallerConfig(
+                source_repo="piplabs/rsi-agent-platform",
+                source_ref="local",
+                source_path="hermes/skills/story-company",
+                source_local_path=repo,
+                skills_root=root / "home/skills",
+                target_relative_path="story-company",
+                state_root=root / "workspace/.rsi/skill-installer",
+                lock_path=root / "home/.locks/skills.lock",
+                dry_run=False,
+                validate_only=False,
+                lock_timeout_seconds=1.0,
+                github_auth=GitHubAuthConfig(),
+            )
+
+            result = SkillInstaller(config).run()
+
+            self.assertEqual("installed", result["status"])
+            self.assertTrue(config.state_path.is_file())
+            self.assertFalse((config.state_root / "staging").exists())
+            self.assertFalse((config.state_root / "backups").exists())
+            self.assertFalse((config.skills_root.parent / ".skill-installer-tmp").exists())
+
     def test_live_divergence_blocks_install_and_preserves_live_skill(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
@@ -171,6 +199,40 @@ class HermesSkillInstallerTest(unittest.TestCase):
             command = run.call_args.args[0]
             self.assertEqual("git", command[0])
             self.assertIn(f"safe.directory={checkout.resolve()}", command)
+
+    def test_checkout_fetches_branch_heads_when_private_sha_fetch_is_hidden(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            source_ref = "98f04e309dfd5e73fa461b1f844cb7117f861f0e"
+            config = InstallerConfig(
+                source_repo="piplabs/rsi-agent-platform",
+                source_ref=source_ref,
+                source_path="hermes/skills/story-company",
+                source_local_path=None,
+                skills_root=root / "home/skills",
+                target_relative_path="story-company",
+                state_root=root / "state",
+                lock_path=root / "home/.locks/skills.lock",
+                dry_run=False,
+                validate_only=False,
+                lock_timeout_seconds=1.0,
+                github_auth=GitHubAuthConfig(github_token="token"),
+            )
+            calls: list[tuple[str, ...]] = []
+
+            def fake_git(cwd: Path, *args: str) -> None:
+                calls.append(args)
+                if args == ("fetch", "--depth=1", "origin", source_ref):
+                    raise InstallerError("git fetch failed: not our ref")
+                if args == ("checkout", "--detach", source_ref):
+                    cwd.joinpath("hermes/skills/story-company").mkdir(parents=True, exist_ok=True)
+
+            with mock.patch.object(SkillSourceCheckout, "_git", side_effect=fake_git):
+                with SkillSourceCheckout(config) as source_root:
+                    self.assertTrue(source_root.is_dir())
+
+            self.assertIn(("fetch", "--depth=200", "origin", "+refs/heads/*:refs/remotes/origin/*"), calls)
+            self.assertIn(("checkout", "--detach", source_ref), calls)
 
 
 if __name__ == "__main__":

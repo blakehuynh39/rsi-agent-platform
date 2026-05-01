@@ -12,7 +12,7 @@ Use this skill when a Story request asks for live Numo/depin user stats, submiss
 
 ## Source Of Truth
 
-- Public API discovery: `GET ${DEPIN_ADMIN_BASE_URL}/openapi.json`. This is intentionally client-facing and may omit internal admin stats routes.
+- Public API discovery: the deployed production OpenAPI document is intentionally client-facing and must not be treated as authoritative for internal admin stats routes.
 - Internal admin stats contract: `piplabs/depin-backend`, especially `apps/api/src/http/routes/admin.rs`, `apps/api/src/http/extractors.rs`, `apps/api/src/services/admin_dashboard.rs`, and `docs/api-workflows.md`.
 - Public DNS/WAF routing: `piplabs/cloudflare`, especially `src/zones/storyprotocol.net/records.ts` and `src/zones/storyprotocol.net/waf.ts`.
 - Deployment and Vault wiring: `story-deployments`, `rsi-platform/rsi-agent-platform/use1-stage.yaml`, and `story/depin-backend/use1-prod.yaml`.
@@ -21,7 +21,7 @@ Use this skill when a Story request asks for live Numo/depin user stats, submiss
 ## Query Pattern
 
 1. Confirm `DEPIN_ADMIN_READ_API_KEY` is present without printing its value.
-2. Fetch `/openapi.json` only for public/client-facing route context. Do not expect it to advertise internal admin stats.
+2. For public/client-facing route context, prefer the checked-in `piplabs/depin-backend` OpenAPI/source generation over the production OpenAPI document. Do not expect production OpenAPI to advertise internal admin stats.
 3. For internal admin stats route shape, inspect the deployed `piplabs/depin-backend` source code and `story-deployments` image pin before answering from memory.
 4. For aggregate user stats, call `/v1/admin/stats/user-growth` directly with the configured read-key header.
 5. For aggregate submission stats, call `/v1/admin/stats/submissions` directly with the configured read-key header.

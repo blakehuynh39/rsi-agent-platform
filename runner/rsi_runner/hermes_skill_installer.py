@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 INSTALLER_STATE_VERSION = 1
 MANIFEST_NAME = "manifest.json"
 EMPTY_TREE_HASH = _sha256_bytes(b"[]")
+SHA_REF_PATTERN = re.compile(r"^[0-9a-f]{40}$", re.IGNORECASE)
 SOURCE_PATH_PREFIX = "hermes/skills/"
 
 
@@ -338,8 +339,14 @@ class SkillSourceCheckout:
         remote = f"https://x-access-token:{token}@github.com/{self.config.source_repo}.git"
         self._git(checkout, "init")
         self._git(checkout, "remote", "add", "origin", remote)
-        self._git(checkout, "fetch", "--depth=1", "origin", self.config.source_ref)
-        self._git(checkout, "checkout", "--detach", "FETCH_HEAD")
+        try:
+            self._git(checkout, "fetch", "--depth=1", "origin", self.config.source_ref)
+            self._git(checkout, "checkout", "--detach", "FETCH_HEAD")
+        except InstallerError:
+            if not SHA_REF_PATTERN.fullmatch(self.config.source_ref):
+                raise
+            self._git(checkout, "fetch", "--depth=200", "origin", "+refs/heads/*:refs/remotes/origin/*")
+            self._git(checkout, "checkout", "--detach", self.config.source_ref)
         self.checkout = checkout
         source_root = (checkout / self.config.source_path).resolve()
         if not source_root.is_dir():
@@ -457,10 +464,10 @@ class SkillInstaller:
         target_root = self.config.target_root.resolve()
         target_root.parent.mkdir(parents=True, exist_ok=True)
         operation_id = f"{int(time.time())}-{os.getpid()}-{hashlib.sha256(str(target_root).encode()).hexdigest()[:8]}"
-        staging_parent = self.config.state_root / "staging" / operation_id
-        backup_parent = self.config.state_root / "backups" / operation_id
-        staging_target = staging_parent / "target"
-        backup_target = backup_parent / "target"
+        operation_parent = self.config.skills_root.resolve().parent / ".skill-installer-tmp"
+        operation_root = operation_parent / operation_id
+        staging_target = operation_root / "staging" / "target"
+        backup_target = operation_root / "backup" / "target"
         try:
             staging_target.mkdir(parents=True)
             self._copy_source_tree(source_root, staging_target)
@@ -468,13 +475,16 @@ class SkillInstaller:
                 backup_target.parent.mkdir(parents=True, exist_ok=True)
                 os.replace(target_root, backup_target)
             os.replace(staging_target, target_root)
-            shutil.rmtree(backup_parent, ignore_errors=True)
         except Exception:
             if not target_root.exists() and backup_target.exists():
                 os.replace(backup_target, target_root)
             raise
         finally:
-            shutil.rmtree(staging_parent, ignore_errors=True)
+            shutil.rmtree(operation_root, ignore_errors=True)
+            try:
+                operation_parent.rmdir()
+            except OSError:
+                pass
 
     @staticmethod
     def _copy_source_tree(source_root: Path, target_root: Path) -> None:

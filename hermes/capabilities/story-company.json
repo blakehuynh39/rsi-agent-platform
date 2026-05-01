@@ -28,7 +28,7 @@
     {
       "name": "prod-depin-api-context",
       "type": "api_contract",
-      "source_of_truth": "https://depin.storyprotocol.net/openapi.json, piplabs/depin-backend, piplabs/cloudflare",
+      "source_of_truth": "piplabs/depin-backend source and checked-in API docs, piplabs/cloudflare routing, production OpenAPI only for public client route context",
       "runtime_surface": "depin-prod-admin-read Hermes skill"
     },
     {
