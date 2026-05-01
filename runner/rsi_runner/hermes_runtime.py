@@ -9,6 +9,7 @@ import logging
 import os
 from pathlib import Path
 import re
+import shlex
 import socket
 import subprocess
 import sys
@@ -2612,11 +2613,22 @@ class HermesRuntime:
             status["reason"] = "missing_repo"
             return {}, status
         repos = normalize_tool_names([repo, *task.repo_allowlist])
-        token, app_status = self._github_app_installation_token(repo, repos)
+        token, app_status = self._github_app_installation_token(repo, repos, scope_repositories=False)
         if not token:
             status.update(app_status)
             return {}, status
         owner = _string_or_json(app_status.get("owner")) or self._github_owner_for_repo(repo)
+        tokens_by_owner: dict[str, str] = {owner: token}
+        owner_statuses: list[JsonObject] = [self._github_public_token_status(app_status)]
+        for extra_owner in self._github_cli_owners_for_task(task):
+            if not extra_owner or extra_owner == owner or extra_owner in tokens_by_owner:
+                continue
+            extra_token, extra_status = self._github_app_installation_token_for_owner(extra_owner, repo=repo)
+            owner_statuses.append(self._github_public_token_status(extra_status))
+            if not extra_token:
+                status.update(extra_status)
+                return {}, status
+            tokens_by_owner[extra_owner] = extra_token
         status.update(
             {
                 "configured": True,
@@ -2626,6 +2638,8 @@ class HermesRuntime:
                 "repositories": _string_list_or_empty(app_status.get("repositories")) or repos,
                 "provider_ref": "github_app_installation",
                 "owner": owner,
+                "owners": sorted(tokens_by_owner),
+                "owner_statuses": owner_statuses,
             }
         )
         expires_at = _string_or_json(app_status.get("expires_at"))
@@ -2639,8 +2653,30 @@ class HermesRuntime:
             "GITHUB_TOKEN": token,
             "_HERMES_FORCE_GH_TOKEN": token,
             "_HERMES_FORCE_GITHUB_TOKEN": token,
+            "_HERMES_GITHUB_DEFAULT_OWNER": owner,
+            "_HERMES_GITHUB_TOKEN_MAP_JSON": json.dumps(tokens_by_owner, sort_keys=True),
             "GH_PROMPT_DISABLED": "1",
         }, status
+
+    def _github_cli_owners_for_task(self, task: RunnerTaskRequest) -> list[str]:
+        owners: list[str] = []
+
+        def add(owner: str) -> None:
+            owner = str(owner or "").strip()
+            if owner and owner not in owners:
+                owners.append(owner)
+
+        add(self._github_owner_for_repo(task.repo))
+        add(str(os.getenv("RSI_GITHUB_OWNER", "") or "").strip())
+        repo_owners = _env_map("RSI_GITHUB_REPO_OWNERS")
+        for repo in [task.repo, *task.repo_allowlist]:
+            add(self._github_owner_for_repo(repo))
+            owner_hint, repo_name = self._github_repo_parts(repo)
+            add(owner_hint)
+            add(repo_owners.get(repo) or repo_owners.get(repo_name) or "")
+        for owner in _env_map("RSI_GITHUB_APP_INSTALLATION_IDS"):
+            add(owner)
+        return owners
 
     def _github_owner_for_repo(self, repo: str) -> str:
         repo = str(repo or "").strip()
@@ -2673,14 +2709,52 @@ class HermesRuntime:
                 out.append(repo_name)
         return normalize_tool_names(out)
 
-    def _github_app_installation_token(self, repo: str, repos: list[str]) -> tuple[str, JsonObject]:
+    def _github_repository_guidance(self, task: RunnerTaskRequest) -> str:
+        mappings: dict[str, str] = {}
+        for repo in normalize_tool_names([task.repo, *task.repo_allowlist]):
+            owner = self._github_owner_for_repo(repo)
+            _owner_hint, repo_name = self._github_repo_parts(repo)
+            if owner and repo_name:
+                mappings[repo_name] = f"{owner}/{repo_name}"
+        for repo_name, owner in _env_map("RSI_GITHUB_REPO_OWNERS").items():
+            repo_name = str(repo_name or "").strip()
+            owner = str(owner or "").strip()
+            if repo_name and owner and "/" not in repo_name:
+                mappings.setdefault(repo_name, f"{owner}/{repo_name}")
+        owners = sorted(set(self._github_cli_owners_for_task(task)))
+        parts: list[str] = []
+        if owners:
+            parts.append("configured GitHub App owner(s): " + ", ".join(owners))
+        if mappings:
+            formatted = ", ".join(f"{repo} -> {qualified}" for repo, qualified in sorted(mappings.items()))
+            parts.append("known repo owner mapping(s): " + formatted)
+        if not parts:
+            return ""
+        return (
+            "GitHub repository resolution: use owner-qualified repository names for gh and git commands; "
+            + "; ".join(parts)
+            + "."
+        )
+
+    def _github_app_installation_token(self, repo: str, repos: list[str], *, scope_repositories: bool = True) -> tuple[str, JsonObject]:
+        owner = self._github_owner_for_repo(repo)
+        scoped_repos = self._github_repositories_for_owner(owner, repos) if scope_repositories else []
+        return self._github_app_installation_token_for_owner(owner, repo=repo, repositories=scoped_repos if scope_repositories else None)
+
+    def _github_app_installation_token_for_owner(
+        self,
+        owner: str,
+        *,
+        repo: str = "",
+        repositories: list[str] | None = None,
+    ) -> tuple[str, JsonObject]:
         app_id = str(os.getenv("RSI_GITHUB_APP_ID", "") or "").strip()
         private_key = _normalize_private_key(str(os.getenv("RSI_GITHUB_APP_PRIVATE_KEY", "") or ""))
         api_base_url = str(os.getenv("RSI_GITHUB_API_BASE_URL", "https://api.github.com") or "https://api.github.com").rstrip("/")
-        owner = self._github_owner_for_repo(repo)
+        owner = str(owner or "").strip()
         installation_ids = _env_map("RSI_GITHUB_APP_INSTALLATION_IDS")
         installation_id = installation_ids.get(owner) or str(os.getenv("RSI_GITHUB_APP_INSTALLATION_ID", "") or "").strip()
-        scoped_repos = self._github_repositories_for_owner(owner, repos)
+        scoped_repos = normalize_tool_names(repositories or [])
         status: JsonObject = {
             "configured": False,
             "status": "failed",
@@ -2717,7 +2791,7 @@ class HermesRuntime:
             status["error"] = str(exc)
             return "", status
         body: JsonObject = {}
-        if scoped_repos:
+        if repositories is not None and scoped_repos:
             body["repositories"] = scoped_repos
         request = urlrequest.Request(
             f"{api_base_url}/app/installations/{installation_id}/access_tokens",
@@ -2755,6 +2829,72 @@ class HermesRuntime:
             }
         )
         return token, status
+
+    def _github_public_token_status(self, status: JsonObject) -> JsonObject:
+        return {
+            key: value
+            for key, value in status.items()
+            if key
+            in {
+                "configured",
+                "status",
+                "reason",
+                "repo",
+                "repositories",
+                "owner",
+                "installation_id",
+                "expires_at",
+                "http_status",
+                "missing",
+            }
+        }
+
+    def _write_git_credential_helper(self, request_dir: Path) -> Path:
+        helper_path = request_dir / "git-credential-rsi-github.py"
+        helper_path.write_text(
+            "#!/usr/bin/env python3\n"
+            "import json\n"
+            "import os\n"
+            "import sys\n"
+            "\n"
+            "if len(sys.argv) > 1 and sys.argv[1] not in {'get', ''}:\n"
+            "    raise SystemExit(0)\n"
+            "query = {}\n"
+            "for line in sys.stdin:\n"
+            "    line = line.rstrip('\\n')\n"
+            "    if not line:\n"
+            "        break\n"
+            "    key, _, value = line.partition('=')\n"
+            "    query[key] = value\n"
+            "if query.get('host') not in {'github.com', 'www.github.com'}:\n"
+            "    raise SystemExit(0)\n"
+            "path = query.get('path', '').lstrip('/')\n"
+            "owner = path.split('/', 1)[0].lower() if path else ''\n"
+            "try:\n"
+            "    raw_tokens = json.loads(os.environ.get('_HERMES_GITHUB_TOKEN_MAP_JSON', '{}'))\n"
+            "except json.JSONDecodeError:\n"
+            "    raw_tokens = {}\n"
+            "tokens = {str(key).lower(): str(value) for key, value in raw_tokens.items() if value}\n"
+            "default_owner = os.environ.get('_HERMES_GITHUB_DEFAULT_OWNER', '').lower()\n"
+            "token = tokens.get(owner) or tokens.get(default_owner)\n"
+            "if token:\n"
+            "    print('username=x-access-token')\n"
+            "    print(f'password={token}')\n",
+            encoding="utf-8",
+        )
+        helper_path.chmod(0o700)
+        return helper_path
+
+    def _append_git_config_env(self, env: dict[str, str], entries: list[tuple[str, str]]) -> None:
+        try:
+            start = int(env.get("GIT_CONFIG_COUNT", "0") or "0")
+        except ValueError:
+            start = 0
+        for offset, (key, value) in enumerate(entries):
+            index = start + offset
+            env[f"GIT_CONFIG_KEY_{index}"] = key
+            env[f"GIT_CONFIG_VALUE_{index}"] = value
+        env["GIT_CONFIG_COUNT"] = str(start + len(entries))
 
     def _write_git_askpass(self, request_dir: Path) -> Path:
         askpass_path = request_dir / "git-askpass.sh"
@@ -3227,6 +3367,16 @@ class HermesRuntime:
             gh_config_dir.mkdir(parents=True, exist_ok=True)
             github_cli_env["GH_CONFIG_DIR"] = str(gh_config_dir)
             github_cli_credentials["gh_config_dir"] = str(gh_config_dir)
+            credential_helper_path = self._write_git_credential_helper(request_dir)
+            self._append_git_config_env(
+                github_cli_env,
+                [
+                    ("credential.helper", f"!{shlex.quote(str(credential_helper_path))}"),
+                    ("credential.useHttpPath", "true"),
+                ],
+            )
+            github_cli_credentials["git_credential_helper_configured"] = True
+            github_cli_credentials["git_credential_helper_path"] = str(credential_helper_path)
             askpass_path = self._write_git_askpass(request_dir)
             github_cli_env["GIT_ASKPASS"] = str(askpass_path)
             github_cli_env["GIT_TERMINAL_PROMPT"] = "0"
@@ -7121,6 +7271,9 @@ class HermesRuntime:
             parts.append(
                 "The GitHub CLI is available on the company computer image and is authenticated per request with the configured GitHub App installation. If GitHub App credentials cannot be minted, execution fails before Hermes starts instead of falling back to another token source."
             )
+            repo_guidance = self._github_repository_guidance(task)
+            if repo_guidance:
+                parts.append(repo_guidance)
             if self._config.hermes_kubernetes_context_enabled:
                 parts.append(
                     "Kubernetes read context is available to terminal-native CLIs through KUBECONFIG. Cluster mutations are blocked by policy/RBAC and must become approval intents."

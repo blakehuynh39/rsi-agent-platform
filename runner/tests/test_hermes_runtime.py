@@ -677,7 +677,20 @@ class HermesRuntimeTests(unittest.TestCase):
                     "owner": "piplabs",
                 },
             ),
-        ) as token_mock, mock.patch.dict(
+        ) as token_mock, mock.patch.object(
+            HermesRuntime,
+            "_github_app_installation_token_for_owner",
+            return_value=(
+                "storyprotocol-token",
+                {
+                    "status": "configured",
+                    "reason": "github_app_installation",
+                    "expires_at": "2026-05-01T08:05:00Z",
+                    "installation_id": "123754958",
+                    "owner": "storyprotocol",
+                },
+            ),
+        ) as owner_token_mock, mock.patch.dict(
             os.environ,
             {
                 **runner_env("prod"),
@@ -700,10 +713,17 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(env["_HERMES_FORCE_GH_TOKEN"], "github-app-token")
         self.assertEqual(env["_HERMES_FORCE_GITHUB_TOKEN"], "github-app-token")
         self.assertEqual(env["GH_PROMPT_DISABLED"], "1")
+        self.assertEqual(
+            json.loads(env["_HERMES_GITHUB_TOKEN_MAP_JSON"]),
+            {"piplabs": "github-app-token", "storyprotocol": "storyprotocol-token"},
+        )
+        self.assertEqual(env["_HERMES_GITHUB_DEFAULT_OWNER"], "piplabs")
         self.assertEqual(status["provider_ref"], "github_app_installation")
         self.assertEqual(status["installation_id"], "123754864")
         self.assertEqual(status["owner"], "piplabs")
+        self.assertEqual(status["owners"], ["piplabs", "storyprotocol"])
         token_mock.assert_called_once()
+        owner_token_mock.assert_called_once_with("storyprotocol", repo="depin-backend")
 
     def test_native_terminal_forces_github_app_token_through_hermes_env_scrubber(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -722,6 +742,7 @@ class HermesRuntimeTests(unittest.TestCase):
         class FakePopen:
             def __init__(self, cmd, cwd, env, stdout, stderr, text):
                 captured_env.update(env)
+                captured_env["_test_git_askpass_exists"] = str(Path(env["GIT_ASKPASS"]).exists())
                 request = json.loads(Path(cmd[-1]).read_text(encoding="utf-8"))
                 payload = {
                     "ok": True,
@@ -788,6 +809,16 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(captured_env["GITHUB_TOKEN"], "github-app-token")
         self.assertEqual(captured_env["_HERMES_FORCE_GH_TOKEN"], "github-app-token")
         self.assertEqual(captured_env["_HERMES_FORCE_GITHUB_TOKEN"], "github-app-token")
+        self.assertEqual(json.loads(captured_env["_HERMES_GITHUB_TOKEN_MAP_JSON"]), {"piplabs": "github-app-token"})
+        self.assertEqual(captured_env["GIT_TERMINAL_PROMPT"], "0")
+        self.assertEqual(captured_env["_test_git_askpass_exists"], "True")
+        self.assertGreaterEqual(int(captured_env["GIT_CONFIG_COUNT"]), 2)
+        git_config = {
+            captured_env[f"GIT_CONFIG_KEY_{index}"]: captured_env[f"GIT_CONFIG_VALUE_{index}"]
+            for index in range(int(captured_env["GIT_CONFIG_COUNT"]))
+        }
+        self.assertEqual(git_config["credential.useHttpPath"], "true")
+        self.assertIn("git-credential-rsi-github.py", git_config["credential.helper"])
 
     def test_git_askpass_uses_github_cli_token_for_private_clone(self) -> None:
         with tempfile.TemporaryDirectory() as tempdir, mock.patch(
@@ -806,6 +837,39 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(username, "x-access-token")
         self.assertEqual(password, "github-token")
 
+    def test_git_credential_helper_uses_owner_specific_installation_token(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            helper = runtime._write_git_credential_helper(Path(tempdir))
+
+            env = {
+                **os.environ,
+                "_HERMES_GITHUB_DEFAULT_OWNER": "piplabs",
+                "_HERMES_GITHUB_TOKEN_MAP_JSON": json.dumps(
+                    {"piplabs": "piplabs-token", "storyprotocol": "storyprotocol-token"},
+                    sort_keys=True,
+                ),
+            }
+            storyprotocol_output = subprocess.check_output(
+                [str(helper), "get"],
+                input="protocol=https\nhost=github.com\npath=storyprotocol/story-deployments.git\n\n",
+                env=env,
+                text=True,
+            )
+            piplabs_output = subprocess.check_output(
+                [str(helper), "get"],
+                input="protocol=https\nhost=github.com\npath=piplabs/cloudflare.git\n\n",
+                env=env,
+                text=True,
+            )
+
+        self.assertIn("username=x-access-token", storyprotocol_output)
+        self.assertIn("password=storyprotocol-token", storyprotocol_output)
+        self.assertIn("username=x-access-token", piplabs_output)
+        self.assertIn("password=piplabs-token", piplabs_output)
+
     def test_github_app_repo_scope_accepts_owner_qualified_repositories(self) -> None:
         with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
             os.environ,
@@ -819,6 +883,16 @@ class HermesRuntimeTests(unittest.TestCase):
             clear=True,
         ):
             runtime = HermesRuntime(RunnerConfig.from_env())
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "depin-backend",
+                        "repo_allowlist": ["story-deployments"],
+                        "prompt": "Read deployment config.",
+                    }
+                }
+            )
 
             self.assertEqual(runtime._github_owner_for_repo("piplabs/numo-monorepo"), "piplabs")
             self.assertEqual(runtime._github_owner_for_repo("story-deployments"), "storyprotocol")
@@ -829,6 +903,9 @@ class HermesRuntimeTests(unittest.TestCase):
                 ),
                 ["story-deployments", "story-infra-aws"],
             )
+            guidance = runtime._github_repository_guidance(task)
+            self.assertIn("story-deployments -> storyprotocol/story-deployments", guidance)
+            self.assertIn("configured GitHub App owner(s): piplabs, storyprotocol", guidance)
 
     def test_company_computer_bootstrap_writes_service_account_kubeconfig_for_terminal(self) -> None:
         with tempfile.TemporaryDirectory() as tempdir, tempfile.TemporaryDirectory() as computer_root:
