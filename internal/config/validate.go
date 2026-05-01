@@ -99,7 +99,7 @@ func (c Config) validateControlPlane(issues *[]string) {
 			*issues = append(*issues, "RSI_SLACK_SOCKET_MODE_ENABLED must be true")
 		}
 		addRequiredString(issues, "RSI_SLACK_APP_TOKEN", c.SlackAppToken)
-		addRequiredString(issues, "RSI_SLACK_BOT_TOKEN", c.SlackBotToken)
+		addRequiredString(issues, "SLACK_BOT_TOKEN", c.SlackBotToken)
 		addRequiredList(issues, "RSI_ALLOWED_SLACK_CHANNEL_IDS", c.AllowedSlackChannelIDs)
 	}
 }

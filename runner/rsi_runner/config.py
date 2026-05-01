@@ -156,7 +156,7 @@ class RunnerConfig:
         runner_planner_mode = optional_env("RSI_RUNNER_PLANNER_MODE") or "runner_first"
         slack_mcp_enabled = parse_bool(optional_env("RSI_SLACK_MCP_ENABLED") or "false", "RSI_SLACK_MCP_ENABLED")
         slack_mcp_server_url = optional_url_env("RSI_SLACK_MCP_SERVER_URL") or "https://mcp.slack.com/mcp"
-        slack_bot_token = optional_env("SLACK_BOT_TOKEN") or optional_env("RSI_SLACK_BOT_TOKEN")
+        slack_bot_token = optional_env("SLACK_BOT_TOKEN")
         verbose_trace_logging = parse_bool(optional_env("RSI_VERBOSE_TRACE_LOGGING") or "false", "RSI_VERBOSE_TRACE_LOGGING")
         verbose_trace_log_limit = parse_non_negative_int(optional_env("RSI_VERBOSE_TRACE_LOG_LIMIT") or "100000", "RSI_VERBOSE_TRACE_LOG_LIMIT")
         drain_timeout_seconds = parse_positive_int(optional_env("RSI_RUNNER_DRAIN_TIMEOUT_SECONDS") or "900", "RSI_RUNNER_DRAIN_TIMEOUT_SECONDS")

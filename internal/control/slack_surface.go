@@ -43,7 +43,7 @@ func RunSlackSurface(cfg config.Config, store storepkg.Store) error {
 		return errors.New("slack-surface mode requires RSI_SLACK_APP_TOKEN")
 	}
 	if strings.TrimSpace(cfg.SlackBotToken) == "" {
-		return errors.New("slack-surface mode requires RSI_SLACK_BOT_TOKEN")
+		return errors.New("slack-surface mode requires SLACK_BOT_TOKEN")
 	}
 
 	if cfg.DrainEnabled {
@@ -265,7 +265,7 @@ func postWorkflowOperatorTraceACK(cfg config.Config, store storepkg.Store, trace
 	}
 	if strings.TrimSpace(cfg.SlackBotToken) == "" {
 		recordOperatorTraceACK(cfg, store, trace, ingestion, "failed", map[string]any{
-			"error": "RSI_SLACK_BOT_TOKEN is not configured",
+			"error": "SLACK_BOT_TOKEN is not configured",
 		})
 		return
 	}

@@ -7555,7 +7555,6 @@ class HermesRuntimeTests(unittest.TestCase):
         env = {
             **runner_env("prod"),
             "RSI_SLACK_MCP_ENABLED": "true",
-            "SLACK_BOT_TOKEN": "xoxb-test",
             "RSI_SLACK_MCP_SERVER_URL": "https://slack-mcp.test/mcp",
         }
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
@@ -7569,6 +7568,34 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(metadata["slack_mcp_available"])
         self.assertEqual(metadata["slack_mcp_tool_count"], 1)
         self.assertEqual(observed_methods, ["initialize", "notifications/initialized", "tools/list"])
+
+    def test_direct_slack_delivery_env_uses_canonical_bot_token_name(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Reply in Slack.",
+                    "reply_delivery_mode": "direct",
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                }
+            }
+        )
+        env = runner_env("prod")
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, env, clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            direct_env, error = runtime._direct_slack_delivery_env(task)
+
+        self.assertEqual(error, "")
+        self.assertEqual(direct_env["SLACK_BOT_TOKEN"], "xoxb-test")
+        self.assertEqual(
+            set(direct_env),
+            {"HERMES_SESSION_PLATFORM", "HERMES_SESSION_CHAT_ID", "HERMES_SESSION_THREAD_ID", "SLACK_BOT_TOKEN"},
+        )
 
     def test_prod_task_timeout_defaults_to_1800_when_transport_is_extended(self) -> None:
         env = {**runner_env("prod"), "RSI_RUNNER_PROD_TIMEOUT": "1830s"}

@@ -168,7 +168,7 @@ func Load(serviceName string) Config {
 		SlackAppIdentity:                   stringEnv("RSI_SLACK_APP_IDENTITY", ""),
 		SlackSocketModeEnabled:             boolEnv("RSI_SLACK_SOCKET_MODE_ENABLED", false),
 		SlackAppToken:                      stringEnv("RSI_SLACK_APP_TOKEN", ""),
-		SlackBotToken:                      stringEnv("RSI_SLACK_BOT_TOKEN", ""),
+		SlackBotToken:                      stringEnv("SLACK_BOT_TOKEN", ""),
 		NotionMCPEnabled:                   boolEnv("RSI_NOTION_MCP_ENABLED", false),
 		NotionMCPServerURL:                 stringEnv("RSI_NOTION_MCP_SERVER_URL", "https://mcp.notion.com/mcp"),
 		NotionMCPHeaders:                   mapEnv("RSI_NOTION_MCP_HEADERS"),

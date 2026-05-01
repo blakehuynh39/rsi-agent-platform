@@ -3428,7 +3428,7 @@ class HermesRuntime:
         execution_id = observer.execution_id if observer is not None else first_non_empty(task.execution_id, context.session_id)
         direct_slack_env, direct_slack_error = self._direct_slack_delivery_env(task)
         if direct_slack_error:
-            failure_class = "slack_bot_token_missing" if "SLACK_BOT_TOKEN" in direct_slack_error else "slack_delivery_target_missing"
+            failure_class = "slack_bot_token_missing" if "slack_bot_token" in direct_slack_error.lower() else "slack_delivery_target_missing"
             return HermesExecutionResult(
                 ok=False,
                 message=direct_slack_error,
@@ -5072,7 +5072,7 @@ class HermesRuntime:
     def _slack_mcp_request(self, method: str, params: JsonObject | None = None, *, notification: bool = False) -> JsonObject:
         if not self._config.slack_mcp_enabled:
             raise RuntimeError("Slack MCP is disabled.")
-        token = first_non_empty(os.getenv("SLACK_BOT_TOKEN"), os.getenv("RSI_SLACK_BOT_TOKEN"), "")
+        token = first_non_empty(os.getenv("SLACK_BOT_TOKEN"), "")
         if not token:
             raise RuntimeError("Slack bot token is not configured.")
         request_id = None if notification else method.replace("/", "_")
@@ -5488,11 +5488,13 @@ class HermesRuntime:
         channel_id = (task.channel_id or "").strip()
         if not channel_id:
             return {}, "direct native Slack delivery requires a bound channel_id"
-        if not os.getenv("SLACK_BOT_TOKEN", "").strip():
+        slack_bot_token = first_non_empty(os.getenv("SLACK_BOT_TOKEN"), "")
+        if not slack_bot_token:
             return {}, "SLACK_BOT_TOKEN is required for direct native Slack delivery"
         env: JsonObject = {
             "HERMES_SESSION_PLATFORM": "slack",
             "HERMES_SESSION_CHAT_ID": channel_id,
+            "SLACK_BOT_TOKEN": slack_bot_token,
         }
         thread_ts = (task.thread_ts or "").strip()
         if thread_ts:

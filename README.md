@@ -66,8 +66,8 @@ Runtime defaults:
 For `openai/*` models, the runner uses Hermes directly and forwards the configured `reasoning_effort` into Hermes `reasoning_config`. The effective runtime is exposed at `/runtimez` on each runner and aggregated by `improvement-plane` at `/api/runtime`.
 
 `control-plane --mode slack-surface` uses the Slack env contract:
-`RSI_SLACK_APP_IDENTITY`, `RSI_SLACK_SOCKET_MODE_ENABLED`, `RSI_SLACK_APP_TOKEN`, and `RSI_SLACK_BOT_TOKEN`.
-Hermes executor pods use `SLACK_BOT_TOKEN` for native `send_message` delivery; Slack user tokens are not part of the runtime contract.
+`RSI_SLACK_APP_IDENTITY`, `RSI_SLACK_SOCKET_MODE_ENABLED`, `RSI_SLACK_APP_TOKEN`, and `SLACK_BOT_TOKEN`.
+Hermes executor pods also use `SLACK_BOT_TOKEN` for native `send_message` delivery; Slack user tokens are not part of the runtime contract.
 For Notion MCP reads in workflow and Slack Q&A gather tasks, configure
 `RSI_NOTION_MCP_ENABLED=true`, optionally override `RSI_NOTION_MCP_SERVER_URL`,
 and set `RSI_NOTION_MCP_AUTHORIZATION_ENV_VAR` to the env var name that runner

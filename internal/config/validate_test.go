@@ -80,7 +80,7 @@ func TestSlackSurfaceValidationRequiresSlackContract(t *testing.T) {
 		"RSI_SLACK_APP_IDENTITY is required",
 		"RSI_SLACK_SOCKET_MODE_ENABLED must be true",
 		"RSI_SLACK_APP_TOKEN is required",
-		"RSI_SLACK_BOT_TOKEN is required",
+		"SLACK_BOT_TOKEN is required",
 		"RSI_ALLOWED_SLACK_CHANNEL_IDS is required",
 	} {
 		if !strings.Contains(message, required) {
