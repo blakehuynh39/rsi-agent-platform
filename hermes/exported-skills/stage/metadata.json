@@ -1,7 +1,7 @@
 {
   "export_environment": "stage",
-  "exported_at": "2026-04-30T23:49:59Z",
-  "file_count": 544,
+  "exported_at": "2026-05-01T02:39:02Z",
+  "file_count": 546,
   "files": [
     {
       "path": "apple/DESCRIPTION.md",
@@ -1389,6 +1389,16 @@
       "size": 5250
     },
     {
+      "path": "devops/kanban-orchestrator/SKILL.md",
+      "sha256": "7d2c9c4296d35e6cfdc04ad5759abd21330d5290edd9de1d0793cbd38102ac06",
+      "size": 7975
+    },
+    {
+      "path": "devops/kanban-worker/SKILL.md",
+      "sha256": "531a572cfa21ff06094c8e19b0bb1921cdb2d7ed01fc178172956471721f0a9c",
+      "size": 6969
+    },
+    {
       "path": "devops/webhook-subscriptions/SKILL.md",
       "sha256": "b78f30f13d90934f48a38fca81e884ce72d81105706dad9eff81958fb46cbce1",
       "size": 6801
@@ -2727,10 +2737,10 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-64cd44fjc7t",
-  "previous_tree_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6f6f77j6ph8",
+  "previous_tree_hash": "b91e9577733f0e519273a384c28051e506b67445d254b303652007fc5ae4e1a2",
   "schema_version": 1,
   "skill_manage_sessions": [],
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b91e9577733f0e519273a384c28051e506b67445d254b303652007fc5ae4e1a2"
+  "tree_hash": "e4fc073bf761ed92ddc251783b7b8fb9a422c4723ac92d7a7cba33896d11d3a4"
 }
