@@ -43,11 +43,11 @@ func TestLoadPanicsOnInvalidListEnv(t *testing.T) {
 func TestRunnerTaskTimeoutDefaultsUseExpandedBudgets(t *testing.T) {
 	cfg := Config{}
 
-	if got := cfg.RunnerTimeoutForRole("prod"); got != 930*time.Second {
-		t.Fatalf("prod runner timeout = %s, want 930s", got)
+	if got := cfg.RunnerTimeoutForRole("prod"); got != 1830*time.Second {
+		t.Fatalf("prod runner timeout = %s, want 1830s", got)
 	}
-	if got := cfg.RunnerTaskTimeoutForRole("prod"); got != 900*time.Second {
-		t.Fatalf("prod runner task timeout = %s, want 900s", got)
+	if got := cfg.RunnerTaskTimeoutForRole("prod"); got != 1800*time.Second {
+		t.Fatalf("prod runner task timeout = %s, want 1800s", got)
 	}
 	if got := cfg.RunnerTaskTimeoutForRole("proposal"); got != 420*time.Second {
 		t.Fatalf("proposal runner task timeout = %s, want 420s", got)

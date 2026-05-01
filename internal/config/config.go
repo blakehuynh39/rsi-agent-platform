@@ -117,11 +117,11 @@ type Config struct {
 }
 
 const (
-	defaultProdRunnerTimeout          = 930 * time.Second
+	defaultProdRunnerTimeout          = 1830 * time.Second
 	defaultProactiveRunnerTimeout     = 330 * time.Second
 	defaultEvalRunnerTimeout          = 330 * time.Second
 	defaultProposalRunnerTimeout      = 450 * time.Second
-	defaultProdRunnerTaskTimeout      = 900 * time.Second
+	defaultProdRunnerTaskTimeout      = 1800 * time.Second
 	defaultProactiveRunnerTaskTimeout = 300 * time.Second
 	defaultEvalRunnerTaskTimeout      = 300 * time.Second
 	defaultProposalRunnerTaskTimeout  = 420 * time.Second
