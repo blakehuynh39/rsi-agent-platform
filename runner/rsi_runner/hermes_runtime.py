@@ -100,13 +100,16 @@ _NATIVE_EXECUTOR_RESULT_MARKER = "RSI_EXECUTOR_RESULT::"
 _NATIVE_EXECUTOR_OUTPUT_CHUNK_CHARS = 8 * 1024
 _SENSITIVE_ENV_KEY_FRAGMENTS = (
     "authorization",
+    "api-key",
     "api_key",
     "apikey",
     "token",
     "secret",
+    "private-key",
     "private_key",
     "password",
 )
+_SENSITIVE_ENV_KEY_PATTERN = "|".join(re.escape(fragment) for fragment in _SENSITIVE_ENV_KEY_FRAGMENTS)
 _SENSITIVE_OUTPUT_PATTERNS = (
     (
         re.compile(r"(?i)\b(bearer)\s+([A-Za-z0-9._~+/=-]{8,})"),
@@ -119,6 +122,30 @@ _SENSITIVE_OUTPUT_PATTERNS = (
     (
         re.compile(r"\b(sk-[A-Za-z0-9_-]{8,})\b"),
         lambda _match: "[redacted-api-key]",
+    ),
+    (
+        re.compile(
+            rf"(?im)^(\s*(?:export\s+)?[A-Za-z0-9_.-]*(?:{_SENSITIVE_ENV_KEY_PATTERN})[A-Za-z0-9_.-]*\s*[:=]\s*)(?!Bearer\s)(['\"]?)([^\s'\",}}{{\]]{{4,}})(\2)",
+        ),
+        lambda match: f"{match.group(1)}{match.group(2)}[redacted]{match.group(4)}",
+    ),
+    (
+        re.compile(
+            rf"(?is)(\"name\"\s*:\s*\"[^\"]*(?:{_SENSITIVE_ENV_KEY_PATTERN})[^\"]*\"\s*,\s*\"value\"\s*:\s*\")([^\"]+)(\")",
+        ),
+        lambda match: f"{match.group(1)}[redacted]{match.group(3)}",
+    ),
+    (
+        re.compile(
+            rf"(?is)(\"value\"\s*:\s*\")([^\"]+)(\"\s*,\s*\"name\"\s*:\s*\"[^\"]*(?:{_SENSITIVE_ENV_KEY_PATTERN})[^\"]*\")",
+        ),
+        lambda match: f"{match.group(1)}[redacted]{match.group(3)}",
+    ),
+    (
+        re.compile(
+            rf"(?is)(\"[A-Za-z0-9_.-]*(?:{_SENSITIVE_ENV_KEY_PATTERN})[A-Za-z0-9_.-]*\"\s*:\s*\")([^\"]+)(\")",
+        ),
+        lambda match: f"{match.group(1)}[redacted]{match.group(3)}",
     ),
 )
 _BENIGN_MCP_TOOLSET_WARNING = re.compile(
@@ -249,7 +276,16 @@ def _redact_json_value(value: Any, *, secret_values: list[str], limit: int) -> A
     if isinstance(value, str):
         return _truncate_raw_string(_redact_subprocess_output(value, secret_values=secret_values), limit)
     if isinstance(value, dict):
-        return {str(key): _redact_json_value(item, secret_values=secret_values, limit=limit) for key, item in value.items()}
+        name_value = str(value.get("name") or value.get("key") or "").strip()
+        redact_value_field = bool(name_value and _is_sensitive_env_key(name_value))
+        redacted: dict[str, Any] = {}
+        for key, item in value.items():
+            key_text = str(key)
+            if _is_sensitive_env_key(key_text) or (redact_value_field and key_text == "value"):
+                redacted[key_text] = "[redacted]"
+                continue
+            redacted[key_text] = _redact_json_value(item, secret_values=secret_values, limit=limit)
+        return redacted
     if isinstance(value, list):
         return [_redact_json_value(item, secret_values=secret_values, limit=limit) for item in value]
     return value
@@ -2581,6 +2617,8 @@ class HermesRuntime:
         return {
             "GH_TOKEN": token,
             "GITHUB_TOKEN": token,
+            "_HERMES_FORCE_GH_TOKEN": token,
+            "_HERMES_FORCE_GITHUB_TOKEN": token,
             "GH_PROMPT_DISABLED": "1",
         }, status
 

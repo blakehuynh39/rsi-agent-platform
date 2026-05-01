@@ -19,7 +19,14 @@ from rsi_runner.execution_contract import HermesCompanyComputer
 from rsi_runner.hermes_adapter import HermesAdapter, _build_plugin_module
 from rsi_runner.hermes_agent_adapter import HermesAgentAdapter, HermesContractStatus, validate_hermes_contract
 from rsi_runner.hermes_mcp_adapter import TaskScopedMCPCleanupResult, TaskScopedMCPRegistration, TaskScopedMCPServer
-from rsi_runner.hermes_runtime import HermesExecutionResult, HermesRuntime, RunnerTaskRequest, _NativeLifecycleTailer
+from rsi_runner.hermes_runtime import (
+    HermesExecutionResult,
+    HermesRuntime,
+    RunnerTaskRequest,
+    _NativeLifecycleTailer,
+    _redact_json_value,
+    _redact_subprocess_output,
+)
 from rsi_runner.observability import ObservationEmitter, execution_observation_id
 from rsi_runner.rsi_tools import (
     ReadOnlyToolBinding,
@@ -690,11 +697,97 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertEqual(env["GH_TOKEN"], "github-app-token")
         self.assertEqual(env["GITHUB_TOKEN"], "github-app-token")
+        self.assertEqual(env["_HERMES_FORCE_GH_TOKEN"], "github-app-token")
+        self.assertEqual(env["_HERMES_FORCE_GITHUB_TOKEN"], "github-app-token")
         self.assertEqual(env["GH_PROMPT_DISABLED"], "1")
         self.assertEqual(status["provider_ref"], "github_app_installation")
         self.assertEqual(status["installation_id"], "123754864")
         self.assertEqual(status["owner"], "piplabs")
         token_mock.assert_called_once()
+
+    def test_native_terminal_forces_github_app_token_through_hermes_env_scrubber(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "depin-backend",
+                    "prompt": "Read the private repo.",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-gh-app-force",
+                }
+            }
+        )
+        captured_env: dict[str, str] = {}
+
+        class FakePopen:
+            def __init__(self, cmd, cwd, env, stdout, stderr, text):
+                captured_env.update(env)
+                request = json.loads(Path(cmd[-1]).read_text(encoding="utf-8"))
+                payload = {
+                    "ok": True,
+                    "mcp_cleanup_errors": [],
+                    "mcp_cleanup_status": "cleaned",
+                    "response": "{}",
+                    "result": {"final_response": "{}"},
+                    "session_id": "rsi-prod-conversation-gh-force",
+                }
+                Path(request["result_path"]).write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+                self.returncode = 0
+                self.stdout = io.StringIO("RSI_EXECUTOR_RESULT::" + json.dumps(payload, sort_keys=True) + "\n")
+                self.stderr = io.StringIO("")
+
+            def poll(self):
+                return 0
+
+            def wait(self, timeout=None):
+                return self.returncode
+
+            def terminate(self):
+                self.returncode = -15
+
+            def kill(self):
+                self.returncode = -9
+
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.AIAgent", FakeAIAgent
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.object(
+            HermesRuntime,
+            "_github_app_installation_token",
+            return_value=(
+                "github-app-token",
+                {
+                    "status": "configured",
+                    "reason": "github_app_installation",
+                    "expires_at": "2026-05-01T08:00:00Z",
+                    "installation_id": "123754864",
+                    "owner": "piplabs",
+                },
+            ),
+        ), mock.patch("rsi_runner.hermes_runtime.subprocess.Popen", side_effect=FakePopen), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_ENABLED": "true",
+                "RSI_HERMES_NATIVE_TERMINAL_ENABLED": "true",
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
+                "RSI_GITHUB_OWNER": "piplabs",
+                "RSI_GITHUB_APP_ID": "3370196",
+                "RSI_GITHUB_APP_INSTALLATION_ID": "123754864",
+                "RSI_GITHUB_APP_PRIVATE_KEY": "private-key",
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(captured_env["GH_TOKEN"], "github-app-token")
+        self.assertEqual(captured_env["GITHUB_TOKEN"], "github-app-token")
+        self.assertEqual(captured_env["_HERMES_FORCE_GH_TOKEN"], "github-app-token")
+        self.assertEqual(captured_env["_HERMES_FORCE_GITHUB_TOKEN"], "github-app-token")
 
     def test_git_askpass_uses_github_cli_token_for_private_clone(self) -> None:
         with tempfile.TemporaryDirectory() as tempdir, mock.patch(
@@ -3377,6 +3470,8 @@ class HermesRuntimeTests(unittest.TestCase):
                     "openrouter=sk-secret-openrouter-key\n"
                     "aws=aws-session-secret\n"
                     "env=openrouter-test-key\n"
+                    "JOB_HELPER_TOKEN_SECRET=fake-secret-value-for-redaction\n"
+                    '{\n  "name": "INTERNAL_ADMIN_READ_API_KEY",\n  "value": "admin-read-key-from-cluster"\n}\n'
                 )
 
             def poll(self):
@@ -3454,10 +3549,48 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertNotIn("sk-secret-openrouter-key", stderr_text)
         self.assertNotIn("aws-session-secret", stderr_text)
         self.assertNotIn("openrouter-test-key", stderr_text)
+        self.assertNotIn("fake-secret-value-for-redaction", stderr_text)
+        self.assertNotIn("admin-read-key-from-cluster", stderr_text)
         self.assertNotIn("secret-bearer-token", result.raw["native_executor_stderr"])
         self.assertNotIn("xoxb-123456789-secret", result.raw["native_executor_stderr"])
         self.assertTrue(any(event["event_type"] == "executor.result.persisted" for event in observer.events))
         self.assertTrue(any(event["event_type"] == "executor.result.loaded" for event in observer.events))
+
+    def test_redaction_masks_unknown_secret_values_by_key_shape(self) -> None:
+        text = "\n".join(
+            [
+                "JOB_HELPER_TOKEN_SECRET=fake-secret-value-for-redaction",
+                '{"name":"INTERNAL_ADMIN_READ_API_KEY","value":"admin-read-key-from-cluster"}',
+                '{"value":"reverse-order-secret","name":"DEPIN_ADMIN_READ_API_KEY"}',
+                '{"DEPIN_ADMIN_READ_API_KEY":"object-key-secret"}',
+                '{"message":"missing authorization header"}',
+            ]
+        )
+
+        redacted = _redact_subprocess_output(text, secret_values=[])
+
+        self.assertIn("JOB_HELPER_TOKEN_SECRET=[redacted]", redacted)
+        self.assertIn('"name":"INTERNAL_ADMIN_READ_API_KEY","value":"[redacted]"', redacted)
+        self.assertIn('"value":"[redacted]","name":"DEPIN_ADMIN_READ_API_KEY"', redacted)
+        self.assertIn('"DEPIN_ADMIN_READ_API_KEY":"[redacted]"', redacted)
+        self.assertIn("missing authorization header", redacted)
+        self.assertNotIn("fake-secret-value-for-redaction", redacted)
+        self.assertNotIn("admin-read-key-from-cluster", redacted)
+        self.assertNotIn("reverse-order-secret", redacted)
+        self.assertNotIn("object-key-secret", redacted)
+
+    def test_redaction_masks_structured_secret_name_value_payloads(self) -> None:
+        payload = {
+            "name": "JOB_HELPER_TOKEN_SECRET",
+            "value": "cluster-only-secret",
+            "nested": {"DEPIN_ADMIN_READ_API_KEY": "nested-secret"},
+        }
+
+        redacted = _redact_json_value(payload, secret_values=[], limit=1000)
+
+        self.assertEqual(redacted["name"], "JOB_HELPER_TOKEN_SECRET")
+        self.assertEqual(redacted["value"], "[redacted]")
+        self.assertEqual(redacted["nested"]["DEPIN_ADMIN_READ_API_KEY"], "[redacted]")
 
     def test_native_executor_requires_result_file_for_success(self) -> None:
         class FakePopen:
