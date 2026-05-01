@@ -60,6 +60,14 @@ class RunnerConfig:
     hermes_terminal_local_persistent: bool
     hermes_company_bin_dir: str
     hermes_kubernetes_context_enabled: bool
+    hermes_prod_kubernetes_context_enabled: bool
+    hermes_prod_kubernetes_context_name: str
+    hermes_prod_kubernetes_cluster_name: str
+    hermes_prod_kubernetes_cluster_server: str
+    hermes_prod_kubernetes_cluster_ca_data: str
+    hermes_prod_kubernetes_role_arn: str
+    hermes_prod_kubernetes_region: str
+    hermes_prod_kubernetes_namespace: str
     hermes_kubeconfig_path: str
     hermes_kubernetes_service_account_token_path: str
     hermes_kubernetes_service_account_ca_path: str
@@ -129,6 +137,14 @@ class RunnerConfig:
         hermes_terminal_local_persistent = parse_bool(optional_env("TERMINAL_LOCAL_PERSISTENT") or "true", "TERMINAL_LOCAL_PERSISTENT")
         hermes_company_bin_dir = optional_env("RSI_HERMES_COMPANY_BIN_DIR") or path_join(hermes_computer_root, ".rsi", "bin")
         hermes_kubernetes_context_enabled = parse_bool(optional_env("RSI_HERMES_KUBERNETES_CONTEXT_ENABLED") or "false", "RSI_HERMES_KUBERNETES_CONTEXT_ENABLED")
+        hermes_prod_kubernetes_context_enabled = parse_bool(optional_env("RSI_HERMES_PROD_KUBERNETES_CONTEXT_ENABLED") or "false", "RSI_HERMES_PROD_KUBERNETES_CONTEXT_ENABLED")
+        hermes_prod_kubernetes_context_name = optional_env("RSI_HERMES_PROD_KUBERNETES_CONTEXT_NAME") or "use1-prod"
+        hermes_prod_kubernetes_cluster_name = optional_env("RSI_HERMES_PROD_KUBERNETES_CLUSTER_NAME") or "use1-prod"
+        hermes_prod_kubernetes_cluster_server = optional_url_env("RSI_HERMES_PROD_KUBERNETES_CLUSTER_SERVER")
+        hermes_prod_kubernetes_cluster_ca_data = optional_env("RSI_HERMES_PROD_KUBERNETES_CLUSTER_CA_DATA")
+        hermes_prod_kubernetes_role_arn = optional_env("RSI_HERMES_PROD_KUBERNETES_ROLE_ARN")
+        hermes_prod_kubernetes_region = optional_env("RSI_HERMES_PROD_KUBERNETES_REGION") or "us-east-1"
+        hermes_prod_kubernetes_namespace = optional_env("RSI_HERMES_PROD_KUBERNETES_NAMESPACE") or "story"
         hermes_kubeconfig_path = optional_env("KUBECONFIG") or path_join(hermes_computer_root, ".rsi", "kube", "config")
         hermes_kubernetes_service_account_token_path = optional_env("RSI_HERMES_KUBERNETES_SERVICE_ACCOUNT_TOKEN_PATH") or "/var/run/secrets/kubernetes.io/serviceaccount/token"
         hermes_kubernetes_service_account_ca_path = optional_env("RSI_HERMES_KUBERNETES_SERVICE_ACCOUNT_CA_PATH") or "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
@@ -195,6 +211,14 @@ class RunnerConfig:
             hermes_terminal_local_persistent=hermes_terminal_local_persistent,
             hermes_company_bin_dir=hermes_company_bin_dir,
             hermes_kubernetes_context_enabled=hermes_kubernetes_context_enabled,
+            hermes_prod_kubernetes_context_enabled=hermes_prod_kubernetes_context_enabled,
+            hermes_prod_kubernetes_context_name=hermes_prod_kubernetes_context_name,
+            hermes_prod_kubernetes_cluster_name=hermes_prod_kubernetes_cluster_name,
+            hermes_prod_kubernetes_cluster_server=hermes_prod_kubernetes_cluster_server,
+            hermes_prod_kubernetes_cluster_ca_data=hermes_prod_kubernetes_cluster_ca_data,
+            hermes_prod_kubernetes_role_arn=hermes_prod_kubernetes_role_arn,
+            hermes_prod_kubernetes_region=hermes_prod_kubernetes_region,
+            hermes_prod_kubernetes_namespace=hermes_prod_kubernetes_namespace,
             hermes_kubeconfig_path=hermes_kubeconfig_path,
             hermes_kubernetes_service_account_token_path=hermes_kubernetes_service_account_token_path,
             hermes_kubernetes_service_account_ca_path=hermes_kubernetes_service_account_ca_path,

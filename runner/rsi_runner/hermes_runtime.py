@@ -1020,12 +1020,22 @@ class HermesRuntime:
             "errors": [],
             "terminal_enabled": self._config.hermes_native_terminal_enabled,
             "kubernetes_context_enabled": self._config.hermes_kubernetes_context_enabled,
+            "prod_kubernetes_context_enabled": self._config.hermes_prod_kubernetes_context_enabled,
             "computer_root": self._config.hermes_computer_root,
             "terminal_cwd": self._config.hermes_terminal_cwd,
             "bin_dir": self._config.hermes_company_bin_dir,
-            "kubeconfig_path": self._config.hermes_kubeconfig_path if self._config.hermes_kubernetes_context_enabled else "",
+            "kubeconfig_path": self._config.hermes_kubeconfig_path
+            if (
+                self._config.hermes_kubernetes_context_enabled
+                or self._config.hermes_prod_kubernetes_context_enabled
+            )
+            else "",
         }
-        if not self._config.hermes_native_terminal_enabled and not self._config.hermes_kubernetes_context_enabled:
+        if (
+            not self._config.hermes_native_terminal_enabled
+            and not self._config.hermes_kubernetes_context_enabled
+            and not self._config.hermes_prod_kubernetes_context_enabled
+        ):
             return status
         try:
             root = Path(self._config.hermes_computer_root).expanduser().resolve()
@@ -1053,11 +1063,17 @@ class HermesRuntime:
                         "terminal_lifetime_seconds": self._config.hermes_terminal_lifetime_seconds,
                     }
                 )
-            if self._config.hermes_kubernetes_context_enabled:
+            if self._config.hermes_kubernetes_context_enabled or self._config.hermes_prod_kubernetes_context_enabled:
                 kubeconfig_path = self._write_company_kubeconfig()
                 os.environ["KUBECONFIG"] = str(kubeconfig_path)
                 status["kubeconfig_path"] = str(kubeconfig_path)
-                status["kubernetes_auth"] = "service_account_token_file"
+                auth_modes: list[str] = []
+                if self._config.hermes_kubernetes_context_enabled:
+                    auth_modes.append("service_account_token_file")
+                if self._config.hermes_prod_kubernetes_context_enabled:
+                    auth_modes.append("aws_eks_exec_assume_role")
+                    status["prod_kubernetes_context_name"] = self._config.hermes_prod_kubernetes_context_name
+                status["kubernetes_auth"] = ",".join(auth_modes)
                 status["status"] = "configured"
             self._write_company_computer_manifest(status)
         except Exception as exc:
@@ -1068,44 +1084,107 @@ class HermesRuntime:
         return status
 
     def _write_company_kubeconfig(self) -> Path:
-        token_path = _absolute_path_without_resolving(self._config.hermes_kubernetes_service_account_token_path)
-        ca_path = _absolute_path_without_resolving(self._config.hermes_kubernetes_service_account_ca_path)
-        namespace_path = _absolute_path_without_resolving(self._config.hermes_kubernetes_service_account_namespace_path)
-        host = first_non_empty(os.getenv("KUBERNETES_SERVICE_HOST"), "")
-        port = first_non_empty(os.getenv("KUBERNETES_SERVICE_PORT"), "443")
-        if not host:
-            raise RuntimeError("KUBERNETES_SERVICE_HOST is required when RSI_HERMES_KUBERNETES_CONTEXT_ENABLED=true")
-        if not token_path.is_file():
-            raise RuntimeError(f"Kubernetes service account token file is unavailable: {token_path}")
-        if not ca_path.is_file():
-            raise RuntimeError(f"Kubernetes service account CA file is unavailable: {ca_path}")
-        namespace = "default"
-        if namespace_path.is_file():
-            namespace = namespace_path.read_text(encoding="utf-8").strip() or namespace
         kubeconfig_path = Path(self._config.hermes_kubeconfig_path.split(os.pathsep)[0]).expanduser().resolve()
         kubeconfig_path.parent.mkdir(parents=True, exist_ok=True)
-        if ":" in host:
-            host = f"[{host}]"
+        clusters: list[str] = []
+        users: list[str] = []
+        contexts: list[str] = []
+        current_context = ""
+        if self._config.hermes_kubernetes_context_enabled:
+            token_path = _absolute_path_without_resolving(self._config.hermes_kubernetes_service_account_token_path)
+            ca_path = _absolute_path_without_resolving(self._config.hermes_kubernetes_service_account_ca_path)
+            namespace_path = _absolute_path_without_resolving(
+                self._config.hermes_kubernetes_service_account_namespace_path
+            )
+            host = first_non_empty(os.getenv("KUBERNETES_SERVICE_HOST"), "")
+            port = first_non_empty(os.getenv("KUBERNETES_SERVICE_PORT"), "443")
+            if not host:
+                raise RuntimeError("KUBERNETES_SERVICE_HOST is required when RSI_HERMES_KUBERNETES_CONTEXT_ENABLED=true")
+            if not token_path.is_file():
+                raise RuntimeError(f"Kubernetes service account token file is unavailable: {token_path}")
+            if not ca_path.is_file():
+                raise RuntimeError(f"Kubernetes service account CA file is unavailable: {ca_path}")
+            namespace = "default"
+            if namespace_path.is_file():
+                namespace = namespace_path.read_text(encoding="utf-8").strip() or namespace
+            if ":" in host:
+                host = f"[{host}]"
+            clusters.extend(
+                [
+                    "- name: in-cluster",
+                    "  cluster:",
+                    f"    server: https://{host}:{port}",
+                    f"    certificate-authority: {ca_path}",
+                ]
+            )
+            users.extend(
+                [
+                    "- name: hermes-executor",
+                    "  user:",
+                    f"    tokenFile: {token_path}",
+                ]
+            )
+            contexts.extend(
+                [
+                    "- name: hermes-company-computer",
+                    "  context:",
+                    "    cluster: in-cluster",
+                    "    user: hermes-executor",
+                    f"    namespace: {namespace}",
+                ]
+            )
+            current_context = "hermes-company-computer"
+        if self._config.hermes_prod_kubernetes_context_enabled:
+            prod_context = self._prod_kubernetes_context_values()
+            clusters.extend(
+                [
+                    f"- name: {prod_context['cluster_name']}",
+                    "  cluster:",
+                    f"    server: {prod_context['cluster_server']}",
+                    f"    certificate-authority-data: {prod_context['cluster_ca_data']}",
+                ]
+            )
+            users.extend(
+                [
+                    f"- name: {prod_context['context_name']}",
+                    "  user:",
+                    "    exec:",
+                    "      apiVersion: client.authentication.k8s.io/v1beta1",
+                    "      command: aws",
+                    "      args:",
+                    "      - eks",
+                    "      - get-token",
+                    "      - --cluster-name",
+                    f"      - {prod_context['cluster_name']}",
+                    "      - --region",
+                    f"      - {prod_context['region']}",
+                    "      - --role-arn",
+                    f"      - {prod_context['role_arn']}",
+                ]
+            )
+            contexts.extend(
+                [
+                    f"- name: {prod_context['context_name']}",
+                    "  context:",
+                    f"    cluster: {prod_context['cluster_name']}",
+                    f"    user: {prod_context['context_name']}",
+                    f"    namespace: {prod_context['namespace']}",
+                ]
+            )
+            current_context = current_context or prod_context["context_name"]
+        if not clusters or not users or not contexts or not current_context:
+            raise RuntimeError("At least one Kubernetes context must be enabled before writing kubeconfig")
         content = "\n".join(
             [
                 "apiVersion: v1",
                 "kind: Config",
                 "clusters:",
-                "- name: in-cluster",
-                "  cluster:",
-                f"    server: https://{host}:{port}",
-                f"    certificate-authority: {ca_path}",
+                *clusters,
                 "users:",
-                "- name: hermes-executor",
-                "  user:",
-                f"    tokenFile: {token_path}",
+                *users,
                 "contexts:",
-                "- name: hermes-company-computer",
-                "  context:",
-                "    cluster: in-cluster",
-                "    user: hermes-executor",
-                f"    namespace: {namespace}",
-                "current-context: hermes-company-computer",
+                *contexts,
+                f"current-context: {current_context}",
                 "",
             ]
         )
@@ -1114,6 +1193,31 @@ class HermesRuntime:
         temp_path.chmod(0o600)
         temp_path.replace(kubeconfig_path)
         return kubeconfig_path
+
+    def _prod_kubernetes_context_values(self) -> dict[str, str]:
+        required = {
+            "RSI_HERMES_PROD_KUBERNETES_CONTEXT_NAME": self._config.hermes_prod_kubernetes_context_name,
+            "RSI_HERMES_PROD_KUBERNETES_CLUSTER_NAME": self._config.hermes_prod_kubernetes_cluster_name,
+            "RSI_HERMES_PROD_KUBERNETES_CLUSTER_SERVER": self._config.hermes_prod_kubernetes_cluster_server,
+            "RSI_HERMES_PROD_KUBERNETES_CLUSTER_CA_DATA": self._config.hermes_prod_kubernetes_cluster_ca_data,
+            "RSI_HERMES_PROD_KUBERNETES_ROLE_ARN": self._config.hermes_prod_kubernetes_role_arn,
+            "RSI_HERMES_PROD_KUBERNETES_REGION": self._config.hermes_prod_kubernetes_region,
+            "RSI_HERMES_PROD_KUBERNETES_NAMESPACE": self._config.hermes_prod_kubernetes_namespace,
+        }
+        missing = [name for name, value in required.items() if not str(value or "").strip()]
+        if missing:
+            raise RuntimeError(
+                "Production Kubernetes context is enabled but missing required config: " + ", ".join(missing)
+            )
+        return {
+            "context_name": self._config.hermes_prod_kubernetes_context_name,
+            "cluster_name": self._config.hermes_prod_kubernetes_cluster_name,
+            "cluster_server": self._config.hermes_prod_kubernetes_cluster_server,
+            "cluster_ca_data": self._config.hermes_prod_kubernetes_cluster_ca_data,
+            "role_arn": self._config.hermes_prod_kubernetes_role_arn,
+            "region": self._config.hermes_prod_kubernetes_region,
+            "namespace": self._config.hermes_prod_kubernetes_namespace,
+        }
 
     def _write_company_computer_manifest(self, status: JsonObject) -> None:
         manifest_path = Path(self._config.hermes_computer_root).expanduser().resolve() / ".rsi" / "computer.json"
@@ -1133,8 +1237,31 @@ class HermesRuntime:
             },
             "kubernetes_context": {
                 "enabled": self._config.hermes_kubernetes_context_enabled,
-                "kubeconfig_path": self._config.hermes_kubeconfig_path if self._config.hermes_kubernetes_context_enabled else "",
+                "kubeconfig_path": self._config.hermes_kubeconfig_path
+                if (
+                    self._config.hermes_kubernetes_context_enabled
+                    or self._config.hermes_prod_kubernetes_context_enabled
+                )
+                else "",
                 "auth": "service_account_token_file" if self._config.hermes_kubernetes_context_enabled else "",
+            },
+            "prod_kubernetes_context": {
+                "enabled": self._config.hermes_prod_kubernetes_context_enabled,
+                "name": self._config.hermes_prod_kubernetes_context_name
+                if self._config.hermes_prod_kubernetes_context_enabled
+                else "",
+                "cluster_name": self._config.hermes_prod_kubernetes_cluster_name
+                if self._config.hermes_prod_kubernetes_context_enabled
+                else "",
+                "region": self._config.hermes_prod_kubernetes_region
+                if self._config.hermes_prod_kubernetes_context_enabled
+                else "",
+                "namespace": self._config.hermes_prod_kubernetes_namespace
+                if self._config.hermes_prod_kubernetes_context_enabled
+                else "",
+                "auth": "aws_eks_exec_assume_role"
+                if self._config.hermes_prod_kubernetes_context_enabled
+                else "",
             },
             "bootstrap_status": status,
         }
@@ -1262,7 +1389,7 @@ class HermesRuntime:
             "hermes_terminal_lifetime_seconds": self._config.hermes_terminal_lifetime_seconds,
             "hermes_company_bin_dir": self._config.hermes_company_bin_dir,
             "hermes_kubernetes_context_enabled": self._config.hermes_kubernetes_context_enabled,
-            "hermes_kubeconfig_path": self._config.hermes_kubeconfig_path if self._config.hermes_kubernetes_context_enabled else "",
+            "hermes_kubeconfig_path": self._config.hermes_kubeconfig_path if (self._config.hermes_kubernetes_context_enabled or self._config.hermes_prod_kubernetes_context_enabled) else "",
             "company_computer_bootstrap_status": dict(self._company_computer_bootstrap_status),
             "tool_allowlist_effective": self._default_policy_allowlist(execution_mode=""),
             "blocked_tool_names": [],
@@ -2174,7 +2301,7 @@ class HermesRuntime:
             "hermes_terminal_cwd": self._config.hermes_terminal_cwd,
             "hermes_company_bin_dir": self._config.hermes_company_bin_dir,
             "hermes_kubernetes_context_enabled": self._config.hermes_kubernetes_context_enabled,
-            "hermes_kubeconfig_path": self._config.hermes_kubeconfig_path if self._config.hermes_kubernetes_context_enabled else "",
+            "hermes_kubeconfig_path": self._config.hermes_kubeconfig_path if (self._config.hermes_kubernetes_context_enabled or self._config.hermes_prod_kubernetes_context_enabled) else "",
             "company_computer_bootstrap_status": dict(self._company_computer_bootstrap_status),
             "honcho_base_url": self._config.honcho_base_url or "",
             "honcho_workspace": self._config.honcho_workspace,
@@ -2488,7 +2615,7 @@ class HermesRuntime:
             "hermes_terminal_cwd": self._config.hermes_terminal_cwd,
             "hermes_company_bin_dir": self._config.hermes_company_bin_dir,
             "hermes_kubernetes_context_enabled": self._config.hermes_kubernetes_context_enabled,
-            "hermes_kubeconfig_path": self._config.hermes_kubeconfig_path if self._config.hermes_kubernetes_context_enabled else "",
+            "hermes_kubeconfig_path": self._config.hermes_kubeconfig_path if (self._config.hermes_kubernetes_context_enabled or self._config.hermes_prod_kubernetes_context_enabled) else "",
             "github_cli_credentials": dict(github_cli_credentials),
             "kubernetes_read_namespaces": list(task.kubernetes_read_namespaces),
             "company_computer_bootstrap_status": dict(self._company_computer_bootstrap_status),
@@ -3978,7 +4105,7 @@ class HermesRuntime:
                 "hermes_terminal_cwd": self._config.hermes_terminal_cwd,
                 "hermes_company_bin_dir": self._config.hermes_company_bin_dir,
                 "hermes_kubernetes_context_enabled": self._config.hermes_kubernetes_context_enabled,
-                "hermes_kubeconfig_path": self._config.hermes_kubeconfig_path if self._config.hermes_kubernetes_context_enabled else "",
+                "hermes_kubeconfig_path": self._config.hermes_kubeconfig_path if (self._config.hermes_kubernetes_context_enabled or self._config.hermes_prod_kubernetes_context_enabled) else "",
                 "kubernetes_read_namespaces": list(task.kubernetes_read_namespaces),
                 "context_summary": task.context_summary or "",
                 "task_default_question": query_hints.get("default_question", ""),
@@ -6669,6 +6796,12 @@ class HermesRuntime:
             if self._config.hermes_kubernetes_context_enabled:
                 parts.append(
                     "Kubernetes read context is available to terminal-native CLIs through KUBECONFIG. Cluster mutations are blocked by policy/RBAC and must become approval intents."
+                )
+            if self._config.hermes_prod_kubernetes_context_enabled:
+                parts.append(
+                    "Production Kubernetes topology read access is available through the "
+                    f"{self._config.hermes_prod_kubernetes_context_name} kubeconfig context. Use explicit "
+                    f"kubectl --context {self._config.hermes_prod_kubernetes_context_name} commands for production reads."
                 )
         if task.kubernetes_read_namespaces:
             namespace_scope = ", ".join(task.kubernetes_read_namespaces)

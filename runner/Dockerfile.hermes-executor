@@ -17,7 +17,7 @@ RUN HERMES_SPEC="$(python3 -c 'import pathlib,re; text=pathlib.Path("/app/pyproj
     mkdir -p /opt && \
     cp -R /tmp/hermes-agent/skills /opt/hermes-bundled-skills && \
     rm -rf /tmp/hermes-agent && \
-    pip install --no-cache-dir /app
+    pip install --no-cache-dir /app "awscli>=1.32,<2"
 
 ENV HERMES_BUNDLED_SKILLS=/opt/hermes-bundled-skills
 ENV RSI_HERMES_EXECUTOR_ENABLED=true

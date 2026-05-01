@@ -592,6 +592,14 @@ class HermesRuntimeTests(unittest.TestCase):
                     "RSI_HERMES_COMPUTER_ROOT": computer_root,
                     "RSI_HERMES_NATIVE_TERMINAL_ENABLED": "true",
                     "RSI_HERMES_KUBERNETES_CONTEXT_ENABLED": "true",
+                    "RSI_HERMES_PROD_KUBERNETES_CONTEXT_ENABLED": "true",
+                    "RSI_HERMES_PROD_KUBERNETES_CONTEXT_NAME": "use1-prod",
+                    "RSI_HERMES_PROD_KUBERNETES_CLUSTER_NAME": "use1-prod",
+                    "RSI_HERMES_PROD_KUBERNETES_CLUSTER_SERVER": "https://prod.eks.example",
+                    "RSI_HERMES_PROD_KUBERNETES_CLUSTER_CA_DATA": "prod-ca-data",
+                    "RSI_HERMES_PROD_KUBERNETES_ROLE_ARN": "arn:aws:iam::625966732747:role/use1-prod-rsi-stage-hermes-k8s-readonly",
+                    "RSI_HERMES_PROD_KUBERNETES_REGION": "us-east-1",
+                    "RSI_HERMES_PROD_KUBERNETES_NAMESPACE": "story",
                     "KUBECONFIG": str(kubeconfig_path),
                     "KUBERNETES_SERVICE_HOST": "10.0.0.1",
                     "KUBERNETES_SERVICE_PORT": "443",
@@ -621,8 +629,20 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertNotIn(str(token_target), kubeconfig)
         self.assertNotIn(str(ca_target), kubeconfig)
         self.assertIn("namespace: rsi-platform", kubeconfig)
+        self.assertIn("- name: use1-prod", kubeconfig)
+        self.assertIn("server: https://prod.eks.example", kubeconfig)
+        self.assertIn("certificate-authority-data: prod-ca-data", kubeconfig)
+        self.assertIn("command: aws", kubeconfig)
+        self.assertIn("- get-token", kubeconfig)
+        self.assertIn("- --cluster-name", kubeconfig)
+        self.assertIn("- --role-arn", kubeconfig)
+        self.assertIn("- arn:aws:iam::625966732747:role/use1-prod-rsi-stage-hermes-k8s-readonly", kubeconfig)
+        self.assertIn("namespace: story", kubeconfig)
+        self.assertIn("current-context: hermes-company-computer", kubeconfig)
         self.assertEqual(manifest["terminal"]["bin_dir"], str(Path(computer_root, ".rsi", "bin")))
         self.assertEqual(manifest["native_toolsets"], ["terminal", "file"])
+        self.assertEqual(manifest["prod_kubernetes_context"]["name"], "use1-prod")
+        self.assertEqual(manifest["prod_kubernetes_context"]["auth"], "aws_eks_exec_assume_role")
 
     def test_company_computer_bootstrap_failure_fails_closed(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -655,6 +675,46 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertFalse(runtime.available)
         self.assertFalse(runtime.metadata["company_computer_bootstrap_status"]["ok"])
+        self.assertFalse(result.ok)
+        self.assertEqual(result.raw["failure_class"], "hermes_company_computer_bootstrap_failed")
+
+    def test_company_computer_bootstrap_rejects_incomplete_prod_kubernetes_context(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Inspect production Kubernetes.",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-prod-kube-fail",
+                }
+            }
+        )
+        with tempfile.TemporaryDirectory() as tempdir, tempfile.TemporaryDirectory() as computer_root, mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": str(Path(tempdir, "hermes-home")),
+                "RSI_HERMES_EXECUTOR_ENABLED": "true",
+                "RSI_HERMES_COMPUTER_ROOT": computer_root,
+                "RSI_HERMES_NATIVE_TERMINAL_ENABLED": "true",
+                "RSI_HERMES_PROD_KUBERNETES_CONTEXT_ENABLED": "true",
+                "RSI_HERMES_PROD_KUBERNETES_CLUSTER_SERVER": "https://prod.eks.example",
+                "RSI_HERMES_PROD_KUBERNETES_CLUSTER_CA_DATA": "prod-ca-data",
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime._execute_native_workflow_task_request(task, runtime._resolve_tool_policy(task))
+
+        self.assertFalse(runtime.available)
+        self.assertFalse(runtime.metadata["company_computer_bootstrap_status"]["ok"])
+        self.assertIn(
+            "RSI_HERMES_PROD_KUBERNETES_ROLE_ARN",
+            "\n".join(runtime.metadata["company_computer_bootstrap_status"]["errors"]),
+        )
         self.assertFalse(result.ok)
         self.assertEqual(result.raw["failure_class"], "hermes_company_computer_bootstrap_failed")
 
