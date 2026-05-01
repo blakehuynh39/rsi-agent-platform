@@ -22,7 +22,7 @@
     {
       "name": "prod-depin-admin-read",
       "type": "credential",
-      "source_of_truth": "prod depin Vault value copied into stage RSI Vault plus story-deployments executor env wiring",
+      "source_of_truth": "prod depin Vault value copied into stage RSI Vault, story-deployments executor env wiring, and the depin admin read validation hook",
       "runtime_surface": "DEPIN_ADMIN_BASE_URL, DEPIN_ADMIN_READ_API_KEY_HEADER, DEPIN_ADMIN_READ_API_KEY"
     },
     {
