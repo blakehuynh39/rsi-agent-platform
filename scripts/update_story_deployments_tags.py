@@ -28,7 +28,17 @@ def is_mapping_start(value: str) -> bool:
     return stripped == "" or stripped.startswith("&")
 
 
-def update_tags(path: Path, updates: dict[tuple[str, ...], str | bool]) -> None:
+def update_tags(
+    path: Path,
+    updates: dict[tuple[str, ...], str | bool],
+    alternative_updates: dict[tuple[tuple[str, ...], ...], str | bool] | None = None,
+) -> None:
+    alternative_updates = alternative_updates or {}
+    all_updates = dict(updates)
+    for alternatives, update_value in alternative_updates.items():
+        for update_path in alternatives:
+            all_updates[update_path] = update_value
+
     lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
     stack: list[tuple[int, str]] = []
     seen: set[tuple[str, ...]] = set()
@@ -50,9 +60,9 @@ def update_tags(path: Path, updates: dict[tuple[str, ...], str | bool]) -> None:
             stack.pop()
 
         current_path = tuple([item[1] for item in stack] + [key])
-        if current_path in updates:
+        if current_path in all_updates:
             prefix = line[: len(line) - len(stripped)]
-            update_value = updates[current_path]
+            update_value = all_updates[current_path]
             if isinstance(update_value, bool):
                 rendered_value = "true" if update_value else "false"
             else:
@@ -67,6 +77,13 @@ def update_tags(path: Path, updates: dict[tuple[str, ...], str | bool]) -> None:
     missing = sorted(path_key for path_key in updates if path_key not in seen)
     if missing:
         joined = ", ".join(".".join(item) for item in missing)
+        raise SystemExit(f"Failed to update expected tag paths: {joined}")
+
+    missing_alternatives = sorted(
+        alternatives for alternatives in alternative_updates if not any(update_path in seen for update_path in alternatives)
+    )
+    if missing_alternatives:
+        joined = ", ".join(" or ".join(".".join(item) for item in alternatives) for alternatives in missing_alternatives)
         raise SystemExit(f"Failed to update expected tag paths: {joined}")
 
     path.write_text("".join(lines), encoding="utf-8")
@@ -84,8 +101,15 @@ def main() -> None:
     }
     if args.hermes_skill_installer_source_ref:
         updates[("hermesSkillInstaller", "enabled")] = True
-        updates[("hermesSkillInstaller", "config", "RSI_HERMES_SKILL_INSTALLER_SOURCE_REF")] = args.hermes_skill_installer_source_ref
-    update_tags(Path(args.file), updates)
+        alternative_updates = {
+            (
+                ("hermesSkillInstaller", "config", "RSI_HERMES_SKILL_INSTALLER_SOURCE_REF"),
+                ("hermesSkillInstallerCommonConfig", "RSI_HERMES_SKILL_INSTALLER_SOURCE_REF"),
+            ): args.hermes_skill_installer_source_ref
+        }
+    else:
+        alternative_updates = {}
+    update_tags(Path(args.file), updates, alternative_updates)
 
 
 if __name__ == "__main__":
