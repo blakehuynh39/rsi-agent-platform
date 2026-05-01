@@ -129,9 +129,8 @@ def default_capability_leases(task: Any) -> list[JsonObject]:
         capabilities.extend([WORKSPACE_READ, ARTIFACT_WRITE, SLACK_READ, PLATFORM_MUTATION_REQUEST])
         if reply_delivery_mode == "direct":
             capabilities.append(SLACK_SEND)
-            capabilities.append(SLACK_UPLOAD)
-        elif reply_delivery_mode == "mediated":
-            capabilities.append(SLACK_UPLOAD)
+            if requested_artifacts:
+                capabilities.append(SLACK_UPLOAD)
     if requested_artifacts:
         capabilities.extend([WORKSPACE_READ, ARTIFACT_WRITE])
     if task_type in {"proposal", "repo-change"}:
@@ -206,7 +205,10 @@ def required_capabilities_for_phase(phase_type: str, task: Any) -> list[str]:
         caps = [READ_CONTEXT]
         if reply_delivery_mode == "direct":
             caps.append(SLACK_SEND)
-        if _json_object_list(getattr(task, "requested_artifacts", [])) or _json_object_list(getattr(task, "produced_artifacts", [])):
+        if reply_delivery_mode == "direct" and (
+            _json_object_list(getattr(task, "requested_artifacts", []))
+            or _json_object_list(getattr(task, "produced_artifacts", []))
+        ):
             caps.append(SLACK_UPLOAD)
         return caps
     if phase_type == "reflect":
@@ -244,7 +246,7 @@ def default_delivery_policy(task: Any) -> JsonObject:
         "bound_channel_id": channel_id,
         "bound_thread_ts": thread_ts,
         "direct_send_allowed": mode == "direct",
-        "upload_allowed": mode in {"direct", "mediated"},
+        "upload_allowed": mode == "direct",
         "idempotency_key_base": ":".join(part for part in [channel_id, thread_ts, trace_id] if part),
     }
 

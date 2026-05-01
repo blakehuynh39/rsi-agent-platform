@@ -353,14 +353,14 @@ func TestBuildQuestionGatherTaskIncludesNotionMCPWhenEnabled(t *testing.T) {
 		},
 	}, queue.WorkflowQueue)
 
-	if len(task.MCPServers) != 2 {
-		t.Fatalf("expected Slack and Notion MCP servers, got %#v", task.MCPServers)
+	if len(task.MCPServers) != 1 {
+		t.Fatalf("expected only Notion MCP server, got %#v", task.MCPServers)
 	}
-	if task.MCPServers[1].ServerLabel != "notion" {
-		t.Fatalf("expected notion MCP server, got %#v", task.MCPServers[1])
+	if task.MCPServers[0].ServerLabel != "notion" {
+		t.Fatalf("expected notion MCP server, got %#v", task.MCPServers[0])
 	}
-	if !reflect.DeepEqual(task.MCPServers[1].HeaderEnvVars, map[string]string{"CF-Access-Client-Secret": "RSI_NOTION_MCP_CF_ACCESS_CLIENT_SECRET"}) {
-		t.Fatalf("unexpected notion header env vars %#v", task.MCPServers[1].HeaderEnvVars)
+	if !reflect.DeepEqual(task.MCPServers[0].HeaderEnvVars, map[string]string{"CF-Access-Client-Secret": "RSI_NOTION_MCP_CF_ACCESS_CLIENT_SECRET"}) {
+		t.Fatalf("unexpected notion header env vars %#v", task.MCPServers[0].HeaderEnvVars)
 	}
 	if !strings.Contains(task.SystemMessage, "Use Notion MCP search and fetch when the user request, pasted links, or gathered evidence point to Notion workspace content.") {
 		t.Fatalf("expected notion-specific gather instruction, got %q", task.SystemMessage)

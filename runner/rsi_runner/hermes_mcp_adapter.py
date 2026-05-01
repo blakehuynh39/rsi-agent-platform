@@ -248,9 +248,9 @@ class HermesTaskScopedMCPAdapter:
             if not authorization:
                 raise RuntimeError(f"MCP authorization env var {authorization_env_var} is not configured.")
         if not authorization and profile in {"slack_mcp_read", "slack_mcp_reply"}:
-            authorization = os.getenv("RSI_SLACK_USER_TOKEN", "").strip()
+            authorization = os.getenv("SLACK_BOT_TOKEN", "").strip() or os.getenv("RSI_SLACK_BOT_TOKEN", "").strip()
             if not authorization:
-                raise RuntimeError("Slack user token is not configured.")
+                raise RuntimeError("Slack bot token is not configured.")
         if authorization:
             if not authorization.lower().startswith("bearer "):
                 authorization = f"Bearer {authorization}"

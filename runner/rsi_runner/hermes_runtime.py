@@ -1407,7 +1407,7 @@ class HermesRuntime:
             "hermes_available": AIAgent is not None,
             "openrouter_configured": self._openrouter_configured,
             "slack_mcp_enabled": self._config.slack_mcp_enabled,
-            "slack_mcp_configured": self._config.slack_mcp_enabled and self._config.slack_user_token_configured,
+            "slack_mcp_configured": self._config.slack_mcp_enabled and self._config.slack_bot_token_configured,
             "slack_mcp_available": self._slack_mcp_available(),
             "slack_mcp_server_url": self._config.slack_mcp_server_url,
             "slack_mcp_tool_count": len(self._slack_mcp_tools()),
@@ -3426,6 +3426,28 @@ class HermesRuntime:
             )
 
         execution_id = observer.execution_id if observer is not None else first_non_empty(task.execution_id, context.session_id)
+        direct_slack_env, direct_slack_error = self._direct_slack_delivery_env(task)
+        if direct_slack_error:
+            failure_class = "slack_bot_token_missing" if "SLACK_BOT_TOKEN" in direct_slack_error else "slack_delivery_target_missing"
+            return HermesExecutionResult(
+                ok=False,
+                message=direct_slack_error,
+                provider="hermes-native-executor",
+                raw={
+                    **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                    "failure_class": failure_class,
+                    "runner_diagnostics": self._runner_diagnostics(
+                        tool_policy,
+                        failure_kind=failure_class,
+                        provider_error_message=direct_slack_error,
+                        termination_reason=failure_class,
+                        session_ready_issues=self._session_manager.ready_issues,
+                        repair_attempted=False,
+                        repair_succeeded=False,
+                    ),
+                    "termination_reason": failure_class,
+                },
+            )
         request_file = request_dir / "request.json"
         result_file = request_dir / "result.json"
         request_payload = self._native_executor_request_payload(
@@ -3443,6 +3465,7 @@ class HermesRuntime:
         worker_cmd = [sys.executable, "-m", "rsi_runner.hermes_executor_worker", str(request_file)]
         env_copy = os.environ.copy()
         env_copy.update(github_cli_env)
+        env_copy.update(direct_slack_env)
         secret_values = _sensitive_env_values(env_copy)
         if observer is not None:
             observer.emit(
@@ -4481,7 +4504,7 @@ class HermesRuntime:
         elif execution_phase == "render":
             effective = [name for name in effective if name in ARTIFACT_RENDER_RSI_TOOL_NAMES]
         elif execution_phase == "deliver":
-            effective = ["slack.upload_file"] if "slack.upload_file" in requested else []
+            effective = []
         blocked = [name for name in requested if name not in permitted and name not in {"slack.history", "slack.search", "slack.reply"}]
         memory_tools = sorted([name for name in effective if name in READ_ONLY_HONCHO_TOOLS])
         custom_tools: list[str] = []
@@ -5049,9 +5072,9 @@ class HermesRuntime:
     def _slack_mcp_request(self, method: str, params: JsonObject | None = None, *, notification: bool = False) -> JsonObject:
         if not self._config.slack_mcp_enabled:
             raise RuntimeError("Slack MCP is disabled.")
-        token = first_non_empty(os.getenv("RSI_SLACK_USER_TOKEN"), "")
+        token = first_non_empty(os.getenv("SLACK_BOT_TOKEN"), os.getenv("RSI_SLACK_BOT_TOKEN"), "")
         if not token:
-            raise RuntimeError("Slack user token is not configured.")
+            raise RuntimeError("Slack bot token is not configured.")
         request_id = None if notification else method.replace("/", "_")
         payload: JsonObject = {
             "jsonrpc": "2.0",
@@ -5120,7 +5143,7 @@ class HermesRuntime:
             return []
 
     def _slack_mcp_available(self) -> bool:
-        if not self._config.slack_mcp_enabled or not self._config.slack_user_token_configured:
+        if not self._config.slack_mcp_enabled or not self._config.slack_bot_token_configured:
             return False
         return len(self._slack_mcp_tools()) > 0
 
@@ -5451,7 +5474,7 @@ class HermesRuntime:
         mode = (task.reply_delivery_mode or "").strip().lower()
         if mode in {"direct", "mediated", "none"}:
             return mode
-        return "mediated"
+        return "none"
 
     def _workflow_requires_explicit_reply_action(self, task: RunnerTaskRequest) -> bool:
         return task.task_type == "workflow" and self._workflow_reply_delivery_mode(task) == "mediated"
@@ -5459,8 +5482,33 @@ class HermesRuntime:
     def _workflow_allows_fallback_reply_action(self, task: RunnerTaskRequest) -> bool:
         return task.task_type == "workflow" and self._workflow_reply_delivery_mode(task) != "none"
 
+    def _direct_slack_delivery_env(self, task: RunnerTaskRequest) -> tuple[JsonObject, str]:
+        if task.task_type != "workflow" or self._workflow_reply_delivery_mode(task) != "direct":
+            return {}, ""
+        channel_id = (task.channel_id or "").strip()
+        if not channel_id:
+            return {}, "direct native Slack delivery requires a bound channel_id"
+        if not os.getenv("SLACK_BOT_TOKEN", "").strip():
+            return {}, "SLACK_BOT_TOKEN is required for direct native Slack delivery"
+        env: JsonObject = {
+            "HERMES_SESSION_PLATFORM": "slack",
+            "HERMES_SESSION_CHAT_ID": channel_id,
+        }
+        thread_ts = (task.thread_ts or "").strip()
+        if thread_ts:
+            env["HERMES_SESSION_THREAD_ID"] = thread_ts
+        return env, ""
+
     def _looks_like_slack_send_tool_name(self, tool_name_value: str) -> bool:
-        return "slack_send_message" in (tool_name_value or "").strip().lower()
+        normalized = (tool_name_value or "").strip().lower()
+        return normalized == "send_message" or normalized.endswith(".send_message") or "slack_send_message" in normalized
+
+    def _parse_native_slack_target(self, target_value: Any) -> tuple[str, str]:
+        target = _string_or_json(target_value).strip()
+        match = re.match(r"^slack:([^:]+)(?::(.+))?$", target)
+        if not match:
+            return "", ""
+        return match.group(1).strip(), (match.group(2) or "").strip()
 
     def _parse_json_object_maybe(self, value: Any) -> JsonObject:
         if isinstance(value, dict):
@@ -5514,26 +5562,61 @@ class HermesRuntime:
                     _string_or_json(structured_output.get("final_answer")),
                     _string_or_json(structured_output.get("reply_draft")),
                 )
+                target_channel_id, target_thread_ts = self._parse_native_slack_target(request_payload.get("target"))
                 tool_call_id = first_non_empty(
                     _string_or_json(tool_call.get("call_id")),
                     _string_or_json(tool_call.get("id")),
                 )
                 result_payload = tool_results.get(tool_call_id, {})
-                result_data = _json_object_or_empty(result_payload.get("result"))
+                result_data = _json_object_or_empty(result_payload.get("result")) or result_payload
                 message_context = _json_object_or_empty(result_data.get("message_context"))
+                channel_id = first_non_empty(
+                    _string_or_json(result_data.get("chat_id")),
+                    _string_or_json(result_data.get("channel_id")),
+                    _string_or_json(request_payload.get("channel_id")),
+                    target_channel_id,
+                )
+                thread_ts = first_non_empty(
+                    _string_or_json(result_data.get("thread_id")),
+                    _string_or_json(result_data.get("thread_ts")),
+                    _string_or_json(request_payload.get("thread_ts")),
+                    target_thread_ts,
+                )
                 provider_ref = first_non_empty(
+                    _string_or_json(result_data.get("message_id")),
+                    _string_or_json(result_data.get("ts")),
                     _string_or_json(message_context.get("message_ts")),
                     _string_or_json(result_payload.get("provider_ref")),
                 )
                 message_link = _string_or_json(result_data.get("message_link"))
-                if not provider_ref and not message_link:
+                status = "posted"
+                send_status = _string_or_json(result_data.get("status"))
+                if result_data.get("success") is False:
+                    status = "failed"
+                    send_status = first_non_empty(send_status, _string_or_json(result_data.get("error")), "send_failed")
+                expected_channel_id = (task.channel_id or "").strip()
+                expected_thread_ts = (task.thread_ts or "").strip()
+                if not target_channel_id and not _string_or_json(request_payload.get("channel_id")):
+                    status = "failed"
+                    send_status = "missing_slack_target"
+                elif expected_channel_id and channel_id and channel_id != expected_channel_id:
+                    status = "failed"
+                    send_status = "wrong_channel"
+                elif expected_thread_ts and thread_ts and thread_ts != expected_thread_ts:
+                    status = "failed"
+                    send_status = "wrong_thread"
+                elif expected_thread_ts and not thread_ts:
+                    status = "failed"
+                    send_status = "missing_thread"
+                elif status == "posted" and not provider_ref and not message_link and result_data.get("success") is not True:
                     continue
                 artifact_refs = _string_list_or_empty(result_payload.get("raw_artifact_refs"))
                 body_sha1 = hashlib.sha1(body.encode("utf-8")).hexdigest() if body else ""
                 return {
-                    "status": "posted",
-                    "channel_id": first_non_empty(_string_or_json(request_payload.get("channel_id")), task.channel_id or ""),
-                    "thread_ts": first_non_empty(_string_or_json(request_payload.get("thread_ts")), task.thread_ts or ""),
+                    "status": status,
+                    "send_status": send_status,
+                    "channel_id": first_non_empty(channel_id, task.channel_id or ""),
+                    "thread_ts": first_non_empty(thread_ts, task.thread_ts or ""),
                     "body": body,
                     "body_sha1": body_sha1,
                     "body_excerpt": body[:280],
@@ -6356,13 +6439,15 @@ class HermesRuntime:
                             "repair_succeeded": False,
                         },
                     )
-            reply_delivery = _json_object_or_empty(structured_output.get("reply_delivery"))
-            if not reply_delivery:
-                reply_delivery = self._reply_delivery_from_session_delta(
-                    task,
-                    structured_output,
-                    _json_object_list(result.raw.get("session_messages_delta")),
-                )
+            session_reply_delivery = self._reply_delivery_from_session_delta(
+                task,
+                structured_output,
+                _json_object_list(result.raw.get("session_messages_delta")),
+            )
+            if self._workflow_reply_delivery_mode(task) == "direct":
+                reply_delivery = session_reply_delivery
+            else:
+                reply_delivery = _json_object_or_empty(structured_output.get("reply_delivery")) or session_reply_delivery
             if reply_delivery:
                 structured_output["reply_delivery"] = reply_delivery
                 result.raw["reply_delivery"] = reply_delivery
@@ -6843,7 +6928,7 @@ class HermesRuntime:
             artifact_refs.extend(_string_list_or_empty(artifact.get("artifact_refs")))
         has_artifacts = bool(artifact_refs)
         if has_artifacts:
-            upload_manifest = "\n".join(
+            artifact_manifest = "\n".join(
                 f"- {ref}"
                 for ref in artifact_refs
                 if _string_or_json(ref)
@@ -6852,20 +6937,15 @@ class HermesRuntime:
                 [
                     "Artifact delivery phase.",
                     f"Final reply body: {_string_or_json(investigate_output.get('final_answer')) or _string_or_json(investigate_output.get('reply_draft'))}",
-                    "Artifact refs for slack.upload_file tool input only; never echo these refs, file paths, or produced_artifacts JSON in Slack-visible text.",
-                    upload_manifest,
-                    "Upload the produced file artifacts to the bound Slack thread using slack.upload_file.",
-                    "If an artifact ref points to HTML or SVG, pass the artifact_ref/path as-is; native artifact delivery will render and upload a PNG preview instead of source code.",
-                    "Pass the final reply body as initial_comment on the upload.",
-                    "Do not send a second Slack message after uploading.",
+                    "Attach produced local artifacts through Hermes native send_message by including MEDIA:/absolute/path entries in the message. If an artifact ref starts with file://, strip that prefix before using it in MEDIA:.",
+                    artifact_manifest,
+                    "Send exactly one final Slack reply using Hermes native send_message to the bound Slack thread target.",
                     "Return reply_delivery plus produced_artifacts in structured output only. Do not perform repo or knowledge investigation.",
                 ]
             )
-            system_message = (
-                "Delivery phase only. Do not investigate. Upload the produced artifacts once and use the upload initial comment as the single direct reply."
-            )
-            allowed_tools = ["slack.upload_file"]
-            delivery_branch = "artifact_upload"
+            system_message = "Delivery phase only. Do not investigate. Send exactly one final Slack reply using Hermes native send_message."
+            allowed_tools = []
+            delivery_branch = "native_slack_media_with_artifacts"
         else:
             prompt = "\n\n".join(
                 [
@@ -6873,11 +6953,11 @@ class HermesRuntime:
                     f"Final reply body: {_string_or_json(investigate_output.get('final_answer')) or _string_or_json(investigate_output.get('reply_draft'))}",
                     "No file artifacts were produced.",
                     f"Render failure reason: {artifact_failure_reason or 'none'}",
-                    "Send exactly one final Slack reply via Slack MCP.",
-                    "Do not call slack.upload_file. Do not perform repo or knowledge investigation.",
+                    "Send exactly one final Slack reply using Hermes native send_message to the bound Slack thread target.",
+                    "Do not upload files. Do not perform repo or knowledge investigation.",
                 ]
             )
-            system_message = "Delivery phase only. Do not investigate. Send exactly one final Slack reply via Slack MCP."
+            system_message = "Delivery phase only. Do not investigate. Send exactly one final Slack reply using Hermes native send_message."
             allowed_tools = []
             delivery_branch = "text_only"
         return replace(
@@ -6950,13 +7030,7 @@ class HermesRuntime:
             if _normalize_proposed_actions(delivery_output.get("proposed_actions")):
                 final_output["proposed_actions"] = _normalize_proposed_actions(delivery_output.get("proposed_actions"))
         if direct_delivery_failed:
-            synthesized_actions = self._synthesized_slack_post_action(
-                task,
-                _string_or_json(final_output.get("final_answer")) or _string_or_json(final_output.get("reply_draft")),
-                produced_artifacts,
-            )
-            if synthesized_actions:
-                final_output["proposed_actions"] = synthesized_actions
+            final_output["direct_delivery_failed"] = direct_delivery_failed
         base_raw = dict(delivery_result.raw if delivery_result is not None else investigate_result.raw)
         phase_lifecycle_events = self._merge_runtime_values(
             _json_object_list(investigate_result.raw.get("lifecycle_events")),
@@ -6987,7 +7061,7 @@ class HermesRuntime:
             )
         if direct_delivery_failed:
             runner_diagnostics["direct_delivery_phase_failed"] = direct_delivery_failed
-        runner_diagnostics["artifact_delivery_branch"] = "artifact_upload" if produced_artifacts else "text_only"
+        runner_diagnostics["artifact_delivery_branch"] = "native_slack_media_with_artifacts" if produced_artifacts else "text_only"
         if artifact_failure_reason:
             runner_diagnostics["artifact_render_failure_reason"] = artifact_failure_reason
         if observer is not None:
@@ -7148,7 +7222,7 @@ class HermesRuntime:
                     phase="deliver",
                     event_type="direct_delivery.started",
                     status="running",
-                    payload={"delivery_branch": "artifact_upload" if produced_artifacts else "text_only"},
+                    payload={"delivery_branch": "native_slack_media_with_artifacts" if produced_artifacts else "text_only"},
                 )
             deliver_task = self._build_artifact_delivery_task(
                 phase_task,

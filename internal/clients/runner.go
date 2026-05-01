@@ -200,7 +200,7 @@ func NewRunnerDeliveryPolicy(channelID string, threadTS string, replyDeliveryMod
 		BoundThreadTS:      strings.TrimSpace(threadTS),
 		TargetSurface:      targetSurface,
 		DirectSendAllowed:  mode == "direct",
-		UploadAllowed:      mode == "direct" || mode == "mediated",
+		UploadAllowed:      mode == "direct",
 		IdempotencyKeyBase: strings.TrimSpace(idempotencyKeyBase),
 	}
 }

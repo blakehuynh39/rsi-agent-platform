@@ -64,7 +64,7 @@ class HermesTaskScopedMCPAdapterTests(unittest.TestCase):
             slack_send_tool_name_resolver=lambda: "send_message",
         )
 
-        with mock.patch.dict(os.environ, {"RSI_SLACK_USER_TOKEN": "slack-token"}, clear=True):
+        with mock.patch.dict(os.environ, {"SLACK_BOT_TOKEN": "slack-token"}, clear=True):
             translated = adapter._translate_task_servers(task)
 
         self.assertEqual(len(translated), 1)

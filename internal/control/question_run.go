@@ -918,7 +918,7 @@ func buildQuestionGatherTask(cfg config.Config, store storepkg.Store, ctx questi
 	sessionScopeKind, sessionScopeID, parentScopeKind, parentScopeID := workflowSessionScope(ctx.trace, ctx.workflow)
 	role := runnerRoleForQueue(queueName)
 	effectiveHarness := harness.ResolveEffectiveConfig(store, role, cfg.DefaultReasoningVerbosity)
-	mcpServers := questionGatherMCPServers(cfg, ctx.ingestion.ChannelID, ctx.ingestion.ThreadTS)
+	mcpServers := questionGatherMCPServers(cfg)
 	totalTimeout := cfg.RunnerTaskTimeoutForRole(role)
 	timeoutSeconds := int(questionRunGatherTimeout(totalTimeout) / time.Second)
 	if timeoutSeconds <= 0 {
@@ -1052,7 +1052,7 @@ func questionExpandAllowedTools(spec questionrun.InvestigationSpec, _ bool) []st
 
 func questionGatherPrompt(spec questionrun.InvestigationSpec, ledger questionrun.EvidenceLedger, useNotionMCP bool) string {
 	toolingPreferences := []string{
-		"Use Slack MCP reads for Slack evidence.",
+		"Use attached Slack evidence and persisted conversation context for Slack evidence.",
 		"Use github.repo_activity and github.repo_context before broader repo search.",
 		"Use repo.search or repo.read_file only when a specific file, subsystem, or claim needs verification.",
 	}
@@ -1091,7 +1091,7 @@ func questionGatherSystemMessage(spec questionrun.InvestigationSpec, useNotionMC
 	parts := []string{
 		"You are in the Slack Q&A evidence-gather phase.",
 		"Gather grounded evidence only; do not answer the user and do not send Slack messages.",
-		"Prefer targeted Slack MCP reads plus governed repo and GitHub reads over broad exploratory loops.",
+		"Prefer attached Slack evidence plus targeted repo and GitHub reads over broad exploratory loops.",
 		"Use repo.search and repo.read_file only when a concrete file or subsystem needs verification.",
 		"Stop once the evidence ledger covers the question, the bound thread, and the explicitly referenced Slack surfaces.",
 		"Return JSON only with tool_calls, evidence_items, open_questions, draft_reply_candidates, insufficiency_markers, and confidence.",

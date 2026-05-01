@@ -23,7 +23,7 @@ import (
 )
 
 func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
-	return newRouterWithTranscriptResolver(cfg, store, newSlackTranscriptResolver(firstNonEmptyString(cfg.SlackUserToken, cfg.SlackBotToken)))
+	return newRouterWithTranscriptResolver(cfg, store, newSlackTranscriptResolver(cfg.SlackBotToken))
 }
 
 func newRouterWithTranscriptResolver(cfg config.Config, store storepkg.Repository, transcriptResolver slackTranscriptResolver) http.Handler {

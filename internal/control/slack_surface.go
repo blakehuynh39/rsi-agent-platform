@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -19,12 +20,17 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/app"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/debuglog"
+	"github.com/piplabs/rsi-agent-platform/internal/events"
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
 const slackMentionsOnlySentinel = "MENTIONS_ONLY"
+
+type slackMessagePoster interface {
+	PostMessageContext(ctx context.Context, channelID string, options ...slack.MsgOption) (string, string, error)
+}
 
 func RunSlackSurface(cfg config.Config, store storepkg.Store) error {
 	if !cfg.SlackSocketModeEnabled {
@@ -85,6 +91,7 @@ type slackSurfaceRuntime struct {
 	cfg         config.Config
 	store       storepkg.Store
 	client      *socketmode.Client
+	slackAPI    slackMessagePoster
 	resolver    slackpkg.EntityResolver
 	allowedChan map[string]struct{}
 }
@@ -102,7 +109,8 @@ func newSlackSurfaceRuntime(cfg config.Config, store storepkg.Store) *slackSurfa
 		cfg:         cfg,
 		store:       store,
 		client:      socketmode.New(api),
-		resolver:    slackpkg.NewEntityResolver(firstNonEmpty(cfg.SlackUserToken, cfg.SlackBotToken)),
+		slackAPI:    api,
+		resolver:    slackpkg.NewEntityResolver(cfg.SlackBotToken),
 		allowedChan: allowed,
 	}
 }
@@ -200,6 +208,7 @@ func (s *slackSurfaceRuntime) handleEventsAPIEvent(ctx context.Context, eventsAP
 			log.Printf("slack-surface identity=%s ingestion load error=%v", s.cfg.SlackAppIdentity, err)
 		} else {
 			log.Printf("slack-surface identity=%s ingested thread=%s ingestion=%s", s.cfg.SlackAppIdentity, created.ThreadKey, created.ID)
+			s.enqueueOperatorTraceACK(created)
 		}
 		return true
 	case *slackevents.MessageEvent:
@@ -232,11 +241,155 @@ func (s *slackSurfaceRuntime) handleEventsAPIEvent(ctx context.Context, eventsAP
 			log.Printf("slack-surface identity=%s ingestion load error=%v", s.cfg.SlackAppIdentity, err)
 		} else {
 			log.Printf("slack-surface identity=%s ingested thread=%s ingestion=%s", s.cfg.SlackAppIdentity, created.ThreadKey, created.ID)
+			s.enqueueOperatorTraceACK(created)
 		}
 		return true
 	default:
 		return true
 	}
+}
+
+func (s *slackSurfaceRuntime) enqueueOperatorTraceACK(ingestion slackpkg.Ingestion) {
+	if strings.TrimSpace(s.cfg.PublicBaseURL) == "" || strings.TrimSpace(ingestion.ChannelID) == "" || strings.TrimSpace(ingestion.ID) == "" {
+		return
+	}
+	go s.postOperatorTraceACK(context.Background(), ingestion)
+}
+
+func (s *slackSurfaceRuntime) postOperatorTraceACK(parentCtx context.Context, ingestion slackpkg.Ingestion) {
+	trace, ok := traceSummaryForIngestion(s.store, ingestion)
+	if !ok {
+		log.Printf("slack-surface identity=%s operator_ack skipped ingestion=%s reason=trace_not_found", s.cfg.SlackAppIdentity, ingestion.ID)
+		return
+	}
+	traceURL := operatorTraceURL(s.cfg.PublicBaseURL, trace.ConversationID, trace.TraceID)
+	if traceURL == "" {
+		s.recordOperatorTraceACK(trace, ingestion, "failed", map[string]any{
+			"error": "RSI_PUBLIC_BASE_URL is not configured",
+		})
+		return
+	}
+	claimID := "cmd-slack-operator-ack:" + strings.TrimSpace(ingestion.ID)
+	now := time.Now().UTC()
+	_, claimed, err := s.store.RecordCommandReceipt(transition.CommandReceipt{
+		CommandID:        claimID,
+		MachineKind:      transition.MachineIngress,
+		AggregateID:      ingestion.ID,
+		CommandKind:      "slack_operator_ack",
+		Actor:            s.cfg.ServiceName,
+		DecisionKind:     transition.DecisionAdvance,
+		Reason:           "visible Slack trace ACK claimed",
+		AggregateVersion: 1,
+		ResultRef:        trace.TraceID,
+		CreatedAt:        now,
+		UpdatedAt:        now,
+	})
+	if err != nil {
+		log.Printf("slack-surface identity=%s operator_ack claim error ingestion=%s trace=%s error=%v", s.cfg.SlackAppIdentity, ingestion.ID, trace.TraceID, err)
+		s.recordOperatorTraceACK(trace, ingestion, "failed", map[string]any{"error": err.Error(), "trace_url": traceURL})
+		return
+	}
+	if !claimed {
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(parentCtx, 5*time.Second)
+	defer cancel()
+	body := operatorTraceACKBody(traceURL)
+	options := []slack.MsgOption{
+		slack.MsgOptionText(body, false),
+		slack.MsgOptionDisableLinkUnfurl(),
+		slack.MsgOptionDisableMediaUnfurl(),
+	}
+	if threadTS := strings.TrimSpace(ingestion.ThreadTS); threadTS != "" {
+		options = append(options, slack.MsgOptionTS(threadTS))
+	}
+	channelID, messageTS, err := s.slackAPI.PostMessageContext(ctx, ingestion.ChannelID, options...)
+	if err != nil {
+		log.Printf("slack-surface identity=%s operator_ack failed ingestion=%s trace=%s channel=%s thread=%s error=%v", s.cfg.SlackAppIdentity, ingestion.ID, trace.TraceID, ingestion.ChannelID, ingestion.ThreadTS, err)
+		s.recordOperatorTraceACK(trace, ingestion, "failed", map[string]any{
+			"error":      err.Error(),
+			"trace_url":  traceURL,
+			"channel_id": ingestion.ChannelID,
+			"thread_ts":  ingestion.ThreadTS,
+		})
+		return
+	}
+	s.recordOperatorTraceACK(trace, ingestion, "delivered", map[string]any{
+		"channel_id": firstNonEmpty(channelID, ingestion.ChannelID),
+		"thread_ts":  ingestion.ThreadTS,
+		"message_ts": messageTS,
+		"trace_url":  traceURL,
+		"body":       body,
+	})
+}
+
+func (s *slackSurfaceRuntime) recordOperatorTraceACK(trace events.TraceSummary, ingestion slackpkg.Ingestion, status string, payload map[string]any) {
+	if strings.TrimSpace(trace.TraceID) == "" {
+		return
+	}
+	if payload == nil {
+		payload = map[string]any{}
+	}
+	payload["ingestion_id"] = ingestion.ID
+	payload["conversation_id"] = trace.ConversationID
+	payload["trace_id"] = trace.TraceID
+	err := s.store.RecordExecutionLedgerEvents([]events.ExecutionLedgerEvent{
+		{
+			ExecutionID:    "slack-operator-ack:" + firstNonEmpty(ingestion.ID, trace.TraceID),
+			TraceID:        trace.TraceID,
+			WorkflowID:     trace.WorkflowID,
+			PhaseID:        "ingress",
+			Kind:           "operator_ack.slack",
+			Status:         status,
+			Seq:            1,
+			IdempotencyKey: "slack-operator-ack:" + firstNonEmpty(ingestion.ID, trace.TraceID),
+			Payload:        payload,
+			RecordedAt:     time.Now().UTC(),
+		},
+	})
+	if err != nil {
+		log.Printf("slack-surface identity=%s operator_ack ledger error ingestion=%s trace=%s error=%v", s.cfg.SlackAppIdentity, ingestion.ID, trace.TraceID, err)
+	}
+}
+
+func traceSummaryForIngestion(store storepkg.Store, ingestion slackpkg.Ingestion) (events.TraceSummary, bool) {
+	ingestionID := strings.TrimSpace(ingestion.ID)
+	eventID := strings.TrimSpace(ingestion.EventID)
+	conversationID := strings.TrimSpace(ingestion.ConversationID)
+	caseID := strings.TrimSpace(ingestion.CaseID)
+
+	for _, trace := range store.ListTraces() {
+		if strings.TrimSpace(trace.IngestionID) == ingestionID {
+			return trace, true
+		}
+		if eventID != "" && strings.TrimSpace(trace.TriggerEventID) == eventID {
+			return trace, true
+		}
+		if conversationID != "" && strings.TrimSpace(trace.ConversationID) == conversationID && strings.TrimSpace(trace.CaseID) == caseID {
+			return trace, true
+		}
+	}
+	return events.TraceSummary{}, false
+}
+
+func operatorTraceURL(publicBaseURL string, conversationID string, traceID string) string {
+	base := strings.TrimRight(strings.TrimSpace(publicBaseURL), "/")
+	if base == "" || strings.TrimSpace(conversationID) == "" || strings.TrimSpace(traceID) == "" {
+		return ""
+	}
+	query := url.Values{}
+	query.Set("tab", "conversations")
+	query.Set("conversation", strings.TrimSpace(conversationID))
+	query.Set("trace", strings.TrimSpace(traceID))
+	return base + "/?" + query.Encode()
+}
+
+func operatorTraceACKBody(traceURL string) string {
+	if strings.TrimSpace(traceURL) == "" {
+		return "Tracking this RSI run."
+	}
+	return fmt.Sprintf("Tracking this RSI run: <%s|open trace>", traceURL)
 }
 
 func (s *slackSurfaceRuntime) submitIngressSlackCommandWithAckBudget(parentCtx context.Context, envelope slackpkg.SlackEnvelope, createdAt time.Time) (transition.CommandReceipt, error) {

@@ -2421,7 +2421,7 @@ func TestWorkflowRunnerUsesRunnerExecuteWhenHermesExecutorIsUnset(t *testing.T) 
 }
 
 func TestWorkflowRunnerSystemMessageOmitsSlackMCPWhenUnavailableInNoneMode(t *testing.T) {
-	message := workflowRunnerSystemMessage(false, false, "none", nil)
+	message := workflowRunnerSystemMessage(false, "none", nil)
 	if strings.Contains(message, "Use Slack MCP for Slack investigation.") {
 		t.Fatalf("expected none-mode system message without Slack MCP to omit Slack MCP guidance, got %q", message)
 	}
@@ -3052,12 +3052,9 @@ func TestWorkflowNativeMCPReplyDeliveryCompletesWithoutQueuedSlackReply(t *testi
 	}
 
 	taskPayload := mapValue(runnerRequest["task"])
-	mcpServers, ok := taskPayload["mcp_servers"].([]any)
-	if len(mcpServers) != 1 {
-		t.Fatalf("expected one MCP server in runner request, got %#v", mcpServers)
-	}
-	if got := stringFromMap(mapValue(mcpServers[0]), "profile"); got != "slack_mcp_reply" {
-		t.Fatalf("expected slack_mcp_reply profile, got %q", got)
+	mcpServers, _ := taskPayload["mcp_servers"].([]any)
+	if len(mcpServers) != 0 {
+		t.Fatalf("expected no Slack MCP servers in runner request, got %#v", mcpServers)
 	}
 	if got := stringFromMap(taskPayload, "reply_delivery_mode"); got != "direct" {
 		t.Fatalf("expected direct reply delivery mode, got %q", got)
@@ -3187,12 +3184,9 @@ func TestWorkflowNativeMCPMissingReplyDeliveryMovesNeedsHuman(t *testing.T) {
 	}
 
 	taskPayload := mapValue(runnerRequest["task"])
-	mcpServers, ok := taskPayload["mcp_servers"].([]any)
-	if len(mcpServers) != 1 {
-		t.Fatalf("expected one MCP server in runner request, got %#v", mcpServers)
-	}
-	if got := stringFromMap(mapValue(mcpServers[0]), "profile"); got != "slack_mcp_reply" {
-		t.Fatalf("expected slack_mcp_reply profile, got %q", got)
+	mcpServers, _ := taskPayload["mcp_servers"].([]any)
+	if len(mcpServers) != 0 {
+		t.Fatalf("expected no Slack MCP servers in runner request, got %#v", mcpServers)
 	}
 	if got := stringFromMap(taskPayload, "reply_delivery_mode"); got != "direct" {
 		t.Fatalf("expected direct reply delivery mode, got %q", got)
@@ -5032,11 +5026,8 @@ func TestBuildRunnerTaskBoundsNativeMCPToolSurface(t *testing.T) {
 		ProdRunnerArtifactTaskTimeout: 30 * time.Minute,
 	}, store, "prod", trace, workflow, ingestion, "context", nil)
 
-	if len(task.MCPServers) != 1 {
-		t.Fatalf("expected one Slack MCP server, got %#v", task.MCPServers)
-	}
-	if task.MCPServers[0].Profile != "slack_mcp_reply" {
-		t.Fatalf("expected reply-capable Slack MCP profile, got %#v", task.MCPServers)
+	if len(task.MCPServers) != 0 {
+		t.Fatalf("expected no Slack MCP servers for native delivery, got %#v", task.MCPServers)
 	}
 	liveHints := workflowplan.BuildLiveHints(workflowplan.RuntimeConfig{
 		DefaultRepo:      "rsi-agent-platform",
@@ -5055,14 +5046,14 @@ func TestBuildRunnerTaskBoundsNativeMCPToolSurface(t *testing.T) {
 		ThreadTS:       ingestion.ThreadTS,
 		EntityRefs:     append([]slackpkg.EntityRef(nil), ingestion.EntityRefs...),
 	}, time.Now().UTC())
-	expectedTools := workflowRunnerAllowedTools(liveHints, true, true)
+	expectedTools := workflowRunnerAllowedTools(liveHints)
 	if len(expectedTools) == 0 {
 		t.Fatalf("expected non-empty bounded tool surface from live hints")
 	}
 	if !reflect.DeepEqual(task.AllowedTools, expectedTools) {
 		t.Fatalf("expected allowed tools %#v, got %#v", expectedTools, task.AllowedTools)
 	}
-	for _, expected := range []string{"cloudflare.inspect", "kubernetes.events", "repo.read_file", "repo.search", "rsi.trace_context", "slack.upload_file"} {
+	for _, expected := range []string{"cloudflare.inspect", "kubernetes.events", "repo.read_file", "repo.search", "rsi.trace_context"} {
 		if !containsString(task.AllowedTools, expected) {
 			t.Fatalf("expected %s in bounded tool surface, got %#v", expected, task.AllowedTools)
 		}
@@ -5741,23 +5732,20 @@ func TestBuildRunnerTaskIncludesNotionMCPWhenEnabled(t *testing.T) {
 		NotionMCPAuthorizationEnvVar: "RSI_NOTION_MCP_AUTHORIZATION",
 	}, store, "prod", trace, workflow, ingestion, "context", nil)
 
-	if len(task.MCPServers) != 2 {
-		t.Fatalf("expected Slack and Notion MCP servers, got %#v", task.MCPServers)
+	if len(task.MCPServers) != 1 {
+		t.Fatalf("expected only Notion MCP server, got %#v", task.MCPServers)
 	}
-	if task.MCPServers[0].Profile != "slack_mcp_reply" {
-		t.Fatalf("expected first MCP server to remain Slack reply, got %#v", task.MCPServers)
+	if task.MCPServers[0].ServerLabel != "notion" {
+		t.Fatalf("expected notion MCP server, got %#v", task.MCPServers[0])
 	}
-	if task.MCPServers[1].ServerLabel != "notion" {
-		t.Fatalf("expected notion MCP server, got %#v", task.MCPServers[1])
+	if task.MCPServers[0].AuthorizationEnvVar != "RSI_NOTION_MCP_AUTHORIZATION" {
+		t.Fatalf("unexpected notion auth env var %#v", task.MCPServers[0])
 	}
-	if task.MCPServers[1].AuthorizationEnvVar != "RSI_NOTION_MCP_AUTHORIZATION" {
-		t.Fatalf("unexpected notion auth env var %#v", task.MCPServers[1])
+	if !reflect.DeepEqual(task.MCPServers[0].HeaderEnvVars, map[string]string{"CF-Access-Client-Id": "RSI_NOTION_MCP_CF_ACCESS_CLIENT_ID"}) {
+		t.Fatalf("unexpected notion header env vars %#v", task.MCPServers[0].HeaderEnvVars)
 	}
-	if !reflect.DeepEqual(task.MCPServers[1].HeaderEnvVars, map[string]string{"CF-Access-Client-Id": "RSI_NOTION_MCP_CF_ACCESS_CLIENT_ID"}) {
-		t.Fatalf("unexpected notion header env vars %#v", task.MCPServers[1].HeaderEnvVars)
-	}
-	if !reflect.DeepEqual(task.MCPServers[1].AllowedTools, map[string]any{"read_only": true}) {
-		t.Fatalf("expected read-only notion tool surface, got %#v", task.MCPServers[1].AllowedTools)
+	if !reflect.DeepEqual(task.MCPServers[0].AllowedTools, map[string]any{"read_only": true}) {
+		t.Fatalf("expected read-only notion tool surface, got %#v", task.MCPServers[0].AllowedTools)
 	}
 	if !strings.Contains(task.SystemMessage, "Use Notion MCP for Notion workspace search and page fetches when relevant.") {
 		t.Fatalf("expected notion MCP instruction in system prompt, got %q", task.SystemMessage)

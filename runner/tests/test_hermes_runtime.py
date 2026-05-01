@@ -36,7 +36,7 @@ from rsi_runner.rsi_tools import (
 from rsi_runner.session_manager import SessionManager
 
 
-HERMES_TEST_PIN = "720cb2bb1cf2a48786b94e440cd48377c0c30369"
+HERMES_TEST_PIN = "e20c793a31268549460cea388d13633633eedd12"
 
 
 def runner_env(role: str = "prod") -> dict[str, str]:
@@ -78,6 +78,7 @@ def runner_env(role: str = "prod") -> dict[str, str]:
         "RSI_RUNNER_NATIVE_MAX_OUTPUT_TOKENS": "15000",
         "HONCHO_API_KEY": "honcho-test-key",
         "OPENROUTER_API_KEY": "openrouter-test-key",
+        "SLACK_BOT_TOKEN": "xoxb-test",
     }
 
 
@@ -5532,11 +5533,10 @@ class HermesRuntimeTests(unittest.TestCase):
                                 "id": "call_send_1",
                                 "call_id": "call_send_1",
                                 "function": {
-                                    "name": "mcp_rsi_task_trace_123_0_slack_deadbeef_slack_send_message",
+                                    "name": "send_message",
                                     "arguments": json.dumps(
                                         {
-                                            "channel_id": "C123",
-                                            "thread_ts": "171000001.000100",
+                                            "target": "slack:C123:171000001.000100",
                                             "message": "Final reply",
                                         }
                                     ),
@@ -5551,11 +5551,11 @@ class HermesRuntimeTests(unittest.TestCase):
                             {
                                 "result": json.dumps(
                                     {
-                                        "message_link": "https://storyprotocol.slack.com/archives/C123/p171000001000100",
-                                        "message_context": {
-                                            "message_ts": "171000001.000100",
-                                            "channel_id": "C123",
-                                        },
+                                        "success": True,
+                                        "platform": "slack",
+                                        "chat_id": "C123",
+                                        "thread_id": "171000001.000100",
+                                        "message_id": "171000001.000100",
                                     }
                                 )
                             }
@@ -5615,11 +5615,10 @@ class HermesRuntimeTests(unittest.TestCase):
                                     "id": "call_send_deliver",
                                     "call_id": "call_send_deliver",
                                     "function": {
-                                        "name": "mcp_rsi_task_trace_artifact_0_slack_deadbeef_slack_send_message",
+                                        "name": "send_message",
                                         "arguments": json.dumps(
                                             {
-                                                "channel_id": "C123",
-                                                "thread_ts": "171000001.000100",
+                                                "target": "slack:C123:171000001.000100",
                                                 "message": "Grounded answer with diagram attached.",
                                             }
                                         ),
@@ -5634,11 +5633,11 @@ class HermesRuntimeTests(unittest.TestCase):
                                 {
                                     "result": json.dumps(
                                         {
-                                            "message_link": "https://storyprotocol.slack.com/archives/C123/p171000001000100",
-                                            "message_context": {
-                                                "message_ts": "171000001.000100",
-                                                "channel_id": "C123",
-                                            },
+                                            "success": True,
+                                            "platform": "slack",
+                                            "chat_id": "C123",
+                                            "thread_id": "171000001.000100",
+                                            "message_id": "171000001.000100",
                                         }
                                     )
                                 }
@@ -6365,15 +6364,15 @@ class HermesRuntimeTests(unittest.TestCase):
                         },
                 )
                 self.assertEqual(task.execution_phase, "deliver")
-                self.assertIn("slack.upload_file", task.allowed_tools)
-                self.assertIn("Artifact refs for slack.upload_file tool input only", task.prompt)
-                self.assertIn("never echo these refs", task.prompt)
+                self.assertEqual(task.allowed_tools, [])
+                self.assertIn("Attach produced local artifacts through Hermes native send_message", task.prompt)
+                self.assertIn("Hermes native send_message", task.prompt)
                 self.assertNotIn("Produced artifacts:", task.prompt)
                 return HermesExecutionResult(
                     ok=True,
                     message="deliver",
                     provider="test",
-                    raw={"structured_output": {"reply_delivery": {"status": "uploaded", "provider_ref": "slack-file-1"}}},
+                    raw={"structured_output": {"reply_delivery": {"status": "posted", "provider_ref": "slack-message-1"}}},
                 )
 
             with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
@@ -6411,8 +6410,8 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertTrue(result.ok)
         self.assertEqual([item.execution_phase for item in executed_tasks], ["investigate", "render", "deliver"])
-        self.assertEqual(result.raw["runner_diagnostics"]["artifact_delivery_branch"], "artifact_upload")
-        self.assertEqual(result.raw["structured_output"]["reply_delivery"]["status"], "uploaded")
+        self.assertEqual(result.raw["runner_diagnostics"]["artifact_delivery_branch"], "native_slack_media_with_artifacts")
+        self.assertEqual(result.raw["structured_output"]["reply_delivery"]["status"], "posted")
         self.assertTrue(result.raw["structured_output"]["produced_artifacts"])
         self.assertEqual(result.raw["structured_output"]["produced_artifacts"][0]["share_status"], "shared")
         self.assertIn("artifact_render_briefs", result.raw["structured_output"])
@@ -6456,9 +6455,9 @@ class HermesRuntimeTests(unittest.TestCase):
                         "native_artifact_paths": [artifact_path],
                     },
                 )
-            self.assertEqual(task.allowed_tools, ["slack.upload_file"])
-            self.assertIn("Artifact refs for slack.upload_file tool input only", task.prompt)
-            self.assertIn("never echo these refs", task.prompt)
+            self.assertEqual(task.allowed_tools, [])
+            self.assertIn("Attach produced local artifacts through Hermes native send_message", task.prompt)
+            self.assertIn("Hermes native send_message", task.prompt)
             self.assertNotIn("Produced artifacts:", task.prompt)
             return HermesExecutionResult(
                 ok=True,
@@ -6872,9 +6871,9 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(deliver_task.allowed_tools, [])
         self.assertEqual(deliver_task.tool_allowlist, [])
         self.assertEqual(tool_policy.effective, [])
-        self.assertIn("Slack MCP", deliver_task.prompt)
+        self.assertIn("Hermes native send_message", deliver_task.prompt)
         self.assertIn("Render failure reason: none", deliver_task.prompt)
-        self.assertIn("Do not call slack.upload_file", deliver_task.prompt)
+        self.assertIn("Do not upload files", deliver_task.prompt)
 
     def test_workflow_task_timeout_enters_partial_finalization_before_hard_deadline(self) -> None:
         class TimeoutReducerAIAgent:
@@ -7554,7 +7553,7 @@ class HermesRuntimeTests(unittest.TestCase):
         env = {
             **runner_env("prod"),
             "RSI_SLACK_MCP_ENABLED": "true",
-            "RSI_SLACK_USER_TOKEN": "xoxp-test",
+            "SLACK_BOT_TOKEN": "xoxb-test",
             "RSI_SLACK_MCP_SERVER_URL": "https://slack-mcp.test/mcp",
         }
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(

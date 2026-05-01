@@ -77,7 +77,7 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 		if envelope.CreatedAt.IsZero() {
 			envelope.CreatedAt = time.Now().UTC()
 		}
-		envelope.Prompt = slack.CanonicalizePromptEnvelope(envelope, slack.NewEntityResolver(firstNonEmpty(cfg.SlackUserToken, cfg.SlackBotToken)))
+		envelope.Prompt = slack.CanonicalizePromptEnvelope(envelope, slack.NewEntityResolver(cfg.SlackBotToken))
 		receipt, err := submitIngressSlackCommand(
 			r.Context(),
 			cfg,

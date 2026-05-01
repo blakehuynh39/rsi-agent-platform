@@ -2,15 +2,38 @@ package control
 
 import (
 	"context"
+	"net/url"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 
 	"github.com/piplabs/rsi-agent-platform/internal/app"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
+	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
+
+type fakeSlackPost struct {
+	channelID string
+	values    url.Values
+}
+
+type fakeSlackPoster struct {
+	calls []fakeSlackPost
+	err   error
+}
+
+func (f *fakeSlackPoster) PostMessageContext(_ context.Context, channelID string, options ...slack.MsgOption) (string, string, error) {
+	_, values, _ := slack.UnsafeApplyMsgOptions("xoxb-test", channelID, "https://slack.com/api/", options...)
+	f.calls = append(f.calls, fakeSlackPost{channelID: channelID, values: values})
+	if f.err != nil {
+		return "", "", f.err
+	}
+	return channelID, "171000001.000200", nil
+}
 
 func TestSlackSurfaceBuildMentionEnvelopeFiltersAndMapsIdentity(t *testing.T) {
 	runtime := newSlackSurfaceRuntime(config.Config{
@@ -41,6 +64,84 @@ func TestSlackSurfaceBuildMentionEnvelopeFiltersAndMapsIdentity(t *testing.T) {
 		TimeStamp: "171000001.000100",
 	}); ok {
 		t.Fatal("expected channel filter to reject message")
+	}
+}
+
+func TestOperatorTraceURLBuilder(t *testing.T) {
+	traceURL := operatorTraceURL("https://staging-rsi-platform.storyprotocol.net/", "conv-1", "trace-1")
+	parsed, err := url.Parse(traceURL)
+	if err != nil {
+		t.Fatalf("operatorTraceURL returned invalid URL %q: %v", traceURL, err)
+	}
+	if got := parsed.Scheme + "://" + parsed.Host + parsed.Path; got != "https://staging-rsi-platform.storyprotocol.net/" {
+		t.Fatalf("unexpected base URL: %s", got)
+	}
+	values := parsed.Query()
+	if values.Get("tab") != "conversations" || values.Get("conversation") != "conv-1" || values.Get("trace") != "trace-1" {
+		t.Fatalf("unexpected trace URL query: %s", values.Encode())
+	}
+}
+
+func TestSlackSurfaceOperatorTraceACKIsIdempotent(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	cfg := config.Config{
+		ServiceName:      "rsi-slack-surface",
+		SlackAppIdentity: "rsi",
+		PublicBaseURL:    "https://staging-rsi-platform.storyprotocol.net",
+	}
+	runtime := newSlackSurfaceRuntime(cfg, store)
+	poster := &fakeSlackPoster{}
+	runtime.slackAPI = poster
+	now := time.Unix(171000001, 100000000).UTC()
+	receipt, err := submitIngressSlackCommand(
+		context.Background(),
+		cfg,
+		store,
+		slackpkg.SlackEnvelope{
+			BotRole:   slackpkg.BotOrchestrator,
+			TeamID:    "T123",
+			ChannelID: "C123",
+			ThreadTS:  "171000001.000100",
+			UserID:    "U123",
+			Text:      "<@U_RSI> run this",
+			TS:        "171000001.000100",
+			CreatedAt: now,
+		},
+		"test",
+		now,
+		"cmd-test-operator-ack",
+	)
+	if err != nil {
+		t.Fatalf("submitIngressSlackCommand() error = %v", err)
+	}
+	ingestion, err := loadSlackIngestionFromReceipt(store, receipt)
+	if err != nil {
+		t.Fatalf("loadSlackIngestionFromReceipt() error = %v", err)
+	}
+
+	runtime.postOperatorTraceACK(context.Background(), ingestion)
+	runtime.postOperatorTraceACK(context.Background(), ingestion)
+
+	if len(poster.calls) != 1 {
+		t.Fatalf("expected one Slack ACK post after duplicate calls, got %d", len(poster.calls))
+	}
+	call := poster.calls[0]
+	if call.channelID != "C123" || call.values.Get("thread_ts") != "171000001.000100" {
+		t.Fatalf("ACK posted to wrong target: channel=%s values=%s", call.channelID, call.values.Encode())
+	}
+	if !strings.Contains(call.values.Get("text"), "https://staging-rsi-platform.storyprotocol.net/?") {
+		t.Fatalf("ACK text missing trace URL: %q", call.values.Get("text"))
+	}
+	trace, ok := traceSummaryForIngestion(store, ingestion)
+	if !ok {
+		t.Fatal("expected trace for ingestion")
+	}
+	ledger := store.ListExecutionLedgerEventsByTrace(trace.TraceID)
+	if len(ledger) != 1 {
+		t.Fatalf("expected one ACK ledger event, got %#v", ledger)
+	}
+	if ledger[0].Kind != "operator_ack.slack" || ledger[0].Status != "delivered" {
+		t.Fatalf("unexpected ACK ledger event: %#v", ledger[0])
 	}
 }
 

@@ -53,7 +53,6 @@ type Config struct {
 	SlackSocketModeEnabled             bool
 	SlackAppToken                      string
 	SlackBotToken                      string
-	SlackUserToken                     string
 	NotionMCPEnabled                   bool
 	NotionMCPServerURL                 string
 	NotionMCPHeaders                   map[string]string
@@ -170,7 +169,6 @@ func Load(serviceName string) Config {
 		SlackSocketModeEnabled:             boolEnv("RSI_SLACK_SOCKET_MODE_ENABLED", false),
 		SlackAppToken:                      stringEnv("RSI_SLACK_APP_TOKEN", ""),
 		SlackBotToken:                      stringEnv("RSI_SLACK_BOT_TOKEN", ""),
-		SlackUserToken:                     stringEnv("RSI_SLACK_USER_TOKEN", ""),
 		NotionMCPEnabled:                   boolEnv("RSI_NOTION_MCP_ENABLED", false),
 		NotionMCPServerURL:                 stringEnv("RSI_NOTION_MCP_SERVER_URL", "https://mcp.notion.com/mcp"),
 		NotionMCPHeaders:                   mapEnv("RSI_NOTION_MCP_HEADERS"),

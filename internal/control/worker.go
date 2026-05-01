@@ -32,7 +32,6 @@ import (
 const (
 	controlPhaseCollectContext             = "collect_context"
 	controlPhaseReplyPost                  = "reply_post"
-	defaultSlackMCPServerURL               = "https://mcp.slack.com/mcp"
 	defaultNotionMCPServerURL              = "https://mcp.notion.com/mcp"
 	partialCompletionNoticeGeneric         = "Partial answer: I had to stop before I could finish a deeper pass. This is the best grounded answer so far."
 	partialCompletionNoticeIterationBudget = "Partial answer: I hit my iteration budget before I could finish a deeper pass. This is the best grounded answer so far."
@@ -321,9 +320,9 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 				runnerToolCalls = bindRunnerToolCallRecords(toolCallRecordsFromExecutionLedger(ledgerEvents, runnerCompleted), ctx.trace, ctx.workflow)
 			}
 			payload := map[string]any{
-				"last_error":         firstNonEmpty(strings.TrimSpace(runnerResp.Message), "runner reply delivery became uncertain after a Slack MCP write attempt"),
+				"last_error":         firstNonEmpty(strings.TrimSpace(runnerResp.Message), "runner reply delivery became uncertain after a native Slack send attempt"),
 				"failure_class":      "runner_reply_delivery_uncertain",
-				"failure_summary":    "Runner attempted a Slack MCP write but did not complete with a durable delivery contract, so the workflow requires human review to avoid duplicate posting.",
+				"failure_summary":    "Runner attempted a native Slack send but did not complete with a durable delivery contract, so the workflow requires human review to avoid duplicate posting.",
 				"runner_diagnostics": runnerDiagnostics,
 				"tool_calls":         runnerToolCalls,
 				"trace_events": []events.TraceEvent{
@@ -338,7 +337,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 						Status:      events.StatusNeedsHuman,
 						StartedAt:   runnerStarted,
 						EndedAt:     &runnerCompleted,
-						Description: "Runner attempted a Slack MCP reply but delivery could not be finalized safely.",
+						Description: "Runner attempted a native Slack reply but delivery could not be finalized safely.",
 					},
 				},
 				"reasoning_steps": []events.ReasoningStep{
@@ -347,7 +346,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 						TraceID:    ctx.trace.Summary.TraceID,
 						WorkflowID: ctx.trace.Summary.WorkflowID,
 						StepType:   "reply_delivery_uncertain",
-						Summary:    "Runner attempted a Slack MCP write but the final delivery contract was not durable enough to safely retry automatically.",
+						Summary:    "Runner attempted a native Slack send but the final delivery contract was not durable enough to safely retry automatically.",
 						Confidence: 1.0,
 						Decision:   "needs_human",
 						CreatedAt:  runnerCompleted,
@@ -585,7 +584,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner-blocked", ctx.trace.Summary.TraceID))
 	}
 	if replyDeliveryMode == "direct" && strings.TrimSpace(replyBody) != "" && !replyDeliverySucceeded && strings.TrimSpace(proposedReplyAction.Kind) == "" {
-		summary := "Runner produced a grounded reply but did not report a durable Slack MCP reply_delivery."
+		summary := "Runner produced a grounded reply but did not report a durable native Slack reply_delivery."
 		if !allowed {
 			summary = fmt.Sprintf("Runner produced a grounded reply but Slack posting is blocked by policy: %s.", policyVerdict)
 		} else if hasReplyDelivery {
@@ -649,14 +648,14 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 			Status:      events.StatusCompleted,
 			StartedAt:   runnerStarted,
 			EndedAt:     &runnerCompleted,
-			Description: "Runner delivered the final Slack reply through Slack MCP.",
+			Description: "Runner delivered the final Slack reply through Hermes native send_message.",
 		})
 		finalReasoning = append(finalReasoning, events.ReasoningStep{
 			ID:         fmt.Sprintf("reason-reply-delivered-%d", runnerCompleted.UnixNano()),
 			TraceID:    ctx.trace.Summary.TraceID,
 			WorkflowID: ctx.trace.Summary.WorkflowID,
 			StepType:   "reply_delivery",
-			Summary:    "Runner delivered the final Slack reply through Slack MCP.",
+			Summary:    "Runner delivered the final Slack reply through Hermes native send_message.",
 			Confidence: 1.0,
 			Decision:   "reply_delivered",
 			CreatedAt:  runnerCompleted,
@@ -675,7 +674,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	if hasReplyAction {
 		runnerDescription = "Runner returned visible reasoning and an explicit Slack reply action."
 	} else if replyDeliverySucceeded {
-		runnerDescription = "Runner returned visible reasoning and delivered a Slack reply through Slack MCP."
+		runnerDescription = "Runner returned visible reasoning and delivered a Slack reply through Hermes native send_message."
 	}
 	if completionVerdict == "partial" {
 		runnerDescription = partialCompletionRunnerDescription(terminationReason, hasReplyAction)
@@ -984,7 +983,7 @@ func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, ctx w
 		actionStatus = action.StatusBlocked
 		summary = blockedReason
 	} else {
-		execErr = errors.New("slack_post actions were removed with the platform tool gateway; Hermes must reply directly through Slack MCP")
+		execErr = errors.New("slack_post actions were removed with the platform tool gateway; Hermes must reply directly through native send_message")
 		actionStatus = actionStatusFromToolResult(result, execErr)
 		summary = toolResultSummary(result, execErr)
 		baseRecord.ArtifactRefs = uniqueStrings(append(baseRecord.ArtifactRefs, result.RawArtifactRefs...))
@@ -1134,14 +1133,14 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	combinedContextRefs := append(append([]clients.RunnerContextRef{}, contextRefs...), hintRefs...)
 	combinedContextSummary := joinContextSummary(contextSummary, liveHintSummary(liveHints))
 	allowed, _ := replyPolicy(store, workflow.Kind, trace.Summary.ThreadKey, ingestion.ChannelID)
-	mcpServers := workflowMCPServers(cfg, allowed, ingestion.ChannelID, ingestion.ThreadTS)
-	allowedTools := workflowRunnerAllowedTools(liveHints, hasSlackMCPServer(mcpServers), allowed)
+	mcpServers := workflowMCPServers(cfg)
+	allowedTools := workflowRunnerAllowedTools(liveHints)
 	requestedArtifacts := resolvedIntent.RequestedArtifacts
-	replyDeliveryMode := workflowReplyDeliveryMode(hasSlackMCPServer(mcpServers), allowed)
+	replyDeliveryMode := workflowReplyDeliveryMode(allowed)
 	requestedSkills := resolvedIntent.RequestedSkills
 	userRequest := resolvedIntent.UserRequest
 	systemMessage := harness.ComposeSystemMessage(
-		workflowRunnerSystemMessage(hasSlackMCPServer(mcpServers), hasNotionMCPServer(mcpServers), replyDeliveryMode, requestedArtifacts),
+		workflowRunnerSystemMessage(hasNotionMCPServer(mcpServers), replyDeliveryMode, requestedArtifacts),
 		effectiveHarness,
 	)
 	kubernetesReadNamespaceScope := cfg.KubernetesReadNamespaceScope()
@@ -1236,9 +1235,7 @@ func workflowCapabilityLeases(replyDeliveryMode string, kubernetesReadNamespaces
 	}
 	switch clients.NormalizeRunnerReplyDeliveryMode(replyDeliveryMode) {
 	case "direct":
-		capabilities = append(capabilities, "slack_send", "slack_upload")
-	case "mediated":
-		capabilities = append(capabilities, "slack_upload")
+		capabilities = append(capabilities, "slack_send")
 	}
 	leases := clients.RunnerCapabilityLeases(capabilities...)
 	return clients.AttachKubernetesReadNamespacesToLeases(leases, kubernetesReadNamespaces)
@@ -1252,39 +1249,21 @@ func runnerApprovalPolicy(directSlackAllowed bool) *clients.RunnerApprovalPolicy
 	return clients.NewRunnerApprovalPolicy(directSlackAllowed)
 }
 
-func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliveryMode string, requestedArtifacts []clients.RunnerRequestedArtifact) string {
-	if replyDeliveryMode == "mediated" {
-		parts := []string{
-			"Return explicit visible reasoning only. Do not include hidden chain-of-thought.",
-			"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, reply_delivery, knowledge_drafts, outcome_hypotheses, produced_artifacts, and artifact_failure_reason.",
-			"Start from persisted evidence, then choose native Hermes tools, files, and tool order yourself within the supplied capability leases and policies.",
-			"Treat DeliveryPolicy, WorkspacePolicy, ApprovalPolicy, and CapabilityLease as the execution contract; do not infer platform permissions from prose.",
-			"You may use Hermes-native skills when they materially help satisfy the request.",
-		}
-		if useNotionMCP {
-			parts = append(parts, "Use Notion MCP for Notion workspace search and page fetches when relevant.")
-		}
-		if len(requestedArtifacts) > 0 {
-			parts = append(parts, "Artifact production was requested. If you produce one, include it in produced_artifacts. If you cannot, set artifact_failure_reason and still provide the best grounded reply.")
-		}
-		parts = append(parts, "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "Use native Slack MCP delivery when you need to attach or send content to the bound Slack thread.", "If you intend to reply in Slack, you must emit an explicit proposed action with kind=slack_post; prose alone is not enough.", "Do not set reply_delivery for mediated replies.")
-		return strings.Join(parts, " ")
-	}
+func workflowRunnerSystemMessage(useNotionMCP bool, replyDeliveryMode string, requestedArtifacts []clients.RunnerRequestedArtifact) string {
 	if replyDeliveryMode == "direct" {
 		parts := []string{
 			"Return explicit visible reasoning only. Do not include hidden chain-of-thought.",
 			"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, reply_delivery, knowledge_drafts, outcome_hypotheses, produced_artifacts, and artifact_failure_reason.",
 			"Treat DeliveryPolicy, WorkspacePolicy, ApprovalPolicy, and CapabilityLease as the execution contract; do not infer platform permissions from prose.",
-			"Use Slack MCP for Slack investigation.",
 			"You may use Hermes-native skills when they materially help satisfy the request.",
 		}
 		if useNotionMCP {
 			parts = append(parts, "Use Notion MCP for Notion workspace search and page fetches when relevant.")
 		}
 		if len(requestedArtifacts) > 0 {
-			parts = append(parts, "Artifact production was requested. If you produce one, include it in produced_artifacts. If you cannot, set artifact_failure_reason and still provide the best grounded reply.")
+			parts = append(parts, "Artifact production was requested. If you produce one, include it in produced_artifacts. Attach local artifact files in the final native send_message by adding MEDIA:/absolute/path entries to the message. If you cannot, set artifact_failure_reason and still provide the best grounded reply.")
 		}
-		parts = append(parts, "Use native repo, GitHub, knowledge, RSI, MCP, and workspace tools for non-Slack evidence.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "Use native Slack MCP delivery when you need to attach or send content to the bound Slack delivery target.", "If you have a grounded final answer, send exactly one Slack reply to the bound delivery target using Slack MCP, then return the JSON object.", "Do not emit a slack_post action contract.", "Include reply_delivery describing the direct Slack delivery with status, channel_id, thread_ts when a thread exists, body, tool_call_id, tool_name, provider_ref, and message_link.")
+		parts = append(parts, "Use native repo, GitHub, knowledge, RSI, MCP, and workspace tools for non-Slack evidence.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "For the final Slack reply, use Hermes native send_message exactly once with target slack:<channel_id>:<thread_ts> for the bound delivery target. Do not use a DM fallback and do not post to any other channel or thread.", "Do not emit a slack_post action contract.", "Include reply_delivery describing the direct Slack delivery with status, channel_id, thread_ts when a thread exists, body, tool_call_id, tool_name, provider_ref, and message_link.")
 		return strings.Join(parts, " ")
 	}
 	parts := []string{
@@ -1292,9 +1271,6 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliv
 		"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, reply_delivery, knowledge_drafts, outcome_hypotheses, produced_artifacts, and artifact_failure_reason.",
 		"Treat DeliveryPolicy, WorkspacePolicy, ApprovalPolicy, and CapabilityLease as the execution contract; do not infer platform permissions from prose.",
 		"You may use Hermes-native skills when they materially help satisfy the request.",
-	}
-	if useSlackMCP {
-		parts = append(parts, "Use Slack MCP for Slack investigation.")
 	}
 	if useNotionMCP {
 		parts = append(parts, "Use Notion MCP for Notion workspace search and page fetches when relevant.")
@@ -1306,12 +1282,10 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliv
 	return strings.Join(parts, " ")
 }
 
-func workflowReplyDeliveryMode(useSlackMCP bool, replyAllowed bool) string {
+func workflowReplyDeliveryMode(replyAllowed bool) string {
 	switch {
-	case useSlackMCP && replyAllowed:
-		return "direct"
 	case replyAllowed:
-		return "mediated"
+		return "direct"
 	default:
 		return "none"
 	}
@@ -1929,23 +1903,18 @@ func mergeTraceArtifacts(groups ...[]events.Artifact) []events.Artifact {
 	return out
 }
 
-func workflowRunnerAllowedTools(hints workflowplan.LiveHintSet, useSlackMCP bool, replyAllowed bool) []string {
+func workflowRunnerAllowedTools(hints workflowplan.LiveHintSet) []string {
 	allowed := append([]string{}, toolcatalog.GovernedReadOnlyToolNames()...)
 	allowed = append(allowed, hints.PreferredTools...)
-	if replyAllowed {
-		allowed = append(allowed, "slack.upload_file")
-	}
 	out := make([]string, 0, len(allowed))
 	for _, toolName := range uniqueStrings(allowed) {
 		trimmed := strings.TrimSpace(toolName)
 		if trimmed == "" {
 			continue
 		}
-		if useSlackMCP {
-			switch trimmed {
-			case "slack.history", "slack.search", "slack.reply":
-				continue
-			}
+		switch trimmed {
+		case "slack.history", "slack.search", "slack.reply", "slack.upload_file":
+			continue
 		}
 		out = append(out, trimmed)
 	}
@@ -1963,46 +1932,16 @@ func appendMCPServers(groups ...[]clients.RunnerMCPServer) []clients.RunnerMCPSe
 	return out
 }
 
-func workflowMCPServers(cfg config.Config, replyAllowed bool, channelID string, threadTS string) []clients.RunnerMCPServer {
+func workflowMCPServers(cfg config.Config) []clients.RunnerMCPServer {
 	return appendMCPServers(
-		slackMCPServersForReply(replyAllowed, channelID, threadTS),
 		notionMCPServersForRead(cfg),
 	)
 }
 
-func questionGatherMCPServers(cfg config.Config, channelID string, threadTS string) []clients.RunnerMCPServer {
+func questionGatherMCPServers(cfg config.Config) []clients.RunnerMCPServer {
 	return appendMCPServers(
-		slackMCPServersForRead(channelID, threadTS),
 		notionMCPServersForRead(cfg),
 	)
-}
-
-func slackMCPServersForRead(channelID string, threadTS string) []clients.RunnerMCPServer {
-	if strings.TrimSpace(channelID) == "" {
-		return nil
-	}
-	return []clients.RunnerMCPServer{
-		{
-			ServerLabel: "slack",
-			ServerURL:   defaultSlackMCPServerURL,
-			Profile:     "slack_mcp_read",
-			Headers: map[string]string{
-				"X-RSI-Channel-ID": channelID,
-				"X-RSI-Thread-TS":  threadTS,
-			},
-		},
-	}
-}
-
-func slackMCPServersForReply(allowed bool, channelID string, threadTS string) []clients.RunnerMCPServer {
-	servers := slackMCPServersForRead(channelID, threadTS)
-	if len(servers) == 0 {
-		return nil
-	}
-	if allowed {
-		servers[0].Profile = "slack_mcp_reply"
-	}
-	return servers
 }
 
 func notionMCPServersForRead(cfg config.Config) []clients.RunnerMCPServer {
@@ -2040,19 +1979,6 @@ func cloneStringMap(input map[string]string) map[string]string {
 		out[key] = value
 	}
 	return out
-}
-
-func hasSlackMCPServer(servers []clients.RunnerMCPServer) bool {
-	for _, server := range servers {
-		profile := strings.TrimSpace(server.Profile)
-		if profile == "slack_mcp_read" || profile == "slack_mcp_reply" {
-			return true
-		}
-		if strings.EqualFold(strings.TrimSpace(server.ServerLabel), "slack") {
-			return true
-		}
-	}
-	return false
 }
 
 func hasNotionMCPServer(servers []clients.RunnerMCPServer) bool {
