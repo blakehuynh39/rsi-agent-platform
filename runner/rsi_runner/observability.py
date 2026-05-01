@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 import hashlib
+import http.client
 import json
 import logging
 import threading
 import time
 from typing import Any
+from urllib.parse import urlparse
 
 from .config import RunnerConfig
 from .json_types import JsonObject
@@ -66,7 +68,7 @@ class ObservationEmitter:
     ) -> "ObservationEmitter":
         invocation_id = f"invoke-{time.time_ns()}"
         resolved_execution_id = _string(execution_id) or execution_observation_id(operation_id, trace_id, workflow_id, hermes_session_id, invocation_id)
-        sink_status = "local_only"
+        sink_status = "configured" if config.runtime_observation_sink_url else "local_only"
         return cls(
             config=config,
             trace_id=_string(trace_id),
@@ -99,7 +101,37 @@ class ObservationEmitter:
             }
             self._events.append(dict(item))
         logger.info("runner observation %s", json.dumps(item, ensure_ascii=True, sort_keys=True))
-        return
+        if not self.config.runtime_observation_sink_url:
+            return
+        body = json.dumps(item, ensure_ascii=True, sort_keys=True).encode("utf-8")
+        try:
+            self._post_observation(body)
+            with self._lock:
+                self.sink_status = "ok"
+        except (TimeoutError, OSError, ValueError, http.client.HTTPException) as exc:
+            with self._lock:
+                self.sink_status = "degraded"
+                error_text = _string(exc)
+                if error_text:
+                    self.sink_errors.append(error_text)
+
+    def _post_observation(self, body: bytes) -> None:
+        parsed = urlparse(self.config.runtime_observation_sink_url or "")
+        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+            raise ValueError("runtime observation sink URL must be an absolute http(s) URL")
+        connection_cls = http.client.HTTPSConnection if parsed.scheme == "https" else http.client.HTTPConnection
+        path = parsed.path or "/"
+        if parsed.query:
+            path = f"{path}?{parsed.query}"
+        connection = connection_cls(parsed.netloc, timeout=5)
+        try:
+            connection.request("POST", path, body=body, headers={"Content-Type": "application/json"})
+            response = connection.getresponse()
+            response.read()
+            if response.status >= 400:
+                raise OSError(f"observation sink returned HTTP {response.status}")
+        finally:
+            connection.close()
 
     def diagnostics(self) -> JsonObject:
         out: JsonObject = {

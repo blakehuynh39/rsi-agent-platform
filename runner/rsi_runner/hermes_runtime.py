@@ -1302,7 +1302,7 @@ class HermesRuntime:
     @property
     def metadata(self) -> JsonObject:
         adapter_meta = self._adapter.metadata
-        observation_sink_configured = False
+        observation_sink_configured = bool(self._config.runtime_observation_sink_url)
         return {
             "status": "ok" if self.available and self._session_manager.skills_healthy else "degraded",
             "role": self._role,

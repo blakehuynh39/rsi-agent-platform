@@ -20,7 +20,7 @@ from rsi_runner.hermes_adapter import HermesAdapter, _build_plugin_module
 from rsi_runner.hermes_agent_adapter import HermesAgentAdapter, HermesContractStatus, validate_hermes_contract
 from rsi_runner.hermes_mcp_adapter import TaskScopedMCPCleanupResult, TaskScopedMCPRegistration, TaskScopedMCPServer
 from rsi_runner.hermes_runtime import HermesExecutionResult, HermesRuntime, RunnerTaskRequest, _NativeLifecycleTailer
-from rsi_runner.observability import execution_observation_id
+from rsi_runner.observability import ObservationEmitter, execution_observation_id
 from rsi_runner.rsi_tools import (
     ReadOnlyToolBinding,
     tool_schema_wrappers,
@@ -252,6 +252,39 @@ class FakeHTTPResponse:
         return self._body
 
 
+class FakeObservationSinkResponse:
+    status = 200
+
+    def read(self) -> bytes:
+        return b'{"status":"ok"}'
+
+
+class FakeObservationSinkConnection:
+    requests: list[dict[str, object]] = []
+
+    def __init__(self, netloc: str, timeout: int | float | None = None) -> None:
+        self.netloc = netloc
+        self.timeout = timeout
+
+    def request(self, method: str, path: str, body: bytes | None = None, headers: dict[str, str] | None = None) -> None:
+        type(self).requests.append(
+            {
+                "netloc": self.netloc,
+                "timeout": self.timeout,
+                "method": method,
+                "path": path,
+                "body": body or b"",
+                "headers": headers or {},
+            }
+        )
+
+    def getresponse(self) -> FakeObservationSinkResponse:
+        return FakeObservationSinkResponse()
+
+    def close(self) -> None:
+        return None
+
+
 def partial_structured_output(
     *,
     reply_text: str,
@@ -370,6 +403,7 @@ class HermesRuntimeTests(unittest.TestCase):
                 **runner_env("prod"),
                 "RSI_HERMES_EXECUTOR_ENABLED": "true",
                 "RSI_HERMES_EXECUTOR_SERVICE_ONLY": "true",
+                "RSI_RUNTIME_OBSERVATION_SINK_URL": "http://control-plane.internal:8080/internal/runtime/observations",
                 "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": "/var/lib/hermes-executor",
                 "RSI_HERMES_NATIVE_TERMINAL_ENABLED": "true",
                 "TERMINAL_ENV": "local",
@@ -387,6 +421,7 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertTrue(config.hermes_executor_enabled)
         self.assertTrue(config.hermes_executor_service_only)
+        self.assertEqual(config.runtime_observation_sink_url, "http://control-plane.internal:8080/internal/runtime/observations")
         self.assertEqual(config.hermes_executor_workspace_root, "/var/lib/hermes-executor")
         self.assertEqual(config.hermes_computer_root, "/var/lib/hermes-executor/company")
         self.assertEqual(config.hermes_run_root, "/var/lib/hermes-executor/company/.rsi/runs")
@@ -401,6 +436,47 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(config.hermes_company_bin_dir, "/var/lib/hermes-executor/company/.rsi/bin")
         self.assertTrue(config.hermes_kubernetes_context_enabled)
         self.assertEqual(config.hermes_kubeconfig_path, "/var/lib/hermes-executor/company/.rsi/kube/config")
+
+    def test_config_requires_observation_sink_for_service_only_executor(self) -> None:
+        with mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "RSI_HERMES_EXECUTOR_ENABLED": "true",
+                "RSI_HERMES_EXECUTOR_SERVICE_ONLY": "true",
+            },
+            clear=True,
+        ):
+            with self.assertRaisesRegex(RunnerConfigError, "RSI_RUNTIME_OBSERVATION_SINK_URL"):
+                RunnerConfig.from_env()
+
+    def test_observation_emitter_posts_to_direct_sink(self) -> None:
+        FakeObservationSinkConnection.requests = []
+        with mock.patch.dict(
+            os.environ,
+            {**runner_env("prod"), "RSI_RUNTIME_OBSERVATION_SINK_URL": "http://control-plane.internal:8080/internal/runtime/observations"},
+            clear=True,
+        ), mock.patch("rsi_runner.observability.http.client.HTTPConnection", FakeObservationSinkConnection):
+            config = RunnerConfig.from_env()
+            emitter = ObservationEmitter.create(
+                config,
+                trace_id="trace-obs",
+                workflow_id="wf-obs",
+                operation_id="op-obs",
+                role="prod",
+                hermes_session_id="session-obs",
+            )
+            emitter.emit(phase="main", event_type="model.reasoning.delta", status="streaming", payload={"delta": "hello"})
+
+        self.assertEqual(emitter.sink_status, "ok")
+        self.assertEqual(len(FakeObservationSinkConnection.requests), 1)
+        request = FakeObservationSinkConnection.requests[0]
+        self.assertEqual(request["netloc"], "control-plane.internal:8080")
+        self.assertEqual(request["path"], "/internal/runtime/observations")
+        body = json.loads(request["body"])
+        self.assertEqual(body["trace_id"], "trace-obs")
+        self.assertEqual(body["event_type"], "model.reasoning.delta")
+        self.assertEqual(body["payload"]["delta"], "hello")
 
     def test_context_engine_plugin_module_compiles_as_python(self) -> None:
         source = _build_plugin_module()
@@ -2747,6 +2823,7 @@ class HermesRuntimeTests(unittest.TestCase):
                 **runner_env("prod"),
                 "RSI_HERMES_EXECUTOR_ENABLED": "true",
                 "RSI_HERMES_EXECUTOR_SERVICE_ONLY": "true",
+                "RSI_RUNTIME_OBSERVATION_SINK_URL": "http://control-plane.internal:8080/internal/runtime/observations",
                 "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
             },
             clear=True,
@@ -3628,6 +3705,20 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertFalse(runtime.metadata["observation_sink_configured"])
         self.assertEqual(runtime.metadata["observation_sink_status"], "not_configured")
         self.assertTrue(runtime.metadata["direct_delivery_phase_enabled"])
+
+    def test_runtime_metadata_exposes_direct_observation_sink(self) -> None:
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(
+            os.environ,
+            {**runner_env("prod"), "RSI_RUNTIME_OBSERVATION_SINK_URL": "http://control-plane.internal:8080/internal/runtime/observations"},
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        self.assertTrue(runtime.metadata["observation_sink_configured"])
+        self.assertEqual(runtime.metadata["observation_sink_status"], "configured")
+        self.assertEqual(runtime.metadata["live_stream_status"], "configured")
 
     def test_skill_mentions_detect_leading_slash_command(self) -> None:
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(

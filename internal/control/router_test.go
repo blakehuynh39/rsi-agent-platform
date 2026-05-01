@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -19,6 +20,53 @@ import (
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
+
+func TestRuntimeObservationEndpointRecordsHarnessAndLedgerEvents(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	router := NewRouter(config.Config{ServiceName: "control-plane", Environment: "stage"}, store)
+	body := bytes.NewBufferString(`{
+		"execution_id":"hexec-live",
+		"operation_id":"op-live",
+		"trace_id":"trace-live",
+		"workflow_id":"wf-live",
+		"hermes_session_id":"session-live",
+		"role":"prod",
+		"phase":"main",
+		"event_type":"model.reasoning.delta",
+		"status":"streaming",
+		"seq":7,
+		"payload":{"delta":"hello","idempotency_key":"obs-live-7"},
+		"recorded_at":"2026-05-01T04:11:15Z"
+	}`)
+	req := httptest.NewRequest(http.MethodPost, "/internal/runtime/observations", body)
+	rec := httptest.NewRecorder()
+
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		responseBody, _ := io.ReadAll(rec.Body)
+		t.Fatalf("expected status 200, got %d: %s", rec.Code, string(responseBody))
+	}
+	observations := store.ListHarnessExecutionObservations()
+	if len(observations) != 1 {
+		t.Fatalf("expected one harness observation, got %d", len(observations))
+	}
+	observation := observations[0]
+	if observation.ExecutionID != "hexec-live" || observation.TraceID != "trace-live" || observation.Seq != 7 {
+		t.Fatalf("unexpected observation: %+v", observation)
+	}
+	ledger := store.ListExecutionLedgerEventsByTrace("trace-live")
+	if len(ledger) != 1 {
+		t.Fatalf("expected one ledger event, got %d", len(ledger))
+	}
+	event := ledger[0]
+	if event.Kind != "model.reasoning.delta" || event.PhaseID != "main" || event.Status != "streaming" {
+		t.Fatalf("unexpected ledger event: %+v", event)
+	}
+	if event.Payload["observation_id"] == "" || event.Payload["role"] != "prod" || event.Payload["delta"] != "hello" {
+		t.Fatalf("unexpected ledger payload: %#v", event.Payload)
+	}
+}
 
 func prepareProposalAttemptForWebhookTest(t *testing.T, store *storepkg.MemoryStore, proposal review.Proposal, mode string) (review.Proposal, improvement.ChangeAttempt) {
 	t.Helper()

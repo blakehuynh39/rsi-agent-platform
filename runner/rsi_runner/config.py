@@ -26,6 +26,7 @@ class RunnerConfig:
     openrouter_provider_routing: dict[str, object]
     hermes_pin: str
     public_base_url: str
+    runtime_observation_sink_url: str | None
     hermes_home: str
     memory_backend: str
     honcho_workspace: str
@@ -94,6 +95,7 @@ class RunnerConfig:
         openrouter_provider_routing = parse_openrouter_provider_routing()
         hermes_pin = optional_env("RSI_HERMES_PIN")
         public_base_url = required_url_env("RSI_RUNNER_PUBLIC_BASE_URL")
+        runtime_observation_sink_url = optional_url_env("RSI_RUNTIME_OBSERVATION_SINK_URL")
         hermes_home = required_env("HERMES_HOME")
         memory_backend = required_env("RSI_RUNNER_MEMORY_BACKEND")
         honcho_workspace = required_env("RSI_HONCHO_WORKSPACE")
@@ -166,6 +168,8 @@ class RunnerConfig:
             raise RunnerConfigError("RSI_RUNNER_MEMORY_BACKEND must be set to honcho")
         if not honcho_api_key and not honcho_base_url:
             raise RunnerConfigError("HONCHO_API_KEY or RSI_HONCHO_BASE_URL is required when RSI_RUNNER_MEMORY_BACKEND=honcho")
+        if hermes_executor_service_only and not runtime_observation_sink_url:
+            raise RunnerConfigError("RSI_RUNTIME_OBSERVATION_SINK_URL is required when RSI_HERMES_EXECUTOR_SERVICE_ONLY=true")
         return cls(
             role=role,
             executor_instance_id=executor_instance_id,
@@ -177,6 +181,7 @@ class RunnerConfig:
             openrouter_provider_routing=openrouter_provider_routing,
             hermes_pin=hermes_pin,
             public_base_url=public_base_url,
+            runtime_observation_sink_url=runtime_observation_sink_url or None,
             hermes_home=hermes_home,
             memory_backend=memory_backend,
             honcho_workspace=honcho_workspace,

@@ -138,6 +138,15 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 			"deployment_active_execution_policy": cfg.DeploymentActiveExecutionPolicy,
 		})
 	})
+	r.Post("/internal/runtime/observations", func(w http.ResponseWriter, r *http.Request) {
+		payload := map[string]any{}
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			app.WriteError(w, http.StatusBadRequest, err)
+			return
+		}
+		status, out := recordRuntimeObservation(store, payload)
+		app.WriteJSON(w, status, out)
+	})
 	// These runner lifecycle endpoints are intentionally unauthenticated here.
 	// They are cluster-internal control-plane hooks protected by Kubernetes/network
 	// boundaries; adding app-layer auth would require extra rollout wiring for
