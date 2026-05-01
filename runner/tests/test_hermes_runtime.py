@@ -5,6 +5,7 @@ import io
 import json
 import os
 from pathlib import Path
+import sqlite3
 import subprocess
 import tempfile
 import threading
@@ -784,6 +785,59 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertFalse(status.ok)
         self.assertEqual(status.session_db_status, "missing")
         self.assertEqual(status.toolset_status["rsi-missing-toolset"], "failed")
+
+    def test_hermes_contract_rejects_corrupt_session_db(self) -> None:
+        plugin_manager = types.SimpleNamespace(list_plugins=lambda: [{"enabled": True, "name": "rsi_context_engine"}])
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(os.environ, {"HERMES_HOME": tempdir}, clear=True), mock.patch(
+            "rsi_runner.hermes_agent_adapter._read_direct_url_commit",
+            return_value=("0.12.0", HERMES_TEST_PIN),
+        ), mock.patch(
+            "rsi_runner.hermes_agent_adapter.discover_plugins",
+            side_effect=lambda force=False: None,
+        ), mock.patch(
+            "rsi_runner.hermes_agent_adapter.get_plugin_manager",
+            return_value=plugin_manager,
+        ):
+            Path(tempdir, "config.yaml").write_text("plugins:\n  enabled:\n    - rsi_context_engine\n", encoding="utf-8")
+            db_path = Path(tempdir, "state.db")
+            sqlite3.connect(db_path).close()
+            db_path.write_bytes(b"not a sqlite database")
+            status = validate_hermes_contract(
+                expected_pin=HERMES_TEST_PIN,
+                hermes_home=tempdir,
+                session_db=types.SimpleNamespace(db_path=db_path),
+                required_toolsets=[],
+            )
+
+        self.assertFalse(status.ok)
+        self.assertEqual(status.session_db_status, "corrupt")
+        self.assertTrue(any("Hermes SessionDB integrity check failed" in error for error in status.errors))
+
+    def test_hermes_contract_rejects_session_db_missing_schema(self) -> None:
+        plugin_manager = types.SimpleNamespace(list_plugins=lambda: [{"enabled": True, "name": "rsi_context_engine"}])
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(os.environ, {"HERMES_HOME": tempdir}, clear=True), mock.patch(
+            "rsi_runner.hermes_agent_adapter._read_direct_url_commit",
+            return_value=("0.12.0", HERMES_TEST_PIN),
+        ), mock.patch(
+            "rsi_runner.hermes_agent_adapter.discover_plugins",
+            side_effect=lambda force=False: None,
+        ), mock.patch(
+            "rsi_runner.hermes_agent_adapter.get_plugin_manager",
+            return_value=plugin_manager,
+        ):
+            Path(tempdir, "config.yaml").write_text("plugins:\n  enabled:\n    - rsi_context_engine\n", encoding="utf-8")
+            db_path = Path(tempdir, "state.db")
+            sqlite3.connect(db_path).close()
+            status = validate_hermes_contract(
+                expected_pin=HERMES_TEST_PIN,
+                hermes_home=tempdir,
+                session_db=types.SimpleNamespace(db_path=db_path),
+                required_toolsets=[],
+            )
+
+        self.assertFalse(status.ok)
+        self.assertEqual(status.session_db_status, "missing_schema")
+        self.assertTrue(any("Hermes SessionDB schema is missing required table(s)" in error for error in status.errors))
 
     def test_hermes_contract_rejects_missing_toolset_validation_api_once(self) -> None:
         with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(os.environ, {"HERMES_HOME": tempdir}, clear=True), mock.patch(

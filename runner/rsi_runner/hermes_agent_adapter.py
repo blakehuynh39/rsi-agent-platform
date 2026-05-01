@@ -6,6 +6,7 @@ import inspect
 import json
 import os
 from pathlib import Path
+import sqlite3
 import time
 from typing import Any
 
@@ -253,6 +254,10 @@ def validate_hermes_contract(
     session_db_status = "ok" if session_db is not None else "missing"
     if session_db is None:
         errors.append("Hermes SessionDB is unavailable.")
+    else:
+        session_db_status, session_db_error = _validate_session_db_integrity(session_db)
+        if session_db_error:
+            errors.append(session_db_error)
 
     if AIAgent is None:
         api_signature_status = "missing"
@@ -342,6 +347,37 @@ def validate_hermes_contract(
         errors=errors,
         checked_at_unix=time.time(),
     )
+
+
+def _validate_session_db_integrity(session_db: Any) -> tuple[str, str]:
+    db_path = getattr(session_db, "db_path", None)
+    if not db_path:
+        return "ok", ""
+    try:
+        path = Path(db_path)
+    except TypeError:
+        return "ok", ""
+    if not path.exists():
+        return "missing", f"Hermes SessionDB file is missing at {path}."
+    try:
+        with sqlite3.connect(str(path), timeout=5.0) as conn:
+            row = conn.execute("PRAGMA quick_check(1)").fetchone()
+            tables = {
+                _string(item[0])
+                for item in conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'").fetchall()
+            }
+    except sqlite3.DatabaseError as exc:
+        return "corrupt", f"Hermes SessionDB integrity check failed: {exc}"
+    except Exception as exc:
+        return "failed", f"Hermes SessionDB integrity check failed: {exc}"
+    verdict = _string(row[0] if row else "")
+    if verdict.lower() == "ok":
+        required_tables = {"sessions", "messages"}
+        missing_tables = sorted(required_tables - tables)
+        if missing_tables:
+            return "missing_schema", "Hermes SessionDB schema is missing required table(s): " + ", ".join(missing_tables)
+        return "ok", ""
+    return "corrupt", f"Hermes SessionDB integrity check failed: {verdict or 'unknown quick_check failure'}"
 
 
 class HermesAgentAdapter:
