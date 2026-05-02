@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import base64
 import json
 import os
 import re
 import hashlib
+import tempfile
 import urllib.parse
+import urllib.error
 import urllib.request
+from pathlib import Path
 from typing import Any
 
 from mcp.server.fastmcp import FastMCP
@@ -72,6 +76,34 @@ def _honcho_api(method: str, path: str, payload: dict[str, Any] | None = None) -
     decoded = _honcho_api_raw(method, path, payload)
     if not isinstance(decoded, dict):
         raise RuntimeError(f"Honcho API {path} returned a non-object response")
+    return decoded
+
+
+def _control_plane_base_url() -> str:
+    return _env("RSI_CONTROL_PLANE_BASE_URL").rstrip("/")
+
+
+def _control_plane_api(method: str, path: str, payload: dict[str, Any]) -> dict[str, Any]:
+    base_url = _control_plane_base_url()
+    if not base_url:
+        raise RuntimeError("RSI_CONTROL_PLANE_BASE_URL is required for Slack attachment extraction persistence")
+    req = urllib.request.Request(
+        f"{base_url}{path}",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "User-Agent": "rsi-hermes-company-knowledge-mcp/1.0",
+        },
+        method=method,
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            decoded = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"Control plane API {path} failed: HTTP {exc.code}: {detail}") from exc
+    if not isinstance(decoded, dict):
+        raise RuntimeError(f"Control plane API {path} returned a non-object response")
     return decoded
 
 
@@ -163,6 +195,40 @@ def _normalize_files(files: Any) -> list[dict[str, Any]]:
             }
         )
     return out
+
+
+def _slack_file_info(file_id: str) -> dict[str, Any]:
+    file_id = str(file_id or "").strip()
+    if not file_id:
+        raise RuntimeError("Slack file id is required")
+    payload = _slack_api("files.info", {"file": file_id})
+    file_info = payload.get("file")
+    if not isinstance(file_info, dict):
+        raise RuntimeError(f"Slack files.info returned no file object for {file_id}")
+    return file_info
+
+
+def _download_slack_file(file_id: str, max_bytes: int) -> tuple[bytes, dict[str, Any]]:
+    file_info = _slack_file_info(file_id)
+    url = str(file_info.get("url_private_download") or file_info.get("url_private") or "").strip()
+    if not url:
+        raise RuntimeError(f"Slack file {file_id} has no private download URL")
+    req = urllib.request.Request(
+        url,
+        headers={
+            "Authorization": f"Bearer {_bot_token()}",
+            "User-Agent": "rsi-hermes-slack-mcp/1.0",
+        },
+        method="GET",
+    )
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        content_length = resp.headers.get("Content-Length")
+        if content_length and int(content_length) > max_bytes:
+            raise RuntimeError(f"Slack file {file_id} is too large to fetch: {content_length} bytes > {max_bytes}")
+        data = resp.read(max_bytes + 1)
+    if len(data) > max_bytes:
+        raise RuntimeError(f"Slack file {file_id} is too large to fetch: read more than {max_bytes} bytes")
+    return data, file_info
 
 
 def _message_permalink(channel_id: str, ts: str) -> str:
@@ -305,7 +371,316 @@ def _slack_session_filters(channel_id: str = "") -> dict[str, Any]:
     }
 
 
+def _attachment_cache_root() -> Path:
+    return Path(_env("RSI_ATTACHMENT_CACHE_ROOT", "/var/lib/hermes/attachments"))
+
+
+def _safe_path_part(value: str) -> str:
+    cleaned = "".join(ch if ch.isalnum() or ch in {"_", "-", "."} else "_" for ch in str(value or "").strip())
+    cleaned = cleaned.strip("._-")
+    return cleaned[:120] or "unknown"
+
+
+def _cache_attachment_bytes(workspace_id: str, channel_id: str, file_id: str, file_name: str, data: bytes) -> dict[str, Any]:
+    digest = hashlib.sha256(data).hexdigest()
+    directory = _attachment_cache_root() / "slack" / _safe_path_part(workspace_id) / _safe_path_part(channel_id) / _safe_path_part(file_id) / digest[:24]
+    directory.mkdir(parents=True, exist_ok=True)
+    target = directory / _safe_path_part(file_name or file_id)
+    with tempfile.NamedTemporaryFile(dir=directory, delete=False) as tmp:
+        tmp.write(data)
+        tmp_path = Path(tmp.name)
+    os.replace(tmp_path, target)
+    return {
+        "cache_path": str(target),
+        "content_sha256": digest,
+        "content_size": len(data),
+    }
+
+
+def _is_text_attachment(file: dict[str, Any]) -> bool:
+    mimetype = str(file.get("mimetype") or "").lower()
+    filetype = str(file.get("filetype") or "").lower()
+    name = str(file.get("name") or file.get("title") or "").lower()
+    if mimetype.startswith("text/"):
+        return True
+    if mimetype in {
+        "application/json",
+        "application/xml",
+        "application/yaml",
+        "application/x-yaml",
+        "application/javascript",
+        "application/x-javascript",
+        "application/typescript",
+        "application/csv",
+    }:
+        return True
+    return filetype in {"txt", "text", "md", "markdown", "json", "csv", "yaml", "yml", "xml", "log"} or name.endswith(
+        (".txt", ".md", ".json", ".csv", ".yaml", ".yml", ".xml", ".log")
+    )
+
+
+def _is_image_attachment(file: dict[str, Any]) -> bool:
+    mimetype = str(file.get("mimetype") or "").lower()
+    filetype = str(file.get("filetype") or "").lower()
+    name = str(file.get("name") or file.get("title") or "").lower()
+    return mimetype.startswith("image/") or filetype in {"png", "jpg", "jpeg", "gif", "webp"} or name.endswith(
+        (".png", ".jpg", ".jpeg", ".gif", ".webp")
+    )
+
+
+def _openrouter_api_key() -> str:
+    return _env("RSI_OPENROUTER_API_KEY") or _env("OPENROUTER_API_KEY")
+
+
+def _vision_model() -> str:
+    return _env("RSI_ATTACHMENT_VISION_MODEL", "qwen/qwen3.6-flash")
+
+
+def _openrouter_chat_completion(payload: dict[str, Any]) -> dict[str, Any]:
+    token = _openrouter_api_key()
+    if not token:
+        raise RuntimeError("OPENROUTER_API_KEY is required for Slack attachment vision analysis")
+    req = urllib.request.Request(
+        _env("RSI_OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1").rstrip("/") + "/chat/completions",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "User-Agent": "rsi-hermes-company-knowledge-mcp/1.0",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            decoded = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"OpenRouter vision analysis failed: HTTP {exc.code}: {detail}") from exc
+    if not isinstance(decoded, dict):
+        raise RuntimeError("OpenRouter vision analysis returned a non-object response")
+    return decoded
+
+
+def _vision_analyze_image(data: bytes, mimetype: str, prompt: str) -> dict[str, Any]:
+    mimetype = str(mimetype or "image/png").strip() or "image/png"
+    data_url = f"data:{mimetype};base64,{base64.b64encode(data).decode('ascii')}"
+    model = _vision_model()
+    payload = {
+        "model": model,
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": prompt
+                        or "Extract all visible text and summarize the screenshot or image. Preserve concrete UI labels, errors, links, numbers, and code-like text.",
+                    },
+                    {"type": "image_url", "image_url": {"url": data_url}},
+                ],
+            }
+        ],
+        "max_tokens": 1200,
+    }
+    decoded = _openrouter_chat_completion(payload)
+    choices = decoded.get("choices")
+    if not isinstance(choices, list) or not choices:
+        raise RuntimeError("OpenRouter vision analysis returned no choices")
+    message = choices[0].get("message") if isinstance(choices[0], dict) else {}
+    content = message.get("content") if isinstance(message, dict) else ""
+    if isinstance(content, list):
+        content = "\n".join(str(part.get("text") or "") for part in content if isinstance(part, dict))
+    text = str(content or "").strip()
+    if not text:
+        raise RuntimeError("OpenRouter vision analysis returned empty text")
+    return {"model": model, "text": text}
+
+
+def _source_mirror_write_message(record: dict[str, Any], message: dict[str, Any]) -> dict[str, Any]:
+    return _control_plane_api(
+        "POST",
+        "/internal/source-mirror/messages",
+        {
+            "record": record,
+            "message": message,
+            "lease_seconds": 300,
+        },
+    )
+
+
+def _persist_attachment_analysis(
+    *,
+    workspace_id: str,
+    channel_id: str,
+    thread_ts: str,
+    message_ts: str,
+    message_permalink: str,
+    message_id: str,
+    file: dict[str, Any],
+    content_sha256: str,
+    extraction_kind: str,
+    extraction_status: str,
+    extracted_text: str,
+    cache_path: str,
+    error: str = "",
+    model: str = "",
+) -> dict[str, Any]:
+    source_session_key = _source_session_key(workspace_id, channel_id, thread_ts)
+    source_key = ":".join(
+        [
+            "slack_attachment_analysis",
+            workspace_id,
+            channel_id,
+            message_ts,
+            str(file.get("id") or ""),
+            extraction_kind,
+        ]
+    )
+    source_revision = f"{extraction_kind}:sha256:{content_sha256}:status:{extraction_status}:model:{model or 'none'}"
+    metadata = {
+        "source": "slack_attachment_analysis",
+        "source_key": source_key,
+        "source_dedupe_key": source_key,
+        "source_revision": source_revision,
+        "source_session_key": source_session_key,
+        "workspace_id": workspace_id,
+        "channel_id": channel_id,
+        "thread_ts": thread_ts,
+        "slack_ts": message_ts,
+        "permalink": message_permalink,
+        "source_message_id": message_id,
+        "file": file,
+        "file_id": str(file.get("id") or ""),
+        "content_sha256": content_sha256,
+        "cache_path": cache_path,
+        "extraction_kind": extraction_kind,
+        "extraction_status": extraction_status,
+        "vision_model": model,
+        "error": error,
+    }
+    content = extracted_text
+    if not content:
+        content = f"Slack attachment {file.get('id') or ''} extraction status: {extraction_status}. {error}".strip()
+    return _source_mirror_write_message(
+        {
+            "source_type": "slack_attachment_analysis",
+            "source_key": source_key,
+            "workspace": workspace_id,
+            "environment": _env("RSI_HONCHO_ENVIRONMENT", "stage"),
+            "source_session_key": source_session_key,
+            "honcho_workspace": _honcho_workspace_id(),
+            "honcho_session_id": _honcho_session_id_for_source(source_session_key),
+            "source_revision": source_revision,
+            "metadata": metadata,
+        },
+        {
+            "content": content,
+            "peer_id": "rsi_attachment_analyzer",
+            "metadata": metadata,
+        },
+    )
+
+
+def _fetch_and_extract_attachment(
+    *,
+    workspace_id: str,
+    channel_id: str,
+    thread_ts: str,
+    message_ts: str,
+    message_permalink: str,
+    message_id: str,
+    file: dict[str, Any],
+    analyze_images: bool,
+    max_bytes: int,
+    analysis_prompt: str,
+) -> dict[str, Any]:
+    file_id = str(file.get("id") or "").strip()
+    if not file_id:
+        raise RuntimeError("Slack attachment is missing file.id; cannot fetch content")
+    data, file_info = _download_slack_file(file_id, max_bytes)
+    merged_file = dict(file)
+    for key in ("id", "name", "title", "mimetype", "filetype", "size", "permalink"):
+        if not merged_file.get(key) and file_info.get(key) is not None:
+            merged_file[key] = file_info.get(key)
+    cache = _cache_attachment_bytes(
+        workspace_id,
+        channel_id,
+        file_id,
+        str(merged_file.get("name") or merged_file.get("title") or file_id),
+        data,
+    )
+    content_sha256 = str(cache["content_sha256"])
+    mimetype = str(merged_file.get("mimetype") or file_info.get("mimetype") or "")
+    extraction_kind = "unsupported"
+    extraction_status = "unsupported_binary"
+    extracted_text = ""
+    model = ""
+    error = ""
+    if _is_text_attachment(merged_file):
+        extraction_kind = "text"
+        extraction_status = "extracted"
+        extracted_text = data.decode("utf-8", errors="replace")
+    elif _is_image_attachment(merged_file):
+        extraction_kind = "vision"
+        if analyze_images:
+            analysis = _vision_analyze_image(data, mimetype, analysis_prompt)
+            extraction_status = "vision_analyzed"
+            extracted_text = analysis["text"]
+            model = analysis["model"]
+        else:
+            extraction_status = "requires_vision"
+            error = "Image attachment cached but not analyzed; call with analyze_images=true when image content is required."
+    else:
+        error = "Unsupported Slack attachment type; no text extractor is configured for this MIME/filetype."
+
+    persisted = _persist_attachment_analysis(
+        workspace_id=workspace_id,
+        channel_id=channel_id,
+        thread_ts=thread_ts,
+        message_ts=message_ts,
+        message_permalink=message_permalink,
+        message_id=message_id,
+        file=_normalize_files([merged_file])[0],
+        content_sha256=content_sha256,
+        extraction_kind=extraction_kind,
+        extraction_status=extraction_status,
+        extracted_text=extracted_text,
+        cache_path=str(cache["cache_path"]),
+        error=error,
+        model=model,
+    )
+    out = {
+        "content_status": "cached",
+        "cache_path": cache["cache_path"],
+        "content_sha256": content_sha256,
+        "content_size": cache["content_size"],
+        "extraction_kind": extraction_kind,
+        "extraction_status": extraction_status,
+        "extraction_error": error,
+        "extraction_note": _attachment_extraction_note(extraction_status),
+        "honcho_persistence": persisted,
+    }
+    if extracted_text:
+        out["extracted_text"] = extracted_text
+    if model:
+        out["vision_model"] = model
+    return out
+
+
+def _attachment_extraction_note(extraction_status: str) -> str:
+    if extraction_status == "extracted":
+        return "Text attachment content was extracted and persisted into Honcho with provenance."
+    if extraction_status == "vision_analyzed":
+        return "Image attachment content was analyzed by the configured auxiliary vision model and persisted into Honcho with provenance."
+    if extraction_status == "requires_vision":
+        return "Image attachment bytes were cached; call attachments_fetch with analyze_images=true when visual content is required."
+    if extraction_status == "unsupported_binary":
+        return "Attachment bytes were cached, but no supported extractor exists for this binary type."
+    return f"Attachment extraction completed with status {extraction_status}."
+
+
 read_only = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=True)
+idempotent_write = ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentHint=True, openWorldHint=True)
 mcp = FastMCP(
     "rsi-hermes-slack",
     instructions="Read Slack context visible to the RSI Slack bot token.",
@@ -467,8 +842,8 @@ def conversation_get(channel_id: str, thread_ts: str = "", limit: int = 50, page
 
 @mcp.tool(
     name="attachments_fetch",
-    description="Return Slack attachment metadata from the mirrored Honcho corpus or a precise Slack permalink. Content extraction/vision is not performed by this metadata-only tool.",
-    annotations=read_only,
+    description="Fetch Slack attachment metadata, optionally lazy-download/cache content, extract text, and persist extraction provenance into Honcho idempotently.",
+    annotations=idempotent_write,
 )
 def attachments_fetch(
     channel_id: str = "",
@@ -477,6 +852,10 @@ def attachments_fetch(
     permalink: str = "",
     limit: int = 50,
     page: int = 1,
+    include_content: bool = False,
+    analyze_images: bool = False,
+    max_bytes: int = 2_000_000,
+    analysis_prompt: str = "",
 ) -> dict[str, Any]:
     source = "honcho_slack_corpus"
     if str(permalink or "").strip():
@@ -507,19 +886,35 @@ def attachments_fetch(
         effective_thread_ts = str(metadata.get("thread_ts") or message.get("thread_ts") or thread_ts or "")
         message_permalink = str(metadata.get("permalink") or message.get("permalink") or "")
         for file in _message_files(message):
+            attachment = {
+                "source": "slack",
+                "source_channel_id": channel_id,
+                "source_thread_ts": effective_thread_ts,
+                "source_message_ts": slack_ts,
+                "source_message_id": str(message.get("id") or ""),
+                "source_message_permalink": message_permalink,
+                "file": file,
+                "content_status": "metadata_only",
+                "extraction_status": "not_requested",
+                "extraction_note": "Call attachments_fetch with include_content=true to lazily cache and extract supported attachment content.",
+            }
+            if include_content:
+                attachment.update(
+                    _fetch_and_extract_attachment(
+                        workspace_id=str(metadata.get("workspace_id") or _slack_workspace_id()),
+                        channel_id=channel_id,
+                        thread_ts=effective_thread_ts,
+                        message_ts=slack_ts,
+                        message_permalink=message_permalink,
+                        message_id=str(message.get("id") or ""),
+                        file=file,
+                        analyze_images=bool(analyze_images),
+                        max_bytes=max(1, min(int(max_bytes or 2_000_000), 10_000_000)),
+                        analysis_prompt=analysis_prompt,
+                    )
+                )
             attachments.append(
-                {
-                    "source": "slack",
-                    "source_channel_id": channel_id,
-                    "source_thread_ts": effective_thread_ts,
-                    "source_message_ts": slack_ts,
-                    "source_message_id": str(message.get("id") or ""),
-                    "source_message_permalink": message_permalink,
-                    "file": file,
-                    "content_status": "metadata_only",
-                    "extraction_status": "not_extracted",
-                    "extraction_note": "Phase 1B will add lazy blob fetch plus vision/text extraction; do not infer attachment contents from metadata alone.",
-                }
+                attachment
             )
     return {
         "source": source,

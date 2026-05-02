@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import tempfile
 from unittest import mock
 import unittest
 
@@ -218,12 +219,188 @@ class SlackMCPServerTests(unittest.TestCase):
         self.assertEqual(result["attachments"][0]["file"]["id"], "F123")
         self.assertEqual(result["attachments"][0]["content_status"], "metadata_only")
 
+    def test_attachments_fetch_extracts_text_and_persists_idempotently(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir, mock.patch.object(
+            slack_mcp_server,
+            "conversation_get",
+            return_value={
+                "messages": [
+                    {
+                        "id": "msg_1",
+                        "metadata": {
+                            "workspace_id": "T123",
+                            "channel_id": "C0AKH5SNGKH",
+                            "thread_ts": "1777650186.068179",
+                            "slack_ts": "1777650187.000000",
+                            "permalink": "https://storyprotocol.slack.com/archives/C0AKH5SNGKH/p1777650187000000",
+                            "files": [{"id": "F123", "name": "notes.txt", "mimetype": "text/plain", "filetype": "txt"}],
+                        },
+                    }
+                ]
+            },
+        ), mock.patch.object(
+            slack_mcp_server,
+            "_download_slack_file",
+            return_value=(b"hello from a cached attachment\n", {"id": "F123", "name": "notes.txt", "mimetype": "text/plain", "filetype": "txt"}),
+        ), mock.patch.object(
+            slack_mcp_server,
+            "_source_mirror_write_message",
+            return_value={"record": {"status": "complete"}, "honcho_message_id": "msg_analysis_1", "should_write": True},
+        ) as persist, mock.patch.dict(
+            "os.environ",
+            {
+                "RSI_ATTACHMENT_CACHE_ROOT": tmpdir,
+                "RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST": "C0AKH5SNGKH",
+            },
+            clear=False,
+        ):
+            result = slack_mcp_server.attachments_fetch(
+                channel_id="C0AKH5SNGKH",
+                thread_ts="1777650186.068179",
+                message_ts="1777650187.000000",
+                include_content=True,
+            )
+
+        attachment = result["attachments"][0]
+        self.assertEqual(attachment["content_status"], "cached")
+        self.assertEqual(attachment["extraction_status"], "extracted")
+        self.assertIn("hello from a cached attachment", attachment["extracted_text"])
+        self.assertNotIn("Call attachments_fetch with include_content=true", attachment["extraction_note"])
+        self.assertTrue(attachment["cache_path"].startswith(tmpdir))
+        record = persist.call_args.args[0]
+        message = persist.call_args.args[1]
+        self.assertEqual(record["source_type"], "slack_attachment_analysis")
+        self.assertEqual(record["source_key"], "slack_attachment_analysis:T123:C0AKH5SNGKH:1777650187.000000:F123:text")
+        self.assertEqual(message["peer_id"], "rsi_attachment_analyzer")
+        self.assertEqual(message["metadata"]["extraction_status"], "extracted")
+
+    def test_attachments_fetch_analyzes_image_with_configured_vision_model(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir, mock.patch.object(
+            slack_mcp_server,
+            "conversation_get",
+            return_value={
+                "messages": [
+                    {
+                        "id": "msg_1",
+                        "metadata": {
+                            "workspace_id": "T123",
+                            "channel_id": "C0AKH5SNGKH",
+                            "thread_ts": "1777650186.068179",
+                            "slack_ts": "1777650187.000000",
+                            "files": [{"id": "FIMG", "name": "screen.png", "mimetype": "image/png", "filetype": "png"}],
+                        },
+                    }
+                ]
+            },
+        ), mock.patch.object(
+            slack_mcp_server,
+            "_download_slack_file",
+            return_value=(b"\x89PNG\r\n", {"id": "FIMG", "name": "screen.png", "mimetype": "image/png", "filetype": "png"}),
+        ), mock.patch.object(
+            slack_mcp_server,
+            "_vision_analyze_image",
+            return_value={"model": "qwen/qwen3.6-flash", "text": "Screenshot says CORS error."},
+        ) as vision, mock.patch.object(
+            slack_mcp_server,
+            "_source_mirror_write_message",
+            return_value={"record": {"status": "complete"}, "honcho_message_id": "msg_analysis_2", "should_write": True},
+        ) as persist, mock.patch.dict(
+            "os.environ",
+            {
+                "RSI_ATTACHMENT_CACHE_ROOT": tmpdir,
+                "RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST": "C0AKH5SNGKH",
+            },
+            clear=False,
+        ):
+            result = slack_mcp_server.attachments_fetch(
+                channel_id="C0AKH5SNGKH",
+                thread_ts="1777650186.068179",
+                message_ts="1777650187.000000",
+                include_content=True,
+                analyze_images=True,
+                analysis_prompt="read the UI",
+            )
+
+        attachment = result["attachments"][0]
+        self.assertEqual(attachment["extraction_status"], "vision_analyzed")
+        self.assertEqual(attachment["vision_model"], "qwen/qwen3.6-flash")
+        self.assertEqual(attachment["extracted_text"], "Screenshot says CORS error.")
+        self.assertIn("auxiliary vision model", attachment["extraction_note"])
+        vision.assert_called_once()
+        record = persist.call_args.args[0]
+        self.assertEqual(record["source_key"], "slack_attachment_analysis:T123:C0AKH5SNGKH:1777650187.000000:FIMG:vision")
+        self.assertIn("model:qwen/qwen3.6-flash", record["source_revision"])
+
+    def test_attachments_fetch_records_unsupported_binary_without_fabricating_content(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir, mock.patch.object(
+            slack_mcp_server,
+            "conversation_get",
+            return_value={
+                "messages": [
+                    {
+                        "id": "msg_1",
+                        "metadata": {
+                            "workspace_id": "T123",
+                            "channel_id": "C0AKH5SNGKH",
+                            "thread_ts": "1777650186.068179",
+                            "slack_ts": "1777650187.000000",
+                            "files": [{"id": "FPDF", "name": "doc.pdf", "mimetype": "application/pdf", "filetype": "pdf"}],
+                        },
+                    }
+                ]
+            },
+        ), mock.patch.object(
+            slack_mcp_server,
+            "_download_slack_file",
+            return_value=(b"%PDF", {"id": "FPDF", "name": "doc.pdf", "mimetype": "application/pdf", "filetype": "pdf"}),
+        ), mock.patch.object(
+            slack_mcp_server,
+            "_source_mirror_write_message",
+            return_value={"record": {"status": "complete"}, "honcho_message_id": "msg_analysis_3", "should_write": True},
+        ) as persist, mock.patch.dict(
+            "os.environ",
+            {
+                "RSI_ATTACHMENT_CACHE_ROOT": tmpdir,
+                "RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST": "C0AKH5SNGKH",
+            },
+            clear=False,
+        ):
+            result = slack_mcp_server.attachments_fetch(
+                channel_id="C0AKH5SNGKH",
+                thread_ts="1777650186.068179",
+                message_ts="1777650187.000000",
+                include_content=True,
+            )
+
+        attachment = result["attachments"][0]
+        self.assertEqual(attachment["extraction_status"], "unsupported_binary")
+        self.assertNotIn("extracted_text", attachment)
+        self.assertIn("Unsupported", attachment["extraction_error"])
+        self.assertIn("no supported extractor", attachment["extraction_note"])
+        message = persist.call_args.args[1]
+        self.assertEqual(message["metadata"]["extraction_status"], "unsupported_binary")
+
     def test_honcho_api_base_uses_v3_router(self) -> None:
         with mock.patch.dict("os.environ", {"RSI_HONCHO_BASE_URL": "http://honcho.test"}, clear=False):
             self.assertEqual(slack_mcp_server._honcho_api_base_url(), "http://honcho.test/v3")
 
         with mock.patch.dict("os.environ", {"RSI_HONCHO_BASE_URL": "http://honcho.test/v3"}, clear=False):
             self.assertEqual(slack_mcp_server._honcho_api_base_url(), "http://honcho.test/v3")
+
+    def test_control_plane_base_url_requires_explicit_config(self) -> None:
+        with mock.patch.dict(
+            "os.environ",
+            {
+                "RSI_CONTROL_PLANE_BASE_URL": "",
+                "USE1_STAGE_RSI_AGENT_PLATFORM_CONTROL_PLANE_SERVICE_HOST": "172.20.190.168",
+                "USE1_STAGE_RSI_AGENT_PLATFORM_CONTROL_PLANE_SERVICE_PORT": "8080",
+            },
+            clear=False,
+        ):
+            self.assertEqual(slack_mcp_server._control_plane_base_url(), "")
+
+        with mock.patch.dict("os.environ", {"RSI_CONTROL_PLANE_BASE_URL": "http://control-plane:8080/"}, clear=False):
+            self.assertEqual(slack_mcp_server._control_plane_base_url(), "http://control-plane:8080")
 
     def test_messages_read_filters_channel_window(self) -> None:
         with mock.patch.dict("os.environ", {"RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST": "C0AKH5SNGKH"}, clear=False), mock.patch.object(slack_mcp_server, "conversation_get") as conversation_get:

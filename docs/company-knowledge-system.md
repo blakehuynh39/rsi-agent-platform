@@ -39,6 +39,17 @@ latest Honcho message ID; old Honcho messages remain historical evidence.
 
 This avoids search-before-write races and avoids direct SQL writes into Honcho.
 
+For Slack attachment analyses:
+
+- `source_type = slack_attachment_analysis`
+- `source_key = slack_attachment_analysis:{workspace}:{channel}:{slack_ts}:{file_id}:{extraction_kind}`
+- `source_revision = {extraction_kind}:sha256:{content_sha256}:status:{extraction_status}:model:{model}`
+
+Attachment bytes are lazily cached under `RSI_ATTACHMENT_CACHE_ROOT`; Honcho
+stores extracted text plus provenance, not the blob itself. Retried extraction
+uses the same `source_mirror_record` claim/complete path as Slack messages, so
+the same analyzed attachment revision creates at most one Honcho message.
+
 ## Mirror Runtime
 
 `control-plane --mode slack-mirror` performs resumable backfill over
@@ -66,3 +77,17 @@ configuration error, not an implicit grant.
 Live Slack exact-source tools (`slack_read_thread`, `slack_read_permalink`) stay
 available for freshness and ambiguity resolution. Slack `search.messages` and
 Slack user tokens are intentionally not used.
+
+## Attachment Extraction
+
+`attachments_fetch` is metadata-only by default. With `include_content=true`, it
+downloads Slack files visible to `SLACK_BOT_TOKEN`, writes an atomic lazy cache,
+and persists extracted evidence through the control-plane source mirror API.
+`RSI_CONTROL_PLANE_BASE_URL` must be configured explicitly; generated
+Kubernetes service environment variable names are not part of this contract.
+
+Supported text files are decoded as UTF-8 with replacement for invalid bytes.
+Image files require `analyze_images=true` and use OpenRouter vision with
+`RSI_ATTACHMENT_VISION_MODEL`, defaulting to `qwen/qwen3.6-flash`. Unsupported
+binary files record an explicit unsupported status and must not be summarized
+from metadata alone.

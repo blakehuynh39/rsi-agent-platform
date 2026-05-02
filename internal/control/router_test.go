@@ -92,6 +92,73 @@ func TestRuntimeObservationEndpointRejectsInvalidRecordedAt(t *testing.T) {
 	}
 }
 
+func TestSourceMirrorMessageWriteIsIdempotent(t *testing.T) {
+	honchoMessagesCreated := 0
+	honcho := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch {
+		case r.Method == http.MethodPost && r.URL.Path == "/v3/workspaces":
+			_, _ = w.Write([]byte(`{"id":"rsi_company_knowledge","metadata":{}}`))
+		case r.Method == http.MethodPost && r.URL.Path == "/v3/workspaces/rsi_company_knowledge/sessions":
+			_, _ = w.Write([]byte(`{"id":"slack_T123_C123_1710000000_000000","workspace_id":"rsi_company_knowledge","metadata":{}}`))
+		case r.Method == http.MethodPost && r.URL.Path == "/v3/workspaces/rsi_company_knowledge/sessions/slack_T123_C123_1710000000_000000/messages":
+			honchoMessagesCreated++
+			_, _ = w.Write([]byte(`[{"id":"msg_analysis_1","content":"extracted text","peer_id":"rsi_attachment_analyzer"}]`))
+		default:
+			t.Fatalf("unexpected honcho request %s %s", r.Method, r.URL.Path)
+		}
+	}))
+	defer honcho.Close()
+
+	store := storepkg.NewMemoryStore()
+	router := NewRouter(config.Config{
+		ServiceName:   "control-plane",
+		Environment:   "stage",
+		HonchoBaseURL: honcho.URL,
+	}, store)
+	body := `{
+		"record":{
+			"source_type":"slack_attachment_analysis",
+			"source_key":"slack_attachment_analysis:T123:C123:1710000000.000000:F123:text",
+			"workspace":"T123",
+			"environment":"stage",
+			"source_session_key":"slack:T123:C123:1710000000.000000",
+			"honcho_workspace":"rsi_company_knowledge",
+			"honcho_session_id":"slack_T123_C123_1710000000_000000",
+			"source_revision":"text:sha256:abc123",
+			"metadata":{"source":"slack_attachment_analysis"}
+		},
+		"message":{
+			"content":"extracted text",
+			"peer_id":"rsi_attachment_analyzer",
+			"metadata":{"extraction_status":"extracted"}
+		}
+	}`
+
+	first := httptest.NewRecorder()
+	router.ServeHTTP(first, httptest.NewRequest(http.MethodPost, "/internal/source-mirror/messages", bytes.NewBufferString(body)))
+	if first.Code != http.StatusCreated {
+		responseBody, _ := io.ReadAll(first.Body)
+		t.Fatalf("first write status = %d: %s", first.Code, string(responseBody))
+	}
+	second := httptest.NewRecorder()
+	router.ServeHTTP(second, httptest.NewRequest(http.MethodPost, "/internal/source-mirror/messages", bytes.NewBufferString(body)))
+	if second.Code != http.StatusOK {
+		responseBody, _ := io.ReadAll(second.Body)
+		t.Fatalf("second write status = %d: %s", second.Code, string(responseBody))
+	}
+	if honchoMessagesCreated != 1 {
+		t.Fatalf("expected one Honcho message create, got %d", honchoMessagesCreated)
+	}
+	var out sourceMirrorMessageWriteResponse
+	if err := json.NewDecoder(second.Body).Decode(&out); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
+	if out.ShouldWrite || out.Reason != "already_complete" || out.HonchoMessageID != "msg_analysis_1" {
+		t.Fatalf("unexpected idempotent response: %+v", out)
+	}
+}
+
 func prepareProposalAttemptForWebhookTest(t *testing.T, store *storepkg.MemoryStore, proposal review.Proposal, mode string) (review.Proposal, improvement.ChangeAttempt) {
 	t.Helper()
 
