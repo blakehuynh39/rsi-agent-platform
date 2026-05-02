@@ -2,6 +2,8 @@ package clients
 
 import (
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/piplabs/rsi-agent-platform/internal/harness"
@@ -13,12 +15,21 @@ type HonchoRuntimeResponse = harness.HonchoRuntimeResponse
 
 type HonchoClient struct {
 	baseURL    string
+	apiBaseURL string
+	apiKey     string
 	httpClient *http.Client
 }
 
 func NewHonchoClient(baseURL string) *HonchoClient {
+	return NewHonchoClientWithAPIKey(baseURL, "")
+}
+
+func NewHonchoClientWithAPIKey(baseURL string, apiKey string) *HonchoClient {
+	baseURL = trimBaseURL(baseURL)
 	return &HonchoClient{
-		baseURL:    trimBaseURL(baseURL),
+		baseURL:    baseURL,
+		apiBaseURL: honchoAPIBaseURL(baseURL),
+		apiKey:     strings.TrimSpace(apiKey),
 		httpClient: newHTTPClient(15 * time.Second),
 	}
 }
@@ -32,4 +43,134 @@ func (c *HonchoClient) Runtime() (HonchoRuntimeResponse, error) {
 		out.DialecticLevels = map[string]HonchoDialecticLevel{}
 	}
 	return out, nil
+}
+
+type HonchoWorkspace struct {
+	ID        string         `json:"id"`
+	Metadata  map[string]any `json:"metadata,omitempty"`
+	CreatedAt time.Time      `json:"created_at,omitempty"`
+}
+
+type HonchoSession struct {
+	ID          string         `json:"id"`
+	WorkspaceID string         `json:"workspace_id,omitempty"`
+	Metadata    map[string]any `json:"metadata,omitempty"`
+	CreatedAt   time.Time      `json:"created_at,omitempty"`
+}
+
+type HonchoMessage struct {
+	ID          string         `json:"id"`
+	Content     string         `json:"content"`
+	PeerID      string         `json:"peer_id"`
+	SessionID   string         `json:"session_id,omitempty"`
+	WorkspaceID string         `json:"workspace_id,omitempty"`
+	Metadata    map[string]any `json:"metadata,omitempty"`
+	CreatedAt   time.Time      `json:"created_at,omitempty"`
+	TokenCount  int            `json:"token_count,omitempty"`
+}
+
+type HonchoPage[T any] struct {
+	Items []T `json:"items"`
+	Page  int `json:"page"`
+	Size  int `json:"size"`
+	Pages int `json:"pages"`
+	Total int `json:"total"`
+}
+
+type HonchoMessageCreate struct {
+	Content   string         `json:"content"`
+	PeerID    string         `json:"peer_id"`
+	Metadata  map[string]any `json:"metadata,omitempty"`
+	CreatedAt *time.Time     `json:"created_at,omitempty"`
+}
+
+func (c *HonchoClient) EnsureWorkspace(id string, metadata map[string]any) (HonchoWorkspace, error) {
+	var out HonchoWorkspace
+	payload := map[string]any{
+		"id":       id,
+		"metadata": metadata,
+	}
+	if err := c.doJSON(http.MethodPost, c.apiBaseURL+"/workspaces", payload, &out); err != nil {
+		return HonchoWorkspace{}, err
+	}
+	return out, nil
+}
+
+func (c *HonchoClient) EnsureSession(workspaceID string, sessionID string, metadata map[string]any) (HonchoSession, error) {
+	var out HonchoSession
+	payload := map[string]any{
+		"id":       sessionID,
+		"metadata": metadata,
+	}
+	if err := c.doJSON(http.MethodPost, c.apiBaseURL+"/workspaces/"+workspaceID+"/sessions", payload, &out); err != nil {
+		return HonchoSession{}, err
+	}
+	return out, nil
+}
+
+func (c *HonchoClient) CreateMessages(workspaceID string, sessionID string, messages []HonchoMessageCreate) ([]HonchoMessage, error) {
+	var out []HonchoMessage
+	payload := map[string]any{"messages": messages}
+	if err := c.doJSON(http.MethodPost, c.apiBaseURL+"/workspaces/"+workspaceID+"/sessions/"+sessionID+"/messages", payload, &out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *HonchoClient) ListMessages(workspaceID string, sessionID string, limit int, page int, reverse bool) (HonchoPage[HonchoMessage], error) {
+	if limit <= 0 {
+		limit = 50
+	}
+	if page <= 0 {
+		page = 1
+	}
+	url := c.apiBaseURL + "/workspaces/" + workspaceID + "/sessions/" + sessionID + "/messages/list?size=" + intString(limit) + "&page=" + intString(page)
+	if reverse {
+		url += "&reverse=true"
+	}
+	var out HonchoPage[HonchoMessage]
+	if err := c.doJSON(http.MethodPost, url, map[string]any{}, &out); err != nil {
+		return HonchoPage[HonchoMessage]{}, err
+	}
+	return out, nil
+}
+
+func (c *HonchoClient) SearchMessages(workspaceID string, query string, filters map[string]any, limit int) ([]HonchoMessage, error) {
+	if limit <= 0 {
+		limit = 10
+	}
+	payload := map[string]any{
+		"query":   query,
+		"filters": filters,
+		"limit":   limit,
+	}
+	var out []HonchoMessage
+	if err := c.doJSON(http.MethodPost, c.apiBaseURL+"/workspaces/"+workspaceID+"/search", payload, &out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *HonchoClient) doJSON(method string, url string, payload any, out any) error {
+	headers := map[string]string{}
+	if c.apiKey != "" {
+		if strings.HasPrefix(strings.ToLower(c.apiKey), "bearer ") {
+			headers["Authorization"] = c.apiKey
+		} else {
+			headers["Authorization"] = "Bearer " + c.apiKey
+		}
+	}
+	return doJSONWithHeaders(c.httpClient, method, url, payload, out, "honcho", headers)
+}
+
+func intString(value int) string {
+	return strconv.Itoa(value)
+}
+
+func honchoAPIBaseURL(baseURL string) string {
+	baseURL = trimBaseURL(baseURL)
+	if strings.HasSuffix(baseURL, "/v3") {
+		return baseURL
+	}
+	return baseURL + "/v3"
 }

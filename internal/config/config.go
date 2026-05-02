@@ -31,6 +31,9 @@ type Config struct {
 	RunnerBaseURL                      string
 	HermesExecutorBaseURL              string
 	HermesExecutorPoolURLs             []string
+	HonchoBaseURL                      string
+	HonchoAPIKey                       string
+	HonchoWorkspaceID                  string
 	ProdRunnerBaseURL                  string
 	ProactiveRunnerBaseURL             string
 	EvalRunnerBaseURL                  string
@@ -53,6 +56,10 @@ type Config struct {
 	SlackSocketModeEnabled             bool
 	SlackAppToken                      string
 	SlackBotToken                      string
+	SlackMirrorEnabled                 bool
+	SlackMirrorChannelAllowlist        []string
+	SourceMirrorCheckpointRoot         string
+	AttachmentCacheRoot                string
 	SlackMCPEnabled                    bool
 	SlackMCPServerURL                  string
 	NotionMCPEnabled                   bool
@@ -149,6 +156,9 @@ func Load(serviceName string) Config {
 		RunnerBaseURL:                      runnerBaseURL,
 		HermesExecutorBaseURL:              stringEnv("RSI_HERMES_EXECUTOR_BASE_URL", ""),
 		HermesExecutorPoolURLs:             listEnv("RSI_HERMES_EXECUTOR_POOL_URLS"),
+		HonchoBaseURL:                      stringEnv("RSI_HONCHO_BASE_URL", ""),
+		HonchoAPIKey:                       stringEnv("HONCHO_API_KEY", ""),
+		HonchoWorkspaceID:                  stringEnv("RSI_HONCHO_WORKSPACE_ID", "rsi_company_knowledge"),
 		ProdRunnerBaseURL:                  stringEnv("RSI_RUNNER_PROD_BASE_URL", ""),
 		ProactiveRunnerBaseURL:             stringEnv("RSI_RUNNER_PROACTIVE_BASE_URL", ""),
 		EvalRunnerBaseURL:                  stringEnv("RSI_RUNNER_EVAL_BASE_URL", ""),
@@ -171,6 +181,10 @@ func Load(serviceName string) Config {
 		SlackSocketModeEnabled:             boolEnv("RSI_SLACK_SOCKET_MODE_ENABLED", false),
 		SlackAppToken:                      stringEnv("RSI_SLACK_APP_TOKEN", ""),
 		SlackBotToken:                      stringEnv("SLACK_BOT_TOKEN", ""),
+		SlackMirrorEnabled:                 boolEnv("RSI_SLACK_MIRROR_ENABLED", false),
+		SlackMirrorChannelAllowlist:        listEnv("RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST"),
+		SourceMirrorCheckpointRoot:         stringEnv("RSI_SOURCE_MIRROR_CHECKPOINT_ROOT", "/var/lib/hermes/source-mirror"),
+		AttachmentCacheRoot:                stringEnv("RSI_ATTACHMENT_CACHE_ROOT", "/var/lib/hermes/attachments"),
 		SlackMCPEnabled:                    boolEnv("RSI_SLACK_MCP_ENABLED", false),
 		SlackMCPServerURL:                  stringEnv("RSI_SLACK_MCP_SERVER_URL", "http://127.0.0.1:8092/mcp"),
 		NotionMCPEnabled:                   boolEnv("RSI_NOTION_MCP_ENABLED", false),

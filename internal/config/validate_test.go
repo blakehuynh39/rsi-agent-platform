@@ -89,6 +89,41 @@ func TestSlackSurfaceValidationRequiresSlackContract(t *testing.T) {
 	}
 }
 
+func TestSlackMirrorValidationRequiresHonchoAndMirrorContract(t *testing.T) {
+	cfg := validControlPlaneConfig()
+
+	_, err := cfg.ValidatedFor("control-plane", "slack-mirror")
+	if err == nil {
+		t.Fatal("expected slack-mirror validation error")
+	}
+	message := err.Error()
+	for _, required := range []string{
+		"RSI_SLACK_MIRROR_ENABLED must be true",
+		"SLACK_BOT_TOKEN is required",
+		"RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST is required",
+		"RSI_HONCHO_BASE_URL is required",
+		"RSI_HONCHO_WORKSPACE_ID is required",
+	} {
+		if !strings.Contains(message, required) {
+			t.Fatalf("expected %q in validation message, got %s", required, message)
+		}
+	}
+}
+
+func TestSlackMirrorValidationAcceptsConfiguredContract(t *testing.T) {
+	cfg := validControlPlaneConfig()
+	cfg.SlackMirrorEnabled = true
+	cfg.SlackBotToken = "xoxb-token"
+	cfg.SlackMirrorChannelAllowlist = []string{"C0AKH5SNGKH"}
+	cfg.HonchoBaseURL = "http://use1-stage-rsi-agent-platform-honcho-api:8000"
+	cfg.HonchoWorkspaceID = "rsi_company_knowledge"
+	cfg.SourceMirrorCheckpointRoot = "/var/lib/hermes/source-mirror"
+
+	if _, err := cfg.ValidatedFor("control-plane", "slack-mirror"); err != nil {
+		t.Fatalf("ValidatedFor() error = %v", err)
+	}
+}
+
 func TestImprovementPlaneValidationRequiresExplicitPromoterInterval(t *testing.T) {
 	cfg := Config{
 		ServiceName:               "improvement-plane",

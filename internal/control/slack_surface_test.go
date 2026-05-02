@@ -11,6 +11,8 @@ import (
 	"github.com/slack-go/slack/slackevents"
 
 	"github.com/piplabs/rsi-agent-platform/internal/app"
+	"github.com/piplabs/rsi-agent-platform/internal/clients"
+	"github.com/piplabs/rsi-agent-platform/internal/companyknowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
@@ -24,6 +26,23 @@ type fakeSlackPost struct {
 type fakeSlackPoster struct {
 	calls []fakeSlackPost
 	err   error
+}
+
+type fakeSurfaceHonchoCorpus struct {
+	createCalls int
+}
+
+func (f *fakeSurfaceHonchoCorpus) EnsureWorkspace(id string, metadata map[string]any) (clients.HonchoWorkspace, error) {
+	return clients.HonchoWorkspace{ID: id, Metadata: metadata}, nil
+}
+
+func (f *fakeSurfaceHonchoCorpus) EnsureSession(workspaceID string, sessionID string, metadata map[string]any) (clients.HonchoSession, error) {
+	return clients.HonchoSession{ID: sessionID, WorkspaceID: workspaceID, Metadata: metadata}, nil
+}
+
+func (f *fakeSurfaceHonchoCorpus) CreateMessages(workspaceID string, sessionID string, messages []clients.HonchoMessageCreate) ([]clients.HonchoMessage, error) {
+	f.createCalls++
+	return []clients.HonchoMessage{{ID: "msg_surface_1", WorkspaceID: workspaceID, SessionID: sessionID}}, nil
 }
 
 func (f *fakeSlackPoster) PostMessageContext(_ context.Context, channelID string, options ...slack.MsgOption) (string, string, error) {
@@ -227,6 +246,60 @@ func TestSlackSurfaceIgnoresAmbientMessageEvents(t *testing.T) {
 
 	if got := len(store.ListIngestions()); got != before {
 		t.Fatalf("expected no new ingestions for ambient messages, before=%d after=%d", before, got)
+	}
+}
+
+func TestSlackSurfaceMirrorsAmbientAllowlistedMessagesWithoutIngress(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	honcho := &fakeSurfaceHonchoCorpus{}
+	runtime := newSlackSurfaceRuntime(config.Config{
+		SlackAppIdentity:            "rsi",
+		SlackMirrorEnabled:          true,
+		SlackMirrorChannelAllowlist: []string{"C123"},
+		HonchoWorkspaceID:           "rsi_company_knowledge",
+		HonchoBaseURL:               "http://honcho.test",
+		Environment:                 "stage",
+	}, store)
+	runtime.mirror = companyknowledge.NewSlackMirror(store, honcho, companyknowledge.SlackMirrorOptions{
+		Environment:     "stage",
+		HonchoWorkspace: "rsi_company_knowledge",
+	})
+	before := len(store.ListIngestions())
+
+	runtime.mirrorSlackMessageEvent("T123", "Ev123", &slackevents.MessageEvent{
+		Channel:        "C123",
+		User:           "U123",
+		Text:           "ambient channel message relevant to later RSI work",
+		TimeStamp:      "171000001.000100",
+		EventTimeStamp: "171000001.000101",
+	})
+
+	sourceKey := companyknowledge.SlackMessageSourceKey("T123", "C123", "171000001.000100")
+	deadline := time.Now().Add(2 * time.Second)
+	var record storepkg.SourceMirrorRecord
+	var found bool
+	for time.Now().Before(deadline) {
+		var err error
+		record, found, err = store.GetSourceMirrorRecord(companyknowledge.SlackMessageSourceType, sourceKey)
+		if err != nil {
+			t.Fatalf("GetSourceMirrorRecord() error = %v", err)
+		}
+		if found && record.Status == storepkg.SourceMirrorStatusComplete {
+			break
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	if !found || record.Status != storepkg.SourceMirrorStatusComplete {
+		t.Fatalf("expected completed source mirror record, found=%v record=%#v", found, record)
+	}
+	if got := len(store.ListIngestions()); got != before {
+		t.Fatalf("ambient mirror should not create RSI ingress, before=%d after=%d", before, got)
+	}
+	if honcho.createCalls != 1 {
+		t.Fatalf("CreateMessages calls = %d, want 1", honcho.createCalls)
+	}
+	if record.Metadata["event_id"] != "Ev123" {
+		t.Fatalf("metadata event_id = %#v, want Ev123", record.Metadata["event_id"])
 	}
 }
 

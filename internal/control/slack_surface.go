@@ -18,6 +18,8 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/piplabs/rsi-agent-platform/internal/app"
+	"github.com/piplabs/rsi-agent-platform/internal/clients"
+	"github.com/piplabs/rsi-agent-platform/internal/companyknowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/debuglog"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
@@ -44,6 +46,11 @@ func RunSlackSurface(cfg config.Config, store storepkg.Store) error {
 	}
 	if strings.TrimSpace(cfg.SlackBotToken) == "" {
 		return errors.New("slack-surface mode requires SLACK_BOT_TOKEN")
+	}
+	if cfg.SlackMirrorEnabled {
+		if _, ok := store.(storepkg.SourceMirrorWriteStore); !ok {
+			return errors.New("slack-surface mirror requires a source-mirror-capable store")
+		}
 	}
 
 	if cfg.DrainEnabled {
@@ -93,6 +100,7 @@ type slackSurfaceRuntime struct {
 	client      *socketmode.Client
 	slackAPI    slackMessagePoster
 	resolver    slackpkg.EntityResolver
+	mirror      *companyknowledge.SlackMirror
 	allowedChan map[string]struct{}
 }
 
@@ -105,12 +113,28 @@ func newSlackSurfaceRuntime(cfg config.Config, store storepkg.Store) *slackSurfa
 			allowed[channelID] = struct{}{}
 		}
 	}
+	var mirror *companyknowledge.SlackMirror
+	if cfg.SlackMirrorEnabled {
+		mirrorStore, ok := store.(storepkg.SourceMirrorWriteStore)
+		if !ok {
+			panic("unreachable: slack mirror enabled but store does not support source mirror idempotency")
+		}
+		mirror = companyknowledge.NewSlackMirror(
+			mirrorStore,
+			clients.NewHonchoClientWithAPIKey(cfg.HonchoBaseURL, cfg.HonchoAPIKey),
+			companyknowledge.SlackMirrorOptions{
+				Environment:     cfg.Environment,
+				HonchoWorkspace: cfg.HonchoWorkspaceID,
+			},
+		)
+	}
 	return &slackSurfaceRuntime{
 		cfg:         cfg,
 		store:       store,
 		client:      socketmode.New(api),
 		slackAPI:    api,
 		resolver:    slackpkg.NewEntityResolver(cfg.SlackBotToken),
+		mirror:      mirror,
 		allowedChan: allowed,
 	}
 }
@@ -177,11 +201,13 @@ func (s *slackSurfaceRuntime) handleEventsAPIEvent(ctx context.Context, eventsAP
 	if eventsAPIEvent.Type != slackevents.CallbackEvent {
 		return true
 	}
+	eventID := slackEventsAPIEventID(eventsAPIEvent)
 	switch event := eventsAPIEvent.InnerEvent.Data.(type) {
 	case *slackevents.AppMentionEvent:
 		if event == nil {
 			return true
 		}
+		s.mirrorSlackAppMentionEvent(eventsAPIEvent.TeamID, eventID, event)
 		envelope, ok := s.buildMentionEnvelope(eventsAPIEvent.TeamID, event)
 		if !ok {
 			return true
@@ -215,6 +241,7 @@ func (s *slackSurfaceRuntime) handleEventsAPIEvent(ctx context.Context, eventsAP
 		if event == nil {
 			return true
 		}
+		s.mirrorSlackMessageEvent(eventsAPIEvent.TeamID, eventID, event)
 		envelope, ok := s.buildDirectMessageEnvelope(eventsAPIEvent.TeamID, event)
 		if !ok {
 			return true
@@ -247,6 +274,118 @@ func (s *slackSurfaceRuntime) handleEventsAPIEvent(ctx context.Context, eventsAP
 	default:
 		return true
 	}
+}
+
+func slackEventsAPIEventID(event slackevents.EventsAPIEvent) string {
+	switch data := event.Data.(type) {
+	case slackevents.EventsAPICallbackEvent:
+		return strings.TrimSpace(data.EventID)
+	case *slackevents.EventsAPICallbackEvent:
+		if data != nil {
+			return strings.TrimSpace(data.EventID)
+		}
+	case map[string]any:
+		if value, ok := data["event_id"].(string); ok {
+			return strings.TrimSpace(value)
+		}
+	}
+	return ""
+}
+
+func (s *slackSurfaceRuntime) mirrorSlackAppMentionEvent(teamID string, eventID string, event *slackevents.AppMentionEvent) {
+	if s == nil || s.mirror == nil || event == nil {
+		return
+	}
+	if !s.slackMirrorChannelAllowed(event.Channel) {
+		return
+	}
+	input := companyknowledge.SlackMessageInput{
+		WorkspaceID: firstNonEmpty(event.SourceTeam, event.UserTeam, teamID),
+		ChannelID:   event.Channel,
+		TS:          event.TimeStamp,
+		ThreadTS:    event.ThreadTimeStamp,
+		UserID:      event.User,
+		BotID:       event.BotID,
+		Text:        event.Text,
+		EventID:     firstNonEmpty(eventID, event.EventTimeStamp),
+		Files:       slackFileMetadata(event.Files),
+		CreatedAt:   companyknowledge.SlackTimestampToTime(event.TimeStamp),
+	}
+	if event.Edited != nil {
+		input.EditedTS = event.Edited.TimeStamp
+	}
+	go s.mirrorSlackInput(input)
+}
+
+func (s *slackSurfaceRuntime) mirrorSlackMessageEvent(teamID string, eventID string, event *slackevents.MessageEvent) {
+	if s == nil || s.mirror == nil || event == nil {
+		return
+	}
+	if !s.slackMirrorChannelAllowed(event.Channel) {
+		return
+	}
+	msg := slack.Message{}
+	if event.Message != nil {
+		msg.Msg = *event.Message
+	} else {
+		msg.Msg = slack.Msg{
+			Type:            event.Type,
+			Channel:         event.Channel,
+			User:            event.User,
+			Text:            event.Text,
+			Timestamp:       event.TimeStamp,
+			ThreadTimestamp: event.ThreadTimeStamp,
+			SubType:         event.SubType,
+			BotID:           event.BotID,
+			Username:        event.Username,
+			Permalink:       event.Permalink,
+		}
+	}
+	if strings.TrimSpace(msg.Channel) == "" {
+		msg.Channel = event.Channel
+	}
+	input := slackInputFromMessage(firstNonEmpty(event.SourceTeam, event.UserTeam, teamID), event.Channel, msg, firstNonEmpty(eventID, event.EventTimeStamp))
+	go s.mirrorSlackInput(input)
+}
+
+func (s *slackSurfaceRuntime) mirrorSlackInput(input companyknowledge.SlackMessageInput) {
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+	if _, err := s.mirror.IngestMessage(ctx, input); err != nil {
+		log.Printf("slack-surface identity=%s mirror failed channel=%s ts=%s error=%v", s.cfg.SlackAppIdentity, input.ChannelID, input.TS, err)
+	}
+}
+
+func (s *slackSurfaceRuntime) slackMirrorChannelAllowed(channelID string) bool {
+	if strings.TrimSpace(channelID) == "" {
+		return false
+	}
+	allowed := uniqueNonEmpty(s.cfg.SlackMirrorChannelAllowlist)
+	if len(allowed) == 0 {
+		return true
+	}
+	for _, item := range allowed {
+		if item == channelID {
+			return true
+		}
+	}
+	return false
+}
+
+func slackFileMetadata(files []slack.File) []companyknowledge.SlackFileMetadata {
+	out := make([]companyknowledge.SlackFileMetadata, 0, len(files))
+	for _, file := range files {
+		out = append(out, companyknowledge.SlackFileMetadata{
+			ID:        file.ID,
+			Name:      file.Name,
+			Title:     file.Title,
+			MimeType:  file.Mimetype,
+			FileType:  file.Filetype,
+			Size:      file.Size,
+			Permalink: file.Permalink,
+		})
+	}
+	return out
 }
 
 func (s *slackSurfaceRuntime) postOperatorTraceACK(parentCtx context.Context, ingestion slackpkg.Ingestion) {

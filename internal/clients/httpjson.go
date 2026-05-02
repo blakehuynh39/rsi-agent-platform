@@ -22,6 +22,10 @@ func trimBaseURL(baseURL string) string {
 }
 
 func doJSON(client *http.Client, method string, url string, payload any, out any, service string) error {
+	return doJSONWithHeaders(client, method, url, payload, out, service, nil)
+}
+
+func doJSONWithHeaders(client *http.Client, method string, url string, payload any, out any, service string, headers map[string]string) error {
 	var body io.Reader
 	if payload != nil {
 		encoded, err := json.Marshal(payload)
@@ -35,6 +39,12 @@ func doJSON(client *http.Client, method string, url string, payload any, out any
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
+	for key, value := range headers {
+		if strings.TrimSpace(key) == "" || strings.TrimSpace(value) == "" {
+			continue
+		}
+		req.Header.Set(key, value)
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		return err

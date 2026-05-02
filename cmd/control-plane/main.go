@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 
@@ -12,7 +13,7 @@ import (
 )
 
 func main() {
-	mode := flag.String("mode", "serve", "serve, slack-surface, worker, or action-worker")
+	mode := flag.String("mode", "serve", "serve, slack-surface, slack-mirror, worker, or action-worker")
 	flag.Parse()
 
 	cfg, err := config.Load("control-plane").ValidatedFor("control-plane", *mode)
@@ -30,6 +31,12 @@ func main() {
 	}
 	if *mode == "slack-surface" {
 		if err := control.RunSlackSurface(cfg, store); err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
+	if *mode == "slack-mirror" {
+		if err := control.RunSlackMirror(context.Background(), cfg, store); err != nil {
 			log.Fatal(err)
 		}
 		return

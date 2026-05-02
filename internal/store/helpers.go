@@ -19,6 +19,7 @@ type Repository = Store
 func newEmptyMemoryStore() *MemoryStore {
 	return &MemoryStore{
 		threadPolicies:         map[string]policy.ThreadPolicy{},
+		sourceMirrorRecords:    map[string]SourceMirrorRecord{},
 		conversations:          map[string]conversation.Conversation{},
 		cases:                  map[string]conversation.Case{},
 		workflowLines:          map[string]WorkflowLine{},

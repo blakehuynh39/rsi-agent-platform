@@ -44,6 +44,9 @@ func (c Config) DependencyTargets() map[string]string {
 	if c.HonchoRuntimeBaseURL != "" {
 		targets["honcho_runtime"] = c.HonchoRuntimeBaseURL
 	}
+	if c.HonchoBaseURL != "" {
+		targets["honcho"] = c.HonchoBaseURL
+	}
 	if c.ProdRunnerBaseURL != "" {
 		targets["runner_prod"] = c.ProdRunnerBaseURL
 	}
@@ -79,6 +82,10 @@ func (c Config) validate() []string {
 
 func (c Config) validateControlPlane(issues *[]string) {
 	c.validateCommonPlaneConfig(issues)
+	if c.RuntimeMode == "slack-mirror" {
+		c.validateSlackMirror(issues)
+		return
+	}
 	if len(c.HermesExecutorURLs()) == 0 {
 		addRequiredURL(issues, "RSI_RUNNER_PROD_BASE_URL", c.ProdRunnerBaseURL, c.nonLocalhostRequired())
 		addRequiredURL(issues, "RSI_RUNNER_PROACTIVE_BASE_URL", c.ProactiveRunnerBaseURL, c.nonLocalhostRequired())
@@ -105,7 +112,21 @@ func (c Config) validateControlPlane(issues *[]string) {
 		addRequiredString(issues, "RSI_SLACK_APP_TOKEN", c.SlackAppToken)
 		addRequiredString(issues, "SLACK_BOT_TOKEN", c.SlackBotToken)
 		addRequiredList(issues, "RSI_ALLOWED_SLACK_CHANNEL_IDS", c.AllowedSlackChannelIDs)
+		if c.SlackMirrorEnabled {
+			c.validateSlackMirror(issues)
+		}
 	}
+}
+
+func (c Config) validateSlackMirror(issues *[]string) {
+	if !c.SlackMirrorEnabled {
+		*issues = append(*issues, "RSI_SLACK_MIRROR_ENABLED must be true")
+	}
+	addRequiredString(issues, "SLACK_BOT_TOKEN", c.SlackBotToken)
+	addRequiredList(issues, "RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST", c.SlackMirrorChannelAllowlist)
+	addRequiredURL(issues, "RSI_HONCHO_BASE_URL", c.HonchoBaseURL, c.nonLocalhostRequired())
+	addRequiredString(issues, "RSI_HONCHO_WORKSPACE_ID", c.HonchoWorkspaceID)
+	addRequiredString(issues, "RSI_SOURCE_MIRROR_CHECKPOINT_ROOT", c.SourceMirrorCheckpointRoot)
 }
 
 func (c Config) validateImprovementPlane(issues *[]string) {

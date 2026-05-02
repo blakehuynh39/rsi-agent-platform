@@ -127,6 +127,7 @@ type Store interface {
 type MemoryStore struct {
 	mu                           contextRWMutex
 	events                       []ingestion.EventEnvelope
+	sourceMirrorRecords          map[string]SourceMirrorRecord
 	conversations                map[string]conversation.Conversation
 	conversationEntries          []conversation.Entry
 	cases                        map[string]conversation.Case
@@ -191,6 +192,7 @@ func (s *MemoryStore) ResetAppData() (AppDataResetResult, error) {
 
 	replacement := newEmptyMemoryStore()
 	s.events = replacement.events
+	s.sourceMirrorRecords = replacement.sourceMirrorRecords
 	s.conversations = replacement.conversations
 	s.conversationEntries = replacement.conversationEntries
 	s.cases = replacement.cases

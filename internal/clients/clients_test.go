@@ -85,3 +85,31 @@ func TestHonchoClientRuntimeInitializesEmptyDialecticLevels(t *testing.T) {
 		t.Fatal("expected DialecticLevels to be initialized")
 	}
 }
+
+func TestHonchoClientCorpusAPIsUseV3AndAuthorization(t *testing.T) {
+	errCh := make(chan error, 1)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/v3/workspaces" {
+			errCh <- fmt.Errorf("unexpected path %s", r.URL.Path)
+			http.Error(w, "unexpected request", http.StatusBadRequest)
+			return
+		}
+		if got := r.Header.Get("Authorization"); got != "Bearer honcho-key" {
+			errCh <- fmt.Errorf("authorization header = %q", got)
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{"id": "rsi_company_knowledge"})
+	}))
+	defer server.Close()
+
+	client := NewHonchoClientWithAPIKey(server.URL, "honcho-key")
+	if _, err := client.EnsureWorkspace("rsi_company_knowledge", nil); err != nil {
+		t.Fatalf("EnsureWorkspace() error = %v", err)
+	}
+	select {
+	case handlerErr := <-errCh:
+		t.Fatal(handlerErr)
+	default:
+	}
+}
