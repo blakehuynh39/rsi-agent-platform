@@ -51,7 +51,7 @@ def _honcho_headers() -> dict[str, str]:
     return headers
 
 
-def _honcho_api(method: str, path: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
+def _honcho_api_raw(method: str, path: str, payload: dict[str, Any] | None = None) -> Any:
     base_url = _honcho_api_base_url()
     if not base_url:
         raise RuntimeError("RSI_HONCHO_BASE_URL is not configured")
@@ -65,7 +65,11 @@ def _honcho_api(method: str, path: str, payload: dict[str, Any] | None = None) -
         method=method,
     )
     with urllib.request.urlopen(req, timeout=20) as resp:
-        decoded = json.loads(resp.read().decode("utf-8"))
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def _honcho_api(method: str, path: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
+    decoded = _honcho_api_raw(method, path, payload)
     if not isinstance(decoded, dict):
         raise RuntimeError(f"Honcho API {path} returned a non-object response")
     return decoded
@@ -136,6 +140,26 @@ def _normalize_messages(messages: Any) -> list[dict[str, Any]]:
                 "thread_ts": item.get("thread_ts", ""),
                 "reply_count": item.get("reply_count", 0),
                 "permalink": item.get("permalink", ""),
+                "files": _normalize_files(item.get("files")),
+            }
+        )
+    return out
+
+
+def _normalize_files(files: Any) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for item in files if isinstance(files, list) else []:
+        if not isinstance(item, dict):
+            continue
+        out.append(
+            {
+                "id": str(item.get("id") or ""),
+                "name": str(item.get("name") or ""),
+                "title": str(item.get("title") or ""),
+                "mimetype": str(item.get("mimetype") or item.get("mime_type") or ""),
+                "filetype": str(item.get("filetype") or item.get("file_type") or ""),
+                "size": item.get("size") or 0,
+                "permalink": str(item.get("permalink") or ""),
             }
         )
     return out
@@ -169,13 +193,67 @@ def _honcho_session_id_for_source(source_session_key: str) -> str:
 
 
 def _allowlisted_channel(channel_id: str) -> bool:
-    configured = [item.strip() for item in _env("RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST").split(",") if item.strip()]
+    configured = _allowlisted_channels()
     return bool(configured) and channel_id in configured
+
+
+def _allowlisted_channels() -> list[str]:
+    return [item.strip() for item in _env("RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST").split(",") if item.strip()]
 
 
 def _message_slack_ts(message: dict[str, Any]) -> str:
     metadata = message.get("metadata") if isinstance(message.get("metadata"), dict) else {}
     return str(metadata.get("slack_ts") or "")
+
+
+def _message_metadata(message: dict[str, Any]) -> dict[str, Any]:
+    metadata = message.get("metadata")
+    return metadata if isinstance(metadata, dict) else {}
+
+
+def _message_files(message: dict[str, Any]) -> list[dict[str, Any]]:
+    metadata = _message_metadata(message)
+    files = metadata.get("files")
+    if not files:
+        files = message.get("files")
+    return _normalize_files(files)
+
+
+def _parse_source_session_key(source_session_key: str) -> dict[str, str]:
+    parts = str(source_session_key or "").split(":")
+    if len(parts) < 4 or parts[0] != "slack":
+        return {"workspace_id": "", "channel_id": "", "thread_ts": "", "conversation_type": ""}
+    tail = ":".join(parts[3:])
+    return {
+        "workspace_id": parts[1],
+        "channel_id": parts[2],
+        "thread_ts": "" if tail == "channel" else tail,
+        "conversation_type": "channel" if tail == "channel" else "thread",
+    }
+
+
+def _session_metadata(session: dict[str, Any]) -> dict[str, Any]:
+    metadata = session.get("metadata")
+    return metadata if isinstance(metadata, dict) else {}
+
+
+def _normalize_session(session: dict[str, Any]) -> dict[str, Any] | None:
+    metadata = _session_metadata(session)
+    source_session_key = str(metadata.get("source_session_key") or "")
+    parsed = _parse_source_session_key(source_session_key)
+    channel_id = str(parsed.get("channel_id") or "")
+    if not channel_id or not _allowlisted_channel(channel_id):
+        return None
+    return {
+        "honcho_session_id": str(session.get("id") or ""),
+        "source_session_key": source_session_key,
+        "workspace_id": parsed.get("workspace_id", ""),
+        "channel_id": channel_id,
+        "thread_ts": parsed.get("thread_ts", ""),
+        "conversation_type": parsed.get("conversation_type", ""),
+        "created_at": session.get("created_at", ""),
+        "metadata": metadata,
+    }
 
 
 def _ts_in_window(ts: str, oldest_ts: str, latest_ts: str) -> bool:
@@ -184,6 +262,47 @@ def _ts_in_window(ts: str, oldest_ts: str, latest_ts: str) -> bool:
     if latest_ts and ts and ts > latest_ts:
         return False
     return True
+
+
+def _slack_message_filters(channel_id: str = "") -> dict[str, Any]:
+    metadata: dict[str, Any] = {"source": "slack"}
+    if channel_id:
+        if not _allowlisted_channel(channel_id):
+            raise RuntimeError(f"Slack channel {channel_id} is not in RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST")
+        metadata["channel_id"] = channel_id
+    else:
+        channels = _allowlisted_channels()
+        if not channels:
+            raise RuntimeError("RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST is empty")
+        metadata["channel_id"] = {"in": channels}
+    return {"metadata": metadata}
+
+
+def _slack_session_filters(channel_id: str = "") -> dict[str, Any]:
+    channel_id = str(channel_id or "").strip()
+    if channel_id:
+        if not _allowlisted_channel(channel_id):
+            raise RuntimeError(f"Slack channel {channel_id} is not in RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST")
+        return {
+            "AND": [
+                {"metadata": {"source": "slack"}},
+                {"metadata": {"source_session_key": {"icontains": f":{channel_id}:"}}},
+            ]
+        }
+    channels = _allowlisted_channels()
+    if not channels:
+        raise RuntimeError("RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST is empty")
+    return {
+        "AND": [
+            {"metadata": {"source": "slack"}},
+            {
+                "OR": [
+                    {"metadata": {"source_session_key": {"icontains": f":{allowed_channel}:"}}}
+                    for allowed_channel in channels
+                ]
+            },
+        ]
+    }
 
 
 read_only = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=True)
@@ -243,6 +362,77 @@ def slack_read_permalink(permalink: str, limit: int = 100) -> dict[str, Any]:
 
 
 @mcp.tool(
+    name="conversations_list",
+    description="List mirrored Slack conversations available in the Honcho company corpus. Results are restricted to RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST.",
+    annotations=read_only,
+)
+def conversations_list(channel_id: str = "", limit: int = 50, page: int = 1) -> dict[str, Any]:
+    channel_id = str(channel_id or "").strip()
+    safe_limit = max(1, min(int(limit or 50), 200))
+    safe_page = max(1, int(page or 1))
+    payload = _honcho_api(
+        "POST",
+        f"/workspaces/{_honcho_workspace_id()}/sessions/list?size={safe_limit}&page={safe_page}",
+        {"filters": _slack_session_filters(channel_id)},
+    )
+    items = payload.get("items") if isinstance(payload.get("items"), list) else []
+    conversations: list[dict[str, Any]] = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        normalized = _normalize_session(item)
+        if normalized is not None:
+            conversations.append(normalized)
+    return {
+        "source": "honcho_slack_corpus",
+        "channel_id": channel_id,
+        "conversations": conversations,
+        "page": payload.get("page", safe_page),
+        "pages": payload.get("pages", 1),
+        "total": payload.get("total", len(conversations)),
+    }
+
+
+@mcp.tool(
+    name="conversations_search",
+    description="Search mirrored Slack messages in the Honcho company corpus. This does not call Slack search.messages and uses only allowlisted mirrored channels.",
+    annotations=read_only,
+)
+def conversations_search(query: str, channel_id: str = "", limit: int = 10) -> dict[str, Any]:
+    query = str(query or "").strip()
+    if not query:
+        raise RuntimeError("conversations_search requires a non-empty query")
+    safe_limit = max(1, min(int(limit or 10), 50))
+    channel_id = str(channel_id or "").strip()
+    payload = _honcho_api_raw(
+        "POST",
+        f"/workspaces/{_honcho_workspace_id()}/search",
+        {
+            "query": query,
+            "filters": _slack_message_filters(channel_id),
+            "limit": safe_limit,
+        },
+    )
+    if not isinstance(payload, list):
+        raise RuntimeError("Honcho workspace search returned a non-list response")
+    results: list[dict[str, Any]] = []
+    for item in payload:
+        if not isinstance(item, dict):
+            continue
+        metadata = _message_metadata(item)
+        result_channel = str(metadata.get("channel_id") or "")
+        if result_channel and _allowlisted_channel(result_channel):
+            results.append(item)
+    return {
+        "source": "honcho_slack_corpus",
+        "query": query,
+        "channel_id": channel_id,
+        "results": results,
+        "limit": safe_limit,
+    }
+
+
+@mcp.tool(
     name="conversation_get",
     description="Read one compiled Slack conversation from Honcho by channel_id and optional thread_ts. Uses mirrored company memory, not live Slack search.",
     annotations=read_only,
@@ -272,6 +462,72 @@ def conversation_get(channel_id: str, thread_ts: str = "", limit: int = 50, page
         "page": payload.get("page", safe_page),
         "pages": payload.get("pages", 1),
         "total": payload.get("total", len(items)),
+    }
+
+
+@mcp.tool(
+    name="attachments_fetch",
+    description="Return Slack attachment metadata from the mirrored Honcho corpus or a precise Slack permalink. Content extraction/vision is not performed by this metadata-only tool.",
+    annotations=read_only,
+)
+def attachments_fetch(
+    channel_id: str = "",
+    thread_ts: str = "",
+    message_ts: str = "",
+    permalink: str = "",
+    limit: int = 50,
+    page: int = 1,
+) -> dict[str, Any]:
+    source = "honcho_slack_corpus"
+    if str(permalink or "").strip():
+        channel_id, parsed_ts = _ts_from_permalink(permalink)
+        message_ts = str(message_ts or "").strip() or parsed_ts
+        thread_ts = str(thread_ts or "").strip() or parsed_ts
+        conversation = slack_read_thread(channel_id=channel_id, thread_ts=thread_ts, limit=limit)
+        source = "slack_live_permalink"
+    else:
+        channel_id = str(channel_id or "").strip()
+        if not channel_id:
+            raise RuntimeError("attachments_fetch requires channel_id or permalink")
+        conversation = conversation_get(channel_id=channel_id, thread_ts=thread_ts, limit=limit, page=page)
+
+    if not _allowlisted_channel(channel_id):
+        raise RuntimeError(f"Slack channel {channel_id} is not in RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST")
+
+    wanted_ts = str(message_ts or "").strip()
+    attachments: list[dict[str, Any]] = []
+    messages = conversation.get("messages") if isinstance(conversation.get("messages"), list) else []
+    for message in messages:
+        if not isinstance(message, dict):
+            continue
+        metadata = _message_metadata(message)
+        slack_ts = str(metadata.get("slack_ts") or message.get("ts") or "")
+        if wanted_ts and slack_ts != wanted_ts:
+            continue
+        effective_thread_ts = str(metadata.get("thread_ts") or message.get("thread_ts") or thread_ts or "")
+        message_permalink = str(metadata.get("permalink") or message.get("permalink") or "")
+        for file in _message_files(message):
+            attachments.append(
+                {
+                    "source": "slack",
+                    "source_channel_id": channel_id,
+                    "source_thread_ts": effective_thread_ts,
+                    "source_message_ts": slack_ts,
+                    "source_message_id": str(message.get("id") or ""),
+                    "source_message_permalink": message_permalink,
+                    "file": file,
+                    "content_status": "metadata_only",
+                    "extraction_status": "not_extracted",
+                    "extraction_note": "Phase 1B will add lazy blob fetch plus vision/text extraction; do not infer attachment contents from metadata alone.",
+                }
+            )
+    return {
+        "source": source,
+        "channel_id": channel_id,
+        "thread_ts": thread_ts,
+        "message_ts": wanted_ts,
+        "attachments": attachments,
+        "attachment_count": len(attachments),
     }
 
 

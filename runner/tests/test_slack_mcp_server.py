@@ -76,6 +76,148 @@ class SlackMCPServerTests(unittest.TestCase):
         path = honcho_api.call_args.args[1]
         self.assertIn("/workspaces/rsi_company_knowledge/sessions/slack_T123_C0AKH5SNGKH_1777650186_068179/messages/list", path)
 
+    def test_conversations_list_uses_honcho_sessions_and_allowlist(self) -> None:
+        with mock.patch.object(
+            slack_mcp_server,
+            "_honcho_api",
+            return_value={
+                "items": [
+                    {
+                        "id": "slack_T123_C0AKH5SNGKH_1777650186_068179",
+                        "metadata": {
+                            "source": "slack",
+                            "source_session_key": "slack:T123:C0AKH5SNGKH:1777650186.068179",
+                        },
+                        "created_at": "2026-05-01T17:00:00Z",
+                    },
+                    {
+                        "id": "slack_T123_CPRIVATE_channel",
+                        "metadata": {
+                            "source": "slack",
+                            "source_session_key": "slack:T123:CPRIVATE:channel",
+                        },
+                    },
+                ],
+                "page": 1,
+                "pages": 1,
+                "total": 2,
+            },
+        ) as honcho_api, mock.patch.dict(
+            "os.environ",
+            {
+                "RSI_HONCHO_BASE_URL": "http://honcho.test",
+                "RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST": "C0AKH5SNGKH",
+            },
+            clear=False,
+        ):
+            result = slack_mcp_server.conversations_list(channel_id="C0AKH5SNGKH", limit=25)
+
+        self.assertEqual([item["channel_id"] for item in result["conversations"]], ["C0AKH5SNGKH"])
+        self.assertEqual(result["conversations"][0]["thread_ts"], "1777650186.068179")
+        path = honcho_api.call_args.args[1]
+        body = honcho_api.call_args.args[2]
+        self.assertIn("/sessions/list?size=25&page=1", path)
+        self.assertEqual(body["filters"]["AND"][0]["metadata"]["source"], "slack")
+        self.assertEqual(body["filters"]["AND"][1]["metadata"]["source_session_key"]["icontains"], ":C0AKH5SNGKH:")
+
+    def test_conversations_search_uses_honcho_not_slack_search(self) -> None:
+        with mock.patch.object(
+            slack_mcp_server,
+            "_honcho_api_raw",
+            return_value=[
+                {
+                    "id": "msg_1",
+                    "content": "CORS allowlist lives in depin-backend.",
+                    "metadata": {"source": "slack", "channel_id": "C0AKH5SNGKH"},
+                },
+                {
+                    "id": "msg_private",
+                    "content": "not visible",
+                    "metadata": {"source": "slack", "channel_id": "CPRIVATE"},
+                },
+            ],
+        ) as honcho_api, mock.patch.dict(
+            "os.environ",
+            {
+                "RSI_HONCHO_BASE_URL": "http://honcho.test",
+                "RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST": "C0AKH5SNGKH",
+            },
+            clear=False,
+        ):
+            result = slack_mcp_server.conversations_search("CORS", limit=5)
+
+        self.assertEqual([item["id"] for item in result["results"]], ["msg_1"])
+        path = honcho_api.call_args.args[1]
+        body = honcho_api.call_args.args[2]
+        self.assertEqual(path, "/workspaces/rsi_company_knowledge/search")
+        self.assertEqual(body["filters"]["metadata"]["channel_id"]["in"], ["C0AKH5SNGKH"])
+
+    def test_normalize_messages_preserves_slack_file_metadata(self) -> None:
+        messages = slack_mcp_server._normalize_messages(
+            [
+                {
+                    "text": "see screenshot",
+                    "ts": "1777650186.068179",
+                    "files": [
+                        {
+                            "id": "F123",
+                            "name": "screenshot.png",
+                            "mimetype": "image/png",
+                            "filetype": "png",
+                            "size": 1234,
+                            "permalink": "https://storyprotocol.slack.com/files/F123",
+                        }
+                    ],
+                }
+            ]
+        )
+
+        self.assertEqual(messages[0]["files"][0]["id"], "F123")
+        self.assertEqual(messages[0]["files"][0]["mimetype"], "image/png")
+
+    def test_attachments_fetch_returns_metadata_only_from_honcho(self) -> None:
+        with mock.patch.object(
+            slack_mcp_server,
+            "conversation_get",
+            return_value={
+                "messages": [
+                    {
+                        "id": "msg_1",
+                        "content": "see screenshot",
+                        "metadata": {
+                            "channel_id": "C0AKH5SNGKH",
+                            "thread_ts": "1777650186.068179",
+                            "slack_ts": "1777650187.000000",
+                            "permalink": "https://storyprotocol.slack.com/archives/C0AKH5SNGKH/p1777650187000000",
+                            "files": [
+                                {
+                                    "id": "F123",
+                                    "name": "screenshot.png",
+                                    "mimetype": "image/png",
+                                    "filetype": "png",
+                                    "size": 1234,
+                                    "permalink": "https://storyprotocol.slack.com/files/F123",
+                                }
+                            ],
+                        },
+                    }
+                ]
+            },
+        ), mock.patch.dict(
+            "os.environ",
+            {"RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST": "C0AKH5SNGKH"},
+            clear=False,
+        ):
+            result = slack_mcp_server.attachments_fetch(
+                channel_id="C0AKH5SNGKH",
+                thread_ts="1777650186.068179",
+                message_ts="1777650187.000000",
+            )
+
+        self.assertEqual(result["attachment_count"], 1)
+        self.assertEqual(result["attachments"][0]["file"]["id"], "F123")
+        self.assertEqual(result["attachments"][0]["content_status"], "metadata_only")
+
     def test_honcho_api_base_uses_v3_router(self) -> None:
         with mock.patch.dict("os.environ", {"RSI_HONCHO_BASE_URL": "http://honcho.test"}, clear=False):
             self.assertEqual(slack_mcp_server._honcho_api_base_url(), "http://honcho.test/v3")
