@@ -710,6 +710,31 @@ def _unwrap_json_code_fence(text: str) -> str:
     return "\n".join(lines[1:-1]).strip()
 
 
+STRUCTURED_OUTPUT_CANDIDATE_KEYS = {
+    "reply_draft",
+    "final_answer",
+    "proposed_actions",
+    "reply_delivery",
+    "artifact_render_briefs",
+    "produced_artifacts",
+    "change_plan",
+    "retry_assessment",
+}
+
+
+def _looks_like_structured_output(payload: JsonObject) -> bool:
+    return any(key in payload for key in STRUCTURED_OUTPUT_CANDIDATE_KEYS)
+
+
+def _json_code_fence_payloads(text: str) -> list[str]:
+    payloads: list[str] = []
+    for match in re.finditer(r"```(?:json)?[ \t]*\r?\n(.*?)\r?\n```", text or "", flags=re.IGNORECASE | re.DOTALL):
+        payload = match.group(1).strip()
+        if payload:
+            payloads.append(payload)
+    return payloads
+
+
 def _path_from_file_ref(value: str) -> str:
     text = str(value or "").strip()
     if not text:
@@ -7358,10 +7383,18 @@ class HermesRuntime:
         text = (message or "").strip()
         if not text:
             raise HermesStructuredOutputError("Hermes execution returned an empty response; structured output is required.")
+        original_text = text
         text = _unwrap_json_code_fence(text)
         try:
             parsed = json.loads(text)
         except json.JSONDecodeError as exc:
+            for payload in reversed(_json_code_fence_payloads(original_text)):
+                try:
+                    parsed_candidate = json.loads(payload)
+                except json.JSONDecodeError:
+                    continue
+                if isinstance(parsed_candidate, dict) and _looks_like_structured_output(parsed_candidate):
+                    return _normalize_structured_output(parsed_candidate)
             raise HermesStructuredOutputError("Hermes execution returned non-JSON output; structured output is required.") from exc
         if not isinstance(parsed, dict):
             raise HermesStructuredOutputError("Hermes execution returned a non-object JSON payload; structured output must be a JSON object.")
@@ -7383,7 +7416,16 @@ class HermesRuntime:
                 raw_response,
             ]
         )
-        return replace(task, prompt=repair_prompt)
+        return replace(
+            task,
+            prompt=repair_prompt,
+            allowed_tools=[],
+            tool_allowlist=[],
+            mcp_servers=[],
+            requested_skills=[],
+            requested_artifacts=[],
+            reply_delivery_mode="none",
+        )
 
     def _workflow_missing_explicit_reply_action(self, task: RunnerTaskRequest, structured_output: JsonObject) -> bool:
         if not self._workflow_requires_explicit_reply_action(task):
@@ -7411,7 +7453,16 @@ class HermesRuntime:
                 json.dumps(structured_output, ensure_ascii=True, sort_keys=True),
             ]
         )
-        return replace(task, prompt=repair_prompt)
+        return replace(
+            task,
+            prompt=repair_prompt,
+            allowed_tools=[],
+            tool_allowlist=[],
+            mcp_servers=[],
+            requested_skills=[],
+            requested_artifacts=[],
+            reply_delivery_mode="none",
+        )
 
 
 def first_non_empty(*values: str | None) -> str:

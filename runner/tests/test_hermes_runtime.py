@@ -2624,6 +2624,115 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(captured_requests[0]["phase_contract"]["history_policy"], "session")
         self.assertNotIn("rsi-governed-readonly", captured_requests[0]["phase_contract"]["required_toolsets"])
 
+    def test_native_executor_extracts_trailing_json_fence_without_repair_mcp_registration(self) -> None:
+        structured = {
+            "visible_reasoning": [],
+            "reply_draft": "I found the architecture details.",
+            "final_answer": "Architecture details are ready.",
+            "confidence": 0.91,
+            "context_summary": "Grounded context.",
+            "self_critique": "",
+            "proposed_actions": [],
+            "knowledge_drafts": [],
+            "outcome_hypotheses": [],
+            "artifact_render_briefs": [
+                {
+                    "kind": "diagram",
+                    "title": "RSI Platform",
+                    "render_prompt": "Render the grounded architecture.",
+                }
+            ],
+            "produced_artifacts": [],
+            "artifact_failure_reason": "",
+        }
+        response = "\n\n".join(
+            [
+                "I investigated the repo and deployment first.",
+                "```json\n{\"admin\": false, \"push\": false}\n```",
+                "Now the structured output.",
+                f"```json\n{json.dumps(structured, sort_keys=True)}\n```",
+            ]
+        )
+
+        class FakePopen:
+            def __init__(self, cmd, cwd, env, stdout, stderr, text):
+                request = json.loads(Path(cmd[-1]).read_text(encoding="utf-8"))
+                Path(request["result_path"]).write_text(
+                    json.dumps(
+                        {
+                            "ok": True,
+                            "mcp_cleanup_errors": [],
+                            "mcp_cleanup_status": "cleaned",
+                            "response": response,
+                            "result": {"final_response": response, "completed": True, "api_calls": 7},
+                            "session_id": "rsi-prod-conversation-123",
+                        },
+                        sort_keys=True,
+                    ),
+                    encoding="utf-8",
+                )
+                self.returncode = 0
+                self.stdout = io.StringIO("")
+                self.stderr = io.StringIO("")
+
+            def poll(self):
+                return 0
+
+            def wait(self, timeout=None):
+                return self.returncode
+
+            def terminate(self):
+                self.returncode = -15
+
+            def kill(self):
+                self.returncode = -9
+
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Investigate and prepare a diagram brief.",
+                    "trace_id": "trace-native-fenced-json",
+                    "workflow_id": "wf-native-fenced-json",
+                    "operation_id": "op-native-fenced-json",
+                    "reply_delivery_mode": "none",
+                    "mcp_servers": [{"server_label": "slack", "profile": "slack_mcp_read"}],
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-native-fenced-json",
+                }
+            }
+        )
+
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.subprocess.Popen", FakePopen
+        ), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "RSI_HERMES_EXECUTOR_ENABLED": "true",
+                "RSI_HERMES_EXECUTOR_SERVICE_ONLY": "true",
+                "RSI_RUNTIME_OBSERVATION_SINK_URL": "http://control-plane.internal:8080/internal/runtime/observations",
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            with mock.patch.object(runtime._mcp_adapter, "plan_task_servers", return_value=TaskScopedMCPRegistration()), mock.patch.object(
+                runtime._mcp_adapter,
+                "register_task_servers",
+                side_effect=RuntimeError("repair should not register MCP servers"),
+            ) as register_mock:
+                result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.raw["structured_output"]["final_answer"], "Architecture details are ready.")
+        self.assertEqual(result.raw["structured_output"]["artifact_render_briefs"][0]["title"], "RSI Platform")
+        self.assertFalse(result.raw["repair_attempted"])
+        register_mock.assert_not_called()
+
     def test_native_render_request_payload_uses_local_artifact_dir_and_strips_governed_toolsets(self) -> None:
         structured = json.dumps(
             {
