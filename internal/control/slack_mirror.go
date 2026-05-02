@@ -24,6 +24,10 @@ type slackMirrorCheckpoint struct {
 	ChannelID         string    `json:"channel_id"`
 	WorkspaceID       string    `json:"workspace_id"`
 	LastMirroredTS    string    `json:"last_mirrored_ts"`
+	BackfillComplete  bool      `json:"backfill_complete"`
+	BackfillBeforeTS  string    `json:"backfill_before_ts,omitempty"`
+	BackfillOldestTS  string    `json:"backfill_oldest_ts,omitempty"`
+	LastProgressAt    time.Time `json:"last_progress_at,omitempty"`
 	LastCompletedAt   time.Time `json:"last_completed_at"`
 	LastMessageCount  int       `json:"last_message_count"`
 	LastThreadCount   int       `json:"last_thread_count"`
@@ -70,16 +74,18 @@ func mirrorSlackChannel(ctx context.Context, cfg config.Config, api *slackapi.Cl
 	if err != nil {
 		return err
 	}
-	oldest := strings.TrimSpace(checkpoint.LastMirroredTS)
+	oldest, latest, mode := slackMirrorHistoryWindow(checkpoint)
 	cursor := ""
-	latestSeen := oldest
+	latestSeen := strings.TrimSpace(checkpoint.LastMirroredTS)
 	messageCount := 0
 	threadCount := 0
+	log.Printf("slack mirror channel=%s mode=%s oldest=%s latest=%s", channelID, mode, oldest, latest)
 	for {
 		resp, err := api.GetConversationHistoryContext(ctx, &slackapi.GetConversationHistoryParameters{
 			ChannelID:          channelID,
 			Cursor:             cursor,
 			Limit:              200,
+			Latest:             latest,
 			Oldest:             oldest,
 			Inclusive:          false,
 			IncludeAllMetadata: true,
@@ -87,6 +93,7 @@ func mirrorSlackChannel(ctx context.Context, cfg config.Config, api *slackapi.Cl
 		if err != nil {
 			return fmt.Errorf("read slack history channel=%s: %w", channelID, err)
 		}
+		pageOldestTS, pageNewestTS := slackMirrorMessageTimestampBounds(resp.Messages)
 		for _, msg := range reverseSlackMessages(resp.Messages) {
 			if strings.TrimSpace(msg.Timestamp) == "" || shouldSkipSlackMirrorMessage(msg) {
 				continue
@@ -103,9 +110,6 @@ func mirrorSlackChannel(ctx context.Context, cfg config.Config, api *slackapi.Cl
 			if result.HonchoSessionID != "" {
 				checkpoint.LastHonchoSession = result.HonchoSessionID
 			}
-			if compareSlackTS(msg.Timestamp, latestSeen) > 0 {
-				latestSeen = msg.Timestamp
-			}
 			if msg.ReplyCount > 0 {
 				seenReplies, err := mirrorSlackThread(ctx, api, mirror, workspaceID, channelID, msg.Timestamp)
 				if err != nil {
@@ -115,21 +119,39 @@ func mirrorSlackChannel(ctx context.Context, cfg config.Config, api *slackapi.Cl
 				messageCount += seenReplies
 			}
 		}
+		if compareSlackTS(pageNewestTS, latestSeen) > 0 {
+			latestSeen = pageNewestTS
+		}
 		cursor = strings.TrimSpace(resp.ResponseMetaData.NextCursor)
+		if pageOldestTS != "" || pageNewestTS != "" {
+			updateSlackMirrorCheckpointProgress(&checkpoint, workspaceID, channelID, mode, latestSeen, pageOldestTS, messageCount, threadCount, false)
+			if err := writeSlackMirrorCheckpoint(cfg.SourceMirrorCheckpointRoot, checkpoint); err != nil {
+				return err
+			}
+			log.Printf(
+				"slack mirror progress channel=%s mode=%s page_messages=%d total_messages=%d total_threads=%d page_oldest=%s page_newest=%s next_cursor=%t",
+				channelID,
+				mode,
+				len(resp.Messages),
+				messageCount,
+				threadCount,
+				pageOldestTS,
+				pageNewestTS,
+				cursor != "",
+			)
+		}
 		if !resp.HasMore || cursor == "" {
 			break
 		}
 	}
-	checkpoint.ChannelID = channelID
-	checkpoint.WorkspaceID = workspaceID
-	checkpoint.LastMirroredTS = latestSeen
-	checkpoint.LastCompletedAt = time.Now().UTC()
-	checkpoint.LastMessageCount = messageCount
-	checkpoint.LastThreadCount = threadCount
+	if latestSeen == "" {
+		latestSeen = slackMirrorTimestamp(time.Now().UTC())
+	}
+	updateSlackMirrorCheckpointProgress(&checkpoint, workspaceID, channelID, mode, latestSeen, "", messageCount, threadCount, true)
 	if err := writeSlackMirrorCheckpoint(cfg.SourceMirrorCheckpointRoot, checkpoint); err != nil {
 		return err
 	}
-	log.Printf("slack mirror channel=%s messages=%d threads=%d last_ts=%s", channelID, messageCount, threadCount, latestSeen)
+	log.Printf("slack mirror channel=%s mode=%s complete messages=%d threads=%d last_ts=%s backfill_complete=%t", channelID, mode, messageCount, threadCount, latestSeen, checkpoint.BackfillComplete)
 	return nil
 }
 
@@ -251,6 +273,73 @@ func writeSlackMirrorCheckpoint(root string, checkpoint slackMirrorCheckpoint) e
 		return err
 	}
 	return os.Rename(tmp, path)
+}
+
+func slackMirrorHistoryWindow(checkpoint slackMirrorCheckpoint) (oldest string, latest string, mode string) {
+	if slackMirrorCheckpointBackfillComplete(checkpoint) {
+		return strings.TrimSpace(checkpoint.LastMirroredTS), "", "incremental"
+	}
+	return "", strings.TrimSpace(checkpoint.BackfillBeforeTS), "backfill"
+}
+
+func slackMirrorCheckpointBackfillComplete(checkpoint slackMirrorCheckpoint) bool {
+	if checkpoint.BackfillComplete {
+		return true
+	}
+	return strings.TrimSpace(checkpoint.LastMirroredTS) != "" && strings.TrimSpace(checkpoint.BackfillBeforeTS) == "" && !checkpoint.LastCompletedAt.IsZero()
+}
+
+func updateSlackMirrorCheckpointProgress(checkpoint *slackMirrorCheckpoint, workspaceID string, channelID string, mode string, latestSeen string, pageOldestTS string, messageCount int, threadCount int, completed bool) {
+	now := time.Now().UTC()
+	checkpoint.ChannelID = channelID
+	checkpoint.WorkspaceID = workspaceID
+	checkpoint.LastMessageCount = messageCount
+	checkpoint.LastThreadCount = threadCount
+	checkpoint.LastProgressAt = now
+	if mode == "backfill" && !completed {
+		if strings.TrimSpace(latestSeen) != "" {
+			checkpoint.LastMirroredTS = latestSeen
+		}
+		if strings.TrimSpace(pageOldestTS) != "" {
+			checkpoint.BackfillBeforeTS = pageOldestTS
+			checkpoint.BackfillOldestTS = pageOldestTS
+		}
+		checkpoint.BackfillComplete = false
+		return
+	}
+	if strings.TrimSpace(latestSeen) != "" && (mode == "backfill" || completed) {
+		checkpoint.LastMirroredTS = latestSeen
+	}
+	checkpoint.BackfillComplete = true
+	checkpoint.BackfillBeforeTS = ""
+	if completed {
+		checkpoint.LastCompletedAt = now
+	}
+}
+
+func slackMirrorMessageTimestampBounds(messages []slackapi.Message) (oldest string, newest string) {
+	for _, msg := range messages {
+		ts := strings.TrimSpace(msg.Timestamp)
+		if ts == "" {
+			continue
+		}
+		if oldest == "" || compareSlackTS(ts, oldest) < 0 {
+			oldest = ts
+		}
+		if newest == "" || compareSlackTS(ts, newest) > 0 {
+			newest = ts
+		}
+	}
+	return oldest, newest
+}
+
+func slackMirrorTimestamp(t time.Time) string {
+	if t.IsZero() {
+		t = time.Now().UTC()
+	}
+	unix := t.Unix()
+	micros := t.Nanosecond() / 1000
+	return fmt.Sprintf("%d.%06d", unix, micros)
 }
 
 func slackMirrorCheckpointPath(root string, channelID string) string {

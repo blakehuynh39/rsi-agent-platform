@@ -36,14 +36,29 @@ for update`, record.SourceType, record.SourceKey))
 	}
 	now := time.Now().UTC()
 	if !found {
-		inserted, err := insertSourceMirrorRecord(tx, record, now)
+		inserted, insertedRecord, err := insertSourceMirrorRecord(tx, record, now)
 		if err != nil {
 			return SourceMirrorClaimResult{}, err
 		}
-		if err := tx.Commit(); err != nil {
+		if insertedRecord {
+			if err := tx.Commit(); err != nil {
+				return SourceMirrorClaimResult{}, err
+			}
+			return SourceMirrorClaimResult{Record: inserted, ShouldWrite: true, Reason: "new"}, nil
+		}
+		existing, found, err = scanSourceMirrorRecord(tx.QueryRow(`
+select source_type, source_key, workspace, environment, source_session_key, honcho_workspace,
+       honcho_session_id, honcho_message_id, source_revision, status, metadata, last_error,
+       created_at, updated_at
+from source_mirror_record
+where source_type = $1 and source_key = $2
+for update`, record.SourceType, record.SourceKey))
+		if err != nil {
 			return SourceMirrorClaimResult{}, err
 		}
-		return SourceMirrorClaimResult{Record: inserted, ShouldWrite: true, Reason: "new"}, nil
+		if !found {
+			return SourceMirrorClaimResult{}, sql.ErrNoRows
+		}
 	}
 
 	if existing.Status == SourceMirrorStatusComplete && existing.SourceRevision == record.SourceRevision && strings.TrimSpace(existing.HonchoMessageID) != "" {
@@ -143,10 +158,10 @@ type sourceMirrorQuerier interface {
 	QueryRow(query string, args ...any) *sql.Row
 }
 
-func insertSourceMirrorRecord(tx sourceMirrorQuerier, record SourceMirrorRecord, now time.Time) (SourceMirrorRecord, error) {
+func insertSourceMirrorRecord(tx sourceMirrorQuerier, record SourceMirrorRecord, now time.Time) (SourceMirrorRecord, bool, error) {
 	raw, err := json.Marshal(nonNilMap(record.Metadata))
 	if err != nil {
-		return SourceMirrorRecord{}, err
+		return SourceMirrorRecord{}, false, err
 	}
 	returning, found, err := scanSourceMirrorRecord(tx.QueryRow(`
 insert into source_mirror_record (
@@ -154,18 +169,19 @@ insert into source_mirror_record (
   honcho_session_id, honcho_message_id, source_revision, status, metadata, last_error,
   created_at, updated_at
 ) values ($1, $2, $3, $4, $5, $6, $7, '', $8, 'pending', $9::jsonb, '', $10, $10)
+on conflict (source_type, source_key) do nothing
 returning source_type, source_key, workspace, environment, source_session_key, honcho_workspace,
           honcho_session_id, honcho_message_id, source_revision, status, metadata, last_error,
           created_at, updated_at`,
 		record.SourceType, record.SourceKey, record.Workspace, record.Environment, record.SourceSessionKey,
 		record.HonchoWorkspace, record.HonchoSessionID, record.SourceRevision, raw, now))
 	if err != nil {
-		return SourceMirrorRecord{}, err
+		return SourceMirrorRecord{}, false, err
 	}
 	if !found {
-		return SourceMirrorRecord{}, sql.ErrNoRows
+		return SourceMirrorRecord{}, false, nil
 	}
-	return returning, nil
+	return returning, true, nil
 }
 
 func updateSourceMirrorClaim(tx sourceMirrorQuerier, record SourceMirrorRecord, now time.Time) (SourceMirrorRecord, error) {
