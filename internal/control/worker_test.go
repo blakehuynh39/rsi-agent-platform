@@ -5700,7 +5700,7 @@ func TestBuildRunnerTaskIncludesSlackMCPWhenEnabled(t *testing.T) {
 	if !reflect.DeepEqual(server.AllowedTools, map[string]any{"read_only": true}) {
 		t.Fatalf("expected read-only Slack tool surface, got %#v", server.AllowedTools)
 	}
-	if !strings.Contains(task.SystemMessage, "Use Slack MCP for Slack permalink and thread reads") {
+	if !strings.Contains(task.SystemMessage, "Use Slack MCP for Slack permalink/thread reads and Honcho-backed company corpus discovery") {
 		t.Fatalf("expected Slack MCP instruction in system prompt, got %q", task.SystemMessage)
 	}
 }

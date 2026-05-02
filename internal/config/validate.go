@@ -86,6 +86,10 @@ func (c Config) validateControlPlane(issues *[]string) {
 		c.validateSlackMirror(issues)
 		return
 	}
+	if c.RuntimeMode == "notion-mirror" {
+		c.validateNotionMirror(issues)
+		return
+	}
 	if len(c.HermesExecutorURLs()) == 0 {
 		addRequiredURL(issues, "RSI_RUNNER_PROD_BASE_URL", c.ProdRunnerBaseURL, c.nonLocalhostRequired())
 		addRequiredURL(issues, "RSI_RUNNER_PROACTIVE_BASE_URL", c.ProactiveRunnerBaseURL, c.nonLocalhostRequired())
@@ -124,6 +128,18 @@ func (c Config) validateSlackMirror(issues *[]string) {
 	}
 	addRequiredString(issues, "SLACK_BOT_TOKEN", c.SlackBotToken)
 	addRequiredList(issues, "RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST", c.SlackMirrorChannelAllowlist)
+	addRequiredURL(issues, "RSI_HONCHO_BASE_URL", c.HonchoBaseURL, c.nonLocalhostRequired())
+	addRequiredString(issues, "RSI_HONCHO_WORKSPACE_ID", c.HonchoWorkspaceID)
+	addRequiredString(issues, "RSI_SOURCE_MIRROR_CHECKPOINT_ROOT", c.SourceMirrorCheckpointRoot)
+}
+
+func (c Config) validateNotionMirror(issues *[]string) {
+	if !c.NotionMirrorEnabled {
+		*issues = append(*issues, "RSI_NOTION_MIRROR_ENABLED must be true")
+	}
+	addRequiredString(issues, "NOTION_TOKEN", c.NotionToken)
+	addRequiredList(issues, "RSI_NOTION_MIRROR_ALLOWLIST", c.NotionMirrorAllowlist)
+	addRequiredURL(issues, "RSI_NOTION_API_BASE_URL", c.NotionAPIBaseURL, false)
 	addRequiredURL(issues, "RSI_HONCHO_BASE_URL", c.HonchoBaseURL, c.nonLocalhostRequired())
 	addRequiredString(issues, "RSI_HONCHO_WORKSPACE_ID", c.HonchoWorkspaceID)
 	addRequiredString(issues, "RSI_SOURCE_MIRROR_CHECKPOINT_ROOT", c.SourceMirrorCheckpointRoot)

@@ -1949,6 +1949,8 @@ create table if not exists source_mirror_record (
   honcho_workspace text not null default '',
   honcho_session_id text not null default '',
   honcho_message_id text not null default '',
+  honcho_object_type text not null default '',
+  honcho_object_id text not null default '',
   source_revision text not null default '',
   status text not null default 'pending' check (status in ('pending', 'complete', 'failed')),
   metadata jsonb not null default '{}'::jsonb,
@@ -1966,3 +1968,7 @@ create index if not exists source_mirror_record_status_idx
 
 create index if not exists source_mirror_record_honcho_idx
   on source_mirror_record (honcho_workspace, honcho_session_id, updated_at desc);
+
+create index if not exists source_mirror_record_honcho_object_idx
+  on source_mirror_record (honcho_object_type, honcho_object_id)
+  where honcho_object_id <> '';

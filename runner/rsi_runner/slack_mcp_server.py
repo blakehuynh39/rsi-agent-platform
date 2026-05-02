@@ -371,6 +371,15 @@ def _slack_session_filters(channel_id: str = "") -> dict[str, Any]:
     }
 
 
+def _document_filters(source: str = "") -> dict[str, Any]:
+    if source == "notion":
+        return {
+            "observer_id": "notion_mirror",
+            "observed_id": "story_company",
+        }
+    raise RuntimeError(f"Unsupported compiled document source {source!r}; supported sources: notion")
+
+
 def _attachment_cache_root() -> Path:
     return Path(_env("RSI_ATTACHMENT_CACHE_ROOT", "/var/lib/hermes/attachments"))
 
@@ -804,6 +813,89 @@ def conversations_search(query: str, channel_id: str = "", limit: int = 10) -> d
         "channel_id": channel_id,
         "results": results,
         "limit": safe_limit,
+    }
+
+
+@mcp.tool(
+    name="documents_list",
+    description="List mirrored company documents from Honcho. Currently exposes Notion mirrored documents with source provenance embedded in content.",
+    annotations=read_only,
+)
+def documents_list(source: str = "notion", limit: int = 50, page: int = 1) -> dict[str, Any]:
+    safe_limit = max(1, min(int(limit or 50), 200))
+    safe_page = max(1, int(page or 1))
+    source = str(source or "notion").strip().lower()
+    payload = _honcho_api(
+        "POST",
+        f"/workspaces/{_honcho_workspace_id()}/conclusions/list?size={safe_limit}&page={safe_page}",
+        {"filters": _document_filters(source)},
+    )
+    return {
+        "source": f"honcho_{source}_documents",
+        "documents": payload.get("items") if isinstance(payload.get("items"), list) else [],
+        "page": payload.get("page", safe_page),
+        "pages": payload.get("pages", 1),
+        "total": payload.get("total", 0),
+    }
+
+
+@mcp.tool(
+    name="documents_search",
+    description="Search mirrored company documents in Honcho. Use this for Notion/wiki-like company context before live source fetches.",
+    annotations=read_only,
+)
+def documents_search(query: str, source: str = "notion", limit: int = 10) -> dict[str, Any]:
+    query = str(query or "").strip()
+    if not query:
+        raise RuntimeError("documents_search requires a non-empty query")
+    safe_limit = max(1, min(int(limit or 10), 50))
+    source = str(source or "notion").strip().lower()
+    payload = _honcho_api_raw(
+        "POST",
+        f"/workspaces/{_honcho_workspace_id()}/conclusions/query",
+        {
+            "query": query,
+            "top_k": safe_limit,
+            "filters": _document_filters(source),
+        },
+    )
+    if not isinstance(payload, list):
+        raise RuntimeError("Honcho conclusions query returned a non-list response")
+    return {
+        "source": f"honcho_{source}_documents",
+        "query": query,
+        "results": payload,
+        "limit": safe_limit,
+    }
+
+
+@mcp.tool(
+    name="document_get",
+    description="Read a mirrored company document by Honcho document/conclusion id.",
+    annotations=read_only,
+)
+def document_get(document_id: str, source: str = "notion") -> dict[str, Any]:
+    document_id = str(document_id or "").strip()
+    if not document_id:
+        raise RuntimeError("document_get requires document_id")
+    source = str(source or "notion").strip().lower()
+    filters = {
+        "AND": [
+            {"id": document_id},
+            _document_filters(source),
+        ]
+    }
+    payload = _honcho_api(
+        "POST",
+        f"/workspaces/{_honcho_workspace_id()}/conclusions/list?size=1&page=1",
+        {"filters": filters},
+    )
+    items = payload.get("items") if isinstance(payload.get("items"), list) else []
+    if not items:
+        raise RuntimeError(f"Document {document_id} was not found in mirrored {source} documents")
+    return {
+        "source": f"honcho_{source}_documents",
+        "document": items[0],
     }
 
 

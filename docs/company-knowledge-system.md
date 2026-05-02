@@ -39,6 +39,26 @@ latest Honcho message ID; old Honcho messages remain historical evidence.
 
 This avoids search-before-write races and avoids direct SQL writes into Honcho.
 
+For Honcho document/conclusion writes used by Notion mirroring:
+
+- `source_type = notion_document`
+- `source_key = notion_document:{workspace}:{notion_page_or_database_id}`
+- `source_revision = last_edited_time:{timestamp}` or another source-native
+  revision marker when Notion exposes one
+
+Honcho's current public document surface is the `conclusions` API. The RSI
+source-mirror wrapper therefore writes the document body through
+`POST /v3/workspaces/{workspace}/conclusions`, then records
+`honcho_object_type = document` and `honcho_object_id = <Honcho conclusion id>`
+in `source_mirror_record`. Source-native IDs, URLs, hierarchy, and revision
+metadata live in the wrapper metadata until Honcho exposes first-class public
+document metadata. This is an explicit supported RSI wrapper, not direct Honcho
+SQL coupling.
+
+The same idempotency rule applies: same `source_key` and same `source_revision`
+is a no-op; a changed revision creates a new Honcho document/conclusion and
+updates the wrapper record to point at the latest Honcho object ID.
+
 For Slack attachment analyses:
 
 - `source_type = slack_attachment_analysis`
@@ -62,17 +82,41 @@ thread response is not blocked by mirror write failures, but enabling the mirror
 requires Honcho and the source-mirror idempotency store to be configured at
 startup.
 
+`control-plane --mode notion-mirror` performs resumable Notion mirroring over
+`RSI_NOTION_MIRROR_ALLOWLIST`. Each allowlist entry must be a Notion page or
+database ID visible to `NOTION_TOKEN`. The mirror recursively follows child
+pages and child databases, extracts supported Notion block text, writes Notion
+pages to Honcho through `/internal/source-mirror/documents`, and checkpoints
+progress under `RSI_SOURCE_MIRROR_CHECKPOINT_ROOT/notion`.
+
+Notion mirror configuration:
+
+- `RSI_NOTION_MIRROR_ENABLED=true`
+- `RSI_NOTION_MIRROR_ALLOWLIST=<page-or-database-ids>`
+- `NOTION_TOKEN=<integration token>`
+- `RSI_NOTION_API_BASE_URL=https://api.notion.com`
+- `RSI_NOTION_API_VERSION=2022-06-28`
+
 ## Read Contract
 
 The local Slack MCP server exposes compiled-corpus reads:
 
 - `conversation_get(channel_id, thread_ts, limit, page)`
 - `messages_read(channel_id, thread_ts, oldest_ts, latest_ts, limit, page)`
+- `documents_list(source, limit, page)`
+- `documents_search(query, source, limit)`
+- `document_get(document_id, source)`
 
 Channel-wide `messages_read` requires a time window and pagination. Unbounded
 channel history reads are refused. All Slack read tools require the channel to
 be present in `RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST`; an unset allowlist is a
 configuration error, not an implicit grant.
+
+Document tools currently expose mirrored Notion documents from Honcho
+conclusions. Because Honcho's public conclusions response does not yet expose
+document metadata, Notion mirror writes source URL, page ID, last edited time,
+and hierarchy into the document content itself, while the full structured
+metadata remains in `source_mirror_record`.
 
 Live Slack exact-source tools (`slack_read_thread`, `slack_read_permalink`) stay
 available for freshness and ambiguity resolution. Slack `search.messages` and

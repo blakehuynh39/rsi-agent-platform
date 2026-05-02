@@ -124,6 +124,43 @@ func TestSlackMirrorValidationAcceptsConfiguredContract(t *testing.T) {
 	}
 }
 
+func TestNotionMirrorValidationRequiresHonchoAndMirrorContract(t *testing.T) {
+	cfg := validControlPlaneConfig()
+
+	_, err := cfg.ValidatedFor("control-plane", "notion-mirror")
+	if err == nil {
+		t.Fatal("expected notion-mirror validation error")
+	}
+	message := err.Error()
+	for _, required := range []string{
+		"RSI_NOTION_MIRROR_ENABLED must be true",
+		"NOTION_TOKEN is required",
+		"RSI_NOTION_MIRROR_ALLOWLIST is required",
+		"RSI_HONCHO_BASE_URL is required",
+		"RSI_HONCHO_WORKSPACE_ID is required",
+	} {
+		if !strings.Contains(message, required) {
+			t.Fatalf("expected %q in validation message, got %s", required, message)
+		}
+	}
+}
+
+func TestNotionMirrorValidationAcceptsConfiguredContract(t *testing.T) {
+	cfg := validControlPlaneConfig()
+	cfg.NotionMirrorEnabled = true
+	cfg.NotionToken = "ntn-token"
+	cfg.NotionMirrorAllowlist = []string{"page-id"}
+	cfg.NotionAPIBaseURL = "https://api.notion.com"
+	cfg.NotionAPIVersion = "2022-06-28"
+	cfg.HonchoBaseURL = "http://use1-stage-rsi-agent-platform-honcho-api:8000"
+	cfg.HonchoWorkspaceID = "rsi_company_knowledge"
+	cfg.SourceMirrorCheckpointRoot = "/var/lib/hermes/source-mirror"
+
+	if _, err := cfg.ValidatedFor("control-plane", "notion-mirror"); err != nil {
+		t.Fatalf("ValidatedFor() error = %v", err)
+	}
+}
+
 func TestImprovementPlaneValidationRequiresExplicitPromoterInterval(t *testing.T) {
 	cfg := Config{
 		ServiceName:               "improvement-plane",

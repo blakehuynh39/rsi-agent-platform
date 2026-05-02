@@ -65,6 +65,11 @@ type Config struct {
 	NotionMCPHeaders                   map[string]string
 	NotionMCPHeaderEnvVars             map[string]string
 	NotionMCPAuthorizationEnvVar       string
+	NotionToken                        string
+	NotionMirrorEnabled                bool
+	NotionMirrorAllowlist              []string
+	NotionAPIBaseURL                   string
+	NotionAPIVersion                   string
 	GitHubWebhookSecret                string
 	GitHubOwner                        string
 	GitHubAPIBaseURL                   string
@@ -188,6 +193,11 @@ func Load(serviceName string) Config {
 		NotionMCPHeaders:                   mapEnv("RSI_NOTION_MCP_HEADERS"),
 		NotionMCPHeaderEnvVars:             mapEnv("RSI_NOTION_MCP_HEADER_ENV_VARS"),
 		NotionMCPAuthorizationEnvVar:       stringEnv("RSI_NOTION_MCP_AUTHORIZATION_ENV_VAR", "RSI_NOTION_MCP_AUTHORIZATION"),
+		NotionToken:                        stringEnv("NOTION_TOKEN", ""),
+		NotionMirrorEnabled:                boolEnv("RSI_NOTION_MIRROR_ENABLED", false),
+		NotionMirrorAllowlist:              listEnv("RSI_NOTION_MIRROR_ALLOWLIST"),
+		NotionAPIBaseURL:                   stringEnv("RSI_NOTION_API_BASE_URL", "https://api.notion.com"),
+		NotionAPIVersion:                   stringEnv("RSI_NOTION_API_VERSION", "2022-06-28"),
 		GitHubWebhookSecret:                stringEnv("RSI_GITHUB_WEBHOOK_SECRET", ""),
 		GitHubOwner:                        stringEnv("RSI_GITHUB_OWNER", ""),
 		GitHubAPIBaseURL:                   stringEnv("RSI_GITHUB_API_BASE_URL", "https://api.github.com"),

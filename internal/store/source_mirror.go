@@ -7,7 +7,7 @@ const (
 	SourceMirrorStatusComplete = "complete"
 	SourceMirrorStatusFailed   = "failed"
 
-	SourceMirrorMinimumSchemaVersion int64 = 29
+	SourceMirrorMinimumSchemaVersion int64 = 31
 )
 
 type SourceMirrorRecord struct {
@@ -19,6 +19,8 @@ type SourceMirrorRecord struct {
 	HonchoWorkspace  string         `json:"honcho_workspace"`
 	HonchoSessionID  string         `json:"honcho_session_id"`
 	HonchoMessageID  string         `json:"honcho_message_id,omitempty"`
+	HonchoObjectType string         `json:"honcho_object_type,omitempty"`
+	HonchoObjectID   string         `json:"honcho_object_id,omitempty"`
 	SourceRevision   string         `json:"source_revision"`
 	Status           string         `json:"status"`
 	Metadata         map[string]any `json:"metadata,omitempty"`
@@ -36,6 +38,7 @@ type SourceMirrorClaimResult struct {
 type SourceMirrorWriteStore interface {
 	ClaimSourceMirrorRecord(record SourceMirrorRecord, lease time.Duration) (SourceMirrorClaimResult, error)
 	CompleteSourceMirrorRecord(sourceType string, sourceKey string, honchoMessageID string, metadata map[string]any) (SourceMirrorRecord, error)
+	CompleteSourceMirrorObject(sourceType string, sourceKey string, honchoObjectType string, honchoObjectID string, metadata map[string]any) (SourceMirrorRecord, error)
 	FailSourceMirrorRecord(sourceType string, sourceKey string, lastError string, metadata map[string]any) (SourceMirrorRecord, error)
 	GetSourceMirrorRecord(sourceType string, sourceKey string) (SourceMirrorRecord, bool, error)
 }

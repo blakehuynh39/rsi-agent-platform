@@ -153,6 +153,53 @@ class SlackMCPServerTests(unittest.TestCase):
         self.assertEqual(path, "/workspaces/rsi_company_knowledge/search")
         self.assertEqual(body["filters"]["metadata"]["channel_id"]["in"], ["C0AKH5SNGKH"])
 
+    def test_documents_search_queries_honcho_conclusions(self) -> None:
+        with mock.patch.object(
+            slack_mcp_server,
+            "_honcho_api_raw",
+            return_value=[
+                {
+                    "id": "doc_1",
+                    "content": "# Deploy Runbook\nURL: https://notion.so/page_abc\nUse OrderedReady.",
+                    "observer_id": "notion_mirror",
+                    "observed_id": "story_company",
+                }
+            ],
+        ) as honcho_api, mock.patch.dict("os.environ", {"RSI_HONCHO_BASE_URL": "http://honcho.test"}, clear=False):
+            result = slack_mcp_server.documents_search("OrderedReady", limit=5)
+
+        self.assertEqual(result["results"][0]["id"], "doc_1")
+        path = honcho_api.call_args.args[1]
+        body = honcho_api.call_args.args[2]
+        self.assertEqual(path, "/workspaces/rsi_company_knowledge/conclusions/query")
+        self.assertEqual(body["filters"]["observer_id"], "notion_mirror")
+        self.assertEqual(body["filters"]["observed_id"], "story_company")
+
+    def test_document_get_filters_to_mirrored_notion_docs(self) -> None:
+        with mock.patch.object(
+            slack_mcp_server,
+            "_honcho_api",
+            return_value={
+                "items": [
+                    {
+                        "id": "doc_1",
+                        "content": "# Deploy Runbook",
+                        "observer_id": "notion_mirror",
+                        "observed_id": "story_company",
+                    }
+                ],
+                "page": 1,
+                "pages": 1,
+                "total": 1,
+            },
+        ) as honcho_api:
+            result = slack_mcp_server.document_get("doc_1")
+
+        self.assertEqual(result["document"]["id"], "doc_1")
+        body = honcho_api.call_args.args[2]
+        self.assertEqual(body["filters"]["AND"][0]["id"], "doc_1")
+        self.assertEqual(body["filters"]["AND"][1]["observer_id"], "notion_mirror")
+
     def test_normalize_messages_preserves_slack_file_metadata(self) -> None:
         messages = slack_mcp_server._normalize_messages(
             [

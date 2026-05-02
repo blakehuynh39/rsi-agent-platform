@@ -13,14 +13,14 @@ import (
 )
 
 func main() {
-	mode := flag.String("mode", "serve", "serve, slack-surface, slack-mirror, worker, or action-worker")
+	mode := flag.String("mode", "serve", "serve, slack-surface, slack-mirror, notion-mirror, worker, or action-worker")
 	flag.Parse()
 
 	cfg, err := config.Load("control-plane").ValidatedFor("control-plane", *mode)
 	if err != nil {
 		log.Fatal(err)
 	}
-	if *mode == "slack-mirror" {
+	if *mode == "slack-mirror" || *mode == "notion-mirror" {
 		mirrorStore, err := storepkg.OpenSourceMirrorWriteStore(cfg)
 		if err != nil {
 			log.Fatal(err)
@@ -33,8 +33,15 @@ func main() {
 			cfg.SchemaVersionExpected = status.ExpectedVersion
 			cfg.SchemaCompatibility = status.State
 		}
-		if err := control.RunSlackMirror(context.Background(), cfg, mirrorStore); err != nil {
-			log.Fatal(err)
+		switch *mode {
+		case "slack-mirror":
+			if err := control.RunSlackMirror(context.Background(), cfg, mirrorStore); err != nil {
+				log.Fatal(err)
+			}
+		case "notion-mirror":
+			if err := control.RunNotionMirror(context.Background(), cfg, mirrorStore); err != nil {
+				log.Fatal(err)
+			}
 		}
 		return
 	}

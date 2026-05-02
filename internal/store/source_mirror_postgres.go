@@ -26,7 +26,8 @@ func (p *PostgresStore) ClaimSourceMirrorRecord(record SourceMirrorRecord, lease
 
 	existing, found, err := scanSourceMirrorRecord(tx.QueryRow(`
 select source_type, source_key, workspace, environment, source_session_key, honcho_workspace,
-       honcho_session_id, honcho_message_id, source_revision, status, metadata, last_error,
+       honcho_session_id, honcho_message_id, honcho_object_type, honcho_object_id,
+       source_revision, status, metadata, last_error,
        created_at, updated_at
 from source_mirror_record
 where source_type = $1 and source_key = $2
@@ -48,7 +49,8 @@ for update`, record.SourceType, record.SourceKey))
 		}
 		existing, found, err = scanSourceMirrorRecord(tx.QueryRow(`
 select source_type, source_key, workspace, environment, source_session_key, honcho_workspace,
-       honcho_session_id, honcho_message_id, source_revision, status, metadata, last_error,
+       honcho_session_id, honcho_message_id, honcho_object_type, honcho_object_id,
+       source_revision, status, metadata, last_error,
        created_at, updated_at
 from source_mirror_record
 where source_type = $1 and source_key = $2
@@ -61,7 +63,7 @@ for update`, record.SourceType, record.SourceKey))
 		}
 	}
 
-	if existing.Status == SourceMirrorStatusComplete && existing.SourceRevision == record.SourceRevision && strings.TrimSpace(existing.HonchoMessageID) != "" {
+	if existing.Status == SourceMirrorStatusComplete && existing.SourceRevision == record.SourceRevision && sourceMirrorRecordHasHonchoObject(existing) {
 		if err := tx.Commit(); err != nil {
 			return SourceMirrorClaimResult{}, err
 		}
@@ -77,6 +79,8 @@ for update`, record.SourceType, record.SourceKey))
 
 	record.Status = SourceMirrorStatusPending
 	record.HonchoMessageID = ""
+	record.HonchoObjectType = ""
+	record.HonchoObjectID = ""
 	record.LastError = ""
 	updated, err := updateSourceMirrorClaim(tx, record, now)
 	if err != nil {
@@ -93,9 +97,21 @@ for update`, record.SourceType, record.SourceKey))
 }
 
 func (p *PostgresStore) CompleteSourceMirrorRecord(sourceType string, sourceKey string, honchoMessageID string, metadata map[string]any) (SourceMirrorRecord, error) {
-	honchoMessageID = strings.TrimSpace(honchoMessageID)
-	if honchoMessageID == "" {
-		return SourceMirrorRecord{}, errors.New("honcho message id is required")
+	return p.CompleteSourceMirrorObject(sourceType, sourceKey, "message", honchoMessageID, metadata)
+}
+
+func (p *PostgresStore) CompleteSourceMirrorObject(sourceType string, sourceKey string, honchoObjectType string, honchoObjectID string, metadata map[string]any) (SourceMirrorRecord, error) {
+	honchoObjectType = strings.TrimSpace(honchoObjectType)
+	honchoObjectID = strings.TrimSpace(honchoObjectID)
+	if honchoObjectType == "" {
+		return SourceMirrorRecord{}, errors.New("honcho object type is required")
+	}
+	if honchoObjectID == "" {
+		return SourceMirrorRecord{}, errors.New("honcho object id is required")
+	}
+	honchoMessageID := ""
+	if honchoObjectType == "message" {
+		honchoMessageID = honchoObjectID
 	}
 	raw, err := json.Marshal(nonNilMap(metadata))
 	if err != nil {
@@ -105,13 +121,16 @@ func (p *PostgresStore) CompleteSourceMirrorRecord(sourceType string, sourceKey 
 update source_mirror_record
 set status = 'complete',
     honcho_message_id = $3,
-    metadata = coalesce(metadata, '{}'::jsonb) || $4::jsonb,
+    honcho_object_type = $4,
+    honcho_object_id = $5,
+    metadata = coalesce(metadata, '{}'::jsonb) || $6::jsonb,
     last_error = '',
     updated_at = now()
 where source_type = $1 and source_key = $2
 returning source_type, source_key, workspace, environment, source_session_key, honcho_workspace,
-          honcho_session_id, honcho_message_id, source_revision, status, metadata, last_error,
-          created_at, updated_at`, sourceType, sourceKey, honchoMessageID, raw))
+          honcho_session_id, honcho_message_id, honcho_object_type, honcho_object_id,
+          source_revision, status, metadata, last_error,
+          created_at, updated_at`, sourceType, sourceKey, honchoMessageID, honchoObjectType, honchoObjectID, raw))
 	if err != nil {
 		return SourceMirrorRecord{}, err
 	}
@@ -134,7 +153,8 @@ set status = 'failed',
     updated_at = now()
 where source_type = $1 and source_key = $2
 returning source_type, source_key, workspace, environment, source_session_key, honcho_workspace,
-          honcho_session_id, honcho_message_id, source_revision, status, metadata, last_error,
+          honcho_session_id, honcho_message_id, honcho_object_type, honcho_object_id,
+          source_revision, status, metadata, last_error,
           created_at, updated_at`, sourceType, sourceKey, strings.TrimSpace(lastError), raw))
 	if err != nil {
 		return SourceMirrorRecord{}, err
@@ -148,7 +168,8 @@ returning source_type, source_key, workspace, environment, source_session_key, h
 func (p *PostgresStore) GetSourceMirrorRecord(sourceType string, sourceKey string) (SourceMirrorRecord, bool, error) {
 	return scanSourceMirrorRecord(p.db.QueryRow(`
 select source_type, source_key, workspace, environment, source_session_key, honcho_workspace,
-       honcho_session_id, honcho_message_id, source_revision, status, metadata, last_error,
+       honcho_session_id, honcho_message_id, honcho_object_type, honcho_object_id,
+       source_revision, status, metadata, last_error,
        created_at, updated_at
 from source_mirror_record
 where source_type = $1 and source_key = $2`, sourceType, sourceKey))
@@ -166,12 +187,14 @@ func insertSourceMirrorRecord(tx sourceMirrorQuerier, record SourceMirrorRecord,
 	returning, found, err := scanSourceMirrorRecord(tx.QueryRow(`
 insert into source_mirror_record (
   source_type, source_key, workspace, environment, source_session_key, honcho_workspace,
-  honcho_session_id, honcho_message_id, source_revision, status, metadata, last_error,
+  honcho_session_id, honcho_message_id, honcho_object_type, honcho_object_id,
+  source_revision, status, metadata, last_error,
   created_at, updated_at
-) values ($1, $2, $3, $4, $5, $6, $7, '', $8, 'pending', $9::jsonb, '', $10, $10)
+) values ($1, $2, $3, $4, $5, $6, $7, '', '', '', $8, 'pending', $9::jsonb, '', $10, $10)
 on conflict (source_type, source_key) do nothing
 returning source_type, source_key, workspace, environment, source_session_key, honcho_workspace,
-          honcho_session_id, honcho_message_id, source_revision, status, metadata, last_error,
+          honcho_session_id, honcho_message_id, honcho_object_type, honcho_object_id,
+          source_revision, status, metadata, last_error,
           created_at, updated_at`,
 		record.SourceType, record.SourceKey, record.Workspace, record.Environment, record.SourceSessionKey,
 		record.HonchoWorkspace, record.HonchoSessionID, record.SourceRevision, raw, now))
@@ -197,6 +220,8 @@ set workspace = $3,
     honcho_workspace = $6,
     honcho_session_id = $7,
     honcho_message_id = '',
+    honcho_object_type = '',
+    honcho_object_id = '',
     source_revision = $8,
     status = 'pending',
     metadata = $9::jsonb,
@@ -204,7 +229,8 @@ set workspace = $3,
     updated_at = $10
 where source_type = $1 and source_key = $2
 returning source_type, source_key, workspace, environment, source_session_key, honcho_workspace,
-          honcho_session_id, honcho_message_id, source_revision, status, metadata, last_error,
+          honcho_session_id, honcho_message_id, honcho_object_type, honcho_object_id,
+          source_revision, status, metadata, last_error,
           created_at, updated_at`,
 		record.SourceType, record.SourceKey, record.Workspace, record.Environment, record.SourceSessionKey,
 		record.HonchoWorkspace, record.HonchoSessionID, record.SourceRevision, raw, now))
@@ -229,6 +255,8 @@ func scanSourceMirrorRecord(row *sql.Row) (SourceMirrorRecord, bool, error) {
 		&record.HonchoWorkspace,
 		&record.HonchoSessionID,
 		&record.HonchoMessageID,
+		&record.HonchoObjectType,
+		&record.HonchoObjectID,
 		&record.SourceRevision,
 		&record.Status,
 		&metadata,

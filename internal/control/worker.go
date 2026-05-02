@@ -1210,7 +1210,7 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliv
 			parts = append(parts, "Use Notion MCP for Notion workspace search and page fetches when relevant.")
 		}
 		if useSlackMCP {
-			parts = append(parts, "Use Slack MCP for Slack permalink and thread reads when the user references Slack context outside the ingress thread.")
+			parts = append(parts, "Use Slack MCP for Slack permalink/thread reads and Honcho-backed company corpus discovery, including mirrored Slack conversations and Notion documents when relevant.")
 		}
 		parts = append(parts, "If an artifact materially helps satisfy the request, produce it with Hermes artifact tools, include it in produced_artifacts, and attach local files in the final native send_message by adding MEDIA:/absolute/path entries to the message. If an artifact cannot be produced, set artifact_failure_reason and still provide the best grounded reply.")
 		parts = append(parts, "Use Hermes-native tools, configured MCP servers, and terminal CLIs for evidence gathering.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "For the final Slack reply, use Hermes native send_message exactly once with target slack:<channel_id>:<thread_ts> for the bound delivery target. Do not use a DM fallback and do not post to any other channel or thread.", "Do not emit a slack_post action contract.", "Include reply_delivery describing the direct Slack delivery with status, channel_id, thread_ts when a thread exists, body, tool_call_id, tool_name, provider_ref, and message_link.")
@@ -1226,7 +1226,7 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliv
 		parts = append(parts, "Use Notion MCP for Notion workspace search and page fetches when relevant.")
 	}
 	if useSlackMCP {
-		parts = append(parts, "Use Slack MCP for Slack permalink and thread reads when the user references Slack context outside the ingress thread.")
+		parts = append(parts, "Use Slack MCP for Slack permalink/thread reads and Honcho-backed company corpus discovery, including mirrored Slack conversations and Notion documents when relevant.")
 	}
 	parts = append(parts, "If an artifact materially helps satisfy the request, produce it with Hermes artifact tools and include it in produced_artifacts. If an artifact cannot be produced, set artifact_failure_reason and still provide the best grounded reply.")
 	parts = append(parts, "Use Hermes-native tools, configured MCP servers, and terminal CLIs for evidence gathering.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "Slack posting is blocked by policy for this workflow, so do not send any Slack messages.", "Leave reply_delivery empty when no Slack reply was delivered.")

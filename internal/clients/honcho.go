@@ -84,6 +84,22 @@ type HonchoMessageCreate struct {
 	CreatedAt *time.Time     `json:"created_at,omitempty"`
 }
 
+type HonchoConclusion struct {
+	ID         string    `json:"id"`
+	Content    string    `json:"content"`
+	ObserverID string    `json:"observer_id"`
+	ObservedID string    `json:"observed_id"`
+	SessionID  string    `json:"session_id,omitempty"`
+	CreatedAt  time.Time `json:"created_at,omitempty"`
+}
+
+type HonchoConclusionCreate struct {
+	Content    string `json:"content"`
+	ObserverID string `json:"observer_id"`
+	ObservedID string `json:"observed_id"`
+	SessionID  string `json:"session_id,omitempty"`
+}
+
 func (c *HonchoClient) EnsureWorkspace(id string, metadata map[string]any) (HonchoWorkspace, error) {
 	var out HonchoWorkspace
 	payload := map[string]any{
@@ -112,6 +128,15 @@ func (c *HonchoClient) CreateMessages(workspaceID string, sessionID string, mess
 	var out []HonchoMessage
 	payload := map[string]any{"messages": messages}
 	if err := c.doJSON(http.MethodPost, c.apiBaseURL+"/workspaces/"+workspaceID+"/sessions/"+sessionID+"/messages", payload, &out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *HonchoClient) CreateConclusions(workspaceID string, conclusions []HonchoConclusionCreate) ([]HonchoConclusion, error) {
+	var out []HonchoConclusion
+	payload := map[string]any{"conclusions": conclusions}
+	if err := c.doJSON(http.MethodPost, c.apiBaseURL+"/workspaces/"+workspaceID+"/conclusions", payload, &out); err != nil {
 		return nil, err
 	}
 	return out, nil

@@ -25,6 +25,8 @@ func (m *MemoryStore) ClaimSourceMirrorRecord(record SourceMirrorRecord, lease t
 	if !found {
 		record.Status = SourceMirrorStatusPending
 		record.HonchoMessageID = ""
+		record.HonchoObjectType = ""
+		record.HonchoObjectID = ""
 		record.LastError = ""
 		record.CreatedAt = now
 		record.UpdatedAt = now
@@ -32,7 +34,7 @@ func (m *MemoryStore) ClaimSourceMirrorRecord(record SourceMirrorRecord, lease t
 		m.sourceMirrorRecords[key] = record
 		return SourceMirrorClaimResult{Record: record, ShouldWrite: true, Reason: "new"}, nil
 	}
-	if existing.Status == SourceMirrorStatusComplete && existing.SourceRevision == record.SourceRevision && strings.TrimSpace(existing.HonchoMessageID) != "" {
+	if existing.Status == SourceMirrorStatusComplete && existing.SourceRevision == record.SourceRevision && sourceMirrorRecordHasHonchoObject(existing) {
 		return SourceMirrorClaimResult{Record: cloneSourceMirrorRecord(existing), ShouldWrite: false, Reason: "already_complete"}, nil
 	}
 	if existing.Status == SourceMirrorStatusPending && now.Sub(existing.UpdatedAt) < lease {
@@ -44,6 +46,8 @@ func (m *MemoryStore) ClaimSourceMirrorRecord(record SourceMirrorRecord, lease t
 	}
 	record.Status = SourceMirrorStatusPending
 	record.HonchoMessageID = ""
+	record.HonchoObjectType = ""
+	record.HonchoObjectID = ""
 	record.LastError = ""
 	record.CreatedAt = existing.CreatedAt
 	record.UpdatedAt = now
@@ -53,9 +57,21 @@ func (m *MemoryStore) ClaimSourceMirrorRecord(record SourceMirrorRecord, lease t
 }
 
 func (m *MemoryStore) CompleteSourceMirrorRecord(sourceType string, sourceKey string, honchoMessageID string, metadata map[string]any) (SourceMirrorRecord, error) {
-	honchoMessageID = strings.TrimSpace(honchoMessageID)
-	if honchoMessageID == "" {
-		return SourceMirrorRecord{}, errors.New("honcho message id is required")
+	return m.CompleteSourceMirrorObject(sourceType, sourceKey, "message", honchoMessageID, metadata)
+}
+
+func (m *MemoryStore) CompleteSourceMirrorObject(sourceType string, sourceKey string, honchoObjectType string, honchoObjectID string, metadata map[string]any) (SourceMirrorRecord, error) {
+	honchoObjectType = strings.TrimSpace(honchoObjectType)
+	honchoObjectID = strings.TrimSpace(honchoObjectID)
+	if honchoObjectType == "" {
+		return SourceMirrorRecord{}, errors.New("honcho object type is required")
+	}
+	if honchoObjectID == "" {
+		return SourceMirrorRecord{}, errors.New("honcho object id is required")
+	}
+	honchoMessageID := ""
+	if honchoObjectType == "message" {
+		honchoMessageID = honchoObjectID
 	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -66,6 +82,8 @@ func (m *MemoryStore) CompleteSourceMirrorRecord(sourceType string, sourceKey st
 	}
 	existing.Status = SourceMirrorStatusComplete
 	existing.HonchoMessageID = honchoMessageID
+	existing.HonchoObjectType = honchoObjectType
+	existing.HonchoObjectID = honchoObjectID
 	existing.LastError = ""
 	existing.UpdatedAt = time.Now().UTC()
 	existing.Metadata = mergeAnyMaps(existing.Metadata, metadata)
@@ -109,6 +127,10 @@ func sourceMirrorMemoryKey(sourceType string, sourceKey string) string {
 func cloneSourceMirrorRecord(record SourceMirrorRecord) SourceMirrorRecord {
 	record.Metadata = cloneAnyMap(record.Metadata)
 	return record
+}
+
+func sourceMirrorRecordHasHonchoObject(record SourceMirrorRecord) bool {
+	return strings.TrimSpace(record.HonchoObjectID) != "" || strings.TrimSpace(record.HonchoMessageID) != ""
 }
 
 func mergeAnyMaps(base map[string]any, overlay map[string]any) map[string]any {

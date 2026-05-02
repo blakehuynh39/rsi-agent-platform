@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -156,6 +157,146 @@ func TestSourceMirrorMessageWriteIsIdempotent(t *testing.T) {
 	}
 	if out.ShouldWrite || out.Reason != "already_complete" || out.HonchoMessageID != "msg_analysis_1" {
 		t.Fatalf("unexpected idempotent response: %+v", out)
+	}
+}
+
+func TestSourceMirrorDocumentWriteIsIdempotent(t *testing.T) {
+	honchoDocumentsCreated := 0
+	honcho := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch {
+		case r.Method == http.MethodPost && r.URL.Path == "/v3/workspaces":
+			_, _ = w.Write([]byte(`{"id":"rsi_company_knowledge","metadata":{}}`))
+		case r.Method == http.MethodPost && r.URL.Path == "/v3/workspaces/rsi_company_knowledge/sessions":
+			_, _ = w.Write([]byte(`{"id":"notion_T123_page_abc","workspace_id":"rsi_company_knowledge","metadata":{}}`))
+		case r.Method == http.MethodPost && r.URL.Path == "/v3/workspaces/rsi_company_knowledge/conclusions":
+			honchoDocumentsCreated++
+			_, _ = w.Write([]byte(`[{"id":"doc_notion_1","content":"Runbook content","observer_id":"notion_mirror","observed_id":"story_company","session_id":"notion_T123_page_abc","created_at":"2026-05-02T10:00:00Z"}]`))
+		default:
+			t.Fatalf("unexpected honcho request %s %s", r.Method, r.URL.Path)
+		}
+	}))
+	defer honcho.Close()
+
+	store := storepkg.NewMemoryStore()
+	router := NewRouter(config.Config{
+		ServiceName:   "control-plane",
+		Environment:   "stage",
+		HonchoBaseURL: honcho.URL,
+	}, store)
+	body := `{
+		"record":{
+			"source_type":"notion_document",
+			"source_key":"notion_document:T123:page_abc",
+			"workspace":"T123",
+			"environment":"stage",
+			"source_session_key":"notion:T123:page_abc",
+			"honcho_workspace":"rsi_company_knowledge",
+			"honcho_session_id":"notion_T123_page_abc",
+			"source_revision":"last_edited_time:2026-05-02T10:00:00Z",
+			"metadata":{"source":"notion","source_url":"https://notion.so/page_abc"}
+		},
+		"document":{
+			"content":"Runbook content",
+			"observer_id":"notion_mirror",
+			"observed_id":"story_company",
+			"metadata":{"source_page_id":"page_abc"}
+		}
+	}`
+
+	first := httptest.NewRecorder()
+	router.ServeHTTP(first, httptest.NewRequest(http.MethodPost, "/internal/source-mirror/documents", bytes.NewBufferString(body)))
+	if first.Code != http.StatusCreated {
+		responseBody, _ := io.ReadAll(first.Body)
+		t.Fatalf("first write status = %d: %s", first.Code, string(responseBody))
+	}
+	second := httptest.NewRecorder()
+	router.ServeHTTP(second, httptest.NewRequest(http.MethodPost, "/internal/source-mirror/documents", bytes.NewBufferString(body)))
+	if second.Code != http.StatusOK {
+		responseBody, _ := io.ReadAll(second.Body)
+		t.Fatalf("second write status = %d: %s", second.Code, string(responseBody))
+	}
+	if honchoDocumentsCreated != 1 {
+		t.Fatalf("expected one Honcho document create, got %d", honchoDocumentsCreated)
+	}
+	var out sourceMirrorDocumentWriteResponse
+	if err := json.NewDecoder(second.Body).Decode(&out); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
+	if out.ShouldWrite || out.Reason != "already_complete" || out.HonchoDocumentID != "doc_notion_1" {
+		t.Fatalf("unexpected idempotent response: %+v", out)
+	}
+	if out.Record.HonchoObjectType != "document" || out.Record.HonchoObjectID != "doc_notion_1" {
+		t.Fatalf("source mirror record did not track document object: %+v", out.Record)
+	}
+}
+
+func TestSourceMirrorDocumentRevisionCreatesNewHonchoDocument(t *testing.T) {
+	honchoDocumentsCreated := 0
+	honcho := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch {
+		case r.Method == http.MethodPost && r.URL.Path == "/v3/workspaces":
+			_, _ = w.Write([]byte(`{"id":"rsi_company_knowledge","metadata":{}}`))
+		case r.Method == http.MethodPost && r.URL.Path == "/v3/workspaces/rsi_company_knowledge/sessions":
+			_, _ = w.Write([]byte(`{"id":"notion_T123_page_abc","workspace_id":"rsi_company_knowledge","metadata":{}}`))
+		case r.Method == http.MethodPost && r.URL.Path == "/v3/workspaces/rsi_company_knowledge/conclusions":
+			honchoDocumentsCreated++
+			_, _ = w.Write([]byte(fmt.Sprintf(`[{"id":"doc_notion_%d","content":"Runbook content","observer_id":"notion_mirror","observed_id":"story_company","session_id":"notion_T123_page_abc","created_at":"2026-05-02T10:00:00Z"}]`, honchoDocumentsCreated)))
+		default:
+			t.Fatalf("unexpected honcho request %s %s", r.Method, r.URL.Path)
+		}
+	}))
+	defer honcho.Close()
+
+	store := storepkg.NewMemoryStore()
+	router := NewRouter(config.Config{
+		ServiceName:   "control-plane",
+		Environment:   "stage",
+		HonchoBaseURL: honcho.URL,
+	}, store)
+	body := func(revision string) string {
+		return `{
+			"record":{
+				"source_type":"notion_document",
+				"source_key":"notion_document:T123:page_abc",
+				"workspace":"T123",
+				"environment":"stage",
+				"source_session_key":"notion:T123:page_abc",
+				"honcho_workspace":"rsi_company_knowledge",
+				"honcho_session_id":"notion_T123_page_abc",
+				"source_revision":"` + revision + `",
+				"metadata":{"source":"notion"}
+			},
+			"document":{
+				"content":"Runbook content",
+				"observer_id":"notion_mirror",
+				"observed_id":"story_company"
+			}
+		}`
+	}
+
+	first := httptest.NewRecorder()
+	router.ServeHTTP(first, httptest.NewRequest(http.MethodPost, "/internal/source-mirror/documents", bytes.NewBufferString(body("rev1"))))
+	if first.Code != http.StatusCreated {
+		responseBody, _ := io.ReadAll(first.Body)
+		t.Fatalf("first write status = %d: %s", first.Code, string(responseBody))
+	}
+	second := httptest.NewRecorder()
+	router.ServeHTTP(second, httptest.NewRequest(http.MethodPost, "/internal/source-mirror/documents", bytes.NewBufferString(body("rev2"))))
+	if second.Code != http.StatusCreated {
+		responseBody, _ := io.ReadAll(second.Body)
+		t.Fatalf("second write status = %d: %s", second.Code, string(responseBody))
+	}
+	if honchoDocumentsCreated != 2 {
+		t.Fatalf("expected two Honcho document creates after revision change, got %d", honchoDocumentsCreated)
+	}
+	var out sourceMirrorDocumentWriteResponse
+	if err := json.NewDecoder(second.Body).Decode(&out); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
+	if out.Reason != "revision_changed" || out.HonchoDocumentID != "doc_notion_2" {
+		t.Fatalf("unexpected revision response: %+v", out)
 	}
 }
 
