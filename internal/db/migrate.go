@@ -55,15 +55,7 @@ func LatestMigrationVersion() int64 {
 func VerifyCompatible(db *sql.DB) (SchemaStatus, error) {
 	expected := LatestMigrationVersion()
 	status := SchemaStatus{ExpectedVersion: expected, State: "unknown"}
-	exists, err := migrationTableExists(db)
-	if err != nil {
-		return status, err
-	}
-	if !exists {
-		status.State = "missing_version"
-		return status, errors.New("rsi schema version missing; run improvement-plane --mode migrate")
-	}
-	current, err := currentMigrationVersion(db)
+	current, err := readCurrentSchemaVersion(db, &status)
 	if err != nil {
 		return status, err
 	}
@@ -79,6 +71,47 @@ func VerifyCompatible(db *sql.DB) (SchemaStatus, error) {
 		status.State = "ahead"
 		return status, fmt.Errorf("rsi schema ahead of binary: current=%d expected=%d", current, expected)
 	}
+}
+
+func VerifyAtLeast(db *sql.DB, minimum int64) (SchemaStatus, error) {
+	expected := LatestMigrationVersion()
+	status := SchemaStatus{ExpectedVersion: expected, State: "unknown"}
+	current, err := readCurrentSchemaVersion(db, &status)
+	if err != nil {
+		return status, err
+	}
+	status.CurrentVersion = current
+	switch {
+	case current < minimum:
+		status.State = "behind"
+		return status, fmt.Errorf("rsi schema behind required minimum: current=%d minimum=%d; run improvement-plane --mode migrate", current, minimum)
+	case current == expected:
+		status.State = "compatible"
+	default:
+		status.State = "minimum_compatible"
+		if current > expected {
+			status.State = "ahead"
+		}
+	}
+	return status, nil
+}
+
+func readCurrentSchemaVersion(db *sql.DB, status *SchemaStatus) (int64, error) {
+	exists, err := migrationTableExists(db)
+	if err != nil {
+		return 0, err
+	}
+	if !exists {
+		if status != nil {
+			status.State = "missing_version"
+		}
+		return 0, errors.New("rsi schema version missing; run improvement-plane --mode migrate")
+	}
+	current, err := currentMigrationVersion(db)
+	if err != nil {
+		return 0, err
+	}
+	return current, nil
 }
 
 func ApplyMigrations(db *sql.DB) (SchemaStatus, error) {

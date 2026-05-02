@@ -6,6 +6,8 @@ const (
 	SourceMirrorStatusPending  = "pending"
 	SourceMirrorStatusComplete = "complete"
 	SourceMirrorStatusFailed   = "failed"
+
+	SourceMirrorMinimumSchemaVersion int64 = 29
 )
 
 type SourceMirrorRecord struct {

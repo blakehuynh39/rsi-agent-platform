@@ -34,13 +34,9 @@ type slackMirrorCheckpoint struct {
 	LastHonchoSession string    `json:"last_honcho_session,omitempty"`
 }
 
-func RunSlackMirror(ctx context.Context, cfg config.Config, state store.Store) error {
+func RunSlackMirror(ctx context.Context, cfg config.Config, mirrorStore store.SourceMirrorWriteStore) error {
 	if !cfg.SlackMirrorEnabled {
 		return errors.New("slack mirror is disabled")
-	}
-	mirrorStore, ok := state.(store.SourceMirrorWriteStore)
-	if !ok {
-		return errors.New("configured store does not support source mirror idempotency")
 	}
 	api := slackapi.New(cfg.SlackBotToken)
 	auth, err := api.AuthTestContext(ctx)

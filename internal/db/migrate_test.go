@@ -109,6 +109,47 @@ func TestMigrationUpgradeDropsQuestionRunCatalog(t *testing.T) {
 	assertNoQuestionRunTransitionRows(t, db)
 }
 
+func TestVerifyAtLeastAllowsSchemaAheadOfBinary(t *testing.T) {
+	db, cleanup := openTempDatabase(t)
+	defer cleanup()
+
+	if _, err := ApplyMigrations(db); err != nil {
+		t.Fatalf("ApplyMigrations() error = %v", err)
+	}
+	aheadVersion := LatestMigrationVersion() + 1
+	if _, err := db.Exec(`insert into rsi_schema_migrations (version, name, applied_at) values ($1,$2,$3)`, aheadVersion, "future", time.Now().UTC()); err != nil {
+		t.Fatalf("record future migration: %v", err)
+	}
+
+	if _, err := VerifyCompatible(db); err == nil || !strings.Contains(err.Error(), "ahead of binary") {
+		t.Fatalf("expected strict compatibility to reject ahead schema, got %v", err)
+	}
+	status, err := VerifyAtLeast(db, LatestMigrationVersion())
+	if err != nil {
+		t.Fatalf("VerifyAtLeast() error = %v", err)
+	}
+	if status.State != "ahead" || status.CurrentVersion != aheadVersion {
+		t.Fatalf("expected ahead-but-allowed schema status, got %+v", status)
+	}
+}
+
+func TestVerifyAtLeastRejectsSchemaBelowMinimum(t *testing.T) {
+	db, cleanup := openTempDatabase(t)
+	defer cleanup()
+
+	if err := ensureMigrationTable(db); err != nil {
+		t.Fatalf("ensure migration table: %v", err)
+	}
+	if _, err := db.Exec(`insert into rsi_schema_migrations (version, name, applied_at) values ($1,$2,$3)`, int64(28), "old", time.Now().UTC()); err != nil {
+		t.Fatalf("record old migration: %v", err)
+	}
+
+	status, err := VerifyAtLeast(db, 29)
+	if err == nil || !strings.Contains(err.Error(), "behind required minimum") {
+		t.Fatalf("expected minimum schema error, got status=%+v err=%v", status, err)
+	}
+}
+
 func TestMigrationRejectsIncompatibleExistingDatabase(t *testing.T) {
 	db, cleanup := openTempDatabase(t)
 	defer cleanup()

@@ -20,6 +20,24 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	if *mode == "slack-mirror" {
+		mirrorStore, err := storepkg.OpenSourceMirrorWriteStore(cfg)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if provider, ok := mirrorStore.(interface {
+			SchemaStatus() platformdb.SchemaStatus
+		}); ok {
+			status := provider.SchemaStatus()
+			cfg.SchemaVersionCurrent = status.CurrentVersion
+			cfg.SchemaVersionExpected = status.ExpectedVersion
+			cfg.SchemaCompatibility = status.State
+		}
+		if err := control.RunSlackMirror(context.Background(), cfg, mirrorStore); err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
 	store := storepkg.MustOpenStore(cfg)
 	if provider, ok := store.(interface {
 		SchemaStatus() platformdb.SchemaStatus
@@ -31,12 +49,6 @@ func main() {
 	}
 	if *mode == "slack-surface" {
 		if err := control.RunSlackSurface(cfg, store); err != nil {
-			log.Fatal(err)
-		}
-		return
-	}
-	if *mode == "slack-mirror" {
-		if err := control.RunSlackMirror(context.Background(), cfg, store); err != nil {
 			log.Fatal(err)
 		}
 		return

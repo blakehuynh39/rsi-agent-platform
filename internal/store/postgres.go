@@ -82,6 +82,17 @@ func MustOpenStore(cfg config.Config) Store {
 	return store
 }
 
+func OpenSourceMirrorWriteStore(cfg config.Config) (SourceMirrorWriteStore, error) {
+	switch strings.TrimSpace(cfg.StoreBackend) {
+	case "postgres":
+		return NewPostgresSourceMirrorWriteStore(cfg)
+	case "memory":
+		return NewMemoryStore(), nil
+	default:
+		return nil, fmt.Errorf("unsupported RSI_STORE_BACKEND %q", cfg.StoreBackend)
+	}
+}
+
 func NewPostgresStore(cfg config.Config) (*PostgresStore, error) {
 	db, err := platformdb.OpenPostgres(cfg.PostgresURL)
 	if err != nil {
@@ -97,6 +108,19 @@ func NewPostgresStore(cfg config.Config) (*PostgresStore, error) {
 		return nil, err
 	}
 	return store, nil
+}
+
+func NewPostgresSourceMirrorWriteStore(cfg config.Config) (*PostgresStore, error) {
+	db, err := platformdb.OpenPostgres(cfg.PostgresURL)
+	if err != nil {
+		return nil, err
+	}
+	status, err := platformdb.VerifyAtLeast(db, SourceMirrorMinimumSchemaVersion)
+	if err != nil {
+		_ = db.Close()
+		return nil, err
+	}
+	return &PostgresStore{db: db, schemaStatus: status}, nil
 }
 
 func (p *PostgresStore) ResetAppData() (AppDataResetResult, error) {
