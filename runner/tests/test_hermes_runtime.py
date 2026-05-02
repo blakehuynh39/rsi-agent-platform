@@ -13,6 +13,7 @@ import time
 import types
 import unittest
 from unittest import mock
+from urllib import error as urlerror
 
 from rsi_runner.config import RunnerConfig, RunnerConfigError
 from rsi_runner.execution_contract import HermesCompanyComputer
@@ -6748,6 +6749,7 @@ class HermesRuntimeTests(unittest.TestCase):
         class FakeResponse:
             def __init__(self, payload: dict[str, object]) -> None:
                 self._payload = payload
+                self.headers = {"Content-Type": "application/json"}
 
             def __enter__(self) -> "FakeResponse":
                 return self
@@ -6761,6 +6763,7 @@ class HermesRuntimeTests(unittest.TestCase):
         observed_methods: list[str] = []
 
         def fake_urlopen(req, timeout: int = 0):
+            self.assertEqual(req.get_header("Accept"), "application/json, text/event-stream")
             payload = json.loads(req.data.decode("utf-8"))
             method = str(payload["method"])
             observed_methods.append(method)
@@ -6789,7 +6792,91 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertTrue(metadata["slack_mcp_available"])
         self.assertEqual(metadata["slack_mcp_tool_count"], 1)
+        self.assertEqual(metadata["slack_mcp_discovery_error"], "")
         self.assertEqual(observed_methods, ["initialize", "notifications/initialized", "tools/list"])
+
+    def test_runtime_metadata_retries_slack_mcp_after_discovery_failure(self) -> None:
+        class FakeResponse:
+            def __init__(self, payload: dict[str, object]) -> None:
+                self._payload = payload
+                self.headers = {"Content-Type": "application/json"}
+
+            def __enter__(self) -> "FakeResponse":
+                return self
+
+            def __exit__(self, *_args: object) -> None:
+                return None
+
+            def read(self) -> bytes:
+                return json.dumps(self._payload).encode("utf-8")
+
+        calls = 0
+        observed_methods: list[str] = []
+
+        def fake_urlopen(req, timeout: int = 0):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                raise urlerror.HTTPError(
+                    req.full_url,
+                    406,
+                    "Not Acceptable",
+                    {},
+                    io.BytesIO(b'{"error":{"message":"Not Acceptable: Client must accept application/json"}}'),
+                )
+            payload = json.loads(req.data.decode("utf-8"))
+            method = str(payload["method"])
+            observed_methods.append(method)
+            if method == "tools/list":
+                return FakeResponse(
+                    {
+                        "jsonrpc": "2.0",
+                        "id": payload.get("id"),
+                        "result": {"tools": [{"name": "slack_read_thread", "description": "Read Slack", "annotations": {"readOnlyHint": True}}]},
+                    }
+                )
+            return FakeResponse({"jsonrpc": "2.0", "id": payload.get("id"), "result": {}})
+
+        env = {
+            **runner_env("prod"),
+            "RSI_SLACK_MCP_ENABLED": "true",
+            "RSI_SLACK_MCP_SERVER_URL": "https://slack-mcp.test/mcp",
+        }
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch("rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen), mock.patch.dict(
+            os.environ, env, clear=True
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            first_metadata = runtime.metadata
+            second_metadata = runtime.metadata
+
+        self.assertFalse(first_metadata["slack_mcp_available"])
+        self.assertEqual(first_metadata["slack_mcp_tool_count"], 0)
+        self.assertIn("Slack MCP initialize returned 406", first_metadata["slack_mcp_discovery_error"])
+        self.assertTrue(second_metadata["slack_mcp_available"])
+        self.assertEqual(second_metadata["slack_mcp_tool_count"], 1)
+        self.assertEqual(second_metadata["slack_mcp_discovery_error"], "")
+        self.assertEqual(observed_methods, ["initialize", "notifications/initialized", "tools/list"])
+
+    def test_slack_mcp_response_parser_accepts_sse_json_rpc_message(self) -> None:
+        env = {
+            **runner_env("prod"),
+            "RSI_SLACK_MCP_ENABLED": "true",
+            "RSI_SLACK_MCP_SERVER_URL": "https://slack-mcp.test/mcp",
+        }
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, env, clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        parsed = runtime._parse_slack_mcp_response(
+            'event: message\n'
+            'data: {"jsonrpc":"2.0","id":"tools_list","result":{"tools":[{"name":"slack_read_thread"}]}}\n\n',
+            content_type="text/event-stream",
+        )
+
+        self.assertEqual(parsed["result"], {"tools": [{"name": "slack_read_thread"}]})
 
     def test_direct_slack_delivery_env_uses_canonical_bot_token_name(self) -> None:
         task = RunnerTaskRequest.from_payload(

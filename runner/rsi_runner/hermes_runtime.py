@@ -1036,6 +1036,8 @@ class HermesRuntime:
             slack_read_tool_names_resolver=self._slack_mcp_read_tool_names,
             slack_send_tool_name_resolver=self._slack_mcp_send_tool_name_or_error,
         )
+        self._slack_mcp_session_id = ""
+        self._slack_mcp_protocol_version = ""
         self._started_at_unix = time.time()
         self._executor_recent_results: dict[str, JsonObject] = {}
         self._executor_processes: dict[str, subprocess.Popen[str]] = {}
@@ -1354,6 +1356,12 @@ class HermesRuntime:
     def metadata(self) -> JsonObject:
         adapter_meta = self._adapter.metadata
         observation_sink_configured = bool(self._config.runtime_observation_sink_url)
+        slack_mcp_tools = self._slack_mcp_tools()
+        slack_mcp_available = (
+            self._config.slack_mcp_enabled
+            and self._config.slack_bot_token_configured
+            and len(slack_mcp_tools) > 0
+        )
         return {
             "status": "ok" if self.available and self._session_manager.skills_healthy else "degraded",
             "role": self._role,
@@ -1371,9 +1379,10 @@ class HermesRuntime:
             "openrouter_configured": self._openrouter_configured,
             "slack_mcp_enabled": self._config.slack_mcp_enabled,
             "slack_mcp_configured": self._config.slack_mcp_enabled and self._config.slack_bot_token_configured,
-            "slack_mcp_available": self._slack_mcp_available(),
+            "slack_mcp_available": slack_mcp_available,
             "slack_mcp_server_url": self._config.slack_mcp_server_url,
-            "slack_mcp_tool_count": len(self._slack_mcp_tools()),
+            "slack_mcp_tool_count": len(slack_mcp_tools),
+            "slack_mcp_discovery_error": self._slack_mcp_discovery_error,
             "persistence_enabled": self._session_manager.available,
             "session_continuity_status": "ok" if self._session_manager.available else "degraded",
             "hermes_home": self._session_manager.hermes_home,
@@ -4967,17 +4976,27 @@ class HermesRuntime:
         }
         if request_id is not None:
             payload["id"] = request_id
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json, text/event-stream",
+            "Content-Type": "application/json",
+        }
+        if self._slack_mcp_session_id:
+            headers["mcp-session-id"] = self._slack_mcp_session_id
+        if self._slack_mcp_protocol_version and method != "initialize":
+            headers["mcp-protocol-version"] = self._slack_mcp_protocol_version
         req = urlrequest.Request(
             self._config.slack_mcp_server_url,
             data=json.dumps(payload).encode("utf-8"),
-            headers={
-                "Authorization": f"Bearer {token}",
-                "Content-Type": "application/json",
-            },
+            headers=headers,
             method="POST",
         )
         try:
             with urlrequest.urlopen(req, timeout=15) as resp:
+                response_headers = getattr(resp, "headers", {}) or {}
+                if session_id := str(response_headers.get("mcp-session-id", "") or "").strip():
+                    self._slack_mcp_session_id = session_id
+                content_type = str(response_headers.get("Content-Type", "") or response_headers.get("content-type", "") or "")
                 body = resp.read().decode("utf-8")
         except urlerror.HTTPError as exc:
             detail = exc.read().decode("utf-8", errors="replace")
@@ -4986,16 +5005,49 @@ class HermesRuntime:
             raise RuntimeError(f"Slack MCP {method} request failed: {exc}") from exc
         if notification:
             return {}
-        try:
-            parsed = json.loads(body)
-        except json.JSONDecodeError as exc:
-            raise RuntimeError("Slack MCP returned invalid JSON.") from exc
+        parsed = self._parse_slack_mcp_response(body, content_type=content_type)
         if not isinstance(parsed, dict):
             raise RuntimeError("Slack MCP returned a non-object JSON payload.")
         error_payload = _json_object_or_empty(parsed.get("error"))
         if error_payload:
             raise RuntimeError(first_non_empty(_string_or_json(error_payload.get("message")), "Slack MCP returned an error."))
-        return _json_object_or_empty(parsed.get("result"))
+        result = _json_object_or_empty(parsed.get("result"))
+        if method == "initialize":
+            protocol_version = _string_or_json(result.get("protocolVersion")).strip()
+            if protocol_version:
+                self._slack_mcp_protocol_version = protocol_version
+        return result
+
+    def _parse_slack_mcp_response(self, body: str, *, content_type: str = "") -> JsonObject:
+        if "text/event-stream" in content_type.lower():
+            return self._parse_slack_mcp_sse_response(body)
+        try:
+            parsed = json.loads(body)
+        except json.JSONDecodeError:
+            if "data:" in body:
+                return self._parse_slack_mcp_sse_response(body)
+            raise RuntimeError("Slack MCP returned invalid JSON.") from None
+        if not isinstance(parsed, dict):
+            raise RuntimeError("Slack MCP returned a non-object JSON payload.")
+        return parsed
+
+    def _parse_slack_mcp_sse_response(self, body: str) -> JsonObject:
+        for raw_event in re.split(r"\r?\n\r?\n", body.strip()):
+            data_lines: list[str] = []
+            for line in raw_event.splitlines():
+                if line.startswith("data:"):
+                    data_lines.append(line[5:].lstrip(" "))
+            if not data_lines:
+                continue
+            data = "\n".join(data_lines)
+            try:
+                parsed = json.loads(data)
+            except json.JSONDecodeError as exc:
+                raise RuntimeError("Slack MCP returned invalid SSE JSON.") from exc
+            if not isinstance(parsed, dict):
+                raise RuntimeError("Slack MCP returned a non-object SSE JSON payload.")
+            return parsed
+        raise RuntimeError("Slack MCP returned an SSE response without a JSON-RPC message.")
 
     def _slack_mcp_tools(self) -> list[JsonObject]:
         if self._slack_mcp_tool_cache is not None:
@@ -5022,7 +5074,8 @@ class HermesRuntime:
             self._slack_mcp_discovery_error = ""
             return list(tools)
         except RuntimeError as exc:
-            self._slack_mcp_tool_cache = []
+            self._slack_mcp_tool_cache = None
+            self._slack_mcp_send_tool_name = ""
             self._slack_mcp_discovery_error = str(exc)
             return []
 
