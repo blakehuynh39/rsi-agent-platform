@@ -16,6 +16,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/piplabs/rsi-agent-platform/internal/companyknowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
@@ -359,6 +360,57 @@ func TestSourceMirrorStatusEndpointReportsCompletedRecords(t *testing.T) {
 	}
 	if !out.OK || out.SourceTypes["slack_message"].LatestComplete == nil {
 		t.Fatalf("expected successful source mirror status, got %+v", out)
+	}
+}
+
+func TestSourceMirrorStatusEndpointReportsHistoricalStaleRecordsWithoutFailingType(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	complete := storepkg.SourceMirrorRecord{
+		SourceType:       companyknowledge.NotionDocumentSourceType,
+		SourceKey:        companyknowledge.NotionDocumentSourceKey("notion", "active_page"),
+		Workspace:        "notion",
+		Environment:      "stage",
+		SourceSessionKey: companyknowledge.NotionDocumentSessionKey("notion", "active_page"),
+		HonchoWorkspace:  "rsi_company_knowledge",
+		HonchoSessionID:  "notion_active_page",
+		SourceRevision:   "rev1",
+	}
+	if _, err := store.ClaimSourceMirrorRecord(complete, time.Minute); err != nil {
+		t.Fatalf("claim complete record: %v", err)
+	}
+	if _, err := store.CompleteSourceMirrorObject(complete.SourceType, complete.SourceKey, "document", "doc_active", nil); err != nil {
+		t.Fatalf("complete record: %v", err)
+	}
+	stale := storepkg.SourceMirrorRecord{
+		SourceType:       companyknowledge.NotionDocumentSourceType,
+		SourceKey:        companyknowledge.NotionDocumentSourceKey("notion", "stale_page"),
+		Workspace:        "notion",
+		Environment:      "stage",
+		SourceSessionKey: companyknowledge.NotionDocumentSessionKey("notion", "stale_page"),
+		HonchoWorkspace:  "rsi_company_knowledge",
+		HonchoSessionID:  "notion_stale_page",
+		SourceRevision:   "stale:archived",
+	}
+	if _, err := store.MarkSourceMirrorRecordStale(stale, "archived", nil); err != nil {
+		t.Fatalf("mark stale record: %v", err)
+	}
+	router := NewRouter(config.Config{ServiceName: "control-plane", Environment: "stage"}, store)
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/internal/source-mirror/status?source_type=notion_document", nil)
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		responseBody, _ := io.ReadAll(rec.Body)
+		t.Fatalf("expected status 200, got %d: %s", rec.Code, string(responseBody))
+	}
+	var out sourceMirrorStatusResponse
+	if err := json.NewDecoder(rec.Body).Decode(&out); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
+	status := out.SourceTypes[companyknowledge.NotionDocumentSourceType]
+	if !out.OK || status.LatestComplete == nil || status.LatestStale == nil || status.Counts[storepkg.SourceMirrorStatusStale] != 1 {
+		t.Fatalf("expected complete plus reportable stale record, got %+v", out)
 	}
 }
 

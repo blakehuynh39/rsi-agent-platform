@@ -42,9 +42,15 @@ This avoids search-before-write races and avoids direct SQL writes into Honcho.
 For Honcho document/conclusion writes used by Notion mirroring:
 
 - `source_type = notion_document`
-- `source_key = notion_document:{workspace}:{notion_page_or_database_id}`
-- `source_revision = last_edited_time:{timestamp}` or another source-native
-  revision marker when Notion exposes one
+- Page source keys use `notion_document:{workspace}:{notion_page_id}` and
+  session keys use `notion:{workspace}:{notion_page_id}`.
+- Database source keys use
+  `notion_document:{workspace}:database:{notion_database_id}` and session keys
+  use `notion:{workspace}:database:{notion_database_id}`.
+- Page revisions use `last_edited_time:{timestamp}` when available.
+- Database revisions use `last_edited_time:{timestamp};schema_hash:{hash}`.
+  The schema hash is computed from a deterministic property summary with sorted
+  property names and sorted select/status option names.
 
 Honcho's current public document surface is the `conclusions` API. The RSI
 source-mirror wrapper therefore writes the document body through
@@ -58,6 +64,23 @@ SQL coupling.
 The same idempotency rule applies: same `source_key` and same `source_revision`
 is a no-op; a changed revision creates a new Honcho document/conclusion and
 updates the wrapper record to point at the latest Honcho object ID.
+
+Checkpoints are progress hints, not mirror authority. A matching checkpoint can
+avoid redundant local work only when `source_mirror_record` already has a
+complete record for the same source key and revision. Crawler discovery cannot
+be skipped unless the object checkpoint also has a complete, non-truncated child
+graph for that same revision.
+
+`source_mirror_record.status` supports `pending`, `complete`, `failed`, and
+`stale`. Stale records are used for archived, trashed, inaccessible, or
+unreachable Notion objects. This tranche records stale state and labels or
+suppresses it only where tooling can reliably bind a returned document back to a
+source record; it does not physically delete historical Honcho conclusions.
+
+For Notion crawl misses:
+
+- `source_type = notion_crawl_miss`
+- `source_key = notion_crawl_miss:{workspace}:{root_id}:{target_id}`
 
 For Slack attachment analyses:
 
@@ -90,8 +113,10 @@ startup.
 `RSI_NOTION_MIRROR_ALLOWLIST`. Each allowlist entry must be a Notion page or
 database ID visible to `NOTION_TOKEN`. The mirror recursively follows child
 pages and child databases, extracts supported Notion block text, writes Notion
-pages to Honcho through `/internal/source-mirror/documents`, and checkpoints
-progress under `RSI_SOURCE_MIRROR_CHECKPOINT_ROOT/notion`.
+pages and database metadata to Honcho through the supported source-mirror
+wrapper, and checkpoints progress under
+`RSI_SOURCE_MIRROR_CHECKPOINT_ROOT/notion`. Database row pages are mirrored as
+separate page documents.
 
 `control-plane --mode source-mirror-health` is the deployment/readiness contract
 for enabled mirrors. It validates the checkpoint root is writable, verifies
@@ -102,8 +127,10 @@ fails.
 
 `GET /internal/source-mirror/status` exposes source-mirror record status for
 operators and gates. Passing one or more `source_type` query parameters makes
-those source types required; a missing complete write, stale complete write, or
-newer failed write returns a non-2xx health result.
+those source types required; a missing complete write or newer failed write
+returns a non-2xx health result. Stale records are reported separately so
+required current roots can be checked explicitly while historical stale objects
+remain auditable without failing unrelated source types.
 
 Notion mirror configuration:
 
@@ -112,6 +139,16 @@ Notion mirror configuration:
 - `NOTION_TOKEN=<integration token>`
 - `RSI_NOTION_API_BASE_URL=https://api.notion.com`
 - `RSI_NOTION_API_VERSION=2022-06-28`
+- `RSI_NOTION_MIRROR_REQUESTS_PER_SECOND=3`
+- `RSI_NOTION_MIRROR_MAX_RETRIES=3`
+- `RSI_NOTION_MIRROR_RETRY_BASE_DELAY=500ms`
+- `RSI_NOTION_MIRROR_MAX_DATABASES_PER_ROOT=50`
+- `RSI_NOTION_MIRROR_MAX_BLOCKS_PER_PAGE=1000`
+- `RSI_NOTION_MIRROR_MAX_DEPTH=4`
+- `RSI_NOTION_MIRROR_MAX_DOCUMENT_BYTES=256000`
+
+If object, reference, or child-graph limits truncate traversal, the mirror marks
+the traversal `truncated` and refuses to report a clean root success.
 
 ## Read Contract
 
@@ -131,8 +168,9 @@ in `explicit` mode, channels must be present in
 
 Document tools currently expose mirrored Notion documents from Honcho
 conclusions. Because Honcho's public conclusions response does not yet expose
-document metadata, Notion mirror writes source URL, page ID, last edited time,
-and hierarchy into the document content itself, while the full structured
+document metadata, Notion mirror writes a stable
+`rsi-source-provenance-json` block plus source URL, object kind/ID, last edited
+time, and hierarchy into the document content itself, while the full structured
 metadata remains in `source_mirror_record`.
 
 Live Slack exact-source tools (`slack_read_thread`, `slack_read_permalink`) stay

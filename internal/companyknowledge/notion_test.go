@@ -102,3 +102,32 @@ func TestNotionDocumentConclusionContentCarriesProvenance(t *testing.T) {
 		}
 	}
 }
+
+func TestNotionDatabaseSchemaHashIsDeterministic(t *testing.T) {
+	left := map[string]any{
+		"Status": map[string]any{
+			"type": "status",
+			"status": map[string]any{
+				"options": []any{map[string]any{"name": "Done"}, map[string]any{"name": "Todo"}},
+			},
+		},
+		"Owner": map[string]any{"type": "people", "people": map[string]any{}},
+	}
+	right := map[string]any{
+		"Owner": map[string]any{"type": "people", "people": map[string]any{}},
+		"Status": map[string]any{
+			"status": map[string]any{
+				"options": []any{map[string]any{"name": "Todo"}, map[string]any{"name": "Done"}},
+			},
+			"type": "status",
+		},
+	}
+	leftSummary, leftHash := NotionDatabaseSchemaSummary(left)
+	rightSummary, rightHash := NotionDatabaseSchemaSummary(right)
+	if leftHash == "" || leftHash != rightHash {
+		t.Fatalf("schema hashes differ: %q vs %q", leftHash, rightHash)
+	}
+	if leftSummary != rightSummary {
+		t.Fatalf("schema summaries differ:\nleft=%s\nright=%s", leftSummary, rightSummary)
+	}
+}

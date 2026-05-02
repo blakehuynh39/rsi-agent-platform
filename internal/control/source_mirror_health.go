@@ -144,18 +144,31 @@ func checkSlackMirrorAuth(ctx context.Context, cfg config.Config) error {
 }
 
 func checkNotionMirrorRoots(ctx context.Context, cfg config.Config) error {
-	api := clients.NewNotionClientWithOptions(cfg.NotionAPIBaseURL, cfg.NotionToken, cfg.NotionAPIVersion)
+	api := clients.NewNotionClientWithConfig(clients.NotionClientOptions{
+		BaseURL:           cfg.NotionAPIBaseURL,
+		Token:             cfg.NotionToken,
+		Version:           cfg.NotionAPIVersion,
+		RequestsPerSecond: cfg.NotionMirrorRequestsPerSecond,
+		MaxRetries:        cfg.NotionMirrorMaxRetries,
+		RetryBaseDelay:    cfg.NotionMirrorRetryBaseDelay,
+	})
 	for _, rootID := range cfg.NotionMirrorAllowlist {
 		rootID = normalizeNotionID(rootID)
 		if rootID == "" {
 			continue
 		}
-		if _, err := api.RetrievePage(ctx, rootID); err == nil {
+		if page, err := api.RetrievePage(ctx, rootID); err == nil {
+			if page.Archived || page.InTrash {
+				return fmt.Errorf("notion page root %s is stale: archived=%t in_trash=%t", rootID, page.Archived, page.InTrash)
+			}
 			continue
 		} else if !isNotionNotFound(err) {
 			return fmt.Errorf("retrieve notion page root=%s: %w", rootID, err)
 		}
-		if _, err := api.RetrieveDatabase(ctx, rootID); err == nil {
+		if database, err := api.RetrieveDatabase(ctx, rootID); err == nil {
+			if database.Archived || database.InTrash {
+				return fmt.Errorf("notion database root %s is stale: archived=%t in_trash=%t", rootID, database.Archived, database.InTrash)
+			}
 			continue
 		} else if !isNotionNotFound(err) {
 			return fmt.Errorf("retrieve notion database root=%s: %w", rootID, err)

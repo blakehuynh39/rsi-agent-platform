@@ -1952,7 +1952,7 @@ create table if not exists source_mirror_record (
   honcho_object_type text not null default '',
   honcho_object_id text not null default '',
   source_revision text not null default '',
-  status text not null default 'pending' check (status in ('pending', 'complete', 'failed')),
+  status text not null default 'pending' check (status in ('pending', 'complete', 'failed', 'stale')),
   metadata jsonb not null default '{}'::jsonb,
   last_error text not null default '',
   created_at timestamptz not null default now(),

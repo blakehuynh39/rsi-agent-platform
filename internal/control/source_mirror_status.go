@@ -25,6 +25,7 @@ type sourceMirrorTypeStatus struct {
 	LatestComplete  *storepkg.SourceMirrorRecord `json:"latest_complete,omitempty"`
 	LatestFailed    *storepkg.SourceMirrorRecord `json:"latest_failed,omitempty"`
 	LatestPending   *storepkg.SourceMirrorRecord `json:"latest_pending,omitempty"`
+	LatestStale     *storepkg.SourceMirrorRecord `json:"latest_stale,omitempty"`
 	LatestUpdatedAt *time.Time                   `json:"latest_updated_at,omitempty"`
 }
 
@@ -87,6 +88,10 @@ func sourceMirrorStatus(cfg config.Config, repo storepkg.Repository, requiredSou
 		case storepkg.SourceMirrorStatusPending:
 			if status.LatestPending == nil || record.UpdatedAt.After(status.LatestPending.UpdatedAt) {
 				status.LatestPending = &recordCopy
+			}
+		case storepkg.SourceMirrorStatusStale:
+			if status.LatestStale == nil || record.UpdatedAt.After(status.LatestStale.UpdatedAt) {
+				status.LatestStale = &recordCopy
 			}
 		}
 		response.SourceTypes[sourceType] = status

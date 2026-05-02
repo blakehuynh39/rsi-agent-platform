@@ -165,6 +165,53 @@ returning source_type, source_key, workspace, environment, source_session_key, h
 	return record, nil
 }
 
+func (p *PostgresStore) MarkSourceMirrorRecordStale(record SourceMirrorRecord, lastError string, metadata map[string]any) (SourceMirrorRecord, error) {
+	if err := validateSourceMirrorRecord(record); err != nil {
+		return SourceMirrorRecord{}, err
+	}
+	combined := mergeAnyMaps(record.Metadata, metadata)
+	raw, err := json.Marshal(nonNilMap(combined))
+	if err != nil {
+		return SourceMirrorRecord{}, err
+	}
+	returning, found, err := scanSourceMirrorRecord(p.db.QueryRow(`
+insert into source_mirror_record (
+  source_type, source_key, workspace, environment, source_session_key, honcho_workspace,
+  honcho_session_id, honcho_message_id, honcho_object_type, honcho_object_id,
+  source_revision, status, metadata, last_error,
+  created_at, updated_at
+) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'stale', $12::jsonb, $13, now(), now())
+on conflict (source_type, source_key) do update
+set workspace = excluded.workspace,
+    environment = excluded.environment,
+    source_session_key = excluded.source_session_key,
+    honcho_workspace = excluded.honcho_workspace,
+    honcho_session_id = excluded.honcho_session_id,
+    honcho_message_id = coalesce(nullif(source_mirror_record.honcho_message_id, ''), excluded.honcho_message_id),
+    honcho_object_type = coalesce(nullif(source_mirror_record.honcho_object_type, ''), excluded.honcho_object_type),
+    honcho_object_id = coalesce(nullif(source_mirror_record.honcho_object_id, ''), excluded.honcho_object_id),
+    source_revision = excluded.source_revision,
+    status = 'stale',
+    metadata = coalesce(source_mirror_record.metadata, '{}'::jsonb) || excluded.metadata,
+    last_error = excluded.last_error,
+    updated_at = now()
+returning source_type, source_key, workspace, environment, source_session_key, honcho_workspace,
+          honcho_session_id, honcho_message_id, honcho_object_type, honcho_object_id,
+          source_revision, status, metadata, last_error,
+          created_at, updated_at`,
+		record.SourceType, record.SourceKey, record.Workspace, record.Environment, record.SourceSessionKey,
+		record.HonchoWorkspace, record.HonchoSessionID, strings.TrimSpace(record.HonchoMessageID),
+		strings.TrimSpace(record.HonchoObjectType), strings.TrimSpace(record.HonchoObjectID),
+		record.SourceRevision, raw, strings.TrimSpace(lastError)))
+	if err != nil {
+		return SourceMirrorRecord{}, err
+	}
+	if !found {
+		return SourceMirrorRecord{}, sql.ErrNoRows
+	}
+	return returning, nil
+}
+
 func (p *PostgresStore) GetSourceMirrorRecord(sourceType string, sourceKey string) (SourceMirrorRecord, bool, error) {
 	return scanSourceMirrorRecord(p.db.QueryRow(`
 select source_type, source_key, workspace, environment, source_session_key, honcho_workspace,

@@ -154,6 +154,7 @@ func (c Config) validateNotionMirror(issues *[]string) {
 	addRequiredURL(issues, "RSI_HONCHO_BASE_URL", c.HonchoBaseURL, c.nonLocalhostRequired())
 	addRequiredString(issues, "RSI_HONCHO_WORKSPACE_ID", c.HonchoWorkspaceID)
 	addRequiredString(issues, "RSI_SOURCE_MIRROR_CHECKPOINT_ROOT", c.SourceMirrorCheckpointRoot)
+	c.validateNotionMirrorCrawlerConfig(issues)
 }
 
 func (c Config) validateSourceMirrorHealth(issues *[]string) {
@@ -178,6 +179,31 @@ func (c Config) validateSourceMirrorHealth(issues *[]string) {
 		addRequiredString(issues, "NOTION_TOKEN", c.NotionToken)
 		addRequiredList(issues, "RSI_NOTION_MIRROR_ALLOWLIST", c.NotionMirrorAllowlist)
 		addRequiredURL(issues, "RSI_NOTION_API_BASE_URL", c.NotionAPIBaseURL, false)
+		c.validateNotionMirrorCrawlerConfig(issues)
+	}
+}
+
+func (c Config) validateNotionMirrorCrawlerConfig(issues *[]string) {
+	if c.NotionMirrorRequestsPerSecond < 0 {
+		*issues = append(*issues, "RSI_NOTION_MIRROR_REQUESTS_PER_SECOND must be non-negative")
+	}
+	if c.NotionMirrorMaxRetries < 0 {
+		*issues = append(*issues, "RSI_NOTION_MIRROR_MAX_RETRIES must be non-negative")
+	}
+	if c.NotionMirrorMaxRetries > 0 && c.NotionMirrorRetryBaseDelay < 0 {
+		*issues = append(*issues, "RSI_NOTION_MIRROR_RETRY_BASE_DELAY must be non-negative")
+	}
+	if c.NotionMirrorMaxDatabasesPerRoot < 0 {
+		*issues = append(*issues, "RSI_NOTION_MIRROR_MAX_DATABASES_PER_ROOT must be non-negative")
+	}
+	if c.NotionMirrorMaxBlocksPerPage < 0 {
+		*issues = append(*issues, "RSI_NOTION_MIRROR_MAX_BLOCKS_PER_PAGE must be non-negative")
+	}
+	if c.NotionMirrorMaxDepth < 0 {
+		*issues = append(*issues, "RSI_NOTION_MIRROR_MAX_DEPTH must be non-negative")
+	}
+	if c.NotionMirrorMaxDocumentBytes < 0 {
+		*issues = append(*issues, "RSI_NOTION_MIRROR_MAX_DOCUMENT_BYTES must be non-negative")
 	}
 }
 

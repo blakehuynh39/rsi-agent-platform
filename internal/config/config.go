@@ -70,6 +70,13 @@ type Config struct {
 	NotionToken                        string
 	NotionMirrorEnabled                bool
 	NotionMirrorAllowlist              []string
+	NotionMirrorRequestsPerSecond      float64
+	NotionMirrorMaxRetries             int
+	NotionMirrorRetryBaseDelay         time.Duration
+	NotionMirrorMaxDatabasesPerRoot    int
+	NotionMirrorMaxBlocksPerPage       int
+	NotionMirrorMaxDepth               int
+	NotionMirrorMaxDocumentBytes       int
 	NotionAPIBaseURL                   string
 	NotionAPIVersion                   string
 	GitHubWebhookSecret                string
@@ -200,6 +207,13 @@ func Load(serviceName string) Config {
 		NotionToken:                        stringEnv("NOTION_TOKEN", ""),
 		NotionMirrorEnabled:                boolEnv("RSI_NOTION_MIRROR_ENABLED", false),
 		NotionMirrorAllowlist:              listEnv("RSI_NOTION_MIRROR_ALLOWLIST"),
+		NotionMirrorRequestsPerSecond:      floatEnv("RSI_NOTION_MIRROR_REQUESTS_PER_SECOND", 3),
+		NotionMirrorMaxRetries:             intEnv("RSI_NOTION_MIRROR_MAX_RETRIES", 3),
+		NotionMirrorRetryBaseDelay:         durationEnv("RSI_NOTION_MIRROR_RETRY_BASE_DELAY", 500*time.Millisecond),
+		NotionMirrorMaxDatabasesPerRoot:    intEnv("RSI_NOTION_MIRROR_MAX_DATABASES_PER_ROOT", 50),
+		NotionMirrorMaxBlocksPerPage:       intEnv("RSI_NOTION_MIRROR_MAX_BLOCKS_PER_PAGE", 1000),
+		NotionMirrorMaxDepth:               intEnv("RSI_NOTION_MIRROR_MAX_DEPTH", 4),
+		NotionMirrorMaxDocumentBytes:       intEnv("RSI_NOTION_MIRROR_MAX_DOCUMENT_BYTES", 256000),
 		NotionAPIBaseURL:                   stringEnv("RSI_NOTION_API_BASE_URL", "https://api.notion.com"),
 		NotionAPIVersion:                   stringEnv("RSI_NOTION_API_VERSION", "2022-06-28"),
 		GitHubWebhookSecret:                stringEnv("RSI_GITHUB_WEBHOOK_SECRET", ""),
@@ -421,6 +435,18 @@ func intEnv(key string, fallback int) int {
 	value, err := strconv.Atoi(raw)
 	if err != nil {
 		panic(fmt.Errorf("%s must be a valid integer: %q: %w", key, raw, err))
+	}
+	return value
+}
+
+func floatEnv(key string, fallback float64) float64 {
+	raw := strings.TrimSpace(os.Getenv(key))
+	if raw == "" {
+		return fallback
+	}
+	value, err := strconv.ParseFloat(raw, 64)
+	if err != nil {
+		panic(fmt.Errorf("%s must be a valid number: %q: %w", key, raw, err))
 	}
 	return value
 }

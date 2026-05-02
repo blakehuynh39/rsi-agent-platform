@@ -196,6 +196,35 @@ func TestNotionMirrorValidationAcceptsConfiguredContract(t *testing.T) {
 	}
 }
 
+func TestNotionMirrorValidationRejectsInvalidCrawlerConfig(t *testing.T) {
+	cfg := validControlPlaneConfig()
+	cfg.NotionMirrorEnabled = true
+	cfg.NotionToken = "ntn-token"
+	cfg.NotionMirrorAllowlist = []string{"page-id"}
+	cfg.NotionAPIBaseURL = "https://api.notion.com"
+	cfg.HonchoBaseURL = "http://use1-stage-rsi-agent-platform-honcho-api:8000"
+	cfg.HonchoWorkspaceID = "rsi_company_knowledge"
+	cfg.SourceMirrorCheckpointRoot = "/var/lib/hermes/source-mirror"
+	cfg.NotionMirrorRequestsPerSecond = -1
+	cfg.NotionMirrorMaxRetries = -1
+	cfg.NotionMirrorMaxDepth = -1
+
+	_, err := cfg.ValidatedFor("control-plane", "notion-mirror")
+	if err == nil {
+		t.Fatal("expected invalid crawler config validation error")
+	}
+	message := err.Error()
+	for _, required := range []string{
+		"RSI_NOTION_MIRROR_REQUESTS_PER_SECOND must be non-negative",
+		"RSI_NOTION_MIRROR_MAX_RETRIES must be non-negative",
+		"RSI_NOTION_MIRROR_MAX_DEPTH must be non-negative",
+	} {
+		if !strings.Contains(message, required) {
+			t.Fatalf("expected %q in validation message, got %s", required, message)
+		}
+	}
+}
+
 func TestSourceMirrorHealthValidationRequiresAtLeastOneMirror(t *testing.T) {
 	cfg := validControlPlaneConfig()
 	cfg.HonchoBaseURL = "http://use1-stage-rsi-agent-platform-honcho-api:8000"

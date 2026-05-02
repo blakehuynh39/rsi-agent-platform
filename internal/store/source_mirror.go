@@ -6,8 +6,9 @@ const (
 	SourceMirrorStatusPending  = "pending"
 	SourceMirrorStatusComplete = "complete"
 	SourceMirrorStatusFailed   = "failed"
+	SourceMirrorStatusStale    = "stale"
 
-	SourceMirrorMinimumSchemaVersion int64 = 31
+	SourceMirrorMinimumSchemaVersion int64 = 32
 )
 
 type SourceMirrorRecord struct {
@@ -40,6 +41,7 @@ type SourceMirrorWriteStore interface {
 	CompleteSourceMirrorRecord(sourceType string, sourceKey string, honchoMessageID string, metadata map[string]any) (SourceMirrorRecord, error)
 	CompleteSourceMirrorObject(sourceType string, sourceKey string, honchoObjectType string, honchoObjectID string, metadata map[string]any) (SourceMirrorRecord, error)
 	FailSourceMirrorRecord(sourceType string, sourceKey string, lastError string, metadata map[string]any) (SourceMirrorRecord, error)
+	MarkSourceMirrorRecordStale(record SourceMirrorRecord, lastError string, metadata map[string]any) (SourceMirrorRecord, error)
 	GetSourceMirrorRecord(sourceType string, sourceKey string) (SourceMirrorRecord, bool, error)
 }
 

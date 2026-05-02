@@ -108,6 +108,51 @@ func (m *MemoryStore) FailSourceMirrorRecord(sourceType string, sourceKey string
 	return cloneSourceMirrorRecord(existing), nil
 }
 
+func (m *MemoryStore) MarkSourceMirrorRecordStale(record SourceMirrorRecord, lastError string, metadata map[string]any) (SourceMirrorRecord, error) {
+	if err := validateSourceMirrorRecord(record); err != nil {
+		return SourceMirrorRecord{}, err
+	}
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.sourceMirrorRecords == nil {
+		m.sourceMirrorRecords = map[string]SourceMirrorRecord{}
+	}
+	key := sourceMirrorMemoryKey(record.SourceType, record.SourceKey)
+	now := time.Now().UTC()
+	existing, found := m.sourceMirrorRecords[key]
+	if found {
+		record.CreatedAt = existing.CreatedAt
+		if strings.TrimSpace(existing.HonchoMessageID) != "" {
+			record.HonchoMessageID = existing.HonchoMessageID
+		} else {
+			record.HonchoMessageID = strings.TrimSpace(record.HonchoMessageID)
+		}
+		if strings.TrimSpace(existing.HonchoObjectType) != "" {
+			record.HonchoObjectType = existing.HonchoObjectType
+		} else {
+			record.HonchoObjectType = strings.TrimSpace(record.HonchoObjectType)
+		}
+		if strings.TrimSpace(existing.HonchoObjectID) != "" {
+			record.HonchoObjectID = existing.HonchoObjectID
+		} else {
+			record.HonchoObjectID = strings.TrimSpace(record.HonchoObjectID)
+		}
+		record.Metadata = mergeAnyMaps(existing.Metadata, record.Metadata)
+	} else {
+		record.CreatedAt = now
+		record.HonchoMessageID = strings.TrimSpace(record.HonchoMessageID)
+		record.HonchoObjectType = strings.TrimSpace(record.HonchoObjectType)
+		record.HonchoObjectID = strings.TrimSpace(record.HonchoObjectID)
+		record.Metadata = cloneAnyMap(record.Metadata)
+	}
+	record.Status = SourceMirrorStatusStale
+	record.LastError = strings.TrimSpace(lastError)
+	record.UpdatedAt = now
+	record.Metadata = mergeAnyMaps(record.Metadata, metadata)
+	m.sourceMirrorRecords[key] = record
+	return cloneSourceMirrorRecord(record), nil
+}
+
 func (m *MemoryStore) GetSourceMirrorRecord(sourceType string, sourceKey string) (SourceMirrorRecord, bool, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
