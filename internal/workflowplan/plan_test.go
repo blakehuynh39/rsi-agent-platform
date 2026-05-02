@@ -27,7 +27,7 @@ func TestToolPlanAddsSlackSearchAndRuntimeDeploymentFactsForSlackDiscoveryQuesti
 func TestToolPlanAddsRuntimeDeploymentFactsWithoutSlackSearchWhenNoChannelBinding(t *testing.T) {
 	plan := ToolPlan(
 		"question",
-		"What image is running on tool gateway right now?",
+		"What image is running on the Hermes executor right now?",
 		"rsi-agent-platform",
 		"",
 		"",

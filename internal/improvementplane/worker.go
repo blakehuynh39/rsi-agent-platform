@@ -75,9 +75,9 @@ func (removedToolExecutor) Execute(name string, input map[string]any) (storepkg.
 		Name:      name,
 		Available: false,
 		Status:    "failed",
-		Summary:   "platform tool gateway has been removed; migrate this improvement-plane action to native Hermes execution",
+		Summary:   "control-plane tool execution has been removed; migrate this improvement-plane action to native Hermes execution",
 		Input:     clonePayload(input),
-	}, errors.New("platform tool gateway has been removed; migrate this improvement-plane action to native Hermes execution")
+	}, errors.New("control-plane tool execution has been removed; migrate this improvement-plane action to native Hermes execution")
 }
 
 func RunWorker(cfg config.Config, store storepkg.Store) error {

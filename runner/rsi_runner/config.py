@@ -44,7 +44,6 @@ class RunnerConfig:
     inactivity_timeout_seconds: int
     transport_timeout_seconds: int
     native_max_output_tokens: int
-    tool_policy_mode: str
     workflow_runner_repair_attempts: int
     hermes_executor_enabled: bool
     hermes_executor_service_only: bool
@@ -122,7 +121,6 @@ class RunnerConfig:
             inactivity_timeout_seconds,
             transport_timeout_seconds,
         )
-        tool_policy_mode = role_tool_policy_mode(role)
         workflow_runner_repair_attempts = parse_non_negative_int(optional_env("RSI_WORKFLOW_RUNNER_REPAIR_ATTEMPTS") or "1", "RSI_WORKFLOW_RUNNER_REPAIR_ATTEMPTS")
         hermes_executor_enabled = parse_bool(optional_env("RSI_HERMES_EXECUTOR_ENABLED") or "false", "RSI_HERMES_EXECUTOR_ENABLED")
         hermes_executor_service_only = parse_bool(optional_env("RSI_HERMES_EXECUTOR_SERVICE_ONLY") or "false", "RSI_HERMES_EXECUTOR_SERVICE_ONLY")
@@ -199,7 +197,6 @@ class RunnerConfig:
             inactivity_timeout_seconds=inactivity_timeout_seconds,
             transport_timeout_seconds=transport_timeout_seconds,
             native_max_output_tokens=native_max_output_tokens,
-            tool_policy_mode=tool_policy_mode,
             workflow_runner_repair_attempts=workflow_runner_repair_attempts,
             hermes_executor_enabled=hermes_executor_enabled,
             hermes_executor_service_only=hermes_executor_service_only,
@@ -366,10 +363,6 @@ def normalize_honcho_environment(raw: str) -> str:
     raise RunnerConfigError(
         "RSI_HONCHO_ENVIRONMENT must be one of: stage, prod, production, local, dev, development"
     )
-
-
-def role_tool_policy_mode(role: str) -> str:
-    return "enforced_read_only"
 
 
 def parse_positive_int(raw: str, name: str) -> int:

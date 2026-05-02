@@ -51,9 +51,6 @@ type RuntimeResponse struct {
 	TaskTimeoutSeconds          int                   `json:"task_timeout_seconds"`
 	InactivityTimeoutSeconds    int                   `json:"inactivity_timeout_seconds"`
 	TransportTimeoutSeconds     int                   `json:"transport_timeout_seconds"`
-	ToolPolicyMode              string                `json:"tool_policy_mode"`
-	ToolAllowlistEffective      []string              `json:"tool_allowlist_effective"`
-	BlockedToolNames            []string              `json:"blocked_tool_names"`
 	Available                   bool                  `json:"available"`
 	HermesAvailable             bool                  `json:"hermes_available"`
 	OpenAIConfigured            bool                  `json:"openai_configured"`

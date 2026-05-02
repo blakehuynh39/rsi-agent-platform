@@ -298,9 +298,6 @@ type runtimeRoleStatus struct {
 	HermesVersion               string                        `json:"hermes_version,omitempty"`
 	HermesPin                   string                        `json:"hermes_pin,omitempty"`
 	HermesContractStatus        *harness.HermesContractStatus `json:"hermes_contract_status,omitempty"`
-	ToolPolicyMode              string                        `json:"tool_policy_mode,omitempty"`
-	ToolAllowlistEffective      []string                      `json:"tool_allowlist_effective,omitempty"`
-	BlockedToolNames            []string                      `json:"blocked_tool_names,omitempty"`
 	Available                   bool                          `json:"available"`
 	Healthy                     bool                          `json:"healthy"`
 	OpenAIConfigured            bool                          `json:"openai_configured"`
@@ -998,9 +995,6 @@ func buildRuntimeStatus(cfg config.Config, store storepkg.Repository) []runtimeR
 		if resp.TransportTimeoutSeconds > 0 {
 			item.TimeoutSeconds = resp.TransportTimeoutSeconds
 		}
-		item.ToolPolicyMode = resp.ToolPolicyMode
-		item.ToolAllowlistEffective = sliceOrEmpty(resp.ToolAllowlistEffective)
-		item.BlockedToolNames = sliceOrEmpty(resp.BlockedToolNames)
 		item.Available = resp.Available
 		item.Healthy = resp.Available && strings.EqualFold(resp.Status, "ok")
 		item.OpenAIConfigured = resp.OpenAIConfigured

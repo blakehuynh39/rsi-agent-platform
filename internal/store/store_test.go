@@ -2205,7 +2205,7 @@ func TestEvaluateTraceRunnerInvalidToolNameContractUsesWorkflowAttemptDiagnostic
 	if !strings.Contains(candidate.Hypothesis, "tools[0].name") {
 		t.Fatalf("expected hypothesis to mention tools[0].name, got %q", candidate.Hypothesis)
 	}
-	if candidate.ProposedScope != "runner + control-plane + improvement-plane" {
+	if candidate.ProposedScope != "runner" {
 		t.Fatalf("expected bounded scope, got %q", candidate.ProposedScope)
 	}
 }

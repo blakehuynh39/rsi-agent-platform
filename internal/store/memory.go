@@ -2022,8 +2022,8 @@ func (s *MemoryStore) runtimeFailureFromWorkflowAttempts(trace events.Trace) (ru
 			return runtimeFailureEvidence{
 				Subsystem:     "runner",
 				FailureMode:   "runner_invalid_tool_name_contract",
-				Hypothesis:    "OpenAI rejected tools[0].name because dotted RSI tool IDs crossed the runner boundary unchanged; normalize RSI tool names to OpenAI-safe transport names in the runner and reverse-map tool calls back to canonical dotted IDs before executing them through the tool gateway.",
-				ProposedScope: "runner + control-plane + improvement-plane",
+				Hypothesis:    "The model provider rejected tools[0].name because a non-native or malformed tool name crossed the runner boundary. Keep provider-facing tool names native and fail request admission when tool registration is invalid.",
+				ProposedScope: "runner",
 			}, true
 		case failureClass == "runner_missing_structured_output":
 			if traceHasUserFacingArtifact(trace) || traceHasSuccessfulSlackDelivery(trace) {
@@ -2241,7 +2241,7 @@ func traceEventTagValue(description string, key string) string {
 func runtimeFailureHypothesis(subsystem string, failureMode string) string {
 	switch failureMode {
 	case "runner_invalid_tool_name_contract":
-		return "Normalize native Hermes tool IDs before model execution and persist invalid-request diagnostics instead of collapsing them into structured-output parse failures."
+		return "Fail native Hermes request admission when a provider-facing tool name is invalid, and persist invalid-request diagnostics instead of collapsing them into structured-output parse failures."
 	case "action_result_primary_key_collision":
 		return "Fix shared-store action result keying and control-plane terminalization so action result collisions cannot wedge traces before eval."
 	case "postgres_unique_constraint_violation":
@@ -2253,7 +2253,7 @@ func runtimeFailureHypothesis(subsystem string, failureMode string) string {
 
 func runtimeFailureScope(subsystem string, failureMode string) string {
 	if failureMode == "runner_invalid_tool_name_contract" {
-		return "runner + control-plane + improvement-plane"
+		return "runner"
 	}
 	if failureMode == "action_result_primary_key_collision" || subsystem == "shared-store" {
 		return "control-plane + shared-store"

@@ -360,7 +360,6 @@ func ShouldUseRuntimeDeploymentFacts(question string) bool {
 		"configured",
 		"config",
 		"control plane",
-		"tool gateway",
 		"runner",
 		"honcho",
 		"slack app",

@@ -38,10 +38,8 @@ from .observability import ObservationEmitter, execution_observation_id
 from .rsi_tools import (
     BLOCKED_HONCHO_TOOLS,
     HERMES_ARTIFACT_TOOLSET,
-    READ_ONLY_HONCHO_TOOLS,
     canonical_tool_name,
     normalize_tool_names,
-    tool_transport_name,
 )
 from .session_manager import MemoryTracker, SessionContext, SessionManager, stable_session_id
 
@@ -89,15 +87,20 @@ GROUNDED_EVIDENCE_TOOL_NAMES = frozenset(
         "slack.history",
     }
 )
+_LIFECYCLE_TOOL_NAME_ALIASES = {
+    "github_repo_activity": "github.repo_activity",
+    "github_repo_context": "github.repo_context",
+    "knowledge_context": "knowledge.context",
+    "kubernetes_events": "kubernetes.events",
+    "kubernetes_inspect": "kubernetes.inspect",
+    "kubernetes_logs": "kubernetes.logs",
+    "repo_context": "repo.context",
+    "repo_read_file": "repo.read_file",
+    "repo_search": "repo.search",
+    "rsi_runtime_deployment_facts": "rsi.runtime_deployment_facts",
+    "slack_history": "slack.history",
+}
 ARTIFACT_RENDER_NATIVE_TOOL_NAMES = frozenset({"write_file", "read_file", "search_files", "skill_view"})
-ARTIFACT_RENDER_RSI_TOOL_NAMES = frozenset(
-    {
-        "workspace.list_files",
-        "workspace.read_file",
-        "workspace.search",
-        "workspace.write_file",
-    }
-)
 _NATIVE_EXECUTOR_RESULT_MARKER = "RSI_EXECUTOR_RESULT::"
 _NATIVE_EXECUTOR_OUTPUT_CHUNK_CHARS = 8 * 1024
 _SENSITIVE_ENV_KEY_FRAGMENTS = (
@@ -803,34 +806,6 @@ def _first_non_none(*values: JsonValue | None) -> JsonValue | None:
     return None
 
 
-def _transport_tool_policy(custom_tools: list[str], memory_tools: list[str]) -> tuple[list[str], dict[str, str], list[str]]:
-    transport_effective = list(memory_tools)
-    custom_tool_transport_map: dict[str, str] = {}
-    invalid_tool_names: list[str] = []
-    seen_transport: dict[str, str] = {}
-    for name in custom_tools:
-        try:
-            transport = tool_transport_name(name)
-        except ValueError:
-            invalid_tool_names.append(name)
-            continue
-        existing = seen_transport.get(transport)
-        if existing is not None and existing != name:
-            invalid_tool_names.extend([existing, name])
-            continue
-        seen_transport[transport] = name
-        custom_tool_transport_map[name] = transport
-        transport_effective.append(transport)
-    return normalize_tool_names(transport_effective), custom_tool_transport_map, normalize_tool_names(invalid_tool_names)
-
-
-def _transport_name_or_self(name: str) -> str:
-    try:
-        return tool_transport_name(name)
-    except ValueError:
-        return str(name or "").strip()
-
-
 try:
     from run_agent import AIAgent  # type: ignore
     from hermes_constants import parse_reasoning_effort  # type: ignore
@@ -1019,18 +994,6 @@ class RunnerTaskRequest:
         )
 
 
-@dataclass
-class ToolPolicy:
-    mode: str
-    requested: list[str]
-    effective: list[str]
-    blocked: list[str]
-    memory_tools: list[str]
-    custom_tools: list[str]
-    transport_effective: list[str]
-    custom_tool_transport_map: dict[str, str]
-
-
 class HermesStructuredOutputError(ValueError):
     pass
 
@@ -1065,7 +1028,6 @@ class HermesRuntime:
         self._default_inactivity_timeout_seconds = config.inactivity_timeout_seconds
         self._transport_timeout_seconds = config.transport_timeout_seconds
         self._native_max_output_tokens = config.native_max_output_tokens
-        self._tool_policy_mode = config.tool_policy_mode
         self._slack_mcp_discovery_error = ""
         self._slack_mcp_tool_cache: list[JsonObject] | None = None
         self._slack_mcp_send_tool_name = ""
@@ -1462,7 +1424,6 @@ class HermesRuntime:
                 )
             ),
             "native_max_output_tokens": self._native_max_output_tokens,
-            "tool_policy_mode": self._tool_policy_mode,
             "hermes_executor_enabled": self._config.hermes_executor_enabled,
             "hermes_executor_service_only": self._config.hermes_executor_service_only,
             "hermes_executor_workspace_root": self._config.hermes_executor_workspace_root,
@@ -1479,8 +1440,6 @@ class HermesRuntime:
             "hermes_kubernetes_context_enabled": self._config.hermes_kubernetes_context_enabled,
             "hermes_kubeconfig_path": self._config.hermes_kubeconfig_path if (self._config.hermes_kubernetes_context_enabled or self._config.hermes_prod_kubernetes_context_enabled) else "",
             "company_computer_bootstrap_status": dict(self._company_computer_bootstrap_status),
-            "tool_allowlist_effective": self._default_policy_allowlist(execution_mode=""),
-            "blocked_tool_names": [],
             "context_engine_mode": adapter_meta.context_engine_mode,
             "context_engine_status": adapter_meta.context_engine_status,
             "lifecycle_hook_status": adapter_meta.lifecycle_hook_status,
@@ -1654,7 +1613,7 @@ class HermesRuntime:
         out["native_execution_log_path"] = str(recorder.path)
         return out
 
-    def _native_execution_started_payload(self, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> JsonObject:
+    def _native_execution_started_payload(self, task: RunnerTaskRequest) -> JsonObject:
         mcp_servers = []
         for server in task.mcp_servers:
             if not isinstance(server, dict):
@@ -1678,11 +1637,6 @@ class HermesRuntime:
             "thread_ts": task.thread_ts or "",
             "session_scope_kind": task.session_scope_kind or "",
             "session_scope_id": task.session_scope_id or "",
-            "tool_policy_mode": tool_policy.mode,
-            "tool_allowlist_effective": tool_policy.effective,
-            "tool_transport_allowlist_effective": tool_policy.transport_effective,
-            "blocked_tool_names": tool_policy.blocked,
-            "allowed_tools": task.allowed_tools,
             "timeout_seconds": self._effective_task_timeout(task),
             "transport_timeout_seconds": self._transport_timeout_seconds,
             "model": self._provider_model,
@@ -1706,7 +1660,6 @@ class HermesRuntime:
         )
         return self._execute_task_request(
             task,
-            self._resolve_tool_policy(task),
             render_prompt=False,
             expand_skills=False,
         )
@@ -1949,7 +1902,6 @@ class HermesRuntime:
     def _execute_task_request(
         self,
         task: RunnerTaskRequest,
-        tool_policy: ToolPolicy,
         *,
         observer: ObservationEmitter | None = None,
         allow_partial_recovery: bool = True,
@@ -1993,9 +1945,6 @@ class HermesRuntime:
                 provider=self._backend,
                 raw=self._base_raw(prompt=task.prompt, system_message=task.system_message),
             )
-
-        if preflight := self._preflight_tool_policy_failure(task, tool_policy):
-            return preflight
 
         context = self._session_manager.prepare(task)
         execution_phase = self._execution_phase(task)
@@ -2044,7 +1993,7 @@ class HermesRuntime:
                 payload=skill_diagnostics,
             )
         if render_prompt:
-            task = replace(task, prompt=self._render_task_prompt(task, tool_policy))
+            task = replace(task, prompt=self._render_task_prompt(task))
         effective_task_timeout = self._effective_task_timeout(task)
         effective_inactivity_timeout = self._effective_inactivity_timeout(effective_task_timeout)
         reasoning_timeout_seconds = self._partial_completion_reasoning_timeout_seconds(task, effective_task_timeout)
@@ -2054,7 +2003,7 @@ class HermesRuntime:
         agentic_mcp_registration = TaskScopedMCPRegistration()
         result: HermesExecutionResult | None = None
         try:
-            self._stage_task_context(context.session_id, task, tool_policy)
+            self._stage_task_context(context.session_id, task)
             try:
                 agentic_mcp_registration = self._mcp_adapter.register_task_servers(task)
             except RuntimeError as exc:
@@ -2072,13 +2021,7 @@ class HermesRuntime:
                     raw={
                         **self._base_raw(prompt=task.prompt, system_message=task.system_message),
                         "failure_class": "runner_non_ok",
-                        "tool_policy_mode": tool_policy.mode,
-                        "tool_allowlist_effective": tool_policy.effective,
-                        "tool_transport_allowlist_effective": tool_policy.transport_effective,
-                        "tool_transport_map": tool_policy.custom_tool_transport_map,
-                        "blocked_tool_names": tool_policy.blocked,
                         "runner_diagnostics": self._runner_diagnostics(
-                            tool_policy,
                             failure_kind="agentic_mcp_registration_failed",
                             provider_error_message=str(exc),
                             termination_reason="agentic_mcp_registration_failed",
@@ -2108,7 +2051,11 @@ class HermesRuntime:
                     task, extra_toolsets=agentic_mcp_registration.enabled_toolsets
                 ),
             )
-            self._attach_tool_policy(agent, task, tool_policy, observer=observer)
+            current_tools = list(getattr(agent, "tools", []) or [])
+            current_valid = set(getattr(agent, "valid_tool_names", set()) or set())
+            current_valid = {name for name in current_valid if name not in BLOCKED_HONCHO_TOOLS}
+            agent.tools = [tool for tool in current_tools if tool_name(tool) not in BLOCKED_HONCHO_TOOLS]
+            agent.valid_tool_names = current_valid
             tracker = self._session_manager.attach_tracking(agent, task, context)
             termination_reason, run_result, stop_meta = self._run_with_deadlines(
                 agent,
@@ -2134,7 +2081,6 @@ class HermesRuntime:
                 if termination_reason in QUESTION_RUN_BOUNDED_STOP_TERMINATION_REASONS and allow_partial_recovery and self._workflow_partial_completion_eligible(task):
                     result = self._finalize_partial_completion(
                         task,
-                        tool_policy,
                         finalized,
                         observed,
                         stop_meta,
@@ -2160,15 +2106,10 @@ class HermesRuntime:
                             "inactivity_timeout_seconds": effective_inactivity_timeout,
                             "transport_timeout_seconds": self._transport_timeout_seconds,
                             "max_iterations": configured_max_iterations,
-                            "tool_policy_mode": tool_policy.mode,
-                            "tool_allowlist_effective": tool_policy.effective,
-                            "tool_transport_allowlist_effective": tool_policy.transport_effective,
-                            "blocked_tool_names": tool_policy.blocked,
                             **observed,
                             **self._workflow_evidence_raw(task, observed, timeout_kind),
                             "failure_class": "runner_transport_timeout",
                             "runner_diagnostics": self._runner_diagnostics(
-                                tool_policy,
                                 failure_kind="transport_timeout",
                                 provider_error_message=timeout_message,
                                 timeout_kind=timeout_kind,
@@ -2199,15 +2140,10 @@ class HermesRuntime:
                             "inactivity_timeout_seconds": effective_inactivity_timeout,
                             "transport_timeout_seconds": self._transport_timeout_seconds,
                             "max_iterations": configured_max_iterations,
-                            "tool_policy_mode": tool_policy.mode,
-                            "tool_allowlist_effective": tool_policy.effective,
-                            "tool_transport_allowlist_effective": tool_policy.transport_effective,
-                            "blocked_tool_names": tool_policy.blocked,
                             **observed,
                             **self._workflow_evidence_raw(task, observed, "task_timeout"),
                             "failure_class": "runner_transport_timeout",
                             "runner_diagnostics": self._runner_diagnostics(
-                                tool_policy,
                                 failure_kind="transport_timeout",
                                 provider_error_message=timeout_message,
                                 timeout_kind="task_timeout",
@@ -2227,7 +2163,6 @@ class HermesRuntime:
                 if termination_reason == "iteration_budget_exhausted":
                     result = self._partial_completion_failure(
                         task,
-                        tool_policy,
                         finalized,
                         observed,
                         stop_meta,
@@ -2239,7 +2174,7 @@ class HermesRuntime:
                     return result
             response = str((run_result or {}).get("final_response", "") or "")
         except Exception as exc:
-            diagnostics = self._provider_invalid_request_diagnostics(str(exc), tool_policy)
+            diagnostics = self._provider_invalid_request_diagnostics(str(exc))
             activity = safe_activity_summary(agent) if agent is not None else {}
             lifecycle_events = self._adapter.lifecycle_events(context.session_id)
             observed = self._observability_metadata(
@@ -2252,11 +2187,6 @@ class HermesRuntime:
             raw = {
                 **self._base_raw(prompt=task.prompt, system_message=task.system_message),
                 "error": str(exc),
-                "tool_policy_mode": tool_policy.mode,
-                "tool_allowlist_effective": tool_policy.effective,
-                "tool_transport_allowlist_effective": tool_policy.transport_effective,
-                "tool_transport_map": tool_policy.custom_tool_transport_map,
-                "blocked_tool_names": tool_policy.blocked,
                 **observed,
                 **self._workflow_evidence_raw(task, observed, "exception"),
                 "lifecycle_events": lifecycle_events,
@@ -2270,7 +2200,6 @@ class HermesRuntime:
             else:
                 raw["failure_class"] = "runner_non_ok"
                 raw["runner_diagnostics"] = self._runner_diagnostics(
-                    tool_policy,
                     failure_kind="execution_error",
                     provider_error_message=str(exc),
                     termination_reason="exception",
@@ -2336,11 +2265,6 @@ class HermesRuntime:
                 "inactivity_timeout_seconds": effective_inactivity_timeout,
                 "transport_timeout_seconds": self._transport_timeout_seconds,
                 "max_iterations": configured_max_iterations,
-                "tool_policy_mode": tool_policy.mode,
-                "tool_allowlist_effective": tool_policy.effective,
-                "tool_transport_allowlist_effective": tool_policy.transport_effective,
-                "tool_transport_map": tool_policy.custom_tool_transport_map,
-                "blocked_tool_names": tool_policy.blocked,
                 **observed,
                 **self._workflow_evidence_raw(task, observed, "normal_completion"),
                 "runner_diagnostics": {
@@ -3193,7 +3117,6 @@ class HermesRuntime:
     def _execute_native_workflow_task_request(
         self,
         task: RunnerTaskRequest,
-        tool_policy: ToolPolicy,
         *,
         observer: ObservationEmitter | None = None,
         allow_partial_recovery: bool = True,
@@ -3245,9 +3168,6 @@ class HermesRuntime:
                 provider="hermes-native-executor",
                 raw=self._base_raw(prompt=task.prompt, system_message=task.system_message),
             )
-        if preflight := self._preflight_tool_policy_failure(task, tool_policy):
-            return preflight
-
         context = self._session_manager.prepare(task)
         tracker = MemoryTracker()
         execution_phase = self._execution_phase(task)
@@ -3284,7 +3204,7 @@ class HermesRuntime:
         workspace_root = self._stage_native_executor_workspace(task, observer=observer)
         if execution_phase in {"main", "render", "deliver"}:
             task = replace(task, artifact_destination=str(self._native_artifact_destination(task)))
-        self._stage_task_context(context.session_id, task, tool_policy)
+        self._stage_task_context(context.session_id, task)
 
         agentic_mcp_registration = TaskScopedMCPRegistration()
         try:
@@ -3305,7 +3225,6 @@ class HermesRuntime:
                     **self._base_raw(prompt=task.prompt, system_message=task.system_message),
                     "failure_class": "runner_non_ok",
                     "runner_diagnostics": self._runner_diagnostics(
-                        tool_policy,
                         failure_kind="agentic_mcp_registration_failed",
                         provider_error_message=str(exc),
                         termination_reason="agentic_mcp_registration_failed",
@@ -3346,7 +3265,6 @@ class HermesRuntime:
                     "failure_class": "hermes_phase_contract_failed",
                     "phase_contract": phase_contract,
                     "runner_diagnostics": self._runner_diagnostics(
-                        tool_policy,
                         failure_kind="hermes_phase_contract_failed",
                         provider_error_message=message,
                         termination_reason="hermes_phase_contract_failed",
@@ -3400,7 +3318,6 @@ class HermesRuntime:
                     "failure_class": "github_app_credentials_unavailable",
                     "github_credentials": github_cli_credentials,
                     "runner_diagnostics": self._runner_diagnostics(
-                        tool_policy,
                         failure_kind="github_app_credentials_unavailable",
                         provider_error_message=message,
                         termination_reason="github_app_credentials_unavailable",
@@ -3437,7 +3354,6 @@ class HermesRuntime:
                     **self._base_raw(prompt=task.prompt, system_message=task.system_message),
                     "failure_class": failure_class,
                     "runner_diagnostics": self._runner_diagnostics(
-                        tool_policy,
                         failure_kind=failure_class,
                         provider_error_message=direct_slack_error,
                         termination_reason=failure_class,
@@ -3746,7 +3662,6 @@ class HermesRuntime:
             if not cancelled and allow_partial_recovery and self._workflow_partial_completion_eligible(task):
                 return self._finalize_partial_completion(
                     task,
-                    tool_policy,
                     finalized,
                     observed,
                     stop_meta,
@@ -3768,7 +3683,6 @@ class HermesRuntime:
                     "inactivity_timeout_seconds": effective_inactivity_timeout,
                     "failure_class": "runner_cancelled" if cancelled else "runner_transport_timeout",
                     "runner_diagnostics": self._runner_diagnostics(
-                        tool_policy,
                         failure_kind="cancelled" if cancelled else "transport_timeout",
                         provider_error_message="Hermes native executor was cancelled." if cancelled else f"Hermes native executor hit inactivity timeout after {effective_inactivity_timeout}s.",
                         timeout_kind="" if cancelled else termination_reason,
@@ -3866,11 +3780,6 @@ class HermesRuntime:
             "task_timeout_seconds": effective_task_timeout,
             "inactivity_timeout_seconds": effective_inactivity_timeout,
             "max_iterations": configured_max_iterations,
-            "tool_policy_mode": tool_policy.mode,
-            "tool_allowlist_effective": tool_policy.effective,
-            "tool_transport_allowlist_effective": tool_policy.transport_effective,
-            "tool_transport_map": tool_policy.custom_tool_transport_map,
-            "blocked_tool_names": tool_policy.blocked,
             "lifecycle_events": lifecycle_events,
             "native_executor_mode": "subprocess",
             "native_executor_workspace_root": str(workspace_root),
@@ -3903,7 +3812,6 @@ class HermesRuntime:
                     **self._workflow_evidence_raw(task, observed, "exception"),
                     "failure_class": failure_class,
                     "runner_diagnostics": self._runner_diagnostics(
-                        tool_policy,
                         failure_kind=failure_kind,
                         provider_error_message=message,
                         termination_reason=failure_kind,
@@ -3991,7 +3899,6 @@ class HermesRuntime:
 
     def _runner_diagnostics(
         self,
-        tool_policy: ToolPolicy,
         *,
         failure_kind: str,
         provider_status_code: int | None = None,
@@ -4010,12 +3917,8 @@ class HermesRuntime:
     ) -> JsonObject:
         diagnostics: JsonObject = {
             "failure_kind": failure_kind,
-            "tool_allowlist_effective": list(tool_policy.effective),
-            "tool_transport_allowlist_effective": list(tool_policy.transport_effective),
         }
         latest_activity = _json_object_or_empty(activity)
-        if tool_policy.custom_tool_transport_map:
-            diagnostics["tool_transport_map"] = dict(tool_policy.custom_tool_transport_map)
         if provider_status_code is not None:
             diagnostics["provider_status_code"] = provider_status_code
         if provider_error_param:
@@ -4128,12 +4031,6 @@ class HermesRuntime:
         }
         if self._session_manager.bundled_skills_sync_error:
             observed["bundled_skills_sync_error"] = self._session_manager.bundled_skills_sync_error
-        binding = getattr(agent, "_rsi_readonly_tool_binding", None) if agent is not None else None
-        diagnostics = getattr(binding, "diagnostics", None)
-        if callable(diagnostics):
-            payload = diagnostics()
-            if isinstance(payload, dict):
-                observed.update(payload)
         if tracker is not None and hasattr(tracker, "warnings"):
             observed["memory_warnings"] = list(getattr(tracker, "warnings", []) or [])
         if skill_diagnostics:
@@ -4326,6 +4223,10 @@ class HermesRuntime:
             name = _string_or_json(candidate)
             if not name or name in {"tool_call_started", "tool_call_completed", "tool.call.started", "tool.call.completed"}:
                 continue
+            if name in GROUNDED_EVIDENCE_TOOL_NAMES:
+                return name
+            if name in _LIFECYCLE_TOOL_NAME_ALIASES:
+                return _LIFECYCLE_TOOL_NAME_ALIASES[name]
             try:
                 return canonical_tool_name(name)
             except ValueError:
@@ -4397,42 +4298,7 @@ class HermesRuntime:
                         return result
         return {}
 
-    def _preflight_tool_policy_failure(self, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> HermesExecutionResult | None:
-        _, _, invalid_tool_names = _transport_tool_policy(tool_policy.custom_tools, tool_policy.memory_tools)
-        if not invalid_tool_names:
-            return None
-        observed = self._observability_metadata(None, task)
-        diagnostics = self._runner_diagnostics(
-            tool_policy,
-            failure_kind="invalid_request",
-            provider_error_param="tools[0].name",
-            provider_error_code="invalid_value",
-            provider_error_message="Runner tool schema failed provider-safe tool-name preflight validation.",
-            invalid_tool_names=invalid_tool_names,
-            repair_attempted=False,
-            repair_succeeded=False,
-            observed=observed,
-        )
-        return HermesExecutionResult(
-            ok=False,
-            message="Runner tool schema failed preflight validation for provider-safe tool names.",
-            provider=self._backend,
-            raw={
-                **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-                "tool_policy_mode": tool_policy.mode,
-                "tool_allowlist_effective": tool_policy.effective,
-                "tool_transport_allowlist_effective": tool_policy.transport_effective,
-                "tool_transport_map": tool_policy.custom_tool_transport_map,
-                "blocked_tool_names": tool_policy.blocked,
-                **observed,
-                "failure_class": "runner_invalid_request",
-                "runner_diagnostics": diagnostics,
-                "repair_attempted": False,
-                "repair_succeeded": False,
-            },
-        )
-
-    def _provider_invalid_request_diagnostics(self, message: str, tool_policy: ToolPolicy) -> JsonObject | None:
+    def _provider_invalid_request_diagnostics(self, message: str) -> JsonObject | None:
         text = str(message or "").strip()
         if not text:
             return None
@@ -4456,72 +4322,17 @@ class HermesRuntime:
         if status_code not in {0, 400, 422} and provider_error_param == "":
             return None
 
-        invalid_tool_names: list[str] = []
-        if provider_error_param == "tools[0].name" or "tools[0].name" in lower:
-            invalid_tool_names = [name for name in tool_policy.custom_tools if "." in name]
-            if not invalid_tool_names:
-                invalid_tool_names = list(tool_policy.custom_tools)
         diagnostics = self._runner_diagnostics(
-            tool_policy,
             failure_kind="invalid_request",
             provider_status_code=status_code or None,
             provider_error_param=provider_error_param or None,
             provider_error_code=provider_error_code or None,
             provider_error_message=provider_error_message,
-            invalid_tool_names=invalid_tool_names,
             repair_attempted=False,
             repair_succeeded=False,
         )
         return diagnostics
 
-    def _default_policy_allowlist(self, execution_mode: str) -> list[str]:
-        permitted = set(READ_ONLY_HONCHO_TOOLS)
-        return sorted(permitted)
-
-    def _resolve_tool_policy(self, task: RunnerTaskRequest) -> ToolPolicy:
-        requested = normalize_tool_names([*task.allowed_tools, *task.tool_allowlist])
-        execution_mode = (task.execution_mode or "").strip().lower()
-        execution_phase = self._execution_phase(task)
-        if task.task_type == "question_reduce":
-            return ToolPolicy(
-                mode="no_tools",
-                requested=requested,
-                effective=[],
-                blocked=requested,
-                memory_tools=[],
-                custom_tools=[],
-                transport_effective=[],
-                custom_tool_transport_map={},
-            )
-        permitted = set(self._default_policy_allowlist(execution_mode=execution_mode))
-        fallback_allowlist = sorted(permitted)
-        if task.task_type in {"question_gather", "question_expand"} and requested:
-            fallback_allowlist = requested
-        effective = normalize_tool_names(requested or fallback_allowlist)
-        effective = [name for name in effective if name in permitted]
-        if execution_phase == "investigate":
-            effective = [name for name in effective if name not in {"slack.reply", "slack.upload_file"}]
-        elif execution_phase == "render":
-            effective = [name for name in effective if name in ARTIFACT_RENDER_RSI_TOOL_NAMES]
-        elif execution_phase == "deliver":
-            effective = []
-        blocked = [name for name in requested if name not in permitted and name not in {"slack.history", "slack.search", "slack.reply"}]
-        memory_tools = sorted([name for name in effective if name in READ_ONLY_HONCHO_TOOLS])
-        custom_tools: list[str] = []
-        transport_effective, custom_tool_transport_map, _ = _transport_tool_policy(custom_tools, memory_tools)
-        mode = self._tool_policy_mode
-        if self._role == "proposal" and execution_mode == "implement":
-            mode = "native_workspace"
-        return ToolPolicy(
-            mode=mode,
-            requested=requested,
-            effective=effective,
-            blocked=blocked,
-            memory_tools=memory_tools,
-            custom_tools=custom_tools,
-            transport_effective=transport_effective,
-            custom_tool_transport_map=custom_tool_transport_map,
-        )
 
     def _effective_task_timeout(self, task: RunnerTaskRequest) -> int:
         requested = int(task.timeout_seconds or 0)
@@ -4575,7 +4386,7 @@ class HermesRuntime:
             timeout_seconds = min(timeout_seconds, reserve)
         return max(0, timeout_seconds)
 
-    def _stage_task_context(self, session_id: str, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> None:
+    def _stage_task_context(self, session_id: str, task: RunnerTaskRequest) -> None:
         query_hints = self._question_default_query_hints(task)
         self._adapter.stage_task_context(
             session_id,
@@ -4616,10 +4427,6 @@ class HermesRuntime:
                 "task_slack_search_query": query_hints.get("slack_search_query", ""),
                 "context_refs": task.context_refs,
                 "tool_timeout_seconds": 30,
-                "tool_allowlist_effective": tool_policy.effective,
-                "tool_transport_allowlist_effective": tool_policy.transport_effective,
-                "tool_transport_map": tool_policy.custom_tool_transport_map,
-                "blocked_tool_names": tool_policy.blocked,
                 "session_scope_kind": task.session_scope_kind or "",
                 "session_scope_id": task.session_scope_id or "",
             },
@@ -5372,13 +5179,13 @@ class HermesRuntime:
         verdict = "partial" if termination_reason in QUESTION_RUN_BOUNDED_STOP_TERMINATION_REASONS else "complete"
         return verdict, termination_reason
 
-    def _execute_question_reduce_task(self, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> HermesExecutionResult:
+    def _execute_question_reduce_task(self, task: RunnerTaskRequest) -> HermesExecutionResult:
         timeout_seconds = min(self._effective_task_timeout(task), max(1, self._transport_timeout_seconds - 5))
         recorder = self._create_native_execution_recorder(task, label="question_reduce")
         recorder.record(
             "execution_started",
             {
-                **self._native_execution_started_payload(task, tool_policy),
+                **self._native_execution_started_payload(task),
                 "question_reduce": True,
             },
         )
@@ -5413,10 +5220,6 @@ class HermesRuntime:
                             "failure_kind": "question_reduce_failed",
                             "provider_error_message": message,
                         },
-                        "tool_policy_mode": tool_policy.mode,
-                        "tool_allowlist_effective": tool_policy.effective,
-                        "tool_transport_allowlist_effective": tool_policy.transport_effective,
-                        "blocked_tool_names": tool_policy.blocked,
                         "task_timeout_seconds": self._effective_task_timeout(task),
                         "transport_timeout_seconds": self._transport_timeout_seconds,
                         "task_type": task.task_type,
@@ -5446,10 +5249,6 @@ class HermesRuntime:
                     **self._base_raw(prompt=task.prompt, system_message=task.system_message),
                     "task_timeout_seconds": self._effective_task_timeout(task),
                     "transport_timeout_seconds": self._transport_timeout_seconds,
-                    "tool_policy_mode": tool_policy.mode,
-                    "tool_allowlist_effective": tool_policy.effective,
-                    "tool_transport_allowlist_effective": tool_policy.transport_effective,
-                    "blocked_tool_names": tool_policy.blocked,
                     "runner_diagnostics": {
                         "completion_verdict": structured_output["completion_verdict"],
                         "termination_reason": structured_output["termination_reason"],
@@ -5682,7 +5481,6 @@ class HermesRuntime:
     def _partial_completion_unrecoverable_failure(
         self,
         task: RunnerTaskRequest,
-        tool_policy: ToolPolicy,
         finalized: JsonObject,
         observed: JsonObject,
         stop_meta: JsonObject,
@@ -5708,7 +5506,6 @@ class HermesRuntime:
         elif termination_reason == "iteration_budget_exhausted":
             message = "Hermes exhausted its iteration budget and could not finalize a partial workflow response."
         diagnostics = self._runner_diagnostics(
-            tool_policy,
             failure_kind="partial_completion_unrecoverable",
             provider_error_message=first_non_empty(recovery_error, message),
             timeout_kind=timeout_kind or None,
@@ -5739,10 +5536,6 @@ class HermesRuntime:
             "inactivity_timeout_seconds": self._effective_inactivity_timeout(self._effective_task_timeout(task)),
             "transport_timeout_seconds": self._transport_timeout_seconds,
             "max_iterations": self._max_iterations,
-            "tool_policy_mode": tool_policy.mode,
-            "tool_allowlist_effective": tool_policy.effective,
-            "tool_transport_allowlist_effective": tool_policy.transport_effective,
-            "blocked_tool_names": tool_policy.blocked,
             **observed,
             **self._workflow_evidence_raw(task, observed, termination_reason),
             "failure_class": "runner_partial_completion_unrecoverable",
@@ -5769,7 +5562,6 @@ class HermesRuntime:
     def _partial_completion_failure(
         self,
         task: RunnerTaskRequest,
-        tool_policy: ToolPolicy,
         finalized: JsonObject,
         observed: JsonObject,
         stop_meta: JsonObject,
@@ -5793,7 +5585,6 @@ class HermesRuntime:
             failure_kind = "transport_timeout"
             timeout_kind = string_from_map(stop_meta, "timeout_kind") or "task_timeout"
         diagnostics = self._runner_diagnostics(
-            tool_policy,
             failure_kind=failure_kind,
             provider_error_message=first_non_empty(recovery_error, message),
             timeout_kind=timeout_kind or None,
@@ -5815,10 +5606,6 @@ class HermesRuntime:
             "inactivity_timeout_seconds": self._effective_inactivity_timeout(self._effective_task_timeout(task)),
             "transport_timeout_seconds": self._transport_timeout_seconds,
             "max_iterations": self._max_iterations,
-            "tool_policy_mode": tool_policy.mode,
-            "tool_allowlist_effective": tool_policy.effective,
-            "tool_transport_allowlist_effective": tool_policy.transport_effective,
-            "blocked_tool_names": tool_policy.blocked,
             **observed,
             **self._workflow_evidence_raw(task, observed, termination_reason),
             "failure_class": failure_class,
@@ -5841,7 +5628,6 @@ class HermesRuntime:
     def _finalize_partial_completion(
         self,
         task: RunnerTaskRequest,
-        tool_policy: ToolPolicy,
         finalized: JsonObject,
         observed: JsonObject,
         stop_meta: JsonObject,
@@ -5865,7 +5651,6 @@ class HermesRuntime:
         if recovery_timeout_seconds <= 0:
             return self._partial_completion_unrecoverable_failure(
                 task,
-                tool_policy,
                 finalized,
                 observed,
                 stop_meta,
@@ -5880,7 +5665,6 @@ class HermesRuntime:
         if not attempt_budgets:
             return self._partial_completion_unrecoverable_failure(
                 task,
-                tool_policy,
                 finalized,
                 observed,
                 stop_meta,
@@ -5953,10 +5737,6 @@ class HermesRuntime:
                 "inactivity_timeout_seconds": self._effective_inactivity_timeout(self._effective_task_timeout(task)),
                 "transport_timeout_seconds": self._transport_timeout_seconds,
                 "max_iterations": self._max_iterations,
-                "tool_policy_mode": tool_policy.mode,
-                "tool_allowlist_effective": tool_policy.effective,
-                "tool_transport_allowlist_effective": tool_policy.transport_effective,
-                "blocked_tool_names": tool_policy.blocked,
                 **observed,
                 "evidence_ledger": evidence_ledger,
                 "runner_diagnostics": merged_runner_diagnostics,
@@ -6000,7 +5780,6 @@ class HermesRuntime:
             )
         return self._partial_completion_unrecoverable_failure(
             task,
-            tool_policy,
             finalized,
             observed,
             stop_meta,
@@ -6034,14 +5813,6 @@ class HermesRuntime:
         if task.task_type in {"workflow", "question_gather", "question_expand"}:
             return names
         return set()
-
-    def _attach_tool_policy(self, agent: Any, task: RunnerTaskRequest, tool_policy: ToolPolicy, *, observer: ObservationEmitter | None = None) -> None:
-        current_tools = list(getattr(agent, "tools", []) or [])
-        current_valid = set(getattr(agent, "valid_tool_names", set()) or set())
-        setattr(agent, "_rsi_readonly_tool_binding", None)
-        current_valid = {name for name in current_valid if name not in BLOCKED_HONCHO_TOOLS}
-        agent.tools = [tool for tool in current_tools if tool_name(tool) not in BLOCKED_HONCHO_TOOLS]
-        agent.valid_tool_names = current_valid
 
     def _run_with_deadlines(
         self,
@@ -6250,22 +6021,19 @@ class HermesRuntime:
                 provider="policy",
                 raw={"role": self._role, "task_type": task.task_type},
             )
-        tool_policy = self._resolve_tool_policy(task)
         if task.task_type == "question_reduce":
-            return self._execute_question_reduce_task(task, tool_policy)
+            return self._execute_question_reduce_task(task)
         if self._task_uses_artifact_phases(task):
-            return self._execute_artifact_workflow_task(task, tool_policy, observer=observer)
+            return self._execute_artifact_workflow_task(task, observer=observer)
         if self._native_executor_enabled_for_task(task):
             result = self._execute_native_workflow_task_request(
                 task,
-                tool_policy,
                 observer=observer,
                 max_iterations_override=self._phase_max_iterations_override(task),
             )
         else:
             result = self._execute_task_request(
                 task,
-                tool_policy,
                 observer=observer,
                 max_iterations_override=self._phase_max_iterations_override(task),
             )
@@ -6300,8 +6068,7 @@ class HermesRuntime:
                 result.raw.get("action_contract_repair_succeeded")
             ) or _bool_or_false(partial_runner_diagnostics.get("action_contract_repair_succeeded"))
         else:
-            repair_tool_policy = tool_policy
-            if invalid_request := self._provider_invalid_request_diagnostics(result.message, repair_tool_policy):
+            if invalid_request := self._provider_invalid_request_diagnostics(result.message):
                 diagnostics = dict(invalid_request)
                 for key, value in _json_object_or_empty(result.raw.get("runner_diagnostics")).items():
                     diagnostics[key] = value
@@ -6331,13 +6098,12 @@ class HermesRuntime:
                     repair_task = self._build_structured_output_repair_task(rendered_task, result.message)
                     repair_result = self._execute_task_request(
                         repair_task,
-                        repair_tool_policy,
                         observer=observer,
                         render_prompt=False,
                         expand_skills=False,
                     )
                     if repair_result.ok:
-                        if invalid_request := self._provider_invalid_request_diagnostics(repair_result.message, repair_tool_policy):
+                        if invalid_request := self._provider_invalid_request_diagnostics(repair_result.message):
                             diagnostics = dict(invalid_request)
                             for key, value in _json_object_or_empty(repair_result.raw.get("runner_diagnostics")).items():
                                 diagnostics[key] = value
@@ -6381,7 +6147,6 @@ class HermesRuntime:
                                     **repair_result.raw,
                                     "failure_class": "runner_structured_output_parse_failure",
                                     "runner_diagnostics": self._runner_diagnostics(
-                                        repair_tool_policy,
                                         failure_kind="structured_output_parse_failure",
                                         provider_error_message=str(repair_exc),
                                         repair_attempted=True,
@@ -6428,7 +6193,6 @@ class HermesRuntime:
                             **result.raw,
                             "failure_class": "runner_structured_output_parse_failure",
                             "runner_diagnostics": self._runner_diagnostics(
-                                repair_tool_policy,
                                 failure_kind="structured_output_parse_failure",
                                 provider_error_message=str(exc),
                                 repair_attempted=False,
@@ -6463,7 +6227,6 @@ class HermesRuntime:
                 repair_task = self._build_action_contract_repair_task(rendered_task, structured_output)
                 repair_result = self._execute_task_request(
                     repair_task,
-                    repair_tool_policy,
                     observer=observer,
                     render_prompt=False,
                     expand_skills=False,
@@ -6512,9 +6275,6 @@ class HermesRuntime:
             "thread_ts": task.thread_ts,
             "repo_allowlist": task.repo_allowlist,
             "tool_allowlist": task.tool_allowlist,
-            "tool_policy_mode": tool_policy.mode,
-            "tool_allowlist_effective": tool_policy.effective,
-            "blocked_tool_names": tool_policy.blocked,
             "response_mode": task.response_mode,
             "reply_delivery_mode": task.reply_delivery_mode,
             "context_refs": task.context_refs,
@@ -7106,7 +6866,6 @@ class HermesRuntime:
     def _execute_artifact_workflow_task(
         self,
         task: RunnerTaskRequest,
-        tool_policy: ToolPolicy,
         *,
         observer: ObservationEmitter | None = None,
     ) -> HermesExecutionResult:
@@ -7304,7 +7063,7 @@ class HermesRuntime:
             observer=observer,
         )
 
-    def _render_task_prompt(self, task: RunnerTaskRequest, tool_policy: ToolPolicy) -> str:
+    def _render_task_prompt(self, task: RunnerTaskRequest) -> str:
         parts = [
             f"Runner role: {self._role}",
             f"Task type: {task.task_type}",
@@ -7315,7 +7074,6 @@ class HermesRuntime:
             f"Task timeout seconds: {self._effective_task_timeout(task)}",
             f"Inactivity timeout seconds: {self._effective_inactivity_timeout(self._effective_task_timeout(task))}",
             f"Transport timeout seconds: {self._transport_timeout_seconds}",
-            f"Tool policy mode: {tool_policy.mode}",
             "Detailed RSI evidence is injected through the Hermes context engine rather than appended inline to this prompt.",
         ]
         if task.task_type in {"question_gather", "question_expand"}:
@@ -7386,14 +7144,6 @@ class HermesRuntime:
             parts.append(f"Workspace branch: {task.workspace_branch}")
         if task.allowed_path_globs:
             parts.append(f"Allowed path globs: {', '.join(task.allowed_path_globs)}")
-        if task.allowed_tools:
-            parts.append(f"Requested allowed tools: {', '.join(task.allowed_tools)}")
-        if task.tool_allowlist:
-            parts.append(f"Requested tool allowlist: {', '.join(task.tool_allowlist)}")
-        if tool_policy.effective:
-            parts.append(f"Effective tool allowlist: {', '.join(tool_policy.effective)}")
-        if tool_policy.blocked:
-            parts.append(f"Blocked tools by policy: {', '.join(tool_policy.blocked)}")
         if task.allowed_commands:
             parts.append(f"Allowed commands: {', '.join(task.allowed_commands)}")
         if task.repo_allowlist:
@@ -7433,9 +7183,9 @@ class HermesRuntime:
         parts.append(f"Timeout seconds: {self._effective_task_timeout(task)}")
         execution_mode = (task.execution_mode or "").strip().lower()
         if self._config.hermes_native_terminal_enabled:
-            parts.append("Use the native company-computer toolsets listed in the phase contract plus any effective MCP/tool allowlist above.")
+            parts.append("Use the native company-computer toolsets listed in the phase contract plus configured MCP servers.")
         else:
-            parts.append("Use only the effective tool allowlist above.")
+            parts.append("Hermes native terminal tools are not enabled for this runner.")
         parts.append("Eval is read-only. Proposal investigate mode is read-only. Proposal diagnose mode is read-only and must stay grounded in persisted evidence before expanding to repo or log reads. Proposal implement mode may mutate only through native Hermes tools inside the bound workspace; it must not merge code, launch privileged jobs, or post to Slack unless the task contract explicitly allows it.")
         if execution_mode == "diagnose":
             parts.append(

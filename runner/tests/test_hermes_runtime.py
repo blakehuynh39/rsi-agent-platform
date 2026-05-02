@@ -28,11 +28,7 @@ from rsi_runner.hermes_runtime import (
     _redact_subprocess_output,
 )
 from rsi_runner.observability import ObservationEmitter, execution_observation_id
-from rsi_runner.rsi_tools import (
-    ReadOnlyToolBinding,
-    tool_schema_wrappers,
-    transport_tool_schema,
-)
+from rsi_runner.rsi_tools import transport_tool_schema
 from rsi_runner.session_manager import SessionManager
 
 
@@ -528,59 +524,12 @@ class HermesRuntimeTests(unittest.TestCase):
         ):
             runtime = HermesRuntime(RunnerConfig.from_env())
 
-        prompt = runtime._render_task_prompt(task, runtime._resolve_tool_policy(task))
+        prompt = runtime._render_task_prompt(task)
 
         self.assertIn("Kubernetes read namespace scope: story, rsi-platform", prompt)
         self.assertIn("do not probe unlisted or archived namespaces", prompt)
 
-    def test_readonly_binding_defaults_single_kubernetes_namespace(self) -> None:
-        binding = ReadOnlyToolBinding(
-            base_url="http://tool-gateway.internal:8080",
-            allowed_tool_names=["kubernetes.inspect"],
-            task_repo="depin-backend",
-            task_repo_ref="main",
-            task_prompt="Inspect runtime.",
-            task_channel_id="C123",
-            task_thread_ts="1777151223.424979",
-            task_context_summary="",
-            trace_id="trace-123",
-            session_scope_kind="conversation",
-            session_scope_id="conv-123",
-            context_refs=[],
-            kubernetes_read_namespaces=["story"],
-        )
 
-        payload = binding._default_payload("kubernetes.inspect")
-
-        self.assertEqual(payload["namespace"], "story")
-
-    def test_readonly_binding_defaults_runtime_deployment_targets(self) -> None:
-        binding = ReadOnlyToolBinding(
-            base_url="http://tool-gateway.internal:8080",
-            allowed_tool_names=["rsi.runtime_deployment_facts"],
-            task_repo="depin-backend",
-            task_repo_ref="main",
-            task_prompt="Draw the deployed architecture.",
-            task_channel_id="C123",
-            task_thread_ts="1777151223.424979",
-            task_context_summary="",
-            trace_id="trace-123",
-            session_scope_kind="conversation",
-            session_scope_id="conv-123",
-            context_refs=[
-                {
-                    "kind": "runtime_deployment_targets",
-                    "target_ref": "depin-backend,depin-ip-registration",
-                    "tool_name": "rsi.runtime_deployment_facts",
-                }
-            ],
-            kubernetes_read_namespaces=["story", "rsi-platform"],
-        )
-
-        payload = binding._default_payload("rsi.runtime_deployment_facts")
-
-        self.assertEqual(payload["services"], ["depin-backend", "depin-ip-registration"])
-        self.assertNotIn("namespace", payload)
 
     def test_native_workflow_enables_configured_company_computer_toolsets(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -612,7 +561,6 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertIn("hermes-api-server", toolsets)
         self.assertIn("hermes-api-server", phase_contract["required_toolsets"])
-        self.assertNotIn("hermes-api-server", runtime._resolve_tool_policy(task).effective)
 
     def test_native_terminal_refuses_pod_github_token_without_app_credentials(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -1014,7 +962,7 @@ class HermesRuntimeTests(unittest.TestCase):
             clear=True,
         ):
             runtime = HermesRuntime(RunnerConfig.from_env())
-            result = runtime._execute_native_workflow_task_request(task, runtime._resolve_tool_policy(task))
+            result = runtime._execute_native_workflow_task_request(task)
 
         self.assertFalse(runtime.available)
         self.assertFalse(runtime.metadata["company_computer_bootstrap_status"]["ok"])
@@ -1050,7 +998,7 @@ class HermesRuntimeTests(unittest.TestCase):
             clear=True,
         ):
             runtime = HermesRuntime(RunnerConfig.from_env())
-            result = runtime._execute_native_workflow_task_request(task, runtime._resolve_tool_policy(task))
+            result = runtime._execute_native_workflow_task_request(task)
 
         self.assertFalse(runtime.available)
         self.assertFalse(runtime.metadata["company_computer_bootstrap_status"]["ok"])
@@ -1718,51 +1666,6 @@ class HermesRuntimeTests(unittest.TestCase):
         observation_id = execution_observation_id("op-123", "trace-123", "wf-123", "session-123")
         self.assertTrue(observation_id.startswith("hexec-"))
 
-    def test_readonly_tool_binding_uses_execution_phase_for_observations(self) -> None:
-        class RecordingObserver:
-            def __init__(self) -> None:
-                self.events: list[dict[str, object]] = []
-
-            def emit(self, *, phase: str, event_type: str, status: str, payload: dict[str, object] | None = None) -> None:
-                self.events.append(
-                    {
-                        "phase": phase,
-                        "event_type": event_type,
-                        "status": status,
-                        "payload": dict(payload or {}),
-                    }
-                )
-
-        observer = RecordingObserver()
-        binding = ReadOnlyToolBinding(
-            base_url="http://tool-gateway.internal:8080",
-            allowed_tool_names=[],
-            task_repo="depin-backend",
-            task_repo_ref="",
-            task_prompt="Deliver the final reply.",
-            task_channel_id="C123",
-            task_thread_ts="171000001.000100",
-            task_context_summary="",
-            trace_id="trace-123",
-            session_scope_kind="conversation",
-            session_scope_id="conv-123",
-            context_refs=[],
-            execution_phase="deliver",
-            observer=observer,
-        )
-        binding._record_tool_call(
-            canonical_name="slack.upload_file",
-            tool_call_id="tool-1",
-            request_payload={"filename": "diagram.html"},
-            started_at=0.0,
-            completed_at=1.0,
-            status="completed",
-            summary="uploaded",
-            provider_ref="file-123",
-        )
-
-        self.assertEqual(observer.events[0]["phase"], "deliver")
-        self.assertEqual(observer.events[0]["event_type"], "tool.call.completed")
 
     def test_runner_task_request_falls_back_to_top_level_payload_when_task_is_not_object(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -1966,68 +1869,6 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(status["executor_instance_id"], "prod")
         self.assertTrue(status["result"]["ok"])
 
-    def test_rsi_tool_wrappers_use_transport_names_and_reverse_map_to_canonical_gateway_ids(self) -> None:
-        wrappers = tool_schema_wrappers(["repo.context", "rsi.workflow_context"])
-        self.assertEqual(
-            [item["function"]["name"] for item in wrappers],
-            ["repo_context", "rsi_workflow_context"],
-        )
-
-        captured: dict[str, object] = {}
-
-        class FakeResponse:
-            def __enter__(self):
-                return self
-
-            def __exit__(self, exc_type, exc, tb) -> bool:
-                return False
-
-            def read(self) -> bytes:
-                return json.dumps(
-                    {
-                        "status": "completed",
-                        "available": True,
-                        "summary": "Context gathered.",
-                        "provider": "tool-gateway",
-                        "provider_ref": "repo.context-call",
-                        "output": {"ok": True},
-                    }
-                ).encode("utf-8")
-
-        def fake_urlopen(req, timeout: int = 0):
-            captured["url"] = req.full_url
-            captured["timeout"] = timeout
-            captured["body"] = json.loads(req.data.decode("utf-8"))
-            return FakeResponse()
-
-        binding = ReadOnlyToolBinding(
-            base_url="http://tool-gateway.internal",
-            allowed_tool_names=["repo.context", "rsi.workflow_context"],
-            task_repo="rsi-agent-platform",
-            task_repo_ref="main",
-            task_prompt="What broke?",
-            task_channel_id="",
-            task_thread_ts="",
-            task_context_summary="workflow summary",
-            trace_id="trace-123",
-            session_scope_kind="conversation",
-            session_scope_id="conv-123",
-            context_refs=[],
-        )
-
-        with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_urlopen):
-            payload = json.loads(binding.handle_tool_call("repo_context", {"question": "What broke?"}))
-
-        self.assertEqual(captured["url"], "http://tool-gateway.internal/api/tools/repo.context/execute")
-        self.assertEqual(captured["body"], {"trace_id": "trace-123", "repo": "rsi-agent-platform", "question": "What broke?"})
-        self.assertEqual(payload["tool_name"], "repo.context")
-        self.assertEqual(payload["transport_tool_name"], "repo_context")
-        self.assertEqual(payload["tool_call_id"], "repo.context:1")
-        self.assertEqual(len(binding.diagnostics()["tool_calls"]), 1)
-        self.assertEqual(binding.diagnostics()["tool_calls"][0]["tool_name"], "repo.context")
-        self.assertEqual(binding.diagnostics()["tool_calls"][0]["tool_call_id"], "repo.context:1")
-        self.assertEqual(binding.diagnostics()["tool_calls"][0]["request"], {"trace_id": "trace-123", "repo": "rsi-agent-platform", "question": "What broke?"})
-        self.assertEqual(binding.diagnostics()["tool_calls"][0]["summary"], "Context gathered.")
 
     def test_cancel_execution_marks_active_execution_as_cancelling(self) -> None:
         class FakeProcess:
@@ -2127,487 +1968,15 @@ class HermesRuntimeTests(unittest.TestCase):
                 self.assertEqual(status["status"], "orphaned")
                 self.assertIn("no local execution process", status["message"])
 
-    def test_slack_history_binding_defaults_to_bound_channel_context(self) -> None:
-        captured: dict[str, object] = {}
 
-        class FakeResponse:
-            def __enter__(self):
-                return self
 
-            def __exit__(self, exc_type, exc, tb) -> bool:
-                return False
 
-            def read(self) -> bytes:
-                return json.dumps(
-                    {
-                        "status": "completed",
-                        "available": True,
-                        "summary": "Slack thread history loaded.",
-                        "provider": "slack",
-                        "provider_ref": "171000001.000100",
-                        "output": {"messages": []},
-                    }
-                ).encode("utf-8")
 
-        def fake_urlopen(req, timeout: int = 0):
-            captured["url"] = req.full_url
-            captured["timeout"] = timeout
-            captured["body"] = json.loads(req.data.decode("utf-8"))
-            return FakeResponse()
 
-        binding = ReadOnlyToolBinding(
-            base_url="http://tool-gateway.internal",
-            allowed_tool_names=["slack.history"],
-            task_repo="rsi-agent-platform",
-            task_repo_ref="main",
-            task_prompt="What did we say in the latest convo?",
-            task_channel_id="C123",
-            task_thread_ts="171000001.000100",
-            task_context_summary="workflow summary",
-            trace_id="trace-123",
-            session_scope_kind="conversation",
-            session_scope_id="conv-123",
-            context_refs=[],
-        )
 
-        with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_urlopen):
-            payload = json.loads(binding.handle_tool_call("slack_history", {}))
 
-        self.assertEqual(captured["url"], "http://tool-gateway.internal/api/tools/slack.history/execute")
-        self.assertEqual(
-            captured["body"],
-            {
-                "trace_id": "trace-123",
-                "channel_id": "C123",
-                "thread_ts": "171000001.000100",
-                "question": "What did we say in the latest convo?",
-            },
-        )
-        self.assertEqual(payload["tool_name"], "slack.history")
-        self.assertEqual(payload["transport_tool_name"], "slack_history")
 
-    def test_slack_history_binding_records_grounded_message_evidence_items(self) -> None:
-        class FakeResponse:
-            def __enter__(self):
-                return self
-
-            def __exit__(self, exc_type, exc, tb) -> bool:
-                return False
-
-            def read(self) -> bytes:
-                return json.dumps(
-                    {
-                        "status": "completed",
-                        "available": True,
-                        "summary": "Slack thread history loaded.",
-                        "provider": "slack",
-                        "provider_ref": "171000001.000100",
-                        "output": {
-                            "channel_id": "C123",
-                            "thread_ts": "171000001.000100",
-                            "messages": [
-                                {
-                                    "author_name": "blake",
-                                    "user": "U123",
-                                    "ts": "171000001.000100",
-                                    "thread_ts": "171000001.000100",
-                                    "text": "Pinned the timeout increase to five minutes for this rollout.",
-                                    "permalink": "https://slack.example/C123/p1710000010000100",
-                                }
-                            ],
-                        },
-                    }
-                ).encode("utf-8")
-
-        binding = ReadOnlyToolBinding(
-            base_url="http://tool-gateway.internal",
-            allowed_tool_names=["slack.history"],
-            task_repo="rsi-agent-platform",
-            task_repo_ref="main",
-            task_prompt="Summarize the thread.",
-            task_channel_id="C123",
-            task_thread_ts="171000001.000100",
-            task_context_summary="workflow summary",
-            trace_id="trace-123",
-            session_scope_kind="conversation",
-            session_scope_id="conv-123",
-            context_refs=[],
-        )
-
-        with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", return_value=FakeResponse()):
-            payload = json.loads(binding.handle_tool_call("slack_history", {}))
-
-        self.assertEqual(payload["status"], "completed")
-        evidence_items = binding.diagnostics()["evidence_items"]
-        self.assertEqual(len(evidence_items), 1)
-        self.assertEqual(evidence_items[0]["kind"], "slack_message")
-        self.assertEqual(evidence_items[0]["summary"], "[blake] Pinned the timeout increase to five minutes for this rollout.")
-        self.assertEqual(evidence_items[0]["snippet"], "Pinned the timeout increase to five minutes for this rollout.")
-        self.assertEqual(evidence_items[0]["author"], "blake")
-        self.assertEqual(evidence_items[0]["message_ts"], "171000001.000100")
-        self.assertEqual(evidence_items[0]["thread_ts"], "171000001.000100")
-        self.assertEqual(evidence_items[0]["source_ref"], "https://slack.example/C123/p1710000010000100")
-
-    def test_slack_search_binding_defaults_to_bound_channel_context(self) -> None:
-        captured: dict[str, object] = {}
-
-        class FakeResponse:
-            def __enter__(self):
-                return self
-
-            def __exit__(self, exc_type, exc, tb) -> bool:
-                return False
-
-            def read(self) -> bytes:
-                return json.dumps(
-                    {
-                        "status": "completed",
-                        "available": True,
-                        "summary": "Slack search loaded.",
-                        "provider": "slack",
-                        "provider_ref": "control plane timeout",
-                        "output": {"messages": []},
-                    }
-                ).encode("utf-8")
-
-        def fake_urlopen(req, timeout: int = 0):
-            captured["url"] = req.full_url
-            captured["timeout"] = timeout
-            captured["body"] = json.loads(req.data.decode("utf-8"))
-            return FakeResponse()
-
-        binding = ReadOnlyToolBinding(
-            base_url="http://tool-gateway.internal",
-            allowed_tool_names=["slack.search"],
-            task_repo="rsi-agent-platform",
-            task_repo_ref="main",
-            task_prompt="Where did we decide to bump the control plane to 5 minutes?",
-            task_channel_id="C123",
-            task_thread_ts="171000001.000100",
-            task_context_summary="workflow summary",
-            trace_id="trace-123",
-            session_scope_kind="conversation",
-            session_scope_id="conv-123",
-            context_refs=[],
-        )
-
-        with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_urlopen):
-            payload = json.loads(binding.handle_tool_call("slack_search", {}))
-
-        self.assertEqual(captured["url"], "http://tool-gateway.internal/api/tools/slack.search/execute")
-        self.assertEqual(
-            captured["body"],
-            {
-                "trace_id": "trace-123",
-                "channel_ids": ["C123"],
-                "query": "Where did we decide to bump the control plane to 5 minutes?",
-            },
-        )
-        self.assertEqual(payload["tool_name"], "slack.search")
-        self.assertEqual(payload["transport_tool_name"], "slack_search")
-
-    def test_readonly_tool_binding_null_args_do_not_clobber_defaults(self) -> None:
-        captured: dict[str, object] = {}
-
-        class FakeResponse:
-            def __enter__(self):
-                return self
-
-            def __exit__(self, exc_type, exc, tb) -> bool:
-                return False
-
-            def read(self) -> bytes:
-                return json.dumps(
-                    {
-                        "status": "completed",
-                        "available": True,
-                        "summary": "Repo context loaded.",
-                        "provider": "github",
-                        "provider_ref": "https://github.com/piplabs/rsi-agent-platform",
-                        "output": {},
-                    }
-                ).encode("utf-8")
-
-        def fake_urlopen(req, timeout: int = 0):
-            captured["url"] = req.full_url
-            captured["timeout"] = timeout
-            captured["body"] = json.loads(req.data.decode("utf-8"))
-            return FakeResponse()
-
-        binding = ReadOnlyToolBinding(
-            base_url="http://tool-gateway.internal",
-            allowed_tool_names=["repo.context"],
-            task_repo="rsi-agent-platform",
-            task_repo_ref="main",
-            task_prompt="Summarize the latest workflow fix.",
-            task_channel_id="C123",
-            task_thread_ts="171000001.000100",
-            task_context_summary="workflow summary",
-            trace_id="trace-123",
-            session_scope_kind="conversation",
-            session_scope_id="conv-123",
-            context_refs=[],
-        )
-
-        with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_urlopen):
-            payload = json.loads(binding.handle_tool_call("repo_context", {"repo": None, "question": None}))
-
-        self.assertEqual(captured["url"], "http://tool-gateway.internal/api/tools/repo.context/execute")
-        self.assertEqual(
-            captured["body"],
-            {
-                "trace_id": "trace-123",
-                "repo": "rsi-agent-platform",
-                "question": "Summarize the latest workflow fix.",
-            },
-        )
-        self.assertEqual(payload["tool_name"], "repo.context")
-        self.assertEqual(payload["transport_tool_name"], "repo_context")
-
-    def test_slack_upload_file_binding_defaults_to_bound_thread(self) -> None:
-        captured: dict[str, object] = {}
-
-        class FakeResponse:
-            def __enter__(self):
-                return self
-
-            def __exit__(self, exc_type, exc, tb) -> bool:
-                return False
-
-            def read(self) -> bytes:
-                return json.dumps(
-                    {
-                        "status": "completed",
-                        "available": True,
-                        "summary": "Slack file uploaded.",
-                        "provider": "slack",
-                        "provider_ref": "F123",
-                        "output": {"uploaded": True, "file_id": "F123"},
-                    }
-                ).encode("utf-8")
-
-        def fake_urlopen(req, timeout: int = 0):
-            captured["url"] = req.full_url
-            captured["timeout"] = timeout
-            captured["body"] = json.loads(req.data.decode("utf-8"))
-            return FakeResponse()
-
-        binding = ReadOnlyToolBinding(
-            base_url="http://tool-gateway.internal",
-            allowed_tool_names=["slack.upload_file"],
-            task_repo="rsi-agent-platform",
-            task_repo_ref="main",
-            task_prompt="Reply with the generated file.",
-            task_channel_id="C123",
-            task_thread_ts="171000001.000100",
-            task_context_summary="workflow summary",
-            trace_id="trace-123",
-            session_scope_kind="conversation",
-            session_scope_id="conv-123",
-            context_refs=[],
-        )
-
-        with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_urlopen):
-            payload = json.loads(binding.handle_tool_call("slack_upload_file", {"filename": "diagram.svg", "content": "<svg />"}))
-
-        self.assertEqual(captured["url"], "http://tool-gateway.internal/api/tools/slack.upload_file/execute")
-        self.assertEqual(
-            captured["body"],
-            {
-                "trace_id": "trace-123",
-                "channel_id": "C123",
-                "thread_ts": "171000001.000100",
-                "filename": "diagram.svg",
-                "content": "<svg />",
-            },
-        )
-        self.assertEqual(payload["tool_name"], "slack.upload_file")
-        self.assertEqual(payload["transport_tool_name"], "slack_upload_file")
-
-    def test_slack_upload_file_binding_reads_local_path_and_forwards_base64(self) -> None:
-        captured: dict[str, object] = {}
-
-        class FakeResponse:
-            def __enter__(self):
-                return self
-
-            def __exit__(self, exc_type, exc, tb) -> bool:
-                return False
-
-            def read(self) -> bytes:
-                return json.dumps(
-                    {
-                        "status": "completed",
-                        "available": True,
-                        "summary": "Slack file uploaded.",
-                        "provider": "slack",
-                        "provider_ref": "F456",
-                        "output": {"uploaded": True, "file_id": "F456"},
-                    }
-                ).encode("utf-8")
-
-        def fake_urlopen(req, timeout: int = 0):
-            captured["body"] = json.loads(req.data.decode("utf-8"))
-            return FakeResponse()
-
-        binding = ReadOnlyToolBinding(
-            base_url="http://tool-gateway.internal",
-            allowed_tool_names=["slack.upload_file"],
-            task_repo="rsi-agent-platform",
-            task_repo_ref="main",
-            task_prompt="Reply with the generated file.",
-            task_channel_id="C123",
-            task_thread_ts="171000001.000100",
-            task_context_summary="workflow summary",
-            trace_id="trace-123",
-            session_scope_kind="conversation",
-            session_scope_id="conv-123",
-            context_refs=[],
-        )
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            file_path = Path(tmpdir) / "diagram.svg"
-            file_path.write_text("<svg>generated</svg>", encoding="utf-8")
-            def fake_render(cmd, check: bool, capture_output: bool, timeout: int):
-                Path(cmd[cmd.index("-o") + 1]).write_bytes(b"\x89PNG\r\n")
-                return subprocess.CompletedProcess(cmd, 0)
-
-            with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_urlopen), mock.patch(
-                "rsi_runner.slack_uploads.shutil.which", return_value="/usr/bin/rsvg-convert"
-            ), mock.patch("rsi_runner.slack_uploads.subprocess.run", side_effect=fake_render):
-                payload = json.loads(binding.handle_tool_call("slack_upload_file", {"path": str(file_path)}))
-
-        body = captured["body"]
-        self.assertEqual(body["channel_id"], "C123")
-        self.assertEqual(body["thread_ts"], "171000001.000100")
-        self.assertEqual(body["filename"], "diagram.png")
-        self.assertEqual(Path(body["path"]).name, "diagram.png")
-        self.assertEqual(Path(body["source_path"]).name, "diagram.svg")
-        self.assertEqual(base64.b64decode(body["content_base64"]), b"\x89PNG\r\n")
-        self.assertEqual(payload["tool_name"], "slack.upload_file")
-        self.assertEqual(payload["transport_tool_name"], "slack_upload_file")
-
-    def test_slack_upload_file_binding_reads_file_artifact_ref(self) -> None:
-        captured: dict[str, object] = {}
-
-        class FakeResponse:
-            def __enter__(self):
-                return self
-
-            def __exit__(self, exc_type, exc, tb) -> bool:
-                return False
-
-            def read(self) -> bytes:
-                return json.dumps(
-                    {
-                        "status": "completed",
-                        "available": True,
-                        "summary": "Slack file uploaded.",
-                        "provider": "slack",
-                        "provider_ref": "F789",
-                        "output": {"uploaded": True, "file_id": "F789"},
-                    }
-                ).encode("utf-8")
-
-        def fake_urlopen(req, timeout: int = 0):
-            captured["body"] = json.loads(req.data.decode("utf-8"))
-            return FakeResponse()
-
-        binding = ReadOnlyToolBinding(
-            base_url="http://tool-gateway.internal",
-            allowed_tool_names=["slack.upload_file"],
-            task_repo="rsi-agent-platform",
-            task_repo_ref="main",
-            task_prompt="Reply with the generated file.",
-            task_channel_id="C123",
-            task_thread_ts="171000001.000100",
-            task_context_summary="workflow summary",
-            trace_id="trace-123",
-            session_scope_kind="conversation",
-            session_scope_id="conv-123",
-            context_refs=[],
-        )
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            file_path = Path(tmpdir) / "diagram.png"
-            file_path.write_bytes(b"\x89PNG\r\n")
-            artifact_ref = file_path.as_uri()
-            with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_urlopen):
-                _ = json.loads(binding.handle_tool_call("slack_upload_file", {"artifact_ref": artifact_ref}))
-
-        body = captured["body"]
-        self.assertEqual(body["filename"], "diagram.png")
-        self.assertEqual(Path(body["path"]).name, "diagram.png")
-        self.assertEqual(base64.b64decode(body["content_base64"]), b"\x89PNG\r\n")
-
-    def test_repo_context_binding_records_grounded_match_snippets(self) -> None:
-        class FakeResponse:
-            def __enter__(self):
-                return self
-
-            def __exit__(self, exc_type, exc, tb) -> bool:
-                return False
-
-            def read(self) -> bytes:
-                return json.dumps(
-                    {
-                        "status": "completed",
-                        "available": True,
-                        "summary": "GitHub-backed repo context loaded for piplabs/rsi-agent-platform with 1 relevant code match(es).",
-                        "provider": "github",
-                        "provider_ref": "https://github.com/piplabs/rsi-agent-platform",
-                        "output": {
-                            "repo": "rsi-agent-platform",
-                            "default_branch": "main",
-                            "description": "Runner support for bounded-stop workflow replies.",
-                            "html_url": "https://github.com/piplabs/rsi-agent-platform",
-                            "matches": [
-                                {
-                                    "path": "runner/rsi_runner/hermes_runtime.py",
-                                    "html_url": "https://github.com/piplabs/rsi-agent-platform/blob/main/runner/rsi_runner/hermes_runtime.py",
-                                    "snippet": "completion_verdict = partial when the reducer had enough grounded evidence",
-                                }
-                            ],
-                        },
-                    }
-                ).encode("utf-8")
-
-        binding = ReadOnlyToolBinding(
-            base_url="http://tool-gateway.internal",
-            allowed_tool_names=["repo.context"],
-            task_repo="rsi-agent-platform",
-            task_repo_ref="main",
-            task_prompt="Where is partial completion handled?",
-            task_channel_id="C123",
-            task_thread_ts="171000001.000100",
-            task_context_summary="workflow summary",
-            trace_id="trace-123",
-            session_scope_kind="conversation",
-            session_scope_id="conv-123",
-            context_refs=[],
-        )
-
-        with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", return_value=FakeResponse()):
-            payload = json.loads(binding.handle_tool_call("repo_context", {}))
-
-        self.assertEqual(payload["status"], "completed")
-        evidence_items = binding.diagnostics()["evidence_items"]
-        self.assertEqual(len(evidence_items), 2)
-        self.assertEqual(evidence_items[0]["kind"], "repo_context")
-        self.assertEqual(evidence_items[0]["snippet"], "Runner support for bounded-stop workflow replies.")
-        self.assertEqual(evidence_items[0]["default_branch"], "main")
-        self.assertEqual(evidence_items[1]["kind"], "repo_context_match")
-        self.assertEqual(
-            evidence_items[1]["snippet"],
-            "completion_verdict = partial when the reducer had enough grounded evidence",
-        )
-        self.assertEqual(evidence_items[1]["path"], "runner/rsi_runner/hermes_runtime.py")
-        self.assertEqual(
-            evidence_items[1]["source_ref"],
-            "https://github.com/piplabs/rsi-agent-platform/blob/main/runner/rsi_runner/hermes_runtime.py",
-        )
-
-    def test_invalid_tool_name_preflight_fails_before_provider_execution(self) -> None:
+    def test_legacy_tool_allowlist_does_not_construct_provider_tools(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
                 "task": {
@@ -2625,16 +1994,9 @@ class HermesRuntimeTests(unittest.TestCase):
             }
         )
 
-        def fake_transport_name(name: str) -> str:
-            if name == "repo.context":
-                raise ValueError("unsafe tool name")
-            return name
-
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch("rsi_runner.hermes_runtime.tool_transport_name", side_effect=fake_transport_name), mock.patch.dict(
-            os.environ, runner_env("prod"), clear=True
-        ):
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
             runtime = HermesRuntime(RunnerConfig.from_env())
             result = runtime.execute_task(task)
 
@@ -2682,7 +2044,7 @@ class HermesRuntimeTests(unittest.TestCase):
                 "task": {
                     "task_type": "workflow",
                     "repo": "rsi-agent-platform",
-                    "prompt": "User request: Please use /architecture-diagram skill and summarize the workflow.\n\nInvestigate within the governed tool boundary.",
+                    "prompt": "User request: Please use /architecture-diagram skill and summarize the workflow.\n\nInvestigate using Hermes-native tools and configured MCP servers.",
                     "requested_skills": ["architecture-diagram"],
                     "session_scope_kind": "conversation",
                     "session_scope_id": "conv-123",
@@ -3323,7 +2685,6 @@ class HermesRuntimeTests(unittest.TestCase):
             with mock.patch.object(runtime._mcp_adapter, "plan_task_servers", return_value=mcp_registration):
                 result = runtime._execute_native_workflow_task_request(
                     task,
-                    runtime._resolve_tool_policy(task),
                     observer=RecordingObserver(),
                 )
 
@@ -3375,33 +2736,7 @@ class HermesRuntimeTests(unittest.TestCase):
             self.assertIn("artifact.list.completed", [event["event"] for event in events])
             self.assertIn("artifact.list.failed", [event["event"] for event in events])
 
-    def test_plugin_slack_upload_reads_workspace_file_and_forwards_base64(self) -> None:
-        captured: dict[str, object] = {}
-
-        class FakeResponse:
-            def __enter__(self):
-                return self
-
-            def __exit__(self, exc_type, exc, tb) -> bool:
-                return False
-
-            def read(self) -> bytes:
-                return json.dumps(
-                    {
-                        "status": "completed",
-                        "available": True,
-                        "summary": "Slack file uploaded.",
-                        "provider": "slack",
-                        "provider_ref": "F123",
-                        "output": {"uploaded": True, "file_id": "F123"},
-                    }
-                ).encode("utf-8")
-
-        def fake_urlopen(req, timeout: int = 0):
-            captured["url"] = req.full_url
-            captured["body"] = json.loads(req.data.decode("utf-8"))
-            return FakeResponse()
-
+    def test_plugin_slack_upload_tool_is_not_registered(self) -> None:
         with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as artifact_dir, mock.patch.dict(
             os.environ, {"HERMES_HOME": hermes_home}, clear=True
         ):
@@ -3417,7 +2752,6 @@ class HermesRuntimeTests(unittest.TestCase):
                         "hermes_computer_root": artifact_dir,
                         "task_channel_id": "C123",
                         "task_thread_ts": "171000001.000100",
-                        "tool_allowlist_effective": ["slack.upload_file"],
                     }
                 ),
                 encoding="utf-8",
@@ -3427,36 +2761,6 @@ class HermesRuntimeTests(unittest.TestCase):
             self.assertNotIn("slack_upload_file", namespace["_TRANSPORT_TO_CANONICAL"])
             with self.assertRaises(KeyError):
                 namespace["_tool_handler"]("slack_upload_file")
-            return
-            namespace["urlrequest"].urlopen = fake_urlopen
-
-            def fake_render(cmd, check: bool, capture_output: bool, timeout: int):
-                Path(cmd[cmd.index("-o") + 1]).write_bytes(b"\x89PNG\r\n")
-                return subprocess.CompletedProcess(cmd, 0)
-
-            with mock.patch("rsi_runner.slack_uploads.shutil.which", return_value="/usr/bin/rsvg-convert"), mock.patch(
-                "rsi_runner.slack_uploads.subprocess.run", side_effect=fake_render
-            ):
-                handler = namespace["_tool_handler"]("slack_upload_file")
-                payload = json.loads(
-                    handler(
-                        {
-                            "artifact_ref": artifact_path.as_uri(),
-                            "initial_comment": "Attached.",
-                        },
-                        task_id=session_id,
-                    )
-                )
-
-        body = captured["body"]
-        self.assertEqual(captured["url"], "http://tool-gateway.internal/api/tools/slack.upload_file/execute")
-        self.assertEqual(body["channel_id"], "C123")
-        self.assertEqual(body["thread_ts"], "171000001.000100")
-        self.assertEqual(body["filename"], "diagram.png")
-        self.assertEqual(Path(body["path"]).name, "diagram.png")
-        self.assertEqual(Path(body["source_path"]).name, "diagram.html")
-        self.assertEqual(base64.b64decode(body["content_base64"]), b"\x89PNG\r\n")
-        self.assertEqual(payload["status"], "completed")
 
     def test_native_worker_uses_aiagent_adapter_not_hermes_cli(self) -> None:
         source = Path(__file__).parents[1].joinpath("rsi_runner", "hermes_executor_worker.py").read_text(encoding="utf-8")
@@ -3547,7 +2851,6 @@ class HermesRuntimeTests(unittest.TestCase):
             )
             result = runtime._execute_native_workflow_task_request(
                 task,
-                runtime._resolve_tool_policy(task),
                 observer=None,
             )
 
@@ -3655,7 +2958,6 @@ class HermesRuntimeTests(unittest.TestCase):
             )
             result = runtime._execute_native_workflow_task_request(
                 task,
-                runtime._resolve_tool_policy(task),
                 observer=observer,
             )
 
@@ -3848,7 +3150,6 @@ class HermesRuntimeTests(unittest.TestCase):
             )
             result = runtime._execute_native_workflow_task_request(
                 task,
-                runtime._resolve_tool_policy(task),
                 observer=RecordingObserver(),
             )
 
@@ -3949,7 +3250,6 @@ class HermesRuntimeTests(unittest.TestCase):
             )
             result = runtime._execute_native_workflow_task_request(
                 task,
-                runtime._resolve_tool_policy(task),
                 observer=observer,
             )
 
@@ -4020,7 +3320,6 @@ class HermesRuntimeTests(unittest.TestCase):
             )
             result = runtime._execute_native_workflow_task_request(
                 task,
-                runtime._resolve_tool_policy(task),
                 observer=None,
             )
 
@@ -4103,7 +3402,6 @@ class HermesRuntimeTests(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError, "finalize exploded"):
                     runtime._execute_native_workflow_task_request(
                         task,
-                        runtime._resolve_tool_policy(task),
                         observer=RecordingObserver(),
                     )
             run_dir_exists_before_temp_cleanup = bool(request_paths and request_paths[0].parent.exists() and request_paths[0].exists())
@@ -4246,7 +3544,7 @@ class HermesRuntimeTests(unittest.TestCase):
                 "task": {
                     "task_type": "workflow",
                     "repo": "rsi-agent-platform",
-                    "prompt": "User request: Please use /architecture-diagram skill for this system diagram.\n\nInvestigate within the governed tool boundary.",
+                    "prompt": "User request: Please use /architecture-diagram skill for this system diagram.\n\nInvestigate using Hermes-native tools and configured MCP servers.",
                     "requested_skills": ["architecture-diagram"],
                     "session_scope_kind": "conversation",
                     "session_scope_id": "conv-001",
@@ -4326,7 +3624,7 @@ class HermesRuntimeTests(unittest.TestCase):
                 "task": {
                     "task_type": "workflow",
                     "repo": "rsi-agent-platform",
-                    "prompt": "User request: Please use /architecture-diagram skill and summarize the workflow.\n\nInvestigate within the governed tool boundary.",
+                    "prompt": "User request: Please use /architecture-diagram skill and summarize the workflow.\n\nInvestigate using Hermes-native tools and configured MCP servers.",
                     "requested_skills": ["architecture-diagram"],
                     "reply_delivery_mode": "mediated",
                     "session_scope_kind": "conversation",
@@ -4365,7 +3663,7 @@ class HermesRuntimeTests(unittest.TestCase):
                 "task": {
                     "task_type": "workflow",
                     "repo": "rsi-agent-platform",
-                    "prompt": "User request: Please use /missing-skill.\n\nInvestigate within the governed tool boundary.",
+                    "prompt": "User request: Please use /missing-skill.\n\nInvestigate using Hermes-native tools and configured MCP servers.",
                     "requested_skills": ["missing-skill"],
                     "session_scope_kind": "conversation",
                     "session_scope_id": "conv-001",
@@ -4422,13 +3720,12 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertNotIn("rsi_candidate_context", FakeAIAgent.last_valid_tool_names)
         self.assertNotIn("github.create_pr", FakeAIAgent.last_valid_tool_names)
         self.assertNotIn("honcho_conclude", FakeAIAgent.last_valid_tool_names)
-        self.assertEqual(result.raw["tool_policy_mode"], "enforced_read_only")
-        self.assertIn("github.create_pr", result.raw["blocked_tool_names"])
-        self.assertIn("honcho_conclude", result.raw["blocked_tool_names"])
-        self.assertNotIn("repo.context", result.raw["tool_allowlist_effective"])
-        self.assertNotIn("rsi.candidate_context", result.raw["tool_allowlist_effective"])
-        self.assertNotIn("repo_context", result.raw["tool_transport_allowlist_effective"])
-        self.assertNotIn("rsi_candidate_context", result.raw["tool_transport_allowlist_effective"])
+        self.assertNotIn("tool_policy_mode", result.raw)
+        self.assertNotIn("blocked_tool_names", result.raw)
+        self.assertNotIn("tool_allowlist_effective", result.raw)
+        self.assertNotIn("Blocked tools", FakeAIAgent.last_prompt or "")
+        self.assertNotIn("Tool allowlist", FakeAIAgent.last_prompt or "")
+        self.assertNotIn("github.create_pr", FakeAIAgent.last_prompt or "")
 
     def test_proposal_role_keeps_helper_toolsets_for_governed_tasks(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -4565,7 +3862,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertNotIn("rsi-artifacts", runtime._native_toolsets_for_task(lease_only_task))
         self.assertIn("rsi-artifacts", runtime._native_toolsets_for_task(requested_artifact_task))
 
-    def test_prod_role_uses_governed_read_only_tool_policy(self) -> None:
+    def test_prod_role_hides_legacy_tool_policy_from_native_prompt(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
                 "task": {
@@ -4593,12 +3890,14 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertNotIn("repo_context", FakeAIAgent.last_valid_tool_names)
         self.assertNotIn("knowledge_context", FakeAIAgent.last_valid_tool_names)
         self.assertNotIn("github.create_pr", FakeAIAgent.last_valid_tool_names)
-        self.assertEqual(result.raw["tool_policy_mode"], "enforced_read_only")
+        self.assertNotIn("tool_policy_mode", result.raw)
         self.assertEqual(result.raw["task_timeout_seconds"], 1800)
         self.assertEqual(result.raw["transport_timeout_seconds"], 1830)
-        self.assertIn("github.create_pr", result.raw["blocked_tool_names"])
-        self.assertNotIn("repo_context", result.raw["tool_transport_allowlist_effective"])
-        self.assertNotIn("knowledge_context", result.raw["tool_transport_allowlist_effective"])
+        self.assertNotIn("blocked_tool_names", result.raw)
+        self.assertNotIn("tool_allowlist_effective", result.raw)
+        self.assertNotIn("Blocked tools", FakeAIAgent.last_prompt or "")
+        self.assertNotIn("Tool allowlist", FakeAIAgent.last_prompt or "")
+        self.assertNotIn("github.create_pr", FakeAIAgent.last_prompt or "")
 
     def test_prod_role_with_bound_workspace_admits_read_only_workspace_tools(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -4629,9 +3928,8 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertNotIn("workspace_git_history", FakeAIAgent.last_valid_tool_names)
         self.assertNotIn("workspace_read_file", FakeAIAgent.last_valid_tool_names)
         self.assertNotIn("workspace_write_file", FakeAIAgent.last_valid_tool_names)
-        self.assertNotIn("workspace.git_history", result.raw["tool_allowlist_effective"])
-        self.assertNotIn("workspace.read_file", result.raw["tool_allowlist_effective"])
-        self.assertIn("workspace.write_file", result.raw["blocked_tool_names"])
+        self.assertNotIn("tool_allowlist_effective", result.raw)
+        self.assertNotIn("blocked_tool_names", result.raw)
 
     def test_question_reduce_uses_openrouter_hermes_reducer_without_tools(self) -> None:
         class QuestionReducerAIAgent:
@@ -4855,19 +4153,17 @@ class HermesRuntimeTests(unittest.TestCase):
                     violations.extend(strict_schema_violations(value, f"{path}[{idx}]"))
             return violations
 
-        cloudflare = transport_tool_schema("cloudflare.inspect")
-        self.assertEqual(cloudflare["parameters"]["required"], ["resource"])
-        self.assertEqual(cloudflare["parameters"]["properties"]["resource"]["type"], ["string", "null"])
-        self.assertFalse(cloudflare["parameters"]["additionalProperties"])
+        artifact_write = transport_tool_schema("artifact.write_file")
+        self.assertEqual(artifact_write["name"], "artifact_write_file")
+        self.assertEqual(artifact_write["parameters"]["required"], ["path", "content"])
+        self.assertEqual(artifact_write["parameters"]["properties"]["path"]["type"], "string")
+        self.assertEqual(artifact_write["parameters"]["properties"]["content"]["type"], "string")
+        self.assertFalse(artifact_write["parameters"]["additionalProperties"])
 
-        repo_read_file = transport_tool_schema("repo.read_file")
-        self.assertEqual(repo_read_file["parameters"]["required"], ["repo", "path", "ref"])
-        self.assertEqual(repo_read_file["parameters"]["properties"]["repo"]["type"], ["string", "null"])
-        self.assertEqual(repo_read_file["parameters"]["properties"]["path"]["type"], "string")
-        self.assertEqual(repo_read_file["parameters"]["properties"]["ref"]["type"], ["string", "null"])
-
-        runtime_config = transport_tool_schema("rsi.runtime_config")
-        self.assertEqual(runtime_config["parameters"]["required"], [])
+        artifact_list = transport_tool_schema("artifact.list_files")
+        self.assertEqual(artifact_list["name"], "artifact_list_files")
+        self.assertEqual(artifact_list["parameters"]["required"], ["path"])
+        self.assertEqual(artifact_list["parameters"]["properties"]["path"]["type"], ["string", "null"])
 
         invalid: dict[str, list[str]] = {}
         from rsi_runner.rsi_tools import rsi_plugin_toolset_definitions
@@ -4878,15 +4174,6 @@ class HermesRuntimeTests(unittest.TestCase):
                 invalid[schema["name"]] = paths
         self.assertEqual(invalid, {})
 
-    def test_default_policy_allowlist_excludes_removed_slack_upload_file(self) -> None:
-        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
-            os.environ, runner_env("prod"), clear=True
-        ):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-
-        allowlist = runtime._default_policy_allowlist(execution_mode="")
-
-        self.assertNotIn("slack.upload_file", allowlist)
 
     def test_workflow_with_mcp_routes_through_hermes_loop_and_records_agentic_diagnostics(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -5039,45 +4326,6 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(result.raw["agentic_mcp_enabled"])
         self.assertIn("boom", result.message)
 
-    def test_workflow_attach_tool_policy_preserves_task_scoped_mcp_and_helper_tools(self) -> None:
-        task = RunnerTaskRequest.from_payload(
-            {
-                "task": {
-                    "task_type": "workflow",
-                    "repo": "rsi-agent-platform",
-                    "prompt": "Investigate and reply.",
-                    "allowed_tools": ["repo.context", "slack.upload_file"],
-                    "reply_delivery_mode": "direct",
-                }
-            }
-        )
-
-        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
-            os.environ, runner_env("prod"), clear=True
-        ):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            tool_policy = runtime._resolve_tool_policy(task)
-
-        agent = types.SimpleNamespace(
-            tools=[
-                {"type": "function", "function": {"name": "search_messages"}},
-                {"type": "function", "function": {"name": "send_message"}},
-                {"type": "function", "function": {"name": "todo_write"}},
-            ],
-            valid_tool_names={"search_messages", "send_message", "todo_write"},
-            _memory_manager=None,
-        )
-        runtime._attach_tool_policy(agent, task, tool_policy)
-
-        tool_names = sorted(tool["function"]["name"] for tool in agent.tools)
-        self.assertIn("search_messages", tool_names)
-        self.assertIn("send_message", tool_names)
-        self.assertIn("todo_write", tool_names)
-        self.assertNotIn("repo_context", agent.valid_tool_names)
-        self.assertIn("search_messages", agent.valid_tool_names)
-        self.assertIn("send_message", agent.valid_tool_names)
-        self.assertIn("todo_write", agent.valid_tool_names)
-
     def test_task_scoped_mcp_adapter_fails_closed_for_custom_read_only_server_without_tool_names(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
@@ -5158,81 +4406,6 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(result.raw["agentic_mcp_enabled"])
         self.assertEqual(result.raw["runner_diagnostics"]["agentic_mcp_cleanup_status"], "cleaned")
 
-    def test_question_expand_query_hints_prevent_prompt_blob_leakage_into_tool_defaults(self) -> None:
-        captured: dict[str, object] = {}
-
-        class FakeResponse:
-            def __enter__(self):
-                return self
-
-            def __exit__(self, exc_type, exc, tb) -> bool:
-                return False
-
-            def read(self) -> bytes:
-                return json.dumps(
-                    {
-                        "status": "completed",
-                        "available": True,
-                        "summary": "Slack thread history loaded.",
-                        "provider": "slack",
-                        "provider_ref": "171000001.000100",
-                        "output": {"messages": []},
-                    }
-                ).encode("utf-8")
-
-        def fake_tool_urlopen(req, timeout: int = 0):
-            captured["body"] = json.loads(req.data.decode("utf-8"))
-            return FakeResponse()
-
-        binding = ReadOnlyToolBinding(
-            base_url="http://tool-gateway.internal",
-            allowed_tool_names=["slack.history", "slack.search", "knowledge.context", "repo.context"],
-            task_repo="depin-backend",
-            task_repo_ref="main",
-            task_prompt=json.dumps(
-                {
-                    "investigation_spec": {
-                        "user_request": "How did depin-backend API progress this week for the numo project?",
-                        "repo": "depin-backend",
-                        "project_key": "numo",
-                    },
-                    "evidence_ledger": {"open_questions": ["Need better Slack evidence."]},
-                }
-            ),
-            task_channel_id="C123",
-            task_thread_ts="171000001.000100",
-            task_context_summary="read-heavy qna",
-            trace_id="trace-123",
-            session_scope_kind="conversation",
-            session_scope_id="conv-123",
-            context_refs=[],
-            default_question="How did depin-backend API progress this week for the numo project?",
-            repo_question="How did depin-backend API progress this week for the numo project?",
-            knowledge_topic="numo",
-            knowledge_question="What are the current goals, constraints, and expected outcomes for numo?",
-            slack_history_focus="Extract the most relevant messages for answering: How did depin-backend API progress this week for the numo project?",
-            slack_search_query="depin-backend numo",
-        )
-
-        with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_tool_urlopen):
-            _ = json.loads(binding.handle_tool_call("slack_history", {}))
-        self.assertEqual(
-            captured["body"]["question"],
-            "Extract the most relevant messages for answering: How did depin-backend API progress this week for the numo project?",
-        )
-
-        with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_tool_urlopen):
-            _ = json.loads(binding.handle_tool_call("slack_search", {}))
-        self.assertEqual(captured["body"]["query"], "depin-backend numo")
-
-        with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_tool_urlopen):
-            _ = json.loads(binding.handle_tool_call("knowledge_context", {}))
-        self.assertEqual(captured["body"]["topic"], "numo")
-        self.assertEqual(captured["body"]["question"], "What are the current goals, constraints, and expected outcomes for numo?")
-
-        with mock.patch("rsi_runner.rsi_tools.urlrequest.urlopen", side_effect=fake_tool_urlopen):
-            _ = json.loads(binding.handle_tool_call("repo_context", {}))
-        self.assertEqual(captured["body"]["question"], "How did depin-backend API progress this week for the numo project?")
 
     def test_proactive_role_accepts_workflow_task_type(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -5256,7 +4429,7 @@ class HermesRuntimeTests(unittest.TestCase):
             result = runtime.execute_task(task)
 
         self.assertTrue(result.ok)
-        self.assertEqual(result.raw["tool_policy_mode"], "enforced_read_only")
+        self.assertNotIn("tool_policy_mode", result.raw)
 
     def test_eval_task_timeout_returns_structured_timeout(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -5286,7 +4459,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["timeout_kind"], "task_timeout")
         self.assertEqual(result.raw["task_timeout_seconds"], 1)
         self.assertEqual(result.raw["transport_timeout_seconds"], 330)
-        self.assertEqual(result.raw["tool_policy_mode"], "enforced_read_only")
+        self.assertNotIn("tool_policy_mode", result.raw)
         self.assertEqual(result.raw["failure_class"], "runner_transport_timeout")
         self.assertEqual(result.raw["runner_diagnostics"]["failure_kind"], "transport_timeout")
         self.assertEqual(result.raw["runner_diagnostics"]["timeout_kind"], "task_timeout")
@@ -6095,14 +5268,8 @@ class HermesRuntimeTests(unittest.TestCase):
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
         ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
             runtime = HermesRuntime(RunnerConfig.from_env())
-            tool_policy = runtime._resolve_tool_policy(task)
             native_toolsets = runtime._native_toolsets_for_task(task)
 
-        self.assertNotIn("workspace.write_file", tool_policy.effective)
-        self.assertNotIn("workspace.read_file", tool_policy.effective)
-        self.assertNotIn("workspace.git_history", tool_policy.effective)
-        self.assertNotIn("repo.context", tool_policy.effective)
-        self.assertNotIn("slack.upload_file", tool_policy.effective)
         self.assertNotIn("rsi-governed-workspace", native_toolsets)
 
     def test_artifact_workflow_preserves_native_artifact_destination_across_phases(self) -> None:
@@ -6190,7 +5357,7 @@ class HermesRuntimeTests(unittest.TestCase):
                     }
                 }
             )
-            result = runtime._execute_artifact_workflow_task(task, runtime._resolve_tool_policy(task))
+            result = runtime._execute_artifact_workflow_task(task)
 
         self.assertTrue(result.ok)
         self.assertEqual([item.execution_phase for item in executed_tasks], ["investigate", "render", "deliver"])
@@ -6267,7 +5434,7 @@ class HermesRuntimeTests(unittest.TestCase):
                     }
                 }
             )
-            result = runtime._execute_artifact_workflow_task(task, runtime._resolve_tool_policy(task))
+            result = runtime._execute_artifact_workflow_task(task)
 
         self.assertTrue(result.ok)
         self.assertEqual([item.execution_phase for item in executed_tasks], ["investigate", "deliver"])
@@ -6408,7 +5575,7 @@ class HermesRuntimeTests(unittest.TestCase):
                         }
                     }
                 )
-                result = runtime._execute_artifact_workflow_task(task, runtime._resolve_tool_policy(task))
+                result = runtime._execute_artifact_workflow_task(task)
 
         self.assertTrue(result.ok)
         self.assertEqual([item.execution_phase for item in executed_tasks], ["investigate", "render", "deliver"])
@@ -6501,7 +5668,7 @@ class HermesRuntimeTests(unittest.TestCase):
                     }
                 }
             )
-            result = runtime._execute_artifact_workflow_task(task, runtime._resolve_tool_policy(task))
+            result = runtime._execute_artifact_workflow_task(task)
 
         self.assertTrue(result.ok)
         produced = result.raw["structured_output"]["produced_artifacts"]
@@ -6593,7 +5760,7 @@ class HermesRuntimeTests(unittest.TestCase):
                     }
                 }
             )
-            result = runtime._execute_artifact_workflow_task(task, runtime._resolve_tool_policy(task))
+            result = runtime._execute_artifact_workflow_task(task)
 
         self.assertTrue(result.ok)
         self.assertEqual([item.execution_phase for item in executed_tasks], ["investigate", "render", "deliver"])
@@ -6868,11 +6035,9 @@ class HermesRuntimeTests(unittest.TestCase):
                 [],
                 {"deliver": 60},
             )
-            tool_policy = runtime._resolve_tool_policy(deliver_task)
 
         self.assertEqual(deliver_task.allowed_tools, [])
         self.assertEqual(deliver_task.tool_allowlist, [])
-        self.assertEqual(tool_policy.effective, [])
         self.assertIn("Hermes native send_message", deliver_task.prompt)
         self.assertIn("Render failure reason: none", deliver_task.prompt)
         self.assertIn("Do not upload files", deliver_task.prompt)
@@ -7100,7 +6265,7 @@ class HermesRuntimeTests(unittest.TestCase):
         ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
             runtime = HermesRuntime(RunnerConfig.from_env())
 
-        rendered = runtime._render_task_prompt(task, runtime._resolve_tool_policy(task))
+        rendered = runtime._render_task_prompt(task)
         task_with_rendered_prompt = RunnerTaskRequest.from_payload({"task": {**task.__dict__, "prompt": rendered}})
         ledger = runtime._build_evidence_ledger(
             task_with_rendered_prompt,
@@ -7499,7 +6664,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(runtime.metadata["task_timeout_seconds"], 420)
         self.assertEqual(runtime.metadata["inactivity_timeout_seconds"], 360)
         self.assertEqual(runtime.metadata["transport_timeout_seconds"], 450)
-        self.assertEqual(runtime.metadata["tool_policy_mode"], "enforced_read_only")
+        self.assertNotIn("tool_policy_mode", runtime.metadata)
         self.assertEqual(runtime.metadata["hermes_pin"], HERMES_TEST_PIN)
         self.assertEqual(runtime.metadata["execution_contract_version"], "execution-envelope/v1")
         self.assertEqual(runtime.metadata["runner_planner_mode"], "runner_first")
@@ -7508,7 +6673,8 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(runtime.metadata["honcho_runtime_status"]["workspace"], "rsi-stage")
         self.assertEqual(runtime.metadata["session_continuity_status"], "ok")
         self.assertEqual(runtime.metadata["honcho_environment_effective"], "production")
-        self.assertNotIn("repo.context", runtime.metadata["tool_allowlist_effective"])
+        self.assertNotIn("tool_allowlist_effective", runtime.metadata)
+        self.assertNotIn("blocked_tool_names", runtime.metadata)
 
     def test_prod_runtime_metadata_reports_live_contract(self) -> None:
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(

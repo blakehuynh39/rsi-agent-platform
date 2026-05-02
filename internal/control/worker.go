@@ -873,7 +873,7 @@ func processControlActionEffect(cfg config.Config, store storepkg.Store, effect 
 
 	switch intent.Kind {
 	case action.KindToolRead:
-		if err := executeRemovedToolActionIntent(store, intent, "tool_read actions were removed with the platform tool gateway; route this work through Hermes-native tools instead"); err != nil {
+		if err := executeRemovedToolActionIntent(store, intent, "tool_read actions are not supported by the control plane; route this work through Hermes-native tools instead"); err != nil {
 			if isPostgresActionPersistenceError(err) {
 				if finalizeErr := finalizeControlActionPersistenceFailure(cfg, store, effect, ctx, intent, err); finalizeErr != nil {
 					_ = failClaimedEffect(store, effect, finalizeErr.Error())
@@ -984,7 +984,7 @@ func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, ctx w
 		actionStatus = action.StatusBlocked
 		summary = blockedReason
 	} else {
-		execErr = errors.New("slack_post actions were removed with the platform tool gateway; Hermes must reply directly through native send_message")
+		execErr = errors.New("slack_post actions are not supported by the control plane; Hermes must reply directly through native send_message")
 		actionStatus = actionStatusFromToolResult(result, execErr)
 		summary = toolResultSummary(result, execErr)
 		baseRecord.ArtifactRefs = uniqueStrings(append(baseRecord.ArtifactRefs, result.RawArtifactRefs...))
@@ -1267,7 +1267,7 @@ func workflowRunnerSystemMessage(useNotionMCP bool, replyDeliveryMode string, re
 		if len(requestedArtifacts) > 0 {
 			parts = append(parts, "Artifact production was requested. If you produce one, include it in produced_artifacts. Attach local artifact files in the final native send_message by adding MEDIA:/absolute/path entries to the message. If you cannot, set artifact_failure_reason and still provide the best grounded reply.")
 		}
-		parts = append(parts, "Use native repo, GitHub, knowledge, RSI, MCP, and workspace tools for non-Slack evidence.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "For the final Slack reply, use Hermes native send_message exactly once with target slack:<channel_id>:<thread_ts> for the bound delivery target. Do not use a DM fallback and do not post to any other channel or thread.", "Do not emit a slack_post action contract.", "Include reply_delivery describing the direct Slack delivery with status, channel_id, thread_ts when a thread exists, body, tool_call_id, tool_name, provider_ref, and message_link.")
+		parts = append(parts, "Use Hermes-native tools, configured MCP servers, and terminal CLIs for evidence gathering.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "For the final Slack reply, use Hermes native send_message exactly once with target slack:<channel_id>:<thread_ts> for the bound delivery target. Do not use a DM fallback and do not post to any other channel or thread.", "Do not emit a slack_post action contract.", "Include reply_delivery describing the direct Slack delivery with status, channel_id, thread_ts when a thread exists, body, tool_call_id, tool_name, provider_ref, and message_link.")
 		return strings.Join(parts, " ")
 	}
 	parts := []string{
@@ -1282,7 +1282,7 @@ func workflowRunnerSystemMessage(useNotionMCP bool, replyDeliveryMode string, re
 	if len(requestedArtifacts) > 0 {
 		parts = append(parts, "Artifact production was requested. If you produce one, include it in produced_artifacts. If you cannot, set artifact_failure_reason and still provide the best grounded reply.")
 	}
-	parts = append(parts, "Use native repo, GitHub, knowledge, RSI, MCP, and workspace tools for non-Slack evidence.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "Slack posting is blocked by policy for this workflow, so do not send any Slack messages.", "Leave reply_delivery empty when no Slack reply was delivered.")
+	parts = append(parts, "Use Hermes-native tools, configured MCP servers, and terminal CLIs for evidence gathering.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "Slack posting is blocked by policy for this workflow, so do not send any Slack messages.", "Leave reply_delivery empty when no Slack reply was delivered.")
 	return strings.Join(parts, " ")
 }
 

@@ -96,21 +96,8 @@ def _active_context(task_id: str = "", **kwargs) -> JsonObject:
     return {}
 
 
-def _tool_gateway_available() -> bool:
-    return False
-
-
 def _artifact_tools_available() -> bool:
     return True
-
-
-def _allowed_tool_names(payload: JsonObject) -> set[str]:
-    raw = payload.get("tool_allowlist_effective") or []
-    return {str(item).strip() for item in raw if str(item).strip()}
-
-
-def _base_url_from_context(payload: JsonObject) -> str:
-    return ""
 
 
 def _first_non_empty(*values) -> str:
@@ -583,14 +570,7 @@ def _tool_handler(transport_name: str):
     canonical_name = _TRANSPORT_TO_CANONICAL[transport_name]
 
     def handler(args: JsonObject, task_id: str = "", **kwargs):
-        if canonical_name in _ARTIFACT_CANONICAL_NAMES:
-            return _artifact_handler(canonical_name, transport_name, args, task_id=task_id, **kwargs)
-        return json.dumps({
-            "tool_name": canonical_name,
-            "transport_tool_name": transport_name,
-            "status": "error",
-            "error": "legacy RSI tool removed; use native Hermes tools, MCP, or the terminal",
-        })
+        return _artifact_handler(canonical_name, transport_name, args, task_id=task_id, **kwargs)
 
     return handler
 
@@ -609,12 +589,6 @@ def _render_context(payload: JsonObject) -> str:
     refs = payload.get("context_refs") or []
     if refs:
         parts.append(_json_block("Context refs", refs))
-    tool_allowlist = payload.get("tool_allowlist_effective") or []
-    if tool_allowlist:
-        parts.append("Tool allowlist: " + ", ".join(str(item) for item in tool_allowlist))
-    blocked = payload.get("blocked_tool_names") or []
-    if blocked:
-        parts.append("Blocked tools by RSI policy: " + ", ".join(str(item) for item in blocked))
     execution_mode = str(payload.get("execution_mode", "") or "").strip()
     if execution_mode:
         parts.append("Execution mode: " + execution_mode)
@@ -681,7 +655,7 @@ def register(ctx):
             toolset=str(item["toolset"]),
             schema=dict(item["schema"]),
             handler=_tool_handler(str(item["transport_name"])),
-            check_fn=_artifact_tools_available if canonical_name in _ARTIFACT_CANONICAL_NAMES else _tool_gateway_available,
+            check_fn=_artifact_tools_available,
             description=str(item["schema"].get("description", "")),
         )
     ctx.register_hook("pre_llm_call", pre_llm_call)
