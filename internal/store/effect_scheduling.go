@@ -61,8 +61,6 @@ func defaultQueueNameForEffect(effect transition.EffectExecution) string {
 	switch effect.MachineKind {
 	case transition.MachineAction:
 		return effectQueueAction
-	case transition.MachineQuestionRun:
-		return effectQueueWorkflow
 	default:
 		return effectQueueWorkflow
 	}

@@ -25,6 +25,7 @@ func TestMigrationApplyToEmptyDatabase(t *testing.T) {
 		t.Fatalf("expected current version %d, got %d", LatestMigrationVersion(), status.CurrentVersion)
 	}
 	assertHonchoSchemaArtifacts(t, db)
+	assertQuestionRunSchemaRemoved(t, db)
 }
 
 func TestMigrationBaselineStampCompatibleDatabase(t *testing.T) {
@@ -59,6 +60,53 @@ func TestMigrationBaselineStampCompatibleDatabase(t *testing.T) {
 		}
 	}
 	assertHonchoSchemaArtifacts(t, db)
+	assertQuestionRunSchemaRemoved(t, db)
+}
+
+func TestMigrationUpgradeDropsQuestionRunCatalog(t *testing.T) {
+	db, cleanup := openTempDatabase(t)
+	defer cleanup()
+
+	migrations, err := listMigrations()
+	if err != nil {
+		t.Fatalf("list migrations: %v", err)
+	}
+	if err := ensureMigrationTable(db); err != nil {
+		t.Fatalf("ensure migration table: %v", err)
+	}
+	for _, migration := range migrations {
+		if migration.Version >= 30 {
+			break
+		}
+		if _, err := db.Exec(migration.SQL); err != nil {
+			t.Fatalf("seed migration %d (%s): %v", migration.Version, migration.Name, err)
+		}
+		if _, err := db.Exec(`insert into rsi_schema_migrations (version, name, applied_at) values ($1,$2,$3)`, migration.Version, migration.Name, time.Now().UTC()); err != nil {
+			t.Fatalf("record migration %d: %v", migration.Version, err)
+		}
+	}
+	if _, err := db.Exec(`insert into question_run (id, workflow_id, status) values ('qr-prb', 'wf-prb', 'queued')`); err != nil {
+		t.Fatalf("seed legacy question_run row: %v", err)
+	}
+	if _, err := db.Exec(`insert into effect_execution (id, machine_kind, aggregate_id, effect_kind, status, idempotency_key) values ('eff-prb', 'question_run', 'qr-prb', 'gather_evidence', 'queued', 'qr-prb:gather')`); err != nil {
+		t.Fatalf("seed legacy question_run effect: %v", err)
+	}
+	if _, err := db.Exec(`insert into command_receipt (command_id, machine_kind, aggregate_id, command_kind, decision_kind) values ('cmd-prb', 'question_run', 'qr-prb', 'question_run_started', 'advance')`); err != nil {
+		t.Fatalf("seed legacy question_run receipt: %v", err)
+	}
+	if _, err := db.Exec(`insert into domain_event (id, machine_kind, aggregate_id, aggregate_version, event_kind) values ('evt-prb', 'question_run', 'qr-prb', 1, 'question_run_started')`); err != nil {
+		t.Fatalf("seed legacy question_run event: %v", err)
+	}
+
+	status, err := ApplyMigrations(db)
+	if err != nil {
+		t.Fatalf("ApplyMigrations() upgrade error = %v", err)
+	}
+	if status.State != "compatible" || status.CurrentVersion != LatestMigrationVersion() {
+		t.Fatalf("unexpected schema status after upgrade: %+v", status)
+	}
+	assertQuestionRunSchemaRemoved(t, db)
+	assertNoQuestionRunTransitionRows(t, db)
 }
 
 func TestMigrationRejectsIncompatibleExistingDatabase(t *testing.T) {
@@ -247,5 +295,38 @@ func assertHonchoSchemaArtifacts(t *testing.T, db *sql.DB) {
 	}
 	if !tableExists {
 		t.Fatal("expected honcho.messages table to exist")
+	}
+}
+
+func assertQuestionRunSchemaRemoved(t *testing.T, db *sql.DB) {
+	t.Helper()
+
+	var tableExists bool
+	if err := db.QueryRow(`
+		select exists (
+			select 1
+			from information_schema.tables
+			where table_schema = current_schema()
+			  and table_name = 'question_run'
+		)
+	`).Scan(&tableExists); err != nil {
+		t.Fatalf("check question_run table: %v", err)
+	}
+	if tableExists {
+		t.Fatal("expected question_run table to be absent")
+	}
+}
+
+func assertNoQuestionRunTransitionRows(t *testing.T, db *sql.DB) {
+	t.Helper()
+
+	for _, table := range []string{"effect_execution", "command_receipt", "domain_event"} {
+		var count int
+		if err := db.QueryRow(`select count(*) from ` + table + ` where machine_kind = 'question_run'`).Scan(&count); err != nil {
+			t.Fatalf("count legacy question_run rows in %s: %v", table, err)
+		}
+		if count != 0 {
+			t.Fatalf("expected no legacy question_run rows in %s, got %d", table, count)
+		}
 	}
 }

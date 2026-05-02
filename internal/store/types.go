@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/piplabs/rsi-agent-platform/internal/events"
-	"github.com/piplabs/rsi-agent-platform/internal/questionrun"
 )
 
 type Workflow struct {
@@ -35,29 +34,6 @@ type Workflow struct {
 	CreatedAt         time.Time      `json:"created_at"`
 	UpdatedAt         time.Time      `json:"updated_at"`
 	CompletedAt       *time.Time     `json:"completed_at,omitempty"`
-}
-
-type QuestionRun struct {
-	ID                string                        `json:"id"`
-	WorkflowID        string                        `json:"workflow_id"`
-	TraceID           string                        `json:"trace_id,omitempty"`
-	ConversationID    string                        `json:"conversation_id,omitempty"`
-	CaseID            string                        `json:"case_id,omitempty"`
-	IngestionID       string                        `json:"ingestion_id,omitempty"`
-	Role              string                        `json:"role,omitempty"`
-	Strategy          string                        `json:"strategy,omitempty"`
-	Status            string                        `json:"status"`
-	InvestigationSpec questionrun.InvestigationSpec `json:"investigation_spec,omitempty"`
-	EvidenceLedger    questionrun.EvidenceLedger    `json:"evidence_ledger,omitempty"`
-	Result            questionrun.Result            `json:"result,omitempty"`
-	FailureClass      string                        `json:"failure_class,omitempty"`
-	FailureSummary    string                        `json:"failure_summary,omitempty"`
-	LastError         string                        `json:"last_error,omitempty"`
-	RunnerDiagnostics map[string]any                `json:"runner_diagnostics,omitempty"`
-	Version           int64                         `json:"version"`
-	CreatedAt         time.Time                     `json:"created_at"`
-	UpdatedAt         time.Time                     `json:"updated_at"`
-	CompletedAt       *time.Time                    `json:"completed_at,omitempty"`
 }
 
 type RunnerExecution struct {

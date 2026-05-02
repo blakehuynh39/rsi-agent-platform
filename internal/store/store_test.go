@@ -1119,7 +1119,7 @@ func TestMemoryStoreSubmitCommandContextTransitionsProjectTraceArtifacts(t *test
 			MachineKind: transition.MachineWorkflow,
 			AggregateID: workflow.ID,
 			CommandKind: string(transition.CommandContextSkipped),
-			CommandID:   "cmd-question-run-context-skipped",
+			CommandID:   "cmd-read-heavy-context-skipped",
 			OccurredAt:  now.Add(time.Second),
 			Payload: map[string]any{
 				"execution_strategy": "read_heavy_slack_qna",
@@ -1128,7 +1128,7 @@ func TestMemoryStoreSubmitCommandContextTransitionsProjectTraceArtifacts(t *test
 				"trace_events":       []events.TraceEvent{runnerStarted},
 			},
 		}); err != nil {
-			t.Fatalf("SubmitCommand(context_skipped question_run) error = %v", err)
+			t.Fatalf("SubmitCommand(context_skipped read-heavy legacy strategy) error = %v", err)
 		}
 		trace, ok := store.GetTrace(workflow.TraceID)
 		if !ok {
@@ -1146,9 +1146,6 @@ func TestMemoryStoreSubmitCommandContextTransitionsProjectTraceArtifacts(t *test
 		effects := store.ListEffectExecutions()
 		for _, effect := range effects {
 			if effect.MachineKind == transition.MachineWorkflow && effect.EffectKind == transition.EffectInvokeRunner {
-				if questionRuns := store.ListQuestionRuns(); len(questionRuns) != 0 {
-					t.Fatalf("expected legacy execution_strategy to avoid question_run dispatch, got %#v", questionRuns)
-				}
 				return
 			}
 		}

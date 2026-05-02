@@ -41,7 +41,6 @@ type commandApplyResult struct {
 	traceID             string
 	candidateKey        string
 	runtimeDiagnosisID  string
-	questionRunID       string
 	evalRunID           string
 	evalJudgments       []evals.Judgment
 	outcomeID           string
@@ -193,8 +192,6 @@ func (s *MemoryStore) applyCommandLocked(command transition.CommandEnvelope) (co
 		return s.applyWorkflowCommandLocked(command)
 	case transition.MachineWorkflowLine:
 		return s.applyWorkflowLineCommandLocked(command)
-	case transition.MachineQuestionRun:
-		return s.applyQuestionRunCommandLocked(command)
 	case transition.MachineProblemLine:
 		return s.applyProblemLineCommandLocked(command)
 	case transition.MachineRuntimeDiagnosis:
@@ -2145,23 +2142,6 @@ func persistCommandMutation(tx *sql.Tx, store *MemoryStore, result commandApplyR
 		if strings.TrimSpace(result.traceID) != "" {
 			if trace, ok := store.traces[result.traceID]; ok {
 				return replaceTraceAndWorkflowScope(tx, store, trace)
-			}
-		}
-		return nil
-	case transition.MachineQuestionRun:
-		if strings.TrimSpace(result.questionRunID) == "" {
-			return nil
-		}
-		if err := replaceQuestionRunScope(tx, store, result.questionRunID); err != nil {
-			return err
-		}
-		questionRun, ok := store.questionRuns[result.questionRunID]
-		if !ok {
-			return nil
-		}
-		if strings.TrimSpace(questionRun.TraceID) != "" {
-			if _, ok := store.traces[questionRun.TraceID]; ok {
-				return replaceTraceScope(tx, store, questionRun.TraceID)
 			}
 		}
 		return nil

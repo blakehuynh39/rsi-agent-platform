@@ -5140,11 +5140,6 @@ func TestProcessWorkflowRunnerEffectPassesIngressStraightToWorkflowRunner(t *tes
 		t.Fatalf("expected exactly one workflow runner call, got %d", workflowCalls)
 	}
 	assertWorkflowEffectStatus(t, store, workflow.ID, transition.EffectInvokeRunner, transition.EffectCompleted)
-
-	questionRuns := store.ListQuestionRuns()
-	if len(questionRuns) != 0 {
-		t.Fatalf("expected no question runs after agentic workflow execution, got %#v", questionRuns)
-	}
 }
 
 func TestBuildRunnerTaskLetsNativeRunnerHandleDiagramArtifacts(t *testing.T) {

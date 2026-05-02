@@ -43,8 +43,8 @@ from .rsi_tools import (
 from .session_manager import MemoryTracker, SessionContext, SessionManager, stable_session_id
 
 ROLE_TASK_TYPES = {
-    "prod": {"general", "workflow", "prod", "question_gather", "question_reduce", "question_expand"},
-    "proactive": {"general", "workflow", "proactive", "question_gather", "question_reduce", "question_expand"},
+    "prod": {"general", "workflow", "prod"},
+    "proactive": {"general", "workflow", "proactive"},
     "eval": {"general", "eval"},
     "proposal": {"general", "proposal", "repo-change"},
 }
@@ -52,7 +52,7 @@ ROLE_TASK_TYPES = {
 logger = logging.getLogger(__name__)
 
 DEFAULT_HERMES_NATIVE_TOOLSETS = ("terminal", "file")
-QUESTION_RUN_BOUNDED_STOP_TERMINATION_REASONS = frozenset(
+PARTIAL_COMPLETION_TERMINATION_REASONS = frozenset(
     {
         "task_timeout",
         "inactivity_timeout",
@@ -1701,7 +1701,7 @@ class HermesRuntime:
         toolsets: list[str] = []
         execution_phase = self._execution_phase(task)
         execution_mode = (task.execution_mode or "").strip().lower()
-        if execution_phase not in {"render", "deliver"} and task.task_type in {"workflow", "question_gather", "question_expand", "proposal"}:
+        if execution_phase not in {"render", "deliver"} and task.task_type in {"workflow", "proposal"}:
             toolsets.extend(["todo", "session_search"])
         toolsets.extend(self._hermes_native_toolsets())
         if execution_phase == "render" or task.task_type in {"workflow", "prod", "proactive"} or execution_mode == "artifact_render":
@@ -2046,7 +2046,7 @@ class HermesRuntime:
                     lifecycle_events=lifecycle_events,
                 )
                 last_activity = _json_object_or_empty(stop_meta.get("last_activity"))
-                if termination_reason in QUESTION_RUN_BOUNDED_STOP_TERMINATION_REASONS and allow_partial_recovery and self._workflow_partial_completion_eligible(task):
+                if termination_reason in PARTIAL_COMPLETION_TERMINATION_REASONS and allow_partial_recovery and self._workflow_partial_completion_eligible(task):
                     result = self._finalize_partial_completion(
                         task,
                         finalized,
@@ -4377,7 +4377,7 @@ class HermesRuntime:
         return max(0, timeout_seconds)
 
     def _stage_task_context(self, session_id: str, task: RunnerTaskRequest) -> None:
-        query_hints = self._question_default_query_hints(task)
+        query_hints = self._default_query_hints(task)
         self._adapter.stage_task_context(
             session_id,
             {
@@ -4449,41 +4449,17 @@ class HermesRuntime:
             return prompt.rsplit(marker, 1)[1].strip()
         return prompt
 
-    def _question_task_payload(self, task: RunnerTaskRequest) -> JsonObject:
-        if task.task_type not in {"question_gather", "question_expand", "question_reduce"}:
-            return {}
-        try:
-            parsed = json.loads(task.prompt)
-        except json.JSONDecodeError:
-            return {}
-        if not isinstance(parsed, dict):
-            return {}
-        return parsed
-
-    def _question_investigation_spec(self, task: RunnerTaskRequest) -> JsonObject:
-        return _json_object_or_empty(self._question_task_payload(task).get("investigation_spec"))
-
-    def _question_input_evidence_ledger(self, task: RunnerTaskRequest) -> JsonObject:
-        return _json_object_or_empty(self._question_task_payload(task).get("evidence_ledger"))
-
-    def _question_input_runner_diagnostics(self, task: RunnerTaskRequest) -> JsonObject:
-        return _json_object_or_empty(self._question_task_payload(task).get("runner_diagnostics"))
-
-    def _question_default_query_hints(self, task: RunnerTaskRequest) -> JsonObject:
+    def _default_query_hints(self, task: RunnerTaskRequest) -> JsonObject:
         original_prompt = self._original_task_prompt(task)
-        spec = self._question_investigation_spec(task)
-        repo = first_non_empty(_string_or_json(spec.get("repo")), task.repo)
-        project_key = _string_or_json(spec.get("project_key"))
-        user_request = first_non_empty(_string_or_json(spec.get("user_request")), original_prompt)
-        slack_query_parts = [part for part in [repo, project_key] if part]
+        repo = _string_or_json(task.repo)
+        user_request = original_prompt
+        slack_query_parts = [part for part in [repo] if part]
         slack_search_query = " ".join(slack_query_parts) if slack_query_parts else user_request
         history_focus = user_request
         if user_request:
             history_focus = f"Extract the most relevant messages for answering: {user_request}"
-        knowledge_topic = first_non_empty(project_key, repo, task.context_summary or "", user_request)
+        knowledge_topic = first_non_empty(repo, task.context_summary or "", user_request)
         knowledge_question = user_request
-        if project_key:
-            knowledge_question = f"What are the current goals, constraints, and expected outcomes for {project_key}?"
         return {
             "default_question": first_non_empty(user_request, original_prompt),
             "repo_question": first_non_empty(user_request, original_prompt),
@@ -4500,16 +4476,6 @@ class HermesRuntime:
             self._original_task_prompt(task),
             _string_or_json(task.execution_intent),
         ]
-        spec = self._question_investigation_spec(task)
-        if spec:
-            values.extend(
-                [
-                    _string_or_json(spec.get("repo")),
-                    _string_or_json(spec.get("project_key")),
-                    _string_or_json(spec.get("user_request")),
-                    _string_or_json(spec.get("required_sources")),
-                ]
-            )
         stopwords = {
             "about",
             "after",
@@ -4769,48 +4735,7 @@ class HermesRuntime:
             ledger["workflow_id"] = task.workflow_id
         return ledger
 
-    def _build_question_evidence_ledger(self, task: RunnerTaskRequest, observed: JsonObject, termination_reason: str) -> JsonObject:
-        spec = self._question_investigation_spec(task)
-        input_ledger = dict(self._question_input_evidence_ledger(task))
-        tool_calls = self._merge_runtime_values(input_ledger.get("tool_calls"), self._compact_tool_calls(observed, task=task))
-        evidence_items = self._merge_runtime_values(
-            input_ledger.get("evidence_items"), self._compact_evidence_items(observed, task=task)
-        )
-        open_questions = self._merge_runtime_values(
-            input_ledger.get("open_questions"),
-            self._evidence_open_questions(_json_object_list(tool_calls), _json_object_list(evidence_items)),
-        )
-        missing_evidence = self._merge_runtime_values(input_ledger.get("missing_evidence"), input_ledger.get("insufficiency_markers"))
-        ledger: JsonObject = {
-            "investigation_spec": spec,
-            "user_request": first_non_empty(_string_or_json(spec.get("user_request")), _string_or_json(input_ledger.get("user_request")), self._original_task_prompt(task)),
-            "reply_target": input_ledger.get("reply_target")
-            or {
-                "channel_id": task.channel_id or "",
-                "thread_ts": task.thread_ts or "",
-            },
-            "prompt_envelope": _json_object_or_empty(_first_non_none(spec.get("prompt_envelope"), input_ledger.get("prompt_envelope"))),
-            "repo": first_non_empty(_string_or_json(spec.get("repo")), _string_or_json(input_ledger.get("repo")), task.repo),
-            "project_key": first_non_empty(_string_or_json(spec.get("project_key")), _string_or_json(input_ledger.get("project_key"))),
-            "since": first_non_empty(_string_or_json(spec.get("since")), _string_or_json(input_ledger.get("since"))),
-            "until": first_non_empty(_string_or_json(spec.get("until")), _string_or_json(input_ledger.get("until"))),
-            "alignment_required": _bool_or_false(_first_non_none(spec.get("alignment_required"), input_ledger.get("alignment_required"))),
-            "alignment_degraded": _bool_or_false(input_ledger.get("alignment_degraded")),
-            "termination_reason": termination_reason,
-            "tool_calls": tool_calls,
-            "evidence_items": evidence_items,
-            "open_questions": open_questions,
-            "missing_evidence": missing_evidence,
-            "draft_reply_candidates": self._merge_runtime_values(input_ledger.get("draft_reply_candidates")),
-        }
-        alignment_ledger = _json_object_or_empty(input_ledger.get("alignment_ledger"))
-        if alignment_ledger:
-            ledger["alignment_ledger"] = alignment_ledger
-        return ledger
-
     def _workflow_evidence_raw(self, task: RunnerTaskRequest, observed: JsonObject, termination_reason: str) -> JsonObject:
-        if task.task_type in {"question_gather", "question_expand"}:
-            return {"evidence_ledger": self._build_question_evidence_ledger(task, observed, termination_reason)}
         if task.task_type != "workflow":
             return {}
         return {"evidence_ledger": self._build_evidence_ledger(task, observed, termination_reason)}
@@ -5173,126 +5098,6 @@ class HermesRuntime:
             reasoning_effort="low",
             normalize_workflow_output=True,
             operation="partial_reducer",
-        )
-
-    def _question_reduce_system_prompt(self) -> str:
-        return "\n".join(
-            [
-                "You reduce a read-heavy RSI Slack Q&A evidence ledger into one final reply.",
-                "Use only the supplied investigation spec, evidence ledger, and runner diagnostics.",
-                "Do not call tools. Do not speculate beyond the supplied evidence.",
-                "Return only one JSON object with keys: reply_markdown, confidence, completion_verdict, termination_reason.",
-                "reply_markdown must be grounded, concise, and ready for Slack posting.",
-                "Use completion_verdict=partial when the supplied diagnostics or ledger indicate a bounded stop such as task_timeout, iteration_budget_exhausted, or output_token_budget_exhausted.",
-                "If the evidence is incomplete, say that directly in reply_markdown instead of pretending the evidence was stronger than it was.",
-            ]
-        )
-
-    def _question_reduce_user_prompt(self, task: RunnerTaskRequest) -> str:
-        payload = self._question_task_payload(task)
-        return "\n\n".join(
-            [
-                "Reduce the following read-heavy Slack Q&A workflow into a final JSON reply.",
-                json.dumps(payload, ensure_ascii=True, sort_keys=True, indent=2),
-                "Return JSON only.",
-            ]
-        )
-
-    def _question_reduce_defaults(self, task: RunnerTaskRequest) -> tuple[str, str]:
-        ledger = self._question_input_evidence_ledger(task)
-        diagnostics = self._question_input_runner_diagnostics(task)
-        termination_reason = first_non_empty(
-            _string_or_json(diagnostics.get("termination_reason")),
-            _string_or_json(ledger.get("termination_reason")),
-            "normal_completion",
-        )
-        verdict = "partial" if termination_reason in QUESTION_RUN_BOUNDED_STOP_TERMINATION_REASONS else "complete"
-        return verdict, termination_reason
-
-    def _execute_question_reduce_task(self, task: RunnerTaskRequest) -> HermesExecutionResult:
-        timeout_seconds = min(self._effective_task_timeout(task), max(1, self._transport_timeout_seconds - 5))
-        recorder = self._create_native_execution_recorder(task, label="question_reduce")
-        recorder.record(
-            "execution_started",
-            {
-                **self._native_execution_started_payload(task),
-                "question_reduce": True,
-            },
-        )
-        attempt = self._invoke_hermes_json_reducer(
-            system_prompt=self._question_reduce_system_prompt(),
-            user_prompt=self._question_reduce_user_prompt(task),
-            timeout_seconds=timeout_seconds,
-            reasoning_effort="medium",
-            normalize_workflow_output=False,
-            recorder=recorder,
-            operation="question_reduce",
-        )
-        if not attempt.ok:
-            message = first_non_empty(attempt.error, "Question reducer failed.")
-            recorder.record(
-                "execution_failed",
-                {
-                    "failure_class": "runner_non_ok",
-                    "failure_kind": "question_reduce_failed",
-                    "error": message,
-                },
-            )
-            return HermesExecutionResult(
-                ok=False,
-                message=message,
-                provider=self._backend,
-                raw=self._attach_native_execution_log_path(
-                    {
-                        **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-                        "failure_class": "runner_non_ok",
-                        "runner_diagnostics": {
-                            "failure_kind": "question_reduce_failed",
-                            "provider_error_message": message,
-                        },
-                        "task_timeout_seconds": self._effective_task_timeout(task),
-                        "transport_timeout_seconds": self._transport_timeout_seconds,
-                        "task_type": task.task_type,
-                    },
-                    recorder,
-                ),
-            )
-        completion_verdict, termination_reason = self._question_reduce_defaults(task)
-        structured_output = dict(attempt.structured_output)
-        structured_output["completion_verdict"] = first_non_empty(_string_or_json(structured_output.get("completion_verdict")), completion_verdict)
-        structured_output["termination_reason"] = first_non_empty(_string_or_json(structured_output.get("termination_reason")), termination_reason)
-        recorder.record(
-            "execution_completed",
-            {
-                "ok": True,
-                "completion_verdict": structured_output["completion_verdict"],
-                "termination_reason": structured_output["termination_reason"],
-                "provider_response_id": attempt.provider_response_id,
-            },
-        )
-        return HermesExecutionResult(
-            ok=True,
-            message=json.dumps(structured_output, ensure_ascii=True, sort_keys=True),
-            provider=self._backend,
-            raw=self._attach_native_execution_log_path(
-                {
-                    **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-                    "task_timeout_seconds": self._effective_task_timeout(task),
-                    "transport_timeout_seconds": self._transport_timeout_seconds,
-                    "runner_diagnostics": {
-                        "completion_verdict": structured_output["completion_verdict"],
-                        "termination_reason": structured_output["termination_reason"],
-                        "question_reduce_mode": "hermes_reducer",
-                    },
-                    "completion_verdict": structured_output["completion_verdict"],
-                    "termination_reason": structured_output["termination_reason"],
-                    "structured_output": structured_output,
-                    "task_type": task.task_type,
-                    "question_reduce_mode": "hermes_reducer",
-                    "provider_response_id": attempt.provider_response_id,
-                },
-                recorder,
-            ),
         )
 
     def _partial_completion_idempotency_key(self, task: RunnerTaskRequest, termination_reason: str) -> str:
@@ -5840,7 +5645,7 @@ class HermesRuntime:
             }
         if execution_phase == "deliver":
             return {name for name in names if name.startswith("mcp_")}
-        if task.task_type in {"workflow", "question_gather", "question_expand"}:
+        if task.task_type == "workflow":
             return names
         return set()
 
@@ -6051,8 +5856,6 @@ class HermesRuntime:
                 provider="policy",
                 raw={"role": self._role, "task_type": task.task_type},
             )
-        if task.task_type == "question_reduce":
-            return self._execute_question_reduce_task(task)
         if self._task_uses_artifact_phases(task):
             return self._execute_artifact_workflow_task(task, observer=observer)
         if self._native_executor_enabled_for_task(task):
@@ -6378,14 +6181,6 @@ class HermesRuntime:
             f"Transport timeout seconds: {self._transport_timeout_seconds}",
             "Detailed RSI evidence is injected through the Hermes context engine rather than appended inline to this prompt.",
         ]
-        if task.task_type in {"question_gather", "question_expand"}:
-            question_payload = self._question_task_payload(task)
-            parts.append("Gather evidence for the Slack Q&A ledger with bounded, grounded read-only retrieval.")
-            parts.append("Return only one JSON object with keys: tool_calls, evidence_items, open_questions, insufficiency_markers, confidence.")
-            parts.append("Do not answer the user. Do not emit reply text, actions, or knowledge drafts.")
-            parts.append("Use the current evidence ledger to close the most important remaining gaps only.")
-            parts.append(f"Question run payload:\n{json.dumps(question_payload, ensure_ascii=True, sort_keys=True, indent=2)}")
-            return "\n".join(parts)
         if task.repo_ref:
             parts.append(f"Repository ref: {task.repo_ref}")
         if task.intent:

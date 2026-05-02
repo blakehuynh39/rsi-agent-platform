@@ -4090,204 +4090,24 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertNotIn("tool_allowlist_effective", result.raw)
         self.assertNotIn("blocked_tool_names", result.raw)
 
-    def test_question_reduce_uses_openrouter_hermes_reducer_without_tools(self) -> None:
-        class QuestionReducerAIAgent:
-            last_kwargs: dict[str, object] = {}
-            run_history: list[dict[str, object]] = []
-
-            def __init__(self, **kwargs) -> None:
-                type(self).last_kwargs = kwargs
-
-            def run_conversation(
-                self,
-                prompt: str,
-                system_message: str | None = None,
-                conversation_history: list[dict] | None = None,
-                task_id: str | None = None,
-            ) -> dict[str, object]:
-                type(self).run_history.append(
-                    {
-                        "prompt": prompt,
-                        "system_message": system_message,
-                        "history": list(conversation_history or []),
-                        "task_id": task_id,
+    def test_removed_question_task_types_are_rejected(self) -> None:
+        for task_type in ("question_gather", "question_expand", "question_reduce"):
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": task_type,
+                        "repo": "depin-backend",
+                        "prompt": "Legacy question task.",
                     }
-                )
-                return {
-                    "final_response": json.dumps(
-                        {
-                            "reply_markdown": "Partial rundown: pagination cleanup landed, but the weekly picture is incomplete.",
-                            "confidence": 0.68,
-                            "alignment_degraded": True,
-                            "alignment_notice": "NUMO alignment is degraded because no fresh canonical project ledger was available.",
-                        }
-                    )
                 }
-
-        task = RunnerTaskRequest.from_payload(
-            {
-                "task": {
-                    "task_type": "question_reduce",
-                    "repo": "depin-backend",
-                    "prompt": json.dumps(
-                        {
-                            "investigation_spec": {
-                                "user_request": "How did depin-backend API progress this week for the numo project?",
-                                "repo": "depin-backend",
-                                "project_key": "numo",
-                            },
-                            "evidence_ledger": {
-                                "user_request": "How did depin-backend API progress this week for the numo project?",
-                                "reply_target": {"channel_id": "C123", "thread_ts": "171000001.000100"},
-                                "evidence_items": [
-                                    {
-                                        "kind": "slack_message",
-                                        "summary": "[alice] Merged the pagination cleanup PR.",
-                                        "source_ref": "https://slack.example/messages/1",
-                                        "tool_name": "slack.history",
-                                    }
-                                ],
-                            },
-                            "runner_diagnostics": {
-                                "termination_reason": "task_timeout",
-                            },
-                        }
-                    ),
-                    "channel_id": "C123",
-                    "thread_ts": "171000001.000100",
-                    "session_scope_kind": "conversation",
-                    "session_scope_id": "conv-123",
-                    "memory_backend": "honcho",
-                    "assistant_peer_id": "rsi:stage:prod",
-                    "user_peer_id": "user:alice",
-                }
-            }
-        )
-
-        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
-            "rsi_runner.hermes_runtime.AIAgent", QuestionReducerAIAgent
-        ), mock.patch.dict(
-            os.environ,
-            {
-                **runner_env("prod"),
-                "HERMES_HOME": tempdir,
-                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": str(Path(tempdir) / "workspace"),
-            },
-            clear=True,
-        ), mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            result = runtime.execute_task(task)
-            log_path = result.raw["native_execution_log_path"]
-            self.assertTrue(os.path.exists(log_path))
-            with open(log_path, encoding="utf-8") as handle:
-                events = [json.loads(line) for line in handle if line.strip()]
-
-        self.assertTrue(result.ok)
-        self.assertEqual(QuestionReducerAIAgent.last_kwargs["provider"], "openrouter")
-        self.assertEqual(QuestionReducerAIAgent.last_kwargs["enabled_toolsets"], [])
-        self.assertEqual(QuestionReducerAIAgent.run_history[0]["history"], [])
-        self.assertEqual(result.raw["question_reduce_mode"], "hermes_reducer")
-        self.assertEqual(result.raw["completion_verdict"], "partial")
-        self.assertEqual(result.raw["termination_reason"], "task_timeout")
-        self.assertEqual(result.raw["structured_output"]["reply_markdown"], "Partial rundown: pagination cleanup landed, but the weekly picture is incomplete.")
-        self.assertEqual(events[0]["event"], "execution_started")
-        self.assertEqual(events[1]["event"], "hermes_reducer_request")
-        self.assertEqual(events[2]["event"], "hermes_reducer_response")
-        self.assertEqual(events[-1]["event"], "execution_completed")
-        self.assertEqual(events[-1]["termination_reason"], "task_timeout")
-
-    def test_question_gather_with_mcp_uses_hermes_loop(self) -> None:
-        task = RunnerTaskRequest.from_payload(
-            {
-                "task": {
-                    "task_type": "question_gather",
-                    "repo": "depin-backend",
-                    "prompt": "Did the linked Slack thread confirm the upload fix?",
-                    "system_message": "Use read-only tools and return JSON only.",
-                    "channel_id": "C123",
-                    "thread_ts": "171000001.000100",
-                    "trace_id": "trace-123",
-                    "workflow_id": "wf-123",
-                    "mcp_servers": [{"server_label": "slack", "profile": "slack_mcp_read"}],
-                }
-            }
-        )
-        registration = TaskScopedMCPRegistration(
-            servers=[
-                TaskScopedMCPServer(
-                    source_label="slack",
-                    profile="slack_mcp_read",
-                    server_name="rsi-task-trace-123-0-slack-abc",
-                    toolset_alias="mcp-rsi-task-trace-123-0-slack-abc",
-                    included_tool_names=["get_thread", "search_messages"],
-                    hermes_config={},
-                )
-            ]
-        )
-        cleanup = TaskScopedMCPCleanupResult(
-            status="cleaned",
-            cleaned_server_names=registration.server_names,
-            failed_server_names=[],
-            errors=[],
-        )
-
-        def fake_cleanup(_registration: TaskScopedMCPRegistration) -> TaskScopedMCPCleanupResult:
-            _registration.cleanup_result = cleanup
-            return cleanup
-
-        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(
-            os.environ, runner_env("prod"), clear=True
-        ):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            with mock.patch.object(runtime._mcp_adapter, "register_task_servers", return_value=registration) as register_mock, mock.patch.object(
-                runtime._mcp_adapter, "cleanup_registration", side_effect=fake_cleanup
-            ) as cleanup_mock:
+            )
+            with self.subTest(task_type=task_type), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+                runtime = HermesRuntime(RunnerConfig.from_env())
                 result = runtime.execute_task(task)
 
-        self.assertTrue(result.ok)
-        self.assertEqual(register_mock.call_count, 1)
-        self.assertEqual(cleanup_mock.call_count, 1)
-        self.assertEqual(
-            FakeAIAgent.last_kwargs["enabled_toolsets"],
-            ["todo", "session_search", "mcp-rsi-task-trace-123-0-slack-abc"],
-        )
-        self.assertTrue(result.raw["agentic_mcp_enabled"])
-        self.assertEqual(result.raw["agentic_mcp_server_names"], ["rsi-task-trace-123-0-slack-abc"])
-        self.assertEqual(result.raw["runner_diagnostics"]["agentic_mcp_cleanup_status"], "cleaned")
-
-    def test_question_reduce_defaults_partial_for_output_token_budget_exhaustion(self) -> None:
-        task = RunnerTaskRequest.from_payload(
-            {
-                "task": {
-                    "task_type": "question_reduce",
-                    "repo": "depin-backend",
-                    "prompt": json.dumps(
-                        {
-                            "investigation_spec": {
-                                "user_request": "Did the linked Slack thread confirm the upload fix?",
-                                "repo": "depin-backend",
-                            },
-                            "evidence_ledger": {
-                                "termination_reason": "output_token_budget_exhausted",
-                            },
-                            "runner_diagnostics": {
-                                "termination_reason": "output_token_budget_exhausted",
-                            },
-                        }
-                    ),
-                }
-            }
-        )
-
-        with mock.patch.dict(os.environ, runner_env("prod"), clear=True):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-
-        verdict, termination_reason = runtime._question_reduce_defaults(task)
-
-        self.assertEqual(verdict, "partial")
-        self.assertEqual(termination_reason, "output_token_budget_exhausted")
+            self.assertFalse(result.ok)
+            self.assertEqual(result.provider, "policy")
+            self.assertEqual(result.raw["task_type"], task_type)
 
     def test_transport_tool_schemas_are_provider_strict(self) -> None:
         def strict_schema_violations(node: object, path: str) -> list[str]:
@@ -4510,62 +4330,6 @@ class HermesRuntimeTests(unittest.TestCase):
             runtime = HermesRuntime(RunnerConfig.from_env())
             with self.assertRaisesRegex(RuntimeError, "refusing to expose the full server"):
                 runtime._mcp_adapter._translate_task_servers(task)
-
-    def test_question_expand_with_mcp_uses_hermes_loop(self) -> None:
-        task = RunnerTaskRequest.from_payload(
-            {
-                "task": {
-                    "task_type": "question_expand",
-                    "repo": "depin-backend",
-                    "prompt": "Investigate the linked thread.",
-                    "system_message": "Return only JSON.",
-                    "channel_id": "C123",
-                    "thread_ts": "171000001.000100",
-                    "trace_id": "trace-expand-123",
-                    "mcp_servers": [{"server_label": "slack", "profile": "slack_mcp_reply"}],
-                }
-            }
-        )
-        registration = TaskScopedMCPRegistration(
-            servers=[
-                TaskScopedMCPServer(
-                    source_label="slack",
-                    profile="slack_mcp_reply",
-                    server_name="rsi-task-trace-expand-123-0-slack-abc",
-                    toolset_alias="mcp-rsi-task-trace-expand-123-0-slack-abc",
-                    included_tool_names=["get_thread", "send_message"],
-                    hermes_config={},
-                )
-            ]
-        )
-        cleanup = TaskScopedMCPCleanupResult(
-            status="cleaned",
-            cleaned_server_names=registration.server_names,
-            failed_server_names=[],
-            errors=[],
-        )
-
-        def fake_cleanup(_registration: TaskScopedMCPRegistration) -> TaskScopedMCPCleanupResult:
-            _registration.cleanup_result = cleanup
-            return cleanup
-
-        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            with mock.patch.object(runtime._mcp_adapter, "register_task_servers", return_value=registration), mock.patch.object(
-                runtime._mcp_adapter, "cleanup_registration", side_effect=fake_cleanup
-            ):
-                result = runtime.execute_task(task)
-
-        self.assertTrue(result.ok)
-        self.assertEqual(
-            FakeAIAgent.last_kwargs["enabled_toolsets"],
-            ["todo", "session_search", "mcp-rsi-task-trace-expand-123-0-slack-abc"],
-        )
-        self.assertTrue(result.raw["agentic_mcp_enabled"])
-        self.assertEqual(result.raw["runner_diagnostics"]["agentic_mcp_cleanup_status"], "cleaned")
-
 
     def test_proactive_role_accepts_workflow_task_type(self) -> None:
         task = RunnerTaskRequest.from_payload(

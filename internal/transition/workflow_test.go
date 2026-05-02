@@ -39,13 +39,13 @@ func TestReduceWorkflowRunnerCompletedQueuesReply(t *testing.T) {
 	}
 }
 
-func TestReduceWorkflowContextSkippedIgnoresLegacyQuestionRunExecutionStrategy(t *testing.T) {
+func TestReduceWorkflowContextSkippedIgnoresLegacyReadHeavyExecutionStrategy(t *testing.T) {
 	decision := ReduceWorkflow(WorkflowSnapshot{
 		State: WorkflowStateCollectingContext,
 	}, CommandEnvelope{
 		MachineKind: MachineWorkflow,
 		CommandKind: string(CommandContextSkipped),
-		CommandID:   "cmd-context-skipped-question-run",
+		CommandID:   "cmd-context-skipped-read-heavy",
 		OccurredAt:  time.Now().UTC(),
 		Payload: map[string]any{
 			"execution_strategy": "read_heavy_slack_qna",
@@ -58,7 +58,7 @@ func TestReduceWorkflowContextSkippedIgnoresLegacyQuestionRunExecutionStrategy(t
 		t.Fatalf("expected executing, got %s", decision.NextState)
 	}
 	if len(decision.Effects) != 1 || decision.Effects[0].Kind != EffectInvokeRunner {
-		t.Fatalf("expected invoke_runner effect even with legacy execution_strategy, got %+v", decision.Effects)
+		t.Fatalf("expected invoke_runner effect even with legacy read-heavy execution_strategy, got %+v", decision.Effects)
 	}
 }
 

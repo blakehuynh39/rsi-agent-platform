@@ -90,8 +90,6 @@ type Store interface {
 	ListWorkflowLines() []WorkflowLine
 	GetWorkflowLine(caseID string) (WorkflowLine, bool)
 	ListWorkflows() []Workflow
-	ListQuestionRuns() []QuestionRun
-	GetQuestionRun(questionRunID string) (QuestionRun, bool)
 	ListAssignments() []Assignment
 	ListThreadPolicies() []policy.ThreadPolicy
 	ListChannelPolicies() []policy.ChannelPolicy
@@ -133,7 +131,6 @@ type MemoryStore struct {
 	ingestions                   []slack.Ingestion
 	workflowLines                map[string]WorkflowLine
 	workflows                    []Workflow
-	questionRuns                 map[string]QuestionRun
 	assignments                  []Assignment
 	threadPolicies               map[string]policy.ThreadPolicy
 	channelPolicy                []policy.ChannelPolicy
@@ -198,7 +195,6 @@ func (s *MemoryStore) ResetAppData() (AppDataResetResult, error) {
 	s.ingestions = replacement.ingestions
 	s.workflowLines = replacement.workflowLines
 	s.workflows = replacement.workflows
-	s.questionRuns = replacement.questionRuns
 	s.assignments = replacement.assignments
 	s.threadPolicies = replacement.threadPolicies
 	s.channelPolicy = replacement.channelPolicy
@@ -1278,24 +1274,6 @@ func (s *MemoryStore) ListWorkflows() []Workflow {
 	out := append([]Workflow(nil), s.workflows...)
 	sort.Slice(out, func(i, j int) bool { return out[i].CreatedAt.After(out[j].CreatedAt) })
 	return out
-}
-
-func (s *MemoryStore) ListQuestionRuns() []QuestionRun {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	out := make([]QuestionRun, 0, len(s.questionRuns))
-	for _, item := range s.questionRuns {
-		out = append(out, item)
-	}
-	sort.Slice(out, func(i, j int) bool { return out[i].CreatedAt.After(out[j].CreatedAt) })
-	return out
-}
-
-func (s *MemoryStore) GetQuestionRun(questionRunID string) (QuestionRun, bool) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	item, ok := s.questionRuns[strings.TrimSpace(questionRunID)]
-	return item, ok
 }
 
 func (s *MemoryStore) ListAssignments() []Assignment {
