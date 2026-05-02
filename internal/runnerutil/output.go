@@ -146,25 +146,24 @@ type RuntimeDiagnosisOutput struct {
 }
 
 type ExecutionEnvelope struct {
-	ContractVersion  string             `json:"contract_version"`
-	ExecutionID      string             `json:"execution_id,omitempty"`
-	OperationID      string             `json:"operation_id,omitempty"`
-	TraceID          string             `json:"trace_id,omitempty"`
-	WorkflowID       string             `json:"workflow_id,omitempty"`
-	SessionID        string             `json:"session_id,omitempty"`
-	ExecutionIntent  map[string]any     `json:"execution_intent,omitempty"`
-	CapabilityLeases []map[string]any   `json:"capability_leases,omitempty"`
-	DeliveryPolicy   map[string]any     `json:"delivery_policy,omitempty"`
-	WorkspacePolicy  map[string]any     `json:"workspace_policy,omitempty"`
-	ApprovalPolicy   map[string]any     `json:"approval_policy,omitempty"`
-	ExecutionPlan    ExecutionPlan      `json:"execution_plan,omitempty"`
-	PhaseRuns        []PhaseRun         `json:"phase_runs,omitempty"`
-	LedgerEvents     []LedgerEvent      `json:"ledger_events,omitempty"`
-	Artifacts        []ProducedArtifact `json:"artifacts,omitempty"`
-	Deliveries       []ReplyDelivery    `json:"deliveries,omitempty"`
-	MemoryEvents     []LedgerEvent      `json:"memory_events,omitempty"`
-	Completion       EnvelopeCompletion `json:"completion,omitempty"`
-	FinalResponse    string             `json:"final_response,omitempty"`
+	ContractVersion string             `json:"contract_version"`
+	ExecutionID     string             `json:"execution_id,omitempty"`
+	OperationID     string             `json:"operation_id,omitempty"`
+	TraceID         string             `json:"trace_id,omitempty"`
+	WorkflowID      string             `json:"workflow_id,omitempty"`
+	SessionID       string             `json:"session_id,omitempty"`
+	ExecutionIntent map[string]any     `json:"execution_intent,omitempty"`
+	DeliveryPolicy  map[string]any     `json:"delivery_policy,omitempty"`
+	WorkspacePolicy map[string]any     `json:"workspace_policy,omitempty"`
+	ApprovalPolicy  map[string]any     `json:"approval_policy,omitempty"`
+	ExecutionPlan   ExecutionPlan      `json:"execution_plan,omitempty"`
+	PhaseRuns       []PhaseRun         `json:"phase_runs,omitempty"`
+	LedgerEvents    []LedgerEvent      `json:"ledger_events,omitempty"`
+	Artifacts       []ProducedArtifact `json:"artifacts,omitempty"`
+	Deliveries      []ReplyDelivery    `json:"deliveries,omitempty"`
+	MemoryEvents    []LedgerEvent      `json:"memory_events,omitempty"`
+	Completion      EnvelopeCompletion `json:"completion,omitempty"`
+	FinalResponse   string             `json:"final_response,omitempty"`
 }
 
 type ExecutionPlan struct {
@@ -177,7 +176,6 @@ type PhaseRun struct {
 	PhaseID           string         `json:"phase_id,omitempty"`
 	PhaseType         string         `json:"phase_type,omitempty"`
 	Status            string         `json:"status,omitempty"`
-	RequiredLeases    []string       `json:"required_leases,omitempty"`
 	InputRefs         []string       `json:"input_refs,omitempty"`
 	OutputRefs        []string       `json:"output_refs,omitempty"`
 	CompletionVerdict string         `json:"completion_verdict,omitempty"`

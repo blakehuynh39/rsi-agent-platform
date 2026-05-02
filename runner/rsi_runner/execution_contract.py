@@ -11,34 +11,8 @@ from typing import Any
 from .json_types import JsonObject
 
 
-EXECUTION_CONTRACT_VERSION = "execution-envelope/v1"
+EXECUTION_CONTRACT_VERSION = "execution-envelope/v2"
 RUNNER_PLANNER_MODE = "runner_first"
-
-READ_CONTEXT = "read_context"
-WORKSPACE_READ = "workspace_read"
-WORKSPACE_WRITE = "workspace_write"
-ARTIFACT_WRITE = "artifact_write"
-SLACK_READ = "slack_read"
-SLACK_SEND = "slack_send"
-SLACK_UPLOAD = "slack_upload"
-MEMORY_READ = "memory_read"
-MEMORY_WRITE = "memory_write"
-PLATFORM_MUTATION_REQUEST = "platform_mutation_request"
-
-ALLOWED_CAPABILITIES = frozenset(
-    {
-        READ_CONTEXT,
-        WORKSPACE_READ,
-        WORKSPACE_WRITE,
-        ARTIFACT_WRITE,
-        SLACK_READ,
-        SLACK_SEND,
-        SLACK_UPLOAD,
-        MEMORY_READ,
-        MEMORY_WRITE,
-        PLATFORM_MUTATION_REQUEST,
-    }
-)
 
 ALLOWED_PHASE_TYPES = frozenset({"plan", "investigate", "operate", "render", "deliver", "reflect"})
 
@@ -100,74 +74,10 @@ def _now() -> str:
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
 
-def normalize_capability_leases(value: Any) -> list[JsonObject]:
-    out: list[JsonObject] = []
-    for index, item in enumerate(_json_object_list(value)):
-        capability = _string(item.get("capability"))
-        lease_id = _string(item.get("lease_id")) or f"lease-{index + 1}-{capability}"
-        scope = _json_object(item.get("scope"))
-        constraints = _json_object(item.get("constraints"))
-        out.append(
-            {
-                "lease_id": lease_id,
-                "capability": capability,
-                "scope": scope,
-                "constraints": constraints,
-                "granted": True if "granted" not in item else _bool(item.get("granted")),
-            }
-        )
-    return out
-
-
-def default_capability_leases(task: Any) -> list[JsonObject]:
-    task_type = _string(getattr(task, "task_type", ""))
-    reply_delivery_mode = _string(getattr(task, "reply_delivery_mode", "")).lower()
-    requested_artifacts = _json_object_list(getattr(task, "requested_artifacts", []))
-    execution_mode = _string(getattr(task, "execution_mode", "")).lower()
-    capabilities = [READ_CONTEXT, MEMORY_READ, MEMORY_WRITE]
-    if task_type in {"workflow", "prod", "proactive"}:
-        capabilities.extend([WORKSPACE_READ, ARTIFACT_WRITE, SLACK_READ, PLATFORM_MUTATION_REQUEST])
-        if reply_delivery_mode == "direct":
-            capabilities.append(SLACK_SEND)
-            if requested_artifacts:
-                capabilities.append(SLACK_UPLOAD)
-    if requested_artifacts:
-        capabilities.extend([WORKSPACE_READ, ARTIFACT_WRITE])
-    if task_type in {"proposal", "repo-change"}:
-        capabilities.extend([WORKSPACE_READ, PLATFORM_MUTATION_REQUEST])
-        if execution_mode == "implement":
-            capabilities.append(WORKSPACE_WRITE)
-    seen: set[str] = set()
-    out: list[JsonObject] = []
-    for capability in capabilities:
-        if capability in seen:
-            continue
-        seen.add(capability)
-        out.append({"lease_id": f"default-{capability}", "capability": capability, "scope": {}, "constraints": {}, "granted": True})
-    return out
-
-
-def granted_capabilities(leases: list[JsonObject]) -> set[str]:
-    return {_string(item.get("capability")) for item in leases if _bool(item.get("granted")) and _string(item.get("capability"))}
-
-
 @dataclass
 class ContractValidationResult:
     ok: bool
     errors: list[str]
-
-
-def validate_capability_leases(leases: list[JsonObject], *, require_present: bool) -> ContractValidationResult:
-    errors: list[str] = []
-    if require_present and not leases:
-        errors.append("CapabilityLease v1 is required for execution-envelope/v1 tasks.")
-    for item in leases:
-        capability = _string(item.get("capability"))
-        if not capability:
-            errors.append("CapabilityLease capability is required.")
-        elif capability not in ALLOWED_CAPABILITIES:
-            errors.append(f"Unknown capability lease {capability}.")
-    return ContractValidationResult(ok=not errors, errors=errors)
 
 
 def phase_type_for_task(task: Any) -> str:
@@ -186,55 +96,6 @@ def phase_type_for_task(task: Any) -> str:
     if task_type in {"proposal", "repo-change"}:
         return "operate"
     return "operate"
-
-
-def required_capabilities_for_phase(phase_type: str, task: Any) -> list[str]:
-    task_type = _string(getattr(task, "task_type", "")).lower()
-    reply_delivery_mode = _string(getattr(task, "reply_delivery_mode", "")).lower()
-    if phase_type == "plan":
-        return [READ_CONTEXT, MEMORY_READ]
-    if phase_type == "investigate":
-        caps = [READ_CONTEXT, MEMORY_READ]
-        if task_type in {"workflow", "prod", "proactive"}:
-            caps.append(SLACK_READ)
-            caps.append(WORKSPACE_READ)
-        return caps
-    if phase_type == "render":
-        return [WORKSPACE_READ, ARTIFACT_WRITE]
-    if phase_type == "deliver":
-        caps = [READ_CONTEXT]
-        if reply_delivery_mode == "direct":
-            caps.append(SLACK_SEND)
-        if reply_delivery_mode == "direct" and (
-            _json_object_list(getattr(task, "requested_artifacts", []))
-            or _json_object_list(getattr(task, "produced_artifacts", []))
-        ):
-            caps.append(SLACK_UPLOAD)
-        return caps
-    if phase_type == "reflect":
-        return [READ_CONTEXT, MEMORY_READ, MEMORY_WRITE]
-    caps = [READ_CONTEXT, MEMORY_READ, MEMORY_WRITE]
-    execution_mode = _string(getattr(task, "execution_mode", "")).lower()
-    if task_type in {"workflow", "prod", "proactive"}:
-        caps.extend([SLACK_READ, WORKSPACE_READ, ARTIFACT_WRITE, PLATFORM_MUTATION_REQUEST])
-        if reply_delivery_mode == "direct":
-            caps.append(SLACK_SEND)
-    if task_type in {"proposal", "repo-change"}:
-        caps.extend([WORKSPACE_READ, PLATFORM_MUTATION_REQUEST])
-        if execution_mode == "implement":
-            caps.append(WORKSPACE_WRITE)
-    return list(dict.fromkeys(caps))
-
-
-def validate_phase_leases(phase_runs: list[JsonObject], leases: list[JsonObject]) -> ContractValidationResult:
-    errors: list[str] = []
-    granted = granted_capabilities(leases)
-    for phase in phase_runs:
-        phase_id = _string(phase.get("phase_id")) or "unknown"
-        for capability in _string_list(phase.get("required_leases")):
-            if capability not in granted:
-                errors.append(f"Phase {phase_id} requires unleased capability {capability}.")
-    return ContractValidationResult(ok=not errors, errors=errors)
 
 
 def default_delivery_policy(task: Any) -> JsonObject:
@@ -281,7 +142,6 @@ def phase_run(
     phase_id: str,
     phase_type: str,
     status: str,
-    required_leases: list[str],
     input_refs: list[str] | None = None,
     output_refs: list[str] | None = None,
     completion_verdict: str = "",
@@ -293,7 +153,6 @@ def phase_run(
         "phase_id": phase_id,
         "phase_type": phase_type if phase_type in ALLOWED_PHASE_TYPES else "operate",
         "status": status,
-        "required_leases": list(dict.fromkeys(required_leases)),
         "input_refs": list(input_refs or []),
         "output_refs": list(output_refs or []),
         "completion_verdict": completion_verdict,
@@ -414,15 +273,10 @@ class HermesCompanyComputer:
         self.artifact_root = artifact_root
         self.hermes_pin = hermes_pin
 
-    def task_leases(self, task: Any) -> list[JsonObject]:
-        explicit = normalize_capability_leases(getattr(task, "capability_leases", []))
-        return explicit or default_capability_leases(task)
-
     def planned_phase_runs(self, task: Any) -> list[JsonObject]:
         phases: list[tuple[str, str]] = []
         task_type = _string(getattr(task, "task_type", "")).lower()
         explicit_phase = _string(getattr(task, "execution_phase", ""))
-        requested_artifacts = _json_object_list(getattr(task, "requested_artifacts", []))
         reply_delivery_mode = _string(getattr(task, "reply_delivery_mode", "")).lower()
         if explicit_phase:
             phase_type = phase_type_for_task(task)
@@ -431,11 +285,6 @@ class HermesCompanyComputer:
             phases.extend([("plan", "plan"), ("reflect", "reflect")])
         elif task_type in {"proposal", "repo-change"}:
             phases.extend([("plan", "plan"), ("operate", "operate"), ("reflect", "reflect")])
-        elif task_type in {"workflow", "prod", "proactive"} and requested_artifacts:
-            phases.extend([("plan", "plan"), ("investigate", "investigate"), ("render", "render")])
-            if reply_delivery_mode in {"direct", "mediated"}:
-                phases.append(("deliver", "deliver"))
-            phases.append(("reflect", "reflect"))
         else:
             phases.extend([("plan", "plan"), ("operate", phase_type_for_task(task))])
             if reply_delivery_mode == "direct":
@@ -452,21 +301,11 @@ class HermesCompanyComputer:
                     phase_id=phase_id,
                     phase_type=phase_type,
                     status="planned",
-                    required_leases=required_capabilities_for_phase(phase_type, task),
                 )
             )
         return out
 
     def validate_task(self, task: Any) -> ContractValidationResult:
-        explicit_contract = _string(getattr(task, "contract_version", "")) == EXECUTION_CONTRACT_VERSION
-        leases = normalize_capability_leases(getattr(task, "capability_leases", []))
-        validation = validate_capability_leases(leases, require_present=explicit_contract)
-        if not validation.ok:
-            return validation
-        effective_leases = leases or default_capability_leases(task)
-        phase_validation = validate_phase_leases(self.planned_phase_runs(task), effective_leases)
-        if not phase_validation.ok:
-            return phase_validation
         return ContractValidationResult(ok=True, errors=[])
 
     def attach_envelope(self, task: Any, result: Any, *, observer: Any | None = None) -> Any:
@@ -488,15 +327,6 @@ class HermesCompanyComputer:
             deliveries=deliveries,
             observer_events=observer_events,
         )
-        leases = self.task_leases(task)
-        phase_validation = validate_phase_leases(phase_runs, leases)
-        if not phase_validation.ok:
-            raw.setdefault("failure_class", "runner_contract_failed")
-            raw["runner_diagnostics"] = {
-                **_json_object(raw.get("runner_diagnostics")),
-                "failure_kind": "runner_contract_failed",
-                "contract_errors": list(phase_validation.errors),
-            }
         ledger_events = self._ledger_events(
             raw,
             phase_runs,
@@ -527,7 +357,6 @@ class HermesCompanyComputer:
                 "repo": _string(getattr(task, "repo", "")),
                 "mode": RUNNER_PLANNER_MODE,
             },
-            "capability_leases": leases,
             "delivery_policy": _json_object(getattr(task, "delivery_policy", {})) or default_delivery_policy(task),
             "workspace_policy": _json_object(getattr(task, "workspace_policy", {}))
             or default_workspace_policy(task, computer_root=self.computer_root, run_root=self.run_root, artifact_root=self.artifact_root),
@@ -539,7 +368,6 @@ class HermesCompanyComputer:
                     {
                         "phase_id": _string(phase.get("phase_id")),
                         "phase_type": _string(phase.get("phase_type")),
-                        "required_leases": _string_list(phase.get("required_leases")),
                     }
                     for phase in phase_runs
                 ],
@@ -554,18 +382,10 @@ class HermesCompanyComputer:
                 "termination_reason": termination_reason,
                 "partial": completion_verdict == "partial",
                 "max_iterations_reached": _bool(raw.get("max_iterations_reached")),
-                "ok": bool(getattr(result, "ok", False)) and phase_validation.ok and not phase_failed,
+                "ok": bool(getattr(result, "ok", False)) and not phase_failed,
             },
             "final_response": final_response,
         }
-        if not phase_validation.ok:
-            envelope["completion"]["ok"] = False
-            envelope["completion"]["termination_reason"] = "runner_contract_failed"
-            envelope["completion"]["completion_verdict"] = "failed"
-            next_sequence = len(envelope["ledger_events"]) + 1
-            envelope["ledger_events"].append(
-                ledger_event("failure.contract", phase_id="main", status="failed", payload={"errors": list(phase_validation.errors)}, sequence=next_sequence)
-            )
         raw["execution_envelope"] = envelope
         raw["structured_output"] = structured_output_from_envelope(envelope, structured_output)
         setattr(result, "raw", raw)
@@ -671,11 +491,6 @@ class HermesCompanyComputer:
         return out
 
     def _task_has_artifact_intent(self, task: Any) -> bool:
-        if _json_object_list(getattr(task, "requested_artifacts", [])):
-            return True
-        for lease in _json_object_list(getattr(task, "capability_leases", [])):
-            if _string(lease.get("capability")) == ARTIFACT_WRITE and _bool(lease.get("granted", True)):
-                return True
         intent = _json_object(getattr(task, "execution_intent", {}))
         haystack = " ".join(
             _string(intent.get(key)).lower()
@@ -684,9 +499,6 @@ class HermesCompanyComputer:
         return any(marker in haystack for marker in ("artifact", "diagram", "architecture"))
 
     def _requested_artifact_kind(self, task: Any) -> str:
-        requested = _json_object_list(getattr(task, "requested_artifacts", []))
-        if requested:
-            return _string(requested[0].get("kind")) or "artifact"
         intent = _json_object(getattr(task, "execution_intent", {}))
         return _string(intent.get("kind")) or "artifact"
 
@@ -822,7 +634,6 @@ class HermesCompanyComputer:
                 phase_id="investigate",
                 phase_type="investigate",
                 status=_string(investigate_observed.get("status")) or ("completed" if result_ok else "failed"),
-                required_leases=required_capabilities_for_phase("investigate", task),
                 completion_verdict=_string(investigate_observed.get("completion_verdict")) or _string(diagnostics.get("artifact_investigate_completion_verdict")) or completion_verdict,
                 termination_reason=_string(investigate_observed.get("termination_reason")) or _string(diagnostics.get("artifact_investigate_termination_reason")) or termination_reason,
             )
@@ -831,7 +642,6 @@ class HermesCompanyComputer:
                 phase_id="render",
                 phase_type="render",
                 status=_string(render_observed.get("status")) or render_status,
-                required_leases=required_capabilities_for_phase("render", task),
                 output_refs=[ref for artifact in artifacts for ref in _string_list(artifact.get("artifact_refs"))],
                 completion_verdict=_string(render_observed.get("completion_verdict")) or (completion_verdict if render_status == "completed" else ""),
                 termination_reason=_string(render_observed.get("termination_reason")) or (_string(raw.get("artifact_failure_reason")) if render_status != "completed" else "normal_completion"),
@@ -843,7 +653,6 @@ class HermesCompanyComputer:
                 phase_id="deliver",
                 phase_type="deliver",
                 status=_string(deliver_observed.get("status")) or deliver_status,
-                required_leases=required_capabilities_for_phase("deliver", task),
                 input_refs=[ref for artifact in artifacts for ref in _string_list(artifact.get("artifact_refs"))],
                 output_refs=output_refs,
                 completion_verdict=_string(deliver_observed.get("completion_verdict")) or deliver_completion_verdict,
@@ -856,7 +665,6 @@ class HermesCompanyComputer:
                 phase_id="reflect",
                 phase_type="reflect",
                 status=_string(reflect_observed.get("status")) or ("completed" if result_ok else "failed"),
-                required_leases=required_capabilities_for_phase("reflect", task),
                 completion_verdict=_string(reflect_observed.get("completion_verdict")) or completion_verdict,
                 termination_reason=_string(reflect_observed.get("termination_reason")) or termination_reason,
             )
@@ -865,7 +673,6 @@ class HermesCompanyComputer:
                 phase_id="plan",
                 phase_type="plan",
                 status=_string(plan_observed.get("status")) or "completed",
-                required_leases=required_capabilities_for_phase("plan", task),
                 completion_verdict=_string(plan_observed.get("completion_verdict")) or "complete",
                 termination_reason=_string(plan_observed.get("termination_reason")) or "phase_graph_created",
             )
@@ -882,7 +689,6 @@ class HermesCompanyComputer:
                 phase_id="plan",
                 phase_type="plan",
                 status=_string(plan_observed.get("status")) or "completed",
-                required_leases=required_capabilities_for_phase("plan", task),
                 completion_verdict=_string(plan_observed.get("completion_verdict")) or "complete",
                 termination_reason=_string(plan_observed.get("termination_reason")) or "phase_graph_created",
             )
@@ -891,7 +697,6 @@ class HermesCompanyComputer:
                 phase_id=main_phase_id,
                 phase_type=_string(phase_map[main_phase_id].get("phase_type")) or phase_type,
                 status=_string(main_observed.get("status")) or status,
-                required_leases=required_capabilities_for_phase(_string(phase_map[main_phase_id].get("phase_type")) or phase_type, task),
                 input_refs=[],
                 output_refs=output_refs,
                 completion_verdict=_string(main_observed.get("completion_verdict")) or completion_verdict,
@@ -908,7 +713,6 @@ class HermesCompanyComputer:
                     phase_id="deliver",
                     phase_type="deliver",
                     status=_string(deliver_observed.get("status")) or delivery_status,
-                    required_leases=required_capabilities_for_phase("deliver", task),
                     input_refs=output_refs,
                     output_refs=output_refs,
                     completion_verdict=_string(deliver_observed.get("completion_verdict")) or (completion_verdict if delivery_status == "completed" else ""),
@@ -922,7 +726,6 @@ class HermesCompanyComputer:
                     phase_id="reflect",
                     phase_type="reflect",
                     status=_string(reflect_observed.get("status")) or ("completed" if result_ok else "failed"),
-                    required_leases=required_capabilities_for_phase("reflect", task),
                     completion_verdict=_string(reflect_observed.get("completion_verdict")) or completion_verdict,
                     termination_reason=_string(reflect_observed.get("termination_reason")) or termination_reason,
                 )
@@ -938,7 +741,6 @@ class HermesCompanyComputer:
                 phase_id=phase_id,
                 phase_type=phase_type,
                 status=_string(phase_observed.get("status")) or status,
-                required_leases=required_capabilities_for_phase(phase_type, task),
                 input_refs=[],
                 output_refs=output_refs,
                 completion_verdict=_string(phase_observed.get("completion_verdict")) or completion_verdict,

@@ -41,7 +41,6 @@ type SlackSurfaceHint struct {
 
 type LiveHintSet struct {
 	Repo                     string             `json:"repo,omitempty"`
-	PreferredTools           []string           `json:"preferred_tools,omitempty"`
 	CandidateReadSurfaces    []SlackSurfaceHint `json:"candidate_read_surfaces,omitempty"`
 	KubernetesReadNamespaces []string           `json:"kubernetes_read_namespaces,omitempty"`
 	DeploymentTargets        []string           `json:"deployment_targets,omitempty"`
@@ -56,37 +55,11 @@ var (
 	slackThreadTSPattern     = regexp.MustCompile(`(?:thread(?:_ts)?|ts)\D+(\d{10}\.\d{6})`)
 )
 
-func ToolPlan(intent string, question string, repo string, channelID string, threadTS string) []string {
-	var plan []string
-	switch strings.TrimSpace(intent) {
-	case "incident":
-		plan = []string{"sentry.lookup", "kubernetes.inspect", "rsi.workflow_context", "rsi.action_chain", "rsi.runtime_health"}
-	case "feature_request":
-		plan = []string{"repo.context", "github.repo_context", "rsi.workflow_context", "rsi.action_chain"}
-	default:
-		plan = []string{"repo.context", "knowledge.context", "rsi.workflow_context", "rsi.action_chain"}
-		if ShouldUseGitHubRepoActivity(question, repo) {
-			plan = append(plan, "github.repo_activity")
-		}
-	}
-	if ShouldUseSlackSearch(question, channelID) {
-		plan = append(plan, "slack.search")
-	}
-	if ShouldUseSlackHistory(question, repo, channelID, threadTS) {
-		plan = append(plan, "slack.history")
-	}
-	if ShouldUseRuntimeDeploymentFacts(question) {
-		plan = append(plan, "rsi.runtime_deployment_facts")
-	}
-	return plan
-}
-
 func BuildLiveHints(cfg RuntimeConfig, ctx RequestContext, now time.Time) LiveHintSet {
 	repo := ResolveTargetRepo(cfg, ctx.Question)
 	since, until := RepoActivityWindow(ctx.Question, now)
 	return LiveHintSet{
 		Repo:                     repo,
-		PreferredTools:           ToolPlan(ctx.WorkflowKind, ctx.Question, repo, ctx.ChannelID, ctx.ThreadTS),
 		CandidateReadSurfaces:    CandidateReadSurfacesForContext(ctx),
 		KubernetesReadNamespaces: config.CompactUniqueStrings(cfg.KubernetesReadNamespaces),
 		DeploymentTargets:        DeploymentTargetsForRepo(repo),

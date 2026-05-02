@@ -256,8 +256,8 @@ func TestMemoryStoreClaimNextEffectExecutionPrioritizesAndLimitsScope(t *testing
 		Holder:         "worker-active",
 		QueueName:      queueName,
 		ScopeKey:       "conversation-a",
-		TaskClass:      effectTaskClassArtifact,
-		Priority:       priorityForTaskClass(effectTaskClassArtifact),
+		TaskClass:      effectTaskClassSimple,
+		Priority:       priorityForTaskClass(effectTaskClassSimple),
 		IdempotencyKey: "wf-running:invoke",
 		CreatedAt:      now.Add(-3 * time.Minute),
 		UpdatedAt:      now.Add(-3 * time.Minute),
@@ -285,8 +285,8 @@ func TestMemoryStoreClaimNextEffectExecutionPrioritizesAndLimitsScope(t *testing
 		Status:         transition.EffectQueued,
 		QueueName:      queueName,
 		ScopeKey:       "conversation-b",
-		TaskClass:      effectTaskClassArtifact,
-		Priority:       priorityForTaskClass(effectTaskClassArtifact),
+		TaskClass:      effectTaskClassSimple,
+		Priority:       priorityForTaskClass(effectTaskClassSimple),
 		IdempotencyKey: "wf-b:invoke",
 		CreatedAt:      now.Add(-4 * time.Minute),
 		UpdatedAt:      now.Add(-4 * time.Minute),
@@ -313,8 +313,8 @@ func TestMemoryStoreClaimNextEffectExecutionPrioritizesAndLimitsScope(t *testing
 	if !ok {
 		t.Fatal("expected first claim to succeed")
 	}
-	if claimed.ID != "eff-simple-scope-c" {
-		t.Fatalf("first claim = %s, want eff-simple-scope-c; claimed=%+v", claimed.ID, claimed)
+	if claimed.ID != "eff-artifact-scope-b" {
+		t.Fatalf("first claim = %s, want eff-artifact-scope-b; claimed=%+v", claimed.ID, claimed)
 	}
 
 	claimed, ok, err = store.ClaimNextEffectExecution("worker-2", 30*time.Second, []string{queueName}, 1)
@@ -324,8 +324,8 @@ func TestMemoryStoreClaimNextEffectExecutionPrioritizesAndLimitsScope(t *testing
 	if !ok {
 		t.Fatal("expected second claim to succeed")
 	}
-	if claimed.ID != "eff-artifact-scope-b" {
-		t.Fatalf("second claim = %s, want eff-artifact-scope-b; claimed=%+v", claimed.ID, claimed)
+	if claimed.ID != "eff-simple-scope-c" {
+		t.Fatalf("second claim = %s, want eff-simple-scope-c; claimed=%+v", claimed.ID, claimed)
 	}
 
 	claimed, ok, err = store.ClaimNextEffectExecution("worker-3", 30*time.Second, []string{queueName}, 1)
@@ -466,6 +466,76 @@ func TestMemoryStoreClaimNextEffectExecutionForKindsFiltersPayload(t *testing.T)
 	}
 	if other := store.effectExecutions["eff-action-proposal"]; other.Status != transition.EffectQueued {
 		t.Fatalf("proposal-owned action should remain queued: %+v", other)
+	}
+}
+
+func TestMemoryStoreWorkflowClaimIgnoresLegacyQuestionRunEffects(t *testing.T) {
+	store := NewMemoryStore()
+	now := time.Now().UTC()
+	leaseActive := now.Add(time.Minute)
+	store.effectExecutions["eff-question-queued"] = transition.EffectExecution{
+		ID:             "eff-question-queued",
+		MachineKind:    transition.MachineQuestionRun,
+		AggregateID:    "qr-queued",
+		EffectKind:     transition.EffectGatherEvidence,
+		Status:         transition.EffectQueued,
+		QueueName:      effectQueueWorkflow,
+		ScopeKey:       "conversation-legacy",
+		TaskClass:      effectTaskClassSimple,
+		Priority:       priorityForTaskClass(effectTaskClassSimple),
+		IdempotencyKey: "qr-queued:gather",
+		CreatedAt:      now.Add(-3 * time.Minute),
+		UpdatedAt:      now.Add(-3 * time.Minute),
+	}
+	store.effectExecutions["eff-question-running"] = transition.EffectExecution{
+		ID:             "eff-question-running",
+		MachineKind:    transition.MachineQuestionRun,
+		AggregateID:    "qr-running",
+		EffectKind:     transition.EffectReduceReply,
+		Status:         transition.EffectRunning,
+		Holder:         "legacy-worker",
+		QueueName:      effectQueueWorkflow,
+		ScopeKey:       "conversation-legacy",
+		TaskClass:      effectTaskClassSimple,
+		Priority:       priorityForTaskClass(effectTaskClassSimple),
+		IdempotencyKey: "qr-running:reduce",
+		CreatedAt:      now.Add(-2 * time.Minute),
+		UpdatedAt:      now.Add(-2 * time.Minute),
+		LeaseExpiresAt: &leaseActive,
+	}
+	store.effectExecutions["eff-workflow"] = transition.EffectExecution{
+		ID:             "eff-workflow",
+		MachineKind:    transition.MachineWorkflow,
+		AggregateID:    "wf-legacy-scope",
+		EffectKind:     transition.EffectInvokeRunner,
+		Status:         transition.EffectQueued,
+		QueueName:      effectQueueWorkflow,
+		ScopeKey:       "conversation-legacy",
+		TaskClass:      effectTaskClassSimple,
+		Priority:       priorityForTaskClass(effectTaskClassSimple),
+		IdempotencyKey: "wf-legacy-scope:invoke",
+		CreatedAt:      now.Add(-time.Minute),
+		UpdatedAt:      now.Add(-time.Minute),
+	}
+
+	claimed, ok, err := store.ClaimNextEffectExecutionForKinds(
+		"worker-1",
+		30*time.Second,
+		[]string{effectQueueWorkflow},
+		1,
+		[]EffectClaimSelector{{MachineKind: transition.MachineWorkflow, EffectKind: transition.EffectInvokeRunner}},
+	)
+	if err != nil {
+		t.Fatalf("ClaimNextEffectExecutionForKinds() error = %v", err)
+	}
+	if !ok || claimed.ID != "eff-workflow" {
+		t.Fatalf("expected workflow claim while legacy question_run effects stay inert, claimed=%v effect=%+v", ok, claimed)
+	}
+	if store.effectExecutions["eff-question-queued"].Status != transition.EffectQueued {
+		t.Fatalf("queued question_run effect was mutated: %+v", store.effectExecutions["eff-question-queued"])
+	}
+	if store.effectExecutions["eff-question-running"].Status != transition.EffectRunning {
+		t.Fatalf("running question_run effect was mutated: %+v", store.effectExecutions["eff-question-running"])
 	}
 }
 

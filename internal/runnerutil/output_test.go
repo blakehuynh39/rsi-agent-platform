@@ -73,6 +73,51 @@ func TestParseExecutionEnvelopeRejectsMissingContractVersion(t *testing.T) {
 	}
 }
 
+func TestParseExecutionEnvelopeAcceptsV2WithoutLegacyLeaseFields(t *testing.T) {
+	envelope, ok, err := ParseExecutionEnvelope(clients.RunnerResponse{
+		Raw: map[string]any{
+			"execution_envelope": map[string]any{
+				"contract_version": "execution-envelope/v2",
+				"execution_id":     "hexec-v2",
+				"execution_plan": map[string]any{
+					"phases": []any{map[string]any{"phase_id": "operate", "phase_type": "operate"}},
+				},
+				"phase_runs": []any{map[string]any{"phase_id": "operate", "phase_type": "operate", "status": "completed"}},
+			},
+		},
+	})
+	if err != nil || !ok {
+		t.Fatalf("ParseExecutionEnvelope() ok=%v err=%v", ok, err)
+	}
+	if envelope.ContractVersion != "execution-envelope/v2" || envelope.ExecutionID != "hexec-v2" {
+		t.Fatalf("unexpected envelope: %#v", envelope)
+	}
+}
+
+func TestParseExecutionEnvelopeAcceptsLegacyV1FieldsAndIgnoresLeases(t *testing.T) {
+	envelope, ok, err := ParseExecutionEnvelope(clients.RunnerResponse{
+		Raw: map[string]any{
+			"execution_envelope": map[string]any{
+				"contract_version":  "execution-envelope/v1",
+				"execution_id":      "hexec-v1",
+				"capability_leases": []any{map[string]any{"capability": "artifact_write"}},
+				"phase_runs": []any{
+					map[string]any{"phase_id": "operate", "phase_type": "operate", "status": "completed", "required_leases": []any{"artifact_write"}},
+				},
+			},
+		},
+	})
+	if err != nil || !ok {
+		t.Fatalf("ParseExecutionEnvelope() ok=%v err=%v", ok, err)
+	}
+	if envelope.ContractVersion != "execution-envelope/v1" || envelope.ExecutionID != "hexec-v1" {
+		t.Fatalf("unexpected envelope: %#v", envelope)
+	}
+	if len(envelope.PhaseRuns) != 1 || envelope.PhaseRuns[0].PhaseID != "operate" {
+		t.Fatalf("unexpected phase runs: %#v", envelope.PhaseRuns)
+	}
+}
+
 func TestParseStructuredOutputLegacyReplyDeliveryStatus(t *testing.T) {
 	resp := clients.RunnerResponse{
 		OK:       true,

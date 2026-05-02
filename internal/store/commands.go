@@ -347,7 +347,6 @@ func (s *MemoryStore) appendWorkflowPlanningCommandsLocked(bundle *transitionPer
 	}
 	planning := workflowPlanningConfigFromCommand(parent)
 	resumeQueue := firstNonEmpty(stringFromCommand(parent, "resume_queue"), string(queue.WorkflowQueue))
-	requestedArtifacts := workflowplan.RequestedArtifactsForPrompt(strings.TrimSpace(ingestion.Text), ingestion.Prompt)
 	hints := workflowplan.BuildLiveHints(planning, workflowplan.RequestContext{
 		Trace:          trace.Summary,
 		WorkflowID:     workflow.ID,
@@ -367,9 +366,6 @@ func (s *MemoryStore) appendWorkflowPlanningCommandsLocked(bundle *transitionPer
 	if len(hints.CandidateReadSurfaces) > 0 {
 		summaryParts = append(summaryParts, fmt.Sprintf("Candidate Slack read surfaces: %d.", len(hints.CandidateReadSurfaces)))
 	}
-	if len(hints.PreferredTools) > 0 {
-		summaryParts = append(summaryParts, fmt.Sprintf("Preferred starting tools: %s.", strings.Join(hints.PreferredTools, ", ")))
-	}
 	if hints.Since != "" && hints.Until != "" {
 		summaryParts = append(summaryParts, fmt.Sprintf("Suggested repo-activity window: %s to %s.", hints.Since, hints.Until))
 	}
@@ -384,21 +380,15 @@ func (s *MemoryStore) appendWorkflowPlanningCommandsLocked(bundle *transitionPer
 		Actor:       parent.Actor,
 		OccurredAt:  parent.OccurredAt,
 		Payload: map[string]any{
-			"tool_count":               0,
-			"resume_queue":             resumeQueue,
-			"execution_role":           executionRoleFromQueue(resumeQueue),
-			"conversation_id":          workflow.ConversationID,
-			"case_id":                  workflow.CaseID,
-			"trace_id":                 trace.Summary.TraceID,
-			"thread_key":               workflow.ThreadKey,
-			"workflow_kind":            workflow.Kind,
-			"requested_artifact_count": len(requestedArtifacts),
-			"task_class": func() string {
-				if len(requestedArtifacts) > 0 {
-					return effectTaskClassArtifact
-				}
-				return effectTaskClassSimple
-			}(),
+			"tool_count":      0,
+			"resume_queue":    resumeQueue,
+			"execution_role":  executionRoleFromQueue(resumeQueue),
+			"conversation_id": workflow.ConversationID,
+			"case_id":         workflow.CaseID,
+			"trace_id":        trace.Summary.TraceID,
+			"thread_key":      workflow.ThreadKey,
+			"workflow_kind":   workflow.Kind,
+			"task_class":      effectTaskClassSimple,
 			"trace_events": []events.TraceEvent{
 				{
 					TraceID:     trace.Summary.TraceID,

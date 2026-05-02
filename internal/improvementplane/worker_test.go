@@ -1768,7 +1768,7 @@ func TestProcessImplementAttemptEffectRequiresWorkspaceMutation(t *testing.T) {
 	}
 }
 
-func TestBuildProposalRunnerTaskUsesReadOnlyToolBudget(t *testing.T) {
+func TestBuildProposalRunnerTaskPreservesRepoAndContextBudget(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	proposal := store.ListProposals()[0]
 	trace, ok := store.GetTrace(proposal.TraceID)
@@ -1794,13 +1794,6 @@ func TestBuildProposalRunnerTaskUsesReadOnlyToolBudget(t *testing.T) {
 	if task.TimeoutSeconds != 420 {
 		t.Fatalf("proposal timeout = %d, want 420", task.TimeoutSeconds)
 	}
-	if len(task.AllowedTools) == 0 || len(task.ToolAllowlist) == 0 {
-		t.Fatalf("expected proposal read-only tools, got allowed=%v allowlist=%v", task.AllowedTools, task.ToolAllowlist)
-	}
-	assertContains(t, task.ToolAllowlist, "repo.context")
-	assertContains(t, task.ToolAllowlist, "rsi.trace_context")
-	assertContains(t, task.ToolAllowlist, "rsi.candidate_context")
-	assertContains(t, task.ToolAllowlist, "rsi.proposal_memory")
 	if task.Repo != "rsi-agent-platform" {
 		t.Fatalf("proposal task repo = %q, want rsi-agent-platform", task.Repo)
 	}
@@ -1961,8 +1954,20 @@ func TestProcessProposalImplementAttemptEffectQueuesValidation(t *testing.T) {
 	}
 }
 
-func TestBuildEvalRunnerTaskUsesReadOnlyToolBudget(t *testing.T) {
+func TestBuildEvalRunnerTaskPreservesContextRefs(t *testing.T) {
 	store := storepkg.NewMemoryStore()
+	proposals := store.ListProposals()
+	if len(proposals) == 0 {
+		t.Fatal("expected seeded proposal")
+	}
+	if _, err := storepkg.ReviewProposalForTesting(store, proposals[0].ID, review.ProposalReview{
+		Decision:     string(review.ProposalRejected),
+		Rationale:    "Seed proposal memory for eval context.",
+		ReviewerID:   "tester",
+		FailureClass: "needs_stronger_evidence",
+	}); err != nil {
+		t.Fatalf("ReviewProposalForTesting() error = %v", err)
+	}
 	traceID := store.ListTraces()[0].TraceID
 	receipt, err := store.SubmitCommand(transition.CommandEnvelope{
 		MachineKind: transition.MachineProblemLine,
@@ -2005,9 +2010,9 @@ func TestBuildEvalRunnerTaskUsesReadOnlyToolBudget(t *testing.T) {
 	if task.TimeoutSeconds != 300 {
 		t.Fatalf("eval timeout = %d, want 300", task.TimeoutSeconds)
 	}
-	assertContains(t, task.ToolAllowlist, "knowledge.context")
-	assertContains(t, task.ToolAllowlist, "rsi.trace_context")
-	assertContains(t, task.ToolAllowlist, "rsi.candidate_context")
+	assertContextRefKind(t, task.ContextRefs, "target_repo")
+	assertContextRefKind(t, task.ContextRefs, "workflow_attempt")
+	assertContextRefKind(t, task.ContextRefs, "proposal_memory")
 }
 
 func TestEnsureAttemptWorkspaceReturnsPersistenceError(t *testing.T) {
@@ -2067,12 +2072,12 @@ func TestEnsureAttemptWorkspaceReturnsPersistenceError(t *testing.T) {
 	}
 }
 
-func assertContains(t *testing.T, values []string, target string) {
+func assertContextRefKind(t *testing.T, refs []clients.RunnerContextRef, target string) {
 	t.Helper()
-	for _, item := range values {
-		if item == target {
+	for _, item := range refs {
+		if item.Kind == target {
 			return
 		}
 	}
-	t.Fatalf("expected %q in %v", target, values)
+	t.Fatalf("expected context ref kind %q in %#v", target, refs)
 }

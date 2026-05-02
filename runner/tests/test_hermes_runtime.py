@@ -1636,14 +1636,12 @@ class HermesRuntimeTests(unittest.TestCase):
                     "task_type": "eval",
                     "repo": "rsi-agent-platform",
                     "prompt": "Summarize the eval.",
-                    "allowed_tools": "repo.context",
                     "allowed_commands": "python -m pytest",
                     "expected_outputs": "final answer",
                     "rejected_proposal_context": "nope",
                     "recent_conversation_entries": "nope",
                     "prior_trace_refs": "nope",
                     "repo_allowlist": "nope",
-                    "tool_allowlist": "nope",
                     "context_refs": "nope",
                     "allowed_path_globs": "nope",
                     "case_summary": "nope",
@@ -1651,14 +1649,12 @@ class HermesRuntimeTests(unittest.TestCase):
             }
         )
 
-        self.assertEqual(task.allowed_tools, [])
         self.assertEqual(task.allowed_commands, [])
         self.assertEqual(task.expected_outputs, [])
         self.assertEqual(task.rejected_proposal_context, [])
         self.assertEqual(task.recent_conversation_entries, [])
         self.assertEqual(task.prior_trace_refs, [])
         self.assertEqual(task.repo_allowlist, [])
-        self.assertEqual(task.tool_allowlist, [])
         self.assertEqual(task.context_refs, [])
         self.assertEqual(task.allowed_path_globs, [])
         self.assertIsNone(task.case_summary)
@@ -1682,7 +1678,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(task.repo, "rsi-agent-platform")
         self.assertEqual(task.prompt, "Use the top-level prompt.")
 
-    def test_runner_task_request_normalizes_requested_artifacts(self) -> None:
+    def test_runner_task_request_ignores_legacy_requested_artifacts(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
                 "task": {
@@ -1699,13 +1695,10 @@ class HermesRuntimeTests(unittest.TestCase):
             }
         )
 
-        self.assertEqual(
-            task.requested_artifacts,
-            [{"kind": "diagram", "description": "Render the requested system diagram."}],
-        )
-        self.assertTrue(task.artifact_optional)
+        self.assertFalse(hasattr(task, "requested_artifacts"))
+        self.assertFalse(hasattr(task, "artifact_optional"))
 
-    def test_runner_task_request_normalizes_requested_skills(self) -> None:
+    def test_runner_task_request_ignores_legacy_requested_skills(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
                 "task": {
@@ -1717,7 +1710,7 @@ class HermesRuntimeTests(unittest.TestCase):
             }
         )
 
-        self.assertEqual(task.requested_skills, ["architecture-diagram"])
+        self.assertFalse(hasattr(task, "requested_skills"))
 
     def test_openrouter_models_use_persisted_hermes_sessions_with_xhigh(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -2420,7 +2413,7 @@ class HermesRuntimeTests(unittest.TestCase):
             process = FakePopen(cmd, cwd, env, stdout, stderr, text)
             self.assertEqual(process._request["prompt"], "User prompt")
             self.assertEqual(process._request["system_message"], "System directive")
-            self.assertEqual(process._request["requested_skills"], ["architecture-diagram"])
+            self.assertNotIn("requested_skills", process._request)
             self.assertIn("todo", process._request["toolsets"])
             self.assertNotIn("rsi-governed-readonly", process._request["toolsets"])
             self.assertIn("mcp-rsi-task-trace-123-0-slack-abc", process._request["toolsets"])
@@ -3699,12 +3692,12 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertTrue(result.ok)
         self.assertIn("[INVOKED architecture-diagram]", FakeAIAgent.last_prompt)
-        self.assertEqual(result.raw["requested_skills"], ["architecture-diagram"])
+        self.assertEqual(result.raw["prompt_skills"], ["architecture-diagram"])
         self.assertEqual(result.raw["resolved_skills"], ["architecture-diagram"])
         self.assertEqual(result.raw["missing_skills"], [])
         self.assertEqual(result.raw["skill_injection_mode"], "slash_command")
 
-    def test_workflow_task_preloads_inline_and_requested_skills_once(self) -> None:
+    def test_workflow_task_preloads_prompt_skill_once(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
                 "task": {
@@ -3735,7 +3728,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(result.ok)
         self.assertEqual(preload_mock.call_args.args[0], ["architecture-diagram"])
         self.assertIn("[PRELOADED architecture-diagram]", FakeAIAgent.last_prompt)
-        self.assertEqual(result.raw["requested_skills"], ["architecture-diagram"])
+        self.assertEqual(result.raw["prompt_skills"], ["architecture-diagram"])
         self.assertEqual(result.raw["resolved_skills"], ["architecture-diagram"])
         self.assertEqual(result.raw["missing_skills"], [])
         self.assertEqual(result.raw["skill_injection_mode"], "preloaded")
@@ -3823,7 +3816,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(ActionRepairAIAgent.prompts[1].count("Runner role:"), 1)
         self.assertEqual(ActionRepairAIAgent.prompts[1].count("[PRELOADED architecture-diagram]"), 1)
 
-    def test_missing_requested_skill_is_recorded_without_failing_workflow(self) -> None:
+    def test_missing_prompt_skill_is_recorded_without_failing_workflow(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
                 "task": {
@@ -3852,7 +3845,7 @@ class HermesRuntimeTests(unittest.TestCase):
             result = runtime.execute_task(task)
 
         self.assertTrue(result.ok)
-        self.assertEqual(result.raw["requested_skills"], ["missing-skill"])
+        self.assertEqual(result.raw["prompt_skills"], ["missing-skill"])
         self.assertEqual(result.raw["resolved_skills"], [])
         self.assertEqual(result.raw["missing_skills"], ["missing-skill"])
         self.assertEqual(result.raw["skill_injection_mode"], "preloaded")
@@ -3979,7 +3972,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(toolsets.count("rsi-governed-readonly"), 0)
         self.assertEqual(toolsets.count("rsi-governed-workspace"), 0)
 
-    def test_workflow_artifact_toolset_requires_artifact_task_scope(self) -> None:
+    def test_workflow_native_toolsets_expose_artifact_tools_by_default(self) -> None:
         lease_only_task = RunnerTaskRequest.from_payload(
             {
                 "task": {
@@ -4025,7 +4018,7 @@ class HermesRuntimeTests(unittest.TestCase):
         ):
             runtime = HermesRuntime(RunnerConfig.from_env())
 
-        self.assertNotIn("rsi-artifacts", runtime._native_toolsets_for_task(lease_only_task))
+        self.assertIn("rsi-artifacts", runtime._native_toolsets_for_task(lease_only_task))
         self.assertIn("rsi-artifacts", runtime._native_toolsets_for_task(requested_artifact_task))
 
     def test_prod_role_hides_legacy_tool_policy_from_native_prompt(self) -> None:
@@ -4398,6 +4391,7 @@ class HermesRuntimeTests(unittest.TestCase):
             [
                 "todo",
                 "session_search",
+                "rsi-artifacts",
                 "mcp-rsi-task-trace-workflow-123-0-slack-abc",
             ],
         )
@@ -4938,235 +4932,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["reply_delivery"]["provider_ref"], "171000001.000100")
         self.assertEqual(result.raw["structured_output"]["reply_delivery"]["status"], "posted")
 
-    def test_artifact_workflow_executes_investigate_render_and_deliver_phases(self) -> None:
-        class ArtifactPhaseSessionManager(FakeSessionManager):
-            def prepare(self, task: RunnerTaskRequest):
-                context = super().prepare(task)
-                context.execution_phase = task.execution_phase or "main"
-                return context
-
-            def finalize(self, context: types.SimpleNamespace, tracker: FakeTracker) -> dict[str, object]:
-                payload = super().finalize(context, tracker)
-                if getattr(context, "execution_phase", "") == "deliver":
-                    payload["session_messages_delta"] = [
-                        {
-                            "role": "assistant",
-                            "tool_calls": [
-                                {
-                                    "id": "call_send_deliver",
-                                    "call_id": "call_send_deliver",
-                                    "function": {
-                                        "name": "send_message",
-                                        "arguments": json.dumps(
-                                            {
-                                                "target": "slack:C123:171000001.000100",
-                                                "message": "Grounded answer with diagram attached.",
-                                            }
-                                        ),
-                                    },
-                                }
-                            ],
-                        },
-                        {
-                            "role": "tool",
-                            "tool_call_id": "call_send_deliver",
-                            "content": json.dumps(
-                                {
-                                    "result": json.dumps(
-                                        {
-                                            "success": True,
-                                            "platform": "slack",
-                                            "chat_id": "C123",
-                                            "thread_id": "171000001.000100",
-                                            "message_id": "171000001.000100",
-                                        }
-                                    )
-                                }
-                            ),
-                        },
-                    ]
-                return payload
-
-        class ArtifactWorkflowAIAgent:
-            run_history: list[dict[str, object]] = []
-
-            def __init__(self, **kwargs) -> None:
-                self._kwargs = dict(kwargs)
-
-            def run_conversation(
-                self,
-                prompt: str,
-                system_message: str | None = None,
-                conversation_history: list[dict] | None = None,
-                task_id: str | None = None,
-            ) -> dict[str, object]:
-                valid_tool_names = sorted(getattr(self, "valid_tool_names", []))
-                if "Investigation phase only" in (system_message or ""):
-                    phase = "investigate"
-                    payload = {
-                        "visible_reasoning": [],
-                        "reply_draft": "Grounded answer with diagram attached.",
-                        "final_answer": "Grounded answer with diagram attached.",
-                        "confidence": 0.9,
-                        "context_summary": "Compact grounded context for render.",
-                        "self_critique": "",
-                        "proposed_actions": [],
-                        "knowledge_drafts": [],
-                        "outcome_hypotheses": [],
-                        "produced_artifacts": [],
-                        "artifact_failure_reason": "",
-                        "artifact_render_briefs": [
-                            {
-                                "kind": "diagram",
-                                "skill": "/architecture-diagram",
-                                "title": "DePIN Backend",
-                                "render_prompt": "Render the grounded depin backend architecture.",
-                                "inputs": {"services": ["depin-api", "ip-registration-worker"]},
-                                "output_path_hint": "",
-                            }
-                        ],
-                    }
-                elif "Render phase only" in (system_message or ""):
-                    phase = "render"
-                    output_path = ""
-                    for line in prompt.splitlines():
-                        if line.startswith("Output path: "):
-                            output_path = line.split("Output path: ", 1)[1].strip()
-                            break
-                    Path(output_path).write_text("<html><body>diagram</body></html>", encoding="utf-8")
-                    payload = {
-                        "visible_reasoning": [],
-                        "reply_draft": "",
-                        "final_answer": "",
-                        "confidence": 0.82,
-                        "context_summary": "Rendered from compact brief.",
-                        "self_critique": "",
-                        "proposed_actions": [],
-                        "knowledge_drafts": [],
-                        "outcome_hypotheses": [],
-                        "produced_artifacts": [
-                            {
-                                "kind": "diagram",
-                                "title": "DePIN Backend",
-                                "artifact_refs": [f"file://{output_path}"],
-                                "delivery_status": "generated",
-                                "failure_reason": "",
-                            }
-                        ],
-                        "artifact_failure_reason": "",
-                    }
-                else:
-                    phase = "deliver"
-                    payload = {
-                        "visible_reasoning": [],
-                        "reply_draft": "Grounded answer with diagram attached.",
-                        "final_answer": "Grounded answer with diagram attached.",
-                        "confidence": 0.88,
-                        "context_summary": "Delivery only.",
-                        "self_critique": "",
-                        "proposed_actions": [],
-                        "knowledge_drafts": [],
-                        "outcome_hypotheses": [],
-                        "produced_artifacts": [],
-                        "artifact_failure_reason": "",
-                    }
-                type(self).run_history.append(
-                    {
-                        "phase": phase,
-                        "prompt": prompt,
-                        "system_message": system_message,
-                        "valid_tool_names": valid_tool_names,
-                        "tool_names": sorted(
-                            tool["function"]["name"]
-                            for tool in list(getattr(self, "tools", []) or [])
-                            if isinstance(tool, dict) and isinstance(tool.get("function"), dict) and tool["function"].get("name")
-                        ),
-                        "task_id": task_id,
-                    }
-                )
-                return {"final_response": json.dumps(payload)}
-
-            def interrupt(self, _message: str | None = None) -> None:
-                return None
-
-            def get_activity_summary(self) -> dict[str, object]:
-                return {
-                    "last_activity_desc": "completed",
-                    "current_tool": "",
-                    "api_call_count": 1,
-                    "budget_used": 1,
-                    "budget_max": 4,
-                }
-
-        task = RunnerTaskRequest.from_payload(
-            {
-                "task": {
-                    "task_type": "workflow",
-                    "repo": "depin-backend",
-                    "prompt": "Draw the grounded deployment architecture and attach the diagram.",
-                    "trace_id": "trace-artifact",
-                    "workflow_id": "wf-artifact",
-                    "operation_id": "op-artifact",
-                    "channel_id": "C123",
-                    "thread_ts": "171000001.000100",
-                    "reply_delivery_mode": "direct",
-                    "requested_skills": ["architecture-diagram"],
-                    "requested_artifacts": [{"kind": "diagram", "description": "Architecture diagram"}],
-                    "session_scope_kind": "conversation",
-                    "session_scope_id": "conv-artifact",
-                }
-            }
-        )
-
-        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
-            "rsi_runner.hermes_runtime.AIAgent", ArtifactWorkflowAIAgent
-        ), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", ArtifactPhaseSessionManager
-        ), mock.patch.dict(
-            os.environ, {**runner_env("prod"), "HERMES_HOME": tempdir}, clear=True
-        ):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            result = runtime.execute_task(task)
-            artifact_ref = result.raw["structured_output"]["produced_artifacts"][0]["artifact_refs"][0]
-            artifact_exists = Path(artifact_ref.removeprefix("file://")).exists()
-
-        self.assertTrue(result.ok)
-        self.assertEqual([item["phase"] for item in ArtifactWorkflowAIAgent.run_history], ["investigate", "render", "deliver"])
-        self.assertNotIn("slack_upload_file", ArtifactWorkflowAIAgent.run_history[0]["valid_tool_names"])
-        self.assertIn("Output path: ", ArtifactWorkflowAIAgent.run_history[1]["prompt"])
-        self.assertIn("Grounded context summary: Compact grounded context for render.", ArtifactWorkflowAIAgent.run_history[1]["prompt"])
-        self.assertNotIn("repo_context", ArtifactWorkflowAIAgent.run_history[1]["valid_tool_names"])
-        self.assertNotIn("repo_context", ArtifactWorkflowAIAgent.run_history[2]["valid_tool_names"])
-        self.assertNotIn("slack_upload_file", ArtifactWorkflowAIAgent.run_history[2]["valid_tool_names"])
-        produced = result.raw["structured_output"]["produced_artifacts"]
-        self.assertEqual(len(produced), 1)
-        self.assertTrue(artifact_ref.startswith("file://"))
-        self.assertTrue(artifact_exists)
-        self.assertEqual(result.raw["reply_delivery"]["status"], "posted")
-        self.assertEqual(result.raw["runner_diagnostics"]["artifact_phase_enabled"], True)
-        self.assertEqual(result.raw["runner_diagnostics"]["observation_seq"] > 0, True)
-        envelope = result.raw["execution_envelope"]
-        self.assertEqual(envelope["contract_version"], "execution-envelope/v1")
-        self.assertEqual(envelope["execution_plan"]["mode"], "runner_first")
-        self.assertEqual([item["phase_type"] for item in envelope["phase_runs"]], ["plan", "investigate", "render", "deliver", "reflect"])
-        planned_events = [item for item in envelope["ledger_events"] if item["kind"] == "phase.planned"]
-        self.assertEqual(len(planned_events), len(envelope["phase_runs"]))
-        self.assertEqual(
-            [item["phase_id"] for item in planned_events],
-            [item["phase_id"] for item in envelope["phase_runs"]],
-        )
-        self.assertEqual({item["payload"]["status"] for item in planned_events}, {"planned"})
-        self.assertEqual([item["payload"].get("output_refs") for item in planned_events], [[] for _ in planned_events])
-        self.assertEqual(envelope["artifacts"][0]["file_ref"], artifact_ref)
-        self.assertIn("workspace_path", envelope["artifacts"][0])
-        self.assertIn("sha256", envelope["artifacts"][0])
-        self.assertEqual(envelope["deliveries"][0]["send_status"], "posted")
-        self.assertIn("artifact.created", {item["kind"] for item in envelope["ledger_events"]})
-        self.assertIn("slack.message.sent", {item["kind"] for item in envelope["ledger_events"]})
-        slack_events = [item for item in envelope["ledger_events"] if item["kind"] == "slack.message.sent"]
-        self.assertEqual(slack_events[0]["status"], "posted")
-
-    def test_execution_envelope_contract_fails_closed_for_unknown_capability(self) -> None:
+    def test_execution_envelope_v1_legacy_capability_fields_are_ignored(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
                 "task": {
@@ -5189,10 +4955,9 @@ class HermesRuntimeTests(unittest.TestCase):
             runtime = HermesRuntime(RunnerConfig.from_env())
             result = runtime.execute_task(task)
 
-        self.assertFalse(result.ok)
-        self.assertEqual(result.raw["failure_class"], "runner_contract_failed")
-        self.assertEqual(result.raw["execution_envelope"]["completion"]["termination_reason"], "runner_contract_failed")
-        self.assertIn("Unknown capability lease aws_admin.", result.message)
+        self.assertTrue(result.ok)
+        self.assertEqual(result.raw["execution_envelope"]["contract_version"], "execution-envelope/v2")
+        self.assertNotIn("capability_leases", result.raw["execution_envelope"])
 
     def test_observation_ledger_event_preserves_empty_payload(self) -> None:
         computer = HermesCompanyComputer(
@@ -5231,8 +4996,6 @@ class HermesRuntimeTests(unittest.TestCase):
                 trace_id="trace-artifact",
                 workflow_id="wf-artifact",
                 operation_id="op-artifact",
-                requested_artifacts=[],
-                capability_leases=[{"capability": "artifact_write", "granted": True}],
                 execution_intent={"kind": "architecture", "user_request": "draw an architecture diagram"},
                 workspace_policy={
                     "computer_root": str(computer_root),
@@ -5287,122 +5050,6 @@ class HermesRuntimeTests(unittest.TestCase):
             self.assertIn("artifact.created", ledger_kinds)
             self.assertIn("file.written", ledger_kinds)
 
-    def test_artifact_phase_budgets_never_exceed_total_timeout(self) -> None:
-        task = RunnerTaskRequest.from_payload(
-            {
-                "task": {
-                    "task_type": "workflow",
-                    "repo": "depin-backend",
-                    "prompt": "Render a diagram artifact.",
-                    "timeout_seconds": 100,
-                    "requested_artifacts": [{"kind": "diagram", "description": "Architecture diagram"}],
-                }
-            }
-        )
-
-        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            budgets = runtime._artifact_phase_budgets(task)
-
-        self.assertEqual(budgets["total"], 100)
-        self.assertGreaterEqual(budgets["investigate"], 1)
-        self.assertGreaterEqual(budgets["render"], 0)
-        self.assertGreaterEqual(budgets["deliver"], 0)
-        self.assertGreaterEqual(budgets["reducer_reserve"], 0)
-        self.assertLessEqual(
-            budgets["investigate"] + budgets["render"] + budgets["deliver"] + budgets["reducer_reserve"],
-            budgets["total"],
-        )
-
-    def test_artifact_phase_budgets_scale_when_total_is_small(self) -> None:
-        task = RunnerTaskRequest.from_payload(
-            {
-                "task": {
-                    "task_type": "workflow",
-                    "repo": "depin-backend",
-                    "prompt": "Render an architecture diagram artifact.",
-                    "timeout_seconds": 900,
-                    "requested_skills": ["architecture-diagram"],
-                    "requested_artifacts": [{"kind": "diagram", "description": "Architecture diagram"}],
-                }
-            }
-        )
-
-        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            budgets = runtime._artifact_phase_budgets(task)
-
-        self.assertEqual(budgets["total"], 900)
-        self.assertGreater(budgets["investigate"], budgets["deliver"])
-        self.assertEqual(budgets["investigate"], budgets["render"])
-        self.assertLessEqual(
-            budgets["investigate"] + budgets["render"] + budgets["deliver"] + budgets["reducer_reserve"],
-            budgets["total"],
-        )
-
-    def test_explicit_artifact_timeout_can_exceed_default_task_timeout(self) -> None:
-        env = {
-            **runner_env("prod"),
-            "RSI_RUNNER_PROD_TIMEOUT": "4110s",
-            "RSI_RUNNER_PROD_TASK_TIMEOUT": "1800s",
-            "RSI_RUNNER_PROD_ARTIFACT_MAX_ITERATIONS": "40",
-        }
-        task = RunnerTaskRequest.from_payload(
-            {
-                "task": {
-                    "task_type": "workflow",
-                    "repo": "depin-backend",
-                    "prompt": "Render an architecture diagram artifact.",
-                    "timeout_seconds": 4080,
-                    "requested_skills": ["architecture-diagram"],
-                    "requested_artifacts": [{"kind": "diagram", "description": "Architecture diagram"}],
-                }
-            }
-        )
-
-        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(os.environ, env, clear=True):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-
-        self.assertEqual(runtime._effective_task_timeout(task), 4080)
-        self.assertEqual(runtime._phase_max_iterations_override(task), 40)
-        budgets = runtime._artifact_phase_budgets(task)
-        self.assertEqual(budgets["total"], 4080)
-        self.assertEqual(budgets["investigate"], 1800)
-        self.assertEqual(budgets["render"], 1800)
-        self.assertEqual(budgets["deliver"], 300)
-        self.assertEqual(budgets["reducer_reserve"], 180)
-
-    def test_artifact_investigate_task_clears_requested_artifacts(self) -> None:
-        task = RunnerTaskRequest.from_payload(
-            {
-                "task": {
-                    "task_type": "workflow",
-                    "repo": "depin-backend",
-                    "prompt": "Draw the architecture diagram.",
-                    "requested_artifacts": [{"kind": "diagram", "description": "Architecture diagram"}],
-                    "allowed_tools": ["slack.upload_file"],
-                }
-            }
-        )
-
-        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            investigate_task = runtime._build_artifact_investigate_task(
-                task,
-                {"investigate": 60},
-            )
-
-        self.assertEqual(investigate_task.requested_artifacts, [])
-        self.assertEqual(investigate_task.execution_phase, "investigate")
-
     def test_render_phase_allows_only_explicit_workspace_file_helpers(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
@@ -5437,776 +5084,6 @@ class HermesRuntimeTests(unittest.TestCase):
             native_toolsets = runtime._native_toolsets_for_task(task)
 
         self.assertNotIn("rsi-governed-workspace", native_toolsets)
-
-    def test_artifact_workflow_preserves_native_artifact_destination_across_phases(self) -> None:
-        executed_tasks: list[RunnerTaskRequest] = []
-
-        def fake_execute_task_internal(task: RunnerTaskRequest, observer=None):
-            executed_tasks.append(task)
-            if task.execution_phase == "investigate":
-                return HermesExecutionResult(
-                    ok=True,
-                    message="investigate",
-                    provider="test",
-                    raw={
-                        "structured_output": {
-                            "final_answer": "Grounded answer",
-                            "context_summary": "Grounded context",
-                            "artifact_render_briefs": [
-                                {
-                                    "kind": "diagram",
-                                    "skill": "architecture-diagram",
-                                    "title": "DePIN Backend",
-                                    "render_prompt": "Render the grounded backend diagram.",
-                                }
-                            ],
-                        }
-                    },
-                )
-            if task.execution_phase == "render":
-                return HermesExecutionResult(
-                    ok=True,
-                    message="render",
-                    provider="test",
-                    raw={
-                        "structured_output": {
-                            "produced_artifacts": [
-                                {
-                                    "kind": "diagram",
-                                    "title": "DePIN Backend",
-                                    "artifact_refs": [f"file://{Path(task.artifact_destination) / 'depin-backend.html'}"],
-                                    "delivery_status": "generated",
-                                    "failure_reason": "",
-                                }
-                            ],
-                            "artifact_failure_reason": "",
-                        }
-                    },
-                )
-            return HermesExecutionResult(
-                ok=True,
-                message="deliver",
-                provider="test",
-                raw={"structured_output": {"reply_delivery": {"status": "posted"}}},
-            )
-
-        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir, mock.patch(
-            "rsi_runner.hermes_runtime.AIAgent", FakeAIAgent
-        ), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(
-            os.environ,
-            {
-                **runner_env("prod"),
-                "HERMES_HOME": hermes_home,
-                "RSI_HERMES_EXECUTOR_ENABLED": "true",
-                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
-            },
-            clear=True,
-        ):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            runtime._execute_task_internal = fake_execute_task_internal  # type: ignore[method-assign]
-            task = RunnerTaskRequest.from_payload(
-                {
-                    "task": {
-                        "task_type": "workflow",
-                        "repo": "depin-backend",
-                        "prompt": "Render the architecture diagram.",
-                        "trace_id": "trace-artifacts",
-                        "workflow_id": "wf-artifacts",
-                        "operation_id": "op-artifacts",
-                        "channel_id": "C123",
-                        "thread_ts": "171000001.000100",
-                        "reply_delivery_mode": "direct",
-                        "requested_skills": ["architecture-diagram"],
-                        "requested_artifacts": [{"kind": "diagram", "description": "Architecture diagram"}],
-                    }
-                }
-            )
-            result = runtime._execute_artifact_workflow_task(task)
-
-        self.assertTrue(result.ok)
-        self.assertEqual([item.execution_phase for item in executed_tasks], ["investigate", "render", "deliver"])
-        expected_artifact_root = str((Path(tempdir) / "company" / "artifacts" / "depin-backend" / time.strftime("%Y-%m-%d", time.gmtime()) / "op-artifacts").resolve())
-        self.assertTrue(all(item.artifact_destination == expected_artifact_root for item in executed_tasks))
-        self.assertIn(f"Output path: {expected_artifact_root}", executed_tasks[1].prompt)
-        self.assertNotIn("/var/lib/hermes/rsi_runtime/artifacts", executed_tasks[1].prompt)
-
-    def test_artifact_workflow_does_not_render_timeout_fallback_brief(self) -> None:
-        executed_tasks: list[RunnerTaskRequest] = []
-
-        def fake_execute_task_internal(task: RunnerTaskRequest, observer=None):
-            executed_tasks.append(task)
-            if task.execution_phase == "investigate":
-                return HermesExecutionResult(
-                    ok=True,
-                    message="investigate timeout",
-                    provider="test",
-                    raw={
-                        "completion_verdict": "partial",
-                        "termination_reason": "task_timeout",
-                        "structured_output": {
-                            "final_answer": "I could not gather enough grounded evidence before timing out.",
-                            "reply_draft": "I could not gather enough grounded evidence before timing out.",
-                            "context_summary": "Terminated before evidence collection completed.",
-                            "artifact_render_briefs": [],
-                            "produced_artifacts": [],
-                            "artifact_failure_reason": "",
-                        },
-                    },
-                )
-            if task.execution_phase == "render":
-                self.fail("timed-out investigation without explicit briefs must not enter render")
-            self.assertEqual(task.execution_phase, "deliver")
-            self.assertIn("No file artifacts were produced.", task.prompt)
-            self.assertNotIn("slack.upload_file", task.allowed_tools)
-            return HermesExecutionResult(
-                ok=True,
-                message="deliver",
-                provider="test",
-                raw={"structured_output": {"reply_delivery": {"status": "posted"}}},
-            )
-
-        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir, mock.patch(
-            "rsi_runner.hermes_runtime.AIAgent", FakeAIAgent
-        ), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(
-            os.environ,
-            {
-                **runner_env("prod"),
-                "HERMES_HOME": hermes_home,
-                "RSI_HERMES_EXECUTOR_ENABLED": "true",
-                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
-            },
-            clear=True,
-        ):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            runtime._execute_task_internal = fake_execute_task_internal  # type: ignore[method-assign]
-            task = RunnerTaskRequest.from_payload(
-                {
-                    "task": {
-                        "task_type": "workflow",
-                        "repo": "depin-backend",
-                        "prompt": "Render the architecture diagram.",
-                        "trace_id": "trace-artifacts-timeout",
-                        "workflow_id": "wf-artifacts-timeout",
-                        "operation_id": "op-artifacts-timeout",
-                        "channel_id": "C123",
-                        "thread_ts": "171000001.000100",
-                        "reply_delivery_mode": "direct",
-                        "requested_skills": ["architecture-diagram"],
-                        "requested_artifacts": [{"kind": "diagram", "description": "Architecture diagram"}],
-                    }
-                }
-            )
-            result = runtime._execute_artifact_workflow_task(task)
-
-        self.assertTrue(result.ok)
-        self.assertEqual([item.execution_phase for item in executed_tasks], ["investigate", "deliver"])
-        self.assertEqual(result.raw["structured_output"]["produced_artifacts"], [])
-        self.assertIn(
-            "Artifact render skipped because investigation ended with task_timeout before producing renderable briefs.",
-            result.raw["structured_output"]["artifact_failure_reason"],
-        )
-        self.assertEqual(result.raw["runner_diagnostics"]["artifact_delivery_branch"], "text_only")
-
-    def test_artifact_workflow_renders_grounded_timeout_evidence_brief(self) -> None:
-        executed_tasks: list[RunnerTaskRequest] = []
-
-        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir:
-
-            def fake_execute_task_internal(task: RunnerTaskRequest, observer=None):
-                executed_tasks.append(task)
-                if task.execution_phase == "investigate":
-                    return HermesExecutionResult(
-                        ok=True,
-                        message="investigate timeout",
-                        provider="test",
-                        raw={
-                            "completion_verdict": "partial",
-                            "termination_reason": "task_timeout",
-                            "structured_output": {
-                                "final_answer": "Partial answer from grounded evidence.",
-                                "reply_draft": "Partial answer from grounded evidence.",
-                                "context_summary": "story-deployments and Kubernetes evidence were loaded.",
-                                "artifact_render_briefs": [],
-                                "produced_artifacts": [],
-                                "artifact_failure_reason": "",
-                            },
-                            "evidence_ledger": {
-                                "termination_reason": "task_timeout",
-                                "tool_calls": [
-                                    {
-                                        "tool_name": "repo.read_file",
-                                        "request": {
-                                            "repo": "story-deployments",
-                                            "path": "story/depin-backend/use1-prod.yaml",
-                                        },
-                                        "status": "ok",
-                                        "summary": "Repository file story/depin-backend/use1-prod.yaml loaded.",
-                                    },
-                                    {
-                                        "tool_name": "kubernetes.inspect",
-                                        "request": {"namespace": "story", "target": "depin-backend"},
-                                        "status": "ok",
-                                        "summary": "Kubernetes inspection found two running pods.",
-                                    },
-                                ],
-                                "evidence_items": [
-                                    {
-                                        "kind": "repo_file",
-                                        "summary": "Production depin-backend Helm values.",
-                                        "source_ref": "story/depin-backend/use1-prod.yaml",
-                                        "path": "story/depin-backend/use1-prod.yaml",
-                                        "repo": "story-deployments",
-                                        "tool_name": "repo.read_file",
-                                    },
-                                    {
-                                        "kind": "kubernetes_inspect",
-                                        "summary": "Live namespace story has two running pods.",
-                                        "source_ref": "kubernetes://story/depin-backend",
-                                        "tool_name": "kubernetes.inspect",
-                                    },
-                                ],
-                                "open_questions": [],
-                            },
-                        },
-                    )
-                if task.execution_phase == "render":
-                    self.assertIn("bounded-stop investigation", task.prompt)
-                    self.assertIn("story/depin-backend/use1-prod.yaml", task.prompt)
-                    self.assertIn("kubernetes://story/depin-backend", task.prompt)
-                    artifact_path = Path(task.artifact_destination) / "architecture.html"
-                    artifact_path.parent.mkdir(parents=True, exist_ok=True)
-                    artifact_path.write_text("<html>diagram</html>", encoding="utf-8")
-                    return HermesExecutionResult(
-                        ok=True,
-                        message="render",
-                        provider="test",
-                        raw={
-                            "structured_output": {
-                                "produced_artifacts": [
-                                    {
-                                        "kind": "diagram",
-                                        "title": "Architecture diagram",
-                                        "workspace_path": str(artifact_path),
-                                        "file_ref": f"file://{artifact_path}",
-                                        "artifact_refs": [f"file://{artifact_path}"],
-                                    }
-                                ]
-                            }
-                        },
-                )
-                self.assertEqual(task.execution_phase, "deliver")
-                self.assertEqual(task.allowed_tools, [])
-                self.assertIn("Attach produced local artifacts through Hermes native send_message", task.prompt)
-                self.assertIn("Hermes native send_message", task.prompt)
-                self.assertNotIn("Produced artifacts:", task.prompt)
-                return HermesExecutionResult(
-                    ok=True,
-                    message="deliver",
-                    provider="test",
-                    raw={"structured_output": {"reply_delivery": {"status": "posted", "provider_ref": "slack-message-1"}}},
-                )
-
-            with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
-                "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-            ), mock.patch.dict(
-                os.environ,
-                {
-                    **runner_env("prod"),
-                    "HERMES_HOME": hermes_home,
-                    "RSI_HERMES_EXECUTOR_ENABLED": "true",
-                    "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
-                },
-                clear=True,
-            ):
-                runtime = HermesRuntime(RunnerConfig.from_env())
-                runtime._execute_task_internal = fake_execute_task_internal  # type: ignore[method-assign]
-                task = RunnerTaskRequest.from_payload(
-                    {
-                        "task": {
-                            "task_type": "workflow",
-                            "repo": "depin-backend",
-                            "prompt": "Render the architecture diagram from repo and story-deployments.",
-                            "trace_id": "trace-artifacts-grounded-timeout",
-                            "workflow_id": "wf-artifacts-grounded-timeout",
-                            "operation_id": "op-artifacts-grounded-timeout",
-                            "channel_id": "C123",
-                            "thread_ts": "171000001.000100",
-                            "reply_delivery_mode": "direct",
-                            "requested_skills": ["architecture-diagram"],
-                            "requested_artifacts": [{"kind": "diagram", "description": "Architecture diagram"}],
-                        }
-                    }
-                )
-                result = runtime._execute_artifact_workflow_task(task)
-
-        self.assertTrue(result.ok)
-        self.assertEqual([item.execution_phase for item in executed_tasks], ["investigate", "render", "deliver"])
-        self.assertEqual(result.raw["runner_diagnostics"]["artifact_delivery_branch"], "native_slack_media_with_artifacts")
-        self.assertEqual(result.raw["structured_output"]["reply_delivery"]["status"], "posted")
-        self.assertTrue(result.raw["structured_output"]["produced_artifacts"])
-        self.assertEqual(result.raw["structured_output"]["produced_artifacts"][0]["share_status"], "shared")
-        self.assertIn("artifact_render_briefs", result.raw["structured_output"])
-
-    def test_artifact_workflow_synthesizes_native_artifacts_for_delivery(self) -> None:
-        executed_tasks: list[RunnerTaskRequest] = []
-
-        def fake_execute_task_internal(task: RunnerTaskRequest, observer=None):
-            executed_tasks.append(task)
-            if task.execution_phase == "investigate":
-                return HermesExecutionResult(
-                    ok=True,
-                    message="investigate",
-                    provider="test",
-                    raw={
-                        "structured_output": {
-                            "final_answer": "Grounded answer",
-                            "context_summary": "Grounded context",
-                            "artifact_render_briefs": [
-                                {
-                                    "kind": "diagram",
-                                    "skill": "architecture-diagram",
-                                    "title": "DePIN Backend",
-                                    "render_prompt": "Render the grounded backend diagram.",
-                                }
-                            ],
-                        }
-                    },
-                )
-            if task.execution_phase == "render":
-                artifact_path = str((Path(task.artifact_destination) / "depin-backend.html").resolve())
-                return HermesExecutionResult(
-                    ok=True,
-                    message="render",
-                    provider="test",
-                    raw={
-                        "structured_output": {
-                            "produced_artifacts": [],
-                            "artifact_failure_reason": "",
-                        },
-                        "native_artifact_paths": [artifact_path],
-                    },
-                )
-            self.assertEqual(task.allowed_tools, [])
-            self.assertIn("Attach produced local artifacts through Hermes native send_message", task.prompt)
-            self.assertIn("Hermes native send_message", task.prompt)
-            self.assertNotIn("Produced artifacts:", task.prompt)
-            return HermesExecutionResult(
-                ok=True,
-                message="deliver",
-                provider="test",
-                raw={"structured_output": {"reply_delivery": {"status": "posted"}}},
-            )
-
-        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir, mock.patch(
-            "rsi_runner.hermes_runtime.AIAgent", FakeAIAgent
-        ), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(
-            os.environ,
-            {
-                **runner_env("prod"),
-                "HERMES_HOME": hermes_home,
-                "RSI_HERMES_EXECUTOR_ENABLED": "true",
-                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
-            },
-            clear=True,
-        ):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            runtime._execute_task_internal = fake_execute_task_internal  # type: ignore[method-assign]
-            task = RunnerTaskRequest.from_payload(
-                {
-                    "task": {
-                        "task_type": "workflow",
-                        "repo": "depin-backend",
-                        "prompt": "Render the architecture diagram.",
-                        "trace_id": "trace-artifacts",
-                        "workflow_id": "wf-artifacts",
-                        "operation_id": "op-artifacts",
-                        "channel_id": "C123",
-                        "thread_ts": "171000001.000100",
-                        "reply_delivery_mode": "direct",
-                        "requested_skills": ["architecture-diagram"],
-                        "requested_artifacts": [{"kind": "diagram", "description": "Architecture diagram"}],
-                    }
-                }
-            )
-            result = runtime._execute_artifact_workflow_task(task)
-
-        self.assertTrue(result.ok)
-        produced = result.raw["structured_output"]["produced_artifacts"]
-        self.assertEqual(len(produced), 1)
-        self.assertTrue(produced[0]["artifact_refs"][0].startswith("file://"))
-
-    def test_artifact_workflow_treats_failed_reply_delivery_as_failed(self) -> None:
-        executed_tasks: list[RunnerTaskRequest] = []
-
-        def fake_execute_task_internal(task: RunnerTaskRequest, observer=None):
-            executed_tasks.append(task)
-            if task.execution_phase == "investigate":
-                return HermesExecutionResult(
-                    ok=True,
-                    message="investigate",
-                    provider="test",
-                    raw={
-                        "structured_output": {
-                            "final_answer": "Grounded answer",
-                            "context_summary": "Grounded context",
-                            "artifact_render_briefs": [
-                                {
-                                    "kind": "diagram",
-                                    "skill": "architecture-diagram",
-                                    "title": "DePIN Backend",
-                                    "render_prompt": "Render the grounded backend diagram.",
-                                }
-                            ],
-                        }
-                    },
-                )
-            if task.execution_phase == "render":
-                return HermesExecutionResult(
-                    ok=True,
-                    message="render",
-                    provider="test",
-                    raw={
-                        "structured_output": {
-                            "produced_artifacts": [
-                                {
-                                    "kind": "diagram",
-                                    "title": "DePIN Backend",
-                                    "artifact_refs": [f"file://{Path(task.artifact_destination) / 'depin-backend.html'}"],
-                                    "delivery_status": "generated",
-                                    "failure_reason": "",
-                                }
-                            ],
-                            "artifact_failure_reason": "",
-                        }
-                    },
-                )
-            return HermesExecutionResult(
-                ok=True,
-                message="deliver",
-                provider="test",
-                raw={"structured_output": {"reply_delivery": {"status": "failed", "tool_name": "slack.upload_file"}}},
-            )
-
-        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir, mock.patch(
-            "rsi_runner.hermes_runtime.AIAgent", FakeAIAgent
-        ), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(
-            os.environ,
-            {
-                **runner_env("prod"),
-                "HERMES_HOME": hermes_home,
-                "RSI_HERMES_EXECUTOR_ENABLED": "true",
-                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
-            },
-            clear=True,
-        ):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            runtime._execute_task_internal = fake_execute_task_internal  # type: ignore[method-assign]
-            task = RunnerTaskRequest.from_payload(
-                {
-                    "task": {
-                        "task_type": "workflow",
-                        "repo": "depin-backend",
-                        "prompt": "Render the architecture diagram.",
-                        "trace_id": "trace-delivery-failed",
-                        "workflow_id": "wf-delivery-failed",
-                        "operation_id": "op-delivery-failed",
-                        "channel_id": "C123",
-                        "thread_ts": "171000001.000100",
-                        "reply_delivery_mode": "direct",
-                        "requested_skills": ["architecture-diagram"],
-                        "requested_artifacts": [{"kind": "diagram", "description": "Architecture diagram"}],
-                    }
-                }
-            )
-            result = runtime._execute_artifact_workflow_task(task)
-
-        self.assertTrue(result.ok)
-        self.assertEqual([item.execution_phase for item in executed_tasks], ["investigate", "render", "deliver"])
-        self.assertEqual(result.raw["structured_output"]["reply_delivery"]["status"], "failed")
-        self.assertEqual(
-            result.raw["runner_diagnostics"]["direct_delivery_phase_failed"],
-            "direct delivery phase reported unsuccessful status failed",
-        )
-
-    def test_artifact_render_briefs_fallback_uses_user_request_text(self) -> None:
-        task = RunnerTaskRequest.from_payload(
-            {
-                "task": {
-                    "task_type": "workflow",
-                    "repo": "depin-backend",
-                    "prompt": "User request: /architecture-diagram map the services and data flows",
-                    "requested_skills": ["architecture-diagram"],
-                    "requested_artifacts": [{"kind": "diagram", "description": ""}],
-                }
-            }
-        )
-
-        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            briefs = runtime._artifact_render_briefs(task, {})
-
-        self.assertEqual(len(briefs), 1)
-        self.assertEqual(briefs[0]["kind"], "diagram")
-        self.assertEqual(briefs[0]["skill"], "architecture-diagram")
-        self.assertEqual(briefs[0]["title"], "diagram-1")
-        self.assertEqual(briefs[0]["render_prompt"], "/architecture-diagram map the services and data flows")
-
-    def test_artifact_render_briefs_hydrate_missing_fields(self) -> None:
-        task = RunnerTaskRequest.from_payload(
-            {
-                "task": {
-                    "task_type": "workflow",
-                    "repo": "depin-backend",
-                    "prompt": "Render the backend diagram",
-                    "requested_skills": ["architecture-diagram"],
-                    "requested_artifacts": [{"kind": "diagram", "description": "Backend architecture"}],
-                    "trace_id": "trace-brief",
-                }
-            }
-        )
-
-        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
-            "rsi_runner.hermes_runtime.AIAgent", FakeAIAgent
-        ), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(os.environ, {**runner_env("prod"), "HERMES_HOME": tempdir}, clear=True):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            briefs = runtime._artifact_render_briefs(
-                task,
-                {
-                    "final_answer": "Grounded answer",
-                    "context_summary": "Grounded summary",
-                    "artifact_render_briefs": [
-                        {
-                            "kind": "diagram",
-                            "skill": "",
-                            "title": "",
-                            "render_prompt": "",
-                            "inputs": {},
-                            "output_path_hint": "",
-                        }
-                    ],
-                },
-            )
-
-        self.assertEqual(len(briefs), 1)
-        self.assertEqual(briefs[0]["skill"], "architecture-diagram")
-        self.assertEqual(briefs[0]["title"], "Backend architecture")
-        self.assertIn("Grounded answer", briefs[0]["render_prompt"])
-        self.assertTrue(briefs[0]["output_path_hint"].endswith(".html"))
-
-    def test_artifact_render_briefs_normalize_slash_prefixed_skill(self) -> None:
-        task = RunnerTaskRequest.from_payload(
-            {
-                "task": {
-                    "task_type": "workflow",
-                    "repo": "depin-backend",
-                    "prompt": "Render the backend diagram",
-                    "requested_skills": ["architecture-diagram"],
-                    "requested_artifacts": [{"kind": "diagram", "description": "Backend architecture"}],
-                }
-            }
-        )
-
-        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            briefs = runtime._artifact_render_briefs(
-                task,
-                {
-                    "final_answer": "Grounded answer",
-                    "context_summary": "Grounded summary",
-                    "artifact_render_briefs": [
-                        {
-                            "kind": "diagram",
-                            "skill": "/architecture-diagram",
-                            "title": "Backend architecture",
-                            "render_prompt": "Render it",
-                            "inputs": {},
-                            "output_path_hint": "",
-                        }
-                    ],
-                },
-            )
-            render_task = runtime._build_artifact_render_task(task, briefs[0], {"context_summary": "", "final_answer": ""}, {"render": 60}, 0)
-
-        self.assertEqual(briefs[0]["skill"], "architecture-diagram")
-        self.assertEqual(render_task.requested_skills, ["architecture-diagram"])
-        self.assertIn("Selected skill: architecture-diagram", render_task.prompt)
-
-    def test_artifact_render_briefs_tolerate_non_string_skill_fields(self) -> None:
-        task = RunnerTaskRequest.from_payload(
-            {
-                "task": {
-                    "task_type": "workflow",
-                    "repo": "depin-backend",
-                    "prompt": "Render the backend diagram",
-                    "requested_skills": ["architecture-diagram"],
-                    "requested_artifacts": [{"kind": "diagram", "description": "Backend architecture"}],
-                }
-            }
-        )
-
-        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            briefs = runtime._artifact_render_briefs(
-                task,
-                {
-                    "artifact_render_briefs": [
-                        {
-                            "kind": "diagram",
-                            "requested_skill": {"unexpected": "shape"},
-                            "title": "Backend architecture",
-                            "render_prompt": "Render it",
-                            "inputs": {},
-                            "output_path_hint": "",
-                        },
-                        {
-                            "kind": "diagram",
-                            "skill": 123,
-                            "title": "Backend architecture 2",
-                            "render_prompt": "Render it again",
-                            "inputs": {},
-                            "output_path_hint": "",
-                        },
-                    ]
-                },
-            )
-
-        self.assertEqual(len(briefs), 2)
-        self.assertEqual(briefs[0]["requested_skill"], '{"unexpected": "shape"}')
-        self.assertEqual(briefs[0]["skill"], "")
-        self.assertEqual(briefs[1]["requested_skill"], "123")
-        self.assertEqual(briefs[1]["skill"], "123")
-
-    def test_artifact_render_invalid_skill_stays_structured(self) -> None:
-        class InvalidSkillAIAgent:
-            run_history: list[dict[str, object]] = []
-
-            def __init__(self, **kwargs) -> None:
-                self._kwargs = kwargs
-
-            def run_conversation(self, prompt: str, system_message: str | None = None, conversation_history=None, task_id: str | None = None):
-                if "Investigation phase only" in (system_message or ""):
-                    payload = {
-                        "visible_reasoning": [],
-                        "reply_draft": "Grounded answer without diagram.",
-                        "final_answer": "Grounded answer without diagram.",
-                        "confidence": 0.8,
-                        "context_summary": "Compact grounded context.",
-                        "self_critique": "",
-                        "proposed_actions": [],
-                        "knowledge_drafts": [],
-                        "outcome_hypotheses": [],
-                        "produced_artifacts": [],
-                        "artifact_failure_reason": "",
-                        "artifact_render_briefs": [
-                            {
-                                "kind": "diagram",
-                                "skill": "/bad skill!",
-                                "title": "Broken diagram",
-                                "render_prompt": "Render a diagram",
-                                "inputs": {},
-                                "output_path_hint": "",
-                            }
-                        ],
-                    }
-                else:
-                    payload = {
-                        "visible_reasoning": [],
-                        "reply_draft": "Grounded answer without diagram.",
-                        "final_answer": "Grounded answer without diagram.",
-                        "confidence": 0.8,
-                        "context_summary": "Delivery only.",
-                        "self_critique": "",
-                        "proposed_actions": [],
-                        "knowledge_drafts": [],
-                        "outcome_hypotheses": [],
-                        "produced_artifacts": [],
-                        "artifact_failure_reason": "",
-                    }
-                type(self).run_history.append({"system_message": system_message or "", "prompt": prompt})
-                return {"final_response": json.dumps(payload)}
-
-            def interrupt(self, _message: str | None = None) -> None:
-                return None
-
-            def get_activity_summary(self) -> dict[str, object]:
-                return {"last_activity_desc": "completed", "current_tool": "", "api_call_count": 1, "budget_used": 1, "budget_max": 4}
-
-        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
-            "rsi_runner.hermes_runtime.AIAgent", InvalidSkillAIAgent
-        ), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(os.environ, {**runner_env("prod"), "HERMES_HOME": tempdir}, clear=True):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            task = RunnerTaskRequest.from_payload(
-                {
-                    "task": {
-                        "task_type": "workflow",
-                        "repo": "depin-backend",
-                        "prompt": "Draw the grounded deployment architecture and attach the diagram.",
-                        "trace_id": "trace-invalid-skill",
-                        "workflow_id": "wf-invalid-skill",
-                        "reply_delivery_mode": "none",
-                        "requested_skills": ["architecture-diagram"],
-                        "requested_artifacts": [{"kind": "diagram", "description": "Architecture diagram"}],
-                        "session_scope_kind": "conversation",
-                        "session_scope_id": "conv-invalid-skill",
-                    }
-                }
-            )
-            result = runtime.execute_task(task)
-
-        self.assertTrue(result.ok)
-        self.assertEqual([entry["system_message"] for entry in InvalidSkillAIAgent.run_history].count(""), 0)
-        self.assertIn("Artifact render skill identifier is invalid after normalization.", result.raw["structured_output"]["artifact_failure_reason"])
-        self.assertEqual(result.raw["structured_output"]["produced_artifacts"], [])
-
-    def test_artifact_delivery_without_artifacts_disables_upload_tool(self) -> None:
-        task = RunnerTaskRequest.from_payload(
-            {
-                "task": {
-                    "task_type": "workflow",
-                    "repo": "depin-backend",
-                    "prompt": "Deliver the result",
-                    "reply_delivery_mode": "direct",
-                    "allowed_tools": ["slack.upload_file"],
-                    "tool_allowlist": ["slack.upload_file"],
-                    "mcp_servers": [{"name": "slack", "profile": "slack_mcp_reply"}],
-                }
-            }
-        )
-
-        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            deliver_task = runtime._build_artifact_delivery_task(
-                task,
-                {"final_answer": "Reply body", "context_summary": "Summary"},
-                [],
-                {"deliver": 60},
-            )
-
-        self.assertEqual(deliver_task.allowed_tools, [])
-        self.assertEqual(deliver_task.tool_allowlist, [])
-        self.assertIn("Hermes native send_message", deliver_task.prompt)
-        self.assertIn("Render failure reason: none", deliver_task.prompt)
-        self.assertIn("Do not upload files", deliver_task.prompt)
 
     def test_workflow_task_timeout_enters_partial_finalization_before_hard_deadline(self) -> None:
         class TimeoutReducerAIAgent:
@@ -6415,8 +5292,6 @@ class HermesRuntimeTests(unittest.TestCase):
                     "task_type": "workflow",
                     "repo": "rsi-agent-platform",
                     "prompt": "Summarize the Slack thread.",
-                    "requested_artifacts": [{"kind": "diagram", "description": "Render the architecture diagram."}],
-                    "artifact_optional": True,
                     "channel_id": "C123",
                     "thread_ts": "171000001.000100",
                     "trace_id": "trace-123",
@@ -6491,8 +5366,8 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(ledger["user_request"], "Summarize the Slack thread.")
         self.assertEqual(ledger["reply_target"], {"channel_id": "C123", "thread_ts": "171000001.000100"})
         self.assertEqual(ledger["termination_reason"], "task_timeout")
-        self.assertEqual(ledger["requested_artifacts"], [{"kind": "diagram", "description": "Render the architecture diagram."}])
-        self.assertTrue(ledger["artifact_optional"])
+        self.assertNotIn("requested_artifacts", ledger)
+        self.assertNotIn("artifact_optional", ledger)
         self.assertEqual(len(ledger["tool_calls"]), 3)
         self.assertEqual(ledger["tool_calls"][0]["tool_name"], "repo.search")
         self.assertEqual(ledger["evidence_items"][0]["source_ref"], "internal/control/worker.go")
@@ -6734,92 +5609,6 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(events[0]["seq"], 0)
         self.assertEqual(events[-1]["seq"], 11)
 
-    def test_artifact_phase_merge_preserves_investigation_lifecycle_and_partial_verdict(self) -> None:
-        task = RunnerTaskRequest.from_payload(
-            {
-                "task": {
-                    "task_type": "workflow",
-                    "repo": "depin-backend",
-                    "prompt": "Draw the depin-backend architecture.",
-                    "requested_artifacts": [{"kind": "diagram", "description": "Architecture diagram."}],
-                    "reply_delivery_mode": "direct",
-                    "trace_id": "trace-artifact-merge",
-                    "workflow_id": "wf-artifact-merge",
-                    "operation_id": "op-artifact-merge",
-                }
-            }
-        )
-        investigate_result = HermesExecutionResult(
-            ok=True,
-            message="partial",
-            provider="hermes-native-executor",
-            raw={
-                "completion_verdict": "partial",
-                "termination_reason": "task_timeout",
-                "structured_output": {
-                    "final_answer": "Partial grounded answer.",
-                    "reply_draft": "Partial grounded answer.",
-                    "artifact_render_briefs": [],
-                    "produced_artifacts": [],
-                },
-                "lifecycle_events": [
-                    {
-                        "event": "tool_call_completed",
-                        "tool_name": "repo.search",
-                        "summary": "Found deployed values.",
-                    }
-                ],
-                "tool_calls": [{"tool_name": "repo.search", "tool_call_id": "repo.search:1"}],
-                "evidence_items": [{"kind": "repo_search_match", "summary": "Found deployed values."}],
-                "evidence_ledger": {"tool_calls": [{"tool_name": "repo.search"}], "evidence_items": [{"summary": "Found deployed values."}]},
-                "runner_diagnostics": {"completion_verdict": "partial"},
-            },
-        )
-        delivery_result = HermesExecutionResult(
-            ok=True,
-            message="delivered",
-            provider="hermes-native-executor",
-            raw={
-                "completion_verdict": "complete",
-                "termination_reason": "normal_completion",
-                "structured_output": {
-                    "reply_delivery": {
-                        "status": "sent",
-                        "channel_id": "C123",
-                        "thread_ts": "171000001.000100",
-                    }
-                },
-                "lifecycle_events": [
-                    {
-                        "event": "tool_call_completed",
-                        "tool_name": "slack.reply",
-                        "summary": "Sent Slack reply.",
-                    }
-                ],
-                "runner_diagnostics": {"completion_verdict": "complete"},
-            },
-        )
-        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-
-        merged = runtime._merge_artifact_phase_result(
-            task,
-            investigate_result,
-            investigate_result.raw["structured_output"],
-            [],
-            "render skipped after timeout",
-            delivery_result=delivery_result,
-            delivery_output=delivery_result.raw["structured_output"],
-        )
-
-        self.assertEqual(merged.raw["completion_verdict"], "partial")
-        self.assertEqual(merged.raw["termination_reason"], "task_timeout")
-        self.assertEqual([item["tool_name"] for item in merged.raw["lifecycle_events"]], ["repo.search", "slack.reply"])
-        self.assertEqual(merged.raw["evidence_ledger"]["tool_calls"][0]["tool_name"], "repo.search")
-        self.assertEqual(merged.raw["tool_calls"][0]["tool_name"], "repo.search")
-
     def test_runtime_metadata_reports_role_contract(self) -> None:
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
@@ -6832,10 +5621,10 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(runtime.metadata["transport_timeout_seconds"], 450)
         self.assertNotIn("tool_policy_mode", runtime.metadata)
         self.assertEqual(runtime.metadata["hermes_pin"], HERMES_TEST_PIN)
-        self.assertEqual(runtime.metadata["execution_contract_version"], "execution-envelope/v1")
+        self.assertEqual(runtime.metadata["execution_contract_version"], "execution-envelope/v2")
         self.assertEqual(runtime.metadata["runner_planner_mode"], "runner_first")
         self.assertEqual(runtime.metadata["company_computer_root"], "/tmp/hermes/workspace/company")
-        self.assertIn("artifact_write", runtime.metadata["required_capabilities"])
+        self.assertNotIn("required_capabilities", runtime.metadata)
         self.assertEqual(runtime.metadata["honcho_runtime_status"]["workspace"], "rsi-stage")
         self.assertEqual(runtime.metadata["session_continuity_status"], "ok")
         self.assertEqual(runtime.metadata["honcho_environment_effective"], "production")

@@ -24,7 +24,6 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	"github.com/piplabs/rsi-agent-platform/internal/slack"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
-	"github.com/piplabs/rsi-agent-platform/internal/workflowplan"
 )
 
 const (
@@ -1693,13 +1692,8 @@ func (s *MemoryStore) buildJudgments(trace events.Trace, event *ingestion.EventE
 
 	artifactScore := 0.82
 	artifactReason := "No required artifact deliverable was missing."
-	if artifactRequestedByEvent(event) {
-		if traceHasUserFacingArtifact(trace) {
-			artifactReason = "Requested artifact deliverable was recorded on the trace."
-		} else {
-			artifactScore = 0.42
-			artifactReason = "The user requested an artifact deliverable, but the trace did not record a produced artifact."
-		}
+	if traceHasUserFacingArtifact(trace) {
+		artifactReason = "User-facing artifact deliverables were recorded on the trace."
 	}
 	judgments = append(judgments, evals.Judgment{
 		ID:        nextID("judge", 1+len(judgments)),
@@ -2299,20 +2293,6 @@ func confidenceScoreForCandidate(recurrence int, judgments []evals.Judgment) flo
 
 func priorityScore(expectedImpact, novelty, confidence, freshness float64, recurrence int) float64 {
 	return expectedImpact*0.35 + novelty*0.2 + confidence*0.25 + freshness*0.1 + minFloat(float64(recurrence)/5.0, 0.1)
-}
-
-func artifactRequestedByEvent(event *ingestion.EventEnvelope) bool {
-	if event == nil {
-		return false
-	}
-	return len(workflowplan.RequestedArtifactsForPrompt(event.NormalizedProblemStatement, eventPromptEnvelope(event))) > 0
-}
-
-func eventPromptEnvelope(event *ingestion.EventEnvelope) slack.SlackPromptEnvelope {
-	if event == nil || event.Metadata == nil {
-		return slack.SlackPromptEnvelope{}
-	}
-	return slack.PromptEnvelopeFromValue(event.Metadata["prompt_envelope"])
 }
 
 func traceHasUserFacingArtifact(trace events.Trace) bool {

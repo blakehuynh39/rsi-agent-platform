@@ -9,11 +9,10 @@ import (
 )
 
 const (
-	effectQueueWorkflow     = "workflow"
-	effectQueueAction       = "action"
-	effectTaskClassSimple   = "simple"
-	effectTaskClassArtifact = "artifact"
-	effectTaskClassImprove  = "improvement"
+	effectQueueWorkflow    = "workflow"
+	effectQueueAction      = "action"
+	effectTaskClassSimple  = "simple"
+	effectTaskClassImprove = "improvement"
 )
 
 type EffectClaimSelector struct {
@@ -71,11 +70,6 @@ func defaultQueueNameForEffect(effect transition.EffectExecution) string {
 
 func taskClassForEffect(effect transition.EffectExecution) string {
 	taskClass := stringFromMap(effect.Payload, "task_class")
-	if intFromMap(effect.Payload, "requested_artifact_count") > 0 ||
-		strings.EqualFold(stringFromMap(effect.Payload, "requested_artifact"), "true") ||
-		strings.EqualFold(taskClass, effectTaskClassArtifact) {
-		return effectTaskClassArtifact
-	}
 	if strings.EqualFold(taskClass, effectTaskClassImprove) {
 		return effectTaskClassImprove
 	}
@@ -89,8 +83,6 @@ func priorityForTaskClass(taskClass string) int {
 	switch strings.ToLower(strings.TrimSpace(taskClass)) {
 	case effectTaskClassSimple:
 		return 100
-	case effectTaskClassArtifact:
-		return 50
 	case effectTaskClassImprove:
 		return 10
 	default:
@@ -178,26 +170,4 @@ func stringFromMap(values map[string]any, key string) string {
 	default:
 		return strings.TrimSpace(fmt.Sprint(typed))
 	}
-}
-
-func intFromMap(values map[string]any, key string) int {
-	if values == nil {
-		return 0
-	}
-	switch typed := values[key].(type) {
-	case int:
-		return typed
-	case int64:
-		return int(typed)
-	case float64:
-		return int(typed)
-	case float32:
-		return int(typed)
-	case string:
-		var out int
-		if _, err := fmt.Sscanf(strings.TrimSpace(typed), "%d", &out); err == nil {
-			return out
-		}
-	}
-	return 0
 }

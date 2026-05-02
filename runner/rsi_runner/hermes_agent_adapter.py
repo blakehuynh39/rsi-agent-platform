@@ -19,11 +19,6 @@ except (ImportError, ModuleNotFoundError):  # pragma: no cover - depends on Herm
     AIAgent = None
 
 try:
-    from agent.skill_commands import build_preloaded_skills_prompt  # type: ignore
-except (ImportError, ModuleNotFoundError):  # pragma: no cover - depends on Hermes install
-    build_preloaded_skills_prompt = None
-
-try:
     from hermes_state import SessionDB  # type: ignore
 except (ImportError, ModuleNotFoundError):  # pragma: no cover - depends on Hermes install
     SessionDB = None
@@ -505,14 +500,6 @@ class HermesAgentAdapter:
 
     def _system_prompt(self) -> str:
         prompt_parts = [_string(self._payload.get("system_message"))]
-        if build_preloaded_skills_prompt is not None:
-            requested_skills = [_string(item) for item in _json_list(self._payload.get("requested_skills")) if _string(item)]
-            if requested_skills:
-                skills_prompt, _loaded, missing = build_preloaded_skills_prompt(requested_skills, task_id=self._session_id)
-                if missing:
-                    raise RuntimeError(f"Unknown skill(s): {', '.join(missing)}")
-                if skills_prompt:
-                    prompt_parts.append(_string(skills_prompt))
         return "\n\n".join(part for part in prompt_parts if part)
 
     def _create_agent(self, session_id: str, session_db: Any, system_prompt: str) -> Any:

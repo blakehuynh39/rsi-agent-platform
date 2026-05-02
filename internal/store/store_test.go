@@ -15,7 +15,6 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
-	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
@@ -319,22 +318,6 @@ func TestBuildJudgmentsPreservesRuntimeFailureReasonWhenArtifactPenaltyApplies(t
 	}
 	if taskQuality.Rationale != "RSI runtime failure prevented the workflow from completing the user-facing action." {
 		t.Fatalf("expected runtime-failure rationale to be preserved, got %#v", taskQuality)
-	}
-}
-
-func TestArtifactRequestedByEventUsesPromptEnvelopeText(t *testing.T) {
-	event := &ingestion.EventEnvelope{
-		ID:                         "evt-1",
-		NormalizedProblemStatement: "Summarize the architecture work.",
-		Metadata: map[string]any{
-			"prompt_envelope": slackpkg.SlackPromptEnvelope{
-				RawText:      "@RSI can you draw an architecture diagram of depin-backend? Use /architecture-diagram skill",
-				RenderedText: "@RSI can you draw an architecture diagram of depin-backend? Use /architecture-diagram skill",
-			},
-		},
-	}
-	if !artifactRequestedByEvent(event) {
-		t.Fatalf("expected artifact request detection to use prompt envelope text")
 	}
 }
 

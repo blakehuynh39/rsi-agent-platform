@@ -22,7 +22,6 @@ import (
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
-	"github.com/piplabs/rsi-agent-platform/internal/workflowplan"
 )
 
 func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
@@ -2421,7 +2420,7 @@ func TestWorkflowRunnerUsesRunnerExecuteWhenHermesExecutorIsUnset(t *testing.T) 
 }
 
 func TestWorkflowRunnerSystemMessageOmitsSlackMCPWhenUnavailableInNoneMode(t *testing.T) {
-	message := workflowRunnerSystemMessage(false, false, "none", nil)
+	message := workflowRunnerSystemMessage(false, false, "none")
 	if strings.Contains(message, "Use Slack MCP for Slack investigation.") {
 		t.Fatalf("expected none-mode system message without Slack MCP to omit Slack MCP guidance, got %q", message)
 	}
@@ -4613,23 +4612,12 @@ func TestBuildRunnerTaskCarriesKubernetesReadScope(t *testing.T) {
 	if !strings.Contains(task.ContextSummary, "Runtime deployment targets: depin-backend, depin-ip-registration") {
 		t.Fatalf("expected context summary to advertise depin deployment targets, got %q", task.ContextSummary)
 	}
-	var readScope map[string]any
 	var deploymentTargetRef string
-	for _, lease := range task.CapabilityLeases {
-		if lease.Capability == "read_context" {
-			readScope = lease.Scope
-			break
-		}
-	}
 	for _, ref := range task.ContextRefs {
 		if ref.Kind == "runtime_deployment_targets" {
 			deploymentTargetRef = ref.TargetRef
 			break
 		}
-	}
-	namespaces, ok := readScope["kubernetes_read_namespaces"].([]string)
-	if !ok || len(namespaces) != 2 || namespaces[0] != "story" || namespaces[1] != "rsi-platform" {
-		t.Fatalf("expected read_context lease Kubernetes scope, got %#v", readScope)
 	}
 	if deploymentTargetRef != "depin-backend,depin-ip-registration" {
 		t.Fatalf("expected depin runtime deployment target ref, got %q", deploymentTargetRef)
@@ -4853,16 +4841,6 @@ func TestFinalizeWorkflowFailureWithDetailsNonRetryableMovesLineToNeedsHuman(t *
 	}
 }
 
-func TestToolPlanForRepoProgressQuestionUsesGitHubActivity(t *testing.T) {
-	plan := workflowplan.ToolPlan("question", "Hello RSI, can you give me a quick rundown of how depin-backend api progressed in the last week", "depin-backend", "C123", "171000001.000100")
-	if !containsString(plan, "github.repo_activity") {
-		t.Fatalf("expected github.repo_activity in tool plan, got %#v", plan)
-	}
-	if !containsString(plan, "slack.history") {
-		t.Fatalf("expected slack.history in tool plan, got %#v", plan)
-	}
-}
-
 func TestToolInputForIntentUsesMentionedRepoAndTimeWindow(t *testing.T) {
 	cfg := config.Config{
 		DefaultRepo:             "rsi-agent-platform",
@@ -4952,9 +4930,6 @@ func TestBuildRunnerTaskUsesConfiguredTimeoutAndSlackBinding(t *testing.T) {
 	if task.ContractVersion != clients.RunnerExecutionContractVersion {
 		t.Fatalf("contract_version = %q, want %q", task.ContractVersion, clients.RunnerExecutionContractVersion)
 	}
-	if !runnerTaskHasCapability(task, "artifact_write") || !runnerTaskHasCapability(task, "slack_send") || !runnerTaskHasCapability(task, "memory_write") {
-		t.Fatalf("expected runner-first workflow capabilities, got %#v", task.CapabilityLeases)
-	}
 	if task.DeliveryPolicy == nil || !task.DeliveryPolicy.DirectSendAllowed || !task.DeliveryPolicy.UploadAllowed {
 		t.Fatalf("expected direct delivery policy, got %#v", task.DeliveryPolicy)
 	}
@@ -5001,7 +4976,7 @@ func TestBuildRunnerTaskAllowsTopLevelDirectMessageDelivery(t *testing.T) {
 	}
 }
 
-func TestBuildRunnerTaskBoundsNativeMCPToolSurface(t *testing.T) {
+func TestBuildRunnerTaskLetsNativeRunnerChooseToolSurface(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
 	trace, ok := store.GetTrace(workflowItem.traceID)
@@ -5017,56 +4992,22 @@ func TestBuildRunnerTaskBoundsNativeMCPToolSurface(t *testing.T) {
 		t.Fatalf("expected ingestion %s", workflowItem.ingestionID)
 	}
 	task := buildRunnerTask(config.Config{
-		Environment:                   "stage",
-		DefaultRepo:                   "rsi-agent-platform",
-		AllowedTargetRepos:            []string{"depin-backend", "rsi-agent-platform"},
-		DefaultKnowledgeBaseURL:       "https://example.test/kb",
-		SandboxNamespace:              "rsi-platform",
-		DefaultReasoningVerbosity:     "verbose",
-		ProdRunnerArtifactTaskTimeout: 30 * time.Minute,
+		Environment:               "stage",
+		DefaultRepo:               "rsi-agent-platform",
+		AllowedTargetRepos:        []string{"depin-backend", "rsi-agent-platform"},
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
 	}, store, "prod", trace, workflow, ingestion, "context", nil)
 
 	if len(task.MCPServers) != 0 {
 		t.Fatalf("expected no Slack MCP servers for native delivery, got %#v", task.MCPServers)
 	}
-	liveHints := workflowplan.BuildLiveHints(workflowplan.RuntimeConfig{
-		DefaultRepo:      "rsi-agent-platform",
-		AllowedRepos:     []string{"depin-backend", "rsi-agent-platform"},
-		KnowledgeBaseURL: "https://example.test/kb",
-		SandboxNamespace: "rsi-platform",
-	}, workflowplan.RequestContext{
-		Trace:          trace.Summary,
-		WorkflowID:     workflow.ID,
-		ConversationID: workflow.ConversationID,
-		CaseID:         workflow.CaseID,
-		WorkflowKind:   workflow.Kind,
-		AssignedBot:    workflow.AssignedBot,
-		Question:       ingestion.Text,
-		ChannelID:      ingestion.ChannelID,
-		ThreadTS:       ingestion.ThreadTS,
-		EntityRefs:     append([]slackpkg.EntityRef(nil), ingestion.EntityRefs...),
-	}, time.Now().UTC())
-	expectedTools := workflowRunnerAllowedTools(liveHints)
-	if len(expectedTools) == 0 {
-		t.Fatalf("expected non-empty bounded tool surface from live hints")
-	}
-	if !reflect.DeepEqual(task.AllowedTools, expectedTools) {
-		t.Fatalf("expected allowed tools %#v, got %#v", expectedTools, task.AllowedTools)
-	}
-	for _, expected := range []string{"cloudflare.inspect", "kubernetes.events", "repo.read_file", "repo.search", "rsi.trace_context"} {
-		if !containsString(task.AllowedTools, expected) {
-			t.Fatalf("expected %s in bounded tool surface, got %#v", expected, task.AllowedTools)
-		}
-	}
-	for _, forbidden := range []string{"slack.history", "slack.search", "slack.reply"} {
-		if containsString(task.AllowedTools, forbidden) {
-			t.Fatalf("expected %s to be absent from bounded tool surface, got %#v", forbidden, task.AllowedTools)
-		}
-	}
+	assertContextRefKind(t, task.ContextRefs, "repo_target")
+	assertContextRefKind(t, task.ContextRefs, "repo_activity_window")
 }
 
-func TestProcessWorkflowRunnerEffectKeepsFeatureRequestQuestionOnAgenticWorkflowPath(t *testing.T) {
-	classifierCalls := 0
+func TestProcessWorkflowRunnerEffectPassesIngressStraightToWorkflowRunner(t *testing.T) {
 	workflowCalls := 0
 	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var payload struct {
@@ -5076,24 +5017,10 @@ func TestProcessWorkflowRunnerEffectKeepsFeatureRequestQuestionOnAgenticWorkflow
 			t.Fatalf("decode runner payload: %v", err)
 		}
 		switch payload.Task.TaskType {
-		case "general":
-			classifierCalls++
-			_ = json.NewEncoder(w).Encode(map[string]any{
-				"ok":       true,
-				"provider": "fake",
-				"message":  `{"workflow_kind":"architecture","rationale":"This is a read-heavy progress and alignment question, not a build request.","confidence":0.93}`,
-				"raw": map[string]any{
-					"structured_output": map[string]any{
-						"workflow_kind": "architecture",
-						"rationale":     "This is a read-heavy progress and alignment question, not a build request.",
-						"confidence":    0.93,
-					},
-				},
-			})
 		case "workflow":
 			workflowCalls++
-			if payload.Task.Intent != "question" {
-				t.Fatalf("expected workflow intent question after classification, got %#v", payload.Task)
+			if payload.Task.Intent != "feature_request" {
+				t.Fatalf("expected original workflow intent without classification reroute, got %#v", payload.Task)
 			}
 			_ = json.NewEncoder(w).Encode(map[string]any{
 				"ok":       true,
@@ -5209,9 +5136,6 @@ func TestProcessWorkflowRunnerEffectKeepsFeatureRequestQuestionOnAgenticWorkflow
 	}, runnerEffect); err != nil {
 		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
 	}
-	if classifierCalls != 1 {
-		t.Fatalf("expected exactly one classifier call, got %d", classifierCalls)
-	}
 	if workflowCalls != 1 {
 		t.Fatalf("expected exactly one workflow runner call, got %d", workflowCalls)
 	}
@@ -5223,7 +5147,7 @@ func TestProcessWorkflowRunnerEffectKeepsFeatureRequestQuestionOnAgenticWorkflow
 	}
 }
 
-func TestBuildRunnerTaskRequestsDiagramArtifact(t *testing.T) {
+func TestBuildRunnerTaskLetsNativeRunnerHandleDiagramArtifacts(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
 	trace, ok := store.GetTrace(workflowItem.traceID)
@@ -5240,32 +5164,25 @@ func TestBuildRunnerTaskRequestsDiagramArtifact(t *testing.T) {
 	}
 	ingestion.Text = "@RSI can you draw an architecture diagram of depin-backend? Use /architecture-diagram skill"
 	task := buildRunnerTask(config.Config{
-		Environment:                   "stage",
-		DefaultRepo:                   "rsi-agent-platform",
-		AllowedTargetRepos:            []string{"depin-backend", "rsi-agent-platform"},
-		DefaultKnowledgeBaseURL:       "https://example.test/kb",
-		SandboxNamespace:              "rsi-platform",
-		DefaultReasoningVerbosity:     "verbose",
-		ProdRunnerArtifactTaskTimeout: 30 * time.Minute,
+		Environment:               "stage",
+		DefaultRepo:               "rsi-agent-platform",
+		AllowedTargetRepos:        []string{"depin-backend", "rsi-agent-platform"},
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
 	}, store, "prod", trace, workflow, ingestion, "context", nil)
-	if !task.ArtifactOptional {
-		t.Fatalf("expected requested artifact to be optional, got %#v", task)
-	}
-	if len(task.RequestedArtifacts) != 1 || task.RequestedArtifacts[0].Kind != "diagram" {
-		t.Fatalf("expected one requested diagram artifact, got %#v", task.RequestedArtifacts)
-	}
 	if !containsString(task.ExpectedOutputs, "produced_artifacts") {
 		t.Fatalf("expected produced_artifacts in expected outputs, got %#v", task.ExpectedOutputs)
 	}
-	if !runnerTaskHasCapability(task, "slack_upload") {
-		t.Fatalf("expected direct artifact workflow to lease slack_upload, got %#v", task.CapabilityLeases)
+	if task.TimeoutSeconds != 0 {
+		t.Fatalf("expected runner default timeout for artifact-capable native workflow, got %d", task.TimeoutSeconds)
 	}
-	if task.TimeoutSeconds != 1800 {
-		t.Fatalf("expected artifact timeout override, got %d", task.TimeoutSeconds)
+	if !strings.Contains(task.Prompt, "architecture diagram") {
+		t.Fatalf("expected natural artifact request to remain in prompt, got %q", task.Prompt)
 	}
 }
 
-func TestBuildRunnerTaskUsesPromptEnvelopeForArtifactDetection(t *testing.T) {
+func TestBuildRunnerTaskUsesPromptEnvelopeWithoutArtifactDetection(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
 	trace, ok := store.GetTrace(workflowItem.traceID)
@@ -5294,15 +5211,15 @@ func TestBuildRunnerTaskUsesPromptEnvelopeForArtifactDetection(t *testing.T) {
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
 	}, store, "prod", trace, workflow, ingestion, "context", nil)
-	if len(task.RequestedArtifacts) != 1 || task.RequestedArtifacts[0].Kind != "diagram" {
-		t.Fatalf("expected one requested diagram artifact from prompt envelope, got %#v", task.RequestedArtifacts)
+	if !strings.Contains(task.Prompt, "draw an architecture diagram") {
+		t.Fatalf("expected prompt envelope text to remain the natural request, got %q", task.Prompt)
 	}
-	if len(task.RequestedSkills) != 1 || task.RequestedSkills[0] != "architecture-diagram" {
-		t.Fatalf("expected requested architecture skill from prompt envelope, got %#v", task.RequestedSkills)
+	if !containsString(task.ExpectedOutputs, "produced_artifacts") {
+		t.Fatalf("expected native artifact output slot, got %#v", task.ExpectedOutputs)
 	}
 }
 
-func TestBuildRunnerTaskUsesBoundThreadContextForArtifactDetection(t *testing.T) {
+func TestBuildRunnerTaskKeepsBoundThreadContextWithoutArtifactDetection(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
 	trace, ok := store.GetTrace(workflowItem.traceID)
@@ -5335,12 +5252,6 @@ func TestBuildRunnerTaskUsesBoundThreadContextForArtifactDetection(t *testing.T)
 		DefaultReasoningVerbosity: "verbose",
 	}, store, "prod", trace, workflow, ingestion, "context", contextRefs)
 
-	if len(task.RequestedArtifacts) != 1 || task.RequestedArtifacts[0].Kind != "diagram" {
-		t.Fatalf("expected bound thread context to request a diagram artifact, got %#v", task.RequestedArtifacts)
-	}
-	if !containsString(task.RequestedSkills, "architecture-diagram") {
-		t.Fatalf("expected bound thread context to request architecture-diagram, got %#v", task.RequestedSkills)
-	}
 	if !strings.Contains(task.ExecutionIntent["user_request"].(string), "help with the above") {
 		t.Fatalf("expected user request to remain the triggering message, got %#v", task.ExecutionIntent)
 	}
@@ -6028,11 +5939,12 @@ func (s *noopWorkflowCommandStore) SubmitCommand(command transition.CommandEnvel
 	return s.Store.SubmitCommand(command)
 }
 
-func runnerTaskHasCapability(task clients.RunnerTask, capability string) bool {
-	for _, lease := range task.CapabilityLeases {
-		if lease.Capability == capability && lease.Granted {
-			return true
+func assertContextRefKind(t *testing.T, refs []clients.RunnerContextRef, kind string) {
+	t.Helper()
+	for _, ref := range refs {
+		if ref.Kind == kind {
+			return
 		}
 	}
-	return false
+	t.Fatalf("expected context ref kind %q in %#v", kind, refs)
 }

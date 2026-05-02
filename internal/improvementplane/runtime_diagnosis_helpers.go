@@ -248,19 +248,3 @@ func sortRuntimeDiagnoses(items []improvement.RuntimeDiagnosis) {
 		return items[i].UpdatedAt.After(items[j].UpdatedAt)
 	})
 }
-
-func runtimeDiagnosisRunnerTools(logFallbackEnabled bool) []string {
-	tools := []string{
-		"todo",
-		"session_search",
-		"rsi.trace_context",
-		"rsi.workflow_context",
-		"rsi.runner_execution",
-		"repo.read_file",
-		"repo.search",
-	}
-	if logFallbackEnabled {
-		tools = append(tools, "kubernetes.logs")
-	}
-	return tools
-}

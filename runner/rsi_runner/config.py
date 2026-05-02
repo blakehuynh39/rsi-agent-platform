@@ -39,7 +39,6 @@ class RunnerConfig:
     honcho_environment_effective: str
     honcho_api_key_configured: bool
     max_iterations: int
-    artifact_max_iterations: int
     task_timeout_seconds: int
     inactivity_timeout_seconds: int
     transport_timeout_seconds: int
@@ -107,7 +106,6 @@ class RunnerConfig:
         honcho_environment_effective = normalize_honcho_environment(honcho_environment)
         honcho_api_key = optional_env("HONCHO_API_KEY")
         max_iterations = role_max_iterations(role)
-        artifact_max_iterations = role_artifact_max_iterations(role)
         task_timeout_seconds = role_task_timeout_seconds(role)
         inactivity_timeout_seconds = role_inactivity_timeout_seconds(role, task_timeout_seconds)
         transport_timeout_seconds = role_transport_timeout_seconds(role)
@@ -192,7 +190,6 @@ class RunnerConfig:
             honcho_environment_effective=honcho_environment_effective,
             honcho_api_key_configured=bool(honcho_api_key),
             max_iterations=max_iterations,
-            artifact_max_iterations=artifact_max_iterations,
             task_timeout_seconds=task_timeout_seconds,
             inactivity_timeout_seconds=inactivity_timeout_seconds,
             transport_timeout_seconds=transport_timeout_seconds,
@@ -304,15 +301,6 @@ def role_max_iterations(role: str) -> int:
     return value
 
 
-def role_artifact_max_iterations(role: str) -> int:
-    env_name = role_env_name(role, "ARTIFACT_MAX_ITERATIONS")
-    raw = optional_env(env_name)
-    if not raw:
-        return 0
-    value = parse_positive_int(raw, env_name)
-    if value <= 0:
-        raise RunnerConfigError(f"{env_name} must be greater than 0")
-    return value
 
 
 def role_task_timeout_seconds(role: str) -> int:

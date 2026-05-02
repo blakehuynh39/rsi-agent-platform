@@ -106,20 +106,7 @@ type RunnerContextRef struct {
 	Namespaces                       []string       `json:"namespaces,omitempty"`
 }
 
-type RunnerRequestedArtifact struct {
-	Kind        string `json:"kind"`
-	Description string `json:"description,omitempty"`
-}
-
-const RunnerExecutionContractVersion = "execution-envelope/v1"
-
-type RunnerCapabilityLease struct {
-	LeaseID     string         `json:"lease_id,omitempty"`
-	Capability  string         `json:"capability"`
-	Scope       map[string]any `json:"scope,omitempty"`
-	Constraints map[string]any `json:"constraints,omitempty"`
-	Granted     bool           `json:"granted"`
-}
+const RunnerExecutionContractVersion = "execution-envelope/v2"
 
 type RunnerDeliveryPolicy struct {
 	BoundChannelID     string `json:"bound_channel_id,omitempty"`
@@ -141,49 +128,6 @@ type RunnerApprovalPolicy struct {
 	DirectSlackAllowed               bool     `json:"direct_slack_allowed"`
 	RequiresApproval                 []string `json:"requires_approval,omitempty"`
 	PlatformMutationsExecuteDirectly bool     `json:"platform_mutations_execute_directly"`
-}
-
-func NewRunnerCapabilityLease(capability string, scope map[string]any) RunnerCapabilityLease {
-	capability = strings.TrimSpace(capability)
-	return RunnerCapabilityLease{
-		LeaseID:    "lease-" + strings.ReplaceAll(capability, "_", "-"),
-		Capability: capability,
-		Scope:      scope,
-		Granted:    true,
-	}
-}
-
-func RunnerCapabilityLeases(capabilities ...string) []RunnerCapabilityLease {
-	out := make([]RunnerCapabilityLease, 0, len(capabilities))
-	seen := map[string]struct{}{}
-	for _, capability := range capabilities {
-		capability = strings.TrimSpace(capability)
-		if capability == "" {
-			continue
-		}
-		if _, ok := seen[capability]; ok {
-			continue
-		}
-		seen[capability] = struct{}{}
-		out = append(out, NewRunnerCapabilityLease(capability, nil))
-	}
-	return out
-}
-
-func AttachKubernetesReadNamespacesToLeases(leases []RunnerCapabilityLease, kubernetesReadNamespaces []string) []RunnerCapabilityLease {
-	if len(kubernetesReadNamespaces) == 0 {
-		return leases
-	}
-	for index := range leases {
-		if leases[index].Capability != "read_context" {
-			continue
-		}
-		leases[index].Scope = map[string]any{
-			"kubernetes_read_namespaces": append([]string(nil), kubernetesReadNamespaces...),
-		}
-		break
-	}
-	return leases
 }
 
 func NewRunnerDeliveryPolicy(channelID string, threadTS string, replyDeliveryMode string, idempotencyKeyBase string) *RunnerDeliveryPolicy {
@@ -263,15 +207,11 @@ type RunnerTask struct {
 	RepoRef                   string                          `json:"repo_ref,omitempty"`
 	Prompt                    string                          `json:"prompt"`
 	SystemMessage             string                          `json:"system_message,omitempty"`
-	RequestedSkills           []string                        `json:"requested_skills,omitempty"`
 	MCPServers                []RunnerMCPServer               `json:"mcp_servers,omitempty"`
-	AllowedTools              []string                        `json:"allowed_tools,omitempty"`
 	AllowedCommands           []string                        `json:"allowed_commands,omitempty"`
 	TimeoutSeconds            int                             `json:"timeout_seconds,omitempty"`
 	ExpectedOutputs           []string                        `json:"expected_outputs,omitempty"`
 	ArtifactDestination       string                          `json:"artifact_destination,omitempty"`
-	RequestedArtifacts        []RunnerRequestedArtifact       `json:"requested_artifacts,omitempty"`
-	ArtifactOptional          bool                            `json:"artifact_optional,omitempty"`
 	ContextSummary            string                          `json:"context_summary,omitempty"`
 	RejectedProposalContext   []RunnerRejectedProposalContext `json:"rejected_proposal_context,omitempty"`
 	ExecutionMode             string                          `json:"execution_mode,omitempty"`
@@ -289,7 +229,6 @@ type RunnerTask struct {
 	CaseSummary               *RunnerCaseSummary              `json:"case_summary,omitempty"`
 	PriorTraceRefs            []RunnerTraceRef                `json:"prior_trace_refs,omitempty"`
 	RepoAllowlist             []string                        `json:"repo_allowlist,omitempty"`
-	ToolAllowlist             []string                        `json:"tool_allowlist,omitempty"`
 	ResponseMode              string                          `json:"response_mode,omitempty"`
 	ReplyDeliveryMode         string                          `json:"reply_delivery_mode,omitempty"`
 	ContextRefs               []RunnerContextRef              `json:"context_refs,omitempty"`
@@ -312,7 +251,6 @@ type RunnerTask struct {
 	KubernetesReadNamespaces  []string                        `json:"kubernetes_read_namespaces,omitempty"`
 	ContractVersion           string                          `json:"contract_version,omitempty"`
 	ExecutionIntent           map[string]any                  `json:"execution_intent,omitempty"`
-	CapabilityLeases          []RunnerCapabilityLease         `json:"capability_leases,omitempty"`
 	DeliveryPolicy            *RunnerDeliveryPolicy           `json:"delivery_policy,omitempty"`
 	WorkspacePolicy           *RunnerWorkspacePolicy          `json:"workspace_policy,omitempty"`
 	ApprovalPolicy            *RunnerApprovalPolicy           `json:"approval_policy,omitempty"`

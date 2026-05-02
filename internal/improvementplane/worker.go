@@ -24,7 +24,6 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/sandbox"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 	"github.com/piplabs/rsi-agent-platform/internal/timeutil"
-	"github.com/piplabs/rsi-agent-platform/internal/toolcatalog"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
@@ -1939,7 +1938,6 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 	effectiveHarness := harness.ResolveEffectiveConfig(store, "eval", cfg.DefaultReasoningVerbosity)
 	targetRepo := evalTargetRepo(cfg, store, trace)
 	repoAllowlist := scopedImprovementRepoAllowlist(targetRepo)
-	toolAllowlist := improvementReadOnlyTools(effectiveHarness)
 	kubernetesReadNamespaceScope := cfg.KubernetesReadNamespaceScope()
 	candidateKey := ""
 	if candidate, ok := latestCandidateForTrace(store, trace.Summary.TraceID); ok {
@@ -2016,7 +2014,6 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 		RepoRef:             "main",
 		Prompt:              prompt,
 		SystemMessage:       harness.ComposeSystemMessage("Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, and self_critique.", effectiveHarness),
-		AllowedTools:        toolAllowlist,
 		TimeoutSeconds:      int(cfg.RunnerTaskTimeoutForRole("eval").Seconds()),
 		ExpectedOutputs:     []string{"visible_reasoning", "final_answer"},
 		ArtifactDestination: fmt.Sprintf("trace:%s:eval:%s", trace.Summary.TraceID, run.ID),
@@ -2037,7 +2034,6 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 		CaseSummary:               caseSummary,
 		PriorTraceRefs:            improvementPriorTraceRefs(store.ListTraces(), trace.Summary.CaseID, trace.Summary.TraceID),
 		RepoAllowlist:             repoAllowlist,
-		ToolAllowlist:             toolAllowlist,
 		ResponseMode:              "analysis",
 		ContextRefs:               evalContextRefs,
 		ApprovalMode:              "deterministic",
@@ -2058,10 +2054,9 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 			"eval_id":             firstNonEmpty(strings.TrimSpace(evalID), run.ID),
 			"operation_id":        strings.TrimSpace(operationID),
 		},
-		CapabilityLeases: improvementCapabilityLeases(false, kubernetesReadNamespaceScope),
-		DeliveryPolicy:   improvementDeliveryPolicy(trace.Summary.TraceID),
-		WorkspacePolicy:  runnerutil.WorkspacePolicyFromConfig(cfg),
-		ApprovalPolicy:   improvementApprovalPolicy(false),
+		DeliveryPolicy:  improvementDeliveryPolicy(trace.Summary.TraceID),
+		WorkspacePolicy: runnerutil.WorkspacePolicyFromConfig(cfg),
+		ApprovalPolicy:  improvementApprovalPolicy(false),
 	}
 }
 
@@ -2072,10 +2067,8 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 	sessionScopeID := proposalSessionScopeID(proposal, targetRepo)
 	kubernetesReadNamespaceScope := cfg.KubernetesReadNamespaceScope()
 	executionMode := "investigate"
-	toolAllowlist := improvementReadOnlyTools(effectiveHarness)
 	if workspace != nil {
 		executionMode = "implement"
-		toolAllowlist = improvementImplementTools(effectiveHarness)
 	}
 	rejectedContext := make([]clients.RunnerRejectedProposalContext, 0, len(memories))
 	for _, memory := range memories {
@@ -2202,7 +2195,6 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 		RepoRef:                   firstNonEmpty(valueOrWorkspaceBaseRef(workspace), "main"),
 		Prompt:                    prompt,
 		SystemMessage:             harness.ComposeSystemMessage("Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta, proposed_actions, knowledge_drafts, and outcome_hypotheses. For repo-change implement mode, repo_patch is optional and the authoritative diff is the workspace git diff.", effectiveHarness),
-		AllowedTools:              toolAllowlist,
 		TimeoutSeconds:            int(cfg.RunnerTaskTimeoutForRole("proposal").Seconds()),
 		ExpectedOutputs:           []string{"visible_reasoning", "final_answer", "change_plan", "validation_plan", "retry_assessment"},
 		ArtifactDestination:       fmt.Sprintf("trace:%s:proposal:%s:attempt:%s", trace.Summary.TraceID, proposal.ID, attempt.ID),
@@ -2218,7 +2210,6 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 		CaseSummary:               caseSummary,
 		PriorTraceRefs:            improvementPriorTraceRefs(store.ListTraces(), trace.Summary.CaseID, trace.Summary.TraceID),
 		RepoAllowlist:             repoAllowlist,
-		ToolAllowlist:             toolAllowlist,
 		ResponseMode:              "analysis",
 		ContextRefs:               contextRefs,
 		ApprovalMode:              "human_review",
@@ -2246,10 +2237,9 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 			"attempt_id":          attempt.ID,
 			"execution_mode":      executionMode,
 		},
-		CapabilityLeases: improvementCapabilityLeases(workspace != nil, kubernetesReadNamespaceScope),
-		DeliveryPolicy:   improvementDeliveryPolicy(trace.Summary.TraceID),
-		WorkspacePolicy:  runnerutil.WorkspacePolicyFromConfig(cfg),
-		ApprovalPolicy:   improvementApprovalPolicy(false),
+		DeliveryPolicy:  improvementDeliveryPolicy(trace.Summary.TraceID),
+		WorkspacePolicy: runnerutil.WorkspacePolicyFromConfig(cfg),
+		ApprovalPolicy:  improvementApprovalPolicy(false),
 	}
 }
 
@@ -2257,7 +2247,6 @@ func buildRuntimeDiagnosisRunnerTask(cfg config.Config, store storepkg.Store, di
 	effectiveHarness := harness.ResolveEffectiveConfig(store, "proposal", cfg.DefaultReasoningVerbosity)
 	targetRepo := firstNonEmpty(strings.TrimSpace(diagnosis.Repo), runtimeDiagnosisTargetRepo(cfg, candidate), cfg.DefaultRepo)
 	kubernetesReadNamespaceScope := cfg.KubernetesReadNamespaceScope()
-	toolAllowlist := runtimeDiagnosisRunnerTools(cfg.RuntimeDiagnosisLogFallbackEnabled)
 	contextRefs := []clients.RunnerContextRef{
 		{
 			Kind:              "candidate",
@@ -2325,7 +2314,6 @@ func buildRuntimeDiagnosisRunnerTask(cfg config.Config, store storepkg.Store, di
 		RepoRef:                   "main",
 		Prompt:                    prompt,
 		SystemMessage:             harness.ComposeSystemMessage("Return explicit visible reasoning only. Do not include hidden chain-of-thought. Produce a JSON object with status, subsystem, failure_mode, summary, evidence_refs, missing_evidence, recommended_fix, target_surface, and validation_plan.", effectiveHarness),
-		AllowedTools:              toolAllowlist,
 		TimeoutSeconds:            int(cfg.RunnerTaskTimeoutForRole("proposal").Seconds()),
 		ExpectedOutputs:           []string{"status", "subsystem", "failure_mode", "summary", "evidence_refs", "recommended_fix", "target_surface", "validation_plan"},
 		ArtifactDestination:       fmt.Sprintf("trace:%s:runtime_diagnosis:%s", trace.Summary.TraceID, diagnosis.ID),
@@ -2341,7 +2329,6 @@ func buildRuntimeDiagnosisRunnerTask(cfg config.Config, store storepkg.Store, di
 		CaseSummary:               caseSummary,
 		PriorTraceRefs:            improvementPriorTraceRefs(store.ListTraces(), trace.Summary.CaseID, trace.Summary.TraceID),
 		RepoAllowlist:             scopedImprovementRepoAllowlist(targetRepo),
-		ToolAllowlist:             toolAllowlist,
 		ResponseMode:              "analysis",
 		ContextRefs:               contextRefs,
 		ApprovalMode:              "deterministic",
@@ -2362,10 +2349,9 @@ func buildRuntimeDiagnosisRunnerTask(cfg config.Config, store storepkg.Store, di
 			"diagnosis_id":        diagnosis.ID,
 			"candidate_key":       candidate.CandidateKey,
 		},
-		CapabilityLeases: improvementCapabilityLeases(false, kubernetesReadNamespaceScope),
-		DeliveryPolicy:   improvementDeliveryPolicy(trace.Summary.TraceID),
-		WorkspacePolicy:  runnerutil.WorkspacePolicyFromConfig(cfg),
-		ApprovalPolicy:   improvementApprovalPolicy(false),
+		DeliveryPolicy:  improvementDeliveryPolicy(trace.Summary.TraceID),
+		WorkspacePolicy: runnerutil.WorkspacePolicyFromConfig(cfg),
+		ApprovalPolicy:  improvementApprovalPolicy(false),
 	}
 }
 
@@ -2410,14 +2396,6 @@ func scopedImprovementRepoAllowlist(primary string) []string {
 	return []string{primary}
 }
 
-func improvementBaseToolNames() []string {
-	return toolcatalog.ImprovementReadOnlyToolNames()
-}
-
-func improvementWorkspaceToolNames() []string {
-	return toolcatalog.GovernedWorkspaceToolNames()
-}
-
 func evalSessionScope(store storepkg.Store, trace events.Trace, run evals.Run) (string, string) {
 	for _, candidate := range store.ListCandidates() {
 		for _, evalID := range candidate.SourceEvalIDs {
@@ -2427,15 +2405,6 @@ func evalSessionScope(store storepkg.Store, trace events.Trace, run evals.Run) (
 		}
 	}
 	return "eval_line", "trace:" + trace.Summary.TraceID
-}
-
-func improvementReadOnlyTools(effective harness.EffectiveConfig) []string {
-	return harness.ApplyToolPreference(improvementBaseToolNames(), effective.ToolPreferenceOrder)
-}
-
-func improvementImplementTools(effective harness.EffectiveConfig) []string {
-	tools := append(improvementBaseToolNames(), improvementWorkspaceToolNames()...)
-	return harness.ApplyToolPreference(tools, effective.ToolPreferenceOrder)
 }
 
 func improvementTraceEvidenceRefs(store storepkg.Store, trace events.Trace) []clients.RunnerContextRef {
@@ -3188,15 +3157,6 @@ func firstNonEmpty(values ...string) string {
 		}
 	}
 	return ""
-}
-
-func improvementCapabilityLeases(workspaceWrite bool, kubernetesReadNamespaces []string) []clients.RunnerCapabilityLease {
-	capabilities := []string{"read_context", "workspace_read", "memory_read", "memory_write", "platform_mutation_request"}
-	if workspaceWrite {
-		capabilities = append(capabilities, "workspace_write")
-	}
-	leases := clients.RunnerCapabilityLeases(capabilities...)
-	return clients.AttachKubernetesReadNamespacesToLeases(leases, kubernetesReadNamespaces)
 }
 
 func improvementDeliveryPolicy(traceID string) *clients.RunnerDeliveryPolicy {

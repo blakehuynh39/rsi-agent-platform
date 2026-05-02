@@ -29,7 +29,6 @@ from .hermes_adapter import HermesAdapter
 from .hermes_agent_adapter import validate_hermes_contract
 from .hermes_mcp_adapter import HermesTaskScopedMCPAdapter, TaskScopedMCPRegistration
 from .execution_contract import (
-    ALLOWED_CAPABILITIES,
     EXECUTION_CONTRACT_VERSION,
     RUNNER_PLANNER_MODE,
     HermesCompanyComputer,
@@ -61,18 +60,7 @@ QUESTION_RUN_BOUNDED_STOP_TERMINATION_REASONS = frozenset(
         "output_token_budget_exhausted",
     }
 )
-ARTIFACT_RENDER_FALLBACK_BLOCKED_TERMINATION_REASONS = frozenset(
-    {
-        *QUESTION_RUN_BOUNDED_STOP_TERMINATION_REASONS,
-        "cancelled",
-        "inactivity_timeout",
-    }
-)
 DIRECT_DELIVERY_SUCCESS_STATUSES = frozenset({"posted", "sent", "uploaded", "completed", "ok", "success", "shared"})
-ARTIFACT_INVESTIGATE_TIMEOUT_SECONDS = 30 * 60
-ARTIFACT_RENDER_TIMEOUT_SECONDS = 30 * 60
-ARTIFACT_DELIVER_TIMEOUT_SECONDS = 5 * 60
-ARTIFACT_REDUCER_RESERVE_SECONDS = 3 * 60
 GROUNDED_EVIDENCE_TOOL_NAMES = frozenset(
     {
         "repo.read_file",
@@ -557,26 +545,7 @@ def _normalize_retry_assessment(value: JsonValue | None) -> JsonObject:
     }
 
 
-def _normalize_requested_artifacts(value: JsonValue | None) -> list[JsonObject]:
-    if not isinstance(value, list):
-        return []
-    out: list[JsonObject] = []
-    for item in value:
-        if not isinstance(item, dict):
-            continue
-        kind = _string_or_json(item.get("kind"))
-        if not kind:
-            continue
-        out.append(
-            {
-                "kind": kind,
-                "description": _string_or_json(item.get("description")),
-            }
-        )
-    return out
-
-
-def _normalize_requested_skills(value: JsonValue | None) -> list[str]:
+def _normalize_skill_identifiers(value: JsonValue | None) -> list[str]:
     if not isinstance(value, list):
         return []
     out: list[str] = []
@@ -809,7 +778,7 @@ def _optional_string(value: JsonValue | None) -> str | None:
 
 
 def _normalize_skill_identifier(value: JsonValue | None) -> str:
-    normalized = _normalize_requested_skills([_string_or_json(value)])
+    normalized = _normalize_skill_identifiers([_string_or_json(value)])
     if normalized:
         return normalized[0]
     return ""
@@ -898,14 +867,10 @@ class RunnerTaskRequest:
     repo_ref: str | None
     prompt: str
     system_message: str | None
-    requested_skills: list[str]
-    allowed_tools: list[str]
     allowed_commands: list[str]
     timeout_seconds: int
     expected_outputs: list[str]
     artifact_destination: str | None
-    requested_artifacts: list[JsonObject]
-    artifact_optional: bool
     context_summary: str | None
     rejected_proposal_context: list[JsonObject]
     execution_mode: str | None
@@ -923,7 +888,6 @@ class RunnerTaskRequest:
     case_summary: JsonObject | None
     prior_trace_refs: list[JsonObject]
     repo_allowlist: list[str]
-    tool_allowlist: list[str]
     response_mode: str | None
     reply_delivery_mode: str | None
     context_refs: list[JsonObject]
@@ -948,7 +912,6 @@ class RunnerTaskRequest:
     execution_phase: str | None
     contract_version: str | None
     execution_intent: JsonObject
-    capability_leases: list[JsonObject]
     delivery_policy: JsonObject
     workspace_policy: JsonObject
     approval_policy: JsonObject
@@ -962,14 +925,10 @@ class RunnerTaskRequest:
             repo_ref=_optional_string(task.get("repo_ref")),
             prompt=_required_string(_first_non_none(task.get("prompt"), payload.get("prompt")), ""),
             system_message=_optional_string(_first_non_none(task.get("system_message"), payload.get("system_message"))),
-            requested_skills=_normalize_requested_skills(task.get("requested_skills")),
-            allowed_tools=_string_list(task.get("allowed_tools")),
             allowed_commands=_string_list(task.get("allowed_commands")),
             timeout_seconds=int(task.get("timeout_seconds", 0) or 0),
             expected_outputs=_string_list(task.get("expected_outputs")),
             artifact_destination=_optional_string(task.get("artifact_destination")),
-            requested_artifacts=_normalize_requested_artifacts(task.get("requested_artifacts")),
-            artifact_optional=_bool_or_false(task.get("artifact_optional")),
             context_summary=_optional_string(task.get("context_summary")),
             rejected_proposal_context=_json_object_list(task.get("rejected_proposal_context")),
             execution_mode=_optional_string(task.get("execution_mode")),
@@ -987,7 +946,6 @@ class RunnerTaskRequest:
             case_summary=_json_object_or_empty(task.get("case_summary")) or None,
             prior_trace_refs=_json_object_list(task.get("prior_trace_refs")),
             repo_allowlist=_string_list(task.get("repo_allowlist")),
-            tool_allowlist=_string_list(task.get("tool_allowlist")),
             response_mode=_optional_string(task.get("response_mode")),
             reply_delivery_mode=_optional_string(task.get("reply_delivery_mode")),
             context_refs=_json_object_list(task.get("context_refs")),
@@ -1012,7 +970,6 @@ class RunnerTaskRequest:
             execution_phase=_optional_string(task.get("execution_phase")),
             contract_version=_optional_string(task.get("contract_version")),
             execution_intent=_json_object_or_empty(task.get("execution_intent")),
-            capability_leases=_json_object_list(task.get("capability_leases")),
             delivery_policy=_json_object_or_empty(task.get("delivery_policy")),
             workspace_policy=_json_object_or_empty(task.get("workspace_policy")),
             approval_policy=_json_object_or_empty(task.get("approval_policy")),
@@ -1048,7 +1005,6 @@ class HermesRuntime:
             hermes_pin=config.hermes_pin,
         )
         self._max_iterations = config.max_iterations
-        self._artifact_max_iterations = config.artifact_max_iterations
         self._default_task_timeout_seconds = config.task_timeout_seconds
         self._default_inactivity_timeout_seconds = config.inactivity_timeout_seconds
         self._transport_timeout_seconds = config.transport_timeout_seconds
@@ -1426,13 +1382,11 @@ class HermesRuntime:
             "execution_ledger_first_projection_enabled": self._config.execution_ledger_first_projection_enabled,
             "company_computer_root": self._config.hermes_computer_root,
             "runner_planner_mode": self._config.runner_planner_mode or RUNNER_PLANNER_MODE,
-            "required_capabilities": sorted(ALLOWED_CAPABILITIES),
             "hermes_version": adapter_meta.version,
             "hermes_pin": adapter_meta.pin,
             "hermes_contract_status": self._contract_status.to_dict(),
             "memory_backend": self._config.memory_backend,
             "max_iterations": self._max_iterations,
-            "artifact_max_iterations": self._artifact_max_iterations,
             "task_timeout_seconds": self._default_task_timeout_seconds,
             "inactivity_timeout_seconds": self._default_inactivity_timeout_seconds,
             "transport_timeout_seconds": self._transport_timeout_seconds,
@@ -1447,17 +1401,6 @@ class HermesRuntime:
                 "tool_complete_callback",
                 "status_callback",
             ],
-            "artifact_phase_budget_reference": self._artifact_phase_budgets(
-                RunnerTaskRequest.from_payload(
-                    {
-                        "task_type": "workflow",
-                        "repo": "rsi-agent-platform",
-                        "prompt": "",
-                        "requested_artifacts": [{"kind": "diagram"}],
-                        "timeout_seconds": self._default_task_timeout_seconds,
-                    }
-                )
-            ),
             "native_max_output_tokens": self._native_max_output_tokens,
             "hermes_executor_enabled": self._config.hermes_executor_enabled,
             "hermes_executor_service_only": self._config.hermes_executor_service_only,
@@ -1749,59 +1692,10 @@ class HermesRuntime:
         return (task.execution_phase or "").strip().lower() or "main"
 
     def _task_uses_artifact_phases(self, task: RunnerTaskRequest) -> bool:
-        return (
-            task.task_type == "workflow"
-            and self._execution_phase(task) == "main"
-            and len(task.requested_artifacts) > 0
-        )
+        return False
 
     def _phase_max_iterations_override(self, task: RunnerTaskRequest) -> int | None:
-        phase = self._execution_phase(task)
-        if phase == "render":
-            return 4
-        if phase == "deliver":
-            return 3
-        if self._artifact_max_iterations > 0 and (
-            phase == "investigate"
-            or "architecture-diagram" in normalize_tool_names(task.requested_skills)
-        ):
-            return self._artifact_max_iterations
         return None
-
-    def _artifact_phase_budgets(self, task: RunnerTaskRequest) -> JsonObject:
-        total = self._effective_task_timeout(task)
-        desired = {
-            "investigate": ARTIFACT_INVESTIGATE_TIMEOUT_SECONDS,
-            "render": ARTIFACT_RENDER_TIMEOUT_SECONDS,
-            "deliver": ARTIFACT_DELIVER_TIMEOUT_SECONDS,
-        }
-        desired_phase_total = sum(desired.values())
-        if total >= desired_phase_total:
-            investigate_budget = desired["investigate"]
-            render_budget = desired["render"]
-            deliver_budget = desired["deliver"]
-            reducer_reserve = min(ARTIFACT_REDUCER_RESERVE_SECONDS, total - desired_phase_total)
-        elif total <= 0:
-            investigate_budget = 0
-            render_budget = 0
-            deliver_budget = 0
-            reducer_reserve = 0
-        else:
-            scale = total / desired_phase_total
-            investigate_budget = max(1, int(desired["investigate"] * scale))
-            render_budget = max(0, int(desired["render"] * scale))
-            deliver_budget = max(0, int(desired["deliver"] * scale))
-            reducer_reserve = 0
-            overflow = investigate_budget + render_budget + deliver_budget - total
-            if overflow > 0:
-                investigate_budget = max(1, investigate_budget - overflow)
-        return {
-            "investigate": investigate_budget,
-            "render": render_budget,
-            "deliver": deliver_budget,
-            "reducer_reserve": reducer_reserve,
-            "total": total,
-        }
 
     def _native_toolsets_for_task(self, task: RunnerTaskRequest, *, extra_toolsets: list[str] | None = None) -> list[str]:
         toolsets: list[str] = []
@@ -1810,10 +1704,7 @@ class HermesRuntime:
         if execution_phase not in {"render", "deliver"} and task.task_type in {"workflow", "question_gather", "question_expand", "proposal"}:
             toolsets.extend(["todo", "session_search"])
         toolsets.extend(self._hermes_native_toolsets())
-        if execution_phase == "render" or (
-            task.task_type == "workflow"
-            and (execution_mode == "artifact_render" or len(task.requested_artifacts) > 0)
-        ):
+        if execution_phase == "render" or task.task_type in {"workflow", "prod", "proactive"} or execution_mode == "artifact_render":
             toolsets.append(HERMES_ARTIFACT_TOOLSET)
         if extra_toolsets:
             toolsets.extend(extra_toolsets)
@@ -1890,37 +1781,33 @@ class HermesRuntime:
             out.append(identifier)
         return out
 
-    def _skill_runtime_requested(self, task: RunnerTaskRequest) -> list[str]:
-        requested = [name.replace("_", "-").strip().lower() for name in task.requested_skills if str(name or "").strip()]
-        return normalize_tool_names(requested)
-
-    def _requested_skills(self, task: RunnerTaskRequest) -> list[str]:
+    def _prompt_skill_mentions(self, task: RunnerTaskRequest) -> list[str]:
         user_request = self._extract_user_request_text(task.prompt)
         explicit_mentions = self._skill_mentions_from_text(user_request)
-        requested_skills: list[str] = []
-        seen_requested: set[str] = set()
-        for identifier in [*explicit_mentions, *self._skill_runtime_requested(task)]:
+        prompt_skills: list[str] = []
+        seen_skills: set[str] = set()
+        for identifier in explicit_mentions:
             normalized = identifier.replace("_", "-").strip().lower()
-            if not normalized or normalized in seen_requested:
+            if not normalized or normalized in seen_skills:
                 continue
-            seen_requested.add(normalized)
-            requested_skills.append(normalized)
-        return requested_skills
+            seen_skills.add(normalized)
+            prompt_skills.append(normalized)
+        return prompt_skills
 
     def _expand_task_skills(self, task: RunnerTaskRequest, context: SessionContext) -> tuple[RunnerTaskRequest, JsonObject]:
         diagnostics: JsonObject = {
-            "requested_skills": [],
+            "prompt_skills": [],
             "resolved_skills": [],
             "missing_skills": [],
             "skill_injection_mode": "none",
         }
         user_request = self._extract_user_request_text(task.prompt)
-        requested_skills = self._requested_skills(task)
-        diagnostics["requested_skills"] = list(requested_skills)
-        if not requested_skills:
+        prompt_skills = self._prompt_skill_mentions(task)
+        diagnostics["prompt_skills"] = list(prompt_skills)
+        if not prompt_skills:
             return task, diagnostics
         if build_skill_invocation_message is None or build_preloaded_skills_prompt is None or resolve_skill_command_key is None:
-            diagnostics["missing_skills"] = list(requested_skills)
+            diagnostics["missing_skills"] = list(prompt_skills)
             diagnostics["skill_injection_mode"] = "helpers_unavailable"
             return task, diagnostics
 
@@ -1929,7 +1816,7 @@ class HermesRuntime:
         missing_skills: list[str] = []
         injection_modes: list[str] = []
 
-        remaining_preloads = list(requested_skills)
+        remaining_preloads = list(prompt_skills)
         stripped_request = user_request.lstrip()
         if stripped_request.startswith("/"):
             command, _, user_instruction = stripped_request.partition(" ")
@@ -2059,7 +1946,7 @@ class HermesRuntime:
             )
             observer.emit(phase=execution_phase, event_type="phase.started", status="running")
         skill_diagnostics: JsonObject = {
-            "requested_skills": [],
+            "prompt_skills": [],
             "resolved_skills": [],
             "missing_skills": [],
             "skill_injection_mode": "none",
@@ -2582,13 +2469,10 @@ class HermesRuntime:
             "workspace_repo": task.workspace_repo,
             "workspace_branch": task.workspace_branch,
             "attempt_id": task.attempt_id,
-            "requested_artifacts": task.requested_artifacts,
-            "requested_skills": task.requested_skills,
             "context_refs": task.context_refs,
             "kubernetes_read_namespaces": task.kubernetes_read_namespaces,
             "contract_version": task.contract_version or EXECUTION_CONTRACT_VERSION,
             "execution_intent": task.execution_intent,
-            "capability_leases": task.capability_leases or self._company_computer.task_leases(task),
             "delivery_policy": task.delivery_policy,
             "workspace_policy": task.workspace_policy,
             "approval_policy": task.approval_policy,
@@ -2990,7 +2874,6 @@ class HermesRuntime:
             "prompt": task.prompt,
             "system_message": task.system_message or "",
             "execution_phase": self._execution_phase(task),
-            "requested_skills": list(task.requested_skills),
             "toolsets": list(toolsets),
             "phase_contract": phase_contract,
             "task_scoped_mcp_servers": [
@@ -3027,7 +2910,6 @@ class HermesRuntime:
             "run_dir": str(result_path.parent),
             "contract_version": task.contract_version or EXECUTION_CONTRACT_VERSION,
             "execution_intent": task.execution_intent,
-            "capability_leases": task.capability_leases or self._company_computer.task_leases(task),
             "delivery_policy": task.delivery_policy,
             "workspace_policy": task.workspace_policy,
             "approval_policy": task.approval_policy,
@@ -3386,9 +3268,6 @@ class HermesRuntime:
                     "termination_reason": "hermes_phase_contract_failed",
                 },
             )
-        requested_skills = self._requested_skills(task)
-        if requested_skills != task.requested_skills:
-            task = replace(task, requested_skills=requested_skills)
         request_dir = self._native_run_dir(task)
         github_cli_env, github_cli_credentials = self._github_cli_environment(task)
         if github_cli_env:
@@ -3439,11 +3318,12 @@ class HermesRuntime:
                     "termination_reason": "github_app_credentials_unavailable",
                 },
             )
+        prompt_skills = self._prompt_skill_mentions(task)
         skill_diagnostics: JsonObject = {
-            "requested_skills": list(task.requested_skills),
-            "resolved_skills": list(task.requested_skills),
+            "prompt_skills": list(prompt_skills),
+            "resolved_skills": list(prompt_skills),
             "missing_skills": [],
-            "skill_injection_mode": "native_preload" if task.requested_skills else "none",
+            "skill_injection_mode": "native_preload" if prompt_skills else "none",
         }
         if observer is not None:
             observer.emit(
@@ -3932,7 +3812,6 @@ class HermesRuntime:
                         observed=observed,
                     ),
                     "artifact_failure_reason": message if execution_phase == "render" else "",
-                    "requested_skills": list(task.requested_skills),
                 },
             )
         else:
@@ -3984,7 +3863,7 @@ class HermesRuntime:
                     "requested_output_path": _string_or_json(_json_object_or_empty(result.raw).get("requested_output_path")),
                     "saved_paths": _string_list_or_empty(_json_object_or_empty(result.raw).get("saved_paths")),
                     "save_error": _string_or_json(_json_object_or_empty(result.raw).get("save_error")),
-                    "requested_skills": list(task.requested_skills),
+                    "prompt_skills": list(skill_diagnostics.get("prompt_skills") or []),
                     "resolved_skills": list(skill_diagnostics.get("resolved_skills") or []),
                 },
             )
@@ -4620,7 +4499,6 @@ class HermesRuntime:
             _string_or_json(task.context_summary),
             self._original_task_prompt(task),
             _string_or_json(task.execution_intent),
-            _string_or_json(task.requested_artifacts),
         ]
         spec = self._question_investigation_spec(task)
         if spec:
@@ -4883,9 +4761,6 @@ class HermesRuntime:
             "open_questions": self._evidence_open_questions(tool_calls, evidence_items),
             "draft_reply_candidates": [],
         }
-        if task.requested_artifacts:
-            ledger["requested_artifacts"] = list(task.requested_artifacts)
-            ledger["artifact_optional"] = task.artifact_optional
         if task.context_summary:
             ledger["context_summary"] = task.context_summary
         if task.trace_id:
@@ -6414,7 +6289,6 @@ class HermesRuntime:
             "task_type": task.task_type,
             "repo": task.repo,
             "repo_ref": task.repo_ref,
-            "allowed_tools": task.allowed_tools,
             "allowed_commands": task.allowed_commands,
             "timeout_seconds": task.timeout_seconds,
             "expected_outputs": task.expected_outputs,
@@ -6429,7 +6303,6 @@ class HermesRuntime:
             "channel_id": task.channel_id,
             "thread_ts": task.thread_ts,
             "repo_allowlist": task.repo_allowlist,
-            "tool_allowlist": task.tool_allowlist,
             "response_mode": task.response_mode,
             "reply_delivery_mode": task.reply_delivery_mode,
             "context_refs": task.context_refs,
@@ -6453,7 +6326,6 @@ class HermesRuntime:
             "execution_phase": task.execution_phase,
             "contract_version": task.contract_version or EXECUTION_CONTRACT_VERSION,
             "execution_intent": task.execution_intent,
-            "capability_leases": task.capability_leases,
             "delivery_policy": task.delivery_policy,
             "workspace_policy": task.workspace_policy,
             "approval_policy": task.approval_policy,
@@ -6492,731 +6364,6 @@ class HermesRuntime:
             runner_diagnostics["action_contract_repair_response"] = action_contract_repair_response
         result.raw["runner_diagnostics"] = runner_diagnostics
         return result
-
-    def _artifact_output_root(self, task: RunnerTaskRequest) -> Path:
-        destination = _string_or_json(task.artifact_destination)
-        if destination and destination.startswith("/"):
-            path = Path(destination).expanduser()
-            path.mkdir(parents=True, exist_ok=True)
-            return path
-        if task.contract_version == EXECUTION_CONTRACT_VERSION or os.getenv("RSI_HERMES_ARTIFACT_ROOT", "").strip():
-            return self._native_artifact_output_dir(task)
-        scope = first_non_empty(task.trace_id, task.workflow_id, task.session_scope_id, "artifact-workflow")
-        path = Path(self._config.hermes_home) / "rsi_runtime" / "artifacts" / scope
-        path.mkdir(parents=True, exist_ok=True)
-        return path
-
-    def _artifact_output_extension(self, kind: str, skill: str) -> str:
-        if kind == "diagram" and skill == "architecture-diagram":
-            return ".html"
-        if kind == "diagram":
-            return ".svg"
-        return ".txt"
-
-    def _artifact_output_path(self, task: RunnerTaskRequest, *, kind: str, skill: str, title: str) -> str:
-        safe_title = title.replace(" ", "-").lower()
-        extension = self._artifact_output_extension(kind, skill)
-        return str((self._artifact_output_root(task) / f"{safe_title}{extension}").resolve())
-
-    def _artifact_brief_title(self, task: RunnerTaskRequest, brief: JsonObject, *, index: int) -> str:
-        title = _string_or_json(brief.get("title"))
-        if title:
-            return title
-        if index - 1 < len(task.requested_artifacts):
-            requested_title = _string_or_json(task.requested_artifacts[index - 1].get("description"))
-            if requested_title:
-                return requested_title
-        kind = _string_or_json(brief.get("kind")) or "artifact"
-        return f"{kind}-{index}"
-
-    def _artifact_brief_render_prompt(
-        self,
-        task: RunnerTaskRequest,
-        structured_output: JsonObject,
-        brief: JsonObject,
-        *,
-        title: str,
-        index: int,
-    ) -> str:
-        render_prompt = _string_or_json(brief.get("render_prompt"))
-        if render_prompt:
-            return render_prompt
-        requested_description = ""
-        if index - 1 < len(task.requested_artifacts):
-            requested_description = _string_or_json(task.requested_artifacts[index - 1].get("description"))
-        grounded_final_answer = _string_or_json(structured_output.get("final_answer"))
-        grounded_context_summary = _string_or_json(structured_output.get("context_summary"))
-        if not requested_description and not grounded_final_answer and not grounded_context_summary:
-            return self._extract_user_request_text(task.prompt)
-        parts = [
-            requested_description,
-            f"Render the requested artifact titled {title}.",
-            grounded_final_answer,
-            grounded_context_summary,
-        ]
-        synthesized = "\n\n".join(part for part in parts if part)
-        return synthesized or self._extract_user_request_text(task.prompt)
-
-    def _artifact_default_skill(self, task: RunnerTaskRequest, brief: JsonObject) -> str:
-        requested_brief_skill = _string_or_json(first_non_empty(brief.get("requested_skill"), brief.get("skill")))
-        if requested_brief_skill:
-            return _normalize_skill_identifier(requested_brief_skill)
-        if task.requested_skills:
-            return _normalize_skill_identifier(task.requested_skills[0])
-        if _string_or_json(brief.get("kind")) == "diagram":
-            return "architecture-diagram"
-        return ""
-
-    def _artifact_render_skill_diagnostics(self, task: RunnerTaskRequest, brief: JsonObject) -> JsonObject:
-        requested_skill = _string_or_json(first_non_empty(brief.get("requested_skill"), brief.get("skill")))
-        if not requested_skill and task.requested_skills:
-            requested_skill = _string_or_json(task.requested_skills[0])
-        resolved_skill = self._artifact_default_skill(task, brief)
-        return {
-            "requested_skills": [requested_skill] if requested_skill else [],
-            "resolved_skills": [resolved_skill] if resolved_skill else [],
-        }
-
-    def _artifact_render_briefs(
-        self,
-        task: RunnerTaskRequest,
-        structured_output: JsonObject,
-        *,
-        allow_fallback: bool = True,
-    ) -> list[JsonObject]:
-        briefs = _normalize_artifact_render_briefs(structured_output.get("artifact_render_briefs"))
-        if briefs:
-            hydrated: list[JsonObject] = []
-            for index, brief in enumerate(briefs, start=1):
-                kind = _string_or_json(brief.get("kind"))
-                if not kind:
-                    continue
-                skill = self._artifact_default_skill(task, brief)
-                title = self._artifact_brief_title(task, brief, index=index)
-                hydrated.append(
-                    {
-                        "kind": kind,
-                        "skill": skill,
-                        "requested_skill": _string_or_json(first_non_empty(brief.get("requested_skill"), brief.get("skill"))),
-                        "title": title,
-                        "render_prompt": self._artifact_brief_render_prompt(
-                            task,
-                            structured_output,
-                            brief,
-                            title=title,
-                            index=index,
-                        ),
-                        "inputs": _json_object_or_empty(brief.get("inputs")),
-                        "output_path_hint": _string_or_json(brief.get("output_path_hint"))
-                        or self._artifact_output_path(task, kind=kind, skill=skill, title=title),
-                    }
-                )
-            return hydrated
-        if not allow_fallback:
-            return []
-        fallback: list[JsonObject] = []
-        for index, requested in enumerate(task.requested_artifacts, start=1):
-            kind = _string_or_json(requested.get("kind"))
-            if not kind:
-                continue
-            brief = {"kind": kind, "title": _string_or_json(requested.get("description"))}
-            skill = self._artifact_default_skill(task, brief)
-            title = self._artifact_brief_title(task, brief, index=index)
-            fallback.append(
-                {
-                    "kind": kind,
-                    "skill": skill,
-                    "requested_skill": _string_or_json(first_non_empty(brief.get("requested_skill"), brief.get("skill"))),
-                    "title": title,
-                    "render_prompt": self._artifact_brief_render_prompt(
-                        task,
-                        structured_output,
-                        brief,
-                        title=title,
-                        index=index,
-                    ),
-                    "inputs": {},
-                    "output_path_hint": self._artifact_output_path(task, kind=kind, skill=skill, title=title),
-                }
-            )
-        return fallback
-
-    def _artifact_render_fallback_block_reason(self, investigate_result: HermesExecutionResult) -> str:
-        termination_reason = _string_or_json(investigate_result.raw.get("termination_reason"))
-        completion_verdict = _string_or_json(investigate_result.raw.get("completion_verdict"))
-        if termination_reason in ARTIFACT_RENDER_FALLBACK_BLOCKED_TERMINATION_REASONS:
-            return f"Artifact render skipped because investigation ended with {termination_reason} before producing renderable briefs."
-        if completion_verdict == "partial":
-            return "Artifact render skipped because investigation was only partially completed and produced no renderable briefs."
-        return ""
-
-    def _allow_artifact_render_fallback(self, investigate_result: HermesExecutionResult) -> bool:
-        return not self._artifact_render_fallback_block_reason(investigate_result)
-
-    def _evidence_ledger_has_grounded_artifact_inputs(self, ledger: JsonObject) -> bool:
-        grounding_count = 0
-        for item in _json_object_list(ledger.get("evidence_items")):
-            has_source = any(
-                _string_or_json(item.get(key))
-                for key in ("source_ref", "path", "repo", "permalink", "url", "ref", "commit", "sha")
-            )
-            has_content = bool(_string_or_json(item.get("summary")) or _string_or_json(item.get("snippet")))
-            tool_name = _string_or_json(item.get("tool_name"))
-            if has_source and has_content and tool_name and tool_name in GROUNDED_EVIDENCE_TOOL_NAMES:
-                grounding_count += 1
-        for item in _json_object_list(ledger.get("tool_calls")):
-            tool_name = _string_or_json(item.get("tool_name"))
-            if tool_name not in GROUNDED_EVIDENCE_TOOL_NAMES:
-                continue
-            status = _string_or_json(item.get("status")).lower()
-            if status and status not in {"completed", "complete", "ok", "success"}:
-                continue
-            if _string_or_json(item.get("summary")) or _json_object_or_empty(item.get("request")):
-                grounding_count += 1
-        return grounding_count > 0
-
-    def _artifact_render_briefs_from_grounded_timeout(
-        self,
-        task: RunnerTaskRequest,
-        structured_output: JsonObject,
-        investigate_result: HermesExecutionResult,
-    ) -> list[JsonObject]:
-        block_reason = self._artifact_render_fallback_block_reason(investigate_result)
-        if not block_reason:
-            return []
-        ledger = _json_object_or_empty(investigate_result.raw.get("evidence_ledger"))
-        if not ledger or not self._evidence_ledger_has_grounded_artifact_inputs(ledger):
-            return []
-        compact_ledger: JsonObject = {
-            "termination_reason": _string_or_json(ledger.get("termination_reason")),
-            "tool_calls": _json_object_list(ledger.get("tool_calls")),
-            "evidence_items": _json_object_list(ledger.get("evidence_items")),
-            "open_questions": _string_list_or_empty(ledger.get("open_questions")),
-        }
-        requested_artifacts = _json_object_list(ledger.get("requested_artifacts")) or task.requested_artifacts
-        if requested_artifacts:
-            compact_ledger["requested_artifacts"] = requested_artifacts
-        ledger_text = json.dumps(compact_ledger, ensure_ascii=True, sort_keys=True)
-        if len(ledger_text) > 24000:
-            ledger_text = ledger_text[:24000] + "\n...[truncated compact evidence ledger]"
-        briefs: list[JsonObject] = []
-        for index, requested in enumerate(task.requested_artifacts, start=1):
-            kind = _string_or_json(requested.get("kind"))
-            if not kind:
-                continue
-            title = _string_or_json(requested.get("description")) or f"{kind}-{index}"
-            brief: JsonObject = {"kind": kind, "title": title}
-            skill = self._artifact_default_skill(task, brief)
-            prompt_parts = [
-                "Render the requested artifact from a bounded-stop investigation.",
-                "Use the compact evidence ledger below as the grounded source of truth.",
-                "Do not claim a source was missing when that source appears in the evidence ledger.",
-                "Represent unresolved questions explicitly instead of inventing missing facts.",
-                f"User request: {self._original_task_prompt(task)}",
-                f"Requested artifact: {json.dumps(requested, ensure_ascii=True, sort_keys=True)}",
-                f"Bounded-stop reason: {block_reason}",
-                f"Investigation answer: {_string_or_json(structured_output.get('final_answer'))}",
-                f"Investigation context: {_string_or_json(structured_output.get('context_summary'))}",
-                f"Compact evidence ledger:\n{ledger_text}",
-            ]
-            briefs.append(
-                {
-                    "kind": kind,
-                    "skill": skill,
-                    "requested_skill": _string_or_json(task.requested_skills[0] if task.requested_skills else ""),
-                    "title": title,
-                    "render_prompt": "\n\n".join(part for part in prompt_parts if part),
-                    "inputs": {"evidence_ledger": compact_ledger},
-                    "output_path_hint": self._artifact_output_path(task, kind=kind, skill=skill, title=title),
-                }
-            )
-        return briefs
-
-    def _investigate_mcp_servers(self, task: RunnerTaskRequest) -> list[JsonObject]:
-        servers: list[JsonObject] = []
-        for server in task.mcp_servers:
-            item = dict(server)
-            if _string_or_json(item.get("profile")) == "slack_mcp_reply":
-                item["profile"] = "slack_mcp_read"
-            servers.append(item)
-        return servers
-
-    def _remove_delivery_tools(self, allowed_tools: list[str]) -> list[str]:
-        return [item for item in allowed_tools if item != "slack.upload_file"]
-
-    def _append_system_message(self, task: RunnerTaskRequest, extra: str) -> str | None:
-        return "\n\n".join(part for part in [task.system_message or "", extra.strip()] if part.strip()) or None
-
-    def _build_artifact_investigate_task(self, task: RunnerTaskRequest, budgets: JsonObject) -> RunnerTaskRequest:
-        prompt = "\n\n".join(
-            [
-                task.prompt,
-                "Artifact workflow contract:",
-                "Do not render files, upload files, or send Slack messages in this phase.",
-                "Investigate and distill the request into one or more artifact_render_briefs with compact grounded inputs.",
-                "Return final_answer, reply_draft, context_summary, artifact_render_briefs, produced_artifacts, and artifact_failure_reason in the structured output.",
-            ]
-        )
-        return replace(
-            task,
-            prompt=prompt,
-            system_message=self._append_system_message(
-                task,
-                "Investigation phase only. Slack delivery is disabled in this phase. Produce compact artifact_render_briefs instead of generating artifacts now.",
-            ),
-            allowed_tools=self._remove_delivery_tools(task.allowed_tools),
-            requested_artifacts=[],
-            mcp_servers=self._investigate_mcp_servers(task),
-            reply_delivery_mode="none",
-            timeout_seconds=int(budgets.get("investigate") or 0),
-            execution_phase="investigate",
-        )
-
-    def _build_artifact_render_task(
-        self,
-        task: RunnerTaskRequest,
-        brief: JsonObject,
-        investigate_output: JsonObject,
-        budgets: JsonObject,
-        index: int,
-    ) -> RunnerTaskRequest:
-        kind = _string_or_json(brief.get("kind"))
-        skill = self._artifact_default_skill(task, brief)
-        title = self._artifact_brief_title(task, brief, index=index + 1)
-        output_path = _string_or_json(brief.get("output_path_hint")) or self._artifact_output_path(
-            task, kind=kind, skill=skill, title=title
-        )
-        skill_diagnostics = self._artifact_render_skill_diagnostics(task, brief)
-        requested_skill_input = "none"
-        if skill_diagnostics["requested_skills"]:
-            requested_skill_input = _string_or_json(skill_diagnostics["requested_skills"][0]) or "none"
-        native_render_instructions = "Use file-writing tools to generate the artifact."
-        native_render_system_message = "Use file-writing tools and the selected skill to generate the artifact."
-        if self._native_executor_enabled_for_task(task):
-            native_render_instructions = (
-                "Use artifact_list_files and artifact_write_file "
-                "to inspect and save files only within the native artifact directory."
-            )
-            native_render_system_message = (
-                "Use artifact_write_file to persist the artifact inside the staged native artifact directory."
-            )
-        render_prompt = "\n\n".join(
-            [
-                f"Artifact render phase for {kind}.",
-                f"Selected skill: {skill or 'none'}",
-                f"Requested skill input: {requested_skill_input}",
-                f"Output path: {output_path}",
-                f"Grounded context summary: {_string_or_json(investigate_output.get('context_summary'))}",
-                f"Grounded final answer: {_string_or_json(investigate_output.get('final_answer'))}",
-                f"Render brief: {json.dumps(brief, ensure_ascii=True, sort_keys=True)}",
-                f"Generate the artifact only. Save it to the output path. {native_render_instructions} Do not send Slack messages.",
-                "Return structured output with produced_artifacts and artifact_failure_reason. produced_artifacts must include file:// artifact refs for saved files.",
-            ]
-        )
-        return replace(
-            task,
-            prompt=render_prompt,
-            system_message=self._append_system_message(
-                task,
-                f"Render phase only. Do not investigate broadly. Do not send Slack messages. {native_render_system_message}",
-            ),
-            requested_skills=[skill] if skill else [],
-            requested_artifacts=[{"kind": kind, "description": title}],
-            allowed_tools=[],
-            mcp_servers=[],
-            reply_delivery_mode="none",
-            timeout_seconds=int(budgets.get("render") or 0),
-            context_summary=_string_or_json(investigate_output.get("context_summary")),
-            execution_mode="artifact_render",
-            execution_phase="render",
-        )
-
-    def _build_artifact_delivery_task(
-        self,
-        task: RunnerTaskRequest,
-        investigate_output: JsonObject,
-        produced_artifacts: list[JsonObject],
-        budgets: JsonObject,
-        *,
-        artifact_failure_reason: str = "",
-    ) -> RunnerTaskRequest:
-        artifact_refs: list[str] = []
-        for artifact in produced_artifacts:
-            artifact_refs.extend(_string_list_or_empty(artifact.get("artifact_refs")))
-        has_artifacts = bool(artifact_refs)
-        if has_artifacts:
-            artifact_manifest = "\n".join(
-                f"- {ref}"
-                for ref in artifact_refs
-                if _string_or_json(ref)
-            )
-            prompt = "\n\n".join(
-                [
-                    "Artifact delivery phase.",
-                    f"Final reply body: {_string_or_json(investigate_output.get('final_answer')) or _string_or_json(investigate_output.get('reply_draft'))}",
-                    "Attach produced local artifacts through Hermes native send_message by including MEDIA:/absolute/path entries in the message. If an artifact ref starts with file://, strip that prefix before using it in MEDIA:.",
-                    artifact_manifest,
-                    "Send exactly one final Slack reply using Hermes native send_message to the bound Slack thread target.",
-                    "Return reply_delivery plus produced_artifacts in structured output only. Do not perform repo or knowledge investigation.",
-                ]
-            )
-            system_message = "Delivery phase only. Do not investigate. Send exactly one final Slack reply using Hermes native send_message."
-            allowed_tools = []
-            delivery_branch = "native_slack_media_with_artifacts"
-        else:
-            prompt = "\n\n".join(
-                [
-                    "Artifact delivery phase.",
-                    f"Final reply body: {_string_or_json(investigate_output.get('final_answer')) or _string_or_json(investigate_output.get('reply_draft'))}",
-                    "No file artifacts were produced.",
-                    f"Render failure reason: {artifact_failure_reason or 'none'}",
-                    "Send exactly one final Slack reply using Hermes native send_message to the bound Slack thread target.",
-                    "Do not upload files. Do not perform repo or knowledge investigation.",
-                ]
-            )
-            system_message = "Delivery phase only. Do not investigate. Send exactly one final Slack reply using Hermes native send_message."
-            allowed_tools = []
-            delivery_branch = "text_only"
-        return replace(
-            task,
-            prompt=prompt,
-            system_message=self._append_system_message(task, system_message),
-            requested_skills=[],
-            requested_artifacts=[],
-            allowed_tools=allowed_tools,
-            tool_allowlist=allowed_tools,
-            timeout_seconds=int(budgets.get("deliver") or 0),
-            context_summary=_string_or_json(investigate_output.get("context_summary")),
-            execution_phase="deliver",
-            context_refs=[
-                *task.context_refs,
-                {
-                    "kind": "artifact_delivery_branch",
-                    "ref": delivery_branch,
-                    "summary": f"Artifact delivery branch selected: {delivery_branch}.",
-                },
-            ],
-        )
-
-    def _synthesized_slack_post_action(self, task: RunnerTaskRequest, body: str, produced_artifacts: list[JsonObject]) -> list[JsonObject]:
-        if not body:
-            return []
-        payload: JsonObject = {"body": body}
-        artifact_refs: list[str] = []
-        for artifact in produced_artifacts:
-            artifact_refs.extend(_string_list_or_empty(artifact.get("artifact_refs")))
-        if artifact_refs:
-            payload["artifact_refs"] = artifact_refs
-        if task.channel_id:
-            payload["channel_id"] = task.channel_id
-        if task.thread_ts:
-            payload["thread_ts"] = task.thread_ts
-        return [
-            {
-                "kind": "slack_post",
-                "target_ref": first_non_empty(task.channel_id, task.thread_ts, task.trace_id),
-                "request_payload": payload,
-                "approval_mode": "not_required",
-                "idempotency_key": hashlib.sha1(body.encode("utf-8")).hexdigest(),
-                "rationale": "Fallback to mediated Slack delivery after direct delivery phase failure.",
-                "evidence_refs": [],
-            }
-        ]
-
-    def _merge_artifact_phase_result(
-        self,
-        task: RunnerTaskRequest,
-        investigate_result: HermesExecutionResult,
-        investigate_output: JsonObject,
-        produced_artifacts: list[JsonObject],
-        artifact_failure_reason: str,
-        *,
-        delivery_result: HermesExecutionResult | None = None,
-        delivery_output: JsonObject | None = None,
-        direct_delivery_failed: str = "",
-        observer: ObservationEmitter | None = None,
-    ) -> HermesExecutionResult:
-        final_output = dict(investigate_output)
-        final_output["artifact_render_briefs"] = _normalize_artifact_render_briefs(investigate_output.get("artifact_render_briefs"))
-        produced_artifacts = self._mark_artifacts_shared_if_delivered(_normalize_produced_artifacts(produced_artifacts), delivery_output)
-        final_output["produced_artifacts"] = produced_artifacts
-        final_output["artifact_failure_reason"] = artifact_failure_reason
-        if delivery_output:
-            if _json_object_or_empty(delivery_output.get("reply_delivery")):
-                final_output["reply_delivery"] = _json_object_or_empty(delivery_output.get("reply_delivery"))
-            if _normalize_proposed_actions(delivery_output.get("proposed_actions")):
-                final_output["proposed_actions"] = _normalize_proposed_actions(delivery_output.get("proposed_actions"))
-        if direct_delivery_failed:
-            final_output["direct_delivery_failed"] = direct_delivery_failed
-        base_raw = dict(delivery_result.raw if delivery_result is not None else investigate_result.raw)
-        phase_lifecycle_events = self._merge_runtime_values(
-            _json_object_list(investigate_result.raw.get("lifecycle_events")),
-            _json_object_list(base_raw.get("lifecycle_events")),
-        )
-        phase_tool_calls = self._merge_runtime_values(
-            _json_object_list(investigate_result.raw.get("tool_calls")),
-            _json_object_list(base_raw.get("tool_calls")),
-        )
-        phase_evidence_items = self._merge_runtime_values(
-            _json_object_list(investigate_result.raw.get("evidence_items")),
-            _json_object_list(base_raw.get("evidence_items")),
-        )
-        investigate_evidence_ledger = _json_object_or_empty(investigate_result.raw.get("evidence_ledger"))
-        runner_diagnostics = _json_object_or_empty(base_raw.get("runner_diagnostics"))
-        budgets = self._artifact_phase_budgets(task)
-        runner_diagnostics["artifact_phase_budgets"] = budgets
-        runner_diagnostics["artifact_phase_enabled"] = True
-        runner_diagnostics["artifact_investigate_completion_verdict"] = _string_or_json(
-            investigate_result.raw.get("completion_verdict")
-        )
-        runner_diagnostics["artifact_investigate_termination_reason"] = _string_or_json(
-            investigate_result.raw.get("termination_reason")
-        )
-        if delivery_result is not None:
-            runner_diagnostics["artifact_delivery_completion_verdict"] = _string_or_json(
-                delivery_result.raw.get("completion_verdict")
-            )
-        if direct_delivery_failed:
-            runner_diagnostics["direct_delivery_phase_failed"] = direct_delivery_failed
-        runner_diagnostics["artifact_delivery_branch"] = "native_slack_media_with_artifacts" if produced_artifacts else "text_only"
-        if artifact_failure_reason:
-            runner_diagnostics["artifact_render_failure_reason"] = artifact_failure_reason
-        if observer is not None:
-            for key, value in observer.diagnostics().items():
-                runner_diagnostics[key] = value
-        final_completion_verdict = _string_or_json(base_raw.get("completion_verdict")) or "complete"
-        final_termination_reason = _string_or_json(base_raw.get("termination_reason")) or "normal_completion"
-        investigate_completion_verdict = _string_or_json(investigate_result.raw.get("completion_verdict"))
-        investigate_termination_reason = _string_or_json(investigate_result.raw.get("termination_reason"))
-        if investigate_completion_verdict == "partial":
-            final_completion_verdict = "partial"
-            final_termination_reason = investigate_termination_reason or final_termination_reason
-        base_raw.update(
-            {
-                "operation_id": task.operation_id,
-                "execution_phase": task.execution_phase,
-                "completion_verdict": final_completion_verdict,
-                "termination_reason": final_termination_reason,
-                "structured_output": final_output,
-                "produced_artifacts": produced_artifacts,
-                "artifact_failure_reason": artifact_failure_reason,
-                "runner_diagnostics": runner_diagnostics,
-            }
-        )
-        if phase_lifecycle_events:
-            base_raw["lifecycle_events"] = phase_lifecycle_events
-        if phase_tool_calls:
-            base_raw["tool_calls"] = phase_tool_calls
-        if phase_evidence_items:
-            base_raw["evidence_items"] = phase_evidence_items
-        if investigate_evidence_ledger:
-            base_raw["evidence_ledger"] = investigate_evidence_ledger
-        return HermesExecutionResult(
-            ok=True,
-            message=json.dumps(final_output, ensure_ascii=True, sort_keys=True),
-            provider=delivery_result.provider if delivery_result is not None else investigate_result.provider,
-            raw=base_raw,
-        )
-
-    def _execute_artifact_workflow_task(
-        self,
-        task: RunnerTaskRequest,
-        *,
-        observer: ObservationEmitter | None = None,
-    ) -> HermesExecutionResult:
-        budgets = self._artifact_phase_budgets(task)
-        phase_task = task
-        if self._native_executor_enabled_for_task(task):
-            artifact_root = self._native_artifact_output_dir(task)
-            artifact_root.mkdir(parents=True, exist_ok=True)
-            phase_task = replace(task, artifact_destination=str(artifact_root))
-        if observer is not None:
-            observer.emit(
-                phase="main",
-                event_type="artifact.pipeline.started",
-                status="running",
-                payload=budgets,
-            )
-        investigate_task = self._build_artifact_investigate_task(phase_task, budgets)
-        investigate_result = self._execute_task_internal(investigate_task, observer=observer)
-        if not investigate_result.ok:
-            return investigate_result
-        investigate_output = _normalize_structured_output(_json_object_or_empty(investigate_result.raw.get("structured_output")))
-        render_briefs = self._artifact_render_briefs(
-            phase_task,
-            investigate_output,
-            allow_fallback=self._allow_artifact_render_fallback(investigate_result),
-        )
-        if not render_briefs:
-            render_briefs = self._artifact_render_briefs_from_grounded_timeout(phase_task, investigate_output, investigate_result)
-            if render_briefs:
-                investigate_output["artifact_render_briefs"] = render_briefs
-        produced_artifacts: list[JsonObject] = []
-        artifact_failure_reasons: list[str] = []
-        if not render_briefs:
-            render_skip_reason = first_non_empty(
-                _string_or_json(investigate_output.get("artifact_failure_reason")),
-                self._artifact_render_fallback_block_reason(investigate_result),
-                "Artifact investigation completed without artifact_render_briefs.",
-            )
-            artifact_failure_reasons.append(render_skip_reason)
-            if observer is not None:
-                observer.emit(
-                    phase="render",
-                    event_type="phase.completed",
-                    status="skipped",
-                    payload={
-                        "completion_verdict": _string_or_json(investigate_result.raw.get("completion_verdict")),
-                        "termination_reason": _string_or_json(investigate_result.raw.get("termination_reason")),
-                        "artifact_failure_reason": render_skip_reason,
-                    },
-                )
-        for index, brief in enumerate(render_briefs):
-            render_task = self._build_artifact_render_task(phase_task, brief, investigate_output, budgets, index)
-            render_skill = _normalize_skill_identifier(
-                first_non_empty(
-                    brief.get("requested_skill"),
-                    brief.get("skill"),
-                    render_task.requested_skills[0] if render_task.requested_skills else "",
-                )
-            )
-            if not render_skill:
-                render_failure = "Artifact render skill identifier is invalid after normalization."
-                artifact_failure_reasons.append(render_failure)
-                if observer is not None:
-                    skill_diagnostics = self._artifact_render_skill_diagnostics(phase_task, brief)
-                    observer.emit(
-                        phase="render",
-                        event_type="phase.completed",
-                        status="failed",
-                        payload={
-                            "completion_verdict": "",
-                            "termination_reason": "invalid_render_skill",
-                            "artifact_failure_reason": render_failure,
-                            "requested_skills": skill_diagnostics["requested_skills"],
-                            "resolved_skills": skill_diagnostics["resolved_skills"],
-                        },
-                    )
-                continue
-            render_result = self._execute_task_internal(render_task, observer=observer)
-            if not render_result.ok:
-                artifact_failure_reasons.append(
-                    first_non_empty(
-                        _string_or_json(_json_object_or_empty(render_result.raw).get("artifact_failure_reason")),
-                        render_result.message,
-                    )
-                )
-                continue
-            render_output = _normalize_structured_output(_json_object_or_empty(render_result.raw.get("structured_output")))
-            rendered_artifacts = self._enrich_artifact_records(_normalize_produced_artifacts(render_output.get("produced_artifacts")), phase_task)
-            native_artifact_paths = _string_list_or_empty(render_result.raw.get("native_artifact_paths"))
-            if not rendered_artifacts and native_artifact_paths:
-                kind = _string_or_json(brief.get("kind"))
-                title = self._artifact_brief_title(phase_task, brief, index=index + 1)
-                rendered_artifacts = [
-                    self._artifact_record_for_path(path, kind=kind, title=title, task=phase_task)
-                    for path in native_artifact_paths
-                ]
-            produced_artifacts.extend(rendered_artifacts)
-            for artifact in rendered_artifacts:
-                if observer is not None:
-                    observer.emit(
-                        phase="render",
-                        event_type="artifact.file.written",
-                        status="completed",
-                        payload=artifact,
-                    )
-            render_failure = _string_or_json(render_output.get("artifact_failure_reason"))
-            if render_failure:
-                artifact_failure_reasons.append(render_failure)
-        produced_artifacts = _normalize_produced_artifacts(produced_artifacts)
-        artifact_failure_reason = "; ".join(item for item in artifact_failure_reasons if item)
-        reply_delivery_mode = self._workflow_reply_delivery_mode(task)
-        if reply_delivery_mode == "direct":
-            if observer is not None:
-                observer.emit(
-                    phase="deliver",
-                    event_type="direct_delivery.started",
-                    status="running",
-                    payload={"delivery_branch": "native_slack_media_with_artifacts" if produced_artifacts else "text_only"},
-                )
-            deliver_task = self._build_artifact_delivery_task(
-                phase_task,
-                investigate_output,
-                produced_artifacts,
-                budgets,
-                artifact_failure_reason=artifact_failure_reason,
-            )
-            deliver_result = self._execute_task_internal(deliver_task, observer=observer)
-            if deliver_result.ok:
-                deliver_output = _normalize_structured_output(_json_object_or_empty(deliver_result.raw.get("structured_output")))
-                reply_delivery = _json_object_or_empty(deliver_output.get("reply_delivery"))
-                delivery_succeeded = self._reply_delivery_succeeded(deliver_output)
-                if observer is not None:
-                    observer.emit(
-                        phase="deliver",
-                        event_type="direct_delivery.completed",
-                        status="completed" if delivery_succeeded else ("failed" if reply_delivery else "fallback"),
-                    )
-                if delivery_succeeded:
-                    return self._merge_artifact_phase_result(
-                        task,
-                        investigate_result,
-                        investigate_output,
-                        produced_artifacts,
-                        artifact_failure_reason,
-                        delivery_result=deliver_result,
-                        delivery_output=deliver_output,
-                        observer=observer,
-                    )
-                if reply_delivery:
-                    delivery_status = _string_or_json(reply_delivery.get("status")) or "unknown"
-                    return self._merge_artifact_phase_result(
-                        task,
-                        investigate_result,
-                        investigate_output,
-                        produced_artifacts,
-                        artifact_failure_reason,
-                        delivery_result=deliver_result,
-                        delivery_output=deliver_output,
-                        direct_delivery_failed=f"direct delivery phase reported unsuccessful status {delivery_status}",
-                        observer=observer,
-                    )
-                return self._merge_artifact_phase_result(
-                    task,
-                    investigate_result,
-                    investigate_output,
-                    produced_artifacts,
-                    artifact_failure_reason,
-                    delivery_result=deliver_result,
-                    delivery_output=deliver_output,
-                    direct_delivery_failed="direct delivery phase completed without reply_delivery",
-                    observer=observer,
-                )
-            if observer is not None:
-                observer.emit(
-                    phase="deliver",
-                    event_type="direct_delivery.completed",
-                    status="failed",
-                    payload={"error": deliver_result.message},
-                )
-            return self._merge_artifact_phase_result(
-                task,
-                investigate_result,
-                investigate_output,
-                produced_artifacts,
-                artifact_failure_reason,
-                direct_delivery_failed=deliver_result.message,
-                observer=observer,
-            )
-        return self._merge_artifact_phase_result(
-            task,
-            investigate_result,
-            investigate_output,
-            produced_artifacts,
-            artifact_failure_reason,
-            observer=observer,
-        )
 
     def _render_task_prompt(self, task: RunnerTaskRequest) -> str:
         parts = [
@@ -7279,8 +6426,6 @@ class HermesRuntime:
                 "Kubernetes read namespace scope: "
                 f"{namespace_scope}. Use kubectl only with these namespaces and do not probe unlisted or archived namespaces."
             )
-        if task.capability_leases:
-            parts.append(f"Capability leases: {json.dumps(task.capability_leases, ensure_ascii=True, sort_keys=True)}")
         if task.delivery_policy:
             parts.append(f"Delivery policy: {json.dumps(task.delivery_policy, ensure_ascii=True, sort_keys=True)}")
         if task.workspace_policy:
@@ -7307,14 +6452,6 @@ class HermesRuntime:
             parts.append(f"Expected outputs: {', '.join(task.expected_outputs)}")
         if task.artifact_destination:
             parts.append(f"Artifact destination: {task.artifact_destination}")
-        if task.requested_artifacts:
-            parts.append(f"Requested artifacts: {json.dumps(task.requested_artifacts, ensure_ascii=True, sort_keys=True)}")
-            if task.artifact_optional:
-                parts.append("Artifact production is requested but optional; if an artifact cannot be produced, explain why in artifact_failure_reason and still return the best grounded reply.")
-            else:
-                parts.append("Artifact production is required when the evidence and tools allow it; if it cannot be produced, explain why in artifact_failure_reason.")
-        if task.requested_skills:
-            parts.append(f"Requested skills: {', '.join(task.requested_skills)}")
         if task.rejected_proposal_context:
             parts.append(f"Prior rejected/dismissed context: {json.dumps(task.rejected_proposal_context)}")
         if task.response_mode:
@@ -7419,11 +6556,7 @@ class HermesRuntime:
         return replace(
             task,
             prompt=repair_prompt,
-            allowed_tools=[],
-            tool_allowlist=[],
             mcp_servers=[],
-            requested_skills=[],
-            requested_artifacts=[],
             reply_delivery_mode="none",
         )
 
@@ -7456,11 +6589,7 @@ class HermesRuntime:
         return replace(
             task,
             prompt=repair_prompt,
-            allowed_tools=[],
-            tool_allowlist=[],
             mcp_servers=[],
-            requested_skills=[],
-            requested_artifacts=[],
             reply_delivery_mode="none",
         )
 
