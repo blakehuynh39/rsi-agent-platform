@@ -1,7 +1,48 @@
+import { useEffect, useState } from "react";
+
 import type { ConversationDetailResponse, TraceDetailResponse, TraceInspectorTab, NullableList, EvalJudgment } from "@/types";
-import { formatTime, listOrEmpty } from "@/hooks/api";
+import { formatTime, listOrEmpty, pageCount, clampPage } from "@/hooks/api";
 import { TraceInspector } from "./trace-inspector";
 import { FormattedMessage } from "@/components/formatted-message";
+
+const TRANSCRIPT_PAGE_SIZE = 5;
+const WORKFLOW_ATTEMPT_PAGE_SIZE = 4;
+
+function PageControls(props: {
+  label: string;
+  page: number;
+  total: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+}) {
+  const pages = pageCount(props.total, props.pageSize);
+  if (props.total <= props.pageSize) {
+    return <span className="list-range">{props.total} total</span>;
+  }
+  const start = (props.page - 1) * props.pageSize + 1;
+  const end = Math.min(props.total, props.page * props.pageSize);
+  return (
+    <div className="pagination-row compact" aria-label={`${props.label} pages`}>
+      <span>{start}-{end} / {props.total}</span>
+      <button
+        className="pager-button"
+        aria-label={`Previous ${props.label} page`}
+        onClick={() => props.onPageChange(clampPage(props.page - 1, props.total, props.pageSize))}
+        disabled={props.page <= 1}
+      >
+        Prev
+      </button>
+      <button
+        className="pager-button"
+        aria-label={`Next ${props.label} page`}
+        onClick={() => props.onPageChange(clampPage(props.page + 1, props.total, props.pageSize))}
+        disabled={props.page >= pages}
+      >
+        Next
+      </button>
+    </div>
+  );
+}
 
 export function ConversationDetail(props: {
   detail: ConversationDetailResponse;
@@ -30,9 +71,34 @@ export function ConversationDetail(props: {
   const traces = listOrEmpty(props.detail.trace_attempts);
   const workflowAttempts = listOrEmpty(props.detail.workflow_attempts);
   const workflowLine = props.detail.workflow_line;
+  const [transcriptPage, setTranscriptPage] = useState(1);
+  const [workflowAttemptPage, setWorkflowAttemptPage] = useState(1);
+  const transcriptPageCount = pageCount(transcript.length, TRANSCRIPT_PAGE_SIZE);
+  const workflowAttemptPageCount = pageCount(workflowAttempts.length, WORKFLOW_ATTEMPT_PAGE_SIZE);
+  const clampedTranscriptPage = Math.min(transcriptPage, transcriptPageCount);
+  const clampedWorkflowAttemptPage = Math.min(workflowAttemptPage, workflowAttemptPageCount);
+  const visibleTranscript = transcript.slice((clampedTranscriptPage - 1) * TRANSCRIPT_PAGE_SIZE, clampedTranscriptPage * TRANSCRIPT_PAGE_SIZE);
+  const visibleWorkflowAttempts = workflowAttempts.slice(
+    (clampedWorkflowAttemptPage - 1) * WORKFLOW_ATTEMPT_PAGE_SIZE,
+    clampedWorkflowAttemptPage * WORKFLOW_ATTEMPT_PAGE_SIZE
+  );
+
+  useEffect(() => {
+    setTranscriptPage(1);
+    setWorkflowAttemptPage(1);
+  }, [props.detail.conversation.id]);
+
+  useEffect(() => {
+    setTranscriptPage((current) => Math.min(current, transcriptPageCount));
+  }, [transcriptPageCount]);
+
+  useEffect(() => {
+    setWorkflowAttemptPage((current) => Math.min(current, workflowAttemptPageCount));
+  }, [workflowAttemptPageCount]);
+
   return (
     <div className="detail-stack">
-      <div className="detail-card">
+      <div className="detail-card conversation-overview-card">
         <div className="detail-header">
           <div>
             <p className="eyebrow">Conversation</p>
@@ -62,9 +128,21 @@ export function ConversationDetail(props: {
 
       <div className="review-grid">
         <div className="detail-card">
-          <h3>Transcript</h3>
+          <div className="card-section-header">
+            <div>
+              <h3>Transcript</h3>
+              <p className="muted">Most recent {transcript.length} entries</p>
+            </div>
+            <PageControls
+              label="transcript"
+              page={clampedTranscriptPage}
+              total={transcript.length}
+              pageSize={TRANSCRIPT_PAGE_SIZE}
+              onPageChange={setTranscriptPage}
+            />
+          </div>
           <div className="nested-list">
-            {transcript.map((entry) => (
+            {visibleTranscript.map((entry) => (
               <div key={entry.id} className="nested-card">
                 <div className="detail-row-header">
                   <strong>{entry.actor_type || "actor"}</strong>
@@ -75,16 +153,29 @@ export function ConversationDetail(props: {
                 </p>
               </div>
             ))}
+            {visibleTranscript.length === 0 ? <div className="empty-list compact">No transcript entries.</div> : null}
           </div>
         </div>
 
         <div className="detail-card">
-          <h3>Workflow attempts</h3>
+          <div className="card-section-header">
+            <div>
+              <h3>Workflow attempts</h3>
+              <p className="muted">{workflowAttempts.length} recorded attempts</p>
+            </div>
+            <PageControls
+              label="workflow attempts"
+              page={clampedWorkflowAttemptPage}
+              total={workflowAttempts.length}
+              pageSize={WORKFLOW_ATTEMPT_PAGE_SIZE}
+              onPageChange={setWorkflowAttemptPage}
+            />
+          </div>
           <div className="nested-list">
-            {workflowAttempts.map((attempt) => (
+            {visibleWorkflowAttempts.map((attempt) => (
               <button key={attempt.workflow_id} className={attempt.trace_id === props.selectedTraceId ? "list-card selected" : "list-card"} onClick={() => attempt.trace_id ? props.onSelectTrace(attempt.trace_id) : undefined}>
                 <div className="list-card-header">
-                  <div>
+                  <div className="card-title-block">
                     <strong>{attempt.workflow_id}</strong>
                     <p>attempt {attempt.attempt_number} · {attempt.status}</p>
                   </div>
@@ -98,6 +189,7 @@ export function ConversationDetail(props: {
                 </dl>
               </button>
             ))}
+            {visibleWorkflowAttempts.length === 0 ? <div className="empty-list compact">No workflow attempts.</div> : null}
           </div>
         </div>
       </div>

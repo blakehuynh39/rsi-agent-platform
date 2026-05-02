@@ -108,3 +108,11 @@ export function knowledgeEntriesForSegment(entries: KnowledgeEntry[], segment: K
 export function latestActionResult(intentId: string, results: NullableList<ActionResult> | undefined) {
   return listOrEmpty(results).filter((item) => item.action_intent_id === intentId)[0];
 }
+
+export function pageCount(total: number, pageSize: number) {
+  return Math.max(1, Math.ceil(total / pageSize));
+}
+
+export function clampPage(page: number, total: number, pageSize: number) {
+  return Math.min(Math.max(page, 1), pageCount(total, pageSize));
+}

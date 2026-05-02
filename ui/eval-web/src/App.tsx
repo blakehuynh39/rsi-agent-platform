@@ -25,7 +25,7 @@ import type {
   ViewState,
 } from "@/types";
 
-import { formatTime, getJSON, knowledgeEntriesForSegment, listOrEmpty, postCommand, postJSON, readViewState, scoreBadge, writeViewState } from "@/hooks/api";
+import { formatTime, getJSON, knowledgeEntriesForSegment, listOrEmpty, postCommand, postJSON, readViewState, scoreBadge, writeViewState, pageCount, clampPage } from "@/hooks/api";
 
 import { EmptyDetail } from "@/components/detail/empty-detail";
 import { ConversationDetail } from "@/components/detail/conversation-detail";
@@ -52,6 +52,15 @@ const RUNNING_TRACE_STATES = new Set([
 ]);
 
 const CONVERSATION_DETAIL_QUERY = "include=cases,traces,workflows,transcript,proposals&transcript_limit=50";
+const CONVERSATION_PAGE_SIZE = 6;
+
+function dateSortValue(value?: string) {
+  if (!value) {
+    return 0;
+  }
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
 
 function countLabel(loaded: boolean, count: number) {
   return loaded ? String(count) : "...";
@@ -117,6 +126,7 @@ export function App() {
   const [proposalRationale, setProposalRationale] = useState("");
   const [knowledgeReviewRationale, setKnowledgeReviewRationale] = useState("");
   const [loadSecondaryData, setLoadSecondaryData] = useState(false);
+  const [conversationPage, setConversationPage] = useState(1);
 
   useEffect(() => {
     const handlePopState = () => setViewState(readViewState());
@@ -249,6 +259,33 @@ export function App() {
   const runtimeRoles = listOrEmpty(runtimeQuery.data?.roles);
   const harnessRoles = listOrEmpty(harnessQuery.data?.roles);
   const proposalSlotState = proposalsQuery.data?.proposal_slots;
+  const sortedConversations = useMemo(
+    () => [...conversations].sort((left, right) => dateSortValue(right.latest_message_at) - dateSortValue(left.latest_message_at)),
+    [conversations]
+  );
+  const conversationPageCount = pageCount(sortedConversations.length, CONVERSATION_PAGE_SIZE);
+  const clampedConversationPage = Math.min(conversationPage, conversationPageCount);
+  const conversationPageStart = sortedConversations.length === 0 ? 0 : (clampedConversationPage - 1) * CONVERSATION_PAGE_SIZE + 1;
+  const conversationPageEnd = Math.min(sortedConversations.length, clampedConversationPage * CONVERSATION_PAGE_SIZE);
+  const visibleConversations = useMemo(
+    () => sortedConversations.slice((clampedConversationPage - 1) * CONVERSATION_PAGE_SIZE, clampedConversationPage * CONVERSATION_PAGE_SIZE),
+    [clampedConversationPage, sortedConversations]
+  );
+
+  useEffect(() => {
+    setConversationPage((current) => clampPage(current, sortedConversations.length, CONVERSATION_PAGE_SIZE));
+  }, [sortedConversations.length]);
+
+  useEffect(() => {
+    if (!viewState.conversation) {
+      return;
+    }
+    const selectedIndex = sortedConversations.findIndex((item) => item.conversation_id === viewState.conversation);
+    if (selectedIndex === -1) {
+      return;
+    }
+    setConversationPage(Math.floor(selectedIndex / CONVERSATION_PAGE_SIZE) + 1);
+  }, [sortedConversations, viewState.conversation]);
 
   useEffect(() => {
     const settingValue = proposalsQuery.data?.settings?.active_proposal_cap;
@@ -594,30 +631,66 @@ export function App() {
                 <p className="eyebrow">Conversations</p>
                 <h2>Slack threads, DMs, and incident rooms</h2>
               </div>
+              <div className="pane-tools">
+                <span className="list-range">
+                  {conversationsQuery.isFetched ? (
+                    sortedConversations.length <= CONVERSATION_PAGE_SIZE
+                      ? `${sortedConversations.length} total`
+                      : `${conversationPageStart}-${conversationPageEnd} of ${sortedConversations.length}`
+                  ) : "Loading"}
+                </span>
+                {sortedConversations.length > CONVERSATION_PAGE_SIZE ? (
+                  <div className="pagination-row compact" aria-label="Conversation pages">
+                    <button
+                      className="pager-button"
+                      aria-label="Previous conversations page"
+                      onClick={() => setConversationPage((current) => clampPage(current - 1, sortedConversations.length, CONVERSATION_PAGE_SIZE))}
+                      disabled={conversationPage <= 1}
+                    >
+                      Prev
+                    </button>
+                    <span>Page {clampedConversationPage} of {conversationPageCount}</span>
+                    <button
+                      className="pager-button"
+                      aria-label="Next conversations page"
+                      onClick={() => setConversationPage((current) => clampPage(current + 1, sortedConversations.length, CONVERSATION_PAGE_SIZE))}
+                      disabled={conversationPage >= conversationPageCount}
+                    >
+                      Next
+                    </button>
+                  </div>
+                ) : null}
+              </div>
             </header>
             <div className="list-stack">
-              {conversations.map((item) => (
+              {visibleConversations.map((item) => (
                 <button
                   key={item.conversation_id}
                   className={item.conversation_id === viewState.conversation ? "list-card selected" : "list-card"}
                   onClick={() => navigate({ tab: "conversations", conversation: item.conversation_id, trace: item.active_case?.latest_trace_id })}
                 >
                   <div className="list-card-header">
-                    <div>
-                      <strong>{item.title}</strong>
+                    <div className="card-title-block">
+                      <strong>{item.title || item.external_key}</strong>
                       <p>{item.source} · {item.status}</p>
                     </div>
-                    {item.latest_trace_verdict ? <span className="status-chip eval">{item.latest_trace_verdict}</span> : null}
+                    <div className="list-card-badges">
+                      <span className="status-chip">{formatTime(item.latest_message_at)}</span>
+                      {item.latest_trace_verdict ? <span className="status-chip eval">{item.latest_trace_verdict}</span> : null}
+                    </div>
                   </div>
                   <p className="trace-thread">{item.external_key}</p>
                   <dl className="mini-metrics">
                     <div><dt>Active case</dt><dd>{item.active_case?.title || "none"}</dd></div>
-                    <div><dt>Latest</dt><dd>{formatTime(item.latest_message_at)}</dd></div>
+                    <div><dt>Status</dt><dd>{item.status}</dd></div>
                     <div><dt>Open traces</dt><dd>{item.open_trace_count}</dd></div>
                     <div><dt>Proposals</dt><dd>{item.proposal_count}</dd></div>
                   </dl>
                 </button>
               ))}
+              {conversationsQuery.isFetched && visibleConversations.length === 0 ? (
+                <div className="empty-list">No conversations yet.</div>
+              ) : null}
             </div>
           </>
         ) : viewState.tab === "cases" ? (

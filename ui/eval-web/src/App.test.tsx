@@ -32,7 +32,20 @@ const conversationListResponse = {
       latest_trace_verdict: "pass",
       open_trace_count: 1,
       proposal_count: 1
-    }
+    },
+    ...Array.from({ length: 8 }, (_, index) => {
+      const sequence = index + 2;
+      return {
+        conversation_id: `conv-${String(sequence).padStart(3, "0")}`,
+        source: "slack",
+        external_key: `slack:thread:C123:${sequence}`,
+        title: `Older conversation ${sequence}`,
+        status: "active",
+        latest_message_at: `2026-04-${String(11 - sequence).padStart(2, "0")}T12:00:00Z`,
+        open_trace_count: 0,
+        proposal_count: 0
+      };
+    })
   ]
 };
 
@@ -644,6 +657,22 @@ describe("App", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Select a conversation")).toBeInTheDocument();
     expect(window.location.search).toBe("");
+  });
+
+  it("paginates conversation cards without losing the selected route state", async () => {
+    renderApp();
+
+    expect(await screen.findByRole("button", { name: /Need help understanding trace rendering/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Older conversation 7/i })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Next conversations page" }));
+
+    expect(await screen.findByRole("button", { name: /Older conversation 7/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Need help understanding trace rendering/i })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Previous conversations page" }));
+
+    expect(await screen.findByRole("button", { name: /Need help understanding trace rendering/i })).toBeInTheDocument();
   });
 
   it("opens conversation trace detail and persists conversation and trace in the URL", async () => {
