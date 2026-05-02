@@ -26,7 +26,7 @@ class ExtractHermesPinTest(unittest.TestCase):
                         "[project]",
                         "dependencies = [",
                         '  "requests>=2",',
-                        '  "hermes-agent[honcho,mcp] @ git+https://github.com/blakehuynh39/hermes-agent.git@0123456789abcdef0123456789abcdef01234567",',
+                        '  "hermes-agent[honcho,mcp,messaging] @ git+https://github.com/blakehuynh39/hermes-agent.git@0123456789abcdef0123456789abcdef01234567",',
                         "]",
                     ]
                 )
@@ -60,6 +60,15 @@ class ExtractHermesPinTest(unittest.TestCase):
                 module.extract_hermes_pin(pyproject)
 
             self.assertIn("Failed to find pinned hermes-agent git dependency", str(raised.exception))
+
+    def test_runner_pyproject_installs_native_messaging_extra(self) -> None:
+        pyproject = Path(__file__).resolve().parents[1] / "pyproject.toml"
+        content = pyproject.read_text(encoding="utf-8")
+
+        self.assertRegex(
+            content,
+            r"""hermes-agent\[[^\]]*\bmessaging\b[^\]]*\]\s*@\s*git\+https://github\.com/blakehuynh39/hermes-agent\.git@[0-9a-f]{40}""",
+        )
 
 
 if __name__ == "__main__":
