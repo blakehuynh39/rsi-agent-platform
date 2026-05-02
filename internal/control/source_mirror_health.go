@@ -69,7 +69,11 @@ func CheckSourceMirrorHealth(ctx context.Context, cfg config.Config, mirrorStore
 
 	addCheck("checkpoint_root", map[string]any{"path": report.CheckpointRoot}, checkSourceMirrorCheckpointRoot(report.CheckpointRoot))
 	if cfg.SlackMirrorEnabled {
-		addCheck("slack_auth", map[string]any{"allowlisted_channels": cfg.SlackMirrorChannelAllowlist}, checkSlackMirrorAuth(ctx, cfg))
+		addCheck("slack_auth", map[string]any{
+			"channel_discovery": slackMirrorChannelDiscoveryMode(cfg),
+			"allowlist":         cfg.SlackMirrorChannelAllowlist,
+			"denylist":          cfg.SlackMirrorChannelDenylist,
+		}, checkSlackMirrorAuth(ctx, cfg))
 	}
 	if cfg.NotionMirrorEnabled {
 		addCheck("notion_roots", map[string]any{"allowlisted_roots": cfg.NotionMirrorAllowlist}, checkNotionMirrorRoots(ctx, cfg))
@@ -126,6 +130,15 @@ func checkSlackMirrorAuth(ctx context.Context, cfg config.Config) error {
 	}
 	if strings.TrimSpace(auth.TeamID) == "" {
 		return errors.New("slack auth.test returned empty team_id")
+	}
+	if slackMirrorChannelDiscoveryMode(cfg) == "joined" {
+		channels, err := slackMirrorChannels(ctx, cfg, api)
+		if err != nil {
+			return err
+		}
+		if len(channels) == 0 {
+			return errors.New("slack joined-channel discovery returned no mirrorable channels")
+		}
 	}
 	return nil
 }

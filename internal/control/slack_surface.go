@@ -357,19 +357,10 @@ func (s *slackSurfaceRuntime) mirrorSlackInput(input companyknowledge.SlackMessa
 }
 
 func (s *slackSurfaceRuntime) slackMirrorChannelAllowed(channelID string) bool {
-	if strings.TrimSpace(channelID) == "" {
+	if s == nil {
 		return false
 	}
-	allowed := uniqueNonEmpty(s.cfg.SlackMirrorChannelAllowlist)
-	if len(allowed) == 0 {
-		return true
-	}
-	for _, item := range allowed {
-		if item == channelID {
-			return true
-		}
-	}
-	return false
+	return slackMirrorChannelAllowedByConfig(s.cfg, channelID)
 }
 
 func slackFileMetadata(files []slack.File) []companyknowledge.SlackFileMetadata {

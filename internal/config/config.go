@@ -55,7 +55,9 @@ type Config struct {
 	SlackAppToken                      string
 	SlackBotToken                      string
 	SlackMirrorEnabled                 bool
+	SlackMirrorChannelDiscovery        string
 	SlackMirrorChannelAllowlist        []string
+	SlackMirrorChannelDenylist         []string
 	SourceMirrorCheckpointRoot         string
 	AttachmentCacheRoot                string
 	SlackMCPEnabled                    bool
@@ -183,7 +185,9 @@ func Load(serviceName string) Config {
 		SlackAppToken:                      stringEnv("RSI_SLACK_APP_TOKEN", ""),
 		SlackBotToken:                      stringEnv("SLACK_BOT_TOKEN", ""),
 		SlackMirrorEnabled:                 boolEnv("RSI_SLACK_MIRROR_ENABLED", false),
+		SlackMirrorChannelDiscovery:        stringEnv("RSI_SLACK_MIRROR_CHANNEL_DISCOVERY", "joined"),
 		SlackMirrorChannelAllowlist:        listEnv("RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST"),
+		SlackMirrorChannelDenylist:         listEnv("RSI_SLACK_MIRROR_CHANNEL_DENYLIST"),
 		SourceMirrorCheckpointRoot:         stringEnv("RSI_SOURCE_MIRROR_CHECKPOINT_ROOT", "/var/lib/hermes/source-mirror"),
 		AttachmentCacheRoot:                stringEnv("RSI_ATTACHMENT_CACHE_ROOT", "/var/lib/hermes/attachments"),
 		SlackMCPEnabled:                    boolEnv("RSI_SLACK_MCP_ENABLED", false),

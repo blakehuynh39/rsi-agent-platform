@@ -17,6 +17,17 @@ func TestLoadDoesNotInferStoreBackend(t *testing.T) {
 	}
 }
 
+func TestLoadDefaultsSlackMirrorChannelDiscoveryToJoined(t *testing.T) {
+	t.Setenv("RSI_ENV", "stage")
+	t.Setenv("RSI_HTTP_PORT", "8080")
+	t.Setenv("RSI_POSTGRES_URL", "postgres://user:pass@db.example/rsi")
+
+	cfg := Load("control-plane")
+	if cfg.SlackMirrorChannelDiscovery != "joined" {
+		t.Fatalf("SlackMirrorChannelDiscovery = %q, want joined", cfg.SlackMirrorChannelDiscovery)
+	}
+}
+
 func TestControlPlaneValidationRejectsLocalhostAndVaultRuntimeValues(t *testing.T) {
 	cfg := validControlPlaneConfig()
 	cfg.PublicBaseURL = "http://localhost:8080"
@@ -100,7 +111,6 @@ func TestSlackMirrorValidationRequiresHonchoAndMirrorContract(t *testing.T) {
 	for _, required := range []string{
 		"RSI_SLACK_MIRROR_ENABLED must be true",
 		"SLACK_BOT_TOKEN is required",
-		"RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST is required",
 		"RSI_HONCHO_BASE_URL is required",
 		"RSI_HONCHO_WORKSPACE_ID is required",
 	} {
@@ -108,19 +118,44 @@ func TestSlackMirrorValidationRequiresHonchoAndMirrorContract(t *testing.T) {
 			t.Fatalf("expected %q in validation message, got %s", required, message)
 		}
 	}
+	if strings.Contains(message, "RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST is required") {
+		t.Fatalf("joined discovery should not require explicit Slack mirror allowlist: %s", message)
+	}
 }
 
-func TestSlackMirrorValidationAcceptsConfiguredContract(t *testing.T) {
+func TestSlackMirrorValidationAcceptsJoinedDiscoveryWithoutAllowlist(t *testing.T) {
 	cfg := validControlPlaneConfig()
 	cfg.SlackMirrorEnabled = true
 	cfg.SlackBotToken = "xoxb-token"
-	cfg.SlackMirrorChannelAllowlist = []string{"C0AKH5SNGKH"}
 	cfg.HonchoBaseURL = "http://use1-stage-rsi-agent-platform-honcho-api:8000"
 	cfg.HonchoWorkspaceID = "rsi_company_knowledge"
 	cfg.SourceMirrorCheckpointRoot = "/var/lib/hermes/source-mirror"
 
 	if _, err := cfg.ValidatedFor("control-plane", "slack-mirror"); err != nil {
 		t.Fatalf("ValidatedFor() error = %v", err)
+	}
+}
+
+func TestSlackMirrorValidationRequiresAllowlistForExplicitDiscovery(t *testing.T) {
+	cfg := validControlPlaneConfig()
+	cfg.SlackMirrorEnabled = true
+	cfg.SlackMirrorChannelDiscovery = "explicit"
+	cfg.SlackBotToken = "xoxb-token"
+	cfg.HonchoBaseURL = "http://use1-stage-rsi-agent-platform-honcho-api:8000"
+	cfg.HonchoWorkspaceID = "rsi_company_knowledge"
+	cfg.SourceMirrorCheckpointRoot = "/var/lib/hermes/source-mirror"
+
+	_, err := cfg.ValidatedFor("control-plane", "slack-mirror")
+	if err == nil {
+		t.Fatal("expected explicit discovery to require allowlist")
+	}
+	if !strings.Contains(err.Error(), "RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST is required") {
+		t.Fatalf("unexpected validation error: %v", err)
+	}
+
+	cfg.SlackMirrorChannelAllowlist = []string{"C0AKH5SNGKH"}
+	if _, err := cfg.ValidatedFor("control-plane", "slack-mirror"); err != nil {
+		t.Fatalf("ValidatedFor() with allowlist error = %v", err)
 	}
 }
 
@@ -183,7 +218,6 @@ func TestSourceMirrorHealthValidationAcceptsConfiguredSlackAndNotionMirrors(t *t
 	cfg.SourceMirrorCheckpointRoot = "/var/lib/hermes/source-mirror"
 	cfg.SlackMirrorEnabled = true
 	cfg.SlackBotToken = "xoxb-token"
-	cfg.SlackMirrorChannelAllowlist = []string{"C0AKH5SNGKH"}
 	cfg.NotionMirrorEnabled = true
 	cfg.NotionToken = "ntn-token"
 	cfg.NotionMirrorAllowlist = []string{"page-id"}

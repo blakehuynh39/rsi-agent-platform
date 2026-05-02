@@ -259,12 +259,25 @@ def _honcho_session_id_for_source(source_session_key: str) -> str:
 
 
 def _allowlisted_channel(channel_id: str) -> bool:
+    channel_id = str(channel_id or "").strip()
+    if not channel_id or channel_id in _denied_channels():
+        return False
+    if _slack_mirror_channel_discovery() == "joined":
+        return True
     configured = _allowlisted_channels()
     return bool(configured) and channel_id in configured
 
 
+def _slack_mirror_channel_discovery() -> str:
+    return str(_env("RSI_SLACK_MIRROR_CHANNEL_DISCOVERY") or "joined").strip().lower() or "joined"
+
+
 def _allowlisted_channels() -> list[str]:
     return [item.strip() for item in _env("RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST").split(",") if item.strip()]
+
+
+def _denied_channels() -> set[str]:
+    return {item.strip() for item in _env("RSI_SLACK_MIRROR_CHANNEL_DENYLIST").split(",") if item.strip()}
 
 
 def _message_slack_ts(message: dict[str, Any]) -> str:
@@ -334,13 +347,17 @@ def _slack_message_filters(channel_id: str = "") -> dict[str, Any]:
     metadata: dict[str, Any] = {"source": "slack"}
     if channel_id:
         if not _allowlisted_channel(channel_id):
-            raise RuntimeError(f"Slack channel {channel_id} is not in RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST")
+            raise RuntimeError(f"Slack channel {channel_id} is not available in the mirrored Slack corpus")
         metadata["channel_id"] = channel_id
     else:
-        channels = _allowlisted_channels()
-        if not channels:
+        channels = [] if _slack_mirror_channel_discovery() == "joined" else _allowlisted_channels()
+        if _slack_mirror_channel_discovery() == "explicit" and not channels:
             raise RuntimeError("RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST is empty")
-        metadata["channel_id"] = {"in": channels}
+        if channels:
+            filtered_channels = [channel for channel in channels if _allowlisted_channel(channel)]
+            if not filtered_channels:
+                raise RuntimeError("All allowlisted channels are denied by RSI_SLACK_MIRROR_CHANNEL_DENYLIST")
+            metadata["channel_id"] = {"in": filtered_channels}
     return {"metadata": metadata}
 
 
@@ -348,23 +365,28 @@ def _slack_session_filters(channel_id: str = "") -> dict[str, Any]:
     channel_id = str(channel_id or "").strip()
     if channel_id:
         if not _allowlisted_channel(channel_id):
-            raise RuntimeError(f"Slack channel {channel_id} is not in RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST")
+            raise RuntimeError(f"Slack channel {channel_id} is not available in the mirrored Slack corpus")
         return {
             "AND": [
                 {"metadata": {"source": "slack"}},
                 {"metadata": {"source_session_key": {"icontains": f":{channel_id}:"}}},
             ]
         }
+    if _slack_mirror_channel_discovery() == "joined":
+        return {"metadata": {"source": "slack"}}
     channels = _allowlisted_channels()
     if not channels:
         raise RuntimeError("RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST is empty")
+    filtered_channels = [channel for channel in channels if _allowlisted_channel(channel)]
+    if not filtered_channels:
+        raise RuntimeError("All allowlisted channels are denied by RSI_SLACK_MIRROR_CHANNEL_DENYLIST")
     return {
         "AND": [
             {"metadata": {"source": "slack"}},
             {
                 "OR": [
                     {"metadata": {"source_session_key": {"icontains": f":{allowed_channel}:"}}}
-                    for allowed_channel in channels
+                    for allowed_channel in filtered_channels
                 ]
             },
         ]
@@ -708,7 +730,7 @@ mcp = FastMCP(
 )
 def slack_read_thread(channel_id: str, thread_ts: str, limit: int = 100, cursor: str = "") -> dict[str, Any]:
     if not _allowlisted_channel(channel_id):
-        raise RuntimeError(f"Slack channel {channel_id} is not in RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST")
+        raise RuntimeError(f"Slack channel {channel_id} is not available in the mirrored Slack corpus")
     safe_limit = max(1, min(int(limit or 100), 200))
     payload = _slack_api(
         "conversations.replies",
@@ -747,7 +769,7 @@ def slack_read_permalink(permalink: str, limit: int = 100) -> dict[str, Any]:
 
 @mcp.tool(
     name="conversations_list",
-    description="List mirrored Slack conversations available in the Honcho company corpus. Results are restricted to RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST.",
+    description="List mirrored Slack conversations available in the Honcho company corpus. Results follow RSI Slack mirror channel policy.",
     annotations=read_only,
 )
 def conversations_list(channel_id: str = "", limit: int = 50, page: int = 1) -> dict[str, Any]:
@@ -779,7 +801,7 @@ def conversations_list(channel_id: str = "", limit: int = 50, page: int = 1) -> 
 
 @mcp.tool(
     name="conversations_search",
-    description="Search mirrored Slack messages in the Honcho company corpus. This does not call Slack search.messages and uses only allowlisted mirrored channels.",
+    description="Search mirrored Slack messages in the Honcho company corpus. This does not call Slack search.messages and follows RSI Slack mirror channel policy.",
     annotations=read_only,
 )
 def conversations_search(query: str, channel_id: str = "", limit: int = 10) -> dict[str, Any]:
@@ -906,7 +928,7 @@ def document_get(document_id: str, source: str = "notion") -> dict[str, Any]:
 )
 def conversation_get(channel_id: str, thread_ts: str = "", limit: int = 50, page: int = 1) -> dict[str, Any]:
     if not _allowlisted_channel(channel_id):
-        raise RuntimeError(f"Slack channel {channel_id} is not in RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST")
+        raise RuntimeError(f"Slack channel {channel_id} is not available in the mirrored Slack corpus")
     workspace_id = _slack_workspace_id()
     source_key = _source_session_key(workspace_id, channel_id, thread_ts)
     session_id = _honcho_session_id_for_source(source_key)
@@ -963,7 +985,7 @@ def attachments_fetch(
         conversation = conversation_get(channel_id=channel_id, thread_ts=thread_ts, limit=limit, page=page)
 
     if not _allowlisted_channel(channel_id):
-        raise RuntimeError(f"Slack channel {channel_id} is not in RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST")
+        raise RuntimeError(f"Slack channel {channel_id} is not available in the mirrored Slack corpus")
 
     wanted_ts = str(message_ts or "").strip()
     attachments: list[dict[str, Any]] = []
@@ -1032,7 +1054,7 @@ def messages_read(
     page: int = 1,
 ) -> dict[str, Any]:
     if not _allowlisted_channel(channel_id):
-        raise RuntimeError(f"Slack channel {channel_id} is not in RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST")
+        raise RuntimeError(f"Slack channel {channel_id} is not available in the mirrored Slack corpus")
     if not str(thread_ts or "").strip() and not (str(oldest_ts or "").strip() or str(latest_ts or "").strip()):
         raise RuntimeError("Channel-wide messages_read requires oldest_ts or latest_ts; unbounded channel history reads are refused.")
     conversation = conversation_get(channel_id=channel_id, thread_ts=thread_ts, limit=limit, page=page)

@@ -34,6 +34,10 @@ type slackMirrorCheckpoint struct {
 	LastHonchoSession string    `json:"last_honcho_session,omitempty"`
 }
 
+type slackMirrorChannelLister interface {
+	GetConversationsContext(ctx context.Context, params *slackapi.GetConversationsParameters) ([]slackapi.Channel, string, error)
+}
+
 func RunSlackMirror(ctx context.Context, cfg config.Config, mirrorStore store.SourceMirrorWriteStore) error {
 	if !cfg.SlackMirrorEnabled {
 		return errors.New("slack mirror is disabled")
@@ -52,17 +56,120 @@ func RunSlackMirror(ctx context.Context, cfg config.Config, mirrorStore store.So
 		Environment:     cfg.Environment,
 		HonchoWorkspace: cfg.HonchoWorkspaceID,
 	})
-	channels := uniqueNonEmpty(cfg.SlackMirrorChannelAllowlist)
-	if len(channels) == 0 {
-		return errors.New("RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST is empty")
+	channels, err := slackMirrorChannels(ctx, cfg, api)
+	if err != nil {
+		return err
 	}
-	sort.Strings(channels)
+	if len(channels) == 0 {
+		return errors.New("slack mirror found no channels to mirror")
+	}
 	for _, channelID := range channels {
 		if err := mirrorSlackChannel(ctx, cfg, api, mirror, workspaceID, channelID); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func slackMirrorChannels(ctx context.Context, cfg config.Config, api slackMirrorChannelLister) ([]string, error) {
+	discovery := slackMirrorChannelDiscoveryMode(cfg)
+	denylist := slackMirrorChannelDenylist(cfg)
+	switch discovery {
+	case "explicit":
+		return filterDeniedChannels(uniqueNonEmpty(cfg.SlackMirrorChannelAllowlist), denylist), nil
+	case "joined":
+		channels, err := discoverJoinedSlackMirrorChannels(ctx, api)
+		if err != nil {
+			return nil, err
+		}
+		return filterDeniedChannels(uniqueNonEmpty(channels), denylist), nil
+	default:
+		return nil, fmt.Errorf("unsupported RSI_SLACK_MIRROR_CHANNEL_DISCOVERY %q", cfg.SlackMirrorChannelDiscovery)
+	}
+}
+
+func discoverJoinedSlackMirrorChannels(ctx context.Context, api slackMirrorChannelLister) ([]string, error) {
+	if api == nil {
+		return nil, errors.New("slack channel discovery requires Slack API client")
+	}
+	var out []string
+	cursor := ""
+	for {
+		channels, nextCursor, err := api.GetConversationsContext(ctx, &slackapi.GetConversationsParameters{
+			Cursor:          cursor,
+			ExcludeArchived: true,
+			Limit:           200,
+			Types:           []string{"public_channel", "private_channel"},
+		})
+		if err != nil {
+			return nil, fmt.Errorf("discover joined slack mirror channels: %w", err)
+		}
+		for _, channel := range channels {
+			if strings.TrimSpace(channel.ID) == "" || !channel.IsMember || channel.IsArchived {
+				continue
+			}
+			out = append(out, strings.TrimSpace(channel.ID))
+		}
+		cursor = strings.TrimSpace(nextCursor)
+		if cursor == "" {
+			break
+		}
+	}
+	return uniqueNonEmpty(out), nil
+}
+
+func slackMirrorChannelDiscoveryMode(cfg config.Config) string {
+	mode := strings.ToLower(strings.TrimSpace(cfg.SlackMirrorChannelDiscovery))
+	if mode == "" {
+		return "joined"
+	}
+	return mode
+}
+
+func slackMirrorChannelDenylist(cfg config.Config) map[string]struct{} {
+	out := map[string]struct{}{}
+	for _, channelID := range cfg.SlackMirrorChannelDenylist {
+		channelID = strings.TrimSpace(channelID)
+		if channelID != "" {
+			out[channelID] = struct{}{}
+		}
+	}
+	return out
+}
+
+func filterDeniedChannels(channels []string, denylist map[string]struct{}) []string {
+	if len(denylist) == 0 {
+		sort.Strings(channels)
+		return channels
+	}
+	out := make([]string, 0, len(channels))
+	for _, channelID := range channels {
+		if _, denied := denylist[channelID]; denied {
+			continue
+		}
+		out = append(out, channelID)
+	}
+	sort.Strings(out)
+	return out
+}
+
+func slackMirrorChannelAllowedByConfig(cfg config.Config, channelID string) bool {
+	channelID = strings.TrimSpace(channelID)
+	if channelID == "" {
+		return false
+	}
+	if _, denied := slackMirrorChannelDenylist(cfg)[channelID]; denied {
+		return false
+	}
+	if slackMirrorChannelDiscoveryMode(cfg) == "joined" {
+		return true
+	}
+	for _, item := range cfg.SlackMirrorChannelAllowlist {
+		if strings.TrimSpace(item) == channelID {
+			return true
+		}
+	}
+	return false
 }
 
 func mirrorSlackChannel(ctx context.Context, cfg config.Config, api *slackapi.Client, mirror *companyknowledge.SlackMirror, workspaceID string, channelID string) error {

@@ -107,6 +107,7 @@ class SlackMCPServerTests(unittest.TestCase):
             "os.environ",
             {
                 "RSI_HONCHO_BASE_URL": "http://honcho.test",
+                "RSI_SLACK_MIRROR_CHANNEL_DISCOVERY": "explicit",
                 "RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST": "C0AKH5SNGKH",
             },
             clear=False,
@@ -141,6 +142,7 @@ class SlackMCPServerTests(unittest.TestCase):
             "os.environ",
             {
                 "RSI_HONCHO_BASE_URL": "http://honcho.test",
+                "RSI_SLACK_MIRROR_CHANNEL_DISCOVERY": "explicit",
                 "RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST": "C0AKH5SNGKH",
             },
             clear=False,
@@ -152,6 +154,37 @@ class SlackMCPServerTests(unittest.TestCase):
         body = honcho_api.call_args.args[2]
         self.assertEqual(path, "/workspaces/rsi_company_knowledge/search")
         self.assertEqual(body["filters"]["metadata"]["channel_id"]["in"], ["C0AKH5SNGKH"])
+
+    def test_conversations_search_defaults_to_joined_channel_policy(self) -> None:
+        with mock.patch.object(
+            slack_mcp_server,
+            "_honcho_api_raw",
+            return_value=[
+                {
+                    "id": "msg_1",
+                    "content": "visible joined channel",
+                    "metadata": {"source": "slack", "channel_id": "CJOINED"},
+                },
+                {
+                    "id": "msg_denied",
+                    "content": "denied channel",
+                    "metadata": {"source": "slack", "channel_id": "CNOPE"},
+                },
+            ],
+        ) as honcho_api, mock.patch.dict(
+            "os.environ",
+            {
+                "RSI_HONCHO_BASE_URL": "http://honcho.test",
+                "RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST": "",
+                "RSI_SLACK_MIRROR_CHANNEL_DENYLIST": "CNOPE",
+            },
+            clear=False,
+        ):
+            result = slack_mcp_server.conversations_search("visible", limit=5)
+
+        self.assertEqual([item["id"] for item in result["results"]], ["msg_1"])
+        body = honcho_api.call_args.args[2]
+        self.assertEqual(body["filters"]["metadata"], {"source": "slack"})
 
     def test_documents_search_queries_honcho_conclusions(self) -> None:
         with mock.patch.object(

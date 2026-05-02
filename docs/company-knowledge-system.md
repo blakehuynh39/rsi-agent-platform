@@ -72,12 +72,16 @@ the same analyzed attachment revision creates at most one Honcho message.
 
 ## Mirror Runtime
 
-`control-plane --mode slack-mirror` performs resumable backfill over
-`RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST` and writes checkpoints under
-`RSI_SOURCE_MIRROR_CHECKPOINT_ROOT`.
+`control-plane --mode slack-mirror` performs resumable backfill over Slack
+channels selected by `RSI_SLACK_MIRROR_CHANNEL_DISCOVERY` and writes checkpoints
+under `RSI_SOURCE_MIRROR_CHECKPOINT_ROOT`. The default discovery mode is
+`joined`: RSI mirrors public and private channels where the Slack app is a
+member. Set `RSI_SLACK_MIRROR_CHANNEL_DISCOVERY=explicit` to use only
+`RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST`. `RSI_SLACK_MIRROR_CHANNEL_DENYLIST`
+always excludes channels from mirroring.
 
 When `RSI_SLACK_MIRROR_ENABLED=true` on the Slack surface, normal Slack events
-from allowlisted channels are mirrored asynchronously after receipt. Mentioned
+from mirror-policy channels are mirrored asynchronously after receipt. Mentioned
 thread response is not blocked by mirror write failures, but enabling the mirror
 requires Honcho and the source-mirror idempotency store to be configured at
 startup.
@@ -120,9 +124,10 @@ The local Slack MCP server exposes compiled-corpus reads:
 - `document_get(document_id, source)`
 
 Channel-wide `messages_read` requires a time window and pagination. Unbounded
-channel history reads are refused. All Slack read tools require the channel to
-be present in `RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST`; an unset allowlist is a
-configuration error, not an implicit grant.
+channel history reads are refused. Slack read tools follow the mirror channel
+policy: in `joined` mode, mirrored Slack channels are available unless denied;
+in `explicit` mode, channels must be present in
+`RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST`.
 
 Document tools currently expose mirrored Notion documents from Honcho
 conclusions. Because Honcho's public conclusions response does not yet expose
