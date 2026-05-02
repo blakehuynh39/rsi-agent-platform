@@ -42,3 +42,7 @@ type SourceMirrorWriteStore interface {
 	FailSourceMirrorRecord(sourceType string, sourceKey string, lastError string, metadata map[string]any) (SourceMirrorRecord, error)
 	GetSourceMirrorRecord(sourceType string, sourceKey string) (SourceMirrorRecord, bool, error)
 }
+
+type SourceMirrorStatusStore interface {
+	ListSourceMirrorRecords(sourceTypes []string, limit int) ([]SourceMirrorRecord, error)
+}

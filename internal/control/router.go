@@ -173,6 +173,18 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 		}
 		app.WriteJSON(w, status, out)
 	})
+	r.Get("/internal/source-mirror/status", func(w http.ResponseWriter, r *http.Request) {
+		query := r.URL.Query()
+		sourceTypes := parseSourceMirrorStatusQuery(query["source_type"])
+		limit := parsePositiveIntQuery(query.Get("limit"), 500)
+		maxAgeSeconds := parsePositiveIntQuery(query.Get("max_age_seconds"), 0)
+		out, status, err := sourceMirrorStatus(cfg, store, sourceTypes, limit, time.Duration(maxAgeSeconds)*time.Second)
+		if err != nil {
+			app.WriteError(w, status, err)
+			return
+		}
+		app.WriteJSON(w, status, out)
+	})
 	// These runner lifecycle endpoints are intentionally unauthenticated here.
 	// They are cluster-internal control-plane hooks protected by Kubernetes/network
 	// boundaries; adding app-layer auth would require extra rollout wiring for

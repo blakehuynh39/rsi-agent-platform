@@ -161,6 +161,39 @@ func TestNotionMirrorValidationAcceptsConfiguredContract(t *testing.T) {
 	}
 }
 
+func TestSourceMirrorHealthValidationRequiresAtLeastOneMirror(t *testing.T) {
+	cfg := validControlPlaneConfig()
+	cfg.HonchoBaseURL = "http://use1-stage-rsi-agent-platform-honcho-api:8000"
+	cfg.HonchoWorkspaceID = "rsi_company_knowledge"
+	cfg.SourceMirrorCheckpointRoot = "/var/lib/hermes/source-mirror"
+
+	_, err := cfg.ValidatedFor("control-plane", "source-mirror-health")
+	if err == nil {
+		t.Fatal("expected source-mirror-health validation error")
+	}
+	if !strings.Contains(err.Error(), "at least one source mirror must be enabled for source-mirror-health") {
+		t.Fatalf("unexpected validation error: %v", err)
+	}
+}
+
+func TestSourceMirrorHealthValidationAcceptsConfiguredSlackAndNotionMirrors(t *testing.T) {
+	cfg := validControlPlaneConfig()
+	cfg.HonchoBaseURL = "http://use1-stage-rsi-agent-platform-honcho-api:8000"
+	cfg.HonchoWorkspaceID = "rsi_company_knowledge"
+	cfg.SourceMirrorCheckpointRoot = "/var/lib/hermes/source-mirror"
+	cfg.SlackMirrorEnabled = true
+	cfg.SlackBotToken = "xoxb-token"
+	cfg.SlackMirrorChannelAllowlist = []string{"C0AKH5SNGKH"}
+	cfg.NotionMirrorEnabled = true
+	cfg.NotionToken = "ntn-token"
+	cfg.NotionMirrorAllowlist = []string{"page-id"}
+	cfg.NotionAPIBaseURL = "https://api.notion.com"
+
+	if _, err := cfg.ValidatedFor("control-plane", "source-mirror-health"); err != nil {
+		t.Fatalf("ValidatedFor() error = %v", err)
+	}
+}
+
 func TestImprovementPlaneValidationRequiresExplicitPromoterInterval(t *testing.T) {
 	cfg := Config{
 		ServiceName:               "improvement-plane",

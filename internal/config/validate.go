@@ -90,6 +90,10 @@ func (c Config) validateControlPlane(issues *[]string) {
 		c.validateNotionMirror(issues)
 		return
 	}
+	if c.RuntimeMode == "source-mirror-health" {
+		c.validateSourceMirrorHealth(issues)
+		return
+	}
 	if len(c.HermesExecutorURLs()) == 0 {
 		addRequiredURL(issues, "RSI_RUNNER_PROD_BASE_URL", c.ProdRunnerBaseURL, c.nonLocalhostRequired())
 		addRequiredURL(issues, "RSI_RUNNER_PROACTIVE_BASE_URL", c.ProactiveRunnerBaseURL, c.nonLocalhostRequired())
@@ -143,6 +147,24 @@ func (c Config) validateNotionMirror(issues *[]string) {
 	addRequiredURL(issues, "RSI_HONCHO_BASE_URL", c.HonchoBaseURL, c.nonLocalhostRequired())
 	addRequiredString(issues, "RSI_HONCHO_WORKSPACE_ID", c.HonchoWorkspaceID)
 	addRequiredString(issues, "RSI_SOURCE_MIRROR_CHECKPOINT_ROOT", c.SourceMirrorCheckpointRoot)
+}
+
+func (c Config) validateSourceMirrorHealth(issues *[]string) {
+	if !c.SlackMirrorEnabled && !c.NotionMirrorEnabled {
+		*issues = append(*issues, "at least one source mirror must be enabled for source-mirror-health")
+	}
+	addRequiredURL(issues, "RSI_HONCHO_BASE_URL", c.HonchoBaseURL, c.nonLocalhostRequired())
+	addRequiredString(issues, "RSI_HONCHO_WORKSPACE_ID", c.HonchoWorkspaceID)
+	addRequiredString(issues, "RSI_SOURCE_MIRROR_CHECKPOINT_ROOT", c.SourceMirrorCheckpointRoot)
+	if c.SlackMirrorEnabled {
+		addRequiredString(issues, "SLACK_BOT_TOKEN", c.SlackBotToken)
+		addRequiredList(issues, "RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST", c.SlackMirrorChannelAllowlist)
+	}
+	if c.NotionMirrorEnabled {
+		addRequiredString(issues, "NOTION_TOKEN", c.NotionToken)
+		addRequiredList(issues, "RSI_NOTION_MIRROR_ALLOWLIST", c.NotionMirrorAllowlist)
+		addRequiredURL(issues, "RSI_NOTION_API_BASE_URL", c.NotionAPIBaseURL, false)
+	}
 }
 
 func (c Config) validateImprovementPlane(issues *[]string) {

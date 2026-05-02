@@ -54,7 +54,7 @@ type sourceMirrorDocumentWriteResponse struct {
 	HonchoObjectID   string                      `json:"honcho_object_id,omitempty"`
 }
 
-func writeSourceMirrorMessage(ctx context.Context, cfg config.Config, repo storepkg.Repository, req sourceMirrorMessageWriteRequest) (sourceMirrorMessageWriteResponse, int, error) {
+func writeSourceMirrorMessage(ctx context.Context, cfg config.Config, repo any, req sourceMirrorMessageWriteRequest) (sourceMirrorMessageWriteResponse, int, error) {
 	_ = ctx
 	if strings.TrimSpace(cfg.HonchoBaseURL) == "" {
 		return sourceMirrorMessageWriteResponse{}, 500, errors.New("RSI_HONCHO_BASE_URL is required for source mirror message writes")
@@ -131,7 +131,7 @@ func writeSourceMirrorMessage(ctx context.Context, cfg config.Config, repo store
 	return response, 201, nil
 }
 
-func writeSourceMirrorDocument(ctx context.Context, cfg config.Config, repo storepkg.Repository, req sourceMirrorDocumentWriteRequest) (sourceMirrorDocumentWriteResponse, int, error) {
+func writeSourceMirrorDocument(ctx context.Context, cfg config.Config, repo any, req sourceMirrorDocumentWriteRequest) (sourceMirrorDocumentWriteResponse, int, error) {
 	_ = ctx
 	if strings.TrimSpace(cfg.HonchoBaseURL) == "" {
 		return sourceMirrorDocumentWriteResponse{}, 500, errors.New("RSI_HONCHO_BASE_URL is required for source mirror document writes")

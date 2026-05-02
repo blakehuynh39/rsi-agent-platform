@@ -3,6 +3,7 @@ package store
 import (
 	"database/sql"
 	"errors"
+	"sort"
 	"strings"
 	"time"
 )
@@ -120,8 +121,41 @@ func (m *MemoryStore) GetSourceMirrorRecord(sourceType string, sourceKey string)
 	return cloneSourceMirrorRecord(record), true, nil
 }
 
+func (m *MemoryStore) ListSourceMirrorRecords(sourceTypes []string, limit int) ([]SourceMirrorRecord, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	wanted := sourceMirrorTypeSet(sourceTypes)
+	records := make([]SourceMirrorRecord, 0, len(m.sourceMirrorRecords))
+	for _, record := range m.sourceMirrorRecords {
+		if len(wanted) > 0 {
+			if _, ok := wanted[strings.TrimSpace(record.SourceType)]; !ok {
+				continue
+			}
+		}
+		records = append(records, cloneSourceMirrorRecord(record))
+	}
+	sort.SliceStable(records, func(i, j int) bool {
+		return records[i].UpdatedAt.After(records[j].UpdatedAt)
+	})
+	if limit > 0 && len(records) > limit {
+		records = records[:limit]
+	}
+	return records, nil
+}
+
 func sourceMirrorMemoryKey(sourceType string, sourceKey string) string {
 	return strings.TrimSpace(sourceType) + "\x00" + strings.TrimSpace(sourceKey)
+}
+
+func sourceMirrorTypeSet(sourceTypes []string) map[string]struct{} {
+	out := map[string]struct{}{}
+	for _, sourceType := range sourceTypes {
+		sourceType = strings.TrimSpace(sourceType)
+		if sourceType != "" {
+			out[sourceType] = struct{}{}
+		}
+	}
+	return out
 }
 
 func cloneSourceMirrorRecord(record SourceMirrorRecord) SourceMirrorRecord {

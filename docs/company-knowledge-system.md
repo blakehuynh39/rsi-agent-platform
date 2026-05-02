@@ -89,6 +89,18 @@ pages and child databases, extracts supported Notion block text, writes Notion
 pages to Honcho through `/internal/source-mirror/documents`, and checkpoints
 progress under `RSI_SOURCE_MIRROR_CHECKPOINT_ROOT/notion`.
 
+`control-plane --mode source-mirror-health` is the deployment/readiness contract
+for enabled mirrors. It validates the checkpoint root is writable, verifies
+Slack and Notion source access when those mirrors are enabled, and performs
+synthetic idempotent message and document writes through the same source-mirror
+wrapper used by live mirrors. Deployments should fail loudly when this command
+fails.
+
+`GET /internal/source-mirror/status` exposes source-mirror record status for
+operators and gates. Passing one or more `source_type` query parameters makes
+those source types required; a missing complete write, stale complete write, or
+newer failed write returns a non-2xx health result.
+
 Notion mirror configuration:
 
 - `RSI_NOTION_MIRROR_ENABLED=true`

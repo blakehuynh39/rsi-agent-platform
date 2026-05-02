@@ -175,6 +175,47 @@ from source_mirror_record
 where source_type = $1 and source_key = $2`, sourceType, sourceKey))
 }
 
+func (p *PostgresStore) ListSourceMirrorRecords(sourceTypes []string, limit int) ([]SourceMirrorRecord, error) {
+	args := []any{}
+	query := `
+select source_type, source_key, workspace, environment, source_session_key, honcho_workspace,
+       honcho_session_id, honcho_message_id, honcho_object_type, honcho_object_id,
+       source_revision, status, metadata, last_error,
+       created_at, updated_at
+from source_mirror_record`
+	wanted := sourceMirrorTypeSet(sourceTypes)
+	if len(wanted) > 0 {
+		placeholders := make([]string, 0, len(wanted))
+		for sourceType := range wanted {
+			args = append(args, sourceType)
+			placeholders = append(placeholders, fmt.Sprintf("$%d", len(args)))
+		}
+		query += " where source_type in (" + strings.Join(placeholders, ",") + ")"
+	}
+	query += " order by updated_at desc"
+	if limit > 0 {
+		args = append(args, limit)
+		query += fmt.Sprintf(" limit $%d", len(args))
+	}
+	rows, err := p.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var records []SourceMirrorRecord
+	for rows.Next() {
+		record, err := scanSourceMirrorRecordScanner(rows)
+		if err != nil {
+			return nil, err
+		}
+		records = append(records, record)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return records, nil
+}
+
 type sourceMirrorQuerier interface {
 	QueryRow(query string, args ...any) *sql.Row
 }
@@ -244,6 +285,21 @@ returning source_type, source_key, workspace, environment, source_session_key, h
 }
 
 func scanSourceMirrorRecord(row *sql.Row) (SourceMirrorRecord, bool, error) {
+	record, err := scanSourceMirrorRecordScanner(row)
+	if errors.Is(err, sql.ErrNoRows) {
+		return SourceMirrorRecord{}, false, nil
+	}
+	if err != nil {
+		return SourceMirrorRecord{}, false, err
+	}
+	return record, true, nil
+}
+
+type sourceMirrorScanner interface {
+	Scan(dest ...any) error
+}
+
+func scanSourceMirrorRecordScanner(row sourceMirrorScanner) (SourceMirrorRecord, error) {
 	var record SourceMirrorRecord
 	var metadata []byte
 	err := row.Scan(
@@ -264,14 +320,11 @@ func scanSourceMirrorRecord(row *sql.Row) (SourceMirrorRecord, bool, error) {
 		&record.CreatedAt,
 		&record.UpdatedAt,
 	)
-	if errors.Is(err, sql.ErrNoRows) {
-		return SourceMirrorRecord{}, false, nil
-	}
 	if err != nil {
-		return SourceMirrorRecord{}, false, err
+		return SourceMirrorRecord{}, err
 	}
 	record.Metadata = decodeJSON(metadata, map[string]any{})
-	return record, true, nil
+	return record, nil
 }
 
 func validateSourceMirrorRecord(record SourceMirrorRecord) error {
