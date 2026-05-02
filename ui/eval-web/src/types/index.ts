@@ -20,17 +20,10 @@ export type TabKey = "conversations" | "cases" | "proposals" | "knowledge" | "ha
 export type ProposalSegment = "active" | "candidates" | "history";
 export type KnowledgeSegment = "working" | "review" | "canonical" | "stale";
 export type TraceInspectorTab =
-  | "live"
-  | "overview"
+  | "summary"
   | "timeline"
-  | "reasoning"
-  | "tools"
-  | "actions"
-  | "slack"
-  | "outcomes"
-  | "evals"
-  | "feedback"
-  | "proposals";
+  | "evidence"
+  | "raw";
 
 type TraceEvalSummary = CreatedAt & {
   run_id: string;

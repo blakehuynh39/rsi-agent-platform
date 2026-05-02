@@ -6,7 +6,7 @@ import { TraceInspector } from "./trace-inspector";
 import { FormattedMessage } from "@/components/formatted-message";
 
 const TRANSCRIPT_PAGE_SIZE = 5;
-const WORKFLOW_ATTEMPT_PAGE_SIZE = 4;
+const WORKFLOW_ATTEMPT_PAGE_SIZE = 3;
 
 function PageControls(props: {
   label: string;
@@ -97,37 +97,29 @@ export function ConversationDetail(props: {
   }, [workflowAttemptPageCount]);
 
   return (
-    <div className="detail-stack">
-      <div className="detail-card conversation-overview-card">
-        <div className="detail-header">
+    <div className="conversation-workspace">
+      <main className="conversation-stream">
+        <div className="stream-hero">
           <div>
-            <p className="eyebrow">Conversation</p>
+            <p className="eyebrow">Conversation stream</p>
             <h2>{props.detail.conversation.title || props.detail.conversation.external_key}</h2>
+            <p className="muted">{props.detail.conversation.external_key}</p>
           </div>
-          <div className="detail-meta">
+          <div className="stream-status-strip">
             <span className="status-chip">{props.detail.conversation.status}</span>
             <span className="status-chip">{props.detail.conversation.source}</span>
+            {workflowLine ? <span className={workflowLine.last_failure_class ? "status-chip warn" : "status-chip"}>{workflowLine.last_failure_class || workflowLine.status}</span> : null}
           </div>
         </div>
-        <dl className="overview-grid">
-          <div><dt>External key</dt><dd>{props.detail.conversation.external_key}</dd></div>
-          <div><dt>Active case</dt><dd>{props.detail.active_case?.title || "none"}</dd></div>
-          <div><dt>Trace attempts</dt><dd>{traces.length}</dd></div>
-          <div><dt>Workflow attempts</dt><dd>{workflowAttempts.length}</dd></div>
-          <div><dt>Linked proposals</dt><dd>{listOrEmpty(props.detail.linked_proposals).length}</dd></div>
-        </dl>
-        {workflowLine ? (
-          <dl className="overview-grid">
-            <div><dt>Line status</dt><dd>{workflowLine.status}</dd></div>
-            <div><dt>Current attempt</dt><dd>{workflowLine.current_workflow_id || "none"}</dd></div>
-            <div><dt>Retry budget</dt><dd>{workflowLine.auto_retry_budget_remaining}</dd></div>
-            <div><dt>Last failure</dt><dd>{workflowLine.last_failure_class || "none"}</dd></div>
-          </dl>
-        ) : null}
-      </div>
 
-      <div className="review-grid">
-        <div className="detail-card">
+        <div className="stream-summary-grid">
+          <div><span>Active case</span><strong>{props.detail.active_case?.title || "none"}</strong></div>
+          <div><span>Line</span><strong>{workflowLine?.status || "none"}</strong></div>
+          <div><span>Retry budget</span><strong>{workflowLine?.auto_retry_budget_remaining ?? "n/a"}</strong></div>
+          <div><span>Proposals</span><strong>{listOrEmpty(props.detail.linked_proposals).length}</strong></div>
+        </div>
+
+        <section className="stream-section">
           <div className="card-section-header">
             <div>
               <h3>Transcript</h3>
@@ -155,9 +147,9 @@ export function ConversationDetail(props: {
             ))}
             {visibleTranscript.length === 0 ? <div className="empty-list compact">No transcript entries.</div> : null}
           </div>
-        </div>
+        </section>
 
-        <div className="detail-card">
+        <section className="stream-section">
           <div className="card-section-header">
             <div>
               <h3>Workflow attempts</h3>
@@ -191,30 +183,32 @@ export function ConversationDetail(props: {
             ))}
             {visibleWorkflowAttempts.length === 0 ? <div className="empty-list compact">No workflow attempts.</div> : null}
           </div>
-        </div>
-      </div>
+        </section>
+      </main>
 
-      <TraceInspector
-        selectedTraceId={props.selectedTraceId}
-        traceDetail={props.traceDetail}
-        tab={props.traceInspectorTab}
-        setTab={props.setTraceInspectorTab}
-        onRunEval={props.onRunEval}
-        onReplay={props.onReplay}
-        traceJudgments={props.traceJudgments}
-        feedbackTargets={props.feedbackTargets}
-        feedbackTargetType={props.feedbackTargetType}
-        setFeedbackTargetType={props.setFeedbackTargetType}
-        feedbackTargetID={props.feedbackTargetID}
-        setFeedbackTargetID={props.setFeedbackTargetID}
-        feedbackScore={props.feedbackScore}
-        setFeedbackScore={props.setFeedbackScore}
-        feedbackVerdict={props.feedbackVerdict}
-        setFeedbackVerdict={props.setFeedbackVerdict}
-        feedbackNotes={props.feedbackNotes}
-        setFeedbackNotes={props.setFeedbackNotes}
-        onSubmitFeedback={props.onSubmitFeedback}
-      />
+      <aside className="inspector-drawer">
+        <TraceInspector
+          selectedTraceId={props.selectedTraceId}
+          traceDetail={props.traceDetail}
+          tab={props.traceInspectorTab}
+          setTab={props.setTraceInspectorTab}
+          onRunEval={props.onRunEval}
+          onReplay={props.onReplay}
+          traceJudgments={props.traceJudgments}
+          feedbackTargets={props.feedbackTargets}
+          feedbackTargetType={props.feedbackTargetType}
+          setFeedbackTargetType={props.setFeedbackTargetType}
+          feedbackTargetID={props.feedbackTargetID}
+          setFeedbackTargetID={props.setFeedbackTargetID}
+          feedbackScore={props.feedbackScore}
+          setFeedbackScore={props.setFeedbackScore}
+          feedbackVerdict={props.feedbackVerdict}
+          setFeedbackVerdict={props.setFeedbackVerdict}
+          feedbackNotes={props.feedbackNotes}
+          setFeedbackNotes={props.setFeedbackNotes}
+          onSubmitFeedback={props.onSubmitFeedback}
+        />
+      </aside>
     </div>
   );
 }

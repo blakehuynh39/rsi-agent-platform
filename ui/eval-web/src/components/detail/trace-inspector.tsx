@@ -544,7 +544,12 @@ export function TraceInspector(props: {
 
   const traceDetail = props.traceDetail;
   const trace = traceDetail.trace;
-  const inspectorTabs: TraceInspectorTab[] = ["live", "overview", "timeline", "reasoning", "tools", "actions", "slack", "outcomes", "evals", "feedback", "proposals"];
+  const inspectorTabs: { key: TraceInspectorTab; label: string }[] = [
+    { key: "summary", label: "Summary" },
+    { key: "timeline", label: "Timeline" },
+    { key: "evidence", label: "Evidence" },
+    { key: "raw", label: "Raw" }
+  ];
   const runtimeSummary = traceDetail.runtime_summary;
   const executorObservations = listOrEmpty(traceDetail.harness_execution_observations);
   const recentExecutorOutput = executorObservations
@@ -552,30 +557,28 @@ export function TraceInspector(props: {
     .slice(-20);
 
   return (
-    <div className="detail-card">
-      <div className="detail-header">
+    <div className="trace-inspector-panel">
+      <div className="detail-header inspector-header">
         <div>
           <p className="eyebrow">Trace inspector</p>
           <h2>{trace.summary.trace_id}</h2>
         </div>
-        <div className="button-row">
-          <button onClick={props.onRunEval}>Run eval</button>
-          <button className="secondary" onClick={props.onReplay}>Queue replay</button>
-        </div>
       </div>
-      <div className="segment-row">
+      <div className="inspector-actions">
+        <button onClick={props.onRunEval}>Run eval</button>
+        <button className="secondary" onClick={props.onReplay}>Queue replay</button>
+      </div>
+      <div className="segment-row inspector-tabs">
         {inspectorTabs.map((tab) => (
-          <button key={tab} className={props.tab === tab ? "segment-button active" : "segment-button"} onClick={() => props.setTab(tab)}>
-            {tab}
+          <button key={tab.key} className={props.tab === tab.key ? "segment-button active" : "segment-button"} onClick={() => props.setTab(tab.key)}>
+            {tab.label}
           </button>
         ))}
       </div>
 
-      {props.tab === "live" ? <LiveTraceStream traceID={trace.summary.trace_id} /> : null}
-
-      {props.tab === "overview" ? (
+      {props.tab === "summary" ? (
         <div className="detail-section-body">
-          <dl className="overview-grid">
+          <dl className="overview-grid inspector-metrics">
             <div><dt>Conversation</dt><dd>{props.traceDetail.conversation.title || props.traceDetail.conversation.external_key}</dd></div>
             <div><dt>Case</dt><dd>{props.traceDetail.case?.title || trace.summary.case_id}</dd></div>
             <div><dt>Status</dt><dd>{trace.summary.status}</dd></div>
@@ -595,19 +598,10 @@ export function TraceInspector(props: {
             <div><dt>Runtime status</dt><dd>{runtimeSummary?.status || "none"}</dd></div>
             <div><dt>Engine</dt><dd>{runtimeSummary?.engine || "none"}</dd></div>
           </dl>
-          {runtimeSummary ? (
-            <div className="detail-card">
-              <h3>Executor runtime</h3>
-              <dl className="overview-grid">
-                <div><dt>Recorded</dt><dd>{formatTime(runtimeSummary.recorded_at)}</dd></div>
-                <div><dt>Workspace</dt><dd>{runtimeSummary.workspace_root || "none"}</dd></div>
-              </dl>
-            </div>
-          ) : null}
           {props.traceDetail.workflow_line ? (
-            <div className="detail-card">
+            <div className="nested-card">
               <h3>Workflow line</h3>
-              <dl className="overview-grid">
+              <dl className="overview-grid inspector-metrics">
                 <div><dt>Status</dt><dd>{props.traceDetail.workflow_line.status}</dd></div>
                 <div><dt>Current attempt</dt><dd>{props.traceDetail.workflow_line.current_workflow_id || "none"}</dd></div>
                 <div><dt>Retry budget</dt><dd>{props.traceDetail.workflow_line.auto_retry_budget_remaining}</dd></div>
@@ -618,7 +612,7 @@ export function TraceInspector(props: {
             </div>
           ) : null}
           {listOrEmpty(props.traceDetail.workflow_attempts).length ? (
-            <div className="detail-card">
+            <div className="nested-card">
               <h3>Attempt lineage</h3>
               <div className="nested-list">
                 {listOrEmpty(props.traceDetail.workflow_attempts).map((attempt) => (
@@ -639,64 +633,6 @@ export function TraceInspector(props: {
               </div>
             </div>
           ) : null}
-          {listOrEmpty(props.traceDetail.harness_executions).length ? (
-            <div className="detail-card">
-              <h3>Hermes session continuity</h3>
-              <div className="nested-list">
-                {listOrEmpty(props.traceDetail.harness_executions).map((item) => (
-                  <div key={item.id} className="nested-card">
-                    <div className="detail-row-header">
-                      <strong>{item.role}</strong>
-                      <small>{formatTime(item.created_at)}</small>
-                    </div>
-                    <p className="detail-copy">{item.hermes_session_id}</p>
-                    <p className="muted">Scope: {item.session_scope_kind}:{item.session_scope_id}</p>
-                    {item.parent_session_id ? <p className="muted">Parent session: {item.parent_session_id}</p> : null}
-                    {listOrEmpty(item.memory_reads).length ? <p className="muted">Reads: {listOrEmpty(item.memory_reads).map((memory) => memory.summary).join(" • ")}</p> : null}
-                    {listOrEmpty(item.memory_writes).length ? <p className="muted">Writes: {listOrEmpty(item.memory_writes).map((memory) => memory.summary).join(" • ")}</p> : null}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : null}
-          {recentExecutorOutput.length ? (
-            <div className="detail-card">
-              <h3>Recent executor output</h3>
-              <div className="nested-list">
-                {recentExecutorOutput.map((item) => {
-                  const payload = item.payload || {};
-                  const chunkText = typeof payload.chunk_text === "string" ? payload.chunk_text : "";
-                  const stream = typeof payload.stream === "string" ? payload.stream : "output";
-                  const chunkIndex = typeof payload.chunk_index === "number" ? payload.chunk_index : item.seq;
-                  return (
-                    <div key={`${item.execution_id}-${item.seq}`} className="nested-card">
-                      <div className="detail-row-header">
-                        <strong>{stream}</strong>
-                        <small>chunk {chunkIndex} · {formatTime(item.recorded_at)}</small>
-                      </div>
-                      <pre className="detail-copy" style={{ whiteSpace: "pre-wrap" }}>{chunkText || "[empty]"}</pre>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ) : null}
-          <div className="detail-card">
-            <h3>Transcript slice used</h3>
-            <div className="nested-list">
-              {listOrEmpty(props.traceDetail.transcript_slice).map((entry) => (
-                <div key={entry.id} className="nested-card">
-                  <div className="detail-row-header">
-                    <strong>{entry.actor_type || "actor"}</strong>
-                    <small>{formatTime(entry.created_at)}</small>
-                  </div>
-                  <p className="detail-copy">
-                    <FormattedMessage source={entry.source} text={entry.body} metadata={entry.metadata} />
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       ) : null}
 
@@ -714,8 +650,9 @@ export function TraceInspector(props: {
         </div>
       ) : null}
 
-      {props.tab === "reasoning" ? (
+      {props.tab === "evidence" ? (
         <div className="detail-section-body">
+          <h3>Reasoning</h3>
           {listOrEmpty(trace.reasoning).map((step) => (
             <div key={step.id} className="detail-row">
               <div className="detail-row-header">
@@ -728,11 +665,8 @@ export function TraceInspector(props: {
               {step.decision ? <p className="muted">Decision: {step.decision}</p> : null}
             </div>
           ))}
-        </div>
-      ) : null}
 
-      {props.tab === "tools" ? (
-        <div className="detail-section-body">
+          <h3>Tools</h3>
           {listOrEmpty(trace.tool_calls).map((call) => (
             <div key={call.id} className="detail-row">
               <div className="detail-row-header">
@@ -742,11 +676,8 @@ export function TraceInspector(props: {
               <p className="detail-copy">{call.summary || call.interpretation_summary}</p>
             </div>
           ))}
-        </div>
-      ) : null}
 
-      {props.tab === "actions" ? (
-        <div className="detail-section-body">
+          <h3>Actions</h3>
           {listOrEmpty(traceDetail.action_intents).map((intent) => {
             const result = latestActionResult(intent.id, traceDetail.action_results);
             return (
@@ -762,11 +693,8 @@ export function TraceInspector(props: {
               </div>
             );
           })}
-        </div>
-      ) : null}
 
-      {props.tab === "slack" ? (
-        <div className="detail-section-body">
+          <h3>Slack</h3>
           {listOrEmpty(trace.slack_actions).map((action) => (
             <div key={action.id} className="detail-row">
               <div className="detail-row-header">
@@ -778,11 +706,8 @@ export function TraceInspector(props: {
               </p>
             </div>
           ))}
-        </div>
-      ) : null}
 
-      {props.tab === "outcomes" ? (
-        <div className="detail-section-body">
+          <h3>Outcomes</h3>
           {listOrEmpty(props.traceDetail.outcomes).map((item) => (
             <div key={item.id} className="detail-row">
               <div className="detail-row-header">
@@ -809,11 +734,8 @@ export function TraceInspector(props: {
               </div>
             </div>
           ) : null}
-        </div>
-      ) : null}
 
-      {props.tab === "evals" ? (
-        <div className="detail-section-body">
+          <h3>Evals</h3>
           {listOrEmpty(props.traceDetail.linked_eval_runs).map((run) => (
             <div key={run.id} className="detail-row">
               <div className="detail-row-header">
@@ -834,12 +756,9 @@ export function TraceInspector(props: {
               </div>
             </div>
           ))}
-        </div>
-      ) : null}
 
-      {props.tab === "feedback" ? (
-        <div className="review-grid">
-          <div className="detail-card">
+          <div className="review-grid inspector-feedback-grid">
+          <div className="nested-card">
             <h3>Recorded feedback</h3>
             <div className="nested-list">
               {listOrEmpty(props.traceDetail.feedback_records).map((item) => (
@@ -853,7 +772,7 @@ export function TraceInspector(props: {
               ))}
             </div>
           </div>
-          <div className="detail-card">
+          <div className="nested-card">
             <h3>Add feedback</h3>
             <label className="field">
               Target
@@ -884,11 +803,9 @@ export function TraceInspector(props: {
             </label>
             <button onClick={props.onSubmitFeedback}>Submit feedback</button>
           </div>
-        </div>
-      ) : null}
+          </div>
 
-      {props.tab === "proposals" ? (
-        <div className="detail-section-body">
+          <h3>Proposals</h3>
           {listOrEmpty(props.traceDetail.linked_proposals).map((proposal) => (
             <div key={proposal.id} className="detail-row">
               <div className="detail-row-header">
@@ -898,6 +815,59 @@ export function TraceInspector(props: {
               <p className="detail-copy">{proposal.summary}</p>
             </div>
           ))}
+        </div>
+      ) : null}
+
+      {props.tab === "raw" ? (
+        <div className="detail-section-body">
+          <LiveTraceStream traceID={trace.summary.trace_id} />
+          {runtimeSummary ? (
+            <div className="nested-card">
+              <h3>Executor runtime</h3>
+              <dl className="overview-grid inspector-metrics">
+                <div><dt>Recorded</dt><dd>{formatTime(runtimeSummary.recorded_at)}</dd></div>
+                <div><dt>Workspace</dt><dd>{runtimeSummary.workspace_root || "none"}</dd></div>
+              </dl>
+            </div>
+          ) : null}
+          {recentExecutorOutput.length ? (
+            <div className="nested-card">
+              <h3>Recent executor output</h3>
+              <div className="nested-list">
+                {recentExecutorOutput.map((item) => {
+                  const payload = item.payload || {};
+                  const chunkText = typeof payload.chunk_text === "string" ? payload.chunk_text : "";
+                  const stream = typeof payload.stream === "string" ? payload.stream : "output";
+                  const chunkIndex = typeof payload.chunk_index === "number" ? payload.chunk_index : item.seq;
+                  return (
+                    <div key={`${item.execution_id}-${item.seq}`} className="nested-card raw-output-card">
+                      <div className="detail-row-header">
+                        <strong>{stream}</strong>
+                        <small>chunk {chunkIndex} · {formatTime(item.recorded_at)}</small>
+                      </div>
+                      <pre className="detail-copy">{chunkText || "[empty]"}</pre>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
+          <div className="nested-card">
+            <h3>Transcript slice used</h3>
+            <div className="nested-list">
+              {listOrEmpty(props.traceDetail.transcript_slice).map((entry) => (
+                <div key={entry.id} className="nested-card">
+                  <div className="detail-row-header">
+                    <strong>{entry.actor_type || "actor"}</strong>
+                    <small>{formatTime(entry.created_at)}</small>
+                  </div>
+                  <p className="detail-copy">
+                    <FormattedMessage source={entry.source} text={entry.body} metadata={entry.metadata} />
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       ) : null}
     </div>

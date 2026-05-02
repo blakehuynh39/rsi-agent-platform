@@ -687,7 +687,7 @@ describe("App", () => {
       expect(window.location.search).toContain("trace=trace-001");
     });
     expect(await screen.findByText("Trace inspector")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "reasoning" }));
+    fireEvent.click(screen.getByRole("button", { name: "Evidence" }));
     expect(screen.getByText("goal_framing")).toBeInTheDocument();
   });
 
@@ -698,7 +698,7 @@ describe("App", () => {
     fireEvent.click(await screen.findByRole("button", { name: /Need help understanding trace rendering/i }));
     fireEvent.click(await screen.findByRole("button", { name: /trace-001/i }));
     expect(await screen.findByText("Trace inspector")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "live" }));
+    fireEvent.click(screen.getByRole("button", { name: "Raw" }));
 
     await waitFor(() => expect(MockEventSource.instances.length).toBe(1));
     expect(MockEventSource.instances[0].url).toBe("/api/traces/trace-001/stream?scope=main&limit=100");
@@ -791,7 +791,7 @@ describe("App", () => {
     fireEvent.click(await screen.findByRole("button", { name: /Need help understanding trace rendering/i }));
     fireEvent.click(await screen.findByRole("button", { name: /trace-001/i }));
     expect(await screen.findByText("Trace inspector")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "live" }));
+    fireEvent.click(screen.getByRole("button", { name: "Raw" }));
 
     await waitFor(() => expect(MockEventSource.instances.length).toBe(1));
     for (let seq = 1; seq <= 100; seq += 1) {
@@ -870,7 +870,7 @@ describe("App", () => {
 
     fireEvent.click(await screen.findByRole("button", { name: /Need help understanding trace rendering/i }));
     fireEvent.click(await screen.findByRole("button", { name: /trace-001/i }));
-    fireEvent.click(await screen.findByRole("button", { name: "actions" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Evidence" }));
 
     expect(await screen.findByText("slack_post")).toBeInTheDocument();
 

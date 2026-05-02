@@ -67,7 +67,7 @@ function countLabel(loaded: boolean, count: number) {
 }
 
 function defaultTraceInspectorTabForStatus(status?: string): TraceInspectorTab {
-  return status && RUNNING_TRACE_STATES.has(status.toLowerCase()) ? "live" : "overview";
+  return status && RUNNING_TRACE_STATES.has(status.toLowerCase()) ? "raw" : "summary";
 }
 
 function canRetryProposal(detail: ProposalDetailResponse) {
@@ -228,7 +228,7 @@ export function App() {
   useEffect(() => {
     if (!viewState.trace) {
       defaultedTraceTabRef.current = undefined;
-      setTraceInspectorTab("overview");
+      setTraceInspectorTab("summary");
       return;
     }
     const traceSummary = traceDetailQuery.data?.trace.summary;
@@ -547,7 +547,7 @@ export function App() {
           </button>
         </nav>
 
-        <section className="operations-card">
+        <section className="operations-card rail-secondary">
           <div className="section-header">
             <div>
               <p className="eyebrow">Operations</p>
@@ -597,7 +597,7 @@ export function App() {
           </div>
         </section>
 
-        <section className="operations-card danger-zone">
+        <section className="operations-card danger-zone rail-secondary">
           <div className="section-header">
             <div>
               <p className="eyebrow">Reset</p>
