@@ -289,22 +289,6 @@ func isAllowedRepoFile(path string) bool {
 	}
 }
 
-func isAttemptTerminal(state improvement.ChangeAttemptState) bool {
-	switch state {
-	case improvement.AttemptStateSandboxFailed,
-		improvement.AttemptStateCIFailed,
-		improvement.AttemptStateClosedUnmerged,
-		improvement.AttemptStateOverlayActive,
-		improvement.AttemptStateMerged,
-		improvement.AttemptStateNeedsReview,
-		improvement.AttemptStateAbandoned,
-		improvement.AttemptStateSuperseded:
-		return true
-	default:
-		return false
-	}
-}
-
 func shouldAutoRetryAttempt(attempt improvement.ChangeAttempt, failureClass string, materialChange bool) bool {
 	if materialChange {
 		return false

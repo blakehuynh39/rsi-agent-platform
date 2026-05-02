@@ -304,7 +304,6 @@ func (s *MemoryStore) applyWorkflowCommandLocked(command transition.CommandEnvel
 		bundle:  buildCommandBundle(command, decision.TransitionDecision, workflow.Version),
 	}
 	s.appendWorkflowLineFollowOnCommandLocked(&result.bundle, command, workflow)
-	s.appendQuestionRunFollowOnCommandLocked(&result.bundle, command, workflow)
 	if decision.DecisionKind == transition.DecisionAdvance &&
 		transition.WorkflowCommandKind(command.CommandKind) == transition.CommandWorkflowStarted &&
 		workflowPlanningRequested(command) {

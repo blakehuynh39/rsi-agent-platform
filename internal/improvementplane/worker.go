@@ -161,10 +161,6 @@ func effectStringValue(effect transition.EffectExecution, key string) string {
 	return strings.TrimSpace(stringValue(effect.Payload[key]))
 }
 
-func effectStringSliceValue(effect transition.EffectExecution, key string) []string {
-	return stringSliceFromAny(effect.Payload[key])
-}
-
 func workspaceMutationCallCount(trace events.Trace) int {
 	count := 0
 	for _, item := range trace.ToolCalls {
@@ -2731,44 +2727,6 @@ func judgmentDigest(items []evals.Judgment) []string {
 	return out
 }
 
-func repoChangeCommands() []string {
-	script := `
-set -euo pipefail
-mkdir -p /workspace
-cd /workspace
-rm -rf repo
-git clone "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_OWNER}/${RSI_REPO}.git" repo
-cd repo
-git checkout -B "${RSI_BRANCH_NAME}" "origin/${RSI_BASE_REF}"
-if [ -z "${RSI_REPO_PATCH:-}" ]; then
-  echo "RSI_REPO_PATCH is required" >&2
-  exit 1
-fi
-mkdir -p .rsi
-printf "%s\n" "${RSI_CONTEXT_SUMMARY}" > .rsi/proposal-context.txt
-printf "%s\n" "${RSI_CHANGE_PLAN:-}" > .rsi/change-plan.txt
-printf "%s\n" "${RSI_VALIDATION_PLAN:-}" > .rsi/validation-plan.txt
-printf "%s\n" "${RSI_REPO_PATCH}" > /tmp/rsi-change.patch
-git apply --check /tmp/rsi-change.patch
-git apply /tmp/rsi-change.patch
-if [ -z "$(git status --short)" ]; then
-  echo "Patch produced no working tree changes" >&2
-  exit 1
-fi
-if ! git status --short | awk '{print $2}' | grep -qv '^\.rsi/'; then
-  echo "Patch only changed .rsi metadata files" >&2
-  exit 1
-fi
-git config user.name "${GITHUB_COMMIT_USER}"
-git config user.email "${GITHUB_COMMIT_EMAIL}"
-make test
-git add -A
-git commit -m "fix: RSI proposal ${RSI_PROPOSAL_ID} attempt ${RSI_ATTEMPT_ID}" || true
-git push origin HEAD
-`
-	return []string{"bash", "-lc", script}
-}
-
 func persistImprovementKnowledgeDrafts(store storepkg.Store, drafts []runnerutil.KnowledgeDraft, trace events.Trace, proposalID string, createdAt time.Time) error {
 	for idx, item := range drafts {
 		defaultScopeType := knowledge.ScopeCase
@@ -3194,13 +3152,6 @@ func parseTimeOrNil(value string) *time.Time {
 		return nil
 	}
 	return &parsed
-}
-
-func errorString(err error) string {
-	if err == nil {
-		return ""
-	}
-	return err.Error()
 }
 
 func stringValue(value interface{}) string {

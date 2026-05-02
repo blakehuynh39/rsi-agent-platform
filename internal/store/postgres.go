@@ -718,35 +718,15 @@ func loadConversationEntries(r sqlReader, store *MemoryStore) error {
 }
 
 func loadCases(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, conversation_id, kind, intent, title, summary, status, approval_mode, response_mode, assigned_bot, opened_by_event_id, closed_by_event_id, latest_trace_id, resolution_state, resolved_at, latest_outcome_id, outcome_score, superseded_by_case_id, created_at, updated_at, closed_at from case_record order by updated_at desc`)
+	rows, err := r.Query(`select ` + caseColumns + ` from case_record order by updated_at desc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var item conversation.Case
-		var status string
-		var approvalMode, responseMode, openedByEventID, closedByEventID, latestTraceID, resolutionState, latestOutcomeID, supersededByCaseID sql.NullString
-		var resolvedAt, closedAt sql.NullTime
-		if err := rows.Scan(&item.ID, &item.ConversationID, &item.Kind, &item.Intent, &item.Title, &item.Summary, &status, &approvalMode, &responseMode, &item.AssignedBot, &openedByEventID, &closedByEventID, &latestTraceID, &resolutionState, &resolvedAt, &latestOutcomeID, &item.OutcomeScore, &supersededByCaseID, &item.CreatedAt, &item.UpdatedAt, &closedAt); err != nil {
+		item, err := scanCaseRecord(rows)
+		if err != nil {
 			return err
-		}
-		item.Status = conversation.CaseStatus(status)
-		item.ApprovalMode = approvalMode.String
-		item.ResponseMode = responseMode.String
-		item.OpenedByEventID = openedByEventID.String
-		item.ClosedByEventID = closedByEventID.String
-		item.LatestTraceID = latestTraceID.String
-		item.ResolutionState = conversation.ResolutionState(resolutionState.String)
-		item.LatestOutcomeID = latestOutcomeID.String
-		item.SupersededByCaseID = supersededByCaseID.String
-		if resolvedAt.Valid {
-			t := resolvedAt.Time
-			item.ResolvedAt = &t
-		}
-		if closedAt.Valid {
-			t := closedAt.Time
-			item.ClosedAt = &t
 		}
 		store.cases[item.ID] = item
 	}
@@ -754,39 +734,16 @@ func loadCases(r sqlReader, store *MemoryStore) error {
 }
 
 func loadActionIntents(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, operation_id, owner_plane, conversation_id, case_id, trace_id, proposal_id, attempt_id, kind, phase_key, target_ref, request_payload, idempotency_key, approval_mode, approval_state, policy_verdict, status, superseded_by_action_id, requested_by, rationale, evidence_refs, created_at, updated_at from action_intent order by created_at desc`)
+	rows, err := r.Query(`select ` + actionIntentColumns + ` from action_intent order by created_at desc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var item action.Intent
-		var operationID sql.NullString
-		var conversationID, caseID, traceID, proposalID, attemptID, phaseKey, targetRef, idempotencyKey, approvalMode, approvalState, policyVerdict, supersededBy, requestedBy, rationale sql.NullString
-		var requestPayload, evidenceRefs []byte
-		var kind, status string
-		if err := rows.Scan(&item.ID, &operationID, &item.OwnerPlane, &conversationID, &caseID, &traceID, &proposalID, &attemptID, &kind, &phaseKey, &targetRef, &requestPayload, &idempotencyKey, &approvalMode, &approvalState, &policyVerdict, &status, &supersededBy, &requestedBy, &rationale, &evidenceRefs, &item.CreatedAt, &item.UpdatedAt); err != nil {
+		item, err := scanActionIntentRecord(rows)
+		if err != nil {
 			return err
 		}
-		item.OperationID = operationID.String
-		item.ConversationID = conversationID.String
-		item.CaseID = caseID.String
-		item.TraceID = traceID.String
-		item.ProposalID = proposalID.String
-		item.AttemptID = attemptID.String
-		item.Kind = action.Kind(kind)
-		item.PhaseKey = phaseKey.String
-		item.TargetRef = targetRef.String
-		item.RequestPayload = decodeJSON(requestPayload, map[string]any{})
-		item.IdempotencyKey = idempotencyKey.String
-		item.ApprovalMode = approvalMode.String
-		item.ApprovalState = approvalState.String
-		item.PolicyVerdict = policyVerdict.String
-		item.Status = action.Status(status)
-		item.SupersededByActionID = supersededBy.String
-		item.RequestedBy = requestedBy.String
-		item.Rationale = rationale.String
-		item.EvidenceRefs = decodeJSON(evidenceRefs, []events.EvidenceRef{})
 		store.actionIntents[item.ID] = item
 	}
 	return rows.Err()
@@ -821,31 +778,16 @@ func loadActionResults(r sqlReader, store *MemoryStore) error {
 }
 
 func loadOutcomes(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, operation_id, source, source_event_id, conversation_id, case_id, trace_id, proposal_id, attempt_id, outcome_type, verdict, score, summary, details, external_ref, recorded_by, recorded_at from outcome_record order by recorded_at desc`)
+	rows, err := r.Query(`select ` + outcomeColumns + ` from outcome_record order by recorded_at desc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var item outcome.Record
-		var operationID, sourceEventID, conversationID, caseID, traceID, proposalID, attemptID, summary, details, externalRef, recordedBy sql.NullString
-		var outcomeType, verdict string
-		if err := rows.Scan(&item.ID, &operationID, &item.Source, &sourceEventID, &conversationID, &caseID, &traceID, &proposalID, &attemptID, &outcomeType, &verdict, &item.Score, &summary, &details, &externalRef, &recordedBy, &item.RecordedAt); err != nil {
+		item, err := scanOutcomeRecord(rows)
+		if err != nil {
 			return err
 		}
-		item.OperationID = operationID.String
-		item.SourceEventID = sourceEventID.String
-		item.ConversationID = conversationID.String
-		item.CaseID = caseID.String
-		item.TraceID = traceID.String
-		item.ProposalID = proposalID.String
-		item.AttemptID = attemptID.String
-		item.OutcomeType = outcome.Type(outcomeType)
-		item.Verdict = outcome.Verdict(verdict)
-		item.Summary = summary.String
-		item.Details = details.String
-		item.ExternalRef = externalRef.String
-		item.RecordedBy = recordedBy.String
 		store.outcomes[item.ID] = item
 	}
 	return rows.Err()
@@ -1324,92 +1266,33 @@ func loadSettings(r sqlReader, store *MemoryStore) error {
 }
 
 func loadCandidates(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, subsystem, failure_mode, intervention_type, target_layer, target_kind, target_ref, status, severity, recurrence_count, expected_impact, novelty_score, confidence_score, freshness_score, priority_score, risk_tier, hypothesis, proposed_scope, latest_trace_id, source_eval_ids, evidence_artifact_ids, prior_similar_proposal_ids, new_evidence_since_last_rejection, line_status, retryable_failure_class, last_attempt_id, attempt_count, auto_retry_budget_remaining, current_target_layer, last_evaluated_at, created_at, updated_at from improvement_candidate order by updated_at desc`)
+	rows, err := r.Query(`select ` + candidateColumns + ` from improvement_candidate order by updated_at desc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var item improvement.Candidate
-		var status, riskTier, targetLayer, lineStatus, currentTargetLayer string
-		var conversationID, caseID, originTraceID, latestTraceID, targetKind, targetRef, retryableFailureClass, lastAttemptID sql.NullString
-		var evidenceTraceIDs, sourceEvalIDs, evidenceArtifactIDs, priorSimilarProposalIDs []byte
-		var lastEvaluatedAt sql.NullTime
-		if err := rows.Scan(&item.ID, &item.CandidateKey, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Subsystem, &item.FailureMode, &item.InterventionType, &targetLayer, &targetKind, &targetRef, &status, &item.Severity, &item.RecurrenceCount, &item.ExpectedImpact, &item.NoveltyScore, &item.ConfidenceScore, &item.FreshnessScore, &item.PriorityScore, &riskTier, &item.Hypothesis, &item.ProposedScope, &latestTraceID, &sourceEvalIDs, &evidenceArtifactIDs, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &lineStatus, &retryableFailureClass, &lastAttemptID, &item.AttemptCount, &item.AutoRetryBudgetRemaining, &currentTargetLayer, &lastEvaluatedAt, &item.CreatedAt, &item.UpdatedAt); err != nil {
+		item, err := scanCandidateRecord(rows)
+		if err != nil {
 			return err
 		}
-		item.ConversationID = conversationID.String
-		item.CaseID = caseID.String
-		item.OriginTraceID = originTraceID.String
-		item.EvidenceTraceIDs = decodeJSON(evidenceTraceIDs, []string{})
-		item.TargetLayer = harness.TargetLayer(targetLayer)
-		item.TargetKind = targetKind.String
-		item.TargetRef = targetRef.String
-		item.Status = improvement.CandidateStatus(status)
-		item.RiskTier = improvement.RiskTier(riskTier)
-		item.LatestTraceID = latestTraceID.String
-		item.SourceEvalIDs = decodeJSON(sourceEvalIDs, []string{})
-		item.EvidenceArtifactIDs = decodeJSON(evidenceArtifactIDs, []string{})
-		item.PriorSimilarProposalIDs = decodeJSON(priorSimilarProposalIDs, []string{})
-		item.LineStatus = improvement.LineStatus(lineStatus)
-		item.RetryableFailureClass = retryableFailureClass.String
-		item.LastAttemptID = lastAttemptID.String
-		item.CurrentTargetLayer = harness.TargetLayer(currentTargetLayer)
-		if lastEvaluatedAt.Valid {
-			item.LastEvaluatedAt = lastEvaluatedAt.Time
-		}
-		store.candidates[item.CandidateKey] = normalizeCandidateTargetFields(item)
+		store.candidates[item.CandidateKey] = item
 	}
 	return rows.Err()
 }
 
 func loadProposals(r sqlReader, store *MemoryStore) error {
-	rows, err := r.Query(`select id, version, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, target_layer, target_kind, target_ref, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, current_attempt_id, attempt_count, auto_retry_budget_remaining, last_failure_class, next_retry_action, line_stopped_by, line_stop_reason, line_stopped_at, recommended_intervention_kind, recommended_intervention_rationale, target_surface, touched_files, validation_plan, material_risk_summary, recommended_disposition, created_at from proposal order by created_at desc`)
+	rows, err := r.Query(`select ` + proposalColumns + ` from proposal order by created_at desc`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var item review.Proposal
-		var status, targetLayer string
-		var conversationID, caseID, originTraceID, reviewer, targetKind, targetRef, currentAttemptID, lastFailureClass, nextRetryAction, lineStoppedBy, lineStopReason, recommendedKind, recommendedRationale, targetSurface, validationPlan, materialRiskSummary, recommendedDisposition sql.NullString
-		var evidenceTraceIDs, sourceEvalIDs, evidenceArtifactIDs, priorSimilarProposalIDs, touchedFiles []byte
-		var reviewDeadline, lineStoppedAt sql.NullTime
-		if err := rows.Scan(&item.ID, &item.Version, &item.TraceID, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Title, &item.Category, &item.Summary, &status, &reviewer, &item.CandidateKey, &targetLayer, &targetKind, &targetRef, &sourceEvalIDs, &item.RiskTier, &item.ProposedScope, &evidenceArtifactIDs, &item.ActiveSlotConsuming, &reviewDeadline, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &currentAttemptID, &item.AttemptCount, &item.AutoRetryBudgetRemaining, &lastFailureClass, &nextRetryAction, &lineStoppedBy, &lineStopReason, &lineStoppedAt, &recommendedKind, &recommendedRationale, &targetSurface, &touchedFiles, &validationPlan, &materialRiskSummary, &recommendedDisposition, &item.CreatedAt); err != nil {
+		item, err := scanProposalRecord(rows)
+		if err != nil {
 			return err
 		}
-		item.ConversationID = conversationID.String
-		item.CaseID = caseID.String
-		item.OriginTraceID = originTraceID.String
-		item.EvidenceTraceIDs = decodeJSON(evidenceTraceIDs, []string{})
-		item.Status = review.ProposalStatus(status)
-		item.Reviewer = reviewer.String
-		item.TargetLayer = harness.TargetLayer(targetLayer)
-		item.TargetKind = targetKind.String
-		item.TargetRef = targetRef.String
-		item.SourceEvalIDs = decodeJSON(sourceEvalIDs, []string{})
-		item.EvidenceArtifactIDs = decodeJSON(evidenceArtifactIDs, []string{})
-		item.PriorSimilarProposalIDs = decodeJSON(priorSimilarProposalIDs, []string{})
-		item.CurrentAttemptID = currentAttemptID.String
-		item.LastFailureClass = lastFailureClass.String
-		item.NextRetryAction = nextRetryAction.String
-		item.LineStoppedBy = lineStoppedBy.String
-		item.LineStopReason = lineStopReason.String
-		item.RecommendedInterventionKind = review.ProposalInterventionKind(recommendedKind.String)
-		item.RecommendedInterventionRationale = recommendedRationale.String
-		item.TargetSurface = targetSurface.String
-		item.TouchedFiles = decodeJSON(touchedFiles, []string{})
-		item.ValidationPlan = validationPlan.String
-		item.MaterialRiskSummary = materialRiskSummary.String
-		item.RecommendedDisposition = recommendedDisposition.String
-		if reviewDeadline.Valid {
-			item.ReviewDeadline = reviewDeadline.Time
-		}
-		if lineStoppedAt.Valid {
-			t := lineStoppedAt.Time
-			item.LineStoppedAt = &t
-		}
-		store.proposals[item.ID] = normalizeProposalTargetFields(item)
+		store.proposals[item.ID] = item
 	}
 	return rows.Err()
 }
@@ -2653,7 +2536,10 @@ func decodeJSON[T any](raw []byte, fallback T) T {
 }
 
 func jsonString(value any) string {
-	data, _ := json.Marshal(value)
+	data, err := json.Marshal(value)
+	if err != nil {
+		panic(fmt.Errorf("marshal postgres json value: %w", err))
+	}
 	return string(data)
 }
 
@@ -2759,30 +2645,10 @@ func (p *PostgresStore) ListCases() []conversation.Case {
 }
 
 func (p *PostgresStore) GetCase(caseID string) (conversation.Case, bool) {
-	row := p.db.QueryRow(`select id, conversation_id, kind, intent, title, summary, status, approval_mode, response_mode, assigned_bot, opened_by_event_id, closed_by_event_id, latest_trace_id, resolution_state, resolved_at, latest_outcome_id, outcome_score, superseded_by_case_id, created_at, updated_at, closed_at from case_record where id = $1`, caseID)
-	var item conversation.Case
-	var status string
-	var approvalMode, responseMode, openedByEventID, closedByEventID, latestTraceID, resolutionState, latestOutcomeID, supersededByCaseID sql.NullString
-	var resolvedAt, closedAt sql.NullTime
-	if err := row.Scan(&item.ID, &item.ConversationID, &item.Kind, &item.Intent, &item.Title, &item.Summary, &status, &approvalMode, &responseMode, &item.AssignedBot, &openedByEventID, &closedByEventID, &latestTraceID, &resolutionState, &resolvedAt, &latestOutcomeID, &item.OutcomeScore, &supersededByCaseID, &item.CreatedAt, &item.UpdatedAt, &closedAt); err != nil {
+	row := p.db.QueryRow(`select `+caseColumns+` from case_record where id = $1`, caseID)
+	item, err := scanCaseRecord(row)
+	if err != nil {
 		return conversation.Case{}, false
-	}
-	item.Status = conversation.CaseStatus(status)
-	item.ApprovalMode = approvalMode.String
-	item.ResponseMode = responseMode.String
-	item.OpenedByEventID = openedByEventID.String
-	item.ClosedByEventID = closedByEventID.String
-	item.LatestTraceID = latestTraceID.String
-	item.ResolutionState = conversation.ResolutionState(resolutionState.String)
-	item.LatestOutcomeID = latestOutcomeID.String
-	item.SupersededByCaseID = supersededByCaseID.String
-	if resolvedAt.Valid {
-		t := resolvedAt.Time
-		item.ResolvedAt = &t
-	}
-	if closedAt.Valid {
-		t := closedAt.Time
-		item.ClosedAt = &t
 	}
 	return item, true
 }

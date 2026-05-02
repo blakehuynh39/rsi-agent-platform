@@ -180,9 +180,10 @@ func (p *PostgresStore) QueueEffectExecution(effect transition.EffectExecution) 
 func (p *PostgresStore) ClaimEffectExecution(effectID string, holder string, lease time.Duration) (item transition.EffectExecution, claimed bool, err error) {
 	err = p.withTx(func(tx *sql.Tx) error {
 		now := time.Now().UTC()
-		var leaseExpires any
+		var leaseExpires *time.Time
 		if lease > 0 {
-			leaseExpires = now.Add(lease)
+			expiresAt := now.Add(lease)
+			leaseExpires = &expiresAt
 		}
 		row := tx.QueryRow(`
 			update effect_execution
@@ -231,9 +232,10 @@ func (p *PostgresStore) ClaimNextEffectExecution(holder string, lease time.Durat
 func (p *PostgresStore) ClaimNextEffectExecutionForKinds(holder string, lease time.Duration, queueNames []string, maxPerScope int, selectors []EffectClaimSelector) (item transition.EffectExecution, claimed bool, err error) {
 	err = p.withTx(func(tx *sql.Tx) error {
 		now := time.Now().UTC()
-		var leaseExpires any
+		var leaseExpires *time.Time
 		if lease > 0 {
-			leaseExpires = now.Add(lease)
+			expiresAt := now.Add(lease)
+			leaseExpires = &expiresAt
 		}
 		args := []any{
 			string(transition.EffectRunning),

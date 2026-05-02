@@ -453,7 +453,7 @@ func buildInvestigationSpec(cfg config.Config, workflow storepkg.Workflow, inges
 	return questionrun.InvestigationSpec{
 		UserRequest:       userRequest,
 		ReplyTarget:       questionrun.ReplyTarget{ChannelID: ingestion.ChannelID, ThreadTS: ingestion.ThreadTS},
-		Prompt:            ingestion.Prompt,
+		Prompt:            questionRunPromptEnvelopeFromSlack(ingestion.Prompt),
 		Repo:              hints.Repo,
 		ProjectKey:        projectKeyFromQuestion(userRequest),
 		Since:             hints.Since,
@@ -467,6 +467,35 @@ func buildInvestigationSpec(cfg config.Config, workflow storepkg.Workflow, inges
 		ReductionTaskType: "question_reduce",
 		ExpansionTaskType: "question_gather",
 	}
+}
+
+func questionRunPromptEnvelopeFromSlack(prompt slackpkg.SlackPromptEnvelope) questionrun.PromptEnvelope {
+	return questionrun.PromptEnvelope{
+		ChannelID:         prompt.ChannelID,
+		ChannelName:       prompt.ChannelName,
+		ThreadTS:          prompt.ThreadTS,
+		SenderUserID:      prompt.SenderUserID,
+		SenderDisplayName: prompt.SenderDisplayName,
+		RawText:           prompt.RawText,
+		RenderedText:      prompt.RenderedText,
+		MentionedChannels: questionRunPromptEntitiesFromSlack(prompt.MentionedChannels),
+		MentionedUsers:    questionRunPromptEntitiesFromSlack(prompt.MentionedUsers),
+		Permalink:         prompt.Permalink,
+	}
+}
+
+func questionRunPromptEntitiesFromSlack(items []slackpkg.PromptEntity) []questionrun.PromptEntity {
+	if len(items) == 0 {
+		return nil
+	}
+	out := make([]questionrun.PromptEntity, 0, len(items))
+	for _, item := range items {
+		out = append(out, questionrun.PromptEntity{
+			ID:    item.ID,
+			Label: item.Label,
+		})
+	}
+	return out
 }
 
 func questionRequiresAlignment(question string) bool {

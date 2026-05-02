@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import type { TraceDetailResponse, TraceInspectorTab, NullableList, EvalJudgment, ExecutionLedgerEvent } from "@/types";
+import type { TraceDetailResponse, TraceInspectorTab, NullableList, EvalJudgment, ExecutionLedgerEvent, JsonObject, JsonValue } from "@/types";
 import { formatTime, getJSON, latestActionResult, listOrEmpty, scoreBadge } from "@/hooks/api";
 import { EmptyDetail } from "./empty-detail";
 import { FormattedMessage } from "@/components/formatted-message";
@@ -55,7 +55,7 @@ function eventFamily(kind: string) {
   return prefix;
 }
 
-function payloadText(payload: Record<string, unknown> | undefined, keys: string[]) {
+function payloadText(payload: JsonObject | undefined, keys: string[]) {
   if (!payload) {
     return "";
   }
@@ -193,12 +193,19 @@ function buildLiveStreamItems(events: ExecutionLedgerEvent[]) {
   }, []);
 }
 
-function parseToolResultSummary(value: unknown) {
+function isJsonObject(value: JsonValue): value is JsonObject {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function parseToolResultSummary(value: JsonValue | undefined) {
   if (typeof value !== "string" || !value.trim().startsWith("{")) {
     return "";
   }
   try {
-    const parsed = JSON.parse(value) as Record<string, unknown>;
+    const parsed = JSON.parse(value) as JsonValue;
+    if (!isJsonObject(parsed)) {
+      return "";
+    }
     return [
       typeof parsed.summary === "string" ? parsed.summary : "",
       typeof parsed.status === "string" ? `status: ${parsed.status}` : "",
@@ -216,7 +223,7 @@ function truncateText(value: string, limit = 900) {
   return `${value.slice(0, limit).trimEnd()}...`;
 }
 
-function compactValue(value: unknown): unknown {
+function compactValue(value: JsonValue): JsonValue {
   if (typeof value === "string") {
     const parsedSummary = parseToolResultSummary(value);
     return parsedSummary || truncateText(value);
@@ -224,9 +231,9 @@ function compactValue(value: unknown): unknown {
   if (Array.isArray(value)) {
     return value.slice(0, 8).map(compactValue);
   }
-  if (value && typeof value === "object") {
-    const out: Record<string, unknown> = {};
-    for (const [key, nested] of Object.entries(value as Record<string, unknown>)) {
+  if (isJsonObject(value)) {
+    const out: JsonObject = {};
+    for (const [key, nested] of Object.entries(value)) {
       if (COMPACT_METADATA_KEYS.has(key)) {
         continue;
       }
@@ -238,7 +245,7 @@ function compactValue(value: unknown): unknown {
 }
 
 function compactEventDetails(item: LiveStreamItem) {
-  const base: Record<string, unknown> = {
+  const base: JsonObject = {
     kind: item.kind,
     status: item.status || "event",
     phase_id: item.phase_id || "main",
@@ -246,10 +253,16 @@ function compactEventDetails(item: LiveStreamItem) {
     recorded_at: item.recorded_at,
     event_count: item.count
   };
-  const payload = compactValue(item.event.payload || {}) as Record<string, unknown>;
+  const payload = compactValue(item.event.payload || {});
   if (item.count > 1) {
-    base.first_event_id = item.events[0]?.id;
-    base.last_event_id = item.events[item.events.length - 1]?.id;
+    const firstEventID = item.events[0]?.id;
+    const lastEventID = item.events[item.events.length - 1]?.id;
+    if (firstEventID) {
+      base.first_event_id = firstEventID;
+    }
+    if (lastEventID) {
+      base.last_event_id = lastEventID;
+    }
     base.characters = item.text?.length || 0;
   }
   return { ...base, payload };
@@ -761,7 +774,7 @@ export function TraceInspector(props: {
                 <small>{formatTime(action.created_at)}</small>
               </div>
               <p className="detail-copy">
-                <FormattedMessage source="slack" text={action.final_body || action.draft_body} />
+                <FormattedMessage source="slack" text={action.final_body || action.draft_body || ""} />
               </p>
             </div>
           ))}

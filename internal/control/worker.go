@@ -1733,7 +1733,7 @@ func runnerRoleForQueue(name queue.QueueName) string {
 	}
 }
 
-func requestedArtifactsForPrompt(userRequest string, prompt any) []clients.RunnerRequestedArtifact {
+func requestedArtifactsForPrompt(userRequest string, prompt slackpkg.SlackPromptEnvelope) []clients.RunnerRequestedArtifact {
 	specs := workflowplan.RequestedArtifactsForPrompt(userRequest, prompt)
 	if len(specs) == 0 {
 		return nil

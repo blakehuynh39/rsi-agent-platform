@@ -16,6 +16,7 @@ import (
 )
 
 const (
+	caseColumns           = `id, conversation_id, kind, intent, title, summary, status, approval_mode, response_mode, assigned_bot, opened_by_event_id, closed_by_event_id, latest_trace_id, resolution_state, resolved_at, latest_outcome_id, outcome_score, superseded_by_case_id, created_at, updated_at, closed_at`
 	workflowSelectColumns = `id, version, ingestion_id, trace_id, conversation_id, case_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_verdict, last_error, attempt_number, parent_workflow_id, failure_class, failure_summary, retry_decision, retry_after, runner_diagnostics, repair_attempted, repair_succeeded, created_at, updated_at, completed_at`
 	actionIntentColumns   = `id, operation_id, owner_plane, conversation_id, case_id, trace_id, proposal_id, attempt_id, kind, phase_key, target_ref, request_payload, idempotency_key, approval_mode, approval_state, policy_verdict, status, superseded_by_action_id, requested_by, rationale, evidence_refs, created_at, updated_at`
 	outcomeColumns        = `id, operation_id, source, source_event_id, conversation_id, case_id, trace_id, proposal_id, attempt_id, outcome_type, verdict, score, summary, details, external_ref, recorded_by, recorded_at`
@@ -49,7 +50,7 @@ func (p *PostgresStore) listTraceSummariesWhere(where string, args ...any) []eve
 }
 
 func (p *PostgresStore) ListCasesByConversation(conversationID string) []conversation.Case {
-	rows, err := p.db.Query(`select id, conversation_id, kind, intent, title, summary, status, approval_mode, response_mode, assigned_bot, opened_by_event_id, closed_by_event_id, latest_trace_id, resolution_state, resolved_at, latest_outcome_id, outcome_score, superseded_by_case_id, created_at, updated_at, closed_at from case_record where conversation_id = $1 order by updated_at desc`, conversationID)
+	rows, err := p.db.Query(`select `+caseColumns+` from case_record where conversation_id = $1 order by updated_at desc`, conversationID)
 	if err != nil {
 		return nil
 	}

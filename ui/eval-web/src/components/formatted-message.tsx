@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { JsonObject } from "@/types";
+import type { JsonObject, JsonValue } from "@/types";
 
 type TextSegment = {
   text: string;
@@ -19,7 +19,7 @@ const emptySlackEntityLabels: SlackEntityLabels = {
 const plainSlackEntityPattern = /(^|[^A-Za-z0-9])([@#])([A-Z0-9]{8,})(?=$|[^A-Za-z0-9])/g;
 
 function decodeSlackEntities(text: string) {
-  return text.replaceAll("&amp;", "&").replaceAll("&lt;", "<").replaceAll("&gt;", ">");
+  return text.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
 }
 
 function splitSlackToken(token: string): [value: string, label?: string] {
@@ -71,13 +71,14 @@ function parseSlackToken(token: string, labels: SlackEntityLabels): TextSegment 
   return { text: value };
 }
 
-function stringRecordFromMetadataValue(value: unknown): Record<string, string> {
+function stringRecordFromMetadataValue(value: JsonValue | undefined): Record<string, string> {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return {};
   }
 
   const out: Record<string, string> = {};
-  for (const [key, item] of Object.entries(value)) {
+  for (const key of Object.keys(value)) {
+    const item = value[key];
     if (typeof item !== "string") continue;
     const trimmedKey = key.trim();
     const trimmedValue = item.trim();

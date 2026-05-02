@@ -33,6 +33,21 @@ type InstallationToken struct {
 	ExpiresAt time.Time `json:"expires_at"`
 }
 
+type installationTokenRequest struct {
+	Repositories []string `json:"repositories,omitempty"`
+}
+
+type jwtHeader struct {
+	Algorithm string `json:"alg"`
+	Type      string `json:"typ"`
+}
+
+type jwtClaims struct {
+	IssuedAt  int64 `json:"iat"`
+	ExpiresAt int64 `json:"exp"`
+	Issuer    int64 `json:"iss"`
+}
+
 func NewClient(appID string, installationID string, privateKeyPEM string, apiBaseURL string, httpClient *http.Client) *Client {
 	if httpClient == nil {
 		httpClient = &http.Client{Timeout: 30 * time.Second}
@@ -66,7 +81,7 @@ func (c *Client) MintInstallationToken(ctx context.Context, repositories []strin
 		return InstallationToken{}, err
 	}
 
-	body := map[string]any{}
+	body := installationTokenRequest{}
 	filteredRepos := make([]string, 0, len(repositories))
 	for _, repo := range repositories {
 		repo = strings.TrimSpace(repo)
@@ -75,7 +90,7 @@ func (c *Client) MintInstallationToken(ctx context.Context, repositories []strin
 		}
 	}
 	if len(filteredRepos) > 0 {
-		body["repositories"] = filteredRepos
+		body.Repositories = filteredRepos
 	}
 
 	payload, err := json.Marshal(body)
@@ -118,19 +133,19 @@ func (c *Client) signedJWT() (string, error) {
 		return "", err
 	}
 	now := c.now().UTC()
-	header := map[string]any{
-		"alg": "RS256",
-		"typ": "JWT",
-	}
-	claims := map[string]any{
-		"iat": now.Add(-60 * time.Second).Unix(),
-		"exp": now.Add(9 * time.Minute).Unix(),
+	header := jwtHeader{
+		Algorithm: "RS256",
+		Type:      "JWT",
 	}
 	issuer, err := issuerClaim(c.appID)
 	if err != nil {
 		return "", err
 	}
-	claims["iss"] = issuer
+	claims := jwtClaims{
+		IssuedAt:  now.Add(-60 * time.Second).Unix(),
+		ExpiresAt: now.Add(9 * time.Minute).Unix(),
+		Issuer:    issuer,
+	}
 
 	headerJSON, err := json.Marshal(header)
 	if err != nil {
@@ -170,10 +185,10 @@ func parsePrivateKey(value string) (*rsa.PrivateKey, error) {
 	return key, nil
 }
 
-func issuerClaim(appID string) (any, error) {
+func issuerClaim(appID string) (int64, error) {
 	id, err := strconv.ParseInt(strings.TrimSpace(appID), 10, 64)
 	if err != nil {
-		return nil, fmt.Errorf("github app id must be numeric: %q", strings.TrimSpace(appID))
+		return 0, fmt.Errorf("github app id must be numeric: %q", strings.TrimSpace(appID))
 	}
 	return id, nil
 }

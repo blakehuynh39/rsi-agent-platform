@@ -10,29 +10,50 @@ import (
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
 
-func recordRuntimeObservation(store storepkg.Repository, input map[string]any) (int, map[string]any) {
+type runtimeObservationRequest struct {
+	ID              string         `json:"id,omitempty"`
+	ExecutionID     string         `json:"execution_id"`
+	OperationID     string         `json:"operation_id,omitempty"`
+	TraceID         string         `json:"trace_id,omitempty"`
+	WorkflowID      string         `json:"workflow_id,omitempty"`
+	HermesSessionID string         `json:"hermes_session_id,omitempty"`
+	Role            string         `json:"role,omitempty"`
+	Phase           string         `json:"phase"`
+	EventType       string         `json:"event_type"`
+	Status          string         `json:"status,omitempty"`
+	Seq             int            `json:"seq"`
+	Payload         map[string]any `json:"payload,omitempty"`
+	RecordedAt      string         `json:"recorded_at,omitempty"`
+}
+
+func recordRuntimeObservation(store storepkg.Repository, input runtimeObservationRequest) (int, map[string]any) {
 	item := harness.ExecutionObservation{
-		ID:              strings.TrimSpace(stringValue(input["id"])),
-		ExecutionID:     strings.TrimSpace(stringValue(input["execution_id"])),
-		OperationID:     strings.TrimSpace(stringValue(input["operation_id"])),
-		TraceID:         strings.TrimSpace(stringValue(input["trace_id"])),
-		WorkflowID:      strings.TrimSpace(stringValue(input["workflow_id"])),
-		HermesSessionID: strings.TrimSpace(stringValue(input["hermes_session_id"])),
-		Role:            strings.TrimSpace(stringValue(input["role"])),
-		Phase:           strings.TrimSpace(stringValue(input["phase"])),
-		EventType:       strings.TrimSpace(stringValue(input["event_type"])),
-		Status:          strings.TrimSpace(stringValue(input["status"])),
-		Seq:             intValue(input["seq"]),
-		Payload:         mapValue(input["payload"]),
+		ID:              strings.TrimSpace(input.ID),
+		ExecutionID:     strings.TrimSpace(input.ExecutionID),
+		OperationID:     strings.TrimSpace(input.OperationID),
+		TraceID:         strings.TrimSpace(input.TraceID),
+		WorkflowID:      strings.TrimSpace(input.WorkflowID),
+		HermesSessionID: strings.TrimSpace(input.HermesSessionID),
+		Role:            strings.TrimSpace(input.Role),
+		Phase:           strings.TrimSpace(input.Phase),
+		EventType:       strings.TrimSpace(input.EventType),
+		Status:          strings.TrimSpace(input.Status),
+		Seq:             input.Seq,
+		Payload:         cloneStringAnyMap(input.Payload),
 	}
 	if item.Payload == nil {
 		item.Payload = map[string]any{}
 	}
-	recordedAt := strings.TrimSpace(stringValue(input["recorded_at"]))
+	recordedAt := strings.TrimSpace(input.RecordedAt)
 	if recordedAt != "" {
-		if parsed, err := time.Parse(time.RFC3339, recordedAt); err == nil {
-			item.RecordedAt = parsed.UTC()
+		parsed, err := time.Parse(time.RFC3339, recordedAt)
+		if err != nil {
+			return http.StatusBadRequest, map[string]any{
+				"error":       "recorded_at must be RFC3339",
+				"recorded_at": recordedAt,
+			}
 		}
+		item.RecordedAt = parsed.UTC()
 	}
 	if item.ExecutionID == "" || item.Phase == "" || item.EventType == "" {
 		return http.StatusBadRequest, map[string]any{
@@ -83,18 +104,5 @@ func recordRuntimeObservation(store storepkg.Repository, input map[string]any) (
 		"status":       "ok",
 		"observation":  recorded,
 		"ledger_event": ledgerEvent,
-	}
-}
-
-func intValue(value any) int {
-	switch typed := value.(type) {
-	case int:
-		return typed
-	case int64:
-		return int(typed)
-	case float64:
-		return int(typed)
-	default:
-		return 0
 	}
 }

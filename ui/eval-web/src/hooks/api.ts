@@ -1,6 +1,6 @@
-import type { ActionResult, JsonObject, KnowledgeEntry, KnowledgeSegment, NullableList, RepoChangeJob, PRAttempt, TabKey, ViewState } from "@/types";
+import type { ActionResult, JsonObject, KnowledgeEntry, KnowledgeSegment, NullableList, TabKey, ViewState } from "@/types";
 
-export type CommandRequest = {
+type CommandRequest = {
   command_kind: string;
   command_id?: string;
   causation_id?: string;
@@ -107,14 +107,4 @@ export function knowledgeEntriesForSegment(entries: KnowledgeEntry[], segment: K
 
 export function latestActionResult(intentId: string, results: NullableList<ActionResult> | undefined) {
   return listOrEmpty(results).filter((item) => item.action_intent_id === intentId)[0];
-}
-
-export function proposalJobState(proposalId: string, jobs: NullableList<RepoChangeJob> | undefined): RepoChangeJob | undefined {
-  return listOrEmpty(jobs).find((job) => job.proposal_id === proposalId);
-}
-
-export function proposalPRState(proposalId: string, attempts: NullableList<PRAttempt> | undefined): PRAttempt | undefined {
-  const rows = listOrEmpty(attempts).filter((attempt) => attempt.proposal_id === proposalId);
-  if (rows.length === 0) return undefined;
-  return rows.reduce((latest, attempt) => (attempt.created_at > latest.created_at ? attempt : latest));
 }

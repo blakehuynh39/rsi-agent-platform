@@ -10,7 +10,6 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/clients"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
-	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
@@ -220,15 +219,6 @@ func runtimeDiagnosesForTrace(items []improvement.RuntimeDiagnosis, trace events
 	return out
 }
 
-func latestRuntimeDiagnosisForCandidate(items []improvement.RuntimeDiagnosis, candidateKey string) *improvement.RuntimeDiagnosis {
-	matches := runtimeDiagnosesForCandidate(items, candidateKey)
-	if len(matches) == 0 {
-		return nil
-	}
-	item := matches[0]
-	return &item
-}
-
 func runtimeDiagnosisContextRefs(items []improvement.RuntimeDiagnosis, candidateKey string) []clients.RunnerContextRef {
 	diagnoses := runtimeDiagnosesForCandidate(items, candidateKey)
 	refs := make([]clients.RunnerContextRef, 0, len(diagnoses))
@@ -273,11 +263,4 @@ func runtimeDiagnosisRunnerTools(logFallbackEnabled bool) []string {
 		tools = append(tools, "kubernetes.logs")
 	}
 	return tools
-}
-
-func runtimeDiagnosisTargetLayer(candidate improvement.Candidate) harness.TargetLayer {
-	if candidate.TargetLayer != "" {
-		return candidate.TargetLayer
-	}
-	return harness.TargetLayerRepoChange
 }

@@ -1,14 +1,16 @@
 package transition
 
-type RuntimeDiagnosisState string
+import "github.com/piplabs/rsi-agent-platform/internal/improvement"
+
+type RuntimeDiagnosisState = improvement.RuntimeDiagnosisStatus
 
 const (
-	RuntimeDiagnosisStateQueued        RuntimeDiagnosisState = "queued"
-	RuntimeDiagnosisStateInvestigating RuntimeDiagnosisState = "investigating"
-	RuntimeDiagnosisStateGrounded      RuntimeDiagnosisState = "grounded"
-	RuntimeDiagnosisStateNeedsEvidence RuntimeDiagnosisState = "needs_evidence"
-	RuntimeDiagnosisStatePromoted      RuntimeDiagnosisState = "promoted"
-	RuntimeDiagnosisStateClosed        RuntimeDiagnosisState = "closed"
+	RuntimeDiagnosisStateQueued        = improvement.RuntimeDiagnosisQueued
+	RuntimeDiagnosisStateInvestigating = improvement.RuntimeDiagnosisInvestigating
+	RuntimeDiagnosisStateGrounded      = improvement.RuntimeDiagnosisGrounded
+	RuntimeDiagnosisStateNeedsEvidence = improvement.RuntimeDiagnosisNeedsEvidence
+	RuntimeDiagnosisStatePromoted      = improvement.RuntimeDiagnosisPromoted
+	RuntimeDiagnosisStateClosed        = improvement.RuntimeDiagnosisClosed
 )
 
 type RuntimeDiagnosisCommandKind string

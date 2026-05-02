@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -205,12 +206,15 @@ func newRouterWithTranscriptResolver(cfg config.Config, store storepkg.Repositor
 		var payload struct {
 			RequestedBy string `json:"requested_by"`
 		}
-		_ = json.NewDecoder(r.Body).Decode(&payload)
-		if _, ok := store.GetTrace(traceID); !ok {
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil && err != io.EOF {
+			app.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid replay request body: %w", err))
+			return
+		}
+		trace, ok := store.GetTrace(traceID)
+		if !ok {
 			app.WriteError(w, http.StatusNotFound, errors.New("trace not found"))
 			return
 		}
-		trace, _ := store.GetTrace(traceID)
 		now := time.Now().UTC()
 		requestedBy := firstNonEmptyString(payload.RequestedBy, "ui-operator")
 		receipt, err := store.SubmitCommand(transition.CommandEnvelope{

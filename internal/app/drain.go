@@ -32,7 +32,7 @@ func StopDrainForTest() {
 	defer signalDrainMu.Unlock()
 	if signalDrainNotify != nil {
 		signal.Stop(signalDrainNotify)
-		// Drain any buffered signals to prevent race
+		// Clear pending signals so later tests do not inherit a stale drain.
 		for {
 			select {
 			case <-signalDrainNotify:

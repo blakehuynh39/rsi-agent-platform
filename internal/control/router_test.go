@@ -68,6 +68,30 @@ func TestRuntimeObservationEndpointRecordsHarnessAndLedgerEvents(t *testing.T) {
 	}
 }
 
+func TestRuntimeObservationEndpointRejectsInvalidRecordedAt(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	router := NewRouter(config.Config{ServiceName: "control-plane", Environment: "stage"}, store)
+	body := bytes.NewBufferString(`{
+		"execution_id":"hexec-live",
+		"phase":"main",
+		"event_type":"model.reasoning.delta",
+		"seq":7,
+		"recorded_at":"not-a-timestamp"
+	}`)
+	req := httptest.NewRequest(http.MethodPost, "/internal/runtime/observations", body)
+	rec := httptest.NewRecorder()
+
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		responseBody, _ := io.ReadAll(rec.Body)
+		t.Fatalf("expected status 400, got %d: %s", rec.Code, string(responseBody))
+	}
+	if observations := store.ListHarnessExecutionObservations(); len(observations) != 0 {
+		t.Fatalf("expected invalid observation to be rejected, got %#v", observations)
+	}
+}
+
 func prepareProposalAttemptForWebhookTest(t *testing.T, store *storepkg.MemoryStore, proposal review.Proposal, mode string) (review.Proposal, improvement.ChangeAttempt) {
 	t.Helper()
 

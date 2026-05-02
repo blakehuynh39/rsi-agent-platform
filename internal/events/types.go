@@ -151,7 +151,7 @@ type Trace struct {
 	SlackActions []SlackActionRecord `json:"slack_actions"`
 }
 
-// SlackDeliveryStatusSucceeded returns true if the status indicates a successful delivery.
+// SlackDeliveryStatusSucceeded normalizes the success labels emitted by Slack send/upload paths.
 func SlackDeliveryStatusSucceeded(status string) bool {
 	switch strings.ToLower(strings.TrimSpace(status)) {
 	case "posted", "sent", "uploaded", "completed", "ok", "success", "shared":

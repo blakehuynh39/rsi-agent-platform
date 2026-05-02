@@ -9,7 +9,6 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/action"
 	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
-	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
@@ -111,51 +110,15 @@ func (p *PostgresStore) recordPRAttemptDirect(attempt improvement.PRAttempt) (it
 }
 
 func selectProposalTx(tx *sql.Tx, proposalID string, forUpdate bool) (review.Proposal, error) {
-	query := `select id, version, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, target_layer, target_kind, target_ref, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, current_attempt_id, attempt_count, auto_retry_budget_remaining, last_failure_class, next_retry_action, line_stopped_by, line_stop_reason, line_stopped_at, recommended_intervention_kind, recommended_intervention_rationale, target_surface, touched_files, validation_plan, material_risk_summary, recommended_disposition, created_at from proposal where id = $1`
+	query := `select ` + proposalColumns + ` from proposal where id = $1`
 	if forUpdate {
 		query += ` for update`
 	}
-	var item review.Proposal
-	var status, targetLayer string
-	var conversationID, caseID, originTraceID, reviewer, targetKind, targetRef, currentAttemptID, lastFailureClass, nextRetryAction, lineStoppedBy, lineStopReason, recommendedKind, recommendedRationale, targetSurface, validationPlan, materialRiskSummary, recommendedDisposition sql.NullString
-	var evidenceTraceIDs, sourceEvalIDs, evidenceArtifactIDs, priorSimilarProposalIDs, touchedFiles []byte
-	var reviewDeadline, lineStoppedAt sql.NullTime
-	err := tx.QueryRow(query, proposalID).Scan(&item.ID, &item.Version, &item.TraceID, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Title, &item.Category, &item.Summary, &status, &reviewer, &item.CandidateKey, &targetLayer, &targetKind, &targetRef, &sourceEvalIDs, &item.RiskTier, &item.ProposedScope, &evidenceArtifactIDs, &item.ActiveSlotConsuming, &reviewDeadline, &priorSimilarProposalIDs, &item.NewEvidenceSinceLastRejection, &currentAttemptID, &item.AttemptCount, &item.AutoRetryBudgetRemaining, &lastFailureClass, &nextRetryAction, &lineStoppedBy, &lineStopReason, &lineStoppedAt, &recommendedKind, &recommendedRationale, &targetSurface, &touchedFiles, &validationPlan, &materialRiskSummary, &recommendedDisposition, &item.CreatedAt)
+	item, err := scanProposalRecord(tx.QueryRow(query, proposalID))
 	if err != nil {
 		return review.Proposal{}, err
 	}
-	item.ConversationID = conversationID.String
-	item.CaseID = caseID.String
-	item.OriginTraceID = originTraceID.String
-	item.EvidenceTraceIDs = decodeJSON(evidenceTraceIDs, []string{})
-	item.Status = review.ProposalStatus(status)
-	item.Reviewer = reviewer.String
-	item.TargetLayer = harness.TargetLayer(targetLayer)
-	item.TargetKind = targetKind.String
-	item.TargetRef = targetRef.String
-	item.SourceEvalIDs = decodeJSON(sourceEvalIDs, []string{})
-	item.EvidenceArtifactIDs = decodeJSON(evidenceArtifactIDs, []string{})
-	item.PriorSimilarProposalIDs = decodeJSON(priorSimilarProposalIDs, []string{})
-	item.CurrentAttemptID = currentAttemptID.String
-	item.LastFailureClass = lastFailureClass.String
-	item.NextRetryAction = nextRetryAction.String
-	item.LineStoppedBy = lineStoppedBy.String
-	item.LineStopReason = lineStopReason.String
-	item.RecommendedInterventionKind = review.ProposalInterventionKind(recommendedKind.String)
-	item.RecommendedInterventionRationale = recommendedRationale.String
-	item.TargetSurface = targetSurface.String
-	item.TouchedFiles = decodeJSON(touchedFiles, []string{})
-	item.ValidationPlan = validationPlan.String
-	item.MaterialRiskSummary = materialRiskSummary.String
-	item.RecommendedDisposition = recommendedDisposition.String
-	if reviewDeadline.Valid {
-		item.ReviewDeadline = reviewDeadline.Time
-	}
-	if lineStoppedAt.Valid {
-		t := lineStoppedAt.Time
-		item.LineStoppedAt = &t
-	}
-	return normalizeProposalTargetFields(item), nil
+	return item, nil
 }
 
 func updateProposalOperationalStateTx(tx *sql.Tx, item review.Proposal) error {
@@ -360,35 +323,16 @@ func selectActiveCaseForConversationTx(tx *sql.Tx, conv conversation.Conversatio
 }
 
 func selectCaseByIDTx(tx *sql.Tx, caseID string, forUpdate bool) (conversation.Case, bool, error) {
-	query := `select id, conversation_id, kind, intent, title, summary, status, approval_mode, response_mode, assigned_bot, opened_by_event_id, closed_by_event_id, latest_trace_id, resolution_state, resolved_at, latest_outcome_id, outcome_score, superseded_by_case_id, created_at, updated_at, closed_at from case_record where id = $1`
+	query := `select ` + caseColumns + ` from case_record where id = $1`
 	if forUpdate {
 		query += ` for update`
 	}
-	var item conversation.Case
-	var status, resolutionState string
-	var approvalMode, responseMode, openedByEventID, closedByEventID, latestTraceID, latestOutcomeID, supersededByCaseID sql.NullString
-	var resolvedAt, closedAt sql.NullTime
-	err := tx.QueryRow(query, caseID).Scan(&item.ID, &item.ConversationID, &item.Kind, &item.Intent, &item.Title, &item.Summary, &status, &approvalMode, &responseMode, &item.AssignedBot, &openedByEventID, &closedByEventID, &latestTraceID, &resolutionState, &resolvedAt, &latestOutcomeID, &item.OutcomeScore, &supersededByCaseID, &item.CreatedAt, &item.UpdatedAt, &closedAt)
+	item, err := scanCaseRecord(tx.QueryRow(query, caseID))
 	if err == sql.ErrNoRows {
 		return conversation.Case{}, false, nil
 	}
 	if err != nil {
 		return conversation.Case{}, false, err
-	}
-	item.Status = conversation.CaseStatus(status)
-	item.ApprovalMode = approvalMode.String
-	item.ResponseMode = responseMode.String
-	item.OpenedByEventID = openedByEventID.String
-	item.ClosedByEventID = closedByEventID.String
-	item.LatestTraceID = latestTraceID.String
-	item.ResolutionState = conversation.ResolutionState(resolutionState)
-	if resolvedAt.Valid {
-		item.ResolvedAt = &resolvedAt.Time
-	}
-	item.LatestOutcomeID = latestOutcomeID.String
-	item.SupersededByCaseID = supersededByCaseID.String
-	if closedAt.Valid {
-		item.ClosedAt = &closedAt.Time
 	}
 	return item, true, nil
 }

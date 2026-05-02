@@ -1163,6 +1163,9 @@ func TestMemoryStoreSubmitCommandContextTransitionsProjectTraceArtifacts(t *test
 		effects := store.ListEffectExecutions()
 		for _, effect := range effects {
 			if effect.MachineKind == transition.MachineWorkflow && effect.EffectKind == transition.EffectInvokeRunner {
+				if questionRuns := store.ListQuestionRuns(); len(questionRuns) != 0 {
+					t.Fatalf("expected legacy execution_strategy to avoid question_run dispatch, got %#v", questionRuns)
+				}
 				return
 			}
 		}

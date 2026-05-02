@@ -275,11 +275,6 @@ func appliedMigrationVersions(db *sql.DB) (map[int64]struct{}, error) {
 	return out, rows.Err()
 }
 
-func recordAppliedMigration(db *sql.DB, migration Migration) error {
-	_, err := db.Exec(`insert into rsi_schema_migrations (version, name, applied_at) values ($1,$2,$3)`, migration.Version, migration.Name, time.Now().UTC())
-	return err
-}
-
 func recordAppliedMigrations(db *sql.DB, migrations []Migration) error {
 	tx, err := db.Begin()
 	if err != nil {

@@ -139,7 +139,7 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 		})
 	})
 	r.Post("/internal/runtime/observations", func(w http.ResponseWriter, r *http.Request) {
-		payload := map[string]any{}
+		var payload runtimeObservationRequest
 		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 			app.WriteError(w, http.StatusBadRequest, err)
 			return

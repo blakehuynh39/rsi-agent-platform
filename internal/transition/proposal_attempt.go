@@ -3,47 +3,50 @@ package transition
 import (
 	"fmt"
 	"strings"
+
+	"github.com/piplabs/rsi-agent-platform/internal/improvement"
+	"github.com/piplabs/rsi-agent-platform/internal/review"
 )
 
-type ProposalStatus string
+type ProposalStatus = review.ProposalStatus
 
 const (
-	ProposalQueuedForPromotion ProposalStatus = "queued_for_promotion"
-	ProposalPendingReview      ProposalStatus = "pending_review"
-	ProposalApproved           ProposalStatus = "approved"
-	ProposalRepoChangeQueued   ProposalStatus = "repo_change_queued"
-	ProposalRepoChangeRunning  ProposalStatus = "repo_change_running"
-	ProposalValidationPending  ProposalStatus = "validation_pending"
-	ProposalPROpen             ProposalStatus = "pr_open"
-	ProposalDismissed          ProposalStatus = "dismissed"
-	ProposalRejected           ProposalStatus = "rejected"
-	ProposalSuperseded         ProposalStatus = "superseded"
-	ProposalMerged             ProposalStatus = "merged"
-	ProposalFailedValidation   ProposalStatus = "failed_validation"
-	ProposalCanceled           ProposalStatus = "canceled"
+	ProposalQueuedForPromotion = review.ProposalQueuedForPromotion
+	ProposalPendingReview      = review.ProposalPendingReview
+	ProposalApproved           = review.ProposalApproved
+	ProposalRepoChangeQueued   = review.ProposalRepoChangeQueued
+	ProposalRepoChangeRunning  = review.ProposalRepoChangeRunning
+	ProposalValidationPending  = review.ProposalValidationPending
+	ProposalPROpen             = review.ProposalPROpen
+	ProposalDismissed          = review.ProposalDismissed
+	ProposalRejected           = review.ProposalRejected
+	ProposalSuperseded         = review.ProposalSuperseded
+	ProposalMerged             = review.ProposalMerged
+	ProposalFailedValidation   = review.ProposalFailedValidation
+	ProposalCanceled           = review.ProposalCanceled
 )
 
-type AttemptState string
+type AttemptState = improvement.ChangeAttemptState
 
 const (
-	AttemptStatePatchPlan           AttemptState = "patch_plan"
-	AttemptStateInvestigateComplete AttemptState = "investigate_complete"
-	AttemptStatePatchGenerated      AttemptState = "patch_generated"
-	AttemptStateValidationRunning   AttemptState = "validation_running"
-	AttemptStateCIObserving         AttemptState = "ci_observing"
-	AttemptStateRetryDeciding       AttemptState = "retry_deciding"
-	AttemptStateOverlayPlan         AttemptState = "overlay_plan"
-	AttemptStateOverlayGenerated    AttemptState = "overlay_generated"
-	AttemptStateOverlayValidating   AttemptState = "overlay_validating"
-	AttemptStateOverlayActive       AttemptState = "overlay_active"
-	AttemptStateSandboxFailed       AttemptState = "sandbox_failed"
-	AttemptStatePROpen              AttemptState = "pr_open"
-	AttemptStateCIFailed            AttemptState = "ci_failed"
-	AttemptStateClosedUnmerged      AttemptState = "closed_unmerged"
-	AttemptStateMerged              AttemptState = "merged"
-	AttemptStateNeedsReview         AttemptState = "needs_review"
-	AttemptStateAbandoned           AttemptState = "abandoned"
-	AttemptStateSuperseded          AttemptState = "superseded"
+	AttemptStatePatchPlan           = improvement.AttemptStatePatchPlan
+	AttemptStateInvestigateComplete = improvement.AttemptStateInvestigateComplete
+	AttemptStatePatchGenerated      = improvement.AttemptStatePatchGenerated
+	AttemptStateValidationRunning   = improvement.AttemptStateValidationRunning
+	AttemptStateCIObserving         = improvement.AttemptStateCIObserving
+	AttemptStateRetryDeciding       = improvement.AttemptStateRetryDeciding
+	AttemptStateOverlayPlan         = improvement.AttemptStateOverlayPlan
+	AttemptStateOverlayGenerated    = improvement.AttemptStateOverlayGenerated
+	AttemptStateOverlayValidating   = improvement.AttemptStateOverlayValidating
+	AttemptStateOverlayActive       = improvement.AttemptStateOverlayActive
+	AttemptStateSandboxFailed       = improvement.AttemptStateSandboxFailed
+	AttemptStatePROpen              = improvement.AttemptStatePROpen
+	AttemptStateCIFailed            = improvement.AttemptStateCIFailed
+	AttemptStateClosedUnmerged      = improvement.AttemptStateClosedUnmerged
+	AttemptStateMerged              = improvement.AttemptStateMerged
+	AttemptStateNeedsReview         = improvement.AttemptStateNeedsReview
+	AttemptStateAbandoned           = improvement.AttemptStateAbandoned
+	AttemptStateSuperseded          = improvement.AttemptStateSuperseded
 )
 
 type AttemptPhaseState string

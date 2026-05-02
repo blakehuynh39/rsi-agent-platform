@@ -876,6 +876,13 @@ func TestRouterFeedbackAndReplayRoutesSubmitProblemLineCommands(t *testing.T) {
 		t.Fatal("expected feedback route to record a problem-line domain event")
 	}
 
+	badReplayReq := httptest.NewRequest(http.MethodPost, "/api/traces/"+traceID+"/replay", strings.NewReader(`{"requested_by":`))
+	badReplayRec := httptest.NewRecorder()
+	router.ServeHTTP(badReplayRec, badReplayReq)
+	if badReplayRec.Code != http.StatusBadRequest {
+		t.Fatalf("malformed replay status = %d, want %d", badReplayRec.Code, http.StatusBadRequest)
+	}
+
 	replayReq := httptest.NewRequest(http.MethodPost, "/api/traces/"+traceID+"/replay", strings.NewReader(`{"requested_by":"alice"}`))
 	replayRec := httptest.NewRecorder()
 	router.ServeHTTP(replayRec, replayReq)

@@ -11,18 +11,17 @@ type RequestedArtifact struct {
 	Description string
 }
 
-func ArtifactRequestText(userRequest string, prompt any) string {
-	envelope := slackpkg.PromptEnvelopeFromValue(prompt)
-	if rendered := strings.TrimSpace(envelope.RenderedText); rendered != "" {
+func ArtifactRequestText(userRequest string, prompt slackpkg.SlackPromptEnvelope) string {
+	if rendered := strings.TrimSpace(prompt.RenderedText); rendered != "" {
 		return rendered
 	}
-	if raw := strings.TrimSpace(envelope.RawText); raw != "" {
+	if raw := strings.TrimSpace(prompt.RawText); raw != "" {
 		return raw
 	}
 	return strings.TrimSpace(userRequest)
 }
 
-func RequestedArtifactsForPrompt(userRequest string, prompt any) []RequestedArtifact {
+func RequestedArtifactsForPrompt(userRequest string, prompt slackpkg.SlackPromptEnvelope) []RequestedArtifact {
 	lower := strings.ToLower(ArtifactRequestText(userRequest, prompt))
 	if lower == "" {
 		return nil
@@ -54,7 +53,7 @@ func RequestedArtifactsForPrompt(userRequest string, prompt any) []RequestedArti
 }
 
 func RequestedArtifactsForUserRequest(userRequest string) []RequestedArtifact {
-	return RequestedArtifactsForPrompt(userRequest, nil)
+	return RequestedArtifactsForPrompt(userRequest, slackpkg.SlackPromptEnvelope{})
 }
 
 func dedupeRequestedArtifacts(items []RequestedArtifact) []RequestedArtifact {

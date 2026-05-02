@@ -1,7 +1,6 @@
 package improvementplane
 
 import (
-	"fmt"
 	"sort"
 	"strings"
 	"time"
@@ -1416,16 +1415,6 @@ func filterValidationRuns(items []improvement.ValidationRun, proposalID string) 
 	return out
 }
 
-func filterRepoChangeJobsByAttempt(items []improvement.RepoChangeJob, proposalID string, attemptID string) []improvement.RepoChangeJob {
-	out := make([]improvement.RepoChangeJob, 0)
-	for _, item := range items {
-		if item.ProposalID == proposalID && item.AttemptID == attemptID {
-			out = append(out, item)
-		}
-	}
-	return out
-}
-
 func filterPRAttemptsByAttempt(items []improvement.PRAttempt, proposalID string, attemptID string) []improvement.PRAttempt {
 	out := make([]improvement.PRAttempt, 0)
 	for _, item := range items {
@@ -1693,15 +1682,6 @@ func transcriptSlice(entries []conversation.Entry, triggerEventID string) []conv
 	return entries[start:end]
 }
 
-func findConversationSummary(items []conversationListItem, conversationID string) (conversationListItem, bool) {
-	for _, item := range items {
-		if item.ConversationID == conversationID {
-			return item, true
-		}
-	}
-	return conversationListItem{}, false
-}
-
 func findProposalView(items []review.Proposal, proposalID string) (review.Proposal, bool) {
 	for _, item := range items {
 		if item.ID == proposalID {
@@ -1718,13 +1698,6 @@ func isOpenTraceStatus(status events.Status) bool {
 	default:
 		return false
 	}
-}
-
-func runtimeSummary(status runtimeRoleStatus) string {
-	if status.Error != "" {
-		return fmt.Sprintf("%s unavailable: %s", status.Role, status.Error)
-	}
-	return fmt.Sprintf("%s -> %s %s effort=%s", status.Role, status.Backend, status.Model, status.ReasoningEffort)
 }
 
 func firstNonEmptyString(values ...string) string {

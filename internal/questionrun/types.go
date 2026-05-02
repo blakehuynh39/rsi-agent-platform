@@ -1,7 +1,5 @@
 package questionrun
 
-import slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
-
 type ReplyTarget struct {
 	ChannelID string `json:"channel_id,omitempty"`
 	ThreadTS  string `json:"thread_ts,omitempty"`
@@ -14,23 +12,41 @@ type SlackSurface struct {
 	Source    string `json:"source,omitempty"`
 }
 
+type PromptEntity struct {
+	ID    string `json:"id"`
+	Label string `json:"label,omitempty"`
+}
+
+type PromptEnvelope struct {
+	ChannelID         string         `json:"channel_id,omitempty"`
+	ChannelName       string         `json:"channel_name,omitempty"`
+	ThreadTS          string         `json:"thread_ts,omitempty"`
+	SenderUserID      string         `json:"sender_user_id,omitempty"`
+	SenderDisplayName string         `json:"sender_display_name,omitempty"`
+	RawText           string         `json:"raw_text,omitempty"`
+	RenderedText      string         `json:"rendered_text,omitempty"`
+	MentionedChannels []PromptEntity `json:"mentioned_channels,omitempty"`
+	MentionedUsers    []PromptEntity `json:"mentioned_users,omitempty"`
+	Permalink         string         `json:"permalink,omitempty"`
+}
+
 type InvestigationSpec struct {
-	UserRequest       string                       `json:"user_request"`
-	ReplyTarget       ReplyTarget                  `json:"reply_target"`
-	Prompt            slackpkg.SlackPromptEnvelope `json:"prompt_envelope,omitempty"`
-	Repo              string                       `json:"repo,omitempty"`
-	ProjectKey        string                       `json:"project_key,omitempty"`
-	Since             string                       `json:"since,omitempty"`
-	Until             string                       `json:"until,omitempty"`
-	ReadSurfaces      []SlackSurface               `json:"read_surfaces,omitempty"`
-	AlignmentRequired bool                         `json:"alignment_required,omitempty"`
-	RetrievalBudget   int                          `json:"retrieval_budget,omitempty"`
-	AllowExpansion    bool                         `json:"allow_expansion,omitempty"`
-	WorkflowStrategy  string                       `json:"workflow_strategy,omitempty"`
-	GatherTaskType    string                       `json:"gather_task_type,omitempty"`
-	ReduceTaskType    string                       `json:"reduce_task_type,omitempty"`
-	ReductionTaskType string                       `json:"reduction_task_type,omitempty"`
-	ExpansionTaskType string                       `json:"expansion_task_type,omitempty"`
+	UserRequest       string         `json:"user_request"`
+	ReplyTarget       ReplyTarget    `json:"reply_target"`
+	Prompt            PromptEnvelope `json:"prompt_envelope,omitempty"`
+	Repo              string         `json:"repo,omitempty"`
+	ProjectKey        string         `json:"project_key,omitempty"`
+	Since             string         `json:"since,omitempty"`
+	Until             string         `json:"until,omitempty"`
+	ReadSurfaces      []SlackSurface `json:"read_surfaces,omitempty"`
+	AlignmentRequired bool           `json:"alignment_required,omitempty"`
+	RetrievalBudget   int            `json:"retrieval_budget,omitempty"`
+	AllowExpansion    bool           `json:"allow_expansion,omitempty"`
+	WorkflowStrategy  string         `json:"workflow_strategy,omitempty"`
+	GatherTaskType    string         `json:"gather_task_type,omitempty"`
+	ReduceTaskType    string         `json:"reduce_task_type,omitempty"`
+	ReductionTaskType string         `json:"reduction_task_type,omitempty"`
+	ExpansionTaskType string         `json:"expansion_task_type,omitempty"`
 }
 
 type ToolCall struct {
@@ -79,23 +95,23 @@ type ProjectAlignmentLedger struct {
 }
 
 type EvidenceLedger struct {
-	InvestigationSpec    *InvestigationSpec           `json:"investigation_spec,omitempty"`
-	UserRequest          string                       `json:"user_request"`
-	ReplyTarget          ReplyTarget                  `json:"reply_target"`
-	Prompt               slackpkg.SlackPromptEnvelope `json:"prompt_envelope,omitempty"`
-	Repo                 string                       `json:"repo,omitempty"`
-	ProjectKey           string                       `json:"project_key,omitempty"`
-	Since                string                       `json:"since,omitempty"`
-	Until                string                       `json:"until,omitempty"`
-	AlignmentRequired    bool                         `json:"alignment_required,omitempty"`
-	AlignmentDegraded    bool                         `json:"alignment_degraded,omitempty"`
-	AlignmentLedger      *ProjectAlignmentLedger      `json:"alignment_ledger,omitempty"`
-	ToolCalls            []ToolCall                   `json:"tool_calls,omitempty"`
-	EvidenceItems        []EvidenceItem               `json:"evidence_items,omitempty"`
-	OpenQuestions        []string                     `json:"open_questions,omitempty"`
-	MissingEvidence      []string                     `json:"missing_evidence,omitempty"`
-	DraftReplyCandidates []string                     `json:"draft_reply_candidates,omitempty"`
-	TerminationReason    string                       `json:"termination_reason,omitempty"`
+	InvestigationSpec    *InvestigationSpec      `json:"investigation_spec,omitempty"`
+	UserRequest          string                  `json:"user_request"`
+	ReplyTarget          ReplyTarget             `json:"reply_target"`
+	Prompt               PromptEnvelope          `json:"prompt_envelope,omitempty"`
+	Repo                 string                  `json:"repo,omitempty"`
+	ProjectKey           string                  `json:"project_key,omitempty"`
+	Since                string                  `json:"since,omitempty"`
+	Until                string                  `json:"until,omitempty"`
+	AlignmentRequired    bool                    `json:"alignment_required,omitempty"`
+	AlignmentDegraded    bool                    `json:"alignment_degraded,omitempty"`
+	AlignmentLedger      *ProjectAlignmentLedger `json:"alignment_ledger,omitempty"`
+	ToolCalls            []ToolCall              `json:"tool_calls,omitempty"`
+	EvidenceItems        []EvidenceItem          `json:"evidence_items,omitempty"`
+	OpenQuestions        []string                `json:"open_questions,omitempty"`
+	MissingEvidence      []string                `json:"missing_evidence,omitempty"`
+	DraftReplyCandidates []string                `json:"draft_reply_candidates,omitempty"`
+	TerminationReason    string                  `json:"termination_reason,omitempty"`
 }
 
 type EvidenceDelta struct {

@@ -2306,11 +2306,11 @@ func artifactRequestedByEvent(event *ingestion.EventEnvelope) bool {
 	return len(workflowplan.RequestedArtifactsForPrompt(event.NormalizedProblemStatement, eventPromptEnvelope(event))) > 0
 }
 
-func eventPromptEnvelope(event *ingestion.EventEnvelope) any {
+func eventPromptEnvelope(event *ingestion.EventEnvelope) slack.SlackPromptEnvelope {
 	if event == nil || event.Metadata == nil {
-		return nil
+		return slack.SlackPromptEnvelope{}
 	}
-	return event.Metadata["prompt_envelope"]
+	return slack.PromptEnvelopeFromValue(event.Metadata["prompt_envelope"])
 }
 
 func traceHasUserFacingArtifact(trace events.Trace) bool {

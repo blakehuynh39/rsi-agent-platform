@@ -130,42 +130,6 @@ func workflowExecutionCommandFromQuestionRun(command transition.CommandEnvelope,
 	return transition.WorkflowExecutionCompletionCommand(verdict, hasReply)
 }
 
-func (s *MemoryStore) appendQuestionRunFollowOnCommandLocked(bundle *transitionPersistBundle, parent transition.CommandEnvelope, workflow Workflow) {
-	if bundle == nil || !workflowUsesQuestionRunStrategy(parent) {
-		return
-	}
-	commandKind := transition.WorkflowCommandKind(parent.CommandKind)
-	if commandKind != transition.CommandContextSkipped && commandKind != transition.CommandContextCompleted {
-		return
-	}
-	questionRunID := questionRunIDForWorkflow(workflow.ID)
-	appendFollowOnCommand(bundle, parent, transition.CommandEnvelope{
-		MachineKind: transition.MachineQuestionRun,
-		AggregateID: questionRunID,
-		CommandKind: string(transition.CommandQuestionRunStarted),
-		CommandID:   fmt.Sprintf("%s:question-run:start", parent.CommandID),
-		Actor:       parent.Actor,
-		OccurredAt:  parent.OccurredAt,
-		Payload: map[string]any{
-			"workflow_id":     workflow.ID,
-			"trace_id":        workflow.TraceID,
-			"conversation_id": workflow.ConversationID,
-			"case_id":         workflow.CaseID,
-			"ingestion_id":    workflow.IngestionID,
-			"strategy":        "read_heavy_slack_qna",
-			"role":            firstNonEmpty(stringFromCommand(parent, "execution_role"), stringFromCommand(parent, "role")),
-		},
-	}, "workflow execution strategy delegated to question_run")
-}
-
-func questionRunIDForWorkflow(workflowID string) string {
-	return fmt.Sprintf("qrun:%s", strings.TrimSpace(workflowID))
-}
-
-func workflowUsesQuestionRunStrategy(command transition.CommandEnvelope) bool {
-	return strings.TrimSpace(stringFromCommand(command, "execution_strategy")) == "read_heavy_slack_qna"
-}
-
 func questionRunInvestigationSpecFromCommand(command transition.CommandEnvelope, key string) (questionrun.InvestigationSpec, bool) {
 	var out questionrun.InvestigationSpec
 	if !decodeCommandPayload(command.Payload[key], &out) {

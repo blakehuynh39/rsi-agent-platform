@@ -3,15 +3,17 @@ package workflowplan
 import (
 	"regexp"
 	"strings"
+
+	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 )
 
 var slashSkillTokenPattern = regexp.MustCompile(`(?i)(?:^|[\s(])/(?:[a-z0-9][a-z0-9_-]*)`)
 
-func RequestedSkillsForPrompt(userRequest string, prompt any) []string {
+func RequestedSkillsForPrompt(userRequest string, prompt slackpkg.SlackPromptEnvelope) []string {
 	return ExplicitSkillMentionsForPrompt(userRequest, prompt)
 }
 
-func ExplicitSkillMentionsForPrompt(userRequest string, prompt any) []string {
+func ExplicitSkillMentionsForPrompt(userRequest string, prompt slackpkg.SlackPromptEnvelope) []string {
 	text := ArtifactRequestText(userRequest, prompt)
 	if strings.TrimSpace(text) == "" {
 		return nil

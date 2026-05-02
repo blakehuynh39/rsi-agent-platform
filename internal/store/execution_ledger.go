@@ -2,6 +2,7 @@ package store
 
 import (
 	"encoding/json"
+	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -313,7 +314,9 @@ func scanExecutionLedgerEvent(scanner executionLedgerScanner) (events.ExecutionL
 		return events.ExecutionLedgerEvent{}, err
 	}
 	if len(payload) > 0 {
-		_ = json.Unmarshal(payload, &item.Payload)
+		if err := json.Unmarshal(payload, &item.Payload); err != nil {
+			return events.ExecutionLedgerEvent{}, fmt.Errorf("decode execution ledger payload for %s: %w", item.ID, err)
+		}
 	}
 	return normalizeExecutionLedgerEvent(item), nil
 }

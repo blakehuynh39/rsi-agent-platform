@@ -3,6 +3,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "./App";
+import type { JsonValue } from "./types";
 
 const conversationListResponse = {
   conversations: [
@@ -562,7 +563,7 @@ class MockEventSource {
     this.listeners[type] = (this.listeners[type] || []).filter((item) => item !== listener);
   }
 
-  emit(type: string, data: unknown) {
+  emit(type: string, data: JsonValue) {
     const event = { data: JSON.stringify(data) } as MessageEvent;
     for (const listener of this.listeners[type] || []) {
       listener(event);
@@ -795,7 +796,8 @@ describe("App", () => {
     fireEvent.click(await screen.findByRole("button", { name: /Need help understanding trace rendering/i }));
 
     const transcriptEntries = await screen.findAllByText((_, element) =>
-      element?.classList.contains("detail-copy") &&
+      element !== null &&
+      element.classList.contains("detail-copy") &&
       element.textContent === "Sharing context with @blake in #depin-backend - see runbook @here"
     );
     expect(transcriptEntries.length).toBeGreaterThan(0);

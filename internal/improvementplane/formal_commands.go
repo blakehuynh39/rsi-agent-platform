@@ -7,9 +7,7 @@ import (
 	"time"
 
 	"github.com/piplabs/rsi-agent-platform/internal/evals"
-	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/harness"
-	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
@@ -41,19 +39,6 @@ func loadEvalRunByID(store storepkg.Store, runID string) (evals.Run, bool) {
 		}
 	}
 	return evals.Run{}, false
-}
-
-func loadOutcomeFromReceipt(store storepkg.Store, receipt transition.CommandReceipt) (outcome.Record, error) {
-	outcomeID := strings.TrimSpace(receipt.ResultRef)
-	if outcomeID == "" {
-		return outcome.Record{}, errors.New("missing outcome result ref")
-	}
-	for _, item := range store.ListOutcomes() {
-		if item.ID == outcomeID {
-			return item, nil
-		}
-	}
-	return outcome.Record{}, fmt.Errorf("outcome %s not found", outcomeID)
 }
 
 func loadPromotionResultFromReceipt(store storepkg.Store, receipt transition.CommandReceipt) (storepkg.PromotionResult, error) {
@@ -171,13 +156,6 @@ func findCommandDomainEvent(store storepkg.Store, commandID string, eventKind st
 		return item, true
 	}
 	return transition.DomainEvent{}, false
-}
-
-func traceEventSummary(events []events.TraceEvent) string {
-	if len(events) == 0 {
-		return ""
-	}
-	return strings.TrimSpace(events[len(events)-1].Description)
 }
 
 func boolFromAny(raw any) bool {

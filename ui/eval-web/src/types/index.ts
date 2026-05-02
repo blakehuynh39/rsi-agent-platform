@@ -1,18 +1,18 @@
 export type NullableList<T> = T[] | null;
-export type JsonPrimitive = string | number | boolean | null;
+type JsonPrimitive = string | number | boolean | null;
 export type JsonValue = JsonPrimitive | JsonObject | JsonValue[];
 export type JsonObject = {
   [key: string]: JsonValue;
 };
-export type CreatedAt = {
+type CreatedAt = {
   created_at: string;
 };
 
-export type OptionalCreatedAt = {
+type OptionalCreatedAt = {
   created_at?: string;
 };
 
-export type Timestamped = CreatedAt & {
+type Timestamped = CreatedAt & {
   updated_at: string;
 };
 
@@ -32,14 +32,14 @@ export type TraceInspectorTab =
   | "feedback"
   | "proposals";
 
-export type TraceEvalSummary = CreatedAt & {
+type TraceEvalSummary = CreatedAt & {
   run_id: string;
   verdict: string;
   score: number;
   suite_name: string;
 };
 
-export type ExecutorRuntimeSummary = {
+type ExecutorRuntimeSummary = {
   recorded_at: string;
   execution_id: string;
   runtime_source?: string;
@@ -50,7 +50,7 @@ export type ExecutorRuntimeSummary = {
   workspace_root?: string;
 };
 
-export type TraceAttemptSummary = {
+type TraceAttemptSummary = {
   trace_id: string;
   conversation_id: string;
   case_id: string;
@@ -97,7 +97,7 @@ export type ConversationListItem = {
   proposal_count: number;
 };
 
-export type ConversationEntry = CreatedAt & {
+type ConversationEntry = CreatedAt & {
   id: string;
   event_id?: string;
   trace_id?: string;
@@ -146,7 +146,7 @@ export type CaseDetailResponse = {
   linked_proposals: NullableList<Proposal>;
 };
 
-export type TraceEvent = {
+type TraceEvent = {
   trace_id: string;
   event_type: string;
   plane: string;
@@ -158,13 +158,13 @@ export type TraceEvent = {
   ended_at?: string;
 };
 
-export type EvidenceRef = {
+type EvidenceRef = {
   kind: string;
   ref: string;
   summary?: string;
 };
 
-export type ReasoningStep = {
+type ReasoningStep = {
   id: string;
   step_type: string;
   summary: string;
@@ -175,7 +175,7 @@ export type ReasoningStep = {
   created_at: string;
 };
 
-export type ToolCallRecord = {
+type ToolCallRecord = {
   id: string;
   tool_name: string;
   tool_call_id: string;
@@ -186,7 +186,7 @@ export type ToolCallRecord = {
   created_at: string;
 };
 
-export type SlackActionRecord = {
+type SlackActionRecord = {
   id: string;
   channel_id?: string;
   thread_ts?: string;
@@ -197,14 +197,14 @@ export type SlackActionRecord = {
   created_at: string;
 };
 
-export type Artifact = {
+type Artifact = {
   id: string;
   kind: string;
   url: string;
   source: string;
 };
 
-export type HarnessExecutionObservation = {
+type HarnessExecutionObservation = {
   recorded_at: string;
   id: string;
   execution_id: string;
@@ -217,7 +217,7 @@ export type HarnessExecutionObservation = {
   event_type: string;
   status?: string;
   seq: number;
-  payload?: Record<string, unknown>;
+  payload?: JsonObject;
 };
 
 export type ExecutionLedgerEvent = {
@@ -232,7 +232,7 @@ export type ExecutionLedgerEvent = {
   status?: string;
   seq: number;
   idempotency_key?: string;
-  payload?: Record<string, unknown>;
+  payload?: JsonObject;
 };
 
 export type TraceDetailResponse = {
@@ -277,7 +277,7 @@ export type TraceDetailResponse = {
   runtime_summary?: ExecutorRuntimeSummary;
 };
 
-export type WorkflowLineSummary = {
+type WorkflowLineSummary = {
   case_id: string;
   conversation_id: string;
   status: string;
@@ -292,9 +292,9 @@ export type WorkflowLineSummary = {
   updated_at: string;
 };
 
-export type RunnerDiagnostics = Record<string, unknown>;
+type RunnerDiagnostics = JsonObject;
 
-export type WorkflowAttemptSummary = {
+type WorkflowAttemptSummary = {
   workflow_id: string;
   trace_id?: string;
   conversation_id?: string;
@@ -317,7 +317,7 @@ export type WorkflowAttemptSummary = {
   completed_at?: string;
 };
 
-export type EvalRun = CreatedAt & {
+type EvalRun = CreatedAt & {
   id: string;
   trace_id: string;
   suite_name: string;
@@ -335,7 +335,7 @@ export type EvalJudgment = {
   rationale: string;
 };
 
-export type FeedbackRecord = CreatedAt & {
+type FeedbackRecord = CreatedAt & {
   id: string;
   conversation_id?: string;
   case_id?: string;
@@ -349,7 +349,7 @@ export type FeedbackRecord = CreatedAt & {
   reviewer_id: string;
 };
 
-export type ActionIntent = Timestamped & {
+type ActionIntent = Timestamped & {
   id: string;
   owner_plane: string;
   conversation_id?: string;
@@ -390,7 +390,7 @@ export type ActionResult = {
   completed_at: string;
 };
 
-export type EffectExecution = {
+type EffectExecution = {
   id: string;
   machine_kind: string;
   aggregate_id: string;
@@ -410,7 +410,7 @@ export type EffectExecution = {
   completed_at?: string;
 };
 
-export type OutcomeRecord = CreatedAt & {
+type OutcomeRecord = CreatedAt & {
   id: string;
   source: string;
   source_event_id?: string;
@@ -447,7 +447,7 @@ export type KnowledgeEntry = Timestamped & {
   contradicted_by_entry_id?: string;
 };
 
-export type KnowledgeEvidenceLink = {
+type KnowledgeEvidenceLink = {
   knowledge_entry_id: string;
   evidence_type: string;
   evidence_id: string;
@@ -455,7 +455,7 @@ export type KnowledgeEvidenceLink = {
   evidence_ref: EvidenceRef;
 };
 
-export type KnowledgeReview = {
+type KnowledgeReview = {
   id: string;
   knowledge_entry_id: string;
   decision: string;
@@ -464,7 +464,7 @@ export type KnowledgeReview = {
   created_at: string;
 };
 
-export type Candidate = {
+type Candidate = {
   id: string;
   candidate_key: string;
   subsystem: string;
@@ -483,7 +483,7 @@ export type Candidate = {
   prior_similar_proposal_ids?: NullableList<string>;
 };
 
-export type Proposal = CreatedAt & {
+type Proposal = CreatedAt & {
   id: string;
   trace_id: string;
   conversation_id?: string;
@@ -524,13 +524,13 @@ export type Proposal = CreatedAt & {
   recommended_disposition?: string;
 };
 
-export type ProposalListItem = Proposal & {
+type ProposalListItem = Proposal & {
   repo_change_status?: string;
   pr_status?: string;
   pr_url?: string;
 };
 
-export type ProposalReview = CreatedAt & {
+type ProposalReview = CreatedAt & {
   proposal_id: string;
   decision: string;
   scope?: string;
@@ -540,7 +540,7 @@ export type ProposalReview = CreatedAt & {
   failure_classes?: NullableList<string>;
 };
 
-export type ProposalMemory = CreatedAt & {
+type ProposalMemory = CreatedAt & {
   id: string;
   review_id?: number;
   proposal_id: string;
@@ -558,7 +558,7 @@ export type ProposalMemory = CreatedAt & {
   failure_classes?: NullableList<string>;
 };
 
-export type RepoChangeJob = {
+type RepoChangeJob = {
   id: string;
   proposal_id: string;
   attempt_id?: string;
@@ -576,7 +576,7 @@ export type RepoChangeJob = {
   updated_at?: string;
 };
 
-export type ValidationRun = Timestamped & {
+type ValidationRun = Timestamped & {
   id: string;
   proposal_id: string;
   attempt_id?: string;
@@ -595,7 +595,7 @@ export type ValidationRun = Timestamped & {
   log_artifact_id?: string;
 };
 
-export type PRAttempt = CreatedAt & {
+type PRAttempt = CreatedAt & {
   id: string;
   proposal_id: string;
   attempt_id?: string;
@@ -609,7 +609,7 @@ export type PRAttempt = CreatedAt & {
   validation_status: string;
 };
 
-export type AttemptWorkspace = Timestamped & {
+type AttemptWorkspace = Timestamped & {
   id: string;
   attempt_id: string;
   proposal_id: string;
@@ -630,7 +630,7 @@ export type AttemptWorkspace = Timestamped & {
   expires_at?: string;
 };
 
-export type ChangeAttempt = Timestamped & {
+type ChangeAttempt = Timestamped & {
   id: string;
   proposal_id: string;
   candidate_key: string;
@@ -661,7 +661,7 @@ export type ChangeAttempt = Timestamped & {
   overlay_payload?: JsonObject;
 };
 
-export type PostMergeReplay = CreatedAt & {
+type PostMergeReplay = CreatedAt & {
   id: string;
   proposal_id: string;
   trace_id: string;
@@ -670,7 +670,7 @@ export type PostMergeReplay = CreatedAt & {
   improved: boolean;
 };
 
-export type ProposalSlots = {
+type ProposalSlots = {
   cap: number;
   active: number;
   available: number;
@@ -678,7 +678,7 @@ export type ProposalSlots = {
   stale_proposal_ids: NullableList<string>;
 };
 
-export type ImprovementSettings = {
+type ImprovementSettings = {
   active_proposal_cap: number;
   updated_at: string;
 };
@@ -710,7 +710,7 @@ export type ProposalDetailResponse = {
   harness_executions: NullableList<HarnessExecution>;
 };
 
-export type ProposalCurrentPhaseSummary = {
+type ProposalCurrentPhaseSummary = {
   attempt_id?: string;
   attempt_state?: string;
   required_resource_kind?: string;
@@ -721,7 +721,7 @@ export type ProposalCurrentPhaseSummary = {
   reconciliation_needed: boolean;
 };
 
-export type HarnessProfile = Timestamped & {
+type HarnessProfile = Timestamped & {
   id: string;
   role: string;
   name: string;
@@ -759,7 +759,7 @@ export type HarnessOverlay = Timestamped & {
   activated_at?: string;
 };
 
-export type HarnessExperiment = Timestamped & {
+type HarnessExperiment = Timestamped & {
   id: string;
   profile_id: string;
   overlay_id?: string;
@@ -770,7 +770,7 @@ export type HarnessExperiment = Timestamped & {
   metrics?: JsonObject;
 };
 
-export type HarnessSessionBinding = Timestamped & {
+type HarnessSessionBinding = Timestamped & {
   role: string;
   scope_kind: string;
   scope_id: string;
@@ -787,7 +787,7 @@ export type HarnessSessionBinding = Timestamped & {
   last_used_at: string;
 };
 
-export type HarnessMemoryArtifact = OptionalCreatedAt & {
+type HarnessMemoryArtifact = OptionalCreatedAt & {
   kind: string;
   summary: string;
   ref?: string;
