@@ -958,8 +958,8 @@ func buildQuestionGatherTask(cfg config.Config, store storepkg.Store, ctx questi
 		TaskType:                  "question_gather",
 		Repo:                      firstNonEmpty(ctx.questionRun.InvestigationSpec.Repo, cfg.DefaultRepo),
 		RepoRef:                   "main",
-		Prompt:                    questionGatherPrompt(ctx.questionRun.InvestigationSpec, ctx.questionRun.EvidenceLedger, hasNotionMCPServer(mcpServers)),
-		SystemMessage:             questionGatherSystemMessage(ctx.questionRun.InvestigationSpec, hasNotionMCPServer(mcpServers)),
+		Prompt:                    questionGatherPrompt(ctx.questionRun.InvestigationSpec, ctx.questionRun.EvidenceLedger, hasSlackMCPServer(mcpServers), hasNotionMCPServer(mcpServers)),
+		SystemMessage:             questionGatherSystemMessage(ctx.questionRun.InvestigationSpec, hasSlackMCPServer(mcpServers), hasNotionMCPServer(mcpServers)),
 		MCPServers:                mcpServers,
 		AllowedTools:              questionGatherAllowedTools(ctx.questionRun.InvestigationSpec),
 		AllowedCommands:           []string{},
@@ -1079,11 +1079,14 @@ func questionExpandAllowedTools(spec questionrun.InvestigationSpec, _ bool) []st
 	return questionGatherAllowedTools(spec)
 }
 
-func questionGatherPrompt(spec questionrun.InvestigationSpec, ledger questionrun.EvidenceLedger, useNotionMCP bool) string {
+func questionGatherPrompt(spec questionrun.InvestigationSpec, ledger questionrun.EvidenceLedger, useSlackMCP bool, useNotionMCP bool) string {
 	toolingPreferences := []string{
 		"Use attached Slack evidence and persisted conversation context for Slack evidence.",
 		"Use github.repo_activity and github.repo_context before broader repo search.",
 		"Use repo.search or repo.read_file only when a specific file, subsystem, or claim needs verification.",
+	}
+	if useSlackMCP {
+		toolingPreferences = append(toolingPreferences, "Use Slack MCP read tools for linked Slack permalinks and referenced threads that are not already present in attached evidence.")
 	}
 	if useNotionMCP {
 		toolingPreferences = append(toolingPreferences, "Use Notion MCP search and fetch for Notion workspace evidence when the question, links, or gathered evidence point to Notion pages or projects.")
@@ -1116,7 +1119,7 @@ func questionRunGatherTimeout(total time.Duration) time.Duration {
 	return reasoningWindow
 }
 
-func questionGatherSystemMessage(spec questionrun.InvestigationSpec, useNotionMCP bool) string {
+func questionGatherSystemMessage(spec questionrun.InvestigationSpec, useSlackMCP bool, useNotionMCP bool) string {
 	parts := []string{
 		"You are in the Slack Q&A evidence-gather phase.",
 		"Gather grounded evidence only; do not answer the user and do not send Slack messages.",
@@ -1124,6 +1127,9 @@ func questionGatherSystemMessage(spec questionrun.InvestigationSpec, useNotionMC
 		"Use repo.search and repo.read_file only when a concrete file or subsystem needs verification.",
 		"Stop once the evidence ledger covers the question, the bound thread, and the explicitly referenced Slack surfaces.",
 		"Return JSON only with tool_calls, evidence_items, open_questions, draft_reply_candidates, insufficiency_markers, and confidence.",
+	}
+	if useSlackMCP {
+		parts = append(parts, "Use Slack MCP read tools for linked Slack permalinks and referenced threads that are not already present in attached evidence.")
 	}
 	if useNotionMCP {
 		parts = append(parts, "Use Notion MCP search and fetch when the user request, pasted links, or gathered evidence point to Notion workspace content.")
@@ -1159,7 +1165,7 @@ func questionGatherCoverageTargets(spec questionrun.InvestigationSpec) []string 
 }
 
 func questionExpandPrompt(spec questionrun.InvestigationSpec, ledger questionrun.EvidenceLedger) string {
-	return questionGatherPrompt(spec, ledger, false)
+	return questionGatherPrompt(spec, ledger, false, false)
 }
 
 func questionReducePrompt(spec questionrun.InvestigationSpec, ledger questionrun.EvidenceLedger, diagnostics map[string]any) string {

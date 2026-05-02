@@ -145,7 +145,7 @@ func TestSlackSurfaceOperatorTraceACKIsIdempotent(t *testing.T) {
 	}
 }
 
-func TestSlackSurfaceDoesNotPostOperatorACKDuringIngress(t *testing.T) {
+func TestSlackSurfacePostsOperatorACKAfterDurableIngress(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	runtime := newSlackSurfaceRuntime(config.Config{
 		ServiceName:            "rsi-slack-surface",
@@ -170,8 +170,16 @@ func TestSlackSurfaceDoesNotPostOperatorACKDuringIngress(t *testing.T) {
 		},
 	})
 
-	if len(poster.calls) != 0 {
-		t.Fatalf("expected Slack ingress not to post trace ACK before workflow worker owns the trace, got %d calls", len(poster.calls))
+	deadline := time.Now().Add(2 * time.Second)
+	for len(poster.calls) == 0 && time.Now().Before(deadline) {
+		time.Sleep(10 * time.Millisecond)
+	}
+	if len(poster.calls) != 1 {
+		t.Fatalf("expected Slack ingress to post exactly one trace ACK after durable ingress, got %d calls", len(poster.calls))
+	}
+	call := poster.calls[0]
+	if call.channelID != "C123" || call.values.Get("thread_ts") != "171000001.000100" {
+		t.Fatalf("ACK posted to wrong target: channel=%s values=%s", call.channelID, call.values.Encode())
 	}
 }
 

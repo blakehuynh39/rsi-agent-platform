@@ -1902,6 +1902,62 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(status["status"], "cancelling")
         self.assertEqual(runtime.executor_status("hexec-cancel")["status"], "cancelling")
 
+    def test_active_execution_snapshot_and_drain_wait_track_background_threads(self) -> None:
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "RSI_HERMES_EXECUTOR_ENABLED": "true",
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        done = threading.Event()
+
+        def run() -> None:
+            time.sleep(0.05)
+            done.set()
+
+        thread = threading.Thread(target=run)
+        with runtime._executor_process_lock:
+            runtime._executor_threads["hexec-active"] = thread
+        thread.start()
+
+        snapshot = runtime.active_execution_snapshot()
+        self.assertEqual(snapshot["active_execution_count"], 1)
+        self.assertEqual(snapshot["active_execution_ids"], ["hexec-active"])
+
+        drained = runtime.wait_for_active_executions(2)
+        self.assertTrue(done.is_set())
+        self.assertEqual(drained["drain_status"], "drained")
+        self.assertEqual(drained["active_execution_count"], 0)
+
+    def test_executor_status_orphaned_diagnostics_include_pod_and_status_file(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as workspace_root, mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HOSTNAME": "executor-pod-1",
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_COMPUTER_ROOT": str(Path(workspace_root) / "company"),
+                "RSI_HERMES_RUN_ROOT": str(Path(workspace_root) / "company" / ".rsi" / "runs"),
+                "RSI_HERMES_ARTIFACT_ROOT": str(Path(workspace_root) / "company" / "artifacts"),
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            runtime._store_executor_result("hexec-orphan", {"execution_id": "hexec-orphan", "status": "running"})
+            status = runtime.executor_status("hexec-orphan")
+
+        self.assertEqual(status["status"], "orphaned")
+        self.assertEqual(status["executor_instance_id"], "executor-pod-1")
+        self.assertEqual(status["current_executor_instance_id"], "executor-pod-1")
+        self.assertEqual(status["last_observed_status"], "running")
+        self.assertTrue(str(status["status_file_path"]).endswith("hexec-orphan.json"))
+
     def test_executor_status_persists_completed_result_for_recovery(self) -> None:
         with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as workspace_root, mock.patch(
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager

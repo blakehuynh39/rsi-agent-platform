@@ -2421,7 +2421,7 @@ func TestWorkflowRunnerUsesRunnerExecuteWhenHermesExecutorIsUnset(t *testing.T) 
 }
 
 func TestWorkflowRunnerSystemMessageOmitsSlackMCPWhenUnavailableInNoneMode(t *testing.T) {
-	message := workflowRunnerSystemMessage(false, "none", nil)
+	message := workflowRunnerSystemMessage(false, false, "none", nil)
 	if strings.Contains(message, "Use Slack MCP for Slack investigation.") {
 		t.Fatalf("expected none-mode system message without Slack MCP to omit Slack MCP guidance, got %q", message)
 	}
@@ -5752,6 +5752,50 @@ func TestBuildRunnerTaskIncludesNotionMCPWhenEnabled(t *testing.T) {
 	}
 	if !strings.Contains(task.SystemMessage, "Use Notion MCP for Notion workspace search and page fetches when relevant.") {
 		t.Fatalf("expected notion MCP instruction in system prompt, got %q", task.SystemMessage)
+	}
+}
+
+func TestBuildRunnerTaskIncludesSlackMCPWhenEnabled(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatalf("expected trace %s", workflowItem.traceID)
+	}
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatalf("expected workflow %s", workflowItem.workflowID)
+	}
+	ingestion, ok := findIngestion(store.ListIngestions(), workflowItem.ingestionID)
+	if !ok {
+		t.Fatalf("expected ingestion %s", workflowItem.ingestionID)
+	}
+	task := buildRunnerTask(config.Config{
+		Environment:               "stage",
+		DefaultRepo:               "rsi-agent-platform",
+		AllowedTargetRepos:        []string{"depin-backend", "rsi-agent-platform"},
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+		SlackMCPEnabled:           true,
+		SlackMCPServerURL:         "http://127.0.0.1:8092/mcp",
+	}, store, "prod", trace, workflow, ingestion, "context", nil)
+
+	if len(task.MCPServers) != 1 {
+		t.Fatalf("expected only Slack MCP server, got %#v", task.MCPServers)
+	}
+	server := task.MCPServers[0]
+	if server.ServerLabel != "slack" || server.Profile != "slack_mcp_read" {
+		t.Fatalf("expected slack read MCP server, got %#v", server)
+	}
+	if server.AuthorizationEnvVar != "SLACK_BOT_TOKEN" {
+		t.Fatalf("unexpected Slack MCP auth env var %#v", server)
+	}
+	if !reflect.DeepEqual(server.AllowedTools, map[string]any{"read_only": true}) {
+		t.Fatalf("expected read-only Slack tool surface, got %#v", server.AllowedTools)
+	}
+	if !strings.Contains(task.SystemMessage, "Use Slack MCP for Slack permalink and thread reads") {
+		t.Fatalf("expected Slack MCP instruction in system prompt, got %q", task.SystemMessage)
 	}
 }
 

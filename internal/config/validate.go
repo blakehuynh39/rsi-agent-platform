@@ -93,6 +93,10 @@ func (c Config) validateControlPlane(issues *[]string) {
 	addRequiredString(issues, "RSI_KNOWLEDGE_BASE_URL", c.DefaultKnowledgeBaseURL)
 	addRequiredList(issues, "RSI_ALLOWED_TARGET_REPOS", c.AllowedTargetRepos)
 	addRequiredString(issues, "RSI_REASONING_VERBOSITY", c.DefaultReasoningVerbosity)
+	if c.SlackMCPEnabled {
+		addRequiredString(issues, "SLACK_BOT_TOKEN", c.SlackBotToken)
+		addRequiredURL(issues, "RSI_SLACK_MCP_SERVER_URL", c.SlackMCPServerURL, false)
+	}
 	if c.RuntimeMode == "slack-surface" {
 		addRequiredString(issues, "RSI_SLACK_APP_IDENTITY", c.SlackAppIdentity)
 		if !c.SlackSocketModeEnabled {

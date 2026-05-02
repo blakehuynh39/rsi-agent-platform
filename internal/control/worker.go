@@ -216,7 +216,6 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	if isTerminalWorkflowStatus(ctx.workflow.Status) || isTerminalTraceStatus(ctx.trace.Summary.Status) {
 		return completeClaimedEffect(store, effect, ctx.trace.Summary.TraceID)
 	}
-	postWorkflowOperatorTraceACK(cfg, store, ctx.trace.Summary, ctx.ingestion)
 	runnerRole := runnerRoleForQueue(queueName)
 	runnerClient := runnerClients[runnerRole]
 	hermesExecutorURLs := cfg.HermesExecutorURLs()
@@ -1141,7 +1140,7 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	requestedSkills := resolvedIntent.RequestedSkills
 	userRequest := resolvedIntent.UserRequest
 	systemMessage := harness.ComposeSystemMessage(
-		workflowRunnerSystemMessage(hasNotionMCPServer(mcpServers), replyDeliveryMode, requestedArtifacts),
+		workflowRunnerSystemMessage(hasSlackMCPServer(mcpServers), hasNotionMCPServer(mcpServers), replyDeliveryMode, requestedArtifacts),
 		effectiveHarness,
 	)
 	kubernetesReadNamespaceScope := cfg.KubernetesReadNamespaceScope()
@@ -1253,7 +1252,7 @@ func runnerApprovalPolicy(directSlackAllowed bool) *clients.RunnerApprovalPolicy
 	return clients.NewRunnerApprovalPolicy(directSlackAllowed)
 }
 
-func workflowRunnerSystemMessage(useNotionMCP bool, replyDeliveryMode string, requestedArtifacts []clients.RunnerRequestedArtifact) string {
+func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliveryMode string, requestedArtifacts []clients.RunnerRequestedArtifact) string {
 	if replyDeliveryMode == "direct" {
 		parts := []string{
 			"Return explicit visible reasoning only. Do not include hidden chain-of-thought.",
@@ -1263,6 +1262,9 @@ func workflowRunnerSystemMessage(useNotionMCP bool, replyDeliveryMode string, re
 		}
 		if useNotionMCP {
 			parts = append(parts, "Use Notion MCP for Notion workspace search and page fetches when relevant.")
+		}
+		if useSlackMCP {
+			parts = append(parts, "Use Slack MCP for Slack permalink and thread reads when the user references Slack context outside the ingress thread.")
 		}
 		if len(requestedArtifacts) > 0 {
 			parts = append(parts, "Artifact production was requested. If you produce one, include it in produced_artifacts. Attach local artifact files in the final native send_message by adding MEDIA:/absolute/path entries to the message. If you cannot, set artifact_failure_reason and still provide the best grounded reply.")
@@ -1278,6 +1280,9 @@ func workflowRunnerSystemMessage(useNotionMCP bool, replyDeliveryMode string, re
 	}
 	if useNotionMCP {
 		parts = append(parts, "Use Notion MCP for Notion workspace search and page fetches when relevant.")
+	}
+	if useSlackMCP {
+		parts = append(parts, "Use Slack MCP for Slack permalink and thread reads when the user references Slack context outside the ingress thread.")
 	}
 	if len(requestedArtifacts) > 0 {
 		parts = append(parts, "Artifact production was requested. If you produce one, include it in produced_artifacts. If you cannot, set artifact_failure_reason and still provide the best grounded reply.")
@@ -1938,14 +1943,35 @@ func appendMCPServers(groups ...[]clients.RunnerMCPServer) []clients.RunnerMCPSe
 
 func workflowMCPServers(cfg config.Config) []clients.RunnerMCPServer {
 	return appendMCPServers(
+		slackMCPServersForRead(cfg),
 		notionMCPServersForRead(cfg),
 	)
 }
 
 func questionGatherMCPServers(cfg config.Config) []clients.RunnerMCPServer {
 	return appendMCPServers(
+		slackMCPServersForRead(cfg),
 		notionMCPServersForRead(cfg),
 	)
+}
+
+func slackMCPServersForRead(cfg config.Config) []clients.RunnerMCPServer {
+	if !cfg.SlackMCPEnabled {
+		return nil
+	}
+	serverURL := strings.TrimSpace(cfg.SlackMCPServerURL)
+	if serverURL == "" {
+		serverURL = "http://127.0.0.1:8092/mcp"
+	}
+	return []clients.RunnerMCPServer{
+		{
+			ServerLabel:         "slack",
+			ServerURL:           serverURL,
+			Profile:             "slack_mcp_read",
+			AuthorizationEnvVar: "SLACK_BOT_TOKEN",
+			AllowedTools:        map[string]any{"read_only": true},
+		},
+	}
 }
 
 func notionMCPServersForRead(cfg config.Config) []clients.RunnerMCPServer {
@@ -1991,6 +2017,18 @@ func hasNotionMCPServer(servers []clients.RunnerMCPServer) bool {
 			return true
 		}
 		if strings.EqualFold(strings.TrimSpace(server.ServerLabel), "notion") {
+			return true
+		}
+	}
+	return false
+}
+
+func hasSlackMCPServer(servers []clients.RunnerMCPServer) bool {
+	for _, server := range servers {
+		if strings.EqualFold(strings.TrimSpace(server.Profile), "slack_mcp_read") || strings.EqualFold(strings.TrimSpace(server.Profile), "slack_mcp_reply") {
+			return true
+		}
+		if strings.EqualFold(strings.TrimSpace(server.ServerLabel), "slack") {
 			return true
 		}
 	}

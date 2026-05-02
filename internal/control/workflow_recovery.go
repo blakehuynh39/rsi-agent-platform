@@ -93,6 +93,9 @@ func finalizeWorkflowFailureWithDetails(cfg config.Config, store storepkg.Store,
 	if _, submitErr := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowExecutionFailed, cfg.ServiceName, time.Now().UTC(), payload); submitErr != nil {
 		return submitErr
 	}
+	if retryDecision == "" && strings.TrimSpace(failure.Class) == workflowFailureRunnerExecutorResultUnavailable {
+		postWorkflowPlatformFailureNotice(cfg, store, ctx.trace.Summary, ctx.ingestion, failure.Class, failure.Summary)
+	}
 	if _, _, err := store.ReconcileWorkflowTrace(ctx.workflow.ID); err != nil {
 		return err
 	}

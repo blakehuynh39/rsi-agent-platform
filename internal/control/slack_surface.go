@@ -208,6 +208,7 @@ func (s *slackSurfaceRuntime) handleEventsAPIEvent(ctx context.Context, eventsAP
 			log.Printf("slack-surface identity=%s ingestion load error=%v", s.cfg.SlackAppIdentity, err)
 		} else {
 			log.Printf("slack-surface identity=%s ingested thread=%s ingestion=%s", s.cfg.SlackAppIdentity, created.ThreadKey, created.ID)
+			go s.postOperatorTraceACK(context.Background(), created)
 		}
 		return true
 	case *slackevents.MessageEvent:
@@ -240,6 +241,7 @@ func (s *slackSurfaceRuntime) handleEventsAPIEvent(ctx context.Context, eventsAP
 			log.Printf("slack-surface identity=%s ingestion load error=%v", s.cfg.SlackAppIdentity, err)
 		} else {
 			log.Printf("slack-surface identity=%s ingested thread=%s ingestion=%s", s.cfg.SlackAppIdentity, created.ThreadKey, created.ID)
+			go s.postOperatorTraceACK(context.Background(), created)
 		}
 		return true
 	default:
@@ -254,22 +256,6 @@ func (s *slackSurfaceRuntime) postOperatorTraceACK(parentCtx context.Context, in
 		return
 	}
 	postOperatorTraceACKForTrace(parentCtx, s.cfg, s.store, s.slackAPI, trace, ingestion)
-}
-
-func postWorkflowOperatorTraceACK(cfg config.Config, store storepkg.Store, trace events.TraceSummary, ingestion slackpkg.Ingestion) {
-	if strings.TrimSpace(ingestion.ChannelID) == "" || strings.TrimSpace(ingestion.ID) == "" {
-		return
-	}
-	if strings.TrimSpace(cfg.PublicBaseURL) == "" {
-		return
-	}
-	if strings.TrimSpace(cfg.SlackBotToken) == "" {
-		recordOperatorTraceACK(cfg, store, trace, ingestion, "failed", map[string]any{
-			"error": "SLACK_BOT_TOKEN is not configured",
-		})
-		return
-	}
-	postOperatorTraceACKForTrace(context.Background(), cfg, store, slack.New(cfg.SlackBotToken), trace, ingestion)
 }
 
 func postOperatorTraceACKForTrace(parentCtx context.Context, cfg config.Config, store storepkg.Store, slackAPI slackMessagePoster, trace events.TraceSummary, ingestion slackpkg.Ingestion) {
@@ -372,6 +358,117 @@ func recordOperatorTraceACK(cfg config.Config, store storepkg.Store, trace event
 	if err != nil {
 		log.Printf("slack operator_ack ledger error service=%s identity=%s ingestion=%s trace=%s error=%v", cfg.ServiceName, cfg.SlackAppIdentity, ingestion.ID, trace.TraceID, err)
 	}
+}
+
+func postWorkflowPlatformFailureNotice(cfg config.Config, store storepkg.Store, trace events.TraceSummary, ingestion slackpkg.Ingestion, failureClass string, summary string) {
+	if strings.TrimSpace(ingestion.ChannelID) == "" || strings.TrimSpace(ingestion.ID) == "" {
+		return
+	}
+	traceURL := operatorTraceURL(cfg.PublicBaseURL, trace.ConversationID, trace.TraceID)
+	if traceURL == "" {
+		recordPlatformFailureNotice(cfg, store, trace, ingestion, "failed", map[string]any{
+			"error":         "RSI_PUBLIC_BASE_URL is not configured",
+			"failure_class": failureClass,
+		})
+		return
+	}
+	if strings.TrimSpace(cfg.SlackBotToken) == "" {
+		recordPlatformFailureNotice(cfg, store, trace, ingestion, "failed", map[string]any{
+			"error":         "SLACK_BOT_TOKEN is not configured",
+			"trace_url":     traceURL,
+			"failure_class": failureClass,
+		})
+		return
+	}
+	claimID := "cmd-slack-platform-failure:" + strings.TrimSpace(trace.TraceID) + ":" + strings.TrimSpace(failureClass)
+	now := time.Now().UTC()
+	_, claimed, err := store.RecordCommandReceipt(transition.CommandReceipt{
+		CommandID:        claimID,
+		MachineKind:      transition.MachineIngress,
+		AggregateID:      ingestion.ID,
+		CommandKind:      "slack_platform_failure_notice",
+		Actor:            cfg.ServiceName,
+		DecisionKind:     transition.DecisionAdvance,
+		Reason:           "visible Slack platform failure notice claimed",
+		AggregateVersion: 1,
+		ResultRef:        trace.TraceID,
+		CreatedAt:        now,
+		UpdatedAt:        now,
+	})
+	if err != nil {
+		log.Printf("slack platform_failure_notice claim error service=%s identity=%s ingestion=%s trace=%s error=%v", cfg.ServiceName, cfg.SlackAppIdentity, ingestion.ID, trace.TraceID, err)
+		recordPlatformFailureNotice(cfg, store, trace, ingestion, "failed", map[string]any{"error": err.Error(), "trace_url": traceURL, "failure_class": failureClass})
+		return
+	}
+	if !claimed {
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	body := platformFailureNoticeBody(traceURL, failureClass, summary)
+	options := []slack.MsgOption{
+		slack.MsgOptionText(body, false),
+		slack.MsgOptionDisableLinkUnfurl(),
+		slack.MsgOptionDisableMediaUnfurl(),
+	}
+	if threadTS := strings.TrimSpace(ingestion.ThreadTS); threadTS != "" {
+		options = append(options, slack.MsgOptionTS(threadTS))
+	}
+	channelID, messageTS, err := slack.New(cfg.SlackBotToken).PostMessageContext(ctx, ingestion.ChannelID, options...)
+	if err != nil {
+		log.Printf("slack platform_failure_notice failed service=%s identity=%s ingestion=%s trace=%s channel=%s thread=%s error=%v", cfg.ServiceName, cfg.SlackAppIdentity, ingestion.ID, trace.TraceID, ingestion.ChannelID, ingestion.ThreadTS, err)
+		recordPlatformFailureNotice(cfg, store, trace, ingestion, "failed", map[string]any{
+			"error":         err.Error(),
+			"trace_url":     traceURL,
+			"failure_class": failureClass,
+			"channel_id":    ingestion.ChannelID,
+			"thread_ts":     ingestion.ThreadTS,
+		})
+		return
+	}
+	recordPlatformFailureNotice(cfg, store, trace, ingestion, "delivered", map[string]any{
+		"channel_id":    firstNonEmpty(channelID, ingestion.ChannelID),
+		"thread_ts":     ingestion.ThreadTS,
+		"message_ts":    messageTS,
+		"trace_url":     traceURL,
+		"body":          body,
+		"failure_class": failureClass,
+	})
+}
+
+func recordPlatformFailureNotice(cfg config.Config, store storepkg.Store, trace events.TraceSummary, ingestion slackpkg.Ingestion, status string, payload map[string]any) {
+	if strings.TrimSpace(trace.TraceID) == "" {
+		return
+	}
+	if payload == nil {
+		payload = map[string]any{}
+	}
+	payload["ingestion_id"] = ingestion.ID
+	payload["conversation_id"] = trace.ConversationID
+	payload["trace_id"] = trace.TraceID
+	err := store.RecordExecutionLedgerEvents([]events.ExecutionLedgerEvent{
+		{
+			ExecutionID:    "slack-platform-failure:" + firstNonEmpty(ingestion.ID, trace.TraceID),
+			TraceID:        trace.TraceID,
+			WorkflowID:     trace.WorkflowID,
+			PhaseID:        "ingress",
+			Kind:           "platform_failure.slack",
+			Status:         status,
+			Seq:            1,
+			IdempotencyKey: "slack-platform-failure:" + firstNonEmpty(ingestion.ID, trace.TraceID),
+			Payload:        payload,
+			RecordedAt:     time.Now().UTC(),
+		},
+	})
+	if err != nil {
+		log.Printf("slack platform_failure_notice ledger error service=%s identity=%s ingestion=%s trace=%s error=%v", cfg.ServiceName, cfg.SlackAppIdentity, ingestion.ID, trace.TraceID, err)
+	}
+}
+
+func platformFailureNoticeBody(traceURL string, failureClass string, summary string) string {
+	reason := firstNonEmpty(strings.TrimSpace(summary), strings.TrimSpace(failureClass), "the executor stopped before producing a final reply")
+	return fmt.Sprintf("RSI run interrupted before Hermes could finish. This is an operational failure notice, not a Hermes answer. <%s|Open trace>. `%s`", traceURL, reason)
 }
 
 func traceSummaryForIngestion(store storepkg.Store, ingestion slackpkg.Ingestion) (events.TraceSummary, bool) {

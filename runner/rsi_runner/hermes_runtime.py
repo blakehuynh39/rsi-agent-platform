@@ -1036,6 +1036,7 @@ class HermesRuntime:
             slack_read_tool_names_resolver=self._slack_mcp_read_tool_names,
             slack_send_tool_name_resolver=self._slack_mcp_send_tool_name_or_error,
         )
+        self._started_at_unix = time.time()
         self._executor_recent_results: dict[str, JsonObject] = {}
         self._executor_processes: dict[str, subprocess.Popen[str]] = {}
         self._executor_threads: dict[str, threading.Thread] = {}
@@ -1465,8 +1466,54 @@ class HermesRuntime:
         }
 
     def active_execution_count(self) -> int:
+        return int(self.active_execution_snapshot().get("active_execution_count") or 0)
+
+    def active_execution_snapshot(self) -> JsonObject:
         with self._executor_process_lock:
-            return sum(1 for thread in self._executor_threads.values() if thread.is_alive())
+            active_thread_ids = sorted(
+                execution_id
+                for execution_id, thread in self._executor_threads.items()
+                if thread.is_alive()
+            )
+            active_process_ids = sorted(
+                execution_id
+                for execution_id, process in self._executor_processes.items()
+                if process.poll() is None
+            )
+        active_ids = sorted(set(active_thread_ids) | set(active_process_ids))
+        return {
+            "active_execution_count": len(active_ids),
+            "active_execution_ids": active_ids,
+            "active_thread_execution_ids": active_thread_ids,
+            "active_process_execution_ids": active_process_ids,
+            "executor_instance_id": self._config.executor_instance_id,
+            "executor_started_at_unix": self._started_at_unix,
+        }
+
+    def wait_for_active_executions(self, timeout_seconds: float) -> JsonObject:
+        deadline = time.monotonic() + max(0.0, float(timeout_seconds or 0))
+        last_snapshot = self.active_execution_snapshot()
+        while int(last_snapshot.get("active_execution_count") or 0) > 0:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                last_snapshot["drain_status"] = "timeout"
+                last_snapshot["deadline_unix"] = time.time()
+                return last_snapshot
+            execution_ids = list(last_snapshot.get("active_execution_ids") or [])
+            with self._executor_process_lock:
+                threads = [
+                    self._executor_threads[execution_id]
+                    for execution_id in execution_ids
+                    if execution_id in self._executor_threads and self._executor_threads[execution_id].is_alive()
+                ]
+            if threads:
+                threads[0].join(timeout=min(1.0, max(0.0, remaining)))
+            else:
+                time.sleep(min(1.0, max(0.0, remaining)))
+            last_snapshot = self.active_execution_snapshot()
+        last_snapshot["drain_status"] = "drained"
+        last_snapshot["deadline_unix"] = time.time()
+        return last_snapshot
 
     def _native_execution_log_root(self) -> Path:
         return Path(self._config.hermes_home) / "rsi_runtime" / "native_executions"
@@ -2361,6 +2408,8 @@ class HermesRuntime:
                 "trace_id": task.trace_id or "",
                 "workflow_id": task.workflow_id or "",
                 "executor_instance_id": self._config.executor_instance_id,
+                "executor_started_at_unix": self._started_at_unix,
+                "status_file_path": str(self._executor_status_path(execution_id)),
                 "status": "accepted",
                 "message": "Execution accepted.",
                 "phase": self._execution_phase(task),
@@ -2402,9 +2451,11 @@ class HermesRuntime:
                 with self._executor_process_lock:
                     active = key in self._executor_processes or key in self._executor_threads
                 if not active:
-                    orphaned = dict(cached)
-                    orphaned["status"] = "orphaned"
-                    orphaned["message"] = "Cached executor status was running, but no local execution process is active."
+                    orphaned = self._orphaned_executor_status(
+                        key,
+                        cached,
+                        "Cached executor status was running, but no local execution process is active.",
+                    )
                     self._executor_recent_results[key] = orphaned
                     return orphaned
             return dict(cached)
@@ -2422,11 +2473,37 @@ class HermesRuntime:
             with self._executor_process_lock:
                 active = key in self._executor_processes or key in self._executor_threads
             if not active:
-                payload = dict(payload)
-                payload["status"] = "orphaned"
-                payload["message"] = "Persisted executor status was running, but no local execution process is active."
+                payload = self._orphaned_executor_status(
+                    key,
+                    payload,
+                    "Persisted executor status was running, but no local execution process is active.",
+                )
         self._executor_recent_results[key] = dict(payload)
         return dict(payload)
+
+    def _orphaned_executor_status(self, execution_id: str, payload: JsonObject, message: str) -> JsonObject:
+        path = self._executor_status_path(execution_id)
+        out = dict(payload)
+        out["status"] = "orphaned"
+        out["message"] = message
+        out["executor_instance_id"] = first_non_empty(
+            _string_or_json(out.get("executor_instance_id")),
+            self._config.executor_instance_id,
+        )
+        out["current_executor_instance_id"] = self._config.executor_instance_id
+        out["executor_started_at_unix"] = self._started_at_unix
+        out["status_file_path"] = str(path)
+        out["last_observed_status"] = str(payload.get("status") or "").strip()
+        if path.exists():
+            try:
+                stat = path.stat()
+                out["status_file_mtime_unix"] = stat.st_mtime
+                out["status_file_size_bytes"] = stat.st_size
+            except OSError:
+                pass
+        if "last_observed_ledger_seq" not in out:
+            out["last_observed_ledger_seq"] = out.get("last_ledger_seq", "")
+        return out
 
     def cancel_execution(self, execution_id: str) -> JsonObject:
         key = str(execution_id or "").strip()
