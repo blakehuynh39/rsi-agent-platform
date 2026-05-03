@@ -39,6 +39,7 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     services:
       postgres:
         image: pgvector/pgvector:pg16
@@ -92,8 +93,10 @@ jobs:
   build-and-push:
     needs: validate
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     strategy:
       fail-fast: false
+      max-parallel: 2
       matrix:
         include:
           - name: control-plane
@@ -170,6 +173,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build and push ${{ matrix.name }}
+        timeout-minutes: 30
         uses: docker/build-push-action@v7
         with:
           context: .
@@ -186,6 +190,7 @@ jobs:
     name: Bump story-deployments RSI image tags
     needs: build-and-push
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     if: ${{ github.event_name != 'workflow_dispatch' || inputs.skip_story_deployments_bump != true }}
     concurrency:
       group: story-deployments-tag-bump-rsi-agent-platform
@@ -212,6 +217,11 @@ jobs:
           ref: main
           token: ${{ secrets.STORY_DEPLOYMENTS_PUSH_TOKEN }}
           path: story-deployments
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.17.1
 
       - name: Extract Hermes pin from platform checkout
         shell: bash
@@ -247,6 +257,10 @@ jobs:
           fi
 
           git diff -- "${{ env.STORY_DEPLOYMENTS_VALUES_FILE }}"
+
+      - name: Validate rendered story-deployments chart
+        working-directory: story-deployments
+        run: bash rsi-platform/rsi-agent-platform/tests/render-stage.sh
 
       - name: Commit and push to story-deployments main
         working-directory: story-deployments
