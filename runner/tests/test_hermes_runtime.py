@@ -25,6 +25,7 @@ from rsi_runner.hermes_runtime import (
     HermesRuntime,
     RunnerTaskRequest,
     _NativeLifecycleTailer,
+    canonical_gateway_session_key,
     _redact_json_value,
     _redact_subprocess_output,
 )
@@ -33,7 +34,7 @@ from rsi_runner.rsi_tools import transport_tool_schema
 from rsi_runner.session_manager import SessionManager
 
 
-HERMES_TEST_PIN = "ac0c846e7738afcb4ca2a844ed0f45d390f1621a"
+HERMES_TEST_PIN = "64b2db15ed6c9a1bc16fb197740d25a24a7d0a60"
 
 
 def runner_env(role: str = "prod") -> dict[str, str]:
@@ -1256,6 +1257,122 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(meta["timeout_kind"], "task_timeout")
         self.assertFalse(meta["max_iterations_reached"])
         self.assertTrue(meta["native_result_partial"])
+
+    def test_hermes_agent_adapter_writes_self_review_candidate_with_runner_execution_id(self) -> None:
+        captured_payload: dict[str, object] = {}
+
+        def fake_run(cmd, check, capture_output, text, timeout):
+            captured_payload.update(json.loads(Path(cmd[-1]).read_text(encoding="utf-8")))
+            observation = captured_payload["observation"]
+            assert isinstance(observation, dict)
+            return subprocess.CompletedProcess(
+                cmd,
+                0,
+                stdout=json.dumps(
+                    {
+                        "candidate_id": 7,
+                        "candidate_status": "candidate",
+                        "status": "candidate",
+                        "execution_id": observation.get("execution_id"),
+                        "agent_identity": "rsi:stage:prod",
+                        "snapshot_ref": "snapshots/7.json",
+                        "snapshot_hash": "abc123",
+                        "snapshot_size": 123,
+                    }
+                )
+                + "\n",
+                stderr="",
+            )
+
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(os.environ, {"HERMES_HOME": tempdir}, clear=True), mock.patch(
+            "rsi_runner.hermes_agent_adapter.subprocess.run",
+            side_effect=fake_run,
+        ):
+            adapter = HermesAgentAdapter(
+                {
+                    "session_id": "rsi-prod-conversation-123",
+                    "execution_id": "hexec-runner-123",
+                }
+            )
+            candidate = adapter._write_self_review_candidate(
+                {
+                    "self_review_observation": {
+                        "execution_id": "rsi-prod-conversation-123",
+                        "agent_identity": "rsi:stage:prod",
+                    }
+                }
+            )
+
+        observation = captured_payload["observation"]
+        self.assertIsInstance(observation, dict)
+        self.assertEqual(observation["execution_id"], "hexec-runner-123")
+        self.assertEqual(candidate["execution_id"], "hexec-runner-123")
+
+    def test_gateway_session_key_slack_thread_root_and_fallback(self) -> None:
+        threaded = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv:one",
+                }
+            }
+        )
+        same_thread = RunnerTaskRequest.from_payload({"task": {"channel_id": "C123", "thread_ts": "171000001.000100"}})
+        other_thread = RunnerTaskRequest.from_payload({"task": {"channel_id": "C123", "thread_ts": "171000002.000200"}})
+        root = RunnerTaskRequest.from_payload({"task": {"channel_id": "C123", "message_ts": "171000003.000300"}})
+        derived_root = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "channel_id": "C123",
+                    "recent_conversation_entries": [
+                        {"channel_id": "C123", "message_ts": "171000004.000400"},
+                    ],
+                }
+            }
+        )
+        fallback = RunnerTaskRequest.from_payload(
+            {"task": {"session_scope_kind": "Conversation", "session_scope_id": "conv:with/slash%20encoded"}}
+        )
+
+        self.assertEqual(canonical_gateway_session_key(threaded, "Prod"), canonical_gateway_session_key(same_thread, "prod"))
+        self.assertNotEqual(canonical_gateway_session_key(threaded, "prod"), canonical_gateway_session_key(other_thread, "prod"))
+        self.assertEqual(canonical_gateway_session_key(root, "prod"), "rsi:prod:slack:C123:171000003.000300")
+        self.assertEqual(canonical_gateway_session_key(derived_root, "prod"), "rsi:prod:slack:C123:171000004.000400")
+        self.assertEqual(
+            canonical_gateway_session_key(fallback, "Prod"),
+            "rsi:prod:scope:conversation:conv%3Awith%2Fslash%2520encoded",
+        )
+
+    def test_hermes_agent_adapter_passes_rich_context_to_aiagent(self) -> None:
+        captured: dict[str, object] = {}
+
+        class CapturingAIAgent:
+            def __init__(self, **kwargs):
+                captured.update(kwargs)
+
+        with mock.patch("rsi_runner.hermes_agent_adapter.AIAgent", CapturingAIAgent):
+            adapter = HermesAgentAdapter(
+                {
+                    "session_id": "session-1",
+                    "parent_session_id": "parent-1",
+                    "model": "deepseek/deepseek-v4-pro",
+                    "max_iterations": 5,
+                    "toolsets": ["memory", "skills"],
+                    "runtime": {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1"},
+                    "user_peer_id": "user:U123",
+                    "chat_id": "C123",
+                    "thread_id": "171000001.000100",
+                    "gateway_session_key": "rsi:prod:slack:C123:171000001.000100",
+                }
+            )
+            adapter._create_agent("session-1", object(), "system")
+
+        self.assertEqual(captured["user_id"], "user:U123")
+        self.assertEqual(captured["chat_id"], "C123")
+        self.assertEqual(captured["thread_id"], "171000001.000100")
+        self.assertEqual(captured["gateway_session_key"], "rsi:prod:slack:C123:171000001.000100")
 
     def test_hermes_contract_rejects_missing_aiagent_kwargs(self) -> None:
         class BadAIAgent:
@@ -3207,6 +3324,101 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(runtime.executor_status("hexec-explicit")["execution_id"], "hexec-explicit")
         self.assertEqual(runtime.executor_status("hexec-explicit")["executor_instance_id"], "prod")
         self.assertEqual(runtime.executor_status("rsi-prod-conversation-123"), {})
+
+    def test_self_review_finalizer_stops_when_candidate_delivery_is_missing(self) -> None:
+        calls: list[tuple[str, object]] = []
+        fake_queue = types.ModuleType("self_review_queue")
+
+        class FakeSelfReviewConfig:
+            @classmethod
+            def from_env(cls, **kwargs):
+                return {"kwargs": kwargs}
+
+        def mark_candidate_delivered(config, execution_id, result_hash, result_ref=None):
+            calls.append(("delivered", execution_id))
+            return {"status": "missing", "execution_id": execution_id}
+
+        def promote_review_candidate(config, candidate_id):
+            calls.append(("promote", candidate_id))
+            return {"status": "enqueued", "candidate_id": candidate_id}
+
+        fake_queue.SelfReviewConfig = FakeSelfReviewConfig
+        fake_queue.mark_candidate_delivered = mark_candidate_delivered
+        fake_queue.promote_review_candidate = promote_review_candidate
+
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(
+            os.environ,
+            {**runner_env("prod"), "HERMES_HOME": hermes_home},
+            clear=True,
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.AIAgent",
+            FakeAIAgent,
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager",
+            FakeSessionManager,
+        ), mock.patch.dict(
+            "sys.modules",
+            {"self_review_queue": fake_queue},
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            runtime._start_self_review_worker = mock.Mock()
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "depin-backend",
+                        "prompt": "User prompt",
+                        "execution_id": "hexec-runner-123",
+                    }
+                }
+            )
+            result = HermesExecutionResult(
+                ok=True,
+                message="ok",
+                provider="hermes-native-executor",
+                raw={
+                    "native_strict": True,
+                    "self_review_candidate": {"candidate_id": 7},
+                    "runner_diagnostics": {"native_envelope_validated": True},
+                },
+            )
+            final_status = {
+                "status": "completed",
+                "result": {"ok": True, "message": "ok", "provider": "hermes-native-executor", "raw": {}},
+            }
+            runtime._finalize_self_review_candidate(task, result, final_status, execution_id="hexec-runner-123")
+
+        self.assertEqual(calls, [("delivered", "hexec-runner-123")])
+        runtime._start_self_review_worker.assert_not_called()
+
+    def test_self_review_worker_env_maps_runner_config_and_secret_allowlist(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "OPENROUTER_API_KEY": "openrouter-secret",
+                "UNRELATED_SECRET": "must-not-copy",
+                "RSI_HERMES_SELF_REVIEW_MAX_BATCH_ROWS": "1",
+            },
+            clear=True,
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.AIAgent",
+            FakeAIAgent,
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager",
+            FakeSessionManager,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            env = runtime._self_review_worker_env()
+
+        self.assertEqual(env["RSI_MODEL"], "deepseek/deepseek-v4-pro")
+        self.assertEqual(env["RSI_PROVIDER"], "openrouter")
+        self.assertEqual(env["RSI_MEMORY_BACKEND"], "honcho")
+        self.assertEqual(env["RSI_HONCHO_WORKSPACE"], "rsi-stage")
+        self.assertEqual(env["OPENROUTER_API_KEY"], "openrouter-secret")
+        self.assertEqual(env["RSI_HERMES_SELF_REVIEW_MAX_BATCH_ROWS"], "1")
+        self.assertNotIn("UNRELATED_SECRET", env)
 
     def test_native_executor_streams_output_detects_result_and_redacts_secrets(self) -> None:
         structured = json.dumps(

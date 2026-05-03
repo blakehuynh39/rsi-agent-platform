@@ -24,7 +24,7 @@ Default runtime:
 The executor image installs `hermes-agent` from the RSI infra fork:
 
 - source repo: `https://github.com/blakehuynh39/hermes-agent.git`
-- current pin: `ac0c846e7738afcb4ca2a844ed0f45d390f1621a`
+- current pin: `64b2db15ed6c9a1bc16fb197740d25a24a7d0a60`
 
 Keep that fork's `main` branch containing the pinned commit before merging an
 RSI platform pin bump. Do not pin the executor image to upstream

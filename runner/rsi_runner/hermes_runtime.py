@@ -61,6 +61,31 @@ PARTIAL_COMPLETION_TERMINATION_REASONS = frozenset(
     }
 )
 DIRECT_DELIVERY_SUCCESS_STATUSES = frozenset({"posted", "sent", "uploaded", "completed", "ok", "success", "shared"})
+SELF_REVIEW_SECRET_ENV_ALLOWLIST = frozenset(
+    {
+        "OPENROUTER_API_KEY",
+        "OPENAI_API_KEY",
+        "ANTHROPIC_API_KEY",
+        "ANTHROPIC_TOKEN",
+        "CLAUDE_CODE_OAUTH_TOKEN",
+        "GOOGLE_API_KEY",
+        "GEMINI_API_KEY",
+        "LM_API_KEY",
+        "COPILOT_GITHUB_TOKEN",
+        "GH_TOKEN",
+        "GITHUB_TOKEN",
+        "GLM_API_KEY",
+        "ZAI_API_KEY",
+        "Z_AI_API_KEY",
+        "KIMI_API_KEY",
+        "KIMI_CODING_API_KEY",
+        "STEPFUN_API_KEY",
+        "ARCEEAI_API_KEY",
+        "GMI_API_KEY",
+        "MINIMAX_API_KEY",
+        "DASHSCOPE_API_KEY",
+    }
+)
 GROUNDED_EVIDENCE_TOOL_NAMES = frozenset(
     {
         "repo.read_file",
@@ -804,6 +829,38 @@ def _optional_string(value: JsonValue | None) -> str | None:
     return str(value)
 
 
+def _percent_encode_gateway_part(value: str) -> str:
+    return urlparse.quote((value or "").strip(), safe="")
+
+
+def _derive_root_message_ts(task: "RunnerTaskRequest") -> str:
+    channel_id = (task.channel_id or "").strip()
+    for entry in reversed(task.recent_conversation_entries or []):
+        entry_channel = _string_or_json(entry.get("channel_id"))
+        if channel_id and entry_channel and entry_channel != channel_id:
+            continue
+        message_ts = first_non_empty(
+            _string_or_json(entry.get("message_ts")),
+            _string_or_json(entry.get("ts")),
+            _string_or_json(entry.get("event_ts")),
+        )
+        thread_ts = _string_or_json(entry.get("thread_ts"))
+        if message_ts and (not thread_ts or thread_ts == message_ts):
+            return message_ts
+    return ""
+
+
+def canonical_gateway_session_key(task: "RunnerTaskRequest", role: str) -> str:
+    role_part = (role or "").strip().lower() or "unknown"
+    channel_id = (task.channel_id or "").strip()
+    if channel_id:
+        thread_key = first_non_empty(task.thread_ts, task.message_ts, _derive_root_message_ts(task), "channel")
+        return f"rsi:{role_part}:slack:{channel_id}:{thread_key.strip()}"
+    scope_kind = (task.session_scope_kind or "role").strip().lower() or "role"
+    scope_id = _percent_encode_gateway_part((task.session_scope_id or role_part).strip() or role_part)
+    return f"rsi:{role_part}:scope:{scope_kind}:{scope_id}"
+
+
 def _normalize_skill_identifier(value: JsonValue | None) -> str:
     normalized = _normalize_skill_identifiers([_string_or_json(value)])
     if normalized:
@@ -910,6 +967,7 @@ class RunnerTaskRequest:
     case_id: str | None
     channel_id: str | None
     thread_ts: str | None
+    message_ts: str | None
     trigger_event_id: str | None
     recent_conversation_entries: list[JsonObject]
     case_summary: JsonObject | None
@@ -968,6 +1026,7 @@ class RunnerTaskRequest:
             case_id=_optional_string(task.get("case_id")),
             channel_id=_optional_string(task.get("channel_id")),
             thread_ts=_optional_string(task.get("thread_ts")),
+            message_ts=_optional_string(task.get("message_ts")),
             trigger_event_id=_optional_string(task.get("trigger_event_id")),
             recent_conversation_entries=_json_object_list(task.get("recent_conversation_entries")),
             case_summary=_json_object_or_empty(task.get("case_summary")) or None,
@@ -1563,6 +1622,51 @@ class HermesRuntime:
             base_url=self._base_url,
             api_mode=self._api_mode,
         )
+
+    def _self_review_worker_env(self) -> dict[str, str]:
+        env: dict[str, str] = {
+            key: value
+            for key in ("PATH", "PYTHONPATH", "VIRTUAL_ENV", "HOME", "USER", "TMPDIR", "LANG", "LC_ALL")
+            if (value := os.getenv(key))
+        }
+        for key in SELF_REVIEW_SECRET_ENV_ALLOWLIST:
+            value = os.getenv(key)
+            if value:
+                env[key] = value
+        env.update(
+            {
+                "HERMES_HOME": self._config.hermes_home,
+                "HERMES_STATE_DB_PATH": str(Path(self._config.hermes_home) / "state.db"),
+                "RSI_HERMES_EXECUTOR_INSTANCE_ID": self._config.executor_instance_id,
+                "POD_UID": os.getenv("POD_UID") or f"{self._config.executor_instance_id}:{int(self._started_at_unix)}",
+                "RSI_HERMES_SELF_REVIEW_IDENTITY": os.getenv("RSI_HERMES_SELF_REVIEW_IDENTITY") or self._config.honcho_ai_peer,
+                "RSI_MEMORY_BACKEND": self._config.memory_backend,
+                "RSI_HONCHO_WORKSPACE": self._config.honcho_workspace,
+                "RSI_HONCHO_ENVIRONMENT": self._config.honcho_environment,
+                "RSI_MODEL": self._configured_model.removeprefix("openrouter/"),
+                "RSI_PROVIDER": "openrouter",
+                "RSI_HERMES_API_MODE": self._api_mode,
+            }
+        )
+        for key in (
+            "RSI_HERMES_SELF_REVIEW_STALE_AFTER_SECONDS",
+            "RSI_HERMES_SELF_REVIEW_RETENTION_DAYS",
+            "RSI_HERMES_SELF_REVIEW_MAX_BATCH_ROWS",
+            "RSI_HERMES_SELF_REVIEW_MAX_BATCH_TOKENS",
+            "RSI_HERMES_SELF_REVIEW_CREDENTIAL_PROFILE",
+            "RSI_HERMES_PIN",
+        ):
+            value = os.getenv(key)
+            if value:
+                env[key] = value
+        if self._base_url:
+            env["OPENAI_BASE_URL"] = self._base_url
+        if self._config.honcho_base_url:
+            env["RSI_HONCHO_BASE_URL"] = self._config.honcho_base_url
+        honcho_key = os.getenv("HONCHO_API_KEY")
+        if honcho_key:
+            env["HONCHO_API_KEY"] = honcho_key
+        return env
 
     def _self_review_queue_status(self, *, reconcile_stale: bool) -> JsonObject:
         try:
@@ -3060,6 +3164,15 @@ class HermesRuntime:
             "operation_id": task.operation_id or "",
             "trace_id": task.trace_id or "",
             "workflow_id": task.workflow_id or "",
+            "user_peer_id": context.user_peer_id,
+            "assistant_peer_id": context.assistant_peer_id,
+            "memory_backend": context.memory_backend,
+            "honcho_workspace": self._config.honcho_workspace,
+            "honcho_environment": self._config.honcho_environment,
+            "chat_id": task.channel_id or "",
+            "thread_id": task.thread_ts or "",
+            "message_ts": task.message_ts or _derive_root_message_ts(task),
+            "gateway_session_key": canonical_gateway_session_key(task, self._role),
             "conversation_history": self._native_executor_conversation_history(task, context),
             "prompt": task.prompt,
             "system_message": task.system_message or "",
@@ -3321,7 +3434,18 @@ class HermesRuntime:
             if not eligible:
                 from self_review_queue import mark_candidate_ineligible  # type: ignore
 
-                mark_candidate_ineligible(self._self_review_config(), execution_id, "result was not eligible for delivered self-review")
+                reason = "result_not_completed"
+                if not result.ok:
+                    reason = "worker_error"
+                elif str(final_status.get("status") or "").strip().lower() != "completed":
+                    reason = "result_not_completed"
+                elif not self._result_is_native_strict(result):
+                    reason = "non_native_strict_fallback"
+                elif _bool_or_false(raw.get("non_deliverable")):
+                    reason = "non_deliverable_result"
+                elif not (native_validated or partial_recovered):
+                    reason = "envelope_validation_failed"
+                mark_candidate_ineligible(self._self_review_config(), execution_id, reason)
                 return
             from self_review_queue import mark_candidate_delivered, promote_review_candidate  # type: ignore
 
@@ -3335,12 +3459,28 @@ class HermesRuntime:
                 result_hash,
                 result_ref=str(self._executor_status_path(execution_id)),
             )
-            if str(delivered.get("status") or "").strip().lower() in {"delivery_ref_mismatch", "ineligible"}:
+            delivered_status = str(delivered.get("status") or "").strip().lower()
+            if delivered_status != "validated":
                 logger.warning("self-review delivered marker rejected execution_id=%s status=%s", execution_id, delivered.get("status"))
                 return
             promoted = promote_review_candidate(self._self_review_config(), candidate_id)
-            if str(promoted.get("status") or "").strip().lower() == "enqueued":
+            promoted_status = str(promoted.get("status") or "").strip().lower()
+            if promoted_status == "enqueued":
                 self._start_self_review_worker(candidate_id)
+            elif promoted_status in {"skipped", "blocked_by_earlier_candidate"}:
+                logger.info(
+                    "self-review candidate promotion did not enqueue execution_id=%s candidate_id=%s status=%s",
+                    execution_id,
+                    candidate_id,
+                    promoted.get("status"),
+                )
+            else:
+                logger.warning(
+                    "self-review candidate promotion failed to enqueue execution_id=%s candidate_id=%s status=%s",
+                    execution_id,
+                    candidate_id,
+                    promoted.get("status"),
+                )
         except Exception as exc:
             logger.warning("self-review candidate finalization failed execution_id=%s candidate_id=%s error=%s", execution_id, candidate_id, exc)
 
@@ -3364,6 +3504,7 @@ class HermesRuntime:
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
+                env=self._self_review_worker_env(),
                 text=True,
             )
             self._self_review_processes[key] = process
@@ -4820,6 +4961,8 @@ class HermesRuntime:
             "execution_id": task.execution_id or "",
             "task_channel_id": task.channel_id or "",
             "task_thread_ts": task.thread_ts or "",
+            "task_message_ts": task.message_ts or _derive_root_message_ts(task),
+            "gateway_session_key": canonical_gateway_session_key(task, self._role),
             "proposal_id": task.session_scope_id if (task.session_scope_kind or "").strip() == "proposal_candidate" else "",
             "attempt_id": task.attempt_id,
             "workspace_id": task.workspace_id,
@@ -6581,6 +6724,8 @@ class HermesRuntime:
             "operation_id": task.operation_id,
             "channel_id": task.channel_id,
             "thread_ts": task.thread_ts,
+            "message_ts": task.message_ts or _derive_root_message_ts(task),
+            "gateway_session_key": canonical_gateway_session_key(task, self._role),
             "repo_allowlist": task.repo_allowlist,
             "response_mode": task.response_mode,
             "reply_delivery_mode": task.reply_delivery_mode,

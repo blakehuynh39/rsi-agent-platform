@@ -63,6 +63,10 @@ _REQUIRED_AIAgent_INIT_PARAMS = frozenset(
         "request_overrides",
         "session_db",
         "session_id",
+        "user_id",
+        "chat_id",
+        "thread_id",
+        "gateway_session_key",
         "skip_context_files",
         "skip_memory",
         "self_review_mode",
@@ -84,6 +88,7 @@ _REQUIRED_SELF_REVIEW_QUEUE_APIS = frozenset(
         "drain_review_queue",
         "mark_candidate_delivered",
         "promote_review_candidate",
+        "recover_blocked_work",
         "run_memory_self_review",
         "run_skill_self_review_batch",
         "review_queue_status",
@@ -536,6 +541,9 @@ class HermesAgentAdapter:
         observation = _json_object(result.get("self_review_observation"))
         if not observation:
             return {}
+        runner_execution_id = _string(self._payload.get("execution_id"))
+        if runner_execution_id:
+            observation = {**observation, "execution_id": runner_execution_id}
         timeout_seconds = float(os.getenv("RSI_HERMES_SELF_REVIEW_CANDIDATE_WRITE_TIMEOUT_SECONDS") or "2.5")
         payload = {"observation": observation}
         temp_path = ""
@@ -559,14 +567,27 @@ class HermesAgentAdapter:
             )
             if completed.returncode != 0:
                 stderr = _string(completed.stderr)
+                try:
+                    parsed_error = _json_object(
+                        json.loads(completed.stdout.strip().splitlines()[-1])
+                        if completed.stdout.strip()
+                        else {}
+                    )
+                except json.JSONDecodeError:
+                    parsed_error = {}
                 self._lifecycle.record(
                     "self_review.candidate.write_failed",
-                    {"status": "failed", "error": stderr[:800]},
+                    {
+                        "status": "failed",
+                        "error": stderr[:800] or _string(parsed_error.get("error"))[:800],
+                        "ineligible_reason": _string(parsed_error.get("ineligible_reason")),
+                    },
                 )
                 return {
                     "candidate_status": "candidate_write_failed",
                     "status": "candidate_write_failed",
-                    "error": stderr[:800],
+                    "ineligible_reason": _string(parsed_error.get("ineligible_reason")),
+                    "error": stderr[:800] or _string(parsed_error.get("error"))[:800],
                 }
             parsed = json.loads(completed.stdout.strip().splitlines()[-1] if completed.stdout.strip() else "{}")
             if not isinstance(parsed, dict):
@@ -585,7 +606,7 @@ class HermesAgentAdapter:
             return {
                 key: value
                 for key, value in parsed.items()
-                if key in {"candidate_id", "candidate_status", "status", "execution_id", "agent_identity", "snapshot_ref", "snapshot_hash", "snapshot_size"}
+                if key in {"candidate_id", "candidate_status", "status", "execution_id", "agent_identity", "snapshot_ref", "snapshot_hash", "snapshot_size", "ineligible_reason"}
             }
         except subprocess.TimeoutExpired:
             self._lifecycle.record(
@@ -680,6 +701,10 @@ class HermesAgentAdapter:
             "session_id": session_id,
             "parent_session_id": _string(self._payload.get("parent_session_id")) or None,
             "platform": "rsi",
+            "user_id": _string(self._payload.get("user_peer_id")) or None,
+            "chat_id": _string(self._payload.get("chat_id")) or None,
+            "thread_id": _string(self._payload.get("thread_id")) or None,
+            "gateway_session_key": _string(self._payload.get("gateway_session_key")) or None,
             "session_db": session_db,
             "skip_context_files": True,
             "skip_memory": False,
