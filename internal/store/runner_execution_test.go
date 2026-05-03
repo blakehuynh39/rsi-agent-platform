@@ -113,6 +113,41 @@ func TestMemoryStoreRecordRunnerExecutionReflectsCancelRequestedIntent(t *testin
 	}
 }
 
+func TestMemoryStoreRunnerExecutionFinalizingIsActiveAndCancelable(t *testing.T) {
+	store := NewMemoryStore()
+	started := time.Now().Add(-time.Minute).UTC()
+	if _, err := store.RecordRunnerExecution(RunnerExecution{
+		ExecutionID: "hexec-finalizing",
+		Status:      "finalizing",
+		HeartbeatAt: &started,
+		CreatedAt:   started,
+		UpdatedAt:   started,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution(finalizing) error = %v", err)
+	}
+	active := store.ListActiveRunnerExecutions()
+	if len(active) != 1 || active[0].ExecutionID != "hexec-finalizing" || active[0].Status != "finalizing" {
+		t.Fatalf("finalizing execution should remain active, got %+v", active)
+	}
+
+	cancelledAt := time.Now().UTC()
+	if _, err := store.RecordRunnerExecution(RunnerExecution{
+		ExecutionID:     "hexec-finalizing",
+		Status:          "cancel_requested",
+		CancelRequested: true,
+		UpdatedAt:       cancelledAt,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution(cancel_requested) error = %v", err)
+	}
+	record, ok := store.GetRunnerExecution("hexec-finalizing")
+	if !ok {
+		t.Fatal("expected runner execution")
+	}
+	if record.Status != "cancel_requested" || !record.CancelRequested {
+		t.Fatalf("cancellation should move finalizing execution forward, got %+v", record)
+	}
+}
+
 func TestMemoryStoreRunnerExecutionNormalizationDefaultsBlankStatusToQueued(t *testing.T) {
 	store := NewMemoryStore()
 	now := time.Now().UTC()

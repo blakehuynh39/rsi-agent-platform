@@ -263,12 +263,19 @@ func reduceWorkflowRuntimeRunnerStatus(snapshot WorkflowRuntimeSnapshot, event W
 		}
 		update := storepkg.RunnerExecution{ExecutionID: existing.ExecutionID, Status: "queued", UpdatedAt: snapshot.Now}
 		return waitWithRunnerUpdate(snapshot, event, update, "runner remains queued")
-	case "accepted", "starting", "running":
+	case "accepted", "starting", "running", "finalizing":
+		enteringFinalizing := status == "finalizing" && hasExisting && runnerExecutionEnteringFinalizing(status, existing)
+		if status == "finalizing" && hasExisting && !enteringFinalizing && workflowRuntimeHeartbeatExpired(snapshot, existing) {
+			return workflowRuntimeFailureDecision(snapshot, existing.ExecutionID, "plugin_execution_envelope_missing", "Hermes executor heartbeat expired while finalizing the native execution envelope.", "heartbeat_expired")
+		}
 		updateStatus := status
 		if hasExisting && existing.CancelRequested {
 			updateStatus = "cancel_requested"
 		}
-		update := storepkg.RunnerExecution{ExecutionID: existing.ExecutionID, Status: updateStatus, CancelRequested: hasExisting && existing.CancelRequested, HeartbeatAt: &snapshot.Now, UpdatedAt: snapshot.Now}
+		update := storepkg.RunnerExecution{ExecutionID: existing.ExecutionID, Status: updateStatus, CancelRequested: hasExisting && existing.CancelRequested, UpdatedAt: snapshot.Now}
+		if runnerExecutionStatusRefreshesHeartbeat(status, existing) {
+			update.HeartbeatAt = &snapshot.Now
+		}
 		return waitWithRunnerUpdate(snapshot, event, update, "runner is still active")
 	case "cancel_requested", "cancelling":
 		update := storepkg.RunnerExecution{ExecutionID: existing.ExecutionID, Status: "cancelling", CancelRequested: true, UpdatedAt: snapshot.Now}

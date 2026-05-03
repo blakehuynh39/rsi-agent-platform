@@ -631,7 +631,7 @@ func (p *PostgresStore) createIngestionDirect(envelope slack.SlackEnvelope) (cre
 		if err := actionRows.Err(); err != nil {
 			return err
 		}
-		if _, err := tx.Exec(`update runner_execution set status = case when lower(status) = 'cancelling' then status else $2 end, cancel_requested = true, failure_class = coalesce(nullif(failure_class, ''), $3), updated_at = $4 where case_id = $1 and trace_id <> $5 and status in ($6, $7, $8, $9, $10, $11)`,
+		if _, err := tx.Exec(`update runner_execution set status = case when lower(status) = 'cancelling' then status else $2 end, cancel_requested = true, failure_class = coalesce(nullif(failure_class, ''), $3), updated_at = $4 where case_id = $1 and trace_id <> $5 and status in ($6, $7, $8, $9, $10, $11, $12)`,
 			caseRecord.ID,
 			"cancel_requested",
 			"trace_superseded",
@@ -641,6 +641,7 @@ func (p *PostgresStore) createIngestionDirect(envelope slack.SlackEnvelope) (cre
 			"accepted",
 			"starting",
 			"running",
+			"finalizing",
 			"cancel_requested",
 			"cancelling",
 		); err != nil {

@@ -40,7 +40,7 @@ func recoverHermesExecution(client *clients.RunnerClient, executionID string) (h
 		return hermesExecutionRecovery{response: *status.Result, status: statusText}, nil
 	}
 	switch statusText {
-	case "running", "accepted", "starting", "cancel_requested", "cancelling":
+	case "running", "accepted", "starting", "finalizing", "cancel_requested", "cancelling":
 		return hermesExecutionRecovery{stillRunning: true, status: statusText}, nil
 	case "queued":
 		return hermesExecutionRecovery{stillRunning: true, status: statusText}, nil
@@ -361,14 +361,16 @@ func executeOrPollAsyncHermesExecution(cfg config.Config, store storepkg.Store, 
 			}
 			recoveredAt := time.Now().UTC()
 			if err == nil && recovery.stillRunning {
-				if recovery.status == "queued" && runnerExecutionHeartbeatExpired(cfg, record, recoveredAt) {
-					failure := hermesExecutorRecoveryFailure(task.ExecutionID, workflowFailureRunnerExecutorStatusUnavailable, "Hermes executor remained queued past the heartbeat timeout; refusing to defer indefinitely.", "heartbeat_expired")
+				enteringFinalizing := runnerExecutionEnteringFinalizing(recovery.status, record)
+				if (recovery.status == "queued" || recovery.status == "finalizing") && !enteringFinalizing && runnerExecutionHeartbeatExpired(cfg, record, recoveredAt) {
+					failureClass, message := heartbeatExpiredFailureClassAndMessage(recovery.status)
+					failure := hermesExecutorRecoveryFailure(task.ExecutionID, failureClass, message, "heartbeat_expired")
 					completedAt := recoveredAt
 					_, _ = runtime.recordRunnerExecution(storepkg.RunnerExecution{
 						ExecutionID:  task.ExecutionID,
 						Status:       "failed",
 						Result:       runnerResponseMap(failure),
-						FailureClass: workflowFailureRunnerExecutorStatusUnavailable,
+						FailureClass: failureClass,
 						HeartbeatAt:  &recoveredAt,
 						CompletedAt:  &completedAt,
 						UpdatedAt:    recoveredAt,
@@ -381,7 +383,7 @@ func executeOrPollAsyncHermesExecution(cfg config.Config, store storepkg.Store, 
 					Holder:      executionHolder,
 					UpdatedAt:   recoveredAt,
 				}
-				if recovery.status != "queued" {
+				if runnerExecutionStatusRefreshesHeartbeat(recovery.status, record) {
 					update.HeartbeatAt = &recoveredAt
 				}
 				_, _ = runtime.recordRunnerExecution(update)
@@ -583,14 +585,16 @@ func executeOrPollAsyncHermesExecution(cfg config.Config, store storepkg.Store, 
 		return *status.Result, false, nil
 	}
 	switch strings.ToLower(strings.TrimSpace(statusText)) {
-	case "running", "accepted", "starting", "cancel_requested", "cancelling", "queued":
-		if statusText == "queued" && runnerExecutionHeartbeatExpired(cfg, record, statusCompletedAt) {
-			failure := hermesExecutorRecoveryFailure(task.ExecutionID, workflowFailureRunnerExecutorStatusUnavailable, "Hermes executor remained queued past the heartbeat timeout; refusing to defer indefinitely.", "heartbeat_expired")
+	case "running", "accepted", "starting", "finalizing", "cancel_requested", "cancelling", "queued":
+		enteringFinalizing := runnerExecutionEnteringFinalizing(statusText, record)
+		if (statusText == "queued" || statusText == "finalizing") && !enteringFinalizing && runnerExecutionHeartbeatExpired(cfg, record, statusCompletedAt) {
+			failureClass, message := heartbeatExpiredFailureClassAndMessage(statusText)
+			failure := hermesExecutorRecoveryFailure(task.ExecutionID, failureClass, message, "heartbeat_expired")
 			_, _ = runtime.recordRunnerExecution(storepkg.RunnerExecution{
 				ExecutionID:  task.ExecutionID,
 				Status:       "failed",
 				Result:       runnerResponseMap(failure),
-				FailureClass: workflowFailureRunnerExecutorStatusUnavailable,
+				FailureClass: failureClass,
 				HeartbeatAt:  &statusCompletedAt,
 				CompletedAt:  &statusCompletedAt,
 				UpdatedAt:    statusCompletedAt,
@@ -605,7 +609,7 @@ func executeOrPollAsyncHermesExecution(cfg config.Config, store storepkg.Store, 
 		if statusText == "cancel_requested" || statusText == "cancelling" {
 			update.CancelRequested = true
 		}
-		if statusText != "queued" && statusText != "cancel_requested" {
+		if runnerExecutionStatusRefreshesHeartbeat(statusText, record) {
 			update.HeartbeatAt = &statusCompletedAt
 		}
 		_, _ = runtime.recordRunnerExecution(update)
@@ -681,6 +685,22 @@ func runnerExecutionHeartbeatExpired(cfg config.Config, record storepkg.RunnerEx
 	}
 	referenceTime := runnerExecutionHeartbeatReferenceTime(record)
 	return !referenceTime.IsZero() && now.Sub(referenceTime) > cfg.HermesExecutionHeartbeatTimeout
+}
+
+func runnerExecutionStatusRefreshesHeartbeat(status string, record storepkg.RunnerExecution) bool {
+	switch strings.ToLower(strings.TrimSpace(status)) {
+	case "queued", "cancel_requested":
+		return false
+	case "finalizing":
+		return runnerExecutionEnteringFinalizing(status, record) || record.HeartbeatAt == nil
+	default:
+		return true
+	}
+}
+
+func runnerExecutionEnteringFinalizing(status string, record storepkg.RunnerExecution) bool {
+	return strings.EqualFold(strings.TrimSpace(status), "finalizing") &&
+		!strings.EqualFold(strings.TrimSpace(record.Status), "finalizing")
 }
 
 func runnerExecutionResultNonDeliverable(record storepkg.RunnerExecution) bool {
@@ -759,4 +779,11 @@ func hermesExecutorRecoveryFailure(executionID string, failureClass string, mess
 			},
 		},
 	}
+}
+
+func heartbeatExpiredFailureClassAndMessage(status string) (failureClass string, message string) {
+	if status == "finalizing" {
+		return "plugin_execution_envelope_missing", "Hermes executor heartbeat expired while finalizing the native execution envelope."
+	}
+	return workflowFailureRunnerExecutorStatusUnavailable, "Hermes executor remained queued past the heartbeat timeout; refusing to defer indefinitely."
 }

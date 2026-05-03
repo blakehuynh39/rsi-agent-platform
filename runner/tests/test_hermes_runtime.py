@@ -33,7 +33,7 @@ from rsi_runner.rsi_tools import transport_tool_schema
 from rsi_runner.session_manager import SessionManager
 
 
-HERMES_TEST_PIN = "4712c9d34610e5bb8729b6989019205f7c1cfd26"
+HERMES_TEST_PIN = "0c032b5ad06b460f8ca14da21179e89ac012052e"
 
 
 def runner_env(role: str = "prod") -> dict[str, str]:
@@ -320,6 +320,46 @@ def partial_structured_output(
         "retry_assessment": {},
         "hypothesis_delta": "",
     }
+
+
+def write_native_test_envelope(request: dict[str, object], final_response: str = "Final reply") -> None:
+    envelope_path = Path(str(request["runtime_envelope_path"]))
+    envelope_path.parent.mkdir(parents=True, exist_ok=True)
+    envelope_path.write_text(
+        json.dumps(
+            {
+                "contract_version": "execution-envelope/v1",
+                "producer": "rsi_platform_runtime",
+                "producer_version": "0.1.0",
+                "created_at": "2026-05-02T00:00:00Z",
+                "facts_source": ["test"],
+                "execution_id": str(request.get("execution_id") or ""),
+                "operation_id": str(request.get("operation_id") or ""),
+                "trace_id": str(request.get("trace_id") or ""),
+                "workflow_id": str(request.get("workflow_id") or ""),
+                "phase_runs": [
+                    {
+                        "phase_id": "main",
+                        "phase_type": "workflow",
+                        "status": "completed",
+                        "completion_verdict": "complete",
+                        "termination_reason": "normal_completion",
+                    }
+                ],
+                "ledger_events": [],
+                "artifacts": [],
+                "deliveries": [],
+                "completion": {
+                    "ok": True,
+                    "completion_verdict": "complete",
+                    "termination_reason": "normal_completion",
+                },
+                "final_response": final_response,
+            },
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
 
 
 class HermesRuntimeTests(unittest.TestCase):
@@ -682,6 +722,10 @@ class HermesRuntimeTests(unittest.TestCase):
                     "task_type": "workflow",
                     "repo": "depin-backend",
                     "prompt": "Read the private repo.",
+                    "execution_id": "hexec-gh-app-force",
+                    "trace_id": "trace-gh-app-force",
+                    "workflow_id": "wf-gh-app-force",
+                    "operation_id": "op-gh-app-force",
                     "session_scope_kind": "conversation",
                     "session_scope_id": "conv-gh-app-force",
                 }
@@ -703,6 +747,7 @@ class HermesRuntimeTests(unittest.TestCase):
                     "session_id": "rsi-prod-conversation-gh-force",
                 }
                 Path(request["result_path"]).write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+                write_native_test_envelope(request, final_response="Final reply")
                 self.returncode = 0
                 self.stdout = io.StringIO("RSI_EXECUTOR_RESULT::" + json.dumps(payload, sort_keys=True) + "\n")
                 self.stderr = io.StringIO("")
@@ -968,7 +1013,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertFalse(runtime.available)
         self.assertFalse(runtime.metadata["company_computer_bootstrap_status"]["ok"])
         self.assertFalse(result.ok)
-        self.assertEqual(result.raw["failure_class"], "hermes_company_computer_bootstrap_failed")
+        self.assertEqual(result.raw["failure_class"], "native_workflow_preflight_failed")
 
     def test_company_computer_bootstrap_rejects_incomplete_prod_kubernetes_context(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -1008,7 +1053,7 @@ class HermesRuntimeTests(unittest.TestCase):
             "\n".join(runtime.metadata["company_computer_bootstrap_status"]["errors"]),
         )
         self.assertFalse(result.ok)
-        self.assertEqual(result.raw["failure_class"], "hermes_company_computer_bootstrap_failed")
+        self.assertEqual(result.raw["failure_class"], "native_workflow_preflight_failed")
 
     def test_hermes_contract_rejects_missing_pin(self) -> None:
         with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(os.environ, {"HERMES_HOME": tempdir}, clear=True):
@@ -1058,7 +1103,40 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertFalse(status.ok)
         self.assertEqual(status.plugin_status, "config_missing")
-        self.assertIn("rsi_context_engine is not enabled in Hermes config.", status.errors)
+        self.assertIn("Hermes config is missing required plugin(s): rsi_context_engine.", status.errors)
+
+    def test_hermes_contract_requires_platform_runtime_capability_for_executor(self) -> None:
+        plugin_manager = types.SimpleNamespace(
+            list_plugins=lambda: [
+                {"enabled": True, "name": "rsi_context_engine"},
+                {"enabled": True, "name": "rsi_platform_runtime", "capabilities": {}},
+            ]
+        )
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(os.environ, {"HERMES_HOME": tempdir}, clear=True), mock.patch(
+            "rsi_runner.hermes_agent_adapter._read_direct_url_commit",
+            return_value=("0.12.0", HERMES_TEST_PIN),
+        ), mock.patch(
+            "rsi_runner.hermes_agent_adapter.discover_plugins",
+            side_effect=lambda force=False: None,
+        ), mock.patch(
+            "rsi_runner.hermes_agent_adapter.get_plugin_manager",
+            return_value=plugin_manager,
+        ):
+            Path(tempdir, "config.yaml").write_text(
+                "plugins:\n  enabled:\n    - rsi_context_engine\n    - rsi_platform_runtime\n",
+                encoding="utf-8",
+            )
+            status = validate_hermes_contract(
+                expected_pin=HERMES_TEST_PIN,
+                hermes_home=tempdir,
+                session_db=object(),
+                required_toolsets=[],
+                require_platform_runtime=True,
+            )
+
+        self.assertFalse(status.ok)
+        self.assertEqual(status.plugin_status, "capability_missing")
+        self.assertIn("Hermes plugin capability check failed for: rsi_platform_runtime.", status.errors)
 
     def test_hermes_contract_rejects_missing_session_db_and_toolset(self) -> None:
         with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(os.environ, {"HERMES_HOME": tempdir}, clear=True), mock.patch(
@@ -1499,8 +1577,32 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("plugins:", config_text)
         self.assertIn("  enabled:", config_text)
         self.assertIn("    - rsi_context_engine", config_text)
+        self.assertNotIn("    - rsi_platform_runtime", config_text)
         self.assertEqual(manager.hermes_config_parity_status, "configured")
         self.assertEqual(manager.hermes_config_parity_error, "")
+
+    def test_session_manager_enables_platform_runtime_for_hermes_executor(self) -> None:
+        class FakeSessionDB:
+            def __init__(self, db_path: str) -> None:
+                self.db_path = db_path
+
+            def get_messages_as_conversation(self, _session_id: str) -> list[dict[str, object]]:
+                return []
+
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.session_manager.SessionDB", FakeSessionDB
+        ), mock.patch("rsi_runner.session_manager.sync_skills") as sync_mock, mock.patch.dict(
+            os.environ,
+            {**runner_env("prod"), "HERMES_HOME": tempdir, "RSI_HERMES_EXECUTOR_ENABLED": "true"},
+            clear=True,
+        ):
+            sync_mock.return_value = {"copied": []}
+            manager = SessionManager(RunnerConfig.from_env())
+            config_text = Path(tempdir, "config.yaml").read_text(encoding="utf-8")
+
+        self.assertIn("    - rsi_context_engine", config_text)
+        self.assertIn("    - rsi_platform_runtime", config_text)
+        self.assertEqual(manager.hermes_config_parity_status, "configured")
 
     def test_session_manager_writes_native_openrouter_model_config(self) -> None:
         class FakeSessionDB:
@@ -2387,6 +2489,7 @@ class HermesRuntimeTests(unittest.TestCase):
                     "session_id": "rsi-prod-conversation-123",
                 }
                 Path(request["result_path"]).write_text(json.dumps(self._payload, sort_keys=True), encoding="utf-8")
+                write_native_test_envelope(request, final_response="Final reply")
                 self.stdout = io.StringIO("noise only\n")
                 self.stderr = io.StringIO("")
                 self._request = request
@@ -2442,7 +2545,11 @@ class HermesRuntimeTests(unittest.TestCase):
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
         ), mock.patch(
             "rsi_runner.hermes_runtime.subprocess.Popen", side_effect=fake_popen
-        ), mock.patch.dict(
+        ), mock.patch.object(
+            HermesCompanyComputer,
+            "attach_envelope",
+            side_effect=AssertionError("native strict success must not synthesize an envelope"),
+        ) as attach_mock, mock.patch.dict(
             os.environ,
             {
                 **runner_env("prod"),
@@ -2461,6 +2568,7 @@ class HermesRuntimeTests(unittest.TestCase):
                             "repo": "depin-backend",
                             "prompt": "User prompt",
                             "system_message": "System directive",
+                            "execution_id": "hexec-123",
                             "trace_id": "trace-123",
                             "workflow_id": "wf-123",
                             "operation_id": "op-123",
@@ -2481,11 +2589,59 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(result.ok)
         self.assertEqual(result.provider, "hermes-native-executor")
         self.assertEqual(result.raw["native_executor_mode"], "subprocess")
-        self.assertEqual(result.raw["structured_output"]["final_answer"], "Final reply")
+        self.assertEqual(result.message, "Final reply")
+        self.assertEqual(result.raw["execution_envelope"]["final_response"], "Final reply")
+        self.assertNotIn("structured_output", result.raw)
         self.assertEqual(result.raw["system_message"], "System directive")
         self.assertEqual(result.raw["runner_diagnostics"]["agentic_mcp_cleanup_status"], "cleaned")
+        attach_mock.assert_not_called()
         self.assertEqual(len(request_paths), 1)
         self.assertTrue(run_dir_exists_before_temp_cleanup)
+
+    def test_execute_task_skips_attach_envelope_for_native_strict_preflight_failure(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "depin-backend",
+                    "prompt": "Run without required workflow identifiers.",
+                    "trace_id": "trace-preflight-missing-id",
+                    "workflow_id": "wf-preflight-missing-id",
+                    "operation_id": "op-preflight-missing-id",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-preflight-missing-id",
+                }
+            }
+        )
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.subprocess.Popen",
+            side_effect=AssertionError("Hermes subprocess must not start after native strict preflight failure"),
+        ) as popen_mock, mock.patch.object(
+            HermesCompanyComputer,
+            "attach_envelope",
+            side_effect=AssertionError("native strict failure must not synthesize an envelope"),
+        ) as attach_mock, mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_ENABLED": "true",
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.provider, "hermes-native-executor")
+        self.assertEqual(result.raw["failure_class"], "native_workflow_preflight_failed")
+        self.assertTrue(result.raw["native_strict"])
+        self.assertNotIn("execution_envelope", result.raw)
+        attach_mock.assert_not_called()
+        popen_mock.assert_not_called()
 
     def test_native_executor_fails_before_subprocess_when_github_app_credentials_missing(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -2494,8 +2650,10 @@ class HermesRuntimeTests(unittest.TestCase):
                     "task_type": "workflow",
                     "repo": "depin-backend",
                     "prompt": "Read the private repo.",
+                    "execution_id": "hexec-gh-required",
                     "trace_id": "trace-gh-required",
                     "workflow_id": "wf-gh-required",
+                    "operation_id": "op-gh-required",
                     "session_scope_kind": "conversation",
                     "session_scope_id": "conv-gh-required",
                     "memory_backend": "honcho",
@@ -2527,9 +2685,10 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertFalse(result.ok)
         self.assertEqual(result.provider, "hermes-native-executor")
-        self.assertEqual(result.raw["failure_class"], "github_app_credentials_unavailable")
-        self.assertEqual(result.raw["termination_reason"], "github_app_credentials_unavailable")
-        self.assertEqual(result.raw["github_credentials"]["reason"], "missing_github_app_credentials")
+        self.assertEqual(result.raw["failure_class"], "native_workflow_preflight_failed")
+        self.assertEqual(result.raw["termination_reason"], "native_workflow_preflight_failed")
+        self.assertEqual(result.raw["runner_diagnostics"]["preflight_failure_class"], "github_app_credentials_unavailable")
+        self.assertEqual(result.raw["runner_diagnostics"]["github_credentials"]["reason"], "missing_github_app_credentials")
         popen_mock.assert_not_called()
 
     def test_native_executor_incomplete_result_preserves_partial_contract(self) -> None:
@@ -2561,6 +2720,7 @@ class HermesRuntimeTests(unittest.TestCase):
                     "session_id": "rsi-prod-conversation-123",
                 }
                 Path(request["result_path"]).write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+                write_native_test_envelope(request, final_response="Grounded but partial answer.")
                 self.stdout = io.StringIO("")
                 self.stderr = io.StringIO("")
 
@@ -2582,6 +2742,7 @@ class HermesRuntimeTests(unittest.TestCase):
                     "task_type": "workflow",
                     "repo": "rsi-agent-platform",
                     "prompt": "Investigate the latest trace.",
+                    "execution_id": "hexec-partial-native",
                     "trace_id": "trace-partial-native",
                     "workflow_id": "wf-partial-native",
                     "operation_id": "op-partial-native",
@@ -2612,7 +2773,9 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["completion_verdict"], "partial")
         self.assertEqual(result.raw["termination_reason"], "iteration_budget_exhausted")
         self.assertTrue(result.raw["max_iterations_reached"])
-        self.assertEqual(result.raw["structured_output"]["final_answer"], "Grounded but partial answer.")
+        self.assertEqual(result.message, "Grounded but partial answer.")
+        self.assertEqual(result.raw["execution_envelope"]["final_response"], "Grounded but partial answer.")
+        self.assertNotIn("structured_output", result.raw)
         self.assertEqual(result.raw["runner_diagnostics"]["completion_verdict"], "partial")
         self.assertEqual(captured_requests[0]["phase_contract"]["history_policy"], "session")
         self.assertNotIn("rsi-governed-readonly", captured_requests[0]["phase_contract"]["required_toolsets"])
@@ -2664,6 +2827,7 @@ class HermesRuntimeTests(unittest.TestCase):
                     ),
                     encoding="utf-8",
                 )
+                write_native_test_envelope(request, final_response="Architecture details are ready.")
                 self.returncode = 0
                 self.stdout = io.StringIO("")
                 self.stderr = io.StringIO("")
@@ -2686,6 +2850,7 @@ class HermesRuntimeTests(unittest.TestCase):
                     "task_type": "workflow",
                     "repo": "rsi-agent-platform",
                     "prompt": "Investigate and prepare a diagram brief.",
+                    "execution_id": "hexec-native-fenced-json",
                     "trace_id": "trace-native-fenced-json",
                     "workflow_id": "wf-native-fenced-json",
                     "operation_id": "op-native-fenced-json",
@@ -2721,9 +2886,9 @@ class HermesRuntimeTests(unittest.TestCase):
                 result = runtime.execute_task(task)
 
         self.assertTrue(result.ok)
-        self.assertEqual(result.raw["structured_output"]["final_answer"], "Architecture details are ready.")
-        self.assertEqual(result.raw["structured_output"]["artifact_render_briefs"][0]["title"], "RSI Platform")
-        self.assertFalse(result.raw["repair_attempted"])
+        self.assertEqual(result.message, "Architecture details are ready.")
+        self.assertEqual(result.raw["execution_envelope"]["final_response"], "Architecture details are ready.")
+        self.assertNotIn("structured_output", result.raw)
         register_mock.assert_not_called()
 
     def test_native_render_request_payload_uses_local_artifact_dir_and_strips_governed_toolsets(self) -> None:
@@ -2770,6 +2935,7 @@ class HermesRuntimeTests(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
+            write_native_test_envelope(request, final_response="Rendered artifact")
             self.assertEqual(request["execution_phase"], "render")
             self.assertEqual(request["artifact_output_dir"], str((Path(tempdir) / "op-render" / "artifacts").resolve()))
             self.assertNotIn("rsi-governed-readonly", request["toolsets"])
@@ -2825,6 +2991,7 @@ class HermesRuntimeTests(unittest.TestCase):
                         "task_type": "workflow",
                         "repo": "depin-backend",
                         "prompt": "Render the diagram.",
+                        "execution_id": "hexec-render",
                         "trace_id": "trace-render",
                         "workflow_id": "wf-render",
                         "operation_id": "op-render",
@@ -2956,6 +3123,7 @@ class HermesRuntimeTests(unittest.TestCase):
                     "session_id": "rsi-prod-conversation-123",
                 }
                 Path(request["result_path"]).write_text(json.dumps(self._payload, sort_keys=True), encoding="utf-8")
+                write_native_test_envelope(request, final_response="Final reply")
                 self.stdout = io.StringIO("")
                 self.stderr = io.StringIO("")
 
@@ -3049,6 +3217,7 @@ class HermesRuntimeTests(unittest.TestCase):
                 }
                 self.returncode = 0
                 Path(request["result_path"]).write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+                write_native_test_envelope(request, final_response="Final reply")
                 self.stdout = io.StringIO(
                     "Warning: Unknown toolsets: \n"
                     "mcp-test-slack,\n"
@@ -3105,6 +3274,7 @@ class HermesRuntimeTests(unittest.TestCase):
                         "task_type": "workflow",
                         "repo": "depin-backend",
                         "prompt": "User prompt",
+                        "execution_id": "hexec-streams",
                         "trace_id": "trace-123",
                         "workflow_id": "wf-123",
                         "operation_id": "op-123",
@@ -3297,6 +3467,7 @@ class HermesRuntimeTests(unittest.TestCase):
                         "task_type": "workflow",
                         "repo": "depin-backend",
                         "prompt": "User prompt",
+                        "execution_id": "hexec-missing-envelope",
                         "trace_id": "trace-123",
                         "workflow_id": "wf-123",
                         "operation_id": "op-123",
@@ -3313,7 +3484,8 @@ class HermesRuntimeTests(unittest.TestCase):
             )
 
         self.assertFalse(result.ok)
-        self.assertIn("result file", result.message)
+        self.assertEqual(result.raw["failure_class"], "plugin_execution_envelope_missing")
+        self.assertNotIn("execution_envelope", result.raw)
 
     def test_native_executor_result_stat_failure_does_not_break_loaded_result(self) -> None:
         structured = json.dumps(
@@ -3345,6 +3517,7 @@ class HermesRuntimeTests(unittest.TestCase):
                 result_path = Path(request["result_path"])
                 result_paths.append(result_path)
                 result_path.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+                write_native_test_envelope(request, final_response="Final reply")
                 self.returncode = 0
                 self.stdout = io.StringIO("")
                 self.stderr = io.StringIO("")
@@ -3397,6 +3570,7 @@ class HermesRuntimeTests(unittest.TestCase):
                         "task_type": "workflow",
                         "repo": "depin-backend",
                         "prompt": "User prompt",
+                        "execution_id": "hexec-stat-failure",
                         "trace_id": "trace-123",
                         "workflow_id": "wf-123",
                         "operation_id": "op-123",
@@ -3467,6 +3641,7 @@ class HermesRuntimeTests(unittest.TestCase):
                         "task_type": "workflow",
                         "repo": "depin-backend",
                         "prompt": "User prompt",
+                        "execution_id": "hexec-timeout",
                         "trace_id": "trace-123",
                         "workflow_id": "wf-123",
                         "operation_id": "op-123",
@@ -3484,6 +3659,148 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertFalse(result.ok)
         self.assertEqual(wait_calls, [5, 5])
+
+    def test_native_executor_timeout_with_success_result_keeps_timeout_classification(self) -> None:
+        class FakePopen:
+            def __init__(self, cmd, cwd, env, stdout, stderr, text):
+                request = json.loads(Path(cmd[-1]).read_text(encoding="utf-8"))
+                payload = {
+                    "ok": True,
+                    "response": "{}",
+                    "result": {"final_response": "{}"},
+                    "session_id": "rsi-prod-conversation-timeout-result",
+                }
+                Path(request["result_path"]).write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+                write_native_test_envelope(request, final_response="Final reply")
+                self.returncode = 0
+                self.stdout = io.StringIO("")
+                self.stderr = io.StringIO("")
+
+            def poll(self):
+                return None
+
+            def wait(self, timeout=None):
+                return self.returncode
+
+            def terminate(self):
+                self.returncode = -15
+
+            def kill(self):
+                self.returncode = -9
+
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.AIAgent", FakeAIAgent
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.subprocess.Popen", side_effect=FakePopen
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.time.monotonic", side_effect=[0.0, 7.0, 8.0, 8.1]
+        ), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_ENABLED": "true",
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
+                "RSI_RUNNER_PROD_TASK_TIMEOUT": "1s",
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "depin-backend",
+                        "prompt": "User prompt",
+                        "execution_id": "hexec-timeout-success-result",
+                        "trace_id": "trace-123",
+                        "workflow_id": "wf-123",
+                        "operation_id": "op-123",
+                        "session_scope_kind": "conversation",
+                        "session_scope_id": "conv-123",
+                        "memory_backend": "honcho",
+                        "assistant_peer_id": "rsi:stage:prod",
+                    }
+                }
+            )
+            result = runtime._execute_native_workflow_task_request(task)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.raw.get("native_strict"), True)
+
+    def test_native_partial_recovery_failure_skips_attach_envelope(self) -> None:
+        class FakePopen:
+            def __init__(self, cmd, cwd, env, stdout, stderr, text):
+                self.returncode = 0
+                self.stdout = io.StringIO("")
+                self.stderr = io.StringIO("")
+
+            def poll(self):
+                return None
+
+            def wait(self, timeout=None):
+                return self.returncode
+
+            def terminate(self):
+                self.returncode = -15
+
+            def kill(self):
+                self.returncode = -9
+
+        monotonic_values = iter([0.0, 7.0, 8.0, 8.1])
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "depin-backend",
+                    "prompt": "User prompt",
+                    "execution_id": "hexec-native-partial-unrecoverable",
+                    "trace_id": "trace-native-partial-unrecoverable",
+                    "workflow_id": "wf-native-partial-unrecoverable",
+                    "operation_id": "op-native-partial-unrecoverable",
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-native-partial-unrecoverable",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                }
+            }
+        )
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.AIAgent", FakeAIAgent
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.subprocess.Popen", side_effect=FakePopen
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.time.monotonic", side_effect=lambda: next(monotonic_values, 8.1)
+        ), mock.patch.object(
+            HermesCompanyComputer,
+            "attach_envelope",
+            side_effect=AssertionError("native strict partial recovery failure must not synthesize an envelope"),
+        ) as attach_mock, mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_ENABLED": "true",
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
+                "RSI_RUNNER_PROD_TASK_TIMEOUT": "1s",
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.provider, "hermes-native-executor")
+        self.assertEqual(result.raw["failure_class"], "runner_partial_completion_unrecoverable")
+        self.assertTrue(result.raw["native_strict"])
+        self.assertNotIn("execution_envelope", result.raw)
+        attach_mock.assert_not_called()
 
     def test_native_executor_persists_run_dir_when_postprocess_raises(self) -> None:
         request_paths: list[Path] = []
@@ -3506,6 +3823,7 @@ class HermesRuntimeTests(unittest.TestCase):
                     ),
                     encoding="utf-8",
                 )
+                write_native_test_envelope(request, final_response="Final reply")
                 self.returncode = 0
                 self.stdout = io.StringIO("")
                 self.stderr = io.StringIO("")
@@ -3545,6 +3863,7 @@ class HermesRuntimeTests(unittest.TestCase):
                         "task_type": "workflow",
                         "repo": "depin-backend",
                         "prompt": "User prompt",
+                        "execution_id": "hexec-finalize-raises",
                         "trace_id": "trace-123",
                         "workflow_id": "wf-123",
                         "operation_id": "op-123",

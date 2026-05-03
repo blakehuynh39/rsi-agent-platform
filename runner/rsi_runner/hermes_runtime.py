@@ -25,7 +25,7 @@ from urllib import request as urlrequest
 from .json_types import JsonObject, JsonToolWrapperSchema, JsonValue
 
 from .config import RunnerConfig
-from .hermes_adapter import HermesAdapter
+from .hermes_adapter import HermesAdapter, _atomic_write_json
 from .hermes_agent_adapter import validate_hermes_contract
 from .hermes_mcp_adapter import HermesTaskScopedMCPAdapter, TaskScopedMCPRegistration
 from .execution_contract import (
@@ -91,6 +91,33 @@ _LIFECYCLE_TOOL_NAME_ALIASES = {
 ARTIFACT_RENDER_NATIVE_TOOL_NAMES = frozenset({"write_file", "read_file", "search_files", "skill_view"})
 _NATIVE_EXECUTOR_RESULT_MARKER = "RSI_EXECUTOR_RESULT::"
 _NATIVE_EXECUTOR_OUTPUT_CHUNK_CHARS = 8 * 1024
+_NATIVE_ENVELOPE_WAIT_SECONDS = 2.0
+_NATIVE_ENVELOPE_REQUIRED_FIELDS = (
+    "contract_version",
+    "producer",
+    "producer_version",
+    "created_at",
+    "facts_source",
+    "execution_id",
+    "operation_id",
+    "trace_id",
+    "workflow_id",
+    "phase_runs",
+    "ledger_events",
+    "artifacts",
+    "deliveries",
+    "completion",
+    "final_response",
+)
+_NATIVE_ENVELOPE_FAILURE_CLASSES = frozenset(
+    {
+        "plugin_execution_envelope_missing",
+        "plugin_execution_envelope_mismatch",
+        "plugin_execution_envelope_invalid",
+        "native_envelope_plugin_unavailable",
+        "native_workflow_preflight_failed",
+    }
+)
 _SENSITIVE_ENV_KEY_FRAGMENTS = (
     "authorization",
     "api-key",
@@ -1033,6 +1060,7 @@ class HermesRuntime:
             hermes_home=config.hermes_home,
             session_db=self._session_manager.session_db,
             required_toolsets=required_toolsets,
+            require_platform_runtime=config.hermes_executor_enabled,
         )
         self._available = (
             AIAgent is not None
@@ -2320,7 +2348,7 @@ class HermesRuntime:
             
             existing = self.executor_status(execution_id)
             existing_status = str(existing.get("status") or "").strip().lower()
-            if existing_status in {"accepted", "running", "cancelling", "completed", "failed", "cancelled"}:
+            if existing_status in {"accepted", "running", "finalizing", "cancelling", "completed", "failed", "cancelled"}:
                 return existing
             
             accepted = {
@@ -2368,7 +2396,7 @@ class HermesRuntime:
         cached = self._executor_recent_results.get(key)
         if cached:
             cached_status = str(cached.get("status") or "").strip().lower()
-            if cached_status in {"running", "accepted", "starting", "cancelling", "cancel_requested"}:
+            if cached_status in {"running", "accepted", "starting", "finalizing", "cancelling", "cancel_requested"}:
                 with self._executor_process_lock:
                     active = key in self._executor_processes or key in self._executor_threads
                 if not active:
@@ -2390,7 +2418,7 @@ class HermesRuntime:
             return {}
         if not isinstance(payload, dict):
             return {}
-        if str(payload.get("status") or "").strip().lower() in {"running", "accepted", "starting", "cancelling", "cancel_requested"}:
+        if str(payload.get("status") or "").strip().lower() in {"running", "accepted", "starting", "finalizing", "cancelling", "cancel_requested"}:
             with self._executor_process_lock:
                 active = key in self._executor_processes or key in self._executor_threads
             if not active:
@@ -2448,6 +2476,36 @@ class HermesRuntime:
 
     def _native_executor_enabled_for_task(self, task: RunnerTaskRequest) -> bool:
         return self._config.hermes_executor_enabled and task.task_type == "workflow"
+
+    def _result_is_native_strict(self, result: HermesExecutionResult) -> bool:
+        return result.provider == "hermes-native-executor" and _bool_or_false(_json_object_or_empty(result.raw).get("native_strict"))
+
+    def _native_runtime_context_path(self, execution_id: str) -> Path:
+        return (
+            Path(self._config.hermes_home).expanduser()
+            / "rsi_runtime"
+            / "context"
+            / "executions"
+            / f"{self._native_execution_slug(execution_id)}.json"
+        ).resolve()
+
+    def _native_runtime_envelope_path(self, execution_id: str) -> Path:
+        return (
+            Path(self._config.hermes_home).expanduser()
+            / "rsi_runtime"
+            / "envelopes"
+            / f"{self._native_execution_slug(execution_id)}.json"
+        ).resolve()
+
+    def _native_runtime_env(self, task: RunnerTaskRequest, *, context_path: Path, envelope_path: Path) -> JsonObject:
+        return {
+            "RSI_RUNTIME_CONTEXT_PATH": str(context_path),
+            "RSI_RUNTIME_ENVELOPE_PATH": str(envelope_path),
+            "RSI_EXECUTION_ID": task.execution_id or "",
+            "RSI_OPERATION_ID": task.operation_id or "",
+            "RSI_TRACE_ID": task.trace_id or "",
+            "RSI_WORKFLOW_ID": task.workflow_id or "",
+        }
 
     def _native_executor_workspace_root(self, task: RunnerTaskRequest) -> Path:
         root = Path(self._config.hermes_computer_root).expanduser().resolve()
@@ -2870,6 +2928,10 @@ class HermesRuntime:
         return {
             "session_id": context.session_id,
             "parent_session_id": context.parent_session_id,
+            "execution_id": task.execution_id or "",
+            "operation_id": task.operation_id or "",
+            "trace_id": task.trace_id or "",
+            "workflow_id": task.workflow_id or "",
             "conversation_history": self._native_executor_conversation_history(task, context),
             "prompt": task.prompt,
             "system_message": task.system_message or "",
@@ -3058,10 +3120,7 @@ class HermesRuntime:
             self._executor_recent_results.pop(oldest, None)
         path = self._executor_status_path(key)
         try:
-            path.parent.mkdir(parents=True, exist_ok=True)
-            tmp_path = path.with_suffix(path.suffix + ".tmp")
-            tmp_path.write_text(json.dumps(stored, ensure_ascii=True, sort_keys=True), encoding="utf-8")
-            tmp_path.replace(path)
+            _atomic_write_json(path, stored)
         except Exception as exc:
             logger.warning("executor status persist failed execution_id=%s path=%s error=%s", key, path, exc)
 
@@ -3107,6 +3166,138 @@ class HermesRuntime:
             "result": self._executor_result_payload(result),
         }
 
+    def _native_strict_failure(
+        self,
+        task: RunnerTaskRequest,
+        *,
+        failure_class: str,
+        message: str,
+        diagnostics: JsonObject | None = None,
+    ) -> HermesExecutionResult:
+        runner_diagnostics = self._runner_diagnostics(
+            failure_kind=failure_class,
+            provider_error_message=message,
+            termination_reason=failure_class,
+            session_ready_issues=self._session_manager.ready_issues,
+            repair_attempted=False,
+            repair_succeeded=False,
+            observed={
+                "failure_kind": failure_class,
+                "termination_reason": failure_class,
+                **_json_object_or_empty(diagnostics),
+            },
+        )
+        return HermesExecutionResult(
+            ok=False,
+            message=message,
+            provider="hermes-native-executor",
+            raw={
+                **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                "native_strict": True,
+                "failure_class": failure_class,
+                "runner_diagnostics": runner_diagnostics,
+                "termination_reason": failure_class,
+            },
+        )
+
+    def _native_cancelled_result(self, task: RunnerTaskRequest, result: HermesExecutionResult) -> HermesExecutionResult:
+        raw = dict(_json_object_or_empty(result.raw))
+        raw["native_strict"] = True
+        raw["non_deliverable"] = True
+        raw["failure_class"] = "runner_execution_cancelled"
+        raw["termination_reason"] = "runner_execution_cancelled"
+        diagnostics = dict(_json_object_or_empty(raw.get("runner_diagnostics")))
+        diagnostics["failure_kind"] = "runner_execution_cancelled"
+        diagnostics["termination_reason"] = "runner_execution_cancelled"
+        diagnostics["non_deliverable"] = True
+        raw["runner_diagnostics"] = diagnostics
+        return HermesExecutionResult(
+            ok=False,
+            message="Execution completed after cancellation was requested and is not deliverable.",
+            provider=result.provider or "hermes-native-executor",
+            raw=raw,
+        )
+
+    def _validate_native_workflow_ids(self, task: RunnerTaskRequest) -> list[str]:
+        missing: list[str] = []
+        for key in ("execution_id", "operation_id", "trace_id", "workflow_id"):
+            if not _string_or_json(getattr(task, key, "")):
+                missing.append(key)
+        return missing
+
+    def _load_native_execution_envelope(
+        self,
+        task: RunnerTaskRequest,
+        *,
+        envelope_path: Path,
+        context_path: Path,
+        wait_seconds: float = _NATIVE_ENVELOPE_WAIT_SECONDS,
+    ) -> tuple[JsonObject | None, str, JsonObject]:
+        if envelope_path.exists():
+            waited_ms = 0
+        elif self._contract_status.plugin_status != "ok":
+            waited_ms = 0
+        else:
+            deadline = time.monotonic() + max(0.0, wait_seconds)
+            while not envelope_path.exists() and time.monotonic() < deadline:
+                time.sleep(0.05)
+            waited_ms = int(max(0.0, wait_seconds - max(0.0, deadline - time.monotonic())) * 1000)
+        diagnostics: JsonObject = {
+            "expected_envelope_path": str(envelope_path),
+            "context_path": str(context_path),
+            "waited_ms": waited_ms,
+            "execution_id": task.execution_id or "",
+            "operation_id": task.operation_id or "",
+            "trace_id": task.trace_id or "",
+            "workflow_id": task.workflow_id or "",
+            "plugin_status": self._contract_status.plugin_status,
+        }
+        if not envelope_path.exists():
+            return None, "plugin_execution_envelope_missing", diagnostics
+        try:
+            parsed = json.loads(envelope_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            diagnostics["error"] = str(exc)
+            return None, "plugin_execution_envelope_invalid", diagnostics
+        except OSError as exc:
+            diagnostics["error"] = str(exc)
+            return None, "plugin_execution_envelope_missing", diagnostics
+        if not isinstance(parsed, dict):
+            diagnostics["error"] = "envelope payload must be a JSON object"
+            return None, "plugin_execution_envelope_invalid", diagnostics
+        missing_fields = [field for field in _NATIVE_ENVELOPE_REQUIRED_FIELDS if field not in parsed]
+        if missing_fields:
+            diagnostics["missing_fields"] = missing_fields
+            return None, "plugin_execution_envelope_invalid", diagnostics
+        for key in ("execution_id", "operation_id", "trace_id", "workflow_id"):
+            expected = _string_or_json(getattr(task, key, ""))
+            actual = _string_or_json(parsed.get(key))
+            if not actual:
+                diagnostics["missing_identifier"] = key
+                return None, "plugin_execution_envelope_invalid", diagnostics
+            if actual != expected:
+                diagnostics["mismatched_identifier"] = key
+                diagnostics["expected"] = expected
+                diagnostics["actual"] = actual
+                return None, "plugin_execution_envelope_mismatch", diagnostics
+        if _string_or_json(parsed.get("producer")) != "rsi_platform_runtime":
+            diagnostics["producer"] = _string_or_json(parsed.get("producer"))
+            return None, "plugin_execution_envelope_invalid", diagnostics
+        if not isinstance(parsed.get("phase_runs"), list) or not isinstance(parsed.get("ledger_events"), list) or not isinstance(parsed.get("artifacts"), list) or not isinstance(parsed.get("deliveries"), list):
+            diagnostics["error"] = "phase_runs, ledger_events, artifacts, and deliveries must be arrays"
+            return None, "plugin_execution_envelope_invalid", diagnostics
+        completion = _json_object_or_empty(parsed.get("completion"))
+        if not completion:
+            diagnostics["error"] = "completion must be an object"
+            return None, "plugin_execution_envelope_invalid", diagnostics
+        if not _bool_or_false(completion.get("ok")):
+            diagnostics["completion"] = completion
+            return None, "plugin_execution_envelope_invalid", diagnostics
+        if not isinstance(parsed.get("final_response"), str) or not parsed.get("final_response", "").strip():
+            diagnostics["error"] = "final_response must be a non-empty string for successful native workflow completion"
+            return None, "plugin_execution_envelope_invalid", diagnostics
+        return parsed, "", diagnostics
+
     def _execute_native_workflow_task_request(
         self,
         task: RunnerTaskRequest,
@@ -3116,50 +3307,43 @@ class HermesRuntime:
         max_iterations_override: int | None = None,
     ) -> HermesExecutionResult:
         if not self._runtime_has_credentials():
-            return HermesExecutionResult(
-                ok=False,
+            return self._native_strict_failure(
+                task,
+                failure_class="native_workflow_preflight_failed",
                 message=self._runtime_credentials_error_message(),
-                provider="hermes-native-executor",
-                raw=self._base_raw(prompt=task.prompt, system_message=task.system_message),
             )
         if not self._contract_status.ok:
-            return HermesExecutionResult(
-                ok=False,
-                message="Hermes adapter contract failed: " + "; ".join(self._contract_status.errors),
-                provider="hermes-native-executor",
-                raw={
-                    **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-                    "failure_class": "hermes_contract_failed",
-                    "runner_diagnostics": {
-                        "failure_kind": "hermes_contract_failed",
-                        "termination_reason": "hermes_contract_failed",
-                        "contract_errors": list(self._contract_status.errors),
-                    },
+            return self._native_strict_failure(
+                task,
+                failure_class="native_envelope_plugin_unavailable",
+                message="Hermes native runtime contract failed: " + "; ".join(self._contract_status.errors),
+                diagnostics={
+                    "contract_errors": list(self._contract_status.errors),
+                    "contract_status": self._contract_status.to_dict(),
                 },
+            )
+        missing_ids = self._validate_native_workflow_ids(task)
+        if missing_ids:
+            return self._native_strict_failure(
+                task,
+                failure_class="native_workflow_preflight_failed",
+                message="Native Hermes workflow execution requires non-empty identifier(s): " + ", ".join(missing_ids),
+                diagnostics={"missing_identifiers": missing_ids},
             )
         if not bool(self._company_computer_bootstrap_status.get("ok")):
             errors = _string_list_or_empty(self._company_computer_bootstrap_status.get("errors"))
             message = "Hermes company-computer bootstrap failed: " + "; ".join(errors)
-            return HermesExecutionResult(
-                ok=False,
+            return self._native_strict_failure(
+                task,
+                failure_class="native_workflow_preflight_failed",
                 message=message,
-                provider="hermes-native-executor",
-                raw={
-                    **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-                    "failure_class": "hermes_company_computer_bootstrap_failed",
-                    "runner_diagnostics": {
-                        "failure_kind": "hermes_company_computer_bootstrap_failed",
-                        "termination_reason": "hermes_company_computer_bootstrap_failed",
-                        "bootstrap_errors": errors,
-                    },
-                },
+                diagnostics={"bootstrap_errors": errors},
             )
         if not self._session_manager.available:
-            return HermesExecutionResult(
-                ok=False,
+            return self._native_strict_failure(
+                task,
+                failure_class="native_workflow_preflight_failed",
                 message="Hermes persistent session runtime is unavailable.",
-                provider="hermes-native-executor",
-                raw=self._base_raw(prompt=task.prompt, system_message=task.system_message),
             )
         context = self._session_manager.prepare(task)
         tracker = MemoryTracker()
@@ -3194,10 +3378,13 @@ class HermesRuntime:
             )
             observer.emit(phase=execution_phase, event_type="phase.started", status="running")
 
+        execution_id = task.execution_id or ""
+        context_path = self._native_runtime_context_path(execution_id)
+        envelope_path = self._native_runtime_envelope_path(execution_id)
         workspace_root = self._stage_native_executor_workspace(task, observer=observer)
         if execution_phase in {"main", "render", "deliver"}:
             task = replace(task, artifact_destination=str(self._native_artifact_destination(task)))
-        self._stage_task_context(context.session_id, task)
+        self._stage_task_context(context.session_id, task, context_path=context_path, envelope_path=envelope_path)
 
         agentic_mcp_registration = TaskScopedMCPRegistration()
         try:
@@ -3210,22 +3397,11 @@ class HermesRuntime:
                     status="failed",
                     payload={"error": str(exc)},
                 )
-            return HermesExecutionResult(
-                ok=False,
+            return self._native_strict_failure(
+                task,
+                failure_class="native_workflow_preflight_failed",
                 message=str(exc),
-                provider="hermes-native-executor",
-                raw={
-                    **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-                    "failure_class": "runner_non_ok",
-                    "runner_diagnostics": self._runner_diagnostics(
-                        failure_kind="agentic_mcp_registration_failed",
-                        provider_error_message=str(exc),
-                        termination_reason="agentic_mcp_registration_failed",
-                        session_ready_issues=self._session_manager.ready_issues,
-                        repair_attempted=False,
-                        repair_succeeded=False,
-                    ),
-                },
+                diagnostics={"preflight_failure_class": "agentic_mcp_registration_failed"},
             )
         if observer is not None:
             observer.emit(
@@ -3249,24 +3425,11 @@ class HermesRuntime:
         missing_phase_toolsets = _string_list_or_empty(phase_contract.get("missing_required_toolsets"))
         if missing_phase_toolsets:
             message = "Native Hermes phase contract failed; missing required toolset(s): " + ", ".join(missing_phase_toolsets)
-            return HermesExecutionResult(
-                ok=False,
+            return self._native_strict_failure(
+                task,
+                failure_class="native_workflow_preflight_failed",
                 message=message,
-                provider="hermes-native-executor",
-                raw={
-                    **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-                    "failure_class": "hermes_phase_contract_failed",
-                    "phase_contract": phase_contract,
-                    "runner_diagnostics": self._runner_diagnostics(
-                        failure_kind="hermes_phase_contract_failed",
-                        provider_error_message=message,
-                        termination_reason="hermes_phase_contract_failed",
-                        session_ready_issues=self._session_manager.ready_issues,
-                        repair_attempted=False,
-                        repair_succeeded=False,
-                    ),
-                    "termination_reason": "hermes_phase_contract_failed",
-                },
+                diagnostics={"phase_contract": phase_contract, "missing_required_toolsets": missing_phase_toolsets},
             )
         request_dir = self._native_run_dir(task)
         github_cli_env, github_cli_credentials = self._github_cli_environment(task)
@@ -3299,24 +3462,11 @@ class HermesRuntime:
         if _string_or_json(github_cli_credentials.get("status")) == "failed":
             reason = _string_or_json(github_cli_credentials.get("reason")) or "unknown"
             message = f"Native Hermes GitHub App credentials unavailable: {reason}"
-            return HermesExecutionResult(
-                ok=False,
+            return self._native_strict_failure(
+                task,
+                failure_class="native_workflow_preflight_failed",
                 message=message,
-                provider="hermes-native-executor",
-                raw={
-                    **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-                    "failure_class": "github_app_credentials_unavailable",
-                    "github_credentials": github_cli_credentials,
-                    "runner_diagnostics": self._runner_diagnostics(
-                        failure_kind="github_app_credentials_unavailable",
-                        provider_error_message=message,
-                        termination_reason="github_app_credentials_unavailable",
-                        session_ready_issues=self._session_manager.ready_issues,
-                        repair_attempted=False,
-                        repair_succeeded=False,
-                    ),
-                    "termination_reason": "github_app_credentials_unavailable",
-                },
+                diagnostics={"preflight_failure_class": "github_app_credentials_unavailable", "github_credentials": github_cli_credentials},
             )
         prompt_skills = self._prompt_skill_mentions(task)
         skill_diagnostics: JsonObject = {
@@ -3333,27 +3483,14 @@ class HermesRuntime:
                 payload=skill_diagnostics,
             )
 
-        execution_id = observer.execution_id if observer is not None else first_non_empty(task.execution_id, context.session_id)
         direct_slack_env, direct_slack_error = self._direct_slack_delivery_env(task)
         if direct_slack_error:
             failure_class = "slack_bot_token_missing" if "slack_bot_token" in direct_slack_error.lower() else "slack_delivery_target_missing"
-            return HermesExecutionResult(
-                ok=False,
+            return self._native_strict_failure(
+                task,
+                failure_class="native_workflow_preflight_failed",
                 message=direct_slack_error,
-                provider="hermes-native-executor",
-                raw={
-                    **self._base_raw(prompt=task.prompt, system_message=task.system_message),
-                    "failure_class": failure_class,
-                    "runner_diagnostics": self._runner_diagnostics(
-                        failure_kind=failure_class,
-                        provider_error_message=direct_slack_error,
-                        termination_reason=failure_class,
-                        session_ready_issues=self._session_manager.ready_issues,
-                        repair_attempted=False,
-                        repair_succeeded=False,
-                    ),
-                    "termination_reason": failure_class,
-                },
+                diagnostics={"preflight_failure_class": failure_class},
             )
         request_file = request_dir / "request.json"
         result_file = request_dir / "result.json"
@@ -3368,11 +3505,14 @@ class HermesRuntime:
             phase_contract=phase_contract,
             github_cli_credentials=github_cli_credentials,
         )
+        request_payload["runtime_context_path"] = str(context_path)
+        request_payload["runtime_envelope_path"] = str(envelope_path)
         request_file.write_text(json.dumps(request_payload, indent=2, sort_keys=True), encoding="utf-8")
         worker_cmd = [sys.executable, "-m", "rsi_runner.hermes_executor_worker", str(request_file)]
         env_copy = os.environ.copy()
         env_copy.update(github_cli_env)
         env_copy.update(direct_slack_env)
+        env_copy.update(self._native_runtime_env(task, context_path=context_path, envelope_path=envelope_path))
         secret_values = _sensitive_env_values(env_copy)
         if observer is not None:
             observer.emit(
@@ -3592,6 +3732,23 @@ class HermesRuntime:
                     status=_string_or_json(event.get("status")),
                     payload=_json_object_or_empty(event.get("payload")),
                 )
+        existing_status = str(self.executor_status(execution_id).get("status") or "").strip().lower()
+        status_to_store = "cancelling" if existing_status in {"cancel_requested", "cancelling"} else "finalizing"
+        self._store_executor_result(
+            execution_id,
+            {
+                "execution_id": execution_id,
+                "status": status_to_store,
+                "operation_id": task.operation_id,
+                "trace_id": task.trace_id,
+                "workflow_id": task.workflow_id,
+                "executor_instance_id": self._config.executor_instance_id,
+                "phase": self._execution_phase(task),
+                "workspace_root": str(workspace_root),
+                "session_id": context.session_id,
+                "message": "Hermes subprocess completed; validating native execution envelope.",
+            },
+        )
 
         if (timed_out or cancelled) and not parsed_result:
             finalized = self._session_manager.finalize(context, tracker)
@@ -3651,7 +3808,22 @@ class HermesRuntime:
                     },
                 )
             if not cancelled and allow_partial_recovery and self._workflow_partial_completion_eligible(task):
-                return self._finalize_partial_completion(
+                self._store_executor_result(
+                    execution_id,
+                    {
+                        "execution_id": execution_id,
+                        "status": "finalizing",
+                        "operation_id": task.operation_id,
+                        "trace_id": task.trace_id,
+                        "workflow_id": task.workflow_id,
+                        "executor_instance_id": self._config.executor_instance_id,
+                        "phase": self._execution_phase(task),
+                        "workspace_root": str(workspace_root),
+                        "session_id": context.session_id,
+                        "message": "Attempting partial completion recovery.",
+                    },
+                )
+                partial_result = self._finalize_partial_completion(
                     task,
                     finalized,
                     observed,
@@ -3660,6 +3832,25 @@ class HermesRuntime:
                     termination_reason=termination_reason,
                     observer=observer,
                 )
+                self._store_executor_result(
+                    execution_id,
+                    {
+                        "execution_id": execution_id,
+                        "status": "completed" if partial_result.ok else "failed",
+                        "operation_id": task.operation_id,
+                        "trace_id": task.trace_id,
+                        "workflow_id": task.workflow_id,
+                        "executor_instance_id": self._config.executor_instance_id,
+                        "phase": self._execution_phase(task),
+                        "workspace_root": str(workspace_root),
+                        "session_id": context.session_id,
+                        "termination_reason": termination_reason,
+                        "completion_verdict": _string_or_json(_json_object_or_empty(partial_result.raw).get("completion_verdict")),
+                        "message": partial_result.message,
+                        "result": self._executor_result_payload(partial_result),
+                    },
+                )
+                return partial_result
             result = HermesExecutionResult(
                 ok=False,
                 message="Hermes native executor was cancelled." if cancelled else f"Hermes native executor hit inactivity timeout after {effective_inactivity_timeout}s.",
@@ -3673,6 +3864,7 @@ class HermesRuntime:
                     "task_timeout_seconds": effective_task_timeout,
                     "inactivity_timeout_seconds": effective_inactivity_timeout,
                     "failure_class": "runner_cancelled" if cancelled else "runner_transport_timeout",
+                    "native_strict": True,
                     "runner_diagnostics": self._runner_diagnostics(
                         failure_kind="cancelled" if cancelled else "transport_timeout",
                         provider_error_message="Hermes native executor was cancelled." if cancelled else f"Hermes native executor hit inactivity timeout after {effective_inactivity_timeout}s.",
@@ -3708,7 +3900,6 @@ class HermesRuntime:
                     "workspace_root": str(workspace_root),
                     "session_id": context.session_id,
                     "termination_reason": termination_reason,
-                    "completion_verdict": "",
                     "message": result.message,
                     "result": self._executor_result_payload(result),
                 },
@@ -3726,10 +3917,10 @@ class HermesRuntime:
         )
         parsed_result_loaded = bool(parsed_result) and not parse_error
         completion_meta = self._native_executor_completion_meta(parsed_result, configured_max_iterations) if parsed_result_loaded else {
-            "termination_reason": "exception",
-            "completion_verdict": "",
+            "termination_reason": "normal_completion" if completed_returncode == 0 else "exception",
+            "completion_verdict": "complete" if completed_returncode == 0 else "",
             "max_iterations_reached": False,
-            "native_result_completed": False,
+            "native_result_completed": completed_returncode == 0,
             "native_result_partial": False,
             "native_result_interrupted": False,
             "native_result_api_calls": 0,
@@ -3773,6 +3964,7 @@ class HermesRuntime:
             "max_iterations": configured_max_iterations,
             "lifecycle_events": lifecycle_events,
             "native_executor_mode": "subprocess",
+            "native_strict": True,
             "native_executor_workspace_root": str(workspace_root),
             "native_executor_toolsets": toolsets,
             "native_executor_returncode": completed_returncode,
@@ -3784,7 +3976,66 @@ class HermesRuntime:
             "phase_contract": phase_contract,
             **artifact_event_details,
         }
-        if parse_error or not parsed_result or not _bool_or_false(parsed_result.get("ok")):
+        should_validate_envelope = (completed_returncode == 0 or (_bool_or_false(parsed_result.get("ok")) and parsed_result_loaded)) and (
+            not parsed_result_loaded or _bool_or_false(parsed_result.get("ok"))
+        )
+        if should_validate_envelope:
+            envelope, envelope_failure_class, envelope_diagnostics = self._load_native_execution_envelope(
+                task,
+                envelope_path=envelope_path,
+                context_path=context_path,
+            )
+            if envelope_failure_class:
+                result = self._native_strict_failure(
+                    task,
+                    failure_class=envelope_failure_class,
+                    message=f"Hermes native execution envelope failed validation: {envelope_failure_class}.",
+                    diagnostics={
+                        **envelope_diagnostics,
+                        "result_file_present": result_file_present,
+                        "result_parse_error": parse_error,
+                    },
+                )
+                result.raw = {**base_raw, **_json_object_or_empty(result.raw)}
+            else:
+                envelope_completion = _json_object_or_empty((envelope or {}).get("completion"))
+                if not parsed_result_loaded:
+                    completion_meta = {
+                        "termination_reason": _string_or_json(envelope_completion.get("termination_reason")) or "normal_completion",
+                        "completion_verdict": _string_or_json(envelope_completion.get("completion_verdict")) or "complete",
+                        "max_iterations_reached": False,
+                        "native_result_completed": True,
+                        "native_result_partial": False,
+                        "native_result_interrupted": False,
+                        "native_result_api_calls": 0,
+                    }
+                result = HermesExecutionResult(
+                    ok=True,
+                    message=_string_or_json(envelope.get("final_response")) if envelope else "",
+                    provider="hermes-native-executor",
+                    raw={
+                        **base_raw,
+                        **self._workflow_evidence_raw(task, observed, completion_meta["termination_reason"]),
+                        "execution_envelope": envelope or {},
+                        "runner_diagnostics": {
+                            **observed,
+                            "termination_reason": completion_meta["termination_reason"],
+                            "max_iterations_reached": _bool_or_false(completion_meta.get("max_iterations_reached")),
+                            "completion_verdict": completion_meta["completion_verdict"],
+                            "native_result_completed": _bool_or_false(completion_meta.get("native_result_completed")),
+                            "native_result_partial": _bool_or_false(completion_meta.get("native_result_partial")),
+                            "native_result_interrupted": _bool_or_false(completion_meta.get("native_result_interrupted")),
+                            "native_result_api_calls": completion_meta["native_result_api_calls"],
+                            "native_envelope_path": str(envelope_path),
+                            "native_context_path": str(context_path),
+                            "native_envelope_validated": True,
+                        },
+                        **completion_meta,
+                        "harness_profile_id": task.harness_profile_id,
+                        "effective_overlay_version": task.harness_overlay_version,
+                    },
+                )
+        elif parse_error or not parsed_result or not _bool_or_false(parsed_result.get("ok")):
             failure_class = _string_or_json(parsed_result.get("failure_class")) or "runner_non_ok"
             failure_kind = "hermes_contract_failed" if failure_class == "hermes_contract_failed" else "execution_error"
             message = first_non_empty(
@@ -3815,27 +4066,13 @@ class HermesRuntime:
                 },
             )
         else:
-            result = HermesExecutionResult(
-                ok=True,
-                message=_string_or_json(parsed_result.get("response")),
-                provider="hermes-native-executor",
-                raw={
-                    **base_raw,
-                    **self._workflow_evidence_raw(task, observed, completion_meta["termination_reason"]),
-                    "runner_diagnostics": {
-                        **observed,
-                        "termination_reason": completion_meta["termination_reason"],
-                        "max_iterations_reached": _bool_or_false(completion_meta.get("max_iterations_reached")),
-                        "completion_verdict": completion_meta["completion_verdict"],
-                        "native_result_completed": _bool_or_false(completion_meta.get("native_result_completed")),
-                        "native_result_partial": _bool_or_false(completion_meta.get("native_result_partial")),
-                        "native_result_interrupted": _bool_or_false(completion_meta.get("native_result_interrupted")),
-                        "native_result_api_calls": completion_meta["native_result_api_calls"],
-                    },
-                    **completion_meta,
-                    "harness_profile_id": task.harness_profile_id,
-                    "effective_overlay_version": task.harness_overlay_version,
-                },
+            raise AssertionError(
+                f"Hermes native executor reached logically unreachable branch: "
+                f"should_validate_envelope={should_validate_envelope}, "
+                f"parsed_result_loaded={parsed_result_loaded}, "
+                f"parsed_result.ok={_bool_or_false(parsed_result.get('ok')) if parsed_result else None}, "
+                f"parse_error={bool(parse_error)}, "
+                f"completed_returncode={completed_returncode}"
             )
         result.raw = self._attach_agentic_mcp_diagnostics(
             _json_object_or_empty(result.raw),
@@ -4376,50 +4613,63 @@ class HermesRuntime:
             timeout_seconds = min(timeout_seconds, reserve)
         return max(0, timeout_seconds)
 
-    def _stage_task_context(self, session_id: str, task: RunnerTaskRequest) -> None:
+    def _stage_task_context(
+        self,
+        session_id: str,
+        task: RunnerTaskRequest,
+        *,
+        context_path: Path | None = None,
+        envelope_path: Path | None = None,
+    ) -> Path:
         query_hints = self._default_query_hints(task)
-        self._adapter.stage_task_context(
+        payload = {
+            "role": self._role,
+            "task_type": task.task_type,
+            "task_repo": task.repo,
+            "task_repo_ref": task.repo_ref or "",
+            "task_prompt": task.prompt,
+            "trace_id": task.trace_id,
+            "workflow_id": task.workflow_id,
+            "operation_id": task.operation_id or "",
+            "execution_id": task.execution_id or "",
+            "task_channel_id": task.channel_id or "",
+            "task_thread_ts": task.thread_ts or "",
+            "proposal_id": task.session_scope_id if (task.session_scope_kind or "").strip() == "proposal_candidate" else "",
+            "attempt_id": task.attempt_id,
+            "workspace_id": task.workspace_id,
+            "execution_mode": task.execution_mode or "",
+            "execution_phase": self._execution_phase(task),
+            "artifact_output_dir": _string_or_json(task.artifact_destination),
+            "hermes_computer_root": self._config.hermes_computer_root,
+            "hermes_run_root": self._config.hermes_run_root,
+            "hermes_artifact_root": self._config.hermes_artifact_root,
+            "hermes_native_terminal_enabled": self._config.hermes_native_terminal_enabled,
+            "hermes_native_toolsets": self._hermes_native_toolsets(),
+            "hermes_terminal_cwd": self._config.hermes_terminal_cwd,
+            "hermes_company_bin_dir": self._config.hermes_company_bin_dir,
+            "hermes_kubernetes_context_enabled": self._config.hermes_kubernetes_context_enabled,
+            "hermes_kubeconfig_path": self._config.hermes_kubeconfig_path if (self._config.hermes_kubernetes_context_enabled or self._config.hermes_prod_kubernetes_context_enabled) else "",
+            "kubernetes_read_namespaces": list(task.kubernetes_read_namespaces),
+            "context_summary": task.context_summary or "",
+            "task_default_question": query_hints.get("default_question", ""),
+            "task_repo_question": query_hints.get("repo_question", ""),
+            "task_knowledge_topic": query_hints.get("knowledge_topic", ""),
+            "task_knowledge_question": query_hints.get("knowledge_question", ""),
+            "task_slack_history_focus": query_hints.get("slack_history_focus", ""),
+            "task_slack_search_query": query_hints.get("slack_search_query", ""),
+            "context_refs": task.context_refs,
+            "tool_timeout_seconds": 30,
+            "session_scope_kind": task.session_scope_kind or "",
+            "session_scope_id": task.session_scope_id or "",
+        }
+        if context_path is not None:
+            payload["rsi_runtime_context_path"] = str(context_path)
+        if envelope_path is not None:
+            payload["rsi_runtime_envelope_path"] = str(envelope_path)
+        return self._adapter.stage_task_context(
             session_id,
-            {
-                "role": self._role,
-                "task_type": task.task_type,
-                "task_repo": task.repo,
-                "task_repo_ref": task.repo_ref or "",
-                "task_prompt": task.prompt,
-                "trace_id": task.trace_id,
-                "workflow_id": task.workflow_id,
-                "operation_id": task.operation_id or "",
-                "execution_id": task.execution_id or "",
-                "task_channel_id": task.channel_id or "",
-                "task_thread_ts": task.thread_ts or "",
-                "proposal_id": task.session_scope_id if (task.session_scope_kind or "").strip() == "proposal_candidate" else "",
-                "attempt_id": task.attempt_id,
-                "workspace_id": task.workspace_id,
-                "execution_mode": task.execution_mode or "",
-                "execution_phase": self._execution_phase(task),
-                "artifact_output_dir": _string_or_json(task.artifact_destination),
-                "hermes_computer_root": self._config.hermes_computer_root,
-                "hermes_run_root": self._config.hermes_run_root,
-                "hermes_artifact_root": self._config.hermes_artifact_root,
-                "hermes_native_terminal_enabled": self._config.hermes_native_terminal_enabled,
-                "hermes_native_toolsets": self._hermes_native_toolsets(),
-                "hermes_terminal_cwd": self._config.hermes_terminal_cwd,
-                "hermes_company_bin_dir": self._config.hermes_company_bin_dir,
-                "hermes_kubernetes_context_enabled": self._config.hermes_kubernetes_context_enabled,
-                "hermes_kubeconfig_path": self._config.hermes_kubeconfig_path if (self._config.hermes_kubernetes_context_enabled or self._config.hermes_prod_kubernetes_context_enabled) else "",
-                "kubernetes_read_namespaces": list(task.kubernetes_read_namespaces),
-                "context_summary": task.context_summary or "",
-                "task_default_question": query_hints.get("default_question", ""),
-                "task_repo_question": query_hints.get("repo_question", ""),
-                "task_knowledge_topic": query_hints.get("knowledge_topic", ""),
-                "task_knowledge_question": query_hints.get("knowledge_question", ""),
-                "task_slack_history_focus": query_hints.get("slack_history_focus", ""),
-                "task_slack_search_query": query_hints.get("slack_search_query", ""),
-                "context_refs": task.context_refs,
-                "tool_timeout_seconds": 30,
-                "session_scope_kind": task.session_scope_kind or "",
-                "session_scope_id": task.session_scope_id or "",
-            },
+            payload,
+            context_path=context_path,
         )
 
     def _partial_completion_attempt_budgets(self, timeout_seconds: int) -> list[int]:
@@ -5387,10 +5637,13 @@ class HermesRuntime:
             raw["recovery_response"] = recovery_response
         if reducer_attempt_errors:
             raw["reducer_attempt_errors"] = list(reducer_attempt_errors)
+        if self._native_executor_enabled_for_task(task):
+            raw["native_strict"] = True
+        result_provider = "hermes-native-executor" if self._native_executor_enabled_for_task(task) else self._backend
         return HermesExecutionResult(
             ok=False,
             message=first_non_empty(recovery_error, message),
-            provider=self._backend,
+            provider=result_provider,
             raw=raw,
         )
 
@@ -5585,6 +5838,8 @@ class HermesRuntime:
             }
             if last_provider_response_id:
                 merged_raw["partial_finalization_response_id"] = last_provider_response_id
+            if self._native_executor_enabled_for_task(task):
+                merged_raw["native_strict"] = True
             if observer is not None:
                 observer.emit(
                     phase=self._execution_phase(task),
@@ -5595,10 +5850,11 @@ class HermesRuntime:
                         "termination_reason": termination_reason,
                     },
                 )
+            result_provider = "hermes-native-executor" if self._native_executor_enabled_for_task(task) else self._backend
             return HermesExecutionResult(
                 ok=True,
                 message=response_text,
-                provider=self._backend,
+                provider=result_provider,
                 raw=merged_raw,
             )
 
@@ -5820,13 +6076,31 @@ class HermesRuntime:
         if self._config.execution_envelope_v1_enabled:
             contract_validation = self._company_computer.validate_task(task)
             if not contract_validation.ok:
-                result = HermesExecutionResult(
-                    ok=False,
-                    message="Runner execution contract failed: " + "; ".join(contract_validation.errors),
-                    provider="runner-contract",
-                    raw=self._company_computer.failure_result_raw(task, errors=contract_validation.errors),
-                )
-                result = self._company_computer.attach_envelope(task, result, observer=observer)
+                if self._native_executor_enabled_for_task(task):
+                    result = HermesExecutionResult(
+                        ok=False,
+                        message="Native Hermes workflow preflight failed: " + "; ".join(contract_validation.errors),
+                        provider="hermes-native-executor",
+                        raw={
+                            **self._company_computer.failure_result_raw(task, errors=contract_validation.errors),
+                            "native_strict": True,
+                            "failure_class": "native_workflow_preflight_failed",
+                            "runner_diagnostics": {
+                                "failure_kind": "native_workflow_preflight_failed",
+                                "termination_reason": "native_workflow_preflight_failed",
+                                "contract_errors": list(contract_validation.errors),
+                            },
+                            "termination_reason": "native_workflow_preflight_failed",
+                        },
+                    )
+                else:
+                    result = HermesExecutionResult(
+                        ok=False,
+                        message="Runner execution contract failed: " + "; ".join(contract_validation.errors),
+                        provider="runner-contract",
+                        raw=self._company_computer.failure_result_raw(task, errors=contract_validation.errors),
+                    )
+                    result = self._company_computer.attach_envelope(task, result, observer=observer)
                 self._store_executor_result(
                     observer.execution_id,
                     self._executor_final_status(task, result, execution_id=observer.execution_id, status="failed"),
@@ -5840,11 +6114,22 @@ class HermesRuntime:
                     payload=phase,
                 )
         result = self._execute_task_internal(task, observer=observer)
-        if self._config.execution_envelope_v1_enabled:
+        if self._result_is_native_strict(result):
+            existing_status = str(self.executor_status(observer.execution_id).get("status") or "").strip().lower()
+            if existing_status in {"cancel_requested", "cancelling"} and result.ok:
+                result = self._native_cancelled_result(task, result)
+            elif not result.ok and _json_object_or_empty(result.raw).get("failure_class") == "runner_cancelled":
+                result = self._native_cancelled_result(task, result)
+        if self._config.execution_envelope_v1_enabled and not self._result_is_native_strict(result):
             result = self._company_computer.attach_envelope(task, result, observer=observer)
         self._store_executor_result(
             observer.execution_id,
-            self._executor_final_status(task, result, execution_id=observer.execution_id),
+            self._executor_final_status(
+                task,
+                result,
+                execution_id=observer.execution_id,
+                status="cancelled" if _bool_or_false(_json_object_or_empty(result.raw).get("non_deliverable")) else None,
+            ),
         )
         return result
 
@@ -5870,6 +6155,8 @@ class HermesRuntime:
                 observer=observer,
                 max_iterations_override=self._phase_max_iterations_override(task),
             )
+        if self._result_is_native_strict(result):
+            return result
         if not result.ok:
             return result
         rendered_task = replace(

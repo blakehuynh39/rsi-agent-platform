@@ -361,30 +361,32 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 			return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner-reply-delivery-uncertain", ctx.trace.Summary.TraceID))
 		}
 		failure := workflowFailureFromRunnerResponse(runnerResp)
-		if runnerOutput, parseErr := runnerutil.ParseStructuredOutput(runnerResp); parseErr == nil {
-			failure.TraceArtifacts = traceArtifactsFromProducedArtifacts(ctx.trace.Summary.TraceID, runnerOutput.ProducedArtifacts)
-			if useLedgerFirst {
-				if ledgerArtifacts := traceArtifactsFromExecutionLedger(ctx.trace.Summary.TraceID, ledgerEvents); len(ledgerArtifacts) > 0 {
-					failure.TraceArtifacts = mergeTraceArtifacts(failure.TraceArtifacts, ledgerArtifacts)
+		if !nativeStrictEnvelopeFailure(runnerResp.Raw) {
+			if runnerOutput, parseErr := runnerutil.ParseStructuredOutput(runnerResp); parseErr == nil {
+				failure.TraceArtifacts = traceArtifactsFromProducedArtifacts(ctx.trace.Summary.TraceID, runnerOutput.ProducedArtifacts)
+				if useLedgerFirst {
+					if ledgerArtifacts := traceArtifactsFromExecutionLedger(ctx.trace.Summary.TraceID, ledgerEvents); len(ledgerArtifacts) > 0 {
+						failure.TraceArtifacts = mergeTraceArtifacts(failure.TraceArtifacts, ledgerArtifacts)
+					}
 				}
-			}
-			if len(failure.TraceArtifacts) > 0 {
-				completedAt := time.Now().UTC()
-				failure.ReasoningSteps = append(failure.ReasoningSteps, events.ReasoningStep{
-					ID:         fmt.Sprintf("reason-runner-failed-artifacts-%d", completedAt.UnixNano()),
-					TraceID:    ctx.trace.Summary.TraceID,
-					WorkflowID: ctx.trace.Summary.WorkflowID,
-					StepType:   "artifact_delivery",
-					Summary:    fmt.Sprintf("Runner failed after producing %d artifact(s); preserving the workspace artifact records.", len(failure.TraceArtifacts)),
-					Confidence: 1.0,
-					Decision:   "artifacts_preserved_after_runner_failure",
-					CreatedAt:  completedAt,
-				})
+				if len(failure.TraceArtifacts) > 0 {
+					completedAt := time.Now().UTC()
+					failure.ReasoningSteps = append(failure.ReasoningSteps, events.ReasoningStep{
+						ID:         fmt.Sprintf("reason-runner-failed-artifacts-%d", completedAt.UnixNano()),
+						TraceID:    ctx.trace.Summary.TraceID,
+						WorkflowID: ctx.trace.Summary.WorkflowID,
+						StepType:   "artifact_delivery",
+						Summary:    fmt.Sprintf("Runner failed after producing %d artifact(s); preserving the workspace artifact records.", len(failure.TraceArtifacts)),
+						Confidence: 1.0,
+						Decision:   "artifacts_preserved_after_runner_failure",
+						CreatedAt:  completedAt,
+					})
+				}
 			}
 		}
 		return &workflowFailureError{failure: failure}
 	}
-	runnerOutput, err := runnerutil.ParseStructuredOutput(runnerResp)
+	runnerOutput, err := workflowRunnerOutput(runnerResp)
 	if err != nil {
 		return &workflowFailureError{failure: workflowFailureFromStructuredOutputError(runnerResp, err)}
 	}
@@ -1439,6 +1441,48 @@ func workflowReplyDelivery(raw map[string]any, fallbackChannelID string, fallbac
 		return record, true
 	}
 	return record, true
+}
+
+func nativeStrictEnvelopeFailure(raw map[string]any) bool {
+	if !boolValue(raw["native_strict"]) {
+		return false
+	}
+	if len(mapValue(raw["execution_envelope"])) > 0 {
+		return false
+	}
+	switch strings.TrimSpace(stringValueFromMap(raw, "failure_class")) {
+	case "native_workflow_preflight_failed",
+		"native_envelope_plugin_unavailable",
+		"plugin_execution_envelope_missing",
+		"plugin_execution_envelope_mismatch",
+		"plugin_execution_envelope_invalid":
+		return true
+	default:
+		return false
+	}
+}
+
+func workflowRunnerOutput(resp clients.RunnerResponse) (runnerutil.StructuredOutput, error) {
+	if nativeStrictEnvelopeSuccess(resp) {
+		envelope, ok, err := runnerutil.ParseExecutionEnvelope(resp)
+		if err != nil {
+			return runnerutil.StructuredOutput{}, err
+		}
+		if ok {
+			return runnerutil.StructuredOutputFromEnvelope(envelope, resp)
+		}
+	}
+	return runnerutil.ParseStructuredOutput(resp)
+}
+
+func nativeStrictEnvelopeSuccess(resp clients.RunnerResponse) bool {
+	if !resp.OK || !boolValue(resp.Raw["native_strict"]) {
+		return false
+	}
+	if len(mapValue(resp.Raw["execution_envelope"])) == 0 {
+		return false
+	}
+	return strings.TrimSpace(stringValueFromMap(resp.Raw, "failure_class")) == ""
 }
 
 func workflowReplyDeliveryProjection(raw map[string]any, ledgerEvents []events.ExecutionLedgerEvent, useLedgerFirst bool, fallbackChannelID string, fallbackThreadTS string, createdAt time.Time) (events.SlackActionRecord, bool) {

@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Hermes-backed runner wrapper for RSI Agent Platform"
 requires-python = ">=3.11"
 dependencies = [
-    "hermes-agent[honcho,mcp,messaging] @ git+https://github.com/blakehuynh39/hermes-agent.git@4712c9d34610e5bb8729b6989019205f7c1cfd26",
+    "hermes-agent[honcho,mcp,messaging] @ git+https://github.com/blakehuynh39/hermes-agent.git@0c032b5ad06b460f8ca14da21179e89ac012052e",
     "PyJWT[crypto]>=2.8,<3",
 ]
 

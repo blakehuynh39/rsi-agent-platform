@@ -6,4 +6,4 @@ alter table if exists runner_execution
 
 create index if not exists runner_execution_executor_idx
   on runner_execution (executor_instance_id, status, updated_at desc)
-  where status in ('queued','accepted','starting','running','cancelling','cancel_requested');
+  where status in ('queued','accepted','starting','running','finalizing','cancelling','cancel_requested');

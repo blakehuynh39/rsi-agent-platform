@@ -156,13 +156,13 @@ def _read_direct_url_commit() -> tuple[str, str]:
     return version, _string(vcs_info.get("commit_id"))
 
 
-def _hermes_config_enables_context_plugin(hermes_home: str) -> bool:
+def _hermes_config_enables_plugin(hermes_home: str, plugin_name: str) -> bool:
     config_path = Path(hermes_home or os.getenv("HERMES_HOME", "~/.hermes")).expanduser() / "config.yaml"
     try:
         text = config_path.read_text(encoding="utf-8")
     except OSError:
         return False
-    return "rsi_context_engine" in text
+    return plugin_name in text
 
 
 def _status_text(ok: bool) -> str:
@@ -239,6 +239,7 @@ def validate_hermes_contract(
     hermes_home: str,
     session_db: Any,
     required_toolsets: list[str] | None = None,
+    require_platform_runtime: bool = False,
 ) -> HermesContractStatus:
     errors: list[str] = []
     expected = _string(expected_pin)
@@ -283,27 +284,48 @@ def validate_hermes_contract(
     else:
         pin_status = "ok"
 
-    config_enabled = _hermes_config_enables_context_plugin(hermes_home)
-    plugin_loaded = False
+    required_plugins = ["rsi_context_engine"]
+    if require_platform_runtime:
+        required_plugins.append("rsi_platform_runtime")
+    plugin_records: dict[str, JsonObject] = {}
     if callable(discover_plugins):
         try:
             discover_plugins(force=True)
             if callable(get_plugin_manager):
-                plugin_loaded = any(
-                    item.get("enabled") and item.get("name") == "rsi_context_engine"
-                    for item in get_plugin_manager().list_plugins()
-                    if isinstance(item, dict)
-                )
+                for item in get_plugin_manager().list_plugins():
+                    if not isinstance(item, dict):
+                        continue
+                    name = _string(item.get("name"))
+                    if name:
+                        plugin_records[name] = item
         except Exception as exc:
             plugin_status = "failed"
             errors.append(f"Hermes plugin discovery failed: {exc}")
         else:
-            if not config_enabled:
+            missing_config: list[str] = []
+            missing_loaded: list[str] = []
+            invalid_capabilities: list[str] = []
+            for plugin_name in required_plugins:
+                if not _hermes_config_enables_plugin(hermes_home, plugin_name):
+                    missing_config.append(plugin_name)
+                    continue
+                record = plugin_records.get(plugin_name)
+                if not record or not _bool(record.get("enabled")):
+                    missing_loaded.append(plugin_name)
+                    continue
+                if plugin_name == "rsi_platform_runtime":
+                    capabilities = _json_object(record.get("capabilities"))
+                    if not _bool(capabilities.get("execution_scoped_context_supported")):
+                        invalid_capabilities.append(plugin_name)
+            if missing_config:
                 plugin_status = "config_missing"
-                errors.append("rsi_context_engine is not enabled in Hermes config.")
-            elif not plugin_loaded:
+                errors.append("Hermes config is missing required plugin(s): " + ", ".join(missing_config) + ".")
+            elif missing_loaded:
                 plugin_status = "not_loaded"
-                errors.append("rsi_context_engine Hermes plugin was not loaded.")
+                errors.append("Hermes did not load required plugin(s): " + ", ".join(missing_loaded) + ".")
+            elif invalid_capabilities:
+                plugin_status = "capability_missing"
+                errors.append("Hermes plugin capability check failed for: " + ", ".join(invalid_capabilities) + ".")
             else:
                 plugin_status = "ok"
     else:

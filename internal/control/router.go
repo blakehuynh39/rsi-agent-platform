@@ -274,7 +274,7 @@ func validateRunnerExecutionHolder(cfg config.Config, existing storepkg.RunnerEx
 
 func runnerExecutionHeartbeatStatusAllowed(status string) bool {
 	switch strings.ToLower(strings.TrimSpace(status)) {
-	case "accepted", "starting", "running", "cancelling", "cancel_requested":
+	case "accepted", "starting", "running", "finalizing", "cancelling", "cancel_requested":
 		return true
 	default:
 		return false

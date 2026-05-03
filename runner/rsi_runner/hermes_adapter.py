@@ -3,7 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 import importlib.metadata
 import json
+import os
 from pathlib import Path
+import tempfile
 
 from .json_types import JsonObject
 
@@ -17,8 +19,14 @@ except (ImportError, ModuleNotFoundError):  # pragma: no cover - depends on Herm
 
 
 _PLUGIN_MANIFEST = """name: rsi_context_engine
-version: "1.1.0"
+version: "1.2.0"
 description: "RSI context injection and lifecycle capture"
+provides_hooks:
+  - pre_llm_call
+  - on_session_start
+  - on_session_end
+capabilities:
+  execution_scoped_context_supported: true
 """
 
 
@@ -47,6 +55,11 @@ def _runtime_root() -> Path:
 
 
 def _context_path(session_id: str) -> Path:
+    explicit_path = os.getenv("RSI_RUNTIME_CONTEXT_PATH", "").strip()
+    if explicit_path:
+        return Path(explicit_path).expanduser()
+    if os.getenv("RSI_EXECUTION_ID", "").strip():
+        raise RuntimeError("RSI_RUNTIME_CONTEXT_PATH is required for RSI workflow execution context.")
     return _runtime_root() / "context" / f"{session_id}.json"
 
 
@@ -69,6 +82,8 @@ def _append_event(session_id: str, event: str, payload: JsonObject) -> None:
 def _load_context(session_id: str) -> JsonObject:
     path = _context_path(session_id)
     if not path.exists():
+        if os.getenv("RSI_EXECUTION_ID", "").strip() or os.getenv("RSI_RUNTIME_CONTEXT_PATH", "").strip():
+            raise RuntimeError(f"Missing RSI workflow context payload at {path}.")
         return {}
     try:
         parsed = json.loads(path.read_text(encoding="utf-8"))
@@ -76,7 +91,23 @@ def _load_context(session_id: str) -> JsonObject:
         raise RuntimeError(f"Invalid RSI context payload for session {session_id}.") from exc
     if not isinstance(parsed, dict):
         raise RuntimeError(f"Invalid RSI context payload for session {session_id}.")
+    _verify_execution_context(parsed, path)
     return parsed
+
+
+def _verify_execution_context(payload: JsonObject, path: Path) -> None:
+    for key, env_name in (
+        ("execution_id", "RSI_EXECUTION_ID"),
+        ("operation_id", "RSI_OPERATION_ID"),
+        ("trace_id", "RSI_TRACE_ID"),
+        ("workflow_id", "RSI_WORKFLOW_ID"),
+    ):
+        expected = os.getenv(env_name, "").strip()
+        if not expected:
+            continue
+        actual = str(payload.get(key, "") or "").strip()
+        if actual != expected:
+            raise RuntimeError(f"RSI context {path} has {key}={actual!r}, expected {expected!r}.")
 
 
 def _active_context(task_id: str = "", **kwargs) -> JsonObject:
@@ -671,6 +702,37 @@ def _build_plugin_module() -> str:
     )
 
 
+def _fsync_parent(path: Path) -> None:
+    try:
+        flags = getattr(os, "O_DIRECTORY", 0) | os.O_RDONLY
+        fd = os.open(str(path.parent), flags)
+    except OSError:
+        return
+    try:
+        os.fsync(fd)
+    except OSError:
+        pass
+    finally:
+        os.close(fd)
+
+
+def _atomic_write_json(path: Path, payload: JsonObject) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, temp_name = tempfile.mkstemp(prefix=path.name + ".", suffix=".tmp", dir=str(path.parent))
+    temp_path = Path(temp_name)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle, ensure_ascii=True, indent=2, sort_keys=True)
+            handle.write("\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temp_path, path)
+        _fsync_parent(path)
+    finally:
+        if temp_path.exists():
+            temp_path.unlink(missing_ok=True)
+
+
 @dataclass
 class HermesAdapterMetadata:
     version: str
@@ -699,12 +761,15 @@ class HermesContextEngine:
     def error(self) -> str:
         return self._install_error
 
-    def stage_context(self, session_id: str, payload: JsonObject) -> None:
-        self._context_dir.mkdir(parents=True, exist_ok=True)
-        path = self._context_dir / f"{session_id}.json"
-        tmp_path = path.with_suffix(".json.tmp")
-        tmp_path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
-        tmp_path.replace(path)
+    def stage_context(self, session_id: str, payload: JsonObject, *, context_path: str | Path | None = None) -> Path:
+        if context_path is not None:
+            path = Path(context_path).expanduser().resolve()
+        else:
+            path = (self._context_dir / f"{session_id}.json").resolve()
+        staged_payload = dict(payload)
+        staged_payload["rsi_runtime_context_path"] = str(path)
+        _atomic_write_json(path, staged_payload)
+        return path
 
     def lifecycle_events(self, session_id: str, *, limit: int = 256) -> list[JsonObject]:
         path = self._lifecycle_dir / f"{session_id}.jsonl"
@@ -752,8 +817,8 @@ class HermesAdapter:
             lifecycle_hook_status=self._context_engine.status,
         )
 
-    def stage_task_context(self, session_id: str, payload: JsonObject) -> None:
-        self._context_engine.stage_context(session_id, payload)
+    def stage_task_context(self, session_id: str, payload: JsonObject, *, context_path: str | Path | None = None) -> Path:
+        return self._context_engine.stage_context(session_id, payload, context_path=context_path)
 
     def lifecycle_events(self, session_id: str, *, limit: int = 256) -> list[JsonObject]:
         return self._context_engine.lifecycle_events(session_id, limit=limit)

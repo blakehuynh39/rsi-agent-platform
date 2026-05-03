@@ -1828,14 +1828,14 @@ create table if not exists runner_execution (
 
 create index if not exists runner_execution_active_idx
   on runner_execution (status, updated_at desc)
-  where status in ('queued','accepted','starting','running','cancelling','cancel_requested');
+  where status in ('queued','accepted','starting','running','finalizing','cancelling','cancel_requested');
 create index if not exists runner_execution_case_idx
   on runner_execution (case_id, trace_id, status);
 create index if not exists runner_execution_operation_idx
   on runner_execution (operation_id, updated_at desc);
 create index if not exists runner_execution_executor_idx
   on runner_execution (executor_instance_id, status, updated_at desc)
-  where status in ('queued','accepted','starting','running','cancelling','cancel_requested');
+  where status in ('queued','accepted','starting','running','finalizing','cancelling','cancel_requested');
 
 create table if not exists command_receipt (
   command_id text primary key,

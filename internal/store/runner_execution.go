@@ -22,6 +22,7 @@ var activeRunnerExecutionStatuses = map[string]struct{}{
 	"accepted":         {},
 	"starting":         {},
 	"running":          {},
+	"finalizing":       {},
 	"cancelling":       {},
 	"cancel_requested": {},
 }
@@ -139,7 +140,7 @@ func (p *PostgresStore) ListRunnerExecutions() []RunnerExecution {
 }
 
 func (p *PostgresStore) ListActiveRunnerExecutions() []RunnerExecution {
-	rows, err := p.db.Query(`select ` + runnerExecutionSelectColumns() + ` from runner_execution where status in ('queued','accepted','starting','running','cancelling','cancel_requested') order by updated_at desc, execution_id asc`)
+	rows, err := p.db.Query(`select ` + runnerExecutionSelectColumns() + ` from runner_execution where status in ('queued','accepted','starting','running','finalizing','cancelling','cancel_requested') order by updated_at desc, execution_id asc`)
 	if err != nil {
 		return nil
 	}
@@ -219,7 +220,7 @@ func (p *PostgresStore) CancelRunnerExecutionsForCase(caseID string, exceptTrace
 			updated_at = $4
 		where case_id = $1
 		  and trace_id <> $2
-		  and status in ('queued','accepted','starting','running','cancelling','cancel_requested')
+		  and status in ('queued','accepted','starting','running','finalizing','cancelling','cancel_requested')
 		returning `+runnerExecutionSelectColumns(),
 		caseID,
 		exceptTraceID,
@@ -374,12 +375,13 @@ func RunnerExecutionStatusBackward(existingStatusLower, nextStatusLower string) 
 		"accepted":         2,
 		"starting":         3,
 		"running":          4,
-		"cancel_requested": 5,
-		"cancelling":       6,
-		"completed":        7,
-		"failed":           7,
-		"cancelled":        7,
-		"orphaned":         7,
+		"finalizing":       5,
+		"cancel_requested": 6,
+		"cancelling":       7,
+		"completed":        8,
+		"failed":           8,
+		"cancelled":        8,
+		"orphaned":         8,
 	}
 	existingOrder, existingKnown := statusOrder[existingStatusLower]
 	nextOrder, nextKnown := statusOrder[nextStatusLower]

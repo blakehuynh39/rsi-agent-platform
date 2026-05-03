@@ -325,11 +325,12 @@ class SessionManager:
                 f"  timeout: {self._config.hermes_terminal_timeout_seconds}\n"
                 f"  lifetime_seconds: {self._config.hermes_terminal_lifetime_seconds}\n"
             )
-        content += (
-            "plugins:\n"
-            "  enabled:\n"
-            "    - rsi_context_engine\n"
-        )
+        enabled_plugins = ["rsi_context_engine"]
+        if self._config.hermes_executor_enabled:
+            enabled_plugins.append("rsi_platform_runtime")
+        content += "plugins:\n  enabled:\n"
+        for plugin_name in enabled_plugins:
+            content += f"    - {plugin_name}\n"
         config_path.write_text(content, encoding="utf-8")
         self._hermes_config_parity_status = "configured"
         self._hermes_config_parity_error = ""

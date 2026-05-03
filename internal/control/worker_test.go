@@ -24,169 +24,6 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
-func TestWorkflowActionPhasesQueueAndCompleteTrace(t *testing.T) {
-	t.Skip("platform Slack post actions were removed; Hermes native Slack MCP owns reply delivery")
-	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"ok":       true,
-			"provider": "fake",
-			"message":  `{"visible_reasoning":[{"step_type":"analysis","summary":"Collected context and prepared a reply.","confidence":0.91,"decision":"reply_in_thread"}],"reply_draft":"Draft reply","final_answer":"Final reply","confidence":0.91,"context_summary":"Repo and KB context collected.","self_critique":"Follow up if channel policy changes.","proposed_actions":[{"kind":"slack_post","target_ref":"CENG","idempotency_key":"reply-action-1","rationale":"Post the answer back into Slack."}]}`,
-			"raw": map[string]any{
-				"structured_output": map[string]any{
-					"visible_reasoning": []any{
-						map[string]any{
-							"step_type":  "analysis",
-							"summary":    "Collected context and prepared a reply.",
-							"confidence": 0.91,
-							"decision":   "reply_in_thread",
-						},
-					},
-					"reply_draft":     "Draft reply",
-					"final_answer":    "Final reply",
-					"confidence":      0.91,
-					"context_summary": "Repo and KB context collected.",
-					"self_critique":   "Follow up if channel policy changes.",
-					"proposed_actions": []any{
-						map[string]any{
-							"kind":            "slack_post",
-							"target_ref":      "CENG",
-							"idempotency_key": "reply-action-1",
-							"rationale":       "Post the answer back into Slack.",
-						},
-					},
-					"knowledge_drafts":   []any{},
-					"outcome_hypotheses": []any{},
-				},
-			},
-		})
-	}))
-	defer runner.Close()
-
-	toolCalls := []string{}
-	slackPosts := 0
-	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
-		name = strings.TrimSuffix(name, "/execute")
-		name = strings.TrimSuffix(name, "/internal/hermes-executions")
-		switch name {
-		case "repo.context", "knowledge.context", "sentry.lookup", "kubernetes.inspect", "github.repo_activity", "slack.history", "rsi.workflow_context", "rsi.action_chain", "rsi.runtime_health", "rsi.runtime_deployment_facts":
-			toolCalls = append(toolCalls, name)
-			_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
-				Name:          name,
-				ToolCallID:    name + "-call",
-				Approved:      true,
-				ApprovalState: "not_required",
-				Status:        "completed",
-				Available:     true,
-				Summary:       "Context gathered.",
-				Input:         map[string]any{},
-				Output:        map[string]any{"ok": true},
-			})
-		case "slack.reply":
-			slackPosts++
-			_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
-				Name:          name,
-				ToolCallID:    "slack-post-1",
-				Approved:      true,
-				ApprovalState: "approved",
-				Status:        "completed",
-				Available:     true,
-				Provider:      "slack",
-				ProviderRef:   "171000001.000100",
-				Summary:       "Slack reply posted.",
-				Input:         map[string]any{},
-				Output:        map[string]any{"posted": true},
-			})
-		default:
-			t.Fatalf("unexpected tool invocation %s", name)
-		}
-	}))
-	defer toolGateway.Close()
-
-	store := storepkg.NewMemoryStore()
-	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
-	cfg := config.Config{
-		ServiceName:               "control-plane",
-		DefaultRepo:               "rsi-agent-platform",
-		DefaultKnowledgeBaseURL:   "https://example.test/kb",
-		AllowedTargetRepos:        []string{"rsi-agent-platform"},
-		RunnerBaseURL:             runner.URL,
-		SandboxNamespace:          "rsi-platform",
-		DefaultReasoningVerbosity: "verbose",
-	}
-
-	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
-		t.Fatalf("startWorkflowViaCommand() error = %v", err)
-	}
-
-	contextActions := queuedActionEffectsForPlane(store, "control")
-	if len(contextActions) != 0 {
-		t.Fatalf("expected no deterministic context actions once live hints are seeded directly into Hermes, got %d", len(contextActions))
-	}
-
-	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
-	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
-		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
-	}, runnerEffect); err != nil {
-		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
-	}
-
-	replyAction := firstQueuedActionEffectByKind(t, store, "control", action.KindSlackPost)
-	replyActionID := replyAction.AggregateID
-	if receipt, ok := store.GetCommandReceipt(actionCommandID(replyActionID, transition.CommandActionQueue, "")); !ok || receipt.MachineKind != transition.MachineAction {
-		t.Fatalf("expected action_queued receipt for reply action %s, got ok=%t receipt=%+v", replyActionID, ok, receipt)
-	}
-	if err := processControlActionEffect(cfg, store, replyAction); err != nil {
-		t.Fatalf("processControlActionEffect(reply) error = %v", err)
-	}
-	if err := processControlActionEffect(cfg, store, replyAction); err != nil {
-		t.Fatalf("processControlActionEffect(reply duplicate) error = %v", err)
-	}
-	if slackPosts != 1 {
-		t.Fatalf("expected 1 slack post, got %d; actions=%#v", slackPosts, store.ListActionIntents())
-	}
-
-	trace, ok := store.GetTrace(workflowItem.traceID)
-	if !ok {
-		t.Fatal("expected updated trace")
-	}
-	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
-	if !ok {
-		t.Fatal("expected workflow to exist")
-	}
-	if workflow.Status != "completed" {
-		t.Fatalf("expected workflow to complete through reducer path, got %s", workflow.Status)
-	}
-	if len(trace.Reasoning) < 4 {
-		t.Fatalf("expected visible reasoning to be recorded, got %d steps", len(trace.Reasoning))
-	}
-	if len(trace.ToolCalls) != 0 {
-		t.Fatalf("expected no deterministic prefetch tool records, got %d", len(trace.ToolCalls))
-	}
-	if len(trace.SlackActions) != 1 {
-		t.Fatalf("expected one slack action record, got %d", len(trace.SlackActions))
-	}
-	foundSeededEvent := false
-	for _, event := range trace.Events {
-		if event.EventType == "context.seeded" {
-			foundSeededEvent = true
-			break
-		}
-	}
-	if !foundSeededEvent {
-		t.Fatal("expected trace to record context.seeded for seeded-open runner hints")
-	}
-	if !reflect.DeepEqual(toolCalls, []string{"slack.history"}) {
-		t.Fatalf("expected one bound-thread slack.history prefetch call, got %#v", toolCalls)
-	}
-
-	if len(store.ListEvalRuns()) == 0 {
-		t.Fatal("expected workflow completion to trigger immediate problem-line evaluation")
-	}
-	assertWorkflowEffectStatus(t, store, workflowItem.workflowID, transition.EffectInvokeRunner, transition.EffectCompleted)
-	assertWorkflowEffectStatus(t, store, workflowItem.workflowID, transition.EffectPostSlackReply, transition.EffectCompleted)
-}
-
 func TestWorkflowRunnerUsesHermesExecutorWhenConfigured(t *testing.T) {
 	var executorPath string
 	var executorTask clients.RunnerTask
@@ -812,6 +649,172 @@ func TestAsyncHermesExecutionQueuedRecoveryPersistsStillRunningStatus(t *testing
 	}
 	if record.Status != "running" || record.HeartbeatAt == nil {
 		t.Fatalf("queued recovery should persist running heartbeat, got %+v", record)
+	}
+}
+
+func TestAsyncHermesExecutionFinalizingTransitionRefreshesHeartbeat(t *testing.T) {
+	statusCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || r.URL.Path != "/internal/hermes-executions/hexec-finalizing-active" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		statusCalls++
+		_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+			ExecutionID: "hexec-finalizing-active",
+			Status:      "finalizing",
+		})
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	heartbeat := time.Now().Add(-5 * time.Minute).UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID: "hexec-finalizing-active",
+		Status:      "running",
+		Holder:      "hermes-executor:hexec-finalizing-active",
+		HeartbeatAt: &heartbeat,
+		CreatedAt:   heartbeat,
+		UpdatedAt:   heartbeat,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{HermesExecutionHeartbeatTimeout: time.Minute},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-finalizing-active"},
+		transition.EffectExecution{ID: "eff-finalizing-active"},
+		"prod",
+		workflowContext{},
+		time.Now().UTC(),
+	)
+	if err != nil || !wait || resp.OK {
+		t.Fatalf("finalizing poll result = resp=%+v wait=%t err=%v", resp, wait, err)
+	}
+	if statusCalls != 1 {
+		t.Fatalf("status calls=%d, want 1", statusCalls)
+	}
+	record, ok := store.GetRunnerExecution("hexec-finalizing-active")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "finalizing" {
+		t.Fatalf("finalizing poll should persist finalizing status, got %+v", record)
+	}
+	if record.HeartbeatAt == nil || !record.HeartbeatAt.After(heartbeat) {
+		t.Fatalf("finalizing transition must refresh heartbeat anchor, got %+v old %v", record.HeartbeatAt, heartbeat)
+	}
+	if !record.UpdatedAt.After(heartbeat) {
+		t.Fatalf("finalizing poll should update audit timestamp, got %+v", record)
+	}
+}
+
+func TestAsyncHermesExecutionFinalizingPollDoesNotRefreshHeartbeat(t *testing.T) {
+	statusCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || r.URL.Path != "/internal/hermes-executions/hexec-finalizing-preserve" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		statusCalls++
+		_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+			ExecutionID: "hexec-finalizing-preserve",
+			Status:      "finalizing",
+		})
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	heartbeat := time.Now().Add(-30 * time.Second).UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID: "hexec-finalizing-preserve",
+		Status:      "finalizing",
+		Holder:      "hermes-executor:hexec-finalizing-preserve",
+		HeartbeatAt: &heartbeat,
+		CreatedAt:   heartbeat,
+		UpdatedAt:   heartbeat,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{HermesExecutionHeartbeatTimeout: time.Minute},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-finalizing-preserve"},
+		transition.EffectExecution{ID: "eff-finalizing-preserve"},
+		"prod",
+		workflowContext{},
+		time.Now().UTC(),
+	)
+	if err != nil || !wait || resp.OK {
+		t.Fatalf("finalizing poll result = resp=%+v wait=%t err=%v", resp, wait, err)
+	}
+	if statusCalls != 1 {
+		t.Fatalf("status calls=%d, want 1", statusCalls)
+	}
+	record, ok := store.GetRunnerExecution("hexec-finalizing-preserve")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "finalizing" {
+		t.Fatalf("finalizing poll should persist finalizing status, got %+v", record)
+	}
+	if record.HeartbeatAt == nil || !record.HeartbeatAt.Equal(heartbeat) {
+		t.Fatalf("finalizing poll must preserve heartbeat anchor, got %+v want %v", record.HeartbeatAt, heartbeat)
+	}
+	if !record.UpdatedAt.After(heartbeat) {
+		t.Fatalf("finalizing poll should update audit timestamp without extending heartbeat, got %+v", record)
+	}
+}
+
+func TestAsyncHermesExecutionFinalizingPollTimesOutFromFinalizingAnchor(t *testing.T) {
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || r.URL.Path != "/internal/hermes-executions/hexec-finalizing-wedged" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+			ExecutionID: "hexec-finalizing-wedged",
+			Status:      "finalizing",
+		})
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	heartbeat := time.Now().Add(-5 * time.Minute).UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID: "hexec-finalizing-wedged",
+		Status:      "finalizing",
+		Holder:      "hermes-executor:hexec-finalizing-wedged",
+		HeartbeatAt: &heartbeat,
+		CreatedAt:   heartbeat,
+		UpdatedAt:   heartbeat,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{HermesExecutionHeartbeatTimeout: time.Minute},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-finalizing-wedged"},
+		transition.EffectExecution{ID: "eff-finalizing-wedged"},
+		"prod",
+		workflowContext{},
+		time.Now().UTC(),
+	)
+	if err != nil || wait || resp.OK {
+		t.Fatalf("finalizing timeout result = resp=%+v wait=%t err=%v", resp, wait, err)
+	}
+	if got := stringValue(resp.Raw["failure_class"]); got != "plugin_execution_envelope_missing" {
+		t.Fatalf("failure_class = %q, want plugin_execution_envelope_missing", got)
+	}
+	record, ok := store.GetRunnerExecution("hexec-finalizing-wedged")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "failed" || record.CompletedAt == nil {
+		t.Fatalf("finalizing timeout should fail closed, got %+v", record)
 	}
 }
 
@@ -2429,378 +2432,6 @@ func TestWorkflowRunnerSystemMessageOmitsSlackMCPWhenUnavailableInNoneMode(t *te
 	}
 }
 
-func TestWorkflowPartialCompletionPostsStandardizedReplyAndPersistsVerdict(t *testing.T) {
-	t.Skip("platform Slack post actions were removed; Hermes native Slack MCP owns partial reply delivery")
-	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"ok":       true,
-			"provider": "fake",
-			"message":  `{"visible_reasoning":[{"step_type":"analysis","summary":"Recovered a partial answer.","confidence":0.72,"decision":"post_partial_reply"}],"reply_draft":"Grounded summary so far.","final_answer":"Grounded summary so far.","confidence":0.72,"context_summary":"Recovered from persisted session evidence.","self_critique":"More reads would improve coverage.","proposed_actions":[{"kind":"slack_post","target_ref":"D123","request_payload":{"body":"Grounded summary so far."},"idempotency_key":"reply-action-partial-1","rationale":"Post the grounded partial answer."}],"knowledge_drafts":[],"outcome_hypotheses":[]}`,
-			"raw": map[string]any{
-				"completion_verdict":     "partial",
-				"termination_reason":     "iteration_budget_exhausted",
-				"max_iterations_reached": true,
-				"tool_calls": []any{
-					map[string]any{
-						"id":                     "runner-tool-record-slack-history-1",
-						"tool_name":              "slack.history",
-						"tool_call_id":           "slack.history:1",
-						"request":                map[string]any{"channel_id": "D123", "thread_ts": "171000001.000100"},
-						"summary":                "Fetched bound Slack thread history.",
-						"raw_artifact_refs":      []any{"artifact://slack/history/1"},
-						"approval_state":         "not_required",
-						"interpretation_summary": "Fetched bound Slack thread history.",
-						"status":                 "completed",
-						"created_at":             "2026-04-17T19:35:00Z",
-					},
-				},
-				"runner_diagnostics": map[string]any{
-					"completion_verdict":     "partial",
-					"termination_reason":     "iteration_budget_exhausted",
-					"max_iterations_reached": true,
-					"budget_used":            20,
-					"budget_max":             20,
-				},
-				"structured_output": map[string]any{
-					"visible_reasoning": []any{
-						map[string]any{
-							"step_type":  "analysis",
-							"summary":    "Recovered a partial answer.",
-							"confidence": 0.72,
-							"decision":   "post_partial_reply",
-						},
-					},
-					"reply_draft":     "Grounded summary so far.",
-					"final_answer":    "Grounded summary so far.",
-					"confidence":      0.72,
-					"context_summary": "Recovered from persisted session evidence.",
-					"self_critique":   "More reads would improve coverage.",
-					"proposed_actions": []any{
-						map[string]any{
-							"kind":       "slack_post",
-							"target_ref": "D123",
-							"request_payload": map[string]any{
-								"body": "Grounded summary so far.",
-							},
-							"idempotency_key": "reply-action-partial-1",
-							"rationale":       "Post the grounded partial answer.",
-						},
-					},
-					"knowledge_drafts":   []any{},
-					"outcome_hypotheses": []any{},
-				},
-			},
-		})
-	}))
-	defer runner.Close()
-
-	slackBodies := []string{}
-	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
-		name = strings.TrimSuffix(name, "/execute")
-		name = strings.TrimSuffix(name, "/internal/hermes-executions")
-		if name == "slack.history" {
-			_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
-				Name:          name,
-				ToolCallID:    "slack-history-prefetch-partial",
-				Approved:      true,
-				ApprovalState: "not_required",
-				Status:        "completed",
-				Available:     true,
-				Provider:      "slack",
-				ProviderRef:   "171000001.000100",
-				Summary:       "Slack thread history loaded.",
-				Input:         map[string]any{},
-				Output:        map[string]any{"messages": []any{}},
-			})
-			return
-		}
-		if name != "slack.reply" {
-			t.Fatalf("unexpected tool invocation %s", name)
-		}
-		var payload map[string]any
-		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-			t.Fatalf("decode slack payload: %v", err)
-		}
-		slackBodies = append(slackBodies, strings.TrimSpace(stringFromMap(payload, "body")))
-		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
-			Name:          name,
-			ToolCallID:    "slack-post-partial-1",
-			Approved:      true,
-			ApprovalState: "approved",
-			Status:        "completed",
-			Available:     true,
-			Provider:      "slack",
-			ProviderRef:   "171000001.000100",
-			Summary:       "Slack reply posted.",
-			Input:         payload,
-			Output:        map[string]any{"posted": true},
-		})
-	}))
-	defer toolGateway.Close()
-
-	store := storepkg.NewMemoryStore()
-	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
-	cfg := config.Config{
-		ServiceName:               "control-plane",
-		DefaultRepo:               "rsi-agent-platform",
-		DefaultKnowledgeBaseURL:   "https://example.test/kb",
-		AllowedTargetRepos:        []string{"rsi-agent-platform"},
-		RunnerBaseURL:             runner.URL,
-		SandboxNamespace:          "rsi-platform",
-		DefaultReasoningVerbosity: "verbose",
-	}
-
-	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
-		t.Fatalf("startWorkflowViaCommand() error = %v", err)
-	}
-
-	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
-	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
-		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
-	}, runnerEffect); err != nil {
-		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
-	}
-
-	replyAction := firstQueuedActionEffectByKind(t, store, "control", action.KindSlackPost)
-	replyIntent, ok := store.GetActionIntent(replyAction.AggregateID)
-	if !ok {
-		t.Fatalf("expected reply action intent %s", replyAction.AggregateID)
-	}
-	if got := stringFromMap(replyIntent.RequestPayload, "workflow_reply_command"); got != string(transition.CommandReplyPostedPartial) {
-		t.Fatalf("expected partial reply-posted command in action payload, got %q", got)
-	}
-	if err := processControlActionEffect(cfg, store, replyAction); err != nil {
-		t.Fatalf("processControlActionEffect(reply) error = %v", err)
-	}
-
-	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
-	if !ok {
-		t.Fatal("expected workflow to exist")
-	}
-	if workflow.Status != "completed" {
-		t.Fatalf("expected completed workflow, got %s", workflow.Status)
-	}
-	if workflow.LastVerdict != "partial" {
-		t.Fatalf("expected partial workflow verdict, got %q", workflow.LastVerdict)
-	}
-	if workflow.RunnerDiagnostics["completion_verdict"] != "partial" {
-		t.Fatalf("expected partial completion verdict in runner diagnostics, got %#v", workflow.RunnerDiagnostics)
-	}
-
-	trace, ok := store.GetTrace(workflowItem.traceID)
-	if !ok {
-		t.Fatal("expected trace to exist")
-	}
-	if trace.Summary.Status != events.StatusCompleted {
-		t.Fatalf("expected completed trace, got %s", trace.Summary.Status)
-	}
-	if trace.Summary.LastVerdict != "partial" {
-		t.Fatalf("expected partial trace verdict, got %q", trace.Summary.LastVerdict)
-	}
-	if len(trace.ToolCalls) != 1 {
-		t.Fatalf("expected one projected runner tool call, got %d", len(trace.ToolCalls))
-	}
-	if trace.ToolCalls[0].TraceID != trace.Summary.TraceID {
-		t.Fatalf("expected projected tool call trace binding, got %#v", trace.ToolCalls[0])
-	}
-	if trace.ToolCalls[0].WorkflowID != workflowItem.workflowID {
-		t.Fatalf("expected projected tool call workflow binding, got %#v", trace.ToolCalls[0])
-	}
-	if trace.ToolCalls[0].ToolName != "slack.history" {
-		t.Fatalf("expected slack.history tool call, got %#v", trace.ToolCalls[0])
-	}
-	if trace.ToolCalls[0].ToolCallID != "slack.history:1" {
-		t.Fatalf("expected slack.history:1 tool call id, got %#v", trace.ToolCalls[0])
-	}
-	if len(trace.SlackActions) != 1 {
-		t.Fatalf("expected one slack action, got %d", len(trace.SlackActions))
-	}
-	if !strings.HasPrefix(trace.SlackActions[0].FinalBody, partialCompletionNoticeForTerminationReason("iteration_budget_exhausted")) {
-		t.Fatalf("expected partial completion notice in final body, got %q", trace.SlackActions[0].FinalBody)
-	}
-	if len(slackBodies) != 1 {
-		t.Fatalf("expected one posted slack body, got %d", len(slackBodies))
-	}
-	if !strings.HasPrefix(slackBodies[0], partialCompletionNoticeForTerminationReason("iteration_budget_exhausted")) {
-		t.Fatalf("expected partial completion notice in posted body, got %q", slackBodies[0])
-	}
-}
-
-func TestWorkflowTaskTimeoutPartialCompletionPostsTimeoutNoticeAndPersistsVerdict(t *testing.T) {
-	t.Skip("platform Slack post actions were removed; Hermes native Slack MCP owns timeout reply delivery")
-	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"ok":       true,
-			"provider": "fake",
-			"message":  `{"visible_reasoning":[{"step_type":"analysis","summary":"Recovered a timeout partial answer.","confidence":0.68,"decision":"post_partial_reply"}],"reply_draft":"Grounded summary so far.","final_answer":"Grounded summary so far.","confidence":0.68,"context_summary":"Recovered from persisted session evidence after timeout.","self_critique":"More reads would improve coverage.","proposed_actions":[{"kind":"slack_post","target_ref":"D123","request_payload":{"body":"Grounded summary so far."},"idempotency_key":"reply-action-timeout-partial-1","rationale":"Post the grounded partial answer."}],"knowledge_drafts":[],"outcome_hypotheses":[]}`,
-			"raw": map[string]any{
-				"completion_verdict":     "partial",
-				"termination_reason":     "task_timeout",
-				"max_iterations_reached": false,
-				"timeout_kind":           "task_timeout",
-				"runner_diagnostics": map[string]any{
-					"completion_verdict":     "partial",
-					"termination_reason":     "task_timeout",
-					"timeout_kind":           "task_timeout",
-					"max_iterations_reached": false,
-					"budget_used":            9,
-					"budget_max":             20,
-				},
-				"structured_output": map[string]any{
-					"visible_reasoning": []any{
-						map[string]any{
-							"step_type":  "analysis",
-							"summary":    "Recovered a timeout partial answer.",
-							"confidence": 0.68,
-							"decision":   "post_partial_reply",
-						},
-					},
-					"reply_draft":     "Grounded summary so far.",
-					"final_answer":    "Grounded summary so far.",
-					"confidence":      0.68,
-					"context_summary": "Recovered from persisted session evidence after timeout.",
-					"self_critique":   "More reads would improve coverage.",
-					"proposed_actions": []any{
-						map[string]any{
-							"kind":       "slack_post",
-							"target_ref": "D123",
-							"request_payload": map[string]any{
-								"body": "Grounded summary so far.",
-							},
-							"idempotency_key": "reply-action-timeout-partial-1",
-							"rationale":       "Post the grounded partial answer.",
-						},
-					},
-					"knowledge_drafts":   []any{},
-					"outcome_hypotheses": []any{},
-				},
-			},
-		})
-	}))
-	defer runner.Close()
-
-	slackBodies := []string{}
-	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
-		name = strings.TrimSuffix(name, "/execute")
-		name = strings.TrimSuffix(name, "/internal/hermes-executions")
-		if name == "slack.history" {
-			_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
-				Name:          name,
-				ToolCallID:    "slack-history-prefetch-timeout-partial",
-				Approved:      true,
-				ApprovalState: "not_required",
-				Status:        "completed",
-				Available:     true,
-				Provider:      "slack",
-				ProviderRef:   "171000001.000100",
-				Summary:       "Slack thread history loaded.",
-				Input:         map[string]any{},
-				Output:        map[string]any{"messages": []any{}},
-			})
-			return
-		}
-		if name != "slack.reply" {
-			t.Fatalf("unexpected tool invocation %s", name)
-		}
-		var payload map[string]any
-		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-			t.Fatalf("decode slack payload: %v", err)
-		}
-		slackBodies = append(slackBodies, strings.TrimSpace(stringFromMap(payload, "body")))
-		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
-			Name:          name,
-			ToolCallID:    "slack-post-timeout-partial-1",
-			Approved:      true,
-			ApprovalState: "approved",
-			Status:        "completed",
-			Available:     true,
-			Provider:      "slack",
-			ProviderRef:   "171000001.000100",
-			Summary:       "Slack reply posted.",
-			Input:         payload,
-			Output:        map[string]any{"posted": true},
-		})
-	}))
-	defer toolGateway.Close()
-
-	store := storepkg.NewMemoryStore()
-	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
-	cfg := config.Config{
-		ServiceName:               "control-plane",
-		DefaultRepo:               "rsi-agent-platform",
-		DefaultKnowledgeBaseURL:   "https://example.test/kb",
-		AllowedTargetRepos:        []string{"rsi-agent-platform"},
-		RunnerBaseURL:             runner.URL,
-		SandboxNamespace:          "rsi-platform",
-		DefaultReasoningVerbosity: "verbose",
-	}
-
-	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
-		t.Fatalf("startWorkflowViaCommand() error = %v", err)
-	}
-
-	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
-	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
-		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
-	}, runnerEffect); err != nil {
-		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
-	}
-
-	replyAction := firstQueuedActionEffectByKind(t, store, "control", action.KindSlackPost)
-	replyIntent, ok := store.GetActionIntent(replyAction.AggregateID)
-	if !ok {
-		t.Fatalf("expected reply action intent %s", replyAction.AggregateID)
-	}
-	if got := stringFromMap(replyIntent.RequestPayload, "workflow_reply_command"); got != string(transition.CommandReplyPostedPartial) {
-		t.Fatalf("expected partial reply-posted command in action payload, got %q", got)
-	}
-	if err := processControlActionEffect(cfg, store, replyAction); err != nil {
-		t.Fatalf("processControlActionEffect(reply) error = %v", err)
-	}
-
-	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
-	if !ok {
-		t.Fatal("expected workflow to exist")
-	}
-	if workflow.Status != "completed" {
-		t.Fatalf("expected completed workflow, got %s", workflow.Status)
-	}
-	if workflow.LastVerdict != "partial" {
-		t.Fatalf("expected partial workflow verdict, got %q", workflow.LastVerdict)
-	}
-	if workflow.RunnerDiagnostics["completion_verdict"] != "partial" {
-		t.Fatalf("expected partial completion verdict in runner diagnostics, got %#v", workflow.RunnerDiagnostics)
-	}
-	if workflow.RunnerDiagnostics["termination_reason"] != "task_timeout" {
-		t.Fatalf("expected task_timeout termination reason in runner diagnostics, got %#v", workflow.RunnerDiagnostics)
-	}
-
-	trace, ok := store.GetTrace(workflowItem.traceID)
-	if !ok {
-		t.Fatal("expected trace to exist")
-	}
-	if trace.Summary.Status != events.StatusCompleted {
-		t.Fatalf("expected completed trace, got %s", trace.Summary.Status)
-	}
-	if trace.Summary.LastVerdict != "partial" {
-		t.Fatalf("expected partial trace verdict, got %q", trace.Summary.LastVerdict)
-	}
-	if len(trace.SlackActions) != 1 {
-		t.Fatalf("expected one slack action, got %d", len(trace.SlackActions))
-	}
-	if !strings.HasPrefix(trace.SlackActions[0].FinalBody, partialCompletionNoticeForTerminationReason("task_timeout")) {
-		t.Fatalf("expected timeout partial completion notice in final body, got %q", trace.SlackActions[0].FinalBody)
-	}
-	if len(slackBodies) != 1 {
-		t.Fatalf("expected one posted slack body, got %d", len(slackBodies))
-	}
-	if !strings.HasPrefix(slackBodies[0], partialCompletionNoticeForTerminationReason("task_timeout")) {
-		t.Fatalf("expected timeout partial completion notice in posted body, got %q", slackBodies[0])
-	}
-}
-
 func TestWorkflowPartialCompletionBlockedByPolicyMovesNeedsHuman(t *testing.T) {
 	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(w).Encode(map[string]any{
@@ -3828,136 +3459,6 @@ func TestReplyPolicyStillBlocksUnknownChannels(t *testing.T) {
 	}
 	if verdict != "channel_policy_missing" {
 		t.Fatalf("expected channel_policy_missing verdict, got %s", verdict)
-	}
-}
-
-func TestExecuteSlackPostActionIntentClaimsMatchingReplyEffect(t *testing.T) {
-	t.Skip("platform Slack post actions were removed; Hermes native Slack MCP owns reply delivery")
-	slackPosts := 0
-	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
-		name = strings.TrimSuffix(name, "/execute")
-		name = strings.TrimSuffix(name, "/internal/hermes-executions")
-		if name != "slack.reply" {
-			t.Fatalf("unexpected tool invocation %s", name)
-		}
-		slackPosts++
-		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
-			Name:          name,
-			ToolCallID:    "slack-post-match",
-			Approved:      true,
-			ApprovalState: "approved",
-			Status:        "completed",
-			Available:     true,
-			Provider:      "slack",
-			ProviderRef:   "171000001.000100",
-			Summary:       "Slack reply posted.",
-			Input:         map[string]any{},
-			Output:        map[string]any{"posted": true},
-		})
-	}))
-	defer toolGateway.Close()
-
-	baseStore := storepkg.NewMemoryStore()
-	workflowItem := firstQueuedWorkflowItem(t, baseStore, "slack:")
-	ctx, err := loadWorkflowContext(baseStore, workflowItem)
-	if err != nil {
-		t.Fatalf("loadWorkflowContext() error = %v", err)
-	}
-
-	now := time.Now().UTC()
-	if _, err := baseStore.SubmitCommand(transition.CommandEnvelope{
-		MachineKind: transition.MachineAction,
-		AggregateID: "action-reply-match",
-		CommandKind: string(transition.CommandActionQueue),
-		CommandID:   "cmd-effect-selection-queue",
-		OccurredAt:  now,
-		Payload: map[string]any{
-			"owner_plane":     "control",
-			"conversation_id": ctx.trace.Summary.ConversationID,
-			"case_id":         ctx.trace.Summary.CaseID,
-			"trace_id":        ctx.trace.Summary.TraceID,
-			"kind":            string(action.KindSlackPost),
-			"phase_key":       controlPhaseReplyPost,
-			"target_ref":      ctx.ingestion.ChannelID,
-			"request_payload": map[string]any{
-				"channel_id": ctx.ingestion.ChannelID,
-				"thread_ts":  ctx.ingestion.ThreadTS,
-				"body":       "Final reply",
-			},
-			"idempotency_key": "reply-effect-match",
-			"approval_mode":   "not_required",
-			"approval_state":  "approved",
-			"requested_by":    "control-plane",
-		},
-	}); err != nil {
-		t.Fatalf("SubmitCommand(action_queued) error = %v", err)
-	}
-	if _, err := baseStore.SubmitCommand(transition.CommandEnvelope{
-		MachineKind: transition.MachineAction,
-		AggregateID: "action-reply-match",
-		CommandKind: string(transition.CommandActionStart),
-		CommandID:   "cmd-effect-selection-start",
-		OccurredAt:  now,
-		Payload: map[string]any{
-			"operation_id": "reply-effect-match-op",
-		},
-	}); err != nil {
-		t.Fatalf("SubmitCommand(action_started) error = %v", err)
-	}
-	intent, ok := baseStore.GetActionIntent("action-reply-match")
-	if !ok {
-		t.Fatalf("expected action intent action-reply-match")
-	}
-
-	store := &effectSelectionStore{
-		Store: baseStore,
-		effects: []transition.EffectExecution{
-			{
-				ID:          "eff-other",
-				MachineKind: transition.MachineWorkflow,
-				AggregateID: ctx.workflow.ID,
-				EffectKind:  transition.EffectPostSlackReply,
-				Status:      transition.EffectQueued,
-				Payload: map[string]any{
-					"reply_action_id": "action-other",
-				},
-				CreatedAt: now,
-				UpdatedAt: now.Add(time.Minute),
-			},
-			{
-				ID:          "eff-match",
-				MachineKind: transition.MachineWorkflow,
-				AggregateID: ctx.workflow.ID,
-				EffectKind:  transition.EffectPostSlackReply,
-				Status:      transition.EffectQueued,
-				Payload: map[string]any{
-					"reply_action_id": intent.ID,
-				},
-				CreatedAt: now,
-				UpdatedAt: now,
-			},
-		},
-	}
-
-	cfg := config.Config{
-		ServiceName: "control-plane",
-	}
-	if err := executeSlackPostActionIntent(cfg, store, ctx, intent); err != nil {
-		t.Fatalf("executeSlackPostActionIntent() error = %v", err)
-	}
-
-	if slackPosts != 1 {
-		t.Fatalf("expected a single Slack post, got %d", slackPosts)
-	}
-	if len(store.claimed) != 1 || store.claimed[0] != "eff-match" {
-		t.Fatalf("expected matching reply effect to be claimed, got %#v", store.claimed)
-	}
-	if len(store.completed) != 1 || store.completed[0] != "eff-match" {
-		t.Fatalf("expected matching reply effect to complete, got %#v", store.completed)
-	}
-	if len(store.failed) != 0 {
-		t.Fatalf("expected no failed reply effects, got %#v", store.failed)
 	}
 }
 
@@ -5485,6 +4986,47 @@ func TestWorkflowReplyDeliveryRecordsFailedExecutionEnvelopeDeliveryAttempt(t *t
 	}
 }
 
+func TestWorkflowRunnerOutputUsesNativeStrictEnvelopeWithoutStructuredOutput(t *testing.T) {
+	output, err := workflowRunnerOutput(clients.RunnerResponse{
+		OK:      true,
+		Message: "Native strict final answer.",
+		Raw: map[string]any{
+			"native_strict": true,
+			"execution_envelope": map[string]any{
+				"contract_version": "execution-envelope/v1",
+				"final_response":   "Native strict final answer.",
+				"artifacts": []any{
+					map[string]any{
+						"kind":          "markdown",
+						"title":         "Runbook",
+						"artifact_refs": []any{"artifact://runbook"},
+					},
+				},
+				"deliveries": []any{
+					map[string]any{
+						"send_status": "posted",
+						"channel_id":  "C123",
+						"thread_ts":   "1700000000.000000",
+						"body":        "Native strict final answer.",
+					},
+				},
+			},
+		},
+	})
+	if err != nil {
+		t.Fatalf("workflowRunnerOutput() error = %v", err)
+	}
+	if output.FinalAnswer != "Native strict final answer." {
+		t.Fatalf("final answer = %q", output.FinalAnswer)
+	}
+	if len(output.ProducedArtifacts) != 1 || output.ProducedArtifacts[0].ArtifactRefs[0] != "artifact://runbook" {
+		t.Fatalf("produced artifacts = %#v", output.ProducedArtifacts)
+	}
+	if output.ReplyDelivery.Status != "posted" || output.ReplyDelivery.Body != "Native strict final answer." {
+		t.Fatalf("reply delivery = %#v", output.ReplyDelivery)
+	}
+}
+
 func TestWorkflowReplyDeliveryFromExecutionLedgerRecordsFailedStatus(t *testing.T) {
 	createdAt := time.Now().UTC()
 	record, ok := workflowReplyDeliveryFromExecutionLedger([]events.ExecutionLedgerEvent{
@@ -5610,6 +5152,29 @@ func TestWorkflowReplyDeliveryProjectionPrefersSuccessfulLedgerDelivery(t *testi
 	}
 	if record.FinalBody != "ledger posted reply" || record.ChannelID != "C-ledger" {
 		t.Fatalf("expected ledger delivery to win, got %#v", record)
+	}
+}
+
+func TestNativeStrictEnvelopeFailureClassifier(t *testing.T) {
+	if !nativeStrictEnvelopeFailure(map[string]any{
+		"native_strict": true,
+		"failure_class": "plugin_execution_envelope_missing",
+	}) {
+		t.Fatal("expected missing native envelope failure to bypass structured-output projection")
+	}
+	if nativeStrictEnvelopeFailure(map[string]any{
+		"native_strict":      true,
+		"failure_class":      "plugin_execution_envelope_missing",
+		"execution_envelope": map[string]any{"contract_version": "execution-envelope/v1"},
+		"structured_output":  map[string]any{"final_answer": "legacy"},
+	}) {
+		t.Fatal("valid envelope-bearing result must not be classified as envelope failure")
+	}
+	if nativeStrictEnvelopeFailure(map[string]any{
+		"native_strict": true,
+		"failure_class": "runner_transport_timeout",
+	}) {
+		t.Fatal("non-envelope native failures should keep normal failure projection behavior")
 	}
 }
 
@@ -5814,15 +5379,6 @@ type noopWorkflowCommandStore struct {
 	NoopCommandKind transition.WorkflowCommandKind
 }
 
-type effectSelectionStore struct {
-	storepkg.Store
-	effects    []transition.EffectExecution
-	claimed    []string
-	completed  []string
-	failed     []string
-	resultRefs map[string]string
-}
-
 type claimQueueCaptureStore struct {
 	storepkg.Store
 	queueNames []string
@@ -5831,61 +5387,6 @@ type claimQueueCaptureStore struct {
 func (s *claimQueueCaptureStore) ClaimNextEffectExecutionForKinds(holder string, lease time.Duration, queueNames []string, maxPerScope int, selectors []storepkg.EffectClaimSelector) (transition.EffectExecution, bool, error) {
 	s.queueNames = append([]string{}, queueNames...)
 	return transition.EffectExecution{}, false, nil
-}
-
-func (s *effectSelectionStore) ListEffectExecutionsByAggregate(machineKind transition.MachineKind, aggregateID string) []transition.EffectExecution {
-	if machineKind != transition.MachineWorkflow {
-		return s.Store.ListEffectExecutionsByAggregate(machineKind, aggregateID)
-	}
-	out := make([]transition.EffectExecution, 0, len(s.effects))
-	for _, effect := range s.effects {
-		if effect.MachineKind == machineKind && effect.AggregateID == aggregateID {
-			out = append(out, effect)
-		}
-	}
-	return out
-}
-
-func (s *effectSelectionStore) ClaimEffectExecution(effectID string, holder string, lease time.Duration) (transition.EffectExecution, bool, error) {
-	for idx := range s.effects {
-		if s.effects[idx].ID != effectID {
-			continue
-		}
-		s.claimed = append(s.claimed, effectID)
-		s.effects[idx].Status = transition.EffectRunning
-		return s.effects[idx], true, nil
-	}
-	return s.Store.ClaimEffectExecution(effectID, holder, lease)
-}
-
-func (s *effectSelectionStore) CompleteEffectExecution(effectID string, holder string, resultRef string) (transition.EffectExecution, error) {
-	for idx := range s.effects {
-		if s.effects[idx].ID != effectID {
-			continue
-		}
-		s.completed = append(s.completed, effectID)
-		if s.resultRefs == nil {
-			s.resultRefs = map[string]string{}
-		}
-		s.resultRefs[effectID] = resultRef
-		s.effects[idx].Status = transition.EffectCompleted
-		s.effects[idx].ResultRef = resultRef
-		return s.effects[idx], nil
-	}
-	return s.Store.CompleteEffectExecution(effectID, holder, resultRef)
-}
-
-func (s *effectSelectionStore) FailEffectExecution(effectID string, holder string, lastError string) (transition.EffectExecution, error) {
-	for idx := range s.effects {
-		if s.effects[idx].ID != effectID {
-			continue
-		}
-		s.failed = append(s.failed, effectID)
-		s.effects[idx].Status = transition.EffectFailed
-		s.effects[idx].LastError = lastError
-		return s.effects[idx], nil
-	}
-	return s.Store.FailEffectExecution(effectID, holder, lastError)
 }
 
 func (s *failingActionCommandStore) SubmitCommand(command transition.CommandEnvelope) (transition.CommandReceipt, error) {

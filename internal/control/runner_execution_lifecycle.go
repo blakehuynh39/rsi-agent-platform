@@ -159,13 +159,16 @@ func (l runnerExecutionLifecycle) reconcileStaleActiveExecutions() []storepkg.Ru
 			continue
 		}
 		failureClass := workflowFailureRunnerExecutorStatusUnavailable
+		message := "Hermes executor heartbeat expired while reconciling active executions."
 		if runnerExecutionStatusCancellationPending(itemStatus) {
 			failureClass = workflowFailureRunnerExecutionCancelled
+		} else if itemStatus == "finalizing" {
+			failureClass, message = heartbeatExpiredFailureClassAndMessage(itemStatus)
 		}
 		failure := hermesExecutorRecoveryFailure(
 			item.ExecutionID,
 			failureClass,
-			"Hermes executor heartbeat expired while reconciling active executions.",
+			message,
 			"heartbeat_expired",
 		)
 		expectedHolder := item.Holder
@@ -190,7 +193,7 @@ func (l runnerExecutionLifecycle) reconcileStaleActiveExecutions() []storepkg.Ru
 
 func runnerExecutionLifecycleStatusReconcilesWhenStale(status string) bool {
 	switch strings.ToLower(strings.TrimSpace(status)) {
-	case "queued", "cancel_requested", "cancelling", "running", "starting", "accepted":
+	case "queued", "cancel_requested", "cancelling", "finalizing", "running", "starting", "accepted":
 		return true
 	default:
 		return false
@@ -201,7 +204,8 @@ func runnerExecutionHeartbeatReferenceTime(record storepkg.RunnerExecution) time
 	if record.HeartbeatAt != nil {
 		return record.HeartbeatAt.UTC()
 	}
-	if strings.EqualFold(strings.TrimSpace(record.Status), "queued") {
+	switch strings.ToLower(strings.TrimSpace(record.Status)) {
+	case "queued", "finalizing":
 		return record.CreatedAt.UTC()
 	}
 	return time.Time{}
