@@ -100,6 +100,7 @@ def _drain_status_payload(runtime: HermesRuntime, config: RunnerConfig) -> JsonO
 
 def _wait_for_drain(runtime: HermesRuntime, config: RunnerConfig) -> JsonObject:
     start_payload = _mark_draining(config)
+    runtime.request_drain()
     timeout_seconds = max(1, int(_DRAIN_DEADLINE_UNIX - time.time()))
     snapshot = runtime.active_execution_snapshot()
     logger.info(
@@ -109,6 +110,8 @@ def _wait_for_drain(runtime: HermesRuntime, config: RunnerConfig) -> JsonObject:
         snapshot.get("active_execution_ids"),
     )
     result = runtime.wait_for_active_executions(timeout_seconds)
+    if int(result.get("active_execution_count") or 0) != 0:
+        runtime.terminate_self_review_processes(timeout_seconds=5.0)
     result.update(start_payload)
     if int(result.get("active_execution_count") or 0) == 0:
         result["status"] = "drained"
@@ -133,6 +136,7 @@ class RunnerHandler(BaseHTTPRequestHandler):
 
     def _handle_drain_start(self) -> None:
         payload = _mark_draining(self.config)
+        self.runtime.request_drain()
         payload.update(self.runtime.active_execution_snapshot())
         self._json(202, payload)
 
@@ -271,6 +275,7 @@ def run_server() -> None:
             server.shutdown()
 
         _mark_draining(config)
+        runtime.request_drain()
         threading.Thread(target=_shutdown_after_drain, name="rsi-runner-shutdown", daemon=False).start()
 
     signal.signal(signal.SIGTERM, _start_drain)

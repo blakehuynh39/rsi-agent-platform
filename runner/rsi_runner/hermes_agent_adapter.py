@@ -7,6 +7,9 @@ import json
 import os
 from pathlib import Path
 import sqlite3
+import subprocess
+import sys
+import tempfile
 import time
 from typing import Any
 
@@ -34,6 +37,13 @@ try:
 except (ImportError, ModuleNotFoundError):  # pragma: no cover - depends on Hermes install
     validate_toolset = None
 
+try:
+    import self_review_contracts as hermes_self_review_contracts  # type: ignore
+    import self_review_queue as hermes_self_review_queue  # type: ignore
+except (ImportError, ModuleNotFoundError):  # pragma: no cover - depends on Hermes install
+    hermes_self_review_contracts = None
+    hermes_self_review_queue = None
+
 
 _REQUIRED_AIAgent_INIT_PARAMS = frozenset(
     {
@@ -55,6 +65,7 @@ _REQUIRED_AIAgent_INIT_PARAMS = frozenset(
         "session_id",
         "skip_context_files",
         "skip_memory",
+        "self_review_mode",
         "status_callback",
         "stream_delta_callback",
         "thinking_callback",
@@ -65,6 +76,19 @@ _REQUIRED_AIAgent_INIT_PARAMS = frozenset(
     }
 )
 _REQUIRED_RUN_CONVERSATION_PARAMS = frozenset({"conversation_history", "task_id", "user_message"})
+_REQUIRED_SELF_REVIEW_QUEUE_APIS = frozenset(
+    {
+        "SelfReviewConfig",
+        "advance_local_review_queue",
+        "apply_turn_review_candidate",
+        "drain_review_queue",
+        "mark_candidate_delivered",
+        "promote_review_candidate",
+        "run_memory_self_review",
+        "run_skill_self_review_batch",
+        "review_queue_status",
+    }
+)
 _PARTIAL_COMPLETION_TERMINATION_REASONS = frozenset(
     {
         "task_timeout",
@@ -193,6 +217,7 @@ class HermesContractStatus:
     required_toolsets: list[str]
     toolset_status: dict[str, str]
     session_db_status: str
+    self_review_api_status: str = "unknown"
     errors: list[str] = field(default_factory=list)
     checked_at_unix: float = 0.0
 
@@ -208,6 +233,7 @@ class HermesContractStatus:
             "required_toolsets": list(self.required_toolsets),
             "toolset_status": dict(self.toolset_status),
             "session_db_status": self.session_db_status,
+            "self_review_api_status": self.self_review_api_status,
             "errors": list(self.errors),
             "checked_at_unix": self.checked_at_unix,
         }
@@ -255,6 +281,7 @@ def validate_hermes_contract(
     api_signature_status = "unknown"
     pin_status = "unknown"
     plugin_status = "unknown"
+    self_review_api_status = "unknown"
     session_db_status = "ok" if session_db is not None else "missing"
     if session_db is None:
         errors.append("Hermes SessionDB is unavailable.")
@@ -279,6 +306,23 @@ def validate_hermes_contract(
                 errors.append("AIAgent.run_conversation missing required parameter(s): " + ", ".join(missing_run))
         else:
             api_signature_status = "ok"
+
+    if not require_platform_runtime:
+        self_review_api_status = "not_required"
+    elif hermes_self_review_contracts is None or hermes_self_review_queue is None:
+        self_review_api_status = "missing"
+        errors.append("Hermes self-review contract/queue APIs are unavailable.")
+    else:
+        missing_apis = sorted(
+            name for name in _REQUIRED_SELF_REVIEW_QUEUE_APIS if not hasattr(hermes_self_review_queue, name)
+        )
+        if not hasattr(hermes_self_review_contracts, "SelfReviewObservationV1"):
+            missing_apis.append("SelfReviewObservationV1")
+        if missing_apis:
+            self_review_api_status = "failed"
+            errors.append("Hermes self-review APIs missing required symbol(s): " + ", ".join(missing_apis))
+        else:
+            self_review_api_status = "ok"
 
     if not expected:
         pin_status = "missing_expected_pin"
@@ -369,6 +413,7 @@ def validate_hermes_contract(
         required_toolsets=requested_toolsets,
         toolset_status=toolset_status,
         session_db_status=session_db_status,
+        self_review_api_status=self_review_api_status,
         errors=errors,
         checked_at_unix=time.time(),
     )
@@ -426,6 +471,7 @@ class HermesAgentAdapter:
             hermes_home=self._hermes_home,
             session_db=session_db,
             required_toolsets=[_string(item) for item in _json_list(self._payload.get("toolsets")) if _string(item)],
+            require_platform_runtime=True,
         )
         if not status.ok:
             raise HermesContractError(status)
@@ -461,6 +507,9 @@ class HermesAgentAdapter:
             response = _string(result.get("final_response"))
         if not response:
             response = _string(result)
+        self_review_candidate = self._write_self_review_candidate(result if isinstance(result, dict) else {})
+        safe_result = dict(result) if isinstance(result, dict) else {"value": response}
+        safe_result.pop("self_review_observation", None)
         completion_meta = self._completion_meta(result)
         self._lifecycle.record(
             "model.call.completed",
@@ -469,16 +518,93 @@ class HermesAgentAdapter:
                 "status": "completed",
                 "termination_reason": completion_meta["termination_reason"],
                 "completion_verdict": completion_meta["completion_verdict"],
+                "self_review_candidate_status": _string(self_review_candidate.get("candidate_status"))
+                or _string(self_review_candidate.get("status")),
             },
         )
         return {
             "ok": not (isinstance(result, dict) and bool(result.get("failed"))),
             "response": response,
-            "result": result if isinstance(result, dict) else {"value": response},
+            "result": safe_result,
             "session_id": session_id,
             "contract_status": status.to_dict(),
+            "self_review_candidate": self_review_candidate,
             **completion_meta,
         }
+
+    def _write_self_review_candidate(self, result: JsonObject) -> JsonObject:
+        observation = _json_object(result.get("self_review_observation"))
+        if not observation:
+            return {}
+        timeout_seconds = float(os.getenv("RSI_HERMES_SELF_REVIEW_CANDIDATE_WRITE_TIMEOUT_SECONDS") or "2.5")
+        payload = {"observation": observation}
+        temp_path = ""
+        try:
+            with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".json", delete=False) as handle:
+                temp_path = handle.name
+                json.dump(payload, handle, ensure_ascii=True, sort_keys=True)
+                handle.flush()
+                os.fsync(handle.fileno())
+            completed = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "rsi_runner.hermes_self_review_candidate_writer",
+                    temp_path,
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=max(0.1, timeout_seconds),
+            )
+            if completed.returncode != 0:
+                stderr = _string(completed.stderr)
+                self._lifecycle.record(
+                    "self_review.candidate.write_failed",
+                    {"status": "failed", "error": stderr[:800]},
+                )
+                return {
+                    "candidate_status": "candidate_write_failed",
+                    "status": "candidate_write_failed",
+                    "error": stderr[:800],
+                }
+            parsed = json.loads(completed.stdout.strip().splitlines()[-1] if completed.stdout.strip() else "{}")
+            if not isinstance(parsed, dict):
+                raise ValueError("candidate writer returned non-object JSON")
+            self._lifecycle.record(
+                "self_review.candidate.written",
+                {
+                    "status": _string(parsed.get("candidate_status")) or _string(parsed.get("status")),
+                    "candidate_id": parsed.get("candidate_id"),
+                    "execution_id": _string(parsed.get("execution_id")),
+                    "snapshot_ref": _string(parsed.get("snapshot_ref")),
+                    "snapshot_hash": _string(parsed.get("snapshot_hash")),
+                    "snapshot_size": parsed.get("snapshot_size"),
+                },
+            )
+            return {
+                key: value
+                for key, value in parsed.items()
+                if key in {"candidate_id", "candidate_status", "status", "execution_id", "agent_identity", "snapshot_ref", "snapshot_hash", "snapshot_size"}
+            }
+        except subprocess.TimeoutExpired:
+            self._lifecycle.record(
+                "self_review.candidate.write_failed",
+                {"status": "timeout", "timeout_seconds": timeout_seconds},
+            )
+            return {"candidate_status": "candidate_write_failed", "status": "candidate_write_failed", "error": "candidate write timeout"}
+        except Exception as exc:
+            self._lifecycle.record(
+                "self_review.candidate.write_failed",
+                {"status": "failed", "error": str(exc)[:800]},
+            )
+            return {"candidate_status": "candidate_write_failed", "status": "candidate_write_failed", "error": str(exc)[:800]}
+        finally:
+            if temp_path:
+                try:
+                    Path(temp_path).unlink(missing_ok=True)
+                except OSError:
+                    pass
 
     def artifact_tool_events(self) -> list[JsonObject]:
         events: list[JsonObject] = []
@@ -557,6 +683,7 @@ class HermesAgentAdapter:
             "session_db": session_db,
             "skip_context_files": True,
             "skip_memory": False,
+            "self_review_mode": "manual",
             "reasoning_callback": self._reasoning_callback,
             "stream_delta_callback": self._stream_delta_callback,
             "thinking_callback": self._thinking_callback,

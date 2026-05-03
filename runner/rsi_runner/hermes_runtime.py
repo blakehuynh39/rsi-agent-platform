@@ -1050,6 +1050,8 @@ class HermesRuntime:
         self._executor_recent_results: dict[str, JsonObject] = {}
         self._executor_processes: dict[str, subprocess.Popen[str]] = {}
         self._executor_threads: dict[str, threading.Thread] = {}
+        self._self_review_processes: dict[str, subprocess.Popen[str]] = {}
+        self._self_review_draining = False
         self._executor_process_lock = threading.RLock()
         self._executor_cancel_requests: set[str] = set()
         self._company_computer_bootstrap_status = self._configure_company_computer_substrate()
@@ -1473,6 +1475,34 @@ class HermesRuntime:
     def active_execution_count(self) -> int:
         return int(self.active_execution_snapshot().get("active_execution_count") or 0)
 
+    def request_drain(self) -> None:
+        self._self_review_draining = True
+
+    def terminate_self_review_processes(self, timeout_seconds: float = 5.0) -> None:
+        deadline = time.monotonic() + max(0.0, float(timeout_seconds or 0))
+        with self._executor_process_lock:
+            processes = list(self._self_review_processes.items())
+        for _review_id, process in processes:
+            if process.poll() is None:
+                try:
+                    process.terminate()
+                except OSError:
+                    pass
+        for _review_id, process in processes:
+            remaining = deadline - time.monotonic()
+            if process.poll() is not None:
+                continue
+            if remaining > 0:
+                try:
+                    process.wait(timeout=remaining)
+                    continue
+                except subprocess.TimeoutExpired:
+                    pass
+            try:
+                process.kill()
+            except OSError:
+                pass
+
     def active_execution_snapshot(self) -> JsonObject:
         with self._executor_process_lock:
             active_thread_ids = sorted(
@@ -1485,15 +1515,64 @@ class HermesRuntime:
                 for execution_id, process in self._executor_processes.items()
                 if process.poll() is None
             )
+            finished_review_ids = [
+                review_id for review_id, process in self._self_review_processes.items() if process.poll() is not None
+            ]
+            for review_id in finished_review_ids:
+                self._self_review_processes.pop(review_id, None)
+            active_self_review_ids = sorted(
+                review_id
+                for review_id, process in self._self_review_processes.items()
+                if process.poll() is None
+            )
         active_ids = sorted(set(active_thread_ids) | set(active_process_ids))
+        review_status = self._self_review_queue_status(reconcile_stale=False)
+        local_pending_reviews = int(review_status.get("local_owned_pending_count") or 0) + int(
+            review_status.get("local_owned_promotable_count") or 0
+        )
+        active_self_review_count = len(active_self_review_ids)
         return {
-            "active_execution_count": len(active_ids),
+            "active_execution_count": len(active_ids) + active_self_review_count + local_pending_reviews,
+            "active_main_execution_count": len(active_ids),
+            "active_self_review_count": active_self_review_count,
+            "local_pending_self_review_count": local_pending_reviews,
+            "global_review_blocking_count": int(review_status.get("global_review_blocking_count") or 0),
+            "global_skill_review_blocking_count": int(review_status.get("global_skill_review_blocking_count") or 0),
+            "promotable_self_review_candidate_count": int(review_status.get("promotable_candidate_count") or 0),
             "active_execution_ids": active_ids,
+            "active_self_review_ids": active_self_review_ids,
             "active_thread_execution_ids": active_thread_ids,
             "active_process_execution_ids": active_process_ids,
             "executor_instance_id": self._config.executor_instance_id,
             "executor_started_at_unix": self._started_at_unix,
+            "self_review_draining": self._self_review_draining,
         }
+
+    def _self_review_config(self) -> Any:
+        from self_review_queue import SelfReviewConfig  # type: ignore
+
+        return SelfReviewConfig.from_env(
+            executor_instance_id=self._config.executor_instance_id,
+            pod_generation=os.getenv("POD_UID") or f"{self._config.executor_instance_id}:{int(self._started_at_unix)}",
+            agent_identity=os.getenv("RSI_HERMES_SELF_REVIEW_IDENTITY") or self._config.honcho_ai_peer,
+            memory_backend=self._config.memory_backend,
+            honcho_workspace=self._config.honcho_workspace,
+            honcho_environment=self._config.honcho_environment,
+            model=self._configured_model.removeprefix("openrouter/"),
+            provider="openrouter",
+            base_url=self._base_url,
+            api_mode=self._api_mode,
+        )
+
+    def _self_review_queue_status(self, *, reconcile_stale: bool) -> JsonObject:
+        try:
+            from self_review_queue import review_queue_status  # type: ignore
+
+            result = review_queue_status(self._self_review_config(), reconcile_stale=reconcile_stale)
+            return result if isinstance(result, dict) else {}
+        except Exception as exc:
+            logger.debug("self-review queue status unavailable: %s", exc)
+            return {}
 
     def wait_for_active_executions(self, timeout_seconds: float) -> JsonObject:
         deadline = time.monotonic() + max(0.0, float(timeout_seconds or 0))
@@ -1504,6 +1583,8 @@ class HermesRuntime:
                 last_snapshot["drain_status"] = "timeout"
                 last_snapshot["deadline_unix"] = time.time()
                 return last_snapshot
+            if self._self_review_draining and int(last_snapshot.get("local_pending_self_review_count") or 0) > 0:
+                self._advance_local_self_review_work()
             execution_ids = list(last_snapshot.get("active_execution_ids") or [])
             with self._executor_process_lock:
                 threads = [
@@ -1519,6 +1600,14 @@ class HermesRuntime:
         last_snapshot["drain_status"] = "drained"
         last_snapshot["deadline_unix"] = time.time()
         return last_snapshot
+
+    def _advance_local_self_review_work(self) -> None:
+        try:
+            from self_review_queue import advance_local_review_queue  # type: ignore
+
+            advance_local_review_queue(self._self_review_config())
+        except Exception as exc:
+            logger.warning("local self-review drain advance failed: %s", exc)
 
     def _native_execution_log_root(self) -> Path:
         return Path(self._config.hermes_home) / "rsi_runtime" / "native_executions"
@@ -2407,7 +2496,7 @@ class HermesRuntime:
                     )
                     self._executor_recent_results[key] = orphaned
                     return orphaned
-            return dict(cached)
+            return self._merge_self_review_status(key, dict(cached))
         path = self._executor_status_path(key)
         try:
             if not path.exists():
@@ -2427,6 +2516,7 @@ class HermesRuntime:
                     payload,
                     "Persisted executor status was running, but no local execution process is active.",
                 )
+        payload = self._merge_self_review_status(key, payload)
         self._executor_recent_results[key] = dict(payload)
         return dict(payload)
 
@@ -2452,6 +2542,25 @@ class HermesRuntime:
                 pass
         if "last_observed_ledger_seq" not in out:
             out["last_observed_ledger_seq"] = out.get("last_ledger_seq", "")
+        return out
+
+    def _merge_self_review_status(self, execution_id: str, payload: JsonObject) -> JsonObject:
+        try:
+            from self_review_queue import candidate_status  # type: ignore
+
+            status = candidate_status(self._self_review_config(), execution_id)
+        except Exception as exc:
+            logger.debug("self-review status merge unavailable execution_id=%s error=%s", execution_id, exc)
+            return dict(payload)
+        if not isinstance(status, dict) or not status:
+            return dict(payload)
+        out = dict(payload)
+        out["self_review"] = status
+        result = dict(_json_object_or_empty(out.get("result")))
+        raw = _json_object_or_empty(result.get("raw"))
+        if raw:
+            result["raw"] = {**raw, "self_review": status}
+            out["result"] = result
         return out
 
     def cancel_execution(self, execution_id: str) -> JsonObject:
@@ -3185,6 +3294,90 @@ class HermesRuntime:
             "result": self._executor_result_payload(result),
         }
 
+    def _finalize_self_review_candidate(
+        self,
+        task: RunnerTaskRequest,
+        result: HermesExecutionResult,
+        final_status: JsonObject,
+        *,
+        execution_id: str,
+    ) -> None:
+        raw = _json_object_or_empty(result.raw)
+        candidate = _json_object_or_empty(raw.get("self_review_candidate"))
+        candidate_id = int(candidate.get("candidate_id") or 0)
+        if candidate_id <= 0:
+            return
+        diagnostics = _json_object_or_empty(raw.get("runner_diagnostics"))
+        native_validated = _bool_or_false(diagnostics.get("native_envelope_validated"))
+        partial_recovered = _bool_or_false(raw.get("partial_recovery_succeeded")) or _bool_or_false(diagnostics.get("partial_completion_succeeded"))
+        eligible = (
+            bool(result.ok)
+            and str(final_status.get("status") or "").strip().lower() == "completed"
+            and self._result_is_native_strict(result)
+            and not _bool_or_false(raw.get("non_deliverable"))
+            and (native_validated or partial_recovered)
+        )
+        try:
+            if not eligible:
+                from self_review_queue import mark_candidate_ineligible  # type: ignore
+
+                mark_candidate_ineligible(self._self_review_config(), execution_id, "result was not eligible for delivered self-review")
+                return
+            from self_review_queue import mark_candidate_delivered, promote_review_candidate  # type: ignore
+
+            result_payload = _json_object_or_empty(final_status.get("result"))
+            result_hash = hashlib.sha256(
+                json.dumps(result_payload, ensure_ascii=True, sort_keys=True, separators=(",", ":")).encode("utf-8")
+            ).hexdigest()
+            delivered = mark_candidate_delivered(
+                self._self_review_config(),
+                execution_id,
+                result_hash,
+                result_ref=str(self._executor_status_path(execution_id)),
+            )
+            if str(delivered.get("status") or "").strip().lower() in {"delivery_ref_mismatch", "ineligible"}:
+                logger.warning("self-review delivered marker rejected execution_id=%s status=%s", execution_id, delivered.get("status"))
+                return
+            promoted = promote_review_candidate(self._self_review_config(), candidate_id)
+            if str(promoted.get("status") or "").strip().lower() == "enqueued":
+                self._start_self_review_worker(candidate_id)
+        except Exception as exc:
+            logger.warning("self-review candidate finalization failed execution_id=%s candidate_id=%s error=%s", execution_id, candidate_id, exc)
+
+    def _start_self_review_worker(self, candidate_id: int) -> None:
+        key = f"candidate-{candidate_id}"
+        with self._executor_process_lock:
+            existing = self._self_review_processes.get(key)
+            if existing is not None and existing.poll() is None:
+                return
+            cmd = [
+                sys.executable,
+                "-m",
+                "rsi_runner.hermes_self_review_worker",
+                "--candidate-id",
+                str(candidate_id),
+            ]
+            if self._self_review_draining:
+                cmd.append("--local-only")
+            process = subprocess.Popen(
+                cmd,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                text=True,
+            )
+            self._self_review_processes[key] = process
+
+        def _reap() -> None:
+            returncode = process.wait()
+            with self._executor_process_lock:
+                if self._self_review_processes.get(key) is process:
+                    self._self_review_processes.pop(key, None)
+            if returncode != 0:
+                logger.warning("self-review worker exited candidate_id=%s returncode=%s", candidate_id, returncode)
+
+        threading.Thread(target=_reap, name=f"rsi-hermes-self-review-{candidate_id}", daemon=True).start()
+
     def _native_strict_failure(
         self,
         task: RunnerTaskRequest,
@@ -3883,6 +4076,7 @@ class HermesRuntime:
             "native_executor_returncode": completed_returncode,
             "native_executor_stderr": _truncate_string(redacted_completed_stderr, 4000),
             "native_executor_contract_status": _json_object_or_empty(parsed_result.get("contract_status")),
+            "self_review_candidate": _json_object_or_empty(parsed_result.get("self_review_candidate")),
             "github_cli_credentials": github_cli_credentials,
             "artifact_tool_events": artifact_tool_events,
             "native_artifact_paths": native_artifact_paths,
@@ -3942,6 +4136,7 @@ class HermesRuntime:
                 termination_reason=termination_reason,
                 observer=observer,
             )
+            partial_result.raw["self_review_candidate"] = _json_object_or_empty(parsed_result.get("self_review_candidate"))
             self._store_executor_result(
                 execution_id,
                 {
@@ -6117,15 +6312,14 @@ class HermesRuntime:
                 result = self._native_cancelled_result(task, result)
         if self._config.execution_envelope_v1_enabled and not self._result_is_native_strict(result):
             result = self._company_computer.attach_envelope(task, result, observer=observer)
-        self._store_executor_result(
-            observer.execution_id,
-            self._executor_final_status(
-                task,
-                result,
-                execution_id=observer.execution_id,
-                status="cancelled" if _bool_or_false(_json_object_or_empty(result.raw).get("non_deliverable")) else None,
-            ),
+        final_status = self._executor_final_status(
+            task,
+            result,
+            execution_id=observer.execution_id,
+            status="cancelled" if _bool_or_false(_json_object_or_empty(result.raw).get("non_deliverable")) else None,
         )
+        self._store_executor_result(observer.execution_id, final_status)
+        self._finalize_self_review_candidate(task, result, final_status, execution_id=observer.execution_id)
         return result
 
     def _execute_task_internal(self, task: RunnerTaskRequest, *, observer: ObservationEmitter | None = None) -> HermesExecutionResult:
