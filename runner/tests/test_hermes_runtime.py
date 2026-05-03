@@ -1236,6 +1236,27 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(meta["max_iterations_reached"])
         self.assertFalse(meta["native_result_completed"])
 
+    def test_hermes_agent_adapter_preserves_native_timeout_meta(self) -> None:
+        adapter = HermesAgentAdapter({"session_id": "session-1", "max_iterations": 20})
+
+        meta = adapter._completion_meta(
+            {
+                "completed": False,
+                "partial": True,
+                "api_calls": 3,
+                "final_response": "partial reply",
+                "termination_reason": "task_timeout",
+                "completion_verdict": "partial",
+                "timeout_kind": "task_timeout",
+            }
+        )
+
+        self.assertEqual(meta["termination_reason"], "task_timeout")
+        self.assertEqual(meta["completion_verdict"], "partial")
+        self.assertEqual(meta["timeout_kind"], "task_timeout")
+        self.assertFalse(meta["max_iterations_reached"])
+        self.assertTrue(meta["native_result_partial"])
+
     def test_hermes_contract_rejects_missing_aiagent_kwargs(self) -> None:
         class BadAIAgent:
             def __init__(self, model=None):
@@ -3381,13 +3402,15 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(activities, ["lifecycle:tool.generation.started:running"])
         self.assertEqual(observer.events[0]["event_type"], "tool.generation.started")
 
-    def test_native_executor_subprocess_uses_inactivity_guard_not_wall_clock_task_kill(self) -> None:
+    def test_native_executor_subprocess_observes_without_parent_timeout_kill(self) -> None:
         source = Path(__file__).parents[1].joinpath("rsi_runner", "hermes_runtime.py").read_text(encoding="utf-8")
         method = source.split("def _execute_native_workflow_task_request", 1)[1].split("\n    def ", 1)[0]
 
         self.assertNotIn("effective_task_timeout + 5", method)
-        self.assertIn("executor.inactivity_timeout", method)
-        self.assertIn("effective_inactivity_timeout", method)
+        self.assertNotIn("executor.inactivity_timeout", method)
+        self.assertNotIn("effective_inactivity_timeout", method)
+        self.assertIn('"timeout_source": "hermes_subprocess"', method)
+        self.assertIn("process.poll()", method)
 
     def test_redaction_masks_unknown_secret_values_by_key_shape(self) -> None:
         text = "\n".join(
@@ -3591,8 +3614,9 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(len(persisted_events), 1)
         self.assertIsNone(persisted_events[0]["payload"].get("bytes"))
 
-    def test_native_executor_timeout_path_keeps_waits_bounded_after_failed_kill(self) -> None:
+    def test_native_executor_cancel_path_keeps_waits_bounded_after_failed_kill(self) -> None:
         wait_calls: list[object] = []
+        runtime_holder: dict[str, HermesRuntime] = {}
 
         class FakePopen:
             def __init__(self, cmd, cwd, env, stdout, stderr, text):
@@ -3601,6 +3625,10 @@ class HermesRuntimeTests(unittest.TestCase):
                 self.stderr = io.StringIO("")
 
             def poll(self):
+                runtime = runtime_holder.get("runtime")
+                if runtime is not None:
+                    with runtime._executor_process_lock:
+                        runtime._executor_cancel_requests.add("hexec-cancel")
                 return None
 
             def wait(self, timeout=None):
@@ -3622,7 +3650,7 @@ class HermesRuntimeTests(unittest.TestCase):
         ), mock.patch(
             "rsi_runner.hermes_runtime.subprocess.Popen", side_effect=FakePopen
         ), mock.patch(
-            "rsi_runner.hermes_runtime.time.monotonic", side_effect=[0.0, 7.0]
+            "rsi_runner.hermes_runtime.time.sleep", side_effect=lambda _seconds: None
         ), mock.patch.dict(
             os.environ,
             {
@@ -3630,18 +3658,18 @@ class HermesRuntimeTests(unittest.TestCase):
                 "HERMES_HOME": hermes_home,
                 "RSI_HERMES_EXECUTOR_ENABLED": "true",
                 "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
-                "RSI_RUNNER_PROD_TASK_TIMEOUT": "1s",
             },
             clear=True,
         ):
             runtime = HermesRuntime(RunnerConfig.from_env())
+            runtime_holder["runtime"] = runtime
             task = RunnerTaskRequest.from_payload(
                 {
                     "task": {
                         "task_type": "workflow",
                         "repo": "depin-backend",
                         "prompt": "User prompt",
-                        "execution_id": "hexec-timeout",
+                        "execution_id": "hexec-cancel",
                         "trace_id": "trace-123",
                         "workflow_id": "wf-123",
                         "operation_id": "op-123",
@@ -3658,9 +3686,10 @@ class HermesRuntimeTests(unittest.TestCase):
             )
 
         self.assertFalse(result.ok)
+        self.assertEqual(result.raw["failure_class"], "runner_cancelled")
         self.assertEqual(wait_calls, [5, 5])
 
-    def test_native_executor_timeout_with_success_result_keeps_timeout_classification(self) -> None:
+    def test_native_executor_low_task_timeout_does_not_reclassify_success_result(self) -> None:
         class FakePopen:
             def __init__(self, cmd, cwd, env, stdout, stderr, text):
                 request = json.loads(Path(cmd[-1]).read_text(encoding="utf-8"))
@@ -3675,9 +3704,11 @@ class HermesRuntimeTests(unittest.TestCase):
                 self.returncode = 0
                 self.stdout = io.StringIO("")
                 self.stderr = io.StringIO("")
+                self.poll_calls = 0
 
             def poll(self):
-                return None
+                self.poll_calls += 1
+                return None if self.poll_calls == 1 else 0
 
             def wait(self, timeout=None):
                 return self.returncode
@@ -3695,7 +3726,7 @@ class HermesRuntimeTests(unittest.TestCase):
         ), mock.patch(
             "rsi_runner.hermes_runtime.subprocess.Popen", side_effect=FakePopen
         ), mock.patch(
-            "rsi_runner.hermes_runtime.time.monotonic", side_effect=[0.0, 7.0, 8.0, 8.1]
+            "rsi_runner.hermes_runtime.time.sleep", side_effect=lambda _seconds: None
         ), mock.patch.dict(
             os.environ,
             {
@@ -3729,16 +3760,41 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertTrue(result.ok)
         self.assertEqual(result.raw.get("native_strict"), True)
+        self.assertEqual(result.raw.get("native_timeout_source"), "hermes_subprocess")
+        self.assertEqual(result.raw.get("termination_reason"), "normal_completion")
+        self.assertNotIn("timeout_kind", result.raw)
 
     def test_native_partial_recovery_failure_skips_attach_envelope(self) -> None:
         class FakePopen:
             def __init__(self, cmd, cwd, env, stdout, stderr, text):
+                request = json.loads(Path(cmd[-1]).read_text(encoding="utf-8"))
+                payload = {
+                    "ok": False,
+                    "error": "Hermes subprocess reported task timeout.",
+                    "response": "",
+                    "result": {
+                        "final_response": "",
+                        "completed": False,
+                        "partial": True,
+                        "api_calls": 3,
+                        "termination_reason": "task_timeout",
+                        "completion_verdict": "partial",
+                        "timeout_kind": "task_timeout",
+                        "stopped_after_seconds": 1,
+                    },
+                    "session_id": "rsi-prod-conversation-123",
+                    "termination_reason": "task_timeout",
+                    "completion_verdict": "partial",
+                    "timeout_kind": "task_timeout",
+                    "stopped_after_seconds": 1,
+                }
+                Path(request["result_path"]).write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
                 self.returncode = 0
                 self.stdout = io.StringIO("")
                 self.stderr = io.StringIO("")
 
             def poll(self):
-                return None
+                return 0
 
             def wait(self, timeout=None):
                 return self.returncode
@@ -3749,7 +3805,6 @@ class HermesRuntimeTests(unittest.TestCase):
             def kill(self):
                 self.returncode = -9
 
-        monotonic_values = iter([0.0, 7.0, 8.0, 8.1])
         task = RunnerTaskRequest.from_payload(
             {
                 "task": {
@@ -3775,8 +3830,6 @@ class HermesRuntimeTests(unittest.TestCase):
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
         ), mock.patch(
             "rsi_runner.hermes_runtime.subprocess.Popen", side_effect=FakePopen
-        ), mock.patch(
-            "rsi_runner.hermes_runtime.time.monotonic", side_effect=lambda: next(monotonic_values, 8.1)
         ), mock.patch.object(
             HermesCompanyComputer,
             "attach_envelope",
@@ -3798,7 +3851,10 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertFalse(result.ok)
         self.assertEqual(result.provider, "hermes-native-executor")
         self.assertEqual(result.raw["failure_class"], "runner_partial_completion_unrecoverable")
+        self.assertEqual(result.raw["termination_reason"], "task_timeout")
+        self.assertEqual(result.raw["timeout_kind"], "task_timeout")
         self.assertTrue(result.raw["native_strict"])
+        self.assertEqual(result.raw["native_timeout_source"], "hermes_subprocess")
         self.assertNotIn("execution_envelope", result.raw)
         attach_mock.assert_not_called()
 

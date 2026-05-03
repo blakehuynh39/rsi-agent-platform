@@ -65,6 +65,14 @@ _REQUIRED_AIAgent_INIT_PARAMS = frozenset(
     }
 )
 _REQUIRED_RUN_CONVERSATION_PARAMS = frozenset({"conversation_history", "task_id", "user_message"})
+_PARTIAL_COMPLETION_TERMINATION_REASONS = frozenset(
+    {
+        "task_timeout",
+        "inactivity_timeout",
+        "iteration_budget_exhausted",
+        "output_token_budget_exhausted",
+    }
+)
 
 
 def _string(value: Any) -> str:
@@ -595,21 +603,31 @@ class HermesAgentAdapter:
         interrupted = _bool(result.get("interrupted"))
         api_calls = _int(result.get("api_calls"))
         max_iterations = _int(self._payload.get("max_iterations"))
+        explicit_termination_reason = _string(result.get("termination_reason"))
+        explicit_completion_verdict = _string(result.get("completion_verdict"))
+        timeout_kind = _string(result.get("timeout_kind"))
+        incomplete_without_reason = partial or interrupted or (completed_known and not completed)
         max_iterations_reached = (
-            partial
-            or interrupted
-            or (completed_known and not completed)
+            explicit_termination_reason == "iteration_budget_exhausted"
             or (max_iterations > 0 and api_calls >= max_iterations and not completed)
         )
-        return {
-            "termination_reason": "iteration_budget_exhausted" if max_iterations_reached else "normal_completion",
-            "completion_verdict": "partial" if max_iterations_reached else "complete",
+        termination_reason = explicit_termination_reason or (
+            "iteration_budget_exhausted" if (max_iterations_reached or incomplete_without_reason) else "normal_completion"
+        )
+        partial_stop = termination_reason in _PARTIAL_COMPLETION_TERMINATION_REASONS
+        completion_verdict = explicit_completion_verdict or ("partial" if partial_stop or incomplete_without_reason else "complete")
+        meta: JsonObject = {
+            "termination_reason": termination_reason,
+            "completion_verdict": completion_verdict,
             "max_iterations_reached": max_iterations_reached,
             "native_result_completed": completed,
-            "native_result_partial": partial,
+            "native_result_partial": partial or partial_stop or completion_verdict == "partial",
             "native_result_interrupted": interrupted,
             "native_result_api_calls": api_calls,
         }
+        if timeout_kind:
+            meta["timeout_kind"] = timeout_kind
+        return meta
 
     def _record_lifecycle(self, event_type: str, *, status: str = "", payload: JsonObject | None = None) -> None:
         self._lifecycle.record(
