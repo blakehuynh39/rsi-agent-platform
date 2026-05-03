@@ -33,6 +33,7 @@ import { CaseDetail } from "@/components/detail/case-detail";
 import { ProposalDetail } from "@/components/detail/proposal-detail";
 import { KnowledgeDetail } from "@/components/detail/knowledge-detail";
 import { HarnessDetail } from "@/components/detail/harness-detail";
+import { Icon } from "@/components/icon";
 
 const ACTIVE_PROPOSAL_STATES = new Set([
   "pending_review",
@@ -62,12 +63,40 @@ function dateSortValue(value?: string) {
   return Number.isNaN(parsed) ? 0 : parsed;
 }
 
+function normalizedStatus(value?: string) {
+  return (value || "").toLowerCase().replace(/\s+/g, "_");
+}
+
+function isLiveStatus(value?: string) {
+  return RUNNING_TRACE_STATES.has(normalizedStatus(value));
+}
+
+function isLiveConversation(item: ConversationListItem) {
+  return item.open_trace_count > 0 || isLiveStatus(item.status) || isLiveStatus(item.active_case?.status);
+}
+
+function isLiveCase(item: CaseSummary) {
+  return isLiveStatus(item.status);
+}
+
+function isLiveProposal(status: string) {
+  return ACTIVE_PROPOSAL_STATES.has(normalizedStatus(status));
+}
+
+function ActivityGlyph(props: { active: boolean; label: string }) {
+  return (
+    <span className={props.active ? "activity-glyph live" : "activity-glyph"} aria-label={props.label} title={props.label}>
+      <span />
+    </span>
+  );
+}
+
 function countLabel(loaded: boolean, count: number) {
   return loaded ? String(count) : "...";
 }
 
 function defaultTraceInspectorTabForStatus(status?: string): TraceInspectorTab {
-  return status && RUNNING_TRACE_STATES.has(status.toLowerCase()) ? "raw" : "summary";
+  return status && RUNNING_TRACE_STATES.has(normalizedStatus(status)) ? "raw" : "summary";
 }
 
 function canRetryProposal(detail: ProposalDetailResponse) {
@@ -115,7 +144,7 @@ export function App() {
   const [viewState, setViewState] = useState<ViewState>(() => readViewState());
   const [proposalSegment, setProposalSegment] = useState<ProposalSegment>("active");
   const [knowledgeSegment, setKnowledgeSegment] = useState<KnowledgeSegment>("working");
-  const [traceInspectorTab, setTraceInspectorTab] = useState<TraceInspectorTab>("overview");
+  const [traceInspectorTab, setTraceInspectorTab] = useState<TraceInspectorTab>("summary");
   const defaultedTraceTabRef = useRef<string | undefined>();
   const [proposalCapInput, setProposalCapInput] = useState("2");
   const [feedbackTargetType, setFeedbackTargetType] = useState("trace");
@@ -127,12 +156,26 @@ export function App() {
   const [knowledgeReviewRationale, setKnowledgeReviewRationale] = useState("");
   const [loadSecondaryData, setLoadSecondaryData] = useState(false);
   const [conversationPage, setConversationPage] = useState(1);
+  const [planeOpen, setPlaneOpen] = useState(false);
 
   useEffect(() => {
     const handlePopState = () => setViewState(readViewState());
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
+
+  useEffect(() => {
+    if (!planeOpen) {
+      return;
+    }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setPlaneOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [planeOpen]);
 
   const navigate = (next: ViewState) => {
     writeViewState(next);
@@ -515,112 +558,65 @@ export function App() {
 
   return (
     <div className="app-shell">
-      <aside className="nav-rail">
-        <div className="brand-block">
-          <p className="eyebrow">Improvement Plane</p>
-          <h1>Evidence-first operator workspace</h1>
-          <p className="muted">
-            Start from conversations, move into cases, and inspect the exact trace evidence that produced a proposal.
-          </p>
+      <header className="top-bar">
+        <div className="top-brand">
+          <Icon name="branch" />
+          <span>RSI Router</span>
         </div>
+        <label className="global-search">
+          <Icon name="search" />
+          <input type="search" placeholder="Search" aria-label="Search workspace" />
+          <kbd>/</kbd>
+        </label>
+        <nav className="top-nav" aria-label="Workspace pages">
+          <span>Home</span>
+          <span>Fusion</span>
+          <span>Models</span>
+          <span className="active">Chat</span>
+          <span>Rankings</span>
+          <span>Apps</span>
+          <span>Docs</span>
+        </nav>
+        <div className="profile-menu" aria-label="Profile">
+          <span>B</span>
+          <strong>Personal</strong>
+          <Icon name="chevron" />
+        </div>
+      </header>
 
-        <nav className="tab-nav" aria-label="Sections">
-          <button className={viewState.tab === "conversations" ? "tab-button active" : "tab-button"} onClick={() => navigate({ tab: "conversations" })}>
-            <span>Conversations</span>
-            <strong>{countLabel(conversationsQuery.isFetched, conversations.length)}</strong>
+      <aside className="activity-rail" aria-label="Primary navigation">
+        <div className="rail-section-title">Workspace</div>
+        <nav className="rail-nav" aria-label="Sections">
+          <button className={viewState.tab === "conversations" ? "rail-button active" : "rail-button"} onClick={() => navigate({ tab: "conversations" })} aria-label="Conversations">
+            <Icon name="chat" />
+            <span className="rail-label">Conversations</span>
+            <span className="rail-count">{countLabel(conversationsQuery.isFetched, conversations.length)}</span>
           </button>
-          <button className={viewState.tab === "cases" ? "tab-button active" : "tab-button"} onClick={() => navigate({ tab: "cases" })}>
-            <span>Cases</span>
-            <strong>{countLabel(casesQuery.isFetched, cases.length)}</strong>
+          <button className={viewState.tab === "cases" ? "rail-button active" : "rail-button"} onClick={() => navigate({ tab: "cases" })} aria-label="Projects">
+            <Icon name="folder" />
+            <span className="rail-label">Projects</span>
+            <span className="rail-count">{countLabel(casesQuery.isFetched, cases.length)}</span>
           </button>
-          <button className={viewState.tab === "proposals" ? "tab-button active" : "tab-button"} onClick={() => navigate({ tab: "proposals" })}>
-            <span>Proposals</span>
-            <strong>{countLabel(proposalsQuery.isFetched, proposals.length)}</strong>
+          <button className={viewState.tab === "proposals" ? "rail-button active" : "rail-button"} onClick={() => navigate({ tab: "proposals" })} aria-label="Proposals">
+            <Icon name="spark" />
+            <span className="rail-label">Proposals</span>
+            <span className="rail-count">{countLabel(proposalsQuery.isFetched, proposals.length)}</span>
           </button>
-          <button className={viewState.tab === "knowledge" ? "tab-button active" : "tab-button"} onClick={() => navigate({ tab: "knowledge" })}>
-            <span>Knowledge</span>
-            <strong>{countLabel(knowledgeQuery.isFetched, knowledgeEntries.length)}</strong>
+          <button className={viewState.tab === "knowledge" ? "rail-button active" : "rail-button"} onClick={() => navigate({ tab: "knowledge" })} aria-label="Knowledge">
+            <Icon name="database" />
+            <span className="rail-label">Knowledge</span>
+            <span className="rail-count">{countLabel(knowledgeQuery.isFetched, knowledgeEntries.length)}</span>
           </button>
-          <button className={viewState.tab === "harness" ? "tab-button active" : "tab-button"} onClick={() => navigate({ tab: "harness" })}>
-            <span>Harness</span>
-            <strong>{countLabel(harnessQuery.isFetched, harnessRoles.length)}</strong>
+          <button className={viewState.tab === "harness" ? "rail-button active" : "rail-button"} onClick={() => navigate({ tab: "harness" })} aria-label="Harness">
+            <Icon name="terminal" />
+            <span className="rail-label">Harness</span>
+            <span className="rail-count">{countLabel(harnessQuery.isFetched, harnessRoles.length)}</span>
           </button>
         </nav>
-
-        <section className="operations-card rail-secondary">
-          <div className="section-header">
-            <div>
-              <p className="eyebrow">Operations</p>
-              <h2>Proposal cap</h2>
-            </div>
-            <span className="status-chip">{proposalSlotState ? `${proposalSlotState.active}/${proposalSlotState.cap}` : "..."}</span>
-          </div>
-          <dl className="slot-grid">
-            <div><dt>Active</dt><dd>{proposalSlotState ? proposalSlotState.active : "..."}</dd></div>
-            <div><dt>Available</dt><dd>{proposalSlotState ? proposalSlotState.available : "..."}</dd></div>
-            <div><dt>Stale</dt><dd>{proposalSlotState ? listOrEmpty(proposalSlotState.stale_proposal_ids).length : "..."}</dd></div>
-            <div><dt>Candidates</dt><dd>{proposalsQuery.isFetched ? candidates.length : "..."}</dd></div>
-          </dl>
-          <label className="field">
-            Active proposal cap
-            <input type="number" min={1} value={proposalCapInput} onChange={(event) => setProposalCapInput(event.target.value)} />
-          </label>
-          <div className="button-row">
-            <button onClick={() => settingsMutation.mutate()} disabled={settingsMutation.isPending || !proposalSlotState}>Save cap</button>
-            <button className="secondary" onClick={() => promoteMutation.mutate()} disabled={promoteMutation.isPending || !proposalSlotState || proposalSlotState.available === 0}>
-              Run promoter
-            </button>
-          </div>
-        </section>
-
-        <section className="operations-card">
-          <div className="section-header">
-            <div>
-              <p className="eyebrow">Runtime</p>
-              <h2>Model runtime</h2>
-            </div>
-          </div>
-          <div className="runtime-list">
-            {runtimeRoles.map((role) => (
-              <div key={role.role} className="runtime-row">
-                <div>
-                  <strong>{role.role}</strong>
-                  <p>{role.backend || "unreachable"} · {role.provider || "n/a"}</p>
-                </div>
-                <div className="runtime-meta">
-                  <span className={role.healthy ? "status-dot ok" : "status-dot"} />
-                  <small>{role.model}</small>
-                  <small>{role.reasoning_effort}</small>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="operations-card danger-zone rail-secondary">
-          <div className="section-header">
-            <div>
-              <p className="eyebrow">Reset</p>
-              <h2>App data</h2>
-            </div>
-          </div>
-          <p className="danger-copy">
-            Truncate all RSI and Honcho app tables while preserving schema versions so the next e2e run starts from a clean slate.
-          </p>
-          <div className="button-row">
-            <button className="danger" onClick={handleResetAppData} disabled={resetAppDataMutation.isPending}>
-              {resetAppDataMutation.isPending ? "Resetting..." : "Reset app data"}
-            </button>
-          </div>
-          {resetAppDataMutation.isSuccess ? (
-            <p className="inline-feedback success">
-              Reset finished {formatTime(resetAppDataMutation.data?.reset_at)}.
-            </p>
-          ) : null}
-          {resetAppDataError ? (
-            <p className="inline-feedback error">{resetAppDataError}</p>
-          ) : null}
-        </section>
+        <button className="rail-button plane-trigger" onClick={() => setPlaneOpen(true)} aria-label="Open improvement plane">
+          <Icon name="sliders" />
+          <span className="rail-label">Improvement Plane</span>
+        </button>
       </aside>
 
       <section className="list-pane">
@@ -663,31 +659,37 @@ export function App() {
               </div>
             </header>
             <div className="list-stack">
-              {visibleConversations.map((item) => (
-                <button
-                  key={item.conversation_id}
-                  className={item.conversation_id === viewState.conversation ? "list-card selected" : "list-card"}
-                  onClick={() => navigate({ tab: "conversations", conversation: item.conversation_id, trace: item.active_case?.latest_trace_id })}
-                >
-                  <div className="list-card-header">
-                    <div className="card-title-block">
-                      <strong>{item.title || item.external_key}</strong>
-                      <p>{item.source} · {item.status}</p>
+              {visibleConversations.map((item) => {
+                const live = isLiveConversation(item);
+                return (
+                  <button
+                    key={item.conversation_id}
+                    className={item.conversation_id === viewState.conversation ? "list-card selected" : "list-card"}
+                    onClick={() => navigate({ tab: "conversations", conversation: item.conversation_id, trace: item.active_case?.latest_trace_id })}
+                  >
+                    <div className="list-card-header">
+                      <div className="card-title-block">
+                        <span className="list-title-line">
+                          <ActivityGlyph active={live} label={live ? "Live trace running" : "No live trace"} />
+                          <strong>{item.title || item.external_key}</strong>
+                        </span>
+                        <p>{item.source} · {item.status}</p>
+                      </div>
+                      <div className="list-card-badges">
+                        <span className="status-chip">{formatTime(item.latest_message_at)}</span>
+                        {item.latest_trace_verdict ? <span className="status-chip eval">{item.latest_trace_verdict}</span> : null}
+                      </div>
                     </div>
-                    <div className="list-card-badges">
-                      <span className="status-chip">{formatTime(item.latest_message_at)}</span>
-                      {item.latest_trace_verdict ? <span className="status-chip eval">{item.latest_trace_verdict}</span> : null}
-                    </div>
-                  </div>
-                  <p className="trace-thread">{item.external_key}</p>
-                  <dl className="mini-metrics">
-                    <div><dt>Active case</dt><dd>{item.active_case?.title || "none"}</dd></div>
-                    <div><dt>Status</dt><dd>{item.status}</dd></div>
-                    <div><dt>Open traces</dt><dd>{item.open_trace_count}</dd></div>
-                    <div><dt>Proposals</dt><dd>{item.proposal_count}</dd></div>
-                  </dl>
-                </button>
-              ))}
+                    <p className="trace-thread">{item.external_key}</p>
+                    <dl className="mini-metrics">
+                      <div><dt>Active case</dt><dd>{item.active_case?.title || "none"}</dd></div>
+                      <div><dt>Status</dt><dd>{item.status}</dd></div>
+                      <div><dt>Open traces</dt><dd>{item.open_trace_count}</dd></div>
+                      <div><dt>Proposals</dt><dd>{item.proposal_count}</dd></div>
+                    </dl>
+                  </button>
+                );
+              })}
               {conversationsQuery.isFetched && visibleConversations.length === 0 ? (
                 <div className="empty-list">No conversations yet.</div>
               ) : null}
@@ -702,28 +704,34 @@ export function App() {
               </div>
             </header>
             <div className="list-stack">
-              {cases.map((item) => (
-                <button
-                  key={item.case_id}
-                  className={item.case_id === viewState.case ? "list-card selected" : "list-card"}
-                  onClick={() => navigate({ tab: "cases", case: item.case_id, trace: item.latest_trace_id })}
-                >
-                  <div className="list-card-header">
-                    <div>
-                      <strong>{item.title}</strong>
-                      <p>{item.kind} · {item.status}</p>
+              {cases.map((item) => {
+                const live = isLiveCase(item);
+                return (
+                  <button
+                    key={item.case_id}
+                    className={item.case_id === viewState.case ? "list-card selected" : "list-card"}
+                    onClick={() => navigate({ tab: "cases", case: item.case_id, trace: item.latest_trace_id })}
+                  >
+                    <div className="list-card-header">
+                      <div className="card-title-block">
+                        <span className="list-title-line">
+                          <ActivityGlyph active={live} label={live ? "Live trace running" : "No live trace"} />
+                          <strong>{item.title}</strong>
+                        </span>
+                        <p>{item.kind} · {item.status}</p>
+                      </div>
+                      {item.latest_trace_verdict ? <span className="status-chip eval">{item.latest_trace_verdict}</span> : null}
                     </div>
-                    {item.latest_trace_verdict ? <span className="status-chip eval">{item.latest_trace_verdict}</span> : null}
-                  </div>
-                  <p className="trace-thread">{item.summary}</p>
-                  <dl className="mini-metrics">
-                    <div><dt>Conversation</dt><dd>{item.conversation_id}</dd></div>
-                    <div><dt>Bot</dt><dd>{item.assigned_bot}</dd></div>
-                    <div><dt>Recurrence</dt><dd>{item.recurrence}</dd></div>
-                    <div><dt>Proposals</dt><dd>{listOrEmpty(item.linked_proposal_ids).length}</dd></div>
-                  </dl>
-                </button>
-              ))}
+                    <p className="trace-thread">{item.summary}</p>
+                    <dl className="mini-metrics">
+                      <div><dt>Conversation</dt><dd>{item.conversation_id}</dd></div>
+                      <div><dt>Bot</dt><dd>{item.assigned_bot}</dd></div>
+                      <div><dt>Recurrence</dt><dd>{item.recurrence}</dd></div>
+                      <div><dt>Proposals</dt><dd>{listOrEmpty(item.linked_proposal_ids).length}</dd></div>
+                    </dl>
+                  </button>
+                );
+              })}
             </div>
           </>
         ) : viewState.tab === "proposals" ? (
@@ -764,6 +772,7 @@ export function App() {
             ) : (
               <div className="list-stack">
                 {proposalRows.map((proposal) => {
+                  const live = isLiveProposal(proposal.status);
                   return (
                     <button
                       key={proposal.id}
@@ -771,8 +780,11 @@ export function App() {
                       onClick={() => navigate({ tab: "proposals", proposal: proposal.id })}
                     >
                       <div className="list-card-header">
-                        <div>
-                          <strong>{proposal.title}</strong>
+                        <div className="card-title-block">
+                          <span className="list-title-line">
+                            <ActivityGlyph active={live} label={live ? "Proposal line running" : "Proposal line idle"} />
+                            <strong>{proposal.title}</strong>
+                          </span>
                           <p>{proposal.status} · {proposal.recommended_intervention_kind || "repo_change"} · {proposal.candidate_key}</p>
                         </div>
                         <span className="status-chip">{proposal.status}</span>
@@ -976,6 +988,101 @@ export function App() {
           <EmptyDetail title="Knowledge entry not found" body="The selected knowledge entry no longer exists." />
         )}
       </section>
+
+      <button className="plane-edge-toggle" onClick={() => setPlaneOpen(true)} aria-label="Open improvement plane" title="Improvement Plane">
+        <Icon name="sliders" />
+        <span className="visually-hidden">Improvement Plane</span>
+      </button>
+      <div className={planeOpen ? "plane-backdrop visible" : "plane-backdrop"} onClick={() => setPlaneOpen(false)} />
+      <aside className={planeOpen ? "improvement-drawer open" : "improvement-drawer"} aria-hidden={!planeOpen}>
+        <div className="drawer-header">
+          <div>
+            <p className="eyebrow">Improvement Plane</p>
+            <h1>Evidence-first operator workspace</h1>
+          </div>
+          <button className="secondary icon-button" onClick={() => setPlaneOpen(false)} aria-label="Close improvement plane">
+            <Icon name="close" />
+          </button>
+        </div>
+        <p className="muted">
+          Start from conversations, move into projects, and inspect the exact trace evidence that produced a proposal.
+        </p>
+
+        <section className="operations-card">
+          <div className="section-header">
+            <div>
+              <p className="eyebrow">Operations</p>
+              <h2>Proposal cap</h2>
+            </div>
+            <span className="status-chip">{proposalSlotState ? `${proposalSlotState.active}/${proposalSlotState.cap}` : "..."}</span>
+          </div>
+          <dl className="slot-grid">
+            <div><dt>Active</dt><dd>{proposalSlotState ? proposalSlotState.active : "..."}</dd></div>
+            <div><dt>Available</dt><dd>{proposalSlotState ? proposalSlotState.available : "..."}</dd></div>
+            <div><dt>Stale</dt><dd>{proposalSlotState ? listOrEmpty(proposalSlotState.stale_proposal_ids).length : "..."}</dd></div>
+            <div><dt>Candidates</dt><dd>{proposalsQuery.isFetched ? candidates.length : "..."}</dd></div>
+          </dl>
+          <label className="field">
+            Active proposal cap
+            <input type="number" min={1} value={proposalCapInput} onChange={(event) => setProposalCapInput(event.target.value)} />
+          </label>
+          <div className="button-row">
+            <button onClick={() => settingsMutation.mutate()} disabled={settingsMutation.isPending || !proposalSlotState}>Save cap</button>
+            <button className="secondary" onClick={() => promoteMutation.mutate()} disabled={promoteMutation.isPending || !proposalSlotState || proposalSlotState.available === 0}>
+              Run promoter
+            </button>
+          </div>
+        </section>
+
+        <section className="operations-card">
+          <div className="section-header">
+            <div>
+              <p className="eyebrow">Runtime</p>
+              <h2>Model runtime</h2>
+            </div>
+          </div>
+          <div className="runtime-list">
+            {runtimeRoles.map((role) => (
+              <div key={role.role} className="runtime-row">
+                <div>
+                  <strong>{role.role}</strong>
+                  <p>{role.backend || "unreachable"} · {role.provider || "n/a"}</p>
+                </div>
+                <div className="runtime-meta">
+                  <span className={role.healthy ? "status-dot ok" : "status-dot"} />
+                  <small>{role.model}</small>
+                  <small>{role.reasoning_effort}</small>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="operations-card danger-zone">
+          <div className="section-header">
+            <div>
+              <p className="eyebrow">Reset</p>
+              <h2>App data</h2>
+            </div>
+          </div>
+          <p className="danger-copy">
+            Truncate all RSI and Honcho app tables while preserving schema versions so the next e2e run starts from a clean slate.
+          </p>
+          <div className="button-row">
+            <button className="danger" onClick={handleResetAppData} disabled={resetAppDataMutation.isPending}>
+              {resetAppDataMutation.isPending ? "Resetting..." : "Reset app data"}
+            </button>
+          </div>
+          {resetAppDataMutation.isSuccess ? (
+            <p className="inline-feedback success">
+              Reset finished {formatTime(resetAppDataMutation.data?.reset_at)}.
+            </p>
+          ) : null}
+          {resetAppDataError ? (
+            <p className="inline-feedback error">{resetAppDataError}</p>
+          ) : null}
+        </section>
+      </aside>
     </div>
   );
 }

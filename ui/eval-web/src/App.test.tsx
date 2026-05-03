@@ -777,11 +777,10 @@ describe("App", () => {
     });
 
     expect(await screen.findByText("Reasoning stream")).toBeInTheDocument();
-    expect(screen.getByText("model.reasoning.delta · 2 chunks")).toBeInTheDocument();
     expect(screen.getByText("reading repo files")).toBeInTheDocument();
-    expect(screen.getByText("repo_read_file")).toBeInTheDocument();
-    expect(screen.getByText("3 updates")).toBeInTheDocument();
+    expect(screen.getByText("Ran repo_read_file")).toBeInTheDocument();
     expect(screen.getByText("Repository file README.md loaded. · status: ok")).toBeInTheDocument();
+    expect(screen.queryByText("payload")).not.toBeInTheDocument();
   });
 
   it("probes ledger history before showing the Load older control", async () => {
@@ -889,7 +888,8 @@ describe("App", () => {
       expect(window.location.search).toContain("tab=proposals");
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Reset app data" }));
+    fireEvent.click(screen.getAllByRole("button", { name: "Open improvement plane" })[0]);
+    fireEvent.click(await screen.findByRole("button", { name: "Reset app data" }));
 
     await waitFor(() => {
       expect(window.confirm).toHaveBeenCalled();

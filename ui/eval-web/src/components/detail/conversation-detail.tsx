@@ -97,7 +97,29 @@ export function ConversationDetail(props: {
   }, [workflowAttemptPageCount]);
 
   return (
-    <div className="conversation-workspace">
+    <div className="detail-stack conversation-workspace">
+      <TraceInspector
+        selectedTraceId={props.selectedTraceId}
+        traceDetail={props.traceDetail}
+        tab={props.traceInspectorTab}
+        setTab={props.setTraceInspectorTab}
+        onRunEval={props.onRunEval}
+        onReplay={props.onReplay}
+        traceJudgments={props.traceJudgments}
+        feedbackTargets={props.feedbackTargets}
+        feedbackTargetType={props.feedbackTargetType}
+        setFeedbackTargetType={props.setFeedbackTargetType}
+        feedbackTargetID={props.feedbackTargetID}
+        setFeedbackTargetID={props.setFeedbackTargetID}
+        feedbackScore={props.feedbackScore}
+        setFeedbackScore={props.setFeedbackScore}
+        feedbackVerdict={props.feedbackVerdict}
+        setFeedbackVerdict={props.setFeedbackVerdict}
+        feedbackNotes={props.feedbackNotes}
+        setFeedbackNotes={props.setFeedbackNotes}
+        onSubmitFeedback={props.onSubmitFeedback}
+      />
+
       <main className="conversation-stream">
         <div className="stream-hero">
           <div>
@@ -185,30 +207,6 @@ export function ConversationDetail(props: {
           </div>
         </section>
       </main>
-
-      <aside className="inspector-drawer">
-        <TraceInspector
-          selectedTraceId={props.selectedTraceId}
-          traceDetail={props.traceDetail}
-          tab={props.traceInspectorTab}
-          setTab={props.setTraceInspectorTab}
-          onRunEval={props.onRunEval}
-          onReplay={props.onReplay}
-          traceJudgments={props.traceJudgments}
-          feedbackTargets={props.feedbackTargets}
-          feedbackTargetType={props.feedbackTargetType}
-          setFeedbackTargetType={props.setFeedbackTargetType}
-          feedbackTargetID={props.feedbackTargetID}
-          setFeedbackTargetID={props.setFeedbackTargetID}
-          feedbackScore={props.feedbackScore}
-          setFeedbackScore={props.setFeedbackScore}
-          feedbackVerdict={props.feedbackVerdict}
-          setFeedbackVerdict={props.setFeedbackVerdict}
-          feedbackNotes={props.feedbackNotes}
-          setFeedbackNotes={props.setFeedbackNotes}
-          onSubmitFeedback={props.onSubmitFeedback}
-        />
-      </aside>
     </div>
   );
 }

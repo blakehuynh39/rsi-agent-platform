@@ -4,19 +4,13 @@ import type { TraceDetailResponse, TraceInspectorTab, NullableList, EvalJudgment
 import { formatTime, getJSON, latestActionResult, listOrEmpty, scoreBadge } from "@/hooks/api";
 import { EmptyDetail } from "./empty-detail";
 import { FormattedMessage } from "@/components/formatted-message";
+import { Icon, type IconName } from "@/components/icon";
 
 const LIVE_EVENT_PAGE_SIZE = 100;
 const LIVE_EVENT_LIMIT = 1000;
 const LIVE_EVENT_FAMILIES = ["all", "model", "tool", "terminal", "artifact", "slack", "notion", "mcp", "phase", "failure"];
 const LIVE_DELTA_KINDS = new Set(["model.reasoning.delta", "model.output.delta", "terminal.output", "executor.subprocess.output"]);
 const TOOL_LIFECYCLE_KINDS = new Set(["tool.call.started", "tool.call.progress", "tool.call.completed"]);
-const COMPACT_METADATA_KEYS = new Set([
-  "hermes_session_id",
-  "observation_id",
-  "recorded_at_unix",
-  "role",
-  "source"
-]);
 
 type LiveStreamItem = {
   id: string;
@@ -216,56 +210,25 @@ function parseToolResultSummary(value: JsonValue | undefined) {
   }
 }
 
-function truncateText(value: string, limit = 900) {
-  if (value.length <= limit) {
-    return value;
+function liveEventIconName(family: string): IconName {
+  switch (family) {
+    case "model":
+      return "brain";
+    case "tool":
+    case "mcp":
+    case "notion":
+      return "wrench";
+    case "terminal":
+      return "terminal";
+    case "artifact":
+      return "file";
+    case "slack":
+      return "hash";
+    case "failure":
+      return "alert";
+    default:
+      return "circleDot";
   }
-  return `${value.slice(0, limit).trimEnd()}...`;
-}
-
-function compactValue(value: JsonValue): JsonValue {
-  if (typeof value === "string") {
-    const parsedSummary = parseToolResultSummary(value);
-    return parsedSummary || truncateText(value);
-  }
-  if (Array.isArray(value)) {
-    return value.slice(0, 8).map(compactValue);
-  }
-  if (isJsonObject(value)) {
-    const out: JsonObject = {};
-    for (const [key, nested] of Object.entries(value)) {
-      if (COMPACT_METADATA_KEYS.has(key)) {
-        continue;
-      }
-      out[key] = compactValue(nested);
-    }
-    return out;
-  }
-  return value;
-}
-
-function compactEventDetails(item: LiveStreamItem) {
-  const base: JsonObject = {
-    kind: item.kind,
-    status: item.status || "event",
-    phase_id: item.phase_id || "main",
-    seq: item.count > 1 ? `${item.seq}-${item.seq_end}` : item.seq,
-    recorded_at: item.recorded_at,
-    event_count: item.count
-  };
-  const payload = compactValue(item.event.payload || {});
-  if (item.count > 1) {
-    const firstEventID = item.events[0]?.id;
-    const lastEventID = item.events[item.events.length - 1]?.id;
-    if (firstEventID) {
-      base.first_event_id = firstEventID;
-    }
-    if (lastEventID) {
-      base.last_event_id = lastEventID;
-    }
-    base.characters = item.text?.length || 0;
-  }
-  return { ...base, payload };
 }
 
 function eventTitle(item: LiveStreamItem) {
@@ -293,6 +256,35 @@ function eventTitle(item: LiveStreamItem) {
       return "Slack delivery";
     default:
       return item.kind;
+  }
+}
+
+function isNarrativeLiveEvent(item: LiveStreamItem, primaryText: string) {
+  return item.kind.startsWith("model.") && Boolean(primaryText);
+}
+
+function liveActivitySummary(item: LiveStreamItem, primaryText: string, shortToolName: string) {
+  if (isToolLifecycleKind(item.kind)) {
+    const action = item.status === "completed" ? "Ran" : item.status === "running" ? "Running" : "Used";
+    return `${action} ${shortToolName || "tool"}`;
+  }
+  switch (eventFamily(item.kind)) {
+    case "terminal":
+      return item.status === "completed" ? "Ran command" : "Running command";
+    case "artifact":
+      return "Updated artifact";
+    case "slack":
+      return "Prepared Slack update";
+    case "notion":
+      return "Checked Notion";
+    case "mcp":
+      return "Used MCP tool";
+    case "tool":
+      return "Used tool";
+    case "failure":
+      return "Encountered a failure";
+    default:
+      return eventTitle(item) || primaryText || item.kind;
   }
 }
 
@@ -457,20 +449,26 @@ function LiveTraceStream(props: { traceID: string }) {
 
   return (
     <div className="detail-section-body">
-      <div className="live-toolbar">
+      <div className="live-header">
         <div>
           <strong>Live execution stream</strong>
-          <p className="muted">{status} · {events.length} events · {streamItems.length} rows</p>
+          <p className="muted">{status} · {events.length} events · {streamItems.length} activity rows</p>
         </div>
+        <button className="secondary icon-label-button" onClick={() => setAutoscroll(true)}>
+          <Icon name={autoscroll ? "circleDot" : "arrowDown"} />
+          <span>{autoscroll ? "Auto-scroll on" : "Resume stream"}</span>
+        </button>
+      </div>
+      <details className="live-filter-row">
+        <summary>Filters</summary>
         <div className="button-row">
           {LIVE_EVENT_FAMILIES.map((family) => (
             <button key={family} className={familyFilter === family ? "segment-button active" : "segment-button"} onClick={() => setFamilyFilter(family)}>
               {family}
             </button>
           ))}
-          <button className="secondary" onClick={() => setAutoscroll(true)}>{autoscroll ? "Auto" : "Resume"}</button>
         </div>
-      </div>
+      </details>
       <div className="live-stream" ref={viewportRef} onScroll={handleScroll}>
         {hasOlderEvents ? (
           <button className="live-history-button secondary" onClick={loadOlderEvents} disabled={loadingOlderEvents}>
@@ -480,7 +478,7 @@ function LiveTraceStream(props: { traceID: string }) {
         {visibleEvents.map((item) => (
           <LiveEventRow key={item.id} item={item} />
         ))}
-        {!visibleEvents.length ? <div className="nested-card"><p className="detail-copy">Waiting for live runner events.</p></div> : null}
+        {!visibleEvents.length ? <p className="live-empty">Waiting for live runner activity.</p> : null}
       </div>
     </div>
   );
@@ -491,26 +489,34 @@ function LiveEventRow(props: { item: LiveStreamItem }) {
   const payload = item.event.payload || {};
   const family = eventFamily(item.kind);
   const primaryText = eventPrimaryText(item);
+  const updateText = isToolLifecycleKind(item.kind)
+    ? `${item.count} ${item.count === 1 ? "update" : "updates"}`
+    : item.count > 1 ? `${item.count} chunks` : "";
+  const meta = [item.status || "event", item.phase_id || "main", updateText, formatTime(item.recorded_at)].filter(Boolean).join(" · ");
+  if (isNarrativeLiveEvent(item, primaryText)) {
+    return (
+      <article className={`live-entry narrative ${family}`}>
+        <div className="live-entry-meta">
+          <span className="live-icon"><Icon name={liveEventIconName(family)} /></span>
+          <span>{eventTitle(item)}</span>
+          <small>{meta}</small>
+        </div>
+        <p className="live-narrative-text">{primaryText}</p>
+      </article>
+    );
+  }
   const toolName = payloadText(payload, ["tool_name", "name"]);
   const shortToolName = compactToolName(toolName);
-  const seqText = item.count > 1 ? `#${item.seq}-${item.seq_end}` : `#${item.seq}`;
-  const kindText = isToolLifecycleKind(item.kind)
-    ? `${item.count} ${item.count === 1 ? "update" : "updates"}`
-    : `${item.kind}${item.count > 1 ? ` · ${item.count} chunks` : ""}`;
+  const activitySummary = liveActivitySummary(item, primaryText, shortToolName);
   return (
-    <div className={`live-event ${family}`}>
-      <div className="detail-row-header">
-        <strong>{eventTitle(item)}</strong>
-        <small>{item.status || "event"} · {item.phase_id || "main"} · {seqText} · {formatTime(item.recorded_at)}</small>
+    <article className={`live-entry activity ${family}`}>
+      <div className="live-entry-meta">
+        <span className="live-icon"><Icon name={liveEventIconName(family)} /></span>
+        <span>{activitySummary}</span>
+        <small>{meta}</small>
       </div>
-      <p className="muted live-event-kind">{kindText}</p>
-      {toolName && shortToolName && shortToolName !== toolName && !eventTitle(item).includes(shortToolName) ? <p className="muted">{shortToolName}</p> : null}
-      {primaryText ? <pre className="detail-copy live-event-text">{primaryText}</pre> : null}
-      <details>
-        <summary>payload</summary>
-        <pre className="detail-copy live-event-json">{JSON.stringify(compactEventDetails(item), null, 2)}</pre>
-      </details>
-    </div>
+      {primaryText ? <p className="live-activity-detail">{primaryText}</p> : null}
+    </article>
   );
 }
 
@@ -565,8 +571,14 @@ export function TraceInspector(props: {
         </div>
       </div>
       <div className="inspector-actions">
-        <button onClick={props.onRunEval}>Run eval</button>
-        <button className="secondary" onClick={props.onReplay}>Queue replay</button>
+        <button className="icon-label-button" onClick={props.onRunEval}>
+          <Icon name="play" />
+          <span>Run eval</span>
+        </button>
+        <button className="secondary icon-label-button" onClick={props.onReplay}>
+          <Icon name="refresh" />
+          <span>Queue replay</span>
+        </button>
       </div>
       <div className="segment-row inspector-tabs">
         {inspectorTabs.map((tab) => (

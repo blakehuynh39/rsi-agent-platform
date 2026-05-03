@@ -29,6 +29,28 @@ export function CaseDetail(props: {
   const workflowLine = props.detail.workflow_line;
   return (
     <div className="detail-stack">
+      <TraceInspector
+        selectedTraceId={props.selectedTraceId}
+        traceDetail={props.traceDetail}
+        tab={props.traceInspectorTab}
+        setTab={props.setTraceInspectorTab}
+        onRunEval={props.onRunEval}
+        onReplay={props.onReplay}
+        traceJudgments={props.traceJudgments}
+        feedbackTargets={props.feedbackTargets}
+        feedbackTargetType={props.feedbackTargetType}
+        setFeedbackTargetType={props.setFeedbackTargetType}
+        feedbackTargetID={props.feedbackTargetID}
+        setFeedbackTargetID={props.setFeedbackTargetID}
+        feedbackScore={props.feedbackScore}
+        setFeedbackScore={props.setFeedbackScore}
+        feedbackVerdict={props.feedbackVerdict}
+        setFeedbackVerdict={props.setFeedbackVerdict}
+        feedbackNotes={props.feedbackNotes}
+        setFeedbackNotes={props.setFeedbackNotes}
+        onSubmitFeedback={props.onSubmitFeedback}
+      />
+
       <div className="detail-card">
         <div className="detail-header">
           <div>
@@ -80,27 +102,6 @@ export function CaseDetail(props: {
         </div>
       </div>
 
-      <TraceInspector
-        selectedTraceId={props.selectedTraceId}
-        traceDetail={props.traceDetail}
-        tab={props.traceInspectorTab}
-        setTab={props.setTraceInspectorTab}
-        onRunEval={props.onRunEval}
-        onReplay={props.onReplay}
-        traceJudgments={props.traceJudgments}
-        feedbackTargets={props.feedbackTargets}
-        feedbackTargetType={props.feedbackTargetType}
-        setFeedbackTargetType={props.setFeedbackTargetType}
-        feedbackTargetID={props.feedbackTargetID}
-        setFeedbackTargetID={props.setFeedbackTargetID}
-        feedbackScore={props.feedbackScore}
-        setFeedbackScore={props.setFeedbackScore}
-        feedbackVerdict={props.feedbackVerdict}
-        setFeedbackVerdict={props.setFeedbackVerdict}
-        feedbackNotes={props.feedbackNotes}
-        setFeedbackNotes={props.setFeedbackNotes}
-        onSubmitFeedback={props.onSubmitFeedback}
-      />
     </div>
   );
 }
