@@ -2,6 +2,7 @@ package clients
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -9,6 +10,25 @@ import (
 	"testing"
 	"time"
 )
+
+func TestDoJSONReturnsHTTPStatusErrorWithBody(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "validation failed", http.StatusUnprocessableEntity)
+	}))
+	defer server.Close()
+
+	err := doJSON(server.Client(), http.MethodGet, server.URL, nil, nil, "honcho")
+	var statusErr *HTTPStatusError
+	if !errors.As(err, &statusErr) {
+		t.Fatalf("expected HTTPStatusError, got %T %[1]v", err)
+	}
+	if statusErr.StatusCode != http.StatusUnprocessableEntity || !strings.Contains(statusErr.Body, "validation failed") {
+		t.Fatalf("unexpected status error: %+v", statusErr)
+	}
+	if HTTPStatusCode(err) != http.StatusUnprocessableEntity {
+		t.Fatalf("HTTPStatusCode() = %d", HTTPStatusCode(err))
+	}
+}
 
 func TestRunnerClientExecute(t *testing.T) {
 	errCh := make(chan error, 1)

@@ -67,6 +67,7 @@ func NewBaseRouter(cfg config.Config) *chi.Mux {
 	// operational endpoints protected by cluster/network boundaries, and need to
 	// remain usable during rollout/drain incidents without extra auth wiring.
 	r.Post("/internal/drain/start", startDrain)
+	r.Get("/internal/drain/start", startDrain)
 	r.Get("/internal/drain/status", func(w http.ResponseWriter, r *http.Request) {
 		WriteJSON(w, http.StatusOK, drainStatusPayload())
 	})

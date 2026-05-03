@@ -158,6 +158,12 @@ class RunnerHandler(BaseHTTPRequestHandler):
         if self.path == "/runtimez":
             self._json(200, self.runtime.metadata)
             return
+        if self.path == "/internal/drain/start":
+            self._handle_drain_start()
+            return
+        if self.path == "/internal/drain/prestop":
+            self._handle_drain_prestop()
+            return
         if self.path == "/internal/drain/status":
             self._json(200, _drain_status_payload(self.runtime, self.config))
             return

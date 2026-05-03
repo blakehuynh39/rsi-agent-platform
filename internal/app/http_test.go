@@ -83,6 +83,21 @@ func TestDrainStatusPayloadUsesDrainStatusField(t *testing.T) {
 	}
 }
 
+func TestDrainStartAcceptsKubernetesLifecycleGET(t *testing.T) {
+	StopDrainForTest()
+	defer StopDrainForTest()
+	router := NewBaseRouter(testConfig())
+
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/internal/drain/start", nil))
+	if rec.Code != http.StatusAccepted {
+		t.Fatalf("GET drain start code = %d, body=%s", rec.Code, rec.Body.String())
+	}
+	if !IsDraining() {
+		t.Fatal("GET drain start should enter drain mode for Kubernetes httpGet preStop hooks")
+	}
+}
+
 func TestListenAndServeStopsWhenDrainStarts(t *testing.T) {
 	StopDrainForTest()
 	defer StopDrainForTest()

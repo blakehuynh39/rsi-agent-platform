@@ -703,6 +703,9 @@ class ExporterServer:
                 if self.path in {"/runtimez", "/internal/exporter/status", "/internal/drain/status"}:
                     self._json(200, loop.status())
                     return
+                if self.path == "/internal/drain/start":
+                    self._json(200, server.request_shutdown_after_drain("http"))
+                    return
                 self._json(404, {"ok": False, "error": "not found"})
 
             def do_POST(self) -> None:

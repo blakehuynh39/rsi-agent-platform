@@ -12,6 +12,7 @@ type fakeHonchoDocuments struct {
 	ensureWorkspaceCalls int
 	ensureSessionCalls   int
 	createCalls          int
+	createErr            error
 }
 
 func (f *fakeHonchoDocuments) EnsureWorkspace(id string, metadata map[string]any) (clients.HonchoWorkspace, error) {
@@ -26,6 +27,9 @@ func (f *fakeHonchoDocuments) EnsureSession(workspaceID string, sessionID string
 
 func (f *fakeHonchoDocuments) CreateConclusions(workspaceID string, conclusions []clients.HonchoConclusionCreate) ([]clients.HonchoConclusion, error) {
 	f.createCalls++
+	if f.createErr != nil {
+		return nil, f.createErr
+	}
 	return []clients.HonchoConclusion{
 		{
 			ID:         "doc_notion_1",
@@ -35,6 +39,38 @@ func (f *fakeHonchoDocuments) CreateConclusions(workspaceID string, conclusions 
 			SessionID:  conclusions[0].SessionID,
 		},
 	}, nil
+}
+
+func TestNotionMirrorIngestDocumentTreatsHonchoValidationAsObjectFailure(t *testing.T) {
+	state := store.NewMemoryStore()
+	honcho := &fakeHonchoDocuments{
+		createErr: &clients.HTTPStatusError{Service: "honcho", StatusCode: 422, Body: "content too large"},
+	}
+	mirror := NewNotionMirror(state, honcho, NotionMirrorOptions{
+		Environment:     "stage",
+		HonchoWorkspace: "rsi_company_knowledge",
+	})
+
+	result, err := mirror.IngestDocument(nil, NotionDocumentInput{
+		WorkspaceID: "notion",
+		PageID:      "page_oversized",
+		RootID:      "root_abc",
+		Title:       "Oversized Runbook",
+		Content:     "too large for honcho",
+	})
+	if err != nil {
+		t.Fatalf("IngestDocument() should not fail the mirror run for a per-document 422: %v", err)
+	}
+	if result.Status != store.SourceMirrorStatusFailed || !result.Skipped || result.SkipReason != "honcho_validation_failed" {
+		t.Fatalf("unexpected validation failure result: %+v", result)
+	}
+	record, found, err := state.GetSourceMirrorRecord(NotionDocumentSourceType, NotionDocumentSourceKey("notion", "page_oversized"))
+	if err != nil {
+		t.Fatalf("GetSourceMirrorRecord() error = %v", err)
+	}
+	if !found || record.Status != store.SourceMirrorStatusFailed || !strings.Contains(record.LastError, "content too large") {
+		t.Fatalf("unexpected failed source mirror record: found=%t record=%+v", found, record)
+	}
 }
 
 func TestNotionMirrorIngestDocumentIsIdempotent(t *testing.T) {

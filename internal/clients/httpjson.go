@@ -3,12 +3,39 @@ package clients
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
 	"time"
 )
+
+const maxHTTPErrorBodyBytes = 4096
+
+type HTTPStatusError struct {
+	Service    string
+	StatusCode int
+	Body       string
+}
+
+func (e *HTTPStatusError) Error() string {
+	if e == nil {
+		return ""
+	}
+	if strings.TrimSpace(e.Body) != "" {
+		return fmt.Sprintf("%s returned %d: %s", e.Service, e.StatusCode, strings.TrimSpace(e.Body))
+	}
+	return fmt.Sprintf("%s returned %d", e.Service, e.StatusCode)
+}
+
+func HTTPStatusCode(err error) int {
+	var statusErr *HTTPStatusError
+	if errors.As(err, &statusErr) && statusErr != nil {
+		return statusErr.StatusCode
+	}
+	return 0
+}
 
 func newHTTPClient(timeout time.Duration) *http.Client {
 	if timeout <= 0 {
@@ -51,7 +78,12 @@ func doJSONWithHeaders(client *http.Client, method string, url string, payload a
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= 300 {
-		return fmt.Errorf("%s returned %d", service, resp.StatusCode)
+		raw, _ := io.ReadAll(io.LimitReader(resp.Body, maxHTTPErrorBodyBytes))
+		return &HTTPStatusError{
+			Service:    service,
+			StatusCode: resp.StatusCode,
+			Body:       string(raw),
+		}
 	}
 	if out == nil {
 		_, _ = io.Copy(io.Discard, resp.Body)

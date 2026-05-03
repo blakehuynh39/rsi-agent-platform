@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"sort"
 	"strings"
 	"time"
@@ -182,7 +183,14 @@ func (m *NotionMirror) IngestDocument(ctx context.Context, input NotionDocumentI
 		},
 	})
 	if err != nil {
-		_, _ = m.store.FailSourceMirrorRecord(record.SourceType, record.SourceKey, err.Error(), map[string]any{"failure_stage": "create_document"})
+		failed, _ := m.store.FailSourceMirrorRecord(record.SourceType, record.SourceKey, err.Error(), map[string]any{"failure_stage": "create_document"})
+		if clients.HTTPStatusCode(err) == http.StatusUnprocessableEntity {
+			result.Status = store.SourceMirrorStatusFailed
+			result.Skipped = true
+			result.SkipReason = "honcho_validation_failed"
+			result.HonchoDocumentID = failed.HonchoObjectID
+			return result, nil
+		}
 		return NotionMirrorResult{}, err
 	}
 	if len(documents) != 1 || strings.TrimSpace(documents[0].ID) == "" {
