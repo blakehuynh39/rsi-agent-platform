@@ -44,6 +44,17 @@ const ACTIVE_PROPOSAL_STATES = new Set([
 
 const RUNNING_TRACE_STATES = new Set([
   "active",
+  "executing",
+  "in_progress",
+  "pending",
+  "processing",
+  "queued",
+  "running",
+  "started"
+]);
+
+const RUNNING_LIST_STATES = new Set([
+  "executing",
   "in_progress",
   "pending",
   "processing",
@@ -67,16 +78,26 @@ function normalizedStatus(value?: string) {
   return (value || "").toLowerCase().replace(/\s+/g, "_");
 }
 
-function isLiveStatus(value?: string) {
-  return RUNNING_TRACE_STATES.has(normalizedStatus(value));
+function isRunningListStatus(value?: string) {
+  return RUNNING_LIST_STATES.has(normalizedStatus(value));
+}
+
+function hasTraceVerdict(value?: string) {
+  return Boolean(value?.trim());
 }
 
 function isLiveConversation(item: ConversationListItem) {
-  return item.open_trace_count > 0 || isLiveStatus(item.status) || isLiveStatus(item.active_case?.status);
+  if (hasTraceVerdict(item.latest_trace_verdict) || hasTraceVerdict(item.active_case?.latest_trace_verdict)) {
+    return false;
+  }
+  return item.open_trace_count > 0 || isRunningListStatus(item.status) || isRunningListStatus(item.active_case?.status);
 }
 
 function isLiveCase(item: CaseSummary) {
-  return isLiveStatus(item.status);
+  if (hasTraceVerdict(item.latest_trace_verdict)) {
+    return false;
+  }
+  return isRunningListStatus(item.status);
 }
 
 function isLiveProposal(status: string) {
@@ -625,7 +646,7 @@ export function App() {
             <header className="pane-header">
               <div>
                 <p className="eyebrow">Conversations</p>
-                <h2>Slack threads, DMs, and incident rooms</h2>
+                <h2>Threads and DMs</h2>
               </div>
               <div className="pane-tools">
                 <span className="list-range">

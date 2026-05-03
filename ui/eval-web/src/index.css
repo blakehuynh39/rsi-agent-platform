@@ -1368,6 +1368,12 @@ body::before {
   font-size: 1.35rem;
 }
 
+.list-pane .pane-header h2 {
+  max-width: 240px;
+  font-size: 1.08rem;
+  line-height: 1.18;
+}
+
 .eyebrow {
   margin: 0 0 6px;
   text-transform: uppercase;
@@ -1509,7 +1515,7 @@ textarea:focus-visible {
 
 .list-card {
   width: 100%;
-  padding: 18px;
+  padding: 14px;
   text-align: left;
   color: var(--text);
 }
@@ -1546,10 +1552,20 @@ textarea:focus-visible {
   overflow-wrap: anywhere;
 }
 
+.list-title-line strong {
+  font-size: 0.95rem;
+}
+
 .list-card p,
 .detail-row p,
 .nested-card p {
   color: #8f9098;
+}
+
+.trace-thread,
+.mini-metrics {
+  font-size: 0.82rem;
+  line-height: 1.35;
 }
 
 .trace-thread,
@@ -1754,6 +1770,38 @@ textarea:focus-visible {
   line-height: 1.45;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+.live-entry-details {
+  margin-top: 9px;
+  color: #8f939a;
+}
+
+.live-entry-details summary {
+  width: max-content;
+  cursor: pointer;
+  color: #8a8e96;
+  font-size: 0.78rem;
+  font-weight: 560;
+}
+
+.live-entry-details summary:hover {
+  color: #c4c6cc;
+}
+
+.live-command-output {
+  max-height: 260px;
+  margin: 9px 0 0;
+  overflow: auto;
+  padding: 10px 12px;
+  border: 1px solid #24262b;
+  border-radius: 8px;
+  background: #0f1012;
+  color: #b7bac2;
+  font-family: "SFMono-Regular", "SF Mono", Consolas, "Liberation Mono", monospace;
+  font-size: 0.8rem;
+  line-height: 1.48;
+  white-space: pre-wrap;
 }
 
 .live-entry.tool .live-icon,

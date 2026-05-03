@@ -652,9 +652,9 @@ describe("App", () => {
   it("defaults to conversations with no detail selection", async () => {
     renderApp();
 
-    expect(
-      await screen.findByRole("button", { name: /Need help understanding trace rendering/i })
-    ).toBeInTheDocument();
+    const finishedConversation = await screen.findByRole("button", { name: /Need help understanding trace rendering/i });
+    expect(finishedConversation).toBeInTheDocument();
+    expect(finishedConversation.querySelector(".activity-glyph.live")).toBeNull();
     expect(screen.getByText("Select a conversation")).toBeInTheDocument();
     expect(window.location.search).toBe("");
   });
@@ -775,11 +775,29 @@ describe("App", () => {
         })
       }
     });
+    MockEventSource.instances[0].emit("ledger", {
+      id: "xled-live-6",
+      execution_id: "hexec-live",
+      trace_id: "trace-001",
+      workflow_id: "wf-001",
+      phase_id: "investigate",
+      kind: "terminal.output",
+      status: "streaming",
+      seq: 6,
+      recorded_at: "2026-04-11T12:02:05Z",
+      payload: {
+        command: "git status --short",
+        chunk_text: " M ui/eval-web/src/App.tsx\n"
+      }
+    });
 
     expect(await screen.findByText("Reasoning stream")).toBeInTheDocument();
     expect(screen.getByText("reading repo files")).toBeInTheDocument();
     expect(screen.getByText("Ran repo_read_file")).toBeInTheDocument();
     expect(screen.getByText("Repository file README.md loaded. · status: ok")).toBeInTheDocument();
+    expect(screen.getByText("Running git status --short")).toBeInTheDocument();
+    expect(screen.getByText("Output")).toBeInTheDocument();
+    expect(screen.getByText(/ui\/eval-web\/src\/App\.tsx/)).toBeInTheDocument();
     expect(screen.queryByText("payload")).not.toBeInTheDocument();
   });
 

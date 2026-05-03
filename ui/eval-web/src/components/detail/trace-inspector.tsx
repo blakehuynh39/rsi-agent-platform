@@ -62,6 +62,55 @@ function payloadText(payload: JsonObject | undefined, keys: string[]) {
   return "";
 }
 
+function jsonValueToInlineText(value: JsonValue | undefined): string {
+  if (typeof value === "string") {
+    return value.trim();
+  }
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => jsonValueToInlineText(item)).filter(Boolean).join(" ").trim();
+  }
+  return "";
+}
+
+function payloadCommand(payload: JsonObject | undefined) {
+  if (!payload) {
+    return "";
+  }
+  const program = jsonValueToInlineText(payload.program) || jsonValueToInlineText(payload.executable);
+  const args = jsonValueToInlineText(payload.argv) || jsonValueToInlineText(payload.args);
+  if (program && args) {
+    return `${program} ${args}`;
+  }
+  for (const key of ["command", "cmd", "command_line", "command_text", "shell_command", "argv", "args", "program", "executable"]) {
+    const command = jsonValueToInlineText(payload[key]);
+    if (command) {
+      return command;
+    }
+  }
+  return "";
+}
+
+function terminalCommand(item: LiveStreamItem) {
+  for (let i = item.events.length - 1; i >= 0; i--) {
+    const command = payloadCommand(item.events[i]?.payload);
+    if (command) {
+      return command;
+    }
+  }
+  return "";
+}
+
+function firstMeaningfulLine(value: string) {
+  return value.split(/\r?\n/).map((line) => line.trim()).find(Boolean) || "";
+}
+
+function truncateInlineText(value: string, maxLength: number) {
+  return value.length > maxLength ? `${value.slice(0, maxLength - 1).trimEnd()}...` : value;
+}
+
 function isToolLifecycleKind(kind: string) {
   return TOOL_LIFECYCLE_KINDS.has(kind);
 }
@@ -270,7 +319,7 @@ function liveActivitySummary(item: LiveStreamItem, primaryText: string, shortToo
   }
   switch (eventFamily(item.kind)) {
     case "terminal":
-      return item.status === "completed" ? "Ran command" : "Running command";
+      return terminalActivitySummary(item, primaryText);
     case "artifact":
       return "Updated artifact";
     case "slack":
@@ -286,6 +335,17 @@ function liveActivitySummary(item: LiveStreamItem, primaryText: string, shortToo
     default:
       return eventTitle(item) || primaryText || item.kind;
   }
+}
+
+function terminalActivitySummary(item: LiveStreamItem, primaryText: string) {
+  const command = terminalCommand(item);
+  const normalized = (item.status || "").toLowerCase();
+  const verb = normalized === "completed" ? "Ran" : normalized === "failed" || normalized === "error" ? "Failed" : "Running";
+  if (command) {
+    return `${verb} ${command}`;
+  }
+  const line = firstMeaningfulLine(primaryText);
+  return line ? `${verb} command output: ${truncateInlineText(line, 140)}` : `${verb} command`;
 }
 
 function eventPrimaryText(item: LiveStreamItem) {
@@ -508,6 +568,7 @@ function LiveEventRow(props: { item: LiveStreamItem }) {
   const toolName = payloadText(payload, ["tool_name", "name"]);
   const shortToolName = compactToolName(toolName);
   const activitySummary = liveActivitySummary(item, primaryText, shortToolName);
+  const isTerminal = family === "terminal";
   return (
     <article className={`live-entry activity ${family}`}>
       <div className="live-entry-meta">
@@ -515,7 +576,16 @@ function LiveEventRow(props: { item: LiveStreamItem }) {
         <span>{activitySummary}</span>
         <small>{meta}</small>
       </div>
-      {primaryText ? <p className="live-activity-detail">{primaryText}</p> : null}
+      {primaryText ? (
+        isTerminal ? (
+          <details className="live-entry-details">
+            <summary>Output</summary>
+            <pre className="live-command-output">{primaryText}</pre>
+          </details>
+        ) : (
+          <p className="live-activity-detail">{primaryText}</p>
+        )
+      ) : null}
     </article>
   );
 }
