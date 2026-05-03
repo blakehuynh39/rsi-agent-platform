@@ -114,6 +114,7 @@ type fakeNotionGraphAPI struct {
 	databases         map[string]clients.NotionDatabase
 	children          map[string][]clients.NotionBlock
 	databaseRows      map[string][]clients.NotionPage
+	pageTypeMismatch  map[string]bool
 	retrievePageCalls map[string]int
 	listBlockCalls    map[string]int
 }
@@ -124,6 +125,9 @@ func (f *fakeNotionGraphAPI) RetrievePage(ctx context.Context, pageID string) (c
 		f.retrievePageCalls = map[string]int{}
 	}
 	f.retrievePageCalls[pageID]++
+	if f.pageTypeMismatch[pageID] {
+		return clients.NotionPage{}, notionEndpointTypeMismatchError("database", "page")
+	}
 	if page, ok := f.pages[pageID]; ok {
 		return page, nil
 	}
@@ -150,6 +154,13 @@ func (f *fakeNotionGraphAPI) ListBlockChildren(ctx context.Context, blockID stri
 func (f *fakeNotionGraphAPI) QueryDatabase(ctx context.Context, databaseID string, cursor string, pageSize int) (clients.NotionListResponse[clients.NotionPage], error) {
 	databaseID = normalizeNotionID(databaseID)
 	return clients.NotionListResponse[clients.NotionPage]{Results: f.databaseRows[databaseID]}, nil
+}
+
+func notionEndpointTypeMismatchError(actual string, requested string) clients.NotionAPIError {
+	return clients.NotionAPIError{
+		StatusCode: 400,
+		Body:       `{"object":"error","status":400,"code":"validation_error","message":"Provided ID abc is a ` + actual + `, not a ` + requested + `. Use the retrieve ` + actual + ` API instead."}`,
+	}
 }
 
 func notionTestPage(id string, title string, archived bool) clients.NotionPage {
@@ -289,7 +300,8 @@ func TestNotionMirrorDatabaseRootWritesDatabaseObjectAndRows(t *testing.T) {
 				{ID: "rowtext", Type: "paragraph", Raw: map[string]any{"paragraph": map[string]any{"rich_text": []any{map[string]any{"plain_text": "Row body"}}}}},
 			},
 		},
-		databaseRows: map[string][]clients.NotionPage{databaseID: {notionTestPage(rowID, "Row Page", false)}},
+		databaseRows:     map[string][]clients.NotionPage{databaseID: {notionTestPage(rowID, "Row Page", false)}},
+		pageTypeMismatch: map[string]bool{databaseID: true},
 	}
 	mirror := companyknowledge.NewNotionMirror(state, honcho, companyknowledge.NotionMirrorOptions{Environment: "stage", HonchoWorkspace: "rsi_company_knowledge"})
 	runner, err := newNotionMirrorRunner(cfg, api, state, mirror, databaseID)

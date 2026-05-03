@@ -181,12 +181,12 @@ func (r *notionMirrorRunner) mirrorRoot(ctx context.Context, rootID string) erro
 			return fmt.Errorf("mirror notion page root=%s: %w", rootID, err)
 		}
 		return nil
-	} else if !isNotionNotFound(pageErr) {
+	} else if !isNotionNotFound(pageErr) && !isNotionPageEndpointTypeMismatch(pageErr) {
 		return fmt.Errorf("retrieve notion page root=%s: %w", rootID, pageErr)
 	}
 	if err := r.mirrorDatabase(ctx, rootID, rootID, nil); err == nil {
 		return nil
-	} else if !isNotionNotFound(err) {
+	} else if !isNotionNotFound(err) && !isNotionDatabaseEndpointTypeMismatch(err) {
 		return fmt.Errorf("mirror notion database root=%s: %w", rootID, err)
 	}
 	return fmt.Errorf("notion allowlist root %s is neither a visible page nor a visible database", rootID)
@@ -693,6 +693,24 @@ func normalizeNotionID(value string) string {
 func isNotionNotFound(err error) bool {
 	var apiErr clients.NotionAPIError
 	return errors.As(err, &apiErr) && apiErr.StatusCode == 404
+}
+
+func isNotionPageEndpointTypeMismatch(err error) bool {
+	return isNotionTypeMismatch(err, "database", "page")
+}
+
+func isNotionDatabaseEndpointTypeMismatch(err error) bool {
+	return isNotionTypeMismatch(err, "page", "database")
+}
+
+func isNotionTypeMismatch(err error, actual string, requested string) bool {
+	var apiErr clients.NotionAPIError
+	if !errors.As(err, &apiErr) || apiErr.StatusCode != 400 {
+		return false
+	}
+	body := strings.ToLower(apiErr.Body)
+	return strings.Contains(body, "validation_error") &&
+		strings.Contains(body, "is a "+actual+", not a "+requested)
 }
 
 func notionPageTitle(page clients.NotionPage) string {

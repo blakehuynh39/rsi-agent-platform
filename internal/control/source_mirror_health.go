@@ -162,7 +162,7 @@ func checkNotionMirrorRoots(ctx context.Context, cfg config.Config) error {
 				return fmt.Errorf("notion page root %s is stale: archived=%t in_trash=%t", rootID, page.Archived, page.InTrash)
 			}
 			continue
-		} else if !isNotionNotFound(err) {
+		} else if !isNotionNotFound(err) && !isNotionPageEndpointTypeMismatch(err) {
 			return fmt.Errorf("retrieve notion page root=%s: %w", rootID, err)
 		}
 		if database, err := api.RetrieveDatabase(ctx, rootID); err == nil {
@@ -170,7 +170,7 @@ func checkNotionMirrorRoots(ctx context.Context, cfg config.Config) error {
 				return fmt.Errorf("notion database root %s is stale: archived=%t in_trash=%t", rootID, database.Archived, database.InTrash)
 			}
 			continue
-		} else if !isNotionNotFound(err) {
+		} else if !isNotionNotFound(err) && !isNotionDatabaseEndpointTypeMismatch(err) {
 			return fmt.Errorf("retrieve notion database root=%s: %w", rootID, err)
 		}
 		return fmt.Errorf("notion allowlist root %s is neither a visible page nor a visible database", rootID)
