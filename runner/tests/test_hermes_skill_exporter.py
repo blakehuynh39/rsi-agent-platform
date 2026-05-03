@@ -6,12 +6,14 @@ from pathlib import Path
 import sqlite3
 import subprocess
 import tempfile
+import threading
 import unittest
 from unittest import mock
 
 from rsi_runner.hermes_skill_exporter import (
     ExporterConfig,
     ExporterConfigError,
+    ExporterServer,
     GitSkillExporter,
     SkillExportLoop,
     build_skill_snapshot,
@@ -31,6 +33,14 @@ class FakeGitExporter:
             "pr_url": f"https://github.com/piplabs/rsi-agent-platform/pull/{len(self.calls)}",
             "pr_number": len(self.calls),
         }
+
+
+class FakeHTTPServer:
+    def __init__(self) -> None:
+        self.shutdown_called = threading.Event()
+
+    def shutdown(self) -> None:
+        self.shutdown_called.set()
 
 
 class HermesSkillExporterTest(unittest.TestCase):
@@ -223,6 +233,27 @@ class HermesSkillExporterTest(unittest.TestCase):
             loop.run_cycle()
 
             self.assertEqual([True], loop.recorded_while_locked)
+
+    def test_external_drain_stops_server_after_active_cycle(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            config = self.make_config(Path(raw))
+            server = ExporterServer(config)
+            fake_httpd = FakeHTTPServer()
+            server.httpd = fake_httpd  # type: ignore[assignment]
+            server.loop.last_status = {"ok": True, "status": "unchanged"}
+            server.loop.active_lock.acquire()
+            try:
+                status = server.request_shutdown_after_drain("test")
+
+                self.assertEqual("drain_requested", status["status"])
+                self.assertTrue(server.loop.draining.is_set())
+                self.assertFalse(server.loop.stop_requested.wait(0.05))
+                self.assertFalse(fake_httpd.shutdown_called.is_set())
+            finally:
+                server.loop.active_lock.release()
+
+            self.assertTrue(server.loop.stop_requested.wait(1))
+            self.assertTrue(fake_httpd.shutdown_called.wait(1))
 
     def test_from_env_rejects_legacy_learner_config(self) -> None:
         previous = dict(os.environ)

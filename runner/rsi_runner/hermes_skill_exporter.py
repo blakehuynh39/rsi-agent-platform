@@ -638,6 +638,7 @@ class ExporterServer:
         self.config = config
         self.loop = SkillExportLoop(config)
         self.httpd: ThreadingHTTPServer | None = None
+        self.shutdown_requested = threading.Event()
 
     def start(self) -> None:
         self.loop.run_cycle()
@@ -651,18 +652,26 @@ class ExporterServer:
     def _install_signal_handlers(self) -> None:
         def _handle(signum, _frame) -> None:
             logger.info("Hermes skill exporter received shutdown signal %s", signum)
-            self.loop.request_drain()
-
-            def _shutdown() -> None:
-                with self.loop.active_lock:
-                    self.loop.stop_requested.set()
-                if self.httpd is not None:
-                    self.httpd.shutdown()
-
-            threading.Thread(target=_shutdown, name="skill-exporter-shutdown", daemon=True).start()
+            self.request_shutdown_after_drain("signal")
 
         for signum in (signal.SIGTERM, signal.SIGINT):
             signal.signal(signum, _handle)
+
+    def request_shutdown_after_drain(self, reason: str) -> dict[str, Any]:
+        status = self.loop.request_drain()
+        if self.shutdown_requested.is_set():
+            return status
+        self.shutdown_requested.set()
+
+        def _shutdown() -> None:
+            logger.info("Hermes skill exporter shutdown requested after drain reason=%s", reason)
+            with self.loop.active_lock:
+                self.loop.stop_requested.set()
+            if self.httpd is not None:
+                self.httpd.shutdown()
+
+        threading.Thread(target=_shutdown, name="skill-exporter-shutdown", daemon=True).start()
+        return status
 
     def _start_periodic_loop(self) -> None:
         def _periodic() -> None:
@@ -673,6 +682,7 @@ class ExporterServer:
 
     def _handler(self):
         loop = self.loop
+        server = self
 
         class Handler(BaseHTTPRequestHandler):
             def _json(self, code: int, payload: dict[str, Any]) -> None:
@@ -700,7 +710,7 @@ class ExporterServer:
                     self._json(200, loop.run_cycle())
                     return
                 if self.path == "/internal/drain/start":
-                    self._json(200, loop.request_drain())
+                    self._json(200, server.request_shutdown_after_drain("http"))
                     return
                 self._json(404, {"ok": False, "error": "not found"})
 
