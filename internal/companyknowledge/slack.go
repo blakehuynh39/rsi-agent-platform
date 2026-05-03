@@ -103,6 +103,18 @@ func (m *SlackMirror) IngestMessage(ctx context.Context, input SlackMessageInput
 	revision := SlackSourceRevision(input)
 	honchoSessionID := HonchoCompatibleName("slack", sessionKey)
 	metadata := SlackMessageMetadata(input, sourceKey, sessionKey, revision)
+	content := SlackMessageContent(input)
+	if strings.TrimSpace(content) == "" {
+		return SlackMirrorResult{
+			SourceKey:        sourceKey,
+			SourceSessionKey: sessionKey,
+			HonchoWorkspace:  m.opts.HonchoWorkspace,
+			HonchoSessionID:  honchoSessionID,
+			SourceRevision:   revision,
+			Skipped:          true,
+			SkipReason:       "empty_content",
+		}, nil
+	}
 	record := store.SourceMirrorRecord{
 		SourceType:       SlackMessageSourceType,
 		SourceKey:        sourceKey,
@@ -156,7 +168,7 @@ func (m *SlackMirror) IngestMessage(ctx context.Context, input SlackMessageInput
 	}
 	messages, err := m.honcho.CreateMessages(record.HonchoWorkspace, record.HonchoSessionID, []clients.HonchoMessageCreate{
 		{
-			Content:   input.Text,
+			Content:   content,
 			PeerID:    HonchoPeerIDForSlack(input),
 			Metadata:  metadata,
 			CreatedAt: &createdAt,
@@ -195,6 +207,46 @@ func validateSlackMessage(input SlackMessageInput) error {
 		return fmt.Errorf("slack message ts is required")
 	}
 	return nil
+}
+
+func SlackMessageContent(input SlackMessageInput) string {
+	if strings.TrimSpace(input.Text) != "" {
+		return input.Text
+	}
+	if len(input.Files) == 0 {
+		return ""
+	}
+	var b strings.Builder
+	b.WriteString("Slack file attachment")
+	if len(input.Files) > 1 {
+		b.WriteString("s")
+	}
+	b.WriteString(":")
+	for _, file := range input.Files {
+		label := firstNonEmpty(file.Title, file.Name, file.ID, "untitled")
+		b.WriteString("\n- ")
+		b.WriteString(label)
+		details := []string{}
+		if strings.TrimSpace(file.MimeType) != "" {
+			details = append(details, strings.TrimSpace(file.MimeType))
+		}
+		if strings.TrimSpace(file.FileType) != "" {
+			details = append(details, strings.TrimSpace(file.FileType))
+		}
+		if file.Size > 0 {
+			details = append(details, strconv.Itoa(file.Size)+" bytes")
+		}
+		if len(details) > 0 {
+			b.WriteString(" (")
+			b.WriteString(strings.Join(details, ", "))
+			b.WriteString(")")
+		}
+		if strings.TrimSpace(file.Permalink) != "" {
+			b.WriteString(" ")
+			b.WriteString(strings.TrimSpace(file.Permalink))
+		}
+	}
+	return b.String()
 }
 
 func (m SlackMessageInput) EffectiveThreadTS() string {

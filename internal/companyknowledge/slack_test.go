@@ -1,6 +1,7 @@
 package companyknowledge
 
 import (
+	"strings"
 	"testing"
 	"time"
 
@@ -108,6 +109,77 @@ func TestSlackMirrorRevisionChangeCreatesNewHonchoMessageAndUpdatesPointer(t *te
 	}
 	if record.HonchoMessageID != second.HonchoMessageID {
 		t.Fatalf("record honcho id = %q, want %q", record.HonchoMessageID, second.HonchoMessageID)
+	}
+}
+
+func TestSlackMirrorFileOnlyMessageWritesFileMetadataContent(t *testing.T) {
+	state := store.NewMemoryStore()
+	honcho := &fakeHonchoCorpus{}
+	mirror := NewSlackMirror(state, honcho, SlackMirrorOptions{Environment: "stage"})
+	input := SlackMessageInput{
+		WorkspaceID: "T123",
+		ChannelID:   "C123",
+		TS:          "1777650186.068179",
+		UserID:      "U123",
+		Files: []SlackFileMetadata{
+			{
+				ID:        "F123",
+				Title:     "deploy-log.txt",
+				MimeType:  "text/plain",
+				Size:      42,
+				Permalink: "https://slack.example/files/F123",
+			},
+		},
+	}
+
+	result, err := mirror.IngestMessage(nil, input)
+	if err != nil {
+		t.Fatalf("ingest error = %v", err)
+	}
+	if result.Skipped {
+		t.Fatalf("file-only message skipped unexpectedly: %+v", result)
+	}
+	if honcho.createCalls != 1 || len(honcho.messages) != 1 {
+		t.Fatalf("CreateMessages calls=%d messages=%d, want one message", honcho.createCalls, len(honcho.messages))
+	}
+	content := honcho.messages[0].Content
+	if content == "" || content == input.Text {
+		t.Fatalf("content = %q, want generated file metadata content", content)
+	}
+	for _, want := range []string{"deploy-log.txt", "text/plain", "https://slack.example/files/F123"} {
+		if !strings.Contains(content, want) {
+			t.Fatalf("content = %q, want %q", content, want)
+		}
+	}
+}
+
+func TestSlackMirrorEmptyMessageSkipsWithoutClaimingRecord(t *testing.T) {
+	state := store.NewMemoryStore()
+	honcho := &fakeHonchoCorpus{}
+	mirror := NewSlackMirror(state, honcho, SlackMirrorOptions{Environment: "stage"})
+	input := SlackMessageInput{
+		WorkspaceID: "T123",
+		ChannelID:   "C123",
+		TS:          "1777650186.068179",
+		UserID:      "U123",
+	}
+
+	result, err := mirror.IngestMessage(nil, input)
+	if err != nil {
+		t.Fatalf("ingest error = %v", err)
+	}
+	if !result.Skipped || result.SkipReason != "empty_content" {
+		t.Fatalf("result = %+v, want empty_content skip", result)
+	}
+	if honcho.createCalls != 0 {
+		t.Fatalf("CreateMessages calls = %d, want 0", honcho.createCalls)
+	}
+	_, found, err := state.GetSourceMirrorRecord(SlackMessageSourceType, SlackMessageSourceKey("T123", "C123", "1777650186.068179"))
+	if err != nil {
+		t.Fatalf("GetSourceMirrorRecord() error = %v", err)
+	}
+	if found {
+		t.Fatal("empty message should not create a source mirror record")
 	}
 }
 

@@ -173,6 +173,8 @@ func TestSourceMirrorDocumentWriteIsIdempotent(t *testing.T) {
 			_, _ = w.Write([]byte(`{"id":"rsi_company_knowledge","metadata":{}}`))
 		case r.Method == http.MethodPost && r.URL.Path == "/v3/workspaces/rsi_company_knowledge/sessions":
 			_, _ = w.Write([]byte(`{"id":"notion_T123_page_abc","workspace_id":"rsi_company_knowledge","metadata":{}}`))
+		case r.Method == http.MethodPost && r.URL.Path == "/v3/workspaces/rsi_company_knowledge/peers":
+			_, _ = w.Write([]byte(`{"id":"notion_peer","name":"notion_peer","workspace_id":"rsi_company_knowledge","metadata":{}}`))
 		case r.Method == http.MethodPost && r.URL.Path == "/v3/workspaces/rsi_company_knowledge/conclusions":
 			honchoDocumentsCreated++
 			_, _ = w.Write([]byte(`[{"id":"doc_notion_1","content":"Runbook content","observer_id":"notion_mirror","observed_id":"story_company","session_id":"notion_T123_page_abc","created_at":"2026-05-02T10:00:00Z"}]`))
@@ -244,6 +246,8 @@ func TestSourceMirrorDocumentRevisionCreatesNewHonchoDocument(t *testing.T) {
 			_, _ = w.Write([]byte(`{"id":"rsi_company_knowledge","metadata":{}}`))
 		case r.Method == http.MethodPost && r.URL.Path == "/v3/workspaces/rsi_company_knowledge/sessions":
 			_, _ = w.Write([]byte(`{"id":"notion_T123_page_abc","workspace_id":"rsi_company_knowledge","metadata":{}}`))
+		case r.Method == http.MethodPost && r.URL.Path == "/v3/workspaces/rsi_company_knowledge/peers":
+			_, _ = w.Write([]byte(`{"id":"notion_peer","name":"notion_peer","workspace_id":"rsi_company_knowledge","metadata":{}}`))
 		case r.Method == http.MethodPost && r.URL.Path == "/v3/workspaces/rsi_company_knowledge/conclusions":
 			honchoDocumentsCreated++
 			_, _ = w.Write([]byte(fmt.Sprintf(`[{"id":"doc_notion_%d","content":"Runbook content","observer_id":"notion_mirror","observed_id":"story_company","session_id":"notion_T123_page_abc","created_at":"2026-05-02T10:00:00Z"}]`, honchoDocumentsCreated)))
@@ -427,6 +431,8 @@ func TestSourceMirrorHealthPerformsSyntheticHonchoWrites(t *testing.T) {
 		case r.Method == http.MethodPost && r.URL.Path == "/v3/workspaces/rsi_company_knowledge/sessions/source_mirror_health_stage/messages":
 			honchoMessagesCreated++
 			_, _ = w.Write([]byte(`[{"id":"msg_health_1","content":"health","peer_id":"source_mirror_health"}]`))
+		case r.Method == http.MethodPost && r.URL.Path == "/v3/workspaces/rsi_company_knowledge/peers":
+			_, _ = w.Write([]byte(`{"id":"source_mirror_health","name":"source_mirror_health","workspace_id":"rsi_company_knowledge","metadata":{}}`))
 		case r.Method == http.MethodPost && r.URL.Path == "/v3/workspaces/rsi_company_knowledge/conclusions":
 			honchoDocumentsCreated++
 			_, _ = w.Write([]byte(`[{"id":"doc_health_1","content":"health","observer_id":"source_mirror_health","observed_id":"rsi_company_knowledge","session_id":"source_mirror_health_stage"}]`))

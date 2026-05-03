@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 )
@@ -111,5 +112,74 @@ func TestHonchoClientCorpusAPIsUseV3AndAuthorization(t *testing.T) {
 	case handlerErr := <-errCh:
 		t.Fatal(handlerErr)
 	default:
+	}
+}
+
+func TestHonchoClientCreateConclusionsEnsuresPeers(t *testing.T) {
+	var paths []string
+	errCh := make(chan error, 1)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		paths = append(paths, r.URL.Path)
+		if got := r.Header.Get("Authorization"); got != "Bearer honcho-key" {
+			errCh <- fmt.Errorf("authorization header = %q", got)
+			http.Error(w, "bad auth", http.StatusUnauthorized)
+			return
+		}
+		switch r.URL.Path {
+		case "/v3/workspaces/rsi_company_knowledge/peers":
+			var body map[string]any
+			if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+				errCh <- fmt.Errorf("decode peer request: %w", err)
+				http.Error(w, "bad request", http.StatusBadRequest)
+				return
+			}
+			name, _ := body["name"].(string)
+			if name != "notion_mirror" && name != "story_company" {
+				errCh <- fmt.Errorf("unexpected peer name %q", name)
+				http.Error(w, "bad peer", http.StatusBadRequest)
+				return
+			}
+			_ = json.NewEncoder(w).Encode(map[string]any{"id": name, "name": name})
+		case "/v3/workspaces/rsi_company_knowledge/conclusions":
+			var body map[string][]HonchoConclusionCreate
+			if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+				errCh <- fmt.Errorf("decode conclusion request: %w", err)
+				http.Error(w, "bad request", http.StatusBadRequest)
+				return
+			}
+			if len(body["conclusions"]) != 2 {
+				errCh <- fmt.Errorf("conclusions length = %d", len(body["conclusions"]))
+				http.Error(w, "bad conclusions", http.StatusBadRequest)
+				return
+			}
+			w.WriteHeader(http.StatusCreated)
+			_ = json.NewEncoder(w).Encode([]HonchoConclusion{{ID: "doc_1"}, {ID: "doc_2"}})
+		default:
+			errCh <- fmt.Errorf("unexpected path %s", r.URL.Path)
+			http.Error(w, "unexpected request", http.StatusBadRequest)
+		}
+	}))
+	defer server.Close()
+
+	client := NewHonchoClientWithAPIKey(server.URL, "honcho-key")
+	out, err := client.CreateConclusions("rsi_company_knowledge", []HonchoConclusionCreate{
+		{Content: "one", ObserverID: "notion_mirror", ObservedID: "story_company"},
+		{Content: "two", ObserverID: "notion_mirror", ObservedID: "story_company"},
+	})
+	if err != nil {
+		t.Fatalf("CreateConclusions() error = %v", err)
+	}
+	select {
+	case handlerErr := <-errCh:
+		t.Fatal(handlerErr)
+	default:
+	}
+	if len(out) != 2 {
+		t.Fatalf("conclusions returned = %d, want 2", len(out))
+	}
+	got := strings.Join(paths, ",")
+	want := "/v3/workspaces/rsi_company_knowledge/peers,/v3/workspaces/rsi_company_knowledge/peers,/v3/workspaces/rsi_company_knowledge/conclusions"
+	if got != want {
+		t.Fatalf("request paths = %s, want %s", got, want)
 	}
 }

@@ -58,6 +58,14 @@ type HonchoSession struct {
 	CreatedAt   time.Time      `json:"created_at,omitempty"`
 }
 
+type HonchoPeer struct {
+	ID          string         `json:"id"`
+	Name        string         `json:"name"`
+	WorkspaceID string         `json:"workspace_id,omitempty"`
+	Metadata    map[string]any `json:"metadata,omitempty"`
+	CreatedAt   time.Time      `json:"created_at,omitempty"`
+}
+
 type HonchoMessage struct {
 	ID          string         `json:"id"`
 	Content     string         `json:"content"`
@@ -124,6 +132,18 @@ func (c *HonchoClient) EnsureSession(workspaceID string, sessionID string, metad
 	return out, nil
 }
 
+func (c *HonchoClient) EnsurePeer(workspaceID string, peerID string, metadata map[string]any) (HonchoPeer, error) {
+	var out HonchoPeer
+	payload := map[string]any{
+		"name":     peerID,
+		"metadata": metadata,
+	}
+	if err := c.doJSON(http.MethodPost, c.apiBaseURL+"/workspaces/"+workspaceID+"/peers", payload, &out); err != nil {
+		return HonchoPeer{}, err
+	}
+	return out, nil
+}
+
 func (c *HonchoClient) CreateMessages(workspaceID string, sessionID string, messages []HonchoMessageCreate) ([]HonchoMessage, error) {
 	var out []HonchoMessage
 	payload := map[string]any{"messages": messages}
@@ -135,11 +155,35 @@ func (c *HonchoClient) CreateMessages(workspaceID string, sessionID string, mess
 
 func (c *HonchoClient) CreateConclusions(workspaceID string, conclusions []HonchoConclusionCreate) ([]HonchoConclusion, error) {
 	var out []HonchoConclusion
+	for _, peerID := range honchoConclusionPeerIDs(conclusions) {
+		if _, err := c.EnsurePeer(workspaceID, peerID, nil); err != nil {
+			return nil, err
+		}
+	}
 	payload := map[string]any{"conclusions": conclusions}
 	if err := c.doJSON(http.MethodPost, c.apiBaseURL+"/workspaces/"+workspaceID+"/conclusions", payload, &out); err != nil {
 		return nil, err
 	}
 	return out, nil
+}
+
+func honchoConclusionPeerIDs(conclusions []HonchoConclusionCreate) []string {
+	seen := map[string]struct{}{}
+	var out []string
+	for _, conclusion := range conclusions {
+		for _, peerID := range []string{conclusion.ObserverID, conclusion.ObservedID} {
+			peerID = strings.TrimSpace(peerID)
+			if peerID == "" {
+				continue
+			}
+			if _, ok := seen[peerID]; ok {
+				continue
+			}
+			seen[peerID] = struct{}{}
+			out = append(out, peerID)
+		}
+	}
+	return out
 }
 
 func (c *HonchoClient) ListMessages(workspaceID string, sessionID string, limit int, page int, reverse bool) (HonchoPage[HonchoMessage], error) {
