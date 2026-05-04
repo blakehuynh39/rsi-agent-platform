@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import functools
 import json
 import os
 import re
@@ -285,8 +286,11 @@ def _allowlisted_channel(channel_id: str) -> bool:
     channel_id = str(channel_id or "").strip()
     if not channel_id or channel_id in _denied_channels():
         return False
-    if _slack_mirror_channel_discovery() == "joined":
+    discovery = _slack_mirror_channel_discovery()
+    if discovery == "joined":
         return True
+    if discovery == "joined_public":
+        return channel_id in _joined_public_channels()
     configured = _allowlisted_channels()
     return bool(configured) and channel_id in configured
 
@@ -301,6 +305,59 @@ def _allowlisted_channels() -> list[str]:
 
 def _denied_channels() -> set[str]:
     return {item.strip() for item in _env("RSI_SLACK_MIRROR_CHANNEL_DENYLIST").split(",") if item.strip()}
+
+
+@functools.lru_cache(maxsize=1)
+def _joined_public_channels() -> tuple[str, ...]:
+    channels: set[str] = set()
+    cursor = ""
+    denied = _denied_channels()
+    while True:
+        payload = _slack_api(
+            "conversations.list",
+            {
+                "types": "public_channel",
+                "exclude_archived": "true",
+                "limit": 200,
+                "cursor": cursor,
+            },
+        )
+        for item in payload.get("channels") if isinstance(payload.get("channels"), list) else []:
+            if not isinstance(item, dict):
+                continue
+            channel_id = str(item.get("id") or "").strip()
+            if not channel_id or channel_id in denied:
+                continue
+            if item.get("is_private") or item.get("is_archived") or not bool(item.get("is_member")):
+                continue
+            channels.add(channel_id)
+        response_metadata = payload.get("response_metadata")
+        if not isinstance(response_metadata, dict):
+            break
+        cursor = str(response_metadata.get("next_cursor") or "").strip()
+        if not cursor:
+            break
+    return tuple(sorted(channels))
+
+
+def _slack_filter_channels_for_discovery() -> list[str]:
+    discovery = _slack_mirror_channel_discovery()
+    if discovery == "joined":
+        return []
+    if discovery == "joined_public":
+        channels = list(_joined_public_channels())
+        if not channels:
+            raise RuntimeError("Slack joined_public discovery found no joined public channels")
+        return channels
+    if discovery != "explicit":
+        raise RuntimeError(f"Unsupported RSI_SLACK_MIRROR_CHANNEL_DISCOVERY value {discovery!r}")
+    channels = _allowlisted_channels()
+    if not channels:
+        raise RuntimeError("RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST is empty")
+    filtered_channels = [channel for channel in channels if _allowlisted_channel(channel)]
+    if channels and not filtered_channels:
+        raise RuntimeError("All allowlisted channels are denied by RSI_SLACK_MIRROR_CHANNEL_DENYLIST")
+    return filtered_channels
 
 
 def _message_slack_ts(message: dict[str, Any]) -> str:
@@ -373,14 +430,9 @@ def _slack_message_filters(channel_id: str = "") -> dict[str, Any]:
             raise RuntimeError(f"Slack channel {channel_id} is not available in the mirrored Slack corpus")
         metadata["channel_id"] = channel_id
     else:
-        channels = [] if _slack_mirror_channel_discovery() == "joined" else _allowlisted_channels()
-        if _slack_mirror_channel_discovery() == "explicit" and not channels:
-            raise RuntimeError("RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST is empty")
+        channels = _slack_filter_channels_for_discovery()
         if channels:
-            filtered_channels = [channel for channel in channels if _allowlisted_channel(channel)]
-            if not filtered_channels:
-                raise RuntimeError("All allowlisted channels are denied by RSI_SLACK_MIRROR_CHANNEL_DENYLIST")
-            metadata["channel_id"] = {"in": filtered_channels}
+            metadata["channel_id"] = {"in": channels}
     return {"metadata": metadata}
 
 
@@ -397,12 +449,7 @@ def _slack_session_filters(channel_id: str = "") -> dict[str, Any]:
         }
     if _slack_mirror_channel_discovery() == "joined":
         return {"metadata": {"source": "slack"}}
-    channels = _allowlisted_channels()
-    if not channels:
-        raise RuntimeError("RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST is empty")
-    filtered_channels = [channel for channel in channels if _allowlisted_channel(channel)]
-    if not filtered_channels:
-        raise RuntimeError("All allowlisted channels are denied by RSI_SLACK_MIRROR_CHANNEL_DENYLIST")
+    filtered_channels = _slack_filter_channels_for_discovery()
     return {
         "AND": [
             {"metadata": {"source": "slack"}},

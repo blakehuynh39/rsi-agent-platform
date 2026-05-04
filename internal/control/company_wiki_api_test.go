@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/store"
@@ -177,5 +178,65 @@ func TestCompanyWikiPageGetAcceptsEncodedHierarchicalSlug(t *testing.T) {
 	}
 	if page.Page.Slug != "runbooks/deploy" {
 		t.Fatalf("slug = %q, want runbooks/deploy", page.Page.Slug)
+	}
+}
+
+func TestCompanyWikiIndexAndLogReturnEmptyCatalogForNewWiki(t *testing.T) {
+	state := store.NewMemoryStore()
+	root := t.TempDir()
+
+	index, status, err := companyWikiIndexGet(context.Background(), config.Config{CompanyWikiRoot: root}, state)
+	if err != nil || status != http.StatusOK {
+		t.Fatalf("companyWikiIndexGet(empty) status=%d err=%v", status, err)
+	}
+	if index.Path != "index.md" || !strings.Contains(index.Content, "No published pages yet") {
+		t.Fatalf("unexpected empty index: %+v", index)
+	}
+
+	logBody, status, err := companyWikiLogGet(context.Background(), config.Config{CompanyWikiRoot: root}, state, 20)
+	if err != nil || status != http.StatusOK {
+		t.Fatalf("companyWikiLogGet(empty) status=%d err=%v", status, err)
+	}
+	if logBody.Path != "log.md" || !strings.Contains(logBody.Content, "No wiki log entries yet") {
+		t.Fatalf("unexpected empty log: %+v", logBody)
+	}
+}
+
+func TestCompanyWikiIndexMissingAfterPublishedManifestStays404(t *testing.T) {
+	state := store.NewMemoryStore()
+	root := t.TempDir()
+	source, err := state.UpsertCompanyWikiSourceRevision(store.CompanyWikiSourceRevisionInput{
+		SourceType:        "slack_message",
+		DocumentSourceKey: "slack:T:C:1",
+		SourceSessionKey:  "slack:T:C:thread",
+		SourceRevision:    "1",
+		Title:             "Slack discussion",
+		Content:           "Use the deploy checklist before rollout.",
+		NativeLocator:     "slack:C:1:1",
+	})
+	if err != nil {
+		t.Fatalf("UpsertCompanyWikiSourceRevision() error = %v", err)
+	}
+	_, err = state.PublishCompanyWikiPage(store.CompanyWikiPagePublishInput{
+		Slug:        "runbooks/deploy",
+		Title:       "Deploy",
+		Body:        "# Deploy\n",
+		Path:        "pages/runbooks/deploy.md",
+		SHA256:      store.CompanyWikiSHA256("# Deploy\n"),
+		PublishedAt: time.Now().UTC(),
+		Citations: []store.CompanyWikiCitationInput{{
+			ClaimKey:         "deploy-checklist",
+			SourceDocumentID: source.Document.ID,
+			SourceRevisionID: source.Revision.ID,
+			ChunkID:          source.Chunks[0].ID,
+			NativeLocator:    source.Chunks[0].NativeLocator,
+		}},
+	})
+	if err != nil {
+		t.Fatalf("PublishCompanyWikiPage() error = %v", err)
+	}
+	_, status, err := companyWikiIndexGet(context.Background(), config.Config{CompanyWikiRoot: root}, state)
+	if status != http.StatusNotFound || err == nil {
+		t.Fatalf("companyWikiIndexGet(diverged) status=%d err=%v, want missing file", status, err)
 	}
 }

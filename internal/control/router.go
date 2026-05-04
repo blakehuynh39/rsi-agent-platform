@@ -195,7 +195,7 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 		app.WriteJSON(w, status, out)
 	})
 	r.Get("/internal/company-wiki/index", func(w http.ResponseWriter, r *http.Request) {
-		out, status, err := companyWikiIndexGet(r.Context(), cfg)
+		out, status, err := companyWikiIndexGet(r.Context(), cfg, store)
 		if err != nil {
 			app.WriteError(w, status, err)
 			return
@@ -204,7 +204,7 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 	})
 	r.Get("/internal/company-wiki/log", func(w http.ResponseWriter, r *http.Request) {
 		limit := parsePositiveIntQuery(r.URL.Query().Get("limit"), 0)
-		out, status, err := companyWikiLogGet(r.Context(), cfg, limit)
+		out, status, err := companyWikiLogGet(r.Context(), cfg, store, limit)
 		if err != nil {
 			app.WriteError(w, status, err)
 			return

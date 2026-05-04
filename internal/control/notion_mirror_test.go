@@ -284,6 +284,7 @@ func TestNotionMirrorDatabaseRootWritesDatabaseObjectAndRows(t *testing.T) {
 		Environment:                "stage",
 		SourceMirrorCheckpointRoot: t.TempDir(),
 		HonchoWorkspaceID:          "rsi_company_knowledge",
+		CompanyWikiRoot:            t.TempDir(),
 	}
 	databaseID := "databaseabc"
 	rowID := "rowpageabc"
@@ -335,6 +336,19 @@ func TestNotionMirrorDatabaseRootWritesDatabaseObjectAndRows(t *testing.T) {
 	rowRecord, found, err := state.GetSourceMirrorRecord(companyknowledge.NotionDocumentSourceType, companyknowledge.NotionDocumentSourceKey("notion", rowID))
 	if err != nil || !found || rowRecord.Status != store.SourceMirrorStatusComplete {
 		t.Fatalf("row source record found=%t err=%v record=%+v", found, err, rowRecord)
+	}
+	pages, err := state.SearchCompanyWikiPages("Product Backlog", 10)
+	if err != nil {
+		t.Fatalf("SearchCompanyWikiPages() error = %v", err)
+	}
+	foundDatabaseWikiPage := false
+	for _, page := range pages {
+		if page.Title == "Numo Product Backlog" {
+			foundDatabaseWikiPage = true
+		}
+	}
+	if !foundDatabaseWikiPage {
+		t.Fatalf("database root was not published into company wiki pages: %+v", pages)
 	}
 }
 

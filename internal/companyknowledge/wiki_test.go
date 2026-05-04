@@ -110,6 +110,32 @@ func TestReconcileWikiManifestDetectsAndRepairsDirectMutation(t *testing.T) {
 	}
 }
 
+func TestRecordWikiSourceRevisionDoesNotRequireWikiRoot(t *testing.T) {
+	state := store.NewMemoryStore()
+	recorded, err := RecordWikiSourceRevision(context.Background(), config.Config{}, state, store.CompanyWikiSourceRevisionInput{
+		SourceType:        "notion_document",
+		DocumentSourceKey: "notion:page:abc",
+		SourceSessionKey:  "notion:page:abc",
+		SourceRevision:    "rev-1",
+		Title:             "Deploy Runbook",
+		Content:           "Roll forward after validation.",
+		NativeLocator:     "notion:block:path",
+	})
+	if err != nil {
+		t.Fatalf("RecordWikiSourceRevision() error = %v", err)
+	}
+	if recorded.Skipped || recorded.Source.Document.ID == "" || recorded.Source.Revision.ID == "" {
+		t.Fatalf("expected source ledger record without wiki root, got %+v", recorded)
+	}
+	published, err := PublishWikiSourceDocument(context.Background(), config.Config{}, state, recorded.Source)
+	if err != nil {
+		t.Fatalf("PublishWikiSourceDocument() error = %v", err)
+	}
+	if !published.Skipped || published.Reason != "company_wiki_root_not_configured" {
+		t.Fatalf("publish result = %+v, want root-not-configured skip", published)
+	}
+}
+
 func TestCleanRelativeWikiPathStripsRepeatedTraversal(t *testing.T) {
 	for _, tc := range []struct {
 		input string

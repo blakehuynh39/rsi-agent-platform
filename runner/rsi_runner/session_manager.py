@@ -5,8 +5,11 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import random
+import time
 from typing import Any, Protocol
 
+from .db_utils import float_env, sqlite_error_is_locked
 from .json_types import JsonObject
 
 try:
@@ -286,8 +289,18 @@ class SessionManager:
         if not self.available or SessionDB is None:
             return None
         if self._db is None:
-            self._db = SessionDB(db_path=self._session_db_path)
+            self._db = self._open_session_db_with_retry()
         return self._db
+
+    def _open_session_db_with_retry(self) -> Any:
+        deadline = time.monotonic() + float_env("RSI_HERMES_SESSION_DB_OPEN_RETRY_SECONDS", 20.0)
+        while True:
+            try:
+                return SessionDB(db_path=self._session_db_path)
+            except Exception as exc:
+                if not sqlite_error_is_locked(exc) or time.monotonic() >= deadline:
+                    raise
+                time.sleep(random.uniform(0.05, 0.25))
 
     def _configure_home(self) -> list[str]:
         issues: list[str] = []

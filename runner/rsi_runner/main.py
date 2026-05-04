@@ -131,8 +131,11 @@ class RunnerHandler(BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
+        try:
+            self.end_headers()
+            self.wfile.write(body)
+        except (BrokenPipeError, ConnectionResetError):
+            logger.debug("client disconnected before runner response body was written path=%s status=%s", self.path, status)
 
     def _handle_drain_start(self) -> None:
         payload = _mark_draining(self.config)

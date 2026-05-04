@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -90,20 +91,73 @@ func companyWikiPageGet(_ context.Context, repo any, ref string) (store.CompanyW
 	return page, http.StatusOK, nil
 }
 
-func companyWikiIndexGet(_ context.Context, cfg config.Config) (companyknowledge.WikiMarkdownRead, int, error) {
+func companyWikiIndexGet(_ context.Context, cfg config.Config, repo any) (companyknowledge.WikiMarkdownRead, int, error) {
 	read, err := companyknowledge.ReadIndexFile(cfg.CompanyWikiRoot)
 	if err != nil {
+		if errors.Is(err, os.ErrNotExist) && companyWikiRootExists(cfg.CompanyWikiRoot) {
+			empty, fallbackErr := emptyCompanyWikiMarkdownRead(repo, "index.md")
+			if fallbackErr != nil {
+				return companyknowledge.WikiMarkdownRead{}, http.StatusInternalServerError, fallbackErr
+			}
+			if empty.OK {
+				return empty, http.StatusOK, nil
+			}
+		}
 		return companyknowledge.WikiMarkdownRead{}, http.StatusNotFound, err
 	}
 	return read, http.StatusOK, nil
 }
 
-func companyWikiLogGet(_ context.Context, cfg config.Config, limit int) (companyknowledge.WikiMarkdownRead, int, error) {
+func companyWikiLogGet(_ context.Context, cfg config.Config, repo any, limit int) (companyknowledge.WikiMarkdownRead, int, error) {
 	read, err := companyknowledge.ReadLogFile(cfg.CompanyWikiRoot, limit)
 	if err != nil {
+		if errors.Is(err, os.ErrNotExist) && companyWikiRootExists(cfg.CompanyWikiRoot) {
+			empty, fallbackErr := emptyCompanyWikiMarkdownRead(repo, "log.md")
+			if fallbackErr != nil {
+				return companyknowledge.WikiMarkdownRead{}, http.StatusInternalServerError, fallbackErr
+			}
+			if empty.OK {
+				return empty, http.StatusOK, nil
+			}
+		}
 		return companyknowledge.WikiMarkdownRead{}, http.StatusNotFound, err
 	}
 	return read, http.StatusOK, nil
+}
+
+func companyWikiRootExists(root string) bool {
+	info, err := os.Stat(strings.TrimSpace(root))
+	return err == nil && info.IsDir()
+}
+
+func emptyCompanyWikiMarkdownRead(repo any, relativePath string) (companyknowledge.WikiMarkdownRead, error) {
+	wikiStore, ok := repo.(store.CompanyWikiStore)
+	if !ok {
+		return companyknowledge.WikiMarkdownRead{}, errors.New("configured store does not support company wiki")
+	}
+	entries, err := wikiStore.ListCompanyWikiManifestEntries()
+	if err != nil {
+		return companyknowledge.WikiMarkdownRead{}, err
+	}
+	if len(entries) > 0 {
+		return companyknowledge.WikiMarkdownRead{}, nil
+	}
+	switch relativePath {
+	case "index.md":
+		return companyknowledge.WikiMarkdownRead{
+			OK:      true,
+			Path:    "index.md",
+			Content: "# Company Wiki Index\n\n_No published pages yet._\n",
+		}, nil
+	case "log.md":
+		return companyknowledge.WikiMarkdownRead{
+			OK:      true,
+			Path:    "log.md",
+			Content: "# Company Wiki Log\n\n_No wiki log entries yet._\n",
+		}, nil
+	default:
+		return companyknowledge.WikiMarkdownRead{}, nil
+	}
 }
 
 func companyWikiManifestReconcile(ctx context.Context, cfg config.Config, repo any, repair bool) (companyknowledge.WikiManifestReconcileResult, int, error) {

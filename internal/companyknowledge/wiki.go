@@ -78,9 +78,6 @@ func RecordWikiSourceRevision(ctx context.Context, cfg config.Config, repo any, 
 	if !ok {
 		return WikiPublishResult{Skipped: true, Reason: "store_not_company_wiki_capable"}, nil
 	}
-	if strings.TrimSpace(cfg.CompanyWikiRoot) == "" {
-		return WikiPublishResult{Skipped: true, Reason: "company_wiki_root_not_configured"}, nil
-	}
 	source, err := wikiStore.UpsertCompanyWikiSourceRevision(input)
 	if err != nil {
 		return WikiPublishResult{}, err

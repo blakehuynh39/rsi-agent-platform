@@ -8,6 +8,9 @@ from rsi_runner import slack_mcp_server
 
 
 class SlackMCPServerTests(unittest.TestCase):
+    def tearDown(self) -> None:
+        slack_mcp_server._joined_public_channels.cache_clear()
+
     def test_permalink_parser_converts_slack_url_to_channel_and_thread_ts(self) -> None:
         channel_id, thread_ts = slack_mcp_server._ts_from_permalink(
             "https://storyprotocol.slack.com/archives/C0AKH5SNGKH/p1777650186068179"
@@ -185,6 +188,73 @@ class SlackMCPServerTests(unittest.TestCase):
         self.assertEqual([item["id"] for item in result["results"]], ["msg_1"])
         body = honcho_api.call_args.args[2]
         self.assertEqual(body["filters"]["metadata"], {"source": "slack"})
+
+    def test_joined_public_policy_discovers_only_joined_public_channels(self) -> None:
+        def fake_slack_api(method, params):
+            self.assertEqual(method, "conversations.list")
+            self.assertEqual(params["types"], "public_channel")
+            return {
+                "channels": [
+                    {"id": "CPUBLIC", "is_member": True, "is_private": False, "is_archived": False},
+                    {"id": "CPRIVATE", "is_member": True, "is_private": True, "is_archived": False},
+                    {"id": "CNOTMEMBER", "is_member": False, "is_private": False, "is_archived": False},
+                    {"id": "CARCHIVED", "is_member": True, "is_private": False, "is_archived": True},
+                ],
+                "response_metadata": {"next_cursor": ""},
+            }
+
+        with mock.patch.object(slack_mcp_server, "_slack_api", side_effect=fake_slack_api), mock.patch.dict(
+            "os.environ",
+            {
+                "RSI_SLACK_MIRROR_CHANNEL_DISCOVERY": "joined_public",
+                "RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST": "",
+            },
+            clear=False,
+        ):
+            self.assertTrue(slack_mcp_server._allowlisted_channel("CPUBLIC"))
+            self.assertFalse(slack_mcp_server._allowlisted_channel("CPRIVATE"))
+            self.assertFalse(slack_mcp_server._allowlisted_channel("CNOTMEMBER"))
+            self.assertFalse(slack_mcp_server._allowlisted_channel("CARCHIVED"))
+
+    def test_conversations_search_joined_public_filters_honcho_to_public_channels(self) -> None:
+        def fake_slack_api(_method, _params):
+            return {
+                "channels": [
+                    {"id": "CPUBLIC", "is_member": True, "is_private": False, "is_archived": False},
+                    {"id": "COTHER", "is_member": True, "is_private": False, "is_archived": False},
+                ],
+                "response_metadata": {"next_cursor": ""},
+            }
+
+        with mock.patch.object(slack_mcp_server, "_slack_api", side_effect=fake_slack_api), mock.patch.object(
+            slack_mcp_server,
+            "_honcho_api_raw",
+            return_value=[
+                {
+                    "id": "msg_public",
+                    "content": "visible joined public channel",
+                    "metadata": {"source": "slack", "channel_id": "CPUBLIC"},
+                },
+                {
+                    "id": "msg_private_old_corpus",
+                    "content": "not visible",
+                    "metadata": {"source": "slack", "channel_id": "CPRIVATE"},
+                },
+            ],
+        ) as honcho_api, mock.patch.dict(
+            "os.environ",
+            {
+                "RSI_HONCHO_BASE_URL": "http://honcho.test",
+                "RSI_SLACK_MIRROR_CHANNEL_DISCOVERY": "joined_public",
+                "RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST": "",
+            },
+            clear=False,
+        ):
+            result = slack_mcp_server.conversations_search("visible", limit=5)
+
+        self.assertEqual([item["id"] for item in result["results"]], ["msg_public"])
+        body = honcho_api.call_args.args[2]
+        self.assertEqual(body["filters"]["metadata"]["channel_id"]["in"], ["COTHER", "CPUBLIC"])
 
     def test_documents_search_queries_honcho_conclusions(self) -> None:
         with mock.patch.object(

@@ -1724,6 +1724,46 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(manager.available)
         self.assertEqual(manager.session_db_path, os.path.join(tempdir, "state.db"))
 
+    def test_session_manager_retries_locked_session_db_when_loading_history(self) -> None:
+        attempts = 0
+
+        class FlakySessionDB:
+            def __init__(self, db_path: str) -> None:
+                nonlocal attempts
+                attempts += 1
+                self.db_path = db_path
+                if attempts == 1:
+                    raise sqlite3.OperationalError("database is locked")
+
+            def get_messages_as_conversation(self, _session_id: str) -> list[dict[str, object]]:
+                return []
+
+        task = types.SimpleNamespace(
+            session_scope_kind="conversation",
+            session_scope_id="conv-1",
+            parent_session_scope_kind="",
+            parent_session_scope_id="",
+            user_peer_id="user:U123",
+            recent_conversation_entries=[],
+            assistant_peer_id="rsi:test:prod",
+        )
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.session_manager.SessionDB",
+            FlakySessionDB,
+        ), mock.patch("rsi_runner.session_manager.time.sleep") as sleep_mock, mock.patch(
+            "rsi_runner.session_manager.random.uniform", return_value=0
+        ), mock.patch.dict(
+            os.environ,
+            {**runner_env("prod"), "HERMES_HOME": tempdir, "RSI_HERMES_SESSION_DB_OPEN_RETRY_SECONDS": "1"},
+            clear=True,
+        ):
+            manager = SessionManager(RunnerConfig.from_env())
+            context = manager.prepare(task, load_history=True)
+
+        self.assertEqual(attempts, 2)
+        self.assertTrue(context.session_id.startswith("rsi-prod-conversation-"))
+        sleep_mock.assert_called_once()
+
     def test_session_manager_syncs_bundled_skills_when_configured(self) -> None:
         class FakeSessionDB:
             def __init__(self, db_path: str) -> None:

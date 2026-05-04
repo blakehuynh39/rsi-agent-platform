@@ -372,6 +372,11 @@ func (r *notionMirrorRunner) mirrorDatabase(ctx context.Context, databaseID stri
 	if err != nil {
 		return fmt.Errorf("mirror notion database=%s into honcho: %w", databaseID, err)
 	}
+	if shouldPublishNotionWikiSource(databaseResult) {
+		if _, err := companyknowledge.RecordAndPublishWikiSource(ctx, r.cfg, r.store, companyknowledge.NotionWikiSourceRevisionInput(databaseInput)); err != nil {
+			return fmt.Errorf("publish notion wiki source database=%s: %w", databaseID, err)
+		}
+	}
 	r.checkpoint.CompletedObjects[databaseSourceKey] = notionMirrorCheckpointObject{
 		SourceRevision:          databaseRevision,
 		BlockPaginationComplete: true,

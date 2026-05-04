@@ -14,6 +14,7 @@ import tempfile
 import time
 from typing import Any
 
+from .db_utils import float_env, sqlite_error_is_locked
 from .json_types import JsonObject
 from .rsi_tools import normalize_tool_names
 
@@ -109,19 +110,6 @@ def _string(value: Any) -> str:
     if value is None:
         return ""
     return str(value).strip()
-
-
-def _float_env(name: str, default: float) -> float:
-    raw = os.getenv(name)
-    if raw is None or not str(raw).strip():
-        return default
-    try:
-        value = float(str(raw).strip())
-        if not (value > 0.0 and value != float('inf')):
-            return default
-        return value
-    except ValueError:
-        return default
 
 
 def _stream_text(value: Any) -> str:
@@ -442,11 +430,6 @@ def validate_hermes_contract(
     )
 
 
-def _sqlite_error_is_locked(exc: Exception) -> bool:
-    text = str(exc).lower()
-    return "database is locked" in text or "database is busy" in text or "database table is locked" in text
-
-
 def _validate_session_db_integrity(session_db: Any, *, require_ready: bool = True) -> tuple[str, str]:
     db_path = getattr(session_db, "db_path", None)
     if not db_path:
@@ -469,7 +452,7 @@ def _validate_session_db_integrity(session_db: Any, *, require_ready: bool = Tru
                 for item in conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'").fetchall()
             }
     except sqlite3.OperationalError as exc:
-        if not require_ready and _sqlite_error_is_locked(exc):
+        if not require_ready and sqlite_error_is_locked(exc):
             return "locked", ""
         return "corrupt", f"Hermes SessionDB integrity check failed: {exc}"
     except sqlite3.DatabaseError as exc:
@@ -713,13 +696,13 @@ class HermesAgentAdapter:
         if SessionDB is None:
             return None
         db_path = Path(self._hermes_home).expanduser() / "state.db"
-        deadline = time.monotonic() + _float_env("RSI_HERMES_SESSION_DB_OPEN_RETRY_SECONDS", 20.0)
+        deadline = time.monotonic() + float_env("RSI_HERMES_SESSION_DB_OPEN_RETRY_SECONDS", 20.0)
         attempt = 0
         while True:
             try:
                 return SessionDB(db_path=db_path)
             except Exception as exc:
-                if not _sqlite_error_is_locked(exc) or time.monotonic() >= deadline:
+                if not sqlite_error_is_locked(exc) or time.monotonic() >= deadline:
                     raise
                 attempt += 1
                 if attempt == 1:
@@ -729,7 +712,7 @@ class HermesAgentAdapter:
                             "status": "retrying",
                             "db_path": str(db_path),
                             "error": str(exc)[:800],
-                            "retry_deadline_seconds": _float_env("RSI_HERMES_SESSION_DB_OPEN_RETRY_SECONDS", 20.0),
+                            "retry_deadline_seconds": float_env("RSI_HERMES_SESSION_DB_OPEN_RETRY_SECONDS", 20.0),
                         },
                     )
                 time.sleep(random.uniform(0.05, 0.25))
