@@ -2755,18 +2755,18 @@
       },
       {
         "path": "index.md",
-        "sha256": "fdb755934e9e13ffbe5f63cba26f8f1fcd08c26136d5594f91a715752ea63e1c",
-        "size": 138898
+        "sha256": "6b0f86fdc4a51f27fe9cdebe2c1ac423c898a400a15ed158722da432e4f5bbc6",
+        "size": 138931
       },
       {
         "path": "log.md",
-        "sha256": "9b473e33b93afb9080f9de30b2288678567e20cffc009aaffb2783f205d48851",
-        "size": 206924
+        "sha256": "8ecc465534cbb41ea7aa1d840a4bda18c21044b16cd580c01449b1e21a6e475a",
+        "size": 207227
       },
       {
         "path": "manifest.json",
-        "sha256": "ae806d7c08be99c85b1af1d1e898ff448d40c9ec08500199eeaa68da0c03aa89",
-        "size": 174097
+        "sha256": "01777deabe688e347a428a668114cc5842ac729e977e31cb1b61813c412d1f1c",
+        "size": 174107
       },
       {
         "path": "pages/notion_document/-automated-customer-service--b4d043af.md",
@@ -4200,8 +4200,8 @@
       },
       {
         "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777390695-974609-ee957b52.md",
-        "sha256": "595794a74b7095d3997f6ac7ad34e810689d26d3525c86d2084f3f9457d14038",
-        "size": 3731
+        "sha256": "30d3584e806c2136d95c8babd5575a8902b5fc1dc5da961bd13fd52716805c86",
+        "size": 997
       },
       {
         "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777391608-843909-b8470bc1.md",
@@ -4812,7 +4812,7 @@
   },
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
-  "exported_at": "2026-05-04T20:52:39Z",
+  "exported_at": "2026-05-04T21:03:08Z",
   "file_count": 961,
   "files": [
     {
@@ -7564,14 +7564,14 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7dff774jjhd",
-  "previous_tree_hash": "67659752cb0c30ce9125b3f5f8ac43525d1666af7cfedfd15909cbcfd1f145fb",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5685b5wscpz",
+  "previous_tree_hash": "5cd6aa6abc8bddca0e214f7f63121f63b5f4284c0d7714c988a9a014c0f9968f",
   "schema_version": 1,
   "skill_file_count": 549,
   "skill_manage_sessions": [],
   "skill_tree_hash": "51dd5fa14f02f546813009b323ca960c29e87c4759f49ab6c92e3ca2c7ca357b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5cd6aa6abc8bddca0e214f7f63121f63b5f4284c0d7714c988a9a014c0f9968f",
+  "tree_hash": "4dd72c78983c33f53ab9f39f69e29f3b03dfae13604ebcd7ffb87c3bd834e639",
   "wiki_file_count": 412,
   "wiki_files": [
     {
@@ -7581,18 +7581,18 @@
     },
     {
       "path": "index.md",
-      "sha256": "fdb755934e9e13ffbe5f63cba26f8f1fcd08c26136d5594f91a715752ea63e1c",
-      "size": 138898
+      "sha256": "6b0f86fdc4a51f27fe9cdebe2c1ac423c898a400a15ed158722da432e4f5bbc6",
+      "size": 138931
     },
     {
       "path": "log.md",
-      "sha256": "9b473e33b93afb9080f9de30b2288678567e20cffc009aaffb2783f205d48851",
-      "size": 206924
+      "sha256": "8ecc465534cbb41ea7aa1d840a4bda18c21044b16cd580c01449b1e21a6e475a",
+      "size": 207227
     },
     {
       "path": "manifest.json",
-      "sha256": "ae806d7c08be99c85b1af1d1e898ff448d40c9ec08500199eeaa68da0c03aa89",
-      "size": 174097
+      "sha256": "01777deabe688e347a428a668114cc5842ac729e977e31cb1b61813c412d1f1c",
+      "size": 174107
     },
     {
       "path": "pages/notion_document/-automated-customer-service--b4d043af.md",
@@ -9026,8 +9026,8 @@
     },
     {
       "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777390695-974609-ee957b52.md",
-      "sha256": "595794a74b7095d3997f6ac7ad34e810689d26d3525c86d2084f3f9457d14038",
-      "size": 3731
+      "sha256": "30d3584e806c2136d95c8babd5575a8902b5fc1dc5da961bd13fd52716805c86",
+      "size": 997
     },
     {
       "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777391608-843909-b8470bc1.md",
@@ -9636,5 +9636,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "cb30153abeca22b131a7d3224cc55a3fd6aae17d4e516075f5ca38da6da23fb2"
+  "wiki_tree_hash": "d465f3634848d27411ad58d6248c6520d8f7d340209bca3ea9541f6a1cb009c8"
 }
