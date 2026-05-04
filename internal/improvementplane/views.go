@@ -129,20 +129,45 @@ type conversationListItem struct {
 }
 
 type conversationDetailResponse struct {
-	Conversation     conversation.Conversation      `json:"conversation"`
-	ActiveCase       *caseSummary                   `json:"active_case,omitempty"`
-	WorkflowLine     *workflowLineSummary           `json:"workflow_line,omitempty"`
-	WorkflowAttempts []workflowAttemptSummary       `json:"workflow_attempts"`
-	RuntimeDiagnoses []improvement.RuntimeDiagnosis `json:"runtime_diagnoses"`
-	Cases            []caseSummary                  `json:"cases"`
-	Transcript       []conversation.Entry           `json:"transcript"`
-	TraceAttempts    []traceAttemptSummary          `json:"trace_attempts"`
-	ActionIntents    []action.Intent                `json:"action_intents"`
-	ActionResults    []action.Result                `json:"action_results"`
-	Outcomes         []outcome.Record               `json:"outcomes"`
-	KnowledgeEntries []knowledge.Entry              `json:"knowledge_entries"`
-	LinkedProposals  []review.Proposal              `json:"linked_proposals"`
-	TranscriptPage   *transcriptPageSummary         `json:"transcript_page,omitempty"`
+	Conversation      conversation.Conversation      `json:"conversation"`
+	ActiveCase        *caseSummary                   `json:"active_case,omitempty"`
+	WorkflowLine      *workflowLineSummary           `json:"workflow_line,omitempty"`
+	WorkflowAttempts  []workflowAttemptSummary       `json:"workflow_attempts"`
+	SelfReviewCadence *conversationSelfReviewCadence `json:"self_review_cadence,omitempty"`
+	RuntimeDiagnoses  []improvement.RuntimeDiagnosis `json:"runtime_diagnoses"`
+	Cases             []caseSummary                  `json:"cases"`
+	Transcript        []conversation.Entry           `json:"transcript"`
+	TraceAttempts     []traceAttemptSummary          `json:"trace_attempts"`
+	ActionIntents     []action.Intent                `json:"action_intents"`
+	ActionResults     []action.Result                `json:"action_results"`
+	Outcomes          []outcome.Record               `json:"outcomes"`
+	KnowledgeEntries  []knowledge.Entry              `json:"knowledge_entries"`
+	LinkedProposals   []review.Proposal              `json:"linked_proposals"`
+	TranscriptPage    *transcriptPageSummary         `json:"transcript_page,omitempty"`
+}
+
+type conversationSelfReviewCadence struct {
+	ExecutionID       string    `json:"execution_id,omitempty"`
+	CandidateID       int       `json:"candidate_id,omitempty"`
+	GatewaySessionKey string    `json:"gateway_session_key,omitempty"`
+	CadenceScopeKey   string    `json:"cadence_scope_key,omitempty"`
+	AgentIdentity     string    `json:"agent_identity,omitempty"`
+	CandidateStatus   string    `json:"candidate_status,omitempty"`
+	ReviewStatus      string    `json:"review_status,omitempty"`
+	ReviewKind        string    `json:"review_kind,omitempty"`
+	TriggerKind       string    `json:"trigger_kind,omitempty"`
+	MemoryIterations  *int      `json:"memory_iterations,omitempty"`
+	MemoryThreshold   *int      `json:"memory_threshold,omitempty"`
+	SkillIterations   *int      `json:"skill_iterations,omitempty"`
+	SkillThreshold    *int      `json:"skill_threshold,omitempty"`
+	ReviewMemory      *bool     `json:"review_memory,omitempty"`
+	ReviewSkills      *bool     `json:"review_skills,omitempty"`
+	WorkCreated       []string  `json:"work_created,omitempty"`
+	LatestSummary     string    `json:"latest_summary,omitempty"`
+	LatestError       string    `json:"latest_error,omitempty"`
+	LatestSnapshotRef string    `json:"latest_snapshot_ref,omitempty"`
+	LatestResultHash  string    `json:"latest_result_hash,omitempty"`
+	UpdatedAt         time.Time `json:"updated_at,omitempty"`
 }
 
 type transcriptPageSummary struct {
@@ -412,7 +437,7 @@ func buildConversationDetailWithOptions(store storepkg.Repository, conversationI
 		proposals = storeProposalsByConversation(store, conversationID)
 	}
 	traces := []events.TraceSummary{}
-	if conversationDetailIncludes(opts, "traces") || conversationDetailIncludes(opts, "cases") || conversationDetailIncludes(opts, "workflows") {
+	if conversationDetailIncludes(opts, "traces") || conversationDetailIncludes(opts, "cases") || conversationDetailIncludes(opts, "workflows") || conversationDetailIncludes(opts, "self_review") {
 		traces = storeTraceSummariesForConversation(store, conversationID)
 	}
 	traceSummaries := []traceAttemptSummary{}
@@ -477,22 +502,116 @@ func buildConversationDetailWithOptions(store storepkg.Repository, conversationI
 	if conversationDetailIncludes(opts, "actions") {
 		actionResults = flattenActionResults(store, actionIntents)
 	}
+	var selfReviewCadence *conversationSelfReviewCadence
+	if conversationDetailIncludes(opts, "self_review") {
+		selfReviewCadence = selfReviewCadenceForConversation(store, conversationID, traces)
+	}
 	return conversationDetailResponse{
-		Conversation:     item,
-		ActiveCase:       caseIndex[item.ActiveCaseID],
-		WorkflowLine:     workflowLine,
-		WorkflowAttempts: workflowAttempts,
-		RuntimeDiagnoses: sliceOrEmpty(runtimeDiagnoses),
-		Cases:            cases,
-		Transcript:       sliceOrEmpty(transcript),
-		TranscriptPage:   transcriptPage,
-		TraceAttempts:    traceSummaries,
-		ActionIntents:    sliceOrEmpty(actionIntents),
-		ActionResults:    sliceOrEmpty(actionResults),
-		Outcomes:         sliceOrEmpty(outcomes),
-		KnowledgeEntries: sliceOrEmpty(knowledgeEntries),
-		LinkedProposals:  sliceOrEmpty(linkedProposals),
+		Conversation:      item,
+		ActiveCase:        caseIndex[item.ActiveCaseID],
+		WorkflowLine:      workflowLine,
+		WorkflowAttempts:  workflowAttempts,
+		SelfReviewCadence: selfReviewCadence,
+		RuntimeDiagnoses:  sliceOrEmpty(runtimeDiagnoses),
+		Cases:             cases,
+		Transcript:        sliceOrEmpty(transcript),
+		TranscriptPage:    transcriptPage,
+		TraceAttempts:     traceSummaries,
+		ActionIntents:     sliceOrEmpty(actionIntents),
+		ActionResults:     sliceOrEmpty(actionResults),
+		Outcomes:          sliceOrEmpty(outcomes),
+		KnowledgeEntries:  sliceOrEmpty(knowledgeEntries),
+		LinkedProposals:   sliceOrEmpty(linkedProposals),
 	}, true
+}
+
+func selfReviewCadenceForConversation(store storepkg.Repository, conversationID string, traces []events.TraceSummary) *conversationSelfReviewCadence {
+	traceSet := map[string]struct{}{}
+	for _, trace := range traces {
+		if trace.TraceID != "" {
+			traceSet[trace.TraceID] = struct{}{}
+		}
+	}
+	executions := store.ListRunnerExecutions()
+	sort.SliceStable(executions, func(i, j int) bool {
+		return executions[i].UpdatedAt.After(executions[j].UpdatedAt)
+	})
+	var fallback *conversationSelfReviewCadence
+	for _, execution := range executions {
+		if execution.ConversationID != conversationID {
+			if _, ok := traceSet[execution.TraceID]; !ok {
+				continue
+			}
+		}
+		cadence := selfReviewCadenceFromRunnerExecution(execution)
+		if cadence == nil {
+			continue
+		}
+		if cadence.MemoryIterations != nil || cadence.SkillIterations != nil {
+			return cadence
+		}
+		if fallback == nil {
+			fallback = cadence
+		}
+	}
+	return fallback
+}
+
+func selfReviewCadenceFromRunnerExecution(execution storepkg.RunnerExecution) *conversationSelfReviewCadence {
+	raw := mapFromAny(execution.Result["raw"])
+	if len(raw) == 0 {
+		return nil
+	}
+	review := mapFromAny(raw["self_review"])
+	candidate := mapFromAny(raw["self_review_candidate"])
+	if len(review) == 0 && len(candidate) == 0 {
+		return nil
+	}
+	cadence := &conversationSelfReviewCadence{
+		ExecutionID:       firstNonEmptyString(execution.ExecutionID, stringValue(review["execution_id"]), stringValue(candidate["execution_id"])),
+		GatewaySessionKey: firstNonEmptyString(stringValue(review["gateway_session_key"]), stringValue(candidate["gateway_session_key"])),
+		CadenceScopeKey:   firstNonEmptyString(stringValue(review["cadence_scope_key"]), stringValue(candidate["cadence_scope_key"])),
+		AgentIdentity:     firstNonEmptyString(stringValue(review["agent_identity"]), stringValue(candidate["agent_identity"])),
+		CandidateStatus:   firstNonEmptyString(stringValue(review["self_review_candidate_status"]), stringValue(candidate["candidate_status"]), stringValue(candidate["status"])),
+		ReviewStatus:      firstNonEmptyString(stringValue(review["self_review_status"]), stringValue(review["self_review_enqueue_status"])),
+		LatestError:       firstNonEmptyString(stringValue(review["self_review_last_error"]), stringValue(candidate["ineligible_reason"])),
+		LatestSnapshotRef: firstNonEmptyString(stringValue(review["self_review_snapshot_ref"]), stringValue(candidate["snapshot_ref"])),
+		LatestResultHash:  stringValue(review["self_review_result_hash"]),
+		UpdatedAt:         execution.UpdatedAt,
+	}
+	cadence.CandidateID = int(firstNonZeroInt(review["candidate_id"], candidate["candidate_id"]))
+	cadence.MemoryIterations = intPointerFromAny(firstPresent(review["memory_turns_after"], review["memory_turns"], candidate["memory_turns_after"]))
+	cadence.SkillIterations = intPointerFromAny(firstPresent(review["skill_iterations_after"], review["skill_iterations"], candidate["skill_iterations_after"]))
+	cadence.MemoryThreshold = intPointerFromAny(firstPresent(review["memory_nudge_interval"], review["memory_threshold"], candidate["memory_nudge_interval"], candidate["memory_threshold"]))
+	cadence.SkillThreshold = intPointerFromAny(firstPresent(review["skill_nudge_interval"], review["skill_threshold"], candidate["skill_nudge_interval"], candidate["skill_threshold"]))
+	cadence.ReviewMemory = boolPointerFromAnyIfPresent(review["review_memory"])
+	cadence.ReviewSkills = boolPointerFromAnyIfPresent(review["review_skills"])
+	cadence.WorkCreated = stringSliceFromAny(review["work_created"])
+	workItems := mapSliceFromAny(review["self_review_work"])
+	for _, work := range workItems {
+		if cadence.LatestSummary == "" {
+			cadence.LatestSummary = stringValue(work["summary"])
+		}
+		if cadence.ReviewKind == "" {
+			cadence.ReviewKind = firstNonEmptyString(stringValue(work["review_kind"]), stringValue(work["kind"]))
+		}
+		if cadence.TriggerKind == "" {
+			cadence.TriggerKind = firstNonEmptyString(stringValue(work["trigger_kind"]), stringValue(work["kind"]))
+		}
+		if cadence.LatestError == "" {
+			cadence.LatestError = stringValue(work["error"])
+		}
+	}
+	if cadence.ReviewKind == "" && len(cadence.WorkCreated) == 1 {
+		cadence.ReviewKind = cadence.WorkCreated[0]
+	}
+	if cadence.TriggerKind == "" && len(cadence.WorkCreated) == 1 {
+		cadence.TriggerKind = cadence.WorkCreated[0]
+	}
+	if cadence.ExecutionID == "" && cadence.CandidateID == 0 && cadence.CadenceScopeKey == "" {
+		return nil
+	}
+	return cadence
 }
 
 func conversationDetailIncludes(opts conversationDetailOptions, section string) bool {
@@ -1708,6 +1827,73 @@ func firstNonEmptyString(values ...string) string {
 		}
 	}
 	return ""
+}
+
+func firstPresent(values ...any) any {
+	for _, value := range values {
+		if value == nil {
+			continue
+		}
+		if text, ok := value.(string); ok && strings.TrimSpace(text) == "" {
+			continue
+		}
+		return value
+	}
+	return nil
+}
+
+func firstNonZeroInt(values ...any) int64 {
+	for _, value := range values {
+		if parsed := intFromAny(value); parsed != 0 {
+			return parsed
+		}
+	}
+	return 0
+}
+
+func intPointerFromAny(value any) *int {
+	if value == nil {
+		return nil
+	}
+	if text, ok := value.(string); ok && strings.TrimSpace(text) == "" {
+		return nil
+	}
+	parsed := int(intFromAny(value))
+	return &parsed
+}
+
+func boolPointerFromAnyIfPresent(value any) *bool {
+	if value == nil {
+		return nil
+	}
+	if text, ok := value.(string); ok && strings.TrimSpace(text) == "" {
+		return nil
+	}
+	return boolPointerFromAny(value)
+}
+
+func mapFromAny(value any) map[string]any {
+	if typed, ok := value.(map[string]any); ok {
+		return typed
+	}
+	return map[string]any{}
+}
+
+func mapSliceFromAny(value any) []map[string]any {
+	switch typed := value.(type) {
+	case []map[string]any:
+		return typed
+	case []any:
+		out := make([]map[string]any, 0, len(typed))
+		for _, item := range typed {
+			if mapped := mapFromAny(item); len(mapped) > 0 {
+				out = append(out, mapped)
+			}
+		}
+		return out
+	default:
+		return []map[string]any{}
+	}
 }
 
 func slicesContain(items []string, target string) bool {

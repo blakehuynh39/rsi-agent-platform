@@ -90,6 +90,30 @@ export type ConversationListItem = {
   proposal_count: number;
 };
 
+export type SelfReviewCadence = {
+  execution_id?: string;
+  candidate_id?: number;
+  gateway_session_key?: string;
+  cadence_scope_key?: string;
+  agent_identity?: string;
+  candidate_status?: string;
+  review_status?: string;
+  review_kind?: string;
+  trigger_kind?: string;
+  memory_iterations?: number;
+  memory_threshold?: number;
+  skill_iterations?: number;
+  skill_threshold?: number;
+  review_memory?: boolean;
+  review_skills?: boolean;
+  work_created?: NullableList<string>;
+  latest_summary?: string;
+  latest_error?: string;
+  latest_snapshot_ref?: string;
+  latest_result_hash?: string;
+  updated_at?: string;
+};
+
 type ConversationEntry = CreatedAt & {
   id: string;
   event_id?: string;
@@ -115,6 +139,7 @@ export type ConversationDetailResponse = {
   active_case?: CaseSummary;
   workflow_line?: WorkflowLineSummary;
   workflow_attempts?: NullableList<WorkflowAttemptSummary>;
+  self_review_cadence?: SelfReviewCadence;
   cases: NullableList<CaseSummary>;
   transcript: NullableList<ConversationEntry>;
   trace_attempts: NullableList<TraceAttemptSummary>;

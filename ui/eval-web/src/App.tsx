@@ -63,7 +63,7 @@ const RUNNING_LIST_STATES = new Set([
   "started"
 ]);
 
-const CONVERSATION_DETAIL_QUERY = "include=cases,traces,workflows,transcript,proposals&transcript_limit=50";
+const CONVERSATION_DETAIL_QUERY = "include=cases,traces,workflows,transcript,proposals,self_review&transcript_limit=50";
 const CONVERSATION_PAGE_SIZE = 6;
 
 function dateSortValue(value?: string) {

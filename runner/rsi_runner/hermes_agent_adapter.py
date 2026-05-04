@@ -606,7 +606,29 @@ class HermesAgentAdapter:
             return {
                 key: value
                 for key, value in parsed.items()
-                if key in {"candidate_id", "candidate_status", "status", "execution_id", "agent_identity", "snapshot_ref", "snapshot_hash", "snapshot_size", "ineligible_reason"}
+                if key
+                in {
+                    "candidate_id",
+                    "candidate_status",
+                    "status",
+                    "execution_id",
+                    "agent_identity",
+                    "snapshot_ref",
+                    "snapshot_hash",
+                    "snapshot_size",
+                    "ineligible_reason",
+                    "gateway_session_key",
+                    "cadence_scope_key",
+                    "memory_turn_delta",
+                    "skill_iteration_delta",
+                    "skill_iteration_delta_after_last_skill_manage",
+                    "memory_nudge_interval",
+                    "skill_nudge_interval",
+                    "memory_tool_used",
+                    "skill_manage_used",
+                    "memory_eligible",
+                    "skill_eligible",
+                }
             }
         except subprocess.TimeoutExpired:
             self._lifecycle.record(

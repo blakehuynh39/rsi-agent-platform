@@ -2662,14 +2662,76 @@ class HermesRuntime:
             return dict(payload)
         if not isinstance(status, dict) or not status:
             return dict(payload)
+        return self._with_self_review_status(payload, status)
+
+    def _with_self_review_status(self, payload: JsonObject, status: JsonObject) -> JsonObject:
         out = dict(payload)
-        out["self_review"] = status
         result = dict(_json_object_or_empty(out.get("result")))
         raw = _json_object_or_empty(result.get("raw"))
+        existing = {
+            **_json_object_or_empty(raw.get("self_review")),
+            **_json_object_or_empty(out.get("self_review")),
+        }
+        merged = {**existing, **status}
+        out["self_review"] = merged
         if raw:
-            result["raw"] = {**raw, "self_review": status}
+            result["raw"] = {**raw, "self_review": merged}
             out["result"] = result
         return out
+
+    def _persist_self_review_status(self, execution_id: str, final_status: JsonObject, status: JsonObject, result: HermesExecutionResult) -> None:
+        if not status:
+            return
+        result.raw = {**_json_object_or_empty(result.raw), "self_review": {**_json_object_or_empty(result.raw.get("self_review")), **status}}
+        self._store_executor_result(execution_id, self._with_self_review_status(final_status, status))
+
+    def _self_review_promotion_status(
+        self,
+        *,
+        candidate: JsonObject,
+        delivered: JsonObject | None = None,
+        promoted: JsonObject | None = None,
+        candidate_status_payload: JsonObject | None = None,
+        fallback_status: str = "",
+        last_error: str = "",
+    ) -> JsonObject:
+        promoted = _json_object_or_empty(promoted)
+        delivered = _json_object_or_empty(delivered)
+        candidate_status_payload = _json_object_or_empty(candidate_status_payload)
+        work_created = promoted.get("work_created") if isinstance(promoted.get("work_created"), list) else []
+        candidate_state = first_non_empty(
+            _string_or_json(candidate_status_payload.get("self_review_candidate_status")),
+            _string_or_json(promoted.get("status")),
+            _string_or_json(delivered.get("status")),
+            fallback_status,
+        )
+        review_status = _string_or_json(candidate_status_payload.get("self_review_status"))
+        if not review_status:
+            review_status = "queued" if work_created else candidate_state
+        out: JsonObject = {
+            "candidate_id": candidate.get("candidate_id") or promoted.get("candidate_id"),
+            "execution_id": first_non_empty(_string_or_json(candidate.get("execution_id")), _string_or_json(promoted.get("execution_id"))),
+            "agent_identity": first_non_empty(_string_or_json(candidate.get("agent_identity")), _string_or_json(promoted.get("agent_identity"))),
+            "gateway_session_key": first_non_empty(_string_or_json(candidate.get("gateway_session_key")), _string_or_json(promoted.get("gateway_session_key"))),
+            "cadence_scope_key": first_non_empty(_string_or_json(promoted.get("cadence_scope_key")), _string_or_json(candidate.get("cadence_scope_key"))),
+            "self_review_candidate_status": candidate_state,
+            "self_review_status": review_status,
+            "self_review_enqueue_status": _string_or_json(promoted.get("status")),
+            "self_review_last_error": first_non_empty(last_error, _string_or_json(candidate_status_payload.get("self_review_last_error"))),
+            "memory_turns_after": promoted.get("memory_turns_after"),
+            "skill_iterations_after": promoted.get("skill_iterations_after"),
+            "memory_nudge_interval": candidate.get("memory_nudge_interval"),
+            "skill_nudge_interval": candidate.get("skill_nudge_interval"),
+            "review_memory": promoted.get("review_memory"),
+            "review_skills": promoted.get("review_skills"),
+            "work_created": work_created,
+        }
+        if len(candidate_status_payload) > 0:
+            out = {**out, **candidate_status_payload}
+            for key in ("gateway_session_key", "cadence_scope_key", "memory_turns_after", "skill_iterations_after", "memory_nudge_interval", "skill_nudge_interval", "work_created"):
+                if out.get(key) in (None, "", []):
+                    out[key] = promoted.get(key) if key in promoted else candidate.get(key)
+        return {key: value for key, value in out.items() if value not in (None, "")}
 
     def cancel_execution(self, execution_id: str) -> JsonObject:
         key = str(execution_id or "").strip()
@@ -3450,6 +3512,16 @@ class HermesRuntime:
                 elif not (native_validated or partial_recovered):
                     reason = "envelope_validation_failed"
                 mark_candidate_ineligible(self._self_review_config(), execution_id, reason)
+                self._persist_self_review_status(
+                    execution_id,
+                    final_status,
+                    self._self_review_promotion_status(
+                        candidate=candidate,
+                        fallback_status="ineligible",
+                        last_error=reason,
+                    ),
+                    result,
+                )
                 return
             from self_review_queue import mark_candidate_delivered, promote_review_candidate  # type: ignore
 
@@ -3466,9 +3538,38 @@ class HermesRuntime:
             delivered_status = str(delivered.get("status") or "").strip().lower()
             if delivered_status != "validated":
                 logger.warning("self-review delivered marker rejected execution_id=%s status=%s", execution_id, delivered.get("status"))
+                self._persist_self_review_status(
+                    execution_id,
+                    final_status,
+                    self._self_review_promotion_status(
+                        candidate=candidate,
+                        delivered=delivered,
+                        fallback_status=delivered_status or "delivery_marker_rejected",
+                        last_error=_string_or_json(delivered.get("error")) or "delivery marker rejected",
+                    ),
+                    result,
+                )
                 return
             promoted = promote_review_candidate(self._self_review_config(), candidate_id)
             promoted_status = str(promoted.get("status") or "").strip().lower()
+            try:
+                from self_review_queue import candidate_status  # type: ignore
+
+                status_payload = candidate_status(self._self_review_config(), execution_id)
+            except Exception:
+                status_payload = {}
+            self._persist_self_review_status(
+                execution_id,
+                final_status,
+                self._self_review_promotion_status(
+                    candidate=candidate,
+                    delivered=delivered,
+                    promoted=promoted,
+                    candidate_status_payload=status_payload if isinstance(status_payload, dict) else {},
+                    fallback_status=promoted_status,
+                ),
+                result,
+            )
             if promoted_status == "enqueued":
                 self._start_self_review_worker(candidate_id)
             elif promoted_status in {"skipped", "blocked_by_earlier_candidate"}:

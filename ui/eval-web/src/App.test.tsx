@@ -111,6 +111,21 @@ const conversationDetailResponse = {
   active_case: casesListResponse.cases[0],
   workflow_line: workflowLineSummary,
   workflow_attempts: workflowAttemptSummaries,
+  self_review_cadence: {
+    execution_id: "hexec-001",
+    candidate_id: 3,
+    cadence_scope_key: "rsi:prod:slack:D123:171000001.000100",
+    candidate_status: "enqueued",
+    review_status: "skill:completed",
+    review_kind: "skill",
+    trigger_kind: "skill",
+    memory_iterations: 2,
+    memory_threshold: 10,
+    skill_iterations: 0,
+    skill_threshold: 10,
+    latest_summary: "Skill 'project-health-check' created.",
+    updated_at: "2026-04-11T12:11:00Z"
+  },
   cases: casesListResponse.cases,
   transcript: [
     {
@@ -687,6 +702,10 @@ describe("App", () => {
       expect(window.location.search).toContain("trace=trace-001");
     });
     expect(await screen.findByText("Trace inspector")).toBeInTheDocument();
+    expect(screen.getByText("Self-review cadence")).toBeInTheDocument();
+    expect(screen.getByText("2 / 10")).toBeInTheDocument();
+    expect(screen.getByText("0 / 10")).toBeInTheDocument();
+    expect(screen.getByText("Skill 'project-health-check' created.")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Evidence" }));
     expect(screen.getByText("goal_framing")).toBeInTheDocument();
   });

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import type { ConversationDetailResponse, TraceDetailResponse, TraceInspectorTab, NullableList, EvalJudgment } from "@/types";
+import type { ConversationDetailResponse, TraceDetailResponse, TraceInspectorTab, NullableList, EvalJudgment, SelfReviewCadence } from "@/types";
 import { formatTime, listOrEmpty, pageCount, clampPage } from "@/hooks/api";
 import { TraceInspector } from "./trace-inspector";
 import { FormattedMessage } from "@/components/formatted-message";
@@ -41,6 +41,70 @@ function PageControls(props: {
         Next
       </button>
     </div>
+  );
+}
+
+function cadenceValue(current?: number, threshold?: number) {
+  if (typeof current !== "number") {
+    return "n/a";
+  }
+  if (typeof threshold === "number" && threshold > 0) {
+    return `${current} / ${threshold}`;
+  }
+  return String(current);
+}
+
+function cadencePercent(current?: number, threshold?: number) {
+  if (typeof current !== "number" || typeof threshold !== "number" || threshold <= 0) {
+    return 0;
+  }
+  return Math.max(0, Math.min(100, (current / threshold) * 100));
+}
+
+function SelfReviewCadencePanel(props: { cadence?: SelfReviewCadence }) {
+  const cadence = props.cadence;
+  if (!cadence) {
+    return null;
+  }
+  const summary = cadence.latest_summary || cadence.latest_error || "No self-review actions recorded yet.";
+  const status = cadence.review_status || cadence.candidate_status || "observed";
+  return (
+    <section className="stream-section self-review-cadence-panel">
+      <div className="card-section-header">
+        <div>
+          <h3>Self-review cadence</h3>
+          <p className="muted">{cadence.cadence_scope_key || cadence.gateway_session_key || cadence.execution_id || "conversation scope"}</p>
+        </div>
+        <span className={cadence.latest_error ? "status-chip warn" : "status-chip"}>{status}</span>
+      </div>
+      <div className="cadence-grid">
+        <div className="cadence-meter">
+          <div className="cadence-meter-header">
+            <span>Memory</span>
+            <strong>{cadenceValue(cadence.memory_iterations, cadence.memory_threshold)}</strong>
+          </div>
+          <div className="cadence-track" aria-hidden="true">
+            <span style={{ width: `${cadencePercent(cadence.memory_iterations, cadence.memory_threshold)}%` }} />
+          </div>
+        </div>
+        <div className="cadence-meter">
+          <div className="cadence-meter-header">
+            <span>Skills</span>
+            <strong>{cadenceValue(cadence.skill_iterations, cadence.skill_threshold)}</strong>
+          </div>
+          <div className="cadence-track" aria-hidden="true">
+            <span style={{ width: `${cadencePercent(cadence.skill_iterations, cadence.skill_threshold)}%` }} />
+          </div>
+        </div>
+      </div>
+      <dl className="mini-metrics cadence-details">
+        <div><dt>Candidate</dt><dd>{cadence.candidate_id || "none"}</dd></div>
+        <div><dt>Trigger</dt><dd>{cadence.trigger_kind || cadence.review_kind || listOrEmpty(cadence.work_created).join(", ") || "none"}</dd></div>
+        <div><dt>Execution</dt><dd>{cadence.execution_id || "unknown"}</dd></div>
+        <div><dt>Updated</dt><dd>{cadence.updated_at ? formatTime(cadence.updated_at) : "unknown"}</dd></div>
+      </dl>
+      <p className="detail-copy cadence-summary">{summary}</p>
+    </section>
   );
 }
 
@@ -140,6 +204,8 @@ export function ConversationDetail(props: {
           <div><span>Retry budget</span><strong>{workflowLine?.auto_retry_budget_remaining ?? "n/a"}</strong></div>
           <div><span>Proposals</span><strong>{listOrEmpty(props.detail.linked_proposals).length}</strong></div>
         </div>
+
+        <SelfReviewCadencePanel cadence={props.detail.self_review_cadence} />
 
         <section className="stream-section">
           <div className="card-section-header">

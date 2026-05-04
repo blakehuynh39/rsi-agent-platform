@@ -3394,6 +3394,101 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(calls, [("delivered", "hexec-runner-123")])
         runtime._start_self_review_worker.assert_not_called()
 
+    def test_self_review_finalizer_persists_cadence_status(self) -> None:
+        calls: list[tuple[str, object]] = []
+        fake_queue = types.ModuleType("self_review_queue")
+
+        class FakeSelfReviewConfig:
+            @classmethod
+            def from_env(cls, **kwargs):
+                return {"kwargs": kwargs}
+
+        def mark_candidate_delivered(config, execution_id, result_hash, result_ref=None):
+            calls.append(("delivered", execution_id))
+            return {"status": "validated", "execution_id": execution_id}
+
+        def promote_review_candidate(config, candidate_id):
+            calls.append(("promote", candidate_id))
+            return {
+                "status": "enqueued",
+                "candidate_id": candidate_id,
+                "cadence_scope_key": "rsi:prod:slack:D123:171000001.000100",
+                "memory_turns_after": 2,
+                "skill_iterations_after": 0,
+                "review_memory": False,
+                "review_skills": True,
+                "work_created": ["skill"],
+            }
+
+        def candidate_status(config, execution_id):
+            return {
+                "candidate_id": 7,
+                "self_review_candidate_status": "enqueued",
+                "self_review_status": "skill:pending",
+                "self_review_work": [{"kind": "skill", "status": "pending", "review_kind": "skill", "trigger_kind": "skill"}],
+            }
+
+        fake_queue.SelfReviewConfig = FakeSelfReviewConfig
+        fake_queue.mark_candidate_delivered = mark_candidate_delivered
+        fake_queue.promote_review_candidate = promote_review_candidate
+        fake_queue.candidate_status = candidate_status
+
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(
+            os.environ,
+            {**runner_env("prod"), "HERMES_HOME": hermes_home},
+            clear=True,
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.AIAgent",
+            FakeAIAgent,
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager",
+            FakeSessionManager,
+        ), mock.patch.dict(
+            "sys.modules",
+            {"self_review_queue": fake_queue},
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            runtime._start_self_review_worker = mock.Mock()
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "depin-backend",
+                        "prompt": "User prompt",
+                        "execution_id": "hexec-runner-456",
+                    }
+                }
+            )
+            result = HermesExecutionResult(
+                ok=True,
+                message="ok",
+                provider="hermes-native-executor",
+                raw={
+                    "native_strict": True,
+                    "self_review_candidate": {
+                        "candidate_id": 7,
+                        "cadence_scope_key": "rsi:prod:slack:D123:171000001.000100",
+                        "memory_nudge_interval": 10,
+                        "skill_nudge_interval": 10,
+                    },
+                    "runner_diagnostics": {"native_envelope_validated": True},
+                },
+            )
+            final_status = {
+                "execution_id": "hexec-runner-456",
+                "status": "completed",
+                "result": {"ok": True, "message": "ok", "provider": "hermes-native-executor", "raw": dict(result.raw)},
+            }
+            runtime._finalize_self_review_candidate(task, result, final_status, execution_id="hexec-runner-456")
+            status = runtime.executor_status("hexec-runner-456")
+
+        self.assertEqual(calls, [("delivered", "hexec-runner-456"), ("promote", 7)])
+        runtime._start_self_review_worker.assert_called_once_with(7)
+        self.assertEqual(status["self_review"]["memory_turns_after"], 2)
+        self.assertEqual(status["self_review"]["skill_iterations_after"], 0)
+        self.assertEqual(status["self_review"]["skill_nudge_interval"], 10)
+        self.assertEqual(status["result"]["raw"]["self_review"]["cadence_scope_key"], "rsi:prod:slack:D123:171000001.000100")
+
     def test_self_review_worker_env_maps_runner_config_and_secret_allowlist(self) -> None:
         with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(
             os.environ,
