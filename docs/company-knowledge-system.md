@@ -13,6 +13,11 @@ published artifact. It is recoverable derived state, not the canonical record.
 If Markdown and Platform Postgres disagree, Platform Postgres wins and the
 Markdown should be repaired from DB-derived artifacts.
 
+For operator visibility, the Hermes skill exporter also snapshots the compiled
+wiki into export PRs under `hermes/exported-skills/<env>/wiki/`. Those PRs are
+read-only visibility artifacts; they must not be reconciled back into the pod or
+treated as wiki authority.
+
 Two root files are generated for agent navigation:
 
 - `index.md` is content-oriented. It catalogs published wiki pages by category

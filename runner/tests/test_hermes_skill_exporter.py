@@ -57,6 +57,8 @@ class HermesSkillExporterTest(unittest.TestCase):
             enabled=True,
             hermes_home=temp_dir / "home",
             skills_root=skills_root,
+            company_wiki_root=temp_dir / "home/wiki",
+            export_wiki_enabled=True,
             state_root=temp_dir / "home/skill-exporter",
             sync_interval_seconds=300,
             git_owner="piplabs",
@@ -94,6 +96,50 @@ class HermesSkillExporterTest(unittest.TestCase):
             self.assertEqual("exported", status["status"])
             self.assertEqual(1, len(fake.calls))
             self.assertEqual(status["tree_hash"], fake.calls[0][0].tree_hash)
+
+    def test_company_wiki_change_exports_markdown_under_wiki_tree(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            config = self.make_config(Path(raw))
+            fake = FakeGitExporter()
+            loop = SkillExportLoop(config, git_exporter=fake)  # type: ignore[arg-type]
+            loop.run_cycle()
+            assert config.company_wiki_root is not None
+            config.company_wiki_root.joinpath("pages").mkdir(parents=True)
+            config.company_wiki_root.joinpath(".staging").mkdir(parents=True)
+            config.company_wiki_root.joinpath(".locks").mkdir(parents=True)
+            config.company_wiki_root.joinpath("index.md").write_text("# Company Wiki Index\n", encoding="utf-8")
+            config.company_wiki_root.joinpath("log.md").write_text("## [2026-05-04T00:00:00Z] ingest | Runbook\n", encoding="utf-8")
+            config.company_wiki_root.joinpath("manifest.json").write_text('{"schema_version":1,"pages":{}}\n', encoding="utf-8")
+            config.company_wiki_root.joinpath("pages/runbook.md").write_text("# Runbook\n", encoding="utf-8")
+            config.company_wiki_root.joinpath(".staging/partial.tmp").write_text("do not export\n", encoding="utf-8")
+            config.company_wiki_root.joinpath(".locks/manifest.lock").write_text("", encoding="utf-8")
+
+            status = loop.run_cycle()
+
+            self.assertEqual("exported", status["status"])
+            self.assertEqual(1, len(fake.calls))
+            snapshot = fake.calls[0][0]
+            metadata = fake.calls[0][1]
+            self.assertEqual(4, len(snapshot.wiki_files))
+            self.assertEqual(1, len(snapshot.files))
+            self.assertEqual(5, metadata["file_count"])
+            self.assertEqual(4, metadata["wiki_file_count"])
+            self.assertEqual(
+                ["index.md", "log.md", "manifest.json", "pages/runbook.md"],
+                [item.relative_path for item in snapshot.wiki_files],
+            )
+            self.assertTrue(metadata["wiki_root_exists"])
+            self.assertTrue(metadata["wiki_tree_hash"])
+            self.assertEqual(metadata["wiki_files"], snapshot.wiki_file_manifest())
+
+            checkout = Path(raw) / "checkout"
+            checkout.mkdir()
+            GitSkillExporter(config)._write_export_tree(checkout, snapshot, metadata)
+            export_root = checkout / config.export_root
+            self.assertTrue(export_root.joinpath("skills/story-test/SKILL.md").exists())
+            self.assertEqual("# Runbook\n", export_root.joinpath("wiki/pages/runbook.md").read_text(encoding="utf-8"))
+            self.assertFalse(export_root.joinpath("wiki/.staging/partial.tmp").exists())
+            self.assertFalse(export_root.joinpath("wiki/.locks/manifest.lock").exists())
 
     def test_repeated_same_hash_is_idempotent(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
@@ -136,7 +182,11 @@ class HermesSkillExporterTest(unittest.TestCase):
     def test_export_path_allowlist_blocks_non_export_paths(self) -> None:
         validate_export_paths(
             "hermes/exported-skills/stage",
-            ["hermes/exported-skills/stage/skills/a/SKILL.md", "hermes/exported-skills/stage/metadata.json"],
+            [
+                "hermes/exported-skills/stage/skills/a/SKILL.md",
+                "hermes/exported-skills/stage/wiki/index.md",
+                "hermes/exported-skills/stage/metadata.json",
+            ],
         )
         with self.assertRaises(Exception):
             validate_export_paths("hermes/exported-skills/stage", ["runner/rsi_runner/main.py"])
