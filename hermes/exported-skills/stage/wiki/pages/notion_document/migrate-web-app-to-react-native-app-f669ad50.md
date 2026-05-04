@@ -5,6 +5,7 @@ source_document_id: "srcdoc_3a26fc73583dc6db55692a69f669ad50"
 source_key: "notion_document:notion:34f051299a5480f38d31c2f79db01c7e"
 source_session_key: "notion:notion:34f051299a5480f38d31c2f79db01c7e"
 source_revision_ids:
+  - "srcrev_152c5550f5352e5d9a5b602628951ef2"
   - "srcrev_5db2ac7d098bd9aadaf8e26630c63183"
 conflicts: []
 ---
@@ -23,4 +24,16 @@ Source: https://www.notion.so/Migrate-Web-App-to-React-Native-app-34f051299a5480
 - `native_locator`: `https://www.notion.so/Migrate-Web-App-to-React-Native-app-34f051299a5480f38d31c2f79db01c7e`
 
 Migrate Web App to React Native app
+
+### Citation 2
+
+- `source_document_id`: `srcdoc_3a26fc73583dc6db55692a69f669ad50`
+- `source_revision_id`: `srcrev_152c5550f5352e5d9a5b602628951ef2`
+- `chunk_id`: `srcchunk_0c87e46db110127be0574c4a570045c9`
+- `native_locator`: `https://www.notion.so/Migrate-Web-App-to-React-Native-app-34f051299a5480f38d31c2f79db01c7e`
+
+- [ ] updated legal (tos / privacy / data) -@Gardo Martinezto sync w/@Julie Jo
+- [ ] updated FAQs & release notes
+  - [ ] GDPR is important; cookie banners etc
+- [ ] language-specific testers
 

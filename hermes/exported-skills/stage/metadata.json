@@ -2750,18 +2750,18 @@
     "wiki": [
       {
         "path": "index.md",
-        "sha256": "98ba8f6a2d7b648f54d985c89d8fd989124eb25789da7fa7d56f930f50a13bad",
-        "size": 136367
+        "sha256": "b0bc239b301fcf88dafe8b6ba1af713e2ade1b1b3469636c2e95f7b4e239d1ab",
+        "size": 137440
       },
       {
         "path": "log.md",
-        "sha256": "523fa3605c9d53480c260126d655ee3248f8ac87f1c121ea2be2703c7d0df049",
-        "size": 193292
+        "sha256": "f4635972f84871deb90d4942df21430b9f27da872a8f3229fc76c18a7872fb8d",
+        "size": 197501
       },
       {
         "path": "manifest.json",
-        "sha256": "0fa58721aaae385003b3a8ebdc520817cb5f0b6bbbf57e82fd8de3a8cca51294",
-        "size": 171142
+        "sha256": "27b644964d25e13cc869feb83e13fcbb8a5577b36feef8e483571c52e201b535",
+        "size": 172459
       },
       {
         "path": "pages/notion_document/-automated-customer-service--b4d043af.md",
@@ -2790,8 +2790,8 @@
       },
       {
         "path": "pages/notion_document/add-back-en-/-kr-/-vn-/-ph-0fedb58a.md",
-        "sha256": "ed0eeb6e0c706beac862c060ded96846549772ddce571d24ac1ba753cbd393c6",
-        "size": 1055
+        "sha256": "4bf72e1644ef36cb92834d1ec0c7bc4268125b8c685c689f582934ee43a7866e",
+        "size": 1656
       },
       {
         "path": "pages/notion_document/add-cookie-banner-to-app-fa3d3873.md",
@@ -2819,6 +2819,11 @@
         "size": 855
       },
       {
+        "path": "pages/notion_document/automate-support-email-to-summarize-feedback-emails-05f28b85.md",
+        "sha256": "f3a1c87d1fd03ddddd3200f78d7cc4f3a130d0c5f1e32d553dab341e135ebebc",
+        "size": 970
+      },
+      {
         "path": "pages/notion_document/consensus-labelling-mechanism-4e1ba127.md",
         "sha256": "c1bd9330fde36cea8b07df94e04440d8cc026b38050f8baba2a3a7b1f8f53744",
         "size": 895
@@ -2840,13 +2845,18 @@
       },
       {
         "path": "pages/notion_document/implement-and-test-payment-solution-for-p0-countries---stripe-poc-dab627af.md",
-        "sha256": "9ee24e4c2780a069d36e1a9450fe2d74c645bf09489546431aff229d5d05a2ce",
-        "size": 1358
+        "sha256": "70c4977b5719a0aa9f20379cf5e7a8e14dea5d2b2c7d7feefc8e9f8b5145364c",
+        "size": 2129
       },
       {
         "path": "pages/notion_document/implement-p1-gamification-tactics-f2dfba01.md",
         "sha256": "26ff6c1db15cc8338cd88101d41f4d8ffdda53137c590cb918cf09249d6e4e17",
         "size": 1136
+      },
+      {
+        "path": "pages/notion_document/improved-mobile-app-tracking-platform-e-g-amplitude-or-posthog--46501b33.md",
+        "sha256": "af41598b079303d96106ac342b1f49afa4af96a4051d370df44f6e02826028c3",
+        "size": 1037
       },
       {
         "path": "pages/notion_document/integrate-fb-tracking-and-google-ads-spent-tracking-to-admin-dashboard-82936396.md",
@@ -2875,18 +2885,18 @@
       },
       {
         "path": "pages/notion_document/merge-ga-properties-for-e2e-tracking-8f00636b.md",
-        "sha256": "b094a6e67708e203a7c3fd3da9ea922e4b14df3a1a6949ce9a649704a8a1cb79",
-        "size": 895
+        "sha256": "539807a5a69f2e72e930f714254c374000e3e7b9feb2fc6fe59cdcec83520084",
+        "size": 1300
       },
       {
         "path": "pages/notion_document/migrate-web-app-to-react-native-app-f669ad50.md",
-        "sha256": "650f294f7a6aef55aa92d6f34a0dd31dd336527d6bec2c83f851886d690f4f9b",
-        "size": 890
+        "sha256": "8336b88ccab31a99aca82091e5d41cfc2fbaa2388cbc6f3c31e19314b6e15687",
+        "size": 1449
       },
       {
         "path": "pages/notion_document/numo-product-backlog-aa9d5203.md",
-        "sha256": "ce4630533bcf1145f50e6c7ea8bc4275372640ede581d51bef11bea602c797d9",
-        "size": 840
+        "sha256": "9193464b81d7ff71628d199657e5fe51bb36f89b917df9fcafd882deaaadafa7",
+        "size": 1241
       },
       {
         "path": "pages/notion_document/post-submission-payout-clarity-/-dopamine-hit-dbfab6ff.md",
@@ -2895,8 +2905,8 @@
       },
       {
         "path": "pages/notion_document/record-seedphrase-during-signup-flow-0a4ae864.md",
-        "sha256": "bba19b4831856b8e2a58d2a393b3fc55b6b262af6a2a7541920ad33ad5f4cb20",
-        "size": 979
+        "sha256": "b21e0bbb8c62c4f779537b22bab804b13f465a1c0ed4908f1a7b3e8061353214",
+        "size": 1468
       },
       {
         "path": "pages/notion_document/replace-feedback-form-api-d0680100.md",
@@ -2907,6 +2917,11 @@
         "path": "pages/notion_document/serve-least-used-transcript-as-a-priority-8b81c6e4.md",
         "sha256": "b300ac0d19c3b8470c32f5007565335bade5896c9e53063423c707e015a0a286",
         "size": 920
+      },
+      {
+        "path": "pages/notion_document/upload-submission-errors-1c7c8a1f.md",
+        "sha256": "72e123162ad665ffa5687c61b0ee266d1e44d3de22e0303ab479bfe0ba0e35c7",
+        "size": 835
       },
       {
         "path": "pages/notion_document/world-launch-e8b256d0.md",
@@ -4772,8 +4787,8 @@
   },
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
-  "exported_at": "2026-05-04T07:10:33Z",
-  "file_count": 953,
+  "exported_at": "2026-05-04T16:31:58Z",
+  "file_count": 956,
   "files": [
     {
       "path": "apple/DESCRIPTION.md",
@@ -7524,30 +7539,30 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7b97f4hj5mx",
-  "previous_tree_hash": "4d6ca26f86bef91595169797db64a0e5bda38704ba79d78486e00d3c5b655f62",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7c4bb8lzwdz",
+  "previous_tree_hash": "7abf308cc85e171b0a17ef06e185782c8d45b7d553b1663df72b56a10d2c09c5",
   "schema_version": 1,
   "skill_file_count": 549,
   "skill_manage_sessions": [],
   "skill_tree_hash": "51dd5fa14f02f546813009b323ca960c29e87c4759f49ab6c92e3ca2c7ca357b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7abf308cc85e171b0a17ef06e185782c8d45b7d553b1663df72b56a10d2c09c5",
-  "wiki_file_count": 404,
+  "tree_hash": "638a3bce8a559a7abb601fb0eb1ffe56c713f9bc8451641a297b2f6b7ef57be0",
+  "wiki_file_count": 407,
   "wiki_files": [
     {
       "path": "index.md",
-      "sha256": "98ba8f6a2d7b648f54d985c89d8fd989124eb25789da7fa7d56f930f50a13bad",
-      "size": 136367
+      "sha256": "b0bc239b301fcf88dafe8b6ba1af713e2ade1b1b3469636c2e95f7b4e239d1ab",
+      "size": 137440
     },
     {
       "path": "log.md",
-      "sha256": "523fa3605c9d53480c260126d655ee3248f8ac87f1c121ea2be2703c7d0df049",
-      "size": 193292
+      "sha256": "f4635972f84871deb90d4942df21430b9f27da872a8f3229fc76c18a7872fb8d",
+      "size": 197501
     },
     {
       "path": "manifest.json",
-      "sha256": "0fa58721aaae385003b3a8ebdc520817cb5f0b6bbbf57e82fd8de3a8cca51294",
-      "size": 171142
+      "sha256": "27b644964d25e13cc869feb83e13fcbb8a5577b36feef8e483571c52e201b535",
+      "size": 172459
     },
     {
       "path": "pages/notion_document/-automated-customer-service--b4d043af.md",
@@ -7576,8 +7591,8 @@
     },
     {
       "path": "pages/notion_document/add-back-en-/-kr-/-vn-/-ph-0fedb58a.md",
-      "sha256": "ed0eeb6e0c706beac862c060ded96846549772ddce571d24ac1ba753cbd393c6",
-      "size": 1055
+      "sha256": "4bf72e1644ef36cb92834d1ec0c7bc4268125b8c685c689f582934ee43a7866e",
+      "size": 1656
     },
     {
       "path": "pages/notion_document/add-cookie-banner-to-app-fa3d3873.md",
@@ -7605,6 +7620,11 @@
       "size": 855
     },
     {
+      "path": "pages/notion_document/automate-support-email-to-summarize-feedback-emails-05f28b85.md",
+      "sha256": "f3a1c87d1fd03ddddd3200f78d7cc4f3a130d0c5f1e32d553dab341e135ebebc",
+      "size": 970
+    },
+    {
       "path": "pages/notion_document/consensus-labelling-mechanism-4e1ba127.md",
       "sha256": "c1bd9330fde36cea8b07df94e04440d8cc026b38050f8baba2a3a7b1f8f53744",
       "size": 895
@@ -7626,13 +7646,18 @@
     },
     {
       "path": "pages/notion_document/implement-and-test-payment-solution-for-p0-countries---stripe-poc-dab627af.md",
-      "sha256": "9ee24e4c2780a069d36e1a9450fe2d74c645bf09489546431aff229d5d05a2ce",
-      "size": 1358
+      "sha256": "70c4977b5719a0aa9f20379cf5e7a8e14dea5d2b2c7d7feefc8e9f8b5145364c",
+      "size": 2129
     },
     {
       "path": "pages/notion_document/implement-p1-gamification-tactics-f2dfba01.md",
       "sha256": "26ff6c1db15cc8338cd88101d41f4d8ffdda53137c590cb918cf09249d6e4e17",
       "size": 1136
+    },
+    {
+      "path": "pages/notion_document/improved-mobile-app-tracking-platform-e-g-amplitude-or-posthog--46501b33.md",
+      "sha256": "af41598b079303d96106ac342b1f49afa4af96a4051d370df44f6e02826028c3",
+      "size": 1037
     },
     {
       "path": "pages/notion_document/integrate-fb-tracking-and-google-ads-spent-tracking-to-admin-dashboard-82936396.md",
@@ -7661,18 +7686,18 @@
     },
     {
       "path": "pages/notion_document/merge-ga-properties-for-e2e-tracking-8f00636b.md",
-      "sha256": "b094a6e67708e203a7c3fd3da9ea922e4b14df3a1a6949ce9a649704a8a1cb79",
-      "size": 895
+      "sha256": "539807a5a69f2e72e930f714254c374000e3e7b9feb2fc6fe59cdcec83520084",
+      "size": 1300
     },
     {
       "path": "pages/notion_document/migrate-web-app-to-react-native-app-f669ad50.md",
-      "sha256": "650f294f7a6aef55aa92d6f34a0dd31dd336527d6bec2c83f851886d690f4f9b",
-      "size": 890
+      "sha256": "8336b88ccab31a99aca82091e5d41cfc2fbaa2388cbc6f3c31e19314b6e15687",
+      "size": 1449
     },
     {
       "path": "pages/notion_document/numo-product-backlog-aa9d5203.md",
-      "sha256": "ce4630533bcf1145f50e6c7ea8bc4275372640ede581d51bef11bea602c797d9",
-      "size": 840
+      "sha256": "9193464b81d7ff71628d199657e5fe51bb36f89b917df9fcafd882deaaadafa7",
+      "size": 1241
     },
     {
       "path": "pages/notion_document/post-submission-payout-clarity-/-dopamine-hit-dbfab6ff.md",
@@ -7681,8 +7706,8 @@
     },
     {
       "path": "pages/notion_document/record-seedphrase-during-signup-flow-0a4ae864.md",
-      "sha256": "bba19b4831856b8e2a58d2a393b3fc55b6b262af6a2a7541920ad33ad5f4cb20",
-      "size": 979
+      "sha256": "b21e0bbb8c62c4f779537b22bab804b13f465a1c0ed4908f1a7b3e8061353214",
+      "size": 1468
     },
     {
       "path": "pages/notion_document/replace-feedback-form-api-d0680100.md",
@@ -7693,6 +7718,11 @@
       "path": "pages/notion_document/serve-least-used-transcript-as-a-priority-8b81c6e4.md",
       "sha256": "b300ac0d19c3b8470c32f5007565335bade5896c9e53063423c707e015a0a286",
       "size": 920
+    },
+    {
+      "path": "pages/notion_document/upload-submission-errors-1c7c8a1f.md",
+      "sha256": "72e123162ad665ffa5687c61b0ee266d1e44d3de22e0303ab479bfe0ba0e35c7",
+      "size": 835
     },
     {
       "path": "pages/notion_document/world-launch-e8b256d0.md",
@@ -9556,5 +9586,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a890ddd79c598bff4f891189ff04fbc59a1b1f059e2d0e0d476fcc1ecec0458d"
+  "wiki_tree_hash": "7976ce913f36ad70a507c22992b9e0f89f3ec579de99e11a0a7e9471b7c2f108"
 }
