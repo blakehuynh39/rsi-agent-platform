@@ -204,6 +204,55 @@ func TestRunCompanyWikiCompilerBackfillsExistingSourceLedger(t *testing.T) {
 	}
 }
 
+func TestRunCompanyWikiCompilerDoesNotPublishSourceShapedSynthesisPage(t *testing.T) {
+	state := store.NewMemoryStore()
+	root := t.TempDir()
+	cfg := testWikiCompilerConfig(root, "off")
+	recorded, err := RecordEnqueueAndMaybePublishWikiSource(context.Background(), cfg, state, testSlackSourceInput("1777831927.000000", "Slack thread C123", "Decision: add Sam to the admin allowlist."))
+	if err != nil {
+		t.Fatalf("RecordEnqueueAndMaybePublishWikiSource() error = %v", err)
+	}
+	chunk := recorded.Source.Chunks[0]
+	client := &fakeWikiSynthesisClient{output: WikiSynthesisOutput{Pages: []WikiSynthesisPage{{
+		Slug:    "slack_message/slack-thread-c123",
+		Title:   "Slack thread C123",
+		Type:    "decision",
+		Summary: "Sam should be added to the admin allowlist.",
+		Claims: []WikiSynthesisClaim{{
+			ClaimKey:   "sam_admin_allowlist",
+			Text:       "Sam should be added to the admin allowlist.",
+			Confidence: 0.9,
+			Citations: []store.CompanyWikiCitationInput{{
+				SourceDocumentID: chunk.DocumentID,
+				SourceRevisionID: chunk.RevisionID,
+				ChunkID:          chunk.ID,
+				NativeLocator:    chunk.NativeLocator,
+				Quote:            "add Sam to the admin allowlist",
+			}},
+		}},
+	}}}}
+	result, err := RunCompanyWikiCompiler(context.Background(), cfg, state, client)
+	if err != nil {
+		t.Fatalf("RunCompanyWikiCompiler() error = %v", err)
+	}
+	if !result.OK || result.PublishedPages != 1 {
+		t.Fatalf("unexpected compiler result: %+v", result)
+	}
+	if _, found, err := state.GetCompanyWikiPage("slack_message/slack-thread-c123"); err != nil || found {
+		t.Fatalf("source-shaped synthesis page found=%t err=%v", found, err)
+	}
+	page, found, err := state.GetCompanyWikiPage("decisions/slack-thread-c123")
+	if err != nil || !found {
+		t.Fatalf("semantic synthesis page found=%t err=%v", found, err)
+	}
+	if page.Revision.Path != "pages/decisions/slack-thread-c123.md" {
+		t.Fatalf("semantic synthesis path = %q", page.Revision.Path)
+	}
+	if _, err := os.Stat(filepath.Join(root, page.Revision.Path)); err != nil {
+		t.Fatalf("expected semantic synthesis file: %v", err)
+	}
+}
+
 func TestRunCompanyWikiCompilerRecordsItemFailuresWithoutFatalError(t *testing.T) {
 	state := store.NewMemoryStore()
 	cfg := testWikiCompilerConfig(t.TempDir(), "off")
@@ -356,6 +405,47 @@ func TestWikiIndexCategoryRankKeepsManualAfterSynthesis(t *testing.T) {
 	}
 	if wikiIndexCategoryRank("manual", "pages/manual/foo.md") >= wikiIndexCategoryRank("slack_message", "sources/slack/foo.md") {
 		t.Fatal("manual pages should still sort before evidence pages")
+	}
+}
+
+func TestSynthesisSlugNormalizesSourceShapedLLMRoots(t *testing.T) {
+	cases := []struct {
+		name string
+		page WikiSynthesisPage
+		want string
+	}{
+		{
+			name: "slack message root becomes semantic decision root",
+			page: WikiSynthesisPage{Slug: "slack_message/slack-thread-c123", Type: "decision"},
+			want: "decisions/slack-thread-c123",
+		},
+		{
+			name: "notion document root becomes semantic project root",
+			page: WikiSynthesisPage{Slug: "notion_document/rsi-platform-plan", Type: "project"},
+			want: "projects/rsi-platform-plan",
+		},
+		{
+			name: "sources root is stripped",
+			page: WikiSynthesisPage{Slug: "sources/slack/admin-allowlist", Type: "policy"},
+			want: "policies/admin-allowlist",
+		},
+		{
+			name: "existing semantic root is preserved",
+			page: WikiSynthesisPage{Slug: "projects/rsi-platform", Type: "project"},
+			want: "projects/rsi-platform",
+		},
+		{
+			name: "plain title gets semantic root",
+			page: WikiSynthesisPage{Title: "RSI Platform", Type: "project"},
+			want: "projects/rsi-platform",
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := synthesisSlug(tc.page); got != tc.want {
+				t.Fatalf("synthesisSlug() = %q, want %q", got, tc.want)
+			}
+		})
 	}
 }
 

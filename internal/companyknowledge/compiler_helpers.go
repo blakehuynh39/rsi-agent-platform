@@ -534,10 +534,36 @@ func renderSynthesisPageMarkdownWithCandidates(evidence store.CompanyWikiSourceE
 func synthesisSlug(page WikiSynthesisPage) string {
 	pageType := normalizeSynthesisPageType(page.Type)
 	slug := store.NormalizeCompanyWikiSlug(firstNonEmpty(page.Slug, page.Title))
+	root := synthesisPageTypeRoot(pageType)
 	if strings.Contains(slug, "/") {
-		return slug
+		parts := strings.Split(slug, "/")
+		first := ""
+		for _, part := range parts {
+			if strings.TrimSpace(part) != "" {
+				first = part
+				break
+			}
+		}
+		if isSynthesisPageRoot(first) {
+			return slug
+		}
+		for i := len(parts) - 1; i >= 0; i-- {
+			if strings.TrimSpace(parts[i]) != "" {
+				slug = parts[i]
+				break
+			}
+		}
 	}
-	return store.NormalizeCompanyWikiSlug(filepath.ToSlash(filepath.Join(synthesisPageTypeRoot(pageType), slug)))
+	return store.NormalizeCompanyWikiSlug(filepath.ToSlash(filepath.Join(root, slug)))
+}
+
+func isSynthesisPageRoot(value string) bool {
+	switch strings.TrimSpace(value) {
+	case "projects", "systems", "decisions", "runbooks", "policies", "people", "open-questions", "concepts":
+		return true
+	default:
+		return false
+	}
 }
 
 func synthesisFreshness(evidence store.CompanyWikiSourceEvidence, page WikiSynthesisPage) string {
@@ -717,6 +743,7 @@ func synthesisUserPrompt(request WikiSynthesisRequest) string {
 			"Return an object with a pages array.",
 			"Each page needs slug, title, type, tags, summary, owners, freshness, claims, conflicts, open_questions, related_pages.",
 			"Valid page types: project, system, decision, runbook, policy, person, concept, open_question.",
+			"Use semantic wiki slugs. Do not return source-shaped roots such as slack_message, notion_document, sources, slack, or notion.",
 			"Claim citations must use source_document_id, source_revision_id, chunk_id, native_locator, quote.",
 			"Use only the provided source chunks and existing candidate claim citations as source evidence.",
 			"When updating a candidate page, preserve existing claims unless a new cited claim explicitly supersedes them.",

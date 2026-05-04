@@ -187,7 +187,6 @@ class HermesSkillExporterTest(unittest.TestCase):
             "hermes/exported-skills/stage",
             [
                 "hermes/exported-skills/stage/skills/a/SKILL.md",
-                "hermes/exported-skills/stage/wiki/index.md",
                 "hermes/exported-skills/stage/metadata.json",
             ],
         )
