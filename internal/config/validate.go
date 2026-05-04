@@ -133,11 +133,11 @@ func (c Config) validateSlackMirror(issues *[]string) {
 	addRequiredString(issues, "SLACK_BOT_TOKEN", c.SlackBotToken)
 	discovery := strings.ToLower(strings.TrimSpace(c.SlackMirrorChannelDiscovery))
 	switch discovery {
-	case "", "joined":
+	case "", "joined", "joined_public":
 	case "explicit":
 		addRequiredList(issues, "RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST", c.SlackMirrorChannelAllowlist)
 	default:
-		*issues = append(*issues, "RSI_SLACK_MIRROR_CHANNEL_DISCOVERY must be joined or explicit")
+		*issues = append(*issues, "RSI_SLACK_MIRROR_CHANNEL_DISCOVERY must be joined, joined_public, or explicit")
 	}
 	addRequiredURL(issues, "RSI_HONCHO_BASE_URL", c.HonchoBaseURL, c.nonLocalhostRequired())
 	addRequiredString(issues, "RSI_HONCHO_WORKSPACE_ID", c.HonchoWorkspaceID)
@@ -168,11 +168,11 @@ func (c Config) validateSourceMirrorHealth(issues *[]string) {
 		addRequiredString(issues, "SLACK_BOT_TOKEN", c.SlackBotToken)
 		discovery := strings.ToLower(strings.TrimSpace(c.SlackMirrorChannelDiscovery))
 		switch discovery {
-		case "", "joined":
+		case "", "joined", "joined_public":
 		case "explicit":
 			addRequiredList(issues, "RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST", c.SlackMirrorChannelAllowlist)
 		default:
-			*issues = append(*issues, "RSI_SLACK_MIRROR_CHANNEL_DISCOVERY must be joined or explicit")
+			*issues = append(*issues, "RSI_SLACK_MIRROR_CHANNEL_DISCOVERY must be joined, joined_public, or explicit")
 		}
 	}
 	if c.NotionMirrorEnabled {

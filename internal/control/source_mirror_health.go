@@ -131,7 +131,8 @@ func checkSlackMirrorAuth(ctx context.Context, cfg config.Config) error {
 	if strings.TrimSpace(auth.TeamID) == "" {
 		return errors.New("slack auth.test returned empty team_id")
 	}
-	if slackMirrorChannelDiscoveryMode(cfg) == "joined" {
+	mode := slackMirrorChannelDiscoveryMode(cfg)
+	if mode == "joined" || mode == "joined_public" {
 		channels, err := slackMirrorChannels(ctx, cfg, api)
 		if err != nil {
 			return err

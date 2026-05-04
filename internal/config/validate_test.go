@@ -136,6 +136,20 @@ func TestSlackMirrorValidationAcceptsJoinedDiscoveryWithoutAllowlist(t *testing.
 	}
 }
 
+func TestSlackMirrorValidationAcceptsJoinedPublicDiscoveryWithoutAllowlist(t *testing.T) {
+	cfg := validControlPlaneConfig()
+	cfg.SlackMirrorEnabled = true
+	cfg.SlackMirrorChannelDiscovery = "joined_public"
+	cfg.SlackBotToken = "xoxb-token"
+	cfg.HonchoBaseURL = "http://use1-stage-rsi-agent-platform-honcho-api:8000"
+	cfg.HonchoWorkspaceID = "rsi_company_knowledge"
+	cfg.SourceMirrorCheckpointRoot = "/var/lib/hermes/source-mirror"
+
+	if _, err := cfg.ValidatedFor("control-plane", "slack-mirror"); err != nil {
+		t.Fatalf("ValidatedFor() error = %v", err)
+	}
+}
+
 func TestSlackMirrorValidationRequiresAllowlistForExplicitDiscovery(t *testing.T) {
 	cfg := validControlPlaneConfig()
 	cfg.SlackMirrorEnabled = true
@@ -156,6 +170,20 @@ func TestSlackMirrorValidationRequiresAllowlistForExplicitDiscovery(t *testing.T
 	cfg.SlackMirrorChannelAllowlist = []string{"C0AKH5SNGKH"}
 	if _, err := cfg.ValidatedFor("control-plane", "slack-mirror"); err != nil {
 		t.Fatalf("ValidatedFor() with allowlist error = %v", err)
+	}
+}
+
+func TestSourceMirrorHealthValidationAcceptsJoinedPublicDiscoveryWithoutAllowlist(t *testing.T) {
+	cfg := validControlPlaneConfig()
+	cfg.SlackMirrorEnabled = true
+	cfg.SlackMirrorChannelDiscovery = "joined_public"
+	cfg.SlackBotToken = "xoxb-token"
+	cfg.HonchoBaseURL = "http://use1-stage-rsi-agent-platform-honcho-api:8000"
+	cfg.HonchoWorkspaceID = "rsi_company_knowledge"
+	cfg.SourceMirrorCheckpointRoot = "/var/lib/hermes/source-mirror"
+
+	if _, err := cfg.ValidatedFor("control-plane", "source-mirror-health"); err != nil {
+		t.Fatalf("ValidatedFor() error = %v", err)
 	}
 }
 
