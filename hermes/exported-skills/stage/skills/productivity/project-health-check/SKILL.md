@@ -52,9 +52,23 @@ Look for these specific patterns:
 - **Config mismatch:** App config allows X but infra/WAF blocks X (especially CORS/domains)
 - **Past-due decisions:** Items with explicit due dates that have passed with no resolution
 - **Parent/child status gap:** Top-level item unchecked while all children are checked
-- **Schema quality:** Duplicate status values, stale "Blocked" labels on resolved items
+- **Schema quality:** Duplicate status values in Notion databases
+- **Disconnected tracks:** FE and BE working on the same feature with no integration plan between them
 
-### Phase 5 — Deliver structured answer
+### Phase 5 — Verify deployment (when applicable)
+
+When the audit includes "is this deployed?" or "has X been deployed to staging/prod?":
+
+1. **Pull latest git:** `git fetch --all` — local clones may be stale; the deployed commit may only exist on `origin/main`
+2. **Find the target commit:** `git log origin/main --oneline --grep="<keyword>"` or `gh api repos/<org>/<repo>/commits`
+3. **Check Kubernetes image tags:** `kubectl get deployments -n <ns> -o json` → extract commit hashes from ECR image tags
+4. **Compare:** Does the deployed hash match the latest commit on origin/main? If yes, code is deployed.
+5. **Verify API endpoints:** Curl the relevant API paths via ClusterIP (no auth needed internally). Check for 404 → not wired, 200 → functional.
+6. **Check the data/content layer:** Even when code is deployed, content may not be populated yet (e.g., company wiki directory may be empty, database may need seeding, mirror/ingestion may not have run).
+
+**Pitfall:** The `hermes-skill-exporter` pod may show a newer deployment time than others even when on the same commit hash — it's deployed as a separate pipeline step and may restart independently.
+
+### Phase 6 — Deliver structured answer
 
 Group findings into two sections:
 1. **Unanswered questions** — organized by category (product decisions, engineering/QA, process/payment)

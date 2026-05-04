@@ -3,8 +3,8 @@
     "skills": [
       {
         "path": ".usage.json",
-        "sha256": "8eed874a63e99da6122f951827a606476550935a2ad064976f73b17db375f9cf",
-        "size": 695
+        "sha256": "470ac1e37ae912ec8b176a5dfd62d6708e849d4c3d471f078da52f793c70d507",
+        "size": 1152
       },
       {
         "path": "apple/DESCRIPTION.md",
@@ -2288,13 +2288,18 @@
       },
       {
         "path": "productivity/project-health-check/SKILL.md",
-        "sha256": "3766fde5b330f2f8f9d6f10941c2f9a56c17f4734d890916ab08853087e6f216",
-        "size": 3488
+        "sha256": "09b17340bf8cda4d607d0047254b86ac485a4422d5d64c16d9a1a1ae6f4ec0c0",
+        "size": 4742
+      },
+      {
+        "path": "productivity/project-health-check/references/deployment-verification.md",
+        "sha256": "dbbac78d694a68bf41baaae3f4585e6e51793ba4458ce9700e3a5a2c0b1219d5",
+        "size": 3074
       },
       {
         "path": "productivity/project-health-check/references/patterns.md",
-        "sha256": "f7173cc221bf6d0b86a2341c02bc8dfeff80493673260344cef39315939595de",
-        "size": 3078
+        "sha256": "cab3e2ccccad8be3c1c2a139c06059f1c8791e17a300725e9940dcbaa9bbd2bc",
+        "size": 3696
       },
       {
         "path": "red-teaming/godmode/SKILL.md",
@@ -2747,6 +2752,16 @@
         "size": 4042
       },
       {
+        "path": "story-company/rsi-platform-investigation/SKILL.md",
+        "sha256": "e1ed76288913f8eded3c1277ccd69c41179f90ea0787dde47bfbe94bc2f3d1fd",
+        "size": 7393
+      },
+      {
+        "path": "story-company/rsi-platform-investigation/references/wiki-sync-pipeline.md",
+        "sha256": "f9625a589994f0480d1ec2fa8b85a5f12ea58a5a9f0015ff3f6f100f9af5833f",
+        "size": 5595
+      },
+      {
         "path": "yuanbao/SKILL.md",
         "sha256": "09a35b811406e00e69b41b1ea86bf2b9d0ac9c0a7abc88f3832a7747717cc3c3",
         "size": 3760
@@ -2756,13 +2771,13 @@
   },
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
-  "exported_at": "2026-05-04T04:34:37Z",
-  "file_count": 550,
+  "exported_at": "2026-05-04T05:30:42Z",
+  "file_count": 553,
   "files": [
     {
       "path": ".usage.json",
-      "sha256": "8eed874a63e99da6122f951827a606476550935a2ad064976f73b17db375f9cf",
-      "size": 695
+      "sha256": "470ac1e37ae912ec8b176a5dfd62d6708e849d4c3d471f078da52f793c70d507",
+      "size": 1152
     },
     {
       "path": "apple/DESCRIPTION.md",
@@ -5046,13 +5061,18 @@
     },
     {
       "path": "productivity/project-health-check/SKILL.md",
-      "sha256": "3766fde5b330f2f8f9d6f10941c2f9a56c17f4734d890916ab08853087e6f216",
-      "size": 3488
+      "sha256": "09b17340bf8cda4d607d0047254b86ac485a4422d5d64c16d9a1a1ae6f4ec0c0",
+      "size": 4742
+    },
+    {
+      "path": "productivity/project-health-check/references/deployment-verification.md",
+      "sha256": "dbbac78d694a68bf41baaae3f4585e6e51793ba4458ce9700e3a5a2c0b1219d5",
+      "size": 3074
     },
     {
       "path": "productivity/project-health-check/references/patterns.md",
-      "sha256": "f7173cc221bf6d0b86a2341c02bc8dfeff80493673260344cef39315939595de",
-      "size": 3078
+      "sha256": "cab3e2ccccad8be3c1c2a139c06059f1c8791e17a300725e9940dcbaa9bbd2bc",
+      "size": 3696
     },
     {
       "path": "red-teaming/godmode/SKILL.md",
@@ -5505,6 +5525,16 @@
       "size": 4042
     },
     {
+      "path": "story-company/rsi-platform-investigation/SKILL.md",
+      "sha256": "e1ed76288913f8eded3c1277ccd69c41179f90ea0787dde47bfbe94bc2f3d1fd",
+      "size": 7393
+    },
+    {
+      "path": "story-company/rsi-platform-investigation/references/wiki-sync-pipeline.md",
+      "sha256": "f9625a589994f0480d1ec2fa8b85a5f12ea58a5a9f0015ff3f6f100f9af5833f",
+      "size": 5595
+    },
+    {
       "path": "yuanbao/SKILL.md",
       "sha256": "09a35b811406e00e69b41b1ea86bf2b9d0ac9c0a7abc88f3832a7747717cc3c3",
       "size": 3760
@@ -5513,10 +5543,10 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-594489jkb4m",
-  "previous_tree_hash": "3d0b7085c7cc93db32b5f38f62d5fd932d63708c652606309d0cabc6507d918a",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-79b86czhgmk",
+  "previous_tree_hash": "196e20574d34cb4b39aacbe98a8293663268209891e5f7b4a9579df14a7f8d33",
   "schema_version": 1,
-  "skill_file_count": 550,
+  "skill_file_count": 553,
   "skill_manage_sessions": [
     {
       "role": "tool",
@@ -5525,9 +5555,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "3d0b7085c7cc93db32b5f38f62d5fd932d63708c652606309d0cabc6507d918a",
+  "skill_tree_hash": "b9fb7094539f6399a474f571b7cd47c4a455ddbf9087f8a29a996dea366023a9",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2f425fbec33cba694b4647db8c0fa63029d4374dbe06a63e103a521c335f5f5d",
+  "tree_hash": "856f7256422a6c307b21be50d164cbb8dc400da85dad240fdd423963570910f3",
   "wiki_file_count": 0,
   "wiki_files": [],
   "wiki_root_exists": false,

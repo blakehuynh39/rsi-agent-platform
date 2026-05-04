@@ -57,6 +57,12 @@ gh issue list --repo piplabs/<repo> --limit 20 --state open --json number,title,
 mcp_rsi_task_trace_*_slack_*_document_get(document_id)
 ```
 
+### Deployment verification (see references/deployment-verification.md)
+When the audit asks "is X deployed?", use the pattern documented in `deployment-verification.md`:
+- `git fetch --all` → `git log origin/main` → compare with `kubectl get deployments -n rsi-platform` image tags
+- Verify API endpoints via ClusterIP (no auth needed internally)
+- Check content layer separately from code layer (e.g., wiki directory may be empty)
+
 ## Misalignment detection patterns
 
 | Pattern | What to look for |
@@ -69,6 +75,7 @@ mcp_rsi_task_trace_*_slack_*_document_get(document_id)
 | Parent/child gap | Top-level unchecked, all children checked |
 | Schema quality | Duplicate status values in Notion databases |
 | Disconnected tracks | FE and BE working on same feature with no integration plan |
+| Code deployed ≠ content populated | Feature code is running but data/content layer is empty (e.g., wiki API returns 200 on search but 404 on pages — directory never seeded) |
 
 ## Numo-specific knowledge (example from 2026-05-04 session)
 
