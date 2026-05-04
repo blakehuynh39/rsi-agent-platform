@@ -11,7 +11,7 @@ This content-oriented catalog is regenerated on every company wiki publish. Read
 - [Slack thread C0AKH5SNGKH 1777357398.961469](pages/slack_message/slack-thread-c0akh5sngkh-1777357398-961469-2eb84c92.md) — <@U04L0DD6B6F> <@U05A515NBFC> are we planning to support pagination for activities in first release? backend already supports it, currently only shows the first 20 `updated=2026-05-04T20:37:30Z; source revisions=1; wiki_revision_id=wikirev_5637fcdc6e999eaafc073a8ffb0ab094`
 ## concept
 
-- [Slack thread C0AKH5SNGKH 1777390695.974609](pages/slack_message/slack-thread-c0akh5sngkh-1777390695-974609-ee957b52.md) — I have a draft PR for the updated task recording flow `updated=2026-05-04T21:02:56Z; source revisions=1; wiki_revision_id=wikirev_674023b63a7f04a738b337fd926963f7`
+- [Task Recording Flow Update (Slack thread C0AKH5SNGKH 1777390695.974609)](pages/slack_message/slack-thread-c0akh5sngkh-1777390695-974609-ee957b52.md) — A draft PR for updating the task recording flow has been submitted. QA testing revealed an issue where shared X link images are getting cropped. `updated=2026-05-04T21:08:12Z; source revisions=2; wiki_revision_id=wikirev_8c9de0bf2be3f44399a66992379cdea5`
 ## open_question
 
 - [Slack thread C0AKH5SNGKH 1777349624.208809](pages/slack_message/slack-thread-c0akh5sngkh-1777349624-208809-43df1bad.md) — Slack thread discussing fallback image behavior; currently same image used as fallback, campaign images should be uploaded in backend, and the banner_image_url field from /v1/campa... `updated=2026-05-04T20:00:07Z; source revisions=3; wiki_revision_id=wikirev_683c45389e2bb61799fd43a62464e606`

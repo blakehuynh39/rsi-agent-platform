@@ -3957,3 +3957,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_674023b63a7f04a738b337fd926963f7
 - summary: I have a draft PR for the updated task recording flow
 
+## [2026-05-04T21:06:43Z] synthesis | Task Recording Flow Update (Slack thread C0AKH5SNGKH 1777390695.974609)
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1777390695-974609-ee957b52
+- wiki_revision_id: wikirev_614a377e739932f532ad5ea7f8025675
+- summary: A draft PR for updating the task recording flow has been submitted. QA testing revealed an issue where shared X link images are getting cropped.
+
+## [2026-05-04T21:08:12Z] synthesis | Task Recording Flow Update (Slack thread C0AKH5SNGKH 1777390695.974609)
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1777390695-974609-ee957b52
+- wiki_revision_id: wikirev_8c9de0bf2be3f44399a66992379cdea5
+- summary: A draft PR for updating the task recording flow has been submitted. QA testing revealed an issue where shared X link images are getting cropped.
+
