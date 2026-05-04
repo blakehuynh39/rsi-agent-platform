@@ -2760,12 +2760,12 @@
       },
       {
         "path": "log.md",
-        "sha256": "e38250a3fe14920391674f788fc38c6a857d3b057b9385d79b4b9c1418291937",
-        "size": 202870
+        "sha256": "4b0ee8831a8b29dd3a920c2245c67e0894ae53c2ad6e78bc20c85dfedb7af5fc",
+        "size": 203736
       },
       {
         "path": "manifest.json",
-        "sha256": "484cf815fd55e61624ea18901f39f8eafc536c40f0cd5a29aca289c01f19827e",
+        "sha256": "0a54317916cc74ac1dde2961058b02e9514467aab3b67b8f87ba76b084709078",
         "size": 174077
       },
       {
@@ -4155,8 +4155,8 @@
       },
       {
         "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777349624-208809-43df1bad.md",
-        "sha256": "ec7a97ee8ccee481e4ffd34dabab56bff99497cfdba4a0a42a49173b0f392803",
-        "size": 1466
+        "sha256": "a8079e9d711d06aff70e055e3abf2c1a28413d2c00a66a30f626a33345aa7434",
+        "size": 2005
       },
       {
         "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777350147-298499-e3252ea4.md",
@@ -4812,7 +4812,7 @@
   },
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
-  "exported_at": "2026-05-04T18:59:11Z",
+  "exported_at": "2026-05-04T19:10:19Z",
   "file_count": 961,
   "files": [
     {
@@ -7565,13 +7565,13 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-858859t25xs",
-  "previous_tree_hash": "5e0e29853d427e309aab5d8fa3528989774310cef616607615166cc7653df85d",
+  "previous_tree_hash": "8f900aa2ab3583b3cb4f33b64378ba78eeb0e949ff334b2056c9bd10246f2405",
   "schema_version": 1,
   "skill_file_count": 549,
   "skill_manage_sessions": [],
   "skill_tree_hash": "51dd5fa14f02f546813009b323ca960c29e87c4759f49ab6c92e3ca2c7ca357b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "8f900aa2ab3583b3cb4f33b64378ba78eeb0e949ff334b2056c9bd10246f2405",
+  "tree_hash": "96a77d28d6cc3a4dc99ccf52ad4ef4fc869fe45aad37e34498ac6d30651bd001",
   "wiki_file_count": 412,
   "wiki_files": [
     {
@@ -7586,12 +7586,12 @@
     },
     {
       "path": "log.md",
-      "sha256": "e38250a3fe14920391674f788fc38c6a857d3b057b9385d79b4b9c1418291937",
-      "size": 202870
+      "sha256": "4b0ee8831a8b29dd3a920c2245c67e0894ae53c2ad6e78bc20c85dfedb7af5fc",
+      "size": 203736
     },
     {
       "path": "manifest.json",
-      "sha256": "484cf815fd55e61624ea18901f39f8eafc536c40f0cd5a29aca289c01f19827e",
+      "sha256": "0a54317916cc74ac1dde2961058b02e9514467aab3b67b8f87ba76b084709078",
       "size": 174077
     },
     {
@@ -8981,8 +8981,8 @@
     },
     {
       "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777349624-208809-43df1bad.md",
-      "sha256": "ec7a97ee8ccee481e4ffd34dabab56bff99497cfdba4a0a42a49173b0f392803",
-      "size": 1466
+      "sha256": "a8079e9d711d06aff70e055e3abf2c1a28413d2c00a66a30f626a33345aa7434",
+      "size": 2005
     },
     {
       "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777350147-298499-e3252ea4.md",
@@ -9636,5 +9636,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4a9446f54d03e0bb9fd142cc5a5d11be023db2feffdad993dbe8f20ac04d7042"
+  "wiki_tree_hash": "a6936996b67367c71cddaf8bcb7037409a7ed355c39f690087a4e8266ad90743"
 }

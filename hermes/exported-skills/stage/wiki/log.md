@@ -3880,3 +3880,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_5d88418c76d058e12ed2400b0dc245d3
 - summary: Slack thread discussing fallback image behavior; currently same image used as fallback, and campaign images should be uploaded in backend.
 
+## [2026-05-04T19:07:58Z] synthesis | Slack thread C0AKH5SNGKH 1777349624.208809
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1777349624-208809-43df1bad
+- wiki_revision_id: wikirev_879dd7df54f2eb7e65387c5dc16e6402
+- summary: Slack thread discussing fallback image behavior; currently same image used as fallback, campaign images should be uploaded in backend, and the banner_image_url field from /v1/campa...
+
+## [2026-05-04T19:09:19Z] synthesis | Slack thread C0AKH5SNGKH 1777349624.208809
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1777349624-208809-43df1bad
+- wiki_revision_id: wikirev_5d254e5745b8160f37d446f9dce0ee2a
+- summary: Slack thread discussing fallback image behavior; currently same image used as fallback, campaign images should be uploaded in backend, and the banner_image_url field from /v1/campa...
+

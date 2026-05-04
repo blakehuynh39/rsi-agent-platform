@@ -7,7 +7,7 @@ This content-oriented catalog is regenerated on every company wiki publish. Read
 - [Slack thread C0AKH5SNGKH channel](pages/slack_message/slack-thread-c0akh5sngkh-channel-53ca9dcc.md) — Decision to add Sam to admin allowlist via PR #297 `updated=2026-05-04T18:47:08Z; source revisions=1; wiki_revision_id=wikirev_84810cc77c3e6767d9c2b166025064f4`
 ## open_question
 
-- [Slack thread C0AKH5SNGKH 1777349624.208809](pages/slack_message/slack-thread-c0akh5sngkh-1777349624-208809-43df1bad.md) — Slack thread discussing fallback image behavior; currently same image used as fallback, and campaign images should be uploaded in backend. `updated=2026-05-04T18:53:17Z; source revisions=2; wiki_revision_id=wikirev_5d88418c76d058e12ed2400b0dc245d3`
+- [Slack thread C0AKH5SNGKH 1777349624.208809](pages/slack_message/slack-thread-c0akh5sngkh-1777349624-208809-43df1bad.md) — Slack thread discussing fallback image behavior; currently same image used as fallback, campaign images should be uploaded in backend, and the banner_image_url field from /v1/campa... `updated=2026-05-04T19:09:19Z; source revisions=3; wiki_revision_id=wikirev_5d254e5745b8160f37d446f9dce0ee2a`
 ## manual
 
 - [“Automated Customer Service”](pages/notion_document/-automated-customer-service--b4d043af.md) — Source: https://www.notion.so/Automated-Customer-Service-350051299a54807688f4eabee3d2db52 `updated=2026-05-04T06:52:08Z; source revisions=1; wiki_revision_id=wikirev_e55a71be91f1f907ee88d620eaea69ad`
