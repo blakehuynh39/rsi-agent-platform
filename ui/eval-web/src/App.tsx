@@ -1,1109 +1,769 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from "react";
+import {
+  Routes,
+  Route,
+  NavLink,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
+import {
+  Activity,
+  BarChart3,
+  BookOpen,
+  Clock,
+  Code,
+  Cpu,
+  Database,
+  Eye,
+  FileText,
+  Globe,
+  Heart,
+  KeyRound,
+  Menu,
+  MessageSquare,
+  Package,
+  Puzzle,
+  Settings,
+  Shield,
+  Sparkles,
+  Star,
+  Terminal,
+  Users,
+  Wrench,
+  X,
+  Zap,
+} from "lucide-react";
+import { Button } from "@nous-research/ui/ui/components/button";
+import { SelectionSwitcher } from "@nous-research/ui/ui/components/selection-switcher";
+import { Spinner } from "@nous-research/ui/ui/components/spinner";
+import { Typography } from "@/components/NouiTypography";
+import { cn } from "@/lib/utils";
+import { Backdrop } from "@/components/Backdrop";
+import { SidebarFooter } from "@/components/SidebarFooter";
+import { SidebarStatusStrip } from "@/components/SidebarStatusStrip";
+import { PageHeaderProvider } from "@/contexts/PageHeaderProvider";
+import DocsPage from "@/pages/DocsPage";
+import SessionsPage from "@/pages/SessionsPage";
+import LogsPage from "@/pages/LogsPage";
+import AnalyticsPage from "@/pages/AnalyticsPage";
+import CronPage from "@/pages/CronPage";
+import SkillsPage from "@/pages/SkillsPage";
+import ChatPage from "@/pages/ChatPage";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { useI18n } from "@/i18n";
+import type { Translations } from "@/i18n/types";
+import { PluginPage, PluginSlot, usePlugins } from "@/plugins";
+import type { PluginManifest } from "@/plugins";
+import { useTheme } from "@/themes";
+import { isDashboardEmbeddedChatEnabled } from "@/lib/dashboard-flags";
 
-import type {
-  TabKey,
-  ProposalSegment,
-  KnowledgeSegment,
-  TraceInspectorTab,
-  ConversationListItem,
-  CaseSummary,
-  ConversationDetailResponse,
-  CaseDetailResponse,
-  TraceDetailResponse,
-  EvalJudgment,
-  KnowledgeEntry,
-  NullableList,
-  ActionResult,
-  ProposalResponse,
-  ProposalDetailResponse,
-  KnowledgeListResponse,
-  KnowledgeDetailResponse,
-  AppDataResetResponse,
-  RuntimeResponse,
-  HarnessResponse,
-  ViewState,
-} from "@/types";
-
-import { formatTime, getJSON, knowledgeEntriesForSegment, listOrEmpty, postCommand, postJSON, readViewState, scoreBadge, writeViewState, pageCount, clampPage } from "@/hooks/api";
-
-import { EmptyDetail } from "@/components/detail/empty-detail";
-import { ConversationDetail } from "@/components/detail/conversation-detail";
-import { CaseDetail } from "@/components/detail/case-detail";
-import { ProposalDetail } from "@/components/detail/proposal-detail";
-import { KnowledgeDetail } from "@/components/detail/knowledge-detail";
-import { HarnessDetail } from "@/components/detail/harness-detail";
-import { Icon } from "@/components/icon";
-
-const ACTIVE_PROPOSAL_STATES = new Set([
-  "pending_review",
-  "approved",
-  "in_progress",
-  "needs_review"
-]);
-
-const RUNNING_TRACE_STATES = new Set([
-  "active",
-  "executing",
-  "in_progress",
-  "pending",
-  "processing",
-  "queued",
-  "running",
-  "started"
-]);
-
-const RUNNING_LIST_STATES = new Set([
-  "executing",
-  "in_progress",
-  "pending",
-  "processing",
-  "queued",
-  "running",
-  "started"
-]);
-
-const CONVERSATION_DETAIL_QUERY = "include=cases,traces,workflows,transcript,proposals,self_review&transcript_limit=50";
-const CONVERSATION_PAGE_SIZE = 6;
-
-function dateSortValue(value?: string) {
-  if (!value) {
-    return 0;
-  }
-  const parsed = Date.parse(value);
-  return Number.isNaN(parsed) ? 0 : parsed;
+function RootRedirect() {
+  return <Navigate to="/sessions" replace />;
 }
 
-function normalizedStatus(value?: string) {
-  return (value || "").toLowerCase().replace(/\s+/g, "_");
+const CHAT_NAV_ITEM: NavItem = {
+  path: "/chat",
+  labelKey: "chat",
+  label: "Chat",
+  icon: Terminal,
+};
+
+/**
+ * Built-in routes except /chat.  Chat is rendered persistently (outside
+ * <Routes>) when embedded — see the persistent chat host block rendered
+ * inline near the bottom of this file — so the PTY child, WebSocket,
+ * and xterm instance survive when the user visits another tab and comes
+ * back.  A `display:none` toggle hides the terminal without unmounting.
+ * Routing still owns the URL so /chat deep-links, browser back/forward,
+ * and nav highlight keep working.
+ */
+const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
+  "/": RootRedirect,
+  "/sessions": SessionsPage,
+  "/analytics": AnalyticsPage,
+  "/models": ModelsUnsupportedPage,
+  "/logs": LogsPage,
+  "/cron": CronPage,
+  "/skills": SkillsPage,
+  "/plugins": PluginsUnsupportedPage,
+  "/profiles": ProfilesUnsupportedPage,
+  "/config": ConfigUnsupportedPage,
+  "/env": EnvUnsupportedPage,
+  "/docs": DocsPage,
+};
+
+// Route placeholder for /chat.  The persistent ChatPage host (rendered
+// outside <Routes> when embedded chat is on) paints on top; this empty
+// element just claims the path so the `*` catch-all redirect doesn't
+// fire when the user navigates to /chat.
+function ChatRouteSink() {
+  return null;
 }
 
-function isRunningListStatus(value?: string) {
-  return RUNNING_LIST_STATES.has(normalizedStatus(value));
-}
-
-function hasTraceVerdict(value?: string) {
-  return Boolean(value?.trim());
-}
-
-function isLiveConversation(item: ConversationListItem) {
-  if (hasTraceVerdict(item.latest_trace_verdict) || hasTraceVerdict(item.active_case?.latest_trace_verdict)) {
-    return false;
-  }
-  return item.open_trace_count > 0 || isRunningListStatus(item.status) || isRunningListStatus(item.active_case?.status);
-}
-
-function isLiveCase(item: CaseSummary) {
-  if (hasTraceVerdict(item.latest_trace_verdict)) {
-    return false;
-  }
-  return isRunningListStatus(item.status);
-}
-
-function isLiveProposal(status: string) {
-  return ACTIVE_PROPOSAL_STATES.has(normalizedStatus(status));
-}
-
-function ActivityGlyph(props: { active: boolean; label: string }) {
+function ModelsUnsupportedPage() {
   return (
-    <span className={props.active ? "activity-glyph live" : "activity-glyph"} aria-label={props.label} title={props.label}>
-      <span />
-    </span>
+    <UnsupportedLocalHermesPage
+      title="Models"
+      detail="RSI model assignment is managed by runner deployment configuration."
+    />
   );
 }
 
-function countLabel(loaded: boolean, count: number) {
-  return loaded ? String(count) : "...";
-}
-
-function defaultTraceInspectorTabForStatus(status?: string): TraceInspectorTab {
-  return status && RUNNING_TRACE_STATES.has(normalizedStatus(status)) ? "raw" : "summary";
-}
-
-function canRetryProposal(detail: ProposalDetailResponse) {
-  if (detail.proposal.status === "approved") {
-    return true;
-  }
-  if (detail.proposal.status !== "needs_review") {
-    return false;
-  }
-  return Boolean(detail.current_phase?.attempt_id || detail.proposal.current_attempt_id);
-}
-
-function knowledgeCommandKind(decision: string) {
-  switch (decision) {
-    case "approve":
-      return "knowledge_approve";
-    case "reject":
-      return "knowledge_reject";
-    case "mark_stale":
-      return "knowledge_mark_stale";
-    case "archive":
-      return "knowledge_archive";
-    default:
-      throw new Error(`Unsupported knowledge decision: ${decision}`);
-  }
-}
-
-function proposalCommandKind(decision: string) {
-  switch (decision) {
-    case "approved":
-      return "proposal_approve_intervention";
-    case "rejected":
-      return "proposal_reject_line";
-    case "dismissed":
-      return "proposal_dismiss_line";
-    case "merged":
-      return "proposal_mark_merged";
-    default:
-      throw new Error(`Unsupported proposal decision: ${decision}`);
-  }
-}
-
-export function App() {
-  const queryClient = useQueryClient();
-  const [viewState, setViewState] = useState<ViewState>(() => readViewState());
-  const [proposalSegment, setProposalSegment] = useState<ProposalSegment>("active");
-  const [knowledgeSegment, setKnowledgeSegment] = useState<KnowledgeSegment>("working");
-  const [traceInspectorTab, setTraceInspectorTab] = useState<TraceInspectorTab>("summary");
-  const defaultedTraceTabRef = useRef<string | undefined>();
-  const [proposalCapInput, setProposalCapInput] = useState("2");
-  const [feedbackTargetType, setFeedbackTargetType] = useState("trace");
-  const [feedbackTargetID, setFeedbackTargetID] = useState("");
-  const [feedbackScore, setFeedbackScore] = useState("3");
-  const [feedbackVerdict, setFeedbackVerdict] = useState("useful");
-  const [feedbackNotes, setFeedbackNotes] = useState("");
-  const [proposalRationale, setProposalRationale] = useState("");
-  const [knowledgeReviewRationale, setKnowledgeReviewRationale] = useState("");
-  const [loadSecondaryData, setLoadSecondaryData] = useState(false);
-  const [conversationPage, setConversationPage] = useState(1);
-  const [planeOpen, setPlaneOpen] = useState(false);
-
-  useEffect(() => {
-    const handlePopState = () => setViewState(readViewState());
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
-
-  useEffect(() => {
-    if (!planeOpen) {
-      return;
-    }
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setPlaneOpen(false);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [planeOpen]);
-
-  const navigate = (next: ViewState) => {
-    writeViewState(next);
-    setViewState(next);
-  };
-
-  const wantsConversations = viewState.tab === "conversations" || Boolean(viewState.conversation) || loadSecondaryData;
-  const wantsCases = viewState.tab === "cases" || Boolean(viewState.case) || loadSecondaryData;
-  const wantsProposals = viewState.tab === "proposals" || Boolean(viewState.proposal) || loadSecondaryData;
-  const wantsKnowledge = viewState.tab === "knowledge" || Boolean(viewState.knowledge) || loadSecondaryData;
-  const wantsHarness = viewState.tab === "harness" || Boolean(viewState.role) || loadSecondaryData;
-
-  const conversationsQuery = useQuery({
-    queryKey: ["conversations"],
-    queryFn: () => getJSON<{ conversations: ConversationListItem[] }>("/api/conversations"),
-    enabled: wantsConversations
-  });
-
-  const casesQuery = useQuery({
-    queryKey: ["cases"],
-    queryFn: () => getJSON<{ cases: CaseSummary[] }>("/api/cases"),
-    enabled: wantsCases
-  });
-
-  const proposalsQuery = useQuery({
-    queryKey: ["proposals"],
-    queryFn: () => getJSON<ProposalResponse>("/api/proposals"),
-    enabled: wantsProposals
-  });
-
-  const knowledgeQuery = useQuery({
-    queryKey: ["knowledge"],
-    queryFn: () => getJSON<KnowledgeListResponse>("/api/knowledge"),
-    enabled: wantsKnowledge
-  });
-
-  const runtimeQuery = useQuery({
-    queryKey: ["runtime"],
-    queryFn: () => getJSON<RuntimeResponse>("/api/runtime"),
-    enabled: wantsHarness
-  });
-
-  const harnessQuery = useQuery({
-    queryKey: ["harness"],
-    queryFn: () => getJSON<HarnessResponse>("/api/harness"),
-    enabled: wantsHarness
-  });
-
-  const conversationDetailQuery = useQuery({
-    queryKey: ["conversation", viewState.conversation],
-    queryFn: () => getJSON<ConversationDetailResponse>(`/api/conversations/${viewState.conversation}?${CONVERSATION_DETAIL_QUERY}`),
-    enabled: Boolean(viewState.tab === "conversations" && viewState.conversation)
-  });
-
-  const caseDetailQuery = useQuery({
-    queryKey: ["case", viewState.case],
-    queryFn: () => getJSON<CaseDetailResponse>(`/api/cases/${viewState.case}`),
-    enabled: Boolean(viewState.tab === "cases" && viewState.case)
-  });
-
-  const traceDetailQuery = useQuery({
-    queryKey: ["trace", viewState.trace],
-    queryFn: () => getJSON<TraceDetailResponse>(`/api/traces/${viewState.trace}`),
-    enabled: Boolean(viewState.trace)
-  });
-
-  useEffect(() => {
-    if (loadSecondaryData) {
-      return;
-    }
-    const waitingForConversation =
-      viewState.tab === "conversations" &&
-      Boolean(viewState.conversation) &&
-      !conversationDetailQuery.isFetched &&
-      conversationDetailQuery.fetchStatus !== "idle";
-    const waitingForTrace = Boolean(viewState.trace) && !traceDetailQuery.isFetched && traceDetailQuery.fetchStatus !== "idle";
-    if (waitingForConversation || waitingForTrace) {
-      return;
-    }
-    const timeout = window.setTimeout(() => setLoadSecondaryData(true), 400);
-    return () => window.clearTimeout(timeout);
-  }, [
-    loadSecondaryData,
-    viewState.tab,
-    viewState.conversation,
-    viewState.trace,
-    conversationDetailQuery.isFetched,
-    conversationDetailQuery.fetchStatus,
-    traceDetailQuery.isFetched,
-    traceDetailQuery.fetchStatus
-  ]);
-
-  useEffect(() => {
-    if (!viewState.trace) {
-      defaultedTraceTabRef.current = undefined;
-      setTraceInspectorTab("summary");
-      return;
-    }
-    const traceSummary = traceDetailQuery.data?.trace.summary;
-    if (!traceSummary || traceSummary.trace_id !== viewState.trace || defaultedTraceTabRef.current === viewState.trace) {
-      return;
-    }
-    setTraceInspectorTab(defaultTraceInspectorTabForStatus(traceSummary.status));
-    defaultedTraceTabRef.current = viewState.trace;
-  }, [traceDetailQuery.data, viewState.trace]);
-
-  const proposalDetailQuery = useQuery({
-    queryKey: ["proposal", viewState.proposal],
-    queryFn: () => getJSON<ProposalDetailResponse>(`/api/proposals/${viewState.proposal}`),
-    enabled: Boolean(viewState.tab === "proposals" && viewState.proposal)
-  });
-
-  const knowledgeDetailQuery = useQuery({
-    queryKey: ["knowledge", viewState.knowledge],
-    queryFn: () => getJSON<KnowledgeDetailResponse>(`/api/knowledge/${viewState.knowledge}`),
-    enabled: Boolean(viewState.tab === "knowledge" && viewState.knowledge)
-  });
-
-  const conversations = listOrEmpty(conversationsQuery.data?.conversations);
-  const cases = listOrEmpty(casesQuery.data?.cases);
-  const proposals = listOrEmpty(proposalsQuery.data?.proposals);
-  const knowledgeEntries = listOrEmpty(knowledgeQuery.data?.knowledge_entries);
-  const candidates = listOrEmpty(proposalsQuery.data?.candidates);
-  const runtimeRoles = listOrEmpty(runtimeQuery.data?.roles);
-  const harnessRoles = listOrEmpty(harnessQuery.data?.roles);
-  const proposalSlotState = proposalsQuery.data?.proposal_slots;
-  const sortedConversations = useMemo(
-    () => [...conversations].sort((left, right) => dateSortValue(right.latest_message_at) - dateSortValue(left.latest_message_at)),
-    [conversations]
-  );
-  const conversationPageCount = pageCount(sortedConversations.length, CONVERSATION_PAGE_SIZE);
-  const clampedConversationPage = Math.min(conversationPage, conversationPageCount);
-  const conversationPageStart = sortedConversations.length === 0 ? 0 : (clampedConversationPage - 1) * CONVERSATION_PAGE_SIZE + 1;
-  const conversationPageEnd = Math.min(sortedConversations.length, clampedConversationPage * CONVERSATION_PAGE_SIZE);
-  const visibleConversations = useMemo(
-    () => sortedConversations.slice((clampedConversationPage - 1) * CONVERSATION_PAGE_SIZE, clampedConversationPage * CONVERSATION_PAGE_SIZE),
-    [clampedConversationPage, sortedConversations]
-  );
-
-  useEffect(() => {
-    setConversationPage((current) => clampPage(current, sortedConversations.length, CONVERSATION_PAGE_SIZE));
-  }, [sortedConversations.length]);
-
-  useEffect(() => {
-    if (!viewState.conversation) {
-      return;
-    }
-    const selectedIndex = sortedConversations.findIndex((item) => item.conversation_id === viewState.conversation);
-    if (selectedIndex === -1) {
-      return;
-    }
-    setConversationPage(Math.floor(selectedIndex / CONVERSATION_PAGE_SIZE) + 1);
-  }, [sortedConversations, viewState.conversation]);
-
-  useEffect(() => {
-    const settingValue = proposalsQuery.data?.settings?.active_proposal_cap;
-    if (typeof settingValue === "number") {
-      setProposalCapInput(String(settingValue));
-    }
-  }, [proposalsQuery.data?.settings?.active_proposal_cap]);
-
-  useEffect(() => {
-    if (viewState.conversation && conversationsQuery.isSuccess && !conversations.some((item) => item.conversation_id === viewState.conversation)) {
-      navigate({ tab: "conversations" });
-    }
-  }, [viewState.conversation, conversations, conversationsQuery.isSuccess]);
-
-  useEffect(() => {
-    if (viewState.case && casesQuery.isSuccess && !cases.some((item) => item.case_id === viewState.case)) {
-      navigate({ tab: "cases" });
-    }
-  }, [viewState.case, cases, casesQuery.isSuccess]);
-
-  useEffect(() => {
-    if (viewState.proposal && proposalsQuery.isSuccess && !proposals.some((item) => item.id === viewState.proposal)) {
-      navigate({ tab: "proposals" });
-    }
-  }, [viewState.proposal, proposals, proposalsQuery.isSuccess]);
-
-  useEffect(() => {
-    if (viewState.knowledge && knowledgeQuery.isSuccess && !knowledgeEntries.some((item) => item.id === viewState.knowledge)) {
-      navigate({ tab: "knowledge" });
-    }
-  }, [viewState.knowledge, knowledgeEntries, knowledgeQuery.isSuccess]);
-
-  useEffect(() => {
-    if (viewState.role && harnessQuery.isSuccess && !harnessRoles.some((item) => item.role === viewState.role)) {
-      navigate({ tab: "harness" });
-    }
-  }, [viewState.role, harnessRoles, harnessQuery.isSuccess]);
-
-  const refreshEverything = async () => {
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ["conversations"] }),
-      queryClient.invalidateQueries({ queryKey: ["conversation"] }),
-      queryClient.invalidateQueries({ queryKey: ["cases"] }),
-      queryClient.invalidateQueries({ queryKey: ["case"] }),
-      queryClient.invalidateQueries({ queryKey: ["trace"] }),
-      queryClient.invalidateQueries({ queryKey: ["proposals"] }),
-      queryClient.invalidateQueries({ queryKey: ["proposal"] }),
-      queryClient.invalidateQueries({ queryKey: ["knowledge"] }),
-      queryClient.invalidateQueries({ queryKey: ["runtime"] }),
-      queryClient.invalidateQueries({ queryKey: ["harness"] })
-    ]);
-  };
-
-  const evaluateMutation = useMutation({
-    mutationFn: () =>
-      postCommand(`/api/problem-lines/${viewState.trace}/commands`, {
-        command_kind: "problem_line_evaluate_trace",
-        actor: "ui-operator",
-        payload: {
-          trigger: "manual"
-        }
-      }),
-    onSuccess: refreshEverything
-  });
-
-  const replayMutation = useMutation({
-    mutationFn: () => postJSON(`/api/traces/${viewState.trace}/replay`, { requested_by: "ui-operator" }),
-    onSuccess: refreshEverything
-  });
-
-  const feedbackMutation = useMutation({
-    mutationFn: () =>
-      postJSON(`/api/feedback`, {
-        target_type: feedbackTargetType,
-        target_id: feedbackTargetID,
-        score: Number(feedbackScore),
-        verdict: feedbackVerdict,
-        labels: ["operator-ui"],
-        notes: feedbackNotes,
-        reviewer_id: "ui-operator"
-      }),
-    onSuccess: async () => {
-      setFeedbackNotes("");
-      await refreshEverything();
-    }
-  });
-
-  const knowledgeReviewMutation = useMutation({
-    mutationFn: (decision: string) =>
-      postCommand(`/api/knowledge/${viewState.knowledge}/commands`, {
-        command_kind: knowledgeCommandKind(decision),
-        actor: "ui-operator",
-        payload: {
-          rationale: knowledgeReviewRationale || `UI operator recorded ${decision}.`,
-          reviewer_id: "ui-operator"
-        }
-      }),
-    onSuccess: async () => {
-      setKnowledgeReviewRationale("");
-      await refreshEverything();
-    }
-  });
-
-  const promoteMutation = useMutation({
-    mutationFn: () =>
-      postCommand(`/api/problem-lines/problem-lines/commands`, {
-        command_kind: "problem_line_promote",
-        actor: "ui-operator",
-        payload: {
-          requested_by: "ui-operator"
-        }
-      }),
-    onSuccess: refreshEverything
-  });
-
-  const settingsMutation = useMutation({
-    mutationFn: () =>
-      postCommand(`/api/settings/commands`, {
-        command_kind: "settings_update",
-        actor: "ui-operator",
-        payload: {
-          active_proposal_cap: Number(proposalCapInput)
-        }
-      }),
-    onSuccess: refreshEverything
-  });
-
-  const resetAppDataMutation = useMutation({
-    mutationFn: () => postJSON<AppDataResetResponse>(`/api/app-data/reset`, {}),
-    onSuccess: async () => {
-      navigate({ tab: "conversations" });
-      await refreshEverything();
-    }
-  });
-
-  const proposalDecisionMutation = useMutation({
-    mutationFn: (decision: string) =>
-      postCommand(`/api/proposals/${viewState.proposal}/commands`, {
-        command_kind: proposalCommandKind(decision),
-        actor: "ui-operator",
-        payload: {
-          scope: "line",
-          rationale: proposalRationale || `UI operator recorded ${decision}.`,
-          reviewer_id: "ui-operator",
-          failure_class: decision === "rejected" ? "insufficient_evidence" : ""
-        }
-      }),
-    onSuccess: async () => {
-      setProposalRationale("");
-      await refreshEverything();
-    }
-  });
-
-  const proposalRetryMutation = useMutation({
-    mutationFn: () =>
-      postCommand(`/api/proposals/${viewState.proposal}/commands`, {
-        command_kind: "proposal_retry_attempt",
-        actor: "ui-operator"
-      }),
-    onSuccess: refreshEverything
-  });
-
-  const proposalStopMutation = useMutation({
-    mutationFn: () =>
-      postCommand(`/api/proposals/${viewState.proposal}/commands`, {
-        command_kind: "proposal_stop_line",
-        actor: "ui-operator",
-        payload: {
-          rationale: proposalRationale || "UI operator stopped the remediation line."
-        }
-      }),
-    onSuccess: async () => {
-      setProposalRationale("");
-      await refreshEverything();
-    }
-  });
-
-  const activeProposals = useMemo(
-    () => proposals.filter((proposal) => ACTIVE_PROPOSAL_STATES.has(proposal.status)),
-    [proposals]
-  );
-  const historyProposals = useMemo(
-    () => proposals.filter((proposal) => !ACTIVE_PROPOSAL_STATES.has(proposal.status)),
-    [proposals]
-  );
-  const proposalRows = proposalSegment === "active" ? activeProposals : proposalSegment === "history" ? historyProposals : [];
-  const knowledgeRows = useMemo(
-    () => knowledgeEntriesForSegment(knowledgeEntries, knowledgeSegment),
-    [knowledgeEntries, knowledgeSegment]
-  );
-
-  const traceDetail = traceDetailQuery.data;
-  const feedbackTargets = useMemo(() => {
-    if (!traceDetail) return [];
-    const targets = [{ label: `Trace ${traceDetail.trace.summary.trace_id}`, value: traceDetail.trace.summary.trace_id, type: "trace" }];
-    for (const step of listOrEmpty(traceDetail.trace.reasoning)) {
-      targets.push({ label: `Reasoning: ${step.step_type}`, value: step.id, type: "reasoning_step" });
-    }
-    for (const call of listOrEmpty(traceDetail.trace.tool_calls)) {
-      targets.push({ label: `Tool: ${call.tool_name}`, value: call.id, type: "tool_call" });
-    }
-    for (const intent of listOrEmpty(traceDetail.action_intents)) {
-      targets.push({ label: `Action: ${intent.kind}`, value: intent.id, type: "action_intent" });
-    }
-    for (const action of listOrEmpty(traceDetail.trace.slack_actions)) {
-      targets.push({ label: `Slack action ${formatTime(action.created_at)}`, value: action.id, type: "slack_action" });
-    }
-    return targets;
-  }, [traceDetail]);
-
-  useEffect(() => {
-    if (feedbackTargets.length > 0) {
-      setFeedbackTargetType(feedbackTargets[0].type);
-      setFeedbackTargetID(feedbackTargets[0].value);
-    }
-  }, [traceDetail?.trace.summary.trace_id]);
-
-  const traceJudgments = traceDetail?.judgments_by_eval_run ?? {};
-  const resetAppDataError = resetAppDataMutation.error instanceof Error ? resetAppDataMutation.error.message : "";
-
-  const handleResetAppData = () => {
-    if (!window.confirm("Reset all RSI and Honcho app data? Schema versions stay intact, but every conversation, trace, proposal, and memory row will be deleted.")) {
-      return;
-    }
-    resetAppDataMutation.mutate();
-  };
-
+function PluginsUnsupportedPage() {
   return (
-    <div className="app-shell">
-      <header className="top-bar">
-        <div className="top-brand">
-          <Icon name="branch" />
-          <span>RSI Router</span>
-        </div>
-        <label className="global-search">
-          <Icon name="search" />
-          <input type="search" placeholder="Search" aria-label="Search workspace" />
-          <kbd>/</kbd>
-        </label>
-        <nav className="top-nav" aria-label="Workspace pages">
-          <span>Home</span>
-          <span>Fusion</span>
-          <span>Models</span>
-          <span className="active">Chat</span>
-          <span>Rankings</span>
-          <span>Apps</span>
-          <span>Docs</span>
-        </nav>
-        <div className="profile-menu" aria-label="Profile">
-          <span>B</span>
-          <strong>Personal</strong>
-          <Icon name="chevron" />
-        </div>
-      </header>
+    <UnsupportedLocalHermesPage
+      title="Plugins"
+      detail="Dashboard plugin install, update, removal, and visibility controls are disabled in RSI staging."
+    />
+  );
+}
 
-      <aside className="activity-rail" aria-label="Primary navigation">
-        <div className="rail-section-title">Workspace</div>
-        <nav className="rail-nav" aria-label="Sections">
-          <button className={viewState.tab === "conversations" ? "rail-button active" : "rail-button"} onClick={() => navigate({ tab: "conversations" })} aria-label="Conversations">
-            <Icon name="chat" />
-            <span className="rail-label">Conversations</span>
-            <span className="rail-count">{countLabel(conversationsQuery.isFetched, conversations.length)}</span>
-          </button>
-          <button className={viewState.tab === "cases" ? "rail-button active" : "rail-button"} onClick={() => navigate({ tab: "cases" })} aria-label="Projects">
-            <Icon name="folder" />
-            <span className="rail-label">Projects</span>
-            <span className="rail-count">{countLabel(casesQuery.isFetched, cases.length)}</span>
-          </button>
-          <button className={viewState.tab === "proposals" ? "rail-button active" : "rail-button"} onClick={() => navigate({ tab: "proposals" })} aria-label="Proposals">
-            <Icon name="spark" />
-            <span className="rail-label">Proposals</span>
-            <span className="rail-count">{countLabel(proposalsQuery.isFetched, proposals.length)}</span>
-          </button>
-          <button className={viewState.tab === "knowledge" ? "rail-button active" : "rail-button"} onClick={() => navigate({ tab: "knowledge" })} aria-label="Knowledge">
-            <Icon name="database" />
-            <span className="rail-label">Knowledge</span>
-            <span className="rail-count">{countLabel(knowledgeQuery.isFetched, knowledgeEntries.length)}</span>
-          </button>
-          <button className={viewState.tab === "harness" ? "rail-button active" : "rail-button"} onClick={() => navigate({ tab: "harness" })} aria-label="Harness">
-            <Icon name="terminal" />
-            <span className="rail-label">Harness</span>
-            <span className="rail-count">{countLabel(harnessQuery.isFetched, harnessRoles.length)}</span>
-          </button>
-        </nav>
-        <button className="rail-button plane-trigger" onClick={() => setPlaneOpen(true)} aria-label="Open improvement plane">
-          <Icon name="sliders" />
-          <span className="rail-label">Improvement Plane</span>
-        </button>
-      </aside>
+function ProfilesUnsupportedPage() {
+  return (
+    <UnsupportedLocalHermesPage
+      title="Profiles"
+      detail="RSI runner profiles are server-side deployment configuration, not local Hermes profiles."
+    />
+  );
+}
 
-      <section className="list-pane">
-        {viewState.tab === "conversations" ? (
-          <>
-            <header className="pane-header">
-              <div>
-                <p className="eyebrow">Conversations</p>
-                <h2>Threads and DMs</h2>
-              </div>
-              <div className="pane-tools">
-                <span className="list-range">
-                  {conversationsQuery.isFetched ? (
-                    sortedConversations.length <= CONVERSATION_PAGE_SIZE
-                      ? `${sortedConversations.length} total`
-                      : `${conversationPageStart}-${conversationPageEnd} of ${sortedConversations.length}`
-                  ) : "Loading"}
-                </span>
-                {sortedConversations.length > CONVERSATION_PAGE_SIZE ? (
-                  <div className="pagination-row compact" aria-label="Conversation pages">
-                    <button
-                      className="pager-button"
-                      aria-label="Previous conversations page"
-                      onClick={() => setConversationPage((current) => clampPage(current - 1, sortedConversations.length, CONVERSATION_PAGE_SIZE))}
-                      disabled={conversationPage <= 1}
-                    >
-                      Prev
-                    </button>
-                    <span>Page {clampedConversationPage} of {conversationPageCount}</span>
-                    <button
-                      className="pager-button"
-                      aria-label="Next conversations page"
-                      onClick={() => setConversationPage((current) => clampPage(current + 1, sortedConversations.length, CONVERSATION_PAGE_SIZE))}
-                      disabled={conversationPage >= conversationPageCount}
-                    >
-                      Next
-                    </button>
-                  </div>
-                ) : null}
-              </div>
-            </header>
-            <div className="list-stack">
-              {visibleConversations.map((item) => {
-                const live = isLiveConversation(item);
-                return (
-                  <button
-                    key={item.conversation_id}
-                    className={item.conversation_id === viewState.conversation ? "list-card selected" : "list-card"}
-                    onClick={() => navigate({ tab: "conversations", conversation: item.conversation_id, trace: item.active_case?.latest_trace_id })}
-                  >
-                    <div className="list-card-header">
-                      <div className="card-title-block">
-                        <span className="list-title-line">
-                          <ActivityGlyph active={live} label={live ? "Live trace running" : "No live trace"} />
-                          <strong>{item.title || item.external_key}</strong>
-                        </span>
-                        <p>{item.source} · {item.status}</p>
-                      </div>
-                      <div className="list-card-badges">
-                        <span className="status-chip">{formatTime(item.latest_message_at)}</span>
-                        {item.latest_trace_verdict ? <span className="status-chip eval">{item.latest_trace_verdict}</span> : null}
-                      </div>
-                    </div>
-                    <p className="trace-thread">{item.external_key}</p>
-                    <dl className="mini-metrics">
-                      <div><dt>Active case</dt><dd>{item.active_case?.title || "none"}</dd></div>
-                      <div><dt>Status</dt><dd>{item.status}</dd></div>
-                      <div><dt>Open traces</dt><dd>{item.open_trace_count}</dd></div>
-                      <div><dt>Proposals</dt><dd>{item.proposal_count}</dd></div>
-                    </dl>
-                  </button>
-                );
-              })}
-              {conversationsQuery.isFetched && visibleConversations.length === 0 ? (
-                <div className="empty-list">No conversations yet.</div>
-              ) : null}
-            </div>
-          </>
-        ) : viewState.tab === "cases" ? (
-          <>
-            <header className="pane-header">
-              <div>
-                <p className="eyebrow">Cases</p>
-                <h2>Cross-conversation objectives</h2>
-              </div>
-            </header>
-            <div className="list-stack">
-              {cases.map((item) => {
-                const live = isLiveCase(item);
-                return (
-                  <button
-                    key={item.case_id}
-                    className={item.case_id === viewState.case ? "list-card selected" : "list-card"}
-                    onClick={() => navigate({ tab: "cases", case: item.case_id, trace: item.latest_trace_id })}
-                  >
-                    <div className="list-card-header">
-                      <div className="card-title-block">
-                        <span className="list-title-line">
-                          <ActivityGlyph active={live} label={live ? "Live trace running" : "No live trace"} />
-                          <strong>{item.title}</strong>
-                        </span>
-                        <p>{item.kind} · {item.status}</p>
-                      </div>
-                      {item.latest_trace_verdict ? <span className="status-chip eval">{item.latest_trace_verdict}</span> : null}
-                    </div>
-                    <p className="trace-thread">{item.summary}</p>
-                    <dl className="mini-metrics">
-                      <div><dt>Conversation</dt><dd>{item.conversation_id}</dd></div>
-                      <div><dt>Bot</dt><dd>{item.assigned_bot}</dd></div>
-                      <div><dt>Recurrence</dt><dd>{item.recurrence}</dd></div>
-                      <div><dt>Proposals</dt><dd>{listOrEmpty(item.linked_proposal_ids).length}</dd></div>
-                    </dl>
-                  </button>
-                );
-              })}
-            </div>
-          </>
-        ) : viewState.tab === "proposals" ? (
-          <>
-            <header className="pane-header">
-              <div>
-                <p className="eyebrow">Proposals</p>
-                <h2>Review path and PR readiness</h2>
-              </div>
-              <div className="segment-row">
-                {(["active", "candidates", "history"] as ProposalSegment[]).map((segment) => (
-                  <button key={segment} className={proposalSegment === segment ? "segment-button active" : "segment-button"} onClick={() => setProposalSegment(segment)}>
-                    {segment}
-                  </button>
-                ))}
-              </div>
-            </header>
-            {proposalSegment === "candidates" ? (
-              <div className="list-stack">
-                {candidates.map((candidate) => (
-                  <div key={candidate.id} className="list-card static">
-                    <div className="list-card-header">
-                      <div>
-                        <strong>{candidate.subsystem}</strong>
-                        <p>{candidate.failure_mode}</p>
-                      </div>
-                      <span className="status-chip">{scoreBadge(candidate.priority_score)}</span>
-                    </div>
-                    <dl className="mini-metrics">
-                      <div><dt>Status</dt><dd>{candidate.status}</dd></div>
-                      <div><dt>Severity</dt><dd>{candidate.severity}</dd></div>
-                      <div><dt>Recurrence</dt><dd>{candidate.recurrence_count}</dd></div>
-                      <div><dt>Latest trace</dt><dd>{candidate.latest_trace_id || "none"}</dd></div>
-                    </dl>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="list-stack">
-                {proposalRows.map((proposal) => {
-                  const live = isLiveProposal(proposal.status);
-                  return (
-                    <button
-                      key={proposal.id}
-                      className={proposal.id === viewState.proposal ? "list-card selected" : "list-card"}
-                      onClick={() => navigate({ tab: "proposals", proposal: proposal.id })}
-                    >
-                      <div className="list-card-header">
-                        <div className="card-title-block">
-                          <span className="list-title-line">
-                            <ActivityGlyph active={live} label={live ? "Proposal line running" : "Proposal line idle"} />
-                            <strong>{proposal.title}</strong>
-                          </span>
-                          <p>{proposal.status} · {proposal.recommended_intervention_kind || "repo_change"} · {proposal.candidate_key}</p>
-                        </div>
-                        <span className="status-chip">{proposal.status}</span>
-                      </div>
-                      <p className="trace-thread">{proposal.summary}</p>
-                    <dl className="mini-metrics">
-                      <div><dt>Risk</dt><dd>{proposal.risk_tier || "n/a"}</dd></div>
-                      <div><dt>Target</dt><dd>{proposal.target_surface || proposal.target_layer || "repo_change"}</dd></div>
-                      <div><dt>Slot</dt><dd>{proposal.active_slot_consuming ? "occupied" : "free"}</dd></div>
-                      <div><dt>Disposition</dt><dd>{proposal.recommended_disposition || "approve_intervention"}</dd></div>
-                    </dl>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </>
-        ) : viewState.tab === "harness" ? (
-          <>
-            <header className="pane-header">
-              <div>
-                <p className="eyebrow">Harness</p>
-                <h2>Persistent Hermes role agents</h2>
-              </div>
-            </header>
-            <div className="list-stack">
-              {harnessRoles.map((role) => {
-                const bindings = listOrEmpty(harnessQuery.data?.session_bindings).filter((item) => item.role === role.role);
-                const overlays = listOrEmpty(harnessQuery.data?.overlays).filter((item) => item.role === role.role && item.status === "active");
-                const executions = listOrEmpty(harnessQuery.data?.executions).filter((item) => item.role === role.role);
-                return (
-                  <button
-                    key={role.role}
-                    className={role.role === viewState.role ? "list-card selected" : "list-card"}
-                    onClick={() => navigate({ tab: "harness", role: role.role })}
-                  >
-                    <div className="list-card-header">
-                      <div>
-                        <strong>{role.role}</strong>
-                        <p>{role.provider || "n/a"} · {role.status}</p>
-                      </div>
-                      <span className="status-chip">{role.honcho_available ? "honcho" : "memory off"}</span>
-                    </div>
-                    <p className="trace-thread">{role.model} · {role.reasoning_effort}</p>
-                    <dl className="mini-metrics">
-                      <div><dt>Sessions</dt><dd>{bindings.length}</dd></div>
-                      <div><dt>Runs</dt><dd>{executions.length}</dd></div>
-                      <div><dt>Overlay</dt><dd>{overlays[0]?.version || role.active_overlay_version || "baseline"}</dd></div>
-                      <div><dt>Persistence</dt><dd>{role.persistence_enabled ? "on" : "off"}</dd></div>
-                    </dl>
-                  </button>
-                );
-              })}
-            </div>
-          </>
-        ) : (
-          <>
-            <header className="pane-header">
-              <div>
-                <p className="eyebrow">Knowledge</p>
-                <h2>Working drafts and canonical memory</h2>
-              </div>
-              <div className="segment-row">
-                {(["working", "review", "canonical", "stale"] as KnowledgeSegment[]).map((segment) => (
-                  <button key={segment} className={knowledgeSegment === segment ? "segment-button active" : "segment-button"} onClick={() => setKnowledgeSegment(segment)}>
-                    {segment}
-                  </button>
-                ))}
-              </div>
-            </header>
-            <div className="list-stack">
-              {knowledgeRows.map((entry) => (
-                <button
-                  key={entry.id}
-                  className={entry.id === viewState.knowledge ? "list-card selected" : "list-card"}
-                  onClick={() => navigate({ tab: "knowledge", knowledge: entry.id })}
-                >
-                  <div className="list-card-header">
-                    <div>
-                      <strong>{entry.title}</strong>
-                      <p>{entry.kind} · {entry.scope_type}</p>
-                    </div>
-                    <span className="status-chip">{entry.status}</span>
-                  </div>
-                  <p className="trace-thread">{entry.summary || entry.body || "No summary."}</p>
-                  <dl className="mini-metrics">
-                    <div><dt>Tier</dt><dd>{entry.tier}</dd></div>
-                    <div><dt>Confidence</dt><dd>{scoreBadge(entry.confidence)}</dd></div>
-                    <div><dt>Source</dt><dd>{entry.source_type}</dd></div>
-                    <div><dt>Updated</dt><dd>{formatTime(entry.updated_at)}</dd></div>
-                  </dl>
-                </button>
-              ))}
-            </div>
-          </>
-        )}
-      </section>
+function ConfigUnsupportedPage() {
+  return (
+    <UnsupportedLocalHermesPage
+      title="Config"
+      detail="RSI configuration is read from server-side environment and deployment settings."
+    />
+  );
+}
 
-      <section className="detail-pane">
-        {viewState.tab === "conversations" ? (
-          !viewState.conversation ? (
-            <EmptyDetail title="Select a conversation" body="Start from the conversation list. Once selected, you'll see transcript context, case continuity, trace attempts, and the evidence behind the latest run." />
-          ) : conversationDetailQuery.isLoading ? (
-            <EmptyDetail title="Loading conversation" body="Fetching transcript, cases, and trace attempts." />
-          ) : conversationDetailQuery.data ? (
-            <ConversationDetail
-              detail={conversationDetailQuery.data}
-              selectedTraceId={viewState.trace}
-              traceDetail={traceDetail}
-              traceInspectorTab={traceInspectorTab}
-              setTraceInspectorTab={setTraceInspectorTab}
-              onSelectTrace={(traceId) => navigate({ tab: "conversations", conversation: viewState.conversation, trace: traceId })}
-              onRunEval={() => evaluateMutation.mutate()}
-              onReplay={() => replayMutation.mutate()}
-              traceJudgments={traceJudgments}
-              feedbackTargets={feedbackTargets}
-              feedbackTargetType={feedbackTargetType}
-              setFeedbackTargetType={setFeedbackTargetType}
-              feedbackTargetID={feedbackTargetID}
-              setFeedbackTargetID={setFeedbackTargetID}
-              feedbackScore={feedbackScore}
-              setFeedbackScore={setFeedbackScore}
-              feedbackVerdict={feedbackVerdict}
-              setFeedbackVerdict={setFeedbackVerdict}
-              feedbackNotes={feedbackNotes}
-              setFeedbackNotes={setFeedbackNotes}
-              onSubmitFeedback={() => feedbackMutation.mutate()}
-            />
-          ) : (
-            <EmptyDetail title="Conversation not found" body="The selected conversation no longer exists." />
-          )
-        ) : viewState.tab === "cases" ? (
-          !viewState.case ? (
-            <EmptyDetail title="Select a case" body="Cases are the active objectives inside conversations. Pick one to inspect its attempts and current evidence." />
-          ) : caseDetailQuery.isLoading ? (
-            <EmptyDetail title="Loading case" body="Fetching case summary and associated traces." />
-          ) : caseDetailQuery.data ? (
-            <CaseDetail
-              detail={caseDetailQuery.data}
-              selectedTraceId={viewState.trace}
-              traceDetail={traceDetail}
-              traceInspectorTab={traceInspectorTab}
-              setTraceInspectorTab={setTraceInspectorTab}
-              onSelectTrace={(traceId) => navigate({ tab: "cases", case: viewState.case, trace: traceId })}
-              onRunEval={() => evaluateMutation.mutate()}
-              onReplay={() => replayMutation.mutate()}
-              traceJudgments={traceJudgments}
-              feedbackTargets={feedbackTargets}
-              feedbackTargetType={feedbackTargetType}
-              setFeedbackTargetType={setFeedbackTargetType}
-              feedbackTargetID={feedbackTargetID}
-              setFeedbackTargetID={setFeedbackTargetID}
-              feedbackScore={feedbackScore}
-              setFeedbackScore={setFeedbackScore}
-              feedbackVerdict={feedbackVerdict}
-              setFeedbackVerdict={setFeedbackVerdict}
-              feedbackNotes={feedbackNotes}
-              setFeedbackNotes={setFeedbackNotes}
-              onSubmitFeedback={() => feedbackMutation.mutate()}
-            />
-          ) : (
-            <EmptyDetail title="Case not found" body="The selected case no longer exists." />
-          )
-        ) : viewState.tab === "proposals" ? (!viewState.proposal ? (
-          <EmptyDetail title="Select a proposal" body="Proposals remain the review and PR-path surface. Select one to inspect reasoning, memory, evidence traces, and linked PR state." />
-        ) : proposalDetailQuery.isLoading ? (
-          <EmptyDetail title="Loading proposal" body="Fetching proposal reviews, memory, repo-change state, and linked traces." />
-        ) : proposalDetailQuery.data ? (
-          <ProposalDetail
-            detail={proposalDetailQuery.data}
-            proposalRationale={proposalRationale}
-            setProposalRationale={setProposalRationale}
-            onDecision={(decision) => proposalDecisionMutation.mutate(decision)}
-            onRetry={() => proposalRetryMutation.mutate()}
-            onStop={() => proposalStopMutation.mutate()}
-            canRetry={canRetryProposal(proposalDetailQuery.data)}
-            canStop={ACTIVE_PROPOSAL_STATES.has(proposalDetailQuery.data.proposal.status)}
-          />
-        ) : (
-          <EmptyDetail title="Proposal not found" body="The selected proposal no longer exists." />
-        )) : viewState.tab === "harness" ? (
-          !viewState.role ? (
-            <EmptyDetail title="Select a harness role" body="Choose a role agent to inspect Hermes session continuity, overlays, experiments, and memory activity." />
-          ) : harnessQuery.isLoading ? (
-            <EmptyDetail title="Loading harness state" body="Fetching role agent sessions, overlays, and experiments." />
-          ) : (
-            <HarnessDetail detail={harnessQuery.data} selectedRole={viewState.role} />
-          )
-        ) : !viewState.knowledge ? (
-          <EmptyDetail title="Select a knowledge entry" body="Knowledge tracks working drafts, canonical guidance, contradictions, and the evidence behind each entry." />
-        ) : knowledgeDetailQuery.isLoading ? (
-          <EmptyDetail title="Loading knowledge" body="Fetching provenance links and review history." />
-        ) : knowledgeDetailQuery.data ? (
-          <KnowledgeDetail
-            detail={knowledgeDetailQuery.data}
-            reviewRationale={knowledgeReviewRationale}
-            setReviewRationale={setKnowledgeReviewRationale}
-            onDecision={(decision) => knowledgeReviewMutation.mutate(decision)}
-          />
-        ) : (
-          <EmptyDetail title="Knowledge entry not found" body="The selected knowledge entry no longer exists." />
-        )}
-      </section>
+function EnvUnsupportedPage() {
+  return (
+    <UnsupportedLocalHermesPage
+      title="Keys"
+      detail="Secret and environment variable mutation is disabled from this dashboard."
+    />
+  );
+}
 
-      <button className="plane-edge-toggle" onClick={() => setPlaneOpen(true)} aria-label="Open improvement plane" title="Improvement Plane">
-        <Icon name="sliders" />
-        <span className="visually-hidden">Improvement Plane</span>
-      </button>
-      <div className={planeOpen ? "plane-backdrop visible" : "plane-backdrop"} onClick={() => setPlaneOpen(false)} />
-      <aside className={planeOpen ? "improvement-drawer open" : "improvement-drawer"} aria-hidden={!planeOpen}>
-        <div className="drawer-header">
-          <div>
-            <p className="eyebrow">Improvement Plane</p>
-            <h1>Evidence-first operator workspace</h1>
-          </div>
-          <button className="secondary icon-button" onClick={() => setPlaneOpen(false)} aria-label="Close improvement plane">
-            <Icon name="close" />
-          </button>
-        </div>
-        <p className="muted">
-          Start from conversations, move into projects, and inspect the exact trace evidence that produced a proposal.
-        </p>
-
-        <section className="operations-card">
-          <div className="section-header">
-            <div>
-              <p className="eyebrow">Operations</p>
-              <h2>Proposal cap</h2>
-            </div>
-            <span className="status-chip">{proposalSlotState ? `${proposalSlotState.active}/${proposalSlotState.cap}` : "..."}</span>
-          </div>
-          <dl className="slot-grid">
-            <div><dt>Active</dt><dd>{proposalSlotState ? proposalSlotState.active : "..."}</dd></div>
-            <div><dt>Available</dt><dd>{proposalSlotState ? proposalSlotState.available : "..."}</dd></div>
-            <div><dt>Stale</dt><dd>{proposalSlotState ? listOrEmpty(proposalSlotState.stale_proposal_ids).length : "..."}</dd></div>
-            <div><dt>Candidates</dt><dd>{proposalsQuery.isFetched ? candidates.length : "..."}</dd></div>
-          </dl>
-          <label className="field">
-            Active proposal cap
-            <input type="number" min={1} value={proposalCapInput} onChange={(event) => setProposalCapInput(event.target.value)} />
-          </label>
-          <div className="button-row">
-            <button onClick={() => settingsMutation.mutate()} disabled={settingsMutation.isPending || !proposalSlotState}>Save cap</button>
-            <button className="secondary" onClick={() => promoteMutation.mutate()} disabled={promoteMutation.isPending || !proposalSlotState || proposalSlotState.available === 0}>
-              Run promoter
-            </button>
-          </div>
-        </section>
-
-        <section className="operations-card">
-          <div className="section-header">
-            <div>
-              <p className="eyebrow">Runtime</p>
-              <h2>Model runtime</h2>
-            </div>
-          </div>
-          <div className="runtime-list">
-            {runtimeRoles.map((role) => (
-              <div key={role.role} className="runtime-row">
-                <div>
-                  <strong>{role.role}</strong>
-                  <p>{role.backend || "unreachable"} · {role.provider || "n/a"}</p>
-                </div>
-                <div className="runtime-meta">
-                  <span className={role.healthy ? "status-dot ok" : "status-dot"} />
-                  <small>{role.model}</small>
-                  <small>{role.reasoning_effort}</small>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="operations-card danger-zone">
-          <div className="section-header">
-            <div>
-              <p className="eyebrow">Reset</p>
-              <h2>App data</h2>
-            </div>
-          </div>
-          <p className="danger-copy">
-            Truncate all RSI and Honcho app tables while preserving schema versions so the next e2e run starts from a clean slate.
-          </p>
-          <div className="button-row">
-            <button className="danger" onClick={handleResetAppData} disabled={resetAppDataMutation.isPending}>
-              {resetAppDataMutation.isPending ? "Resetting..." : "Reset app data"}
-            </button>
-          </div>
-          {resetAppDataMutation.isSuccess ? (
-            <p className="inline-feedback success">
-              Reset finished {formatTime(resetAppDataMutation.data?.reset_at)}.
-            </p>
-          ) : null}
-          {resetAppDataError ? (
-            <p className="inline-feedback error">{resetAppDataError}</p>
-          ) : null}
-        </section>
-      </aside>
+function UnsupportedLocalHermesPage({
+  title,
+  detail,
+}: {
+  detail: string;
+  title: string;
+}) {
+  return (
+    <div className="max-w-3xl border border-border bg-muted/20 p-5">
+      <Typography
+        mondwest
+        className="mb-2 text-sm tracking-[0.12em] uppercase text-foreground"
+      >
+        {title}
+      </Typography>
+      <p className="text-sm leading-relaxed text-muted-foreground">{detail}</p>
     </div>
   );
+}
+
+const BUILTIN_NAV_REST: NavItem[] = [
+  {
+    path: "/sessions",
+    labelKey: "sessions",
+    label: "Sessions",
+    icon: MessageSquare,
+  },
+  {
+    path: "/analytics",
+    labelKey: "analytics",
+    label: "Analytics",
+    icon: BarChart3,
+  },
+  {
+    path: "/models",
+    labelKey: "models",
+    label: "Models",
+    icon: Cpu,
+  },
+  { path: "/logs", labelKey: "logs", label: "Logs", icon: FileText },
+  { path: "/cron", labelKey: "cron", label: "Cron", icon: Clock },
+  { path: "/skills", labelKey: "skills", label: "Skills", icon: Package },
+  { path: "/plugins", labelKey: "plugins", label: "Plugins", icon: Puzzle },
+  { path: "/profiles", labelKey: "profiles", label: "Profiles", icon: Users },
+  { path: "/config", labelKey: "config", label: "Config", icon: Settings },
+  { path: "/env", labelKey: "keys", label: "Keys", icon: KeyRound },
+  {
+    path: "/docs",
+    labelKey: "documentation",
+    label: "Documentation",
+    icon: BookOpen,
+  },
+];
+
+const ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
+  Activity,
+  BarChart3,
+  Clock,
+  Cpu,
+  FileText,
+  KeyRound,
+  MessageSquare,
+  Package,
+  Settings,
+  Puzzle,
+  Sparkles,
+  Terminal,
+  Globe,
+  Database,
+  Shield,
+  Users,
+  Wrench,
+  Zap,
+  Heart,
+  Star,
+  Code,
+  Eye,
+};
+
+function resolveIcon(name: string): ComponentType<{ className?: string }> {
+  return ICON_MAP[name] ?? Puzzle;
+}
+
+function buildNavItems(
+  builtIn: NavItem[],
+  manifests: PluginManifest[],
+): NavItem[] {
+  const items = [...builtIn];
+
+  for (const manifest of manifests) {
+    if (manifest.tab.override) continue;
+    if (manifest.tab.hidden) continue;
+
+    const pluginItem: NavItem = {
+      path: manifest.tab.path,
+      label: manifest.label,
+      icon: resolveIcon(manifest.icon),
+    };
+
+    const pos = manifest.tab.position ?? "end";
+    if (pos === "end") {
+      items.push(pluginItem);
+    } else if (pos.startsWith("after:")) {
+      const target = "/" + pos.slice(6);
+      const idx = items.findIndex((i) => i.path === target);
+      items.splice(idx >= 0 ? idx + 1 : items.length, 0, pluginItem);
+    } else if (pos.startsWith("before:")) {
+      const target = "/" + pos.slice(7);
+      const idx = items.findIndex((i) => i.path === target);
+      items.splice(idx >= 0 ? idx : items.length, 0, pluginItem);
+    } else {
+      items.push(pluginItem);
+    }
+  }
+
+  return items;
+}
+
+/** Split merged nav into built-in sidebar entries vs plugin tabs, preserving plugin order hints. */
+function partitionSidebarNav(
+  builtIn: NavItem[],
+  manifests: PluginManifest[],
+): { coreItems: NavItem[]; pluginItems: NavItem[] } {
+  const merged = buildNavItems(builtIn, manifests);
+  const builtinPaths = new Set(builtIn.map((i) => i.path));
+  const coreItems: NavItem[] = [];
+  const pluginItems: NavItem[] = [];
+  for (const item of merged) {
+    if (builtinPaths.has(item.path)) coreItems.push(item);
+    else pluginItems.push(item);
+  }
+  return { coreItems, pluginItems };
+}
+
+function buildRoutes(
+  builtinRoutes: Record<string, ComponentType>,
+  manifests: PluginManifest[],
+): Array<{
+  key: string;
+  path: string;
+  element: ReactNode;
+}> {
+  const byOverride = new Map<string, PluginManifest>();
+  const addons: PluginManifest[] = [];
+
+  for (const m of manifests) {
+    if (m.tab.override) {
+      byOverride.set(m.tab.override, m);
+    } else {
+      addons.push(m);
+    }
+  }
+
+  const routes: Array<{
+    key: string;
+    path: string;
+    element: ReactNode;
+  }> = [];
+
+  for (const [path, Component] of Object.entries(builtinRoutes)) {
+    const om = byOverride.get(path);
+    if (om) {
+      routes.push({
+        key: `override:${om.name}`,
+        path,
+        element: <PluginPage name={om.name} />,
+      });
+    } else {
+      routes.push({ key: `builtin:${path}`, path, element: <Component /> });
+    }
+  }
+
+  for (const m of addons) {
+    if (m.tab.hidden) continue;
+    if (m.tab.path === "/plugins") continue;
+    if (builtinRoutes[m.tab.path]) continue;
+    routes.push({
+      key: `plugin:${m.name}`,
+      path: m.tab.path,
+      element: <PluginPage name={m.name} />,
+    });
+  }
+
+  for (const m of manifests) {
+    if (!m.tab.hidden) continue;
+    if (m.tab.path === "/plugins") continue;
+    if (builtinRoutes[m.tab.path] || m.tab.override) continue;
+    routes.push({
+      key: `plugin:hidden:${m.name}`,
+      path: m.tab.path,
+      element: <PluginPage name={m.name} />,
+    });
+  }
+
+  return routes;
+}
+
+export default function App() {
+  const { t } = useI18n();
+  const { pathname } = useLocation();
+  const { manifests, loading: pluginsLoading } = usePlugins();
+  const { theme } = useTheme();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const closeMobile = useCallback(() => setMobileOpen(false), []);
+  const isDocsRoute = pathname === "/docs" || pathname === "/docs/";
+  const normalizedPath = pathname.replace(/\/$/, "") || "/";
+  const isChatRoute = normalizedPath === "/chat";
+  const embeddedChat = isDashboardEmbeddedChatEnabled();
+
+  // A plugin can replace the built-in /chat page via `tab.override: "/chat"`
+  // in its manifest.  When one does, `buildRoutes` already swaps the route
+  // element for <PluginPage /> — but we also have to suppress the
+  // persistent ChatPage host below, or the plugin's page and the built-in
+  // terminal would paint on top of each other.  The override is niche
+  // (nothing ships overriding /chat today) but it's an advertised
+  // extension point, so preserve the pre-persistence contract: when a
+  // plugin owns /chat, the built-in chat UI is entirely absent.
+  //
+  // Waiting on `pluginsLoading` is load-bearing: manifests arrive
+  // asynchronously from /api/dashboard/plugins, so on initial render
+  // `chatOverriddenByPlugin` is always false.  Without the loading
+  // gate, the persistent host would mount, spawn a PTY, and THEN get
+  // yanked out from under the user when the plugin's manifest resolves
+  // — killing the session mid-paint.  Delaying host mount by the
+  // plugin-load window (typically <50ms, worst case 2s safety timeout)
+  // is the cheaper trade-off.
+  const chatOverriddenByPlugin = useMemo(
+    () => manifests.some((m) => m.tab.override === "/chat"),
+    [manifests],
+  );
+
+  const builtinRoutes = useMemo(
+    () => ({
+      ...BUILTIN_ROUTES_CORE,
+      ...(embeddedChat ? { "/chat": ChatRouteSink } : {}),
+    }),
+    [embeddedChat],
+  );
+
+  const builtinNav = useMemo(
+    () =>
+      embeddedChat ? [CHAT_NAV_ITEM, ...BUILTIN_NAV_REST] : BUILTIN_NAV_REST,
+    [embeddedChat],
+  );
+
+  const sidebarNav = useMemo(
+    () => partitionSidebarNav(builtinNav, manifests),
+    [builtinNav, manifests],
+  );
+  const routes = useMemo(
+    () => buildRoutes(builtinRoutes, manifests),
+    [builtinRoutes, manifests],
+  );
+  const pluginTabMeta = useMemo(
+    () =>
+      manifests
+        .filter((m) => !m.tab.hidden)
+        .map((m) => ({
+          path: m.tab.override ?? m.tab.path,
+          label: m.label,
+        })),
+    [manifests],
+  );
+
+  const layoutVariant = theme.layoutVariant ?? "standard";
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [mobileOpen]);
+
+  useEffect(() => {
+    const mql = window.matchMedia("(min-width: 1024px)");
+    const onChange = (e: MediaQueryListEvent) => {
+      if (e.matches) setMobileOpen(false);
+    };
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+
+  return (
+    <div
+      data-layout-variant={layoutVariant}
+      className="font-mondwest flex h-dvh max-h-dvh min-h-0 flex-col overflow-hidden bg-black uppercase text-midground antialiased"
+    >
+      <SelectionSwitcher />
+      <Backdrop />
+      <PluginSlot name="backdrop" />
+
+      <header
+        className={cn(
+          "lg:hidden fixed top-0 left-0 right-0 z-40 h-12",
+          "flex items-center gap-2 px-3",
+          "border-b border-current/20",
+          "bg-background-base/90 backdrop-blur-sm",
+        )}
+        style={{
+          background: "var(--component-header-background)",
+          borderImage: "var(--component-header-border-image)",
+          clipPath: "var(--component-header-clip-path)",
+        }}
+      >
+        <Button
+          ghost
+          size="icon"
+          onClick={() => setMobileOpen(true)}
+          aria-label={t.app.openNavigation}
+          aria-expanded={mobileOpen}
+          aria-controls="app-sidebar"
+          className="text-midground/70 hover:text-midground"
+        >
+          <Menu />
+        </Button>
+
+        <Typography
+          className="font-bold text-[0.95rem] leading-[0.95] tracking-[0.05em] text-midground"
+          style={{ mixBlendMode: "plus-lighter" }}
+        >
+          {t.app.brand}
+        </Typography>
+      </header>
+
+      {mobileOpen && (
+        <Button
+          ghost
+          aria-label={t.app.closeNavigation}
+          onClick={closeMobile}
+          className={cn(
+            "lg:hidden fixed inset-0 z-40 p-0 block",
+            "bg-black/60 backdrop-blur-sm",
+          )}
+        />
+      )}
+
+      <PluginSlot name="header-banner" />
+
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden pt-12 lg:pt-0">
+        <div className="flex min-h-0 min-w-0 flex-1">
+          <aside
+            id="app-sidebar"
+            aria-label={t.app.navigation}
+            className={cn(
+              "fixed top-0 left-0 z-50 flex h-dvh max-h-dvh w-64 min-h-0 flex-col",
+              "border-r border-current/20",
+              "bg-background-base/95 backdrop-blur-sm",
+              "transition-transform duration-200 ease-out",
+              mobileOpen ? "translate-x-0" : "-translate-x-full",
+              "lg:sticky lg:top-0 lg:translate-x-0 lg:shrink-0",
+            )}
+            style={{
+              background: "var(--component-sidebar-background)",
+              clipPath: "var(--component-sidebar-clip-path)",
+              borderImage: "var(--component-sidebar-border-image)",
+            }}
+          >
+            <div
+              className={cn(
+                "flex h-14 shrink-0 items-center justify-between gap-2",
+                "border-b border-current/20",
+              )}
+            >
+              <div className="flex items-center gap-2">
+                <PluginSlot name="header-left" />
+
+                <Typography
+                  className="font-bold text-[1.125rem] leading-[0.95] tracking-[0.0525rem] text-midground"
+                  style={{ mixBlendMode: "plus-lighter" }}
+                >
+                  Hermes
+                  <br />
+                  Agent
+                </Typography>
+              </div>
+
+              <Button
+                ghost
+                size="icon"
+                onClick={closeMobile}
+                aria-label={t.app.closeNavigation}
+                className="lg:hidden text-midground/70 hover:text-midground"
+              >
+                <X />
+              </Button>
+            </div>
+
+            <nav
+              className="min-h-0 w-full flex-1 overflow-y-auto overflow-x-hidden border-t border-current/10 py-2"
+              aria-label={t.app.navigation}
+            >
+              <ul className="flex flex-col">
+                {sidebarNav.coreItems.map((item) => (
+                  <SidebarNavLink
+                    closeMobile={closeMobile}
+                    item={item}
+                    key={item.path}
+                    t={t}
+                  />
+                ))}
+              </ul>
+
+              {sidebarNav.pluginItems.length > 0 && (
+                <div
+                  aria-labelledby="hermes-sidebar-plugin-nav-heading"
+                  className="flex flex-col border-t border-current/10 pb-2"
+                  role="group"
+                >
+                  <span
+                    className={cn(
+                      "px-5 pt-2.5 pb-1",
+                      "font-mondwest text-[0.6rem] tracking-[0.15em] uppercase opacity-30",
+                    )}
+                    id="hermes-sidebar-plugin-nav-heading"
+                  >
+                    {t.app.pluginNavSection}
+                  </span>
+
+                  <ul className="flex flex-col">
+                    {sidebarNav.pluginItems.map((item) => (
+                      <SidebarNavLink
+                        closeMobile={closeMobile}
+                        item={item}
+                        key={item.path}
+                        t={t}
+                      />
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </nav>
+
+            <SidebarSystemActions />
+
+            <div
+              className={cn(
+                "flex shrink-0 items-center justify-between gap-2",
+                "px-3 py-2",
+                "border-t border-current/20",
+              )}
+            >
+              <div className="flex min-w-0 items-center gap-2">
+                <PluginSlot name="header-right" />
+                <ThemeSwitcher dropUp />
+                <LanguageSwitcher />
+              </div>
+            </div>
+
+            <SidebarFooter />
+          </aside>
+
+          <PageHeaderProvider pluginTabs={pluginTabMeta}>
+            <div
+              className={cn(
+                "relative z-2 flex min-w-0 min-h-0 flex-1 flex-col",
+                "px-3 sm:px-6",
+                isChatRoute
+                  ? "pb-3 pt-1 sm:pb-4 sm:pt-2 lg:pt-4"
+                  : "pt-2 sm:pt-4 lg:pt-6 pb-4 sm:pb-8",
+                isDocsRoute && "min-h-0 flex-1",
+              )}
+            >
+              <PluginSlot name="pre-main" />
+              <div
+                className={cn(
+                  "w-full min-w-0",
+                  (isDocsRoute || isChatRoute) &&
+                    "min-h-0 flex flex-1 flex-col",
+                )}
+              >
+                <Routes>
+                  {routes.map(({ key, path, element }) => (
+                    <Route key={key} path={path} element={element} />
+                  ))}
+                  <Route
+                    path="*"
+                    element={<Navigate to="/sessions" replace />}
+                  />
+                </Routes>
+
+                {embeddedChat &&
+                  !chatOverriddenByPlugin &&
+                  (pluginsLoading ? (
+                    isChatRoute ? (
+                      <div
+                        className="flex min-h-0 min-w-0 flex-1 items-center justify-center"
+                        aria-busy="true"
+                        aria-live="polite"
+                      >
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Spinner />
+                          <span>Loading chat…</span>
+                        </div>
+                      </div>
+                    ) : null
+                  ) : (
+                    <div
+                      data-chat-active={isChatRoute ? "true" : "false"}
+                      className={cn(
+                        "min-h-0 min-w-0",
+                        isChatRoute ? "flex flex-1 flex-col" : "hidden",
+                      )}
+                      aria-hidden={!isChatRoute}
+                    >
+                      <ChatPage isActive={isChatRoute} />
+                    </div>
+                  ))}
+              </div>
+              <PluginSlot name="post-main" />
+            </div>
+          </PageHeaderProvider>
+        </div>
+      </div>
+
+      <PluginSlot name="overlay" />
+    </div>
+  );
+}
+
+function SidebarNavLink({ closeMobile, item, t }: SidebarNavLinkProps) {
+  const { path, label, labelKey, icon: Icon } = item;
+
+  const navLabel = labelKey
+    ? ((t.app.nav as Record<string, string>)[labelKey] ?? label)
+    : label;
+
+  return (
+    <li>
+      <NavLink
+        to={path}
+        end={path === "/sessions"}
+        onClick={closeMobile}
+        className={({ isActive }) =>
+          cn(
+            "group relative flex items-center gap-3",
+            "px-5 py-2.5",
+            "font-mondwest text-[0.8rem] tracking-[0.12em]",
+            "whitespace-nowrap transition-colors cursor-pointer",
+            "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-midground",
+            isActive ? "text-midground" : "opacity-60 hover:opacity-100",
+          )
+        }
+        style={{
+          clipPath: "var(--component-tab-clip-path)",
+        }}
+      >
+        {({ isActive }) => (
+          <>
+            <Icon className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">{navLabel}</span>
+
+            <span
+              aria-hidden
+              className="absolute inset-y-0.5 left-1.5 right-1.5 bg-midground opacity-0 pointer-events-none transition-opacity duration-200 group-hover:opacity-5"
+            />
+
+            {isActive && (
+              <span
+                aria-hidden
+                className="absolute left-0 top-0 bottom-0 w-px bg-midground"
+                style={{ mixBlendMode: "plus-lighter" }}
+              />
+            )}
+          </>
+        )}
+      </NavLink>
+    </li>
+  );
+}
+
+function SidebarSystemActions() {
+  const { t } = useI18n();
+
+  return (
+    <div
+      className={cn(
+        "shrink-0 flex flex-col",
+        "border-t border-current/10",
+        "py-1",
+      )}
+    >
+      <span
+        className={cn(
+          "px-5 pt-0.5 pb-0.5",
+          "font-mondwest text-[0.6rem] tracking-[0.15em] uppercase opacity-30",
+        )}
+      >
+        {t.app.system}
+      </span>
+
+      <SidebarStatusStrip />
+    </div>
+  );
+}
+
+interface NavItem {
+  icon: ComponentType<{ className?: string }>;
+  label: string;
+  labelKey?: string;
+  path: string;
+}
+
+interface SidebarNavLinkProps {
+  closeMobile: () => void;
+  item: NavItem;
+  t: Translations;
 }

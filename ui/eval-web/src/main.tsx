@@ -1,25 +1,24 @@
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-import { App } from "./App";
+import { BrowserRouter } from "react-router-dom";
 import "./index.css";
+import App from "./App";
+import { SystemActionsProvider } from "./contexts/SystemActions";
+import { I18nProvider } from "./i18n";
+import { exposePluginSDK } from "./plugins";
+import { ThemeProvider } from "./themes";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      retry: 1,
-      staleTime: 15_000
-    }
-  }
-});
+// Expose the plugin SDK before rendering so plugins loaded via <script>
+// can access React, components, etc. immediately.
+exposePluginSDK();
 
-createRoot(document.getElementById("root") as HTMLElement).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <App />
-    </QueryClientProvider>
-  </StrictMode>
+createRoot(document.getElementById("root")!).render(
+  <BrowserRouter>
+    <I18nProvider>
+      <ThemeProvider>
+        <SystemActionsProvider>
+          <App />
+        </SystemActionsProvider>
+      </ThemeProvider>
+    </I18nProvider>
+  </BrowserRouter>,
 );

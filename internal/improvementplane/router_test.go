@@ -535,6 +535,124 @@ func TestTraceStreamBackfillsLedgerEventsAndFiltersScope(t *testing.T) {
 	}
 }
 
+func TestHermesCompatibilityEndpointsExposePlatformState(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	router := NewRouter(config.Config{
+		ServiceName:              "improvement-plane",
+		PublicBaseURL:            "http://example.test",
+		DefaultRepo:              "depin-backend",
+		ProposalPromoterInterval: 15 * time.Minute,
+	}, store)
+
+	cases := []struct {
+		path string
+		want string
+	}{
+		{path: "/api/status", want: "gateway_platforms"},
+		{path: "/api/skills", want: "repo.answer_question"},
+		{path: "/api/tools/toolsets", want: "rsi-tool-gateway"},
+		{path: "/api/cron/jobs", want: "proposal-promoter"},
+		{path: "/api/dashboard/themes", want: "midnight"},
+		{path: "/api/dashboard/plugins", want: "[]"},
+		{path: "/api/sessions", want: "sessions"},
+	}
+
+	for _, tc := range cases {
+		req := httptest.NewRequest(http.MethodGet, tc.path, nil)
+		rec := httptest.NewRecorder()
+		router.ServeHTTP(rec, req)
+		if rec.Code != http.StatusOK {
+			t.Fatalf("%s status = %d body=%s", tc.path, rec.Code, rec.Body.String())
+		}
+		if !strings.Contains(rec.Body.String(), tc.want) {
+			t.Fatalf("%s missing %q in %s", tc.path, tc.want, rec.Body.String())
+		}
+	}
+}
+
+func TestHermesCompatibilitySessionMessagesMapConversationsAndTraces(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
+	conversationID := store.ListConversations()[0].ID
+	traceID := store.ListTraces()[0].TraceID
+
+	for _, sessionID := range []string{conversationID, traceID} {
+		req := httptest.NewRequest(http.MethodGet, "/api/sessions/"+sessionID+"/messages", nil)
+		rec := httptest.NewRecorder()
+		router.ServeHTTP(rec, req)
+		if rec.Code != http.StatusOK {
+			t.Fatalf("messages(%s) status = %d body=%s", sessionID, rec.Code, rec.Body.String())
+		}
+		var payload struct {
+			SessionID string `json:"session_id"`
+			Messages  []struct {
+				Role    string `json:"role"`
+				Content string `json:"content"`
+			} `json:"messages"`
+		}
+		if err := json.Unmarshal(rec.Body.Bytes(), &payload); err != nil {
+			t.Fatalf("decode messages(%s): %v", sessionID, err)
+		}
+		if payload.SessionID != sessionID {
+			t.Fatalf("session_id = %q want %q", payload.SessionID, sessionID)
+		}
+		if len(payload.Messages) == 0 {
+			t.Fatalf("expected messages for %s", sessionID)
+		}
+	}
+}
+
+func TestHermesCompatibilitySessionStreamUsesHermesEventsAndResume(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	traceID := store.ListTraces()[0].TraceID
+	now := time.Now().UTC()
+	if err := store.RecordExecutionLedgerEvents([]events.ExecutionLedgerEvent{
+		{
+			ID:          "xled-hermes-1",
+			ExecutionID: "hexec-main",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-main",
+			Kind:        "tool.call",
+			Status:      "running",
+			Seq:         1,
+			Payload:     map[string]any{"tool_name": "repo.search", "summary": "searching"},
+			RecordedAt:  now,
+		},
+		{
+			ID:          "xled-hermes-2",
+			ExecutionID: "hexec-main",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-main",
+			Kind:        "tool.call",
+			Status:      "complete",
+			Seq:         2,
+			Payload:     map[string]any{"tool_name": "repo.search", "summary": "done"},
+			RecordedAt:  now.Add(time.Millisecond),
+		},
+	}); err != nil {
+		t.Fatalf("RecordExecutionLedgerEvents() error = %v", err)
+	}
+	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	req := httptest.NewRequest(http.MethodGet, "/api/sessions/"+traceID+"/stream", nil).WithContext(ctx)
+	req.Header.Set("Last-Event-ID", "xled-hermes-1")
+	rec := httptest.NewRecorder()
+
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("stream status = %d body=%s", rec.Code, rec.Body.String())
+	}
+	body := rec.Body.String()
+	if strings.Contains(body, "xled-hermes-1") {
+		t.Fatalf("expected resume to skip first event, got %q", body)
+	}
+	if !strings.Contains(body, "event: tool.complete") || !strings.Contains(body, "xled-hermes-2") {
+		t.Fatalf("expected Hermes tool.complete event, got %q", body)
+	}
+}
+
 func TestTraceStreamBackfillsAllEventsWhenResumeIDIsMissing(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	traceID := store.ListTraces()[0].TraceID

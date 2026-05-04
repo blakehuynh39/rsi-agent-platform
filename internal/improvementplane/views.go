@@ -122,6 +122,7 @@ type conversationListItem struct {
 	Title              string       `json:"title"`
 	Status             string       `json:"status"`
 	ActiveCase         *caseSummary `json:"active_case,omitempty"`
+	CreatedAt          time.Time    `json:"created_at"`
 	LatestMessageAt    time.Time    `json:"latest_message_at"`
 	LatestTraceVerdict string       `json:"latest_trace_verdict,omitempty"`
 	OpenTraceCount     int          `json:"open_trace_count"`
@@ -418,6 +419,7 @@ func buildConversationList(store storepkg.Repository) []conversationListItem {
 			Title:              firstNonEmptyString(item.Title, item.ExternalKey),
 			Status:             string(item.Status),
 			ActiveCase:         activeCase,
+			CreatedAt:          item.CreatedAt,
 			LatestMessageAt:    latestMessageAt,
 			LatestTraceVerdict: latestTraceVerdict,
 			OpenTraceCount:     openTraceCount,

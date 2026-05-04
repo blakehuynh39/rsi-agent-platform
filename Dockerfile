@@ -3,8 +3,9 @@ ARG GO_VERSION=1.26.2
 FROM node:22-bookworm AS ui-builder
 
 WORKDIR /src/ui/eval-web
-COPY ui/eval-web/package.json ui/eval-web/pnpm-lock.yaml ui/eval-web/index.html ui/eval-web/tsconfig.json ui/eval-web/vite.config.ts ./
+COPY ui/eval-web/package.json ui/eval-web/pnpm-lock.yaml ui/eval-web/index.html ui/eval-web/tsconfig.json ui/eval-web/tsconfig.app.json ui/eval-web/tsconfig.node.json ui/eval-web/vite.config.ts ./
 RUN corepack enable && pnpm install --frozen-lockfile
+COPY ui/eval-web/public ./public
 COPY ui/eval-web/src ./src
 RUN pnpm build
 
