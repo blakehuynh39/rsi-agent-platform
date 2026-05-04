@@ -2750,18 +2750,18 @@
     "wiki": [
       {
         "path": "index.md",
-        "sha256": "b0bc239b301fcf88dafe8b6ba1af713e2ade1b1b3469636c2e95f7b4e239d1ab",
-        "size": 137440
+        "sha256": "ce13715ac12b25d9ae903ad9af0f4cf297d8e43b739d24638adfed8bdd8ae89a",
+        "size": 138637
       },
       {
         "path": "log.md",
-        "sha256": "f4635972f84871deb90d4942df21430b9f27da872a8f3229fc76c18a7872fb8d",
-        "size": 197501
+        "sha256": "afb045880a795b8e839d9c665cf7dfa4bb20fa1f0cab256845a1233fa01740b0",
+        "size": 201047
       },
       {
         "path": "manifest.json",
-        "sha256": "27b644964d25e13cc869feb83e13fcbb8a5577b36feef8e483571c52e201b535",
-        "size": 172459
+        "sha256": "a718dc1fa6b21c672abc88de767658893746aba91350d76e583c99fa35f0cccc",
+        "size": 174057
       },
       {
         "path": "pages/notion_document/-automated-customer-service--b4d043af.md",
@@ -2790,8 +2790,8 @@
       },
       {
         "path": "pages/notion_document/add-back-en-/-kr-/-vn-/-ph-0fedb58a.md",
-        "sha256": "4bf72e1644ef36cb92834d1ec0c7bc4268125b8c685c689f582934ee43a7866e",
-        "size": 1656
+        "sha256": "582ddd738b8418d5b1152e06c65ae94e79c36741808d23f395f5834e34300682",
+        "size": 2272
       },
       {
         "path": "pages/notion_document/add-cookie-banner-to-app-fa3d3873.md",
@@ -2804,14 +2804,24 @@
         "size": 875
       },
       {
+        "path": "pages/notion_document/add-intercom-automated-customer-service--b4d043af.md",
+        "sha256": "b03be186aa63d6b2f6bf2bc6a7284b4cac606c60f519df00e16d53dc8cbb65fd",
+        "size": 1325
+      },
+      {
         "path": "pages/notion_document/add-license-receipt-functionality-738c1d89.md",
         "sha256": "ca02f13c57772633091152af6ed04826c1c12c0a37b4ebaac066fa3a0acedae7",
         "size": 1201
       },
       {
+        "path": "pages/notion_document/add-mother-tongue-38839ef2.md",
+        "sha256": "f02d6a456f3b7f98096bbfb89052f4631504f6fd5aada4f3a938644f0f28c96c",
+        "size": 800
+      },
+      {
         "path": "pages/notion_document/add-spam-detection-mechanism-to-throttle-/-ban-users-741ead36.md",
-        "sha256": "4b061dc927e07c7a798712faf2fb91b6801c7343436d39f1f1bf37dbdeb94828",
-        "size": 971
+        "sha256": "13c57b917a87c47e0b79020ecb19bab9d5b1c73cab5e7819a7491907ae3af684",
+        "size": 1406
       },
       {
         "path": "pages/notion_document/address-p1-dogfooding-issues-2946171b.md",
@@ -2839,6 +2849,11 @@
         "size": 935
       },
       {
+        "path": "pages/notion_document/farming-mitigation-80b8fc6a.md",
+        "sha256": "edde7446c0061a9dd869e2a78430516509a8dc54e6eec821b464a8e86eccba18",
+        "size": 805
+      },
+      {
         "path": "pages/notion_document/get-upwork-/-fiverr-users-to-vet-our-i18n-translations-2f6aae7e.md",
         "sha256": "aaaedd4d656a2e590bbd70b9085c09e03c701cd0121b5c2cf76e79d2b2e1b61b",
         "size": 981
@@ -2864,9 +2879,14 @@
         "size": 1065
       },
       {
+        "path": "pages/notion_document/integrate-intercom-or-similar--f4fb4697.md",
+        "sha256": "2e7848c84e40e942ad79381197430cfa7d5f806a430fc50359c1d818f1d44cde",
+        "size": 866
+      },
+      {
         "path": "pages/notion_document/integrate-poseidon-processing-pipeline-with-numo-2fbc3c2c.md",
-        "sha256": "66255c65181eb699b8440fd13586347a4c8412176e7953aa43aa795c12201700",
-        "size": 955
+        "sha256": "6d30479206c9fa2a380359fc8cf33f7e5a48298d8b925abc70ccbe3e5bf9c10b",
+        "size": 1384
       },
       {
         "path": "pages/notion_document/ip-auto-registration-script-27b1580d.md",
@@ -2895,8 +2915,8 @@
       },
       {
         "path": "pages/notion_document/numo-product-backlog-aa9d5203.md",
-        "sha256": "9193464b81d7ff71628d199657e5fe51bb36f89b917df9fcafd882deaaadafa7",
-        "size": 1241
+        "sha256": "0cccef094e1b4f6c941d166a44a88cc7adfc3b54387e361341a15a05b3787b5b",
+        "size": 1642
       },
       {
         "path": "pages/notion_document/post-submission-payout-clarity-/-dopamine-hit-dbfab6ff.md",
@@ -4787,8 +4807,8 @@
   },
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
-  "exported_at": "2026-05-04T16:31:58Z",
-  "file_count": 956,
+  "exported_at": "2026-05-04T17:03:11Z",
+  "file_count": 960,
   "files": [
     {
       "path": "apple/DESCRIPTION.md",
@@ -7540,29 +7560,29 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7c4bb8lzwdz",
-  "previous_tree_hash": "7abf308cc85e171b0a17ef06e185782c8d45b7d553b1663df72b56a10d2c09c5",
+  "previous_tree_hash": "638a3bce8a559a7abb601fb0eb1ffe56c713f9bc8451641a297b2f6b7ef57be0",
   "schema_version": 1,
   "skill_file_count": 549,
   "skill_manage_sessions": [],
   "skill_tree_hash": "51dd5fa14f02f546813009b323ca960c29e87c4759f49ab6c92e3ca2c7ca357b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "638a3bce8a559a7abb601fb0eb1ffe56c713f9bc8451641a297b2f6b7ef57be0",
-  "wiki_file_count": 407,
+  "tree_hash": "42aea6dcd1e5f6fe6841fea50063fd65c9cd547677aa2b73957d3bc916010f9c",
+  "wiki_file_count": 411,
   "wiki_files": [
     {
       "path": "index.md",
-      "sha256": "b0bc239b301fcf88dafe8b6ba1af713e2ade1b1b3469636c2e95f7b4e239d1ab",
-      "size": 137440
+      "sha256": "ce13715ac12b25d9ae903ad9af0f4cf297d8e43b739d24638adfed8bdd8ae89a",
+      "size": 138637
     },
     {
       "path": "log.md",
-      "sha256": "f4635972f84871deb90d4942df21430b9f27da872a8f3229fc76c18a7872fb8d",
-      "size": 197501
+      "sha256": "afb045880a795b8e839d9c665cf7dfa4bb20fa1f0cab256845a1233fa01740b0",
+      "size": 201047
     },
     {
       "path": "manifest.json",
-      "sha256": "27b644964d25e13cc869feb83e13fcbb8a5577b36feef8e483571c52e201b535",
-      "size": 172459
+      "sha256": "a718dc1fa6b21c672abc88de767658893746aba91350d76e583c99fa35f0cccc",
+      "size": 174057
     },
     {
       "path": "pages/notion_document/-automated-customer-service--b4d043af.md",
@@ -7591,8 +7611,8 @@
     },
     {
       "path": "pages/notion_document/add-back-en-/-kr-/-vn-/-ph-0fedb58a.md",
-      "sha256": "4bf72e1644ef36cb92834d1ec0c7bc4268125b8c685c689f582934ee43a7866e",
-      "size": 1656
+      "sha256": "582ddd738b8418d5b1152e06c65ae94e79c36741808d23f395f5834e34300682",
+      "size": 2272
     },
     {
       "path": "pages/notion_document/add-cookie-banner-to-app-fa3d3873.md",
@@ -7605,14 +7625,24 @@
       "size": 875
     },
     {
+      "path": "pages/notion_document/add-intercom-automated-customer-service--b4d043af.md",
+      "sha256": "b03be186aa63d6b2f6bf2bc6a7284b4cac606c60f519df00e16d53dc8cbb65fd",
+      "size": 1325
+    },
+    {
       "path": "pages/notion_document/add-license-receipt-functionality-738c1d89.md",
       "sha256": "ca02f13c57772633091152af6ed04826c1c12c0a37b4ebaac066fa3a0acedae7",
       "size": 1201
     },
     {
+      "path": "pages/notion_document/add-mother-tongue-38839ef2.md",
+      "sha256": "f02d6a456f3b7f98096bbfb89052f4631504f6fd5aada4f3a938644f0f28c96c",
+      "size": 800
+    },
+    {
       "path": "pages/notion_document/add-spam-detection-mechanism-to-throttle-/-ban-users-741ead36.md",
-      "sha256": "4b061dc927e07c7a798712faf2fb91b6801c7343436d39f1f1bf37dbdeb94828",
-      "size": 971
+      "sha256": "13c57b917a87c47e0b79020ecb19bab9d5b1c73cab5e7819a7491907ae3af684",
+      "size": 1406
     },
     {
       "path": "pages/notion_document/address-p1-dogfooding-issues-2946171b.md",
@@ -7640,6 +7670,11 @@
       "size": 935
     },
     {
+      "path": "pages/notion_document/farming-mitigation-80b8fc6a.md",
+      "sha256": "edde7446c0061a9dd869e2a78430516509a8dc54e6eec821b464a8e86eccba18",
+      "size": 805
+    },
+    {
       "path": "pages/notion_document/get-upwork-/-fiverr-users-to-vet-our-i18n-translations-2f6aae7e.md",
       "sha256": "aaaedd4d656a2e590bbd70b9085c09e03c701cd0121b5c2cf76e79d2b2e1b61b",
       "size": 981
@@ -7665,9 +7700,14 @@
       "size": 1065
     },
     {
+      "path": "pages/notion_document/integrate-intercom-or-similar--f4fb4697.md",
+      "sha256": "2e7848c84e40e942ad79381197430cfa7d5f806a430fc50359c1d818f1d44cde",
+      "size": 866
+    },
+    {
       "path": "pages/notion_document/integrate-poseidon-processing-pipeline-with-numo-2fbc3c2c.md",
-      "sha256": "66255c65181eb699b8440fd13586347a4c8412176e7953aa43aa795c12201700",
-      "size": 955
+      "sha256": "6d30479206c9fa2a380359fc8cf33f7e5a48298d8b925abc70ccbe3e5bf9c10b",
+      "size": 1384
     },
     {
       "path": "pages/notion_document/ip-auto-registration-script-27b1580d.md",
@@ -7696,8 +7736,8 @@
     },
     {
       "path": "pages/notion_document/numo-product-backlog-aa9d5203.md",
-      "sha256": "9193464b81d7ff71628d199657e5fe51bb36f89b917df9fcafd882deaaadafa7",
-      "size": 1241
+      "sha256": "0cccef094e1b4f6c941d166a44a88cc7adfc3b54387e361341a15a05b3787b5b",
+      "size": 1642
     },
     {
       "path": "pages/notion_document/post-submission-payout-clarity-/-dopamine-hit-dbfab6ff.md",
@@ -9586,5 +9626,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7976ce913f36ad70a507c22992b9e0f89f3ec579de99e11a0a7e9471b7c2f108"
+  "wiki_tree_hash": "ea8cf06402ec7857b5e31df8acd17ecc4e85b47631b335005de9f6ca2d58bff6"
 }

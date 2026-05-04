@@ -3773,3 +3773,75 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_c49895f3691b1893d539a6257075211c
 - summary: Source: https://www.notion.so/Improved-mobile-app-tracking-platform-e-g-Amplitude-or-Posthog-356051299a5480e6ba91f97358dd7c5c
 
+## [2026-05-04T17:00:27Z] ingest | Numo Product Backlog
+
+- status: published
+- slug: notion_document/numo-product-backlog-aa9d5203
+- wiki_revision_id: wikirev_6bdded374b06990a191d1f993d33c234
+- source_document_id: srcdoc_aaf7c292a4521a755ec260ecaa9d5203
+- source_revision_id: srcrev_5f853a1f5c325a80ccfd5ef4c4795517
+- summary: Source: https://www.notion.so/34f051299a5480649b98c7337f8c8084
+
+## [2026-05-04T17:00:36Z] ingest | Add back En / Kr / Vn / Ph
+
+- status: published
+- slug: notion_document/add-back-en-/-kr-/-vn-/-ph-0fedb58a
+- wiki_revision_id: wikirev_50ea6fe4882a0e2c510ddb2719f709d9
+- source_document_id: srcdoc_3ae8b358c77e22ca9a45c7f00fedb58a
+- source_revision_id: srcrev_5c171707e5cab5e2ae6c38e4cf75c801
+- summary: Source: https://www.notion.so/Add-back-En-Kr-Vn-Ph-352051299a5480b89c80df17352bb4e9
+
+## [2026-05-04T17:00:41Z] ingest | Add spam detection mechanism to throttle / ban users
+
+- status: published
+- slug: notion_document/add-spam-detection-mechanism-to-throttle-/-ban-users-741ead36
+- wiki_revision_id: wikirev_e4875651310e2631bac1b8318fe87f72
+- source_document_id: srcdoc_741079a2f2432a72a448fff9741ead36
+- source_revision_id: srcrev_055c717e505ccf4f57a6c62d34635e82
+- summary: Source: https://www.notion.so/Add-spam-detection-mechanism-to-throttle-ban-users-352051299a54806c9f9dc08c63ec835c
+
+## [2026-05-04T17:00:43Z] ingest | Integrate Poseidon Processing Pipeline with Numo
+
+- status: published
+- slug: notion_document/integrate-poseidon-processing-pipeline-with-numo-2fbc3c2c
+- wiki_revision_id: wikirev_195c6478113df05bd51abdb123acda6c
+- source_document_id: srcdoc_8496ddf8b2b19abb20d600d52fbc3c2c
+- source_revision_id: srcrev_30a29c766531a1cf3ed024fef0f1c5f9
+- summary: Source: https://www.notion.so/Integrate-Poseidon-Processing-Pipeline-with-Numo-354051299a548019bbf9fff79dd95132
+
+## [2026-05-04T17:00:57Z] ingest | Add Intercom : “Automated Customer Service”
+
+- status: published
+- slug: notion_document/add-intercom-automated-customer-service--b4d043af
+- wiki_revision_id: wikirev_16598821f3116c141216fb745726a2da
+- source_document_id: srcdoc_ba67bbf3e9bb2caab1ee2703b4d043af
+- source_revision_id: srcrev_3036a658cc9e64b7989272470c15d8c5
+- summary: Source: https://www.notion.so/Add-Intercom-Automated-Customer-Service-350051299a54807688f4eabee3d2db52
+
+## [2026-05-04T17:01:11Z] ingest | Farming mitigation
+
+- status: published
+- slug: notion_document/farming-mitigation-80b8fc6a
+- wiki_revision_id: wikirev_19e7da30c4bfb9a3c7957ea1950139e2
+- source_document_id: srcdoc_12ec063ac17b71d0a831619b80b8fc6a
+- source_revision_id: srcrev_e324b57d2074837b4d925575e53858c5
+- summary: Source: https://www.notion.so/Farming-mitigation-356051299a5480499ef7fd0083c6bf19
+
+## [2026-05-04T17:01:13Z] ingest | add mother tongue
+
+- status: published
+- slug: notion_document/add-mother-tongue-38839ef2
+- wiki_revision_id: wikirev_65d9f2460514fe612f45b2a477a93e6b
+- source_document_id: srcdoc_e3699a1512b9dc8b039d5ac138839ef2
+- source_revision_id: srcrev_61fa624f044aa9e4a9b858ece2d7fde5
+- summary: Source: https://www.notion.so/add-mother-tongue-356051299a5480be9770ea95bc23a385
+
+## [2026-05-04T17:01:15Z] ingest | Integrate Intercom (or similar)
+
+- status: published
+- slug: notion_document/integrate-intercom-or-similar--f4fb4697
+- wiki_revision_id: wikirev_87ece0a0cc9273be249a450dcba7775e
+- source_document_id: srcdoc_3ea8d6b5111346474d162bc2f4fb4697
+- source_revision_id: srcrev_c0ec2742ef8d2574335555d8a5809a81
+- summary: Source: https://www.notion.so/Integrate-Intercom-or-similar-356051299a54802eab2ccf8eedac3236
+
