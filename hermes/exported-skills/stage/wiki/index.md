@@ -4,7 +4,7 @@ This content-oriented catalog is regenerated on every company wiki publish. Read
 
 ## decision
 
-- [Slack thread C0AKH5SNGKH channel](pages/slack_message/slack-thread-c0akh5sngkh-channel-53ca9dcc.md) — Discussion and decisions in the C0AKH5SNGKH Slack channel, including adding Sam to admin allowlist via PR #297 and referencing PR #140. `updated=2026-05-04T19:48:15Z; source revisions=2; wiki_revision_id=wikirev_a89642f28734746aa5e36c623bd0dd5d`
+- [Slack thread C0AKH5SNGKH channel](pages/slack_message/slack-thread-c0akh5sngkh-channel-53ca9dcc.md) — Discussion and decisions in the C0AKH5SNGKH Slack channel, including adding Sam to admin allowlist via PR #297, referencing PR #140, and a question about merging. `updated=2026-05-04T20:21:09Z; source revisions=3; wiki_revision_id=wikirev_7fc112bc29351cb4f0e679c8f349d866`
 ## runbook
 
 - [Slack thread C0AKH5SNGKH 1777350147.298499](pages/slack_message/slack-thread-c0akh5sngkh-1777350147-298499-e3252ea4.md) — Discussion about running dogfooding on prod and the removal of private keys. `updated=2026-05-04T19:35:55Z; source revisions=1; wiki_revision_id=wikirev_cef7ee16267df82de47dc4b2a62a5c9d`
