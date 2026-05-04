@@ -26,18 +26,18 @@ jobs:
     steps:
       - name: Verify merge token is configured
         env:
-          MERGE_TOKEN: ${{ secrets.STORY_DEPLOYMENTS_PUSH_TOKEN }}
+          MERGE_TOKEN: ${{ secrets.RSI_PLATFORM_EXPORT_MERGE_TOKEN }}
         run: |
           set -euo pipefail
 
           if [ -z "$MERGE_TOKEN" ]; then
-            echo "::error::Missing repository secret STORY_DEPLOYMENTS_PUSH_TOKEN"
+            echo "::error::Missing repository secret RSI_PLATFORM_EXPORT_MERGE_TOKEN"
             exit 1
           fi
 
       - name: Verify exporter-only pull request
         env:
-          GH_TOKEN: ${{ secrets.STORY_DEPLOYMENTS_PUSH_TOKEN }}
+          GH_TOKEN: ${{ secrets.RSI_PLATFORM_EXPORT_MERGE_TOKEN }}
           REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
@@ -101,7 +101,7 @@ jobs:
 
       - name: Admin merge exporter sync
         env:
-          GH_TOKEN: ${{ secrets.STORY_DEPLOYMENTS_PUSH_TOKEN }}
+          GH_TOKEN: ${{ secrets.RSI_PLATFORM_EXPORT_MERGE_TOKEN }}
           REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
