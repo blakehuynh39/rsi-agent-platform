@@ -119,7 +119,7 @@ func EnqueueWikiCompileItemForSource(ctx context.Context, cfg config.Config, rep
 		return store.CompanyWikiCompileItem{}, false, nil
 	}
 	chunks := source.Chunks
-	if len(chunks) == 0 {
+	if len(chunks) == 0 || strings.TrimSpace(source.Document.SourceType) == SlackMessageSourceType {
 		var err error
 		evidence, found, err := wikiStore.GetCompanyWikiSourceEvidence(source.Revision.ID)
 		if err != nil {
@@ -128,6 +128,7 @@ func EnqueueWikiCompileItemForSource(ctx context.Context, cfg config.Config, rep
 		if !found {
 			return store.CompanyWikiCompileItem{}, false, nil
 		}
+		source.Revision = evidence.Revision
 		chunks = evidence.Chunks
 	}
 	return wikiStore.EnqueueCompanyWikiCompileItem(store.CompanyWikiCompileItemInput{

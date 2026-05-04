@@ -165,6 +165,61 @@ func TestCompanyWikiCompileItemVersioningTargetsAndCandidateFilters(t *testing.T
 	}
 }
 
+func TestCompanyWikiCompileItemsPrioritizeNotionBeforeSlack(t *testing.T) {
+	state := NewMemoryStore()
+	slackSource, err := state.UpsertCompanyWikiSourceRevision(CompanyWikiSourceRevisionInput{
+		SourceType:        "slack_message",
+		DocumentSourceKey: "slack:T:C:channel",
+		SourceSessionKey:  "slack:T:C:channel",
+		SourceRevision:    "slack-rev-1",
+		Title:             "Slack backlog",
+		Content:           "Older Slack project chatter.",
+		Metadata:          map[string]any{"mirror_allowed": true, "channel_private": false},
+	})
+	if err != nil {
+		t.Fatalf("insert slack source: %v", err)
+	}
+	notionSource, err := state.UpsertCompanyWikiSourceRevision(CompanyWikiSourceRevisionInput{
+		SourceType:        "notion_document",
+		DocumentSourceKey: "notion:project:abc",
+		SourceSessionKey:  "notion:project:abc",
+		SourceRevision:    "notion-rev-1",
+		Title:             "Project Bootstrap SoT",
+		Content:           "Notion has the project source of truth.",
+		Metadata:          map[string]any{"notion_allowlisted": true},
+	})
+	if err != nil {
+		t.Fatalf("insert notion source: %v", err)
+	}
+	for _, source := range []CompanyWikiSourceRevisionResult{slackSource, notionSource} {
+		if _, _, err := state.EnqueueCompanyWikiCompileItem(CompanyWikiCompileItemInput{
+			SourceRevisionID:   source.Revision.ID,
+			CompilerVersion:    "compiler.v1",
+			SchemaVersion:      "schema.v1",
+			RendererVersion:    "renderer.v1",
+			ModelPolicyVersion: "policy.v1",
+			InputHash:          CompanyWikiSHA256(source.Revision.ID),
+		}); err != nil {
+			t.Fatalf("enqueue source %s: %v", source.Revision.ID, err)
+		}
+	}
+	claimed, err := state.ClaimCompanyWikiCompileItems(CompanyWikiCompileClaimInput{
+		Limit:              1,
+		LeaseHolder:        "test",
+		CompilerVersion:    "compiler.v1",
+		SchemaVersion:      "schema.v1",
+		RendererVersion:    "renderer.v1",
+		ModelPolicyVersion: "policy.v1",
+		MaxAttempts:        5,
+	})
+	if err != nil {
+		t.Fatalf("ClaimCompanyWikiCompileItems() error = %v", err)
+	}
+	if len(claimed) != 1 || claimed[0].SourceRevisionID != notionSource.Revision.ID {
+		t.Fatalf("expected Notion compile item first, got %+v want revision %s", claimed, notionSource.Revision.ID)
+	}
+}
+
 func TestValidateCompanyWikiCitationInputsRequiresStableIDs(t *testing.T) {
 	err := ValidateCompanyWikiCitationInputs([]CompanyWikiCitationInput{{
 		ClaimKey:         "missing-chunk",

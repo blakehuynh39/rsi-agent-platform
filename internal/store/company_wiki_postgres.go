@@ -211,9 +211,17 @@ func (p *PostgresStore) GetCompanyWikiSourceEvidence(sourceRevisionID string) (C
 	if err != nil || !found {
 		return CompanyWikiSourceEvidence{}, found, err
 	}
-	chunks, err := p.companyWikiChunksForRevision(revision.ID)
-	if err != nil {
-		return CompanyWikiSourceEvidence{}, false, err
+	var chunks []CompanyWikiSourceChunk
+	if document.SourceType == "slack_message" {
+		chunks, err = p.ListCompanyWikiSourceChunks(document.ID)
+		if err != nil {
+			return CompanyWikiSourceEvidence{}, false, err
+		}
+	} else {
+		chunks, err = p.companyWikiChunksForRevision(revision.ID)
+		if err != nil {
+			return CompanyWikiSourceEvidence{}, false, err
+		}
 	}
 	return CompanyWikiSourceEvidence{Document: document, Revision: revision, Chunks: chunks}, true, nil
 }
@@ -229,6 +237,7 @@ func (p *PostgresStore) ListCompanyWikiSourceRevisionIDsWithoutCompileItem(compi
 	rows, err := p.db.Query(`
 select r.id
 from company_source_revision r
+join company_source_document d on d.id = r.document_id
 where not exists (
   select 1
   from company_wiki_compile_item item
@@ -238,7 +247,14 @@ where not exists (
     and item.renderer_version = $3
     and item.model_policy_version = $4
 )
-order by r.created_at asc, r.id asc
+order by
+  case d.source_type
+    when 'notion_document' then 0
+    when 'slack_message' then 1
+    else 2
+  end,
+  r.created_at asc,
+  r.id asc
 limit $5`, compilerVersion, schemaVersion, rendererVersion, modelPolicyVersion, limit)
 	if err != nil {
 		return nil, err
@@ -284,18 +300,27 @@ func (p *PostgresStore) ClaimCompanyWikiCompileItems(input CompanyWikiCompileCla
 	input = normalizeCompanyWikiCompileClaimInput(input)
 	rows, err := p.db.Query(`
 with picked as (
-  select id
-  from company_wiki_compile_item
-  where compiler_version = $1
-    and schema_version = $2
-    and renderer_version = $3
-    and model_policy_version = $4
-    and status in ('pending', 'failed')
-    and (status != 'failed' or attempt_count < $8)
-    and (lease_expires_at is null or lease_expires_at < now() or lease_holder = $5)
-  order by updated_at asc, id asc
+  select item.id
+  from company_wiki_compile_item item
+  join company_source_revision revision on revision.id = item.source_revision_id
+  join company_source_document document on document.id = revision.document_id
+  where item.compiler_version = $1
+    and item.schema_version = $2
+    and item.renderer_version = $3
+    and item.model_policy_version = $4
+    and item.status in ('pending', 'failed')
+    and (item.status != 'failed' or item.attempt_count < $8)
+    and (item.lease_expires_at is null or item.lease_expires_at < now() or item.lease_holder = $5)
+  order by
+    case document.source_type
+      when 'notion_document' then 0
+      when 'slack_message' then 1
+      else 2
+    end,
+    item.updated_at asc,
+    item.id asc
   limit $6
-  for update skip locked
+  for update of item skip locked
 )
 update company_wiki_compile_item item
 set status = 'claimed',
@@ -940,6 +965,10 @@ func companyWikiChunksFromInput(documentID string, revisionID string, input Comp
 		if len(parts) > 1 {
 			locator = fmt.Sprintf("%s#chunk-%d", locator, idx+1)
 		}
+		metadata := cloneAnyMap(input.Metadata)
+		if !input.ObservedAt.IsZero() {
+			metadata["source_observed_at"] = input.ObservedAt.UTC().Format(time.RFC3339)
+		}
 		chunks = append(chunks, CompanyWikiSourceChunk{
 			ID:            CompanyWikiStableID("srcchunk", revisionID, fmt.Sprintf("%d", idx)),
 			DocumentID:    documentID,
@@ -950,7 +979,7 @@ func companyWikiChunksFromInput(documentID string, revisionID string, input Comp
 			ContentSHA256: chunkSHA,
 			NativeLocator: locator,
 			TokenEstimate: estimateCompanyWikiTokens(content),
-			Metadata:      cloneAnyMap(input.Metadata),
+			Metadata:      metadata,
 			CreatedAt:     time.Now().UTC(),
 		})
 	}

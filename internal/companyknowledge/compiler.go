@@ -47,13 +47,15 @@ type WikiSynthesisOutput struct {
 }
 
 type WikiSynthesisPage struct {
-	Slug          string                  `json:"slug"`
-	Title         string                  `json:"title"`
-	Type          string                  `json:"type"`
-	Tags          []string                `json:"tags"`
-	Summary       string                  `json:"summary"`
-	Owners        []string                `json:"owners"`
-	Freshness     string                  `json:"freshness"`
+	Slug    string   `json:"slug"`
+	Title   string   `json:"title"`
+	Type    string   `json:"type"`
+	Tags    []string `json:"tags"`
+	Summary string   `json:"summary"`
+	Owners  []string `json:"owners"`
+	// Model outputs sometimes return structured freshness even though the
+	// renderer derives canonical freshness from cited source timestamps.
+	Freshness     any                     `json:"freshness"`
 	Claims        []WikiSynthesisClaim    `json:"claims"`
 	Conflicts     []WikiSynthesisConflict `json:"conflicts,omitempty"`
 	OpenQuestions []string                `json:"open_questions,omitempty"`
@@ -251,7 +253,7 @@ func compileOneWikiItem(ctx context.Context, cfg config.Config, wikiStore store.
 		_, _ = wikiStore.CompleteCompanyWikiCompileAttempt(attempt.ID, store.CompanyWikiCompileStatusFailed, "", duration, nil, err.Error(), nil)
 		return 0, err
 	}
-	output = preserveCandidateClaimsInSynthesisOutput(output, candidates)
+	output = preserveCandidateClaimsInSynthesisOutput(output, evidence, candidates)
 	outputHash := store.CompanyWikiSHA256(mustMarshalString(output))
 	pages, validationErrors := validateSynthesisOutput(evidence, candidates, output)
 	if len(validationErrors) > 0 {

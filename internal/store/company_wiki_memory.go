@@ -115,7 +115,17 @@ func (m *MemoryStore) GetCompanyWikiSourceEvidence(sourceRevisionID string) (Com
 	if !ok {
 		return CompanyWikiSourceEvidence{}, false, nil
 	}
-	chunks := cloneCompanyWikiChunks(m.companyWikiSourceChunksByRevision[sourceRevisionID])
+	var chunks []CompanyWikiSourceChunk
+	if document.SourceType == "slack_message" {
+		for _, chunk := range m.companyWikiSourceChunks {
+			if chunk.DocumentID == document.ID {
+				chunk.Metadata = cloneAnyMap(chunk.Metadata)
+				chunks = append(chunks, chunk)
+			}
+		}
+	} else {
+		chunks = cloneCompanyWikiChunks(m.companyWikiSourceChunksByRevision[sourceRevisionID])
+	}
 	sortCompanyWikiChunks(chunks)
 	return CompanyWikiSourceEvidence{
 		Document: cloneCompanyWikiSourceDocument(document),
@@ -142,7 +152,19 @@ func (m *MemoryStore) ListCompanyWikiSourceRevisionIDsWithoutCompileItem(compile
 		}
 		ids = append(ids, id)
 	}
-	sort.Strings(ids)
+	sort.SliceStable(ids, func(i, j int) bool {
+		left := m.companyWikiSourceRevisions[ids[i]]
+		right := m.companyWikiSourceRevisions[ids[j]]
+		leftDoc := m.companyWikiSourceDocuments[left.DocumentID]
+		rightDoc := m.companyWikiSourceDocuments[right.DocumentID]
+		if leftPriority, rightPriority := companyWikiSourcePriority(leftDoc.SourceType), companyWikiSourcePriority(rightDoc.SourceType); leftPriority != rightPriority {
+			return leftPriority < rightPriority
+		}
+		if !left.CreatedAt.Equal(right.CreatedAt) {
+			return left.CreatedAt.Before(right.CreatedAt)
+		}
+		return ids[i] < ids[j]
+	})
 	if len(ids) > limit {
 		ids = ids[:limit]
 	}
@@ -186,13 +208,27 @@ func (m *MemoryStore) ClaimCompanyWikiCompileItems(input CompanyWikiCompileClaim
 	defer m.mu.Unlock()
 	m.ensureCompanyWikiMemoryLocked()
 	items := make([]CompanyWikiCompileItem, 0, input.Limit)
-	keys := make([]string, 0, len(m.companyWikiCompileItems))
-	for id := range m.companyWikiCompileItems {
-		keys = append(keys, id)
+	candidates := make([]CompanyWikiCompileItem, 0, len(m.companyWikiCompileItems))
+	for _, item := range m.companyWikiCompileItems {
+		candidates = append(candidates, item)
 	}
-	sort.Strings(keys)
-	for _, id := range keys {
-		item := m.companyWikiCompileItems[id]
+	sort.SliceStable(candidates, func(i, j int) bool {
+		left := candidates[i]
+		right := candidates[j]
+		leftRevision := m.companyWikiSourceRevisions[left.SourceRevisionID]
+		rightRevision := m.companyWikiSourceRevisions[right.SourceRevisionID]
+		leftDoc := m.companyWikiSourceDocuments[leftRevision.DocumentID]
+		rightDoc := m.companyWikiSourceDocuments[rightRevision.DocumentID]
+		if leftPriority, rightPriority := companyWikiSourcePriority(leftDoc.SourceType), companyWikiSourcePriority(rightDoc.SourceType); leftPriority != rightPriority {
+			return leftPriority < rightPriority
+		}
+		if !left.UpdatedAt.Equal(right.UpdatedAt) {
+			return left.UpdatedAt.Before(right.UpdatedAt)
+		}
+		return left.ID < right.ID
+	})
+	for _, candidate := range candidates {
+		item := m.companyWikiCompileItems[candidate.ID]
 		if item.CompilerVersion != input.CompilerVersion || item.SchemaVersion != input.SchemaVersion || item.RendererVersion != input.RendererVersion || item.ModelPolicyVersion != input.ModelPolicyVersion {
 			continue
 		}
@@ -210,13 +246,24 @@ func (m *MemoryStore) ClaimCompanyWikiCompileItems(input CompanyWikiCompileClaim
 		item.LeaseExpiresAt = now.Add(input.LeaseDuration)
 		item.AttemptCount++
 		item.UpdatedAt = now
-		m.companyWikiCompileItems[id] = item
+		m.companyWikiCompileItems[item.ID] = item
 		items = append(items, cloneCompanyWikiCompileItem(item))
 		if len(items) >= input.Limit {
 			break
 		}
 	}
 	return items, nil
+}
+
+func companyWikiSourcePriority(sourceType string) int {
+	switch strings.TrimSpace(sourceType) {
+	case "notion_document":
+		return 0
+	case "slack_message":
+		return 1
+	default:
+		return 2
+	}
 }
 
 func (m *MemoryStore) BeginCompanyWikiCompileAttempt(input CompanyWikiCompileAttemptInput) (CompanyWikiCompileAttempt, error) {

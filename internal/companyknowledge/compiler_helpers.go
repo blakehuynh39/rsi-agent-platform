@@ -29,6 +29,8 @@ This file is generated deterministically by Platform. LLM compiler calls may pro
 Every factual bullet is rendered from a validated claim object. Every claim must cite existing source chunks from Platform Postgres. Conflict sections preserve cited disagreement rather than overwriting it.
 `
 
+const companyWikiCloseSourceTimestampWindow = 24 * time.Hour
+
 func WriteSchemaFile(root string) error {
 	root = strings.TrimSpace(root)
 	if root == "" {
@@ -139,7 +141,7 @@ func mustMarshalString(value any) string {
 	return string(raw)
 }
 
-func preserveCandidateClaimsInSynthesisOutput(output WikiSynthesisOutput, candidates []store.CompanyWikiPageRead) WikiSynthesisOutput {
+func preserveCandidateClaimsInSynthesisOutput(output WikiSynthesisOutput, evidence store.CompanyWikiSourceEvidence, candidates []store.CompanyWikiPageRead) WikiSynthesisOutput {
 	candidatesBySlug := map[string]store.CompanyWikiPageRead{}
 	for _, candidate := range candidates {
 		slug := store.NormalizeCompanyWikiSlug(candidate.Page.Slug)
@@ -147,16 +149,17 @@ func preserveCandidateClaimsInSynthesisOutput(output WikiSynthesisOutput, candid
 			candidatesBySlug[slug] = candidate
 		}
 	}
+	revisionTimestamps := buildRevisionTimestampMap(evidence, candidates)
 	for pageIndex := range output.Pages {
 		page := output.Pages[pageIndex]
 		candidate, ok := candidatesBySlug[synthesisSlug(page)]
 		if !ok {
 			continue
 		}
-		seenClaims := map[string]struct{}{}
-		for _, claim := range page.Claims {
+		claimIndexes := map[string]int{}
+		for claimIndex, claim := range page.Claims {
 			if key := strings.TrimSpace(claim.ClaimKey); key != "" {
-				seenClaims[key] = struct{}{}
+				claimIndexes[key] = claimIndex
 			}
 		}
 		for _, claim := range candidate.Claims {
@@ -164,11 +167,20 @@ func preserveCandidateClaimsInSynthesisOutput(output WikiSynthesisOutput, candid
 			if claimKey == "" {
 				continue
 			}
-			if _, ok := seenClaims[claimKey]; ok {
-				continue
-			}
 			citations := candidateCitationInputsForClaim(candidate, claimKey)
 			if len(citations) == 0 {
+				continue
+			}
+			if existingIndex, ok := claimIndexes[claimKey]; ok {
+				existingClaim := output.Pages[pageIndex].Claims[existingIndex]
+				if candidateClaimMateriallyFresher(existingClaim.Citations, citations, revisionTimestamps) {
+					output.Pages[pageIndex].Claims[existingIndex] = WikiSynthesisClaim{
+						ClaimKey:   claimKey,
+						Text:       claim.ClaimText,
+						Confidence: claim.Confidence,
+						Citations:  citations,
+					}
+				}
 				continue
 			}
 			output.Pages[pageIndex].Claims = append(output.Pages[pageIndex].Claims, WikiSynthesisClaim{
@@ -177,7 +189,7 @@ func preserveCandidateClaimsInSynthesisOutput(output WikiSynthesisOutput, candid
 				Confidence: claim.Confidence,
 				Citations:  citations,
 			})
-			seenClaims[claimKey] = struct{}{}
+			claimIndexes[claimKey] = len(output.Pages[pageIndex].Claims) - 1
 		}
 	}
 	return output
@@ -350,8 +362,8 @@ func RenderSynthesisPageMarkdown(evidence store.CompanyWikiSourceEvidence, page 
 func renderSynthesisPageMarkdownWithCandidates(evidence store.CompanyWikiSourceEvidence, candidates []store.CompanyWikiPageRead, page WikiSynthesisPage) (string, []store.CompanyWikiCitationInput, []store.CompanyWikiClaimInput, []store.CompanyWikiConflictInput) {
 	slug := synthesisSlug(page)
 	pageType := normalizeSynthesisPageType(page.Type)
-	freshness := synthesisFreshness(evidence, page)
 	revisionTimestamps := buildRevisionTimestampMap(evidence, candidates)
+	freshness := synthesisFreshness(revisionTimestamps, page)
 
 	citations := []store.CompanyWikiCitationInput{}
 	claims := []store.CompanyWikiClaimInput{}
@@ -566,18 +578,66 @@ func isSynthesisPageRoot(value string) bool {
 	}
 }
 
-func synthesisFreshness(evidence store.CompanyWikiSourceEvidence, page WikiSynthesisPage) string {
+func synthesisFreshness(revisionTimestamps map[string]string, page WikiSynthesisPage) string {
+	var newest time.Time
 	for _, citation := range citationsForSynthesisPage(page) {
-		if strings.TrimSpace(citation.SourceRevisionID) == strings.TrimSpace(evidence.Revision.ID) {
-			if !evidence.Revision.ObservedAt.IsZero() {
-				return evidence.Revision.ObservedAt.Format(time.RFC3339)
-			}
-			if !evidence.Revision.CreatedAt.IsZero() {
-				return evidence.Revision.CreatedAt.Format(time.RFC3339)
-			}
+		ts, ok := sourceTimestampForRevision(revisionTimestamps, citation.SourceRevisionID)
+		if !ok {
+			continue
+		}
+		if newest.IsZero() || ts.After(newest) {
+			newest = ts
 		}
 	}
+	if !newest.IsZero() {
+		return newest.Format(time.RFC3339)
+	}
 	return "unknown"
+}
+
+func candidateClaimMateriallyFresher(existingCitations []store.CompanyWikiCitationInput, candidateCitations []store.CompanyWikiCitationInput, revisionTimestamps map[string]string) bool {
+	existingNewest, existingOK := newestCitationTimestamp(existingCitations, revisionTimestamps)
+	candidateNewest, candidateOK := newestCitationTimestamp(candidateCitations, revisionTimestamps)
+	if !candidateOK {
+		return false
+	}
+	if !existingOK {
+		return false
+	}
+	return candidateNewest.After(existingNewest.Add(companyWikiCloseSourceTimestampWindow))
+}
+
+func newestCitationTimestamp(citations []store.CompanyWikiCitationInput, revisionTimestamps map[string]string) (time.Time, bool) {
+	var newest time.Time
+	ok := false
+	for _, citation := range citations {
+		ts, found := sourceTimestampForRevision(revisionTimestamps, citation.SourceRevisionID)
+		if !found {
+			continue
+		}
+		if !ok || ts.After(newest) {
+			newest = ts
+			ok = true
+		}
+	}
+	return newest, ok
+}
+
+func sourceTimestampForRevision(revisionTimestamps map[string]string, revisionID string) (time.Time, bool) {
+	if revisionTimestamps == nil {
+		return time.Time{}, false
+	}
+	raw := strings.TrimSpace(revisionTimestamps[strings.TrimSpace(revisionID)])
+	if raw == "" || raw == "unknown" {
+		return time.Time{}, false
+	}
+	if ts, err := time.Parse(time.RFC3339Nano, raw); err == nil {
+		return ts, true
+	}
+	if ts, err := time.Parse(time.RFC3339, raw); err == nil {
+		return ts, true
+	}
+	return time.Time{}, false
 }
 
 func citationsForSynthesisPage(page WikiSynthesisPage) []store.CompanyWikiCitationInput {
@@ -601,53 +661,125 @@ func buildRevisionTimestampMap(evidence store.CompanyWikiSourceEvidence, candida
 			m[currentRevID] = evidence.Revision.CreatedAt.Format(time.RFC3339)
 		}
 	}
+	for _, chunk := range evidence.Chunks {
+		revisionID := strings.TrimSpace(chunk.RevisionID)
+		if revisionID == "" || m[revisionID] != "" {
+			continue
+		}
+		if timestamp, ok := sourceTimestampForChunk(chunk); ok {
+			m[revisionID] = timestamp.Format(time.RFC3339)
+		}
+	}
 	for _, candidate := range candidates {
 		for _, claim := range candidate.Claims {
-			citationRefs, ok := claim.Metadata["citation_refs"].([]interface{})
-			if !ok {
-				continue
-			}
-			for _, ref := range citationRefs {
-				refMap, ok := ref.(map[string]interface{})
-				if !ok {
-					continue
-				}
+			for _, refMap := range citationRefsFromMetadata(claim.Metadata) {
 				revID := ""
-				if v, ok := refMap["source_revision_id"].(string); ok {
+				if v, ok := refMap["source_revision_id"]; ok {
 					revID = strings.TrimSpace(v)
 				}
 				if revID == "" || m[revID] != "" {
 					continue
 				}
-				if ts, ok := refMap["source_timestamp"].(string); ok && ts != "" && ts != "unknown" {
+				if ts := strings.TrimSpace(refMap["source_timestamp"]); ts != "" && ts != "unknown" {
 					m[revID] = ts
 				}
 			}
 		}
 		for _, conflict := range candidate.Conflicts {
-			citationRefs, ok := conflict.Metadata["citation_refs"].([]interface{})
-			if !ok {
-				continue
-			}
-			for _, ref := range citationRefs {
-				refMap, ok := ref.(map[string]interface{})
-				if !ok {
-					continue
-				}
+			for _, refMap := range citationRefsFromMetadata(conflict.Metadata) {
 				revID := ""
-				if v, ok := refMap["source_revision_id"].(string); ok {
+				if v, ok := refMap["source_revision_id"]; ok {
 					revID = strings.TrimSpace(v)
 				}
 				if revID == "" || m[revID] != "" {
 					continue
 				}
-				if ts, ok := refMap["source_timestamp"].(string); ok && ts != "" && ts != "unknown" {
+				if ts := strings.TrimSpace(refMap["source_timestamp"]); ts != "" && ts != "unknown" {
 					m[revID] = ts
 				}
 			}
 		}
 	}
 	return m
+}
+
+func sourceTimestampForChunk(chunk store.CompanyWikiSourceChunk) (time.Time, bool) {
+	for _, key := range []string{"source_observed_at", "observed_at", "last_edited_time", "created_time"} {
+		if ts, ok := sourceTimestampFromAny(chunk.Metadata[key]); ok {
+			return ts, true
+		}
+	}
+	if ts, ok := sourceTimestampFromAny(chunk.Metadata["slack_ts"]); ok {
+		return ts, true
+	}
+	return time.Time{}, false
+}
+
+func sourceTimestampFromAny(value any) (time.Time, bool) {
+	switch typed := value.(type) {
+	case time.Time:
+		if typed.IsZero() {
+			return time.Time{}, false
+		}
+		return typed.UTC(), true
+	case string:
+		text := strings.TrimSpace(typed)
+		if text == "" || text == "unknown" {
+			return time.Time{}, false
+		}
+		if ts := SlackTimestampToTime(text); !ts.IsZero() {
+			return ts, true
+		}
+		if ts, err := time.Parse(time.RFC3339Nano, text); err == nil {
+			return ts.UTC(), true
+		}
+		if ts, err := time.Parse(time.RFC3339, text); err == nil {
+			return ts.UTC(), true
+		}
+	default:
+		return time.Time{}, false
+	}
+	return time.Time{}, false
+}
+
+func citationRefsFromMetadata(metadata map[string]any) []map[string]string {
+	if metadata == nil {
+		return nil
+	}
+	switch refs := metadata["citation_refs"].(type) {
+	case []map[string]string:
+		out := make([]map[string]string, 0, len(refs))
+		for _, ref := range refs {
+			out = append(out, ref)
+		}
+		return out
+	case []map[string]any:
+		out := make([]map[string]string, 0, len(refs))
+		for _, ref := range refs {
+			out = append(out, stringifyCitationRef(ref))
+		}
+		return out
+	case []interface{}:
+		out := make([]map[string]string, 0, len(refs))
+		for _, ref := range refs {
+			if refMap, ok := ref.(map[string]interface{}); ok {
+				out = append(out, stringifyCitationRef(refMap))
+			}
+		}
+		return out
+	default:
+		return nil
+	}
+}
+
+func stringifyCitationRef(ref map[string]any) map[string]string {
+	out := map[string]string{}
+	for key, value := range ref {
+		if text, ok := value.(string); ok {
+			out[key] = text
+		}
+	}
+	return out
 }
 
 func synthesisCitationTimestampWithMap(revisionTimestamps map[string]string, citation store.CompanyWikiCitationInput) string {
@@ -698,6 +830,8 @@ func synthesisSystemPrompt() string {
 		"Compress Slack/Notion evidence into durable company wiki pages.",
 		"Emit only structured pages with cited claim objects. Every factual claim must cite existing source chunk IDs or preserved candidate claim citations.",
 		"Preserve conflicts explicitly instead of resolving unsupported disagreements.",
+		"Freshness policy: newer cited source timestamps usually win for the same claim key. If sources are within 24 hours and disagree, mark the claim conflicted or superseded instead of silently overwriting.",
+		"Older sources may add missing facts when they cover gaps that fresher candidate pages do not already cover.",
 	}, "\n")
 }
 

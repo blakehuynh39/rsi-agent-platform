@@ -2,6 +2,7 @@ package companyknowledge
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"os"
 	"path/filepath"
@@ -50,6 +51,17 @@ func (f *fakeWikiSynthesisClient) SynthesizeWiki(ctx context.Context, request Wi
 			}},
 		}},
 	}}}, WikiSynthesisMetadata{RequestMetadataHash: "reqhash", ResponseMetadataHash: "resphash"}, nil
+}
+
+func TestWikiSynthesisOutputAcceptsStructuredFreshness(t *testing.T) {
+	raw := `{"pages":[{"slug":"status","title":"Status","type":"open_question","summary":"Status summary.","freshness":{"source_timestamp":"2026-04-28T06:23:43Z"},"claims":[{"claim_key":"status","text":"Status is available.","confidence":1,"citations":[]}]}]}`
+	var output WikiSynthesisOutput
+	if err := json.Unmarshal([]byte(raw), &output); err != nil {
+		t.Fatalf("json.Unmarshal() should tolerate structured freshness: %v", err)
+	}
+	if len(output.Pages) != 1 || output.Pages[0].Title != "Status" {
+		t.Fatalf("unexpected output: %+v", output)
+	}
 }
 
 func TestRunCompanyWikiCompilerSynthesizesPageFromLedger(t *testing.T) {
@@ -336,6 +348,229 @@ func TestRunCompanyWikiCompilerPreservesExistingCandidateClaims(t *testing.T) {
 		if !strings.Contains(page.Revision.Body, want) {
 			t.Fatalf("body missing %s:\n%s", want, page.Revision.Body)
 		}
+	}
+}
+
+func TestPreserveCandidateClaimsKeepsMateriallyFresherSameKeyAndAllowsMissingFacts(t *testing.T) {
+	oldTS := time.Date(2026, 5, 1, 12, 0, 0, 0, time.UTC)
+	newTS := oldTS.Add(48 * time.Hour)
+	evidence := store.CompanyWikiSourceEvidence{
+		Document: store.CompanyWikiSourceDocument{ID: "slack-doc", SourceType: SlackMessageSourceType},
+		Revision: store.CompanyWikiSourceRevision{
+			ID:         "slack-old-revision",
+			DocumentID: "slack-doc",
+			ObservedAt: oldTS,
+		},
+	}
+	candidate := store.CompanyWikiPageRead{
+		Page: store.CompanyWikiPage{Slug: "projects/rsi-platform", Title: "RSI Platform"},
+		Claims: []store.CompanyWikiClaim{{
+			ClaimKey:   "project_status",
+			ClaimText:  "Notion says RSI Platform is the project source of truth.",
+			Confidence: 0.95,
+			Metadata: map[string]any{"citation_refs": []map[string]string{{
+				"source_revision_id": "notion-new-revision",
+				"source_timestamp":   newTS.Format(time.RFC3339),
+			}}},
+		}},
+		Citations: []store.CompanyWikiCitation{{
+			ClaimKey:         "project_status",
+			SourceDocumentID: "notion-doc",
+			SourceRevisionID: "notion-new-revision",
+			ChunkID:          "notion-chunk",
+			NativeLocator:    "notion:block",
+			Quote:            "project source of truth",
+		}},
+	}
+	output := WikiSynthesisOutput{Pages: []WikiSynthesisPage{{
+		Slug:    "rsi-platform",
+		Title:   "RSI Platform",
+		Type:    "project",
+		Summary: "RSI Platform status.",
+		Claims: []WikiSynthesisClaim{
+			{
+				ClaimKey:   "project_status",
+				Text:       "Older Slack says RSI Platform status was still uncertain.",
+				Confidence: 0.8,
+				Citations: []store.CompanyWikiCitationInput{{
+					SourceDocumentID: "slack-doc",
+					SourceRevisionID: "slack-old-revision",
+					ChunkID:          "slack-chunk",
+				}},
+			},
+			{
+				ClaimKey:   "slack_only_gap",
+				Text:       "Older Slack captured a missing operational detail.",
+				Confidence: 0.8,
+				Citations: []store.CompanyWikiCitationInput{{
+					SourceDocumentID: "slack-doc",
+					SourceRevisionID: "slack-old-revision",
+					ChunkID:          "slack-chunk",
+				}},
+			},
+		},
+	}}}
+
+	got := preserveCandidateClaimsInSynthesisOutput(output, evidence, []store.CompanyWikiPageRead{candidate})
+	if len(got.Pages) != 1 || len(got.Pages[0].Claims) != 2 {
+		t.Fatalf("unexpected preserved output: %+v", got)
+	}
+	if got.Pages[0].Claims[0].Text != candidate.Claims[0].ClaimText {
+		t.Fatalf("materially fresher candidate claim should win same claim key, got %q", got.Pages[0].Claims[0].Text)
+	}
+	if got.Pages[0].Claims[1].ClaimKey != "slack_only_gap" {
+		t.Fatalf("older Slack-only missing fact should remain, claims=%+v", got.Pages[0].Claims)
+	}
+	if freshness := synthesisFreshness(buildRevisionTimestampMap(evidence, []store.CompanyWikiPageRead{candidate}), got.Pages[0]); freshness != newTS.Format(time.RFC3339) {
+		t.Fatalf("freshness should use newest cited source timestamp, got %q want %q", freshness, newTS.Format(time.RFC3339))
+	}
+}
+
+func TestPreserveCandidateClaimsAllowsCloseTimestampModelJudgment(t *testing.T) {
+	oldTS := time.Date(2026, 5, 1, 12, 0, 0, 0, time.UTC)
+	newTS := oldTS.Add(time.Hour)
+	evidence := store.CompanyWikiSourceEvidence{
+		Document: store.CompanyWikiSourceDocument{ID: "slack-doc", SourceType: SlackMessageSourceType},
+		Revision: store.CompanyWikiSourceRevision{
+			ID:         "slack-close-revision",
+			DocumentID: "slack-doc",
+			ObservedAt: oldTS,
+		},
+	}
+	candidate := store.CompanyWikiPageRead{
+		Page: store.CompanyWikiPage{Slug: "projects/rsi-platform"},
+		Claims: []store.CompanyWikiClaim{{
+			ClaimKey:  "project_status",
+			ClaimText: "Near-time candidate status.",
+			Metadata: map[string]any{"citation_refs": []map[string]string{{
+				"source_revision_id": "notion-close-revision",
+				"source_timestamp":   newTS.Format(time.RFC3339),
+			}}},
+		}},
+		Citations: []store.CompanyWikiCitation{{
+			ClaimKey:         "project_status",
+			SourceDocumentID: "notion-doc",
+			SourceRevisionID: "notion-close-revision",
+			ChunkID:          "notion-chunk",
+		}},
+	}
+	output := WikiSynthesisOutput{Pages: []WikiSynthesisPage{{
+		Slug:    "rsi-platform",
+		Title:   "RSI Platform",
+		Type:    "project",
+		Summary: "RSI Platform status.",
+		Claims: []WikiSynthesisClaim{{
+			ClaimKey: "project_status",
+			Text:     "Near-time model judgment can supersede or conflict.",
+			Citations: []store.CompanyWikiCitationInput{{
+				SourceDocumentID: "slack-doc",
+				SourceRevisionID: "slack-close-revision",
+				ChunkID:          "slack-chunk",
+			}},
+		}},
+	}}}
+	got := preserveCandidateClaimsInSynthesisOutput(output, evidence, []store.CompanyWikiPageRead{candidate})
+	if got.Pages[0].Claims[0].Text != "Near-time model judgment can supersede or conflict." {
+		t.Fatalf("near-time evidence should be left to model conflict/supersession policy, got %+v", got.Pages[0].Claims[0])
+	}
+}
+
+func TestRevisionTimestampMapIncludesAllSlackEvidenceChunks(t *testing.T) {
+	rootTS := time.Date(2026, 5, 1, 12, 0, 0, 0, time.UTC)
+	replyTS := rootTS.Add(2 * time.Hour)
+	evidence := store.CompanyWikiSourceEvidence{
+		Document: store.CompanyWikiSourceDocument{ID: "slack-doc", SourceType: SlackMessageSourceType},
+		Revision: store.CompanyWikiSourceRevision{
+			ID:         "slack-root-revision",
+			DocumentID: "slack-doc",
+			ObservedAt: rootTS,
+		},
+		Chunks: []store.CompanyWikiSourceChunk{
+			{
+				ID:         "root-chunk",
+				DocumentID: "slack-doc",
+				RevisionID: "slack-root-revision",
+				Metadata:   map[string]any{"slack_ts": "1777651200.000000"},
+			},
+			{
+				ID:         "reply-chunk",
+				DocumentID: "slack-doc",
+				RevisionID: "slack-reply-revision",
+				Metadata:   map[string]any{"source_observed_at": replyTS.Format(time.RFC3339)},
+			},
+		},
+	}
+	timestamps := buildRevisionTimestampMap(evidence, nil)
+	if got := timestamps["slack-root-revision"]; got != rootTS.Format(time.RFC3339) {
+		t.Fatalf("root revision timestamp = %q, want %q", got, rootTS.Format(time.RFC3339))
+	}
+	if got := timestamps["slack-reply-revision"]; got != replyTS.Format(time.RFC3339) {
+		t.Fatalf("reply revision timestamp = %q, want %q", got, replyTS.Format(time.RFC3339))
+	}
+	page := WikiSynthesisPage{Claims: []WikiSynthesisClaim{{
+		ClaimKey: "reply_fact",
+		Text:     "A reply carries the latest fact.",
+		Citations: []store.CompanyWikiCitationInput{{
+			SourceDocumentID: "slack-doc",
+			SourceRevisionID: "slack-reply-revision",
+			ChunkID:          "reply-chunk",
+		}},
+	}}}
+	if freshness := synthesisFreshness(timestamps, page); freshness != replyTS.Format(time.RFC3339) {
+		t.Fatalf("freshness should use cited reply revision timestamp, got %q want %q", freshness, replyTS.Format(time.RFC3339))
+	}
+}
+
+func TestPreserveCandidateClaimsDoesNotOverwriteWhenModelTimestampUnknown(t *testing.T) {
+	candidateTS := time.Date(2026, 5, 3, 12, 0, 0, 0, time.UTC)
+	evidence := store.CompanyWikiSourceEvidence{
+		Document: store.CompanyWikiSourceDocument{ID: "slack-doc", SourceType: SlackMessageSourceType},
+		Revision: store.CompanyWikiSourceRevision{
+			ID:         "different-revision",
+			DocumentID: "slack-doc",
+			ObservedAt: candidateTS.Add(-48 * time.Hour),
+		},
+		Chunks: []store.CompanyWikiSourceChunk{{
+			ID:         "unknown-ts-chunk",
+			DocumentID: "slack-doc",
+			RevisionID: "slack-unknown-revision",
+		}},
+	}
+	candidate := store.CompanyWikiPageRead{
+		Page: store.CompanyWikiPage{Slug: "projects/rsi-platform"},
+		Claims: []store.CompanyWikiClaim{{
+			ClaimKey:  "project_status",
+			ClaimText: "Candidate status has a timestamp.",
+			Metadata: map[string]any{"citation_refs": []map[string]string{{
+				"source_revision_id": "notion-new-revision",
+				"source_timestamp":   candidateTS.Format(time.RFC3339),
+			}}},
+		}},
+		Citations: []store.CompanyWikiCitation{{
+			ClaimKey:         "project_status",
+			SourceDocumentID: "notion-doc",
+			SourceRevisionID: "notion-new-revision",
+			ChunkID:          "notion-chunk",
+		}},
+	}
+	output := WikiSynthesisOutput{Pages: []WikiSynthesisPage{{
+		Slug:    "rsi-platform",
+		Title:   "RSI Platform",
+		Type:    "project",
+		Summary: "RSI Platform status.",
+		Claims: []WikiSynthesisClaim{{
+			ClaimKey: "project_status",
+			Text:     "Model synthesis with an unknown source timestamp should not be deterministically overwritten.",
+			Citations: []store.CompanyWikiCitationInput{{
+				SourceDocumentID: "slack-doc",
+				SourceRevisionID: "slack-unknown-revision",
+				ChunkID:          "unknown-ts-chunk",
+			}},
+		}},
+	}}}
+	got := preserveCandidateClaimsInSynthesisOutput(output, evidence, []store.CompanyWikiPageRead{candidate})
+	if got.Pages[0].Claims[0].Text != output.Pages[0].Claims[0].Text {
+		t.Fatalf("unknown model timestamp should avoid deterministic overwrite, got %+v", got.Pages[0].Claims[0])
 	}
 }
 

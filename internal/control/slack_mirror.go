@@ -309,14 +309,6 @@ func (b *slackWikiPublishBatch) record(ctx context.Context, input companyknowled
 	if result.Skipped {
 		return nil
 	}
-	if result.Source.Changed {
-		if _, _, err := companyknowledge.EnqueueWikiCompileItemForSource(ctx, b.cfg, b.repo, result.Source); err != nil {
-			return err
-		}
-	}
-	if strings.EqualFold(strings.TrimSpace(b.cfg.CompanyWikiSourcePageMode), "off") {
-		return nil
-	}
 	if documentID := strings.TrimSpace(result.Source.Document.ID); documentID != "" {
 		b.sources[documentID] = result.Source
 	}
@@ -334,6 +326,15 @@ func (b *slackWikiPublishBatch) publish(ctx context.Context) error {
 	sort.Strings(documentIDs)
 	for _, documentID := range documentIDs {
 		source := b.sources[documentID]
+		if source.Changed {
+			if _, _, err := companyknowledge.EnqueueWikiCompileItemForSource(ctx, b.cfg, b.repo, source); err != nil {
+				return fmt.Errorf("enqueue slack wiki compile document=%s: %w", documentID, err)
+			}
+		}
+		if strings.EqualFold(strings.TrimSpace(b.cfg.CompanyWikiSourcePageMode), "off") {
+			delete(b.sources, documentID)
+			continue
+		}
 		if _, err := companyknowledge.PublishWikiSourceDocument(ctx, b.cfg, b.repo, source); err != nil {
 			return fmt.Errorf("publish slack wiki source document=%s: %w", documentID, err)
 		}

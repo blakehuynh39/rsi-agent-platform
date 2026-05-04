@@ -266,6 +266,32 @@ func TestSlackWikiPublishBatchCompilesAfterPageBatch(t *testing.T) {
 	if page.Revision.RevisionNumber != 1 {
 		t.Fatalf("expected one wiki revision for batched messages, got %d", page.Revision.RevisionNumber)
 	}
+	claimed, err := state.ClaimCompanyWikiCompileItems(store.CompanyWikiCompileClaimInput{
+		Limit:              10,
+		LeaseHolder:        "test",
+		LeaseDuration:      time.Minute,
+		CompilerVersion:    companyknowledge.CompanyWikiCompilerVersion,
+		SchemaVersion:      companyknowledge.CompanyWikiSchemaVersion,
+		RendererVersion:    companyknowledge.CompanyWikiRendererVersion,
+		ModelPolicyVersion: companyknowledge.CompanyWikiModelPolicyVersion,
+		MaxAttempts:        companyknowledge.CompanyWikiCompileMaxAttemptCount,
+	})
+	if err != nil {
+		t.Fatalf("ClaimCompanyWikiCompileItems() error = %v", err)
+	}
+	if len(claimed) != 1 {
+		t.Fatalf("expected one compile item for the batched source document, got %+v", claimed)
+	}
+	evidence, found, err := state.GetCompanyWikiSourceEvidence(claimed[0].SourceRevisionID)
+	if err != nil || !found {
+		t.Fatalf("GetCompanyWikiSourceEvidence() found=%t err=%v", found, err)
+	}
+	if len(evidence.Chunks) != len(inputs) {
+		t.Fatalf("expected Slack compile evidence to include all thread chunks, got %d", len(evidence.Chunks))
+	}
+	if want := companyknowledge.SourceCentricCompileInputHash(evidence.Revision, evidence.Chunks); claimed[0].InputHash != want {
+		t.Fatalf("compile input hash should cover full Slack document chunks, got %q want %q", claimed[0].InputHash, want)
+	}
 	for _, want := range []string{"First deploy decision.", "Second deploy decision.", "Third deploy decision."} {
 		if !strings.Contains(page.Revision.Body, want) {
 			t.Fatalf("compiled body missing %q:\n%s", want, page.Revision.Body)
