@@ -161,13 +161,47 @@ func slackMirrorChannelMetadataForChannel(ctx context.Context, cfg config.Config
 	}
 	info, err := api.GetConversationInfoContext(ctx, &slackapi.GetConversationInfoInput{ChannelID: metadata.ChannelID})
 	if err != nil {
-		metadata.ChannelType = "unknown"
-		metadata.ChannelPrivate = true
-		metadata.PolicyUntrusted = true
-		metadata.InfoError = err.Error()
-		return metadata
+		return slackMirrorChannelMetadataFromInfoError(cfg, metadata.ChannelID, err)
 	}
 	return slackMirrorChannelMetadataFromSlackChannel(metadata.ChannelID, info)
+}
+
+func slackMirrorChannelMetadataFromInfoError(cfg config.Config, channelID string, err error) slackMirrorChannelMetadata {
+	metadata := slackMirrorChannelMetadata{
+		ChannelID:       strings.TrimSpace(channelID),
+		ChannelType:     "unknown",
+		ChannelPrivate:  true,
+		PolicyUntrusted: true,
+	}
+	if err != nil {
+		metadata.InfoError = err.Error()
+	}
+	if slackMirrorChannelDiscoveryMode(cfg) == "explicit" &&
+		slackMirrorChannelAllowedByConfig(cfg, metadata.ChannelID) &&
+		slackMirrorLooksLikePublicChannelID(metadata.ChannelID) &&
+		slackMirrorChannelInfoMissingScope(err) {
+		metadata.ChannelType = "explicit_allowlisted_public"
+		metadata.ChannelPrivate = false
+		metadata.ChannelIM = false
+		metadata.PolicyUntrusted = false
+	}
+	return metadata
+}
+
+func slackMirrorLooksLikePublicChannelID(channelID string) bool {
+	channelID = strings.TrimSpace(channelID)
+	return strings.HasPrefix(channelID, "C")
+}
+
+func slackMirrorChannelInfoMissingScope(err error) bool {
+	if err == nil {
+		return false
+	}
+	var slackErr slackapi.SlackErrorResponse
+	if errors.As(err, &slackErr) {
+		return slackErr.Err == "missing_scope"
+	}
+	return strings.Contains(err.Error(), "missing_scope")
 }
 
 func slackMirrorChannelMetadataFromSlackChannel(channelID string, channel *slackapi.Channel) slackMirrorChannelMetadata {

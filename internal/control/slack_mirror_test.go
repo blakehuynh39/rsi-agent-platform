@@ -178,6 +178,57 @@ func TestApplySlackMirrorPolicyMetadataDeniesUnknownChannelInfoForWikiPolicy(t *
 	}
 }
 
+func TestExplicitAllowlistAllowsMissingChannelInfoScopeForWikiPolicy(t *testing.T) {
+	cfg := config.Config{
+		SlackMirrorChannelDiscovery: "explicit",
+		SlackMirrorChannelAllowlist: []string{"CYES"},
+	}
+	metadata := slackMirrorChannelMetadataFromInfoError(cfg, "CYES", slackapi.SlackErrorResponse{Err: "missing_scope"})
+	input := companyknowledge.SlackMessageInput{ChannelID: "CYES"}
+	applySlackMirrorPolicyMetadata(&input, cfg, metadata)
+	if input.MirrorDenied || !input.MirrorAllowed {
+		t.Fatalf("explicit allowlisted missing_scope channel should remain allowed, got allowed=%t denied=%t", input.MirrorAllowed, input.MirrorDenied)
+	}
+	if input.ChannelPrivate || input.ChannelIM || input.ChannelType != "explicit_allowlisted_public" {
+		t.Fatalf("explicit allowlisted fallback should not mark the source private/IM, got %+v", input)
+	}
+	if input.Raw["channel_info_error"] != "missing_scope" {
+		t.Fatalf("channel info error should still be persisted for auditability: %+v", input.Raw)
+	}
+}
+
+func TestExplicitAllowlistDeniesMissingChannelInfoScopeForNonPublicIDs(t *testing.T) {
+	cfg := config.Config{
+		SlackMirrorChannelDiscovery: "explicit",
+		SlackMirrorChannelAllowlist: []string{"GPRIVATE"},
+	}
+	metadata := slackMirrorChannelMetadataFromInfoError(cfg, "GPRIVATE", slackapi.SlackErrorResponse{Err: "missing_scope"})
+	input := companyknowledge.SlackMessageInput{ChannelID: "GPRIVATE"}
+	applySlackMirrorPolicyMetadata(&input, cfg, metadata)
+	if !input.MirrorDenied || input.MirrorAllowed {
+		t.Fatalf("non-public-looking channel IDs should not use missing_scope fallback, got allowed=%t denied=%t", input.MirrorAllowed, input.MirrorDenied)
+	}
+	if !input.ChannelPrivate || input.ChannelType != "unknown" {
+		t.Fatalf("non-public-looking channel IDs should remain untrusted/private, got %+v", input)
+	}
+}
+
+func TestExplicitAllowlistStillDeniesNonScopeChannelInfoErrors(t *testing.T) {
+	cfg := config.Config{
+		SlackMirrorChannelDiscovery: "explicit",
+		SlackMirrorChannelAllowlist: []string{"CYES"},
+	}
+	metadata := slackMirrorChannelMetadataFromInfoError(cfg, "CYES", errors.New("channel_not_found"))
+	input := companyknowledge.SlackMessageInput{ChannelID: "CYES"}
+	applySlackMirrorPolicyMetadata(&input, cfg, metadata)
+	if !input.MirrorDenied || input.MirrorAllowed {
+		t.Fatalf("non-scope channel info errors should remain denied, got allowed=%t denied=%t", input.MirrorAllowed, input.MirrorDenied)
+	}
+	if !input.ChannelPrivate || input.ChannelType != "unknown" {
+		t.Fatalf("non-scope channel info errors should remain untrusted/private, got %+v", input)
+	}
+}
+
 func TestSlackWikiPublishBatchCompilesAfterPageBatch(t *testing.T) {
 	state := store.NewMemoryStore()
 	batch := newSlackWikiPublishBatch(config.Config{CompanyWikiRoot: t.TempDir()}, state)
