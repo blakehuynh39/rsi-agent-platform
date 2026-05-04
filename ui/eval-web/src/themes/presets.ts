@@ -47,7 +47,7 @@ export const defaultTheme: DashboardTheme = {
     midground: { hex: "#ffe6cb", alpha: 1 },
     foreground: { hex: "#ffffff", alpha: 0 },
     warmGlow: "rgba(255, 189, 56, 0.35)",
-    noiseOpacity: 1,
+    noiseOpacity: 0,
   },
   typography: DEFAULT_TYPOGRAPHY,
   layout: DEFAULT_LAYOUT,
@@ -62,7 +62,7 @@ export const midnightTheme: DashboardTheme = {
     midground: { hex: "#d4c8ff", alpha: 1 },
     foreground: { hex: "#ffffff", alpha: 0 },
     warmGlow: "rgba(167, 139, 250, 0.32)",
-    noiseOpacity: 0.8,
+    noiseOpacity: 0,
   },
   typography: {
     ...DEFAULT_TYPOGRAPHY,
@@ -87,7 +87,7 @@ export const emberTheme: DashboardTheme = {
     midground: { hex: "#ffd8b0", alpha: 1 },
     foreground: { hex: "#ffffff", alpha: 0 },
     warmGlow: "rgba(249, 115, 22, 0.38)",
-    noiseOpacity: 1,
+    noiseOpacity: 0,
   },
   typography: {
     ...DEFAULT_TYPOGRAPHY,
@@ -115,7 +115,7 @@ export const monoTheme: DashboardTheme = {
     midground: { hex: "#eaeaea", alpha: 1 },
     foreground: { hex: "#ffffff", alpha: 0 },
     warmGlow: "rgba(255, 255, 255, 0.1)",
-    noiseOpacity: 0.6,
+    noiseOpacity: 0,
   },
   typography: {
     ...DEFAULT_TYPOGRAPHY,
@@ -139,7 +139,7 @@ export const cyberpunkTheme: DashboardTheme = {
     midground: { hex: "#9bffcf", alpha: 1 },
     foreground: { hex: "#ffffff", alpha: 0 },
     warmGlow: "rgba(0, 255, 136, 0.22)",
-    noiseOpacity: 1.2,
+    noiseOpacity: 0,
   },
   typography: {
     ...DEFAULT_TYPOGRAPHY,
@@ -168,7 +168,7 @@ export const roseTheme: DashboardTheme = {
     midground: { hex: "#ffd4e1", alpha: 1 },
     foreground: { hex: "#ffffff", alpha: 0 },
     warmGlow: "rgba(249, 168, 212, 0.3)",
-    noiseOpacity: 0.9,
+    noiseOpacity: 0,
   },
   typography: {
     ...DEFAULT_TYPOGRAPHY,

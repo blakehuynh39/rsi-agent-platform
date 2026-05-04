@@ -35,8 +35,8 @@ export interface ThemePalette {
   foreground: ThemeLayer;
   /** Warm vignette color for <Backdrop />, as an rgba() string. */
   warmGlow: string;
-  /** Scalar multiplier (0–1.2) on the noise overlay. Lower for softer themes
-   *  like Mono and Rosé, higher for grittier themes like Cyberpunk. */
+  /** Legacy scalar multiplier for upstream Hermes noise overlays. RSI's
+   *  default backdrop does not render grain, so built-in themes keep this 0. */
   noiseOpacity: number;
 }
 
