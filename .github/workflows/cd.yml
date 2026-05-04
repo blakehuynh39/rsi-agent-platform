@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - "hermes/exported-skills/**"
   workflow_dispatch:
     inputs:
       skip_story_deployments_bump:
