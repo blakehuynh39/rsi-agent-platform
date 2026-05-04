@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 import json
 import os
 from pathlib import Path
@@ -14,6 +15,8 @@ from rsi_runner.hermes_skill_exporter import (
     ExporterConfig,
     ExporterConfigError,
     ExporterServer,
+    ExporterError,
+    GitHubAuth,
     GitSkillExporter,
     SkillExportLoop,
     build_skill_snapshot,
@@ -335,6 +338,98 @@ class HermesSkillExporterTest(unittest.TestCase):
             command = run.call_args.args[0]
             self.assertEqual("git", command[0])
             self.assertIn(f"safe.directory={checkout.resolve()}", command)
+
+    def test_git_exporter_auto_merges_created_pr_by_default(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            config = self.make_config(Path(raw))
+            snapshot = build_skill_snapshot(config.skills_root, config.company_wiki_root)
+
+            def fake_git(_cwd: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
+                returncode = 1 if args == ("diff", "--cached", "--quiet") else 0
+                return subprocess.CompletedProcess(args=list(args), returncode=returncode, stdout="", stderr="")
+
+            with (
+                mock.patch("rsi_runner.hermes_skill_exporter.GitHubAuth.token", return_value="token"),
+                mock.patch.object(GitSkillExporter, "_git", side_effect=fake_git),
+                mock.patch.object(
+                    GitSkillExporter,
+                    "_open_pr",
+                    return_value={"html_url": "https://github.com/piplabs/rsi-agent-platform/pull/42", "number": 42},
+                ),
+                mock.patch.object(GitSkillExporter, "_merge_pr", return_value={"merged": True, "sha": "abc123"}) as merge_pr,
+            ):
+                result = GitSkillExporter(config).export(snapshot, {"pod_name": "test-pod"})
+
+            self.assertTrue(result["exported"])
+            self.assertTrue(result["auto_merge"])
+            self.assertEqual({"merged": True, "sha": "abc123"}, result["merge_result"])
+            merge_pr.assert_called_once()
+
+    def test_git_exporter_can_disable_auto_merge(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            config = replace(self.make_config(Path(raw)), auto_merge=False)
+            snapshot = build_skill_snapshot(config.skills_root, config.company_wiki_root)
+
+            def fake_git(_cwd: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
+                returncode = 1 if args == ("diff", "--cached", "--quiet") else 0
+                return subprocess.CompletedProcess(args=list(args), returncode=returncode, stdout="", stderr="")
+
+            with (
+                mock.patch("rsi_runner.hermes_skill_exporter.GitHubAuth.token", return_value="token"),
+                mock.patch.object(GitSkillExporter, "_git", side_effect=fake_git),
+                mock.patch.object(
+                    GitSkillExporter,
+                    "_open_pr",
+                    return_value={"html_url": "https://github.com/piplabs/rsi-agent-platform/pull/42", "number": 42},
+                ),
+                mock.patch.object(GitSkillExporter, "_merge_pr") as merge_pr,
+            ):
+                result = GitSkillExporter(config).export(snapshot, {"pod_name": "test-pod"})
+
+            self.assertTrue(result["exported"])
+            self.assertFalse(result["auto_merge"])
+            self.assertEqual({}, result["merge_result"])
+            merge_pr.assert_not_called()
+
+    def test_git_exporter_records_auto_merge_failure_without_duplicating_export(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            config = self.make_config(Path(raw))
+            snapshot = build_skill_snapshot(config.skills_root, config.company_wiki_root)
+
+            def fake_git(_cwd: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
+                returncode = 1 if args == ("diff", "--cached", "--quiet") else 0
+                return subprocess.CompletedProcess(args=list(args), returncode=returncode, stdout="", stderr="")
+
+            with (
+                mock.patch("rsi_runner.hermes_skill_exporter.GitHubAuth.token", return_value="token"),
+                mock.patch.object(GitSkillExporter, "_git", side_effect=fake_git),
+                mock.patch.object(
+                    GitSkillExporter,
+                    "_open_pr",
+                    return_value={"html_url": "https://github.com/piplabs/rsi-agent-platform/pull/42", "number": 42},
+                ),
+                mock.patch.object(GitSkillExporter, "_merge_pr", side_effect=ExporterError("not mergeable")),
+            ):
+                result = GitSkillExporter(config).export(snapshot, {"pod_name": "test-pod"})
+
+            self.assertTrue(result["exported"])
+            self.assertEqual(False, result["merge_result"]["merged"])
+            self.assertIn("not mergeable", result["merge_result"]["error"])
+
+    def test_merge_pr_uses_configured_squash_method(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            config = self.make_config(Path(raw))
+            snapshot = build_skill_snapshot(config.skills_root, config.company_wiki_root)
+            with mock.patch.object(GitHubAuth, "_json_request", return_value={"merged": True}) as api:
+                result = GitSkillExporter(config)._merge_pr("token", 42, snapshot)
+
+            self.assertEqual({"merged": True}, result)
+            api.assert_called_once()
+            args, kwargs = api.call_args
+            self.assertEqual("PUT", args[0])
+            self.assertEqual("https://api.github.com/repos/piplabs/rsi-agent-platform/pulls/42/merge", args[1])
+            self.assertEqual("token", kwargs["token"])
+            self.assertEqual("squash", kwargs["body"]["merge_method"])
 
 
 if __name__ == "__main__":

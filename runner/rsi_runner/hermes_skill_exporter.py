@@ -151,6 +151,8 @@ class ExporterConfig:
     branch_prefix: str
     pr_mode: str
     pod_name: str
+    auto_merge: bool = True
+    auto_merge_method: str = "squash"
     company_wiki_root: Path | None = None
     export_wiki_enabled: bool = True
     github_token: str = ""
@@ -180,6 +182,8 @@ class ExporterConfig:
             raise ExporterConfigError("RSI_HERMES_SKILL_EXPORTER_STATE_ROOT must not equal HERMES_HOME")
         if self.pr_mode != "per_change":
             raise ExporterConfigError("RSI_HERMES_SKILL_EXPORTER_PR_MODE currently supports only per_change")
+        if self.auto_merge_method not in {"merge", "squash", "rebase"}:
+            raise ExporterConfigError("RSI_HERMES_SKILL_EXPORTER_AUTO_MERGE_METHOD must be merge, squash, or rebase")
         if not self.git_owner or not self.git_repo:
             raise ExporterConfigError("Git owner and repo are required")
 
@@ -223,6 +227,8 @@ class ExporterConfig:
             export_env=_env("RSI_HERMES_SKILL_EXPORTER_EXPORT_ENV", "stage"),
             branch_prefix=_env("RSI_HERMES_SKILL_EXPORTER_BRANCH_PREFIX", "hermes/skill-export"),
             pr_mode=_env("RSI_HERMES_SKILL_EXPORTER_PR_MODE", "per_change"),
+            auto_merge=_bool_env("RSI_HERMES_SKILL_EXPORTER_AUTO_MERGE", True),
+            auto_merge_method=_env("RSI_HERMES_SKILL_EXPORTER_AUTO_MERGE_METHOD", "squash"),
             pod_name=_env("POD_NAME", _env("HOSTNAME", "unknown")),
             github_token=github_token,
             github_app_id=_env("RSI_GITHUB_APP_ID"),
@@ -512,7 +518,24 @@ class GitSkillExporter:
             self._git(checkout, "commit", "-m", message)
             self._git(checkout, "push", "--set-upstream", "origin", branch)
             pr = self._open_pr(token, branch, snapshot, metadata)
-            return {"exported": True, "branch": branch, "pr_url": pr.get("html_url", ""), "pr_number": pr.get("number")}
+            merge_result: dict[str, Any] = {}
+            if self.config.auto_merge:
+                pr_number = pr.get("number")
+                if not isinstance(pr_number, int):
+                    raise ExporterError("GitHub pull request response did not include a numeric number")
+                try:
+                    merge_result = self._merge_pr(token, pr_number, snapshot)
+                except ExporterError as exc:
+                    logger.warning("Hermes skill export PR auto-merge failed: %s", exc)
+                    merge_result = {"merged": False, "error": str(exc)}
+            return {
+                "exported": True,
+                "branch": branch,
+                "pr_url": pr.get("html_url", ""),
+                "pr_number": pr.get("number"),
+                "auto_merge": self.config.auto_merge,
+                "merge_result": merge_result,
+            }
         finally:
             shutil.rmtree(checkout, ignore_errors=True)
 
@@ -554,7 +577,7 @@ class GitSkillExporter:
                 f"- Wiki files: `{len(snapshot.wiki_files)}`",
                 f"- Pod: `{metadata.get('pod_name', 'unknown')}`",
                 "",
-                "The live source of truth remains the executor PVC and Platform company wiki ledger. This PR must not be reconciled back into the pod.",
+                "The live source of truth remains the executor PVC and Platform company wiki ledger. This PR is auto-merged to keep main in sync with that source of truth, and must not be reconciled back into the pod.",
             ]
         )
         return GitHubAuth._json_request(
@@ -562,6 +585,19 @@ class GitSkillExporter:
             f"https://api.github.com/repos/{self.config.git_repository}/pulls",
             token=token,
             body={"title": title, "head": branch, "base": self.config.git_base_branch, "body": body},
+        )
+
+    def _merge_pr(self, token: str, pr_number: int, snapshot: SkillSnapshot) -> dict[str, Any]:
+        title = f"Export Hermes skills/wiki {self.config.export_env} {snapshot.tree_hash[:12]} (#{pr_number})"
+        return GitHubAuth._json_request(
+            "PUT",
+            f"https://api.github.com/repos/{self.config.git_repository}/pulls/{pr_number}/merge",
+            token=token,
+            body={
+                "commit_title": title,
+                "commit_message": "Auto-merged by Hermes skill exporter.",
+                "merge_method": self.config.auto_merge_method,
+            },
         )
 
     @staticmethod
@@ -619,6 +655,8 @@ class SkillExportLoop:
         payload["git_repository"] = self.config.git_repository
         payload["export_root"] = self.config.export_root
         payload["pr_mode"] = self.config.pr_mode
+        payload["auto_merge"] = self.config.auto_merge
+        payload["auto_merge_method"] = self.config.auto_merge_method
         return payload
 
     def request_drain(self) -> dict[str, Any]:
