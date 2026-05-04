@@ -66,7 +66,8 @@ import { useTheme } from "@/themes";
 import { isDashboardEmbeddedChatEnabled } from "@/lib/dashboard-flags";
 
 function RootRedirect() {
-  return <Navigate to="/sessions" replace />;
+  const { search } = useLocation();
+  return <Navigate to={{ pathname: "/sessions", search }} replace />;
 }
 
 const CHAT_NAV_ITEM: NavItem = {

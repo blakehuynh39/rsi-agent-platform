@@ -1,11 +1,12 @@
 import {
   useEffect,
   useLayoutEffect,
+  useMemo,
   useState,
   useCallback,
   useRef,
 } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -392,6 +393,7 @@ function SessionRow({
 
 export default function SessionsPage() {
   const [sessions, setSessions] = useState<SessionInfo[]>([]);
+  const [targetSession, setTargetSession] = useState<SessionInfo | null>(null);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 20;
@@ -410,6 +412,15 @@ export default function SessionsPage() {
   const { setAfterTitle, setEnd } = usePageHeader();
   const { activeAction, actionStatus, dismissLog } = useSystemActions();
   const resumeInChatEnabled = isDashboardEmbeddedChatEnabled();
+  const [searchParams] = useSearchParams();
+
+  const targetSessionId = useMemo(() => {
+    for (const key of ["trace", "session", "session_id", "conversation", "conversation_id"]) {
+      const value = searchParams.get(key)?.trim();
+      if (value) return value;
+    }
+    return null;
+  }, [searchParams]);
 
   useLayoutEffect(() => {
     if (loading) {
@@ -480,6 +491,31 @@ export default function SessionsPage() {
   }, [loadSessions, page]);
 
   useEffect(() => {
+    if (!targetSessionId) {
+      setTargetSession(null);
+      return;
+    }
+    setExpandedId(targetSessionId);
+    const existing = sessions.find((session) => session.id === targetSessionId);
+    if (existing) {
+      setTargetSession(existing);
+      return;
+    }
+    let cancelled = false;
+    api
+      .getSession(targetSessionId)
+      .then((session) => {
+        if (!cancelled) setTargetSession(session);
+      })
+      .catch(() => {
+        if (!cancelled) setTargetSession(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [sessions, targetSessionId]);
+
+  useEffect(() => {
     const loadOverview = () => {
       api
         .getStatus()
@@ -532,11 +568,22 @@ export default function SessionsPage() {
     }
   }
 
+  const orderedSessions = useMemo(() => {
+    if (!targetSessionId) return sessions;
+    const target =
+      targetSession ?? sessions.find((session) => session.id === targetSessionId);
+    if (!target) return sessions;
+    return [
+      target,
+      ...sessions.filter((session) => session.id !== target.id),
+    ];
+  }, [sessions, targetSession, targetSessionId]);
+
   // When searching, filter sessions to those with FTS matches;
   // when not searching, show all sessions
   const filtered = searchResults
-    ? sessions.filter((s) => snippetMap.has(s.id))
-    : sessions;
+    ? orderedSessions.filter((s) => snippetMap.has(s.id))
+    : orderedSessions;
 
   const platformEntries = status
     ? Object.entries(status.gateway_platforms ?? {})

@@ -92,7 +92,7 @@ func TestOperatorTraceURLBuilder(t *testing.T) {
 	if err != nil {
 		t.Fatalf("operatorTraceURL returned invalid URL %q: %v", traceURL, err)
 	}
-	if got := parsed.Scheme + "://" + parsed.Host + parsed.Path; got != "https://staging-rsi-platform.storyprotocol.net/" {
+	if got := parsed.Scheme + "://" + parsed.Host + parsed.Path; got != "https://staging-rsi-platform.storyprotocol.net/sessions" {
 		t.Fatalf("unexpected base URL: %s", got)
 	}
 	values := parsed.Query()
@@ -148,7 +148,7 @@ func TestSlackSurfaceOperatorTraceACKIsIdempotent(t *testing.T) {
 	if call.channelID != "C123" || call.values.Get("thread_ts") != "171000001.000100" {
 		t.Fatalf("ACK posted to wrong target: channel=%s values=%s", call.channelID, call.values.Encode())
 	}
-	if !strings.Contains(call.values.Get("text"), "https://staging-rsi-platform.storyprotocol.net/?") {
+	if !strings.Contains(call.values.Get("text"), "https://staging-rsi-platform.storyprotocol.net/sessions?") {
 		t.Fatalf("ACK text missing trace URL: %q", call.values.Get("text"))
 	}
 	trace, ok := traceSummaryForIngestion(store, ingestion)

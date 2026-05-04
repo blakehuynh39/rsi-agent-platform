@@ -630,7 +630,7 @@ func operatorTraceURL(publicBaseURL string, conversationID string, traceID strin
 	query.Set("tab", "conversations")
 	query.Set("conversation", strings.TrimSpace(conversationID))
 	query.Set("trace", strings.TrimSpace(traceID))
-	return base + "/?" + query.Encode()
+	return base + "/sessions?" + query.Encode()
 }
 
 func operatorTraceACKBody(traceURL string) string {
