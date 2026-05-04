@@ -267,6 +267,7 @@ func (r *notionMirrorRunner) mirrorPageData(ctx context.Context, pageID string, 
 		Content:            body,
 		TraversalStatus:    traversalStatus(truncated),
 		Truncated:          truncated,
+		Allowlisted:        notionRootAllowedByConfig(r.cfg, rootID),
 		Hierarchy:          currentHierarchy,
 		OutboundReferences: outboundReferences,
 		Raw:                map[string]any{"object": page.Object},
@@ -278,7 +279,7 @@ func (r *notionMirrorRunner) mirrorPageData(ctx context.Context, pageID string, 
 		return fmt.Errorf("mirror notion page=%s into honcho: %w", pageID, err)
 	}
 	if shouldPublishNotionWikiSource(result) {
-		if _, err := companyknowledge.RecordAndPublishWikiSource(ctx, r.cfg, r.store, companyknowledge.NotionWikiSourceRevisionInput(input)); err != nil {
+		if _, err := companyknowledge.RecordEnqueueAndMaybePublishWikiSource(ctx, r.cfg, r.store, companyknowledge.NotionWikiSourceRevisionInput(input)); err != nil {
 			return fmt.Errorf("publish notion wiki source page=%s: %w", pageID, err)
 		}
 	}
@@ -363,6 +364,7 @@ func (r *notionMirrorRunner) mirrorDatabase(ctx context.Context, databaseID stri
 		SchemaSummary:   schemaSummary,
 		SchemaHash:      schemaHash,
 		TraversalStatus: companyknowledge.NotionTraversalComplete,
+		Allowlisted:     notionRootAllowedByConfig(r.cfg, rootID),
 		Hierarchy:       currentHierarchy,
 		Raw:             map[string]any{"object": database.Object},
 	}
@@ -373,7 +375,7 @@ func (r *notionMirrorRunner) mirrorDatabase(ctx context.Context, databaseID stri
 		return fmt.Errorf("mirror notion database=%s into honcho: %w", databaseID, err)
 	}
 	if shouldPublishNotionWikiSource(databaseResult) {
-		if _, err := companyknowledge.RecordAndPublishWikiSource(ctx, r.cfg, r.store, companyknowledge.NotionWikiSourceRevisionInput(databaseInput)); err != nil {
+		if _, err := companyknowledge.RecordEnqueueAndMaybePublishWikiSource(ctx, r.cfg, r.store, companyknowledge.NotionWikiSourceRevisionInput(databaseInput)); err != nil {
 			return fmt.Errorf("publish notion wiki source database=%s: %w", databaseID, err)
 		}
 	}
@@ -406,6 +408,16 @@ func (r *notionMirrorRunner) mirrorDatabase(ctx context.Context, databaseID stri
 			return nil
 		}
 	}
+}
+
+func notionRootAllowedByConfig(cfg config.Config, rootID string) bool {
+	rootID = normalizeNotionID(rootID)
+	for _, item := range cfg.NotionMirrorAllowlist {
+		if normalizeNotionID(item) == rootID {
+			return true
+		}
+	}
+	return false
 }
 
 func (r *notionMirrorRunner) extractPageBody(ctx context.Context, pageID string, depth int, seenBlocks *int) (notionPageExtraction, error) {

@@ -250,11 +250,17 @@ func companyWikiEditApply(_ context.Context, cfg config.Config, repo any, req co
 	if err != nil {
 		return companyWikiEditResponse{}, http.StatusInternalServerError, err
 	}
-	sha, err := companyknowledge.PublishMarkdownFile(cfg.CompanyWikiRoot, relativePath, req.Body)
+	stage, sha, err := companyknowledge.StageMarkdownFile(cfg.CompanyWikiRoot, relativePath, req.Body)
 	if err != nil {
-		failed, _ := wikiStore.FailCompanyWikiAudit(audit.ID, err.Error(), map[string]any{"stage": "publish_markdown"})
+		failed, _ := wikiStore.FailCompanyWikiAudit(audit.ID, err.Error(), map[string]any{"stage": "stage_markdown"})
 		return companyWikiEditResponse{OK: false, Audit: failed}, http.StatusInternalServerError, err
 	}
+	removeStage := true
+	defer func() {
+		if removeStage {
+			_ = os.Remove(stage)
+		}
+	}()
 	page, err := wikiStore.PublishCompanyWikiPage(store.CompanyWikiPagePublishInput{
 		AuditID:     audit.ID,
 		Slug:        slug,
@@ -270,6 +276,23 @@ func companyWikiEditApply(_ context.Context, cfg config.Config, repo any, req co
 		failed, _ := wikiStore.FailCompanyWikiAudit(audit.ID, err.Error(), map[string]any{"stage": "record_revision"})
 		return companyWikiEditResponse{OK: false, Audit: failed}, http.StatusInternalServerError, err
 	}
+	if err := companyknowledge.CommitStagedMarkdownFile(stage, cfg.CompanyWikiRoot, relativePath); err != nil {
+		_ = wikiStore.UpdateCompanyWikiManifestRepair(relativePath, store.CompanyWikiManifestRepairNeeded, err.Error())
+		failed, _ := wikiStore.FailCompanyWikiAudit(audit.ID, err.Error(), map[string]any{"stage": "commit_markdown", "repair_status": store.CompanyWikiManifestRepairNeeded})
+		_ = companyknowledge.AppendLogEntry(cfg.CompanyWikiRoot, companyknowledge.WikiLogEntry{
+			Action:         "repair_needed",
+			Title:          req.Title,
+			Slug:           page.Page.Slug,
+			Status:         store.CompanyWikiManifestRepairNeeded,
+			Actor:          req.Actor,
+			Reason:         req.Reason,
+			WikiRevisionID: page.Revision.ID,
+			Summary:        err.Error(),
+		})
+		removeStage = false
+		return companyWikiEditResponse{OK: false, Audit: failed}, http.StatusInternalServerError, err
+	}
+	removeStage = false
 	completed, err := wikiStore.CompleteCompanyWikiAudit(audit.ID, page.Revision.ID, relativePath, map[string]any{"sha256": sha})
 	if err != nil {
 		return companyWikiEditResponse{}, http.StatusInternalServerError, err
@@ -320,6 +343,16 @@ func validateCompanyWikiEditApplyBody(wikiStore store.CompanyWikiStore, body str
 			return fmt.Errorf("frontmatter.source_revision_ids must include citation source_revision_id %q", revisionID)
 		}
 		if err := validateCompanyWikiCitationReference(wikiStore, citation); err != nil {
+			return err
+		}
+		evidence, found, err := wikiStore.GetCompanyWikiSourceEvidence(revisionID)
+		if err != nil {
+			return err
+		}
+		if !found {
+			return fmt.Errorf("citation source_revision_id %q was not found", revisionID)
+		}
+		if err := companyknowledge.ValidateCompanyWikiSourcePolicy(evidence.Document, evidence.Revision); err != nil {
 			return err
 		}
 	}

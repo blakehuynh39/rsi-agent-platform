@@ -48,6 +48,7 @@ type NotionObjectInput struct {
 	SchemaHash         string
 	TraversalStatus    string
 	Truncated          bool
+	Allowlisted        bool
 	Hierarchy          []string
 	OutboundReferences []NotionOutboundReference
 	Raw                map[string]any
@@ -379,6 +380,7 @@ func NotionDocumentMetadata(input NotionDocumentInput, sourceKey string, session
 		"hierarchy":          input.Hierarchy,
 		"traversal_status":   strings.TrimSpace(input.TraversalStatus),
 		"truncated":          input.Truncated,
+		"notion_allowlisted": input.Allowlisted,
 	}
 	if strings.TrimSpace(input.SchemaHash) != "" {
 		metadata["schema_hash"] = strings.TrimSpace(input.SchemaHash)

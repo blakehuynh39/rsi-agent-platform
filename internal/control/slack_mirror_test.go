@@ -142,6 +142,42 @@ func TestSlackMirrorChannelAllowedByConfigDefaultsToJoinedUnlessDenied(t *testin
 	}
 }
 
+func TestApplySlackMirrorPolicyMetadataUsesRealChannelPrivacy(t *testing.T) {
+	input := companyknowledge.SlackMessageInput{ChannelID: "CPRIVATE"}
+	applySlackMirrorPolicyMetadata(&input, config.Config{}, slackMirrorChannelMetadata{
+		ChannelID:      "CPRIVATE",
+		ChannelType:    "private_channel",
+		ChannelPrivate: true,
+		InfoChecked:    true,
+	})
+	if !input.ChannelPrivate || input.ChannelType != "private_channel" {
+		t.Fatalf("expected private channel metadata, got %+v", input)
+	}
+	if input.MirrorDenied || !input.MirrorAllowed {
+		t.Fatalf("joined mirror should keep ingestion allowed while source policy can reject private synthesis, got allowed=%t denied=%t", input.MirrorAllowed, input.MirrorDenied)
+	}
+}
+
+func TestApplySlackMirrorPolicyMetadataDeniesUnknownChannelInfoForWikiPolicy(t *testing.T) {
+	input := companyknowledge.SlackMessageInput{ChannelID: "CUNKNOWN"}
+	applySlackMirrorPolicyMetadata(&input, config.Config{}, slackMirrorChannelMetadata{
+		ChannelID:       "CUNKNOWN",
+		ChannelType:     "unknown",
+		ChannelPrivate:  true,
+		PolicyUntrusted: true,
+		InfoError:       "missing_scope",
+	})
+	if !input.MirrorDenied || input.MirrorAllowed {
+		t.Fatalf("untrusted channel info should deny wiki policy metadata, got allowed=%t denied=%t", input.MirrorAllowed, input.MirrorDenied)
+	}
+	if !input.ChannelPrivate || input.ChannelType != "unknown" {
+		t.Fatalf("unknown channel should be marked private by default, got %+v", input)
+	}
+	if input.Raw["channel_info_error"] != "missing_scope" {
+		t.Fatalf("channel info error not persisted in raw metadata: %+v", input.Raw)
+	}
+}
+
 func TestSlackWikiPublishBatchCompilesAfterPageBatch(t *testing.T) {
 	state := store.NewMemoryStore()
 	batch := newSlackWikiPublishBatch(config.Config{CompanyWikiRoot: t.TempDir()}, state)

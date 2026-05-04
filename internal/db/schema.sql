@@ -56,8 +56,6 @@ create table if not exists ingestion (
   channel_id text not null,
   user_id text not null,
   text text not null,
-  entity_refs jsonb not null default '[]'::jsonb,
-  prompt_envelope jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
 
@@ -65,8 +63,6 @@ create table if not exists workflow (
   id text primary key,
   ingestion_id text,
   trace_id text,
-  conversation_id text,
-  case_id text,
   thread_key text not null,
   kind text not null,
   intent text,
@@ -75,69 +71,10 @@ create table if not exists workflow (
   response_mode text,
   status text not null,
   last_error text,
-  attempt_number integer not null default 0,
-  parent_workflow_id text,
-  failure_class text,
-  failure_summary text,
-  retry_decision text,
-  retry_after timestamptz,
-  runner_diagnostics jsonb not null default '{}'::jsonb,
-  repair_attempted boolean not null default false,
-  repair_succeeded boolean not null default false,
-  version bigint not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   completed_at timestamptz
 );
-
-create table if not exists workflow_line (
-  case_id text primary key,
-  conversation_id text not null,
-  status text not null,
-  current_workflow_id text,
-  latest_workflow_id text,
-  attempt_count integer not null default 0,
-  auto_retry_budget_remaining integer not null default 0,
-  last_failure_class text,
-  next_retry_action text,
-  retry_after timestamptz,
-  line_stop_reason text,
-  version bigint not null default 0,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  completed_at timestamptz
-);
-
-create index if not exists workflow_line_conversation_idx on workflow_line (conversation_id, updated_at desc);
-
-create table if not exists runtime_diagnosis (
-  id text primary key,
-  candidate_key text not null,
-  repo text not null,
-  conversation_id text,
-  case_id text,
-  latest_trace_id text,
-  status text not null,
-  subsystem text,
-  failure_mode text,
-  summary text,
-  evidence_refs jsonb not null default '[]'::jsonb,
-  missing_evidence jsonb not null default '[]'::jsonb,
-  recommended_fix text,
-  target_surface text,
-  validation_plan text,
-  session_scope_kind text,
-  session_scope_id text,
-  last_result jsonb not null default '{}'::jsonb,
-  last_error text,
-  last_attempted_at timestamptz,
-  promoted_at timestamptz,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-
-create index if not exists runtime_diagnosis_candidate_idx on runtime_diagnosis (candidate_key, updated_at desc);
-create index if not exists runtime_diagnosis_trace_idx on runtime_diagnosis (latest_trace_id, updated_at desc);
 
 create table if not exists assignment (
   id text primary key,
@@ -192,8 +129,6 @@ create table if not exists trace_event (
   latency_ms bigint default 0
 );
 
-create index if not exists trace_event_trace_started_idx on trace_event (trace_id, started_at asc);
-
 create table if not exists artifact (
   id text primary key,
   trace_id text not null,
@@ -203,8 +138,6 @@ create table if not exists artifact (
   size_bytes bigint not null default 0,
   source text not null
 );
-
-create index if not exists artifact_trace_idx on artifact (trace_id, id);
 
 create table if not exists human_rating (
   id bigserial primary key,
@@ -267,7 +200,6 @@ create table if not exists conversation_entry (
 );
 
 create index if not exists conversation_entry_conv_idx on conversation_entry (conversation_id, created_at asc);
-create index if not exists conversation_entry_conv_created_id_idx on conversation_entry (conversation_id, created_at asc, id asc);
 create unique index if not exists conversation_entry_external_event_idx on conversation_entry (conversation_id, event_id, entry_type) where entry_type = 'external_event' and event_id is not null;
 create unique index if not exists conversation_entry_slack_action_idx on conversation_entry (conversation_id, source_event_id, entry_type) where entry_type = 'slack_action' and source_event_id is not null;
 
@@ -455,8 +387,6 @@ create table if not exists pr_attempt (
   conversation_id text,
   case_id text,
   origin_trace_id text,
-  operation_id text,
-  generation integer,
   repo text not null,
   branch_name text not null,
   pr_url text,
@@ -717,8 +647,6 @@ alter table if exists ingestion add column if not exists case_id text;
 alter table if exists ingestion add column if not exists thread_ts text;
 alter table if exists ingestion add column if not exists intent text;
 alter table if exists ingestion add column if not exists bot_role text;
-alter table if exists ingestion add column if not exists entity_refs jsonb not null default '[]'::jsonb;
-alter table if exists ingestion add column if not exists prompt_envelope jsonb not null default '{}'::jsonb;
 
 alter table if exists workflow add column if not exists ingestion_id text;
 alter table if exists workflow add column if not exists trace_id text;
@@ -741,7 +669,6 @@ alter table if exists trace_summary add column if not exists supersedes_trace_id
 alter table if exists trace_summary add column if not exists reasoning_step_count integer not null default 0;
 alter table if exists trace_summary add column if not exists tool_call_count integer not null default 0;
 alter table if exists trace_summary add column if not exists slack_action_count integer not null default 0;
-create index if not exists trace_summary_conversation_started_idx on trace_summary (conversation_id, started_at desc);
 
 alter table if exists trace_event add column if not exists conversation_id text;
 alter table if exists trace_event add column if not exists case_id text;
@@ -935,7 +862,7 @@ where updated_at < created_at;
 
 update proposal
 set active_slot_consuming = case
-  when status in ('pending_review', 'approved', 'in_progress', 'needs_review', 'repo_change_queued', 'repo_change_running', 'validation_pending', 'pr_open') then true
+  when status in ('pending_review', 'approved', 'repo_change_queued', 'repo_change_running', 'validation_pending', 'pr_open') then true
   else false
 end;
 
@@ -1053,27 +980,6 @@ create table if not exists harness_execution (
 create index if not exists harness_execution_trace_idx on harness_execution (trace_id, created_at desc);
 create index if not exists harness_execution_proposal_idx on harness_execution (proposal_id, created_at desc);
 create index if not exists harness_execution_role_scope_idx on harness_execution (role, session_scope_kind, session_scope_id, created_at desc);
-
-create table if not exists harness_execution_observation (
-  id text primary key,
-  execution_id text not null,
-  operation_id text not null default '',
-  trace_id text not null default '',
-  workflow_id text not null default '',
-  hermes_session_id text not null default '',
-  role text not null default '',
-  phase text not null,
-  event_type text not null,
-  status text not null default '',
-  seq integer not null,
-  payload jsonb not null default '{}'::jsonb,
-  recorded_at timestamptz not null default now(),
-  unique (execution_id, seq)
-);
-
-create index if not exists harness_execution_observation_trace_idx on harness_execution_observation (trace_id, recorded_at desc, seq asc);
-create index if not exists harness_execution_observation_operation_idx on harness_execution_observation (operation_id, recorded_at desc, seq asc);
-create index if not exists harness_execution_observation_session_idx on harness_execution_observation (hermes_session_id, recorded_at desc, seq asc);
 
 insert into harness_profile (
   id,
@@ -1512,8 +1418,6 @@ alter table if exists proposal add column if not exists line_stopped_at timestam
 
 alter table if exists repo_change_job add column if not exists attempt_id text not null default '';
 alter table if exists pr_attempt add column if not exists attempt_id text not null default '';
-alter table if exists pr_attempt add column if not exists operation_id text;
-alter table if exists pr_attempt add column if not exists generation integer;
 alter table if exists pr_attempt add column if not exists head_sha text not null default '';
 alter table if exists action_intent add column if not exists attempt_id text not null default '';
 alter table if exists action_result add column if not exists attempt_id text not null default '';
@@ -1666,8 +1570,6 @@ create table if not exists attempt_workspace (
   id text primary key,
   attempt_id text not null unique,
   proposal_id text not null,
-  operation_id text,
-  generation integer,
   repo text not null,
   base_ref text not null default 'main',
   branch_name text not null,
@@ -1675,8 +1577,6 @@ create table if not exists attempt_workspace (
   job_name text,
   pod_name text,
   status text not null default 'queued',
-  last_error text not null default '',
-  repairable boolean not null default false,
   allowed_path_globs jsonb not null default '[]'::jsonb,
   head_sha text,
   diff_summary text not null default '',
@@ -1686,6 +1586,222 @@ create table if not exists attempt_workspace (
 );
 
 create index if not exists attempt_workspace_proposal_idx on attempt_workspace (proposal_id, created_at desc);
+
+
+alter table if exists proposal add column if not exists version bigint not null default 0;
+alter table if exists change_attempt add column if not exists version bigint not null default 0;
+
+create table if not exists domain_event (
+  id text primary key,
+  machine_kind text not null,
+  aggregate_id text not null,
+  aggregate_version bigint not null,
+  event_kind text not null,
+  command_id text not null default '',
+  causation_id text not null default '',
+  payload jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists domain_event_aggregate_idx
+  on domain_event (machine_kind, aggregate_id, aggregate_version desc);
+create index if not exists domain_event_kind_idx
+  on domain_event (event_kind, created_at desc);
+
+create table if not exists effect_execution (
+  id text primary key,
+  machine_kind text not null,
+  aggregate_id text not null,
+  attempt_id text not null default '',
+  effect_kind text not null,
+  status text not null,
+  idempotency_key text not null,
+  payload jsonb not null default '{}'::jsonb,
+  result_ref text not null default '',
+  last_error text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  started_at timestamptz,
+  completed_at timestamptz
+);
+
+create unique index if not exists effect_execution_idempotency_idx
+  on effect_execution (idempotency_key);
+create index if not exists effect_execution_attempt_idx
+  on effect_execution (attempt_id, updated_at desc);
+
+
+alter table if exists workflow
+  add column if not exists version bigint not null default 0;
+
+alter table if exists effect_execution
+  add column if not exists holder text not null default '';
+alter table if exists effect_execution
+  add column if not exists retry_count integer not null default 0;
+alter table if exists effect_execution
+  add column if not exists lease_expires_at timestamptz;
+
+create index if not exists effect_execution_aggregate_idx
+  on effect_execution (machine_kind, aggregate_id, updated_at desc);
+create index if not exists effect_execution_status_idx
+  on effect_execution (status, updated_at desc);
+
+create table if not exists command_receipt (
+  command_id text primary key,
+  machine_kind text not null,
+  aggregate_id text not null,
+  command_kind text not null,
+  causation_id text not null default '',
+  actor text not null default '',
+  decision_kind text not null,
+  reason text not null default '',
+  aggregate_version bigint not null default 0,
+  result_ref text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists command_receipt_machine_idx
+  on command_receipt (machine_kind, aggregate_id, updated_at desc);
+
+
+drop index if exists work_item_operation_idx;
+drop index if exists work_item_queue_status_idx;
+drop table if exists operation_execution;
+drop table if exists work_item;
+
+
+alter table if exists workflow
+  add column if not exists conversation_id text;
+alter table if exists workflow
+  add column if not exists case_id text;
+alter table if exists workflow
+  add column if not exists attempt_number integer not null default 0;
+alter table if exists workflow
+  add column if not exists parent_workflow_id text;
+alter table if exists workflow
+  add column if not exists failure_class text;
+alter table if exists workflow
+  add column if not exists failure_summary text;
+alter table if exists workflow
+  add column if not exists retry_decision text;
+alter table if exists workflow
+  add column if not exists retry_after timestamptz;
+alter table if exists workflow
+  add column if not exists repair_attempted boolean not null default false;
+alter table if exists workflow
+  add column if not exists repair_succeeded boolean not null default false;
+alter table if exists workflow
+  add column if not exists version bigint not null default 0;
+
+create table if not exists workflow_line (
+  case_id text primary key,
+  conversation_id text not null,
+  status text not null,
+  current_workflow_id text,
+  latest_workflow_id text,
+  attempt_count integer not null default 0,
+  auto_retry_budget_remaining integer not null default 0,
+  last_failure_class text,
+  next_retry_action text,
+  retry_after timestamptz,
+  line_stop_reason text,
+  version bigint not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  completed_at timestamptz
+);
+
+create index if not exists workflow_line_conversation_idx
+  on workflow_line (conversation_id, updated_at desc);
+
+
+alter table workflow
+  add column if not exists runner_diagnostics jsonb not null default '{}'::jsonb;
+
+
+create table if not exists runtime_diagnosis (
+  id text primary key,
+  candidate_key text not null,
+  repo text not null,
+  conversation_id text,
+  case_id text,
+  latest_trace_id text,
+  status text not null,
+  subsystem text,
+  failure_mode text,
+  summary text,
+  evidence_refs jsonb not null default '[]'::jsonb,
+  missing_evidence jsonb not null default '[]'::jsonb,
+  recommended_fix text,
+  target_surface text,
+  validation_plan text,
+  session_scope_kind text,
+  session_scope_id text,
+  last_result jsonb not null default '{}'::jsonb,
+  last_error text,
+  last_attempted_at timestamptz,
+  promoted_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists runtime_diagnosis_candidate_idx on runtime_diagnosis (candidate_key, updated_at desc);
+create index if not exists runtime_diagnosis_trace_idx on runtime_diagnosis (latest_trace_id, updated_at desc);
+
+
+with duplicate_external_event as (
+  select id
+  from (
+    select
+      id,
+      row_number() over (
+        partition by conversation_id, event_id, entry_type
+        order by created_at asc, id asc
+      ) as row_num
+    from conversation_entry
+    where entry_type = 'external_event'
+      and event_id is not null
+  ) ranked
+  where row_num > 1
+),
+duplicate_slack_action as (
+  select id
+  from (
+    select
+      id,
+      row_number() over (
+        partition by conversation_id, source_event_id, entry_type
+        order by created_at asc, id asc
+      ) as row_num
+    from conversation_entry
+    where entry_type = 'slack_action'
+      and source_event_id is not null
+  ) ranked
+  where row_num > 1
+)
+delete from conversation_entry
+where id in (
+  select id from duplicate_external_event
+  union all
+  select id from duplicate_slack_action
+);
+
+create unique index if not exists conversation_entry_external_event_idx
+  on conversation_entry (conversation_id, event_id, entry_type)
+  where entry_type = 'external_event' and event_id is not null;
+
+create unique index if not exists conversation_entry_slack_action_idx
+  on conversation_entry (conversation_id, source_event_id, entry_type)
+  where entry_type = 'slack_action' and source_event_id is not null;
+
+
+alter table workflow
+  add column if not exists last_verdict text not null default '';
+
+
+alter table if exists pr_attempt add column if not exists operation_id text;
+alter table if exists pr_attempt add column if not exists generation integer;
 
 alter table if exists attempt_workspace add column if not exists operation_id text;
 alter table if exists attempt_workspace add column if not exists generation integer;
@@ -1724,142 +1840,75 @@ create index if not exists validation_run_operation_idx
   on validation_run (operation_id)
   where operation_id is not null and operation_id <> '';
 
+update proposal
+set active_slot_consuming = case
+  when status in ('pending_review', 'approved', 'in_progress', 'needs_review', 'repo_change_queued', 'repo_change_running', 'validation_pending', 'pr_open') then true
+  else false
+end;
 
-alter table if exists proposal add column if not exists version bigint not null default 0;
-alter table if exists change_attempt add column if not exists version bigint not null default 0;
 
-create table if not exists domain_event (
+create table if not exists question_run (
   id text primary key,
-  machine_kind text not null,
-  aggregate_id text not null,
-  aggregate_version bigint not null,
-  event_kind text not null,
-  command_id text not null default '',
-  causation_id text not null default '',
-  payload jsonb not null default '{}'::jsonb,
-  created_at timestamptz not null default now()
-);
-
-create index if not exists domain_event_aggregate_idx
-  on domain_event (machine_kind, aggregate_id, aggregate_version desc);
-create index if not exists domain_event_kind_idx
-  on domain_event (event_kind, created_at desc);
-
-create table if not exists effect_execution (
-  id text primary key,
-  machine_kind text not null,
-  aggregate_id text not null,
-  attempt_id text not null default '',
-  effect_kind text not null,
+  workflow_id text not null,
+  trace_id text,
+  conversation_id text,
+  case_id text,
+  ingestion_id text,
+  role text,
+  strategy text,
   status text not null,
-  idempotency_key text not null,
-  queue_name text not null default 'workflow',
-  scope_key text not null default '',
-  task_class text not null default 'simple',
-  priority integer not null default 0,
-  not_before timestamptz,
-  payload jsonb not null default '{}'::jsonb,
-  result_ref text not null default '',
-  last_error text not null default '',
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  started_at timestamptz,
-  completed_at timestamptz
-);
-
-create unique index if not exists effect_execution_idempotency_idx
-  on effect_execution (idempotency_key);
-create index if not exists effect_execution_attempt_idx
-  on effect_execution (attempt_id, updated_at desc);
-
-
-alter table if exists workflow
-  add column if not exists version bigint not null default 0;
-
-alter table if exists effect_execution
-  add column if not exists holder text not null default '';
-alter table if exists effect_execution
-  add column if not exists retry_count integer not null default 0;
-alter table if exists effect_execution
-  add column if not exists lease_expires_at timestamptz;
-alter table if exists effect_execution
-  add column if not exists queue_name text not null default 'workflow';
-alter table if exists effect_execution
-  add column if not exists scope_key text not null default '';
-alter table if exists effect_execution
-  add column if not exists task_class text not null default 'simple';
-alter table if exists effect_execution
-  add column if not exists priority integer not null default 0;
-alter table if exists effect_execution
-  add column if not exists not_before timestamptz;
-
-create index if not exists effect_execution_aggregate_idx
-  on effect_execution (machine_kind, aggregate_id, updated_at desc);
-create index if not exists effect_execution_status_idx
-  on effect_execution (status, updated_at desc);
-create index if not exists effect_execution_claim_idx
-  on effect_execution (queue_name, status, priority desc, created_at asc);
-create index if not exists effect_execution_scope_idx
-  on effect_execution (scope_key, status, lease_expires_at);
-
-create table if not exists runner_execution (
-  execution_id text primary key,
-  operation_id text not null default '',
-  workflow_id text not null default '',
-  trace_id text not null default '',
-  conversation_id text not null default '',
-  case_id text not null default '',
-  role text not null default '',
-  executor_instance_id text not null default '',
-  executor_base_url text not null default '',
-  status text not null,
-  task jsonb not null default '{}'::jsonb,
+  investigation_spec jsonb not null default '{}'::jsonb,
+  evidence_ledger jsonb not null default '{}'::jsonb,
   result jsonb not null default '{}'::jsonb,
-  failure_class text not null default '',
-  holder text not null default '',
-  retry_count integer not null default 0,
-  cancel_requested boolean not null default false,
-  heartbeat_at timestamptz,
+  failure_class text,
+  failure_summary text,
+  last_error text,
+  runner_diagnostics jsonb not null default '{}'::jsonb,
+  version bigint not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  started_at timestamptz,
   completed_at timestamptz
 );
 
-create index if not exists runner_execution_active_idx
-  on runner_execution (status, updated_at desc)
-  where status in ('queued','accepted','starting','running','finalizing','cancelling','cancel_requested');
-create index if not exists runner_execution_case_idx
-  on runner_execution (case_id, trace_id, status);
-create index if not exists runner_execution_operation_idx
-  on runner_execution (operation_id, updated_at desc);
-create index if not exists runner_execution_executor_idx
-  on runner_execution (executor_instance_id, status, updated_at desc)
-  where status in ('queued','accepted','starting','running','finalizing','cancelling','cancel_requested');
+create index if not exists question_run_workflow_idx
+  on question_run (workflow_id, updated_at desc);
 
-create table if not exists command_receipt (
-  command_id text primary key,
-  machine_kind text not null,
-  aggregate_id text not null,
-  command_kind text not null,
-  causation_id text not null default '',
-  actor text not null default '',
-  decision_kind text not null,
-  reason text not null default '',
-  aggregate_version bigint not null default 0,
-  result_ref text not null default '',
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+create index if not exists question_run_trace_idx
+  on question_run (trace_id, updated_at desc);
+
+
+alter table if exists ingestion
+  add column if not exists entity_refs jsonb not null default '[]'::jsonb;
+
+
+alter table if exists ingestion
+  add column if not exists prompt_envelope jsonb not null default '{}'::jsonb;
+
+
+create table if not exists harness_execution_observation (
+  id text primary key,
+  execution_id text not null,
+  operation_id text not null default '',
+  trace_id text not null default '',
+  workflow_id text not null default '',
+  hermes_session_id text not null default '',
+  role text not null default '',
+  phase text not null,
+  event_type text not null,
+  status text not null default '',
+  seq integer not null,
+  payload jsonb not null default '{}'::jsonb,
+  recorded_at timestamptz not null default now(),
+  unique (execution_id, seq)
 );
 
-create index if not exists command_receipt_machine_idx
-  on command_receipt (machine_kind, aggregate_id, updated_at desc);
+create index if not exists harness_execution_observation_trace_idx
+  on harness_execution_observation (trace_id, recorded_at desc, seq asc);
+create index if not exists harness_execution_observation_operation_idx
+  on harness_execution_observation (operation_id, recorded_at desc, seq asc);
+create index if not exists harness_execution_observation_session_idx
+  on harness_execution_observation (hermes_session_id, recorded_at desc, seq asc);
 
-
-drop index if exists work_item_operation_idx;
-drop index if exists work_item_queue_status_idx;
-drop table if exists operation_execution;
-drop table if exists work_item;
 
 create table if not exists execution_ledger_event (
   id text primary key,
@@ -1881,8 +1930,6 @@ create index if not exists execution_ledger_event_execution_idx
   on execution_ledger_event (execution_id, seq asc);
 create index if not exists execution_ledger_event_trace_idx
   on execution_ledger_event (trace_id, recorded_at desc, seq asc);
-create index if not exists execution_ledger_event_trace_page_idx
-  on execution_ledger_event (trace_id, recorded_at desc, execution_id desc, seq desc, id desc);
 create index if not exists execution_ledger_event_workflow_idx
   on execution_ledger_event (workflow_id, recorded_at desc, seq asc);
 create index if not exists execution_ledger_event_kind_idx
@@ -1890,6 +1937,110 @@ create index if not exists execution_ledger_event_kind_idx
 create index if not exists execution_ledger_event_idempotency_idx
   on execution_ledger_event (idempotency_key)
   where idempotency_key <> '';
+
+
+alter table if exists effect_execution
+  add column if not exists queue_name text not null default 'workflow';
+alter table if exists effect_execution
+  add column if not exists scope_key text not null default '';
+alter table if exists effect_execution
+  add column if not exists task_class text not null default 'simple';
+alter table if exists effect_execution
+  add column if not exists priority integer not null default 0;
+alter table if exists effect_execution
+  add column if not exists not_before timestamptz;
+
+update effect_execution
+set queue_name = case
+      when machine_kind = 'action' then 'action'
+      else coalesce(nullif(payload->>'resume_queue', ''), nullif(queue_name, ''), 'workflow')
+    end,
+    scope_key = coalesce(nullif(payload->>'conversation_id', ''), nullif(payload->>'case_id', ''), nullif(scope_key, ''), aggregate_id),
+    task_class = case
+      when (payload->>'requested_artifact_count') ~ '^[0-9]+$' and (payload->>'requested_artifact_count')::integer > 0 then 'artifact'
+      when lower(coalesce(payload->>'task_class', '')) = 'artifact' then 'artifact'
+      when lower(coalesce(payload->>'task_class', '')) = 'improvement' then 'improvement'
+      when machine_kind in ('attempt','problem_line','runtime_diagnosis') then 'improvement'
+      else coalesce(nullif(payload->>'task_class', ''), nullif(task_class, ''), 'simple')
+    end,
+    priority = case
+      when (payload->>'requested_artifact_count') ~ '^[0-9]+$' and (payload->>'requested_artifact_count')::integer > 0 then 50
+      when lower(coalesce(payload->>'task_class', task_class, '')) = 'artifact' then 50
+      when lower(coalesce(payload->>'task_class', task_class, '')) = 'improvement' then 10
+      when machine_kind in ('attempt','problem_line','runtime_diagnosis') then 10
+      else greatest(priority, 100)
+    end
+where coalesce(scope_key, '') = ''
+   or priority = 0
+   or coalesce(task_class, '') = ''
+   or (machine_kind = 'action' and queue_name <> 'action');
+
+create index if not exists effect_execution_claim_idx
+  on effect_execution (queue_name, status, priority desc, created_at asc);
+create index if not exists effect_execution_scope_idx
+  on effect_execution (scope_key, status, lease_expires_at);
+
+create table if not exists runner_execution (
+  execution_id text primary key,
+  operation_id text not null default '',
+  workflow_id text not null default '',
+  trace_id text not null default '',
+  conversation_id text not null default '',
+  case_id text not null default '',
+  role text not null default '',
+  status text not null,
+  task jsonb not null default '{}'::jsonb,
+  result jsonb not null default '{}'::jsonb,
+  failure_class text not null default '',
+  holder text not null default '',
+  retry_count integer not null default 0,
+  cancel_requested boolean not null default false,
+  heartbeat_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  started_at timestamptz,
+  completed_at timestamptz
+);
+
+create index if not exists runner_execution_active_idx
+  on runner_execution (status, updated_at desc)
+  where status in ('queued','accepted','starting','running','finalizing','cancelling','cancel_requested');
+create index if not exists runner_execution_case_idx
+  on runner_execution (case_id, trace_id, status);
+create index if not exists runner_execution_operation_idx
+  on runner_execution (operation_id, updated_at desc);
+
+
+update effect_execution
+set queue_name = 'action'
+where machine_kind = 'action'
+  and queue_name <> 'action';
+
+
+create index if not exists trace_summary_conversation_started_idx on trace_summary (conversation_id, started_at desc);
+create index if not exists conversation_entry_conv_created_id_idx on conversation_entry (conversation_id, created_at asc, id asc);
+
+
+create index if not exists execution_ledger_event_trace_page_idx
+  on execution_ledger_event (trace_id, recorded_at desc, execution_id desc, seq desc, id desc);
+
+create index if not exists trace_event_trace_started_idx
+  on trace_event (trace_id, started_at asc);
+
+create index if not exists artifact_trace_idx
+  on artifact (trace_id, id);
+
+
+alter table if exists runner_execution
+  add column if not exists executor_instance_id text not null default '';
+
+alter table if exists runner_execution
+  add column if not exists executor_base_url text not null default '';
+
+create index if not exists runner_execution_executor_idx
+  on runner_execution (executor_instance_id, status, updated_at desc)
+  where status in ('queued','accepted','starting','running','finalizing','cancelling','cancel_requested');
+
 
 create index if not exists trace_summary_case_started_idx
   on trace_summary (case_id, started_at desc);
@@ -1940,6 +2091,7 @@ create index if not exists improvement_candidate_latest_trace_updated_idx
 create index if not exists improvement_candidate_evidence_trace_ids_gin_idx
   on improvement_candidate using gin (evidence_trace_ids);
 
+
 create table if not exists source_mirror_record (
   source_type text not null,
   source_key text not null,
@@ -1949,10 +2101,8 @@ create table if not exists source_mirror_record (
   honcho_workspace text not null default '',
   honcho_session_id text not null default '',
   honcho_message_id text not null default '',
-  honcho_object_type text not null default '',
-  honcho_object_id text not null default '',
   source_revision text not null default '',
-  status text not null default 'pending' check (status in ('pending', 'complete', 'failed', 'stale')),
+  status text not null default 'pending' check (status in ('pending', 'complete', 'failed')),
   metadata jsonb not null default '{}'::jsonb,
   last_error text not null default '',
   created_at timestamptz not null default now(),
@@ -1969,9 +2119,42 @@ create index if not exists source_mirror_record_status_idx
 create index if not exists source_mirror_record_honcho_idx
   on source_mirror_record (honcho_workspace, honcho_session_id, updated_at desc);
 
+
+delete from effect_execution where machine_kind = 'question_run';
+
+delete from command_receipt where machine_kind = 'question_run';
+
+delete from domain_event where machine_kind = 'question_run';
+
+drop index if exists question_run_trace_idx;
+drop index if exists question_run_workflow_idx;
+drop table if exists question_run;
+
+
+alter table if exists source_mirror_record
+  add column if not exists honcho_object_type text not null default '';
+
+alter table if exists source_mirror_record
+  add column if not exists honcho_object_id text not null default '';
+
+update source_mirror_record
+set honcho_object_type = 'message',
+    honcho_object_id = honcho_message_id
+where honcho_message_id <> ''
+  and honcho_object_id = '';
+
 create index if not exists source_mirror_record_honcho_object_idx
   on source_mirror_record (honcho_object_type, honcho_object_id)
   where honcho_object_id <> '';
+
+
+alter table if exists source_mirror_record
+  drop constraint if exists source_mirror_record_status_check;
+
+alter table if exists source_mirror_record
+  add constraint source_mirror_record_status_check
+  check (status in ('pending', 'complete', 'failed', 'stale'));
+
 
 create table if not exists company_source_document (
   id text primary key,
@@ -2162,3 +2345,95 @@ create table if not exists company_wiki_write_audit (
 create unique index if not exists company_wiki_write_audit_idempotency_idx
   on company_wiki_write_audit (mode, idempotency_key)
   where idempotency_key <> '';
+
+
+alter table if exists company_wiki_manifest
+  add column if not exists repair_status text not null default 'ok'
+    check (repair_status in ('ok', 'repair_needed', 'repair_failed', 'not_generated'));
+
+alter table if exists company_wiki_manifest
+  add column if not exists last_repair_error text not null default '';
+
+alter table if exists company_wiki_manifest
+  add column if not exists last_checked_at timestamptz;
+
+alter table if exists company_wiki_manifest
+  add column if not exists last_repaired_at timestamptz;
+
+create table if not exists company_wiki_compile_item (
+  id text primary key,
+  source_revision_id text not null references company_source_revision(id) on delete cascade,
+  compiler_version text not null,
+  schema_version text not null,
+  renderer_version text not null,
+  model_policy_version text not null,
+  input_hash text not null default '',
+  status text not null default 'pending'
+    check (status in ('pending', 'claimed', 'completed', 'failed', 'skipped')),
+  lease_holder text not null default '',
+  lease_expires_at timestamptz,
+  attempt_count integer not null default 0,
+  last_attempt_id text not null default '',
+  last_error text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (source_revision_id, compiler_version, schema_version, renderer_version, model_policy_version)
+);
+
+create index if not exists company_wiki_compile_item_status_idx
+  on company_wiki_compile_item (status, lease_expires_at, updated_at);
+
+create table if not exists company_wiki_compile_attempt (
+  id text primary key,
+  compile_item_id text not null references company_wiki_compile_item(id) on delete cascade,
+  compiler_run_id text not null default '',
+  status text not null default 'claimed'
+    check (status in ('pending', 'claimed', 'completed', 'failed', 'skipped')),
+  model text not null default '',
+  context_hash text not null default '',
+  output_hash text not null default '',
+  request_metadata_hash text not null default '',
+  response_metadata_hash text not null default '',
+  duration_millis bigint not null default 0,
+  validation_errors jsonb not null default '[]'::jsonb,
+  last_error text not null default '',
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  completed_at timestamptz
+);
+
+create index if not exists company_wiki_compile_attempt_item_idx
+  on company_wiki_compile_attempt (compile_item_id, created_at desc);
+
+create table if not exists company_wiki_compile_item_target (
+  id text primary key,
+  compile_item_id text not null references company_wiki_compile_item(id) on delete cascade,
+  target_slug text not null,
+  target_path text not null default '',
+  target_type text not null default '',
+  status text not null default 'pending'
+    check (status in ('pending', 'published', 'failed', 'skipped', 'superseded')),
+  wiki_revision_id text not null default '',
+  idempotency_key text not null default '',
+  body_hash text not null default '',
+  last_error text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (compile_item_id, target_slug)
+);
+
+create index if not exists company_wiki_compile_item_target_item_idx
+  on company_wiki_compile_item_target (compile_item_id, status, target_slug);
+
+create table if not exists company_wiki_conflict_citation (
+  conflict_id text not null references company_wiki_conflict(id) on delete cascade,
+  citation_id text not null references company_wiki_citation(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (conflict_id, citation_id)
+);
+
+create index if not exists company_wiki_page_metadata_gin_idx
+  on company_wiki_page using gin (metadata);
+
+create index if not exists company_wiki_revision_metadata_gin_idx
+  on company_wiki_revision using gin (metadata);

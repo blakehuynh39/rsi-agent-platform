@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	mode := flag.String("mode", "serve", "serve, slack-surface, slack-mirror, notion-mirror, source-mirror-health, worker, or action-worker")
+	mode := flag.String("mode", "serve", "serve, slack-surface, slack-mirror, notion-mirror, source-mirror-health, company-wiki-compiler, worker, or action-worker")
 	flag.Parse()
 
 	cfg, err := config.Load("control-plane").ValidatedFor("control-plane", *mode)
@@ -72,6 +72,12 @@ func main() {
 	}
 	if *mode == "action-worker" {
 		if err := control.RunActionWorker(cfg, store); err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
+	if *mode == "company-wiki-compiler" {
+		if err := control.RunCompanyWikiCompiler(context.Background(), cfg, store); err != nil {
 			log.Fatal(err)
 		}
 		return

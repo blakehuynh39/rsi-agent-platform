@@ -24,21 +24,27 @@ const (
 var honchoNameAllowed = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 
 type SlackMessageInput struct {
-	WorkspaceID string
-	ChannelID   string
-	TS          string
-	ThreadTS    string
-	UserID      string
-	BotID       string
-	Username    string
-	Text        string
-	EditedTS    string
-	EventID     string
-	Permalink   string
-	ReplyCount  int
-	Files       []SlackFileMetadata
-	CreatedAt   time.Time
-	Raw         map[string]any
+	WorkspaceID     string
+	ChannelID       string
+	ChannelType     string
+	ChannelPrivate  bool
+	ChannelIM       bool
+	MirrorDiscovery string
+	MirrorAllowed   bool
+	MirrorDenied    bool
+	TS              string
+	ThreadTS        string
+	UserID          string
+	BotID           string
+	Username        string
+	Text            string
+	EditedTS        string
+	EventID         string
+	Permalink       string
+	ReplyCount      int
+	Files           []SlackFileMetadata
+	CreatedAt       time.Time
+	Raw             map[string]any
 }
 
 type SlackFileMetadata struct {
@@ -298,6 +304,12 @@ func SlackMessageMetadata(input SlackMessageInput, sourceKey string, sessionKey 
 		"source_session_key": sessionKey,
 		"workspace_id":       strings.TrimSpace(input.WorkspaceID),
 		"channel_id":         strings.TrimSpace(input.ChannelID),
+		"channel_type":       strings.TrimSpace(input.ChannelType),
+		"channel_private":    input.ChannelPrivate,
+		"channel_im":         input.ChannelIM,
+		"mirror_discovery":   strings.TrimSpace(input.MirrorDiscovery),
+		"mirror_allowed":     input.MirrorAllowed,
+		"mirror_denied":      input.MirrorDenied,
 		"slack_ts":           strings.TrimSpace(input.TS),
 		"thread_ts":          input.EffectiveThreadTS(),
 		"permalink":          strings.TrimSpace(input.Permalink),
@@ -309,6 +321,12 @@ func SlackMessageMetadata(input SlackMessageInput, sourceKey string, sessionKey 
 	}
 	if len(input.Raw) > 0 {
 		metadata["raw_keys"] = sortedKeys(input.Raw)
+		if checked, ok := input.Raw["channel_info_checked"]; ok {
+			metadata["channel_info_checked"] = checked
+		}
+		if infoErr, ok := input.Raw["channel_info_error"]; ok {
+			metadata["channel_info_error"] = infoErr
+		}
 	}
 	return metadata
 }

@@ -108,8 +108,8 @@ func scanCompanyWikiCitationScanner(row companyWikiRow) (CompanyWikiCitation, er
 func scanCompanyWikiPageRead(row companyWikiRow) (CompanyWikiPageRead, bool, error) {
 	var read CompanyWikiPageRead
 	var pageMetadata, revisionMetadata, sourceRevisionIDs []byte
-	var manifestPath, manifestPageID, manifestRevisionID, manifestSHA, manifestCompilerRunID sql.NullString
-	var manifestGeneratedAt sql.NullTime
+	var manifestPath, manifestPageID, manifestRevisionID, manifestSHA, manifestCompilerRunID, manifestRepairStatus, manifestRepairError sql.NullString
+	var manifestGeneratedAt, manifestLastCheckedAt, manifestLastRepairedAt sql.NullTime
 	err := row.Scan(
 		&read.Page.ID, &read.Page.Slug, &read.Page.Title, &read.Page.Status,
 		&read.Page.CurrentRevisionID, &pageMetadata, &read.Page.CreatedAt, &read.Page.UpdatedAt,
@@ -118,7 +118,8 @@ func scanCompanyWikiPageRead(row companyWikiRow) (CompanyWikiPageRead, bool, err
 		&read.Revision.BodySHA256, &read.Revision.Path, &sourceRevisionIDs,
 		&revisionMetadata, &read.Revision.PublishedAt, &read.Revision.CreatedAt,
 		&manifestPath, &manifestPageID, &manifestRevisionID, &manifestSHA,
-		&manifestCompilerRunID, &manifestGeneratedAt,
+		&manifestCompilerRunID, &manifestGeneratedAt, &manifestRepairStatus,
+		&manifestRepairError, &manifestLastCheckedAt, &manifestLastRepairedAt,
 	)
 	if err == sql.ErrNoRows {
 		return CompanyWikiPageRead{}, false, nil
@@ -136,14 +137,101 @@ func scanCompanyWikiPageRead(row companyWikiRow) (CompanyWikiPageRead, bool, err
 		read.Revision.Metadata = map[string]any{}
 	}
 	read.Manifest = CompanyWikiManifestEntry{
-		Path:           manifestPath.String,
-		WikiPageID:     manifestPageID.String,
-		WikiRevisionID: manifestRevisionID.String,
-		SHA256:         manifestSHA.String,
-		CompilerRunID:  manifestCompilerRunID.String,
+		Path:            manifestPath.String,
+		WikiPageID:      manifestPageID.String,
+		WikiRevisionID:  manifestRevisionID.String,
+		SHA256:          manifestSHA.String,
+		CompilerRunID:   manifestCompilerRunID.String,
+		RepairStatus:    manifestRepairStatus.String,
+		LastRepairError: manifestRepairError.String,
 	}
 	if manifestGeneratedAt.Valid {
 		read.Manifest.GeneratedAt = manifestGeneratedAt.Time
 	}
+	if manifestLastCheckedAt.Valid {
+		read.Manifest.LastCheckedAt = manifestLastCheckedAt.Time
+	}
+	if manifestLastRepairedAt.Valid {
+		read.Manifest.LastRepairedAt = manifestLastRepairedAt.Time
+	}
 	return read, true, nil
+}
+
+func scanCompanyWikiClaim(row companyWikiRow) (CompanyWikiClaim, error) {
+	var item CompanyWikiClaim
+	var metadata []byte
+	if err := row.Scan(&item.ID, &item.WikiRevisionID, &item.ClaimKey, &item.ClaimText, &item.Confidence, &metadata, &item.CreatedAt); err != nil {
+		return CompanyWikiClaim{}, err
+	}
+	_ = json.Unmarshal(metadata, &item.Metadata)
+	if item.Metadata == nil {
+		item.Metadata = map[string]any{}
+	}
+	return item, nil
+}
+
+func scanCompanyWikiConflict(row companyWikiRow) (CompanyWikiConflict, error) {
+	var item CompanyWikiConflict
+	var citationIDs, metadata []byte
+	if err := row.Scan(&item.ID, &item.WikiRevisionID, &item.ClaimKey, &item.Summary, &citationIDs, &metadata, &item.CreatedAt); err != nil {
+		return CompanyWikiConflict{}, err
+	}
+	_ = json.Unmarshal(citationIDs, &item.CitationIDs)
+	_ = json.Unmarshal(metadata, &item.Metadata)
+	if item.Metadata == nil {
+		item.Metadata = map[string]any{}
+	}
+	return item, nil
+}
+
+func scanCompanyWikiCompileItem(row companyWikiRow) (CompanyWikiCompileItem, error) {
+	var item CompanyWikiCompileItem
+	var leaseExpiresAt sql.NullTime
+	if err := row.Scan(
+		&item.ID, &item.SourceRevisionID, &item.CompilerVersion, &item.SchemaVersion,
+		&item.RendererVersion, &item.ModelPolicyVersion, &item.InputHash, &item.Status,
+		&item.LeaseHolder, &leaseExpiresAt, &item.AttemptCount, &item.LastAttemptID,
+		&item.LastError, &item.CreatedAt, &item.UpdatedAt,
+	); err != nil {
+		return CompanyWikiCompileItem{}, err
+	}
+	if leaseExpiresAt.Valid {
+		item.LeaseExpiresAt = leaseExpiresAt.Time
+	}
+	return item, nil
+}
+
+func scanCompanyWikiCompileAttempt(row companyWikiRow) (CompanyWikiCompileAttempt, error) {
+	var item CompanyWikiCompileAttempt
+	var validationErrors, metadata []byte
+	var completedAt sql.NullTime
+	if err := row.Scan(
+		&item.ID, &item.CompileItemID, &item.CompilerRunID, &item.Status, &item.Model,
+		&item.ContextHash, &item.OutputHash, &item.RequestMetadataHash,
+		&item.ResponseMetadataHash, &item.DurationMillis, &validationErrors,
+		&item.LastError, &metadata, &item.CreatedAt, &completedAt,
+	); err != nil {
+		return CompanyWikiCompileAttempt{}, err
+	}
+	_ = json.Unmarshal(validationErrors, &item.ValidationErrors)
+	_ = json.Unmarshal(metadata, &item.Metadata)
+	if item.Metadata == nil {
+		item.Metadata = map[string]any{}
+	}
+	if completedAt.Valid {
+		item.CompletedAt = completedAt.Time
+	}
+	return item, nil
+}
+
+func scanCompanyWikiCompileTarget(row companyWikiRow) (CompanyWikiCompileTarget, error) {
+	var item CompanyWikiCompileTarget
+	if err := row.Scan(
+		&item.ID, &item.CompileItemID, &item.TargetSlug, &item.TargetPath, &item.TargetType,
+		&item.Status, &item.WikiRevisionID, &item.IdempotencyKey, &item.BodyHash,
+		&item.LastError, &item.CreatedAt, &item.UpdatedAt,
+	); err != nil {
+		return CompanyWikiCompileTarget{}, err
+	}
+	return item, nil
 }

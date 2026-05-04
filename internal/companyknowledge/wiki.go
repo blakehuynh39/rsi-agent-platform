@@ -44,6 +44,14 @@ type WikiManifestReconcileWarning struct {
 
 var manifestFileMutex sync.Mutex
 
+const (
+	CompanyWikiCompilerVersion        = "compiler.v1"
+	CompanyWikiSchemaVersion          = "schema.v1"
+	CompanyWikiRendererVersion        = "renderer.v1"
+	CompanyWikiModelPolicyVersion     = "model_policy.v1"
+	CompanyWikiCompileMaxAttemptCount = 5
+)
+
 type WikiMarkdownRead struct {
 	OK      bool   `json:"ok"`
 	Path    string `json:"path"`
@@ -72,6 +80,22 @@ func RecordAndPublishWikiSource(ctx context.Context, cfg config.Config, repo any
 	return PublishWikiSourceDocument(ctx, cfg, repo, recorded.Source)
 }
 
+func RecordEnqueueAndMaybePublishWikiSource(ctx context.Context, cfg config.Config, repo any, input store.CompanyWikiSourceRevisionInput) (WikiPublishResult, error) {
+	recorded, err := RecordWikiSourceRevision(ctx, cfg, repo, input)
+	if err != nil || recorded.Skipped {
+		return recorded, err
+	}
+	if recorded.Source.Changed {
+		if _, _, err := EnqueueWikiCompileItemForSource(ctx, cfg, repo, recorded.Source); err != nil {
+			return WikiPublishResult{}, err
+		}
+	}
+	if strings.EqualFold(strings.TrimSpace(cfg.CompanyWikiSourcePageMode), "off") {
+		return recorded, nil
+	}
+	return PublishWikiSourceDocument(ctx, cfg, repo, recorded.Source)
+}
+
 func RecordWikiSourceRevision(ctx context.Context, cfg config.Config, repo any, input store.CompanyWikiSourceRevisionInput) (WikiPublishResult, error) {
 	_ = ctx
 	wikiStore, ok := repo.(store.CompanyWikiStore)
@@ -82,10 +106,105 @@ func RecordWikiSourceRevision(ctx context.Context, cfg config.Config, repo any, 
 	if err != nil {
 		return WikiPublishResult{}, err
 	}
-	if !source.Inserted {
+	if !source.Changed {
 		return WikiPublishResult{Source: source, Skipped: true, Reason: "revision_already_exists"}, nil
 	}
 	return WikiPublishResult{Source: source}, nil
+}
+
+func EnqueueWikiCompileItemForSource(ctx context.Context, cfg config.Config, repo any, source store.CompanyWikiSourceRevisionResult) (store.CompanyWikiCompileItem, bool, error) {
+	_ = ctx
+	wikiStore, ok := repo.(store.CompanyWikiStore)
+	if !ok || strings.TrimSpace(source.Revision.ID) == "" {
+		return store.CompanyWikiCompileItem{}, false, nil
+	}
+	chunks := source.Chunks
+	if len(chunks) == 0 {
+		var err error
+		evidence, found, err := wikiStore.GetCompanyWikiSourceEvidence(source.Revision.ID)
+		if err != nil {
+			return store.CompanyWikiCompileItem{}, false, err
+		}
+		if !found {
+			return store.CompanyWikiCompileItem{}, false, nil
+		}
+		chunks = evidence.Chunks
+	}
+	return wikiStore.EnqueueCompanyWikiCompileItem(store.CompanyWikiCompileItemInput{
+		SourceRevisionID:   source.Revision.ID,
+		CompilerVersion:    CompanyWikiCompilerVersion,
+		SchemaVersion:      CompanyWikiSchemaVersion,
+		RendererVersion:    CompanyWikiRendererVersion,
+		ModelPolicyVersion: CompanyWikiModelPolicyVersion,
+		InputHash:          SourceCentricCompileInputHash(source.Revision, chunks),
+		Status:             store.CompanyWikiCompileStatusPending,
+	})
+}
+
+func BackfillCompanyWikiCompileItems(ctx context.Context, cfg config.Config, wikiStore store.CompanyWikiStore, limit int) (int, error) {
+	if wikiStore == nil {
+		return 0, nil
+	}
+	if limit <= 0 || limit > 500 {
+		limit = 100
+	}
+	revisionIDs, err := wikiStore.ListCompanyWikiSourceRevisionIDsWithoutCompileItem(
+		CompanyWikiCompilerVersion,
+		CompanyWikiSchemaVersion,
+		CompanyWikiRendererVersion,
+		CompanyWikiModelPolicyVersion,
+		limit,
+	)
+	if err != nil {
+		return 0, err
+	}
+	enqueued := 0
+	for _, revisionID := range revisionIDs {
+		select {
+		case <-ctx.Done():
+			return enqueued, ctx.Err()
+		default:
+		}
+		evidence, found, err := wikiStore.GetCompanyWikiSourceEvidence(revisionID)
+		if err != nil {
+			return enqueued, err
+		}
+		if !found {
+			continue
+		}
+		_, inserted, err := EnqueueWikiCompileItemForSource(ctx, cfg, wikiStore, store.CompanyWikiSourceRevisionResult{
+			Document: evidence.Document,
+			Revision: evidence.Revision,
+			Chunks:   evidence.Chunks,
+			Inserted: true,
+			Changed:  true,
+		})
+		if err != nil {
+			return enqueued, err
+		}
+		if inserted {
+			enqueued++
+		}
+	}
+	return enqueued, nil
+}
+
+func SourceCentricCompileInputHash(revision store.CompanyWikiSourceRevision, chunks []store.CompanyWikiSourceChunk) string {
+	parts := []string{
+		revision.ID,
+		revision.ContentSHA256,
+		CompanyWikiCompilerVersion,
+		CompanyWikiSchemaVersion,
+		CompanyWikiRendererVersion,
+		CompanyWikiModelPolicyVersion,
+	}
+	chunksCopy := make([]store.CompanyWikiSourceChunk, len(chunks))
+	copy(chunksCopy, chunks)
+	sort.SliceStable(chunksCopy, func(i, j int) bool { return chunksCopy[i].ID < chunksCopy[j].ID })
+	for _, chunk := range chunksCopy {
+		parts = append(parts, chunk.ID, chunk.ContentSHA256)
+	}
+	return store.CompanyWikiSHA256(strings.Join(parts, "\x00"))
 }
 
 func PublishWikiSourceDocument(ctx context.Context, cfg config.Config, repo any, source store.CompanyWikiSourceRevisionResult) (WikiPublishResult, error) {
@@ -96,6 +215,9 @@ func PublishWikiSourceDocument(ctx context.Context, cfg config.Config, repo any,
 	}
 	if strings.TrimSpace(cfg.CompanyWikiRoot) == "" {
 		return WikiPublishResult{Source: source, Skipped: true, Reason: "company_wiki_root_not_configured"}, nil
+	}
+	if strings.EqualFold(strings.TrimSpace(cfg.CompanyWikiSourcePageMode), "off") {
+		return WikiPublishResult{Source: source, Skipped: true, Reason: "source_page_mode_off"}, nil
 	}
 	if strings.TrimSpace(source.Document.ID) == "" {
 		return WikiPublishResult{Source: source, Skipped: true, Reason: "source_document_not_recorded"}, nil
@@ -109,7 +231,7 @@ func PublishWikiSourceDocument(ctx context.Context, cfg config.Config, repo any,
 	}
 	body, citations := BuildCompiledWikiMarkdown(source.Document, chunks)
 	slug := WikiSlugForSource(source.Document)
-	relativePath := filepath.ToSlash(filepath.Join("pages", slug+".md"))
+	relativePath := EvidenceWikiPathForSource(source.Document, slug)
 	audit, err := wikiStore.BeginCompanyWikiAudit(store.CompanyWikiAuditInput{
 		Mode:           store.CompanyWikiAuditModeCompiler,
 		Actor:          "company_wiki_compiler",
@@ -143,6 +265,7 @@ func PublishWikiSourceDocument(ctx context.Context, cfg config.Config, repo any,
 		SourceRevisionIDs: sourceRevisionIDs,
 		Citations:         citations,
 		Metadata: map[string]any{
+			"type":               "evidence",
 			"source_type":        source.Document.SourceType,
 			"source_key":         source.Document.SourceKey,
 			"source_session_key": source.Document.SourceSessionKey,
@@ -200,6 +323,7 @@ func BuildCompiledWikiMarkdown(document store.CompanyWikiSourceDocument, chunks 
 	var b strings.Builder
 	b.WriteString("---\n")
 	writeYAMLScalar(&b, "title", title)
+	writeYAMLScalar(&b, "type", "evidence")
 	writeYAMLScalar(&b, "wiki_page_source", document.SourceType)
 	writeYAMLScalar(&b, "source_document_id", document.ID)
 	writeYAMLScalar(&b, "source_key", document.SourceKey)
@@ -349,25 +473,42 @@ func ReconcileWikiManifest(ctx context.Context, cfg config.Config, repo any, rep
 	if err != nil {
 		return WikiManifestReconcileResult{}, err
 	}
+	if repair {
+		if err := WriteSchemaFile(root); err != nil {
+			return WikiManifestReconcileResult{}, err
+		}
+		if err := WriteIndexFile(root, wikiStore); err != nil {
+			return WikiManifestReconcileResult{}, err
+		}
+	}
 	result := WikiManifestReconcileResult{OK: true, Checked: len(entries), Manifest: entries}
 	for _, entry := range entries {
 		warning := reconcileManifestEntry(root, entry)
 		if warning.Reason == "" {
+			_ = wikiStore.UpdateCompanyWikiManifestRepair(entry.Path, store.CompanyWikiManifestRepairOK, "")
 			continue
 		}
 		result.OK = false
+		_ = wikiStore.UpdateCompanyWikiManifestRepair(entry.Path, store.CompanyWikiManifestRepairNeeded, warning.Reason)
+		_ = AppendLogEntry(root, WikiLogEntry{Action: "repair_needed", WikiRevisionID: entry.WikiRevisionID, Summary: warning.Reason})
 		if repair {
 			page, found, err := wikiStore.GetCompanyWikiPage(entry.WikiPageID)
 			if err == nil && found && page.Revision.ID == entry.WikiRevisionID {
 				if sha, publishErr := PublishMarkdownFile(root, entry.Path, page.Revision.Body); publishErr == nil && sha == entry.SHA256 {
 					_ = WriteManifestFile(root, page.Page.Slug, page.Revision.ID, page.Revision.Path, sha, page.Revision.CompilerRunID, page.Revision.PublishedAt)
+					_ = wikiStore.UpdateCompanyWikiManifestRepair(entry.Path, store.CompanyWikiManifestRepairOK, "")
+					_ = AppendLogEntry(root, WikiLogEntry{Action: "repair_completed", Title: page.Page.Title, Slug: page.Page.Slug, WikiRevisionID: page.Revision.ID, Summary: warning.Reason})
 					result.Repaired = append(result.Repaired, warning)
 					continue
+				} else if publishErr != nil {
+					warning.Reason += ": " + publishErr.Error()
 				}
 			}
 			if err != nil {
 				warning.Reason += ": " + err.Error()
 			}
+			_ = wikiStore.UpdateCompanyWikiManifestRepair(entry.Path, store.CompanyWikiManifestRepairFailed, warning.Reason)
+			_ = AppendLogEntry(root, WikiLogEntry{Action: "repair_failed", WikiRevisionID: entry.WikiRevisionID, Summary: warning.Reason})
 		}
 		result.Warnings = append(result.Warnings, warning)
 	}
@@ -403,7 +544,10 @@ func WriteIndexFile(root string, wikiStore store.CompanyWikiStore) error {
 		if !found {
 			continue
 		}
-		category := strings.TrimSpace(stringFromMap(page.Revision.Metadata, "source_type"))
+		category := strings.TrimSpace(stringFromMap(page.Revision.Metadata, "type"))
+		if category == "evidence" {
+			category = strings.TrimSpace(stringFromMap(page.Revision.Metadata, "source_type"))
+		}
 		if category == "" {
 			category = "manual"
 		}
@@ -417,6 +561,9 @@ func WriteIndexFile(root string, wikiStore store.CompanyWikiStore) error {
 		})
 	}
 	sort.SliceStable(items, func(i, j int) bool {
+		if left, right := wikiIndexCategoryRank(items[i].category, items[i].path), wikiIndexCategoryRank(items[j].category, items[j].path); left != right {
+			return left < right
+		}
 		if items[i].category == items[j].category {
 			return items[i].slug < items[j].slug
 		}
@@ -448,6 +595,35 @@ func WriteIndexFile(root string, wikiStore store.CompanyWikiStore) error {
 	}
 	_, err = PublishMarkdownFile(root, "index.md", b.String())
 	return err
+}
+
+func wikiIndexCategoryRank(category string, path string) int {
+	if strings.HasPrefix(filepath.ToSlash(path), "sources/") {
+		return 100
+	}
+	category = strings.TrimSpace(category)
+	if strings.EqualFold(category, "manual") {
+		return 50
+	}
+	switch store.NormalizeCompanyWikiSlug(strings.ReplaceAll(category, "_", "-")) {
+	case "project", "projects":
+		return 0
+	case "system", "systems":
+		return 1
+	case "decision", "decisions":
+		return 2
+	case "runbook", "runbooks":
+		return 3
+	case "policy", "policies":
+		return 4
+	case "concept", "concepts":
+		return 5
+	case "person", "people":
+		return 6
+	case "open-question", "open-questions":
+		return 7
+	}
+	return 60
 }
 
 func AppendLogEntry(root string, entry WikiLogEntry) error {
@@ -549,6 +725,25 @@ func WikiSlugForSource(document store.CompanyWikiSourceDocument) string {
 		suffix = document.ID[len(document.ID)-8:]
 	}
 	return store.NormalizeCompanyWikiSlug(filepath.ToSlash(filepath.Join(prefix, title+"-"+suffix)))
+}
+
+func EvidenceWikiPathForSource(document store.CompanyWikiSourceDocument, slug string) string {
+	sourceType := strings.TrimSpace(document.SourceType)
+	root := "sources"
+	evidenceSlug := store.NormalizeCompanyWikiSlug(slug)
+	sourcePrefix := store.NormalizeCompanyWikiSlug(sourceType)
+	if sourcePrefix != "" && strings.HasPrefix(evidenceSlug, sourcePrefix+"/") {
+		evidenceSlug = strings.TrimPrefix(evidenceSlug, sourcePrefix+"/")
+	}
+	switch sourceType {
+	case SlackMessageSourceType:
+		root = filepath.ToSlash(filepath.Join("sources", "slack"))
+	case NotionDocumentSourceType:
+		root = filepath.ToSlash(filepath.Join("sources", "notion"))
+	default:
+		root = filepath.ToSlash(filepath.Join("sources", store.NormalizeCompanyWikiSlug(sourceType)))
+	}
+	return filepath.ToSlash(filepath.Join(root, evidenceSlug+".md"))
 }
 
 func cleanRelativeWikiPath(path string) string {

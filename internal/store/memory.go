@@ -134,9 +134,15 @@ type MemoryStore struct {
 	companyWikiPageBySlug             map[string]string
 	companyWikiRevisions              map[string]CompanyWikiRevision
 	companyWikiCitations              map[string]CompanyWikiCitation
+	companyWikiClaims                 map[string]CompanyWikiClaim
+	companyWikiConflicts              map[string]CompanyWikiConflict
 	companyWikiManifest               map[string]CompanyWikiManifestEntry
 	companyWikiAudits                 map[string]CompanyWikiAuditRecord
 	companyWikiAuditByIdempotency     map[string]string
+	companyWikiCompileItems           map[string]CompanyWikiCompileItem
+	companyWikiCompileItemsByKey      map[string]string
+	companyWikiCompileAttempts        map[string]CompanyWikiCompileAttempt
+	companyWikiCompileTargets         map[string]CompanyWikiCompileTarget
 	conversations                     map[string]conversation.Conversation
 	conversationEntries               []conversation.Entry
 	cases                             map[string]conversation.Case

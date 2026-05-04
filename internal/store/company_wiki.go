@@ -26,7 +26,24 @@ const (
 	CompanyWikiAuditModePropose  = "propose"
 	CompanyWikiAuditModeApply    = "apply"
 
-	CompanyWikiMinimumSchemaVersion int64 = 33
+	CompanyWikiCompileStatusPending   = "pending"
+	CompanyWikiCompileStatusClaimed   = "claimed"
+	CompanyWikiCompileStatusCompleted = "completed"
+	CompanyWikiCompileStatusFailed    = "failed"
+	CompanyWikiCompileStatusSkipped   = "skipped"
+
+	CompanyWikiCompileTargetStatusPending    = "pending"
+	CompanyWikiCompileTargetStatusPublished  = "published"
+	CompanyWikiCompileTargetStatusFailed     = "failed"
+	CompanyWikiCompileTargetStatusSkipped    = "skipped"
+	CompanyWikiCompileTargetStatusSuperseded = "superseded"
+
+	CompanyWikiManifestRepairOK           = "ok"
+	CompanyWikiManifestRepairNeeded       = "repair_needed"
+	CompanyWikiManifestRepairFailed       = "repair_failed"
+	CompanyWikiManifestRepairNotGenerated = "not_generated"
+
+	CompanyWikiMinimumSchemaVersion int64 = 34
 )
 
 var companyWikiSlugUnsafe = regexp.MustCompile(`[^a-z0-9/_-]+`)
@@ -52,6 +69,7 @@ type CompanyWikiSourceRevisionResult struct {
 	Revision CompanyWikiSourceRevision `json:"revision"`
 	Chunks   []CompanyWikiSourceChunk  `json:"chunks,omitempty"`
 	Inserted bool                      `json:"inserted"`
+	Changed  bool                      `json:"changed"`
 }
 
 type CompanyWikiSourceDocument struct {
@@ -117,6 +135,40 @@ type CompanyWikiCitation struct {
 	CreatedAt        time.Time `json:"created_at,omitempty"`
 }
 
+type CompanyWikiClaimInput struct {
+	ClaimKey   string         `json:"claim_key"`
+	ClaimText  string         `json:"claim_text"`
+	Confidence float64        `json:"confidence,omitempty"`
+	Metadata   map[string]any `json:"metadata,omitempty"`
+}
+
+type CompanyWikiClaim struct {
+	ID             string         `json:"id"`
+	WikiRevisionID string         `json:"wiki_revision_id"`
+	ClaimKey       string         `json:"claim_key"`
+	ClaimText      string         `json:"claim_text"`
+	Confidence     float64        `json:"confidence"`
+	Metadata       map[string]any `json:"metadata,omitempty"`
+	CreatedAt      time.Time      `json:"created_at,omitempty"`
+}
+
+type CompanyWikiConflictInput struct {
+	ClaimKey  string         `json:"claim_key"`
+	Summary   string         `json:"summary"`
+	Citations []string       `json:"citation_ids,omitempty"`
+	Metadata  map[string]any `json:"metadata,omitempty"`
+}
+
+type CompanyWikiConflict struct {
+	ID             string         `json:"id"`
+	WikiRevisionID string         `json:"wiki_revision_id"`
+	ClaimKey       string         `json:"claim_key"`
+	Summary        string         `json:"summary"`
+	CitationIDs    []string       `json:"citation_ids,omitempty"`
+	Metadata       map[string]any `json:"metadata,omitempty"`
+	CreatedAt      time.Time      `json:"created_at,omitempty"`
+}
+
 type CompanyWikiAuditInput struct {
 	ID             string         `json:"id,omitempty"`
 	Mode           string         `json:"mode"`
@@ -160,6 +212,8 @@ type CompanyWikiPagePublishInput struct {
 	CompilerRunID     string                     `json:"compiler_run_id,omitempty"`
 	SourceRevisionIDs []string                   `json:"source_revision_ids,omitempty"`
 	Citations         []CompanyWikiCitationInput `json:"citations,omitempty"`
+	Claims            []CompanyWikiClaimInput    `json:"claims,omitempty"`
+	Conflicts         []CompanyWikiConflictInput `json:"conflicts,omitempty"`
 	Metadata          map[string]any             `json:"metadata,omitempty"`
 	PublishedAt       time.Time                  `json:"published_at,omitempty"`
 }
@@ -168,6 +222,8 @@ type CompanyWikiPagePublishResult struct {
 	Page      CompanyWikiPage       `json:"page"`
 	Revision  CompanyWikiRevision   `json:"revision"`
 	Citations []CompanyWikiCitation `json:"citations,omitempty"`
+	Claims    []CompanyWikiClaim    `json:"claims,omitempty"`
+	Conflicts []CompanyWikiConflict `json:"conflicts,omitempty"`
 }
 
 type CompanyWikiPage struct {
@@ -197,12 +253,16 @@ type CompanyWikiRevision struct {
 }
 
 type CompanyWikiManifestEntry struct {
-	Path           string    `json:"path"`
-	WikiPageID     string    `json:"wiki_page_id"`
-	WikiRevisionID string    `json:"wiki_revision_id"`
-	SHA256         string    `json:"sha256"`
-	CompilerRunID  string    `json:"compiler_run_id,omitempty"`
-	GeneratedAt    time.Time `json:"generated_at,omitempty"`
+	Path            string    `json:"path"`
+	WikiPageID      string    `json:"wiki_page_id"`
+	WikiRevisionID  string    `json:"wiki_revision_id"`
+	SHA256          string    `json:"sha256"`
+	CompilerRunID   string    `json:"compiler_run_id,omitempty"`
+	GeneratedAt     time.Time `json:"generated_at,omitempty"`
+	RepairStatus    string    `json:"repair_status,omitempty"`
+	LastRepairError string    `json:"last_repair_error,omitempty"`
+	LastCheckedAt   time.Time `json:"last_checked_at,omitempty"`
+	LastRepairedAt  time.Time `json:"last_repaired_at,omitempty"`
 }
 
 type CompanyWikiSearchResult struct {
@@ -220,12 +280,141 @@ type CompanyWikiPageRead struct {
 	Page      CompanyWikiPage          `json:"page"`
 	Revision  CompanyWikiRevision      `json:"revision"`
 	Citations []CompanyWikiCitation    `json:"citations,omitempty"`
+	Claims    []CompanyWikiClaim       `json:"claims,omitempty"`
+	Conflicts []CompanyWikiConflict    `json:"conflicts,omitempty"`
 	Manifest  CompanyWikiManifestEntry `json:"manifest"`
+}
+
+type CompanyWikiSourceEvidence struct {
+	Document CompanyWikiSourceDocument `json:"document"`
+	Revision CompanyWikiSourceRevision `json:"revision"`
+	Chunks   []CompanyWikiSourceChunk  `json:"chunks,omitempty"`
+}
+
+type CompanyWikiCompileItemInput struct {
+	SourceRevisionID   string    `json:"source_revision_id"`
+	CompilerVersion    string    `json:"compiler_version"`
+	SchemaVersion      string    `json:"schema_version"`
+	RendererVersion    string    `json:"renderer_version"`
+	ModelPolicyVersion string    `json:"model_policy_version"`
+	InputHash          string    `json:"input_hash"`
+	Status             string    `json:"status,omitempty"`
+	CreatedAt          time.Time `json:"created_at,omitempty"`
+}
+
+type CompanyWikiCompileItem struct {
+	ID                 string    `json:"id"`
+	SourceRevisionID   string    `json:"source_revision_id"`
+	CompilerVersion    string    `json:"compiler_version"`
+	SchemaVersion      string    `json:"schema_version"`
+	RendererVersion    string    `json:"renderer_version"`
+	ModelPolicyVersion string    `json:"model_policy_version"`
+	InputHash          string    `json:"input_hash"`
+	Status             string    `json:"status"`
+	LeaseHolder        string    `json:"lease_holder,omitempty"`
+	LeaseExpiresAt     time.Time `json:"lease_expires_at,omitempty"`
+	AttemptCount       int       `json:"attempt_count"`
+	LastAttemptID      string    `json:"last_attempt_id,omitempty"`
+	LastError          string    `json:"last_error,omitempty"`
+	CreatedAt          time.Time `json:"created_at,omitempty"`
+	UpdatedAt          time.Time `json:"updated_at,omitempty"`
+}
+
+type CompanyWikiCompileClaimInput struct {
+	Limit              int
+	LeaseHolder        string
+	LeaseDuration      time.Duration
+	CompilerVersion    string
+	SchemaVersion      string
+	RendererVersion    string
+	ModelPolicyVersion string
+	MaxAttempts        int
+}
+
+type CompanyWikiCompileAttemptInput struct {
+	CompileItemID        string         `json:"compile_item_id"`
+	CompilerRunID        string         `json:"compiler_run_id"`
+	Status               string         `json:"status,omitempty"`
+	Model                string         `json:"model"`
+	ContextHash          string         `json:"context_hash"`
+	OutputHash           string         `json:"output_hash,omitempty"`
+	RequestMetadataHash  string         `json:"request_metadata_hash,omitempty"`
+	ResponseMetadataHash string         `json:"response_metadata_hash,omitempty"`
+	DurationMillis       int64          `json:"duration_millis,omitempty"`
+	ValidationErrors     []string       `json:"validation_errors,omitempty"`
+	LastError            string         `json:"last_error,omitempty"`
+	Metadata             map[string]any `json:"metadata,omitempty"`
+}
+
+type CompanyWikiCompileAttempt struct {
+	ID                   string         `json:"id"`
+	CompileItemID        string         `json:"compile_item_id"`
+	CompilerRunID        string         `json:"compiler_run_id"`
+	Status               string         `json:"status"`
+	Model                string         `json:"model"`
+	ContextHash          string         `json:"context_hash"`
+	OutputHash           string         `json:"output_hash,omitempty"`
+	RequestMetadataHash  string         `json:"request_metadata_hash,omitempty"`
+	ResponseMetadataHash string         `json:"response_metadata_hash,omitempty"`
+	DurationMillis       int64          `json:"duration_millis,omitempty"`
+	ValidationErrors     []string       `json:"validation_errors,omitempty"`
+	LastError            string         `json:"last_error,omitempty"`
+	Metadata             map[string]any `json:"metadata,omitempty"`
+	CreatedAt            time.Time      `json:"created_at,omitempty"`
+	CompletedAt          time.Time      `json:"completed_at,omitempty"`
+}
+
+type CompanyWikiCompileTargetInput struct {
+	CompileItemID  string `json:"compile_item_id"`
+	TargetSlug     string `json:"target_slug"`
+	TargetPath     string `json:"target_path"`
+	TargetType     string `json:"target_type"`
+	Status         string `json:"status,omitempty"`
+	WikiRevisionID string `json:"wiki_revision_id,omitempty"`
+	IdempotencyKey string `json:"idempotency_key,omitempty"`
+	BodyHash       string `json:"body_hash,omitempty"`
+	LastError      string `json:"last_error,omitempty"`
+}
+
+type CompanyWikiCompileTarget struct {
+	ID             string    `json:"id"`
+	CompileItemID  string    `json:"compile_item_id"`
+	TargetSlug     string    `json:"target_slug"`
+	TargetPath     string    `json:"target_path"`
+	TargetType     string    `json:"target_type"`
+	Status         string    `json:"status"`
+	WikiRevisionID string    `json:"wiki_revision_id,omitempty"`
+	IdempotencyKey string    `json:"idempotency_key,omitempty"`
+	BodyHash       string    `json:"body_hash,omitempty"`
+	LastError      string    `json:"last_error,omitempty"`
+	CreatedAt      time.Time `json:"created_at,omitempty"`
+	UpdatedAt      time.Time `json:"updated_at,omitempty"`
+}
+
+type CompanyWikiPageQuery struct {
+	Query             string
+	Limit             int
+	Types             []string
+	Tags              []string
+	SourceRevisionIDs []string
+	ExcludeEvidence   bool
 }
 
 type CompanyWikiStore interface {
 	UpsertCompanyWikiSourceRevision(input CompanyWikiSourceRevisionInput) (CompanyWikiSourceRevisionResult, error)
 	ListCompanyWikiSourceChunks(documentID string) ([]CompanyWikiSourceChunk, error)
+	GetCompanyWikiSourceEvidence(sourceRevisionID string) (CompanyWikiSourceEvidence, bool, error)
+	ListCompanyWikiSourceRevisionIDsWithoutCompileItem(compilerVersion string, schemaVersion string, rendererVersion string, modelPolicyVersion string, limit int) ([]string, error)
+	EnqueueCompanyWikiCompileItem(input CompanyWikiCompileItemInput) (CompanyWikiCompileItem, bool, error)
+	ClaimCompanyWikiCompileItems(input CompanyWikiCompileClaimInput) ([]CompanyWikiCompileItem, error)
+	BeginCompanyWikiCompileAttempt(input CompanyWikiCompileAttemptInput) (CompanyWikiCompileAttempt, error)
+	CompleteCompanyWikiCompileAttempt(attemptID string, status string, outputHash string, durationMillis int64, validationErrors []string, lastError string, metadata map[string]any) (CompanyWikiCompileAttempt, error)
+	UpsertCompanyWikiCompileTargets(compileItemID string, targets []CompanyWikiCompileTargetInput) ([]CompanyWikiCompileTarget, error)
+	UpdateCompanyWikiCompileTarget(input CompanyWikiCompileTargetInput) (CompanyWikiCompileTarget, error)
+	ListCompanyWikiCompileTargets(compileItemID string) ([]CompanyWikiCompileTarget, error)
+	CompleteCompanyWikiCompileItem(compileItemID string, status string, lastError string) (CompanyWikiCompileItem, error)
+	ListCompanyWikiCandidatePages(query CompanyWikiPageQuery) ([]CompanyWikiPageRead, error)
+	UpdateCompanyWikiManifestRepair(path string, status string, lastError string) error
 	BeginCompanyWikiAudit(input CompanyWikiAuditInput) (CompanyWikiAuditRecord, error)
 	CompleteCompanyWikiAudit(auditID string, wikiRevisionID string, publishedPath string, metadata map[string]any) (CompanyWikiAuditRecord, error)
 	FailCompanyWikiAudit(auditID string, lastError string, metadata map[string]any) (CompanyWikiAuditRecord, error)
@@ -280,6 +469,81 @@ func ValidateCompanyWikiCitationInputs(citations []CompanyWikiCitationInput) err
 		}
 	}
 	return nil
+}
+
+func normalizeCompanyWikiCompileItemInput(input CompanyWikiCompileItemInput) CompanyWikiCompileItemInput {
+	input.SourceRevisionID = strings.TrimSpace(input.SourceRevisionID)
+	input.CompilerVersion = strings.TrimSpace(input.CompilerVersion)
+	input.SchemaVersion = strings.TrimSpace(input.SchemaVersion)
+	input.RendererVersion = strings.TrimSpace(input.RendererVersion)
+	input.ModelPolicyVersion = strings.TrimSpace(input.ModelPolicyVersion)
+	input.InputHash = strings.TrimSpace(input.InputHash)
+	input.Status = strings.TrimSpace(input.Status)
+	if input.Status == "" {
+		input.Status = CompanyWikiCompileStatusPending
+	}
+	return input
+}
+
+func normalizeCompanyWikiCompileClaimInput(input CompanyWikiCompileClaimInput) CompanyWikiCompileClaimInput {
+	input.LeaseHolder = strings.TrimSpace(input.LeaseHolder)
+	if input.LeaseHolder == "" {
+		input.LeaseHolder = "company_wiki_compiler"
+	}
+	if input.LeaseDuration <= 0 {
+		input.LeaseDuration = 5 * time.Minute
+	}
+	if input.Limit <= 0 || input.Limit > 100 {
+		input.Limit = 10
+	}
+	input.CompilerVersion = strings.TrimSpace(input.CompilerVersion)
+	input.SchemaVersion = strings.TrimSpace(input.SchemaVersion)
+	input.RendererVersion = strings.TrimSpace(input.RendererVersion)
+	input.ModelPolicyVersion = strings.TrimSpace(input.ModelPolicyVersion)
+	return input
+}
+
+func normalizeCompanyWikiCompileAttemptInput(input CompanyWikiCompileAttemptInput) CompanyWikiCompileAttemptInput {
+	input.CompileItemID = strings.TrimSpace(input.CompileItemID)
+	input.CompilerRunID = strings.TrimSpace(input.CompilerRunID)
+	input.Status = strings.TrimSpace(input.Status)
+	if input.Status == "" {
+		input.Status = CompanyWikiCompileStatusClaimed
+	}
+	input.Model = strings.TrimSpace(input.Model)
+	input.ContextHash = strings.TrimSpace(input.ContextHash)
+	input.OutputHash = strings.TrimSpace(input.OutputHash)
+	input.RequestMetadataHash = strings.TrimSpace(input.RequestMetadataHash)
+	input.ResponseMetadataHash = strings.TrimSpace(input.ResponseMetadataHash)
+	input.LastError = strings.TrimSpace(input.LastError)
+	input.Metadata = cloneAnyMap(input.Metadata)
+	return input
+}
+
+func normalizeCompanyWikiCompileTargetInput(input CompanyWikiCompileTargetInput) CompanyWikiCompileTargetInput {
+	input.CompileItemID = strings.TrimSpace(input.CompileItemID)
+	input.TargetSlug = NormalizeCompanyWikiSlug(input.TargetSlug)
+	input.TargetPath = strings.TrimSpace(input.TargetPath)
+	input.TargetType = strings.TrimSpace(input.TargetType)
+	input.Status = strings.TrimSpace(input.Status)
+	if input.Status == "" {
+		input.Status = CompanyWikiCompileTargetStatusPending
+	}
+	input.WikiRevisionID = strings.TrimSpace(input.WikiRevisionID)
+	input.IdempotencyKey = strings.TrimSpace(input.IdempotencyKey)
+	input.BodyHash = strings.TrimSpace(input.BodyHash)
+	input.LastError = strings.TrimSpace(input.LastError)
+	return input
+}
+
+func companyWikiCompileItemKey(sourceRevisionID string, compilerVersion string, schemaVersion string, rendererVersion string, modelPolicyVersion string) string {
+	return strings.Join([]string{
+		strings.TrimSpace(sourceRevisionID),
+		strings.TrimSpace(compilerVersion),
+		strings.TrimSpace(schemaVersion),
+		strings.TrimSpace(rendererVersion),
+		strings.TrimSpace(modelPolicyVersion),
+	}, "\x00")
 }
 
 func cloneCompanyWikiChunks(input []CompanyWikiSourceChunk) []CompanyWikiSourceChunk {

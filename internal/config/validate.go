@@ -94,6 +94,10 @@ func (c Config) validateControlPlane(issues *[]string) {
 		c.validateSourceMirrorHealth(issues)
 		return
 	}
+	if c.RuntimeMode == "company-wiki-compiler" {
+		c.validateCompanyWikiCompiler(issues)
+		return
+	}
 	if len(c.HermesExecutorURLs()) == 0 {
 		addRequiredURL(issues, "RSI_RUNNER_PROD_BASE_URL", c.ProdRunnerBaseURL, c.nonLocalhostRequired())
 		addRequiredURL(issues, "RSI_RUNNER_PROACTIVE_BASE_URL", c.ProactiveRunnerBaseURL, c.nonLocalhostRequired())
@@ -123,6 +127,30 @@ func (c Config) validateControlPlane(issues *[]string) {
 		if c.SlackMirrorEnabled {
 			c.validateSlackMirror(issues)
 		}
+	}
+}
+
+func (c Config) validateCompanyWikiCompiler(issues *[]string) {
+	if !c.CompanyWikiSynthesisEnabled {
+		*issues = append(*issues, "RSI_COMPANY_WIKI_SYNTHESIS_ENABLED must be true")
+	}
+	addRequiredString(issues, "RSI_COMPANY_WIKI_ROOT", c.CompanyWikiRoot)
+	addRequiredString(issues, "RSI_COMPANY_WIKI_COMPILER_MODEL", c.CompanyWikiCompilerModel)
+	addRequiredString(issues, "RSI_COMPANY_WIKI_COMPILER_OPENROUTER_API_KEY or RSI_OPENROUTER_API_KEY or OPENROUTER_API_KEY", c.CompanyWikiCompilerOpenRouterAPIKey)
+	addRequiredURL(issues, "RSI_COMPANY_WIKI_COMPILER_OPENROUTER_BASE_URL", c.CompanyWikiCompilerOpenRouterBaseURL, false)
+	if c.CompanyWikiCompilerBatchLimit <= 0 {
+		*issues = append(*issues, "RSI_COMPANY_WIKI_COMPILER_BATCH_LIMIT must be positive")
+	}
+	if c.CompanyWikiCompilerChunkLimit <= 0 {
+		*issues = append(*issues, "RSI_COMPANY_WIKI_COMPILER_CHUNK_LIMIT must be positive")
+	}
+	if c.CompanyWikiCompilerTimeout <= 0 {
+		*issues = append(*issues, "RSI_COMPANY_WIKI_COMPILER_TIMEOUT must be positive")
+	}
+	switch strings.ToLower(strings.TrimSpace(c.CompanyWikiSourcePageMode)) {
+	case "", "evidence", "off":
+	default:
+		*issues = append(*issues, "RSI_COMPANY_WIKI_SOURCE_PAGE_MODE must be evidence or off")
 	}
 }
 

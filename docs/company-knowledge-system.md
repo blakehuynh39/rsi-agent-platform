@@ -5,8 +5,9 @@ This document records the storage contract for RSI company knowledge.
 ## Authority Boundary
 
 Platform Postgres is RSI's durable source of truth for company knowledge. It
-owns source documents, revisions, chunks, provenance, compiler runs, wiki pages,
-wiki revisions, claims, citations, manifests, and write audits.
+owns source documents, revisions, chunks, provenance, compile items, compiler
+attempts, per-target publish state, wiki pages, wiki revisions, claims,
+conflicts, citations, manifests, and write audits.
 
 The compiled Markdown wiki under `RSI_COMPANY_WIKI_ROOT` is the agent-readable
 published artifact. It is recoverable derived state, not the canonical record.
@@ -74,8 +75,10 @@ creates a new Honcho message and updates the wrapper record to point at the
 latest Honcho message ID; old Honcho messages remain historical evidence.
 
 This avoids search-before-write races and avoids direct SQL writes into Honcho.
-The mirror also imports mirrored Slack content into the Platform source ledger
-and publishes deterministic Markdown when `RSI_COMPANY_WIKI_ROOT` is configured.
+The mirror also imports mirrored Slack content into the Platform source ledger.
+New or changed source revisions enqueue synthesis compile work. Source-shaped
+Markdown is generated only as evidence under `sources/slack/` when
+`RSI_COMPANY_WIKI_SOURCE_PAGE_MODE=evidence`; it is not the primary wiki.
 
 For Honcho document/conclusion writes used by Notion mirroring:
 
@@ -92,9 +95,11 @@ For Honcho document/conclusion writes used by Notion mirroring:
 
 The Notion mirror writes block-aware chunks as Honcho messages and writes a
 compact manifest-style summary through the public conclusions API. The full
-raw-ish source body is chunked into the Platform source ledger and compiled into
-Markdown; Honcho conclusions are semantic retrieval summaries, not canonical
-document bodies. This avoids the historical single-conclusion 24KB failure mode.
+raw-ish source body is chunked into the Platform source ledger. New or changed
+source revisions enqueue synthesis compile work, while evidence Markdown is
+generated under `sources/notion/` only when evidence mode is enabled. Honcho
+conclusions are semantic retrieval summaries, not canonical document bodies.
+This avoids the historical single-conclusion 24KB failure mode.
 
 The same idempotency rule applies: same `source_key` and same `source_revision`
 is a no-op; a changed revision creates new Honcho evidence/summary records and
@@ -163,6 +168,27 @@ synthetic idempotent message and document writes through the same source-mirror
 wrapper used by live mirrors. Deployments should fail loudly when this command
 fails.
 
+`control-plane --mode company-wiki-compiler` claims queued source revisions for
+the current compiler/schema/renderer/model-policy version tuple, validates
+source policy before creating LLM context, asks the configured OpenRouter model
+for structured JSON only, validates every claim citation against existing
+source chunks, renders Markdown deterministically, and publishes each target
+page through the audited Platform wiki path. A compile item is complete only
+after all target rows are `published`, `skipped`, or `superseded`; retries
+resume from target state.
+
+Company wiki compiler configuration:
+
+- `RSI_COMPANY_WIKI_SYNTHESIS_ENABLED=true`
+- `RSI_COMPANY_WIKI_ROOT=/workspace/company/wiki`
+- `RSI_COMPANY_WIKI_SOURCE_PAGE_MODE=evidence|off`
+- `RSI_COMPANY_WIKI_COMPILER_MODEL=<openrouter-model>`
+- `RSI_COMPANY_WIKI_COMPILER_BATCH_LIMIT=10`
+- `RSI_COMPANY_WIKI_COMPILER_CHUNK_LIMIT=24`
+- `RSI_COMPANY_WIKI_COMPILER_TIMEOUT=120s`
+- `RSI_COMPANY_WIKI_COMPILER_OPENROUTER_BASE_URL=https://openrouter.ai/api/v1`
+- `RSI_COMPANY_WIKI_COMPILER_OPENROUTER_API_KEY=<secret>`
+
 `GET /internal/source-mirror/status` exposes source-mirror record status for
 operators and gates. Passing one or more `source_type` query parameters makes
 those source types required; a missing complete write or newer failed write
@@ -224,9 +250,17 @@ Legacy document tools still expose mirrored Notion evidence from Honcho, but
 compiled wiki pages should be preferred for canonical company answers.
 
 Every published Markdown file has a manifest entry with path, sha256,
-generated_at, compiler_run_id, and `wiki_revision_id`. Manifest reconciliation
-at `GET /internal/company-wiki/manifest/reconcile?repair=true` detects direct
-filesystem mutation and repairs Markdown from Platform-owned revision bodies.
+generated_at, compiler_run_id, `wiki_revision_id`, and repair state.
+Manifest reconciliation at
+`GET /internal/company-wiki/manifest/reconcile?repair=true` detects direct
+filesystem mutation, records `repair_needed`/`repair_failed`/`repair_completed`
+events, and repairs Markdown from Platform-owned revision bodies.
+
+Synthesis pages under `pages/` are the primary agent-readable wiki. Evidence
+pages under `sources/` are optional audit material and are excluded from
+compiler candidate retrieval by default. Hermes should search with stable path
+ordering, for example `rg --sort path "$RSI_COMPANY_WIKI_ROOT"`, so synthesis
+pages are inspected before evidence pages.
 
 Live Slack exact-source tools (`slack_read_thread`, `slack_read_permalink`) stay
 available for freshness and ambiguity resolution. Slack `search.messages` and

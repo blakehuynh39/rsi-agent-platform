@@ -38,6 +38,16 @@ type slackMirrorChannelLister interface {
 	GetConversationsContext(ctx context.Context, params *slackapi.GetConversationsParameters) ([]slackapi.Channel, string, error)
 }
 
+type slackMirrorChannelMetadata struct {
+	ChannelID       string
+	ChannelType     string
+	ChannelPrivate  bool
+	ChannelIM       bool
+	InfoChecked     bool
+	InfoError       string
+	PolicyUntrusted bool
+}
+
 func RunSlackMirror(ctx context.Context, cfg config.Config, mirrorStore store.SourceMirrorWriteStore) error {
 	if !cfg.SlackMirrorEnabled {
 		return errors.New("slack mirror is disabled")
@@ -64,7 +74,8 @@ func RunSlackMirror(ctx context.Context, cfg config.Config, mirrorStore store.So
 		return errors.New("slack mirror found no channels to mirror")
 	}
 	for _, channelID := range channels {
-		if err := mirrorSlackChannel(ctx, cfg, api, mirrorStore, mirror, workspaceID, channelID); err != nil {
+		channelMetadata := slackMirrorChannelMetadataForChannel(ctx, cfg, api, channelID)
+		if err := mirrorSlackChannel(ctx, cfg, api, mirrorStore, mirror, workspaceID, channelID, channelMetadata); err != nil {
 			return err
 		}
 	}
@@ -129,6 +140,56 @@ func discoverJoinedSlackMirrorChannels(ctx context.Context, api slackMirrorChann
 		}
 	}
 	return uniqueNonEmpty(out), nil
+}
+
+func slackMirrorChannelMetadataForChannel(ctx context.Context, cfg config.Config, api *slackapi.Client, channelID string) slackMirrorChannelMetadata {
+	metadata := slackMirrorChannelMetadata{ChannelID: strings.TrimSpace(channelID)}
+	discovery := slackMirrorChannelDiscoveryMode(cfg)
+	if discovery == "joined_public" {
+		metadata.ChannelType = "public_channel"
+		metadata.ChannelPrivate = false
+		metadata.ChannelIM = false
+		metadata.InfoChecked = true
+		return metadata
+	}
+	if api == nil {
+		metadata.ChannelType = "unknown"
+		metadata.ChannelPrivate = true
+		metadata.PolicyUntrusted = true
+		metadata.InfoError = "slack_api_client_missing"
+		return metadata
+	}
+	info, err := api.GetConversationInfoContext(ctx, &slackapi.GetConversationInfoInput{ChannelID: metadata.ChannelID})
+	if err != nil {
+		metadata.ChannelType = "unknown"
+		metadata.ChannelPrivate = true
+		metadata.PolicyUntrusted = true
+		metadata.InfoError = err.Error()
+		return metadata
+	}
+	return slackMirrorChannelMetadataFromSlackChannel(metadata.ChannelID, info)
+}
+
+func slackMirrorChannelMetadataFromSlackChannel(channelID string, channel *slackapi.Channel) slackMirrorChannelMetadata {
+	metadata := slackMirrorChannelMetadata{ChannelID: strings.TrimSpace(channelID), InfoChecked: true}
+	if channel == nil {
+		metadata.ChannelType = "unknown"
+		metadata.ChannelPrivate = true
+		metadata.PolicyUntrusted = true
+		metadata.InfoError = "slack_channel_info_missing"
+		return metadata
+	}
+	metadata.ChannelPrivate = channel.IsPrivate
+	metadata.ChannelIM = channel.IsIM || channel.IsMpIM
+	switch {
+	case metadata.ChannelIM:
+		metadata.ChannelType = "im"
+	case metadata.ChannelPrivate:
+		metadata.ChannelType = "private_channel"
+	default:
+		metadata.ChannelType = "public_channel"
+	}
+	return metadata
 }
 
 func slackMirrorChannelDiscoveryMode(cfg config.Config) string {
@@ -214,6 +275,14 @@ func (b *slackWikiPublishBatch) record(ctx context.Context, input companyknowled
 	if result.Skipped {
 		return nil
 	}
+	if result.Source.Changed {
+		if _, _, err := companyknowledge.EnqueueWikiCompileItemForSource(ctx, b.cfg, b.repo, result.Source); err != nil {
+			return err
+		}
+	}
+	if strings.EqualFold(strings.TrimSpace(b.cfg.CompanyWikiSourcePageMode), "off") {
+		return nil
+	}
 	if documentID := strings.TrimSpace(result.Source.Document.ID); documentID != "" {
 		b.sources[documentID] = result.Source
 	}
@@ -239,7 +308,7 @@ func (b *slackWikiPublishBatch) publish(ctx context.Context) error {
 	return nil
 }
 
-func mirrorSlackChannel(ctx context.Context, cfg config.Config, api *slackapi.Client, mirrorStore store.SourceMirrorWriteStore, mirror *companyknowledge.SlackMirror, workspaceID string, channelID string) error {
+func mirrorSlackChannel(ctx context.Context, cfg config.Config, api *slackapi.Client, mirrorStore store.SourceMirrorWriteStore, mirror *companyknowledge.SlackMirror, workspaceID string, channelID string, channelMetadata slackMirrorChannelMetadata) error {
 	checkpoint, err := readSlackMirrorCheckpoint(cfg.SourceMirrorCheckpointRoot, channelID)
 	if err != nil {
 		return err
@@ -270,6 +339,7 @@ func mirrorSlackChannel(ctx context.Context, cfg config.Config, api *slackapi.Cl
 				continue
 			}
 			input := slackInputFromMessage(workspaceID, channelID, msg, "")
+			applySlackMirrorPolicyMetadata(&input, cfg, channelMetadata)
 			if msg.ReplyCount > 0 && strings.TrimSpace(input.ThreadTS) == "" {
 				input.ThreadTS = msg.Timestamp
 			}
@@ -287,7 +357,7 @@ func mirrorSlackChannel(ctx context.Context, cfg config.Config, api *slackapi.Cl
 				checkpoint.LastHonchoSession = result.HonchoSessionID
 			}
 			if msg.ReplyCount > 0 {
-				seenReplies, err := mirrorSlackThread(ctx, api, mirror, wikiBatch, workspaceID, channelID, msg.Timestamp)
+				seenReplies, err := mirrorSlackThread(ctx, cfg, api, mirror, wikiBatch, workspaceID, channelID, msg.Timestamp, channelMetadata)
 				if err != nil {
 					return err
 				}
@@ -334,7 +404,7 @@ func mirrorSlackChannel(ctx context.Context, cfg config.Config, api *slackapi.Cl
 	return nil
 }
 
-func mirrorSlackThread(ctx context.Context, api *slackapi.Client, mirror *companyknowledge.SlackMirror, wikiBatch *slackWikiPublishBatch, workspaceID string, channelID string, threadTS string) (int, error) {
+func mirrorSlackThread(ctx context.Context, cfg config.Config, api *slackapi.Client, mirror *companyknowledge.SlackMirror, wikiBatch *slackWikiPublishBatch, workspaceID string, channelID string, threadTS string, channelMetadata slackMirrorChannelMetadata) (int, error) {
 	cursor := ""
 	count := 0
 	for {
@@ -354,6 +424,7 @@ func mirrorSlackThread(ctx context.Context, api *slackapi.Client, mirror *compan
 				continue
 			}
 			input := slackInputFromMessage(workspaceID, channelID, msg, "")
+			applySlackMirrorPolicyMetadata(&input, cfg, channelMetadata)
 			input.ThreadTS = threadTS
 			result, err := mirror.IngestMessage(ctx, input)
 			if err != nil {
@@ -372,6 +443,50 @@ func mirrorSlackThread(ctx context.Context, api *slackapi.Client, mirror *compan
 		}
 	}
 	return count, nil
+}
+
+func applySlackMirrorPolicyMetadata(input *companyknowledge.SlackMessageInput, cfg config.Config, channelMetadata slackMirrorChannelMetadata) {
+	if input == nil {
+		return
+	}
+	discovery := slackMirrorChannelDiscoveryMode(cfg)
+	input.MirrorDiscovery = discovery
+	input.MirrorDenied = !slackMirrorChannelAllowedByConfig(cfg, input.ChannelID)
+	input.MirrorAllowed = !input.MirrorDenied
+	if strings.TrimSpace(channelMetadata.ChannelID) != "" && strings.TrimSpace(channelMetadata.ChannelID) == strings.TrimSpace(input.ChannelID) {
+		input.ChannelType = channelMetadata.ChannelType
+		input.ChannelPrivate = channelMetadata.ChannelPrivate
+		input.ChannelIM = channelMetadata.ChannelIM
+		if channelMetadata.PolicyUntrusted {
+			input.MirrorDenied = true
+			input.MirrorAllowed = false
+		}
+		if channelMetadata.InfoChecked || strings.TrimSpace(channelMetadata.InfoError) != "" {
+			if input.Raw == nil {
+				input.Raw = map[string]any{}
+			}
+			input.Raw["channel_info_checked"] = channelMetadata.InfoChecked
+			if strings.TrimSpace(channelMetadata.InfoError) != "" {
+				input.Raw["channel_info_error"] = channelMetadata.InfoError
+			}
+		}
+	}
+	if strings.TrimSpace(input.ChannelType) == "" {
+		if discovery == "joined_public" {
+			input.ChannelType = "public_channel"
+			input.ChannelPrivate = false
+			input.ChannelIM = false
+		} else {
+			input.ChannelType = "unknown"
+			input.ChannelPrivate = true
+			input.MirrorDenied = true
+			input.MirrorAllowed = false
+			if input.Raw == nil {
+				input.Raw = map[string]any{}
+			}
+			input.Raw["channel_info_error"] = "missing_channel_metadata"
+		}
+	}
 }
 
 func slackInputFromMessage(workspaceID string, channelID string, msg slackapi.Message, eventID string) companyknowledge.SlackMessageInput {
