@@ -153,8 +153,8 @@ func TestApplySlackMirrorPolicyMetadataUsesRealChannelPrivacy(t *testing.T) {
 	if !input.ChannelPrivate || input.ChannelType != "private_channel" {
 		t.Fatalf("expected private channel metadata, got %+v", input)
 	}
-	if input.MirrorDenied || !input.MirrorAllowed {
-		t.Fatalf("joined mirror should keep ingestion allowed while source policy can reject private synthesis, got allowed=%t denied=%t", input.MirrorAllowed, input.MirrorDenied)
+	if !input.MirrorDenied || input.MirrorAllowed {
+		t.Fatalf("private channel metadata should deny wiki policy metadata, got allowed=%t denied=%t", input.MirrorAllowed, input.MirrorDenied)
 	}
 }
 

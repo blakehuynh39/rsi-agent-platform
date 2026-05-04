@@ -457,7 +457,7 @@ func applySlackMirrorPolicyMetadata(input *companyknowledge.SlackMessageInput, c
 		input.ChannelType = channelMetadata.ChannelType
 		input.ChannelPrivate = channelMetadata.ChannelPrivate
 		input.ChannelIM = channelMetadata.ChannelIM
-		if channelMetadata.PolicyUntrusted {
+		if channelMetadata.PolicyUntrusted || channelMetadata.ChannelPrivate || channelMetadata.ChannelIM {
 			input.MirrorDenied = true
 			input.MirrorAllowed = false
 		}
