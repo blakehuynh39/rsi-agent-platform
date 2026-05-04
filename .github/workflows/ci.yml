@@ -2,9 +2,13 @@ name: CI
 
 on:
   pull_request:
+    paths-ignore:
+      - "hermes/exported-skills/**"
   push:
     branches:
       - main
+    paths-ignore:
+      - "hermes/exported-skills/**"
 
 permissions:
   contents: read
