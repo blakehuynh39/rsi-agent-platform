@@ -3908,3 +3908,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_cef7ee16267df82de47dc4b2a62a5c9d
 - summary: Discussion about running dogfooding on prod and the removal of private keys.
 
+## [2026-05-04T19:48:15Z] synthesis | Slack thread C0AKH5SNGKH channel
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-channel-53ca9dcc
+- wiki_revision_id: wikirev_a89642f28734746aa5e36c623bd0dd5d
+- summary: Discussion and decisions in the C0AKH5SNGKH Slack channel, including adding Sam to admin allowlist via PR #297 and referencing PR #140.
+
