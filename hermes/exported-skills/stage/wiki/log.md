@@ -3922,3 +3922,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_683c45389e2bb61799fd43a62464e606
 - summary: Slack thread discussing fallback image behavior; currently same image used as fallback, campaign images should be uploaded in backend, and the banner_image_url field from /v1/campa...
 
+## [2026-05-04T20:21:09Z] synthesis | Slack thread C0AKH5SNGKH channel
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-channel-53ca9dcc
+- wiki_revision_id: wikirev_7fc112bc29351cb4f0e679c8f349d866
+- summary: Discussion and decisions in the C0AKH5SNGKH Slack channel, including adding Sam to admin allowlist via PR #297, referencing PR #140, and a question about merging.
+
