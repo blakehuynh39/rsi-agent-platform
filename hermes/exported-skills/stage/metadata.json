@@ -2755,18 +2755,18 @@
       },
       {
         "path": "index.md",
-        "sha256": "0394b2e2b729b47b3ec27a7adeb19766cfcafbba1784ce918fdc4069163a8fe5",
-        "size": 138756
+        "sha256": "595454842f7b5e0c61c7083c7a88a1a2ccc622de2f440382cfef329e5c74b78e",
+        "size": 138786
       },
       {
         "path": "log.md",
-        "sha256": "8f33cf81f096a955f27488991c6a68f6102573b9272898e905c9cf7320737dfc",
-        "size": 204169
+        "sha256": "1099e544a5e9e698d338dc512cd22ceb87cf419e6876521e15a36987cc4aba57",
+        "size": 204495
       },
       {
         "path": "manifest.json",
-        "sha256": "a3fb93f223f86969c15485ea9217b14e68082ac1653c45c771a876c71fd53c35",
-        "size": 174077
+        "sha256": "34f152c47dc4edbf5c9b2421cfe8c206a555594acaf4af6a6c47dbd0d1691451",
+        "size": 174087
       },
       {
         "path": "pages/notion_document/-automated-customer-service--b4d043af.md",
@@ -4160,8 +4160,8 @@
       },
       {
         "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777350147-298499-e3252ea4.md",
-        "sha256": "8d441f9d9330093ca88a87678a4deabb24ece2fafd4b9f817a58a6e6e3542b94",
-        "size": 5581
+        "sha256": "ea9399fb4717896b15396e4786f19c656abd77ef44e400f2cba558fc51a6254b",
+        "size": 1087
       },
       {
         "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777353403-464009-12c541b2.md",
@@ -4812,7 +4812,7 @@
   },
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
-  "exported_at": "2026-05-04T19:28:34Z",
+  "exported_at": "2026-05-04T19:39:41Z",
   "file_count": 961,
   "files": [
     {
@@ -7565,13 +7565,13 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-858859t25xs",
-  "previous_tree_hash": "6d0c20ecf749fe531494d80cf3ac94042abf00e40b6ac8cfa36e6765329f66e0",
+  "previous_tree_hash": "344605772460f088c670aef614c404ede169fdfc173c056a1b3c55ed12536887",
   "schema_version": 1,
   "skill_file_count": 549,
   "skill_manage_sessions": [],
   "skill_tree_hash": "51dd5fa14f02f546813009b323ca960c29e87c4759f49ab6c92e3ca2c7ca357b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "344605772460f088c670aef614c404ede169fdfc173c056a1b3c55ed12536887",
+  "tree_hash": "2d69775b754ce62cfdd0039de487ecb246e339a6e0d9dc305c9a9ccd9894aba6",
   "wiki_file_count": 412,
   "wiki_files": [
     {
@@ -7581,18 +7581,18 @@
     },
     {
       "path": "index.md",
-      "sha256": "0394b2e2b729b47b3ec27a7adeb19766cfcafbba1784ce918fdc4069163a8fe5",
-      "size": 138756
+      "sha256": "595454842f7b5e0c61c7083c7a88a1a2ccc622de2f440382cfef329e5c74b78e",
+      "size": 138786
     },
     {
       "path": "log.md",
-      "sha256": "8f33cf81f096a955f27488991c6a68f6102573b9272898e905c9cf7320737dfc",
-      "size": 204169
+      "sha256": "1099e544a5e9e698d338dc512cd22ceb87cf419e6876521e15a36987cc4aba57",
+      "size": 204495
     },
     {
       "path": "manifest.json",
-      "sha256": "a3fb93f223f86969c15485ea9217b14e68082ac1653c45c771a876c71fd53c35",
-      "size": 174077
+      "sha256": "34f152c47dc4edbf5c9b2421cfe8c206a555594acaf4af6a6c47dbd0d1691451",
+      "size": 174087
     },
     {
       "path": "pages/notion_document/-automated-customer-service--b4d043af.md",
@@ -8986,8 +8986,8 @@
     },
     {
       "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777350147-298499-e3252ea4.md",
-      "sha256": "8d441f9d9330093ca88a87678a4deabb24ece2fafd4b9f817a58a6e6e3542b94",
-      "size": 5581
+      "sha256": "ea9399fb4717896b15396e4786f19c656abd77ef44e400f2cba558fc51a6254b",
+      "size": 1087
     },
     {
       "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777353403-464009-12c541b2.md",
@@ -9636,5 +9636,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "be5b336ed11b89f79050f96b983640cf11b79a0d28be248ef4535a1a6392dd4c"
+  "wiki_tree_hash": "d56f58bf623050c55fe1e8f087cfd2a5c99cdfc199f0dafbf7c93032227d27dd"
 }

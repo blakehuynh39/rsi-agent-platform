@@ -5,6 +5,9 @@ This content-oriented catalog is regenerated on every company wiki publish. Read
 ## decision
 
 - [Slack thread C0AKH5SNGKH channel](pages/slack_message/slack-thread-c0akh5sngkh-channel-53ca9dcc.md) — Decision to add Sam to admin allowlist via PR #297 `updated=2026-05-04T18:47:08Z; source revisions=1; wiki_revision_id=wikirev_84810cc77c3e6767d9c2b166025064f4`
+## runbook
+
+- [Slack thread C0AKH5SNGKH 1777350147.298499](pages/slack_message/slack-thread-c0akh5sngkh-1777350147-298499-e3252ea4.md) — Discussion about running dogfooding on prod and the removal of private keys. `updated=2026-05-04T19:35:55Z; source revisions=1; wiki_revision_id=wikirev_cef7ee16267df82de47dc4b2a62a5c9d`
 ## open_question
 
 - [Slack thread C0AKH5SNGKH 1777349624.208809](pages/slack_message/slack-thread-c0akh5sngkh-1777349624-208809-43df1bad.md) — Slack thread discussing fallback image behavior; currently same image used as fallback, campaign images should be uploaded in backend, and the banner_image_url field from /v1/campa... `updated=2026-05-04T19:22:13Z; source revisions=3; wiki_revision_id=wikirev_1a20b6d35542e650e56e9d7ee1362d90`
@@ -287,7 +290,6 @@ This content-oriented catalog is regenerated on every company wiki publish. Read
 - [Slack thread C0AKH5SNGKH 1777346119.915949](pages/slack_message/slack-thread-c0akh5sngkh-1777346119-915949-a5f7c394.md) — <@U08332YRB7W> <https://github.com/piplabs/numo-monorepo/pull/135/changes> why are we adding axios? is it a dependency? `updated=2026-05-04T06:55:16Z; source revisions=4; wiki_revision_id=wikirev_507ba0453ebbc5ed3621875e0026070c`
 - [Slack thread C0AKH5SNGKH 1777346211.263239](pages/slack_message/slack-thread-c0akh5sngkh-1777346211-263239-79dfa08c.md) — <@U05A515NBFC> <@U04L0DD6B6F> <https://www.notion.so/storyprotocol/i18n-issue-summary-34c051299a548064adf2d24fed20eff1?source=copy_link> new i18n issues `updated=2026-05-04T06:54:52Z; source revisions=12; wiki_revision_id=wikirev_ad839009689509bb8785c6f3222ef224`
 - [Slack thread C0AKH5SNGKH 1777346790.374179](pages/slack_message/slack-thread-c0akh5sngkh-1777346790-374179-b34d8f4e.md) — <@U08951K4SRY> feel free to run an ip registration load test on staging whenever you can, the workers are ready `updated=2026-05-04T06:55:13Z; source revisions=52; wiki_revision_id=wikirev_4bf98ad784460a4429ebed52f430dd3f`
-- [Slack thread C0AKH5SNGKH 1777350147.298499](pages/slack_message/slack-thread-c0akh5sngkh-1777350147-298499-e3252ea4.md) — <@U04L0DD6B6F> will we run tomorrow's dogfooding on prod? `updated=2026-05-04T06:50:04Z; source revisions=13; wiki_revision_id=wikirev_c1368763502fd1a6e093b6400ab3765a`
 - [Slack thread C0AKH5SNGKH 1777353403.464009](pages/slack_message/slack-thread-c0akh5sngkh-1777353403-464009-12c541b2.md) — <@U067QP5PD6J> can you get this fixed so we can do an ultrareview `updated=2026-05-04T06:50:06Z; source revisions=11; wiki_revision_id=wikirev_3d95704e6bceb9a290a7e9c5f8b9d888`
 - [Slack thread C0AKH5SNGKH 1777353404.539199](pages/slack_message/slack-thread-c0akh5sngkh-1777353404-539199-726191be.md) — <https://github.com/piplabs/depin-backend/pull/296> `updated=2026-05-04T06:50:07Z; source revisions=3; wiki_revision_id=wikirev_307b92f2100d14fba4a85b24f69c2d62`
 - [Slack thread C0AKH5SNGKH 1777354831.174719](pages/slack_message/slack-thread-c0akh5sngkh-1777354831-174719-4442abf4.md) — <@U067QP5PD6J>, this one good to merge too? <https://github.com/piplabs/numo-monorepo/pull/138> `updated=2026-05-04T06:50:08Z; source revisions=2; wiki_revision_id=wikirev_2d8a488115c857b958c2f28579f788fe`

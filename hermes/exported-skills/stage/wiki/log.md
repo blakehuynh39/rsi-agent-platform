@@ -3901,3 +3901,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1a20b6d35542e650e56e9d7ee1362d90
 - summary: Slack thread discussing fallback image behavior; currently same image used as fallback, campaign images should be uploaded in backend, and the banner_image_url field from /v1/campa...
 
+## [2026-05-04T19:35:55Z] synthesis | Slack thread C0AKH5SNGKH 1777350147.298499
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1777350147-298499-e3252ea4
+- wiki_revision_id: wikirev_cef7ee16267df82de47dc4b2a62a5c9d
+- summary: Discussion about running dogfooding on prod and the removal of private keys.
+
