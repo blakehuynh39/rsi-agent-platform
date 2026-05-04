@@ -1874,3 +1874,921 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_b8116207afc66cab6031367f0cef6aa5
 - summary: <@U07TNT9N4JC> is there a private RPC url with no rate limits I can use?
 
+## [2026-05-04T06:55:18Z] ingest | Slack thread C0AKH5SNGKH 1776922281.630299
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776922281-630299-4a2aacef
+- wiki_revision_id: wikirev_dd973df1872cf9ef1cf1aed95d30f537
+- source_document_id: srcdoc_d18683739ae0c8ef7546c1b14a2aacef
+- source_revision_id: srcrev_50d84364c83a8b8213fee64d961ffb09
+- summary: <@U08951K4SRY> did we verify that the file has changed from .webm to .wav?
+
+## [2026-05-04T06:55:18Z] ingest | Slack thread C0AKH5SNGKH 1777007107.823109
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1777007107-823109-b7dbe805
+- wiki_revision_id: wikirev_ac7d266faa34a5343fc8a47b75a3c210
+- source_document_id: srcdoc_d42ad24ae3f9ffb8b4e4bca8b7dbe805
+- source_revision_id: srcrev_0e3596690b11053ebbbec94ac6f1785f
+- summary: <@U0772SH7BRA> do the fe and admin have the same understanding of tasks and submissions? looks like these two numbers don’t match
+
+## [2026-05-04T06:55:19Z] ingest | Slack thread C0AKH5SNGKH 1776899018.301609
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776899018-301609-aab9fc9d
+- wiki_revision_id: wikirev_09e9accc104dd5ec4c9c59f3999880e3
+- source_document_id: srcdoc_d6dbbca681f5236f863c9dc4aab9fc9d
+- source_revision_id: srcrev_61d5cdbd26314cab5d85b554f4780b01
+- summary: related to this i created this `numo-workspace` which is suppose to house the two FE /BE repos.
+
+## [2026-05-04T06:55:19Z] ingest | Slack thread C0AKH5SNGKH 1777323939.652759
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1777323939-652759-43ee9837
+- wiki_revision_id: wikirev_d18edc7f584a53909f7ea9a04cece910
+- source_document_id: srcdoc_dbfcb82b0730f61c424b09c743ee9837
+- source_revision_id: srcrev_ba6339ea433b3dbf77776d454452ebd0
+- summary: FE PR for Admin bug fixes: <https://github.com/piplabs/numo-monorepo/pull/129>
+
+## [2026-05-04T06:55:19Z] ingest | Slack thread C0AKH5SNGKH 1776918096.200219
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776918096-200219-b952e608
+- wiki_revision_id: wikirev_1959adcb645805396dbc7908999583d4
+- source_document_id: srcdoc_dfce9e0e1a27440f5f5f13a5b952e608
+- source_revision_id: srcrev_b3aa99522ee16f348b35ad22b27acea8
+- summary: doesn't seem like <https://numo-staging.vercel.app/> is working now and <https://staging.numolabs.ai> gets `401` `dynamic jwt audience does not match allowed origins` <@U0772SH7BRA...
+
+## [2026-05-04T06:55:20Z] ingest | Slack thread C0AKH5SNGKH 1776971182.505879
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776971182-505879-ac11a35e
+- wiki_revision_id: wikirev_1dbe5a40e9d4dfa25331c5b2f2bde33b
+- source_document_id: srcdoc_e41c78dda98a9f60007c4071ac11a35e
+- source_revision_id: srcrev_0ebd9ccb2e38cb7272b4d01f62526dad
+- summary: <@U0772SH7BRA> can we make sure prod works? getting 401
+
+## [2026-05-04T06:55:20Z] ingest | Slack thread C0AKH5SNGKH 1777312802.051839
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1777312802-051839-64c642d5
+- wiki_revision_id: wikirev_c946725c48e20a9ad2936297536b4152
+- source_document_id: srcdoc_ea09074bf9bdf3995c1c80e864c642d5
+- source_revision_id: srcrev_62294f33808523864d57e239daf503b1
+- summary: <@U04L0DD6B6F> <@U08951K4SRY> <https://github.com/piplabs/numo-monorepo/pull/122> Referral balance is added now on wallet page
+
+## [2026-05-04T06:55:21Z] ingest | Slack thread C0AKH5SNGKH 1777344580.571799
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1777344580-571799-1f9edf15
+- wiki_revision_id: wikirev_51ada71d6130327298b1b7f2615a9274
+- source_document_id: srcdoc_ec0c00246b1ec8368be668431f9edf15
+- source_revision_id: srcrev_c91c0f80e306ef38a3ba65a842ac4277
+- summary: <@U05A515NBFC> can you review? <https://github.com/piplabs/numo-monorepo/pull/134>
+
+## [2026-05-04T06:55:21Z] ingest | Slack thread C0AKH5SNGKH 1776922218.173859
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776922218-173859-1e3a0d02
+- wiki_revision_id: wikirev_ff33a6a19f1cba0745eba769e053f902
+- source_document_id: srcdoc_ed753fa55d91042904ca33581e3a0d02
+- source_revision_id: srcrev_1f254195c485f623010a162411227b0b
+- summary: <!here> lets check in 30 min to see where we stand
+
+## [2026-05-04T06:55:21Z] ingest | Slack thread C0AKH5SNGKH 1777060500.694329
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1777060500-694329-08ac0e22
+- wiki_revision_id: wikirev_b1fa5c03c3619e2fddbd5aeecefbf564
+- source_document_id: srcdoc_ede0ba1f0d1d074d0b8492e908ac0e22
+- source_revision_id: srcrev_527afe55c440848e4c0307f4d65e0757
+- summary: Can I get these approved? thanks
+
+## [2026-05-04T06:55:22Z] ingest | Slack thread C0AKH5SNGKH 1776911257.416209
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776911257-416209-410b39e9
+- wiki_revision_id: wikirev_96285681b19d6047b06c76ac45f6dc40
+- source_document_id: srcdoc_eeaff7e806d052dac6012d20410b39e9
+- source_revision_id: srcrev_e25b0ce0403a96f834688f65be6f78d4
+- summary: <@U0772SH7BRA> also i forgot to ask - the list of regions are updated?
+
+## [2026-05-04T06:55:22Z] ingest | Slack thread C0AKH5SNGKH 1776910272.613009
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776910272-613009-453f7f4b
+- wiki_revision_id: wikirev_94ecc6bc1272919528cf017502c5c969
+- source_document_id: srcdoc_f3e2e66b86684ddbec77f407453f7f4b
+- source_revision_id: srcrev_2a466f2e307ef6ed18c335447e9359d7
+- summary: <@U0772SH7BRA> <@U083MMT1771> another PR to fix transaction retry ordering
+
+## [2026-05-04T06:55:23Z] ingest | Slack thread C0AKH5SNGKH 1776905789.439209
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776905789-439209-087563f2
+- wiki_revision_id: wikirev_79d6bcfb2ae989835c36d7f90c24a569
+- source_document_id: srcdoc_f65e3ea6c0a9966fee1fa4b2087563f2
+- source_revision_id: srcrev_ed575a213722bfa588bfe04d0f4762c0
+- summary: not sure why bugbot is not working for me <@U0772SH7BRA> <https://github.com/piplabs/depin-backend/pull/210> <https://github.com/piplabs/depin-backend/pull/155> those are also low ...
+
+## [2026-05-04T06:55:23Z] ingest | Slack thread C0AKH5SNGKH 1776971792.706139
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776971792-706139-21466230
+- wiki_revision_id: wikirev_bc4d71d747ab1c6bbca777132df76d63
+- source_document_id: srcdoc_f6b19954fd1d69970b4f61e021466230
+- source_revision_id: srcrev_a2c6f61a5c94f5a1fc1798bbe5957368
+- summary: <@U083MMT1771> are you done with referrals?
+
+## [2026-05-04T06:55:24Z] ingest | Slack thread C0AKH5SNGKH 1777310450.292139
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1777310450-292139-0290a82c
+- wiki_revision_id: wikirev_5a6e84d5674e63cd862c8231949ff232
+- source_document_id: srcdoc_fe27ae29fcaba4b82fc9bfb60290a82c
+- source_revision_id: srcrev_2a824415ba3937e0e5e43ab42824233d
+- summary: <@U08951K4SRY> also as part of QA did we make sure our error reporting get sent to the right alerting channels? Ie. <#C08GPQT5SB1> <#C08FS1UV04F> etc
+
+## [2026-05-04T06:59:02Z] ingest | Slack thread C0AKH5SNGKH 1776886734.516099
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776886734-516099-dfdf2279
+- wiki_revision_id: wikirev_ad41c37180a0ecd31585660394b8421f
+- source_document_id: srcdoc_00e290d2432735787d184f39dfdf2279
+- source_revision_id: srcrev_b770c3769ef07511bb3f2ef5e692865e
+- summary: <@U0772SH7BRA> i'm getting 401 unauthorized when i try to update status of submission - do we need an api key?
+
+## [2026-05-04T06:59:02Z] ingest | Slack thread C0AKH5SNGKH 1776705410.721159
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776705410-721159-99a00aa5
+- wiki_revision_id: wikirev_89582f330431c71973e237e50437c413
+- source_document_id: srcdoc_0891ec4bcaa773f0fb07898499a00aa5
+- source_revision_id: srcrev_bc317694d89267d4a6430dabaae30e5f
+- summary: <@U0772SH7BRA> <@U083MMT1771> - do we already have a GCP account that Story's using? we want to add Firebase for GA and if there's already one could you add me to the console?
+
+## [2026-05-04T06:59:03Z] ingest | Slack thread C0AKH5SNGKH 1776284511.275369
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776284511-275369-34c6e195
+- wiki_revision_id: wikirev_a46011b2a887ee9aa9f09e4e1899c811
+- source_document_id: srcdoc_0a88bab42a53864c4fe83c6934c6e195
+- source_revision_id: srcrev_f64a8a1922fd251edebf346d7534e465
+- summary: <@U04L0DD6B6F> Do you know if we already have a Sentry or Castle project? Or should I make a new one?
+
+## [2026-05-04T06:59:03Z] ingest | Slack thread C0AKH5SNGKH 1776879649.661209
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776879649-661209-93532045
+- wiki_revision_id: wikirev_556caf223ac9f4f0338db199adebaa3a
+- source_document_id: srcdoc_138292aa5599caa5b109ca3a93532045
+- source_revision_id: srcrev_50effc8fc770577f8e40069941a7fb97
+- summary: hi team gonna miss the standup, here're the async updates
+
+## [2026-05-04T06:59:04Z] ingest | Slack thread C0AKH5SNGKH 1776897287.565759
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776897287-565759-bb7caecf
+- wiki_revision_id: wikirev_e147c9f8b867ecb317c55203665107df
+- source_document_id: srcdoc_13a865dd4c5d128dfd37b5e8bb7caecf
+- source_revision_id: srcrev_2671633e3d7b91f521e77fb216abe9e1
+- summary: <!here>
+
+## [2026-05-04T06:59:04Z] ingest | Slack thread C0AKH5SNGKH 1776874489.506839
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776874489-506839-0045e9ae
+- wiki_revision_id: wikirev_dbf763a72652387cb7aa700b780651d0
+- source_document_id: srcdoc_14b5b75ba944aa2040a8df810045e9ae
+- source_revision_id: srcrev_766db5088535d190adb5d7c38345eef7
+- summary: <@U04L0DD6B6F> Pinging you but it may be someone else… do you know when the Numo designs will be done for the world app? The cover images, etc. I know you submitted the request to ...
+
+## [2026-05-04T06:59:04Z] ingest | Slack thread C0AKH5SNGKH 1776304311.244769
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776304311-244769-4f4b9b5f
+- wiki_revision_id: wikirev_ec71b9d90b3fbefd75f8ab4cb4795634
+- source_document_id: srcdoc_151ae5311c913a12415df22d4f4b9b5f
+- source_revision_id: srcrev_91e0dcbfc86714c04eade13c48a47643
+- summary: <@U04L0DD6B6F> QA update:
+
+## [2026-05-04T06:59:05Z] ingest | Slack thread C0AKH5SNGKH 1776438206.459929
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776438206-459929-6ba046bb
+- wiki_revision_id: wikirev_ddd5c62e8de0aa7e30afaa7775496a5e
+- source_document_id: srcdoc_160c4539f02c8d9caaada2df6ba046bb
+- source_revision_id: srcrev_c517f04500694d674c51b17decfe856e
+- summary: anyone has the admin-api-key header env to share with me? <@U0772SH7BRA> <@U08V4SFU7LZ> <@U067QP5PD6J> <@U083MMT1771>?
+
+## [2026-05-04T06:59:05Z] ingest | Slack thread C0AKH5SNGKH 1776381887.766359
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776381887-766359-4fea5806
+- wiki_revision_id: wikirev_4027d2f43d0001f24c6c2c54c78ec554
+- source_document_id: srcdoc_16afb6195d41d40df05c18744fea5806
+- source_revision_id: srcrev_da9d98fa3138c1653c4b349537b35ffd
+- summary: <@U08HVGL6LDR> on <http://Castle.io|Castle.io> did you already register an account, can you add me to the dash?
+
+## [2026-05-04T06:59:06Z] ingest | Slack thread C0AKH5SNGKH 1776101002.956409
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776101002-956409-044ac0b8
+- wiki_revision_id: wikirev_fd4382cba8d4633280b17c7246a40a07
+- source_document_id: srcdoc_193adb8bbe5de506215a91ff044ac0b8
+- source_revision_id: srcrev_2d6a0e8c4b4ef335088a2a786a010ff2
+- summary: Also quick note before I forget
+
+## [2026-05-04T06:59:06Z] ingest | Slack thread C0AKH5SNGKH 1776802794.336749
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776802794-336749-34b9cfc7
+- wiki_revision_id: wikirev_54b4f2eba9e268a8800b1308e64527ed
+- source_document_id: srcdoc_20e42bebdbed024979a94bba34b9cfc7
+- source_revision_id: srcrev_2293b33e62f760dbee9ca81a45d376ee
+- summary: <@U0772SH7BRA> the upload is stuck
+
+## [2026-05-04T06:59:07Z] ingest | Slack thread C0AKH5SNGKH 1776897730.690399
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776897730-690399-4704397b
+- wiki_revision_id: wikirev_c8137d24121cd7ad4755af2b25eb9667
+- source_document_id: srcdoc_22798d69f09c0e9b4d096fe34704397b
+- source_revision_id: srcrev_eae63dd08459fc9269a146653f9b39e2
+- summary: <@U05A515NBFC> created this PR for FAQ: <https://github.com/piplabs/numo-monorepo/pull/64>
+
+## [2026-05-04T06:59:07Z] ingest | Slack thread C0AKH5SNGKH 1775863730.552109
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775863730-552109-f472fae2
+- wiki_revision_id: wikirev_b1d1044ba07403caba2fbea8ff12830a
+- source_document_id: srcdoc_230d72017c4f51b32fe5527cf472fae2
+- source_revision_id: srcrev_09964e2f7734402bedcee57133f011b6
+- summary: <@U0772SH7BRA> Do you mind invalidating my user again
+
+## [2026-05-04T06:59:08Z] ingest | Slack thread C0AKH5SNGKH 1776899841.760979
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776899841-760979-8ac8250b
+- wiki_revision_id: wikirev_bbe84431f7fbdda22f8f7c9cf0d779f2
+- source_document_id: srcdoc_321854e7d9f02088c1e56c138ac8250b
+- source_revision_id: srcrev_337775e4abc9bb4223a4071d08f8f56b
+- summary: <@U08V4SFU7LZ> <@U08951K4SRY> I'm unable to purchase using my Brex how did you guys purchase in the past?
+
+## [2026-05-04T06:59:08Z] ingest | Slack thread C0AKH5SNGKH 1776371442.789899
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776371442-789899-19bdbc65
+- wiki_revision_id: wikirev_fdf2b52721653c17f25e44d4e156a210
+- source_document_id: srcdoc_375299f6da058fb21b45151819bdbc65
+- source_revision_id: srcrev_aed7d087b0f0d832795ddcacfa0e2be5
+- summary: <@U0772SH7BRA> quick pr to increase the gas limit again based on what I'm seeing on the network
+
+## [2026-05-04T06:59:08Z] ingest | Slack thread C0AKH5SNGKH 1776887968.020569
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776887968-020569-17e51407
+- wiki_revision_id: wikirev_559fda76ea4d6635a6227b2bfead8aeb
+- source_document_id: srcdoc_3b945583501c5e471860fafc17e51407
+- source_revision_id: srcrev_9a951369ef053b251d1d604d25ecbec9
+- summary: <@U04L0DD6B6F> just thought of a few pre-launch checklist items, not sure if these are redundant or all necessary
+
+## [2026-05-04T06:59:09Z] ingest | Slack thread C0AKH5SNGKH 1776445205.044759
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776445205-044759-6ecc02d6
+- wiki_revision_id: wikirev_d6a1ebfebd5d4e8a80708ad02edb1b9a
+- source_document_id: srcdoc_40e74eb60ed0152147e96a2e6ecc02d6
+- source_revision_id: srcrev_a02522a5b7d642bf46da046def38f2c4
+- summary: is qa testing on <https://numo-staging.vercel.app/> <@U08951K4SRY>?
+
+## [2026-05-04T06:59:09Z] ingest | Slack thread C0AKH5SNGKH 1776376953.984629
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776376953-984629-fa3a935c
+- wiki_revision_id: wikirev_2b0a3cea7fcf4ec26203babf31675ddf
+- source_document_id: srcdoc_4211adee38702c7226a91768fa3a935c
+- source_revision_id: srcrev_1b9a52c7ecdcab6c98168f6d51859346
+- summary: <@U04L0DD6B6F> we also need some admin features, like create, update campaigns. Is anyone working on this? Some test scenarios are currently blocked
+
+## [2026-05-04T06:59:10Z] ingest | Slack thread C0AKH5SNGKH 1776437234.558729
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776437234-558729-61112e36
+- wiki_revision_id: wikirev_e64b5d2730f1c0afaa23fd4a34b49915
+- source_document_id: srcdoc_444a4de9a2705d23e77fa41061112e36
+- source_revision_id: srcrev_f92a636eae9e344b7ed498ef981a3c99
+- summary: <@U0772SH7BRA> i'm creating an admin dashboard for Numo, for list all users it doesn't exist yet?
+
+## [2026-05-04T06:59:10Z] ingest | Slack thread C0AKH5SNGKH 1776705625.563529
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776705625-563529-773b9d05
+- wiki_revision_id: wikirev_eb07d97a274cde2edd817947698d32f4
+- source_document_id: srcdoc_4af16ec619258fe6384e2b79773b9d05
+- source_revision_id: srcrev_bb441df69406bd7e65f06f2dc34ffa1d
+- summary: <@U083MMT1771> - is the GA working? we should see some traffic coming in from our own testing no?
+
+## [2026-05-04T06:59:11Z] ingest | Slack thread C0AKH5SNGKH 1776101970.523869
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776101970-523869-b8febf29
+- wiki_revision_id: wikirev_44ea340978879775b5de9d91af72a835
+- source_document_id: srcdoc_4babd1bc5e3fa393588be6fab8febf29
+- source_revision_id: srcrev_1565f31e96c5b10803b5082fce75165e
+- summary: Testing update
+
+## [2026-05-04T06:59:11Z] ingest | Slack thread C0AKH5SNGKH 1776452298.227799
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776452298-227799-7e9d5554
+- wiki_revision_id: wikirev_9d55cb4c720d8600ab5c2f33aace99ce
+- source_document_id: srcdoc_5e1b0b4fff878a344e1c204b7e9d5554
+- source_revision_id: srcrev_b21cb95a6504989671f63963941ce587
+- summary: <@U0772SH7BRA> <@U083MMT1771>, <@U08D32C1EF3> asked that you guys both work with <@U07TNT9N4JC> on the infra.
+
+## [2026-05-04T06:59:12Z] ingest | Slack thread C0AKH5SNGKH 1776883480.349059
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776883480-349059-79d4a6d3
+- wiki_revision_id: wikirev_b42f386ae22deda7b145fe25d665ef89
+- source_document_id: srcdoc_5e39ce788bbbc3a2c14f9ffd79d4a6d3
+- source_revision_id: srcrev_23fcc8ecdcf588c072d47896794fc256
+- summary: also <@U067QP5PD6J> for the admin stuff i'll sync the current `develop` branch to `main` so we can deploy on vercel and i'll set up staging / prod env var
+
+## [2026-05-04T06:59:12Z] ingest | Slack thread C0AKH5SNGKH 1776406148.650159
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776406148-650159-42c8c5fe
+- wiki_revision_id: wikirev_23420ca32daee1614f273ff7a0871ec8
+- source_document_id: srcdoc_5f566a980e107de81a89668d42c8c5fe
+- source_revision_id: srcrev_d6dcb42b59badf2a3df512c57dac13cc
+- summary: <@U04L0DD6B6F> do you know what the final URL of the app will be
+
+## [2026-05-04T06:59:13Z] ingest | Slack thread C0AKH5SNGKH 1776883398.920019
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776883398-920019-36a4388a
+- wiki_revision_id: wikirev_9dabb3443f007c1fb1afb9cc975c9191
+- source_document_id: srcdoc_60de48512df598e9b10c1d0136a4388a
+- source_revision_id: srcrev_9fbff8b28e5ac43b0590b4f9fe547625
+- summary: <@U05A515NBFC> forgot to track, did we change audio file from webm -&gt; wav?
+
+## [2026-05-04T06:59:13Z] ingest | Slack thread C0AKH5SNGKH 1776631092.192589
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776631092-192589-44fc0a98
+- wiki_revision_id: wikirev_2978bda77f008395030477ac0cb91298
+- source_document_id: srcdoc_61f4c15ca1ec0a06a75e5c5a44fc0a98
+- source_revision_id: srcrev_9d453413349db945bdc4027a251bb5a4
+- summary: <@U0772SH7BRA> do we want sentry for ip registration to have its own DSN? On my side I feel like it could share the api DSN / project since they are 2 moving parts of the same back...
+
+## [2026-05-04T06:59:14Z] ingest | Slack thread C0AKH5SNGKH 1776358095.058129
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776358095-058129-4aa8ac19
+- wiki_revision_id: wikirev_d4596070da5a7da3d418cc507c1b5196
+- source_document_id: srcdoc_633597cf6c05b36d4b64f31c4aa8ac19
+- source_revision_id: srcrev_32d313953a3badd507f931c68a1a5bf1
+- summary: <@U08V4SFU7LZ> This collection looks not correct, we now use a default one or it's an issue?
+
+## [2026-05-04T06:59:14Z] ingest | Slack thread C0AKH5SNGKH 1776322144.122069
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776322144-122069-4a642fb3
+- wiki_revision_id: wikirev_99ae4d1de007ade3f331420c597ac1e8
+- source_document_id: srcdoc_69b3863571e1c044bf69a8ad4a642fb3
+- source_revision_id: srcrev_fd21d6e7c95153700ef405ed55061cfe
+- summary: <@U0772SH7BRA> We’re hitting a World App iPhone upload issue on campaign submission. Browser uploads work, but in World the request to `POST /v1/submissions/initiate-upload` return...
+
+## [2026-05-04T06:59:14Z] ingest | Slack thread C0AKH5SNGKH 1776792195.741229
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776792195-741229-5c4efc39
+- wiki_revision_id: wikirev_d172956b8f5e313567cd8f89e9386ffd
+- source_document_id: srcdoc_6a90f6519041e5cc6ddf12435c4efc39
+- source_revision_id: srcrev_2aece4c1b80b97287184d598badf0c7e
+- summary: <@U083MMT1771> the activities endpoint right now is only returning the users contributions (`campaign_submission`) according to the openapi schema, can we add referrals? my questio...
+
+## [2026-05-04T06:59:15Z] ingest | Slack thread C0AKH5SNGKH 1776897420.962959
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776897420-962959-dd785605
+- wiki_revision_id: wikirev_cea5807bd10427bf89e9fcbaf47710a7
+- source_document_id: srcdoc_6d60b6cebff287b5dbd8a7afdd785605
+- source_revision_id: srcrev_021a34ff44f53047c01989d425d9def1
+- summary: <https://www.notion.so/storyprotocol/Campaign-On-campaign-cards-Joined-label-is-misleading-the-count-shows-total-contributions-inste-348051299a548067ba70ff24b6e39a70?source=copy_li...
+
+## [2026-05-04T06:59:15Z] ingest | Slack thread C0AKH5SNGKH 1775865195.260529
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775865195-260529-4ebd237d
+- wiki_revision_id: wikirev_a1aa3e66c49f9ef166610d04fad674e0
+- source_document_id: srcdoc_6fe8e6762dbbba274f688bf74ebd237d
+- source_revision_id: srcrev_1ef3373d39793aa4d6734f135a2304b7
+- summary: thanks folks for testing this out - <@U08HVGL6LDR> <@U0772SH7BRA> one thing to also validate is that
+
+## [2026-05-04T06:59:16Z] ingest | Slack thread C0AKH5SNGKH 1776268871.692099
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776268871-692099-3a78bddc
+- wiki_revision_id: wikirev_8326f75351d2cb5ef7358bcba9eae11a
+- source_document_id: srcdoc_7025e27da8337d175d4ff47e3a78bddc
+- source_revision_id: srcrev_6192da934a2975b129d356de8cfa27dd
+- summary: <@U0772SH7BRA> <@U083MMT1771> small PR to fix a couple issues in the ip registration worker cd
+
+## [2026-05-04T06:59:16Z] ingest | Slack thread C0AKH5SNGKH 1776790559.885669
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776790559-885669-49c9c7bc
+- wiki_revision_id: wikirev_060523fb5a7089f7b7b262a09f97dc5f
+- source_document_id: srcdoc_7160027e50462f263b45391749c9c7bc
+- source_revision_id: srcrev_98b32c5e4494d1f56e4745704be66fb0
+- summary: some data are still mocked now, and the feedback functionality hasn’t been implemented yet
+
+## [2026-05-04T06:59:17Z] ingest | Slack thread C0AKH5SNGKH 1776880227.271209
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776880227-271209-7213a465
+- wiki_revision_id: wikirev_2a610711840e768394f806a5a246c886
+- source_document_id: srcdoc_72584f1605ffc2abf54951e87213a465
+- source_revision_id: srcrev_f9447acc10e70e326b5960e25ba13fd9
+- summary: <@U08951K4SRY> GM. <@U067QP5PD6J> is working on the rewards PRs. Once it's done we need to thoroughly test E2E the logic there since it's a big feature and we haven't had time to t...
+
+## [2026-05-04T06:59:17Z] ingest | Slack thread C0AKH5SNGKH 1776361400.349929
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776361400-349929-29f7642d
+- wiki_revision_id: wikirev_5318bd472bcca044991dd6ff0a3eeafc
+- source_document_id: srcdoc_795bc1c448494d562723fd0429f7642d
+- source_revision_id: srcrev_c7837cfcfcb649fa878d9ecaef9146da
+- summary: also <@U05A515NBFC> on the i18n side sorry i didn't catch this earlier but curious what was our decision in picking `lingui`?
+
+## [2026-05-04T06:59:18Z] ingest | Slack thread C0AKH5SNGKH 1776372450.999969
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776372450-999969-23842427
+- wiki_revision_id: wikirev_6c9ab8dbc60a85c7a439be854f7862f6
+- source_document_id: srcdoc_7b9145793d07eb82f14d24d223842427
+- source_revision_id: srcrev_2ad8e113ee7354d97f3800aecedde987
+- summary: <@U0772SH7BRA> - did you get a chance to add targeted hours for each campaign?
+
+## [2026-05-04T06:59:18Z] ingest | Slack thread C0AKH5SNGKH 1776433671.013819
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776433671-013819-b15bcacb
+- wiki_revision_id: wikirev_b02a460f05b973dae33e07424e6922e7
+- source_document_id: srcdoc_7bab06d7e0658356c491a59ab15bcacb
+- source_revision_id: srcrev_9f433eae692ba3fa879940b6b3561ff2
+- summary: <@U08HVGL6LDR> / <@U083MMT1771> hows the Production Readiness coming along
+
+## [2026-05-04T06:59:19Z] ingest | Slack thread C0AKH5SNGKH 1776791158.166039
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776791158-166039-46bfcc4e
+- wiki_revision_id: wikirev_d19322efacf5d70d83b526fd7d4b29e8
+- source_document_id: srcdoc_7ef32e87c8229ac2a9e57a3746bfcc4e
+- source_revision_id: srcrev_2f1da2bcbf422ca342729844c9bf25a6
+- summary: <@U0772SH7BRA> <@U08HVGL6LDR> we missed you in the meeting this morning. its important you join the morning meetings so we can align especially since we're very tight on timelines.
+
+## [2026-05-04T06:59:19Z] ingest | Slack thread C0AKH5SNGKH 1775165360.349769
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775165360-349769-43dfed89
+- wiki_revision_id: wikirev_e99162efa3d853931d8edfd3898f0a14
+- source_document_id: srcdoc_81361ae35dc2deda67bb116343dfed89
+- source_revision_id: srcrev_33b2edac46aa31dfc4cf43e4f6e53e93
+- summary: <@U067QP5PD6J>
+
+## [2026-05-04T06:59:20Z] ingest | Slack thread C0AKH5SNGKH 1776734023.106709
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776734023-106709-83be6d13
+- wiki_revision_id: wikirev_1aab7937239dc356502c27ecd22d080a
+- source_document_id: srcdoc_86f97eb5429b0db9b90f8c0583be6d13
+- source_revision_id: srcrev_8d75a7f6fb821743fb38ccbcdcee13ec
+- summary: <https://staging-depin.storyprotocol.net> requests returning CORS errors now <@U0772SH7BRA> <@U083MMT1771> (<https://numo-staging.vercel.app/|here>)
+
+## [2026-05-04T06:59:20Z] ingest | Slack thread C0AKH5SNGKH 1776700990.589599
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776700990-589599-731d87dc
+- wiki_revision_id: wikirev_1e01298b5b34ff36573f52f245fc1aa4
+- source_document_id: srcdoc_8ce396396a5b81fcda244e63731d87dc
+- source_revision_id: srcrev_01531ad313d047cd3815e94272266c59
+- summary: am i in the wrong google meet?
+
+## [2026-05-04T06:59:21Z] ingest | Slack thread C0AKH5SNGKH 1776844507.426929
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776844507-426929-21e203f3
+- wiki_revision_id: wikirev_21a0485633e18ea8c570831bae107d05
+- source_document_id: srcdoc_9851f76daa27721bdb56532721e203f3
+- source_revision_id: srcrev_30a41f88571a7e8b3a8e1b7bc7418640
+- summary: can you confirm whether the task `participant_count` field returns the number of unique users that have contributed or the total number of contributions <@U0772SH7BRA> <@U083MMT177...
+
+## [2026-05-04T06:59:21Z] ingest | Slack thread C0AKH5SNGKH 1776378130.874519
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776378130-874519-a776b09c
+- wiki_revision_id: wikirev_ee9304230cf56cfba368a44f388456fc
+- source_document_id: srcdoc_994b5f746a4c0773e6969448a776b09c
+- source_revision_id: srcrev_1df0510d808d90158ba0c0b2bf73b392
+- summary: <https://github.com/piplabs/depin-backend/pull/144>
+
+## [2026-05-04T06:59:22Z] ingest | Slack thread C0AKH5SNGKH 1776196203.268969
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776196203-268969-420ec4e6
+- wiki_revision_id: wikirev_10d0e7f65188a976782e264aa23884c3
+- source_document_id: srcdoc_9d7b105c13f73166effde78c420ec4e6
+- source_revision_id: srcrev_eaf37e9ddf187e0cf6c1d9e8f35777d4
+- summary: <@U08951K4SRY> what do u need the DB access for ? What type of test would u be conducting
+
+## [2026-05-04T06:59:22Z] ingest | Slack thread C0AKH5SNGKH 1776284534.037029
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776284534-037029-d0375b31
+- wiki_revision_id: wikirev_db94191e34038564a5ac94bac5b3a045
+- source_document_id: srcdoc_a94aedb287048bbbb9c6e3afd0375b31
+- source_revision_id: srcrev_28a5fd89179d0c50fdccbc4aa14da78d
+- summary: <@U083MMT1771> can you also work with Gardo on analytics needs - he's responsible for setting up the funnels on the GA dashboard - but we need to provide the list of each event / u...
+
+## [2026-05-04T06:59:23Z] ingest | Slack thread C0AKH5SNGKH 1776385640.350219
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776385640-350219-ddf37a09
+- wiki_revision_id: wikirev_0b4864817db9b2ab5bfc0ace9b142377
+- source_document_id: srcdoc_a9af65ecff866c46152ac869ddf37a09
+- source_revision_id: srcrev_52652ec09a505d89832c4c1dbd5d95ce
+- summary: <@U0772SH7BRA> after a few iterations <@U08951K4SRY> and I saw that gas price spikes much faster on Aeneid than on Mainnet, so I'll make the gas limit only enforced on Mainnet. her...
+
+## [2026-05-04T06:59:23Z] ingest | Slack thread C0AKH5SNGKH 1776806348.779409
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776806348-779409-255ff15d
+- wiki_revision_id: wikirev_eb1b98c3db8626d2cf651b667a8d4333
+- source_document_id: srcdoc_adfbe5fd3b3e184a7f62c80b255ff15d
+- source_revision_id: srcrev_850ac59d4230d9ffffa1779def7261fd
+- summary: <@U0772SH7BRA> <@U04L0DD6B6F> from a security perspective, should we return the voice phrase at this stage? Since we don’t currently have voice verification, if we add it later, us...
+
+## [2026-05-04T06:59:24Z] ingest | Slack thread C0AKH5SNGKH 1776201881.970259
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776201881-970259-5781b011
+- wiki_revision_id: wikirev_e056bbd5f21698e3bd296cec292d9149
+- source_document_id: srcdoc_b53baf79d70db15a65f1f0f75781b011
+- source_revision_id: srcrev_99f205d35e7bc870bb3ea2384a77ae31
+- summary: <@U08HVGL6LDR> I’m still testing the world miniapp. The issues should be consistent with the web side. trying to identify any miniapp side specific issues and document them
+
+## [2026-05-04T06:59:24Z] ingest | Slack thread C0AKH5SNGKH 1776440001.628089
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776440001-628089-7b4a4686
+- wiki_revision_id: wikirev_6b017359bbb2fa2688ffc27474a1de8c
+- source_document_id: srcdoc_b7010ba7a93e064d98f5b0ad7b4a4686
+- source_revision_id: srcrev_6477a64165f6dae83b8e8473b65b7f2b
+- summary: <@U083MMT1771> have we designed the referral to reflect this logic similar to KLED?
+
+## [2026-05-04T06:59:25Z] ingest | Slack thread C0AKH5SNGKH 1776828243.131759
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776828243-131759-1479fca6
+- wiki_revision_id: wikirev_2e1105d1a3bc366a107a72fb4f0f4d51
+- source_document_id: srcdoc_b81488e7859d87cb19ac42141479fca6
+- source_revision_id: srcrev_ef1e870ecb0ad8256254f0c18c571816
+- summary: <@U083MMT1771> <@U08V4SFU7LZ> <@U0772SH7BRA> pr to add an admin endpoint for creating new scripts
+
+## [2026-05-04T06:59:25Z] ingest | Slack thread C0AKH5SNGKH channel
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-channel-53ca9dcc
+- wiki_revision_id: wikirev_839a885f4a993adf690020fa61990a93
+- source_document_id: srcdoc_b8c049e55a95dd9144c9ede553ca9dcc
+- source_revision_id: srcrev_1c57519638fe0453f8fc080880aa4ca3
+- summary: quick fix: add og image to landing page
+
+## [2026-05-04T06:59:26Z] ingest | Slack thread C0AKH5SNGKH 1776273376.017549
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776273376-017549-2cb6d275
+- wiki_revision_id: wikirev_e49e8c3bfacce77cf14e1eb206b19691
+- source_document_id: srcdoc_bd51c827fb42fb667125af952cb6d275
+- source_revision_id: srcrev_13412dcc82c804ed9fe438637bd5a2ca
+- summary: <https://github.com/piplabs/depin-backend/pull/135/changes> fix naming for grafana dashboard, cc <@U08V4SFU7LZ> <@U04L0DD6B6F> should look like this
+
+## [2026-05-04T06:59:26Z] ingest | Slack thread C0AKH5SNGKH 1776453073.688689
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776453073-688689-01b74e66
+- wiki_revision_id: wikirev_027f0550897034a1f2ddb663612c4f11
+- source_document_id: srcdoc_c0ee4da11b893e853b56029501b74e66
+- source_revision_id: srcrev_aca1d304a7471a8c75a77c2bc93d6f9a
+- summary: <@U04L0DD6B6F> <@U083MMT1771> <@U0772SH7BRA> Can I get a stamp on this: <https://github.com/piplabs/depin-backend/pull/151>
+
+## [2026-05-04T06:59:27Z] ingest | Slack thread C0AKH5SNGKH 1776203318.062189
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776203318-062189-6554189f
+- wiki_revision_id: wikirev_6d8627ad7a91a3d0b1ec7342551d72b7
+- source_document_id: srcdoc_c3b088682c2cfb5370aa3cb06554189f
+- source_revision_id: srcrev_189f3107740144b29894c5760b4cd50b
+- summary: <@U0772SH7BRA> <@U083MMT1771> pr to add an endpoint to seed wallets in the db
+
+## [2026-05-04T06:59:27Z] ingest | Slack thread C0AKH5SNGKH 1776887228.858889
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776887228-858889-da5ac455
+- wiki_revision_id: wikirev_2e7c2398f4b44aec7c90a17cb3ab6960
+- source_document_id: srcdoc_c6dc668f1566abf8e5b59e61da5ac455
+- source_revision_id: srcrev_ecc6c6f9d7e80d2af85aa7d004f34205
+- summary: cc <@U04L0DD6B6F>
+
+## [2026-05-04T06:59:28Z] ingest | Slack thread C0AKH5SNGKH 1776884630.445019
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776884630-445019-6fa280e0
+- wiki_revision_id: wikirev_df3c3e11e63f2537bdaf73d14681bb8b
+- source_document_id: srcdoc_c6f6d3b1ff5839e15e4a386b6fa280e0
+- source_revision_id: srcrev_c6a9eef404e53f5266d8f7c832f9fd7c
+- summary: <@U07TNT9N4JC> i've discussed with Blake and we may need your help on switching the domain from *.<http://storyprotoco.net|storyprotoco.net> for API endpoints to *.<http://numolabs...
+
+## [2026-05-04T06:59:28Z] ingest | Slack thread C0AKH5SNGKH 1776661899.725499
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776661899-725499-f804126b
+- wiki_revision_id: wikirev_3c643b7bd8bcab0c4aa3db2a5c201a42
+- source_document_id: srcdoc_c9c0bc3a8560c6c77de8660af804126b
+- source_revision_id: srcrev_71e90817d9128a53962dc8e7c0bec11d
+- summary: Pending PRs from my side:
+
+## [2026-05-04T06:59:29Z] ingest | Slack thread C0AKH5SNGKH 1776363735.800169
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776363735-800169-55e3d98c
+- wiki_revision_id: wikirev_310264a8bf344a9000600801d22eb591
+- source_document_id: srcdoc_d0c5f9864508979a74a1311355e3d98c
+- source_revision_id: srcrev_f0b00e30d049fe25da4b95f3858c609f
+- summary: <@U0772SH7BRA> PR to fix an ip registration bug related to collection address retrieval
+
+## [2026-05-04T06:59:29Z] ingest | Slack thread C0AKH5SNGKH 1776795638.575789
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776795638-575789-d29ba750
+- wiki_revision_id: wikirev_692d4a06bb0de8aae38f9503c4175f3d
+- source_document_id: srcdoc_d18384fca58a2d9be46f6175d29ba750
+- source_revision_id: srcrev_09ad9865c33f06c44c593de8a3952295
+- summary: <@U08332YRB7W> looks like I don't have access to production google cloud. We need to setup oauth client for dynamic. Can you help set this up and give me keys/admin access after
+
+## [2026-05-04T06:59:30Z] ingest | Slack thread C0AKH5SNGKH 1776308337.344849
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776308337-344849-80490ff5
+- wiki_revision_id: wikirev_e4307d38cb070b10929fe78248c28cb6
+- source_document_id: srcdoc_d2267fe6c64ea422a02d32ed80490ff5
+- source_revision_id: srcrev_fc64e8a93769d147f350fa2c2fd93d0c
+- summary: <https://github.com/piplabs/depin-backend/pull/137>
+
+## [2026-05-04T06:59:30Z] ingest | Slack thread C0AKH5SNGKH 1776806891.102199
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776806891-102199-95d683e1
+- wiki_revision_id: wikirev_7cf0a46457216b544257744b32e9e354
+- source_document_id: srcdoc_d31075b4b1b130acbec5776d95d683e1
+- source_revision_id: srcrev_0b03e4899252d391cb74a4d0aa144b73
+- summary: the current behavior is:
+
+## [2026-05-04T06:59:31Z] ingest | Slack thread C0AKH5SNGKH 1776899018.301609
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776899018-301609-aab9fc9d
+- wiki_revision_id: wikirev_26aa92cf815b03bd1dc4c5dc1e2c63de
+- source_document_id: srcdoc_d6dbbca681f5236f863c9dc4aab9fc9d
+- source_revision_id: srcrev_fbe192a6d6a28e589c0409090f8d89b7
+- summary: related to this i created this `numo-workspace` which is suppose to house the two FE /BE repos.
+
+## [2026-05-04T06:59:32Z] ingest | Slack thread C0AKH5SNGKH 1776200095.458869
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776200095-458869-69302eaf
+- wiki_revision_id: wikirev_c9a95a24f2ca1e7dbc306844ebea2d84
+- source_document_id: srcdoc_d80ce7d426839b239ea5985b69302eaf
+- source_revision_id: srcrev_0a4cbd6e5adf1a14549bc345ddd7d435
+- summary: do we already have GA setup <@U04L0DD6B6F> <@U08AGDT08E7>
+
+## [2026-05-04T06:59:32Z] ingest | Slack thread C0AKH5SNGKH 1776450668.390209
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776450668-390209-90c82bfa
+- wiki_revision_id: wikirev_ea3dca8bd59bec4b4e4bdd7536e9280d
+- source_document_id: srcdoc_dc8ec9c3959512fe5c752ce490c82bfa
+- source_revision_id: srcrev_b153451c3ae20c3a9f5a62f6d9712fcc
+- summary: <@U04L0DD6B6F> just to be sure, registration boosts should be registered in the DB to also inflate the aggregate metrics like submissions count right? It'd be more consistent, and ...
+
+## [2026-05-04T06:59:33Z] ingest | Slack thread C0AKH5SNGKH 1776390892.409479
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776390892-409479-56a51a61
+- wiki_revision_id: wikirev_42f154ef024d3d8233b3d79bf4224111
+- source_document_id: srcdoc_de46116c1fce6a5d9b6cd8fc56a51a61
+- source_revision_id: srcrev_eecb834ebd8181206c05dde2658d45a9
+- summary: <@U0772SH7BRA>
+
+## [2026-05-04T06:59:33Z] ingest | Slack thread C0AKH5SNGKH 1776125242.934709
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776125242-934709-099cfa31
+- wiki_revision_id: wikirev_2c264f48b422c1d9a38d5a16c72205e3
+- source_document_id: srcdoc_dee0ab0f75c3eb2ee100e5f5099cfa31
+- source_revision_id: srcrev_e349a1fa3af199655f0eb893a08467d9
+- summary: hey <@U067QP5PD6J> update we just had a meeting with Leo he said Poseidon might be willing to take over transcript generation work.
+
+## [2026-05-04T06:59:34Z] ingest | Slack thread C0AKH5SNGKH 1776361159.870439
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776361159-870439-e848153f
+- wiki_revision_id: wikirev_a6564d15df88ef5434e63c889f7769f3
+- source_document_id: srcdoc_dfba189826195d1132f47e9ee848153f
+- source_revision_id: srcrev_fd6f4bceb86ea37d461bfe102bd16986
+- summary: hey <@U08HVGL6LDR> i picked up a few of the bug list, <@U08951K4SRY> i think some of them may require <@U0772SH7BRA>’s input
+
+## [2026-05-04T06:59:34Z] ingest | Slack thread C0AKH5SNGKH 1776732775.301849
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776732775-301849-8fe1792b
+- wiki_revision_id: wikirev_39cfe1b985c2f01f08dbe4dff0161507
+- source_document_id: srcdoc_e074c93c084dfcb15f26c9918fe1792b
+- source_revision_id: srcrev_71ca49f9f4a15caa70c7f1760b444636
+- summary: <@U0772SH7BRA> I'm doing the <http://Castle.io|Castle.io> integration right now. Looks like it's partially hooked up on the frontend but it's some backend work too:
+
+## [2026-05-04T06:59:35Z] ingest | Slack thread C0AKH5SNGKH 1776279633.907679
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776279633-907679-e8d40c62
+- wiki_revision_id: wikirev_d6dcf04d31e9883d675195e1632c0e5c
+- source_document_id: srcdoc_e23bb62299dea0324d710218e8d40c62
+- source_revision_id: srcrev_2ef2fdac40e1dd9579827e8a43a7c05e
+- summary: <@U05A515NBFC> I saw that the endpoint to fetch images returns a 307 redirect to a presigned s3 url, just wanted to make sure it's fine to use an URL that will redirect in the IP m...
+
+## [2026-05-04T06:59:35Z] ingest | Slack thread C0AKH5SNGKH 1776639024.806459
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776639024-806459-3175ee47
+- wiki_revision_id: wikirev_04cc14d90e6689fbf0732d3b535d770c
+- source_document_id: srcdoc_e2bb4bfb9b113440cba031503175ee47
+- source_revision_id: srcrev_987453e37e4e1b7f8d18cc633617ecae
+- summary: <@U0772SH7BRA> <@U04L0DD6B6F> it looks like there's an ambiguity we need to resolve on IP metadata storage:
+
+## [2026-05-04T06:59:36Z] ingest | Slack thread C0AKH5SNGKH 1776373290.618009
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776373290-618009-d835fb66
+- wiki_revision_id: wikirev_2a5334cf622c4e96cacbdbefb2361645
+- source_document_id: srcdoc_e5393b55f79ec8a702b3f1f8d835fb66
+- source_revision_id: srcrev_a029cf176667b35e3da057304dc12d6a
+- summary: number of tasks / number of hours which is easy to convert
+
+## [2026-05-04T06:59:36Z] ingest | Slack thread C0AKH5SNGKH 1776823558.501269
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776823558-501269-beede5ca
+- wiki_revision_id: wikirev_f67db5cb71114961726ebc3ac9836ede
+- source_document_id: srcdoc_e64ed0689d35af5fde8763dfbeede5ca
+- source_revision_id: srcrev_a4c6006642e70cd28dcb3e43d118ca1d
+- summary: <@U07TNT9N4JC> we also need to put the `CASTLE_API_SECRET` in the helm chart in `storyprotocol/story-deployments` at `story/depin-backend/use1-stage.yaml`
+
+## [2026-05-04T06:59:37Z] ingest | Slack thread C0AKH5SNGKH 1776727222.644809
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776727222-644809-e2fab393
+- wiki_revision_id: wikirev_36673d068dcca3ea56b4bba205c69df0
+- source_document_id: srcdoc_e65782749018463b01fb646be2fab393
+- source_revision_id: srcrev_f450528793a1f6aeeb1e2b8e6177abc8
+- summary: <https://github.com/piplabs/depin-backend/pull/153> resolved all the bugbot comments <@U0772SH7BRA> <@U08V4SFU7LZ>
+
+## [2026-05-04T06:59:37Z] ingest | Slack thread C0AKH5SNGKH 1776892346.615119
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776892346-615119-9a849287
+- wiki_revision_id: wikirev_a5ff352c784566f7f60c2f9e4d7d983e
+- source_document_id: srcdoc_e6bfc5fef3078c2e4bff16cf9a849287
+- source_revision_id: srcrev_71af880ef3d880661e1cb17fc030fb73
+- summary: folks lets aim to have a release version by EoD today midnight PST. we need to leave time for bug fixes tomorrow and friday
+
+## [2026-05-04T06:59:38Z] ingest | Slack thread C0AKH5SNGKH 1776717574.510909
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776717574-510909-5d2d1dcd
+- wiki_revision_id: wikirev_8579339098582998459009584bee8ae4
+- source_document_id: srcdoc_e72070d8fa0bf0a17147aa8a5d2d1dcd
+- source_revision_id: srcrev_09ed05eb3b8332900252afd56591f419
+- summary: <@U083MMT1771> <@U0772SH7BRA> what's the use case of the `numo/depin-ip-registration` deployment versus `story/depin-ip-registration`? Could we use it as a pre-prod environment whe...
+
+## [2026-05-04T06:59:38Z] ingest | Slack thread C0AKH5SNGKH 1776796579.543709
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776796579-543709-263add88
+- wiki_revision_id: wikirev_66cb7e2de2bd8d6bfe2775eb16999d19
+- source_document_id: srcdoc_eab9285134e3acbfac78aeee263add88
+- source_revision_id: srcrev_bda587fd3a5b2354d955925cd1a6e64b
+- summary: also <@U08HVGL6LDR> <@U04L0DD6B6F> do we need to make a new world app for prod
+
+## [2026-05-04T06:59:39Z] ingest | Slack thread C0AKH5SNGKH 1776210849.948539
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776210849-948539-2215d668
+- wiki_revision_id: wikirev_b7d9c6adcaa50bd5cedf422352ef6afd
+- source_document_id: srcdoc_ed789549ffc365b166ffb25a2215d668
+- source_revision_id: srcrev_625511796d835f17f593afa9ff199bd7
+- summary: <@U0772SH7BRA> <@U083MMT1771> is there anything I need to do for the `use1-stage-depin-ip-registration` application to appear on the argoCd dashboard? I scaled the workers from 0 t...
+
+## [2026-05-04T06:59:39Z] ingest | Slack thread C0AKH5SNGKH 1776349702.918769
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776349702-918769-740513ea
+- wiki_revision_id: wikirev_12cf0230db679c2eb9ac326e0df56509
+- source_document_id: srcdoc_edcd7126ce1b1c5c73265299740513ea
+- source_revision_id: srcrev_38dced25dc1485baedf668c5d834ba1d
+- summary: <@U0772SH7BRA> Agent docs harness: <https://github.com/piplabs/depin-backend/pull/138>
+
+## [2026-05-04T06:59:40Z] ingest | Slack thread C0AKH5SNGKH 1776445242.794959
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776445242-794959-5ec3687c
+- wiki_revision_id: wikirev_195df30e863cfdb3731c6bd4f3252dc9
+- source_document_id: srcdoc_f0a845c86968128bc82467625ec3687c
+- source_revision_id: srcrev_4d5e344de79cbc8e5bd5131d88f24195
+- summary: note <https://numo-staging.vercel.app/> is deploying the `develop` branch so lets push updates to the develop branch first <!here>?
+
+## [2026-05-04T06:59:41Z] ingest | Slack thread C0AKH5SNGKH 1776538406.092299
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776538406-092299-c5bc02d4
+- wiki_revision_id: wikirev_d0b542834593481446eef8b0748a7ccd
+- source_document_id: srcdoc_f5b81bb8452a74fd7a136225c5bc02d4
+- source_revision_id: srcrev_a6c3407b3bbbdd9128b1122f61c2ba80
+- summary: Also, when we add the multiplier stuff to the app/backend, what do we think of showing the multiplier value to the user? I think promoting multiplier as a semi-transparent value ca...
+
+## [2026-05-04T06:59:41Z] ingest | Slack thread C0AKH5SNGKH 1776343521.249879
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776343521-249879-8eb01875
+- wiki_revision_id: wikirev_17aa3ebfae20cdac6571b934197efd03
+- source_document_id: srcdoc_f787a448def904f39f0f2c568eb01875
+- source_revision_id: srcrev_64b42979069d457d380ce3e9dd5f723d
+- summary: mobile app preview
+
+## [2026-05-04T06:59:42Z] ingest | Slack thread C0AKH5SNGKH 1776891544.376249
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776891544-376249-8272d28a
+- wiki_revision_id: wikirev_e7dd5080e6681fdccd7b0bef81f88f35
+- source_document_id: srcdoc_f972e9b1cd067c3037b8d99a8272d28a
+- source_revision_id: srcrev_2b3a0b2c41d37ab2a993e17b8913bbaa
+- summary: <@U0772SH7BRA> <@U067QP5PD6J> <@U083MMT1771>
+
+## [2026-05-04T06:59:42Z] ingest | Slack thread C0AKH5SNGKH 1776102504.358479
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776102504-358479-70fa5f19
+- wiki_revision_id: wikirev_632f70fb6b03c5126978b3135e638ac1
+- source_document_id: srcdoc_f9aa3d05e956f28f2ae15ea470fa5f19
+- source_revision_id: srcrev_dc6b114ee22c871339cfe406cb174bc2
+- summary: <https://github.com/piplabs/depin-backend/pull/125> pr to add gas tracking metrics and Prometheus endpoint cc <@U08V4SFU7LZ> <@U0772SH7BRA>
+
+## [2026-05-04T06:59:43Z] ingest | Slack thread C0AKH5SNGKH 1776844713.129229
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776844713-129229-57cda7ad
+- wiki_revision_id: wikirev_f784bd5818a1e5d81381aa1d6da4d685
+- source_document_id: srcdoc_f9e29ee6bb2ce12b4544cb3457cda7ad
+- source_revision_id: srcrev_4f04ed5eacc1ffd2162b1710ac68a6b9
+- summary: <@U0772SH7BRA> this admin-related PR is ready <https://github.com/piplabs/depin-backend/pull/151>
+
+## [2026-05-04T06:59:43Z] ingest | Slack thread C0AKH5SNGKH 1776097198.542129
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776097198-542129-8dcdf33d
+- wiki_revision_id: wikirev_389f90b962ace9129dd40e87b7d5926e
+- source_document_id: srcdoc_fb9e54c2f20996fce9c1f1fe8dcdf33d
+- source_revision_id: srcrev_3b40e629de4a8f235d3a8ebfc222190b
+- summary: IP registration update:
+
+## [2026-05-04T06:59:44Z] ingest | Slack thread C0AKH5SNGKH 1776404317.015039
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776404317-015039-3473f5bb
+- wiki_revision_id: wikirev_7715af04c93634001daa72fac1aabf3e
+- source_document_id: srcdoc_fc0a7e7f54cb653c7168aebb3473f5bb
+- source_revision_id: srcrev_3f097f73e32cc22c2e880a45263abd27
+- summary: <@U08V4SFU7LZ> <@U0772SH7BRA> just run another load test:
+
+## [2026-05-04T06:59:44Z] ingest | Slack thread C0AKH5SNGKH 1776844050.382379
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1776844050-382379-79f89b49
+- wiki_revision_id: wikirev_15f8d9a901d192f6172bc4a47747acd7
+- source_document_id: srcdoc_fd63ceb583ab1efec761cc2579f89b49
+- source_revision_id: srcrev_061c61777975671340d59755d896ebd4
+- summary: Can I get help creating this stream (so I can use Firebase for GA4)
+
