@@ -10,5 +10,17 @@
     "state": "active",
     "use_count": 3,
     "view_count": 3
+  },
+  "project-health-check": {
+    "archived_at": null,
+    "created_at": "2026-05-04T01:58:59.935938+00:00",
+    "last_patched_at": "2026-05-04T01:58:59.935953+00:00",
+    "last_used_at": null,
+    "last_viewed_at": null,
+    "patch_count": 1,
+    "pinned": false,
+    "state": "active",
+    "use_count": 0,
+    "view_count": 0
   }
 }
