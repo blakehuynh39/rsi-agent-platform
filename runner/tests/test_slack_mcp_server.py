@@ -42,6 +42,48 @@ class SlackMCPServerTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "unbounded channel history reads are refused"):
                 slack_mcp_server.messages_read(channel_id="C0AKH5SNGKH")
 
+    def test_read_thread_uses_live_slack_even_when_channel_missing_from_mirror(self) -> None:
+        calls: list[tuple[str, dict[str, object]]] = []
+
+        def fake_slack_api(method, params):
+            calls.append((method, dict(params)))
+            if method == "conversations.replies":
+                return {
+                    "messages": [
+                        {
+                            "type": "message",
+                            "user": "U123",
+                            "text": "Please set the Numo validation token.",
+                            "ts": "1777919536.753819",
+                            "thread_ts": "1777919536.753819",
+                        }
+                    ],
+                    "response_metadata": {"next_cursor": ""},
+                }
+            if method == "chat.getPermalink":
+                return {"permalink": "https://storyprotocol.slack.com/archives/CUNMIRRORED/p1777919536753819"}
+            raise AssertionError(f"unexpected Slack API method {method}")
+
+        with mock.patch.object(slack_mcp_server, "_slack_api", side_effect=fake_slack_api), mock.patch.dict(
+            "os.environ",
+            {
+                "RSI_SLACK_MIRROR_CHANNEL_DISCOVERY": "explicit",
+                "RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST": "C0AKH5SNGKH",
+            },
+            clear=False,
+        ):
+            result = slack_mcp_server.slack_read_thread(
+                channel_id="CUNMIRRORED",
+                thread_ts="1777919536.753819",
+                limit=25,
+            )
+
+        self.assertEqual(calls[0][0], "conversations.replies")
+        self.assertEqual(calls[0][1]["channel"], "CUNMIRRORED")
+        self.assertEqual(result["source"], "live_slack")
+        self.assertFalse(result["mirrored_corpus_channel_available"])
+        self.assertEqual(result["messages"][0]["text"], "Please set the Numo validation token.")
+
     def test_conversation_get_reads_honcho_corpus_session(self) -> None:
         with mock.patch.object(slack_mcp_server, "_slack_workspace_id", return_value="T123"), mock.patch.object(
             slack_mcp_server,

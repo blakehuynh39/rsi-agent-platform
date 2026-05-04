@@ -799,8 +799,12 @@ mcp = FastMCP(
     annotations=read_only,
 )
 def slack_read_thread(channel_id: str, thread_ts: str, limit: int = 100, cursor: str = "") -> dict[str, Any]:
-    if not _allowlisted_channel(channel_id):
-        raise RuntimeError(f"Slack channel {channel_id} is not available in the mirrored Slack corpus")
+    channel_id = str(channel_id or "").strip()
+    thread_ts = str(thread_ts or "").strip()
+    if not channel_id:
+        raise RuntimeError("Slack channel_id is required")
+    if not thread_ts:
+        raise RuntimeError("Slack thread_ts is required")
     safe_limit = max(1, min(int(limit or 100), 200))
     payload = _slack_api(
         "conversations.replies",
@@ -818,8 +822,10 @@ def slack_read_thread(channel_id: str, thread_ts: str, limit: int = 100, cursor:
             message["permalink"] = _message_permalink(channel_id, str(message["ts"]))
     metadata = payload.get("response_metadata") if isinstance(payload.get("response_metadata"), dict) else {}
     return {
+        "source": "live_slack",
         "channel_id": channel_id,
         "thread_ts": thread_ts,
+        "mirrored_corpus_channel_available": _allowlisted_channel(channel_id),
         "messages": messages,
         "next_cursor": str(metadata.get("next_cursor") or ""),
     }

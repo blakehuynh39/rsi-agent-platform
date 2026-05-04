@@ -4,6 +4,7 @@ import concurrent.futures
 from dataclasses import dataclass, replace
 import base64
 import hashlib
+import html
 import json
 import logging
 import os
@@ -4507,6 +4508,8 @@ class HermesRuntime:
                 f"parse_error={bool(parse_error)}, "
                 f"completed_returncode={completed_returncode}"
             )
+        if result.ok:
+            self._attach_unexecuted_native_send_directive_recovery(task, result)
         result.raw = self._attach_agentic_mcp_diagnostics(
             _json_object_or_empty(result.raw),
             agentic_mcp_registration,
@@ -5831,6 +5834,109 @@ class HermesRuntime:
             return "", ""
         return match.group(1).strip(), (match.group(2) or "").strip()
 
+    def _native_send_directive_parameter(self, message: str, name: str) -> str:
+        if not message or not name:
+            return ""
+        pattern = re.compile(
+            r"<[^>]*parameter\b(?=[^>]*\bname=[\"']"
+            + re.escape(name)
+            + r"[\"'])[^>]*>(.*?)</[^>]*parameter>",
+            re.IGNORECASE | re.DOTALL,
+        )
+        match = pattern.search(message)
+        if not match:
+            return ""
+        return html.unescape(match.group(1)).strip()
+
+    def _structured_output_from_unexecuted_native_send_directive(
+        self,
+        task: RunnerTaskRequest,
+        message: str,
+        termination_reason: str,
+    ) -> JsonObject:
+        if task.task_type != "workflow" or self._workflow_reply_delivery_mode(task) == "none":
+            return {}
+        if termination_reason not in PARTIAL_COMPLETION_TERMINATION_REASONS:
+            return {}
+        if not re.search(r"<[^>]*invoke\b(?=[^>]*\bname=[\"']send_message[\"'])", message or "", re.IGNORECASE):
+            return {}
+        body = self._native_send_directive_parameter(message, "body")
+        if not body:
+            body = self._native_send_directive_parameter(message, "message")
+        if not body:
+            return {}
+        target_channel_id, target_thread_ts = self._parse_native_slack_target(
+            self._native_send_directive_parameter(message, "target")
+        )
+        expected_channel_id = (task.channel_id or "").strip()
+        expected_thread_ts = (task.thread_ts or "").strip()
+        if expected_channel_id and target_channel_id and target_channel_id != expected_channel_id:
+            return {}
+        if expected_thread_ts and target_thread_ts and target_thread_ts != expected_thread_ts:
+            return {}
+        if expected_channel_id and not target_channel_id:
+            target_channel_id = expected_channel_id
+        if expected_thread_ts and not target_thread_ts:
+            target_thread_ts = expected_thread_ts
+        if not target_channel_id:
+            return {}
+        structured_output: JsonObject = {
+            "visible_reasoning": [
+                {
+                    "step_type": "delivery_recovery",
+                    "summary": "Recovered a final Slack reply body from an unexecuted native send_message directive after a bounded stop.",
+                    "alternatives": [],
+                    "confidence": 0.86,
+                    "decision": "post_partial_reply",
+                }
+            ],
+            "reply_draft": body,
+            "final_answer": body,
+            "confidence": 0.86,
+            "context_summary": "Recovered from the native executor final response after bounded execution stopped before durable delivery.",
+            "self_critique": "The native send_message directive was emitted as text, so delivery must be mediated by control-plane rather than treated as completed.",
+            "proposed_actions": [],
+            "reply_delivery": {},
+            "knowledge_drafts": [],
+            "outcome_hypotheses": [],
+            "produced_artifacts": [],
+            "artifact_failure_reason": "",
+            "change_plan": "",
+            "repo_patch": "",
+            "validation_plan": "",
+            "retry_assessment": {},
+            "hypothesis_delta": "",
+        }
+        structured_output, _ = self._synthesize_partial_slack_post_action(task, structured_output, termination_reason)
+        return structured_output
+
+    def _attach_unexecuted_native_send_directive_recovery(
+        self,
+        task: RunnerTaskRequest,
+        result: HermesExecutionResult,
+    ) -> bool:
+        raw = _json_object_or_empty(result.raw)
+        if _json_object_or_empty(raw.get("structured_output")):
+            return False
+        structured_output = self._structured_output_from_unexecuted_native_send_directive(
+            task,
+            result.message,
+            _string_or_json(raw.get("termination_reason")),
+        )
+        if not structured_output:
+            return False
+        raw["structured_output"] = structured_output
+        raw["model_output_contract"] = "unexecuted_native_send_directive"
+        raw["native_send_directive_recovered"] = True
+        raw["action_contract_repair_attempted"] = True
+        raw["action_contract_repair_succeeded"] = True
+        runner_diagnostics = _json_object_or_empty(raw.get("runner_diagnostics"))
+        runner_diagnostics["native_send_directive_recovered"] = True
+        runner_diagnostics["native_send_directive_delivery"] = "mediated_slack_post"
+        raw["runner_diagnostics"] = runner_diagnostics
+        result.raw = raw
+        return True
+
     def _parse_json_object_maybe(self, value: Any) -> JsonObject:
         if isinstance(value, dict):
             return value
@@ -6613,6 +6719,7 @@ class HermesRuntime:
         action_contract_repair_succeeded = False
         action_contract_repair_error = ""
         action_contract_repair_response = ""
+        native_send_directive_recovered = False
         partial_structured_output = _json_object_or_empty(result.raw.get("structured_output"))
         used_partial_structured_output = False
         if completion_verdict == "partial" and partial_structured_output:
@@ -6626,7 +6733,19 @@ class HermesRuntime:
                 result.raw.get("action_contract_repair_succeeded")
             ) or _bool_or_false(partial_runner_diagnostics.get("action_contract_repair_succeeded"))
         else:
-            if invalid_request := self._provider_invalid_request_diagnostics(result.message):
+            if completion_verdict == "partial":
+                structured_output = self._structured_output_from_unexecuted_native_send_directive(
+                    task,
+                    result.message,
+                    initial_termination_reason,
+                )
+                if structured_output:
+                    native_send_directive_recovered = True
+                    used_partial_structured_output = True
+                    action_contract_repair_attempted = True
+                    action_contract_repair_succeeded = True
+                    result.raw["structured_output"] = structured_output
+            if not native_send_directive_recovered and (invalid_request := self._provider_invalid_request_diagnostics(result.message)):
                 diagnostics = dict(invalid_request)
                 for key, value in _json_object_or_empty(result.raw.get("runner_diagnostics")).items():
                     diagnostics[key] = value
@@ -6643,75 +6762,100 @@ class HermesRuntime:
                         "repair_succeeded": False,
                     },
                     )
-            try:
-                structured_output = self._extract_structured_output(result.message)
-            except HermesStructuredOutputError as exc:
-                if task.task_type == "workflow" and self._config.workflow_runner_repair_attempts > 0 and self._structured_output_repairable(exc):
-                    repair_attempted = True
-                    logger.info(
-                        "workflow runner structured-output repair attempted trace_id=%s workflow_id=%s",
-                        task.trace_id or "",
-                        task.workflow_id or "",
-                    )
-                    repair_task = self._build_structured_output_repair_task(rendered_task, result.message)
-                    repair_result = self._execute_task_request(
-                        repair_task,
-                        observer=observer,
-                        render_prompt=False,
-                        expand_skills=False,
-                    )
-                    if repair_result.ok:
-                        if invalid_request := self._provider_invalid_request_diagnostics(repair_result.message):
-                            diagnostics = dict(invalid_request)
-                            for key, value in _json_object_or_empty(repair_result.raw.get("runner_diagnostics")).items():
-                                diagnostics[key] = value
-                            diagnostics["repair_attempted"] = True
-                            diagnostics["repair_succeeded"] = False
-                            return HermesExecutionResult(
-                                ok=False,
-                                message=string_from_map(diagnostics, "provider_error_message") or "Provider rejected the runner request.",
-                                provider=repair_result.provider,
-                                raw={
-                                    **repair_result.raw,
-                                    "failure_class": "runner_invalid_request",
-                                    "runner_diagnostics": diagnostics,
-                                    "raw_response": repair_result.message,
-                                    "repair_attempted": True,
-                                    "repair_succeeded": False,
-                                    "repair_original_response": result.message,
-                                },
-                            )
-                        try:
-                            structured_output = self._extract_structured_output(repair_result.message)
-                            result = repair_result
-                            repair_succeeded = True
-                            logger.info(
-                                "workflow runner structured-output repair succeeded trace_id=%s workflow_id=%s",
-                                task.trace_id or "",
-                                task.workflow_id or "",
-                            )
-                        except HermesStructuredOutputError as repair_exc:
+            if not native_send_directive_recovered:
+                try:
+                    structured_output = self._extract_structured_output(result.message)
+                except HermesStructuredOutputError as exc:
+                    if task.task_type == "workflow" and self._config.workflow_runner_repair_attempts > 0 and self._structured_output_repairable(exc):
+                        repair_attempted = True
+                        logger.info(
+                            "workflow runner structured-output repair attempted trace_id=%s workflow_id=%s",
+                            task.trace_id or "",
+                            task.workflow_id or "",
+                        )
+                        repair_task = self._build_structured_output_repair_task(rendered_task, result.message)
+                        repair_result = self._execute_task_request(
+                            repair_task,
+                            observer=observer,
+                            render_prompt=False,
+                            expand_skills=False,
+                        )
+                        if repair_result.ok:
+                            if invalid_request := self._provider_invalid_request_diagnostics(repair_result.message):
+                                diagnostics = dict(invalid_request)
+                                for key, value in _json_object_or_empty(repair_result.raw.get("runner_diagnostics")).items():
+                                    diagnostics[key] = value
+                                diagnostics["repair_attempted"] = True
+                                diagnostics["repair_succeeded"] = False
+                                return HermesExecutionResult(
+                                    ok=False,
+                                    message=string_from_map(diagnostics, "provider_error_message") or "Provider rejected the runner request.",
+                                    provider=repair_result.provider,
+                                    raw={
+                                        **repair_result.raw,
+                                        "failure_class": "runner_invalid_request",
+                                        "runner_diagnostics": diagnostics,
+                                        "raw_response": repair_result.message,
+                                        "repair_attempted": True,
+                                        "repair_succeeded": False,
+                                        "repair_original_response": result.message,
+                                    },
+                                )
+                            try:
+                                structured_output = self._extract_structured_output(repair_result.message)
+                                result = repair_result
+                                repair_succeeded = True
+                                logger.info(
+                                    "workflow runner structured-output repair succeeded trace_id=%s workflow_id=%s",
+                                    task.trace_id or "",
+                                    task.workflow_id or "",
+                                )
+                            except HermesStructuredOutputError as repair_exc:
+                                logger.warning(
+                                    "workflow runner structured-output repair failed trace_id=%s workflow_id=%s error=%s",
+                                    task.trace_id or "",
+                                    task.workflow_id or "",
+                                    repair_exc,
+                                )
+                                return HermesExecutionResult(
+                                    ok=False,
+                                    message=str(repair_exc),
+                                    provider=repair_result.provider,
+                                    raw={
+                                        **repair_result.raw,
+                                        "failure_class": "runner_structured_output_parse_failure",
+                                        "runner_diagnostics": self._runner_diagnostics(
+                                            failure_kind="structured_output_parse_failure",
+                                            provider_error_message=str(repair_exc),
+                                            repair_attempted=True,
+                                            repair_succeeded=False,
+                                            observed=_json_object_or_empty(repair_result.raw.get("runner_diagnostics")),
+                                        ),
+                                        "structured_output_error": str(repair_exc),
+                                        "raw_response": repair_result.message,
+                                        "repair_attempted": True,
+                                        "repair_succeeded": False,
+                                        "repair_original_response": result.message,
+                                    },
+                                )
+                        else:
                             logger.warning(
                                 "workflow runner structured-output repair failed trace_id=%s workflow_id=%s error=%s",
                                 task.trace_id or "",
                                 task.workflow_id or "",
-                                repair_exc,
+                                repair_result.message,
                             )
                             return HermesExecutionResult(
                                 ok=False,
-                                message=str(repair_exc),
+                                message=repair_result.message,
                                 provider=repair_result.provider,
                                 raw={
                                     **repair_result.raw,
-                                    "failure_class": "runner_structured_output_parse_failure",
-                                    "runner_diagnostics": self._runner_diagnostics(
-                                        failure_kind="structured_output_parse_failure",
-                                        provider_error_message=str(repair_exc),
-                                        repair_attempted=True,
-                                        repair_succeeded=False,
-                                        observed=_json_object_or_empty(repair_result.raw.get("runner_diagnostics")),
-                                    ),
-                                    "structured_output_error": str(repair_exc),
+                                    "runner_diagnostics": {
+                                        **_json_object_or_empty(repair_result.raw.get("runner_diagnostics")),
+                                        "repair_attempted": True,
+                                        "repair_succeeded": False,
+                                    } if repair_result.raw.get("runner_diagnostics") is not None else repair_result.raw.get("runner_diagnostics"),
                                     "raw_response": repair_result.message,
                                     "repair_attempted": True,
                                     "repair_succeeded": False,
@@ -6719,50 +6863,26 @@ class HermesRuntime:
                                 },
                             )
                     else:
-                        logger.warning(
-                            "workflow runner structured-output repair failed trace_id=%s workflow_id=%s error=%s",
-                            task.trace_id or "",
-                            task.workflow_id or "",
-                            repair_result.message,
-                        )
                         return HermesExecutionResult(
                             ok=False,
-                            message=repair_result.message,
-                            provider=repair_result.provider,
+                            message=str(exc),
+                            provider=result.provider,
                             raw={
-                                **repair_result.raw,
-                                "runner_diagnostics": {
-                                    **_json_object_or_empty(repair_result.raw.get("runner_diagnostics")),
-                                    "repair_attempted": True,
-                                    "repair_succeeded": False,
-                                } if repair_result.raw.get("runner_diagnostics") is not None else repair_result.raw.get("runner_diagnostics"),
-                                "raw_response": repair_result.message,
-                                "repair_attempted": True,
+                                **result.raw,
+                                "failure_class": "runner_structured_output_parse_failure",
+                                "runner_diagnostics": self._runner_diagnostics(
+                                    failure_kind="structured_output_parse_failure",
+                                    provider_error_message=str(exc),
+                                    repair_attempted=False,
+                                    repair_succeeded=False,
+                                    observed=_json_object_or_empty(result.raw.get("runner_diagnostics")),
+                                ),
+                                "structured_output_error": str(exc),
+                                "raw_response": result.message,
+                                "repair_attempted": False,
                                 "repair_succeeded": False,
-                                "repair_original_response": result.message,
                             },
                         )
-                else:
-                    return HermesExecutionResult(
-                        ok=False,
-                        message=str(exc),
-                        provider=result.provider,
-                        raw={
-                            **result.raw,
-                            "failure_class": "runner_structured_output_parse_failure",
-                            "runner_diagnostics": self._runner_diagnostics(
-                                failure_kind="structured_output_parse_failure",
-                                provider_error_message=str(exc),
-                                repair_attempted=False,
-                                repair_succeeded=False,
-                                observed=_json_object_or_empty(result.raw.get("runner_diagnostics")),
-                            ),
-                            "structured_output_error": str(exc),
-                            "raw_response": result.message,
-                            "repair_attempted": False,
-                            "repair_succeeded": False,
-                        },
-                    )
             session_reply_delivery = self._reply_delivery_from_session_delta(
                 task,
                 structured_output,
@@ -6871,6 +6991,9 @@ class HermesRuntime:
             result.raw["max_iterations_reached"] = initial_max_iterations_reached or initial_termination_reason == "iteration_budget_exhausted"
             if used_partial_structured_output:
                 result.raw["model_output_contract"] = "partial_structured_output"
+            if native_send_directive_recovered:
+                result.raw["model_output_contract"] = "unexecuted_native_send_directive"
+                result.raw["native_send_directive_recovered"] = True
         if repair_attempted:
             result.raw["repair_original_response"] = initial_response
         runner_diagnostics = _json_object_or_empty(result.raw.get("runner_diagnostics"))
@@ -6883,6 +7006,9 @@ class HermesRuntime:
             runner_diagnostics["completion_verdict"] = "partial"
             runner_diagnostics["termination_reason"] = result.raw["termination_reason"]
             runner_diagnostics["max_iterations_reached"] = result.raw["max_iterations_reached"]
+        if native_send_directive_recovered:
+            runner_diagnostics["native_send_directive_recovered"] = True
+            runner_diagnostics["native_send_directive_delivery"] = "mediated_slack_post"
         if observer is not None:
             for key, value in observer.diagnostics().items():
                 runner_diagnostics[key] = value

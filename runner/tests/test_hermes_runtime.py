@@ -3085,6 +3085,101 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(captured_requests[0]["phase_contract"]["history_policy"], "session")
         self.assertNotIn("rsi-governed-readonly", captured_requests[0]["phase_contract"]["required_toolsets"])
 
+    def test_native_executor_partial_send_message_text_becomes_mediated_slack_action(self) -> None:
+        final_body = "## Investigation Summary\n\nSet the Numo validation token hash in deployment values."
+        dsml_response = (
+            '<||DSML||tool_calls>\n'
+            '<||DSML||invoke name="send_message">\n'
+            f'<||DSML||parameter name="body" string="true">{final_body}</||DSML||parameter>\n'
+            '<||DSML||parameter name="target" string="true">slack:C123:171000001.000100</||DSML||parameter>\n'
+            '</||DSML||invoke>\n'
+            '</||DSML||tool_calls>'
+        )
+
+        class FakePopen:
+            def __init__(self, cmd, cwd, env, stdout, stderr, text):
+                request = json.loads(Path(cmd[-1]).read_text(encoding="utf-8"))
+                self.returncode = 0
+                payload = {
+                    "ok": True,
+                    "mcp_cleanup_errors": [],
+                    "mcp_cleanup_status": "cleaned",
+                    "response": dsml_response,
+                    "result": {
+                        "final_response": dsml_response,
+                        "completed": False,
+                        "api_calls": 20,
+                        "partial": True,
+                        "interrupted": False,
+                    },
+                    "session_id": "rsi-prod-conversation-123",
+                }
+                Path(request["result_path"]).write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+                write_native_test_envelope(request, final_response=dsml_response)
+                self.stdout = io.StringIO("")
+                self.stderr = io.StringIO("")
+
+            def poll(self):
+                return 0
+
+            def wait(self, timeout=None):
+                return self.returncode
+
+            def terminate(self):
+                self.returncode = -15
+
+            def kill(self):
+                self.returncode = -9
+
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Investigate the latest trace.",
+                    "execution_id": "hexec-partial-native-send",
+                    "trace_id": "trace-partial-native-send",
+                    "workflow_id": "wf-partial-native-send",
+                    "operation_id": "op-partial-native-send",
+                    "reply_delivery_mode": "direct",
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-partial-native-send",
+                }
+            }
+        )
+
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch("rsi_runner.hermes_runtime.subprocess.Popen", FakePopen), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "RSI_HERMES_EXECUTOR_ENABLED": "true",
+                "RSI_HERMES_EXECUTOR_SERVICE_ONLY": "true",
+                "RSI_RUNTIME_OBSERVATION_SINK_URL": "http://control-plane.internal:8080/internal/runtime/observations",
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.raw["completion_verdict"], "partial")
+        self.assertEqual(result.raw["termination_reason"], "iteration_budget_exhausted")
+        self.assertEqual(result.raw["model_output_contract"], "unexecuted_native_send_directive")
+        self.assertNotIn("reply_delivery", result.raw)
+        structured_output = result.raw["structured_output"]
+        self.assertEqual(structured_output["final_answer"], final_body)
+        self.assertEqual(structured_output["reply_delivery"], {})
+        self.assertEqual(structured_output["proposed_actions"][0]["kind"], "slack_post")
+        self.assertEqual(structured_output["proposed_actions"][0]["request_payload"]["body"], final_body)
+        self.assertEqual(structured_output["proposed_actions"][0]["request_payload"]["channel_id"], "C123")
+        self.assertEqual(structured_output["proposed_actions"][0]["request_payload"]["thread_ts"], "171000001.000100")
+        self.assertTrue(result.raw["runner_diagnostics"]["native_send_directive_recovered"])
+
     def test_native_executor_extracts_trailing_json_fence_without_repair_mcp_registration(self) -> None:
         structured = {
             "visible_reasoning": [],
