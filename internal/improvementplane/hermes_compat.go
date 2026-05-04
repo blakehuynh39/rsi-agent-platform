@@ -12,6 +12,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	hermesassets "github.com/piplabs/rsi-agent-platform/hermes"
 	"github.com/piplabs/rsi-agent-platform/internal/app"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/conversation"
@@ -26,7 +27,7 @@ func registerHermesCompatibilityRoutes(r chi.Router, cfg config.Config, store st
 	r.Get("/api/sessions", func(w http.ResponseWriter, r *http.Request) {
 		limit := boundedQueryInt(r, "limit", 20, 1, 200)
 		offset := boundedQueryInt(r, "offset", 0, 0, 1_000_000)
-		sessions := buildHermesSessions(store)
+		sessions := buildHermesSessions(cfg, store)
 		total := len(sessions)
 		if offset > total {
 			offset = total
@@ -44,12 +45,12 @@ func registerHermesCompatibilityRoutes(r chi.Router, cfg config.Config, store st
 	})
 	r.Get("/api/sessions/search", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]any{
-			"results": searchHermesSessions(store, r.URL.Query().Get("q")),
+			"results": searchHermesSessions(cfg, store, r.URL.Query().Get("q")),
 		})
 	})
 	r.Get("/api/sessions/{sessionID}", func(w http.ResponseWriter, r *http.Request) {
 		sessionID := chi.URLParam(r, "sessionID")
-		if session, ok := buildHermesSession(store, sessionID); ok {
+		if session, ok := buildHermesSession(cfg, store, sessionID); ok {
 			app.WriteJSON(w, http.StatusOK, session)
 			return
 		}
@@ -335,7 +336,7 @@ func buildHermesStatus(cfg config.Config, store storepkg.Repository) map[string]
 		gatewayState = "unknown"
 	}
 	return map[string]any{
-		"active_sessions":       countActiveHermesSessions(store),
+		"active_sessions":       countActiveHermesSessions(cfg, store),
 		"config_path":           "server-side",
 		"config_version":        cfg.SchemaVersionCurrent,
 		"env_path":              "server-side",
@@ -353,13 +354,15 @@ func buildHermesStatus(cfg config.Config, store storepkg.Repository) map[string]
 	}
 }
 
-func buildHermesSessions(store storepkg.Repository) []hermesSessionInfo {
+func buildHermesSessions(cfg config.Config, store storepkg.Repository) []hermesSessionInfo {
 	items := []hermesSessionInfo{}
+	live := buildHermesLiveSessionIndex(cfg, store)
 	for _, conv := range buildConversationList(store) {
 		entries := store.ListConversationEntries(conv.ConversationID)
 		preview := lastConversationPreview(entries, conv.ActiveCase)
+		isLive := live.conversations[conv.ConversationID]
 		var endedAt *int64
-		if !strings.EqualFold(conv.Status, "active") {
+		if !isLive {
 			endedAt = unixPtr(conv.LatestMessageAt)
 		}
 		items = append(items, hermesSessionInfo{
@@ -370,7 +373,7 @@ func buildHermesSessions(store storepkg.Repository) []hermesSessionInfo {
 			StartedAt:     unixSeconds(conv.CreatedAt),
 			EndedAt:       endedAt,
 			LastActive:    unixSeconds(conv.LatestMessageAt),
-			IsActive:      strings.EqualFold(conv.Status, "active") || conv.OpenTraceCount > 0,
+			IsActive:      isLive,
 			MessageCount:  len(entries),
 			ToolCallCount: 0,
 			InputTokens:   0,
@@ -396,7 +399,7 @@ func buildHermesSessions(store storepkg.Repository) []hermesSessionInfo {
 			StartedAt:     unixSeconds(trace.StartedAt),
 			EndedAt:       unixPtrIfSet(trace.EndedAt),
 			LastActive:    unixSeconds(last),
-			IsActive:      isOpenTraceStatus(trace.Status),
+			IsActive:      live.traces[trace.TraceID],
 			MessageCount:  trace.EventCount + trace.ReasoningStepCount + trace.ToolCallCount,
 			ToolCallCount: trace.ToolCallCount,
 			InputTokens:   0,
@@ -413,7 +416,8 @@ func buildHermesSessions(store storepkg.Repository) []hermesSessionInfo {
 	return items
 }
 
-func buildHermesSession(store storepkg.Repository, sessionID string) (hermesSessionInfo, bool) {
+func buildHermesSession(cfg config.Config, store storepkg.Repository, sessionID string) (hermesSessionInfo, bool) {
+	live := buildHermesLiveSessionIndex(cfg, store)
 	if conv, ok := store.GetConversation(sessionID); ok {
 		entries := store.ListConversationEntries(conv.ID)
 		var activeCase *caseSummary
@@ -423,19 +427,16 @@ func buildHermesSession(store storepkg.Repository, sessionID string) (hermesSess
 			}
 		}
 		preview := lastConversationPreview(entries, activeCase)
+		isLive := live.conversations[conv.ID]
 		var endedAt *int64
 		latestMessageAt := conv.UpdatedAt
-		if !strings.EqualFold(string(conv.Status), "active") {
+		if !isLive {
 			endedAt = unixPtr(latestMessageAt)
 		}
-		openTraceCount := 0
 		for _, t := range store.ListTraces() {
 			if t.ConversationID == conv.ID {
 				if t.StartedAt.After(latestMessageAt) {
 					latestMessageAt = t.StartedAt
-				}
-				if isOpenTraceStatus(t.Status) {
-					openTraceCount++
 				}
 			}
 		}
@@ -447,7 +448,7 @@ func buildHermesSession(store storepkg.Repository, sessionID string) (hermesSess
 			StartedAt:     unixSeconds(conv.CreatedAt),
 			EndedAt:       endedAt,
 			LastActive:    unixSeconds(latestMessageAt),
-			IsActive:      strings.EqualFold(string(conv.Status), "active") || openTraceCount > 0,
+			IsActive:      isLive,
 			MessageCount:  len(entries),
 			ToolCallCount: 0,
 			InputTokens:   0,
@@ -474,7 +475,7 @@ func buildHermesSession(store storepkg.Repository, sessionID string) (hermesSess
 			StartedAt:     unixSeconds(summary.StartedAt),
 			EndedAt:       unixPtrIfSet(summary.EndedAt),
 			LastActive:    unixSeconds(last),
-			IsActive:      isOpenTraceStatus(summary.Status),
+			IsActive:      live.traces[summary.TraceID],
 			MessageCount:  summary.EventCount + summary.ReasoningStepCount + summary.ToolCallCount,
 			ToolCallCount: summary.ToolCallCount,
 			InputTokens:   0,
@@ -485,28 +486,72 @@ func buildHermesSession(store storepkg.Repository, sessionID string) (hermesSess
 	return hermesSessionInfo{}, false
 }
 
-func countActiveHermesSessions(store storepkg.Repository) int {
-	count := 0
-	for _, conv := range buildConversationList(store) {
-		if strings.EqualFold(conv.Status, "active") || conv.OpenTraceCount > 0 {
-			count++
-		}
-	}
-	for _, trace := range store.ListTraces() {
-		if isOpenTraceStatus(trace.Status) {
-			count++
-		}
-	}
-	return count
+type hermesLiveSessionIndex struct {
+	conversations map[string]bool
+	traces        map[string]bool
 }
 
-func searchHermesSessions(store storepkg.Repository, query string) []map[string]any {
+func buildHermesLiveSessionIndex(cfg config.Config, store storepkg.Repository) hermesLiveSessionIndex {
+	out := hermesLiveSessionIndex{
+		conversations: map[string]bool{},
+		traces:        map[string]bool{},
+	}
+	now := time.Now().UTC()
+	for _, execution := range store.ListActiveRunnerExecutions() {
+		if !hermesRunnerExecutionFresh(cfg, execution, now) {
+			continue
+		}
+		traceID := strings.TrimSpace(execution.TraceID)
+		if traceID != "" {
+			out.traces[traceID] = true
+		}
+		conversationID := strings.TrimSpace(execution.ConversationID)
+		if conversationID == "" && strings.TrimSpace(execution.CaseID) != "" {
+			if c, ok := store.GetCase(strings.TrimSpace(execution.CaseID)); ok {
+				conversationID = strings.TrimSpace(c.ConversationID)
+			}
+		}
+		if conversationID == "" && traceID != "" {
+			if trace, ok := store.GetTrace(traceID); ok {
+				conversationID = strings.TrimSpace(trace.Summary.ConversationID)
+			}
+		}
+		if conversationID != "" {
+			out.conversations[conversationID] = true
+		}
+	}
+	return out
+}
+
+func hermesRunnerExecutionFresh(cfg config.Config, execution storepkg.RunnerExecution, now time.Time) bool {
+	timeout := cfg.HermesExecutionHeartbeatTimeout
+	if timeout <= 0 {
+		return true
+	}
+	reference := execution.UpdatedAt.UTC()
+	if execution.HeartbeatAt != nil {
+		reference = execution.HeartbeatAt.UTC()
+	} else if reference.IsZero() {
+		reference = execution.CreatedAt.UTC()
+	}
+	if reference.IsZero() {
+		return true
+	}
+	return now.Sub(reference) <= timeout
+}
+
+func countActiveHermesSessions(cfg config.Config, store storepkg.Repository) int {
+	live := buildHermesLiveSessionIndex(cfg, store)
+	return len(live.conversations) + len(live.traces)
+}
+
+func searchHermesSessions(cfg config.Config, store storepkg.Repository, query string) []map[string]any {
 	query = strings.TrimSpace(strings.ToLower(query))
 	if query == "" {
 		return []map[string]any{}
 	}
 	results := []map[string]any{}
-	for _, session := range buildHermesSessions(store) {
+	for _, session := range buildHermesSessions(cfg, store) {
 		haystack := strings.ToLower(strings.Join([]string{
 			session.ID,
 			session.Source,
@@ -607,6 +652,18 @@ func hermesConversationMessage(entry conversation.Entry) hermesSessionMessage {
 func buildHermesSkills(store storepkg.Repository) []map[string]any {
 	out := []map[string]any{}
 	seen := map[string]bool{}
+	for _, skill := range hermesassets.ExportedSkills() {
+		if seen[skill.Name] {
+			continue
+		}
+		seen[skill.Name] = true
+		out = append(out, map[string]any{
+			"name":        skill.Name,
+			"description": firstNonEmptyString(skill.Description, fmt.Sprintf("Hermes skill exported from %s.", skill.Path)),
+			"category":    firstNonEmptyString(skill.Category, "hermes"),
+			"enabled":     true,
+		})
+	}
 	for _, capability := range store.ListCapabilities() {
 		if !strings.EqualFold(capability.Kind, "skill") {
 			continue

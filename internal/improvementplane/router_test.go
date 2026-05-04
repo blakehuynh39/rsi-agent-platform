@@ -570,6 +570,113 @@ func TestHermesCompatibilityEndpointsExposePlatformState(t *testing.T) {
 	}
 }
 
+func TestHermesCompatibilitySkillsIncludeExportedHermesCatalog(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/skills", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("skills status = %d body=%s", rec.Code, rec.Body.String())
+	}
+	body := rec.Body.String()
+	for _, want := range []string{"repo.answer_question", "rsi-platform-investigation", "depin-prod-admin-read"} {
+		if !strings.Contains(body, want) {
+			t.Fatalf("skills response missing %q in %s", want, body)
+		}
+	}
+}
+
+func TestHermesCompatibilityLiveSessionsFollowRunnerExecutions(t *testing.T) {
+	cfg := config.Config{
+		PublicBaseURL:                   "http://example.test",
+		HermesExecutionHeartbeatTimeout: time.Minute,
+	}
+	store := storepkg.NewMemoryStore()
+	router := NewRouter(cfg, store)
+	trace := store.ListTraces()[0]
+	traceID := trace.TraceID
+	conversationID := trace.ConversationID
+	if conversationID == "" {
+		conversationID = store.ListConversations()[0].ID
+	}
+
+	assertActive := func(t *testing.T, want bool) {
+		t.Helper()
+		req := httptest.NewRequest(http.MethodGet, "/api/sessions?limit=200", nil)
+		rec := httptest.NewRecorder()
+		router.ServeHTTP(rec, req)
+		if rec.Code != http.StatusOK {
+			t.Fatalf("sessions status = %d body=%s", rec.Code, rec.Body.String())
+		}
+		var payload struct {
+			Sessions []struct {
+				ID       string `json:"id"`
+				IsActive bool   `json:"is_active"`
+			} `json:"sessions"`
+		}
+		if err := json.Unmarshal(rec.Body.Bytes(), &payload); err != nil {
+			t.Fatalf("decode sessions: %v", err)
+		}
+		seen := map[string]bool{}
+		for _, session := range payload.Sessions {
+			if session.ID == traceID || session.ID == conversationID {
+				seen[session.ID] = true
+				if session.IsActive != want {
+					t.Fatalf("session %s is_active=%v, want %v", session.ID, session.IsActive, want)
+				}
+			}
+		}
+		for _, id := range []string{traceID, conversationID} {
+			if !seen[id] {
+				t.Fatalf("missing session %s in %+v", id, payload.Sessions)
+			}
+		}
+	}
+
+	assertActive(t, false)
+
+	now := time.Now().UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:    "hexec-live-ui",
+		TraceID:        traceID,
+		ConversationID: conversationID,
+		Status:         "running",
+		HeartbeatAt:    &now,
+		CreatedAt:      now,
+		UpdatedAt:      now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution(live) error = %v", err)
+	}
+	assertActive(t, true)
+
+	staleStore := storepkg.NewMemoryStore()
+	staleRouter := NewRouter(cfg, staleStore)
+	staleTrace := staleStore.ListTraces()[0]
+	staleConversationID := staleTrace.ConversationID
+	if staleConversationID == "" {
+		staleConversationID = staleStore.ListConversations()[0].ID
+	}
+	stale := now.Add(-2 * time.Minute)
+	if _, err := staleStore.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:    "hexec-stale-ui",
+		TraceID:        staleTrace.TraceID,
+		ConversationID: staleConversationID,
+		Status:         "running",
+		HeartbeatAt:    &stale,
+		CreatedAt:      stale,
+		UpdatedAt:      stale,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution(stale) error = %v", err)
+	}
+	router = staleRouter
+	traceID = staleTrace.TraceID
+	conversationID = staleConversationID
+	assertActive(t, false)
+}
+
 func TestHermesCompatibilitySessionMessagesMapConversationsAndTraces(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
