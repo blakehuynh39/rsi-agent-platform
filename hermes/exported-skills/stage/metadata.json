@@ -2760,13 +2760,13 @@
       },
       {
         "path": "log.md",
-        "sha256": "afb045880a795b8e839d9c665cf7dfa4bb20fa1f0cab256845a1233fa01740b0",
-        "size": 201047
+        "sha256": "c698abfd9067c670faf306b28182a58b81e8e89f31fa731229bb5210f0c0e7ec",
+        "size": 202482
       },
       {
         "path": "manifest.json",
-        "sha256": "a718dc1fa6b21c672abc88de767658893746aba91350d76e583c99fa35f0cccc",
-        "size": 174057
+        "sha256": "9219d4b1232c4267dbbc815bfe77e788d74ba13ab50d330f6a765396606b6205",
+        "size": 174077
       },
       {
         "path": "pages/notion_document/-automated-customer-service--b4d043af.md",
@@ -4155,8 +4155,8 @@
       },
       {
         "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777349624-208809-43df1bad.md",
-        "sha256": "bf7262fb3e152fac26936aeb812620efe8a99d96d93337cdb738d7a920a18934",
-        "size": 10529
+        "sha256": "e74406de36ed208389614f288976cb7c162c38418cd9106fd6458c6cc77aa34d",
+        "size": 1518
       },
       {
         "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777350147-298499-e3252ea4.md",
@@ -4580,8 +4580,8 @@
       },
       {
         "path": "pages/slack_message/slack-thread-c0akh5sngkh-channel-53ca9dcc.md",
-        "sha256": "b305531abf79b0691d30bbf2ba03012364c07b3139f7ef3fddade636f63f2497",
-        "size": 212657
+        "sha256": "0ff588f6cdefc4404bfd040155c73d65e9a4939ca6bdeca62992c7ddb0f614ad",
+        "size": 953
       },
       {
         "path": "pages/slack_message/slack-thread-c0asq9k5v50-1776483985-407559-e396aab8.md",
@@ -4812,7 +4812,7 @@
   },
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
-  "exported_at": "2026-05-04T18:47:04Z",
+  "exported_at": "2026-05-04T18:53:07Z",
   "file_count": 961,
   "files": [
     {
@@ -7565,13 +7565,13 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-858859t25xs",
-  "previous_tree_hash": "42aea6dcd1e5f6fe6841fea50063fd65c9cd547677aa2b73957d3bc916010f9c",
+  "previous_tree_hash": "f8c81a295e0579dd8c82940fc05779f2708ef3d445ca589774d8d228f42e0509",
   "schema_version": 1,
   "skill_file_count": 549,
   "skill_manage_sessions": [],
   "skill_tree_hash": "51dd5fa14f02f546813009b323ca960c29e87c4759f49ab6c92e3ca2c7ca357b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f8c81a295e0579dd8c82940fc05779f2708ef3d445ca589774d8d228f42e0509",
+  "tree_hash": "5e0e29853d427e309aab5d8fa3528989774310cef616607615166cc7653df85d",
   "wiki_file_count": 412,
   "wiki_files": [
     {
@@ -7586,13 +7586,13 @@
     },
     {
       "path": "log.md",
-      "sha256": "afb045880a795b8e839d9c665cf7dfa4bb20fa1f0cab256845a1233fa01740b0",
-      "size": 201047
+      "sha256": "c698abfd9067c670faf306b28182a58b81e8e89f31fa731229bb5210f0c0e7ec",
+      "size": 202482
     },
     {
       "path": "manifest.json",
-      "sha256": "a718dc1fa6b21c672abc88de767658893746aba91350d76e583c99fa35f0cccc",
-      "size": 174057
+      "sha256": "9219d4b1232c4267dbbc815bfe77e788d74ba13ab50d330f6a765396606b6205",
+      "size": 174077
     },
     {
       "path": "pages/notion_document/-automated-customer-service--b4d043af.md",
@@ -8981,8 +8981,8 @@
     },
     {
       "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777349624-208809-43df1bad.md",
-      "sha256": "bf7262fb3e152fac26936aeb812620efe8a99d96d93337cdb738d7a920a18934",
-      "size": 10529
+      "sha256": "e74406de36ed208389614f288976cb7c162c38418cd9106fd6458c6cc77aa34d",
+      "size": 1518
     },
     {
       "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777350147-298499-e3252ea4.md",
@@ -9406,8 +9406,8 @@
     },
     {
       "path": "pages/slack_message/slack-thread-c0akh5sngkh-channel-53ca9dcc.md",
-      "sha256": "b305531abf79b0691d30bbf2ba03012364c07b3139f7ef3fddade636f63f2497",
-      "size": 212657
+      "sha256": "0ff588f6cdefc4404bfd040155c73d65e9a4939ca6bdeca62992c7ddb0f614ad",
+      "size": 953
     },
     {
       "path": "pages/slack_message/slack-thread-c0asq9k5v50-1776483985-407559-e396aab8.md",
@@ -9636,5 +9636,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5e5fa5f3298549c676b6ac34bb7049daa6d09131c465ac4d7948c882c57d8838"
+  "wiki_tree_hash": "5a04e0988ca34d539015683585f4f5e0b4be9033b06b5fd359b7d0d5689ed385"
 }

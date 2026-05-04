@@ -3852,3 +3852,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_84810cc77c3e6767d9c2b166025064f4
 - summary: Decision to add Sam to admin allowlist via PR #297
 
+## [2026-05-04T18:49:37Z] synthesis | Slack thread C0AKH5SNGKH 1777349624.208809
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1777349624-208809-43df1bad
+- wiki_revision_id: wikirev_46165824396adcb958a5f163449dc1ec
+- summary: User reports issues from new updates; discussion includes the current fallback behavior where the same image is used as fallback.
+
+## [2026-05-04T18:50:58Z] synthesis | Slack thread C0AKH5SNGKH 1777349624.208809
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1777349624-208809-43df1bad
+- wiki_revision_id: wikirev_02e33e356a23cc048e80b6be51f78ba7
+- summary: Slack thread discussing fallback image behavior; currently same image used as fallback, and campaign images should be uploaded in backend.
+
+## [2026-05-04T18:52:06Z] synthesis | Slack thread C0AKH5SNGKH 1777349624.208809
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1777349624-208809-43df1bad
+- wiki_revision_id: wikirev_bc33241e36624282d58b8c1e2e9ea0da
+- summary: Slack thread discussing fallback image behavior; currently same image used as fallback, and campaign images should be uploaded in backend.
+
+## [2026-05-04T18:53:17Z] synthesis | Slack thread C0AKH5SNGKH 1777349624.208809
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1777349624-208809-43df1bad
+- wiki_revision_id: wikirev_5d88418c76d058e12ed2400b0dc245d3
+- summary: Slack thread discussing fallback image behavior; currently same image used as fallback, and campaign images should be uploaded in backend.
+
