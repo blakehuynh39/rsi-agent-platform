@@ -53,7 +53,14 @@ class SessionContext:
     user_peer_id: str
     hermes_home: str
     session_db_path: str
+    session_db_tracking_enabled: bool = True
     conversation_history: list[JsonObject] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class SessionDBRef:
+    db_path: Path
+    defer_integrity_check: bool = True
 
 
 @dataclass
@@ -156,18 +163,24 @@ class SessionManager:
         return self._get_db()
 
     @property
+    def session_db_ref(self) -> Any:
+        if SessionDB is None:
+            return None
+        return SessionDBRef(db_path=self._session_db_path)
+
+    @property
     def honcho_available(self) -> bool:
         return self._config.memory_backend == "honcho"
 
-    def prepare(self, task: RunnerTaskLike) -> SessionContext:
+    def prepare(self, task: RunnerTaskLike, *, load_history: bool = True) -> SessionContext:
         scope_kind = first_non_empty(getattr(task, "session_scope_kind", None), "role")
         scope_id = first_non_empty(getattr(task, "session_scope_id", None), self._config.role)
         parent_scope_kind = first_non_empty(getattr(task, "parent_session_scope_kind", None))
         parent_scope_id = first_non_empty(getattr(task, "parent_session_scope_id", None))
         session_id = stable_session_id(self._config.role, scope_kind, scope_id)
         parent_session_id = stable_session_id(self._config.role, parent_scope_kind, parent_scope_id) if parent_scope_kind and parent_scope_id else ""
-        db = self._get_db()
         history: list[JsonObject] = []
+        db = self._get_db() if load_history else None
         if db is not None:
             history = list(db.get_messages_as_conversation(session_id) or [])
         tracker_user_peer = first_non_empty(
@@ -186,6 +199,7 @@ class SessionManager:
             user_peer_id=tracker_user_peer,
             hermes_home=str(self._hermes_home),
             session_db_path=str(self._session_db_path),
+            session_db_tracking_enabled=load_history,
             conversation_history=history,
         )
 
@@ -234,9 +248,9 @@ class SessionManager:
         return tracker
 
     def finalize(self, context: SessionContext, tracker: MemoryTracker) -> JsonObject:
-        db = self._get_db()
         history: list[JsonObject] = list(context.conversation_history)
         delta: list[JsonObject] = []
+        db = self._get_db() if getattr(context, "session_db_tracking_enabled", True) else None
         if db is not None:
             history = list(db.get_messages_as_conversation(context.session_id) or [])
             if len(history) > len(context.conversation_history):
@@ -294,11 +308,6 @@ class SessionManager:
         self._sync_bundled_skills()
         if SessionDB is None:
             issues.append("Hermes SessionDB is unavailable in this environment.")
-        else:
-            try:
-                self._db = SessionDB(db_path=self._session_db_path)
-            except Exception as exc:
-                issues.append(f"open Hermes session DB failed: {exc}")
         return issues
 
     def _write_hermes_config(self) -> None:

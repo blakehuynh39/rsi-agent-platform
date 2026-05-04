@@ -175,6 +175,7 @@ class FakeSessionManager:
         self.hermes_config_parity_error = ""
         self.skills_healthy = True
         self.session_db = object()
+        self.session_db_ref = types.SimpleNamespace(db_path=self.session_db_path)
         self.honcho_available = True
         hermes_home = Path(_config.hermes_home)
         hermes_home.mkdir(parents=True, exist_ok=True)
@@ -183,7 +184,7 @@ class FakeSessionManager:
             encoding="utf-8",
         )
 
-    def prepare(self, task: RunnerTaskRequest):
+    def prepare(self, task: RunnerTaskRequest, *, load_history: bool = True):
         return types.SimpleNamespace(
             session_id="rsi-prod-conversation-123",
             parent_session_id="",
@@ -196,7 +197,8 @@ class FakeSessionManager:
             user_peer_id=task.user_peer_id or "slack:U123",
             hermes_home=self.hermes_home,
             session_db_path=self.session_db_path,
-            conversation_history=[{"role": "user", "content": "Earlier thread message"}],
+            session_db_tracking_enabled=load_history,
+            conversation_history=[{"role": "user", "content": "Earlier thread message"}] if load_history else [],
         )
 
     def attach_tracking(self, _agent: object, _task: RunnerTaskRequest, _context: object) -> FakeTracker:
@@ -1210,6 +1212,85 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(status.session_db_status, "missing_schema")
         self.assertTrue(any("Hermes SessionDB schema is missing required table(s)" in error for error in status.errors))
 
+    def test_hermes_contract_defers_parent_runtime_session_db_integrity_check(self) -> None:
+        plugin_manager = types.SimpleNamespace(
+            list_plugins=lambda: [
+                {"enabled": True, "name": "rsi_context_engine"},
+                {"enabled": True, "name": "company_knowledge"},
+                {
+                    "enabled": True,
+                    "name": "rsi_platform_runtime",
+                    "capabilities": {"execution_scoped_context_supported": True},
+                },
+            ]
+        )
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(os.environ, {"HERMES_HOME": tempdir}, clear=True), mock.patch(
+            "rsi_runner.hermes_agent_adapter._read_direct_url_commit",
+            return_value=("0.12.0", HERMES_TEST_PIN),
+        ), mock.patch(
+            "rsi_runner.hermes_agent_adapter.discover_plugins",
+            side_effect=lambda force=False: None,
+        ), mock.patch(
+            "rsi_runner.hermes_agent_adapter.get_plugin_manager",
+            return_value=plugin_manager,
+        ):
+            Path(tempdir, "config.yaml").write_text(
+                "plugins:\n  enabled:\n    - rsi_context_engine\n    - company_knowledge\n    - rsi_platform_runtime\n",
+                encoding="utf-8",
+            )
+            Path(tempdir, "state.db").write_bytes(b"not sqlite")
+            with mock.patch("rsi_runner.hermes_agent_adapter.sqlite3.connect") as connect_mock:
+                status = validate_hermes_contract(
+                    expected_pin=HERMES_TEST_PIN,
+                    hermes_home=tempdir,
+                    session_db=types.SimpleNamespace(db_path=Path(tempdir, "state.db"), defer_integrity_check=True),
+                    required_toolsets=[],
+                    require_platform_runtime=True,
+                    require_session_db_ready=False,
+                )
+
+        self.assertTrue(status.ok, status.errors)
+        self.assertEqual(status.session_db_status, "deferred")
+        connect_mock.assert_not_called()
+
+    def test_hermes_contract_tolerates_uninitialized_session_db_for_parent_runtime(self) -> None:
+        plugin_manager = types.SimpleNamespace(
+            list_plugins=lambda: [
+                {"enabled": True, "name": "rsi_context_engine"},
+                {"enabled": True, "name": "company_knowledge"},
+                {
+                    "enabled": True,
+                    "name": "rsi_platform_runtime",
+                    "capabilities": {"execution_scoped_context_supported": True},
+                },
+            ]
+        )
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(os.environ, {"HERMES_HOME": tempdir}, clear=True), mock.patch(
+            "rsi_runner.hermes_agent_adapter._read_direct_url_commit",
+            return_value=("0.12.0", HERMES_TEST_PIN),
+        ), mock.patch(
+            "rsi_runner.hermes_agent_adapter.discover_plugins",
+            side_effect=lambda force=False: None,
+        ), mock.patch(
+            "rsi_runner.hermes_agent_adapter.get_plugin_manager",
+            return_value=plugin_manager,
+        ):
+            Path(tempdir, "config.yaml").write_text(
+                "plugins:\n  enabled:\n    - rsi_context_engine\n    - company_knowledge\n    - rsi_platform_runtime\n",
+                encoding="utf-8",
+            )
+            status = validate_hermes_contract(
+                expected_pin=HERMES_TEST_PIN,
+                hermes_home=tempdir,
+                session_db=types.SimpleNamespace(db_path=Path(tempdir, "state.db")),
+                required_toolsets=[],
+                require_platform_runtime=True,
+                require_session_db_ready=False,
+            )
+
+        self.assertTrue(status.ok, status.errors)
+        self.assertEqual(status.session_db_status, "uninitialized")
+
     def test_hermes_contract_rejects_missing_toolset_validation_api_once(self) -> None:
         with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(os.environ, {"HERMES_HOME": tempdir}, clear=True), mock.patch(
             "rsi_runner.hermes_agent_adapter.validate_toolset",
@@ -1374,6 +1455,33 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(captured["chat_id"], "C123")
         self.assertEqual(captured["thread_id"], "171000001.000100")
         self.assertEqual(captured["gateway_session_key"], "rsi:prod:slack:C123:171000001.000100")
+
+    def test_hermes_agent_adapter_retries_locked_session_db_open(self) -> None:
+        attempts = 0
+
+        def fake_session_db(db_path: Path):
+            nonlocal attempts
+            attempts += 1
+            if attempts == 1:
+                raise sqlite3.OperationalError("database is locked")
+            return types.SimpleNamespace(db_path=db_path)
+
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_agent_adapter.SessionDB",
+            side_effect=fake_session_db,
+        ), mock.patch("rsi_runner.hermes_agent_adapter.time.sleep") as sleep_mock, mock.patch(
+            "rsi_runner.hermes_agent_adapter.random.uniform", return_value=0
+        ), mock.patch.dict(
+            os.environ,
+            {"HERMES_HOME": tempdir, "RSI_HERMES_SESSION_DB_OPEN_RETRY_SECONDS": "1"},
+            clear=True,
+        ):
+            adapter = HermesAgentAdapter({"session_id": "session-1"})
+            db = adapter._open_session_db()
+
+        self.assertEqual(attempts, 2)
+        self.assertEqual(Path(db.db_path), Path(tempdir, "state.db"))
+        sleep_mock.assert_called_once()
 
     def test_hermes_contract_rejects_missing_aiagent_kwargs(self) -> None:
         class BadAIAgent:
@@ -1599,6 +1707,22 @@ class HermesRuntimeTests(unittest.TestCase):
                 payload = json.load(fh)
 
         self.assertEqual(payload["environment"], "production")
+
+    def test_session_manager_does_not_open_session_db_during_startup(self) -> None:
+        class ExplodingSessionDB:
+            def __init__(self, db_path: str) -> None:
+                raise AssertionError(f"SessionDB should not open during runner startup: {db_path}")
+
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.session_manager.SessionDB", ExplodingSessionDB
+        ), mock.patch("rsi_runner.session_manager.sync_skills") as sync_mock, mock.patch.dict(
+            os.environ, {**runner_env("eval"), "HERMES_HOME": tempdir}, clear=True
+        ):
+            sync_mock.return_value = {"copied": []}
+            manager = SessionManager(RunnerConfig.from_env())
+
+        self.assertTrue(manager.available)
+        self.assertEqual(manager.session_db_path, os.path.join(tempdir, "state.db"))
 
     def test_session_manager_syncs_bundled_skills_when_configured(self) -> None:
         class FakeSessionDB:

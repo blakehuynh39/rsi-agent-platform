@@ -1119,9 +1119,10 @@ class HermesRuntime:
         self._contract_status = validate_hermes_contract(
             expected_pin=config.hermes_pin,
             hermes_home=config.hermes_home,
-            session_db=self._session_manager.session_db,
+            session_db=self._session_manager.session_db_ref,
             required_toolsets=required_toolsets,
             require_platform_runtime=config.hermes_executor_enabled,
+            require_session_db_ready=False,
         )
         self._available = (
             AIAgent is not None
@@ -3803,7 +3804,7 @@ class HermesRuntime:
                 failure_class="native_workflow_preflight_failed",
                 message="Hermes persistent session runtime is unavailable.",
             )
-        context = self._session_manager.prepare(task)
+        context = self._session_manager.prepare(task, load_history=False)
         tracker = MemoryTracker()
         execution_phase = self._execution_phase(task)
         if observer is not None:

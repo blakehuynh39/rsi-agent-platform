@@ -6,6 +6,7 @@ import inspect
 import json
 import os
 from pathlib import Path
+import random
 import sqlite3
 import subprocess
 import sys
@@ -108,6 +109,19 @@ def _string(value: Any) -> str:
     if value is None:
         return ""
     return str(value).strip()
+
+
+def _float_env(name: str, default: float) -> float:
+    raw = os.getenv(name)
+    if raw is None or not str(raw).strip():
+        return default
+    try:
+        value = float(str(raw).strip())
+        if not (value > 0.0 and value != float('inf')):
+            return default
+        return value
+    except ValueError:
+        return default
 
 
 def _stream_text(value: Any) -> str:
@@ -279,6 +293,7 @@ def validate_hermes_contract(
     session_db: Any,
     required_toolsets: list[str] | None = None,
     require_platform_runtime: bool = False,
+    require_session_db_ready: bool = True,
 ) -> HermesContractStatus:
     errors: list[str] = []
     expected = _string(expected_pin)
@@ -291,7 +306,10 @@ def validate_hermes_contract(
     if session_db is None:
         errors.append("Hermes SessionDB is unavailable.")
     else:
-        session_db_status, session_db_error = _validate_session_db_integrity(session_db)
+        session_db_status, session_db_error = _validate_session_db_integrity(
+            session_db,
+            require_ready=require_session_db_ready,
+        )
         if session_db_error:
             errors.append(session_db_error)
 
@@ -424,7 +442,12 @@ def validate_hermes_contract(
     )
 
 
-def _validate_session_db_integrity(session_db: Any) -> tuple[str, str]:
+def _sqlite_error_is_locked(exc: Exception) -> bool:
+    text = str(exc).lower()
+    return "database is locked" in text or "database is busy" in text or "database table is locked" in text
+
+
+def _validate_session_db_integrity(session_db: Any, *, require_ready: bool = True) -> tuple[str, str]:
     db_path = getattr(session_db, "db_path", None)
     if not db_path:
         return "ok", ""
@@ -433,7 +456,11 @@ def _validate_session_db_integrity(session_db: Any) -> tuple[str, str]:
     except TypeError:
         return "ok", ""
     if not path.exists():
+        if not require_ready:
+            return "uninitialized", ""
         return "missing", f"Hermes SessionDB file is missing at {path}."
+    if not require_ready and bool(getattr(session_db, "defer_integrity_check", False)):
+        return "deferred", ""
     try:
         with sqlite3.connect(str(path), timeout=5.0) as conn:
             row = conn.execute("PRAGMA quick_check(1)").fetchone()
@@ -441,6 +468,10 @@ def _validate_session_db_integrity(session_db: Any) -> tuple[str, str]:
                 _string(item[0])
                 for item in conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'").fetchall()
             }
+    except sqlite3.OperationalError as exc:
+        if not require_ready and _sqlite_error_is_locked(exc):
+            return "locked", ""
+        return "corrupt", f"Hermes SessionDB integrity check failed: {exc}"
     except sqlite3.DatabaseError as exc:
         return "corrupt", f"Hermes SessionDB integrity check failed: {exc}"
     except Exception as exc:
@@ -450,6 +481,8 @@ def _validate_session_db_integrity(session_db: Any) -> tuple[str, str]:
         required_tables = {"sessions", "messages"}
         missing_tables = sorted(required_tables - tables)
         if missing_tables:
+            if not require_ready:
+                return "uninitialized", ""
             return "missing_schema", "Hermes SessionDB schema is missing required table(s): " + ", ".join(missing_tables)
         return "ok", ""
     return "corrupt", f"Hermes SessionDB integrity check failed: {verdict or 'unknown quick_check failure'}"
@@ -483,6 +516,7 @@ class HermesAgentAdapter:
         system_prompt = self._system_prompt()
         self._prepare_session_db(session_id, session_db, system_prompt)
         agent = self._create_agent(session_id, session_db, system_prompt)
+        conversation_history = self._conversation_history(session_db)
         self._lifecycle.record(
             "model.call.started",
             {
@@ -494,7 +528,7 @@ class HermesAgentAdapter:
         try:
             result = agent.run_conversation(
                 user_message=_string(self._payload.get("prompt")),
-                conversation_history=[item for item in _json_list(self._payload.get("conversation_history")) if isinstance(item, dict)],
+                conversation_history=conversation_history,
                 task_id=session_id,
             )
         except Exception as exc:
@@ -679,7 +713,43 @@ class HermesAgentAdapter:
         if SessionDB is None:
             return None
         db_path = Path(self._hermes_home).expanduser() / "state.db"
-        return SessionDB(db_path=db_path)
+        deadline = time.monotonic() + _float_env("RSI_HERMES_SESSION_DB_OPEN_RETRY_SECONDS", 20.0)
+        attempt = 0
+        while True:
+            try:
+                return SessionDB(db_path=db_path)
+            except Exception as exc:
+                if not _sqlite_error_is_locked(exc) or time.monotonic() >= deadline:
+                    raise
+                attempt += 1
+                if attempt == 1:
+                    self._lifecycle.record(
+                        "session_db.open_retry",
+                        {
+                            "status": "retrying",
+                            "db_path": str(db_path),
+                            "error": str(exc)[:800],
+                            "retry_deadline_seconds": _float_env("RSI_HERMES_SESSION_DB_OPEN_RETRY_SECONDS", 20.0),
+                        },
+                    )
+                time.sleep(random.uniform(0.05, 0.25))
+
+    def _conversation_history(self, session_db: Any) -> list[JsonObject]:
+        payload_history = [item for item in _json_list(self._payload.get("conversation_history")) if isinstance(item, dict)]
+        if payload_history:
+            return payload_history
+        if _string(self._payload.get("execution_phase")) in {"render", "deliver"}:
+            return []
+        if session_db is None:
+            return []
+        try:
+            return [item for item in list(session_db.get_messages_as_conversation(self._session_id) or []) if isinstance(item, dict)]
+        except Exception as exc:
+            self._lifecycle.record(
+                "session_db.history_read_failed",
+                {"status": "warning", "error": str(exc)[:800]},
+            )
+            return []
 
     def _prepare_session_db(self, session_id: str, db: Any, system_prompt: str) -> None:
         if db is None:
