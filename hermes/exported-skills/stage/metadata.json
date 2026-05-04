@@ -2,11 +2,6 @@
   "artifact_manifest": {
     "skills": [
       {
-        "path": ".usage.json",
-        "sha256": "470ac1e37ae912ec8b176a5dfd62d6708e849d4c3d471f078da52f793c70d507",
-        "size": 1152
-      },
-      {
         "path": "apple/DESCRIPTION.md",
         "sha256": "0e4d2474859827a53d94fbfa316e059ddc45ab35665d8f3d685e2d7833fa1483",
         "size": 152
@@ -2287,21 +2282,6 @@
         "size": 745
       },
       {
-        "path": "productivity/project-health-check/SKILL.md",
-        "sha256": "09b17340bf8cda4d607d0047254b86ac485a4422d5d64c16d9a1a1ae6f4ec0c0",
-        "size": 4742
-      },
-      {
-        "path": "productivity/project-health-check/references/deployment-verification.md",
-        "sha256": "dbbac78d694a68bf41baaae3f4585e6e51793ba4458ce9700e3a5a2c0b1219d5",
-        "size": 3074
-      },
-      {
-        "path": "productivity/project-health-check/references/patterns.md",
-        "sha256": "cab3e2ccccad8be3c1c2a139c06059f1c8791e17a300725e9940dcbaa9bbd2bc",
-        "size": 3696
-      },
-      {
         "path": "red-teaming/godmode/SKILL.md",
         "sha256": "a24f5b066c6b2e1d4b64d8e2ae863f579281489fcd990d46fb4ece3c2fb397f0",
         "size": 20024
@@ -2752,33 +2732,629 @@
         "size": 4042
       },
       {
-        "path": "story-company/rsi-platform-investigation/SKILL.md",
-        "sha256": "e1ed76288913f8eded3c1277ccd69c41179f90ea0787dde47bfbe94bc2f3d1fd",
-        "size": 7393
-      },
-      {
-        "path": "story-company/rsi-platform-investigation/references/wiki-sync-pipeline.md",
-        "sha256": "f9625a589994f0480d1ec2fa8b85a5f12ea58a5a9f0015ff3f6f100f9af5833f",
-        "size": 5595
-      },
-      {
         "path": "yuanbao/SKILL.md",
         "sha256": "09a35b811406e00e69b41b1ea86bf2b9d0ac9c0a7abc88f3832a7747717cc3c3",
         "size": 3760
       }
     ],
-    "wiki": []
+    "wiki": [
+      {
+        "path": "index.md",
+        "sha256": "a06da1a10c6835d381a08ba7b379977a1788e98a90ea7c8749f919710885cf8e",
+        "size": 38799
+      },
+      {
+        "path": "log.md",
+        "sha256": "7313f92556968fd29cc2611e1d5f68d32fe41cacfb89b880f943d32441c2ae69",
+        "size": 54021
+      },
+      {
+        "path": "manifest.json",
+        "sha256": "650686ca56d63bfe532aadbb2c6960f9dcda657df67974f519790fff071285f8",
+        "size": 50748
+      },
+      {
+        "path": "pages/notion_document/-automated-customer-service--b4d043af.md",
+        "sha256": "f61e6e46e06680772acf1edf833316b1baaf225e65743a469391435d1ab767f3",
+        "size": 863
+      },
+      {
+        "path": "pages/notion_document/-coming-soon-placeholder-tasks-7a70bd28.md",
+        "sha256": "c1293888d56c17eb4ca1a67c29a145447cb3ea73e4f0644c2964efa086192dce",
+        "size": 878
+      },
+      {
+        "path": "pages/notion_document/-need-a-plan-b-api-for-gas-limits-811793b1.md",
+        "sha256": "a3c235720bc23de9e4514ce75715fc2170c4a2ce0a8bb7457afe078c709299d1",
+        "size": 893
+      },
+      {
+        "path": "pages/notion_document/350051299a5480f8b542e4f40de96a42-3c9ac8c7.md",
+        "sha256": "fbee558b00a0a3233638b5f641f98c281e9811863c059371de1aa43980d1c8b0",
+        "size": 809
+      },
+      {
+        "path": "pages/notion_document/adaptive-trust-screening-reputation--18c6a810.md",
+        "sha256": "2db4d9e8d89555da51c4a75d9eec19005ce1c0053f3c6cf2a87990e7ee9908e6",
+        "size": 966
+      },
+      {
+        "path": "pages/notion_document/add-back-en-/-kr-/-vn-/-ph-0fedb58a.md",
+        "sha256": "ed0eeb6e0c706beac862c060ded96846549772ddce571d24ac1ba753cbd393c6",
+        "size": 1055
+      },
+      {
+        "path": "pages/notion_document/add-cookie-banner-to-app-fa3d3873.md",
+        "sha256": "61c2a0db9f36aa81f9e14287180f1c869d68488c5a68833f4301e023a9653ded",
+        "size": 835
+      },
+      {
+        "path": "pages/notion_document/add-fb-tracking-pixel-to-web-app-2b068b06.md",
+        "sha256": "240ed717f96a34d1509e868baa09d2418fc896f074ee7ba41642971bb1f773be",
+        "size": 875
+      },
+      {
+        "path": "pages/notion_document/add-license-receipt-functionality-738c1d89.md",
+        "sha256": "ca02f13c57772633091152af6ed04826c1c12c0a37b4ebaac066fa3a0acedae7",
+        "size": 1201
+      },
+      {
+        "path": "pages/notion_document/add-spam-detection-mechanism-to-throttle-/-ban-users-741ead36.md",
+        "sha256": "4b061dc927e07c7a798712faf2fb91b6801c7343436d39f1f1bf37dbdeb94828",
+        "size": 971
+      },
+      {
+        "path": "pages/notion_document/address-p1-dogfooding-issues-2946171b.md",
+        "sha256": "874d515b809d1d587b13b48354a8bb3fa0baca7c695fc82ade892fe01d6169c8",
+        "size": 855
+      },
+      {
+        "path": "pages/notion_document/consensus-labelling-mechanism-4e1ba127.md",
+        "sha256": "c1bd9330fde36cea8b07df94e04440d8cc026b38050f8baba2a3a7b1f8f53744",
+        "size": 895
+      },
+      {
+        "path": "pages/notion_document/define-what-to-do-for-rejected-submissions-e595b5ee.md",
+        "sha256": "71d47ef20503c252da67c5ab55c0e5fd4229126b87ff0aacde2c8d6aae97ed27",
+        "size": 925
+      },
+      {
+        "path": "pages/notion_document/drag-and-drop-upload-functionality-for-tasks-63feb90d.md",
+        "sha256": "71d3a421a812ece995db29a64bf22e51de599becca514969d7127095ad83e05f",
+        "size": 935
+      },
+      {
+        "path": "pages/notion_document/get-upwork-/-fiverr-users-to-vet-our-i18n-translations-2f6aae7e.md",
+        "sha256": "aaaedd4d656a2e590bbd70b9085c09e03c701cd0121b5c2cf76e79d2b2e1b61b",
+        "size": 981
+      },
+      {
+        "path": "pages/notion_document/implement-and-test-payment-solution-for-p0-countries---stripe-poc-dab627af.md",
+        "sha256": "9ee24e4c2780a069d36e1a9450fe2d74c645bf09489546431aff229d5d05a2ce",
+        "size": 1358
+      },
+      {
+        "path": "pages/notion_document/implement-p1-gamification-tactics-f2dfba01.md",
+        "sha256": "26ff6c1db15cc8338cd88101d41f4d8ffdda53137c590cb918cf09249d6e4e17",
+        "size": 1136
+      },
+      {
+        "path": "pages/notion_document/integrate-fb-tracking-and-google-ads-spent-tracking-to-admin-dashboard-82936396.md",
+        "sha256": "ba8e57dd2e6f4ec90f6e77e60e78f29b7c8723bf180037901b7b926bf760622b",
+        "size": 1065
+      },
+      {
+        "path": "pages/notion_document/integrate-poseidon-processing-pipeline-with-numo-2fbc3c2c.md",
+        "sha256": "66255c65181eb699b8440fd13586347a4c8412176e7953aa43aa795c12201700",
+        "size": 955
+      },
+      {
+        "path": "pages/notion_document/ip-auto-registration-script-27b1580d.md",
+        "sha256": "d87f901a128d75689e5b5563133413a043b60791c68d86c58cf25c536a4cac1c",
+        "size": 867
+      },
+      {
+        "path": "pages/notion_document/link-user-socials-e3553f83.md",
+        "sha256": "bbc5a86120b078da06866cbb740029a236f66e77b99d4bf67774deb7a8e46339",
+        "size": 861
+      },
+      {
+        "path": "pages/notion_document/make-sure-we-distinguish-webapp-/-world-/-android-/-ios-user-devices-to-know-where-user-originated-from-for-risk-assessment-cd36971a.md",
+        "sha256": "d930588407793c3a32401d65ad2fc40feb703e2b6d7c4d14e910d3b11c893965",
+        "size": 1272
+      },
+      {
+        "path": "pages/notion_document/merge-ga-properties-for-e2e-tracking-8f00636b.md",
+        "sha256": "b094a6e67708e203a7c3fd3da9ea922e4b14df3a1a6949ce9a649704a8a1cb79",
+        "size": 895
+      },
+      {
+        "path": "pages/notion_document/migrate-web-app-to-react-native-app-f669ad50.md",
+        "sha256": "650f294f7a6aef55aa92d6f34a0dd31dd336527d6bec2c83f851886d690f4f9b",
+        "size": 890
+      },
+      {
+        "path": "pages/notion_document/numo-product-backlog-aa9d5203.md",
+        "sha256": "ce4630533bcf1145f50e6c7ea8bc4275372640ede581d51bef11bea602c797d9",
+        "size": 840
+      },
+      {
+        "path": "pages/notion_document/post-submission-payout-clarity-/-dopamine-hit-dbfab6ff.md",
+        "sha256": "6f3468664ca503d44e0b2733c1a84bbe68a5dff8ec04924bf1d40c49e941e629",
+        "size": 936
+      },
+      {
+        "path": "pages/notion_document/record-seedphrase-during-signup-flow-0a4ae864.md",
+        "sha256": "bba19b4831856b8e2a58d2a393b3fc55b6b262af6a2a7541920ad33ad5f4cb20",
+        "size": 979
+      },
+      {
+        "path": "pages/notion_document/replace-feedback-form-api-d0680100.md",
+        "sha256": "87aeba68156b9f8e090e881b35e6544cace203547462dfeb6002ea3cfc364872",
+        "size": 840
+      },
+      {
+        "path": "pages/notion_document/serve-least-used-transcript-as-a-priority-8b81c6e4.md",
+        "sha256": "b300ac0d19c3b8470c32f5007565335bade5896c9e53063423c707e015a0a286",
+        "size": 920
+      },
+      {
+        "path": "pages/notion_document/world-launch-e8b256d0.md",
+        "sha256": "068f22d8c1768771db488c134e43cc0dfef69b375c9118c2130370b224d5c045",
+        "size": 775
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1776915736-123179-d0193e69.md",
+        "sha256": "2fff61e6a0d4d168c30a904877bff9b1594c962c9607b4dfe674519add6219f9",
+        "size": 1336
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777325514-278389-1a2bb76c.md",
+        "sha256": "b43b8a79c843dbdf264e9b5a5379c4bdc8785fefa59c316571ac08a4cbe4133f",
+        "size": 3058
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777343709-610639-030eb189.md",
+        "sha256": "42ec0feaa24153b8e6b12885a8de733b0ff07a30010ee5e76c731ef67a94c4cc",
+        "size": 827
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777349624-208809-43df1bad.md",
+        "sha256": "bf7262fb3e152fac26936aeb812620efe8a99d96d93337cdb738d7a920a18934",
+        "size": 10529
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777350147-298499-e3252ea4.md",
+        "sha256": "8d441f9d9330093ca88a87678a4deabb24ece2fafd4b9f817a58a6e6e3542b94",
+        "size": 5581
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777353403-464009-12c541b2.md",
+        "sha256": "4903f854495397c68d752b3d6b459bb603cf1ce177db5564a271e213516c1efe",
+        "size": 4360
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777353404-539199-726191be.md",
+        "sha256": "ab44ed4f658d3b53649f717992abf7f14402e4fdfd8173d19a7b46017a6ea627",
+        "size": 1490
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777354831-174719-4442abf4.md",
+        "sha256": "340278b63b1509d3298f057afedcc1c342803fe6afb294bd4741c4e58a565dc4",
+        "size": 1162
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777357398-961469-2eb84c92.md",
+        "sha256": "6ee72fb67aa3b3730c2ab05297e574c0f9c2afe5364e15e73b2a5e6e85b77439",
+        "size": 4240
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777358227-491719-a0bf6daa.md",
+        "sha256": "70763493292adaa84a970a0a259dc51d29baba800ec84dc2f525dd6ea2f26818",
+        "size": 1914
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777358431-054669-c466b114.md",
+        "sha256": "b91a1224fff074f118cf201ef92760c4ba24093878f71a15386bfd8fc94b2920",
+        "size": 1178
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777360134-422709-9b37499c.md",
+        "sha256": "9204d750d7864fb3ed4b1813c5161aac7127161f7a8a378c4657ce21fbb67c68",
+        "size": 1339
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777390695-974609-ee957b52.md",
+        "sha256": "595794a74b7095d3997f6ac7ad34e810689d26d3525c86d2084f3f9457d14038",
+        "size": 3731
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777391608-843909-b8470bc1.md",
+        "sha256": "234b322795cd382c072df414b6ea8e2306dc5d06390a22f5dc30d2c50e8dcae5",
+        "size": 2974
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777392989-970429-2faec413.md",
+        "sha256": "0ea9b3c5baad68d1603da9ee63aeb1362ff5fae589659472e68e3a6d37a508be",
+        "size": 15549
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777393564-560879-df0e3b6a.md",
+        "sha256": "9eaa6e7494d0a0f579a354f3c574e9695c42aef4dea2fc9409513538a63f7847",
+        "size": 1304
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777398130-179209-11cd42e8.md",
+        "sha256": "44ea3b69b18e567c8ede6354b156830ca75cc0f1beeaa71f6d0b5d98cd051528",
+        "size": 1486
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777400384-602169-fcc41125.md",
+        "sha256": "c602f3efa220713d010de51c07298f06ef739e35a82faa5969f0c6286ddc7834",
+        "size": 1212
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777401619-417019-806fda74.md",
+        "sha256": "b0f333c4a254e7dbe251508df46cbdb77d31a605bac578891c710f4fd9873620",
+        "size": 7846
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777403470-384369-7ec9076c.md",
+        "sha256": "b8b9fd2a3983cb32bc4c165e592c33af8f0dac9de3a86b2e1957f71d814c75ae",
+        "size": 7680
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777407163-139859-c4a01112.md",
+        "sha256": "80592ef3467124992dc88b8a59f2c80bc4e18f638637a5e29267d7ccdadce98f",
+        "size": 5431
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777408233-137639-66ed2de8.md",
+        "sha256": "0e03e2066eb97a2d8648aeda49e39f5b3e0a9f798895d7a18679a90976ee0b78",
+        "size": 1268
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777412150-587649-505ba9a6.md",
+        "sha256": "93b7430c9defe5067bb7236420d3874430b37e8827adf5e8ff005f05509c7e55",
+        "size": 4492
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777418003-650909-ee79c3e8.md",
+        "sha256": "6028cc4a8c4c9d4cbea781e3b51d4de6c8236d712c61bb2aae1b8ade0b14173f",
+        "size": 23906
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777422715-932749-aebd61a6.md",
+        "sha256": "8b872145655305c783afaa4ea5678bf28dff8bf60274db2990975f4dd5215134",
+        "size": 1248
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777423148-536529-32c47938.md",
+        "sha256": "38cb70030134e463ec56e8dc16a13ed46c08690f91ca1b6dcb6a5c8bc4bef45e",
+        "size": 3237
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777423753-728409-414dc2d8.md",
+        "sha256": "0fb9757c65f137341a6ffe60b9bc7b08d17eab819a33d0d5c5d679c00c172463",
+        "size": 1938
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777424149-046949-d667da72.md",
+        "sha256": "99478ef118f8093902d81573bc6b1a01ea75b3a25a528bd9f9e0bec6c3e85b15",
+        "size": 4968
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777427999-190879-f221866b.md",
+        "sha256": "1fa774a3d42f3c33d3291a176da689c126158116a7ccbc8bd84712c3f5d0d2d1",
+        "size": 8324
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777429354-757519-8707c0e6.md",
+        "sha256": "b6197ec76cccd263dbb37505f6db7049bc345dc4dec4c1ae7347fab80c07fe6d",
+        "size": 1156
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777429626-135059-643cbbb8.md",
+        "sha256": "0cd5905aee8a1321a50a1494170c9e10bcb8519eeeefe01a1c3d7fd9b7449a0f",
+        "size": 1178
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777431607-939929-c2dcfb28.md",
+        "sha256": "a47f717321c890405611344652a4542d07b39f87087df800a74e2020cedff0a3",
+        "size": 3662
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777431912-916829-7726b757.md",
+        "sha256": "2b19b9cc5a16e1a78c34316f15ead8cc925aa800bd05ff628b0b909c315b5e24",
+        "size": 1166
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777434424-173869-e773ff31.md",
+        "sha256": "c8ac52f3812dfdd8116281b71675afadc35e87df54b897366b38777a97cd0ac2",
+        "size": 1596
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777434551-476839-f8310b80.md",
+        "sha256": "5ace1793a903682ad8c7b69ce3daf13cb18d028feec754abab84587861246669",
+        "size": 6322
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777435787-333899-4a8d6ec0.md",
+        "sha256": "b08aa505190a2568189f949d2784b139095f9673a1a047c371a45012cf47c3b9",
+        "size": 2387
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777436270-543739-6bcc712a.md",
+        "sha256": "615ff017be9a973ada204e7c245293f3b69a92132c57aae181c316743609d103",
+        "size": 1579
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777439172-504119-d3e46783.md",
+        "sha256": "b5b87eb8c8d2115bb5c24a10660841fd3fd5208981450cb9da93a0e6369d1276",
+        "size": 5177
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777439762-882759-8e91f679.md",
+        "sha256": "e3faa86ea228c72b0c44c2faebe309e1899b80e51f54dfda82538153008b3838",
+        "size": 2082
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777440375-458019-ba53104c.md",
+        "sha256": "64e653ee20be2150ba56441438fbd34ad7efff24b0735cb5de3bfebd2d58b2bf",
+        "size": 6219
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777441511-318339-4934835e.md",
+        "sha256": "2a18bb65f7b4c15087b5026b66485c21b122aa1b6616f69a993224a5560aa11f",
+        "size": 1185
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777442001-771639-bbc8ea0f.md",
+        "sha256": "7b9b8babb138d813df88008b416d9b47fc0ce4b18768b595a3ca9f7271f5a9bb",
+        "size": 4447
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777442732-464159-46da8ac9.md",
+        "sha256": "e4a9e7dd68b74f8fac1a3f14b24fa24fe5dd423f66add7b6f6039226f772890a",
+        "size": 1113
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777443302-213939-0dfcf2dc.md",
+        "sha256": "7d0c09cffb708d000479219effc33f4937b15fafa38f9c0933da85745656cb71",
+        "size": 1749
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777443638-410629-be2ce4c5.md",
+        "sha256": "90cd6dddaa3664fe3c16d000b97a59fb8c41282bc38965b936fa12709d137c7d",
+        "size": 3744
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777444288-045059-f7235f14.md",
+        "sha256": "4b8e2d34a7d041c6ef24fcb408693c599f3cd67db97e8eaa938cdf197b8c1caa",
+        "size": 2224
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777444848-457299-34715415.md",
+        "sha256": "6f63d0bf177251bc0c7f47a53b68a87b3c49eec5d508608c6ec285e8a809db1d",
+        "size": 2498
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777446318-169899-6d74da79.md",
+        "sha256": "e3b117254ee6776d474a4329cb51ccc039e336143e31c430c6bef4b19cb526d5",
+        "size": 1615
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777448255-504329-1706f3ba.md",
+        "sha256": "756f5496ab2eadd4e1d9509f69fea7706fe078adacf6e9879629a795551507b0",
+        "size": 4257
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777449700-945849-2c9d0afd.md",
+        "sha256": "973d40feac42746ea4c66b0606ffd93aecd9cff54acca98ee9f0f5a4d3732800",
+        "size": 1191
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777449816-716039-0d0be6f5.md",
+        "sha256": "43a214dcf3be3e4007d4f38162f6fa0eba8152411c9617924369bc2974513525",
+        "size": 9043
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777466353-325179-f87e0295.md",
+        "sha256": "3ac1b0d55807a2441c50214b4d9340578c51ad960a1e89031044f0368879b502",
+        "size": 4350
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777473525-846019-973e345f.md",
+        "sha256": "f2715cef77517359cb2d6050cbbdf3cfa926bc2d2c67c759791c060aa7c581a4",
+        "size": 6664
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777475961-506039-20003481.md",
+        "sha256": "071a79bc3e827cea6530b0c3470fd0b49f054931f6afa4d44c9beebcfc77e893",
+        "size": 20997
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777477487-422389-35d38753.md",
+        "sha256": "a28eb336764307d3225e91d1a69bac899f2416374e5af4de2ca49837ef65d01f",
+        "size": 1175
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777477917-746959-88ca04c9.md",
+        "sha256": "74544fa037b51b019ed2204dcda067f28c2856e3483a051bd84d08c6f31f3c71",
+        "size": 1157
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777478003-462249-e74de625.md",
+        "sha256": "07b3f641a370035fae0622e72f55e34db306976d2f8982229bd6ee4295e6a783",
+        "size": 1134
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777478122-324379-fd84a2a9.md",
+        "sha256": "61d35825375d184aef1102606e816ebff758d00b0c25b6b8c49d008d00e25396",
+        "size": 1094
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777478537-453499-ba871e1f.md",
+        "sha256": "bdfec5732d6a6c7c5039c823f764944a2c5778d3145fa2ee4db6ea7eb678677d",
+        "size": 16032
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777480818-316119-d961a0ce.md",
+        "sha256": "86942b02bcb4f87241c378a1287799f3e316b091ba9ed8fca3316d85ea18c22e",
+        "size": 2404
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777481066-629819-3bc8e028.md",
+        "sha256": "38d8c3a1659b053ba301fa125576f34e47036d9d38b15234148bb86eb0522010",
+        "size": 7282
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777482124-478509-86339d0b.md",
+        "sha256": "a05bb4254ff363ef70c92e8660d372920655268b3157ac0a0cc861ca9ef0ac9a",
+        "size": 9586
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777482838-895149-486df14c.md",
+        "sha256": "1a874f306b74f29f17f818c51a6e59bfb231beaef16aabc5d491a431b5d4b0a1",
+        "size": 1126
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777488163-962089-701b5027.md",
+        "sha256": "c8c11a2e3df5b6b2a8dcaaaa84e4723f8573ab29d3e2cde2d72fcb799b8b5aa1",
+        "size": 9153
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777494383-971989-22e91ad8.md",
+        "sha256": "e7f4e4ea919c9e69f218d8fca787a86db19d39782b8a05a9060c6dacd8595cec",
+        "size": 2869
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777495960-475399-785970f5.md",
+        "sha256": "49c170dc3b8446fa2c6193170780634c740bc10c325deb40c42a3cffd0fd8f04",
+        "size": 1077
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777496121-986579-d12c619b.md",
+        "sha256": "c5d2fd646eb645f99686f18a5a0a1193b9350aeca2a4a0a7b00a4db3020b5109",
+        "size": 3632
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777497080-112699-098444e9.md",
+        "sha256": "01f43f19a8db32dfa4c6280ad38caceb5de21796ecdbe09318acbc470a3523c9",
+        "size": 2000
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777497431-016039-00a6a257.md",
+        "sha256": "311c38c858142332b8f1fa1b563a142f7dcb3c6bbe4fe28aa8d873aaeb74c1fe",
+        "size": 15838
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777502666-870859-2c60fdc5.md",
+        "sha256": "41e37b0669c3429d4eff158d29b648a3212de88a375824e2492be589fcd58e37",
+        "size": 1509
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777502683-799379-fa63c4fe.md",
+        "sha256": "719083702ddb356babc55d587eac4938453807621ef91e846eca6162c06cd03c",
+        "size": 7524
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777503972-799859-ef9a1227.md",
+        "sha256": "42b17bb30f3f02dbae36fd54ef1f36dc5c47753dc3674917decd27ddc3687153",
+        "size": 23311
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777508608-337749-0312abc1.md",
+        "sha256": "273ddb2456f80b4a4d1ecd78aae2efb51e27e875cd7e7e0e7ac713627301a9dc",
+        "size": 10489
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777528241-751619-3ed3b0b9.md",
+        "sha256": "f6b3b8676641fd397082d071aef374a6e13d7f67a570e595bec3624f1377b49f",
+        "size": 2326
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777563089-659549-2ea26972.md",
+        "sha256": "857a9095a9f9e8d2ce0753921642c22cfa3f36201079821f497a1019280cecc4",
+        "size": 10618
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777565263-010809-9e90b227.md",
+        "sha256": "1f1019bb888331d5eeeadd471b04d02035d586e2bb5923f73baa0623f7826a15",
+        "size": 3403
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777593519-973559-ef039f76.md",
+        "sha256": "301f524ab782676b570f5ec17d6fb46b0ef559503803a0d2306748621fbee104",
+        "size": 1930
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777604608-429789-9987884c.md",
+        "sha256": "e29185b17d008c00e7792748c4c5748ddb62899d97bd4142cca68346270c4638",
+        "size": 2443
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777608191-691369-a4273750.md",
+        "sha256": "89a729f1489a1e1894fe7af93e0d80cdc8a5c5c62ae0baf31ffe46e0f55f84ea",
+        "size": 2402
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777624965-389219-6a3b1325.md",
+        "sha256": "27549c4e09fe58aa71c2972003a03754d64cc0230299545c91d5aefe8ab86dc4",
+        "size": 1417
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777647561-108649-323a7556.md",
+        "sha256": "6ed18b40635ac4da6e950f1a04c9899c8d9d4d1ff76fc54c4a804eeb4ceb178a",
+        "size": 6837
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777650186-068179-f8f4f969.md",
+        "sha256": "b2559086c7a2aa03e852d9f012949cf714869741c4cbe9ed617741a4ae1577ff",
+        "size": 1649
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777656399-859499-fb4c20f9.md",
+        "sha256": "548977c411770ada5cb48559637986a0ca02d52721ffa8562b555d747bafb5c2",
+        "size": 2712
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777660460-195909-f7a404ae.md",
+        "sha256": "3679820ffba5213dfe73d803f69f3aec14341fd3ec60ecce74c8115324b49add",
+        "size": 25558
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777662841-564689-956a90ee.md",
+        "sha256": "a1d1959aecaf612a3fa25dc9a15b6a883764a40ab90cb04bf38eb986438b103c",
+        "size": 1173
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777662886-915289-a14093b0.md",
+        "sha256": "380f0cc71a03fd7847b83733a78f46b07ee17d22c86693662b9ac274d70cd70e",
+        "size": 842
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777750924-569679-4d6a2f30.md",
+        "sha256": "df24cb87b910bb2bf6ac40c97a79ead1c36254da8278c2a0129fa43d310e7a19",
+        "size": 4069
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777831927-236179-2c053e80.md",
+        "sha256": "db5017b8dd080df5aa3b3f3a6b8a9d162eaa5e3bf129949fd07d607f1c121991",
+        "size": 1453
+      },
+      {
+        "path": "pages/slack_message/slack-thread-c0akh5sngkh-channel-53ca9dcc.md",
+        "sha256": "05e2f1c01bb056dce66d8650bacf62848f959b07d69343152eb7d1b2f78fdfbd",
+        "size": 40062
+      }
+    ]
   },
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
-  "exported_at": "2026-05-04T05:30:42Z",
-  "file_count": 553,
+  "exported_at": "2026-05-04T06:54:48Z",
+  "file_count": 669,
   "files": [
-    {
-      "path": ".usage.json",
-      "sha256": "470ac1e37ae912ec8b176a5dfd62d6708e849d4c3d471f078da52f793c70d507",
-      "size": 1152
-    },
     {
       "path": "apple/DESCRIPTION.md",
       "sha256": "0e4d2474859827a53d94fbfa316e059ddc45ab35665d8f3d685e2d7833fa1483",
@@ -5060,21 +5636,6 @@
       "size": 745
     },
     {
-      "path": "productivity/project-health-check/SKILL.md",
-      "sha256": "09b17340bf8cda4d607d0047254b86ac485a4422d5d64c16d9a1a1ae6f4ec0c0",
-      "size": 4742
-    },
-    {
-      "path": "productivity/project-health-check/references/deployment-verification.md",
-      "sha256": "dbbac78d694a68bf41baaae3f4585e6e51793ba4458ce9700e3a5a2c0b1219d5",
-      "size": 3074
-    },
-    {
-      "path": "productivity/project-health-check/references/patterns.md",
-      "sha256": "cab3e2ccccad8be3c1c2a139c06059f1c8791e17a300725e9940dcbaa9bbd2bc",
-      "size": 3696
-    },
-    {
       "path": "red-teaming/godmode/SKILL.md",
       "sha256": "a24f5b066c6b2e1d4b64d8e2ae863f579281489fcd990d46fb4ece3c2fb397f0",
       "size": 20024
@@ -5525,16 +6086,6 @@
       "size": 4042
     },
     {
-      "path": "story-company/rsi-platform-investigation/SKILL.md",
-      "sha256": "e1ed76288913f8eded3c1277ccd69c41179f90ea0787dde47bfbe94bc2f3d1fd",
-      "size": 7393
-    },
-    {
-      "path": "story-company/rsi-platform-investigation/references/wiki-sync-pipeline.md",
-      "sha256": "f9625a589994f0480d1ec2fa8b85a5f12ea58a5a9f0015ff3f6f100f9af5833f",
-      "size": 5595
-    },
-    {
       "path": "yuanbao/SKILL.md",
       "sha256": "09a35b811406e00e69b41b1ea86bf2b9d0ac9c0a7abc88f3832a7747717cc3c3",
       "size": 3760
@@ -5543,23 +6094,627 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-79b86czhgmk",
-  "previous_tree_hash": "196e20574d34cb4b39aacbe98a8293663268209891e5f7b4a9579df14a7f8d33",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6977c86tfv6",
+  "previous_tree_hash": "1b95e69203ee8d7fc46edb27c114cc7102702ed1fcd3cd586b611f099ebb01f0",
   "schema_version": 1,
-  "skill_file_count": 553,
-  "skill_manage_sessions": [
+  "skill_file_count": 547,
+  "skill_manage_sessions": [],
+  "skill_tree_hash": "10305a01950a641d0d1b1611631aaa2f5dd7838d8e9160e84404c47113084af9",
+  "skills_root": "/var/lib/hermes/skills",
+  "tree_hash": "c524725b5733e23919c110ccb52ccf4ca5d81036accd3defcff30ae471cab209",
+  "wiki_file_count": 122,
+  "wiki_files": [
     {
-      "role": "tool",
-      "session_id": "rsi-prod-conversation-2fbd8bc9def1973871d9",
-      "timestamp": 1777676346.3402722,
-      "tool_name": null
+      "path": "index.md",
+      "sha256": "a06da1a10c6835d381a08ba7b379977a1788e98a90ea7c8749f919710885cf8e",
+      "size": 38799
+    },
+    {
+      "path": "log.md",
+      "sha256": "7313f92556968fd29cc2611e1d5f68d32fe41cacfb89b880f943d32441c2ae69",
+      "size": 54021
+    },
+    {
+      "path": "manifest.json",
+      "sha256": "650686ca56d63bfe532aadbb2c6960f9dcda657df67974f519790fff071285f8",
+      "size": 50748
+    },
+    {
+      "path": "pages/notion_document/-automated-customer-service--b4d043af.md",
+      "sha256": "f61e6e46e06680772acf1edf833316b1baaf225e65743a469391435d1ab767f3",
+      "size": 863
+    },
+    {
+      "path": "pages/notion_document/-coming-soon-placeholder-tasks-7a70bd28.md",
+      "sha256": "c1293888d56c17eb4ca1a67c29a145447cb3ea73e4f0644c2964efa086192dce",
+      "size": 878
+    },
+    {
+      "path": "pages/notion_document/-need-a-plan-b-api-for-gas-limits-811793b1.md",
+      "sha256": "a3c235720bc23de9e4514ce75715fc2170c4a2ce0a8bb7457afe078c709299d1",
+      "size": 893
+    },
+    {
+      "path": "pages/notion_document/350051299a5480f8b542e4f40de96a42-3c9ac8c7.md",
+      "sha256": "fbee558b00a0a3233638b5f641f98c281e9811863c059371de1aa43980d1c8b0",
+      "size": 809
+    },
+    {
+      "path": "pages/notion_document/adaptive-trust-screening-reputation--18c6a810.md",
+      "sha256": "2db4d9e8d89555da51c4a75d9eec19005ce1c0053f3c6cf2a87990e7ee9908e6",
+      "size": 966
+    },
+    {
+      "path": "pages/notion_document/add-back-en-/-kr-/-vn-/-ph-0fedb58a.md",
+      "sha256": "ed0eeb6e0c706beac862c060ded96846549772ddce571d24ac1ba753cbd393c6",
+      "size": 1055
+    },
+    {
+      "path": "pages/notion_document/add-cookie-banner-to-app-fa3d3873.md",
+      "sha256": "61c2a0db9f36aa81f9e14287180f1c869d68488c5a68833f4301e023a9653ded",
+      "size": 835
+    },
+    {
+      "path": "pages/notion_document/add-fb-tracking-pixel-to-web-app-2b068b06.md",
+      "sha256": "240ed717f96a34d1509e868baa09d2418fc896f074ee7ba41642971bb1f773be",
+      "size": 875
+    },
+    {
+      "path": "pages/notion_document/add-license-receipt-functionality-738c1d89.md",
+      "sha256": "ca02f13c57772633091152af6ed04826c1c12c0a37b4ebaac066fa3a0acedae7",
+      "size": 1201
+    },
+    {
+      "path": "pages/notion_document/add-spam-detection-mechanism-to-throttle-/-ban-users-741ead36.md",
+      "sha256": "4b061dc927e07c7a798712faf2fb91b6801c7343436d39f1f1bf37dbdeb94828",
+      "size": 971
+    },
+    {
+      "path": "pages/notion_document/address-p1-dogfooding-issues-2946171b.md",
+      "sha256": "874d515b809d1d587b13b48354a8bb3fa0baca7c695fc82ade892fe01d6169c8",
+      "size": 855
+    },
+    {
+      "path": "pages/notion_document/consensus-labelling-mechanism-4e1ba127.md",
+      "sha256": "c1bd9330fde36cea8b07df94e04440d8cc026b38050f8baba2a3a7b1f8f53744",
+      "size": 895
+    },
+    {
+      "path": "pages/notion_document/define-what-to-do-for-rejected-submissions-e595b5ee.md",
+      "sha256": "71d47ef20503c252da67c5ab55c0e5fd4229126b87ff0aacde2c8d6aae97ed27",
+      "size": 925
+    },
+    {
+      "path": "pages/notion_document/drag-and-drop-upload-functionality-for-tasks-63feb90d.md",
+      "sha256": "71d3a421a812ece995db29a64bf22e51de599becca514969d7127095ad83e05f",
+      "size": 935
+    },
+    {
+      "path": "pages/notion_document/get-upwork-/-fiverr-users-to-vet-our-i18n-translations-2f6aae7e.md",
+      "sha256": "aaaedd4d656a2e590bbd70b9085c09e03c701cd0121b5c2cf76e79d2b2e1b61b",
+      "size": 981
+    },
+    {
+      "path": "pages/notion_document/implement-and-test-payment-solution-for-p0-countries---stripe-poc-dab627af.md",
+      "sha256": "9ee24e4c2780a069d36e1a9450fe2d74c645bf09489546431aff229d5d05a2ce",
+      "size": 1358
+    },
+    {
+      "path": "pages/notion_document/implement-p1-gamification-tactics-f2dfba01.md",
+      "sha256": "26ff6c1db15cc8338cd88101d41f4d8ffdda53137c590cb918cf09249d6e4e17",
+      "size": 1136
+    },
+    {
+      "path": "pages/notion_document/integrate-fb-tracking-and-google-ads-spent-tracking-to-admin-dashboard-82936396.md",
+      "sha256": "ba8e57dd2e6f4ec90f6e77e60e78f29b7c8723bf180037901b7b926bf760622b",
+      "size": 1065
+    },
+    {
+      "path": "pages/notion_document/integrate-poseidon-processing-pipeline-with-numo-2fbc3c2c.md",
+      "sha256": "66255c65181eb699b8440fd13586347a4c8412176e7953aa43aa795c12201700",
+      "size": 955
+    },
+    {
+      "path": "pages/notion_document/ip-auto-registration-script-27b1580d.md",
+      "sha256": "d87f901a128d75689e5b5563133413a043b60791c68d86c58cf25c536a4cac1c",
+      "size": 867
+    },
+    {
+      "path": "pages/notion_document/link-user-socials-e3553f83.md",
+      "sha256": "bbc5a86120b078da06866cbb740029a236f66e77b99d4bf67774deb7a8e46339",
+      "size": 861
+    },
+    {
+      "path": "pages/notion_document/make-sure-we-distinguish-webapp-/-world-/-android-/-ios-user-devices-to-know-where-user-originated-from-for-risk-assessment-cd36971a.md",
+      "sha256": "d930588407793c3a32401d65ad2fc40feb703e2b6d7c4d14e910d3b11c893965",
+      "size": 1272
+    },
+    {
+      "path": "pages/notion_document/merge-ga-properties-for-e2e-tracking-8f00636b.md",
+      "sha256": "b094a6e67708e203a7c3fd3da9ea922e4b14df3a1a6949ce9a649704a8a1cb79",
+      "size": 895
+    },
+    {
+      "path": "pages/notion_document/migrate-web-app-to-react-native-app-f669ad50.md",
+      "sha256": "650f294f7a6aef55aa92d6f34a0dd31dd336527d6bec2c83f851886d690f4f9b",
+      "size": 890
+    },
+    {
+      "path": "pages/notion_document/numo-product-backlog-aa9d5203.md",
+      "sha256": "ce4630533bcf1145f50e6c7ea8bc4275372640ede581d51bef11bea602c797d9",
+      "size": 840
+    },
+    {
+      "path": "pages/notion_document/post-submission-payout-clarity-/-dopamine-hit-dbfab6ff.md",
+      "sha256": "6f3468664ca503d44e0b2733c1a84bbe68a5dff8ec04924bf1d40c49e941e629",
+      "size": 936
+    },
+    {
+      "path": "pages/notion_document/record-seedphrase-during-signup-flow-0a4ae864.md",
+      "sha256": "bba19b4831856b8e2a58d2a393b3fc55b6b262af6a2a7541920ad33ad5f4cb20",
+      "size": 979
+    },
+    {
+      "path": "pages/notion_document/replace-feedback-form-api-d0680100.md",
+      "sha256": "87aeba68156b9f8e090e881b35e6544cace203547462dfeb6002ea3cfc364872",
+      "size": 840
+    },
+    {
+      "path": "pages/notion_document/serve-least-used-transcript-as-a-priority-8b81c6e4.md",
+      "sha256": "b300ac0d19c3b8470c32f5007565335bade5896c9e53063423c707e015a0a286",
+      "size": 920
+    },
+    {
+      "path": "pages/notion_document/world-launch-e8b256d0.md",
+      "sha256": "068f22d8c1768771db488c134e43cc0dfef69b375c9118c2130370b224d5c045",
+      "size": 775
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1776915736-123179-d0193e69.md",
+      "sha256": "2fff61e6a0d4d168c30a904877bff9b1594c962c9607b4dfe674519add6219f9",
+      "size": 1336
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777325514-278389-1a2bb76c.md",
+      "sha256": "b43b8a79c843dbdf264e9b5a5379c4bdc8785fefa59c316571ac08a4cbe4133f",
+      "size": 3058
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777343709-610639-030eb189.md",
+      "sha256": "42ec0feaa24153b8e6b12885a8de733b0ff07a30010ee5e76c731ef67a94c4cc",
+      "size": 827
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777349624-208809-43df1bad.md",
+      "sha256": "bf7262fb3e152fac26936aeb812620efe8a99d96d93337cdb738d7a920a18934",
+      "size": 10529
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777350147-298499-e3252ea4.md",
+      "sha256": "8d441f9d9330093ca88a87678a4deabb24ece2fafd4b9f817a58a6e6e3542b94",
+      "size": 5581
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777353403-464009-12c541b2.md",
+      "sha256": "4903f854495397c68d752b3d6b459bb603cf1ce177db5564a271e213516c1efe",
+      "size": 4360
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777353404-539199-726191be.md",
+      "sha256": "ab44ed4f658d3b53649f717992abf7f14402e4fdfd8173d19a7b46017a6ea627",
+      "size": 1490
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777354831-174719-4442abf4.md",
+      "sha256": "340278b63b1509d3298f057afedcc1c342803fe6afb294bd4741c4e58a565dc4",
+      "size": 1162
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777357398-961469-2eb84c92.md",
+      "sha256": "6ee72fb67aa3b3730c2ab05297e574c0f9c2afe5364e15e73b2a5e6e85b77439",
+      "size": 4240
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777358227-491719-a0bf6daa.md",
+      "sha256": "70763493292adaa84a970a0a259dc51d29baba800ec84dc2f525dd6ea2f26818",
+      "size": 1914
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777358431-054669-c466b114.md",
+      "sha256": "b91a1224fff074f118cf201ef92760c4ba24093878f71a15386bfd8fc94b2920",
+      "size": 1178
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777360134-422709-9b37499c.md",
+      "sha256": "9204d750d7864fb3ed4b1813c5161aac7127161f7a8a378c4657ce21fbb67c68",
+      "size": 1339
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777390695-974609-ee957b52.md",
+      "sha256": "595794a74b7095d3997f6ac7ad34e810689d26d3525c86d2084f3f9457d14038",
+      "size": 3731
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777391608-843909-b8470bc1.md",
+      "sha256": "234b322795cd382c072df414b6ea8e2306dc5d06390a22f5dc30d2c50e8dcae5",
+      "size": 2974
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777392989-970429-2faec413.md",
+      "sha256": "0ea9b3c5baad68d1603da9ee63aeb1362ff5fae589659472e68e3a6d37a508be",
+      "size": 15549
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777393564-560879-df0e3b6a.md",
+      "sha256": "9eaa6e7494d0a0f579a354f3c574e9695c42aef4dea2fc9409513538a63f7847",
+      "size": 1304
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777398130-179209-11cd42e8.md",
+      "sha256": "44ea3b69b18e567c8ede6354b156830ca75cc0f1beeaa71f6d0b5d98cd051528",
+      "size": 1486
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777400384-602169-fcc41125.md",
+      "sha256": "c602f3efa220713d010de51c07298f06ef739e35a82faa5969f0c6286ddc7834",
+      "size": 1212
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777401619-417019-806fda74.md",
+      "sha256": "b0f333c4a254e7dbe251508df46cbdb77d31a605bac578891c710f4fd9873620",
+      "size": 7846
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777403470-384369-7ec9076c.md",
+      "sha256": "b8b9fd2a3983cb32bc4c165e592c33af8f0dac9de3a86b2e1957f71d814c75ae",
+      "size": 7680
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777407163-139859-c4a01112.md",
+      "sha256": "80592ef3467124992dc88b8a59f2c80bc4e18f638637a5e29267d7ccdadce98f",
+      "size": 5431
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777408233-137639-66ed2de8.md",
+      "sha256": "0e03e2066eb97a2d8648aeda49e39f5b3e0a9f798895d7a18679a90976ee0b78",
+      "size": 1268
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777412150-587649-505ba9a6.md",
+      "sha256": "93b7430c9defe5067bb7236420d3874430b37e8827adf5e8ff005f05509c7e55",
+      "size": 4492
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777418003-650909-ee79c3e8.md",
+      "sha256": "6028cc4a8c4c9d4cbea781e3b51d4de6c8236d712c61bb2aae1b8ade0b14173f",
+      "size": 23906
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777422715-932749-aebd61a6.md",
+      "sha256": "8b872145655305c783afaa4ea5678bf28dff8bf60274db2990975f4dd5215134",
+      "size": 1248
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777423148-536529-32c47938.md",
+      "sha256": "38cb70030134e463ec56e8dc16a13ed46c08690f91ca1b6dcb6a5c8bc4bef45e",
+      "size": 3237
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777423753-728409-414dc2d8.md",
+      "sha256": "0fb9757c65f137341a6ffe60b9bc7b08d17eab819a33d0d5c5d679c00c172463",
+      "size": 1938
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777424149-046949-d667da72.md",
+      "sha256": "99478ef118f8093902d81573bc6b1a01ea75b3a25a528bd9f9e0bec6c3e85b15",
+      "size": 4968
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777427999-190879-f221866b.md",
+      "sha256": "1fa774a3d42f3c33d3291a176da689c126158116a7ccbc8bd84712c3f5d0d2d1",
+      "size": 8324
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777429354-757519-8707c0e6.md",
+      "sha256": "b6197ec76cccd263dbb37505f6db7049bc345dc4dec4c1ae7347fab80c07fe6d",
+      "size": 1156
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777429626-135059-643cbbb8.md",
+      "sha256": "0cd5905aee8a1321a50a1494170c9e10bcb8519eeeefe01a1c3d7fd9b7449a0f",
+      "size": 1178
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777431607-939929-c2dcfb28.md",
+      "sha256": "a47f717321c890405611344652a4542d07b39f87087df800a74e2020cedff0a3",
+      "size": 3662
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777431912-916829-7726b757.md",
+      "sha256": "2b19b9cc5a16e1a78c34316f15ead8cc925aa800bd05ff628b0b909c315b5e24",
+      "size": 1166
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777434424-173869-e773ff31.md",
+      "sha256": "c8ac52f3812dfdd8116281b71675afadc35e87df54b897366b38777a97cd0ac2",
+      "size": 1596
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777434551-476839-f8310b80.md",
+      "sha256": "5ace1793a903682ad8c7b69ce3daf13cb18d028feec754abab84587861246669",
+      "size": 6322
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777435787-333899-4a8d6ec0.md",
+      "sha256": "b08aa505190a2568189f949d2784b139095f9673a1a047c371a45012cf47c3b9",
+      "size": 2387
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777436270-543739-6bcc712a.md",
+      "sha256": "615ff017be9a973ada204e7c245293f3b69a92132c57aae181c316743609d103",
+      "size": 1579
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777439172-504119-d3e46783.md",
+      "sha256": "b5b87eb8c8d2115bb5c24a10660841fd3fd5208981450cb9da93a0e6369d1276",
+      "size": 5177
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777439762-882759-8e91f679.md",
+      "sha256": "e3faa86ea228c72b0c44c2faebe309e1899b80e51f54dfda82538153008b3838",
+      "size": 2082
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777440375-458019-ba53104c.md",
+      "sha256": "64e653ee20be2150ba56441438fbd34ad7efff24b0735cb5de3bfebd2d58b2bf",
+      "size": 6219
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777441511-318339-4934835e.md",
+      "sha256": "2a18bb65f7b4c15087b5026b66485c21b122aa1b6616f69a993224a5560aa11f",
+      "size": 1185
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777442001-771639-bbc8ea0f.md",
+      "sha256": "7b9b8babb138d813df88008b416d9b47fc0ce4b18768b595a3ca9f7271f5a9bb",
+      "size": 4447
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777442732-464159-46da8ac9.md",
+      "sha256": "e4a9e7dd68b74f8fac1a3f14b24fa24fe5dd423f66add7b6f6039226f772890a",
+      "size": 1113
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777443302-213939-0dfcf2dc.md",
+      "sha256": "7d0c09cffb708d000479219effc33f4937b15fafa38f9c0933da85745656cb71",
+      "size": 1749
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777443638-410629-be2ce4c5.md",
+      "sha256": "90cd6dddaa3664fe3c16d000b97a59fb8c41282bc38965b936fa12709d137c7d",
+      "size": 3744
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777444288-045059-f7235f14.md",
+      "sha256": "4b8e2d34a7d041c6ef24fcb408693c599f3cd67db97e8eaa938cdf197b8c1caa",
+      "size": 2224
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777444848-457299-34715415.md",
+      "sha256": "6f63d0bf177251bc0c7f47a53b68a87b3c49eec5d508608c6ec285e8a809db1d",
+      "size": 2498
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777446318-169899-6d74da79.md",
+      "sha256": "e3b117254ee6776d474a4329cb51ccc039e336143e31c430c6bef4b19cb526d5",
+      "size": 1615
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777448255-504329-1706f3ba.md",
+      "sha256": "756f5496ab2eadd4e1d9509f69fea7706fe078adacf6e9879629a795551507b0",
+      "size": 4257
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777449700-945849-2c9d0afd.md",
+      "sha256": "973d40feac42746ea4c66b0606ffd93aecd9cff54acca98ee9f0f5a4d3732800",
+      "size": 1191
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777449816-716039-0d0be6f5.md",
+      "sha256": "43a214dcf3be3e4007d4f38162f6fa0eba8152411c9617924369bc2974513525",
+      "size": 9043
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777466353-325179-f87e0295.md",
+      "sha256": "3ac1b0d55807a2441c50214b4d9340578c51ad960a1e89031044f0368879b502",
+      "size": 4350
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777473525-846019-973e345f.md",
+      "sha256": "f2715cef77517359cb2d6050cbbdf3cfa926bc2d2c67c759791c060aa7c581a4",
+      "size": 6664
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777475961-506039-20003481.md",
+      "sha256": "071a79bc3e827cea6530b0c3470fd0b49f054931f6afa4d44c9beebcfc77e893",
+      "size": 20997
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777477487-422389-35d38753.md",
+      "sha256": "a28eb336764307d3225e91d1a69bac899f2416374e5af4de2ca49837ef65d01f",
+      "size": 1175
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777477917-746959-88ca04c9.md",
+      "sha256": "74544fa037b51b019ed2204dcda067f28c2856e3483a051bd84d08c6f31f3c71",
+      "size": 1157
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777478003-462249-e74de625.md",
+      "sha256": "07b3f641a370035fae0622e72f55e34db306976d2f8982229bd6ee4295e6a783",
+      "size": 1134
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777478122-324379-fd84a2a9.md",
+      "sha256": "61d35825375d184aef1102606e816ebff758d00b0c25b6b8c49d008d00e25396",
+      "size": 1094
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777478537-453499-ba871e1f.md",
+      "sha256": "bdfec5732d6a6c7c5039c823f764944a2c5778d3145fa2ee4db6ea7eb678677d",
+      "size": 16032
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777480818-316119-d961a0ce.md",
+      "sha256": "86942b02bcb4f87241c378a1287799f3e316b091ba9ed8fca3316d85ea18c22e",
+      "size": 2404
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777481066-629819-3bc8e028.md",
+      "sha256": "38d8c3a1659b053ba301fa125576f34e47036d9d38b15234148bb86eb0522010",
+      "size": 7282
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777482124-478509-86339d0b.md",
+      "sha256": "a05bb4254ff363ef70c92e8660d372920655268b3157ac0a0cc861ca9ef0ac9a",
+      "size": 9586
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777482838-895149-486df14c.md",
+      "sha256": "1a874f306b74f29f17f818c51a6e59bfb231beaef16aabc5d491a431b5d4b0a1",
+      "size": 1126
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777488163-962089-701b5027.md",
+      "sha256": "c8c11a2e3df5b6b2a8dcaaaa84e4723f8573ab29d3e2cde2d72fcb799b8b5aa1",
+      "size": 9153
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777494383-971989-22e91ad8.md",
+      "sha256": "e7f4e4ea919c9e69f218d8fca787a86db19d39782b8a05a9060c6dacd8595cec",
+      "size": 2869
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777495960-475399-785970f5.md",
+      "sha256": "49c170dc3b8446fa2c6193170780634c740bc10c325deb40c42a3cffd0fd8f04",
+      "size": 1077
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777496121-986579-d12c619b.md",
+      "sha256": "c5d2fd646eb645f99686f18a5a0a1193b9350aeca2a4a0a7b00a4db3020b5109",
+      "size": 3632
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777497080-112699-098444e9.md",
+      "sha256": "01f43f19a8db32dfa4c6280ad38caceb5de21796ecdbe09318acbc470a3523c9",
+      "size": 2000
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777497431-016039-00a6a257.md",
+      "sha256": "311c38c858142332b8f1fa1b563a142f7dcb3c6bbe4fe28aa8d873aaeb74c1fe",
+      "size": 15838
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777502666-870859-2c60fdc5.md",
+      "sha256": "41e37b0669c3429d4eff158d29b648a3212de88a375824e2492be589fcd58e37",
+      "size": 1509
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777502683-799379-fa63c4fe.md",
+      "sha256": "719083702ddb356babc55d587eac4938453807621ef91e846eca6162c06cd03c",
+      "size": 7524
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777503972-799859-ef9a1227.md",
+      "sha256": "42b17bb30f3f02dbae36fd54ef1f36dc5c47753dc3674917decd27ddc3687153",
+      "size": 23311
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777508608-337749-0312abc1.md",
+      "sha256": "273ddb2456f80b4a4d1ecd78aae2efb51e27e875cd7e7e0e7ac713627301a9dc",
+      "size": 10489
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777528241-751619-3ed3b0b9.md",
+      "sha256": "f6b3b8676641fd397082d071aef374a6e13d7f67a570e595bec3624f1377b49f",
+      "size": 2326
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777563089-659549-2ea26972.md",
+      "sha256": "857a9095a9f9e8d2ce0753921642c22cfa3f36201079821f497a1019280cecc4",
+      "size": 10618
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777565263-010809-9e90b227.md",
+      "sha256": "1f1019bb888331d5eeeadd471b04d02035d586e2bb5923f73baa0623f7826a15",
+      "size": 3403
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777593519-973559-ef039f76.md",
+      "sha256": "301f524ab782676b570f5ec17d6fb46b0ef559503803a0d2306748621fbee104",
+      "size": 1930
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777604608-429789-9987884c.md",
+      "sha256": "e29185b17d008c00e7792748c4c5748ddb62899d97bd4142cca68346270c4638",
+      "size": 2443
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777608191-691369-a4273750.md",
+      "sha256": "89a729f1489a1e1894fe7af93e0d80cdc8a5c5c62ae0baf31ffe46e0f55f84ea",
+      "size": 2402
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777624965-389219-6a3b1325.md",
+      "sha256": "27549c4e09fe58aa71c2972003a03754d64cc0230299545c91d5aefe8ab86dc4",
+      "size": 1417
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777647561-108649-323a7556.md",
+      "sha256": "6ed18b40635ac4da6e950f1a04c9899c8d9d4d1ff76fc54c4a804eeb4ceb178a",
+      "size": 6837
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777650186-068179-f8f4f969.md",
+      "sha256": "b2559086c7a2aa03e852d9f012949cf714869741c4cbe9ed617741a4ae1577ff",
+      "size": 1649
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777656399-859499-fb4c20f9.md",
+      "sha256": "548977c411770ada5cb48559637986a0ca02d52721ffa8562b555d747bafb5c2",
+      "size": 2712
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777660460-195909-f7a404ae.md",
+      "sha256": "3679820ffba5213dfe73d803f69f3aec14341fd3ec60ecce74c8115324b49add",
+      "size": 25558
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777662841-564689-956a90ee.md",
+      "sha256": "a1d1959aecaf612a3fa25dc9a15b6a883764a40ab90cb04bf38eb986438b103c",
+      "size": 1173
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777662886-915289-a14093b0.md",
+      "sha256": "380f0cc71a03fd7847b83733a78f46b07ee17d22c86693662b9ac274d70cd70e",
+      "size": 842
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777750924-569679-4d6a2f30.md",
+      "sha256": "df24cb87b910bb2bf6ac40c97a79ead1c36254da8278c2a0129fa43d310e7a19",
+      "size": 4069
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-1777831927-236179-2c053e80.md",
+      "sha256": "db5017b8dd080df5aa3b3f3a6b8a9d162eaa5e3bf129949fd07d607f1c121991",
+      "size": 1453
+    },
+    {
+      "path": "pages/slack_message/slack-thread-c0akh5sngkh-channel-53ca9dcc.md",
+      "sha256": "05e2f1c01bb056dce66d8650bacf62848f959b07d69343152eb7d1b2f78fdfbd",
+      "size": 40062
     }
   ],
-  "skill_tree_hash": "b9fb7094539f6399a474f571b7cd47c4a455ddbf9087f8a29a996dea366023a9",
-  "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "856f7256422a6c307b21be50d164cbb8dc400da85dad240fdd423963570910f3",
-  "wiki_file_count": 0,
-  "wiki_files": [],
-  "wiki_root_exists": false,
-  "wiki_tree_hash": ""
+  "wiki_root_exists": true,
+  "wiki_tree_hash": "caa669919d49d5015b5e03769e01fce7a6d8e2523d4fee7701944df8ee725da9"
 }
