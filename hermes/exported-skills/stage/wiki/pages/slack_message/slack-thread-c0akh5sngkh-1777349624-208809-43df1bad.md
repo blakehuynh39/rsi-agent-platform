@@ -30,4 +30,4 @@ Slack thread discussing fallback image behavior; currently same image used as fa
 ## Sources
 
 - `source_document_id`: `srcdoc_e1757ce95ebeb5ab7115505343df1bad`
-- `source_revision_id`: `srcrev_aab8cbe73a8ea91386e928bfeba31270`
+- `source_revision_id`: `srcrev_326c69dc229dba9269ec9ade49051fbf`
