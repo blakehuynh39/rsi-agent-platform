@@ -2749,6 +2749,11 @@
     ],
     "wiki": [
       {
+        "path": "SCHEMA.md",
+        "sha256": "91d9f20b6eec997c26f9ce4519d5553956293fca70e3dc565b5fe7fc70ba647c",
+        "size": 800
+      },
+      {
         "path": "index.md",
         "sha256": "ce13715ac12b25d9ae903ad9af0f4cf297d8e43b739d24638adfed8bdd8ae89a",
         "size": 138637
@@ -4807,8 +4812,8 @@
   },
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
-  "exported_at": "2026-05-04T17:03:11Z",
-  "file_count": 960,
+  "exported_at": "2026-05-04T18:47:04Z",
+  "file_count": 961,
   "files": [
     {
       "path": "apple/DESCRIPTION.md",
@@ -7559,16 +7564,21 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7c4bb8lzwdz",
-  "previous_tree_hash": "638a3bce8a559a7abb601fb0eb1ffe56c713f9bc8451641a297b2f6b7ef57be0",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-858859t25xs",
+  "previous_tree_hash": "42aea6dcd1e5f6fe6841fea50063fd65c9cd547677aa2b73957d3bc916010f9c",
   "schema_version": 1,
   "skill_file_count": 549,
   "skill_manage_sessions": [],
   "skill_tree_hash": "51dd5fa14f02f546813009b323ca960c29e87c4759f49ab6c92e3ca2c7ca357b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "42aea6dcd1e5f6fe6841fea50063fd65c9cd547677aa2b73957d3bc916010f9c",
-  "wiki_file_count": 411,
+  "tree_hash": "f8c81a295e0579dd8c82940fc05779f2708ef3d445ca589774d8d228f42e0509",
+  "wiki_file_count": 412,
   "wiki_files": [
+    {
+      "path": "SCHEMA.md",
+      "sha256": "91d9f20b6eec997c26f9ce4519d5553956293fca70e3dc565b5fe7fc70ba647c",
+      "size": 800
+    },
     {
       "path": "index.md",
       "sha256": "ce13715ac12b25d9ae903ad9af0f4cf297d8e43b739d24638adfed8bdd8ae89a",
@@ -9626,5 +9636,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ea8cf06402ec7857b5e31df8acd17ecc4e85b47631b335005de9f6ca2d58bff6"
+  "wiki_tree_hash": "5e5fa5f3298549c676b6ac34bb7049daa6d09131c465ac4d7948c882c57d8838"
 }

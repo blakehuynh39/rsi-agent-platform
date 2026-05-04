@@ -3845,3 +3845,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_c0ec2742ef8d2574335555d8a5809a81
 - summary: Source: https://www.notion.so/Integrate-Intercom-or-similar-356051299a54802eab2ccf8eedac3236
 
+## [2026-05-04T18:47:08Z] synthesis | Slack thread C0AKH5SNGKH channel
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-channel-53ca9dcc
+- wiki_revision_id: wikirev_84810cc77c3e6767d9c2b166025064f4
+- summary: Decision to add Sam to admin allowlist via PR #297
+
