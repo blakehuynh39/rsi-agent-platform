@@ -523,9 +523,18 @@ func WriteIndexFile(root string, wikiStore store.CompanyWikiStore) error {
 	if root == "" {
 		return nil
 	}
-	entries, err := wikiStore.ListCompanyWikiManifestEntries()
+	body, err := BuildIndexMarkdown(wikiStore)
 	if err != nil {
 		return err
+	}
+	_, err = PublishMarkdownFile(root, "index.md", body)
+	return err
+}
+
+func BuildIndexMarkdown(wikiStore store.CompanyWikiStore) (string, error) {
+	entries, err := wikiStore.ListCompanyWikiManifestEntries()
+	if err != nil {
+		return "", err
 	}
 	type indexItem struct {
 		category string
@@ -539,7 +548,7 @@ func WriteIndexFile(root string, wikiStore store.CompanyWikiStore) error {
 	for _, entry := range entries {
 		page, found, err := wikiStore.GetCompanyWikiPage(entry.WikiPageID)
 		if err != nil {
-			return err
+			return "", err
 		}
 		if !found {
 			continue
@@ -593,8 +602,7 @@ func WriteIndexFile(root string, wikiStore store.CompanyWikiStore) error {
 	if len(items) == 0 {
 		b.WriteString("_No published pages yet._\n")
 	}
-	_, err = PublishMarkdownFile(root, "index.md", b.String())
-	return err
+	return b.String(), nil
 }
 
 func wikiIndexCategoryRank(category string, path string) int {

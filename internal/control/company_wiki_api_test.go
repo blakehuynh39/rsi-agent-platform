@@ -202,7 +202,7 @@ func TestCompanyWikiIndexAndLogReturnEmptyCatalogForNewWiki(t *testing.T) {
 	}
 }
 
-func TestCompanyWikiIndexMissingAfterPublishedManifestStays404(t *testing.T) {
+func TestCompanyWikiIndexMissingAfterPublishedManifestFallsBackToStore(t *testing.T) {
 	state := store.NewMemoryStore()
 	root := t.TempDir()
 	source, err := state.UpsertCompanyWikiSourceRevision(store.CompanyWikiSourceRevisionInput{
@@ -235,8 +235,11 @@ func TestCompanyWikiIndexMissingAfterPublishedManifestStays404(t *testing.T) {
 	if err != nil {
 		t.Fatalf("PublishCompanyWikiPage() error = %v", err)
 	}
-	_, status, err := companyWikiIndexGet(context.Background(), config.Config{CompanyWikiRoot: root}, state)
-	if status != http.StatusNotFound || err == nil {
-		t.Fatalf("companyWikiIndexGet(diverged) status=%d err=%v, want missing file", status, err)
+	index, status, err := companyWikiIndexGet(context.Background(), config.Config{CompanyWikiRoot: root}, state)
+	if err != nil || status != http.StatusOK {
+		t.Fatalf("companyWikiIndexGet(fallback) status=%d err=%v", status, err)
+	}
+	if index.Path != "index.md" || !strings.Contains(index.Content, "[Deploy](pages/runbooks/deploy.md)") {
+		t.Fatalf("unexpected fallback index: %+v", index)
 	}
 }

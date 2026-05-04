@@ -94,13 +94,20 @@ func companyWikiPageGet(_ context.Context, repo any, ref string) (store.CompanyW
 func companyWikiIndexGet(_ context.Context, cfg config.Config, repo any) (companyknowledge.WikiMarkdownRead, int, error) {
 	read, err := companyknowledge.ReadIndexFile(cfg.CompanyWikiRoot)
 	if err != nil {
-		if errors.Is(err, os.ErrNotExist) && companyWikiRootExists(cfg.CompanyWikiRoot) {
+		if errors.Is(err, os.ErrNotExist) {
 			empty, fallbackErr := emptyCompanyWikiMarkdownRead(repo, "index.md")
 			if fallbackErr != nil {
 				return companyknowledge.WikiMarkdownRead{}, http.StatusInternalServerError, fallbackErr
 			}
 			if empty.OK {
 				return empty, http.StatusOK, nil
+			}
+			body, fallbackErr := companyWikiIndexMarkdownFromStore(repo)
+			if fallbackErr != nil {
+				return companyknowledge.WikiMarkdownRead{}, http.StatusInternalServerError, fallbackErr
+			}
+			if strings.TrimSpace(body) != "" {
+				return companyknowledge.WikiMarkdownRead{OK: true, Path: "index.md", Content: body}, http.StatusOK, nil
 			}
 		}
 		return companyknowledge.WikiMarkdownRead{}, http.StatusNotFound, err
@@ -158,6 +165,14 @@ func emptyCompanyWikiMarkdownRead(repo any, relativePath string) (companyknowled
 	default:
 		return companyknowledge.WikiMarkdownRead{}, nil
 	}
+}
+
+func companyWikiIndexMarkdownFromStore(repo any) (string, error) {
+	wikiStore, ok := repo.(store.CompanyWikiStore)
+	if !ok {
+		return "", errors.New("configured store does not support company wiki")
+	}
+	return companyknowledge.BuildIndexMarkdown(wikiStore)
 }
 
 func companyWikiManifestReconcile(ctx context.Context, cfg config.Config, repo any, repair bool) (companyknowledge.WikiManifestReconcileResult, int, error) {

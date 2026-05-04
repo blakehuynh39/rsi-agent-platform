@@ -2,6 +2,7 @@ package companyknowledge
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -200,6 +201,38 @@ func TestRunCompanyWikiCompilerBackfillsExistingSourceLedger(t *testing.T) {
 	}
 	if !result.OK || result.Backfilled != 1 || result.Claimed != 1 || result.PublishedPages != 1 {
 		t.Fatalf("unexpected compiler result: %+v", result)
+	}
+}
+
+func TestRunCompanyWikiCompilerRecordsItemFailuresWithoutFatalError(t *testing.T) {
+	state := store.NewMemoryStore()
+	cfg := testWikiCompilerConfig(t.TempDir(), "off")
+	recorded, err := RecordEnqueueAndMaybePublishWikiSource(context.Background(), cfg, state, testSlackSourceInput("1777831927.000000", "RSI Platform", "Decision: ship the wiki compiler."))
+	if err != nil {
+		t.Fatalf("RecordEnqueueAndMaybePublishWikiSource() error = %v", err)
+	}
+	result, err := RunCompanyWikiCompiler(context.Background(), cfg, state, &fakeWikiSynthesisClient{err: errors.New("provider temporarily rate limited")})
+	if err != nil {
+		t.Fatalf("RunCompanyWikiCompiler() should not return fatal error for item failure: %v", err)
+	}
+	if result.OK || len(result.FailedItems) != 1 || result.FailedItems[0] == "" {
+		t.Fatalf("unexpected compiler result: %+v", result)
+	}
+	items, err := state.ClaimCompanyWikiCompileItems(store.CompanyWikiCompileClaimInput{
+		Limit:              1,
+		LeaseHolder:        "company_wiki_compiler:" + result.CompilerRunID,
+		LeaseDuration:      time.Minute,
+		CompilerVersion:    CompanyWikiCompilerVersion,
+		SchemaVersion:      CompanyWikiSchemaVersion,
+		RendererVersion:    CompanyWikiRendererVersion,
+		ModelPolicyVersion: CompanyWikiModelPolicyVersion,
+		MaxAttempts:        CompanyWikiCompileMaxAttemptCount,
+	})
+	if err != nil {
+		t.Fatalf("ClaimCompanyWikiCompileItems() error = %v", err)
+	}
+	if len(items) != 1 || items[0].SourceRevisionID != recorded.Source.Revision.ID {
+		t.Fatalf("failed item should remain retryable, got %+v", items)
 	}
 }
 
