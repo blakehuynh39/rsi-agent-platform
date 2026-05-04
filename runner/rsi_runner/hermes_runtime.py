@@ -51,7 +51,7 @@ ROLE_TASK_TYPES = {
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_HERMES_NATIVE_TOOLSETS = ("terminal", "file")
+DEFAULT_HERMES_NATIVE_TOOLSETS = ("terminal", "file", "company_knowledge")
 PARTIAL_COMPLETION_TERMINATION_REASONS = frozenset(
     {
         "task_timeout",
@@ -1145,6 +1145,7 @@ class HermesRuntime:
             "kubernetes_context_enabled": self._config.hermes_kubernetes_context_enabled,
             "prod_kubernetes_context_enabled": self._config.hermes_prod_kubernetes_context_enabled,
             "computer_root": self._config.hermes_computer_root,
+            "company_wiki_root": self._config.company_wiki_root,
             "terminal_cwd": self._config.hermes_terminal_cwd,
             "bin_dir": self._config.hermes_company_bin_dir,
             "kubeconfig_path": self._config.hermes_kubeconfig_path
@@ -1349,6 +1350,7 @@ class HermesRuntime:
             "company_computer_root": self._config.hermes_computer_root,
             "run_root": self._config.hermes_run_root,
             "artifact_root": self._config.hermes_artifact_root,
+            "company_wiki_root": self._config.company_wiki_root,
             "native_terminal_enabled": self._config.hermes_native_terminal_enabled,
             "native_toolsets": self._hermes_native_toolsets(),
             "terminal": {
@@ -1497,6 +1499,7 @@ class HermesRuntime:
             "hermes_computer_root": self._config.hermes_computer_root,
             "hermes_run_root": self._config.hermes_run_root,
             "hermes_artifact_root": self._config.hermes_artifact_root,
+            "company_wiki_root": self._config.company_wiki_root,
             "hermes_native_terminal_enabled": self._config.hermes_native_terminal_enabled,
             "hermes_native_toolsets": self._hermes_native_toolsets(),
             "hermes_terminal_env": self._config.hermes_terminal_env,
@@ -2502,6 +2505,7 @@ class HermesRuntime:
             "hermes_computer_root": self._config.hermes_computer_root,
             "hermes_run_root": self._config.hermes_run_root,
             "hermes_artifact_root": self._config.hermes_artifact_root,
+            "company_wiki_root": self._config.company_wiki_root,
             "hermes_native_terminal_enabled": self._config.hermes_native_terminal_enabled,
             "hermes_native_toolsets": self._hermes_native_toolsets(),
             "hermes_terminal_cwd": self._config.hermes_terminal_cwd,

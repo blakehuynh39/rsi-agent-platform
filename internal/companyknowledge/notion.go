@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/piplabs/rsi-agent-platform/internal/clients"
 	"github.com/piplabs/rsi-agent-platform/internal/store"
@@ -25,6 +26,9 @@ const (
 	NotionObjectKindDatabase = "database"
 	NotionTraversalComplete  = "complete"
 	NotionTraversalTruncated = "truncated"
+
+	notionHonchoMessageMaxRunes = 6000
+	notionHonchoMessageMaxBytes = 20000
 )
 
 type NotionObjectInput struct {
@@ -89,6 +93,7 @@ type NotionMirror struct {
 type HonchoDocumentClient interface {
 	EnsureWorkspace(id string, metadata map[string]any) (clients.HonchoWorkspace, error)
 	EnsureSession(workspaceID string, sessionID string, metadata map[string]any) (clients.HonchoSession, error)
+	CreateMessages(workspaceID string, sessionID string, messages []clients.HonchoMessageCreate) ([]clients.HonchoMessage, error)
 	CreateConclusions(workspaceID string, conclusions []clients.HonchoConclusionCreate) ([]clients.HonchoConclusion, error)
 }
 
@@ -174,9 +179,24 @@ func (m *NotionMirror) IngestDocument(ctx context.Context, input NotionDocumentI
 		_, _ = m.store.FailSourceMirrorRecord(record.SourceType, record.SourceKey, err.Error(), map[string]any{"failure_stage": "ensure_session"})
 		return NotionMirrorResult{}, err
 	}
+	chunkMessages := NotionDocumentChunkMessages(input, metadata)
+	var createdChunks []clients.HonchoMessage
+	if len(chunkMessages) > 0 {
+		createdChunks, err = m.honcho.CreateMessages(record.HonchoWorkspace, record.HonchoSessionID, chunkMessages)
+		if err != nil {
+			_, _ = m.store.FailSourceMirrorRecord(record.SourceType, record.SourceKey, err.Error(), map[string]any{"failure_stage": "create_document_chunks"})
+			return NotionMirrorResult{}, err
+		}
+	}
+	chunkIDs := make([]string, 0, len(createdChunks))
+	for _, message := range createdChunks {
+		if strings.TrimSpace(message.ID) != "" {
+			chunkIDs = append(chunkIDs, strings.TrimSpace(message.ID))
+		}
+	}
 	documents, err := m.honcho.CreateConclusions(record.HonchoWorkspace, []clients.HonchoConclusionCreate{
 		{
-			Content:    NotionDocumentConclusionContent(input),
+			Content:    NotionDocumentSummaryConclusionContent(input, len(chunkMessages)),
 			ObserverID: NotionMirrorObserverID,
 			ObservedID: NotionMirrorObservedID,
 			SessionID:  record.HonchoSessionID,
@@ -199,8 +219,9 @@ func (m *NotionMirror) IngestDocument(ctx context.Context, input NotionDocumentI
 		return NotionMirrorResult{}, err
 	}
 	completed, err := m.store.CompleteSourceMirrorObject(record.SourceType, record.SourceKey, "document", documents[0].ID, map[string]any{
-		"honcho_document_id": documents[0].ID,
-		"honcho_api_surface": "conclusions",
+		"honcho_document_id":       documents[0].ID,
+		"honcho_api_surface":       "conclusions",
+		"honcho_chunk_message_ids": chunkIDs,
 	})
 	if err != nil {
 		return NotionMirrorResult{}, err
@@ -374,7 +395,39 @@ func NotionDocumentMetadata(input NotionDocumentInput, sourceKey string, session
 	return metadata
 }
 
-func NotionDocumentConclusionContent(input NotionDocumentInput) string {
+func NotionWikiSourceRevisionInput(input NotionDocumentInput) store.CompanyWikiSourceRevisionInput {
+	input = normalizeNotionObjectInput(input)
+	sourceKey := NotionObjectSourceKey(input.WorkspaceID, input.ObjectKind, input.ObjectID)
+	sessionKey := NotionObjectSessionKey(input.WorkspaceID, input.ObjectKind, input.ObjectID)
+	revision := NotionDocumentSourceRevision(input)
+	title := strings.TrimSpace(input.Title)
+	if title == "" {
+		title = strings.TrimSpace(input.ObjectID)
+	}
+	nativeLocator := "notion:" + input.ObjectKind + ":" + strings.TrimSpace(input.ObjectID)
+	if strings.TrimSpace(input.URL) != "" {
+		nativeLocator = strings.TrimSpace(input.URL)
+	}
+	content := strings.TrimSpace(input.Content)
+	if content == "" {
+		content = title
+	}
+	return store.CompanyWikiSourceRevisionInput{
+		SourceType:        NotionDocumentSourceType,
+		DocumentSourceKey: sourceKey,
+		SourceKey:         sourceKey,
+		SourceSessionKey:  sessionKey,
+		Workspace:         strings.TrimSpace(input.WorkspaceID),
+		Title:             title,
+		URL:               strings.TrimSpace(input.URL),
+		SourceRevision:    revision,
+		Content:           content,
+		NativeLocator:     nativeLocator,
+		Metadata:          NotionDocumentMetadata(input, sourceKey, sessionKey, revision),
+	}
+}
+
+func NotionDocumentSummaryConclusionContent(input NotionDocumentInput, chunkCount int) string {
 	input = normalizeNotionObjectInput(input)
 	title := strings.TrimSpace(input.Title)
 	if title == "" {
@@ -397,10 +450,7 @@ func NotionDocumentConclusionContent(input NotionDocumentInput) string {
 		"root_id":            strings.TrimSpace(input.RootID),
 		"url":                strings.TrimSpace(input.URL),
 		"title":              title,
-		"traversal_status":   strings.TrimSpace(input.TraversalStatus),
-	}
-	if strings.TrimSpace(input.SchemaHash) != "" {
-		provenance["schema_hash"] = strings.TrimSpace(input.SchemaHash)
+		"chunk_count":        chunkCount,
 	}
 	rawProvenance, _ := json.Marshal(provenance)
 	var b strings.Builder
@@ -416,53 +466,70 @@ func NotionDocumentConclusionContent(input NotionDocumentInput) string {
 		b.WriteString(strings.TrimSpace(input.URL))
 		b.WriteString("\n")
 	}
-	b.WriteString("Notion object kind: ")
-	b.WriteString(input.ObjectKind)
-	b.WriteString("\n")
-	b.WriteString("Notion object id: ")
-	b.WriteString(strings.TrimSpace(input.ObjectID))
-	b.WriteString("\n")
-	if input.ObjectKind == NotionObjectKindPage {
-		b.WriteString("Notion page id: ")
-		b.WriteString(strings.TrimSpace(input.PageID))
-		b.WriteString("\n")
-	}
-	if input.ObjectKind == NotionObjectKindDatabase {
-		b.WriteString("Notion database id: ")
-		b.WriteString(strings.TrimSpace(input.DatabaseID))
-		b.WriteString("\n")
-	}
-	if strings.TrimSpace(input.LastEditedTime) != "" {
-		b.WriteString("Last edited: ")
-		b.WriteString(strings.TrimSpace(input.LastEditedTime))
-		b.WriteString("\n")
-	}
-	if strings.TrimSpace(input.SchemaSummary) != "" {
-		b.WriteString("Database schema summary:\n")
-		b.WriteString(strings.TrimSpace(input.SchemaSummary))
-		b.WriteString("\n")
-	}
-	if len(input.Hierarchy) > 0 {
-		b.WriteString("Hierarchy: ")
-		b.WriteString(strings.Join(input.Hierarchy, " > "))
-		b.WriteString("\n")
-	}
-	if strings.TrimSpace(input.TraversalStatus) != "" && input.TraversalStatus != NotionTraversalComplete {
-		b.WriteString("Traversal status: ")
-		b.WriteString(strings.TrimSpace(input.TraversalStatus))
-		b.WriteString("\n")
-	}
-	b.WriteString("\n")
-	if strings.TrimSpace(input.Content) != "" {
-		b.WriteString(strings.TrimSpace(input.Content))
-	} else {
-		if input.ObjectKind == NotionObjectKindDatabase {
-			b.WriteString("Row pages in this database are mirrored as separate Notion documents.")
-		} else {
-			b.WriteString("(No extractable Notion page body text.)")
-		}
-	}
+	b.WriteString("Notion content is stored as chunked Honcho messages and Platform company-wiki source chunks. ")
+	b.WriteString("This conclusion is a compact manifest, not the canonical document body.\n")
 	return b.String()
+}
+
+func NotionDocumentChunkMessages(input NotionDocumentInput, baseMetadata map[string]any) []clients.HonchoMessageCreate {
+	content := strings.TrimSpace(input.Content)
+	if content == "" {
+		content = strings.TrimSpace(input.Title)
+	}
+	parts := chunkNotionHonchoMessageText(content)
+	out := make([]clients.HonchoMessageCreate, 0, len(parts))
+	for idx, part := range parts {
+		metadata := map[string]any{}
+		for key, value := range baseMetadata {
+			metadata[key] = value
+		}
+		metadata["source_chunk_index"] = idx
+		metadata["source_chunk_count"] = len(parts)
+		metadata["honcho_object_role"] = "notion_document_chunk"
+		out = append(out, clients.HonchoMessageCreate{
+			Content:  part,
+			PeerID:   HonchoCompatibleName("notion_doc", firstNonEmpty(input.ObjectID, input.PageID, input.DatabaseID, "notion")),
+			Metadata: metadata,
+		})
+	}
+	return out
+}
+
+func chunkNotionHonchoMessageText(content string) []string {
+	out := []string{}
+	for _, part := range store.ChunkCompanyWikiText(content, notionHonchoMessageMaxRunes) {
+		out = append(out, splitUTF8ByMaxBytes(part, notionHonchoMessageMaxBytes)...)
+	}
+	return out
+}
+
+func splitUTF8ByMaxBytes(value string, maxBytes int) []string {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return nil
+	}
+	if maxBytes <= 0 || len(value) <= maxBytes {
+		return []string{value}
+	}
+	out := []string{}
+	var b strings.Builder
+	currentBytes := 0
+	for _, r := range value {
+		runeBytes := utf8.RuneLen(r)
+		if currentBytes > 0 && currentBytes+runeBytes > maxBytes {
+			if part := strings.TrimSpace(b.String()); part != "" {
+				out = append(out, part)
+			}
+			b.Reset()
+			currentBytes = 0
+		}
+		b.WriteRune(r)
+		currentBytes += runeBytes
+	}
+	if part := strings.TrimSpace(b.String()); part != "" {
+		out = append(out, part)
+	}
+	return out
 }
 
 func NotionDatabaseSchemaSummary(properties map[string]any) (string, string) {

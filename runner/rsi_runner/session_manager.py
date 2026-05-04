@@ -325,7 +325,7 @@ class SessionManager:
                 f"  timeout: {self._config.hermes_terminal_timeout_seconds}\n"
                 f"  lifetime_seconds: {self._config.hermes_terminal_lifetime_seconds}\n"
             )
-        enabled_plugins = ["rsi_context_engine"]
+        enabled_plugins = ["rsi_context_engine", "company_knowledge"]
         if self._config.hermes_executor_enabled:
             enabled_plugins.append("rsi_platform_runtime")
         content += "plugins:\n  enabled:\n"

@@ -816,7 +816,7 @@ wheels = [
 [[package]]
 name = "hermes-agent"
 version = "0.12.0"
-source = { git = "https://github.com/blakehuynh39/hermes-agent.git?rev=64b2db15ed6c9a1bc16fb197740d25a24a7d0a60#64b2db15ed6c9a1bc16fb197740d25a24a7d0a60" }
+source = { git = "https://github.com/blakehuynh39/hermes-agent.git?rev=0e16e687636b92a7dab10ceaca7117b41369e3a2#0e16e687636b92a7dab10ceaca7117b41369e3a2" }
 dependencies = [
     { name = "anthropic" },
     { name = "croniter" },
@@ -1984,7 +1984,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "hermes-agent", extras = ["honcho", "mcp", "messaging"], git = "https://github.com/blakehuynh39/hermes-agent.git?rev=64b2db15ed6c9a1bc16fb197740d25a24a7d0a60" },
+    { name = "hermes-agent", extras = ["honcho", "mcp", "messaging"], git = "https://github.com/blakehuynh39/hermes-agent.git?rev=0e16e687636b92a7dab10ceaca7117b41369e3a2" },
     { name = "pyjwt", extras = ["crypto"], specifier = ">=2.8,<3" },
 ]
 

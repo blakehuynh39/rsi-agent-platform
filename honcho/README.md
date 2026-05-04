@@ -10,7 +10,7 @@ commit in the user fork:
 
 - source repo: `https://github.com/blakehuynh39/honcho`
 - source branch: `main`
-- source commit: `7ade732e583627864066093a6ac18952c1fe1239`
+- source commit: `6e23d03bdb006d762277a3f9297ab6531827afe0`
 - upstream base repo: `https://github.com/plastic-labs/honcho`
 
 The current build path is:

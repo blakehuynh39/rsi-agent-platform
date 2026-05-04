@@ -64,7 +64,7 @@ func RunSlackMirror(ctx context.Context, cfg config.Config, mirrorStore store.So
 		return errors.New("slack mirror found no channels to mirror")
 	}
 	for _, channelID := range channels {
-		if err := mirrorSlackChannel(ctx, cfg, api, mirror, workspaceID, channelID); err != nil {
+		if err := mirrorSlackChannel(ctx, cfg, api, mirrorStore, mirror, workspaceID, channelID); err != nil {
 			return err
 		}
 	}
@@ -78,7 +78,13 @@ func slackMirrorChannels(ctx context.Context, cfg config.Config, api slackMirror
 	case "explicit":
 		return filterDeniedChannels(uniqueNonEmpty(cfg.SlackMirrorChannelAllowlist), denylist), nil
 	case "joined":
-		channels, err := discoverJoinedSlackMirrorChannels(ctx, api)
+		channels, err := discoverJoinedSlackMirrorChannels(ctx, api, true)
+		if err != nil {
+			return nil, err
+		}
+		return filterDeniedChannels(uniqueNonEmpty(channels), denylist), nil
+	case "joined_public":
+		channels, err := discoverJoinedSlackMirrorChannels(ctx, api, false)
 		if err != nil {
 			return nil, err
 		}
@@ -88,9 +94,13 @@ func slackMirrorChannels(ctx context.Context, cfg config.Config, api slackMirror
 	}
 }
 
-func discoverJoinedSlackMirrorChannels(ctx context.Context, api slackMirrorChannelLister) ([]string, error) {
+func discoverJoinedSlackMirrorChannels(ctx context.Context, api slackMirrorChannelLister, includePrivate bool) ([]string, error) {
 	if api == nil {
 		return nil, errors.New("slack channel discovery requires Slack API client")
+	}
+	types := []string{"public_channel"}
+	if includePrivate {
+		types = append(types, "private_channel")
 	}
 	var out []string
 	cursor := ""
@@ -99,13 +109,16 @@ func discoverJoinedSlackMirrorChannels(ctx context.Context, api slackMirrorChann
 			Cursor:          cursor,
 			ExcludeArchived: true,
 			Limit:           200,
-			Types:           []string{"public_channel", "private_channel"},
+			Types:           types,
 		})
 		if err != nil {
 			return nil, fmt.Errorf("discover joined slack mirror channels: %w", err)
 		}
 		for _, channel := range channels {
 			if strings.TrimSpace(channel.ID) == "" || !channel.IsMember || channel.IsArchived {
+				continue
+			}
+			if !includePrivate && channel.IsPrivate {
 				continue
 			}
 			out = append(out, strings.TrimSpace(channel.ID))
@@ -161,7 +174,7 @@ func slackMirrorChannelAllowedByConfig(cfg config.Config, channelID string) bool
 	if _, denied := slackMirrorChannelDenylist(cfg)[channelID]; denied {
 		return false
 	}
-	if slackMirrorChannelDiscoveryMode(cfg) == "joined" {
+	if mode := slackMirrorChannelDiscoveryMode(cfg); mode == "joined" || mode == "joined_public" {
 		return true
 	}
 	for _, item := range cfg.SlackMirrorChannelAllowlist {
@@ -172,7 +185,61 @@ func slackMirrorChannelAllowedByConfig(cfg config.Config, channelID string) bool
 	return false
 }
 
-func mirrorSlackChannel(ctx context.Context, cfg config.Config, api *slackapi.Client, mirror *companyknowledge.SlackMirror, workspaceID string, channelID string) error {
+func shouldPublishSlackWikiSource(result companyknowledge.SlackMirrorResult) bool {
+	return !result.Skipped
+}
+
+type slackWikiPublishBatch struct {
+	cfg     config.Config
+	repo    store.SourceMirrorWriteStore
+	sources map[string]store.CompanyWikiSourceRevisionResult
+}
+
+func newSlackWikiPublishBatch(cfg config.Config, repo store.SourceMirrorWriteStore) *slackWikiPublishBatch {
+	return &slackWikiPublishBatch{
+		cfg:     cfg,
+		repo:    repo,
+		sources: map[string]store.CompanyWikiSourceRevisionResult{},
+	}
+}
+
+func (b *slackWikiPublishBatch) record(ctx context.Context, input companyknowledge.SlackMessageInput) error {
+	if b == nil {
+		return nil
+	}
+	result, err := companyknowledge.RecordWikiSourceRevision(ctx, b.cfg, b.repo, companyknowledge.SlackWikiSourceRevisionInput(input))
+	if err != nil {
+		return err
+	}
+	if result.Skipped {
+		return nil
+	}
+	if documentID := strings.TrimSpace(result.Source.Document.ID); documentID != "" {
+		b.sources[documentID] = result.Source
+	}
+	return nil
+}
+
+func (b *slackWikiPublishBatch) publish(ctx context.Context) error {
+	if b == nil || len(b.sources) == 0 {
+		return nil
+	}
+	documentIDs := make([]string, 0, len(b.sources))
+	for documentID := range b.sources {
+		documentIDs = append(documentIDs, documentID)
+	}
+	sort.Strings(documentIDs)
+	for _, documentID := range documentIDs {
+		source := b.sources[documentID]
+		if _, err := companyknowledge.PublishWikiSourceDocument(ctx, b.cfg, b.repo, source); err != nil {
+			return fmt.Errorf("publish slack wiki source document=%s: %w", documentID, err)
+		}
+		delete(b.sources, documentID)
+	}
+	return nil
+}
+
+func mirrorSlackChannel(ctx context.Context, cfg config.Config, api *slackapi.Client, mirrorStore store.SourceMirrorWriteStore, mirror *companyknowledge.SlackMirror, workspaceID string, channelID string) error {
 	checkpoint, err := readSlackMirrorCheckpoint(cfg.SourceMirrorCheckpointRoot, channelID)
 	if err != nil {
 		return err
@@ -196,6 +263,7 @@ func mirrorSlackChannel(ctx context.Context, cfg config.Config, api *slackapi.Cl
 		if err != nil {
 			return fmt.Errorf("read slack history channel=%s: %w", channelID, err)
 		}
+		wikiBatch := newSlackWikiPublishBatch(cfg, mirrorStore)
 		pageOldestTS, pageNewestTS := slackMirrorMessageTimestampBounds(resp.Messages)
 		for _, msg := range reverseSlackMessages(resp.Messages) {
 			if strings.TrimSpace(msg.Timestamp) == "" || shouldSkipSlackMirrorMessage(msg) {
@@ -209,18 +277,26 @@ func mirrorSlackChannel(ctx context.Context, cfg config.Config, api *slackapi.Cl
 			if err != nil {
 				return fmt.Errorf("mirror slack message channel=%s ts=%s: %w", channelID, msg.Timestamp, err)
 			}
+			if shouldPublishSlackWikiSource(result) {
+				if err := wikiBatch.record(ctx, input); err != nil {
+					return fmt.Errorf("record slack wiki source channel=%s ts=%s: %w", channelID, msg.Timestamp, err)
+				}
+			}
 			messageCount++
 			if result.HonchoSessionID != "" {
 				checkpoint.LastHonchoSession = result.HonchoSessionID
 			}
 			if msg.ReplyCount > 0 {
-				seenReplies, err := mirrorSlackThread(ctx, api, mirror, workspaceID, channelID, msg.Timestamp)
+				seenReplies, err := mirrorSlackThread(ctx, api, mirror, wikiBatch, workspaceID, channelID, msg.Timestamp)
 				if err != nil {
 					return err
 				}
 				threadCount++
 				messageCount += seenReplies
 			}
+		}
+		if err := wikiBatch.publish(ctx); err != nil {
+			return err
 		}
 		if compareSlackTS(pageNewestTS, latestSeen) > 0 {
 			latestSeen = pageNewestTS
@@ -258,7 +334,7 @@ func mirrorSlackChannel(ctx context.Context, cfg config.Config, api *slackapi.Cl
 	return nil
 }
 
-func mirrorSlackThread(ctx context.Context, api *slackapi.Client, mirror *companyknowledge.SlackMirror, workspaceID string, channelID string, threadTS string) (int, error) {
+func mirrorSlackThread(ctx context.Context, api *slackapi.Client, mirror *companyknowledge.SlackMirror, wikiBatch *slackWikiPublishBatch, workspaceID string, channelID string, threadTS string) (int, error) {
 	cursor := ""
 	count := 0
 	for {
@@ -279,16 +355,23 @@ func mirrorSlackThread(ctx context.Context, api *slackapi.Client, mirror *compan
 			}
 			input := slackInputFromMessage(workspaceID, channelID, msg, "")
 			input.ThreadTS = threadTS
-			if _, err := mirror.IngestMessage(ctx, input); err != nil {
+			result, err := mirror.IngestMessage(ctx, input)
+			if err != nil {
 				return count, fmt.Errorf("mirror slack reply channel=%s thread=%s ts=%s: %w", channelID, threadTS, msg.Timestamp, err)
+			}
+			if shouldPublishSlackWikiSource(result) {
+				if err := wikiBatch.record(ctx, input); err != nil {
+					return count, fmt.Errorf("record slack thread wiki source channel=%s thread=%s ts=%s: %w", channelID, threadTS, msg.Timestamp, err)
+				}
 			}
 			count++
 		}
 		cursor = strings.TrimSpace(nextCursor)
 		if !hasMore || cursor == "" {
-			return count, nil
+			break
 		}
 	}
+	return count, nil
 }
 
 func slackInputFromMessage(workspaceID string, channelID string, msg slackapi.Message, eventID string) companyknowledge.SlackMessageInput {

@@ -107,6 +107,29 @@ def _control_plane_api(method: str, path: str, payload: dict[str, Any]) -> dict[
     return decoded
 
 
+def _control_plane_get(path: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
+    base_url = _control_plane_base_url()
+    if not base_url:
+        raise RuntimeError("RSI_CONTROL_PLANE_BASE_URL is required for company wiki tools")
+    query = ""
+    if params:
+        query = "?" + urllib.parse.urlencode({key: str(value) for key, value in params.items() if value is not None and str(value) != ""})
+    req = urllib.request.Request(
+        f"{base_url}{path}{query}",
+        headers={"User-Agent": "rsi-hermes-company-knowledge-mcp/1.0"},
+        method="GET",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            decoded = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"Control plane API {path} failed: HTTP {exc.code}: {detail}") from exc
+    if not isinstance(decoded, dict):
+        raise RuntimeError(f"Control plane API {path} returned a non-object response")
+    return decoded
+
+
 def _slack_api(method: str, params: dict[str, Any]) -> dict[str, Any]:
     data = urllib.parse.urlencode({key: str(value) for key, value in params.items() if value is not None and str(value) != ""}).encode("utf-8")
     req = urllib.request.Request(
@@ -919,6 +942,92 @@ def document_get(document_id: str, source: str = "notion") -> dict[str, Any]:
         "source": f"honcho_{source}_documents",
         "document": items[0],
     }
+
+
+@mcp.tool(
+    name="wiki_search",
+    description="Search the compiled Platform company wiki. Results are canonical Markdown pages with source-backed citations.",
+    annotations=read_only,
+)
+def wiki_search(query: str, limit: int = 10) -> dict[str, Any]:
+    query = str(query or "").strip()
+    if not query:
+        raise RuntimeError("wiki_search requires a non-empty query")
+    safe_limit = max(1, min(int(limit or 10), 50))
+    return _control_plane_get("/internal/company-wiki/search", {"query": query, "limit": safe_limit})
+
+
+@mcp.tool(
+    name="wiki_page_get",
+    description="Read a compiled company wiki page by page id or slug. Prefer cited wiki pages over loose RAG answers.",
+    annotations=read_only,
+)
+def wiki_page_get(page_ref: str) -> dict[str, Any]:
+    page_ref = str(page_ref or "").strip()
+    if not page_ref:
+        raise RuntimeError("wiki_page_get requires page_ref")
+    return _control_plane_get("/internal/company-wiki/pages/" + urllib.parse.quote(page_ref, safe="/"))
+
+
+@mcp.tool(
+    name="wiki_index_get",
+    description="Read the company wiki index.md catalog. Use this first to find relevant canonical pages before searching broadly.",
+    annotations=read_only,
+)
+def wiki_index_get() -> dict[str, Any]:
+    return _control_plane_get("/internal/company-wiki/index")
+
+
+@mcp.tool(
+    name="wiki_log_get",
+    description="Read recent append-only company wiki log.md entries. Entries start with '## [' for simple Unix parsing.",
+    annotations=read_only,
+)
+def wiki_log_get(limit: int = 20) -> dict[str, Any]:
+    safe_limit = max(1, min(int(limit or 20), 100))
+    return _control_plane_get("/internal/company-wiki/log", {"limit": safe_limit})
+
+
+@mcp.tool(
+    name="wiki_edit_propose",
+    description="Create an audited draft intent for a company wiki edit without publishing it.",
+    annotations=idempotent_write,
+)
+def wiki_edit_propose(actor: str, reason: str, idempotency_key: str, slug: str, title: str, body: str = "", citations: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    return _control_plane_api(
+        "POST",
+        "/internal/company-wiki/edits/propose",
+        {
+            "actor": actor,
+            "reason": reason,
+            "idempotency_key": idempotency_key,
+            "slug": slug,
+            "title": title,
+            "body": body,
+            "citations": citations or [],
+        },
+    )
+
+
+@mcp.tool(
+    name="wiki_edit_apply",
+    description="Publish a validated company wiki Markdown replacement through Platform's audited mutation path. Requires frontmatter and citations.",
+    annotations=idempotent_write,
+)
+def wiki_edit_apply(actor: str, reason: str, idempotency_key: str, slug: str, title: str, body: str, citations: list[dict[str, Any]]) -> dict[str, Any]:
+    return _control_plane_api(
+        "POST",
+        "/internal/company-wiki/edits/apply",
+        {
+            "actor": actor,
+            "reason": reason,
+            "idempotency_key": idempotency_key,
+            "slug": slug,
+            "title": title,
+            "body": body,
+            "citations": citations,
+        },
+    )
 
 
 @mcp.tool(

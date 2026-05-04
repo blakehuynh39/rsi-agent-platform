@@ -55,7 +55,8 @@ func (f fakeNotionAPI) QueryDatabase(ctx context.Context, databaseID string, cur
 }
 
 type fakeControlHonchoDocuments struct {
-	createCalls int
+	createCalls  int
+	messageCalls int
 }
 
 func (f *fakeControlHonchoDocuments) EnsureWorkspace(id string, metadata map[string]any) (clients.HonchoWorkspace, error) {
@@ -69,6 +70,18 @@ func (f *fakeControlHonchoDocuments) EnsureSession(workspaceID string, sessionID
 func (f *fakeControlHonchoDocuments) CreateConclusions(workspaceID string, conclusions []clients.HonchoConclusionCreate) ([]clients.HonchoConclusion, error) {
 	f.createCalls++
 	return []clients.HonchoConclusion{{ID: "doc_1", Content: conclusions[0].Content}}, nil
+}
+
+func (f *fakeControlHonchoDocuments) CreateMessages(workspaceID string, sessionID string, messages []clients.HonchoMessageCreate) ([]clients.HonchoMessage, error) {
+	f.messageCalls++
+	out := make([]clients.HonchoMessage, 0, len(messages))
+	for i, msg := range messages {
+		out = append(out, clients.HonchoMessage{ID: "msg_1", Content: msg.Content})
+		if i > 0 {
+			out[i].ID = "msg_2"
+		}
+	}
+	return out, nil
 }
 
 func TestNotionMirrorRunnerMirrorsPageAndWritesCheckpoint(t *testing.T) {

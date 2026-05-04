@@ -11,7 +11,6 @@ import (
 	"sort"
 	"strings"
 	"time"
-	"unicode/utf8"
 
 	"github.com/piplabs/rsi-agent-platform/internal/clients"
 	"github.com/piplabs/rsi-agent-platform/internal/companyknowledge"
@@ -51,21 +50,20 @@ type notionPageExtraction struct {
 }
 
 type notionMirrorRunner struct {
-	cfg         config.Config
-	api         notionAPI
-	mirror      *companyknowledge.NotionMirror
-	store       store.SourceMirrorWriteStore
-	workspace   string
-	seenPages   map[string]struct{}
-	seenDBs     map[string]struct{}
-	maxBlocks   int
-	maxDepth    int
-	maxDBs      int
-	maxDocBytes int
-	pageCount   int
-	dbCount     int
-	truncated   bool
-	checkpoint  notionMirrorCheckpoint
+	cfg        config.Config
+	api        notionAPI
+	mirror     *companyknowledge.NotionMirror
+	store      store.SourceMirrorWriteStore
+	workspace  string
+	seenPages  map[string]struct{}
+	seenDBs    map[string]struct{}
+	maxBlocks  int
+	maxDepth   int
+	maxDBs     int
+	pageCount  int
+	dbCount    int
+	truncated  bool
+	checkpoint notionMirrorCheckpoint
 }
 
 type notionAPI interface {
@@ -150,23 +148,18 @@ func newNotionMirrorRunner(cfg config.Config, api notionAPI, mirrorStore store.S
 	if maxDBs <= 0 {
 		maxDBs = 50
 	}
-	maxDocBytes := cfg.NotionMirrorMaxDocumentBytes
-	if maxDocBytes <= 0 {
-		maxDocBytes = 256000
-	}
 	return &notionMirrorRunner{
-		cfg:         cfg,
-		api:         api,
-		mirror:      mirror,
-		store:       mirrorStore,
-		workspace:   workspace,
-		seenPages:   map[string]struct{}{},
-		seenDBs:     map[string]struct{}{},
-		maxBlocks:   maxBlocks,
-		maxDepth:    maxDepth,
-		maxDBs:      maxDBs,
-		maxDocBytes: maxDocBytes,
-		checkpoint:  checkpoint,
+		cfg:        cfg,
+		api:        api,
+		mirror:     mirror,
+		store:      mirrorStore,
+		workspace:  workspace,
+		seenPages:  map[string]struct{}{},
+		seenDBs:    map[string]struct{}{},
+		maxBlocks:  maxBlocks,
+		maxDepth:   maxDepth,
+		maxDBs:     maxDBs,
+		checkpoint: checkpoint,
 	}, nil
 }
 
@@ -221,6 +214,10 @@ func (r *notionMirrorRunner) mirrorLoadedPage(ctx context.Context, pageID string
 	return r.mirrorPageData(ctx, pageID, rootID, hierarchy, page)
 }
 
+func shouldPublishNotionWikiSource(result companyknowledge.NotionMirrorResult) bool {
+	return !result.Skipped
+}
+
 func (r *notionMirrorRunner) claimPage(pageID string) bool {
 	if _, seen := r.seenPages[pageID]; seen {
 		return false
@@ -246,8 +243,8 @@ func (r *notionMirrorRunner) mirrorPageData(ctx context.Context, pageID string, 
 	if err != nil {
 		return fmt.Errorf("extract notion page body page=%s: %w", pageID, err)
 	}
-	body := truncateUTF8WithMarker(extraction.Body, r.maxDocBytes, "\n\n[Mirror truncated: Notion document exceeded byte extraction limit.]")
-	truncated := extraction.Truncated || len(body) != len(extraction.Body)
+	body := extraction.Body
+	truncated := extraction.Truncated
 	outboundReferences := capOutboundReferences(extraction.OutboundReferences, 200)
 	if len(extraction.OutboundReferences) > 200 {
 		truncated = true
@@ -279,6 +276,11 @@ func (r *notionMirrorRunner) mirrorPageData(ctx context.Context, pageID string, 
 	result, err := r.mirror.IngestDocument(ctx, input)
 	if err != nil {
 		return fmt.Errorf("mirror notion page=%s into honcho: %w", pageID, err)
+	}
+	if shouldPublishNotionWikiSource(result) {
+		if _, err := companyknowledge.RecordAndPublishWikiSource(ctx, r.cfg, r.store, companyknowledge.NotionWikiSourceRevisionInput(input)); err != nil {
+			return fmt.Errorf("publish notion wiki source page=%s: %w", pageID, err)
+		}
 	}
 	r.checkpoint.CompletedPages[sourceKey] = revision
 	r.checkpoint.CompletedObjects[sourceKey] = notionMirrorCheckpointObject{
@@ -642,37 +644,6 @@ func capOutboundReferences(refs []companyknowledge.NotionOutboundReference, max 
 		Reason:        fmt.Sprintf("outbound references capped at %d", max),
 	})
 	return out
-}
-
-func truncateUTF8WithMarker(value string, maxBytes int, marker string) string {
-	if maxBytes <= 0 || len(value) <= maxBytes {
-		return value
-	}
-	marker = strings.TrimSpace(marker)
-	if marker == "" {
-		marker = "[truncated]"
-	}
-	budget := maxBytes - len(marker) - 2
-	if budget <= 0 {
-		return marker
-	}
-	truncated := value
-	for len(truncated) > budget {
-		_, size := utf8.DecodeLastRuneInString(truncated)
-		if size <= 0 || size > len(truncated) {
-			truncated = ""
-			break
-		}
-		truncated = truncated[:len(truncated)-size]
-	}
-	if len(truncated) == 0 {
-		return marker
-	}
-	truncated = strings.TrimRight(truncated, "\n\r\t ")
-	if len(truncated) == 0 {
-		return marker
-	}
-	return truncated + "\n\n" + marker
 }
 
 func mergeStringAnyMaps(base map[string]any, overlay map[string]any) map[string]any {

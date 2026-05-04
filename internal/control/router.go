@@ -185,6 +185,75 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 		}
 		app.WriteJSON(w, status, out)
 	})
+	r.Get("/internal/company-wiki/search", func(w http.ResponseWriter, r *http.Request) {
+		limit := parsePositiveIntQuery(r.URL.Query().Get("limit"), 10)
+		out, status, err := companyWikiSearch(r.Context(), store, r.URL.Query().Get("query"), limit)
+		if err != nil {
+			app.WriteError(w, status, err)
+			return
+		}
+		app.WriteJSON(w, status, out)
+	})
+	r.Get("/internal/company-wiki/index", func(w http.ResponseWriter, r *http.Request) {
+		out, status, err := companyWikiIndexGet(r.Context(), cfg)
+		if err != nil {
+			app.WriteError(w, status, err)
+			return
+		}
+		app.WriteJSON(w, status, out)
+	})
+	r.Get("/internal/company-wiki/log", func(w http.ResponseWriter, r *http.Request) {
+		limit := parsePositiveIntQuery(r.URL.Query().Get("limit"), 0)
+		out, status, err := companyWikiLogGet(r.Context(), cfg, limit)
+		if err != nil {
+			app.WriteError(w, status, err)
+			return
+		}
+		app.WriteJSON(w, status, out)
+	})
+	r.Get("/internal/company-wiki/pages/*", func(w http.ResponseWriter, r *http.Request) {
+		out, status, err := companyWikiPageGet(r.Context(), store, chi.URLParam(r, "*"))
+		if err != nil {
+			app.WriteError(w, status, err)
+			return
+		}
+		app.WriteJSON(w, status, out)
+	})
+	r.Post("/internal/company-wiki/manifest/reconcile", func(w http.ResponseWriter, r *http.Request) {
+		repair := parseBoolQuery(r.URL.Query().Get("repair"))
+		out, status, err := companyWikiManifestReconcile(r.Context(), cfg, store, repair)
+		if err != nil {
+			app.WriteError(w, status, err)
+			return
+		}
+		app.WriteJSON(w, status, out)
+	})
+	r.Post("/internal/company-wiki/edits/propose", func(w http.ResponseWriter, r *http.Request) {
+		var payload companyWikiEditProposeRequest
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			app.WriteError(w, http.StatusBadRequest, err)
+			return
+		}
+		out, status, err := companyWikiEditPropose(r.Context(), cfg, store, payload)
+		if err != nil {
+			app.WriteError(w, status, err)
+			return
+		}
+		app.WriteJSON(w, status, out)
+	})
+	r.Post("/internal/company-wiki/edits/apply", func(w http.ResponseWriter, r *http.Request) {
+		var payload companyWikiEditApplyRequest
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			app.WriteError(w, http.StatusBadRequest, err)
+			return
+		}
+		out, status, err := companyWikiEditApply(r.Context(), cfg, store, payload)
+		if err != nil {
+			app.WriteError(w, status, err)
+			return
+		}
+		app.WriteJSON(w, status, out)
+	})
 	// These runner lifecycle endpoints are intentionally unauthenticated here.
 	// They are cluster-internal control-plane hooks protected by Kubernetes/network
 	// boundaries; adding app-layer auth would require extra rollout wiring for

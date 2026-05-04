@@ -3,17 +3,21 @@ package control
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 	"time"
 
 	slackapi "github.com/slack-go/slack"
 
+	"github.com/piplabs/rsi-agent-platform/internal/companyknowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
+	"github.com/piplabs/rsi-agent-platform/internal/store"
 )
 
 type fakeSlackChannelLister struct {
 	pages []fakeSlackChannelPage
 	err   error
+	calls []slackapi.GetConversationsParameters
 }
 
 type fakeSlackChannelPage struct {
@@ -23,6 +27,9 @@ type fakeSlackChannelPage struct {
 
 func (f *fakeSlackChannelLister) GetConversationsContext(ctx context.Context, params *slackapi.GetConversationsParameters) ([]slackapi.Channel, string, error) {
 	_ = ctx
+	if params != nil {
+		f.calls = append(f.calls, *params)
+	}
 	if f.err != nil {
 		return nil, "", f.err
 	}
@@ -79,6 +86,29 @@ func TestSlackMirrorChannelsDefaultToJoinedDiscovery(t *testing.T) {
 	}
 }
 
+func TestSlackMirrorChannelsJoinedPublicExcludesPrivateChannels(t *testing.T) {
+	lister := &fakeSlackChannelLister{
+		pages: []fakeSlackChannelPage{{
+			channels: []slackapi.Channel{
+				{GroupConversation: slackapi.GroupConversation{Conversation: slackapi.Conversation{ID: "CPUBLIC"}, Name: "public"}, IsMember: true},
+				{GroupConversation: slackapi.GroupConversation{Conversation: slackapi.Conversation{ID: "CPRIVATE", IsPrivate: true}, Name: "private"}, IsMember: true},
+			},
+		}},
+	}
+	got, err := slackMirrorChannels(context.Background(), config.Config{
+		SlackMirrorChannelDiscovery: "joined_public",
+	}, lister)
+	if err != nil {
+		t.Fatalf("slackMirrorChannels() error = %v", err)
+	}
+	if len(got) != 1 || got[0] != "CPUBLIC" {
+		t.Fatalf("channels = %v, want [CPUBLIC]", got)
+	}
+	if len(lister.calls) != 1 || len(lister.calls[0].Types) != 1 || lister.calls[0].Types[0] != "public_channel" {
+		t.Fatalf("joined_public should only request public channels, calls=%+v", lister.calls)
+	}
+}
+
 func TestSlackMirrorChannelsExplicitDiscoveryUsesAllowlistOnly(t *testing.T) {
 	got, err := slackMirrorChannels(context.Background(), config.Config{
 		SlackMirrorChannelDiscovery: "explicit",
@@ -109,6 +139,50 @@ func TestSlackMirrorChannelAllowedByConfigDefaultsToJoinedUnlessDenied(t *testin
 	}
 	if slackMirrorChannelAllowedByConfig(cfg, "CANY") {
 		t.Fatal("explicit discovery should reject unlisted channel")
+	}
+}
+
+func TestSlackWikiPublishBatchCompilesAfterPageBatch(t *testing.T) {
+	state := store.NewMemoryStore()
+	batch := newSlackWikiPublishBatch(config.Config{CompanyWikiRoot: t.TempDir()}, state)
+	inputs := []companyknowledge.SlackMessageInput{
+		{WorkspaceID: "T123", ChannelID: "C123", TS: "1777600000.000001", Text: "First deploy decision."},
+		{WorkspaceID: "T123", ChannelID: "C123", TS: "1777600001.000001", Text: "Second deploy decision."},
+		{WorkspaceID: "T123", ChannelID: "C123", TS: "1777600002.000001", Text: "Third deploy decision."},
+	}
+	for _, input := range inputs {
+		if err := batch.record(context.Background(), input); err != nil {
+			t.Fatalf("record() error = %v", err)
+		}
+	}
+	entries, err := state.ListCompanyWikiManifestEntries()
+	if err != nil {
+		t.Fatalf("ListCompanyWikiManifestEntries() error = %v", err)
+	}
+	if len(entries) != 0 {
+		t.Fatalf("batch should not publish before publish() is called, entries=%+v", entries)
+	}
+	if err := batch.publish(context.Background()); err != nil {
+		t.Fatalf("publish() error = %v", err)
+	}
+	entries, err = state.ListCompanyWikiManifestEntries()
+	if err != nil {
+		t.Fatalf("ListCompanyWikiManifestEntries() error = %v", err)
+	}
+	if len(entries) != 1 {
+		t.Fatalf("expected one compiled channel page, got %+v", entries)
+	}
+	page, found, err := state.GetCompanyWikiPage(entries[0].WikiPageID)
+	if err != nil || !found {
+		t.Fatalf("GetCompanyWikiPage() found=%t err=%v", found, err)
+	}
+	if page.Revision.RevisionNumber != 1 {
+		t.Fatalf("expected one wiki revision for batched messages, got %d", page.Revision.RevisionNumber)
+	}
+	for _, want := range []string{"First deploy decision.", "Second deploy decision.", "Third deploy decision."} {
+		if !strings.Contains(page.Revision.Body, want) {
+			t.Fatalf("compiled body missing %q:\n%s", want, page.Revision.Body)
+		}
 	}
 }
 

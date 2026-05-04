@@ -60,6 +60,7 @@ type Config struct {
 	SlackMirrorChannelDenylist         []string
 	SourceMirrorCheckpointRoot         string
 	AttachmentCacheRoot                string
+	CompanyWikiRoot                    string
 	SlackMCPEnabled                    bool
 	SlackMCPServerURL                  string
 	NotionMCPEnabled                   bool
@@ -197,6 +198,7 @@ func Load(serviceName string) Config {
 		SlackMirrorChannelDenylist:         listEnv("RSI_SLACK_MIRROR_CHANNEL_DENYLIST"),
 		SourceMirrorCheckpointRoot:         stringEnv("RSI_SOURCE_MIRROR_CHECKPOINT_ROOT", "/var/lib/hermes/source-mirror"),
 		AttachmentCacheRoot:                stringEnv("RSI_ATTACHMENT_CACHE_ROOT", "/var/lib/hermes/attachments"),
+		CompanyWikiRoot:                    stringEnv("RSI_COMPANY_WIKI_ROOT", "/workspace/company/wiki"),
 		SlackMCPEnabled:                    boolEnv("RSI_SLACK_MCP_ENABLED", false),
 		SlackMCPServerURL:                  stringEnv("RSI_SLACK_MCP_SERVER_URL", "http://127.0.0.1:8092/mcp"),
 		NotionMCPEnabled:                   boolEnv("RSI_NOTION_MCP_ENABLED", false),

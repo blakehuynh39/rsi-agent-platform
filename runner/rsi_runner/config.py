@@ -50,6 +50,7 @@ class RunnerConfig:
     hermes_computer_root: str
     hermes_run_root: str
     hermes_artifact_root: str
+    company_wiki_root: str
     hermes_native_terminal_enabled: bool
     hermes_native_toolsets: list[str]
     hermes_terminal_env: str
@@ -126,8 +127,9 @@ class RunnerConfig:
         hermes_computer_root = optional_env("RSI_HERMES_COMPUTER_ROOT") or path_join(hermes_executor_workspace_root, "company")
         hermes_run_root = optional_env("RSI_HERMES_RUN_ROOT") or path_join(hermes_computer_root, ".rsi", "runs")
         hermes_artifact_root = optional_env("RSI_HERMES_ARTIFACT_ROOT") or path_join(hermes_computer_root, "artifacts")
+        company_wiki_root = optional_env("RSI_COMPANY_WIKI_ROOT") or path_join(hermes_computer_root, "wiki")
         hermes_native_terminal_enabled = parse_bool(optional_env("RSI_HERMES_NATIVE_TERMINAL_ENABLED") or "false", "RSI_HERMES_NATIVE_TERMINAL_ENABLED")
-        hermes_native_toolsets = parse_csv_list(optional_env("RSI_HERMES_NATIVE_TOOLSETS") or "terminal,file")
+        hermes_native_toolsets = parse_csv_list(optional_env("RSI_HERMES_NATIVE_TOOLSETS") or "terminal,file,company_knowledge")
         hermes_terminal_env = optional_env("TERMINAL_ENV") or "local"
         hermes_terminal_cwd = optional_env("TERMINAL_CWD") or hermes_computer_root
         hermes_terminal_timeout_seconds = parse_positive_int(optional_env("TERMINAL_TIMEOUT") or "180", "TERMINAL_TIMEOUT")
@@ -201,6 +203,7 @@ class RunnerConfig:
             hermes_computer_root=hermes_computer_root,
             hermes_run_root=hermes_run_root,
             hermes_artifact_root=hermes_artifact_root,
+            company_wiki_root=company_wiki_root,
             hermes_native_terminal_enabled=hermes_native_terminal_enabled,
             hermes_native_toolsets=hermes_native_toolsets,
             hermes_terminal_env=hermes_terminal_env,

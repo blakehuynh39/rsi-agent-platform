@@ -8,7 +8,7 @@ const (
 	SourceMirrorStatusFailed   = "failed"
 	SourceMirrorStatusStale    = "stale"
 
-	SourceMirrorMinimumSchemaVersion int64 = 32
+	SourceMirrorMinimumSchemaVersion int64 = CompanyWikiMinimumSchemaVersion
 )
 
 type SourceMirrorRecord struct {

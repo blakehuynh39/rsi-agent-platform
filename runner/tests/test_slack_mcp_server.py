@@ -233,6 +233,62 @@ class SlackMCPServerTests(unittest.TestCase):
         self.assertEqual(body["filters"]["AND"][0]["id"], "doc_1")
         self.assertEqual(body["filters"]["AND"][1]["observer_id"], "notion_mirror")
 
+    def test_wiki_search_uses_control_plane_company_wiki_api(self) -> None:
+        with mock.patch.object(
+            slack_mcp_server,
+            "_control_plane_get",
+            return_value={"ok": True, "results": [{"slug": "runbooks/deploy"}]},
+        ) as control_get:
+            result = slack_mcp_server.wiki_search("deploy", limit=200)
+
+        self.assertTrue(result["ok"])
+        control_get.assert_called_once_with("/internal/company-wiki/search", {"query": "deploy", "limit": 50})
+
+    def test_wiki_page_get_preserves_slug_slashes(self) -> None:
+        with mock.patch.object(slack_mcp_server, "_control_plane_get", return_value={"page": {"slug": "runbooks/deploy"}}) as control_get:
+            result = slack_mcp_server.wiki_page_get("runbooks/deploy")
+
+        self.assertEqual(result["page"]["slug"], "runbooks/deploy")
+        control_get.assert_called_once_with("/internal/company-wiki/pages/runbooks/deploy")
+
+    def test_wiki_index_get_reads_generated_catalog(self) -> None:
+        with mock.patch.object(slack_mcp_server, "_control_plane_get", return_value={"ok": True, "content": "# Company Wiki Index"}) as control_get:
+            result = slack_mcp_server.wiki_index_get()
+
+        self.assertTrue(result["ok"])
+        control_get.assert_called_once_with("/internal/company-wiki/index")
+
+    def test_wiki_log_get_reads_recent_parseable_entries(self) -> None:
+        with mock.patch.object(slack_mcp_server, "_control_plane_get", return_value={"ok": True, "content": "## [2026-05-03T00:00:00Z] ingest | Deploy"}) as control_get:
+            result = slack_mcp_server.wiki_log_get(limit=250)
+
+        self.assertTrue(result["ok"])
+        control_get.assert_called_once_with("/internal/company-wiki/log", {"limit": 100})
+
+    def test_wiki_edit_apply_sends_audited_payload_with_citations(self) -> None:
+        citation = {
+            "claim_key": "deploy",
+            "source_document_id": "srcdoc_1",
+            "source_revision_id": "srcrev_1",
+            "chunk_id": "srcchunk_1",
+        }
+        with mock.patch.object(slack_mcp_server, "_control_plane_api", return_value={"ok": True}) as control_api:
+            result = slack_mcp_server.wiki_edit_apply(
+                actor="hermes",
+                reason="publish sourced correction",
+                idempotency_key="idem-1",
+                slug="runbooks/deploy",
+                title="Deploy",
+                body="---\ntitle: Deploy\n---\n# Deploy\n",
+                citations=[citation],
+            )
+
+        self.assertTrue(result["ok"])
+        control_api.assert_called_once()
+        method, path, payload = control_api.call_args.args
+        self.assertEqual((method, path), ("POST", "/internal/company-wiki/edits/apply"))
+        self.assertEqual(payload["citations"], [citation])
+
     def test_normalize_messages_preserves_slack_file_metadata(self) -> None:
         messages = slack_mcp_server._normalize_messages(
             [

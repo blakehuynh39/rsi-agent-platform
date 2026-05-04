@@ -341,7 +341,7 @@ def validate_hermes_contract(
     else:
         pin_status = "ok"
 
-    required_plugins = ["rsi_context_engine"]
+    required_plugins = ["rsi_context_engine", "company_knowledge"]
     if require_platform_runtime:
         required_plugins.append("rsi_platform_runtime")
     plugin_records: dict[str, JsonObject] = {}

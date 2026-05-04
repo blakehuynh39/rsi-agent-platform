@@ -179,7 +179,7 @@ class FakeSessionManager:
         hermes_home = Path(_config.hermes_home)
         hermes_home.mkdir(parents=True, exist_ok=True)
         hermes_home.joinpath("config.yaml").write_text(
-            "plugins:\n  enabled:\n    - rsi_context_engine\n",
+            "plugins:\n  enabled:\n    - rsi_context_engine\n    - company_knowledge\n",
             encoding="utf-8",
         )
 
@@ -473,7 +473,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(config.hermes_run_root, "/var/lib/hermes-executor/company/.rsi/runs")
         self.assertEqual(config.hermes_artifact_root, "/var/lib/hermes-executor/company/artifacts")
         self.assertTrue(config.hermes_native_terminal_enabled)
-        self.assertEqual(config.hermes_native_toolsets, ["terminal", "file"])
+        self.assertEqual(config.hermes_native_toolsets, ["terminal", "file", "company_knowledge"])
         self.assertEqual(config.hermes_terminal_env, "local")
         self.assertEqual(config.hermes_terminal_cwd, "/var/lib/hermes-executor/company")
         self.assertEqual(config.hermes_terminal_timeout_seconds, 240)
@@ -978,7 +978,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("namespace: story", kubeconfig)
         self.assertIn("current-context: hermes-company-computer", kubeconfig)
         self.assertEqual(manifest["terminal"]["bin_dir"], str(Path(computer_root, ".rsi", "bin")))
-        self.assertEqual(manifest["native_toolsets"], ["terminal", "file"])
+        self.assertEqual(manifest["native_toolsets"], ["terminal", "file", "company_knowledge"])
         self.assertEqual(manifest["prod_kubernetes_context"]["name"], "use1-prod")
         self.assertEqual(manifest["prod_kubernetes_context"]["auth"], "aws_eks_exec_assume_role")
 
@@ -1104,12 +1104,13 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertFalse(status.ok)
         self.assertEqual(status.plugin_status, "config_missing")
-        self.assertIn("Hermes config is missing required plugin(s): rsi_context_engine.", status.errors)
+        self.assertIn("Hermes config is missing required plugin(s): rsi_context_engine, company_knowledge.", status.errors)
 
     def test_hermes_contract_requires_platform_runtime_capability_for_executor(self) -> None:
         plugin_manager = types.SimpleNamespace(
             list_plugins=lambda: [
                 {"enabled": True, "name": "rsi_context_engine"},
+                {"enabled": True, "name": "company_knowledge"},
                 {"enabled": True, "name": "rsi_platform_runtime", "capabilities": {}},
             ]
         )
@@ -1124,7 +1125,7 @@ class HermesRuntimeTests(unittest.TestCase):
             return_value=plugin_manager,
         ):
             Path(tempdir, "config.yaml").write_text(
-                "plugins:\n  enabled:\n    - rsi_context_engine\n    - rsi_platform_runtime\n",
+                "plugins:\n  enabled:\n    - rsi_context_engine\n    - company_knowledge\n    - rsi_platform_runtime\n",
                 encoding="utf-8",
             )
             status = validate_hermes_contract(
@@ -1715,6 +1716,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("plugins:", config_text)
         self.assertIn("  enabled:", config_text)
         self.assertIn("    - rsi_context_engine", config_text)
+        self.assertIn("    - company_knowledge", config_text)
         self.assertNotIn("    - rsi_platform_runtime", config_text)
         self.assertEqual(manager.hermes_config_parity_status, "configured")
         self.assertEqual(manager.hermes_config_parity_error, "")
@@ -1739,6 +1741,7 @@ class HermesRuntimeTests(unittest.TestCase):
             config_text = Path(tempdir, "config.yaml").read_text(encoding="utf-8")
 
         self.assertIn("    - rsi_context_engine", config_text)
+        self.assertIn("    - company_knowledge", config_text)
         self.assertIn("    - rsi_platform_runtime", config_text)
         self.assertEqual(manager.hermes_config_parity_status, "configured")
 

@@ -1,8 +1,10 @@
 package companyknowledge
 
 import (
+	"fmt"
 	"strings"
 	"testing"
+	"unicode/utf8"
 
 	"github.com/piplabs/rsi-agent-platform/internal/clients"
 	"github.com/piplabs/rsi-agent-platform/internal/store"
@@ -11,8 +13,11 @@ import (
 type fakeHonchoDocuments struct {
 	ensureWorkspaceCalls int
 	ensureSessionCalls   int
+	messageCalls         int
 	createCalls          int
 	createErr            error
+	lastMessages         []clients.HonchoMessageCreate
+	lastConclusions      []clients.HonchoConclusionCreate
 }
 
 func (f *fakeHonchoDocuments) EnsureWorkspace(id string, metadata map[string]any) (clients.HonchoWorkspace, error) {
@@ -25,8 +30,19 @@ func (f *fakeHonchoDocuments) EnsureSession(workspaceID string, sessionID string
 	return clients.HonchoSession{ID: sessionID, WorkspaceID: workspaceID, Metadata: metadata}, nil
 }
 
+func (f *fakeHonchoDocuments) CreateMessages(workspaceID string, sessionID string, messages []clients.HonchoMessageCreate) ([]clients.HonchoMessage, error) {
+	f.messageCalls++
+	f.lastMessages = append([]clients.HonchoMessageCreate(nil), messages...)
+	out := make([]clients.HonchoMessage, 0, len(messages))
+	for i := range messages {
+		out = append(out, clients.HonchoMessage{ID: fmt.Sprintf("msg_notion_chunk_%03d", i), WorkspaceID: workspaceID, SessionID: sessionID})
+	}
+	return out, nil
+}
+
 func (f *fakeHonchoDocuments) CreateConclusions(workspaceID string, conclusions []clients.HonchoConclusionCreate) ([]clients.HonchoConclusion, error) {
 	f.createCalls++
+	f.lastConclusions = append([]clients.HonchoConclusionCreate(nil), conclusions...)
 	if f.createErr != nil {
 		return nil, f.createErr
 	}
@@ -39,6 +55,70 @@ func (f *fakeHonchoDocuments) CreateConclusions(workspaceID string, conclusions 
 			SessionID:  conclusions[0].SessionID,
 		},
 	}, nil
+}
+
+func TestNotionMirrorIngestDocumentChunksLargePagesBeforeSummaryConclusion(t *testing.T) {
+	state := store.NewMemoryStore()
+	honcho := &fakeHonchoDocuments{}
+	mirror := NewNotionMirror(state, honcho, NotionMirrorOptions{
+		Environment:     "stage",
+		HonchoWorkspace: "rsi_company_knowledge",
+	})
+	large := strings.Repeat("Long Notion runbook paragraph with deployment notes.\n", 900)
+	result, err := mirror.IngestDocument(nil, NotionDocumentInput{
+		WorkspaceID:    "notion",
+		PageID:         "page_large",
+		RootID:         "root_abc",
+		Title:          "Large Runbook",
+		LastEditedTime: "2026-05-02T10:00:00.000Z",
+		Content:        large,
+	})
+	if err != nil {
+		t.Fatalf("IngestDocument() error = %v", err)
+	}
+	if result.Skipped {
+		t.Fatalf("large page should mirror successfully through chunks: %+v", result)
+	}
+	if honcho.messageCalls != 1 || len(honcho.lastMessages) < 2 {
+		t.Fatalf("expected large page to be split into multiple Honcho messages, calls=%d messages=%d", honcho.messageCalls, len(honcho.lastMessages))
+	}
+	if honcho.createCalls != 1 || len(honcho.lastConclusions) != 1 {
+		t.Fatalf("expected one compact summary conclusion, calls=%d conclusions=%d", honcho.createCalls, len(honcho.lastConclusions))
+	}
+	if len(honcho.lastConclusions[0].Content) > 12000 {
+		t.Fatalf("summary conclusion should stay compact, length=%d", len(honcho.lastConclusions[0].Content))
+	}
+}
+
+func TestNotionDocumentChunkMessagesReturnsEmptyForEmptyContentAndTitle(t *testing.T) {
+	messages := NotionDocumentChunkMessages(NotionDocumentInput{
+		WorkspaceID: "notion",
+		PageID:      "page_empty",
+		RootID:      "root_abc",
+	}, map[string]any{"source": "notion"})
+	if len(messages) != 0 {
+		t.Fatalf("empty content/title should not create an empty Honcho message batch: %+v", messages)
+	}
+}
+
+func TestNotionDocumentChunkMessagesBoundsUTF8Bytes(t *testing.T) {
+	messages := NotionDocumentChunkMessages(NotionDocumentInput{
+		WorkspaceID: "notion",
+		PageID:      "page_emoji",
+		RootID:      "root_abc",
+		Content:     strings.Repeat("🧠", 7000),
+	}, map[string]any{"source": "notion"})
+	if len(messages) < 2 {
+		t.Fatalf("expected multi-byte content to be split by byte budget, got %d messages", len(messages))
+	}
+	for _, message := range messages {
+		if len(message.Content) > notionHonchoMessageMaxBytes {
+			t.Fatalf("message content bytes = %d, want <= %d", len(message.Content), notionHonchoMessageMaxBytes)
+		}
+		if !utf8.ValidString(message.Content) {
+			t.Fatalf("message content is not valid UTF-8")
+		}
+	}
 }
 
 func TestNotionMirrorIngestDocumentTreatsHonchoValidationAsObjectFailure(t *testing.T) {
@@ -113,29 +193,6 @@ func TestNotionMirrorIngestDocumentIsIdempotent(t *testing.T) {
 	}
 	if !found || record.HonchoObjectType != "document" || record.HonchoObjectID != "doc_notion_1" {
 		t.Fatalf("unexpected source mirror record: found=%t record=%+v", found, record)
-	}
-}
-
-func TestNotionDocumentConclusionContentCarriesProvenance(t *testing.T) {
-	content := NotionDocumentConclusionContent(NotionDocumentInput{
-		PageID:         "page_abc",
-		Title:          "Deploy Runbook",
-		URL:            "https://notion.so/page_abc",
-		LastEditedTime: "2026-05-02T10:00:00.000Z",
-		Content:        "Roll forward after validation.",
-		Hierarchy:      []string{"Engineering", "Runbooks", "Deploy Runbook"},
-	})
-	for _, expected := range []string{
-		"# Deploy Runbook",
-		"URL: https://notion.so/page_abc",
-		"Notion page id: page_abc",
-		"Last edited: 2026-05-02T10:00:00.000Z",
-		"Hierarchy: Engineering > Runbooks > Deploy Runbook",
-		"Roll forward after validation.",
-	} {
-		if !strings.Contains(content, expected) {
-			t.Fatalf("expected %q in content:\n%s", expected, content)
-		}
 	}
 }
 

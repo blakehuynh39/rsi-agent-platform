@@ -1,12 +1,41 @@
 # RSI Company Knowledge System
 
-This document records the Phase 1A storage contract for RSI company memory.
+This document records the storage contract for RSI company knowledge.
 
 ## Authority Boundary
 
-Honcho is RSI's canonical company memory and compiled knowledge substrate.
+Platform Postgres is RSI's durable source of truth for company knowledge. It
+owns source documents, revisions, chunks, provenance, compiler runs, wiki pages,
+wiki revisions, claims, citations, manifests, and write audits.
+
+The compiled Markdown wiki under `RSI_COMPANY_WIKI_ROOT` is the agent-readable
+published artifact. It is recoverable derived state, not the canonical record.
+If Markdown and Platform Postgres disagree, Platform Postgres wins and the
+Markdown should be repaired from DB-derived artifacts.
+
+Two root files are generated for agent navigation:
+
+- `index.md` is content-oriented. It catalogs published wiki pages by category
+  with page links, one-line summaries, source revision counts, and wiki
+  revision ids. Agents should read it before drilling into specific pages.
+- `log.md` is chronological and append-only. Each entry starts with
+  `## [RFC3339] action | title`, so Hermes can inspect recent activity with
+  simple Unix tools such as `grep '^## \[' "$RSI_COMPANY_WIKI_ROOT/log.md" |
+  tail -5`.
+
+Honcho is the semantic retrieval layer for source evidence and compact compiled
+summaries. It is not the authority for raw source truth or wiki publication.
 Hermes local memory remains runtime assistant state and is not company knowledge
 source of truth.
+
+All canonical wiki mutations must go through Platform `company_knowledge`
+tools/API paths. Agents must not shell-edit wiki files directly. V1 uses the
+shared RW workspace mount for operational simplicity; read-only executor mounts
+are later hardening.
+
+`RSI_HONCHO_WORKSPACE_ID=rsi_company_knowledge` remains the company knowledge
+semantic workspace. `RSI_COMPANY_WIKI_ROOT` defaults to
+`/workspace/company/wiki`.
 
 ## Slack Session Mapping
 
@@ -22,9 +51,11 @@ session name for API calls.
 
 ## Idempotency Mechanism
 
-Slack message idempotency uses an RSI wrapper table, `source_mirror_record`, with
-`(source_type, source_key)` as the primary key. The mirrored content itself is
-still written through Honcho's supported HTTP API.
+Slack message idempotency uses an RSI wrapper table, `source_mirror_record`,
+with `(source_type, source_key)` as the primary key. That table is a migration
+input and current-source pointer; it is not the full provenance ledger. The
+company wiki ledger records first-class source documents, revisions, chunks,
+citations, manifests, and audit rows.
 
 For Slack messages:
 
@@ -38,6 +69,8 @@ creates a new Honcho message and updates the wrapper record to point at the
 latest Honcho message ID; old Honcho messages remain historical evidence.
 
 This avoids search-before-write races and avoids direct SQL writes into Honcho.
+The mirror also imports mirrored Slack content into the Platform source ledger
+and publishes deterministic Markdown when `RSI_COMPANY_WIKI_ROOT` is configured.
 
 For Honcho document/conclusion writes used by Notion mirroring:
 
@@ -52,17 +85,14 @@ For Honcho document/conclusion writes used by Notion mirroring:
   The schema hash is computed from a deterministic property summary with sorted
   property names and sorted select/status option names.
 
-Honcho's current public document surface is the `conclusions` API. The RSI
-source-mirror wrapper therefore writes the document body through
-`POST /v3/workspaces/{workspace}/conclusions`, then records
-`honcho_object_type = document` and `honcho_object_id = <Honcho conclusion id>`
-in `source_mirror_record`. Source-native IDs, URLs, hierarchy, and revision
-metadata live in the wrapper metadata until Honcho exposes first-class public
-document metadata. This is an explicit supported RSI wrapper, not direct Honcho
-SQL coupling.
+The Notion mirror writes block-aware chunks as Honcho messages and writes a
+compact manifest-style summary through the public conclusions API. The full
+raw-ish source body is chunked into the Platform source ledger and compiled into
+Markdown; Honcho conclusions are semantic retrieval summaries, not canonical
+document bodies. This avoids the historical single-conclusion 24KB failure mode.
 
 The same idempotency rule applies: same `source_key` and same `source_revision`
-is a no-op; a changed revision creates a new Honcho document/conclusion and
+is a no-op; a changed revision creates new Honcho evidence/summary records and
 updates the wrapper record to point at the latest Honcho object ID.
 
 Checkpoints are progress hints, not mirror authority. A matching checkpoint can
@@ -102,6 +132,9 @@ under `RSI_SOURCE_MIRROR_CHECKPOINT_ROOT`. The default discovery mode is
 member. Set `RSI_SLACK_MIRROR_CHANNEL_DISCOVERY=explicit` to use only
 `RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST`. `RSI_SLACK_MIRROR_CHANNEL_DENYLIST`
 always excludes channels from mirroring.
+Set `RSI_SLACK_MIRROR_CHANNEL_DISCOVERY=joined_public` to mirror only public
+channels where the Slack app is a member, preserving existing `joined`
+semantics.
 
 When `RSI_SLACK_MIRROR_ENABLED=true` on the Slack surface, normal Slack events
 from mirror-policy channels are mirrored asynchronously after receipt. Mentioned
@@ -166,12 +199,29 @@ policy: in `joined` mode, mirrored Slack channels are available unless denied;
 in `explicit` mode, channels must be present in
 `RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST`.
 
-Document tools currently expose mirrored Notion documents from Honcho
-conclusions. Because Honcho's public conclusions response does not yet expose
-document metadata, Notion mirror writes a stable
-`rsi-source-provenance-json` block plus source URL, object kind/ID, last edited
-time, and hierarchy into the document content itself, while the full structured
-metadata remains in `source_mirror_record`.
+Company wiki tools expose compiled Markdown pages from the Platform ledger:
+
+- `wiki_index_get()`
+- `wiki_search(query, limit)`
+- `wiki_page_get(page_ref)`
+- `wiki_log_get(limit)`
+- `wiki_edit_propose(actor, reason, idempotency_key, slug, title, body,
+  citations)`
+- `wiki_edit_apply(actor, reason, idempotency_key, slug, title, body,
+  citations)`
+
+`wiki_edit_apply` requires validated frontmatter, source-backed citations,
+actor, reason, and an idempotency key. The publish sequence is audit intent,
+staged Markdown, validation, atomic publish, DB wiki revision/citation/manifest
+recording, and completed audit.
+
+Legacy document tools still expose mirrored Notion evidence from Honcho, but
+compiled wiki pages should be preferred for canonical company answers.
+
+Every published Markdown file has a manifest entry with path, sha256,
+generated_at, compiler_run_id, and `wiki_revision_id`. Manifest reconciliation
+at `GET /internal/company-wiki/manifest/reconcile?repair=true` detects direct
+filesystem mutation and repairs Markdown from Platform-owned revision bodies.
 
 Live Slack exact-source tools (`slack_read_thread`, `slack_read_permalink`) stay
 available for freshness and ambiguity resolution. Slack `search.messages` and

@@ -313,6 +313,34 @@ func SlackMessageMetadata(input SlackMessageInput, sourceKey string, sessionKey 
 	return metadata
 }
 
+func SlackWikiSourceRevisionInput(input SlackMessageInput) store.CompanyWikiSourceRevisionInput {
+	sourceKey := SlackMessageSourceKey(input.WorkspaceID, input.ChannelID, input.TS)
+	sessionKey := SlackSessionSourceKey(input.WorkspaceID, input.ChannelID, input.EffectiveThreadTS(), input.IsThreaded())
+	revision := SlackSourceRevision(input)
+	title := "Slack thread " + strings.TrimSpace(input.ChannelID)
+	if input.IsThreaded() {
+		title += " " + input.EffectiveThreadTS()
+	} else {
+		title += " channel"
+	}
+	nativeLocator := "slack:" + strings.TrimSpace(input.ChannelID) + ":" + input.EffectiveThreadTS() + ":" + strings.TrimSpace(input.TS)
+	metadata := SlackMessageMetadata(input, sourceKey, sessionKey, revision)
+	return store.CompanyWikiSourceRevisionInput{
+		SourceType:        SlackMessageSourceType,
+		DocumentSourceKey: sessionKey,
+		SourceKey:         sourceKey,
+		SourceSessionKey:  sessionKey,
+		Workspace:         strings.TrimSpace(input.WorkspaceID),
+		Title:             title,
+		URL:               strings.TrimSpace(input.Permalink),
+		SourceRevision:    sourceKey + ":" + revision,
+		Content:           SlackMessageContent(input),
+		NativeLocator:     nativeLocator,
+		Metadata:          metadata,
+		ObservedAt:        input.CreatedAt,
+	}
+}
+
 func HonchoPeerIDForSlack(input SlackMessageInput) string {
 	for _, value := range []string{input.UserID, input.BotID, input.Username} {
 		if strings.TrimSpace(value) != "" {
