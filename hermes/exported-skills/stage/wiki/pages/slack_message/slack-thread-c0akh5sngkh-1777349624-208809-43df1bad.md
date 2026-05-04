@@ -27,7 +27,11 @@ Slack thread discussing fallback image behavior; currently same image used as fa
 - Use the `banner_image_url` field from the `/v1/campaigns` endpoint, and use the fallback when it doesn't exist. `claim:claim_2` `confidence:1.00`
   - citation: `source_document_id=srcdoc_e1757ce95ebeb5ab7115505343df1bad` `source_revision_id=srcrev_34ee5c55887839d95827a97c22707634` `chunk_id=srcchunk_978b889a658601e7a05c3f10a8cc6897` `native_locator=slack:C0AKH5SNGKH:1777349624.208809:1777355538.203369` `source_timestamp=2026-04-28T05:52:18Z`
 
+## Open Questions
+
+- Do all campaigns use the same image?
+
 ## Sources
 
 - `source_document_id`: `srcdoc_e1757ce95ebeb5ab7115505343df1bad`
-- `source_revision_id`: `srcrev_326c69dc229dba9269ec9ade49051fbf`
+- `source_revision_id`: `srcrev_71ce7fc7b8922c57e48e0bb23f48e098`
