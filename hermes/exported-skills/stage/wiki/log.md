@@ -2792,3 +2792,903 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_061c61777975671340d59755d896ebd4
 - summary: Can I get help creating this stream (so I can use Firebase for GA4)
 
+## [2026-05-04T07:02:27Z] ingest | Slack thread C0AKH5SNGKH 1775791260.016719
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775791260-016719-ed89b5ba
+- wiki_revision_id: wikirev_0de94ee4529e3982dae10b033b715b52
+- source_document_id: srcdoc_04f3ce8ec63da8731d9ef0d0ed89b5ba
+- source_revision_id: srcrev_07e774e2c8de4363a4104d7d9550d9f5
+- summary: <@U04L0DD6B6F> quick top-of-mind recap of what’s still TBD for IP registration after the backend PR is merged:
+
+## [2026-05-04T07:02:28Z] ingest | Slack thread C0AKH5SNGKH 1775789307.431659
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775789307-431659-84173744
+- wiki_revision_id: wikirev_3e900b9bc2ac2c033962f47c5d8b6e94
+- source_document_id: srcdoc_19477e7bec9a0a8ff2a6402984173744
+- source_revision_id: srcrev_7306490e9118d014ea9351e0b588b41c
+- summary: <https://github.com/piplabs/depin-backend/pull/116> pr to add ip registration of files / campaigns with support for multiple registration wallets <@U0772SH7BRA> <@U04L0DD6B6F>
+
+## [2026-05-04T07:02:29Z] ingest | Slack thread C0AKH5SNGKH 1775593669.029009
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775593669-029009-004dbf24
+- wiki_revision_id: wikirev_ea65d1a769549e667171bb81c03a038e
+- source_document_id: srcdoc_1a2ea9aafe7430dd8415a447004dbf24
+- source_revision_id: srcrev_f62595d2d3f7de09379cdaf56cb6572b
+- summary: <@U04L0DD6B6F> do we have more info on how leaderboard will be calculated ? I feel like this part can be done later as whatever leaderboard points we have would be a function of ho...
+
+## [2026-05-04T07:02:29Z] ingest | Slack thread C0AKH5SNGKH 1775784143.205109
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775784143-205109-aeb8de60
+- wiki_revision_id: wikirev_091e2858d98a3cd70cd8deeae98a8e5d
+- source_document_id: srcdoc_1fbc93079e15877c690646dbaeb8de60
+- source_revision_id: srcrev_7eb0c28bc57c79e9a3cbf48e76fbc1de
+- summary: <@U0772SH7BRA> im getting an issue on the `/exchange` route
+
+## [2026-05-04T07:02:30Z] ingest | Slack thread C0AKH5SNGKH 1774987790.927159
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1774987790-927159-846eec98
+- wiki_revision_id: wikirev_2b9a41ec501def07c37f701a7e3614bf
+- source_document_id: srcdoc_239e83c6038f86a6b0682633846eec98
+- source_revision_id: srcrev_f057147e8bd61a352f97b8175a95c129
+- summary: <@U0772SH7BRA> <@U08V4SFU7LZ>: Here's the <https://www.notion.so/storyprotocol/Inference-based-User-Integrity-System-2c8051299a548100a937e16e522ecbc4?source=copy_link|link> to the ...
+
+## [2026-05-04T07:02:31Z] ingest | Slack thread C0AKH5SNGKH 1775784497.184939
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775784497-184939-7d4780e2
+- wiki_revision_id: wikirev_73bdd96ae3a1af0e85d005e641e877ce
+- source_document_id: srcdoc_300df729473a06dfccd91bd47d4780e2
+- source_revision_id: srcrev_6e1dd6a582554184fff21d626830990a
+- summary: <@U0772SH7BRA>
+
+## [2026-05-04T07:02:31Z] ingest | Slack thread C0AKH5SNGKH 1775838748.031819
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775838748-031819-1cd69226
+- wiki_revision_id: wikirev_04f23239f302bed69a116c80d4c2df3d
+- source_document_id: srcdoc_301e884225a196fc05970aae1cd69226
+- source_revision_id: srcrev_971aed5f8b67a667f8abdf7f6db23cfb
+- summary: curious about the prompt used, can you share here?
+
+## [2026-05-04T07:02:32Z] ingest | Slack thread C0AKH5SNGKH 1775860756.549389
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775860756-549389-e2dbd638
+- wiki_revision_id: wikirev_7cbb9139d9b92db1c1ecd0ba5f28c126
+- source_document_id: srcdoc_31897207c16b106504f5d716e2dbd638
+- source_revision_id: srcrev_180ded88651501e73b5a83adf74f7095
+- summary: <@U0772SH7BRA> do you have a whitelist of origins on the backend? When I was using `<https://ouch-film-discover.ngrok-free.dev>` it worked but when I switched to custom domain `<ht...
+
+## [2026-05-04T07:02:33Z] ingest | Slack thread C0AKH5SNGKH 1775788713.966569
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775788713-966569-817f6699
+- wiki_revision_id: wikirev_46988515fbc41d10131d3b644e64bc6b
+- source_document_id: srcdoc_38d5fee98e060940c639e7a6817f6699
+- source_revision_id: srcrev_afdadafb95b7c4079daa8183482dbdcd
+- summary: <@U08HVGL6LDR> <@U05A515NBFC> can you guys help test the e2e and lmk if there are any bugs. I'll stop implementing features for now so we have a stable release for tmr
+
+## [2026-05-04T07:02:33Z] ingest | Slack thread C0AKH5SNGKH 1774990522.490229
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1774990522-490229-7b647a6f
+- wiki_revision_id: wikirev_fe048d2391f92cc5f8947e4db79ac96b
+- source_document_id: srcdoc_39d2ce2e538da47b3bc44a247b647a6f
+- source_revision_id: srcrev_d4f719325f4013c656ac67cca038e3be
+- summary: hey team - since things are changing quickly we want to leverage Poseidon szn 1 as much as possible, drafted these notes to keep track and assign high level tasks and will update a...
+
+## [2026-05-04T07:02:34Z] ingest | Slack thread C0AKH5SNGKH 1775675303.460629
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775675303-460629-d10b812f
+- wiki_revision_id: wikirev_5655c63e1d3e787a0581597df32ff7e1
+- source_document_id: srcdoc_4559e7c6276ff42486a74ff8d10b812f
+- source_revision_id: srcrev_697289440addd23238aadf75c64b9bb1
+- summary: also just finished meeting with team regarding rewards / leaderboards:
+
+## [2026-05-04T07:02:35Z] ingest | Slack thread C0AKH5SNGKH 1775838685.340469
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775838685-340469-ba00cace
+- wiki_revision_id: wikirev_f4b0d2d350a6a2c09c4826ba39fb4500
+- source_document_id: srcdoc_53ea4d65fb994716cf5245fdba00cace
+- source_revision_id: srcrev_0e4c08d6c6522fa3b286414aee91a365
+- summary: <@U067QP5PD6J> lol these are really political
+
+## [2026-05-04T07:02:35Z] ingest | Slack thread C0AKH5SNGKH 1775586741.593929
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775586741-593929-16a7257a
+- wiki_revision_id: wikirev_8cc92a2904bf2449ed3abb05d12dcc9c
+- source_document_id: srcdoc_5d19ae0176ff3cb2496dd94416a7257a
+- source_revision_id: srcrev_187e6f2ac2f41ca2cfe585c27a8aaf54
+- summary: staging url: <https://numo-staging.vercel.app/> pw: `numopip`
+
+## [2026-05-04T07:02:36Z] ingest | Slack thread C0AKH5SNGKH 1775844300.821869
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775844300-821869-03d05dd8
+- wiki_revision_id: wikirev_a2878b47d86763a9a07cd49c22d1f9df
+- source_document_id: srcdoc_60c167bb67574003d67ef0f303d05dd8
+- source_revision_id: srcrev_5225e5d054edd77307e1f352dfc3ae22
+- summary: how's something like this?
+
+## [2026-05-04T07:02:37Z] ingest | Slack thread C0AKH5SNGKH 1774918838.617109
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1774918838-617109-a0ac6b75
+- wiki_revision_id: wikirev_46af61e5af6b096a38f11825fb70d2bb
+- source_document_id: srcdoc_6cf8761c07ce1869f3015770a0ac6b75
+- source_revision_id: srcrev_e56a14ee6e002c7d18b74d48e259fdf8
+- summary: hey folks any of yall joining from asia <@U067QP5PD6J> <@U05A515NBFC>
+
+## [2026-05-04T07:02:37Z] ingest | Slack thread C0AKH5SNGKH 1775798436.158669
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775798436-158669-ef35e5ef
+- wiki_revision_id: wikirev_6bef5f99ee5c11e69b4216e3754d83c0
+- source_document_id: srcdoc_6f05f8e43c03e102e02b43b9ef35e5ef
+- source_revision_id: srcrev_a07a4a433e0b5bcfcbcc597c51afc807
+- summary: Ok <@U0772SH7BRA> I think there is an error on the `/verify` route:
+
+## [2026-05-04T07:02:38Z] ingest | Slack thread C0AKH5SNGKH 1775611653.832659
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775611653-832659-bf6e9003
+- wiki_revision_id: wikirev_c69dbaa40a86f5c15612154dd9b54eb5
+- source_document_id: srcdoc_76561c1039699bc5337b06e6bf6e9003
+- source_revision_id: srcrev_354e04752bf25466e3215981c6fe3aa4
+- summary: checking in on progress - status updates? any blockers? <!here>
+
+## [2026-05-04T07:02:39Z] ingest | Slack thread C0AKH5SNGKH 1774384059.250899
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1774384059-250899-eb2c880d
+- wiki_revision_id: wikirev_4158dbc2ea03ffde8c74b16963e36dfb
+- source_document_id: srcdoc_79aac259f2ec4a210eb518d7eb2c880d
+- source_revision_id: srcrev_0b3e468baf9c0f330a0d72cbea8e23a3
+- summary: <@U08HVGL6LDR> endpoints are updated,
+
+## [2026-05-04T07:02:39Z] ingest | Slack thread C0AKH5SNGKH 1775838713.703179
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775838713-703179-7d33eddd
+- wiki_revision_id: wikirev_31ab40a1e816ccdee7e35976851d8e36
+- source_document_id: srcdoc_7ba436190354de770cca7cde7d33eddd
+- source_revision_id: srcrev_554f66ca2f591a6e8ca29316cd416f92
+- summary: changing @_@
+
+## [2026-05-04T07:02:40Z] ingest | Slack thread C0AKH5SNGKH 1775165360.349769
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775165360-349769-43dfed89
+- wiki_revision_id: wikirev_a2efb3f9e1f0a8b8b0c547fd6aacde1d
+- source_document_id: srcdoc_81361ae35dc2deda67bb116343dfed89
+- source_revision_id: srcrev_5afc587b3d9fc5960af43cd6214a44f4
+- summary: <@U067QP5PD6J>
+
+## [2026-05-04T07:02:41Z] ingest | Slack thread C0AKH5SNGKH 1774571411.343689
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1774571411-343689-034966d9
+- wiki_revision_id: wikirev_40c6d0ac9cb762e321d136cd3a438393
+- source_document_id: srcdoc_8151253be12ed86a1d0a22fd034966d9
+- source_revision_id: srcrev_fac8cd2c77511b129d549f667b129e70
+- summary: regarding tasks: can yall help look into potential payment routes and KYC routes?
+
+## [2026-05-04T07:02:42Z] ingest | Slack thread C0AKH5SNGKH 1775796358.324729
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775796358-324729-8d2ad22a
+- wiki_revision_id: wikirev_3b85ffe25d60197014812c8d8caa5718
+- source_document_id: srcdoc_855958e844afb29a05cb10598d2ad22a
+- source_revision_id: srcrev_f624d7e8c1b9ca0f9ab80dc21ea9b915
+- summary: <@U05A515NBFC> would it be possible to extend the jwt expiration in staging? it should be set to around 1 month on psdn side
+
+## [2026-05-04T07:02:42Z] ingest | Slack thread C0AKH5SNGKH 1775594683.253279
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775594683-253279-6f2b2b7f
+- wiki_revision_id: wikirev_f0630928f9326e9fc7677bdffbe89271
+- source_document_id: srcdoc_8e99494093711a28a2d786e46f2b2b7f
+- source_revision_id: srcrev_b9511cbfb8e329610bbf9bdbdd5a5338
+- summary: FYI just got off call with Eleven labs regarding enterprise plan:
+
+## [2026-05-04T07:02:43Z] ingest | Slack thread C0AKH5SNGKH 1775663936.190289
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775663936-190289-f9fca812
+- wiki_revision_id: wikirev_1ab92a0918afe7bc4ae995490135c0a6
+- source_document_id: srcdoc_9c2337c40a4a6bdf693177e4f9fca812
+- source_revision_id: srcrev_fb02a6560464ea6af3524517999bae46
+- summary: <@U05A515NBFC> I have time today to work on frontend task, what can I do to help while ur asleep
+
+## [2026-05-04T07:02:44Z] ingest | Slack thread C0AKH5SNGKH 1774372348.676789
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1774372348-676789-3a6c0cf4
+- wiki_revision_id: wikirev_b9a3557d1afbce7d69e1d74301647f2f
+- source_document_id: srcdoc_a593aecae71d04a32b7460273a6c0cf4
+- source_revision_id: srcrev_2e14359582cda7b6682882ad25723056
+- summary: Yo <@U0772SH7BRA> I think we have to enable google as a sign in method on the Dynamic dashboard. Do you own this part?
+
+## [2026-05-04T07:02:44Z] ingest | Slack thread C0AKH5SNGKH 1775789360.634069
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775789360-634069-04d76c77
+- wiki_revision_id: wikirev_c3dc4842e9ff9689e934f8f316d0ca39
+- source_document_id: srcdoc_b1bbd272cd8839957004b7e304d76c77
+- source_revision_id: srcrev_22b10d9daf7adbe545f5eabfae97899f
+- summary: Hey <@U08951K4SRY> I think we can start doing some testing early on for some of the features
+
+## [2026-05-04T07:02:45Z] ingest | Slack thread C0AKH5SNGKH 1774051400.233059
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1774051400-233059-ffe5e227
+- wiki_revision_id: wikirev_c38b22fddc46c6a86fef50e5f134b10c
+- source_document_id: srcdoc_b36a571fb891dc57a0ee8a6bffe5e227
+- source_revision_id: srcrev_3c271c8145125dba9f0064e04aa41567
+- summary: <@U04L0DD6B6F> <@U08HVGL6LDR> <@U0772SH7BRA> I created a github action from my jobs scraper to get additional data in the csv file and delete removed / old jobs
+
+## [2026-05-04T07:02:46Z] ingest | Slack thread C0AKH5SNGKH channel
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-channel-53ca9dcc
+- wiki_revision_id: wikirev_2729fde2486a445d43dd78c7a98216d3
+- source_document_id: srcdoc_b8c049e55a95dd9144c9ede553ca9dcc
+- source_revision_id: srcrev_bd9dad8723187b620235775dfd778fdf
+- summary: quick fix: add og image to landing page
+
+## [2026-05-04T07:02:47Z] ingest | Slack thread C0AKH5SNGKH 1775237512.478819
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775237512-478819-e54d6ad5
+- wiki_revision_id: wikirev_2c92d0f05512d721a15fb5308dde7261
+- source_document_id: srcdoc_bb4027c2f5b8e1c5b464961ce54d6ad5
+- source_revision_id: srcrev_074ad674baec5ca903037f979a98c012
+- summary: <@U04L0DD6B6F> <@U08HVGL6LDR> the staging link
+
+## [2026-05-04T07:02:47Z] ingest | Slack thread C0AKH5SNGKH 1774253615.005649
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1774253615-005649-094cc94e
+- wiki_revision_id: wikirev_66ff79efdc414d145362b88734406b73
+- source_document_id: srcdoc_be0a4ddd9a742bf5f01be175094cc94e
+- source_revision_id: srcrev_cd953e0f4462ea21fc21e1913ff5c286
+- summary: UPDATE:
+
+## [2026-05-04T07:02:48Z] ingest | Slack thread C0AKH5SNGKH 1774042233.513569
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1774042233-513569-3c784a61
+- wiki_revision_id: wikirev_22969b34234954e303a9660d3044a4a5
+- source_document_id: srcdoc_c5d899b2652d438d42b95d223c784a61
+- source_revision_id: srcrev_023eb99d41f796267af0fe00d6478b7a
+- summary: <@U04L0DD6B6F> <@U08HVGL6LDR> do you guys want to sync ? When r u free
+
+## [2026-05-04T07:02:49Z] ingest | Slack thread C0AKH5SNGKH 1774461329.147469
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1774461329-147469-14ead83a
+- wiki_revision_id: wikirev_c54b9f69d97f573aa7e061f00289db2c
+- source_document_id: srcdoc_c8f14423d93808b9748cc44514ead83a
+- source_revision_id: srcrev_18d9428df6969da18066a5a10774920f
+- summary: <@U08V4SFU7LZ> i forgot to ask, for the raw jobs api (without recommendation) is it available in an endpoint somewhere?
+
+## [2026-05-04T07:02:49Z] ingest | Slack thread C0AKH5SNGKH 1775161802.781179
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775161802-781179-c016d4c3
+- wiki_revision_id: wikirev_44b542c172a683c6cf4cbac37eecd21f
+- source_document_id: srcdoc_cbdd1a01bc7e96e0902678acc016d4c3
+- source_revision_id: srcrev_0d9a984354c902e79cadda336d1d98dc
+- summary: <@U0772SH7BRA> lmk if you're setting up the new depin backend repo and getting db access, this is the one we used <https://github.com/PSDN-AI/depin-api>,
+
+## [2026-05-04T07:02:50Z] ingest | Slack thread C0AKH5SNGKH 1775848812.270179
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775848812-270179-0570e92a
+- wiki_revision_id: wikirev_0c62484830234c3166b29661a9770626
+- source_document_id: srcdoc_d9ff8709a50371d81fbb63940570e92a
+- source_revision_id: srcrev_180e6ab7fcb0de99d2358e10feff0d64
+- summary: I _finally_ have world login/verification working: <https://github.com/piplabs/numo-monorepo/pull/15/>. It's using the legacy device verification since that's what we want and supp...
+
+## [2026-05-04T07:02:51Z] ingest | Slack thread C0AKH5SNGKH 1774317289.996659
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1774317289-996659-870d6815
+- wiki_revision_id: wikirev_12ce0612b0da9f2c07ec7d37adc5e589
+- source_document_id: srcdoc_e13dfa2918c889af284256b5870d6815
+- source_revision_id: srcrev_7d9e85ba13014b102f937a37e4e0c2c3
+- summary: <https://otter.ai/u/plOKnTv20QfVXvdocm8Ex6-2owY?utm_source=copy_url>
+
+## [2026-05-04T07:02:52Z] ingest | Slack thread C0AKH5SNGKH 1775692096.352839
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775692096-352839-1fbc7b9e
+- wiki_revision_id: wikirev_e3de376c9827975df4dc3cd8366b6cf5
+- source_document_id: srcdoc_e1dfcab8e99e6212ac0bc7fb1fbc7b9e
+- source_revision_id: srcrev_ecb853964a0791cac0ff08ecb0996a03
+- summary: For some reason I'm not getting any login email notifications from World no matter how I try to sign in. Does anyone else have this issue?
+
+## [2026-05-04T07:02:52Z] ingest | Slack thread C0AKH5SNGKH 1774302868.190719
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1774302868-190719-b65dd3ca
+- wiki_revision_id: wikirev_e866ef9797e90f973d6bbb37fb0eb5d8
+- source_document_id: srcdoc_e4d9aa23eb0aba0432dca4fcb65dd3ca
+- source_revision_id: srcrev_e50e9892b9f1f1767ab4c7f2fba7cd77
+- summary: can yall start to list out the Todos in the individual apps
+
+## [2026-05-04T07:02:53Z] ingest | Slack thread C0AKH5SNGKH 1774304284.123489
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1774304284-123489-3533f4e3
+- wiki_revision_id: wikirev_10c26069ec657255eae38d5b812ea78b
+- source_document_id: srcdoc_e51a106f945ebb49b0d3588d3533f4e3
+- source_revision_id: srcrev_7bf97c93342d83f17a38d8bb2a4afea0
+- summary: <@U0772SH7BRA> <@U04L0DD6B6F> quick report on the different ways to use eleven labs (platform, APIs) depending on use cases, development stage, and scaling needs
+
+## [2026-05-04T07:02:54Z] ingest | Slack thread C0AKH5SNGKH 1775859360.615889
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775859360-615889-2e9d99e0
+- wiki_revision_id: wikirev_5e87e45839f8ed3d884d034a63ad4abf
+- source_document_id: srcdoc_eac80e74ced1f035d36c78262e9d99e0
+- source_revision_id: srcrev_757726dbd33d4c5e963fe10fa1770ae1
+- summary: <@U0772SH7BRA> <@U083MMT1771> quick <https://github.com/piplabs/depin-backend/pull/122|PR> to avoid blocking ci/cd while ip registration values file and chart don't exist yet
+
+## [2026-05-04T07:02:55Z] ingest | Slack thread C0AKH5SNGKH 1775247792.670219
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775247792-670219-6c3000dc
+- wiki_revision_id: wikirev_b9bd177938e1663384a169b74b576e01
+- source_document_id: srcdoc_eb5c8d6bcc5de7a234afbf8b6c3000dc
+- source_revision_id: srcrev_3f7b42275b72945bc892d7678be79b14
+- summary: <@U05A515NBFC> <@U04L0DD6B6F> I have made PR for Lingui translation across English, Hindi (both partially existed already), Korean, Vietnamese and Filipino: <https://github.com/pip...
+
+## [2026-05-04T07:02:55Z] ingest | Slack thread C0AKH5SNGKH 1775148351.731269
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775148351-731269-5a3d9ac4
+- wiki_revision_id: wikirev_36a80efec598f7252ba89ec8a9a8dcaf
+- source_document_id: srcdoc_eef48d45aa25a1ca6240aacd5a3d9ac4
+- source_revision_id: srcrev_54ef530fd78588dd0f55abd3b89f437f
+- summary: Numo frontend repo: <https://github.com/piplabs/numo-monorepo>
+
+## [2026-05-04T07:02:56Z] ingest | Slack thread C0AKH5SNGKH 1774051481.008149
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1774051481-008149-67eb65e6
+- wiki_revision_id: wikirev_5d89f8c0c7f3dae24977bb334b15d422
+- source_document_id: srcdoc_ef0a4c15b2bd8cd38443269c67eb65e6
+- source_revision_id: srcrev_bbee0d5b8d3db12c9671e10b8c5ff5b5
+- summary: Updated the FE for the Jobs app: <https://scout-careers-web.vercel.app/>
+
+## [2026-05-04T07:02:57Z] ingest | Slack thread C0AKH5SNGKH 1774721015.280279
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1774721015-280279-0dd0a784
+- wiki_revision_id: wikirev_cc1a82ec87d4020a0c019437438b306a
+- source_document_id: srcdoc_efe515ef90cbf7869606737b0dd0a784
+- source_revision_id: srcrev_7e3fc6a7412f307e253fc448e20d1419
+- summary: <https://x.com/TheGeorgePu/status/2037930340975538184?s=20Mmm>
+
+## [2026-05-04T07:02:57Z] ingest | Slack thread C0AKH5SNGKH 1775676166.597019
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775676166-597019-00c8a0a6
+- wiki_revision_id: wikirev_a6c15719ba69c5f8b25480d8be792593
+- source_document_id: srcdoc_f08c2dded72e114e64fea26b00c8a0a6
+- source_revision_id: srcrev_f393eb45e206550993a11b00e33cbe00
+- summary: <@U04L0DD6B6F> currently proposed ip metadata, basically I used Poseidon's one and removed fields only relevant to audio to keep it generic
+
+## [2026-05-04T07:02:58Z] ingest | Slack thread C0AKH5SNGKH 1775266727.773189
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1775266727-773189-0480d72d
+- wiki_revision_id: wikirev_345f6fd0ea6e0d7d0ee5d0e1e57214e4
+- source_document_id: srcdoc_f3e9e6dd42a569748fb1429c0480d72d
+- source_revision_id: srcrev_85a69d1853209a6687f174d206a89f29
+- summary: Next week let's aim for
+
+## [2026-05-04T07:04:42Z] ingest | Slack thread C0AKH5SNGKH 1773857185.609889
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1773857185-609889-2aa83b17
+- wiki_revision_id: wikirev_1253c4b3f3998b210db702cad60542c9
+- source_document_id: srcdoc_01819a7f57dac01c62241fd12aa83b17
+- source_revision_id: srcrev_5eaabc38989af813f42caa4575ca53e7
+- summary: <@U0772SH7BRA> can you share some of your findings and resources from your MBTI research so I can think about the UX/UI with a bit more context
+
+## [2026-05-04T07:04:43Z] ingest | Slack thread C0AKH5SNGKH 1773777398.127909
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1773777398-127909-95a28c4f
+- wiki_revision_id: wikirev_a35ce396bc9181aeb51f1a4c985ac502
+- source_document_id: srcdoc_548feb04dcbeffdd3e74736895a28c4f
+- source_revision_id: srcrev_a33de34b871ffe91bf96eb930f7b78b8
+- summary: This is a sample app I built for doing personality test
+
+## [2026-05-04T07:04:44Z] ingest | Slack thread C0AKH5SNGKH 1773680545.443699
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1773680545-443699-0b454433
+- wiki_revision_id: wikirev_a1c31388c4142ee800e6d27e1e3f2e0e
+- source_document_id: srcdoc_8a0d60610426a428e60cbeb10b454433
+- source_revision_id: srcrev_77ed8363e5757934a4d3b8beccb1ef3b
+- summary: <@U0772SH7BRA> <@U067QP5PD6J> meeting
+
+## [2026-05-04T07:04:44Z] ingest | Slack thread C0AKH5SNGKH 1773936020.412949
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1773936020-412949-5e0e8cbd
+- wiki_revision_id: wikirev_5c0d0ff031586790ba9a49e9a0e553ab
+- source_document_id: srcdoc_8f1052969bfb138f64e517855e0e8cbd
+- source_revision_id: srcrev_4397c0594a9c2cee048f11dce942e7d7
+- summary: Reminder: daily-async-standup.
+
+## [2026-05-04T07:04:45Z] ingest | Slack thread C0AKH5SNGKH 1773346659.498789
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1773346659-498789-358562a3
+- wiki_revision_id: wikirev_6914574f8fd7a855840efdc9db910a88
+- source_document_id: srcdoc_9ec8280f7a93dd05db31610e358562a3
+- source_revision_id: srcrev_407afd065f913cb069a7c4e6a248d15a
+- summary: <!here>
+
+## [2026-05-04T07:04:46Z] ingest | Slack thread C0AKH5SNGKH 1773767747.973989
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1773767747-973989-62d8e452
+- wiki_revision_id: wikirev_75c7d9ce1f7530701a04120a287e174e
+- source_document_id: srcdoc_a1f1a003afefa63554918c7362d8e452
+- source_revision_id: srcrev_e820a98714c40c30adf1ea5979bb0091
+- summary: anyone tried blueprint yet?
+
+## [2026-05-04T07:04:47Z] ingest | Slack thread C0AKH5SNGKH channel
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-channel-53ca9dcc
+- wiki_revision_id: wikirev_35f3ac7ecedb78526ffd03e929238a53
+- source_document_id: srcdoc_b8c049e55a95dd9144c9ede553ca9dcc
+- source_revision_id: srcrev_52323bf9c1be1f90feb2b3adf12d8b07
+- summary: quick fix: add og image to landing page
+
+## [2026-05-04T07:04:48Z] ingest | Slack thread C0AKH5SNGKH 1773690919.981579
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1773690919-981579-c5b30327
+- wiki_revision_id: wikirev_a7aec907c79008fe6085dcfd872c0609
+- source_document_id: srcdoc_c5dcabbe96b8d67ccbc2fffac5b30327
+- source_revision_id: srcrev_00cafd722c16f6d16970fc86adc0ae43
+- summary: <@U0772SH7BRA> given that we might do duplex voice streaming. can you callout any concerns and LoE and time estimate on infra side?
+
+## [2026-05-04T07:04:48Z] ingest | Slack thread C0AKH5SNGKH 1773868641.756869
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1773868641-756869-7967ced1
+- wiki_revision_id: wikirev_46283f9666c5d92025da04fb0a4b0d0c
+- source_document_id: srcdoc_d4b81aaab2e4e9d8c3a7c7267967ced1
+- source_revision_id: srcrev_c60f8c8b99930355b6cdb76b114a49e5
+- summary: ```For your use case, the tradeoff is basically:
+
+## [2026-05-04T07:04:49Z] ingest | Slack thread C0AKH5SNGKH 1773945320.136929
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1773945320-136929-813d7636
+- wiki_revision_id: wikirev_2cc5d5401819e35570bf1075bc159462
+- source_document_id: srcdoc_ed6410c2bc53abcb3adc1535813d7636
+- source_revision_id: srcrev_7d1dc4f7e18dfb5a2015cbde60d50187
+- summary: <@U08HVGL6LDR> <@U08V4SFU7LZ> <@U0772SH7BRA> lets huddle - Blake has a demo PoC of the architecture he's built also lets use this time to align on what needs to be done and delegat...
+
+## [2026-05-04T07:06:02Z] ingest | Slack thread C0ASQ9K5V50 channel
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-channel-2e8e81ac
+- wiki_revision_id: wikirev_39e34f64ce174a7f17d6851376961af7
+- source_document_id: srcdoc_00524a92e3d730ba3f2eabb82e8e81ac
+- source_revision_id: srcrev_9defe3a2a1590b7154c9e8f82563595e
+- summary: Hello <@U0ASDQKU3UL>, can you give me a quick rundown of how depin-backend api progressed in the last week, you can find the channel in <#C0AKH5SNGKH>
+
+## [2026-05-04T07:06:03Z] ingest | Slack thread C0ASQ9K5V50 1777791388.218409
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777791388-218409-3e5a9479
+- wiki_revision_id: wikirev_bea5ee1a7be29332c32949f2d7e689e9
+- source_document_id: srcdoc_00df8a643b5ed3d2a492f0e03e5a9479
+- source_revision_id: srcrev_ff7b9448bd91d82c57d1f6025e3eda75
+- summary: <@U0ASDQKU3UL> is the latest commit on rsi repo fully deployed
+
+## [2026-05-04T07:06:04Z] ingest | Slack thread C0ASQ9K5V50 1776539108.371359
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1776539108-371359-51859a9d
+- wiki_revision_id: wikirev_8fda69106f63c7d139a5f770468229ba
+- source_document_id: srcdoc_037bf20bcaee572cb692c5c951859a9d
+- source_revision_id: srcrev_e272c2cff0c3dfde8b1d9083832bd458
+- summary: Hello <@U0ASDQKU3UL>, can you give me a quick rundown of how depin-backend api progressed in this past week in accordance with the numo project, is there any misalignments ? you ca...
+
+## [2026-05-04T07:06:05Z] ingest | Slack thread C0ASQ9K5V50 1776716468.730339
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1776716468-730339-7616a74f
+- wiki_revision_id: wikirev_99804943ee9b5b55ccacd9e9d0e8a82d
+- source_document_id: srcdoc_0667e921378715a8bc6262217616a74f
+- source_revision_id: srcrev_ee489f1ec21864be80577d57ec9ea1e8
+- summary: <@U0ASDQKU3UL> can you draw a architectural diagram of all our depin-backend using the repo + story-deployments as SoT . Use /architecture-diagram skill
+
+## [2026-05-04T07:06:06Z] ingest | Slack thread C0ASQ9K5V50 1776911359.788819
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1776911359-788819-d36b3597
+- wiki_revision_id: wikirev_55d984d5cffe59fbb9e8dca7b24f99ba
+- source_document_id: srcdoc_0a8a834209afc6360b45a885d36b3597
+- source_revision_id: srcrev_573c3544c97fb44a5b2c6bee4227cd1a
+- summary: <@U0ASDQKU3UL> can you draw a architectural diagram of all our depin-backend using the repo + story-deployments as SoT . Use /architecture-diagram skill
+
+## [2026-05-04T07:06:06Z] ingest | Slack thread C0ASQ9K5V50 1777682185.916209
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777682185-916209-98d946fa
+- wiki_revision_id: wikirev_baaf154aa4b2ac909505387253e4284d
+- source_document_id: srcdoc_0c938f61034f6c330437819a98d946fa
+- source_revision_id: srcrev_331563675b2bd30e5af967161475666a
+- summary: <@U0ASDQKU3UL> can you help with <https://storyprotocol.slack.com/archives/C0AKH5SNGKH/p1777650186068179>
+
+## [2026-05-04T07:06:07Z] ingest | Slack thread C0ASQ9K5V50 1776727787.256069
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1776727787-256069-fa7f40c7
+- wiki_revision_id: wikirev_d3b5fe120f77353c2f33334ab1d36a84
+- source_document_id: srcdoc_13acd9cbe552b9dd6c9fc2d7fa7f40c7
+- source_revision_id: srcrev_e4ea325491484834f6607681f832b807
+- summary: <@U0ASDQKU3UL> can you draw a architectural diagram of all our depin-backend using the repo + story-deployments as SoT . Use /architecture-diagram skill
+
+## [2026-05-04T07:06:08Z] ingest | Slack thread C0ASQ9K5V50 1777780503.291209
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777780503-291209-4b51a98b
+- wiki_revision_id: wikirev_1e7f60cf71b9551bae7f979ff9ae10ef
+- source_document_id: srcdoc_207da84d14d7aa6b2771298b4b51a98b
+- source_revision_id: srcrev_363eb3103af1d9b2abb8cfe43835ba8f
+- summary: <@U0ASDQKU3UL> what are some work items from notion/slack channels/discussions that we haven't implemented yet and were marked as fast follow up after launch
+
+## [2026-05-04T07:06:08Z] ingest | Slack thread C0ASQ9K5V50 1776987959.773559
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1776987959-773559-83b53f15
+- wiki_revision_id: wikirev_3135a0287209485bf6f4cbb6a44615fb
+- source_document_id: srcdoc_2150fadd069af0a86e00ab7983b53f15
+- source_revision_id: srcrev_787ca45a54a71889b39bf65dc387d05d
+- summary: <@U0ASDQKU3UL> can you draw a architectural diagram of all our depin-backend using the repo + story-deployments as SoT . Use /architecture-diagram skill
+
+## [2026-05-04T07:06:09Z] ingest | Slack thread C0ASQ9K5V50 1776667206.084359
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1776667206-084359-7375c5ec
+- wiki_revision_id: wikirev_1934f61876a2fc7b02a3429dae0241e6
+- source_document_id: srcdoc_272c8a6c4f24bf8a6a80e7f37375c5ec
+- source_revision_id: srcrev_3d608f6bf1ece2358d0528b24acaf5c9
+- summary: <@U0ASDQKU3UL> can you draw a architectural diagram of all our depin-backend using the repo + story-deployments as SoT . Use /architecture-diagram skill
+
+## [2026-05-04T07:06:10Z] ingest | Slack thread C0ASQ9K5V50 1777626625.691639
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777626625-691639-4d888e13
+- wiki_revision_id: wikirev_ebb6d9c1adc1f2cbc424ff74345ff230
+- source_document_id: srcdoc_2bdb1a327b311a4463873cfd4d888e13
+- source_revision_id: srcrev_3b1548408a79c1c91da5b9e72b668804
+- summary: <@U0ASDQKU3UL> are you able to help curl the latest stats <https://storyprotocol.slack.com/archives/C0ASQ9K5V50/p1777502466048239>
+
+## [2026-05-04T07:06:11Z] ingest | Slack thread C0ASQ9K5V50 1776648325.409239
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1776648325-409239-a82da9c9
+- wiki_revision_id: wikirev_8b4f96e85ee455d03bffa9cd223a126b
+- source_document_id: srcdoc_313561752c91a43bac345885a82da9c9
+- source_revision_id: srcrev_e0398452c32b1829085b60d989b837b8
+- summary: <@U0ASDQKU3UL> can you give a list of what should <@U0772SH7BRA> get done this past week according to <@U04L0DD6B6F> requests in <#C0AKH5SNGKH> and discussions in <#C0AL7EKNHDF> th...
+
+## [2026-05-04T07:06:11Z] ingest | Slack thread C0ASQ9K5V50 1777493123.284529
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777493123-284529-89d4b0c7
+- wiki_revision_id: wikirev_55fe8c7dd047cdbfd634e9e08a1e41a3
+- source_document_id: srcdoc_3c6ec749352e14b05851450a89d4b0c7
+- source_revision_id: srcrev_1960981c80bdf1767fae745f6f83d5b7
+- summary: <@U0ASDQKU3UL> can you summarize what was done this week so far for the numo app, both on the code and product sides ? Use notions,slacks and github as ur SoT
+
+## [2026-05-04T07:06:12Z] ingest | Slack thread C0ASQ9K5V50 1777709957.969539
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777709957-969539-055c10de
+- wiki_revision_id: wikirev_bbb06237591e6583924e5c909efafb0e
+- source_document_id: srcdoc_3dce778004220a66b076d23b055c10de
+- source_revision_id: srcrev_05b3c6c9a4566b23128bc9ad56fe8cfb
+- summary: <@U0ASDQKU3UL> can you help create architectural diagram for the rsi platform repo ? Then append that img to the readme through a PR
+
+## [2026-05-04T07:06:13Z] ingest | Slack thread C0ASQ9K5V50 1776487620.661639
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1776487620-661639-d59dea0b
+- wiki_revision_id: wikirev_e47a631d82f058b1ffccc7fded932377
+- source_document_id: srcdoc_44961e942d9a2205cb9257f7d59dea0b
+- source_revision_id: srcrev_d25f5f20b2144c0e14bc94813f2f4674
+- summary: Hello <@U0ASDQKU3UL>, can you give me a quick rundown of how depin-backend api progressed in this past week in accordance with the numo project ? you can find the channel in <#C0AK...
+
+## [2026-05-04T07:06:14Z] ingest | Slack thread C0ASQ9K5V50 1777344346.536959
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777344346-536959-8d5346da
+- wiki_revision_id: wikirev_fe4fa0583ee432c819111dd65b3f4c7f
+- source_document_id: srcdoc_4fe9368028b9e490a72928278d5346da
+- source_revision_id: srcrev_566b8bd4dc34f4dbccfd546b4b15ae20
+- summary: <@U0ASDQKU3UL> can you draw a architectural diagram of all our depin-backend and numo-monorepo using the repo + story-deployments as SoT. Use /architecture-diagram skill. Focus on ...
+
+## [2026-05-04T07:06:14Z] ingest | Slack thread C0ASQ9K5V50 1777420089.711209
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777420089-711209-03f5d138
+- wiki_revision_id: wikirev_80f530382a38319a2393548fafe1b18a
+- source_document_id: srcdoc_5a4aef435accc7235969c6ca03f5d138
+- source_revision_id: srcrev_2c9069c975138fba86a8828743570266
+- summary: <@U0ASDQKU3UL> can you draw a architectural diagram of all our depin-backend and numo-monorepo using the repo + story-deployments as SoT. Use /architecture-diagram skill. Focus on ...
+
+## [2026-05-04T07:06:15Z] ingest | Slack thread C0ASQ9K5V50 1777338340.592339
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777338340-592339-657b8af6
+- wiki_revision_id: wikirev_1ebf73a7b52eafe594deaed0e4dc09aa
+- source_document_id: srcdoc_621c0fc80f92719695cf3aba657b8af6
+- source_revision_id: srcrev_f88d6c9c6fc5c012510e398b96b059a3
+- summary: <@U0ASDQKU3UL> can you draw a architectural diagram of all our depin-backend using the repo + story-deployments as SoT . Use /architecture-diagram skill
+
+## [2026-05-04T07:06:16Z] ingest | Slack thread C0ASQ9K5V50 1777337370.830989
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777337370-830989-0a29d186
+- wiki_revision_id: wikirev_c984c912bf805314f5cab0060ffce4f4
+- source_document_id: srcdoc_6a0b7e7cf1bfb325e5cf78b10a29d186
+- source_revision_id: srcrev_a08a9b93a929f990668eb18ce5aa2fe4
+- summary: can you draw a architectural diagram of all our depin-backend using the repo + story-deployments as SoT . Use /architecture-diagram skill
+
+## [2026-05-04T07:06:17Z] ingest | Slack thread C0ASQ9K5V50 1776494855.525199
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1776494855-525199-861d60f8
+- wiki_revision_id: wikirev_b1d4da53de548ed72ee1ab2c0f88cbd8
+- source_document_id: srcdoc_79732a922a9e8a8919f7c009861d60f8
+- source_revision_id: srcrev_6cb5fd21ac21aea4289f2e73d8d48f46
+- summary: Hello <@U0ASDQKU3UL>, can you give me a quick rundown of how depin-backend api progressed in this past week in accordance with the numo project, is there any misalignments ? you ca...
+
+## [2026-05-04T07:06:17Z] ingest | Slack thread C0ASQ9K5V50 1777151223.424979
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777151223-424979-c075a92d
+- wiki_revision_id: wikirev_a9e3862f3fc9ca86527984fd8cbfd8d8
+- source_document_id: srcdoc_7b7fd6f741b83e94be42bcc7c075a92d
+- source_revision_id: srcrev_744524d2f06fc4d229c183718a15a43c
+- summary: <@U0ASDQKU3UL> can you draw a architectural diagram of all our depin-backend using the repo + story-deployments as SoT . Use /architecture-diagram skill
+
+## [2026-05-04T07:06:18Z] ingest | Slack thread C0ASQ9K5V50 1777012181.942339
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777012181-942339-70f0a0f4
+- wiki_revision_id: wikirev_50d924f1b40d7d0293f55ace1c75a712
+- source_document_id: srcdoc_818e370b2b7fba7cd423d03f70f0a0f4
+- source_revision_id: srcrev_7db65fa709189e65e6d7f88b5b526202
+- summary: <@U0ASDQKU3UL> can you draw a architectural diagram of all our depin-backend using the repo + story-deployments as SoT . Use /architecture-diagram skill
+
+## [2026-05-04T07:06:19Z] ingest | Slack thread C0ASQ9K5V50 1776968770.433579
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1776968770-433579-53d35cba
+- wiki_revision_id: wikirev_1d27e332d0514ac8d805e805b66d177e
+- source_document_id: srcdoc_88ce8f55c93359e8dfcf42fe53d35cba
+- source_revision_id: srcrev_661b82241cdcf9488b0eecb7fa2354b6
+- summary: <@U0ASDQKU3UL> can you draw a architectural diagram of all our depin-backend using the repo + story-deployments as SoT . Use /architecture-diagram skill
+
+## [2026-05-04T07:06:20Z] ingest | Slack thread C0ASQ9K5V50 1777675195.330749
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777675195-330749-479ec5bb
+- wiki_revision_id: wikirev_03faff6a40271a3e0df00cc7a557fc67
+- source_document_id: srcdoc_91ef03d043bdf2c4249283ad479ec5bb
+- source_revision_id: srcrev_864db45276073452a0eb68e9a8294b2e
+- summary: <@U0ASDQKU3UL> can you help with <https://storyprotocol.slack.com/archives/C0AKH5SNGKH/p1777650186068179>
+
+## [2026-05-04T07:06:20Z] ingest | Slack thread C0ASQ9K5V50 1777502466.048239
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777502466-048239-e751a1be
+- wiki_revision_id: wikirev_ff79d739df540fffa216861833c11e19
+- source_document_id: srcdoc_9bb25d8d0ca433c888aafc13e751a1be
+- source_revision_id: srcrev_5d5cf85961ebad5c336a72d7f38f3796
+- summary: <@U0ASDQKU3UL> whats the latest stats for numo user
+
+## [2026-05-04T07:06:21Z] ingest | Slack thread C0ASQ9K5V50 1777331193.839249
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777331193-839249-cf9dade5
+- wiki_revision_id: wikirev_42fbcbfbb74a9af94ba755090a35283f
+- source_document_id: srcdoc_a044aceae175ba99e7960261cf9dade5
+- source_revision_id: srcrev_65b29a0cafba5103567aba158553a86b
+- summary: can you draw a architectural diagram of all our depin-backend using the repo + story-deployments as SoT . Use /architecture-diagram skill
+
+## [2026-05-04T07:06:22Z] ingest | Slack thread C0ASQ9K5V50 1777778695.463129
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777778695-463129-87164c70
+- wiki_revision_id: wikirev_1e972cdd6b4693b5ee156644004c43e2
+- source_document_id: srcdoc_a2d855ac73f3bad8f44f8a2587164c70
+- source_revision_id: srcrev_d21342b6c072b4ebe3c7c4664c2813fd
+- summary: <@U0ASDQKU3UL> can you help create architectural diagram for the rsi platform repo ? Then append that img as an svg to the readme through a PR
+
+## [2026-05-04T07:06:23Z] ingest | Slack thread C0ASQ9K5V50 1776582758.697379
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1776582758-697379-7121982c
+- wiki_revision_id: wikirev_a6ae32d8d9811966262a98964f923a90
+- source_document_id: srcdoc_b3b78e6d7d7450322aaec5087121982c
+- source_revision_id: srcrev_8f684a745534fa3013e6ddaef47e989a
+- summary: Hello <@U0ASDQKU3UL>, can you give me a quick rundown of how depin-backend api progressed in this past week in accordance with the numo project, is there any misalignments ? you ca...
+
+## [2026-05-04T07:06:24Z] ingest | Slack thread C0ASQ9K5V50 1776492764.464789
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1776492764-464789-6aaaad55
+- wiki_revision_id: wikirev_58df99389919a305ea27fb2472f8a37f
+- source_document_id: srcdoc_b5a8db36a50202a0123f37d16aaaad55
+- source_revision_id: srcrev_3123a820bdc63b43adea8a86a2398b91
+- summary: Hello <@U0ASDQKU3UL>, can you give me a quick rundown of how depin-backend api progressed in this past week in accordance with the numo project, is there any misalignments ? you ca...
+
+## [2026-05-04T07:06:24Z] ingest | Slack thread C0ASQ9K5V50 1776723966.714719
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1776723966-714719-38eebb18
+- wiki_revision_id: wikirev_82eeac67d99cf92fd64a687eee51ca85
+- source_document_id: srcdoc_bcc45bb126c023679851c64238eebb18
+- source_revision_id: srcrev_87b6985641bd2d356add998b55864ef4
+- summary: *Blake* [2:59 PM]
+
+## [2026-05-04T07:06:25Z] ingest | Slack thread C0ASQ9K5V50 1777721448.919089
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777721448-919089-a43dab56
+- wiki_revision_id: wikirev_f01f2decfc566b72e28978bb052ffdc3
+- source_document_id: srcdoc_bcc4beb81ce774f776955679a43dab56
+- source_revision_id: srcrev_052ed11e133f68f8724431e8adf704c5
+- summary: <@U0ASDQKU3UL> can you help create architectural diagram for the rsi platform repo ? Then append that img to the readme through a PR
+
+## [2026-05-04T07:06:26Z] ingest | Slack thread C0ASQ9K5V50 1776837590.115029
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1776837590-115029-54a8459f
+- wiki_revision_id: wikirev_74d802b2ea16e3f5f51d2c2293c89423
+- source_document_id: srcdoc_bde0e594d15e8f9c9f280c2354a8459f
+- source_revision_id: srcrev_71153769e17bf72b3660dd22163be4ae
+- summary: <@U0ASDQKU3UL> can you draw a architectural diagram of all our depin-backend using the repo + story-deployments as SoT . Use /architecture-diagram skill
+
+## [2026-05-04T07:06:27Z] ingest | Slack thread C0ASQ9K5V50 1776665186.063639
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1776665186-063639-e7e260a4
+- wiki_revision_id: wikirev_3e5b64bd1a604a72bb85a0ea01e55a9f
+- source_document_id: srcdoc_c28edb09eb1cf42deecfa0a3e7e260a4
+- source_revision_id: srcrev_a4c3dacd7630ddc45606985305b6b521
+- summary: hello <@U0ASDQKU3UL>
+
+## [2026-05-04T07:06:27Z] ingest | Slack thread C0ASQ9K5V50 1777534762.918439
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777534762-918439-994a1d33
+- wiki_revision_id: wikirev_437fa8770e28ba22e872cdc8fa31838c
+- source_document_id: srcdoc_cac1cd0f79579dfc2956d703994a1d33
+- source_revision_id: srcrev_333da9282c2b05ab84e8af2573f8b548
+- summary: <@U0ASDQKU3UL> are you able to install curl and curl the latest stats <https://storyprotocol.slack.com/archives/C0ASQ9K5V50/p1777502466048239>
+
+## [2026-05-04T07:06:28Z] ingest | Slack thread C0ASQ9K5V50 1777158720.138529
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777158720-138529-511048f8
+- wiki_revision_id: wikirev_44d798af1af04f40b9fe2b419e2e3b6f
+- source_document_id: srcdoc_d3b2d995305390763795378a511048f8
+- source_revision_id: srcrev_0eaaff203ae1436123f57666c89589a7
+- summary: can you draw a architectural diagram of all our depin-backend using the repo + story-deployments as SoT . Use /architecture-diagram skill
+
+## [2026-05-04T07:06:29Z] ingest | Slack thread C0ASQ9K5V50 1777077794.001909
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777077794-001909-6b202724
+- wiki_revision_id: wikirev_8b78bc458bea159b5874addf81116a67
+- source_document_id: srcdoc_db01b03d2bc09e1434e0d7be6b202724
+- source_revision_id: srcrev_989494eb8bc6f43a99ed84e8df28d430
+- summary: <@U0ASDQKU3UL> can you draw a architectural diagram of all our depin-backend using the repo + story-deployments as SoT . Use /architecture-diagram skill
+
+## [2026-05-04T07:06:30Z] ingest | Slack thread C0ASQ9K5V50 1776644171.638799
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1776644171-638799-839c1da9
+- wiki_revision_id: wikirev_d28c8f399e395b9e79a05e23f0016848
+- source_document_id: srcdoc_e2a595d38cc33f1250c67b51839c1da9
+- source_revision_id: srcrev_722e2a319f6cc6b4856dcb814e6eee05
+- summary: can you see the entirety of this thread <@U0ASDQKU3UL>? Is Royce issue resolved ?<https://storyprotocol.slack.com/archives/C0AKH5SNGKH/p1776304311244769>
+
+## [2026-05-04T07:06:31Z] ingest | Slack thread C0ASQ9K5V50 1777608406.302979
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777608406-302979-6acc0e83
+- wiki_revision_id: wikirev_779d56d91a8d2356270bd69df25bb405
+- source_document_id: srcdoc_e2e5561be376f657f74403d86acc0e83
+- source_revision_id: srcrev_ce308e117c309388aaf5ae513657b3ac
+- summary: <@U0ASDQKU3UL> are you able to help curl the latest stats <https://storyprotocol.slack.com/archives/C0ASQ9K5V50/p1777502466048239>
+
+## [2026-05-04T07:06:31Z] ingest | Slack thread C0ASQ9K5V50 1776483985.407559
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1776483985-407559-e396aab8
+- wiki_revision_id: wikirev_791ce7411cbb633492b7298b4542b972
+- source_document_id: srcdoc_e8c08227b038283f754d9e23e396aab8
+- source_revision_id: srcrev_5ee4c0a27a59dd65de5a697515decc8f
+- summary: Hello <@U0ASDQKU3UL>, can you give me a quick rundown of how depin-backend api progressed in the last week in accordance with the numo project ? you can find the channel in <#C0AKH...
+
+## [2026-05-04T07:06:32Z] ingest | Slack thread C0ASQ9K5V50 1776754901.383409
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1776754901-383409-3c2eb7ee
+- wiki_revision_id: wikirev_b37a7bde205642101c796716528565c8
+- source_document_id: srcdoc_e923c90509cbb3454f27f28a3c2eb7ee
+- source_revision_id: srcrev_8ae4aa64a943b07ce2553e7cd317f382
+- summary: <@U0ASDQKU3UL> can you draw a architectural diagram of all our depin-backend using the repo + story-deployments as SoT . Use /architecture-diagram skill
+
+## [2026-05-04T07:06:33Z] ingest | Slack thread C0ASQ9K5V50 1776577654.761859
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1776577654-761859-c8616e41
+- wiki_revision_id: wikirev_cb24661ba3ee4de27dff56d710a64d4b
+- source_document_id: srcdoc_eadca1a4f931560975caf420c8616e41
+- source_revision_id: srcrev_2f22eda29414e6b4a587f11c3f851fd3
+- summary: Hello <@U0ASDQKU3UL>, can you give me a quick rundown of how depin-backend api progressed in this past week in accordance with the numo project, is there any misalignments ? you ca...
+
+## [2026-05-04T07:06:34Z] ingest | Slack thread C0ASQ9K5V50 1777090251.874849
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777090251-874849-40502317
+- wiki_revision_id: wikirev_31b1ae421930f7d130874787fdafbdcb
+- source_document_id: srcdoc_f54331608fbc48457c4ffeb240502317
+- source_revision_id: srcrev_ea11aecc9302f4a62991883980a9407b
+- summary: <@U0ASDQKU3UL> can you draw a architectural diagram of all our depin-backend using the repo + story-deployments as SoT . Use /architecture-diagram skill
+
+## [2026-05-04T07:06:34Z] ingest | Slack thread C0ASQ9K5V50 1776728991.722349
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1776728991-722349-1ebf27e8
+- wiki_revision_id: wikirev_ecaed5bf134ba694432feaf3a11cf4db
+- source_document_id: srcdoc_f73041f4315fea0edabe77ba1ebf27e8
+- source_revision_id: srcrev_3843f10186ace8c14bf8b6dd2286f77d
+- summary: <@U0ASDQKU3UL> can you draw a architectural diagram of all our depin-backend using the repo + story-deployments as SoT . Use /architecture-diagram skill
+
+## [2026-05-04T07:06:35Z] ingest | Slack thread C0ASQ9K5V50 1777627659.396369
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777627659-396369-23708d7f
+- wiki_revision_id: wikirev_3539b1d1a87b1ca297d92021fcc64ad7
+- source_document_id: srcdoc_fb80101006dad8b7884b615e23708d7f
+- source_revision_id: srcrev_56ba18780ce6e042bf10effeeb8252ad
+- summary: <@U0ASDQKU3UL> can u create gh issues for fast numo follow up after launch?
+
+## [2026-05-04T07:06:36Z] ingest | Slack thread C0ASQ9K5V50 1777683214.676429
+
+- status: published
+- slug: slack_message/slack-thread-c0asq9k5v50-1777683214-676429-8ceafcbd
+- wiki_revision_id: wikirev_15ca6beb9e5cd0f3b66377ee07bc0687
+- source_document_id: srcdoc_fdbe3fe8355612f210e6de138ceafcbd
+- source_revision_id: srcrev_cbc1a808b8c1a747731b7572512f99f2
+- summary: <@U0ASDQKU3UL> can you help with <https://storyprotocol.slack.com/archives/C0AKH5SNGKH/p1777650186068179>
+

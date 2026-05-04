@@ -5,50 +5,100 @@ source_document_id: "srcdoc_b8c049e55a95dd9144c9ede553ca9dcc"
 source_key: "slack:T045QQQQ7CZ:C0AKH5SNGKH:channel"
 source_session_key: "slack:T045QQQQ7CZ:C0AKH5SNGKH:channel"
 source_revision_ids:
+  - "srcrev_005fe12bd2d3700aff228b79e0c6b15c"
+  - "srcrev_0274b81b8dad685c1af6c76c8787d93b"
   - "srcrev_02b349c333aaed809497748d65744022"
   - "srcrev_04c6d0efec5ef1634767590b2eb396f5"
+  - "srcrev_055507fb5fede6485079033495a19b54"
+  - "srcrev_057f015017c30e264a03640aabde2b4e"
+  - "srcrev_06967cdf8e9c7f6e2a76a2a6cee12d8e"
+  - "srcrev_0751c83987392b9501aa73b1d2810a5b"
+  - "srcrev_07a7f8ba72c6f9b4d4351996d82e70d3"
+  - "srcrev_07bcd5bdb9dec026d99df9e0531fdbd1"
+  - "srcrev_07c5f62ab42e8c74cab5bb38fb96605a"
+  - "srcrev_07ee386819ae579b6e21833288531ef1"
   - "srcrev_08185da71375de802114e643983f4056"
   - "srcrev_08a51565f3887878ab67820f67af5366"
   - "srcrev_08eba3e9f3fb7e6f0f31cc0ea7e08b52"
   - "srcrev_093e62af6c3c3136612f820a1b5576b1"
   - "srcrev_0957561cf09ee4a39fcd5e1c5fd54609"
+  - "srcrev_09c45962fcf92fde0e3bc308ff259a31"
+  - "srcrev_0ad41efa7a05d5fb4e2808bc17b7306b"
+  - "srcrev_0cb5a7d405ba42b46887a2c76098445c"
   - "srcrev_0cb7318db8420ab187a414fae415b994"
   - "srcrev_0d70b06bbe200337967709a581d2a973"
+  - "srcrev_0e62701eed52e8c14927207873d70559"
+  - "srcrev_0e881c17650fe631c10a964901d51ae4"
   - "srcrev_0ed6621c717c9cf3a2abd801593e0e98"
   - "srcrev_0ee7604365c22a5b5a5172c0e6c16f55"
+  - "srcrev_0f02bb498a19e0457418364b44c869fb"
+  - "srcrev_0fc22078b621f36d2b6cf93b9c8e6575"
   - "srcrev_101c3a67cfdd2a3524fc473a817859f5"
+  - "srcrev_113917fe228161156a6d3bfd37ea6ce3"
   - "srcrev_116cabca9b559847aa150b7b8cef295a"
+  - "srcrev_1189f67a7ee0ab44e2b0e8381a22d5aa"
+  - "srcrev_121a35613312d29ec9e140627309506e"
   - "srcrev_127743ec7b7d26ac780a33b48df34646"
+  - "srcrev_14095185072a9d4050fa3854ce6e90e2"
   - "srcrev_15119bafc623cb5a5b1c759a0f625dca"
+  - "srcrev_151e445c6287de04acaa68a3faa0c30e"
+  - "srcrev_15ca5dc47bf8679e328618c86d8d7b62"
   - "srcrev_15db6dc07a5e06fba99fae1e61d3cde9"
   - "srcrev_1664a6845f1f3418ef756cbac54364cb"
+  - "srcrev_1773e628e321d428c07861e7b0ae8e64"
   - "srcrev_178b7237b7dd9585632bccee4e68b720"
+  - "srcrev_17ec5550bfc37a73a272565b5432c8d2"
   - "srcrev_17f9a664e1a981ee235c04270527fbb5"
   - "srcrev_18c559c8a4b7db0e5b7cf5b9456cea5a"
+  - "srcrev_1909fd1210e85cf98fa11f5249272103"
   - "srcrev_19b541df0411ac7187262f2b73194454"
+  - "srcrev_19b85ea2ab115f5d14feb36a42fde616"
+  - "srcrev_1a4eed015ab80684d089e8cce6593baf"
   - "srcrev_1b282d9ba8dcc4a8b4669454848b31bb"
+  - "srcrev_1bd20de74e1333c49ad02a0123de6dbe"
   - "srcrev_1c1b8033aa694fc08542cd38ee4a18fe"
   - "srcrev_1c37ac8a77842288620cfc49319c3f62"
   - "srcrev_1c57519638fe0453f8fc080880aa4ca3"
+  - "srcrev_1c803686b03128e44f4faf08c09b89dc"
   - "srcrev_1dd5a88d4b60c88c876baeffa7cc857e"
+  - "srcrev_1e5c92701f53504f58864c55c619ebc6"
+  - "srcrev_1ea4f03fb68bbfbdef3ca6e5df0b6fed"
   - "srcrev_1f3241e11889a9c330eb490af6474d7d"
   - "srcrev_2087764ae07257018f5a64efa17882ab"
+  - "srcrev_20dbba8ae1944c2bb53a21a217e9849e"
   - "srcrev_2138e6f7a15ebdfc592a9599d6a21f31"
+  - "srcrev_222c7dbda01a69760f3ac588fd8b60da"
+  - "srcrev_222ec838019d29c1d358bc0c53c943a8"
+  - "srcrev_229ceb3e70244626dbeab5d29d07cbb8"
+  - "srcrev_2313016fc7e1e4a4c839722d7cf1c0bb"
+  - "srcrev_242071864827cae6730d35988fb308e2"
+  - "srcrev_251c6eaa75fcdfe885c92755e546a3e7"
   - "srcrev_2594b7a204f7954c7bfa28e5820d286f"
   - "srcrev_25bd01dfb0fba5a9da8739379864d355"
   - "srcrev_26533a25c4cf6ac68928183af6a38d3d"
   - "srcrev_265a06bcfd65bc3523dd0e48073905fe"
+  - "srcrev_2750245a0daf71aaa1e2610d77f45ef8"
+  - "srcrev_28251fe38da15186a3f53b82e0dfc7b0"
   - "srcrev_2916012c961b3d6c6d544befa0d8a6ae"
   - "srcrev_29c97f7e668963b3c78d83f9e5fdaa7f"
   - "srcrev_29cd5f0b3b66b6c7e73cfe005376a80d"
   - "srcrev_2ab09fed33e754efb49d9c2562c80f7d"
   - "srcrev_2c04428a9e550bba0cb9a73a66a9077e"
+  - "srcrev_2c1a35d3a69c7a05f0d389454213c7ba"
+  - "srcrev_2ca21e6614063bbf08b38bd292f5ffdd"
+  - "srcrev_2d0cd6bf436f1f39f77cf48ca1f00408"
   - "srcrev_2d15f025fa61bbad011a4127c5a0684e"
+  - "srcrev_2d5513bc29af94c3a0ae44975fc67d42"
+  - "srcrev_2e8e2ca0059819cdfdf8cf60fb6c0ff7"
+  - "srcrev_2eff4ee7adeedb7114729ad53612fb55"
+  - "srcrev_2f2bd9f586af822bf356ea2b128c4146"
   - "srcrev_2fa258e9b1881b690480c61882c180df"
   - "srcrev_300bec11ce96f625b3b86fa3cc260a31"
   - "srcrev_301a6a82fb34cc34fffd2fd3ff296b2a"
   - "srcrev_319784d496c7c4f852479b9a17916217"
+  - "srcrev_32118ec6dd3e867c3f3c084c1f2cb57b"
   - "srcrev_330838a41924e8e5fab4af9e1c6259db"
+  - "srcrev_330a52ceb3b2978bc011db92d3309e07"
   - "srcrev_3316e43191ea79b92f18fcdde19368de"
   - "srcrev_35b2174e105c5497b0c1eab7530e68ae"
   - "srcrev_35d2390cf05ad4d651c9d9b956c00459"
@@ -57,55 +107,91 @@ source_revision_ids:
   - "srcrev_389f6d7f219962b0db3625625daa1d30"
   - "srcrev_39833e48cdb60dbedcb2a99f9145022d"
   - "srcrev_3c7d4fd195d797a05a0ffda0758037e5"
+  - "srcrev_3ccbcf4098f89487547bf27eb19c4f46"
   - "srcrev_3cea3d864aacbd449a26569a6ffff998"
   - "srcrev_3e5d6e761dab149afcda7bdaca35da55"
   - "srcrev_3e7d73778916d1cc8807825f6bb9d9e9"
   - "srcrev_3ec655c2236c7bb4865548955f92ebf6"
   - "srcrev_3eca4b9485c448cc327d64c2da261842"
   - "srcrev_3f1212fa7e9ba2c5747faa7a0b7a0e57"
+  - "srcrev_3f6f7840976ee5b14b71d114bf810cd9"
   - "srcrev_3feff42dc6a43ef2a5f60f902da94189"
+  - "srcrev_404ef32d3529561670f14ab96bee512b"
   - "srcrev_4101e01b38ed69b6293ae58ae63bcf54"
+  - "srcrev_422405c4e557b4243d8bf4192db18677"
   - "srcrev_4462b9b098c54ed6408ae8781f52462b"
+  - "srcrev_457defdb01b2144e5bffb84cfa4a0b55"
   - "srcrev_45aba7eb2ef1b034e8e485bd1cdbfe06"
   - "srcrev_45e2881145f58bdf1ad412e20f710fdc"
+  - "srcrev_4627b1d008495c334b1a41e4bdd890bf"
+  - "srcrev_47863bd91281fc81c020e7a27b5a9ada"
   - "srcrev_48093da24d34fe3e1629858c56376587"
+  - "srcrev_484851b79855d55ea4a84195447dbe89"
   - "srcrev_491010a6b3af4c54a3fad6bcd17897e4"
+  - "srcrev_494a8eb7c421b5fba96c4feca1f5725c"
   - "srcrev_4967f5e4bd0b840a52d2bd2869b3b076"
+  - "srcrev_497390b54f658d5effc1d5c223096e61"
   - "srcrev_49843a6f062bb95d277618e1325d233e"
   - "srcrev_4a72fb13c20be22918fb9c159383c0b0"
+  - "srcrev_4b7e5334f9daaf23db5ad69c00bfb2b4"
   - "srcrev_4c7116c1b32f7bd5b0366a7e9d24180c"
+  - "srcrev_4d93425426256dd5e6df8a0fc7b77edd"
+  - "srcrev_4ea3844184415f53171117bc4526c31a"
+  - "srcrev_4ee8a3fd3367b58f07f65955bcb8614a"
+  - "srcrev_4ff99071563f4547c8e0d7ab840983b1"
   - "srcrev_5027884e92237ed4cd13253e61e9a109"
   - "srcrev_505c1dea9dd8418215e7de065b44128e"
   - "srcrev_508bc93fc954748486815e35b114b595"
   - "srcrev_511c31d5d2ca590403970b82fd2372e5"
   - "srcrev_51458ea7b26e9142344b3d07e04620f3"
+  - "srcrev_52323bf9c1be1f90feb2b3adf12d8b07"
+  - "srcrev_53021cd25587392ccfd2e696efd0bf51"
+  - "srcrev_53525144c261bb32dddfde48b2f9daed"
   - "srcrev_53c26ecb4b3b0b18fac6a0101b0eb994"
   - "srcrev_542310c4e7744ab4967797553b056b2b"
   - "srcrev_5456042d0703935cfea8983e26303d7c"
+  - "srcrev_547a6aae6b91778155f9922ef9e9c65c"
   - "srcrev_549e21652ff038d6fa27e68add03a306"
+  - "srcrev_555c97a2f084042a3ac543bf8276ece4"
   - "srcrev_5595550fc67f242351d521bdc1b5796c"
+  - "srcrev_55a7bb31817e3226f68d02ac3f922939"
+  - "srcrev_564679c2addd8663087141026033bf39"
+  - "srcrev_5669862682e65423614ddf2f4ee2a66c"
   - "srcrev_56d9bb0c0782a658da89f6624471768a"
+  - "srcrev_58012e166d717ae7d07564d9c44ee55c"
+  - "srcrev_582f0ffd9606c3e708cab9b15394184b"
+  - "srcrev_5862e20fad38f045425a025000f18fa9"
+  - "srcrev_59bbe9d4953bcc35158a7c2db9ecbea5"
+  - "srcrev_5cec45e69855760aa6ab578ba6e6b4c6"
   - "srcrev_5dea96dd8235087309af64c54ae2d0f2"
   - "srcrev_5df1cf4ff42695e7d017341c84ff7f60"
   - "srcrev_5e2a16975f54395a1bd21b87e4e2a2de"
+  - "srcrev_606fa1d5fe121cec20140715d3cae5a4"
+  - "srcrev_6111602934bd9280825638708f08e7ca"
   - "srcrev_611c7d464def4a8e1d8d1aa923754820"
   - "srcrev_61aa879aeba9c0b200863a470794e6b3"
   - "srcrev_6365810fa98bdd5574cff27ec7c0b788"
   - "srcrev_6368cc4cae558b883141f8d895242bdb"
   - "srcrev_63eea4d2bf5c91c55eb5ce91af2b973d"
+  - "srcrev_63fdca8c6d129301d5801ccc32511772"
   - "srcrev_64f8c1d0ed602b508983215aa304a24f"
   - "srcrev_6541173cd08bbe7f8fb1aa9d359b94c9"
   - "srcrev_6712aed6a46c6c8c270089f8d3cd36ed"
+  - "srcrev_6734a0441474cf2c4a6f11bd3b3be449"
   - "srcrev_6794720de0fc7b5f1d320a86b4af1e4a"
   - "srcrev_67bf15af45a3ace06148713fbd5c5d2d"
   - "srcrev_67e02c5cae3bc378dedef633a7946234"
+  - "srcrev_67e44badc05b949b2825770afb487220"
+  - "srcrev_6871e6a9822f615ead3f879abceba786"
   - "srcrev_689b47775c69f89f57dc71a25d60fd17"
   - "srcrev_692eb9fa77d5636ccd94267769a5f4af"
   - "srcrev_6970aec4c796563dcfe59556d0ab8c66"
+  - "srcrev_6a88d93986098ebb5005888ddbe3756b"
   - "srcrev_6b597d11909fcb00132b21c0e20b0f06"
   - "srcrev_6b667e2325300b4dc9d32323fe18c00a"
   - "srcrev_6bd618e85078da50c41ff5b94d5377a5"
   - "srcrev_6c3b6f8bcd95d8eddd3cb90ff54b52db"
+  - "srcrev_6c4b07aaae642ded70ef02f4549c5875"
   - "srcrev_6eacaffc6116cfee56922dd8ba757fa0"
   - "srcrev_6f502b3a4b6298a06ff3efbe41393d7f"
   - "srcrev_70ff48e1456267165ad5cca606005e16"
@@ -114,148 +200,254 @@ source_revision_ids:
   - "srcrev_723152805d83d7b5996be3d21a6048d1"
   - "srcrev_72c35ec309292b03766113692d655bf4"
   - "srcrev_73211d711a1f5c08f4fb647339be70fb"
+  - "srcrev_7356efe480609f5466cb92521b05b91d"
   - "srcrev_73625c6593b05c6dcc5adb74437e636e"
+  - "srcrev_746112dd8d5cedd50f9e78a942ccba14"
+  - "srcrev_750371740fb3f552cd5753d1a71c4823"
   - "srcrev_750888f909cb1349bce9f5911293a3e3"
   - "srcrev_754d75d6c3475d2c046d07db8587939c"
   - "srcrev_75c103ddcfa782a39b19381d8d371cfc"
   - "srcrev_76ca008ce566fd4cc11292d5f2e6dbc1"
   - "srcrev_7725801faa3f85ea315b6e834b6763b8"
+  - "srcrev_776de98b9262a52df0ddda254a8e6a47"
+  - "srcrev_78d216a18c65fd6b1311f7b3e8901975"
   - "srcrev_7a420e7a23f247b68d976c0f8b868774"
+  - "srcrev_7aece6bcddc81de12b3d670e92c0d105"
+  - "srcrev_7bac3ad66857ac72d7204d8e6d74c802"
+  - "srcrev_7d9107dddf5dd86af28e6c2baf85b85f"
+  - "srcrev_7dbd731da5c7178c58a6b6b6aff955ae"
   - "srcrev_7dccf48130e665f7e4b4adf2b93f6174"
   - "srcrev_7e34c2dc338a470266f1d3f4b6c485c7"
   - "srcrev_7f143084502c14576bdbd42861bdac18"
+  - "srcrev_7f6d03767687ad9407dde8578b8f37f8"
   - "srcrev_7fd7de8b450e4e0a67d3f187e490a487"
   - "srcrev_81dd9ef460b3636d12b39d6e160a09d6"
   - "srcrev_81fb37e9a9cbb35d83b5de1b1981538a"
+  - "srcrev_8242da290bb199830bdb72032ac0b721"
+  - "srcrev_8283a47d01b6d0c262d8884fdcf6a3bb"
+  - "srcrev_834ef637ff5e403efe887a5863629805"
+  - "srcrev_83642c85da864056c8620702ac2993ba"
   - "srcrev_8406f8b09ad4920e3cc408b91e609645"
   - "srcrev_8445819b166abe9482afff71fbc891dd"
   - "srcrev_84998a5ba845ab010b8f0c3974cf33ca"
   - "srcrev_85ebe856fdcf4c08c063f35815869d62"
   - "srcrev_8615d945ad788bf8846ef1e939c7a69e"
+  - "srcrev_8640e5efdd3fb2fbc52556c33ace1bd4"
   - "srcrev_89272e3f68397ab9f443a4c10f7505cc"
   - "srcrev_89462cd8220f7f283f86be9f525b1c22"
   - "srcrev_899528649d94c5712f491ad35a399323"
+  - "srcrev_89958d00ff1d4c8e2efdbf8e804d555b"
   - "srcrev_8a5878dc13c50f12058c1cb37ed2eef6"
   - "srcrev_8b1441211a8a9dfeb11de6d03411fdcd"
   - "srcrev_8c530f5ca5bff703efb0d727c33135b6"
   - "srcrev_8c6093e13a2489229d95f7404eeb435d"
   - "srcrev_8c6c655e6904e6cffd59d58de3bcaaaf"
   - "srcrev_8ca1ab92f1eafe8c6a7128631e299dbc"
+  - "srcrev_8d97f43145296dc0cebb4fcd8b268de7"
   - "srcrev_8da4becbc4a969f02311698c7fce06cb"
   - "srcrev_8ea1b78791e3608044c14030614df06f"
   - "srcrev_8f73c1125c6b49951786fba7d798d100"
   - "srcrev_8f7dc9ac68c6bd7f8bad7f1a322b7086"
   - "srcrev_8f8717418d1672b31df5f00521b4483f"
+  - "srcrev_8fb6c50abbbb135e3f93a06797b5dfd4"
   - "srcrev_9021604413eb639a93483a1142be8ee7"
   - "srcrev_906277b8a103954070e30b10c8d300c0"
+  - "srcrev_91362e5cd4346ac8b1f2e48dfd67bebf"
+  - "srcrev_91a5ba75d3660f33d1aaf89ac8d75aba"
+  - "srcrev_9248e56dd011325b18ee50b88aa3f921"
   - "srcrev_934ffc7a207474b72ab447b6b132e2bf"
   - "srcrev_94aab92274fdfd49c24ca71b7bd1416f"
   - "srcrev_962dcff2f27ebb84c8bb2f0dad07c02b"
+  - "srcrev_96443b7834c79f9e975ef08205c83dc0"
+  - "srcrev_976ce2069e8d302f2c20ccd6993b367f"
   - "srcrev_98ad0760eb46fe867ee57ca7a26d7b54"
+  - "srcrev_99be33ca450cf40b766999a9c695ab24"
+  - "srcrev_9ae28cd1cd28b383486f1538eb3aa2c8"
+  - "srcrev_9b9adcdfef45f5c9f00279996505be0d"
   - "srcrev_9baab60536e3b7fba49933cf97f6d50e"
   - "srcrev_9bf1af609a2514da90ddaeb6d1d5fafc"
+  - "srcrev_9c1bff7cb141123ae56e3e533fe5ba62"
   - "srcrev_9c5146d4f22dab7296f1bcb61e1e7237"
   - "srcrev_9c757f85357ae7ff0d50f5decb35f9a3"
+  - "srcrev_9d870bedcae897ea2908ec19cc3884bb"
   - "srcrev_9e31b6664f426ddf9cf98b50dd3d350b"
+  - "srcrev_9f014311982e8607e9a6121859d397ac"
   - "srcrev_9fb934a24bfbefa7287befcbbe67f254"
   - "srcrev_a0086a20ec573671a3bbe1b4487a5e34"
+  - "srcrev_a052086249f6a5d9faee5046f0f600e6"
   - "srcrev_a0634bdb3abcb97ae6f2658f86d27826"
+  - "srcrev_a0d9b51aeb0095c649a98c438e5e4c10"
   - "srcrev_a0de32b02dcc7cbc4e82bee63b977736"
+  - "srcrev_a0fa56c24e4fd45af37f11e2fd2387ba"
   - "srcrev_a1618a0c51794c66bff5081f0d0261bf"
   - "srcrev_a2598d99cd0e47c6deffd7e0152a5473"
+  - "srcrev_a2ce2d8049feae63354de904f115c4a2"
+  - "srcrev_a3e60cbbe0cd0f6b1702e0944a5b3420"
   - "srcrev_a3f2f49a5fba433621865c3d92b87bcd"
+  - "srcrev_a4271bac6d922a92f8ff30e5ae2f2720"
   - "srcrev_a513018c51124a2d9ecdbb12d2a69035"
+  - "srcrev_a5d9159e2fee04cf10c5cf5a8007212b"
   - "srcrev_a69cb8dcca8c1b3f84632bc22f766eb5"
+  - "srcrev_a6b1a61d94d6b224e71648955a0da8bc"
   - "srcrev_a82bac94f51b53adbc9e146be95e7014"
   - "srcrev_a84993c8ae375ff9d84bd4d96a356116"
+  - "srcrev_a86f4a22fd5d5a37d04a770d95d1b251"
   - "srcrev_a910e59747ec12855e2e3c0af4ad352a"
+  - "srcrev_a9ee77293562691fa606adc973a82750"
   - "srcrev_a9f80c12b4ca9d676e55d13aef08f9eb"
+  - "srcrev_aa0368c80df08d24d8659ebf2519d493"
   - "srcrev_aa092d804eaf1b2d8be2247a6e68f03b"
   - "srcrev_aac8dcfb1524de19a8151d7f99455579"
   - "srcrev_ab43d64742a3d2698a1c6b92ca9574d1"
+  - "srcrev_ae5b9c5b1f7bc7ccf2bb0af8b2723ba7"
   - "srcrev_afb527a11a491ba260e46a93f4bd0562"
+  - "srcrev_afefc6916fa54eab356af469266f366d"
+  - "srcrev_afffd5b2323c1aecab6d6b8701824540"
   - "srcrev_b0a07099c45194e9b8402350c7ab4e19"
   - "srcrev_b1b8b9fb31a1866b3b5a391202cd00b5"
   - "srcrev_b2cc93d3a8fefb382ba55bef4037a7d1"
   - "srcrev_b497501f80deb584ffd219c4429ce5fd"
+  - "srcrev_b4976e6e095235f6d7f9db3f8684b100"
   - "srcrev_b63d36dda172899ab92fbb42989e3b1c"
+  - "srcrev_b63e8f5f0e9afdbe9ba1ed36ed030979"
   - "srcrev_b68467f5c9f4818fbe6ea4d833178331"
+  - "srcrev_b6a769dbf4d53ebc65e2a09ef7920cce"
   - "srcrev_b76f3e737b09cb0fadf82c3620fb5745"
   - "srcrev_b79da6261392c552d2a9cd496f5d3670"
   - "srcrev_b8cc305590a4fb56c5001a09c9563748"
+  - "srcrev_b933c69bd67c092f38338dc42cd669e5"
   - "srcrev_ba27566308a68ded6a89138ae665b726"
+  - "srcrev_ba58917f293876d720806aa250681543"
   - "srcrev_bb0283a336a91b638cdae7aca35bade0"
   - "srcrev_bb6f579a8b8d3fd800fd3512ac5cf885"
+  - "srcrev_bbf6f6aecea282e0e937d6cfdc536442"
   - "srcrev_bc1fd8e62c6df208f5641eb0ad068b12"
+  - "srcrev_bce7320819a43da9c5ecaffbf3bb99d9"
   - "srcrev_bd4b35020fc7f89b0f9c0a5671bd5a34"
+  - "srcrev_bd9dad8723187b620235775dfd778fdf"
   - "srcrev_befa3430cc2d9b02e46852e3c9c18290"
+  - "srcrev_bf7ca86cb76d354ebf6484ce3284f512"
   - "srcrev_bfddf6be2daab3eaf9bbf77d5b261577"
   - "srcrev_c02146d362ef7aa8e73a20fab0b4b7e7"
   - "srcrev_c0c00689ec7e97d9e55b26396404b266"
+  - "srcrev_c0cbf52984529f5257e54999209c90f5"
+  - "srcrev_c0dc888bfc8664d2bf268986a6013322"
   - "srcrev_c1cff7e82951fbc723454d0c8a9df73c"
   - "srcrev_c1dc819f0f08b0332fbf6fb32c7e3883"
   - "srcrev_c22812a6e16f9a770c0f9b7aff3c04f8"
   - "srcrev_c3350d3debaa1e8a2deb2a7855d26ab3"
+  - "srcrev_c3705fba1550be26d2028f4a35bdab12"
+  - "srcrev_c386f42143c5c06d5ee9f6d8781c5e5a"
   - "srcrev_c3ce54974063dca90be7aaaccc7caf5d"
+  - "srcrev_c45c38eebba23b2cc6a3a84de5847a01"
   - "srcrev_c47ad019ad79b323c3892e95f888d749"
   - "srcrev_c4c0304ab5e0177646e3c915332505d5"
   - "srcrev_c58e3d9ebcbe1c5c464b1d1c252f09d6"
+  - "srcrev_c5ab944f73d97278c9f91a8cf88181b3"
   - "srcrev_c5e93244d9a5575c3acb3ab91c29b827"
   - "srcrev_c6ff86649cbcc6fd894ad61848ca4d22"
   - "srcrev_c77282264dae1cc9732aa317df32eb24"
+  - "srcrev_c9cba5d333f36d9dc4d25113f6deaea9"
   - "srcrev_c9e93cea162c2ca732de3496e5a02996"
+  - "srcrev_ca15b0245e5046e0bf2d024b4fac12f7"
   - "srcrev_ca8d2ab811dd5b157efc8afe4a093fec"
+  - "srcrev_cad924c5cbcbc145cf5b89917773bafc"
   - "srcrev_cb68bea12fd1a9860eb08244c4cf13ad"
   - "srcrev_cba2987c1f083e78726fe2e16972a988"
+  - "srcrev_cbc41cf1f2ea758e747f52c8fdc14b36"
+  - "srcrev_cc78aba4879b91c5e7d5e120dbeb991c"
   - "srcrev_cde954d78fa7747d4aeecb98841688bd"
   - "srcrev_ce51f45b79e05bc2694387ff44df464d"
   - "srcrev_d018b6f1c958e9ef56d100cb94c0e497"
   - "srcrev_d0808ad04b0faf2883dc4fb51970b242"
   - "srcrev_d0ecd932afe2b6c52b8e3c8c98e8f157"
   - "srcrev_d1f3a414eab53ee701333103f149eed0"
+  - "srcrev_d246b76da960fc774d51b42df7fd68fd"
   - "srcrev_d2f2831531faee27bd0cdadce6b93a15"
   - "srcrev_d354b889e7a9e8d15de61910368fd4c4"
   - "srcrev_d42f17732f2cf5a60b0c158a295a5887"
+  - "srcrev_d480c0ca7bd267a1a81bf679040ff862"
   - "srcrev_d48ca121a240739e031ceb6fbccaebcc"
   - "srcrev_d719d6df4ae78076ee5caeb23fc9fb4e"
   - "srcrev_d7f03f31739a94f5d326a9b990bca01a"
+  - "srcrev_d805fae5d8814f678b0f26ed32d68839"
   - "srcrev_d81010c707e6d1083dbc4d56130fda41"
   - "srcrev_d8c17d46a7c791e7a6ffd35d30085fd9"
+  - "srcrev_d8ee23d843537ed04cf820c5db72e116"
+  - "srcrev_d911b6a2a4a1e2689a90cc8458a10b34"
+  - "srcrev_d92d1f9425e94f723a06f177948fc096"
+  - "srcrev_d985689bf266aa9008095326ea8d93d0"
+  - "srcrev_d98932aa3b8c0132eb514ed13fdc107c"
   - "srcrev_db642245b481b91a7385521d652ca3a3"
+  - "srcrev_db701e8dc4ec6f8b1ab16e367387f6c3"
   - "srcrev_dbd19130f2df92ca5fd7ac20b25013d8"
   - "srcrev_dc60c881a5e52560a4eeab9bf13200e0"
   - "srcrev_dd508ed7e3c655f9cf88563cc87e63f2"
+  - "srcrev_dda7f7d5bbaaf6bddbdaa29fb9034eb8"
   - "srcrev_e06ab72f176b4ea22743b5d9f77a9bdb"
   - "srcrev_e0bf6d917ac9de286477fc5be41428bb"
   - "srcrev_e108d909474ebc01723ab05df3e98057"
+  - "srcrev_e19a772af8811873860f375f9aa82704"
   - "srcrev_e22a3a50fd4b4ea15cf30661ce3b9094"
   - "srcrev_e2b9acd821225a7fa0207af7f1d9d921"
+  - "srcrev_e3babff0829c60d03c3a2c22445c899d"
+  - "srcrev_e3f15ba78f493ae09157d0915b54d250"
   - "srcrev_e3f94869a3a226310edbceccdb5cc799"
+  - "srcrev_e42a0c39ef395b563a9220994f1bf592"
   - "srcrev_e508d9f643183653db6f6f3bcfc7c115"
   - "srcrev_e56632694f114acf99ab8f17108946ab"
+  - "srcrev_e637bdc64a53ea71effe1edef41ad441"
   - "srcrev_e656f8553142aadad945a7d7a327c349"
   - "srcrev_e66bd035c44b857e3867d32d462a07b6"
+  - "srcrev_e70baf61ba3f4af3aeff29d47adc4486"
   - "srcrev_e7c2841abda7a8ba072633b4a5fc940f"
+  - "srcrev_e7dd47d0e3c995f48224b337166a5ce1"
+  - "srcrev_e852c6f20082009a1dec2c2a4d8fd119"
   - "srcrev_e861961a72f30997aeb43aa7a5679b4e"
+  - "srcrev_e879a65ebb91cc020e188e92b03028b5"
   - "srcrev_e90545e413a88a73266effe9eda1495c"
+  - "srcrev_e966f0dbd6b57087d53b8585c4b4a227"
+  - "srcrev_eaa9d911b5cc6ee1dc3953c64520d29d"
+  - "srcrev_eaf679bc429d3d3da704c96277617389"
+  - "srcrev_ebbad5c6ac3a9649cfa1eb2021f15c1f"
   - "srcrev_ec12173c7b023c8407cf7cfea1295fb8"
   - "srcrev_ec1e77cc2deffcb9c82a2eaabd9d12c7"
   - "srcrev_ec88866f9daa6b989b6b09f06d426f36"
+  - "srcrev_eccd6ff3e29ad45a5922c82abe8ad596"
   - "srcrev_ed04bb7bc2f8c81ceed6b471c7302842"
+  - "srcrev_ed6c2327fda57a36158baa0aaa60ad78"
+  - "srcrev_ed8017ee6c30805b385f103890268461"
   - "srcrev_edfc4fb31158c97559b3b1730d095079"
+  - "srcrev_ee95afe84e99636de84d9a9566bf47b4"
   - "srcrev_eeb206678297de22130af4dbf49239f6"
+  - "srcrev_eedb78df95aa38fe454dcdb2ce651e2c"
+  - "srcrev_f052871e1b43c90bbb3fd83cd7693176"
+  - "srcrev_f09f9348277bb44ca1c56ce2944176df"
+  - "srcrev_f14b945f2c3520b7c67792869561257d"
   - "srcrev_f181be85af09d505ee15e3758d3af8d9"
   - "srcrev_f1bb5b7a3769763040424ba984e2e0cc"
+  - "srcrev_f253245c468939fd1459c990249c4433"
   - "srcrev_f3613aaa6e311337d7f791b9ccabec78"
+  - "srcrev_f3af165e346c195a6a8cdd10ab863969"
   - "srcrev_f3dfc41a2087cb9e53374cc9bbdb3862"
+  - "srcrev_f4364032661f6968cbedcea31f8ae5e2"
   - "srcrev_f649489eca0f01d6219068e3524341c9"
+  - "srcrev_f6ce5def25efb08b1f65b2eb50328d0f"
   - "srcrev_f855e1bea5e80b9526f3d3a4cbcf30b1"
+  - "srcrev_f9d51ffa7f305392cee9ef51841cb8a9"
+  - "srcrev_fa9cadb7ba5825211ef6ab3271f8dd65"
+  - "srcrev_fab1819aac257037b63562b536443825"
+  - "srcrev_fb0fa2f4402e0033e94edcf4080812df"
+  - "srcrev_fc771fd745d668dde13add4303b07536"
   - "srcrev_fc88a4b3b7f2fc4178bd3094dfa2e200"
+  - "srcrev_fcbd134b3bfd5cebc52a654afd4f82c6"
   - "srcrev_fcdc720c218fc67e6a38a11d913b9659"
   - "srcrev_fdf2115b613fa97400c73606f57b43f7"
   - "srcrev_fdff596ada335c18b140198ba05e32d9"
+  - "srcrev_ff00113b98c20f40f7dac33785c02813"
   - "srcrev_ff2014fce1bc299c921609d5b67e1c0e"
   - "srcrev_ff772290af9c354544f7784b88ac66ea"
+  - "srcrev_ffbedac6aeb4674034dac083c48ada8b"
 conflicts: []
 ---
 
@@ -2769,4 +2961,1959 @@ Added a new username field in addition to name. Name is not unique, username is 
 
 <@U0772SH7BRA> <@U083MMT1771> quick <https://github.com/piplabs/depin-backend/pull/195|PR> to obfuscate Numo ip registration images on non-prod environments to allow testing on mainnet
 cc <@U08951K4SRY>
+
+### Citation 252
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_8fb6c50abbbb135e3f93a06797b5dfd4`
+- `chunk_id`: `srcchunk_0d42cf3f0896ba571990c37b11139449`
+- `native_locator`: `slack:C0AKH5SNGKH:1773953357.256919:1773953357.256919`
+
+it got cut off  at 10 min mark causes i forgot to lengthen the interview, but  its actually pretty good, good questions asked and thoughtful responses as well
+
+i think we should aim for 20 -30 min as a hard cutoff
+
+### Citation 253
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_404ef32d3529561670f14ab96bee512b`
+- `chunk_id`: `srcchunk_b19bb49b7722d824f7d5d1baf6238d87`
+- `native_locator`: `slack:C0AKH5SNGKH:1773955965.355919:1773955965.355919`
+
+FYI - im updating the blueprint to make it customizable to select different features
+
+### Citation 254
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_fab1819aac257037b63562b536443825`
+- `chunk_id`: `srcchunk_5adb116468251e52f4d4adb29e0f27bf`
+- `native_locator`: `slack:C0AKH5SNGKH:1773963828.190469:1773963828.190469`
+
+<https://human-agent-poc-web.vercel.app/dashboard>
+
+### Citation 255
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_7356efe480609f5466cb92521b05b91d`
+- `chunk_id`: `srcchunk_86bb3b4ac5c2b58b6718b6d1e2040832`
+- `native_locator`: `slack:C0AKH5SNGKH:1773963832.106509:1773963832.106509`
+
+pw: tigerteam
+
+### Citation 256
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_99be33ca450cf40b766999a9c695ab24`
+- `chunk_id`: `srcchunk_38a6a6f0e586d51622315139b69d434a`
+- `native_locator`: `slack:C0AKH5SNGKH:1773963835.210329:1773963835.210329`
+
+<@U08HVGL6LDR> you can use this to track and debug
+
+### Citation 257
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_0f02bb498a19e0457418364b44c869fb`
+- `chunk_id`: `srcchunk_4437d37dcad4c7853803436ea81d2f66`
+- `native_locator`: `slack:C0AKH5SNGKH:1773963860.661669:1773963860.661669`
+
+since we don't have enough seats for everyone
+
+### Citation 258
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_746112dd8d5cedd50f9e78a942ccba14`
+- `chunk_id`: `srcchunk_a8106a51ddab4823ae9baa5151e6d520`
+- `native_locator`: `slack:C0AKH5SNGKH:1773966723.932169:1773966723.932169`
+
+<!here> something to be mindful of is there's a limit of 30 concurrent calls using 11labs agent - if spread across the two apps we need to be mindful
+
+### Citation 259
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_91362e5cd4346ac8b1f2e48dfd67bebf`
+- `chunk_id`: `srcchunk_3cc1c76bfed9c43905bb7a7b6eb85c1e`
+- `native_locator`: `slack:C0AKH5SNGKH:1773967195.486889:1773967195.486889`
+
+```Below are the current rates at the time of writing this per workspace (including all of your agents), but please note that we will likely revisit them in the future.
+
+Free: 4
+Starter: 6
+Creator: 10
+Pro: 20
+Scale: 30
+Business: 30
+If you require a higher number of concurrent requests, please reach out to our Enterprise Department directly via this webpage. We will be happy to discuss a tailor-made plan that meets your specific requirements.```
+
+### Citation 260
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_d805fae5d8814f678b0f26ed32d68839`
+- `chunk_id`: `srcchunk_fbb7cdbd49a00dbe315ca7c40efc40e1`
+- `native_locator`: `slack:C0AKH5SNGKH:1773967202.653489:1773967202.653489`
+
+<https://help.elevenlabs.io/hc/en-us/articles/31601651829393-How-many-ElevenAgents-requests-can-I-make-and-can-I-increase-it>
+
+### Citation 261
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_e42a0c39ef395b563a9220994f1bf592`
+- `chunk_id`: `srcchunk_ee1bbe9c7c642a8479f0487800653f45`
+- `native_locator`: `slack:C0AKH5SNGKH:1773967208.046249:1773967208.046249`
+
+looks like its per workspace
+
+### Citation 262
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_bce7320819a43da9c5ecaffbf3bb99d9`
+- `chunk_id`: `srcchunk_ab21b5ef91011d1a1f7901d7166a53b8`
+- `native_locator`: `slack:C0AKH5SNGKH:1773967218.187229:1773967218.187229`
+
+so if we want higher we need to ask them for enterprise
+
+### Citation 263
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_c3705fba1550be26d2028f4a35bdab12`
+- `chunk_id`: `srcchunk_79c6a9c33911a357679c6e3d2bfc307c`
+- `native_locator`: `slack:C0AKH5SNGKH:1773967246.334759:1773967246.334759`
+
+I feel like we would end up paying them more than earning from them lol
+
+### Citation 264
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_9ae28cd1cd28b383486f1538eb3aa2c8`
+- `chunk_id`: `srcchunk_475996715c87ee6b040d70c13e8cda2e`
+- `native_locator`: `slack:C0AKH5SNGKH:1773968847.966109:1773968847.966109`
+
+are we doing this backend architecture review <@U04L0DD6B6F>?
+
+### Citation 265
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_e966f0dbd6b57087d53b8585c4b4a227`
+- `chunk_id`: `srcchunk_faa3be2a9cd58c4d44c7ebab7f66af93`
+- `native_locator`: `slack:C0AKH5SNGKH:1774013935.881559:1774013935.881559`
+
+one thing ive been thinking about... when user completes interview, do we want to surface metrics on how they did? like a score? ex. for designers you are in the top 10% of visual design expertise, or top 5% of UX or something like that? and maybe allow them to re-interview to get better score? or hide these metrics from the user
+
+### Citation 266
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_f052871e1b43c90bbb3fd83cd7693176`
+- `chunk_id`: `srcchunk_217e2b2b35bd72fcbf75df444f1a3fbf`
+- `native_locator`: `slack:C0AKH5SNGKH:1774018897.918759:1774018897.918759`
+
+<@U04L0DD6B6F> when you apply for jobs through our platform, does it guide the user in applying from the original source (linkedin, x, company website, etc) or within our platform such that the employer must log in and view applications here? how does user get notified of the application status? does our platform track stuff like that
+
+### Citation 267
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_19b85ea2ab115f5d14feb36a42fde616`
+- `chunk_id`: `srcchunk_f1576b15b1deb469955e4085afb16793`
+- `native_locator`: `slack:C0AKH5SNGKH:1774019065.965399:1774019065.965399`
+
+actually we can huddle whenever (ik its early for u) cause theres couple questions i have. want to get ur input first
+
+### Citation 268
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_7f6d03767687ad9407dde8578b8f37f8`
+- `chunk_id`: `srcchunk_8b96dc08ec5f6b6a627996891ae3d705`
+- `native_locator`: `slack:C0AKH5SNGKH:1774019157.932309:1774019157.932309`
+
+gm <@U08HVGL6LDR>
+
+### Citation 269
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_9d870bedcae897ea2908ec19cc3884bb`
+- `chunk_id`: `srcchunk_fabaf5d787168abe1ba9a6eee9552521`
+- `native_locator`: `slack:C0AKH5SNGKH:1774019230.971699:1774019230.971699`
+
+gm sir
+
+### Citation 270
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_15ca5dc47bf8679e328618c86d8d7b62`
+- `chunk_id`: `srcchunk_a3cf2faa16051d4bb80a48d8de3fc16a`
+- `native_locator`: `slack:C0AKH5SNGKH:1774019304.122539:1774019304.122539`
+
+please share the link to your repo here folks <!here>
+
+### Citation 271
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_1a4eed015ab80684d089e8cce6593baf`
+- `chunk_id`: `srcchunk_1b6e9823f60fcd8adc867cfc9da6780f`
+- `native_locator`: `slack:C0AKH5SNGKH:1774019406.219629:1774019406.219629`
+
+<https://github.com/piplabs/aura-app/tree/main>
+
+### Citation 272
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_d92d1f9425e94f723a06f177948fc096`
+- `chunk_id`: `srcchunk_5ca6393f636ac0021844e92fe4e0a421`
+- `native_locator`: `slack:C0AKH5SNGKH:1774019720.926829:1774019720.926829`
+
+<https://github.com/piplabs/qualify>
+
+### Citation 273
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_f14b945f2c3520b7c67792869561257d`
+- `chunk_id`: `srcchunk_66a4543303a74152f14c3e70d5364ac6`
+- `native_locator`: `slack:C0AKH5SNGKH:1774021962.386509:1774021962.386509`
+
+<https://elevenlabs.io/docs/eleven-agents/best-practices/prompting-guide>
+
+### Citation 274
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_fb0fa2f4402e0033e94edcf4080812df`
+- `chunk_id`: `srcchunk_235cdb741e12904122f513a9a04be3d2`
+- `native_locator`: `slack:C0AKH5SNGKH:1774022157.420769:1774022157.420769`
+
+<@U05A515NBFC> i see that you added variables to 11labs
+
+### Citation 275
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_a3e60cbbe0cd0f6b1702e0944a5b3420`
+- `chunk_id`: `srcchunk_0632da4bc54e6610e1eef421c4911c53`
+- `native_locator`: `slack:C0AKH5SNGKH:1774022417.565869:1774022417.565869`
+
+Reminder: daily-async-standup.
+
+### Citation 276
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_96443b7834c79f9e975ef08205c83dc0`
+- `chunk_id`: `srcchunk_d7ae577f455d7b60fe4f49897d02093d`
+- `native_locator`: `slack:C0AKH5SNGKH:1774033919.968409:1774033919.968409`
+
+<@U0772SH7BRA> ^ updates?
+
+<@U08HVGL6LDR> can you align with <@U0772SH7BRA> on what we discussed, show him mercor flow -> re: resume upload
+
+### Citation 277
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_9248e56dd011325b18ee50b88aa3f921`
+- `chunk_id`: `srcchunk_480e3354c280010c6d419d38d037af57`
+- `native_locator`: `slack:C0AKH5SNGKH:1774033965.762699:1774033965.762699`
+
+I finished the backend for mercor app
+
+### Citation 278
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_d98932aa3b8c0132eb514ed13fdc107c`
+- `chunk_id`: `srcchunk_18b6cce3f7cc87e5f26948ad573c1144`
+- `native_locator`: `slack:C0AKH5SNGKH:1774033983.636509:1774033983.636509`
+
+Jacob can clone the repo n wire up the api
+
+### Citation 279
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_4b7e5334f9daaf23db5ad69c00bfb2b4`
+- `chunk_id`: `srcchunk_fdf622a6acd338a30891e21db66c7a31`
+- `native_locator`: `slack:C0AKH5SNGKH:1774033990.468449:1774033990.468449`
+
+!!! excellent
+
+### Citation 280
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_f3af165e346c195a6a8cdd10ab863969`
+- `chunk_id`: `srcchunk_cec79d4fe19300d0b66adbc3fa6beba7`
+- `native_locator`: `slack:C0AKH5SNGKH:1774034001.762839:1774034001.762839`
+
+there's a few questions we had this early morning  when i sync'd with him
+
+### Citation 281
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_113917fe228161156a6d3bfd37ea6ce3`
+- `chunk_id`: `srcchunk_4da6e4a6ea0b4c07bcf9df2e4d5ec709`
+- `native_locator`: `slack:C0AKH5SNGKH:1774036327.833899:1774036327.833899`
+
+standup updates:
+•  i'm adding deep links to individual agents - for Indic language testing that Gardo is scheduling (we need to vet this out early by next week)
+• also building ontop of <@U08HVGL6LDR> has worked on yesterday on the jobs app user flow, branding / theme
+
+### Citation 282
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_606fa1d5fe121cec20140715d3cae5a4`
+- `chunk_id`: `srcchunk_8dacb5f517afc1f9a9c4209e4c5ff138`
+- `native_locator`: `slack:C0AKH5SNGKH:1774037027.566959:1774037027.566959`
+
+<@U08HVGL6LDR>
+
+### Citation 283
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_58012e166d717ae7d07564d9c44ee55c`
+- `chunk_id`: `srcchunk_768a9de5d1790bf0f6ade296bcd7728c`
+- `native_locator`: `slack:C0AKH5SNGKH:1774037886.229439:1774037886.229439`
+
+<@U08HVGL6LDR> download this file and paste this in <https://www.openapiviewer.com/> to learn the API
+
+### Citation 284
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_91a5ba75d3660f33d1aaf89ac8d75aba`
+- `chunk_id`: `srcchunk_4d92cae35cbe5383bf3d92622420a9b4`
+- `native_locator`: `slack:C0AKH5SNGKH:1774037996.415799:1774037996.415799`
+
+Blake for POST /v1/interview-sessions - what's submission_id?
+
+### Citation 285
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_222ec838019d29c1d358bc0c53c943a8`
+- `chunk_id`: `srcchunk_cf393716c20ca33413f2d74d2a647f85`
+- `native_locator`: `slack:C0AKH5SNGKH:1774038006.539849:1774038006.539849`
+
+Eleven labs just does everything
+
+### Citation 286
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_9f014311982e8607e9a6121859d397ac`
+- `chunk_id`: `srcchunk_09bfea8c89dd01e7bbe2bb4578a12b7a`
+- `native_locator`: `slack:C0AKH5SNGKH:1774038025.630409:1774038025.630409`
+
+yeah, what about user auth API? <@U0772SH7BRA>
+
+### Citation 287
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_e7dd47d0e3c995f48224b337166a5ce1`
+- `chunk_id`: `srcchunk_834e056ed22ad7cc9c73aa01bb536ef6`
+- `native_locator`: `slack:C0AKH5SNGKH:1774038063.895759:1774038063.895759`
+
+It links to the 11labs agent
+
+### Citation 288
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_6734a0441474cf2c4a6f11bd3b3be449`
+- `chunk_id`: `srcchunk_95115db7ca47aad864864b1dd5f46fc8`
+- `native_locator`: `slack:C0AKH5SNGKH:1774038076.062369:1774038076.062369`
+
+Will catch up with you guys once I'm b
+
+### Citation 289
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_bf7ca86cb76d354ebf6484ce3284f512`
+- `chunk_id`: `srcchunk_e05be8706f16ae8931a9a98e7b17eaec`
+- `native_locator`: `slack:C0AKH5SNGKH:1774038078.687319:1774038078.687319`
+
+k
+
+### Citation 290
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_ff00113b98c20f40f7dac33785c02813`
+- `chunk_id`: `srcchunk_17db6933a12960f5abaa392c8a08751f`
+- `native_locator`: `slack:C0AKH5SNGKH:1774038095.019929:1774038095.019929`
+
+It gives a signed url to connect to agents pretty much
+
+### Citation 291
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_55a7bb31817e3226f68d02ac3f922939`
+- `chunk_id`: `srcchunk_6fcd42ef72a94b8f0c18e256a849dfac`
+- `native_locator`: `slack:C0AKH5SNGKH:1774038103.305809:1774038103.305809`
+
+we just connect to 11labs agent on the frontend just with the agent id
+
+### Citation 292
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_834ef637ff5e403efe887a5863629805`
+- `chunk_id`: `srcchunk_25bd2c3dc079e2a291e2523536059737`
+- `native_locator`: `slack:C0AKH5SNGKH:1774038118.510099:1774038118.510099`
+
+There's a more secure pattern
+
+### Citation 293
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_5862e20fad38f045425a025000f18fa9`
+- `chunk_id`: `srcchunk_38a96dd3b47e84f2a6785531fa8c8242`
+- `native_locator`: `slack:C0AKH5SNGKH:1774038128.205219:1774038128.205219`
+
+Since we don't want that leaking on fe
+
+### Citation 294
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_ee95afe84e99636de84d9a9566bf47b4`
+- `chunk_id`: `srcchunk_edb5da98244f8e59f92c66a85b01c271`
+- `native_locator`: `slack:C0AKH5SNGKH:1774038169.421269:1774038169.421269`
+
+oh ok, we'll have to make sure it supports things like streaming the words that the agent is saying so we can render on the page so user can read
+
+### Citation 295
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_59bbe9d4953bcc35158a7c2db9ecbea5`
+- `chunk_id`: `srcchunk_4ac54122710056fe31bb15de3243be3c`
+- `native_locator`: `slack:C0AKH5SNGKH:1774040198.254719:1774040198.254719`
+
+we can just gate it with origin
+
+### Citation 296
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_2d0cd6bf436f1f39f77cf48ca1f00408`
+- `chunk_id`: `srcchunk_8972077ea5a982c6d58fee523ada3009`
+- `native_locator`: `slack:C0AKH5SNGKH:1774040209.179249:1774040209.179249`
+
+we don't need that
+
+### Citation 297
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_b933c69bd67c092f38338dc42cd669e5`
+- `chunk_id`: `srcchunk_c424d064513fabc11e45d9eb151ac59b`
+- `native_locator`: `slack:C0AKH5SNGKH:1774040226.392189:1774040226.392189`
+
+why are we handling session for agents?
+
+### Citation 298
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_20dbba8ae1944c2bb53a21a217e9849e`
+- `chunk_id`: `srcchunk_a4dbc207862e9b756c169025c022fc56`
+- `native_locator`: `slack:C0AKH5SNGKH:1774044339.603789:1774044339.603789`
+
+sorry in. ameeting rn
+
+### Citation 299
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_ed6c2327fda57a36158baa0aaa60ad78`
+- `chunk_id`: `srcchunk_b7163e48c8cb641d68157818df5689c2`
+- `native_locator`: `slack:C0AKH5SNGKH:1774044821.375759:1774044821.375759`
+
+I can meet in 15
+
+### Citation 300
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_4d93425426256dd5e6df8a0fc7b77edd`
+- `chunk_id`: `srcchunk_02c38e63c54497f22b47d6e21d7fa9e9`
+- `native_locator`: `slack:C0AKH5SNGKH:1774199536.314419:1774199536.314419`
+
+<https://x.com/dhravyashah/status/2035517012647272689?s=46|https://x.com/dhravyashah/status/2035517012647272689?s=46>
+
+### Citation 301
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_c9cba5d333f36d9dc4d25113f6deaea9`
+- `chunk_id`: `srcchunk_54ef8420f8cabcad6e934146c7d934b2`
+- `native_locator`: `slack:C0AKH5SNGKH:1774199551.191079:1774199551.191079`
+
+Might be relevant^
+
+### Citation 302
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_1c803686b03128e44f4faf08c09b89dc`
+- `chunk_id`: `srcchunk_f019e62eadf7a71ecc4d3fb7ab06c614`
+- `native_locator`: `slack:C0AKH5SNGKH:1774254829.820469:1774254829.820469`
+
+peep here
+
+### Citation 303
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_bbf6f6aecea282e0e937d6cfdc536442`
+- `chunk_id`: `srcchunk_44affca0cbe6b541abb17bb72ed440f3`
+- `native_locator`: `slack:C0AKH5SNGKH:1774255000.562969:1774255000.562969`
+
+Slack file attachment:
+- Screen Recording 2026-03-23 at 1.26.55 AM.mov (video/quicktime, mov, 149095012 bytes) https://storyprotocol.slack.com/files/U0ASDQKU3UL/F0AP1CKET6U/screen_recording_2026-03-23_at_1.26.55___am.mov
+
+### Citation 304
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_78d216a18c65fd6b1311f7b3e8901975`
+- `chunk_id`: `srcchunk_6fd53b905335e018d5e59389fae1f8fb`
+- `native_locator`: `slack:C0AKH5SNGKH:1774281637.874669:1774281637.874669`
+
+Reminder: daily-async-standup.
+
+### Citation 305
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_cad924c5cbcbc145cf5b89917773bafc`
+- `chunk_id`: `srcchunk_a76467d938fce1a261299c73a2de2aee`
+- `native_locator`: `slack:C0AKH5SNGKH:1774292914.401389:1774292914.401389`
+
+<@U04L0DD6B6F> Created a new branch for you to work off of: <https://github.com/piplabs/scout-careers/pull/1>
+
+I added:
+1. Dynamic auth
+2. Integrated <@U0772SH7BRA>’s API successfully
+    a. Does the whole dynamic token exchange stuff
+    b. Successfully parses resume (all endpoints hooked up to the OpenAPI spec as well so the returned types for resume match up)
+    c. Completed an interview with elevenlabs agent. Also verified that it has the context of the user's resume during the interview :white_check_mark:
+
+### Citation 306
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_eaa9d911b5cc6ee1dc3953c64520d29d`
+- `chunk_id`: `srcchunk_36b64e8c30128c4ce687d9caecf4509b`
+- `native_locator`: `slack:C0AKH5SNGKH:1774302836.662979:1774302836.662979`
+
+hey folks: I organized the tiger team page a bit
+<https://www.notion.so/storyprotocol/Tiger-Team-325051299a5480ba82baf2b41d01da34?source=copy_link>
+
+### Citation 307
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_4ff99071563f4547c8e0d7ab840983b1`
+- `chunk_id`: `srcchunk_fa0f2e74ad77ae0212c77f13732e3e50`
+- `native_locator`: `slack:C0AKH5SNGKH:1774303090.975419:1774303090.975419`
+
+FYI on the Jobs app - potentially we would need to see how to do Linkedin Auth - cause i think thats the most relevant oauth for jobs <@U0772SH7BRA> <@U08V4SFU7LZ>
+
+### Citation 308
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_494a8eb7c421b5fba96c4feca1f5725c`
+- `chunk_id`: `srcchunk_a16316cef71a6a559ea59f8ea1c3485a`
+- `native_locator`: `slack:C0AKH5SNGKH:1774316297.251379:1774316297.251379`
+
+~<@U0772SH7BRA> where is the most updated openapi spec?~
+
+edit: <https://staging-job-helper.storyprotocol.net/openapi.json|found it>
+
+### Citation 309
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_2f2bd9f586af822bf356ea2b128c4146`
+- `chunk_id`: `srcchunk_eba6b026742f449a1829e95787fb860d`
+- `native_locator`: `slack:C0AKH5SNGKH:1774368024.488599:1774368024.488599`
+
+Reminder: daily-async-standup.
+
+### Citation 310
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_9b9adcdfef45f5c9f00279996505be0d`
+- `chunk_id`: `srcchunk_fcb1f809a59a51f1bc0722c65e92188e`
+- `native_locator`: `slack:C0AKH5SNGKH:1774372369.541689:1774372369.541689`
+
+email is working great
+
+### Citation 311
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_eaf679bc429d3d3da704c96277617389`
+- `chunk_id`: `srcchunk_6c26aa94b9e6609795d1aedee1488265`
+- `native_locator`: `slack:C0AKH5SNGKH:1774374111.704749:1774374111.704749`
+
+hey <!here> - DePIN general sync is cancelled, Gardo not feeling well today but i created a 15 min slot same time for Tiger Team eng to quickly sync on updates
+
+### Citation 312
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_457defdb01b2144e5bffb84cfa4a0b55`
+- `chunk_id`: `srcchunk_e5eafb78c6fbb7d852e1c72ef6b8ff61`
+- `native_locator`: `slack:C0AKH5SNGKH:1774376604.609929:1774376604.609929`
+
+<https://scout-careers-web-git-feat-auth-and-resum-8b2ee4-story-protocol.vercel.app/>
+
+### Citation 313
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_a86f4a22fd5d5a37d04a770d95d1b251`
+- `chunk_id`: `srcchunk_6e62186338d35c1e3adb41e69a56e5d1`
+- `native_locator`: `slack:C0AKH5SNGKH:1774399815.410729:1774399815.410729`
+
+canceled tn's meeting since i think we all know what we're focused on
+
+### Citation 314
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_8640e5efdd3fb2fbc52556c33ace1bd4`
+- `chunk_id`: `srcchunk_c0219d7892d7841cd2022aca3252303e`
+- `native_locator`: `slack:C0AKH5SNGKH:1774454422.549089:1774454422.549089`
+
+Reminder: daily-async-standup.
+
+### Citation 315
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_1909fd1210e85cf98fa11f5249272103`
+- `chunk_id`: `srcchunk_fe857888af94edbc3ab50ad33af58086`
+- `native_locator`: `slack:C0AKH5SNGKH:1774461178.714369:1774461178.714369`
+
+Slack file attachment:
+- image.png (image/png, png, 507254 bytes) https://storyprotocol.slack.com/files/U0ASDQKU3UL/F0ANYNV447N/image.png
+
+### Citation 316
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_cbc41cf1f2ea758e747f52c8fdc14b36`
+- `chunk_id`: `srcchunk_9654e666b8e53a25e7c57989d8ed7ab6`
+- `native_locator`: `slack:C0AKH5SNGKH:1774461182.326099:1774461182.326099`
+
+not sure if this is something new 11labs added
+
+### Citation 317
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_2e8e2ca0059819cdfdf8cf60fb6c0ff7`
+- `chunk_id`: `srcchunk_2a3cde57b0ed76ac5007788f5416674b`
+- `native_locator`: `slack:C0AKH5SNGKH:1774461477.857779:1774461477.857779`
+
+Todos:
+• Aura
+    ◦ <@U05A515NBFC> to get <@U067QP5PD6J>’s help on BE
+    ◦ <@U0772SH7BRA> help <@U05A515NBFC> on the personality app BE algo (agents)
+• Scout
+    ◦ <@U04L0DD6B6F> work with <@U08HVGL6LDR> on Scout next steps: resume builder / mock interviews
+    ◦ <@U0772SH7BRA> help <@U08V4SFU7LZ> on recommendation engine
+        ▪︎ switch to lower cost model for vector embeddings
+    ◦ Look into ways to get more audio samples:
+        ▪︎ dynamic mock interviews based on JD
+• Overall / BE
+    ◦ Add Agents Evaluation Criteria to screen for bad data
+    ◦ <@U04L0DD6B6F> admin dashboard in terms of resume parsing birds-eye-view
+    ◦ <@U0772SH7BRA> and <@U08V4SFU7LZ> to present a README on recommendation engine scoring mechanism
+
+### Citation 318
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_229ceb3e70244626dbeab5d29d07cbb8`
+- `chunk_id`: `srcchunk_c022449314e45d6dbe085143f6d28039`
+- `native_locator`: `slack:C0AKH5SNGKH:1774540823.629369:1774540823.629369`
+
+Reminder: daily-async-standup.
+
+### Citation 319
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_1e5c92701f53504f58864c55c619ebc6`
+- `chunk_id`: `srcchunk_2781c9b0e60e62492abff1dcb8763723`
+- `native_locator`: `slack:C0AKH5SNGKH:1774547003.426779:1774547003.426779`
+
+is claude down for yall?
+
+### Citation 320
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_0274b81b8dad685c1af6c76c8787d93b`
+- `chunk_id`: `srcchunk_8c48a0678a9b9824f9100cd08c0811a3`
+- `native_locator`: `slack:C0AKH5SNGKH:1774547096.302759:1774547096.302759`
+
+nop
+
+### Citation 321
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_c386f42143c5c06d5ee9f6d8781c5e5a`
+- `chunk_id`: `srcchunk_0fd0fd60e86eb3ea935d304d020305cf`
+- `native_locator`: `slack:C0AKH5SNGKH:1774563540.673309:1774563540.673309`
+
+<@U0772SH7BRA> <https://github.com/piplabs/depin-backend/pull/85|PR> to introduce jobs storage with vectorization, I can modify the exact fields later to match whatever will be required for the pivot towards gigs/tasks
+I discarded the scraper for now given the pivot but I can bring it back later if needed
+cc <@U04L0DD6B6F> for update
+
+### Citation 322
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_ed8017ee6c30805b385f103890268461`
+- `chunk_id`: `srcchunk_c2a37f00fc89d19b27f333ef471cb1cd`
+- `native_locator`: `slack:C0AKH5SNGKH:1774571368.249989:1774571368.249989`
+
+i have a conflict today gonna cancel - there are still things left to be sorted out, which will take shape better next week
+
+### Citation 323
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_976ce2069e8d302f2c20ccd6993b367f`
+- `chunk_id`: `srcchunk_58daf14c7652783a659e7348d22f3840`
+- `native_locator`: `slack:C0AKH5SNGKH:1774627221.015479:1774627221.015479`
+
+Reminder: daily-async-standup.
+
+### Citation 324
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_2d5513bc29af94c3a0ae44975fc67d42`
+- `chunk_id`: `srcchunk_d2d03196d95e5725387fd1cae28ba453`
+- `native_locator`: `slack:C0AKH5SNGKH:1774648286.045139:1774648286.045139`
+
+<https://x.com/googleaistudio/status/2037190639021154820?s=46|https://x.com/googleaistudio/status/2037190639021154820?s=46>
+
+### Citation 325
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_7bac3ad66857ac72d7204d8e6d74c802`
+- `chunk_id`: `srcchunk_7afb66f1c17bfc47d2541aeec2025eb6`
+- `native_locator`: `slack:C0AKH5SNGKH:1774648308.523259:1774648308.523259`
+
+<!here> let's give this a try ^
+
+### Citation 326
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_2313016fc7e1e4a4c839722d7cf1c0bb`
+- `chunk_id`: `srcchunk_17f0f360848473273e4b5216c198bad9`
+- `native_locator`: `slack:C0AKH5SNGKH:1774666613.170689:1774666613.170689`
+
+also self reminder to discuss: reputation system
+
+### Citation 327
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_4ee8a3fd3367b58f07f65955bcb8614a`
+- `chunk_id`: `srcchunk_831af972c895d988defe53f4344fe073`
+- `native_locator`: `slack:C0AKH5SNGKH:1774886430.941489:1774886430.941489`
+
+Reminder: daily-async-standup.
+
+### Citation 328
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_0e881c17650fe631c10a964901d51ae4`
+- `chunk_id`: `srcchunk_774deeb43294263c9806e397879b0829`
+- `native_locator`: `slack:C0AKH5SNGKH:1774919091.097059:1774919091.097059`
+
+Slack file attachment:
+- numo.pen (application/octet-stream, binary, 177926 bytes) https://storyprotocol.slack.com/files/U0ASDQKU3UL/F0AQ8E9TK3K/numo.pen
+
+### Citation 329
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_776de98b9262a52df0ddda254a8e6a47`
+- `chunk_id`: `srcchunk_cd034e20c22cde4e678dd801e4608f07`
+- `native_locator`: `slack:C0AKH5SNGKH:1774972814.284919:1774972814.284919`
+
+Reminder: daily-async-standup.
+
+### Citation 330
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_53021cd25587392ccfd2e696efd0bf51`
+- `chunk_id`: `srcchunk_e40d0a0d2b90756559488df2f3128fb6`
+- `native_locator`: `slack:C0AKH5SNGKH:1774973192.304839:1774973192.304839`
+
+<https://x.com/zachtratar/status/2038865001965109316?s=20>
+
+### Citation 331
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_0751c83987392b9501aa73b1d2810a5b`
+- `chunk_id`: `srcchunk_35a6306c1ce6edb2973421d8b98c0b7b`
+- `native_locator`: `slack:C0AKH5SNGKH:1774973197.887749:1774973197.887749`
+
+Mercor hacked^
+
+### Citation 332
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_fa9cadb7ba5825211ef6ab3271f8dd65`
+- `chunk_id`: `srcchunk_2195474cf85ebf31a9a0fb837baf1dc5`
+- `native_locator`: `slack:C0AKH5SNGKH:1774978042.059219:1774978042.059219`
+
+<https://x.com/i/status/2038980345316413862>
+
+### Citation 333
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_cc78aba4879b91c5e7d5e120dbeb991c`
+- `chunk_id`: `srcchunk_caf261e12a50285c17691d678adceb5c`
+- `native_locator`: `slack:C0AKH5SNGKH:1774978049.665999:1774978049.665999`
+
+Claude structure found from leak^
+
+### Citation 334
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_afefc6916fa54eab356af469266f366d`
+- `chunk_id`: `srcchunk_31188ea87810a908e2e9d1791e629ffe`
+- `native_locator`: `slack:C0AKH5SNGKH:1774987647.550489:1774987647.550489`
+
+<@U0927FP6HH9> can you put the research on reputation here
+
+### Citation 335
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_ae5b9c5b1f7bc7ccf2bb0af8b2723ba7`
+- `chunk_id`: `srcchunk_3dd2ffcc7421f215dbf37d029b19cfeb`
+- `native_locator`: `slack:C0AKH5SNGKH:1775059217.079629:1775059217.079629`
+
+Reminder: daily-async-standup.
+
+### Citation 336
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_c0dc888bfc8664d2bf268986a6013322`
+- `chunk_id`: `srcchunk_01f7f02950ddf2050bd3119b6b7d9f67`
+- `native_locator`: `slack:C0AKH5SNGKH:1775073577.137849:1775073577.137849`
+
+<!here> i slotted a meeting at 3pm today for Poseidon team to go over the code for SZN 1 high level
+
+this is our chance to ask any questions from them
+
+### Citation 337
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_47863bd91281fc81c020e7a27b5a9ada`
+- `chunk_id`: `srcchunk_c3878ff15929e9e388c2684337132b77`
+- `native_locator`: `slack:C0AKH5SNGKH:1775076937.545479:1775076937.545479`
+
+<https://ccunpacked.dev/>
+
+### Citation 338
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_83642c85da864056c8620702ac2993ba`
+- `chunk_id`: `srcchunk_71874a46536c077e5842a9eed51072ab`
+- `native_locator`: `slack:C0AKH5SNGKH:1775082794.925729:1775082794.925729`
+
+<https://us05web.zoom.us/j/82591718873?pwd=PFhsqIBrxnJaBhhSmFUIseNXdxTbHv.1>
+
+### Citation 339
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_f6ce5def25efb08b1f65b2eb50328d0f`
+- `chunk_id`: `srcchunk_329417895755382f35fa3cea0a06d678`
+- `native_locator`: `slack:C0AKH5SNGKH:1775085148.025709:1775085148.025709`
+
+new meeting: <https://us05web.zoom.us/j/84001191886?pwd=gTvtPOQII7CohaqDYWlb3dAf4uKb09.1>
+
+### Citation 340
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_f09f9348277bb44ca1c56ce2944176df`
+- `chunk_id`: `srcchunk_c2045784c8b5ba7ca4f4f0eb2a6433dc`
+- `native_locator`: `slack:C0AKH5SNGKH:1775145618.117269:1775145618.117269`
+
+Reminder: daily-async-standup.
+
+### Citation 341
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_89958d00ff1d4c8e2efdbf8e804d555b`
+- `chunk_id`: `srcchunk_51c7418579ca330cfdb3e7168a059ab5`
+- `native_locator`: `slack:C0AKH5SNGKH:1775145761.248839:1775145761.248839`
+
+<@U0772SH7BRA> <@U083MMT1771> can yall make the meeting?
+
+### Citation 342
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_7d9107dddf5dd86af28e6c2baf85b85f`
+- `chunk_id`: `srcchunk_cfe0a979100a9926f2b872448b2c369d`
+- `native_locator`: `slack:C0AKH5SNGKH:1775145782.856449:1775145782.856449`
+
+I’m here
+
+### Citation 343
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_6a88d93986098ebb5005888ddbe3756b`
+- `chunk_id`: `srcchunk_ca4e489a1fac1c3fa160d368207a28ff`
+- `native_locator`: `slack:C0AKH5SNGKH:1775155791.000359:1775155791.000359`
+
+FYI
+
+### Citation 344
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_c45c38eebba23b2cc6a3a84de5847a01`
+- `chunk_id`: `srcchunk_a39460604e0f0b6a787ecae31c0be993`
+- `native_locator`: `slack:C0AKH5SNGKH:1775170977.468299:1775170977.468299`
+
+reminder for <@U0772SH7BRA> - need to plan for a waitlist feature for the campaigns
+
+### Citation 345
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_564679c2addd8663087141026033bf39`
+- `chunk_id`: `srcchunk_b7ec3da037f0debbaec72a7ebf4dec23`
+- `native_locator`: `slack:C0AKH5SNGKH:1775173674.264959:1775173674.264959`
+
+I forwarded this to the product team awaiting their feedback. 
+
+My gut is to do 2a. Then 2c. 
+
+2b is the easiest but it means doing exact same thing as psdn szn 1, which is quite pointless
+
+### Citation 346
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_07ee386819ae579b6e21833288531ef1`
+- `chunk_id`: `srcchunk_1cbca01f77433e0d235dd5e2fbc216dc`
+- `native_locator`: `slack:C0AKH5SNGKH:1775173682.007909:1775173682.007909`
+
+Will hear what they say
+
+### Citation 347
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_d985689bf266aa9008095326ea8d93d0`
+- `chunk_id`: `srcchunk_c1e8b53a6527c5fea60374b38a6a0447`
+- `native_locator`: `slack:C0AKH5SNGKH:1775232019.719059:1775232019.719059`
+
+Reminder: daily-async-standup.
+
+### Citation 348
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_67e44badc05b949b2825770afb487220`
+- `chunk_id`: `srcchunk_dcb35094746cb44796a33d6de3b94e32`
+- `native_locator`: `slack:C0AKH5SNGKH:1775235246.795459:1775235246.795459`
+
+psdn v2
+pw: PSDNpsdn
+
+### Citation 349
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_055507fb5fede6485079033495a19b54`
+- `chunk_id`: `srcchunk_a5ca7d145c0fa43f7ee2de7d6e11a448`
+- `native_locator`: `slack:C0AKH5SNGKH:1775491228.827119:1775491228.827119`
+
+Reminder: daily-async-standup.
+
+### Citation 350
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_b63e8f5f0e9afdbe9ba1ed36ed030979`
+- `chunk_id`: `srcchunk_85a63999bcc11a1ef18f9692d5866c29`
+- `native_locator`: `slack:C0AKH5SNGKH:1775511891.610079:1775511891.610079`
+
+FYI - For IP Registration metadata <@U08V4SFU7LZ>
+
+you can use what we did for Poseidon SZN 1 as a base: <https://www.notion.so/storyprotocol/Proposed-IP-Metadata-249051299a548073929afcc7284ce7bc?source=copy_link>
+
+cc <@U05A515NBFC> <@U083MMT1771>
+
+### Citation 351
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_484851b79855d55ea4a84195447dbe89`
+- `chunk_id`: `srcchunk_039d0e45414c03d89d083cb98d227a3b`
+- `native_locator`: `slack:C0AKH5SNGKH:1775577621.809119:1775577621.809119`
+
+Reminder: daily-async-standup.
+
+### Citation 352
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_7dbd731da5c7178c58a6b6b6aff955ae`
+- `chunk_id`: `srcchunk_ebb195083dda279616ae3ddf4285858a`
+- `native_locator`: `slack:C0AKH5SNGKH:1775585831.313369:1775585831.313369`
+
+<!here>
+Hey guys- apologies a lot of ad hoc meetings this morning.
+
+Can yall do async updates in this channel. Specifically any blockers and whether we are on track for this week
+<@U0772SH7BRA> <@U083MMT1771> <@U08V4SFU7LZ> <@U067QP5PD6J> <@U08HVGL6LDR> updates?
+
+### Citation 353
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_5669862682e65423614ddf2f4ee2a66c`
+- `chunk_id`: `srcchunk_b09715b4544b9a8d92911e93ca90f371`
+- `native_locator`: `slack:C0AKH5SNGKH:1775591404.161719:1775591404.161719`
+
+<@U04L0DD6B6F> on my side I have a temporal workflow with metadata generation -&gt; metadata upload to r2 -&gt; onchain ip registration, for a given file upload, with 1 wallet
+
+I just need to configure r2 and it should be testable on staging
+
+next I'll add campaign registration (a spgnft collection is created per campaign, and the campaign nft is the first nft of the collection), wallet pool, and orchestrator that actively polls the db for pending registrations
+
+### Citation 354
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_3f6f7840976ee5b14b71d114bf810cd9`
+- `chunk_id`: `srcchunk_7fbfb82c74b38a011ebc3a9468527e4b`
+- `native_locator`: `slack:C0AKH5SNGKH:1775596069.298279:1775596069.298279`
+
+High level phases i think the app needs to evolve in phases:
+
+• Phase 1: The GTM: Getting volume and breadth
+    ◦ variety of campaigns: supporting audio, video, images, text docs
+    ◦ different languages / global users
+• Phase 2: Rating the users / Sorting the data
+    ◦ key thing is how do we get user reputation at minimum cost, some ideas:
+        ▪︎ Sampling user submissions as an early signal (just vetting 10 -20% of submissions per user to see if it meets criteria)
+            • then for good users, gradually increase vetting sample size (if 20% are good -> increase to 50% -> 100%) etc
+            • goal is to form a reputation score, which will tie in with rewards
+        ▪︎ rely on external parties to vet:
+            • Elevenlabs Agent - audio
+            • Twelvelabs - video embeddings
+• Phase 3: Crowdsourcing data QA 
+    ◦ think recaptcha but for data rating
+• Phase 4: SDK and ecosystem
+    ◦ captcha SDK
+    ◦ developer API keys
+    ◦ upload API
+i'm drafting up a doc to go through this in detail but sharing some early thoughts here
+
+For phase 2 we need to be creative with cost in mind so feel free to share thoughts and ideas
+
+### Citation 355
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_2eff4ee7adeedb7114729ad53612fb55`
+- `chunk_id`: `srcchunk_d79046dc5e7cdedb1fb6c0104f5abf9b`
+- `native_locator`: `slack:C0AKH5SNGKH:1775610157.904559:1775610157.904559`
+
+<!here> joining?
+
+### Citation 356
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_e70baf61ba3f4af3aeff29d47adc4486`
+- `chunk_id`: `srcchunk_0c71dcca48550e2a0adbefccb3b6c524`
+- `native_locator`: `slack:C0AKH5SNGKH:1775622684.076529:1775622684.076529`
+
+<https://x.com/awscloud/status/2041611271565381968?s=46|https://x.com/awscloud/status/2041611271565381968?s=46>
+
+### Citation 357
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_750371740fb3f552cd5753d1a71c4823`
+- `chunk_id`: `srcchunk_849423534deba0b403151e9822a06b0f`
+- `native_locator`: `slack:C0AKH5SNGKH:1775660318.840569:1775660318.840569`
+
+FYI i'm getting CORS issue for staging url: <https://numo-staging.vercel.app/> pw: `numopip` 
+
+<@U05A515NBFC> <@U0772SH7BRA> are you guys getting the same?
+
+### Citation 358
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_0fc22078b621f36d2b6cf93b9c8e6575`
+- `chunk_id`: `srcchunk_c327949ef421822fcc8cb4d3372e2f53`
+- `native_locator`: `slack:C0AKH5SNGKH:1775661133.991179:1775661133.991179`
+
+works for me
+
+### Citation 359
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_07c5f62ab42e8c74cab5bb38fb96605a`
+- `chunk_id`: `srcchunk_96547dea80289804316bc36cdc5028fa`
+- `native_locator`: `slack:C0AKH5SNGKH:1775661263.641209:1775661263.641209`
+
+just the saving of the orb is not always working rn
+
+### Citation 360
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_582f0ffd9606c3e708cab9b15394184b`
+- `chunk_id`: `srcchunk_1880bbf38a16a45440479978895db833`
+- `native_locator`: `slack:C0AKH5SNGKH:1775664023.212719:1775664023.212719`
+
+Reminder: daily-async-standup.
+
+### Citation 361
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_07bcd5bdb9dec026d99df9e0531fdbd1`
+- `chunk_id`: `srcchunk_55cb20f19520c7cfea87467b2cb9f557`
+- `native_locator`: `slack:C0AKH5SNGKH:1775674798.615909:1775674798.615909`
+
+btw we already have the wallet balance tracker setup in grafana cc <@U08V4SFU7LZ> this is under psdn, you can set it up for story
+
+### Citation 362
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_e852c6f20082009a1dec2c2a4d8fd119`
+- `chunk_id`: `srcchunk_2cf877419fa90ea3de5220a22ee320c4`
+- `native_locator`: `slack:C0AKH5SNGKH:1775675166.123879:1775675166.123879`
+
+<@U05A515NBFC> can you list out what we need from design team in this doc?
+
+### Citation 363
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_c0cbf52984529f5257e54999209c90f5`
+- `chunk_id`: `srcchunk_9b0ee71bf352dd85f5c61a5482c02a14`
+- `native_locator`: `slack:C0AKH5SNGKH:1775687015.482099:1775687015.482099`
+
+<@U05A515NBFC> i finished uploading the output.zip <@U067QP5PD6J> made. Should be ready to integrate
+
+### Citation 364
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_db701e8dc4ec6f8b1ab16e367387f6c3`
+- `chunk_id`: `srcchunk_0476c18a4426c990033f37c1674d8be8`
+- `native_locator`: `slack:C0AKH5SNGKH:1775696467.358399:1775696467.358399`
+
+Hmmm :thinking_face: I’ll double check
+
+### Citation 365
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_9c1bff7cb141123ae56e3e533fe5ba62`
+- `chunk_id`: `srcchunk_5f6c1aab9926d36bf21d3ffcff32560b`
+- `native_locator`: `slack:C0AKH5SNGKH:1775743014.071019:1775743014.071019`
+
+my update for today
+• pulling campaign scripts from api
+• fixed (:crossed_fingers:) the orb generation (the visual will be replaced but logic will be same)
+• Updated the design system & applied throughout 
+• updated onboarding UI (wip - i noticed some issues on device)
+What I’m planning to do next
+• Update onboarding assets
+• Create new visualization
+• Create new nft cover image
+• Share page & share page dynamic og image
+Other tasks <@U04L0DD6B6F> <@U08HVGL6LDR> if you have time you can pick up any of these - codebase already has support but most will need updating & testing
+• Leaderboard (pending api?)
+• Activity (pending api?)
+• Referrals (pending api?)
+• Delete account (pending api?)
+• Sentry (probably just env var, should also test)
+• Cloudflare turnstile env var
+• <https://castle.io/|Castle> was added for PSDN season 2
+• Guide, terms & privacy content will need to be updated
+• There is a help/feedback modal, don’t know how/if this works
+• dark mode needs fixing or removing
+
+### Citation 366
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_ca15b0245e5046e0bf2d024b4fac12f7`
+- `chunk_id`: `srcchunk_a52f39c1b55abb2ab28a1e24806fcf2b`
+- `native_locator`: `slack:C0AKH5SNGKH:1775750418.458199:1775750418.458199`
+
+Reminder: daily-async-standup.
+
+### Citation 367
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_ebbad5c6ac3a9649cfa1eb2021f15c1f`
+- `chunk_id`: `srcchunk_8510ad37c75ab434b0b11426f78ccb8c`
+- `native_locator`: `slack:C0AKH5SNGKH:1775765396.204829:1775765396.204829`
+
+<!here> can we all join the meeting at 6pm today? Let’s do a demo to see where we stand.
+
+### Citation 368
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_d8ee23d843537ed04cf820c5db72e116`
+- `chunk_id`: `srcchunk_de083c09d8be1b6e5a6f0607af04b7f8`
+- `native_locator`: `slack:C0AKH5SNGKH:1775773385.736899:1775773385.736899`
+
+YESSSSS I got the World login working I think with just mock API call but the sign in button is actually working on the mini app store
+
+### Citation 369
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_a0fa56c24e4fd45af37f11e2fd2387ba`
+- `chunk_id`: `srcchunk_985bda5d850de50689a721b1f7d81aa3`
+- `native_locator`: `slack:C0AKH5SNGKH:1775773441.592989:1775773441.592989`
+
+still need the backend to actually integrate the real auth and hopefully it will really work
+
+### Citation 370
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_e879a65ebb91cc020e188e92b03028b5`
+- `chunk_id`: `srcchunk_542c09ae2efeb15f8a94a74b5f456d9a`
+- `native_locator`: `slack:C0AKH5SNGKH:1775780312.815489:1775780312.815489`
+
+Amazing! I already asked <@U0772SH7BRA> to look into the backend API
+
+### Citation 371
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_a052086249f6a5d9faee5046f0f600e6`
+- `chunk_id`: `srcchunk_caa3e92f01b6c75f483fe068670a97c4`
+- `native_locator`: `slack:C0AKH5SNGKH:1775781677.997019:1775781677.997019`
+
+<!here> reminder to join the 6pm PST meeting to do quick sitrep
+
+### Citation 372
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_d911b6a2a4a1e2689a90cc8458a10b34`
+- `chunk_id`: `srcchunk_450396f3e9bdedba2a5c21e40ca22bc8`
+- `native_locator`: `slack:C0AKH5SNGKH:1775781823.072949:1775781823.072949`
+
+<https://github.com/piplabs/depin-backend/pull/111> pr to add leaderboard apis + szn 1 contribution migration script, cc <@U0772SH7BRA>
+
+### Citation 373
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_e19a772af8811873860f375f9aa82704`
+- `chunk_id`: `srcchunk_9832886bfd96622a7ad0240a8d6fb200`
+- `native_locator`: `slack:C0AKH5SNGKH:1775787619.516279:1775787619.516279`
+
+<https://github.com/piplabs/depin-backend/pull/115> pr to add apis for activities and updated api doc for leaderboard and activioties related cc <@U0772SH7BRA> <@U04L0DD6B6F> <@U05A515NBFC> :pray:
+
+### Citation 374
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_f4364032661f6968cbedcea31f8ae5e2`
+- `chunk_id`: `srcchunk_60fb0290a78c12d7a7f9780e203bb2f1`
+- `native_locator`: `slack:C0AKH5SNGKH:1775789332.909539:1775789332.909539`
+
+<@U08951K4SRY>
+
+### Citation 375
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_fcbd134b3bfd5cebc52a654afd4f82c6`
+- `chunk_id`: `srcchunk_809d97debcbb3b0b5cd2303c74191f08`
+- `native_locator`: `slack:C0AKH5SNGKH:1775794207.877959:1775794207.877959`
+
+update <@U04L0DD6B6F>
+• fixed the campaign file upload
+• added activity
+• added leaderboard
+• thanks <@U083MMT1771> for the quick turnaround!
+next up
+• update onboarding assets
+• update generated avatar, nft cover, campaign share page &amp; og
+• update dashboard to wallet (ui first, integration later) 
+• referrals &amp; campaign sharing
+
+### Citation 376
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_a9ee77293562691fa606adc973a82750`
+- `chunk_id`: `srcchunk_d607bd1794f2c532d8285c9777c1e0cb`
+- `native_locator`: `slack:C0AKH5SNGKH:1775807786.274609:1775807786.274609`
+
+<@U05A515NBFC> i can't login to <https://numo-staging.vercel.app/login>
+
+### Citation 377
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_0ad41efa7a05d5fb4e2808bc17b7306b`
+- `chunk_id`: `srcchunk_90ba4bd8006889473eb263b73273938b`
+- `native_locator`: `slack:C0AKH5SNGKH:1775807806.032149:1775807806.032149`
+
+getting
+
+### Citation 378
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_a2ce2d8049feae63354de904f115c4a2`
+- `chunk_id`: `srcchunk_42befa1ec49c28e1be7baf05d05573ac`
+- `native_locator`: `slack:C0AKH5SNGKH:1775807825.293569:1775807825.293569`
+
+can we fix this before the demo tomorrow?
+
+### Citation 379
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_6871e6a9822f615ead3f879abceba786`
+- `chunk_id`: `srcchunk_414aaba188321395b8f1dbba4b14ad63`
+- `native_locator`: `slack:C0AKH5SNGKH:1775808258.465259:1775808258.465259`
+
+i'll take a look
+
+### Citation 380
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_53525144c261bb32dddfde48b2f9daed`
+- `chunk_id`: `srcchunk_5f5600066a3c3dce091c05c7611a21c8`
+- `native_locator`: `slack:C0AKH5SNGKH:1775808385.528069:1775808385.528069`
+
+i'm logging in ok, might be some kind of mismatch with the jwt tokens, can you try removing your cookies &amp; local storage
+
+### Citation 381
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_14095185072a9d4050fa3854ce6e90e2`
+- `chunk_id`: `srcchunk_5fa8689b935bd9156e61eaa497eee8a2`
+- `native_locator`: `slack:C0AKH5SNGKH:1775809353.057549:1775809353.057549`
+
+issue was there's no checking in the frontend if a jwt has expired, adding that now
+
+### Citation 382
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_28251fe38da15186a3f53b82e0dfc7b0`
+- `chunk_id`: `srcchunk_ec2d7e3109822546d34e034120c50e7f`
+- `native_locator`: `slack:C0AKH5SNGKH:1775836819.396479:1775836819.396479`
+
+Reminder: daily-async-standup.
+
+### Citation 383
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_1ea4f03fb68bbfbdef3ca6e5df0b6fed`
+- `chunk_id`: `srcchunk_652d747fabddcfb52142383f32ed9d28`
+- `native_locator`: `slack:C0AKH5SNGKH:1775836934.009919:1775836934.009919`
+
+<!here> joining standup?
+
+### Citation 384
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_bd9dad8723187b620235775dfd778fdf`
+- `chunk_id`: `srcchunk_5e28fbb1ec34f978d552a5f6ed740bd6`
+- `native_locator`: `slack:C0AKH5SNGKH:1775838688.913419:1775838688.913419`
+
+hahaha
+
+### Citation 385
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_7aece6bcddc81de12b3d670e92c0d105`
+- `chunk_id`: `srcchunk_881d8ee71052a59698821fed891e10ed`
+- `native_locator`: `slack:C0AKH5SNGKH:1773255632.508629:1773255632.508629`
+
+Hey folks - creating this group as part of the tiger eng team. since folks are working on wrapping up various tasks at the moment, we probably won't officially kick off regular eng cadence until 4/1. but using this group to throw in some ideas and share some interesting research that would be helpful to align the team as we explore more on the product side
+
+### Citation 386
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_07a7f8ba72c6f9b4d4351996d82e70d3`
+- `chunk_id`: `srcchunk_bb18bdeff2916cabafaa20d1f03f9e3f`
+- `native_locator`: `slack:C0AKH5SNGKH:1773260976.005059:1773260976.005059`
+
+Some helpful info for everyone to checkout to better understand the product space.
+
+Research:
+• *Understand the DePIN landscape:* Review this thread for context: <https://x.com/MessariCrypto/status/2016534312393511213>
+• *KLED:* <https://www.kled.ai/> — Used for crowdsourcing various general data.
+• *Mercor:* <https://www.mercor.com/> — Originally a recruiting app; now a data provider for professional expertise, offering hourly consultation across different sectors.
+• *Listen Labs:* <https://listenlabs.ai/> — Vertically focused B2B software for user survey pipelines. It manages user feedback and opinions, then vectorizes the data into an easily queryable interface.
+
+---
+
+also sharing some interesting UI libraries I found interesting and relevant:
+
+• <https://www.assistant-ui.com/>
+• <https://livekit.com/>
+
+### Citation 387
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_1bd20de74e1333c49ad02a0123de6dbe`
+- `chunk_id`: `srcchunk_51b9d95c46357611562354208d6a49db`
+- `native_locator`: `slack:C0AKH5SNGKH:1773342559.265019:1773342559.265019`
+
+adding to the list:
+
+• <https://www.silencio.network/>
+• <https://listenlabs.ai/>
+• <https://www.babel.audio/>
+• <https://www.luel.ai/>
+
+### Citation 388
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_a6b1a61d94d6b224e71648955a0da8bc`
+- `chunk_id`: `srcchunk_4cd66776422f3417d955a684cf2dad24`
+- `native_locator`: `slack:C0AKH5SNGKH:1773343612.174139:1773343612.174139`
+
+<https://www.notion.so/storyprotocol/DePIN-Competitors-Research-321051299a5480179299d28d847ca597?source=copy_link>
+
+### Citation 389
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_0cb5a7d405ba42b46887a2c76098445c`
+- `chunk_id`: `srcchunk_4dc71175089f90c5afa477a363f4441f`
+- `native_locator`: `slack:C0AKH5SNGKH:1773343621.807749:1773343621.807749`
+
+use this to track ^ could be easier
+
+### Citation 390
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_242071864827cae6730d35988fb308e2`
+- `chunk_id`: `srcchunk_718750b29d14dbc1e23f25aa017462d0`
+- `native_locator`: `slack:C0AKH5SNGKH:1773346460.075639:1773346460.075639`
+
+this is my current thinking in the next month or so
+
+*Phase 1 (3days - 1 week)*
+• Marketplace Site: Build a site that showcases the different modalities data we have 
+*Phase 2: Multiple audio apps to experiment (2-4 weeks)*
+• Trojan horse, Organic growth App (AI interview agent, language tutoring app, virtual co-working, expert interview flows) 
+• KLED like app / Babel.audio
+• personality app / know-thyself app - masquerading to collect data 
+*Phase 3: App Store (post-April 1st)*
+An App Store like world app because we need to rally community around this, and if we can own this narrative it would be better for the token price.
+• Databank
+*Phase 4:* Sensor exploration in ShenZhen China /  IP Proxy exploration like grass / feeding live scrapable data exploration
+
+### Citation 391
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_f9d51ffa7f305392cee9ef51841cb8a9`
+- `chunk_id`: `srcchunk_ac0a1e2188d79573555ffc5206dc64f8`
+- `native_locator`: `slack:C0AKH5SNGKH:1773680548.486459:1773680548.486459`
+
+<https://meet.google.com/wqq-xgto-wpb>
+
+### Citation 392
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_b6a769dbf4d53ebc65e2a09ef7920cce`
+- `chunk_id`: `srcchunk_f58011b0e4c2539ba30bdda9a79d724e`
+- `native_locator`: `slack:C0AKH5SNGKH:1773684979.951819:1773684979.951819`
+
+`npx blueprint-stack`
+
+### Citation 393
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_5cec45e69855760aa6ab578ba6e6b4c6`
+- `chunk_id`: `srcchunk_fca1b32300f73233c1adc7d0cac0cab3`
+- `native_locator`: `slack:C0AKH5SNGKH:1773684990.958979:1773684990.958979`
+
+<https://github.com/piplabs/blueprint>
+
+### Citation 394
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_3ccbcf4098f89487547bf27eb19c4f46`
+- `chunk_id`: `srcchunk_894f654005a91156584e45f04a66a0e7`
+- `native_locator`: `slack:C0AKH5SNGKH:1773686630.473349:1773686630.473349`
+
+<https://x.com/shannholmberg/status/2032892199751528486?s=46|https://x.com/shannholmberg/status/2032892199751528486?s=46>
+
+<@U08HVGL6LDR>
+
+### Citation 395
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_2c1a35d3a69c7a05f0d389454213c7ba`
+- `chunk_id`: `srcchunk_952466811bcd20340b9023ea8206ed84`
+- `native_locator`: `slack:C0AKH5SNGKH:1773690951.019159:1773690951.019159`
+
+I think we need to scope this out and let product know the challenges so we can better evaluate whether this is a path we would to take
+
+### Citation 396
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_ba58917f293876d720806aa250681543`
+- `chunk_id`: `srcchunk_d697fe07013775062f1dcce31df4b661`
+- `native_locator`: `slack:C0AKH5SNGKH:1773694167.365839:1773694167.365839`
+
+<https://paperclip.ing/>
+
+### Citation 397
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_63fdca8c6d129301d5801ccc32511772`
+- `chunk_id`: `srcchunk_a779e0dc31da5b01784be3956050ee7c`
+- `native_locator`: `slack:C0AKH5SNGKH:1773694184.527169:1773694184.527169`
+
+i would do some more research on this ^
+
+### Citation 398
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_4627b1d008495c334b1a41e4bdd890bf`
+- `chunk_id`: `srcchunk_5a52d85070293bdeaef19b3e768a6200`
+- `native_locator`: `slack:C0AKH5SNGKH:1773770727.570149:1773770727.570149`
+
+<!here> meeting?
+
+### Citation 399
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_e3babff0829c60d03c3a2c22445c899d`
+- `chunk_id`: `srcchunk_bf10be2c51b7fac3ac3ad4057dd8de49`
+- `native_locator`: `slack:C0AKH5SNGKH:1773777320.396629:1773777320.396629`
+
+Btw team were considering Human-Agent as a viable way to collect the data
+
+### Citation 400
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_ffbedac6aeb4674034dac083c48ada8b`
+- `chunk_id`: `srcchunk_a32f1f1bff9c998e8319383a241743e8`
+- `native_locator`: `slack:C0AKH5SNGKH:1773777329.061259:1773777329.061259`
+
+Would encourage everyone to try Elevenlabs
+
+### Citation 401
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_8283a47d01b6d0c262d8884fdcf6a3bb`
+- `chunk_id`: `srcchunk_5f706122538a9645cba1bb3d16773ef8`
+- `native_locator`: `slack:C0AKH5SNGKH:1773777387.096149:1773777387.096149`
+
+<https://aeir-web-seven.vercel.app/|https://aeir-web-seven.vercel.app/>
+
+### Citation 402
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_4ea3844184415f53171117bc4526c31a`
+- `chunk_id`: `srcchunk_606e0cef1ec46887521552869d05f0f4`
+- `native_locator`: `slack:C0AKH5SNGKH:1773777421.529219:1773777421.529219`
+
+I'll also add eleven lab skills to the blueprint repo
+
+### Citation 403
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_eccd6ff3e29ad45a5922c82abe8ad596`
+- `chunk_id`: `srcchunk_3281653928bbed22abff810bbcbf55aa`
+- `native_locator`: `slack:C0AKH5SNGKH:1773779134.725519:1773779134.725519`
+
+<https://github.com/piplabs/blueprint/pull/1> need 1 approval
+
+### Citation 404
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_fc771fd745d668dde13add4303b07536`
+- `chunk_id`: `srcchunk_1b7ac365b4a76e79aaed5dbe86fea720`
+- `native_locator`: `slack:C0AKH5SNGKH:1773780361.729479:1773780361.729479`
+
+stamped
+
+### Citation 405
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_8242da290bb199830bdb72032ac0b721`
+- `chunk_id`: `srcchunk_68a39682137d486b57152f406b1bd772`
+- `native_locator`: `slack:C0AKH5SNGKH:1773782341.537129:1773782341.537129`
+
+built this app using eleven labs
+
+### Citation 406
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_c5ab944f73d97278c9f91a8cf88181b3`
+- `chunk_id`: `srcchunk_2a30f5724714875fd5c0b03d8e290b82`
+- `native_locator`: `slack:C0AKH5SNGKH:1773782348.192309:1773782348.192309`
+
+reskin of my previous project
+
+### Citation 407
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_222c7dbda01a69760f3ac588fd8b60da`
+- `chunk_id`: `srcchunk_ed2f5a1b5808b20a6687fe5246b43af3`
+- `native_locator`: `slack:C0AKH5SNGKH:1773783411.848509:1773783411.848509`
+
+<@U0772SH7BRA> ive added you to the voice app repo,
+
+### Citation 408
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_b4976e6e095235f6d7f9db3f8684b100`
+- `chunk_id`: `srcchunk_9b93fd1923450f93db1419afe5dcea68`
+- `native_locator`: `slack:C0AKH5SNGKH:1773804653.230059:1773804653.230059`
+
+<https://x.com/worldnetwork/status/2033923684768092436?s=46|https://x.com/worldnetwork/status/2033923684768092436?s=46>
+
+### Citation 409
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_32118ec6dd3e867c3f3c084c1f2cb57b`
+- `chunk_id`: `srcchunk_ef254375ca5b6ca87c5d33691a0f9e3e`
+- `native_locator`: `slack:C0AKH5SNGKH:1773855815.125829:1773855815.125829`
+
+jdub - 10% perpdex / 40% cdr / 10% foundation / *40% Tiger*
+*romain - 100%*
+*sam - 80% tiger / 20% portal*
+
+### Citation 410
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_6c4b07aaae642ded70ef02f4549c5875`
+- `chunk_id`: `srcchunk_139dab4f6512352d17f65d53f7b1b544`
+- `native_locator`: `slack:C0AKH5SNGKH:1773857033.419809:1773857033.419809`
+
+Slack file attachment:
+- image.png (image/png, png, 403897 bytes) https://storyprotocol.slack.com/files/U0ASDQKU3UL/F0AN9DRT6L8/image.png
+
+### Citation 411
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_251c6eaa75fcdfe885c92755e546a3e7`
+- `chunk_id`: `srcchunk_6114385de97fea0f942739e9d0268990`
+- `native_locator`: `slack:C0AKH5SNGKH:1773858809.532729:1773858809.532729`
+
+Slack file attachment:
+- image.png (image/png, png, 419269 bytes) https://storyprotocol.slack.com/files/U0ASDQKU3UL/F0AMDAUMJ3Y/image.png
+
+### Citation 412
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_057f015017c30e264a03640aabde2b4e`
+- `chunk_id`: `srcchunk_523752616690c66833a22be7badab32f`
+- `native_locator`: `slack:C0AKH5SNGKH:1773864089.280889:1773864089.280889`
+
+I've setup daily 9AM reminder bot in this channel to update your status please provide updates on
+• blockers
+• what you accomplished
+• what you are going to work on
+
+### Citation 413
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_a4271bac6d922a92f8ff30e5ae2f2720`
+- `chunk_id`: `srcchunk_14f66e7d82ab6a3c4d7ad96996f034f6`
+- `native_locator`: `slack:C0AKH5SNGKH:1773867171.123929:1773867171.123929`
+
+everybody on the app team please do your hw on:
+• <http://elevenlabs.io/> Agents specifically
+• <https://livekit.com/> UI component kit
+we'll be using them throughout all the apps
+
+### Citation 414
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_330a52ceb3b2978bc011db92d3309e07`
+- `chunk_id`: `srcchunk_cdc441117772f3b7285587663e2ccb21`
+- `native_locator`: `slack:C0AKH5SNGKH:1773867812.151139:1773867812.151139`
+
+I'll be finalizing the MVP by EoD today so we have clear scope on what to build out for the 3 apps by 4/10
+
+### Citation 415
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_2ca21e6614063bbf08b38bd292f5ffdd`
+- `chunk_id`: `srcchunk_305c0fc64e08fc7c479d41b53d1b6f94`
+- `native_locator`: `slack:C0AKH5SNGKH:1773880953.591309:1773880953.591309`
+
+btw no meeting today at 6pm
+
+### Citation 416
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_2750245a0daf71aaa1e2610d77f45ef8`
+- `chunk_id`: `srcchunk_38021506c7a95ba04505ed5c6ce25441`
+- `native_locator`: `slack:C0AKH5SNGKH:1773880955.279559:1773880955.279559`
+
+lets start tmr
+
+### Citation 417
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_d246b76da960fc774d51b42df7fd68fd`
+- `chunk_id`: `srcchunk_a6dd03df59aa7b8023d81ab3596f8b91`
+- `native_locator`: `slack:C0AKH5SNGKH:1773883880.710709:1773883880.710709`
+
+i updated <https://github.com/piplabs/blueprint> and `npx blueprint-stack`
+
+to add
+• elevenlabs
+• world app support
+• stripe support
+
+### Citation 418
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_17ec5550bfc37a73a272565b5432c8d2`
+- `chunk_id`: `srcchunk_5293c0a72654e714fa98201ef1a490d8`
+- `native_locator`: `slack:C0AKH5SNGKH:1773887099.379379:1773887099.379379`
+
+FYI we need to have an MVP version out by tuesday - updates from product team we'll start with just
+• MBTI personality app
+• Recruiting
+---
+• Debate -  only if we have left over time which i don't think we will
+
+### Citation 419
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_0e62701eed52e8c14927207873d70559`
+- `chunk_id`: `srcchunk_b43f14e16d1c15150654fea7b938a555`
+- `native_locator`: `slack:C0AKH5SNGKH:1773936695.873219:1773936695.873219`
+
+<https://docs.google.com/spreadsheets/d/1R1FRCpPYNPfV8FBFqXz4FIeZyKMklWDNp9g80sRYBik/edit?gid=0#gid=0>
+
+### Citation 420
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_422405c4e557b4243d8bf4192db18677`
+- `chunk_id`: `srcchunk_3f1222db544e084a40c33f60d37ff88f`
+- `native_locator`: `slack:C0AKH5SNGKH:1773936721.021009:1773936721.021009`
+
+here's the GANT chart for product planning
+
+note that by next Tuesday: we're going to need to have a FE MVP out
+
+### Citation 421
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_151e445c6287de04acaa68a3faa0c30e`
+- `chunk_id`: `srcchunk_c1e42899cd6675c25b737af25f909d2c`
+- `native_locator`: `slack:C0AKH5SNGKH:1773936759.096399:1773936759.096399`
+
+we can avoid auth / mock some of data required for this - this is more so just to get a look and feel of the overall app flow
+
+### Citation 422
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_e3f15ba78f493ae09157d0915b54d250`
+- `chunk_id`: `srcchunk_6c45cdc36400b6c8e7e03e489d629c38`
+- `native_locator`: `slack:C0AKH5SNGKH:1773936801.348049:1773936801.348049`
+
+then starting next week, the next 2 weeks we focus on productionalizing these apps
+
+### Citation 423
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_d480c0ca7bd267a1a81bf679040ff862`
+- `chunk_id`: `srcchunk_eec858d441810294e34d462b16155bb1`
+- `native_locator`: `slack:C0AKH5SNGKH:1773939762.497729:1773939762.497729`
+
+Slack file attachment:
+- image.png (image/png, png, 185651 bytes) https://storyprotocol.slack.com/files/U0ASDQKU3UL/F0AN26K690R/image.png
+
+### Citation 424
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_06967cdf8e9c7f6e2a76a2a6cee12d8e`
+- `chunk_id`: `srcchunk_12748ac9b47d3a6f367d1beeee435dd3`
+- `native_locator`: `slack:C0AKH5SNGKH:1773945028.084859:1773945028.084859`
+
+<@U04L0DD6B6F> the idea of a dynamic resume for each job application is really cool. it feels very video gamey somehow, like a dynamic card for each application. i feel like theres a way to make it feel really fun, like Hearthstone or Character Skill Sheets from video games
+
+### Citation 425
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_eedb78df95aa38fe454dcdb2ce651e2c`
+- `chunk_id`: `srcchunk_77ea7fbdcfc284dca959d5e2575f5fdb`
+- `native_locator`: `slack:C0AKH5SNGKH:1773945085.348319:1773945085.348319`
+
+yeah - love it but im getting anxious on the schedule, lets focus on the core features first and i think once we have that setup we can iterate very quickly
+
+### Citation 426
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_8d97f43145296dc0cebb4fcd8b268de7`
+- `chunk_id`: `srcchunk_88907321e5a2951935cb4629d5806ebd`
+- `native_locator`: `slack:C0AKH5SNGKH:1773945094.299699:1773945094.299699`
+
+yeah totally
+
+### Citation 427
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_497390b54f658d5effc1d5c223096e61`
+- `chunk_id`: `srcchunk_97e0f0fe69658cae11503769ef25779d`
+- `native_locator`: `slack:C0AKH5SNGKH:1773945105.236219:1773945105.236219`
+
+core being:
+• jobs api (scraper)
+• resume uploader -&gt; parse resume to text
+• ai agent flow
+
+### Citation 428
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_a0d9b51aeb0095c649a98c438e5e4c10`
+- `chunk_id`: `srcchunk_b9a255df88f76f78d99afdf768beda37`
+- `native_locator`: `slack:C0AKH5SNGKH:1773945109.268849:1773945109.268849`
+
+cc <@U0772SH7BRA>
+
+### Citation 429
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_a5d9159e2fee04cf10c5cf5a8007212b`
+- `chunk_id`: `srcchunk_eead84a568b99c6bff7d2edfc04588e0`
+- `native_locator`: `slack:C0AKH5SNGKH:1773945331.817099:1773945331.817099`
+
+do you have time now?
+
+### Citation 430
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_547a6aae6b91778155f9922ef9e9c65c`
+- `chunk_id`: `srcchunk_c5ddf38dd3bead123566516a158b692d`
+- `native_locator`: `slack:C0AKH5SNGKH:1773945349.625129:1773945349.625129`
+
+if not i'll setup a time in an hour or 2
+
+### Citation 431
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_e637bdc64a53ea71effe1edef41ad441`
+- `chunk_id`: `srcchunk_44f7ddbe7aba8a7c848507c194dd7b22`
+- `native_locator`: `slack:C0AKH5SNGKH:1773949651.511199:1773949651.511199`
+
+<https://excalidraw.com/#room=52a1bb4cd8f18d5aafeb,tq67UD4o1YAACvEERNMz3w>
+
+### Citation 432
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_afffd5b2323c1aecab6d6b8701824540`
+- `chunk_id`: `srcchunk_14be4b9b7013041d4853a0a1fc3c53b8`
+- `native_locator`: `slack:C0AKH5SNGKH:1773949676.346999:1773949676.346999`
+
+Slack file attachment:
+- CleanShot 2026-03-19 at 14.47.43@2x.png (image/png, png, 170228 bytes) https://storyprotocol.slack.com/files/U0ASDQKU3UL/F0AMM4HJBEH/cleanshot_2026-03-19_at_14.47.43_2x.png
+
+### Citation 433
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_005fe12bd2d3700aff228b79e0c6b15c`
+- `chunk_id`: `srcchunk_52044dd550982e5057a53d9580760dd6`
+- `native_locator`: `slack:C0AKH5SNGKH:1773950608.620239:1773950608.620239`
+
+create business 11labs account, add  tiger team - <@U04L0DD6B6F>
+create 4-5 interviewer agent profiles - <@U04L0DD6B6F>
+boostrap resume backend - <@U0772SH7BRA>
+boostrap resume frontend - <@U08HVGL6LDR> / <@U04L0DD6B6F>
+bootstrap mbti frontend  - <@U05A515NBFC> / <@U067QP5PD6J>
+bootstrap mbti backend - <@U05A515NBFC> / <@U067QP5PD6J>
+
+### Citation 434
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_aa0368c80df08d24d8659ebf2519d493`
+- `chunk_id`: `srcchunk_d860043e34fcca28ba66cfb318a83d76`
+- `native_locator`: `slack:C0AKH5SNGKH:1773951233.243109:1773951233.243109`
+
+FYI on product mood boards
+
+### Citation 435
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_6111602934bd9280825638708f08e7ca`
+- `chunk_id`: `srcchunk_d3bef89e23d55979ff7e4bd55a69531a`
+- `native_locator`: `slack:C0AKH5SNGKH:1773952458.269449:1773952458.269449`
+
+```{
+  "data-engineer": "agent_6601km3wna79fydrtwt8qrqby6sd",
+  "product-marketing-manager": "agent_2101km3wmgkhfkeawmh17v31aksb",
+  "customer-success-manager": "agent_0601km3wkn6bf6n8bj8yveh5s8sq",
+  "solutions-engineer": "agent_6401km3wj692f1qss8xzpphw03x1",
+  "technical-recruiter" "agent_9701km3wgzwjetb8j508jjxqw9h4",
+  "ai-ml-engineer": "agent_3601km3wfrgjff1ac5w837wg2c50",
+  "data-analyst": "agent_9701km3wekcnf2g83x6faekswjqj",
+  "product-designer": "agent_8101km3wcd16fh69cahcrdwkj20b",
+  "product-manager": "agent_5101km3wb8vxfngs85hpm4xaj272",
+  "general-software-engineer": "agent_2901km3vx54se7181shrt3shnvq9",
+}```
+<@U0772SH7BRA>, <@U08HVGL6LDR> ^ Elevenlabs Agents for Jobs App
+
+### Citation 436
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_1773e628e321d428c07861e7b0ae8e64`
+- `chunk_id`: `srcchunk_b68a3625731c1975e9ad82789d52fcec`
+- `native_locator`: `slack:C0AKH5SNGKH:1773952538.970509:1773952538.970509`
+
+*modifies prompt*
+
+### Citation 437
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_1189f67a7ee0ab44e2b0e8381a22d5aa`
+- `chunk_id`: `srcchunk_f79e93355e3e417b4d406e0136dabee2`
+- `native_locator`: `slack:C0AKH5SNGKH:1773952945.682959:1773952945.682959`
+
+testing out the interview myself
+
+### Citation 438
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_555c97a2f084042a3ac543bf8276ece4`
+- `chunk_id`: `srcchunk_89420b94ca62df32ae87efbac1416e9d`
+- `native_locator`: `slack:C0AKH5SNGKH:1773953077.601549:1773953077.601549`
+
+will share the voice audio and transcript
+
+### Citation 439
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_dda7f7d5bbaaf6bddbdaa29fb9034eb8`
+- `chunk_id`: `srcchunk_d0fdcb2fa578eeb981bf92008df9216e`
+- `native_locator`: `slack:C0AKH5SNGKH:1773953161.791759:1773953161.791759`
+
+<@U0772SH7BRA> its interesting it also has tool call we can integrate too
+
+### Citation 440
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_09c45962fcf92fde0e3bc308ff259a31`
+- `chunk_id`: `srcchunk_ae64e8f06e63957a5040017e4e1a6c6c`
+- `native_locator`: `slack:C0AKH5SNGKH:1773953258.213859:1773953258.213859`
+
+also the entire agent config is a json file, which we can programmatically update using APIs
+
+### Citation 441
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_f253245c468939fd1459c990249c4433`
+- `chunk_id`: `srcchunk_fb272e5822af83601876a9bb12061fa6`
+- `native_locator`: `slack:C0AKH5SNGKH:1773953261.787249:1773953261.787249`
+
+could be useful later
+
+### Citation 442
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_121a35613312d29ec9e140627309506e`
+- `chunk_id`: `srcchunk_eafa0648552dade0c7d65eeab0877e4e`
+- `native_locator`: `slack:C0AKH5SNGKH:1773953267.556989:1773953267.556989`
+
+there's also dynamic variables we can use
+
+### Citation 443
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_52323bf9c1be1f90feb2b3adf12d8b07`
+- `chunk_id`: `srcchunk_f5e4d86e11e30fc18d757da5ec523855`
+- `native_locator`: `slack:C0AKH5SNGKH:1773953329.173329:1773953329.173329#chunk-1`
+
+Call Transcript:
+
+Agent: Hi, thanks for taking the time today. To get us started, could you give me a quick overview of your current role, your engineering background, and whether you see yourself today as more frontend, backend, or full-stack?
+User: I see myself as a full stack engineer.
+Agent: Great, a full-stack engineer. Could you tell me a bit about the approximate size of the engineering team you're currently a part of and how that team is structured?
+User: I'm actually the head of product engineering at Story, and right now we have a team of six, and we work closely with the infra team on building product apps.
+Agent: That's interesting. So, as Head of Product Engineering at Story, with a team of six, could you describe the balance between your individual contributor responsibilities and your leadership or management duties?
+User: I'm actually pretty hands-on right now. So I lead the team as well as making influences on architectural decisions. But I also code. So I would say around 50-50.
+Agent: That's a great balance. Could you give me an example of a recent architectural decision you influenced, and what your personal contribution to its implementation was?
+User: Recently, we're planning this initiative of reviving the story ecosystem. So I have to architect from building out internal apps to validate and provide as examples of this concept, as well as thinking broader of how this would impact the whole ecosystem through a more architectural point of view. So we need to think about how other developers and builders could register their app on our repo or on our registry, sorry, which will make this app more, which will make the ecosystem more complete and need to think about it from a marketing perspective, from an engineering perspective in terms of planning and timeline. So it's quite a big initiative, but, I'm excited to be working on it.
+Agent: That sounds like a significant undertaking. When you were thinking about how other developers could register their apps, what were some of the key technical considerations you had to address to ensure a smooth and scalable integration into your ecosystem?
+User: Some of the key technical considerations are whether they can easily use our SDK, whether they can easily register for an API key, documentation on how they could onboard and plug into their existing apps, and other pitfalls they might encounter in terms of structuring their data to fit our needs, how they get payout, and so on.
+Agent: Those are all crucial points for developer experience. Could you tell me about a specific technical challenge you encountered while designing the SDK or API key registration process, and how you personally contributed to solving it?
+User: A specific technical challenge while designing the SDK is we need to be mindful of that these app developers, they might be building different types of apps and we want to be able for them to easily upload to our unified API. And this means that we need to account for batch uploading and the verification process in terms of how, whether these data is actually valuable or if they're junk.
+Agent: That's a...
+User: So...
+Agent: Go ahead...
+User: Sorry. Sorry, go on.
+Agent: No, please, you were saying something.
+User: So, yeah. These are some of the key architectural decisions we need to think of. And also, we're actually dogfooding this whole architecture by building our own apps to kind of test it out. So, pretending our own app is an ecosystem map as a third party while going through this flow ourselves.
+Agent: That's an excellent approach, dogfooding your own architecture. Could you elaborate on a specific instance where dogfooding revealed a significant flaw or area for improvement in your SDK or API, and what changes were made as a direct result of that discovery?
+User: Currently, we're still dogfooding, but I think what actually is important is that this concept of having the app manage their own API and their own user flow, but on their app backend, how they interface with our ecosystem API. So we need to provide a very simple interface for them to do that. And we also need to provide endpoints where they can programmatically pull and know the schema that these uploads should be in, like the format in terms of, for example, audio, what the transcript should look like, what the audio file format should be in, et cetera.
+Agent: That makes sense. Providing clear schemas and programmatic access for developers to understand the expected data formats is key. Beyond the technical aspects, how do you typically collaborate with product managers, designers, or other non-engineering stakeholders when you're defining these kinds of API contracts and developer experiences?
+User: I work with our product manager and designers. We call it the PDE, Product Design Engineering, SYNC. So we work closely with them on the whole vision so that we're aligned. In this AI age, the designer will actually just provide us samples in terms of branding, theme, the style of the app or how it looks like visually in a mood board. And we will be able to kind of use AI tools, clock code, cursor, open API codecs to kind of code it out and get a prototype. But we work very closely in terms of aligning on the different phases of progression and the ultimate goal and launch dates.
+Agent: That's a very modern and efficient workflow, especially leveraging AI for prototyping. When you're using these AI tools to generate code for prototypes, how do you ensure the quality and maintainability of that generated code before it moves into a more production-ready stage?
+User: I think we use AI to prototype very fast, but once it reaches a good state, we sort of take a step back and polish up the UI, make sure the back end endpoints are secure, do some pen testing and doc booting, actual user doc booting to make sure the app works smoothly. So we have this whole pre-launch checklist that we need to do, but I prefer building fast and work the way as we go.
+
+### Citation 444
+
+- `source_document_id`: `srcdoc_b8c049e55a95dd9144c9ede553ca9dcc`
+- `source_revision_id`: `srcrev_52323bf9c1be1f90feb2b3adf12d8b07`
+- `chunk_id`: `srcchunk_818bd6f8e4cd7b88a219bb4a4dbdef5a`
+- `native_locator`: `slack:C0AKH5SNGKH:1773953329.173329:1773953329.173329#chunk-2`
+
+Agent: That's a pragmatic approach to development. Moving a bit to your preferences, you mentioned being hands-on. Do you generally prefer working in smaller, more agile teams like your current one, or have you also enjoyed larger, more structured environments?
+User: I prefer
+Agent: ...
+User: , I like being in a startup, which you get more impact and have more ownership in terms of the product direction. However, that said, I don't mind if it's a, if it's big or small, as long as it's a fast moving company with more impact and ownership for the position.
+Agent: That's a clear preference for impact and ownership, which is common in startups. When you think about the ideal team structure for you, do you prefer a flat hierarchy, or do you find value in more defined roles and reporting lines?
+User: I generally prefer more flat structure although I do feel like if there's clear alignment a hierarchy could be a better fit to drive action.
+Agent: That's a thoughtful perspective. It sounds like clarity and alignment are key for you, regardless of the structure. Thinking about your career trajectory, what kind of challenges are you looking for in your next role, and what areas of your technical skills are you hoping to grow further?
 
