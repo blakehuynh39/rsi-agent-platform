@@ -339,6 +339,62 @@ class HermesSkillExporterTest(unittest.TestCase):
             self.assertEqual("git", command[0])
             self.assertIn(f"safe.directory={checkout.resolve()}", command)
 
+    def test_git_exporter_uses_isolated_checkouts_for_same_tree_hash(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            config = self.make_config(Path(raw))
+            snapshot = build_skill_snapshot(config.skills_root, config.company_wiki_root)
+            init_checkouts: list[Path] = []
+
+            def fake_git(cwd: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
+                if args == ("init",):
+                    init_checkouts.append(cwd)
+                returncode = 1 if args == ("diff", "--cached", "--quiet") else 0
+                return subprocess.CompletedProcess(args=list(args), returncode=returncode, stdout="", stderr="")
+
+            with (
+                mock.patch("rsi_runner.hermes_skill_exporter.GitHubAuth.token", return_value="token"),
+                mock.patch.object(GitSkillExporter, "_git", side_effect=fake_git),
+                mock.patch.object(
+                    GitSkillExporter,
+                    "_open_pr",
+                    return_value={"html_url": "https://github.com/piplabs/rsi-agent-platform/pull/42", "number": 42},
+                ),
+                mock.patch.object(GitSkillExporter, "_merge_pr", return_value={"merged": True}),
+            ):
+                GitSkillExporter(config).export(snapshot, {"pod_name": "test-pod"})
+                GitSkillExporter(config).export(snapshot, {"pod_name": "test-pod"})
+
+            self.assertEqual(2, len(init_checkouts))
+            self.assertNotEqual(init_checkouts[0], init_checkouts[1])
+            for checkout in init_checkouts:
+                self.assertTrue(checkout.name.startswith(f"{snapshot.tree_hash[:12]}-"))
+                self.assertFalse(checkout.exists())
+            self.assertFalse((config.state_root / "checkouts" / snapshot.tree_hash[:12]).exists())
+
+    def test_cycle_lock_skips_export_when_another_process_is_active(self) -> None:
+        try:
+            import fcntl
+        except ImportError:
+            self.skipTest("fcntl is unavailable on this platform")
+
+        with tempfile.TemporaryDirectory() as raw:
+            config = self.make_config(Path(raw))
+            config.state_root.mkdir(parents=True)
+            lock_path = config.state_root / "cycle.lock"
+            lock_handle = lock_path.open("a+", encoding="utf-8")
+            fcntl.flock(lock_handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            try:
+                fake = FakeGitExporter()
+                status = SkillExportLoop(config, git_exporter=fake).run_cycle()  # type: ignore[arg-type]
+            finally:
+                fcntl.flock(lock_handle.fileno(), fcntl.LOCK_UN)
+                lock_handle.close()
+
+            self.assertTrue(status["ok"])
+            self.assertEqual("cycle_already_running", status["status"])
+            self.assertFalse((config.state_root / "state.json").exists())
+            self.assertEqual([], fake.calls)
+
     def test_git_exporter_auto_merges_created_pr_by_default(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             config = self.make_config(Path(raw))

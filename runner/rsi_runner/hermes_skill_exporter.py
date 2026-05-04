@@ -18,6 +18,7 @@ import tempfile
 import threading
 import time
 from typing import Any
+import uuid
 from urllib import error, request
 
 
@@ -496,11 +497,7 @@ class GitSkillExporter:
     def export(self, snapshot: SkillSnapshot, metadata: dict[str, Any]) -> dict[str, Any]:
         token = self.auth.token()
         branch = self._branch_name(snapshot)
-        checkout = self.config.state_root / "checkouts" / snapshot.tree_hash[:12]
-        if checkout.exists():
-            shutil.rmtree(checkout)
-        checkout.parent.mkdir(parents=True, exist_ok=True)
-        checkout.mkdir()
+        checkout = self._new_checkout(snapshot)
         remote = f"https://x-access-token:{token}@github.com/{self.config.git_repository}.git"
         try:
             self._git(checkout, "init")
@@ -541,7 +538,12 @@ class GitSkillExporter:
 
     def _branch_name(self, snapshot: SkillSnapshot) -> str:
         stamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
-        return f"{self.config.branch_prefix}/{_safe_slug(self.config.export_env)}/{stamp}-{snapshot.tree_hash[:12]}"
+        return f"{self.config.branch_prefix}/{_safe_slug(self.config.export_env)}/{stamp}-{snapshot.tree_hash[:12]}-{uuid.uuid4().hex[:8]}"
+
+    def _new_checkout(self, snapshot: SkillSnapshot) -> Path:
+        checkout_root = self.config.state_root / "checkouts"
+        checkout_root.mkdir(parents=True, exist_ok=True)
+        return Path(tempfile.mkdtemp(prefix=f"{snapshot.tree_hash[:12]}-", dir=str(checkout_root)))
 
     def _write_export_tree(self, checkout: Path, snapshot: SkillSnapshot, metadata: dict[str, Any]) -> None:
         export_root = checkout / self.config.export_root
@@ -641,6 +643,10 @@ class SkillExportLoop:
         return self.config.state_root / "checkpoints/status.json"
 
     @property
+    def cycle_lock_path(self) -> Path:
+        return self.config.state_root / "cycle.lock"
+
+    @property
     def ready(self) -> bool:
         return bool(self.last_status.get("ok")) and not self.draining.is_set()
 
@@ -679,6 +685,12 @@ class SkillExportLoop:
                 return status
             cycle_id = f"{int(time.time())}-{os.getpid()}"
             self.active_cycle_id = cycle_id
+            lock_handle = self._try_acquire_cycle_lock(cycle_id)
+            if lock_handle is None:
+                status = {"ok": True, "status": "cycle_already_running", "cycle_id": cycle_id, "completed_at": _utc_now()}
+                self._record_status(status)
+                self.active_cycle_id = ""
+                return status
             try:
                 try:
                     status = self._run_cycle(cycle_id)
@@ -688,7 +700,37 @@ class SkillExportLoop:
                 self._record_status(status)
                 return status
             finally:
+                self._release_cycle_lock(lock_handle)
                 self.active_cycle_id = ""
+
+    def _try_acquire_cycle_lock(self, cycle_id: str) -> Any | None:
+        self.config.state_root.mkdir(parents=True, exist_ok=True)
+        handle = self.cycle_lock_path.open("a+", encoding="utf-8")
+        try:
+            import fcntl
+
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            handle.close()
+            logger.info("Hermes skill exporter cycle skipped because another exporter holds the cycle lock: %s", cycle_id)
+            return None
+        except Exception:
+            handle.close()
+            raise
+        handle.seek(0)
+        handle.truncate()
+        handle.write(json.dumps({"cycle_id": cycle_id, "locked_at": _utc_now()}) + "\n")
+        handle.flush()
+        return handle
+
+    @staticmethod
+    def _release_cycle_lock(lock_handle: Any) -> None:
+        try:
+            import fcntl
+
+            fcntl.flock(lock_handle.fileno(), fcntl.LOCK_UN)
+        finally:
+            lock_handle.close()
 
     def _run_cycle(self, cycle_id: str) -> dict[str, Any]:
         snapshot = build_skill_snapshot(
