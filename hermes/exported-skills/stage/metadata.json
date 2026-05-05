@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "5d030c7e50e9410ce4defb807a7fd8945458bc6b122737f8a75b3a0c53c5a2a9",
-        "size": 683766
+        "sha256": "450b3d3443b5d198f8ed608b2f975a2c85329aec8320880b6605a44845ddb762",
+        "size": 684271
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2788,6 +2788,11 @@
         "path": "pages/concepts/carousel-data-shape.md",
         "sha256": "a695d8125e084c67c7a31c8fb49e6049a05fa6a9da00e95e150672636151eb2f",
         "size": 1410
+      },
+      {
+        "path": "pages/concepts/cli-design.md",
+        "sha256": "01525881fcd2aafc4197bbcea5718a2ca67c5beaf3257e78d727f0eb8dafb8fd",
+        "size": 1036
       },
       {
         "path": "pages/concepts/coming-soon-placeholder-tasks.md",
@@ -2813,6 +2818,11 @@
         "path": "pages/concepts/gas-optimization-research.md",
         "sha256": "8f516a85a4b3a3cdbb5e674ebc7908f709bc42023fc33da3039b7c2c52736af5",
         "size": 3680
+      },
+      {
+        "path": "pages/concepts/global-ip-assets.md",
+        "sha256": "0a913fa5b0711aa39f3cbc73b6f735a87241b2bb013dca0af3416751a70c511e",
+        "size": 1258
       },
       {
         "path": "pages/concepts/graphql-vs-rest-api.md",
@@ -3234,8 +3244,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T08:54:40Z",
-  "file_count": 645,
+  "exported_at": "2026-05-05T09:00:33Z",
+  "file_count": 647,
   "files": [
     {
       "path": ".usage.json",
@@ -6002,20 +6012,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "2e40c2eabea4e4ae22d05cbe1def4ffc74079b9552b727a7498733e70fda8a56",
+  "previous_tree_hash": "e595d64ef53c7964011f3843ab0c9d5b0178b95fd428fda7647363a2ee9a7f50",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e595d64ef53c7964011f3843ab0c9d5b0178b95fd428fda7647363a2ee9a7f50",
+  "tree_hash": "1f06aa9e0db7656c38e9eddce09cc838e5457592ff897700dd4f344fc89d7afd",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 93,
+  "wiki_file_count": 95,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6029,8 +6039,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "5d030c7e50e9410ce4defb807a7fd8945458bc6b122737f8a75b3a0c53c5a2a9",
-      "size": 683766
+      "sha256": "450b3d3443b5d198f8ed608b2f975a2c85329aec8320880b6605a44845ddb762",
+      "size": 684271
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6041,6 +6051,11 @@
       "path": "pages/concepts/carousel-data-shape.md",
       "sha256": "a695d8125e084c67c7a31c8fb49e6049a05fa6a9da00e95e150672636151eb2f",
       "size": 1410
+    },
+    {
+      "path": "pages/concepts/cli-design.md",
+      "sha256": "01525881fcd2aafc4197bbcea5718a2ca67c5beaf3257e78d727f0eb8dafb8fd",
+      "size": 1036
     },
     {
       "path": "pages/concepts/coming-soon-placeholder-tasks.md",
@@ -6066,6 +6081,11 @@
       "path": "pages/concepts/gas-optimization-research.md",
       "sha256": "8f516a85a4b3a3cdbb5e674ebc7908f709bc42023fc33da3039b7c2c52736af5",
       "size": 3680
+    },
+    {
+      "path": "pages/concepts/global-ip-assets.md",
+      "sha256": "0a913fa5b0711aa39f3cbc73b6f735a87241b2bb013dca0af3416751a70c511e",
+      "size": 1258
     },
     {
       "path": "pages/concepts/graphql-vs-rest-api.md",
@@ -6484,5 +6504,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "44542b3d8d66401cb7eea73e8015a2fb9541e1f8af216344813549b82368fbda"
+  "wiki_tree_hash": "4f7036db62775b6833d808717283e255058676c29e5f0c7d813263279f39ad37"
 }

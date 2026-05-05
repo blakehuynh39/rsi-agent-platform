@@ -13551,3 +13551,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_344591fb9fa396612e358a86a55c6397
 - summary: Defines metadata for the core protocol, allowing user-defined metadata, with a JSON type interface, and categories including Franchise, Story, Character, License, Collection.
 
+## [2026-05-05T08:58:59Z] synthesis | Global IP Assets
+
+- status: published
+- slug: concepts/global-ip-assets
+- wiki_revision_id: wikirev_2087b1843063ef3b7c30140faa8731f0
+- summary: The Notion document titled 'Global IP Assets' was observed, but its content appears to be empty.
+
+## [2026-05-05T08:59:24Z] synthesis | CLI Design
+
+- status: published
+- slug: concepts/cli-design
+- wiki_revision_id: wikirev_b425ce25d356ff5f239b20997e291526
+- summary: Design considerations for the command-line interface.
+
