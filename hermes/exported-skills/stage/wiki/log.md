@@ -13964,3 +13964,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_684ccb93e709d1d39b3cd16016d9d5fb
 - summary: Kleros is a decentralized dispute resolution protocol. It has processed over 1700 disputes since 2018, currently handling 7-10 cases per week with a maximum capacity of 1000 cases ...
 
+## [2026-05-05T14:20:43Z] synthesis | EIP-7212 Precompile
+
+- status: published
+- slug: decisions/eip-7212-precompile
+- wiki_revision_id: wikirev_50b13fe808618c44c5d2ac6efc7b3b57
+- summary: Analysis and recommendation for adding a secp256r1 precompile to the Renaissance chain to enable native support for widely-used secure authentication technologies like Apple Secure...
+
