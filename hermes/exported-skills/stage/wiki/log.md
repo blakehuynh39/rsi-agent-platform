@@ -13978,3 +13978,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c29dac1d87b7d3311195d5952bb777aa
 - summary: Open questions and feature ideas related to licensing, including revenue share options, derivative limitations, commercializer roles, cross-platform restrictions, and fee switch re...
 
+## [2026-05-05T14:49:04Z] synthesis | Access Control (ACL) Design
+
+- status: published
+- slug: decisions/access-control-acl
+- wiki_revision_id: wikirev_a9d550772be01f8df6368914e4131a9b
+- summary: Design document for the protocol's Access Control (ACL) contracts and roles, including AccessControlSingleton, ModuleRegistry, and OZ Access Manager, along with use cases for Licen...
+
+## [2026-05-05T14:49:38Z] synthesis | Gas Optimizations
+
+- status: published
+- slug: concepts/gas-optimizations
+- wiki_revision_id: wikirev_a44fa0d6500b78710511869efa66d771
+- summary: Placeholder page for gas optimization strategies. The source document was empty at the time of observation.
+
