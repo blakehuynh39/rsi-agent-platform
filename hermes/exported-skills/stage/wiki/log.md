@@ -13936,3 +13936,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f89f8bebc8c0af31bb9c7db5cb00108e
 - summary: go-swagger is referenced in the Story API's OpenAPI (Swagger 2.0) documentation.
 
+## [2026-05-05T13:48:22Z] synthesis | Openverse ↔ Story Protocol Integration (57B)
+
+- status: published
+- slug: projects/openverse-story-protocol-integration
+- wiki_revision_id: wikirev_4495d1a6d8063758a452d3f91ea84d32
+- summary: Project to register openly licensed and public domain works from Openverse (images and audio) as IP Assets on Story Protocol Beta, using a curated set of 100 top keywords/topics wi...
+
+## [2026-05-05T13:51:59Z] synthesis | ETH Denver Fun 57B Activation
+
+- status: published
+- slug: projects/ethdenver-fun-57b-activation
+- wiki_revision_id: wikirev_97a68472652a11b754942041c37b5fb3
+- summary: A booth activation at ETH Denver 2024 for Story Protocol, built by 57Blocks, allowing attendees to remix stories on-chain.
+

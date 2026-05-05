@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "bf135cdb0fae4656ffc70b68f6b3a05572db7e5c56b25cfc0afa5e81e2d48b6d",
-        "size": 701214
+        "sha256": "a56b624bdd4158255f5ee477decaf810c67d9fad69cf37f2e8b8d5f86f71bfe2",
+        "size": 701962
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3175,6 +3175,11 @@
         "size": 1175
       },
       {
+        "path": "pages/projects/ethdenver-fun-57b-activation.md",
+        "sha256": "3e65581bcaccbd869d81cef813b02c32679cc8d9d20e4aa4c61bb5fbde9a643b",
+        "size": 5148
+      },
+      {
         "path": "pages/projects/eu-backend-design.md",
         "sha256": "0fdbb7b92a41518235e58d71070a2f3e6098b1a6d8e2eaf65bfb429db45da07e",
         "size": 1170
@@ -3263,6 +3268,11 @@
         "path": "pages/projects/open-source-development-plan.md",
         "sha256": "aa234fe334d42b4826b3a462084066394711c2022871d628a570fd4ed267d5bc",
         "size": 8717
+      },
+      {
+        "path": "pages/projects/openverse-story-protocol-integration.md",
+        "sha256": "07ddc9e1b38223cbbee07ee60cceacb15cd7a7bd84080326fa060cd3e578180f",
+        "size": 5317
       },
       {
         "path": "pages/projects/p1-gamification-tactics.md",
@@ -3459,8 +3469,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T13:46:27Z",
-  "file_count": 690,
+  "exported_at": "2026-05-05T13:52:22Z",
+  "file_count": 692,
   "files": [
     {
       "path": ".usage.json",
@@ -6227,20 +6237,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "99ea6b8124e11edbaefd27416592dce2185b46757c8096c48d0035f0b8053c1a",
+  "previous_tree_hash": "e2e897fa2555e60a6060ca525af6d257104bb6ab58489e6849684768396ccd43",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e2e897fa2555e60a6060ca525af6d257104bb6ab58489e6849684768396ccd43",
+  "tree_hash": "59de6cf8b937cd21f60bc96450e9b8fdab1f28a426e78aadffdf1592a3bd5670",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 138,
+  "wiki_file_count": 140,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6254,8 +6264,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "bf135cdb0fae4656ffc70b68f6b3a05572db7e5c56b25cfc0afa5e81e2d48b6d",
-      "size": 701214
+      "sha256": "a56b624bdd4158255f5ee477decaf810c67d9fad69cf37f2e8b8d5f86f71bfe2",
+      "size": 701962
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6653,6 +6663,11 @@
       "size": 1175
     },
     {
+      "path": "pages/projects/ethdenver-fun-57b-activation.md",
+      "sha256": "3e65581bcaccbd869d81cef813b02c32679cc8d9d20e4aa4c61bb5fbde9a643b",
+      "size": 5148
+    },
+    {
       "path": "pages/projects/eu-backend-design.md",
       "sha256": "0fdbb7b92a41518235e58d71070a2f3e6098b1a6d8e2eaf65bfb429db45da07e",
       "size": 1170
@@ -6741,6 +6756,11 @@
       "path": "pages/projects/open-source-development-plan.md",
       "sha256": "aa234fe334d42b4826b3a462084066394711c2022871d628a570fd4ed267d5bc",
       "size": 8717
+    },
+    {
+      "path": "pages/projects/openverse-story-protocol-integration.md",
+      "sha256": "07ddc9e1b38223cbbee07ee60cceacb15cd7a7bd84080326fa060cd3e578180f",
+      "size": 5317
     },
     {
       "path": "pages/projects/p1-gamification-tactics.md",
@@ -6934,5 +6954,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "58aa77c7864bf4979df9334689f667669655e9f876be6055e5dd0af8d137a75e"
+  "wiki_tree_hash": "23ca141462700eecd439d8e2ebf6bbb362be5c9d4d89197cd746f8ed052eba15"
 }
