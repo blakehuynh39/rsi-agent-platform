@@ -14416,3 +14416,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ec7bf9abf754c147878b02b8c89f2ef8
 - summary: Overview of popular virtual machines in blockchain, including EVM, SVM, WASM/CosmWasm, Move VM, Stylus, zkVM, and foundational concepts like Genesis block and State Trie.
 
+## [2026-05-05T19:42:10Z] synthesis | L1 Tech Framework Evaluation
+
+- status: published
+- slug: decisions/l1-tech-framework-evaluation
+- wiki_revision_id: wikirev_eeb1f791ecd64910e91fbe82b674b2eb
+- summary: Evaluation of Layer 1 blockchain frameworks including EVMOS, Berachain, and Meter.io for potential adoption, comparing metrics such as extensibility, consensus, stability, and ecos...
+
