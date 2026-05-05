@@ -14076,3 +14076,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2ac51835b2eaf18dd245f1d654d1499f
 - summary: A list of partner integrations.
 
+## [2026-05-05T15:43:13Z] synthesis | Decision: Dynamic vs. Static Resolving Module Addresses for Function Calls
+
+- status: published
+- slug: decisions/decision-dynamic-vs-static-module-address-resolution
+- wiki_revision_id: wikirev_b36cbad9e6327e4bf8a1589ad853b3a3
+- summary: Decision on whether to use dynamic resolving (reading addresses from ModuleRegistry) or static setting (immutable variables) for module addresses in gated function calls. The conte...
+

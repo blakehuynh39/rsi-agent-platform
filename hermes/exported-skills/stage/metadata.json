@@ -2771,13 +2771,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0a1adc440eb61b2e0f21ac7af4afd103050aa60febd6e1f86ddf384646b0308f",
-        "size": 403248
+        "sha256": "11f39dcf5526208012261364b20527a6ab6914da87f2cbd02049c542ebfc60e3",
+        "size": 405945
       },
       {
         "path": "log.md",
-        "sha256": "ec9742037fe619178018c5e2c724ddbf46961073e6fce3a7c2caa5972a26677a",
-        "size": 708155
+        "sha256": "4fbc94ec13b6a10addf8fa680a60ac6739b3292b82a9b5f630a65577b631ce52",
+        "size": 708617
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3023,6 +3023,11 @@
         "path": "pages/decisions/character-backstory-orchestrator.md",
         "sha256": "f9ed6e0c0218bc2ac971372cde89c321af510a34409c7a2062803077979bbeb1",
         "size": 4107
+      },
+      {
+        "path": "pages/decisions/decision-dynamic-vs-static-module-address-resolution.md",
+        "sha256": "00e477194c9050dc467d062e45afbc34b4f6acd62d3d612cd5e9fe2f3fe15184",
+        "size": 8054
       },
       {
         "path": "pages/decisions/deployment-chain-decision.md",
@@ -3559,8 +3564,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T15:37:51Z",
-  "file_count": 710,
+  "exported_at": "2026-05-05T15:43:46Z",
+  "file_count": 711,
   "files": [
     {
       "path": ".usage.json",
@@ -6327,20 +6332,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "fda06a384b886a73ee81736c71abd018cad542cc3681f3c304a41dcee2221b05",
+  "previous_tree_hash": "52769a8b513afd08c11769451413cdbd89a3f7e790bb497edd31f25913d1577a",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "52769a8b513afd08c11769451413cdbd89a3f7e790bb497edd31f25913d1577a",
+  "tree_hash": "32acc22e400a099681aee6a1763f68571f44c5287b85dcab5bc7b5ea375c7a18",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 158,
+  "wiki_file_count": 159,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6349,13 +6354,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0a1adc440eb61b2e0f21ac7af4afd103050aa60febd6e1f86ddf384646b0308f",
-      "size": 403248
+      "sha256": "11f39dcf5526208012261364b20527a6ab6914da87f2cbd02049c542ebfc60e3",
+      "size": 405945
     },
     {
       "path": "log.md",
-      "sha256": "ec9742037fe619178018c5e2c724ddbf46961073e6fce3a7c2caa5972a26677a",
-      "size": 708155
+      "sha256": "4fbc94ec13b6a10addf8fa680a60ac6739b3292b82a9b5f630a65577b631ce52",
+      "size": 708617
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6601,6 +6606,11 @@
       "path": "pages/decisions/character-backstory-orchestrator.md",
       "sha256": "f9ed6e0c0218bc2ac971372cde89c321af510a34409c7a2062803077979bbeb1",
       "size": 4107
+    },
+    {
+      "path": "pages/decisions/decision-dynamic-vs-static-module-address-resolution.md",
+      "sha256": "00e477194c9050dc467d062e45afbc34b4f6acd62d3d612cd5e9fe2f3fe15184",
+      "size": 8054
     },
     {
       "path": "pages/decisions/deployment-chain-decision.md",
@@ -7134,5 +7144,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "12eb9414795bc9834f8690e1bf6e952cb3f3e45b37fc11dc1fd3d1eab7a2cbe6"
+  "wiki_tree_hash": "784bbacba51eadbab0b145dbaf188367890253135eaa4a77950dc3da57907c60"
 }
