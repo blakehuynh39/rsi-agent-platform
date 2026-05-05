@@ -13817,3 +13817,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_36152ea96ade82f73b443fa9001586ce
 - summary: A backend service for a token oracle on Polygon, deployable via GitHub Actions. Referenced in the Hooks backend service documentation.
 
+## [2026-05-05T12:07:26Z] synthesis | Deployment Chain Decision
+
+- status: published
+- slug: decisions/deployment-chain-decision
+- wiki_revision_id: wikirev_2540d0a27ecbf032f68644d102b0e06b
+- summary: Decision analysis for deploying the system on Layer 2 to mitigate high Ethereum gas costs, including options for mirroring L1 NFTs to L2.
+

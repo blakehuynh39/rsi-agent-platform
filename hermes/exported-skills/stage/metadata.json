@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "38f511f47c738b500241fdee55bc0e0c1cc595dedb30f1d1543590058e553b87",
-        "size": 695559
+        "sha256": "84d2a014825d0838a5116cd4d83144a0ccba9b9b13dd4d5740cc7a35d429b3d6",
+        "size": 696240
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2963,6 +2963,11 @@
         "path": "pages/decisions/character-backstory-orchestrator.md",
         "sha256": "f9ed6e0c0218bc2ac971372cde89c321af510a34409c7a2062803077979bbeb1",
         "size": 4107
+      },
+      {
+        "path": "pages/decisions/deployment-chain-decision.md",
+        "sha256": "ecd659d0c9d821f1174ca04f402fc37609290049bcf3d2e333af0ee2c3cb6b7a",
+        "size": 4760
       },
       {
         "path": "pages/decisions/distinguish-user-device-types-for-risk-assessment.md",
@@ -3371,8 +3376,8 @@
       },
       {
         "path": "pages/systems/polygon-token-oracle-backend.md",
-        "sha256": "e7c485fe5d39760a6b02ff99ee767d41f360619c61f11f57baa22173fb04a2fd",
-        "size": 1285
+        "sha256": "6e78921d515611345da677c27fb175ac88bcff8fa7cd58b89cdcd134d3f3a992",
+        "size": 2631
       },
       {
         "path": "pages/systems/protocol-api-specs.md",
@@ -3399,8 +3404,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T12:02:03Z",
-  "file_count": 678,
+  "exported_at": "2026-05-05T12:07:57Z",
+  "file_count": 679,
   "files": [
     {
       "path": ".usage.json",
@@ -6167,20 +6172,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "ca6711c80350b17f67c48ea281bcc67e7ff59870afafd1d7c4e39eeb4ee0722c",
+  "previous_tree_hash": "adcfaba94a9bfdf3a0d7b5754095f5f1f77aa5340c475c55e27a47eba30297fd",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "adcfaba94a9bfdf3a0d7b5754095f5f1f77aa5340c475c55e27a47eba30297fd",
+  "tree_hash": "4a53961d12730b01e8f147107b1eb21863deb1d4a38be43ebcb053a5df2fab68",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 126,
+  "wiki_file_count": 127,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6194,8 +6199,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "38f511f47c738b500241fdee55bc0e0c1cc595dedb30f1d1543590058e553b87",
-      "size": 695559
+      "sha256": "84d2a014825d0838a5116cd4d83144a0ccba9b9b13dd4d5740cc7a35d429b3d6",
+      "size": 696240
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6381,6 +6386,11 @@
       "path": "pages/decisions/character-backstory-orchestrator.md",
       "sha256": "f9ed6e0c0218bc2ac971372cde89c321af510a34409c7a2062803077979bbeb1",
       "size": 4107
+    },
+    {
+      "path": "pages/decisions/deployment-chain-decision.md",
+      "sha256": "ecd659d0c9d821f1174ca04f402fc37609290049bcf3d2e333af0ee2c3cb6b7a",
+      "size": 4760
     },
     {
       "path": "pages/decisions/distinguish-user-device-types-for-risk-assessment.md",
@@ -6789,8 +6799,8 @@
     },
     {
       "path": "pages/systems/polygon-token-oracle-backend.md",
-      "sha256": "e7c485fe5d39760a6b02ff99ee767d41f360619c61f11f57baa22173fb04a2fd",
-      "size": 1285
+      "sha256": "6e78921d515611345da677c27fb175ac88bcff8fa7cd58b89cdcd134d3f3a992",
+      "size": 2631
     },
     {
       "path": "pages/systems/protocol-api-specs.md",
@@ -6814,5 +6824,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "400e2b9cafc88edc2896bb89aa327320dff30e93cb827ade9171c2010457ec21"
+  "wiki_tree_hash": "566c8986b169768853e6271968567aa41a5fc45b5a3e7665136ea401ab38f8d0"
 }
