@@ -13628,3 +13628,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f963990cfce0eeb161aee0bf3fc41cab
 - summary: A reference page collecting UI design patterns and examples for content presentation, including hierarchy, cards, carousels, long scroll, and more.
 
+## [2026-05-05T09:51:47Z] synthesis | Platform API a
+
+- status: published
+- slug: concepts/platform-api-a
+- wiki_revision_id: wikirev_da51e155b709f033531a9bb51651c4c6
+- summary: A Notion document titled 'Platform API a' exists.
+
+## [2026-05-05T09:52:56Z] synthesis | EU Backend Design
+
+- status: published
+- slug: projects/eu-backend-design
+- wiki_revision_id: wikirev_2cd84e5fea2aa476c4741d3c67b59e59
+- summary: The Notion document for EU Backend Design currently contains no content.
+

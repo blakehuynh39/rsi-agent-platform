@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "695a67d3d1637fd7cb1e1cb489141f2c3c3a68ca69715274a768c87da5e792d9",
-        "size": 687236
+        "sha256": "ea2cc08a80d03ef1864df66bbb7171460756cd9293edb1d81beb35921df69de4",
+        "size": 687723
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2878,6 +2878,11 @@
         "path": "pages/concepts/package-frontend-story-telling-examples.md",
         "sha256": "46b1f78218c812cede4a284048135ab3a4da0d271cd98f4577fbb182e3939cf8",
         "size": 1415
+      },
+      {
+        "path": "pages/concepts/platform-api-a.md",
+        "sha256": "b44c4e9690e63917d94d4f19a396b1c1c8ce82a57af70325dd820a905481ed0d",
+        "size": 1152
       },
       {
         "path": "pages/concepts/post-submission-payout-clarity-dopamine-hit.md",
@@ -3090,6 +3095,11 @@
         "size": 1175
       },
       {
+        "path": "pages/projects/eu-backend-design.md",
+        "sha256": "0fdbb7b92a41518235e58d71070a2f3e6098b1a6d8e2eaf65bfb429db45da07e",
+        "size": 1170
+      },
+      {
         "path": "pages/projects/gif-project.md",
         "sha256": "3e5cf596c6709957c7161bd32f1e8e94e07ffbab069d382deb9405bdafb5e2a1",
         "size": 2580
@@ -3284,8 +3294,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T09:50:49Z",
-  "file_count": 655,
+  "exported_at": "2026-05-05T09:56:43Z",
+  "file_count": 657,
   "files": [
     {
       "path": ".usage.json",
@@ -6052,20 +6062,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "6438910d9a31bc725711590f23998de695a9b4f03669bcf8be859e8073e084fc",
+  "previous_tree_hash": "57d5c06ecf97ddb50728c73c822565e816dbfb1b8e31d2e2840499538aab58a2",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "57d5c06ecf97ddb50728c73c822565e816dbfb1b8e31d2e2840499538aab58a2",
+  "tree_hash": "fef42d81161dbfaa9db7bce60fc4911dc420b20338da1c61af6b4141d93363d2",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 103,
+  "wiki_file_count": 105,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6079,8 +6089,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "695a67d3d1637fd7cb1e1cb489141f2c3c3a68ca69715274a768c87da5e792d9",
-      "size": 687236
+      "sha256": "ea2cc08a80d03ef1864df66bbb7171460756cd9293edb1d81beb35921df69de4",
+      "size": 687723
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6181,6 +6191,11 @@
       "path": "pages/concepts/package-frontend-story-telling-examples.md",
       "sha256": "46b1f78218c812cede4a284048135ab3a4da0d271cd98f4577fbb182e3939cf8",
       "size": 1415
+    },
+    {
+      "path": "pages/concepts/platform-api-a.md",
+      "sha256": "b44c4e9690e63917d94d4f19a396b1c1c8ce82a57af70325dd820a905481ed0d",
+      "size": 1152
     },
     {
       "path": "pages/concepts/post-submission-payout-clarity-dopamine-hit.md",
@@ -6393,6 +6408,11 @@
       "size": 1175
     },
     {
+      "path": "pages/projects/eu-backend-design.md",
+      "sha256": "0fdbb7b92a41518235e58d71070a2f3e6098b1a6d8e2eaf65bfb429db45da07e",
+      "size": 1170
+    },
+    {
       "path": "pages/projects/gif-project.md",
       "sha256": "3e5cf596c6709957c7161bd32f1e8e94e07ffbab069d382deb9405bdafb5e2a1",
       "size": 2580
@@ -6584,5 +6604,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e9eb0f0afc89c3f5c8f3b28b485409e9094da623e00d42004f99ef4ba1a4a6b5"
+  "wiki_tree_hash": "1ea3c2b73fcd36fd6083a9a70e0e83c2730980444420069475ac43b1b4a8f22c"
 }
