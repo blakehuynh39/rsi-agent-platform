@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "a3d398f8635f8da8515b22c44eb2af17f4887b20facc6661c596d208056d3b7f",
-        "size": 723293
+        "sha256": "55d852aff0759bcd8e8ad1a30dafff42e4c5dda0f01d459b90fbd3d7068c6c8c",
+        "size": 723959
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3100,6 +3100,11 @@
         "size": 9617
       },
       {
+        "path": "pages/concepts/zk-primitive.md",
+        "sha256": "a2e4f6717ebaab1f2d67f2a6ce40c90a4f22a20eb881ce4a59786ece55af1ee8",
+        "size": 1735
+      },
+      {
         "path": "pages/decisions/access-control-acl.md",
         "sha256": "f5a4885fd67700e4c28693212633dc0884cad30f5a3f70c567d374fcf3386d2d",
         "size": 6118
@@ -3148,6 +3153,11 @@
         "path": "pages/decisions/ip-asset-on-chain-metadata-design.md",
         "sha256": "e6c35e7d0313a28d0a55bf42d11d939076e0137ff80a290d7698ba4f275c02c7",
         "size": 5472
+      },
+      {
+        "path": "pages/decisions/l1-vs-l2-decision.md",
+        "sha256": "68387b902dc928a6d867a9737801969e628650c122a47de03b8f70504a42b2cc",
+        "size": 5721
       },
       {
         "path": "pages/decisions/license-simplification-alpha.md",
@@ -3749,8 +3759,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T19:18:38Z",
-  "file_count": 748,
+  "exported_at": "2026-05-05T19:24:37Z",
+  "file_count": 750,
   "files": [
     {
       "path": ".usage.json",
@@ -6517,20 +6527,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5dcdbdp4w6f",
-  "previous_tree_hash": "4b3a7d00191498296e830dc4e4115213fe19a42c129159560ee702f0c6df0d2f",
+  "previous_tree_hash": "08f3f77001431885004bbdd25c80b24f884d5ced34cd385386d144ffdbf55c43",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "08f3f77001431885004bbdd25c80b24f884d5ced34cd385386d144ffdbf55c43",
+  "tree_hash": "6d1375bdc4818fc61db71c5c2e671185ac0ef5c0ba8140156ed5b7270e69b03b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 196,
+  "wiki_file_count": 198,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6544,8 +6554,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "a3d398f8635f8da8515b22c44eb2af17f4887b20facc6661c596d208056d3b7f",
-      "size": 723293
+      "sha256": "55d852aff0759bcd8e8ad1a30dafff42e4c5dda0f01d459b90fbd3d7068c6c8c",
+      "size": 723959
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6868,6 +6878,11 @@
       "size": 9617
     },
     {
+      "path": "pages/concepts/zk-primitive.md",
+      "sha256": "a2e4f6717ebaab1f2d67f2a6ce40c90a4f22a20eb881ce4a59786ece55af1ee8",
+      "size": 1735
+    },
+    {
       "path": "pages/decisions/access-control-acl.md",
       "sha256": "f5a4885fd67700e4c28693212633dc0884cad30f5a3f70c567d374fcf3386d2d",
       "size": 6118
@@ -6916,6 +6931,11 @@
       "path": "pages/decisions/ip-asset-on-chain-metadata-design.md",
       "sha256": "e6c35e7d0313a28d0a55bf42d11d939076e0137ff80a290d7698ba4f275c02c7",
       "size": 5472
+    },
+    {
+      "path": "pages/decisions/l1-vs-l2-decision.md",
+      "sha256": "68387b902dc928a6d867a9737801969e628650c122a47de03b8f70504a42b2cc",
+      "size": 5721
     },
     {
       "path": "pages/decisions/license-simplification-alpha.md",
@@ -7514,5 +7534,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c041249dfcc59a6ff5aff1b51a49dd90a845d30b20e66c8496b9376523bbf3af"
+  "wiki_tree_hash": "978444bd61499118e4ebfd64b20b2d90e2da7d49d40eb45f906c37b308bf8046"
 }

@@ -14388,3 +14388,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7a2ff9d91033d3da7d82c9720fddb3bb
 - summary: Exploring the use of Merkle trees to prove ancestry in IP graph nodes, specifically for proving that an IPA is an ancestor of IP7.
 
+## [2026-05-05T19:19:27Z] synthesis | Why L1 not L2?
+
+- status: published
+- slug: decisions/l1-vs-l2-decision
+- wiki_revision_id: wikirev_a4b00050d8b6c481f82ea97820147732
+- summary: Decision rationale for building a sovereign Layer-1 blockchain instead of a Layer-2 solution, focusing on sovereignty, consensus, independence, scalability, and specialized IP feat...
+
+## [2026-05-05T19:20:32Z] synthesis | ZK Primitive
+
+- status: published
+- slug: concepts/zk-primitive
+- wiki_revision_id: wikirev_a315a034d48474193b3c6547c32d7aea
+- summary: Overview of ZK primitives, including general, popular, and onchain categories, with a reference to a recorded Zoom session.
+
+## [2026-05-05T19:25:10Z] synthesis | EIGEN Token
+
+- status: published
+- slug: concepts/eigen-token
+- wiki_revision_id: wikirev_4433815c48b2a11c23f80ee6c0e82de3
+- summary: EIGEN is a forking token designed to slash intersubjective faults, providing universality, isolation, metering, and compensation.
+
