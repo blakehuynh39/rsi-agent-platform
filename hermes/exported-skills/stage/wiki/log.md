@@ -6927,3 +6927,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_95ad3f7f47dff16bf90f64b3656ed140
 - summary: A guide on handling smart contract updates within the SDK/API/INDEXER context.
 
+## [2026-05-05T05:16:02Z] synthesis | Calendar
+
+- status: published
+- slug: systems/calendar
+- wiki_revision_id: wikirev_9a30edbc8b81a95a22fbdec469fe89f0
+- summary: The Calendar system contains a child database that is currently untitled.
+
