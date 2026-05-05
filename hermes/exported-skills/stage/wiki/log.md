@@ -13495,3 +13495,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_50e87cc873f9c153f1cf65f6c286c9aa
 - summary: Centralized orchestrator and gateway for Story Protocol, providing workflow management and a single entry point for operations.
 
+## [2026-05-05T08:20:25Z] synthesis | Standard Commercial License for IP Assets
+
+- status: published
+- slug: concepts/standard-commercial-license-ip-assets
+- wiki_revision_id: wikirev_81cb3c46c6a3d82ff845961187effed5
+- summary: Designing a standard, configurable commercial license for small creators, embedded as on-chain data, inspired by Y Combinator's SAFE, a16z's Can't-be-evil, and Getty Images' EULA.
+
