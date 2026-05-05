@@ -6983,3 +6983,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_47c2a9f51346b49dd6e628cacb739d5b
 - summary: Open questions and feedback regarding NFT integration with Story Protocol, license tokens, and marketplace functionality for the Color project.
 
+## [2026-05-05T05:29:12Z] synthesis | 1Combo Integration Feedback
+
+- status: published
+- slug: projects/1combo-integration-feedback
+- wiki_revision_id: wikirev_21987b1bcfcb38c210bb2cf5235c24a1
+- summary: Feedback and questions from 1Combo regarding integration with Story Protocol, covering mint fees, royalty module, delegation, hook modules, license tokens, revenue distribution, de...
+
+## [2026-05-05T05:30:23Z] ingest | Slack thread C0AKH5SNGKH channel
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-channel-53ca9dcc
+- wiki_revision_id: wikirev_c3b5f9b6ec624b85901ef23ffa4d9739
+- source_document_id: srcdoc_b8c049e55a95dd9144c9ede553ca9dcc
+- source_revision_id: srcrev_b50a8b7bfcccdab6cb01a829deaf0a39
+- summary: <@U05A515NBFC> i'm fixing MC for <https://github.com/piplabs/numo-monorepo/pull/139>
+
