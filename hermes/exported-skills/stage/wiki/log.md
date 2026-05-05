@@ -7571,3 +7571,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e66e51aed8a62fa1a52b181678382a99
 - summary: The Engineering Home Notion database mirrors its row pages and data sources as separate Notion documents.
 
+## [2026-05-05T06:08:04Z] synthesis | How to Track NFT Purchases (Ethereum)
+
+- status: published
+- slug: runbooks/track-nft-purchases-ethereum
+- wiki_revision_id: wikirev_624f7d72c94b3bf4a022c8f5538e0073
+- summary: Step-by-step guide to track NFT purchases on Ethereum using Etherscan and a specific MetaMask wallet address.
+
+## [2026-05-05T06:09:13Z] synthesis | Story Protocol Wallet Operations
+
+- status: published
+- slug: concepts/story-protocol-wallet-operations
+- wiki_revision_id: wikirev_ef46d83f4b24a0017c7fac2410c81242
+- summary: Document outlining questions about Story Protocol wallet operations, including number of wallets and responsibilities.
+
+## [2026-05-05T06:10:52Z] synthesis | Engineering Lightning Talks
+
+- status: published
+- slug: projects/engineering-lightning-talks
+- wiki_revision_id: wikirev_d7c7729e40615868f006a4f1a4b78f50
+- summary: A series of engineering lightning talks documented in a Notion database.
+

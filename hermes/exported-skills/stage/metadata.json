@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "4adee5592d3fee1f5ae731cbf4394f79395c73fe4e2fe730b98c5b0092ac93cf",
-        "size": 389510
+        "sha256": "a523fac87e611246280082c9ddbab519578cec9312892a98a7f65e00f9da17d3",
+        "size": 390448
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2828,6 +2828,11 @@
         "path": "pages/concepts/ppl-protocol-support.md",
         "sha256": "dc8513f93dfad71352f6539caeacd36112039ac58ba1343baa683d3ee51bcd50",
         "size": 1120
+      },
+      {
+        "path": "pages/concepts/story-protocol-wallet-operations.md",
+        "sha256": "fe5e44644b7ae0c905245db4c965a40398f0f48de45eefd3e666df4515f8cd7c",
+        "size": 1427
       },
       {
         "path": "pages/concepts/untitled-notion-page-350051299a5480f8b542e4f40de96a42.md",
@@ -2955,6 +2960,11 @@
         "size": 1259
       },
       {
+        "path": "pages/projects/engineering-lightning-talks.md",
+        "sha256": "613b315b0a49055187b90ec0315b4441c4a69889daf923df23dd2297feb5603e",
+        "size": 1175
+      },
+      {
         "path": "pages/projects/gif-project.md",
         "sha256": "3e5cf596c6709957c7161bd32f1e8e94e07ffbab069d382deb9405bdafb5e2a1",
         "size": 2580
@@ -3050,6 +3060,11 @@
         "size": 1395
       },
       {
+        "path": "pages/runbooks/track-nft-purchases-ethereum.md",
+        "sha256": "c1593f782aa6bd2d66cb239d497f64c7c98edc370521b5abdfa12d960e93580a",
+        "size": 3685
+      },
+      {
         "path": "pages/systems/calendar.md",
         "sha256": "de7a75a5e8c63cc5212f9658d6ed1a56047d1ac0a153d9f0b089690edadfb645",
         "size": 1084
@@ -3079,8 +3094,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T06:00:59Z",
-  "file_count": 614,
+  "exported_at": "2026-05-05T06:11:52Z",
+  "file_count": 617,
   "files": [
     {
       "path": ".usage.json",
@@ -5847,20 +5862,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5dd859wc5pp",
-  "previous_tree_hash": "9f2357fc3f049548684d29ee701f834325063afef5b76cbe91f2e22ca469326e",
+  "previous_tree_hash": "c4d138570749e574a6857d1d42ef7366b5cdf1cc008d0d8c7029c33594b2fc5a",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "476409678a775c1018b9e6a7408807c3722cdad360128bd52087ec8de9a400b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c4d138570749e574a6857d1d42ef7366b5cdf1cc008d0d8c7029c33594b2fc5a",
+  "tree_hash": "9c4d2ed042f8f26330994d534e891b99dcb4d05f8174986a6258ed67801a0ff2",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 62,
+  "wiki_file_count": 65,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5874,8 +5889,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "4adee5592d3fee1f5ae731cbf4394f79395c73fe4e2fe730b98c5b0092ac93cf",
-      "size": 389510
+      "sha256": "a523fac87e611246280082c9ddbab519578cec9312892a98a7f65e00f9da17d3",
+      "size": 390448
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -5926,6 +5941,11 @@
       "path": "pages/concepts/ppl-protocol-support.md",
       "sha256": "dc8513f93dfad71352f6539caeacd36112039ac58ba1343baa683d3ee51bcd50",
       "size": 1120
+    },
+    {
+      "path": "pages/concepts/story-protocol-wallet-operations.md",
+      "sha256": "fe5e44644b7ae0c905245db4c965a40398f0f48de45eefd3e666df4515f8cd7c",
+      "size": 1427
     },
     {
       "path": "pages/concepts/untitled-notion-page-350051299a5480f8b542e4f40de96a42.md",
@@ -6053,6 +6073,11 @@
       "size": 1259
     },
     {
+      "path": "pages/projects/engineering-lightning-talks.md",
+      "sha256": "613b315b0a49055187b90ec0315b4441c4a69889daf923df23dd2297feb5603e",
+      "size": 1175
+    },
+    {
       "path": "pages/projects/gif-project.md",
       "sha256": "3e5cf596c6709957c7161bd32f1e8e94e07ffbab069d382deb9405bdafb5e2a1",
       "size": 2580
@@ -6148,6 +6173,11 @@
       "size": 1395
     },
     {
+      "path": "pages/runbooks/track-nft-purchases-ethereum.md",
+      "sha256": "c1593f782aa6bd2d66cb239d497f64c7c98edc370521b5abdfa12d960e93580a",
+      "size": 3685
+    },
+    {
       "path": "pages/systems/calendar.md",
       "sha256": "de7a75a5e8c63cc5212f9658d6ed1a56047d1ac0a153d9f0b089690edadfb645",
       "size": 1084
@@ -6174,5 +6204,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b99e6f048da90d61373752393bb112f1ae59cd2204e3c139761776cb323bb5bc"
+  "wiki_tree_hash": "d16bca5ab52b6f667f4b5093f95af0082ec7164f3169ccf2daf70e3026cc9229"
 }
