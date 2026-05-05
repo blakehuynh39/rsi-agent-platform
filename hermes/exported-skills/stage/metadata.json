@@ -2747,12 +2747,203 @@
         "size": 3760
       }
     ],
-    "wiki": []
+    "wiki": [
+      {
+        "path": "SCHEMA.md",
+        "sha256": "91d9f20b6eec997c26f9ce4519d5553956293fca70e3dc565b5fe7fc70ba647c",
+        "size": 800
+      },
+      {
+        "path": "index.md",
+        "sha256": "1e5f1e803e1f373eb2ec0440d40858fa44d49afc192c18d66b1aa314b61933c5",
+        "size": 149394
+      },
+      {
+        "path": "log.md",
+        "sha256": "93c73cfccd36583ccd4c346fe3ad80240f17cb2bf814841597e329eefbbc1ce2",
+        "size": 341218
+      },
+      {
+        "path": "pages/concepts/coming-soon-placeholder-tasks.md",
+        "sha256": "c1d8e73099e443c9656dd8270dd70b95a5b759b8823001ecea8170a00b69c4a2",
+        "size": 1065
+      },
+      {
+        "path": "pages/concepts/farming-mitigation.md",
+        "sha256": "98befb0319d9ec263ac358aff4f1b6f8cc59cd440f8cab20a8c935808fbe851e",
+        "size": 1138
+      },
+      {
+        "path": "pages/concepts/post-submission-payout-clarity-dopamine-hit.md",
+        "sha256": "f7a60e7a74d2db3fdf1c66ff118b56d0227a5f091629382ed9caf4dd1d77bad8",
+        "size": 1215
+      },
+      {
+        "path": "pages/concepts/untitled-notion-page-350051299a5480f8b542e4f40de96a42.md",
+        "sha256": "b88c46d94b771091aa0403224da922a57decef806444fdb48392576e3cd2884f",
+        "size": 1134
+      },
+      {
+        "path": "pages/concepts/upload-submission-errors.md",
+        "sha256": "bea4de315c1241d295cefc379e17083477c771b9257b8c2c7d4a8996ce0a84bd",
+        "size": 1054
+      },
+      {
+        "path": "pages/decisions/distinguish-user-device-types-for-risk-assessment.md",
+        "sha256": "9e31672f07f8156be99a5595abd31ff91ed30e70171d44dcc55dbb2d5c0ea7ee",
+        "size": 1433
+      },
+      {
+        "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
+        "sha256": "2f00c1ca811b4e36ff3dec23608a77919c61b5a386ea84242f37828222d803b3",
+        "size": 1371
+      },
+      {
+        "path": "pages/open-questions/define-what-to-do-for-rejected-submissions.md",
+        "sha256": "2550cf3840125e55b8a44bf9adf36f70719f2d31a7ed9ec2dd27c2a42d71664d",
+        "size": 1289
+      },
+      {
+        "path": "pages/open-questions/need-plan-b-api-gas-limits.md",
+        "sha256": "3ec6dca680c6c186231b1b8a606a1b8d54f875b00b32210c93bc034465dac5dc",
+        "size": 1298
+      },
+      {
+        "path": "pages/policies/serve-least-used-transcript-priority.md",
+        "sha256": "7117eeae65297b9176974b2191e619f770108c515d7ffc9c5f384dc32845ad8e",
+        "size": 1145
+      },
+      {
+        "path": "pages/policies/withdrawal-safeguard-policy.md",
+        "sha256": "61c29af4a91fd58f47f61104dbcd84f5b78d0330f03aea3449b5e8517bf46b4d",
+        "size": 2488
+      },
+      {
+        "path": "pages/projects/adaptive-trust-screening-reputation.md",
+        "sha256": "b4e39d91a75d2f8e4a8470aa81e93a9d8b9e24ed27beb1855a9443b3c686c367",
+        "size": 1333
+      },
+      {
+        "path": "pages/projects/add-back-en-kr-vn-ph.md",
+        "sha256": "bf627ac563febb37c005034d32cd90840951b66f56f8e46ea3cf0fbb257011f6",
+        "size": 2153
+      },
+      {
+        "path": "pages/projects/add-cookie-banner-to-app.md",
+        "sha256": "98d23ae22a7eb47dc0b9e66faf3286e2d4195acefc480a2d4cd296e89bb2fe5e",
+        "size": 1016
+      },
+      {
+        "path": "pages/projects/add-fb-tracking-pixel-to-web-app.md",
+        "sha256": "5be120ce196bb2b040bf437ca7bcf9ae20c397257c798b21a07237db97ce7b24",
+        "size": 1116
+      },
+      {
+        "path": "pages/projects/add-intercom-automated-customer-service.md",
+        "sha256": "dd922000a3cf304707ec0c31aa32912eda860f7e9c9258dd11a241a09f164369",
+        "size": 1140
+      },
+      {
+        "path": "pages/projects/address-p1-dogfooding-issues.md",
+        "sha256": "11e8cc689b9187d6b57efd6cc5ef35219ede1482132d4cb8e9a472a4104f8c9a",
+        "size": 1074
+      },
+      {
+        "path": "pages/projects/automate-support-email-summarize-feedback.md",
+        "sha256": "b6eea627d1d15dff130aae8332936c8b0442916a52cc18d7f184b1f9ee86ceb7",
+        "size": 1232
+      },
+      {
+        "path": "pages/projects/drag-and-drop-upload-functionality.md",
+        "sha256": "747ada8f17d97a5c9b8fa301af14888f191890bab1d406f516bd10604bf21740",
+        "size": 1259
+      },
+      {
+        "path": "pages/projects/improved-mobile-app-tracking-platform.md",
+        "sha256": "f360875a4e9860668933a9b85f568e3362ba5c3fcd4c881ef25bf432aa7b1880",
+        "size": 1392
+      },
+      {
+        "path": "pages/projects/integrate-fb-tracking-google-ads-admin-dashboard.md",
+        "sha256": "b5f1177236f943a9283bc077262cb4c2f37af19dc368651dcb7db4fea7e09e62",
+        "size": 1377
+      },
+      {
+        "path": "pages/projects/integrate-intercom-or-similar.md",
+        "sha256": "60431ecc536766192d1e38f0558fb63a24606485ab0e60e3b289686a8d38e9fa",
+        "size": 1139
+      },
+      {
+        "path": "pages/projects/integrate-poseidon-processing-pipeline-with-numo.md",
+        "sha256": "b2312e738d37c8c577cde062ed1ae5357bd4aea6503f608d81b9731cc9be6ef7",
+        "size": 1202
+      },
+      {
+        "path": "pages/projects/ip-auto-registration-script.md",
+        "sha256": "6d23332dd73884b3c24044337b5c1ce4f513a7a1cce7957a195d74e8da843687",
+        "size": 1238
+      },
+      {
+        "path": "pages/projects/license-receipt-functionality.md",
+        "sha256": "36224868d31e4f14731d7d1e4eb9d161338f5a381a0aba24618ce429ca652e7f",
+        "size": 3652
+      },
+      {
+        "path": "pages/projects/link-user-socials.md",
+        "sha256": "c805919694c08024e3ed1b8846759025b2d4d9470bbdc95840e81d4eea4eaffe",
+        "size": 1168
+      },
+      {
+        "path": "pages/projects/migrate-web-app-to-react-native.md",
+        "sha256": "77e3ef5dabe21299f2d74d4d6badf67c1d4764190ca6d62c577b49abdf495a67",
+        "size": 2902
+      },
+      {
+        "path": "pages/projects/p1-gamification-tactics.md",
+        "sha256": "e79c89facc054bfbe1532be546b683081b371b2669cca007d465e04ee0b38424",
+        "size": 2996
+      },
+      {
+        "path": "pages/projects/record-seedphrase-during-signup-flow.md",
+        "sha256": "47ad95d731b8185ecd7017ab31db092de0bb690d35f6c6949ddab1da00fd8991",
+        "size": 1220
+      },
+      {
+        "path": "pages/projects/replace-feedback-form-api.md",
+        "sha256": "58348f558c0817e1c2e8158db50145fc94b4322ea8972ddb977694858adc80dc",
+        "size": 1192
+      },
+      {
+        "path": "pages/projects/spam-detection-mechanism.md",
+        "sha256": "34eaaf726d06e98a3c9415b0e367c422834ecc11529c9454139a4fbf4e3ff068",
+        "size": 1411
+      },
+      {
+        "path": "pages/projects/upwork-fiverr-i18n-translation-vetting.md",
+        "sha256": "d046ecfcd2741ab81ffc4d30d1e6c166f43ad4376ee4896dff4db9879393a681",
+        "size": 1547
+      },
+      {
+        "path": "pages/projects/world-launch.md",
+        "sha256": "b448926002521d0078e2bcad412b798b34df88d01a0f8748e45f5417b19d46dd",
+        "size": 909
+      },
+      {
+        "path": "pages/systems/consensus-labelling-mechanism.md",
+        "sha256": "974ed87a722675eae881b08551d05a853ef8514f56e1c9bd2fa660f0681eb3a3",
+        "size": 1170
+      },
+      {
+        "path": "pages/systems/numo-product-backlog.md",
+        "sha256": "cff69cd3335410b9f53269b8bb729b68ed9bd24a7d587b81c42e74aa61c74b95",
+        "size": 1050
+      }
+    ]
   },
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
-  "exported_at": "2026-05-04T21:25:39Z",
-  "file_count": 549,
+  "exported_at": "2026-05-05T02:22:09Z",
+  "file_count": 587,
   "files": [
     {
       "path": "apple/DESCRIPTION.md",
@@ -5503,16 +5694,213 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-757446tdr5s",
-  "previous_tree_hash": "75e6e23e8b609fa1b393a5ec107d5aad40527106f0eabf92536b30896661c9dc",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cd98876d2n",
+  "previous_tree_hash": "6acd59c4074735bd2ec85beb17d4b8bff618a2af686266e12cc88e54b9cd1635",
   "schema_version": 1,
   "skill_file_count": 549,
   "skill_manage_sessions": [],
   "skill_tree_hash": "51dd5fa14f02f546813009b323ca960c29e87c4759f49ab6c92e3ca2c7ca357b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6acd59c4074735bd2ec85beb17d4b8bff618a2af686266e12cc88e54b9cd1635",
-  "wiki_file_count": 0,
-  "wiki_files": [],
-  "wiki_root_exists": false,
-  "wiki_tree_hash": ""
+  "tree_hash": "35837fc06b42ac4b757d5d85ff97d5060a339f68f61e3093698d1938b8ca29fb",
+  "wiki_export_include_paths": [
+    "SCHEMA.md",
+    "index.md",
+    "log.md",
+    "pages/"
+  ],
+  "wiki_file_count": 38,
+  "wiki_files": [
+    {
+      "path": "SCHEMA.md",
+      "sha256": "91d9f20b6eec997c26f9ce4519d5553956293fca70e3dc565b5fe7fc70ba647c",
+      "size": 800
+    },
+    {
+      "path": "index.md",
+      "sha256": "1e5f1e803e1f373eb2ec0440d40858fa44d49afc192c18d66b1aa314b61933c5",
+      "size": 149394
+    },
+    {
+      "path": "log.md",
+      "sha256": "93c73cfccd36583ccd4c346fe3ad80240f17cb2bf814841597e329eefbbc1ce2",
+      "size": 341218
+    },
+    {
+      "path": "pages/concepts/coming-soon-placeholder-tasks.md",
+      "sha256": "c1d8e73099e443c9656dd8270dd70b95a5b759b8823001ecea8170a00b69c4a2",
+      "size": 1065
+    },
+    {
+      "path": "pages/concepts/farming-mitigation.md",
+      "sha256": "98befb0319d9ec263ac358aff4f1b6f8cc59cd440f8cab20a8c935808fbe851e",
+      "size": 1138
+    },
+    {
+      "path": "pages/concepts/post-submission-payout-clarity-dopamine-hit.md",
+      "sha256": "f7a60e7a74d2db3fdf1c66ff118b56d0227a5f091629382ed9caf4dd1d77bad8",
+      "size": 1215
+    },
+    {
+      "path": "pages/concepts/untitled-notion-page-350051299a5480f8b542e4f40de96a42.md",
+      "sha256": "b88c46d94b771091aa0403224da922a57decef806444fdb48392576e3cd2884f",
+      "size": 1134
+    },
+    {
+      "path": "pages/concepts/upload-submission-errors.md",
+      "sha256": "bea4de315c1241d295cefc379e17083477c771b9257b8c2c7d4a8996ce0a84bd",
+      "size": 1054
+    },
+    {
+      "path": "pages/decisions/distinguish-user-device-types-for-risk-assessment.md",
+      "sha256": "9e31672f07f8156be99a5595abd31ff91ed30e70171d44dcc55dbb2d5c0ea7ee",
+      "size": 1433
+    },
+    {
+      "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
+      "sha256": "2f00c1ca811b4e36ff3dec23608a77919c61b5a386ea84242f37828222d803b3",
+      "size": 1371
+    },
+    {
+      "path": "pages/open-questions/define-what-to-do-for-rejected-submissions.md",
+      "sha256": "2550cf3840125e55b8a44bf9adf36f70719f2d31a7ed9ec2dd27c2a42d71664d",
+      "size": 1289
+    },
+    {
+      "path": "pages/open-questions/need-plan-b-api-gas-limits.md",
+      "sha256": "3ec6dca680c6c186231b1b8a606a1b8d54f875b00b32210c93bc034465dac5dc",
+      "size": 1298
+    },
+    {
+      "path": "pages/policies/serve-least-used-transcript-priority.md",
+      "sha256": "7117eeae65297b9176974b2191e619f770108c515d7ffc9c5f384dc32845ad8e",
+      "size": 1145
+    },
+    {
+      "path": "pages/policies/withdrawal-safeguard-policy.md",
+      "sha256": "61c29af4a91fd58f47f61104dbcd84f5b78d0330f03aea3449b5e8517bf46b4d",
+      "size": 2488
+    },
+    {
+      "path": "pages/projects/adaptive-trust-screening-reputation.md",
+      "sha256": "b4e39d91a75d2f8e4a8470aa81e93a9d8b9e24ed27beb1855a9443b3c686c367",
+      "size": 1333
+    },
+    {
+      "path": "pages/projects/add-back-en-kr-vn-ph.md",
+      "sha256": "bf627ac563febb37c005034d32cd90840951b66f56f8e46ea3cf0fbb257011f6",
+      "size": 2153
+    },
+    {
+      "path": "pages/projects/add-cookie-banner-to-app.md",
+      "sha256": "98d23ae22a7eb47dc0b9e66faf3286e2d4195acefc480a2d4cd296e89bb2fe5e",
+      "size": 1016
+    },
+    {
+      "path": "pages/projects/add-fb-tracking-pixel-to-web-app.md",
+      "sha256": "5be120ce196bb2b040bf437ca7bcf9ae20c397257c798b21a07237db97ce7b24",
+      "size": 1116
+    },
+    {
+      "path": "pages/projects/add-intercom-automated-customer-service.md",
+      "sha256": "dd922000a3cf304707ec0c31aa32912eda860f7e9c9258dd11a241a09f164369",
+      "size": 1140
+    },
+    {
+      "path": "pages/projects/address-p1-dogfooding-issues.md",
+      "sha256": "11e8cc689b9187d6b57efd6cc5ef35219ede1482132d4cb8e9a472a4104f8c9a",
+      "size": 1074
+    },
+    {
+      "path": "pages/projects/automate-support-email-summarize-feedback.md",
+      "sha256": "b6eea627d1d15dff130aae8332936c8b0442916a52cc18d7f184b1f9ee86ceb7",
+      "size": 1232
+    },
+    {
+      "path": "pages/projects/drag-and-drop-upload-functionality.md",
+      "sha256": "747ada8f17d97a5c9b8fa301af14888f191890bab1d406f516bd10604bf21740",
+      "size": 1259
+    },
+    {
+      "path": "pages/projects/improved-mobile-app-tracking-platform.md",
+      "sha256": "f360875a4e9860668933a9b85f568e3362ba5c3fcd4c881ef25bf432aa7b1880",
+      "size": 1392
+    },
+    {
+      "path": "pages/projects/integrate-fb-tracking-google-ads-admin-dashboard.md",
+      "sha256": "b5f1177236f943a9283bc077262cb4c2f37af19dc368651dcb7db4fea7e09e62",
+      "size": 1377
+    },
+    {
+      "path": "pages/projects/integrate-intercom-or-similar.md",
+      "sha256": "60431ecc536766192d1e38f0558fb63a24606485ab0e60e3b289686a8d38e9fa",
+      "size": 1139
+    },
+    {
+      "path": "pages/projects/integrate-poseidon-processing-pipeline-with-numo.md",
+      "sha256": "b2312e738d37c8c577cde062ed1ae5357bd4aea6503f608d81b9731cc9be6ef7",
+      "size": 1202
+    },
+    {
+      "path": "pages/projects/ip-auto-registration-script.md",
+      "sha256": "6d23332dd73884b3c24044337b5c1ce4f513a7a1cce7957a195d74e8da843687",
+      "size": 1238
+    },
+    {
+      "path": "pages/projects/license-receipt-functionality.md",
+      "sha256": "36224868d31e4f14731d7d1e4eb9d161338f5a381a0aba24618ce429ca652e7f",
+      "size": 3652
+    },
+    {
+      "path": "pages/projects/link-user-socials.md",
+      "sha256": "c805919694c08024e3ed1b8846759025b2d4d9470bbdc95840e81d4eea4eaffe",
+      "size": 1168
+    },
+    {
+      "path": "pages/projects/migrate-web-app-to-react-native.md",
+      "sha256": "77e3ef5dabe21299f2d74d4d6badf67c1d4764190ca6d62c577b49abdf495a67",
+      "size": 2902
+    },
+    {
+      "path": "pages/projects/p1-gamification-tactics.md",
+      "sha256": "e79c89facc054bfbe1532be546b683081b371b2669cca007d465e04ee0b38424",
+      "size": 2996
+    },
+    {
+      "path": "pages/projects/record-seedphrase-during-signup-flow.md",
+      "sha256": "47ad95d731b8185ecd7017ab31db092de0bb690d35f6c6949ddab1da00fd8991",
+      "size": 1220
+    },
+    {
+      "path": "pages/projects/replace-feedback-form-api.md",
+      "sha256": "58348f558c0817e1c2e8158db50145fc94b4322ea8972ddb977694858adc80dc",
+      "size": 1192
+    },
+    {
+      "path": "pages/projects/spam-detection-mechanism.md",
+      "sha256": "34eaaf726d06e98a3c9415b0e367c422834ecc11529c9454139a4fbf4e3ff068",
+      "size": 1411
+    },
+    {
+      "path": "pages/projects/upwork-fiverr-i18n-translation-vetting.md",
+      "sha256": "d046ecfcd2741ab81ffc4d30d1e6c166f43ad4376ee4896dff4db9879393a681",
+      "size": 1547
+    },
+    {
+      "path": "pages/projects/world-launch.md",
+      "sha256": "b448926002521d0078e2bcad412b798b34df88d01a0f8748e45f5417b19d46dd",
+      "size": 909
+    },
+    {
+      "path": "pages/systems/consensus-labelling-mechanism.md",
+      "sha256": "974ed87a722675eae881b08551d05a853ef8514f56e1c9bd2fa660f0681eb3a3",
+      "size": 1170
+    },
+    {
+      "path": "pages/systems/numo-product-backlog.md",
+      "sha256": "cff69cd3335410b9f53269b8bb729b68ed9bd24a7d587b81c42e74aa61c74b95",
+      "size": 1050
+    }
+  ],
+  "wiki_root_exists": true,
+  "wiki_tree_hash": "39d0a77c7c8b23718360459b77813a1b48528bfed8e880bbe93c2e25b2455cc6"
 }
