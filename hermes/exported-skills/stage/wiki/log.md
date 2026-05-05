@@ -14360,3 +14360,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1b48916ce0229f7c91d0e8a110dd4d70
 - summary: Open questions regarding Blast integration and SP tokenomics configurations.
 
+## [2026-05-05T19:00:55Z] synthesis | SP Tokenomics & BLAST
+
+- status: published
+- slug: projects/sp-tokenomics-blast
+- wiki_revision_id: wikirev_694a1369b80b3faf0752efa2491db7c6
+- summary: A draft research plan detailing topics related to Blast's tokenomics and their implications for SP.
+
+## [2026-05-05T19:02:49Z] synthesis | SP Tokenomics & BLAST
+
+- status: published
+- slug: projects/sp-tokenomics-blast
+- wiki_revision_id: wikirev_e6751f9e3e185854b40241ce55457400
+- summary: A draft research plan detailing topics related to Blast's tokenomics and their implications for SP.
+
