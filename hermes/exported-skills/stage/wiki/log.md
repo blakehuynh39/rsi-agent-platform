@@ -14232,3 +14232,26 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4cadbabbf091e12be3ec3883b81d4635
 - summary: Decision to implement a simple protocol-wide pause initially, with the PAUSER role granted to governance multisig, developer multisig, and possibly security council services.
 
+## [2026-05-05T17:30:52Z] ingest | Implement and Test Payment Solution for P0 countries - Stripe PoC
+
+- status: published
+- slug: notion_document/implement-and-test-payment-solution-for-p0-countries---stripe-poc-dab627af
+- wiki_revision_id: wikirev_470c84fd2761d70df351908004961ff0
+- source_document_id: srcdoc_056ec0e3d256e88b47958ac3dab627af
+- source_revision_id: srcrev_81aff07399ccd2d77a48a2511342508b
+- summary: Source: [Notion source](https://www.notion.so/Implement-and-Test-Payment-Solution-for-P0-countries-Stripe-PoC-34f051299a5480508170ea006981f7a4)
+
+## [2026-05-05T17:31:08Z] synthesis | Deploy and Config Monitoring Stack
+
+- status: published
+- slug: runbooks/deploy-and-config-monitoring-stack
+- wiki_revision_id: wikirev_711c06661480da16062e818037e572d3
+- summary: Runbook for deploying the Prometheus/Grafana monitoring stack on EKS using Helm, including namespace creation, secret setup, and Helm commands.
+
+## [2026-05-05T17:33:27Z] synthesis | Story Protocol Vanity Addresses
+
+- status: published
+- slug: concepts/story-protocol-vanity-addresses
+- wiki_revision_id: wikirev_02924e9108e9e666e963c90c46c6be44
+- summary: Proposal for using vanity addresses to evangelize Story Network, including standard precompiles, L2 infrastructure contracts, popular tokens, and Story Protocol ecosystem addresses...
+

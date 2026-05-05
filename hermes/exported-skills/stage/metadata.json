@@ -2771,13 +2771,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "aea5ae065f49b4649eb34b5b22f0f184f8ca7bc043793c01d117087ce441be0f",
-        "size": 409975
+        "sha256": "1f9d7b33a10e42bd78d994dfffcc589cb3f69df1ba321e1518e7e7cf308afcd9",
+        "size": 411246
       },
       {
         "path": "log.md",
-        "sha256": "e552300cd8f5c37cd9ce2331e384eee4a9975e0869af25f5613f26c59f7f50d5",
-        "size": 715564
+        "sha256": "1e387d3c01946d7dcffad705ae5433ffaa8fd42eaa2ceed14b275208931413b0",
+        "size": 716886
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3013,6 +3013,11 @@
         "path": "pages/concepts/standard-commercial-license-ip-assets.md",
         "sha256": "c167f5aa2630cc3fb73e116c6f666695c498ee25008babde714f923c5003dc7c",
         "size": 3256
+      },
+      {
+        "path": "pages/concepts/story-protocol-vanity-addresses.md",
+        "sha256": "bf434495a8423360f1ed6a8a51b3464ee57463871b96be45c251c045c2cd4314",
+        "size": 4771
       },
       {
         "path": "pages/concepts/story-protocol-wallet-operations.md",
@@ -3505,6 +3510,11 @@
         "size": 4910
       },
       {
+        "path": "pages/runbooks/deploy-and-config-monitoring-stack.md",
+        "sha256": "75cd9b14ccce97c738a5c65e44e1733b8206ecb252bfab732e7d482824f0c8bc",
+        "size": 5781
+      },
+      {
         "path": "pages/runbooks/docker-ecr-login.md",
         "sha256": "d3d17b7e8ceb0db832f39b6d3a5ac6405db3be35baf080566f488df7b902ffb9",
         "size": 1616
@@ -3649,8 +3659,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T17:29:06Z",
-  "file_count": 728,
+  "exported_at": "2026-05-05T17:35:02Z",
+  "file_count": 730,
   "files": [
     {
       "path": ".usage.json",
@@ -6417,20 +6427,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbkb88g",
-  "previous_tree_hash": "e9ced1cae8468b82b47c966f5840fdfaefd86f1fef80792a7e3e648e032e2a10",
+  "previous_tree_hash": "add3da88d90ac7ef942b58adedddfe6f0bbf229f98c8f9f7f3df2b6d627f5d8a",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "add3da88d90ac7ef942b58adedddfe6f0bbf229f98c8f9f7f3df2b6d627f5d8a",
+  "tree_hash": "1b342254cab001704c0c524139497471992a436e58d349891aca6aaea5c48a8c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 176,
+  "wiki_file_count": 178,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6439,13 +6449,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "aea5ae065f49b4649eb34b5b22f0f184f8ca7bc043793c01d117087ce441be0f",
-      "size": 409975
+      "sha256": "1f9d7b33a10e42bd78d994dfffcc589cb3f69df1ba321e1518e7e7cf308afcd9",
+      "size": 411246
     },
     {
       "path": "log.md",
-      "sha256": "e552300cd8f5c37cd9ce2331e384eee4a9975e0869af25f5613f26c59f7f50d5",
-      "size": 715564
+      "sha256": "1e387d3c01946d7dcffad705ae5433ffaa8fd42eaa2ceed14b275208931413b0",
+      "size": 716886
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6681,6 +6691,11 @@
       "path": "pages/concepts/standard-commercial-license-ip-assets.md",
       "sha256": "c167f5aa2630cc3fb73e116c6f666695c498ee25008babde714f923c5003dc7c",
       "size": 3256
+    },
+    {
+      "path": "pages/concepts/story-protocol-vanity-addresses.md",
+      "sha256": "bf434495a8423360f1ed6a8a51b3464ee57463871b96be45c251c045c2cd4314",
+      "size": 4771
     },
     {
       "path": "pages/concepts/story-protocol-wallet-operations.md",
@@ -7173,6 +7188,11 @@
       "size": 4910
     },
     {
+      "path": "pages/runbooks/deploy-and-config-monitoring-stack.md",
+      "sha256": "75cd9b14ccce97c738a5c65e44e1733b8206ecb252bfab732e7d482824f0c8bc",
+      "size": 5781
+    },
+    {
       "path": "pages/runbooks/docker-ecr-login.md",
       "sha256": "d3d17b7e8ceb0db832f39b6d3a5ac6405db3be35baf080566f488df7b902ffb9",
       "size": 1616
@@ -7314,5 +7334,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1afb84b8ada8c447048244a56feefc4b74cfdfaf06fca0a3ef14d101bfeccf53"
+  "wiki_tree_hash": "e094f8836b548452098a4c0fc2b242009d4e667c155e6e5bac87b1a6d67238d9"
 }
