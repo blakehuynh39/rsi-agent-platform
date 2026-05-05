@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "1fcc36d9230b3ae7a1d182716ccf0724c9c41e9fe72a0e409405ac5f7a827a0f",
-        "size": 708974
+        "sha256": "9b9419047f57cafd020233262468ce6bca5166acf5d8fdc1ad09235d301aa540",
+        "size": 709331
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2893,6 +2893,11 @@
         "path": "pages/concepts/ipa-book.md",
         "sha256": "c3527a5d928cb1e9d08c17c7bc5390c27c3429e53b1c094a6180aa3d9b03b4ba",
         "size": 1229
+      },
+      {
+        "path": "pages/concepts/license-nft.md",
+        "sha256": "177957e83cfade7ff448daa8e1e85f09fee4b4ff716367b9675d1cb26e68ad07",
+        "size": 3119
       },
       {
         "path": "pages/concepts/licensing-module-design-considerations.md",
@@ -3569,8 +3574,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T15:59:47Z",
-  "file_count": 712,
+  "exported_at": "2026-05-05T16:05:44Z",
+  "file_count": 713,
   "files": [
     {
       "path": ".usage.json",
@@ -6337,20 +6342,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "32acc22e400a099681aee6a1763f68571f44c5287b85dcab5bc7b5ea375c7a18",
+  "previous_tree_hash": "c48d28d385a0677b84f4107288d6e84c952ce0ca68272a46c6525f2b42a5588d",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c48d28d385a0677b84f4107288d6e84c952ce0ca68272a46c6525f2b42a5588d",
+  "tree_hash": "e930c35cbaf73ac17a020867e394d48641453064531db1a1d761dd79bb788269",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 160,
+  "wiki_file_count": 161,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6364,8 +6369,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "1fcc36d9230b3ae7a1d182716ccf0724c9c41e9fe72a0e409405ac5f7a827a0f",
-      "size": 708974
+      "sha256": "9b9419047f57cafd020233262468ce6bca5166acf5d8fdc1ad09235d301aa540",
+      "size": 709331
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6481,6 +6486,11 @@
       "path": "pages/concepts/ipa-book.md",
       "sha256": "c3527a5d928cb1e9d08c17c7bc5390c27c3429e53b1c094a6180aa3d9b03b4ba",
       "size": 1229
+    },
+    {
+      "path": "pages/concepts/license-nft.md",
+      "sha256": "177957e83cfade7ff448daa8e1e85f09fee4b4ff716367b9675d1cb26e68ad07",
+      "size": 3119
     },
     {
       "path": "pages/concepts/licensing-module-design-considerations.md",
@@ -7154,5 +7164,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c1df611f8640275710351815bbfa44a03056fc2378fc4a8ee49314e72ce57a76"
+  "wiki_tree_hash": "ef9fb44d1b5be8c12ff9b635337de9946ad6af2be1750c2e8adb888bab665450"
 }

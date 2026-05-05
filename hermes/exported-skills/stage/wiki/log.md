@@ -14090,3 +14090,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9af75d2c2c315a69207f32c69686c3ad
 - summary: A Royalty NFT is a fractionizable ERC-1155 token representing a share of a license revenue pool. Each commercial license NFT contract deploys a corresponding Royalty NFT, and holde...
 
+## [2026-05-05T16:01:19Z] synthesis | License NFT
+
+- status: published
+- slug: concepts/license-nft
+- wiki_revision_id: wikirev_49669d797c62a24f3ee2b3767ea1ec5a
+- summary: A License NFT is a first-class citizen factory license policy implemented as a smart contract deployed NFT following the ERC standard. It includes interfaces for term management, m...
+
