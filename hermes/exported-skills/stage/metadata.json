@@ -2771,13 +2771,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "1f9d7b33a10e42bd78d994dfffcc589cb3f69df1ba321e1518e7e7cf308afcd9",
-        "size": 411246
+        "sha256": "748348cc3099a7167d24cc73b5ccd2b2c47e42de4e9fa21f6194b4b50ff38906",
+        "size": 417532
       },
       {
         "path": "log.md",
-        "sha256": "dd8c6b3de47794e8d0da8b547bd8f51036bb24b13e1d919d747ee9bfbe317c10",
-        "size": 722626
+        "sha256": "2abf769e5b9996d88ce071b96a349c0afc0109d67319906d1f0ae1c6ad5735d2",
+        "size": 722931
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2798,6 +2798,11 @@
         "path": "pages/concepts/bridging-evaluation.md",
         "sha256": "d08187ab62fd179850ce5fd81cdcfc3931c36a57c188a218fd0d6f027725f147",
         "size": 2016
+      },
+      {
+        "path": "pages/concepts/c2pa-account-innovation.md",
+        "sha256": "a3c30a4dc29bb9e07618dc0a1a0187beef260e67a8bea27622feed185d6d82bb",
+        "size": 1287
       },
       {
         "path": "pages/concepts/carousel-data-shape.md",
@@ -3739,8 +3744,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T19:05:25Z",
-  "file_count": 746,
+  "exported_at": "2026-05-05T19:11:26Z",
+  "file_count": 747,
   "files": [
     {
       "path": ".usage.json",
@@ -6507,20 +6512,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbkb88g",
-  "previous_tree_hash": "3145401d685cb934f107198210f555dc425898b677b2f93041c2d81fd605740e",
+  "previous_tree_hash": "b52ea2687b45bf4a0974afbdecf51dbb49947057afbb55bd5678782b4c3f155b",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b52ea2687b45bf4a0974afbdecf51dbb49947057afbb55bd5678782b4c3f155b",
+  "tree_hash": "4b3a7d00191498296e830dc4e4115213fe19a42c129159560ee702f0c6df0d2f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 194,
+  "wiki_file_count": 195,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6529,13 +6534,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "1f9d7b33a10e42bd78d994dfffcc589cb3f69df1ba321e1518e7e7cf308afcd9",
-      "size": 411246
+      "sha256": "748348cc3099a7167d24cc73b5ccd2b2c47e42de4e9fa21f6194b4b50ff38906",
+      "size": 417532
     },
     {
       "path": "log.md",
-      "sha256": "dd8c6b3de47794e8d0da8b547bd8f51036bb24b13e1d919d747ee9bfbe317c10",
-      "size": 722626
+      "sha256": "2abf769e5b9996d88ce071b96a349c0afc0109d67319906d1f0ae1c6ad5735d2",
+      "size": 722931
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6556,6 +6561,11 @@
       "path": "pages/concepts/bridging-evaluation.md",
       "sha256": "d08187ab62fd179850ce5fd81cdcfc3931c36a57c188a218fd0d6f027725f147",
       "size": 2016
+    },
+    {
+      "path": "pages/concepts/c2pa-account-innovation.md",
+      "sha256": "a3c30a4dc29bb9e07618dc0a1a0187beef260e67a8bea27622feed185d6d82bb",
+      "size": 1287
     },
     {
       "path": "pages/concepts/carousel-data-shape.md",
@@ -7494,5 +7504,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "491031f1d1127d5b7f24931c87f1d7a0703ad41da81b0860c0eb6125c1933be5"
+  "wiki_tree_hash": "5ba3fe75f6184d6ea508bb98199ec5be2e99f66b53b47e735eeb9aa6f4501502"
 }

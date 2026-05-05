@@ -14374,3 +14374,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e6751f9e3e185854b40241ce55457400
 - summary: A draft research plan detailing topics related to Blast's tokenomics and their implications for SP.
 
+## [2026-05-05T19:08:02Z] synthesis | C2PA and Account Innovation
+
+- status: published
+- slug: concepts/c2pa-account-innovation
+- wiki_revision_id: wikirev_a4e5867373206badb8e0273a125043f4
+- summary: Exploration of C2PA as a service in the context of Solana's account model and near account aggregation.
+
