@@ -18,7 +18,12 @@ from urllib import error as urlerror
 from rsi_runner.config import RunnerConfig, RunnerConfigError
 from rsi_runner.execution_contract import HermesCompanyComputer
 from rsi_runner.hermes_adapter import HermesAdapter, _build_plugin_module
-from rsi_runner.hermes_agent_adapter import HermesAgentAdapter, HermesContractStatus, validate_hermes_contract
+from rsi_runner.hermes_agent_adapter import (
+    HermesAgentAdapter,
+    HermesContractStatus,
+    validate_hermes_contract,
+    _validate_session_db_integrity,
+)
 from rsi_runner.hermes_mcp_adapter import TaskScopedMCPCleanupResult, TaskScopedMCPRegistration, TaskScopedMCPServer
 from rsi_runner.hermes_runtime import (
     HermesExecutionResult,
@@ -31,7 +36,7 @@ from rsi_runner.hermes_runtime import (
 )
 from rsi_runner.observability import ObservationEmitter, execution_observation_id
 from rsi_runner.rsi_tools import transport_tool_schema
-from rsi_runner.session_manager import SessionManager
+from rsi_runner.session_manager import MemoryTracker, SessionManager
 
 
 HERMES_TEST_PIN = "2cdd9378a0af11607bd3f0dda9cff890c48abe11"
@@ -1253,6 +1258,68 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(status.session_db_status, "deferred")
         connect_mock.assert_not_called()
 
+    def test_hermes_contract_retries_locked_session_db_integrity_check(self) -> None:
+        class FakeCursorResult:
+            def __init__(self, rows: list[tuple[str]]) -> None:
+                self._rows = rows
+
+            def fetchone(self) -> tuple[str] | None:
+                return self._rows[0] if self._rows else None
+
+            def fetchall(self) -> list[tuple[str]]:
+                return list(self._rows)
+
+        class FakeConnection:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, _exc_type, _exc, _tb) -> bool:
+                return False
+
+            def execute(self, query: str):
+                if "quick_check" in query:
+                    return FakeCursorResult([("ok",)])
+                return FakeCursorResult([("sessions",), ("messages",)])
+
+        with tempfile.TemporaryDirectory() as tempdir:
+            db_path = Path(tempdir, "state.db")
+            db_path.touch()
+            with mock.patch(
+                "rsi_runner.hermes_agent_adapter.sqlite3.connect",
+                side_effect=[sqlite3.OperationalError("database is locked"), FakeConnection()],
+            ), mock.patch("rsi_runner.hermes_agent_adapter.time.sleep") as sleep_mock, mock.patch(
+                "rsi_runner.hermes_agent_adapter.random.uniform", return_value=0
+            ), mock.patch.dict(
+                os.environ,
+                {"RSI_HERMES_SESSION_DB_INTEGRITY_RETRY_SECONDS": "1"},
+                clear=True,
+            ):
+                status, error = _validate_session_db_integrity(types.SimpleNamespace(db_path=db_path))
+
+        self.assertEqual(status, "ok")
+        self.assertEqual(error, "")
+        sleep_mock.assert_called_once()
+
+    def test_hermes_contract_reports_locked_session_db_integrity_without_corruption(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir:
+            db_path = Path(tempdir, "state.db")
+            db_path.touch()
+            with mock.patch(
+                "rsi_runner.hermes_agent_adapter.sqlite3.connect",
+                side_effect=sqlite3.OperationalError("database is locked"),
+            ), mock.patch(
+                "rsi_runner.hermes_agent_adapter.time.monotonic",
+                side_effect=[0.0, 2.0],
+            ), mock.patch.dict(
+                os.environ,
+                {"RSI_HERMES_SESSION_DB_INTEGRITY_RETRY_SECONDS": "1"},
+                clear=True,
+            ):
+                status, error = _validate_session_db_integrity(types.SimpleNamespace(db_path=db_path))
+
+        self.assertEqual(status, "locked")
+        self.assertEqual(error, "")
+
     def test_hermes_contract_tolerates_uninitialized_session_db_for_parent_runtime(self) -> None:
         plugin_manager = types.SimpleNamespace(
             list_plugins=lambda: [
@@ -1763,6 +1830,87 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(attempts, 2)
         self.assertTrue(context.session_id.startswith("rsi-prod-conversation-"))
         sleep_mock.assert_called_once()
+
+    def test_session_manager_retries_locked_session_history_read(self) -> None:
+        read_attempts = 0
+
+        class FlakyReadSessionDB:
+            def __init__(self, db_path: str) -> None:
+                self.db_path = db_path
+
+            def get_messages_as_conversation(self, _session_id: str) -> list[dict[str, object]]:
+                nonlocal read_attempts
+                read_attempts += 1
+                if read_attempts == 1:
+                    raise sqlite3.OperationalError("database is locked")
+                return [{"role": "user", "content": "prior"}]
+
+        task = types.SimpleNamespace(
+            session_scope_kind="conversation",
+            session_scope_id="conv-1",
+            parent_session_scope_kind="",
+            parent_session_scope_id="",
+            user_peer_id="user:U123",
+            recent_conversation_entries=[],
+            assistant_peer_id="rsi:test:prod",
+        )
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.session_manager.SessionDB",
+            FlakyReadSessionDB,
+        ), mock.patch("rsi_runner.session_manager.time.sleep") as sleep_mock, mock.patch(
+            "rsi_runner.session_manager.random.uniform", return_value=0
+        ), mock.patch.dict(
+            os.environ,
+            {**runner_env("prod"), "HERMES_HOME": tempdir, "RSI_HERMES_SESSION_DB_READ_RETRY_SECONDS": "1"},
+            clear=True,
+        ):
+            manager = SessionManager(RunnerConfig.from_env())
+            context = manager.prepare(task, load_history=True)
+
+        self.assertEqual(read_attempts, 2)
+        self.assertEqual(context.conversation_history, [{"role": "user", "content": "prior"}])
+        sleep_mock.assert_called_once()
+
+    def test_session_manager_finalize_records_warning_when_history_read_stays_locked(self) -> None:
+        class LockedReadSessionDB:
+            def __init__(self, db_path: str) -> None:
+                self.db_path = db_path
+
+            def get_messages_as_conversation(self, _session_id: str) -> list[dict[str, object]]:
+                raise sqlite3.OperationalError("database is locked")
+
+        context = types.SimpleNamespace(
+            session_id="session-1",
+            parent_session_id="",
+            scope_kind="conversation",
+            scope_id="conv-1",
+            parent_scope_kind="",
+            parent_scope_id="",
+            memory_backend="honcho",
+            assistant_peer_id="rsi:test:prod",
+            user_peer_id="user:U123",
+            hermes_home="/tmp/hermes",
+            session_db_path="/tmp/hermes/state.db",
+            session_db_tracking_enabled=True,
+            conversation_history=[{"role": "user", "content": "prior"}],
+        )
+        tracker = MemoryTracker()
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.session_manager.SessionDB",
+            LockedReadSessionDB,
+        ), mock.patch(
+            "rsi_runner.session_manager.time.monotonic",
+            side_effect=[0.0, 0.0, 2.0],
+        ), mock.patch.dict(
+            os.environ,
+            {**runner_env("prod"), "HERMES_HOME": tempdir, "RSI_HERMES_SESSION_DB_READ_RETRY_SECONDS": "1"},
+            clear=True,
+        ):
+            manager = SessionManager(RunnerConfig.from_env())
+            payload = manager.finalize(context, tracker)
+
+        self.assertEqual(payload["session_messages_delta"], [])
+        self.assertEqual(tracker.warnings[0]["kind"], "session_history_read_failed")
 
     def test_session_manager_syncs_bundled_skills_when_configured(self) -> None:
         class FakeSessionDB:

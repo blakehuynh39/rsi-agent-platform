@@ -185,7 +185,7 @@ class SessionManager:
         history: list[JsonObject] = []
         db = self._get_db() if load_history else None
         if db is not None:
-            history = list(db.get_messages_as_conversation(session_id) or [])
+            history = self._read_conversation_history_with_retry(db, session_id)
         tracker_user_peer = first_non_empty(
             getattr(task, "user_peer_id", None),
             infer_user_peer_id(getattr(task, "recent_conversation_entries", []) or [], scope_kind, scope_id, self._config.role),
@@ -255,7 +255,18 @@ class SessionManager:
         delta: list[JsonObject] = []
         db = self._get_db() if getattr(context, "session_db_tracking_enabled", True) else None
         if db is not None:
-            history = list(db.get_messages_as_conversation(context.session_id) or [])
+            try:
+                history = self._read_conversation_history_with_retry(db, context.session_id)
+            except Exception as exc:
+                if not sqlite_error_is_locked(exc):
+                    raise
+                tracker.record_warning(
+                    "session_history_read_failed",
+                    truncate_text(str(exc), 320),
+                    source="session_db",
+                    ref=context.session_id,
+                )
+                history = list(context.conversation_history)
             if len(history) > len(context.conversation_history):
                 tracker.record_write(
                     "session_append",
@@ -297,6 +308,19 @@ class SessionManager:
         while True:
             try:
                 return SessionDB(db_path=self._session_db_path)
+            except Exception as exc:
+                if not sqlite_error_is_locked(exc) or time.monotonic() >= deadline:
+                    raise
+                time.sleep(random.uniform(0.05, 0.25))
+
+    def _read_conversation_history_with_retry(self, db: Any, session_id: str) -> list[JsonObject]:
+        deadline = time.monotonic() + float_env(
+            "RSI_HERMES_SESSION_DB_READ_RETRY_SECONDS",
+            float_env("RSI_HERMES_SESSION_DB_OPEN_RETRY_SECONDS", 20.0),
+        )
+        while True:
+            try:
+                return list(db.get_messages_as_conversation(session_id) or [])
             except Exception as exc:
                 if not sqlite_error_is_locked(exc) or time.monotonic() >= deadline:
                     raise

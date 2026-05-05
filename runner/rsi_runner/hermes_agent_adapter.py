@@ -444,16 +444,27 @@ def _validate_session_db_integrity(session_db: Any, *, require_ready: bool = Tru
         return "missing", f"Hermes SessionDB file is missing at {path}."
     if not require_ready and bool(getattr(session_db, "defer_integrity_check", False)):
         return "deferred", ""
+    deadline = time.monotonic() + float_env(
+        "RSI_HERMES_SESSION_DB_INTEGRITY_RETRY_SECONDS",
+        float_env("RSI_HERMES_SESSION_DB_READ_RETRY_SECONDS", 10.0),
+    )
     try:
-        with sqlite3.connect(str(path), timeout=5.0) as conn:
-            row = conn.execute("PRAGMA quick_check(1)").fetchone()
-            tables = {
-                _string(item[0])
-                for item in conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'").fetchall()
-            }
+        while True:
+            try:
+                with sqlite3.connect(str(path), timeout=5.0) as conn:
+                    row = conn.execute("PRAGMA quick_check(1)").fetchone()
+                    tables = {
+                        _string(item[0])
+                        for item in conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'").fetchall()
+                    }
+                break
+            except sqlite3.OperationalError as exc:
+                if not sqlite_error_is_locked(exc):
+                    raise
+                if time.monotonic() >= deadline:
+                    return "locked", ""
+                time.sleep(random.uniform(0.05, 0.25))
     except sqlite3.OperationalError as exc:
-        if not require_ready and sqlite_error_is_locked(exc):
-            return "locked", ""
         return "corrupt", f"Hermes SessionDB integrity check failed: {exc}"
     except sqlite3.DatabaseError as exc:
         return "corrupt", f"Hermes SessionDB integrity check failed: {exc}"
