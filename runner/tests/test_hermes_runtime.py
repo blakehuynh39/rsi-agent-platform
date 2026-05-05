@@ -1554,6 +1554,43 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(child["parent_session_id"], "parent-session")
         self.assertEqual(child["system_prompt"], "system prompt")
 
+    def test_hermes_agent_adapter_treats_concurrent_parent_insert_as_success(self) -> None:
+        class RacingParentDB:
+            def __init__(self) -> None:
+                self.parent_exists = False
+                self.created_children: list[tuple[str, str | None]] = []
+
+            def get_session(self, session_id: str) -> dict[str, str] | None:
+                if session_id == "parent-session" and self.parent_exists:
+                    return {"id": session_id}
+                return None
+
+            def create_session(self, session_id: str, source: str, **kwargs) -> str:
+                if session_id == "parent-session":
+                    self.parent_exists = True
+                    raise sqlite3.IntegrityError("UNIQUE constraint failed: sessions.id")
+                self.created_children.append((session_id, kwargs.get("parent_session_id")))
+                return session_id
+
+            def reopen_session(self, session_id: str) -> None:
+                return None
+
+            def update_system_prompt(self, session_id: str, system_prompt: str) -> None:
+                return None
+
+        db = RacingParentDB()
+        adapter = HermesAgentAdapter(
+            {
+                "session_id": "child-session",
+                "parent_session_id": "parent-session",
+                "model": "deepseek/deepseek-v4-pro",
+            }
+        )
+
+        adapter._prepare_session_db("child-session", db, "system prompt")
+
+        self.assertEqual(db.created_children, [("child-session", "parent-session")])
+
     def test_hermes_agent_adapter_retries_locked_session_db_open(self) -> None:
         attempts = 0
 

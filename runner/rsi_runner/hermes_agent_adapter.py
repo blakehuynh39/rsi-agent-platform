@@ -777,8 +777,21 @@ class HermesAgentAdapter:
         try:
             if hasattr(db, "ensure_session"):
                 db.ensure_session(parent_session_id, source="rsi_executor_parent", model=model)
+            elif self._session_exists(db, parent_session_id):
+                pass
             else:
                 db.create_session(parent_session_id, source="rsi_executor_parent", model=model)
+        except sqlite3.IntegrityError:
+            if self._session_exists(db, parent_session_id):
+                self._lifecycle.record(
+                    "session_db.parent_session_ensure_raced",
+                    {
+                        "status": "completed",
+                        "parent_session_id": parent_session_id,
+                    },
+                )
+                return
+            raise
         except Exception as exc:
             self._lifecycle.record(
                 "session_db.parent_session_ensure_failed",
@@ -796,6 +809,23 @@ class HermesAgentAdapter:
                 "parent_session_id": parent_session_id,
             },
         )
+
+    def _session_exists(self, db: Any, session_id: str) -> bool:
+        getter = getattr(db, "get_session", None)
+        if not callable(getter):
+            return False
+        try:
+            return getter(session_id) is not None
+        except Exception as exc:
+            self._lifecycle.record(
+                "session_db.session_lookup_failed",
+                {
+                    "status": "warning",
+                    "session_id": session_id,
+                    "error": str(exc)[:800],
+                },
+            )
+            return False
 
     def _system_prompt(self) -> str:
         prompt_parts = [_string(self._payload.get("system_message"))]
