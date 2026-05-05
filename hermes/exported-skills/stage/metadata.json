@@ -2771,13 +2771,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a7c2f3d31dc0cc0a7dfa30eeb8049b01615c78d07a674ebbfa9ecabd1c336ecc",
-        "size": 421452
+        "sha256": "7bedd43e3824f18c649c02a780a17b5287c42014fd057e1b93fbaae80b172564",
+        "size": 422113
       },
       {
         "path": "log.md",
-        "sha256": "9fd9d7a48802a4820b5afbe916841a5de6e91b85dec3ae4755bfa5a5cd0faf76",
-        "size": 726995
+        "sha256": "5d26148f4b0cec72f785bf76fe0adeb28d029fb6ca1f737efd2ac80d2421814b",
+        "size": 727680
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2943,6 +2943,11 @@
         "path": "pages/concepts/ipa-book.md",
         "sha256": "c3527a5d928cb1e9d08c17c7bc5390c27c3429e53b1c094a6180aa3d9b03b4ba",
         "size": 1229
+      },
+      {
+        "path": "pages/concepts/l1-features-services-brainstorming.md",
+        "sha256": "6dd1828d4bf3911bf4b7a2f490fe6e8868d0d37165a8361a71017cf658063cb4",
+        "size": 1469
       },
       {
         "path": "pages/concepts/license-nft.md",
@@ -3635,6 +3640,11 @@
         "size": 909
       },
       {
+        "path": "pages/runbooks/15-plus-1-devnet-halo-config-files.md",
+        "sha256": "f6213d2f7ddc1bae7b6effd145bae854f7f6f24a8f995d0f0419f520d3019efc",
+        "size": 2497
+      },
+      {
         "path": "pages/runbooks/configure-a-validator.md",
         "sha256": "454b04bad67f70919a69835866f1a8be592674d61d9fd010a82663835ff74cbd",
         "size": 3408
@@ -3804,8 +3814,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T20:46:43Z",
-  "file_count": 759,
+  "exported_at": "2026-05-05T20:52:30Z",
+  "file_count": 761,
   "files": [
     {
       "path": ".usage.json",
@@ -6572,20 +6582,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-67cbbbfhg9t",
-  "previous_tree_hash": "123d10e29a32b2315b42c7607eeb3d3dcf38e0a5bdecb4fba3fed07ecc7b4a1d",
+  "previous_tree_hash": "708a87202a0ec403ccd10b9c5acc8c92ac6925d0a717c58c5eb90c30631c50bc",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "708a87202a0ec403ccd10b9c5acc8c92ac6925d0a717c58c5eb90c30631c50bc",
+  "tree_hash": "2f83929571bf4d373b18d682c7816ab73009ef509fc2faa0c50a369123fec2be",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 207,
+  "wiki_file_count": 209,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6594,13 +6604,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a7c2f3d31dc0cc0a7dfa30eeb8049b01615c78d07a674ebbfa9ecabd1c336ecc",
-      "size": 421452
+      "sha256": "7bedd43e3824f18c649c02a780a17b5287c42014fd057e1b93fbaae80b172564",
+      "size": 422113
     },
     {
       "path": "log.md",
-      "sha256": "9fd9d7a48802a4820b5afbe916841a5de6e91b85dec3ae4755bfa5a5cd0faf76",
-      "size": 726995
+      "sha256": "5d26148f4b0cec72f785bf76fe0adeb28d029fb6ca1f737efd2ac80d2421814b",
+      "size": 727680
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6766,6 +6776,11 @@
       "path": "pages/concepts/ipa-book.md",
       "sha256": "c3527a5d928cb1e9d08c17c7bc5390c27c3429e53b1c094a6180aa3d9b03b4ba",
       "size": 1229
+    },
+    {
+      "path": "pages/concepts/l1-features-services-brainstorming.md",
+      "sha256": "6dd1828d4bf3911bf4b7a2f490fe6e8868d0d37165a8361a71017cf658063cb4",
+      "size": 1469
     },
     {
       "path": "pages/concepts/license-nft.md",
@@ -7458,6 +7473,11 @@
       "size": 909
     },
     {
+      "path": "pages/runbooks/15-plus-1-devnet-halo-config-files.md",
+      "sha256": "f6213d2f7ddc1bae7b6effd145bae854f7f6f24a8f995d0f0419f520d3019efc",
+      "size": 2497
+    },
+    {
       "path": "pages/runbooks/configure-a-validator.md",
       "sha256": "454b04bad67f70919a69835866f1a8be592674d61d9fd010a82663835ff74cbd",
       "size": 3408
@@ -7624,5 +7644,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "52e27da98ed9e424d147c3cb487f6524486f27674e1e4830226b6c1b6f50349d"
+  "wiki_tree_hash": "a6ade5e19e476b8dae93659d39043cf1be3d0a2871cda5140ff2ce006b58edde"
 }

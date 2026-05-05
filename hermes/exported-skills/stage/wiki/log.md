@@ -14465,3 +14465,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_eb38a8a16953053677729d25a0dffd58
 - summary: A guide for setting up a validator node, including prerequisites and step-by-step instructions (currently incomplete).
 
+## [2026-05-05T20:49:26Z] synthesis | 15+1 Devnet Halo Config Files
+
+- status: published
+- slug: runbooks/15-plus-1-devnet-halo-config-files
+- wiki_revision_id: wikirev_2ebd47298ec6261a060edd889a91ba0f
+- summary: Reference for the configuration files used in the 15+1 Devnet Halo setup, including Halo config, genesis, node keys, validator state, and Geth initialization.
+
+## [2026-05-05T20:52:20Z] synthesis | L1 Features / Services Brainstorming
+
+- status: published
+- slug: concepts/l1-features-services-brainstorming
+- wiki_revision_id: wikirev_00c8e6524b793f75959177dbc3598e13
+- summary: A brainstorming list of potential L1 features and services, captured in a Notion document.
+
