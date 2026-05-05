@@ -13789,3 +13789,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_af2ea30d4de75ff0dff479b151ca23f8
 - summary: Procedure to log into AWS ECR using Docker CLI, as ECR is not publicly accessible.
 
+## [2026-05-05T11:46:25Z] synthesis | EU: PFP NFTs
+
+- status: published
+- slug: projects/eu-pfp-nfts
+- wiki_revision_id: wikirev_03f3019caa3ccb5f2e1109d327870356
+- summary: A hub page for discussions, references, and shelved items related to EU PFP NFTs.
+
+## [2026-05-05T11:49:24Z] synthesis | License Simplification for Alpha
+
+- status: published
+- slug: decisions/license-simplification-alpha
+- wiki_revision_id: wikirev_255dc8ece63a961593b34cb90a1bee54
+- summary: Decisions to simplify the license module for the alpha release, focusing on tradable LNFT tokens, UDL-based terms, and minimal interface changes.
+

@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "adb9b236942b9171360044c7afc7f175d9444a212ba235c319d9f1ee7f5c88ef",
-        "size": 694635
+        "sha256": "1a31b81769a637b3ea857f264564bc1ed4a89767d4f8f6a8f517ced11aa1e798",
+        "size": 695249
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2975,6 +2975,11 @@
         "size": 5472
       },
       {
+        "path": "pages/decisions/license-simplification-alpha.md",
+        "sha256": "2ab05ab613ef9334b2b768d4df0ee905655127220b95cb9560e460efca963dca",
+        "size": 7046
+      },
+      {
         "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
         "sha256": "8e9ec5fa2596e9a48b96836914d6bfd93708467d38f8cb9ada8cf4c2fd7883c6",
         "size": 1593
@@ -3133,6 +3138,11 @@
         "path": "pages/projects/eu-backend-design.md",
         "sha256": "0fdbb7b92a41518235e58d71070a2f3e6098b1a6d8e2eaf65bfb429db45da07e",
         "size": 1170
+      },
+      {
+        "path": "pages/projects/eu-pfp-nfts.md",
+        "sha256": "9623caea47c9e67891a01a53f226d726237b812623184f9e568e2bd2a91062d7",
+        "size": 2363
       },
       {
         "path": "pages/projects/eu-website-releases-tasks.md",
@@ -3384,8 +3394,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T11:45:14Z",
-  "file_count": 675,
+  "exported_at": "2026-05-05T11:51:07Z",
+  "file_count": 677,
   "files": [
     {
       "path": ".usage.json",
@@ -6152,20 +6162,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "7503c50fb524797984bc3c3516d8041168adac9a4fe52d3bb3af1c7500676e6f",
+  "previous_tree_hash": "0f65f03c3c4bbd929484c4716439a7dff1a833f0ade82dff21927fae925d8020",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "0f65f03c3c4bbd929484c4716439a7dff1a833f0ade82dff21927fae925d8020",
+  "tree_hash": "ca6711c80350b17f67c48ea281bcc67e7ff59870afafd1d7c4e39eeb4ee0722c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 123,
+  "wiki_file_count": 125,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6179,8 +6189,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "adb9b236942b9171360044c7afc7f175d9444a212ba235c319d9f1ee7f5c88ef",
-      "size": 694635
+      "sha256": "1a31b81769a637b3ea857f264564bc1ed4a89767d4f8f6a8f517ced11aa1e798",
+      "size": 695249
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6378,6 +6388,11 @@
       "size": 5472
     },
     {
+      "path": "pages/decisions/license-simplification-alpha.md",
+      "sha256": "2ab05ab613ef9334b2b768d4df0ee905655127220b95cb9560e460efca963dca",
+      "size": 7046
+    },
+    {
       "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
       "sha256": "8e9ec5fa2596e9a48b96836914d6bfd93708467d38f8cb9ada8cf4c2fd7883c6",
       "size": 1593
@@ -6536,6 +6551,11 @@
       "path": "pages/projects/eu-backend-design.md",
       "sha256": "0fdbb7b92a41518235e58d71070a2f3e6098b1a6d8e2eaf65bfb429db45da07e",
       "size": 1170
+    },
+    {
+      "path": "pages/projects/eu-pfp-nfts.md",
+      "sha256": "9623caea47c9e67891a01a53f226d726237b812623184f9e568e2bd2a91062d7",
+      "size": 2363
     },
     {
       "path": "pages/projects/eu-website-releases-tasks.md",
@@ -6784,5 +6804,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "8c1d1a798a41b81abce4f007f4f7d3255f1cf3f2c4392fc81a02936e669587f7"
+  "wiki_tree_hash": "1e3875a2643d736c18c66ba85c525deaf80319cab397482c28cfe9aa764c6099"
 }
