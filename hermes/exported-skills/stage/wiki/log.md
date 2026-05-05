@@ -13719,3 +13719,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_341ce83e3285d820d0c60c997e2eb8a0
 - summary: A curated list of development resources covering editor tools with mentions and React chart libraries, categorized by scroll behavior.
 
+## [2026-05-05T11:00:44Z] synthesis | EU Protocol Procedures
+
+- status: published
+- slug: runbooks/eu-protocol-procedures
+- wiki_revision_id: wikirev_f97db4cd4c0b99e1b01bdfc0980ac4bd
+- summary: Procedures for the EU protocol covering registration, updates, interactions, and monitoring.
+
+## [2026-05-05T11:04:38Z] synthesis | Upload System
+
+- status: published
+- slug: systems/upload-system
+- wiki_revision_id: wikirev_57830e955cd137d1b03a5ccb07b6922d
+- summary: The upload system supports multiple scenarios (File, JSON, Batch files) and provides both manual and automated workflows. After uploading, a URI is returned, and the function uploa...
+

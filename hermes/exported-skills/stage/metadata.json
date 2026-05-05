@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "e808ad3cfcae924866b04ba7ea5b0b4e6069edba3d15ebd7e6b58d6676283803",
-        "size": 691564
+        "sha256": "bf7b509c37c3d5aeaef61518a8be8a624db414bd7c8ddbde26c91529f8981249",
+        "size": 692212
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3255,6 +3255,11 @@
         "size": 4910
       },
       {
+        "path": "pages/runbooks/eu-protocol-procedures.md",
+        "sha256": "8a320275ee7d58e0290f3e7a166f413683740af210f9219f016ef62877bd5ccb",
+        "size": 3640
+      },
+      {
         "path": "pages/runbooks/how-to-handle-smart-contract-update.md",
         "sha256": "286c161a9da18220b1399871159e088efafe6de7ebaf73e8d6ea7b223bc49a1f",
         "size": 1395
@@ -3338,14 +3343,19 @@
         "path": "pages/systems/story-protocol-orchestrator-gateway.md",
         "sha256": "0ce3a08f3c4ee85ee682fe7fc972397921f3018fcc2a470bca0459569b1b13e1",
         "size": 3026
+      },
+      {
+        "path": "pages/systems/upload-system.md",
+        "sha256": "26d2530e2c92acb0cb89dabf87d680fc1425af8a7b1e3c69e81b234a3a7b62c1",
+        "size": 3182
       }
     ]
   },
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T10:54:45Z",
-  "file_count": 667,
+  "exported_at": "2026-05-05T11:05:43Z",
+  "file_count": 669,
   "files": [
     {
       "path": ".usage.json",
@@ -6112,20 +6122,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "7bc623a6a0eaf54f89d827879894d280af201d5e515831eb118e704626248d65",
+  "previous_tree_hash": "455e14845c854168377691575022248bec35c1ed7ce49d253434f7c982eb1471",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "455e14845c854168377691575022248bec35c1ed7ce49d253434f7c982eb1471",
+  "tree_hash": "709cd4c96be767ea527a6fd8a5f2d00a9ea2d1e6777451a03d401ddfbef228ef",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 115,
+  "wiki_file_count": 117,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6139,8 +6149,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "e808ad3cfcae924866b04ba7ea5b0b4e6069edba3d15ebd7e6b58d6676283803",
-      "size": 691564
+      "sha256": "bf7b509c37c3d5aeaef61518a8be8a624db414bd7c8ddbde26c91529f8981249",
+      "size": 692212
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6618,6 +6628,11 @@
       "size": 4910
     },
     {
+      "path": "pages/runbooks/eu-protocol-procedures.md",
+      "sha256": "8a320275ee7d58e0290f3e7a166f413683740af210f9219f016ef62877bd5ccb",
+      "size": 3640
+    },
+    {
       "path": "pages/runbooks/how-to-handle-smart-contract-update.md",
       "sha256": "286c161a9da18220b1399871159e088efafe6de7ebaf73e8d6ea7b223bc49a1f",
       "size": 1395
@@ -6701,8 +6716,13 @@
       "path": "pages/systems/story-protocol-orchestrator-gateway.md",
       "sha256": "0ce3a08f3c4ee85ee682fe7fc972397921f3018fcc2a470bca0459569b1b13e1",
       "size": 3026
+    },
+    {
+      "path": "pages/systems/upload-system.md",
+      "sha256": "26d2530e2c92acb0cb89dabf87d680fc1425af8a7b1e3c69e81b234a3a7b62c1",
+      "size": 3182
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d4fba98d194f5a7263a91d08433addc5173f521d14a84cabaf328b1f16235ee0"
+  "wiki_tree_hash": "6fee555ffc0582ac8ad421f1a3d180a639fcac539b70e80e83bcda45147461ec"
 }
