@@ -1139,7 +1139,7 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	}
 	prompt := strings.Join(promptParts, "\n\n")
 	repo := firstNonEmpty(liveHints.Repo, cfg.DefaultRepo)
-	expectedOutputs := []string{"visible_reasoning", "final_answer", "produced_artifacts", "artifact_failure_reason"}
+	expectedOutputs := []string{"session_title", "visible_reasoning", "final_answer", "produced_artifacts", "artifact_failure_reason"}
 	return clients.RunnerTask{
 		TaskType:                  "workflow",
 		Repo:                      repo,
@@ -1204,7 +1204,8 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliv
 	if replyDeliveryMode == "direct" {
 		parts := []string{
 			"Return explicit visible reasoning only. Do not include hidden chain-of-thought.",
-			"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, reply_delivery, knowledge_drafts, outcome_hypotheses, produced_artifacts, and artifact_failure_reason.",
+			"Produce a JSON object with session_title, visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, reply_delivery, knowledge_drafts, outcome_hypotheses, produced_artifacts, and artifact_failure_reason.",
+			"Set session_title to a concise 3-8 word rewrite of the user's Slack question; preserve intent, omit @mentions and filler, and do not summarize your answer.",
 			"Treat DeliveryPolicy, WorkspacePolicy, and ApprovalPolicy as execution metadata; infrastructure permissions come from the runner environment.",
 			"You may use Hermes-native skills when they materially help satisfy the request.",
 		}
@@ -1220,7 +1221,8 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliv
 	}
 	parts := []string{
 		"Return explicit visible reasoning only. Do not include hidden chain-of-thought.",
-		"Produce a JSON object with visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, reply_delivery, knowledge_drafts, outcome_hypotheses, produced_artifacts, and artifact_failure_reason.",
+		"Produce a JSON object with session_title, visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, reply_delivery, knowledge_drafts, outcome_hypotheses, produced_artifacts, and artifact_failure_reason.",
+		"Set session_title to a concise 3-8 word rewrite of the user's Slack question; preserve intent, omit @mentions and filler, and do not summarize your answer.",
 		"Treat DeliveryPolicy, WorkspacePolicy, and ApprovalPolicy as execution metadata; infrastructure permissions come from the runner environment.",
 		"You may use Hermes-native skills when they materially help satisfy the request.",
 	}

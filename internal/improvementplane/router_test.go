@@ -745,6 +745,146 @@ func TestHermesCompatibilitySessionsExposeGroupingMetadata(t *testing.T) {
 	}
 }
 
+func TestHermesCompatibilitySessionTitlesKeepThreadRootStableAcrossFollowUps(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
+	rootTS := "171010000.000100"
+	threadKey := "slack:thread:CENG:" + rootTS
+	rootText := "@RSI can you review these PRs and flag risks?"
+	followUpText := "@RSI also think through the follow-up UX in this thread"
+
+	submitSlack := func(commandID string, ts string, threadTS string, text string) string {
+		t.Helper()
+		if _, err := store.SubmitCommand(transition.CommandEnvelope{
+			MachineKind: transition.MachineIngress,
+			AggregateID: "slack:" + ts,
+			CommandKind: string(transition.CommandIngressRecordSlack),
+			CommandID:   commandID,
+			Actor:       "tester",
+			OccurredAt:  time.Now().UTC(),
+			Payload: map[string]any{
+				"team_id":    "TENG",
+				"channel_id": "CENG",
+				"user_id":    "U123",
+				"thread_ts":  threadTS,
+				"ts":         ts,
+				"text":       text,
+			},
+		}); err != nil {
+			t.Fatalf("SubmitCommand(slack ingress) error = %v", err)
+		}
+		for _, ingestion := range store.ListIngestions() {
+			if ingestion.ThreadKey == threadKey && ingestion.ThreadTS == threadTS && ingestion.Text == text {
+				return ingestion.EventID
+			}
+		}
+		t.Fatalf("missing ingestion for %q", text)
+		return ""
+	}
+
+	traceForEvent := func(eventID string) events.Trace {
+		t.Helper()
+		for _, summary := range store.ListTraces() {
+			if summary.TriggerEventID == eventID {
+				trace, ok := store.GetTrace(summary.TraceID)
+				if !ok {
+					t.Fatalf("missing trace %s", summary.TraceID)
+				}
+				return trace
+			}
+		}
+		t.Fatalf("missing trace for event %s", eventID)
+		return events.Trace{}
+	}
+
+	projectTitle := func(trace events.Trace, title string) {
+		t.Helper()
+		now := time.Now().UTC()
+		if _, err := store.SubmitCommand(transition.CommandEnvelope{
+			MachineKind: transition.MachineProblemLine,
+			AggregateID: trace.Summary.TraceID,
+			CommandKind: string(transition.CommandProblemLineProjectTrace),
+			CommandID:   "cmd-project-title-" + trace.Summary.TraceID,
+			Actor:       "tester",
+			OccurredAt:  now,
+			Payload: map[string]any{
+				"trace_id": trace.Summary.TraceID,
+				"reasoning_steps": []events.ReasoningStep{{
+					ID:             "reason-session-title-" + trace.Summary.TraceID,
+					TraceID:        trace.Summary.TraceID,
+					WorkflowID:     trace.Summary.WorkflowID,
+					ConversationID: trace.Summary.ConversationID,
+					CaseID:         trace.Summary.CaseID,
+					StepType:       "session_title",
+					Summary:        title,
+					CreatedAt:      now,
+				}},
+			},
+		}); err != nil {
+			t.Fatalf("SubmitCommand(project title) error = %v", err)
+		}
+	}
+
+	rootEventID := submitSlack("cmd-slack-root-title", rootTS, rootTS, rootText)
+	rootTrace := traceForEvent(rootEventID)
+	projectTitle(rootTrace, "Review PR risks")
+	followUpEventID := submitSlack("cmd-slack-follow-up-title", "171010005.000200", rootTS, followUpText)
+	followUpTrace := traceForEvent(followUpEventID)
+	projectTitle(followUpTrace, "Plan follow-up thread UX")
+
+	req := httptest.NewRequest(http.MethodGet, "/api/sessions?limit=200", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("sessions status = %d body=%s", rec.Code, rec.Body.String())
+	}
+	var payload struct {
+		Sessions []struct {
+			ID              string `json:"id"`
+			Type            string `json:"type"`
+			Title           string `json:"title"`
+			OriginalTitle   string `json:"original_title"`
+			TitleIsSummary  bool   `json:"title_is_summary"`
+			ParentSessionID string `json:"parent_session_id"`
+		} `json:"sessions"`
+	}
+	if err := json.Unmarshal(rec.Body.Bytes(), &payload); err != nil {
+		t.Fatalf("decode sessions: %v", err)
+	}
+
+	var conversationSession, rootTraceSession, followUpTraceSession *struct {
+		ID              string `json:"id"`
+		Type            string `json:"type"`
+		Title           string `json:"title"`
+		OriginalTitle   string `json:"original_title"`
+		TitleIsSummary  bool   `json:"title_is_summary"`
+		ParentSessionID string `json:"parent_session_id"`
+	}
+	for i := range payload.Sessions {
+		session := &payload.Sessions[i]
+		switch session.ID {
+		case rootTrace.Summary.ConversationID:
+			conversationSession = session
+		case rootTrace.Summary.TraceID:
+			rootTraceSession = session
+		case followUpTrace.Summary.TraceID:
+			followUpTraceSession = session
+		}
+	}
+	if conversationSession == nil || rootTraceSession == nil || followUpTraceSession == nil {
+		t.Fatalf("missing expected sessions in %+v", payload.Sessions)
+	}
+	if conversationSession.Title != "Review PR risks" || conversationSession.OriginalTitle != rootText || !conversationSession.TitleIsSummary {
+		t.Fatalf("conversation title metadata = %+v", *conversationSession)
+	}
+	if rootTraceSession.Title != "Review PR risks" || followUpTraceSession.Title != "Plan follow-up thread UX" {
+		t.Fatalf("trace titles root=%+v follow_up=%+v", *rootTraceSession, *followUpTraceSession)
+	}
+	if followUpTraceSession.ParentSessionID != conversationSession.ID {
+		t.Fatalf("follow-up trace parent = %q, want %q", followUpTraceSession.ParentSessionID, conversationSession.ID)
+	}
+}
+
 func TestHermesCompatibilityLiveSessionsFollowRunnerExecutions(t *testing.T) {
 	cfg := config.Config{
 		PublicBaseURL:                   "http://example.test",

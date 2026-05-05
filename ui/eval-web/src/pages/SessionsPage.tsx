@@ -32,7 +32,7 @@ import type {
   SessionSearchResult,
   StatusResponse,
 } from "@/lib/api";
-import { timeAgo } from "@/lib/utils";
+import { cn, timeAgo } from "@/lib/utils";
 import { Markdown } from "@/components/Markdown";
 import { PlatformsCard } from "@/components/PlatformsCard";
 import { Button } from "@nous-research/ui/ui/components/button";
@@ -419,6 +419,71 @@ function MessageList({
   );
 }
 
+function AnimatedSessionTitle({
+  title,
+  tooltip,
+  className,
+}: {
+  title: string;
+  tooltip?: string;
+  className?: string;
+}) {
+  const stageRef = useRef<HTMLSpanElement | null>(null);
+  const currentRef = useRef<HTMLSpanElement | null>(null);
+  const previousTitleRef = useRef(title);
+
+  useLayoutEffect(() => {
+    const previousTitle = previousTitleRef.current;
+    if (previousTitle === title) return;
+    previousTitleRef.current = title;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    const stage = stageRef.current;
+    const current = currentRef.current;
+    if (!stage || !current) return;
+
+    const outgoing = document.createElement("span");
+    outgoing.textContent = previousTitle;
+    outgoing.setAttribute("aria-hidden", "true");
+    outgoing.className =
+      "session-title-exit pointer-events-none absolute inset-x-0 top-0 min-w-0 truncate";
+    stage.appendChild(outgoing);
+
+    current.classList.remove("session-title-enter");
+    void current.offsetWidth;
+    current.classList.add("session-title-enter");
+
+    const timer = window.setTimeout(() => {
+      outgoing.remove();
+      current.classList.remove("session-title-enter");
+    }, 1200);
+
+    return () => {
+      window.clearTimeout(timer);
+      outgoing.remove();
+      current.classList.remove("session-title-enter");
+    };
+  }, [title]);
+
+  return (
+    <span
+      ref={stageRef}
+      className={cn(
+        "session-title-stage relative grid min-w-0 overflow-hidden",
+        className,
+      )}
+      title={tooltip ?? title}
+    >
+      <span ref={currentRef} className="col-start-1 row-start-1 min-w-0 truncate">
+        {title}
+      </span>
+    </span>
+  );
+}
+
 function SessionTranscript({
   sessionId,
   searchQuery,
@@ -499,6 +564,11 @@ function SessionRow({
     : null) ?? { icon: Globe, color: "text-muted-foreground" };
   const SourceIcon = sourceInfo.icon;
   const hasTitle = session.title && session.title !== "Untitled";
+  const displayTitle = hasTitle
+    ? session.title!
+    : session.preview
+      ? session.preview.slice(0, 60)
+      : t.sessions.untitledSession;
 
   return (
     <div
@@ -518,15 +588,15 @@ function SessionRow({
           </div>
           <div className="flex flex-col gap-0.5 min-w-0 font-mono-ui normal-case tracking-normal">
             <div className="flex items-center gap-2">
-              <span
+              <AnimatedSessionTitle
+                title={displayTitle}
+                tooltip={
+                  session.title_is_summary && session.original_title
+                    ? session.original_title
+                    : displayTitle
+                }
                 className={`text-[0.8rem] truncate pr-2 ${hasTitle ? "font-medium" : "text-muted-foreground italic"}`}
-              >
-                {hasTitle
-                  ? session.title
-                  : session.preview
-                    ? session.preview.slice(0, 60)
-                    : t.sessions.untitledSession}
-              </span>
+              />
               {session.is_active && (
                 <Badge tone="success" className="text-[10px] shrink-0">
                   <span className="mr-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
@@ -604,6 +674,7 @@ function TraceAttemptRow({
   const { t } = useI18n();
   const traceKind = displayTraceKind(trace);
   const status = trace.status ?? trace.preview ?? "trace";
+  const traceTitle = trace.title?.trim() || traceKind;
 
   return (
     <div
@@ -623,9 +694,15 @@ function TraceAttemptRow({
           <GitBranch className="h-3.5 w-3.5 shrink-0 text-primary" />
           <div className="min-w-0 font-mono-ui normal-case tracking-normal">
             <div className="flex min-w-0 items-center gap-2">
-              <span className="truncate text-[0.76rem] font-medium text-foreground">
-                {traceKind}
-              </span>
+              <AnimatedSessionTitle
+                title={traceTitle}
+                tooltip={
+                  trace.title_is_summary && trace.original_title
+                    ? trace.original_title
+                    : traceTitle
+                }
+                className="text-[0.76rem] font-medium text-foreground"
+              />
               {trace.is_active && (
                 <Badge tone="success" className="text-[9px] shrink-0">
                   <span className="mr-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
@@ -634,6 +711,8 @@ function TraceAttemptRow({
               )}
             </div>
             <div className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[0.68rem] text-muted-foreground">
+              <span className="truncate max-w-[8rem]">{traceKind}</span>
+              <span className="text-border">&#183;</span>
               <span className="truncate max-w-[12rem]">
                 {shortID(trace.trace_id ?? trace.id)}
               </span>
@@ -693,6 +772,11 @@ function SessionGroupRow({
     : null) ?? { icon: Globe, color: "text-muted-foreground" };
   const SourceIcon = sourceInfo.icon;
   const hasTitle = conversation.title && conversation.title !== "Untitled";
+  const displayTitle = hasTitle
+    ? conversation.title!
+    : conversation.preview
+      ? conversation.preview.slice(0, 60)
+      : t.sessions.untitledSession;
   const isGroupExpanded =
     expandedId === conversation.id ||
     traces.some((trace) => trace.id === expandedId);
@@ -719,15 +803,15 @@ function SessionGroupRow({
           </div>
           <div className="flex min-w-0 flex-col gap-0.5 font-mono-ui normal-case tracking-normal">
             <div className="flex min-w-0 items-center gap-2">
-              <span
+              <AnimatedSessionTitle
+                title={displayTitle}
+                tooltip={
+                  conversation.title_is_summary && conversation.original_title
+                    ? conversation.original_title
+                    : displayTitle
+                }
                 className={`truncate pr-2 text-[0.8rem] ${hasTitle ? "font-medium" : "text-muted-foreground italic"}`}
-              >
-                {hasTitle
-                  ? conversation.title
-                  : conversation.preview
-                    ? conversation.preview.slice(0, 60)
-                    : t.sessions.untitledSession}
-              </span>
+              />
               {groupActive && (
                 <Badge tone="success" className="text-[10px] shrink-0">
                   <span className="mr-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
@@ -1016,20 +1100,39 @@ export default function SessionsPage() {
     total,
   ]);
 
-  const loadSessions = useCallback((p: number) => {
-    setLoading(true);
+  const loadSessions = useCallback((p: number, showLoading = true, signal?: AbortSignal) => {
+    if (showLoading) {
+      setLoading(true);
+    }
     api
-      .getSessions(PAGE_SIZE, p * PAGE_SIZE)
+      .getSessions(PAGE_SIZE, p * PAGE_SIZE, signal)
       .then((resp) => {
+        if (signal?.aborted) return;
         setSessions(resp.sessions);
         setTotal(resp.total);
       })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .catch((err) => {
+        if (err?.name !== 'AbortError') {
+          // Silently ignore non-abort errors
+        }
+      })
+      .finally(() => {
+        if (signal?.aborted) return;
+        if (showLoading) {
+          setLoading(false);
+        }
+      });
   }, []);
 
   useEffect(() => {
-    loadSessions(page);
+    const abortController = new AbortController();
+    const initialLoadId = window.setTimeout(() => loadSessions(page, true, abortController.signal), 0);
+    const intervalId = window.setInterval(() => loadSessions(page, false, abortController.signal), 5000);
+    return () => {
+      abortController.abort();
+      window.clearTimeout(initialLoadId);
+      window.clearInterval(intervalId);
+    };
   }, [loadSessions, page]);
 
   useEffect(() => {
@@ -1037,10 +1140,19 @@ export default function SessionsPage() {
       setTargetSession(null);
       return;
     }
-    setExpandedId(targetSessionId);
     const existing = sessions.find((session) => session.id === targetSessionId);
     if (existing) {
       setTargetSession(existing);
+    }
+  }, [targetSessionId]);
+
+  useEffect(() => {
+    if (!targetSessionId) {
+      return;
+    }
+    setExpandedId(targetSessionId);
+    const existing = sessions.find((session) => session.id === targetSessionId);
+    if (existing) {
       return;
     }
     let cancelled = false;
@@ -1055,7 +1167,7 @@ export default function SessionsPage() {
     return () => {
       cancelled = true;
     };
-  }, [sessions, targetSessionId]);
+  }, [targetSessionId]);
 
   const relatedParentSessionId = useMemo(() => {
     if (targetConversationId) return targetConversationId;
@@ -1064,6 +1176,19 @@ export default function SessionsPage() {
     }
     return null;
   }, [targetConversationId, targetSession]);
+
+  useEffect(() => {
+    if (!relatedParentSessionId || relatedParentSessionId === targetSessionId) {
+      setTargetParentSession(null);
+      return;
+    }
+    const existing = sessions.find(
+      (session) => session.id === relatedParentSessionId,
+    );
+    if (existing) {
+      setTargetParentSession(existing);
+    }
+  }, [relatedParentSessionId, targetSessionId]);
 
   useEffect(() => {
     if (!relatedParentSessionId || relatedParentSessionId === targetSessionId) {
@@ -1087,7 +1212,7 @@ export default function SessionsPage() {
     return () => {
       cancelled = true;
     };
-  }, [relatedParentSessionId, sessions, targetSessionId]);
+  }, [relatedParentSessionId, targetSessionId]);
 
   useEffect(() => {
     const loadOverview = () => {
@@ -1113,23 +1238,31 @@ export default function SessionsPage() {
   // Debounced FTS search
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
+    const query = search.trim();
+    let cancelled = false;
 
-    if (!search.trim()) {
-      setSearchResults(null);
-      setSearching(false);
-      return;
-    }
-
-    setSearching(true);
     debounceRef.current = setTimeout(() => {
+      if (!query) {
+        setSearchResults(null);
+        setSearching(false);
+        return;
+      }
+      setSearching(true);
       api
-        .searchSessions(search.trim())
-        .then((resp) => setSearchResults(resp.results))
-        .catch(() => setSearchResults(null))
-        .finally(() => setSearching(false));
-    }, 300);
+        .searchSessions(query)
+        .then((resp) => {
+          if (!cancelled) setSearchResults(resp.results);
+        })
+        .catch(() => {
+          if (!cancelled) setSearchResults(null);
+        })
+        .finally(() => {
+          if (!cancelled) setSearching(false);
+        });
+    }, query ? 300 : 0);
 
     return () => {
+      cancelled = true;
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, [search]);
@@ -1150,10 +1283,13 @@ export default function SessionsPage() {
     for (const session of sessions) {
       byID.set(session.id, session);
     }
-    if (targetSession) byID.set(targetSession.id, targetSession);
+    if (targetSession && !byID.has(targetSession.id)) {
+      byID.set(targetSession.id, targetSession);
+    }
     if (
       targetParentSession &&
-      targetParentSession.id === relatedParentSessionId
+      targetParentSession.id === relatedParentSessionId &&
+      !byID.has(targetParentSession.id)
     ) {
       byID.set(targetParentSession.id, targetParentSession);
     }
@@ -1330,9 +1466,15 @@ export default function SessionsPage() {
                 className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border border-border p-3 w-full"
               >
                 <div className="flex flex-col gap-1 min-w-0 w-full font-mono-ui normal-case tracking-normal">
-                  <span className="font-medium text-[0.8rem] truncate">
-                    {s.title ?? t.common.untitled}
-                  </span>
+                  <AnimatedSessionTitle
+                    title={s.title ?? t.common.untitled}
+                    tooltip={
+                      s.title_is_summary && s.original_title
+                        ? s.original_title
+                        : (s.title ?? t.common.untitled)
+                    }
+                    className="font-medium text-[0.8rem]"
+                  />
 
                   <span className="text-[0.72rem] text-muted-foreground truncate">
                     <span>{displaySource(s.source)}</span> · {s.message_count}{" "}

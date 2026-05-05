@@ -694,6 +694,7 @@ def _normalize_artifact_render_briefs(value: JsonValue | None) -> list[JsonObjec
 
 def _normalize_structured_output(payload: JsonObject) -> JsonObject:
     normalized = dict(payload)
+    normalized["session_title"] = _string_or_json(payload.get("session_title"))
     normalized["context_summary"] = _string_or_json(payload.get("context_summary"))
     normalized["reply_draft"] = _string_or_json(payload.get("reply_draft"))
     normalized["final_answer"] = _string_or_json(payload.get("final_answer"))
@@ -733,6 +734,7 @@ def _unwrap_json_code_fence(text: str) -> str:
 
 
 STRUCTURED_OUTPUT_CANDIDATE_KEYS = {
+    "session_title",
     "reply_draft",
     "final_answer",
     "proposed_actions",
@@ -5434,7 +5436,8 @@ class HermesRuntime:
                 "You finalize bounded-stop RSI Slack reply workflows.",
                 "Use only the supplied evidence ledger.",
                 "Do not call tools. Do not invent evidence. Do not speculate beyond the ledger.",
-                "Return only one JSON object with keys: visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, outcome_hypotheses, produced_artifacts, artifact_failure_reason, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta.",
+                "Return only one JSON object with keys: session_title, visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, knowledge_drafts, outcome_hypotheses, produced_artifacts, artifact_failure_reason, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta.",
+                "Set session_title to a concise 3-8 word rewrite of the user's Slack question; preserve intent, omit @mentions and filler, and do not summarize your answer.",
                 "Produce a grounded best-effort partial reply when the evidence supports one.",
                 "If the evidence is incomplete, say so explicitly in final_answer and self_critique instead of guessing.",
                 "Keep visible_reasoning concise and grounded in the supplied ledger.",
@@ -7139,7 +7142,10 @@ class HermesRuntime:
             )
         else:
             parts.append(
-                "Return a JSON object with keys: visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, reply_delivery, knowledge_drafts, outcome_hypotheses, produced_artifacts, artifact_failure_reason, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta."
+                "Return a JSON object with keys: session_title, visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, reply_delivery, knowledge_drafts, outcome_hypotheses, produced_artifacts, artifact_failure_reason, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta."
+            )
+            parts.append(
+                "Set session_title to a concise 3-8 word rewrite of the user's Slack question; preserve intent, omit @mentions and filler, and do not summarize your answer."
             )
             parts.append(
                 "Each proposed action must include: kind, target_ref, request_payload, approval_mode, idempotency_key, rationale, evidence_refs."

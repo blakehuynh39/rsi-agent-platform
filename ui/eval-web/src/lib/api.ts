@@ -20,8 +20,8 @@ export async function fetchJSON<T>(url: string, init?: RequestInit): Promise<T> 
 
 export const api = {
   getStatus: () => fetchJSON<StatusResponse>("/api/status"),
-  getSessions: (limit = 20, offset = 0) =>
-    fetchJSON<PaginatedSessions>(`/api/sessions?limit=${limit}&offset=${offset}`),
+  getSessions: (limit = 20, offset = 0, signal?: AbortSignal) =>
+    fetchJSON<PaginatedSessions>(`/api/sessions?limit=${limit}&offset=${offset}`, { signal }),
   getSession: (id: string) =>
     fetchJSON<SessionInfo>(`/api/sessions/${encodeURIComponent(id)}`),
   getSessionMessages: (id: string) =>
@@ -346,6 +346,8 @@ export interface SessionInfo {
   source: string | null;
   model: string | null;
   title: string | null;
+  original_title?: string | null;
+  title_is_summary?: boolean;
   started_at: number;
   ended_at: number | null;
   last_active: number;

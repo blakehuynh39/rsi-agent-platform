@@ -280,6 +280,8 @@ type hermesSessionInfo struct {
 	Source          string  `json:"source"`
 	Model           string  `json:"model"`
 	Title           string  `json:"title"`
+	OriginalTitle   string  `json:"original_title,omitempty"`
+	TitleIsSummary  bool    `json:"title_is_summary,omitempty"`
 	StartedAt       int64   `json:"started_at"`
 	EndedAt         *int64  `json:"ended_at"`
 	LastActive      int64   `json:"last_active"`
@@ -369,13 +371,34 @@ func buildHermesStatus(cfg config.Config, store storepkg.Repository) map[string]
 func buildHermesSessions(cfg config.Config, store storepkg.Repository) []hermesSessionInfo {
 	items := []hermesSessionInfo{}
 	live := buildHermesLiveSessionIndex(cfg, store)
+	traces := store.ListTraces()
 	traceCountByConversation := map[string]int{}
-	for _, trace := range store.ListTraces() {
+	for _, trace := range traces {
 		if trace.ConversationID != "" {
 			traceCountByConversation[trace.ConversationID]++
 		}
 	}
-	for _, conv := range buildConversationList(store) {
+	titleCache := buildTitleCache(store, traces)
+	
+	// Build conversation list data with shared cache
+	conversations := store.ListConversations()
+	proposals := normalizeProposals(store.ListProposals())
+	latestEvalByTrace := latestEvalRunByTrace(store.ListEvalRuns())
+	traceSummaries := buildTraceSummaries(traces, latestEvalByTrace, nil, nil)
+	tracesByConversation := map[string][]traceAttemptSummary{}
+	for _, item := range traceSummaries {
+		tracesByConversation[item.ConversationID] = append(tracesByConversation[item.ConversationID], item)
+	}
+	proposalsByConversation := map[string]int{}
+	for _, proposal := range proposals {
+		if proposal.ConversationID != "" {
+			proposalsByConversation[proposal.ConversationID]++
+		}
+	}
+	caseIndex := buildCaseSummaryIndex(store, traces, proposals)
+	conversationList := buildConversationListWithCache(store, conversations, tracesByConversation, proposalsByConversation, caseIndex, titleCache)
+	
+	for _, conv := range conversationList {
 		entries := store.ListConversationEntries(conv.ConversationID)
 		preview := lastConversationPreview(entries, conv.ActiveCase)
 		isLive := live.conversations[conv.ConversationID]
@@ -389,6 +412,8 @@ func buildHermesSessions(cfg config.Config, store storepkg.Repository) []hermesS
 			Source:         firstNonEmptyString(conv.Source, "conversation"),
 			Model:          "rsi-platform",
 			Title:          firstNonEmptyString(conv.Title, conv.ConversationID),
+			OriginalTitle:  conv.OriginalTitle,
+			TitleIsSummary: conv.TitleIsSummary,
 			StartedAt:      unixSeconds(conv.CreatedAt),
 			EndedAt:        endedAt,
 			LastActive:     unixSeconds(conv.LatestMessageAt),
@@ -406,22 +431,21 @@ func buildHermesSessions(cfg config.Config, store storepkg.Repository) []hermesS
 			ProposalCount:  conv.ProposalCount,
 		})
 	}
-	for _, trace := range store.ListTraces() {
+	for _, trace := range traces {
 		last := trace.EndedAt
 		if last.IsZero() {
 			last = trace.StartedAt
 		}
-		title := fmt.Sprintf("Trace %s", trace.TraceID)
-		if trace.WorkflowKind != "" {
-			title = fmt.Sprintf("%s trace %s", trace.WorkflowKind, trace.TraceID)
-		}
+		title := traceTitleForDisplayWithCache(store, trace, titleCache)
 		preview := stringPtr(firstNonEmptyString(trace.LastVerdict, string(trace.Status)))
 		items = append(items, hermesSessionInfo{
 			ID:              trace.TraceID,
 			Type:            "trace",
 			Source:          "trace",
 			Model:           firstNonEmptyString(trace.WorkflowKind, "rsi-trace"),
-			Title:           title,
+			Title:           firstNonEmptyString(title.Title, fmt.Sprintf("Trace %s", trace.TraceID)),
+			OriginalTitle:   title.OriginalTitle,
+			TitleIsSummary:  title.IsSummary,
 			StartedAt:       unixSeconds(trace.StartedAt),
 			EndedAt:         unixPtrIfSet(trace.EndedAt),
 			LastActive:      unixSeconds(last),
@@ -478,12 +502,15 @@ func buildHermesSession(cfg config.Config, store storepkg.Repository, sessionID 
 			}
 		}
 		proposals := storeProposalsByConversation(store, conv.ID)
+		title := conversationTitleForDisplay(store, conv)
 		return hermesSessionInfo{
 			ID:             conv.ID,
 			Type:           "conversation",
 			Source:         firstNonEmptyString(string(conv.Source), "conversation"),
 			Model:          "rsi-platform",
-			Title:          firstNonEmptyString(conv.Title, conv.ID),
+			Title:          firstNonEmptyString(title.Title, conv.ID),
+			OriginalTitle:  title.OriginalTitle,
+			TitleIsSummary: title.IsSummary,
 			StartedAt:      unixSeconds(conv.CreatedAt),
 			EndedAt:        endedAt,
 			LastActive:     unixSeconds(latestMessageAt),
@@ -507,17 +534,16 @@ func buildHermesSession(cfg config.Config, store storepkg.Repository, sessionID 
 		if last.IsZero() {
 			last = summary.StartedAt
 		}
-		title := fmt.Sprintf("Trace %s", summary.TraceID)
-		if summary.WorkflowKind != "" {
-			title = fmt.Sprintf("%s trace %s", summary.WorkflowKind, summary.TraceID)
-		}
+		title := traceTitleForDisplay(store, summary)
 		preview := stringPtr(firstNonEmptyString(summary.LastVerdict, string(summary.Status)))
 		return hermesSessionInfo{
 			ID:              summary.TraceID,
 			Type:            "trace",
 			Source:          "trace",
 			Model:           firstNonEmptyString(summary.WorkflowKind, "rsi-trace"),
-			Title:           title,
+			Title:           firstNonEmptyString(title.Title, fmt.Sprintf("Trace %s", summary.TraceID)),
+			OriginalTitle:   title.OriginalTitle,
+			TitleIsSummary:  title.IsSummary,
 			StartedAt:       unixSeconds(summary.StartedAt),
 			EndedAt:         unixPtrIfSet(summary.EndedAt),
 			LastActive:      unixSeconds(last),
@@ -611,6 +637,7 @@ func searchHermesSessions(cfg config.Config, store storepkg.Repository, query st
 			session.Source,
 			session.Model,
 			session.Title,
+			session.OriginalTitle,
 			stringValueFromPtr(session.Preview),
 		}, " "))
 		if !strings.Contains(haystack, query) {

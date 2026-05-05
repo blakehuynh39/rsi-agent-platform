@@ -13,6 +13,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
+	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
@@ -120,6 +121,8 @@ type conversationListItem struct {
 	Source             string       `json:"source"`
 	ExternalKey        string       `json:"external_key"`
 	Title              string       `json:"title"`
+	OriginalTitle      string       `json:"original_title,omitempty"`
+	TitleIsSummary     bool         `json:"title_is_summary,omitempty"`
 	Status             string       `json:"status"`
 	ActiveCase         *caseSummary `json:"active_case,omitempty"`
 	CreatedAt          time.Time    `json:"created_at"`
@@ -145,6 +148,242 @@ type conversationDetailResponse struct {
 	KnowledgeEntries  []knowledge.Entry              `json:"knowledge_entries"`
 	LinkedProposals   []review.Proposal              `json:"linked_proposals"`
 	TranscriptPage    *transcriptPageSummary         `json:"transcript_page,omitempty"`
+}
+
+type displayTitle struct {
+	Title         string
+	OriginalTitle string
+	IsSummary     bool
+}
+
+type sessionTitleCandidate struct {
+	startedAt time.Time
+	traceID   string
+}
+
+type titleCache struct {
+	tracesByConversation map[string][]events.TraceSummary
+	eventsByID           map[string]ingestion.EventEnvelope
+	tracesByID           map[string]events.Trace
+}
+
+const sessionTitleReasoningStepType = "session_title"
+
+func buildTitleCache(store storepkg.Repository, traces []events.TraceSummary) titleCache {
+	cache := titleCache{
+		tracesByConversation: make(map[string][]events.TraceSummary),
+		eventsByID:           make(map[string]ingestion.EventEnvelope),
+		tracesByID:           make(map[string]events.Trace),
+	}
+	for _, trace := range traces {
+		if trace.ConversationID != "" {
+			cache.tracesByConversation[trace.ConversationID] = append(cache.tracesByConversation[trace.ConversationID], trace)
+		}
+	}
+	for _, event := range store.ListEvents() {
+		if event.ID != "" {
+			cache.eventsByID[strings.TrimSpace(event.ID)] = event
+		}
+	}
+	return cache
+}
+
+func conversationTitleForDisplay(store storepkg.Repository, item conversation.Conversation) displayTitle {
+	rawTitle := firstNonEmptyString(item.Title, item.ExternalKey, item.ID)
+	original := normalizeOriginalTitle(rawTitle)
+	if summary, ok := firstConversationSessionSummaryTitle(store, item.ID); ok {
+		return displayTitle{
+			Title:         summary,
+			OriginalTitle: original,
+			IsSummary:     summary != original,
+		}
+	}
+	normalized := normalizeDisplayTitle(rawTitle)
+	return displayTitle{Title: normalized, OriginalTitle: original}
+}
+
+func conversationTitleForDisplayWithCache(store storepkg.Repository, item conversation.Conversation, cache titleCache) displayTitle {
+	rawTitle := firstNonEmptyString(item.Title, item.ExternalKey, item.ID)
+	original := normalizeOriginalTitle(rawTitle)
+	if summary, ok := firstConversationSessionSummaryTitleWithCache(store, item.ID, cache); ok {
+		return displayTitle{
+			Title:         summary,
+			OriginalTitle: original,
+			IsSummary:     summary != original,
+		}
+	}
+	normalized := normalizeDisplayTitle(rawTitle)
+	return displayTitle{Title: normalized, OriginalTitle: original}
+}
+
+func traceTitleForDisplay(store storepkg.Repository, summary events.TraceSummary) displayTitle {
+	rawTitle := traceTriggerTitle(store, summary)
+	if rawTitle == "" {
+		rawTitle = firstNonEmptyString(summary.WorkflowKind, summary.TraceID)
+	}
+	original := normalizeOriginalTitle(rawTitle)
+	if trace, ok := store.GetTrace(summary.TraceID); ok {
+		if title, ok := traceSessionSummaryTitle(trace); ok {
+			return displayTitle{
+				Title:         title,
+				OriginalTitle: original,
+				IsSummary:     title != original,
+			}
+		}
+	}
+	normalized := normalizeDisplayTitle(rawTitle)
+	return displayTitle{Title: normalized, OriginalTitle: original}
+}
+
+func traceTitleForDisplayWithCache(store storepkg.Repository, summary events.TraceSummary, cache titleCache) displayTitle {
+	rawTitle := traceTriggerTitleWithCache(summary, cache)
+	if rawTitle == "" {
+		rawTitle = firstNonEmptyString(summary.WorkflowKind, summary.TraceID)
+	}
+	original := normalizeOriginalTitle(rawTitle)
+	trace, ok := cache.tracesByID[summary.TraceID]
+	if !ok {
+		trace, ok = store.GetTrace(summary.TraceID)
+		if !ok {
+			normalized := normalizeDisplayTitle(rawTitle)
+			return displayTitle{Title: normalized, OriginalTitle: original}
+		}
+		cache.tracesByID[summary.TraceID] = trace
+	}
+	if title, ok := traceSessionSummaryTitle(trace); ok {
+		return displayTitle{
+			Title:         title,
+			OriginalTitle: original,
+			IsSummary:     title != original,
+		}
+	}
+	normalized := normalizeDisplayTitle(rawTitle)
+	return displayTitle{Title: normalized, OriginalTitle: original}
+}
+
+func firstConversationSessionSummaryTitle(store storepkg.Repository, conversationID string) (string, bool) {
+	var best sessionTitleCandidate
+	for _, summary := range store.ListTraces() {
+		if strings.TrimSpace(summary.ConversationID) != strings.TrimSpace(conversationID) {
+			continue
+		}
+		next := sessionTitleCandidate{
+			startedAt: summary.StartedAt,
+			traceID:   summary.TraceID,
+		}
+		if best.traceID == "" || sessionTitleCandidateBefore(next, best) {
+			best = next
+		}
+	}
+	if best.traceID == "" {
+		return "", false
+	}
+	trace, ok := store.GetTrace(best.traceID)
+	if !ok {
+		return "", false
+	}
+	title, _, ok := traceSessionSummaryTitleCandidate(trace)
+	return title, ok
+}
+
+func firstConversationSessionSummaryTitleWithCache(store storepkg.Repository, conversationID string, cache titleCache) (string, bool) {
+	var best sessionTitleCandidate
+	conversationID = strings.TrimSpace(conversationID)
+	for _, summary := range cache.tracesByConversation[conversationID] {
+		next := sessionTitleCandidate{
+			startedAt: summary.StartedAt,
+			traceID:   summary.TraceID,
+		}
+		if best.traceID == "" || sessionTitleCandidateBefore(next, best) {
+			best = next
+		}
+	}
+	if best.traceID == "" {
+		return "", false
+	}
+	trace, ok := cache.tracesByID[best.traceID]
+	if !ok {
+		trace, ok = store.GetTrace(best.traceID)
+		if !ok {
+			return "", false
+		}
+		cache.tracesByID[best.traceID] = trace
+	}
+	title, _, ok := traceSessionSummaryTitleCandidate(trace)
+	return title, ok
+}
+
+func traceSessionSummaryTitle(trace events.Trace) (string, bool) {
+	title, _, ok := traceSessionSummaryTitleCandidate(trace)
+	return title, ok
+}
+
+func traceSessionSummaryTitleCandidate(trace events.Trace) (string, time.Time, bool) {
+	title := ""
+	createdAt := time.Time{}
+	selectedID := ""
+	for _, step := range trace.Reasoning {
+		if !strings.EqualFold(strings.TrimSpace(step.StepType), sessionTitleReasoningStepType) {
+			continue
+		}
+		candidate := normalizeDisplayTitle(firstNonEmptyString(step.Summary, step.Decision))
+		if candidate == "" {
+			continue
+		}
+		if title == "" || step.CreatedAt.After(createdAt) || (step.CreatedAt.Equal(createdAt) && step.ID > selectedID) {
+			title = candidate
+			createdAt = step.CreatedAt
+			selectedID = step.ID
+		}
+	}
+	return title, createdAt, title != ""
+}
+
+func sessionTitleCandidateBefore(a sessionTitleCandidate, b sessionTitleCandidate) bool {
+	if !a.startedAt.Equal(b.startedAt) {
+		return a.startedAt.Before(b.startedAt)
+	}
+	return a.traceID < b.traceID
+}
+
+func traceTriggerTitle(store storepkg.Repository, summary events.TraceSummary) string {
+	triggerID := strings.TrimSpace(summary.TriggerEventID)
+	if triggerID == "" {
+		return ""
+	}
+	for _, event := range store.ListEvents() {
+		if strings.TrimSpace(event.ID) == triggerID {
+			return event.NormalizedProblemStatement
+		}
+	}
+	return ""
+}
+
+func traceTriggerTitleWithCache(summary events.TraceSummary, cache titleCache) string {
+	triggerID := strings.TrimSpace(summary.TriggerEventID)
+	if triggerID == "" {
+		return ""
+	}
+	if event, ok := cache.eventsByID[triggerID]; ok {
+		return event.NormalizedProblemStatement
+	}
+	return ""
+}
+
+func normalizeDisplayTitle(value string) string {
+	value = strings.Trim(strings.TrimSpace(value), "\"'`")
+	if value == "" {
+		return ""
+	}
+	return conversation.NormalizeTitle("", strings.Join(strings.Fields(value), " "))
+}
+
+func normalizeOriginalTitle(value string) string {
+	value = strings.Trim(strings.TrimSpace(value), "\"'`")
+	if value == "" {
+		return ""
+	}
+	return strings.Join(strings.Fields(value), " ")
 }
 
 type conversationSelfReviewCadence struct {
@@ -394,6 +633,18 @@ func buildConversationList(store storepkg.Repository) []conversationListItem {
 		}
 	}
 	caseIndex := buildCaseSummaryIndex(store, traces, proposals)
+	titleCache := buildTitleCache(store, traces)
+	return buildConversationListWithCache(store, conversations, tracesByConversation, proposalsByConversation, caseIndex, titleCache)
+}
+
+func buildConversationListWithCache(
+	store storepkg.Repository,
+	conversations []conversation.Conversation,
+	tracesByConversation map[string][]traceAttemptSummary,
+	proposalsByConversation map[string]int,
+	caseIndex map[string]*caseSummary,
+	cache titleCache,
+) []conversationListItem {
 	out := make([]conversationListItem, 0, len(conversations))
 	for _, item := range conversations {
 		tracesForConversation := tracesByConversation[item.ID]
@@ -412,11 +663,14 @@ func buildConversationList(store storepkg.Repository) []conversationListItem {
 				openTraceCount++
 			}
 		}
+		title := conversationTitleForDisplayWithCache(store, item, cache)
 		out = append(out, conversationListItem{
 			ConversationID:     item.ID,
 			Source:             string(item.Source),
 			ExternalKey:        item.ExternalKey,
-			Title:              firstNonEmptyString(item.Title, item.ExternalKey),
+			Title:              title.Title,
+			OriginalTitle:      title.OriginalTitle,
+			TitleIsSummary:     title.IsSummary,
 			Status:             string(item.Status),
 			ActiveCase:         activeCase,
 			CreatedAt:          item.CreatedAt,

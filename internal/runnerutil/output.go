@@ -113,6 +113,7 @@ type RetryAssessment struct {
 }
 
 type StructuredOutput struct {
+	SessionTitle          string                `json:"session_title,omitempty"`
 	ContextSummary        string                `json:"context_summary"`
 	ReplyDraft            string                `json:"reply_draft"`
 	FinalAnswer           string                `json:"final_answer"`
@@ -345,7 +346,19 @@ func ParseRuntimeDiagnosisOutput(resp clients.RunnerResponse) (RuntimeDiagnosisO
 }
 
 func ToTraceReasoning(traceID string, workflowID string, output StructuredOutput, createdAt time.Time) []events.ReasoningStep {
-	out := make([]events.ReasoningStep, 0, len(output.VisibleReasoning))
+	out := make([]events.ReasoningStep, 0, len(output.VisibleReasoning)+1)
+	if title := strings.TrimSpace(output.SessionTitle); title != "" {
+		out = append(out, events.ReasoningStep{
+			ID:         fmt.Sprintf("reason-session-title-%d", createdAt.UnixNano()),
+			TraceID:    traceID,
+			WorkflowID: workflowID,
+			StepType:   "session_title",
+			Summary:    title,
+			Confidence: output.Confidence,
+			Decision:   "set_session_title",
+			CreatedAt:  createdAt,
+		})
+	}
 	for index, step := range output.VisibleReasoning {
 		stepType := strings.TrimSpace(step.StepType)
 		if stepType == "" {

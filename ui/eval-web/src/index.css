@@ -191,6 +191,36 @@ code { font-size: 0.875rem; }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* Session titles start as the raw Slack ask, then crossfade to the
+   runner-supplied short title once the run completes. */
+@keyframes session-title-enter {
+  from { opacity: 0; transform: translateY(0.45em); filter: blur(2px); }
+  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+@keyframes session-title-exit {
+  from { opacity: 1; transform: translateY(0); filter: blur(0); }
+  to   { opacity: 0; transform: translateY(-0.45em); filter: blur(2px); }
+}
+.session-title-stage {
+  line-height: 1.25;
+}
+.session-title-enter {
+  animation: session-title-enter 1100ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.session-title-exit {
+  animation: session-title-exit 1100ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .session-title-enter,
+  .session-title-exit {
+    animation: none;
+  }
+  .session-title-exit {
+    display: none;
+  }
+}
+
 /* Hide scrollbar utility — used by the header's overflow-x nav row. */
 .scrollbar-none {
   -ms-overflow-style: none;

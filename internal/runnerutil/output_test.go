@@ -59,6 +59,29 @@ func TestParseStructuredOutputPrefersExecutionEnvelope(t *testing.T) {
 	}
 }
 
+func TestStructuredOutputSessionTitleProjectsReasoningStep(t *testing.T) {
+	createdAt := time.Now().UTC()
+	steps := ToTraceReasoning("trace-1", "wf-1", StructuredOutput{
+		SessionTitle: "Review PR risks",
+		Confidence:   0.82,
+		VisibleReasoning: []Step{{
+			StepType:   "analysis",
+			Summary:    "Checked the requested PRs.",
+			Confidence: 0.7,
+		}},
+	}, createdAt)
+
+	if len(steps) != 2 {
+		t.Fatalf("ToTraceReasoning() produced %d steps, want 2", len(steps))
+	}
+	if steps[0].StepType != "session_title" || steps[0].Summary != "Review PR risks" {
+		t.Fatalf("session title step = %+v", steps[0])
+	}
+	if steps[1].StepType != "analysis" {
+		t.Fatalf("visible reasoning step = %+v", steps[1])
+	}
+}
+
 func TestParseExecutionEnvelopeRejectsMissingContractVersion(t *testing.T) {
 	_, ok, err := ParseExecutionEnvelope(clients.RunnerResponse{
 		Raw: map[string]any{
