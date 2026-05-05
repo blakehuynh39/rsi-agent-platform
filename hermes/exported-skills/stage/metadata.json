@@ -2771,13 +2771,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0a2b6125d33649859e01d6cdb2890fbe8ca656d6999990c4efd805fea09ef6ca",
-        "size": 249726
+        "sha256": "27ee1cf4d750650c4627a460aefd65284333b7faa6903b239c8ba51278d0aaed",
+        "size": 300676
       },
       {
         "path": "log.md",
-        "sha256": "fd4db1f1a2ea571d092f7899f0882ac1d3196e9543d476df49eebe2a9c2ef0cd",
-        "size": 486886
+        "sha256": "86a3ae98d38e432013a5d9838a27855b3d2d0d5511d4756bbcea7323d10d6527",
+        "size": 561076
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3080,6 +3080,11 @@
         "size": 2863
       },
       {
+        "path": "pages/runbooks/runbook-maintain-and-recover-aws-eks.md",
+        "sha256": "4d6c4c099e01d768429e2c193c341b551783ed4322a6ded426c56e0faaf6b2f5",
+        "size": 1280
+      },
+      {
         "path": "pages/runbooks/track-nft-purchases-ethereum.md",
         "sha256": "c1593f782aa6bd2d66cb239d497f64c7c98edc370521b5abdfa12d960e93580a",
         "size": 3685
@@ -3124,8 +3129,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T06:34:33Z",
-  "file_count": 623,
+  "exported_at": "2026-05-05T06:40:18Z",
+  "file_count": 624,
   "files": [
     {
       "path": ".usage.json",
@@ -5892,20 +5897,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "d8f04a88ae0994e04669476336fca0186781cc6eefc284e65b3520f7be73ea7d",
+  "previous_tree_hash": "5eeebd147aa049dc22004f35a4759d63dd8613028835db0cc7fc6fc956b2222f",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "f70be7d7f63510c737060361d12401db62355ef3460dc89fbe783a2f35611a81",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5eeebd147aa049dc22004f35a4759d63dd8613028835db0cc7fc6fc956b2222f",
+  "tree_hash": "f265effc94c6bfc5d0948cb2530ad918edf7234b103d89a58c147b2fa8eb8a0e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 71,
+  "wiki_file_count": 72,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5914,13 +5919,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0a2b6125d33649859e01d6cdb2890fbe8ca656d6999990c4efd805fea09ef6ca",
-      "size": 249726
+      "sha256": "27ee1cf4d750650c4627a460aefd65284333b7faa6903b239c8ba51278d0aaed",
+      "size": 300676
     },
     {
       "path": "log.md",
-      "sha256": "fd4db1f1a2ea571d092f7899f0882ac1d3196e9543d476df49eebe2a9c2ef0cd",
-      "size": 486886
+      "sha256": "86a3ae98d38e432013a5d9838a27855b3d2d0d5511d4756bbcea7323d10d6527",
+      "size": 561076
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6223,6 +6228,11 @@
       "size": 2863
     },
     {
+      "path": "pages/runbooks/runbook-maintain-and-recover-aws-eks.md",
+      "sha256": "4d6c4c099e01d768429e2c193c341b551783ed4322a6ded426c56e0faaf6b2f5",
+      "size": 1280
+    },
+    {
       "path": "pages/runbooks/track-nft-purchases-ethereum.md",
       "sha256": "c1593f782aa6bd2d66cb239d497f64c7c98edc370521b5abdfa12d960e93580a",
       "size": 3685
@@ -6264,5 +6274,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "26f1d38a87fcf53aab0f1dac30727ebc59aed6dac5a316d684d8241d5d067066"
+  "wiki_tree_hash": "ea7cda75c0338d097ee9321f10a3fe2a566a59767eb8f1711c8a7ebd77541313"
 }

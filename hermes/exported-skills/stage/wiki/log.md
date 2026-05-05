@@ -9686,3 +9686,1495 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_ffcca5aeb08cb884721012dc888045bb
 - summary: Source: [Notion source](https://www.notion.so/genesis-json-246ed13214634078919231038def105b)
 
+## [2026-05-05T06:35:05Z] ingest | genesis.json
+
+- status: published
+- slug: notion_document/genesis-json-dd403e51
+- wiki_revision_id: wikirev_aed984cd1746fc9e584d8d2c8f5ac92f
+- source_document_id: srcdoc_d5637e4ee44519b5e47b7ccadd403e51
+- source_revision_id: srcrev_950eed9dc198f1163103d17efef23f75
+- summary: Source: [Notion source](https://www.notion.so/genesis-json-0cca722e530243c3914e9d6a3a2a24a1)
+
+## [2026-05-05T06:35:06Z] ingest | Devnet 4+1 setup
+
+- status: published
+- slug: notion_document/devnet-4-1-setup-cdc60763
+- wiki_revision_id: wikirev_fc7f5979ee8c5abb7ecdd6a4d69ae1c0
+- source_document_id: srcdoc_f41d1c75fd2aad05713840b7cdc60763
+- source_revision_id: srcrev_aba0c9229c14e8b451cfc44c8c9ec0ad
+- summary: Source: [Notion source](https://www.notion.so/Devnet-4-1-setup-b38d51710d8843719706862abb733728)
+
+## [2026-05-05T06:35:09Z] ingest | config.toml
+
+- status: published
+- slug: notion_document/config-toml-396ec345
+- wiki_revision_id: wikirev_d32d77950326ba2082a00e231b1709ee
+- source_document_id: srcdoc_c6ec65b049d1a78a8f2eb966396ec345
+- source_revision_id: srcrev_9942eda4344e116f5ad612cd72c37278
+- summary: Source: [Notion source](https://www.notion.so/config-toml-fcfe718bede6438a812de649f63fee13)
+
+## [2026-05-05T06:35:11Z] ingest | halo.toml
+
+- status: published
+- slug: notion_document/halo-toml-07e68644
+- wiki_revision_id: wikirev_0ec1944f201bb72f03d4603509cc66c8
+- source_document_id: srcdoc_5e2c0745a243a4f3e7d29db507e68644
+- source_revision_id: srcrev_728fda2d51fb2285c3720908aa9d02bc
+- summary: Source: [Notion source](https://www.notion.so/halo-toml-0de5fdb3bb1746cd9a9b3f0bb79e972b)
+
+## [2026-05-05T06:35:13Z] ingest | node_key.json
+
+- status: published
+- slug: notion_document/node_key-json-4ad1ed07
+- wiki_revision_id: wikirev_4a3153bb3abee2144fe8e7d3b3f59a64
+- source_document_id: srcdoc_4c9c06b97c9f9d4c600e9bcf4ad1ed07
+- source_revision_id: srcrev_90e6f443408fe25be03ecabf7acb3323
+- summary: Source: [Notion source](https://www.notion.so/node_key-json-2dd940376b164d0687be75fc1547b5d6)
+
+## [2026-05-05T06:35:14Z] ingest | priv_validator_key.json
+
+- status: published
+- slug: notion_document/priv_validator_key-json-7274ed86
+- wiki_revision_id: wikirev_982a7ea5e8dc7a7141ce2a0063008270
+- source_document_id: srcdoc_bf5401472363cee691c5e9617274ed86
+- source_revision_id: srcrev_031300b33d7d895656e6cbfaa2d024b8
+- summary: Source: [Notion source](https://www.notion.so/priv_validator_key-json-78ebcfb29d6b489fafe4b1c990a651e5)
+
+## [2026-05-05T06:35:16Z] ingest | Configure a Validator
+
+- status: published
+- slug: notion_document/configure-a-validator-e8d01965
+- wiki_revision_id: wikirev_9dfa08864344cb5165b87fc8dbf6f839
+- source_document_id: srcdoc_24ba1b92e464768eac9e56cee8d01965
+- source_revision_id: srcrev_9d0b81793e5ea17b70b25070c1c0fff9
+- summary: Source: [Notion source](https://www.notion.so/Configure-a-Validator-76f876d764c04d919cd37a23581db78d)
+
+## [2026-05-05T06:35:20Z] ingest | 15+1 Devnet Halo Config Files
+
+- status: published
+- slug: notion_document/15-1-devnet-halo-config-files-084bd0f9
+- wiki_revision_id: wikirev_cd054a83328d0883ddf1d6169314ea32
+- source_document_id: srcdoc_1586fce9cf6d522359308586084bd0f9
+- source_revision_id: srcrev_bf87a04704d1a3e7cb22506d8eed6fc1
+- summary: Source: [Notion source](https://www.notion.so/15-1-Devnet-Halo-Config-Files-752ee20fbf844df59f15d9c5110ae9e6)
+
+## [2026-05-05T06:35:21Z] ingest | L1 features / services brainstorming
+
+- status: published
+- slug: notion_document/l1-features-/-services-brainstorming-debfc37a
+- wiki_revision_id: wikirev_caf32ea6a776aec5fd273b4119a7535f
+- source_document_id: srcdoc_8a0fbb009cb72a7690149174debfc37a
+- source_revision_id: srcrev_4b9a32ecb6fb6211b1ffe01966d3599f
+- summary: Source: [Notion source](https://www.notion.so/L1-features-services-brainstorming-57eafeae433746d995aff9949ce88c02)
+
+## [2026-05-05T06:35:22Z] ingest | Story Protocol Eng Plans
+
+- status: published
+- slug: notion_document/story-protocol-eng-plans-5bcc9aeb
+- wiki_revision_id: wikirev_bb7f18ab65e6cec2971e2faa8db22a60
+- source_document_id: srcdoc_94cce5bce17dd37ccab46e885bcc9aeb
+- source_revision_id: srcrev_73e6e93502e319b3dfc7d4ec2545825e
+- summary: Source: [Notion source](https://www.notion.so/Story-Protocol-Eng-Plans-7b5a06f34a7f4420ac395a8aead762f0)
+
+## [2026-05-05T06:35:25Z] ingest | STORY LIBP2P ACTION PLAN
+
+- status: published
+- slug: notion_document/story-libp2p-action-plan-068b51c8
+- wiki_revision_id: wikirev_14a6e7a37cdc2984a94218a55c6e58c2
+- source_document_id: srcdoc_4b89865958be0d4d4dbdd2e4068b51c8
+- source_revision_id: srcrev_f4a9153f86938174939da24ee5dfa5ae
+- summary: Source: [Notion source](https://www.notion.so/STORY-LIBP2P-ACTION-PLAN-c0304c0f9bf24c0fa7aaa0f4eea298a5)
+
+## [2026-05-05T06:35:28Z] ingest | Hub v1 Backend
+
+- status: published
+- slug: notion_document/hub-v1-backend-817b804e
+- wiki_revision_id: wikirev_ecbf603a4a6fce3cf22a96020652bc93
+- source_document_id: srcdoc_b4469259082dfbaf9904766d817b804e
+- source_revision_id: srcrev_c18eadc0f819580b076a9d3c85064036
+- summary: Source: [Notion source](https://www.notion.so/Hub-v1-Backend-bf558f9cac4747068a78db85d4d287d5)
+
+## [2026-05-05T06:35:28Z] synthesis | Runbook - Maintain and Recover AWS EKS
+
+- status: published
+- slug: runbooks/runbook-maintain-and-recover-aws-eks
+- wiki_revision_id: wikirev_ae7aba66b3684170d4ac4af98c34dcc6
+- summary: Runbook for maintaining and recovering AWS EKS clusters.
+
+## [2026-05-05T06:35:30Z] ingest | Platform team secrets access
+
+- status: published
+- slug: notion_document/platform-team-secrets-access-346c949b
+- wiki_revision_id: wikirev_c81bfa4d9c6fac6aeaba0a260338ca08
+- source_document_id: srcdoc_56996aa9e7ce094b41222b5c346c949b
+- source_revision_id: srcrev_30763d780e6e671d03454fa7a7d8cfc1
+- summary: Source: [Notion source](https://www.notion.so/Platform-team-secrets-access-acf52d0715634809982747e4f8c1b3c1)
+
+## [2026-05-05T06:35:31Z] ingest | L1 Internal devnet
+
+- status: published
+- slug: notion_document/l1-internal-devnet-e61f8d03
+- wiki_revision_id: wikirev_7dea53727e8fc162ba4392f1a72f70a8
+- source_document_id: srcdoc_b0be50d4369d435d4f317063e61f8d03
+- source_revision_id: srcrev_260a2ac56e92a9f0b8f5ba3ca2786888
+- summary: Source: [Notion source](https://www.notion.so/L1-Internal-devnet-fb96c079395b4c58939b308c2dc3b720)
+
+## [2026-05-05T06:35:33Z] ingest | Devnet (Manual Provisioned)
+
+- status: published
+- slug: notion_document/devnet-manual-provisioned--bc91f5a6
+- wiki_revision_id: wikirev_89f512e733a2face2bf4d0430890c647
+- source_document_id: srcdoc_739c49d0208ee3bc84ed0788bc91f5a6
+- source_revision_id: srcrev_e37c42fa89e8071d8023156682bbc0f3
+- summary: Source: [Notion source](https://www.notion.so/Devnet-Manual-Provisioned-8ea064d70c884ce19f988e5ae641a46c)
+
+## [2026-05-05T06:35:35Z] ingest | Staking
+
+- status: published
+- slug: notion_document/staking-1d418d9d
+- wiki_revision_id: wikirev_9b767fc247a87fe68c849878ba5548f3
+- source_document_id: srcdoc_ca8c4eea1396172f9f01e1ab1d418d9d
+- source_revision_id: srcrev_59d0825f0f4c8717111ae992cced0792
+- summary: Source: [Notion source](https://www.notion.so/Staking-6574951f87f04df28ce3ff56ad7e8ac9)
+
+## [2026-05-05T06:35:39Z] ingest | Devnet War Mode Daily Tracker
+
+- status: published
+- slug: notion_document/devnet-war-mode-daily-tracker-b0f16671
+- wiki_revision_id: wikirev_300e8d7319e65ca4e3836f7650a50424
+- source_document_id: srcdoc_23a460e910539331956595bbb0f16671
+- source_revision_id: srcrev_e6fbcd639a4d5d8d0393c7637f76a311
+- summary: Source: [Notion source](https://www.notion.so/Devnet-War-Mode-Daily-Tracker-576f270a20c34d078b8a09af065fe559)
+
+## [2026-05-05T06:35:39Z] ingest | Stress test plan - draft
+
+- status: published
+- slug: notion_document/stress-test-plan---draft-6b71f863
+- wiki_revision_id: wikirev_92ede21418f9ec01cc5f7cdee20b3068
+- source_document_id: srcdoc_60c564685e4c0ff3874b214d6b71f863
+- source_revision_id: srcrev_959a9c4800011d88dcdc877c0e757687
+- summary: Source: [Notion source](https://www.notion.so/Stress-test-plan-draft-5eee2530301e4e4aa8e12b9f89717bb4)
+
+## [2026-05-05T06:35:42Z] ingest | P2: Support a pool of IPA to improve security and protect more than one IPAs
+
+- status: published
+- slug: notion_document/p2-support-a-pool-of-ipa-to-improve-security-and-protect-more-than-one-ipas-20c72201
+- wiki_revision_id: wikirev_fa5ec0640ce4e733678e4c0b120d4fef
+- source_document_id: srcdoc_f6dcd65a93ce9d3d1bb6528520c72201
+- source_revision_id: srcrev_8e85f09903f9c52883483ab3d4f95f92
+- summary: Source: [Notion source](https://www.notion.so/P2-Support-a-pool-of-IPA-to-improve-security-and-protect-more-than-one-IPAs-28ac9a026f2c417c8da3f3603df4ba5e)
+
+## [2026-05-05T06:35:43Z] ingest | Protocol: beta → mainnet
+
+- status: published
+- slug: notion_document/protocol-beta-mainnet-814f7c72
+- wiki_revision_id: wikirev_f7587cae1b64132771db9445aa22d9ef
+- source_document_id: srcdoc_01f9e4b4f0c8a32fe32fc70a814f7c72
+- source_revision_id: srcrev_017b3e1b356f505df2a49e55dd58d0d4
+- summary: Source: [Notion source](https://www.notion.so/Protocol-beta-mainnet-0f5b973130534e3196b71ebc27921add)
+
+## [2026-05-05T06:35:45Z] ingest | GCP (GKE) - L1 Orchestration Setup
+
+- status: published
+- slug: notion_document/gcp-gke---l1-orchestration-setup-7ecef51b
+- wiki_revision_id: wikirev_5ef03873b71892f765a6c9ed592ac76c
+- source_document_id: srcdoc_99f525444f2f871aa66585bc7ecef51b
+- source_revision_id: srcrev_021f4b0fb76894466eee9c3f534bff31
+- summary: Source: [Notion source](https://www.notion.so/GCP-GKE-L1-Orchestration-Setup-7f4d69d988d04e6d8768ab3448b204bc)
+
+## [2026-05-05T06:35:46Z] ingest | June 17th devnet deliverables (Platform)
+
+- status: published
+- slug: notion_document/june-17th-devnet-deliverables-platform--5eacf8a1
+- wiki_revision_id: wikirev_8aec3debe00416ec9b498e19ae1ab846
+- source_document_id: srcdoc_c42a243e568ebc32592736e75eacf8a1
+- source_revision_id: srcrev_e99014dfa34a64b6384ec6891e8f90f2
+- summary: Source: [Notion source](https://www.notion.so/June-17th-devnet-deliverables-Platform-e56a4c5909f140959856df575d6e15d8)
+
+## [2026-05-05T06:35:47Z] ingest | ProtocolDevnet Goals - IPA Staking and Precompiles
+
+- status: published
+- slug: notion_document/protocoldevnet-goals---ipa-staking-and-precompiles-88f80ac8
+- wiki_revision_id: wikirev_05b1b60645d4a69e46a4d90c0a1f5491
+- source_document_id: srcdoc_db7f99193edf0561ccd7533f88f80ac8
+- source_revision_id: srcrev_cf9ce6b90d33b6b09532c5060d990aa6
+- summary: Source: [Notion source](https://www.notion.so/Protocol-Devnet-Goals-IPA-Staking-and-Precompiles-f1f1e5ab7e1143488dfa2145b790eb4c)
+
+## [2026-05-05T06:35:49Z] ingest | Story Protocol Devnet Deployment
+
+- status: published
+- slug: notion_document/story-protocol-devnet-deployment-4927159f
+- wiki_revision_id: wikirev_6c3b5f89d1bdcc9c8d415df22190f316
+- source_document_id: srcdoc_b10301491edd730189ed971d4927159f
+- source_revision_id: srcrev_2e932eee3c7ad3665818a70c6e81a055
+- summary: Source: [Notion source](https://www.notion.so/Story-Protocol-Devnet-Deployment-7724170661644501b2e7c09680146ccb)
+
+## [2026-05-05T06:35:50Z] ingest | June 17th L1 tasks
+
+- status: published
+- slug: notion_document/june-17th-l1-tasks-19b17d76
+- wiki_revision_id: wikirev_dcae4376b07f7c1ed8328747c7561718
+- source_document_id: srcdoc_c61b89ce5bd3ecf734efa26e19b17d76
+- source_revision_id: srcrev_000d7f6f2d02821741bd961801575299
+- summary: Source: [Notion source](https://www.notion.so/June-17th-L1-tasks-4f4c21eef35a409795ac79921d5b269c)
+
+## [2026-05-05T06:35:52Z] ingest | June devnet retro
+
+- status: published
+- slug: notion_document/june-devnet-retro-e1fdf92e
+- wiki_revision_id: wikirev_1325cbe7f9e1a24d8f446ed8ffdeccd8
+- source_document_id: srcdoc_4e3c070670e669f893d79ff5e1fdf92e
+- source_revision_id: srcrev_d56a770783ba597706b1c7fd34b63fd6
+- summary: Source: [Notion source](https://www.notion.so/June-devnet-retro-42b9eb9f778145f4a34167d073527a75)
+
+## [2026-05-05T06:35:53Z] ingest | Homework Jun/17-21 -Raul
+
+- status: published
+- slug: notion_document/homework-jun/17-21--raul-6bdfbc15
+- wiki_revision_id: wikirev_c84fcd030df7101bee11bba5320c1cc7
+- source_document_id: srcdoc_8ec67d49d1b723ea504067f56bdfbc15
+- source_revision_id: srcrev_a2dee4858a9c1b3b8a7f6b0aac36c1e7
+- summary: Source: [Notion source](https://www.notion.so/Homework-Jun-17-21-Raul-ad44ff6fa3f74d9f817226a3dc8a3f13)
+
+## [2026-05-05T06:35:55Z] ingest | Homework Jun/17-21
+
+- status: published
+- slug: notion_document/homework-jun/17-21-03ad5150
+- wiki_revision_id: wikirev_58d167deb96eccdacec6e4504737c034
+- source_document_id: srcdoc_bfd06c1d110d03c6bbf6760103ad5150
+- source_revision_id: srcrev_6d24781d928237689e6404658bccb149
+- summary: Source: [Notion source](https://www.notion.so/Homework-Jun-17-21-552671853bc14b75a203f664b9d54b26)
+
+## [2026-05-05T06:35:56Z] ingest | Story Network Features 2024/5
+
+- status: published
+- slug: notion_document/story-network-features-2024/5-e436e1db
+- wiki_revision_id: wikirev_37945fe36fc56c42dd0a01d811ecf36f
+- source_document_id: srcdoc_2dbc05edae9576d73ba0744ae436e1db
+- source_revision_id: srcrev_daa2ffb05562378c919270dc1333065b
+- summary: Source: [Notion source](https://www.notion.so/Story-Network-Features-2024-5-a85a81c7e562413e9219b2480617f78c)
+
+## [2026-05-05T06:35:59Z] ingest | L1 launch plan
+
+- status: published
+- slug: notion_document/l1-launch-plan-fbce42c5
+- wiki_revision_id: wikirev_1d91511debb1177da3e013e5e6502e46
+- source_document_id: srcdoc_dea98a8e737e54bc11e75809fbce42c5
+- source_revision_id: srcrev_8d81f6655551ab35ce336a2ce7a522ac
+- summary: Source: [Notion source](https://www.notion.so/L1-launch-plan-f217249eaedc4c6ab995b55e21800bc2)
+
+## [2026-05-05T06:35:59Z] ingest | Weekly Milestone towards Pub Testnet
+
+- status: published
+- slug: notion_document/weekly-milestone-towards-pub-testnet-224ea31e
+- wiki_revision_id: wikirev_73daefc51bcb10b5746e70c4a5365ea4
+- source_document_id: srcdoc_84334ea2627ca79386f93a21224ea31e
+- source_revision_id: srcrev_4357939c190a4d89b86fbd95e60672b1
+- summary: Source: [Notion source](https://www.notion.so/Weekly-Milestone-towards-Pub-Testnet-14f405313adf40cc826d278fe6429c72)
+
+## [2026-05-05T06:36:03Z] ingest | L1 research bootcamp
+
+- status: published
+- slug: notion_document/l1-research-bootcamp-a1bdc9ad
+- wiki_revision_id: wikirev_57fd0bf9183106f66882ced0f47fa504
+- source_document_id: srcdoc_aa678ed1cee76b34e37f3e4ba1bdc9ad
+- source_revision_id: srcrev_32c732dad0f5e00706f7c8d5a938afca
+- summary: Source: [Notion source](https://www.notion.so/L1-research-bootcamp-050d64bfa9834e569a0ad77488143904)
+
+## [2026-05-05T06:36:04Z] ingest | Roadmap of Our L1 - 5 years plan
+
+- status: published
+- slug: notion_document/roadmap-of-our-l1---5-years-plan-acbea92b
+- wiki_revision_id: wikirev_daca208a39cef49c318c58c697f62aa5
+- source_document_id: srcdoc_afb42a466e0faf130d5978c8acbea92b
+- source_revision_id: srcrev_01ae52dfd5089a4b66c17f739ff26109
+- summary: Source: [Notion source](https://www.notion.so/Roadmap-of-Our-L1-5-years-plan-f2c1b01bd4714ee4911f5aa6b3ce6f46)
+
+## [2026-05-05T06:36:13Z] ingest | Blockchain Architecture (1)
+
+- status: published
+- slug: notion_document/blockchain-architecture-1--dbe8eaae
+- wiki_revision_id: wikirev_bc99d1f4da9e85c8d1b5973b4bd63778
+- source_document_id: srcdoc_0c212c4dc8107a80f82b5d46dbe8eaae
+- source_revision_id: srcrev_22ac97c4f4e4a6939609da59a23ecc85
+- summary: Source: [Notion source](https://www.notion.so/Blockchain-Architecture-1-f096da1ba54a4e9eac581608c604178d)
+
+## [2026-05-05T06:36:15Z] ingest | L2 / L1
+
+- status: published
+- slug: notion_document/l2-/-l1-be15bf49
+- wiki_revision_id: wikirev_61fb01cc6cee3c9dd1b3d5be8a3cf8ca
+- source_document_id: srcdoc_54c4859a9299d4382243db02be15bf49
+- source_revision_id: srcrev_0ab04c2a0fcd1b2ea5d05ffe7bbb0598
+- summary: Source: [Notion source](https://www.notion.so/L2-L1-d329b413f4f7436d88bbfdaee1a7fb8e)
+
+## [2026-05-05T06:36:19Z] ingest | EIP of interest
+
+- status: published
+- slug: notion_document/eip-of-interest-caa9061a
+- wiki_revision_id: wikirev_26e6771491a17c77b419f8ba96d9b4c1
+- source_document_id: srcdoc_8b43fbd737d15841d07f5f02caa9061a
+- source_revision_id: srcrev_5f9c6aaca6ff93690dc6f16dc2a0e4b0
+- summary: Source: [Notion source](https://www.notion.so/EIP-of-interest-abd6a11fd7e045c2b0451fb937f849a9)
+
+## [2026-05-05T06:36:21Z] ingest | Precompile & Protocol Plan
+
+- status: published
+- slug: notion_document/precompile-protocol-plan-ae7d7ac1
+- wiki_revision_id: wikirev_1330755e444105332b2fd5c969daa7ad
+- source_document_id: srcdoc_5353cd3442c98da85365e5dcae7d7ac1
+- source_revision_id: srcrev_2c19b8c499144d7ccc6012b4a00245bb
+- summary: Source: [Notion source](https://www.notion.so/Precompile-Protocol-Plan-bb7de6872b2f4075bb0e4b0e888e3a33)
+
+## [2026-05-05T06:36:23Z] ingest | July partner testnet
+
+- status: published
+- slug: notion_document/july-partner-testnet-5ee20fe3
+- wiki_revision_id: wikirev_50e23ce7e5bafb0f6f7fef4093e8e0d7
+- source_document_id: srcdoc_ae20a4ff3c7642cef5da6d525ee20fe3
+- source_revision_id: srcrev_a3c8d446bed67a2a7d261d11b16f720f
+- summary: Source: [Notion source](https://www.notion.so/July-partner-testnet-99671b15cad2431a82545d1996865a8f)
+
+## [2026-05-05T06:36:24Z] ingest | GCP - Internal L1 Testnet Setup
+
+- status: published
+- slug: notion_document/gcp---internal-l1-testnet-setup-e91f4c23
+- wiki_revision_id: wikirev_bfb9c3d40f8ff7945867a7a33e2de3e0
+- source_document_id: srcdoc_902cb322fd0ef829a626b63ee91f4c23
+- source_revision_id: srcrev_038573bcee1464e6d5e0168a58b7f6eb
+- summary: Source: [Notion source](https://www.notion.so/GCP-Internal-L1-Testnet-Setup-243eff9e635a4ddc98ca9f11a4a6baa3)
+
+## [2026-05-05T06:36:27Z] ingest | Group IPA
+
+- status: published
+- slug: notion_document/group-ipa-927d1d3c
+- wiki_revision_id: wikirev_05ce8f94c342c8029fbfbd90009103d2
+- source_document_id: srcdoc_ede0bc25fc44950459fa4cab927d1d3c
+- source_revision_id: srcrev_05413274f8a62769ee2871c03e04d147
+- summary: Source: [Notion source](https://www.notion.so/Group-IPA-cfd751c7445a47fd807e393b7081bada)
+
+## [2026-05-05T06:36:27Z] ingest | IP Graph
+
+- status: published
+- slug: notion_document/ip-graph-83c80f80
+- wiki_revision_id: wikirev_a4debe4737c0f67294ed1974250831c6
+- source_document_id: srcdoc_8e252c1e515cf07abd1a2bb883c80f80
+- source_revision_id: srcrev_97af278f1741ae1dc3cef71f27e57f88
+- summary: Source: [Notion source](https://www.notion.so/IP-Graph-dfd3e08ae70d4ba69244a9c425a2e1aa)
+
+## [2026-05-05T06:36:29Z] ingest | PILicense Template
+
+- status: published
+- slug: notion_document/pilicense-template-8e5a5a37
+- wiki_revision_id: wikirev_9db0d31b6c1828c81a52b46b66841675
+- source_document_id: srcdoc_f9bea46522cc671fd76853208e5a5a37
+- source_revision_id: srcrev_19e8fcc83e72af030bd679d73d5b497b
+- summary: Source: [Notion source](https://www.notion.so/PILicense-Template-288343f25016474783e4323072b8aa8a)
+
+## [2026-05-05T06:36:31Z] ingest | L1 Test plan
+
+- status: published
+- slug: notion_document/l1-test-plan-73f5ac58
+- wiki_revision_id: wikirev_0ab7ac4621d1474c00be553e1d055aa8
+- source_document_id: srcdoc_7a971abb060a22e2ead5440e73f5ac58
+- source_revision_id: srcrev_45f62e4367fa112ef356448f12675d22
+- summary: Source: [Notion source](https://www.notion.so/L1-Test-plan-414052aa435d44a286aa48ccfb3637e0)
+
+## [2026-05-05T06:36:35Z] ingest | Iliad code walkthrough
+
+- status: published
+- slug: notion_document/iliad-code-walkthrough-9e4ca8a0
+- wiki_revision_id: wikirev_dcd6643ad7d4a9ef8d618be3b0a65493
+- source_document_id: srcdoc_3a32031a4c38458d0f5e76629e4ca8a0
+- source_revision_id: srcrev_83b42ed45f37bbcb759e3ef5937adab6
+- summary: Source: [Notion source](https://www.notion.so/Iliad-code-walkthrough-37e3df6c2b9d4a4db631bf1c40e61171)
+
+## [2026-05-05T06:36:37Z] ingest | Dispute and IPA Staking
+
+- status: published
+- slug: notion_document/dispute-and-ipa-staking-66fdd63f
+- wiki_revision_id: wikirev_f77b78a50b782be49cb0429f74789faf
+- source_document_id: srcdoc_e6330768515dc61898e883dd66fdd63f
+- source_revision_id: srcrev_aba2bccd4890de44c51dfab17b2c3ca1
+- summary: Source: [Notion source](https://www.notion.so/Dispute-and-IPA-Staking-ca9eb8468cdc4846879fe9173e0e4980)
+
+## [2026-05-05T06:36:40Z] ingest | App Team Taskboard
+
+- status: published
+- slug: notion_document/app-team-taskboard-14243194
+- wiki_revision_id: wikirev_ccea676df4f8886a3c120b66bdedb7f3
+- source_document_id: srcdoc_75f214e2785cdeca75a552d814243194
+- source_revision_id: srcrev_128d53d2c62c246a94521a19176dd8ae
+- summary: Source: [Notion source](https://www.notion.so/App-Team-Taskboard-264dc3f7017747668cacee15149915ee)
+
+## [2026-05-05T06:36:40Z] ingest | Q3 Key Results (L1/API/SDK)
+
+- status: published
+- slug: notion_document/q3-key-results-l1/api/sdk--8fbd55c2
+- wiki_revision_id: wikirev_1afffacd9bb58dc574dce90175377995
+- source_document_id: srcdoc_33fa509484a19fae299ce0878fbd55c2
+- source_revision_id: srcrev_76845a7a1a4a034bf1e24fda4a68db50
+- summary: Source: [Notion source](https://www.notion.so/Q3-Key-Results-L1-API-SDK-c3bb17a0ae7549b68f97743ff244403b)
+
+## [2026-05-05T06:36:43Z] ingest | Testnet launch checklist
+
+- status: published
+- slug: notion_document/testnet-launch-checklist-52039cf7
+- wiki_revision_id: wikirev_588eb39103f330262b925775c077ce1f
+- source_document_id: srcdoc_4e17c7908608b2bb6c4593e352039cf7
+- source_revision_id: srcrev_ffd9bf2549c60611c8692d306dfb8a0b
+- summary: Source: [Notion source](https://www.notion.so/Testnet-launch-checklist-9b7a24fd340c48e88f577674d8caa2e8)
+
+## [2026-05-05T06:36:44Z] ingest | L1 API specs
+
+- status: published
+- slug: notion_document/l1-api-specs-072f44c9
+- wiki_revision_id: wikirev_44ab9fb5006295464e563bbffdabaa33
+- source_document_id: srcdoc_e01038d9e67ef0b02ec248a7072f44c9
+- source_revision_id: srcrev_9960161cc092627c22febc503acad173
+- summary: Source: [Notion source](https://www.notion.so/L1-API-specs-316b490aeef944ca898b5fa95b9e0f6e)
+
+## [2026-05-05T06:36:45Z] ingest | web2 partner solution
+
+- status: published
+- slug: notion_document/web2-partner-solution-0f4a13f8
+- wiki_revision_id: wikirev_d4d37c44a72c7d7e01f5f4dc4f0d4777
+- source_document_id: srcdoc_0ddf9ffb9aae3c0fb4023a6f0f4a13f8
+- source_revision_id: srcrev_b0c8f53008c40f41467352cf6bc67dcb
+- summary: Source: [Notion source](https://www.notion.so/web2-partner-solution-8d76ae2877854f6193d5433b860b8692)
+
+## [2026-05-05T06:36:47Z] ingest | L1 configs and metrics
+
+- status: published
+- slug: notion_document/l1-configs-and-metrics-3bf0b299
+- wiki_revision_id: wikirev_45da72f7ef1b4d889980131f673483bb
+- source_document_id: srcdoc_c5ae93b4ff1163af56deb57c3bf0b299
+- source_revision_id: srcrev_cf1fb8b65b108574d3e91adb07156eec
+- summary: Source: [Notion source](https://www.notion.so/L1-configs-and-metrics-48ffc7d4cc1849ef8ca869e34d21d223)
+
+## [2026-05-05T06:36:48Z] ingest | [Postmortem] L1 Testnet not able to start
+
+- status: published
+- slug: notion_document/-postmortem-l1-testnet-not-able-to-start-321397d7
+- wiki_revision_id: wikirev_de926b763b899aedcaba7c741bdb18f1
+- source_document_id: srcdoc_462cb3b52ae2b21b3f389ecb321397d7
+- source_revision_id: srcrev_67a23e4dc691a5d0c0d416759d9e7283
+- summary: Source: [Notion source](https://www.notion.so/Postmortem-L1-Testnet-not-able-to-start-6954307212f64ee09e71444ebec59005)
+
+## [2026-05-05T06:36:51Z] ingest | Node recovery process
+
+- status: published
+- slug: notion_document/node-recovery-process-68cffa5c
+- wiki_revision_id: wikirev_d0e2f1c1121c37cce4b8effb1fd034a3
+- source_document_id: srcdoc_dc71b11618d582d5ff55e48568cffa5c
+- source_revision_id: srcrev_5fd31494a142d8e46161d1f0b2365116
+- summary: Source: [Notion source](https://www.notion.so/Node-recovery-process-407db5499dec414982fb68b92cf9cb67)
+
+## [2026-05-05T06:36:54Z] ingest | AWS - Internal L1 Testnet Setup
+
+- status: published
+- slug: notion_document/aws---internal-l1-testnet-setup-97722d40
+- wiki_revision_id: wikirev_d2580e778555e820b9624e06e42c3c7c
+- source_document_id: srcdoc_b7274a6556b65f82af018c3097722d40
+- source_revision_id: srcrev_b8829bf627620e1323fd41278332c85a
+- summary: Source: [Notion source](https://www.notion.so/AWS-Internal-L1-Testnet-Setup-75336f9692464310ac09329f76aa359f)
+
+## [2026-05-05T06:36:55Z] ingest | Story Partner L1 Readiness Doc
+
+- status: published
+- slug: notion_document/story-partner-l1-readiness-doc-b712967c
+- wiki_revision_id: wikirev_88300f88277cb030bdc5b2021594672f
+- source_document_id: srcdoc_c2b6a49dc99aa3cdce0e474fb712967c
+- source_revision_id: srcrev_cf6d7520bc332462165071b7806f8f80
+- summary: Source: [Notion source](https://www.notion.so/Story-Partner-L1-Readiness-Doc-82243e0ec4384280b4b78211bfbab478)
+
+## [2026-05-05T06:36:58Z] ingest | Partner Testnet Release Notes - Version 1.0
+
+- status: published
+- slug: notion_document/partner-testnet-release-notes---version-1-0-01020f84
+- wiki_revision_id: wikirev_33f74ade48538f3f97a552b9de038ba9
+- source_document_id: srcdoc_bbc60af68e9dd8e4f8cdac8e01020f84
+- source_revision_id: srcrev_6542b890b33267426c704921cf69920d
+- summary: Source: [Notion source](https://www.notion.so/Partner-Testnet-Release-Notes-Version-1-0-66c414119dc24b2a992eb0add80cd946)
+
+## [2026-05-05T06:37:02Z] ingest | Engineering Communication Strategy
+
+- status: published
+- slug: notion_document/engineering-communication-strategy-afc42a7e
+- wiki_revision_id: wikirev_0e646ff01ebfecc53b01147f35d9dd1a
+- source_document_id: srcdoc_ac3ca6983e7fe57561037f71afc42a7e
+- source_revision_id: srcrev_6a37559d1bfdc5c6d4c75a72157c9ab7
+- summary: Source: [Notion source](https://www.notion.so/Engineering-Communication-Strategy-5ece7ba8abac4650b29b03751a85cfdc)
+
+## [2026-05-05T06:37:05Z] ingest | Status Page / Section
+
+- status: published
+- slug: notion_document/status-page-/-section-aaca8c28
+- wiki_revision_id: wikirev_568ea8581bfed88bb2670a5ed7b06a67
+- source_document_id: srcdoc_c576d6ce7246091f7c1e4b68aaca8c28
+- source_revision_id: srcrev_4b562ab18d56e17d2b8a8d9e6e9dd0b4
+- summary: Source: [Notion source](https://www.notion.so/Status-Page-Section-fe215cbb03eb4416a363aae6dbac8cb3)
+
+## [2026-05-05T06:37:05Z] ingest | HOW-TO SSH to a Testnet Server
+
+- status: published
+- slug: notion_document/how-to-ssh-to-a-testnet-server-1820a762
+- wiki_revision_id: wikirev_2fc0fef3b56933872a7e4b552996b4db
+- source_document_id: srcdoc_76a8108de740e94eb722bd291820a762
+- source_revision_id: srcrev_f7af87f66462238e43be19e45c3d768c
+- summary: Source: [Notion source](https://www.notion.so/HOW-TO-SSH-to-a-Testnet-Server-3bba6ed05b804086a87280fa16d9b878)
+
+## [2026-05-05T06:37:07Z] ingest | Validator Strategy
+
+- status: published
+- slug: notion_document/validator-strategy-8f638071
+- wiki_revision_id: wikirev_e424cc6394b9cc4bd6529affe8f481f6
+- source_document_id: srcdoc_94cf0212b3c780154a304e678f638071
+- source_revision_id: srcrev_fe3f5fcf78f296e0c58e91d16bf9f647
+- summary: Source: [Notion source](https://www.notion.so/Validator-Strategy-bcf4bc88866c4b59a3e8c9dac860a45a)
+
+## [2026-05-05T06:37:09Z] ingest | Network Rolling Upgrade
+
+- status: published
+- slug: notion_document/network-rolling-upgrade-abcb1c41
+- wiki_revision_id: wikirev_cdfb021ee848bab50cfcc2dbf0951319
+- source_document_id: srcdoc_43e3616e13511c031df36c08abcb1c41
+- source_revision_id: srcrev_8ce41884c82957e10c01bc731da213af
+- summary: Source: [Notion source](https://www.notion.so/Network-Rolling-Upgrade-44abfb110ec24cec961707e8b2d43636)
+
+## [2026-05-05T06:37:12Z] ingest | Explorer Cronjob Documentation
+
+- status: published
+- slug: notion_document/explorer-cronjob-documentation-398740b5
+- wiki_revision_id: wikirev_ef0239f8a636a6c445a9a6720cd38fd2
+- source_document_id: srcdoc_16f99c0e022eb78dfadbd524398740b5
+- source_revision_id: srcrev_91b8b87168b92e95a3cec146d29c5d92
+- summary: Source: [Notion source](https://www.notion.so/Explorer-Cronjob-Documentation-aa828b8e85c94e328a20872a293efc6f)
+
+## [2026-05-05T06:37:13Z] ingest | Story Internal DevNet onboarding
+
+- status: published
+- slug: notion_document/story-internal-devnet-onboarding-3a26a150
+- wiki_revision_id: wikirev_c9b031c085e885972b5679f957f0ddb2
+- source_document_id: srcdoc_6b7b16d70f15c3283798fc153a26a150
+- source_revision_id: srcrev_98cd0ddf5eedd7084a59d06a316aa317
+- summary: Source: [Notion source](https://www.notion.so/Story-Internal-DevNet-onboarding-502c44872de34ef28c08676d78528652)
+
+## [2026-05-05T06:37:15Z] ingest | Binaries Releases
+
+- status: published
+- slug: notion_document/binaries-releases-4635bcce
+- wiki_revision_id: wikirev_497ad3cfe387e518266c854084df244d
+- source_document_id: srcdoc_abfdc5373e598472634ab33c4635bcce
+- source_revision_id: srcrev_bc6a9e2d08f5f031203d59dc9d00e795
+- summary: Source: [Notion source](https://www.notion.so/Binaries-Releases-a427669c08794996af7c9dfc5ddb4d9f)
+
+## [2026-05-05T06:37:17Z] ingest | Partner Testnet Release Notes - Version 1.0.1
+
+- status: published
+- slug: notion_document/partner-testnet-release-notes---version-1-0-1-529374bf
+- wiki_revision_id: wikirev_97b19f01759e687d6470ccf9028060f9
+- source_document_id: srcdoc_c26ea866a9a3d35a94aa0506529374bf
+- source_revision_id: srcrev_264a0f34097eaab1b7925dc29d53a171
+- summary: Source: [Notion source](https://www.notion.so/Partner-Testnet-Release-Notes-Version-1-0-1-420d37dca1c3400b80dc34ebbb254826)
+
+## [2026-05-05T06:37:19Z] ingest | Governance in Crypto
+
+- status: published
+- slug: notion_document/governance-in-crypto-1366822e
+- wiki_revision_id: wikirev_7b91ef914b0d3c441337ce30ebfb20ef
+- source_document_id: srcdoc_6b36966947da1191120369041366822e
+- source_revision_id: srcrev_1bbd8bcfecc401e2f5d6a23d50d77254
+- summary: Source: [Notion source](https://www.notion.so/Governance-in-Crypto-752d0f4c3b6e41e392e880134c503439)
+
+## [2026-05-05T06:37:21Z] ingest | Aug 10 -iliadBinary Issue Retro
+
+- status: published
+- slug: notion_document/aug-10--iliadbinary-issue-retro-f4ab51b9
+- wiki_revision_id: wikirev_49f1fcbf56810cde11f45a598fa57145
+- source_document_id: srcdoc_ddfc32239ce984f8dec9cc5bf4ab51b9
+- source_revision_id: srcrev_daed8067665995ec2d3bf731b2725c33
+- summary: Source: [Notion source](https://www.notion.so/Aug-10-iliad-Binary-Issue-Retro-6f9caca19b5e460d8676c18b331de8d2)
+
+## [2026-05-05T06:37:22Z] ingest | Cosmos Upgrade
+
+- status: published
+- slug: notion_document/cosmos-upgrade-58443fab
+- wiki_revision_id: wikirev_8ec73c15f3fd995e9e1ecd1d005514ff
+- source_document_id: srcdoc_2dec9c9cf0da1f789abd3d7858443fab
+- source_revision_id: srcrev_4f6581001e1cdb0cc53b1ffc2579eb97
+- summary: Source: [Notion source](https://www.notion.so/Cosmos-Upgrade-de9dd5c59ad04664a06842423e1bcf49)
+
+## [2026-05-05T06:37:24Z] ingest | System Design and Optimization
+
+- status: published
+- slug: notion_document/system-design-and-optimization-51c39730
+- wiki_revision_id: wikirev_1fe6091778493833ff6741d0d1d7dc71
+- source_document_id: srcdoc_7f5ec5cd941f2bc6249207c551c39730
+- source_revision_id: srcrev_de3be74aa099d8a01197dc2e744f0e86
+- summary: Source: [Notion source](https://www.notion.so/System-Design-and-Optimization-10ce1e020d4c4d779042e70e3dec87ea)
+
+## [2026-05-05T06:37:25Z] ingest | Serverless Design to Expose Network Status
+
+- status: published
+- slug: notion_document/serverless-design-to-expose-network-status-193d3c4b
+- wiki_revision_id: wikirev_87e5887a3b9b4e102008f6e729c091a5
+- source_document_id: srcdoc_561584823fc534174665582c193d3c4b
+- source_revision_id: srcrev_f3b6d4630b437a690b16689ca897ebff
+- summary: Source: [Notion source](https://www.notion.so/Serverless-Design-to-Expose-Network-Status-727719d60df442908b935c54fc1b6d52)
+
+## [2026-05-05T06:37:28Z] ingest | Questions with Zaki
+
+- status: published
+- slug: notion_document/questions-with-zaki-ea60bdad
+- wiki_revision_id: wikirev_739931fe5f7eb61ce8b67cd1513357df
+- source_document_id: srcdoc_0223a21bcd023366f21a3adbea60bdad
+- source_revision_id: srcrev_5595f649af0bc05c24fff31589920442
+- summary: Source: [Notion source](https://www.notion.so/Questions-with-Zaki-eec342e49a1a4a739e93f7cf7427bd4a)
+
+## [2026-05-05T06:37:29Z] ingest | Updating Mininet to Main
+
+- status: published
+- slug: notion_document/updating-mininet-to-main-88a560dd
+- wiki_revision_id: wikirev_b00be858bd98aac407b9f512161e979e
+- source_document_id: srcdoc_2f939e9fef020e74e5cb82e288a560dd
+- source_revision_id: srcrev_caccf9472b10e59db994ca867a412d7a
+- summary: Source: [Notion source](https://www.notion.so/Updating-Mininet-to-Main-4cacd9876e314eec8d40fab7107707ce)
+
+## [2026-05-05T06:37:33Z] ingest | Governance & Configuration
+
+- status: published
+- slug: notion_document/governance-configuration-e177da9a
+- wiki_revision_id: wikirev_00982e9e76868d3f674cb1b05ecf742e
+- source_document_id: srcdoc_c20b79356cbf1ca2df307422e177da9a
+- source_revision_id: srcrev_e55f24041d5d677d0ef64670dbedf3e7
+- summary: Source: [Notion source](https://www.notion.so/Governance-Configuration-608eeaac35af45c6a46eec11e9ca8f54)
+
+## [2026-05-05T06:37:33Z] ingest | Mutability Support
+
+- status: published
+- slug: notion_document/mutability-support-dfe3d18a
+- wiki_revision_id: wikirev_f05da95c445e01911ed4f6087f3ab320
+- source_document_id: srcdoc_007d7bdaca31b733c679fca6dfe3d18a
+- source_revision_id: srcrev_fbe808064347ff47bf4bfe270f2d4ac8
+- summary: Source: [Notion source](https://www.notion.so/Mutability-Support-818f282cddd74c13976c50ea5f3e80f4)
+
+## [2026-05-05T06:37:36Z] ingest | GitHub and Twitter/X Handler
+
+- status: published
+- slug: notion_document/github-and-twitter/x-handler-62113f10
+- wiki_revision_id: wikirev_9a629196b5b3388223c51a25e071ea8f
+- source_document_id: srcdoc_c1bf25029e3549bf840c4a3c62113f10
+- source_revision_id: srcrev_fb1360d3fa083e680335f97a186158c1
+- summary: Source: [Notion source](https://www.notion.so/GitHub-and-Twitter-X-Handler-70372d47fd4c484099495276d9a40baf)
+
+## [2026-05-05T06:37:37Z] ingest | Example Relationship Types
+
+- status: published
+- slug: notion_document/example-relationship-types-d8373161
+- wiki_revision_id: wikirev_8f8f5499f0cf6f3350eb03b11eed6dd6
+- source_document_id: srcdoc_cf9871ce3d7dc62df90f6b18d8373161
+- source_revision_id: srcrev_d5cc163fdef28cd9b9c998067d3f0d1e
+- summary: Source: [Notion source](https://www.notion.so/Example-Relationship-Types-32c01c69cbd14056b7097d2998d85a28)
+
+## [2026-05-05T06:37:39Z] ingest | SDKs
+
+- status: published
+- slug: notion_document/sdks-9cb9825e
+- wiki_revision_id: wikirev_d74b6068bfd0d8c1c0eaba5544e3cfba
+- source_document_id: srcdoc_a71063732cb8515b290859c99cb9825e
+- source_revision_id: srcrev_4ff16c4b4a28a4cee89587165edf8269
+- summary: Source: [Notion source](https://www.notion.so/SDKs-2a030ee1f1b44cde835f8f3afa076ed8)
+
+## [2026-05-05T06:37:42Z] ingest | Core SDK
+
+- status: published
+- slug: notion_document/core-sdk-a7bf2610
+- wiki_revision_id: wikirev_09e5c1e1a858fde15d47e2629534530a
+- source_document_id: srcdoc_12b82840a95fc1f4f8111d55a7bf2610
+- source_revision_id: srcrev_161efeb3ce60b111a31829eabe6ead16
+- summary: Source: [Notion source](https://www.notion.so/Core-SDK-233673ea752f4e81a8c03ae7d7954ca2)
+
+## [2026-05-05T06:37:43Z] ingest | Core SDK Requests
+
+- status: published
+- slug: notion_document/core-sdk-requests-99ef9c82
+- wiki_revision_id: wikirev_789c7f9a76df1bbc7aed122117242534
+- source_document_id: srcdoc_78fddfe23ed0205cfb7c49ba99ef9c82
+- source_revision_id: srcrev_9bbdaa0c2d29d27e0627a89c13d86934
+- summary: Source: [Notion source](https://www.notion.so/Core-SDK-Requests-48c449c16ff54eb0b556b18fbd64e73b)
+
+## [2026-05-05T06:37:45Z] ingest | Partner Testnet PoC Protocol Deployment Address (1)
+
+- status: published
+- slug: notion_document/partner-testnet-poc-protocol-deployment-address-1--7d42fac2
+- wiki_revision_id: wikirev_638291b076e7e85afe17e6430670db47
+- source_document_id: srcdoc_54eb6b24a9a6438b63bf4ecf7d42fac2
+- source_revision_id: srcrev_e868443a7cd372d2ebd7d25c9429165b
+- summary: Source: [Notion source](https://www.notion.so/Partner-Testnet-PoC-Protocol-Deployment-Address-1-a764fef5b8ca42a8a0d3ea1a0b7e29d0)
+
+## [2026-05-05T06:37:48Z] ingest | Partner Setup Guide v2
+
+- status: published
+- slug: notion_document/partner-setup-guide-v2-c799c842
+- wiki_revision_id: wikirev_26ef93d8e4385ce0ac69865f56c1fbc9
+- source_document_id: srcdoc_f2b50a6db5380415fb6fb6a0c799c842
+- source_revision_id: srcrev_0b9441024723fcaba9837efc9bdedbe6
+- summary: Source: [Notion source](https://www.notion.so/Partner-Setup-Guide-v2-66f3f0db593040db9ec910e762dcf5c5)
+
+## [2026-05-05T06:37:48Z] ingest | Official Release Guide
+
+- status: published
+- slug: notion_document/official-release-guide-8fc4b732
+- wiki_revision_id: wikirev_b3e8a9a97a74d401262514fdfea032f8
+- source_document_id: srcdoc_8ad3e5d53277873a6fc5fc3e8fc4b732
+- source_revision_id: srcrev_30ec9594b50f7ce4259d24cc0b4c727f
+- summary: Source: [Notion source](https://www.notion.so/Official-Release-Guide-f6e68eeeb69340538f7df3b1f61ccd79)
+
+## [2026-05-05T06:37:50Z] ingest | iliad testnet launch checklist
+
+- status: published
+- slug: notion_document/iliad-testnet-launch-checklist-f83bea4e
+- wiki_revision_id: wikirev_9b07da908f39b37387cd3ff7f89eaefc
+- source_document_id: srcdoc_50ba2e00425ff82118e89c35f83bea4e
+- source_revision_id: srcrev_98a019047340bb0baed16e5f32540e91
+- summary: Source: [Notion source](https://www.notion.so/iliad-testnet-launch-checklist-f7254d586c734535b471bcce0e3a3dcc)
+
+## [2026-05-05T06:37:52Z] ingest | Open source repo checklist
+
+- status: published
+- slug: notion_document/open-source-repo-checklist-0de42d8c
+- wiki_revision_id: wikirev_b20bbe71907432f76474febb5c8fd7b3
+- source_document_id: srcdoc_bc123e3fc541d178e0a32a5b0de42d8c
+- source_revision_id: srcrev_9fbfe284665df18b21f9e977b219bd58
+- summary: Source: [Notion source](https://www.notion.so/Open-source-repo-checklist-a641ad3b16964686920060f2a43b5cf9)
+
+## [2026-05-05T06:37:53Z] ingest | L1 Meeting notes
+
+- status: published
+- slug: notion_document/l1-meeting-notes-a058aebd
+- wiki_revision_id: wikirev_4f7ed9c7f1b42c14f927622fa4e725f4
+- source_document_id: srcdoc_261b2be7aaef5740759cbfc1a058aebd
+- source_revision_id: srcrev_2fa1601aaba9a790ff74f3123d4024d0
+- summary: Source: [Notion source](https://www.notion.so/L1-Meeting-notes-9ce14d4e4069453d9fc697882b9a25ef)
+
+## [2026-05-05T06:37:55Z] ingest | nginx setup (wss + https localhost)
+
+- status: published
+- slug: notion_document/nginx-setup-wss-https-localhost--acf5be2e
+- wiki_revision_id: wikirev_5fca86bf62834b7d3319b7f7df8598a6
+- source_document_id: srcdoc_860cd74094ba7f190f32725aacf5be2e
+- source_revision_id: srcrev_9ce38fff10eed080be0c8f242d8bda2b
+- summary: Source: [Notion source](https://www.notion.so/nginx-setup-wss-https-localhost-22a53dd922bf42d7a53404c31cddac6b)
+
+## [2026-05-05T06:37:58Z] ingest | Story Public Testnet Guide - Internal
+
+- status: published
+- slug: notion_document/story-public-testnet-guide---internal-129a0e1d
+- wiki_revision_id: wikirev_12021ff76c89996119afac8e6d1cb79f
+- source_document_id: srcdoc_27ebb6d1345b504d1ecf0682129a0e1d
+- source_revision_id: srcrev_a5e5032103d0ec1b0c743695b964afa0
+- summary: Source: [Notion source](https://www.notion.so/Story-Public-Testnet-Guide-Internal-0d77a65e4263454a8a58f7cfab75d399)
+
+## [2026-05-05T06:37:58Z] ingest | Story Node Improvements
+
+- status: published
+- slug: notion_document/story-node-improvements-e2425e71
+- wiki_revision_id: wikirev_478ff59d092507407e29b04bd68d6b3d
+- source_document_id: srcdoc_b83b1751bc41dd98039b0c71e2425e71
+- source_revision_id: srcrev_eec318c6f7eb7a9bfdbd3bb439a5c45c
+- summary: Source: [Notion source](https://www.notion.so/Story-Node-Improvements-6132fd9042ed4d97a959b1ee85cd871c)
+
+## [2026-05-05T06:38:02Z] ingest | Platform Tasks
+
+- status: published
+- slug: notion_document/platform-tasks-a9b56ad5
+- wiki_revision_id: wikirev_1397a32d9dee523dd19b6bb1cc182d77
+- source_document_id: srcdoc_24e4a00dd8beff10b1d47097a9b56ad5
+- source_revision_id: srcrev_efac3716aeffcc2f756a72154dcbd970
+- summary: Source: [Notion source](https://www.notion.so/Platform-Tasks-07f888786a4547e99d382d52ec0d145e)
+
+## [2026-05-05T06:38:04Z] ingest | Web3 cross-chain Solution
+
+- status: published
+- slug: notion_document/web3-cross-chain-solution-81e87a54
+- wiki_revision_id: wikirev_8d0de382eef1e100c460fe5bf7d09c48
+- source_document_id: srcdoc_0a84b4fa3bbd45cb2c277cd681e87a54
+- source_revision_id: srcrev_cf079f6965434a6e7a9a8bc442ab5133
+- summary: Source: [Notion source](https://www.notion.so/Web3-cross-chain-Solution-a428cedca1b142f393201038307c11ae)
+
+## [2026-05-05T06:38:05Z] ingest | xchain API v0 design
+
+- status: published
+- slug: notion_document/xchain-api-v0-design-a180a3ff
+- wiki_revision_id: wikirev_94237fdc2e1862a79654e94361b620b5
+- source_document_id: srcdoc_bbf39ccc2bbb8e9983b30aa4a180a3ff
+- source_revision_id: srcrev_ab684e0da414bd7a3f3d9e7414fd19bc
+- summary: Source: [Notion source](https://www.notion.so/xchain-API-v0-design-d8ee95612756478883902d58646eca49)
+
+## [2026-05-05T06:38:08Z] ingest | Halo → ETH Withdraw flows
+
+- status: published
+- slug: notion_document/halo-eth-withdraw-flows-783d7e0f
+- wiki_revision_id: wikirev_53e19fec361bbc270a35d089978cf867
+- source_document_id: srcdoc_0cf8113e4f62be9d726ee578783d7e0f
+- source_revision_id: srcrev_b34c328fbf0ea488f1c89bf6bbf2ac60
+- summary: Source: [Notion source](https://www.notion.so/Halo-ETH-Withdraw-flows-a6bfbdce83484147a2459fad284e433a)
+
+## [2026-05-05T06:38:09Z] ingest | L1 runbook
+
+- status: published
+- slug: notion_document/l1-runbook-292ab819
+- wiki_revision_id: wikirev_4d895ccebaaa33489fb4ba4f66305a67
+- source_document_id: srcdoc_c786fbaa6e53b70ab372758a292ab819
+- source_revision_id: srcrev_cc9cd55812b31dd66673b43ba57859f3
+- summary: Source: [Notion source](https://www.notion.so/L1-runbook-48c35ab5c1444181a7738978d79293ce)
+
+## [2026-05-05T06:38:12Z] ingest | faucet app runbook
+
+- status: published
+- slug: notion_document/faucet-app-runbook-019a94fb
+- wiki_revision_id: wikirev_c6e736764835f749ee321f52d016e231
+- source_document_id: srcdoc_a8afea7c5307d37ca95c6dfe019a94fb
+- source_revision_id: srcrev_740ec26a1828f01ba2b83d2581d9a761
+- summary: Source: [Notion source](https://www.notion.so/faucet-app-runbook-8c9ef7af16054154a42c887e63179b79)
+
+## [2026-05-05T06:38:13Z] ingest | Token Drops
+
+- status: published
+- slug: notion_document/token-drops-4b276e2e
+- wiki_revision_id: wikirev_38466b130b3571257dc7fbed95093587
+- source_document_id: srcdoc_9f28fcdd7ee9946fff611c794b276e2e
+- source_revision_id: srcrev_ff4defaf375ef4a2ee244831210f893e
+- summary: Source: [Notion source](https://www.notion.so/Token-Drops-d809ce14186a4e45a6b13b6db4980b55)
+
+## [2026-05-05T06:38:15Z] ingest | Eng Leadership Offsite Aug/28/2024
+
+- status: published
+- slug: notion_document/eng-leadership-offsite-aug/28/2024-22858567
+- wiki_revision_id: wikirev_8e66d19281ec2f1cd62c209d959473f2
+- source_document_id: srcdoc_195b4d426cea45af3e148d0922858567
+- source_revision_id: srcrev_bb8b8aa5fdd67751faae6e38b9f4e3af
+- summary: Source: [Notion source](https://www.notion.so/Eng-Leadership-Offsite-Aug-28-2024-f787ff4a706547a7a9ca05b6b9430507)
+
+## [2026-05-05T06:38:20Z] ingest | Public Testnet PoC Protocol Deployment Address
+
+- status: published
+- slug: notion_document/public-testnet-poc-protocol-deployment-address-debae3f9
+- wiki_revision_id: wikirev_654c59a535ddc8fd7b61fb7e9678aa1f
+- source_document_id: srcdoc_b62e19d62e278ec5a5fb5c32debae3f9
+- source_revision_id: srcrev_bceeccb17374ffd7b8a203655c208af4
+- summary: Source: [Notion source](https://www.notion.so/Public-Testnet-PoC-Protocol-Deployment-Address-813ff6ee52554ff38938f1ecef25546b)
+
+## [2026-05-05T06:38:22Z] ingest | Story Partner Testnet Guide - Archive
+
+- status: published
+- slug: notion_document/story-partner-testnet-guide---archive-338d4db4
+- wiki_revision_id: wikirev_8153db5a15baf05db01698f2220527d7
+- source_document_id: srcdoc_3f7db60d377ba4ec1f1f5505338d4db4
+- source_revision_id: srcrev_7e61a1ee7b6a85a494ca702bf38cd3e6
+- summary: Source: [Notion source](https://www.notion.so/Story-Partner-Testnet-Guide-Archive-25dc6a0c142448ff9d460a04eaef7a11)
+
+## [2026-05-05T06:38:23Z] ingest | Story Partner Testnet Guide
+
+- status: published
+- slug: notion_document/story-partner-testnet-guide-bd61eabe
+- wiki_revision_id: wikirev_46b822112db70ace9dab89ca01308b7b
+- source_document_id: srcdoc_f37e2a60a645c9ed82538778bd61eabe
+- source_revision_id: srcrev_9739f82ace3771af9d5bb2ce34495bc3
+- summary: Source: [Notion source](https://www.notion.so/Story-Partner-Testnet-Guide-06ac4cb0f1be4464a32a3d20d95a4a41)
+
+## [2026-05-05T06:38:26Z] ingest | Public Testnet PoC Protocol Deployment Address
+
+- status: published
+- slug: notion_document/public-testnet-poc-protocol-deployment-address-bcae2c09
+- wiki_revision_id: wikirev_1b17543de808cf33a96efeeca3123e80
+- source_document_id: srcdoc_5bb107407149699ae3b39bb5bcae2c09
+- source_revision_id: srcrev_b01a61e3aaf2b0b5513f507689546a1a
+- summary: Source: [Notion source](https://www.notion.so/Public-Testnet-PoC-Protocol-Deployment-Address-182215000d374116a4c9f4c84f823e61)
+
+## [2026-05-05T06:38:26Z] ingest | New CI Process
+
+- status: published
+- slug: notion_document/new-ci-process-894543d0
+- wiki_revision_id: wikirev_41d0ab1054f229ddb3957e795fcf1d8f
+- source_document_id: srcdoc_7edd44a2c5edf6d09712f2f5894543d0
+- source_revision_id: srcrev_262b6fa7751390d752e84fc29b496451
+- summary: Source: [Notion source](https://www.notion.so/New-CI-Process-60c16e74501545daad79ff044eded2fb)
+
+## [2026-05-05T06:38:29Z] ingest | Epoched Staking
+
+- status: published
+- slug: notion_document/epoched-staking-bc273206
+- wiki_revision_id: wikirev_5e946de274786a7052fabaf3cd3ae3c3
+- source_document_id: srcdoc_28de48dab6a8e086cfd96c53bc273206
+- source_revision_id: srcrev_583615659d51369d4fe357ef9851044f
+- summary: Source: [Notion source](https://www.notion.so/Epoched-Staking-8c03539a4bd84d0a98c782139f3dc766)
+
+## [2026-05-05T06:38:30Z] ingest | Protocol V1.1 Addresses and Events
+
+- status: published
+- slug: notion_document/protocol-v1-1-addresses-and-events-2b4d80d5
+- wiki_revision_id: wikirev_1278971c4dae51f8ecb54945e0b856c1
+- source_document_id: srcdoc_869bde1c6dc9a36239b9794f2b4d80d5
+- source_revision_id: srcrev_a6679a1857cdb4dea3878141d70c4a05
+- summary: Source: [Notion source](https://www.notion.so/Protocol-V1-1-Addresses-and-Events-69ed3ce9d81b4a7f88b43226d306aed6)
+
+## [2026-05-05T06:38:31Z] ingest | Iliad Testnet
+
+- status: published
+- slug: notion_document/iliad-testnet-e11d08c4
+- wiki_revision_id: wikirev_4c17ec2e6ecbe556e6a7334c3fcc3e1f
+- source_document_id: srcdoc_e73e08dbc0ed6b008a0894d1e11d08c4
+- source_revision_id: srcrev_c4f1722dc14e8f73e142e5deaee5028f
+- summary: Source: [Notion source](https://www.notion.so/Iliad-Testnet-82fc469d6514495f85547a6a1e617a42)
+
+## [2026-05-05T06:38:33Z] ingest | Protocol V1.2 rc-1
+
+- status: published
+- slug: notion_document/protocol-v1-2-rc-1-5ba5cd21
+- wiki_revision_id: wikirev_d401ffa0737a6dcc0db38e21bd859393
+- source_document_id: srcdoc_19dc47baa08b917e49e3d8e75ba5cd21
+- source_revision_id: srcrev_dd81ec56d3f897f8c27f5b2aaf795b40
+- summary: Source: [Notion source](https://www.notion.so/Protocol-V1-2-rc-1-6d93bd82ed154f16b5e7b204435b950f)
+
+## [2026-05-05T06:38:36Z] ingest | Periphery New Release Runbook
+
+- status: published
+- slug: notion_document/periphery-new-release-runbook-14c17ce5
+- wiki_revision_id: wikirev_1a47c097e0285cbe6f3992cd1af7c339
+- source_document_id: srcdoc_0da9ddbeaab34493707a2ecf14c17ce5
+- source_revision_id: srcrev_028fc6163c9ea0f546921ed54f8a404a
+- summary: Source: [Notion source](https://www.notion.so/Periphery-New-Release-Runbook-bd4a4d9180704f9daef690a38d19f218)
+
+## [2026-05-05T06:38:37Z] ingest | Post-Mortem: iliad NFT mint high gas issue
+
+- status: published
+- slug: notion_document/post-mortem-iliad-nft-mint-high-gas-issue-a567cc21
+- wiki_revision_id: wikirev_f518e5b54d2a29714173949ff8478654
+- source_document_id: srcdoc_6f0ca3d62b8e045f26dd4d6da567cc21
+- source_revision_id: srcrev_9cd3dff05d06478b032c5baa59f6a1cc
+- summary: Source: [Notion source](https://www.notion.so/Post-Mortem-iliad-NFT-mint-high-gas-issue-c20f5cc64589483483a2e0e4b3d910fd)
+
+## [2026-05-05T06:38:41Z] ingest | Postmortem: ETHDenver Hackathon
+
+- status: published
+- slug: notion_document/postmortem-ethdenver-hackathon-2ee2ba43
+- wiki_revision_id: wikirev_37cf1ccc7241ce3d8595524ec9141f99
+- source_document_id: srcdoc_882058efac66647e579e44e22ee2ba43
+- source_revision_id: srcrev_0bf757dc5e5cb35de92703835628693c
+- summary: Source: [Notion source](https://www.notion.so/Postmortem-ETHDenver-Hackathon-8ee8ae27b6044222a3705525bef10fd6)
+
+## [2026-05-05T06:38:44Z] ingest | [Postmortem] List IP Asset API didn’t return the latest data
+
+- status: published
+- slug: notion_document/-postmortem-list-ip-asset-api-didn-t-return-the-latest-data-e3bfc18a
+- wiki_revision_id: wikirev_0125962b566ec452200ffd1b16efd3d7
+- source_document_id: srcdoc_c417157a743192eb8d2b9a3ce3bfc18a
+- source_revision_id: srcrev_84e115e71511abaf9c4bf51d0ee5fc1d
+- summary: Source: [Notion source](https://www.notion.so/Postmortem-List-IP-Asset-API-didn-t-return-the-latest-data-a0c0220c5abb47eb8281948f443d81ca)
+
+## [2026-05-05T06:38:45Z] ingest | [Mar 16] Prod cluster down due to ArgoCD misconfig
+
+- status: published
+- slug: notion_document/-mar-16-prod-cluster-down-due-to-argocd-misconfig-dcd6b92f
+- wiki_revision_id: wikirev_bf70f13c352a655362a6e21557e67bac
+- source_document_id: srcdoc_b41ea634949f533868011debdcd6b92f
+- source_revision_id: srcrev_533216a3c994c6145867347d63515fb8
+- summary: Source: [Notion source](https://www.notion.so/Mar-16-Prod-cluster-down-due-to-ArgoCD-misconfig-1d7f6bf669c846ada9e70f87ef73f3ea)
+
+## [2026-05-05T06:38:48Z] ingest | Post-Mortem: RPC issues in the first iliad upgrade
+
+- status: published
+- slug: notion_document/post-mortem-rpc-issues-in-the-first-iliad-upgrade-600ccd7f
+- wiki_revision_id: wikirev_123b73f318255725ea36b8ae6354ae2d
+- source_document_id: srcdoc_dd31c923337dbda48162c6da600ccd7f
+- source_revision_id: srcrev_23a3f91ae3686c4ec845f32a1481b949
+- summary: Source: [Notion source](https://www.notion.so/Post-Mortem-RPC-issues-in-the-first-iliad-upgrade-bea89953f6ef4a30ad20f12fb38f221f)
+
+## [2026-05-05T06:38:51Z] ingest | Documentation Structure
+
+- status: published
+- slug: notion_document/documentation-structure-3e85fbf4
+- wiki_revision_id: wikirev_d358502dcf8e7475fe64f538996ad481
+- source_document_id: srcdoc_1caa72f6ee9a6a3e9321a3db3e85fbf4
+- source_revision_id: srcrev_1f0b482596763ffe094dd66aae64a25c
+- summary: Source: [Notion source](https://www.notion.so/Documentation-Structure-759428204de9469d9bea22daf1d636ca)
+
+## [2026-05-05T06:38:51Z] ingest | Graph DB Study
+
+- status: published
+- slug: notion_document/graph-db-study-6f714223
+- wiki_revision_id: wikirev_04d3e59b23a8cf1a4bdaa4e0d8f7d2f4
+- source_document_id: srcdoc_897e027c56c794b54ce103676f714223
+- source_revision_id: srcrev_f34e16fbb16b194bd91de418b78ea167
+- summary: Source: [Notion source](https://www.notion.so/Graph-DB-Study-d301730634e641de9313362b61877e78)
+
+## [2026-05-05T06:38:54Z] ingest | Adding new precompile
+
+- status: published
+- slug: notion_document/adding-new-precompile-dfff1fa3
+- wiki_revision_id: wikirev_11f70f86e1fcd33bebf0bef9afe20414
+- source_document_id: srcdoc_360e28a6740f53356144b3d5dfff1fa3
+- source_revision_id: srcrev_97540201c78e50ec0661703029eaf9f2
+- summary: Source: [Notion source](https://www.notion.so/Adding-new-precompile-ab85b1091e8d4c00968444d9a2411e78)
+
+## [2026-05-05T06:38:57Z] ingest | SPG Requests
+
+- status: published
+- slug: notion_document/spg-requests-f63d95a9
+- wiki_revision_id: wikirev_8ca76386d28c99d91f1977dc748d2e2c
+- source_document_id: srcdoc_d137b0c8715b845971bce3fbf63d95a9
+- source_revision_id: srcrev_86b0ee09181b6efdc4870ad061812b7a
+- summary: Source: [Notion source](https://www.notion.so/SPG-Requests-8db2855d8bc84ed88d424e2060161aea)
+
+## [2026-05-05T06:38:59Z] ingest | Story Public Testnet Guide (0.9.12)
+
+- status: published
+- slug: notion_document/story-public-testnet-guide-0-9-12--42ea8451
+- wiki_revision_id: wikirev_6e13fbad3fb7f1dd18a297452d756b2e
+- source_document_id: srcdoc_d34f3499b367f46f8934733842ea8451
+- source_revision_id: srcrev_e382ff8eb82e6af0597fe18feda2ff88
+- summary: Source: [Notion source](https://www.notion.so/Story-Public-Testnet-Guide-0-9-12-103051299a54806cba9bf9768990f069)
+
+## [2026-05-05T06:39:03Z] ingest | SDK V1.3 - Design Doc
+
+- status: published
+- slug: notion_document/sdk-v1-3---design-doc-32ba7649
+- wiki_revision_id: wikirev_b4c263569f8cfc2dd1770cda8fdca307
+- source_document_id: srcdoc_a3e7702755f60f2924a99a3f32ba7649
+- source_revision_id: srcrev_efd0bd3fbf02f7d5eddc0a5bda977caf
+- summary: Source: [Notion source](https://www.notion.so/SDK-V1-3-Design-Doc-103051299a5480d8acd0c982cecc8296)
+
+## [2026-05-05T06:39:04Z] ingest | Licensing and Derivatives DevEx
+
+- status: published
+- slug: notion_document/licensing-and-derivatives-devex-f885916f
+- wiki_revision_id: wikirev_2aa02d049290648deb869dcf3cd46520
+- source_document_id: srcdoc_b4f3eeb81317e4d0378414d4f885916f
+- source_revision_id: srcrev_0c9917762c404d012527a8a06cd892df
+- summary: Source: [Notion source](https://www.notion.so/Licensing-and-Derivatives-DevEx-552614d481fc4ee8a5a071a8bd5287b5)
+
+## [2026-05-05T06:39:07Z] ingest | Story L1
+
+- status: published
+- slug: notion_document/story-l1-9cf0d8c4
+- wiki_revision_id: wikirev_2e704ef4deac19daeecdeb5e46791db3
+- source_document_id: srcdoc_e7c8c06d04ab964a6b3f28289cf0d8c4
+- source_revision_id: srcrev_b02f47da1a2031da887e888297422333
+- summary: Source: [Notion source](https://www.notion.so/Story-L1-c1944f61e1484de29ad7278d7d7589df)
+
+## [2026-05-05T06:39:11Z] ingest | Royalty Enhancement
+
+- status: published
+- slug: notion_document/royalty-enhancement-bc5a4c48
+- wiki_revision_id: wikirev_af7d08ea59f55d683d0b97d68d2ca1ff
+- source_document_id: srcdoc_9bde15248532fc0f1656d4c7bc5a4c48
+- source_revision_id: srcrev_55ebdfa22c447f24e2862116d2463b65
+- summary: Source: [Notion source](https://www.notion.so/Royalty-Enhancement-ceacd3b5d9134d6392fd57b3e06b834e)
+
+## [2026-05-05T06:39:13Z] ingest | The Hub Operational Readiness Review - ORR
+
+- status: published
+- slug: notion_document/the-hub-operational-readiness-review---orr-ff1aecd3
+- wiki_revision_id: wikirev_e800e378460ae3bedfbf962068ee931f
+- source_document_id: srcdoc_0e90dbf5e2c73bab332be95eff1aecd3
+- source_revision_id: srcrev_ca2e6082b2fced292f2b96afa7fbf587
+- summary: Source: [Notion source](https://www.notion.so/The-Hub-Operational-Readiness-Review-ORR-105051299a5480ccaefdea50d8d1f539)
+
+## [2026-05-05T06:39:15Z] ingest | Story Public Testnet Guide  Overview (0.9.13)
+
+- status: published
+- slug: notion_document/story-public-testnet-guide-overview-0-9-13--aa539b0e
+- wiki_revision_id: wikirev_b3aa413068eaa38a55756ae85c9c51ab
+- source_document_id: srcdoc_05146033cec2e6dfe38a9e93aa539b0e
+- source_revision_id: srcrev_68c83f122c83ac5cedd31c757bcbb0bf
+- summary: Overview (0.9.13)
+
+## [2026-05-05T06:39:16Z] ingest | Story Public Testnet Guide  Overview
+
+- status: published
+- slug: notion_document/story-public-testnet-guide-overview-97af8c9b
+- wiki_revision_id: wikirev_d955e537b3e0588783b37a9adb5e318c
+- source_document_id: srcdoc_a13467d471ff76b5f10c809197af8c9b
+- source_revision_id: srcrev_1e2ac4730a347ddc2d7c82e600666139
+- summary: Overview
+
+## [2026-05-05T06:39:20Z] ingest | Beta to Mainnet Plan
+
+- status: published
+- slug: notion_document/beta-to-mainnet-plan-1b821421
+- wiki_revision_id: wikirev_b8ccca884f90a2dfb33fee3296850d68
+- source_document_id: srcdoc_fde12f226376344e5e673ca11b821421
+- source_revision_id: srcrev_99541cf4abfa9c4f582605137ac67163
+- summary: Source: [Notion source](https://www.notion.so/Beta-to-Mainnet-Plan-cee979feed7649dcb0445619215cab61)
+
+## [2026-05-05T06:39:23Z] ingest | Mac OS X - Story L1 One Node Setup
+
+- status: published
+- slug: notion_document/mac-os-x---story-l1-one-node-setup-239b435e
+- wiki_revision_id: wikirev_9226cc6195c2ab63e4c6bb472d8fd054
+- source_document_id: srcdoc_79616899ac642c02dce7ee42239b435e
+- source_revision_id: srcrev_ef89487304eb28a087d0e96ebc25c45a
+- summary: Source: [Notion source](https://www.notion.so/Mac-OS-X-Story-L1-One-Node-Setup-7415db64c729419cb8ec62ae323b12aa)
+
+## [2026-05-05T06:39:26Z] ingest | Mac OS X - Story L1 Two Node Setup
+
+- status: published
+- slug: notion_document/mac-os-x---story-l1-two-node-setup-5af1a240
+- wiki_revision_id: wikirev_3d11d882e73af5ffb1b5a31d028db476
+- source_document_id: srcdoc_63839ac5d351533add9aa1535af1a240
+- source_revision_id: srcrev_d70592364b1e7ce5f36332f30f6ccf1a
+- summary: Source: [Notion source](https://www.notion.so/Mac-OS-X-Story-L1-Two-Node-Setup-e6f7641845bd40959d1f2b2893c0ba14)
+
+## [2026-05-05T06:39:27Z] ingest | Story L1 One Node Setup
+
+- status: published
+- slug: notion_document/story-l1-one-node-setup-f112f60e
+- wiki_revision_id: wikirev_83daeeae1e122505b9d8c3709d33b1f9
+- source_document_id: srcdoc_a90e629db8afd1b4022a7c78f112f60e
+- source_revision_id: srcrev_2644a85650bcffe9bebeeeb3500ef3bf
+- summary: Source: [Notion source](https://www.notion.so/Story-L1-One-Node-Setup-106051299a548039a78dfd5c996a5083)
+
+## [2026-05-05T06:39:32Z] ingest | Monitoring Setup
+
+- status: published
+- slug: notion_document/monitoring-setup-7ea53cbe
+- wiki_revision_id: wikirev_8d68a33dabbd0f1156c61d447f4e3124
+- source_document_id: srcdoc_4275a41c3c441c1a5c4def3a7ea53cbe
+- source_revision_id: srcrev_29f6c5c31835007219ccedd6a7e39006
+- summary: Source: [Notion source](https://www.notion.so/Monitoring-Setup-8c24570f347a4564968a4820a2e9257e)
+
+## [2026-05-05T06:39:32Z] ingest | Upgrade Tutorial: Geth (0.9.2 → 0.9.3) (1)
+
+- status: published
+- slug: notion_document/upgrade-tutorial-geth-0-9-2-0-9-3-1--92367cb2
+- wiki_revision_id: wikirev_8f144f0db98b698f017783d79233a2fa
+- source_document_id: srcdoc_96140294a94a49146fa15f2892367cb2
+- source_revision_id: srcrev_fe993d3896ec05eb263196153cf91343
+- summary: Source: [Notion source](https://www.notion.so/Upgrade-Tutorial-Geth-0-9-2-0-9-3-1-10b051299a5480b784dcda14845aa11f)
+
+## [2026-05-05T06:39:35Z] ingest | Upgrade Tutorial: Geth (0.9.2 → 0.9.3)
+
+- status: published
+- slug: notion_document/upgrade-tutorial-geth-0-9-2-0-9-3--37ad6032
+- wiki_revision_id: wikirev_c9c8712e26e0b5ee476384aa07453663
+- source_document_id: srcdoc_9acd42d2ba4da0abfe6f886837ad6032
+- source_revision_id: srcrev_c81da633f7c98beea96d9ae17abeabe9
+- summary: Source: [Notion source](https://www.notion.so/Upgrade-Tutorial-Geth-0-9-2-0-9-3-10b051299a5480f2a43fd2d207e750d3)
+
+## [2026-05-05T06:39:37Z] ingest | Productionize the backend
+
+- status: published
+- slug: notion_document/productionize-the-backend-66a14958
+- wiki_revision_id: wikirev_d882a5894fd51146080ba6e0434e72d6
+- source_document_id: srcdoc_901d669c235fb6624bb6247966a14958
+- source_revision_id: srcrev_035ca9fb17a6989fd28f75f811bd267c
+- summary: Source: [Notion source](https://www.notion.so/Productionize-the-backend-10c051299a5480b1af6ade7d4a668238)
+
+## [2026-05-05T06:39:37Z] ingest | TMKMS
+
+- status: published
+- slug: notion_document/tmkms-cf9b8a14
+- wiki_revision_id: wikirev_d78d81c59457226f3dc9a7b8b8e4488c
+- source_document_id: srcdoc_e9fae3552a116603de3ff5edcf9b8a14
+- source_revision_id: srcrev_5d1c80397cba6aeaba6a230fd5feaa83
+- summary: Source: [Notion source](https://www.notion.so/TMKMS-10c051299a54802a8285f582a50612a1)
+
+## [2026-05-05T06:39:39Z] ingest | L1 Infra roadmap (Sep 30)
+
+- status: published
+- slug: notion_document/l1-infra-roadmap-sep-30--82b07919
+- wiki_revision_id: wikirev_0c758a726bb729f91cd1f0e46fabcf1a
+- source_document_id: srcdoc_8e8fba82c4567ce6b2ccc55582b07919
+- source_revision_id: srcrev_7bd58ea4cb4f63271f13352213088fd4
+- summary: Source: [Notion source](https://www.notion.so/L1-Infra-roadmap-Sep-30-111051299a5480f2a022deea2b1b0a34)
+
+## [2026-05-05T06:39:41Z] ingest | Story NFT Contract Design
+
+- status: published
+- slug: notion_document/story-nft-contract-design-f1da5b1f
+- wiki_revision_id: wikirev_213e54b514991285431be3871272bb0b
+- source_document_id: srcdoc_e43861b48ace4141a4925884f1da5b1f
+- source_revision_id: srcrev_ca51d169fee004c433e3a050489ca555
+- summary: Source: [Notion source](https://www.notion.so/Story-NFT-Contract-Design-112051299a5480bda8dcc696867619ce)
+
+## [2026-05-05T06:39:42Z] ingest | [Post-Mortem] public-testnet Explorer Service Outage
+
+- status: published
+- slug: notion_document/-post-mortem-public-testnet-explorer-service-outage-ff9cc758
+- wiki_revision_id: wikirev_54e5b59e5c16b3bd045bb9ab973215e3
+- source_document_id: srcdoc_6aa4e39fef46cdaf506a2100ff9cc758
+- source_revision_id: srcrev_cf3d4aaff6a66d98abea7deec8423759
+- summary: Source: [Notion source](https://www.notion.so/Post-Mortem-public-testnet-Explorer-Service-Outage-112051299a548008ac9bc0caf43e1ae6)
+
+## [2026-05-05T06:39:44Z] ingest | L1 Design Doc
+
+- status: published
+- slug: notion_document/l1-design-doc-d3d458b5
+- wiki_revision_id: wikirev_dda28b80b4f68251c69b6d0e55c19a74
+- source_document_id: srcdoc_75467621b31e7204bca05219d3d458b5
+- source_revision_id: srcrev_ba7d4ff299631035bc79d564f91a8fb3
+- summary: Source: [Notion source](https://www.notion.so/L1-Design-Doc-113051299a5480e7be62cf2c867c02dc)
+
+## [2026-05-05T06:39:48Z] ingest | [Postmortem]Sep 29 iliad network outage
+
+- status: published
+- slug: notion_document/-postmortem-sep-29-iliad-network-outage-f65035fa
+- wiki_revision_id: wikirev_f2715af64e3609497ee7d8de2ec20815
+- source_document_id: srcdoc_24341975ad28c79564ca73c3f65035fa
+- source_revision_id: srcrev_348edd31705b346d0477636ed8d0ac1f
+- summary: Source: [Notion source](https://www.notion.so/Postmortem-Sep-29-iliad-network-outage-110051299a548006b3b6e0953c19e384)
+
+## [2026-05-05T06:39:48Z] ingest | Error Handling
+
+- status: published
+- slug: notion_document/error-handling-fc68ddad
+- wiki_revision_id: wikirev_d4f15ea1ab0e70dc0e66535199d1a518
+- source_document_id: srcdoc_767ff34a2affe1c254c949d5fc68ddad
+- source_revision_id: srcrev_dbba4e842c00dfeca347dd3a4e31b051
+- summary: Source: [Notion source](https://www.notion.so/Error-Handling-113051299a54807eb20cebcf04994c3f)
+
+## [2026-05-05T06:39:50Z] ingest | Engineering Meetings / Comm
+
+- status: published
+- slug: notion_document/engineering-meetings-/-comm-8f6b05d5
+- wiki_revision_id: wikirev_b711297af60bcea22a471023d5b71037
+- source_document_id: srcdoc_dcffe3b18796abd4cf0bdb438f6b05d5
+- source_revision_id: srcrev_e8ea78656852bbb5e29ae392d03d4f11
+- summary: Source: [Notion source](https://www.notion.so/Engineering-Meetings-Comm-4931badecfa544d1864a56cd36141552)
+
+## [2026-05-05T06:39:52Z] ingest | Commands for Troubleshooting
+
+- status: published
+- slug: notion_document/commands-for-troubleshooting-e62ddec8
+- wiki_revision_id: wikirev_a3f90e04e2bbf2e87d39673ff6a37049
+- source_document_id: srcdoc_b96b092961e1dcf7152abe43e62ddec8
+- source_revision_id: srcrev_2c78dfd508c1981220a3d08e48797cf7
+- summary: Source: [Notion source](https://www.notion.so/Commands-for-Troubleshooting-113051299a548038bdb6cd97020965fb)
+
+## [2026-05-05T06:39:53Z] ingest | Feedback and Improvements for OnCall Performance
+
+- status: published
+- slug: notion_document/feedback-and-improvements-for-oncall-performance-1ff36634
+- wiki_revision_id: wikirev_db9f17b0573601bd4e205d103ef7526f
+- source_document_id: srcdoc_a75929aa1d9df822aa672ccd1ff36634
+- source_revision_id: srcrev_38a509d8f708cd5505b1fd2057b580e8
+- summary: Source: [Notion source](https://www.notion.so/Feedback-and-Improvements-for-OnCall-Performance-115051299a54802bb5f4f28769b7656d)
+
+## [2026-05-05T06:39:56Z] ingest | Engineering Team Costs Analysis and Optimization
+
+- status: published
+- slug: notion_document/engineering-team-costs-analysis-and-optimization-ccdea875
+- wiki_revision_id: wikirev_d37c65d1f5859a9a7c60ea66a7686383
+- source_document_id: srcdoc_7eeaed2e87ce7a3fe3a65696ccdea875
+- source_revision_id: srcrev_8a23476bbd03a9c11c275525211e88de
+- summary: Source: [Notion source](https://www.notion.so/Engineering-Team-Costs-Analysis-and-Optimization-107051299a5480c6b936d3b48e6d7862)
+
+## [2026-05-05T06:39:56Z] ingest | PD: Node storage low
+
+- status: published
+- slug: notion_document/pd-node-storage-low-4aa7680d
+- wiki_revision_id: wikirev_c47cdb8d72f451933d13faf626e64560
+- source_document_id: srcdoc_129d1870f801b7984496e9f54aa7680d
+- source_revision_id: srcrev_e1f26abb347b3356793bd442eddf2e71
+- summary: Source: [Notion source](https://www.notion.so/PD-Node-storage-low-115051299a5480fdaf3adeeffc86f4b4)
+
+## [2026-05-05T06:39:59Z] ingest | Grafana Quick Guide
+
+- status: published
+- slug: notion_document/grafana-quick-guide-3e41da58
+- wiki_revision_id: wikirev_76cf3b69a4e609bf529b810868f0874f
+- source_document_id: srcdoc_d3528af9552dab03dc1acac13e41da58
+- source_revision_id: srcrev_851c5b97eef3d8a1edd440967d8dbb68
+- summary: Source: [Notion source](https://www.notion.so/Grafana-Quick-Guide-113051299a5480378cc5e57c6b701528)
+
+## [2026-05-05T06:40:03Z] ingest | Future research direction wishlist
+
+- status: published
+- slug: notion_document/future-research-direction-wishlist-08146c50
+- wiki_revision_id: wikirev_f93be3b09b942601df9c73ef6435a2bf
+- source_document_id: srcdoc_6340de96a8ba6edad4e0103b08146c50
+- source_revision_id: srcrev_ca74fe7b74aad8ca5877f86abf4de53f
+- summary: Source: [Notion source](https://www.notion.so/Future-research-direction-wishlist-119051299a54808bac4bc22431671fdc)
+
+## [2026-05-05T06:40:03Z] ingest | Internal-Mininet Runbook
+
+- status: published
+- slug: notion_document/internal-mininet-runbook-32da37d5
+- wiki_revision_id: wikirev_0189d720f2d1235a129c65839b28fb55
+- source_document_id: srcdoc_00ac4d7f1175251eba71b89232da37d5
+- source_revision_id: srcrev_0b3fd643d0ebaceda9a660d5ba063cc7
+- summary: Source: [Notion source](https://www.notion.so/Internal-Mininet-Runbook-119051299a548089b974d66addcbe7a9)
+
+## [2026-05-05T06:40:06Z] ingest | Creating 4844 Transactions
+
+- status: published
+- slug: notion_document/creating-4844-transactions-4928a7b3
+- wiki_revision_id: wikirev_873666d692adc8ea4031c91bf68e1be6
+- source_document_id: srcdoc_1bd982ac8f7e67b03d6544bd4928a7b3
+- source_revision_id: srcrev_d2ceaf8d4b4de113b684a58308017972
+- summary: Source: [Notion source](https://www.notion.so/Creating-4844-Transactions-11a051299a5480a0bd8bd3caeb9b7417)
+
+## [2026-05-05T06:40:08Z] ingest | Provision RPC Nodes on Velia
+
+- status: published
+- slug: notion_document/provision-rpc-nodes-on-velia-fbde07df
+- wiki_revision_id: wikirev_65350db90aa4db60a930b139e118896e
+- source_document_id: srcdoc_f62969b71f25eb1bbbe59751fbde07df
+- source_revision_id: srcrev_9f3d720b8fcd04a5aa8f2d1390511c1a
+- summary: Source: [Notion source](https://www.notion.so/Provision-RPC-Nodes-on-Velia-11a051299a5480ec964ee5fe03f30383)
+
+## [2026-05-05T06:40:08Z] ingest | [Postmortem]Sep 29 iliad network outage (1)
+
+- status: published
+- slug: notion_document/-postmortem-sep-29-iliad-network-outage-1--c10be9fc
+- wiki_revision_id: wikirev_9c46cd7c9fd14515ea06b0c44818bc0e
+- source_document_id: srcdoc_df0c237ac846a2eadd831b20c10be9fc
+- source_revision_id: srcrev_f7e14793eac1960970b3cc5ac2213730
+- summary: Source: [Notion source](https://www.notion.so/Postmortem-Sep-29-iliad-network-outage-1-11e051299a548082838ddd90a80a4577)
+
+## [2026-05-05T06:40:12Z] ingest | Protocol V1.2
+
+- status: published
+- slug: notion_document/protocol-v1-2-651430e8
+- wiki_revision_id: wikirev_3fea4c050463d795408decbf176e10e8
+- source_document_id: srcdoc_7fedc2aadb8d3a145bc56cf3651430e8
+- source_revision_id: srcrev_d44b1b3cf6534cf7c3bea6b386cd7743
+- summary: Source: [Notion source](https://www.notion.so/Protocol-V1-2-da208981558146d688bedac6f299acf0)
+
+## [2026-05-05T06:40:12Z] ingest | Protocol Periphery SoT
+
+- status: published
+- slug: notion_document/protocol-periphery-sot-8fd6bc65
+- wiki_revision_id: wikirev_81da85bcf961b8bd7239ce0cda4380a3
+- source_document_id: srcdoc_a3c8e519514c1fa4f0c4c0ff8fd6bc65
+- source_revision_id: srcrev_4f2259738065f6cbf9eae40229203cd8
+- summary: Source: [Notion source](https://www.notion.so/Protocol-Periphery-SoT-6d6d457d20c6441e85efcff4426def03)
+
+## [2026-05-05T06:40:14Z] ingest | Untitled
+
+- status: published
+- slug: notion_document/untitled-ea4f7071
+- wiki_revision_id: wikirev_228710f3e125d845d3bd5d5f4850bd59
+- source_document_id: srcdoc_a85cae27a50aa64d0aaa17c7ea4f7071
+- source_revision_id: srcrev_8a988c83cf5d8b96e788370ffe5e6591
+- summary: Source: [Notion source](https://www.notion.so/129051299a548040a4d9e22a8cd01435)
+
+## [2026-05-05T06:40:17Z] ingest | PoC Periphery Workflows
+
+- status: published
+- slug: notion_document/poc-periphery-workflows-a89b5b14
+- wiki_revision_id: wikirev_3f35c82be661c5ff64e0f42383f06d8e
+- source_document_id: srcdoc_5948b573cd0851a56ef27a12a89b5b14
+- source_revision_id: srcrev_bead94f3caafa74f52328389ef95c4bc
+- summary: Source: [Notion source](https://www.notion.so/PoC-Periphery-Workflows-1064b02afa4d4f3ea1ae26b2496b7524)
+
+## [2026-05-05T06:40:20Z] ingest | Batch SPG Function Calls
+
+- status: published
+- slug: notion_document/batch-spg-function-calls-205a4e6d
+- wiki_revision_id: wikirev_2506ccfbb60f3f4f9b75912ec50306db
+- source_document_id: srcdoc_9b8f207bde054b74d143bc1c205a4e6d
+- source_revision_id: srcrev_66c0c10877b460bcb1e6e9e3b32ea02b
+- summary: Source: [Notion source](https://www.notion.so/Batch-SPG-Function-Calls-5ab42d73141e48889e65a719289d18bf)
+
+## [2026-05-05T06:40:22Z] ingest | PoC Periphery Deployments & Upgrades with Foundry Scripts
+
+- status: published
+- slug: notion_document/poc-periphery-deployments-upgrades-with-foundry-scripts-895f47bc
+- wiki_revision_id: wikirev_9c4c65f2d014df45e1132b92391d2b27
+- source_document_id: srcdoc_be82230a74ee74f8048f454a895f47bc
+- source_revision_id: srcrev_934633df36992371511a3740d1d90671
+- summary: Source: [Notion source](https://www.notion.so/PoC-Periphery-Deployments-Upgrades-with-Foundry-Scripts-af1a72df41714eedb1a6fc430eca8632)
+
+## [2026-05-05T06:40:25Z] ingest | AeneidTestnet Deployment/Upgrade Info
+
+- status: published
+- slug: notion_document/aeneidtestnet-deployment/upgrade-info-24e0fcf2
+- wiki_revision_id: wikirev_29b740d5bdaa13eeb82672f4f0b56522
+- source_document_id: srcdoc_d81334d98ae92345fccd19b524e0fcf2
+- source_revision_id: srcrev_ea9daae62334347de8033cce2a6ba980
+- summary: Source: [Notion source](https://www.notion.so/Aeneid-Testnet-Deployment-Upgrade-Info-11f051299a548047b557ed19c291d974)
+
+## [2026-05-05T06:40:26Z] ingest | AeneidTestnet Deployment/Upgrade Info (1)
+
+- status: published
+- slug: notion_document/aeneidtestnet-deployment/upgrade-info-1--2d9ea8a9
+- wiki_revision_id: wikirev_eacd76ce0285990ff5dfbfd115c5db67
+- source_document_id: srcdoc_b4cc35bdfef2fbe20799a35e2d9ea8a9
+- source_revision_id: srcrev_36a62c0a4a6fb3c33f88832e17e05574
+- summary: Source: [Notion source](https://www.notion.so/Aeneid-Testnet-Deployment-Upgrade-Info-1-230051299a5480b7a2b5cb64279a3410)
+
+## [2026-05-05T06:40:28Z] ingest | PoC Upgrade & Pausing Guide
+
+- status: published
+- slug: notion_document/poc-upgrade-pausing-guide-a9c5ede6
+- wiki_revision_id: wikirev_ef461ea452681425b91c81e7824da187
+- source_document_id: srcdoc_496e0f2091d69dfd0b964dc0a9c5ede6
+- source_revision_id: srcrev_adc092532539fdc1992631b601202874
+- summary: Source: [Notion source](https://www.notion.so/PoC-Upgrade-Pausing-Guide-127051299a548093a7ebff4417fb2640)
+
+## [2026-05-05T06:40:34Z] ingest | PoC Upgrade & Pause Sanity Check Log
+
+- status: published
+- slug: notion_document/poc-upgrade-pause-sanity-check-log-03351b49
+- wiki_revision_id: wikirev_1d6d4886438d269253e942f7f2fa578a
+- source_document_id: srcdoc_3e0b24b6bdba9d6906b7437503351b49
+- source_revision_id: srcrev_c45361d20d46c099ae6386aa33d696c4
+- summary: Source: [Notion source](https://www.notion.so/PoC-Upgrade-Pause-Sanity-Check-Log-122051299a5480ecb51fe6b322ba9a6c)
+
+## [2026-05-05T06:40:37Z] ingest | PoC 1.3 Odyssey Test Logs2024-10-21
+
+- status: published
+- slug: notion_document/poc-1-3-odyssey-test-logs2024-10-21-ce5125d5
+- wiki_revision_id: wikirev_d9f9a0c025e57d2b1ee773a0572ab7b0
+- source_document_id: srcdoc_e34ddc5bc2827993f5a087c1ce5125d5
+- source_revision_id: srcrev_3f8ae80466b2441a9a30756d7a87f32d
+- summary: Source: [Notion source](https://www.notion.so/PoC-1-3-Odyssey-Test-Logs-127051299a5480d9bcf7d519870ecb9d)
+
+## [2026-05-05T06:40:38Z] ingest | The Ultimate Idiot-proof PoC Deploy Guide
+
+- status: published
+- slug: notion_document/the-ultimate-idiot-proof-poc-deploy-guide-ec560d9c
+- wiki_revision_id: wikirev_dc484d3f976202f4429f8a69d9f90047
+- source_document_id: srcdoc_335dd9dc8636d9f4fe129d5dec560d9c
+- source_revision_id: srcrev_e9f885f93c6ee502b51fc96aeff9af06
+- summary: Source: [Notion source](https://www.notion.so/The-Ultimate-Idiot-proof-PoC-Deploy-Guide-12a051299a5480a4a4f1f868f3ef0ac5)
+
+## [2026-05-05T06:40:41Z] ingest | Iliad Testnet SPG Deployment/Upgrade Info
+
+- status: published
+- slug: notion_document/iliad-testnet-spg-deployment/upgrade-info-3dd1e46a
+- wiki_revision_id: wikirev_b14f2618d491ffb3516fd8470a041141
+- source_document_id: srcdoc_c08d05f5190b3de956fbb54e3dd1e46a
+- source_revision_id: srcrev_ef83956c02d7a597752b65b8dae4bbfa
+- summary: Source: [Notion source](https://www.notion.so/Iliad-Testnet-SPG-Deployment-Upgrade-Info-69def31237e44c6e8acbccd1de004f8c)
+
+## [2026-05-05T06:40:45Z] ingest | Periphery Code FreezeChecklist
+
+- status: published
+- slug: notion_document/periphery-code-freezechecklist-590e130a
+- wiki_revision_id: wikirev_a7b4237e7612ff2570f808806b2679af
+- source_document_id: srcdoc_8e94206346d5c5d7df51c53c590e130a
+- source_revision_id: srcrev_161a1a299545c73d11ec176bd4938ea0
+- summary: Source: [Notion source](https://www.notion.so/Periphery-Code-Freeze-Checklist-15f051299a54803391a7fd9a934ec67e)
+
+## [2026-05-05T06:40:48Z] ingest | Projects & Tasks
+
+- status: published
+- slug: notion_document/projects-tasks-7369ab80
+- wiki_revision_id: wikirev_cc6453c02e9f3f84af3d727536bf8339
+- source_document_id: srcdoc_3db60772b15fee25356908a47369ab80
+- source_revision_id: srcrev_88b20ba30e0a807d9b43d9e6148e525b
+- summary: Source: [Notion source](https://www.notion.so/Projects-Tasks-9ffa8b0996c84d21a99a84f74ff9a247)
+
+## [2026-05-05T06:40:50Z] ingest | Story node setup guide
+
+- status: published
+- slug: notion_document/story-node-setup-guide-67598de1
+- wiki_revision_id: wikirev_dfc3e0b96971e5d5c12a9bd990924640
+- source_document_id: srcdoc_dc9ddab1a41d4a20a27bb6eb67598de1
+- source_revision_id: srcrev_02dd02100831837105c466bc4a54bd3a
+- summary: Source: [Notion source](https://www.notion.so/Story-node-setup-guide-11f051299a5480688891ec80dfb18933)
+
