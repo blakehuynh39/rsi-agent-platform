@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "9b760f172f2f8c9cfdcf40d239ef46c36234837835dd5b644c5d4dc125378657",
-        "size": 360695
+        "sha256": "fcbf7736bd9db7b36a4a7243a7c8de17087ea68245175db56877b874acf9675a",
+        "size": 361034
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2868,6 +2868,11 @@
         "path": "pages/open-questions/need-plan-b-api-gas-limits.md",
         "sha256": "3ec6dca680c6c186231b1b8a606a1b8d54f875b00b32210c93bc034465dac5dc",
         "size": 1298
+      },
+      {
+        "path": "pages/open-questions/nft-feedback-color.md",
+        "sha256": "64c91fe7a406ae544fac543ecd452fd43d3752ae0e3497bae92dc51e52ad5062",
+        "size": 5138
       },
       {
         "path": "pages/open-questions/parent-limit-increase-request.md",
@@ -3069,8 +3074,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T05:25:10Z",
-  "file_count": 612,
+  "exported_at": "2026-05-05T05:26:02Z",
+  "file_count": 613,
   "files": [
     {
       "path": ".usage.json",
@@ -5837,20 +5842,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-64847chng6c",
-  "previous_tree_hash": "b22efc1ba464237d62a730713df1ace05cfc9df8feb99f05e38bc7ed962f04c8",
+  "previous_tree_hash": "95ddd58877ccc3ed4f312613e06ca11bb9233aad70af9cf8401e61ef5bfe2294",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "476409678a775c1018b9e6a7408807c3722cdad360128bd52087ec8de9a400b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "95ddd58877ccc3ed4f312613e06ca11bb9233aad70af9cf8401e61ef5bfe2294",
+  "tree_hash": "043a0929ae9d8d635a56da595d019bc8ad494f5ecb7898683c6650364f50aa1e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 60,
+  "wiki_file_count": 61,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5864,8 +5869,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "9b760f172f2f8c9cfdcf40d239ef46c36234837835dd5b644c5d4dc125378657",
-      "size": 360695
+      "sha256": "fcbf7736bd9db7b36a4a7243a7c8de17087ea68245175db56877b874acf9675a",
+      "size": 361034
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -5956,6 +5961,11 @@
       "path": "pages/open-questions/need-plan-b-api-gas-limits.md",
       "sha256": "3ec6dca680c6c186231b1b8a606a1b8d54f875b00b32210c93bc034465dac5dc",
       "size": 1298
+    },
+    {
+      "path": "pages/open-questions/nft-feedback-color.md",
+      "sha256": "64c91fe7a406ae544fac543ecd452fd43d3752ae0e3497bae92dc51e52ad5062",
+      "size": 5138
     },
     {
       "path": "pages/open-questions/parent-limit-increase-request.md",
@@ -6154,5 +6164,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f8d919506a0ba230bdc9a87739ed2e5cb2e20ef60448a79c6596e82d48434fd9"
+  "wiki_tree_hash": "63275328e73286ed0a9975b1282cb31d94306863322bd087b8074bb0e75a6ef8"
 }
