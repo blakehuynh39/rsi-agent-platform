@@ -13950,3 +13950,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_97a68472652a11b754942041c37b5fb3
 - summary: A booth activation at ETH Denver 2024 for Story Protocol, built by 57Blocks, allowing attendees to remix stories on-chain.
 
+## [2026-05-05T14:11:18Z] synthesis | UMA Oracle
+
+- status: published
+- slug: systems/uma-oracle
+- wiki_revision_id: wikirev_168a8fe633aaca948bdf1c35757dd328
+- summary: UMA's Optimistic Oracle provides trust-minimized truth for smart contracts, using token holder disputes and bonds.
+
