@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "b0c8fd8f4de88f3a18452f0c8f638cd5ad0546e3840bc688b54c8558551abd0e",
-        "size": 680067
+        "sha256": "aada8bc1c9eac28b4d05583e53739a62d40cbb45609524a116299803732c5311",
+        "size": 680901
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2876,8 +2876,8 @@
       },
       {
         "path": "pages/concepts/untitled-notion-page-350051299a5480f8b542e4f40de96a42.md",
-        "sha256": "b88c46d94b771091aa0403224da922a57decef806444fdb48392576e3cd2884f",
-        "size": 1134
+        "sha256": "ef8c7cc2380315948189d66e293788f01c320f4585f45f08ca831f89c79bd5cb",
+        "size": 1132
       },
       {
         "path": "pages/concepts/upload-submission-errors.md",
@@ -3151,8 +3151,8 @@
       },
       {
         "path": "pages/systems/calendar.md",
-        "sha256": "de7a75a5e8c63cc5212f9658d6ed1a56047d1ac0a153d9f0b089690edadfb645",
-        "size": 1084
+        "sha256": "60ff71bfe75abe8b440d334d839554b6e0df3c5bce8925338b7ec1cbac5d6824",
+        "size": 1050
       },
       {
         "path": "pages/systems/consensus-labelling-mechanism.md",
@@ -3163,6 +3163,11 @@
         "path": "pages/systems/engineering-home.md",
         "sha256": "33e80d75fcc279d7f9a931ce315d507b98ed19971007e9e63f7b04b9e61a672a",
         "size": 2127
+      },
+      {
+        "path": "pages/systems/event-indexing-workflow.md",
+        "sha256": "6025485295b98b1d88f7456ff7937198552703686a68d20a41ca29e895572d66",
+        "size": 1319
       },
       {
         "path": "pages/systems/external-services-tracking.md",
@@ -3189,8 +3194,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T08:03:33Z",
-  "file_count": 636,
+  "exported_at": "2026-05-05T08:09:24Z",
+  "file_count": 637,
   "files": [
     {
       "path": ".usage.json",
@@ -5957,20 +5962,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "81e8fa3f5c27f64451a5e7ecd3e3fdfc9d3c1254e340891b304390e6c123f3c0",
+  "previous_tree_hash": "88caa52168443a9e151037b8e2dac145eeaf5b9088c59a3d547bf872b597dd98",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "88caa52168443a9e151037b8e2dac145eeaf5b9088c59a3d547bf872b597dd98",
+  "tree_hash": "a015658a562693736b273a5640645610f89e387eb2a2da8f53ee5293ac20f1ee",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 84,
+  "wiki_file_count": 85,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5984,8 +5989,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "b0c8fd8f4de88f3a18452f0c8f638cd5ad0546e3840bc688b54c8558551abd0e",
-      "size": 680067
+      "sha256": "aada8bc1c9eac28b4d05583e53739a62d40cbb45609524a116299803732c5311",
+      "size": 680901
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6084,8 +6089,8 @@
     },
     {
       "path": "pages/concepts/untitled-notion-page-350051299a5480f8b542e4f40de96a42.md",
-      "sha256": "b88c46d94b771091aa0403224da922a57decef806444fdb48392576e3cd2884f",
-      "size": 1134
+      "sha256": "ef8c7cc2380315948189d66e293788f01c320f4585f45f08ca831f89c79bd5cb",
+      "size": 1132
     },
     {
       "path": "pages/concepts/upload-submission-errors.md",
@@ -6359,8 +6364,8 @@
     },
     {
       "path": "pages/systems/calendar.md",
-      "sha256": "de7a75a5e8c63cc5212f9658d6ed1a56047d1ac0a153d9f0b089690edadfb645",
-      "size": 1084
+      "sha256": "60ff71bfe75abe8b440d334d839554b6e0df3c5bce8925338b7ec1cbac5d6824",
+      "size": 1050
     },
     {
       "path": "pages/systems/consensus-labelling-mechanism.md",
@@ -6371,6 +6376,11 @@
       "path": "pages/systems/engineering-home.md",
       "sha256": "33e80d75fcc279d7f9a931ce315d507b98ed19971007e9e63f7b04b9e61a672a",
       "size": 2127
+    },
+    {
+      "path": "pages/systems/event-indexing-workflow.md",
+      "sha256": "6025485295b98b1d88f7456ff7937198552703686a68d20a41ca29e895572d66",
+      "size": 1319
     },
     {
       "path": "pages/systems/external-services-tracking.md",
@@ -6394,5 +6404,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c1ba4d21c6b09c5e482e923d1758ee161307b1efb5d204381ebb0d1ea89117f9"
+  "wiki_tree_hash": "e7ff6b5a4aa8f60bf2bdf2a2e8e4d45b9ed1a2ec9377848d3704c7d933f4acde"
 }

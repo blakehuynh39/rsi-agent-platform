@@ -13481,3 +13481,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2cadec314923c145f663bae60d803782
 - summary: The Calendar system contains a child database that is currently untitled.
 
+## [2026-05-05T08:04:30Z] synthesis | Event Indexing Workflow
+
+- status: published
+- slug: systems/event-indexing-workflow
+- wiki_revision_id: wikirev_0f3547dbaaac24eef1a5463920b534a9
+- summary: A Notion document intended to describe an event indexing workflow, but currently containing no content.
+
