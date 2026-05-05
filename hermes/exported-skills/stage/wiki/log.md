@@ -13831,3 +13831,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_10a003ac2f9b66e73f2ac1a53a1c4f82
 - summary: Preliminary gas cost estimates for interacting with RSI contracts on Ethereum mainnet and Layer 2 networks (Optimism/Arbitrum).
 
+## [2026-05-05T12:36:28Z] synthesis | IP Account Centric Model
+
+- status: published
+- slug: concepts/ip-account-centric-model
+- wiki_revision_id: wikirev_a990392df6674b3875ce6f8c4af27bab
+- summary: The IP Account Centric Model conceptualizes IPAccount as the core identity (noun) and Modules as actions (verbs). IP Accounts represent IP as real entities on Ethereum, with IP NFT...
+
+## [2026-05-05T12:37:54Z] synthesis | PFP Engineering Specs
+
+- status: published
+- slug: projects/pfp-engineering-specs
+- wiki_revision_id: wikirev_915fdc874c243745ca62ab33e7978c08
+- summary: Specification for the PFP project, a mechanism to bring contributors into the Emergence ecosystem via a legal contract and protocol integrations like licensing, IP assets, collect,...
+

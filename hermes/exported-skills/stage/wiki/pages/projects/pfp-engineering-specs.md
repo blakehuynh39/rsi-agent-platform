@@ -4,11 +4,11 @@ type: "project"
 slug: "projects/pfp-engineering-specs"
 freshness: "2026-05-05T06:27:23Z"
 tags:
-  - "ip-asset"
-  - "licensing"
+  - "emergence-ecosystem"
+  - "engineering"
   - "nft"
   - "pfp"
-  - "protocol-integration"
+  - "specification"
 owners: []
 source_revision_ids:
   - "srcrev_c0c7faa312cf2545a0ee63cdc4db60c8"
@@ -36,14 +36,8 @@ Specification for the PFP project, a mechanism to bring contributors into the Em
 - Tasks identified: Create and register PFPs as IPAs, implement/integrate licenses, royalties, collect parameters, relationships, create NFT metadata, upload images, end-to-end airdrop/minting testing. `claim:claim_1_6` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/WIP-PFP-Engineering-Specs-20afc72c60c242e49a4b8eb6c6bec649) `source_document_id=srcdoc_1abee670b77650df72ec3f1df937ca83` `source_revision_id=srcrev_c0c7faa312cf2545a0ee63cdc4db60c8` `chunk_id=srcchunk_caaeea4610a8fde58b95cb31bf7f3216` `native_locator=https://www.notion.so/WIP-PFP-Engineering-Specs-20afc72c60c242e49a4b8eb6c6bec649` `source_timestamp=2026-05-05T06:27:23Z`
 
-## Open Questions
-
-- Are there features we want/need that won’t be ready from the protocol team?
-- Minting methods: 1. External contract and use relationships to tie the collection to the protocol? 2. Create a contract that calls the protocol’s create IP function? 3. Create the IPAs by calling the contract directly?
-- What hooks do we need? 1. Token-gated hook 2. Payment hook
-
 ## Sources
 
-- `source_document_id`: `srcdoc_1abee670b77650df72ec3f1df937ca83`
-- `source_revision_id`: `srcrev_c0c7faa312cf2545a0ee63cdc4db60c8`
-- `source_url`: [Notion source](https://www.notion.so/WIP-PFP-Engineering-Specs-20afc72c60c242e49a4b8eb6c6bec649)
+- `source_document_id`: `srcdoc_e1af7aa7a9358bcc4224007a9aefaa42`
+- `source_revision_id`: `srcrev_5b00ce873de4310809944945d62e2c60`
+- `source_url`: [Notion source](https://www.notion.so/Integrations-e4684660ff634025ae2e038d8cdf1bc2)
