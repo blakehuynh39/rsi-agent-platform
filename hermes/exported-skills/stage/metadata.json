@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "9b3d69c1b42806fd4a520dfb92a858c9567a2394ba0c748640889caf8f71f8b6",
-        "size": 688727
+        "sha256": "a1efc97f94ab5b3459561dc52d7aaa75278fd952935b0fe597967a3f449d6eae",
+        "size": 689032
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2893,6 +2893,11 @@
         "path": "pages/concepts/ppl-protocol-support.md",
         "sha256": "dc8513f93dfad71352f6539caeacd36112039ac58ba1343baa683d3ee51bcd50",
         "size": 1120
+      },
+      {
+        "path": "pages/concepts/prophet-pfp-concept.md",
+        "sha256": "08cd01cacb6d411710eefc391e6b6ccb6d12df5280c7fd57eef9b68ed0bf1505",
+        "size": 4645
       },
       {
         "path": "pages/concepts/protocol-data-model-design-principles.md",
@@ -3304,8 +3309,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T10:19:24Z",
-  "file_count": 659,
+  "exported_at": "2026-05-05T10:25:17Z",
+  "file_count": 660,
   "files": [
     {
       "path": ".usage.json",
@@ -6072,20 +6077,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "aa096a563506c3dd4bd6fb289349c68b9e3876a4e96d336bf632e74ce7ee43ca",
+  "previous_tree_hash": "3486c1b87c63729bcb7ab02225f3e173b2323cf923e8ff342f0b66ac13497f32",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3486c1b87c63729bcb7ab02225f3e173b2323cf923e8ff342f0b66ac13497f32",
+  "tree_hash": "6b4c66b11987f14c98a5a8c2cec101aa2ef6d736dccb145281728bf43ff27c9a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 107,
+  "wiki_file_count": 108,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6099,8 +6104,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "9b3d69c1b42806fd4a520dfb92a858c9567a2394ba0c748640889caf8f71f8b6",
-      "size": 688727
+      "sha256": "a1efc97f94ab5b3459561dc52d7aaa75278fd952935b0fe597967a3f449d6eae",
+      "size": 689032
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6216,6 +6221,11 @@
       "path": "pages/concepts/ppl-protocol-support.md",
       "sha256": "dc8513f93dfad71352f6539caeacd36112039ac58ba1343baa683d3ee51bcd50",
       "size": 1120
+    },
+    {
+      "path": "pages/concepts/prophet-pfp-concept.md",
+      "sha256": "08cd01cacb6d411710eefc391e6b6ccb6d12df5280c7fd57eef9b68ed0bf1505",
+      "size": 4645
     },
     {
       "path": "pages/concepts/protocol-data-model-design-principles.md",
@@ -6624,5 +6634,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b58b5a9ff6d1c39ec6cb6a99141ff6ff8d2cd071406d237f6b3e2754c033532a"
+  "wiki_tree_hash": "6d8636a3f389e11d29321585a2890a357115f8c1ca032833f194c6de748e3435"
 }

@@ -13663,3 +13663,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6b537172aa10dd74b3de657e960e271d
 - summary: A project idea to release a large PFP collection as a demonstration of the Protocol’s remixing and licensing features, with various design options for ownership, collectibility, an...
 
+## [2026-05-05T10:21:52Z] synthesis | Prophet PFP Concept
+
+- status: published
+- slug: concepts/prophet-pfp-concept
+- wiki_revision_id: wikirev_914ce511fca23693ec3e6f5dd1f96a62
+- summary: Design considerations for Prophet PFPs, including authority, personal attachment, curation, and dynamic pass ideas.
+
+## [2026-05-05T10:25:28Z] synthesis | Lowering the Barrier of Entry for Creators
+
+- status: published
+- slug: concepts/lowering-barrier-of-entry-for-creators
+- wiki_revision_id: wikirev_614657dbfff41bea030fc2c70d538bea
+- summary: Exploration of how to lower the barrier of entry for creators, including infrastructure and tooling improvements, and understanding creator motivations.
+
