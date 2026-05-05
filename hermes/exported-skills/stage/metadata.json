@@ -2791,8 +2791,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "7c0d8a1aecce2eaacb36a7b983921439193c66e1572a1e42699de98c60976173",
-        "size": 731259
+        "sha256": "27c7a3ddea6c84f70adb7878a6ae4daa0da643176e7f9518f0ca1c9a2cf01107",
+        "size": 731652
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3671,8 +3671,8 @@
       },
       {
         "path": "pages/projects/story-protocol-l1-launch-plan.md",
-        "sha256": "51a1bfe77776389e4a4f0569ab7dffaba775c1fd59c6d7ba9375b4dc0697d7af",
-        "size": 8944
+        "sha256": "b27a482745471709a043a1fd7886c5c422940005dc5dc60012f9794fd492b3d3",
+        "size": 12083
       },
       {
         "path": "pages/projects/stress-test-plan.md",
@@ -3874,7 +3874,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T23:29:14Z",
+  "exported_at": "2026-05-05T23:35:12Z",
   "file_count": 773,
   "files": [
     {
@@ -6657,7 +6657,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6b97f99czp6",
-  "previous_tree_hash": "fb44ef41a6373d99f5556f11e418e959fbb5c441cd5be96d73eb24538f072af7",
+  "previous_tree_hash": "a5335eea8b05aeebf1e7852fe7332af959e40149a2ccc4f837d7b38359d8cab4",
   "schema_version": 1,
   "skill_file_count": 555,
   "skill_manage_sessions": [
@@ -6670,7 +6670,7 @@
   ],
   "skill_tree_hash": "1758283ff9d4224f475b995e4d27960e95617ade129bc278fd999dfddefd4d77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a5335eea8b05aeebf1e7852fe7332af959e40149a2ccc4f837d7b38359d8cab4",
+  "tree_hash": "03ad46ea7ff6fd38baf97af74b060a870d98ad7f79d8566e679d681327136dc3",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -6691,8 +6691,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "7c0d8a1aecce2eaacb36a7b983921439193c66e1572a1e42699de98c60976173",
-      "size": 731259
+      "sha256": "27c7a3ddea6c84f70adb7878a6ae4daa0da643176e7f9518f0ca1c9a2cf01107",
+      "size": 731652
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7571,8 +7571,8 @@
     },
     {
       "path": "pages/projects/story-protocol-l1-launch-plan.md",
-      "sha256": "51a1bfe77776389e4a4f0569ab7dffaba775c1fd59c6d7ba9375b4dc0697d7af",
-      "size": 8944
+      "sha256": "b27a482745471709a043a1fd7886c5c422940005dc5dc60012f9794fd492b3d3",
+      "size": 12083
     },
     {
       "path": "pages/projects/stress-test-plan.md",
@@ -7771,5 +7771,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a99c95d5dbd53d2b08d53fe8c4df7183b932dcb233db34876071ace9361230db"
+  "wiki_tree_hash": "c017fa92255c9681e9190d25f2a2fc0c52b097ae7c9d4a1e996666474dd76eb8"
 }

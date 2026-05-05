@@ -14549,3 +14549,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d5338d997e3cffc2b677ce6731234fd8
 - summary: Homework assignment for all engineers following the internal DevNet launch on June 17, 2021, with tasks to explore the L1 blockchain and submit proof by June 21.
 
+## [2026-05-05T23:33:54Z] synthesis | Story Protocol L1 Launch Plan
+
+- status: published
+- slug: projects/story-protocol-l1-launch-plan
+- wiki_revision_id: wikirev_63de520ee958b0974165024d749b5666
+- summary: Engineering plans for Story Protocol L1, covering launch items, precompiles, proof-of-creativity, custom data types, partners, 1st-party apps, cross-chain, token design, staking, a...
+
