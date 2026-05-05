@@ -168,8 +168,8 @@ function Block({
   switch (block.type) {
     case "code":
       return (
-        <pre className="bg-secondary/60 border border-border px-3 py-2.5 text-xs font-mono leading-relaxed overflow-x-auto">
-          <code>
+        <pre className="bg-secondary/60 border border-border px-3 py-2.5 text-xs font-mono-ui leading-relaxed overflow-x-auto">
+          <code className="bg-transparent text-inherit">
             {block.content}
             {caret}
           </code>

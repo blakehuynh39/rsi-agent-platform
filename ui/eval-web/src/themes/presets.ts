@@ -23,8 +23,7 @@ const SYSTEM_MONO =
 
 const DEFAULT_TYPOGRAPHY: ThemeTypography = {
   fontSans: `var(--font-sans), ${SYSTEM_SANS}`,
-  fontMono: `var(--font-mono), ${SYSTEM_MONO}`,
-  fontDisplay: `var(--font-rules-expanded), var(--font-sans), ${SYSTEM_SANS}`,
+  fontMono: `"JetBrains Mono", var(--font-mono), ${SYSTEM_MONO}`,
   baseSize: "15px",
   lineHeight: "1.55",
   letterSpacing: "0",
@@ -50,7 +49,10 @@ export const defaultTheme: DashboardTheme = {
     warmGlow: "rgba(255, 189, 56, 0.35)",
     noiseOpacity: 0,
   },
-  typography: DEFAULT_TYPOGRAPHY,
+  typography: {
+    ...DEFAULT_TYPOGRAPHY,
+    fontDisplay: `var(--font-rules-expanded), var(--font-sans), ${SYSTEM_SANS}`,
+  },
   layout: DEFAULT_LAYOUT,
 };
 

@@ -90,7 +90,7 @@ export function ConfirmDialog({
             {description && (
               <p
                 id="confirm-dialog-desc"
-                className="font-mondwest text-xs text-muted-foreground leading-relaxed"
+                className="font-mono-ui text-xs normal-case tracking-normal text-muted-foreground leading-relaxed"
               >
                 {description}
               </p>

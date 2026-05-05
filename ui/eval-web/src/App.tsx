@@ -419,6 +419,7 @@ export default function App() {
   );
 
   const layoutVariant = theme.layoutVariant ?? "standard";
+  const [brandFirst, ...brandRest] = t.app.brand.split(/\s+/);
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -521,6 +522,7 @@ export default function App() {
             <div
               className={cn(
                 "flex h-14 shrink-0 items-center justify-between gap-2",
+                "px-5",
                 "border-b border-current/20",
               )}
             >
@@ -531,9 +533,13 @@ export default function App() {
                   className="font-bold text-[1.125rem] leading-[0.95] tracking-[0.0525rem] text-midground"
                   style={{ mixBlendMode: "plus-lighter" }}
                 >
-                  Hermes
-                  <br />
-                  Agent
+                  {brandFirst}
+                  {brandRest.length > 0 && (
+                    <>
+                      <br />
+                      {brandRest.join(" ")}
+                    </>
+                  )}
                 </Typography>
               </div>
 
@@ -572,7 +578,7 @@ export default function App() {
                   <span
                     className={cn(
                       "px-5 pt-2.5 pb-1",
-                      "font-mondwest text-[0.6rem] tracking-[0.15em] uppercase opacity-30",
+                      "font-mono-ui text-[0.6rem] tracking-normal normal-case opacity-45",
                     )}
                     id="hermes-sidebar-plugin-nav-heading"
                   >
@@ -616,7 +622,7 @@ export default function App() {
             <div
               className={cn(
                 "relative z-2 flex min-w-0 min-h-0 flex-1 flex-col",
-                "font-sans normal-case",
+                "font-mono-ui normal-case tracking-normal",
                 "px-3 sm:px-6",
                 isChatRoute
                   ? "pb-3 pt-1 sm:pb-4 sm:pt-2 lg:pt-4"
@@ -698,7 +704,7 @@ function SidebarNavLink({ closeMobile, item, t }: SidebarNavLinkProps) {
           cn(
             "group relative flex items-center gap-3",
             "px-5 py-2.5",
-            "font-mondwest text-[0.8rem] tracking-[0.12em]",
+            "font-mono-ui text-[0.72rem] tracking-normal normal-case",
             "whitespace-nowrap transition-colors cursor-pointer",
             "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-midground",
             isActive ? "text-midground" : "opacity-60 hover:opacity-100",
@@ -746,7 +752,7 @@ function SidebarSystemActions() {
       <span
         className={cn(
           "px-5 pt-0.5 pb-0.5",
-          "font-mondwest text-[0.6rem] tracking-[0.15em] uppercase opacity-30",
+          "font-mono-ui text-[0.6rem] tracking-normal normal-case opacity-45",
         )}
       >
         {t.app.system}

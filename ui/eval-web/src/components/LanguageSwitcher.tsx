@@ -24,10 +24,7 @@ export function LanguageSwitcher() {
           {locale === "en" ? "🇬🇧" : "🇨🇳"}
         </span>
 
-        <Typography
-          mondwest
-          className="hidden sm:inline tracking-wide uppercase text-[0.65rem]"
-        >
+        <Typography className="hidden sm:inline font-mono-ui tracking-normal normal-case text-[0.65rem]">
           {locale === "en" ? "EN" : "中文"}
         </Typography>
       </span>

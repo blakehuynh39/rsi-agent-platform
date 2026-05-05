@@ -181,18 +181,20 @@ function MessageBubble({
 
   return (
     <div
-      className={`${style.bg} p-3 ${isHit ? "ring-1 ring-warning/40" : ""}`}
+      className={`${style.bg} p-3 font-mono-ui normal-case tracking-normal ${isHit ? "ring-1 ring-warning/40" : ""}`}
       data-search-hit={isHit || undefined}
     >
       <div className="flex items-center gap-2 mb-1">
-        <span className={`text-xs font-semibold ${style.text}`}>{label}</span>
+        <span className={`text-[0.7rem] font-semibold ${style.text}`}>
+          {label}
+        </span>
         {isHit && (
           <Badge tone="warning" className="text-[9px] py-0 px-1.5">
             {t.common.match}
           </Badge>
         )}
         {msg.timestamp && (
-          <span className="text-[10px] text-muted-foreground">
+          <span className="text-[0.65rem] text-muted-foreground">
             {timeAgo(msg.timestamp)}
           </span>
         )}
@@ -304,10 +306,10 @@ function SessionRow({
           <div className={`shrink-0 ${sourceInfo.color}`}>
             <SourceIcon className="h-4 w-4" />
           </div>
-          <div className="flex flex-col gap-0.5 min-w-0">
+          <div className="flex flex-col gap-0.5 min-w-0 font-mono-ui normal-case tracking-normal">
             <div className="flex items-center gap-2">
               <span
-                className={`text-sm truncate pr-2 ${hasTitle ? "font-medium" : "text-muted-foreground italic"}`}
+                className={`text-[0.8rem] truncate pr-2 ${hasTitle ? "font-medium" : "text-muted-foreground italic"}`}
               >
                 {hasTitle
                   ? session.title
@@ -322,7 +324,7 @@ function SessionRow({
                 </Badge>
               )}
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1.5 text-[0.72rem] text-muted-foreground">
               <span className="truncate max-w-[120px] sm:max-w-[180px]">
                 {(session.model ?? t.common.unknown).split("/").pop()}
               </span>
@@ -663,7 +665,7 @@ export default function SessionsPage() {
                 <Spinner className="shrink-0 text-[0.875rem] text-muted-foreground" />
               )}
 
-              <span className="text-xs font-mondwest tracking-[0.12em] truncate">
+              <span className="text-xs font-mono-ui tracking-normal normal-case truncate">
                 {activeAction === "restart"
                   ? t.status.restartGateway
                   : t.status.updateHermes}
@@ -734,13 +736,13 @@ export default function SessionsPage() {
                 key={s.id}
                 className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border border-border p-3 w-full"
               >
-                <div className="flex flex-col gap-1 min-w-0 w-full">
-                  <span className="font-medium text-sm truncate">
+                <div className="flex flex-col gap-1 min-w-0 w-full font-mono-ui normal-case tracking-normal">
+                  <span className="font-medium text-[0.8rem] truncate">
                     {s.title ?? t.common.untitled}
                   </span>
 
-                  <span className="text-xs text-muted-foreground truncate">
-                    <span className="font-mono-ui">
+                  <span className="text-[0.72rem] text-muted-foreground truncate">
+                    <span>
                       {(s.model ?? t.common.unknown).split("/").pop()}
                     </span>{" "}
                     · {s.message_count} {t.common.msgs} ·{" "}
@@ -748,7 +750,7 @@ export default function SessionsPage() {
                   </span>
 
                   {s.preview && (
-                    <span className="text-xs text-muted-foreground/70 truncate">
+                    <span className="text-[0.72rem] text-muted-foreground/70 truncate">
                       {s.preview}
                     </span>
                   )}

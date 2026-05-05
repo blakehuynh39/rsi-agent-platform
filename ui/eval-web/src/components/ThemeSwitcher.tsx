@@ -64,10 +64,7 @@ export function ThemeSwitcher({ dropUp = false }: ThemeSwitcherProps) {
         <span className="inline-flex items-center gap-1.5">
           <Palette className="h-3.5 w-3.5" />
 
-          <Typography
-            mondwest
-            className="hidden sm:inline tracking-wide uppercase text-[0.65rem]"
-          >
+          <Typography className="hidden sm:inline font-mono-ui tracking-normal normal-case text-[0.65rem]">
             {label}
           </Typography>
         </span>
@@ -85,10 +82,7 @@ export function ThemeSwitcher({ dropUp = false }: ThemeSwitcherProps) {
           )}
         >
           <div className="border-b border-current/20 px-3 py-2">
-            <Typography
-              mondwest
-              className="text-[0.65rem] tracking-[0.15em] uppercase text-midground/70"
-            >
+            <Typography className="font-mono-ui text-[0.65rem] tracking-normal normal-case text-midground/70">
               {t.theme?.title ?? "Theme"}
             </Typography>
           </div>
@@ -116,10 +110,7 @@ export function ThemeSwitcher({ dropUp = false }: ThemeSwitcherProps) {
                 )}
 
                 <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <Typography
-                    mondwest
-                    className="truncate text-[0.75rem] tracking-wide uppercase"
-                  >
+                  <Typography className="truncate font-mono-ui text-[0.75rem] tracking-normal normal-case">
                     {th.label}
                   </Typography>
                   {th.description && (
