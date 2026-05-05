@@ -14132,3 +14132,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_26433151d715233f48b125969538138b
 - summary: Project page linking to Bridge Partners, Story Supernet, and Cross-chain Interactions subpages.
 
+## [2026-05-05T16:30:00Z] synthesis | Multichain + Story Supernet
+
+- status: published
+- slug: projects/multichain-story-supernet
+- wiki_revision_id: wikirev_74efa59abefdf9f50d542c126914591d
+- summary: Project page linking to Bridge Partners, Story Supernet, and Cross-chain Interactions subpages.
+
+## [2026-05-05T16:30:01Z] synthesis | Bridge Partners
+
+- status: published
+- slug: concepts/bridge-partners
+- wiki_revision_id: wikirev_9928fc94ffe2fba0cd9f903c4638caf5
+- summary: Overview of bridge partner selection and technologies for Story Network, including LayerZero and Wormhole.
+
+## [2026-05-05T16:33:16Z] synthesis | Multichain + Story Supernet
+
+- status: published
+- slug: projects/multichain-story-supernet
+- wiki_revision_id: wikirev_2682b0c8ffce930c9a02bd9e8deac52f
+- summary: Project page linking to Bridge Partners, Story Supernet, and Cross-chain Interactions subpages.
+
+## [2026-05-05T16:33:16Z] synthesis | Story Supernet
+
+- status: published
+- slug: concepts/story-supernet
+- wiki_revision_id: wikirev_17bc4a7d0536c6ebdb2137f36e93494f
+- summary: Design exploration for Story Supernet covering user actions, storage, API approach, and two deployment scenarios (single-chain IPA vs multichain).
+

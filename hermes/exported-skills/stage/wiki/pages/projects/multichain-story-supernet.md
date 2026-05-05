@@ -4,8 +4,6 @@ type: "project"
 slug: "projects/multichain-story-supernet"
 freshness: "2026-05-05T06:32:27Z"
 tags:
-  - "bridge"
-  - "cross-chain"
   - "multichain"
   - "story-supernet"
 owners: []
@@ -27,12 +25,10 @@ Project page linking to Bridge Partners, Story Supernet, and Cross-chain Interac
 
 ## Related Pages
 
-- `bridge-partners`
-- `cross-chain-interactions`
-- `story-supernet`
+- `concepts/story-supernet`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_655114f33365ed174eaf8a0ba1e5f330`
-- `source_revision_id`: `srcrev_68e7443a6cc592c9600a10244fdbdadc`
-- `source_url`: [Notion source](https://www.notion.so/Multichain-Story-Supernet-8f7e542e3c1e49ce959530136eb1b64b)
+- `source_document_id`: `srcdoc_b9aca71621a9e442186876fb3d00b6ad`
+- `source_revision_id`: `srcrev_23c98da7dced924ec0f0607a8b8804d5`
+- `source_url`: [Notion source](https://www.notion.so/Story-Supernet-d9a158563a4a46cba3f8a583c7478b67)
