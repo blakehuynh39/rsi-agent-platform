@@ -528,6 +528,7 @@ class GitHubAuth:
         token: str,
         accept: str = "application/vnd.github+json",
         body: dict[str, Any] | None = None,
+        retry_transient: bool = False,
     ) -> dict[str, Any]:
         data = None if body is None else json.dumps(body).encode("utf-8")
         req = request.Request(url, data=data, method=method)
@@ -536,12 +537,19 @@ class GitHubAuth:
         req.add_header("X-GitHub-Api-Version", "2022-11-28")
         if data is not None:
             req.add_header("Content-Type", "application/json")
-        try:
-            with request.urlopen(req, timeout=30) as response:
-                raw = response.read().decode("utf-8")
-        except error.HTTPError as exc:
-            detail = exc.read().decode("utf-8", errors="replace")
-            raise ExporterError(f"GitHub API {method} {url} failed: {exc.code} {detail}") from exc
+        max_attempts = 3 if retry_transient else 1
+        for attempt in range(1, max_attempts + 1):
+            try:
+                with request.urlopen(req, timeout=30) as response:
+                    raw = response.read().decode("utf-8")
+                break
+            except error.HTTPError as exc:
+                detail = exc.read().decode("utf-8", errors="replace")
+                if exc.code in {502, 503, 504} and attempt < max_attempts:
+                    logger.warning("GitHub API %s %s returned %s; retrying attempt %d/%d", method, url, exc.code, attempt + 1, max_attempts)
+                    time.sleep(attempt * 2)
+                    continue
+                raise ExporterError(f"GitHub API {method} {url} failed: {exc.code} {detail}") from exc
         return json.loads(raw) if raw else {}
 
 
@@ -643,6 +651,7 @@ class GitSkillExporter:
             f"https://api.github.com/repos/{self.config.git_repository}/pulls",
             token=token,
             body={"title": title, "head": branch, "base": self.config.git_base_branch, "body": body},
+            retry_transient=False,
         )
 
     def _merge_pr(self, token: str, pr_number: int, snapshot: SkillSnapshot) -> dict[str, Any]:
@@ -656,6 +665,7 @@ class GitSkillExporter:
                 "commit_message": "Auto-merged by Hermes skill exporter.",
                 "merge_method": self.config.auto_merge_method,
             },
+            retry_transient=True,
         )
 
     @staticmethod

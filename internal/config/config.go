@@ -67,6 +67,8 @@ type Config struct {
 	CompanyWikiCompilerBatchLimit        int
 	CompanyWikiCompilerChunkLimit        int
 	CompanyWikiCompilerTimeout           time.Duration
+	CompanyWikiCompilerRunTimeout        time.Duration
+	CompanyWikiCompilerShutdownGrace     time.Duration
 	CompanyWikiCompilerOpenRouterBaseURL string
 	CompanyWikiCompilerOpenRouterAPIKey  string
 	SlackMCPEnabled                      bool
@@ -216,6 +218,8 @@ func Load(serviceName string) Config {
 		CompanyWikiCompilerBatchLimit:        intEnv("RSI_COMPANY_WIKI_COMPILER_BATCH_LIMIT", 10),
 		CompanyWikiCompilerChunkLimit:        intEnv("RSI_COMPANY_WIKI_COMPILER_CHUNK_LIMIT", 24),
 		CompanyWikiCompilerTimeout:           durationEnv("RSI_COMPANY_WIKI_COMPILER_TIMEOUT", 120*time.Second),
+		CompanyWikiCompilerRunTimeout:        durationEnv("RSI_COMPANY_WIKI_COMPILER_RUN_TIMEOUT", 25*time.Minute),
+		CompanyWikiCompilerShutdownGrace:     durationEnv("RSI_COMPANY_WIKI_COMPILER_SHUTDOWN_GRACE", 30*time.Second),
 		CompanyWikiCompilerOpenRouterBaseURL: stringEnv("RSI_COMPANY_WIKI_COMPILER_OPENROUTER_BASE_URL", stringEnv("RSI_OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")),
 		CompanyWikiCompilerOpenRouterAPIKey:  firstNonEmpty(stringEnv("RSI_COMPANY_WIKI_COMPILER_OPENROUTER_API_KEY", ""), stringEnv("RSI_OPENROUTER_API_KEY", ""), stringEnv("OPENROUTER_API_KEY", "")),
 		SlackMCPEnabled:                      boolEnv("RSI_SLACK_MCP_ENABLED", false),

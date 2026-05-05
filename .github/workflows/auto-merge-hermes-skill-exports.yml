@@ -99,6 +99,121 @@ jobs:
             exit 1
           fi
 
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.RSI_PLATFORM_EXPORT_MERGE_TOKEN }}
+
+      - name: Refresh exporter snapshot onto latest main
+        env:
+          GH_TOKEN: ${{ secrets.RSI_PLATFORM_EXPORT_MERGE_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          EXPORT_ROOT: hermes/exported-skills/stage
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event.action }}" = "synchronize" ]; then
+            echo "EXPORT_PR_ALREADY_SYNCED=true" >> "$GITHUB_ENV"
+            echo "Skipping refresh on synchronize event to avoid chasing ourselves."
+            exit 0
+          fi
+
+          pr_json="$(gh api "repos/${REPO}/pulls/${PR_NUMBER}")"
+          state="$(jq -r '.state' <<<"$pr_json")"
+          merged="$(jq -r '.merged' <<<"$pr_json")"
+          head_ref="$(jq -r '.head.ref' <<<"$pr_json")"
+          head_sha="$(jq -r '.head.sha' <<<"$pr_json")"
+
+          if [ "$state" != "open" ]; then
+            echo "EXPORT_PR_ALREADY_SYNCED=true" >> "$GITHUB_ENV"
+            echo "PR is ${state}; merged=${merged}; nothing to refresh."
+            exit 0
+          fi
+
+          if [ "$head_sha" != "$EXPECTED_HEAD_SHA" ]; then
+            echo "::error::PR head changed from ${EXPECTED_HEAD_SHA} to ${head_sha}"
+            exit 1
+          fi
+
+          case "$head_ref" in
+            hermes/skill-export/stage/*) ;;
+            *)
+              echo "::error::Refusing unexpected head branch ${head_ref}"
+              exit 1
+              ;;
+          esac
+
+          git config user.name "rsi-agent-platform-bot"
+          git config user.email "rsi-agent-platform-bot@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git"
+          git fetch --no-tags origin \
+            "+refs/heads/main:refs/remotes/origin/main" \
+            "+refs/heads/${head_ref}:refs/remotes/origin/${head_ref}"
+          git checkout -B "${head_ref}" origin/main
+
+          if ! git cat-file -e "${head_sha}:${EXPORT_ROOT}"; then
+            echo "::error::PR head does not contain ${EXPORT_ROOT}"
+            exit 1
+          fi
+          if ! git cat-file -e "${head_sha}:${EXPORT_ROOT}/metadata.json"; then
+            echo "::error::PR head does not contain ${EXPORT_ROOT}/metadata.json"
+            exit 1
+          fi
+
+          pr_metadata="$(mktemp)"
+          git show "${head_sha}:${EXPORT_ROOT}/metadata.json" > "$pr_metadata"
+          pr_tree_hash="$(jq -r '.tree_hash // ""' "$pr_metadata")"
+          pr_exported_at="$(jq -r '.exported_at // ""' "$pr_metadata")"
+          main_tree_hash=""
+          main_exported_at=""
+          if [ -f "${EXPORT_ROOT}/metadata.json" ]; then
+            main_tree_hash="$(jq -r '.tree_hash // ""' "${EXPORT_ROOT}/metadata.json")"
+            main_exported_at="$(jq -r '.exported_at // ""' "${EXPORT_ROOT}/metadata.json")"
+          fi
+
+          if [ -z "$pr_tree_hash" ] || [ -z "$pr_exported_at" ]; then
+            echo "::error::PR metadata is missing tree_hash or exported_at"
+            exit 1
+          fi
+
+          if [ "$main_tree_hash" = "$pr_tree_hash" ]; then
+            gh pr close "$PR_NUMBER" --repo "$REPO" --comment "Export snapshot already matches latest main; closing stale exporter PR."
+            echo "EXPORT_PR_ALREADY_SYNCED=true" >> "$GITHUB_ENV"
+            exit 0
+          fi
+
+          if [[ -n "$main_exported_at" && "$main_exported_at" > "$pr_exported_at" ]]; then
+            gh pr close "$PR_NUMBER" --repo "$REPO" --comment "Export snapshot from ${pr_exported_at} is older than latest main export from ${main_exported_at}; closing stale exporter PR as superseded."
+            echo "EXPORT_PR_ALREADY_SYNCED=true" >> "$GITHUB_ENV"
+            exit 0
+          fi
+
+          rm -rf "${EXPORT_ROOT}"
+          git checkout "${head_sha}" -- "${EXPORT_ROOT}"
+          git add -A "${EXPORT_ROOT}"
+
+          changed_files="$(git diff --cached --name-only)"
+          bad_files="$(printf '%s\n' "$changed_files" | grep -Ev "^${EXPORT_ROOT}/" || true)"
+          if [ -n "$bad_files" ]; then
+            echo "::error::Refresh produced non-export changes"
+            printf '%s\n' "$bad_files"
+            exit 1
+          fi
+
+          if [ -z "$changed_files" ]; then
+            gh pr close "$PR_NUMBER" --repo "$REPO" --comment "Export snapshot already matches latest main after refresh; closing stale exporter PR."
+            echo "EXPORT_PR_ALREADY_SYNCED=true" >> "$GITHUB_ENV"
+            exit 0
+          fi
+
+          git commit -m "Refresh Hermes skills/wiki export on latest main"
+          refreshed_sha="$(git rev-parse HEAD)"
+          git push --force-with-lease="refs/heads/${head_ref}:${head_sha}" origin "HEAD:${head_ref}"
+          echo "REFRESHED_HEAD_SHA=${refreshed_sha}" >> "$GITHUB_ENV"
+
       - name: Admin merge exporter sync
         env:
           GH_TOKEN: ${{ secrets.RSI_PLATFORM_EXPORT_MERGE_TOKEN }}
@@ -108,11 +223,29 @@ jobs:
         run: |
           set -euo pipefail
 
-          gh pr merge "$PR_NUMBER" \
-            --repo "$REPO" \
-            --admin \
-            --squash \
-            --delete-branch \
-            --match-head-commit "$EXPECTED_HEAD_SHA" \
-            --subject "Export Hermes skills/wiki from stage (#${PR_NUMBER})" \
-            --body "Admin-merged exporter-only SoT sync."
+          if [ "${EXPORT_PR_ALREADY_SYNCED:-false}" = "true" ] && [ "${{ github.event.action }}" != "synchronize" ]; then
+            exit 0
+          fi
+
+          expected_head_sha="${REFRESHED_HEAD_SHA:-$EXPECTED_HEAD_SHA}"
+          for attempt in 1 2 3 4 5; do
+            if gh pr merge "$PR_NUMBER" \
+              --repo "$REPO" \
+              --admin \
+              --squash \
+              --delete-branch \
+              --match-head-commit "$expected_head_sha" \
+              --subject "Export Hermes skills/wiki from stage (#${PR_NUMBER})" \
+              --body "Admin-merged exporter-only SoT sync."; then
+              exit 0
+            fi
+
+            if [ "$(gh api "repos/${REPO}/pulls/${PR_NUMBER}" --jq '.merged')" = "true" ]; then
+              exit 0
+            fi
+
+            if [ "$attempt" = "5" ]; then
+              exit 1
+            fi
+            sleep $((attempt * 10))
+          done

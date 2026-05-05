@@ -147,6 +147,12 @@ func (c Config) validateCompanyWikiCompiler(issues *[]string) {
 	if c.CompanyWikiCompilerTimeout <= 0 {
 		*issues = append(*issues, "RSI_COMPANY_WIKI_COMPILER_TIMEOUT must be positive")
 	}
+	if c.CompanyWikiCompilerRunTimeout < 0 {
+		*issues = append(*issues, "RSI_COMPANY_WIKI_COMPILER_RUN_TIMEOUT must be non-negative")
+	}
+	if c.CompanyWikiCompilerShutdownGrace < 0 {
+		*issues = append(*issues, "RSI_COMPANY_WIKI_COMPILER_SHUTDOWN_GRACE must be non-negative")
+	}
 	switch strings.ToLower(strings.TrimSpace(c.CompanyWikiSourcePageMode)) {
 	case "", "evidence", "off":
 	default:

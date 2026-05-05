@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -24,11 +25,19 @@ type WikiCompilerResult struct {
 	Claimed        int      `json:"claimed"`
 	PublishedPages int      `json:"published_pages"`
 	FailedItems    []string `json:"failed_items,omitempty"`
+	DeferredItems  int      `json:"deferred_items,omitempty"`
+	StoppedReason  string   `json:"stopped_reason,omitempty"`
 }
 
 type WikiSynthesisClient interface {
 	SynthesizeWiki(ctx context.Context, request WikiSynthesisRequest) (WikiSynthesisOutput, WikiSynthesisMetadata, error)
 }
+
+const (
+	companyWikiCompilerValidationAttempts     = 2
+	companyWikiCompilerProviderDecodeAttempts = 2
+	companyWikiCompilerPerItemOverhead        = 15 * time.Second
+)
 
 type WikiSynthesisRequest struct {
 	Model                    string                          `json:"model"`
@@ -214,17 +223,34 @@ func RunCompanyWikiCompiler(ctx context.Context, cfg config.Config, repo any, cl
 	if client == nil {
 		client = NewOpenRouterWikiSynthesisClient(cfg)
 	}
+	if cfg.CompanyWikiCompilerRunTimeout > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, cfg.CompanyWikiCompilerRunTimeout)
+		defer cancel()
+	}
 	runID := "compiler_" + time.Now().UTC().Format("20060102T150405.000000000Z")
 	result = WikiCompilerResult{OK: true, CompilerRunID: runID}
 	leaseDuration := companyWikiCompilerLeaseDuration(cfg)
+	claimLimit := companyWikiCompilerClaimLimit(cfg)
+	log.Printf("company-wiki-compiler run_id=%s starting batch_limit=%d effective_claim_limit=%d item_timeout=%s run_timeout=%s shutdown_grace=%s lease=%s",
+		runID,
+		cfg.CompanyWikiCompilerBatchLimit,
+		claimLimit,
+		cfg.CompanyWikiCompilerTimeout,
+		cfg.CompanyWikiCompilerRunTimeout,
+		cfg.CompanyWikiCompilerShutdownGrace,
+		leaseDuration,
+	)
 	release, acquired, err := acquireCompanyWikiCompilerLease(ctx, repo, runID, leaseDuration)
 	if err != nil {
 		return result, err
 	}
 	if !acquired {
+		log.Printf("company-wiki-compiler run_id=%s skipped reason=lease_held", runID)
 		return result, nil
 	}
 	defer func() { _ = release() }()
+	leaseHolder := "company_wiki_compiler:" + runID
 	if recorder, ok := repo.(companyWikiCompilerRunRecorder); ok {
 		_ = recorder.BeginCompanyWikiCompilerRun(runID, map[string]any{
 			"compiler_version":     CompanyWikiCompilerVersion,
@@ -249,20 +275,23 @@ func RunCompanyWikiCompiler(ctx context.Context, cfg config.Config, repo any, cl
 				"claimed":         result.Claimed,
 				"published_pages": result.PublishedPages,
 				"failed_items":    result.FailedItems,
+				"deferred_items":  result.DeferredItems,
+				"stopped_reason":  result.StoppedReason,
 			})
 		}()
 	}
 	if err := WriteSchemaFile(cfg.CompanyWikiRoot); err != nil {
 		return result, err
 	}
-	backfilled, err := BackfillCompanyWikiCompileItems(ctx, cfg, wikiStore, cfg.CompanyWikiCompilerBatchLimit*5)
+	backfilled, err := BackfillCompanyWikiCompileItems(ctx, cfg, wikiStore, claimLimit*5)
 	if err != nil {
 		return result, err
 	}
 	result.Backfilled = backfilled
+	log.Printf("company-wiki-compiler run_id=%s backfilled=%d", runID, backfilled)
 	items, err := wikiStore.ClaimCompanyWikiCompileItems(store.CompanyWikiCompileClaimInput{
-		Limit:              cfg.CompanyWikiCompilerBatchLimit,
-		LeaseHolder:        "company_wiki_compiler:" + runID,
+		Limit:              claimLimit,
+		LeaseHolder:        leaseHolder,
 		LeaseDuration:      leaseDuration,
 		CompilerVersion:    CompanyWikiCompilerVersion,
 		SchemaVersion:      CompanyWikiSchemaVersion,
@@ -274,26 +303,43 @@ func RunCompanyWikiCompiler(ctx context.Context, cfg config.Config, repo any, cl
 		return result, err
 	}
 	result.Claimed = len(items)
-	for _, item := range items {
+	log.Printf("company-wiki-compiler run_id=%s claimed=%d", runID, len(items))
+	for idx, item := range items {
+		if stopReason := companyWikiCompilerStopReason(ctx, cfg, idx); stopReason != "" {
+			result.DeferredItems = len(items) - idx
+			result.StoppedReason = stopReason
+			if released, releaseErr := releaseCompanyWikiDeferredCompileItems(wikiStore, items[idx:], leaseHolder, stopReason); releaseErr != nil {
+				log.Printf("company-wiki-compiler run_id=%s deferred_release_failed error=%q", runID, releaseErr.Error())
+			} else if released > 0 {
+				log.Printf("company-wiki-compiler run_id=%s deferred_released=%d", runID, released)
+			}
+			log.Printf("company-wiki-compiler run_id=%s stopping reason=%s deferred_items=%d", runID, stopReason, result.DeferredItems)
+			break
+		}
+		log.Printf("company-wiki-compiler run_id=%s item=%s source_revision=%s status=started index=%d/%d",
+			runID, item.ID, item.SourceRevisionID, idx+1, len(items))
 		published, err := compileOneWikiItem(ctx, cfg, wikiStore, client, runID, item)
 		if err != nil {
 			result.OK = false
 			result.FailedItems = append(result.FailedItems, item.ID)
 			_, _ = wikiStore.CompleteCompanyWikiCompileItem(item.ID, store.CompanyWikiCompileStatusFailed, err.Error())
+			log.Printf("company-wiki-compiler run_id=%s item=%s source_revision=%s status=failed error=%q", runID, item.ID, item.SourceRevisionID, err.Error())
 			continue
 		}
 		result.PublishedPages += published
+		log.Printf("company-wiki-compiler run_id=%s item=%s source_revision=%s status=completed published_pages=%d", runID, item.ID, item.SourceRevisionID, published)
 	}
 	if err := WriteIndexFile(cfg.CompanyWikiRoot, wikiStore); err != nil {
 		return result, err
 	}
+	log.Printf("company-wiki-compiler run_id=%s completed ok=%t claimed=%d published_pages=%d failed_items=%d deferred_items=%d stopped_reason=%q",
+		runID, result.OK, result.Claimed, result.PublishedPages, len(result.FailedItems), result.DeferredItems, result.StoppedReason)
 	return result, nil
 }
 
 func companyWikiCompilerLeaseDuration(cfg config.Config) time.Duration {
-	timeout := cfg.CompanyWikiCompilerTimeout
-	if timeout <= 0 {
-		timeout = 2 * time.Minute
+	if cfg.CompanyWikiCompilerRunTimeout > 0 {
+		return cfg.CompanyWikiCompilerRunTimeout + time.Minute
 	}
 	limit := cfg.CompanyWikiCompilerBatchLimit
 	if limit <= 0 {
@@ -302,7 +348,91 @@ func companyWikiCompilerLeaseDuration(cfg config.Config) time.Duration {
 	if limit > 100 {
 		limit = 100
 	}
-	return time.Duration(limit)*timeout + time.Minute
+	return time.Duration(limit)*companyWikiCompilerPerItemBudget(cfg) + time.Minute
+}
+
+func companyWikiCompilerClaimLimit(cfg config.Config) int {
+	limit := cfg.CompanyWikiCompilerBatchLimit
+	if limit <= 0 {
+		limit = 10
+	}
+	if limit > 100 {
+		limit = 100
+	}
+	runTimeout := cfg.CompanyWikiCompilerRunTimeout
+	if runTimeout <= 0 {
+		return limit
+	}
+	usable := runTimeout - companyWikiCompilerShutdownGrace(cfg)
+	if usable <= 0 {
+		return 1
+	}
+	perItem := companyWikiCompilerPerItemBudget(cfg)
+	if perItem <= 0 {
+		return limit
+	}
+	byBudget := int(usable / perItem)
+	if byBudget < 1 {
+		byBudget = 1
+	}
+	if byBudget < limit {
+		return byBudget
+	}
+	return limit
+}
+
+func companyWikiCompilerPerItemBudget(cfg config.Config) time.Duration {
+	timeout := cfg.CompanyWikiCompilerTimeout
+	if timeout <= 0 {
+		timeout = 2 * time.Minute
+	}
+	return time.Duration(companyWikiCompilerValidationAttempts*companyWikiCompilerProviderDecodeAttempts)*timeout + companyWikiCompilerPerItemOverhead
+}
+
+func companyWikiCompilerShutdownGrace(cfg config.Config) time.Duration {
+	if cfg.CompanyWikiCompilerShutdownGrace < 0 {
+		return 0
+	}
+	if cfg.CompanyWikiCompilerShutdownGrace == 0 {
+		return 30 * time.Second
+	}
+	return cfg.CompanyWikiCompilerShutdownGrace
+}
+
+func companyWikiCompilerStopReason(ctx context.Context, cfg config.Config, completed int) string {
+	if err := ctx.Err(); err != nil {
+		return err.Error()
+	}
+	deadline, ok := ctx.Deadline()
+	if !ok || completed == 0 {
+		return ""
+	}
+	remaining := time.Until(deadline) - companyWikiCompilerShutdownGrace(cfg)
+	if remaining < companyWikiCompilerPerItemBudget(cfg) {
+		return "run_budget_exhausted"
+	}
+	return ""
+}
+
+type companyWikiCompileItemReleaser interface {
+	ReleaseCompanyWikiCompileItems(ids []string, leaseHolder string, reason string) (int, error)
+}
+
+func releaseCompanyWikiDeferredCompileItems(repo any, items []store.CompanyWikiCompileItem, leaseHolder string, reason string) (int, error) {
+	releaser, ok := repo.(companyWikiCompileItemReleaser)
+	if !ok || len(items) == 0 {
+		return 0, nil
+	}
+	ids := make([]string, 0, len(items))
+	for _, item := range items {
+		if strings.TrimSpace(item.ID) != "" {
+			ids = append(ids, item.ID)
+		}
+	}
+	if len(ids) == 0 {
+		return 0, nil
+	}
+	return releaser.ReleaseCompanyWikiCompileItems(ids, leaseHolder, reason)
 }
 
 type companyWikiCompilerLeaser interface {

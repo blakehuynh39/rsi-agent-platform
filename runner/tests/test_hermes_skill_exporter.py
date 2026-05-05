@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
+import io
 import json
 import os
 from pathlib import Path
@@ -10,6 +11,7 @@ import tempfile
 import threading
 import unittest
 from unittest import mock
+from urllib import error
 
 from rsi_runner.hermes_skill_exporter import (
     ExporterConfig,
@@ -532,6 +534,54 @@ class HermesSkillExporterTest(unittest.TestCase):
             self.assertEqual("https://api.github.com/repos/piplabs/rsi-agent-platform/pulls/42/merge", args[1])
             self.assertEqual("token", kwargs["token"])
             self.assertEqual("squash", kwargs["body"]["merge_method"])
+
+    def test_json_request_retries_transient_github_errors(self) -> None:
+        response = mock.MagicMock()
+        response.__enter__.return_value.read.return_value = b'{"ok":true}'
+        transient = error.HTTPError(
+            "https://api.github.com/repos/piplabs/rsi-agent-platform/pulls/42/merge",
+            504,
+            "Gateway Timeout",
+            {},
+            io.BytesIO(b"timeout"),
+        )
+        with (
+            mock.patch("rsi_runner.hermes_skill_exporter.request.urlopen", side_effect=[transient, response]) as urlopen,
+            mock.patch("rsi_runner.hermes_skill_exporter.time.sleep") as sleep,
+        ):
+            result = GitHubAuth._json_request(
+                "PUT",
+                "https://api.github.com/repos/piplabs/rsi-agent-platform/pulls/42/merge",
+                token="token",
+                retry_transient=True,
+            )
+
+        self.assertEqual({"ok": True}, result)
+        self.assertEqual(2, urlopen.call_count)
+        sleep.assert_called_once_with(2)
+
+    def test_json_request_does_not_retry_transient_github_errors_by_default(self) -> None:
+        transient = error.HTTPError(
+            "https://api.github.com/repos/piplabs/rsi-agent-platform/pulls",
+            504,
+            "Gateway Timeout",
+            {},
+            io.BytesIO(b"timeout"),
+        )
+        with (
+            mock.patch("rsi_runner.hermes_skill_exporter.request.urlopen", side_effect=[transient]) as urlopen,
+            mock.patch("rsi_runner.hermes_skill_exporter.time.sleep") as sleep,
+            self.assertRaises(ExporterError),
+        ):
+            GitHubAuth._json_request(
+                "POST",
+                "https://api.github.com/repos/piplabs/rsi-agent-platform/pulls",
+                token="token",
+                body={"title": "Export"},
+            )
+
+        self.assertEqual(1, urlopen.call_count)
+        sleep.assert_not_called()
 
 
 if __name__ == "__main__":

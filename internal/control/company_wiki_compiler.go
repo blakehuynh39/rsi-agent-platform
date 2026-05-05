@@ -13,7 +13,7 @@ func RunCompanyWikiCompiler(ctx context.Context, cfg config.Config, repo any) er
 	if err != nil {
 		return err
 	}
-	log.Printf("company-wiki-compiler ok=%t compiler_run_id=%s claimed=%d published_pages=%d failed_items=%v",
-		result.OK, result.CompilerRunID, result.Claimed, result.PublishedPages, result.FailedItems)
+	log.Printf("company-wiki-compiler ok=%t compiler_run_id=%s claimed=%d published_pages=%d failed_items=%v deferred_items=%d stopped_reason=%q",
+		result.OK, result.CompilerRunID, result.Claimed, result.PublishedPages, result.FailedItems, result.DeferredItems, result.StoppedReason)
 	return nil
 }

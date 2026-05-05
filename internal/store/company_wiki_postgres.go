@@ -574,6 +574,49 @@ returning id, source_revision_id, compiler_version, schema_version, renderer_ver
 		strings.TrimSpace(compileItemID), firstNonEmpty(strings.TrimSpace(status), CompanyWikiCompileStatusCompleted), strings.TrimSpace(lastError)))
 }
 
+func (p *PostgresStore) ReleaseCompanyWikiCompileItems(ids []string, leaseHolder string, reason string) (int, error) {
+	leaseHolder = strings.TrimSpace(leaseHolder)
+	if len(ids) == 0 || leaseHolder == "" {
+		return 0, nil
+	}
+	tx, err := p.db.Begin()
+	if err != nil {
+		return 0, err
+	}
+	defer func() { _ = tx.Rollback() }()
+	released := int64(0)
+	for _, id := range ids {
+		id = strings.TrimSpace(id)
+		if id == "" {
+			continue
+		}
+		result, err := tx.Exec(`
+update company_wiki_compile_item
+set status = 'pending',
+    lease_holder = '',
+    lease_expires_at = null,
+    attempt_count = greatest(attempt_count - 1, 0),
+    last_error = $3,
+    updated_at = now()
+where id = $1
+  and status = 'claimed'
+  and lease_holder = $2`,
+			id, leaseHolder, strings.TrimSpace(reason))
+		if err != nil {
+			return 0, err
+		}
+		rows, err := result.RowsAffected()
+		if err != nil {
+			return 0, err
+		}
+		released += rows
+	}
+	if err := tx.Commit(); err != nil {
+		return 0, err
+	}
+	return int(released), nil
+}
+
 func (p *PostgresStore) BeginCompanyWikiAudit(input CompanyWikiAuditInput) (CompanyWikiAuditRecord, error) {
 	input = normalizeCompanyWikiAuditInput(input)
 	if input.ID == "" {

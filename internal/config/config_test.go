@@ -90,6 +90,20 @@ func TestLoadUsesModernNotionMirrorDefaults(t *testing.T) {
 	}
 }
 
+func TestLoadUsesCompanyWikiCompilerRunBudgetDefaults(t *testing.T) {
+	t.Setenv("RSI_COMPANY_WIKI_COMPILER_RUN_TIMEOUT", "")
+	t.Setenv("RSI_COMPANY_WIKI_COMPILER_SHUTDOWN_GRACE", "")
+
+	cfg := Load("control-plane")
+
+	if cfg.CompanyWikiCompilerRunTimeout != 25*time.Minute {
+		t.Fatalf("CompanyWikiCompilerRunTimeout = %s", cfg.CompanyWikiCompilerRunTimeout)
+	}
+	if cfg.CompanyWikiCompilerShutdownGrace != 30*time.Second {
+		t.Fatalf("CompanyWikiCompilerShutdownGrace = %s", cfg.CompanyWikiCompilerShutdownGrace)
+	}
+}
+
 func TestKubernetesReadNamespaceScopeAddsSandboxNamespaceWhenConfigured(t *testing.T) {
 	cfg := Config{
 		KubernetesReadNamespaces: []string{"story", "rsi-platform", "story"},

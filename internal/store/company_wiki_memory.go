@@ -420,6 +420,34 @@ func (m *MemoryStore) CompleteCompanyWikiCompileItem(compileItemID string, statu
 	return cloneCompanyWikiCompileItem(item), nil
 }
 
+func (m *MemoryStore) ReleaseCompanyWikiCompileItems(ids []string, leaseHolder string, reason string) (int, error) {
+	leaseHolder = strings.TrimSpace(leaseHolder)
+	if len(ids) == 0 || leaseHolder == "" {
+		return 0, nil
+	}
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	released := 0
+	now := time.Now().UTC()
+	for _, id := range ids {
+		item, ok := m.companyWikiCompileItems[strings.TrimSpace(id)]
+		if !ok || item.Status != CompanyWikiCompileStatusClaimed || item.LeaseHolder != leaseHolder {
+			continue
+		}
+		item.Status = CompanyWikiCompileStatusPending
+		item.LeaseHolder = ""
+		item.LeaseExpiresAt = time.Time{}
+		if item.AttemptCount > 0 {
+			item.AttemptCount--
+		}
+		item.LastError = strings.TrimSpace(reason)
+		item.UpdatedAt = now
+		m.companyWikiCompileItems[item.ID] = item
+		released++
+	}
+	return released, nil
+}
+
 func (m *MemoryStore) BeginCompanyWikiAudit(input CompanyWikiAuditInput) (CompanyWikiAuditRecord, error) {
 	input = normalizeCompanyWikiAuditInput(input)
 	if input.ID == "" {

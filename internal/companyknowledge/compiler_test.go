@@ -55,6 +55,17 @@ func (f *fakeWikiSynthesisClient) SynthesizeWiki(ctx context.Context, request Wi
 	}}}, WikiSynthesisMetadata{RequestMetadataHash: "reqhash", ResponseMetadataHash: "resphash"}, nil
 }
 
+type cancelingWikiSynthesisClient struct {
+	fakeWikiSynthesisClient
+	cancel context.CancelFunc
+}
+
+func (f *cancelingWikiSynthesisClient) SynthesizeWiki(ctx context.Context, request WikiSynthesisRequest) (WikiSynthesisOutput, WikiSynthesisMetadata, error) {
+	output, metadata, err := f.fakeWikiSynthesisClient.SynthesizeWiki(ctx, request)
+	f.cancel()
+	return output, metadata, err
+}
+
 type sequenceWikiSynthesisClient struct {
 	requests []WikiSynthesisRequest
 	outputs  []WikiSynthesisOutput
@@ -356,6 +367,90 @@ func TestRunCompanyWikiCompilerSynthesizesPageFromLedger(t *testing.T) {
 	evidenceIndex := strings.Index(index, "## slack_message")
 	if projectIndex < 0 || evidenceIndex < 0 || projectIndex > evidenceIndex {
 		t.Fatalf("index should list synthesis before evidence:\n%s", index)
+	}
+}
+
+func TestRunCompanyWikiCompilerCapsClaimLimitByRunBudget(t *testing.T) {
+	state := store.NewMemoryStore()
+	cfg := testWikiCompilerConfig(t.TempDir(), "off")
+	cfg.CompanyWikiCompilerBatchLimit = 10
+	cfg.CompanyWikiCompilerTimeout = 2 * time.Minute
+	cfg.CompanyWikiCompilerRunTimeout = 5 * time.Minute
+	cfg.CompanyWikiCompilerShutdownGrace = 30 * time.Second
+	for i, ts := range []string{"1777831927.000000", "1777831928.000000", "1777831929.000000"} {
+		_, err := RecordEnqueueAndMaybePublishWikiSource(context.Background(), cfg, state, testSlackSourceInput(ts, "RSI Platform", "Decision: ship wiki compiler budget guard item "+string(rune('A'+i))+"."))
+		if err != nil {
+			t.Fatalf("record source %d: %v", i, err)
+		}
+	}
+	client := &fakeWikiSynthesisClient{}
+	result, err := RunCompanyWikiCompiler(context.Background(), cfg, state, client)
+	if err != nil {
+		t.Fatalf("RunCompanyWikiCompiler() error = %v", err)
+	}
+	if result.Claimed != 1 {
+		t.Fatalf("Claimed = %d, want 1; result=%+v", result.Claimed, result)
+	}
+	if len(client.requests) != 1 {
+		t.Fatalf("Synthesize requests = %d, want 1", len(client.requests))
+	}
+}
+
+func TestCompanyWikiCompilerClaimLimitAccountsForRetries(t *testing.T) {
+	got := companyWikiCompilerClaimLimit(config.Config{
+		CompanyWikiCompilerBatchLimit:    10,
+		CompanyWikiCompilerTimeout:       2 * time.Minute,
+		CompanyWikiCompilerRunTimeout:    25 * time.Minute,
+		CompanyWikiCompilerShutdownGrace: 30 * time.Second,
+	})
+	if got != 2 {
+		t.Fatalf("claim limit = %d, want 2", got)
+	}
+}
+
+func TestRunCompanyWikiCompilerReleasesDeferredClaims(t *testing.T) {
+	state := store.NewMemoryStore()
+	cfg := testWikiCompilerConfig(t.TempDir(), "off")
+	cfg.CompanyWikiCompilerBatchLimit = 3
+	cfg.CompanyWikiCompilerRunTimeout = 0
+	for i, ts := range []string{"1777831930.000000", "1777831931.000000", "1777831932.000000"} {
+		_, err := RecordEnqueueAndMaybePublishWikiSource(context.Background(), cfg, state, testSlackSourceInput(ts, "RSI Platform", "Decision: release deferred compiler claim item "+string(rune('A'+i))+"."))
+		if err != nil {
+			t.Fatalf("record source %d: %v", i, err)
+		}
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	client := &cancelingWikiSynthesisClient{cancel: cancel}
+	result, err := RunCompanyWikiCompiler(ctx, cfg, state, client)
+	if err != nil {
+		t.Fatalf("RunCompanyWikiCompiler() error = %v", err)
+	}
+	if result.DeferredItems != 2 || result.StoppedReason != context.Canceled.Error() {
+		t.Fatalf("deferred result = %+v, want 2 deferred with context canceled", result)
+	}
+	if len(client.requests) != 1 {
+		t.Fatalf("Synthesize requests = %d, want 1", len(client.requests))
+	}
+	reclaimed, err := state.ClaimCompanyWikiCompileItems(store.CompanyWikiCompileClaimInput{
+		Limit:              10,
+		LeaseHolder:        "test-reclaimer",
+		LeaseDuration:      time.Minute,
+		CompilerVersion:    CompanyWikiCompilerVersion,
+		SchemaVersion:      CompanyWikiSchemaVersion,
+		RendererVersion:    CompanyWikiRendererVersion,
+		ModelPolicyVersion: CompanyWikiModelPolicyVersion,
+		MaxAttempts:        CompanyWikiCompileMaxAttemptCount,
+	})
+	if err != nil {
+		t.Fatalf("ClaimCompanyWikiCompileItems() error = %v", err)
+	}
+	if len(reclaimed) != 2 {
+		t.Fatalf("reclaimed = %d, want 2; items=%+v", len(reclaimed), reclaimed)
+	}
+	for _, item := range reclaimed {
+		if item.AttemptCount != 1 {
+			t.Fatalf("reclaimed item %s attempt_count = %d, want 1 after release/reclaim", item.ID, item.AttemptCount)
+		}
 	}
 }
 
@@ -832,7 +927,7 @@ func TestCompanyWikiCompilerLeaseDurationCoversSequentialBatch(t *testing.T) {
 		CompanyWikiCompilerBatchLimit: 10,
 		CompanyWikiCompilerTimeout:    2 * time.Minute,
 	})
-	want := 21 * time.Minute
+	want := 10*(4*2*time.Minute+15*time.Second) + time.Minute
 	if got != want {
 		t.Fatalf("lease duration = %s, want %s", got, want)
 	}
