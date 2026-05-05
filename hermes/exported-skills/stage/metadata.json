@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "a467013d66b73f172ca232a7f8b09dca4d37883dc5c79fce556bb99cc4387998",
-        "size": 679676
+        "sha256": "b0c8fd8f4de88f3a18452f0c8f638cd5ad0546e3840bc688b54c8558551abd0e",
+        "size": 680067
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3075,6 +3075,11 @@
         "size": 2902
       },
       {
+        "path": "pages/projects/open-source-development-plan.md",
+        "sha256": "aa234fe334d42b4826b3a462084066394711c2022871d628a570fd4ed267d5bc",
+        "size": 8717
+      },
+      {
         "path": "pages/projects/p1-gamification-tactics.md",
         "sha256": "e79c89facc054bfbe1532be546b683081b371b2669cca007d465e04ee0b38424",
         "size": 2996
@@ -3184,8 +3189,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T07:57:42Z",
-  "file_count": 635,
+  "exported_at": "2026-05-05T08:03:33Z",
+  "file_count": 636,
   "files": [
     {
       "path": ".usage.json",
@@ -5952,20 +5957,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "900a997776d13f655bc9ff6ef322eac6b60a2ee804e79cdff2be0c54a696bed2",
+  "previous_tree_hash": "81e8fa3f5c27f64451a5e7ecd3e3fdfc9d3c1254e340891b304390e6c123f3c0",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "81e8fa3f5c27f64451a5e7ecd3e3fdfc9d3c1254e340891b304390e6c123f3c0",
+  "tree_hash": "88caa52168443a9e151037b8e2dac145eeaf5b9088c59a3d547bf872b597dd98",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 83,
+  "wiki_file_count": 84,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5979,8 +5984,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "a467013d66b73f172ca232a7f8b09dca4d37883dc5c79fce556bb99cc4387998",
-      "size": 679676
+      "sha256": "b0c8fd8f4de88f3a18452f0c8f638cd5ad0546e3840bc688b54c8558551abd0e",
+      "size": 680067
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6278,6 +6283,11 @@
       "size": 2902
     },
     {
+      "path": "pages/projects/open-source-development-plan.md",
+      "sha256": "aa234fe334d42b4826b3a462084066394711c2022871d628a570fd4ed267d5bc",
+      "size": 8717
+    },
+    {
       "path": "pages/projects/p1-gamification-tactics.md",
       "sha256": "e79c89facc054bfbe1532be546b683081b371b2669cca007d465e04ee0b38424",
       "size": 2996
@@ -6384,5 +6394,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9a4670f95eb5c114da27da03b99e5fabf2b7a5bc7ef4cd8559f84d800e0f547d"
+  "wiki_tree_hash": "c1ba4d21c6b09c5e482e923d1758ee161307b1efb5d204381ebb0d1ea89117f9"
 }

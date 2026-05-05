@@ -13460,3 +13460,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_428671b6ade036b76942239e18f43ebc
 - summary: Design options for linking character NFTs to their backstory StoryNFTs, with trade-offs between on-chain and off-chain metadata.
 
+## [2026-05-05T07:58:50Z] synthesis | Open Source Development Plan
+
+- status: published
+- slug: projects/open-source-development-plan
+- wiki_revision_id: wikirev_00c9c90ed09dc77df5adf19316309bf8
+- summary: Plan for open-sourcing components of the Story Protocol backend, including core protocol APIs, franchise toolings, and internal toolings, with steps for repo structure, licensing, ...
+
+## [2026-05-05T08:03:45Z] synthesis | Untitled Notion Page (350051299a5480f8b542e4f40de96a42)
+
+- status: published
+- slug: concepts/untitled-notion-page-350051299a5480f8b542e4f40de96a42
+- wiki_revision_id: wikirev_be59a03ac31bff576f315e3a0ff60555
+- summary: A Notion page with no content yet.
+
+## [2026-05-05T08:03:45Z] synthesis | Calendar
+
+- status: published
+- slug: systems/calendar
+- wiki_revision_id: wikirev_2cadec314923c145f663bae60d803782
+- summary: The Calendar system contains a child database that is currently untitled.
+

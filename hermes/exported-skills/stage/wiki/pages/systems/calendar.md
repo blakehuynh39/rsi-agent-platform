@@ -3,9 +3,7 @@ title: "Calendar"
 type: "system"
 slug: "systems/calendar"
 freshness: "2026-05-05T04:33:57Z"
-tags:
-  - "calendar"
-  - "notion"
+tags: []
 owners: []
 source_revision_ids:
   - "srcrev_a9f7bf07a8bf5370c3ff6106c6cdde3c"
@@ -25,6 +23,6 @@ The Calendar system contains a child database that is currently untitled.
 
 ## Sources
 
-- `source_document_id`: `srcdoc_361a56e9384dd884ca7bd6645f32f3b2`
-- `source_revision_id`: `srcrev_a9f7bf07a8bf5370c3ff6106c6cdde3c`
-- `source_url`: [Notion source](https://www.notion.so/Calendar-121051299a5481709ab7ec9697e8927e)
+- `source_document_id`: `srcdoc_6c83b9d6ed99a8ee3b4e8ef541a17099`
+- `source_revision_id`: `srcrev_a8af1a5b28a3d00a070e52b3bf4ab144`
+- `source_url`: [Notion source](https://www.notion.so/2c3032c91d0e4d96a3058d5e39cec6c4)
