@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "503b2f5f9586ceedeaff5996facbb4b83aa241137e6c295a0ddacdebbe675723",
-        "size": 725425
+        "sha256": "133d68ceb7478fd78ce6d1daa96a3cc39cd9e15ce61b2b4760bae2339d72454f",
+        "size": 725850
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2833,6 +2833,11 @@
         "path": "pages/concepts/cross-chain-interactions.md",
         "sha256": "81e2193822319b195c372d87bebf1a3d439c020126061f63ca09994e4bf59d25",
         "size": 5888
+      },
+      {
+        "path": "pages/concepts/derivative-additional-revenue-share-multiple-parents.md",
+        "sha256": "c91eba2f9b70f39b89d4bef082b29179e9f4f0e7ab20ae2ba4bd484fa3e99875",
+        "size": 3805
       },
       {
         "path": "pages/concepts/dev-resources.md",
@@ -3779,8 +3784,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T19:50:20Z",
-  "file_count": 754,
+  "exported_at": "2026-05-05T19:56:18Z",
+  "file_count": 755,
   "files": [
     {
       "path": ".usage.json",
@@ -6547,20 +6552,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-67d9798zt8k",
-  "previous_tree_hash": "78490346342a54788e1dd4e7c009e96f3ae8c559b250b4e1d75ed04c7ccfd1cf",
+  "previous_tree_hash": "a33780d467a2810fea92188913728504b6bd85a7fa7804553b5664a5cdaf834f",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a33780d467a2810fea92188913728504b6bd85a7fa7804553b5664a5cdaf834f",
+  "tree_hash": "ae0c852332f015d993ab7b1b874434bc1b2de91013eeaed9f162b16e4cb98bb6",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 202,
+  "wiki_file_count": 203,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6574,8 +6579,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "503b2f5f9586ceedeaff5996facbb4b83aa241137e6c295a0ddacdebbe675723",
-      "size": 725425
+      "sha256": "133d68ceb7478fd78ce6d1daa96a3cc39cd9e15ce61b2b4760bae2339d72454f",
+      "size": 725850
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6631,6 +6636,11 @@
       "path": "pages/concepts/cross-chain-interactions.md",
       "sha256": "81e2193822319b195c372d87bebf1a3d439c020126061f63ca09994e4bf59d25",
       "size": 5888
+    },
+    {
+      "path": "pages/concepts/derivative-additional-revenue-share-multiple-parents.md",
+      "sha256": "c91eba2f9b70f39b89d4bef082b29179e9f4f0e7ab20ae2ba4bd484fa3e99875",
+      "size": 3805
     },
     {
       "path": "pages/concepts/dev-resources.md",
@@ -7574,5 +7584,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6e1826b7bf99b3dc72fb57597e9a3cb9c4db1bb80288f3d4b2fa57b07011a03f"
+  "wiki_tree_hash": "1086a2388dada60f29c3b009c4091fad40defd1262394078681bf233a5057f36"
 }

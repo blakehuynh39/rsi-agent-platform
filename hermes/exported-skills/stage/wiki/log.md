@@ -14430,3 +14430,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_37a65e457f113cc4d186f81c9cb989a0
 - summary: Describes the desired incentive alignment between the protocol and users for the Proof of Creativity mechanism, focusing on IP token staking.
 
+## [2026-05-05T19:54:20Z] synthesis | Additional Royalty Share for Derivative IP with Multiple Parents
+
+- status: published
+- slug: concepts/derivative-additional-revenue-share-multiple-parents
+- wiki_revision_id: wikirev_432f4829c958bd990c104c5cc5d4892d
+- summary: When a derivative IP has multiple parents with reciprocal licensing, it may need to set additional revenue share for itself without adding new license terms.
+
