@@ -13397,3 +13397,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_87d5412ee0d3d66b9435686dc07ea5c9
 - summary: A collection of resources and notes on gas optimization techniques for Solidity smart contracts.
 
+## [2026-05-05T07:21:11Z] synthesis | Smart Contract Security Resources
+
+- status: published
+- slug: concepts/smart-contract-security-resources
+- wiki_revision_id: wikirev_c6c93fdec5c820934927a6ff7b523c1f
+- summary: Curated references for smart contract attack vectors and security checklists, including community resources from 0xCygaar and T11.
+

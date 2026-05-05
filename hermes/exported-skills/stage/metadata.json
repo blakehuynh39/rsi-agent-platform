@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "17a1097619ed1584219af488fa1ff5f5766a68a7ed14a70f1a3356291380f57b",
-        "size": 676618
+        "sha256": "f6f6c3233f220f092b7ef4134af3d0f66b09ded2791fd9662cccecced52b725d",
+        "size": 676966
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2843,6 +2843,11 @@
         "path": "pages/concepts/ppl-protocol-support.md",
         "sha256": "dc8513f93dfad71352f6539caeacd36112039ac58ba1343baa683d3ee51bcd50",
         "size": 1120
+      },
+      {
+        "path": "pages/concepts/smart-contract-security-resources.md",
+        "sha256": "a47b0f02dba01efe1abbd9d31b1ac11706043172f11eb0a37c1c40d9ed6c3b96",
+        "size": 1888
       },
       {
         "path": "pages/concepts/story-protocol-wallet-operations.md",
@@ -3139,8 +3144,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T07:13:22Z",
-  "file_count": 626,
+  "exported_at": "2026-05-05T07:24:15Z",
+  "file_count": 627,
   "files": [
     {
       "path": ".usage.json",
@@ -5907,20 +5912,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "7585fe074e84f04a8d7ee009a0bf025bc9ff8df286a36a768f0f667b746778b1",
+  "previous_tree_hash": "2ed2b1414d371b1434d59ec769b86356b9ddfa0774c7eff8519a5f36fba348e8",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2ed2b1414d371b1434d59ec769b86356b9ddfa0774c7eff8519a5f36fba348e8",
+  "tree_hash": "3b41e6a3c15ecfeef0b16fa475778def231d29a851a31340e7f08f0f53bda245",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 74,
+  "wiki_file_count": 75,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5934,8 +5939,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "17a1097619ed1584219af488fa1ff5f5766a68a7ed14a70f1a3356291380f57b",
-      "size": 676618
+      "sha256": "f6f6c3233f220f092b7ef4134af3d0f66b09ded2791fd9662cccecced52b725d",
+      "size": 676966
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6001,6 +6006,11 @@
       "path": "pages/concepts/ppl-protocol-support.md",
       "sha256": "dc8513f93dfad71352f6539caeacd36112039ac58ba1343baa683d3ee51bcd50",
       "size": 1120
+    },
+    {
+      "path": "pages/concepts/smart-contract-security-resources.md",
+      "sha256": "a47b0f02dba01efe1abbd9d31b1ac11706043172f11eb0a37c1c40d9ed6c3b96",
+      "size": 1888
     },
     {
       "path": "pages/concepts/story-protocol-wallet-operations.md",
@@ -6294,5 +6304,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c24e2a8c4d376f5bd4942d5d47c73a9c181f3776d48f509f203c2c4cfb66c043"
+  "wiki_tree_hash": "c6cd62c03338bd2f210d49d99304f0b3bdfec46b533897356510a34bf2e27bea"
 }
