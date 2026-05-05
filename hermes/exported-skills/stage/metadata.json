@@ -1,5 +1,6 @@
 {
   "artifact_manifest": {
+    "export_format_version": 2,
     "skills": [
       {
         "path": "apple/DESCRIPTION.md",
@@ -2947,7 +2948,8 @@
   },
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
-  "exported_at": "2026-05-05T02:32:52Z",
+  "export_format_version": 2,
+  "exported_at": "2026-05-05T02:44:08Z",
   "file_count": 588,
   "files": [
     {
@@ -5699,14 +5701,14 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cd98876d2n",
-  "previous_tree_hash": "35837fc06b42ac4b757d5d85ff97d5060a339f68f61e3093698d1938b8ca29fb",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-788fc82dw5z",
+  "previous_tree_hash": "f06a951eca3bea5b191226a59ff2c7970b9600ca24f9744af81fdfdcb973656d",
   "schema_version": 1,
   "skill_file_count": 549,
   "skill_manage_sessions": [],
   "skill_tree_hash": "51dd5fa14f02f546813009b323ca960c29e87c4759f49ab6c92e3ca2c7ca357b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f06a951eca3bea5b191226a59ff2c7970b9600ca24f9744af81fdfdcb973656d",
+  "tree_hash": "64be93c6d559876af8b50fe4c673e705417e19e81ba42054842b064940dfcc8e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
