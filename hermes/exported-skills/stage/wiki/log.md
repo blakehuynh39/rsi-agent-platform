@@ -14304,3 +14304,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_22facc3651c6b56e5b7dee53f0eb4b9a
 - summary: Top-level index page for the Emergence Universe (EU) project, linking to key sub-pages covering releases, API/SDK integration, relationships, PFP NFTs, platform SDK documentation, ...
 
+## [2026-05-05T18:36:10Z] synthesis | Frame
+
+- status: published
+- slug: projects/frame
+- wiki_revision_id: wikirev_70abb23937812e03b80f4cdd0cdd23c9
+- summary: Frame is an Ethereum L2 designed to scale NFT adoption with enforced royalties via Palette Protocol.
+
+## [2026-05-05T18:38:25Z] synthesis | Consensus Mechanism Research
+
+- status: published
+- slug: concepts/consensus-mechanism-research
+- wiki_revision_id: wikirev_b955f50279c09e41dadde80a7dba1d80
+- summary: Research notes and references on consensus mechanisms, including Tendermint, HotStuff, and HotStuff 2.
+
+## [2026-05-05T18:41:14Z] synthesis | Interops Research Hub
+
+- status: published
+- slug: concepts/interops-research-hub
+- wiki_revision_id: wikirev_542b174ec5494ef012ad139d6325417e
+- summary: A curated collection of resources and assessments related to blockchain interoperability protocols, including general bridge frameworks and deep dives into specific solutions like ...
+

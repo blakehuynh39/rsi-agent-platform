@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "838b26d899a3dbefcf974e41e97b8efe627df8510fab86407ebfca1cdfd34668",
-        "size": 719247
+        "sha256": "17a755f3dfcb37cf87729e615518f0ba544ce3b3774d34621cda566356b5d93e",
+        "size": 719819
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2813,6 +2813,11 @@
         "path": "pages/concepts/coming-soon-placeholder-tasks.md",
         "sha256": "c1d8e73099e443c9656dd8270dd70b95a5b759b8823001ecea8170a00b69c4a2",
         "size": 1065
+      },
+      {
+        "path": "pages/concepts/consensus-mechanism-research.md",
+        "sha256": "e0482125cbb37a83a4bcf4f6d25db33c4b8c9c858f4abd3eb778b2232ca4cfc7",
+        "size": 2897
       },
       {
         "path": "pages/concepts/content-references.md",
@@ -3360,6 +3365,11 @@
         "size": 2920
       },
       {
+        "path": "pages/projects/frame.md",
+        "sha256": "65009b14c4476c91ae027eec246fcadb03ca2992a706f20aab238bef9f3aa34c",
+        "size": 4415
+      },
+      {
         "path": "pages/projects/gif-project.md",
         "sha256": "3e5cf596c6709957c7161bd32f1e8e94e07ffbab069d382deb9405bdafb5e2a1",
         "size": 2580
@@ -3694,8 +3704,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T18:34:56Z",
-  "file_count": 737,
+  "exported_at": "2026-05-05T18:40:54Z",
+  "file_count": 739,
   "files": [
     {
       "path": ".usage.json",
@@ -6462,20 +6472,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbkb88g",
-  "previous_tree_hash": "1114ab4b93016ee1d1889c84b05086c2bc8c6797b586b8f58315213db05c1031",
+  "previous_tree_hash": "739460168d828023b4850b0b334031985976a07eff36e0a88b72c51fcaad5369",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "739460168d828023b4850b0b334031985976a07eff36e0a88b72c51fcaad5369",
+  "tree_hash": "2a0353b621b6a93ba45dcee511f15242f6a8ce6b7981327d8cd97d359d2c533a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 185,
+  "wiki_file_count": 187,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6489,8 +6499,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "838b26d899a3dbefcf974e41e97b8efe627df8510fab86407ebfca1cdfd34668",
-      "size": 719247
+      "sha256": "17a755f3dfcb37cf87729e615518f0ba544ce3b3774d34621cda566356b5d93e",
+      "size": 719819
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6526,6 +6536,11 @@
       "path": "pages/concepts/coming-soon-placeholder-tasks.md",
       "sha256": "c1d8e73099e443c9656dd8270dd70b95a5b759b8823001ecea8170a00b69c4a2",
       "size": 1065
+    },
+    {
+      "path": "pages/concepts/consensus-mechanism-research.md",
+      "sha256": "e0482125cbb37a83a4bcf4f6d25db33c4b8c9c858f4abd3eb778b2232ca4cfc7",
+      "size": 2897
     },
     {
       "path": "pages/concepts/content-references.md",
@@ -7073,6 +7088,11 @@
       "size": 2920
     },
     {
+      "path": "pages/projects/frame.md",
+      "sha256": "65009b14c4476c91ae027eec246fcadb03ca2992a706f20aab238bef9f3aa34c",
+      "size": 4415
+    },
+    {
       "path": "pages/projects/gif-project.md",
       "sha256": "3e5cf596c6709957c7161bd32f1e8e94e07ffbab069d382deb9405bdafb5e2a1",
       "size": 2580
@@ -7404,5 +7424,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0e4f114da5bcb46db3b9222ae4bae458e9f180ae923a4c05ccc83118edeead1e"
+  "wiki_tree_hash": "b0122aec8b3ca4f57d21c191722ec1f345d2b4b9ee877ddcdfb2191465a6f9b5"
 }
