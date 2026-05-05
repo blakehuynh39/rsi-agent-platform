@@ -3,6 +3,11 @@
     "export_format_version": 2,
     "skills": [
       {
+        "path": ".usage.json",
+        "sha256": "1827a9c2802b3602609521074c5d71d5890949e5b9cdd6a35a7d91039c2223f8",
+        "size": 1061
+      },
+      {
         "path": "apple/DESCRIPTION.md",
         "sha256": "0e4d2474859827a53d94fbfa316e059ddc45ab35665d8f3d685e2d7833fa1483",
         "size": 152
@@ -2733,6 +2738,16 @@
         "size": 4042
       },
       {
+        "path": "story-company/numo-project-status/SKILL.md",
+        "sha256": "9b4bcb9ee3d26bf4db181c6c7fd468dbbe996c8d47df9a3ef8c6085eeae6cbd6",
+        "size": 4998
+      },
+      {
+        "path": "story-company/numo-project-status/references/report-template.md",
+        "sha256": "5784e2ff43a22dca7e8fb92143070f790d82f4d5e8fc07591bbb6af149cf62db",
+        "size": 1324
+      },
+      {
         "path": "story-company/rsi-platform-investigation/SKILL.md",
         "sha256": "e1ed76288913f8eded3c1277ccd69c41179f90ea0787dde47bfbe94bc2f3d1fd",
         "size": 7393
@@ -2761,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "9b9877e6f624ca454d3f97819aa68f456917a9f1e17834e0585809ac8f775948",
-        "size": 349532
+        "sha256": "1037b9870714590f7b683cfc1cbea52c8b98b1c20a85718548f6a7709e557d16",
+        "size": 350501
       },
       {
         "path": "pages/concepts/coming-soon-placeholder-tasks.md",
@@ -2808,6 +2823,11 @@
         "path": "pages/open-questions/need-plan-b-api-gas-limits.md",
         "sha256": "3ec6dca680c6c186231b1b8a606a1b8d54f875b00b32210c93bc034465dac5dc",
         "size": 1298
+      },
+      {
+        "path": "pages/policies/product-intake-process.md",
+        "sha256": "189f126e0ec2af949edd940f87e392b64757a32d26a9fe2582f1b344b3f3d8e9",
+        "size": 6644
       },
       {
         "path": "pages/policies/serve-least-used-transcript-priority.md",
@@ -2863,6 +2883,11 @@
         "path": "pages/projects/drag-and-drop-upload-functionality.md",
         "sha256": "747ada8f17d97a5c9b8fa301af14888f191890bab1d406f516bd10604bf21740",
         "size": 1259
+      },
+      {
+        "path": "pages/projects/gif-project.md",
+        "sha256": "3e5cf596c6709957c7161bd32f1e8e94e07ffbab069d382deb9405bdafb5e2a1",
+        "size": 2580
       },
       {
         "path": "pages/projects/improved-mobile-app-tracking-platform.md",
@@ -2945,6 +2970,11 @@
         "size": 1118
       },
       {
+        "path": "pages/systems/new-product-intake.md",
+        "sha256": "bb8c04b26350bd5fbd98ee7e69ce0fee8bcd235e8ab7fc90bd2433a8be131668",
+        "size": 1093
+      },
+      {
         "path": "pages/systems/numo-product-backlog.md",
         "sha256": "4fd86fc113d36a9ad53220544b8003ededbe14bc8005e107d8ba6c577bb3fd4f",
         "size": 1012
@@ -2954,9 +2984,14 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T03:17:11Z",
-  "file_count": 589,
+  "exported_at": "2026-05-05T03:22:58Z",
+  "file_count": 595,
   "files": [
+    {
+      "path": ".usage.json",
+      "sha256": "1827a9c2802b3602609521074c5d71d5890949e5b9cdd6a35a7d91039c2223f8",
+      "size": 1061
+    },
     {
       "path": "apple/DESCRIPTION.md",
       "sha256": "0e4d2474859827a53d94fbfa316e059ddc45ab35665d8f3d685e2d7833fa1483",
@@ -5688,6 +5723,16 @@
       "size": 4042
     },
     {
+      "path": "story-company/numo-project-status/SKILL.md",
+      "sha256": "9b4bcb9ee3d26bf4db181c6c7fd468dbbe996c8d47df9a3ef8c6085eeae6cbd6",
+      "size": 4998
+    },
+    {
+      "path": "story-company/numo-project-status/references/report-template.md",
+      "sha256": "5784e2ff43a22dca7e8fb92143070f790d82f4d5e8fc07591bbb6af149cf62db",
+      "size": 1324
+    },
+    {
       "path": "story-company/rsi-platform-investigation/SKILL.md",
       "sha256": "e1ed76288913f8eded3c1277ccd69c41179f90ea0787dde47bfbe94bc2f3d1fd",
       "size": 7393
@@ -5707,20 +5752,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-54fc8bnk8js",
-  "previous_tree_hash": "c441bbdb18b7bf9a786dea303414e3331e1827aef6e4e71c4f4e061e45c1f834",
+  "previous_tree_hash": "4c8a7ec759c0795703cb282df56a3fe5f338201756aefe086701c59356bf878a",
   "schema_version": 1,
-  "skill_file_count": 549,
+  "skill_file_count": 552,
   "skill_manage_sessions": [],
-  "skill_tree_hash": "51dd5fa14f02f546813009b323ca960c29e87c4759f49ab6c92e3ca2c7ca357b",
+  "skill_tree_hash": "476409678a775c1018b9e6a7408807c3722cdad360128bd52087ec8de9a400b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4c8a7ec759c0795703cb282df56a3fe5f338201756aefe086701c59356bf878a",
+  "tree_hash": "857fadaf5f68dc827cf00e3fd6f961ddbf5c20f374e39509d9f4a3f90ead661d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 40,
+  "wiki_file_count": 43,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5734,8 +5779,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "9b9877e6f624ca454d3f97819aa68f456917a9f1e17834e0585809ac8f775948",
-      "size": 349532
+      "sha256": "1037b9870714590f7b683cfc1cbea52c8b98b1c20a85718548f6a7709e557d16",
+      "size": 350501
     },
     {
       "path": "pages/concepts/coming-soon-placeholder-tasks.md",
@@ -5781,6 +5826,11 @@
       "path": "pages/open-questions/need-plan-b-api-gas-limits.md",
       "sha256": "3ec6dca680c6c186231b1b8a606a1b8d54f875b00b32210c93bc034465dac5dc",
       "size": 1298
+    },
+    {
+      "path": "pages/policies/product-intake-process.md",
+      "sha256": "189f126e0ec2af949edd940f87e392b64757a32d26a9fe2582f1b344b3f3d8e9",
+      "size": 6644
     },
     {
       "path": "pages/policies/serve-least-used-transcript-priority.md",
@@ -5836,6 +5886,11 @@
       "path": "pages/projects/drag-and-drop-upload-functionality.md",
       "sha256": "747ada8f17d97a5c9b8fa301af14888f191890bab1d406f516bd10604bf21740",
       "size": 1259
+    },
+    {
+      "path": "pages/projects/gif-project.md",
+      "sha256": "3e5cf596c6709957c7161bd32f1e8e94e07ffbab069d382deb9405bdafb5e2a1",
+      "size": 2580
     },
     {
       "path": "pages/projects/improved-mobile-app-tracking-platform.md",
@@ -5918,11 +5973,16 @@
       "size": 1118
     },
     {
+      "path": "pages/systems/new-product-intake.md",
+      "sha256": "bb8c04b26350bd5fbd98ee7e69ce0fee8bcd235e8ab7fc90bd2433a8be131668",
+      "size": 1093
+    },
+    {
       "path": "pages/systems/numo-product-backlog.md",
       "sha256": "4fd86fc113d36a9ad53220544b8003ededbe14bc8005e107d8ba6c577bb3fd4f",
       "size": 1012
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "bc57bcd66fe71de68ae56847565d812f7bd0c824551458c0b86e8ba997ff6124"
+  "wiki_tree_hash": "4dff60bbbefacc6c69d13c67f74b004e6af95a75db55c6a9433dcf47e71ba1aa"
 }

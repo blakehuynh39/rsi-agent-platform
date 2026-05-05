@@ -6737,3 +6737,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_76aa68246060ff022d258f9e908d4928
 - summary: The Engineering Home Notion database mirrors its row pages as separate Notion documents.
 
+## [2026-05-05T03:18:34Z] synthesis | Product Intake Process
+
+- status: published
+- slug: policies/product-intake-process
+- wiki_revision_id: wikirev_199cb174472a794014a2dfa7bfd2f63c
+- summary: Guidelines for requesting engineering support on new product initiatives, covering required documentation, stages of engagement, and resource allocation.
+
+## [2026-05-05T03:19:28Z] synthesis | New Product Intake
+
+- status: published
+- slug: systems/new-product-intake
+- wiki_revision_id: wikirev_497005aaa30bbe3839e54e1ba6387230
+- summary: A Notion database where row pages are mirrored as separate Notion documents.
+
+## [2026-05-05T03:21:45Z] synthesis | GIF Project
+
+- status: published
+- slug: projects/gif-project
+- wiki_revision_id: wikirev_8eaca35892442ccd419d56381283a627
+- summary: The GIF project involves AI remixing to generate GIFs, likely from videos. A contributor is planned for 2 days/week for 4 weeks, assisting with model selection, generative pipeline...
+
