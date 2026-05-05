@@ -14083,3 +14083,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b36cbad9e6327e4bf8a1589ad853b3a3
 - summary: Decision on whether to use dynamic resolving (reading addresses from ModuleRegistry) or static setting (immutable variables) for module addresses in gated function calls. The conte...
 
+## [2026-05-05T15:57:39Z] synthesis | Royalty NFT
+
+- status: published
+- slug: concepts/royalty-nft
+- wiki_revision_id: wikirev_9af75d2c2c315a69207f32c69686c3ad
+- summary: A Royalty NFT is a fractionizable ERC-1155 token representing a share of a license revenue pool. Each commercial license NFT contract deploys a corresponding Royalty NFT, and holde...
+

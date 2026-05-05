@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "4fbc94ec13b6a10addf8fa680a60ac6739b3292b82a9b5f630a65577b631ce52",
-        "size": 708617
+        "sha256": "1fcc36d9230b3ae7a1d182716ccf0724c9c41e9fe72a0e409405ac5f7a827a0f",
+        "size": 708974
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2978,6 +2978,11 @@
         "path": "pages/concepts/protocol-metadata.md",
         "sha256": "15210b4c94ecfd91533e089b9170834d90302188934765f4f32549180227d5fb",
         "size": 2328
+      },
+      {
+        "path": "pages/concepts/royalty-nft.md",
+        "sha256": "c52bcb3a389a8998a75aa04d1009f8f528f207b1186585cb1f7e3d25040033da",
+        "size": 6171
       },
       {
         "path": "pages/concepts/smart-contract-security-resources.md",
@@ -3564,8 +3569,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T15:43:46Z",
-  "file_count": 711,
+  "exported_at": "2026-05-05T15:59:47Z",
+  "file_count": 712,
   "files": [
     {
       "path": ".usage.json",
@@ -6332,20 +6337,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "52769a8b513afd08c11769451413cdbd89a3f7e790bb497edd31f25913d1577a",
+  "previous_tree_hash": "32acc22e400a099681aee6a1763f68571f44c5287b85dcab5bc7b5ea375c7a18",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "32acc22e400a099681aee6a1763f68571f44c5287b85dcab5bc7b5ea375c7a18",
+  "tree_hash": "c48d28d385a0677b84f4107288d6e84c952ce0ca68272a46c6525f2b42a5588d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 159,
+  "wiki_file_count": 160,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6359,8 +6364,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "4fbc94ec13b6a10addf8fa680a60ac6739b3292b82a9b5f630a65577b631ce52",
-      "size": 708617
+      "sha256": "1fcc36d9230b3ae7a1d182716ccf0724c9c41e9fe72a0e409405ac5f7a827a0f",
+      "size": 708974
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6561,6 +6566,11 @@
       "path": "pages/concepts/protocol-metadata.md",
       "sha256": "15210b4c94ecfd91533e089b9170834d90302188934765f4f32549180227d5fb",
       "size": 2328
+    },
+    {
+      "path": "pages/concepts/royalty-nft.md",
+      "sha256": "c52bcb3a389a8998a75aa04d1009f8f528f207b1186585cb1f7e3d25040033da",
+      "size": 6171
     },
     {
       "path": "pages/concepts/smart-contract-security-resources.md",
@@ -7144,5 +7154,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "784bbacba51eadbab0b145dbaf188367890253135eaa4a77950dc3da57907c60"
+  "wiki_tree_hash": "c1df611f8640275710351815bbfa44a03056fc2378fc4a8ee49314e72ce57a76"
 }
