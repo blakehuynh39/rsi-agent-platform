@@ -14479,3 +14479,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_00c8e6524b793f75959177dbc3598e13
 - summary: A brainstorming list of potential L1 features and services, captured in a Notion document.
 
+## [2026-05-05T21:04:52Z] synthesis | Story Protocol L1 Launch Plan
+
+- status: published
+- slug: projects/story-protocol-l1-launch-plan
+- wiki_revision_id: wikirev_ee228b74929a68c3b2281d59046b671b
+- summary: Engineering plans for Story Protocol L1, covering launch items, precompiles, proof-of-creativity, custom data types, partners, 1st-party apps, cross-chain, token design, staking, a...
+
+## [2026-05-05T21:06:35Z] synthesis | Story Protocol L1 Launch Plan
+
+- status: published
+- slug: projects/story-protocol-l1-launch-plan
+- wiki_revision_id: wikirev_5627535a6c357b5a3f8addce45ab3d48
+- summary: Engineering plans for Story Protocol L1, covering launch items, precompiles, proof-of-creativity, custom data types, partners, 1st-party apps, cross-chain, token design, staking, a...
+

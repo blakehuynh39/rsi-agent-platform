@@ -2771,13 +2771,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "7bedd43e3824f18c649c02a780a17b5287c42014fd057e1b93fbaae80b172564",
-        "size": 422113
+        "sha256": "080c2929dff745f2ba01ea9bc3c30fd8b60209b2eb71f0d97600c481deb89024",
+        "size": 422494
       },
       {
         "path": "log.md",
-        "sha256": "5d26148f4b0cec72f785bf76fe0adeb28d029fb6ca1f737efd2ac80d2421814b",
-        "size": 727680
+        "sha256": "e3b918897589f6bee938e7c2702c8e8846542fb0899b01878fd320bf26a35363",
+        "size": 728466
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3625,6 +3625,11 @@
         "size": 1411
       },
       {
+        "path": "pages/projects/story-protocol-l1-launch-plan.md",
+        "sha256": "51a1bfe77776389e4a4f0569ab7dffaba775c1fd59c6d7ba9375b4dc0697d7af",
+        "size": 8944
+      },
+      {
         "path": "pages/projects/upwork-fiverr-i18n-translation-vetting.md",
         "sha256": "d046ecfcd2741ab81ffc4d30d1e6c166f43ad4376ee4896dff4db9879393a681",
         "size": 1547
@@ -3814,8 +3819,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T20:52:30Z",
-  "file_count": 761,
+  "exported_at": "2026-05-05T21:08:19Z",
+  "file_count": 762,
   "files": [
     {
       "path": ".usage.json",
@@ -6582,20 +6587,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-67cbbbfhg9t",
-  "previous_tree_hash": "708a87202a0ec403ccd10b9c5acc8c92ac6925d0a717c58c5eb90c30631c50bc",
+  "previous_tree_hash": "2f83929571bf4d373b18d682c7816ab73009ef509fc2faa0c50a369123fec2be",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2f83929571bf4d373b18d682c7816ab73009ef509fc2faa0c50a369123fec2be",
+  "tree_hash": "9e88b800878d4882069e7c5071b90f3035ee804b94188e098dd0fe0a1142cadc",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 209,
+  "wiki_file_count": 210,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6604,13 +6609,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "7bedd43e3824f18c649c02a780a17b5287c42014fd057e1b93fbaae80b172564",
-      "size": 422113
+      "sha256": "080c2929dff745f2ba01ea9bc3c30fd8b60209b2eb71f0d97600c481deb89024",
+      "size": 422494
     },
     {
       "path": "log.md",
-      "sha256": "5d26148f4b0cec72f785bf76fe0adeb28d029fb6ca1f737efd2ac80d2421814b",
-      "size": 727680
+      "sha256": "e3b918897589f6bee938e7c2702c8e8846542fb0899b01878fd320bf26a35363",
+      "size": 728466
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7458,6 +7463,11 @@
       "size": 1411
     },
     {
+      "path": "pages/projects/story-protocol-l1-launch-plan.md",
+      "sha256": "51a1bfe77776389e4a4f0569ab7dffaba775c1fd59c6d7ba9375b4dc0697d7af",
+      "size": 8944
+    },
+    {
       "path": "pages/projects/upwork-fiverr-i18n-translation-vetting.md",
       "sha256": "d046ecfcd2741ab81ffc4d30d1e6c166f43ad4376ee4896dff4db9879393a681",
       "size": 1547
@@ -7644,5 +7654,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a6ade5e19e476b8dae93659d39043cf1be3d0a2871cda5140ff2ce006b58edde"
+  "wiki_tree_hash": "73ed76bb0c3d441028f296912c6364da43932b080f09bfea9b990cacb9ab976f"
 }
