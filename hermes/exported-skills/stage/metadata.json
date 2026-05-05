@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "8075beaed8b2e2ed0f70fc6ad4bb1eff7cb02571fc124d21331847216d32542d",
-        "size": 700939
+        "sha256": "bf135cdb0fae4656ffc70b68f6b3a05572db7e5c56b25cfc0afa5e81e2d48b6d",
+        "size": 701214
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3405,6 +3405,11 @@
         "size": 3060
       },
       {
+        "path": "pages/systems/go-swagger-story-api.md",
+        "sha256": "2a797c929c95e614ed30f0a9f5b6e7e79948f9cbbb6bfe3df291bb62fdfd258a",
+        "size": 1301
+      },
+      {
         "path": "pages/systems/monitoring-and-dashboard.md",
         "sha256": "020a2652582a44eafd7e6959efe4cd73dc8b572c24dc0822333e8c473a57633c",
         "size": 3036
@@ -3454,8 +3459,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T13:40:32Z",
-  "file_count": 689,
+  "exported_at": "2026-05-05T13:46:27Z",
+  "file_count": 690,
   "files": [
     {
       "path": ".usage.json",
@@ -6222,20 +6227,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "202219009cccdd4a78984bcbb3ab51fe1bb4554b7f032280ba5d55138fdb8cc7",
+  "previous_tree_hash": "99ea6b8124e11edbaefd27416592dce2185b46757c8096c48d0035f0b8053c1a",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "99ea6b8124e11edbaefd27416592dce2185b46757c8096c48d0035f0b8053c1a",
+  "tree_hash": "e2e897fa2555e60a6060ca525af6d257104bb6ab58489e6849684768396ccd43",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 137,
+  "wiki_file_count": 138,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6249,8 +6254,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "8075beaed8b2e2ed0f70fc6ad4bb1eff7cb02571fc124d21331847216d32542d",
-      "size": 700939
+      "sha256": "bf135cdb0fae4656ffc70b68f6b3a05572db7e5c56b25cfc0afa5e81e2d48b6d",
+      "size": 701214
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6878,6 +6883,11 @@
       "size": 3060
     },
     {
+      "path": "pages/systems/go-swagger-story-api.md",
+      "sha256": "2a797c929c95e614ed30f0a9f5b6e7e79948f9cbbb6bfe3df291bb62fdfd258a",
+      "size": 1301
+    },
+    {
       "path": "pages/systems/monitoring-and-dashboard.md",
       "sha256": "020a2652582a44eafd7e6959efe4cd73dc8b572c24dc0822333e8c473a57633c",
       "size": 3036
@@ -6924,5 +6934,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f6e98c40d913966dac0a7f1a2dc03fa1c39708f20fe5e44fe730c9995b67cc6b"
+  "wiki_tree_hash": "58aa77c7864bf4979df9334689f667669655e9f876be6055e5dd0af8d137a75e"
 }
