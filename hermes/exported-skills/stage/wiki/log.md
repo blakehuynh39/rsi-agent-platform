@@ -14437,3 +14437,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_432f4829c958bd990c104c5cc5d4892d
 - summary: When a derivative IP has multiple parents with reciprocal licensing, it may need to set additional revenue share for itself without adding new license terms.
 
+## [2026-05-05T20:07:12Z] synthesis | Precompiles Plan
+
+- status: published
+- slug: projects/precompiles-plan
+- wiki_revision_id: wikirev_26f6b50b1981277af9cb371f768cd280
+- summary: A Notion document outlining the plan for precompiles.
+
+## [2026-05-05T20:08:45Z] synthesis | priv_validator_state.json
+
+- status: published
+- slug: concepts/priv-validator-state-json
+- wiki_revision_id: wikirev_7aaa318bde02bd7de973b29cb7a49881
+- summary: Default content and structure of the priv_validator_state.json file, which stores the last signed consensus state for a Tendermint validator.
+
