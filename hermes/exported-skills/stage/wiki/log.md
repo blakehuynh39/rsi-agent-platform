@@ -13509,3 +13509,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ef9efb1f14641056df18b124a00f3966
 - summary: Lens V2 is a major upgrade to the Lens Protocol, introducing Open Actions and ERC-6551 Profile Manager to enable an open, decentralized social layer.
 
+## [2026-05-05T08:35:19Z] synthesis | IP Asset On-Chain Metadata Design
+
+- status: published
+- slug: decisions/ip-asset-on-chain-metadata-design
+- wiki_revision_id: wikirev_c9a461b842b649314d4fade7b1e33253
+- summary: Proposal to move critical IP asset metadata on-chain, defining core static and dynamic attribute primitives for interoperability and composability.
+
+## [2026-05-05T08:36:08Z] synthesis | IPA - book
+
+- status: published
+- slug: concepts/ipa-book
+- wiki_revision_id: wikirev_c5646beb6ec70e8fa45846e0d449944d
+- summary: A book entry template for IPA, containing fields for Name, Author(s), Translator(s), Publisher, Publish Time, and ISBN.
+

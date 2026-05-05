@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "26ffd598f3fe391a603551f4c2655c7084617cd697a765384c46b31a4391ac2a",
-        "size": 681973
+        "sha256": "503af17410102ce7378ff2650f5e0c2d2d0bb9eaaebcebdecf69beb17bd6d374",
+        "size": 682628
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2828,6 +2828,11 @@
         "path": "pages/concepts/ip-stock-exchange.md",
         "sha256": "8a16949f4182ebb25241083d72384c028ba754eeeae4ebac99d5c8961c1ec9f2",
         "size": 1150
+      },
+      {
+        "path": "pages/concepts/ipa-book.md",
+        "sha256": "c3527a5d928cb1e9d08c17c7bc5390c27c3429e53b1c094a6180aa3d9b03b4ba",
+        "size": 1229
       },
       {
         "path": "pages/concepts/licensing-module-design-considerations.md",
@@ -2898,6 +2903,11 @@
         "path": "pages/decisions/distinguish-user-device-types-for-risk-assessment.md",
         "sha256": "9e31672f07f8156be99a5595abd31ff91ed30e70171d44dcc55dbb2d5c0ea7ee",
         "size": 1433
+      },
+      {
+        "path": "pages/decisions/ip-asset-on-chain-metadata-design.md",
+        "sha256": "e6c35e7d0313a28d0a55bf42d11d939076e0137ff80a290d7698ba4f275c02c7",
+        "size": 5472
       },
       {
         "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
@@ -3209,8 +3219,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T08:32:04Z",
-  "file_count": 640,
+  "exported_at": "2026-05-05T08:37:55Z",
+  "file_count": 642,
   "files": [
     {
       "path": ".usage.json",
@@ -5977,20 +5987,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "c1ed9b6523428d68688ffd6b6bd9352de16cb4761f2cbb9b4bde491abc3d3015",
+  "previous_tree_hash": "8450d6a377dbbb0a9a2d75e85e469870d5f51b06587bb8fbd833f9dff76649dd",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "8450d6a377dbbb0a9a2d75e85e469870d5f51b06587bb8fbd833f9dff76649dd",
+  "tree_hash": "7f2003f302a5d99ae87a03ecce42171d381ab847a21445f8b1ac40fa5323dead",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 88,
+  "wiki_file_count": 90,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6004,8 +6014,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "26ffd598f3fe391a603551f4c2655c7084617cd697a765384c46b31a4391ac2a",
-      "size": 681973
+      "sha256": "503af17410102ce7378ff2650f5e0c2d2d0bb9eaaebcebdecf69beb17bd6d374",
+      "size": 682628
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6056,6 +6066,11 @@
       "path": "pages/concepts/ip-stock-exchange.md",
       "sha256": "8a16949f4182ebb25241083d72384c028ba754eeeae4ebac99d5c8961c1ec9f2",
       "size": 1150
+    },
+    {
+      "path": "pages/concepts/ipa-book.md",
+      "sha256": "c3527a5d928cb1e9d08c17c7bc5390c27c3429e53b1c094a6180aa3d9b03b4ba",
+      "size": 1229
     },
     {
       "path": "pages/concepts/licensing-module-design-considerations.md",
@@ -6126,6 +6141,11 @@
       "path": "pages/decisions/distinguish-user-device-types-for-risk-assessment.md",
       "sha256": "9e31672f07f8156be99a5595abd31ff91ed30e70171d44dcc55dbb2d5c0ea7ee",
       "size": 1433
+    },
+    {
+      "path": "pages/decisions/ip-asset-on-chain-metadata-design.md",
+      "sha256": "e6c35e7d0313a28d0a55bf42d11d939076e0137ff80a290d7698ba4f275c02c7",
+      "size": 5472
     },
     {
       "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
@@ -6434,5 +6454,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "73fa38d94c79a0001fd5e3e150a069b6064c7c6af4ca661a075f5c59645ab2f0"
+  "wiki_tree_hash": "cc55b89e598d08153f8d40038d4a4ec9bfd2f10c9877bb8a8c0c8e6f49085b98"
 }
