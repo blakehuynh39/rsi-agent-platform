@@ -1,7 +1,7 @@
 ---
 name: github-code-review
 description: "Review PRs: diffs, inline comments via gh or REST."
-version: 1.1.0
+version: 1.2.0
 author: Hermes Agent
 license: MIT
 metadata:
@@ -311,6 +311,7 @@ When a feature spans two repos (e.g., backend API + frontend app), the user ofte
 - **Route mismatch**: BE adds a depth-2 hyphenated route (`/admin/users-safety-distributions`) to avoid `{user_id}` routing conflicts, but FE uses a slashed path (`/v1/admin/users/safety-distributions`) — results in 404.
 - **Stale types**: BE adds fields to `AdminUserSummary` but FE types aren't updated, causing silent `undefined` values that pass falsy checks and render as `0`.
 - **Merged out of order**: FE merges to `develop` but BE hasn't merged to `staging` yet — staging previews break because the new endpoint doesn't exist.
+- **Multi-pod cost amplification**: Background job added to BE but reviewer didn't check K8s replica count — the job's DB load is multiplied by N pods. Always verify deployment topology during cross-repo reviews (see Section 3b and `references/depin-backend-deployment-topology.md`).
 
 ---
 
@@ -349,6 +350,28 @@ When performing a code review (local or PR), systematically check:
 - Public APIs documented
 - Non-obvious logic has comments explaining "why"
 - README updated if behavior changed
+
+### Multi-Pod / Distributed Deployment (for services with >1 replica)
+
+When reviewing PRs for services deployed with multiple replicas (e.g., Kubernetes Deployments with `replicas > 1` backed by a single shared database), every change must be evaluated through the lens of **N pods sharing one durable source of truth**. This is NOT just a single-repo code review — the deployment topology is part of the review surface.
+
+**Always check:**
+1. **How many replicas run this service?** — Verify with `kubectl get deployments -n <ns>` before starting the review. Note the replica count and whether it's static or HPA-driven.
+2. **Background jobs / cron-like work:** If the PR introduces a background task (tokio spawn, timer loop, cronjob), does every pod run it independently? If so:
+   - Is the task **idempotent**? (e.g., `INSERT ... ON CONFLICT DO UPDATE`, `UPDATE ... WHERE ... AND state != 'done'`)
+   - Is the task **cheap enough** to run N times? (a `DELETE` of 3 stale rows is fine; a full-table scan with window functions is not)
+   - Should only **one pod** execute it? (use `pg_try_advisory_lock`, a leader-election table, or a separate singleton CronJob deployment)
+3. **In-memory state:** Caches, rate-limit buckets, leader-election tokens — these live per-pod and are invisible to peers. If the PR touches them, verify they don't create split-brain scenarios.
+4. **Migrations:** `CREATE INDEX CONCURRENTLY` is critical in multi-pod deploys (a blocking index build locks writes for ALL pods). `IF NOT EXISTS` / `ADD COLUMN IF NOT EXISTS` prevents crash-loops on pod restarts.
+5. **Startup coordination:** If all N pods restart simultaneously, do they all fire expensive init work at once? (e.g., cache warm-up, table scans). Consider `pg_try_advisory_lock` or jittered startup delays.
+
+**For `depin-backend` specifically** (see `references/depin-backend-deployment-topology.md`):
+- 2+ replicas in `story` namespace, all sharing one Postgres instance
+- Existing background jobs (`multiplier_sweep`, `hot_path_cache`, `idempotency_cleanup`) follow the "every pod runs independently" pattern with idempotent SQL
+- New background jobs should match this convention or document why they deviate
+- Always check K8s deployment state during review — replica count may have changed since last review
+
+**PITFALL:** Reviewing code as if it runs in a single process. A `refresh_all()` that scans the full users table is fine in local dev but runs N× concurrently in production. Always multiply the cost by the replica count when assessing DB load.
 
 ---
 
