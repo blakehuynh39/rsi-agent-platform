@@ -2756,13 +2756,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "02b9cb832e8f71ad6c282551fd4413ec19bfa3a15f1d53ff333d9db4c000ab6b",
-        "size": 150023
+        "sha256": "79f1b6775a496dfae8b9a9b40eaa4f2b20d893ea7d3df97f1267d57a3ef52a1a",
+        "size": 151580
       },
       {
         "path": "log.md",
-        "sha256": "b2748ef121f30d34bb8600a7fee1ef33c31bf3ffa3237e5d8aa9cbcd27a77ee4",
-        "size": 343463
+        "sha256": "f378f07de81cfcdf427ff7bb9ce528baef9b1d45c6545e1700326583cb6f3995",
+        "size": 345860
       },
       {
         "path": "pages/concepts/coming-soon-placeholder-tasks.md",
@@ -2949,7 +2949,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T02:44:08Z",
+  "exported_at": "2026-05-05T03:00:38Z",
   "file_count": 588,
   "files": [
     {
@@ -5701,14 +5701,14 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-788fc82dw5z",
-  "previous_tree_hash": "f06a951eca3bea5b191226a59ff2c7970b9600ca24f9744af81fdfdcb973656d",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-54fc8bnk8js",
+  "previous_tree_hash": "64be93c6d559876af8b50fe4c673e705417e19e81ba42054842b064940dfcc8e",
   "schema_version": 1,
   "skill_file_count": 549,
   "skill_manage_sessions": [],
   "skill_tree_hash": "51dd5fa14f02f546813009b323ca960c29e87c4759f49ab6c92e3ca2c7ca357b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "64be93c6d559876af8b50fe4c673e705417e19e81ba42054842b064940dfcc8e",
+  "tree_hash": "35185f85e53ffc9f1ec5f3900ef5e2789dc19ec68948167d376c8f525c08c7b6",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -5724,13 +5724,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "02b9cb832e8f71ad6c282551fd4413ec19bfa3a15f1d53ff333d9db4c000ab6b",
-      "size": 150023
+      "sha256": "79f1b6775a496dfae8b9a9b40eaa4f2b20d893ea7d3df97f1267d57a3ef52a1a",
+      "size": 151580
     },
     {
       "path": "log.md",
-      "sha256": "b2748ef121f30d34bb8600a7fee1ef33c31bf3ffa3237e5d8aa9cbcd27a77ee4",
-      "size": 343463
+      "sha256": "f378f07de81cfcdf427ff7bb9ce528baef9b1d45c6545e1700326583cb6f3995",
+      "size": 345860
     },
     {
       "path": "pages/concepts/coming-soon-placeholder-tasks.md",
@@ -5914,5 +5914,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "940e33e7c56794e7a3f6cb7371018d05f660c2449e9ba31433113416e7db5f19"
+  "wiki_tree_hash": "7822633e215804116f432f3936f4721c7700e65d308758306f25c0e0826a5174"
 }
