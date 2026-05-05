@@ -14353,3 +14353,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_64d347c9888652823c7f919094e12fa2
 - summary: A collection of code examples for Ethereum mainnet precompiles (Cancun upgrade) and Berachain stateful/stateless precompiles, including Solidity interfaces and Go implementations.
 
+## [2026-05-05T18:59:30Z] synthesis | Open Questions: Blast and SP Tokenomics
+
+- status: published
+- slug: open-questions/open-questions-blast-and-sp-tokenomics
+- wiki_revision_id: wikirev_1b48916ce0229f7c91d0e8a110dd4d70
+- summary: Open questions regarding Blast integration and SP tokenomics configurations.
+
