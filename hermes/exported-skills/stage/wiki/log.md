@@ -14297,3 +14297,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_22349fa2e13dfc76da2fb02dd77f1a46
 - summary: Decision to introduce an off-chain AI Model boolean term in PIL and add an off-chain IPA metadata field `source` to track AI Model origin, rejecting the parent-child relationship w...
 
+## [2026-05-05T18:30:20Z] synthesis | Emergence Universe
+
+- status: published
+- slug: projects/emergence-universe
+- wiki_revision_id: wikirev_22facc3651c6b56e5b7dee53f0eb4b9a
+- summary: Top-level index page for the Emergence Universe (EU) project, linking to key sub-pages covering releases, API/SDK integration, relationships, PFP NFTs, platform SDK documentation, ...
+

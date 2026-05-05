@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "509827e8ab22b57d7f918635d643173ffeee4c1f55c07ae34824e3ec942d0372",
-        "size": 718876
+        "sha256": "838b26d899a3dbefcf974e41e97b8efe627df8510fab86407ebfca1cdfd34668",
+        "size": 719247
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3325,6 +3325,11 @@
         "size": 1259
       },
       {
+        "path": "pages/projects/emergence-universe.md",
+        "sha256": "67a0a1d2c9473e67b6de6ef56469c285d1180a100c75ad4f331eb40f9eea8686",
+        "size": 2353
+      },
+      {
         "path": "pages/projects/engineering-lightning-talks.md",
         "sha256": "613b315b0a49055187b90ec0315b4441c4a69889daf923df23dd2297feb5603e",
         "size": 1175
@@ -3689,8 +3694,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T18:23:57Z",
-  "file_count": 736,
+  "exported_at": "2026-05-05T18:34:56Z",
+  "file_count": 737,
   "files": [
     {
       "path": ".usage.json",
@@ -6457,20 +6462,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbkb88g",
-  "previous_tree_hash": "27691868bc7825af5b20d81fe9fcd7e3a1f178a3b75c812ddb3dbc3a8c72b5ce",
+  "previous_tree_hash": "1114ab4b93016ee1d1889c84b05086c2bc8c6797b586b8f58315213db05c1031",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1114ab4b93016ee1d1889c84b05086c2bc8c6797b586b8f58315213db05c1031",
+  "tree_hash": "739460168d828023b4850b0b334031985976a07eff36e0a88b72c51fcaad5369",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 184,
+  "wiki_file_count": 185,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6484,8 +6489,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "509827e8ab22b57d7f918635d643173ffeee4c1f55c07ae34824e3ec942d0372",
-      "size": 718876
+      "sha256": "838b26d899a3dbefcf974e41e97b8efe627df8510fab86407ebfca1cdfd34668",
+      "size": 719247
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7033,6 +7038,11 @@
       "size": 1259
     },
     {
+      "path": "pages/projects/emergence-universe.md",
+      "sha256": "67a0a1d2c9473e67b6de6ef56469c285d1180a100c75ad4f331eb40f9eea8686",
+      "size": 2353
+    },
+    {
       "path": "pages/projects/engineering-lightning-talks.md",
       "sha256": "613b315b0a49055187b90ec0315b4441c4a69889daf923df23dd2297feb5603e",
       "size": 1175
@@ -7394,5 +7404,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "eae226f48691e56b3b4f3d85b40609afd1deb6ad43dbbb7b54bbb23018f9d6c5"
+  "wiki_tree_hash": "0e4f114da5bcb46db3b9222ae4bae458e9f180ae923a4c05ccc83118edeead1e"
 }
