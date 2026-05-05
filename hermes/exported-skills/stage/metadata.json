@@ -2771,13 +2771,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "67a9d0ef38c33f02ef08d576712f1be3f183eff96651c9a495676e815e4d40e8",
-        "size": 153861
+        "sha256": "c01fd1bd3c56b17c896d43d84be32a66b3aaa922bddbadae20961ce887812480",
+        "size": 156279
       },
       {
         "path": "log.md",
-        "sha256": "1037b9870714590f7b683cfc1cbea52c8b98b1c20a85718548f6a7709e557d16",
-        "size": 350501
+        "sha256": "bba42540093eb356a8716ac870749a986556470c5150c83aadfedc090cf84f2a",
+        "size": 351787
       },
       {
         "path": "pages/concepts/coming-soon-placeholder-tasks.md",
@@ -2790,9 +2790,19 @@
         "size": 1138
       },
       {
+        "path": "pages/concepts/ip-oracle.md",
+        "sha256": "d9d5e408d2b9a54bd9e4a601c16bf91d2a1334807e5fd44696953cfbcee5b1e2",
+        "size": 1273
+      },
+      {
         "path": "pages/concepts/post-submission-payout-clarity-dopamine-hit.md",
         "sha256": "f7a60e7a74d2db3fdf1c66ff118b56d0227a5f091629382ed9caf4dd1d77bad8",
         "size": 1215
+      },
+      {
+        "path": "pages/concepts/ppl-protocol-support.md",
+        "sha256": "dc8513f93dfad71352f6539caeacd36112039ac58ba1343baa683d3ee51bcd50",
+        "size": 1120
       },
       {
         "path": "pages/concepts/untitled-notion-page-350051299a5480f8b542e4f40de96a42.md",
@@ -2823,6 +2833,11 @@
         "path": "pages/open-questions/need-plan-b-api-gas-limits.md",
         "sha256": "3ec6dca680c6c186231b1b8a606a1b8d54f875b00b32210c93bc034465dac5dc",
         "size": 1298
+      },
+      {
+        "path": "pages/policies/limited-ip-rights-representation-registration.md",
+        "sha256": "7f96e95418ca1392dfd370b96c5c29988b860877fd277d4031f97726a29ab05a",
+        "size": 1584
       },
       {
         "path": "pages/policies/product-intake-process.md",
@@ -2890,6 +2905,11 @@
         "size": 2580
       },
       {
+        "path": "pages/projects/global-wallet-solution.md",
+        "sha256": "e5c1fdaff050c2162dd2304830ac4114401fef534397814bc841b0ec8e698d67",
+        "size": 1175
+      },
+      {
         "path": "pages/projects/improved-mobile-app-tracking-platform.md",
         "sha256": "f360875a4e9860668933a9b85f568e3362ba5c3fcd4c881ef25bf432aa7b1880",
         "size": 1392
@@ -2933,6 +2953,11 @@
         "path": "pages/projects/p1-gamification-tactics.md",
         "sha256": "e79c89facc054bfbe1532be546b683081b371b2669cca007d465e04ee0b38424",
         "size": 2996
+      },
+      {
+        "path": "pages/projects/rcade-music-app.md",
+        "sha256": "05cdabffae3c60e6a9ec557c386d2dd47fd7b1a559a349737e9aeddd0f670a73",
+        "size": 1058
       },
       {
         "path": "pages/projects/record-seedphrase-during-signup-flow.md",
@@ -2984,8 +3009,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T03:22:58Z",
-  "file_count": 595,
+  "exported_at": "2026-05-05T03:28:47Z",
+  "file_count": 600,
   "files": [
     {
       "path": ".usage.json",
@@ -5752,20 +5777,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-54fc8bnk8js",
-  "previous_tree_hash": "4c8a7ec759c0795703cb282df56a3fe5f338201756aefe086701c59356bf878a",
+  "previous_tree_hash": "857fadaf5f68dc827cf00e3fd6f961ddbf5c20f374e39509d9f4a3f90ead661d",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "476409678a775c1018b9e6a7408807c3722cdad360128bd52087ec8de9a400b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "857fadaf5f68dc827cf00e3fd6f961ddbf5c20f374e39509d9f4a3f90ead661d",
+  "tree_hash": "a94481442792e1809e2eea939a01e128efb805e06fa889deb14d9e6a5c27b91f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 43,
+  "wiki_file_count": 48,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5774,13 +5799,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "67a9d0ef38c33f02ef08d576712f1be3f183eff96651c9a495676e815e4d40e8",
-      "size": 153861
+      "sha256": "c01fd1bd3c56b17c896d43d84be32a66b3aaa922bddbadae20961ce887812480",
+      "size": 156279
     },
     {
       "path": "log.md",
-      "sha256": "1037b9870714590f7b683cfc1cbea52c8b98b1c20a85718548f6a7709e557d16",
-      "size": 350501
+      "sha256": "bba42540093eb356a8716ac870749a986556470c5150c83aadfedc090cf84f2a",
+      "size": 351787
     },
     {
       "path": "pages/concepts/coming-soon-placeholder-tasks.md",
@@ -5793,9 +5818,19 @@
       "size": 1138
     },
     {
+      "path": "pages/concepts/ip-oracle.md",
+      "sha256": "d9d5e408d2b9a54bd9e4a601c16bf91d2a1334807e5fd44696953cfbcee5b1e2",
+      "size": 1273
+    },
+    {
       "path": "pages/concepts/post-submission-payout-clarity-dopamine-hit.md",
       "sha256": "f7a60e7a74d2db3fdf1c66ff118b56d0227a5f091629382ed9caf4dd1d77bad8",
       "size": 1215
+    },
+    {
+      "path": "pages/concepts/ppl-protocol-support.md",
+      "sha256": "dc8513f93dfad71352f6539caeacd36112039ac58ba1343baa683d3ee51bcd50",
+      "size": 1120
     },
     {
       "path": "pages/concepts/untitled-notion-page-350051299a5480f8b542e4f40de96a42.md",
@@ -5826,6 +5861,11 @@
       "path": "pages/open-questions/need-plan-b-api-gas-limits.md",
       "sha256": "3ec6dca680c6c186231b1b8a606a1b8d54f875b00b32210c93bc034465dac5dc",
       "size": 1298
+    },
+    {
+      "path": "pages/policies/limited-ip-rights-representation-registration.md",
+      "sha256": "7f96e95418ca1392dfd370b96c5c29988b860877fd277d4031f97726a29ab05a",
+      "size": 1584
     },
     {
       "path": "pages/policies/product-intake-process.md",
@@ -5893,6 +5933,11 @@
       "size": 2580
     },
     {
+      "path": "pages/projects/global-wallet-solution.md",
+      "sha256": "e5c1fdaff050c2162dd2304830ac4114401fef534397814bc841b0ec8e698d67",
+      "size": 1175
+    },
+    {
       "path": "pages/projects/improved-mobile-app-tracking-platform.md",
       "sha256": "f360875a4e9860668933a9b85f568e3362ba5c3fcd4c881ef25bf432aa7b1880",
       "size": 1392
@@ -5936,6 +5981,11 @@
       "path": "pages/projects/p1-gamification-tactics.md",
       "sha256": "e79c89facc054bfbe1532be546b683081b371b2669cca007d465e04ee0b38424",
       "size": 2996
+    },
+    {
+      "path": "pages/projects/rcade-music-app.md",
+      "sha256": "05cdabffae3c60e6a9ec557c386d2dd47fd7b1a559a349737e9aeddd0f670a73",
+      "size": 1058
     },
     {
       "path": "pages/projects/record-seedphrase-during-signup-flow.md",
@@ -5984,5 +6034,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4dff60bbbefacc6c69d13c67f74b004e6af95a75db55c6a9433dcf47e71ba1aa"
+  "wiki_tree_hash": "739cb456cb33639ae81d816eb676539b29dbd1c261cd083c8a40166404f4d822"
 }
