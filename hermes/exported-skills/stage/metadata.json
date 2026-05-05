@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "55d852aff0759bcd8e8ad1a30dafff42e4c5dda0f01d459b90fbd3d7068c6c8c",
-        "size": 723959
+        "sha256": "fd24e9ffe4539b10b02967acc3c9bf26f9f9f2eaabdc64c44d23cbab17f56ceb",
+        "size": 724262
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2848,6 +2848,11 @@
         "path": "pages/concepts/dutch-auction-minting.md",
         "sha256": "a7362c0a5b381a3006de17b51e4beb63d31ba765354fec5259178a75efb2fc4d",
         "size": 1388
+      },
+      {
+        "path": "pages/concepts/eigen-token.md",
+        "sha256": "0ab44ef735962c6e99d948b8106e5815f37494fc3a71dee879758afb4d11e08f",
+        "size": 3908
       },
       {
         "path": "pages/concepts/enshrined-protocol.md",
@@ -3759,8 +3764,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T19:24:37Z",
-  "file_count": 750,
+  "exported_at": "2026-05-05T19:30:37Z",
+  "file_count": 751,
   "files": [
     {
       "path": ".usage.json",
@@ -6527,20 +6532,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5dcdbdp4w6f",
-  "previous_tree_hash": "08f3f77001431885004bbdd25c80b24f884d5ced34cd385386d144ffdbf55c43",
+  "previous_tree_hash": "6d1375bdc4818fc61db71c5c2e671185ac0ef5c0ba8140156ed5b7270e69b03b",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6d1375bdc4818fc61db71c5c2e671185ac0ef5c0ba8140156ed5b7270e69b03b",
+  "tree_hash": "304148f04dc85a283c69de7f2fb131d2c6c717cce8107fcb2948d44b3c7a7c7a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 198,
+  "wiki_file_count": 199,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6554,8 +6559,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "55d852aff0759bcd8e8ad1a30dafff42e4c5dda0f01d459b90fbd3d7068c6c8c",
-      "size": 723959
+      "sha256": "fd24e9ffe4539b10b02967acc3c9bf26f9f9f2eaabdc64c44d23cbab17f56ceb",
+      "size": 724262
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6626,6 +6631,11 @@
       "path": "pages/concepts/dutch-auction-minting.md",
       "sha256": "a7362c0a5b381a3006de17b51e4beb63d31ba765354fec5259178a75efb2fc4d",
       "size": 1388
+    },
+    {
+      "path": "pages/concepts/eigen-token.md",
+      "sha256": "0ab44ef735962c6e99d948b8106e5815f37494fc3a71dee879758afb4d11e08f",
+      "size": 3908
     },
     {
       "path": "pages/concepts/enshrined-protocol.md",
@@ -7534,5 +7544,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "978444bd61499118e4ebfd64b20b2d90e2da7d49d40eb45f906c37b308bf8046"
+  "wiki_tree_hash": "696c2f56f8e894a2d32e1f53709e2325385f01c47b44d762265342983ef239a6"
 }
