@@ -276,7 +276,41 @@ The `line` field refers to the line number in the *new* version of the file. For
 
 ---
 
-## 3. Review Checklist
+## 6. Cross-Repo Paired PR Review
+
+When a feature spans two repos (e.g., backend API + frontend app), the user often posts both PRs in a single review request. Review them together to catch cross-repo misalignment.
+
+### Detection
+
+- Two PR links in the same Slack message / review request
+- PR descriptions reference each other (e.g., "Pairs with org/repo#NNN")
+- Branch naming convention matches (e.g., `feat/castle-sub-scores` in both repos)
+
+### Workflow
+
+1. **Clone both repos** in parallel to `/tmp/<repo>-review/`
+2. **Fetch both PRs** and check [branch/CI/mergeable] status on each
+3. **Check cross-repo alignment:**
+   - **Route naming:** Backend route path matches what the FE API client calls. If BE uses `/admin/users-safety-distributions`, FE must call exactly that path.
+   - **Field names:** New fields on BE response schemas must appear on FE types/interfaces with matching names.
+   - **Null handling:** If BE sends `null` for new fields on historical rows, the FE must render a fallback (e.g., `\u2014` em-dash) — verify with `!= null` not falsy `||`.
+4. **Review each PR independently** following Steps 1-7, then check alignment
+5. **Submit approvals together** — post the BE review first, then the FE, then post a summary in the original request thread
+
+### Cross-Repo Checklist
+
+- [ ] Route paths match between BE route definition and FE API client
+- [ ] New response fields present on both sides with identical naming
+- [ ] FE handles `null`/missing new fields for historical rows
+- [ ] Both PRs have matching base branches (e.g., BE: `staging`, FE: `develop`)
+- [ ] CI green on both repos
+- [ ] BE PR description links to FE PR and vice versa
+
+### Common Failure Modes
+
+- **Route mismatch**: BE adds a depth-2 hyphenated route (`/admin/users-safety-distributions`) to avoid `{user_id}` routing conflicts, but FE uses a slashed path (`/v1/admin/users/safety-distributions`) — results in 404.
+- **Stale types**: BE adds fields to `AdminUserSummary` but FE types aren't updated, causing silent `undefined` values that pass falsy checks and render as `0`.
+- **Merged out of order**: FE merges to `develop` but BE hasn't merged to `staging` yet — staging previews break because the new endpoint doesn't exist.
 
 When performing a code review (local or PR), systematically check:
 
@@ -352,7 +386,7 @@ gh pr checks 123
 **With curl:**
 ```bash
 PR_NUMBER=123
-
+```bash
 # PR details (title, author, description, branch)
 curl -s -H "Authorization: token $GITHUB_TOKEN" \
   https://api.github.com/repos/$GH_OWNER/$GH_REPO/pulls/$PR_NUMBER
@@ -361,6 +395,8 @@ curl -s -H "Authorization: token $GITHUB_TOKEN" \
 curl -s -H "Authorization: token $GITHUB_TOKEN" \
   https://api.github.com/repos/$GH_OWNER/$GH_REPO/pulls/$PR_NUMBER/files
 ```
+
+**PITFALL:** `gh pr diff --stat` is NOT a valid flag. `gh pr diff` supports `--name-only`, `--patch`, `--color`, and `--web`. For a stat summary (lines changed per file), use the REST API `/pulls/$PR_NUMBER/files` endpoint (see curl example above), or `git diff --stat` after checking out the PR branch locally.
 
 ### Step 3: Check out the PR locally
 
@@ -407,11 +443,24 @@ Collect your findings and submit them as a formal review with inline comments.
 
 **With gh:**
 ```bash
-# If no issues — approve
 gh pr review $PR_NUMBER --approve --body "Reviewed by Hermes Agent. Code looks clean — good test coverage, no security concerns."
-
-# If issues found — request changes with inline comments
 gh pr review $PR_NUMBER --request-changes --body "Found a few issues — see inline comments."
+gh pr review $PR_NUMBER --comment --body "Some suggestions, nothing blocking."
+```
+
+**PITFALL:** When review bodies contain backticks, markdown tables, shell-significant characters (`$`, `!`, `"`), or multi-line content, `--body "..."` can silently fail or produce garbled output. Use `--body-file` instead — write the content to a temp file first, then:
+
+```bash
+# Write review body to a temp file to avoid shell quoting issues
+cat > /tmp/review-body.md << 'REVIEW_EOF'
+## Code Review
+
+| Area | Result |
+|---|---|
+| CI | pass |
+REVIEW_EOF
+
+gh pr review $PR_NUMBER --approve --body-file /tmp/review-body.md
 ```
 
 **With curl — atomic review with multiple inline comments:**
