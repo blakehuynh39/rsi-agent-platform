@@ -33,7 +33,7 @@ import { GatewayClient, type ConnectionState } from "@/lib/gatewayClient";
 
 import { cn } from "@/lib/utils";
 import { AlertCircle, ChevronDown, RefreshCw } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface SessionInfo {
   cwd?: string;
@@ -48,6 +48,8 @@ interface RpcEnvelope {
 }
 
 const TOOL_LIMIT = 20;
+
+type ToolEventPayload = Record<string, unknown>;
 
 const STATE_LABEL: Record<ConnectionState, string> = {
   idle: "idle",
@@ -67,6 +69,49 @@ const STATE_TONE: Record<
   closed: "secondary",
   error: "destructive",
 };
+
+function payloadString(payload: ToolEventPayload | undefined, ...keys: string[]) {
+  if (!payload) return undefined;
+  for (const key of keys) {
+    const value = payload[key];
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+  return undefined;
+}
+
+function payloadDisplay(value: unknown) {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value === "string") return value.trim() || undefined;
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+}
+
+function toolPayloadName(payload: ToolEventPayload | undefined) {
+  return payloadString(payload, "name", "tool_name", "tool", "transport_tool_name");
+}
+
+function toolPayloadID(payload: ToolEventPayload | undefined) {
+  return payloadString(payload, "tool_id", "tool_call_id", "call_id", "id");
+}
+
+function toolPayloadContext(payload: ToolEventPayload | undefined) {
+  return (
+    payloadString(payload, "context") ??
+    payloadDisplay(payload?.args) ??
+    payloadDisplay(payload?.arguments) ??
+    payloadDisplay(payload?.request) ??
+    payloadDisplay(payload?.request_payload)
+  );
+}
+
+function toolPayloadPreview(payload: ToolEventPayload | undefined) {
+  return payloadString(payload, "preview", "text", "summary", "message", "status_message");
+}
 
 interface ChatSidebarProps {
   channel: string;
@@ -88,6 +133,12 @@ export function ChatSidebar({ channel, className }: ChatSidebarProps) {
   const [tools, setTools] = useState<ToolEntry[]>([]);
   const [modelOpen, setModelOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const toolsScrollRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const el = toolsScrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [tools]);
 
   useEffect(() => {
     let cancelled = false;
@@ -195,15 +246,17 @@ export function ChatSidebar({ channel, className }: ChatSidebarProps) {
 
       const { type, payload } = frame.params;
 
-      if (type === "tool.start") {
-        const p = payload as
-          | { tool_id?: string; name?: string; context?: string }
-          | undefined;
-        const toolId = p?.tool_id;
+      if (type === "tool.start" || type === "tool.generating") {
+        const p = payload as ToolEventPayload | undefined;
+        const rawName = toolPayloadName(p);
+        const rawToolId = toolPayloadID(p);
 
-        if (!toolId) {
+        if (!rawName && !rawToolId) {
           return;
         }
+
+        const name = rawName ?? "tool";
+        const toolId = rawToolId ?? name;
 
         setTools((prev) =>
           [
@@ -212,57 +265,76 @@ export function ChatSidebar({ channel, className }: ChatSidebarProps) {
               kind: "tool" as const,
               id: `tool-${toolId}-${prev.length}`,
               tool_id: toolId,
-              name: p?.name ?? "tool",
-              context: p?.context,
+              name,
+              context: toolPayloadContext(p),
+              preview: type === "tool.generating" ? toolPayloadPreview(p) : undefined,
               status: "running" as const,
               startedAt: Date.now(),
             },
           ].slice(-TOOL_LIMIT),
         );
       } else if (type === "tool.progress") {
-        const p = payload as
-          | { name?: string; preview?: string }
-          | undefined;
+        const p = payload as ToolEventPayload | undefined;
+        const name = toolPayloadName(p);
+        const toolId = toolPayloadID(p);
+        const preview = toolPayloadPreview(p);
 
-        if (!p?.name || !p.preview) {
+        if ((!name && !toolId) || !preview) {
           return;
         }
 
-        setTools((prev) =>
-          prev.map((t) =>
-            t.status === "running" && t.name === p.name
-              ? { ...t, preview: p.preview }
-              : t,
-          ),
-        );
-      } else if (type === "tool.complete") {
-        const p = payload as
-          | {
-              tool_id?: string;
-              summary?: string;
-              error?: string;
-              inline_diff?: string;
+        setTools((prev) => {
+          let index = -1;
+          if (toolId) {
+            index = prev.findIndex((t) => t.tool_id === toolId);
+          }
+          if (index === -1 && name) {
+            for (let i = prev.length - 1; i >= 0; i--) {
+              if (prev[i].status === "running" && prev[i].name === name) {
+                index = i;
+                break;
+              }
             }
-          | undefined;
+          }
+          if (index === -1) return prev;
+          const updated = [...prev];
+          updated[index] = { ...updated[index], preview };
+          return updated;
+        });
+      } else if (type === "tool.complete") {
+        const p = payload as ToolEventPayload | undefined;
+        const name = toolPayloadName(p);
+        const toolId = toolPayloadID(p);
 
-        if (!p?.tool_id) {
+        if (!toolId && !name) {
           return;
         }
 
-        setTools((prev) =>
-          prev.map((t) =>
-            t.tool_id === p.tool_id
-              ? {
-                  ...t,
-                  status: p.error ? "error" : "done",
-                  summary: p.summary,
-                  error: p.error,
-                  inline_diff: p.inline_diff,
-                  completedAt: Date.now(),
-                }
-              : t,
-          ),
-        );
+        setTools((prev) => {
+          let index = -1;
+          if (toolId) {
+            index = prev.findIndex((t) => t.tool_id === toolId);
+          }
+          if (index === -1 && name) {
+            for (let i = prev.length - 1; i >= 0; i--) {
+              if (prev[i].status === "running" && prev[i].name === name) {
+                index = i;
+                break;
+              }
+            }
+          }
+          if (index === -1) return prev;
+          const updated = [...prev];
+          updated[index] = {
+            ...updated[index],
+            status: payloadString(p, "error") ? "error" : "done",
+            summary: payloadString(p, "summary") ?? payloadDisplay(p?.result),
+            error: payloadString(p, "error"),
+            inline_diff: payloadString(p, "inline_diff"),
+            completedAt: Date.now(),
+          };
+          return updated;
+        });
       }
     });
 
@@ -360,7 +432,10 @@ export function ChatSidebar({ channel, className }: ChatSidebarProps) {
           tools
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1">
+        <div
+          ref={toolsScrollRef}
+          className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1"
+        >
           {tools.length === 0 ? (
             <div className="px-2 py-4 text-center text-xs text-muted-foreground">
               no tool calls yet

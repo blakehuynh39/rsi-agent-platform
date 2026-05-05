@@ -379,7 +379,7 @@ func buildHermesSessions(cfg config.Config, store storepkg.Repository) []hermesS
 		}
 	}
 	titleCache := buildTitleCache(store, traces)
-	
+
 	// Build conversation list data with shared cache
 	conversations := store.ListConversations()
 	proposals := normalizeProposals(store.ListProposals())
@@ -397,7 +397,7 @@ func buildHermesSessions(cfg config.Config, store storepkg.Repository) []hermesS
 	}
 	caseIndex := buildCaseSummaryIndex(store, traces, proposals)
 	conversationList := buildConversationListWithCache(store, conversations, tracesByConversation, proposalsByConversation, caseIndex, titleCache)
-	
+
 	for _, conv := range conversationList {
 		entries := store.ListConversationEntries(conv.ConversationID)
 		preview := lastConversationPreview(entries, conv.ActiveCase)
@@ -436,6 +436,7 @@ func buildHermesSessions(cfg config.Config, store storepkg.Repository) []hermesS
 		if last.IsZero() {
 			last = trace.StartedAt
 		}
+		toolCallCount := hermesTraceToolCallCount(store, trace.TraceID, trace.ToolCallCount)
 		title := traceTitleForDisplayWithCache(store, trace, titleCache)
 		preview := stringPtr(firstNonEmptyString(trace.LastVerdict, string(trace.Status)))
 		items = append(items, hermesSessionInfo{
@@ -450,8 +451,8 @@ func buildHermesSessions(cfg config.Config, store storepkg.Repository) []hermesS
 			EndedAt:         unixPtrIfSet(trace.EndedAt),
 			LastActive:      unixSeconds(last),
 			IsActive:        live.traces[trace.TraceID],
-			MessageCount:    trace.EventCount + trace.ReasoningStepCount + trace.ToolCallCount,
-			ToolCallCount:   trace.ToolCallCount,
+			MessageCount:    trace.EventCount + trace.ReasoningStepCount + toolCallCount,
+			ToolCallCount:   toolCallCount,
 			InputTokens:     0,
 			OutputTokens:    0,
 			Preview:         preview,
@@ -534,6 +535,7 @@ func buildHermesSession(cfg config.Config, store storepkg.Repository, sessionID 
 		if last.IsZero() {
 			last = summary.StartedAt
 		}
+		toolCallCount := hermesTraceToolCallCountFromRecords(store, summary.TraceID, summary.ToolCallCount, trace.ToolCalls)
 		title := traceTitleForDisplay(store, summary)
 		preview := stringPtr(firstNonEmptyString(summary.LastVerdict, string(summary.Status)))
 		return hermesSessionInfo{
@@ -548,8 +550,8 @@ func buildHermesSession(cfg config.Config, store storepkg.Repository, sessionID 
 			EndedAt:         unixPtrIfSet(summary.EndedAt),
 			LastActive:      unixSeconds(last),
 			IsActive:        live.traces[summary.TraceID],
-			MessageCount:    summary.EventCount + summary.ReasoningStepCount + summary.ToolCallCount,
-			ToolCallCount:   summary.ToolCallCount,
+			MessageCount:    summary.EventCount + summary.ReasoningStepCount + toolCallCount,
+			ToolCallCount:   toolCallCount,
 			InputTokens:     0,
 			OutputTokens:    0,
 			Preview:         preview,
@@ -714,8 +716,211 @@ func buildHermesSessionMessages(store storepkg.Repository, sessionID string) ([]
 		}}
 		out = append(out, msg)
 	}
+	out = append(out, hermesProjectedLedgerToolMessages(store, sessionID, trace.ToolCalls)...)
 	sortHermesMessages(out)
 	return out, true
+}
+
+type hermesProjectedLedgerToolCall struct {
+	ID        string
+	Name      string
+	Arguments any
+	Content   string
+	Status    string
+	StartedAt time.Time
+	LastAt    time.Time
+}
+
+func hermesTraceToolCallCount(store storepkg.Repository, traceID string, summaryCount int) int {
+	if trace, ok := store.GetTrace(traceID); ok {
+		return hermesTraceToolCallCountFromRecords(store, traceID, summaryCount, trace.ToolCalls)
+	}
+	return summaryCount + len(hermesProjectedLedgerToolCalls(store, traceID, nil))
+}
+
+func hermesTraceToolCallCountFromRecords(store storepkg.Repository, traceID string, summaryCount int, canonical []events.ToolCallRecord) int {
+	canonicalCount := summaryCount
+	if len(canonical) > canonicalCount {
+		canonicalCount = len(canonical)
+	}
+	return canonicalCount + len(hermesProjectedLedgerToolCalls(store, traceID, canonical))
+}
+
+func hermesProjectedLedgerToolMessages(store storepkg.Repository, traceID string, canonical []events.ToolCallRecord) []hermesSessionMessage {
+	projected := hermesProjectedLedgerToolCalls(store, traceID, canonical)
+	out := make([]hermesSessionMessage, 0, len(projected))
+	for _, call := range projected {
+		args := "{}"
+		if call.Arguments != nil {
+			if encoded, err := json.Marshal(call.Arguments); err == nil && string(encoded) != "null" {
+				args = string(encoded)
+			}
+		}
+		content := firstNonEmptyString(call.Content, call.Status)
+		msg := hermesTextMessage("tool", content, call.StartedAt)
+		msg.ToolName = call.Name
+		msg.ToolCallID = call.ID
+		msg.ToolCalls = []hermesToolCall{{
+			ID: call.ID,
+			Function: hermesToolFunction{
+				Name:      call.Name,
+				Arguments: args,
+			},
+		}}
+		out = append(out, msg)
+	}
+	return out
+}
+
+func hermesProjectedLedgerToolCalls(store storepkg.Repository, traceID string, canonical []events.ToolCallRecord) []hermesProjectedLedgerToolCall {
+	existingIDs, existingIDsByName := hermesCanonicalToolCallIDsAndNames(canonical)
+	items := hermesLedgerStreamEvents(store, traceID)
+	type pendingTool struct {
+		call hermesProjectedLedgerToolCall
+	}
+	byKey := map[string]*pendingTool{}
+	lastByName := map[string]string{}
+	order := []string{}
+	for _, item := range items {
+		eventName := hermesEventName(item)
+		if eventName != "tool.start" && eventName != "tool.progress" && eventName != "tool.complete" {
+			continue
+		}
+		name := hermesLedgerToolName(item)
+		if name == "" {
+			continue
+		}
+		stableID := hermesLedgerToolStableID(item)
+		if stableID != "" && existingIDs[stableID] {
+			continue
+		}
+		if stableID == "" && len(existingIDsByName[name]) > 0 {
+			continue
+		}
+		key := stableID
+		if key == "" {
+			if eventName != "tool.start" {
+				key = lastByName[name]
+			}
+			if key == "" {
+				key = firstNonEmptyString(item.ID, fmt.Sprintf("%s:%d", name, item.Seq))
+			}
+		}
+		callID := firstNonEmptyString(stableID, key)
+		current := byKey[key]
+		if current == nil {
+			current = &pendingTool{call: hermesProjectedLedgerToolCall{
+				ID:        callID,
+				Name:      name,
+				Arguments: hermesLedgerToolArguments(item),
+				Content:   hermesLedgerToolContent(item),
+				Status:    item.Status,
+				StartedAt: item.RecordedAt,
+				LastAt:    item.RecordedAt,
+			}}
+			byKey[key] = current
+			order = append(order, key)
+		} else {
+			current.call.Name = firstNonEmptyString(current.call.Name, name)
+			if current.call.Arguments == nil {
+				current.call.Arguments = hermesLedgerToolArguments(item)
+			}
+			if content := hermesLedgerToolContent(item); content != "" {
+				current.call.Content = content
+			}
+			if item.Status != "" {
+				current.call.Status = item.Status
+			}
+			if current.call.StartedAt.IsZero() || item.RecordedAt.Before(current.call.StartedAt) {
+				current.call.StartedAt = item.RecordedAt
+			}
+			if item.RecordedAt.After(current.call.LastAt) {
+				current.call.LastAt = item.RecordedAt
+			}
+		}
+		lastByName[name] = key
+	}
+	out := make([]hermesProjectedLedgerToolCall, 0, len(order))
+	for _, key := range order {
+		call := byKey[key].call
+		if call.StartedAt.IsZero() {
+			call.StartedAt = call.LastAt
+		}
+		out = append(out, call)
+	}
+	return out
+}
+
+func hermesCanonicalToolCallIDsAndNames(canonical []events.ToolCallRecord) (map[string]bool, map[string][]string) {
+	ids := map[string]bool{}
+	idsByName := map[string][]string{}
+	for _, call := range canonical {
+		name := strings.TrimSpace(call.ToolName)
+		for _, id := range []string{call.ToolCallID, call.ID} {
+			id = strings.TrimSpace(id)
+			if id != "" {
+				ids[id] = true
+				if name != "" {
+					idsByName[name] = append(idsByName[name], id)
+				}
+			}
+		}
+	}
+	return ids, idsByName
+}
+
+func hermesLedgerToolStableID(item events.ExecutionLedgerEvent) string {
+	return firstNonEmptyString(
+		stringValue(item.Payload["tool_call_id"]),
+		stringValue(item.Payload["tool_id"]),
+		stringValue(item.Payload["call_id"]),
+		stringValue(item.Payload["id"]),
+	)
+}
+
+func hermesLedgerToolName(item events.ExecutionLedgerEvent) string {
+	return firstNonEmptyString(
+		stringValue(item.Payload["tool_name"]),
+		stringValue(item.Payload["name"]),
+		stringValue(item.Payload["tool"]),
+		stringValue(item.Payload["transport_tool_name"]),
+	)
+}
+
+func hermesLedgerToolArguments(item events.ExecutionLedgerEvent) any {
+	for _, key := range []string{"args", "arguments", "request", "request_payload", "input"} {
+		if value, ok := item.Payload[key]; ok && value != nil {
+			return value
+		}
+	}
+	return nil
+}
+
+func hermesLedgerToolContent(item events.ExecutionLedgerEvent) string {
+	return firstNonEmptyString(
+		hermesLedgerPayloadText(item.Payload["summary"]),
+		hermesLedgerPayloadText(item.Payload["result"]),
+		hermesLedgerPayloadText(item.Payload["output"]),
+		hermesLedgerPayloadText(item.Payload["message"]),
+		hermesLedgerPayloadText(item.Payload["status_message"]),
+		hermesLedgerPayloadText(item.Payload["preview"]),
+		hermesLedgerPayloadText(item.Payload["text"]),
+	)
+}
+
+func hermesLedgerPayloadText(value any) string {
+	switch typed := value.(type) {
+	case nil:
+		return ""
+	case string:
+		return strings.TrimSpace(typed)
+	default:
+		encoded, err := json.Marshal(typed)
+		if err != nil {
+			return strings.TrimSpace(fmt.Sprint(typed))
+		}
+		return strings.TrimSpace(string(encoded))
+	}
 }
 
 func hermesConversationMessage(entry conversation.Entry) hermesSessionMessage {
@@ -1091,6 +1296,8 @@ func hermesEventName(item events.ExecutionLedgerEvent) string {
 	status := strings.ToLower(item.Status)
 	if strings.Contains(kind, "tool") || strings.TrimSpace(stringValue(item.Payload["tool_name"])) != "" {
 		switch {
+		case strings.Contains(kind, "progress"):
+			return "tool.progress"
 		case strings.Contains(status, "start"), strings.Contains(status, "running"), strings.Contains(kind, "start"):
 			return "tool.start"
 		case strings.Contains(status, "complete"), strings.Contains(status, "success"), strings.Contains(status, "failed"), strings.Contains(kind, "complete"):
@@ -1126,6 +1333,28 @@ func hermesEventPayload(item events.ExecutionLedgerEvent) map[string]any {
 			continue
 		}
 		payload[k] = v
+	}
+	if eventName := hermesEventName(item); eventName == "tool.start" || eventName == "tool.progress" || eventName == "tool.complete" {
+		if _, ok := payload["name"]; !ok {
+			if name := hermesLedgerToolName(item); name != "" {
+				payload["name"] = name
+			}
+		}
+		if _, ok := payload["tool_id"]; !ok {
+			if id := firstNonEmptyString(hermesLedgerToolStableID(item), item.ID); id != "" {
+				payload["tool_id"] = id
+			}
+		}
+		if _, ok := payload["context"]; !ok {
+			if args := hermesLedgerToolArguments(item); args != nil {
+				payload["context"] = hermesLedgerPayloadText(args)
+			}
+		}
+		if _, ok := payload["summary"]; !ok {
+			if summary := firstNonEmptyString(hermesLedgerPayloadText(item.Payload["result"]), hermesLedgerPayloadText(item.Payload["output"])); summary != "" {
+				payload["summary"] = summary
+			}
+		}
 	}
 	if _, ok := payload["text"]; !ok {
 		if text := firstNonEmptyString(stringValue(item.Payload["summary"]), stringValue(item.Payload["message"]), stringValue(item.Payload["status_message"]), item.Status, item.Kind); text != "" {

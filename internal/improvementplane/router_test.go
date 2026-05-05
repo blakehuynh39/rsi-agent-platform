@@ -1005,6 +1005,124 @@ func TestHermesCompatibilitySessionMessagesMapConversationsAndTraces(t *testing.
 	}
 }
 
+func TestHermesCompatibilityProjectsLedgerToolCallsIntoSessions(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	traceID := store.ListTraces()[0].TraceID
+	now := time.Now().UTC()
+	if err := store.RecordExecutionLedgerEvents([]events.ExecutionLedgerEvent{
+		{
+			ID:          "xled-tool-generation",
+			ExecutionID: "hexec-tool-ui",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-tool-ui",
+			Kind:        "tool.generation.started",
+			Status:      "running",
+			Seq:         1,
+			Payload:     map[string]any{"tool_name": "delegate_task"},
+			RecordedAt:  now,
+		},
+		{
+			ID:          "xled-tool-start",
+			ExecutionID: "hexec-tool-ui",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-tool-ui",
+			Kind:        "tool.call.started",
+			Status:      "running",
+			Seq:         2,
+			Payload: map[string]any{
+				"tool_call_id": "call-repo-search",
+				"tool_name":    "repo.search",
+				"args":         map[string]any{"query": "numo"},
+			},
+			RecordedAt: now.Add(time.Millisecond),
+		},
+		{
+			ID:          "xled-tool-complete",
+			ExecutionID: "hexec-tool-ui",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-tool-ui",
+			Kind:        "tool.call.completed",
+			Status:      "completed",
+			Seq:         3,
+			Payload: map[string]any{
+				"tool_call_id": "call-repo-search",
+				"tool_name":    "repo.search",
+				"result":       "found numo docs",
+			},
+			RecordedAt: now.Add(2 * time.Millisecond),
+		},
+	}); err != nil {
+		t.Fatalf("RecordExecutionLedgerEvents() error = %v", err)
+	}
+	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
+
+	sessionReq := httptest.NewRequest(http.MethodGet, "/api/sessions/"+traceID, nil)
+	sessionRec := httptest.NewRecorder()
+	router.ServeHTTP(sessionRec, sessionReq)
+	if sessionRec.Code != http.StatusOK {
+		t.Fatalf("session status = %d body=%s", sessionRec.Code, sessionRec.Body.String())
+	}
+	var sessionPayload struct {
+		ToolCallCount int `json:"tool_call_count"`
+	}
+	if err := json.Unmarshal(sessionRec.Body.Bytes(), &sessionPayload); err != nil {
+		t.Fatalf("decode session: %v", err)
+	}
+	if sessionPayload.ToolCallCount < 2 {
+		t.Fatalf("tool_call_count = %d, want projected ledger calls", sessionPayload.ToolCallCount)
+	}
+
+	messagesReq := httptest.NewRequest(http.MethodGet, "/api/sessions/"+traceID+"/messages", nil)
+	messagesRec := httptest.NewRecorder()
+	router.ServeHTTP(messagesRec, messagesReq)
+	if messagesRec.Code != http.StatusOK {
+		t.Fatalf("messages status = %d body=%s", messagesRec.Code, messagesRec.Body.String())
+	}
+	var messagesPayload struct {
+		Messages []struct {
+			Role       string `json:"role"`
+			Content    string `json:"content"`
+			ToolName   string `json:"tool_name"`
+			ToolCallID string `json:"tool_call_id"`
+			ToolCalls  []struct {
+				ID       string `json:"id"`
+				Function struct {
+					Name      string `json:"name"`
+					Arguments string `json:"arguments"`
+				} `json:"function"`
+			} `json:"tool_calls"`
+		} `json:"messages"`
+	}
+	if err := json.Unmarshal(messagesRec.Body.Bytes(), &messagesPayload); err != nil {
+		t.Fatalf("decode messages: %v", err)
+	}
+	seenGeneration := false
+	seenCompleted := false
+	for _, msg := range messagesPayload.Messages {
+		if msg.Role != "tool" || len(msg.ToolCalls) == 0 {
+			continue
+		}
+		if msg.ToolName == "delegate_task" {
+			seenGeneration = true
+		}
+		if msg.ToolName == "repo.search" {
+			seenCompleted = true
+			if msg.ToolCallID != "call-repo-search" {
+				t.Fatalf("repo.search tool_call_id = %q, want call-repo-search", msg.ToolCallID)
+			}
+			if !strings.Contains(msg.Content, "found numo docs") {
+				t.Fatalf("repo.search content = %q, want completion result", msg.Content)
+			}
+			if got := msg.ToolCalls[0].Function.Arguments; !strings.Contains(got, "numo") {
+				t.Fatalf("repo.search arguments = %q, want started args", got)
+			}
+		}
+	}
+	if !seenGeneration || !seenCompleted {
+		t.Fatalf("projected tools generation=%v completed=%v messages=%+v", seenGeneration, seenCompleted, messagesPayload.Messages)
+	}
+}
+
 func TestHermesCompatibilitySessionStreamUsesHermesEventsAndResume(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	traceID := store.ListTraces()[0].TraceID
@@ -1053,6 +1171,9 @@ func TestHermesCompatibilitySessionStreamUsesHermesEventsAndResume(t *testing.T)
 	}
 	if !strings.Contains(body, "event: tool.complete") || !strings.Contains(body, "xled-hermes-2") {
 		t.Fatalf("expected Hermes tool.complete event, got %q", body)
+	}
+	if !strings.Contains(body, `"name":"repo.search"`) || !strings.Contains(body, `"tool_id":"xled-hermes-2"`) {
+		t.Fatalf("expected Hermes-compatible tool aliases, got %q", body)
 	}
 }
 
