@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "bba42540093eb356a8716ac870749a986556470c5150c83aadfedc090cf84f2a",
-        "size": 351787
+        "sha256": "2b5004d9251d6ce58e98a9b7e31b62f6140316fb6ea226430f20a8f9f313c440",
+        "size": 352094
       },
       {
         "path": "pages/concepts/coming-soon-placeholder-tasks.md",
@@ -2793,6 +2793,11 @@
         "path": "pages/concepts/ip-oracle.md",
         "sha256": "d9d5e408d2b9a54bd9e4a601c16bf91d2a1334807e5fd44696953cfbcee5b1e2",
         "size": 1273
+      },
+      {
+        "path": "pages/concepts/notion-page-299051299a5480f3890af1a1069deaf4.md",
+        "sha256": "c2613077b83c542217ba70ac58420dd85aac6365d1bf378227b613c880ab4bdc",
+        "size": 1135
       },
       {
         "path": "pages/concepts/post-submission-payout-clarity-dopamine-hit.md",
@@ -3009,8 +3014,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T03:28:47Z",
-  "file_count": 600,
+  "exported_at": "2026-05-05T03:34:36Z",
+  "file_count": 601,
   "files": [
     {
       "path": ".usage.json",
@@ -5777,20 +5782,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-54fc8bnk8js",
-  "previous_tree_hash": "857fadaf5f68dc827cf00e3fd6f961ddbf5c20f374e39509d9f4a3f90ead661d",
+  "previous_tree_hash": "a94481442792e1809e2eea939a01e128efb805e06fa889deb14d9e6a5c27b91f",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "476409678a775c1018b9e6a7408807c3722cdad360128bd52087ec8de9a400b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a94481442792e1809e2eea939a01e128efb805e06fa889deb14d9e6a5c27b91f",
+  "tree_hash": "4e6a9ba53c0e28e9fe26741644fb793a56128b11e03771f1090b5d9b6e6b5411",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 48,
+  "wiki_file_count": 49,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5804,8 +5809,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "bba42540093eb356a8716ac870749a986556470c5150c83aadfedc090cf84f2a",
-      "size": 351787
+      "sha256": "2b5004d9251d6ce58e98a9b7e31b62f6140316fb6ea226430f20a8f9f313c440",
+      "size": 352094
     },
     {
       "path": "pages/concepts/coming-soon-placeholder-tasks.md",
@@ -5821,6 +5826,11 @@
       "path": "pages/concepts/ip-oracle.md",
       "sha256": "d9d5e408d2b9a54bd9e4a601c16bf91d2a1334807e5fd44696953cfbcee5b1e2",
       "size": 1273
+    },
+    {
+      "path": "pages/concepts/notion-page-299051299a5480f3890af1a1069deaf4.md",
+      "sha256": "c2613077b83c542217ba70ac58420dd85aac6365d1bf378227b613c880ab4bdc",
+      "size": 1135
     },
     {
       "path": "pages/concepts/post-submission-payout-clarity-dopamine-hit.md",
@@ -6034,5 +6044,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "739cb456cb33639ae81d816eb676539b29dbd1c261cd083c8a40166404f4d822"
+  "wiki_tree_hash": "d7f53c22c73ae7c2e85e33dc72f1c47d106c165cc63c121f8f19535a1fa03faa"
 }
