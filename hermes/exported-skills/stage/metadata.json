@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "da332074cb46153c69996871a812a4baed620ba3be4abcd0665539c50b893a4c",
-        "size": 684574
+        "sha256": "455632e19c82bc8e6776289f9f1220aa1ca26346483d402a36ad910f4662511f",
+        "size": 685345
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2983,6 +2983,11 @@
         "path": "pages/policies/frontend-repo-open-source-checklist.md",
         "sha256": "dd5a2def40171382a01191743bc72a14a1c0bfb4daffed0ad56dcc3197f8b664",
         "size": 1303
+      },
+      {
+        "path": "pages/policies/github-branch-management-policy.md",
+        "sha256": "935a7e230202dcfd4255ee2e45a047bf00c4eb2137e02a657c22d50291671292",
+        "size": 5463
       },
       {
         "path": "pages/policies/github-permissions-policy.md",
@@ -3225,6 +3230,11 @@
         "size": 1216
       },
       {
+        "path": "pages/systems/monitoring-and-dashboard.md",
+        "sha256": "020a2652582a44eafd7e6959efe4cd73dc8b572c24dc0822333e8c473a57633c",
+        "size": 3036
+      },
+      {
         "path": "pages/systems/new-product-intake.md",
         "sha256": "bb8c04b26350bd5fbd98ee7e69ce0fee8bcd235e8ab7fc90bd2433a8be131668",
         "size": 1093
@@ -3249,8 +3259,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T09:22:21Z",
-  "file_count": 648,
+  "exported_at": "2026-05-05T09:28:12Z",
+  "file_count": 650,
   "files": [
     {
       "path": ".usage.json",
@@ -6017,20 +6027,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "f36e41c6d090d50743e8ea269dec38b9347e4fcafcaffa23fbdb1f1fd1e15e23",
+  "previous_tree_hash": "7141683c87a32c49e7c19205c4823b448c7098faf53c6483267ed7c51c9665da",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7141683c87a32c49e7c19205c4823b448c7098faf53c6483267ed7c51c9665da",
+  "tree_hash": "2feb409b294f1ba244dc2e779c894c1e4687859f887fa9d16cb39fe1a6fc3dd8",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 96,
+  "wiki_file_count": 98,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6044,8 +6054,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "da332074cb46153c69996871a812a4baed620ba3be4abcd0665539c50b893a4c",
-      "size": 684574
+      "sha256": "455632e19c82bc8e6776289f9f1220aa1ca26346483d402a36ad910f4662511f",
+      "size": 685345
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6251,6 +6261,11 @@
       "path": "pages/policies/frontend-repo-open-source-checklist.md",
       "sha256": "dd5a2def40171382a01191743bc72a14a1c0bfb4daffed0ad56dcc3197f8b664",
       "size": 1303
+    },
+    {
+      "path": "pages/policies/github-branch-management-policy.md",
+      "sha256": "935a7e230202dcfd4255ee2e45a047bf00c4eb2137e02a657c22d50291671292",
+      "size": 5463
     },
     {
       "path": "pages/policies/github-permissions-policy.md",
@@ -6493,6 +6508,11 @@
       "size": 1216
     },
     {
+      "path": "pages/systems/monitoring-and-dashboard.md",
+      "sha256": "020a2652582a44eafd7e6959efe4cd73dc8b572c24dc0822333e8c473a57633c",
+      "size": 3036
+    },
+    {
       "path": "pages/systems/new-product-intake.md",
       "sha256": "bb8c04b26350bd5fbd98ee7e69ce0fee8bcd235e8ab7fc90bd2433a8be131668",
       "size": 1093
@@ -6514,5 +6534,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "df8bac08b46cfd7e1f0c5e3ffee7aa57a55daebd5b7086d232a0d390a561e968"
+  "wiki_tree_hash": "faf1123e16cf43b16c3d71a2526e1b1eb7905a209aa59df5d6a2d69fc0944485"
 }

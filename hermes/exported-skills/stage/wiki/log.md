@@ -13572,3 +13572,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_23ccf6e891080c92ed66369e06ec84dd
 - summary: Defines role-based access control, team assignments, and repository permissions for the organization.
 
+## [2026-05-05T09:24:03Z] synthesis | Github Branch Management Policy
+
+- status: published
+- slug: policies/github-branch-management-policy
+- wiki_revision_id: wikirev_407949d0ae65558bc49f24c856d274a0
+- summary: Proposed branch management strategy for RSI company repositories, covering naming conventions, main branch protection, feature branch workflow, pull request reviews, CI, and releas...
+
+## [2026-05-05T09:24:50Z] synthesis | Monitoring and Dashboard
+
+- status: published
+- slug: systems/monitoring-and-dashboard
+- wiki_revision_id: wikirev_48135cf46580c22f7264d46d77cc9b99
+- summary: Overview of monitoring pages and dashboards used by the team, including Uptimerobot status page, Pagerduty alerts, and CloudWatch dashboard. Grafana dashboards are deprecated.
+
