@@ -14118,3 +14118,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4e6a4c1188ce09aaf5c4ec3393a9d12d
 - summary: The Publishing page references a Prose page.
 
+## [2026-05-05T16:20:34Z] synthesis | IP Graph API
+
+- status: published
+- slug: systems/ip-graph-api
+- wiki_revision_id: wikirev_2b893d4261cf080a32714e0addca2176
+- summary: API design for retrieving IP graph data, including root and child node queries with depth control and relationship traversal.
+
