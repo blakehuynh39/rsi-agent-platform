@@ -14451,3 +14451,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7aaa318bde02bd7de973b29cb7a49881
 - summary: Default content and structure of the priv_validator_state.json file, which stores the last signed consensus state for a Tendermint validator.
 
+## [2026-05-05T20:31:51Z] synthesis | Halo Configuration
+
+- status: published
+- slug: systems/halo-configuration
+- wiki_revision_id: wikirev_36a1d4dd8429eae6e349cc5bb705d0ca
+- summary: Configuration options for the Halo binary as defined in halo.toml.
+

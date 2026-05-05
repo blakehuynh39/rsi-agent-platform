@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "8228b9db9a04377fa376bcddbe437658717e069dd2a2d0116a52299af53dbe0f",
-        "size": 726430
+        "sha256": "e1431abe9351c370f0e97c5439091a409e9f4c6aa5a6ce67e9f51d06f426bddb",
+        "size": 726683
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3735,6 +3735,11 @@
         "size": 1301
       },
       {
+        "path": "pages/systems/halo-configuration.md",
+        "sha256": "8f1d2e4e6e94f9cc14a08c93f5a59887d1c998223ef381e861d5157ef9ed6e52",
+        "size": 8514
+      },
+      {
         "path": "pages/systems/ip-graph-api.md",
         "sha256": "7bd3a6bda886a15f7cb91dff0ed83736c2dd84ce10927084b74532990999fd29",
         "size": 4630
@@ -3794,8 +3799,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T20:27:25Z",
-  "file_count": 757,
+  "exported_at": "2026-05-05T20:33:44Z",
+  "file_count": 758,
   "files": [
     {
       "path": ".usage.json",
@@ -6562,20 +6567,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7567cfh25br",
-  "previous_tree_hash": "222b7949de8f6259983de0fbda0c4c2eb7436187e491352b12cb261ca0f6c9f6",
+  "previous_tree_hash": "e09ac3026904ebe7202479ec1989abb098945a721aa553a76e3ceed5c4ab7f50",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e09ac3026904ebe7202479ec1989abb098945a721aa553a76e3ceed5c4ab7f50",
+  "tree_hash": "123d10e29a32b2315b42c7607eeb3d3dcf38e0a5bdecb4fba3fed07ecc7b4a1d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 205,
+  "wiki_file_count": 206,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6589,8 +6594,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "8228b9db9a04377fa376bcddbe437658717e069dd2a2d0116a52299af53dbe0f",
-      "size": 726430
+      "sha256": "e1431abe9351c370f0e97c5439091a409e9f4c6aa5a6ce67e9f51d06f426bddb",
+      "size": 726683
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7548,6 +7553,11 @@
       "size": 1301
     },
     {
+      "path": "pages/systems/halo-configuration.md",
+      "sha256": "8f1d2e4e6e94f9cc14a08c93f5a59887d1c998223ef381e861d5157ef9ed6e52",
+      "size": 8514
+    },
+    {
       "path": "pages/systems/ip-graph-api.md",
       "sha256": "7bd3a6bda886a15f7cb91dff0ed83736c2dd84ce10927084b74532990999fd29",
       "size": 4630
@@ -7604,5 +7614,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "aacd01048a8e788795081395e08b6ebd050afeec52b40580fedb6547378e7bf0"
+  "wiki_tree_hash": "f719bf34be0b83454e3f6337da522aa0cea21cccd474ffea08af70beca03f150"
 }
