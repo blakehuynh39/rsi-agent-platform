@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "9b9419047f57cafd020233262468ce6bca5166acf5d8fdc1ad09235d301aa540",
-        "size": 709331
+        "sha256": "6ae5c66531fbbd2267be12ed9019d007ee2ccd2e2fed6d714a6b2befcdf58460",
+        "size": 710279
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2985,6 +2985,11 @@
         "size": 2328
       },
       {
+        "path": "pages/concepts/publishing.md",
+        "sha256": "ba4b4adcb57beeee67d170c643c668df7224fa95925e763d5fd2ff1f619b0d13",
+        "size": 1077
+      },
+      {
         "path": "pages/concepts/royalty-nft.md",
         "sha256": "c52bcb3a389a8998a75aa04d1009f8f528f207b1186585cb1f7e3d25040033da",
         "size": 6171
@@ -3033,6 +3038,11 @@
         "path": "pages/decisions/character-backstory-orchestrator.md",
         "sha256": "f9ed6e0c0218bc2ac971372cde89c321af510a34409c7a2062803077979bbeb1",
         "size": 4107
+      },
+      {
+        "path": "pages/decisions/core-vs-periphery-divisions.md",
+        "sha256": "0cd03be1f2180a23f891a61eec03f75318ff28507bb1ddb6b86e55153f37169f",
+        "size": 3191
       },
       {
         "path": "pages/decisions/decision-dynamic-vs-static-module-address-resolution.md",
@@ -3395,6 +3405,11 @@
         "size": 1220
       },
       {
+        "path": "pages/projects/renaissance-public-testnet.md",
+        "sha256": "e4721440b50f6d94ef84b7f6b2feb6033d42bd0a8bdddfc0e392934fdcb5664b",
+        "size": 3525
+      },
+      {
         "path": "pages/projects/replace-feedback-form-api.md",
         "sha256": "58348f558c0817e1c2e8158db50145fc94b4322ea8972ddb977694858adc80dc",
         "size": 1192
@@ -3574,8 +3589,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T16:05:44Z",
-  "file_count": 713,
+  "exported_at": "2026-05-05T16:11:40Z",
+  "file_count": 716,
   "files": [
     {
       "path": ".usage.json",
@@ -6342,20 +6357,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "c48d28d385a0677b84f4107288d6e84c952ce0ca68272a46c6525f2b42a5588d",
+  "previous_tree_hash": "e930c35cbaf73ac17a020867e394d48641453064531db1a1d761dd79bb788269",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e930c35cbaf73ac17a020867e394d48641453064531db1a1d761dd79bb788269",
+  "tree_hash": "5093b8e6eff3a7b8eae2291897264931c8a0c848746032e162c16d067ad3660f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 161,
+  "wiki_file_count": 164,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6369,8 +6384,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "9b9419047f57cafd020233262468ce6bca5166acf5d8fdc1ad09235d301aa540",
-      "size": 709331
+      "sha256": "6ae5c66531fbbd2267be12ed9019d007ee2ccd2e2fed6d714a6b2befcdf58460",
+      "size": 710279
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6578,6 +6593,11 @@
       "size": 2328
     },
     {
+      "path": "pages/concepts/publishing.md",
+      "sha256": "ba4b4adcb57beeee67d170c643c668df7224fa95925e763d5fd2ff1f619b0d13",
+      "size": 1077
+    },
+    {
       "path": "pages/concepts/royalty-nft.md",
       "sha256": "c52bcb3a389a8998a75aa04d1009f8f528f207b1186585cb1f7e3d25040033da",
       "size": 6171
@@ -6626,6 +6646,11 @@
       "path": "pages/decisions/character-backstory-orchestrator.md",
       "sha256": "f9ed6e0c0218bc2ac971372cde89c321af510a34409c7a2062803077979bbeb1",
       "size": 4107
+    },
+    {
+      "path": "pages/decisions/core-vs-periphery-divisions.md",
+      "sha256": "0cd03be1f2180a23f891a61eec03f75318ff28507bb1ddb6b86e55153f37169f",
+      "size": 3191
     },
     {
       "path": "pages/decisions/decision-dynamic-vs-static-module-address-resolution.md",
@@ -6988,6 +7013,11 @@
       "size": 1220
     },
     {
+      "path": "pages/projects/renaissance-public-testnet.md",
+      "sha256": "e4721440b50f6d94ef84b7f6b2feb6033d42bd0a8bdddfc0e392934fdcb5664b",
+      "size": 3525
+    },
+    {
       "path": "pages/projects/replace-feedback-form-api.md",
       "sha256": "58348f558c0817e1c2e8158db50145fc94b4322ea8972ddb977694858adc80dc",
       "size": 1192
@@ -7164,5 +7194,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ef9fb44d1b5be8c12ff9b635337de9946ad6af2be1750c2e8adb888bab665450"
+  "wiki_tree_hash": "8bfb54afff88888331d36b124c27ff28d2f7d23569ab20d2ec58dadb86600452"
 }

@@ -14097,3 +14097,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_49669d797c62a24f3ee2b3767ea1ec5a
 - summary: A License NFT is a first-class citizen factory license policy implemented as a smart contract deployed NFT following the ERC standard. It includes interfaces for term management, m...
 
+## [2026-05-05T16:06:30Z] synthesis | Core vs. Periphery Divisions
+
+- status: published
+- slug: decisions/core-vs-periphery-divisions
+- wiki_revision_id: wikirev_d856d32444e3e8122e7e8cb5f17396dd
+- summary: Decision on dividing smart contracts into Core and Periphery repositories, based on Uniswap's pattern, with a deadline of March 14, 2024.
+
+## [2026-05-05T16:09:34Z] synthesis | Renaissance Public Testnet
+
+- status: published
+- slug: projects/renaissance-public-testnet
+- wiki_revision_id: wikirev_7c1ddf71ae46989f9271f5bd76ef8d4d
+- summary: The Renaissance Public Testnet is scheduled for release on April 15. Its goals include integrating with infrastructure providers, gathering feedback on infrastructure and developer...
+
+## [2026-05-05T16:11:33Z] synthesis | Publishing
+
+- status: published
+- slug: concepts/publishing
+- wiki_revision_id: wikirev_4e6a4c1188ce09aaf5c4ec3393a9d12d
+- summary: The Publishing page references a Prose page.
+
