@@ -2755,13 +2755,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "1e5f1e803e1f373eb2ec0440d40858fa44d49afc192c18d66b1aa314b61933c5",
-        "size": 149394
+        "sha256": "02b9cb832e8f71ad6c282551fd4413ec19bfa3a15f1d53ff333d9db4c000ab6b",
+        "size": 150023
       },
       {
         "path": "log.md",
-        "sha256": "93c73cfccd36583ccd4c346fe3ad80240f17cb2bf814841597e329eefbbc1ce2",
-        "size": 341218
+        "sha256": "b2748ef121f30d34bb8600a7fee1ef33c31bf3ffa3237e5d8aa9cbcd27a77ee4",
+        "size": 343463
       },
       {
         "path": "pages/concepts/coming-soon-placeholder-tasks.md",
@@ -2795,8 +2795,8 @@
       },
       {
         "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
-        "sha256": "2f00c1ca811b4e36ff3dec23608a77919c61b5a386ea84242f37828222d803b3",
-        "size": 1371
+        "sha256": "8e9ec5fa2596e9a48b96836914d6bfd93708467d38f8cb9ada8cf4c2fd7883c6",
+        "size": 1593
       },
       {
         "path": "pages/open-questions/define-what-to-do-for-rejected-submissions.md",
@@ -2842,6 +2842,11 @@
         "path": "pages/projects/add-intercom-automated-customer-service.md",
         "sha256": "dd922000a3cf304707ec0c31aa32912eda860f7e9c9258dd11a241a09f164369",
         "size": 1140
+      },
+      {
+        "path": "pages/projects/add-mother-tongue.md",
+        "sha256": "da38ce8edce15916e80994c68f87143500d3b671a3683d67514661a0598561d7",
+        "size": 1166
       },
       {
         "path": "pages/projects/address-p1-dogfooding-issues.md",
@@ -2935,15 +2940,15 @@
       },
       {
         "path": "pages/systems/numo-product-backlog.md",
-        "sha256": "cff69cd3335410b9f53269b8bb729b68ed9bd24a7d587b81c42e74aa61c74b95",
-        "size": 1050
+        "sha256": "4fd86fc113d36a9ad53220544b8003ededbe14bc8005e107d8ba6c577bb3fd4f",
+        "size": 1012
       }
     ]
   },
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
-  "exported_at": "2026-05-05T02:22:09Z",
-  "file_count": 587,
+  "exported_at": "2026-05-05T02:32:52Z",
+  "file_count": 588,
   "files": [
     {
       "path": "apple/DESCRIPTION.md",
@@ -5695,20 +5700,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cd98876d2n",
-  "previous_tree_hash": "6acd59c4074735bd2ec85beb17d4b8bff618a2af686266e12cc88e54b9cd1635",
+  "previous_tree_hash": "35837fc06b42ac4b757d5d85ff97d5060a339f68f61e3093698d1938b8ca29fb",
   "schema_version": 1,
   "skill_file_count": 549,
   "skill_manage_sessions": [],
   "skill_tree_hash": "51dd5fa14f02f546813009b323ca960c29e87c4759f49ab6c92e3ca2c7ca357b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "35837fc06b42ac4b757d5d85ff97d5060a339f68f61e3093698d1938b8ca29fb",
+  "tree_hash": "f06a951eca3bea5b191226a59ff2c7970b9600ca24f9744af81fdfdcb973656d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 38,
+  "wiki_file_count": 39,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5717,13 +5722,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "1e5f1e803e1f373eb2ec0440d40858fa44d49afc192c18d66b1aa314b61933c5",
-      "size": 149394
+      "sha256": "02b9cb832e8f71ad6c282551fd4413ec19bfa3a15f1d53ff333d9db4c000ab6b",
+      "size": 150023
     },
     {
       "path": "log.md",
-      "sha256": "93c73cfccd36583ccd4c346fe3ad80240f17cb2bf814841597e329eefbbc1ce2",
-      "size": 341218
+      "sha256": "b2748ef121f30d34bb8600a7fee1ef33c31bf3ffa3237e5d8aa9cbcd27a77ee4",
+      "size": 343463
     },
     {
       "path": "pages/concepts/coming-soon-placeholder-tasks.md",
@@ -5757,8 +5762,8 @@
     },
     {
       "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
-      "sha256": "2f00c1ca811b4e36ff3dec23608a77919c61b5a386ea84242f37828222d803b3",
-      "size": 1371
+      "sha256": "8e9ec5fa2596e9a48b96836914d6bfd93708467d38f8cb9ada8cf4c2fd7883c6",
+      "size": 1593
     },
     {
       "path": "pages/open-questions/define-what-to-do-for-rejected-submissions.md",
@@ -5804,6 +5809,11 @@
       "path": "pages/projects/add-intercom-automated-customer-service.md",
       "sha256": "dd922000a3cf304707ec0c31aa32912eda860f7e9c9258dd11a241a09f164369",
       "size": 1140
+    },
+    {
+      "path": "pages/projects/add-mother-tongue.md",
+      "sha256": "da38ce8edce15916e80994c68f87143500d3b671a3683d67514661a0598561d7",
+      "size": 1166
     },
     {
       "path": "pages/projects/address-p1-dogfooding-issues.md",
@@ -5897,10 +5907,10 @@
     },
     {
       "path": "pages/systems/numo-product-backlog.md",
-      "sha256": "cff69cd3335410b9f53269b8bb729b68ed9bd24a7d587b81c42e74aa61c74b95",
-      "size": 1050
+      "sha256": "4fd86fc113d36a9ad53220544b8003ededbe14bc8005e107d8ba6c577bb3fd4f",
+      "size": 1012
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "39d0a77c7c8b23718360459b77813a1b48528bfed8e880bbe93c2e25b2455cc6"
+  "wiki_tree_hash": "940e33e7c56794e7a3f6cb7371018d05f660c2449e9ba31433113416e7db5f19"
 }
