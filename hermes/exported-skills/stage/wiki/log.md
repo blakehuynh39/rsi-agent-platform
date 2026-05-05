@@ -14218,3 +14218,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7a859f1cc59b4c087663a051538904a2
 - summary: Analysis of using ERC-721 vs ERC-1155 for License Tokens in Story Protocol, including benefits, downsides, and required changes.
 
+## [2026-05-05T17:25:08Z] synthesis | Off-Chain Terms
+
+- status: published
+- slug: policies/off-chain-terms
+- wiki_revision_id: wikirev_365900f2dfda79d14e68bb0ba61aafae
+- summary: A list of terms governing off-chain agreements.
+
+## [2026-05-05T17:27:11Z] synthesis | Pausability Design Decision
+
+- status: published
+- slug: decisions/pausability-design
+- wiki_revision_id: wikirev_4cadbabbf091e12be3ec3883b81d4635
+- summary: Decision to implement a simple protocol-wide pause initially, with the PAUSER role granted to governance multisig, developer multisig, and possibly security council services.
+
