@@ -6920,3 +6920,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_a9f7bf07a8bf5370c3ff6106c6cdde3c
 - summary: Source: [Notion source](https://www.notion.so/Calendar-121051299a5481709ab7ec9697e8927e)
 
+## [2026-05-05T05:14:13Z] synthesis | How to handle smart contract update
+
+- status: published
+- slug: runbooks/how-to-handle-smart-contract-update
+- wiki_revision_id: wikirev_95ad3f7f47dff16bf90f64b3656ed140
+- summary: A guide on handling smart contract updates within the SDK/API/INDEXER context.
+

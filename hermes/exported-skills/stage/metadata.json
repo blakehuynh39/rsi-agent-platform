@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "3ca49f0d54117a81fd7ad4e0daaa521540485ab56a1ab47298e3a8e75bce3b01",
-        "size": 357804
+        "sha256": "407fa2ed94f1b7fac79a004f7560d420008b14b85dfe4f86676eee24b38ab8e2",
+        "size": 358104
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3005,6 +3005,11 @@
         "size": 909
       },
       {
+        "path": "pages/runbooks/how-to-handle-smart-contract-update.md",
+        "sha256": "286c161a9da18220b1399871159e088efafe6de7ebaf73e8d6ea7b223bc49a1f",
+        "size": 1395
+      },
+      {
         "path": "pages/systems/consensus-labelling-mechanism.md",
         "sha256": "974ed87a722675eae881b08551d05a853ef8514f56e1c9bd2fa660f0681eb3a3",
         "size": 1170
@@ -3029,8 +3034,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T04:38:56Z",
-  "file_count": 604,
+  "exported_at": "2026-05-05T05:14:18Z",
+  "file_count": 605,
   "files": [
     {
       "path": ".usage.json",
@@ -5796,21 +5801,21 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-67d9fb7rcrr",
-  "previous_tree_hash": "6bf0b8ee3868be93ac7f0ddbd3960b63222e4f88ed21bd1fd4da08de2666dad7",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5ff589zhhc2",
+  "previous_tree_hash": "47b188f19fa1fd125019629d672c50a9e6cbd8d0beb9b0bf24e69d5c0567ae41",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "476409678a775c1018b9e6a7408807c3722cdad360128bd52087ec8de9a400b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "47b188f19fa1fd125019629d672c50a9e6cbd8d0beb9b0bf24e69d5c0567ae41",
+  "tree_hash": "3df2ec8cc6c2de99448583cf995e4ae03b000f2b992e3483e8f359d2d5258b13",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 52,
+  "wiki_file_count": 53,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5824,8 +5829,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "3ca49f0d54117a81fd7ad4e0daaa521540485ab56a1ab47298e3a8e75bce3b01",
-      "size": 357804
+      "sha256": "407fa2ed94f1b7fac79a004f7560d420008b14b85dfe4f86676eee24b38ab8e2",
+      "size": 358104
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6053,6 +6058,11 @@
       "size": 909
     },
     {
+      "path": "pages/runbooks/how-to-handle-smart-contract-update.md",
+      "sha256": "286c161a9da18220b1399871159e088efafe6de7ebaf73e8d6ea7b223bc49a1f",
+      "size": 1395
+    },
+    {
       "path": "pages/systems/consensus-labelling-mechanism.md",
       "sha256": "974ed87a722675eae881b08551d05a853ef8514f56e1c9bd2fa660f0681eb3a3",
       "size": 1170
@@ -6074,5 +6084,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "3b17f862c0d3b8665380bd8bbf2f2522aa52f904c4a93f4e658df0a883fb04cf"
+  "wiki_tree_hash": "077bae056dfef1d903eed6bc0387ed681718e9e1ffb395f156e43f9fa79c1eca"
 }
