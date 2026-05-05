@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "38ed2677c73babf27ec209a3555dd1b9851af2e252b2964faecd79c3deb4ad1b",
-        "size": 710579
+        "sha256": "d8a697c02bea875c9928b4f0ada8b94529a4abc2c13b387f2793732ce145a938",
+        "size": 710878
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3360,6 +3360,11 @@
         "size": 2902
       },
       {
+        "path": "pages/projects/multichain-story-supernet.md",
+        "sha256": "10e9a5f15eefaa2da7468d6ef9c0eac046d8bb753bcd33e7b913b5264454fcd5",
+        "size": 1403
+      },
+      {
         "path": "pages/projects/open-source-development-plan.md",
         "sha256": "aa234fe334d42b4826b3a462084066394711c2022871d628a570fd4ed267d5bc",
         "size": 8717
@@ -3594,8 +3599,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T16:22:39Z",
-  "file_count": 717,
+  "exported_at": "2026-05-05T16:28:34Z",
+  "file_count": 718,
   "files": [
     {
       "path": ".usage.json",
@@ -6362,20 +6367,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "5093b8e6eff3a7b8eae2291897264931c8a0c848746032e162c16d067ad3660f",
+  "previous_tree_hash": "3473d992248396ba613a350d06cd357c5d1c02d2b753ad7c080207348d306831",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3473d992248396ba613a350d06cd357c5d1c02d2b753ad7c080207348d306831",
+  "tree_hash": "f045466c7d80816a90dffe3cf109f4486c3df42b4ef1d6c9865b8515fe64cc21",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 165,
+  "wiki_file_count": 166,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6389,8 +6394,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "38ed2677c73babf27ec209a3555dd1b9851af2e252b2964faecd79c3deb4ad1b",
-      "size": 710579
+      "sha256": "d8a697c02bea875c9928b4f0ada8b94529a4abc2c13b387f2793732ce145a938",
+      "size": 710878
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6973,6 +6978,11 @@
       "size": 2902
     },
     {
+      "path": "pages/projects/multichain-story-supernet.md",
+      "sha256": "10e9a5f15eefaa2da7468d6ef9c0eac046d8bb753bcd33e7b913b5264454fcd5",
+      "size": 1403
+    },
+    {
       "path": "pages/projects/open-source-development-plan.md",
       "sha256": "aa234fe334d42b4826b3a462084066394711c2022871d628a570fd4ed267d5bc",
       "size": 8717
@@ -7204,5 +7214,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ac08935e9ad30caea43319fe7f47aacdb5aeec4340f8c62afd7d7feadd5dcadb"
+  "wiki_tree_hash": "3491580b7293a03bfa4b6ad6fede91cbf9bd460869623ac23004fc92a1603c2e"
 }

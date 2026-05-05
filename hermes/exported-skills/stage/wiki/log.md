@@ -14125,3 +14125,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2b893d4261cf080a32714e0addca2176
 - summary: API design for retrieving IP graph data, including root and child node queries with depth control and relationship traversal.
 
+## [2026-05-05T16:26:50Z] synthesis | Multichain + Story Supernet
+
+- status: published
+- slug: projects/multichain-story-supernet
+- wiki_revision_id: wikirev_26433151d715233f48b125969538138b
+- summary: Project page linking to Bridge Partners, Story Supernet, and Cross-chain Interactions subpages.
+
