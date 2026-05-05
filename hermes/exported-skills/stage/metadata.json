@@ -2771,13 +2771,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "eea1e94e187ef4eb34875f95810591512ad2c97980fbb3af1dd5b018a170c231",
-        "size": 378114
+        "sha256": "dbca550e6ebd78303a6cd1c02ac642f19172dfd0586bc91cf5d4b2fa657ad899",
+        "size": 382737
       },
       {
         "path": "log.md",
-        "sha256": "aada8bc1c9eac28b4d05583e53739a62d40cbb45609524a116299803732c5311",
-        "size": 680901
+        "sha256": "86dfe439b569b1bd2e77771f53f65dd981b14c4ff4b2969ab3d58045b8f2aa6a",
+        "size": 681249
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3188,14 +3188,19 @@
         "path": "pages/systems/numo-product-backlog.md",
         "sha256": "4fd86fc113d36a9ad53220544b8003ededbe14bc8005e107d8ba6c577bb3fd4f",
         "size": 1012
+      },
+      {
+        "path": "pages/systems/story-protocol-orchestrator-gateway.md",
+        "sha256": "0ce3a08f3c4ee85ee682fe7fc972397921f3018fcc2a470bca0459569b1b13e1",
+        "size": 3026
       }
     ]
   },
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T08:09:24Z",
-  "file_count": 637,
+  "exported_at": "2026-05-05T08:15:18Z",
+  "file_count": 638,
   "files": [
     {
       "path": ".usage.json",
@@ -5962,20 +5967,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "88caa52168443a9e151037b8e2dac145eeaf5b9088c59a3d547bf872b597dd98",
+  "previous_tree_hash": "a015658a562693736b273a5640645610f89e387eb2a2da8f53ee5293ac20f1ee",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a015658a562693736b273a5640645610f89e387eb2a2da8f53ee5293ac20f1ee",
+  "tree_hash": "c3d16580559b9fbc68749cfbc184368954ec3d39ffac29788404fa009dfca5be",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 85,
+  "wiki_file_count": 86,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5984,13 +5989,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "eea1e94e187ef4eb34875f95810591512ad2c97980fbb3af1dd5b018a170c231",
-      "size": 378114
+      "sha256": "dbca550e6ebd78303a6cd1c02ac642f19172dfd0586bc91cf5d4b2fa657ad899",
+      "size": 382737
     },
     {
       "path": "log.md",
-      "sha256": "aada8bc1c9eac28b4d05583e53739a62d40cbb45609524a116299803732c5311",
-      "size": 680901
+      "sha256": "86dfe439b569b1bd2e77771f53f65dd981b14c4ff4b2969ab3d58045b8f2aa6a",
+      "size": 681249
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6401,8 +6406,13 @@
       "path": "pages/systems/numo-product-backlog.md",
       "sha256": "4fd86fc113d36a9ad53220544b8003ededbe14bc8005e107d8ba6c577bb3fd4f",
       "size": 1012
+    },
+    {
+      "path": "pages/systems/story-protocol-orchestrator-gateway.md",
+      "sha256": "0ce3a08f3c4ee85ee682fe7fc972397921f3018fcc2a470bca0459569b1b13e1",
+      "size": 3026
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e7ff6b5a4aa8f60bf2bdf2a2e8e4d45b9ed1a2ec9377848d3704c7d933f4acde"
+  "wiki_tree_hash": "971e6a04a8c77c3adf0785b945438892b7af95453e169cf6850d083dd7c12358"
 }

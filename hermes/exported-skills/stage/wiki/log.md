@@ -13488,3 +13488,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0f3547dbaaac24eef1a5463920b534a9
 - summary: A Notion document intended to describe an event indexing workflow, but currently containing no content.
 
+## [2026-05-05T08:10:29Z] synthesis | Story Protocol Orchestrator/Gateway
+
+- status: published
+- slug: systems/story-protocol-orchestrator-gateway
+- wiki_revision_id: wikirev_50e87cc873f9c153f1cf65f6c286c9aa
+- summary: Centralized orchestrator and gateway for Story Protocol, providing workflow management and a single entry point for operations.
+
