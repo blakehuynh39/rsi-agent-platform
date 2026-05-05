@@ -13803,3 +13803,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_255dc8ece63a961593b34cb90a1bee54
 - summary: Decisions to simplify the license module for the alpha release, focusing on tradable LNFT tokens, UDL-based terms, and minimal interface changes.
 
+## [2026-05-05T12:01:43Z] synthesis | Polygon token oracle backend
+
+- status: published
+- slug: systems/polygon-token-oracle-backend
+- wiki_revision_id: wikirev_6d6272d2d1a434d9cf240091a20ef423
+- summary: A backend service for a token oracle on Polygon, referenced in the Hooks backend service documentation.
+
+## [2026-05-05T12:02:23Z] synthesis | Polygon token oracle backend
+
+- status: published
+- slug: systems/polygon-token-oracle-backend
+- wiki_revision_id: wikirev_36152ea96ade82f73b443fa9001586ce
+- summary: A backend service for a token oracle on Polygon, deployable via GitHub Actions. Referenced in the Hooks backend service documentation.
+
