@@ -13453,3 +13453,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_eaa48b1245c204c0b57a1236c13da376
 - summary: Design document for character metadata in WF, covering traits, attributes, and artifact-finding mechanics.
 
+## [2026-05-05T07:55:14Z] synthesis | Character Backstory Orchestrator
+
+- status: published
+- slug: decisions/character-backstory-orchestrator
+- wiki_revision_id: wikirev_428671b6ade036b76942239e18f43ebc
+- summary: Design options for linking character NFTs to their backstory StoryNFTs, with trade-offs between on-chain and off-chain metadata.
+

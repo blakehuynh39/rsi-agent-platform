@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "97eaa942dd14b4a3fb1f132db0db22b59844bec7ab01a4383ff99494af800f5a",
-        "size": 679331
+        "sha256": "a467013d66b73f172ca232a7f8b09dca4d37883dc5c79fce556bb99cc4387998",
+        "size": 679676
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2883,6 +2883,11 @@
         "path": "pages/concepts/upload-submission-errors.md",
         "sha256": "bea4de315c1241d295cefc379e17083477c771b9257b8c2c7d4a8996ce0a84bd",
         "size": 1054
+      },
+      {
+        "path": "pages/decisions/character-backstory-orchestrator.md",
+        "sha256": "f9ed6e0c0218bc2ac971372cde89c321af510a34409c7a2062803077979bbeb1",
+        "size": 4107
       },
       {
         "path": "pages/decisions/distinguish-user-device-types-for-risk-assessment.md",
@@ -3179,8 +3184,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T07:51:51Z",
-  "file_count": 634,
+  "exported_at": "2026-05-05T07:57:42Z",
+  "file_count": 635,
   "files": [
     {
       "path": ".usage.json",
@@ -5947,20 +5952,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "472635a6f1ad65d4ccc92141e234b5a9e39742066a010c9bc4a3f0f24379e1c3",
+  "previous_tree_hash": "900a997776d13f655bc9ff6ef322eac6b60a2ee804e79cdff2be0c54a696bed2",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "900a997776d13f655bc9ff6ef322eac6b60a2ee804e79cdff2be0c54a696bed2",
+  "tree_hash": "81e8fa3f5c27f64451a5e7ecd3e3fdfc9d3c1254e340891b304390e6c123f3c0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 82,
+  "wiki_file_count": 83,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5974,8 +5979,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "97eaa942dd14b4a3fb1f132db0db22b59844bec7ab01a4383ff99494af800f5a",
-      "size": 679331
+      "sha256": "a467013d66b73f172ca232a7f8b09dca4d37883dc5c79fce556bb99cc4387998",
+      "size": 679676
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6081,6 +6086,11 @@
       "path": "pages/concepts/upload-submission-errors.md",
       "sha256": "bea4de315c1241d295cefc379e17083477c771b9257b8c2c7d4a8996ce0a84bd",
       "size": 1054
+    },
+    {
+      "path": "pages/decisions/character-backstory-orchestrator.md",
+      "sha256": "f9ed6e0c0218bc2ac971372cde89c321af510a34409c7a2062803077979bbeb1",
+      "size": 4107
     },
     {
       "path": "pages/decisions/distinguish-user-device-types-for-risk-assessment.md",
@@ -6374,5 +6384,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "444320e357560a4fdb8cae21fee58db464bccd7fc09ed22ebd30b8fc56b812eb"
+  "wiki_tree_hash": "9a4670f95eb5c114da27da03b99e5fabf2b7a5bc7ef4cd8559f84d800e0f547d"
 }
