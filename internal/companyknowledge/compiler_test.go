@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
@@ -53,6 +55,24 @@ func (f *fakeWikiSynthesisClient) SynthesizeWiki(ctx context.Context, request Wi
 	}}}, WikiSynthesisMetadata{RequestMetadataHash: "reqhash", ResponseMetadataHash: "resphash"}, nil
 }
 
+type sequenceWikiSynthesisClient struct {
+	requests []WikiSynthesisRequest
+	outputs  []WikiSynthesisOutput
+}
+
+func (f *sequenceWikiSynthesisClient) SynthesizeWiki(ctx context.Context, request WikiSynthesisRequest) (WikiSynthesisOutput, WikiSynthesisMetadata, error) {
+	_ = ctx
+	f.requests = append(f.requests, request)
+	index := len(f.requests) - 1
+	if index >= len(f.outputs) {
+		index = len(f.outputs) - 1
+	}
+	if index < 0 {
+		return WikiSynthesisOutput{}, WikiSynthesisMetadata{RequestMetadataHash: "reqhash", ResponseMetadataHash: "resphash"}, nil
+	}
+	return f.outputs[index], WikiSynthesisMetadata{RequestMetadataHash: "reqhash", ResponseMetadataHash: "resphash"}, nil
+}
+
 func TestWikiSynthesisOutputAcceptsStructuredFreshness(t *testing.T) {
 	raw := `{"pages":[{"slug":"status","title":"Status","type":"open_question","summary":"Status summary.","freshness":{"source_timestamp":"2026-04-28T06:23:43Z"},"claims":[{"claim_key":"status","text":"Status is available.","confidence":1,"citations":[]}]}]}`
 	var output WikiSynthesisOutput
@@ -61,6 +81,190 @@ func TestWikiSynthesisOutputAcceptsStructuredFreshness(t *testing.T) {
 	}
 	if len(output.Pages) != 1 || output.Pages[0].Title != "Status" {
 		t.Fatalf("unexpected output: %+v", output)
+	}
+}
+
+func TestWikiSynthesisOutputAcceptsFlexibleModelShapes(t *testing.T) {
+	raw := `{"pages":[{"slug":"status","title":"Status","type":"project","tags":"rsi","summary":"Status summary.","owners":[{"name":"Platform"}],"open_questions":{"questions":[{"question":"Who owns rollout?"}]},"related_pages":{"pages":["systems/wiki"]},"claims":[{"claim_key":"status","claim_text":"Status is available.","confidence":1,"citations":null,"citation":{"source_document_id":"doc","source_revision_id":"rev","source_chunk_id":"chunk","quote":"Status"}}],"conflicts":[{"claim_key":"status","text":"Sources need review.","citations":null,"citation":{"source_document_id":"doc","source_revision_id":"rev","chunk_id":"chunk"}}]}]}`
+	var output WikiSynthesisOutput
+	if err := json.Unmarshal([]byte(raw), &output); err != nil {
+		t.Fatalf("json.Unmarshal() should tolerate common model shape variations: %v", err)
+	}
+	page := output.Pages[0]
+	if got := strings.Join(page.Tags, ","); got != "rsi" {
+		t.Fatalf("tags = %q", got)
+	}
+	if got := strings.Join(page.Owners, ","); got != "Platform" {
+		t.Fatalf("owners = %q", got)
+	}
+	if got := strings.Join(page.OpenQuestions, ","); got != "Who owns rollout?" {
+		t.Fatalf("open_questions = %q", got)
+	}
+	if page.Claims[0].Text != "Status is available." || page.Claims[0].Citations[0].ChunkID != "chunk" {
+		t.Fatalf("claim not normalized: %+v", page.Claims[0])
+	}
+	if page.Conflicts[0].Summary != "Sources need review." || page.Conflicts[0].Citations[0].ChunkID != "chunk" {
+		t.Fatalf("conflict not normalized: %+v", page.Conflicts[0])
+	}
+}
+
+func TestValidateSynthesisOutputDropsEmptyPlaceholderClaims(t *testing.T) {
+	chunk := store.CompanyWikiSourceChunk{
+		ID:         "chunk",
+		DocumentID: "doc",
+		RevisionID: "rev",
+		Content:    "RSI Platform has a compiler.",
+	}
+	evidence := store.CompanyWikiSourceEvidence{
+		Document: store.CompanyWikiSourceDocument{ID: "doc"},
+		Revision: store.CompanyWikiSourceRevision{ID: "rev", DocumentID: "doc"},
+		Chunks:   []store.CompanyWikiSourceChunk{chunk},
+	}
+	output := WikiSynthesisOutput{Pages: []WikiSynthesisPage{{
+		Slug:    "rsi-platform",
+		Title:   "RSI Platform",
+		Type:    "project",
+		Summary: "RSI Platform status.",
+		Claims: []WikiSynthesisClaim{
+			{},
+			{
+				ClaimKey: "compiler",
+				Text:     "RSI Platform has a compiler.",
+				Citations: []store.CompanyWikiCitationInput{{
+					SourceDocumentID: "doc",
+					SourceRevisionID: "rev",
+					ChunkID:          "chunk",
+				}},
+			},
+		},
+	}}}
+	pages, validationErrors := validateSynthesisOutput(evidence, nil, output)
+	if len(validationErrors) > 0 {
+		t.Fatalf("validateSynthesisOutput() errors = %+v", validationErrors)
+	}
+	if len(pages) != 1 || len(pages[0].Claims) != 1 || pages[0].Claims[0].ClaimKey != "compiler" {
+		t.Fatalf("placeholder claim should be dropped, got %+v", pages)
+	}
+}
+
+func TestValidateSynthesisOutputResolvesCitationIDs(t *testing.T) {
+	chunk := store.CompanyWikiSourceChunk{
+		ID:            "chunk",
+		DocumentID:    "doc",
+		RevisionID:    "rev",
+		Content:       "Adaptive Trust Screening gates high-risk workflows.",
+		NativeLocator: "notion:block:1",
+	}
+	evidence := store.CompanyWikiSourceEvidence{
+		Document: store.CompanyWikiSourceDocument{ID: "doc"},
+		Revision: store.CompanyWikiSourceRevision{ID: "rev", DocumentID: "doc"},
+		Chunks:   []store.CompanyWikiSourceChunk{chunk},
+	}
+	output := WikiSynthesisOutput{Pages: []WikiSynthesisPage{{
+		Slug:    "adaptive-trust-screening",
+		Title:   "Adaptive Trust Screening",
+		Type:    "system",
+		Summary: "Adaptive Trust Screening status.",
+		Claims: []WikiSynthesisClaim{{
+			ClaimKey:    "adaptive_trust_gate",
+			Text:        "Adaptive Trust Screening gates high-risk workflows.",
+			CitationIDs: []string{"chunk"},
+		}},
+		Conflicts: []WikiSynthesisConflict{{
+			ClaimKey:    "adaptive_trust_gate",
+			Summary:     "Evidence should be reviewed during rollout.",
+			CitationIDs: []string{"chunk"},
+		}},
+	}}}
+	pages, validationErrors := validateSynthesisOutput(evidence, nil, output)
+	if len(validationErrors) > 0 {
+		t.Fatalf("validateSynthesisOutput() errors = %+v", validationErrors)
+	}
+	if len(pages) != 1 || len(pages[0].Claims) != 1 || len(pages[0].Claims[0].Citations) != 1 {
+		t.Fatalf("claim citation_ids should resolve to citations, got %+v", pages)
+	}
+	if got := pages[0].Claims[0].Citations[0]; got.ChunkID != "chunk" || got.NativeLocator != "notion:block:1" {
+		t.Fatalf("resolved claim citation = %+v", got)
+	}
+	if len(pages[0].Conflicts) != 1 || len(pages[0].Conflicts[0].Citations) != 1 {
+		t.Fatalf("conflict citation_ids should resolve to citations, got %+v", pages[0].Conflicts)
+	}
+}
+
+func TestOpenRouterWikiSynthesisClientRetriesMalformedJSON(t *testing.T) {
+	var attempts int
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		attempts++
+		content := `{"pages":[`
+		if attempts == 2 {
+			content = `{"pages":[{"slug":"status","title":"Status","type":"project","summary":"Status summary.","claims":[{"claim_key":"status","text":"Status is available.","confidence":1,"citations":[]}]}]}`
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"id":    "chatcmpl-test",
+			"model": "test/model",
+			"choices": []map[string]any{{
+				"message": map[string]string{"content": content},
+			}},
+			"usage": map[string]any{"prompt_tokens": 1},
+		})
+	}))
+	defer server.Close()
+	client := &OpenRouterWikiSynthesisClient{BaseURL: server.URL, APIKey: "test", Client: server.Client()}
+	output, _, err := client.SynthesizeWiki(context.Background(), WikiSynthesisRequest{
+		Model: "test/model",
+		Source: store.CompanyWikiSourceEvidence{
+			Revision: store.CompanyWikiSourceRevision{ID: "rev"},
+		},
+	})
+	if err != nil {
+		t.Fatalf("SynthesizeWiki() error = %v", err)
+	}
+	if attempts != 2 {
+		t.Fatalf("attempts = %d, want 2", attempts)
+	}
+	if len(output.Pages) != 1 || output.Pages[0].Title != "Status" {
+		t.Fatalf("unexpected output: %+v", output)
+	}
+}
+
+func TestRunCompanyWikiCompilerRetriesValidationFailure(t *testing.T) {
+	state := store.NewMemoryStore()
+	cfg := testWikiCompilerConfig(t.TempDir(), "off")
+	recorded, err := RecordEnqueueAndMaybePublishWikiSource(context.Background(), cfg, state, testSlackSourceInput("1777831927.000000", "Adaptive Trust Screening", "Decision: Adaptive Trust Screening should gate high-risk workflows."))
+	if err != nil {
+		t.Fatalf("RecordEnqueueAndMaybePublishWikiSource() error = %v", err)
+	}
+	chunk := recorded.Source.Chunks[0]
+	client := &sequenceWikiSynthesisClient{outputs: []WikiSynthesisOutput{
+		{},
+		{Pages: []WikiSynthesisPage{{
+			Slug:    "adaptive-trust-screening",
+			Title:   "Adaptive Trust Screening",
+			Type:    "system",
+			Summary: "Adaptive Trust Screening gates high-risk workflows.",
+			Claims: []WikiSynthesisClaim{{
+				ClaimKey: "adaptive_trust_gate",
+				Text:     "Adaptive Trust Screening should gate high-risk workflows.",
+				Citations: []store.CompanyWikiCitationInput{{
+					SourceDocumentID: chunk.DocumentID,
+					SourceRevisionID: chunk.RevisionID,
+					ChunkID:          chunk.ID,
+				}},
+			}},
+		}}},
+	}}
+	result, err := RunCompanyWikiCompiler(context.Background(), cfg, state, client)
+	if err != nil {
+		t.Fatalf("RunCompanyWikiCompiler() error = %v", err)
+	}
+	if !result.OK || result.PublishedPages != 1 {
+		t.Fatalf("unexpected compiler result: %+v", result)
+	}
+	if len(client.requests) != 2 {
+		t.Fatalf("requests = %d, want 2", len(client.requests))
+	}
+	if len(client.requests[1].PreviousValidationErrors) == 0 || !strings.Contains(client.requests[1].PreviousValidationErrors[0], "at least one page") {
+		t.Fatalf("second request should include validation repair context: %+v", client.requests[1].PreviousValidationErrors)
 	}
 }
 

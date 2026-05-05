@@ -31,10 +31,11 @@ type WikiSynthesisClient interface {
 }
 
 type WikiSynthesisRequest struct {
-	Model          string                          `json:"model"`
-	Source         store.CompanyWikiSourceEvidence `json:"source"`
-	Chunks         []store.CompanyWikiSourceChunk  `json:"chunks"`
-	CandidatePages []store.CompanyWikiPageRead     `json:"candidate_pages,omitempty"`
+	Model                    string                          `json:"model"`
+	Source                   store.CompanyWikiSourceEvidence `json:"source"`
+	Chunks                   []store.CompanyWikiSourceChunk  `json:"chunks"`
+	CandidatePages           []store.CompanyWikiPageRead     `json:"candidate_pages,omitempty"`
+	PreviousValidationErrors []string                        `json:"previous_validation_errors,omitempty"`
 }
 
 type WikiSynthesisMetadata struct {
@@ -62,11 +63,96 @@ type WikiSynthesisPage struct {
 	RelatedPages  []string                `json:"related_pages,omitempty"`
 }
 
+func (p *WikiSynthesisPage) UnmarshalJSON(raw []byte) error {
+	var aux struct {
+		Slug          string                  `json:"slug"`
+		Title         string                  `json:"title"`
+		Type          string                  `json:"type"`
+		Tags          json.RawMessage         `json:"tags"`
+		Summary       string                  `json:"summary"`
+		Owners        json.RawMessage         `json:"owners"`
+		Freshness     any                     `json:"freshness"`
+		Claims        []WikiSynthesisClaim    `json:"claims"`
+		Conflicts     []WikiSynthesisConflict `json:"conflicts"`
+		OpenQuestions json.RawMessage         `json:"open_questions"`
+		RelatedPages  json.RawMessage         `json:"related_pages"`
+	}
+	if err := json.Unmarshal(raw, &aux); err != nil {
+		return err
+	}
+	tags, err := decodeWikiSynthesisStringList(aux.Tags)
+	if err != nil {
+		return fmt.Errorf("tags: %w", err)
+	}
+	owners, err := decodeWikiSynthesisStringList(aux.Owners)
+	if err != nil {
+		return fmt.Errorf("owners: %w", err)
+	}
+	openQuestions, err := decodeWikiSynthesisStringList(aux.OpenQuestions)
+	if err != nil {
+		return fmt.Errorf("open_questions: %w", err)
+	}
+	relatedPages, err := decodeWikiSynthesisStringList(aux.RelatedPages)
+	if err != nil {
+		return fmt.Errorf("related_pages: %w", err)
+	}
+	*p = WikiSynthesisPage{
+		Slug:          aux.Slug,
+		Title:         aux.Title,
+		Type:          aux.Type,
+		Tags:          tags,
+		Summary:       aux.Summary,
+		Owners:        owners,
+		Freshness:     aux.Freshness,
+		Claims:        aux.Claims,
+		Conflicts:     aux.Conflicts,
+		OpenQuestions: openQuestions,
+		RelatedPages:  relatedPages,
+	}
+	return nil
+}
+
 type WikiSynthesisClaim struct {
-	ClaimKey   string                           `json:"claim_key"`
-	Text       string                           `json:"text"`
-	Confidence float64                          `json:"confidence"`
-	Citations  []store.CompanyWikiCitationInput `json:"citations"`
+	ClaimKey    string                           `json:"claim_key"`
+	Text        string                           `json:"text"`
+	Confidence  float64                          `json:"confidence"`
+	Citations   []store.CompanyWikiCitationInput `json:"citations"`
+	CitationIDs []string                         `json:"citation_ids,omitempty"`
+}
+
+func (c *WikiSynthesisClaim) UnmarshalJSON(raw []byte) error {
+	var aux struct {
+		ClaimKey    string          `json:"claim_key"`
+		Text        string          `json:"text"`
+		ClaimText   string          `json:"claim_text"`
+		Claim       string          `json:"claim"`
+		Statement   string          `json:"statement"`
+		Body        string          `json:"body"`
+		Summary     string          `json:"summary"`
+		Confidence  float64         `json:"confidence"`
+		Citations   json.RawMessage `json:"citations"`
+		Citation    json.RawMessage `json:"citation"`
+		CitationIDs []string        `json:"citation_ids"`
+	}
+	if err := json.Unmarshal(raw, &aux); err != nil {
+		return err
+	}
+	citationsRaw := aux.Citations
+	if !rawJSONValuePresent(citationsRaw) {
+		citationsRaw = aux.Citation
+	}
+	citations, err := decodeWikiSynthesisCitations(citationsRaw)
+	if err != nil {
+		return err
+	}
+	*c = WikiSynthesisClaim{
+		ClaimKey:    aux.ClaimKey,
+		Text:        firstNonEmpty(aux.Text, aux.ClaimText, aux.Claim, aux.Statement, aux.Body, aux.Summary),
+		Confidence:  aux.Confidence,
+		Citations:   citations,
+		CitationIDs: aux.CitationIDs,
+	}
+	return nil
 }
 
 type WikiSynthesisConflict struct {
@@ -74,6 +160,36 @@ type WikiSynthesisConflict struct {
 	Summary     string                           `json:"summary"`
 	Citations   []store.CompanyWikiCitationInput `json:"citations,omitempty"`
 	CitationIDs []string                         `json:"citation_ids,omitempty"`
+}
+
+func (c *WikiSynthesisConflict) UnmarshalJSON(raw []byte) error {
+	var aux struct {
+		ClaimKey    string          `json:"claim_key"`
+		Summary     string          `json:"summary"`
+		Text        string          `json:"text"`
+		Description string          `json:"description"`
+		Citations   json.RawMessage `json:"citations"`
+		Citation    json.RawMessage `json:"citation"`
+		CitationIDs []string        `json:"citation_ids"`
+	}
+	if err := json.Unmarshal(raw, &aux); err != nil {
+		return err
+	}
+	citationsRaw := aux.Citations
+	if !rawJSONValuePresent(citationsRaw) {
+		citationsRaw = aux.Citation
+	}
+	citations, err := decodeWikiSynthesisCitations(citationsRaw)
+	if err != nil {
+		return err
+	}
+	*c = WikiSynthesisConflict{
+		ClaimKey:    aux.ClaimKey,
+		Summary:     firstNonEmpty(aux.Summary, aux.Text, aux.Description),
+		Citations:   citations,
+		CitationIDs: aux.CitationIDs,
+	}
+	return nil
 }
 
 type OpenRouterWikiSynthesisClient struct {
@@ -242,20 +358,33 @@ func compileOneWikiItem(ctx context.Context, cfg config.Config, wikiStore store.
 		return 0, err
 	}
 	start := time.Now()
-	output, metadata, err := client.SynthesizeWiki(ctx, WikiSynthesisRequest{
+	request := WikiSynthesisRequest{
 		Model:          cfg.CompanyWikiCompilerModel,
 		Source:         evidence,
 		Chunks:         chunks,
 		CandidatePages: candidates,
-	})
-	duration := time.Since(start).Milliseconds()
-	if err != nil {
-		_, _ = wikiStore.CompleteCompanyWikiCompileAttempt(attempt.ID, store.CompanyWikiCompileStatusFailed, "", duration, nil, err.Error(), nil)
-		return 0, err
 	}
-	output = preserveCandidateClaimsInSynthesisOutput(output, evidence, candidates)
-	outputHash := store.CompanyWikiSHA256(mustMarshalString(output))
-	pages, validationErrors := validateSynthesisOutput(evidence, candidates, output)
+	var output WikiSynthesisOutput
+	var metadata WikiSynthesisMetadata
+	var pages []WikiSynthesisPage
+	var validationErrors []string
+	var outputHash string
+	var duration int64
+	for synthAttempt := 1; synthAttempt <= 2; synthAttempt++ {
+		output, metadata, err = client.SynthesizeWiki(ctx, request)
+		duration = time.Since(start).Milliseconds()
+		if err != nil {
+			_, _ = wikiStore.CompleteCompanyWikiCompileAttempt(attempt.ID, store.CompanyWikiCompileStatusFailed, "", duration, nil, err.Error(), nil)
+			return 0, err
+		}
+		output = preserveCandidateClaimsInSynthesisOutput(output, evidence, candidates)
+		outputHash = store.CompanyWikiSHA256(mustMarshalString(output))
+		pages, validationErrors = validateSynthesisOutput(evidence, candidates, output)
+		if len(validationErrors) == 0 {
+			break
+		}
+		request.PreviousValidationErrors = append([]string(nil), validationErrors...)
+	}
 	if len(validationErrors) > 0 {
 		err := errors.New(strings.Join(validationErrors, "; "))
 		_, _ = wikiStore.CompleteCompanyWikiCompileAttempt(attempt.ID, store.CompanyWikiCompileStatusFailed, outputHash, duration, validationErrors, err.Error(), map[string]any{
@@ -467,12 +596,39 @@ func (c *OpenRouterWikiSynthesisClient) SynthesizeWiki(ctx context.Context, requ
 	if strings.TrimSpace(c.BaseURL) == "" || strings.TrimSpace(c.APIKey) == "" {
 		return WikiSynthesisOutput{}, WikiSynthesisMetadata{}, errors.New("OpenRouter company wiki compiler is not configured")
 	}
+	client := c.Client
+	if client == nil {
+		client = http.DefaultClient
+	}
+	var lastErr error
+	for attempt := 1; attempt <= 2; attempt++ {
+		output, metadata, err := c.synthesizeWikiOnce(ctx, client, request, attempt, lastErr)
+		if err == nil {
+			return output, metadata, nil
+		}
+		if !isStructuredOutputDecodeError(err) {
+			return WikiSynthesisOutput{}, WikiSynthesisMetadata{}, err
+		}
+		lastErr = err
+	}
+	return WikiSynthesisOutput{}, WikiSynthesisMetadata{}, lastErr
+}
+
+func (c *OpenRouterWikiSynthesisClient) synthesizeWikiOnce(ctx context.Context, client *http.Client, request WikiSynthesisRequest, attempt int, previousErr error) (WikiSynthesisOutput, WikiSynthesisMetadata, error) {
+	messages := []map[string]string{
+		{"role": "system", "content": synthesisSystemPrompt()},
+		{"role": "user", "content": synthesisUserPrompt(request)},
+	}
+	if previousErr != nil {
+		messages = append(messages, map[string]string{
+			"role":    "user",
+			"content": "The previous response was rejected before persistence: " + previousErr.Error() + ". Return one complete valid JSON object with a pages array, cited claim objects, and no markdown fences.",
+		})
+	}
 	payload := map[string]any{
-		"model": request.Model,
-		"messages": []map[string]string{
-			{"role": "system", "content": synthesisSystemPrompt()},
-			{"role": "user", "content": synthesisUserPrompt(request)},
-		},
+		"model":           request.Model,
+		"messages":        messages,
+		"temperature":     0,
 		"response_format": map[string]string{"type": "json_object"},
 	}
 	raw, err := json.Marshal(payload)
@@ -486,10 +642,6 @@ func (c *OpenRouterWikiSynthesisClient) SynthesizeWiki(ctx context.Context, requ
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
-	client := c.Client
-	if client == nil {
-		client = http.DefaultClient
-	}
 	resp, err := client.Do(req)
 	if err != nil {
 		return WikiSynthesisOutput{}, WikiSynthesisMetadata{}, err
@@ -515,11 +667,11 @@ func (c *OpenRouterWikiSynthesisClient) SynthesizeWiki(ctx context.Context, requ
 	if len(decoded.Choices) == 0 || strings.TrimSpace(decoded.Choices[0].Message.Content) == "" {
 		return WikiSynthesisOutput{}, WikiSynthesisMetadata{}, errors.New("OpenRouter compiler returned no content")
 	}
-	var output WikiSynthesisOutput
-	if err := json.Unmarshal([]byte(decoded.Choices[0].Message.Content), &output); err != nil {
+	output, err := decodeWikiSynthesisContent(decoded.Choices[0].Message.Content)
+	if err != nil {
 		return WikiSynthesisOutput{}, WikiSynthesisMetadata{}, err
 	}
-	meta := map[string]any{"model": decoded.Model, "id": decoded.ID, "usage": decoded.Usage}
+	meta := map[string]any{"model": decoded.Model, "id": decoded.ID, "usage": decoded.Usage, "attempt": attempt}
 	return output, WikiSynthesisMetadata{
 		RequestMetadataHash:  store.CompanyWikiSHA256(request.Model + ":" + request.Source.Revision.ID),
 		ResponseMetadataHash: store.CompanyWikiSHA256(mustMarshalString(meta)),

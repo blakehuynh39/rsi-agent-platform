@@ -141,6 +141,182 @@ func mustMarshalString(value any) string {
 	return string(raw)
 }
 
+func decodeWikiSynthesisContent(content string) (WikiSynthesisOutput, error) {
+	content = strings.TrimSpace(content)
+	content = strings.TrimPrefix(content, "```json")
+	content = strings.TrimPrefix(content, "```")
+	content = strings.TrimSuffix(content, "```")
+	content = strings.TrimSpace(content)
+	var output WikiSynthesisOutput
+	if err := json.Unmarshal([]byte(content), &output); err != nil {
+		if extracted, ok := firstJSONObject(content); ok {
+			if retryErr := json.Unmarshal([]byte(extracted), &output); retryErr == nil {
+				return output, nil
+			}
+		}
+		return WikiSynthesisOutput{}, err
+	}
+	return output, nil
+}
+
+func isStructuredOutputDecodeError(err error) bool {
+	if err == nil {
+		return false
+	}
+	var syntaxErr *json.SyntaxError
+	var typeErr *json.UnmarshalTypeError
+	return errors.As(err, &syntaxErr) || errors.As(err, &typeErr) || strings.Contains(err.Error(), "unexpected end of JSON input")
+}
+
+func firstJSONObject(value string) (string, bool) {
+	start := strings.Index(value, "{")
+	if start < 0 {
+		return "", false
+	}
+	depth := 0
+	inString := false
+	escaped := false
+	for i := start; i < len(value); i++ {
+		ch := value[i]
+		if inString {
+			if escaped {
+				escaped = false
+				continue
+			}
+			switch ch {
+			case '\\':
+				escaped = true
+			case '"':
+				inString = false
+			}
+			continue
+		}
+		switch ch {
+		case '"':
+			inString = true
+		case '{':
+			depth++
+		case '}':
+			depth--
+			if depth == 0 {
+				return value[start : i+1], true
+			}
+		}
+	}
+	return "", false
+}
+
+func decodeWikiSynthesisStringList(raw json.RawMessage) ([]string, error) {
+	if len(raw) == 0 || string(raw) == "null" {
+		return nil, nil
+	}
+	var value any
+	if err := json.Unmarshal(raw, &value); err != nil {
+		return nil, err
+	}
+	return normalizeStringList(wikiSynthesisStringsFromAny(value)), nil
+}
+
+func wikiSynthesisStringsFromAny(value any) []string {
+	switch typed := value.(type) {
+	case nil:
+		return nil
+	case string:
+		if strings.TrimSpace(typed) == "" {
+			return nil
+		}
+		return []string{typed}
+	case []any:
+		out := []string{}
+		for _, item := range typed {
+			out = append(out, wikiSynthesisStringsFromAny(item)...)
+		}
+		return out
+	case map[string]any:
+		for _, key := range []string{"text", "question", "title", "name", "slug", "id", "summary"} {
+			if text := stringValueFromAny(typed[key]); text != "" {
+				return []string{text}
+			}
+		}
+		for _, key := range []string{"items", "questions", "open_questions", "related_pages", "pages", "values"} {
+			if values := wikiSynthesisStringsFromAny(typed[key]); len(values) > 0 {
+				return values
+			}
+		}
+		return nil
+	default:
+		return nil
+	}
+}
+
+func decodeWikiSynthesisCitations(raw json.RawMessage) ([]store.CompanyWikiCitationInput, error) {
+	if !rawJSONValuePresent(raw) {
+		return nil, nil
+	}
+	var value any
+	if err := json.Unmarshal(raw, &value); err != nil {
+		return nil, err
+	}
+	return wikiSynthesisCitationsFromAny(value), nil
+}
+
+func rawJSONValuePresent(raw json.RawMessage) bool {
+	return len(raw) > 0 && strings.TrimSpace(string(raw)) != "null"
+}
+
+func wikiSynthesisCitationsFromAny(value any) []store.CompanyWikiCitationInput {
+	switch typed := value.(type) {
+	case nil:
+		return nil
+	case []any:
+		out := []store.CompanyWikiCitationInput{}
+		for _, item := range typed {
+			out = append(out, wikiSynthesisCitationsFromAny(item)...)
+		}
+		return out
+	case map[string]any:
+		for _, key := range []string{"citations", "items", "values"} {
+			if values := wikiSynthesisCitationsFromAny(typed[key]); len(values) > 0 {
+				return values
+			}
+		}
+		citation := store.CompanyWikiCitationInput{
+			ClaimKey:         firstStringFromAnyMap(typed, "claim_key"),
+			SourceDocumentID: firstStringFromAnyMap(typed, "source_document_id", "document_id"),
+			SourceRevisionID: firstStringFromAnyMap(typed, "source_revision_id", "revision_id"),
+			ChunkID:          firstStringFromAnyMap(typed, "chunk_id", "source_chunk_id"),
+			NativeLocator:    firstStringFromAnyMap(typed, "native_locator", "locator"),
+			Quote:            firstStringFromAnyMap(typed, "quote", "excerpt"),
+		}
+		if citation.SourceDocumentID == "" && citation.SourceRevisionID == "" && citation.ChunkID == "" {
+			return nil
+		}
+		return []store.CompanyWikiCitationInput{citation}
+	default:
+		return nil
+	}
+}
+
+func firstStringFromAnyMap(values map[string]any, keys ...string) string {
+	for _, key := range keys {
+		if text := stringValueFromAny(values[key]); text != "" {
+			return text
+		}
+	}
+	return ""
+}
+
+func stringValueFromAny(value any) string {
+	switch typed := value.(type) {
+	case string:
+		return strings.TrimSpace(typed)
+	case fmt.Stringer:
+		return strings.TrimSpace(typed.String())
+	default:
+		return ""
+	}
+}
+
 func preserveCandidateClaimsInSynthesisOutput(output WikiSynthesisOutput, evidence store.CompanyWikiSourceEvidence, candidates []store.CompanyWikiPageRead) WikiSynthesisOutput {
 	candidatesBySlug := map[string]store.CompanyWikiPageRead{}
 	for _, candidate := range candidates {
@@ -199,6 +375,7 @@ func validateSynthesisOutput(evidence store.CompanyWikiSourceEvidence, candidate
 	errorsOut := []string{}
 	pages := make([]WikiSynthesisPage, 0, len(output.Pages))
 	allowedCitations := allowedSynthesisCitations(evidence, candidates)
+	allowedCitationIDs := allowedSynthesisCitationIDs(evidence, candidates)
 	if len(output.Pages) == 0 {
 		return nil, []string{"synthesis output must include at least one page"}
 	}
@@ -217,10 +394,8 @@ func validateSynthesisOutput(evidence store.CompanyWikiSourceEvidence, candidate
 		if page.Summary == "" {
 			errorsOut = append(errorsOut, fmt.Sprintf("page[%d].summary is required", pageIndex))
 		}
-		if len(page.Claims) == 0 {
-			errorsOut = append(errorsOut, fmt.Sprintf("page[%d] must include at least one cited claim", pageIndex))
-		}
 		claimKeys := map[string]struct{}{}
+		validClaims := make([]WikiSynthesisClaim, 0, len(page.Claims))
 		for claimIndex, claim := range page.Claims {
 			claim.ClaimKey = strings.TrimSpace(claim.ClaimKey)
 			claim.Text = strings.TrimSpace(claim.Text)
@@ -228,14 +403,29 @@ func validateSynthesisOutput(evidence store.CompanyWikiSourceEvidence, candidate
 				claim.ClaimKey = fmt.Sprintf("claim_%d_%d", pageIndex+1, claimIndex+1)
 			}
 			if claim.Text == "" {
+				if len(claim.Citations) == 0 {
+					continue
+				}
 				errorsOut = append(errorsOut, fmt.Sprintf("page[%d].claims[%d].text is required", pageIndex, claimIndex))
+				continue
 			}
 			if claim.Confidence <= 0 || claim.Confidence > 1 {
 				claim.Confidence = 1
 			}
+			claim.CitationIDs = normalizeStringList(claim.CitationIDs)
+			if len(claim.Citations) == 0 && len(claim.CitationIDs) > 0 {
+				resolved, missing := resolveSynthesisCitationIDs(claim.CitationIDs, allowedCitationIDs)
+				if len(missing) > 0 {
+					errorsOut = append(errorsOut, fmt.Sprintf("page[%d].claims[%d] references unknown citation_ids %q", pageIndex, claimIndex, strings.Join(missing, ",")))
+					continue
+				}
+				claim.Citations = resolved
+			}
 			if len(claim.Citations) == 0 {
 				errorsOut = append(errorsOut, fmt.Sprintf("page[%d].claims[%d] must cite at least one source chunk", pageIndex, claimIndex))
+				continue
 			}
+			claimOK := true
 			for citationIndex, citation := range claim.Citations {
 				citation.SourceDocumentID = strings.TrimSpace(citation.SourceDocumentID)
 				citation.SourceRevisionID = strings.TrimSpace(citation.SourceRevisionID)
@@ -243,6 +433,7 @@ func validateSynthesisOutput(evidence store.CompanyWikiSourceEvidence, candidate
 				allowed, ok := allowedCitations[citationKey(citation)]
 				if !ok {
 					errorsOut = append(errorsOut, fmt.Sprintf("page[%d].claims[%d].citations[%d] references unknown chunk %q", pageIndex, claimIndex, citationIndex, citation.ChunkID))
+					claimOK = false
 					continue
 				}
 				citation.ClaimKey = claim.ClaimKey
@@ -250,8 +441,15 @@ func validateSynthesisOutput(evidence store.CompanyWikiSourceEvidence, candidate
 				citation.Quote = firstNonEmpty(citation.Quote, allowed.Quote)
 				claim.Citations[citationIndex] = citation
 			}
-			page.Claims[claimIndex] = claim
+			if !claimOK {
+				continue
+			}
+			validClaims = append(validClaims, claim)
 			claimKeys[claim.ClaimKey] = struct{}{}
+		}
+		page.Claims = validClaims
+		if len(page.Claims) == 0 {
+			errorsOut = append(errorsOut, fmt.Sprintf("page[%d] must include at least one cited claim", pageIndex))
 		}
 		for conflictIndex, conflict := range page.Conflicts {
 			conflict.ClaimKey = strings.TrimSpace(conflict.ClaimKey)
@@ -264,6 +462,14 @@ func validateSynthesisOutput(evidence store.CompanyWikiSourceEvidence, candidate
 			}
 			if _, ok := claimKeys[conflict.ClaimKey]; conflict.ClaimKey != "" && !ok {
 				errorsOut = append(errorsOut, fmt.Sprintf("page[%d].conflicts[%d] references unknown claim_key %q", pageIndex, conflictIndex, conflict.ClaimKey))
+			}
+			conflict.CitationIDs = normalizeStringList(conflict.CitationIDs)
+			if len(conflict.Citations) == 0 && len(conflict.CitationIDs) > 0 {
+				resolved, missing := resolveSynthesisCitationIDs(conflict.CitationIDs, allowedCitationIDs)
+				if len(missing) > 0 {
+					errorsOut = append(errorsOut, fmt.Sprintf("page[%d].conflicts[%d] references unknown citation_ids %q", pageIndex, conflictIndex, strings.Join(missing, ",")))
+				}
+				conflict.Citations = resolved
 			}
 			if len(conflict.Citations) == 0 && conflict.ClaimKey != "" {
 				conflict.Citations = citationsForSynthesisClaim(page.Claims, conflict.ClaimKey)
@@ -292,6 +498,26 @@ func validateSynthesisOutput(evidence store.CompanyWikiSourceEvidence, candidate
 	return pages, errorsOut
 }
 
+func resolveSynthesisCitationIDs(ids []string, allowed map[string]store.CompanyWikiCitationInput) ([]store.CompanyWikiCitationInput, []string) {
+	out := []store.CompanyWikiCitationInput{}
+	missing := []string{}
+	seen := map[string]struct{}{}
+	for _, id := range normalizeStringList(ids) {
+		citation, ok := allowed[id]
+		if !ok {
+			missing = append(missing, id)
+			continue
+		}
+		key := citationKey(citation)
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+		out = append(out, citation)
+	}
+	return out, missing
+}
+
 func allowedSynthesisCitations(evidence store.CompanyWikiSourceEvidence, candidates []store.CompanyWikiPageRead) map[string]store.CompanyWikiCitationInput {
 	out := map[string]store.CompanyWikiCitationInput{}
 	for _, chunk := range evidence.Chunks {
@@ -316,6 +542,45 @@ func allowedSynthesisCitations(evidence store.CompanyWikiSourceEvidence, candida
 			}
 			if strings.TrimSpace(input.SourceDocumentID) != "" && strings.TrimSpace(input.SourceRevisionID) != "" && strings.TrimSpace(input.ChunkID) != "" {
 				out[citationKey(input)] = input
+			}
+		}
+	}
+	return out
+}
+
+func allowedSynthesisCitationIDs(evidence store.CompanyWikiSourceEvidence, candidates []store.CompanyWikiPageRead) map[string]store.CompanyWikiCitationInput {
+	out := map[string]store.CompanyWikiCitationInput{}
+	for _, chunk := range evidence.Chunks {
+		citation := store.CompanyWikiCitationInput{
+			SourceDocumentID: chunk.DocumentID,
+			SourceRevisionID: chunk.RevisionID,
+			ChunkID:          chunk.ID,
+			NativeLocator:    chunk.NativeLocator,
+			Quote:            truncateForCitation(chunk.Content, 260),
+		}
+		for _, id := range []string{chunk.ID, citationKey(citation)} {
+			if strings.TrimSpace(id) != "" {
+				out[id] = citation
+			}
+		}
+	}
+	for _, candidate := range candidates {
+		for _, citation := range candidate.Citations {
+			input := store.CompanyWikiCitationInput{
+				ClaimKey:         citation.ClaimKey,
+				SourceDocumentID: citation.SourceDocumentID,
+				SourceRevisionID: citation.SourceRevisionID,
+				ChunkID:          citation.ChunkID,
+				NativeLocator:    citation.NativeLocator,
+				Quote:            citation.Quote,
+			}
+			if strings.TrimSpace(input.SourceDocumentID) == "" || strings.TrimSpace(input.SourceRevisionID) == "" || strings.TrimSpace(input.ChunkID) == "" {
+				continue
+			}
+			for _, id := range []string{citation.ID, citation.ChunkID, citationKey(input)} {
+				if strings.TrimSpace(id) != "" {
+					out[id] = input
+				}
 			}
 		}
 	}
@@ -893,6 +1158,15 @@ func synthesisUserPrompt(request WikiSynthesisRequest) string {
 		},
 		"chunks":          chunks,
 		"candidate_pages": candidates,
+	}
+	if len(request.PreviousValidationErrors) > 0 {
+		payload["previous_validation_errors"] = request.PreviousValidationErrors
+		payload["repair_instructions"] = []string{
+			"The previous output was rejected and was not persisted.",
+			"Return at least one page with at least one factual claim.",
+			"Every claim must include text and cite one of the provided chunk IDs or existing candidate claim citations.",
+			"Do not return an empty pages array.",
+		}
 	}
 	return mustMarshalString(payload)
 }
