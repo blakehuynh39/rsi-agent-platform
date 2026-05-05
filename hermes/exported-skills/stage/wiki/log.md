@@ -14542,3 +14542,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e13a95ddfe8f22d66f993ff89673d55d
 - summary: Plan for the L1 devnet deliverables targeting June 17, 2025, covering EVM end-to-end flow, monitoring, testing, staking integration, and documentation.
 
+## [2026-05-05T23:19:22Z] synthesis | DevNet Homework (Jun 17-21)
+
+- status: published
+- slug: runbooks/devnet-homework-jun-17-21
+- wiki_revision_id: wikirev_d5338d997e3cffc2b677ce6731234fd8
+- summary: Homework assignment for all engineers following the internal DevNet launch on June 17, 2021, with tasks to explore the L1 blockchain and submit proof by June 21.
+

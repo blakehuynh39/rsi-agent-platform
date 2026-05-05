@@ -35,6 +35,9 @@ story       use1-stage-depin-ip-registration-submitter    3/3     3
 - Merge order: BE merges to staging and deploys **before** FE merges to develop
 - Matching branch prefixes (e.g., `feat/trust-safety-cluster-and-cadence`)
 
+**Cross-repo contract (review rule):**
+Any `depin-backend` PR that changes API schemas, routes, response types, query parameters, or auth/error behavior **must** have a linked `numo-monorepo` FE PR. If no FE PR exists and the change is user-facing, flag it as `missing-cross-repo-pair`. Internal refactors, migrations with no API impact, and bug fixes that don't alter the contract shape are exempt.
+
 ### Review implications
 
 - Any new background job multiplies its DB cost by the replica count

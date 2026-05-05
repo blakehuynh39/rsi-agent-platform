@@ -1,7 +1,7 @@
 ---
 name: github-code-review
 description: "Review PRs: diffs, inline comments via gh or REST."
-version: 1.2.0
+version: 1.2.1
 author: Hermes Agent
 license: MIT
 metadata:
@@ -302,9 +302,34 @@ When a feature spans two repos (e.g., backend API + frontend app), the user ofte
 - [ ] Route paths match between BE route definition and FE API client
 - [ ] New response fields present on both sides with identical naming
 - [ ] FE handles `null`/missing new fields for historical rows
-- [ ] Both PRs have matching base branches (e.g., BE: `staging`, FE: `develop`)
+- [ ] Both PRs have matching base branches (BE: `staging`, FE: `develop`)
 - [ ] CI green on both repos
 - [ ] BE PR description links to FE PR and vice versa
+
+### Cross-Repo Contract: depin-backend ↔ numo-monorepo
+
+When reviewing a `depin-backend` PR (base: `staging`), the accompanying FE repo is **always** `piplabs/numo-monorepo` (base: `develop`). Any BE change that affects the FE flow **must** be accompanied by a matching FE PR, or the review must flag the gap.
+
+**Changes that REQUIRE a linked FE PR:**
+- New or renamed API routes/paths → FE API client must add the matching call
+- New fields on response types (`AdminUserSummary`, etc.) → FE types must be updated
+- Changed field semantics (e.g., `state` values, enum variants) → FE rendering/switching must handle the new values
+- New query parameters on existing endpoints → FE filters/sorting must wire them
+- Changed auth/error behavior → FE error handling must surface the new cases
+
+**Changes that do NOT require an FE PR:**
+- Internal refactors, performance changes, logging
+- Migration-only changes with no API surface impact
+- Changes behind a feature flag with no default activation
+- Bug fixes that don't alter the contract shape
+
+**Detection during review:**
+1. Check the BE PR description for a link to `numo-monorepo` (e.g., "Pairs with piplabs/numo-monorepo#NNN" or "FE: https://github.com/piplabs/numo-monorepo/pull/NNN")
+2. Check commits for `references/docs/numo-admin-api.md` or `numo-api-reference.md` changes (spec-first pattern)
+3. If the BE PR changes schemas, routes, or response shapes and NO FE PR is linked → **flag as missing cross-repo pair**
+4. Search for an open PR on `numo-monorepo` with a matching branch prefix that may have been opened separately
+
+**PITFALL:** Treating a BE PR as self-contained when it adds a new admin endpoint. The admin dashboard lives in `numo-monorepo/apps/admin` — if operators can't reach the new endpoint, the feature is incomplete. Always verify the FE half exists or flag the gap.
 
 ### Common Failure Modes
 
