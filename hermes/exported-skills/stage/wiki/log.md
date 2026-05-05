@@ -14062,3 +14062,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e0e4dcb773ac2c72b01c927be554d0fb
 - summary: Goals, deliverables, and task assignments for the Private Testnet project as of March 15, focusing on beta protocol deployment, onboarding infrastructure partners, and rollup valid...
 
+## [2026-05-05T15:33:17Z] synthesis | Access Control Complexity Analysis
+
+- status: published
+- slug: concepts/access-control-complexity-analysis
+- wiki_revision_id: wikirev_f32205f2dddbf8fe41b1eac4b3c464d4
+- summary: Analysis of the complexity and risks in the current internal access control system between IPAccounts and protocol contracts, including proposals for separating signer and delegato...
+
+## [2026-05-05T15:34:02Z] synthesis | Partner Integration
+
+- status: published
+- slug: concepts/partner-integration
+- wiki_revision_id: wikirev_2ac51835b2eaf18dd245f1d654d1499f
+- summary: A list of partner integrations.
+
