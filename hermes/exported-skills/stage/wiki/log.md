@@ -14055,3 +14055,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f96fbd0b99bc9d5425bf61fbdda479cb
 - summary: Evaluation criteria for cross-chain bridging protocols, comparing Wormhole, LayerZero, DeBridge, HyperLane, Axelar, and Polyhedra.
 
+## [2026-05-05T15:31:19Z] synthesis | Private Testnet - March 15
+
+- status: published
+- slug: projects/private-testnet-march-15
+- wiki_revision_id: wikirev_e0e4dcb773ac2c72b01c927be554d0fb
+- summary: Goals, deliverables, and task assignments for the Private Testnet project as of March 15, focusing on beta protocol deployment, onboarding infrastructure partners, and rollup valid...
+

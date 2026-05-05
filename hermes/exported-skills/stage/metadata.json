@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "114ad251cad43a9d7b9ac728ffc643234e26a78517d2212267b931c684585ab6",
-        "size": 707146
+        "sha256": "d3d0f01498dcaef91fcef206bf929c940fe07a7cfc85ff6a32358034e98fc6fb",
+        "size": 707531
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3350,6 +3350,11 @@
         "size": 3847
       },
       {
+        "path": "pages/projects/private-testnet-march-15.md",
+        "sha256": "7e9a167924e54001506f9a936b6e89a44cd59dec51d268bf1ee5bb8293a5949c",
+        "size": 4878
+      },
+      {
         "path": "pages/projects/project-nova-setup.md",
         "sha256": "20d6eaabc2405dd40acf8f7335c5b0c67fe902e2ba03e308ad743a965042d941",
         "size": 1109
@@ -3544,8 +3549,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T15:26:00Z",
-  "file_count": 707,
+  "exported_at": "2026-05-05T15:31:55Z",
+  "file_count": 708,
   "files": [
     {
       "path": ".usage.json",
@@ -6312,20 +6317,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "07ed46b944bb5d79c2c653f2998a4088be9edcc4b1091193dfe75ef5d0a4073e",
+  "previous_tree_hash": "2f658c37a82ec546177a22ec0f037130dc545c85130a5e9aabd4d5e41c04f04a",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2f658c37a82ec546177a22ec0f037130dc545c85130a5e9aabd4d5e41c04f04a",
+  "tree_hash": "fda06a384b886a73ee81736c71abd018cad542cc3681f3c304a41dcee2221b05",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 155,
+  "wiki_file_count": 156,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6339,8 +6344,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "114ad251cad43a9d7b9ac728ffc643234e26a78517d2212267b931c684585ab6",
-      "size": 707146
+      "sha256": "d3d0f01498dcaef91fcef206bf929c940fe07a7cfc85ff6a32358034e98fc6fb",
+      "size": 707531
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6913,6 +6918,11 @@
       "size": 3847
     },
     {
+      "path": "pages/projects/private-testnet-march-15.md",
+      "sha256": "7e9a167924e54001506f9a936b6e89a44cd59dec51d268bf1ee5bb8293a5949c",
+      "size": 4878
+    },
+    {
       "path": "pages/projects/project-nova-setup.md",
       "sha256": "20d6eaabc2405dd40acf8f7335c5b0c67fe902e2ba03e308ad743a965042d941",
       "size": 1109
@@ -7104,5 +7114,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4430623213bf7756f1798853f103472b0dc81aaa20457eb64fd1cf116a0cd097"
+  "wiki_tree_hash": "ca3cbcb709d0f4ce16950612eaa389d923a424a0b2b16f599e22f5a004a6f449"
 }
