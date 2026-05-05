@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 
@@ -78,6 +79,17 @@ func registerCompanyWikiRoutes(r chi.Router, cfg config.Config, repo storepkg.Re
 		}
 		read, err := companyknowledge.ReadWikiMarkdownFile(cfg.CompanyWikiRoot, path)
 		if err != nil {
+			if errors.Is(err, os.ErrNotExist) {
+				fallback, found, fallbackErr := companyWikiDashboardFileFallback(repo, path)
+				if fallbackErr != nil {
+					app.WriteError(w, http.StatusInternalServerError, fallbackErr)
+					return
+				}
+				if found {
+					app.WriteJSON(w, http.StatusOK, fallback)
+					return
+				}
+			}
 			app.WriteError(w, http.StatusNotFound, err)
 			return
 		}
@@ -98,6 +110,97 @@ func companyWikiDashboardIndexFallback(repo storepkg.Repository) (string, error)
 		return "# Company Wiki Index\n\n_No published pages yet._\n", nil
 	}
 	return companyknowledge.BuildIndexMarkdown(wikiStore)
+}
+
+func companyWikiDashboardFileFallback(repo storepkg.Repository, rawPath string) (companyknowledge.WikiMarkdownRead, bool, error) {
+	wikiStore, ok := repo.(storepkg.CompanyWikiStore)
+	if !ok {
+		return companyknowledge.WikiMarkdownRead{}, false, errors.New("configured store does not support company wiki")
+	}
+	cleanPath := companyWikiDashboardCleanPath(rawPath)
+	if cleanPath == "" {
+		return companyknowledge.WikiMarkdownRead{}, false, nil
+	}
+	entries, err := wikiStore.ListCompanyWikiManifestEntries()
+	if err != nil {
+		return companyknowledge.WikiMarkdownRead{}, false, err
+	}
+	for _, entry := range entries {
+		if companyWikiDashboardCleanPath(entry.Path) != cleanPath {
+			continue
+		}
+		page, found, err := wikiStore.GetCompanyWikiPage(entry.WikiPageID)
+		if err != nil {
+			return companyknowledge.WikiMarkdownRead{}, false, err
+		}
+		if found {
+			return companyWikiDashboardMarkdownReadFromPage(page, cleanPath), true, nil
+		}
+	}
+	for _, ref := range companyWikiDashboardRefsForPath(cleanPath) {
+		page, found, err := wikiStore.GetCompanyWikiPage(ref)
+		if err != nil {
+			return companyknowledge.WikiMarkdownRead{}, false, err
+		}
+		if found {
+			return companyWikiDashboardMarkdownReadFromPage(page, cleanPath), true, nil
+		}
+	}
+	return companyknowledge.WikiMarkdownRead{}, false, nil
+}
+
+func companyWikiDashboardMarkdownReadFromPage(page storepkg.CompanyWikiPageRead, requestedPath string) companyknowledge.WikiMarkdownRead {
+	path := strings.TrimSpace(page.Revision.Path)
+	if path == "" {
+		path = requestedPath
+	}
+	return companyknowledge.WikiMarkdownRead{
+		OK:      true,
+		Path:    path,
+		Content: page.Revision.Body,
+	}
+}
+
+func companyWikiDashboardRefsForPath(cleanPath string) []string {
+	base := strings.TrimSuffix(cleanPath, ".md")
+	refs := []string{cleanPath}
+	if base != cleanPath {
+		refs = append(refs, base)
+	}
+	if slug, ok := strings.CutPrefix(base, "pages/"); ok {
+		refs = append(refs, slug)
+	}
+	return dedupeCompanyWikiDashboardRefs(refs)
+}
+
+func dedupeCompanyWikiDashboardRefs(refs []string) []string {
+	seen := map[string]struct{}{}
+	out := []string{}
+	for _, ref := range refs {
+		ref = strings.TrimSpace(ref)
+		if ref == "" {
+			continue
+		}
+		if _, ok := seen[ref]; ok {
+			continue
+		}
+		seen[ref] = struct{}{}
+		out = append(out, ref)
+	}
+	return out
+}
+
+func companyWikiDashboardCleanPath(value string) string {
+	value = strings.ReplaceAll(strings.TrimSpace(value), "\\", "/")
+	value = strings.TrimPrefix(value, "/")
+	value = path.Clean(value)
+	for strings.HasPrefix(value, "../") {
+		value = strings.TrimPrefix(value, "../")
+	}
+	if value == "." || value == ".." {
+		return ""
+	}
+	return value
 }
 
 func companyWikiDashboardManifestEmpty(repo storepkg.Repository) bool {

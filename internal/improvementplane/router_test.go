@@ -569,6 +569,52 @@ func TestCompanyWikiDashboardRoutesReadIndexAndFiles(t *testing.T) {
 	}
 }
 
+func TestCompanyWikiDashboardFileFallsBackToStoreWhenFileMissing(t *testing.T) {
+	root := t.TempDir()
+	store := storepkg.NewMemoryStore()
+	source, err := store.UpsertCompanyWikiSourceRevision(storepkg.CompanyWikiSourceRevisionInput{
+		SourceType:        "notion_document",
+		DocumentSourceKey: "notion:integrate-poseidon-processing-pipeline-with-numo",
+		SourceRevision:    "1",
+		Title:             "Integrate Poseidon Processing Pipeline with Numo",
+		Content:           "Project to integrate the Poseidon Processing Pipeline with Numo.",
+		NativeLocator:     "https://www.notion.so/Integrate-Poseidon-Processing-Pipeline-with-Numo",
+	})
+	if err != nil {
+		t.Fatalf("UpsertCompanyWikiSourceRevision() error = %v", err)
+	}
+	body := "# Integrate Poseidon Processing Pipeline with Numo\n\nProject to integrate the Poseidon Processing Pipeline with Numo.\n"
+	if _, err := store.PublishCompanyWikiPage(storepkg.CompanyWikiPagePublishInput{
+		Slug:        "projects/integrate-poseidon-processing-pipeline-with-numo",
+		Title:       "Integrate Poseidon Processing Pipeline with Numo",
+		Body:        body,
+		Path:        "pages/projects/integrate-poseidon-processing-pipeline-with-numo.md",
+		SHA256:      storepkg.CompanyWikiSHA256(body),
+		PublishedAt: time.Now().UTC(),
+		Citations: []storepkg.CompanyWikiCitationInput{{
+			ClaimKey:         "project-summary",
+			SourceDocumentID: source.Document.ID,
+			SourceRevisionID: source.Revision.ID,
+			ChunkID:          source.Chunks[0].ID,
+			NativeLocator:    source.Chunks[0].NativeLocator,
+		}},
+	}); err != nil {
+		t.Fatalf("PublishCompanyWikiPage() error = %v", err)
+	}
+	router := NewRouter(config.Config{CompanyWikiRoot: root}, store)
+	req := httptest.NewRequest(http.MethodGet, "/api/company-wiki/file?path=pages%2Fprojects%2Fintegrate-poseidon-processing-pipeline-with-numo.md", nil)
+	rec := httptest.NewRecorder()
+
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("file fallback status = %d body=%s", rec.Code, rec.Body.String())
+	}
+	if !strings.Contains(rec.Body.String(), "Poseidon Processing Pipeline with Numo") {
+		t.Fatalf("fallback body missing page content: %s", rec.Body.String())
+	}
+}
+
 func TestHermesCompatibilityEndpointsExposePlatformState(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	router := NewRouter(config.Config{
