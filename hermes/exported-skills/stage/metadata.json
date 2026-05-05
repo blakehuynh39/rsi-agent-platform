@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "fd24e9ffe4539b10b02967acc3c9bf26f9f9f2eaabdc64c44d23cbab17f56ceb",
-        "size": 724262
+        "sha256": "cb9c4a7327548e019e50b19051935c90db53aad5732174db849d4d515321a0e0",
+        "size": 724662
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3098,6 +3098,11 @@
         "path": "pages/concepts/verbs-concept.md",
         "sha256": "724180e8dd19e8593d7b31ff6b7767030140c39b584f3d274c7e0c673d7d6234",
         "size": 1153
+      },
+      {
+        "path": "pages/concepts/virtual-machine-execution-environments.md",
+        "sha256": "167fa8a3e4ea91bbdd2324a45de378f64e253584726e022a6b7b6ee8c88183aa",
+        "size": 2000
       },
       {
         "path": "pages/concepts/web3-wallet-libraries.md",
@@ -3764,8 +3769,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T19:30:37Z",
-  "file_count": 751,
+  "exported_at": "2026-05-05T19:36:35Z",
+  "file_count": 752,
   "files": [
     {
       "path": ".usage.json",
@@ -6532,20 +6537,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5dcdbdp4w6f",
-  "previous_tree_hash": "6d1375bdc4818fc61db71c5c2e671185ac0ef5c0ba8140156ed5b7270e69b03b",
+  "previous_tree_hash": "304148f04dc85a283c69de7f2fb131d2c6c717cce8107fcb2948d44b3c7a7c7a",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "304148f04dc85a283c69de7f2fb131d2c6c717cce8107fcb2948d44b3c7a7c7a",
+  "tree_hash": "6139184441e0d4b502639b5548a454d47628003f18337472611f805f398285b2",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 199,
+  "wiki_file_count": 200,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6559,8 +6564,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "fd24e9ffe4539b10b02967acc3c9bf26f9f9f2eaabdc64c44d23cbab17f56ceb",
-      "size": 724262
+      "sha256": "cb9c4a7327548e019e50b19051935c90db53aad5732174db849d4d515321a0e0",
+      "size": 724662
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6881,6 +6886,11 @@
       "path": "pages/concepts/verbs-concept.md",
       "sha256": "724180e8dd19e8593d7b31ff6b7767030140c39b584f3d274c7e0c673d7d6234",
       "size": 1153
+    },
+    {
+      "path": "pages/concepts/virtual-machine-execution-environments.md",
+      "sha256": "167fa8a3e4ea91bbdd2324a45de378f64e253584726e022a6b7b6ee8c88183aa",
+      "size": 2000
     },
     {
       "path": "pages/concepts/web3-wallet-libraries.md",
@@ -7544,5 +7554,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "696c2f56f8e894a2d32e1f53709e2325385f01c47b44d762265342983ef239a6"
+  "wiki_tree_hash": "c1b8cf2aa7a822945e733bd409a4fb5e957b4c1bc98b4e43fe944c7f3faa67f9"
 }

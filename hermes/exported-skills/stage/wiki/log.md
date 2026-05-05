@@ -14409,3 +14409,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4433815c48b2a11c23f80ee6c0e82de3
 - summary: EIGEN is a forking token designed to slash intersubjective faults, providing universality, isolation, metering, and compensation.
 
+## [2026-05-05T19:36:10Z] synthesis | Virtual Machine / Execution Environments
+
+- status: published
+- slug: concepts/virtual-machine-execution-environments
+- wiki_revision_id: wikirev_ec7bf9abf754c147878b02b8c89f2ef8
+- summary: Overview of popular virtual machines in blockchain, including EVM, SVM, WASM/CosmWasm, Move VM, Stylus, zkVM, and foundational concepts like Genesis block and State Trie.
+
