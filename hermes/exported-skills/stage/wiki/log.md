@@ -13733,3 +13733,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_57830e955cd137d1b03a5ccb07b6922d
 - summary: The upload system supports multiple scenarios (File, JSON, Batch files) and provides both manual and automated workflows. After uploading, a URI is returned, and the function uploa...
 
+## [2026-05-05T11:10:20Z] synthesis | Typescript SDK Setup
+
+- status: published
+- slug: runbooks/typescript-sdk-setup
+- wiki_revision_id: wikirev_98f52f862f8e815b5eb0d41ed7f13474
+- summary: Guide for setting up the Typescript SDK.
+
+## [2026-05-05T11:10:45Z] synthesis | Project Nova setup
+
+- status: published
+- slug: projects/project-nova-setup
+- wiki_revision_id: wikirev_8e38b2b70ac70710dd950bd27a83157b
+- summary: A project named 'Project Nova setup' is documented in Notion.
+

@@ -2771,13 +2771,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0cf8d2d9e53a0b9557965fc69aa9a2f3352134bbfd0dcdbe6fc162063c0c488e",
-        "size": 388735
+        "sha256": "a7e5632cbf52f0618752a7997e101340501e387e651f9f0702462ef7d7dcac9b",
+        "size": 392946
       },
       {
         "path": "log.md",
-        "sha256": "bf7b509c37c3d5aeaef61518a8be8a624db414bd7c8ddbde26c91529f8981249",
-        "size": 692212
+        "sha256": "88379ffdb62ada93430b6a9a5fc4164e17d8f05fdd5988bcfae71de844fa1abb",
+        "size": 692693
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3215,6 +3215,11 @@
         "size": 5191
       },
       {
+        "path": "pages/projects/project-nova-setup.md",
+        "sha256": "20d6eaabc2405dd40acf8f7335c5b0c67fe902e2ba03e308ad743a965042d941",
+        "size": 1109
+      },
+      {
         "path": "pages/projects/rcade-music-app.md",
         "sha256": "05cdabffae3c60e6a9ec557c386d2dd47fd7b1a559a349737e9aeddd0f670a73",
         "size": 1058
@@ -3278,6 +3283,11 @@
         "path": "pages/runbooks/track-nft-purchases-ethereum.md",
         "sha256": "c1593f782aa6bd2d66cb239d497f64c7c98edc370521b5abdfa12d960e93580a",
         "size": 3685
+      },
+      {
+        "path": "pages/runbooks/typescript-sdk-setup.md",
+        "sha256": "11484f7a695c4bcaaa211d113f2967d571774cc714f0df2c8dd7b043327f2779",
+        "size": 1126
       },
       {
         "path": "pages/systems/admin-api-security-architecture.md",
@@ -3354,8 +3364,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T11:05:43Z",
-  "file_count": 669,
+  "exported_at": "2026-05-05T11:11:36Z",
+  "file_count": 671,
   "files": [
     {
       "path": ".usage.json",
@@ -6122,20 +6132,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "455e14845c854168377691575022248bec35c1ed7ce49d253434f7c982eb1471",
+  "previous_tree_hash": "709cd4c96be767ea527a6fd8a5f2d00a9ea2d1e6777451a03d401ddfbef228ef",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "709cd4c96be767ea527a6fd8a5f2d00a9ea2d1e6777451a03d401ddfbef228ef",
+  "tree_hash": "644d87f110ca5afedc94bfba7d5223ca61e9b6c6ee7a99546011259494837634",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 117,
+  "wiki_file_count": 119,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6144,13 +6154,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0cf8d2d9e53a0b9557965fc69aa9a2f3352134bbfd0dcdbe6fc162063c0c488e",
-      "size": 388735
+      "sha256": "a7e5632cbf52f0618752a7997e101340501e387e651f9f0702462ef7d7dcac9b",
+      "size": 392946
     },
     {
       "path": "log.md",
-      "sha256": "bf7b509c37c3d5aeaef61518a8be8a624db414bd7c8ddbde26c91529f8981249",
-      "size": 692212
+      "sha256": "88379ffdb62ada93430b6a9a5fc4164e17d8f05fdd5988bcfae71de844fa1abb",
+      "size": 692693
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6588,6 +6598,11 @@
       "size": 5191
     },
     {
+      "path": "pages/projects/project-nova-setup.md",
+      "sha256": "20d6eaabc2405dd40acf8f7335c5b0c67fe902e2ba03e308ad743a965042d941",
+      "size": 1109
+    },
+    {
       "path": "pages/projects/rcade-music-app.md",
       "sha256": "05cdabffae3c60e6a9ec557c386d2dd47fd7b1a559a349737e9aeddd0f670a73",
       "size": 1058
@@ -6651,6 +6666,11 @@
       "path": "pages/runbooks/track-nft-purchases-ethereum.md",
       "sha256": "c1593f782aa6bd2d66cb239d497f64c7c98edc370521b5abdfa12d960e93580a",
       "size": 3685
+    },
+    {
+      "path": "pages/runbooks/typescript-sdk-setup.md",
+      "sha256": "11484f7a695c4bcaaa211d113f2967d571774cc714f0df2c8dd7b043327f2779",
+      "size": 1126
     },
     {
       "path": "pages/systems/admin-api-security-architecture.md",
@@ -6724,5 +6744,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6fee555ffc0582ac8ad421f1a3d180a639fcac539b70e80e83bcda45147461ec"
+  "wiki_tree_hash": "41ce3d6bb8bedffa62fea5e807628653d3ead886e88de8d52cf876697397c823"
 }
