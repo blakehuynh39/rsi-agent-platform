@@ -14,10 +14,13 @@ published artifact. It is recoverable derived state, not the canonical record.
 If Markdown and Platform Postgres disagree, Platform Postgres wins and the
 Markdown should be repaired from DB-derived artifacts.
 
-The Hermes skill exporter may snapshot skills into export PRs, but compiled
-wiki files should stay out of Platform GitHub. The live wiki is the mounted
-artifact plus Platform Postgres provenance; repository exports must not be
-reconciled back into the pod or treated as wiki authority.
+The Hermes skill exporter may snapshot skills and filtered compiled wiki files
+into export PRs for visibility. Wiki export defaults to the synthesized surface
+only: `SCHEMA.md`, `index.md`, `log.md`, and `pages/`. Raw evidence under
+`sources/` must not be exported unless deliberately enabled for a specific
+debugging/audit workflow. The live wiki is the mounted artifact plus Platform
+Postgres provenance; repository exports must not be reconciled back into the pod
+or treated as wiki authority.
 
 Two root files are generated for agent navigation:
 

@@ -28,6 +28,7 @@ EXPORT_ROOT_PREFIX = "hermes/exported-skills"
 STATE_VERSION = 1
 MAX_EXPORTED_HASHES = 500
 WIKI_EXCLUDED_TOP_LEVEL_DIRS = {".locks", ".staging"}
+DEFAULT_WIKI_EXPORT_INCLUDE_PATHS = ("SCHEMA.md", "index.md", "log.md", "pages/")
 
 
 class ExporterConfigError(ValueError):
@@ -136,6 +137,36 @@ def _normalize_private_key(raw: str) -> str:
     return decoded if "BEGIN" in decoded else value
 
 
+def _normalize_wiki_export_path(raw: str) -> str:
+    value = raw.strip().replace("\\", "/")
+    if not value:
+        raise ExporterConfigError("wiki export include paths must not contain empty entries")
+    if value.startswith("/") or value == "." or value.startswith("../") or "/../" in value or value.endswith("/.."):
+        raise ExporterConfigError(f"wiki export include path must be relative and stay inside wiki root: {raw}")
+    while "//" in value:
+        value = value.replace("//", "/")
+    if value.startswith("./"):
+        value = value[2:]
+    return value
+
+
+def _parse_wiki_export_include_paths(raw: str) -> tuple[str, ...]:
+    if not raw.strip():
+        return DEFAULT_WIKI_EXPORT_INCLUDE_PATHS
+    return tuple(_normalize_wiki_export_path(item) for item in raw.split(","))
+
+
+def _wiki_path_is_included(relative_path: str, include_paths: tuple[str, ...]) -> bool:
+    for include_path in include_paths:
+        if include_path.endswith("/"):
+            if relative_path.startswith(include_path):
+                return True
+            continue
+        if relative_path == include_path:
+            return True
+    return False
+
+
 @dataclass(frozen=True)
 class ExporterConfig:
     host: str
@@ -156,6 +187,7 @@ class ExporterConfig:
     auto_merge_method: str = "squash"
     company_wiki_root: Path | None = None
     export_wiki_enabled: bool = True
+    wiki_export_include_paths: tuple[str, ...] = DEFAULT_WIKI_EXPORT_INCLUDE_PATHS
     github_token: str = ""
     github_app_id: str = ""
     github_app_installation_id: str = ""
@@ -187,6 +219,13 @@ class ExporterConfig:
             raise ExporterConfigError("RSI_HERMES_SKILL_EXPORTER_AUTO_MERGE_METHOD must be merge, squash, or rebase")
         if not self.git_owner or not self.git_repo:
             raise ExporterConfigError("Git owner and repo are required")
+        if not self.wiki_export_include_paths:
+            raise ExporterConfigError("At least one wiki export include path is required")
+        object.__setattr__(
+            self,
+            "wiki_export_include_paths",
+            tuple(_normalize_wiki_export_path(include_path) for include_path in self.wiki_export_include_paths),
+        )
 
     @property
     def git_repository(self) -> str:
@@ -220,6 +259,9 @@ class ExporterConfig:
                 )
             ).expanduser(),
             export_wiki_enabled=_bool_env("RSI_HERMES_SKILL_EXPORTER_EXPORT_WIKI", True),
+            wiki_export_include_paths=_parse_wiki_export_include_paths(
+                _env("RSI_HERMES_SKILL_EXPORTER_WIKI_INCLUDE_PATHS")
+            ),
             state_root=Path(_env("RSI_HERMES_SKILL_EXPORTER_STATE_ROOT", str(hermes_home / "skill-exporter"))).expanduser(),
             sync_interval_seconds=_positive_int_env("RSI_HERMES_SKILL_EXPORTER_SYNC_INTERVAL_SECONDS", 300),
             git_owner=_env("RSI_HERMES_SKILL_EXPORTER_GIT_OWNER", _env("RSI_GITHUB_OWNER", "piplabs")),
@@ -290,7 +332,11 @@ def _manifest_hash(files: list[SkillFile]) -> str:
     return _sha256_bytes(manifest_bytes)
 
 
-def build_skill_snapshot(skills_root: Path, company_wiki_root: Path | None = None) -> SkillSnapshot:
+def build_skill_snapshot(
+    skills_root: Path,
+    company_wiki_root: Path | None = None,
+    wiki_export_include_paths: tuple[str, ...] = DEFAULT_WIKI_EXPORT_INCLUDE_PATHS,
+) -> SkillSnapshot:
     root = skills_root.resolve()
     if not root.exists():
         raise ExporterError(f"skills root does not exist: {root}")
@@ -313,7 +359,7 @@ def build_skill_snapshot(skills_root: Path, company_wiki_root: Path | None = Non
             )
         )
     skill_tree_hash = _manifest_hash(files)
-    wiki_files, wiki_root_exists = build_wiki_file_manifest(company_wiki_root)
+    wiki_files, wiki_root_exists = build_wiki_file_manifest(company_wiki_root, wiki_export_include_paths)
     wiki_tree_hash = _manifest_hash(wiki_files) if wiki_files else ""
     artifact_bytes = json.dumps(
         {
@@ -337,7 +383,10 @@ def build_skill_snapshot(skills_root: Path, company_wiki_root: Path | None = Non
     )
 
 
-def build_wiki_file_manifest(company_wiki_root: Path | None) -> tuple[list[SkillFile], bool]:
+def build_wiki_file_manifest(
+    company_wiki_root: Path | None,
+    include_paths: tuple[str, ...] = DEFAULT_WIKI_EXPORT_INCLUDE_PATHS,
+) -> tuple[list[SkillFile], bool]:
     if company_wiki_root is None:
         return [], False
     root = company_wiki_root.expanduser().resolve()
@@ -352,6 +401,8 @@ def build_wiki_file_manifest(company_wiki_root: Path | None) -> tuple[list[Skill
         rel = path.relative_to(root).as_posix()
         first_part = rel.split("/", 1)[0]
         if first_part in WIKI_EXCLUDED_TOP_LEVEL_DIRS:
+            continue
+        if not _wiki_path_is_included(rel, include_paths):
             continue
         stat = path.stat()
         files.append(
@@ -657,6 +708,7 @@ class SkillExportLoop:
         payload["skills_root"] = str(self.config.skills_root)
         if self.config.export_wiki_enabled and self.config.company_wiki_root is not None:
             payload["company_wiki_root"] = str(self.config.company_wiki_root)
+            payload["wiki_export_include_paths"] = list(self.config.wiki_export_include_paths)
         payload["state_root"] = str(self.config.state_root)
         payload["git_repository"] = self.config.git_repository
         payload["export_root"] = self.config.export_root
@@ -736,6 +788,7 @@ class SkillExportLoop:
         snapshot = build_skill_snapshot(
             self.config.skills_root,
             self.config.company_wiki_root if self.config.export_wiki_enabled else None,
+            self.config.wiki_export_include_paths,
         )
         state = _load_json(self.state_path, {"state_version": STATE_VERSION, "exported_tree_hashes": []})
         previous_hash = str(state.get("last_seen_tree_hash") or "")
@@ -787,6 +840,7 @@ class SkillExportLoop:
             "hermes_home": str(self.config.hermes_home),
             "skills_root": str(self.config.skills_root),
             "company_wiki_root": str(self.config.company_wiki_root) if self.config.company_wiki_root is not None else "",
+            "wiki_export_include_paths": list(self.config.wiki_export_include_paths),
             "tree_hash": snapshot.tree_hash,
             "skill_tree_hash": snapshot.skill_tree_hash,
             "wiki_tree_hash": snapshot.wiki_tree_hash,
@@ -801,8 +855,8 @@ class SkillExportLoop:
             "skill_manage_sessions": provenance,
         }
 
-    @staticmethod
     def _status(
+        self,
         cycle_id: str,
         status: str,
         snapshot: SkillSnapshot,
@@ -823,6 +877,7 @@ class SkillExportLoop:
             "skill_file_count": len(snapshot.files),
             "wiki_file_count": len(snapshot.wiki_files),
             "wiki_root_exists": snapshot.wiki_root_exists,
+            "wiki_export_include_paths": list(self.config.wiki_export_include_paths),
             "export_result": export_result,
         }
 

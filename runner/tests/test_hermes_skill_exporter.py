@@ -110,10 +110,13 @@ class HermesSkillExporterTest(unittest.TestCase):
             config.company_wiki_root.joinpath("pages").mkdir(parents=True)
             config.company_wiki_root.joinpath(".staging").mkdir(parents=True)
             config.company_wiki_root.joinpath(".locks").mkdir(parents=True)
+            config.company_wiki_root.joinpath("sources/slack").mkdir(parents=True)
+            config.company_wiki_root.joinpath("SCHEMA.md").write_text("# Company Wiki Schema\n", encoding="utf-8")
             config.company_wiki_root.joinpath("index.md").write_text("# Company Wiki Index\n", encoding="utf-8")
             config.company_wiki_root.joinpath("log.md").write_text("## [2026-05-04T00:00:00Z] ingest | Runbook\n", encoding="utf-8")
             config.company_wiki_root.joinpath("manifest.json").write_text('{"schema_version":1,"pages":{}}\n', encoding="utf-8")
             config.company_wiki_root.joinpath("pages/runbook.md").write_text("# Runbook\n", encoding="utf-8")
+            config.company_wiki_root.joinpath("sources/slack/thread.md").write_text("# Raw evidence\n", encoding="utf-8")
             config.company_wiki_root.joinpath(".staging/partial.tmp").write_text("do not export\n", encoding="utf-8")
             config.company_wiki_root.joinpath(".locks/manifest.lock").write_text("", encoding="utf-8")
 
@@ -128,9 +131,10 @@ class HermesSkillExporterTest(unittest.TestCase):
             self.assertEqual(5, metadata["file_count"])
             self.assertEqual(4, metadata["wiki_file_count"])
             self.assertEqual(
-                ["index.md", "log.md", "manifest.json", "pages/runbook.md"],
+                ["SCHEMA.md", "index.md", "log.md", "pages/runbook.md"],
                 [item.relative_path for item in snapshot.wiki_files],
             )
+            self.assertEqual(["SCHEMA.md", "index.md", "log.md", "pages/"], metadata["wiki_export_include_paths"])
             self.assertTrue(metadata["wiki_root_exists"])
             self.assertTrue(metadata["wiki_tree_hash"])
             self.assertEqual(metadata["wiki_files"], snapshot.wiki_file_manifest())
@@ -141,8 +145,23 @@ class HermesSkillExporterTest(unittest.TestCase):
             export_root = checkout / config.export_root
             self.assertTrue(export_root.joinpath("skills/story-test/SKILL.md").exists())
             self.assertEqual("# Runbook\n", export_root.joinpath("wiki/pages/runbook.md").read_text(encoding="utf-8"))
+            self.assertFalse(export_root.joinpath("wiki/manifest.json").exists())
+            self.assertFalse(export_root.joinpath("wiki/sources/slack/thread.md").exists())
             self.assertFalse(export_root.joinpath("wiki/.staging/partial.tmp").exists())
             self.assertFalse(export_root.joinpath("wiki/.locks/manifest.lock").exists())
+
+    def test_company_wiki_export_filter_can_be_configured(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            config = self.make_config(Path(raw))
+            assert config.company_wiki_root is not None
+            config.company_wiki_root.joinpath("pages").mkdir(parents=True)
+            config.company_wiki_root.joinpath("sources/slack").mkdir(parents=True)
+            config.company_wiki_root.joinpath("pages/runbook.md").write_text("# Runbook\n", encoding="utf-8")
+            config.company_wiki_root.joinpath("sources/slack/thread.md").write_text("# Raw evidence\n", encoding="utf-8")
+
+            snapshot = build_skill_snapshot(config.skills_root, config.company_wiki_root, ("sources/",))
+
+            self.assertEqual(["sources/slack/thread.md"], [item.relative_path for item in snapshot.wiki_files])
 
     def test_repeated_same_hash_is_idempotent(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
