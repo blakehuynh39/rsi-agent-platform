@@ -2792,6 +2792,51 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(result.raw["repair_attempted"])
         self.assertFalse(result.raw["repair_succeeded"])
 
+    def test_workflow_provider_runtime_error_is_not_reported_as_structured_output_parse_failure(self) -> None:
+        class ProviderRuntimeErrorAIAgent(FakeAIAgent):
+            def run_conversation(
+                self,
+                prompt: str,
+                system_message: str | None = None,
+                conversation_history: list[dict] | None = None,
+                task_id: str | None = None,
+            ) -> dict:
+                type(self).last_prompt = prompt
+                type(self).last_system_message = system_message
+                type(self).last_history = conversation_history or []
+                return {
+                    "final_response": "API call failed after 3 retries: HTTP 403: Key limit exceeded (monthly limit)."
+                }
+
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the workflow.",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                    "user_peer_id": "user:alice",
+                }
+            }
+        )
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", ProviderRuntimeErrorAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.raw["failure_class"], "runner_provider_error")
+        self.assertEqual(result.raw["runner_diagnostics"]["failure_kind"], "provider_runtime_error")
+        self.assertEqual(result.raw["runner_diagnostics"]["provider_status_code"], 403)
+        self.assertIn("Key limit exceeded", result.message)
+        self.assertNotIn("structured output", result.message)
+        self.assertFalse(result.raw["repair_attempted"])
+        self.assertFalse(result.raw["repair_succeeded"])
+
     def test_workflow_accepts_json_code_fenced_structured_output(self) -> None:
         class FencedStructuredOutputAIAgent(FakeAIAgent):
             def run_conversation(
@@ -6208,6 +6253,93 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(InvalidReducerAIAgent.init_history[1]["enabled_toolsets"], [])
         self.assertEqual(InvalidReducerAIAgent.init_history[1]["provider"], "openrouter")
         self.assertIn("structured output", result.message.lower())
+
+    def test_workflow_iteration_budget_exhaustion_reports_reducer_provider_failure(self) -> None:
+        class ProviderFailureReducerAIAgent:
+            init_history: list[dict[str, object]] = []
+            created_instances = 0
+
+            def __init__(self, **kwargs) -> None:
+                type(self).created_instances += 1
+                self.instance_index = type(self).created_instances
+                type(self).init_history.append(dict(kwargs))
+
+            def run_conversation(
+                self,
+                prompt: str,
+                system_message: str | None = None,
+                conversation_history: list[dict] | None = None,
+                task_id: str | None = None,
+            ) -> dict[str, object]:
+                time.sleep(0.6)
+                if self.instance_index == 1:
+                    return {"final_response": ""}
+                return {
+                    "api_calls": 1,
+                    "completed": False,
+                    "error": "HTTP 403: Key limit exceeded (monthly limit). Manage it using https://openrouter.ai/settings/keys",
+                    "failed": True,
+                    "final_response": "API call failed after 3 retries: HTTP 403: Key limit exceeded (monthly limit). Manage it using https://openrouter.ai/settings/keys",
+                }
+
+            def interrupt(self, message: str | None = None) -> None:
+                return None
+
+            def get_activity_summary(self) -> dict[str, object]:
+                budget_max = int(type(self).init_history[self.instance_index - 1].get("max_iterations", 1))
+                if self.instance_index == 1:
+                    return {
+                        "last_activity_desc": "iteration budget exhausted",
+                        "current_tool": "slack_history",
+                        "api_call_count": budget_max,
+                        "budget_used": budget_max,
+                        "budget_max": budget_max,
+                    }
+                return {
+                    "last_activity_desc": "provider quota exhausted",
+                    "current_tool": "",
+                    "api_call_count": 1,
+                    "budget_used": 1,
+                    "budget_max": budget_max,
+                }
+
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the Slack thread.",
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                    "user_peer_id": "user:alice",
+                }
+            }
+        )
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", ProviderFailureReducerAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(
+            os.environ, runner_env("prod"), clear=True
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.raw["failure_class"], "runner_partial_completion_unrecoverable")
+        self.assertIn("Hermes reducer provider call failed", result.message)
+        self.assertIn("Key limit exceeded", result.message)
+        self.assertNotIn("invalid JSON", result.message)
+        diagnostics = result.raw["runner_diagnostics"]
+        self.assertEqual(diagnostics["partial_finalization_mode"], "hermes_reducer")
+        self.assertEqual(diagnostics["partial_finalization_attempts"], 1)
+        self.assertIn("Hermes reducer provider call failed", diagnostics["provider_error_message"])
+        self.assertIn("HTTP 403", diagnostics["provider_error_message"])
+        self.assertEqual(diagnostics["reducer_attempt_errors"], [diagnostics["provider_error_message"]])
+        self.assertEqual(ProviderFailureReducerAIAgent.created_instances, 2)
+        self.assertEqual(ProviderFailureReducerAIAgent.init_history[1]["enabled_toolsets"], [])
 
     def test_workflow_evidence_ledger_projects_compact_tool_calls_and_evidence_items(self) -> None:
         task = RunnerTaskRequest.from_payload(

@@ -198,6 +198,20 @@ _BENIGN_MCP_TOOLSET_WARNING = re.compile(
     r"Warning: Unknown toolsets:\s*\n(?:mcp-[^\n]*(?:\n|$))+\n*",
     re.MULTILINE,
 )
+_PROVIDER_RUNTIME_ERROR_MARKERS = (
+    "api call failed",
+    "permissiondeniederror",
+    "authenticationerror",
+    "rate limit",
+    "rate limited after",
+    "key limit exceeded",
+    "monthly limit",
+    "insufficient_quota",
+    "quota exceeded",
+    "provider error",
+)
+
+
 def _json_object_or_empty(value: JsonValue | None) -> JsonObject:
     if isinstance(value, dict):
         return value
@@ -2371,6 +2385,7 @@ class HermesRuntime:
             response = str((run_result or {}).get("final_response", "") or "")
         except Exception as exc:
             diagnostics = self._provider_invalid_request_diagnostics(str(exc))
+            provider_runtime_error = self._provider_runtime_error_diagnostics(str(exc)) if diagnostics is None else None
             activity = safe_activity_summary(agent) if agent is not None else {}
             lifecycle_events = self._adapter.lifecycle_events(context.session_id)
             observed = self._observability_metadata(
@@ -2390,6 +2405,12 @@ class HermesRuntime:
             if diagnostics is not None:
                 raw["failure_class"] = "runner_invalid_request"
                 merged = dict(diagnostics)
+                for key, value in observed.items():
+                    merged[key] = value
+                raw["runner_diagnostics"] = merged
+            elif provider_runtime_error is not None:
+                raw["failure_class"] = "runner_provider_error"
+                merged = dict(provider_runtime_error)
                 for key, value in observed.items():
                     merged[key] = value
                 raw["runner_diagnostics"] = merged
@@ -4998,6 +5019,67 @@ class HermesRuntime:
         )
         return diagnostics
 
+    def _provider_runtime_error_message(self, message: str) -> str:
+        text = str(message or "").strip()
+        if not text:
+            return ""
+        try:
+            parsed = json.loads(_unwrap_json_code_fence(text))
+            if isinstance(parsed, dict):
+                return ""
+        except (json.JSONDecodeError, ValueError):
+            pass
+        lower = text.lower()
+        if not any(marker in lower for marker in _PROVIDER_RUNTIME_ERROR_MARKERS):
+            return ""
+        return _truncate_string(text, 8000)
+
+    def _provider_runtime_error_from_agent_result(self, result: Any) -> str:
+        if not isinstance(result, dict):
+            return ""
+        final_response = str(result.get("final_response", "") or "")
+        if final_response.strip():
+            try:
+                parsed = json.loads(_unwrap_json_code_fence(final_response))
+                if isinstance(parsed, dict):
+                    return ""
+            except (json.JSONDecodeError, ValueError):
+                pass
+        candidates: list[str] = []
+        for key in ("error", "error_message", "response", "final_response"):
+            if value := _string_or_json(result.get(key)):
+                candidates.append(value)
+        nested_result = _json_object_or_empty(result.get("result"))
+        for key in ("error", "error_message", "response", "final_response"):
+            if value := _string_or_json(nested_result.get(key)):
+                candidates.append(value)
+        for candidate in candidates:
+            if message := self._provider_runtime_error_message(candidate):
+                return message
+        return ""
+
+    def _provider_runtime_error_diagnostics(self, message: str) -> JsonObject | None:
+        provider_error_message = self._provider_runtime_error_message(message)
+        if not provider_error_message:
+            return None
+        status_code = 0
+        status_match = re.search(
+            r"(?:http|status code|status)\s*[:= -]*\s*([45]\d{2})",
+            provider_error_message,
+            flags=re.IGNORECASE,
+        )
+        if status_match:
+            try:
+                status_code = int(status_match.group(1))
+            except ValueError:
+                status_code = 0
+        return self._runner_diagnostics(
+            failure_kind="provider_runtime_error",
+            provider_status_code=status_code or None,
+            provider_error_message=provider_error_message,
+            repair_attempted=False,
+            repair_succeeded=False,
+        )
 
     def _effective_task_timeout(self, task: RunnerTaskRequest) -> int:
         requested = int(task.timeout_seconds or 0)
@@ -5737,6 +5819,14 @@ class HermesRuntime:
             _string_or_json((result or {}).get("provider_response_id")),
             _string_or_json((result or {}).get("response_id")),
         )
+        if provider_error := self._provider_runtime_error_from_agent_result(result):
+            return PartialReducerAttemptResult(
+                ok=False,
+                response_text=response_text,
+                structured_output={},
+                error=f"Hermes reducer provider call failed: {provider_error}",
+                provider_response_id=provider_response_id,
+            )
         try:
             parsed = json.loads(response_text)
             if not isinstance(parsed, dict):
@@ -6765,6 +6855,23 @@ class HermesRuntime:
                         "repair_succeeded": False,
                     },
                     )
+            if not native_send_directive_recovered and (provider_runtime_error := self._provider_runtime_error_diagnostics(result.message)):
+                diagnostics = dict(provider_runtime_error)
+                for key, value in _json_object_or_empty(result.raw.get("runner_diagnostics")).items():
+                    diagnostics[key] = value
+                return HermesExecutionResult(
+                    ok=False,
+                    message=string_from_map(diagnostics, "provider_error_message") or "Provider call failed.",
+                    provider=result.provider,
+                    raw={
+                        **result.raw,
+                        "failure_class": "runner_provider_error",
+                        "runner_diagnostics": diagnostics,
+                        "raw_response": result.message,
+                        "repair_attempted": False,
+                        "repair_succeeded": False,
+                    },
+                )
             if not native_send_directive_recovered:
                 try:
                     structured_output = self._extract_structured_output(result.message)
@@ -6797,6 +6904,26 @@ class HermesRuntime:
                                     raw={
                                         **repair_result.raw,
                                         "failure_class": "runner_invalid_request",
+                                        "runner_diagnostics": diagnostics,
+                                        "raw_response": repair_result.message,
+                                        "repair_attempted": True,
+                                        "repair_succeeded": False,
+                                        "repair_original_response": result.message,
+                                    },
+                                )
+                            if provider_runtime_error := self._provider_runtime_error_diagnostics(repair_result.message):
+                                diagnostics = dict(provider_runtime_error)
+                                for key, value in _json_object_or_empty(repair_result.raw.get("runner_diagnostics")).items():
+                                    diagnostics[key] = value
+                                diagnostics["repair_attempted"] = True
+                                diagnostics["repair_succeeded"] = False
+                                return HermesExecutionResult(
+                                    ok=False,
+                                    message=string_from_map(diagnostics, "provider_error_message") or "Provider call failed.",
+                                    provider=repair_result.provider,
+                                    raw={
+                                        **repair_result.raw,
+                                        "failure_class": "runner_provider_error",
                                         "runner_diagnostics": diagnostics,
                                         "raw_response": repair_result.message,
                                         "repair_attempted": True,
