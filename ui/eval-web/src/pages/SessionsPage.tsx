@@ -389,11 +389,22 @@ function MessageBubble({
 function MessageList({
   messages,
   highlight,
+  autoScrollToLatest = false,
 }: {
   messages: SessionMessage[];
   highlight?: string;
+  autoScrollToLatest?: boolean;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const latestMessageKey =
+    messages.length > 0
+      ? [
+          messages.length,
+          messages[messages.length - 1]?.timestamp ?? "",
+          messages[messages.length - 1]?.role ?? "",
+          messages[messages.length - 1]?.content?.length ?? 0,
+        ].join(":")
+      : "0";
 
   useEffect(() => {
     if (!highlight || !containerRef.current) return;
@@ -406,6 +417,16 @@ function MessageList({
     }, 50);
     return () => clearTimeout(timer);
   }, [messages, highlight]);
+
+  useEffect(() => {
+    if (highlight || !autoScrollToLatest || !containerRef.current) return;
+    const timer = window.setTimeout(() => {
+      const el = containerRef.current;
+      if (!el) return;
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    }, 50);
+    return () => window.clearTimeout(timer);
+  }, [autoScrollToLatest, highlight, latestMessageKey]);
 
   return (
     <div
@@ -487,32 +508,97 @@ function AnimatedSessionTitle({
 function SessionTranscript({
   sessionId,
   searchQuery,
+  streamEvents = false,
+  autoScrollToLatest = true,
 }: {
   sessionId: string;
   searchQuery?: string;
+  streamEvents?: boolean;
+  autoScrollToLatest?: boolean;
 }) {
   const [messages, setMessages] = useState<SessionMessage[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { t } = useI18n();
 
+  const loadMessages = useCallback(
+    async (showLoading = false, signal?: AbortSignal) => {
+      if (showLoading) {
+        setLoading(true);
+        setError(null);
+      }
+      try {
+        const resp = await api.getSessionMessages(sessionId, signal);
+        if (signal?.aborted) return;
+        setMessages(resp.messages);
+        setError(null);
+      } catch (err) {
+        if (signal?.aborted || (err as { name?: string })?.name === "AbortError") {
+          return;
+        }
+        if (showLoading) {
+          setError(String(err));
+        }
+      } finally {
+        if (showLoading && !signal?.aborted) {
+          setLoading(false);
+        }
+      }
+    },
+    [sessionId],
+  );
+
   useEffect(() => {
-    let cancelled = false;
-    api
-      .getSessionMessages(sessionId)
-      .then((resp) => {
-        if (!cancelled) setMessages(resp.messages);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(String(err));
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+    const abortController = new AbortController();
+    const initialLoadId = window.setTimeout(() => {
+      void loadMessages(true, abortController.signal);
+    }, 0);
     return () => {
-      cancelled = true;
+      window.clearTimeout(initialLoadId);
+      abortController.abort();
     };
-  }, [sessionId]);
+  }, [loadMessages]);
+
+  useEffect(() => {
+    if (!streamEvents) return;
+    let closed = false;
+    let refreshTimer: number | undefined;
+    const abortController = new AbortController();
+    const source = new EventSource(api.getSessionStreamURL(sessionId));
+    const scheduleRefresh = () => {
+      if (closed || refreshTimer !== undefined) return;
+      refreshTimer = window.setTimeout(() => {
+        refreshTimer = undefined;
+        void loadMessages(false, abortController.signal);
+      }, 150);
+    };
+    const streamEventNames = [
+      "tool.start",
+      "tool.progress",
+      "tool.complete",
+      "reasoning.delta",
+      "thinking.delta",
+      "message.delta",
+      "status.update",
+    ];
+    for (const eventName of streamEventNames) {
+      source.addEventListener(eventName, scheduleRefresh);
+    }
+    source.onmessage = scheduleRefresh;
+    source.onerror = scheduleRefresh;
+
+    return () => {
+      closed = true;
+      abortController.abort();
+      if (refreshTimer !== undefined) {
+        window.clearTimeout(refreshTimer);
+      }
+      for (const eventName of streamEventNames) {
+        source.removeEventListener(eventName, scheduleRefresh);
+      }
+      source.close();
+    };
+  }, [loadMessages, sessionId, streamEvents]);
 
   if (loading) {
     return (
@@ -535,7 +621,13 @@ function SessionTranscript({
   }
 
   if (messages && messages.length > 0) {
-    return <MessageList messages={messages} highlight={searchQuery} />;
+    return (
+      <MessageList
+        messages={messages}
+        highlight={searchQuery}
+        autoScrollToLatest={autoScrollToLatest}
+      />
+    );
   }
 
   return null;
@@ -572,6 +664,8 @@ function SessionRow({
 
   return (
     <div
+      data-session-id={session.id}
+      data-expanded-session={isExpanded || undefined}
       className={`border overflow-hidden transition-colors ${
         session.is_active
           ? "border-success/30 bg-success/[0.03]"
@@ -651,7 +745,12 @@ function SessionRow({
 
       {isExpanded && (
         <div className="border-t border-border bg-background/50 p-4">
-          <SessionTranscript sessionId={session.id} searchQuery={searchQuery} />
+          <SessionTranscript
+            sessionId={session.id}
+            searchQuery={searchQuery}
+            streamEvents={isTraceSession(session)}
+            autoScrollToLatest
+          />
         </div>
       )}
     </div>
@@ -678,6 +777,8 @@ function TraceAttemptRow({
 
   return (
     <div
+      data-session-id={trace.id}
+      data-expanded-session={isExpanded || undefined}
       className={`border transition-colors ${
         isExpanded
           ? "border-primary/35 bg-primary/[0.04]"
@@ -742,7 +843,12 @@ function TraceAttemptRow({
       </button>
       {isExpanded && (
         <div className="border-t border-border bg-background/45 p-3">
-          <SessionTranscript sessionId={trace.id} searchQuery={searchQuery} />
+          <SessionTranscript
+            sessionId={trace.id}
+            searchQuery={searchQuery}
+            streamEvents
+            autoScrollToLatest
+          />
         </div>
       )}
     </div>
@@ -787,6 +893,8 @@ function SessionGroupRow({
 
   return (
     <div
+      data-session-id={conversation.id}
+      data-expanded-session={expandedId === conversation.id || undefined}
       className={`border overflow-hidden transition-colors ${
         groupActive
           ? "border-success/30 bg-success/[0.03]"
@@ -859,6 +967,7 @@ function SessionGroupRow({
           <SessionTranscript
             sessionId={conversation.id}
             searchQuery={searchQuery}
+            autoScrollToLatest
           />
         </div>
       )}
@@ -1021,6 +1130,8 @@ export default function SessionsPage() {
   const [searching, setSearching] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
   const logScrollRef = useRef<HTMLPreElement | null>(null);
+  const pageRef = useRef<HTMLDivElement | null>(null);
+  const appliedDeepLinkScrollRef = useRef<string | null>(null);
   const [status, setStatus] = useState<StatusResponse | null>(null);
   const [overviewSessions, setOverviewSessions] = useState<SessionInfo[]>([]);
   const { t } = useI18n();
@@ -1144,15 +1255,24 @@ export default function SessionsPage() {
     if (existing) {
       setTargetSession(existing);
     }
+  }, [sessions, targetSessionId]);
+
+  useEffect(() => {
+    if (!targetSessionId) {
+      return;
+    }
+    const expandTimer = window.setTimeout(() => {
+      setExpandedId(targetSessionId);
+    }, 0);
+    return () => window.clearTimeout(expandTimer);
   }, [targetSessionId]);
 
   useEffect(() => {
     if (!targetSessionId) {
       return;
     }
-    setExpandedId(targetSessionId);
     const existing = sessions.find((session) => session.id === targetSessionId);
-    if (existing) {
+    if (existing || targetSession?.id === targetSessionId) {
       return;
     }
     let cancelled = false;
@@ -1188,7 +1308,7 @@ export default function SessionsPage() {
     if (existing) {
       setTargetParentSession(existing);
     }
-  }, [relatedParentSessionId, targetSessionId]);
+  }, [relatedParentSessionId, sessions, targetSessionId]);
 
   useEffect(() => {
     if (!relatedParentSessionId || relatedParentSessionId === targetSessionId) {
@@ -1197,7 +1317,7 @@ export default function SessionsPage() {
     const existing = sessions.find(
       (session) => session.id === relatedParentSessionId,
     );
-    if (existing) {
+    if (existing || targetParentSession?.id === relatedParentSessionId) {
       return;
     }
     let cancelled = false;
@@ -1283,7 +1403,11 @@ export default function SessionsPage() {
     for (const session of sessions) {
       byID.set(session.id, session);
     }
-    if (targetSession && !byID.has(targetSession.id)) {
+    if (
+      targetSession &&
+      targetSession.id === targetSessionId &&
+      !byID.has(targetSession.id)
+    ) {
       byID.set(targetSession.id, targetSession);
     }
     if (
@@ -1294,7 +1418,13 @@ export default function SessionsPage() {
       byID.set(targetParentSession.id, targetParentSession);
     }
     return Array.from(byID.values());
-  }, [relatedParentSessionId, sessions, targetParentSession, targetSession]);
+  }, [
+    relatedParentSessionId,
+    sessions,
+    targetParentSession,
+    targetSession,
+    targetSessionId,
+  ]);
 
   const sessionItems = useMemo(
     () =>
@@ -1314,6 +1444,27 @@ export default function SessionsPage() {
       targetSessionId,
     ],
   );
+
+  useEffect(() => {
+    if (!targetSessionId) {
+      appliedDeepLinkScrollRef.current = null;
+      return;
+    }
+    if (loading || !expandedId || expandedId !== targetSessionId) return;
+    const scrollKey = `${targetSessionId}:${expandedId}`;
+    if (appliedDeepLinkScrollRef.current === scrollKey) return;
+
+    const timer = window.setTimeout(() => {
+      const target = pageRef.current?.querySelector<HTMLElement>(
+        '[data-expanded-session="true"]',
+      );
+      if (!target) return;
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      appliedDeepLinkScrollRef.current = scrollKey;
+    }, 100);
+
+    return () => window.clearTimeout(timer);
+  }, [expandedId, loading, sessionItems, targetSessionId]);
 
   const platformEntries = status
     ? Object.entries(status.gateway_platforms ?? {})
@@ -1355,7 +1506,7 @@ export default function SessionsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div ref={pageRef} className="flex flex-col gap-4">
       <PluginSlot name="sessions:top" />
 
       {alerts.length > 0 && (

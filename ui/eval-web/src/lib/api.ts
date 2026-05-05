@@ -24,8 +24,10 @@ export const api = {
     fetchJSON<PaginatedSessions>(`/api/sessions?limit=${limit}&offset=${offset}`, { signal }),
   getSession: (id: string) =>
     fetchJSON<SessionInfo>(`/api/sessions/${encodeURIComponent(id)}`),
-  getSessionMessages: (id: string) =>
-    fetchJSON<SessionMessagesResponse>(`/api/sessions/${encodeURIComponent(id)}/messages`),
+  getSessionMessages: (id: string, signal?: AbortSignal) =>
+    fetchJSON<SessionMessagesResponse>(`/api/sessions/${encodeURIComponent(id)}/messages`, { signal }),
+  getSessionStreamURL: (id: string) =>
+    `${BASE}/api/sessions/${encodeURIComponent(id)}/stream`,
   deleteSession: (id: string) =>
     fetchJSON<{ ok: boolean }>(`/api/sessions/${encodeURIComponent(id)}`, {
       method: "DELETE",
