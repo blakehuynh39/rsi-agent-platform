@@ -6999,3 +6999,561 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_b50a8b7bfcccdab6cb01a829deaf0a39
 - summary: <@U05A515NBFC> i'm fixing MC for <https://github.com/piplabs/numo-monorepo/pull/139>
 
+## [2026-05-05T05:40:35Z] ingest | Engineering Home
+
+- status: published
+- slug: notion_document/engineering-home-457ba27e
+- wiki_revision_id: wikirev_35ab027f5c4709d7c0e8bf2c24d9d67e
+- source_document_id: srcdoc_3e1bdff6ba2e92e68b675412457ba27e
+- source_revision_id: srcrev_71bc889d3b4af33ae3c3013bc8094665
+- summary: Source: [Notion source](https://www.notion.so/121051299a5480dd989ddd05c1b3a694)
+
+## [2026-05-05T05:40:36Z] ingest | Engineering Home
+
+- status: published
+- slug: notion_document/engineering-home-498d0f80
+- wiki_revision_id: wikirev_53347a28941fae28e1597cd767c5cd4e
+- source_document_id: srcdoc_f4e685d735d7826eb36319e1498d0f80
+- source_revision_id: srcrev_e64bdc2740caf1b9e78c4e7a54630f22
+- summary: Source: [Notion source](https://www.notion.so/121051299a5480dd989ddd05c1b3a694)
+
+## [2026-05-05T05:40:40Z] ingest | NFT Standard Design
+
+- status: published
+- slug: notion_document/nft-standard-design-8b389806
+- wiki_revision_id: wikirev_32ba3c2df7688cdf4d9ed04dd6e27efe
+- source_document_id: srcdoc_cdbaa8c53d3e9347b18a39fc8b389806
+- source_revision_id: srcrev_d39484ced34506a3b659b13b0e209e13
+- summary: Source: [Notion source](https://www.notion.so/NFT-Standard-Design-f385d9ca4da64bcd91c05d221698dd3c)
+
+## [2026-05-05T05:40:42Z] ingest | How to Track NFT Purchases (Ethereum)
+
+- status: published
+- slug: notion_document/how-to-track-nft-purchases-ethereum--4c812206
+- wiki_revision_id: wikirev_a93d8f39ad7788ef6ae9152ee88d3b9a
+- source_document_id: srcdoc_fed31f4bc1ff1c36a3b64f214c812206
+- source_revision_id: srcrev_43b78b5dfb966337499a9f5acb4c582d
+- summary: Source: [Notion source](https://www.notion.so/How-to-Track-NFT-Purchases-Ethereum-367d932dbde1407c8e0fd000e2634cae)
+
+## [2026-05-05T05:40:45Z] ingest | Story Protocol Wallet Operations
+
+- status: published
+- slug: notion_document/story-protocol-wallet-operations-1dbe48d7
+- wiki_revision_id: wikirev_7010a1489eeac7e4a8a88c02e11dc2ac
+- source_document_id: srcdoc_6c4f691d9d7d02347d40f5521dbe48d7
+- source_revision_id: srcrev_bb2fdf14d5ea3b5ee38f24fa0b539a99
+- summary: Source: [Notion source](https://www.notion.so/Story-Protocol-Wallet-Operations-59b264f0796b4610a2305783c10b1bae)
+
+## [2026-05-05T05:40:47Z] ingest | Lightning Talks
+
+- status: published
+- slug: notion_document/lightning-talks-733190f6
+- wiki_revision_id: wikirev_50cc99f1001d2e3e8ced0850a56dd9c3
+- source_document_id: srcdoc_584fced18ebf78b10499a05d733190f6
+- source_revision_id: srcrev_5eb49151d26019afeb0ea941f83eaf73
+- summary: Source: [Notion source](https://www.notion.so/Lightning-Talks-47cd560829ce4df19d53c821516519a6)
+
+## [2026-05-05T05:40:51Z] ingest | Package Frontend / Story Telling Examples
+
+- status: published
+- slug: notion_document/package-frontend-/-story-telling-examples-aef5c562
+- wiki_revision_id: wikirev_b1b01ddf493afd02188e2030ad19a89b
+- source_document_id: srcdoc_f830f82ddf363aeaa55fddadaef5c562
+- source_revision_id: srcrev_41847db9828c3673c23374f10f2dc273
+- summary: Source: [Notion source](https://www.notion.so/Package-Frontend-Story-Telling-Examples-46a5d477d92b4551b37373f9781dbb71)
+
+## [2026-05-05T05:40:53Z] ingest | NFT Metadata Reveal
+
+- status: published
+- slug: notion_document/nft-metadata-reveal-3601858e
+- wiki_revision_id: wikirev_13b236ce1d2cb7757d6089bbd2320149
+- source_document_id: srcdoc_7534a4ea15f340a16c4e621c3601858e
+- source_revision_id: srcrev_4203a7381755fb230d6dce1508cc1be5
+- summary: Source: [Notion source](https://www.notion.so/NFT-Metadata-Reveal-519cc569c68a4b1ba813133a87ae23a6)
+
+## [2026-05-05T05:40:55Z] ingest | Carousel Data shape
+
+- status: published
+- slug: notion_document/carousel-data-shape-cbee671b
+- wiki_revision_id: wikirev_cd0c510360380366ba19e8254a082d12
+- source_document_id: srcdoc_d1b76421634af7d991c3fc22cbee671b
+- source_revision_id: srcrev_c6cdd6272a984ba1b446cc715287e7ed
+- summary: Source: [Notion source](https://www.notion.so/Carousel-Data-shape-a9a4143c804e45548defe9754abcadb8)
+
+## [2026-05-05T05:40:57Z] ingest | DB Naming schema
+
+- status: published
+- slug: notion_document/db-naming-schema-266d2c02
+- wiki_revision_id: wikirev_ce51ceb954f5946e472131bed5328447
+- source_document_id: srcdoc_9f4095914c32736f8a8a2bf6266d2c02
+- source_revision_id: srcrev_b15d3133f2efee003ce55dff172e8e31
+- summary: Source: [Notion source](https://www.notion.so/DB-Naming-schema-638f8f681dd140c493b15a7764ffa0c1)
+
+## [2026-05-05T05:40:59Z] ingest | Web3 Wallet Libraries
+
+- status: published
+- slug: notion_document/web3-wallet-libraries-eb9c170d
+- wiki_revision_id: wikirev_519b6953264bf2205bc0eaba63e7cda9
+- source_document_id: srcdoc_a238ae2f4ea8921d4a6b0684eb9c170d
+- source_revision_id: srcrev_6305b35d78a1a0552a64d4cb94a659c0
+- summary: Source: [Notion source](https://www.notion.so/Web3-Wallet-Libraries-162272d47f674ad398a22a476bc9f949)
+
+## [2026-05-05T05:41:02Z] ingest | Smart Contract Data Model and Modules
+
+- status: published
+- slug: notion_document/smart-contract-data-model-and-modules-9b3f10d7
+- wiki_revision_id: wikirev_8381b3323597b9b3c9a1fe4e47430ff1
+- source_document_id: srcdoc_170cb99a7332268f2db0b04c9b3f10d7
+- source_revision_id: srcrev_a55b9a3c5887a839f59af29f52b5bed6
+- summary: Source: [Notion source](https://www.notion.so/Smart-Contract-Data-Model-and-Modules-24cd251e4db241d8840e5c9e2e53465e)
+
+## [2026-05-05T05:41:04Z] ingest | External Services
+
+- status: published
+- slug: notion_document/external-services-13ec19ac
+- wiki_revision_id: wikirev_67dcb6f5a904f7a47ccbd0aecdccc644
+- source_document_id: srcdoc_c35d85b21c792e0c1a3b60e013ec19ac
+- source_revision_id: srcrev_e4ef662ef1f440f422e6fde09261d69e
+- summary: Source: [Notion source](https://www.notion.so/External-Services-6f5edb66cc3a45f1a648f3982e5fd989)
+
+## [2026-05-05T05:41:06Z] ingest | KB - RDS Backup and Recovery
+
+- status: published
+- slug: notion_document/kb---rds-backup-and-recovery-a5bf105a
+- wiki_revision_id: wikirev_a7ae65b962ba097d340e724b8656b2e4
+- source_document_id: srcdoc_5376542b6be2e93b80fcf748a5bf105a
+- source_revision_id: srcrev_70f7c7ce976ea9c3b56ee1320cdec92b
+- summary: Source: [Notion source](https://www.notion.so/KB-RDS-Backup-and-Recovery-0530ff1a905447f68da85acf4de04d5f)
+
+## [2026-05-05T05:41:07Z] ingest | Runbook - Maintain and Recover AWS EKS
+
+- status: published
+- slug: notion_document/runbook---maintain-and-recover-aws-eks-907420f5
+- wiki_revision_id: wikirev_aa0aafc9e869006da21d80a596b8f7d1
+- source_document_id: srcdoc_cc658c17795a38d3f0956220907420f5
+- source_revision_id: srcrev_8bcce739ed1bc5bf5e2e988fa438eff6
+- summary: Source: [Notion source](https://www.notion.so/Runbook-Maintain-and-Recover-AWS-EKS-39b5211880564a969dbe9a385e3a0c8e)
+
+## [2026-05-05T05:41:09Z] ingest | Sample Chapter Formatting
+
+- status: published
+- slug: notion_document/sample-chapter-formatting-6eb1e140
+- wiki_revision_id: wikirev_60667bc05c4b750dccd191f00109d0ea
+- source_document_id: srcdoc_fd3eb242efed5a217488e8c26eb1e140
+- source_revision_id: srcrev_5b4be0512cdc55964afb812b9ed4449f
+- summary: Source: [Notion source](https://www.notion.so/Sample-Chapter-Formatting-253df82bae0e4fcc87e4c64e651a34ee)
+
+## [2026-05-05T05:41:11Z] ingest | NFT Contract Design
+
+- status: published
+- slug: notion_document/nft-contract-design-64a61321
+- wiki_revision_id: wikirev_4f303b8315db8104c26e54c903ac442e
+- source_document_id: srcdoc_2761be1cf08e0b9eb7f5f8ef64a61321
+- source_revision_id: srcrev_38efc984c2234e69b32a2285af744858
+- summary: Source: [Notion source](https://www.notion.so/NFT-Contract-Design-e0f0a7796614448aaf3971a87068c316)
+
+## [2026-05-05T05:41:13Z] ingest | Infra Proposal for a Multi-tenant System
+
+- status: published
+- slug: notion_document/infra-proposal-for-a-multi-tenant-system-a0a504fb
+- wiki_revision_id: wikirev_f92bdf271491033b091290235347a6e0
+- source_document_id: srcdoc_04e871e6cbf6a83166767e56a0a504fb
+- source_revision_id: srcrev_9ba3d5abe055eef850faf3b78acbe950
+- summary: Source: [Notion source](https://www.notion.so/Infra-Proposal-for-a-Multi-tenant-System-627f722f907a4a22ae122a625e179471)
+
+## [2026-05-05T05:41:16Z] ingest | Admin API Security Architecture
+
+- status: published
+- slug: notion_document/admin-api-security-architecture-1502f8b2
+- wiki_revision_id: wikirev_3d2d6a433d374e8edf5914d486f55f93
+- source_document_id: srcdoc_25add0388afa844b4c33f7821502f8b2
+- source_revision_id: srcrev_8c9ea9ad6e41260fbb9682e600cfe069
+- summary: Source: [Notion source](https://www.notion.so/Admin-API-Security-Architecture-7094af0ac31944ac967a6c9fa1d2db2b)
+
+## [2026-05-05T05:41:18Z] ingest | AWS cloud infra requirements
+
+- status: published
+- slug: notion_document/aws-cloud-infra-requirements-4d982875
+- wiki_revision_id: wikirev_114d6f0bba49a6a8a75101b9ed0a9b99
+- source_document_id: srcdoc_6371523a6a6f0d53148e9a314d982875
+- source_revision_id: srcrev_f69d7c3ddf8003ec50c02e7555e63f5f
+- summary: Source: [Notion source](https://www.notion.so/AWS-cloud-infra-requirements-bbb5f04cb4104882a6120a7407a0faaa)
+
+## [2026-05-05T05:41:21Z] ingest | Data Model Design
+
+- status: published
+- slug: notion_document/data-model-design-c4d41149
+- wiki_revision_id: wikirev_3d3b57faab7e5d51c2e8b01e861851fd
+- source_document_id: srcdoc_833740bd5ba7e9d56e2d40f4c4d41149
+- source_revision_id: srcrev_d4037cd99041b3751727dad96a9ffc9d
+- summary: Source: [Notion source](https://www.notion.so/Data-Model-Design-21fd22193c9144efb01ea404cee8f710)
+
+## [2026-05-05T05:41:23Z] ingest | RDS table Schema (March 2023)
+
+- status: published
+- slug: notion_document/rds-table-schema-march-2023--dfa6756e
+- wiki_revision_id: wikirev_055a7c8f04c031a10f6642e4fa98d0dd
+- source_document_id: srcdoc_3414a33a226ac7a9512a93b1dfa6756e
+- source_revision_id: srcrev_5b9f5ab07d96aeec4acc83f9cfbcd7dd
+- summary: Source: [Notion source](https://www.notion.so/RDS-table-Schema-March-2023-e546c719255948eb8ab0748c895d93c7)
+
+## [2026-05-05T05:41:25Z] ingest | Gas Optimization research
+
+- status: published
+- slug: notion_document/gas-optimization-research-30bedc5e
+- wiki_revision_id: wikirev_bc5e0b052f8c05efe1d693a845e5d856
+- source_document_id: srcdoc_59859be4c4ca50609e48898a30bedc5e
+- source_revision_id: srcrev_ac803ca7d8c644a5115369da0f98c7ad
+- summary: Source: [Notion source](https://www.notion.so/Gas-Optimization-research-cf39cdfc6680424a95de6b764ad450d3)
+
+## [2026-05-05T05:41:28Z] ingest | Back End Cloud Architecture
+
+- status: published
+- slug: notion_document/back-end-cloud-architecture-7b9eabe6
+- wiki_revision_id: wikirev_2fb2ad6469a3bdf312f1c9e8e992159b
+- source_document_id: srcdoc_87e823475bafe7e0183f3cc97b9eabe6
+- source_revision_id: srcrev_9bd882f07e7b4ece8f6f6260590a922e
+- summary: Source: [Notion source](https://www.notion.so/Back-End-Cloud-Architecture-d2aaad1072ea4d808ce943b28ff1044a)
+
+## [2026-05-05T05:41:30Z] ingest | Admin workflows
+
+- status: published
+- slug: notion_document/admin-workflows-cdac19c0
+- wiki_revision_id: wikirev_8afe0dc259325a5a975a68856339e850
+- source_document_id: srcdoc_545d85ef21996cab8480035fcdac19c0
+- source_revision_id: srcrev_54e7a13ccff6fe078294909c5c1378be
+- summary: Source: [Notion source](https://www.notion.so/Admin-workflows-2969800578134d45b193029286923b3a)
+
+## [2026-05-05T05:41:32Z] ingest | S3 Content folder structure
+
+- status: published
+- slug: notion_document/s3-content-folder-structure-7fdcacf4
+- wiki_revision_id: wikirev_0ab934ce78e72747e896dfec50ab892e
+- source_document_id: srcdoc_8236f03f032b64e09c346f8f7fdcacf4
+- source_revision_id: srcrev_19bf6e9e4c6fc7d6a29bed9c2dd4c5c2
+- summary: Source: [Notion source](https://www.notion.so/S3-Content-folder-structure-802561b84e7a44c388216359ac1a0910)
+
+## [2026-05-05T05:41:34Z] ingest | Development Workflow
+
+- status: published
+- slug: notion_document/development-workflow-1e3e4924
+- wiki_revision_id: wikirev_21f9419c999a42e74ed5337c8ca33418
+- source_document_id: srcdoc_d9107f866f69c017d2babb6f1e3e4924
+- source_revision_id: srcrev_4073989c3b1d0e754cf186ed87d8f83c
+- summary: Source: [Notion source](https://www.notion.so/Development-Workflow-d468f7ba8f7c4b8fb496e7013f53f592)
+
+## [2026-05-05T05:41:37Z] ingest | Smart Contract Attack Vectors
+
+- status: published
+- slug: notion_document/smart-contract-attack-vectors-dbe587b4
+- wiki_revision_id: wikirev_4ddeafa7ab2604725f84c938c68d2a0d
+- source_document_id: srcdoc_418580c4f690d2526d95e4bbdbe587b4
+- source_revision_id: srcrev_2c46cb169e5a0a5044b0673fc5ab0050
+- summary: Source: [Notion source](https://www.notion.so/Smart-Contract-Attack-Vectors-1bf7385744d74ec1afd94a71f0a2076e)
+
+## [2026-05-05T05:41:39Z] ingest | Licensing Module Design Considerations
+
+- status: published
+- slug: notion_document/licensing-module-design-considerations-7529a2f4
+- wiki_revision_id: wikirev_38df551721d7adf390031f657668e325
+- source_document_id: srcdoc_7c207f05dc19776cc9af57767529a2f4
+- source_revision_id: srcrev_96ef65bf17893984c723f5515abee856
+- summary: Source: [Notion source](https://www.notion.so/Licensing-Module-Design-Considerations-198e30fb314548b9999e962460cc1624)
+
+## [2026-05-05T05:41:41Z] ingest | Story Lego - previous
+
+- status: published
+- slug: notion_document/story-lego---previous-28974b73
+- wiki_revision_id: wikirev_b1da04442cc224fba397129e02b3265d
+- source_document_id: srcdoc_5bfc095b09b8787e06cc691628974b73
+- source_revision_id: srcrev_103f3fe7de5d4094c652e53678f641c1
+- summary: Source: [Notion source](https://www.notion.so/Story-Lego-previous-faa02f7cc4ed4df8901a53279a24e984)
+
+## [2026-05-05T05:41:45Z] ingest | Story Legos Design -wip
+
+- status: published
+- slug: notion_document/story-legos-design--wip-7c14ce6a
+- wiki_revision_id: wikirev_87d6225a920ad2527393ef0c74cd06eb
+- source_document_id: srcdoc_0d07e9509b30a8ee16e7fb2b7c14ce6a
+- source_revision_id: srcrev_2505df4b025ef853a8c4d0d265da6196
+- summary: Source: [Notion source](https://www.notion.so/Story-Legos-Design-wip-19c9dbbd19ce4c5ba2e8dca82aecac79)
+
+## [2026-05-05T05:41:48Z] ingest | Protocol Data Model and Module Discussion
+
+- status: published
+- slug: notion_document/protocol-data-model-and-module-discussion-40948fcd
+- wiki_revision_id: wikirev_87ba80e0569f244cd014c2b7b06f15e4
+- source_document_id: srcdoc_c385c17549da5e7ade34384340948fcd
+- source_revision_id: srcrev_5b8694592b19a0759c2c700a8d15b864
+- summary: Source: [Notion source](https://www.notion.so/Protocol-Data-Model-and-Module-Discussion-f004711a228047e7abd2d9b48911b9b2)
+
+## [2026-05-05T05:41:50Z] ingest | FrontEnd Repo Open source Checklist
+
+- status: published
+- slug: notion_document/frontend-repo-open-source-checklist-42f4a1f5
+- wiki_revision_id: wikirev_333e251107bf0275d1e98a3c0bb2f5d0
+- source_document_id: srcdoc_bef40d728e9474de02185f1c42f4a1f5
+- source_revision_id: srcrev_a0fa21df557422237b9aeab3a0884704
+- summary: Source: [Notion source](https://www.notion.so/FrontEnd-Repo-Open-source-Checklist-e74391941c104270ba83fa8cb2ccf763)
+
+## [2026-05-05T05:41:52Z] ingest | Dutch Aution Minting
+
+- status: published
+- slug: notion_document/dutch-aution-minting-8f73c3ba
+- wiki_revision_id: wikirev_9c867a786ff26939358f70045cf30973
+- source_document_id: srcdoc_818de204510f0834263c4e798f73c3ba
+- source_revision_id: srcrev_6c3f97af7adb50852274c0b336a25065
+- summary: Source: [Notion source](https://www.notion.so/Dutch-Aution-Minting-52d6cbb624ee49be86e3aa62204833b4)
+
+## [2026-05-05T05:41:53Z] ingest | Image Resizing Solution
+
+- status: published
+- slug: notion_document/image-resizing-solution-1d641e1e
+- wiki_revision_id: wikirev_489d59bcb111e39b3c971e5e8ed7c140
+- source_document_id: srcdoc_2cdd1bdf38b8afef4aa4c46c1d641e1e
+- source_revision_id: srcrev_66896594782ff6b7e5ccba2a59ed0fba
+- summary: Source: [Notion source](https://www.notion.so/Image-Resizing-Solution-bc4c7ce21de34197b991b1e15e0ba4a1)
+
+## [2026-05-05T05:41:56Z] ingest | Account Management
+
+- status: published
+- slug: notion_document/account-management-db981133
+- wiki_revision_id: wikirev_aa5b7385b7b0142d4956a35432786726
+- source_document_id: srcdoc_11c1b16d30c7a9bed53640cfdb981133
+- source_revision_id: srcrev_b35986f19143162eccc03d9ee8270ef1
+- summary: Source: [Notion source](https://www.notion.so/Account-Management-5b2f85dcbc234f8a8942d35c7279f5f9)
+
+## [2026-05-05T05:41:58Z] ingest | Design Doc: v2 Monitoring + CICD
+
+- status: published
+- slug: notion_document/design-doc-v2-monitoring-cicd-c078790b
+- wiki_revision_id: wikirev_0f1ef54fd3312dc6483a2945205a9123
+- source_document_id: srcdoc_fa13b656f0b6caceff0132ffc078790b
+- source_revision_id: srcrev_498642f02f08a2c2eecbfafb4947df37
+- summary: Source: [Notion source](https://www.notion.so/Design-Doc-v2-Monitoring-CICD-9a34825c70dd436ebd764cb2924480c5)
+
+## [2026-05-05T05:41:59Z] ingest | WF metadata (WIP)
+
+- status: published
+- slug: notion_document/wf-metadata-wip--adb04a77
+- wiki_revision_id: wikirev_4baa0c51a83b705fb8519338c8248d1e
+- source_document_id: srcdoc_7d8204ad78311a5b7975c02cadb04a77
+- source_revision_id: srcrev_facecae5ec4c25990af94f8e56f7ff14
+- summary: Source: [Notion source](https://www.notion.so/WF-metadata-WIP-c20ace479c064f7eb5ae7927d969626f)
+
+## [2026-05-05T05:42:03Z] ingest | [Live] Protocol Updates
+
+- status: published
+- slug: notion_document/-live-protocol-updates-85ce182a
+- wiki_revision_id: wikirev_fca799d1824eefbba9acfe04a378dae1
+- source_document_id: srcdoc_0305d251cdf50e4f9a2f426185ce182a
+- source_revision_id: srcrev_4be2d88855699ba4d5b6cf1e544a5d4c
+- summary: Source: [Notion source](https://www.notion.so/Live-Protocol-Updates-3490b130294a481494992e59b84373a7)
+
+## [2026-05-05T05:42:08Z] ingest | Character Backstory Orchestrator
+
+- status: published
+- slug: notion_document/character-backstory-orchestrator-02619757
+- wiki_revision_id: wikirev_96fb8dbe2bf3323e5656c72dfc354821
+- source_document_id: srcdoc_64c5d89d5661604683d49acb02619757
+- source_revision_id: srcrev_efefbef9c2fd06306e95e48a5cbe9cd9
+- summary: Source: [Notion source](https://www.notion.so/Character-Backstory-Orchestrator-0389b0a727f848dbaa70024f5864a019)
+
+## [2026-05-05T05:42:11Z] ingest | Open Source Development (WIP)
+
+- status: published
+- slug: notion_document/open-source-development-wip--72277c81
+- wiki_revision_id: wikirev_6074a5b90e246e7dfa4ec29e2cf4df09
+- source_document_id: srcdoc_3717dcab16e1d0c3dcb1ea7272277c81
+- source_revision_id: srcrev_ed2f86d9445e0c6e99af225738dc4bc9
+- summary: Source: [Notion source](https://www.notion.so/Open-Source-Development-WIP-ed7e70490e8d41a39f256d7576c567c0)
+
+## [2026-05-05T05:42:13Z] ingest | Infra Roadmap
+
+- status: published
+- slug: notion_document/infra-roadmap-1ccb9b7f
+- wiki_revision_id: wikirev_088c55541d505e91dfcf460f119dce74
+- source_document_id: srcdoc_bb27066ab6ea663e91586cae1ccb9b7f
+- source_revision_id: srcrev_5b351a74a66db67d6024bfa66201f3da
+- summary: Source: [Notion source](https://www.notion.so/Infra-Roadmap-f7a432a059be4b57a4dd4607e1d23ce4)
+
+## [2026-05-05T05:42:15Z] ingest | Untitled
+
+- status: published
+- slug: notion_document/untitled-41a17099
+- wiki_revision_id: wikirev_8791e623753a3a0dfdc3de45dd153c07
+- source_document_id: srcdoc_6c83b9d6ed99a8ee3b4e8ef541a17099
+- source_revision_id: srcrev_a8af1a5b28a3d00a070e52b3bf4ab144
+- summary: Source: [Notion source](https://www.notion.so/2c3032c91d0e4d96a3058d5e39cec6c4)
+
+## [2026-05-05T05:42:17Z] ingest | Event Indexing Workflow
+
+- status: published
+- slug: notion_document/event-indexing-workflow-16e19d71
+- wiki_revision_id: wikirev_94102d041af874cd7e1ffffd5a1ad540
+- source_document_id: srcdoc_463b8a80b67d98f2ea1b23aa16e19d71
+- source_revision_id: srcrev_43b68c1402c78da1746c9b540101bac5
+- summary: Source: [Notion source](https://www.notion.so/Event-Indexing-Workflow-37d7b1de80af4386805ca252bbfe9a38)
+
+## [2026-05-05T05:42:19Z] ingest | Backend Guide
+
+- status: published
+- slug: notion_document/backend-guide-b79d8604
+- wiki_revision_id: wikirev_259cdd6f01eaa288ea754de4a3c1bd41
+- source_document_id: srcdoc_6adecfcefc5b191c3ea80ea3b79d8604
+- source_revision_id: srcrev_02f03f84f5a0e3ecad4481feb7f51277
+- summary: Source: [Notion source](https://www.notion.so/Backend-Guide-3714a1b2e1bf4342871e329d0ea77806)
+
+## [2026-05-05T05:42:21Z] ingest | Story Protocol Orchestrator/Gateway
+
+- status: published
+- slug: notion_document/story-protocol-orchestrator/gateway-9d851451
+- wiki_revision_id: wikirev_b25a025afda210c29b7e02e298521889
+- source_document_id: srcdoc_323f8d7d4e68df8894cccff99d851451
+- source_revision_id: srcrev_74cf1960eec32d24833aad7fb9ebe1ab
+- summary: Source: [Notion source](https://www.notion.so/Story-Protocol-Orchestrator-Gateway-a0ce45290ea3481aa7701440e5b63a73)
+
+## [2026-05-05T05:42:23Z] ingest | License NFT on-chain data
+
+- status: published
+- slug: notion_document/license-nft-on-chain-data-5db66470
+- wiki_revision_id: wikirev_fa1bb12f7ed767335a94f60953ebe095
+- source_document_id: srcdoc_9b5d6a3f2385a23ec531e86a5db66470
+- source_revision_id: srcrev_0fdf4bcbbc1d4bcabb2c4acbbb015e86
+- summary: Source: [Notion source](https://www.notion.so/License-NFT-on-chain-data-b93d57d4dd014f01b64c9508ee843a6d)
+
+## [2026-05-05T05:42:25Z] ingest | LastPass
+
+- status: published
+- slug: notion_document/lastpass-223634e8
+- wiki_revision_id: wikirev_06a3eafedd37a7bb818151f805f45e45
+- source_document_id: srcdoc_fd33e78013569317dc1eb536223634e8
+- source_revision_id: srcrev_1a9174237983102a2d57e1c5ccee19c3
+- summary: Source: [Notion source](https://www.notion.so/LastPass-c6fa102f7faf482b9edd1f2b04cf5b22)
+
+## [2026-05-05T05:42:27Z] ingest | Story Protocol Open Source
+
+- status: published
+- slug: notion_document/story-protocol-open-source-3b31bb23
+- wiki_revision_id: wikirev_dfc929cd205fdb935a8f1593749cb60e
+- source_document_id: srcdoc_884f1903ce310010823d97523b31bb23
+- source_revision_id: srcrev_ffbd2e78fb0d8c18b350f7494fbb9410
+- summary: Source: [Notion source](https://www.notion.so/Story-Protocol-Open-Source-33426c0d53764cecad90caebaa410511)
+
+## [2026-05-05T05:42:29Z] ingest | Lens V2
+
+- status: published
+- slug: notion_document/lens-v2-32be6aee
+- wiki_revision_id: wikirev_1863d8c8cd10cd2bfb1b1148b949a084
+- source_document_id: srcdoc_39b80138df69032d4d3d570e32be6aee
+- source_revision_id: srcrev_5170a8cf96cbeadc23efdf7098f170d7
+- summary: Source: [Notion source](https://www.notion.so/Lens-V2-f4c72fe0eba3417bb4d768d6abe5f94a)
+
+## [2026-05-05T05:42:31Z] ingest | IPA (IP Assets) - rethinking
+
+- status: published
+- slug: notion_document/ipa-ip-assets---rethinking-4a4ce6ef
+- wiki_revision_id: wikirev_2cd0581858613e5380eec22aa07b26b1
+- source_document_id: srcdoc_9efa560a979244e0d05ef8ba4a4ce6ef
+- source_revision_id: srcrev_349b17446f9107d63f8872308dc176e8
+- summary: Source: [Notion source](https://www.notion.so/IPA-IP-Assets-rethinking-fff0f90d32ec40379a294af82bd0d697)
+
+## [2026-05-05T05:42:36Z] ingest | IPA - book
+
+- status: published
+- slug: notion_document/ipa---book-e200cc05
+- wiki_revision_id: wikirev_5a7fe02ef4366532e9c152841ad8e10b
+- source_document_id: srcdoc_7629ac1bf7becc93c49e4e37e200cc05
+- source_revision_id: srcrev_d745bc32c41d5c4a52cd795fce3cc23e
+- summary: Source: [Notion source](https://www.notion.so/IPA-book-38d3bfc085e64d5d809c88e4383998d1)
+
+## [2026-05-05T05:42:38Z] ingest | Dashboard Execution Plan
+
+- status: published
+- slug: notion_document/dashboard-execution-plan-34c2672d
+- wiki_revision_id: wikirev_a30812b93c63f9f2bcd4797081004840
+- source_document_id: srcdoc_e41095c9430dfc22a124e5c534c2672d
+- source_revision_id: srcrev_7b1f667e71eb90910d1a84ac2dfe7cd6
+- summary: Source: [Notion source](https://www.notion.so/Dashboard-Execution-Plan-91bda29e82444dcb836ad816e44f0f8e)
+
+## [2026-05-05T05:42:39Z] ingest | Untitled
+
+- status: published
+- slug: notion_document/untitled-a1f88423
+- wiki_revision_id: wikirev_6ad390c5fa5c61a45fb6ae7d24391897
+- source_document_id: srcdoc_cc5571e095cd8e02cae83339a1f88423
+- source_revision_id: srcrev_804582527d9a548e389cdc9d4a566d80
+- summary: Source: [Notion source](https://www.notion.so/9ff9903806cb4db689cc2f68dd68e7a0)
+
+## [2026-05-05T05:42:41Z] ingest | Protocol Research
+
+- status: published
+- slug: notion_document/protocol-research-a0f52128
+- wiki_revision_id: wikirev_87c0a29ca3d217862a47f7af2d24771c
+- source_document_id: srcdoc_88cc2d58f4933c59d9c467a9a0f52128
+- source_revision_id: srcrev_24191863050365d92f239621b3efbbcb
+- summary: Source: [Notion source](https://www.notion.so/Protocol-Research-c9728704277d4d21ad9683066422c0eb)
+
+## [2026-05-05T05:42:45Z] ingest | Lens Protocol Deep-dive
+
+- status: published
+- slug: notion_document/lens-protocol-deep-dive-3df90422
+- wiki_revision_id: wikirev_9d79377da396ca5ed5cade26262b74b2
+- source_document_id: srcdoc_d1a8b6ae49bce4f89d4411203df90422
+- source_revision_id: srcrev_cfdfb49e0cf3c8948bff0ac3aa0feb22
+- summary: Source: [Notion source](https://www.notion.so/Lens-Protocol-Deep-dive-b164ee7384b844928ca3c1791ebbc235)
+
+## [2026-05-05T05:42:46Z] ingest | GraphQL Backend
+
+- status: published
+- slug: notion_document/graphql-backend-973103da
+- wiki_revision_id: wikirev_32049c25275ff3798b74bde59c5dfb9a
+- source_document_id: srcdoc_5bd76658ea8bc40df47ceaab973103da
+- source_revision_id: srcrev_80e6c0e7fdba9eea79eb057b5d65ae3b
+- summary: Source: [Notion source](https://www.notion.so/GraphQL-Backend-e1a57c3e4fe7421292a1cb9ec09d0821)
+
+## [2026-05-05T05:42:48Z] ingest | Protocol metadata
+
+- status: published
+- slug: notion_document/protocol-metadata-7d270a60
+- wiki_revision_id: wikirev_a9fe201d8c234d276381ffd2a4c54dc5
+- source_document_id: srcdoc_b099233037f2e9aea36ab7787d270a60
+- source_revision_id: srcrev_750abed50933eaaa91a80a49c6d3b87f
+- summary: Source: [Notion source](https://www.notion.so/Protocol-metadata-1d4e331c981849479a594612cadeddd2)
+
+## [2026-05-05T05:42:51Z] ingest | Testing Guidelines and Info
+
+- status: published
+- slug: notion_document/testing-guidelines-and-info-690b45fc
+- wiki_revision_id: wikirev_bec8fba6a2a3dff21b72eba09124a65a
+- source_document_id: srcdoc_5470db6db81ad97bd4aedaca690b45fc
+- source_revision_id: srcrev_4d80094f5706e45b892b500e952ffe13
+- summary: Source: [Notion source](https://www.notion.so/Testing-Guidelines-and-Info-c376542cedbc40d69efbc123010c400f)
+
+## [2026-05-05T05:42:53Z] ingest | Parallax Scrolling Resource
+
+- status: published
+- slug: notion_document/parallax-scrolling-resource-f3bc472d
+- wiki_revision_id: wikirev_fa35fd6e4fba8f094d825b72d1cb9edd
+- source_document_id: srcdoc_890ed34aa17626edd8d9ffdcf3bc472d
+- source_revision_id: srcrev_9ab15a5c1e7a8d425dd7105346d127eb
+- summary: Source: [Notion source](https://www.notion.so/Parallax-Scrolling-Resource-4ea82bafd2bd455bb038bfcfeb517b51)
+
+## [2026-05-05T05:42:55Z] ingest | Global IP Assets
+
+- status: published
+- slug: notion_document/global-ip-assets-3aee01c6
+- wiki_revision_id: wikirev_4c69e7dac6480dcf235547713396540a
+- source_document_id: srcdoc_1457d740be0123e73d1650673aee01c6
+- source_revision_id: srcrev_0d748ca73ba59b9eb50e7e76438b4a22
+- summary: Source: [Notion source](https://www.notion.so/Global-IP-Assets-b422d08b7a1f46b594a3e2becfbaa393)
+
+## [2026-05-05T05:42:58Z] ingest | CLI Design
+
+- status: published
+- slug: notion_document/cli-design-a90d0e1e
+- wiki_revision_id: wikirev_8fd716131d5d014115f26e42e20de3c2
+- source_document_id: srcdoc_76491c05e314c46dd41e4167a90d0e1e
+- source_revision_id: srcrev_00f3693d927e897ac6786fb5244f088d
+- summary: Source: [Notion source](https://www.notion.so/CLI-Design-6e7afad28d76422e90b8ba684fb8d4b4)
+
