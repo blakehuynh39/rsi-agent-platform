@@ -13712,3 +13712,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e47fd839b1fbb8ce56ecbd725340f171
 - summary: Specification for the PFP project, a mechanism to bring contributors into the Emergence ecosystem via a legal contract and protocol integrations like licensing, IP assets, collect,...
 
+## [2026-05-05T10:54:01Z] synthesis | Dev Resources
+
+- status: published
+- slug: concepts/dev-resources
+- wiki_revision_id: wikirev_341ce83e3285d820d0c60c997e2eb8a0
+- summary: A curated list of development resources covering editor tools with mentions and React chart libraries, categorized by scroll behavior.
+
