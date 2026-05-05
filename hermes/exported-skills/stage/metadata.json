@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "455632e19c82bc8e6776289f9f1220aa1ca26346483d402a36ad910f4662511f",
-        "size": 685345
+        "sha256": "c64feac778539f689cbe68b5ff2de3454f99a67555abec6077a07fc846a9e5c0",
+        "size": 685665
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2913,6 +2913,11 @@
         "path": "pages/concepts/upload-submission-errors.md",
         "sha256": "bea4de315c1241d295cefc379e17083477c771b9257b8c2c7d4a8996ce0a84bd",
         "size": 1054
+      },
+      {
+        "path": "pages/concepts/web3-wallet-libraries.md",
+        "sha256": "d3f31d10ec80f0d5e47d6f96aa81e2709edabeab88cddaf3e78ab702a8d64734",
+        "size": 9617
       },
       {
         "path": "pages/decisions/character-backstory-orchestrator.md",
@@ -3259,8 +3264,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T09:28:12Z",
-  "file_count": 650,
+  "exported_at": "2026-05-05T09:34:03Z",
+  "file_count": 651,
   "files": [
     {
       "path": ".usage.json",
@@ -6027,20 +6032,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "7141683c87a32c49e7c19205c4823b448c7098faf53c6483267ed7c51c9665da",
+  "previous_tree_hash": "2feb409b294f1ba244dc2e779c894c1e4687859f887fa9d16cb39fe1a6fc3dd8",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2feb409b294f1ba244dc2e779c894c1e4687859f887fa9d16cb39fe1a6fc3dd8",
+  "tree_hash": "c8180608d2f970ee6f8420dae950e84e189eb6ee27fa477453a462efbcd5408a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 98,
+  "wiki_file_count": 99,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6054,8 +6059,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "455632e19c82bc8e6776289f9f1220aa1ca26346483d402a36ad910f4662511f",
-      "size": 685345
+      "sha256": "c64feac778539f689cbe68b5ff2de3454f99a67555abec6077a07fc846a9e5c0",
+      "size": 685665
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6191,6 +6196,11 @@
       "path": "pages/concepts/upload-submission-errors.md",
       "sha256": "bea4de315c1241d295cefc379e17083477c771b9257b8c2c7d4a8996ce0a84bd",
       "size": 1054
+    },
+    {
+      "path": "pages/concepts/web3-wallet-libraries.md",
+      "sha256": "d3f31d10ec80f0d5e47d6f96aa81e2709edabeab88cddaf3e78ab702a8d64734",
+      "size": 9617
     },
     {
       "path": "pages/decisions/character-backstory-orchestrator.md",
@@ -6534,5 +6544,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "faf1123e16cf43b16c3d71a2526e1b1eb7905a209aa59df5d6a2d69fc0944485"
+  "wiki_tree_hash": "4b934d14ced68c82eb1bc57c1a514ba4127d0a993c9bf1ea1d252e8c75782952"
 }

@@ -13586,3 +13586,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_48135cf46580c22f7264d46d77cc9b99
 - summary: Overview of monitoring pages and dashboards used by the team, including Uptimerobot status page, Pagerduty alerts, and CloudWatch dashboard. Grafana dashboards are deprecated.
 
+## [2026-05-05T09:31:42Z] synthesis | Web3 Wallet Libraries
+
+- status: published
+- slug: concepts/web3-wallet-libraries
+- wiki_revision_id: wikirev_d13ca85fa14cc12e6cc85920f403dd84
+- summary: A curated list of generic and non-custodial wallet solutions for web3 applications, including integration guides and examples.
+
