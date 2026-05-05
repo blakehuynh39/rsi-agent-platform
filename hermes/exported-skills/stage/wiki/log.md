@@ -14325,3 +14325,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_542b174ec5494ef012ad139d6325417e
 - summary: A curated collection of resources and assessments related to blockchain interoperability protocols, including general bridge frameworks and deep dives into specific solutions like ...
 
+## [2026-05-05T18:46:30Z] synthesis | Enshrined Protocol
+
+- status: published
+- slug: concepts/enshrined-protocol
+- wiki_revision_id: wikirev_f13d5bd9255873701ee4df4565514ca8
+- summary: Discussion and resources on enshrined protocol, covering precompiles, examples from other L1s (Dydx, Berachain, Frame), and SP-specific candidates.
+
