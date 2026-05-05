@@ -15,4 +15,3 @@ __pycache__/
 ui/eval-web/node_modules/
 ui/eval-web/.vite/
 runner/.venv/
-hermes/exported-skills/*/wiki/
