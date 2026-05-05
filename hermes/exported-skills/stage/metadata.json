@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "43647de400cb20d7ae32e514b8df5fdbefdc642008330df023201ffbb84621be",
-        "size": 699264
+        "sha256": "ac4748865b8d2b3c85346762f4069fd3cfd8e7b1d9df45f7f628f0e6d7a0cbeb",
+        "size": 700021
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2905,6 +2905,11 @@
         "size": 1135
       },
       {
+        "path": "pages/concepts/nouns-concept.md",
+        "sha256": "348ce18ae1d650c7d73570758cf91d626d6b5b0cee847c903aa918e3abaaa379",
+        "size": 1165
+      },
+      {
         "path": "pages/concepts/package-frontend-story-telling-examples.md",
         "sha256": "46b1f78218c812cede4a284048135ab3a4da0d271cd98f4577fbb182e3939cf8",
         "size": 1415
@@ -2968,6 +2973,11 @@
         "path": "pages/concepts/upload-submission-errors.md",
         "sha256": "bea4de315c1241d295cefc379e17083477c771b9257b8c2c7d4a8996ce0a84bd",
         "size": 1054
+      },
+      {
+        "path": "pages/concepts/verbs-concept.md",
+        "sha256": "724180e8dd19e8593d7b31ff6b7767030140c39b584f3d274c7e0c673d7d6234",
+        "size": 1153
       },
       {
         "path": "pages/concepts/web3-wallet-libraries.md",
@@ -3260,6 +3270,11 @@
         "size": 4800
       },
       {
+        "path": "pages/projects/platform-beta-plan.md",
+        "sha256": "8dcf37b8eb9ff19a03c7a78388b35f3b5eaba626db26162355a3e63fc9ec1f28",
+        "size": 3876
+      },
+      {
         "path": "pages/projects/project-nova-setup.md",
         "sha256": "20d6eaabc2405dd40acf8f7335c5b0c67fe902e2ba03e308ad743a965042d941",
         "size": 1109
@@ -3434,8 +3449,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T13:13:37Z",
-  "file_count": 685,
+  "exported_at": "2026-05-05T13:24:34Z",
+  "file_count": 688,
   "files": [
     {
       "path": ".usage.json",
@@ -6202,20 +6217,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "4f8973c2af5a12af14bb62de9b24d85b483df905208fa20c96eb67d37a371b75",
+  "previous_tree_hash": "3f35d25b87a31e284e90f1070a0684483a0382c5c37b656493086b1f6f48634a",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3f35d25b87a31e284e90f1070a0684483a0382c5c37b656493086b1f6f48634a",
+  "tree_hash": "202219009cccdd4a78984bcbb3ab51fe1bb4554b7f032280ba5d55138fdb8cc7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 133,
+  "wiki_file_count": 136,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6229,8 +6244,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "43647de400cb20d7ae32e514b8df5fdbefdc642008330df023201ffbb84621be",
-      "size": 699264
+      "sha256": "ac4748865b8d2b3c85346762f4069fd3cfd8e7b1d9df45f7f628f0e6d7a0cbeb",
+      "size": 700021
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6358,6 +6373,11 @@
       "size": 1135
     },
     {
+      "path": "pages/concepts/nouns-concept.md",
+      "sha256": "348ce18ae1d650c7d73570758cf91d626d6b5b0cee847c903aa918e3abaaa379",
+      "size": 1165
+    },
+    {
       "path": "pages/concepts/package-frontend-story-telling-examples.md",
       "sha256": "46b1f78218c812cede4a284048135ab3a4da0d271cd98f4577fbb182e3939cf8",
       "size": 1415
@@ -6421,6 +6441,11 @@
       "path": "pages/concepts/upload-submission-errors.md",
       "sha256": "bea4de315c1241d295cefc379e17083477c771b9257b8c2c7d4a8996ce0a84bd",
       "size": 1054
+    },
+    {
+      "path": "pages/concepts/verbs-concept.md",
+      "sha256": "724180e8dd19e8593d7b31ff6b7767030140c39b584f3d274c7e0c673d7d6234",
+      "size": 1153
     },
     {
       "path": "pages/concepts/web3-wallet-libraries.md",
@@ -6713,6 +6738,11 @@
       "size": 4800
     },
     {
+      "path": "pages/projects/platform-beta-plan.md",
+      "sha256": "8dcf37b8eb9ff19a03c7a78388b35f3b5eaba626db26162355a3e63fc9ec1f28",
+      "size": 3876
+    },
+    {
       "path": "pages/projects/project-nova-setup.md",
       "sha256": "20d6eaabc2405dd40acf8f7335c5b0c67fe902e2ba03e308ad743a965042d941",
       "size": 1109
@@ -6884,5 +6914,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "424bfa521acd73df62392233c4c41bf246904e2a3413582d241da706f5a367fa"
+  "wiki_tree_hash": "1b5fbf1a0a4d846c5ad477dc13235bb5f882bb4dc4e0d13a98c21a62d972f0ac"
 }

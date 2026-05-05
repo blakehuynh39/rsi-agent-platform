@@ -13887,3 +13887,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_136aa25c711216c090cea946fe54ac79
 - summary: Describes how derivatives can be linked to multiple parent IPAs, including scenarios with a single common policy and the more complex case of multiple, potentially incompatible pol...
 
+## [2026-05-05T13:22:31Z] synthesis | Platform Beta Plan
+
+- status: published
+- slug: projects/platform-beta-plan
+- wiki_revision_id: wikirev_c2dc77310b26f99452aa7f1a21b10e18
+- summary: Plan for the platform beta, including timeline, key concepts (Nouns and Verbs), and related sub-pages and tasks.
+
+## [2026-05-05T13:22:31Z] synthesis | Nouns (Concept)
+
+- status: published
+- slug: concepts/nouns-concept
+- wiki_revision_id: wikirev_487b9ee687a51c267d94eefeef7d5642
+- summary: Nouns are data models to index from the protocol.
+
+## [2026-05-05T13:22:31Z] synthesis | Verbs (Concept)
+
+- status: published
+- slug: concepts/verbs-concept
+- wiki_revision_id: wikirev_8dda7b28536f05192e1d8a93311c05be
+- summary: Verbs are actions to interact with the protocol.
+
