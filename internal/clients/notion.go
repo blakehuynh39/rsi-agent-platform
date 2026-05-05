@@ -7,13 +7,14 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 )
 
-const defaultNotionVersion = "2022-06-28"
+const defaultNotionVersion = "2026-03-11"
 
 type NotionClient struct {
 	baseURL           string
@@ -57,12 +58,34 @@ type NotionPage struct {
 	InTrash        bool           `json:"in_trash"`
 }
 
+type NotionDataSourceReference struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
 type NotionDatabase struct {
+	Object         string                      `json:"object"`
+	ID             string                      `json:"id"`
+	URL            string                      `json:"url"`
+	Title          []NotionText                `json:"title"`
+	Parent         map[string]any              `json:"parent"`
+	DataSources    []NotionDataSourceReference `json:"data_sources"`
+	Properties     map[string]any              `json:"properties"`
+	LastEditedTime string                      `json:"last_edited_time"`
+	CreatedTime    string                      `json:"created_time"`
+	Archived       bool                        `json:"archived"`
+	InTrash        bool                        `json:"in_trash"`
+	Raw            map[string]any              `json:"-"`
+}
+
+type NotionDataSource struct {
 	Object         string         `json:"object"`
 	ID             string         `json:"id"`
+	Name           string         `json:"name"`
 	URL            string         `json:"url"`
 	Title          []NotionText   `json:"title"`
 	Parent         map[string]any `json:"parent"`
+	DatabaseParent map[string]any `json:"database_parent"`
 	Properties     map[string]any `json:"properties"`
 	LastEditedTime string         `json:"last_edited_time"`
 	CreatedTime    string         `json:"created_time"`
@@ -93,6 +116,23 @@ type NotionListResponse[T any] struct {
 	Results    []T    `json:"results"`
 	NextCursor string `json:"next_cursor"`
 	HasMore    bool   `json:"has_more"`
+}
+
+type NotionDataSourceQueryOptions struct {
+	Cursor                  string
+	PageSize                int
+	LastEditedTimeOnOrAfter string
+	SortTimestamp           string
+	SortDirection           string
+	FilterProperties        []string
+}
+
+type NotionPageMarkdown struct {
+	Object          string   `json:"object"`
+	ID              string   `json:"id"`
+	Markdown        string   `json:"markdown"`
+	Truncated       bool     `json:"truncated"`
+	UnknownBlockIDs []string `json:"unknown_block_ids"`
 }
 
 func NewNotionClient(token string) *NotionClient {
@@ -151,6 +191,26 @@ func (c *NotionClient) RetrieveDatabase(ctx context.Context, databaseID string) 
 	return out, nil
 }
 
+func (c *NotionClient) RetrieveDataSource(ctx context.Context, dataSourceID string) (NotionDataSource, error) {
+	var out NotionDataSource
+	if err := c.doJSON(ctx, http.MethodGet, "/v1/data_sources/"+strings.TrimSpace(dataSourceID), nil, &out); err != nil {
+		return NotionDataSource{}, err
+	}
+	return out, nil
+}
+
+func (c *NotionClient) RetrievePageMarkdown(ctx context.Context, pageID string, includeTranscript bool) (NotionPageMarkdown, error) {
+	path := "/v1/pages/" + strings.TrimSpace(pageID) + "/markdown"
+	if includeTranscript {
+		path += "?include_transcript=true"
+	}
+	var out NotionPageMarkdown
+	if err := c.doJSON(ctx, http.MethodGet, path, nil, &out); err != nil {
+		return NotionPageMarkdown{}, err
+	}
+	return out, nil
+}
+
 func (c *NotionClient) ListBlockChildren(ctx context.Context, blockID string, cursor string, pageSize int) (NotionListResponse[NotionBlock], error) {
 	if pageSize <= 0 || pageSize > 100 {
 		pageSize = 100
@@ -162,6 +222,53 @@ func (c *NotionClient) ListBlockChildren(ctx context.Context, blockID string, cu
 	var out NotionListResponse[NotionBlock]
 	if err := c.doJSON(ctx, http.MethodGet, path, nil, &out); err != nil {
 		return NotionListResponse[NotionBlock]{}, err
+	}
+	return out, nil
+}
+
+func (c *NotionClient) QueryDataSource(ctx context.Context, dataSourceID string, opts NotionDataSourceQueryOptions) (NotionListResponse[NotionPage], error) {
+	pageSize := opts.PageSize
+	if pageSize <= 0 || pageSize > 100 {
+		pageSize = 100
+	}
+	payload := map[string]any{"page_size": pageSize}
+	if strings.TrimSpace(opts.Cursor) != "" {
+		payload["start_cursor"] = strings.TrimSpace(opts.Cursor)
+	}
+	if strings.TrimSpace(opts.LastEditedTimeOnOrAfter) != "" {
+		payload["filter"] = map[string]any{
+			"timestamp": "last_edited_time",
+			"last_edited_time": map[string]any{
+				"on_or_after": strings.TrimSpace(opts.LastEditedTimeOnOrAfter),
+			},
+		}
+	}
+	sortTimestamp := strings.TrimSpace(opts.SortTimestamp)
+	if sortTimestamp != "" {
+		sortDirection := strings.TrimSpace(opts.SortDirection)
+		if sortDirection == "" {
+			sortDirection = "ascending"
+		}
+		payload["sorts"] = []map[string]any{{
+			"timestamp": sortTimestamp,
+			"direction": sortDirection,
+		}}
+	}
+	path := "/v1/data_sources/" + strings.TrimSpace(dataSourceID) + "/query"
+	if len(opts.FilterProperties) > 0 {
+		values := url.Values{}
+		for _, property := range opts.FilterProperties {
+			if property = strings.TrimSpace(property); property != "" {
+				values.Add("filter_properties[]", property)
+			}
+		}
+		if encoded := values.Encode(); encoded != "" {
+			path += "?" + encoded
+		}
+	}
+	var out NotionListResponse[NotionPage]
+	if err := c.doJSON(ctx, http.MethodPost, path, payload, &out); err != nil {
+		return NotionListResponse[NotionPage]{}, err
 	}
 	return out, nil
 }
@@ -341,6 +448,21 @@ func (d *NotionDatabase) UnmarshalJSON(raw []byte) error {
 		return err
 	}
 	*d = NotionDatabase(alias)
+	d.Raw = object
+	return nil
+}
+
+func (d *NotionDataSource) UnmarshalJSON(raw []byte) error {
+	type dataSourceAlias NotionDataSource
+	var alias dataSourceAlias
+	if err := json.Unmarshal(raw, &alias); err != nil {
+		return err
+	}
+	var object map[string]any
+	if err := json.Unmarshal(raw, &object); err != nil {
+		return err
+	}
+	*d = NotionDataSource(alias)
 	d.Raw = object
 	return nil
 }

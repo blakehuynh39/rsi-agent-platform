@@ -2,9 +2,11 @@ package clients
 
 import (
 	"context"
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -69,6 +71,65 @@ func TestNotionClientClosesSuccessResponseBody(t *testing.T) {
 	}
 	if got := atomic.LoadInt32(&closed); got != 1 {
 		t.Fatalf("closed = %d, want 1", got)
+	}
+}
+
+func TestNotionClientQueryDataSourceUsesDeltaFilterSortAndFilterProperties(t *testing.T) {
+	var gotPath string
+	var gotPayload map[string]any
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotPath = r.URL.String()
+		if r.Header.Get("Notion-Version") != "2026-03-11" {
+			t.Fatalf("Notion-Version = %q", r.Header.Get("Notion-Version"))
+		}
+		if err := json.NewDecoder(r.Body).Decode(&gotPayload); err != nil {
+			t.Fatalf("decode payload: %v", err)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"object":"list","results":[],"has_more":false}`))
+	}))
+	defer server.Close()
+
+	client := NewNotionClientWithConfig(NotionClientOptions{
+		BaseURL: server.URL,
+		Token:   "ntn-token",
+	})
+	_, err := client.QueryDataSource(context.Background(), "ds_abc", NotionDataSourceQueryOptions{
+		Cursor:                  "cursor_1",
+		PageSize:                50,
+		LastEditedTimeOnOrAfter: "2026-05-02T09:50:00Z",
+		SortTimestamp:           "last_edited_time",
+		SortDirection:           "ascending",
+		FilterProperties:        []string{"title", "Status"},
+	})
+	if err != nil {
+		t.Fatalf("QueryDataSource() error = %v", err)
+	}
+	if !strings.HasPrefix(gotPath, "/v1/data_sources/ds_abc/query?") {
+		t.Fatalf("path = %q", gotPath)
+	}
+	query := strings.TrimPrefix(gotPath, "/v1/data_sources/ds_abc/query?")
+	if !strings.Contains(query, "filter_properties%5B%5D=title") || !strings.Contains(query, "filter_properties%5B%5D=Status") {
+		t.Fatalf("filter_properties query = %q", query)
+	}
+	if gotPayload["page_size"] != float64(50) || gotPayload["start_cursor"] != "cursor_1" {
+		t.Fatalf("unexpected pagination payload: %#v", gotPayload)
+	}
+	filter, ok := gotPayload["filter"].(map[string]any)
+	if !ok || filter["timestamp"] != "last_edited_time" {
+		t.Fatalf("unexpected filter payload: %#v", gotPayload["filter"])
+	}
+	lastEdited, ok := filter["last_edited_time"].(map[string]any)
+	if !ok || lastEdited["on_or_after"] != "2026-05-02T09:50:00Z" {
+		t.Fatalf("unexpected last_edited_time filter: %#v", filter)
+	}
+	sorts, ok := gotPayload["sorts"].([]any)
+	if !ok || len(sorts) != 1 {
+		t.Fatalf("unexpected sorts payload: %#v", gotPayload["sorts"])
+	}
+	sort0, ok := sorts[0].(map[string]any)
+	if !ok || sort0["timestamp"] != "last_edited_time" || sort0["direction"] != "ascending" {
+		t.Fatalf("unexpected sort: %#v", sorts[0])
 	}
 }
 

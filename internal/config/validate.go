@@ -233,6 +233,12 @@ func (c Config) validateNotionMirrorCrawlerConfig(issues *[]string) {
 	if c.NotionMirrorMaxDocumentBytes < 0 {
 		*issues = append(*issues, "RSI_NOTION_MIRROR_MAX_DOCUMENT_BYTES must be non-negative")
 	}
+	if c.NotionMirrorDeltaLookback < 0 {
+		*issues = append(*issues, "RSI_NOTION_MIRROR_DELTA_LOOKBACK must be non-negative")
+	}
+	if c.NotionMirrorFullScanInterval < 0 {
+		*issues = append(*issues, "RSI_NOTION_MIRROR_FULL_SCAN_INTERVAL must be non-negative")
+	}
 }
 
 func (c Config) validateImprovementPlane(issues *[]string) {

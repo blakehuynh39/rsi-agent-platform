@@ -159,22 +159,30 @@ func checkNotionMirrorRoots(ctx context.Context, cfg config.Config) error {
 			continue
 		}
 		if page, err := api.RetrievePage(ctx, rootID); err == nil {
-			if page.Archived || page.InTrash {
-				return fmt.Errorf("notion page root %s is stale: archived=%t in_trash=%t", rootID, page.Archived, page.InTrash)
+			if notionObjectInTrash(page.Archived, page.InTrash) {
+				return fmt.Errorf("notion page root %s is stale: in_trash=%t", rootID, page.InTrash)
 			}
 			continue
 		} else if !isNotionNotFound(err) && !isNotionPageEndpointTypeMismatch(err) {
 			return fmt.Errorf("retrieve notion page root=%s: %w", rootID, err)
 		}
 		if database, err := api.RetrieveDatabase(ctx, rootID); err == nil {
-			if database.Archived || database.InTrash {
-				return fmt.Errorf("notion database root %s is stale: archived=%t in_trash=%t", rootID, database.Archived, database.InTrash)
+			if notionObjectInTrash(database.Archived, database.InTrash) {
+				return fmt.Errorf("notion database root %s is stale: in_trash=%t", rootID, database.InTrash)
 			}
 			continue
 		} else if !isNotionNotFound(err) && !isNotionDatabaseEndpointTypeMismatch(err) {
 			return fmt.Errorf("retrieve notion database root=%s: %w", rootID, err)
 		}
-		return fmt.Errorf("notion allowlist root %s is neither a visible page nor a visible database", rootID)
+		if dataSource, err := api.RetrieveDataSource(ctx, rootID); err == nil {
+			if notionObjectInTrash(dataSource.Archived, dataSource.InTrash) {
+				return fmt.Errorf("notion data source root %s is stale: in_trash=%t", rootID, dataSource.InTrash)
+			}
+			continue
+		} else if !isNotionNotFound(err) && !isNotionDataSourceEndpointTypeMismatch(err) {
+			return fmt.Errorf("retrieve notion data source root=%s: %w", rootID, err)
+		}
+		return fmt.Errorf("notion allowlist root %s is neither a visible page, database, nor data source", rootID)
 	}
 	return nil
 }

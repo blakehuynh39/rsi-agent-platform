@@ -214,7 +214,7 @@ func TestNotionMirrorValidationAcceptsConfiguredContract(t *testing.T) {
 	cfg.NotionToken = "ntn-token"
 	cfg.NotionMirrorAllowlist = []string{"page-id"}
 	cfg.NotionAPIBaseURL = "https://api.notion.com"
-	cfg.NotionAPIVersion = "2022-06-28"
+	cfg.NotionAPIVersion = "2026-03-11"
 	cfg.HonchoBaseURL = "http://use1-stage-rsi-agent-platform-honcho-api:8000"
 	cfg.HonchoWorkspaceID = "rsi_company_knowledge"
 	cfg.SourceMirrorCheckpointRoot = "/var/lib/hermes/source-mirror"

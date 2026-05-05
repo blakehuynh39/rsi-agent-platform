@@ -34,7 +34,7 @@ func TestCheckNotionMirrorRootsAcceptsDatabaseRootTypeMismatch(t *testing.T) {
 	err := checkNotionMirrorRoots(context.Background(), config.Config{
 		NotionAPIBaseURL:      notion.URL,
 		NotionToken:           "secret",
-		NotionAPIVersion:      "2022-06-28",
+		NotionAPIVersion:      "2026-03-11",
 		NotionMirrorAllowlist: []string{rootID},
 	})
 

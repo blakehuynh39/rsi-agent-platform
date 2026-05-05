@@ -156,13 +156,14 @@ requires Honcho and the source-mirror idempotency store to be configured at
 startup.
 
 `control-plane --mode notion-mirror` performs resumable Notion mirroring over
-`RSI_NOTION_MIRROR_ALLOWLIST`. Each allowlist entry must be a Notion page or
-database ID visible to `NOTION_TOKEN`. The mirror recursively follows child
-pages and child databases, extracts supported Notion block text, writes Notion
-pages and database metadata to Honcho through the supported source-mirror
-wrapper, and checkpoints progress under
-`RSI_SOURCE_MIRROR_CHECKPOINT_ROOT/notion`. Database row pages are mirrored as
-separate page documents.
+`RSI_NOTION_MIRROR_ALLOWLIST`. Each allowlist entry may be a Notion page,
+database, data source ID, or Notion URL visible to `NOTION_TOKEN`. The mirror
+uses the 2026 Notion REST API directly, resolves database containers into data
+sources, queries data source rows by `last_edited_time` deltas, fetches page
+content through Notion markdown, writes Notion pages/data sources/database
+metadata to Honcho through the supported source-mirror wrapper, and checkpoints
+progress under `RSI_SOURCE_MIRROR_CHECKPOINT_ROOT/notion`. Data source row pages
+are mirrored as separate page documents.
 
 `control-plane --mode source-mirror-health` is the deployment/readiness contract
 for enabled mirrors. It validates the checkpoint root is writable, verifies
@@ -202,10 +203,10 @@ remain auditable without failing unrelated source types.
 Notion mirror configuration:
 
 - `RSI_NOTION_MIRROR_ENABLED=true`
-- `RSI_NOTION_MIRROR_ALLOWLIST=<page-or-database-ids>`
+- `RSI_NOTION_MIRROR_ALLOWLIST=<page-database-data-source-ids-or-urls>`
 - `NOTION_TOKEN=<integration token>`
 - `RSI_NOTION_API_BASE_URL=https://api.notion.com`
-- `RSI_NOTION_API_VERSION=2022-06-28`
+- `RSI_NOTION_API_VERSION=2026-03-11`
 - `RSI_NOTION_MIRROR_REQUESTS_PER_SECOND=3`
 - `RSI_NOTION_MIRROR_MAX_RETRIES=3`
 - `RSI_NOTION_MIRROR_RETRY_BASE_DELAY=500ms`
@@ -213,6 +214,16 @@ Notion mirror configuration:
 - `RSI_NOTION_MIRROR_MAX_BLOCKS_PER_PAGE=1000`
 - `RSI_NOTION_MIRROR_MAX_DEPTH=4`
 - `RSI_NOTION_MIRROR_MAX_DOCUMENT_BYTES=256000`
+- `RSI_NOTION_MIRROR_DELTA_ENABLED=true`
+- `RSI_NOTION_MIRROR_DELTA_LOOKBACK=10m`
+- `RSI_NOTION_MIRROR_FULL_SCAN_INTERVAL=24h`
+
+`POST /internal/notion-mirror/dirty` accepts trusted, cluster-internal webhook
+adapters that already verified upstream Notion webhook authenticity. The body
+requires `root_id`, `object_id`, and `object_kind` (`page`, `database`, or
+`data_source`) and queues the object in the matching checkpoint so the next cron
+run crawls it before normal root reconciliation. This is an acceleration path,
+not a correctness requirement; full scans and delta scans remain authoritative.
 
 If object, reference, or child-graph limits truncate traversal, the mirror marks
 the traversal `truncated` and refuses to report a clean root success.

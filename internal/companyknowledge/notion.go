@@ -22,10 +22,11 @@ const (
 	NotionMirrorObserverID    = "notion_mirror"
 	NotionMirrorObservedID    = "story_company"
 
-	NotionObjectKindPage     = "page"
-	NotionObjectKindDatabase = "database"
-	NotionTraversalComplete  = "complete"
-	NotionTraversalTruncated = "truncated"
+	NotionObjectKindPage       = "page"
+	NotionObjectKindDatabase   = "database"
+	NotionObjectKindDataSource = "data_source"
+	NotionTraversalComplete    = "complete"
+	NotionTraversalTruncated   = "truncated"
 
 	notionHonchoMessageMaxRunes = 6000
 	notionHonchoMessageMaxBytes = 20000
@@ -39,6 +40,7 @@ type NotionObjectInput struct {
 	RootID             string
 	ParentID           string
 	DatabaseID         string
+	DataSourceID       string
 	Title              string
 	URL                string
 	LastEditedTime     string
@@ -167,15 +169,16 @@ func (m *NotionMirror) IngestDocument(ctx context.Context, input NotionDocumentI
 		return NotionMirrorResult{}, err
 	}
 	if _, err := m.honcho.EnsureSession(record.HonchoWorkspace, record.HonchoSessionID, map[string]any{
-		"source":             "notion",
-		"source_session_key": record.SourceSessionKey,
-		"workspace":          record.Workspace,
-		"environment":        record.Environment,
-		"source_object_kind": input.ObjectKind,
-		"source_object_id":   input.ObjectID,
-		"source_page_id":     strings.TrimSpace(input.PageID),
-		"source_database_id": strings.TrimSpace(input.DatabaseID),
-		"source_root_id":     strings.TrimSpace(input.RootID),
+		"source":                "notion",
+		"source_session_key":    record.SourceSessionKey,
+		"workspace":             record.Workspace,
+		"environment":           record.Environment,
+		"source_object_kind":    input.ObjectKind,
+		"source_object_id":      input.ObjectID,
+		"source_page_id":        strings.TrimSpace(input.PageID),
+		"source_database_id":    strings.TrimSpace(input.DatabaseID),
+		"source_data_source_id": strings.TrimSpace(input.DataSourceID),
+		"source_root_id":        strings.TrimSpace(input.RootID),
 	}); err != nil {
 		_, _ = m.store.FailSourceMirrorRecord(record.SourceType, record.SourceKey, err.Error(), map[string]any{"failure_stage": "ensure_session"})
 		return NotionMirrorResult{}, err
@@ -247,6 +250,10 @@ func validateNotionDocument(input NotionDocumentInput) error {
 		if strings.TrimSpace(input.DatabaseID) == "" || strings.TrimSpace(input.ObjectID) == "" {
 			return fmt.Errorf("notion database id is required")
 		}
+	case NotionObjectKindDataSource:
+		if strings.TrimSpace(input.DataSourceID) == "" || strings.TrimSpace(input.ObjectID) == "" {
+			return fmt.Errorf("notion data source id is required")
+		}
 	default:
 		return fmt.Errorf("unsupported notion object kind %q", input.ObjectKind)
 	}
@@ -262,21 +269,32 @@ func normalizeNotionObjectInput(input NotionObjectInput) NotionObjectInput {
 	input.ObjectID = strings.TrimSpace(input.ObjectID)
 	input.PageID = strings.TrimSpace(input.PageID)
 	input.DatabaseID = strings.TrimSpace(input.DatabaseID)
+	input.DataSourceID = strings.TrimSpace(input.DataSourceID)
 	if input.ObjectKind == "" {
-		if input.DatabaseID != "" && input.PageID == "" {
+		if input.DataSourceID != "" && input.PageID == "" {
+			input.ObjectKind = NotionObjectKindDataSource
+		} else if input.DatabaseID != "" && input.PageID == "" {
 			input.ObjectKind = NotionObjectKindDatabase
 		} else {
 			input.ObjectKind = NotionObjectKindPage
 		}
 	}
-	if input.ObjectKind == NotionObjectKindDatabase {
+	switch input.ObjectKind {
+	case NotionObjectKindDatabase:
 		if input.DatabaseID == "" {
 			input.DatabaseID = input.ObjectID
 		}
 		if input.ObjectID == "" {
 			input.ObjectID = input.DatabaseID
 		}
-	} else {
+	case NotionObjectKindDataSource:
+		if input.DataSourceID == "" {
+			input.DataSourceID = input.ObjectID
+		}
+		if input.ObjectID == "" {
+			input.ObjectID = input.DataSourceID
+		}
+	default:
 		if input.PageID == "" {
 			input.PageID = input.ObjectID
 		}
@@ -306,6 +324,9 @@ func NotionObjectSourceKey(workspaceID string, objectKind string, objectID strin
 	if objectKind == NotionObjectKindDatabase {
 		return "notion_document:" + workspaceID + ":database:" + objectID
 	}
+	if objectKind == NotionObjectKindDataSource {
+		return "notion_document:" + workspaceID + ":data_source:" + objectID
+	}
 	return "notion_document:" + workspaceID + ":" + objectID
 }
 
@@ -320,6 +341,9 @@ func NotionObjectSessionKey(workspaceID string, objectKind string, objectID stri
 	if objectKind == NotionObjectKindDatabase {
 		return "notion:" + workspaceID + ":database:" + objectID
 	}
+	if objectKind == NotionObjectKindDataSource {
+		return "notion:" + workspaceID + ":data_source:" + objectID
+	}
 	return "notion:" + workspaceID + ":" + objectID
 }
 
@@ -329,7 +353,7 @@ func NotionCrawlMissSourceKey(workspaceID string, rootID string, targetID string
 
 func NotionDocumentSourceRevision(input NotionDocumentInput) string {
 	input = normalizeNotionObjectInput(input)
-	if input.ObjectKind == NotionObjectKindDatabase {
+	if input.ObjectKind == NotionObjectKindDatabase || input.ObjectKind == NotionObjectKindDataSource {
 		parts := []string{}
 		if strings.TrimSpace(input.LastEditedTime) != "" {
 			parts = append(parts, "last_edited_time:"+strings.TrimSpace(input.LastEditedTime))
@@ -361,26 +385,27 @@ func NotionDocumentSourceRevision(input NotionDocumentInput) string {
 func NotionDocumentMetadata(input NotionDocumentInput, sourceKey string, sessionKey string, revision string) map[string]any {
 	input = normalizeNotionObjectInput(input)
 	metadata := map[string]any{
-		"source":             "notion",
-		"source_key":         sourceKey,
-		"source_dedupe_key":  sourceKey,
-		"source_revision":    revision,
-		"source_session_key": sessionKey,
-		"workspace_id":       strings.TrimSpace(input.WorkspaceID),
-		"object_kind":        input.ObjectKind,
-		"object_id":          input.ObjectID,
-		"notion_page_id":     strings.TrimSpace(input.PageID),
-		"notion_root_id":     strings.TrimSpace(input.RootID),
-		"notion_parent_id":   strings.TrimSpace(input.ParentID),
-		"notion_database_id": strings.TrimSpace(input.DatabaseID),
-		"title":              strings.TrimSpace(input.Title),
-		"url":                strings.TrimSpace(input.URL),
-		"last_edited_time":   strings.TrimSpace(input.LastEditedTime),
-		"created_time":       strings.TrimSpace(input.CreatedTime),
-		"hierarchy":          input.Hierarchy,
-		"traversal_status":   strings.TrimSpace(input.TraversalStatus),
-		"truncated":          input.Truncated,
-		"notion_allowlisted": input.Allowlisted,
+		"source":                "notion",
+		"source_key":            sourceKey,
+		"source_dedupe_key":     sourceKey,
+		"source_revision":       revision,
+		"source_session_key":    sessionKey,
+		"workspace_id":          strings.TrimSpace(input.WorkspaceID),
+		"object_kind":           input.ObjectKind,
+		"object_id":             input.ObjectID,
+		"notion_page_id":        strings.TrimSpace(input.PageID),
+		"notion_root_id":        strings.TrimSpace(input.RootID),
+		"notion_parent_id":      strings.TrimSpace(input.ParentID),
+		"notion_database_id":    strings.TrimSpace(input.DatabaseID),
+		"notion_data_source_id": strings.TrimSpace(input.DataSourceID),
+		"title":                 strings.TrimSpace(input.Title),
+		"url":                   strings.TrimSpace(input.URL),
+		"last_edited_time":      strings.TrimSpace(input.LastEditedTime),
+		"created_time":          strings.TrimSpace(input.CreatedTime),
+		"hierarchy":             input.Hierarchy,
+		"traversal_status":      strings.TrimSpace(input.TraversalStatus),
+		"truncated":             input.Truncated,
+		"notion_allowlisted":    input.Allowlisted,
 	}
 	if strings.TrimSpace(input.SchemaHash) != "" {
 		metadata["schema_hash"] = strings.TrimSpace(input.SchemaHash)
@@ -449,6 +474,7 @@ func NotionDocumentSummaryConclusionContent(input NotionDocumentInput, chunkCoun
 		"object_id":          input.ObjectID,
 		"page_id":            input.PageID,
 		"database_id":        input.DatabaseID,
+		"data_source_id":     input.DataSourceID,
 		"root_id":            strings.TrimSpace(input.RootID),
 		"url":                strings.TrimSpace(input.URL),
 		"title":              title,

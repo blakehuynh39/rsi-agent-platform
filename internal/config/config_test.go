@@ -68,6 +68,28 @@ func TestLoadReadsVerboseTraceLoggingEnv(t *testing.T) {
 	}
 }
 
+func TestLoadUsesModernNotionMirrorDefaults(t *testing.T) {
+	t.Setenv("RSI_NOTION_API_VERSION", "")
+	t.Setenv("RSI_NOTION_MIRROR_DELTA_ENABLED", "")
+	t.Setenv("RSI_NOTION_MIRROR_DELTA_LOOKBACK", "")
+	t.Setenv("RSI_NOTION_MIRROR_FULL_SCAN_INTERVAL", "")
+
+	cfg := Load("control-plane")
+
+	if cfg.NotionAPIVersion != "2026-03-11" {
+		t.Fatalf("NotionAPIVersion = %q", cfg.NotionAPIVersion)
+	}
+	if !cfg.NotionMirrorDeltaEnabled {
+		t.Fatal("expected notion delta mirror to default enabled")
+	}
+	if cfg.NotionMirrorDeltaLookback != 10*time.Minute {
+		t.Fatalf("delta lookback = %s", cfg.NotionMirrorDeltaLookback)
+	}
+	if cfg.NotionMirrorFullScanInterval != 24*time.Hour {
+		t.Fatalf("full scan interval = %s", cfg.NotionMirrorFullScanInterval)
+	}
+}
+
 func TestKubernetesReadNamespaceScopeAddsSandboxNamespaceWhenConfigured(t *testing.T) {
 	cfg := Config{
 		KubernetesReadNamespaces: []string{"story", "rsi-platform", "story"},

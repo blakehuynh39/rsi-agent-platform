@@ -86,6 +86,9 @@ type Config struct {
 	NotionMirrorMaxBlocksPerPage         int
 	NotionMirrorMaxDepth                 int
 	NotionMirrorMaxDocumentBytes         int
+	NotionMirrorDeltaEnabled             bool
+	NotionMirrorDeltaLookback            time.Duration
+	NotionMirrorFullScanInterval         time.Duration
 	NotionAPIBaseURL                     string
 	NotionAPIVersion                     string
 	GitHubWebhookSecret                  string
@@ -232,8 +235,11 @@ func Load(serviceName string) Config {
 		NotionMirrorMaxBlocksPerPage:         intEnv("RSI_NOTION_MIRROR_MAX_BLOCKS_PER_PAGE", 1000),
 		NotionMirrorMaxDepth:                 intEnv("RSI_NOTION_MIRROR_MAX_DEPTH", 4),
 		NotionMirrorMaxDocumentBytes:         intEnv("RSI_NOTION_MIRROR_MAX_DOCUMENT_BYTES", 256000),
+		NotionMirrorDeltaEnabled:             boolEnv("RSI_NOTION_MIRROR_DELTA_ENABLED", true),
+		NotionMirrorDeltaLookback:            durationEnv("RSI_NOTION_MIRROR_DELTA_LOOKBACK", 10*time.Minute),
+		NotionMirrorFullScanInterval:         durationEnv("RSI_NOTION_MIRROR_FULL_SCAN_INTERVAL", 24*time.Hour),
 		NotionAPIBaseURL:                     stringEnv("RSI_NOTION_API_BASE_URL", "https://api.notion.com"),
-		NotionAPIVersion:                     stringEnv("RSI_NOTION_API_VERSION", "2022-06-28"),
+		NotionAPIVersion:                     stringEnv("RSI_NOTION_API_VERSION", "2026-03-11"),
 		GitHubWebhookSecret:                  stringEnv("RSI_GITHUB_WEBHOOK_SECRET", ""),
 		GitHubOwner:                          stringEnv("RSI_GITHUB_OWNER", ""),
 		GitHubAPIBaseURL:                     stringEnv("RSI_GITHUB_API_BASE_URL", "https://api.github.com"),

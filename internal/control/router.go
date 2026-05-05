@@ -173,6 +173,19 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 		}
 		app.WriteJSON(w, status, out)
 	})
+	r.Post("/internal/notion-mirror/dirty", func(w http.ResponseWriter, r *http.Request) {
+		var payload notionMirrorDirtyObjectRequest
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			app.WriteError(w, http.StatusBadRequest, err)
+			return
+		}
+		out, status, err := recordNotionMirrorDirtyObject(cfg, payload)
+		if err != nil {
+			app.WriteError(w, status, err)
+			return
+		}
+		app.WriteJSON(w, status, out)
+	})
 	r.Get("/internal/source-mirror/status", func(w http.ResponseWriter, r *http.Request) {
 		query := r.URL.Query()
 		sourceTypes := parseSourceMirrorStatusQuery(query["source_type"])
