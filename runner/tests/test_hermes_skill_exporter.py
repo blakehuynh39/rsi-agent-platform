@@ -389,6 +389,34 @@ class HermesSkillExporterTest(unittest.TestCase):
                 self.assertFalse(checkout.exists())
             self.assertFalse((config.state_root / "checkouts" / snapshot.tree_hash[:12]).exists())
 
+    def test_git_exporter_force_adds_export_tree_for_ignored_wiki_files(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            config = self.make_config(Path(raw))
+            assert config.company_wiki_root is not None
+            config.company_wiki_root.joinpath("pages").mkdir(parents=True)
+            config.company_wiki_root.joinpath("pages/runbook.md").write_text("# Runbook\n", encoding="utf-8")
+            snapshot = build_skill_snapshot(config.skills_root, config.company_wiki_root)
+            commands: list[tuple[str, ...]] = []
+
+            def fake_git(_cwd: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
+                commands.append(args)
+                returncode = 1 if args == ("diff", "--cached", "--quiet") else 0
+                return subprocess.CompletedProcess(args=list(args), returncode=returncode, stdout="", stderr="")
+
+            with (
+                mock.patch("rsi_runner.hermes_skill_exporter.GitHubAuth.token", return_value="token"),
+                mock.patch.object(GitSkillExporter, "_git", side_effect=fake_git),
+                mock.patch.object(
+                    GitSkillExporter,
+                    "_open_pr",
+                    return_value={"html_url": "https://github.com/piplabs/rsi-agent-platform/pull/42", "number": 42},
+                ),
+                mock.patch.object(GitSkillExporter, "_merge_pr", return_value={"merged": True}),
+            ):
+                GitSkillExporter(config).export(snapshot, {"pod_name": "test-pod"})
+
+            self.assertIn(("add", "--force", config.export_root), commands)
+
     def test_cycle_lock_skips_export_when_another_process_is_active(self) -> None:
         try:
             import fcntl

@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 EXPORT_ROOT_PREFIX = "hermes/exported-skills"
 STATE_VERSION = 1
+EXPORT_FORMAT_VERSION = 2
 MAX_EXPORTED_HASHES = 500
 WIKI_EXCLUDED_TOP_LEVEL_DIRS = {".locks", ".staging"}
 DEFAULT_WIKI_EXPORT_INCLUDE_PATHS = ("SCHEMA.md", "index.md", "log.md", "pages/")
@@ -293,6 +294,7 @@ class SkillSnapshot:
     tree_hash: str
     files: list[SkillFile]
     recorded_at: str
+    export_format_version: int = EXPORT_FORMAT_VERSION
     skill_tree_hash: str = ""
     wiki_tree_hash: str = ""
     wiki_files: list[SkillFile] = field(default_factory=list)
@@ -313,6 +315,7 @@ class SkillSnapshot:
 
     def artifact_manifest(self) -> dict[str, Any]:
         return {
+            "export_format_version": self.export_format_version,
             "skills": self.file_manifest(),
             "wiki": self.wiki_file_manifest(),
         }
@@ -363,6 +366,7 @@ def build_skill_snapshot(
     wiki_tree_hash = _manifest_hash(wiki_files) if wiki_files else ""
     artifact_bytes = json.dumps(
         {
+            "export_format_version": EXPORT_FORMAT_VERSION,
             "skills": [{"path": item.relative_path, "sha256": item.sha256, "size": item.size} for item in files],
             "wiki": [{"path": item.relative_path, "sha256": item.sha256, "size": item.size} for item in wiki_files],
         },
@@ -375,6 +379,7 @@ def build_skill_snapshot(
         tree_hash=tree_hash,
         files=files,
         recorded_at=_utc_now(),
+        export_format_version=EXPORT_FORMAT_VERSION,
         skill_tree_hash=skill_tree_hash,
         wiki_tree_hash=wiki_tree_hash,
         wiki_files=wiki_files,
@@ -556,7 +561,7 @@ class GitSkillExporter:
             self._git(checkout, "fetch", "--depth=1", "origin", self.config.git_base_branch)
             self._git(checkout, "checkout", "-b", branch, "FETCH_HEAD")
             self._write_export_tree(checkout, snapshot, metadata)
-            self._git(checkout, "add", self.config.export_root)
+            self._git(checkout, "add", "--force", self.config.export_root)
             diff = self._git(checkout, "diff", "--cached", "--quiet", check=False)
             if diff.returncode == 0:
                 return {"exported": False, "branch": branch, "reason": "no_git_diff"}
@@ -841,6 +846,7 @@ class SkillExportLoop:
             "skills_root": str(self.config.skills_root),
             "company_wiki_root": str(self.config.company_wiki_root) if self.config.company_wiki_root is not None else "",
             "wiki_export_include_paths": list(self.config.wiki_export_include_paths),
+            "export_format_version": snapshot.export_format_version,
             "tree_hash": snapshot.tree_hash,
             "skill_tree_hash": snapshot.skill_tree_hash,
             "wiki_tree_hash": snapshot.wiki_tree_hash,
@@ -870,6 +876,7 @@ class SkillExportLoop:
             "cycle_id": cycle_id,
             "completed_at": _utc_now(),
             "tree_hash": snapshot.tree_hash,
+            "export_format_version": snapshot.export_format_version,
             "skill_tree_hash": snapshot.skill_tree_hash,
             "wiki_tree_hash": snapshot.wiki_tree_hash,
             "previous_tree_hash": previous_hash,
