@@ -69,7 +69,38 @@ gh issue list --state open --limit 15
 
 **CRITICAL:** Always check **both repos** for cross-repo alignment. A backend PR often has a frontend counterpart (e.g., `depin-backend #385` rewired to `numo-monorepo #202`). Report these pairings when found.
 
+**Base branches:**
+- `depin-backend` PRs target **`staging`** (NOT `main`).
+- `numo-monorepo` PRs target **`develop`** (changed from `main` as of 2026-05).
+- Cross-repo PRs use matching branch prefixes (e.g., `feat/trust-safety-cluster-and-cadence`).
+- Backend merges + deploys to staging **before** the FE PR is merged.
+
 **Date ranges:** Use ISO dates for `--since`/`--until` in git log. For `gh pr list --search`, use `"merged:>=YYYY-MM-DD"`.
+
+### 4a. Reviewing a specific cross-repo PR pair
+
+When the ingress request is a PR review (not a weekly check-in), use `gh pr view`/`gh pr diff` directly rather than cloning:
+
+```bash
+# BE PR — Rust Checks, Image Builds, Validate migrations, Wiz (Data/IaC/SAST/Secret/Vuln)
+gh pr view <N> --repo piplabs/depin-backend --json title,body,author,state,baseRefName,headRefName,createdAt,additions,deletions,changedFiles
+gh pr diff <N> --repo piplabs/depin-backend --name-only
+gh pr checks <N> --repo piplabs/depin-backend  # confirm Rust Checks, Image Builds, Wiz scanners all pass
+
+# FE PR — Vercel deploys (admin/web/landing), Wiz scanners
+gh pr view <N> --repo piplabs/numo-monorepo --json title,body,author,state,baseRefName,headRefName,createdAt,additions,deletions,changedFiles
+gh pr diff <N> --repo piplabs/numo-monorepo --name-only
+gh pr checks <N> --repo piplabs/numo-monorepo  # confirm Vercel + Wiz all pass
+```
+
+**Key review checklist for depin/numo PRs:**
+
+- **Cross-repo contract:** Verify matching branch prefixes, BE targets `staging`, FE targets `develop`, both PRs link each other in descriptions.
+- **Migration safety (BE):** CONCURRENTLY for indexes, IF NOT EXISTS for idempotency, no destructive ALTER/DDL, new columns have DEFAULTs or are nullable.
+- **Cursor Bugbot reviews:** Both repos use Cursor Bugbot. Check `gh pr view --comments --json comments,reviews` for autofix findings — they often catch stale-audit-timestamp, NULL-handling, and navigation bugs. Note whether autofixes have been applied.
+- **Enforcement points (BE):** Soft restrictions (`submissions_paused`, `withdrawals_blocked`) must use `FOR UPDATE` in transaction paths to prevent TOCTOU.
+- **Per-row query cost (BE):** New LATERAL JOINs in `list_users`/`list_at_risk_users` add per-row subquery cost — note any window functions (LAG, PERCENTILE_CONT) or multi-UNION subqueries that repeat for every result row.
+- **Bundle impact (FE):** New dependencies in `package.json` — flag heavy additions (d3, canvas libraries) and any `as any` TypeScript casts that indicate fragile type boundaries.
 
 ### 5. Check Kubernetes deployment status
 
@@ -111,7 +142,7 @@ Synthesize findings into three sections:
 
 **Evidence standard:** Cite specific PR numbers, issue numbers, thread timestamps, and deployment names. Prefer the `<repo> #<number>` format (e.g., `depin-backend #404`).
 
-See `references/report-template.md` for a concrete example of the three-section report format.
+See `references/report-template.md` for a concrete example of the three-section report format. See `references/ci-pipeline-checks.md` for the full CI surface of both repos (Rust Checks, Wiz scanners, Vercel deploys, Cursor Bugbot).
 
 ## Fallback: when gh isn't authenticated
 
