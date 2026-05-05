@@ -6730,3 +6730,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_24104703f494201f2479a0f37413f269
 - summary: Source: https://www.notion.so/Best-Practice-for-Successful-NFT-Launch-514f6da9620d43b4bbbed501422bf039
 
+## [2026-05-05T03:16:12Z] synthesis | Engineering Home
+
+- status: published
+- slug: systems/engineering-home
+- wiki_revision_id: wikirev_76aa68246060ff022d258f9e908d4928
+- summary: The Engineering Home Notion database mirrors its row pages as separate Notion documents.
+

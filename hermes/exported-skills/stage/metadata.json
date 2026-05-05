@@ -2761,8 +2761,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "e658d3625a0d46b5700707471a123bfb95a020d59244fff15eec073e230ac48f",
-        "size": 349261
+        "sha256": "9b9877e6f624ca454d3f97819aa68f456917a9f1e17834e0585809ac8f775948",
+        "size": 349532
       },
       {
         "path": "pages/concepts/coming-soon-placeholder-tasks.md",
@@ -2940,6 +2940,11 @@
         "size": 1170
       },
       {
+        "path": "pages/systems/engineering-home.md",
+        "sha256": "b960f607d7b5fa10ed5d2c3fad4dea1a964fdea3b1818405048f1650d7e93f9b",
+        "size": 1118
+      },
+      {
         "path": "pages/systems/numo-product-backlog.md",
         "sha256": "4fd86fc113d36a9ad53220544b8003ededbe14bc8005e107d8ba6c577bb3fd4f",
         "size": 1012
@@ -2949,8 +2954,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T03:06:23Z",
-  "file_count": 588,
+  "exported_at": "2026-05-05T03:17:11Z",
+  "file_count": 589,
   "files": [
     {
       "path": "apple/DESCRIPTION.md",
@@ -5702,20 +5707,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-54fc8bnk8js",
-  "previous_tree_hash": "35185f85e53ffc9f1ec5f3900ef5e2789dc19ec68948167d376c8f525c08c7b6",
+  "previous_tree_hash": "c441bbdb18b7bf9a786dea303414e3331e1827aef6e4e71c4f4e061e45c1f834",
   "schema_version": 1,
   "skill_file_count": 549,
   "skill_manage_sessions": [],
   "skill_tree_hash": "51dd5fa14f02f546813009b323ca960c29e87c4759f49ab6c92e3ca2c7ca357b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c441bbdb18b7bf9a786dea303414e3331e1827aef6e4e71c4f4e061e45c1f834",
+  "tree_hash": "4c8a7ec759c0795703cb282df56a3fe5f338201756aefe086701c59356bf878a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 39,
+  "wiki_file_count": 40,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5729,8 +5734,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "e658d3625a0d46b5700707471a123bfb95a020d59244fff15eec073e230ac48f",
-      "size": 349261
+      "sha256": "9b9877e6f624ca454d3f97819aa68f456917a9f1e17834e0585809ac8f775948",
+      "size": 349532
     },
     {
       "path": "pages/concepts/coming-soon-placeholder-tasks.md",
@@ -5908,11 +5913,16 @@
       "size": 1170
     },
     {
+      "path": "pages/systems/engineering-home.md",
+      "sha256": "b960f607d7b5fa10ed5d2c3fad4dea1a964fdea3b1818405048f1650d7e93f9b",
+      "size": 1118
+    },
+    {
       "path": "pages/systems/numo-product-backlog.md",
       "sha256": "4fd86fc113d36a9ad53220544b8003ededbe14bc8005e107d8ba6c577bb3fd4f",
       "size": 1012
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5653111c39fd504f2b48fd7f2cde2683aa53664e1da5888292c6da0bd95715e3"
+  "wiki_tree_hash": "bc57bcd66fe71de68ae56847565d812f7bd0c824551458c0b86e8ba997ff6124"
 }
