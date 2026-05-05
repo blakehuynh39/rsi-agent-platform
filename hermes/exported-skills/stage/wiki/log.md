@@ -14255,3 +14255,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_02924e9108e9e666e963c90c46c6be44
 - summary: Proposal for using vanity addresses to evangelize Story Network, including standard precompiles, L2 infrastructure contracts, popular tokens, and Story Protocol ecosystem addresses...
 
+## [2026-05-05T17:47:08Z] synthesis | EU v1 QA
+
+- status: published
+- slug: projects/eu-v1-qa
+- wiki_revision_id: wikirev_0cac271344672addb0530dfa1c9ca633
+- summary: QA artifacts for the EU v1 release of Story Protocol.
+
