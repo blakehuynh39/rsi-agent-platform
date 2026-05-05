@@ -198,6 +198,9 @@ func (r *notionMirrorRunner) mirrorPage(ctx context.Context, pageID string, root
 		if isNotionNotFound(err) {
 			return r.recordCrawlMiss(ctx, rootID, pageID, "page", "notion page was not reachable")
 		}
+		if isNotionPageEndpointTypeMismatch(err) {
+			return r.mirrorDatabase(ctx, pageID, rootID, hierarchy)
+		}
 		return err
 	}
 	return r.mirrorPageData(ctx, pageID, rootID, hierarchy, page)
@@ -329,6 +332,9 @@ func (r *notionMirrorRunner) mirrorDatabase(ctx context.Context, databaseID stri
 				return err
 			}
 			return r.recordCrawlMiss(ctx, rootID, databaseID, "database", "notion database was not reachable")
+		}
+		if isNotionDatabaseEndpointTypeMismatch(err) {
+			return r.mirrorPage(ctx, databaseID, rootID, hierarchy)
 		}
 		return err
 	}

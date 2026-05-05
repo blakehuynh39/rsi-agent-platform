@@ -128,6 +128,7 @@ type fakeNotionGraphAPI struct {
 	children          map[string][]clients.NotionBlock
 	databaseRows      map[string][]clients.NotionPage
 	pageTypeMismatch  map[string]bool
+	dbTypeMismatch    map[string]bool
 	retrievePageCalls map[string]int
 	listBlockCalls    map[string]int
 }
@@ -149,6 +150,9 @@ func (f *fakeNotionGraphAPI) RetrievePage(ctx context.Context, pageID string) (c
 
 func (f *fakeNotionGraphAPI) RetrieveDatabase(ctx context.Context, databaseID string) (clients.NotionDatabase, error) {
 	databaseID = normalizeNotionID(databaseID)
+	if f.dbTypeMismatch[databaseID] {
+		return clients.NotionDatabase{}, notionEndpointTypeMismatchError("page", "database")
+	}
 	if database, ok := f.databases[databaseID]; ok {
 		return database, nil
 	}
@@ -349,6 +353,92 @@ func TestNotionMirrorDatabaseRootWritesDatabaseObjectAndRows(t *testing.T) {
 	}
 	if !foundDatabaseWikiPage {
 		t.Fatalf("database root was not published into company wiki pages: %+v", pages)
+	}
+}
+
+func TestNotionMirrorChildPageTypeMismatchFallsBackToDatabase(t *testing.T) {
+	state := store.NewMemoryStore()
+	honcho := &fakeControlHonchoDocuments{}
+	cfg := config.Config{
+		Environment:                "stage",
+		SourceMirrorCheckpointRoot: t.TempDir(),
+		HonchoWorkspaceID:          "rsi_company_knowledge",
+		CompanyWikiRoot:            t.TempDir(),
+	}
+	databaseID := "databaseabc"
+	rowID := "rowpageabc"
+	api := &fakeNotionGraphAPI{
+		pages: map[string]clients.NotionPage{
+			rowID: notionTestPage(rowID, "Row Page", false),
+		},
+		databases: map[string]clients.NotionDatabase{
+			databaseID: {
+				Object:         "database",
+				ID:             databaseID,
+				URL:            "https://notion.so/databaseabc",
+				Title:          []clients.NotionText{{PlainText: "Engineering Home"}},
+				LastEditedTime: "2026-05-02T10:00:00.000Z",
+			},
+		},
+		children: map[string][]clients.NotionBlock{
+			rowID: {
+				{ID: databaseID, Type: "child_page", Raw: map[string]any{"child_page": map[string]any{"title": "Engineering Home"}}},
+			},
+		},
+		databaseRows:     map[string][]clients.NotionPage{databaseID: {notionTestPage(rowID, "Row Page", false)}},
+		pageTypeMismatch: map[string]bool{databaseID: true},
+	}
+	mirror := companyknowledge.NewNotionMirror(state, honcho, companyknowledge.NotionMirrorOptions{Environment: "stage", HonchoWorkspace: "rsi_company_knowledge"})
+	runner, err := newNotionMirrorRunner(cfg, api, state, mirror, databaseID)
+	if err != nil {
+		t.Fatalf("newNotionMirrorRunner() error = %v", err)
+	}
+	if err := runner.mirrorRoot(context.Background(), databaseID); err != nil {
+		t.Fatalf("mirrorRoot() error = %v", err)
+	}
+	databaseKey := companyknowledge.NotionObjectSourceKey("notion", companyknowledge.NotionObjectKindDatabase, databaseID)
+	if _, found, err := state.GetSourceMirrorRecord(companyknowledge.NotionDocumentSourceType, databaseKey); err != nil || !found {
+		t.Fatalf("database source record found=%t err=%v", found, err)
+	}
+}
+
+func TestNotionMirrorChildDatabaseTypeMismatchFallsBackToPage(t *testing.T) {
+	state := store.NewMemoryStore()
+	honcho := &fakeControlHonchoDocuments{}
+	cfg := config.Config{
+		Environment:                "stage",
+		SourceMirrorCheckpointRoot: t.TempDir(),
+		HonchoWorkspaceID:          "rsi_company_knowledge",
+	}
+	rootID := "rootpage"
+	childID := "childpage"
+	api := &fakeNotionGraphAPI{
+		pages: map[string]clients.NotionPage{
+			rootID:  notionTestPage(rootID, "Root", false),
+			childID: notionTestPage(childID, "Child", false),
+		},
+		databases: map[string]clients.NotionDatabase{},
+		children: map[string][]clients.NotionBlock{
+			rootID: {
+				{ID: childID, Type: "child_database", Raw: map[string]any{"child_database": map[string]any{"title": "Child"}}},
+			},
+			childID: {
+				{ID: "childtext", Type: "paragraph", Raw: map[string]any{"paragraph": map[string]any{"rich_text": []any{map[string]any{"plain_text": "Child body"}}}}},
+			},
+		},
+		dbTypeMismatch: map[string]bool{childID: true},
+	}
+	mirror := companyknowledge.NewNotionMirror(state, honcho, companyknowledge.NotionMirrorOptions{Environment: "stage", HonchoWorkspace: "rsi_company_knowledge"})
+	runner, err := newNotionMirrorRunner(cfg, api, state, mirror, rootID)
+	if err != nil {
+		t.Fatalf("newNotionMirrorRunner() error = %v", err)
+	}
+	if err := runner.mirrorRoot(context.Background(), rootID); err != nil {
+		t.Fatalf("mirrorRoot() error = %v", err)
+	}
+	childRecord, found, err := state.GetSourceMirrorRecord(companyknowledge.NotionDocumentSourceType, companyknowledge.NotionDocumentSourceKey("notion", childID))
+	if err != nil || !found || childRecord.Status != store.SourceMirrorStatusComplete {
+		t.Fatalf("child source record found=%t err=%v record=%+v", found, err, childRecord)
 	}
 }
 
