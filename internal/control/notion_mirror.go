@@ -216,6 +216,8 @@ func (r *notionMirrorRunner) mirrorRoot(ctx context.Context, rootID string) erro
 	}
 	if err := r.mirrorDatabase(ctx, rootID, rootID, nil); err == nil {
 		return nil
+	} else if r.completedNotionObject(companyknowledge.NotionObjectKindDatabase, rootID) {
+		return fmt.Errorf("mirror notion database root=%s: %w", rootID, err)
 	} else if !isNotionNotFound(err) && !isNotionDatabaseEndpointTypeMismatch(err) {
 		return fmt.Errorf("mirror notion database root=%s: %w", rootID, err)
 	}
@@ -362,6 +364,9 @@ func (r *notionMirrorRunner) mirrorPageData(ctx context.Context, pageID string, 
 	}
 	extraction, err := r.extractPageMarkdown(ctx, pageID)
 	if err != nil {
+		if !r.isRootObject(pageID, rootID, hierarchy) && isRecoverableNotionReachabilityError(err) {
+			return r.recordCrawlMiss(ctx, rootID, pageID, "page", "notion page markdown was not reachable")
+		}
 		return fmt.Errorf("extract notion markdown page=%s: %w", pageID, err)
 	}
 	body := extraction.Body
@@ -712,6 +717,9 @@ func (r *notionMirrorRunner) mirrorDataSourceRows(ctx context.Context, dataSourc
 			FilterProperties:        []string{"title"},
 		})
 		if err != nil {
+			if !r.isRootObject(dataSourceID, rootID, hierarchy) && isRecoverableNotionReachabilityError(err) {
+				return r.recordCrawlMiss(ctx, rootID, dataSourceID, "data_source", "notion data source rows were not reachable")
+			}
 			return err
 		}
 		for _, result := range page.Results {
@@ -784,6 +792,16 @@ func notionRootAllowedByConfig(cfg config.Config, rootID string) bool {
 		}
 	}
 	return false
+}
+
+func (r *notionMirrorRunner) completedNotionObject(objectKind string, objectID string) bool {
+	sourceKey := companyknowledge.NotionObjectSourceKey(r.workspace, objectKind, normalizeNotionID(objectID))
+	_, ok := r.checkpoint.CompletedObjects[sourceKey]
+	return ok
+}
+
+func (r *notionMirrorRunner) isRootObject(objectID string, rootID string, hierarchy []string) bool {
+	return normalizeNotionID(objectID) == normalizeNotionID(rootID) && len(hierarchy) == 0
 }
 
 func (r *notionMirrorRunner) extractPageMarkdown(ctx context.Context, pageID string) (notionPageExtraction, error) {
@@ -1170,6 +1188,14 @@ func compactNotionID(value string) string {
 func isNotionNotFound(err error) bool {
 	var apiErr clients.NotionAPIError
 	return errors.As(err, &apiErr) && apiErr.StatusCode == 404
+}
+
+func isRecoverableNotionReachabilityError(err error) bool {
+	return isNotionNotFound(err) ||
+		isNotionPageEndpointTypeMismatch(err) ||
+		isNotionDatabaseEndpointTypeMismatch(err) ||
+		isNotionDataSourceEndpointTypeMismatch(err) ||
+		isNotionDatabaseNoAccessibleDataSources(err)
 }
 
 func isNotionPageEndpointTypeMismatch(err error) bool {

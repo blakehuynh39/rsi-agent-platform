@@ -149,6 +149,7 @@ type fakeNotionGraphAPI struct {
 	children                  map[string][]clients.NotionBlock
 	databaseRows              map[string][]clients.NotionPage
 	dataSourceRows            map[string][]clients.NotionPage
+	queryDataSourceErrors     map[string]error
 	pageTypeMismatch          map[string]bool
 	dbTypeMismatch            map[string]bool
 	dbNoAccessibleDataSources map[string]bool
@@ -260,6 +261,9 @@ func (f *fakeNotionGraphAPI) QueryDataSource(ctx context.Context, dataSourceID s
 	}
 	f.queryDataSourceCalls[dataSourceID]++
 	f.queryDataSourceOptions[dataSourceID] = opts
+	if err, ok := f.queryDataSourceErrors[dataSourceID]; ok {
+		return clients.NotionListResponse[clients.NotionPage]{}, err
+	}
 	rows := f.dataSourceRows[dataSourceID]
 	if len(rows) == 0 {
 		rows = f.databaseRows[dataSourceID]
@@ -493,6 +497,117 @@ func TestNotionMirrorDatabaseRootWritesDatabaseObjectAndRows(t *testing.T) {
 	}
 	if !foundDatabaseWikiPage {
 		t.Fatalf("database root was not published into company wiki pages: %+v", pages)
+	}
+}
+
+func TestNotionMirrorDatabaseRootDataSourceQueryNotFoundRecordsCrawlMiss(t *testing.T) {
+	state := store.NewMemoryStore()
+	honcho := &fakeControlHonchoDocuments{}
+	cfg := config.Config{
+		Environment:                "stage",
+		SourceMirrorCheckpointRoot: t.TempDir(),
+		HonchoWorkspaceID:          "rsi_company_knowledge",
+	}
+	databaseID := "databaseabc"
+	dataSourceID := "datasourceabc"
+	api := &fakeNotionGraphAPI{
+		databases: map[string]clients.NotionDatabase{
+			databaseID: {
+				Object:         "database",
+				ID:             databaseID,
+				URL:            "https://notion.so/databaseabc",
+				Title:          []clients.NotionText{{PlainText: "Root Database"}},
+				LastEditedTime: "2026-05-02T10:00:00.000Z",
+				DataSources:    []clients.NotionDataSourceReference{{ID: dataSourceID, Name: "Rows"}},
+			},
+		},
+		dataSources: map[string]clients.NotionDataSource{
+			dataSourceID: {
+				Object:         "data_source",
+				ID:             dataSourceID,
+				Name:           "Rows",
+				LastEditedTime: "2026-05-02T10:00:00.000Z",
+				Parent:         map[string]any{"database_id": databaseID},
+			},
+		},
+		queryDataSourceErrors: map[string]error{
+			dataSourceID: clients.NotionAPIError{StatusCode: 404, Body: "not found"},
+		},
+	}
+	mirror := companyknowledge.NewNotionMirror(state, honcho, companyknowledge.NotionMirrorOptions{Environment: "stage", HonchoWorkspace: "rsi_company_knowledge"})
+	runner, err := newNotionMirrorRunner(cfg, api, state, mirror, databaseID)
+	if err != nil {
+		t.Fatalf("newNotionMirrorRunner() error = %v", err)
+	}
+	if err := runner.mirrorRoot(context.Background(), databaseID); err != nil {
+		t.Fatalf("mirrorRoot() should record a child data source miss, got error = %v", err)
+	}
+	missKey := companyknowledge.NotionCrawlMissSourceKey("notion", databaseID, dataSourceID)
+	record, found, err := state.GetSourceMirrorRecord(companyknowledge.NotionCrawlMissSourceType, missKey)
+	if err != nil || !found {
+		t.Fatalf("crawl miss record found=%t err=%v", found, err)
+	}
+	if record.Status != store.SourceMirrorStatusStale {
+		t.Fatalf("crawl miss status = %s, want stale", record.Status)
+	}
+	if record.Metadata["reason"] != "notion data source rows were not reachable" {
+		t.Fatalf("crawl miss reason = %v", record.Metadata["reason"])
+	}
+}
+
+func TestNotionMirrorChildPageMarkdownNotFoundRecordsCrawlMiss(t *testing.T) {
+	state := store.NewMemoryStore()
+	honcho := &fakeControlHonchoDocuments{}
+	cfg := config.Config{
+		Environment:                "stage",
+		SourceMirrorCheckpointRoot: t.TempDir(),
+		HonchoWorkspaceID:          "rsi_company_knowledge",
+	}
+	databaseID := "databaseabc"
+	dataSourceID := "datasourceabc"
+	rowID := "rowpageabc"
+	api := &fakeNotionGraphAPI{
+		databases: map[string]clients.NotionDatabase{
+			databaseID: {
+				Object:         "database",
+				ID:             databaseID,
+				URL:            "https://notion.so/databaseabc",
+				Title:          []clients.NotionText{{PlainText: "Root Database"}},
+				LastEditedTime: "2026-05-02T10:00:00.000Z",
+				DataSources:    []clients.NotionDataSourceReference{{ID: dataSourceID, Name: "Rows"}},
+			},
+		},
+		dataSources: map[string]clients.NotionDataSource{
+			dataSourceID: {
+				Object:         "data_source",
+				ID:             dataSourceID,
+				Name:           "Rows",
+				LastEditedTime: "2026-05-02T10:00:00.000Z",
+				Parent:         map[string]any{"database_id": databaseID},
+			},
+		},
+		dataSourceRows: map[string][]clients.NotionPage{
+			dataSourceID: {notionTestPage(rowID, "Row Page", false)},
+		},
+		markdownErrors: map[string]error{
+			rowID: clients.NotionAPIError{StatusCode: 404, Body: "not found"},
+		},
+	}
+	mirror := companyknowledge.NewNotionMirror(state, honcho, companyknowledge.NotionMirrorOptions{Environment: "stage", HonchoWorkspace: "rsi_company_knowledge"})
+	runner, err := newNotionMirrorRunner(cfg, api, state, mirror, databaseID)
+	if err != nil {
+		t.Fatalf("newNotionMirrorRunner() error = %v", err)
+	}
+	if err := runner.mirrorRoot(context.Background(), databaseID); err != nil {
+		t.Fatalf("mirrorRoot() should record a child page markdown miss, got error = %v", err)
+	}
+	missKey := companyknowledge.NotionCrawlMissSourceKey("notion", databaseID, rowID)
+	record, found, err := state.GetSourceMirrorRecord(companyknowledge.NotionCrawlMissSourceType, missKey)
+	if err != nil || !found {
+		t.Fatalf("crawl miss record found=%t err=%v", found, err)
+	}
+	if record.Metadata["reason"] != "notion page markdown was not reachable" {
+		t.Fatalf("crawl miss reason = %v", record.Metadata["reason"])
 	}
 }
 
