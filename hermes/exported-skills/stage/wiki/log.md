@@ -13565,3 +13565,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b425ce25d356ff5f239b20997e291526
 - summary: Design considerations for the command-line interface.
 
+## [2026-05-05T09:19:56Z] synthesis | GitHub Permissions Policy
+
+- status: published
+- slug: policies/github-permissions-policy
+- wiki_revision_id: wikirev_23ccf6e891080c92ed66369e06ec84dd
+- summary: Defines role-based access control, team assignments, and repository permissions for the organization.
+
