@@ -6800,3 +6800,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_903d16d410e3b89c2b3784612b8f3d70
 - summary: A Notion page with the identifier 299051299a5480f3890af1a1069deaf4.
 
+## [2026-05-05T03:40:37Z] synthesis | AI Prompt Library
+
+- status: published
+- slug: concepts/ai-prompt-library
+- wiki_revision_id: wikirev_738b30a1111488c9ab72d27be7ed1209
+- summary: A collection of AI prompts and resources, including a detailed frontend UI card prompt and links to vibe code tools.
+
+## [2026-05-05T03:45:53Z] synthesis | IP Stock Exchange
+
+- status: published
+- slug: concepts/ip-stock-exchange
+- wiki_revision_id: wikirev_dc2c4770d87623b264fed338c5efc3e2
+- summary: A Notion document about IP Stock Exchange.
+

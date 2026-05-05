@@ -2771,13 +2771,18 @@
       },
       {
         "path": "index.md",
-        "sha256": "c01fd1bd3c56b17c896d43d84be32a66b3aaa922bddbadae20961ce887812480",
-        "size": 156279
+        "sha256": "563a4e190e9486da5a4ab89d4535669a91fe2d5f114f47e54c9356b76a4bb306",
+        "size": 156864
       },
       {
         "path": "log.md",
-        "sha256": "2b5004d9251d6ce58e98a9b7e31b62f6140316fb6ea226430f20a8f9f313c440",
-        "size": 352094
+        "sha256": "56d02cb4d45fad58c002fa422e9a0f67907a6fe990a61ec2145a2feb78074e9a",
+        "size": 352396
+      },
+      {
+        "path": "pages/concepts/ai-prompt-library.md",
+        "sha256": "f20f068a0ce630e082f0a0c60bfaa46e4f02ca3ea8a8423250ad54a6886b68eb",
+        "size": 2320
       },
       {
         "path": "pages/concepts/coming-soon-placeholder-tasks.md",
@@ -3014,8 +3019,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T03:34:36Z",
-  "file_count": 601,
+  "exported_at": "2026-05-05T03:45:27Z",
+  "file_count": 602,
   "files": [
     {
       "path": ".usage.json",
@@ -5782,20 +5787,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-54fc8bnk8js",
-  "previous_tree_hash": "a94481442792e1809e2eea939a01e128efb805e06fa889deb14d9e6a5c27b91f",
+  "previous_tree_hash": "4e6a9ba53c0e28e9fe26741644fb793a56128b11e03771f1090b5d9b6e6b5411",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "476409678a775c1018b9e6a7408807c3722cdad360128bd52087ec8de9a400b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4e6a9ba53c0e28e9fe26741644fb793a56128b11e03771f1090b5d9b6e6b5411",
+  "tree_hash": "7f7d59a6e9e47b7863483d040969d9212380614fd0305d512205286c91d54e2c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 49,
+  "wiki_file_count": 50,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5804,13 +5809,18 @@
     },
     {
       "path": "index.md",
-      "sha256": "c01fd1bd3c56b17c896d43d84be32a66b3aaa922bddbadae20961ce887812480",
-      "size": 156279
+      "sha256": "563a4e190e9486da5a4ab89d4535669a91fe2d5f114f47e54c9356b76a4bb306",
+      "size": 156864
     },
     {
       "path": "log.md",
-      "sha256": "2b5004d9251d6ce58e98a9b7e31b62f6140316fb6ea226430f20a8f9f313c440",
-      "size": 352094
+      "sha256": "56d02cb4d45fad58c002fa422e9a0f67907a6fe990a61ec2145a2feb78074e9a",
+      "size": 352396
+    },
+    {
+      "path": "pages/concepts/ai-prompt-library.md",
+      "sha256": "f20f068a0ce630e082f0a0c60bfaa46e4f02ca3ea8a8423250ad54a6886b68eb",
+      "size": 2320
     },
     {
       "path": "pages/concepts/coming-soon-placeholder-tasks.md",
@@ -6044,5 +6054,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d7f53c22c73ae7c2e85e33dc72f1c47d106c165cc63c121f8f19535a1fa03faa"
+  "wiki_tree_hash": "b6c2ef8b9bbe5ee4abeb03ab3ea87d36c759253efebb3b7662646416f60d064f"
 }
