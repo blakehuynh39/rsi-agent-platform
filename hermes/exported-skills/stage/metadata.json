@@ -2771,13 +2771,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "563a4e190e9486da5a4ab89d4535669a91fe2d5f114f47e54c9356b76a4bb306",
-        "size": 156864
+        "sha256": "fa99433df2222c28997b6bd75b8043b8701e52859a2a5322a28a23784f60ef8a",
+        "size": 157080
       },
       {
         "path": "log.md",
-        "sha256": "56d02cb4d45fad58c002fa422e9a0f67907a6fe990a61ec2145a2feb78074e9a",
-        "size": 352396
+        "sha256": "9cd7c79c6386d34e866bc46cfd4fc7e15135326f6929042e7d130f6475c8aa86",
+        "size": 352624
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2798,6 +2798,11 @@
         "path": "pages/concepts/ip-oracle.md",
         "sha256": "d9d5e408d2b9a54bd9e4a601c16bf91d2a1334807e5fd44696953cfbcee5b1e2",
         "size": 1273
+      },
+      {
+        "path": "pages/concepts/ip-stock-exchange.md",
+        "sha256": "8a16949f4182ebb25241083d72384c028ba754eeeae4ebac99d5c8961c1ec9f2",
+        "size": 1150
       },
       {
         "path": "pages/concepts/notion-page-299051299a5480f3890af1a1069deaf4.md",
@@ -3019,8 +3024,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T03:45:27Z",
-  "file_count": 602,
+  "exported_at": "2026-05-05T03:51:16Z",
+  "file_count": 603,
   "files": [
     {
       "path": ".usage.json",
@@ -5787,20 +5792,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-54fc8bnk8js",
-  "previous_tree_hash": "4e6a9ba53c0e28e9fe26741644fb793a56128b11e03771f1090b5d9b6e6b5411",
+  "previous_tree_hash": "7f7d59a6e9e47b7863483d040969d9212380614fd0305d512205286c91d54e2c",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "476409678a775c1018b9e6a7408807c3722cdad360128bd52087ec8de9a400b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7f7d59a6e9e47b7863483d040969d9212380614fd0305d512205286c91d54e2c",
+  "tree_hash": "dfa6aa4bcf34e8bc8d5dc936d7d906f8e72f98511d28006a378b19c3f499fd56",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 50,
+  "wiki_file_count": 51,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5809,13 +5814,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "563a4e190e9486da5a4ab89d4535669a91fe2d5f114f47e54c9356b76a4bb306",
-      "size": 156864
+      "sha256": "fa99433df2222c28997b6bd75b8043b8701e52859a2a5322a28a23784f60ef8a",
+      "size": 157080
     },
     {
       "path": "log.md",
-      "sha256": "56d02cb4d45fad58c002fa422e9a0f67907a6fe990a61ec2145a2feb78074e9a",
-      "size": 352396
+      "sha256": "9cd7c79c6386d34e866bc46cfd4fc7e15135326f6929042e7d130f6475c8aa86",
+      "size": 352624
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -5836,6 +5841,11 @@
       "path": "pages/concepts/ip-oracle.md",
       "sha256": "d9d5e408d2b9a54bd9e4a601c16bf91d2a1334807e5fd44696953cfbcee5b1e2",
       "size": 1273
+    },
+    {
+      "path": "pages/concepts/ip-stock-exchange.md",
+      "sha256": "8a16949f4182ebb25241083d72384c028ba754eeeae4ebac99d5c8961c1ec9f2",
+      "size": 1150
     },
     {
       "path": "pages/concepts/notion-page-299051299a5480f3890af1a1069deaf4.md",
@@ -6054,5 +6064,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b6c2ef8b9bbe5ee4abeb03ab3ea87d36c759253efebb3b7662646416f60d064f"
+  "wiki_tree_hash": "d88b19e8422906109f72ba3ff34c5125465b9d8e81ba8d79ff07428b2d4ae47a"
 }
