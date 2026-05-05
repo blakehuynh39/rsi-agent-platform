@@ -13747,3 +13747,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8e38b2b70ac70710dd950bd27a83157b
 - summary: A project named 'Project Nova setup' is documented in Notion.
 
+## [2026-05-05T11:18:01Z] synthesis | Twitter Oracle Backend Server
+
+- status: published
+- slug: systems/twitter-oracle-backend-server
+- wiki_revision_id: wikirev_836b32931b1ce6dedd9a1f8b39943c76
+- summary: A backend server that listens for events from the AsyncTwitterUserHook contract, retrieves Twitter follower counts via the Twitter API, and calls back the requester contract with t...
+
+## [2026-05-05T11:19:32Z] synthesis | Back End Designs
+
+- status: published
+- slug: systems/back-end-designs
+- wiki_revision_id: wikirev_99a6429b9003fa428221a1d78a635677
+- summary: A collection of design documents for the backend systems, including API specs, data model, security, cloud infrastructure, and workflows.
+
+## [2026-05-05T11:21:00Z] synthesis | Back End Designs
+
+- status: published
+- slug: systems/back-end-designs
+- wiki_revision_id: wikirev_84f63f128f4e30866e6d83c663e022a1
+- summary: A collection of design documents for the backend systems, including API specs, data model, security, cloud infrastructure, and workflows.
+

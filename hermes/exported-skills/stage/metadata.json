@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "88379ffdb62ada93430b6a9a5fc4164e17d8f05fdd5988bcfae71de844fa1abb",
-        "size": 692693
+        "sha256": "2b222d355a21ccda3f777f8dbc6c19482357bf7aca57d92dc621cfdc41e80702",
+        "size": 693725
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3295,6 +3295,11 @@
         "size": 4492
       },
       {
+        "path": "pages/systems/back-end-designs.md",
+        "sha256": "f9d7547bf83dd4c233e62019fcfff45e3ef4f8811948dd78a6c2a86e9c870f59",
+        "size": 1540
+      },
+      {
         "path": "pages/systems/calendar.md",
         "sha256": "60ff71bfe75abe8b440d334d839554b6e0df3c5bce8925338b7ec1cbac5d6824",
         "size": 1050
@@ -3355,6 +3360,11 @@
         "size": 3026
       },
       {
+        "path": "pages/systems/twitter-oracle-backend-server.md",
+        "sha256": "27af51efc986773842a3b98f76dd9da337ecdfe7d26d09a7152deacacb47a63d",
+        "size": 5053
+      },
+      {
         "path": "pages/systems/upload-system.md",
         "sha256": "26d2530e2c92acb0cb89dabf87d680fc1425af8a7b1e3c69e81b234a3a7b62c1",
         "size": 3182
@@ -3364,8 +3374,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T11:11:36Z",
-  "file_count": 671,
+  "exported_at": "2026-05-05T11:22:31Z",
+  "file_count": 673,
   "files": [
     {
       "path": ".usage.json",
@@ -6132,20 +6142,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "709cd4c96be767ea527a6fd8a5f2d00a9ea2d1e6777451a03d401ddfbef228ef",
+  "previous_tree_hash": "644d87f110ca5afedc94bfba7d5223ca61e9b6c6ee7a99546011259494837634",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "644d87f110ca5afedc94bfba7d5223ca61e9b6c6ee7a99546011259494837634",
+  "tree_hash": "4f1d8bfe95e8c8bb0075aac44a575c60adc6580764a36f6f3b3e7dd9c24bbd2a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 119,
+  "wiki_file_count": 121,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6159,8 +6169,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "88379ffdb62ada93430b6a9a5fc4164e17d8f05fdd5988bcfae71de844fa1abb",
-      "size": 692693
+      "sha256": "2b222d355a21ccda3f777f8dbc6c19482357bf7aca57d92dc621cfdc41e80702",
+      "size": 693725
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6678,6 +6688,11 @@
       "size": 4492
     },
     {
+      "path": "pages/systems/back-end-designs.md",
+      "sha256": "f9d7547bf83dd4c233e62019fcfff45e3ef4f8811948dd78a6c2a86e9c870f59",
+      "size": 1540
+    },
+    {
       "path": "pages/systems/calendar.md",
       "sha256": "60ff71bfe75abe8b440d334d839554b6e0df3c5bce8925338b7ec1cbac5d6824",
       "size": 1050
@@ -6738,11 +6753,16 @@
       "size": 3026
     },
     {
+      "path": "pages/systems/twitter-oracle-backend-server.md",
+      "sha256": "27af51efc986773842a3b98f76dd9da337ecdfe7d26d09a7152deacacb47a63d",
+      "size": 5053
+    },
+    {
       "path": "pages/systems/upload-system.md",
       "sha256": "26d2530e2c92acb0cb89dabf87d680fc1425af8a7b1e3c69e81b234a3a7b62c1",
       "size": 3182
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "41ce3d6bb8bedffa62fea5e807628653d3ead886e88de8d52cf876697397c823"
+  "wiki_tree_hash": "d2761b18a677c21ce5db31b75fbc72de107f4d790eead4eea4d91ca4d1b0d8d7"
 }
