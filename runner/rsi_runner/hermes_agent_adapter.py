@@ -750,6 +750,18 @@ class HermesAgentAdapter:
             return
         parent_session_id = _string(self._payload.get("parent_session_id")) or None
         model = _string(self._payload.get("model")) or None
+        if parent_session_id == session_id:
+            self._lifecycle.record(
+                "session_db.parent_session_ignored",
+                {
+                    "status": "warning",
+                    "reason": "parent_session_id matched session_id",
+                    "session_id": session_id,
+                },
+            )
+            parent_session_id = None
+        if parent_session_id:
+            self._ensure_parent_session(db, parent_session_id, model=model)
         db.create_session(
             session_id=session_id,
             source="rsi_executor",
@@ -760,6 +772,30 @@ class HermesAgentAdapter:
         db.reopen_session(session_id)
         if system_prompt:
             db.update_system_prompt(session_id, system_prompt)
+
+    def _ensure_parent_session(self, db: Any, parent_session_id: str, *, model: str | None = None) -> None:
+        try:
+            if hasattr(db, "ensure_session"):
+                db.ensure_session(parent_session_id, source="rsi_executor_parent", model=model)
+            else:
+                db.create_session(parent_session_id, source="rsi_executor_parent", model=model)
+        except Exception as exc:
+            self._lifecycle.record(
+                "session_db.parent_session_ensure_failed",
+                {
+                    "status": "failed",
+                    "parent_session_id": parent_session_id,
+                    "error": str(exc)[:800],
+                },
+            )
+            raise
+        self._lifecycle.record(
+            "session_db.parent_session_ensured",
+            {
+                "status": "completed",
+                "parent_session_id": parent_session_id,
+            },
+        )
 
     def _system_prompt(self) -> str:
         prompt_parts = [_string(self._payload.get("system_message"))]

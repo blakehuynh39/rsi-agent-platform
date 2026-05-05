@@ -1523,6 +1523,37 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(captured["thread_id"], "171000001.000100")
         self.assertEqual(captured["gateway_session_key"], "rsi:prod:slack:C123:171000001.000100")
 
+    def test_hermes_agent_adapter_ensures_missing_parent_session_before_child(self) -> None:
+        try:
+            from hermes_state import SessionDB as HermesSessionDB  # type: ignore
+        except (ImportError, ModuleNotFoundError):
+            self.skipTest("hermes_state is unavailable")
+
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(
+            os.environ,
+            {"HERMES_HOME": tempdir},
+            clear=False,
+        ):
+            db = HermesSessionDB(db_path=Path(tempdir, "state.db"))
+            adapter = HermesAgentAdapter(
+                {
+                    "session_id": "child-session",
+                    "parent_session_id": "parent-session",
+                    "model": "deepseek/deepseek-v4-pro",
+                }
+            )
+
+            adapter._prepare_session_db("child-session", db, "system prompt")
+
+            parent = db.get_session("parent-session")
+            child = db.get_session("child-session")
+
+        self.assertIsNotNone(parent)
+        self.assertIsNotNone(child)
+        self.assertEqual(parent["source"], "rsi_executor_parent")
+        self.assertEqual(child["parent_session_id"], "parent-session")
+        self.assertEqual(child["system_prompt"], "system prompt")
+
     def test_hermes_agent_adapter_retries_locked_session_db_open(self) -> None:
         attempts = 0
 
