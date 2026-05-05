@@ -6814,3 +6814,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_dc2c4770d87623b264fed338c5efc3e2
 - summary: A Notion document about IP Stock Exchange.
 
+## [2026-05-05T04:06:04Z] synthesis | Best Practice for Successful NFT Launch
+
+- status: published
+- slug: concepts/nft-launch-best-practices
+- wiki_revision_id: wikirev_067e819c034c98bc87578bc9b61242ea
+- summary: Collection of resources and best practices for designing and executing a successful NFT launch, covering security, gas optimization, bot prevention, and drop mechanics.
+
