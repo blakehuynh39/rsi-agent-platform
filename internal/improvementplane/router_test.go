@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -532,6 +534,38 @@ func TestTraceStreamBackfillsLedgerEventsAndFiltersScope(t *testing.T) {
 	}
 	if strings.Contains(body, "eval") {
 		t.Fatalf("expected scope filter to hide eval event, got %q", body)
+	}
+}
+
+func TestCompanyWikiDashboardRoutesReadIndexAndFiles(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "pages", "runbooks"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "index.md"), []byte("# Company Wiki Index\n\n- [Deploy](pages/runbooks/deploy.md)\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "pages", "runbooks", "deploy.md"), []byte("# Deploy\n\n- citation: [Slack source](https://storyprotocol.slack.com/archives/C123/p1)\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	router := NewRouter(config.Config{CompanyWikiRoot: root}, storepkg.NewMemoryStore())
+
+	for _, tc := range []struct {
+		path string
+		want string
+	}{
+		{path: "/api/company-wiki/index", want: "Company Wiki Index"},
+		{path: "/api/company-wiki/file?path=pages%2Frunbooks%2Fdeploy.md", want: "Slack source"},
+	} {
+		req := httptest.NewRequest(http.MethodGet, tc.path, nil)
+		rec := httptest.NewRecorder()
+		router.ServeHTTP(rec, req)
+		if rec.Code != http.StatusOK {
+			t.Fatalf("%s status = %d body=%s", tc.path, rec.Code, rec.Body.String())
+		}
+		if !strings.Contains(rec.Body.String(), tc.want) {
+			t.Fatalf("%s missing %q in %s", tc.path, tc.want, rec.Body.String())
+		}
 	}
 }
 

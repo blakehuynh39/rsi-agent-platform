@@ -40,7 +40,7 @@ func TestRecordAndPublishWikiSourceWritesMarkdownManifestAndLedger(t *testing.T)
 	if err != nil {
 		t.Fatalf("published markdown missing: %v", err)
 	}
-	for _, expected := range []string{"source_document_id", "source_revision_id", "chunk_id", "Roll forward after validation."} {
+	for _, expected := range []string{"[Notion source](https://notion.so/page-abc)", "source_document_id", "source_revision_id", "chunk_id", "Roll forward after validation."} {
 		if !strings.Contains(string(body), expected) {
 			t.Fatalf("expected %q in markdown:\n%s", expected, string(body))
 		}

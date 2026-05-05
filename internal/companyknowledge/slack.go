@@ -341,7 +341,10 @@ func SlackWikiSourceRevisionInput(input SlackMessageInput) store.CompanyWikiSour
 	} else {
 		title += " channel"
 	}
-	nativeLocator := "slack:" + strings.TrimSpace(input.ChannelID) + ":" + input.EffectiveThreadTS() + ":" + strings.TrimSpace(input.TS)
+	nativeLocator := firstNonEmpty(
+		strings.TrimSpace(input.Permalink),
+		"slack:"+strings.TrimSpace(input.ChannelID)+":"+input.EffectiveThreadTS()+":"+strings.TrimSpace(input.TS),
+	)
 	metadata := SlackMessageMetadata(input, sourceKey, sessionKey, revision)
 	return store.CompanyWikiSourceRevisionInput{
 		SourceType:        SlackMessageSourceType,

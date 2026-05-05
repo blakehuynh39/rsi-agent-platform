@@ -710,7 +710,12 @@ func renderSynthesisPageMarkdownWithCandidates(evidence store.CompanyWikiSourceE
 		for _, citation := range claim.Citations {
 			citation.ClaimKey = claimKey
 			citations = append(citations, citation)
-			b.WriteString("  - citation: `source_document_id=")
+			b.WriteString("  - citation:")
+			if link := citationMarkdownSourceLink(citation, evidence.Document.URL); link != "" {
+				b.WriteString(" ")
+				b.WriteString(link)
+			}
+			b.WriteString(" `source_document_id=")
 			b.WriteString(citation.SourceDocumentID)
 			b.WriteString("` `source_revision_id=")
 			b.WriteString(citation.SourceRevisionID)
@@ -754,7 +759,12 @@ func renderSynthesisPageMarkdownWithCandidates(evidence store.CompanyWikiSourceE
 			b.WriteString(strings.TrimSpace(conflict.ClaimKey))
 			b.WriteString("`\n")
 			for _, citation := range conflictCitations {
-				b.WriteString("  - conflict citation: `source_document_id=")
+				b.WriteString("  - conflict citation:")
+				if link := citationMarkdownSourceLink(citation, evidence.Document.URL); link != "" {
+					b.WriteString(" ")
+					b.WriteString(link)
+				}
+				b.WriteString(" `source_document_id=")
 				b.WriteString(citation.SourceDocumentID)
 				b.WriteString("` `source_revision_id=")
 				b.WriteString(citation.SourceRevisionID)
@@ -801,7 +811,11 @@ func renderSynthesisPageMarkdownWithCandidates(evidence store.CompanyWikiSourceE
 	b.WriteString("`\n")
 	if strings.TrimSpace(evidence.Document.URL) != "" {
 		b.WriteString("- `source_url`: ")
-		b.WriteString(evidence.Document.URL)
+		if link := markdownSourceLink(evidence.Document.URL, sourceLinkLabel(evidence.Document.URL)); link != "" {
+			b.WriteString(link)
+		} else {
+			b.WriteString(evidence.Document.URL)
+		}
 		b.WriteString("\n")
 	}
 

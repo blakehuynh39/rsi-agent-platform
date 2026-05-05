@@ -153,6 +153,24 @@ func TestSlackMirrorFileOnlyMessageWritesFileMetadataContent(t *testing.T) {
 	}
 }
 
+func TestSlackWikiSourceRevisionInputUsesPermalinkAsNativeLocator(t *testing.T) {
+	input := SlackMessageInput{
+		WorkspaceID: "T123",
+		ChannelID:   "C123",
+		TS:          "1777650186.068179",
+		ThreadTS:    "1777650186.068179",
+		Text:        "Ship it.",
+		Permalink:   "https://storyprotocol.slack.com/archives/C123/p1777650186068179",
+	}
+	source := SlackWikiSourceRevisionInput(input)
+	if source.NativeLocator != input.Permalink {
+		t.Fatalf("NativeLocator = %q, want Slack permalink", source.NativeLocator)
+	}
+	if source.URL != input.Permalink {
+		t.Fatalf("URL = %q, want Slack permalink", source.URL)
+	}
+}
+
 func TestSlackMirrorEmptyMessageSkipsWithoutClaimingRecord(t *testing.T) {
 	state := store.NewMemoryStore()
 	honcho := &fakeHonchoCorpus{}

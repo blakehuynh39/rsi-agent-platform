@@ -30,6 +30,7 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 func newRouterWithTranscriptResolver(cfg config.Config, store storepkg.Repository, transcriptResolver slackTranscriptResolver) http.Handler {
 	r := app.NewBaseRouter(cfg)
 	registerHermesCompatibilityRoutes(r, cfg, store)
+	registerCompanyWikiRoutes(r, cfg, store)
 	r.Get("/api/conversations", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{"conversations": buildConversationList(store)})
 	})

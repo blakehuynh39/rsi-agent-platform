@@ -158,6 +158,20 @@ export const api = {
     }),
   getToolsets: () => fetchJSON<ToolsetInfo[]>("/api/tools/toolsets"),
 
+  // Company wiki
+  getCompanyWikiIndex: () =>
+    fetchJSON<CompanyWikiMarkdownRead>("/api/company-wiki/index"),
+  getCompanyWikiLog: (limit = 25) =>
+    fetchJSON<CompanyWikiMarkdownRead>(`/api/company-wiki/log?limit=${limit}`),
+  getCompanyWikiFile: (path: string) =>
+    fetchJSON<CompanyWikiMarkdownRead>(
+      `/api/company-wiki/file?path=${encodeURIComponent(path)}`,
+    ),
+  searchCompanyWiki: (query: string, limit = 20) =>
+    fetchJSON<CompanyWikiSearchResponse>(
+      `/api/company-wiki/search?query=${encodeURIComponent(query)}&limit=${limit}`,
+    ),
+
   // Session search (FTS5)
   searchSessions: (q: string) =>
     fetchJSON<SessionSearchResponse>(`/api/sessions/search?q=${encodeURIComponent(q)}`),
@@ -748,4 +762,29 @@ export interface AgentPluginUpdateResponse {
 export interface PluginProvidersPutRequest {
   memory_provider?: string;
   context_engine?: string;
+}
+
+// ── Company wiki types ────────────────────────────────────────────────
+
+export interface CompanyWikiMarkdownRead {
+  ok: boolean;
+  path: string;
+  content: string;
+}
+
+export interface CompanyWikiSearchResult {
+  page_id: string;
+  slug: string;
+  title: string;
+  path: string;
+  wiki_revision_id: string;
+  sha256: string;
+  snippet?: string;
+  published_at?: string;
+}
+
+export interface CompanyWikiSearchResponse {
+  ok: boolean;
+  query: string;
+  results: CompanyWikiSearchResult[];
 }

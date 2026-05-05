@@ -342,7 +342,11 @@ func BuildCompiledWikiMarkdown(document store.CompanyWikiSourceDocument, chunks 
 	b.WriteString("\n\n")
 	if strings.TrimSpace(document.URL) != "" {
 		b.WriteString("Source: ")
-		b.WriteString(document.URL)
+		if link := markdownSourceLink(document.URL, sourceLinkLabel(document.URL)); link != "" {
+			b.WriteString(link)
+		} else {
+			b.WriteString(document.URL)
+		}
 		b.WriteString("\n\n")
 	}
 	b.WriteString("## Compiled Evidence\n\n")
@@ -371,7 +375,12 @@ func BuildCompiledWikiMarkdown(document store.CompanyWikiSourceDocument, chunks 
 		if citation.NativeLocator != "" {
 			b.WriteString("- `native_locator`: `")
 			b.WriteString(citation.NativeLocator)
-			b.WriteString("`\n")
+			b.WriteString("`")
+			if link := citationMarkdownSourceLink(citation, document.URL); link != "" {
+				b.WriteString(" ")
+				b.WriteString(link)
+			}
+			b.WriteString("\n")
 		}
 		b.WriteString("\n")
 		b.WriteString(strings.TrimSpace(chunk.Content))
@@ -700,6 +709,10 @@ func ReadLogFile(root string, limit int) (WikiMarkdownRead, error) {
 	}
 	read.Content = tailWikiLogEntries(read.Content, limit)
 	return read, nil
+}
+
+func ReadWikiMarkdownFile(root string, relativePath string) (WikiMarkdownRead, error) {
+	return readWikiMarkdownFile(root, relativePath)
 }
 
 func reconcileManifestEntry(root string, entry store.CompanyWikiManifestEntry) WikiManifestReconcileWarning {
