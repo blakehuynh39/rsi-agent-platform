@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "df32334fc31eba41b5cc3c5625a35b1d93d49c8548c4070ef35a59d3d401b336",
-        "size": 698516
+        "sha256": "43647de400cb20d7ae32e514b8df5fdbefdc642008330df023201ffbb84621be",
+        "size": 699264
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2888,6 +2888,11 @@
         "path": "pages/concepts/lowering-barrier-of-entry-for-creators.md",
         "sha256": "a933b4b14b05cf6115f6eb6f0bbbf17d562be074c359feba3e5ca531da96536f",
         "size": 4821
+      },
+      {
+        "path": "pages/concepts/multi-parent-licensing.md",
+        "sha256": "e010d2f4e8fc077b0df30bae4ff56aca20de4240d283766b409c84b84a36d1bf",
+        "size": 4907
       },
       {
         "path": "pages/concepts/nft-launch-best-practices.md",
@@ -3138,6 +3143,11 @@
         "path": "pages/projects/automate-support-email-summarize-feedback.md",
         "sha256": "b6eea627d1d15dff130aae8332936c8b0442916a52cc18d7f184b1f9ee86ceb7",
         "size": 1232
+      },
+      {
+        "path": "pages/projects/beta-protocol-sdk.md",
+        "sha256": "cdcd386e6d51cab037595d6dc000e2b42c3014674980800102b83a2d2523daca",
+        "size": 3780
       },
       {
         "path": "pages/projects/drag-and-drop-upload-functionality.md",
@@ -3424,8 +3434,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T13:01:48Z",
-  "file_count": 683,
+  "exported_at": "2026-05-05T13:13:37Z",
+  "file_count": 685,
   "files": [
     {
       "path": ".usage.json",
@@ -6192,20 +6202,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "6bbb40c5b1e234703691e60e5eea080be81275a081b9c60d2acaa8603952feae",
+  "previous_tree_hash": "4f8973c2af5a12af14bb62de9b24d85b483df905208fa20c96eb67d37a371b75",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "04e00c2b95f3d176bf7f46ff4068b5f6f2ed9cc8f45e1e735ecaec5e22ff2972",
+  "tree_hash": "3f35d25b87a31e284e90f1070a0684483a0382c5c37b656493086b1f6f48634a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 131,
+  "wiki_file_count": 133,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6219,8 +6229,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "df32334fc31eba41b5cc3c5625a35b1d93d49c8548c4070ef35a59d3d401b336",
-      "size": 698516
+      "sha256": "43647de400cb20d7ae32e514b8df5fdbefdc642008330df023201ffbb84621be",
+      "size": 699264
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6331,6 +6341,11 @@
       "path": "pages/concepts/lowering-barrier-of-entry-for-creators.md",
       "sha256": "a933b4b14b05cf6115f6eb6f0bbbf17d562be074c359feba3e5ca531da96536f",
       "size": 4821
+    },
+    {
+      "path": "pages/concepts/multi-parent-licensing.md",
+      "sha256": "e010d2f4e8fc077b0df30bae4ff56aca20de4240d283766b409c84b84a36d1bf",
+      "size": 4907
     },
     {
       "path": "pages/concepts/nft-launch-best-practices.md",
@@ -6581,6 +6596,11 @@
       "path": "pages/projects/automate-support-email-summarize-feedback.md",
       "sha256": "b6eea627d1d15dff130aae8332936c8b0442916a52cc18d7f184b1f9ee86ceb7",
       "size": 1232
+    },
+    {
+      "path": "pages/projects/beta-protocol-sdk.md",
+      "sha256": "cdcd386e6d51cab037595d6dc000e2b42c3014674980800102b83a2d2523daca",
+      "size": 3780
     },
     {
       "path": "pages/projects/drag-and-drop-upload-functionality.md",
@@ -6864,5 +6884,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "479239033c0c29472917abc2bfb726637386f2db9961e95e64bf36e3b3bc7ca7"
+  "wiki_tree_hash": "424bfa521acd73df62392233c4c41bf246904e2a3413582d241da706f5a367fa"
 }

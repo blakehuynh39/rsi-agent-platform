@@ -13873,3 +13873,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_98d89574a7fe7d50e0058886a3f3acdb
 - summary: A Notion document outlining the design of the SDK, including requirements, testing, protocol metadata, CLI, CI/CD, and beta protocol SDK.
 
+## [2026-05-05T13:03:25Z] synthesis | Beta Protocol SDK
+
+- status: published
+- slug: projects/beta-protocol-sdk
+- wiki_revision_id: wikirev_1cc9bea16e4ef1a6de3c1b4db2b2b5d0
+- summary: A project outlining the main workstreams for the Beta Protocol SDK, including testing improvements, wrapper functions for protocol primitives and indexer, a React SDK, and use-case...
+
+## [2026-05-05T13:12:31Z] synthesis | Multi-Parent Licensing
+
+- status: published
+- slug: concepts/multi-parent-licensing
+- wiki_revision_id: wikirev_136aa25c711216c090cea946fe54ac79
+- summary: Describes how derivatives can be linked to multiple parent IPAs, including scenarios with a single common policy and the more complex case of multiple, potentially incompatible pol...
+
