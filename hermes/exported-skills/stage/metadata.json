@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "e4cfece6656dd8766df1ef94091de39f30cd63fdf9d518b4f2ea953b62bb66fb",
-        "size": 698205
+        "sha256": "df32334fc31eba41b5cc3c5625a35b1d93d49c8548c4070ef35a59d3d401b336",
+        "size": 698516
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3270,6 +3270,11 @@
         "size": 1192
       },
       {
+        "path": "pages/projects/sdk-designs.md",
+        "sha256": "00d0d6711c3ede9ce27fb9b146c55707f5475a801b6637392757640f1aa7bed0",
+        "size": 1430
+      },
+      {
         "path": "pages/projects/spam-detection-mechanism.md",
         "sha256": "34eaaf726d06e98a3c9415b0e367c422834ecc11529c9454139a4fbf4e3ff068",
         "size": 1411
@@ -3419,8 +3424,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T12:45:50Z",
-  "file_count": 682,
+  "exported_at": "2026-05-05T13:01:48Z",
+  "file_count": 683,
   "files": [
     {
       "path": ".usage.json",
@@ -6187,20 +6192,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "e23a1464be874f7289556ffee4ef8b2f141ee79c9f8a1c336cf2f84e8f9c68da",
+  "previous_tree_hash": "6bbb40c5b1e234703691e60e5eea080be81275a081b9c60d2acaa8603952feae",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6bbb40c5b1e234703691e60e5eea080be81275a081b9c60d2acaa8603952feae",
+  "tree_hash": "04e00c2b95f3d176bf7f46ff4068b5f6f2ed9cc8f45e1e735ecaec5e22ff2972",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 130,
+  "wiki_file_count": 131,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6214,8 +6219,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "e4cfece6656dd8766df1ef94091de39f30cd63fdf9d518b4f2ea953b62bb66fb",
-      "size": 698205
+      "sha256": "df32334fc31eba41b5cc3c5625a35b1d93d49c8548c4070ef35a59d3d401b336",
+      "size": 698516
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6708,6 +6713,11 @@
       "size": 1192
     },
     {
+      "path": "pages/projects/sdk-designs.md",
+      "sha256": "00d0d6711c3ede9ce27fb9b146c55707f5475a801b6637392757640f1aa7bed0",
+      "size": 1430
+    },
+    {
       "path": "pages/projects/spam-detection-mechanism.md",
       "sha256": "34eaaf726d06e98a3c9415b0e367c422834ecc11529c9454139a4fbf4e3ff068",
       "size": 1411
@@ -6854,5 +6864,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e7388757b00f86bbb95aa87fb9b9d97c6358fab2978da738f69de5ca811b24d8"
+  "wiki_tree_hash": "479239033c0c29472917abc2bfb726637386f2db9961e95e64bf36e3b3bc7ca7"
 }

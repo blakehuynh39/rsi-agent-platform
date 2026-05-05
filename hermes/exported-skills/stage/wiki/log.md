@@ -13866,3 +13866,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_dc1082529e9cff399353a6009e0665fb
 - summary: Integration of Lens Protocol open actions with Story Protocol for IP asset registration, including requirements, feedback, and open questions.
 
+## [2026-05-05T12:59:51Z] synthesis | SDK Designs
+
+- status: published
+- slug: projects/sdk-designs
+- wiki_revision_id: wikirev_98d89574a7fe7d50e0058886a3f3acdb
+- summary: A Notion document outlining the design of the SDK, including requirements, testing, protocol metadata, CLI, CI/CD, and beta protocol SDK.
+
