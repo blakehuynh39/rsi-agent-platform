@@ -7592,3 +7592,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d7c7729e40615868f006a4f1a4b78f50
 - summary: A series of engineering lightning talks documented in a Notion database.
 
+## [2026-05-05T06:12:23Z] synthesis | Package Frontend Story Telling Examples
+
+- status: published
+- slug: concepts/package-frontend-story-telling-examples
+- wiki_revision_id: wikirev_2bd0a9c0981dfe83db5a51a8c7431833
+- summary: Examples of story telling approaches for the package frontend, including Image and Text and Story format sections.
+

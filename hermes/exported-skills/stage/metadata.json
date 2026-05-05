@@ -2771,13 +2771,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "92a54223060647c832de4719648cb3696f07f7c1af640c23289bea4cdc9b10f8",
-        "size": 182391
+        "sha256": "2edf96ad3e6e82dfe3375185653eea43612450b05968e58dc6418c2f848bc889",
+        "size": 183642
       },
       {
         "path": "log.md",
-        "sha256": "a523fac87e611246280082c9ddbab519578cec9312892a98a7f65e00f9da17d3",
-        "size": 390448
+        "sha256": "f42832427ae094a3b30b046e5418c7891e6d829ef8196c6bc848c35545bfec0d",
+        "size": 390792
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2818,6 +2818,11 @@
         "path": "pages/concepts/notion-page-299051299a5480f3890af1a1069deaf4.md",
         "sha256": "c2613077b83c542217ba70ac58420dd85aac6365d1bf378227b613c880ab4bdc",
         "size": 1135
+      },
+      {
+        "path": "pages/concepts/package-frontend-story-telling-examples.md",
+        "sha256": "46b1f78218c812cede4a284048135ab3a4da0d271cd98f4577fbb182e3939cf8",
+        "size": 1415
       },
       {
         "path": "pages/concepts/post-submission-payout-clarity-dopamine-hit.md",
@@ -3094,8 +3099,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T06:11:52Z",
-  "file_count": 617,
+  "exported_at": "2026-05-05T06:17:39Z",
+  "file_count": 618,
   "files": [
     {
       "path": ".usage.json",
@@ -5862,20 +5867,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5dd859wc5pp",
-  "previous_tree_hash": "c4d138570749e574a6857d1d42ef7366b5cdf1cc008d0d8c7029c33594b2fc5a",
+  "previous_tree_hash": "9c4d2ed042f8f26330994d534e891b99dcb4d05f8174986a6258ed67801a0ff2",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "476409678a775c1018b9e6a7408807c3722cdad360128bd52087ec8de9a400b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "9c4d2ed042f8f26330994d534e891b99dcb4d05f8174986a6258ed67801a0ff2",
+  "tree_hash": "cd8f159a7ab1ab8b3601c3a589867980f3cd688e9359841cc71641742d61d875",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 65,
+  "wiki_file_count": 66,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5884,13 +5889,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "92a54223060647c832de4719648cb3696f07f7c1af640c23289bea4cdc9b10f8",
-      "size": 182391
+      "sha256": "2edf96ad3e6e82dfe3375185653eea43612450b05968e58dc6418c2f848bc889",
+      "size": 183642
     },
     {
       "path": "log.md",
-      "sha256": "a523fac87e611246280082c9ddbab519578cec9312892a98a7f65e00f9da17d3",
-      "size": 390448
+      "sha256": "f42832427ae094a3b30b046e5418c7891e6d829ef8196c6bc848c35545bfec0d",
+      "size": 390792
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -5931,6 +5936,11 @@
       "path": "pages/concepts/notion-page-299051299a5480f3890af1a1069deaf4.md",
       "sha256": "c2613077b83c542217ba70ac58420dd85aac6365d1bf378227b613c880ab4bdc",
       "size": 1135
+    },
+    {
+      "path": "pages/concepts/package-frontend-story-telling-examples.md",
+      "sha256": "46b1f78218c812cede4a284048135ab3a4da0d271cd98f4577fbb182e3939cf8",
+      "size": 1415
     },
     {
       "path": "pages/concepts/post-submission-payout-clarity-dopamine-hit.md",
@@ -6204,5 +6214,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d16bca5ab52b6f667f4b5093f95af0082ec7164f3169ccf2daf70e3026cc9229"
+  "wiki_tree_hash": "be099af6374b0a1476f1eca06ecf5d7254d8ed3d0a34451404219702a102c634"
 }
