@@ -6902,3 +6902,21 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_0db435fb82e805e86c46950f79752560
 - summary: Source: [Notion source](https://www.notion.so/How-to-handle-smart-contract-update-0fbea70b4c1f4bfe95869d29d927c33e)
 
+## [2026-05-05T04:33:56Z] ingest | Odyssey Launch Checklist
+
+- status: published
+- slug: notion_document/odyssey-launch-checklist-d1e9e686
+- wiki_revision_id: wikirev_452cb251eebfded580f41b3f85019851
+- source_document_id: srcdoc_7f78cd018d9fb2781fb7a3bed1e9e686
+- source_revision_id: srcrev_38b12dcef5af4e1d6fdebaf2433297b0
+- summary: Source: [Notion source](https://www.notion.so/Odyssey-Launch-Checklist-11c051299a5480769527c2315d3cde22)
+
+## [2026-05-05T04:33:58Z] ingest | Calendar
+
+- status: published
+- slug: notion_document/calendar-5f32f3b2
+- wiki_revision_id: wikirev_ab419fc244a9826d194586a569985d0b
+- source_document_id: srcdoc_361a56e9384dd884ca7bd6645f32f3b2
+- source_revision_id: srcrev_a9f7bf07a8bf5370c3ff6106c6cdde3c
+- summary: Source: [Notion source](https://www.notion.so/Calendar-121051299a5481709ab7ec9697e8927e)
+
