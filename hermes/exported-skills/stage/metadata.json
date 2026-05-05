@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "03dacbc88316b60237d6743aec9271749bb927e5f57466d08ccab5f1859ef0d3",
-        "size": 678646
+        "sha256": "97eaa942dd14b4a3fb1f132db0db22b59844bec7ab01a4383ff99494af800f5a",
+        "size": 679331
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2893,6 +2893,11 @@
         "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
         "sha256": "8e9ec5fa2596e9a48b96836914d6bfd93708467d38f8cb9ada8cf4c2fd7883c6",
         "size": 1593
+      },
+      {
+        "path": "pages/decisions/v2-monitoring-cicd-design.md",
+        "sha256": "2914ed4fa1be697658882c87ff936acc631361a5be90e2eef5e66e59836b1f25",
+        "size": 6568
       },
       {
         "path": "pages/open-questions/access-controller-repetitiveness.md",
@@ -3095,6 +3100,11 @@
         "size": 1547
       },
       {
+        "path": "pages/projects/wf-metadata-design.md",
+        "sha256": "39f1d42c21f52d660d59c5948d6ba3e757a62c033cf352642abef69ccc8738eb",
+        "size": 5261
+      },
+      {
         "path": "pages/projects/world-launch.md",
         "sha256": "b448926002521d0078e2bcad412b798b34df88d01a0f8748e45f5417b19d46dd",
         "size": 909
@@ -3169,8 +3179,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T07:46:00Z",
-  "file_count": 632,
+  "exported_at": "2026-05-05T07:51:51Z",
+  "file_count": 634,
   "files": [
     {
       "path": ".usage.json",
@@ -5937,20 +5947,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "c36921f0609648848bcc7261ee020547df3c8011415415f8c8733475beca7d03",
+  "previous_tree_hash": "472635a6f1ad65d4ccc92141e234b5a9e39742066a010c9bc4a3f0f24379e1c3",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "472635a6f1ad65d4ccc92141e234b5a9e39742066a010c9bc4a3f0f24379e1c3",
+  "tree_hash": "900a997776d13f655bc9ff6ef322eac6b60a2ee804e79cdff2be0c54a696bed2",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 80,
+  "wiki_file_count": 82,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5964,8 +5974,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "03dacbc88316b60237d6743aec9271749bb927e5f57466d08ccab5f1859ef0d3",
-      "size": 678646
+      "sha256": "97eaa942dd14b4a3fb1f132db0db22b59844bec7ab01a4383ff99494af800f5a",
+      "size": 679331
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6081,6 +6091,11 @@
       "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
       "sha256": "8e9ec5fa2596e9a48b96836914d6bfd93708467d38f8cb9ada8cf4c2fd7883c6",
       "size": 1593
+    },
+    {
+      "path": "pages/decisions/v2-monitoring-cicd-design.md",
+      "sha256": "2914ed4fa1be697658882c87ff936acc631361a5be90e2eef5e66e59836b1f25",
+      "size": 6568
     },
     {
       "path": "pages/open-questions/access-controller-repetitiveness.md",
@@ -6283,6 +6298,11 @@
       "size": 1547
     },
     {
+      "path": "pages/projects/wf-metadata-design.md",
+      "sha256": "39f1d42c21f52d660d59c5948d6ba3e757a62c033cf352642abef69ccc8738eb",
+      "size": 5261
+    },
+    {
       "path": "pages/projects/world-launch.md",
       "sha256": "b448926002521d0078e2bcad412b798b34df88d01a0f8748e45f5417b19d46dd",
       "size": 909
@@ -6354,5 +6374,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7447c8349f7bb8057d62fa1151235b551dfe0eda7c68524ca4dcc9884dd7dc72"
+  "wiki_tree_hash": "444320e357560a4fdb8cae21fee58db464bccd7fc09ed22ebd30b8fc56b812eb"
 }

@@ -13439,3 +13439,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9d3ee347a4126a213652bcc6be153d5a
 - summary: Evaluation of image resizing services including imgix, Cloudflare, and Cloudinary, with consideration of sizes and srcset attributes.
 
+## [2026-05-05T07:46:46Z] synthesis | v2 Monitoring and CI/CD Design
+
+- status: published
+- slug: decisions/v2-monitoring-cicd-design
+- wiki_revision_id: wikirev_b775010c6a1a49f8edeb483706b3633d
+- summary: Design for the v2 monitoring and CI/CD system to address limitations of the v1 setup, introducing centralized observability with Thanos, multi-cluster ArgoCD, consolidated infrastr...
+
+## [2026-05-05T07:48:24Z] synthesis | WF Metadata Design
+
+- status: published
+- slug: projects/wf-metadata-design
+- wiki_revision_id: wikirev_eaa48b1245c204c0b57a1236c13da376
+- summary: Design document for character metadata in WF, covering traits, attributes, and artifact-finding mechanics.
+
