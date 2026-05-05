@@ -10,7 +10,7 @@ metadata:
 
 # Numo Project Status Investigation
 
-Use this skill when a Story request asks "how is the Numo/depin project coming along this week?", "what follow-up items need attention?", or any general project check-in across repos.
+Use this skill when a Story request asks "how is the Numo/depin project coming along this week?", "what follow-up items need attention?", or any general project check-in across repos. Also trigger when the user asks for high-priority items that are *not* already tracked in PRs or GitHub issues ("gap analysis" — see `references/gap-analysis.md`).
 
 ## Investigation Workflow
 
@@ -35,7 +35,7 @@ mcp documents_search(query="numo")
 
 **PITFALL:** Honcho corpus may include private channel results marked `mirror_denied: true`. These are still useful context — just note that the full thread isn't accessible.
 
-### 3. Search the wiki for structured knowledge
+### 3. Search the wiki and Notion for structured knowledge
 
 Wiki pages contain compiled claims and Notion-backed structured data.
 
@@ -45,6 +45,10 @@ wiki_page_get(page_ref)  # for any relevant pages found
 ```
 
 Look for: product backlog pages, project integration pages, Notion database manifests.
+
+**Notion database query via MCP:** Use `mcp_*_notion_*_API_post_search(query="numo <topic>")` to search across the Notion corpus. Be aware that results return **page/data-source manifests** (title, URL, schema properties, status), NOT individual database rows with their populated field values. To see actual row data (e.g., which items have no owner), you'll need to cross-reference the manifest fields against GitHub and Slack findings — the gap-analysis methodology in `references/gap-analysis.md` covers this.
+
+**PITFALL:** Notion database results often include stale entries from multiple snapshot revisions (e.g., same database appearing 3+ times with different `last_edited_time` values). Deduplicate by `database_id` and use the most recent revision.
 
 ### 4. Clone and inspect BOTH repos
 
@@ -132,6 +136,10 @@ Look specifically for:
 
 ## Report Structure
 
+The report shape depends on the question type:
+
+### Weekly check-in (default)
+
 Synthesize findings into three sections:
 
 1. **🟢 This Week's Progress** — Merged PRs, shipped features, commit counts, K8s health. Group by repo (depin-backend, numo-monorepo). Highlight cross-repo pairings.
@@ -140,9 +148,21 @@ Synthesize findings into three sections:
 
 3. **🟡 Watch-Items / Risks** — Open issues requiring attention, unresolved contract questions, recent customer reports, large PRs in flight.
 
+### Gap analysis ("items NOT in GitHub")
+
+When the user asks for items that are *not* captured in PRs or issues, cross-reference all five sources and surface:
+
+1. **🔴 Blocked items not in GitHub** — Items discussed in Slack/Notion that have no corresponding GH issue or PR. Include the blocker reason (e.g., bot write permissions).
+
+2. **🟡 Notion backlog without GitHub counterparts** — Backlog items with priority set but no linked GH issue. Highlight missing Owner/Assignee fields.
+
+3. **🟠 Filed but untriaged** — Issues that exist but lack owners, priority labels, or assignment. These are "in the system" but effectively orphaned.
+
+For each item, include a "Why it's not tracked" column explaining the gap. See `references/gap-analysis.md` for the full cross-referencing methodology.
+
 **Evidence standard:** Cite specific PR numbers, issue numbers, thread timestamps, and deployment names. Prefer the `<repo> #<number>` format (e.g., `depin-backend #404`).
 
-See `references/report-template.md` for a concrete example of the three-section report format. See `references/ci-pipeline-checks.md` for the full CI surface of both repos (Rust Checks, Wiz scanners, Vercel deploys, Cursor Bugbot).
+See `references/report-template.md` for a concrete example of the three-section report format. See `references/ci-pipeline-checks.md` for the full CI surface of both repos (Rust Checks, Wiz scanners, Vercel deploys, Cursor Bugbot). See `references/gap-analysis.md` for the cross-referencing methodology used when surfacing items not tracked in GitHub.
 
 ## Fallback: when gh isn't authenticated
 

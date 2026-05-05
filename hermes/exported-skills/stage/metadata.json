@@ -4,8 +4,8 @@
     "skills": [
       {
         "path": ".usage.json",
-        "sha256": "c99f463ada28554e3b50f013994f2fef817bb9242f5043980ceee3b263430fd7",
-        "size": 1091
+        "sha256": "cee36862e9aedaa8fb1cee0b2366e47dc890fbc24773ac25d37d7d3864c2f5bb",
+        "size": 1092
       },
       {
         "path": "apple/DESCRIPTION.md",
@@ -2739,13 +2739,18 @@
       },
       {
         "path": "story-company/numo-project-status/SKILL.md",
-        "sha256": "ddeee4c1878818ba377e61d8e10ae2997b315d0f10f81e3b5a779ad570541351",
-        "size": 7548
+        "sha256": "99ccbbb5686f8c9937304127d26e1ac28770dc85c2fb46074c0057ce8087b983",
+        "size": 9490
       },
       {
         "path": "story-company/numo-project-status/references/ci-pipeline-checks.md",
         "sha256": "30e58e0a34fe49e14e70d5c3f919d5ff22adfd8e65732758bfd5784892a300a0",
         "size": 2473
+      },
+      {
+        "path": "story-company/numo-project-status/references/gap-analysis.md",
+        "sha256": "d333b5f8a7fc91b4c76c782f6ff7000ce37bd2c8baf8235b27b794df479ea745",
+        "size": 4722
       },
       {
         "path": "story-company/numo-project-status/references/report-template.md",
@@ -3854,13 +3859,13 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T22:19:34Z",
-  "file_count": 769,
+  "exported_at": "2026-05-05T22:50:57Z",
+  "file_count": 770,
   "files": [
     {
       "path": ".usage.json",
-      "sha256": "c99f463ada28554e3b50f013994f2fef817bb9242f5043980ceee3b263430fd7",
-      "size": 1091
+      "sha256": "cee36862e9aedaa8fb1cee0b2366e47dc890fbc24773ac25d37d7d3864c2f5bb",
+      "size": 1092
     },
     {
       "path": "apple/DESCRIPTION.md",
@@ -6594,13 +6599,18 @@
     },
     {
       "path": "story-company/numo-project-status/SKILL.md",
-      "sha256": "ddeee4c1878818ba377e61d8e10ae2997b315d0f10f81e3b5a779ad570541351",
-      "size": 7548
+      "sha256": "99ccbbb5686f8c9937304127d26e1ac28770dc85c2fb46074c0057ce8087b983",
+      "size": 9490
     },
     {
       "path": "story-company/numo-project-status/references/ci-pipeline-checks.md",
       "sha256": "30e58e0a34fe49e14e70d5c3f919d5ff22adfd8e65732758bfd5784892a300a0",
       "size": 2473
+    },
+    {
+      "path": "story-company/numo-project-status/references/gap-analysis.md",
+      "sha256": "d333b5f8a7fc91b4c76c782f6ff7000ce37bd2c8baf8235b27b794df479ea745",
+      "size": 4722
     },
     {
       "path": "story-company/numo-project-status/references/report-template.md",
@@ -6627,13 +6637,13 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6c4dc4j5wtx",
-  "previous_tree_hash": "c26959835b39f847e190055ba58bf553dd64adb52026737a7704efd6375bd357",
+  "previous_tree_hash": "4e5f9b79b4559bc9f1c42432035acde953a300b94a8caf0c061b786f1146fd96",
   "schema_version": 1,
-  "skill_file_count": 553,
+  "skill_file_count": 554,
   "skill_manage_sessions": [],
-  "skill_tree_hash": "082879971280a210c4b46b42d09584c3f9c1a3fe002a72f50ffe2d355b92cd03",
+  "skill_tree_hash": "bdec5584ee1f195b296892c3d1454436a4fbb51257ba5fbd8142857405d679d8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4e5f9b79b4559bc9f1c42432035acde953a300b94a8caf0c061b786f1146fd96",
+  "tree_hash": "844541e098fd7d12f9755f14092f882d7dbcc783375da9cecd9275b51b8f120f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
