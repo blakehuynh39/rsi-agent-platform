@@ -275,19 +275,31 @@ func registerHermesCompatibilityRoutes(r chi.Router, cfg config.Config, store st
 }
 
 type hermesSessionInfo struct {
-	ID            string  `json:"id"`
-	Source        string  `json:"source"`
-	Model         string  `json:"model"`
-	Title         string  `json:"title"`
-	StartedAt     int64   `json:"started_at"`
-	EndedAt       *int64  `json:"ended_at"`
-	LastActive    int64   `json:"last_active"`
-	IsActive      bool    `json:"is_active"`
-	MessageCount  int     `json:"message_count"`
-	ToolCallCount int     `json:"tool_call_count"`
-	InputTokens   int     `json:"input_tokens"`
-	OutputTokens  int     `json:"output_tokens"`
-	Preview       *string `json:"preview"`
+	ID              string  `json:"id"`
+	Type            string  `json:"type,omitempty"`
+	Source          string  `json:"source"`
+	Model           string  `json:"model"`
+	Title           string  `json:"title"`
+	StartedAt       int64   `json:"started_at"`
+	EndedAt         *int64  `json:"ended_at"`
+	LastActive      int64   `json:"last_active"`
+	IsActive        bool    `json:"is_active"`
+	MessageCount    int     `json:"message_count"`
+	ToolCallCount   int     `json:"tool_call_count"`
+	InputTokens     int     `json:"input_tokens"`
+	OutputTokens    int     `json:"output_tokens"`
+	Preview         *string `json:"preview"`
+	ConversationID  string  `json:"conversation_id,omitempty"`
+	TraceID         string  `json:"trace_id,omitempty"`
+	ParentSessionID string  `json:"parent_session_id,omitempty"`
+	CaseID          string  `json:"case_id,omitempty"`
+	TriggerEventID  string  `json:"trigger_event_id,omitempty"`
+	ThreadKey       string  `json:"thread_key,omitempty"`
+	WorkflowKind    string  `json:"workflow_kind,omitempty"`
+	Status          string  `json:"status,omitempty"`
+	TraceCount      int     `json:"trace_count,omitempty"`
+	OpenTraceCount  int     `json:"open_trace_count,omitempty"`
+	ProposalCount   int     `json:"proposal_count,omitempty"`
 }
 
 type hermesSessionMessage struct {
@@ -357,6 +369,12 @@ func buildHermesStatus(cfg config.Config, store storepkg.Repository) map[string]
 func buildHermesSessions(cfg config.Config, store storepkg.Repository) []hermesSessionInfo {
 	items := []hermesSessionInfo{}
 	live := buildHermesLiveSessionIndex(cfg, store)
+	traceCountByConversation := map[string]int{}
+	for _, trace := range store.ListTraces() {
+		if trace.ConversationID != "" {
+			traceCountByConversation[trace.ConversationID]++
+		}
+	}
 	for _, conv := range buildConversationList(store) {
 		entries := store.ListConversationEntries(conv.ConversationID)
 		preview := lastConversationPreview(entries, conv.ActiveCase)
@@ -366,19 +384,26 @@ func buildHermesSessions(cfg config.Config, store storepkg.Repository) []hermesS
 			endedAt = unixPtr(conv.LatestMessageAt)
 		}
 		items = append(items, hermesSessionInfo{
-			ID:            conv.ConversationID,
-			Source:        firstNonEmptyString(conv.Source, "conversation"),
-			Model:         "rsi-platform",
-			Title:         firstNonEmptyString(conv.Title, conv.ConversationID),
-			StartedAt:     unixSeconds(conv.CreatedAt),
-			EndedAt:       endedAt,
-			LastActive:    unixSeconds(conv.LatestMessageAt),
-			IsActive:      isLive,
-			MessageCount:  len(entries),
-			ToolCallCount: 0,
-			InputTokens:   0,
-			OutputTokens:  0,
-			Preview:       preview,
+			ID:             conv.ConversationID,
+			Type:           "conversation",
+			Source:         firstNonEmptyString(conv.Source, "conversation"),
+			Model:          "rsi-platform",
+			Title:          firstNonEmptyString(conv.Title, conv.ConversationID),
+			StartedAt:      unixSeconds(conv.CreatedAt),
+			EndedAt:        endedAt,
+			LastActive:     unixSeconds(conv.LatestMessageAt),
+			IsActive:       isLive,
+			MessageCount:   len(entries),
+			ToolCallCount:  0,
+			InputTokens:    0,
+			OutputTokens:   0,
+			Preview:        preview,
+			ConversationID: conv.ConversationID,
+			ThreadKey:      conv.ExternalKey,
+			Status:         conv.Status,
+			TraceCount:     traceCountByConversation[conv.ConversationID],
+			OpenTraceCount: conv.OpenTraceCount,
+			ProposalCount:  conv.ProposalCount,
 		})
 	}
 	for _, trace := range store.ListTraces() {
@@ -392,19 +417,28 @@ func buildHermesSessions(cfg config.Config, store storepkg.Repository) []hermesS
 		}
 		preview := stringPtr(firstNonEmptyString(trace.LastVerdict, string(trace.Status)))
 		items = append(items, hermesSessionInfo{
-			ID:            trace.TraceID,
-			Source:        "trace",
-			Model:         firstNonEmptyString(trace.WorkflowKind, "rsi-trace"),
-			Title:         title,
-			StartedAt:     unixSeconds(trace.StartedAt),
-			EndedAt:       unixPtrIfSet(trace.EndedAt),
-			LastActive:    unixSeconds(last),
-			IsActive:      live.traces[trace.TraceID],
-			MessageCount:  trace.EventCount + trace.ReasoningStepCount + trace.ToolCallCount,
-			ToolCallCount: trace.ToolCallCount,
-			InputTokens:   0,
-			OutputTokens:  0,
-			Preview:       preview,
+			ID:              trace.TraceID,
+			Type:            "trace",
+			Source:          "trace",
+			Model:           firstNonEmptyString(trace.WorkflowKind, "rsi-trace"),
+			Title:           title,
+			StartedAt:       unixSeconds(trace.StartedAt),
+			EndedAt:         unixPtrIfSet(trace.EndedAt),
+			LastActive:      unixSeconds(last),
+			IsActive:        live.traces[trace.TraceID],
+			MessageCount:    trace.EventCount + trace.ReasoningStepCount + trace.ToolCallCount,
+			ToolCallCount:   trace.ToolCallCount,
+			InputTokens:     0,
+			OutputTokens:    0,
+			Preview:         preview,
+			ConversationID:  trace.ConversationID,
+			TraceID:         trace.TraceID,
+			ParentSessionID: trace.ConversationID,
+			CaseID:          trace.CaseID,
+			TriggerEventID:  trace.TriggerEventID,
+			ThreadKey:       trace.ThreadKey,
+			WorkflowKind:    trace.WorkflowKind,
+			Status:          string(trace.Status),
 		})
 	}
 	sort.Slice(items, func(i, j int) bool {
@@ -433,27 +467,38 @@ func buildHermesSession(cfg config.Config, store storepkg.Repository, sessionID 
 		if !isLive {
 			endedAt = unixPtr(latestMessageAt)
 		}
-		for _, t := range store.ListTraces() {
-			if t.ConversationID == conv.ID {
-				if t.StartedAt.After(latestMessageAt) {
-					latestMessageAt = t.StartedAt
-				}
+		traces := storeTraceSummariesForConversation(store, conv.ID)
+		openTraceCount := 0
+		for _, t := range traces {
+			if t.StartedAt.After(latestMessageAt) {
+				latestMessageAt = t.StartedAt
+			}
+			if isOpenTraceStatus(t.Status) {
+				openTraceCount++
 			}
 		}
+		proposals := storeProposalsByConversation(store, conv.ID)
 		return hermesSessionInfo{
-			ID:            conv.ID,
-			Source:        firstNonEmptyString(string(conv.Source), "conversation"),
-			Model:         "rsi-platform",
-			Title:         firstNonEmptyString(conv.Title, conv.ID),
-			StartedAt:     unixSeconds(conv.CreatedAt),
-			EndedAt:       endedAt,
-			LastActive:    unixSeconds(latestMessageAt),
-			IsActive:      isLive,
-			MessageCount:  len(entries),
-			ToolCallCount: 0,
-			InputTokens:   0,
-			OutputTokens:  0,
-			Preview:       preview,
+			ID:             conv.ID,
+			Type:           "conversation",
+			Source:         firstNonEmptyString(string(conv.Source), "conversation"),
+			Model:          "rsi-platform",
+			Title:          firstNonEmptyString(conv.Title, conv.ID),
+			StartedAt:      unixSeconds(conv.CreatedAt),
+			EndedAt:        endedAt,
+			LastActive:     unixSeconds(latestMessageAt),
+			IsActive:       isLive,
+			MessageCount:   len(entries),
+			ToolCallCount:  0,
+			InputTokens:    0,
+			OutputTokens:   0,
+			Preview:        preview,
+			ConversationID: conv.ID,
+			ThreadKey:      conv.ExternalKey,
+			Status:         string(conv.Status),
+			TraceCount:     len(traces),
+			OpenTraceCount: openTraceCount,
+			ProposalCount:  len(proposals),
 		}, true
 	}
 	if trace, ok := store.GetTrace(sessionID); ok {
@@ -468,19 +513,28 @@ func buildHermesSession(cfg config.Config, store storepkg.Repository, sessionID 
 		}
 		preview := stringPtr(firstNonEmptyString(summary.LastVerdict, string(summary.Status)))
 		return hermesSessionInfo{
-			ID:            summary.TraceID,
-			Source:        "trace",
-			Model:         firstNonEmptyString(summary.WorkflowKind, "rsi-trace"),
-			Title:         title,
-			StartedAt:     unixSeconds(summary.StartedAt),
-			EndedAt:       unixPtrIfSet(summary.EndedAt),
-			LastActive:    unixSeconds(last),
-			IsActive:      live.traces[summary.TraceID],
-			MessageCount:  summary.EventCount + summary.ReasoningStepCount + summary.ToolCallCount,
-			ToolCallCount: summary.ToolCallCount,
-			InputTokens:   0,
-			OutputTokens:  0,
-			Preview:       preview,
+			ID:              summary.TraceID,
+			Type:            "trace",
+			Source:          "trace",
+			Model:           firstNonEmptyString(summary.WorkflowKind, "rsi-trace"),
+			Title:           title,
+			StartedAt:       unixSeconds(summary.StartedAt),
+			EndedAt:         unixPtrIfSet(summary.EndedAt),
+			LastActive:      unixSeconds(last),
+			IsActive:        live.traces[summary.TraceID],
+			MessageCount:    summary.EventCount + summary.ReasoningStepCount + summary.ToolCallCount,
+			ToolCallCount:   summary.ToolCallCount,
+			InputTokens:     0,
+			OutputTokens:    0,
+			Preview:         preview,
+			ConversationID:  summary.ConversationID,
+			TraceID:         summary.TraceID,
+			ParentSessionID: summary.ConversationID,
+			CaseID:          summary.CaseID,
+			TriggerEventID:  summary.TriggerEventID,
+			ThreadKey:       summary.ThreadKey,
+			WorkflowKind:    summary.WorkflowKind,
+			Status:          string(summary.Status),
 		}, true
 	}
 	return hermesSessionInfo{}, false
@@ -563,12 +617,16 @@ func searchHermesSessions(cfg config.Config, store storepkg.Repository, query st
 			continue
 		}
 		results = append(results, map[string]any{
-			"session_id":      session.ID,
-			"snippet":         highlightSnippet(firstNonEmptyString(stringValueFromPtr(session.Preview), session.Title), query),
-			"role":            nil,
-			"source":          session.Source,
-			"model":           session.Model,
-			"session_started": session.StartedAt,
+			"session_id":        session.ID,
+			"snippet":           highlightSnippet(firstNonEmptyString(stringValueFromPtr(session.Preview), session.Title), query),
+			"role":              nil,
+			"source":            session.Source,
+			"model":             session.Model,
+			"session_started":   session.StartedAt,
+			"type":              session.Type,
+			"conversation_id":   session.ConversationID,
+			"trace_id":          session.TraceID,
+			"parent_session_id": session.ParentSessionID,
 		})
 	}
 	return results

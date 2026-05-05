@@ -23,6 +23,7 @@ import {
   Hash,
   X,
   Play,
+  GitBranch,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import type {
@@ -54,7 +55,173 @@ const SOURCE_CONFIG: Record<string, { icon: typeof Terminal; color: string }> =
     slack: { icon: MessageSquare, color: "text-[oklch(0.7_0.15_155)]" },
     whatsapp: { icon: Globe, color: "text-success" },
     cron: { icon: Clock, color: "text-warning" },
+    trace: { icon: GitBranch, color: "text-primary" },
   };
+
+function isTraceSession(session: SessionInfo) {
+  const title = session.title?.toLowerCase() ?? "";
+  return (
+    session.type === "trace" ||
+    Boolean(session.trace_id) ||
+    session.source === "trace" ||
+    session.id.startsWith("trace-") ||
+    /\btrace\s+trace-/.test(title)
+  );
+}
+
+function shortID(value: string | null | undefined) {
+  if (!value) return "";
+  return value.length > 18 ? `${value.slice(0, 18)}...` : value;
+}
+
+function displaySource(source: string | null | undefined) {
+  if (!source) return "local";
+  return source === "slack" ? "slack thread" : source;
+}
+
+function displayTraceKind(session: SessionInfo) {
+  return (
+    session.workflow_kind ??
+    session.model?.split("/").pop() ??
+    session.source ??
+    "trace"
+  );
+}
+
+function sessionMatches(session: SessionInfo, matchedIds: Set<string> | null) {
+  return matchedIds === null || matchedIds.has(session.id);
+}
+
+type SessionListItem =
+  | {
+      kind: "group";
+      id: string;
+      conversation: SessionInfo;
+      traces: SessionInfo[];
+      lastActive: number;
+    }
+  | {
+      kind: "session";
+      id: string;
+      session: SessionInfo;
+      lastActive: number;
+    };
+
+function buildSessionListItems(
+  sessions: SessionInfo[],
+  matchedIds: Set<string> | null,
+  targetTraceId: string | null,
+  targetConversationId: string | null,
+  targetSessionId: string | null,
+): SessionListItem[] {
+  const conversations = new Map<string, SessionInfo>();
+  const traces: SessionInfo[] = [];
+
+  for (const session of sessions) {
+    if (isTraceSession(session)) {
+      traces.push(session);
+      continue;
+    }
+    conversations.set(session.id, session);
+  }
+
+  const groups = new Map<
+    string,
+    { conversation: SessionInfo; traces: SessionInfo[] }
+  >();
+  for (const conversation of conversations.values()) {
+    groups.set(conversation.id, { conversation, traces: [] });
+  }
+
+  const orphanTraces: SessionInfo[] = [];
+  for (const trace of traces) {
+    const parentID = trace.parent_session_id ?? trace.conversation_id ?? null;
+    const group = parentID ? groups.get(parentID) : undefined;
+    if (group) {
+      group.traces.push(trace);
+    } else {
+      orphanTraces.push(trace);
+    }
+  }
+
+  const items: SessionListItem[] = [];
+  for (const [id, group] of groups) {
+    const parentMatched = sessionMatches(group.conversation, matchedIds);
+    const matchingTraces = group.traces.filter((trace) =>
+      sessionMatches(trace, matchedIds),
+    );
+    if (matchedIds !== null && !parentMatched && matchingTraces.length === 0) {
+      continue;
+    }
+    const visibleTraces =
+      matchedIds === null || parentMatched ? group.traces : matchingTraces;
+    visibleTraces.sort((a, b) => b.last_active - a.last_active);
+    const lastActive = Math.max(
+      group.conversation.last_active,
+      ...visibleTraces.map((trace) => trace.last_active),
+    );
+    if (visibleTraces.length > 0) {
+      items.push({
+        kind: "group",
+        id,
+        conversation: group.conversation,
+        traces: visibleTraces,
+        lastActive,
+      });
+    } else {
+      items.push({
+        kind: "session",
+        id,
+        session: group.conversation,
+        lastActive: group.conversation.last_active,
+      });
+    }
+  }
+
+  for (const trace of orphanTraces) {
+    if (!sessionMatches(trace, matchedIds)) continue;
+    items.push({
+      kind: "session",
+      id: trace.id,
+      session: trace,
+      lastActive: trace.last_active,
+    });
+  }
+
+  const targetScore = (item: SessionListItem) => {
+    if (item.kind === "group") {
+      if (targetConversationId && item.conversation.id === targetConversationId) {
+        return 0;
+      }
+      if (targetSessionId && item.conversation.id === targetSessionId) {
+        return 0;
+      }
+      if (
+        targetTraceId &&
+        item.traces.some((trace) => trace.id === targetTraceId)
+      ) {
+        return 0;
+      }
+      return 1;
+    }
+    if (targetTraceId && item.session.id === targetTraceId) return 0;
+    if (targetConversationId && item.session.id === targetConversationId) {
+      return 0;
+    }
+    if (targetSessionId && item.session.id === targetSessionId) {
+      return 0;
+    }
+    return 1;
+  };
+
+  items.sort((a, b) => {
+    const targetDelta = targetScore(a) - targetScore(b);
+    if (targetDelta !== 0) return targetDelta;
+    if (a.lastActive !== b.lastActive) return b.lastActive - a.lastActive;
+    return a.id.localeCompare(b.id);
+  });
+  return items;
+}
 
 /** Render an FTS5 snippet with highlighted matches.
  *  The backend wraps matches in >>> and <<< delimiters. */
@@ -252,6 +419,63 @@ function MessageList({
   );
 }
 
+function SessionTranscript({
+  sessionId,
+  searchQuery,
+}: {
+  sessionId: string;
+  searchQuery?: string;
+}) {
+  const [messages, setMessages] = useState<SessionMessage[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { t } = useI18n();
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .getSessionMessages(sessionId)
+      .then((resp) => {
+        if (!cancelled) setMessages(resp.messages);
+      })
+      .catch((err) => {
+        if (!cancelled) setError(String(err));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionId]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Spinner className="text-xl text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return <p className="text-sm text-destructive py-4 text-center">{error}</p>;
+  }
+
+  if (messages && messages.length === 0) {
+    return (
+      <p className="text-sm text-muted-foreground py-4 text-center">
+        {t.sessions.noMessages}
+      </p>
+    );
+  }
+
+  if (messages && messages.length > 0) {
+    return <MessageList messages={messages} highlight={searchQuery} />;
+  }
+
+  return null;
+}
+
 function SessionRow({
   session,
   snippet,
@@ -267,22 +491,8 @@ function SessionRow({
   onToggle: () => void;
   resumeInChatEnabled: boolean;
 }) {
-  const [messages, setMessages] = useState<SessionMessage[] | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const { t } = useI18n();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (isExpanded && messages === null && !loading) {
-      setLoading(true);
-      api
-        .getSessionMessages(session.id)
-        .then((resp) => setMessages(resp.messages))
-        .catch((err) => setError(String(err)))
-        .finally(() => setLoading(false));
-    }
-  }, [isExpanded, session.id, messages, loading]);
 
   const sourceInfo = (session.source
     ? SOURCE_CONFIG[session.source]
@@ -371,31 +581,350 @@ function SessionRow({
 
       {isExpanded && (
         <div className="border-t border-border bg-background/50 p-4">
-          {loading && (
-            <div className="flex items-center justify-center py-8">
-              <Spinner className="text-xl text-primary" />
-            </div>
-          )}
-          {error && (
-            <p className="text-sm text-destructive py-4 text-center">{error}</p>
-          )}
-          {messages && messages.length === 0 && (
-            <p className="text-sm text-muted-foreground py-4 text-center">
-              {t.sessions.noMessages}
-            </p>
-          )}
-          {messages && messages.length > 0 && (
-            <MessageList messages={messages} highlight={searchQuery} />
-          )}
+          <SessionTranscript sessionId={session.id} searchQuery={searchQuery} />
         </div>
       )}
     </div>
   );
 }
 
+function TraceAttemptRow({
+  trace,
+  snippet,
+  searchQuery,
+  isExpanded,
+  onToggle,
+}: {
+  trace: SessionInfo;
+  snippet?: string;
+  searchQuery?: string;
+  isExpanded: boolean;
+  onToggle: () => void;
+}) {
+  const { t } = useI18n();
+  const traceKind = displayTraceKind(trace);
+  const status = trace.status ?? trace.preview ?? "trace";
+
+  return (
+    <div
+      className={`border transition-colors ${
+        isExpanded
+          ? "border-primary/35 bg-primary/[0.04]"
+          : "border-border/80 bg-background/35"
+      }`}
+    >
+      <button
+        type="button"
+        className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left hover:bg-secondary/25 transition-colors"
+        onClick={onToggle}
+        aria-expanded={isExpanded}
+      >
+        <div className="flex min-w-0 items-center gap-2.5">
+          <GitBranch className="h-3.5 w-3.5 shrink-0 text-primary" />
+          <div className="min-w-0 font-mono-ui normal-case tracking-normal">
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="truncate text-[0.76rem] font-medium text-foreground">
+                {traceKind}
+              </span>
+              {trace.is_active && (
+                <Badge tone="success" className="text-[9px] shrink-0">
+                  <span className="mr-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
+                  {t.common.live}
+                </Badge>
+              )}
+            </div>
+            <div className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[0.68rem] text-muted-foreground">
+              <span className="truncate max-w-[12rem]">
+                {shortID(trace.trace_id ?? trace.id)}
+              </span>
+              <span className="text-border">&#183;</span>
+              <span>{status}</span>
+              <span className="text-border">&#183;</span>
+              <span>
+                {trace.message_count} {t.common.msgs}
+              </span>
+              {trace.tool_call_count > 0 && (
+                <>
+                  <span className="text-border">&#183;</span>
+                  <span>
+                    {trace.tool_call_count} {t.common.tools}
+                  </span>
+                </>
+              )}
+              <span className="text-border">&#183;</span>
+              <span>{timeAgo(trace.last_active)}</span>
+            </div>
+            {snippet && <SnippetHighlight snippet={snippet} />}
+          </div>
+        </div>
+        <Badge tone="outline" className="text-[10px] shrink-0">
+          trace
+        </Badge>
+      </button>
+      {isExpanded && (
+        <div className="border-t border-border bg-background/45 p-3">
+          <SessionTranscript sessionId={trace.id} searchQuery={searchQuery} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SessionGroupRow({
+  conversation,
+  traces,
+  snippet,
+  childSnippets,
+  searchQuery,
+  expandedId,
+  onToggle,
+}: {
+  conversation: SessionInfo;
+  traces: SessionInfo[];
+  snippet?: string;
+  childSnippets: Map<string, string>;
+  searchQuery?: string;
+  expandedId: string | null;
+  onToggle: (sessionId: string) => void;
+}) {
+  const { t } = useI18n();
+  const sourceInfo = (conversation.source
+    ? SOURCE_CONFIG[conversation.source]
+    : null) ?? { icon: Globe, color: "text-muted-foreground" };
+  const SourceIcon = sourceInfo.icon;
+  const hasTitle = conversation.title && conversation.title !== "Untitled";
+  const isGroupExpanded =
+    expandedId === conversation.id ||
+    traces.some((trace) => trace.id === expandedId);
+  const groupActive =
+    conversation.is_active || traces.some((trace) => trace.is_active);
+  const visibleTraceCount = Math.max(conversation.trace_count ?? 0, traces.length);
+  const openTraceCount = conversation.open_trace_count ?? 0;
+
+  return (
+    <div
+      className={`border overflow-hidden transition-colors ${
+        groupActive
+          ? "border-success/30 bg-success/[0.03]"
+          : "border-border"
+      } ${isGroupExpanded ? "ring-1 ring-primary/20" : ""}`}
+    >
+      <div
+        className="flex cursor-pointer items-center justify-between gap-3 p-3 hover:bg-secondary/30 transition-colors"
+        onClick={() => onToggle(conversation.id)}
+      >
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <div className={`shrink-0 ${sourceInfo.color}`}>
+            <SourceIcon className="h-4 w-4" />
+          </div>
+          <div className="flex min-w-0 flex-col gap-0.5 font-mono-ui normal-case tracking-normal">
+            <div className="flex min-w-0 items-center gap-2">
+              <span
+                className={`truncate pr-2 text-[0.8rem] ${hasTitle ? "font-medium" : "text-muted-foreground italic"}`}
+              >
+                {hasTitle
+                  ? conversation.title
+                  : conversation.preview
+                    ? conversation.preview.slice(0, 60)
+                    : t.sessions.untitledSession}
+              </span>
+              {groupActive && (
+                <Badge tone="success" className="text-[10px] shrink-0">
+                  <span className="mr-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
+                  {t.common.live}
+                </Badge>
+              )}
+            </div>
+            <div className="flex min-w-0 items-center gap-1.5 text-[0.72rem] text-muted-foreground">
+              <span className="truncate max-w-[120px] sm:max-w-[180px]">
+                {displaySource(conversation.source)}
+              </span>
+              <span className="text-border">&#183;</span>
+              <span>
+                {conversation.message_count} {t.common.msgs}
+              </span>
+              {visibleTraceCount > 0 && (
+                <>
+                  <span className="text-border">&#183;</span>
+                  <span>
+                    {visibleTraceCount}{" "}
+                    {visibleTraceCount === 1 ? "trace" : "traces"}
+                  </span>
+                </>
+              )}
+              {openTraceCount > 0 && (
+                <>
+                  <span className="text-border">&#183;</span>
+                  <span>{openTraceCount} open</span>
+                </>
+              )}
+              <span className="text-border">&#183;</span>
+              <span>{timeAgo(conversation.last_active)}</span>
+            </div>
+            {snippet && <SnippetHighlight snippet={snippet} />}
+          </div>
+        </div>
+
+        <Badge tone="outline" className="text-[10px] shrink-0">
+          {displaySource(conversation.source)}
+        </Badge>
+      </div>
+
+      {expandedId === conversation.id && (
+        <div className="border-t border-border bg-background/50 p-4">
+          <SessionTranscript
+            sessionId={conversation.id}
+            searchQuery={searchQuery}
+          />
+        </div>
+      )}
+
+      {traces.length > 0 && (
+        <div className="border-t border-border/80 bg-background-base/35 px-3 py-2">
+          <div className="mb-2 flex items-center gap-2 font-mono-ui text-[0.66rem] uppercase tracking-normal text-muted-foreground">
+            <GitBranch className="h-3 w-3" />
+            <span>Trace attempts</span>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            {traces.map((trace) => (
+              <TraceAttemptRow
+                key={trace.id}
+                trace={trace}
+                snippet={childSnippets.get(trace.id)}
+                searchQuery={searchQuery}
+                isExpanded={expandedId === trace.id}
+                onToggle={() => onToggle(trace.id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SessionListContent({
+  sessionItems,
+  snippetMap,
+  search,
+  expandedId,
+  onToggle,
+  resumeInChatEnabled,
+  hasSearchResults,
+  total,
+  page,
+  pageSize,
+  onPageChange,
+}: {
+  sessionItems: SessionListItem[];
+  snippetMap: Map<string, string>;
+  search: string;
+  expandedId: string | null;
+  onToggle: (sessionId: string) => void;
+  resumeInChatEnabled: boolean;
+  hasSearchResults: boolean;
+  total: number;
+  page: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+}) {
+  const { t } = useI18n();
+
+  if (sessionItems.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+        <Clock className="h-8 w-8 mb-3 opacity-40" />
+        <p className="text-sm font-medium">
+          {search ? t.sessions.noMatch : t.sessions.noSessions}
+        </p>
+        {!search && (
+          <p className="text-xs mt-1 text-muted-foreground/60">
+            {t.sessions.startConversation}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="flex flex-col gap-1.5">
+        {sessionItems.map((item) =>
+          item.kind === "group" ? (
+            <SessionGroupRow
+              key={item.id}
+              conversation={item.conversation}
+              traces={item.traces}
+              snippet={snippetMap.get(item.conversation.id)}
+              childSnippets={snippetMap}
+              searchQuery={search || undefined}
+              expandedId={expandedId}
+              onToggle={onToggle}
+            />
+          ) : isTraceSession(item.session) ? (
+            <TraceAttemptRow
+              key={item.id}
+              trace={item.session}
+              snippet={snippetMap.get(item.session.id)}
+              searchQuery={search || undefined}
+              isExpanded={expandedId === item.session.id}
+              onToggle={() => onToggle(item.session.id)}
+            />
+          ) : (
+            <SessionRow
+              key={item.id}
+              session={item.session}
+              snippet={snippetMap.get(item.session.id)}
+              searchQuery={search || undefined}
+              isExpanded={expandedId === item.session.id}
+              onToggle={() => onToggle(item.session.id)}
+              resumeInChatEnabled={resumeInChatEnabled}
+            />
+          ),
+        )}
+      </div>
+
+      {!hasSearchResults && total > pageSize && (
+        <div className="flex items-center justify-between pt-2">
+          <span className="text-xs text-muted-foreground">
+            {page * pageSize + 1}-{Math.min((page + 1) * pageSize, total)}{" "}
+            {t.common.of} {total}
+          </span>
+          <div className="flex items-center gap-1">
+            <Button
+              outlined
+              size="icon"
+              disabled={page === 0}
+              onClick={() => onPageChange(page - 1)}
+              aria-label={t.sessions.previousPage}
+            >
+              <ChevronLeft />
+            </Button>
+            <span className="text-xs text-muted-foreground px-2">
+              {t.common.page} {page + 1} {t.common.of}{" "}
+              {Math.ceil(total / pageSize)}
+            </span>
+            <Button
+              outlined
+              size="icon"
+              disabled={(page + 1) * pageSize >= total}
+              onClick={() => onPageChange(page + 1)}
+              aria-label={t.sessions.nextPage}
+            >
+              <ChevronRight />
+            </Button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 export default function SessionsPage() {
   const [sessions, setSessions] = useState<SessionInfo[]>([]);
   const [targetSession, setTargetSession] = useState<SessionInfo | null>(null);
+  const [targetParentSession, setTargetParentSession] =
+    useState<SessionInfo | null>(null);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 20;
@@ -416,13 +945,24 @@ export default function SessionsPage() {
   const resumeInChatEnabled = isDashboardEmbeddedChatEnabled();
   const [searchParams] = useSearchParams();
 
-  const targetSessionId = useMemo(() => {
-    for (const key of ["trace", "session", "session_id", "conversation", "conversation_id"]) {
+  const targetTraceId = useMemo(
+    () => searchParams.get("trace")?.trim() || null,
+    [searchParams],
+  );
+  const targetConversationId = useMemo(() => {
+    for (const key of ["conversation", "conversation_id"]) {
       const value = searchParams.get(key)?.trim();
       if (value) return value;
     }
     return null;
   }, [searchParams]);
+  const targetSessionId = useMemo(() => {
+    const explicitSession =
+      searchParams.get("session")?.trim() ||
+      searchParams.get("session_id")?.trim() ||
+      null;
+    return targetTraceId ?? explicitSession ?? targetConversationId;
+  }, [searchParams, targetConversationId, targetTraceId]);
 
   useLayoutEffect(() => {
     if (loading) {
@@ -517,6 +1057,38 @@ export default function SessionsPage() {
     };
   }, [sessions, targetSessionId]);
 
+  const relatedParentSessionId = useMemo(() => {
+    if (targetConversationId) return targetConversationId;
+    if (targetSession && isTraceSession(targetSession)) {
+      return targetSession.parent_session_id ?? targetSession.conversation_id ?? null;
+    }
+    return null;
+  }, [targetConversationId, targetSession]);
+
+  useEffect(() => {
+    if (!relatedParentSessionId || relatedParentSessionId === targetSessionId) {
+      return;
+    }
+    const existing = sessions.find(
+      (session) => session.id === relatedParentSessionId,
+    );
+    if (existing) {
+      return;
+    }
+    let cancelled = false;
+    api
+      .getSession(relatedParentSessionId)
+      .then((session) => {
+        if (!cancelled) setTargetParentSession(session);
+      })
+      .catch(() => {
+        if (!cancelled) setTargetParentSession(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [relatedParentSessionId, sessions, targetSessionId]);
+
   useEffect(() => {
     const loadOverview = () => {
       api
@@ -562,35 +1134,56 @@ export default function SessionsPage() {
     };
   }, [search]);
 
-  // Build snippet map from search results (session_id → snippet)
-  const snippetMap = new Map<string, string>();
-  if (searchResults) {
-    for (const r of searchResults) {
-      snippetMap.set(r.session_id, r.snippet);
+  // Build snippet map from search results (session_id -> snippet)
+  const snippetMap = useMemo(() => {
+    const out = new Map<string, string>();
+    if (searchResults) {
+      for (const result of searchResults) {
+        out.set(result.session_id, result.snippet);
+      }
     }
-  }
+    return out;
+  }, [searchResults]);
 
   const orderedSessions = useMemo(() => {
-    if (!targetSessionId) return sessions;
-    const target =
-      targetSession ?? sessions.find((session) => session.id === targetSessionId);
-    if (!target) return sessions;
-    return [
-      target,
-      ...sessions.filter((session) => session.id !== target.id),
-    ];
-  }, [sessions, targetSession, targetSessionId]);
+    const byID = new Map<string, SessionInfo>();
+    for (const session of sessions) {
+      byID.set(session.id, session);
+    }
+    if (targetSession) byID.set(targetSession.id, targetSession);
+    if (
+      targetParentSession &&
+      targetParentSession.id === relatedParentSessionId
+    ) {
+      byID.set(targetParentSession.id, targetParentSession);
+    }
+    return Array.from(byID.values());
+  }, [relatedParentSessionId, sessions, targetParentSession, targetSession]);
 
-  // When searching, filter sessions to those with FTS matches;
-  // when not searching, show all sessions
-  const filtered = searchResults
-    ? orderedSessions.filter((s) => snippetMap.has(s.id))
-    : orderedSessions;
+  const sessionItems = useMemo(
+    () =>
+      buildSessionListItems(
+        orderedSessions,
+        searchResults ? new Set(snippetMap.keys()) : null,
+        targetTraceId,
+        targetConversationId,
+        targetSessionId,
+      ),
+    [
+      orderedSessions,
+      searchResults,
+      snippetMap,
+      targetConversationId,
+      targetTraceId,
+      targetSessionId,
+    ],
+  );
 
   const platformEntries = status
     ? Object.entries(status.gateway_platforms ?? {})
     : [];
   const recentSessions = overviewSessions
+    .filter((s) => !isTraceSession(s))
     .filter((s) => !s.is_active)
     .slice(0, 5);
 
@@ -742,11 +1335,16 @@ export default function SessionsPage() {
                   </span>
 
                   <span className="text-[0.72rem] text-muted-foreground truncate">
-                    <span>
-                      {(s.model ?? t.common.unknown).split("/").pop()}
-                    </span>{" "}
-                    · {s.message_count} {t.common.msgs} ·{" "}
-                    {timeAgo(s.last_active)}
+                    <span>{displaySource(s.source)}</span> · {s.message_count}{" "}
+                    {t.common.msgs}
+                    {(s.trace_count ?? 0) > 0 && (
+                      <>
+                        {" "}
+                        · {s.trace_count}{" "}
+                        {s.trace_count === 1 ? "trace" : "traces"}
+                      </>
+                    )}{" "}
+                    · {timeAgo(s.last_active)}
                   </span>
 
                   {s.preview && (
@@ -761,7 +1359,7 @@ export default function SessionsPage() {
                   className="text-[10px] shrink-0 self-start sm:self-center"
                 >
                   <Database className="mr-1 h-3 w-3" />
-                  {s.source ?? "local"}
+                  {displaySource(s.source)}
                 </Badge>
               </div>
             ))}
@@ -769,70 +1367,21 @@ export default function SessionsPage() {
         </Card>
       )}
 
-      {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-          <Clock className="h-8 w-8 mb-3 opacity-40" />
-          <p className="text-sm font-medium">
-            {search ? t.sessions.noMatch : t.sessions.noSessions}
-          </p>
-          {!search && (
-            <p className="text-xs mt-1 text-muted-foreground/60">
-              {t.sessions.startConversation}
-            </p>
-          )}
-        </div>
-      ) : (
-        <>
-          <div className="flex flex-col gap-1.5">
-            {filtered.map((s) => (
-              <SessionRow
-                key={s.id}
-                session={s}
-                snippet={snippetMap.get(s.id)}
-                searchQuery={search || undefined}
-                isExpanded={expandedId === s.id}
-                onToggle={() =>
-                  setExpandedId((prev) => (prev === s.id ? null : s.id))
-                }
-                resumeInChatEnabled={resumeInChatEnabled}
-              />
-            ))}
-          </div>
-
-          {!searchResults && total > PAGE_SIZE && (
-            <div className="flex items-center justify-between pt-2">
-              <span className="text-xs text-muted-foreground">
-                {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, total)}{" "}
-                {t.common.of} {total}
-              </span>
-              <div className="flex items-center gap-1">
-                <Button
-                  outlined
-                  size="icon"
-                  disabled={page === 0}
-                  onClick={() => setPage((p) => p - 1)}
-                  aria-label={t.sessions.previousPage}
-                >
-                  <ChevronLeft />
-                </Button>
-                <span className="text-xs text-muted-foreground px-2">
-                  {t.common.page} {page + 1} {t.common.of}{" "}
-                  {Math.ceil(total / PAGE_SIZE)}
-                </span>
-                <Button
-                  outlined
-                  size="icon"
-                  disabled={(page + 1) * PAGE_SIZE >= total}
-                  onClick={() => setPage((p) => p + 1)}
-                  aria-label={t.sessions.nextPage}
-                >
-                  <ChevronRight />
-                </Button>
-              </div>
-            </div>
-          )}
-        </>
-      )}
+      <SessionListContent
+        sessionItems={sessionItems}
+        snippetMap={snippetMap}
+        search={search}
+        expandedId={expandedId}
+        onToggle={(sessionId) =>
+          setExpandedId((prev) => (prev === sessionId ? null : sessionId))
+        }
+        resumeInChatEnabled={resumeInChatEnabled}
+        hasSearchResults={Boolean(searchResults)}
+        total={total}
+        page={page}
+        pageSize={PAGE_SIZE}
+        onPageChange={setPage}
+      />
       <PluginSlot name="sessions:bottom" />
     </div>
   );

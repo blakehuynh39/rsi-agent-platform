@@ -342,6 +342,7 @@ export interface StatusResponse {
 
 export interface SessionInfo {
   id: string;
+  type?: "conversation" | "trace" | string;
   source: string | null;
   model: string | null;
   title: string | null;
@@ -354,6 +355,17 @@ export interface SessionInfo {
   input_tokens: number;
   output_tokens: number;
   preview: string | null;
+  conversation_id?: string | null;
+  trace_id?: string | null;
+  parent_session_id?: string | null;
+  case_id?: string | null;
+  trigger_event_id?: string | null;
+  thread_key?: string | null;
+  workflow_kind?: string | null;
+  status?: string | null;
+  trace_count?: number;
+  open_trace_count?: number;
+  proposal_count?: number;
 }
 
 export interface PaginatedSessions {
@@ -539,6 +551,10 @@ export interface SessionSearchResult {
   source: string | null;
   model: string | null;
   session_started: number | null;
+  type?: "conversation" | "trace" | string;
+  conversation_id?: string | null;
+  trace_id?: string | null;
+  parent_session_id?: string | null;
 }
 
 export interface SessionSearchResponse {

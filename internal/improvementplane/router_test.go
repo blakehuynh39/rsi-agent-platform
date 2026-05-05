@@ -669,6 +669,82 @@ func TestHermesCompatibilitySkillsIncludeExportedHermesCatalog(t *testing.T) {
 	}
 }
 
+func TestHermesCompatibilitySessionsExposeGroupingMetadata(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
+	trace := store.ListTraces()[0]
+	conversationID := trace.ConversationID
+	if conversationID == "" {
+		conversationID = store.ListConversations()[0].ID
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/api/sessions?limit=200", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("sessions status = %d body=%s", rec.Code, rec.Body.String())
+	}
+	var payload struct {
+		Sessions []struct {
+			ID              string `json:"id"`
+			Type            string `json:"type"`
+			ConversationID  string `json:"conversation_id"`
+			TraceID         string `json:"trace_id"`
+			ParentSessionID string `json:"parent_session_id"`
+			ThreadKey       string `json:"thread_key"`
+			WorkflowKind    string `json:"workflow_kind"`
+			Status          string `json:"status"`
+			TraceCount      int    `json:"trace_count"`
+		} `json:"sessions"`
+	}
+	if err := json.Unmarshal(rec.Body.Bytes(), &payload); err != nil {
+		t.Fatalf("decode sessions: %v", err)
+	}
+
+	var conversationSession, traceSession *struct {
+		ID              string `json:"id"`
+		Type            string `json:"type"`
+		ConversationID  string `json:"conversation_id"`
+		TraceID         string `json:"trace_id"`
+		ParentSessionID string `json:"parent_session_id"`
+		ThreadKey       string `json:"thread_key"`
+		WorkflowKind    string `json:"workflow_kind"`
+		Status          string `json:"status"`
+		TraceCount      int    `json:"trace_count"`
+	}
+	for i := range payload.Sessions {
+		session := &payload.Sessions[i]
+		if session.ID == conversationID {
+			conversationSession = session
+		}
+		if session.ID == trace.TraceID {
+			traceSession = session
+		}
+	}
+	if conversationSession == nil {
+		t.Fatalf("missing conversation session %s in %+v", conversationID, payload.Sessions)
+	}
+	if traceSession == nil {
+		t.Fatalf("missing trace session %s in %+v", trace.TraceID, payload.Sessions)
+	}
+	if conversationSession.Type != "conversation" || conversationSession.ConversationID != conversationID {
+		t.Fatalf("conversation metadata = %+v, want conversation_id %s", *conversationSession, conversationID)
+	}
+	if conversationSession.TraceCount == 0 {
+		t.Fatalf("conversation trace_count = 0, want related trace count")
+	}
+	if traceSession.Type != "trace" ||
+		traceSession.TraceID != trace.TraceID ||
+		traceSession.ConversationID != conversationID ||
+		traceSession.ParentSessionID != conversationID {
+		t.Fatalf("trace grouping metadata = %+v, want parent %s", *traceSession, conversationID)
+	}
+	if traceSession.ThreadKey == "" || traceSession.WorkflowKind == "" || traceSession.Status == "" {
+		t.Fatalf("trace operational metadata incomplete: %+v", *traceSession)
+	}
+}
+
 func TestHermesCompatibilityLiveSessionsFollowRunnerExecutions(t *testing.T) {
 	cfg := config.Config{
 		PublicBaseURL:                   "http://example.test",
