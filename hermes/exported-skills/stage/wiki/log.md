@@ -14188,3 +14188,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c0d7e227c4784a5cb91534073c292225
 - summary: RSI's planned conference attendance for 2024, including confirmed events and attendees, plus a tentative event.
 
+## [2026-05-05T16:48:57Z] synthesis | Permissionless IP Registration
+
+- status: published
+- slug: decisions/permissionless-ip-registration
+- wiki_revision_id: wikirev_528f48bc1847ad60b014c2b8064aa515
+- summary: Decision to allow permissionless registration of IP for NFTs on Story Protocol, moving away from the current restriction where only NFT owners can register IP.
+

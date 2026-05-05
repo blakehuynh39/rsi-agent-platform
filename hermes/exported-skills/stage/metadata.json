@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "67aca902fbbb975f10b2e3af1fff91ba90d396e011a1e1da27714968b9b4a0d1",
-        "size": 713311
+        "sha256": "b28cd2b88b1c7cdc24ce6bfa5f090835b55ebf424013531e2b547d416ca29d47",
+        "size": 713683
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3103,6 +3103,11 @@
         "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
         "sha256": "8e9ec5fa2596e9a48b96836914d6bfd93708467d38f8cb9ada8cf4c2fd7883c6",
         "size": 1593
+      },
+      {
+        "path": "pages/decisions/permissionless-ip-registration.md",
+        "sha256": "192edac32d95164df86b92c1db43c5aeff5311032b146bad617fd76b2a1e0600",
+        "size": 2954
       },
       {
         "path": "pages/decisions/prophet-nft-distribution-strategy.md",
@@ -3624,8 +3629,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T16:46:22Z",
-  "file_count": 723,
+  "exported_at": "2026-05-05T16:52:18Z",
+  "file_count": 724,
   "files": [
     {
       "path": ".usage.json",
@@ -6392,20 +6397,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "6e194d1574121335ffea9055f01cbc980459080d6e4dbf06f04d47c620bb5507",
+  "previous_tree_hash": "65cd97dd3252cfe074561a0bf6ac273993f7c056abc06fcdc50ab165bd70f1d5",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "65cd97dd3252cfe074561a0bf6ac273993f7c056abc06fcdc50ab165bd70f1d5",
+  "tree_hash": "fc4a36e64bcfadc5c68c0de859c4483039dd418d25b4807d689bded4ae4f2a7d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 171,
+  "wiki_file_count": 172,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6419,8 +6424,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "67aca902fbbb975f10b2e3af1fff91ba90d396e011a1e1da27714968b9b4a0d1",
-      "size": 713311
+      "sha256": "b28cd2b88b1c7cdc24ce6bfa5f090835b55ebf424013531e2b547d416ca29d47",
+      "size": 713683
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6746,6 +6751,11 @@
       "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
       "sha256": "8e9ec5fa2596e9a48b96836914d6bfd93708467d38f8cb9ada8cf4c2fd7883c6",
       "size": 1593
+    },
+    {
+      "path": "pages/decisions/permissionless-ip-registration.md",
+      "sha256": "192edac32d95164df86b92c1db43c5aeff5311032b146bad617fd76b2a1e0600",
+      "size": 2954
     },
     {
       "path": "pages/decisions/prophet-nft-distribution-strategy.md",
@@ -7264,5 +7274,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "241baaf900b57b6bb19a14f8d184f39942e89f6f06865322a736bc5919da1b17"
+  "wiki_tree_hash": "d31f30b342caa48fa7791a172bbfde87fb8244ffd84aa3e2a1f80d4d607e0a07"
 }
