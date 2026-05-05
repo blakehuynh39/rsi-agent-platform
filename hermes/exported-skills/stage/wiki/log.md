@@ -13411,3 +13411,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b722c28f9f50bc36864f644bf1cd86c6
 - summary: Key aspects to consider when designing a license module for an IP protocol, covering license types, metadata, access control, royalties, interoperability, legal compliance, dispute...
 
+## [2026-05-05T07:41:23Z] synthesis | Protocol Data Model Design Principles
+
+- status: published
+- slug: concepts/protocol-data-model-design-principles
+- wiki_revision_id: wikirev_58cdfaf8dde0bf5b680bdaef57728754
+- summary: Design principles for the protocol data model, focusing on on-chain data properties and criteria for storing data on-chain.
+
+## [2026-05-05T07:42:24Z] synthesis | FrontEnd Repo Open source Checklist
+
+- status: published
+- slug: policies/frontend-repo-open-source-checklist
+- wiki_revision_id: wikirev_51c974925da2d28af718cbcc1b2f5a81
+- summary: Checklist for open-sourcing a frontend repository. Currently empty.
+
+## [2026-05-05T07:43:23Z] synthesis | Dutch Auction Minting
+
+- status: published
+- slug: concepts/dutch-auction-minting
+- wiki_revision_id: wikirev_5b045543942d4662b80e08f5e0109b7b
+- summary: The Notion document for Dutch Auction Minting is currently empty, containing only a recording placeholder.
+
+## [2026-05-05T07:44:42Z] synthesis | Image Resizing Solution
+
+- status: published
+- slug: concepts/image-resizing-solution
+- wiki_revision_id: wikirev_9d3ee347a4126a213652bcc6be153d5a
+- summary: Evaluation of image resizing services including imgix, Cloudflare, and Cloudinary, with consideration of sizes and srcset attributes.
+
