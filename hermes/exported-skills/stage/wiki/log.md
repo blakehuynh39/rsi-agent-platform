@@ -13775,3 +13775,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_64dbb295e321bb5a2015cc244d2a4efc
 - summary: The DevEx Notion page serves as a hub for developer experience documentation, linking to key resources such as AWS accounts, Kubernetes clusters, and CLI tools.
 
+## [2026-05-05T11:36:57Z] synthesis | DevEx
+
+- status: published
+- slug: concepts/devex
+- wiki_revision_id: wikirev_a51df6bab970427136f2e6984ec14d83
+- summary: The DevEx Notion page serves as a hub for developer experience documentation, linking to key resources such as AWS accounts, Kubernetes clusters, and CLI tools.
+
+## [2026-05-05T11:36:57Z] synthesis | Docker ECR Login
+
+- status: published
+- slug: runbooks/docker-ecr-login
+- wiki_revision_id: wikirev_af2ea30d4de75ff0dff479b151ca23f8
+- summary: Procedure to log into AWS ECR using Docker CLI, as ECR is not publicly accessible.
+
