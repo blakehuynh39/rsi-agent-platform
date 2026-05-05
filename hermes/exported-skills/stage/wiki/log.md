@@ -14160,3 +14160,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_17bc4a7d0536c6ebdb2137f36e93494f
 - summary: Design exploration for Story Supernet covering user actions, storage, API approach, and two deployment scenarios (single-chain IPA vs multichain).
 
+## [2026-05-05T16:36:47Z] synthesis | Multichain + Story Supernet
+
+- status: published
+- slug: projects/multichain-story-supernet
+- wiki_revision_id: wikirev_a01872cf2684f67cbb379d66b7ad6ff5
+- summary: Project page linking to Bridge Partners, Story Supernet, and Cross-chain Interactions subpages.
+
+## [2026-05-05T16:36:47Z] synthesis | Cross-chain Interactions
+
+- status: published
+- slug: concepts/cross-chain-interactions
+- wiki_revision_id: wikirev_605170b8b09f08e61395e61b040fc8ba
+- summary: Design document outlining cross-chain interaction strategies for Story Protocol, including state management, intent-based interactions, and core primitive components.
+
+## [2026-05-05T16:37:45Z] synthesis | StoryKit Components
+
+- status: published
+- slug: concepts/storykit-components
+- wiki_revision_id: wikirev_b0ad36394dbb53e7cfee766b0a17994a
+- summary: A Notion database listing the components that make up StoryKit.
+
+## [2026-05-05T16:40:32Z] synthesis | Conference Plan 2024
+
+- status: published
+- slug: projects/conference-plan-2024
+- wiki_revision_id: wikirev_c0d7e227c4784a5cb91534073c292225
+- summary: RSI's planned conference attendance for 2024, including confirmed events and attendees, plus a tentative event.
+
