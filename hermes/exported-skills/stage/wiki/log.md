@@ -14535,3 +14535,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_628f153b4396c5c538643ce63adbe8d1
 - summary: A project or runbook page for GKE L1 orchestration setup, but the source document currently contains no detailed information.
 
+## [2026-05-05T22:52:21Z] synthesis | L1 Devnet June 2025 Deliverables
+
+- status: published
+- slug: projects/l1-devnet-june-2025-deliverables
+- wiki_revision_id: wikirev_e13a95ddfe8f22d66f993ff89673d55d
+- summary: Plan for the L1 devnet deliverables targeting June 17, 2025, covering EVM end-to-end flow, monitoring, testing, staking integration, and documentation.
+
