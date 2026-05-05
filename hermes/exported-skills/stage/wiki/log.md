@@ -14423,3 +14423,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_eeb1f791ecd64910e91fbe82b674b2eb
 - summary: Evaluation of Layer 1 blockchain frameworks including EVMOS, Berachain, and Meter.io for potential adoption, comparing metrics such as extensibility, consensus, stability, and ecos...
 
+## [2026-05-05T19:45:03Z] synthesis | Proof of Creativity Incentive Alignment
+
+- status: published
+- slug: concepts/proof-of-creativity-incentive-alignment
+- wiki_revision_id: wikirev_37a65e457f113cc4d186f81c9cb989a0
+- summary: Describes the desired incentive alignment between the protocol and users for the Proof of Creativity mechanism, focusing on IP token staking.
+

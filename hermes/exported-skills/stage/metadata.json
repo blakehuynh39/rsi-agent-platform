@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "6c892e69285452a5e19e8ddbf8831d4b3b6c560289f9a4af159f8a988738fe0d",
-        "size": 725054
+        "sha256": "503b2f5f9586ceedeaff5996facbb4b83aa241137e6c295a0ddacdebbe675723",
+        "size": 725425
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3023,6 +3023,11 @@
         "path": "pages/concepts/programmable-blockchain-framework-design-goals.md",
         "sha256": "6db741afe4e1f6c321651d3a4d994bff709bef423af3e4b66cba93d06348aac5",
         "size": 4207
+      },
+      {
+        "path": "pages/concepts/proof-of-creativity-incentive-alignment.md",
+        "sha256": "6c482e3edfe8800ab0f8195aa39789f71a50bb5e564ed5c2184103249c2a7a77",
+        "size": 2952
       },
       {
         "path": "pages/concepts/prophet-pfp-concept.md",
@@ -3774,8 +3779,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T19:44:23Z",
-  "file_count": 753,
+  "exported_at": "2026-05-05T19:50:20Z",
+  "file_count": 754,
   "files": [
     {
       "path": ".usage.json",
@@ -6542,20 +6547,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-67d9798zt8k",
-  "previous_tree_hash": "6139184441e0d4b502639b5548a454d47628003f18337472611f805f398285b2",
+  "previous_tree_hash": "78490346342a54788e1dd4e7c009e96f3ae8c559b250b4e1d75ed04c7ccfd1cf",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "78490346342a54788e1dd4e7c009e96f3ae8c559b250b4e1d75ed04c7ccfd1cf",
+  "tree_hash": "a33780d467a2810fea92188913728504b6bd85a7fa7804553b5664a5cdaf834f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 201,
+  "wiki_file_count": 202,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6569,8 +6574,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "6c892e69285452a5e19e8ddbf8831d4b3b6c560289f9a4af159f8a988738fe0d",
-      "size": 725054
+      "sha256": "503b2f5f9586ceedeaff5996facbb4b83aa241137e6c295a0ddacdebbe675723",
+      "size": 725425
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6816,6 +6821,11 @@
       "path": "pages/concepts/programmable-blockchain-framework-design-goals.md",
       "sha256": "6db741afe4e1f6c321651d3a4d994bff709bef423af3e4b66cba93d06348aac5",
       "size": 4207
+    },
+    {
+      "path": "pages/concepts/proof-of-creativity-incentive-alignment.md",
+      "sha256": "6c482e3edfe8800ab0f8195aa39789f71a50bb5e564ed5c2184103249c2a7a77",
+      "size": 2952
     },
     {
       "path": "pages/concepts/prophet-pfp-concept.md",
@@ -7564,5 +7574,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "3982ab37221e10414f06790b1702ea9a63af9b88977e2278a25494ed60ad7d07"
+  "wiki_tree_hash": "6e1826b7bf99b3dc72fb57597e9a3cb9c4db1bb80288f3d4b2fa57b07011a03f"
 }
