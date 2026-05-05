@@ -13824,3 +13824,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2540d0a27ecbf032f68644d102b0e06b
 - summary: Decision analysis for deploying the system on Layer 2 to mitigate high Ethereum gas costs, including options for mirroring L1 NFTs to L2.
 
+## [2026-05-05T12:10:26Z] synthesis | Gas Estimations for RSI Protocol Interactions
+
+- status: published
+- slug: concepts/gas-estimations
+- wiki_revision_id: wikirev_10a003ac2f9b66e73f2ac1a53a1c4f82
+- summary: Preliminary gas cost estimates for interacting with RSI contracts on Ethereum mainnet and Layer 2 networks (Optimism/Arbitrum).
+

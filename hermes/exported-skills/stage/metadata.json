@@ -2771,13 +2771,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "2d3f556bc88efca43d1ed2a2c5d68d24b80138c074b216bfa667186d9c07d0a4",
-        "size": 394198
+        "sha256": "24e3fb655d131156948cd52ad58174bd857e9f374b873b6ebf18c713af1d8e90",
+        "size": 395772
       },
       {
         "path": "log.md",
-        "sha256": "84d2a014825d0838a5116cd4d83144a0ccba9b9b13dd4d5740cc7a35d429b3d6",
-        "size": 696240
+        "sha256": "b688207d884f14357fb4c221a7811b31e21c6e64b62cd5394704f7bab3ae5b04",
+        "size": 696579
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2833,6 +2833,11 @@
         "path": "pages/concepts/frontend.md",
         "sha256": "eb2d4f07aff92c242750004bc48862c2e05258c82cfaacb26f213dfc40e10552",
         "size": 1255
+      },
+      {
+        "path": "pages/concepts/gas-estimations.md",
+        "sha256": "1488dcc21f75f3fad224df8db44a56cb72fc73ad8c1be56f6a604a4fd4373ad6",
+        "size": 6026
       },
       {
         "path": "pages/concepts/gas-optimization-research.md",
@@ -3404,8 +3409,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T12:07:57Z",
-  "file_count": 679,
+  "exported_at": "2026-05-05T12:13:51Z",
+  "file_count": 680,
   "files": [
     {
       "path": ".usage.json",
@@ -6172,20 +6177,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "adcfaba94a9bfdf3a0d7b5754095f5f1f77aa5340c475c55e27a47eba30297fd",
+  "previous_tree_hash": "4a53961d12730b01e8f147107b1eb21863deb1d4a38be43ebcb053a5df2fab68",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4a53961d12730b01e8f147107b1eb21863deb1d4a38be43ebcb053a5df2fab68",
+  "tree_hash": "2cba605e1b4e2bdb025715b94c13fa5df680d1e637cb96e144f6e6c0c5181f2a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 127,
+  "wiki_file_count": 128,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6194,13 +6199,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "2d3f556bc88efca43d1ed2a2c5d68d24b80138c074b216bfa667186d9c07d0a4",
-      "size": 394198
+      "sha256": "24e3fb655d131156948cd52ad58174bd857e9f374b873b6ebf18c713af1d8e90",
+      "size": 395772
     },
     {
       "path": "log.md",
-      "sha256": "84d2a014825d0838a5116cd4d83144a0ccba9b9b13dd4d5740cc7a35d429b3d6",
-      "size": 696240
+      "sha256": "b688207d884f14357fb4c221a7811b31e21c6e64b62cd5394704f7bab3ae5b04",
+      "size": 696579
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6256,6 +6261,11 @@
       "path": "pages/concepts/frontend.md",
       "sha256": "eb2d4f07aff92c242750004bc48862c2e05258c82cfaacb26f213dfc40e10552",
       "size": 1255
+    },
+    {
+      "path": "pages/concepts/gas-estimations.md",
+      "sha256": "1488dcc21f75f3fad224df8db44a56cb72fc73ad8c1be56f6a604a4fd4373ad6",
+      "size": 6026
     },
     {
       "path": "pages/concepts/gas-optimization-research.md",
@@ -6824,5 +6834,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "566c8986b169768853e6271968567aa41a5fc45b5a3e7665136ea401ab38f8d0"
+  "wiki_tree_hash": "7ce074e76b52a2bafec2b93790f4f4453770f951f0e2d2cdf31f6f0ea31442ab"
 }
