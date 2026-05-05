@@ -7557,3 +7557,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_00f3693d927e897ac6786fb5244f088d
 - summary: Source: [Notion source](https://www.notion.so/CLI-Design-6e7afad28d76422e90b8ba684fb8d4b4)
 
+## [2026-05-05T05:58:45Z] synthesis | Engineering Home
+
+- status: published
+- slug: systems/engineering-home
+- wiki_revision_id: wikirev_571d044b349a0e98fd9bc0769377a085
+- summary: The Engineering Home Notion database mirrors its row pages as separate Notion documents.
+
+## [2026-05-05T06:00:07Z] synthesis | Engineering Home
+
+- status: published
+- slug: systems/engineering-home
+- wiki_revision_id: wikirev_e66e51aed8a62fa1a52b181678382a99
+- summary: The Engineering Home Notion database mirrors its row pages and data sources as separate Notion documents.
+

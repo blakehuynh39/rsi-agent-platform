@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "605a0c2d018f26af432fa97374475174544b00a5f6f8eea67907edc48ce942f6",
-        "size": 388951
+        "sha256": "4adee5592d3fee1f5ae731cbf4394f79395c73fe4e2fe730b98c5b0092ac93cf",
+        "size": 389510
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3061,8 +3061,8 @@
       },
       {
         "path": "pages/systems/engineering-home.md",
-        "sha256": "b960f607d7b5fa10ed5d2c3fad4dea1a964fdea3b1818405048f1650d7e93f9b",
-        "size": 1118
+        "sha256": "33e80d75fcc279d7f9a931ce315d507b98ed19971007e9e63f7b04b9e61a672a",
+        "size": 2127
       },
       {
         "path": "pages/systems/new-product-intake.md",
@@ -3079,7 +3079,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T05:43:41Z",
+  "exported_at": "2026-05-05T06:00:59Z",
   "file_count": 614,
   "files": [
     {
@@ -5846,14 +5846,14 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-64c5fcqmdfg",
-  "previous_tree_hash": "3bfc80861fc2b84229f73335d950ae0e0ed4f223bc7da1fbb6aeaff8dd7cb7f8",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5dd859wc5pp",
+  "previous_tree_hash": "9f2357fc3f049548684d29ee701f834325063afef5b76cbe91f2e22ca469326e",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "476409678a775c1018b9e6a7408807c3722cdad360128bd52087ec8de9a400b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "9f2357fc3f049548684d29ee701f834325063afef5b76cbe91f2e22ca469326e",
+  "tree_hash": "c4d138570749e574a6857d1d42ef7366b5cdf1cc008d0d8c7029c33594b2fc5a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -5874,8 +5874,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "605a0c2d018f26af432fa97374475174544b00a5f6f8eea67907edc48ce942f6",
-      "size": 388951
+      "sha256": "4adee5592d3fee1f5ae731cbf4394f79395c73fe4e2fe730b98c5b0092ac93cf",
+      "size": 389510
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6159,8 +6159,8 @@
     },
     {
       "path": "pages/systems/engineering-home.md",
-      "sha256": "b960f607d7b5fa10ed5d2c3fad4dea1a964fdea3b1818405048f1650d7e93f9b",
-      "size": 1118
+      "sha256": "33e80d75fcc279d7f9a931ce315d507b98ed19971007e9e63f7b04b9e61a672a",
+      "size": 2127
     },
     {
       "path": "pages/systems/new-product-intake.md",
@@ -6174,5 +6174,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c6059413a1034e3a48391ec1b9da76a4691d63401fe70eb94b67dcc50411d499"
+  "wiki_tree_hash": "b99e6f048da90d61373752393bb112f1ae59cd2204e3c139761776cb323bb5bc"
 }
