@@ -14514,3 +14514,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c9be7bfa1de5b40ea387288d052ee632
 - summary: A daily tracker for the Devnet War Mode initiative, covering validators, infrastructure, testing, proof of concept, proof of stake, IPA protocol, IP graph, staking dashboard, and e...
 
+## [2026-05-05T22:04:18Z] synthesis | Stress Test Plan
+
+- status: published
+- slug: projects/stress-test-plan
+- wiki_revision_id: wikirev_7b89b7f176370cf6597e4f018c697341
+- summary: Plan to stress test the blockchain network using real data to find baseline performance and recommended node specs. Setup includes 2s block time, 50 c5.large nodes across regions, ...
+

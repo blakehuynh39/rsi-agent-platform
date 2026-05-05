@@ -2781,8 +2781,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "fc0082eaef8b149346ed15694489aeb03a454e52581bd29e5f521a398a149972",
-        "size": 729502
+        "sha256": "6140f861bc272f781e40a77752204ca415f0986411cea5a9efdf2c1cdc109263",
+        "size": 729869
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3650,6 +3650,11 @@
         "size": 8944
       },
       {
+        "path": "pages/projects/stress-test-plan.md",
+        "sha256": "b2b6927e188db74e0301b7630661ede23bbb76eb290f1d66c9466461a615fee3",
+        "size": 10431
+      },
+      {
         "path": "pages/projects/upwork-fiverr-i18n-translation-vetting.md",
         "sha256": "d046ecfcd2741ab81ffc4d30d1e6c166f43ad4376ee4896dff4db9879393a681",
         "size": 1547
@@ -3839,8 +3844,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T22:01:25Z",
-  "file_count": 766,
+  "exported_at": "2026-05-05T22:07:30Z",
+  "file_count": 767,
   "files": [
     {
       "path": ".usage.json",
@@ -6612,20 +6617,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6c4dc4j5wtx",
-  "previous_tree_hash": "73df40fab655cd5d167cd84a8781ae8ebc06e1d83d00c4ae23680d15ea68cac7",
+  "previous_tree_hash": "f136e44045c350adfdd4b654a34958d22b0350c8226ca06a105717c8e4dac87e",
   "schema_version": 1,
   "skill_file_count": 553,
   "skill_manage_sessions": [],
   "skill_tree_hash": "082879971280a210c4b46b42d09584c3f9c1a3fe002a72f50ffe2d355b92cd03",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f136e44045c350adfdd4b654a34958d22b0350c8226ca06a105717c8e4dac87e",
+  "tree_hash": "24fe644673409c8520ee2a064432f3fa82ffc227a70d65e0647bc80a0e675483",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 213,
+  "wiki_file_count": 214,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6639,8 +6644,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "fc0082eaef8b149346ed15694489aeb03a454e52581bd29e5f521a398a149972",
-      "size": 729502
+      "sha256": "6140f861bc272f781e40a77752204ca415f0986411cea5a9efdf2c1cdc109263",
+      "size": 729869
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7508,6 +7513,11 @@
       "size": 8944
     },
     {
+      "path": "pages/projects/stress-test-plan.md",
+      "sha256": "b2b6927e188db74e0301b7630661ede23bbb76eb290f1d66c9466461a615fee3",
+      "size": 10431
+    },
+    {
       "path": "pages/projects/upwork-fiverr-i18n-translation-vetting.md",
       "sha256": "d046ecfcd2741ab81ffc4d30d1e6c166f43ad4376ee4896dff4db9879393a681",
       "size": 1547
@@ -7694,5 +7704,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c93c2cf4eb494100a37fd8e4d2b4c39d09a2b476c530461426976291add8334e"
+  "wiki_tree_hash": "e57e46dc6ee224d334d06f4433af9f7f2e49a2e4c2e57ac2f45d7ae95ab954e3"
 }
