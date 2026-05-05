@@ -7599,3 +7599,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2bd0a9c0981dfe83db5a51a8c7431833
 - summary: Examples of story telling approaches for the package frontend, including Image and Text and Story format sections.
 
+## [2026-05-05T06:18:12Z] synthesis | NFT Metadata Reveal
+
+- status: published
+- slug: systems/nft-metadata-reveal
+- wiki_revision_id: wikirev_d5d7a84d2c551ed6a0a764ceb0a07c7b
+- summary: Design for the Asteri NFT metadata reveal process, including metadata structure, generation rules, and two reveal methods.
+
+## [2026-05-05T06:19:47Z] synthesis | Carousel Data Shape
+
+- status: published
+- slug: concepts/carousel-data-shape
+- wiki_revision_id: wikirev_6defe96e89a3afa250f1dba9988d8616
+- summary: Defines the expected data structure for a carousel component, consisting of an array of items each with an image and text field.
+
+## [2026-05-05T06:22:12Z] synthesis | Database Table Naming Conventions
+
+- status: published
+- slug: policies/database-table-naming-conventions
+- wiki_revision_id: wikirev_56ee6ccadfed73e83a91b6dff45099a8
+- summary: Policy for database table naming using prefixes to indicate responsibility: wallet_, nft_, story_.
+

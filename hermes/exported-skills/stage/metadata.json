@@ -2776,13 +2776,18 @@
       },
       {
         "path": "log.md",
-        "sha256": "f42832427ae094a3b30b046e5418c7891e6d829ef8196c6bc848c35545bfec0d",
-        "size": 390792
+        "sha256": "ba37dff4f773b2c0929317066df9cf719ec431dcd13fece4cc34b9383fd49c2a",
+        "size": 391737
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
         "sha256": "f20f068a0ce630e082f0a0c60bfaa46e4f02ca3ea8a8423250ad54a6886b68eb",
         "size": 2320
+      },
+      {
+        "path": "pages/concepts/carousel-data-shape.md",
+        "sha256": "a695d8125e084c67c7a31c8fb49e6049a05fa6a9da00e95e150672636151eb2f",
+        "size": 1410
       },
       {
         "path": "pages/concepts/coming-soon-placeholder-tasks.md",
@@ -2893,6 +2898,11 @@
         "path": "pages/open-questions/royalty-dilution-feedback.md",
         "sha256": "e593e720ef6eeb2c360e2ac2ef73f75eecaedeca5ef010eb2b1c9cbf9589fe0c",
         "size": 2853
+      },
+      {
+        "path": "pages/policies/database-table-naming-conventions.md",
+        "sha256": "1e05bf6d7a11a8394a4c192d0e90a35fd009d94f4e31db03f8e57474d0282049",
+        "size": 2937
       },
       {
         "path": "pages/policies/limited-ip-rights-representation-registration.md",
@@ -3090,6 +3100,11 @@
         "size": 1093
       },
       {
+        "path": "pages/systems/nft-metadata-reveal.md",
+        "sha256": "1ef12e5f18cd1a63b3bdfda90519567c7983ac72895764ba8767e790d5babb95",
+        "size": 4007
+      },
+      {
         "path": "pages/systems/numo-product-backlog.md",
         "sha256": "4fd86fc113d36a9ad53220544b8003ededbe14bc8005e107d8ba6c577bb3fd4f",
         "size": 1012
@@ -3099,8 +3114,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T06:17:39Z",
-  "file_count": 618,
+  "exported_at": "2026-05-05T06:23:04Z",
+  "file_count": 621,
   "files": [
     {
       "path": ".usage.json",
@@ -5866,21 +5881,21 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5dd859wc5pp",
-  "previous_tree_hash": "9c4d2ed042f8f26330994d534e891b99dcb4d05f8174986a6258ed67801a0ff2",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
+  "previous_tree_hash": "cd8f159a7ab1ab8b3601c3a589867980f3cd688e9359841cc71641742d61d875",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "476409678a775c1018b9e6a7408807c3722cdad360128bd52087ec8de9a400b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "cd8f159a7ab1ab8b3601c3a589867980f3cd688e9359841cc71641742d61d875",
+  "tree_hash": "daca404f9b3d965f01130ced484af5ff4bb53ba87aad91f16139600f4bf3fc99",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 66,
+  "wiki_file_count": 69,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5894,13 +5909,18 @@
     },
     {
       "path": "log.md",
-      "sha256": "f42832427ae094a3b30b046e5418c7891e6d829ef8196c6bc848c35545bfec0d",
-      "size": 390792
+      "sha256": "ba37dff4f773b2c0929317066df9cf719ec431dcd13fece4cc34b9383fd49c2a",
+      "size": 391737
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
       "sha256": "f20f068a0ce630e082f0a0c60bfaa46e4f02ca3ea8a8423250ad54a6886b68eb",
       "size": 2320
+    },
+    {
+      "path": "pages/concepts/carousel-data-shape.md",
+      "sha256": "a695d8125e084c67c7a31c8fb49e6049a05fa6a9da00e95e150672636151eb2f",
+      "size": 1410
     },
     {
       "path": "pages/concepts/coming-soon-placeholder-tasks.md",
@@ -6011,6 +6031,11 @@
       "path": "pages/open-questions/royalty-dilution-feedback.md",
       "sha256": "e593e720ef6eeb2c360e2ac2ef73f75eecaedeca5ef010eb2b1c9cbf9589fe0c",
       "size": 2853
+    },
+    {
+      "path": "pages/policies/database-table-naming-conventions.md",
+      "sha256": "1e05bf6d7a11a8394a4c192d0e90a35fd009d94f4e31db03f8e57474d0282049",
+      "size": 2937
     },
     {
       "path": "pages/policies/limited-ip-rights-representation-registration.md",
@@ -6208,11 +6233,16 @@
       "size": 1093
     },
     {
+      "path": "pages/systems/nft-metadata-reveal.md",
+      "sha256": "1ef12e5f18cd1a63b3bdfda90519567c7983ac72895764ba8767e790d5babb95",
+      "size": 4007
+    },
+    {
       "path": "pages/systems/numo-product-backlog.md",
       "sha256": "4fd86fc113d36a9ad53220544b8003ededbe14bc8005e107d8ba6c577bb3fd4f",
       "size": 1012
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "be099af6374b0a1476f1eca06ecf5d7254d8ed3d0a34451404219702a102c634"
+  "wiki_tree_hash": "09c154597c66ee998e37662a912d8ace9a70843c06798993db11fd22d6e4ca7f"
 }
