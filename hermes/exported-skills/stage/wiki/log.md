@@ -13614,3 +13614,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_838d69d2238167ffd955c4ae64d3a0ab
 - summary: A hub page linking to various frontend resources and subpages.
 
+## [2026-05-05T09:46:16Z] synthesis | Frontend
+
+- status: published
+- slug: concepts/frontend
+- wiki_revision_id: wikirev_1eac8dea61eac4517894faa9f3081b33
+- summary: A hub page linking to various frontend resources and subpages.
+
+## [2026-05-05T09:46:16Z] synthesis | Content references
+
+- status: published
+- slug: concepts/content-references
+- wiki_revision_id: wikirev_f963990cfce0eeb161aee0bf3fc41cab
+- summary: A reference page collecting UI design patterns and examples for content presentation, including hierarchy, cards, carousels, long scroll, and more.
+
