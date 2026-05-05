@@ -14458,3 +14458,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_36a1d4dd8429eae6e349cc5bb705d0ca
 - summary: Configuration options for the Halo binary as defined in halo.toml.
 
+## [2026-05-05T20:46:20Z] synthesis | Configure a Validator
+
+- status: published
+- slug: runbooks/configure-a-validator
+- wiki_revision_id: wikirev_eb38a8a16953053677729d25a0dffd58
+- summary: A guide for setting up a validator node, including prerequisites and step-by-step instructions (currently incomplete).
+
