@@ -2771,13 +2771,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0ff73251c892b78d941d298b645619bac1a8dda8e9942074ecc9504ba3dd2f40",
-        "size": 157452
+        "sha256": "dde142d7da5fd860347f29d76ab95ebde4a031bb7e1339ce0af47e7791c3eaf0",
+        "size": 159820
       },
       {
         "path": "log.md",
-        "sha256": "f07545bf0fecb795c7a237e5847e35282fb35de4c3531730f06992a9133e7bd5",
-        "size": 353008
+        "sha256": "0d7dd547a8284af763ce4b140acac6ecb5841572b442fce3d7ff81d1935d3584",
+        "size": 356496
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3029,7 +3029,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T04:07:08Z",
+  "exported_at": "2026-05-05T04:33:07Z",
   "file_count": 604,
   "files": [
     {
@@ -5796,14 +5796,14 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-54fc8bnk8js",
-  "previous_tree_hash": "dfa6aa4bcf34e8bc8d5dc936d7d906f8e72f98511d28006a378b19c3f499fd56",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-67d9fb7rcrr",
+  "previous_tree_hash": "bde2ced0f2a71015b2c4b75d268ab31d186d2f7c49c4b81209b92f867ef73167",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "476409678a775c1018b9e6a7408807c3722cdad360128bd52087ec8de9a400b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "bde2ced0f2a71015b2c4b75d268ab31d186d2f7c49c4b81209b92f867ef73167",
+  "tree_hash": "6bf0b8ee3868be93ac7f0ddbd3960b63222e4f88ed21bd1fd4da08de2666dad7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -5819,13 +5819,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0ff73251c892b78d941d298b645619bac1a8dda8e9942074ecc9504ba3dd2f40",
-      "size": 157452
+      "sha256": "dde142d7da5fd860347f29d76ab95ebde4a031bb7e1339ce0af47e7791c3eaf0",
+      "size": 159820
     },
     {
       "path": "log.md",
-      "sha256": "f07545bf0fecb795c7a237e5847e35282fb35de4c3531730f06992a9133e7bd5",
-      "size": 353008
+      "sha256": "0d7dd547a8284af763ce4b140acac6ecb5841572b442fce3d7ff81d1935d3584",
+      "size": 356496
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6074,5 +6074,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7347dafa8ccd594ee92518d4b69c1c922b121df04b629ed60e6982c8b051369e"
+  "wiki_tree_hash": "682e73fd707ed9d00fec69e4cffc7b7cb3f51980af4f0e13475b38dfe088e77b"
 }

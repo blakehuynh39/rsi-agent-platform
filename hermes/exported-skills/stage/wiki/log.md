@@ -6821,3 +6821,84 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_067e819c034c98bc87578bc9b61242ea
 - summary: Collection of resources and best practices for designing and executing a successful NFT launch, covering security, gas optimization, bot prevention, and drop mechanics.
 
+## [2026-05-05T04:31:10Z] ingest | Discord question -Revert when calling mintAndRegisterIpWithSig method
+
+- status: published
+- slug: notion_document/discord-question--revert-when-calling-mintandregisteripwithsig-method-c5c087ac
+- wiki_revision_id: wikirev_60f83168f44abc3b36cb4d8947bad22f
+- source_document_id: srcdoc_6fe42aa8bfa199b8b7572b9bc5c087ac
+- source_revision_id: srcrev_0f3cf6a9b645ca8742eae6ac46380c70
+- summary: Source: [Notion source](https://www.notion.so/Discord-question-Revert-when-calling-mintAndRegisterIpWithSig-method-d6c2163bf30547618b1bb1a9f09ff1e0)
+
+## [2026-05-05T04:31:15Z] ingest | Protocol Feedback from Partners
+
+- status: published
+- slug: notion_document/protocol-feedback-from-partners-1ed17c5c
+- wiki_revision_id: wikirev_b66eb7751c5b7e4b94e81da954a3b1eb
+- source_document_id: srcdoc_6cc68314e0c9a8a9692cb3301ed17c5c
+- source_revision_id: srcrev_df199e95cd72ac31d5bfee7c1c8d3ba9
+- summary: Source: [Notion source](https://www.notion.so/Protocol-Feedback-from-Partners-34d9f06d973c4b19b686223f13144287)
+
+## [2026-05-05T04:31:19Z] ingest | NFT Feedback (Color)
+
+- status: published
+- slug: notion_document/nft-feedback-color--d8b1e58b
+- wiki_revision_id: wikirev_f441060f7f3db6106b368bfaa5c21447
+- source_document_id: srcdoc_b8274bf4302d18121fcbec22d8b1e58b
+- source_revision_id: srcrev_65195dda5174bdc6972d944c7aebf54a
+- summary: Source: [Notion source](https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84)
+
+## [2026-05-05T04:31:25Z] ingest | DeFi Feedback
+
+- status: published
+- slug: notion_document/defi-feedback-87804fea
+- wiki_revision_id: wikirev_efe69d316e35e96e65f4815b77df5a76
+- source_document_id: srcdoc_b34fe2649ef35a6cf031fb4487804fea
+- source_revision_id: srcrev_0689834e55113acf62fdafb77b25ee87
+- summary: Source: [Notion source](https://www.notion.so/DeFi-Feedback-fad11d7816f142c8b80a01b2f42baa98)
+
+## [2026-05-05T04:32:44Z] ingest | L1 team daily sync
+
+- status: published
+- slug: notion_document/l1-team-daily-sync-f3ee207c
+- wiki_revision_id: wikirev_0995ac8bb98b4d784999ef5b3e473d31
+- source_document_id: srcdoc_2e74ac2a709da01eedbbcf9af3ee207c
+- source_revision_id: srcrev_9888ca4ec383e7f27c37b098059bd534
+- summary: Source: [Notion source](https://www.notion.so/L1-team-daily-sync-105051299a548052a6cecc56ceba9e2d)
+
+## [2026-05-05T04:32:58Z] ingest | Dev Tasks
+
+- status: published
+- slug: notion_document/dev-tasks-b5487f31
+- wiki_revision_id: wikirev_db79b2254fd0991b06064fdf5ac15672
+- source_document_id: srcdoc_4695ca3a21953700e4748f98b5487f31
+- source_revision_id: srcrev_caf0e2bffafbfb88dfc38a16fce558a6
+- summary: Source: [Notion source](https://www.notion.so/Dev-Tasks-11f051299a5480b0a8dbd1c151ebc4d0)
+
+## [2026-05-05T04:33:03Z] ingest | tasks
+
+- status: published
+- slug: notion_document/tasks-496d69f5
+- wiki_revision_id: wikirev_533ff73e4d08e63a1b4953b669b10ecb
+- source_document_id: srcdoc_9d4554f677a895c3fa2aea1e496d69f5
+- source_revision_id: srcrev_39ea3fd67377d8a9c16e67a00934d7b2
+- summary: Source: [Notion source](https://www.notion.so/tasks-118051299a5480c29ee3e65b890e15d8)
+
+## [2026-05-05T04:33:05Z] ingest | SDK/API/INDEXER
+
+- status: published
+- slug: notion_document/sdk/api/indexer-65c73111
+- wiki_revision_id: wikirev_1f41b9ce529a088eb8c4fe41366970ab
+- source_document_id: srcdoc_a45485b75f8c8c6f362ba15d65c73111
+- source_revision_id: srcrev_211036126fa2102cfd5da0822b28c918
+- summary: Source: [Notion source](https://www.notion.so/SDK-API-INDEXER-6781538f4221453bbab72df263f21a03)
+
+## [2026-05-05T04:33:07Z] ingest | How to handle smart contract update
+
+- status: published
+- slug: notion_document/how-to-handle-smart-contract-update-5ff5b1fa
+- wiki_revision_id: wikirev_fd7627d3b33e37d9b73bb91d696b7b57
+- source_document_id: srcdoc_0b76bbd5f3e7c9cf1204ddc35ff5b1fa
+- source_revision_id: srcrev_0db435fb82e805e86c46950f79752560
+- summary: Source: [Notion source](https://www.notion.so/How-to-handle-smart-contract-update-0fbea70b4c1f4bfe95869d29d927c33e)
+
