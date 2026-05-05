@@ -13502,3 +13502,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_81cb3c46c6a3d82ff845961187effed5
 - summary: Designing a standard, configurable commercial license for small creators, embedded as on-chain data, inspired by Y Combinator's SAFE, a16z's Can't-be-evil, and Getty Images' EULA.
 
+## [2026-05-05T08:28:46Z] synthesis | Lens V2
+
+- status: published
+- slug: projects/lens-v2
+- wiki_revision_id: wikirev_ef9efb1f14641056df18b124a00f3966
+- summary: Lens V2 is a major upgrade to the Lens Protocol, introducing Open Actions and ERC-6551 Profile Manager to enable an open, decentralized social layer.
+

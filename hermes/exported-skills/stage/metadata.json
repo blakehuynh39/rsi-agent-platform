@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "160507f38fe4e337b67b9388efc7f5289476eb5813d554ac48a8b837851c2355",
-        "size": 681658
+        "sha256": "26ffd598f3fe391a603551f4c2655c7084617cd697a765384c46b31a4391ac2a",
+        "size": 681973
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3065,6 +3065,11 @@
         "size": 1238
       },
       {
+        "path": "pages/projects/lens-v2.md",
+        "sha256": "9429b04ab8f702e449637bae4a32c09e8649e93690dab5c062954f94c81c14ed",
+        "size": 2528
+      },
+      {
         "path": "pages/projects/license-receipt-functionality.md",
         "sha256": "36224868d31e4f14731d7d1e4eb9d161338f5a381a0aba24618ce429ca652e7f",
         "size": 3652
@@ -3204,8 +3209,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T08:21:10Z",
-  "file_count": 639,
+  "exported_at": "2026-05-05T08:32:04Z",
+  "file_count": 640,
   "files": [
     {
       "path": ".usage.json",
@@ -5972,20 +5977,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "c3d16580559b9fbc68749cfbc184368954ec3d39ffac29788404fa009dfca5be",
+  "previous_tree_hash": "c1ed9b6523428d68688ffd6b6bd9352de16cb4761f2cbb9b4bde491abc3d3015",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c1ed9b6523428d68688ffd6b6bd9352de16cb4761f2cbb9b4bde491abc3d3015",
+  "tree_hash": "8450d6a377dbbb0a9a2d75e85e469870d5f51b06587bb8fbd833f9dff76649dd",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 87,
+  "wiki_file_count": 88,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5999,8 +6004,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "160507f38fe4e337b67b9388efc7f5289476eb5813d554ac48a8b837851c2355",
-      "size": 681658
+      "sha256": "26ffd598f3fe391a603551f4c2655c7084617cd697a765384c46b31a4391ac2a",
+      "size": 681973
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6288,6 +6293,11 @@
       "size": 1238
     },
     {
+      "path": "pages/projects/lens-v2.md",
+      "sha256": "9429b04ab8f702e449637bae4a32c09e8649e93690dab5c062954f94c81c14ed",
+      "size": 2528
+    },
+    {
       "path": "pages/projects/license-receipt-functionality.md",
       "sha256": "36224868d31e4f14731d7d1e4eb9d161338f5a381a0aba24618ce429ca652e7f",
       "size": 3652
@@ -6424,5 +6434,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "650bcecd230f48f007df5bd565ce3aa98e3296c86d35e6113bfa81a440f48833"
+  "wiki_tree_hash": "73fa38d94c79a0001fd5e3e150a069b6064c7c6af4ca661a075f5c59645ab2f0"
 }
