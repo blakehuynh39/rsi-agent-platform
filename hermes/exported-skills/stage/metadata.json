@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "f6f6c3233f220f092b7ef4134af3d0f66b09ded2791fd9662cccecced52b725d",
-        "size": 676966
+        "sha256": "725b085ded0ba29b1f795a095e412d9e82dfa92a98d5cd3d9dcae7163725463e",
+        "size": 677377
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2818,6 +2818,11 @@
         "path": "pages/concepts/ip-stock-exchange.md",
         "sha256": "8a16949f4182ebb25241083d72384c028ba754eeeae4ebac99d5c8961c1ec9f2",
         "size": 1150
+      },
+      {
+        "path": "pages/concepts/licensing-module-design-considerations.md",
+        "sha256": "7252d1ff92f94bf358fdfe999bfa39d271aeb0aa95b6fdc5ccef32dba8c607af",
+        "size": 7170
       },
       {
         "path": "pages/concepts/nft-launch-best-practices.md",
@@ -3144,8 +3149,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T07:24:15Z",
-  "file_count": 627,
+  "exported_at": "2026-05-05T07:30:05Z",
+  "file_count": 628,
   "files": [
     {
       "path": ".usage.json",
@@ -5912,20 +5917,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "2ed2b1414d371b1434d59ec769b86356b9ddfa0774c7eff8519a5f36fba348e8",
+  "previous_tree_hash": "3b41e6a3c15ecfeef0b16fa475778def231d29a851a31340e7f08f0f53bda245",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3b41e6a3c15ecfeef0b16fa475778def231d29a851a31340e7f08f0f53bda245",
+  "tree_hash": "c36921f0609648848bcc7261ee020547df3c8011415415f8c8733475beca7d03",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 75,
+  "wiki_file_count": 76,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5939,8 +5944,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "f6f6c3233f220f092b7ef4134af3d0f66b09ded2791fd9662cccecced52b725d",
-      "size": 676966
+      "sha256": "725b085ded0ba29b1f795a095e412d9e82dfa92a98d5cd3d9dcae7163725463e",
+      "size": 677377
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -5981,6 +5986,11 @@
       "path": "pages/concepts/ip-stock-exchange.md",
       "sha256": "8a16949f4182ebb25241083d72384c028ba754eeeae4ebac99d5c8961c1ec9f2",
       "size": 1150
+    },
+    {
+      "path": "pages/concepts/licensing-module-design-considerations.md",
+      "sha256": "7252d1ff92f94bf358fdfe999bfa39d271aeb0aa95b6fdc5ccef32dba8c607af",
+      "size": 7170
     },
     {
       "path": "pages/concepts/nft-launch-best-practices.md",
@@ -6304,5 +6314,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c6cd62c03338bd2f210d49d99304f0b3bdfec46b533897356510a34bf2e27bea"
+  "wiki_tree_hash": "3b9155b6c3ddf5e74d19481a29647fb15d026c33f2f187820427dc0a00e2c6d4"
 }
