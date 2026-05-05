@@ -13691,3 +13691,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0a1a3ff64344285625822d78873295d5
 - summary: The concept involves NFT metadata dynamically reflecting on-chain statistics such as number of collects, relationships, license type. It aims to provide a fun and convenient showca...
 
+## [2026-05-05T10:44:01Z] synthesis | Prophet NFT Distribution and Wallet Strategy
+
+- status: published
+- slug: decisions/prophet-nft-distribution-strategy
+- wiki_revision_id: wikirev_faeb834c34919c633955777d1a2acdd8
+- summary: The team evaluated airdrop vs minting for Prophet NFTs, leaning toward a simple minting page with airdrop fallback for non-web3 users. Educational wallet resources and a create-wal...
+
+## [2026-05-05T10:46:24Z] synthesis | File Upload API
+
+- status: published
+- slug: systems/file-upload-api
+- wiki_revision_id: wikirev_dab2bd518531bee4d9e972d6e9c93dfc
+- summary: Specification for the Story Protocol file upload endpoint, including request format, parameters, and response.
+
+## [2026-05-05T10:48:01Z] synthesis | PFP Engineering Specs
+
+- status: published
+- slug: projects/pfp-engineering-specs
+- wiki_revision_id: wikirev_e47fd839b1fbb8ce56ecbd725340f171
+- summary: Specification for the PFP project, a mechanism to bring contributors into the Emergence ecosystem via a legal contract and protocol integrations like licensing, IP assets, collect,...
+

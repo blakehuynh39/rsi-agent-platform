@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "a1f8572fa521e4ac415bb19577802933a17615181395459f11b4d3d0cf047eb8",
-        "size": 690171
+        "sha256": "78d141ec6622dbacf3dc2bfdaa659130bb0bcf206a4afe7af8c9d259697b2b85",
+        "size": 691252
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2968,6 +2968,11 @@
         "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
         "sha256": "8e9ec5fa2596e9a48b96836914d6bfd93708467d38f8cb9ada8cf4c2fd7883c6",
         "size": 1593
+      },
+      {
+        "path": "pages/decisions/prophet-nft-distribution-strategy.md",
+        "sha256": "5c5c1b8f53ac27fa72a3b33ba256605a793bea7800beb408f1655c14418bb2ac",
+        "size": 2248
       },
       {
         "path": "pages/decisions/prophet-pfp-ip-asset.md",
@@ -3200,6 +3205,11 @@
         "size": 2996
       },
       {
+        "path": "pages/projects/pfp-engineering-specs.md",
+        "sha256": "be289f0696ed924460b16d15113f3d385b3c57d9f74075db4af2d192b5b4fc13",
+        "size": 5191
+      },
+      {
         "path": "pages/projects/rcade-music-app.md",
         "sha256": "05cdabffae3c60e6a9ec557c386d2dd47fd7b1a559a349737e9aeddd0f670a73",
         "size": 1058
@@ -3290,6 +3300,11 @@
         "size": 1216
       },
       {
+        "path": "pages/systems/file-upload-api.md",
+        "sha256": "c5979f880c232c6e7428828c3d136bf73e7dc37f54c5c9eeab0f7adfa481a7a2",
+        "size": 3060
+      },
+      {
         "path": "pages/systems/monitoring-and-dashboard.md",
         "sha256": "020a2652582a44eafd7e6959efe4cd73dc8b572c24dc0822333e8c473a57633c",
         "size": 3036
@@ -3324,8 +3339,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T10:43:00Z",
-  "file_count": 663,
+  "exported_at": "2026-05-05T10:48:52Z",
+  "file_count": 666,
   "files": [
     {
       "path": ".usage.json",
@@ -6092,20 +6107,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "878f6b9823d60a4fd5083e84428e9f090200e0ba20a070b9182b2fb4cd1b1044",
+  "previous_tree_hash": "15bc9110228a187d6fcff378e0aa2dcf7a28889728547643a95f8a061ff2c489",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "15bc9110228a187d6fcff378e0aa2dcf7a28889728547643a95f8a061ff2c489",
+  "tree_hash": "7bc623a6a0eaf54f89d827879894d280af201d5e515831eb118e704626248d65",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 111,
+  "wiki_file_count": 114,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6119,8 +6134,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "a1f8572fa521e4ac415bb19577802933a17615181395459f11b4d3d0cf047eb8",
-      "size": 690171
+      "sha256": "78d141ec6622dbacf3dc2bfdaa659130bb0bcf206a4afe7af8c9d259697b2b85",
+      "size": 691252
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6311,6 +6326,11 @@
       "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
       "sha256": "8e9ec5fa2596e9a48b96836914d6bfd93708467d38f8cb9ada8cf4c2fd7883c6",
       "size": 1593
+    },
+    {
+      "path": "pages/decisions/prophet-nft-distribution-strategy.md",
+      "sha256": "5c5c1b8f53ac27fa72a3b33ba256605a793bea7800beb408f1655c14418bb2ac",
+      "size": 2248
     },
     {
       "path": "pages/decisions/prophet-pfp-ip-asset.md",
@@ -6543,6 +6563,11 @@
       "size": 2996
     },
     {
+      "path": "pages/projects/pfp-engineering-specs.md",
+      "sha256": "be289f0696ed924460b16d15113f3d385b3c57d9f74075db4af2d192b5b4fc13",
+      "size": 5191
+    },
+    {
       "path": "pages/projects/rcade-music-app.md",
       "sha256": "05cdabffae3c60e6a9ec557c386d2dd47fd7b1a559a349737e9aeddd0f670a73",
       "size": 1058
@@ -6633,6 +6658,11 @@
       "size": 1216
     },
     {
+      "path": "pages/systems/file-upload-api.md",
+      "sha256": "c5979f880c232c6e7428828c3d136bf73e7dc37f54c5c9eeab0f7adfa481a7a2",
+      "size": 3060
+    },
+    {
       "path": "pages/systems/monitoring-and-dashboard.md",
       "sha256": "020a2652582a44eafd7e6959efe4cd73dc8b572c24dc0822333e8c473a57633c",
       "size": 3036
@@ -6664,5 +6694,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5d1b0a7f75b427ba7fa35b7ebaf98a1e5b83c015a24f6615579a0dc26f9a0182"
+  "wiki_tree_hash": "62f36704757b972ea395263ec02fb4306b4af860b3b60107711df67afc956b06"
 }
