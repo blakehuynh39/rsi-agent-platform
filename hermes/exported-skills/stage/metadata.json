@@ -2771,13 +2771,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "21924f7b76f232b47df5ef69e366799106bb5cbd655e81b6f96b7e9c8fd563f1",
-        "size": 202904
+        "sha256": "0a2b6125d33649859e01d6cdb2890fbe8ca656d6999990c4efd805fea09ef6ca",
+        "size": 249726
       },
       {
         "path": "log.md",
-        "sha256": "b4bb0b1e2ec702812e8da082aa0de67e5bd1d30699a0bfdb21f8a4e71e8c0658",
-        "size": 418768
+        "sha256": "fd4db1f1a2ea571d092f7899f0882ac1d3196e9543d476df49eebe2a9c2ef0cd",
+        "size": 486886
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3075,6 +3075,11 @@
         "size": 1395
       },
       {
+        "path": "pages/runbooks/rds-backup-and-recovery-runbook.md",
+        "sha256": "65252360494194dcf0c59ded3084bfc6ada23ae4bb24626b21b7ab81195a82cc",
+        "size": 2863
+      },
+      {
         "path": "pages/runbooks/track-nft-purchases-ethereum.md",
         "sha256": "c1593f782aa6bd2d66cb239d497f64c7c98edc370521b5abdfa12d960e93580a",
         "size": 3685
@@ -3093,6 +3098,11 @@
         "path": "pages/systems/engineering-home.md",
         "sha256": "33e80d75fcc279d7f9a931ce315d507b98ed19971007e9e63f7b04b9e61a672a",
         "size": 2127
+      },
+      {
+        "path": "pages/systems/external-services-tracking.md",
+        "sha256": "4b8df99635190cf83bc63b90b81ef89bb42fa06ae67f2a7495cc010d5fb9abc2",
+        "size": 1216
       },
       {
         "path": "pages/systems/new-product-intake.md",
@@ -3114,8 +3124,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T06:28:48Z",
-  "file_count": 621,
+  "exported_at": "2026-05-05T06:34:33Z",
+  "file_count": 623,
   "files": [
     {
       "path": ".usage.json",
@@ -5882,20 +5892,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "daca404f9b3d965f01130ced484af5ff4bb53ba87aad91f16139600f4bf3fc99",
+  "previous_tree_hash": "d8f04a88ae0994e04669476336fca0186781cc6eefc284e65b3520f7be73ea7d",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "f70be7d7f63510c737060361d12401db62355ef3460dc89fbe783a2f35611a81",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d8f04a88ae0994e04669476336fca0186781cc6eefc284e65b3520f7be73ea7d",
+  "tree_hash": "5eeebd147aa049dc22004f35a4759d63dd8613028835db0cc7fc6fc956b2222f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 69,
+  "wiki_file_count": 71,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5904,13 +5914,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "21924f7b76f232b47df5ef69e366799106bb5cbd655e81b6f96b7e9c8fd563f1",
-      "size": 202904
+      "sha256": "0a2b6125d33649859e01d6cdb2890fbe8ca656d6999990c4efd805fea09ef6ca",
+      "size": 249726
     },
     {
       "path": "log.md",
-      "sha256": "b4bb0b1e2ec702812e8da082aa0de67e5bd1d30699a0bfdb21f8a4e71e8c0658",
-      "size": 418768
+      "sha256": "fd4db1f1a2ea571d092f7899f0882ac1d3196e9543d476df49eebe2a9c2ef0cd",
+      "size": 486886
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6208,6 +6218,11 @@
       "size": 1395
     },
     {
+      "path": "pages/runbooks/rds-backup-and-recovery-runbook.md",
+      "sha256": "65252360494194dcf0c59ded3084bfc6ada23ae4bb24626b21b7ab81195a82cc",
+      "size": 2863
+    },
+    {
       "path": "pages/runbooks/track-nft-purchases-ethereum.md",
       "sha256": "c1593f782aa6bd2d66cb239d497f64c7c98edc370521b5abdfa12d960e93580a",
       "size": 3685
@@ -6228,6 +6243,11 @@
       "size": 2127
     },
     {
+      "path": "pages/systems/external-services-tracking.md",
+      "sha256": "4b8df99635190cf83bc63b90b81ef89bb42fa06ae67f2a7495cc010d5fb9abc2",
+      "size": 1216
+    },
+    {
       "path": "pages/systems/new-product-intake.md",
       "sha256": "bb8c04b26350bd5fbd98ee7e69ce0fee8bcd235e8ab7fc90bd2433a8be131668",
       "size": 1093
@@ -6244,5 +6264,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7cecb668c021e78092caf509b8fa5ccb0cea540b574ea9e4a70bd87b6585b21a"
+  "wiki_tree_hash": "26f1d38a87fcf53aab0f1dac30727ebc59aed6dac5a316d684d8241d5d067066"
 }
