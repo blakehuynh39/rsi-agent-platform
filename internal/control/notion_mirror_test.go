@@ -141,23 +141,24 @@ func TestNotionMirrorRunnerMirrorsPageAndWritesCheckpoint(t *testing.T) {
 }
 
 type fakeNotionGraphAPI struct {
-	pages                   map[string]clients.NotionPage
-	databases               map[string]clients.NotionDatabase
-	dataSources             map[string]clients.NotionDataSource
-	markdown                map[string]clients.NotionPageMarkdown
-	markdownErrors          map[string]error
-	children                map[string][]clients.NotionBlock
-	databaseRows            map[string][]clients.NotionPage
-	dataSourceRows          map[string][]clients.NotionPage
-	pageTypeMismatch        map[string]bool
-	dbTypeMismatch          map[string]bool
-	dataSourceTypeMismatch  map[string]bool
-	retrievePageCalls       map[string]int
-	retrieveDataSourceCalls map[string]int
-	retrieveMarkdownCalls   map[string]int
-	queryDataSourceCalls    map[string]int
-	queryDataSourceOptions  map[string]clients.NotionDataSourceQueryOptions
-	listBlockCalls          map[string]int
+	pages                     map[string]clients.NotionPage
+	databases                 map[string]clients.NotionDatabase
+	dataSources               map[string]clients.NotionDataSource
+	markdown                  map[string]clients.NotionPageMarkdown
+	markdownErrors            map[string]error
+	children                  map[string][]clients.NotionBlock
+	databaseRows              map[string][]clients.NotionPage
+	dataSourceRows            map[string][]clients.NotionPage
+	pageTypeMismatch          map[string]bool
+	dbTypeMismatch            map[string]bool
+	dbNoAccessibleDataSources map[string]bool
+	dataSourceTypeMismatch    map[string]bool
+	retrievePageCalls         map[string]int
+	retrieveDataSourceCalls   map[string]int
+	retrieveMarkdownCalls     map[string]int
+	queryDataSourceCalls      map[string]int
+	queryDataSourceOptions    map[string]clients.NotionDataSourceQueryOptions
+	listBlockCalls            map[string]int
 }
 
 func (f *fakeNotionGraphAPI) RetrievePage(ctx context.Context, pageID string) (clients.NotionPage, error) {
@@ -179,6 +180,9 @@ func (f *fakeNotionGraphAPI) RetrieveDatabase(ctx context.Context, databaseID st
 	databaseID = normalizeNotionID(databaseID)
 	if f.dbTypeMismatch[databaseID] {
 		return clients.NotionDatabase{}, notionEndpointTypeMismatchError("page", "database")
+	}
+	if f.dbNoAccessibleDataSources[databaseID] {
+		return clients.NotionDatabase{}, notionDatabaseNoAccessibleDataSourcesError(databaseID)
 	}
 	if database, ok := f.databases[databaseID]; ok {
 		return database, nil
@@ -278,6 +282,13 @@ func notionEndpointTypeMismatchError(actual string, requested string) clients.No
 	return clients.NotionAPIError{
 		StatusCode: 400,
 		Body:       `{"object":"error","status":400,"code":"validation_error","message":"Provided ID abc is a ` + actual + `, not a ` + requested + `. Use the retrieve ` + actual + ` API instead."}`,
+	}
+}
+
+func notionDatabaseNoAccessibleDataSourcesError(databaseID string) clients.NotionAPIError {
+	return clients.NotionAPIError{
+		StatusCode: 400,
+		Body:       `{"object":"error","status":400,"code":"validation_error","message":"Database with ID ` + databaseID + ` does not contain any data sources accessible by this API bot."}`,
 	}
 }
 
@@ -750,6 +761,98 @@ func TestNotionMirrorArchivedPageMarksSourceRecordStale(t *testing.T) {
 	if record.Status != store.SourceMirrorStatusStale {
 		t.Fatalf("record status = %s, want stale", record.Status)
 	}
+	if record.Metadata["archived"] != true {
+		t.Fatalf("record archived metadata = %v, want true", record.Metadata["archived"])
+	}
+	if record.Metadata["in_trash"] != false {
+		t.Fatalf("record in_trash metadata = %v, want false", record.Metadata["in_trash"])
+	}
+	if record.Metadata["stale_reason"] != "notion page is archived" {
+		t.Fatalf("record stale_reason = %v", record.Metadata["stale_reason"])
+	}
+}
+
+func TestNotionMirrorArchivedDataSourceMarksSourceRecordStale(t *testing.T) {
+	state := store.NewMemoryStore()
+	honcho := &fakeControlHonchoDocuments{}
+	cfg := config.Config{
+		Environment:                "stage",
+		SourceMirrorCheckpointRoot: t.TempDir(),
+		HonchoWorkspaceID:          "rsi_company_knowledge",
+	}
+	rootID := "rootpage"
+	databaseID := "databaseabc"
+	dataSourceID := "datasourceabc"
+	api := &fakeNotionGraphAPI{
+		dataSources: map[string]clients.NotionDataSource{
+			dataSourceID: {
+				Object:         "data_source",
+				ID:             dataSourceID,
+				Name:           "Archived data source",
+				LastEditedTime: "2026-05-02T10:00:00.000Z",
+				Archived:       true,
+				InTrash:        true,
+			},
+		},
+	}
+	mirror := companyknowledge.NewNotionMirror(state, honcho, companyknowledge.NotionMirrorOptions{Environment: "stage", HonchoWorkspace: "rsi_company_knowledge"})
+	runner, err := newNotionMirrorRunner(cfg, api, state, mirror, rootID)
+	if err != nil {
+		t.Fatalf("newNotionMirrorRunner() error = %v", err)
+	}
+	if err := runner.mirrorDataSource(context.Background(), dataSourceID, databaseID, rootID, nil); err != nil {
+		t.Fatalf("mirrorDataSource() error = %v", err)
+	}
+	record, found, err := state.GetSourceMirrorRecord(companyknowledge.NotionDocumentSourceType, companyknowledge.NotionObjectSourceKey("notion", companyknowledge.NotionObjectKindDataSource, dataSourceID))
+	if err != nil || !found {
+		t.Fatalf("stale data source record found=%t err=%v", found, err)
+	}
+	if record.Status != store.SourceMirrorStatusStale {
+		t.Fatalf("record status = %s, want stale", record.Status)
+	}
+	if record.Metadata["archived"] != true || record.Metadata["in_trash"] != true {
+		t.Fatalf("record stale metadata = %+v, want archived and in_trash true", record.Metadata)
+	}
+	if record.Metadata["database_id"] != databaseID {
+		t.Fatalf("record database_id = %v, want %s", record.Metadata["database_id"], databaseID)
+	}
+	if record.Metadata["stale_reason"] != "notion data source is archived and in trash" {
+		t.Fatalf("record stale_reason = %v", record.Metadata["stale_reason"])
+	}
+}
+
+func TestNotionMirrorPageTypeMismatchFallbackExhaustionRecordsCrawlMiss(t *testing.T) {
+	state := store.NewMemoryStore()
+	honcho := &fakeControlHonchoDocuments{}
+	cfg := config.Config{
+		Environment:                "stage",
+		SourceMirrorCheckpointRoot: t.TempDir(),
+		HonchoWorkspaceID:          "rsi_company_knowledge",
+	}
+	objectID := "unknownobject"
+	api := &fakeNotionGraphAPI{
+		pageTypeMismatch:       map[string]bool{objectID: true},
+		dataSourceTypeMismatch: map[string]bool{objectID: true},
+	}
+	mirror := companyknowledge.NewNotionMirror(state, honcho, companyknowledge.NotionMirrorOptions{Environment: "stage", HonchoWorkspace: "rsi_company_knowledge"})
+	runner, err := newNotionMirrorRunner(cfg, api, state, mirror, objectID)
+	if err != nil {
+		t.Fatalf("newNotionMirrorRunner() error = %v", err)
+	}
+	if err := runner.mirrorPage(context.Background(), objectID, objectID, nil); err != nil {
+		t.Fatalf("mirrorPage() should record a crawl miss instead of returning type mismatch, got error = %v", err)
+	}
+	crawlMissKey := companyknowledge.NotionCrawlMissSourceKey("notion", objectID, objectID)
+	record, found, err := state.GetSourceMirrorRecord(companyknowledge.NotionCrawlMissSourceType, crawlMissKey)
+	if err != nil || !found {
+		t.Fatalf("crawl miss record found=%t err=%v", found, err)
+	}
+	if record.Status != store.SourceMirrorStatusStale {
+		t.Fatalf("crawl miss status = %s, want stale", record.Status)
+	}
+	if record.Metadata["target_object_kind"] != "page" {
+		t.Fatalf("crawl miss target_object_kind = %v", record.Metadata["target_object_kind"])
+	}
 }
 
 func TestNotionMirrorRootNotFound404ReturnsError(t *testing.T) {
@@ -821,6 +924,47 @@ func TestNotionMirrorChildDatabase404RecordsCrawlMiss(t *testing.T) {
 	}
 	if record.Status != store.SourceMirrorStatusStale {
 		t.Fatalf("crawl miss record status = %s, want stale", record.Status)
+	}
+}
+
+func TestNotionMirrorChildDatabaseNoAccessibleDataSourcesRecordsCrawlMiss(t *testing.T) {
+	state := store.NewMemoryStore()
+	honcho := &fakeControlHonchoDocuments{}
+	cfg := config.Config{
+		Environment:                "stage",
+		SourceMirrorCheckpointRoot: t.TempDir(),
+		HonchoWorkspaceID:          "rsi_company_knowledge",
+	}
+	rootID := "rootpage"
+	childDBID := "inaccessibledb"
+	api := &fakeNotionGraphAPI{
+		pages: map[string]clients.NotionPage{
+			rootID: notionTestPage(rootID, "Root", false),
+		},
+		markdown: map[string]clients.NotionPageMarkdown{
+			rootID: {Object: "markdown", ID: rootID, Markdown: `<database url="` + notionTestReferenceURL(childDBID) + `">Inaccessible DB</database>`},
+		},
+		dbNoAccessibleDataSources: map[string]bool{childDBID: true},
+	}
+	mirror := companyknowledge.NewNotionMirror(state, honcho, companyknowledge.NotionMirrorOptions{Environment: "stage", HonchoWorkspace: "rsi_company_knowledge"})
+	runner, err := newNotionMirrorRunner(cfg, api, state, mirror, rootID)
+	if err != nil {
+		t.Fatalf("newNotionMirrorRunner() error = %v", err)
+	}
+	err = runner.mirrorRoot(context.Background(), rootID)
+	if err != nil {
+		t.Fatalf("mirrorRoot() should succeed despite child database with inaccessible data sources, got error = %v", err)
+	}
+	crawlMissKey := companyknowledge.NotionCrawlMissSourceKey("notion", rootID, childDBID)
+	record, found, err := state.GetSourceMirrorRecord(companyknowledge.NotionCrawlMissSourceType, crawlMissKey)
+	if err != nil || !found {
+		t.Fatalf("crawl miss record found=%t err=%v", found, err)
+	}
+	if record.Status != store.SourceMirrorStatusStale {
+		t.Fatalf("crawl miss record status = %s, want stale", record.Status)
+	}
+	if record.Metadata["reason"] != "notion database has no data sources accessible by this API bot" {
+		t.Fatalf("crawl miss reason = %v", record.Metadata["reason"])
 	}
 }
 

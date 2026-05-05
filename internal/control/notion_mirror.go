@@ -293,14 +293,14 @@ func (r *notionMirrorRunner) mirrorPage(ctx context.Context, pageID string, root
 			if !isNotionNotFound(dbErr) && !isNotionDatabaseEndpointTypeMismatch(dbErr) {
 				return dbErr
 			}
-			dataSourceErr := r.mirrorDataSource(ctx, pageID, "", rootID, hierarchy)
+			dataSource, dataSourceErr := r.api.RetrieveDataSource(ctx, pageID)
 			if dataSourceErr == nil {
-				return nil
+				return r.mirrorLoadedDataSource(ctx, pageID, "", rootID, hierarchy, dataSource)
 			}
 			if !isNotionNotFound(dataSourceErr) && !isNotionDataSourceEndpointTypeMismatch(dataSourceErr) {
 				return dataSourceErr
 			}
-			return r.recordCrawlMiss(ctx, rootID, pageID, "page", "notion object type mismatch and fallback endpoints failed")
+			return r.recordCrawlMiss(ctx, rootID, pageID, "page", "notion object was not reachable as page, database, or data source")
 		}
 		return err
 	}
@@ -332,10 +332,8 @@ func (r *notionMirrorRunner) claimPage(pageID string) bool {
 
 func (r *notionMirrorRunner) mirrorPageData(ctx context.Context, pageID string, rootID string, hierarchy []string, page clients.NotionPage) error {
 	if notionObjectInTrash(page.Archived, page.InTrash) {
-		return r.markNotionObjectStale(pageID, companyknowledge.NotionObjectKindPage, rootID, "notion page is in trash", map[string]any{
-			"archived": page.Archived,
-			"in_trash": page.InTrash,
-		})
+		reason := notionObjectStaleReason(companyknowledge.NotionObjectKindPage, page.Archived, page.InTrash)
+		return r.markNotionObjectStale(pageID, companyknowledge.NotionObjectKindPage, rootID, reason, notionObjectStaleMetadata(page.Archived, page.InTrash, nil))
 	}
 	title := notionPageTitle(page)
 	if title == "" {
@@ -516,13 +514,18 @@ func (r *notionMirrorRunner) mirrorDatabase(ctx context.Context, databaseID stri
 			}
 			return r.mirrorPage(ctx, databaseID, rootID, hierarchy)
 		}
+		if isNotionDatabaseNoAccessibleDataSources(err) {
+			isRoot := databaseID == normalizeNotionID(rootID) && hierarchy == nil
+			if isRoot {
+				return err
+			}
+			return r.recordCrawlMiss(ctx, rootID, databaseID, "database", "notion database has no data sources accessible by this API bot")
+		}
 		return err
 	}
 	if notionObjectInTrash(database.Archived, database.InTrash) {
-		return r.markNotionObjectStale(databaseID, companyknowledge.NotionObjectKindDatabase, rootID, "notion database is in trash", map[string]any{
-			"archived": database.Archived,
-			"in_trash": database.InTrash,
-		})
+		reason := notionObjectStaleReason(companyknowledge.NotionObjectKindDatabase, database.Archived, database.InTrash)
+		return r.markNotionObjectStale(databaseID, companyknowledge.NotionObjectKindDatabase, rootID, reason, notionObjectStaleMetadata(database.Archived, database.InTrash, nil))
 	}
 	r.dbCount++
 	if r.dbCount > r.maxDBs {
@@ -620,11 +623,10 @@ func (r *notionMirrorRunner) mirrorLoadedDataSource(ctx context.Context, dataSou
 
 func (r *notionMirrorRunner) mirrorClaimedDataSource(ctx context.Context, dataSourceID string, databaseID string, rootID string, hierarchy []string, dataSource clients.NotionDataSource) error {
 	if notionObjectInTrash(dataSource.Archived, dataSource.InTrash) {
-		return r.markNotionObjectStale(dataSourceID, companyknowledge.NotionObjectKindDataSource, rootID, "notion data source is in trash", map[string]any{
-			"archived":    dataSource.Archived,
-			"in_trash":    dataSource.InTrash,
+		reason := notionObjectStaleReason(companyknowledge.NotionObjectKindDataSource, dataSource.Archived, dataSource.InTrash)
+		return r.markNotionObjectStale(dataSourceID, companyknowledge.NotionObjectKindDataSource, rootID, reason, notionObjectStaleMetadata(dataSource.Archived, dataSource.InTrash, map[string]any{
 			"database_id": normalizeNotionID(databaseID),
-		})
+		}))
 	}
 	r.dbCount++
 	if r.dbCount > r.maxDBs {
@@ -1178,6 +1180,14 @@ func isNotionDatabaseEndpointTypeMismatch(err error) bool {
 	return isNotionRequestedTypeMismatch(err, "database")
 }
 
+func isNotionDatabaseNoAccessibleDataSources(err error) bool {
+	var apiErr clients.NotionAPIError
+	if !errors.As(err, &apiErr) || apiErr.StatusCode != 400 {
+		return false
+	}
+	return strings.Contains(strings.ToLower(apiErr.Body), "does not contain any data sources accessible")
+}
+
 func isNotionDataSourceEndpointTypeMismatch(err error) bool {
 	return isNotionRequestedTypeMismatch(err, "data source") || isNotionRequestedTypeMismatch(err, "data_source")
 }
@@ -1194,6 +1204,30 @@ func isNotionRequestedTypeMismatch(err error, requested string) bool {
 
 func notionObjectInTrash(archived bool, inTrash bool) bool {
 	return archived || inTrash
+}
+
+func notionObjectStaleReason(objectKind string, archived bool, inTrash bool) string {
+	label := strings.ReplaceAll(strings.TrimSpace(objectKind), "_", " ")
+	if label == "" {
+		label = "object"
+	}
+	switch {
+	case archived && inTrash:
+		return "notion " + label + " is archived and in trash"
+	case archived:
+		return "notion " + label + " is archived"
+	case inTrash:
+		return "notion " + label + " is in trash"
+	default:
+		return "notion " + label + " is unavailable"
+	}
+}
+
+func notionObjectStaleMetadata(archived bool, inTrash bool, extra map[string]any) map[string]any {
+	return mergeStringAnyMaps(map[string]any{
+		"archived": archived,
+		"in_trash": inTrash,
+	}, extra)
 }
 
 func notionDatabaseDataSourceIDs(database clients.NotionDatabase) []string {
