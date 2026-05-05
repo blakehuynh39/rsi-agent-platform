@@ -300,6 +300,10 @@ func (s *MemoryStore) applyWorkflowCommandLocked(command transition.CommandEnvel
 		receipt: buildCommandReceipt(command, decision.TransitionDecision, workflow.UpdatedAt, workflow.Version, workflow.ID),
 		bundle:  buildCommandBundle(command, decision.TransitionDecision, workflow.Version),
 	}
+	if decision.DecisionKind == transition.DecisionAdvance &&
+		transition.WorkflowCommandKind(command.CommandKind) == transition.CommandWorkflowStarted {
+		s.appendSessionTitleSummaryEffectLocked(&result.bundle, command, workflow)
+	}
 	s.appendWorkflowLineFollowOnCommandLocked(&result.bundle, command, workflow)
 	if decision.DecisionKind == transition.DecisionAdvance &&
 		transition.WorkflowCommandKind(command.CommandKind) == transition.CommandWorkflowStarted &&
@@ -309,6 +313,59 @@ func (s *MemoryStore) applyWorkflowCommandLocked(command transition.CommandEnvel
 		}
 	}
 	return result, nil
+}
+
+func (s *MemoryStore) appendSessionTitleSummaryEffectLocked(bundle *transitionPersistBundle, parent transition.CommandEnvelope, workflow Workflow) {
+	traceID := strings.TrimSpace(workflow.TraceID)
+	if traceID == "" {
+		return
+	}
+	trace, ok := s.traces[traceID]
+	if !ok {
+		return
+	}
+	ingestion, _ := findIngestion(s.ingestions, workflow.IngestionID)
+	rawTitle := strings.TrimSpace(ingestion.Text)
+	if rawTitle == "" {
+		if event := s.findEventByTraceLocked(trace); event != nil {
+			rawTitle = strings.TrimSpace(event.NormalizedProblemStatement)
+		}
+	}
+	if rawTitle == "" {
+		return
+	}
+	now := parent.OccurredAt
+	if now.IsZero() {
+		now = time.Now().UTC()
+	}
+	payload := cloneMetadata(commandPayload(parent))
+	if payload == nil {
+		payload = map[string]any{}
+	}
+	payload["command_kind"] = parent.CommandKind
+	payload["reason"] = "queued async session title summary"
+	payload["trace_id"] = trace.Summary.TraceID
+	payload["workflow_id"] = workflow.ID
+	payload["conversation_id"] = workflow.ConversationID
+	payload["case_id"] = workflow.CaseID
+	payload["ingestion_id"] = workflow.IngestionID
+	payload["workflow_kind"] = workflow.Kind
+	payload["raw_title"] = rawTitle
+	payload["resume_queue"] = firstNonEmpty(stringFromCommand(parent, "resume_queue"), string(queue.WorkflowQueue))
+	payload["queue_name"] = firstNonEmpty(stringFromCommand(parent, "resume_queue"), string(queue.WorkflowQueue))
+	payload["scope_key"] = "session-title:" + trace.Summary.TraceID
+	payload["task_class"] = effectTaskClassSimple
+	bundle.Effects = append(bundle.Effects, transition.EffectExecution{
+		ID:             nextUUID("eff"),
+		MachineKind:    transition.MachineWorkflow,
+		AggregateID:    workflow.ID,
+		EffectKind:     transition.EffectSummarizeSessionTitle,
+		Status:         transition.EffectQueued,
+		IdempotencyKey: fmt.Sprintf("%s:summarize_session_title:%s", workflow.ID, trace.Summary.TraceID),
+		Payload:        payload,
+		CreatedAt:      now,
+		UpdatedAt:      now,
+	})
 }
 
 func (s *MemoryStore) appendWorkflowStartCommandFromEventLocked(bundle *transitionPersistBundle, parent transition.CommandEnvelope, eventID string) {

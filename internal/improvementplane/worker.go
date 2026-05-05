@@ -1027,7 +1027,7 @@ func processEvalRun(cfg config.Config, store storepkg.Store, runnerClient runner
 		runnerEvent.Status = events.StatusFailed
 		runnerEvent.Description = fmt.Sprintf("Eval runner unavailable; kept deterministic results only: %v", runnerErr)
 	}
-	if _, err := submitProblemLineTraceProjection(
+	if _, err := SubmitProblemLineTraceProjection(
 		store,
 		trace.Summary.TraceID,
 		cfg.ServiceName,
@@ -1346,7 +1346,7 @@ func observeSandboxJob(cfg config.Config, store storepkg.Store, launcher sandbox
 				},
 			})
 		}
-		if _, err := submitProblemLineTraceProjection(
+		if _, err := SubmitProblemLineTraceProjection(
 			store,
 			trace.Summary.TraceID,
 			cfg.ServiceName,

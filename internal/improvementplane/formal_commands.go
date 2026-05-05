@@ -61,7 +61,7 @@ func loadPromotionResultFromReceipt(store storepkg.Store, receipt transition.Com
 	}, nil
 }
 
-func submitProblemLineTraceProjection(store storepkg.Store, traceID string, actor string, occurredAt time.Time, commandID string, update storepkg.TraceUpdate) (transition.CommandReceipt, error) {
+func SubmitProblemLineTraceProjection(store storepkg.Store, traceID string, actor string, occurredAt time.Time, commandID string, update storepkg.TraceUpdate) (transition.CommandReceipt, error) {
 	payload := map[string]any{
 		"trace_id":        traceID,
 		"trace_events":    update.Events,

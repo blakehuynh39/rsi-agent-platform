@@ -33,6 +33,7 @@ const (
 	EffectInvokeAction               EffectKind = "invoke_action"
 	EffectOpenWorkspace              EffectKind = "open_workspace"
 	EffectInvokeRunner               EffectKind = "invoke_runner"
+	EffectSummarizeSessionTitle      EffectKind = "summarize_session_title"
 	EffectPostSlackReply             EffectKind = "post_slack_reply"
 	EffectWorkspaceValidate          EffectKind = "workspace_validate"
 	EffectObserveWorkspaceValidation EffectKind = "observe_workspace_validation"

@@ -107,6 +107,85 @@ func TestWorkflowRunnerUsesHermesExecutorWhenConfigured(t *testing.T) {
 	}
 }
 
+func TestSessionTitleEffectProjectsGeneratedTitle(t *testing.T) {
+	var received clients.RunnerTask
+	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/execute" {
+			t.Fatalf("runner path = %q, want /execute", r.URL.Path)
+		}
+		var payload struct {
+			Task clients.RunnerTask `json:"task"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("Decode() error = %v", err)
+		}
+		received = payload.Task
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":       true,
+			"provider": "fake",
+			"message":  `{"session_title":"Investigate Staging Homepage"}`,
+			"raw": map[string]any{
+				"structured_output": map[string]any{
+					"session_title": "Investigate Staging Homepage",
+					"confidence":    0.87,
+				},
+			},
+		})
+	}))
+	defer runner.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             runner.URL,
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+	titleEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectSummarizeSessionTitle)
+	if err := processSessionTitleEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, titleEffect); err != nil {
+		t.Fatalf("processSessionTitleEffect() error = %v", err)
+	}
+
+	if received.TaskType != "general" {
+		t.Fatalf("title task type = %q, want general", received.TaskType)
+	}
+	if !containsString(received.ExpectedOutputs, "session_title") {
+		t.Fatalf("title task expected_outputs = %#v, want session_title", received.ExpectedOutputs)
+	}
+	if received.ReplyDeliveryMode != "none" {
+		t.Fatalf("title task reply_delivery_mode = %q, want none", received.ReplyDeliveryMode)
+	}
+	if !strings.Contains(received.Prompt, "Latest Slack request:") {
+		t.Fatalf("title task prompt missing latest request: %q", received.Prompt)
+	}
+
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatal("expected trace")
+	}
+	var foundTitle events.ReasoningStep
+	for _, step := range trace.Reasoning {
+		if step.StepType == "session_title" {
+			foundTitle = step
+			break
+		}
+	}
+	if foundTitle.Summary != "Investigate Staging Homepage" || foundTitle.Decision != "set_session_title" {
+		t.Fatalf("projected session title reasoning = %+v", foundTitle)
+	}
+	assertWorkflowEffectStatus(t, store, workflowItem.workflowID, transition.EffectSummarizeSessionTitle, transition.EffectCompleted)
+}
+
 func TestWorkflowRunnerStartsAsyncHermesExecutionAndDefersEffect(t *testing.T) {
 	fallbackRunner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		t.Fatalf("unexpected fallback runner call to %s", r.URL.Path)

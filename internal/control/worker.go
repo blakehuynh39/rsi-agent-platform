@@ -17,6 +17,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/harness"
+	"github.com/piplabs/rsi-agent-platform/internal/improvementplane"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
@@ -194,9 +195,105 @@ func handleClaimedExecutionEffect(cfg config.Config, store storepkg.Store, runne
 	switch {
 	case effect.MachineKind == transition.MachineWorkflow && effect.EffectKind == transition.EffectInvokeRunner:
 		handleClaimedWorkflowRunnerEffect(cfg, store, runnerClients, effect)
+	case effect.MachineKind == transition.MachineWorkflow && effect.EffectKind == transition.EffectSummarizeSessionTitle:
+		handleClaimedSessionTitleEffect(cfg, store, runnerClients, effect)
 	default:
 		_ = failClaimedEffect(store, effect, fmt.Sprintf("unsupported execution effect %s/%s", effect.MachineKind, effect.EffectKind))
 	}
+}
+
+func handleClaimedSessionTitleEffect(cfg config.Config, store storepkg.Store, runnerClients map[string]*clients.RunnerClient, effect transition.EffectExecution) {
+	if err := processSessionTitleEffect(cfg, store, runnerClients, effect); err != nil {
+		if failErr := failClaimedEffect(store, effect, err.Error()); failErr != nil {
+			log.Printf("control-plane title effect=%s aggregate=%s fail_error=%v", effect.ID, effect.AggregateID, failErr)
+		}
+		log.Printf("control-plane title effect=%s aggregate=%s error=%v", effect.ID, effect.AggregateID, err)
+	}
+}
+
+func processSessionTitleEffect(cfg config.Config, store storepkg.Store, runnerClients map[string]*clients.RunnerClient, effect transition.EffectExecution) error {
+	ctx, queueName, err := loadWorkflowContextForEffect(store, effect)
+	if err != nil {
+		return err
+	}
+	if isTerminalTraceStatus(ctx.trace.Summary.Status) {
+		return completeClaimedEffect(store, effect, ctx.trace.Summary.TraceID)
+	}
+	runnerRole := runnerRoleForQueue(queueName)
+	runnerClient := runnerClients[runnerRole]
+	hermesExecutorURLs := cfg.HermesExecutorURLs()
+	hermesExecutorBaseURL := ""
+	if len(hermesExecutorURLs) > 0 {
+		hermesExecutorBaseURL = strings.TrimSpace(hermesExecutorURLs[0])
+	}
+	useHermesExecutor := hermesExecutorBaseURL != ""
+	if runnerClient == nil && !useHermesExecutor {
+		return fmt.Errorf("runner client unavailable for session title queue %s", queueName)
+	}
+	started := time.Now().UTC()
+	runnerTask := buildSessionTitleRunnerTask(cfg, store, runnerRole, ctx, stringFromMap(effect.Payload, "raw_title"))
+	runnerTask.OperationID = effect.ID
+	runnerTask.ExecutionID = workflowExecutionID(effect.ID+":session-title", started)
+	executorClient := runnerClient
+	if useHermesExecutor {
+		executorClient = clients.NewRunnerClientWithTimeout(hermesExecutorBaseURL, cfg.RunnerTimeoutForRole(runnerRole))
+	}
+	var runnerResp clients.RunnerResponse
+	if useHermesExecutor {
+		runnerResp, err = executorClient.ExecuteHermesExecution(runnerTask)
+	} else {
+		runnerResp, err = executorClient.Execute(runnerTask)
+	}
+	if err != nil {
+		return err
+	}
+	if !runnerResp.OK {
+		return fmt.Errorf("session title runner failed: %s", firstNonEmpty(strings.TrimSpace(runnerResp.Message), "runner returned ok=false"))
+	}
+	output, err := runnerutil.ParseStructuredOutput(runnerResp)
+	if err != nil {
+		return err
+	}
+	title := normalizeGeneratedSessionTitle(output.SessionTitle)
+	if title == "" {
+		return errors.New("session title runner returned empty session_title")
+	}
+	completed := time.Now().UTC()
+	update := storepkg.TraceUpdate{
+		Events: []events.TraceEvent{
+			{
+				TraceID:     ctx.trace.Summary.TraceID,
+				IngestionID: ctx.trace.Summary.IngestionID,
+				WorkflowID:  ctx.trace.Summary.WorkflowID,
+				Plane:       "control",
+				Service:     cfg.ServiceName,
+				Actor:       "session-title-summarizer",
+				EventType:   "session.title.summarized",
+				Status:      events.StatusCompleted,
+				StartedAt:   started,
+				EndedAt:     &completed,
+				Description: "Generated a short session title from the Slack request.",
+			},
+		},
+		Reasoning: []events.ReasoningStep{
+			{
+				ID:             fmt.Sprintf("reason-session-title-%d", completed.UnixNano()),
+				TraceID:        ctx.trace.Summary.TraceID,
+				WorkflowID:     ctx.trace.Summary.WorkflowID,
+				ConversationID: ctx.trace.Summary.ConversationID,
+				CaseID:         ctx.trace.Summary.CaseID,
+				StepType:       "session_title",
+				Summary:        title,
+				Confidence:     firstNonZeroFloat(output.Confidence, 0.9),
+				Decision:       "set_session_title",
+				CreatedAt:      completed,
+			},
+		},
+	}
+	if _, err := improvementplane.SubmitProblemLineTraceProjection(store, ctx.trace.Summary.TraceID, cfg.ServiceName, completed, fmt.Sprintf("cmd-problem-line:%s:session-title:%s", ctx.trace.Summary.TraceID, effect.ID), update); err != nil {
+		return err
+	}
+	return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:session-title", ctx.trace.Summary.TraceID))
 }
 
 func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runnerClients map[string]*clients.RunnerClient, effect transition.EffectExecution) error {
@@ -1190,6 +1287,81 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		WorkspacePolicy: runnerutil.WorkspacePolicyFromConfig(cfg),
 		ApprovalPolicy:  runnerApprovalPolicy(replyDeliveryMode == "direct"),
 	}
+}
+
+func buildSessionTitleRunnerTask(cfg config.Config, store storepkg.Store, role string, ctx workflowContext, rawTitle string) clients.RunnerTask {
+	effectiveHarness := harness.ResolveEffectiveConfig(store, role, cfg.DefaultReasoningVerbosity)
+	conversationEntries := store.ListConversationEntries(ctx.trace.Summary.ConversationID)
+	recentEntries := recentConversationEntries(conversationEntries)
+	userRequest := firstNonEmpty(strings.TrimSpace(rawTitle), runnerUserRequest(ctx.ingestion))
+	if userRequest == "" {
+		userRequest = firstNonEmpty(ctx.workflow.Kind, ctx.workflow.Intent, ctx.trace.Summary.TraceID)
+	}
+	promptParts := []string{
+		"Rewrite the latest Slack request into a concise session title.",
+		"Use 3-8 words.",
+		"Omit @mentions, channel names, filler phrases, and implementation details that are not part of the ask.",
+		"Do not answer the request.",
+		"Return only a JSON object. Fill session_title and leave all other structured-output fields empty.",
+		fmt.Sprintf("Latest Slack request:\n%s", userRequest),
+	}
+	if len(recentEntries) > 1 {
+		promptParts = append(promptParts, "Recent thread entries are attached only to resolve references such as \"this\" or \"that PR\"; title the latest request, not the whole thread.")
+	}
+	systemMessage := harness.ComposeSystemMessage(
+		"Write compact product-style conversation titles. Return JSON only with session_title as a concise 3-8 word rewrite of the latest user ask. Do not use tools. Do not include @mentions or Slack boilerplate.",
+		effectiveHarness,
+	)
+	return clients.RunnerTask{
+		TaskType:                  "general",
+		Repo:                      cfg.DefaultRepo,
+		RepoRef:                   "main",
+		Prompt:                    strings.Join(promptParts, "\n\n"),
+		SystemMessage:             systemMessage,
+		AllowedCommands:           []string{},
+		TimeoutSeconds:            60,
+		ExpectedOutputs:           []string{"session_title"},
+		ContextSummary:            "Generate a short display title for the latest Slack-triggered RSI session.",
+		Intent:                    "session_title",
+		TraceID:                   ctx.trace.Summary.TraceID,
+		WorkflowID:                ctx.trace.Summary.WorkflowID,
+		ConversationID:            ctx.trace.Summary.ConversationID,
+		CaseID:                    ctx.trace.Summary.CaseID,
+		ChannelID:                 ctx.ingestion.ChannelID,
+		ThreadTS:                  ctx.ingestion.ThreadTS,
+		TriggerEventID:            ctx.trace.Summary.TriggerEventID,
+		RecentConversationEntries: recentEntries,
+		RepoAllowlist:             cfg.AllowedTargetRepos,
+		ReplyDeliveryMode:         "none",
+		ReasoningVerbosity:        effectiveHarness.ReasoningVerbosity,
+		SessionScopeKind:          "trace",
+		SessionScopeID:            ctx.trace.Summary.TraceID,
+		ParentSessionScopeKind:    "conversation",
+		ParentSessionScopeID:      ctx.trace.Summary.ConversationID,
+		HarnessProfileID:          effectiveHarness.Profile.ID,
+		HarnessOverlayVersion:     effectiveHarness.EffectiveOverlayVersion,
+		MemoryBackend:             harness.DefaultMemoryBackend,
+		AssistantPeerID:           fmt.Sprintf("rsi:%s:%s:title", cfg.Environment, role),
+		UserPeerID:                workflowUserPeerID(conversationEntries, "trace", ctx.trace.Summary.TraceID),
+		ContractVersion:           clients.RunnerExecutionContractVersion,
+		ExecutionIntent: map[string]any{
+			"kind":         "session_title",
+			"intent":       ctx.workflow.Intent,
+			"user_request": userRequest,
+			"task_type":    "session_title",
+		},
+		DeliveryPolicy:  clients.NewRunnerDeliveryPolicy(ctx.ingestion.ChannelID, ctx.ingestion.ThreadTS, "none", strings.Join(nonEmptyStrings(ctx.ingestion.ChannelID, ctx.ingestion.ThreadTS, ctx.trace.Summary.TraceID, "title"), ":")),
+		WorkspacePolicy: runnerutil.WorkspacePolicyFromConfig(cfg),
+		ApprovalPolicy:  runnerApprovalPolicy(false),
+	}
+}
+
+func normalizeGeneratedSessionTitle(value string) string {
+	value = strings.Trim(strings.TrimSpace(value), "\"'`")
+	if value == "" {
+		return ""
+	}
+	return conversation.NormalizeTitle("", strings.Join(strings.Fields(value), " "))
 }
 
 func runnerDeliveryPolicy(channelID string, threadTS string, replyDeliveryMode string, traceID string) *clients.RunnerDeliveryPolicy {
@@ -2334,6 +2506,15 @@ func firstNonZeroTime(items ...time.Time) time.Time {
 	return time.Time{}
 }
 
+func firstNonZeroFloat(items ...float64) float64 {
+	for _, item := range items {
+		if item != 0 {
+			return item
+		}
+	}
+	return 0
+}
+
 func loadWorkflowContextForEffect(store storepkg.Store, effect transition.EffectExecution) (workflowContext, queue.QueueName, error) {
 	workflow, err := workflowLocatorForEffect(store, effect)
 	if err != nil {
@@ -2532,12 +2713,14 @@ func claimNextExecutionEffect(cfg config.Config, store storepkg.Store, holder st
 			cfg.EffectMaxConcurrentPerScope,
 			[]storepkg.EffectClaimSelector{
 				{MachineKind: transition.MachineWorkflow, EffectKind: transition.EffectInvokeRunner},
+				{MachineKind: transition.MachineWorkflow, EffectKind: transition.EffectSummarizeSessionTitle},
 			},
 		)
 	}
 	for _, effect := range store.ListEffectExecutions() {
 		switch {
 		case effect.MachineKind == transition.MachineWorkflow && effect.EffectKind == transition.EffectInvokeRunner:
+		case effect.MachineKind == transition.MachineWorkflow && effect.EffectKind == transition.EffectSummarizeSessionTitle:
 		default:
 			continue
 		}
