@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "ea2cc08a80d03ef1864df66bbb7171460756cd9293edb1d81beb35921df69de4",
-        "size": 687723
+        "sha256": "38ff99ae0f6af619cf858c4e0ee72156ae76bb1fbf0dcc5aea9091b451a31540",
+        "size": 688032
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3100,6 +3100,11 @@
         "size": 1170
       },
       {
+        "path": "pages/projects/eu-website-releases-tasks.md",
+        "sha256": "76bbfcecb315c49948e530789eae76f7f79729369431b080ef8ce7fa07b13f95",
+        "size": 2920
+      },
+      {
         "path": "pages/projects/gif-project.md",
         "sha256": "3e5cf596c6709957c7161bd32f1e8e94e07ffbab069d382deb9405bdafb5e2a1",
         "size": 2580
@@ -3294,8 +3299,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T09:56:43Z",
-  "file_count": 657,
+  "exported_at": "2026-05-05T10:02:36Z",
+  "file_count": 658,
   "files": [
     {
       "path": ".usage.json",
@@ -6062,20 +6067,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "57d5c06ecf97ddb50728c73c822565e816dbfb1b8e31d2e2840499538aab58a2",
+  "previous_tree_hash": "fef42d81161dbfaa9db7bce60fc4911dc420b20338da1c61af6b4141d93363d2",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "fef42d81161dbfaa9db7bce60fc4911dc420b20338da1c61af6b4141d93363d2",
+  "tree_hash": "a155cbaca50d7629f4944b129c33a6125326db10c4b6eeb8e757984fae23fca8",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 105,
+  "wiki_file_count": 106,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6089,8 +6094,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "ea2cc08a80d03ef1864df66bbb7171460756cd9293edb1d81beb35921df69de4",
-      "size": 687723
+      "sha256": "38ff99ae0f6af619cf858c4e0ee72156ae76bb1fbf0dcc5aea9091b451a31540",
+      "size": 688032
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6413,6 +6418,11 @@
       "size": 1170
     },
     {
+      "path": "pages/projects/eu-website-releases-tasks.md",
+      "sha256": "76bbfcecb315c49948e530789eae76f7f79729369431b080ef8ce7fa07b13f95",
+      "size": 2920
+    },
+    {
       "path": "pages/projects/gif-project.md",
       "sha256": "3e5cf596c6709957c7161bd32f1e8e94e07ffbab069d382deb9405bdafb5e2a1",
       "size": 2580
@@ -6604,5 +6614,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1ea3c2b73fcd36fd6083a9a70e0e83c2730980444420069475ac43b1b4a8f22c"
+  "wiki_tree_hash": "d12ac474fac69da9d93e16aa08c8e037abb00d7c16bb2a3824a0f726a0543da2"
 }

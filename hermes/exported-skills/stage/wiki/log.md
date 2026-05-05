@@ -13642,3 +13642,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2cd84e5fea2aa476c4741d3c67b59e59
 - summary: The Notion document for EU Backend Design currently contains no content.
 
+## [2026-05-05T09:59:15Z] synthesis | EU Website Releases and Tasks
+
+- status: published
+- slug: projects/eu-website-releases-tasks
+- wiki_revision_id: wikirev_ba131dec0965ceb4c06cda0cb7935652
+- summary: Planning and tracking of major updates to the EU website, including scrum boards and upcoming features.
+
