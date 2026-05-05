@@ -15,15 +15,16 @@ import type { DashboardTheme, ThemeTypography, ThemeLayout } from "./types";
 // Shared typography / layout presets
 // ---------------------------------------------------------------------------
 
-/** Default system stack — neutral, safe fallback for every platform. */
+/** Default fallbacks after the bundled Nous/Hermes DS fonts. */
 const SYSTEM_SANS =
   'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 const SYSTEM_MONO =
   'ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace';
 
 const DEFAULT_TYPOGRAPHY: ThemeTypography = {
-  fontSans: SYSTEM_SANS,
-  fontMono: SYSTEM_MONO,
+  fontSans: `var(--font-sans), ${SYSTEM_SANS}`,
+  fontMono: `var(--font-mono), ${SYSTEM_MONO}`,
+  fontDisplay: `var(--font-rules-expanded), var(--font-sans), ${SYSTEM_SANS}`,
   baseSize: "15px",
   lineHeight: "1.55",
   letterSpacing: "0",

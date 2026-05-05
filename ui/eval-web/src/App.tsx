@@ -616,6 +616,7 @@ export default function App() {
             <div
               className={cn(
                 "relative z-2 flex min-w-0 min-h-0 flex-1 flex-col",
+                "font-sans normal-case",
                 "px-3 sm:px-6",
                 isChatRoute
                   ? "pb-3 pt-1 sm:pb-4 sm:pt-2 lg:pt-4"
