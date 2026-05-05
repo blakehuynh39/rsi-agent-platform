@@ -13768,3 +13768,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_84f63f128f4e30866e6d83c663e022a1
 - summary: A collection of design documents for the backend systems, including API specs, data model, security, cloud infrastructure, and workflows.
 
+## [2026-05-05T11:23:16Z] synthesis | DevEx
+
+- status: published
+- slug: concepts/devex
+- wiki_revision_id: wikirev_64dbb295e321bb5a2015cc244d2a4efc
+- summary: The DevEx Notion page serves as a hub for developer experience documentation, linking to key resources such as AWS accounts, Kubernetes clusters, and CLI tools.
+

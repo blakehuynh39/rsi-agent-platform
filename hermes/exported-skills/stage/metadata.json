@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "2b222d355a21ccda3f777f8dbc6c19482357bf7aca57d92dc621cfdc41e80702",
-        "size": 693725
+        "sha256": "10504af408b122e7a973903abb7381dac6ba8b26b67a36f3f4d15269b26bd81c",
+        "size": 694047
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2808,6 +2808,11 @@
         "path": "pages/concepts/dev-resources.md",
         "sha256": "b90ab48e4eeceb821d3f400957a3930c1cd422e90024d3c44d273cea7b6acd54",
         "size": 2298
+      },
+      {
+        "path": "pages/concepts/devex.md",
+        "sha256": "210572832edd4a0c73c01acac25daae06fa3b0f7f0b3db9cea4dd0b93cbd1241",
+        "size": 1246
       },
       {
         "path": "pages/concepts/dutch-auction-minting.md",
@@ -3374,8 +3379,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T11:22:31Z",
-  "file_count": 673,
+  "exported_at": "2026-05-05T11:28:24Z",
+  "file_count": 674,
   "files": [
     {
       "path": ".usage.json",
@@ -6142,20 +6147,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "644d87f110ca5afedc94bfba7d5223ca61e9b6c6ee7a99546011259494837634",
+  "previous_tree_hash": "4f1d8bfe95e8c8bb0075aac44a575c60adc6580764a36f6f3b3e7dd9c24bbd2a",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4f1d8bfe95e8c8bb0075aac44a575c60adc6580764a36f6f3b3e7dd9c24bbd2a",
+  "tree_hash": "91c4b2e775cb25757d46c48788a7af6b4b3bd9bb41d937b2fa1e851bcf52747e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 121,
+  "wiki_file_count": 122,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6169,8 +6174,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "2b222d355a21ccda3f777f8dbc6c19482357bf7aca57d92dc621cfdc41e80702",
-      "size": 693725
+      "sha256": "10504af408b122e7a973903abb7381dac6ba8b26b67a36f3f4d15269b26bd81c",
+      "size": 694047
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6201,6 +6206,11 @@
       "path": "pages/concepts/dev-resources.md",
       "sha256": "b90ab48e4eeceb821d3f400957a3930c1cd422e90024d3c44d273cea7b6acd54",
       "size": 2298
+    },
+    {
+      "path": "pages/concepts/devex.md",
+      "sha256": "210572832edd4a0c73c01acac25daae06fa3b0f7f0b3db9cea4dd0b93cbd1241",
+      "size": 1246
     },
     {
       "path": "pages/concepts/dutch-auction-minting.md",
@@ -6764,5 +6774,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d2761b18a677c21ce5db31b75fbc72de107f4d790eead4eea4d91ca4d1b0d8d7"
+  "wiki_tree_hash": "8b6b39e2fe44d7d593291c670a33f8fcdc0a2f03395033e775960c67ef1a2d66"
 }
