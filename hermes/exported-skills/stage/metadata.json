@@ -2776,13 +2776,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "cc721607631aee1bde257accb1e31ed28bc82128085c0d81e8307b46553ea230",
-        "size": 423849
+        "sha256": "5f9c25f85a8e68bf5a0a7338c83d9b49fc4edf4bc20777b8d037deab2aaef218",
+        "size": 424483
       },
       {
         "path": "log.md",
-        "sha256": "6140f861bc272f781e40a77752204ca415f0986411cea5a9efdf2c1cdc109263",
-        "size": 729869
+        "sha256": "1fd82390c2dbaf4a3f6706a5b41a49df96d8bcc95af14c8c0bbee3166b9a8fe3",
+        "size": 730527
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3470,6 +3470,11 @@
         "size": 4415
       },
       {
+        "path": "pages/projects/gcp-gke-l1-orchestration-setup.md",
+        "sha256": "dc18a2b3549544e2460d5d3b7836eb60df5840b99aa277d1da93d81458fd9d07",
+        "size": 1336
+      },
+      {
         "path": "pages/projects/gif-project.md",
         "sha256": "3e5cf596c6709957c7161bd32f1e8e94e07ffbab069d382deb9405bdafb5e2a1",
         "size": 2580
@@ -3603,6 +3608,11 @@
         "path": "pages/projects/project-nova-setup.md",
         "sha256": "20d6eaabc2405dd40acf8f7335c5b0c67fe902e2ba03e308ad743a965042d941",
         "size": 1109
+      },
+      {
+        "path": "pages/projects/protocol-beta-mainnet.md",
+        "sha256": "708e2716dcd1ee387834e9fab274355f9598ff5ff6ff4b1a26909e471d17deae",
+        "size": 4862
       },
       {
         "path": "pages/projects/rcade-music-app.md",
@@ -3844,8 +3854,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T22:13:35Z",
-  "file_count": 767,
+  "exported_at": "2026-05-05T22:19:34Z",
+  "file_count": 769,
   "files": [
     {
       "path": ".usage.json",
@@ -6617,20 +6627,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6c4dc4j5wtx",
-  "previous_tree_hash": "24fe644673409c8520ee2a064432f3fa82ffc227a70d65e0647bc80a0e675483",
+  "previous_tree_hash": "c26959835b39f847e190055ba58bf553dd64adb52026737a7704efd6375bd357",
   "schema_version": 1,
   "skill_file_count": 553,
   "skill_manage_sessions": [],
   "skill_tree_hash": "082879971280a210c4b46b42d09584c3f9c1a3fe002a72f50ffe2d355b92cd03",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c26959835b39f847e190055ba58bf553dd64adb52026737a7704efd6375bd357",
+  "tree_hash": "4e5f9b79b4559bc9f1c42432035acde953a300b94a8caf0c061b786f1146fd96",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 214,
+  "wiki_file_count": 216,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6639,13 +6649,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "cc721607631aee1bde257accb1e31ed28bc82128085c0d81e8307b46553ea230",
-      "size": 423849
+      "sha256": "5f9c25f85a8e68bf5a0a7338c83d9b49fc4edf4bc20777b8d037deab2aaef218",
+      "size": 424483
     },
     {
       "path": "log.md",
-      "sha256": "6140f861bc272f781e40a77752204ca415f0986411cea5a9efdf2c1cdc109263",
-      "size": 729869
+      "sha256": "1fd82390c2dbaf4a3f6706a5b41a49df96d8bcc95af14c8c0bbee3166b9a8fe3",
+      "size": 730527
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7333,6 +7343,11 @@
       "size": 4415
     },
     {
+      "path": "pages/projects/gcp-gke-l1-orchestration-setup.md",
+      "sha256": "dc18a2b3549544e2460d5d3b7836eb60df5840b99aa277d1da93d81458fd9d07",
+      "size": 1336
+    },
+    {
       "path": "pages/projects/gif-project.md",
       "sha256": "3e5cf596c6709957c7161bd32f1e8e94e07ffbab069d382deb9405bdafb5e2a1",
       "size": 2580
@@ -7466,6 +7481,11 @@
       "path": "pages/projects/project-nova-setup.md",
       "sha256": "20d6eaabc2405dd40acf8f7335c5b0c67fe902e2ba03e308ad743a965042d941",
       "size": 1109
+    },
+    {
+      "path": "pages/projects/protocol-beta-mainnet.md",
+      "sha256": "708e2716dcd1ee387834e9fab274355f9598ff5ff6ff4b1a26909e471d17deae",
+      "size": 4862
     },
     {
       "path": "pages/projects/rcade-music-app.md",
@@ -7704,5 +7724,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5dd0d4824e1e7cd39e3d5478c2283c9b94797684d51fa83f8d787b7afda71350"
+  "wiki_tree_hash": "55fbf1c08f84de518ccd32b35849c6a74f4a9ddaff7efb833afec140b3f0660b"
 }

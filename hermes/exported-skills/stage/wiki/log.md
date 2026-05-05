@@ -14521,3 +14521,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7b89b7f176370cf6597e4f018c697341
 - summary: Plan to stress test the blockchain network using real data to find baseline performance and recommended node specs. Setup includes 2s block time, 50 c5.large nodes across regions, ...
 
+## [2026-05-05T22:18:09Z] synthesis | Protocol: beta → mainnet
+
+- status: published
+- slug: projects/protocol-beta-mainnet
+- wiki_revision_id: wikirev_a369ce80611869afce031d327d010d5b
+- summary: Project plan and timeline to move the protocol from beta to mainnet, with milestones, weekly tasks, and quality goals.
+
+## [2026-05-05T22:18:57Z] synthesis | GCP (GKE) - L1 Orchestration Setup
+
+- status: published
+- slug: projects/gcp-gke-l1-orchestration-setup
+- wiki_revision_id: wikirev_628f153b4396c5c538643ce63adbe8d1
+- summary: A project or runbook page for GKE L1 orchestration setup, but the source document currently contains no detailed information.
+
