@@ -14041,3 +14041,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d465b5b9045ae692100a0a455839e974
 - summary: A module for reputation and attestation, discussed in the Story Protocol Slack workspace.
 
+## [2026-05-05T15:22:42Z] synthesis | Dispute Module Improvements
+
+- status: published
+- slug: projects/dispute-module-improvements
+- wiki_revision_id: wikirev_d9ef4aa85e0129961570c78b3d4a26fe
+- summary: The dispute module requires significant work to standardize information collection, accusation categories, and the appeals process. It must handle multiple dispute categories acros...
+
+## [2026-05-05T15:24:36Z] synthesis | Bridging Evaluation
+
+- status: published
+- slug: concepts/bridging-evaluation
+- wiki_revision_id: wikirev_f96fbd0b99bc9d5425bf61fbdda479cb
+- summary: Evaluation criteria for cross-chain bridging protocols, comparing Wormhole, LayerZero, DeBridge, HyperLane, Axelar, and Polyhedra.
+
