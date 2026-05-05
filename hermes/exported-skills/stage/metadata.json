@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "9821e11d21be72d6119cba5d527a88fb3f13caa126d30d43c411a2e1fef11483",
-        "size": 720531
+        "sha256": "2b00fa003a82e7dc4ab8370d4ac6aa817156f66817602900acbc519f92cc33fb",
+        "size": 721354
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2998,6 +2998,11 @@
         "path": "pages/concepts/ppl-protocol-support.md",
         "sha256": "dc8513f93dfad71352f6539caeacd36112039ac58ba1343baa683d3ee51bcd50",
         "size": 1120
+      },
+      {
+        "path": "pages/concepts/programmable-blockchain-framework-design-goals.md",
+        "sha256": "6db741afe4e1f6c321651d3a4d994bff709bef423af3e4b66cba93d06348aac5",
+        "size": 4207
       },
       {
         "path": "pages/concepts/prophet-pfp-concept.md",
@@ -3228,6 +3233,11 @@
         "path": "pages/open-questions/royalty-dilution-feedback.md",
         "sha256": "e593e720ef6eeb2c360e2ac2ef73f75eecaedeca5ef010eb2b1c9cbf9589fe0c",
         "size": 2853
+      },
+      {
+        "path": "pages/open-questions/sp-precompile-candidates.md",
+        "sha256": "4d95e7403e0f2596a1ffec6e52aa2b0f526b8d8d95cf4fb654b7e50ea41a9b26",
+        "size": 3834
       },
       {
         "path": "pages/policies/database-table-naming-conventions.md",
@@ -3714,8 +3724,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T18:46:50Z",
-  "file_count": 741,
+  "exported_at": "2026-05-05T18:52:47Z",
+  "file_count": 743,
   "files": [
     {
       "path": ".usage.json",
@@ -6482,20 +6492,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbkb88g",
-  "previous_tree_hash": "2a0353b621b6a93ba45dcee511f15242f6a8ce6b7981327d8cd97d359d2c533a",
+  "previous_tree_hash": "75e79197af18aabb3fc4cc5b276f61d68991bb6563b6623edacfdfa2dfe3a17c",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "75e79197af18aabb3fc4cc5b276f61d68991bb6563b6623edacfdfa2dfe3a17c",
+  "tree_hash": "38768d5b34d4336ea0f97b0e855054ca7555f217a82c4badb0434ef00028cc25",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 189,
+  "wiki_file_count": 191,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6509,8 +6519,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "9821e11d21be72d6119cba5d527a88fb3f13caa126d30d43c411a2e1fef11483",
-      "size": 720531
+      "sha256": "2b00fa003a82e7dc4ab8370d4ac6aa817156f66817602900acbc519f92cc33fb",
+      "size": 721354
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6731,6 +6741,11 @@
       "path": "pages/concepts/ppl-protocol-support.md",
       "sha256": "dc8513f93dfad71352f6539caeacd36112039ac58ba1343baa683d3ee51bcd50",
       "size": 1120
+    },
+    {
+      "path": "pages/concepts/programmable-blockchain-framework-design-goals.md",
+      "sha256": "6db741afe4e1f6c321651d3a4d994bff709bef423af3e4b66cba93d06348aac5",
+      "size": 4207
     },
     {
       "path": "pages/concepts/prophet-pfp-concept.md",
@@ -6961,6 +6976,11 @@
       "path": "pages/open-questions/royalty-dilution-feedback.md",
       "sha256": "e593e720ef6eeb2c360e2ac2ef73f75eecaedeca5ef010eb2b1c9cbf9589fe0c",
       "size": 2853
+    },
+    {
+      "path": "pages/open-questions/sp-precompile-candidates.md",
+      "sha256": "4d95e7403e0f2596a1ffec6e52aa2b0f526b8d8d95cf4fb654b7e50ea41a9b26",
+      "size": 3834
     },
     {
       "path": "pages/policies/database-table-naming-conventions.md",
@@ -7444,5 +7464,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "03e311711a120bbc78f3dff3804a157e113c60a581d1b3e98319c6d48727e148"
+  "wiki_tree_hash": "6957b274a235c078f27a8213b702afc4bac414abe63d4435d8d30192689e541c"
 }

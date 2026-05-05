@@ -14332,3 +14332,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f13d5bd9255873701ee4df4565514ca8
 - summary: Discussion and resources on enshrined protocol, covering precompiles, examples from other L1s (Dydx, Berachain, Frame), and SP-specific candidates.
 
+## [2026-05-05T18:48:03Z] synthesis | SP Precompile Candidates
+
+- status: published
+- slug: open-questions/sp-precompile-candidates
+- wiki_revision_id: wikirev_8103ea22e7790f74273358e569d4e160
+- summary: Brainstorming potential precompile candidates for Story Protocol, focusing on high gas cost, high frequency operations and unique SP features like licensing registration, royalty c...
+
+## [2026-05-05T18:48:47Z] synthesis | Design Goals of the Programmable Blockchain Framework
+
+- status: published
+- slug: concepts/programmable-blockchain-framework-design-goals
+- wiki_revision_id: wikirev_90ccde87f62a4ab1b258863a72a4688a
+- summary: The design goals for the programmable blockchain framework include programmability via an interface definition DSL, scalability, security, support for different transportation laye...
+
+## [2026-05-05T18:53:18Z] synthesis | Precompile Code Examples
+
+- status: published
+- slug: concepts/precompile-code-examples
+- wiki_revision_id: wikirev_64d347c9888652823c7f919094e12fa2
+- summary: A collection of code examples for Ethereum mainnet precompiles (Cancun upgrade) and Berachain stateful/stateless precompiles, including Solidity interfaces and Go implementations.
+
