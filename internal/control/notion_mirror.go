@@ -132,20 +132,8 @@ func RunNotionMirror(ctx context.Context, cfg config.Config, mirrorStore store.S
 		if err := runner.mirrorRoot(ctx, rootID); err != nil {
 			return err
 		}
-		runner.checkpoint.LastCompletedAt = time.Now().UTC()
-		runner.checkpoint.LastPageCount = runner.pageCount
-		runner.checkpoint.LastDatabaseCount = runner.dbCount
-		if runner.truncated {
-			runner.checkpoint.TraversalStatus = companyknowledge.NotionTraversalTruncated
-		} else {
-			runner.checkpoint.TraversalStatus = companyknowledge.NotionTraversalComplete
-		}
-		if err := writeNotionMirrorCheckpoint(cfg.SourceMirrorCheckpointRoot, runner.checkpoint); err != nil {
+		if err := runner.finishRoot(rootID); err != nil {
 			return err
-		}
-		log.Printf("notion mirror root=%s complete pages=%d databases=%d traversal=%s", rootID, runner.pageCount, runner.dbCount, runner.checkpoint.TraversalStatus)
-		if runner.truncated {
-			return fmt.Errorf("notion mirror root=%s produced a truncated traversal; refusing clean success", rootID)
 		}
 	}
 	return nil
@@ -231,6 +219,26 @@ func (r *notionMirrorRunner) mirrorRoot(ctx context.Context, rootID string) erro
 		return fmt.Errorf("retrieve notion data source root=%s: %w", rootID, dataSourceErr)
 	}
 	return fmt.Errorf("notion allowlist root %s is neither a visible page, database, nor data source", rootID)
+}
+
+func (r *notionMirrorRunner) finishRoot(rootID string) error {
+	rootID = normalizeNotionID(rootID)
+	r.checkpoint.LastCompletedAt = time.Now().UTC()
+	r.checkpoint.LastPageCount = r.pageCount
+	r.checkpoint.LastDatabaseCount = r.dbCount
+	if r.truncated {
+		r.checkpoint.TraversalStatus = companyknowledge.NotionTraversalTruncated
+	} else {
+		r.checkpoint.TraversalStatus = companyknowledge.NotionTraversalComplete
+	}
+	if err := writeNotionMirrorCheckpoint(r.cfg.SourceMirrorCheckpointRoot, r.checkpoint); err != nil {
+		return err
+	}
+	log.Printf("notion mirror root=%s complete pages=%d databases=%d traversal=%s", rootID, r.pageCount, r.dbCount, r.checkpoint.TraversalStatus)
+	if r.truncated {
+		log.Printf("notion mirror root=%s completed with truncated document content; affected pages remain eligible for retry", rootID)
+	}
+	return nil
 }
 
 func (r *notionMirrorRunner) mirrorDirtyObjects(ctx context.Context, rootID string) error {

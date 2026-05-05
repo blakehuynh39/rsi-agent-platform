@@ -1218,6 +1218,56 @@ func TestNotionMirrorMarkdownUnknownBlocksDoNotFailRoot(t *testing.T) {
 	}
 }
 
+func TestNotionMirrorTruncatedMarkdownDoesNotFailRootFinalization(t *testing.T) {
+	state := store.NewMemoryStore()
+	honcho := &fakeControlHonchoDocuments{}
+	cfg := config.Config{
+		Environment:                "stage",
+		SourceMirrorCheckpointRoot: t.TempDir(),
+		HonchoWorkspaceID:          "rsi_company_knowledge",
+	}
+	rootID := "rootpage"
+	api := &fakeNotionGraphAPI{
+		pages: map[string]clients.NotionPage{
+			rootID: notionTestPage(rootID, "Root", false),
+		},
+		markdown: map[string]clients.NotionPageMarkdown{
+			rootID: {Object: "markdown", ID: rootID, Markdown: "Root body", Truncated: true},
+		},
+	}
+	mirror := companyknowledge.NewNotionMirror(state, honcho, companyknowledge.NotionMirrorOptions{Environment: "stage", HonchoWorkspace: "rsi_company_knowledge"})
+	runner, err := newNotionMirrorRunner(cfg, api, state, mirror, rootID)
+	if err != nil {
+		t.Fatalf("new runner: %v", err)
+	}
+	if err := runner.mirrorRoot(context.Background(), rootID); err != nil {
+		t.Fatalf("mirrorRoot() should not fail on truncated markdown: %v", err)
+	}
+	if !runner.truncated {
+		t.Fatalf("runner.truncated = false, want true")
+	}
+	if err := runner.finishRoot(rootID); err != nil {
+		t.Fatalf("finishRoot() should not fail on truncated markdown: %v", err)
+	}
+	checkpoint, err := readNotionMirrorCheckpoint(cfg.SourceMirrorCheckpointRoot, rootID)
+	if err != nil {
+		t.Fatalf("read checkpoint: %v", err)
+	}
+	if checkpoint.TraversalStatus != companyknowledge.NotionTraversalTruncated {
+		t.Fatalf("checkpoint traversal_status = %q, want %q", checkpoint.TraversalStatus, companyknowledge.NotionTraversalTruncated)
+	}
+	if checkpoint.LastCompletedAt.IsZero() {
+		t.Fatalf("checkpoint LastCompletedAt was not written")
+	}
+	record, found, err := state.GetSourceMirrorRecord(companyknowledge.NotionDocumentSourceType, companyknowledge.NotionDocumentSourceKey("notion", rootID))
+	if err != nil || !found || record.Status != store.SourceMirrorStatusComplete {
+		t.Fatalf("source record found=%t err=%v record=%+v", found, err, record)
+	}
+	if record.Metadata["truncated"] != true {
+		t.Fatalf("source record truncated metadata = %v, want true", record.Metadata["truncated"])
+	}
+}
+
 func TestNotionMirrorDirtyObjectCheckpointAcceleratesPageCrawl(t *testing.T) {
 	state := store.NewMemoryStore()
 	honcho := &fakeControlHonchoDocuments{}
