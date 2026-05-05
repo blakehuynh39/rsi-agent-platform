@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "a7ab98e27ec1c917462b366149ffeb3c79b173f95dd5efc4e4812c9265199e40",
-        "size": 697339
+        "sha256": "e4cfece6656dd8766df1ef94091de39f30cd63fdf9d518b4f2ea953b62bb66fb",
+        "size": 698205
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3205,14 +3205,19 @@
         "size": 4670
       },
       {
+        "path": "pages/projects/lens-open-action-integration.md",
+        "sha256": "e84382b66e4ccb213075cd02b4ba853aab8d990e1cb4687cb89c58dabe0aa5cc",
+        "size": 4404
+      },
+      {
         "path": "pages/projects/lens-protocol-deep-dive.md",
-        "sha256": "8932edf678a4a2da88ed127a58d51088341577df47d301540a7fac704c795a9a",
-        "size": 1214
+        "sha256": "c78c17a1664966741de798c5ec9badc9219d3d50bd976c38838ec6c0213a466f",
+        "size": 1252
       },
       {
         "path": "pages/projects/lens-v2.md",
-        "sha256": "7e470b4c99b114f132837df3ae3ce50836feeecd1383a8b01414c2e5a6d865a7",
-        "size": 1150
+        "sha256": "0c29b75458afe95f235b37fadd7a8779647cb8a53a8b33f01f40bc0a5374ecc2",
+        "size": 1188
       },
       {
         "path": "pages/projects/license-receipt-functionality.md",
@@ -3414,8 +3419,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T12:39:53Z",
-  "file_count": 681,
+  "exported_at": "2026-05-05T12:45:50Z",
+  "file_count": 682,
   "files": [
     {
       "path": ".usage.json",
@@ -6182,20 +6187,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "2cba605e1b4e2bdb025715b94c13fa5df680d1e637cb96e144f6e6c0c5181f2a",
+  "previous_tree_hash": "e23a1464be874f7289556ffee4ef8b2f141ee79c9f8a1c336cf2f84e8f9c68da",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e23a1464be874f7289556ffee4ef8b2f141ee79c9f8a1c336cf2f84e8f9c68da",
+  "tree_hash": "6bbb40c5b1e234703691e60e5eea080be81275a081b9c60d2acaa8603952feae",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 129,
+  "wiki_file_count": 130,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6209,8 +6214,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "a7ab98e27ec1c917462b366149ffeb3c79b173f95dd5efc4e4812c9265199e40",
-      "size": 697339
+      "sha256": "e4cfece6656dd8766df1ef94091de39f30cd63fdf9d518b4f2ea953b62bb66fb",
+      "size": 698205
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6638,14 +6643,19 @@
       "size": 4670
     },
     {
+      "path": "pages/projects/lens-open-action-integration.md",
+      "sha256": "e84382b66e4ccb213075cd02b4ba853aab8d990e1cb4687cb89c58dabe0aa5cc",
+      "size": 4404
+    },
+    {
       "path": "pages/projects/lens-protocol-deep-dive.md",
-      "sha256": "8932edf678a4a2da88ed127a58d51088341577df47d301540a7fac704c795a9a",
-      "size": 1214
+      "sha256": "c78c17a1664966741de798c5ec9badc9219d3d50bd976c38838ec6c0213a466f",
+      "size": 1252
     },
     {
       "path": "pages/projects/lens-v2.md",
-      "sha256": "7e470b4c99b114f132837df3ae3ce50836feeecd1383a8b01414c2e5a6d865a7",
-      "size": 1150
+      "sha256": "0c29b75458afe95f235b37fadd7a8779647cb8a53a8b33f01f40bc0a5374ecc2",
+      "size": 1188
     },
     {
       "path": "pages/projects/license-receipt-functionality.md",
@@ -6844,5 +6854,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9cea7f46938aa7d6803dc695f3ee5e812eee3648c42beed4477bb78a9882db6c"
+  "wiki_tree_hash": "e7388757b00f86bbb95aa87fb9b9d97c6358fab2978da738f69de5ca811b24d8"
 }

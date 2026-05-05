@@ -13845,3 +13845,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_915fdc874c243745ca62ab33e7978c08
 - summary: Specification for the PFP project, a mechanism to bring contributors into the Emergence ecosystem via a legal contract and protocol integrations like licensing, IP assets, collect,...
 
+## [2026-05-05T12:41:20Z] synthesis | Lens Protocol Deep-dive
+
+- status: published
+- slug: projects/lens-protocol-deep-dive
+- wiki_revision_id: wikirev_77e1f89c6098363988418651ac65b9e4
+- summary: A deep-dive research page on Lens Protocol, part of the Protocol Research workspace.
+
+## [2026-05-05T12:41:20Z] synthesis | Lens V2
+
+- status: published
+- slug: projects/lens-v2
+- wiki_revision_id: wikirev_6b4ba46fade3fc59a46900b580e4984c
+- summary: A research page on Lens V2, part of the Protocol Research workspace.
+
+## [2026-05-05T12:41:20Z] synthesis | Lens Open Action Integration
+
+- status: published
+- slug: projects/lens-open-action-integration
+- wiki_revision_id: wikirev_dc1082529e9cff399353a6009e0665fb
+- summary: Integration of Lens Protocol open actions with Story Protocol for IP asset registration, including requirements, feedback, and open questions.
+

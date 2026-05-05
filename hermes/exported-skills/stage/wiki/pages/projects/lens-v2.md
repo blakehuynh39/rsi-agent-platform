@@ -25,10 +25,11 @@ A research page on Lens V2, part of the Protocol Research workspace.
 
 ## Related Pages
 
-- `lens-protocol-deep-dive`
+- `projects/lens-open-action-integration`
+- `projects/lens-protocol-deep-dive`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_88cc2d58f4933c59d9c467a9a0f52128`
-- `source_revision_id`: `srcrev_24191863050365d92f239621b3efbbcb`
-- `source_url`: [Notion source](https://www.notion.so/Protocol-Research-c9728704277d4d21ad9683066422c0eb)
+- `source_document_id`: `srcdoc_1d23805ec756e17b4a435a141416d1dc`
+- `source_revision_id`: `srcrev_5a336353243defb4e6d12bc2a708da38`
+- `source_url`: [Notion source](https://www.notion.so/Lens-0c9f5a1014564dadad4f578ebfa92d0a)
