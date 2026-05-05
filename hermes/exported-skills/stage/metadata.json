@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "ca2e7c057ca231426cf0a5456b6922abda82542af70fdb172b25a49468e48341",
-        "size": 714245
+        "sha256": "06be90a2e83eee6fbde867c214dc254bb3523ac928858fed94ba32139f57d21d",
+        "size": 714963
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3100,6 +3100,11 @@
         "size": 7046
       },
       {
+        "path": "pages/decisions/license-token-standard-evaluation.md",
+        "sha256": "d38939f4bf468400af175463560fb04d9fd1cfb1ba47de0596e1ff7655310c79",
+        "size": 3674
+      },
+      {
         "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
         "sha256": "8e9ec5fa2596e9a48b96836914d6bfd93708467d38f8cb9ada8cf4c2fd7883c6",
         "size": 1593
@@ -3133,6 +3138,11 @@
         "path": "pages/decisions/vote-ip-asset-interaction-levels.md",
         "sha256": "ccaef1ac467a46781d89190867847667c59191c6d1e7389d7bf8a256017896d1",
         "size": 3861
+      },
+      {
+        "path": "pages/decisions/web2-api-strategy.md",
+        "sha256": "c97eb782af64e77269c1cf1e0b2c376ecaf79a4497c63e83ff715d44d7dcd03c",
+        "size": 5348
       },
       {
         "path": "pages/open-questions/access-controller-repetitiveness.md",
@@ -3629,8 +3639,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T17:03:15Z",
-  "file_count": 724,
+  "exported_at": "2026-05-05T17:13:17Z",
+  "file_count": 726,
   "files": [
     {
       "path": ".usage.json",
@@ -6396,21 +6406,21 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "fc4a36e64bcfadc5c68c0de859c4483039dd418d25b4807d689bded4ae4f2a7d",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbkb88g",
+  "previous_tree_hash": "7a5228271900a4ea7abe7b7bcd79b2335dca3bb90d057f93ffac84d9ca2f3ed7",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7a5228271900a4ea7abe7b7bcd79b2335dca3bb90d057f93ffac84d9ca2f3ed7",
+  "tree_hash": "e9ced1cae8468b82b47c966f5840fdfaefd86f1fef80792a7e3e648e032e2a10",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 172,
+  "wiki_file_count": 174,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6424,8 +6434,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "ca2e7c057ca231426cf0a5456b6922abda82542af70fdb172b25a49468e48341",
-      "size": 714245
+      "sha256": "06be90a2e83eee6fbde867c214dc254bb3523ac928858fed94ba32139f57d21d",
+      "size": 714963
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6748,6 +6758,11 @@
       "size": 7046
     },
     {
+      "path": "pages/decisions/license-token-standard-evaluation.md",
+      "sha256": "d38939f4bf468400af175463560fb04d9fd1cfb1ba47de0596e1ff7655310c79",
+      "size": 3674
+    },
+    {
       "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
       "sha256": "8e9ec5fa2596e9a48b96836914d6bfd93708467d38f8cb9ada8cf4c2fd7883c6",
       "size": 1593
@@ -6781,6 +6796,11 @@
       "path": "pages/decisions/vote-ip-asset-interaction-levels.md",
       "sha256": "ccaef1ac467a46781d89190867847667c59191c6d1e7389d7bf8a256017896d1",
       "size": 3861
+    },
+    {
+      "path": "pages/decisions/web2-api-strategy.md",
+      "sha256": "c97eb782af64e77269c1cf1e0b2c376ecaf79a4497c63e83ff715d44d7dcd03c",
+      "size": 5348
     },
     {
       "path": "pages/open-questions/access-controller-repetitiveness.md",
@@ -7274,5 +7294,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6b120369bb0e18436b007b5e794cfff67271b219f23dc40d6b830378d871e21f"
+  "wiki_tree_hash": "df784a9daee24b28be509d602cbe326af6bfd7b941d828b33cf44af795f4192e"
 }

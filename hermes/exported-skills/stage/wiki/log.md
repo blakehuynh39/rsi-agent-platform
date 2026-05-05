@@ -14204,3 +14204,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_cfe94b01f4be61add34cd6cd938e21b5
 - summary: Source: [Notion source](https://www.notion.so/Implement-and-Test-Payment-Solution-for-P0-countries-Stripe-PoC-34f051299a5480508170ea006981f7a4)
 
+## [2026-05-05T17:04:38Z] synthesis | Web2 API Strategy
+
+- status: published
+- slug: decisions/web2-api-strategy
+- wiki_revision_id: wikirev_ac404d3afa40a6973b45d4b3316e318c
+- summary: Strategy to build a web2 API for Magma and repurpose it for other partners, treating non-Network partners as 'offchain'. Addresses ownership transfers, payments, royalties, cross-c...
+
+## [2026-05-05T17:09:53Z] synthesis | License Token: ERC-721 vs ERC-1155
+
+- status: published
+- slug: decisions/license-token-standard-evaluation
+- wiki_revision_id: wikirev_7a859f1cc59b4c087663a051538904a2
+- summary: Analysis of using ERC-721 vs ERC-1155 for License Tokens in Story Protocol, including benefits, downsides, and required changes.
+
