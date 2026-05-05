@@ -2771,13 +2771,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "080c2929dff745f2ba01ea9bc3c30fd8b60209b2eb71f0d97600c481deb89024",
-        "size": 422494
+        "sha256": "64bba7260a5e42d29cd395d25caf295527ffef78006ec3f92351056e90d99bd4",
+        "size": 423113
       },
       {
         "path": "log.md",
-        "sha256": "e3b918897589f6bee938e7c2702c8e8846542fb0899b01878fd320bf26a35363",
-        "size": 728466
+        "sha256": "322882dda976eba002fd56282c920fd0d3d37bba9a2c9d8000fde02f589740ae",
+        "size": 729109
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3335,6 +3335,11 @@
         "size": 5565
       },
       {
+        "path": "pages/policies/platform-team-secrets-access.md",
+        "sha256": "399065e92723c4188485d083248a95ca04df631bf0892870704825835ca59943",
+        "size": 1269
+      },
+      {
         "path": "pages/policies/product-intake-process.md",
         "sha256": "189f126e0ec2af949edd940f87e392b64757a32d26a9fe2582f1b344b3f3d8e9",
         "size": 6644
@@ -3463,6 +3468,11 @@
         "path": "pages/projects/global-wallet-solution.md",
         "sha256": "e5c1fdaff050c2162dd2304830ac4114401fef534397814bc841b0ec8e698d67",
         "size": 1175
+      },
+      {
+        "path": "pages/projects/hub-v1-backend.md",
+        "sha256": "8f847d0441c835b082f27a9b66d708e5ec450e19cbfaa6104950789cb7008001",
+        "size": 4080
       },
       {
         "path": "pages/projects/improved-mobile-app-tracking-platform.md",
@@ -3819,8 +3829,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T21:08:19Z",
-  "file_count": 762,
+  "exported_at": "2026-05-05T21:17:53Z",
+  "file_count": 764,
   "files": [
     {
       "path": ".usage.json",
@@ -6586,21 +6596,21 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-67cbbbfhg9t",
-  "previous_tree_hash": "2f83929571bf4d373b18d682c7816ab73009ef509fc2faa0c50a369123fec2be",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5d8748btzl4",
+  "previous_tree_hash": "9e88b800878d4882069e7c5071b90f3035ee804b94188e098dd0fe0a1142cadc",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "9e88b800878d4882069e7c5071b90f3035ee804b94188e098dd0fe0a1142cadc",
+  "tree_hash": "580b5da41d990723c17053685fe8963104df616a8c4f77afb3a9ba2f000241f8",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 210,
+  "wiki_file_count": 212,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6609,13 +6619,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "080c2929dff745f2ba01ea9bc3c30fd8b60209b2eb71f0d97600c481deb89024",
-      "size": 422494
+      "sha256": "64bba7260a5e42d29cd395d25caf295527ffef78006ec3f92351056e90d99bd4",
+      "size": 423113
     },
     {
       "path": "log.md",
-      "sha256": "e3b918897589f6bee938e7c2702c8e8846542fb0899b01878fd320bf26a35363",
-      "size": 728466
+      "sha256": "322882dda976eba002fd56282c920fd0d3d37bba9a2c9d8000fde02f589740ae",
+      "size": 729109
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7173,6 +7183,11 @@
       "size": 5565
     },
     {
+      "path": "pages/policies/platform-team-secrets-access.md",
+      "sha256": "399065e92723c4188485d083248a95ca04df631bf0892870704825835ca59943",
+      "size": 1269
+    },
+    {
       "path": "pages/policies/product-intake-process.md",
       "sha256": "189f126e0ec2af949edd940f87e392b64757a32d26a9fe2582f1b344b3f3d8e9",
       "size": 6644
@@ -7301,6 +7316,11 @@
       "path": "pages/projects/global-wallet-solution.md",
       "sha256": "e5c1fdaff050c2162dd2304830ac4114401fef534397814bc841b0ec8e698d67",
       "size": 1175
+    },
+    {
+      "path": "pages/projects/hub-v1-backend.md",
+      "sha256": "8f847d0441c835b082f27a9b66d708e5ec450e19cbfaa6104950789cb7008001",
+      "size": 4080
     },
     {
       "path": "pages/projects/improved-mobile-app-tracking-platform.md",
@@ -7654,5 +7674,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "73ed76bb0c3d441028f296912c6364da43932b080f09bfea9b990cacb9ab976f"
+  "wiki_tree_hash": "f8f07d39a4fb1518421f9cab8f78161ddea385a07c2e80eba5cb06c48538fd7a"
 }

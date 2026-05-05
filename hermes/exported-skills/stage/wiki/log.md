@@ -14493,3 +14493,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_5627535a6c357b5a3f8addce45ab3d48
 - summary: Engineering plans for Story Protocol L1, covering launch items, precompiles, proof-of-creativity, custom data types, partners, 1st-party apps, cross-chain, token design, staking, a...
 
+## [2026-05-05T21:17:02Z] synthesis | Hub v1 Backend
+
+- status: published
+- slug: projects/hub-v1-backend
+- wiki_revision_id: wikirev_f7480954d4ae7184e2707f32be7d7da8
+- summary: The Hub v1 will have a dedicated backend, preferably co-located on the same Kubernetes cluster. Data storage will split between Arweave (for NFT and IPA metadata) and a Web2 databa...
+
+## [2026-05-05T21:17:30Z] synthesis | Platform team secrets access
+
+- status: published
+- slug: policies/platform-team-secrets-access
+- wiki_revision_id: wikirev_fe28b4c49e3190facf95b5ed3ee9bfce
+- summary: The Notion document for platform team secrets access is currently empty.
+
