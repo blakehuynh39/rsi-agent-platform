@@ -2771,13 +2771,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "24e3fb655d131156948cd52ad58174bd857e9f374b873b6ebf18c713af1d8e90",
-        "size": 395772
+        "sha256": "0a1adc440eb61b2e0f21ac7af4afd103050aa60febd6e1f86ddf384646b0308f",
+        "size": 403248
       },
       {
         "path": "log.md",
-        "sha256": "8b93c1f988043a4b4b237095e278ee8af9208279d0dceb55f1884146d798829b",
-        "size": 704989
+        "sha256": "f69395ccf2751d2903f6f03272eed62d794549bce0c0417fbeff50594e607605",
+        "size": 705824
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3025,6 +3025,11 @@
         "size": 5011
       },
       {
+        "path": "pages/decisions/ip-account-wallet-architecture-decision.md",
+        "sha256": "347e26c4ac9aaed5a04c931ef4ffa936e50effb670e7481afcef222ae2493056",
+        "size": 11612
+      },
+      {
         "path": "pages/decisions/ip-asset-on-chain-metadata-design.md",
         "sha256": "e6c35e7d0313a28d0a55bf42d11d939076e0137ff80a290d7698ba4f275c02c7",
         "size": 5472
@@ -3058,6 +3063,11 @@
         "path": "pages/decisions/v2-monitoring-cicd-design.md",
         "sha256": "2914ed4fa1be697658882c87ff936acc631361a5be90e2eef5e66e59836b1f25",
         "size": 6568
+      },
+      {
+        "path": "pages/decisions/vote-ip-asset-interaction-levels.md",
+        "sha256": "ccaef1ac467a46781d89190867847667c59191c6d1e7389d7bf8a256017896d1",
+        "size": 3861
       },
       {
         "path": "pages/open-questions/access-controller-repetitiveness.md",
@@ -3514,8 +3524,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T14:58:07Z",
-  "file_count": 701,
+  "exported_at": "2026-05-05T15:14:08Z",
+  "file_count": 703,
   "files": [
     {
       "path": ".usage.json",
@@ -6282,20 +6292,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "d22ea7015423e492b32393a749a1757d282b3638d8497d6dd6112f894d526cd1",
+  "previous_tree_hash": "2567472af78730d70c41758bf8a1aa91cf20d0295679b97a149022c0f91b157d",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2567472af78730d70c41758bf8a1aa91cf20d0295679b97a149022c0f91b157d",
+  "tree_hash": "b34edd50aa7e0d35c7ec2f6710709a9af5267c9c325d743890bc0c56d9f65c61",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 149,
+  "wiki_file_count": 151,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6304,13 +6314,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "24e3fb655d131156948cd52ad58174bd857e9f374b873b6ebf18c713af1d8e90",
-      "size": 395772
+      "sha256": "0a1adc440eb61b2e0f21ac7af4afd103050aa60febd6e1f86ddf384646b0308f",
+      "size": 403248
     },
     {
       "path": "log.md",
-      "sha256": "8b93c1f988043a4b4b237095e278ee8af9208279d0dceb55f1884146d798829b",
-      "size": 704989
+      "sha256": "f69395ccf2751d2903f6f03272eed62d794549bce0c0417fbeff50594e607605",
+      "size": 705824
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6558,6 +6568,11 @@
       "size": 5011
     },
     {
+      "path": "pages/decisions/ip-account-wallet-architecture-decision.md",
+      "sha256": "347e26c4ac9aaed5a04c931ef4ffa936e50effb670e7481afcef222ae2493056",
+      "size": 11612
+    },
+    {
       "path": "pages/decisions/ip-asset-on-chain-metadata-design.md",
       "sha256": "e6c35e7d0313a28d0a55bf42d11d939076e0137ff80a290d7698ba4f275c02c7",
       "size": 5472
@@ -6591,6 +6606,11 @@
       "path": "pages/decisions/v2-monitoring-cicd-design.md",
       "sha256": "2914ed4fa1be697658882c87ff936acc631361a5be90e2eef5e66e59836b1f25",
       "size": 6568
+    },
+    {
+      "path": "pages/decisions/vote-ip-asset-interaction-levels.md",
+      "sha256": "ccaef1ac467a46781d89190867847667c59191c6d1e7389d7bf8a256017896d1",
+      "size": 3861
     },
     {
       "path": "pages/open-questions/access-controller-repetitiveness.md",
@@ -7044,5 +7064,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "943ffd378f223d60d101398132bbd7b1c952856a0ceb0d9c3055ae02e3d627e4"
+  "wiki_tree_hash": "ee7f5a1190fbdde034181f4e86437efd3fc805bd71f7ac28894c473eb6f31b6c"
 }

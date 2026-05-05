@@ -14013,3 +14013,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_54e629efad3ab92386ded8072676af4c
 - summary: A Notion document titled 'Access Controller suggestions' was observed, but its content appears to be empty or contains only empty blocks, providing no substantive information.
 
+## [2026-05-05T15:09:52Z] synthesis | Vote: Levels of IP Asset for Core-level Protocol Interactions
+
+- status: published
+- slug: decisions/vote-ip-asset-interaction-levels
+- wiki_revision_id: wikirev_7b1931fb4a8612c3df8084aa2c377cfb
+- summary: This page outlines two options for handling IP Asset interactions at the core protocol level: Option 1 treats IP as a simple identifier without accounts, while Option 2 gives each ...
+
+## [2026-05-05T15:13:18Z] synthesis | IP Account Wallet Architecture Decision
+
+- status: published
+- slug: decisions/ip-account-wallet-architecture-decision
+- wiki_revision_id: wikirev_7af2f7ea7d4beff5d4c33ce5ececabf1
+- summary: Decision on whether IP Account should be a generic AA wallet or a module-based wallet (6900/7579-like), with options for separating core-level and external-level interactions.
+
