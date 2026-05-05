@@ -53,7 +53,15 @@ class HermesSkillInstallerTest(unittest.TestCase):
         )
         return source_root, target_hash
 
-    def make_config(self, root: Path, repo: Path, *, dry_run: bool = False, validate_only: bool = False) -> InstallerConfig:
+    def make_config(
+        self,
+        root: Path,
+        repo: Path,
+        *,
+        dry_run: bool = False,
+        validate_only: bool = False,
+        mode: str = "bootstrap_only",
+    ) -> InstallerConfig:
         return InstallerConfig(
             source_repo="piplabs/rsi-agent-platform",
             source_ref="local",
@@ -67,6 +75,7 @@ class HermesSkillInstallerTest(unittest.TestCase):
             validate_only=validate_only,
             lock_timeout_seconds=1.0,
             github_auth=GitHubAuthConfig(),
+            mode=mode,
         )
 
     def test_installs_pack_only_under_managed_skills_subtree(self) -> None:
@@ -126,23 +135,72 @@ class HermesSkillInstallerTest(unittest.TestCase):
             self.assertFalse((config.state_root / "backups").exists())
             self.assertFalse((config.skills_root.parent / ".skill-installer-tmp").exists())
 
-    def test_live_divergence_blocks_install_and_preserves_live_skill(self) -> None:
+    def test_reconcile_mode_blocks_live_divergence_and_preserves_live_skill(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             repo = root / "repo"
             _, first_hash = self.make_pack(repo)
-            config = self.make_config(root, repo)
+            config = self.make_config(root, repo, mode="reconcile")
             SkillInstaller(config).run()
             live_skill = config.skills_root / "story-company/story-debugging/SKILL.md"
             live_skill.write_text(live_skill.read_text(encoding="utf-8") + "\nExecutor-native edit.\n", encoding="utf-8")
 
             shutil_repo = root / "repo-next"
             self.make_pack(shutil_repo, body="Reviewed Git change.\n", expected_previous_live_tree_hash=first_hash)
-            next_config = self.make_config(root, shutil_repo)
+            next_config = self.make_config(root, shutil_repo, mode="reconcile")
 
             with self.assertRaises(InstallerError):
                 SkillInstaller(next_config).run()
             self.assertIn("Executor-native edit", live_skill.read_text(encoding="utf-8"))
+
+    def test_bootstrap_only_mode_reports_live_tree_without_overwriting_it(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            repo = root / "repo"
+            self.make_pack(repo)
+            config = self.make_config(root, repo)
+            SkillInstaller(config).run()
+            live_skill = config.skills_root / "story-company/story-debugging/SKILL.md"
+            live_skill.write_text(live_skill.read_text(encoding="utf-8") + "\nExecutor-native edit.\n", encoding="utf-8")
+
+            shutil_repo = root / "repo-next"
+            self.make_pack(shutil_repo, body="Reviewed Git change.\n")
+            next_config = self.make_config(root, shutil_repo)
+
+            result = SkillInstaller(next_config).run()
+
+            self.assertTrue(result["ok"])
+            self.assertEqual("live_preserved", result["status"])
+            self.assertEqual("bootstrap_only", result["mode"])
+            self.assertEqual("live_tree_already_exists", result["reason"])
+            self.assertFalse(result["changed"])
+            self.assertIn("Executor-native edit", live_skill.read_text(encoding="utf-8"))
+            self.assertTrue(Path(result["observation_report"]).is_file())
+            status = json.loads(config.status_path.read_text(encoding="utf-8"))
+            self.assertEqual("live_preserved", status["status"])
+
+    def test_invalid_mode_fails_config_validation(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            repo = root / "repo"
+            self.make_pack(repo)
+
+            with self.assertRaisesRegex(InstallerConfigError, "INSTALLER_MODE"):
+                InstallerConfig(
+                    source_repo="piplabs/rsi-agent-platform",
+                    source_ref="local",
+                    source_path="hermes/skills/story-company",
+                    source_local_path=repo,
+                    skills_root=root / "home/skills",
+                    target_relative_path="story-company",
+                    state_root=root / "home/skill-installer",
+                    lock_path=root / "home/.locks/skills.lock",
+                    dry_run=False,
+                    validate_only=False,
+                    lock_timeout_seconds=1.0,
+                    github_auth=GitHubAuthConfig(),
+                    mode="overwrite",
+                )
 
     def test_failed_eval_like_secret_scan_leaves_live_tree_unchanged(self) -> None:
         with tempfile.TemporaryDirectory() as raw:

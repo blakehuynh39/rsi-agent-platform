@@ -44,6 +44,9 @@ class InstallerError(RuntimeError):
     pass
 
 
+VALID_INSTALLER_MODES = {"bootstrap_only", "reconcile"}
+
+
 SECRET_PATTERNS = [
     re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH |)PRIVATE KEY-----"),
     re.compile(r"\bsk-or-v1-[A-Za-z0-9_-]{24,}\b"),
@@ -84,6 +87,13 @@ def _bool_env(name: str, default: bool = False) -> bool:
     if value in {"0", "false", "f", "no", "n", "off"}:
         return False
     raise InstallerConfigError(f"{name} must be a boolean")
+
+
+def _normalize_installer_mode(raw: str) -> str:
+    value = raw.strip().lower().replace("-", "_")
+    if value in {"bootstrap", "bootstrap_only"}:
+        return "bootstrap_only"
+    return value
 
 
 def _sanitize_relative_path(value: str, *, label: str) -> str:
@@ -291,8 +301,14 @@ class InstallerConfig:
     validate_only: bool
     lock_timeout_seconds: float
     github_auth: GitHubAuthConfig
+    mode: str = "bootstrap_only"
 
     def __post_init__(self) -> None:
+        if self.mode not in VALID_INSTALLER_MODES:
+            raise InstallerConfigError(
+                "RSI_HERMES_SKILL_INSTALLER_MODE must be one of: "
+                + ", ".join(sorted(VALID_INSTALLER_MODES))
+            )
         skills_root = self.skills_root.resolve()
         target = (skills_root / self.target_relative_path).resolve()
         if not _is_relative_to(target, skills_root) or target == skills_root:
@@ -312,6 +328,10 @@ class InstallerConfig:
     def state_path(self) -> Path:
         return self.state_root / "state.json"
 
+    @property
+    def status_path(self) -> Path:
+        return self.state_root / "status.json"
+
     @classmethod
     def from_env(cls, args: argparse.Namespace) -> "InstallerConfig":
         hermes_home = Path(_env("HERMES_HOME", "/var/lib/hermes")).expanduser()
@@ -330,6 +350,7 @@ class InstallerConfig:
             dry_run=args.dry_run or _bool_env("RSI_HERMES_SKILL_INSTALLER_DRY_RUN", False),
             validate_only=args.validate_only,
             lock_timeout_seconds=_positive_float_env("RSI_HERMES_SKILL_INSTALLER_LOCK_TIMEOUT_SECONDS", 60.0),
+            mode=_normalize_installer_mode(_env("RSI_HERMES_SKILL_INSTALLER_MODE", "bootstrap_only")),
             github_auth=GitHubAuthConfig(
                 github_token=(
                     _env("RSI_HERMES_SKILL_INSTALLER_GITHUB_TOKEN")
@@ -434,6 +455,8 @@ class SkillInstaller:
                 if live_snapshot.tree_hash == source_snapshot.tree_hash:
                     self._record_state(manifest, source_snapshot, live_snapshot, status="unchanged")
                     return self._result("unchanged", manifest, source_snapshot, live_snapshot=live_snapshot, changed=False)
+                if self.config.mode == "bootstrap_only" and live_snapshot.tree_hash != EMPTY_TREE_HASH:
+                    return self._preserve_live_tree(manifest, source_snapshot, live_snapshot)
                 expected_hash = self._expected_live_hash(manifest)
                 if live_snapshot.tree_hash != expected_hash:
                     return self._fail_diverged(manifest, source_snapshot, live_snapshot, expected_hash)
@@ -503,6 +526,21 @@ class SkillInstaller:
         _atomic_json(self.config.state_path, state)
         ledger = self.config.state_root / "ledger" / f"{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}-{source_snapshot.tree_hash[:12]}.json"
         _atomic_json(ledger, state)
+        self._record_status(
+            {
+                "ok": True,
+                "status": status,
+                "mode": self.config.mode,
+                "completed_at": state["last_installed_at"],
+                "source_repo": self.config.source_repo,
+                "source_ref": self.config.source_ref,
+                "source_path": self.config.source_path,
+                "target_relative_path": self.config.target_relative_path,
+                "target_skill_tree_hash": source_snapshot.tree_hash,
+                "previous_live_tree_hash": previous_live_snapshot.tree_hash,
+                "file_count": len(source_snapshot.files),
+            }
+        )
 
     def _install_tree(self, source_root: Path) -> None:
         target_root = self.config.target_root.resolve()
@@ -545,6 +583,29 @@ class SkillInstaller:
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(item, target)
 
+    def _preserve_live_tree(
+        self,
+        manifest: SkillPackManifest,
+        source_snapshot: TreeSnapshot,
+        live_snapshot: TreeSnapshot,
+    ) -> dict[str, Any]:
+        report = self._result("live_preserved", manifest, source_snapshot, live_snapshot=live_snapshot, changed=False)
+        report["mode"] = self.config.mode
+        report["reason"] = "live_tree_already_exists"
+        report["live_file_count"] = len(live_snapshot.files)
+        report_path = self.config.state_root / "observations" / f"{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}-{live_snapshot.tree_hash[:12]}.json"
+        report["observation_report"] = str(report_path)
+        _atomic_json(report_path, report)
+        self._record_status(report)
+        logger.info(
+            "preserving live Hermes skill tree in bootstrap-only mode: target=%s seed=%s live=%s observation_report=%s",
+            self.config.target_relative_path,
+            source_snapshot.tree_hash,
+            live_snapshot.tree_hash,
+            report_path,
+        )
+        return report
+
     def _fail_diverged(
         self,
         manifest: SkillPackManifest,
@@ -554,9 +615,12 @@ class SkillInstaller:
     ) -> dict[str, Any]:
         report = self._result("diverged", manifest, source_snapshot, live_snapshot=live_snapshot, changed=False)
         report["ok"] = False
+        report["mode"] = self.config.mode
         report["expected_live_tree_hash"] = expected_hash
         report_path = self.config.state_root / "conflicts" / f"{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}-{live_snapshot.tree_hash[:12]}.json"
+        report["conflict_report"] = str(report_path)
         _atomic_json(report_path, report)
+        self._record_status(report)
         raise InstallerError(
             "live skill tree diverged; refusing install: "
             f"target={self.config.target_relative_path} expected={expected_hash} actual={live_snapshot.tree_hash} "
@@ -582,11 +646,15 @@ class SkillInstaller:
             "source_ref": self.config.source_ref,
             "source_path": self.config.source_path,
             "target_relative_path": self.config.target_relative_path,
+            "mode": self.config.mode,
             "pack_version": manifest.pack_version,
             "target_skill_tree_hash": source_snapshot.tree_hash,
             "live_tree_hash": live_snapshot.tree_hash if live_snapshot else "",
             "file_count": len(source_snapshot.files),
         }
+
+    def _record_status(self, payload: dict[str, Any]) -> None:
+        _atomic_json(self.config.status_path, payload)
 
 
 def configure_logging() -> None:

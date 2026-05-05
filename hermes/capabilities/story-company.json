@@ -34,8 +34,10 @@
     {
       "name": "story-company-skills",
       "type": "skill",
-      "source_of_truth": "hermes/skills/story-company",
-      "runtime_surface": "$HERMES_HOME/skills/story-company"
+      "source_of_truth": "$HERMES_HOME/skills/story-company on the Hermes executor PVC",
+      "runtime_surface": "$HERMES_HOME/skills/story-company",
+      "bootstrap_seed": "hermes/skills/story-company",
+      "observability_surface": "hermes/exported-skills/stage"
     }
   ]
 }
