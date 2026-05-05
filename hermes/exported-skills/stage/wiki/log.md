@@ -14381,3 +14381,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a4e5867373206badb8e0273a125043f4
 - summary: Exploration of C2PA as a service in the context of Solana's account model and near account aggregation.
 
+## [2026-05-05T19:17:25Z] synthesis | IP Graph Node Verification via Merkle Tree
+
+- status: published
+- slug: concepts/ip-graph-node-verification-merkle-tree
+- wiki_revision_id: wikirev_7a2ff9d91033d3da7d82c9720fddb3bb
+- summary: Exploring the use of Merkle trees to prove ancestry in IP graph nodes, specifically for proving that an IPA is an ancestor of IP7.
+

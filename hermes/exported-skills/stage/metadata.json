@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "2abf769e5b9996d88ce071b96a349c0afc0109d67319906d1f0ae1c6ad5735d2",
-        "size": 722931
+        "sha256": "a3d398f8635f8da8515b22c44eb2af17f4887b20facc6661c596d208056d3b7f",
+        "size": 723293
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2913,6 +2913,11 @@
         "path": "pages/concepts/ip-account-centric-model.md",
         "sha256": "4b1f1ce1ad47732305c399e614f72dbf4a8008468529b65a90350d1c90b01a27",
         "size": 7450
+      },
+      {
+        "path": "pages/concepts/ip-graph-node-verification-merkle-tree.md",
+        "sha256": "af8242d5ae9889def47e8202abd2b8cc9577d1f75338430df331bcb7218af732",
+        "size": 1505
       },
       {
         "path": "pages/concepts/ip-oracle.md",
@@ -3744,8 +3749,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T19:11:26Z",
-  "file_count": 747,
+  "exported_at": "2026-05-05T19:18:38Z",
+  "file_count": 748,
   "files": [
     {
       "path": ".usage.json",
@@ -6511,21 +6516,21 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbkb88g",
-  "previous_tree_hash": "b52ea2687b45bf4a0974afbdecf51dbb49947057afbb55bd5678782b4c3f155b",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5dcdbdp4w6f",
+  "previous_tree_hash": "4b3a7d00191498296e830dc4e4115213fe19a42c129159560ee702f0c6df0d2f",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4b3a7d00191498296e830dc4e4115213fe19a42c129159560ee702f0c6df0d2f",
+  "tree_hash": "08f3f77001431885004bbdd25c80b24f884d5ced34cd385386d144ffdbf55c43",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 195,
+  "wiki_file_count": 196,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6539,8 +6544,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "2abf769e5b9996d88ce071b96a349c0afc0109d67319906d1f0ae1c6ad5735d2",
-      "size": 722931
+      "sha256": "a3d398f8635f8da8515b22c44eb2af17f4887b20facc6661c596d208056d3b7f",
+      "size": 723293
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6676,6 +6681,11 @@
       "path": "pages/concepts/ip-account-centric-model.md",
       "sha256": "4b1f1ce1ad47732305c399e614f72dbf4a8008468529b65a90350d1c90b01a27",
       "size": 7450
+    },
+    {
+      "path": "pages/concepts/ip-graph-node-verification-merkle-tree.md",
+      "sha256": "af8242d5ae9889def47e8202abd2b8cc9577d1f75338430df331bcb7218af732",
+      "size": 1505
     },
     {
       "path": "pages/concepts/ip-oracle.md",
@@ -7504,5 +7514,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5ba3fe75f6184d6ea508bb98199ec5be2e99f66b53b47e735eeb9aa6f4501502"
+  "wiki_tree_hash": "c041249dfcc59a6ff5aff1b51a49dd90a845d30b20e66c8496b9376523bbf3af"
 }
