@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "3ffd76fb89d467725b0db12b406a83f3322de5980d744d0e09d70a800ab7a0da",
-        "size": 702968
+        "sha256": "ae8f7758478b9663154753e1deffdd18c8137a59386884e4336da9810acdb6e4",
+        "size": 703361
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3058,6 +3058,11 @@
         "path": "pages/open-questions/license-term-flexibility-derivatives.md",
         "sha256": "befc749c8c099691df95667128b5beb765cd03cef97e4629287ad5843c86a0ca",
         "size": 2857
+      },
+      {
+        "path": "pages/open-questions/licensing-questions-to-ben.md",
+        "sha256": "9a5b17e3304c09c1af08f448b8f75d642255dabfb02ed59e316f6a48cc77f143",
+        "size": 5471
       },
       {
         "path": "pages/open-questions/need-plan-b-api-gas-limits.md",
@@ -3484,8 +3489,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T14:25:14Z",
-  "file_count": 695,
+  "exported_at": "2026-05-05T14:46:16Z",
+  "file_count": 696,
   "files": [
     {
       "path": ".usage.json",
@@ -6252,20 +6257,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "0c1a3840b4c95fe1aae6be16deed90f3ce49e2d9b992788ba2e0455d6328f04b",
+  "previous_tree_hash": "6b1830fd18ac599323f661cb5fe265cdd51ef56426d1a703f5dde25271027c07",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6b1830fd18ac599323f661cb5fe265cdd51ef56426d1a703f5dde25271027c07",
+  "tree_hash": "813b4b67108aaeef27c4e0307c46f34907a75137aa3891519665d6281277a1e0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 143,
+  "wiki_file_count": 144,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6279,8 +6284,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "3ffd76fb89d467725b0db12b406a83f3322de5980d744d0e09d70a800ab7a0da",
-      "size": 702968
+      "sha256": "ae8f7758478b9663154753e1deffdd18c8137a59386884e4336da9810acdb6e4",
+      "size": 703361
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6561,6 +6566,11 @@
       "path": "pages/open-questions/license-term-flexibility-derivatives.md",
       "sha256": "befc749c8c099691df95667128b5beb765cd03cef97e4629287ad5843c86a0ca",
       "size": 2857
+    },
+    {
+      "path": "pages/open-questions/licensing-questions-to-ben.md",
+      "sha256": "9a5b17e3304c09c1af08f448b8f75d642255dabfb02ed59e316f6a48cc77f143",
+      "size": 5471
     },
     {
       "path": "pages/open-questions/need-plan-b-api-gas-limits.md",
@@ -6984,5 +6994,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ef2258abb05e1e66b013057aa32ef5aaf41b95f40ba59aa992c518fc9ddca5e3"
+  "wiki_tree_hash": "d46fb522ed3b00d8ef36c82745f13c628ab65f301899e875f680a7fe6a770b6c"
 }

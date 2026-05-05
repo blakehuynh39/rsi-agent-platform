@@ -13971,3 +13971,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_50b13fe808618c44c5d2ac6efc7b3b57
 - summary: Analysis and recommendation for adding a secp256r1 precompile to the Renaissance chain to enable native support for widely-used secure authentication technologies like Apple Secure...
 
+## [2026-05-05T14:41:19Z] synthesis | Licensing Questions to Ben
+
+- status: published
+- slug: open-questions/licensing-questions-to-ben
+- wiki_revision_id: wikirev_c29dac1d87b7d3311195d5952bb777aa
+- summary: Open questions and feature ideas related to licensing, including revenue share options, derivative limitations, commercializer roles, cross-platform restrictions, and fee switch re...
+
