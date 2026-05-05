@@ -13677,3 +13677,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_614657dbfff41bea030fc2c70d538bea
 - summary: Exploration of how to lower the barrier of entry for creators, including infrastructure and tooling improvements, and understanding creator motivations.
 
+## [2026-05-05T10:32:47Z] synthesis | Prophet PFP as an IP Asset
+
+- status: published
+- slug: decisions/prophet-pfp-ip-asset
+- wiki_revision_id: wikirev_05ab465dae565493df8f0d0fadd8f4a4
+- summary: Decision to treat Prophet PFP NFTs as IP Assets with revenue-sharing licensing terms, protocol alignment, and metadata enhancements.
+
+## [2026-05-05T10:37:36Z] synthesis | Prophet PFP Metadata to Reflect On-Chain Protocol Stats
+
+- status: published
+- slug: concepts/prophet-pfp-metadata-onchain-stats
+- wiki_revision_id: wikirev_0a1a3ff64344285625822d78873295d5
+- summary: The concept involves NFT metadata dynamically reflecting on-chain statistics such as number of collects, relationships, license type. It aims to provide a fun and convenient showca...
+
