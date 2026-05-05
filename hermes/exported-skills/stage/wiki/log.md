@@ -6934,3 +6934,52 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9a30edbc8b81a95a22fbdec469fe89f0
 - summary: The Calendar system contains a child database that is currently untitled.
 
+## [2026-05-05T05:21:42Z] synthesis | Debugging mintAndRegisterIpWithSig Revert
+
+- status: published
+- slug: runbooks/debugging-mint-and-register-ip-with-sig-revert
+- wiki_revision_id: wikirev_6a41083d4d70678e94c86c8b1bbb160f
+- summary: When spg.mintAndRegisterIpWithSig() reverts, the root cause may be an out-of-gas error during contract deployment, not the spg function itself. Use Tenderly to debug and add gas li...
+
+## [2026-05-05T05:21:43Z] synthesis | Etherscan Custom Error Handling Limitation
+
+- status: published
+- slug: concepts/etherscan-custom-error-handling-limitation
+- wiki_revision_id: wikirev_f555e0bcd32d71acc2cb9dc9cc36eb38
+- summary: Etherscan cannot handle custom errors well, a known issue for years. Use Tenderly transaction explorer to view custom errors in stack traces.
+
+## [2026-05-05T05:23:35Z] synthesis | Royalty Dilution Feedback
+
+- status: published
+- slug: open-questions/royalty-dilution-feedback
+- wiki_revision_id: wikirev_2685d2d5aa91ed050cbda766cdfc2a40
+- summary: Feedback from Mahojin and others requesting dilution mechanism for royalty percentages to prevent burden on descendants, and counter arguments from the team about vulnerabilities.
+
+## [2026-05-05T05:23:36Z] synthesis | Parent Limit Increase Request
+
+- status: published
+- slug: open-questions/parent-limit-increase-request
+- wiki_revision_id: wikirev_53d8c0f9e2d09d919ed06dbb3374dccf
+- summary: Mahojin requests increasing the limit on number of parents and ancestors, currently 2 parents and 14 ancestors, to at least 16 direct parents, to accommodate common use cases like ...
+
+## [2026-05-05T05:23:36Z] synthesis | License Term Flexibility for Derivatives
+
+- status: published
+- slug: open-questions/license-term-flexibility-derivatives
+- wiki_revision_id: wikirev_81a8ba55f49bd0d3048e6291652bcbc9
+- summary: Feedback questioning why derivative IPs cannot add new license terms beyond the parent's, and clarification on how revenue share percentages combine when remixing.
+
+## [2026-05-05T05:23:36Z] synthesis | AccessController Repetitiveness
+
+- status: published
+- slug: open-questions/access-controller-repetitiveness
+- wiki_revision_id: wikirev_7c8ace5f02c3a2dbddb4a164d6f95242
+- summary: Sekai reports that delegating access to the controller for each of 100 IP assets is repetitive and suggests allowing an EOA to authorize a contract.
+
+## [2026-05-05T05:25:31Z] synthesis | NFT Feedback (Color)
+
+- status: published
+- slug: open-questions/nft-feedback-color
+- wiki_revision_id: wikirev_47c2a9f51346b49dd6e628cacb739d5b
+- summary: Open questions and feedback regarding NFT integration with Story Protocol, license tokens, and marketplace functionality for the Color project.
+

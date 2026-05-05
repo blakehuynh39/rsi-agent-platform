@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "899f30ce4389532b6ebb03fdeaf7ff90ce9694c5d8e902c957a029ae7d5276ea",
-        "size": 358344
+        "sha256": "9b760f172f2f8c9cfdcf40d239ef46c36234837835dd5b644c5d4dc125378657",
+        "size": 360695
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2788,6 +2788,11 @@
         "path": "pages/concepts/coming-soon-placeholder-tasks.md",
         "sha256": "c1d8e73099e443c9656dd8270dd70b95a5b759b8823001ecea8170a00b69c4a2",
         "size": 1065
+      },
+      {
+        "path": "pages/concepts/etherscan-custom-error-handling-limitation.md",
+        "sha256": "77840cb8980531e9e0a5472349d53260978e423d48fe19f2db380d42ba090b6d",
+        "size": 2244
       },
       {
         "path": "pages/concepts/farming-mitigation.md",
@@ -2845,14 +2850,34 @@
         "size": 1593
       },
       {
+        "path": "pages/open-questions/access-controller-repetitiveness.md",
+        "sha256": "3d7d8c9ddfd14a6e0276c5ab5cb8e11a863b3b906e5f1bca990d4940ab113bc8",
+        "size": 2040
+      },
+      {
         "path": "pages/open-questions/define-what-to-do-for-rejected-submissions.md",
         "sha256": "2550cf3840125e55b8a44bf9adf36f70719f2d31a7ed9ec2dd27c2a42d71664d",
         "size": 1289
       },
       {
+        "path": "pages/open-questions/license-term-flexibility-derivatives.md",
+        "sha256": "befc749c8c099691df95667128b5beb765cd03cef97e4629287ad5843c86a0ca",
+        "size": 2857
+      },
+      {
         "path": "pages/open-questions/need-plan-b-api-gas-limits.md",
         "sha256": "3ec6dca680c6c186231b1b8a606a1b8d54f875b00b32210c93bc034465dac5dc",
         "size": 1298
+      },
+      {
+        "path": "pages/open-questions/parent-limit-increase-request.md",
+        "sha256": "68c03eb5b486037b4c3b95510695cb238fe6131e2dbaea3b5daef1d38299df3d",
+        "size": 2740
+      },
+      {
+        "path": "pages/open-questions/royalty-dilution-feedback.md",
+        "sha256": "e593e720ef6eeb2c360e2ac2ef73f75eecaedeca5ef010eb2b1c9cbf9589fe0c",
+        "size": 2853
       },
       {
         "path": "pages/policies/limited-ip-rights-representation-registration.md",
@@ -3005,6 +3030,11 @@
         "size": 909
       },
       {
+        "path": "pages/runbooks/debugging-mint-and-register-ip-with-sig-revert.md",
+        "sha256": "efdc297751b96bfdeb6d2164d299282a39865edd21b2d35d13deb2238c93425a",
+        "size": 4910
+      },
+      {
         "path": "pages/runbooks/how-to-handle-smart-contract-update.md",
         "sha256": "286c161a9da18220b1399871159e088efafe6de7ebaf73e8d6ea7b223bc49a1f",
         "size": 1395
@@ -3039,8 +3069,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T05:19:18Z",
-  "file_count": 606,
+  "exported_at": "2026-05-05T05:25:10Z",
+  "file_count": 612,
   "files": [
     {
       "path": ".usage.json",
@@ -5807,20 +5837,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-64847chng6c",
-  "previous_tree_hash": "3df2ec8cc6c2de99448583cf995e4ae03b000f2b992e3483e8f359d2d5258b13",
+  "previous_tree_hash": "b22efc1ba464237d62a730713df1ace05cfc9df8feb99f05e38bc7ed962f04c8",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "476409678a775c1018b9e6a7408807c3722cdad360128bd52087ec8de9a400b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b22efc1ba464237d62a730713df1ace05cfc9df8feb99f05e38bc7ed962f04c8",
+  "tree_hash": "95ddd58877ccc3ed4f312613e06ca11bb9233aad70af9cf8401e61ef5bfe2294",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 54,
+  "wiki_file_count": 60,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5834,8 +5864,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "899f30ce4389532b6ebb03fdeaf7ff90ce9694c5d8e902c957a029ae7d5276ea",
-      "size": 358344
+      "sha256": "9b760f172f2f8c9cfdcf40d239ef46c36234837835dd5b644c5d4dc125378657",
+      "size": 360695
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -5846,6 +5876,11 @@
       "path": "pages/concepts/coming-soon-placeholder-tasks.md",
       "sha256": "c1d8e73099e443c9656dd8270dd70b95a5b759b8823001ecea8170a00b69c4a2",
       "size": 1065
+    },
+    {
+      "path": "pages/concepts/etherscan-custom-error-handling-limitation.md",
+      "sha256": "77840cb8980531e9e0a5472349d53260978e423d48fe19f2db380d42ba090b6d",
+      "size": 2244
     },
     {
       "path": "pages/concepts/farming-mitigation.md",
@@ -5903,14 +5938,34 @@
       "size": 1593
     },
     {
+      "path": "pages/open-questions/access-controller-repetitiveness.md",
+      "sha256": "3d7d8c9ddfd14a6e0276c5ab5cb8e11a863b3b906e5f1bca990d4940ab113bc8",
+      "size": 2040
+    },
+    {
       "path": "pages/open-questions/define-what-to-do-for-rejected-submissions.md",
       "sha256": "2550cf3840125e55b8a44bf9adf36f70719f2d31a7ed9ec2dd27c2a42d71664d",
       "size": 1289
     },
     {
+      "path": "pages/open-questions/license-term-flexibility-derivatives.md",
+      "sha256": "befc749c8c099691df95667128b5beb765cd03cef97e4629287ad5843c86a0ca",
+      "size": 2857
+    },
+    {
       "path": "pages/open-questions/need-plan-b-api-gas-limits.md",
       "sha256": "3ec6dca680c6c186231b1b8a606a1b8d54f875b00b32210c93bc034465dac5dc",
       "size": 1298
+    },
+    {
+      "path": "pages/open-questions/parent-limit-increase-request.md",
+      "sha256": "68c03eb5b486037b4c3b95510695cb238fe6131e2dbaea3b5daef1d38299df3d",
+      "size": 2740
+    },
+    {
+      "path": "pages/open-questions/royalty-dilution-feedback.md",
+      "sha256": "e593e720ef6eeb2c360e2ac2ef73f75eecaedeca5ef010eb2b1c9cbf9589fe0c",
+      "size": 2853
     },
     {
       "path": "pages/policies/limited-ip-rights-representation-registration.md",
@@ -6063,6 +6118,11 @@
       "size": 909
     },
     {
+      "path": "pages/runbooks/debugging-mint-and-register-ip-with-sig-revert.md",
+      "sha256": "efdc297751b96bfdeb6d2164d299282a39865edd21b2d35d13deb2238c93425a",
+      "size": 4910
+    },
+    {
       "path": "pages/runbooks/how-to-handle-smart-contract-update.md",
       "sha256": "286c161a9da18220b1399871159e088efafe6de7ebaf73e8d6ea7b223bc49a1f",
       "size": 1395
@@ -6094,5 +6154,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "507645e79350f50e890c3880af6989cf91890ce76f9854353ade72bdbbd2701c"
+  "wiki_tree_hash": "f8d919506a0ba230bdc9a87739ed2e5cb2e20ef60448a79c6596e82d48434fd9"
 }
