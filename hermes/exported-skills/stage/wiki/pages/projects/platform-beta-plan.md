@@ -3,10 +3,7 @@ title: "Platform Beta Plan"
 type: "project"
 slug: "projects/platform-beta-plan"
 freshness: "2026-05-05T06:29:37Z"
-tags:
-  - "beta"
-  - "planning"
-  - "sdk"
+tags: []
 owners: []
 source_revision_ids:
   - "srcrev_481d0cf7269b9e4f61d036f65d522e63"
@@ -36,11 +33,10 @@ Plan for the platform beta, including timeline, key concepts (Nouns and Verbs), 
 
 ## Related Pages
 
-- `nouns-concept`
-- `verbs-concept`
+- `concepts/nouns-policy-licensing`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_1e6ff663e5a656e2c6921bda9b4522b2`
-- `source_revision_id`: `srcrev_481d0cf7269b9e4f61d036f65d522e63`
-- `source_url`: [Notion source](https://www.notion.so/Platform-Beta-Plan-6793c22e84154b109a4546863f8da497)
+- `source_document_id`: `srcdoc_83d830443ef449e244d5ad2033ad4b6e`
+- `source_revision_id`: `srcrev_843f360d27e19ae4ee33d433050373ef`
+- `source_url`: [Notion source](https://www.notion.so/Nouns-Policy-Licensing-86acbd303d254ecb902197e8e04d4db4)

@@ -13908,3 +13908,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8dda7b28536f05192e1d8a93311c05be
 - summary: Verbs are actions to interact with the protocol.
 
+## [2026-05-05T13:38:11Z] synthesis | Platform Beta Plan
+
+- status: published
+- slug: projects/platform-beta-plan
+- wiki_revision_id: wikirev_b1215ad2087ef45b2fa6f36c43156ac2
+- summary: Plan for the platform beta, including timeline, key concepts (Nouns and Verbs), and related sub-pages and tasks.
+
+## [2026-05-05T13:40:07Z] synthesis | Platform Beta Plan
+
+- status: published
+- slug: projects/platform-beta-plan
+- wiki_revision_id: wikirev_1c1ed6270caefca87f1e720a7ef1ece4
+- summary: Plan for the platform beta, including timeline, key concepts (Nouns and Verbs), and related sub-pages and tasks.
+
+## [2026-05-05T13:40:07Z] synthesis | Nouns (Policy & Licensing)
+
+- status: published
+- slug: concepts/nouns-policy-licensing
+- wiki_revision_id: wikirev_1d5dfcfa314962b55cf4e7cff1d6b574
+- summary: Details on Nouns (Policy & Licensing) including License, Policy, and Policy Framework Managers data models and events.
+
+## [2026-05-05T13:40:33Z] synthesis | go-swagger for Story API
+
+- status: published
+- slug: systems/go-swagger-story-api
+- wiki_revision_id: wikirev_f89f8bebc8c0af31bb9c7db5cb00108e
+- summary: go-swagger is referenced in the Story API's OpenAPI (Swagger 2.0) documentation.
+
