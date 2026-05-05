@@ -14507,3 +14507,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_fe28b4c49e3190facf95b5ed3ee9bfce
 - summary: The Notion document for platform team secrets access is currently empty.
 
+## [2026-05-05T21:52:37Z] synthesis | Devnet War Mode Daily Tracker
+
+- status: published
+- slug: projects/devnet-war-mode-daily-tracker
+- wiki_revision_id: wikirev_c9be7bfa1de5b40ea387288d052ee632
+- summary: A daily tracker for the Devnet War Mode initiative, covering validators, infrastructure, testing, proof of concept, proof of stake, IPA protocol, IP graph, staking dashboard, and e...
+
