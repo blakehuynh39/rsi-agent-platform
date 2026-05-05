@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "73239a791aec5cd111c0e26065db0871586d8bd44da955739b39d35a4be8a186",
-        "size": 702247
+        "sha256": "ef51a50d6c5d1eafe04cc4e564b6a7d194c3c80f57c20c75fb9ebed0140ffa96",
+        "size": 702594
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3230,6 +3230,11 @@
         "size": 1238
       },
       {
+        "path": "pages/projects/kleros.md",
+        "sha256": "9a50cdf230639fad1a1c1d5653b26c85561b147d8c9fad43db4004cd9cca0e7e",
+        "size": 6997
+      },
+      {
         "path": "pages/projects/large-pfp-collection-ip-remix.md",
         "sha256": "d3abf11c62c40f2b2e1c95c7ebb8ebbe4a88a43353d64e3bd1056d12b774bb13",
         "size": 4670
@@ -3474,8 +3479,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T14:13:24Z",
-  "file_count": 693,
+  "exported_at": "2026-05-05T14:19:19Z",
+  "file_count": 694,
   "files": [
     {
       "path": ".usage.json",
@@ -6242,20 +6247,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "59de6cf8b937cd21f60bc96450e9b8fdab1f28a426e78aadffdf1592a3bd5670",
+  "previous_tree_hash": "a99e2d319f440796aa90d6b18328b01eab903a2ebe5db78ff6021e969a981896",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a99e2d319f440796aa90d6b18328b01eab903a2ebe5db78ff6021e969a981896",
+  "tree_hash": "0c1a3840b4c95fe1aae6be16deed90f3ce49e2d9b992788ba2e0455d6328f04b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 141,
+  "wiki_file_count": 142,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6269,8 +6274,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "73239a791aec5cd111c0e26065db0871586d8bd44da955739b39d35a4be8a186",
-      "size": 702247
+      "sha256": "ef51a50d6c5d1eafe04cc4e564b6a7d194c3c80f57c20c75fb9ebed0140ffa96",
+      "size": 702594
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6723,6 +6728,11 @@
       "size": 1238
     },
     {
+      "path": "pages/projects/kleros.md",
+      "sha256": "9a50cdf230639fad1a1c1d5653b26c85561b147d8c9fad43db4004cd9cca0e7e",
+      "size": 6997
+    },
+    {
       "path": "pages/projects/large-pfp-collection-ip-remix.md",
       "sha256": "d3abf11c62c40f2b2e1c95c7ebb8ebbe4a88a43353d64e3bd1056d12b774bb13",
       "size": 4670
@@ -6964,5 +6974,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0956a175a612bea11604457bdb9462f79238caebc0c2e19cf75e0ef1c19538d3"
+  "wiki_tree_hash": "c0d7f327c76d1a20fa0160d0b3aad8617f4b6a57ca25a36fc01d0b4200559f7c"
 }

@@ -13957,3 +13957,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_168a8fe633aaca948bdf1c35757dd328
 - summary: UMA's Optimistic Oracle provides trust-minimized truth for smart contracts, using token holder disputes and bonds.
 
+## [2026-05-05T14:14:49Z] synthesis | Kleros
+
+- status: published
+- slug: projects/kleros
+- wiki_revision_id: wikirev_684ccb93e709d1d39b3cd16016d9d5fb
+- summary: Kleros is a decentralized dispute resolution protocol. It has processed over 1700 disputes since 2018, currently handling 7-10 cases per week with a maximum capacity of 1000 cases ...
+
