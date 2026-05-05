@@ -14290,3 +14290,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c14678c173e52287715cbe8765c4431c
 - summary: Instructions for running a story network node locally, including Docker images, RPC endpoints, and P2P sync IPs.
 
+## [2026-05-05T18:20:14Z] synthesis | AI Model PIL Term Decision
+
+- status: published
+- slug: decisions/ai-model-pil-term-decision
+- wiki_revision_id: wikirev_22349fa2e13dfc76da2fb02dd77f1a46
+- summary: Decision to introduce an off-chain AI Model boolean term in PIL and add an off-chain IPA metadata field `source` to track AI Model origin, rejecting the parent-child relationship w...
+

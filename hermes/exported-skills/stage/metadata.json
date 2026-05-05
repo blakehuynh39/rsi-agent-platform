@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "9cbf4c75f12838e4aecf1d44e5c64e513a222e6ee4b9ba0a97b4f409fe5e024f",
-        "size": 718488
+        "sha256": "509827e8ab22b57d7f918635d643173ffeee4c1f55c07ae34824e3ec942d0372",
+        "size": 718876
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3068,6 +3068,11 @@
         "path": "pages/decisions/access-control-acl.md",
         "sha256": "f5a4885fd67700e4c28693212633dc0884cad30f5a3f70c567d374fcf3386d2d",
         "size": 6118
+      },
+      {
+        "path": "pages/decisions/ai-model-pil-term-decision.md",
+        "sha256": "96bcd16f3d05f1389e4da49fb7870e44dd4afe5b24f33fe4abc37d897ed399a3",
+        "size": 3679
       },
       {
         "path": "pages/decisions/character-backstory-orchestrator.md",
@@ -3684,8 +3689,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T18:12:59Z",
-  "file_count": 735,
+  "exported_at": "2026-05-05T18:23:57Z",
+  "file_count": 736,
   "files": [
     {
       "path": ".usage.json",
@@ -6452,20 +6457,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbkb88g",
-  "previous_tree_hash": "8c3e7f969654ae76da783db6fb4d7102f82dd2b073fec7440ae6d48ccd4af0e2",
+  "previous_tree_hash": "27691868bc7825af5b20d81fe9fcd7e3a1f178a3b75c812ddb3dbc3a8c72b5ce",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "27691868bc7825af5b20d81fe9fcd7e3a1f178a3b75c812ddb3dbc3a8c72b5ce",
+  "tree_hash": "1114ab4b93016ee1d1889c84b05086c2bc8c6797b586b8f58315213db05c1031",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 183,
+  "wiki_file_count": 184,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6479,8 +6484,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "9cbf4c75f12838e4aecf1d44e5c64e513a222e6ee4b9ba0a97b4f409fe5e024f",
-      "size": 718488
+      "sha256": "509827e8ab22b57d7f918635d643173ffeee4c1f55c07ae34824e3ec942d0372",
+      "size": 718876
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6771,6 +6776,11 @@
       "path": "pages/decisions/access-control-acl.md",
       "sha256": "f5a4885fd67700e4c28693212633dc0884cad30f5a3f70c567d374fcf3386d2d",
       "size": 6118
+    },
+    {
+      "path": "pages/decisions/ai-model-pil-term-decision.md",
+      "sha256": "96bcd16f3d05f1389e4da49fb7870e44dd4afe5b24f33fe4abc37d897ed399a3",
+      "size": 3679
     },
     {
       "path": "pages/decisions/character-backstory-orchestrator.md",
@@ -7384,5 +7394,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1dd2826600907343335071562b300c7b6706dec8983c36c0f4d640e69c36574c"
+  "wiki_tree_hash": "eae226f48691e56b3b4f3d85b40609afd1deb6ad43dbbb7b54bbb23018f9d6c5"
 }
