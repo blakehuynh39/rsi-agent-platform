@@ -14195,3 +14195,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_528f48bc1847ad60b014c2b8064aa515
 - summary: Decision to allow permissionless registration of IP for NFTs on Story Protocol, moving away from the current restriction where only NFT owners can register IP.
 
+## [2026-05-05T17:00:56Z] ingest | Implement and Test Payment Solution for P0 countries - Stripe PoC
+
+- status: published
+- slug: notion_document/implement-and-test-payment-solution-for-p0-countries---stripe-poc-dab627af
+- wiki_revision_id: wikirev_abf0de9e18692ea992ac10cb1d6b7760
+- source_document_id: srcdoc_056ec0e3d256e88b47958ac3dab627af
+- source_revision_id: srcrev_cfe94b01f4be61add34cd6cd938e21b5
+- summary: Source: [Notion source](https://www.notion.so/Implement-and-Test-Payment-Solution-for-P0-countries-Stripe-PoC-34f051299a5480508170ea006981f7a4)
+
