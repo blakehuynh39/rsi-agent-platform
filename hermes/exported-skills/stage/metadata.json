@@ -1494,8 +1494,8 @@
       },
       {
         "path": "github/github-code-review/SKILL.md",
-        "sha256": "c239b694264245f61f26a31631657a6ab51332342088e2dc78482443bef42641",
-        "size": 14372
+        "sha256": "491ba8fcadb8210dec0023da7ba71658bbd01599e35fab2ee345c2e8daaa8365",
+        "size": 16614
       },
       {
         "path": "github/github-code-review/references/review-output-template.md",
@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "9b46c2a241164d85f1f752783187597d171915437599ec56ee94102791f30ec9",
-        "size": 675924
+        "sha256": "892444c179aa84b781a8270322c7d5f4d1830a1a6b54d82c3979d98bf17f1dfa",
+        "size": 676320
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3090,6 +3090,11 @@
         "size": 3685
       },
       {
+        "path": "pages/systems/admin-api-security-architecture.md",
+        "sha256": "cd1da0a4827ee8d168cb8111a08c95579ff104873a91d21362fd37b731ae89b0",
+        "size": 4492
+      },
+      {
         "path": "pages/systems/calendar.md",
         "sha256": "de7a75a5e8c63cc5212f9658d6ed1a56047d1ac0a153d9f0b089690edadfb645",
         "size": 1084
@@ -3129,8 +3134,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T06:51:48Z",
-  "file_count": 624,
+  "exported_at": "2026-05-05T06:57:34Z",
+  "file_count": 625,
   "files": [
     {
       "path": ".usage.json",
@@ -4624,8 +4629,8 @@
     },
     {
       "path": "github/github-code-review/SKILL.md",
-      "sha256": "c239b694264245f61f26a31631657a6ab51332342088e2dc78482443bef42641",
-      "size": 14372
+      "sha256": "491ba8fcadb8210dec0023da7ba71658bbd01599e35fab2ee345c2e8daaa8365",
+      "size": 16614
     },
     {
       "path": "github/github-code-review/references/review-output-template.md",
@@ -5897,20 +5902,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "2b7ee87b7385b3935840853f33ae76aafa72383638e65f02409355249e91a595",
+  "previous_tree_hash": "c6b1e0e9941c80e262796fb048c9cabf5f7072836a0d52382721c484b143318a",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
-  "skill_tree_hash": "304c56ea9be9c95c1e21f19050e9831048902f44f4dcbbfc7449f44aac19cc73",
+  "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c6b1e0e9941c80e262796fb048c9cabf5f7072836a0d52382721c484b143318a",
+  "tree_hash": "7585fe074e84f04a8d7ee009a0bf025bc9ff8df286a36a768f0f667b746778b1",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 72,
+  "wiki_file_count": 73,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -5924,8 +5929,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "9b46c2a241164d85f1f752783187597d171915437599ec56ee94102791f30ec9",
-      "size": 675924
+      "sha256": "892444c179aa84b781a8270322c7d5f4d1830a1a6b54d82c3979d98bf17f1dfa",
+      "size": 676320
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6238,6 +6243,11 @@
       "size": 3685
     },
     {
+      "path": "pages/systems/admin-api-security-architecture.md",
+      "sha256": "cd1da0a4827ee8d168cb8111a08c95579ff104873a91d21362fd37b731ae89b0",
+      "size": 4492
+    },
+    {
       "path": "pages/systems/calendar.md",
       "sha256": "de7a75a5e8c63cc5212f9658d6ed1a56047d1ac0a153d9f0b089690edadfb645",
       "size": 1084
@@ -6274,5 +6284,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6eee841f17521bc6d7353ca34fd973d65afaf8c64b3bf76b0813bc5fa5da685d"
+  "wiki_tree_hash": "cd014a51655ad2ca9df85ed9abd9f7ccfc4e661cde94425ffb69f67dd4e3188f"
 }

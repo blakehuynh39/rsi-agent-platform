@@ -276,7 +276,7 @@ The `line` field refers to the line number in the *new* version of the file. For
 
 ---
 
-## 6. Cross-Repo Paired PR Review
+## 2b. Cross-Repo Paired PR Review
 
 When a feature spans two repos (e.g., backend API + frontend app), the user often posts both PRs in a single review request. Review them together to catch cross-repo misalignment.
 
@@ -311,6 +311,10 @@ When a feature spans two repos (e.g., backend API + frontend app), the user ofte
 - **Route mismatch**: BE adds a depth-2 hyphenated route (`/admin/users-safety-distributions`) to avoid `{user_id}` routing conflicts, but FE uses a slashed path (`/v1/admin/users/safety-distributions`) — results in 404.
 - **Stale types**: BE adds fields to `AdminUserSummary` but FE types aren't updated, causing silent `undefined` values that pass falsy checks and render as `0`.
 - **Merged out of order**: FE merges to `develop` but BE hasn't merged to `staging` yet — staging previews break because the new endpoint doesn't exist.
+
+---
+
+## 3. Review Checklist
 
 When performing a code review (local or PR), systematically check:
 

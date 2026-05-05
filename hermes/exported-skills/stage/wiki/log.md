@@ -13383,3 +13383,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_7703ad5e707d7a9abf41665192058fe5
 - summary: Source: [Notion source](https://www.notion.so/Automate-support-email-to-summarize-feedback-emails-356051299a5480f88b97cae343e1a658)
 
+## [2026-05-05T06:55:14Z] synthesis | Admin API Security Architecture
+
+- status: published
+- slug: systems/admin-api-security-architecture
+- wiki_revision_id: wikirev_bc6b934abaebae141f7c93d5d96e31ec
+- summary: Describes the authentication mechanism for Admin APIs used by Streamer and Admin Server to access API Server's Admin APIs. It uses a combination of Secret Manager and KMS to encryp...
+
