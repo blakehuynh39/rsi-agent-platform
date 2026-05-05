@@ -14027,3 +14027,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7af2f7ea7d4beff5d4c33ce5ececabf1
 - summary: Decision on whether IP Account should be a generic AA wallet or a module-based wallet (6900/7579-like), with options for separating core-level and external-level interactions.
 
+## [2026-05-05T15:16:30Z] synthesis | L2 Analytics Tool Research
+
+- status: published
+- slug: projects/l2-analytics-tool-research
+- wiki_revision_id: wikirev_7bcbf006bad3e0e3ece0a04fd124b955
+- summary: Research project focused on evaluating and selecting analytics tools for L2 (Layer 2) blockchain environments.
+
+## [2026-05-05T15:17:47Z] synthesis | Reputation/Attestation Module
+
+- status: published
+- slug: projects/reputation-attestation-module
+- wiki_revision_id: wikirev_d465b5b9045ae692100a0a455839e974
+- summary: A module for reputation and attestation, discussed in the Story Protocol Slack workspace.
+

@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "f69395ccf2751d2903f6f03272eed62d794549bce0c0417fbeff50594e607605",
-        "size": 705824
+        "sha256": "1b8e89261721656fddb900d4e359d0f6a48b1b4a3428347cc1dcc1fb26e8f4e3",
+        "size": 706437
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3275,6 +3275,11 @@
         "size": 6997
       },
       {
+        "path": "pages/projects/l2-analytics-tool-research.md",
+        "sha256": "6362f232c774b3353374f0b72b4f606bb6b2edb7d57a2e343c2beeb293052a42",
+        "size": 1240
+      },
+      {
         "path": "pages/projects/large-pfp-collection-ip-remix.md",
         "sha256": "d3abf11c62c40f2b2e1c95c7ebb8ebbe4a88a43353d64e3bd1056d12b774bb13",
         "size": 4670
@@ -3353,6 +3358,11 @@
         "path": "pages/projects/replace-feedback-form-api.md",
         "sha256": "58348f558c0817e1c2e8158db50145fc94b4322ea8972ddb977694858adc80dc",
         "size": 1192
+      },
+      {
+        "path": "pages/projects/reputation-attestation-module.md",
+        "sha256": "681e3dee6fcbca2237369b468da0f72dd1dbfe8149f9e5802ca0b50fb8e470cd",
+        "size": 1292
       },
       {
         "path": "pages/projects/sdk-designs.md",
@@ -3524,8 +3534,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T15:14:08Z",
-  "file_count": 703,
+  "exported_at": "2026-05-05T15:20:03Z",
+  "file_count": 705,
   "files": [
     {
       "path": ".usage.json",
@@ -6292,20 +6302,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "2567472af78730d70c41758bf8a1aa91cf20d0295679b97a149022c0f91b157d",
+  "previous_tree_hash": "b34edd50aa7e0d35c7ec2f6710709a9af5267c9c325d743890bc0c56d9f65c61",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b34edd50aa7e0d35c7ec2f6710709a9af5267c9c325d743890bc0c56d9f65c61",
+  "tree_hash": "07ed46b944bb5d79c2c653f2998a4088be9edcc4b1091193dfe75ef5d0a4073e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 151,
+  "wiki_file_count": 153,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6319,8 +6329,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "f69395ccf2751d2903f6f03272eed62d794549bce0c0417fbeff50594e607605",
-      "size": 705824
+      "sha256": "1b8e89261721656fddb900d4e359d0f6a48b1b4a3428347cc1dcc1fb26e8f4e3",
+      "size": 706437
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6818,6 +6828,11 @@
       "size": 6997
     },
     {
+      "path": "pages/projects/l2-analytics-tool-research.md",
+      "sha256": "6362f232c774b3353374f0b72b4f606bb6b2edb7d57a2e343c2beeb293052a42",
+      "size": 1240
+    },
+    {
       "path": "pages/projects/large-pfp-collection-ip-remix.md",
       "sha256": "d3abf11c62c40f2b2e1c95c7ebb8ebbe4a88a43353d64e3bd1056d12b774bb13",
       "size": 4670
@@ -6896,6 +6911,11 @@
       "path": "pages/projects/replace-feedback-form-api.md",
       "sha256": "58348f558c0817e1c2e8158db50145fc94b4322ea8972ddb977694858adc80dc",
       "size": 1192
+    },
+    {
+      "path": "pages/projects/reputation-attestation-module.md",
+      "sha256": "681e3dee6fcbca2237369b468da0f72dd1dbfe8149f9e5802ca0b50fb8e470cd",
+      "size": 1292
     },
     {
       "path": "pages/projects/sdk-designs.md",
@@ -7064,5 +7084,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ee7f5a1190fbdde034181f4e86437efd3fc805bd71f7ac28894c473eb6f31b6c"
+  "wiki_tree_hash": "5adb3773d2da5aa0097eced66137952bc5785e5acc3e65881eb57d8fd717ce8c"
 }
