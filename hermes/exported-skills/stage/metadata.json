@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "3f09e15466b69a1e9b9f205abab0fd4b6bc13ec0668e8f259f97f27bcd61f125",
-        "size": 704035
+        "sha256": "8b93c1f988043a4b4b237095e278ee8af9208279d0dceb55f1884146d798829b",
+        "size": 704989
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2920,6 +2920,11 @@
         "size": 3519
       },
       {
+        "path": "pages/concepts/opensea-conduit-delegation.md",
+        "sha256": "1c467d67475ce85b66da62800161dc928bc166cef9fc30ee89095d41fca6cdbc",
+        "size": 1243
+      },
+      {
         "path": "pages/concepts/package-frontend-story-telling-examples.md",
         "sha256": "46b1f78218c812cede4a284048135ab3a4da0d271cd98f4577fbb182e3939cf8",
         "size": 1415
@@ -3058,6 +3063,11 @@
         "path": "pages/open-questions/access-controller-repetitiveness.md",
         "sha256": "3d7d8c9ddfd14a6e0276c5ab5cb8e11a863b3b906e5f1bca990d4940ab113bc8",
         "size": 2040
+      },
+      {
+        "path": "pages/open-questions/access-controller-suggestions.md",
+        "sha256": "d8f4d5940409eae0160798a060c69b2e27d6f007a2f1beefa96f4f598ecb19ba",
+        "size": 1551
       },
       {
         "path": "pages/open-questions/define-what-to-do-for-rejected-submissions.md",
@@ -3410,6 +3420,11 @@
         "size": 1540
       },
       {
+        "path": "pages/systems/balancer-v2-access-control.md",
+        "sha256": "87f28b29eacdbee7b22916dfbe41cd874d80ed58aaf45b73a79420cbff8af01d",
+        "size": 1181
+      },
+      {
         "path": "pages/systems/calendar.md",
         "sha256": "60ff71bfe75abe8b440d334d839554b6e0df3c5bce8925338b7ec1cbac5d6824",
         "size": 1050
@@ -3499,8 +3514,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T14:52:11Z",
-  "file_count": 698,
+  "exported_at": "2026-05-05T14:58:07Z",
+  "file_count": 701,
   "files": [
     {
       "path": ".usage.json",
@@ -6267,20 +6282,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "813b4b67108aaeef27c4e0307c46f34907a75137aa3891519665d6281277a1e0",
+  "previous_tree_hash": "d22ea7015423e492b32393a749a1757d282b3638d8497d6dd6112f894d526cd1",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d22ea7015423e492b32393a749a1757d282b3638d8497d6dd6112f894d526cd1",
+  "tree_hash": "2567472af78730d70c41758bf8a1aa91cf20d0295679b97a149022c0f91b157d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 146,
+  "wiki_file_count": 149,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6294,8 +6309,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "3f09e15466b69a1e9b9f205abab0fd4b6bc13ec0668e8f259f97f27bcd61f125",
-      "size": 704035
+      "sha256": "8b93c1f988043a4b4b237095e278ee8af9208279d0dceb55f1884146d798829b",
+      "size": 704989
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6438,6 +6453,11 @@
       "size": 3519
     },
     {
+      "path": "pages/concepts/opensea-conduit-delegation.md",
+      "sha256": "1c467d67475ce85b66da62800161dc928bc166cef9fc30ee89095d41fca6cdbc",
+      "size": 1243
+    },
+    {
       "path": "pages/concepts/package-frontend-story-telling-examples.md",
       "sha256": "46b1f78218c812cede4a284048135ab3a4da0d271cd98f4577fbb182e3939cf8",
       "size": 1415
@@ -6576,6 +6596,11 @@
       "path": "pages/open-questions/access-controller-repetitiveness.md",
       "sha256": "3d7d8c9ddfd14a6e0276c5ab5cb8e11a863b3b906e5f1bca990d4940ab113bc8",
       "size": 2040
+    },
+    {
+      "path": "pages/open-questions/access-controller-suggestions.md",
+      "sha256": "d8f4d5940409eae0160798a060c69b2e27d6f007a2f1beefa96f4f598ecb19ba",
+      "size": 1551
     },
     {
       "path": "pages/open-questions/define-what-to-do-for-rejected-submissions.md",
@@ -6928,6 +6953,11 @@
       "size": 1540
     },
     {
+      "path": "pages/systems/balancer-v2-access-control.md",
+      "sha256": "87f28b29eacdbee7b22916dfbe41cd874d80ed58aaf45b73a79420cbff8af01d",
+      "size": 1181
+    },
+    {
       "path": "pages/systems/calendar.md",
       "sha256": "60ff71bfe75abe8b440d334d839554b6e0df3c5bce8925338b7ec1cbac5d6824",
       "size": 1050
@@ -7014,5 +7044,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "af35b53dd10677a0a40a8234d91131a445142c5872669a8be99b8e94df599f2e"
+  "wiki_tree_hash": "943ffd378f223d60d101398132bbd7b1c952856a0ceb0d9c3055ae02e3d627e4"
 }

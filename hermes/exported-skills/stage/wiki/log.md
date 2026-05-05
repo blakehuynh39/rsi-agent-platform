@@ -13992,3 +13992,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a44fa0d6500b78710511869efa66d771
 - summary: Placeholder page for gas optimization strategies. The source document was empty at the time of observation.
 
+## [2026-05-05T14:54:24Z] synthesis | Balancer V2 Access Control
+
+- status: published
+- slug: systems/balancer-v2-access-control
+- wiki_revision_id: wikirev_0be2d00dfc541d7469d9d2bd87090e1c
+- summary: Access control mechanisms employed in Balancer V2.
+
+## [2026-05-05T14:55:14Z] synthesis | OpenSea Conduit (Delegation)
+
+- status: published
+- slug: concepts/opensea-conduit-delegation
+- wiki_revision_id: wikirev_ab3310dc89ac8d1b1ea0c208b3faafad
+- summary: OpenSea Conduit is a delegation mechanism used by OpenSea to facilitate transactions on behalf of users.
+
+## [2026-05-05T14:57:04Z] synthesis | Access Controller Suggestions
+
+- status: published
+- slug: open-questions/access-controller-suggestions
+- wiki_revision_id: wikirev_54e629efad3ab92386ded8072676af4c
+- summary: A Notion document titled 'Access Controller suggestions' was observed, but its content appears to be empty or contains only empty blocks, providing no substantive information.
+
