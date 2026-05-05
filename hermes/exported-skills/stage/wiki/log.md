@@ -13390,3 +13390,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_bc6b934abaebae141f7c93d5d96e31ec
 - summary: Describes the authentication mechanism for Admin APIs used by Streamer and Admin Server to access API Server's Admin APIs. It uses a combination of Secret Manager and KMS to encryp...
 
+## [2026-05-05T07:12:00Z] synthesis | Gas Optimization Research
+
+- status: published
+- slug: concepts/gas-optimization-research
+- wiki_revision_id: wikirev_87d5412ee0d3d66b9435686dc07ea5c9
+- summary: A collection of resources and notes on gas optimization techniques for Solidity smart contracts.
+
