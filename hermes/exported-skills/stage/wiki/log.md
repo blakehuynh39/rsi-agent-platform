@@ -13656,3 +13656,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b88a2330f13d4e1607524f15a32d3ed0
 - summary: The Numo Product Backlog is a Notion database where each row is mirrored as a separate Notion document.
 
+## [2026-05-05T10:16:59Z] synthesis | Large PFP Collection as an IP Remix
+
+- status: published
+- slug: projects/large-pfp-collection-ip-remix
+- wiki_revision_id: wikirev_6b537172aa10dd74b3de657e960e271d
+- summary: A project idea to release a large PFP collection as a demonstration of the Protocol’s remixing and licensing features, with various design options for ownership, collectibility, an...
+
