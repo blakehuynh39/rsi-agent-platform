@@ -13544,3 +13544,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_03b3ac421ead4ed6c81695e988083fe7
 - summary: Comparison between GraphQL and REST API approaches for backend services.
 
+## [2026-05-05T08:49:47Z] synthesis | Protocol metadata
+
+- status: published
+- slug: concepts/protocol-metadata
+- wiki_revision_id: wikirev_344591fb9fa396612e358a86a55c6397
+- summary: Defines metadata for the core protocol, allowing user-defined metadata, with a JSON type interface, and categories including Franchise, Story, Character, License, Collection.
+

@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "2eb92056eaf79d06be5f0c261f31ce746e891a499bfeb08f9e8b363acf06a806",
-        "size": 683406
+        "sha256": "5d030c7e50e9410ce4defb807a7fd8945458bc6b122737f8a75b3a0c53c5a2a9",
+        "size": 683766
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2873,6 +2873,11 @@
         "path": "pages/concepts/protocol-data-model-design-principles.md",
         "sha256": "841d1014a9157be80b22048cde3021c5379eba347d1d449fd5b837ede500c19e",
         "size": 4910
+      },
+      {
+        "path": "pages/concepts/protocol-metadata.md",
+        "sha256": "15210b4c94ecfd91533e089b9170834d90302188934765f4f32549180227d5fb",
+        "size": 2328
       },
       {
         "path": "pages/concepts/smart-contract-security-resources.md",
@@ -3229,8 +3234,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T08:48:48Z",
-  "file_count": 644,
+  "exported_at": "2026-05-05T08:54:40Z",
+  "file_count": 645,
   "files": [
     {
       "path": ".usage.json",
@@ -5997,20 +6002,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "7f2003f302a5d99ae87a03ecce42171d381ab847a21445f8b1ac40fa5323dead",
+  "previous_tree_hash": "2e40c2eabea4e4ae22d05cbe1def4ffc74079b9552b727a7498733e70fda8a56",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2e40c2eabea4e4ae22d05cbe1def4ffc74079b9552b727a7498733e70fda8a56",
+  "tree_hash": "e595d64ef53c7964011f3843ab0c9d5b0178b95fd428fda7647363a2ee9a7f50",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 92,
+  "wiki_file_count": 93,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6024,8 +6029,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "2eb92056eaf79d06be5f0c261f31ce746e891a499bfeb08f9e8b363acf06a806",
-      "size": 683406
+      "sha256": "5d030c7e50e9410ce4defb807a7fd8945458bc6b122737f8a75b3a0c53c5a2a9",
+      "size": 683766
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6121,6 +6126,11 @@
       "path": "pages/concepts/protocol-data-model-design-principles.md",
       "sha256": "841d1014a9157be80b22048cde3021c5379eba347d1d449fd5b837ede500c19e",
       "size": 4910
+    },
+    {
+      "path": "pages/concepts/protocol-metadata.md",
+      "sha256": "15210b4c94ecfd91533e089b9170834d90302188934765f4f32549180227d5fb",
+      "size": 2328
     },
     {
       "path": "pages/concepts/smart-contract-security-resources.md",
@@ -6474,5 +6484,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f99f4614522eadc0c2acd2d42016cd957fd111290fb3f42a8d75bfa9e97a5dc7"
+  "wiki_tree_hash": "44542b3d8d66401cb7eea73e8015a2fb9541e1f8af216344813549b82368fbda"
 }
