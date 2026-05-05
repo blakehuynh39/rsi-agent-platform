@@ -14283,3 +14283,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_bead5059310de702756543ebe3024bbe
 - summary: Describes how the Explorer application leverages the Mainnet API, filtering by IPA id and providing search, transaction, IPAsset, lineage, collection, derivative, policy, license, ...
 
+## [2026-05-05T18:10:51Z] synthesis | Running a Node
+
+- status: published
+- slug: runbooks/running-a-node
+- wiki_revision_id: wikirev_c14678c173e52287715cbe8765c4431c
+- summary: Instructions for running a story network node locally, including Docker images, RPC endpoints, and P2P sync IPs.
+
