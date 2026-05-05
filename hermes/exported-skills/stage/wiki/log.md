@@ -13593,3 +13593,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d13ca85fa14cc12e6cc85920f403dd84
 - summary: A curated list of generic and non-custodial wallet solutions for web3 applications, including integration guides and examples.
 
+## [2026-05-05T09:41:40Z] synthesis | Story Protocol Website i18n Options
+
+- status: published
+- slug: decisions/story-protocol-website-i18n-options
+- wiki_revision_id: wikirev_44b1549d341c5a069c16511040dc2e78
+- summary: Evaluation of two approaches for internationalizing the Story Protocol website: a custom solution using Contentful's built-in locale support, and an automated no-code solution usin...
+
+## [2026-05-05T09:42:36Z] synthesis | Protocol API Specs
+
+- status: published
+- slug: systems/protocol-api-specs
+- wiki_revision_id: wikirev_f8b3526dbc96d810e60e1f6ce9d91bb1
+- summary: REST API specifications for the protocol, covering franchises, IP assets, licenses, collections, and transactions. Relationship operations are handled entirely via smart contracts ...
+
+## [2026-05-05T09:43:56Z] synthesis | Frontend
+
+- status: published
+- slug: concepts/frontend
+- wiki_revision_id: wikirev_838d69d2238167ffd955c4ae64d3a0ab
+- summary: A hub page linking to various frontend resources and subpages.
+

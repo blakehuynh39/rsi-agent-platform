@@ -2771,13 +2771,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "63189a3a4e01aacf239fb481cdb0cbc7bb7232b02c5410adc0c1daf127831cc8",
-        "size": 385336
+        "sha256": "60d42c2857d1a960eeee29dc9f2ac7606db032447195692a94643809ab180ddb",
+        "size": 387652
       },
       {
         "path": "log.md",
-        "sha256": "c64feac778539f689cbe68b5ff2de3454f99a67555abec6077a07fc846a9e5c0",
-        "size": 685665
+        "sha256": "e2d362ec67c26b45c24e35934c1940e26fd59dd82f0f1f9979956d243268b2ac",
+        "size": 686671
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2813,6 +2813,11 @@
         "path": "pages/concepts/farming-mitigation.md",
         "sha256": "98befb0319d9ec263ac358aff4f1b6f8cc59cd440f8cab20a8c935808fbe851e",
         "size": 1138
+      },
+      {
+        "path": "pages/concepts/frontend.md",
+        "sha256": "6cfc291ab8b730f8d890e0d3cc7994111564f898efafd20fff75c89314610ca8",
+        "size": 1194
       },
       {
         "path": "pages/concepts/gas-optimization-research.md",
@@ -2938,6 +2943,11 @@
         "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
         "sha256": "8e9ec5fa2596e9a48b96836914d6bfd93708467d38f8cb9ada8cf4c2fd7883c6",
         "size": 1593
+      },
+      {
+        "path": "pages/decisions/story-protocol-website-i18n-options.md",
+        "sha256": "7a31a612b3ce6b5df02ad4294250b6b726848b2cacfd22e88f927cd334498d11",
+        "size": 3856
       },
       {
         "path": "pages/decisions/v2-monitoring-cicd-design.md",
@@ -3255,6 +3265,11 @@
         "size": 1012
       },
       {
+        "path": "pages/systems/protocol-api-specs.md",
+        "sha256": "817897cd3e29c6ca0c252ec531ea74543214e319524e58091c2c11143452efc3",
+        "size": 8518
+      },
+      {
         "path": "pages/systems/story-protocol-orchestrator-gateway.md",
         "sha256": "0ce3a08f3c4ee85ee682fe7fc972397921f3018fcc2a470bca0459569b1b13e1",
         "size": 3026
@@ -3264,8 +3279,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T09:34:03Z",
-  "file_count": 651,
+  "exported_at": "2026-05-05T09:44:57Z",
+  "file_count": 654,
   "files": [
     {
       "path": ".usage.json",
@@ -6032,20 +6047,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "2feb409b294f1ba244dc2e779c894c1e4687859f887fa9d16cb39fe1a6fc3dd8",
+  "previous_tree_hash": "c8180608d2f970ee6f8420dae950e84e189eb6ee27fa477453a462efbcd5408a",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c8180608d2f970ee6f8420dae950e84e189eb6ee27fa477453a462efbcd5408a",
+  "tree_hash": "6438910d9a31bc725711590f23998de695a9b4f03669bcf8be859e8073e084fc",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 99,
+  "wiki_file_count": 102,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6054,13 +6069,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "63189a3a4e01aacf239fb481cdb0cbc7bb7232b02c5410adc0c1daf127831cc8",
-      "size": 385336
+      "sha256": "60d42c2857d1a960eeee29dc9f2ac7606db032447195692a94643809ab180ddb",
+      "size": 387652
     },
     {
       "path": "log.md",
-      "sha256": "c64feac778539f689cbe68b5ff2de3454f99a67555abec6077a07fc846a9e5c0",
-      "size": 685665
+      "sha256": "e2d362ec67c26b45c24e35934c1940e26fd59dd82f0f1f9979956d243268b2ac",
+      "size": 686671
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6096,6 +6111,11 @@
       "path": "pages/concepts/farming-mitigation.md",
       "sha256": "98befb0319d9ec263ac358aff4f1b6f8cc59cd440f8cab20a8c935808fbe851e",
       "size": 1138
+    },
+    {
+      "path": "pages/concepts/frontend.md",
+      "sha256": "6cfc291ab8b730f8d890e0d3cc7994111564f898efafd20fff75c89314610ca8",
+      "size": 1194
     },
     {
       "path": "pages/concepts/gas-optimization-research.md",
@@ -6221,6 +6241,11 @@
       "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
       "sha256": "8e9ec5fa2596e9a48b96836914d6bfd93708467d38f8cb9ada8cf4c2fd7883c6",
       "size": 1593
+    },
+    {
+      "path": "pages/decisions/story-protocol-website-i18n-options.md",
+      "sha256": "7a31a612b3ce6b5df02ad4294250b6b726848b2cacfd22e88f927cd334498d11",
+      "size": 3856
     },
     {
       "path": "pages/decisions/v2-monitoring-cicd-design.md",
@@ -6538,11 +6563,16 @@
       "size": 1012
     },
     {
+      "path": "pages/systems/protocol-api-specs.md",
+      "sha256": "817897cd3e29c6ca0c252ec531ea74543214e319524e58091c2c11143452efc3",
+      "size": 8518
+    },
+    {
       "path": "pages/systems/story-protocol-orchestrator-gateway.md",
       "sha256": "0ce3a08f3c4ee85ee682fe7fc972397921f3018fcc2a470bca0459569b1b13e1",
       "size": 3026
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4b934d14ced68c82eb1bc57c1a514ba4127d0a993c9bf1ea1d252e8c75782952"
+  "wiki_tree_hash": "a3ef98d1825de66e46e638495cf80cc18b92e368b3ab0ac56c2f69a97835aae9"
 }
