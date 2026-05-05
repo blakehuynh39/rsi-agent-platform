@@ -4,7 +4,7 @@
     "skills": [
       {
         "path": ".usage.json",
-        "sha256": "7173a5e7c25b51123e2c1aa8b58bfbddf5b92045edb718f0dd46d772532174cb",
+        "sha256": "cba26cbda207226a66ae1d059c1f641a30c8736202278ceeb440b36c16addceb",
         "size": 1061
       },
       {
@@ -2771,13 +2771,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "27ee1cf4d750650c4627a460aefd65284333b7faa6903b239c8ba51278d0aaed",
-        "size": 300676
+        "sha256": "e1cb23210b340ba568c59393194a6c4120b463ad29c22036249a77a563132cbb",
+        "size": 346120
       },
       {
         "path": "log.md",
-        "sha256": "86a3ae98d38e432013a5d9838a27855b3d2d0d5511d4756bbcea7323d10d6527",
-        "size": 561076
+        "sha256": "5bc81c59cac2ce972893c27b551c525d0dcf4d5c07a02366434fe74e12b42db8",
+        "size": 627514
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3129,12 +3129,12 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T06:40:18Z",
+  "exported_at": "2026-05-05T06:46:03Z",
   "file_count": 624,
   "files": [
     {
       "path": ".usage.json",
-      "sha256": "7173a5e7c25b51123e2c1aa8b58bfbddf5b92045edb718f0dd46d772532174cb",
+      "sha256": "cba26cbda207226a66ae1d059c1f641a30c8736202278ceeb440b36c16addceb",
       "size": 1061
     },
     {
@@ -5897,13 +5897,13 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "5eeebd147aa049dc22004f35a4759d63dd8613028835db0cc7fc6fc956b2222f",
+  "previous_tree_hash": "f265effc94c6bfc5d0948cb2530ad918edf7234b103d89a58c147b2fa8eb8a0e",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
-  "skill_tree_hash": "f70be7d7f63510c737060361d12401db62355ef3460dc89fbe783a2f35611a81",
+  "skill_tree_hash": "1ab886a34ec36fee14bce233b486fe4d3caefff62ba1d53bf14218796d74be2b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f265effc94c6bfc5d0948cb2530ad918edf7234b103d89a58c147b2fa8eb8a0e",
+  "tree_hash": "2b7ee87b7385b3935840853f33ae76aafa72383638e65f02409355249e91a595",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -5919,13 +5919,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "27ee1cf4d750650c4627a460aefd65284333b7faa6903b239c8ba51278d0aaed",
-      "size": 300676
+      "sha256": "e1cb23210b340ba568c59393194a6c4120b463ad29c22036249a77a563132cbb",
+      "size": 346120
     },
     {
       "path": "log.md",
-      "sha256": "86a3ae98d38e432013a5d9838a27855b3d2d0d5511d4756bbcea7323d10d6527",
-      "size": 561076
+      "sha256": "5bc81c59cac2ce972893c27b551c525d0dcf4d5c07a02366434fe74e12b42db8",
+      "size": 627514
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6274,5 +6274,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ea7cda75c0338d097ee9321f10a3fe2a566a59767eb8f1711c8a7ebd77541313"
+  "wiki_tree_hash": "6dc45bea8a56af26b66c7dda8465020c2ce80c7c7a548fc6d2b539acb4bede87"
 }
