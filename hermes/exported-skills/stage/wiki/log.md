@@ -13523,3 +13523,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c5646beb6ec70e8fa45846e0d449944d
 - summary: A book entry template for IPA, containing fields for Name, Author(s), Translator(s), Publisher, Publish Time, and ISBN.
 
+## [2026-05-05T08:44:36Z] synthesis | Lens Protocol Deep-dive
+
+- status: published
+- slug: projects/lens-protocol-deep-dive
+- wiki_revision_id: wikirev_a769671664616af9e5ad4a7802ece497
+- summary: A deep-dive research page on Lens Protocol, part of the Protocol Research workspace.
+
+## [2026-05-05T08:44:37Z] synthesis | Lens V2
+
+- status: published
+- slug: projects/lens-v2
+- wiki_revision_id: wikirev_4bc28b529f9113eb6afa9c4e2d3b04bb
+- summary: A research page on Lens V2, part of the Protocol Research workspace.
+
+## [2026-05-05T08:46:31Z] synthesis | GraphQL vs REST API
+
+- status: published
+- slug: concepts/graphql-vs-rest-api
+- wiki_revision_id: wikirev_03b3ac421ead4ed6c81695e988083fe7
+- summary: Comparison between GraphQL and REST API approaches for backend services.
+

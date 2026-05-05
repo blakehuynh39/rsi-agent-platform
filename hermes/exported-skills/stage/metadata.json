@@ -2776,8 +2776,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "503af17410102ce7378ff2650f5e0c2d2d0bb9eaaebcebdecf69beb17bd6d374",
-        "size": 682628
+        "sha256": "2eb92056eaf79d06be5f0c261f31ce746e891a499bfeb08f9e8b363acf06a806",
+        "size": 683406
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -2813,6 +2813,11 @@
         "path": "pages/concepts/gas-optimization-research.md",
         "sha256": "8f516a85a4b3a3cdbb5e674ebc7908f709bc42023fc33da3039b7c2c52736af5",
         "size": 3680
+      },
+      {
+        "path": "pages/concepts/graphql-vs-rest-api.md",
+        "sha256": "e79608c28f93bee8710daae8048026af57cd758396d3eedbcb5b4f498c06b58b",
+        "size": 1190
       },
       {
         "path": "pages/concepts/image-resizing-solution.md",
@@ -3075,9 +3080,14 @@
         "size": 1238
       },
       {
+        "path": "pages/projects/lens-protocol-deep-dive.md",
+        "sha256": "8932edf678a4a2da88ed127a58d51088341577df47d301540a7fac704c795a9a",
+        "size": 1214
+      },
+      {
         "path": "pages/projects/lens-v2.md",
-        "sha256": "9429b04ab8f702e449637bae4a32c09e8649e93690dab5c062954f94c81c14ed",
-        "size": 2528
+        "sha256": "7e470b4c99b114f132837df3ae3ce50836feeecd1383a8b01414c2e5a6d865a7",
+        "size": 1150
       },
       {
         "path": "pages/projects/license-receipt-functionality.md",
@@ -3219,8 +3229,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-05T08:37:55Z",
-  "file_count": 642,
+  "exported_at": "2026-05-05T08:48:48Z",
+  "file_count": 644,
   "files": [
     {
       "path": ".usage.json",
@@ -5987,20 +5997,20 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68dccbtcnns",
-  "previous_tree_hash": "8450d6a377dbbb0a9a2d75e85e469870d5f51b06587bb8fbd833f9dff76649dd",
+  "previous_tree_hash": "7f2003f302a5d99ae87a03ecce42171d381ab847a21445f8b1ac40fa5323dead",
   "schema_version": 1,
   "skill_file_count": 552,
   "skill_manage_sessions": [],
   "skill_tree_hash": "afbebdcfaf85516176fe08d38780ea8f2c24aec899a8ed096440abcc43ef12ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7f2003f302a5d99ae87a03ecce42171d381ab847a21445f8b1ac40fa5323dead",
+  "tree_hash": "2e40c2eabea4e4ae22d05cbe1def4ffc74079b9552b727a7498733e70fda8a56",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 90,
+  "wiki_file_count": 92,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6014,8 +6024,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "503af17410102ce7378ff2650f5e0c2d2d0bb9eaaebcebdecf69beb17bd6d374",
-      "size": 682628
+      "sha256": "2eb92056eaf79d06be5f0c261f31ce746e891a499bfeb08f9e8b363acf06a806",
+      "size": 683406
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -6051,6 +6061,11 @@
       "path": "pages/concepts/gas-optimization-research.md",
       "sha256": "8f516a85a4b3a3cdbb5e674ebc7908f709bc42023fc33da3039b7c2c52736af5",
       "size": 3680
+    },
+    {
+      "path": "pages/concepts/graphql-vs-rest-api.md",
+      "sha256": "e79608c28f93bee8710daae8048026af57cd758396d3eedbcb5b4f498c06b58b",
+      "size": 1190
     },
     {
       "path": "pages/concepts/image-resizing-solution.md",
@@ -6313,9 +6328,14 @@
       "size": 1238
     },
     {
+      "path": "pages/projects/lens-protocol-deep-dive.md",
+      "sha256": "8932edf678a4a2da88ed127a58d51088341577df47d301540a7fac704c795a9a",
+      "size": 1214
+    },
+    {
       "path": "pages/projects/lens-v2.md",
-      "sha256": "9429b04ab8f702e449637bae4a32c09e8649e93690dab5c062954f94c81c14ed",
-      "size": 2528
+      "sha256": "7e470b4c99b114f132837df3ae3ce50836feeecd1383a8b01414c2e5a6d865a7",
+      "size": 1150
     },
     {
       "path": "pages/projects/license-receipt-functionality.md",
@@ -6454,5 +6474,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "cc55b89e598d08153f8d40038d4a4ec9bfd2f10c9877bb8a8c0c8e6f49085b98"
+  "wiki_tree_hash": "f99f4614522eadc0c2acd2d42016cd957fd111290fb3f42a8d75bfa9e97a5dc7"
 }
