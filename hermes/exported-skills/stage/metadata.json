@@ -2836,13 +2836,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "727adf4325021119a98dff931f62f5efde2673f0ed89198327a7c3e38762707c",
-        "size": 450492
+        "sha256": "62ab3f15064c17922ba24d20fa9572e4612360fdc36d04436646d7d3a8b08d2b",
+        "size": 450865
       },
       {
         "path": "log.md",
-        "sha256": "c42e89e295a9889a15dce840929bf8a6ac6a881f92ea9e16592efcc17e259767",
-        "size": 763063
+        "sha256": "bf427cc1cedf0b26e6667b10e24635aecca989c207730d5aebb47caf398f43f4",
+        "size": 763448
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2923,6 +2923,11 @@
         "path": "pages/concepts/dutch-auction-minting.md",
         "sha256": "a7362c0a5b381a3006de17b51e4beb63d31ba765354fec5259178a75efb2fc4d",
         "size": 1388
+      },
+      {
+        "path": "pages/concepts/ecosystem-growth-strategy.md",
+        "sha256": "31f9f970bc0b4fd7abdf63ae31872f69ef6d99e7a2fafe7f402e2e9097d30083",
+        "size": 3859
       },
       {
         "path": "pages/concepts/eigen-token.md",
@@ -4304,8 +4309,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T21:51:16Z",
-  "file_count": 859,
+  "exported_at": "2026-05-06T22:12:29Z",
+  "file_count": 860,
   "files": [
     {
       "path": ".curator_state",
@@ -7137,7 +7142,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5599f8q966n",
-  "previous_tree_hash": "31758d271d9916dcedbd1c694d0cbffa55bcb4d418b9628e2cd9d8f46aef04f0",
+  "previous_tree_hash": "ee39eac628609cd7c0d4da3edbf9c697c1540eedb3cd7c094cd9442df76cc565",
   "schema_version": 1,
   "skill_file_count": 565,
   "skill_manage_sessions": [
@@ -7150,14 +7155,14 @@
   ],
   "skill_tree_hash": "8159b02fc2edaed7e05d9157ac121abbfadb5ad47a837f4529e524f719b22d51",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ee39eac628609cd7c0d4da3edbf9c697c1540eedb3cd7c094cd9442df76cc565",
+  "tree_hash": "15afa238d7acb158325c6b64736fddccb817edd3a8ace7d29235657410922ba5",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 294,
+  "wiki_file_count": 295,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7166,13 +7171,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "727adf4325021119a98dff931f62f5efde2673f0ed89198327a7c3e38762707c",
-      "size": 450492
+      "sha256": "62ab3f15064c17922ba24d20fa9572e4612360fdc36d04436646d7d3a8b08d2b",
+      "size": 450865
     },
     {
       "path": "log.md",
-      "sha256": "c42e89e295a9889a15dce840929bf8a6ac6a881f92ea9e16592efcc17e259767",
-      "size": 763063
+      "sha256": "bf427cc1cedf0b26e6667b10e24635aecca989c207730d5aebb47caf398f43f4",
+      "size": 763448
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7253,6 +7258,11 @@
       "path": "pages/concepts/dutch-auction-minting.md",
       "sha256": "a7362c0a5b381a3006de17b51e4beb63d31ba765354fec5259178a75efb2fc4d",
       "size": 1388
+    },
+    {
+      "path": "pages/concepts/ecosystem-growth-strategy.md",
+      "sha256": "31f9f970bc0b4fd7abdf63ae31872f69ef6d99e7a2fafe7f402e2e9097d30083",
+      "size": 3859
     },
     {
       "path": "pages/concepts/eigen-token.md",
@@ -8631,5 +8641,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "736235586bc13ca1fd85def3bb0d5a64109240f95e138c3094ca8e08297f3ca4"
+  "wiki_tree_hash": "494042fe8597c7b052182f225ec13727e899eaa48fc6da316fd9e59e34b028a6"
 }

@@ -15209,3 +15209,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_dc341ed58d68b576437dbc36fc473c71
 - summary: Defines the interface and responsibilities for frontend (gateway) contracts in Story Protocol, including the IGateway and IModuleRegistry interfaces and their role in managing modu...
 
+## [2026-05-06T22:08:20Z] synthesis | Ecosystem Growth Strategy
+
+- status: published
+- slug: concepts/ecosystem-growth-strategy
+- wiki_revision_id: wikirev_f4b3ee0c0d1caaa7033091f3bd8c69f4
+- summary: A strategy for growing the RSI ecosystem by first focusing on fanfiction for existing hit franchises, then expanding outward. Emphasizes composability between franchises and uses t...
+
