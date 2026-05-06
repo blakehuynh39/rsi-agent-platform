@@ -2816,8 +2816,8 @@
       },
       {
         "path": "index.md",
-        "sha256": "ea10343cd2c091d8ca157dece7486e862fd37a91e6b19c6a088b73c4ae628a98",
-        "size": 439612
+        "sha256": "c33515c469ca8b5f3444664f3a84c3c7edfa238e1d3d6afda8aee8dee3804481",
+        "size": 439891
       },
       {
         "path": "log.md",
@@ -4124,7 +4124,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T10:32:22Z",
+  "exported_at": "2026-05-06T10:38:20Z",
   "file_count": 823,
   "files": [
     {
@@ -6937,7 +6937,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c9cb69kn5p6",
-  "previous_tree_hash": "21aaf945106c33972d13d3aa1b36068b6a645de178bfd623ce4f6822265fa306",
+  "previous_tree_hash": "a0ff1930d8f9269e892aa72f77e3cc55fda532ebbdfe1b58a6e124639ffdca24",
   "schema_version": 1,
   "skill_file_count": 561,
   "skill_manage_sessions": [
@@ -6950,7 +6950,7 @@
   ],
   "skill_tree_hash": "afbd2291fd67b2c005ef55e775975ab80b39daf1645a51d878d7521be04f637a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a0ff1930d8f9269e892aa72f77e3cc55fda532ebbdfe1b58a6e124639ffdca24",
+  "tree_hash": "a5638d67062802e3a7bafa11c810520558419e15c4664bac41191e75919e334d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -6966,8 +6966,8 @@
     },
     {
       "path": "index.md",
-      "sha256": "ea10343cd2c091d8ca157dece7486e862fd37a91e6b19c6a088b73c4ae628a98",
-      "size": 439612
+      "sha256": "c33515c469ca8b5f3444664f3a84c3c7edfa238e1d3d6afda8aee8dee3804481",
+      "size": 439891
     },
     {
       "path": "log.md",
@@ -8271,5 +8271,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "8a7eb92b4de976d8371180c19e6d57000fc68984a4ff65975ac607546a7463cf"
+  "wiki_tree_hash": "e7ca5e4fa770c591a20340e30423456519fbfb96c9bcc6fc7f7baff3ba6fba1a"
 }
