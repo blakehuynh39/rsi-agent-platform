@@ -2786,13 +2786,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "c641451d3716e61824e4ec3148019b93fc390573b03f284019b9b4f6cef2bf9c",
-        "size": 429361
+        "sha256": "9d5928731bfe84491a8849fdbf4a854865468827d1f82bbdaabfb4f5ef155c3b",
+        "size": 429985
       },
       {
         "path": "log.md",
-        "sha256": "1b20c3dce57470d52370f75ae4596476531aa96dc6cc0586cb8836a62db282ce",
-        "size": 736910
+        "sha256": "ebce57669a4ebda19ca862b4e9faddfa34644a90cd6ea91b88df12eef1ddd956",
+        "size": 737558
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2973,6 +2973,11 @@
         "path": "pages/concepts/ipa-book.md",
         "sha256": "c3527a5d928cb1e9d08c17c7bc5390c27c3429e53b1c094a6180aa3d9b03b4ba",
         "size": 1229
+      },
+      {
+        "path": "pages/concepts/l1-api-specifications.md",
+        "sha256": "e6085df97097ed2efe840a937e785e1998c66f981f12d6d5c753ae9cc40cec3a",
+        "size": 2274
       },
       {
         "path": "pages/concepts/l1-features-services-brainstorming.md",
@@ -3720,6 +3725,11 @@
         "size": 10431
       },
       {
+        "path": "pages/projects/testnet-launch-checklist.md",
+        "sha256": "d43c388b51ea4d706c4e0dc246c8a27242885e6221e304c4f63378e9c3ed96da",
+        "size": 2926
+      },
+      {
         "path": "pages/projects/upwork-fiverr-i18n-translation-vetting.md",
         "sha256": "d046ecfcd2741ab81ffc4d30d1e6c166f43ad4376ee4896dff4db9879393a681",
         "size": 1547
@@ -3929,8 +3939,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T01:25:42Z",
-  "file_count": 784,
+  "exported_at": "2026-05-06T01:51:59Z",
+  "file_count": 786,
   "files": [
     {
       "path": ".usage.json",
@@ -6712,7 +6722,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f7f569tv7vt",
-  "previous_tree_hash": "6c98768ceac94c73b506e70c58d99d993a4cdea9be365ddb49c9f9521eb4f19d",
+  "previous_tree_hash": "c95e16dc9b4b7dc21aca2691ed628e3e48f468ee102214a80836cc6b5a21098d",
   "schema_version": 1,
   "skill_file_count": 555,
   "skill_manage_sessions": [
@@ -6725,14 +6735,14 @@
   ],
   "skill_tree_hash": "93a39c348b599ba4ce6366c3184425e46fb0b11259fb63916e94477fa44536b7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c95e16dc9b4b7dc21aca2691ed628e3e48f468ee102214a80836cc6b5a21098d",
+  "tree_hash": "b504bd3190b9037e94ca85bffcd1de83432aee832cc5ddcdd11d92ee1f68282b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 229,
+  "wiki_file_count": 231,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6741,13 +6751,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "c641451d3716e61824e4ec3148019b93fc390573b03f284019b9b4f6cef2bf9c",
-      "size": 429361
+      "sha256": "9d5928731bfe84491a8849fdbf4a854865468827d1f82bbdaabfb4f5ef155c3b",
+      "size": 429985
     },
     {
       "path": "log.md",
-      "sha256": "1b20c3dce57470d52370f75ae4596476531aa96dc6cc0586cb8836a62db282ce",
-      "size": 736910
+      "sha256": "ebce57669a4ebda19ca862b4e9faddfa34644a90cd6ea91b88df12eef1ddd956",
+      "size": 737558
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6928,6 +6938,11 @@
       "path": "pages/concepts/ipa-book.md",
       "sha256": "c3527a5d928cb1e9d08c17c7bc5390c27c3429e53b1c094a6180aa3d9b03b4ba",
       "size": 1229
+    },
+    {
+      "path": "pages/concepts/l1-api-specifications.md",
+      "sha256": "e6085df97097ed2efe840a937e785e1998c66f981f12d6d5c753ae9cc40cec3a",
+      "size": 2274
     },
     {
       "path": "pages/concepts/l1-features-services-brainstorming.md",
@@ -7675,6 +7690,11 @@
       "size": 10431
     },
     {
+      "path": "pages/projects/testnet-launch-checklist.md",
+      "sha256": "d43c388b51ea4d706c4e0dc246c8a27242885e6221e304c4f63378e9c3ed96da",
+      "size": 2926
+    },
+    {
       "path": "pages/projects/upwork-fiverr-i18n-translation-vetting.md",
       "sha256": "d046ecfcd2741ab81ffc4d30d1e6c166f43ad4376ee4896dff4db9879393a681",
       "size": 1547
@@ -7881,5 +7901,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1b205e719f938bb6da0fed48e500ddcd46948ebdaa74c4b0a0b10490a0a6abc1"
+  "wiki_tree_hash": "d763624897577bc226a9da477119853520aa1558823ffe7737acb2005bd99b5e"
 }

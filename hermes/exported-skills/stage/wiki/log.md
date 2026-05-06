@@ -14660,3 +14660,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_df4962c7f3cef5a5840be4142fcdcfae
 - summary: Add ERC20 Permit support to the Wrapped IP ($wIP) token by creating a new custom contract to improve user experience.
 
+## [2026-05-06T01:47:27Z] synthesis | Testnet Launch Checklist
+
+- status: published
+- slug: projects/testnet-launch-checklist
+- wiki_revision_id: wikirev_82299c9dd1e563c31dd59ff95799c255
+- summary: Checklist covering dev/user tooling (RPC, faucet, explorer, indexer) and validator/staker requirements for testnet launch.
+
+## [2026-05-06T01:48:10Z] synthesis | L1 API Specifications
+
+- status: published
+- slug: concepts/l1-api-specifications
+- wiki_revision_id: wikirev_8bb2ef92a5f6322e698eb25dee326d41
+- summary: Overview of the API specifications used by the L1 layer, including CometBFT RPC, Ethereum JSON RPC standard, and Geth-specific APIs.
+
