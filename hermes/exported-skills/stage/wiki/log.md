@@ -14886,3 +14886,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_41ff5b6881c0af884812a18205ab0855
 - summary: Iliad Testnet documentation references Token Drops.
 
+## [2026-05-06T09:30:24Z] ingest | Slack thread C0AKH5SNGKH channel
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-channel-53ca9dcc
+- wiki_revision_id: wikirev_a39a516c08f4f535b4472cf5430e0fda
+- source_document_id: srcdoc_b8c049e55a95dd9144c9ede553ca9dcc
+- source_revision_id: srcrev_8b859baab073f315337c33aa095ed1e2
+- summary: <@U05A515NBFC> i'm fixing MC for <https://github.com/piplabs/numo-monorepo/pull/139>
+
+## [2026-05-06T09:30:55Z] synthesis | Periphery New Release Runbook
+
+- status: published
+- slug: runbooks/periphery-new-release-runbook
+- wiki_revision_id: wikirev_281f3930c51b32643b0973ddd05ae4a7
+- summary: Checklist of steps to perform a new release of Periphery, including updating package.json, dependencies, changelog, deployment addresses, documentation, creating a PR, creating a G...
+
