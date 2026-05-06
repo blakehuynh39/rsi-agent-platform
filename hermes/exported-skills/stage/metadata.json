@@ -2821,13 +2821,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b22670b2a1d7d283d44b5cd212ebbadf516620fe16f617bb4db652456b17212d",
-        "size": 445399
+        "sha256": "189a9baa1eaecfd2abad51fbd98694824f043e1b624ebb4422a36ec1dde708f3",
+        "size": 445719
       },
       {
         "path": "log.md",
-        "sha256": "709b146f06b77017f3fafb9c1cc30707119c0009218c26abb6b745868e87cd74",
-        "size": 757324
+        "sha256": "21009b31d6a30c61e089cd1acef19672d0153bb7d4f89c6367eb3347644a9cd9",
+        "size": 757656
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3138,6 +3138,11 @@
         "path": "pages/concepts/programmable-blockchain-framework-design-goals.md",
         "sha256": "6db741afe4e1f6c321651d3a4d994bff709bef423af3e4b66cba93d06348aac5",
         "size": 4207
+      },
+      {
+        "path": "pages/concepts/projects-and-tasks-overview.md",
+        "sha256": "8e1a80ff2f1b93d25004382bf7c698c82ea1bc12677509efd9ddda037d2924a0",
+        "size": 2843
       },
       {
         "path": "pages/concepts/proof-of-creativity-incentive-alignment.md",
@@ -4209,8 +4214,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T16:50:31Z",
-  "file_count": 840,
+  "exported_at": "2026-05-06T16:56:32Z",
+  "file_count": 841,
   "files": [
     {
       "path": ".curator_state",
@@ -7027,7 +7032,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c9cb697rvtm",
-  "previous_tree_hash": "1f455ba6ed1a15cc64f2fdc8c4c66e8e34c93d959628eb20289b0126eaf014c8",
+  "previous_tree_hash": "a968e86671f47f964c9662fafe3f6ffe76e4dee454434b6f319f09f9d7b5642b",
   "schema_version": 1,
   "skill_file_count": 562,
   "skill_manage_sessions": [
@@ -7040,14 +7045,14 @@
   ],
   "skill_tree_hash": "90f983842dd37d8b39063c99a4526bf20ef5c6b1288978e6199735c8b0dbd15e",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a968e86671f47f964c9662fafe3f6ffe76e4dee454434b6f319f09f9d7b5642b",
+  "tree_hash": "6d138a3cb2f5f703a9a04dadd36a3eeba52a738b2dfd83738e0ee34dfb8c0c36",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 278,
+  "wiki_file_count": 279,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7056,13 +7061,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b22670b2a1d7d283d44b5cd212ebbadf516620fe16f617bb4db652456b17212d",
-      "size": 445399
+      "sha256": "189a9baa1eaecfd2abad51fbd98694824f043e1b624ebb4422a36ec1dde708f3",
+      "size": 445719
     },
     {
       "path": "log.md",
-      "sha256": "709b146f06b77017f3fafb9c1cc30707119c0009218c26abb6b745868e87cd74",
-      "size": 757324
+      "sha256": "21009b31d6a30c61e089cd1acef19672d0153bb7d4f89c6367eb3347644a9cd9",
+      "size": 757656
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7373,6 +7378,11 @@
       "path": "pages/concepts/programmable-blockchain-framework-design-goals.md",
       "sha256": "6db741afe4e1f6c321651d3a4d994bff709bef423af3e4b66cba93d06348aac5",
       "size": 4207
+    },
+    {
+      "path": "pages/concepts/projects-and-tasks-overview.md",
+      "sha256": "8e1a80ff2f1b93d25004382bf7c698c82ea1bc12677509efd9ddda037d2924a0",
+      "size": 2843
     },
     {
       "path": "pages/concepts/proof-of-creativity-incentive-alignment.md",
@@ -8441,5 +8451,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4ccbb21c2252b8ff50fe30824bdef38bbba30a8d708646a85d12806582c3a956"
+  "wiki_tree_hash": "4568ce8a3e25690323a130bfdbf07e481ac5734da359a69c970ca3ecfff90a74"
 }
