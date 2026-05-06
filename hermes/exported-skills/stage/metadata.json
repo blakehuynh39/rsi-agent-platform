@@ -2816,13 +2816,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a83bf3d3f00d41fb41e255c7911fbc466cc9ad9a48cc2a84d6530b901fdaf004",
-        "size": 437536
+        "sha256": "5c2974cbed336bb7b41c75f92c22d9b382d9b7692f14d315d9512db3dce77c72",
+        "size": 437899
       },
       {
         "path": "log.md",
-        "sha256": "2683ea3c168ee34cc363067a2186d13f9a061055a97fa7c23e7c4037126ff67e",
-        "size": 746295
+        "sha256": "0534bc9f64f046e5577426e9ac31cb9d654487f30f67de2415e8b3a48738e3ae",
+        "size": 746670
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3318,6 +3318,11 @@
         "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
         "sha256": "8e9ec5fa2596e9a48b96836914d6bfd93708467d38f8cb9ada8cf4c2fd7883c6",
         "size": 1593
+      },
+      {
+        "path": "pages/decisions/partner-testnet-phase-out.md",
+        "sha256": "bbf5295384c2c2a13eadf9a54437f0e29251c83b8a9dd3847cbcc5c8b8d00c10",
+        "size": 2536
       },
       {
         "path": "pages/decisions/pausability-design.md",
@@ -4089,8 +4094,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T08:24:37Z",
-  "file_count": 816,
+  "exported_at": "2026-05-06T08:36:03Z",
+  "file_count": 817,
   "files": [
     {
       "path": ".curator_state",
@@ -6902,7 +6907,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-bfdd9bqzchn",
-  "previous_tree_hash": "4a6071f3c2a62dc1d5ee2d261e576ffe685246c0259f35fd7ebe08bd67a32e45",
+  "previous_tree_hash": "d07528baf842cc71cb6de0d6f2e4b419b7244a18330e179b396354d0007fd6ec",
   "schema_version": 1,
   "skill_file_count": 561,
   "skill_manage_sessions": [
@@ -6915,14 +6920,14 @@
   ],
   "skill_tree_hash": "f9e334a113fb886b5fee31bbf3b7092e61cfdd55379e25b1a452d710eaba2389",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d07528baf842cc71cb6de0d6f2e4b419b7244a18330e179b396354d0007fd6ec",
+  "tree_hash": "59b9c51cc28b0e46264b3717b3b0a2ad74e56d60b4c2ce41659b881e74b05226",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 255,
+  "wiki_file_count": 256,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6931,13 +6936,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a83bf3d3f00d41fb41e255c7911fbc466cc9ad9a48cc2a84d6530b901fdaf004",
-      "size": 437536
+      "sha256": "5c2974cbed336bb7b41c75f92c22d9b382d9b7692f14d315d9512db3dce77c72",
+      "size": 437899
     },
     {
       "path": "log.md",
-      "sha256": "2683ea3c168ee34cc363067a2186d13f9a061055a97fa7c23e7c4037126ff67e",
-      "size": 746295
+      "sha256": "0534bc9f64f046e5577426e9ac31cb9d654487f30f67de2415e8b3a48738e3ae",
+      "size": 746670
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7433,6 +7438,11 @@
       "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
       "sha256": "8e9ec5fa2596e9a48b96836914d6bfd93708467d38f8cb9ada8cf4c2fd7883c6",
       "size": 1593
+    },
+    {
+      "path": "pages/decisions/partner-testnet-phase-out.md",
+      "sha256": "bbf5295384c2c2a13eadf9a54437f0e29251c83b8a9dd3847cbcc5c8b8d00c10",
+      "size": 2536
     },
     {
       "path": "pages/decisions/pausability-design.md",
@@ -8201,5 +8211,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "43850a32e4c0eafcdf3ad22d1de867a2238b99ffd7f24c051db248d7b4b06385"
+  "wiki_tree_hash": "bd07005fe3acf51c9bdf09641f633c7bdc6adf349c0b7a50684426871c0c002b"
 }

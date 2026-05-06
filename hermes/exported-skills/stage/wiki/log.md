@@ -14865,3 +14865,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7014a9d3728ddafd5f92c321dceac10c
 - summary: A Notion database tracking token distribution, embedded within the Token Drops page.
 
+## [2026-05-06T08:35:46Z] synthesis | Partner Testnet Phase-Out
+
+- status: published
+- slug: decisions/partner-testnet-phase-out
+- wiki_revision_id: wikirev_a4edd4f357a5428f012939630921c4ed
+- summary: The Story Partner Testnet will be phased out on September 6, 2024. Users are advised to migrate to the Public Testnet. For support, contact boris.polania@storyprotocol.xyz.
+
