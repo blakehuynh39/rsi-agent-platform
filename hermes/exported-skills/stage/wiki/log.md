@@ -14744,3 +14744,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_82484815ed40a43c543af947a87ae9bd
 - summary: Release notes for Partner Testnet Version 1.0.1-alpha, deployed on August 9, 2024. This update enables Geth archive mode and the debug module, while noting known issues with slashi...
 
+## [2026-05-06T04:47:35Z] synthesis | Serverless Design to Expose Network Status
+
+- status: published
+- slug: concepts/serverless-design-expose-network-status
+- wiki_revision_id: wikirev_b47d5db03447b39d8b81e32a3c069b93
+- summary: A serverless design pattern for exposing network status.
+
