@@ -150,6 +150,8 @@ _SENSITIVE_ENV_KEY_FRAGMENTS = (
     "api-key",
     "api_key",
     "apikey",
+    "client-id",
+    "client_id",
     "token",
     "secret",
     "private-key",
@@ -1159,6 +1161,9 @@ class HermesRuntime:
             return []
         return normalize_tool_names(self._config.hermes_native_toolsets or list(DEFAULT_HERMES_NATIVE_TOOLSETS))
 
+    def _grafana_observability_configured(self) -> bool:
+        return self._config.grafana_observability_configured
+
     def _configure_company_computer_substrate(self) -> JsonObject:
         status: JsonObject = {
             "ok": True,
@@ -1200,6 +1205,7 @@ class HermesRuntime:
                 path_entries = [item for item in os.environ.get("PATH", "").split(os.pathsep) if item]
                 if str(bin_dir) not in path_entries:
                     os.environ["PATH"] = os.pathsep.join([str(bin_dir), *path_entries])
+                status["grafana_observability"] = self._configure_grafana_cli_environment()
                 status.update(
                     {
                         "status": "configured",
@@ -1229,6 +1235,28 @@ class HermesRuntime:
             status["status"] = "failed"
             status["errors"] = errors
         return status
+
+    def _configure_grafana_cli_environment(self) -> JsonObject:
+        if not self._grafana_observability_configured():
+            return {"configured": False, "tool": "gcx"}
+        base_url = os.getenv("RSI_GRAFANA_BASE_URL", "").strip().rstrip("/")
+        token = os.getenv("RSI_GRAFANA_SERVICE_ACCOUNT_TOKEN", "").strip()
+        datasource_uid = os.getenv("RSI_GRAFANA_METRICS_DATASOURCE_UID", "thanos").strip() or "thanos"
+        os.environ["GRAFANA_SERVER"] = base_url
+        os.environ["GRAFANA_TOKEN"] = token
+        os.environ["RSI_GRAFANA_METRICS_DATASOURCE_UID"] = datasource_uid
+        os.environ["GCX_AGENT_MODE"] = os.getenv("GCX_AGENT_MODE", "").strip() or "true"
+        return {
+            "configured": True,
+            "tool": "gcx",
+            "policy_boundary": "grafana_rbac",
+            "query_guardrails_enforced": False,
+            "server_env": "GRAFANA_SERVER",
+            "token_env": "GRAFANA_TOKEN",
+            "agent_mode_env": "GCX_AGENT_MODE",
+            "metrics_datasource_uid": datasource_uid,
+            "default_metrics_command": 'gcx metrics query --datasource "$RSI_GRAFANA_METRICS_DATASOURCE_UID"',
+        }
 
     def _write_company_kubeconfig(self) -> Path:
         kubeconfig_path = Path(self._config.hermes_kubeconfig_path.split(os.pathsep)[0]).expanduser().resolve()
@@ -1411,6 +1439,7 @@ class HermesRuntime:
                 if self._config.hermes_prod_kubernetes_context_enabled
                 else "",
             },
+            "grafana_observability": dict(status.get("grafana_observability") or {"configured": False, "tool": "gcx"}),
             "bootstrap_status": status,
         }
         manifest_path.write_text(json.dumps(manifest, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8")
@@ -7439,6 +7468,19 @@ class HermesRuntime:
             parts.append(
                 "The GitHub CLI is available on the company computer image and is authenticated per request with the configured GitHub App installation. If GitHub App credentials cannot be minted, execution fails before Hermes starts instead of falling back to another token source."
             )
+            if self._grafana_observability_configured():
+                parts.append(
+                    "Grafana/Thanos read-only observability is available through the official Grafana gcx CLI. "
+                    "The Grafana service-account token is mounted in the executor environment and is shell-visible; "
+                    "Grafana Viewer/RBAC is the read boundary, and gcx is not an RSI policy-enforcement boundary. "
+                    "gcx is configured with GRAFANA_SERVER and GRAFANA_TOKEN. Do not print tokens, do not use "
+                    "`--log-http-payload`, and do not call Grafana write APIs. Treat explicit environment or cluster "
+                    "matchers as required operational guidance, not as a hard security boundary; use `gcx metrics query "
+                    "--datasource \"$RSI_GRAFANA_METRICS_DATASOURCE_UID\"` with those matchers. "
+                    "Use `gcx help-tree` or `gcx commands` to discover the exact read-only dashboard and alert "
+                    "inspection commands supported by the installed gcx version. "
+                    "Dashboard edits and imports must be PRs to storyprotocol/story-infra-aws, not live Grafana writes."
+                )
             repo_guidance = self._github_repository_guidance(task)
             if repo_guidance:
                 parts.append(repo_guidance)

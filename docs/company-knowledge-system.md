@@ -22,6 +22,15 @@ debugging/audit workflow. The live wiki is the mounted artifact plus Platform
 Postgres provenance; repository exports must not be reconciled back into the pod
 or treated as wiki authority.
 
+The live Story company skill tree is `/var/lib/hermes/skills/story-company` on
+the Hermes executor PVC. Do not add new runtime skills directly under
+`hermes/skills/story-company` in feature PRs; that path is only the reviewed
+bootstrap seed, and CI blocks direct edits. Follow-up for the Grafana
+observability MVP: manually seed
+`/var/lib/hermes/skills/story-company/grafana-observability/SKILL.md` on the
+stage Hermes PVC after the gcx/runtime deployment, then let the exporter
+publish the visibility snapshot under `hermes/exported-skills/stage`.
+
 Two root files are generated for agent navigation:
 
 - `index.md` is content-oriented. It catalogs published wiki pages by category

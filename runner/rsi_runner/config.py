@@ -72,6 +72,7 @@ class RunnerConfig:
     hermes_kubernetes_service_account_token_path: str
     hermes_kubernetes_service_account_ca_path: str
     hermes_kubernetes_service_account_namespace_path: str
+    grafana_observability_configured: bool
     execution_envelope_v1_enabled: bool
     execution_ledger_first_projection_enabled: bool
     runner_planner_mode: str
@@ -149,6 +150,9 @@ class RunnerConfig:
         hermes_kubernetes_service_account_token_path = optional_env("RSI_HERMES_KUBERNETES_SERVICE_ACCOUNT_TOKEN_PATH") or "/var/run/secrets/kubernetes.io/serviceaccount/token"
         hermes_kubernetes_service_account_ca_path = optional_env("RSI_HERMES_KUBERNETES_SERVICE_ACCOUNT_CA_PATH") or "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
         hermes_kubernetes_service_account_namespace_path = optional_env("RSI_HERMES_KUBERNETES_SERVICE_ACCOUNT_NAMESPACE_PATH") or "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
+        grafana_observability_configured = bool(
+            optional_env("RSI_GRAFANA_BASE_URL") and optional_env("RSI_GRAFANA_SERVICE_ACCOUNT_TOKEN")
+        )
         execution_envelope_v1_enabled = parse_bool(optional_env("RSI_EXECUTION_ENVELOPE_V1_ENABLED") or "true", "RSI_EXECUTION_ENVELOPE_V1_ENABLED")
         execution_ledger_first_projection_enabled = parse_bool(optional_env("RSI_EXECUTION_LEDGER_FIRST_PROJECTION_ENABLED") or "false", "RSI_EXECUTION_LEDGER_FIRST_PROJECTION_ENABLED")
         runner_planner_mode = optional_env("RSI_RUNNER_PLANNER_MODE") or "runner_first"
@@ -225,6 +229,7 @@ class RunnerConfig:
             hermes_kubernetes_service_account_token_path=hermes_kubernetes_service_account_token_path,
             hermes_kubernetes_service_account_ca_path=hermes_kubernetes_service_account_ca_path,
             hermes_kubernetes_service_account_namespace_path=hermes_kubernetes_service_account_namespace_path,
+            grafana_observability_configured=grafana_observability_configured,
             execution_envelope_v1_enabled=execution_envelope_v1_enabled,
             execution_ledger_first_projection_enabled=execution_ledger_first_projection_enabled,
             runner_planner_mode=runner_planner_mode,

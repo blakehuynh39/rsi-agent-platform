@@ -579,6 +579,39 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("Kubernetes read namespace scope: story, rsi-platform", prompt)
         self.assertIn("do not probe unlisted or archived namespaces", prompt)
 
+    def test_task_prompt_advertises_grafana_when_configured(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "story-infra-aws",
+                    "prompt": "Read Grafana metrics.",
+                }
+            }
+        )
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "RSI_HERMES_NATIVE_TERMINAL_ENABLED": "true",
+                "RSI_GRAFANA_BASE_URL": "https://grafana.ops.storyprotocol.net",
+                "RSI_GRAFANA_SERVICE_ACCOUNT_TOKEN": "grafana-secret-token",
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        prompt = runtime._render_task_prompt(task)
+
+        self.assertIn("Grafana/Thanos read-only observability is available through the official Grafana gcx CLI", prompt)
+        self.assertIn("Grafana Viewer/RBAC is the read boundary", prompt)
+        self.assertIn("gcx is not an RSI policy-enforcement boundary", prompt)
+        self.assertIn("gcx is configured with GRAFANA_SERVER and GRAFANA_TOKEN", prompt)
+        self.assertIn("gcx help-tree", prompt)
+        self.assertIn("gcx commands", prompt)
+        self.assertIn("token is mounted in the executor environment and is shell-visible", prompt)
+        self.assertIn("Dashboard edits and imports must be PRs to storyprotocol/story-infra-aws", prompt)
+
 
 
     def test_native_workflow_enables_configured_company_computer_toolsets(self) -> None:
@@ -952,6 +985,9 @@ class HermesRuntimeTests(unittest.TestCase):
                     "RSI_HERMES_KUBERNETES_SERVICE_ACCOUNT_TOKEN_PATH": str(token_path),
                     "RSI_HERMES_KUBERNETES_SERVICE_ACCOUNT_CA_PATH": str(ca_path),
                     "RSI_HERMES_KUBERNETES_SERVICE_ACCOUNT_NAMESPACE_PATH": str(namespace_path),
+                    "RSI_GRAFANA_BASE_URL": "https://grafana.ops.storyprotocol.net/",
+                    "RSI_GRAFANA_SERVICE_ACCOUNT_TOKEN": "grafana-secret-token",
+                    "RSI_GRAFANA_METRICS_DATASOURCE_UID": "thanos",
                 },
                 clear=True,
             ):
@@ -960,15 +996,38 @@ class HermesRuntimeTests(unittest.TestCase):
                     "TERMINAL_CWD": os.environ["TERMINAL_CWD"],
                     "PATH": os.environ["PATH"],
                     "KUBECONFIG": os.environ["KUBECONFIG"],
+                    "GRAFANA_SERVER": os.environ["GRAFANA_SERVER"],
+                    "GRAFANA_TOKEN": os.environ["GRAFANA_TOKEN"],
+                    "RSI_GRAFANA_METRICS_DATASOURCE_UID": os.environ["RSI_GRAFANA_METRICS_DATASOURCE_UID"],
+                    "GCX_AGENT_MODE": os.environ["GCX_AGENT_MODE"],
                 }
 
             kubeconfig = kubeconfig_path.read_text(encoding="utf-8")
             manifest = json.loads(Path(computer_root, ".rsi", "computer.json").read_text(encoding="utf-8"))
+            bin_dir_entries = sorted(path.name for path in Path(computer_root).resolve().joinpath(".rsi", "bin").iterdir())
+            grafana_status = runtime.metadata["company_computer_bootstrap_status"]["grafana_observability"]
 
         self.assertTrue(runtime.metadata["company_computer_bootstrap_status"]["ok"])
         self.assertEqual(captured_env["TERMINAL_CWD"], str(Path(computer_root).resolve()))
         self.assertTrue(captured_env["PATH"].split(os.pathsep)[0].endswith("/.rsi/bin"))
         self.assertEqual(captured_env["KUBECONFIG"], str(kubeconfig_path.resolve()))
+        self.assertEqual(captured_env["GRAFANA_SERVER"], "https://grafana.ops.storyprotocol.net")
+        self.assertEqual(captured_env["GRAFANA_TOKEN"], "grafana-secret-token")
+        self.assertEqual(captured_env["RSI_GRAFANA_METRICS_DATASOURCE_UID"], "thanos")
+        self.assertEqual(captured_env["GCX_AGENT_MODE"], "true")
+        self.assertEqual(bin_dir_entries, [])
+        self.assertEqual(grafana_status["tool"], "gcx")
+        self.assertTrue(grafana_status["configured"])
+        self.assertEqual(grafana_status["policy_boundary"], "grafana_rbac")
+        self.assertFalse(grafana_status["query_guardrails_enforced"])
+        self.assertEqual(grafana_status["metrics_datasource_uid"], "thanos")
+        self.assertEqual(
+            grafana_status["default_metrics_command"],
+            'gcx metrics query --datasource "$RSI_GRAFANA_METRICS_DATASOURCE_UID"',
+        )
+        self.assertEqual(manifest["grafana_observability"]["tool"], "gcx")
+        self.assertTrue(manifest["grafana_observability"]["configured"])
+        self.assertEqual(manifest["grafana_observability"]["policy_boundary"], "grafana_rbac")
         self.assertIn("server: https://10.0.0.1:443", kubeconfig)
         self.assertIn(f"tokenFile: {token_path}", kubeconfig)
         self.assertIn(f"certificate-authority: {ca_path}", kubeconfig)
@@ -4257,6 +4316,8 @@ class HermesRuntimeTests(unittest.TestCase):
                     "slack=xoxb-123456789-secret\n"
                     "openrouter=sk-secret-openrouter-key\n"
                     "aws=aws-session-secret\n"
+                    "grafana=grafana-service-account-secret\n"
+                    "cloudflare=cf-access-client-secret\n"
                     "env=openrouter-test-key\n"
                     "JOB_HELPER_TOKEN_SECRET=fake-secret-value-for-redaction\n"
                     '{\n  "name": "INTERNAL_ADMIN_READ_API_KEY",\n  "value": "admin-read-key-from-cluster"\n}\n'
@@ -4288,6 +4349,8 @@ class HermesRuntimeTests(unittest.TestCase):
                 "RSI_HERMES_EXECUTOR_ENABLED": "true",
                 "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
                 "AWS_SESSION_TOKEN": "aws-session-secret",
+                "RSI_GRAFANA_SERVICE_ACCOUNT_TOKEN": "grafana-service-account-secret",
+                "RSI_GRAFANA_CF_ACCESS_CLIENT_SECRET": "cf-access-client-secret",
             },
             clear=True,
         ):
@@ -4336,6 +4399,8 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertNotIn("xoxb-123456789-secret", stderr_text)
         self.assertNotIn("sk-secret-openrouter-key", stderr_text)
         self.assertNotIn("aws-session-secret", stderr_text)
+        self.assertNotIn("grafana-service-account-secret", stderr_text)
+        self.assertNotIn("cf-access-client-secret", stderr_text)
         self.assertNotIn("openrouter-test-key", stderr_text)
         self.assertNotIn("fake-secret-value-for-redaction", stderr_text)
         self.assertNotIn("admin-read-key-from-cluster", stderr_text)

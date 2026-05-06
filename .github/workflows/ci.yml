@@ -75,6 +75,10 @@ jobs:
             echo "export_only=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Block direct Story company skill seed edits
+        shell: bash
+        run: bash scripts/check_story_company_skill_seed_changes.sh changed-files.txt
+
   validate:
     needs: changes
     if: needs.changes.outputs.export_only != 'true'
