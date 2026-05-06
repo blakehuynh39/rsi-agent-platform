@@ -4,11 +4,9 @@ type: "project"
 slug: "projects/protocol-periphery-sot"
 freshness: "2026-05-05T06:40:10Z"
 tags:
-  - "deployment"
+  - "documentation"
   - "protocol-periphery"
-  - "smart-contracts"
-  - "spg"
-  - "testnet"
+  - "source-of-truth"
 owners: []
 source_revision_ids:
   - "srcrev_4f2259738065f6cbf9eae40229203cd8"
@@ -32,22 +30,8 @@ Central hub for the Protocol Periphery project, tracking tasks, documentation, d
 - GitHub issues and pull requests for storyprotocol/protocol-periphery-v1 are tracked in embedded databases. `claim:claim_1_4` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Protocol-Periphery-SoT-6d6d457d20c6441e85efcff4426def03) `source_document_id=srcdoc_a3c8e519514c1fa4f0c4c0ff8fd6bc65` `source_revision_id=srcrev_4f2259738065f6cbf9eae40229203cd8` `chunk_id=srcchunk_7fcfc10b5de6b39cfb0b2a177887546f` `native_locator=https://www.notion.so/Protocol-Periphery-SoT-6d6d457d20c6441e85efcff4426def03` `source_timestamp=2026-05-05T06:40:10Z`
 
-## Related Pages
-
-- `aeneid-testnet-deployment-upgrade-info`
-- `batch-spg-function-calls`
-- `iliad-testnet-spg-deployment-upgrade-info`
-- `periphery-code-freeze-checklist`
-- `periphery-new-release-runbook`
-- `poc-1-3-odyssey-test-logs`
-- `poc-periphery-deployments-upgrades`
-- `poc-periphery-workflows`
-- `poc-upgrade-pause-sanity-check-log`
-- `poc-upgrade-pausing-guide`
-- `ultimate-idiot-proof-poc-deploy-guide`
-
 ## Sources
 
-- `source_document_id`: `srcdoc_a3c8e519514c1fa4f0c4c0ff8fd6bc65`
-- `source_revision_id`: `srcrev_4f2259738065f6cbf9eae40229203cd8`
-- `source_url`: [Notion source](https://www.notion.so/Protocol-Periphery-SoT-6d6d457d20c6441e85efcff4426def03)
+- `source_document_id`: `srcdoc_9b8f207bde054b74d143bc1c205a4e6d`
+- `source_revision_id`: `srcrev_66c0c10877b460bcb1e6e9e3b32ea02b`
+- `source_url`: [Notion source](https://www.notion.so/Batch-SPG-Function-Calls-5ab42d73141e48889e65a719289d18bf)

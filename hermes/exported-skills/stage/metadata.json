@@ -2816,13 +2816,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "26cd288a98e3aa599de05fdf85fcd8b5f9b6b4b3c3fec6410d545622611578e9",
+        "sha256": "66a08bdc411ae0d7331c0d6e944061f6178d2fbfa7eef459554749793807fcf0",
         "size": 445382
       },
       {
         "path": "log.md",
-        "sha256": "539acdd41ec2b20c56afe218d5f2df5612b0d8c81c7e7a4dd547488578ae82bc",
-        "size": 755386
+        "sha256": "aea4ae096deee156e98cd61f7eb0baa18bb5a0e555c5281963337cae99da5696",
+        "size": 756050
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3826,8 +3826,8 @@
       },
       {
         "path": "pages/projects/protocol-periphery-sot.md",
-        "sha256": "ddb2aefeb80d4cfc0daa85a74e6b5d3cc883e0b161bfa35840b748dd0a246dda",
-        "size": 3748
+        "sha256": "5efaafd2ed6eb5a71df426df95a9d83e124d4692621df7b5d71c09fd2cf66d21",
+        "size": 3314
       },
       {
         "path": "pages/projects/rcade-music-app.md",
@@ -4204,7 +4204,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T15:23:57Z",
+  "exported_at": "2026-05-06T15:35:01Z",
   "file_count": 839,
   "files": [
     {
@@ -7017,7 +7017,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c9cb697rvtm",
-  "previous_tree_hash": "671a28ec7361d98be8efd77ae9becc37f64a8bc71d55e4897a63466214257623",
+  "previous_tree_hash": "ebb2a8395f36301f5f1805fe4d7f3b9d9f108584509e4ff72bf225ef71b425b1",
   "schema_version": 1,
   "skill_file_count": 561,
   "skill_manage_sessions": [
@@ -7030,7 +7030,7 @@
   ],
   "skill_tree_hash": "afbd2291fd67b2c005ef55e775975ab80b39daf1645a51d878d7521be04f637a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ebb2a8395f36301f5f1805fe4d7f3b9d9f108584509e4ff72bf225ef71b425b1",
+  "tree_hash": "6f18de9adff81c74aead5e316ccbaa471181c9f3ab9d8e53d08cd665e13859fe",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -7046,13 +7046,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "26cd288a98e3aa599de05fdf85fcd8b5f9b6b4b3c3fec6410d545622611578e9",
+      "sha256": "66a08bdc411ae0d7331c0d6e944061f6178d2fbfa7eef459554749793807fcf0",
       "size": 445382
     },
     {
       "path": "log.md",
-      "sha256": "539acdd41ec2b20c56afe218d5f2df5612b0d8c81c7e7a4dd547488578ae82bc",
-      "size": 755386
+      "sha256": "aea4ae096deee156e98cd61f7eb0baa18bb5a0e555c5281963337cae99da5696",
+      "size": 756050
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8056,8 +8056,8 @@
     },
     {
       "path": "pages/projects/protocol-periphery-sot.md",
-      "sha256": "ddb2aefeb80d4cfc0daa85a74e6b5d3cc883e0b161bfa35840b748dd0a246dda",
-      "size": 3748
+      "sha256": "5efaafd2ed6eb5a71df426df95a9d83e124d4692621df7b5d71c09fd2cf66d21",
+      "size": 3314
     },
     {
       "path": "pages/projects/rcade-music-app.md",
@@ -8431,5 +8431,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "808ac1878711926a021df2db033e1e9d1f831d78f8a7bf08109dbc9e82a83f53"
+  "wiki_tree_hash": "514a445b17f4c4f03a28428b67118cd09d8fe0efac9bcc64cb815b2619b4494e"
 }

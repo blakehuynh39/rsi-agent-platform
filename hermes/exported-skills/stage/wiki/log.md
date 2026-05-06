@@ -15049,3 +15049,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ec1b1733a94f7685085ca35496f76f55
 - summary: A Notion database that mirrors data sources as separate Notion data source documents.
 
+## [2026-05-06T15:32:17Z] synthesis | Protocol Periphery Source of Truth
+
+- status: published
+- slug: projects/protocol-periphery-sot
+- wiki_revision_id: wikirev_be33bdb29e9c53fc92c9df008e9800b2
+- summary: Central hub for the Protocol Periphery project, tracking tasks, documentation, deployments, GitHub issues/PRs, and feedback.
+
+## [2026-05-06T15:33:44Z] synthesis | Protocol Periphery Source of Truth
+
+- status: published
+- slug: projects/protocol-periphery-sot
+- wiki_revision_id: wikirev_d62081aa1cb193c2b6eea96230df9243
+- summary: Central hub for the Protocol Periphery project, tracking tasks, documentation, deployments, GitHub issues/PRs, and feedback.
+
