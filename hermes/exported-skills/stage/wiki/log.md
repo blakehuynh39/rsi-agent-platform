@@ -14979,3 +14979,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4d26a2516f3df76190d8f608ce32d805
 - summary: TMKMS is a remote validator signing service that separates the validator node from the signing process, enhancing security by preventing key compromise on the validator node.
 
+## [2026-05-06T13:02:49Z] synthesis | L1 Infra Roadmap (Sep 30)
+
+- status: published
+- slug: projects/l1-infra-roadmap-sep-30
+- wiki_revision_id: wikirev_d51631db8dbdba48840f55915ef9135a
+- summary: High-level roadmap for L1 infrastructure covering cost control, network automation, development/testing/release infrastructure, and incident response/recovery.
+
