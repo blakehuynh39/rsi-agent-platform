@@ -2,14 +2,12 @@
 title: "Protocol Periphery Source of Truth"
 type: "project"
 slug: "projects/protocol-periphery-sot"
-freshness: "2026-05-05T06:40:10Z"
-tags:
-  - "documentation"
-  - "protocol-periphery"
-  - "source-of-truth"
+freshness: "2026-05-05T06:40:21Z"
+tags: []
 owners: []
 source_revision_ids:
   - "srcrev_4f2259738065f6cbf9eae40229203cd8"
+  - "srcrev_934633df36992371511a3740d1d90671"
 conflict_state: "none"
 ---
 
@@ -29,9 +27,11 @@ Central hub for the Protocol Periphery project, tracking tasks, documentation, d
   - citation: [Notion source](https://www.notion.so/Protocol-Periphery-SoT-6d6d457d20c6441e85efcff4426def03) `source_document_id=srcdoc_a3c8e519514c1fa4f0c4c0ff8fd6bc65` `source_revision_id=srcrev_4f2259738065f6cbf9eae40229203cd8` `chunk_id=srcchunk_7fcfc10b5de6b39cfb0b2a177887546f` `native_locator=https://www.notion.so/Protocol-Periphery-SoT-6d6d457d20c6441e85efcff4426def03` `source_timestamp=2026-05-05T06:40:10Z`
 - GitHub issues and pull requests for storyprotocol/protocol-periphery-v1 are tracked in embedded databases. `claim:claim_1_4` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Protocol-Periphery-SoT-6d6d457d20c6441e85efcff4426def03) `source_document_id=srcdoc_a3c8e519514c1fa4f0c4c0ff8fd6bc65` `source_revision_id=srcrev_4f2259738065f6cbf9eae40229203cd8` `chunk_id=srcchunk_7fcfc10b5de6b39cfb0b2a177887546f` `native_locator=https://www.notion.so/Protocol-Periphery-SoT-6d6d457d20c6441e85efcff4426def03` `source_timestamp=2026-05-05T06:40:10Z`
+- The PoC Periphery Deployments & Upgrades with Foundry Scripts document points to the GitHub DEPLOY_UPGRADE.md for detailed instructions. `claim:claim_1_5` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/PoC-Periphery-Deployments-Upgrades-with-Foundry-Scripts-af1a72df41714eedb1a6fc430eca8632) `source_document_id=srcdoc_be82230a74ee74f8048f454a895f47bc` `source_revision_id=srcrev_934633df36992371511a3740d1d90671` `chunk_id=srcchunk_8869fa5b4531a681ced76f65c865686b` `native_locator=https://www.notion.so/PoC-Periphery-Deployments-Upgrades-with-Foundry-Scripts-af1a72df41714eedb1a6fc430eca8632` `source_timestamp=2026-05-05T06:40:21Z`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_9b8f207bde054b74d143bc1c205a4e6d`
-- `source_revision_id`: `srcrev_66c0c10877b460bcb1e6e9e3b32ea02b`
-- `source_url`: [Notion source](https://www.notion.so/Batch-SPG-Function-Calls-5ab42d73141e48889e65a719289d18bf)
+- `source_document_id`: `srcdoc_be82230a74ee74f8048f454a895f47bc`
+- `source_revision_id`: `srcrev_934633df36992371511a3740d1d90671`
+- `source_url`: [Notion source](https://www.notion.so/PoC-Periphery-Deployments-Upgrades-with-Foundry-Scripts-af1a72df41714eedb1a6fc430eca8632)

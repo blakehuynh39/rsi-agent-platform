@@ -15063,3 +15063,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d62081aa1cb193c2b6eea96230df9243
 - summary: Central hub for the Protocol Periphery project, tracking tasks, documentation, deployments, GitHub issues/PRs, and feedback.
 
+## [2026-05-06T15:47:04Z] synthesis | Protocol Periphery Source of Truth
+
+- status: published
+- slug: projects/protocol-periphery-sot
+- wiki_revision_id: wikirev_83b4db6317e637b0a44526853d91b547
+- summary: Central hub for the Protocol Periphery project, tracking tasks, documentation, deployments, GitHub issues/PRs, and feedback.
+
