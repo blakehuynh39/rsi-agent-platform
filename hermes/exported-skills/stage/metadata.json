@@ -2826,8 +2826,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "21009b31d6a30c61e089cd1acef19672d0153bb7d4f89c6367eb3347644a9cd9",
-        "size": 757656
+        "sha256": "b0b55af418a35a9f99d7e38c95079e49331819bcc2cf170bca6b007f222276ad",
+        "size": 757905
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4045,6 +4045,11 @@
         "size": 4260
       },
       {
+        "path": "pages/runbooks/story-node-setup-guide.md",
+        "sha256": "f492630a473495e84c4ab57d5fac3062e069fc4b78aeeb08e6275babf3f9952f",
+        "size": 1225
+      },
+      {
         "path": "pages/runbooks/track-nft-purchases-ethereum.md",
         "sha256": "c1593f782aa6bd2d66cb239d497f64c7c98edc370521b5abdfa12d960e93580a",
         "size": 3685
@@ -4214,8 +4219,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T16:56:32Z",
-  "file_count": 841,
+  "exported_at": "2026-05-06T17:02:34Z",
+  "file_count": 842,
   "files": [
     {
       "path": ".curator_state",
@@ -7032,7 +7037,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c9cb697rvtm",
-  "previous_tree_hash": "a968e86671f47f964c9662fafe3f6ffe76e4dee454434b6f319f09f9d7b5642b",
+  "previous_tree_hash": "6d138a3cb2f5f703a9a04dadd36a3eeba52a738b2dfd83738e0ee34dfb8c0c36",
   "schema_version": 1,
   "skill_file_count": 562,
   "skill_manage_sessions": [
@@ -7045,14 +7050,14 @@
   ],
   "skill_tree_hash": "90f983842dd37d8b39063c99a4526bf20ef5c6b1288978e6199735c8b0dbd15e",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6d138a3cb2f5f703a9a04dadd36a3eeba52a738b2dfd83738e0ee34dfb8c0c36",
+  "tree_hash": "9e54286b445871c6b80269bcde19ea38a2416f09de99113a0adcc6b3cb4f3030",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 279,
+  "wiki_file_count": 280,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7066,8 +7071,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "21009b31d6a30c61e089cd1acef19672d0153bb7d4f89c6367eb3347644a9cd9",
-      "size": 757656
+      "sha256": "b0b55af418a35a9f99d7e38c95079e49331819bcc2cf170bca6b007f222276ad",
+      "size": 757905
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8285,6 +8290,11 @@
       "size": 4260
     },
     {
+      "path": "pages/runbooks/story-node-setup-guide.md",
+      "sha256": "f492630a473495e84c4ab57d5fac3062e069fc4b78aeeb08e6275babf3f9952f",
+      "size": 1225
+    },
+    {
       "path": "pages/runbooks/track-nft-purchases-ethereum.md",
       "sha256": "c1593f782aa6bd2d66cb239d497f64c7c98edc370521b5abdfa12d960e93580a",
       "size": 3685
@@ -8451,5 +8461,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4568ce8a3e25690323a130bfdbf07e481ac5734da359a69c970ca3ecfff90a74"
+  "wiki_tree_hash": "9cd149bec09375c864f577180ca469c9f77f09a61f79ca876603709a75370910"
 }

@@ -15095,3 +15095,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c9a1267d294cf9e3a65cb252858e9885
 - summary: This page provides an overview of the Projects and Tasks databases in Notion, explaining their purpose and how to navigate them.
 
+## [2026-05-06T17:01:16Z] synthesis | Story node setup guide
+
+- status: published
+- slug: runbooks/story-node-setup-guide
+- wiki_revision_id: wikirev_954e9fc5701cf649c9f0dc00a3af5c4f
+- summary: A guide for setting up a Story node, currently empty.
+
