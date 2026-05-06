@@ -430,11 +430,20 @@ source "${HERMES_HOME:-$HOME/.hermes}/skills/github/github-auth/scripts/gh-env.s
 Get the PR metadata, description, and list of changed files to understand scope before diving into code.
 
 **With gh:**
+
+For human-readable output:
 ```bash
 gh pr view 123
 gh pr diff 123 --name-only
 gh pr checks 123
 ```
+
+**For structured/scriptable output**, use `--json` + `--jq` to get PR metadata, CI status, reviews, and body in one call:
+```bash
+gh pr view 123 --json title,author,state,isDraft,mergeable,baseRefName,headRefName,body,reviews,statusCheckRollup --jq '.'
+```
+
+Key fields: `title`, `author.login`, `state`, `isDraft`, `mergeable` (\"MERGEABLE\"/\"CONFLICTING\"/\"UNKNOWN\"), `baseRefName`, `headRefName`, `body`, `reviews[].state`, `statusCheckRollup[].{name,conclusion,status}`.
 
 **With curl:**
 ```bash
@@ -580,3 +589,53 @@ git branch -D pr-$PR_NUMBER
 - **Approve** — no critical or warning-level issues, only minor suggestions or all clear
 - **Request Changes** — any critical or warning-level issue that should be fixed before merge
 - **Comment** — observations and suggestions, but nothing blocking (use when you're unsure or the PR is a draft)
+
+---
+
+## 5b. Parallel Subagent Review for Large PRs (>50 files, >10K LOC)
+
+When a PR is too large to review sequentially in reasonable time, delegate review to parallel subagents, each covering a different concern area. This is valuable for PRs that span multiple architectural layers (schema, business logic, API surface, infrastructure).
+
+### When to use this pattern
+
+- PR has >50 changed files or >10K lines of diff
+- Changes span multiple domains (migrations + worker logic + API routes + config + CI)
+- Review requires checking different security/performance properties per layer
+
+### Parallel review decomposition
+
+Spawn 3–4 `delegate_task` subagents simultaneously, each with a focused goal:
+
+| Subagent | Scope | Toolsets |
+|----------|-------|----------|
+| **DB/Schema reviewer** | Migrations, indexes, constraints, query patterns (N+1, cursor pagination), repository layer, idempotency | terminal, file |
+| **Security reviewer** | Admin routes (auth/authz), API schemas (data exposure, PII), config (secret handling, Debug derives), S3/storage (path traversal), SQL injection | terminal, file |
+| **Core logic reviewer** | Workflow orchestration, activity implementation, decision logic, signal computation, provider integrations, error handling, race conditions, resource leaks | terminal, file |
+
+Each subagent should:
+1. Read the key files in its domain (not the full diff — use `git diff --stat` to identify targets)
+2. Report findings with file paths and line numbers
+3. Classify severity (HIGH/MEDIUM/LOW) for each finding
+
+### Cross-repo FE PR check (parallel with subagents)
+
+While subagents run, search for paired FE PRs using the GitHub Search API:
+
+```bash
+gh search prs --repo=piplabs/numo-monorepo --match title "submission quality"
+# Also try matching branch prefix
+gh search prs --repo=piplabs/numo-monorepo --head feat/fraud
+```
+
+If the BE PR adds API routes, new schemas, or response fields and no FE PR exists, flag it as `missing-cross-repo-pair`.
+
+### Merging findings
+
+After all subagents complete:
+1. Collect findings from each subagent
+2. Deduplicate (same issue found by multiple reviewers)
+3. Classify into the standard output format: Critical → Warnings → Suggestions → Looks Good
+4. Add a Verdict section at the bottom
+5. Deliver the merged review as a single Slack message or GitHub comment
+
+**PITFALL:** Subagents can't share context. Pass the repo path and branch name in the `context` parameter, and any repo-specific conventions (base branch, deployment topology, cross-repo contract rules) so each subagent has enough context to review independently.
