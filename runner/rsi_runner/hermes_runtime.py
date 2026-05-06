@@ -1553,6 +1553,38 @@ class HermesRuntime:
             "issues": self._session_manager.ready_issues,
         }
 
+    def probe_metadata(self) -> JsonObject:
+        return {
+            "status": "ok" if self.available and self._session_manager.skills_healthy else "degraded",
+            "role": self._role,
+            "executor_instance_id": self._config.executor_instance_id,
+            "backend": self._backend,
+            "provider": self._provider,
+            "model": self._configured_model,
+            "provider_model": self._provider_model,
+            "api_mode": self._api_mode,
+            "available": self.available,
+            "hermes_available": AIAgent is not None,
+            "openrouter_configured": self._openrouter_configured,
+            "persistence_enabled": self._session_manager.available,
+            "session_continuity_status": "ok" if self._session_manager.available else "degraded",
+            "skills_dir": self._session_manager.skills_dir,
+            "bundled_skills_available": self._session_manager.bundled_skills_available,
+            "bundled_skills_sync_status": self._session_manager.bundled_skills_sync_status,
+            "hermes_config_parity_status": self._hermes_config_parity_status(),
+            "observation_sink_status": "configured" if self._config.runtime_observation_sink_url else "not_configured",
+            "execution_contract_version": EXECUTION_CONTRACT_VERSION,
+            "memory_backend": self._config.memory_backend,
+            "max_iterations": self._max_iterations,
+            "task_timeout_seconds": self._default_task_timeout_seconds,
+            "inactivity_timeout_seconds": self._default_inactivity_timeout_seconds,
+            "transport_timeout_seconds": self._transport_timeout_seconds,
+            "hermes_executor_enabled": self._config.hermes_executor_enabled,
+            "hermes_executor_service_only": self._config.hermes_executor_service_only,
+            "executor_started_at_unix": self._started_at_unix,
+            "issues": self._session_manager.ready_issues,
+        }
+
     def active_execution_count(self) -> int:
         return int(self.active_execution_snapshot().get("active_execution_count") or 0)
 
@@ -1584,7 +1616,7 @@ class HermesRuntime:
             except OSError:
                 pass
 
-    def active_execution_snapshot(self) -> JsonObject:
+    def active_execution_snapshot(self, *, include_self_review_queue: bool = True) -> JsonObject:
         with self._executor_process_lock:
             active_thread_ids = sorted(
                 execution_id
@@ -1607,7 +1639,7 @@ class HermesRuntime:
                 if process.poll() is None
             )
         active_ids = sorted(set(active_thread_ids) | set(active_process_ids))
-        review_status = self._self_review_queue_status(reconcile_stale=False)
+        review_status = self._self_review_queue_status(reconcile_stale=False) if include_self_review_queue else {}
         local_pending_reviews = int(review_status.get("local_owned_pending_count") or 0) + int(
             review_status.get("local_owned_promotable_count") or 0
         )

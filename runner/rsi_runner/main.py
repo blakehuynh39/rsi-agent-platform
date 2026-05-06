@@ -87,9 +87,14 @@ def _mark_draining(config: RunnerConfig) -> JsonObject:
     }
 
 
-def _drain_status_payload(runtime: HermesRuntime, config: RunnerConfig) -> JsonObject:
+def _drain_status_payload(
+    runtime: HermesRuntime,
+    config: RunnerConfig,
+    *,
+    include_self_review_queue: bool = True,
+) -> JsonObject:
     status = "draining" if _DRAINING.is_set() else "active"
-    payload = runtime.active_execution_snapshot()
+    payload = runtime.active_execution_snapshot(include_self_review_queue=include_self_review_queue)
     payload["status"] = status
     payload["drain_status"] = status
     if _DRAINING.is_set():
@@ -150,11 +155,11 @@ class RunnerHandler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:  # noqa: N802
         if self.path == "/healthz":
-            self._json(200, self.runtime.metadata)
+            self._json(200, self.runtime.probe_metadata())
             return
         if self.path == "/readyz":
-            payload = dict(self.runtime.metadata)
-            payload.update(_drain_status_payload(self.runtime, self.config))
+            payload = self.runtime.probe_metadata()
+            payload.update(_drain_status_payload(self.runtime, self.config, include_self_review_queue=False))
             status = 200 if self.runtime.available and not _DRAINING.is_set() else 503
             self._json(status, payload)
             return

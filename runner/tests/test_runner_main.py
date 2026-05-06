@@ -11,13 +11,27 @@ from rsi_runner import main as runner_main
 
 
 class _Runtime:
-    metadata = {"executor_instance_id": "test-executor"}
     available = True
 
     def __init__(self) -> None:
         self.drain_requested = 0
+        self.probe_calls: list[str] = []
+        self.snapshot_include_review_queue: list[bool] = []
 
-    def active_execution_snapshot(self) -> dict[str, object]:
+    @property
+    def metadata(self) -> dict[str, object]:
+        return {"executor_instance_id": "test-executor"}
+
+    def probe_metadata(self) -> dict[str, object]:
+        self.probe_calls.append("probe")
+        return {
+            "executor_instance_id": "test-executor",
+            "status": "ok",
+            "available": self.available,
+        }
+
+    def active_execution_snapshot(self, *, include_self_review_queue: bool = True) -> dict[str, object]:
+        self.snapshot_include_review_queue.append(include_self_review_queue)
         return {
             "executor_instance_id": "test-executor",
             "active_execution_count": 0,
@@ -32,6 +46,12 @@ class _Runtime:
 
     def terminate_self_review_processes(self, *, timeout_seconds: float) -> None:
         raise AssertionError(f"unexpected termination path: {timeout_seconds}")
+
+
+class _ProbeRuntime(_Runtime):
+    @property
+    def metadata(self) -> dict[str, object]:
+        raise AssertionError("probe endpoints must not read rich runtime metadata")
 
 
 class RunnerDrainHTTPTest(unittest.TestCase):
@@ -83,6 +103,37 @@ class RunnerDrainHTTPTest(unittest.TestCase):
         self.assertEqual(200, response.status)
         self.assertEqual("drained", payload["drain_status"])
         self.assertEqual(1, runtime.drain_requested)
+
+    def test_healthz_uses_probe_metadata_without_rich_runtime_metadata(self) -> None:
+        runtime = _ProbeRuntime()
+        server, base_url = self._serve(runtime)
+        try:
+            with request.urlopen(base_url + "/healthz", timeout=2) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+        finally:
+            server.shutdown()
+            server.server_close()
+
+        self.assertEqual(200, response.status)
+        self.assertEqual("test-executor", payload["executor_instance_id"])
+        self.assertEqual(["probe"], runtime.probe_calls)
+        self.assertEqual([], runtime.snapshot_include_review_queue)
+
+    def test_readyz_uses_probe_metadata_and_fast_active_snapshot(self) -> None:
+        runtime = _ProbeRuntime()
+        server, base_url = self._serve(runtime)
+        try:
+            with request.urlopen(base_url + "/readyz", timeout=2) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+        finally:
+            server.shutdown()
+            server.server_close()
+
+        self.assertEqual(200, response.status)
+        self.assertEqual("active", payload["drain_status"])
+        self.assertEqual(0, payload["active_execution_count"])
+        self.assertEqual(["probe"], runtime.probe_calls)
+        self.assertEqual([False], runtime.snapshot_include_review_queue)
 
 
 if __name__ == "__main__":
