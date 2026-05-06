@@ -15241,3 +15241,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_eab59440dd3af0dfa2d51020458b692e
 - summary: Source: [Notion source](https://www.notion.so/Subnet-358051299a5480f49fc2de7420dad342)
 
+## [2026-05-06T22:35:31Z] synthesis | Protocol R&D Update (May–July 2023)
+
+- status: published
+- slug: projects/protocol-rd-update-may-jul-2023
+- wiki_revision_id: wikirev_7acd70a8a44d8ff9e1ce1ae3541fe662
+- summary: Summary of protocol research, development milestones, module discussions, and repository activities from May to July 2023.
+
