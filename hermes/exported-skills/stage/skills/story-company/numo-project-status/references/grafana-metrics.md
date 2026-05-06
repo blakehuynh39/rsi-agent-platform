@@ -157,6 +157,22 @@ This is normal behavior after heavy background job processing (multiplier sweep,
 ### 5. IP Registration Jobs Lack HTTP Metrics
 The confirmer/poller/submitter pods don't expose `http_requests_total` or `http_request_duration_seconds_bucket`. Their health is only visible through container CPU/memory metrics and pod status.
 
+### 6. Range Queries Require Epoch Timestamps
+The `query_range` endpoint rejects human-readable time strings (`-6h`, `now`). You must use numeric Unix epoch timestamps.
+
+```bash
+# Correct
+NOW=$(date +%s)
+SIX_H_AGO=$((NOW - 21600))
+step=900  # 15 minutes
+curl -s ... "?query=...&start=${SIX_H_AGO}&end=${NOW}&step=${step}"
+
+# WRONG — will return 400
+curl -s ... "?query=...&start=-6h&end=now&step=15m"
+```
+
+Error you'll see: `{"status":"error","errorType":"bad_data","error":"cannot parse \"-6h\" to a valid timestamp"}`
+
 ## Cross-Referencing with kubectl
 
 After querying Thanos, always cross-reference with `kubectl` for pod-level details:
@@ -179,3 +195,92 @@ kubectl get deployments -n story | grep depin
 | ip-registration-confirmer | 3/3 | 1–142 mCPU | ~14 MB |
 | ip-registration-poller | 2/2 | ~1 mCPU | ~4 MB |
 | ip-registration-submitter | 3/3 | 731–919 mCPU | ~18 MB |
+
+## Advanced Pod Investigation
+
+When a pod shows anomalous memory/CPU, go beyond the basic queries. This methodology was proven on 2026-05-06 when investigating a pod with 14× sibling memory (570 MB vs 40 MB).
+
+### Memory Composition Breakdown
+
+High RSS with negligible cache → the app is actually using the memory. High cache with low RSS → file I/O, not a concern.
+
+```promql
+# Memory breakdown per pod — run for all pods to compare
+container_memory_rss{namespace="story",container="depin-backend"} / 1024 / 1024
+container_memory_cache{namespace="story",container="depin-backend"} / 1024 / 1024
+container_memory_usage_bytes{namespace="story",container="depin-backend"} / 1024 / 1024
+container_memory_working_set_bytes{namespace="story",container="depin-backend"} / 1024 / 1024
+container_memory_max_usage_bytes{namespace="story",container="depin-backend"} / 1024 / 1024
+```
+
+**How to read the results:**
+- `RSS` ≈ `Working Set` and `Cache` is tiny → actual application memory, not file buffers. Investigate further.
+- `MaxEver` is much higher than current `RSS` → the pod spiked and came back down. Check when.
+- `RSS` differs dramatically across pods (14×) but CPU is low → jemalloc arena retention after a one-time large allocation.
+
+### Process-Level Parity Check
+
+If one pod has a memory anomaly, rule out process/thread/socket count differences:
+
+```promql
+container_processes{namespace="story",container="depin-backend"}
+container_threads{namespace="story",container="depin-backend"}
+container_sockets{namespace="story",container="depin-backend"}
+```
+
+All pods should have identical counts. If the anomalous pod has more threads/sockets, it's doing extra work.
+
+### Disk I/O Comparison
+
+Rule out I/O-bound anomalies:
+
+```promql
+container_fs_reads_bytes_total{namespace="story",container="depin-backend"} / 1024 / 1024
+container_fs_writes_bytes_total{namespace="story",container="depin-backend"} / 1024 / 1024
+```
+
+### OOM / Failure Counts
+
+Check for near-miss OOM events:
+
+```promql
+container_oom_events_total{namespace="story",container="depin-backend"}
+container_memory_failcnt{namespace="story",container="depin-backend"}
+kube_pod_container_resource_requests{namespace="story",resource="memory"} / 1024 / 1024
+```
+
+### Correlating Deploy Events with Metric Spikes
+
+When a pod has anomalous memory, correlate the spike time with the deployment timeline:
+
+1. **Find pod creation time** via Thanos: `kube_pod_created{pod=~"use1-prod-depin-backend.*"}`
+2. **Find the deploy PR** in GitHub: `gh pr list --state merged --search "merged:>=YYYY-MM-DD"` and look for `staging > main` merges
+3. **Map the spike** with `query_range`: use 15m step, numeric epoch timestamps (NOT "-6h" strings — see Pitfall #6)
+4. **Inspect the deploy PR's code changes** to find memory-heavy features (cluster graphs, safety signal refreshes, large migrations)
+5. **Confirm with per-pod request rate** during the spike window to rule out traffic anomalies
+
+### Range Query Timestamps
+
+The `query_range` endpoint requires numeric Unix epoch timestamps. Strings like `-6h` or `now` are rejected with `bad_data: cannot parse "-6h" to a valid timestamp`.
+
+```bash
+# Correct range query
+NOW=$(date +%s)
+SIX_H_AGO=$((NOW - 21600))
+curl -s ... "${GRAFANA_SERVER}/api/datasources/proxy/uid/thanos/api/v1/query_range?query=${ENCODED}&start=${SIX_H_AGO}&end=${NOW}&step=900"
+
+# For Python-based range queries
+start = int(datetime(2026, 5, 5, 19, 45, 0, tzinfo=timezone.utc).timestamp())
+end   = int(datetime(2026, 5, 5, 21, 15, 0, tzinfo=timezone.utc).timestamp())
+```
+
+### Decision Framework
+
+| Observation | Likely Cause | Action |
+|---|---|---|
+| Stable high RSS, low CPU, no restarts, one pod only | jemalloc arena retention | Monitor; restart pod if cosmetic |
+| Growing RSS linearly over hours, CPU normal | Slow memory leak | Investigate code; check for unbounded collections |
+| High RSS + high CPU + high latency | Active heavy processing | Check background job timing; consider rate limiting |
+| All pods affected equally | Normal workload | Baseline; not anomalous |
+| High cache, low RSS | File-system I/O | Normal; not a memory concern |
+| MaxEver >> Current RSS | One-time spike | Check what happened at spike time; correlate with deploys |

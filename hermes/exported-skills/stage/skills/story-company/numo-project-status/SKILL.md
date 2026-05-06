@@ -1,7 +1,7 @@
 ---
 name: numo-project-status
 description: "Multi-source investigation of Numo/depin project progress — weekly check-ins, follow-up item tracking, and cross-repo status reports."
-version: 1.0.0
+version: 1.1.0
 metadata:
   hermes:
     tags: [numo, depin, investigation, project-status, weekly, cross-repo, slack, github, kubernetes]
