@@ -2786,13 +2786,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "9d5928731bfe84491a8849fdbf4a854865468827d1f82bbdaabfb4f5ef155c3b",
-        "size": 429985
+        "sha256": "46da663327c2610209dc86499c44d3a5a96665aa53d22ccecb340b750c752e56",
+        "size": 430640
       },
       {
         "path": "log.md",
-        "sha256": "82f8a4d9cbaa1cf526f85c8b1b6cd5d812dd5cf81b3e7cd0df250ab84efd24a0",
-        "size": 737959
+        "sha256": "58e9eec5043a1035e927c91510d94f926ad57fe5bf2fd9b018bd1bbc31e7bbb4",
+        "size": 738237
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2978,6 +2978,11 @@
         "path": "pages/concepts/l1-api-specifications.md",
         "sha256": "e6085df97097ed2efe840a937e785e1998c66f981f12d6d5c753ae9cc40cec3a",
         "size": 2274
+      },
+      {
+        "path": "pages/concepts/l1-configs-and-metrics.md",
+        "sha256": "83eb558b75ddd2cc260fe554f4ce39947be4867e4edb7bc840f88f961e8bd060",
+        "size": 1242
       },
       {
         "path": "pages/concepts/l1-features-services-brainstorming.md",
@@ -3944,8 +3949,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T02:03:02Z",
-  "file_count": 787,
+  "exported_at": "2026-05-06T02:09:04Z",
+  "file_count": 788,
   "files": [
     {
       "path": ".usage.json",
@@ -6727,7 +6732,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f7f569tv7vt",
-  "previous_tree_hash": "b504bd3190b9037e94ca85bffcd1de83432aee832cc5ddcdd11d92ee1f68282b",
+  "previous_tree_hash": "660e8e044a0350b8c52b45fe4a88c3c728c858c9453bae114a1fe2ddf71df7cb",
   "schema_version": 1,
   "skill_file_count": 555,
   "skill_manage_sessions": [
@@ -6740,14 +6745,14 @@
   ],
   "skill_tree_hash": "93a39c348b599ba4ce6366c3184425e46fb0b11259fb63916e94477fa44536b7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "660e8e044a0350b8c52b45fe4a88c3c728c858c9453bae114a1fe2ddf71df7cb",
+  "tree_hash": "a41f98e90dbb4454597789d85502c1bd89833d5a8c5ea0af8ee47474c812ec75",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 232,
+  "wiki_file_count": 233,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6756,13 +6761,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "9d5928731bfe84491a8849fdbf4a854865468827d1f82bbdaabfb4f5ef155c3b",
-      "size": 429985
+      "sha256": "46da663327c2610209dc86499c44d3a5a96665aa53d22ccecb340b750c752e56",
+      "size": 430640
     },
     {
       "path": "log.md",
-      "sha256": "82f8a4d9cbaa1cf526f85c8b1b6cd5d812dd5cf81b3e7cd0df250ab84efd24a0",
-      "size": 737959
+      "sha256": "58e9eec5043a1035e927c91510d94f926ad57fe5bf2fd9b018bd1bbc31e7bbb4",
+      "size": 738237
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6948,6 +6953,11 @@
       "path": "pages/concepts/l1-api-specifications.md",
       "sha256": "e6085df97097ed2efe840a937e785e1998c66f981f12d6d5c753ae9cc40cec3a",
       "size": 2274
+    },
+    {
+      "path": "pages/concepts/l1-configs-and-metrics.md",
+      "sha256": "83eb558b75ddd2cc260fe554f4ce39947be4867e4edb7bc840f88f961e8bd060",
+      "size": 1242
     },
     {
       "path": "pages/concepts/l1-features-services-brainstorming.md",
@@ -7911,5 +7921,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "04ef0ef99b4957b6e65f68fa027ecd4f3729ba3bd9299d3959ae21a8b8b47512"
+  "wiki_tree_hash": "66a05094d1a324a6188ab93fa209a78719c2cacdba577a09ea227857a516ea6d"
 }
