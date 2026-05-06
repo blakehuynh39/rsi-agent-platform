@@ -2816,13 +2816,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "62e4d23a02661766e872e63f5e2536efd7de00f4308a4fa06d0bc59ae9bfe60d",
-        "size": 444736
+        "sha256": "26cd288a98e3aa599de05fdf85fcd8b5f9b6b4b3c3fec6410d545622611578e9",
+        "size": 445382
       },
       {
         "path": "log.md",
-        "sha256": "7a5a176637947c8f4e2c72bd5fa9810bd7f418de48fb11353d036a5d2e5ab114",
-        "size": 754182
+        "sha256": "539acdd41ec2b20c56afe218d5f2df5612b0d8c81c7e7a4dd547488578ae82bc",
+        "size": 755386
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3216,7 +3216,7 @@
       },
       {
         "path": "pages/concepts/untitled-notion-page-350051299a5480f8b542e4f40de96a42.md",
-        "sha256": "ef8c7cc2380315948189d66e293788f01c320f4585f45f08ca831f89c79bd5cb",
+        "sha256": "8f6f92d6c652de62888b3dfd860e9e65cf6f28e426f8ad048a54fdababcd72a8",
         "size": 1132
       },
       {
@@ -3825,6 +3825,11 @@
         "size": 4862
       },
       {
+        "path": "pages/projects/protocol-periphery-sot.md",
+        "sha256": "ddb2aefeb80d4cfc0daa85a74e6b5d3cc883e0b161bfa35840b748dd0a246dda",
+        "size": 3748
+      },
+      {
         "path": "pages/projects/rcade-music-app.md",
         "sha256": "05cdabffae3c60e6a9ec557c386d2dd47fd7b1a559a349737e9aeddd0f670a73",
         "size": 1058
@@ -4066,7 +4071,7 @@
       },
       {
         "path": "pages/systems/calendar.md",
-        "sha256": "60ff71bfe75abe8b440d334d839554b6e0df3c5bce8925338b7ec1cbac5d6824",
+        "sha256": "ed956d132a00dfc7dbfa46efca59e83aef7985d39db223811dd8494527d39604",
         "size": 1050
       },
       {
@@ -4185,6 +4190,11 @@
         "size": 4582
       },
       {
+        "path": "pages/systems/untitled-database-129051299a548040a4d9e22a8cd01435.md",
+        "sha256": "e1479859167670f0dbc2b8b90d572d21c31eef98f067099920dbd5dd506287a5",
+        "size": 1192
+      },
+      {
         "path": "pages/systems/upload-system.md",
         "sha256": "26d2530e2c92acb0cb89dabf87d680fc1425af8a7b1e3c69e81b234a3a7b62c1",
         "size": 3182
@@ -4194,8 +4204,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T14:52:44Z",
-  "file_count": 837,
+  "exported_at": "2026-05-06T15:23:57Z",
+  "file_count": 839,
   "files": [
     {
       "path": ".curator_state",
@@ -7007,7 +7017,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c9cb697rvtm",
-  "previous_tree_hash": "b6802024eae664db3ecc19dddfab22e64222ab2ac52416d47a2ce48d381ea963",
+  "previous_tree_hash": "671a28ec7361d98be8efd77ae9becc37f64a8bc71d55e4897a63466214257623",
   "schema_version": 1,
   "skill_file_count": 561,
   "skill_manage_sessions": [
@@ -7020,14 +7030,14 @@
   ],
   "skill_tree_hash": "afbd2291fd67b2c005ef55e775975ab80b39daf1645a51d878d7521be04f637a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "671a28ec7361d98be8efd77ae9becc37f64a8bc71d55e4897a63466214257623",
+  "tree_hash": "ebb2a8395f36301f5f1805fe4d7f3b9d9f108584509e4ff72bf225ef71b425b1",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 276,
+  "wiki_file_count": 278,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7036,13 +7046,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "62e4d23a02661766e872e63f5e2536efd7de00f4308a4fa06d0bc59ae9bfe60d",
-      "size": 444736
+      "sha256": "26cd288a98e3aa599de05fdf85fcd8b5f9b6b4b3c3fec6410d545622611578e9",
+      "size": 445382
     },
     {
       "path": "log.md",
-      "sha256": "7a5a176637947c8f4e2c72bd5fa9810bd7f418de48fb11353d036a5d2e5ab114",
-      "size": 754182
+      "sha256": "539acdd41ec2b20c56afe218d5f2df5612b0d8c81c7e7a4dd547488578ae82bc",
+      "size": 755386
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7436,7 +7446,7 @@
     },
     {
       "path": "pages/concepts/untitled-notion-page-350051299a5480f8b542e4f40de96a42.md",
-      "sha256": "ef8c7cc2380315948189d66e293788f01c320f4585f45f08ca831f89c79bd5cb",
+      "sha256": "8f6f92d6c652de62888b3dfd860e9e65cf6f28e426f8ad048a54fdababcd72a8",
       "size": 1132
     },
     {
@@ -8045,6 +8055,11 @@
       "size": 4862
     },
     {
+      "path": "pages/projects/protocol-periphery-sot.md",
+      "sha256": "ddb2aefeb80d4cfc0daa85a74e6b5d3cc883e0b161bfa35840b748dd0a246dda",
+      "size": 3748
+    },
+    {
       "path": "pages/projects/rcade-music-app.md",
       "sha256": "05cdabffae3c60e6a9ec557c386d2dd47fd7b1a559a349737e9aeddd0f670a73",
       "size": 1058
@@ -8286,7 +8301,7 @@
     },
     {
       "path": "pages/systems/calendar.md",
-      "sha256": "60ff71bfe75abe8b440d334d839554b6e0df3c5bce8925338b7ec1cbac5d6824",
+      "sha256": "ed956d132a00dfc7dbfa46efca59e83aef7985d39db223811dd8494527d39604",
       "size": 1050
     },
     {
@@ -8405,11 +8420,16 @@
       "size": 4582
     },
     {
+      "path": "pages/systems/untitled-database-129051299a548040a4d9e22a8cd01435.md",
+      "sha256": "e1479859167670f0dbc2b8b90d572d21c31eef98f067099920dbd5dd506287a5",
+      "size": 1192
+    },
+    {
       "path": "pages/systems/upload-system.md",
       "sha256": "26d2530e2c92acb0cb89dabf87d680fc1425af8a7b1e3c69e81b234a3a7b62c1",
       "size": 3182
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d513a64e72fe3212737152d7a9e37841a55536eef78b11ca2a154eb42c98038e"
+  "wiki_tree_hash": "808ac1878711926a021df2db033e1e9d1f831d78f8a7bf08109dbc9e82a83f53"
 }

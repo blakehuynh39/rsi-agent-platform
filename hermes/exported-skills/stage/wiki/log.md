@@ -15021,3 +15021,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4a68f1ed765d38469d223101ebf2248c
 - summary: Step-by-step guide for initial server setup before provisioning RPC nodes on Velia, including root password change, SSH key creation, regular user with sudo, and Python3 installati...
 
+## [2026-05-06T15:21:10Z] synthesis | Protocol Periphery Source of Truth
+
+- status: published
+- slug: projects/protocol-periphery-sot
+- wiki_revision_id: wikirev_f0ccdc09cabc23318e5b51d8377a1355
+- summary: Central hub for the Protocol Periphery project, tracking tasks, documentation, deployments, GitHub issues/PRs, and feedback.
+
+## [2026-05-06T15:22:49Z] synthesis | Untitled Notion Page (350051299a5480f8b542e4f40de96a42)
+
+- status: published
+- slug: concepts/untitled-notion-page-350051299a5480f8b542e4f40de96a42
+- wiki_revision_id: wikirev_70ae207f50bd4a49b1b6044e3fd450f1
+- summary: A Notion page with no content yet.
+
+## [2026-05-06T15:22:49Z] synthesis | Calendar
+
+- status: published
+- slug: systems/calendar
+- wiki_revision_id: wikirev_da284bebb3d89ecee13ac58608c7edcd
+- summary: The Calendar system contains a child database that is currently untitled.
+
+## [2026-05-06T15:22:49Z] synthesis | Untitled Database (129051299a548040a4d9e22a8cd01435)
+
+- status: published
+- slug: systems/untitled-database-129051299a548040a4d9e22a8cd01435
+- wiki_revision_id: wikirev_ec1b1733a94f7685085ca35496f76f55
+- summary: A Notion database that mirrors data sources as separate Notion data source documents.
+
