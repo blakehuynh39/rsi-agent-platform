@@ -15132,3 +15132,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_d1881d12ebd9785d1e2565de9b6424e4
 - summary: Source: [Notion source](https://www.notion.so/Eng-Leads-Offsite-April-2025-1c0051299a5480b19087fa37d09c71e3)
 
+## [2026-05-06T18:21:12Z] synthesis | L1 Devnet Launch Plan
+
+- status: published
+- slug: projects/l1-devnet-launch
+- wiki_revision_id: wikirev_9ab3a13a3b7dc1d91bd04051ca0e314e
+- summary: Plan to launch an internal L1 Devnet with 25 validators (15 at genesis + 10 later), enshrined Story Protocol v1.1, IP graph support up to 1024 nodes, and full staking functionality...
+

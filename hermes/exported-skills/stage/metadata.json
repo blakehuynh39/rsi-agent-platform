@@ -2821,13 +2821,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f100a0d7a7612bcc6be26b9a6b0568787d4bbc8dc1429826eff2918e9ff49edb",
-        "size": 447092
+        "sha256": "13340cf83d3f5d447994ceb7aef3955cd90a98bf9a82256637f74bf85c6ca2aa",
+        "size": 447452
       },
       {
         "path": "log.md",
-        "sha256": "719eeecf2951fe36ff4032d64223b2ee814b2bb9692356206322e351bad5944d",
-        "size": 759531
+        "sha256": "e05859ee66d01b853bd2acf7c2795659f4908bfc28c33b102d34b261dcf908ee",
+        "size": 759903
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3715,6 +3715,11 @@
         "size": 5626
       },
       {
+        "path": "pages/projects/l1-devnet-launch.md",
+        "sha256": "9d70643cfcf02db8fd5730c37fd9daedf4e6a477ecae407b5449acc3314f7903",
+        "size": 9775
+      },
+      {
         "path": "pages/projects/l1-infra-roadmap-sep-30.md",
         "sha256": "cf587906b137166939c72a34a1c26cf4874a9ce54ea066753864375df7248788",
         "size": 2413
@@ -4234,8 +4239,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T18:02:58Z",
-  "file_count": 845,
+  "exported_at": "2026-05-06T18:24:07Z",
+  "file_count": 846,
   "files": [
     {
       "path": ".curator_state",
@@ -7052,7 +7057,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c9cb697rvtm",
-  "previous_tree_hash": "18849257296ffd9809561fe5a4317bd1a8eadf1c197ac084df0a32357e8097f9",
+  "previous_tree_hash": "7216b074d50752f958ee009c06cd0b562473d4b62f069a14f4b78e9cd867b128",
   "schema_version": 1,
   "skill_file_count": 562,
   "skill_manage_sessions": [
@@ -7065,14 +7070,14 @@
   ],
   "skill_tree_hash": "90f983842dd37d8b39063c99a4526bf20ef5c6b1288978e6199735c8b0dbd15e",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7216b074d50752f958ee009c06cd0b562473d4b62f069a14f4b78e9cd867b128",
+  "tree_hash": "12d1aca8534b0cf311a744eb70803c5c0ee7cdc7884b9c888e0df058e62d6cd2",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 283,
+  "wiki_file_count": 284,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7081,13 +7086,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f100a0d7a7612bcc6be26b9a6b0568787d4bbc8dc1429826eff2918e9ff49edb",
-      "size": 447092
+      "sha256": "13340cf83d3f5d447994ceb7aef3955cd90a98bf9a82256637f74bf85c6ca2aa",
+      "size": 447452
     },
     {
       "path": "log.md",
-      "sha256": "719eeecf2951fe36ff4032d64223b2ee814b2bb9692356206322e351bad5944d",
-      "size": 759531
+      "sha256": "e05859ee66d01b853bd2acf7c2795659f4908bfc28c33b102d34b261dcf908ee",
+      "size": 759903
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7975,6 +7980,11 @@
       "size": 5626
     },
     {
+      "path": "pages/projects/l1-devnet-launch.md",
+      "sha256": "9d70643cfcf02db8fd5730c37fd9daedf4e6a477ecae407b5449acc3314f7903",
+      "size": 9775
+    },
+    {
       "path": "pages/projects/l1-infra-roadmap-sep-30.md",
       "sha256": "cf587906b137166939c72a34a1c26cf4874a9ce54ea066753864375df7248788",
       "size": 2413
@@ -8491,5 +8501,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ab70fb59fc399d5a01388df103935de6c56af7d9151fb9ea8aa0e154c3aeef0b"
+  "wiki_tree_hash": "ab893dd7ae95c44034a4de592897fbe4069feaef16de0bc163c1edf265b0a1ba"
 }
