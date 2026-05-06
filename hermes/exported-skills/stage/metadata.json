@@ -2846,8 +2846,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "4859688f9789c381de542aeeadf9794c26bd09a4b784970ebb10748c175f8b91",
-        "size": 765748
+        "sha256": "fbb62796e4fc3e5681280f58a1925870abaf0739216d5f968e1199893d03d9dc",
+        "size": 766056
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4110,6 +4110,11 @@
         "size": 6068
       },
       {
+        "path": "pages/runbooks/odyssey-testnet-ssh-access.md",
+        "sha256": "72b85c68b62b3ac77f4329676611fedd58389e7fcdb681f4f1132ea54cfe7cdc",
+        "size": 2897
+      },
+      {
         "path": "pages/runbooks/official-release-guide.md",
         "sha256": "349c75ca8203388310bdc5c375b18be5ba5d9a9406b76ea4fdef6f0bb3a388bf",
         "size": 3344
@@ -4334,8 +4339,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T23:10:05Z",
-  "file_count": 865,
+  "exported_at": "2026-05-06T23:21:22Z",
+  "file_count": 866,
   "files": [
     {
       "path": ".curator_state",
@@ -7172,7 +7177,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5599f8q966n",
-  "previous_tree_hash": "9e7656a0aa5bb3901c878afe0efb9ee43a278f5e8cb8670d0361c2637a445ab3",
+  "previous_tree_hash": "2709dc0b00f7527cabf918b36da8e7e454250ac0d6f68ec6eb0f71ae97692497",
   "schema_version": 1,
   "skill_file_count": 566,
   "skill_manage_sessions": [
@@ -7185,14 +7190,14 @@
   ],
   "skill_tree_hash": "184f5692aa7625c9041803d455e681ca7775914058e9ad87faddacc2ee98d306",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2709dc0b00f7527cabf918b36da8e7e454250ac0d6f68ec6eb0f71ae97692497",
+  "tree_hash": "602149fd35f3af92515e011e7804a71cf69cae27b0826accd29951bc56c441da",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 299,
+  "wiki_file_count": 300,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7206,8 +7211,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "4859688f9789c381de542aeeadf9794c26bd09a4b784970ebb10748c175f8b91",
-      "size": 765748
+      "sha256": "fbb62796e4fc3e5681280f58a1925870abaf0739216d5f968e1199893d03d9dc",
+      "size": 766056
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8470,6 +8475,11 @@
       "size": 6068
     },
     {
+      "path": "pages/runbooks/odyssey-testnet-ssh-access.md",
+      "sha256": "72b85c68b62b3ac77f4329676611fedd58389e7fcdb681f4f1132ea54cfe7cdc",
+      "size": 2897
+    },
+    {
       "path": "pages/runbooks/official-release-guide.md",
       "sha256": "349c75ca8203388310bdc5c375b18be5ba5d9a9406b76ea4fdef6f0bb3a388bf",
       "size": 3344
@@ -8691,5 +8701,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b26664ced2158789af6281ee673dcaf5ff60e0c3d0e657993107ac15c15350e9"
+  "wiki_tree_hash": "3e3127cb97354c8972ac3bbb76e44fad97c5f22648ca95b2313f1c9a5264fe5e"
 }

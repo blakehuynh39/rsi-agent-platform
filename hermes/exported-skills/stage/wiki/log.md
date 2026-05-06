@@ -15262,3 +15262,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7ca4d16dc533ef405f6f484c6e55151b
 - summary: The IPAccount Centric Data Model centralizes all IP-related data within the IPAccount structure, enabling efficient data handling by Modules. Modules read from and write back to th...
 
+## [2026-05-06T23:20:17Z] synthesis | SSH Access to Odyssey Testnet Nodes
+
+- status: published
+- slug: runbooks/odyssey-testnet-ssh-access
+- wiki_revision_id: wikirev_f92e26226a253e6c9c7b7c1da2f6dc16
+- summary: SSH access details for bootnodes, validators, and RPC nodes in the Odyssey testnet environment.
+
