@@ -14695,3 +14695,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_bc259fef461ca3a36f53cb2550843834
 - summary: Defines the process for discovering, mitigating, and root-causing node outages. Covers alerting via Grafana with Critical and High severity levels, initial alert types, mitigation ...
 
+## [2026-05-06T02:53:02Z] synthesis | Engineering Communication Strategy
+
+- status: published
+- slug: policies/engineering-communication-strategy
+- wiki_revision_id: wikirev_aa5b62a912e786bb9477ea7c64393f39
+- summary: Defines the communication channels and responsibilities for engineering updates, announcements, and stakeholder engagement.
+

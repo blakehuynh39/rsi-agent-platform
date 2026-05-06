@@ -2786,13 +2786,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "6e03669fa3b356eec354b1b1c19322cd8db9ab46eb4c4fdcebd027eb37487be9",
-        "size": 431005
+        "sha256": "da6f8a1b00b56019a8fb2379504742c5c90d09332122504cf2b001a4ef253a10",
+        "size": 431336
       },
       {
         "path": "log.md",
-        "sha256": "4dd58130467380a91f6fa5b2f4ba3dbb025ec03ce6327e917f05a2b6865b73db",
-        "size": 738614
+        "sha256": "7bd34d2d7992c4dd99b70a41d888df5ccee63f1b3f84f49c2c7b2fe9880952d3",
+        "size": 738957
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3358,6 +3358,11 @@
         "path": "pages/policies/database-table-naming-conventions.md",
         "sha256": "1e05bf6d7a11a8394a4c192d0e90a35fd009d94f4e31db03f8e57474d0282049",
         "size": 2937
+      },
+      {
+        "path": "pages/policies/engineering-communication-strategy.md",
+        "sha256": "0ec139d0291fc562b6df454a28501f596e0fa7efcd1a91701d56090788037f12",
+        "size": 7591
       },
       {
         "path": "pages/policies/frontend-repo-open-source-checklist.md",
@@ -3954,8 +3959,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T02:25:08Z",
-  "file_count": 789,
+  "exported_at": "2026-05-06T02:56:23Z",
+  "file_count": 790,
   "files": [
     {
       "path": ".usage.json",
@@ -6737,7 +6742,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f7f569tv7vt",
-  "previous_tree_hash": "a41f98e90dbb4454597789d85502c1bd89833d5a8c5ea0af8ee47474c812ec75",
+  "previous_tree_hash": "3d949c02b5b0fb4a450b5813d9d4cfb911a732fa1bbdfe95d2b0150d43ad9c37",
   "schema_version": 1,
   "skill_file_count": 555,
   "skill_manage_sessions": [
@@ -6750,14 +6755,14 @@
   ],
   "skill_tree_hash": "93a39c348b599ba4ce6366c3184425e46fb0b11259fb63916e94477fa44536b7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3d949c02b5b0fb4a450b5813d9d4cfb911a732fa1bbdfe95d2b0150d43ad9c37",
+  "tree_hash": "65a7856014a4056f001d28cc819edd82c6c501bfc465b7d2e270c88f93b6bce4",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 234,
+  "wiki_file_count": 235,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6766,13 +6771,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "6e03669fa3b356eec354b1b1c19322cd8db9ab46eb4c4fdcebd027eb37487be9",
-      "size": 431005
+      "sha256": "da6f8a1b00b56019a8fb2379504742c5c90d09332122504cf2b001a4ef253a10",
+      "size": 431336
     },
     {
       "path": "log.md",
-      "sha256": "4dd58130467380a91f6fa5b2f4ba3dbb025ec03ce6327e917f05a2b6865b73db",
-      "size": 738614
+      "sha256": "7bd34d2d7992c4dd99b70a41d888df5ccee63f1b3f84f49c2c7b2fe9880952d3",
+      "size": 738957
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7338,6 +7343,11 @@
       "path": "pages/policies/database-table-naming-conventions.md",
       "sha256": "1e05bf6d7a11a8394a4c192d0e90a35fd009d94f4e31db03f8e57474d0282049",
       "size": 2937
+    },
+    {
+      "path": "pages/policies/engineering-communication-strategy.md",
+      "sha256": "0ec139d0291fc562b6df454a28501f596e0fa7efcd1a91701d56090788037f12",
+      "size": 7591
     },
     {
       "path": "pages/policies/frontend-repo-open-source-checklist.md",
@@ -7931,5 +7941,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c1cb3f5a5b78bed1d2a8795de443ce65d310f5e1522f7bc7e08abec5b25c6ec7"
+  "wiki_tree_hash": "d2e2d07c20bd1996ef7dda5a01a3c3568855b763a2c183de8f309aa34e99ff7e"
 }
