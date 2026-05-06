@@ -2831,13 +2831,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "3e7e1fa9bf0ad93587db4be31d0199219f2bd3e845508113ad4906c112f3fec1",
-        "size": 449672
+        "sha256": "44d1cb7ac2d40c6fdf89aff5283af2a9c5e83856d507090aac7922c16b199b34",
+        "size": 450111
       },
       {
         "path": "log.md",
-        "sha256": "0d8ce4700f8efe1107a8620db4bb44f786b4c8dfc907a6f15368d00545ec95ef",
-        "size": 762207
+        "sha256": "0705ef997949acfcf3090d93f04afe1e7a1228adc1e57430a8ad9fcaa4592b6b",
+        "size": 762670
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4205,6 +4205,11 @@
         "size": 1804
       },
       {
+        "path": "pages/systems/legal-database.md",
+        "sha256": "7d0671c7c129f2e1f7c91ae2cdecd06697e9f76c0adcece894bba9c6784731fd",
+        "size": 1102
+      },
+      {
         "path": "pages/systems/monitoring-and-dashboard.md",
         "sha256": "020a2652582a44eafd7e6959efe4cd73dc8b572c24dc0822333e8c473a57633c",
         "size": 3036
@@ -4228,6 +4233,11 @@
         "path": "pages/systems/polygon-token-oracle-backend.md",
         "sha256": "6e78921d515611345da677c27fb175ac88bcff8fa7cd58b89cdcd134d3f3a992",
         "size": 2631
+      },
+      {
+        "path": "pages/systems/projects-database.md",
+        "sha256": "40f2560cb9382914b6cfd04ed3d028aa05e5b64cbd5c8ea16dff64359f8cd772",
+        "size": 1112
       },
       {
         "path": "pages/systems/protocol-api-specs.md",
@@ -4284,8 +4294,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T20:55:40Z",
-  "file_count": 855,
+  "exported_at": "2026-05-06T21:06:46Z",
+  "file_count": 857,
   "files": [
     {
       "path": ".curator_state",
@@ -7112,7 +7122,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5599f8q966n",
-  "previous_tree_hash": "08050964a5642d299b710f98bab487d12b432da0c69d9bbaf21e47db5b89691e",
+  "previous_tree_hash": "a0a74055740516bbe37ee9a129dc5e71632dbe3981c3cf9a271684228442cbde",
   "schema_version": 1,
   "skill_file_count": 564,
   "skill_manage_sessions": [
@@ -7125,14 +7135,14 @@
   ],
   "skill_tree_hash": "7e13e8fa2b284056b6aeb9fc49a305909db18a7534af35854704e3e92c7264dd",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a0a74055740516bbe37ee9a129dc5e71632dbe3981c3cf9a271684228442cbde",
+  "tree_hash": "dcc36c8416a2db511cea4a1d90e6e24c42b5eaec047ac06b66ecd8bee63b1fed",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 291,
+  "wiki_file_count": 293,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7141,13 +7151,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "3e7e1fa9bf0ad93587db4be31d0199219f2bd3e845508113ad4906c112f3fec1",
-      "size": 449672
+      "sha256": "44d1cb7ac2d40c6fdf89aff5283af2a9c5e83856d507090aac7922c16b199b34",
+      "size": 450111
     },
     {
       "path": "log.md",
-      "sha256": "0d8ce4700f8efe1107a8620db4bb44f786b4c8dfc907a6f15368d00545ec95ef",
-      "size": 762207
+      "sha256": "0705ef997949acfcf3090d93f04afe1e7a1228adc1e57430a8ad9fcaa4592b6b",
+      "size": 762670
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8515,6 +8525,11 @@
       "size": 1804
     },
     {
+      "path": "pages/systems/legal-database.md",
+      "sha256": "7d0671c7c129f2e1f7c91ae2cdecd06697e9f76c0adcece894bba9c6784731fd",
+      "size": 1102
+    },
+    {
       "path": "pages/systems/monitoring-and-dashboard.md",
       "sha256": "020a2652582a44eafd7e6959efe4cd73dc8b572c24dc0822333e8c473a57633c",
       "size": 3036
@@ -8538,6 +8553,11 @@
       "path": "pages/systems/polygon-token-oracle-backend.md",
       "sha256": "6e78921d515611345da677c27fb175ac88bcff8fa7cd58b89cdcd134d3f3a992",
       "size": 2631
+    },
+    {
+      "path": "pages/systems/projects-database.md",
+      "sha256": "40f2560cb9382914b6cfd04ed3d028aa05e5b64cbd5c8ea16dff64359f8cd772",
+      "size": 1112
     },
     {
       "path": "pages/systems/protocol-api-specs.md",
@@ -8591,5 +8611,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "fb942cfbd5c47fb2e757717c301f78cf0031cde43ca216b0c1b40738b49ba509"
+  "wiki_tree_hash": "9a2847fc0af7123315ca43ad118e316095fb779238ca73ef6657c2713555c593"
 }

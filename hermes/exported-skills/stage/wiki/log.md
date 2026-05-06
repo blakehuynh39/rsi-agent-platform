@@ -15188,3 +15188,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_82e8a5996a97d2a801dfb533be68241d
 - summary: High-level design for implementing expiration on-chain for IP Assets (IPAs), including two broad approaches: License Token expiration and IPA expiration. Also covers shared logic w...
 
+## [2026-05-06T21:05:47Z] synthesis | Legal Database
+
+- status: published
+- slug: systems/legal-database
+- wiki_revision_id: wikirev_d4b420fc989344a6485fa874a2472431
+- summary: A database for legal matters, accessible via Notion.
+
+## [2026-05-06T21:05:47Z] synthesis | Projects Database
+
+- status: published
+- slug: systems/projects-database
+- wiki_revision_id: wikirev_13324069e093c19e72a84795caedd543
+- summary: A database for projects, accessible via Notion.
+
