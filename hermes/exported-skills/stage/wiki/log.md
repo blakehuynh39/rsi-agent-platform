@@ -14837,3 +14837,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f97e44f9d8fa8f7ea88086d386ca42e6
 - summary: Checklist for official releases, including local chain setup, iliad chain setup, and creating new story and story-geth releases.
 
+## [2026-05-06T07:16:52Z] synthesis | Story Node Improvements
+
+- status: published
+- slug: projects/story-node-improvements
+- wiki_revision_id: wikirev_f843461c5afdca5875a27e5566a52a25
+- summary: Planned improvements for node operations after the Iliad release, including monitoring, key encryption, Dockerization, and build process enhancements.
+

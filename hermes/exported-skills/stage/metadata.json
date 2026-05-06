@@ -2811,13 +2811,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "ddcdaaafb1cd76c076be54fc07c1df74151489389c536adbb4ace4a1d32edeb1",
-        "size": 436296
+        "sha256": "2193662d17ca29c5b6d0d2a162d86a7ce37bcdad86c1f37c408159449b40c7ab",
+        "size": 436632
       },
       {
         "path": "log.md",
-        "sha256": "6ae5018acacc8c89d462f3bdeead65a7fc3ab22e83d6f218b42f00481e2818a8",
-        "size": 745007
+        "sha256": "4fea4d607f799fa10deac844974776eef610452c262dff83d8b1fb7a5044463a",
+        "size": 745355
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3805,6 +3805,11 @@
         "size": 7071
       },
       {
+        "path": "pages/projects/story-node-improvements.md",
+        "sha256": "e91d1efd2cc5e1e20323b60e5ddacec28add46b73f79b3f420c7458cf0aac2dc",
+        "size": 4128
+      },
+      {
         "path": "pages/projects/story-protocol-l1-launch-plan.md",
         "sha256": "b27a482745471709a043a1fd7886c5c422940005dc5dc60012f9794fd492b3d3",
         "size": 12083
@@ -4064,8 +4069,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T06:55:29Z",
-  "file_count": 811,
+  "exported_at": "2026-05-06T07:21:40Z",
+  "file_count": 812,
   "files": [
     {
       "path": ".curator_state",
@@ -6872,7 +6877,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-bfdd9bqzchn",
-  "previous_tree_hash": "abfac7376669f12a9afb4c16c1f30edff6714984d470f7f0abdec7b5263bb203",
+  "previous_tree_hash": "19ee60e220f52a6a6ef07f534c950e0e76aa6d086b7f25a9e26e094e44e269c2",
   "schema_version": 1,
   "skill_file_count": 560,
   "skill_manage_sessions": [
@@ -6885,14 +6890,14 @@
   ],
   "skill_tree_hash": "4f089e2d10224071227098f5bcb7a892c6c921a00215c97c6dc44a1ef3da514d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "19ee60e220f52a6a6ef07f534c950e0e76aa6d086b7f25a9e26e094e44e269c2",
+  "tree_hash": "2796599b05d54374539e62198b1281241c519c94d9008b919d7ec009cc16166a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 251,
+  "wiki_file_count": 252,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6901,13 +6906,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "ddcdaaafb1cd76c076be54fc07c1df74151489389c536adbb4ace4a1d32edeb1",
-      "size": 436296
+      "sha256": "2193662d17ca29c5b6d0d2a162d86a7ce37bcdad86c1f37c408159449b40c7ab",
+      "size": 436632
     },
     {
       "path": "log.md",
-      "sha256": "6ae5018acacc8c89d462f3bdeead65a7fc3ab22e83d6f218b42f00481e2818a8",
-      "size": 745007
+      "sha256": "4fea4d607f799fa10deac844974776eef610452c262dff83d8b1fb7a5044463a",
+      "size": 745355
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7895,6 +7900,11 @@
       "size": 7071
     },
     {
+      "path": "pages/projects/story-node-improvements.md",
+      "sha256": "e91d1efd2cc5e1e20323b60e5ddacec28add46b73f79b3f420c7458cf0aac2dc",
+      "size": 4128
+    },
+    {
       "path": "pages/projects/story-protocol-l1-launch-plan.md",
       "sha256": "b27a482745471709a043a1fd7886c5c422940005dc5dc60012f9794fd492b3d3",
       "size": 12083
@@ -8151,5 +8161,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "aef1acccf170d4d9db0210cb69c5f3a353e7b44199a0279356f502bf4ebfccf7"
+  "wiki_tree_hash": "25e261255a1950067f6b736226652808e2c8f658e06ddda07a7eda7651e4be89"
 }
