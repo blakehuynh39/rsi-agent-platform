@@ -2816,13 +2816,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "3b89188165188e4950a305ab75796180e1e9718078a4a5eeb9cd35b77a4ea685",
-        "size": 441645
+        "sha256": "8ae7c6fcf4be025c45e7e6e274b70856bfbe3bd357a296e4c2df5fba3ab5f24d",
+        "size": 442000
       },
       {
         "path": "log.md",
-        "sha256": "07b2dc08b468c5f529b3c3d4fe14bbc2bcc61d0d569a92f007eab817cc3d7e43",
-        "size": 750983
+        "sha256": "575e1c068163fd3caaa5dc3efe836c6e0b8eff09960c91d2bb858f7288cf43df",
+        "size": 751350
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4015,6 +4015,11 @@
         "size": 1126
       },
       {
+        "path": "pages/runbooks/upgrade-geth-0-9-2-to-0-9-3.md",
+        "sha256": "b018d5599d59c6dc3ddc006f45d63e21749a38070cadec18900d7d0ac6d52be0",
+        "size": 3752
+      },
+      {
         "path": "pages/systems/admin-api-security-architecture.md",
         "sha256": "cd1da0a4827ee8d168cb8111a08c95579ff104873a91d21362fd37b731ae89b0",
         "size": 4492
@@ -4149,8 +4154,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T11:57:34Z",
-  "file_count": 828,
+  "exported_at": "2026-05-06T12:23:45Z",
+  "file_count": 829,
   "files": [
     {
       "path": ".curator_state",
@@ -6962,7 +6967,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c9cb697rvtm",
-  "previous_tree_hash": "8259131679f7b8611d8e8a5944d42fb51909beeff99fd12d559a7e886d2fcaa6",
+  "previous_tree_hash": "69b08d58eb9b056c69fa03ceb639970e1696792deb46a50a7646d33e8a2d41cd",
   "schema_version": 1,
   "skill_file_count": 561,
   "skill_manage_sessions": [
@@ -6975,14 +6980,14 @@
   ],
   "skill_tree_hash": "afbd2291fd67b2c005ef55e775975ab80b39daf1645a51d878d7521be04f637a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "69b08d58eb9b056c69fa03ceb639970e1696792deb46a50a7646d33e8a2d41cd",
+  "tree_hash": "efe46aa379a4f3e7c51e55eb880af57d77ba245d84b465dce912a27549c61bef",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 267,
+  "wiki_file_count": 268,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6991,13 +6996,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "3b89188165188e4950a305ab75796180e1e9718078a4a5eeb9cd35b77a4ea685",
-      "size": 441645
+      "sha256": "8ae7c6fcf4be025c45e7e6e274b70856bfbe3bd357a296e4c2df5fba3ab5f24d",
+      "size": 442000
     },
     {
       "path": "log.md",
-      "sha256": "07b2dc08b468c5f529b3c3d4fe14bbc2bcc61d0d569a92f007eab817cc3d7e43",
-      "size": 750983
+      "sha256": "575e1c068163fd3caaa5dc3efe836c6e0b8eff09960c91d2bb858f7288cf43df",
+      "size": 751350
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8190,6 +8195,11 @@
       "size": 1126
     },
     {
+      "path": "pages/runbooks/upgrade-geth-0-9-2-to-0-9-3.md",
+      "sha256": "b018d5599d59c6dc3ddc006f45d63e21749a38070cadec18900d7d0ac6d52be0",
+      "size": 3752
+    },
+    {
       "path": "pages/systems/admin-api-security-architecture.md",
       "sha256": "cd1da0a4827ee8d168cb8111a08c95579ff104873a91d21362fd37b731ae89b0",
       "size": 4492
@@ -8321,5 +8331,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2c06d4549cffb9ead50d94c548e19b9ee71ca63c6f0287678c209a14d18da5eb"
+  "wiki_tree_hash": "2dee42a6c7c54b5a4cd6fc54d6d163d59b7a62f411006d0362a728d367966bc2"
 }

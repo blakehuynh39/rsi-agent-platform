@@ -166,6 +166,7 @@ This content-oriented catalog is regenerated on every company wiki publish. Read
 - [Running a Node](pages/runbooks/running-a-node.md) — Instructions for running a story network node locally, including Docker images, RPC endpoints, and P2P sync IPs. `updated=2026-05-05T18:10:51Z; source revisions=1; wiki_revision_id=wikirev_c14678c173e52287715cbe8765c4431c`
 - [How to Track NFT Purchases (Ethereum)](pages/runbooks/track-nft-purchases-ethereum.md) — Step-by-step guide to track NFT purchases on Ethereum using Etherscan and a specific MetaMask wallet address. `updated=2026-05-05T06:08:04Z; source revisions=1; wiki_revision_id=wikirev_624f7d72c94b3bf4a022c8f5538e0073`
 - [Typescript SDK Setup](pages/runbooks/typescript-sdk-setup.md) — Guide for setting up the Typescript SDK. `updated=2026-05-05T11:10:19Z; source revisions=1; wiki_revision_id=wikirev_98f52f862f8e815b5eb0d41ed7f13474`
+- [Upgrade Tutorial: Geth (0.9.2 → 0.9.3)](pages/runbooks/upgrade-geth-0-9-2-to-0-9-3.md) — How to migrate from geth v0.9.2 with manual configuration to v0.9.3 using the baked-in --iliad network flag, and how to define custom network flags. `updated=2026-05-06T12:22:21Z; source revisions=1; wiki_revision_id=wikirev_cf5d4f8cdfa12878c26bd373e7c82a5f`
 ## policy
 
 - [Database Table Naming Conventions](pages/policies/database-table-naming-conventions.md) — Policy for database table naming using prefixes to indicate responsibility: wallet_, nft_, story_. `updated=2026-05-05T06:22:12Z; source revisions=1; wiki_revision_id=wikirev_56ee6ccadfed73e83a91b6dff45099a8`

@@ -14958,3 +14958,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_83e403aa11866486d6f2ea7b79cd2b31
 - summary: Project plan outlining the phased rollout from Devnet through Public Testnet to Mainnet, including key dates and linked task boards and setup guides.
 
+## [2026-05-06T12:22:21Z] synthesis | Upgrade Tutorial: Geth (0.9.2 → 0.9.3)
+
+- status: published
+- slug: runbooks/upgrade-geth-0-9-2-to-0-9-3
+- wiki_revision_id: wikirev_cf5d4f8cdfa12878c26bd373e7c82a5f
+- summary: How to migrate from geth v0.9.2 with manual configuration to v0.9.3 using the baked-in --iliad network flag, and how to define custom network flags.
+
