@@ -2816,13 +2816,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "54f42779873206a78deb1e4449c584422a66be68d96e2d4155225794c3980d0f",
-        "size": 444332
+        "sha256": "62e4d23a02661766e872e63f5e2536efd7de00f4308a4fa06d0bc59ae9bfe60d",
+        "size": 444736
       },
       {
         "path": "log.md",
-        "sha256": "101746ea4688c3a61cc16000f413c8730a4bcf5c116ce901366d9f610d649807",
-        "size": 753766
+        "sha256": "7a5a176637947c8f4e2c72bd5fa9810bd7f418de48fb11353d036a5d2e5ab114",
+        "size": 754182
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4045,6 +4045,11 @@
         "size": 3752
       },
       {
+        "path": "pages/runbooks/velia-node-provisioning-prerequisites.md",
+        "sha256": "3666e6ff74a8570c2c85143d9de0b524613a80b34950b8d546d6ac00ca019d15",
+        "size": 3701
+      },
+      {
         "path": "pages/systems/admin-api-security-architecture.md",
         "sha256": "cd1da0a4827ee8d168cb8111a08c95579ff104873a91d21362fd37b731ae89b0",
         "size": 4492
@@ -4189,8 +4194,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T14:26:35Z",
-  "file_count": 836,
+  "exported_at": "2026-05-06T14:52:44Z",
+  "file_count": 837,
   "files": [
     {
       "path": ".curator_state",
@@ -7002,7 +7007,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c9cb697rvtm",
-  "previous_tree_hash": "f41f41d6250be086b00c052c8e5667d74e185af4309ab63af5ddddf356f808fe",
+  "previous_tree_hash": "b6802024eae664db3ecc19dddfab22e64222ab2ac52416d47a2ce48d381ea963",
   "schema_version": 1,
   "skill_file_count": 561,
   "skill_manage_sessions": [
@@ -7015,14 +7020,14 @@
   ],
   "skill_tree_hash": "afbd2291fd67b2c005ef55e775975ab80b39daf1645a51d878d7521be04f637a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b6802024eae664db3ecc19dddfab22e64222ab2ac52416d47a2ce48d381ea963",
+  "tree_hash": "671a28ec7361d98be8efd77ae9becc37f64a8bc71d55e4897a63466214257623",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 275,
+  "wiki_file_count": 276,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7031,13 +7036,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "54f42779873206a78deb1e4449c584422a66be68d96e2d4155225794c3980d0f",
-      "size": 444332
+      "sha256": "62e4d23a02661766e872e63f5e2536efd7de00f4308a4fa06d0bc59ae9bfe60d",
+      "size": 444736
     },
     {
       "path": "log.md",
-      "sha256": "101746ea4688c3a61cc16000f413c8730a4bcf5c116ce901366d9f610d649807",
-      "size": 753766
+      "sha256": "7a5a176637947c8f4e2c72bd5fa9810bd7f418de48fb11353d036a5d2e5ab114",
+      "size": 754182
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8260,6 +8265,11 @@
       "size": 3752
     },
     {
+      "path": "pages/runbooks/velia-node-provisioning-prerequisites.md",
+      "sha256": "3666e6ff74a8570c2c85143d9de0b524613a80b34950b8d546d6ac00ca019d15",
+      "size": 3701
+    },
+    {
       "path": "pages/systems/admin-api-security-architecture.md",
       "sha256": "cd1da0a4827ee8d168cb8111a08c95579ff104873a91d21362fd37b731ae89b0",
       "size": 4492
@@ -8401,5 +8411,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "05fd22216dfc4888e089508a84358377e12df49bb622e2938ee54be97843a0e4"
+  "wiki_tree_hash": "d513a64e72fe3212737152d7a9e37841a55536eef78b11ca2a154eb42c98038e"
 }

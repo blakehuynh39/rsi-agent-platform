@@ -15014,3 +15014,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f66caa68b2f22b81d38ed0bb22a8e45c
 - summary: Analysis and optimization of engineering team costs, focusing on a significant reduction in Vercel expenses between August and October 2024.
 
+## [2026-05-06T14:51:18Z] synthesis | Provision RPC Nodes on Velia - Prerequisites
+
+- status: published
+- slug: runbooks/velia-node-provisioning-prerequisites
+- wiki_revision_id: wikirev_4a68f1ed765d38469d223101ebf2248c
+- summary: Step-by-step guide for initial server setup before provisioning RPC nodes on Velia, including root password change, SSH key creation, regular user with sudo, and Python3 installati...
+
