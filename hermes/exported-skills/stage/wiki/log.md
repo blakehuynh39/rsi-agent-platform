@@ -14830,3 +14830,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_5635be28ed88871d43ce07c7dea702ed
 - summary: A Notion document titled 'Core SDK Requests' was observed, but its detailed content is not yet available.
 
+## [2026-05-06T06:31:10Z] synthesis | Official Release Guide
+
+- status: published
+- slug: runbooks/official-release-guide
+- wiki_revision_id: wikirev_f97e44f9d8fa8f7ea88086d386ca42e6
+- summary: Checklist for official releases, including local chain setup, iliad chain setup, and creating new story and story-geth releases.
+
