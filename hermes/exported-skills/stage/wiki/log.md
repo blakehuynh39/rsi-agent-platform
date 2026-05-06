@@ -15255,3 +15255,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7d61d5f9ed85fc4f8c56dfcdf8e3c22d
 - summary: Design to simplify the licensing structure from License → Policy → FrameworkData → Framework to License → LicenseTemplate, update interfaces, and fully support third-party LicenseT...
 
+## [2026-05-06T23:02:47Z] synthesis | IPAccount Centric Data Model
+
+- status: published
+- slug: concepts/ipaccount-centric-data-model
+- wiki_revision_id: wikirev_7ca4d16dc533ef405f6f484c6e55151b
+- summary: The IPAccount Centric Data Model centralizes all IP-related data within the IPAccount structure, enabling efficient data handling by Modules. Modules read from and write back to th...
+
