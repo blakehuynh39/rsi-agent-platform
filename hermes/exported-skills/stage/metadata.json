@@ -2786,13 +2786,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0fd18876e6d7700baa099eefe21655dd6ad210f0390da4379cbdc0627c2c332c",
-        "size": 425594
+        "sha256": "40f11d05333ad87452602fa804998ee881157680954f8e31e1b1bb8f1a22c881",
+        "size": 426254
       },
       {
         "path": "log.md",
-        "sha256": "5bcdb399b8a32d189dbb3c793dd25291a4a7a401dc150d41d09f28a127a74aec",
-        "size": 732067
+        "sha256": "2b2f625b47b30be1f5b1c9dbe76d6cba675adfccc4097fe89519110f7bdc808c",
+        "size": 732751
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3530,6 +3530,11 @@
         "size": 1238
       },
       {
+        "path": "pages/projects/july-partner-testnet.md",
+        "sha256": "246923b7ec228eff756c1d1e674a9b67039faa162185d49b317e3be622e72375",
+        "size": 6261
+      },
+      {
         "path": "pages/projects/kleros.md",
         "sha256": "9a50cdf230639fad1a1c1d5653b26c85561b147d8c9fad43db4004cd9cca0e7e",
         "size": 6997
@@ -3735,6 +3740,11 @@
         "size": 3640
       },
       {
+        "path": "pages/runbooks/gcp-internal-l1-testnet-setup.md",
+        "sha256": "aafab6b79066036eb46b78d8feabf6ade7fde84d54a3854cbb8e210c13c1b0fe",
+        "size": 1296
+      },
+      {
         "path": "pages/runbooks/how-to-handle-smart-contract-update.md",
         "sha256": "286c161a9da18220b1399871159e088efafe6de7ebaf73e8d6ea7b223bc49a1f",
         "size": 1395
@@ -3879,8 +3889,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T00:28:43Z",
-  "file_count": 774,
+  "exported_at": "2026-05-06T00:34:33Z",
+  "file_count": 776,
   "files": [
     {
       "path": ".usage.json",
@@ -6662,7 +6672,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7c77c5tqkts",
-  "previous_tree_hash": "1630f438a805304516b555283a20f64ce7fee78992e889e0240c92467475286b",
+  "previous_tree_hash": "cfeeb196cfb7b5e1684e52b90285c62f69647ec96622b42250dc81856159df69",
   "schema_version": 1,
   "skill_file_count": 555,
   "skill_manage_sessions": [
@@ -6675,14 +6685,14 @@
   ],
   "skill_tree_hash": "93a39c348b599ba4ce6366c3184425e46fb0b11259fb63916e94477fa44536b7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "cfeeb196cfb7b5e1684e52b90285c62f69647ec96622b42250dc81856159df69",
+  "tree_hash": "475734e9a5c97e994cac856316955333a214f7d1abc2c2d2e6173aab247e645b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 219,
+  "wiki_file_count": 221,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6691,13 +6701,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0fd18876e6d7700baa099eefe21655dd6ad210f0390da4379cbdc0627c2c332c",
-      "size": 425594
+      "sha256": "40f11d05333ad87452602fa804998ee881157680954f8e31e1b1bb8f1a22c881",
+      "size": 426254
     },
     {
       "path": "log.md",
-      "sha256": "5bcdb399b8a32d189dbb3c793dd25291a4a7a401dc150d41d09f28a127a74aec",
-      "size": 732067
+      "sha256": "2b2f625b47b30be1f5b1c9dbe76d6cba675adfccc4097fe89519110f7bdc808c",
+      "size": 732751
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7435,6 +7445,11 @@
       "size": 1238
     },
     {
+      "path": "pages/projects/july-partner-testnet.md",
+      "sha256": "246923b7ec228eff756c1d1e674a9b67039faa162185d49b317e3be622e72375",
+      "size": 6261
+    },
+    {
       "path": "pages/projects/kleros.md",
       "sha256": "9a50cdf230639fad1a1c1d5653b26c85561b147d8c9fad43db4004cd9cca0e7e",
       "size": 6997
@@ -7640,6 +7655,11 @@
       "size": 3640
     },
     {
+      "path": "pages/runbooks/gcp-internal-l1-testnet-setup.md",
+      "sha256": "aafab6b79066036eb46b78d8feabf6ade7fde84d54a3854cbb8e210c13c1b0fe",
+      "size": 1296
+    },
+    {
       "path": "pages/runbooks/how-to-handle-smart-contract-update.md",
       "sha256": "286c161a9da18220b1399871159e088efafe6de7ebaf73e8d6ea7b223bc49a1f",
       "size": 1395
@@ -7781,5 +7801,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c9ffaa148177f33d4e7ac275fc18ffdc3a8a56b65dbfa576a2369efa66894d1e"
+  "wiki_tree_hash": "f373427b83a0cf9cc9938373a78c77f5f53e682c52f1008118916a6300cc51aa"
 }

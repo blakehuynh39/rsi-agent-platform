@@ -14563,3 +14563,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b5ebedee2659b3d35805d5b416708851
 - summary: Ethereum Improvement Proposals (EIPs) define standards for the Ethereum platform, including core protocol specs, APIs, and contract standards. They follow a defined lifecycle and p...
 
+## [2026-05-06T00:33:08Z] synthesis | July Partner Testnet
+
+- status: published
+- slug: projects/july-partner-testnet
+- wiki_revision_id: wikirev_e2f2ef800b36eb38390f6e60aa1c4a2d
+- summary: Project plan for the July partner testnet, covering new features (slashing, epoch staking, staking dashboard APIs, cosmos API, staking hardening), fixes, separation from Omni codeb...
+
+## [2026-05-06T00:34:10Z] synthesis | GCP Internal L1 Testnet Setup
+
+- status: published
+- slug: runbooks/gcp-internal-l1-testnet-setup
+- wiki_revision_id: wikirev_735c4b79870d2e4fcdbda5611f4fbc4a
+- summary: Runbook for setting up and accessing the internal L1 testnet on GCP, including useful SSH commands.
+
