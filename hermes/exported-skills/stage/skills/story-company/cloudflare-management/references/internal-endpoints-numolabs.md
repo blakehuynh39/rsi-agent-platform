@@ -84,8 +84,9 @@ Only `numo-waf-origin-check` actively blocks these endpoints. Other custom rules
 
 ### Related PRs
 
-- PR #201 (cloudflare): Added Seb's IPv6 to `$numo_server_allowlist` — workaround for now
-- Pending: skip rule proposal for both NDV paths (2026-05-06 thread)
+- PR #201 (cloudflare): Added Seb's IPv6 to `$numo_server_allowlist` — workaround, now superseded
+- PR #203 (cloudflare): WAF skip rule `numo-waf-skip-ndv-internal` for both NDV paths (created 2026-05-06)
+- Issue #444 (depin-backend): Replace Bearer API-key auth with OAuth/certificate token exchange — assigned to jdub
 
 ## Slackbot Digest Cron
 
