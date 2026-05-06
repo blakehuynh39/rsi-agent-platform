@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -665,24 +666,32 @@ func loadEvents(r sqlReader, store *MemoryStore) error {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var item ingestion.EventEnvelope
-		var threadKey, incidentKey, ownershipHint, rawPayloadRef, workflowHint sql.NullString
-		var raw []byte
-		var source, severity string
-		if err := rows.Scan(&item.ID, &source, &item.SourceEventID, &threadKey, &incidentKey, &item.DedupeKey, &severity, &item.NormalizedProblemStatement, &ownershipHint, &rawPayloadRef, &workflowHint, &raw, &item.CreatedAt); err != nil {
+		item, err := scanEventEnvelope(rows)
+		if err != nil {
 			return err
 		}
-		item.Source = ingestion.Source(source)
-		item.ThreadKey = threadKey.String
-		item.IncidentKey = incidentKey.String
-		item.Severity = ingestion.Severity(severity)
-		item.OwnershipHint = ownershipHint.String
-		item.RawPayloadRef = rawPayloadRef.String
-		item.WorkflowHint = workflowHint.String
-		item.Metadata = decodeJSON(raw, map[string]interface{}{})
 		store.events = append(store.events, item)
 	}
 	return rows.Err()
+}
+
+func scanEventEnvelope(scanner interface{ Scan(dest ...any) error }) (ingestion.EventEnvelope, error) {
+	var item ingestion.EventEnvelope
+	var threadKey, incidentKey, ownershipHint, rawPayloadRef, workflowHint sql.NullString
+	var raw []byte
+	var source, severity string
+	if err := scanner.Scan(&item.ID, &source, &item.SourceEventID, &threadKey, &incidentKey, &item.DedupeKey, &severity, &item.NormalizedProblemStatement, &ownershipHint, &rawPayloadRef, &workflowHint, &raw, &item.CreatedAt); err != nil {
+		return ingestion.EventEnvelope{}, err
+	}
+	item.Source = ingestion.Source(source)
+	item.ThreadKey = threadKey.String
+	item.IncidentKey = incidentKey.String
+	item.Severity = ingestion.Severity(severity)
+	item.OwnershipHint = ownershipHint.String
+	item.RawPayloadRef = rawPayloadRef.String
+	item.WorkflowHint = workflowHint.String
+	item.Metadata = decodeJSON(raw, map[string]interface{}{})
+	return item, nil
 }
 
 func loadConversations(r sqlReader, store *MemoryStore) error {
@@ -1051,18 +1060,10 @@ func loadTraces(r sqlReader, store *MemoryStore) error {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var item events.ReasoningStep
-		var workflowID, conversationID, caseID, decision sql.NullString
-		var evidenceRefs, alternatives []byte
-		if err := rows.Scan(&item.ID, &item.TraceID, &workflowID, &conversationID, &caseID, &item.StepType, &item.Summary, &evidenceRefs, &alternatives, &item.Confidence, &decision, &item.CreatedAt); err != nil {
+		item, err := scanReasoningStep(rows)
+		if err != nil {
 			return err
 		}
-		item.WorkflowID = workflowID.String
-		item.ConversationID = conversationID.String
-		item.CaseID = caseID.String
-		item.Decision = decision.String
-		item.EvidenceRefs = decodeJSON(evidenceRefs, []events.EvidenceRef{})
-		item.Alternatives = decodeJSON(alternatives, []string{})
 		trace := store.traces[item.TraceID]
 		trace.Reasoning = append(trace.Reasoning, item)
 		store.traces[item.TraceID] = trace
@@ -2598,11 +2599,48 @@ func sortedMapKeys[V any](items map[string]V) []string {
 }
 
 func (p *PostgresStore) ListEvents() []ingestion.EventEnvelope {
-	store, err := p.readStore()
+	rows, err := p.db.Query(`select id, source, source_event_id, thread_key, incident_key, dedupe_key, severity, normalized_problem_statement, ownership_hint, raw_payload_ref, workflow_hint, metadata, created_at from event_envelope order by created_at desc`)
 	if err != nil {
 		return nil
 	}
-	return store.ListEvents()
+	defer rows.Close()
+	out := []ingestion.EventEnvelope{}
+	for rows.Next() {
+		item, err := scanEventEnvelope(rows)
+		if err != nil {
+			return nil
+		}
+		out = append(out, item)
+	}
+	if err := rows.Err(); err != nil {
+		return nil
+	}
+	return out
+}
+
+func (p *PostgresStore) ListEventsByIDs(ids []string) []ingestion.EventEnvelope {
+	ids = compactStrings(ids)
+	if len(ids) == 0 {
+		return nil
+	}
+	query := `select id, source, source_event_id, thread_key, incident_key, dedupe_key, severity, normalized_problem_statement, ownership_hint, raw_payload_ref, workflow_hint, metadata, created_at from event_envelope where id in (` + sqlPlaceholders(len(ids), 1) + `) order by created_at desc`
+	rows, err := p.db.Query(query, stringsToAny(ids)...)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	out := []ingestion.EventEnvelope{}
+	for rows.Next() {
+		item, err := scanEventEnvelope(rows)
+		if err != nil {
+			return nil
+		}
+		out = append(out, item)
+	}
+	if err := rows.Err(); err != nil {
+		return nil
+	}
+	return out
 }
 
 func (p *PostgresStore) ListConversations() []conversation.Conversation {
@@ -2927,21 +2965,56 @@ func (p *PostgresStore) listReasoningStepsByTrace(traceID string) []events.Reaso
 	defer rows.Close()
 	out := []events.ReasoningStep{}
 	for rows.Next() {
-		var item events.ReasoningStep
-		var workflowID, conversationID, caseID, decision sql.NullString
-		var evidenceRefs, alternatives []byte
-		if err := rows.Scan(&item.ID, &item.TraceID, &workflowID, &conversationID, &caseID, &item.StepType, &item.Summary, &evidenceRefs, &alternatives, &item.Confidence, &decision, &item.CreatedAt); err != nil {
+		item, err := scanReasoningStep(rows)
+		if err != nil {
 			return []events.ReasoningStep{}
 		}
-		item.WorkflowID = workflowID.String
-		item.ConversationID = conversationID.String
-		item.CaseID = caseID.String
-		item.Decision = decision.String
-		item.EvidenceRefs = decodeJSON(evidenceRefs, []events.EvidenceRef{})
-		item.Alternatives = decodeJSON(alternatives, []string{})
 		out = append(out, item)
 	}
 	return out
+}
+
+func (p *PostgresStore) ListReasoningStepsByTraceIDsAndType(traceIDs []string, stepType string) []events.ReasoningStep {
+	traceIDs = compactStrings(traceIDs)
+	stepType = strings.TrimSpace(stepType)
+	if len(traceIDs) == 0 || stepType == "" {
+		return nil
+	}
+	args := append(stringsToAny(traceIDs), stepType)
+	query := `select id, trace_id, workflow_id, conversation_id, case_id, step_type, summary, evidence_refs, alternatives, confidence, decision, created_at from reasoning_step where trace_id in (` + sqlPlaceholders(len(traceIDs), 1) + `) and lower(step_type) = lower($` + strconv.Itoa(len(traceIDs)+1) + `) order by trace_id asc, created_at desc, id desc`
+	rows, err := p.db.Query(query, args...)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	out := []events.ReasoningStep{}
+	for rows.Next() {
+		item, err := scanReasoningStep(rows)
+		if err != nil {
+			return nil
+		}
+		out = append(out, item)
+	}
+	if err := rows.Err(); err != nil {
+		return nil
+	}
+	return out
+}
+
+func scanReasoningStep(scanner interface{ Scan(dest ...any) error }) (events.ReasoningStep, error) {
+	var item events.ReasoningStep
+	var workflowID, conversationID, caseID, decision sql.NullString
+	var evidenceRefs, alternatives []byte
+	if err := scanner.Scan(&item.ID, &item.TraceID, &workflowID, &conversationID, &caseID, &item.StepType, &item.Summary, &evidenceRefs, &alternatives, &item.Confidence, &decision, &item.CreatedAt); err != nil {
+		return events.ReasoningStep{}, err
+	}
+	item.WorkflowID = workflowID.String
+	item.ConversationID = conversationID.String
+	item.CaseID = caseID.String
+	item.Decision = decision.String
+	item.EvidenceRefs = decodeJSON(evidenceRefs, []events.EvidenceRef{})
+	item.Alternatives = decodeJSON(alternatives, []string{})
+	return item, nil
 }
 
 func (p *PostgresStore) listToolCallsByTrace(traceID string) []events.ToolCallRecord {

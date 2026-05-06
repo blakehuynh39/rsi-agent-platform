@@ -16,6 +16,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/improvement"
+	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
@@ -769,6 +770,131 @@ func TestHermesCompatibilitySessionsExposeGroupingMetadata(t *testing.T) {
 	}
 	if traceSession.ThreadKey == "" || traceSession.WorkflowKind == "" || traceSession.Status == "" {
 		t.Fatalf("trace operational metadata incomplete: %+v", *traceSession)
+	}
+}
+
+type pagedHermesSessionStore struct {
+	*storepkg.MemoryStore
+	page       storepkg.HermesSessionListPage
+	calls      int
+	lastLimit  int
+	lastOffset int
+}
+
+func (s *pagedHermesSessionStore) ListHermesSessionsPage(limit int, offset int) storepkg.HermesSessionListPage {
+	s.calls++
+	s.lastLimit = limit
+	s.lastOffset = offset
+	return s.page
+}
+
+func TestHermesCompatibilitySessionsUsesPagedLoader(t *testing.T) {
+	now := time.Date(2026, 5, 5, 12, 0, 0, 0, time.UTC)
+	store := &pagedHermesSessionStore{
+		MemoryStore: storepkg.NewMemoryStore(),
+		page: storepkg.HermesSessionListPage{
+			Total: 123,
+			Items: []storepkg.HermesSessionListItem{{
+				ID:             "conv-hot",
+				Type:           "conversation",
+				RawTitle:       "Hot conversation",
+				StartedAt:      now.Add(-time.Hour),
+				LastActive:     now,
+				ConversationID: "conv-hot",
+				Status:         "open",
+				MessageCount:   2,
+				TraceCount:     3,
+				ProposalCount:  1,
+			}},
+		},
+	}
+	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/sessions?limit=7&offset=14", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("sessions status = %d body=%s", rec.Code, rec.Body.String())
+	}
+	if store.calls != 1 || store.lastLimit != 7 || store.lastOffset != 14 {
+		t.Fatalf("paged loader calls=%d limit=%d offset=%d", store.calls, store.lastLimit, store.lastOffset)
+	}
+	var payload struct {
+		Total    int `json:"total"`
+		Limit    int `json:"limit"`
+		Offset   int `json:"offset"`
+		Sessions []struct {
+			ID            string `json:"id"`
+			Type          string `json:"type"`
+			Title         string `json:"title"`
+			MessageCount  int    `json:"message_count"`
+			TraceCount    int    `json:"trace_count"`
+			ProposalCount int    `json:"proposal_count"`
+		} `json:"sessions"`
+	}
+	if err := json.Unmarshal(rec.Body.Bytes(), &payload); err != nil {
+		t.Fatalf("decode sessions: %v", err)
+	}
+	if payload.Total != 123 || payload.Limit != 7 || payload.Offset != 14 {
+		t.Fatalf("pagination metadata = total:%d limit:%d offset:%d", payload.Total, payload.Limit, payload.Offset)
+	}
+	if len(payload.Sessions) != 1 || payload.Sessions[0].ID != "conv-hot" || payload.Sessions[0].Title != "Hot conversation" {
+		t.Fatalf("sessions payload = %+v", payload.Sessions)
+	}
+	if payload.Sessions[0].MessageCount != 2 || payload.Sessions[0].TraceCount != 3 || payload.Sessions[0].ProposalCount != 1 {
+		t.Fatalf("session counts = %+v", payload.Sessions[0])
+	}
+}
+
+type titleBatchStore struct {
+	*storepkg.MemoryStore
+	steps          []events.ReasoningStep
+	getTraceCalls  int
+	reasoningCalls int
+	eventIDCalls   int
+}
+
+func (s *titleBatchStore) GetTrace(traceID string) (events.Trace, bool) {
+	s.getTraceCalls++
+	return s.MemoryStore.GetTrace(traceID)
+}
+
+func (s *titleBatchStore) ListEventsByIDs(ids []string) []ingestion.EventEnvelope {
+	s.eventIDCalls++
+	return nil
+}
+
+func (s *titleBatchStore) ListReasoningStepsByTraceIDsAndType(traceIDs []string, stepType string) []events.ReasoningStep {
+	s.reasoningCalls++
+	return s.steps
+}
+
+func TestHermesCompatibilityTitleCacheUsesBatchedSessionTitles(t *testing.T) {
+	base := storepkg.NewMemoryStore()
+	summary := base.ListTraces()[0]
+	store := &titleBatchStore{
+		MemoryStore: base,
+		steps: []events.ReasoningStep{{
+			ID:        "reason-session-title-batched",
+			TraceID:   summary.TraceID,
+			StepType:  "session_title",
+			Summary:   "Batched session title",
+			CreatedAt: time.Now().UTC(),
+		}},
+	}
+
+	cache := buildTitleCache(store, []events.TraceSummary{summary})
+	got := traceTitleForDisplayWithCache(store, summary, cache)
+
+	if got.Title != "Batched session title" || !got.IsSummary {
+		t.Fatalf("title = %+v, want batched summary title", got)
+	}
+	if store.reasoningCalls != 1 || store.eventIDCalls != 1 {
+		t.Fatalf("batch calls reasoning=%d events=%d", store.reasoningCalls, store.eventIDCalls)
+	}
+	if store.getTraceCalls != 0 {
+		t.Fatalf("GetTrace calls = %d, want no per-trace fallback", store.getTraceCalls)
 	}
 }
 

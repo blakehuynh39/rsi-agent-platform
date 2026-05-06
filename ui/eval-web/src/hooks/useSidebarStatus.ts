@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import type { StatusResponse } from "@/lib/api";
 
@@ -10,13 +10,19 @@ const POLL_MS = 10_000;
  */
 export function useSidebarStatus() {
   const [status, setStatus] = useState<StatusResponse | null>(null);
+  const inFlightRef = useRef(false);
 
   useEffect(() => {
     const load = () => {
+      if (inFlightRef.current) return;
+      inFlightRef.current = true;
       api
         .getStatus()
         .then(setStatus)
-        .catch(() => {});
+        .catch(() => {})
+        .finally(() => {
+          inFlightRef.current = false;
+        });
     };
     load();
     const id = setInterval(load, POLL_MS);

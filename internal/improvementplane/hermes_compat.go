@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -21,12 +22,22 @@ import (
 )
 
 func registerHermesCompatibilityRoutes(r chi.Router, cfg config.Config, store storepkg.Repository) {
+	statusCache := &hermesStatusCache{ttl: 5 * time.Second}
 	r.Get("/api/status", func(w http.ResponseWriter, r *http.Request) {
-		app.WriteJSON(w, http.StatusOK, buildHermesStatus(cfg, store))
+		app.WriteJSON(w, http.StatusOK, statusCache.get(cfg, store))
 	})
 	r.Get("/api/sessions", func(w http.ResponseWriter, r *http.Request) {
 		limit := boundedQueryInt(r, "limit", 20, 1, 200)
 		offset := boundedQueryInt(r, "offset", 0, 0, 1_000_000)
+		if sessions, total, ok := buildHermesSessionsPage(cfg, store, limit, offset); ok {
+			app.WriteJSON(w, http.StatusOK, map[string]any{
+				"sessions": sessions,
+				"total":    total,
+				"limit":    limit,
+				"offset":   offset,
+			})
+			return
+		}
 		sessions := buildHermesSessions(cfg, store)
 		total := len(sessions)
 		if offset > total {
@@ -331,6 +342,34 @@ type hermesToolFunction struct {
 	Arguments string `json:"arguments"`
 }
 
+type hermesStatusCache struct {
+	mu      sync.Mutex
+	ttl     time.Duration
+	expires time.Time
+	payload map[string]any
+}
+
+func (c *hermesStatusCache) get(cfg config.Config, store storepkg.Repository) map[string]any {
+	now := time.Now().UTC()
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.payload != nil && now.Before(c.expires) {
+		return cloneStringAny(c.payload)
+	}
+	payload := buildHermesStatus(cfg, store)
+	c.payload = payload
+	c.expires = time.Now().UTC().Add(c.ttl)
+	return cloneStringAny(payload)
+}
+
+func cloneStringAny(input map[string]any) map[string]any {
+	out := make(map[string]any, len(input))
+	for key, value := range input {
+		out[key] = value
+	}
+	return out
+}
+
 func buildHermesStatus(cfg config.Config, store storepkg.Repository) map[string]any {
 	roles := buildHermesRuntimeStatus(cfg, store)
 	platforms := map[string]map[string]string{}
@@ -481,6 +520,115 @@ func buildHermesSessions(cfg config.Config, store storepkg.Repository) []hermesS
 		return items[i].LastActive > items[j].LastActive
 	})
 	return items
+}
+
+func buildHermesSessionsPage(cfg config.Config, store storepkg.Repository, limit int, offset int) ([]hermesSessionInfo, int, bool) {
+	reader, ok := store.(interface {
+		ListHermesSessionsPage(limit int, offset int) storepkg.HermesSessionListPage
+	})
+	if !ok {
+		return nil, 0, false
+	}
+	page := reader.ListHermesSessionsPage(limit, offset)
+	live := buildHermesLiveSessionIndex(cfg, store)
+	out := make([]hermesSessionInfo, 0, len(page.Items))
+	for _, item := range page.Items {
+		switch item.Type {
+		case "conversation":
+			out = append(out, hermesConversationSessionFromListItem(item, live))
+		case "trace":
+			out = append(out, hermesTraceSessionFromListItem(item, live))
+		}
+	}
+	return out, page.Total, true
+}
+
+func hermesConversationSessionFromListItem(item storepkg.HermesSessionListItem, live hermesLiveSessionIndex) hermesSessionInfo {
+	rawTitle := firstNonEmptyString(item.RawTitle, item.ConversationID, item.ID)
+	title := normalizeDisplayTitle(rawTitle)
+	originalTitle := normalizeOriginalTitle(rawTitle)
+	titleIsSummary := false
+	if item.SessionTitle != "" {
+		title = normalizeDisplayTitle(item.SessionTitle)
+		titleIsSummary = title != "" && title != originalTitle
+	}
+	if title == "" {
+		title = firstNonEmptyString(item.ConversationID, item.ID)
+	}
+	isLive := live.conversations[item.ConversationID]
+	var endedAt *int64
+	if !isLive {
+		endedAt = unixPtr(item.LastActive)
+	}
+	preview := item.Preview
+	if preview == "" {
+		preview = item.ActiveCaseSummary
+	}
+	return hermesSessionInfo{
+		ID:             firstNonEmptyString(item.ID, item.ConversationID),
+		Type:           "conversation",
+		Source:         firstNonEmptyString(item.Source, "conversation"),
+		Model:          "rsi-platform",
+		Title:          title,
+		OriginalTitle:  originalTitle,
+		TitleIsSummary: titleIsSummary,
+		StartedAt:      unixSeconds(item.StartedAt),
+		EndedAt:        endedAt,
+		LastActive:     unixSeconds(item.LastActive),
+		IsActive:       isLive,
+		MessageCount:   item.MessageCount,
+		ToolCallCount:  0,
+		InputTokens:    0,
+		OutputTokens:   0,
+		Preview:        stringPtrIfNonEmpty(preview),
+		ConversationID: firstNonEmptyString(item.ConversationID, item.ID),
+		ThreadKey:      item.ThreadKey,
+		Status:         item.Status,
+		TraceCount:     item.TraceCount,
+		OpenTraceCount: item.OpenTraceCount,
+		ProposalCount:  item.ProposalCount,
+	}
+}
+
+func hermesTraceSessionFromListItem(item storepkg.HermesSessionListItem, live hermesLiveSessionIndex) hermesSessionInfo {
+	rawTitle := firstNonEmptyString(item.TriggerTitle, item.RawTitle, item.WorkflowKind, item.TraceID, item.ID)
+	title := normalizeDisplayTitle(rawTitle)
+	originalTitle := normalizeOriginalTitle(rawTitle)
+	titleIsSummary := false
+	if item.SessionTitle != "" {
+		title = normalizeDisplayTitle(item.SessionTitle)
+		titleIsSummary = title != "" && title != originalTitle
+	}
+	if title == "" {
+		title = firstNonEmptyString(item.WorkflowKind, item.TraceID, item.ID)
+	}
+	traceID := firstNonEmptyString(item.TraceID, item.ID)
+	return hermesSessionInfo{
+		ID:              firstNonEmptyString(item.ID, item.TraceID),
+		Type:            "trace",
+		Source:          "trace",
+		Model:           firstNonEmptyString(item.Model, item.WorkflowKind, "rsi-trace"),
+		Title:           title,
+		OriginalTitle:   originalTitle,
+		TitleIsSummary:  titleIsSummary,
+		StartedAt:       unixSeconds(item.StartedAt),
+		EndedAt:         unixPtrFromTime(item.EndedAt),
+		LastActive:      unixSeconds(item.LastActive),
+		IsActive:        live.traces[item.TraceID],
+		MessageCount:    item.MessageCount,
+		ToolCallCount:   item.ToolCallCount,
+		InputTokens:     0,
+		OutputTokens:    0,
+		Preview:         stringPtrIfNonEmpty(firstNonEmptyString(item.LastVerdict, item.Preview, item.Status)),
+		ConversationID:  item.ConversationID,
+		TraceID:         traceID,
+		ParentSessionID: item.ParentSessionID,
+		CaseID:          item.CaseID,
+		TriggerEventID:  item.TriggerEventID,
+		ThreadKey:       item.ThreadKey,
+		WorkflowKind:    item.WorkflowKind,
+		Status:          item.Status,
+	}
 }
 
 func buildHermesSession(cfg config.Config, store storepkg.Repository, sessionID string) (hermesSessionInfo, bool) {
@@ -1521,11 +1669,26 @@ func unixPtr(t time.Time) *int64 {
 	return &v
 }
 
+func unixPtrFromTime(t *time.Time) *int64 {
+	if t == nil {
+		return nil
+	}
+	return unixPtrIfSet(*t)
+}
+
 func unixPtrIfSet(t time.Time) *int64 {
 	if t.IsZero() {
 		return nil
 	}
 	return unixPtr(t)
+}
+
+func stringPtrIfNonEmpty(value string) *string {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return nil
+	}
+	return stringPtr(value)
 }
 
 func stringPtr(value string) *string {

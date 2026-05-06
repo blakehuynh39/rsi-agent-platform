@@ -1715,7 +1715,10 @@ class HermesRuntime:
         for execution_id, process in list(self._executor_processes.items()):
             if process.poll() is not None:
                 continue
-            descendants = self._descendant_process_ids(process.pid)
+            pid = getattr(process, "pid", 0)
+            if not isinstance(pid, int) or pid <= 0:
+                continue
+            descendants = self._descendant_process_ids(pid)
             if descendants:
                 self._executor_native_tracked_pids.setdefault(execution_id, set()).update(descendants)
 

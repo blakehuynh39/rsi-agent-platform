@@ -110,6 +110,9 @@ create table if not exists trace_summary (
   slack_action_count integer not null default 0
 );
 
+create index if not exists trace_summary_started_idx
+  on trace_summary (started_at desc, trace_id asc);
+
 create table if not exists trace_event (
   id bigserial primary key,
   trace_id text not null,
@@ -200,6 +203,9 @@ create table if not exists conversation_entry (
 );
 
 create index if not exists conversation_entry_conv_idx on conversation_entry (conversation_id, created_at asc);
+create index if not exists conversation_entry_conv_latest_nonempty_idx
+  on conversation_entry (conversation_id, created_at desc, id desc)
+  where btrim(body) <> '';
 create unique index if not exists conversation_entry_external_event_idx on conversation_entry (conversation_id, event_id, entry_type) where entry_type = 'external_event' and event_id is not null;
 create unique index if not exists conversation_entry_slack_action_idx on conversation_entry (conversation_id, source_event_id, entry_type) where entry_type = 'slack_action' and source_event_id is not null;
 
@@ -585,6 +591,8 @@ create table if not exists reasoning_step (
 );
 
 create index if not exists reasoning_step_trace_idx on reasoning_step (trace_id, created_at asc);
+create index if not exists reasoning_step_type_trace_created_idx
+  on reasoning_step (lower(step_type), trace_id, created_at desc, id desc);
 
 create table if not exists tool_call_record (
   id text primary key,

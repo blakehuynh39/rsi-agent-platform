@@ -162,28 +162,55 @@ type sessionTitleCandidate struct {
 }
 
 type titleCache struct {
-	tracesByConversation map[string][]events.TraceSummary
-	eventsByID           map[string]ingestion.EventEnvelope
-	tracesByID           map[string]events.Trace
+	tracesByConversation       map[string][]events.TraceSummary
+	eventsByID                 map[string]ingestion.EventEnvelope
+	tracesByID                 map[string]events.Trace
+	sessionTitleByTraceID      map[string]string
+	sessionTitleLookupComplete bool
 }
 
 const sessionTitleReasoningStepType = "session_title"
 
 func buildTitleCache(store storepkg.Repository, traces []events.TraceSummary) titleCache {
 	cache := titleCache{
-		tracesByConversation: make(map[string][]events.TraceSummary),
-		eventsByID:           make(map[string]ingestion.EventEnvelope),
-		tracesByID:           make(map[string]events.Trace),
+		tracesByConversation:  make(map[string][]events.TraceSummary),
+		eventsByID:            make(map[string]ingestion.EventEnvelope),
+		tracesByID:            make(map[string]events.Trace),
+		sessionTitleByTraceID: make(map[string]string),
 	}
+	triggerIDs := make([]string, 0, len(traces))
+	traceIDs := make([]string, 0, len(traces))
 	for _, trace := range traces {
 		if trace.ConversationID != "" {
 			cache.tracesByConversation[trace.ConversationID] = append(cache.tracesByConversation[trace.ConversationID], trace)
 		}
+		if strings.TrimSpace(trace.TriggerEventID) != "" {
+			triggerIDs = append(triggerIDs, trace.TriggerEventID)
+		}
+		if strings.TrimSpace(trace.TraceID) != "" {
+			traceIDs = append(traceIDs, trace.TraceID)
+		}
 	}
-	for _, event := range store.ListEvents() {
+	eventItems := []ingestion.EventEnvelope{}
+	if reader, ok := store.(interface {
+		ListEventsByIDs([]string) []ingestion.EventEnvelope
+	}); ok {
+		eventItems = reader.ListEventsByIDs(triggerIDs)
+	} else {
+		eventItems = store.ListEvents()
+	}
+	for _, event := range eventItems {
 		if event.ID != "" {
 			cache.eventsByID[strings.TrimSpace(event.ID)] = event
 		}
+	}
+	if reader, ok := store.(interface {
+		ListReasoningStepsByTraceIDsAndType([]string, string) []events.ReasoningStep
+	}); ok {
+		cache.sessionTitleLookupComplete = true
+		cache.sessionTitleByTraceID = sessionTitleCacheFromReasoningSteps(
+			reader.ListReasoningStepsByTraceIDsAndType(traceIDs, sessionTitleReasoningStepType),
+		)
 	}
 	return cache
 }
@@ -241,6 +268,17 @@ func traceTitleForDisplayWithCache(store storepkg.Repository, summary events.Tra
 		rawTitle = firstNonEmptyString(summary.WorkflowKind, summary.TraceID)
 	}
 	original := normalizeOriginalTitle(rawTitle)
+	if title, ok := cache.sessionTitleByTraceID[strings.TrimSpace(summary.TraceID)]; ok {
+		return displayTitle{
+			Title:         title,
+			OriginalTitle: original,
+			IsSummary:     title != original,
+		}
+	}
+	if cache.sessionTitleLookupComplete {
+		normalized := normalizeDisplayTitle(rawTitle)
+		return displayTitle{Title: normalized, OriginalTitle: original}
+	}
 	trace, ok := cache.tracesByID[summary.TraceID]
 	if !ok {
 		trace, ok = store.GetTrace(summary.TraceID)
@@ -301,6 +339,12 @@ func firstConversationSessionSummaryTitleWithCache(store storepkg.Repository, co
 	if best.traceID == "" {
 		return "", false
 	}
+	if title, ok := cache.sessionTitleByTraceID[best.traceID]; ok {
+		return title, true
+	}
+	if cache.sessionTitleLookupComplete {
+		return "", false
+	}
 	trace, ok := cache.tracesByID[best.traceID]
 	if !ok {
 		trace, ok = store.GetTrace(best.traceID)
@@ -311,6 +355,34 @@ func firstConversationSessionSummaryTitleWithCache(store storepkg.Repository, co
 	}
 	title, _, ok := traceSessionSummaryTitleCandidate(trace)
 	return title, ok
+}
+
+func sessionTitleCacheFromReasoningSteps(steps []events.ReasoningStep) map[string]string {
+	type titleCandidate struct {
+		title     string
+		createdAt time.Time
+		id        string
+	}
+	candidates := map[string]titleCandidate{}
+	for _, step := range steps {
+		if !strings.EqualFold(strings.TrimSpace(step.StepType), sessionTitleReasoningStepType) {
+			continue
+		}
+		traceID := strings.TrimSpace(step.TraceID)
+		title := normalizeDisplayTitle(firstNonEmptyString(step.Summary, step.Decision))
+		if traceID == "" || title == "" {
+			continue
+		}
+		current, ok := candidates[traceID]
+		if !ok || step.CreatedAt.After(current.createdAt) || (step.CreatedAt.Equal(current.createdAt) && step.ID > current.id) {
+			candidates[traceID] = titleCandidate{title: title, createdAt: step.CreatedAt, id: step.ID}
+		}
+	}
+	out := make(map[string]string, len(candidates))
+	for traceID, candidate := range candidates {
+		out[traceID] = candidate.title
+	}
+	return out
 }
 
 func traceSessionSummaryTitle(trace events.Trace) (string, bool) {

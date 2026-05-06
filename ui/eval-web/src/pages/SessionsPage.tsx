@@ -1129,6 +1129,17 @@ export default function SessionsPage() {
   >(null);
   const [searching, setSearching] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
+  const sessionsInFlightCountRef = useRef(0);
+  const pendingSessionsLoadRef = useRef<{
+    page: number;
+    showLoading: boolean;
+    signal?: AbortSignal;
+  } | null>(null);
+  const loadSessionsRef = useRef<
+    ((p: number, showLoading?: boolean, signal?: AbortSignal) => void) | null
+  >(null);
+  const overviewInFlightRef = useRef(false);
+  const pendingOverviewLoadRef = useRef(false);
   const logScrollRef = useRef<HTMLPreElement | null>(null);
   const pageRef = useRef<HTMLDivElement | null>(null);
   const appliedDeepLinkScrollRef = useRef<string | null>(null);
@@ -1211,37 +1222,96 @@ export default function SessionsPage() {
     total,
   ]);
 
-  const loadSessions = useCallback((p: number, showLoading = true, signal?: AbortSignal) => {
-    if (showLoading) {
-      setLoading(true);
+  const flushPendingSessionsLoad = useCallback(() => {
+    if (sessionsInFlightCountRef.current > 0) {
+      return;
     }
-    api
-      .getSessions(PAGE_SIZE, p * PAGE_SIZE, signal)
-      .then((resp) => {
-        if (signal?.aborted) return;
-        setSessions(resp.sessions);
-        setTotal(resp.total);
-      })
-      .catch((err) => {
-        if (err?.name !== 'AbortError') {
-          // Silently ignore non-abort errors
-        }
-      })
-      .finally(() => {
-        if (signal?.aborted) return;
-        if (showLoading) {
-          setLoading(false);
-        }
-      });
+    const pending = pendingSessionsLoadRef.current;
+    if (!pending) {
+      return;
+    }
+    pendingSessionsLoadRef.current = null;
+    if (pending.signal?.aborted) {
+      return;
+    }
+    loadSessionsRef.current?.(
+      pending.page,
+      pending.showLoading,
+      pending.signal,
+    );
   }, []);
+
+  const flushPendingOverviewLoad = useCallback(() => {
+    if (!pendingOverviewLoadRef.current || sessionsInFlightCountRef.current > 0) {
+      return;
+    }
+    pendingOverviewLoadRef.current = false;
+    sessionsInFlightCountRef.current += 1;
+    api
+      .getSessions(50)
+      .then((r) => setOverviewSessions(r.sessions))
+      .finally(() => {
+        sessionsInFlightCountRef.current = Math.max(
+          0,
+          sessionsInFlightCountRef.current - 1,
+        );
+        flushPendingSessionsLoad();
+      });
+  }, [flushPendingSessionsLoad]);
+
+  const loadSessions = useCallback(
+    (p: number, showLoading = true, signal?: AbortSignal) => {
+      if (sessionsInFlightCountRef.current > 0) {
+        if (showLoading) {
+          pendingSessionsLoadRef.current = { page: p, showLoading, signal };
+          setLoading(true);
+        }
+        return;
+      }
+      sessionsInFlightCountRef.current += 1;
+      if (showLoading) {
+        setLoading(true);
+      }
+      api
+        .getSessions(PAGE_SIZE, p * PAGE_SIZE, signal)
+        .then((resp) => {
+          if (signal?.aborted) return;
+          setSessions(resp.sessions);
+          setTotal(resp.total);
+        })
+        .catch((err) => {
+          if (err?.name !== "AbortError") {
+            // Silently ignore non-abort errors
+          }
+        })
+        .finally(() => {
+          sessionsInFlightCountRef.current = Math.max(
+            0,
+            sessionsInFlightCountRef.current - 1,
+          );
+          if (!signal?.aborted && showLoading) {
+            setLoading(false);
+          }
+          flushPendingSessionsLoad();
+          flushPendingOverviewLoad();
+        });
+    },
+    [flushPendingSessionsLoad, flushPendingOverviewLoad],
+  );
+
+  useEffect(() => {
+    loadSessionsRef.current = loadSessions;
+  }, [loadSessions]);
 
   useEffect(() => {
     const abortController = new AbortController();
-    const initialLoadId = window.setTimeout(() => loadSessions(page, true, abortController.signal), 0);
-    const intervalId = window.setInterval(() => loadSessions(page, false, abortController.signal), 5000);
+    loadSessions(page, true, abortController.signal);
+    const intervalId = window.setInterval(
+      () => loadSessions(page, false, abortController.signal),
+      5000,
+    );
     return () => {
       abortController.abort();
-      window.clearTimeout(initialLoadId);
       window.clearInterval(intervalId);
     };
   }, [loadSessions, page]);
@@ -1336,19 +1406,34 @@ export default function SessionsPage() {
 
   useEffect(() => {
     const loadOverview = () => {
-      api
-        .getStatus()
-        .then(setStatus)
-        .catch(() => {});
-      api
-        .getSessions(50)
-        .then((r) => setOverviewSessions(r.sessions))
-        .catch(() => {});
+      if (overviewInFlightRef.current) return;
+      overviewInFlightRef.current = true;
+      const requests = [api.getStatus().then(setStatus)];
+      if (sessionsInFlightCountRef.current === 0) {
+        sessionsInFlightCountRef.current += 1;
+        requests.push(
+          api
+            .getSessions(50)
+            .then((r) => setOverviewSessions(r.sessions))
+            .finally(() => {
+              sessionsInFlightCountRef.current = Math.max(
+                0,
+                sessionsInFlightCountRef.current - 1,
+              );
+              flushPendingSessionsLoad();
+            }),
+        );
+      } else {
+        pendingOverviewLoadRef.current = true;
+      }
+      Promise.allSettled(requests).finally(() => {
+        overviewInFlightRef.current = false;
+      });
     };
     loadOverview();
     const id = setInterval(loadOverview, 5000);
     return () => clearInterval(id);
-  }, []);
+  }, [flushPendingSessionsLoad]);
 
   useEffect(() => {
     const el = logScrollRef.current;
