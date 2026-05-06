@@ -14951,3 +14951,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2b1a4b79c34e1779a24957f490a9327d
 - summary: The Story Public Testnet Guide has been deprecated; users should refer to the official Story Network Guide.
 
+## [2026-05-06T11:48:26Z] synthesis | Beta to Mainnet Plan
+
+- status: published
+- slug: projects/beta-to-mainnet-plan
+- wiki_revision_id: wikirev_83e403aa11866486d6f2ea7b79cd2b31
+- summary: Project plan outlining the phased rollout from Devnet through Public Testnet to Mainnet, including key dates and linked task boards and setup guides.
+
