@@ -15160,3 +15160,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7fd832e92c517d891d4df4f1bd03a2f1
 - summary: Overview of the CI/CD pipeline for the project, using GitHub Actions for CI and ArgoCD for CD on AWS EKS.
 
+## [2026-05-06T19:30:18Z] synthesis | Odyssey Testnet
+
+- status: published
+- slug: projects/odyssey-testnet
+- wiki_revision_id: wikirev_e4cb7c1b5f82557ce34e904109bc9ae5
+- summary: Odyssey is a new Story public testnet starting from genesis, introducing new staking, reward distribution, Singularity phase, UBI for validators, and consensus optimizations.
+
