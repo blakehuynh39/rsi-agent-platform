@@ -161,6 +161,16 @@ class FakeAIAgent:
         }
 
 
+class FakeNativeHonchoAIAgent(FakeAIAgent):
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.tools = [
+            {"type": "function", "function": {"name": "honcho_profile"}},
+            {"type": "function", "function": {"name": "honcho_conclude"}},
+        ]
+        self.valid_tool_names = {"honcho_profile", "honcho_conclude"}
+
+
 class FakeTracker:
     def __init__(self) -> None:
         self.reads = [{"kind": "session_history", "summary": "user: prior message"}]
@@ -373,15 +383,16 @@ def write_native_test_envelope(request: dict[str, object], final_response: str =
 
 class HermesRuntimeTests(unittest.TestCase):
     def setUp(self) -> None:
-        FakeAIAgent.last_kwargs = None
-        FakeAIAgent.last_prompt = None
-        FakeAIAgent.last_system_message = None
-        FakeAIAgent.last_history = None
-        FakeAIAgent.last_valid_tool_names = None
-        FakeAIAgent.last_tool_names = None
-        FakeAIAgent.last_interrupt_message = None
-        FakeAIAgent.sleep_seconds = 0.0
-        FakeAIAgent.budget_used = 1
+        for fake_agent in (FakeAIAgent, FakeNativeHonchoAIAgent):
+            fake_agent.last_kwargs = None
+            fake_agent.last_prompt = None
+            fake_agent.last_system_message = None
+            fake_agent.last_history = None
+            fake_agent.last_valid_tool_names = None
+            fake_agent.last_tool_names = None
+            fake_agent.last_interrupt_message = None
+            fake_agent.sleep_seconds = 0.0
+            fake_agent.budget_used = 1
         self._runtime_contract_patch = mock.patch(
             "rsi_runner.hermes_runtime.validate_hermes_contract",
             return_value=HermesContractStatus(
@@ -5317,8 +5328,8 @@ class HermesRuntimeTests(unittest.TestCase):
                     "task_type": "proposal",
                     "repo": "rsi-agent-platform",
                     "prompt": "Produce a fix plan.",
-                    "allowed_tools": ["repo.context", "github.create_pr", "rsi.candidate_context", "honcho_conclude"],
-                    "tool_allowlist": ["repo.context", "github.create_pr", "rsi.candidate_context", "honcho_conclude"],
+                    "allowed_tools": ["repo.context", "github.create_pr", "rsi.candidate_context"],
+                    "tool_allowlist": ["repo.context", "github.create_pr", "rsi.candidate_context"],
                     "session_scope_kind": "proposal_candidate",
                     "session_scope_id": "shared-store:pk-collision",
                     "memory_backend": "honcho",
@@ -5338,13 +5349,39 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertNotIn("repo_context", FakeAIAgent.last_valid_tool_names)
         self.assertNotIn("rsi_candidate_context", FakeAIAgent.last_valid_tool_names)
         self.assertNotIn("github.create_pr", FakeAIAgent.last_valid_tool_names)
-        self.assertNotIn("honcho_conclude", FakeAIAgent.last_valid_tool_names)
         self.assertNotIn("tool_policy_mode", result.raw)
         self.assertNotIn("blocked_tool_names", result.raw)
         self.assertNotIn("tool_allowlist_effective", result.raw)
         self.assertNotIn("Blocked tools", FakeAIAgent.last_prompt or "")
         self.assertNotIn("Tool allowlist", FakeAIAgent.last_prompt or "")
         self.assertNotIn("github.create_pr", FakeAIAgent.last_prompt or "")
+
+    def test_proposal_role_preserves_native_honcho_conclude_tool(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "proposal",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Produce a fix plan.",
+                    "session_scope_kind": "proposal_candidate",
+                    "session_scope_id": "shared-store:pk-collision",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:proposal",
+                    "user_peer_id": "operator:alice",
+                }
+            }
+        )
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeNativeHonchoAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("proposal"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertIn("honcho_profile", FakeNativeHonchoAIAgent.last_valid_tool_names)
+        self.assertIn("honcho_profile", FakeNativeHonchoAIAgent.last_tool_names)
+        self.assertIn("honcho_conclude", FakeNativeHonchoAIAgent.last_valid_tool_names)
+        self.assertIn("honcho_conclude", FakeNativeHonchoAIAgent.last_tool_names)
 
     def test_proposal_role_keeps_helper_toolsets_for_governed_tasks(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -5517,6 +5554,33 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertNotIn("Blocked tools", FakeAIAgent.last_prompt or "")
         self.assertNotIn("Tool allowlist", FakeAIAgent.last_prompt or "")
         self.assertNotIn("github.create_pr", FakeAIAgent.last_prompt or "")
+
+    def test_prod_role_preserves_native_honcho_conclude_tool(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the active workflow.",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                    "user_peer_id": "user:alice",
+                }
+            }
+        )
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeNativeHonchoAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertIn("honcho_profile", FakeNativeHonchoAIAgent.last_valid_tool_names)
+        self.assertIn("honcho_profile", FakeNativeHonchoAIAgent.last_tool_names)
+        self.assertIn("honcho_conclude", FakeNativeHonchoAIAgent.last_valid_tool_names)
+        self.assertIn("honcho_conclude", FakeNativeHonchoAIAgent.last_tool_names)
 
     def test_prod_role_with_bound_workspace_admits_read_only_workspace_tools(self) -> None:
         task = RunnerTaskRequest.from_payload(

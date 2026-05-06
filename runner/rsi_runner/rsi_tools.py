@@ -7,7 +7,6 @@ from .json_types import JsonObject, JsonToolFunctionSchema
 
 
 HERMES_ARTIFACT_TOOLSET = "rsi-artifacts"
-BLOCKED_HONCHO_TOOLS = frozenset({"honcho_conclude"})
 
 _ARTIFACT_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     "artifact.list_files": {

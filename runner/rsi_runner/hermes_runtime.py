@@ -37,7 +37,6 @@ from .execution_contract import (
 )
 from .observability import ObservationEmitter, execution_observation_id
 from .rsi_tools import (
-    BLOCKED_HONCHO_TOOLS,
     HERMES_ARTIFACT_TOOLSET,
     canonical_tool_name,
     normalize_tool_names,
@@ -2546,11 +2545,6 @@ class HermesRuntime:
                     task, extra_toolsets=agentic_mcp_registration.enabled_toolsets
                 ),
             )
-            current_tools = list(getattr(agent, "tools", []) or [])
-            current_valid = set(getattr(agent, "valid_tool_names", set()) or set())
-            current_valid = {name for name in current_valid if name not in BLOCKED_HONCHO_TOOLS}
-            agent.tools = [tool for tool in current_tools if tool_name(tool) not in BLOCKED_HONCHO_TOOLS]
-            agent.valid_tool_names = current_valid
             tracker = self._session_manager.attach_tracking(agent, task, context)
             termination_reason, run_result, stop_meta = self._run_with_deadlines(
                 agent,
