@@ -14923,3 +14923,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f56209e66dfe68f85c3fbd633b85c415
 - summary: Case study for adding a new precompile, referencing the OP contracts.go implementation.
 
+## [2026-05-06T10:53:20Z] synthesis | Licensing and Derivatives DevEx
+
+- status: published
+- slug: projects/licensing-and-derivatives-devex
+- wiki_revision_id: wikirev_ca24ac83e07d7a538a8762878d2d8fd9
+- summary: Exploration of developer experience improvements for licensing and derivative registration in Story Protocol, including skipping LNFT minting in certain cases, default non-commerci...
+

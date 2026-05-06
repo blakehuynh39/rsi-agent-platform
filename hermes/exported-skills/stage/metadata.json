@@ -2816,13 +2816,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "c33515c469ca8b5f3444664f3a84c3c7edfa238e1d3d6afda8aee8dee3804481",
-        "size": 439891
+        "sha256": "120d723781255e6475867bd8611ede1360d8c1c705ef93184cfdee0bc30ea905",
+        "size": 440276
       },
       {
         "path": "log.md",
-        "sha256": "3cbcf905026cb46653eaa4de3b7fb39d0503efb043036d140e834723d1d67171",
-        "size": 749169
+        "sha256": "82e8edba1b8493bf1fea67a5215878685edf561b7b72487e866c50e26b1acd13",
+        "size": 749566
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3710,6 +3710,11 @@
         "size": 3652
       },
       {
+        "path": "pages/projects/licensing-and-derivatives-devex.md",
+        "sha256": "7fbd42e18614be5b1dddd2cd800836b9114a0adc1f774a91f61ed7565fc2d334",
+        "size": 8425
+      },
+      {
         "path": "pages/projects/link-user-socials.md",
         "sha256": "c805919694c08024e3ed1b8846759025b2d4d9470bbdc95840e81d4eea4eaffe",
         "size": 1168
@@ -4124,8 +4129,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T10:38:20Z",
-  "file_count": 823,
+  "exported_at": "2026-05-06T10:54:25Z",
+  "file_count": 824,
   "files": [
     {
       "path": ".curator_state",
@@ -6937,7 +6942,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c9cb69kn5p6",
-  "previous_tree_hash": "a0ff1930d8f9269e892aa72f77e3cc55fda532ebbdfe1b58a6e124639ffdca24",
+  "previous_tree_hash": "a5638d67062802e3a7bafa11c810520558419e15c4664bac41191e75919e334d",
   "schema_version": 1,
   "skill_file_count": 561,
   "skill_manage_sessions": [
@@ -6950,14 +6955,14 @@
   ],
   "skill_tree_hash": "afbd2291fd67b2c005ef55e775975ab80b39daf1645a51d878d7521be04f637a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a5638d67062802e3a7bafa11c810520558419e15c4664bac41191e75919e334d",
+  "tree_hash": "7d3baff86c260da92578dd127b63f3fdfa0d114ab8a65dd64cba681f837f77cd",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 262,
+  "wiki_file_count": 263,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6966,13 +6971,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "c33515c469ca8b5f3444664f3a84c3c7edfa238e1d3d6afda8aee8dee3804481",
-      "size": 439891
+      "sha256": "120d723781255e6475867bd8611ede1360d8c1c705ef93184cfdee0bc30ea905",
+      "size": 440276
     },
     {
       "path": "log.md",
-      "sha256": "3cbcf905026cb46653eaa4de3b7fb39d0503efb043036d140e834723d1d67171",
-      "size": 749169
+      "sha256": "82e8edba1b8493bf1fea67a5215878685edf561b7b72487e866c50e26b1acd13",
+      "size": 749566
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7860,6 +7865,11 @@
       "size": 3652
     },
     {
+      "path": "pages/projects/licensing-and-derivatives-devex.md",
+      "sha256": "7fbd42e18614be5b1dddd2cd800836b9114a0adc1f774a91f61ed7565fc2d334",
+      "size": 8425
+    },
+    {
       "path": "pages/projects/link-user-socials.md",
       "sha256": "c805919694c08024e3ed1b8846759025b2d4d9470bbdc95840e81d4eea4eaffe",
       "size": 1168
@@ -8271,5 +8281,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e7ca5e4fa770c591a20340e30423456519fbfb96c9bcc6fc7f7baff3ba6fba1a"
+  "wiki_tree_hash": "b2b0783e6d5fa03fcbfadd1033a15d51bae57d7f1860f796af7f3a4a2747e795"
 }
