@@ -14,7 +14,7 @@ Use this skill when a Story request asks "how is the Numo/depin project coming a
 
 ## Investigation Workflow
 
-Run these steps in parallel where possible. The goal is to gather evidence from **all five sources** before synthesizing.
+Run these steps in parallel where possible. The goal is to gather evidence from **all six sources** before synthesizing.
 
 ### 1. Read the ingress Slack thread
 
@@ -117,7 +117,38 @@ Look for: replica counts, recent restarts (indicating deploys), age. The `story`
 
 **PITFALL:** The `rsi-platform` namespace does NOT host depin services. Always use the `story` namespace.
 
-### 6. Check for follow-up items
+### 6. Check Grafana/Thanos metrics for runtime health
+
+Grafana is hosted at `https://grafana.ops.storyprotocol.net` with the Thanos (Prometheus) datasource. Three depin dashboards exist: `depin-backend-api` (API Overview), `depin-opening-event` (War Room), and `a6feef84` (Poseidon Depin API). Query live metrics from the Thanos datasource proxy for both stage and prod — see `references/grafana-metrics.md` for the full query reference and pitfalls.
+
+**Credential setup (env vars):**
+- `GRAFANA_SERVER=https://grafana.ops.storyprotocol.net`
+- `GRAFANA_TOKEN` — service account token for dashboard/health API endpoints
+- `RSI_GRAFANA_CF_ACCESS_CLIENT_ID` + `RSI_GRAFANA_CF_ACCESS_CLIENT_SECRET` — Cloudflare Access headers, **required for the datasource proxy** (`/api/datasources/proxy/...`). The `GRAFANA_TOKEN` alone does NOT authenticate the proxy endpoint.
+
+**PITFALL:** `GRAFANA_TOKEN` works for `/api/health`, `/api/search`, and `/api/dashboards/uid/*` but returns 401 on `/api/datasources/proxy/uid/thanos/...` unless you ALSO pass `CF-Access-Client-Id` and `CF-Access-Client-Secret` headers. Always include all three headers when querying Thanos metrics.
+
+**Query pattern (curl through Grafana proxy):**
+```bash
+ENCODED=$(python3 -c "import urllib.parse; print(urllib.parse.quote('<promql>'))")
+curl -s \
+  -H "Authorization: Bearer ${GRAFANA_TOKEN}" \
+  -H "CF-Access-Client-Id: ${RSI_GRAFANA_CF_ACCESS_CLIENT_ID}" \
+  -H "CF-Access-Client-Secret: ${RSI_GRAFANA_CF_ACCESS_CLIENT_SECRET}" \
+  "${GRAFANA_SERVER}/api/datasources/proxy/uid/thanos/api/v1/query?query=${ENCODED}"
+```
+
+**Key metrics to query** (see `references/grafana-metrics.md` for full PromQL):
+- Request rate by status, error breakdown (4xx/5xx), latency percentiles (p50/p95/p99), 24h total requests
+- Pod CPU (millicores) and memory (MB) from `container_cpu_usage_seconds_total` and `container_memory_working_set_bytes`
+- Stage: job label `use1-stage-depin-backend`, namespace `story`
+- Prod: job label `use1-prod-depin-backend`. Prod pods live in a different K8s namespace — use Thanos, not `kubectl`.
+
+**PITFALL — 404 noise masquerading as errors:** Stage often shows an ~89% "error rate" but 88.9% of that is `404 unmatched` — crawlers, health probes, and scanners hitting non-existent paths. To get the real error rate, exclude `path="unmatched"` or focus on `5xx` only. Prod has ~6% 404 from unmatched paths but the noise is much lower relative to real traffic.
+
+**PITFALL — memory anomaly pattern:** Prod sometimes has one pod using 14× more memory than siblings (e.g., `vzp5r` at 570 MB vs 40 MB siblings). Check `avg_over_time(container_memory_working_set_bytes{...}[6h])` — if CPU is low and no restarts, it's likely jemalloc arena retention, not a leak.
+
+### 7. Check for follow-up items
 
 If prior threads asked for follow-up work (e.g., GitHub issues to be created), verify whether those were completed:
 
@@ -142,7 +173,7 @@ The report shape depends on the question type:
 
 Synthesize findings into three sections:
 
-1. **🟢 This Week's Progress** — Merged PRs, shipped features, commit counts, K8s health. Group by repo (depin-backend, numo-monorepo). Highlight cross-repo pairings.
+1. **🟢 This Week's Progress** — Merged PRs, shipped features, commit counts, K8s health, Grafana metrics (throughput, latency, errors, resource usage). Group by repo (depin-backend, numo-monorepo). Highlight cross-repo pairings.
 
 2. **🔴 Follow-Up Items** — Blocked items, unfiled issues, permission gaps, items from prior check-ins that haven't moved. Use a table format with priority and status columns.
 
@@ -150,7 +181,7 @@ Synthesize findings into three sections:
 
 ### Gap analysis ("items NOT in GitHub")
 
-When the user asks for items that are *not* captured in PRs or issues, cross-reference all five sources and surface:
+When the user asks for items that are *not* captured in PRs or issues, cross-reference all six sources and surface:
 
 1. **🔴 Blocked items not in GitHub** — Items discussed in Slack/Notion that have no corresponding GH issue or PR. Include the blocker reason (e.g., bot write permissions).
 
@@ -162,7 +193,7 @@ For each item, include a "Why it's not tracked" column explaining the gap. See `
 
 **Evidence standard:** Cite specific PR numbers, issue numbers, thread timestamps, and deployment names. Prefer the `<repo> #<number>` format (e.g., `depin-backend #404`).
 
-See `references/report-template.md` for a concrete example of the three-section report format. See `references/ci-pipeline-checks.md` for the full CI surface of both repos (Rust Checks, Wiz scanners, Vercel deploys, Cursor Bugbot). See `references/gap-analysis.md` for the cross-referencing methodology used when surfacing items not tracked in GitHub.
+See `references/report-template.md` for a concrete example of the three-section report format. See `references/ci-pipeline-checks.md` for the full CI surface of both repos (Rust Checks, Wiz scanners, Vercel deploys, Cursor Bugbot). See `references/grafana-metrics.md` for Thanos/Prometheus query patterns, pitfalls, and metric interpretation. See `references/gap-analysis.md` for the cross-referencing methodology used when surfacing items not tracked in GitHub.
 
 ## Fallback: when gh isn't authenticated
 

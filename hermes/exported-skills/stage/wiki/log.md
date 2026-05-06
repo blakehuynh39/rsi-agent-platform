@@ -14851,3 +14851,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_47d2b2f569ff4a96e33ef2763de47baa
 - summary: Strategy and design for enabling Story Protocol interactions from other networks, including EVM chains and Solana, using AA wallets and a centralized cross-chain API service.
 
+## [2026-05-06T08:03:31Z] synthesis | Faucet App Runbook
+
+- status: published
+- slug: runbooks/faucet-app-runbook
+- wiki_revision_id: wikirev_db7f119344e02d56b7012a0054f2a42d
+- summary: Runbook for the faucet application, covering wallet funding checks and Supabase issues.
+
+## [2026-05-06T08:04:25Z] synthesis | Token Distribution Database
+
+- status: published
+- slug: systems/token-distribution-database
+- wiki_revision_id: wikirev_7014a9d3728ddafd5f92c321dceac10c
+- summary: A Notion database tracking token distribution, embedded within the Token Drops page.
+

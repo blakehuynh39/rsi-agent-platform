@@ -9,7 +9,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "73bdbe1b1be93826cb86a054b7f60cfa4a4ecd9018e1b83181695548101803a1",
+        "sha256": "dc8e4352a9207b3480fb22d5ca79018e71a496b7a5e57634769d6af082e6684a",
         "size": 1453
       },
       {
@@ -2764,8 +2764,8 @@
       },
       {
         "path": "story-company/numo-project-status/SKILL.md",
-        "sha256": "99ccbbb5686f8c9937304127d26e1ac28770dc85c2fb46074c0057ce8087b983",
-        "size": 9490
+        "sha256": "9e2b289fcf104013299d05c9102b5159d881409eb7ef323ae4235501787d2b91",
+        "size": 12423
       },
       {
         "path": "story-company/numo-project-status/references/ci-pipeline-checks.md",
@@ -2776,6 +2776,11 @@
         "path": "story-company/numo-project-status/references/gap-analysis.md",
         "sha256": "d333b5f8a7fc91b4c76c782f6ff7000ce37bd2c8baf8235b27b794df479ea745",
         "size": 4722
+      },
+      {
+        "path": "story-company/numo-project-status/references/grafana-metrics.md",
+        "sha256": "1f403dbfaa3c147b49a713ab1fbd29d345693052f1cfd58fdb712481c2b9badb",
+        "size": 7948
       },
       {
         "path": "story-company/numo-project-status/references/report-template.md",
@@ -2811,13 +2816,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "cd1f84742fe79f35e945401bd5d8a7a616ddae9a58abadd65641d648b3d1cd70",
-        "size": 436996
+        "sha256": "a83bf3d3f00d41fb41e255c7911fbc466cc9ad9a48cc2a84d6530b901fdaf004",
+        "size": 437536
       },
       {
         "path": "log.md",
-        "sha256": "1334cf4287480427a99b24ca2110544d380c4b3cf77ad70be091393a17dae35e",
-        "size": 745731
+        "sha256": "2683ea3c168ee34cc363067a2186d13f9a061055a97fa7c23e7c4037126ff67e",
+        "size": 746295
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3900,6 +3905,11 @@
         "size": 3005
       },
       {
+        "path": "pages/runbooks/faucet-app-runbook.md",
+        "sha256": "ed8760368e7aea77a0d33cb4c8186a6df361eba33d71da12d017e3b2a20c3ad3",
+        "size": 3599
+      },
+      {
         "path": "pages/runbooks/gcp-internal-l1-testnet-setup.md",
         "sha256": "aafab6b79066036eb46b78d8feabf6ade7fde84d54a3854cbb8e210c13c1b0fe",
         "size": 1296
@@ -4055,6 +4065,11 @@
         "size": 3026
       },
       {
+        "path": "pages/systems/token-distribution-database.md",
+        "sha256": "ee29e699bdb683f05511d5e84f3340790aad8346379a5f7f55a73b23053f62ad",
+        "size": 1206
+      },
+      {
         "path": "pages/systems/twitter-oracle-backend-server.md",
         "sha256": "27af51efc986773842a3b98f76dd9da337ecdfe7d26d09a7152deacacb47a63d",
         "size": 5053
@@ -4074,8 +4089,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T07:44:38Z",
-  "file_count": 813,
+  "exported_at": "2026-05-06T08:18:14Z",
+  "file_count": 816,
   "files": [
     {
       "path": ".curator_state",
@@ -4084,7 +4099,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "73bdbe1b1be93826cb86a054b7f60cfa4a4ecd9018e1b83181695548101803a1",
+      "sha256": "dc8e4352a9207b3480fb22d5ca79018e71a496b7a5e57634769d6af082e6684a",
       "size": 1453
     },
     {
@@ -6839,8 +6854,8 @@
     },
     {
       "path": "story-company/numo-project-status/SKILL.md",
-      "sha256": "99ccbbb5686f8c9937304127d26e1ac28770dc85c2fb46074c0057ce8087b983",
-      "size": 9490
+      "sha256": "9e2b289fcf104013299d05c9102b5159d881409eb7ef323ae4235501787d2b91",
+      "size": 12423
     },
     {
       "path": "story-company/numo-project-status/references/ci-pipeline-checks.md",
@@ -6851,6 +6866,11 @@
       "path": "story-company/numo-project-status/references/gap-analysis.md",
       "sha256": "d333b5f8a7fc91b4c76c782f6ff7000ce37bd2c8baf8235b27b794df479ea745",
       "size": 4722
+    },
+    {
+      "path": "story-company/numo-project-status/references/grafana-metrics.md",
+      "sha256": "1f403dbfaa3c147b49a713ab1fbd29d345693052f1cfd58fdb712481c2b9badb",
+      "size": 7948
     },
     {
       "path": "story-company/numo-project-status/references/report-template.md",
@@ -6882,9 +6902,9 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-bfdd9bqzchn",
-  "previous_tree_hash": "6af6619ea1a7f1373f9b5391e4afc3cc62165dcdb19a44dad7e448faec27a8b3",
+  "previous_tree_hash": "3e2efa048a9300a8cf1351933ca8ca01e98678abcba0ac7b1353ea98d5f2e80c",
   "schema_version": 1,
-  "skill_file_count": 560,
+  "skill_file_count": 561,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -6893,16 +6913,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "4f089e2d10224071227098f5bcb7a892c6c921a00215c97c6dc44a1ef3da514d",
+  "skill_tree_hash": "a55b8288f56a6cae77b701ece0e1f5eed1b376021ee78ad1b13a0af1c04f1999",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d7a1748557218cc4548c1e800c9f0c6e2e26ecb87a748eb0107a674c4956b0e8",
+  "tree_hash": "4a6071f3c2a62dc1d5ee2d261e576ffe685246c0259f35fd7ebe08bd67a32e45",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 253,
+  "wiki_file_count": 255,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6911,13 +6931,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "cd1f84742fe79f35e945401bd5d8a7a616ddae9a58abadd65641d648b3d1cd70",
-      "size": 436996
+      "sha256": "a83bf3d3f00d41fb41e255c7911fbc466cc9ad9a48cc2a84d6530b901fdaf004",
+      "size": 437536
     },
     {
       "path": "log.md",
-      "sha256": "1334cf4287480427a99b24ca2110544d380c4b3cf77ad70be091393a17dae35e",
-      "size": 745731
+      "sha256": "2683ea3c168ee34cc363067a2186d13f9a061055a97fa7c23e7c4037126ff67e",
+      "size": 746295
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8000,6 +8020,11 @@
       "size": 3005
     },
     {
+      "path": "pages/runbooks/faucet-app-runbook.md",
+      "sha256": "ed8760368e7aea77a0d33cb4c8186a6df361eba33d71da12d017e3b2a20c3ad3",
+      "size": 3599
+    },
+    {
       "path": "pages/runbooks/gcp-internal-l1-testnet-setup.md",
       "sha256": "aafab6b79066036eb46b78d8feabf6ade7fde84d54a3854cbb8e210c13c1b0fe",
       "size": 1296
@@ -8155,6 +8180,11 @@
       "size": 3026
     },
     {
+      "path": "pages/systems/token-distribution-database.md",
+      "sha256": "ee29e699bdb683f05511d5e84f3340790aad8346379a5f7f55a73b23053f62ad",
+      "size": 1206
+    },
+    {
       "path": "pages/systems/twitter-oracle-backend-server.md",
       "sha256": "27af51efc986773842a3b98f76dd9da337ecdfe7d26d09a7152deacacb47a63d",
       "size": 5053
@@ -8171,5 +8201,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "3c27ca8b334d1b9c80a53363a5797ea645856176b0c3082236e5e0c3b355299e"
+  "wiki_tree_hash": "43850a32e4c0eafcdf3ad22d1de867a2238b99ffd7f24c051db248d7b4b06385"
 }
