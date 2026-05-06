@@ -40,7 +40,7 @@ from rsi_runner.rsi_tools import transport_tool_schema
 from rsi_runner.session_manager import MemoryTracker, SessionManager
 
 
-HERMES_TEST_PIN = "d00abb07358460c2a6fe29e14d3232230775823b"
+HERMES_TEST_PIN = "130f8eaa1bd8a5e9bead893bf584bc4f4a3b3335"
 
 
 def runner_env(role: str = "prod") -> dict[str, str]:
