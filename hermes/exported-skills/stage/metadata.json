@@ -2791,8 +2791,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "8f87e13e2c290487da0e0ab290d1eb56af2cb134988c76ecb8e0e644f5787c96",
-        "size": 735439
+        "sha256": "4787abcf034e5ab8332cd21968d77bd87745101b5ff6f80f627f0246a40f3804",
+        "size": 735815
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2928,6 +2928,11 @@
         "path": "pages/concepts/graphql-vs-rest-api.md",
         "sha256": "e79608c28f93bee8710daae8048026af57cd758396d3eedbcb5b4f498c06b58b",
         "size": 1190
+      },
+      {
+        "path": "pages/concepts/iliad-code-walkthrough.md",
+        "sha256": "1d288152141728a0de0dacbb632c6c73d0ccc9dc46a9cf39d43e4ac09cda6b89",
+        "size": 4314
       },
       {
         "path": "pages/concepts/image-resizing-solution.md",
@@ -3909,8 +3914,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T01:08:37Z",
-  "file_count": 780,
+  "exported_at": "2026-05-06T01:19:40Z",
+  "file_count": 781,
   "files": [
     {
       "path": ".usage.json",
@@ -6692,7 +6697,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f7f569tv7vt",
-  "previous_tree_hash": "25ca39325ad5120e312aec2861e585cba6fd7b3a6bdb99c9fc9855111691f5ba",
+  "previous_tree_hash": "053a5ad978fa6d3f59f696076ec38f5723d8bcd9f366437dd92d381915046498",
   "schema_version": 1,
   "skill_file_count": 555,
   "skill_manage_sessions": [
@@ -6705,14 +6710,14 @@
   ],
   "skill_tree_hash": "93a39c348b599ba4ce6366c3184425e46fb0b11259fb63916e94477fa44536b7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "053a5ad978fa6d3f59f696076ec38f5723d8bcd9f366437dd92d381915046498",
+  "tree_hash": "6c98768ceac94c73b506e70c58d99d993a4cdea9be365ddb49c9f9521eb4f19d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 225,
+  "wiki_file_count": 226,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6726,8 +6731,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "8f87e13e2c290487da0e0ab290d1eb56af2cb134988c76ecb8e0e644f5787c96",
-      "size": 735439
+      "sha256": "4787abcf034e5ab8332cd21968d77bd87745101b5ff6f80f627f0246a40f3804",
+      "size": 735815
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6863,6 +6868,11 @@
       "path": "pages/concepts/graphql-vs-rest-api.md",
       "sha256": "e79608c28f93bee8710daae8048026af57cd758396d3eedbcb5b4f498c06b58b",
       "size": 1190
+    },
+    {
+      "path": "pages/concepts/iliad-code-walkthrough.md",
+      "sha256": "1d288152141728a0de0dacbb632c6c73d0ccc9dc46a9cf39d43e4ac09cda6b89",
+      "size": 4314
     },
     {
       "path": "pages/concepts/image-resizing-solution.md",
@@ -7841,5 +7851,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1d729a3ef495b20f1a4e0fe0c27386680eea1e9304a9a7da4cd406decbc07517"
+  "wiki_tree_hash": "db585eb52bb265583beb487f42ef4f44dd1bf80d7a8c6944e211a9160bb27b14"
 }

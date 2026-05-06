@@ -14632,3 +14632,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_85db33dd46714962d16f9b600f43f9bc
 - summary: Test plan for L1 network covering network health, stability, performance, fault tolerance, and user experience including validator, delegator, and developer experiences. Includes m...
 
+## [2026-05-06T01:17:09Z] synthesis | Iliad Code Walkthrough
+
+- status: published
+- slug: concepts/iliad-code-walkthrough
+- wiki_revision_id: wikirev_a057d9238ed10ed4deb4484020ba2450
+- summary: Overview of the Iliad codebase structure, covering Cosmos SDK modules, ABCI functions, the Engine API, and the Halo application lifecycle including staking and reward distribution.
+
+## [2026-05-06T01:20:06Z] synthesis | Dispute Module IPA Staking Integration
+
+- status: published
+- slug: projects/dispute-module-ipa-staking-integration
+- wiki_revision_id: wikirev_4e80622dbcbc1009d81e81e92af8c34b
+- summary: Enhance the DisputeModule to support integration with third-party IPA staking modules, enabling external teams to build custom staking flavors and handle disputes like slashing IPA...
+
+## [2026-05-06T01:20:06Z] synthesis | Dispute Policy Immutability
+
+- status: published
+- slug: decisions/dispute-policy-immutability
+- wiki_revision_id: wikirev_528217c6fe710379531e42c1ecb7ad7d
+- summary: Dispute policies should be made immutable to prevent changes that could rug derivatives, especially with IPA staking where staked capital can be directly slashed.
+
+## [2026-05-06T01:20:07Z] synthesis | Wrapped IP ERC20 Permit
+
+- status: published
+- slug: projects/wrapped-ip-erc20-permit
+- wiki_revision_id: wikirev_df4962c7f3cef5a5840be4142fcdcfae
+- summary: Add ERC20 Permit support to the Wrapped IP ($wIP) token by creating a new custom contract to improve user experience.
+
