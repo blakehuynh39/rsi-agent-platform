@@ -152,6 +152,8 @@ export const api = {
 
   // Skills & Toolsets
   getSkills: () => fetchJSON<SkillInfo[]>("/api/skills"),
+  getSkill: (name: string, signal?: AbortSignal) =>
+    fetchJSON<SkillInfo>(`/api/skills/${encodeURIComponent(name)}`, { signal }),
   toggleSkill: (name: string, enabled: boolean) =>
     fetchJSON<{ ok: boolean }>("/api/skills/toggle", {
       method: "PUT",
@@ -537,6 +539,8 @@ export interface SkillInfo {
   description: string;
   category: string;
   enabled: boolean;
+  path?: string;
+  content?: string;
 }
 
 export interface ToolsetInfo {

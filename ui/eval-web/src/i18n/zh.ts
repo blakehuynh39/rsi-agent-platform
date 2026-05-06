@@ -313,6 +313,8 @@ export const zh: Translations = {
     setupNeeded: "需要配置",
     disabledForCli: "CLI 已禁用",
     more: "还有 {count} 个",
+    loadingSkill: "正在加载技能...",
+    noSkillContent: "此技能没有可用的 SKILL.md 内容。",
   },
 
   config: {

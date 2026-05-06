@@ -669,6 +669,33 @@ func TestHermesCompatibilitySkillsIncludeExportedHermesCatalog(t *testing.T) {
 	}
 }
 
+func TestHermesCompatibilitySkillDetailIncludesMarkdown(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/skills/rsi-platform-investigation", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("skill detail status = %d body=%s", rec.Code, rec.Body.String())
+	}
+	var payload map[string]any
+	if err := json.Unmarshal(rec.Body.Bytes(), &payload); err != nil {
+		t.Fatalf("skill detail response is not JSON: %v", err)
+	}
+	if got := payload["name"]; got != "rsi-platform-investigation" {
+		t.Fatalf("name = %v, want rsi-platform-investigation", got)
+	}
+	content, _ := payload["content"].(string)
+	if !strings.Contains(content, "# RSI Platform Investigation") {
+		t.Fatalf("skill detail content missing markdown body: %s", content)
+	}
+	if got := payload["path"]; got != "story-company/rsi-platform-investigation/SKILL.md" {
+		t.Fatalf("path = %v, want story-company/rsi-platform-investigation/SKILL.md", got)
+	}
+}
+
 func TestHermesCompatibilitySessionsExposeGroupingMetadata(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)

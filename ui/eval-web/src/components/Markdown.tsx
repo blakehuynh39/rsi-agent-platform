@@ -1,13 +1,22 @@
-import { useMemo, type ReactNode } from "react";
+import {
+  cloneElement,
+  Fragment,
+  isValidElement,
+  useMemo,
+  type ReactElement,
+  type ReactNode,
+} from "react";
+import ReactMarkdown, { type Components } from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { cn } from "@/lib/utils";
 
 /**
- * Lightweight markdown renderer for LLM output.
- * Handles: code blocks, inline code, bold, italic, headers, links, lists, horizontal rules.
- * NOT a full CommonMark parser — optimized for typical assistant message patterns.
+ * Dashboard-themed markdown renderer.
  *
- * `streaming` renders a blinking caret at the tail of the last block so it
- * appears to hug the final character instead of wrapping onto a new line
- * after a block element (paragraph/list/code/…).
+ * `react-markdown` handles CommonMark parsing safely, while `remark-gfm`
+ * adds GitHub-flavored markdown: tables, task lists, strikethrough, footnotes,
+ * and autolink literals. Element overrides keep the output aligned with the
+ * dashboard's dense, mono-forward visual system instead of browser defaults.
  */
 export function Markdown({
   content,
@@ -18,352 +27,280 @@ export function Markdown({
   highlightTerms?: string[];
   streaming?: boolean;
 }) {
-  const blocks = useMemo(() => parseBlocks(content), [content]);
-  const caret = streaming ? <StreamingCaret /> : null;
+  const terms = useMemo(
+    () =>
+      (highlightTerms ?? [])
+        .map((term) => term.trim())
+        .filter((term) => term.length > 0),
+    [highlightTerms],
+  );
+  const components = useMemo(() => createComponents(terms), [terms]);
 
   return (
-    <div className="text-sm text-foreground leading-relaxed space-y-2">
-      {blocks.map((block, i) => (
-        <Block
-          key={i}
-          block={block}
-          highlightTerms={highlightTerms}
-          caret={caret && i === blocks.length - 1 ? caret : null}
-        />
-      ))}
-      {blocks.length === 0 && caret}
+    <div className="markdown-body text-sm text-foreground leading-relaxed">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={components}
+        skipHtml
+      >
+        {content}
+      </ReactMarkdown>
+      {streaming && <StreamingCaret />}
     </div>
   );
+}
+
+function createComponents(highlightTerms: string[]): Components {
+  const render = (children: ReactNode) =>
+    highlightReactNode(children, highlightTerms);
+
+  return {
+    h1: ({ children }) => (
+      <h1 className="mb-3 mt-0 font-expanded text-lg font-bold uppercase tracking-normal text-foreground">
+        {render(children)}
+      </h1>
+    ),
+    h2: ({ children }) => (
+      <h2 className="mb-2 mt-5 border-b border-border pb-1 font-expanded text-base font-bold uppercase tracking-normal text-foreground">
+        {render(children)}
+      </h2>
+    ),
+    h3: ({ children }) => (
+      <h3 className="mb-1.5 mt-4 font-mono-ui text-sm font-bold text-foreground">
+        {render(children)}
+      </h3>
+    ),
+    h4: ({ children }) => (
+      <h4 className="mb-1 mt-3 font-mono-ui text-xs font-bold uppercase text-muted-foreground">
+        {render(children)}
+      </h4>
+    ),
+    h5: ({ children }) => (
+      <h5 className="mb-1 mt-3 font-mono-ui text-xs font-semibold text-muted-foreground">
+        {render(children)}
+      </h5>
+    ),
+    h6: ({ children }) => (
+      <h6 className="mb-1 mt-3 font-mono-ui text-[0.7rem] font-semibold uppercase text-muted-foreground">
+        {render(children)}
+      </h6>
+    ),
+    p: ({ children }) => (
+      <p className="my-2 text-sm leading-relaxed text-foreground/90">
+        {render(children)}
+      </p>
+    ),
+    a: ({ children, href, ...props }) => (
+      <a
+        {...props}
+        href={href}
+        target={isExternalHref(href) ? "_blank" : undefined}
+        rel={isExternalHref(href) ? "noreferrer" : undefined}
+        className="text-primary underline decoration-primary/30 underline-offset-2 transition-colors hover:decoration-primary/70"
+      >
+        {render(children)}
+      </a>
+    ),
+    blockquote: ({ children }) => (
+      <blockquote className="my-3 border-l-2 border-primary/45 bg-muted/25 px-3 py-2 text-muted-foreground">
+        {render(children)}
+      </blockquote>
+    ),
+    ul: ({ children, className }) => (
+      <ul
+        className={cn(
+          "my-2 list-disc space-y-1 pl-5 marker:text-muted-foreground",
+          className?.includes("contains-task-list") && "list-none pl-0",
+        )}
+      >
+        {children}
+      </ul>
+    ),
+    ol: ({ children }) => (
+      <ol className="my-2 list-decimal space-y-1 pl-5 marker:text-muted-foreground">
+        {children}
+      </ol>
+    ),
+    li: ({ children, className, ...props }) => (
+      <li
+        {...props}
+        className={cn(
+          "pl-1 text-sm leading-relaxed text-foreground/90",
+          className?.includes("task-list-item") &&
+            "flex list-none items-start gap-2 pl-0",
+        )}
+      >
+        {render(children)}
+      </li>
+    ),
+    input: ({ checked, type }) => {
+      if (type !== "checkbox") {
+        return null;
+      }
+      return (
+        <input
+          type="checkbox"
+          checked={Boolean(checked)}
+          readOnly
+          aria-label={checked ? "Completed" : "Not completed"}
+          className="mt-[0.28rem] h-3.5 w-3.5 shrink-0 accent-primary"
+        />
+      );
+    },
+    strong: ({ children }) => (
+      <strong className="font-semibold text-foreground">{render(children)}</strong>
+    ),
+    em: ({ children }) => (
+      <em className="text-foreground/90">{render(children)}</em>
+    ),
+    del: ({ children }) => (
+      <del className="text-muted-foreground decoration-muted-foreground/70">
+        {render(children)}
+      </del>
+    ),
+    hr: () => <hr className="my-4 border-border" />,
+    pre: ({ children }) => (
+      <pre className="my-3 overflow-x-auto border border-border bg-secondary/55 px-3 py-2.5 font-mono-ui text-xs leading-relaxed text-foreground">
+        {children}
+      </pre>
+    ),
+    code: ({ children, className }) => (
+      <code
+        className={cn(
+          "font-mono-ui",
+          className
+            ? "bg-transparent text-inherit"
+            : "bg-secondary/60 px-1.5 py-0.5 text-xs text-primary/90",
+          className,
+        )}
+      >
+        {children}
+      </code>
+    ),
+    table: ({ children }) => (
+      <div className="my-3 overflow-x-auto border border-border bg-background/45">
+        <table className="w-full border-collapse font-mono-ui text-xs">
+          {children}
+        </table>
+      </div>
+    ),
+    thead: ({ children }) => (
+      <thead className="border-b border-border bg-muted/35 text-muted-foreground">
+        {children}
+      </thead>
+    ),
+    tbody: ({ children }) => <tbody>{children}</tbody>,
+    tr: ({ children }) => (
+      <tr className="border-b border-border/70 last:border-b-0">{children}</tr>
+    ),
+    th: ({ children, align }) => (
+      <th
+        align={align}
+        className="px-2.5 py-2 text-left font-bold uppercase tracking-normal text-muted-foreground"
+      >
+        {render(children)}
+      </th>
+    ),
+    td: ({ children, align }) => (
+      <td align={align} className="px-2.5 py-2 align-top text-foreground/90">
+        {render(children)}
+      </td>
+    ),
+    img: ({ alt, src }) => {
+      if (!src || !isSafeImageSrc(src)) {
+        return (
+          <span className="my-3 inline-block border border-border bg-muted/30 px-2 py-1 text-xs text-muted-foreground">
+            [Image: {alt || "blocked"}]
+          </span>
+        );
+      }
+      return (
+        <img
+          alt={alt ?? ""}
+          src={src}
+          className="my-3 max-h-[28rem] max-w-full border border-border object-contain"
+        />
+      );
+    },
+    sup: ({ children }) => (
+      <sup className="font-mono-ui text-[0.65rem] text-primary">
+        {render(children)}
+      </sup>
+    ),
+    section: ({ children, className }) => (
+      <section
+        className={cn(
+          "mt-5 border-t border-border pt-3 text-xs text-muted-foreground",
+          className,
+        )}
+      >
+        {render(children)}
+      </section>
+    ),
+  };
 }
 
 function StreamingCaret() {
   return (
     <span
       aria-hidden
-      className="inline-block w-[0.5em] h-[1em] ml-0.5 align-[-0.15em] bg-foreground/50 animate-pulse"
+      className="inline-block h-[1em] w-[0.5em] align-[-0.15em] bg-foreground/50 animate-pulse"
     />
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Types                                                              */
-/* ------------------------------------------------------------------ */
-
-type BlockNode =
-  | { type: "code"; lang: string; content: string }
-  | { type: "heading"; level: number; content: string }
-  | { type: "hr" }
-  | { type: "list"; ordered: boolean; items: string[] }
-  | { type: "paragraph"; content: string };
-
-/* ------------------------------------------------------------------ */
-/*  Block parser                                                       */
-/* ------------------------------------------------------------------ */
-
-function parseBlocks(text: string): BlockNode[] {
-  const lines = text.split("\n");
-  const blocks: BlockNode[] = [];
-  let i = 0;
-
-  while (i < lines.length) {
-    const line = lines[i];
-
-    // Fenced code block
-    const fenceMatch = line.match(/^```(\w*)/);
-    if (fenceMatch) {
-      const lang = fenceMatch[1] || "";
-      const codeLines: string[] = [];
-      i++;
-      while (i < lines.length && !lines[i].startsWith("```")) {
-        codeLines.push(lines[i]);
-        i++;
-      }
-      i++; // skip closing ```
-      blocks.push({ type: "code", lang, content: codeLines.join("\n") });
-      continue;
-    }
-
-    // Heading
-    const headingMatch = line.match(/^(#{1,4})\s+(.+)/);
-    if (headingMatch) {
-      blocks.push({
-        type: "heading",
-        level: headingMatch[1].length,
-        content: headingMatch[2],
-      });
-      i++;
-      continue;
-    }
-
-    // Horizontal rule
-    if (/^[-*_]{3,}\s*$/.test(line)) {
-      blocks.push({ type: "hr" });
-      i++;
-      continue;
-    }
-
-    // Unordered list
-    if (/^[-*+]\s/.test(line)) {
-      const items: string[] = [];
-      while (i < lines.length && /^[-*+]\s/.test(lines[i])) {
-        items.push(lines[i].replace(/^[-*+]\s/, ""));
-        i++;
-      }
-      blocks.push({ type: "list", ordered: false, items });
-      continue;
-    }
-
-    // Ordered list
-    if (/^\d+[.)]\s/.test(line)) {
-      const items: string[] = [];
-      while (i < lines.length && /^\d+[.)]\s/.test(lines[i])) {
-        items.push(lines[i].replace(/^\d+[.)]\s/, ""));
-        i++;
-      }
-      blocks.push({ type: "list", ordered: true, items });
-      continue;
-    }
-
-    // Empty line
-    if (line.trim() === "") {
-      i++;
-      continue;
-    }
-
-    // Paragraph — collect consecutive non-empty, non-special lines
-    const paraLines: string[] = [];
-    while (
-      i < lines.length &&
-      lines[i].trim() !== "" &&
-      !lines[i].match(/^```/) &&
-      !lines[i].match(/^#{1,4}\s/) &&
-      !lines[i].match(/^[-*+]\s/) &&
-      !lines[i].match(/^\d+[.)]\s/) &&
-      !lines[i].match(/^[-*_]{3,}\s*$/)
-    ) {
-      paraLines.push(lines[i]);
-      i++;
-    }
-    if (paraLines.length > 0) {
-      blocks.push({ type: "paragraph", content: paraLines.join("\n") });
-    }
+function highlightReactNode(node: ReactNode, terms: string[]): ReactNode {
+  if (terms.length === 0) {
+    return node;
   }
-
-  return blocks;
+  if (typeof node === "string" || typeof node === "number") {
+    return <HighlightedText text={String(node)} terms={terms} />;
+  }
+  if (Array.isArray(node)) {
+    return node.map((child, index) => (
+      <Fragment key={index}>{highlightReactNode(child, terms)}</Fragment>
+    ));
+  }
+  if (isValidElement(node)) {
+    if (node.type === "code" || node.type === "pre") {
+      return node;
+    }
+    const element = node as ReactElement<{ children?: ReactNode }>;
+    if (!("children" in element.props)) {
+      return node;
+    }
+    return cloneElement(element, {
+      children: highlightReactNode(element.props.children, terms),
+    });
+  }
+  return node;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Block renderer                                                     */
-/* ------------------------------------------------------------------ */
-
-function Block({
-  block,
-  highlightTerms,
-  caret,
-}: {
-  block: BlockNode;
-  highlightTerms?: string[];
-  caret?: ReactNode;
-}) {
-  switch (block.type) {
-    case "code":
-      return (
-        <pre className="bg-secondary/60 border border-border px-3 py-2.5 text-xs font-mono-ui leading-relaxed overflow-x-auto">
-          <code className="bg-transparent text-inherit">
-            {block.content}
-            {caret}
-          </code>
-        </pre>
-      );
-
-    case "heading": {
-      const Tag = `h${Math.min(block.level, 4)}` as "h1" | "h2" | "h3" | "h4";
-      const sizes: Record<string, string> = {
-        h1: "text-base font-bold",
-        h2: "text-sm font-bold",
-        h3: "text-sm font-semibold",
-        h4: "text-sm font-medium",
-      };
-      return (
-        <Tag className={sizes[Tag]}>
-          <InlineContent text={block.content} highlightTerms={highlightTerms} />
-          {caret}
-        </Tag>
-      );
-    }
-
-    case "hr":
-      return (
-        <>
-          <hr className="border-border" />
-          {caret}
-        </>
-      );
-
-    case "list": {
-      const Tag = block.ordered ? "ol" : "ul";
-      const last = block.items.length - 1;
-      return (
-        <Tag
-          className={`space-y-0.5 ${block.ordered ? "list-decimal" : "list-disc"} pl-5 text-sm`}
-        >
-          {block.items.map((item, i) => (
-            <li key={i}>
-              <InlineContent text={item} highlightTerms={highlightTerms} />
-              {i === last ? caret : null}
-            </li>
-          ))}
-        </Tag>
-      );
-    }
-
-    case "paragraph":
-      return (
-        <p>
-          <InlineContent text={block.content} highlightTerms={highlightTerms} />
-          {caret}
-        </p>
-      );
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/*  Inline parser + renderer                                           */
-/* ------------------------------------------------------------------ */
-
-type InlineNode =
-  | { type: "text"; content: string }
-  | { type: "code"; content: string }
-  | { type: "bold"; content: string }
-  | { type: "italic"; content: string }
-  | { type: "link"; text: string; href: string }
-  | { type: "br" };
-
-function parseInline(text: string): InlineNode[] {
-  const nodes: InlineNode[] = [];
-  // Pattern priority: code > link > bold > italic > bare URL > line break
-  const pattern =
-    /(`[^`]+`)|(\[([^\]]+)\]\(([^)]+)\))|(\*\*([^*]+)\*\*)|(\*([^*]+)\*)|(\bhttps?:\/\/[^\s<>)\]]+)|(\n)/g;
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
-
-  while ((match = pattern.exec(text)) !== null) {
-    if (match.index > lastIndex) {
-      nodes.push({ type: "text", content: text.slice(lastIndex, match.index) });
-    }
-
-    if (match[1]) {
-      // Inline code
-      nodes.push({ type: "code", content: match[1].slice(1, -1) });
-    } else if (match[2]) {
-      // [text](url) link
-      nodes.push({ type: "link", text: match[3], href: match[4] });
-    } else if (match[5]) {
-      // **bold**
-      nodes.push({ type: "bold", content: match[6] });
-    } else if (match[7]) {
-      // *italic*
-      nodes.push({ type: "italic", content: match[8] });
-    } else if (match[9]) {
-      // Bare URL
-      nodes.push({ type: "link", text: match[9], href: match[9] });
-    } else if (match[10]) {
-      // Line break within paragraph
-      nodes.push({ type: "br" });
-    }
-
-    lastIndex = match.index + match[0].length;
-  }
-
-  if (lastIndex < text.length) {
-    nodes.push({ type: "text", content: text.slice(lastIndex) });
-  }
-
-  return nodes;
-}
-
-function InlineContent({
-  text,
-  highlightTerms,
-}: {
-  text: string;
-  highlightTerms?: string[];
-}) {
-  const nodes = useMemo(() => parseInline(text), [text]);
+function HighlightedText({ text, terms }: { text: string; terms: string[] }) {
+  const escaped = terms.map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const splitRegex = new RegExp(`(${escaped.join("|")})`, "gi");
+  const exactRegex = new RegExp(`^(?:${escaped.join("|")})$`, "i");
+  const parts = text.split(splitRegex);
 
   return (
     <>
-      {nodes.map((node, i) => {
-        switch (node.type) {
-          case "text":
-            return (
-              <HighlightedText
-                key={i}
-                text={node.content}
-                terms={highlightTerms}
-              />
-            );
-          case "code":
-            return (
-              <code
-                key={i}
-                className="bg-secondary/60 px-1.5 py-0.5 text-xs font-mono text-primary/90"
-              >
-                {node.content}
-              </code>
-            );
-          case "bold":
-            return (
-              <strong key={i} className="font-semibold">
-                <HighlightedText text={node.content} terms={highlightTerms} />
-              </strong>
-            );
-          case "italic":
-            return (
-              <em key={i}>
-                <HighlightedText text={node.content} terms={highlightTerms} />
-              </em>
-            );
-          case "link":
-            return (
-              <a
-                key={i}
-                href={node.href}
-                target="_blank"
-                rel="noreferrer"
-                className="text-primary underline underline-offset-2 decoration-primary/30 hover:decoration-primary/60 transition-colors"
-              >
-                {node.text}
-              </a>
-            );
-          case "br":
-            return <br key={i} />;
-        }
-      })}
-    </>
-  );
-}
-
-/** Highlight search terms within a plain text string. */
-function HighlightedText({ text, terms }: { text: string; terms?: string[] }) {
-  if (!terms || terms.length === 0) return <>{text}</>;
-
-  // Build a regex that matches any of the search terms (case-insensitive)
-  const escaped = terms.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
-  const regex = new RegExp(`(${escaped.join("|")})`, "gi");
-  const parts = text.split(regex);
-
-  return (
-    <>
-      {parts.map((part, i) =>
-        regex.test(part) ? (
-          <mark key={i} className="bg-warning/30 text-warning px-0.5">
+      {parts.map((part, index) =>
+        part && exactRegex.test(part) ? (
+          <mark key={index} className="bg-warning/30 px-0.5 text-warning">
             {part}
           </mark>
         ) : (
-          <span key={i}>{part}</span>
+          <span key={index}>{part}</span>
         ),
       )}
     </>
   );
+}
+
+function isSafeImageSrc(src: string): boolean {
+  return !(/^[a-z][a-z0-9+.-]*:/i.test(src));
+}
+
+function isExternalHref(href: string | undefined): boolean {
+  return Boolean(href && /^[a-z][a-z0-9+.-]*:/i.test(href));
 }

@@ -1,9 +1,10 @@
-import { useEffect, useLayoutEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useLayoutEffect, useState, useMemo } from "react";
 import {
   Package,
   Search,
   Wrench,
   X,
+  FileText,
   Cpu,
   Globe,
   Shield,
@@ -25,11 +26,12 @@ import { Button } from "@nous-research/ui/ui/components/button";
 import { ListItem } from "@nous-research/ui/ui/components/list-item";
 import { Spinner } from "@nous-research/ui/ui/components/spinner";
 import { Switch } from "@nous-research/ui/ui/components/switch";
-import { cn } from "@/lib/utils";
+import { cn, stripFrontmatter } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/i18n";
 import { usePageHeader } from "@/contexts/usePageHeader";
 import { PluginSlot } from "@/plugins";
+import { Markdown } from "@/components/Markdown";
 
 /* ------------------------------------------------------------------ */
 /*  Types & helpers                                                    */
@@ -100,6 +102,15 @@ export default function SkillsPage() {
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"skills" | "toolsets">("skills");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [selectedSkillName, setSelectedSkillName] = useState<string | null>(
+    null,
+  );
+  const [selectedSkillDetail, setSelectedSkillDetail] =
+    useState<SkillInfo | null>(null);
+  const [selectedSkillLoading, setSelectedSkillLoading] = useState(false);
+  const [selectedSkillError, setSelectedSkillError] = useState<string | null>(
+    null,
+  );
   const { toast, showToast } = useToast();
   const { t } = useI18n();
   const { setAfterTitle, setEnd } = usePageHeader();
@@ -112,12 +123,52 @@ export default function SkillsPage() {
       })
       .catch(() => showToast(t.common.loading, "error"))
       .finally(() => setLoading(false));
-  }, []);
+  }, [showToast, t.common.loading]);
+
+  useEffect(() => {
+    if (!selectedSkillName) {
+      return;
+    }
+
+    const controller = new AbortController();
+
+    queueMicrotask(() => {
+      if (controller.signal.aborted) return;
+      setSelectedSkillLoading(true);
+      setSelectedSkillError(null);
+
+      api
+        .getSkill(selectedSkillName, controller.signal)
+        .then((skill) => setSelectedSkillDetail(skill))
+        .catch((err) => {
+          if (controller.signal.aborted) return;
+          setSelectedSkillDetail(null);
+          setSelectedSkillError(
+            err instanceof Error ? err.message : String(err),
+          );
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) {
+            setSelectedSkillLoading(false);
+          }
+        });
+    });
+
+    return () => controller.abort();
+  }, [selectedSkillName]);
 
   /* ---- Toggle skill ---- */
   const handleToggleSkill = (skill: SkillInfo) => {
     showToast(`${skill.name} is managed by RSI runner configuration`, "success");
   };
+
+  const handleSelectSkill = useCallback((skill: SkillInfo) => {
+    if (selectedSkillName !== skill.name) {
+      setSelectedSkillDetail(null);
+      setSelectedSkillError(null);
+    }
+    setSelectedSkillName(skill.name);
+  }, [selectedSkillName]);
 
   /* ---- Derived data ---- */
   const lowerSearch = search.toLowerCase();
@@ -166,6 +217,14 @@ export default function SkillsPage() {
   }, [skills, t]);
 
   const enabledCount = skills.filter((s) => s.enabled).length;
+
+  const selectedSkillSummary = useMemo(() => {
+    if (!selectedSkillName) return null;
+    return (
+      skills.find((skill) => skill.name === selectedSkillName) ??
+      selectedSkillDetail
+    );
+  }, [selectedSkillDetail, selectedSkillName, skills]);
 
   useLayoutEffect(() => {
     if (loading) {
@@ -266,6 +325,7 @@ export default function SkillsPage() {
                   onClick={() => {
                     setView("toolsets");
                     setSearch("");
+                    setSelectedSkillName(null);
                   }}
                 />
               </div>
@@ -312,84 +372,126 @@ export default function SkillsPage() {
 
         <div className="flex-1 min-w-0">
           {isSearching ? (
-            <Card>
-              <CardHeader className="py-3 px-4">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <Search className="h-4 w-4" />
-                    {t.skills.title}
-                  </CardTitle>
-                  <Badge tone="secondary" className="text-[10px]">
-                    {t.skills.resultCount
-                      .replace("{count}", String(searchMatchedSkills.length))
-                      .replace(
-                        "{s}",
-                        searchMatchedSkills.length !== 1 ? "s" : "",
-                      )}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="px-4 pb-4">
-                {searchMatchedSkills.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-8">
-                    {t.skills.noSkillsMatch}
-                  </p>
-                ) : (
-                  <div className="grid gap-1">
-                    {searchMatchedSkills.map((skill) => (
-                      <SkillRow
-                        key={skill.name}
-                        skill={skill}
-                        onToggle={() => handleToggleSkill(skill)}
-                        noDescriptionLabel={t.skills.noDescription}
-                      />
-                    ))}
+            <div
+              className={cn(
+                "grid gap-3",
+                selectedSkillName &&
+                  "lg:grid-cols-[minmax(18rem,28rem)_minmax(0,1fr)]",
+              )}
+            >
+              <Card className="min-w-0">
+                <CardHeader className="py-3 px-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Search className="h-4 w-4" />
+                      {t.skills.title}
+                    </CardTitle>
+                    <Badge tone="secondary" className="text-[10px]">
+                      {t.skills.resultCount
+                        .replace("{count}", String(searchMatchedSkills.length))
+                        .replace(
+                          "{s}",
+                          searchMatchedSkills.length !== 1 ? "s" : "",
+                        )}
+                    </Badge>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardHeader>
+                <CardContent className="px-4 pb-4">
+                  {searchMatchedSkills.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-8">
+                      {t.skills.noSkillsMatch}
+                    </p>
+                  ) : (
+                    <div className="grid gap-1">
+                      {searchMatchedSkills.map((skill) => (
+                        <SkillRow
+                          key={skill.name}
+                          skill={skill}
+                          selected={selectedSkillName === skill.name}
+                          onSelect={() => handleSelectSkill(skill)}
+                          onToggle={() => handleToggleSkill(skill)}
+                          noDescriptionLabel={t.skills.noDescription}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+              {selectedSkillSummary && (
+                <SkillDetailCard
+                  skill={selectedSkillSummary}
+                  detail={selectedSkillDetail}
+                  loading={selectedSkillLoading}
+                  error={selectedSkillError}
+                  loadingLabel={t.skills.loadingSkill}
+                  noContentLabel={t.skills.noSkillContent}
+                />
+              )}
+            </div>
           ) : view === "skills" ? (
             /* Skills list */
-            <Card>
-              <CardHeader className="py-3 px-4">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <Package className="h-4 w-4" />
-                    {activeCategory
-                      ? prettyCategory(
-                          activeCategory === "__none__" ? null : activeCategory,
-                          t.common.general,
-                        )
-                      : t.skills.all}
-                  </CardTitle>
-                  <Badge tone="secondary" className="text-[10px]">
-                    {t.skills.skillCount
-                      .replace("{count}", String(activeSkills.length))
-                      .replace("{s}", activeSkills.length !== 1 ? "s" : "")}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="px-4 pb-4">
-                {activeSkills.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-8">
-                    {skills.length === 0
-                      ? t.skills.noSkills
-                      : t.skills.noSkillsMatch}
-                  </p>
-                ) : (
-                  <div className="grid gap-1">
-                    {activeSkills.map((skill) => (
-                      <SkillRow
-                        key={skill.name}
-                        skill={skill}
-                        onToggle={() => handleToggleSkill(skill)}
-                        noDescriptionLabel={t.skills.noDescription}
-                      />
-                    ))}
+            <div
+              className={cn(
+                "grid gap-3",
+                selectedSkillName &&
+                  "lg:grid-cols-[minmax(18rem,28rem)_minmax(0,1fr)]",
+              )}
+            >
+              <Card className="min-w-0">
+                <CardHeader className="py-3 px-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Package className="h-4 w-4" />
+                      {activeCategory
+                        ? prettyCategory(
+                            activeCategory === "__none__"
+                              ? null
+                              : activeCategory,
+                            t.common.general,
+                          )
+                        : t.skills.all}
+                    </CardTitle>
+                    <Badge tone="secondary" className="text-[10px]">
+                      {t.skills.skillCount
+                        .replace("{count}", String(activeSkills.length))
+                        .replace("{s}", activeSkills.length !== 1 ? "s" : "")}
+                    </Badge>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardHeader>
+                <CardContent className="px-4 pb-4">
+                  {activeSkills.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-8">
+                      {skills.length === 0
+                        ? t.skills.noSkills
+                        : t.skills.noSkillsMatch}
+                    </p>
+                  ) : (
+                    <div className="grid gap-1">
+                      {activeSkills.map((skill) => (
+                        <SkillRow
+                          key={skill.name}
+                          skill={skill}
+                          selected={selectedSkillName === skill.name}
+                          onSelect={() => handleSelectSkill(skill)}
+                          onToggle={() => handleToggleSkill(skill)}
+                          noDescriptionLabel={t.skills.noDescription}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+              {selectedSkillSummary && (
+                <SkillDetailCard
+                  skill={selectedSkillSummary}
+                  detail={selectedSkillDetail}
+                  loading={selectedSkillLoading}
+                  error={selectedSkillError}
+                  loadingLabel={t.skills.loadingSkill}
+                  noContentLabel={t.skills.noSkillContent}
+                />
+              )}
+            </div>
           ) : (
             /* Toolsets grid */
             <>
@@ -476,11 +578,28 @@ export default function SkillsPage() {
 
 function SkillRow({
   skill,
+  selected,
+  onSelect,
   onToggle,
   noDescriptionLabel,
 }: SkillRowProps) {
   return (
-    <div className="group flex items-start gap-3 px-3 py-2.5 transition-colors hover:bg-muted/40">
+    <div
+      role="button"
+      tabIndex={0}
+      aria-pressed={selected}
+      onClick={onSelect}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onSelect();
+        }
+      }}
+      className={cn(
+        "group flex cursor-pointer items-start gap-3 px-3 py-2.5 text-left transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+        selected && "bg-muted/60",
+      )}
+    >
       <div className="pt-0.5 shrink-0">
         <Switch
           checked={skill.enabled}
@@ -505,6 +624,64 @@ function SkillRow({
         </p>
       </div>
     </div>
+  );
+}
+
+function SkillDetailCard({
+  skill,
+  detail,
+  loading,
+  error,
+  loadingLabel,
+  noContentLabel,
+}: SkillDetailCardProps) {
+  const content = stripFrontmatter(
+    detail?.content || skill.content || skill.description || "",
+  );
+  const category = detail?.category || skill.category;
+  const path = detail?.path || skill.path;
+
+  return (
+    <Card className="min-w-0 lg:sticky lg:top-0">
+      <CardHeader className="py-3 px-4">
+        <div className="flex min-w-0 items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2 font-mono-ui text-sm text-foreground">
+            <FileText className="h-4 w-4 shrink-0" />
+            <span className="truncate">{skill.name}</span>
+          </div>
+          {category && (
+            <Badge tone="secondary" className="max-w-[12rem] truncate text-[10px]">
+              {category}
+            </Badge>
+          )}
+        </div>
+        {path && (
+          <div className="truncate font-mono-ui text-[0.65rem] text-muted-foreground">
+            {path}
+          </div>
+        )}
+      </CardHeader>
+      <CardContent className="max-h-[calc(100vh-220px)] overflow-auto px-4 pb-4">
+        {loading ? (
+          <div className="flex min-h-40 items-center justify-center gap-2 text-sm text-muted-foreground">
+            <Spinner />
+            {loadingLabel}
+          </div>
+        ) : error ? (
+          <div className="border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+            {error}
+          </div>
+        ) : content.trim() ? (
+          <article className="max-w-none">
+            <Markdown content={content} />
+          </article>
+        ) : (
+          <p className="py-8 text-center text-sm text-muted-foreground">
+            {noContentLabel}
+          </p>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -534,6 +711,17 @@ interface PanelItemProps {
 
 interface SkillRowProps {
   noDescriptionLabel: string;
+  onSelect: () => void;
   onToggle: () => void;
+  selected: boolean;
+  skill: SkillInfo;
+}
+
+interface SkillDetailCardProps {
+  detail: SkillInfo | null;
+  error: string | null;
+  loading: boolean;
+  loadingLabel: string;
+  noContentLabel: string;
   skill: SkillInfo;
 }

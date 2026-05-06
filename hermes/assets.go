@@ -16,6 +16,7 @@ type ExportedSkill struct {
 	Description string
 	Category    string
 	Path        string
+	Content     string
 }
 
 func ExportedSkills() []ExportedSkill {
@@ -45,6 +46,7 @@ func ExportedSkills() []ExportedSkill {
 			Description: meta["description"],
 			Category:    category,
 			Path:        rel,
+			Content:     string(raw),
 		})
 		return nil
 	})

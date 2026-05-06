@@ -24,3 +24,18 @@ export function isoTimeAgo(iso: string): string {
   if (delta < 86400) return `${Math.floor(delta / 3600)}h ago`;
   return `${Math.floor(delta / 86400)}d ago`;
 }
+
+/** Strips YAML frontmatter from markdown content. */
+export function stripFrontmatter(content: string): string {
+  const trimmed = content.trimStart();
+  if (!trimmed.startsWith("---")) {
+    return content;
+  }
+  const lines = trimmed.split("\n");
+  for (let i = 1; i < lines.length; i += 1) {
+    if (lines[i].trim() === "---") {
+      return lines.slice(i + 1).join("\n").trimStart();
+    }
+  }
+  return content;
+}

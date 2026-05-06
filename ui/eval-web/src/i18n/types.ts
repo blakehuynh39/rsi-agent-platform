@@ -320,6 +320,8 @@ export interface Translations {
     setupNeeded: string;
     disabledForCli: string;
     more: string;
+    loadingSkill: string;
+    noSkillContent: string;
   };
 
   // ── Config page ──

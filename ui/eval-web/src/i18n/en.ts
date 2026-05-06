@@ -317,6 +317,8 @@ export const en: Translations = {
     setupNeeded: "Setup needed",
     disabledForCli: "Disabled for CLI",
     more: "+{count} more",
+    loadingSkill: "Loading skill...",
+    noSkillContent: "No SKILL.md content is available for this skill.",
   },
 
   config: {

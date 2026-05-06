@@ -11,7 +11,7 @@ import { Spinner } from "@nous-research/ui/ui/components/spinner";
 import { Markdown } from "@/components/Markdown";
 import { usePageHeader } from "@/contexts/usePageHeader";
 import { api, type CompanyWikiSearchResult } from "@/lib/api";
-import { cn } from "@/lib/utils";
+import { cn, stripFrontmatter } from "@/lib/utils";
 import { PluginSlot } from "@/plugins";
 
 const INDEX_PATH = "index.md";
@@ -301,20 +301,6 @@ function normalizeWikiPath(path: string): string {
     return normalized;
   }
   return "";
-}
-
-function stripFrontmatter(content: string): string {
-  const trimmed = content.trimStart();
-  if (!trimmed.startsWith("---")) {
-    return content;
-  }
-  const lines = trimmed.split("\n");
-  for (let i = 1; i < lines.length; i += 1) {
-    if (lines[i].trim() === "---") {
-      return lines.slice(i + 1).join("\n").trimStart();
-    }
-  }
-  return content;
 }
 
 function stripIndexMetadata(content: string): string {

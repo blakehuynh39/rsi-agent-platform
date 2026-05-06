@@ -81,6 +81,14 @@ func registerHermesCompatibilityRoutes(r chi.Router, cfg config.Config, store st
 	r.Get("/api/skills", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, buildHermesSkills(store))
 	})
+	r.Get("/api/skills/{skillName}", func(w http.ResponseWriter, r *http.Request) {
+		skillName := chi.URLParam(r, "skillName")
+		if skill, ok := buildHermesSkillDetail(store, skillName); ok {
+			app.WriteJSON(w, http.StatusOK, skill)
+			return
+		}
+		app.WriteError(w, http.StatusNotFound, fmt.Errorf("skill %q not found", skillName))
+	})
 	r.Put("/api/skills/toggle", hermesUnsupported("RSI skills are managed by runner configuration"))
 	r.Get("/api/tools/toolsets", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, buildHermesToolsets(cfg, store))
@@ -951,6 +959,7 @@ func buildHermesSkills(store storepkg.Repository) []map[string]any {
 			"name":        skill.Name,
 			"description": firstNonEmptyString(skill.Description, fmt.Sprintf("Hermes skill exported from %s.", skill.Path)),
 			"category":    firstNonEmptyString(skill.Category, "hermes"),
+			"path":        skill.Path,
 			"enabled":     true,
 		})
 	}
@@ -971,6 +980,52 @@ func buildHermesSkills(store storepkg.Repository) []map[string]any {
 	}
 	sort.Slice(out, func(i, j int) bool { return fmt.Sprint(out[i]["name"]) < fmt.Sprint(out[j]["name"]) })
 	return out
+}
+
+func buildHermesSkillDetail(store storepkg.Repository, name string) (map[string]any, bool) {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return nil, false
+	}
+	seen := map[string]bool{}
+	for _, skill := range hermesassets.ExportedSkills() {
+		if seen[skill.Name] {
+			continue
+		}
+		seen[skill.Name] = true
+		if !strings.EqualFold(skill.Name, name) {
+			continue
+		}
+		return map[string]any{
+			"name":        skill.Name,
+			"description": firstNonEmptyString(skill.Description, fmt.Sprintf("Hermes skill exported from %s.", skill.Path)),
+			"category":    firstNonEmptyString(skill.Category, "hermes"),
+			"path":        skill.Path,
+			"content":     skill.Content,
+			"enabled":     true,
+		}, true
+	}
+	for _, capability := range store.ListCapabilities() {
+		if !strings.EqualFold(capability.Kind, "skill") {
+			continue
+		}
+		if seen[capability.Name] {
+			continue
+		}
+		seen[capability.Name] = true
+		if !strings.EqualFold(capability.Name, name) {
+			continue
+		}
+		description := fmt.Sprintf("RSI capability available to %s", strings.Join(capability.AllowedBots, ", "))
+		return map[string]any{
+			"name":        capability.Name,
+			"description": description,
+			"category":    "rsi/capability",
+			"content":     description,
+			"enabled":     true,
+		}, true
+	}
+	return nil, false
 }
 
 func buildHermesToolsets(cfg config.Config, store storepkg.Repository) []map[string]any {
