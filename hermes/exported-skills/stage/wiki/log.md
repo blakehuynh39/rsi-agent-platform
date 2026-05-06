@@ -14618,3 +14618,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_a2bf299815e2d57f8bb392842704334f
 - summary: Source: [Notion source](https://www.notion.so/Poseidon-User-multiplier-358051299a548045b4cdfa255f0b7dbe)
 
+## [2026-05-06T01:03:49Z] synthesis | PIL Derivative commercialRevShare Override
+
+- status: published
+- slug: concepts/pil-derivative-commercial-rev-share-override
+- wiki_revision_id: wikirev_929c09ead8e906457d4409f95b5adb7b
+- summary: Proposal to allow derivative IP owners to override the commercialRevShare field in the PIL license when registering a derivative, addressing a use case from Mahojin.
+
+## [2026-05-06T01:07:47Z] synthesis | L1 Test Plan
+
+- status: published
+- slug: projects/l1-test-plan
+- wiki_revision_id: wikirev_85db33dd46714962d16f9b600f43f9bc
+- summary: Test plan for L1 network covering network health, stability, performance, fault tolerance, and user experience including validator, delegator, and developer experiences. Includes m...
+

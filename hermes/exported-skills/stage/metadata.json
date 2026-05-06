@@ -2786,13 +2786,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e4699a7f77db24e93529dbccf47a0bf6ad2f7d0a1ca305cd9158a26899ea6127",
-        "size": 427200
+        "sha256": "772a51ccd5206352a18214930a5d394e5e98c71191ecec68fba93bce5ada0ebb",
+        "size": 427938
       },
       {
         "path": "log.md",
-        "sha256": "2231b5ee1c1911f72fd2a62ae217a32cb48395a95be9252043fd2a0f1687853a",
-        "size": 734677
+        "sha256": "8f87e13e2c290487da0e0ab290d1eb56af2cb134988c76ecb8e0e644f5787c96",
+        "size": 735439
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3033,6 +3033,11 @@
         "path": "pages/concepts/partner-integration.md",
         "sha256": "7327d8b2007bfd6dd572d439d8728eaeb394e6cfedd8d7e7c1b50c723a2c8fec",
         "size": 1179
+      },
+      {
+        "path": "pages/concepts/pil-derivative-commercial-rev-share-override.md",
+        "sha256": "d2e98c632020a119ee490548f8d1debdea61f6cc528e8f758f447d234915a88b",
+        "size": 2786
       },
       {
         "path": "pages/concepts/platform-api-a.md",
@@ -3550,6 +3555,11 @@
         "size": 5626
       },
       {
+        "path": "pages/projects/l1-test-plan.md",
+        "sha256": "ff8ade5610304af4b04bf4f7683d73475a0927d1898552fb8885745365984c8f",
+        "size": 6324
+      },
+      {
         "path": "pages/projects/l2-analytics-tool-research.md",
         "sha256": "6362f232c774b3353374f0b72b4f606bb6b2edb7d57a2e343c2beeb293052a42",
         "size": 1240
@@ -3899,8 +3909,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T01:01:31Z",
-  "file_count": 778,
+  "exported_at": "2026-05-06T01:08:37Z",
+  "file_count": 780,
   "files": [
     {
       "path": ".usage.json",
@@ -6681,8 +6691,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f9fd99zkhqg",
-  "previous_tree_hash": "082c71f593484eb4ed2b748eae6a6e5dd09fdd7597cb7f24489ced199ac7ac35",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f7f569tv7vt",
+  "previous_tree_hash": "25ca39325ad5120e312aec2861e585cba6fd7b3a6bdb99c9fc9855111691f5ba",
   "schema_version": 1,
   "skill_file_count": 555,
   "skill_manage_sessions": [
@@ -6695,14 +6705,14 @@
   ],
   "skill_tree_hash": "93a39c348b599ba4ce6366c3184425e46fb0b11259fb63916e94477fa44536b7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "25ca39325ad5120e312aec2861e585cba6fd7b3a6bdb99c9fc9855111691f5ba",
+  "tree_hash": "053a5ad978fa6d3f59f696076ec38f5723d8bcd9f366437dd92d381915046498",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 223,
+  "wiki_file_count": 225,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6711,13 +6721,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e4699a7f77db24e93529dbccf47a0bf6ad2f7d0a1ca305cd9158a26899ea6127",
-      "size": 427200
+      "sha256": "772a51ccd5206352a18214930a5d394e5e98c71191ecec68fba93bce5ada0ebb",
+      "size": 427938
     },
     {
       "path": "log.md",
-      "sha256": "2231b5ee1c1911f72fd2a62ae217a32cb48395a95be9252043fd2a0f1687853a",
-      "size": 734677
+      "sha256": "8f87e13e2c290487da0e0ab290d1eb56af2cb134988c76ecb8e0e644f5787c96",
+      "size": 735439
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6958,6 +6968,11 @@
       "path": "pages/concepts/partner-integration.md",
       "sha256": "7327d8b2007bfd6dd572d439d8728eaeb394e6cfedd8d7e7c1b50c723a2c8fec",
       "size": 1179
+    },
+    {
+      "path": "pages/concepts/pil-derivative-commercial-rev-share-override.md",
+      "sha256": "d2e98c632020a119ee490548f8d1debdea61f6cc528e8f758f447d234915a88b",
+      "size": 2786
     },
     {
       "path": "pages/concepts/platform-api-a.md",
@@ -7475,6 +7490,11 @@
       "size": 5626
     },
     {
+      "path": "pages/projects/l1-test-plan.md",
+      "sha256": "ff8ade5610304af4b04bf4f7683d73475a0927d1898552fb8885745365984c8f",
+      "size": 6324
+    },
+    {
       "path": "pages/projects/l2-analytics-tool-research.md",
       "sha256": "6362f232c774b3353374f0b72b4f606bb6b2edb7d57a2e343c2beeb293052a42",
       "size": 1240
@@ -7821,5 +7841,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "fef012e16bb739055a0e7387cd65e4f49c1fa0e167719fa30da7f68da3d09a58"
+  "wiki_tree_hash": "1d729a3ef495b20f1a4e0fe0c27386680eea1e9304a9a7da4cd406decbc07517"
 }
