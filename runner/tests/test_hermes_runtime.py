@@ -4251,6 +4251,14 @@ class HermesRuntimeTests(unittest.TestCase):
                 "OPENROUTER_API_KEY": "openrouter-secret",
                 "UNRELATED_SECRET": "must-not-copy",
                 "RSI_HERMES_SELF_REVIEW_MAX_BATCH_ROWS": "1",
+                "HERMES_STATE_BACKEND": "postgres",
+                "HERMES_STATE_POSTGRES_URL": "postgres://user:pass@postgres/hermes",
+                "HERMES_STATE_POSTGRES_SCHEMA": "hermes_state",
+                "HERMES_STATE_SEARCH_MODE": "hybrid",
+                "HERMES_STATE_EMBEDDINGS_ENABLED": "true",
+                "HERMES_STATE_EMBEDDING_MODEL": "text-embedding-3-small",
+                "HERMES_STATE_EMBEDDING_DIMENSIONS": "1536",
+                "HERMES_STATE_EMBEDDING_BATCH_SIZE": "32",
             },
             clear=True,
         ), mock.patch(
@@ -4269,6 +4277,14 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(env["RSI_HONCHO_WORKSPACE"], "rsi-stage")
         self.assertEqual(env["OPENROUTER_API_KEY"], "openrouter-secret")
         self.assertEqual(env["RSI_HERMES_SELF_REVIEW_MAX_BATCH_ROWS"], "1")
+        self.assertEqual(env["HERMES_STATE_BACKEND"], "postgres")
+        self.assertEqual(env["HERMES_STATE_POSTGRES_URL"], "postgres://user:pass@postgres/hermes")
+        self.assertEqual(env["HERMES_STATE_POSTGRES_SCHEMA"], "hermes_state")
+        self.assertEqual(env["HERMES_STATE_SEARCH_MODE"], "hybrid")
+        self.assertEqual(env["HERMES_STATE_EMBEDDINGS_ENABLED"], "true")
+        self.assertEqual(env["HERMES_STATE_EMBEDDING_MODEL"], "text-embedding-3-small")
+        self.assertEqual(env["HERMES_STATE_EMBEDDING_DIMENSIONS"], "1536")
+        self.assertEqual(env["HERMES_STATE_EMBEDDING_BATCH_SIZE"], "32")
         self.assertNotIn("UNRELATED_SECRET", env)
 
     def test_native_executor_streams_output_detects_result_and_redacts_secrets(self) -> None:

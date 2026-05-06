@@ -67,6 +67,7 @@ SELF_REVIEW_SECRET_ENV_ALLOWLIST = frozenset(
     {
         "OPENROUTER_API_KEY",
         "OPENAI_API_KEY",
+        "LLM_OPENAI_API_KEY",
         "ANTHROPIC_API_KEY",
         "ANTHROPIC_TOKEN",
         "CLAUDE_CODE_OAUTH_TOKEN",
@@ -86,6 +87,24 @@ SELF_REVIEW_SECRET_ENV_ALLOWLIST = frozenset(
         "GMI_API_KEY",
         "MINIMAX_API_KEY",
         "DASHSCOPE_API_KEY",
+        "HERMES_STATE_POSTGRES_URL",
+        "RSI_POSTGRES_URL",
+        "DATABASE_URL",
+    }
+)
+SELF_REVIEW_STATE_ENV_ALLOWLIST = frozenset(
+    {
+        "HERMES_STATE_BACKEND",
+        "HERMES_STATE_POSTGRES_SCHEMA",
+        "HERMES_STATE_POSTGRES_POOL_SIZE",
+        "HERMES_STATE_SEARCH_MODE",
+        "HERMES_STATE_EMBEDDINGS_ENABLED",
+        "HERMES_STATE_EMBEDDING_MODEL",
+        "HERMES_STATE_EMBEDDING_DIMENSIONS",
+        "HERMES_STATE_EMBEDDING_BATCH_SIZE",
+        "HERMES_STATE_EMBEDDING_RECONCILE_ON_START",
+        "LLM_EMBEDDING_MODEL",
+        "LLM_OPENAI_BASE_URL",
     }
 )
 GROUNDED_EVIDENCE_TOOL_NAMES = frozenset(
@@ -1913,6 +1932,10 @@ class HermesRuntime:
             if (value := os.getenv(key))
         }
         for key in SELF_REVIEW_SECRET_ENV_ALLOWLIST:
+            value = os.getenv(key)
+            if value:
+                env[key] = value
+        for key in SELF_REVIEW_STATE_ENV_ALLOWLIST:
             value = os.getenv(key)
             if value:
                 env[key] = value
