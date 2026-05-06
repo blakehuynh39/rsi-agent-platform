@@ -14879,3 +14879,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_21923022f517a8e46fc96f948443e3a1
 - summary: Epoched staking mechanism that uses epochs to batch and execute validator set operations.
 
+## [2026-05-06T09:16:31Z] synthesis | Iliad Testnet
+
+- status: published
+- slug: projects/iliad-testnet
+- wiki_revision_id: wikirev_41ff5b6881c0af884812a18205ab0855
+- summary: Iliad Testnet documentation references Token Drops.
+

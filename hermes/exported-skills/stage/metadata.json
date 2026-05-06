@@ -2821,8 +2821,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "3e32c3a48739c462449a2932fa021d9820e30f1436b00314101aed0cc270d175",
-        "size": 746941
+        "sha256": "6a42efa8ef10e016c268c9b299d76da5119e9bf17fc588b18d476a15356bbee4",
+        "size": 747170
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3630,6 +3630,11 @@
         "size": 4080
       },
       {
+        "path": "pages/projects/iliad-testnet.md",
+        "sha256": "3d365cf1bb3b8d5c63c90c83d867a843525ca9913b94ca6d3b773eec5aac6e8e",
+        "size": 1217
+      },
+      {
         "path": "pages/projects/improved-mobile-app-tracking-platform.md",
         "sha256": "f360875a4e9860668933a9b85f568e3362ba5c3fcd4c881ef25bf432aa7b1880",
         "size": 1392
@@ -4099,8 +4104,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T09:10:20Z",
-  "file_count": 818,
+  "exported_at": "2026-05-06T09:16:44Z",
+  "file_count": 819,
   "files": [
     {
       "path": ".curator_state",
@@ -6912,7 +6917,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-bfdd9bqzchn",
-  "previous_tree_hash": "84285cbe72a308c2e9fffcf9a9a0ac402017ee6b9464c74d1cbf5db8b9d404b4",
+  "previous_tree_hash": "e68e935fe1f0570fea71503a3e8ae7ea0a7198d9cf3d86c97e7f5167f8d7417e",
   "schema_version": 1,
   "skill_file_count": 561,
   "skill_manage_sessions": [
@@ -6925,14 +6930,14 @@
   ],
   "skill_tree_hash": "e436a423cb49da237ad5915505f2e0cd5a9a282cd76fef73237aabeb9e1ac7bf",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e68e935fe1f0570fea71503a3e8ae7ea0a7198d9cf3d86c97e7f5167f8d7417e",
+  "tree_hash": "16105a751a3ab636eb943cb487d38c603f2f7a8e4144726f7969ed04d15bc6f8",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 257,
+  "wiki_file_count": 258,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6946,8 +6951,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "3e32c3a48739c462449a2932fa021d9820e30f1436b00314101aed0cc270d175",
-      "size": 746941
+      "sha256": "6a42efa8ef10e016c268c9b299d76da5119e9bf17fc588b18d476a15356bbee4",
+      "size": 747170
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7755,6 +7760,11 @@
       "size": 4080
     },
     {
+      "path": "pages/projects/iliad-testnet.md",
+      "sha256": "3d365cf1bb3b8d5c63c90c83d867a843525ca9913b94ca6d3b773eec5aac6e8e",
+      "size": 1217
+    },
+    {
       "path": "pages/projects/improved-mobile-app-tracking-platform.md",
       "sha256": "f360875a4e9860668933a9b85f568e3362ba5c3fcd4c881ef25bf432aa7b1880",
       "size": 1392
@@ -8221,5 +8231,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "90a260198ecd7f09d5a32e92164706f324b9b35c9ddb13e1209ca02c4a669f0c"
+  "wiki_tree_hash": "1ff2ff25e8131a7d5ddb1cdfdcce2c79b49b48acde94e75544aeca85b5a5c294"
 }
