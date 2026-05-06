@@ -9,8 +9,8 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "b2d85e2e48ee5832a0180a1ac5f15e0d5dfba99b783b699de5da8f047f9444fe",
-        "size": 1094
+        "sha256": "73bdbe1b1be93826cb86a054b7f60cfa4a4ecd9018e1b83181695548101803a1",
+        "size": 1453
       },
       {
         "path": "apple/DESCRIPTION.md",
@@ -2743,6 +2743,21 @@
         "size": 7194
       },
       {
+        "path": "story-company/cloudflare-management/SKILL.md",
+        "sha256": "f5f7ceca5879a3e8b932990cdab49edec6ad59eca5abb49a5c84b3bb1330bfc4",
+        "size": 7358
+      },
+      {
+        "path": "story-company/cloudflare-management/references/waf-rules-numolabs.md",
+        "sha256": "fada8d75e8696e154c5b169c80064127d3a17e8c25e39f58ff285b1f7997de66",
+        "size": 4642
+      },
+      {
+        "path": "story-company/cloudflare-management/templates/pr-body-ip-allowlist.md",
+        "sha256": "685178e7105131f86a29e5591fe2f2ac2c7d948e97f1ae5ab90bdfa46a0a4ea8",
+        "size": 1183
+      },
+      {
         "path": "story-company/depin-prod-admin-read/SKILL.md",
         "sha256": "2d7024d5d170918e72a11d55ee553f9409e369d311493c07c8e6875306d561a2",
         "size": 4042
@@ -4049,8 +4064,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T06:45:29Z",
-  "file_count": 808,
+  "exported_at": "2026-05-06T06:55:29Z",
+  "file_count": 811,
   "files": [
     {
       "path": ".curator_state",
@@ -4059,8 +4074,8 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "b2d85e2e48ee5832a0180a1ac5f15e0d5dfba99b783b699de5da8f047f9444fe",
-      "size": 1094
+      "sha256": "73bdbe1b1be93826cb86a054b7f60cfa4a4ecd9018e1b83181695548101803a1",
+      "size": 1453
     },
     {
       "path": "apple/DESCRIPTION.md",
@@ -6793,6 +6808,21 @@
       "size": 7194
     },
     {
+      "path": "story-company/cloudflare-management/SKILL.md",
+      "sha256": "f5f7ceca5879a3e8b932990cdab49edec6ad59eca5abb49a5c84b3bb1330bfc4",
+      "size": 7358
+    },
+    {
+      "path": "story-company/cloudflare-management/references/waf-rules-numolabs.md",
+      "sha256": "fada8d75e8696e154c5b169c80064127d3a17e8c25e39f58ff285b1f7997de66",
+      "size": 4642
+    },
+    {
+      "path": "story-company/cloudflare-management/templates/pr-body-ip-allowlist.md",
+      "sha256": "685178e7105131f86a29e5591fe2f2ac2c7d948e97f1ae5ab90bdfa46a0a4ea8",
+      "size": 1183
+    },
+    {
       "path": "story-company/depin-prod-admin-read/SKILL.md",
       "sha256": "2d7024d5d170918e72a11d55ee553f9409e369d311493c07c8e6875306d561a2",
       "size": 4042
@@ -6841,10 +6871,10 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-59ddd7kbltv",
-  "previous_tree_hash": "d12e22a368390648e969fc40c0ada38a6ce7c084ff2265c6c892f491dafaafc3",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-bfdd9bqzchn",
+  "previous_tree_hash": "abfac7376669f12a9afb4c16c1f30edff6714984d470f7f0abdec7b5263bb203",
   "schema_version": 1,
-  "skill_file_count": 557,
+  "skill_file_count": 560,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -6853,9 +6883,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "e9289a2ba6c0b5d8dff4f944d4d11ae94794ffdfa24215c2e61dde0f1409b360",
+  "skill_tree_hash": "4f089e2d10224071227098f5bcb7a892c6c921a00215c97c6dc44a1ef3da514d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "abfac7376669f12a9afb4c16c1f30edff6714984d470f7f0abdec7b5263bb203",
+  "tree_hash": "19ee60e220f52a6a6ef07f534c950e0e76aa6d086b7f25a9e26e094e44e269c2",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
