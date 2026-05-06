@@ -3,6 +3,7 @@ package improvementplane
 import (
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/piplabs/rsi-agent-platform/internal/action"
@@ -1389,21 +1390,44 @@ func buildProposalSummaries(store storepkg.Repository) []proposalListItem {
 }
 
 func buildRuntimeStatus(cfg config.Config, store storepkg.Repository) []runtimeRoleStatus {
+	return buildRuntimeStatusWithProbeTimeoutCap(cfg, store, 0)
+}
+
+func buildRuntimeStatusWithProbeTimeoutCap(cfg config.Config, store storepkg.Repository, maxProbeTimeout time.Duration) []runtimeRoleStatus {
 	roleURLs := cfg.RunnerURLs()
-	cache := map[string]harness.RuntimeResponse{}
-	cacheErrs := map[string]error{}
 	roles := []string{"prod", "proactive", "eval", "proposal"}
+	probeRoles := map[string]string{}
+	for _, role := range roles {
+		baseURL := roleURLs[role]
+		if _, ok := probeRoles[baseURL]; !ok {
+			probeRoles[baseURL] = role
+		}
+	}
+	type runtimeProbeResult struct {
+		resp harness.RuntimeResponse
+		err  error
+	}
+	cache := map[string]runtimeProbeResult{}
+	var cacheMu sync.Mutex
+	var wg sync.WaitGroup
+	for baseURL, role := range probeRoles {
+		wg.Add(1)
+		go func(baseURL string, role string) {
+			defer wg.Done()
+			timeout := cfg.RunnerTimeoutForRole(role)
+			if maxProbeTimeout > 0 && (timeout <= 0 || timeout > maxProbeTimeout) {
+				timeout = maxProbeTimeout
+			}
+			resp, err := clients.NewRunnerClientWithTimeout(baseURL, timeout).Runtime()
+			cacheMu.Lock()
+			cache[baseURL] = runtimeProbeResult{resp: resp, err: err}
+			cacheMu.Unlock()
+		}(baseURL, role)
+	}
+	wg.Wait()
 	out := make([]runtimeRoleStatus, 0, len(roles))
 	for _, role := range roles {
 		baseURL := roleURLs[role]
-		if _, ok := cache[baseURL]; !ok && cacheErrs[baseURL] == nil {
-			resp, err := clients.NewRunnerClientWithTimeout(baseURL, cfg.RunnerTimeoutForRole(role)).Runtime()
-			if err != nil {
-				cacheErrs[baseURL] = err
-			} else {
-				cache[baseURL] = resp
-			}
-		}
 		item := runtimeRoleStatus{
 			Role:            role,
 			BaseURL:         baseURL,
@@ -1418,12 +1442,13 @@ func buildRuntimeStatus(cfg config.Config, store storepkg.Repository) []runtimeR
 		if overlay, ok := store.GetActiveHarnessOverlay(role); ok {
 			item.ActiveOverlayVersion = overlay.Version
 		}
-		if err := cacheErrs[baseURL]; err != nil {
+		result := cache[baseURL]
+		if err := result.err; err != nil {
 			item.Error = err.Error()
 			out = append(out, item)
 			continue
 		}
-		resp := cache[baseURL]
+		resp := result.resp
 		item.ReportedRole = resp.Role
 		item.Status = resp.Status
 		item.Backend = resp.Backend

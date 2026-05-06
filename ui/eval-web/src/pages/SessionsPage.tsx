@@ -30,11 +30,9 @@ import type {
   SessionInfo,
   SessionMessage,
   SessionSearchResult,
-  StatusResponse,
 } from "@/lib/api";
 import { cn, timeAgo } from "@/lib/utils";
 import { Markdown } from "@/components/Markdown";
-import { PlatformsCard } from "@/components/PlatformsCard";
 import { Button } from "@nous-research/ui/ui/components/button";
 import { ListItem } from "@nous-research/ui/ui/components/list-item";
 import { Spinner } from "@nous-research/ui/ui/components/spinner";
@@ -57,6 +55,9 @@ const SOURCE_CONFIG: Record<string, { icon: typeof Terminal; color: string }> =
     cron: { icon: Clock, color: "text-warning" },
     trace: { icon: GitBranch, color: "text-primary" },
   };
+
+const PAGE_SIZE = 20;
+const SESSION_REFRESH_MS = 10_000;
 
 function isTraceSession(session: SessionInfo) {
   const title = session.title?.toLowerCase() ?? "";
@@ -1120,7 +1121,6 @@ export default function SessionsPage() {
     useState<SessionInfo | null>(null);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
-  const PAGE_SIZE = 20;
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -1138,18 +1138,14 @@ export default function SessionsPage() {
   const loadSessionsRef = useRef<
     ((p: number, showLoading?: boolean, signal?: AbortSignal) => void) | null
   >(null);
-  const overviewInFlightRef = useRef(false);
-  const pendingOverviewLoadRef = useRef(false);
   const logScrollRef = useRef<HTMLPreElement | null>(null);
   const pageRef = useRef<HTMLDivElement | null>(null);
   const appliedDeepLinkScrollRef = useRef<string | null>(null);
-  const [status, setStatus] = useState<StatusResponse | null>(null);
-  const [overviewSessions, setOverviewSessions] = useState<SessionInfo[]>([]);
   const { t } = useI18n();
   const { setAfterTitle, setEnd } = usePageHeader();
   const { activeAction, actionStatus, dismissLog } = useSystemActions();
   const resumeInChatEnabled = isDashboardEmbeddedChatEnabled();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const targetTraceId = useMemo(
     () => searchParams.get("trace")?.trim() || null,
@@ -1241,24 +1237,6 @@ export default function SessionsPage() {
     );
   }, []);
 
-  const flushPendingOverviewLoad = useCallback(() => {
-    if (!pendingOverviewLoadRef.current || sessionsInFlightCountRef.current > 0) {
-      return;
-    }
-    pendingOverviewLoadRef.current = false;
-    sessionsInFlightCountRef.current += 1;
-    api
-      .getSessions(50)
-      .then((r) => setOverviewSessions(r.sessions))
-      .finally(() => {
-        sessionsInFlightCountRef.current = Math.max(
-          0,
-          sessionsInFlightCountRef.current - 1,
-        );
-        flushPendingSessionsLoad();
-      });
-  }, [flushPendingSessionsLoad]);
-
   const loadSessions = useCallback(
     (p: number, showLoading = true, signal?: AbortSignal) => {
       if (sessionsInFlightCountRef.current > 0) {
@@ -1293,10 +1271,9 @@ export default function SessionsPage() {
             setLoading(false);
           }
           flushPendingSessionsLoad();
-          flushPendingOverviewLoad();
         });
     },
-    [flushPendingSessionsLoad, flushPendingOverviewLoad],
+    [flushPendingSessionsLoad],
   );
 
   useEffect(() => {
@@ -1306,13 +1283,23 @@ export default function SessionsPage() {
   useEffect(() => {
     const abortController = new AbortController();
     loadSessions(page, true, abortController.signal);
-    const intervalId = window.setInterval(
-      () => loadSessions(page, false, abortController.signal),
-      5000,
-    );
+    const refreshSessions = () => {
+      if (document.visibilityState !== "visible") {
+        return;
+      }
+      loadSessions(page, false, abortController.signal);
+    };
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        loadSessions(page, false, abortController.signal);
+      }
+    };
+    const intervalId = window.setInterval(refreshSessions, SESSION_REFRESH_MS);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => {
       abortController.abort();
       window.clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [loadSessions, page]);
 
@@ -1405,37 +1392,6 @@ export default function SessionsPage() {
   }, [relatedParentSessionId, targetSessionId]);
 
   useEffect(() => {
-    const loadOverview = () => {
-      if (overviewInFlightRef.current) return;
-      overviewInFlightRef.current = true;
-      const requests = [api.getStatus().then(setStatus)];
-      if (sessionsInFlightCountRef.current === 0) {
-        sessionsInFlightCountRef.current += 1;
-        requests.push(
-          api
-            .getSessions(50)
-            .then((r) => setOverviewSessions(r.sessions))
-            .finally(() => {
-              sessionsInFlightCountRef.current = Math.max(
-                0,
-                sessionsInFlightCountRef.current - 1,
-              );
-              flushPendingSessionsLoad();
-            }),
-        );
-      } else {
-        pendingOverviewLoadRef.current = true;
-      }
-      Promise.allSettled(requests).finally(() => {
-        overviewInFlightRef.current = false;
-      });
-    };
-    loadOverview();
-    const id = setInterval(loadOverview, 5000);
-    return () => clearInterval(id);
-  }, [flushPendingSessionsLoad]);
-
-  useEffect(() => {
     const el = logScrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [actionStatus?.lines]);
@@ -1511,6 +1467,69 @@ export default function SessionsPage() {
     targetSessionId,
   ]);
 
+  const sessionById = useMemo(() => {
+    const out = new Map<string, SessionInfo>();
+    for (const session of orderedSessions) {
+      out.set(session.id, session);
+    }
+    return out;
+  }, [orderedSessions]);
+
+  const writeSelectedSessionToURL = useCallback(
+    (session: SessionInfo | null) => {
+      setSearchParams(
+        (current) => {
+          const next = new URLSearchParams(current);
+          next.delete("conversation");
+          next.delete("conversation_id");
+          next.delete("trace");
+          next.delete("session");
+          next.delete("session_id");
+
+          if (!session) {
+            return next;
+          }
+
+          if (isTraceSession(session)) {
+            const conversationId =
+              session.parent_session_id?.trim() ||
+              session.conversation_id?.trim() ||
+              null;
+            if (conversationId) {
+              next.set("conversation", conversationId);
+            }
+            next.set("trace", session.trace_id?.trim() || session.id);
+            return next;
+          }
+
+          if (session.type === "conversation" || session.conversation_id) {
+            next.set(
+              "conversation",
+              session.conversation_id?.trim() || session.id,
+            );
+            return next;
+          }
+
+          next.set("session", session.id);
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [setSearchParams],
+  );
+
+  const handleToggleSession = useCallback(
+    (sessionId: string) => {
+      const nextExpandedId = expandedId === sessionId ? null : sessionId;
+      setExpandedId(nextExpandedId);
+      writeSelectedSessionToURL(
+        nextExpandedId ? (sessionById.get(nextExpandedId) ?? null) : null,
+      );
+    },
+    [expandedId, sessionById, writeSelectedSessionToURL],
+  );
+
   const sessionItems = useMemo(
     () =>
       buildSessionListItems(
@@ -1551,36 +1570,13 @@ export default function SessionsPage() {
     return () => window.clearTimeout(timer);
   }, [expandedId, loading, sessionItems, targetSessionId]);
 
-  const platformEntries = status
-    ? Object.entries(status.gateway_platforms ?? {})
-    : [];
-  const recentSessions = overviewSessions
-    .filter((s) => !isTraceSession(s))
-    .filter((s) => !s.is_active)
-    .slice(0, 5);
-
-  const alerts: { message: string; detail?: string }[] = [];
-  if (status) {
-    if (status.gateway_state === "startup_failed") {
-      alerts.push({
-        message: t.status.gatewayFailedToStart,
-        detail: status.gateway_exit_reason ?? undefined,
-      });
-    }
-    const failedPlatformEntries = platformEntries.filter(
-      ([, info]) => info.state === "fatal" || info.state === "disconnected",
-    );
-    for (const [name, info] of failedPlatformEntries) {
-      const stateLabel =
-        info.state === "fatal"
-          ? t.status.platformError
-          : t.status.platformDisconnected;
-      alerts.push({
-        message: `${name.charAt(0).toUpperCase() + name.slice(1)} ${stateLabel}`,
-        detail: info.error_message ?? undefined,
-      });
-    }
-  }
+  const recentSessions =
+    page === 0 && !searchResults
+      ? sessions
+          .filter((s) => !isTraceSession(s))
+          .filter((s) => !s.is_active)
+          .slice(0, 5)
+      : [];
 
   if (loading) {
     return (
@@ -1593,28 +1589,6 @@ export default function SessionsPage() {
   return (
     <div ref={pageRef} className="flex flex-col gap-4">
       <PluginSlot name="sessions:top" />
-
-      {alerts.length > 0 && (
-        <div className="border border-destructive/30 bg-destructive/[0.06] p-4">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
-            <div className="flex flex-col gap-2 min-w-0">
-              {alerts.map((alert, i) => (
-                <div key={i}>
-                  <p className="text-sm font-medium text-destructive">
-                    {alert.message}
-                  </p>
-                  {alert.detail && (
-                    <p className="text-xs text-destructive/70 mt-0.5">
-                      {alert.detail}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
 
       {activeAction && (
         <div className="border border-border bg-background-base/50">
@@ -1680,11 +1654,21 @@ export default function SessionsPage() {
         </div>
       )}
 
-      {platformEntries.length > 0 && status && (
-        <PlatformsCard platforms={platformEntries} />
-      )}
+      <SessionListContent
+        sessionItems={sessionItems}
+        snippetMap={snippetMap}
+        search={search}
+        expandedId={expandedId}
+        onToggle={handleToggleSession}
+        resumeInChatEnabled={resumeInChatEnabled}
+        hasSearchResults={Boolean(searchResults)}
+        total={total}
+        page={page}
+        pageSize={PAGE_SIZE}
+        onPageChange={setPage}
+      />
 
-      {recentSessions.length > 0 && (
+      {page === 0 && recentSessions.length > 0 && (
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
@@ -1744,22 +1728,6 @@ export default function SessionsPage() {
           </CardContent>
         </Card>
       )}
-
-      <SessionListContent
-        sessionItems={sessionItems}
-        snippetMap={snippetMap}
-        search={search}
-        expandedId={expandedId}
-        onToggle={(sessionId) =>
-          setExpandedId((prev) => (prev === sessionId ? null : sessionId))
-        }
-        resumeInChatEnabled={resumeInChatEnabled}
-        hasSearchResults={Boolean(searchResults)}
-        total={total}
-        page={page}
-        pageSize={PAGE_SIZE}
-        onPageChange={setPage}
-      />
       <PluginSlot name="sessions:bottom" />
     </div>
   );

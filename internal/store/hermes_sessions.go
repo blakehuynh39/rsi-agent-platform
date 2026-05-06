@@ -7,8 +7,9 @@ import (
 )
 
 type HermesSessionListPage struct {
-	Items []HermesSessionListItem
-	Total int
+	Items                []HermesSessionListItem
+	Total                int
+	LedgerActivityByTrace map[string]HermesLedgerActivity
 }
 
 type HermesSessionListItem struct {
@@ -41,6 +42,20 @@ type HermesSessionListItem struct {
 	ProposalCount     int
 }
 
+type HermesLiveLedgerEvent struct {
+	TraceID        string
+	ConversationID string
+	Kind           string
+	Status         string
+	RecordedAt     time.Time
+}
+
+type HermesLedgerActivity struct {
+	TraceID        string
+	ConversationID string
+	RecordedAt     time.Time
+}
+
 func (p *PostgresStore) ListHermesSessionsPage(limit int, offset int) HermesSessionListPage {
 	if limit <= 0 {
 		limit = 20
@@ -51,47 +66,21 @@ func (p *PostgresStore) ListHermesSessionsPage(limit int, offset int) HermesSess
 	if offset < 0 {
 		offset = 0
 	}
+	window := limit + offset
+	if window < limit {
+		window = limit
+	}
 
 	rows, err := p.db.Query(`
-		with trace_latest as (
-			select
-				conversation_id,
-				max(started_at) as latest_trace_at
-			from trace_summary
-			where conversation_id <> ''
-			group by conversation_id
+		with latest_trace_ledger as (
+			select distinct on (trace_id)
+				trace_id,
+				recorded_at
+			from execution_ledger_event
+			where trace_id <> ''
+			order by trace_id asc, recorded_at desc, execution_id desc, seq desc, id desc
 		),
-		session_rows as (
-			select
-				c.id,
-				'conversation'::text as session_type,
-				coalesce(nullif(c.source, ''), 'conversation') as source,
-				'rsi-platform'::text as model,
-				coalesce(nullif(c.title, ''), nullif(c.external_key, ''), c.id) as raw_title,
-				''::text as trigger_title,
-				null::text as title_trace_id,
-				c.created_at as started_at,
-				null::timestamptz as ended_at,
-				greatest(c.updated_at, coalesce(tr.latest_trace_at, c.updated_at)) as last_active,
-				c.id as conversation_id,
-				''::text as trace_id,
-				''::text as parent_session_id,
-				''::text as case_id,
-				''::text as trigger_event_id,
-			c.external_key as thread_key,
-			''::text as workflow_kind,
-			c.status as status,
-			''::text as last_verdict,
-			0::int as message_count,
-				0::int as tool_call_count,
-				0::int as trace_count,
-				0::int as open_trace_count,
-				0::int as proposal_count,
-				coalesce(ac.summary, '') as active_case_summary
-			from conversation c
-			left join trace_latest tr on tr.conversation_id = c.id
-			left join case_record ac on ac.id = c.active_case_id
-			union all
+		trace_ranked as (
 			select
 				t.trace_id as id,
 				'trace'::text as session_type,
@@ -102,17 +91,20 @@ func (p *PostgresStore) ListHermesSessionsPage(limit int, offset int) HermesSess
 				t.trace_id as title_trace_id,
 				t.started_at as started_at,
 				case when t.ended_at is null or t.ended_at <= timestamptz '0001-01-02 00:00:00+00' then null else t.ended_at end as ended_at,
-				case when t.ended_at is null or t.ended_at <= timestamptz '0001-01-02 00:00:00+00' then t.started_at else t.ended_at end as last_active,
+				greatest(
+					case when t.ended_at is null or t.ended_at <= timestamptz '0001-01-02 00:00:00+00' then t.started_at else t.ended_at end,
+					coalesce(l.recorded_at, timestamptz '0001-01-01 00:00:00+00')
+				) as last_active,
 				coalesce(t.conversation_id, '') as conversation_id,
 				t.trace_id as trace_id,
 				coalesce(t.conversation_id, '') as parent_session_id,
 				coalesce(t.case_id, '') as case_id,
 				coalesce(t.trigger_event_id, '') as trigger_event_id,
-			t.thread_key as thread_key,
-			t.workflow_kind as workflow_kind,
-			t.status as status,
-			coalesce(t.last_verdict, '') as last_verdict,
-			(t.event_count + t.reasoning_step_count + t.tool_call_count)::int as message_count,
+				t.thread_key as thread_key,
+				t.workflow_kind as workflow_kind,
+				t.status as status,
+				coalesce(t.last_verdict, '') as last_verdict,
+				(t.event_count + t.reasoning_step_count + t.tool_call_count)::int as message_count,
 				t.tool_call_count::int as tool_call_count,
 				0::int as trace_count,
 				0::int as open_trace_count,
@@ -120,17 +112,84 @@ func (p *PostgresStore) ListHermesSessionsPage(limit int, offset int) HermesSess
 				''::text as active_case_summary
 			from trace_summary t
 			left join event_envelope e on e.id = t.trigger_event_id
+			left join latest_trace_ledger l on l.trace_id = t.trace_id
+			order by last_active desc, t.trace_id asc
+			limit $3
+		),
+		recent_trace_parents as (
+			select conversation_id, max(last_active) as latest_trace_at
+			from trace_ranked
+			where conversation_id <> ''
+			group by conversation_id
+		),
+		conversation_candidate_ids as (
+			select id
+			from (
+				select c.id
+				from conversation c
+				order by c.updated_at desc, c.id asc
+				limit $3
+			) recent_conversations
+			union
+			select conversation_id as id
+			from recent_trace_parents
+		),
+		conversation_candidates as (
+			select
+				c.id,
+				'conversation'::text as session_type,
+				coalesce(nullif(c.source, ''), 'conversation') as source,
+				'rsi-platform'::text as model,
+				coalesce(nullif(c.title, ''), nullif(c.external_key, ''), c.id) as raw_title,
+				''::text as trigger_title,
+				null::text as title_trace_id,
+				c.created_at as started_at,
+				null::timestamptz as ended_at,
+				greatest(c.updated_at, coalesce(rp.latest_trace_at, c.updated_at)) as last_active,
+				c.id as conversation_id,
+				''::text as trace_id,
+				''::text as parent_session_id,
+				''::text as case_id,
+				''::text as trigger_event_id,
+				c.external_key as thread_key,
+				''::text as workflow_kind,
+				c.status as status,
+				''::text as last_verdict,
+				0::int as message_count,
+				0::int as tool_call_count,
+				0::int as trace_count,
+				0::int as open_trace_count,
+				0::int as proposal_count,
+				coalesce(ac.summary, '') as active_case_summary
+			from conversation_candidate_ids ci
+			join conversation c on c.id = ci.id
+			left join recent_trace_parents rp on rp.conversation_id = c.id
+			left join case_record ac on ac.id = c.active_case_id
+			order by last_active desc, c.id asc
+			limit $3
+		),
+		trace_candidates as (
+			select * from trace_ranked
+		),
+		session_rows as (
+			select * from conversation_candidates
+			union all
+			select * from trace_candidates
+		),
+		totals as (
+			select ((select count(*) from conversation) + (select count(*) from trace_summary))::int as total
 		)
 	select
 		id, session_type, source, model, raw_title, trigger_title, title_trace_id,
 		started_at, ended_at, last_active, conversation_id, trace_id, parent_session_id,
 		case_id, trigger_event_id, thread_key, workflow_kind, status, last_verdict, message_count,
 		tool_call_count, trace_count, open_trace_count, proposal_count, active_case_summary,
-		count(*) over()::int as total
+		totals.total
 	from session_rows
+	cross join totals
 	order by last_active desc, id asc
 	limit $1 offset $2
-	`, limit, offset)
+	`, limit, offset, window)
 	if err != nil {
 		return HermesSessionListPage{}
 	}
@@ -162,7 +221,11 @@ func (p *PostgresStore) ListHermesSessionsPage(limit int, offset int) HermesSess
 		return HermesSessionListPage{}
 	}
 	if len(items) == 0 {
-		return HermesSessionListPage{Items: []HermesSessionListItem{}, Total: p.hermesSessionTotal()}
+		return HermesSessionListPage{
+			Items:                 []HermesSessionListItem{},
+			Total:                 p.hermesSessionTotal(),
+			LedgerActivityByTrace: map[string]HermesLedgerActivity{},
+		}
 	}
 
 	firstTraces := p.firstTraceByConversation(conversationIDs)
@@ -176,6 +239,7 @@ func (p *PostgresStore) ListHermesSessionsPage(limit int, offset int) HermesSess
 	previews := p.latestConversationEntryBodies(conversationIDs)
 	canonicalToolIndexes := p.hermesCanonicalToolIndexes(traceIDs)
 	projectedLedgerToolCounts := p.hermesProjectedLedgerToolCallCounts(traceIDs, canonicalToolIndexes)
+	latestLedgerActivity := p.LatestHermesLedgerActivityByTraceID(traceIDs)
 	for i := range items {
 		if title := titles[items[i].TraceID]; title != "" {
 			items[i].SessionTitle = title
@@ -193,6 +257,15 @@ func (p *PostgresStore) ListHermesSessionsPage(limit int, offset int) HermesSess
 			}
 			items[i].Preview = previews[items[i].ConversationID]
 		} else if items[i].Type == "trace" {
+			if latest := latestLedgerActivity[items[i].TraceID]; !latest.RecordedAt.IsZero() {
+				if items[i].EndedAt != nil && latest.RecordedAt.After(*items[i].EndedAt) {
+					items[i].EndedAt = &latest.RecordedAt
+				}
+				if items[i].ConversationID == "" && latest.ConversationID != "" {
+					items[i].ConversationID = latest.ConversationID
+					items[i].ParentSessionID = latest.ConversationID
+				}
+			}
 			canonicalCount := items[i].ToolCallCount
 			if index := canonicalToolIndexes[items[i].TraceID]; index.count > canonicalCount {
 				canonicalCount = index.count
@@ -202,7 +275,11 @@ func (p *PostgresStore) ListHermesSessionsPage(limit int, offset int) HermesSess
 			items[i].ToolCallCount = toolCallCount
 		}
 	}
-	return HermesSessionListPage{Items: items, Total: total}
+	return HermesSessionListPage{
+		Items:                 items,
+		Total:                 total,
+		LedgerActivityByTrace: latestLedgerActivity,
+	}
 }
 
 func (p *PostgresStore) hermesSessionTotal() int {
@@ -429,6 +506,42 @@ func (p *PostgresStore) latestConversationEntryBodies(conversationIDs []string) 
 	return out
 }
 
+func (p *PostgresStore) LatestHermesLedgerActivityByTraceID(traceIDs []string) map[string]HermesLedgerActivity {
+	traceIDs = compactStrings(traceIDs)
+	out := map[string]HermesLedgerActivity{}
+	if len(traceIDs) == 0 {
+		return out
+	}
+	query := `select distinct on (e.trace_id)
+			e.trace_id,
+			coalesce(t.conversation_id, '') as conversation_id,
+			e.recorded_at
+		from execution_ledger_event e
+		left join trace_summary t on t.trace_id = e.trace_id
+		where e.trace_id in (` + sqlPlaceholders(len(traceIDs), 1) + `)
+		order by e.trace_id asc, e.recorded_at desc, e.execution_id desc, e.seq desc, e.id desc`
+	rows, err := p.db.Query(query, stringsToAny(traceIDs)...)
+	if err != nil {
+		return out
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item HermesLedgerActivity
+		if err := rows.Scan(&item.TraceID, &item.ConversationID, &item.RecordedAt); err != nil {
+			return map[string]HermesLedgerActivity{}
+		}
+		item.TraceID = strings.TrimSpace(item.TraceID)
+		item.ConversationID = strings.TrimSpace(item.ConversationID)
+		if item.TraceID != "" {
+			out[item.TraceID] = item
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return map[string]HermesLedgerActivity{}
+	}
+	return out
+}
+
 type hermesCanonicalToolIndex struct {
 	count int
 	ids   map[string]bool
@@ -587,6 +700,44 @@ func countProjectedLedgerToolCallsByTrace(events []hermesLedgerToolCountEvent, c
 			out[traceID]++
 		}
 		state.lastByName[name] = key
+	}
+	return out
+}
+
+func (p *PostgresStore) ListRecentHermesLiveLedgerEvents(since time.Time) []HermesLiveLedgerEvent {
+	rows, err := p.db.Query(`
+		select
+			e.trace_id,
+			coalesce(t.conversation_id, '') as conversation_id,
+			e.kind,
+			e.status,
+			e.recorded_at
+		from execution_ledger_event e
+		left join trace_summary t on t.trace_id = e.trace_id
+		where e.trace_id <> ''
+			and e.recorded_at >= $1
+		order by e.trace_id asc, e.recorded_at asc, e.execution_id asc, e.seq asc, e.id asc
+	`, since)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	out := []HermesLiveLedgerEvent{}
+	for rows.Next() {
+		var item HermesLiveLedgerEvent
+		if err := rows.Scan(&item.TraceID, &item.ConversationID, &item.Kind, &item.Status, &item.RecordedAt); err != nil {
+			return nil
+		}
+		item.TraceID = strings.TrimSpace(item.TraceID)
+		item.ConversationID = strings.TrimSpace(item.ConversationID)
+		item.Kind = strings.TrimSpace(item.Kind)
+		item.Status = strings.TrimSpace(item.Status)
+		if item.TraceID != "" {
+			out = append(out, item)
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return nil
 	}
 	return out
 }

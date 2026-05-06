@@ -1212,6 +1212,286 @@ func TestHermesCompatibilityLiveSessionsFollowFreshLedgerActivity(t *testing.T) 
 	}
 }
 
+type batchedHermesLiveLedgerStore struct {
+	*storepkg.MemoryStore
+	events       []storepkg.HermesLiveLedgerEvent
+	batchCalls   int
+	byTraceCalls int
+}
+
+func (s *batchedHermesLiveLedgerStore) ListRecentHermesLiveLedgerEvents(since time.Time) []storepkg.HermesLiveLedgerEvent {
+	s.batchCalls++
+	out := []storepkg.HermesLiveLedgerEvent{}
+	for _, item := range s.events {
+		if item.RecordedAt.Before(since) {
+			continue
+		}
+		out = append(out, item)
+	}
+	return out
+}
+
+func (s *batchedHermesLiveLedgerStore) ListExecutionLedgerEventsByTrace(traceID string) []events.ExecutionLedgerEvent {
+	s.byTraceCalls++
+	return s.MemoryStore.ListExecutionLedgerEventsByTrace(traceID)
+}
+
+func TestHermesCompatibilityLiveSessionsUseBatchedLedgerReader(t *testing.T) {
+	cfg := config.Config{
+		PublicBaseURL:                   "http://example.test",
+		HermesExecutionHeartbeatTimeout: time.Minute,
+	}
+	base := storepkg.NewMemoryStore()
+	trace := base.ListTraces()[0]
+	conversationID := trace.ConversationID
+	if conversationID == "" {
+		conversationID = base.ListConversations()[0].ID
+	}
+	now := time.Now().UTC()
+	store := &batchedHermesLiveLedgerStore{
+		MemoryStore: base,
+		events: []storepkg.HermesLiveLedgerEvent{{
+			TraceID:        trace.TraceID,
+			ConversationID: conversationID,
+			Kind:           "tool.progress",
+			Status:         "running",
+			RecordedAt:     now,
+		}},
+	}
+	router := NewRouter(cfg, store)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/status", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status code = %d body=%s", rec.Code, rec.Body.String())
+	}
+	var payload struct {
+		ActiveSessions int `json:"active_sessions"`
+	}
+	if err := json.Unmarshal(rec.Body.Bytes(), &payload); err != nil {
+		t.Fatalf("decode status: %v", err)
+	}
+	if payload.ActiveSessions != 2 {
+		t.Fatalf("active_sessions=%d, want trace plus parent conversation", payload.ActiveSessions)
+	}
+	if store.batchCalls == 0 {
+		t.Fatal("batched ledger reader was not called")
+	}
+	if store.byTraceCalls != 0 {
+		t.Fatalf("per-trace ledger calls=%d, want 0 when batched reader is available", store.byTraceCalls)
+	}
+}
+
+func TestHermesCompatibilityLiveSessionsTerminalSameTimestampWins(t *testing.T) {
+	cfg := config.Config{
+		PublicBaseURL:                   "http://example.test",
+		HermesExecutionHeartbeatTimeout: time.Minute,
+	}
+	store := storepkg.NewMemoryStore()
+	trace := store.ListTraces()[0]
+	now := time.Now().UTC()
+	if err := store.RecordExecutionLedgerEvents([]events.ExecutionLedgerEvent{
+		{
+			ID:          "xled-same-time-live",
+			ExecutionID: "hexec-same-time",
+			TraceID:     trace.TraceID,
+			WorkflowID:  trace.WorkflowID,
+			Kind:        "tool.progress",
+			Status:      "running",
+			Seq:         1,
+			RecordedAt:  now,
+		},
+		{
+			ID:          "xled-same-time-terminal",
+			ExecutionID: "hexec-same-time",
+			TraceID:     trace.TraceID,
+			WorkflowID:  trace.WorkflowID,
+			Kind:        "tool.complete",
+			Status:      "completed",
+			Seq:         2,
+			RecordedAt:  now,
+		},
+	}); err != nil {
+		t.Fatalf("RecordExecutionLedgerEvents() error = %v", err)
+	}
+	router := NewRouter(cfg, store)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/status", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status code = %d body=%s", rec.Code, rec.Body.String())
+	}
+	var payload struct {
+		ActiveSessions int `json:"active_sessions"`
+	}
+	if err := json.Unmarshal(rec.Body.Bytes(), &payload); err != nil {
+		t.Fatalf("decode status: %v", err)
+	}
+	if payload.ActiveSessions != 0 {
+		t.Fatalf("active_sessions=%d, want terminal event to override same-timestamp live event", payload.ActiveSessions)
+	}
+}
+
+func TestHermesCompatibilityBatchedLiveSessionsTerminalSameTimestampWins(t *testing.T) {
+	cfg := config.Config{
+		PublicBaseURL:                   "http://example.test",
+		HermesExecutionHeartbeatTimeout: time.Minute,
+	}
+	base := storepkg.NewMemoryStore()
+	trace := base.ListTraces()[0]
+	conversationID := trace.ConversationID
+	if conversationID == "" {
+		conversationID = base.ListConversations()[0].ID
+	}
+	now := time.Now().UTC()
+	store := &batchedHermesLiveLedgerStore{
+		MemoryStore: base,
+		events: []storepkg.HermesLiveLedgerEvent{
+			{
+				TraceID:        trace.TraceID,
+				ConversationID: conversationID,
+				Kind:           "tool.progress",
+				Status:         "running",
+				RecordedAt:     now,
+			},
+			{
+				TraceID:        trace.TraceID,
+				ConversationID: conversationID,
+				Kind:           "tool.complete",
+				Status:         "completed",
+				RecordedAt:     now,
+			},
+		},
+	}
+	router := NewRouter(cfg, store)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/status", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status code = %d body=%s", rec.Code, rec.Body.String())
+	}
+	var payload struct {
+		ActiveSessions int `json:"active_sessions"`
+	}
+	if err := json.Unmarshal(rec.Body.Bytes(), &payload); err != nil {
+		t.Fatalf("decode status: %v", err)
+	}
+	if payload.ActiveSessions != 0 {
+		t.Fatalf("active_sessions=%d, want terminal event to override same-timestamp live event", payload.ActiveSessions)
+	}
+	if store.batchCalls == 0 {
+		t.Fatal("batched ledger reader was not called")
+	}
+	if store.byTraceCalls != 0 {
+		t.Fatalf("per-trace ledger calls=%d, want 0 for status with batched reader", store.byTraceCalls)
+	}
+}
+
+func TestHermesCompatibilitySessionDetailUsesOlderLedgerActivityWithBatchedReader(t *testing.T) {
+	cfg := config.Config{
+		PublicBaseURL:                   "http://example.test",
+		HermesExecutionHeartbeatTimeout: time.Minute,
+	}
+	base := storepkg.NewMemoryStore()
+	trace := base.ListTraces()[0]
+	baseline := trace.EndedAt
+	if baseline.IsZero() {
+		baseline = trace.StartedAt
+	}
+	ledgerAt := baseline.Add(10 * time.Minute)
+	if err := base.RecordExecutionLedgerEvents([]events.ExecutionLedgerEvent{
+		{
+			ID:          "xled-older-display-activity",
+			ExecutionID: "hexec-older-display-activity",
+			TraceID:     trace.TraceID,
+			WorkflowID:  trace.WorkflowID,
+			Kind:        "tool.complete",
+			Status:      "completed",
+			Seq:         1,
+			RecordedAt:  ledgerAt,
+		},
+	}); err != nil {
+		t.Fatalf("RecordExecutionLedgerEvents() error = %v", err)
+	}
+	store := &batchedHermesLiveLedgerStore{MemoryStore: base}
+	router := NewRouter(cfg, store)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/sessions/"+trace.TraceID, nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("session status = %d body=%s", rec.Code, rec.Body.String())
+	}
+	var payload struct {
+		LastActive int64 `json:"last_active"`
+	}
+	if err := json.Unmarshal(rec.Body.Bytes(), &payload); err != nil {
+		t.Fatalf("decode session: %v", err)
+	}
+	if payload.LastActive != ledgerAt.Unix() {
+		t.Fatalf("last_active=%d, want older ledger activity %d", payload.LastActive, ledgerAt.Unix())
+	}
+	if store.batchCalls == 0 {
+		t.Fatal("batched ledger reader was not called")
+	}
+	if store.byTraceCalls == 0 {
+		t.Fatal("per-trace ledger activity was not loaded for session detail")
+	}
+}
+
+func TestHermesCompatibilityStatusCapsRunnerRuntimeProbes(t *testing.T) {
+	newSlowRunner := func() *httptest.Server {
+		return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			select {
+			case <-r.Context().Done():
+			case <-time.After(2 * time.Second):
+			}
+		}))
+	}
+	prod := newSlowRunner()
+	defer prod.Close()
+	proactive := newSlowRunner()
+	defer proactive.Close()
+	eval := newSlowRunner()
+	defer eval.Close()
+	proposal := newSlowRunner()
+	defer proposal.Close()
+
+	cfg := config.Config{
+		PublicBaseURL:          "http://example.test",
+		ProdRunnerBaseURL:      prod.URL,
+		ProactiveRunnerBaseURL: proactive.URL,
+		EvalRunnerBaseURL:      eval.URL,
+		ProposalRunnerBaseURL:  proposal.URL,
+	}
+	router := NewRouter(cfg, storepkg.NewMemoryStore())
+
+	req := httptest.NewRequest(http.MethodGet, "/api/status", nil)
+	rec := httptest.NewRecorder()
+	start := time.Now()
+	router.ServeHTTP(rec, req)
+	elapsed := time.Since(start)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status code = %d body=%s", rec.Code, rec.Body.String())
+	}
+	if elapsed > 1200*time.Millisecond {
+		t.Fatalf("/api/status took %s with slow runner probes, want capped parallel probes", elapsed)
+	}
+	var payload struct {
+		GatewayPlatforms map[string]map[string]string `json:"gateway_platforms"`
+	}
+	if err := json.Unmarshal(rec.Body.Bytes(), &payload); err != nil {
+		t.Fatalf("decode status: %v", err)
+	}
+	if len(payload.GatewayPlatforms) != 4 {
+		t.Fatalf("gateway platforms = %d, want 4", len(payload.GatewayPlatforms))
+	}
+}
+
 func TestHermesCompatibilityStaleLedgerActivityDoesNotStayLive(t *testing.T) {
 	cfg := config.Config{
 		PublicBaseURL:                   "http://example.test",
