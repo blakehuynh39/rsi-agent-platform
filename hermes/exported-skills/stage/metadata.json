@@ -2786,13 +2786,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "772a51ccd5206352a18214930a5d394e5e98c71191ecec68fba93bce5ada0ebb",
-        "size": 427938
+        "sha256": "c641451d3716e61824e4ec3148019b93fc390573b03f284019b9b4f6cef2bf9c",
+        "size": 429361
       },
       {
         "path": "log.md",
-        "sha256": "4787abcf034e5ab8332cd21968d77bd87745101b5ff6f80f627f0246a40f3804",
-        "size": 735815
+        "sha256": "1b20c3dce57470d52370f75ae4596476531aa96dc6cc0586cb8836a62db282ce",
+        "size": 736910
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3200,6 +3200,11 @@
         "size": 4760
       },
       {
+        "path": "pages/decisions/dispute-policy-immutability.md",
+        "sha256": "91ad5236e9965db2967443d475c9800ab1972449adb0ede056e290d643847ed3",
+        "size": 3037
+      },
+      {
         "path": "pages/decisions/distinguish-user-device-types-for-risk-assessment.md",
         "sha256": "9e31672f07f8156be99a5595abd31ff91ed30e70171d44dcc55dbb2d5c0ea7ee",
         "size": 1433
@@ -3453,6 +3458,11 @@
         "path": "pages/projects/dispute-module-improvements.md",
         "sha256": "1b9e878ef50877897d27101cab5900c76b05ebfb6443e0ff31e3c82faa57cd47",
         "size": 5264
+      },
+      {
+        "path": "pages/projects/dispute-module-ipa-staking-integration.md",
+        "sha256": "1463c29f2722640a360c180027b05faef4eb0cbfe6fde586b17c4d4fd0bfee63",
+        "size": 3089
       },
       {
         "path": "pages/projects/drag-and-drop-upload-functionality.md",
@@ -3725,6 +3735,11 @@
         "size": 909
       },
       {
+        "path": "pages/projects/wrapped-ip-erc20-permit.md",
+        "sha256": "6fb5be5284d4d2b28d172ed88a5ff488d582fbfdb4bae4c1c565543810fc3539",
+        "size": 2368
+      },
+      {
         "path": "pages/runbooks/15-plus-1-devnet-halo-config-files.md",
         "sha256": "f6213d2f7ddc1bae7b6effd145bae854f7f6f24a8f995d0f0419f520d3019efc",
         "size": 2497
@@ -3914,8 +3929,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T01:19:40Z",
-  "file_count": 781,
+  "exported_at": "2026-05-06T01:25:42Z",
+  "file_count": 784,
   "files": [
     {
       "path": ".usage.json",
@@ -6697,7 +6712,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f7f569tv7vt",
-  "previous_tree_hash": "053a5ad978fa6d3f59f696076ec38f5723d8bcd9f366437dd92d381915046498",
+  "previous_tree_hash": "6c98768ceac94c73b506e70c58d99d993a4cdea9be365ddb49c9f9521eb4f19d",
   "schema_version": 1,
   "skill_file_count": 555,
   "skill_manage_sessions": [
@@ -6710,14 +6725,14 @@
   ],
   "skill_tree_hash": "93a39c348b599ba4ce6366c3184425e46fb0b11259fb63916e94477fa44536b7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6c98768ceac94c73b506e70c58d99d993a4cdea9be365ddb49c9f9521eb4f19d",
+  "tree_hash": "c95e16dc9b4b7dc21aca2691ed628e3e48f468ee102214a80836cc6b5a21098d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 226,
+  "wiki_file_count": 229,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6726,13 +6741,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "772a51ccd5206352a18214930a5d394e5e98c71191ecec68fba93bce5ada0ebb",
-      "size": 427938
+      "sha256": "c641451d3716e61824e4ec3148019b93fc390573b03f284019b9b4f6cef2bf9c",
+      "size": 429361
     },
     {
       "path": "log.md",
-      "sha256": "4787abcf034e5ab8332cd21968d77bd87745101b5ff6f80f627f0246a40f3804",
-      "size": 735815
+      "sha256": "1b20c3dce57470d52370f75ae4596476531aa96dc6cc0586cb8836a62db282ce",
+      "size": 736910
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7140,6 +7155,11 @@
       "size": 4760
     },
     {
+      "path": "pages/decisions/dispute-policy-immutability.md",
+      "sha256": "91ad5236e9965db2967443d475c9800ab1972449adb0ede056e290d643847ed3",
+      "size": 3037
+    },
+    {
       "path": "pages/decisions/distinguish-user-device-types-for-risk-assessment.md",
       "sha256": "9e31672f07f8156be99a5595abd31ff91ed30e70171d44dcc55dbb2d5c0ea7ee",
       "size": 1433
@@ -7393,6 +7413,11 @@
       "path": "pages/projects/dispute-module-improvements.md",
       "sha256": "1b9e878ef50877897d27101cab5900c76b05ebfb6443e0ff31e3c82faa57cd47",
       "size": 5264
+    },
+    {
+      "path": "pages/projects/dispute-module-ipa-staking-integration.md",
+      "sha256": "1463c29f2722640a360c180027b05faef4eb0cbfe6fde586b17c4d4fd0bfee63",
+      "size": 3089
     },
     {
       "path": "pages/projects/drag-and-drop-upload-functionality.md",
@@ -7665,6 +7690,11 @@
       "size": 909
     },
     {
+      "path": "pages/projects/wrapped-ip-erc20-permit.md",
+      "sha256": "6fb5be5284d4d2b28d172ed88a5ff488d582fbfdb4bae4c1c565543810fc3539",
+      "size": 2368
+    },
+    {
       "path": "pages/runbooks/15-plus-1-devnet-halo-config-files.md",
       "sha256": "f6213d2f7ddc1bae7b6effd145bae854f7f6f24a8f995d0f0419f520d3019efc",
       "size": 2497
@@ -7851,5 +7881,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "db585eb52bb265583beb487f42ef4f44dd1bf80d7a8c6944e211a9160bb27b14"
+  "wiki_tree_hash": "1b205e719f938bb6da0fed48e500ddcd46948ebdaa74c4b0a0b10490a0a6abc1"
 }
