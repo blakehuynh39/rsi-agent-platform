@@ -14909,3 +14909,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_489111083db80ab47cfe27ac1611fe4f
 - summary: Postmortem for the List IP Asset API not returning the latest data on May 22-23, 2024. The root cause was data ingestion being turned off, resolved by Ruimin. Delays in response we...
 
+## [2026-05-06T10:03:09Z] synthesis | Incident: Prod Cluster Down due to ArgoCD Misconfig (Mar 16, 2023)
+
+- status: published
+- slug: runbooks/incident-2023-03-16-prod-cluster-down-argocd-misconfig
+- wiki_revision_id: wikirev_bcefb6f300948de626eed025ebe48c39
+- summary: On March 16, 2023, the production API cluster went down due to an ArgoCD misconfiguration. A Terraform change intended for staging was applied while the local kubectl context was p...
+

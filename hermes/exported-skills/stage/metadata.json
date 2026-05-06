@@ -2821,8 +2821,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "2da21d0c03043b5e9b63482e39e05076cf8c617c1680bbb4b2b212d834ab51d4",
-        "size": 748423
+        "sha256": "59b05541802e01d9bcb4087fb62dc238f6583cfbc8f047215fa393d6d16b899b",
+        "size": 748878
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3935,6 +3935,11 @@
         "size": 1395
       },
       {
+        "path": "pages/runbooks/incident-2023-03-16-prod-cluster-down-argocd-misconfig.md",
+        "sha256": "d1c4f4f54625af861b953252cf3dbd09d3da121fa58b9afba4ff3b233822d236",
+        "size": 5237
+      },
+      {
         "path": "pages/runbooks/list-ip-asset-api-outage-postmortem-may-2024.md",
         "sha256": "ef8dbb4858368e403bab447fcdcf1237453b36856f12863f43a8831a14f1468e",
         "size": 5189
@@ -4114,8 +4119,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T09:54:13Z",
-  "file_count": 821,
+  "exported_at": "2026-05-06T10:05:15Z",
+  "file_count": 822,
   "files": [
     {
       "path": ".curator_state",
@@ -6927,7 +6932,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c9cb69kn5p6",
-  "previous_tree_hash": "b01a36361696242abf434cf783356c19c648ee5e10fe29c02a9e9f1b7a5545cd",
+  "previous_tree_hash": "804305b02d4b234bbb6039136286521e20d968490378a9c547cc967a8f806925",
   "schema_version": 1,
   "skill_file_count": 561,
   "skill_manage_sessions": [
@@ -6940,14 +6945,14 @@
   ],
   "skill_tree_hash": "afbd2291fd67b2c005ef55e775975ab80b39daf1645a51d878d7521be04f637a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "804305b02d4b234bbb6039136286521e20d968490378a9c547cc967a8f806925",
+  "tree_hash": "7a7fb280fe034a91d7d943f88320b115126445279479cc35cc920eb13300c4ac",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 260,
+  "wiki_file_count": 261,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6961,8 +6966,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "2da21d0c03043b5e9b63482e39e05076cf8c617c1680bbb4b2b212d834ab51d4",
-      "size": 748423
+      "sha256": "59b05541802e01d9bcb4087fb62dc238f6583cfbc8f047215fa393d6d16b899b",
+      "size": 748878
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8075,6 +8080,11 @@
       "size": 1395
     },
     {
+      "path": "pages/runbooks/incident-2023-03-16-prod-cluster-down-argocd-misconfig.md",
+      "sha256": "d1c4f4f54625af861b953252cf3dbd09d3da121fa58b9afba4ff3b233822d236",
+      "size": 5237
+    },
+    {
       "path": "pages/runbooks/list-ip-asset-api-outage-postmortem-may-2024.md",
       "sha256": "ef8dbb4858368e403bab447fcdcf1237453b36856f12863f43a8831a14f1468e",
       "size": 5189
@@ -8251,5 +8261,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "385e03c6536e38a4d9ee9afee04d0ab9010fa93f311b1dcf9d2c9ff077002a85"
+  "wiki_tree_hash": "216560c10e9afa32a88f1758a4e0db977dea5356ba5182c583d21dd9cfcddc6b"
 }
