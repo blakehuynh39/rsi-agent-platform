@@ -14737,3 +14737,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0ce89f1fa101b73c21662ab5b862141d
 - summary: Stable and previous binary releases for the Story Network node, covering Linux, Windows, and macOS platforms.
 
+## [2026-05-06T04:19:19Z] synthesis | Partner Testnet Release v1.0.1
+
+- status: published
+- slug: projects/partner-testnet-release-v1-0-1
+- wiki_revision_id: wikirev_82484815ed40a43c543af947a87ae9bd
+- summary: Release notes for Partner Testnet Version 1.0.1-alpha, deployed on August 9, 2024. This update enables Geth archive mode and the debug module, while noting known issues with slashi...
+
