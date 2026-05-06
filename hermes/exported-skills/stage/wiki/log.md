@@ -15269,3 +15269,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f92e26226a253e6c9c7b7c1da2f6dc16
 - summary: SSH access details for bootnodes, validators, and RPC nodes in the Odyssey testnet environment.
 
+## [2026-05-06T23:53:02Z] synthesis | L1 Urgent Contacts
+
+- status: published
+- slug: policies/l1-urgent-contacts
+- wiki_revision_id: wikirev_24c983c74bbd211a99be7441cbc460ad
+- summary: List of L1 urgent contacts for DevOps and Partners/Comms, including phone numbers, Telegram, and WeChat handles. Notes emphasize phone calls as the first choice and whitelisting co...
+

@@ -2841,13 +2841,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "5fd03aee0fced9053ae341f211952876d84a754fbae0ad47aadf11ec67928a10",
-        "size": 452853
+        "sha256": "caf74362941fd9bb0507309e0e96bea78ae9c8056efb3a3d2a747ff606edc1b8",
+        "size": 453212
       },
       {
         "path": "log.md",
-        "sha256": "fbb62796e4fc3e5681280f58a1925870abaf0739216d5f968e1199893d03d9dc",
-        "size": 766056
+        "sha256": "002def76cf26758811232b3d98159dce465a9d38598efdd16a68dfb3c2e749e5",
+        "size": 766427
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3538,6 +3538,11 @@
         "path": "pages/policies/github-permissions-policy.md",
         "sha256": "38e0b0c7827e4201573a0b04ac3871fb5ad26a16e6b7e5353485372134ecfc10",
         "size": 11511
+      },
+      {
+        "path": "pages/policies/l1-urgent-contacts.md",
+        "sha256": "d9a7956ff3e3be8a97c3d296c8db260fe6faa1a80ddfe8450ca768b00a61ecaf",
+        "size": 6760
       },
       {
         "path": "pages/policies/limited-ip-rights-representation-registration.md",
@@ -4339,8 +4344,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T23:27:33Z",
-  "file_count": 866,
+  "exported_at": "2026-05-06T23:54:01Z",
+  "file_count": 867,
   "files": [
     {
       "path": ".curator_state",
@@ -7177,7 +7182,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5599f8q966n",
-  "previous_tree_hash": "602149fd35f3af92515e011e7804a71cf69cae27b0826accd29951bc56c441da",
+  "previous_tree_hash": "875e2da292a2196b7be162f321a36cfd4adb119ac549789d3048401c2829ed80",
   "schema_version": 1,
   "skill_file_count": 566,
   "skill_manage_sessions": [
@@ -7190,14 +7195,14 @@
   ],
   "skill_tree_hash": "184f5692aa7625c9041803d455e681ca7775914058e9ad87faddacc2ee98d306",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "875e2da292a2196b7be162f321a36cfd4adb119ac549789d3048401c2829ed80",
+  "tree_hash": "a7c5afa8b83ee7a27c12d1a824c36f86e5d4028a433822026bb2992ba527c08e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 300,
+  "wiki_file_count": 301,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7206,13 +7211,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "5fd03aee0fced9053ae341f211952876d84a754fbae0ad47aadf11ec67928a10",
-      "size": 452853
+      "sha256": "caf74362941fd9bb0507309e0e96bea78ae9c8056efb3a3d2a747ff606edc1b8",
+      "size": 453212
     },
     {
       "path": "log.md",
-      "sha256": "fbb62796e4fc3e5681280f58a1925870abaf0739216d5f968e1199893d03d9dc",
-      "size": 766056
+      "sha256": "002def76cf26758811232b3d98159dce465a9d38598efdd16a68dfb3c2e749e5",
+      "size": 766427
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7903,6 +7908,11 @@
       "path": "pages/policies/github-permissions-policy.md",
       "sha256": "38e0b0c7827e4201573a0b04ac3871fb5ad26a16e6b7e5353485372134ecfc10",
       "size": 11511
+    },
+    {
+      "path": "pages/policies/l1-urgent-contacts.md",
+      "sha256": "d9a7956ff3e3be8a97c3d296c8db260fe6faa1a80ddfe8450ca768b00a61ecaf",
+      "size": 6760
     },
     {
       "path": "pages/policies/limited-ip-rights-representation-registration.md",
@@ -8701,5 +8711,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ae31fcf86dc46584b594a5fe9a4129c34d4310d5877d00920a9cddcbea55e249"
+  "wiki_tree_hash": "438b21259aba059c2af0d6fc39507c9caefa1dfec44c780573993091eb01d0e6"
 }
