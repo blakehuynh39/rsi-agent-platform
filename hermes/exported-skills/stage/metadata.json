@@ -2816,13 +2816,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "88c262e1a50e1f1947a56f63f3defc46140139ccd3b32c3d2caeb71014f39a33",
-        "size": 443331
+        "sha256": "ed194b0bf14603909f01f313b4f3b0306e562571e3e52e6172b60437ec0ca7af",
+        "size": 443984
       },
       {
         "path": "log.md",
-        "sha256": "ff6ab23afb497106c2fc481e5c1c649c4b705a95fb99ebf747bc86689c78b58a",
-        "size": 752729
+        "sha256": "07ec59fda428c6d8d2b26b6e9873ebabb50f5f1295412d8981714483a9b494f1",
+        "size": 753406
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3398,6 +3398,11 @@
         "path": "pages/open-questions/define-what-to-do-for-rejected-submissions.md",
         "sha256": "2550cf3840125e55b8a44bf9adf36f70719f2d31a7ed9ec2dd27c2a42d71664d",
         "size": 1289
+      },
+      {
+        "path": "pages/open-questions/feedback-and-improvements-for-oncall-performance.md",
+        "sha256": "011ab1069af27ee1cbfc707efe710c93d4998f8e5adee7c2f480175e8f34c982",
+        "size": 1497
       },
       {
         "path": "pages/open-questions/license-term-flexibility-derivatives.md",
@@ -4010,6 +4015,11 @@
         "size": 1280
       },
       {
+        "path": "pages/runbooks/runbook-node-storage-low.md",
+        "sha256": "b9d9f08f711a1a3e12aba4163bb4c44b460f963e724605751d90189a3df7b476",
+        "size": 3043
+      },
+      {
         "path": "pages/runbooks/running-a-node.md",
         "sha256": "79ca2b08394043072c132e4c800b536535ad473402384b2c84bc67fe2f14b208",
         "size": 4260
@@ -4174,8 +4184,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T13:23:09Z",
-  "file_count": 833,
+  "exported_at": "2026-05-06T14:04:26Z",
+  "file_count": 835,
   "files": [
     {
       "path": ".curator_state",
@@ -6987,7 +6997,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c9cb697rvtm",
-  "previous_tree_hash": "50998cae6e5341640d998c89d2bc5538cdf5f0253900b804d69e21b75b64176c",
+  "previous_tree_hash": "8f6ca87a945609beb8ec8db170ddf29d8a23cb8c4a71a2b9e8831511cc0047dd",
   "schema_version": 1,
   "skill_file_count": 561,
   "skill_manage_sessions": [
@@ -7000,14 +7010,14 @@
   ],
   "skill_tree_hash": "afbd2291fd67b2c005ef55e775975ab80b39daf1645a51d878d7521be04f637a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "8f6ca87a945609beb8ec8db170ddf29d8a23cb8c4a71a2b9e8831511cc0047dd",
+  "tree_hash": "8c1aca3d598e45cb58d8525344cabda57c0cf73f9efd6c997e8fc0bdfe4996e5",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 272,
+  "wiki_file_count": 274,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7016,13 +7026,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "88c262e1a50e1f1947a56f63f3defc46140139ccd3b32c3d2caeb71014f39a33",
-      "size": 443331
+      "sha256": "ed194b0bf14603909f01f313b4f3b0306e562571e3e52e6172b60437ec0ca7af",
+      "size": 443984
     },
     {
       "path": "log.md",
-      "sha256": "ff6ab23afb497106c2fc481e5c1c649c4b705a95fb99ebf747bc86689c78b58a",
-      "size": 752729
+      "sha256": "07ec59fda428c6d8d2b26b6e9873ebabb50f5f1295412d8981714483a9b494f1",
+      "size": 753406
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7598,6 +7608,11 @@
       "path": "pages/open-questions/define-what-to-do-for-rejected-submissions.md",
       "sha256": "2550cf3840125e55b8a44bf9adf36f70719f2d31a7ed9ec2dd27c2a42d71664d",
       "size": 1289
+    },
+    {
+      "path": "pages/open-questions/feedback-and-improvements-for-oncall-performance.md",
+      "sha256": "011ab1069af27ee1cbfc707efe710c93d4998f8e5adee7c2f480175e8f34c982",
+      "size": 1497
     },
     {
       "path": "pages/open-questions/license-term-flexibility-derivatives.md",
@@ -8210,6 +8225,11 @@
       "size": 1280
     },
     {
+      "path": "pages/runbooks/runbook-node-storage-low.md",
+      "sha256": "b9d9f08f711a1a3e12aba4163bb4c44b460f963e724605751d90189a3df7b476",
+      "size": 3043
+    },
+    {
       "path": "pages/runbooks/running-a-node.md",
       "sha256": "79ca2b08394043072c132e4c800b536535ad473402384b2c84bc67fe2f14b208",
       "size": 4260
@@ -8371,5 +8391,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "49c5eb3bf9994208dd173ac34d718c9233b5272d21698f1f1725ff7903913479"
+  "wiki_tree_hash": "ec90221aa857aba2509e876252b90dd1f9ea603fc4ee10677804fc8155437988"
 }

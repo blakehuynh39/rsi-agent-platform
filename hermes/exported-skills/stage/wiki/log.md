@@ -14993,3 +14993,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6241e6259b8fa73b481e151e0ab2e331
 - summary: High-level design document for the L1 system, outlining the separation between the Consensus Layer and the Execution Layer, with a reference to the Error Handling subsystem.
 
+## [2026-05-06T14:01:51Z] synthesis | Feedback and Improvements for OnCall Performance
+
+- status: published
+- slug: open-questions/feedback-and-improvements-for-oncall-performance
+- wiki_revision_id: wikirev_3d92d9d6c17af3d71a659f5291d35108
+- summary: This Notion document is intended to collect feedback and improvements for on-call performance, but currently contains no content.
+
+## [2026-05-06T14:03:30Z] synthesis | Runbook: Node Storage Low
+
+- status: published
+- slug: runbooks/runbook-node-storage-low
+- wiki_revision_id: wikirev_85ad0eaebdf7fd01990bd84ef74fd68c
+- summary: Procedure to increase disk size on validators when a low storage alert (≥ 80%) is received.
+
