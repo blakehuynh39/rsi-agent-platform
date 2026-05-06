@@ -50,3 +50,15 @@ Use this skill when a Story request asks for live Numo/depin user stats, submiss
 - For stats, include the query time and any filters/parameters used.
 - If live data is unavailable, explain the exact blocker and the next required infrastructure or API fix.
 - Do not ask the user for a credential when the credential is already mounted but rejected; report that the Vault/config value needs to be fixed.
+
+## DB Observability Gap
+
+The depin-backend API does **not** instrument database queries in its Prometheus metrics layer. `observability/metrics.rs` tracks HTTP requests, external service calls (Dynamic, World), and NDV endpoints — but has zero DB query metrics (no histograms, no connection pool gauges, no query error counters).
+
+The `db_query_duration_seconds_*` metrics that exist in Thanos belong to `story-orchestration-service`, not depin-backend. When asked about DB health for depin-backend, you must:
+
+1. **Acknowledge the gap** — explain that there are no direct DB metrics
+2. **Infer DB health from indirect signals**: HTTP 5xx rate (zero means DB isn't failing), pod uptime/restarts, scrape duration, and API endpoint responsiveness
+3. **Check the admin stats endpoints** — if `/v1/admin/stats/user-growth` returns data, the DB is alive
+4. **Note connection pool pressure** — the API uses `max_connections=10` per pod (4 API pods = 40 potential connections), and the IP registration worker uses another `max_connections=10` per pod (8 worker pods = 80 more). Total: up to 120 connections to the same PostgreSQL 16 instance.
+5. **Flag slow admin endpoints** — `/v1/admin/users` had p95 latency of 4.8s as of May 2026, suggesting a query plan or indexing issue, not just a lack of metrics
