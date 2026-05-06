@@ -15216,3 +15216,28 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f4b3ee0c0d1caaa7033091f3bd8c69f4
 - summary: A strategy for growing the RSI ecosystem by first focusing on fanfiction for existing hit franchises, then expanding outward. Emphasizes composability between franchises and uses t...
 
+## [2026-05-06T22:30:48Z] ingest | Poseidon Eng Home
+
+- status: published
+- slug: notion_document/poseidon-eng-home-da25ed2d
+- wiki_revision_id: wikirev_bdfb1c459e38556a3d298f10318bee56
+- source_document_id: srcdoc_f42fd2902cb181790fb1003eda25ed2d
+- source_revision_id: srcrev_97bc7e4177f72517740b87f04e6d43bf
+- summary: Source: [Notion source](https://www.notion.so/Poseidon-Eng-Home-1cb051299a5480caa0d6c4d65e698209)
+
+## [2026-05-06T22:31:54Z] synthesis | Protocol Vision
+
+- status: published
+- slug: concepts/protocol-vision
+- wiki_revision_id: wikirev_9b3ac949590560dbab05ccd4cc60955e
+- summary: The protocol aims to incentivize storytellers and fans to collaboratively build narrative universes by distributing ownership at scale through on-chain franchise data structures.
+
+## [2026-05-06T22:31:57Z] ingest | Subnet
+
+- status: published
+- slug: notion_document/subnet-f7dd8f3f
+- wiki_revision_id: wikirev_e10bc57996648b60932d581b704f1882
+- source_document_id: srcdoc_67ae03c2c6c9aa6eaa1bd5c0f7dd8f3f
+- source_revision_id: srcrev_eab59440dd3af0dfa2d51020458b692e
+- summary: Source: [Notion source](https://www.notion.so/Subnet-358051299a5480f49fc2de7420dad342)
+
