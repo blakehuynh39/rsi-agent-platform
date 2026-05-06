@@ -15146,3 +15146,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6eb13b3c367b07c6414edab333fd375f
 - summary: Guide for managing the CDN that fronts public S3 assets using Cloudflare.
 
+## [2026-05-06T18:41:56Z] synthesis | GCP Node Setup
+
+- status: published
+- slug: runbooks/gcp-node-setup
+- wiki_revision_id: wikirev_7711be6e1ba6d011fc4486a888adf474
+- summary: Guide for setting up a GCP node for the Omni/Halo network, including requirements, steps, common issues, and useful commands.
+

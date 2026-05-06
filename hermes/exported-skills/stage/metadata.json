@@ -2826,8 +2826,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "1bd7fa7613a00e87eaa4bf09c1f64e3cf720ec5d51475e85855de494aac497fc",
-        "size": 760156
+        "sha256": "244d54457d2cd68a4d0f5e8d149bcd5bcef724fa4933f3725c36b3855d1d457d",
+        "size": 760461
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4010,6 +4010,11 @@
         "size": 1296
       },
       {
+        "path": "pages/runbooks/gcp-node-setup.md",
+        "sha256": "fae2098220d5f40e6809e2e77ac0d91ae27e83a8610bd7d22addee5f3c96f06a",
+        "size": 8481
+      },
+      {
         "path": "pages/runbooks/how-to-handle-smart-contract-update.md",
         "sha256": "286c161a9da18220b1399871159e088efafe6de7ebaf73e8d6ea7b223bc49a1f",
         "size": 1395
@@ -4244,8 +4249,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T18:35:11Z",
-  "file_count": 847,
+  "exported_at": "2026-05-06T18:46:14Z",
+  "file_count": 848,
   "files": [
     {
       "path": ".curator_state",
@@ -7062,7 +7067,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c9cb697rvtm",
-  "previous_tree_hash": "12d1aca8534b0cf311a744eb70803c5c0ee7cdc7884b9c888e0df058e62d6cd2",
+  "previous_tree_hash": "f35f7f37100f0a3ca2b0c651416590c8a6b07512338e9bac974eea7b914535d4",
   "schema_version": 1,
   "skill_file_count": 562,
   "skill_manage_sessions": [
@@ -7075,14 +7080,14 @@
   ],
   "skill_tree_hash": "90f983842dd37d8b39063c99a4526bf20ef5c6b1288978e6199735c8b0dbd15e",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f35f7f37100f0a3ca2b0c651416590c8a6b07512338e9bac974eea7b914535d4",
+  "tree_hash": "cdbbf856d603bec835db0ca23d4e54d6edd36689f910da9fce8d21fc5eb9942a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 285,
+  "wiki_file_count": 286,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7096,8 +7101,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "1bd7fa7613a00e87eaa4bf09c1f64e3cf720ec5d51475e85855de494aac497fc",
-      "size": 760156
+      "sha256": "244d54457d2cd68a4d0f5e8d149bcd5bcef724fa4933f3725c36b3855d1d457d",
+      "size": 760461
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8280,6 +8285,11 @@
       "size": 1296
     },
     {
+      "path": "pages/runbooks/gcp-node-setup.md",
+      "sha256": "fae2098220d5f40e6809e2e77ac0d91ae27e83a8610bd7d22addee5f3c96f06a",
+      "size": 8481
+    },
+    {
       "path": "pages/runbooks/how-to-handle-smart-contract-update.md",
       "sha256": "286c161a9da18220b1399871159e088efafe6de7ebaf73e8d6ea7b223bc49a1f",
       "size": 1395
@@ -8511,5 +8521,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d42cb0dd68685e3f288a27a7e742322b14749e6e3d556e70a06d4a71b4647088"
+  "wiki_tree_hash": "ec92ed5a357161ede33b3d0474e4f4aa5dfe0fef09d258257af795da0d0faa27"
 }
