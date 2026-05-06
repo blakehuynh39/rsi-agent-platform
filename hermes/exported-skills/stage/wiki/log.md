@@ -14809,3 +14809,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3bee3a009aaad5ca148f54027358d5e9
 - summary: The Core SDK is a software development kit referenced in the SDKs documentation.
 
+## [2026-05-06T06:04:08Z] synthesis | SDKs
+
+- status: published
+- slug: concepts/sdks
+- wiki_revision_id: wikirev_690bd430ddb77f939f6300861c039747
+- summary: Documentation page listing SDKs, including the Core SDK.
+
+## [2026-05-06T06:04:08Z] synthesis | Core SDK
+
+- status: published
+- slug: systems/core-sdk
+- wiki_revision_id: wikirev_c4aeb48b032244f2ffcac75527405d54
+- summary: The Core SDK is a software development kit with a documentation page that includes links to TypeScript SDK docs, a feedback section, and an issues tracker.
+
+## [2026-05-06T06:04:40Z] synthesis | Core SDK Requests
+
+- status: published
+- slug: concepts/core-sdk-requests
+- wiki_revision_id: wikirev_5635be28ed88871d43ce07c7dea702ed
+- summary: A Notion document titled 'Core SDK Requests' was observed, but its detailed content is not yet available.
+

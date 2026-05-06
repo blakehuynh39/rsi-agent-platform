@@ -2796,13 +2796,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "9da75e8b5eeb8a2c2a4c3ae89a387c4ec6bc18c6c6e3432b601d3cdf5500d1f0",
-        "size": 435630
+        "sha256": "f11575ac300274dd1869d4d0291e8e623b4439a3c01f463d960cc9dc4edc983f",
+        "size": 435984
       },
       {
         "path": "log.md",
-        "sha256": "0214c4c1cbb28f613c1d867b7b2035e903180a523d054d9265474b9feaaa265e",
-        "size": 743854
+        "sha256": "f91ebd209d6af91c7d2a33ed20b65a29961300122a3517f941369b03ffbd7c42",
+        "size": 744683
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2853,6 +2853,11 @@
         "path": "pages/concepts/content-references.md",
         "sha256": "015b037de8cddd285f8314e445d2f59d8fd38718f23042d2bae8d27b2e43148b",
         "size": 4891
+      },
+      {
+        "path": "pages/concepts/core-sdk-requests.md",
+        "sha256": "fb90826163ba5bc7749a5fec7da8acc1ccc2e1b3c52bccf595d42a7d4f59c670",
+        "size": 1278
       },
       {
         "path": "pages/concepts/cross-chain-interactions.md",
@@ -3141,8 +3146,8 @@
       },
       {
         "path": "pages/concepts/sdks.md",
-        "sha256": "6d3e157772e3f117fd6f026292adf3561f3ac1e36c1b995ba49faac936b72314",
-        "size": 1107
+        "sha256": "e9d66d6e3e1b46816d0af83b503f806eefa5ffee8d839288a1b467cb333a5ed4",
+        "size": 1068
       },
       {
         "path": "pages/concepts/serverless-design-expose-network-status.md",
@@ -3941,8 +3946,8 @@
       },
       {
         "path": "pages/systems/core-sdk.md",
-        "sha256": "ff0557daa5582d95f16bb1df20cd1e71876a5a7ff167eb69fb7a3e8d77f15089",
-        "size": 1158
+        "sha256": "217d382d70a1c589ccea1b2514ed808d1168137736611714a05002bcaa551093",
+        "size": 2819
       },
       {
         "path": "pages/systems/engineering-home.md",
@@ -4039,8 +4044,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T05:51:33Z",
-  "file_count": 806,
+  "exported_at": "2026-05-06T06:05:44Z",
+  "file_count": 807,
   "files": [
     {
       "path": ".curator_state",
@@ -6831,8 +6836,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5dc975pf99x",
-  "previous_tree_hash": "0fb55001020c5b43a32ded8d344330cda47f028bc899fa82f1e62ce2939fb6cb",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-59ddd7kbltv",
+  "previous_tree_hash": "0d2554841fad8597f2fbf8739903e3f8845b5127d807b9032ef85e2fdfc2dc68",
   "schema_version": 1,
   "skill_file_count": 557,
   "skill_manage_sessions": [
@@ -6845,14 +6850,14 @@
   ],
   "skill_tree_hash": "b6ad5930183bfbced7785774e834a18091c5c7c3dbe4517c93f737573d8e7dd6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "0d2554841fad8597f2fbf8739903e3f8845b5127d807b9032ef85e2fdfc2dc68",
+  "tree_hash": "ba4846a1ca1d2f618e2a2ce5da30db2467159d0a1b5d7af44097c9f81ee830a8",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 249,
+  "wiki_file_count": 250,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6861,13 +6866,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "9da75e8b5eeb8a2c2a4c3ae89a387c4ec6bc18c6c6e3432b601d3cdf5500d1f0",
-      "size": 435630
+      "sha256": "f11575ac300274dd1869d4d0291e8e623b4439a3c01f463d960cc9dc4edc983f",
+      "size": 435984
     },
     {
       "path": "log.md",
-      "sha256": "0214c4c1cbb28f613c1d867b7b2035e903180a523d054d9265474b9feaaa265e",
-      "size": 743854
+      "sha256": "f91ebd209d6af91c7d2a33ed20b65a29961300122a3517f941369b03ffbd7c42",
+      "size": 744683
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6918,6 +6923,11 @@
       "path": "pages/concepts/content-references.md",
       "sha256": "015b037de8cddd285f8314e445d2f59d8fd38718f23042d2bae8d27b2e43148b",
       "size": 4891
+    },
+    {
+      "path": "pages/concepts/core-sdk-requests.md",
+      "sha256": "fb90826163ba5bc7749a5fec7da8acc1ccc2e1b3c52bccf595d42a7d4f59c670",
+      "size": 1278
     },
     {
       "path": "pages/concepts/cross-chain-interactions.md",
@@ -7206,8 +7216,8 @@
     },
     {
       "path": "pages/concepts/sdks.md",
-      "sha256": "6d3e157772e3f117fd6f026292adf3561f3ac1e36c1b995ba49faac936b72314",
-      "size": 1107
+      "sha256": "e9d66d6e3e1b46816d0af83b503f806eefa5ffee8d839288a1b467cb333a5ed4",
+      "size": 1068
     },
     {
       "path": "pages/concepts/serverless-design-expose-network-status.md",
@@ -8006,8 +8016,8 @@
     },
     {
       "path": "pages/systems/core-sdk.md",
-      "sha256": "ff0557daa5582d95f16bb1df20cd1e71876a5a7ff167eb69fb7a3e8d77f15089",
-      "size": 1158
+      "sha256": "217d382d70a1c589ccea1b2514ed808d1168137736611714a05002bcaa551093",
+      "size": 2819
     },
     {
       "path": "pages/systems/engineering-home.md",
@@ -8101,5 +8111,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "06d2712c7434c7258cc40e5f82f709abe3cfaba3b9b92af727d8bbf708d39813"
+  "wiki_tree_hash": "1e4571df40741d8b4ec5c5de5da2cdac0f393a631eba6f747f81352a3c4ea55b"
 }
