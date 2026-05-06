@@ -4,7 +4,7 @@
     "skills": [
       {
         "path": ".usage.json",
-        "sha256": "6c13da58e801c3c4e186fd2d77e58eefcf26af405618affe49d407afacfc814b",
+        "sha256": "b4b9622dc653e96a48c9f7727249a6d84ab98eca8f9098403474078247a32f79",
         "size": 1094
       },
       {
@@ -64,8 +64,8 @@
       },
       {
         "path": "creative/architecture-diagram/SKILL.md",
-        "sha256": "829ed81dfbe977c3ec8a3fed05015cf130df3f9207e1f49fae88ce3436cb02fe",
-        "size": 5795
+        "sha256": "f504c01de7cf42ca9744ab7ae0b4190cd9c80e51d5b8461ffea67f38211b37dd",
+        "size": 6566
       },
       {
         "path": "creative/architecture-diagram/templates/template.html",
@@ -2763,6 +2763,11 @@
         "size": 1324
       },
       {
+        "path": "story-company/numo-project-status/references/slack-attachment-formats.md",
+        "sha256": "678e78acbdfcff83c0854ca3484288f73f3827010095d657078d8cad3e1ad445",
+        "size": 2290
+      },
+      {
         "path": "story-company/rsi-platform-investigation/SKILL.md",
         "sha256": "e1ed76288913f8eded3c1277ccd69c41179f90ea0787dde47bfbe94bc2f3d1fd",
         "size": 7393
@@ -3994,12 +3999,12 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T04:51:17Z",
-  "file_count": 797,
+  "exported_at": "2026-05-06T04:57:18Z",
+  "file_count": 798,
   "files": [
     {
       "path": ".usage.json",
-      "sha256": "6c13da58e801c3c4e186fd2d77e58eefcf26af405618affe49d407afacfc814b",
+      "sha256": "b4b9622dc653e96a48c9f7727249a6d84ab98eca8f9098403474078247a32f79",
       "size": 1094
     },
     {
@@ -4059,8 +4064,8 @@
     },
     {
       "path": "creative/architecture-diagram/SKILL.md",
-      "sha256": "829ed81dfbe977c3ec8a3fed05015cf130df3f9207e1f49fae88ce3436cb02fe",
-      "size": 5795
+      "sha256": "f504c01de7cf42ca9744ab7ae0b4190cd9c80e51d5b8461ffea67f38211b37dd",
+      "size": 6566
     },
     {
       "path": "creative/architecture-diagram/templates/template.html",
@@ -6758,6 +6763,11 @@
       "size": 1324
     },
     {
+      "path": "story-company/numo-project-status/references/slack-attachment-formats.md",
+      "sha256": "678e78acbdfcff83c0854ca3484288f73f3827010095d657078d8cad3e1ad445",
+      "size": 2290
+    },
+    {
       "path": "story-company/rsi-platform-investigation/SKILL.md",
       "sha256": "e1ed76288913f8eded3c1277ccd69c41179f90ea0787dde47bfbe94bc2f3d1fd",
       "size": 7393
@@ -6777,9 +6787,9 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-66d6fbhxbdd",
-  "previous_tree_hash": "3ca28556a708c60f370cef3688e78a86ef8dc56b1c3b59fc4261cf5aaa2969c3",
+  "previous_tree_hash": "ca1705756c182b1fd3033b7d5102ade41145d68ea6006fc90faa6d82797a4255",
   "schema_version": 1,
-  "skill_file_count": 555,
+  "skill_file_count": 556,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -6788,9 +6798,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "6b7dfa56d689d45c8a22555bb6c51518ac5e5976a19552e3078b697e8a1d82a5",
+  "skill_tree_hash": "143ecd75516e4cbbc3a2ddb9d7c9bef9c8f027b305a16a42da0e199e08ca8c89",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ca1705756c182b1fd3033b7d5102ade41145d68ea6006fc90faa6d82797a4255",
+  "tree_hash": "c400add4980803af451c4a4cdff324ee8c9876564a4e35d7af5f6043fe0b1b8d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",

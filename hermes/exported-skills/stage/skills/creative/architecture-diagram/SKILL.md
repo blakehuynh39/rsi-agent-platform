@@ -136,6 +136,23 @@ The generated HTML file follows a four-part layout:
 - **No JavaScript:** Use pure CSS for any animations (like pulsing dots)
 - **Compatibility:** Must render correctly in any modern web browser
 
+## Slack Delivery Pitfall
+
+**DO NOT attach the raw `.html` file to Slack.** HTML files do not render inline in Slack threads — they appear as unreadable raw text attachments.
+
+When delivering diagrams to Slack:
+1. Generate the `.html` file as usual
+2. Convert to PNG via headless Chromium screenshot:
+   ```bash
+   chromium --headless --disable-gpu --screenshot=/tmp/diagram.png \
+     --window-size=1280,900 --virtual-time-budget=3000 \
+     file:///path/to/diagram.html
+   ```
+3. Attach the PNG via `MEDIA:/tmp/diagram.png` in the Slack message
+4. Keep the `.html` as an artifact for reference
+
+For SVG-only diagrams, SVG files can be attached directly (`MEDIA:/path/to/diagram.svg`). See also: `numo-project-status` skill, `references/slack-attachment-formats.md`.
+
 ## Template Reference
 
 Load the full HTML template for the exact structure, CSS, and SVG component examples:
