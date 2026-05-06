@@ -14795,3 +14795,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3eae7c1bd8b3effe844aee5df0d97735
 - summary: A convenience table mapping team member names to their GitHub handlers and roles, maintained to avoid wasting time when adding people to repositories.
 
+## [2026-05-06T05:50:02Z] synthesis | SDKs
+
+- status: published
+- slug: concepts/sdks
+- wiki_revision_id: wikirev_2e5d8b554b237d900c6deed1e689b76e
+- summary: Documentation page listing SDKs, including the Core SDK.
+
+## [2026-05-06T05:50:02Z] synthesis | Core SDK
+
+- status: published
+- slug: systems/core-sdk
+- wiki_revision_id: wikirev_3bee3a009aaad5ca148f54027358d5e9
+- summary: The Core SDK is a software development kit referenced in the SDKs documentation.
+

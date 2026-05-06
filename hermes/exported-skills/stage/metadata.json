@@ -2796,13 +2796,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e8b5a5ffb28deb63bb5377d117e5882f0812a7c25af26f6c9af2ab3651326c0d",
-        "size": 435191
+        "sha256": "9da75e8b5eeb8a2c2a4c3ae89a387c4ec6bc18c6c6e3432b601d3cdf5500d1f0",
+        "size": 435630
       },
       {
         "path": "log.md",
-        "sha256": "7d39d1ed55a824ade0d8811178efac4c79b99912bfec546c4728cf866e2552a8",
-        "size": 743391
+        "sha256": "0214c4c1cbb28f613c1d867b7b2035e903180a523d054d9265474b9feaaa265e",
+        "size": 743854
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3138,6 +3138,11 @@
         "path": "pages/concepts/royalty-nft.md",
         "sha256": "c52bcb3a389a8998a75aa04d1009f8f528f207b1186585cb1f7e3d25040033da",
         "size": 6171
+      },
+      {
+        "path": "pages/concepts/sdks.md",
+        "sha256": "6d3e157772e3f117fd6f026292adf3561f3ac1e36c1b995ba49faac936b72314",
+        "size": 1107
       },
       {
         "path": "pages/concepts/serverless-design-expose-network-status.md",
@@ -3935,6 +3940,11 @@
         "size": 1170
       },
       {
+        "path": "pages/systems/core-sdk.md",
+        "sha256": "ff0557daa5582d95f16bb1df20cd1e71876a5a7ff167eb69fb7a3e8d77f15089",
+        "size": 1158
+      },
+      {
         "path": "pages/systems/engineering-home.md",
         "sha256": "33e80d75fcc279d7f9a931ce315d507b98ed19971007e9e63f7b04b9e61a672a",
         "size": 2127
@@ -4029,8 +4039,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T05:35:39Z",
-  "file_count": 804,
+  "exported_at": "2026-05-06T05:51:33Z",
+  "file_count": 806,
   "files": [
     {
       "path": ".curator_state",
@@ -6822,7 +6832,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5dc975pf99x",
-  "previous_tree_hash": "f60a4da7cdbf2da8bdffb4ebf82f06b80626212f4a80c6baa4fa318dc175f348",
+  "previous_tree_hash": "0fb55001020c5b43a32ded8d344330cda47f028bc899fa82f1e62ce2939fb6cb",
   "schema_version": 1,
   "skill_file_count": 557,
   "skill_manage_sessions": [
@@ -6835,14 +6845,14 @@
   ],
   "skill_tree_hash": "b6ad5930183bfbced7785774e834a18091c5c7c3dbe4517c93f737573d8e7dd6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "0fb55001020c5b43a32ded8d344330cda47f028bc899fa82f1e62ce2939fb6cb",
+  "tree_hash": "0d2554841fad8597f2fbf8739903e3f8845b5127d807b9032ef85e2fdfc2dc68",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 247,
+  "wiki_file_count": 249,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6851,13 +6861,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e8b5a5ffb28deb63bb5377d117e5882f0812a7c25af26f6c9af2ab3651326c0d",
-      "size": 435191
+      "sha256": "9da75e8b5eeb8a2c2a4c3ae89a387c4ec6bc18c6c6e3432b601d3cdf5500d1f0",
+      "size": 435630
     },
     {
       "path": "log.md",
-      "sha256": "7d39d1ed55a824ade0d8811178efac4c79b99912bfec546c4728cf866e2552a8",
-      "size": 743391
+      "sha256": "0214c4c1cbb28f613c1d867b7b2035e903180a523d054d9265474b9feaaa265e",
+      "size": 743854
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7193,6 +7203,11 @@
       "path": "pages/concepts/royalty-nft.md",
       "sha256": "c52bcb3a389a8998a75aa04d1009f8f528f207b1186585cb1f7e3d25040033da",
       "size": 6171
+    },
+    {
+      "path": "pages/concepts/sdks.md",
+      "sha256": "6d3e157772e3f117fd6f026292adf3561f3ac1e36c1b995ba49faac936b72314",
+      "size": 1107
     },
     {
       "path": "pages/concepts/serverless-design-expose-network-status.md",
@@ -7990,6 +8005,11 @@
       "size": 1170
     },
     {
+      "path": "pages/systems/core-sdk.md",
+      "sha256": "ff0557daa5582d95f16bb1df20cd1e71876a5a7ff167eb69fb7a3e8d77f15089",
+      "size": 1158
+    },
+    {
       "path": "pages/systems/engineering-home.md",
       "sha256": "33e80d75fcc279d7f9a931ce315d507b98ed19971007e9e63f7b04b9e61a672a",
       "size": 2127
@@ -8081,5 +8101,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a8d808eceb2355f515259928a874a70e24fbbe5e43c1daab40e77fe14d789fa5"
+  "wiki_tree_hash": "06d2712c7434c7258cc40e5f82f709abe3cfaba3b9b92af727d8bbf708d39813"
 }
