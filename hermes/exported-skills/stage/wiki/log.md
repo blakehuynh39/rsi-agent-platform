@@ -15181,3 +15181,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_aa70c3960719325745164ef22de20e02
 - summary: Runbook for setting up Blockscout explorer on AWS EC2 using Docker Compose, including SSH access, Docker installation, configuration of environment files, and Nginx SSL termination...
 
+## [2026-05-06T20:52:24Z] synthesis | IPA Expiration Design
+
+- status: published
+- slug: concepts/ipa-expiration-design
+- wiki_revision_id: wikirev_82e8a5996a97d2a801dfb533be68241d
+- summary: High-level design for implementing expiration on-chain for IP Assets (IPAs), including two broad approaches: License Token expiration and IPA expiration. Also covers shared logic w...
+
