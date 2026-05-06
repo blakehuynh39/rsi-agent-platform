@@ -449,9 +449,13 @@ func buildHermesSessions(cfg config.Config, store storepkg.Repository) []hermesS
 		entries := store.ListConversationEntries(conv.ConversationID)
 		preview := lastConversationPreview(entries, conv.ActiveCase)
 		isLive := live.conversations[conv.ConversationID]
+		lastActive := conv.LatestMessageAt
+		if ledgerLast := live.conversationLastActive[conv.ConversationID]; ledgerLast.After(lastActive) {
+			lastActive = ledgerLast
+		}
 		var endedAt *int64
 		if !isLive {
-			endedAt = unixPtr(conv.LatestMessageAt)
+			endedAt = unixPtr(lastActive)
 		}
 		items = append(items, hermesSessionInfo{
 			ID:             conv.ConversationID,
@@ -463,7 +467,7 @@ func buildHermesSessions(cfg config.Config, store storepkg.Repository) []hermesS
 			TitleIsSummary: conv.TitleIsSummary,
 			StartedAt:      unixSeconds(conv.CreatedAt),
 			EndedAt:        endedAt,
-			LastActive:     unixSeconds(conv.LatestMessageAt),
+			LastActive:     unixSeconds(lastActive),
 			IsActive:       isLive,
 			MessageCount:   len(entries),
 			ToolCallCount:  0,
@@ -479,10 +483,7 @@ func buildHermesSessions(cfg config.Config, store storepkg.Repository) []hermesS
 		})
 	}
 	for _, trace := range traces {
-		last := trace.EndedAt
-		if last.IsZero() {
-			last = trace.StartedAt
-		}
+		last := hermesTraceLastActive(trace, live)
 		toolCallCount := hermesTraceToolCallCount(store, trace.TraceID, trace.ToolCallCount)
 		title := traceTitleForDisplayWithCache(store, trace, titleCache)
 		preview := stringPtr(firstNonEmptyString(trace.LastVerdict, string(trace.Status)))
@@ -556,9 +557,13 @@ func hermesConversationSessionFromListItem(item storepkg.HermesSessionListItem, 
 		title = firstNonEmptyString(item.ConversationID, item.ID)
 	}
 	isLive := live.conversations[item.ConversationID]
+	lastActive := item.LastActive
+	if ledgerLast := live.conversationLastActive[item.ConversationID]; ledgerLast.After(lastActive) {
+		lastActive = ledgerLast
+	}
 	var endedAt *int64
 	if !isLive {
-		endedAt = unixPtr(item.LastActive)
+		endedAt = unixPtr(lastActive)
 	}
 	preview := item.Preview
 	if preview == "" {
@@ -574,7 +579,7 @@ func hermesConversationSessionFromListItem(item storepkg.HermesSessionListItem, 
 		TitleIsSummary: titleIsSummary,
 		StartedAt:      unixSeconds(item.StartedAt),
 		EndedAt:        endedAt,
-		LastActive:     unixSeconds(item.LastActive),
+		LastActive:     unixSeconds(lastActive),
 		IsActive:       isLive,
 		MessageCount:   item.MessageCount,
 		ToolCallCount:  0,
@@ -603,6 +608,16 @@ func hermesTraceSessionFromListItem(item storepkg.HermesSessionListItem, live he
 		title = firstNonEmptyString(item.WorkflowKind, item.TraceID, item.ID)
 	}
 	traceID := firstNonEmptyString(item.TraceID, item.ID)
+	lastActive := item.LastActive
+	if ledgerLast := live.traceLastActive[item.TraceID]; ledgerLast.After(lastActive) {
+		lastActive = ledgerLast
+	}
+	endedAt := item.EndedAt
+	if endedAt != nil && !live.traces[item.TraceID] {
+		if ledgerLast := live.traceLastActive[item.TraceID]; !ledgerLast.IsZero() && ledgerLast.After(*endedAt) {
+			endedAt = &ledgerLast
+		}
+	}
 	return hermesSessionInfo{
 		ID:              firstNonEmptyString(item.ID, item.TraceID),
 		Type:            "trace",
@@ -612,8 +627,8 @@ func hermesTraceSessionFromListItem(item storepkg.HermesSessionListItem, live he
 		OriginalTitle:   originalTitle,
 		TitleIsSummary:  titleIsSummary,
 		StartedAt:       unixSeconds(item.StartedAt),
-		EndedAt:         unixPtrFromTime(item.EndedAt),
-		LastActive:      unixSeconds(item.LastActive),
+		EndedAt:         unixPtrFromTime(endedAt),
+		LastActive:      unixSeconds(lastActive),
 		IsActive:        live.traces[item.TraceID],
 		MessageCount:    item.MessageCount,
 		ToolCallCount:   item.ToolCallCount,
@@ -645,18 +660,25 @@ func buildHermesSession(cfg config.Config, store storepkg.Repository, sessionID 
 		isLive := live.conversations[conv.ID]
 		var endedAt *int64
 		latestMessageAt := conv.UpdatedAt
-		if !isLive {
-			endedAt = unixPtr(latestMessageAt)
+		if ledgerLast := live.conversationLastActive[conv.ID]; ledgerLast.After(latestMessageAt) {
+			latestMessageAt = ledgerLast
 		}
 		traces := storeTraceSummariesForConversation(store, conv.ID)
 		openTraceCount := 0
 		for _, t := range traces {
-			if t.StartedAt.After(latestMessageAt) {
-				latestMessageAt = t.StartedAt
+			traceLastActive := t.StartedAt
+			if ledgerLast := live.traceLastActive[t.TraceID]; ledgerLast.After(traceLastActive) {
+				traceLastActive = ledgerLast
+			}
+			if traceLastActive.After(latestMessageAt) {
+				latestMessageAt = traceLastActive
 			}
 			if isOpenTraceStatus(t.Status) {
 				openTraceCount++
 			}
+		}
+		if !isLive {
+			endedAt = unixPtr(latestMessageAt)
 		}
 		proposals := storeProposalsByConversation(store, conv.ID)
 		title := conversationTitleForDisplay(store, conv)
@@ -687,10 +709,7 @@ func buildHermesSession(cfg config.Config, store storepkg.Repository, sessionID 
 	}
 	if trace, ok := store.GetTrace(sessionID); ok {
 		summary := trace.Summary
-		last := summary.EndedAt
-		if last.IsZero() {
-			last = summary.StartedAt
-		}
+		last := hermesTraceLastActive(summary, live)
 		toolCallCount := hermesTraceToolCallCountFromRecords(store, summary.TraceID, summary.ToolCallCount, trace.ToolCalls)
 		title := traceTitleForDisplay(store, summary)
 		preview := stringPtr(firstNonEmptyString(summary.LastVerdict, string(summary.Status)))
@@ -725,23 +744,31 @@ func buildHermesSession(cfg config.Config, store storepkg.Repository, sessionID 
 }
 
 type hermesLiveSessionIndex struct {
-	conversations map[string]bool
-	traces        map[string]bool
+	conversations          map[string]bool
+	traces                 map[string]bool
+	conversationLastActive map[string]time.Time
+	traceLastActive        map[string]time.Time
 }
 
 func buildHermesLiveSessionIndex(cfg config.Config, store storepkg.Repository) hermesLiveSessionIndex {
 	out := hermesLiveSessionIndex{
-		conversations: map[string]bool{},
-		traces:        map[string]bool{},
+		conversations:          map[string]bool{},
+		traces:                 map[string]bool{},
+		conversationLastActive: map[string]time.Time{},
+		traceLastActive:        map[string]time.Time{},
 	}
 	now := time.Now().UTC()
 	for _, execution := range store.ListActiveRunnerExecutions() {
 		if !hermesRunnerExecutionFresh(cfg, execution, now) {
 			continue
 		}
+		executionActiveAt := hermesRunnerExecutionActivityTime(execution)
 		traceID := strings.TrimSpace(execution.TraceID)
 		if traceID != "" {
 			out.traces[traceID] = true
+			if executionActiveAt.After(out.traceLastActive[traceID]) {
+				out.traceLastActive[traceID] = executionActiveAt
+			}
 		}
 		conversationID := strings.TrimSpace(execution.ConversationID)
 		if conversationID == "" && strings.TrimSpace(execution.CaseID) != "" {
@@ -756,9 +783,100 @@ func buildHermesLiveSessionIndex(cfg config.Config, store storepkg.Repository) h
 		}
 		if conversationID != "" {
 			out.conversations[conversationID] = true
+			if executionActiveAt.After(out.conversationLastActive[conversationID]) {
+				out.conversationLastActive[conversationID] = executionActiveAt
+			}
+		}
+	}
+	activityWindow := hermesLedgerActivityWindow(cfg)
+	recentCutoff := now.Add(-activityWindow)
+	allTraces := store.ListTraces()
+	traceByID := make(map[string]events.TraceSummary, len(allTraces))
+	for _, trace := range allTraces {
+		traceByID[trace.TraceID] = trace
+	}
+	for traceID, trace := range traceByID {
+		conversationID := strings.TrimSpace(trace.ConversationID)
+		ledgerEvents := store.ListExecutionLedgerEventsByTrace(traceID)
+		var mostRecentLiveEvent *events.ExecutionLedgerEvent
+		for i := range ledgerEvents {
+			item := &ledgerEvents[i]
+			if item.RecordedAt.IsZero() {
+				continue
+			}
+			if item.RecordedAt.After(out.traceLastActive[traceID]) {
+				out.traceLastActive[traceID] = item.RecordedAt
+			}
+			if item.RecordedAt.Before(recentCutoff) {
+				continue
+			}
+			if hermesLedgerEventSuggestsLiveActivity(*item) {
+				if mostRecentLiveEvent == nil || item.RecordedAt.After(mostRecentLiveEvent.RecordedAt) {
+					mostRecentLiveEvent = item
+				}
+			} else if hermesLedgerEventSuggestsTerminalActivity(*item) {
+				if mostRecentLiveEvent == nil || item.RecordedAt.After(mostRecentLiveEvent.RecordedAt) {
+					mostRecentLiveEvent = nil
+				}
+			}
+		}
+		if mostRecentLiveEvent != nil {
+			out.traces[traceID] = true
+			if conversationID != "" {
+				out.conversations[conversationID] = true
+			}
+		}
+	}
+	for traceID, lastActive := range out.traceLastActive {
+		if trace, ok := traceByID[traceID]; ok {
+			conversationID := strings.TrimSpace(trace.ConversationID)
+			if conversationID != "" && lastActive.After(out.conversationLastActive[conversationID]) {
+				out.conversationLastActive[conversationID] = lastActive
+			}
 		}
 	}
 	return out
+}
+
+func hermesLedgerActivityWindow(cfg config.Config) time.Duration {
+	if cfg.HermesExecutionHeartbeatTimeout > 0 {
+		return cfg.HermesExecutionHeartbeatTimeout
+	}
+	return 120 * time.Second
+}
+
+func hermesLedgerEventSuggestsLiveActivity(item events.ExecutionLedgerEvent) bool {
+	status := strings.ToLower(strings.TrimSpace(item.Status))
+	switch status {
+	case "accepted", "cancel_requested", "cancelling", "finalizing", "in_progress", "pending", "progress", "queued", "running", "started", "starting", "streaming":
+		return true
+	case "canceled", "cancelled", "complete", "completed", "done", "error", "failed", "failure", "ok", "success", "succeeded":
+		return false
+	}
+	kind := strings.ToLower(strings.TrimSpace(item.Kind))
+	return strings.Contains(kind, ".delta") ||
+		strings.Contains(kind, "progress") ||
+		strings.Contains(kind, "started")
+}
+
+func hermesLedgerEventSuggestsTerminalActivity(item events.ExecutionLedgerEvent) bool {
+	status := strings.ToLower(strings.TrimSpace(item.Status))
+	switch status {
+	case "canceled", "cancelled", "complete", "completed", "done", "error", "failed", "failure", "ok", "success", "succeeded":
+		return true
+	}
+	return false
+}
+
+func hermesTraceLastActive(summary events.TraceSummary, live hermesLiveSessionIndex) time.Time {
+	last := summary.EndedAt
+	if last.IsZero() {
+		last = summary.StartedAt
+	}
+	if ledgerLast := live.traceLastActive[summary.TraceID]; ledgerLast.After(last) {
+		last = ledgerLast
+	}
+	return last
 }
 
 func hermesRunnerExecutionFresh(cfg config.Config, execution storepkg.RunnerExecution, now time.Time) bool {
@@ -776,6 +894,16 @@ func hermesRunnerExecutionFresh(cfg config.Config, execution storepkg.RunnerExec
 		return true
 	}
 	return now.Sub(reference) <= timeout
+}
+
+func hermesRunnerExecutionActivityTime(execution storepkg.RunnerExecution) time.Time {
+	reference := execution.UpdatedAt.UTC()
+	if execution.HeartbeatAt != nil {
+		reference = execution.HeartbeatAt.UTC()
+	} else if reference.IsZero() {
+		reference = execution.CreatedAt.UTC()
+	}
+	return reference
 }
 
 func countActiveHermesSessions(cfg config.Config, store storepkg.Repository) int {

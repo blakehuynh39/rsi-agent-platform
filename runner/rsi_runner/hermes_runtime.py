@@ -1715,8 +1715,11 @@ class HermesRuntime:
         for execution_id, process in list(self._executor_processes.items()):
             if process.poll() is not None:
                 continue
-            pid = getattr(process, "pid", 0)
-            if not isinstance(pid, int) or pid <= 0:
+            try:
+                pid = int(getattr(process, "pid", 0) or 0)
+            except (TypeError, ValueError):
+                continue
+            if pid <= 0:
                 continue
             descendants = self._descendant_process_ids(pid)
             if descendants:

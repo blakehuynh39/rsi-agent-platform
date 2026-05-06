@@ -1126,6 +1126,146 @@ func TestHermesCompatibilityLiveSessionsFollowRunnerExecutions(t *testing.T) {
 	assertActive(t, false)
 }
 
+func TestHermesCompatibilityLiveSessionsFollowFreshLedgerActivity(t *testing.T) {
+	cfg := config.Config{
+		PublicBaseURL:                   "http://example.test",
+		HermesExecutionHeartbeatTimeout: time.Minute,
+	}
+	store := storepkg.NewMemoryStore()
+	trace := store.ListTraces()[0]
+	traceID := trace.TraceID
+	conversationID := trace.ConversationID
+	if conversationID == "" {
+		conversationID = store.ListConversations()[0].ID
+	}
+	now := time.Now().UTC().Add(time.Second)
+	if err := store.RecordExecutionLedgerEvents([]events.ExecutionLedgerEvent{
+		{
+			ID:          "xled-fresh-terminal-output",
+			ExecutionID: "hexec-ledger-live-ui",
+			TraceID:     traceID,
+			WorkflowID:  trace.WorkflowID,
+			Kind:        "terminal.output",
+			Status:      "streaming",
+			Seq:         1,
+			Payload:     map[string]any{"tool_name": "terminal", "chunk_text": "still streaming"},
+			RecordedAt:  now,
+		},
+	}); err != nil {
+		t.Fatalf("RecordExecutionLedgerEvents(fresh) error = %v", err)
+	}
+	router := NewRouter(cfg, store)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/sessions?limit=200", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("sessions status = %d body=%s", rec.Code, rec.Body.String())
+	}
+	var payload struct {
+		Sessions []struct {
+			ID         string `json:"id"`
+			IsActive   bool   `json:"is_active"`
+			LastActive int64  `json:"last_active"`
+		} `json:"sessions"`
+	}
+	if err := json.Unmarshal(rec.Body.Bytes(), &payload); err != nil {
+		t.Fatalf("decode sessions: %v", err)
+	}
+	for _, id := range []string{traceID, conversationID} {
+		var found *struct {
+			ID         string `json:"id"`
+			IsActive   bool   `json:"is_active"`
+			LastActive int64  `json:"last_active"`
+		}
+		for i := range payload.Sessions {
+			if payload.Sessions[i].ID == id {
+				found = &payload.Sessions[i]
+				break
+			}
+		}
+		if found == nil {
+			t.Fatalf("missing session %s in %+v", id, payload.Sessions)
+		}
+		if !found.IsActive {
+			t.Fatalf("session %s is_active=false, want true from fresh ledger activity", id)
+		}
+		if found.LastActive != now.Unix() {
+			t.Fatalf("session %s last_active=%d, want %d", id, found.LastActive, now.Unix())
+		}
+	}
+
+	statusReq := httptest.NewRequest(http.MethodGet, "/api/status", nil)
+	statusRec := httptest.NewRecorder()
+	router.ServeHTTP(statusRec, statusReq)
+	if statusRec.Code != http.StatusOK {
+		t.Fatalf("status code = %d body=%s", statusRec.Code, statusRec.Body.String())
+	}
+	var statusPayload struct {
+		ActiveSessions int `json:"active_sessions"`
+	}
+	if err := json.Unmarshal(statusRec.Body.Bytes(), &statusPayload); err != nil {
+		t.Fatalf("decode status: %v", err)
+	}
+	if statusPayload.ActiveSessions != 2 {
+		t.Fatalf("active_sessions=%d, want trace plus parent conversation", statusPayload.ActiveSessions)
+	}
+}
+
+func TestHermesCompatibilityStaleLedgerActivityDoesNotStayLive(t *testing.T) {
+	cfg := config.Config{
+		PublicBaseURL:                   "http://example.test",
+		HermesExecutionHeartbeatTimeout: time.Minute,
+	}
+	store := storepkg.NewMemoryStore()
+	trace := store.ListTraces()[0]
+	traceID := trace.TraceID
+	conversationID := trace.ConversationID
+	if conversationID == "" {
+		conversationID = store.ListConversations()[0].ID
+	}
+	stale := time.Now().UTC().Add(-2 * time.Minute)
+	if err := store.RecordExecutionLedgerEvents([]events.ExecutionLedgerEvent{
+		{
+			ID:          "xled-stale-terminal-output",
+			ExecutionID: "hexec-ledger-stale-ui",
+			TraceID:     traceID,
+			WorkflowID:  trace.WorkflowID,
+			Kind:        "terminal.output",
+			Status:      "streaming",
+			Seq:         1,
+			Payload:     map[string]any{"tool_name": "terminal", "chunk_text": "old output"},
+			RecordedAt:  stale,
+		},
+	}); err != nil {
+		t.Fatalf("RecordExecutionLedgerEvents(stale) error = %v", err)
+	}
+	router := NewRouter(cfg, store)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/sessions?limit=200", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("sessions status = %d body=%s", rec.Code, rec.Body.String())
+	}
+	var payload struct {
+		Sessions []struct {
+			ID       string `json:"id"`
+			IsActive bool   `json:"is_active"`
+		} `json:"sessions"`
+	}
+	if err := json.Unmarshal(rec.Body.Bytes(), &payload); err != nil {
+		t.Fatalf("decode sessions: %v", err)
+	}
+	for _, id := range []string{traceID, conversationID} {
+		for _, session := range payload.Sessions {
+			if session.ID == id && session.IsActive {
+				t.Fatalf("session %s is_active=true from stale ledger activity", id)
+			}
+		}
+	}
+}
+
 func TestHermesCompatibilitySessionMessagesMapConversationsAndTraces(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
