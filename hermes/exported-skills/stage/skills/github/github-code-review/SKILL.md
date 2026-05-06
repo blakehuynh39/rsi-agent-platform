@@ -305,6 +305,7 @@ When a feature spans two repos (e.g., backend API + frontend app), the user ofte
 - [ ] Both PRs have matching base branches (BE: `staging`, FE: `develop`)
 - [ ] CI green on both repos
 - [ ] BE PR description links to FE PR and vice versa
+- [ ] **Merge order**: BE merges to `staging` before FE merges to `develop`. If FE is already merged but BE is still open, flag it. See `references/cross-repo-check-trace.md` for examples.
 
 ### Cross-Repo Contract: depin-backend ↔ numo-monorepo
 
