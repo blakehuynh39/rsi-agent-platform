@@ -15102,3 +15102,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_954e9fc5701cf649c9f0dc00a3af5c4f
 - summary: A guide for setting up a Story node, currently empty.
 
+## [2026-05-06T17:37:07Z] synthesis | Protocol v1.2 GA Release
+
+- status: published
+- slug: systems/protocol-v1-2-ga-release
+- wiki_revision_id: wikirev_ff7cc59e90c18ac98db7d69a2216887b
+- summary: Contract addresses for the Story Protocol v1.2 GA release including main (seed 999) and older (seed 777) deployments.
+
