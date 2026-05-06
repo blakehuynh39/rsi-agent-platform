@@ -2816,8 +2816,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "4fea4d607f799fa10deac844974776eef610452c262dff83d8b1fb7a5044463a",
-        "size": 745355
+        "sha256": "1334cf4287480427a99b24ca2110544d380c4b3cf77ad70be091393a17dae35e",
+        "size": 745731
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3840,6 +3840,11 @@
         "size": 3976
       },
       {
+        "path": "pages/projects/web3-cross-chain-solution.md",
+        "sha256": "f7d806fcc82b91c341ba641584d3eb9a32ae583d86853410a532ad162fc173ef",
+        "size": 7611
+      },
+      {
         "path": "pages/projects/wf-metadata-design.md",
         "sha256": "39f1d42c21f52d660d59c5948d6ba3e757a62c033cf352642abef69ccc8738eb",
         "size": 5261
@@ -4069,8 +4074,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T07:21:40Z",
-  "file_count": 812,
+  "exported_at": "2026-05-06T07:38:06Z",
+  "file_count": 813,
   "files": [
     {
       "path": ".curator_state",
@@ -6877,7 +6882,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-bfdd9bqzchn",
-  "previous_tree_hash": "19ee60e220f52a6a6ef07f534c950e0e76aa6d086b7f25a9e26e094e44e269c2",
+  "previous_tree_hash": "2796599b05d54374539e62198b1281241c519c94d9008b919d7ec009cc16166a",
   "schema_version": 1,
   "skill_file_count": 560,
   "skill_manage_sessions": [
@@ -6890,14 +6895,14 @@
   ],
   "skill_tree_hash": "4f089e2d10224071227098f5bcb7a892c6c921a00215c97c6dc44a1ef3da514d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2796599b05d54374539e62198b1281241c519c94d9008b919d7ec009cc16166a",
+  "tree_hash": "6af6619ea1a7f1373f9b5391e4afc3cc62165dcdb19a44dad7e448faec27a8b3",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 252,
+  "wiki_file_count": 253,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6911,8 +6916,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "4fea4d607f799fa10deac844974776eef610452c262dff83d8b1fb7a5044463a",
-      "size": 745355
+      "sha256": "1334cf4287480427a99b24ca2110544d380c4b3cf77ad70be091393a17dae35e",
+      "size": 745731
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7935,6 +7940,11 @@
       "size": 3976
     },
     {
+      "path": "pages/projects/web3-cross-chain-solution.md",
+      "sha256": "f7d806fcc82b91c341ba641584d3eb9a32ae583d86853410a532ad162fc173ef",
+      "size": 7611
+    },
+    {
       "path": "pages/projects/wf-metadata-design.md",
       "sha256": "39f1d42c21f52d660d59c5948d6ba3e757a62c033cf352642abef69ccc8738eb",
       "size": 5261
@@ -8161,5 +8171,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "25e261255a1950067f6b736226652808e2c8f658e06ddda07a7eda7651e4be89"
+  "wiki_tree_hash": "c6c786423e25531cc311df5fe78e68dfa7d88915e0329f4d194f02adae558422"
 }
