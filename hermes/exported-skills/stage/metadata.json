@@ -3,6 +3,11 @@
     "export_format_version": 2,
     "skills": [
       {
+        "path": ".curator_state",
+        "sha256": "fea9d10d36b9096349c4db298ae1388db6dc1f354e0cd5719d86f67dce73e743",
+        "size": 252
+      },
+      {
         "path": ".usage.json",
         "sha256": "b4b9622dc653e96a48c9f7727249a6d84ab98eca8f9098403474078247a32f79",
         "size": 1094
@@ -2791,13 +2796,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "7270c8b59fd175ed8a5eac4e62e9fa44039ec6e9fe306d0485000437a83fe8b0",
-        "size": 433555
+        "sha256": "ea5f21f3703927598ce9c03b1a1bc9d89654a054372d61fe81c4e28ad0563dff",
+        "size": 433908
       },
       {
         "path": "log.md",
-        "sha256": "f86953fa1df50b3c158b2a061f3f2f49ac2e839c9a4259721414283dc67e6e1a",
-        "size": 741695
+        "sha256": "5225515c0de8f6996ca39bab177499e097cdcfdc1f30339f1971e972903ca9da",
+        "size": 742060
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3163,6 +3168,11 @@
         "path": "pages/concepts/untitled-notion-page-350051299a5480f8b542e4f40de96a42.md",
         "sha256": "ef8c7cc2380315948189d66e293788f01c320f4585f45f08ca831f89c79bd5cb",
         "size": 1132
+      },
+      {
+        "path": "pages/concepts/upgrade-governance-recommendations-and-lessons.md",
+        "sha256": "4407651b2ba0549517e446b353d78eb0bd53029f475d5f317cffbbcb98dbe388",
+        "size": 1441
       },
       {
         "path": "pages/concepts/upload-submission-errors.md",
@@ -3999,9 +4009,14 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T05:03:08Z",
-  "file_count": 798,
+  "exported_at": "2026-05-06T05:08:55Z",
+  "file_count": 800,
   "files": [
+    {
+      "path": ".curator_state",
+      "sha256": "fea9d10d36b9096349c4db298ae1388db6dc1f354e0cd5719d86f67dce73e743",
+      "size": 252
+    },
     {
       "path": ".usage.json",
       "sha256": "b4b9622dc653e96a48c9f7727249a6d84ab98eca8f9098403474078247a32f79",
@@ -6787,9 +6802,9 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5dc975pf99x",
-  "previous_tree_hash": "c400add4980803af451c4a4cdff324ee8c9876564a4e35d7af5f6043fe0b1b8d",
+  "previous_tree_hash": "1aa37711698e0102c7a5491023766b8cb77145d85c40d52525e6ffc672dcb9b4",
   "schema_version": 1,
-  "skill_file_count": 556,
+  "skill_file_count": 557,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -6798,16 +6813,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "143ecd75516e4cbbc3a2ddb9d7c9bef9c8f027b305a16a42da0e199e08ca8c89",
+  "skill_tree_hash": "e72fe1bc8d604e6b75b507e289803bacbd721cd220d190f0145cde8b9a22aa58",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1aa37711698e0102c7a5491023766b8cb77145d85c40d52525e6ffc672dcb9b4",
+  "tree_hash": "123e720f236e064dcbaafea6ed4cb4cb317f3bb602b81ec42ade4d66af8bcc80",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 242,
+  "wiki_file_count": 243,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6816,13 +6831,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "7270c8b59fd175ed8a5eac4e62e9fa44039ec6e9fe306d0485000437a83fe8b0",
-      "size": 433555
+      "sha256": "ea5f21f3703927598ce9c03b1a1bc9d89654a054372d61fe81c4e28ad0563dff",
+      "size": 433908
     },
     {
       "path": "log.md",
-      "sha256": "f86953fa1df50b3c158b2a061f3f2f49ac2e839c9a4259721414283dc67e6e1a",
-      "size": 741695
+      "sha256": "5225515c0de8f6996ca39bab177499e097cdcfdc1f30339f1971e972903ca9da",
+      "size": 742060
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7188,6 +7203,11 @@
       "path": "pages/concepts/untitled-notion-page-350051299a5480f8b542e4f40de96a42.md",
       "sha256": "ef8c7cc2380315948189d66e293788f01c320f4585f45f08ca831f89c79bd5cb",
       "size": 1132
+    },
+    {
+      "path": "pages/concepts/upgrade-governance-recommendations-and-lessons.md",
+      "sha256": "4407651b2ba0549517e446b353d78eb0bd53029f475d5f317cffbbcb98dbe388",
+      "size": 1441
     },
     {
       "path": "pages/concepts/upload-submission-errors.md",
@@ -8021,5 +8041,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2eddac8ffb88b039a75ac2a53516373bac3a8d2cca74bb5af94d274601527278"
+  "wiki_tree_hash": "9c8e472b29d89990b3c2c12867ffe8043bf16a9d0a17a1f5581440167fa78a08"
 }

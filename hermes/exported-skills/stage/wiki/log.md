@@ -14760,3 +14760,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_b8092bd6dec4c593655bd97fb47dfa42
 - summary: <@U05A515NBFC> i'm fixing MC for <https://github.com/piplabs/numo-monorepo/pull/139>
 
+## [2026-05-06T05:05:46Z] synthesis | Upgrade / Governance Recommendations and Lessons
+
+- status: published
+- slug: concepts/upgrade-governance-recommendations-and-lessons
+- wiki_revision_id: wikirev_63e499cb60642b038d578d874f7e5fac
+- summary: Compilation of recommendations and lessons learned related to upgrade processes and governance, as discussed with Zaki.
+
