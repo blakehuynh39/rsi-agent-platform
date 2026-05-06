@@ -14965,3 +14965,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_cf5d4f8cdfa12878c26bd373e7c82a5f
 - summary: How to migrate from geth v0.9.2 with manual configuration to v0.9.3 using the baked-in --iliad network flag, and how to define custom network flags.
 
+## [2026-05-06T12:46:49Z] synthesis | Productionize the Backend
+
+- status: published
+- slug: projects/productionize-backend
+- wiki_revision_id: wikirev_370b918b6f2bec0a9f1975afc52d019b
+- summary: Plan to productionize the backend service including monitoring, alerting, CI/CD pipeline improvements, and addressing live update issues.
+
+## [2026-05-06T12:47:41Z] synthesis | TMKMS
+
+- status: published
+- slug: systems/tmkms
+- wiki_revision_id: wikirev_4d26a2516f3df76190d8f608ce32d805
+- summary: TMKMS is a remote validator signing service that separates the validator node from the signing process, enhancing security by preventing key compromise on the validator node.
+

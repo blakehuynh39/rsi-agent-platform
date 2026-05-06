@@ -2816,13 +2816,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "8ae7c6fcf4be025c45e7e6e274b70856bfbe3bd357a296e4c2df5fba3ab5f24d",
-        "size": 442000
+        "sha256": "7c75f477913e52ebf8632c9fd05cca93ced9e3522cc85ca7cb07a5dcd8b9bf97",
+        "size": 442646
       },
       {
         "path": "log.md",
-        "sha256": "575e1c068163fd3caaa5dc3efe836c6e0b8eff09960c91d2bb858f7288cf43df",
-        "size": 751350
+        "sha256": "5a1c0fd7a7893da4f4e6f86a985f3a4a1c77da244eabc709403f713b677d5619",
+        "size": 752020
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3795,6 +3795,11 @@
         "size": 4878
       },
       {
+        "path": "pages/projects/productionize-backend.md",
+        "sha256": "d5fb06ca021f90773597565e8a2491a85919942ebe7de367dae0510ecfea4936",
+        "size": 3994
+      },
+      {
         "path": "pages/projects/project-nova-setup.md",
         "sha256": "20d6eaabc2405dd40acf8f7335c5b0c67fe902e2ba03e308ad743a965042d941",
         "size": 1109
@@ -4130,6 +4135,11 @@
         "size": 3026
       },
       {
+        "path": "pages/systems/tmkms.md",
+        "sha256": "3ffb525b953c30effdc5d68248f7717c2fedda8fa7f39b95f7d029f9767acd52",
+        "size": 4668
+      },
+      {
         "path": "pages/systems/token-distribution-database.md",
         "sha256": "ee29e699bdb683f05511d5e84f3340790aad8346379a5f7f55a73b23053f62ad",
         "size": 1206
@@ -4154,8 +4164,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T12:23:45Z",
-  "file_count": 829,
+  "exported_at": "2026-05-06T12:49:54Z",
+  "file_count": 831,
   "files": [
     {
       "path": ".curator_state",
@@ -6967,7 +6977,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c9cb697rvtm",
-  "previous_tree_hash": "69b08d58eb9b056c69fa03ceb639970e1696792deb46a50a7646d33e8a2d41cd",
+  "previous_tree_hash": "efe46aa379a4f3e7c51e55eb880af57d77ba245d84b465dce912a27549c61bef",
   "schema_version": 1,
   "skill_file_count": 561,
   "skill_manage_sessions": [
@@ -6980,14 +6990,14 @@
   ],
   "skill_tree_hash": "afbd2291fd67b2c005ef55e775975ab80b39daf1645a51d878d7521be04f637a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "efe46aa379a4f3e7c51e55eb880af57d77ba245d84b465dce912a27549c61bef",
+  "tree_hash": "42af4346f3bdc1235ec4a480a95bcb5fddaa62763c508143e67d3935545a38d1",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 268,
+  "wiki_file_count": 270,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6996,13 +7006,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "8ae7c6fcf4be025c45e7e6e274b70856bfbe3bd357a296e4c2df5fba3ab5f24d",
-      "size": 442000
+      "sha256": "7c75f477913e52ebf8632c9fd05cca93ced9e3522cc85ca7cb07a5dcd8b9bf97",
+      "size": 442646
     },
     {
       "path": "log.md",
-      "sha256": "575e1c068163fd3caaa5dc3efe836c6e0b8eff09960c91d2bb858f7288cf43df",
-      "size": 751350
+      "sha256": "5a1c0fd7a7893da4f4e6f86a985f3a4a1c77da244eabc709403f713b677d5619",
+      "size": 752020
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7975,6 +7985,11 @@
       "size": 4878
     },
     {
+      "path": "pages/projects/productionize-backend.md",
+      "sha256": "d5fb06ca021f90773597565e8a2491a85919942ebe7de367dae0510ecfea4936",
+      "size": 3994
+    },
+    {
       "path": "pages/projects/project-nova-setup.md",
       "sha256": "20d6eaabc2405dd40acf8f7335c5b0c67fe902e2ba03e308ad743a965042d941",
       "size": 1109
@@ -8310,6 +8325,11 @@
       "size": 3026
     },
     {
+      "path": "pages/systems/tmkms.md",
+      "sha256": "3ffb525b953c30effdc5d68248f7717c2fedda8fa7f39b95f7d029f9767acd52",
+      "size": 4668
+    },
+    {
       "path": "pages/systems/token-distribution-database.md",
       "sha256": "ee29e699bdb683f05511d5e84f3340790aad8346379a5f7f55a73b23053f62ad",
       "size": 1206
@@ -8331,5 +8351,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2dee42a6c7c54b5a4cd6fc54d6d163d59b7a62f411006d0362a728d367966bc2"
+  "wiki_tree_hash": "bfd53f67c7c6e95a6a093d341e4c8fbd0d2169f3de69b9f89d052316b74decfa"
 }
