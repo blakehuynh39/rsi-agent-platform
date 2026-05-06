@@ -2831,13 +2831,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "5d15227c214178f1c980025d03a4b13d9d549a4b83a19e3e9ef235e08440fd7a",
-        "size": 448634
+        "sha256": "bc3116f504842b94e98e324b9e4c392085e777ced56e75da27f2192c2774c944",
+        "size": 448920
       },
       {
         "path": "log.md",
-        "sha256": "e7eadd7bb418e2989870b4256ef50e3aff077c45d96a785816cac063a5d13986",
-        "size": 761133
+        "sha256": "06e0979fb9e1681359b7724f92af5302e34b5e26024a00b13c1329c0f5048163",
+        "size": 761431
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3048,6 +3048,11 @@
         "path": "pages/concepts/l1-features-services-brainstorming.md",
         "sha256": "6dd1828d4bf3911bf4b7a2f490fe6e8868d0d37165a8361a71017cf658063cb4",
         "size": 1469
+      },
+      {
+        "path": "pages/concepts/learning-center.md",
+        "sha256": "4389240d1c1b7ddf5997676c98e12bb863ce873cbbd812d22a125066a8640432",
+        "size": 1328
       },
       {
         "path": "pages/concepts/license-nft.md",
@@ -4269,8 +4274,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T19:32:36Z",
-  "file_count": 852,
+  "exported_at": "2026-05-06T19:53:49Z",
+  "file_count": 853,
   "files": [
     {
       "path": ".curator_state",
@@ -7097,7 +7102,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c9cb697rvtm",
-  "previous_tree_hash": "8a8770a4b075aebd8d20c7139bdaa9e8d28562ffd3328bfefba5c95bc02d8ba1",
+  "previous_tree_hash": "73c426c3854616f6d83474114b51cec50a2d9ae592ede3e7547e349cdfcf10da",
   "schema_version": 1,
   "skill_file_count": 564,
   "skill_manage_sessions": [
@@ -7110,14 +7115,14 @@
   ],
   "skill_tree_hash": "5b1607c4ea90472ecb5a7ac2f13695baa7c37199bfac8f5b0cccea800ff60c77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "73c426c3854616f6d83474114b51cec50a2d9ae592ede3e7547e349cdfcf10da",
+  "tree_hash": "781b391eb07174a223b6af00d0f9a03721e24badc692189dbfd201ef933b2b63",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 288,
+  "wiki_file_count": 289,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7126,13 +7131,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "5d15227c214178f1c980025d03a4b13d9d549a4b83a19e3e9ef235e08440fd7a",
-      "size": 448634
+      "sha256": "bc3116f504842b94e98e324b9e4c392085e777ced56e75da27f2192c2774c944",
+      "size": 448920
     },
     {
       "path": "log.md",
-      "sha256": "e7eadd7bb418e2989870b4256ef50e3aff077c45d96a785816cac063a5d13986",
-      "size": 761133
+      "sha256": "06e0979fb9e1681359b7724f92af5302e34b5e26024a00b13c1329c0f5048163",
+      "size": 761431
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7343,6 +7348,11 @@
       "path": "pages/concepts/l1-features-services-brainstorming.md",
       "sha256": "6dd1828d4bf3911bf4b7a2f490fe6e8868d0d37165a8361a71017cf658063cb4",
       "size": 1469
+    },
+    {
+      "path": "pages/concepts/learning-center.md",
+      "sha256": "4389240d1c1b7ddf5997676c98e12bb863ce873cbbd812d22a125066a8640432",
+      "size": 1328
     },
     {
       "path": "pages/concepts/license-nft.md",
@@ -8561,5 +8571,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f95a8845938a0d21346d9bf4309bb7e4ad6a1f35837393636488c498c622dfb4"
+  "wiki_tree_hash": "007fd1b2c02ab87e01f1970e831e452bb8f220abbe5e008fe0189bdaf7cb19e2"
 }

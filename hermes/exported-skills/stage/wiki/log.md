@@ -15167,3 +15167,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e4cb7c1b5f82557ce34e904109bc9ae5
 - summary: Odyssey is a new Story public testnet starting from genesis, introducing new staking, reward distribution, Singularity phase, UBI for validators, and consensus optimizations.
 
+## [2026-05-06T19:51:13Z] synthesis | Learning Center
+
+- status: published
+- slug: concepts/learning-center
+- wiki_revision_id: wikirev_925a90840c1f1ed2bfe27af99b7384cc
+- summary: A Notion page that serves as a hub linking to quick guides for Loki and Grafana, as well as a Monitoring Stack page.
+
