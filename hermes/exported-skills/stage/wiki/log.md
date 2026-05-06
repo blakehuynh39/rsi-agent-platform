@@ -14674,3 +14674,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8bb2ef92a5f6322e698eb25dee326d41
 - summary: Overview of the API specifications used by the L1 layer, including CometBFT RPC, Ethereum JSON RPC standard, and Geth-specific APIs.
 
+## [2026-05-06T02:02:33Z] synthesis | Web2 Partner Integration Solution
+
+- status: published
+- slug: projects/web2-partner-integration-solution
+- wiki_revision_id: wikirev_21f069cffeb205dd9fff63fd85790c77
+- summary: A near-term solution to help web2 partners integrate with the Story protocol by abstracting away web3 complexities such as wallet creation and transaction management. It provides a...
+
+## [2026-05-06T02:03:21Z] synthesis | L1 Configs and Metrics
+
+- status: published
+- slug: concepts/l1-configs-and-metrics
+- wiki_revision_id: wikirev_542b2e85bd08696ef69fbb7b7b3e7b4a
+- summary: This page covers L1 configurations and metrics as documented in the Notion source.
+
