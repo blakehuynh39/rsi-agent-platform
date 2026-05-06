@@ -416,6 +416,17 @@ func executeOrPollAsyncHermesExecution(cfg config.Config, store storepkg.Store, 
 		}
 		status, endpoint, err := executorPool.startExecution(task)
 		if err != nil {
+			if errors.Is(err, errNoReadyHermesExecutorEndpoints) {
+				waitAt := time.Now().UTC()
+				_, _ = runtime.recordRunnerExecutionWithHolderCAS(storepkg.RunnerExecution{
+					ExecutionID: task.ExecutionID,
+					Status:      "queued",
+					Holder:      executionHolder,
+					HeartbeatAt: &waitAt,
+					UpdatedAt:   waitAt,
+				}, expectedRunnerExecutionHolder(record), record.HeartbeatAt)
+				return clients.RunnerResponse{}, true, errHermesExecutionStillRunning
+			}
 			failureNow := time.Now().UTC()
 			referenceTime := startFailureReferenceTime
 			if referenceTime.IsZero() {

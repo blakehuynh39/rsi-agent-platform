@@ -3,6 +3,7 @@ package control
 import (
 	"crypto/sha1"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"net/url"
 	"sort"
@@ -13,6 +14,8 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
+
+var errNoReadyHermesExecutorEndpoints = errors.New("no ready Hermes executor endpoints")
 
 type hermesExecutorEndpoint struct {
 	instanceID string
@@ -63,7 +66,7 @@ func (p hermesExecutorPool) clientForRecord(record storepkg.RunnerExecution) *cl
 func (p hermesExecutorPool) startExecution(task clients.RunnerTask) (clients.HermesExecutionStatus, hermesExecutorEndpoint, error) {
 	candidates := p.readyCandidates(task.ExecutionID)
 	if len(candidates) == 0 {
-		return clients.HermesExecutionStatus{}, hermesExecutorEndpoint{}, fmt.Errorf("no ready Hermes executor endpoints")
+		return clients.HermesExecutionStatus{}, hermesExecutorEndpoint{}, errNoReadyHermesExecutorEndpoints
 	}
 	var lastErr error
 	for _, endpoint := range candidates {

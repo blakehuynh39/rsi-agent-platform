@@ -507,6 +507,71 @@ func TestAsyncHermesExecutionStartTimeoutFailsClosedOnFirstAttempt(t *testing.T)
 	}
 }
 
+func TestAsyncHermesExecutionNoReadyExecutorDefersWithoutFailing(t *testing.T) {
+	readyCalls := 0
+	startCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == http.MethodGet && r.URL.Path == "/readyz":
+			readyCalls++
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"status":                 "ok",
+				"available":              true,
+				"drain_status":           "draining",
+				"executor_instance_id":   "executor-draining",
+				"active_execution_count": 0,
+			})
+		case r.Method == http.MethodPost && r.URL.Path == "/internal/hermes-executions":
+			startCalls++
+			http.Error(w, "draining executor should not receive starts", http.StatusServiceUnavailable)
+		default:
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{
+			HermesExecutorPoolURLs:          []string{executor.URL},
+			HermesExecutionHeartbeatTimeout: time.Nanosecond,
+		},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-no-ready"},
+		transition.EffectExecution{ID: "eff-no-ready"},
+		"prod",
+		workflowContext{
+			trace: events.Trace{Summary: events.TraceSummary{TraceID: "trace-no-ready"}},
+			workflow: storepkg.Workflow{
+				ID:             "wf-no-ready",
+				ConversationID: "conv-no-ready",
+				CaseID:         "case-no-ready",
+			},
+		},
+		time.Now().UTC(),
+	)
+	if readyCalls == 0 {
+		t.Fatal("expected executor readiness probe")
+	}
+	if startCalls != 0 {
+		t.Fatalf("start calls = %d, want 0", startCalls)
+	}
+	if !wait || !errors.Is(err, errHermesExecutionStillRunning) || resp.OK {
+		t.Fatalf("no-ready executor should defer as queued, wait=%t err=%v resp=%+v", wait, err, resp)
+	}
+	record, ok := store.GetRunnerExecution("hexec-no-ready")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "queued" || record.CompletedAt != nil || record.FailureClass != "" {
+		t.Fatalf("expected queued non-terminal runner execution, got %+v", record)
+	}
+	if record.HeartbeatAt == nil {
+		t.Fatalf("expected queued capacity wait to refresh heartbeat, got %+v", record)
+	}
+}
+
 func TestAsyncHermesExecutionStartFailureUsesExistingQueuedFreshness(t *testing.T) {
 	statusCalls := 0
 	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
