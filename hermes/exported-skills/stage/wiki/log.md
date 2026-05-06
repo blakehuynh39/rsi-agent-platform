@@ -14723,3 +14723,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f05a6888e3e08d6ebceb79b58803cdea
 - summary: Runbook for performing a rolling upgrade of the network infrastructure.
 
+## [2026-05-06T04:03:12Z] synthesis | Explorer Docker Cleanup Cronjob
+
+- status: published
+- slug: runbooks/explorer-docker-cleanup-cronjob
+- wiki_revision_id: wikirev_31b4a9c587f3a7b5e32c8ab4ff7641cc
+- summary: A cronjob that runs daily at midnight to prune unused Docker resources and truncate container log files on explorer instances.
+

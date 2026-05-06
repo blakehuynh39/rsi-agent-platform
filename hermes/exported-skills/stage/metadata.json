@@ -44,13 +44,13 @@
       },
       {
         "path": "autonomous-ai-agents/codex/SKILL.md",
-        "sha256": "7f4495058eed80b6f0b6c62580fb6976b4d619e665b52e5cf0f5d2faac70ebf9",
-        "size": 4117
+        "sha256": "0ce0ee3bb0ca6517a485a8295894a782fbeafdc2ffb31aac7dab006ac631a01e",
+        "size": 4522
       },
       {
         "path": "autonomous-ai-agents/hermes-agent/SKILL.md",
-        "sha256": "cbc5af9094e0e1b41f77741cf1d02c156a1d6e20881ffe277be129d3975af989",
-        "size": 30519
+        "sha256": "9b598bf261576d3ead704e3c40d86e6f6723b7aac7180cea315dc1ef618ea3c7",
+        "size": 37176
       },
       {
         "path": "autonomous-ai-agents/opencode/SKILL.md",
@@ -1394,13 +1394,13 @@
       },
       {
         "path": "devops/kanban-orchestrator/SKILL.md",
-        "sha256": "7d2c9c4296d35e6cfdc04ad5759abd21330d5290edd9de1d0793cbd38102ac06",
-        "size": 7975
+        "sha256": "a279b846edae1cc91ae24eeb9f5aa61aad0cbb7a05e5c52c36b657e34d9d0c72",
+        "size": 9278
       },
       {
         "path": "devops/kanban-worker/SKILL.md",
-        "sha256": "531a572cfa21ff06094c8e19b0bb1921cdb2d7ed01fc178172956471721f0a9c",
-        "size": 6969
+        "sha256": "05f86c02102cb78eb78d57054d9d3593183e628c34018591cefa8fd3fb109b6f",
+        "size": 8596
       },
       {
         "path": "devops/webhook-subscriptions/SKILL.md",
@@ -1439,13 +1439,13 @@
       },
       {
         "path": "email/himalaya/SKILL.md",
-        "sha256": "3a4803a6cbeafe3e73b27d3e366892d4f04faa528637d56d143d744633da8d4f",
-        "size": 5834
+        "sha256": "975f7bbeaf678d3369166068285e05f05066162495b776889f5903b8e59f0998",
+        "size": 6867
       },
       {
         "path": "email/himalaya/references/configuration.md",
-        "sha256": "a1838b3f370abef2c6c45226115158aee095623701a4ffb48ea633bce14ccf0f",
-        "size": 4084
+        "sha256": "ccd540fa964f843903b17400a5f45ef610a16f23fe1e0ca3e625f717fa951b89",
+        "size": 5906
       },
       {
         "path": "email/himalaya/references/message-composition.md",
@@ -1949,8 +1949,8 @@
       },
       {
         "path": "note-taking/obsidian/SKILL.md",
-        "sha256": "0adb2b36684060f3e005955e63bdde02eab342e05818aec0f74931015947e3b5",
-        "size": 1264
+        "sha256": "88fa92b6dc495f5589fefdec27575db3e840223a2e515116efea21e3448b5382",
+        "size": 2884
       },
       {
         "path": "productivity/DESCRIPTION.md",
@@ -1964,8 +1964,8 @@
       },
       {
         "path": "productivity/google-workspace/SKILL.md",
-        "sha256": "f4711ff561de7bb6c1261138250c86a0a72d66efea6702c1b8b15c25f4a5c902",
-        "size": 10545
+        "sha256": "5ef941bf71161797799a22ea7bc0f4a91dff4dd6bfcabdca83c635d358db83ba",
+        "size": 10788
       },
       {
         "path": "productivity/google-workspace/references/gmail-search-syntax.md",
@@ -2786,13 +2786,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b01ecd2f4965ab3cef8acf59226c429e13b7238ccba1177bd0131587b7a5e267",
-        "size": 432284
+        "sha256": "55f9c9e1e5105779cb82b77119b2d9580527e761d09bbe17a876273f68e5a2aa",
+        "size": 432612
       },
       {
         "path": "log.md",
-        "sha256": "ca6e7646bf38d1b2a6c1d21c723b3fd1a2ba90b450e5b228974fb83115ddb139",
-        "size": 739941
+        "sha256": "975de8c9d0a588048a69ce6febfcb26f121fb55ab19237f1232ae49ccef6aa98",
+        "size": 740281
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3810,6 +3810,11 @@
         "size": 3640
       },
       {
+        "path": "pages/runbooks/explorer-docker-cleanup-cronjob.md",
+        "sha256": "db029ebbc301b669be68f04287fdd5c3fdfbc2180b3b0ad5facf11ee0c890fc4",
+        "size": 3005
+      },
+      {
         "path": "pages/runbooks/gcp-internal-l1-testnet-setup.md",
         "sha256": "aafab6b79066036eb46b78d8feabf6ade7fde84d54a3854cbb8e210c13c1b0fe",
         "size": 1296
@@ -3974,8 +3979,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T03:51:16Z",
-  "file_count": 793,
+  "exported_at": "2026-05-06T04:07:25Z",
+  "file_count": 794,
   "files": [
     {
       "path": ".usage.json",
@@ -4019,13 +4024,13 @@
     },
     {
       "path": "autonomous-ai-agents/codex/SKILL.md",
-      "sha256": "7f4495058eed80b6f0b6c62580fb6976b4d619e665b52e5cf0f5d2faac70ebf9",
-      "size": 4117
+      "sha256": "0ce0ee3bb0ca6517a485a8295894a782fbeafdc2ffb31aac7dab006ac631a01e",
+      "size": 4522
     },
     {
       "path": "autonomous-ai-agents/hermes-agent/SKILL.md",
-      "sha256": "cbc5af9094e0e1b41f77741cf1d02c156a1d6e20881ffe277be129d3975af989",
-      "size": 30519
+      "sha256": "9b598bf261576d3ead704e3c40d86e6f6723b7aac7180cea315dc1ef618ea3c7",
+      "size": 37176
     },
     {
       "path": "autonomous-ai-agents/opencode/SKILL.md",
@@ -5369,13 +5374,13 @@
     },
     {
       "path": "devops/kanban-orchestrator/SKILL.md",
-      "sha256": "7d2c9c4296d35e6cfdc04ad5759abd21330d5290edd9de1d0793cbd38102ac06",
-      "size": 7975
+      "sha256": "a279b846edae1cc91ae24eeb9f5aa61aad0cbb7a05e5c52c36b657e34d9d0c72",
+      "size": 9278
     },
     {
       "path": "devops/kanban-worker/SKILL.md",
-      "sha256": "531a572cfa21ff06094c8e19b0bb1921cdb2d7ed01fc178172956471721f0a9c",
-      "size": 6969
+      "sha256": "05f86c02102cb78eb78d57054d9d3593183e628c34018591cefa8fd3fb109b6f",
+      "size": 8596
     },
     {
       "path": "devops/webhook-subscriptions/SKILL.md",
@@ -5414,13 +5419,13 @@
     },
     {
       "path": "email/himalaya/SKILL.md",
-      "sha256": "3a4803a6cbeafe3e73b27d3e366892d4f04faa528637d56d143d744633da8d4f",
-      "size": 5834
+      "sha256": "975f7bbeaf678d3369166068285e05f05066162495b776889f5903b8e59f0998",
+      "size": 6867
     },
     {
       "path": "email/himalaya/references/configuration.md",
-      "sha256": "a1838b3f370abef2c6c45226115158aee095623701a4ffb48ea633bce14ccf0f",
-      "size": 4084
+      "sha256": "ccd540fa964f843903b17400a5f45ef610a16f23fe1e0ca3e625f717fa951b89",
+      "size": 5906
     },
     {
       "path": "email/himalaya/references/message-composition.md",
@@ -5924,8 +5929,8 @@
     },
     {
       "path": "note-taking/obsidian/SKILL.md",
-      "sha256": "0adb2b36684060f3e005955e63bdde02eab342e05818aec0f74931015947e3b5",
-      "size": 1264
+      "sha256": "88fa92b6dc495f5589fefdec27575db3e840223a2e515116efea21e3448b5382",
+      "size": 2884
     },
     {
       "path": "productivity/DESCRIPTION.md",
@@ -5939,8 +5944,8 @@
     },
     {
       "path": "productivity/google-workspace/SKILL.md",
-      "sha256": "f4711ff561de7bb6c1261138250c86a0a72d66efea6702c1b8b15c25f4a5c902",
-      "size": 10545
+      "sha256": "5ef941bf71161797799a22ea7bc0f4a91dff4dd6bfcabdca83c635d358db83ba",
+      "size": 10788
     },
     {
       "path": "productivity/google-workspace/references/gmail-search-syntax.md",
@@ -6756,8 +6761,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-754f894zd8d",
-  "previous_tree_hash": "83a90f09cf5afc0f92ccb9912019d35e6473b03633a08e19a8e6a687e4c8d98f",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-855bdck4phr",
+  "previous_tree_hash": "982c43ecab20faef7ed4412ae4279652b9371d72d3e087ad9a51b6173a5ce91f",
   "schema_version": 1,
   "skill_file_count": 555,
   "skill_manage_sessions": [
@@ -6768,16 +6773,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "93a39c348b599ba4ce6366c3184425e46fb0b11259fb63916e94477fa44536b7",
+  "skill_tree_hash": "f906ee828bbd3fd553c3c6465cb41228032bb436d53f7dc34cda0576e9650f3a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "982c43ecab20faef7ed4412ae4279652b9371d72d3e087ad9a51b6173a5ce91f",
+  "tree_hash": "954ba258b30dcab89ccdb100685c7b933a60ab4ca4b393e00eb936fa4639faaf",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 238,
+  "wiki_file_count": 239,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6786,13 +6791,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b01ecd2f4965ab3cef8acf59226c429e13b7238ccba1177bd0131587b7a5e267",
-      "size": 432284
+      "sha256": "55f9c9e1e5105779cb82b77119b2d9580527e761d09bbe17a876273f68e5a2aa",
+      "size": 432612
     },
     {
       "path": "log.md",
-      "sha256": "ca6e7646bf38d1b2a6c1d21c723b3fd1a2ba90b450e5b228974fb83115ddb139",
-      "size": 739941
+      "sha256": "975de8c9d0a588048a69ce6febfcb26f121fb55ab19237f1232ae49ccef6aa98",
+      "size": 740281
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7810,6 +7815,11 @@
       "size": 3640
     },
     {
+      "path": "pages/runbooks/explorer-docker-cleanup-cronjob.md",
+      "sha256": "db029ebbc301b669be68f04287fdd5c3fdfbc2180b3b0ad5facf11ee0c890fc4",
+      "size": 3005
+    },
+    {
       "path": "pages/runbooks/gcp-internal-l1-testnet-setup.md",
       "sha256": "aafab6b79066036eb46b78d8feabf6ade7fde84d54a3854cbb8e210c13c1b0fe",
       "size": 1296
@@ -7971,5 +7981,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ef48b34e0bafbd84390b5c5bfbbca02fcc416d261785a3cbeecac944cff653b6"
+  "wiki_tree_hash": "324a905d6872bb83ec51620812a67c397e8fc5feb9fad9677f73a1ed81d4a91b"
 }
