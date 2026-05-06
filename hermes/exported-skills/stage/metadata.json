@@ -2786,13 +2786,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "40f11d05333ad87452602fa804998ee881157680954f8e31e1b1bb8f1a22c881",
-        "size": 426254
+        "sha256": "97142541b0bf2f47fc5fee6a4533c9a009fe03c2a7fa8d98f515bdc1e4887383",
+        "size": 426899
       },
       {
         "path": "log.md",
-        "sha256": "2b2f625b47b30be1f5b1c9dbe76d6cba675adfccc4097fe89519110f7bdc808c",
-        "size": 732751
+        "sha256": "a640f6ae4d1f2e2e34567c048bd0df147bd74c98178bb08b6beab31dd4617122",
+        "size": 733420
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2948,6 +2948,11 @@
         "path": "pages/concepts/ip-graph-node-verification-merkle-tree.md",
         "sha256": "af8242d5ae9889def47e8202abd2b8cc9577d1f75338430df331bcb7218af732",
         "size": 1505
+      },
+      {
+        "path": "pages/concepts/ip-graph-requirements.md",
+        "sha256": "d5b9149dd60d91f7ed2bc1a40b30a52ba7edaf7a9883be97106b57e9052a2b21",
+        "size": 4116
       },
       {
         "path": "pages/concepts/ip-oracle.md",
@@ -3825,6 +3830,11 @@
         "size": 1301
       },
       {
+        "path": "pages/systems/group-ipa.md",
+        "sha256": "27352d555afee472f579e42213fa75c932df2d64a2b7d3d5720056d7622a6fa9",
+        "size": 3337
+      },
+      {
         "path": "pages/systems/halo-configuration.md",
         "sha256": "8f1d2e4e6e94f9cc14a08c93f5a59887d1c998223ef381e861d5157ef9ed6e52",
         "size": 8514
@@ -3889,8 +3899,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T00:34:33Z",
-  "file_count": 776,
+  "exported_at": "2026-05-06T00:50:27Z",
+  "file_count": 778,
   "files": [
     {
       "path": ".usage.json",
@@ -6672,7 +6682,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7c77c5tqkts",
-  "previous_tree_hash": "cfeeb196cfb7b5e1684e52b90285c62f69647ec96622b42250dc81856159df69",
+  "previous_tree_hash": "475734e9a5c97e994cac856316955333a214f7d1abc2c2d2e6173aab247e645b",
   "schema_version": 1,
   "skill_file_count": 555,
   "skill_manage_sessions": [
@@ -6685,14 +6695,14 @@
   ],
   "skill_tree_hash": "93a39c348b599ba4ce6366c3184425e46fb0b11259fb63916e94477fa44536b7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "475734e9a5c97e994cac856316955333a214f7d1abc2c2d2e6173aab247e645b",
+  "tree_hash": "082c71f593484eb4ed2b748eae6a6e5dd09fdd7597cb7f24489ced199ac7ac35",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 221,
+  "wiki_file_count": 223,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6701,13 +6711,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "40f11d05333ad87452602fa804998ee881157680954f8e31e1b1bb8f1a22c881",
-      "size": 426254
+      "sha256": "97142541b0bf2f47fc5fee6a4533c9a009fe03c2a7fa8d98f515bdc1e4887383",
+      "size": 426899
     },
     {
       "path": "log.md",
-      "sha256": "2b2f625b47b30be1f5b1c9dbe76d6cba675adfccc4097fe89519110f7bdc808c",
-      "size": 732751
+      "sha256": "a640f6ae4d1f2e2e34567c048bd0df147bd74c98178bb08b6beab31dd4617122",
+      "size": 733420
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6863,6 +6873,11 @@
       "path": "pages/concepts/ip-graph-node-verification-merkle-tree.md",
       "sha256": "af8242d5ae9889def47e8202abd2b8cc9577d1f75338430df331bcb7218af732",
       "size": 1505
+    },
+    {
+      "path": "pages/concepts/ip-graph-requirements.md",
+      "sha256": "d5b9149dd60d91f7ed2bc1a40b30a52ba7edaf7a9883be97106b57e9052a2b21",
+      "size": 4116
     },
     {
       "path": "pages/concepts/ip-oracle.md",
@@ -7740,6 +7755,11 @@
       "size": 1301
     },
     {
+      "path": "pages/systems/group-ipa.md",
+      "sha256": "27352d555afee472f579e42213fa75c932df2d64a2b7d3d5720056d7622a6fa9",
+      "size": 3337
+    },
+    {
       "path": "pages/systems/halo-configuration.md",
       "sha256": "8f1d2e4e6e94f9cc14a08c93f5a59887d1c998223ef381e861d5157ef9ed6e52",
       "size": 8514
@@ -7801,5 +7821,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f373427b83a0cf9cc9938373a78c77f5f53e682c52f1008118916a6300cc51aa"
+  "wiki_tree_hash": "1fde2f653a1e7b1b16d5c2baf63c4eb01debf83ac0509f23e0253efe247245d3"
 }

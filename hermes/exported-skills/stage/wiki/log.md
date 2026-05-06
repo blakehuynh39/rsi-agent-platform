@@ -14577,3 +14577,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_735c4b79870d2e4fcdbda5611f4fbc4a
 - summary: Runbook for setting up and accessing the internal L1 testnet on GCP, including useful SSH commands.
 
+## [2026-05-06T00:45:57Z] synthesis | Group IPA
+
+- status: published
+- slug: systems/group-ipa
+- wiki_revision_id: wikirev_2a1caf8dd895a89bc69ad5b856406341
+- summary: Group IPA is a system that manages a group of IPAs with shared licensing and royalty distribution. This page outlines the P0 requirements for its implementation.
+
+## [2026-05-06T00:47:04Z] synthesis | IP Graph Requirements
+
+- status: published
+- slug: concepts/ip-graph-requirements
+- wiki_revision_id: wikirev_827b1d5b1a8ed19126475de550277d47
+- summary: Requirements for the IP Graph precompile, including support for multiple parents, large ancestor counts, scalability, ACL, and dynamic gas costs.
+
