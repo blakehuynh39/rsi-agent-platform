@@ -9,7 +9,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "bc919310ea3cd1a5007a9a9f3f309498ad4d90d46548fba605bfc97a822f979d",
+        "sha256": "fa4404704deb2b7c1e6e7037342fc775ca8312b5717cc970d3e5982cd0ccd216",
         "size": 1573
       },
       {
@@ -2744,8 +2744,13 @@
       },
       {
         "path": "story-company/cloudflare-management/SKILL.md",
-        "sha256": "f5f7ceca5879a3e8b932990cdab49edec6ad59eca5abb49a5c84b3bb1330bfc4",
-        "size": 7358
+        "sha256": "ecf525cd4d3d9e5ce3a3a4353e444aaa1a38fa4144167b0d0b00cdee67953833",
+        "size": 9237
+      },
+      {
+        "path": "story-company/cloudflare-management/references/internal-endpoints-numolabs.md",
+        "sha256": "cfe847290dcb78291259d2b1043f2f4ad0291f8da4a521477e7b21f8fc39453b",
+        "size": 2591
       },
       {
         "path": "story-company/cloudflare-management/references/waf-rules-numolabs.md",
@@ -2759,13 +2764,18 @@
       },
       {
         "path": "story-company/depin-prod-admin-read/SKILL.md",
-        "sha256": "0ab74dfcc960862a18c4f45050dfbff9a11f5591c9dd89951061413fe3a34f66",
-        "size": 5352
+        "sha256": "e09115366263cc025e432f721f75b17f59769d29223121ec5ac09b3ad13af8e2",
+        "size": 6574
       },
       {
         "path": "story-company/numo-project-status/SKILL.md",
-        "sha256": "5384f140ab54964a4c5584cc23c5ef1e5be1fea119013993351607e5992cce3b",
-        "size": 12596
+        "sha256": "89efc2bdb9148738f71f8afa1bbdd7bb4e39443198fdf5c31220572d46b948f2",
+        "size": 12785
+      },
+      {
+        "path": "story-company/numo-project-status/references/admin-auth-architecture.md",
+        "sha256": "914c506d1facf91c0c77dc12809e0c73194f40bedffcb29121a551b81b2f38cb",
+        "size": 6291
       },
       {
         "path": "story-company/numo-project-status/references/ci-pipeline-checks.md",
@@ -4254,8 +4264,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T19:15:27Z",
-  "file_count": 849,
+  "exported_at": "2026-05-06T19:21:28Z",
+  "file_count": 851,
   "files": [
     {
       "path": ".curator_state",
@@ -4264,7 +4274,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "bc919310ea3cd1a5007a9a9f3f309498ad4d90d46548fba605bfc97a822f979d",
+      "sha256": "fa4404704deb2b7c1e6e7037342fc775ca8312b5717cc970d3e5982cd0ccd216",
       "size": 1573
     },
     {
@@ -6999,8 +7009,13 @@
     },
     {
       "path": "story-company/cloudflare-management/SKILL.md",
-      "sha256": "f5f7ceca5879a3e8b932990cdab49edec6ad59eca5abb49a5c84b3bb1330bfc4",
-      "size": 7358
+      "sha256": "ecf525cd4d3d9e5ce3a3a4353e444aaa1a38fa4144167b0d0b00cdee67953833",
+      "size": 9237
+    },
+    {
+      "path": "story-company/cloudflare-management/references/internal-endpoints-numolabs.md",
+      "sha256": "cfe847290dcb78291259d2b1043f2f4ad0291f8da4a521477e7b21f8fc39453b",
+      "size": 2591
     },
     {
       "path": "story-company/cloudflare-management/references/waf-rules-numolabs.md",
@@ -7014,13 +7029,18 @@
     },
     {
       "path": "story-company/depin-prod-admin-read/SKILL.md",
-      "sha256": "0ab74dfcc960862a18c4f45050dfbff9a11f5591c9dd89951061413fe3a34f66",
-      "size": 5352
+      "sha256": "e09115366263cc025e432f721f75b17f59769d29223121ec5ac09b3ad13af8e2",
+      "size": 6574
     },
     {
       "path": "story-company/numo-project-status/SKILL.md",
-      "sha256": "5384f140ab54964a4c5584cc23c5ef1e5be1fea119013993351607e5992cce3b",
-      "size": 12596
+      "sha256": "89efc2bdb9148738f71f8afa1bbdd7bb4e39443198fdf5c31220572d46b948f2",
+      "size": 12785
+    },
+    {
+      "path": "story-company/numo-project-status/references/admin-auth-architecture.md",
+      "sha256": "914c506d1facf91c0c77dc12809e0c73194f40bedffcb29121a551b81b2f38cb",
+      "size": 6291
     },
     {
       "path": "story-company/numo-project-status/references/ci-pipeline-checks.md",
@@ -7072,9 +7092,9 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c9cb697rvtm",
-  "previous_tree_hash": "dff20759096a4a82d16c991b68d019c0fabeb51763e4f4863a8627e0d900533f",
+  "previous_tree_hash": "728940ed268015a2b9c07ca7f8a8ac2505f196731d0c33f8fd0956b3cb25d6d6",
   "schema_version": 1,
-  "skill_file_count": 562,
+  "skill_file_count": 564,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -7083,9 +7103,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "1307c58e9d556b95043ed3c7bfd2d71a1ddd65b89ea8037f013f8ba9f8029c0e",
+  "skill_tree_hash": "5b1607c4ea90472ecb5a7ac2f13695baa7c37199bfac8f5b0cccea800ff60c77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "728940ed268015a2b9c07ca7f8a8ac2505f196731d0c33f8fd0956b3cb25d6d6",
+  "tree_hash": "8a8770a4b075aebd8d20c7139bdaa9e8d28562ffd3328bfefba5c95bc02d8ba1",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",

@@ -193,7 +193,7 @@ For each item, include a "Why it's not tracked" column explaining the gap. See `
 
 **Evidence standard:** Cite specific PR numbers, issue numbers, thread timestamps, and deployment names. Prefer the `<repo> #<number>` format (e.g., `depin-backend #404`).
 
-See `references/report-template.md` for a concrete example of the three-section report format. See `references/ci-pipeline-checks.md` for the full CI surface of both repos (Rust Checks, Wiz scanners, Vercel deploys, Cursor Bugbot). See `references/grafana-metrics.md` for Thanos/Prometheus query patterns, pitfalls, and metric interpretation including memory anomaly investigations. See `references/code-fix-workflow.md` for the investigate → fix → PR workflow when a production observation needs a code change. See `references/gap-analysis.md` for the cross-referencing methodology used when surfacing items not tracked in GitHub.
+See `references/report-template.md` for a concrete example of the three-section report format. See `references/ci-pipeline-checks.md` for the full CI surface of both repos (Rust Checks, Wiz scanners, Vercel deploys, Cursor Bugbot). See `references/grafana-metrics.md` for Thanos/Prometheus query patterns, pitfalls, and metric interpretation including memory anomaly investigations. See `references/code-fix-workflow.md` for the investigate → fix → PR workflow when a production observation needs a code change. See `references/gap-analysis.md` for the cross-referencing methodology used when surfacing items not tracked in GitHub. See `references/admin-auth-architecture.md` for the current admin auth/ACL architecture across both repos — JWT extractors, email allowlist, route structure, DB tables, and FE auth flow.
 
 ## Fallback: when gh isn't authenticated
 

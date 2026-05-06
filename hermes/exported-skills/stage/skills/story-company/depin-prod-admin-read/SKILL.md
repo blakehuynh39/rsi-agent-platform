@@ -20,6 +20,11 @@ Use this skill when a Story request asks for live Numo/depin user stats, submiss
 - Never print, summarize, export, or store the credential value. Only report whether it is present.
 - Treat this credential as read-only. Do not use it for write, mutation, delete, or admin management actions.
 
+## Pitfalls
+
+- **`execute_code` Python env is blind to `DEPIN_*` vars.** The Python subprocess spawned by `execute_code` runs in a limited environment that does not inherit the admin read key env vars. Use `terminal` (shell `env | grep DEPIN`) to confirm credential presence. If `execute_code` reports all vars as MISSING but `terminal` shows them present, trust the shell output.
+- **Admin read key is stats-scoped only.** `DEPIN_ADMIN_READ_API_KEY` authorizes `/v1/admin/stats/*` (user-growth, submissions) but does **not** work for per-user routes (`/v1/admin/users/**`). Those endpoints require a different auth mechanism (likely JWT or a separate key). Do not report "credential rejected" when `/v1/admin/users` returns 401 — the stats key is working as designed; the endpoint just expects a different authorization header.
+
 ## Source Of Truth
 
 - Public API discovery: the deployed production OpenAPI document is intentionally client-facing and must not be treated as authoritative for internal admin stats routes.
@@ -35,12 +40,13 @@ Use this skill when a Story request asks for live Numo/depin user stats, submiss
 3. For internal admin stats route shape, inspect the deployed `piplabs/depin-backend` source code and `story-deployments` image pin before answering from memory.
 4. For aggregate user stats, call `/v1/admin/stats/user-growth` directly with the configured read-key header.
 5. For aggregate submission stats, call `/v1/admin/stats/submissions` directly with the configured read-key header.
-6. For a specific user, resolve the user identifier from available context first, then use source-confirmed `/v1/admin/users/**` read routes.
+6. For a specific user lookup, note that the admin read key is **aggregate-stats-only** and will return `401` on `/v1/admin/users/**`. Per-user routes require a different authorization mechanism. Report this limitation to the user rather than treating it as a credential failure.
 7. If the public endpoint returns a Cloudflare block before reaching depin, report it as a Cloudflare/WAF routing issue and check the Cloudflare SoT before guessing.
 8. If depin returns `401` or `403`, distinguish these cases without exposing the credential:
-   - credential env var absent
+   - credential env var absent (check with `terminal` shell, not `execute_code` Python)
    - credential env var mounted but rejected by prod
    - request blocked before reaching depin
+   - **stats key hitting a non-stats endpoint** (e.g., `/v1/admin/users`) — the key is working; the endpoint expects different auth. Report this as an auth scope mismatch, not a key rejection.
 9. Prefer `https://depin.storyprotocol.net` for production Numo/depin stats. Do not switch to staging APIs unless the user explicitly asks for staging data.
 
 ## Response Standard

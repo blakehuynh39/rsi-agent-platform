@@ -126,6 +126,41 @@ The repo uses two patterns:
 1. **Greenfield pattern** (`uptime_robot.ts`): List AND items defined in same file. Use for new lists where Pulumi is the sole owner.
 2. **Additive pattern** (`numo_server_allowlist_items.ts`): List defined separately, items added incrementally. Use for existing lists where the dashboard may have pre-existing entries.
 
+## Skip Rule vs. IP Allowlisting — Decision Guide
+
+When a WAF rule blocks legitimate traffic, you have two fix options:
+
+| Approach | Best for | Trade-off |
+|----------|----------|-----------|
+| **Add IP to `$numo_server_allowlist`** | One-off personal IPs, fixed-infra servers | Doesn't scale — each new worker/operator needs another PR |
+| **Add WAF skip rule** | Entire endpoint classes, internal service-to-server paths, or when the origin has its own auth | Surgical and scalable, but must verify the endpoint has adequate origin-level auth |
+
+**Rule of thumb:** If the blocked endpoint is an **internal service-to-server path** with its own origin-level auth (Bearer token verification, HMAC, etc.), prefer a **skip rule**. It's the same pattern as the existing `numo-waf-slackbot-skip` rule — skip custom WAF + managed rules + SBFM for the specific paths.
+
+If the traffic is from a **person's dev machine** that can't send an Origin header (CLI, curl, scripts), IP allowlisting is usually simpler.
+
+**Skip rule template** (place before the rule it's bypassing):
+
+```typescript
+{
+  action: "skip",
+  actionParameters: {
+    phases: ["http_request_firewall_custom", "http_request_firewall_managed", "http_request_sbfm"],
+    ruleset: "current",
+  },
+  description: "<service> internal endpoints — bypass WAF",
+  enabled: true,
+  expression: `(http.host in ${API_HOSTS}) and (http.request.uri.path in {\"/v1/internal/<path>\" \"/v1/internal/<other-path>\"})`,
+  logging: { enabled: true },
+  ref: "numo-waf-skip-<service>-internal",
+},
+```
+
+PR workflow for skip rules: same as WAF rule modifications:
+```
+fix(numolabs.ai): add WAF skip for <service> internal endpoints
+```
+
 ## Modifying WAF Rules
 
 WAF rules are in `src/zones/<zone>/waf.ts`. Each rule is an object in the `rules` array.
@@ -161,4 +196,5 @@ Before pushing a Cloudflare PR:
 ## Support Files
 
 - `references/waf-rules-numolabs.md` — Full WAF rule expressions, rate-limit tiers, IP allowlist structure, and block page IP extraction pattern
+- `references/internal-endpoints-numolabs.md` — Internal service-to-server endpoints behind numolabs.ai with their own origin-level auth (NDV, slackbot); guidance for WAF skip-rule decisions
 - `templates/pr-body-ip-allowlist.md` — PR description template for IP allowlist additions
