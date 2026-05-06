@@ -14781,3 +14781,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_670ec744f6c567986064631a2ad96571
 - summary: Discusses requirements for mutability of license terms and IP at the protocol level, including the ability to unattach license terms when no license tokens are in circulation and n...
 
+## [2026-05-06T05:31:02Z] synthesis | Protocol Fee Switch Configuration
+
+- status: published
+- slug: decisions/protocol-fee-switch-configuration
+- wiki_revision_id: wikirev_462d6925532216aa75ad542febfa08e3
+- summary: Governance needs a switch to enable or disable protocol fees, initially disabled and later enabled via governance process.
+
+## [2026-05-06T05:34:07Z] synthesis | GitHub Handlers Directory
+
+- status: published
+- slug: concepts/github-handlers-directory
+- wiki_revision_id: wikirev_3eae7c1bd8b3effe844aee5df0d97735
+- summary: A convenience table mapping team member names to their GitHub handlers and roles, maintained to avoid wasting time when adding people to repositories.
+

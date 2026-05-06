@@ -2796,13 +2796,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a0be583bc708d743584fd83644ea3f9d6ee1dc06d26900e063e7e9ea7974664f",
-        "size": 434522
+        "sha256": "e8b5a5ffb28deb63bb5377d117e5882f0812a7c25af26f6c9af2ab3651326c0d",
+        "size": 435191
       },
       {
         "path": "log.md",
-        "sha256": "b2487ef2fd859f92d6c6ae061e518eff935a6be0e611014e58ac6730451fd942",
-        "size": 742698
+        "sha256": "7d39d1ed55a824ade0d8811178efac4c79b99912bfec546c4728cf866e2552a8",
+        "size": 743391
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2928,6 +2928,11 @@
         "path": "pages/concepts/gas-optimizations.md",
         "sha256": "2af3656239d429f7db6540f0fa27714d6be923931ffeaedcf08d03eba49a723c",
         "size": 1294
+      },
+      {
+        "path": "pages/concepts/github-handlers-directory.md",
+        "sha256": "0ba8f783f246a052c38cad8bdcdc31787509878064a95e0ed61b2f629c755fa4",
+        "size": 3990
       },
       {
         "path": "pages/concepts/global-ip-assets.md",
@@ -3303,6 +3308,11 @@
         "path": "pages/decisions/prophet-pfp-ip-asset.md",
         "sha256": "4e28669628d36de26160d3c8809508895a2310811317862674444aa5b4578617",
         "size": 4637
+      },
+      {
+        "path": "pages/decisions/protocol-fee-switch-configuration.md",
+        "sha256": "12d00339e69e233a4d58d2d55d98684bc5e3df469315637098ffbc283e89404b",
+        "size": 2337
       },
       {
         "path": "pages/decisions/story-protocol-website-i18n-options.md",
@@ -4019,8 +4029,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T05:19:46Z",
-  "file_count": 802,
+  "exported_at": "2026-05-06T05:35:39Z",
+  "file_count": 804,
   "files": [
     {
       "path": ".curator_state",
@@ -6812,7 +6822,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5dc975pf99x",
-  "previous_tree_hash": "123e720f236e064dcbaafea6ed4cb4cb317f3bb602b81ec42ade4d66af8bcc80",
+  "previous_tree_hash": "f60a4da7cdbf2da8bdffb4ebf82f06b80626212f4a80c6baa4fa318dc175f348",
   "schema_version": 1,
   "skill_file_count": 557,
   "skill_manage_sessions": [
@@ -6825,14 +6835,14 @@
   ],
   "skill_tree_hash": "b6ad5930183bfbced7785774e834a18091c5c7c3dbe4517c93f737573d8e7dd6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f60a4da7cdbf2da8bdffb4ebf82f06b80626212f4a80c6baa4fa318dc175f348",
+  "tree_hash": "0fb55001020c5b43a32ded8d344330cda47f028bc899fa82f1e62ce2939fb6cb",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 245,
+  "wiki_file_count": 247,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6841,13 +6851,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a0be583bc708d743584fd83644ea3f9d6ee1dc06d26900e063e7e9ea7974664f",
-      "size": 434522
+      "sha256": "e8b5a5ffb28deb63bb5377d117e5882f0812a7c25af26f6c9af2ab3651326c0d",
+      "size": 435191
     },
     {
       "path": "log.md",
-      "sha256": "b2487ef2fd859f92d6c6ae061e518eff935a6be0e611014e58ac6730451fd942",
-      "size": 742698
+      "sha256": "7d39d1ed55a824ade0d8811178efac4c79b99912bfec546c4728cf866e2552a8",
+      "size": 743391
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6973,6 +6983,11 @@
       "path": "pages/concepts/gas-optimizations.md",
       "sha256": "2af3656239d429f7db6540f0fa27714d6be923931ffeaedcf08d03eba49a723c",
       "size": 1294
+    },
+    {
+      "path": "pages/concepts/github-handlers-directory.md",
+      "sha256": "0ba8f783f246a052c38cad8bdcdc31787509878064a95e0ed61b2f629c755fa4",
+      "size": 3990
     },
     {
       "path": "pages/concepts/global-ip-assets.md",
@@ -7348,6 +7363,11 @@
       "path": "pages/decisions/prophet-pfp-ip-asset.md",
       "sha256": "4e28669628d36de26160d3c8809508895a2310811317862674444aa5b4578617",
       "size": 4637
+    },
+    {
+      "path": "pages/decisions/protocol-fee-switch-configuration.md",
+      "sha256": "12d00339e69e233a4d58d2d55d98684bc5e3df469315637098ffbc283e89404b",
+      "size": 2337
     },
     {
       "path": "pages/decisions/story-protocol-website-i18n-options.md",
@@ -8061,5 +8081,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "87391df928ee8f656bdc0c393151ba389e125e2db904ad028f095a55deedca4b"
+  "wiki_tree_hash": "a8d808eceb2355f515259928a874a70e24fbbe5e43c1daab40e77fe14d789fa5"
 }
