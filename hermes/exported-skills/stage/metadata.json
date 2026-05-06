@@ -2786,13 +2786,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "46da663327c2610209dc86499c44d3a5a96665aa53d22ccecb340b750c752e56",
-        "size": 430640
+        "sha256": "6e03669fa3b356eec354b1b1c19322cd8db9ab46eb4c4fdcebd027eb37487be9",
+        "size": 431005
       },
       {
         "path": "log.md",
-        "sha256": "58e9eec5043a1035e927c91510d94f926ad57fe5bf2fd9b018bd1bbc31e7bbb4",
-        "size": 738237
+        "sha256": "4dd58130467380a91f6fa5b2f4ba3dbb025ec03ce6327e917f05a2b6865b73db",
+        "size": 738614
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3805,6 +3805,11 @@
         "size": 1395
       },
       {
+        "path": "pages/runbooks/node-recovery-process.md",
+        "sha256": "087fbd3444b40f2017d51383649f81848dcad424ced37f6aba586d947bfa720f",
+        "size": 6068
+      },
+      {
         "path": "pages/runbooks/rds-backup-and-recovery-runbook.md",
         "sha256": "65252360494194dcf0c59ded3084bfc6ada23ae4bb24626b21b7ab81195a82cc",
         "size": 2863
@@ -3949,8 +3954,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T02:09:04Z",
-  "file_count": 788,
+  "exported_at": "2026-05-06T02:25:08Z",
+  "file_count": 789,
   "files": [
     {
       "path": ".usage.json",
@@ -6732,7 +6737,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f7f569tv7vt",
-  "previous_tree_hash": "660e8e044a0350b8c52b45fe4a88c3c728c858c9453bae114a1fe2ddf71df7cb",
+  "previous_tree_hash": "a41f98e90dbb4454597789d85502c1bd89833d5a8c5ea0af8ee47474c812ec75",
   "schema_version": 1,
   "skill_file_count": 555,
   "skill_manage_sessions": [
@@ -6745,14 +6750,14 @@
   ],
   "skill_tree_hash": "93a39c348b599ba4ce6366c3184425e46fb0b11259fb63916e94477fa44536b7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a41f98e90dbb4454597789d85502c1bd89833d5a8c5ea0af8ee47474c812ec75",
+  "tree_hash": "3d949c02b5b0fb4a450b5813d9d4cfb911a732fa1bbdfe95d2b0150d43ad9c37",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 233,
+  "wiki_file_count": 234,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6761,13 +6766,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "46da663327c2610209dc86499c44d3a5a96665aa53d22ccecb340b750c752e56",
-      "size": 430640
+      "sha256": "6e03669fa3b356eec354b1b1c19322cd8db9ab46eb4c4fdcebd027eb37487be9",
+      "size": 431005
     },
     {
       "path": "log.md",
-      "sha256": "58e9eec5043a1035e927c91510d94f926ad57fe5bf2fd9b018bd1bbc31e7bbb4",
-      "size": 738237
+      "sha256": "4dd58130467380a91f6fa5b2f4ba3dbb025ec03ce6327e917f05a2b6865b73db",
+      "size": 738614
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7780,6 +7785,11 @@
       "size": 1395
     },
     {
+      "path": "pages/runbooks/node-recovery-process.md",
+      "sha256": "087fbd3444b40f2017d51383649f81848dcad424ced37f6aba586d947bfa720f",
+      "size": 6068
+    },
+    {
       "path": "pages/runbooks/rds-backup-and-recovery-runbook.md",
       "sha256": "65252360494194dcf0c59ded3084bfc6ada23ae4bb24626b21b7ab81195a82cc",
       "size": 2863
@@ -7921,5 +7931,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "66a05094d1a324a6188ab93fa209a78719c2cacdba577a09ea227857a516ea6d"
+  "wiki_tree_hash": "c1cb3f5a5b78bed1d2a8795de443ce65d310f5e1522f7bc7e08abec5b25c6ec7"
 }

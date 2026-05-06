@@ -14688,3 +14688,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_542b2e85bd08696ef69fbb7b7b3e7b4a
 - summary: This page covers L1 configurations and metrics as documented in the Notion source.
 
+## [2026-05-06T02:22:09Z] synthesis | Node Recovery Process
+
+- status: published
+- slug: runbooks/node-recovery-process
+- wiki_revision_id: wikirev_bc259fef461ca3a36f53cb2550843834
+- summary: Defines the process for discovering, mitigating, and root-causing node outages. Covers alerting via Grafana with Critical and High severity levels, initial alert types, mitigation ...
+
