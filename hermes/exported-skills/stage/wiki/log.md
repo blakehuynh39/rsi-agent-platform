@@ -14986,3 +14986,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d51631db8dbdba48840f55915ef9135a
 - summary: High-level roadmap for L1 infrastructure covering cost control, network automation, development/testing/release infrastructure, and incident response/recovery.
 
+## [2026-05-06T13:20:28Z] synthesis | L1 Design Doc
+
+- status: published
+- slug: systems/l1-design-doc
+- wiki_revision_id: wikirev_6241e6259b8fa73b481e151e0ab2e331
+- summary: High-level design document for the L1 system, outlining the separation between the Consensus Layer and the Execution Layer, with a reference to the Error Handling subsystem.
+
