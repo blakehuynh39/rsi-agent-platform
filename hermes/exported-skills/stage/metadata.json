@@ -2816,13 +2816,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "120d723781255e6475867bd8611ede1360d8c1c705ef93184cfdee0bc30ea905",
-        "size": 440276
+        "sha256": "c5d77a2f1c5888aef87e4cbe1fe8be6a2bb205f017a4380611ac03884e3ee124",
+        "size": 440993
       },
       {
         "path": "log.md",
-        "sha256": "82e8edba1b8493bf1fea67a5215878685edf561b7b72487e866c50e26b1acd13",
-        "size": 749566
+        "sha256": "dd13301ff91ffebb012403368d62ac5b816109a52d49ec3494e2281d5b64ee2b",
+        "size": 750307
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3353,6 +3353,11 @@
         "path": "pages/decisions/protocol-fee-switch-configuration.md",
         "sha256": "12d00339e69e233a4d58d2d55d98684bc5e3df469315637098ffbc283e89404b",
         "size": 2337
+      },
+      {
+        "path": "pages/decisions/sdk-v1-3-design-considerations.md",
+        "sha256": "38a9e2f24677ceb601c28335f725be95dc04eea31d2735ac16aa5b4352fc4841",
+        "size": 3132
       },
       {
         "path": "pages/decisions/story-protocol-website-i18n-options.md",
@@ -4100,6 +4105,11 @@
         "size": 8518
       },
       {
+        "path": "pages/systems/sdk-v1-3-contract-structure.md",
+        "sha256": "fd0a0e907fd0b5b8acce615b9c454511db3b00cd0f55f714055473c6616a84e4",
+        "size": 3173
+      },
+      {
         "path": "pages/systems/story-protocol-orchestrator-gateway.md",
         "sha256": "0ce3a08f3c4ee85ee682fe7fc972397921f3018fcc2a470bca0459569b1b13e1",
         "size": 3026
@@ -4129,8 +4139,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T10:54:25Z",
-  "file_count": 824,
+  "exported_at": "2026-05-06T11:10:29Z",
+  "file_count": 826,
   "files": [
     {
       "path": ".curator_state",
@@ -6942,7 +6952,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c9cb69kn5p6",
-  "previous_tree_hash": "a5638d67062802e3a7bafa11c810520558419e15c4664bac41191e75919e334d",
+  "previous_tree_hash": "7d3baff86c260da92578dd127b63f3fdfa0d114ab8a65dd64cba681f837f77cd",
   "schema_version": 1,
   "skill_file_count": 561,
   "skill_manage_sessions": [
@@ -6955,14 +6965,14 @@
   ],
   "skill_tree_hash": "afbd2291fd67b2c005ef55e775975ab80b39daf1645a51d878d7521be04f637a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7d3baff86c260da92578dd127b63f3fdfa0d114ab8a65dd64cba681f837f77cd",
+  "tree_hash": "bfe55ef8f4f108f7edfffc8c5a54fb3a048363527ee86bba73ea60f913bdf5a7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 263,
+  "wiki_file_count": 265,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6971,13 +6981,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "120d723781255e6475867bd8611ede1360d8c1c705ef93184cfdee0bc30ea905",
-      "size": 440276
+      "sha256": "c5d77a2f1c5888aef87e4cbe1fe8be6a2bb205f017a4380611ac03884e3ee124",
+      "size": 440993
     },
     {
       "path": "log.md",
-      "sha256": "82e8edba1b8493bf1fea67a5215878685edf561b7b72487e866c50e26b1acd13",
-      "size": 749566
+      "sha256": "dd13301ff91ffebb012403368d62ac5b816109a52d49ec3494e2281d5b64ee2b",
+      "size": 750307
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7508,6 +7518,11 @@
       "path": "pages/decisions/protocol-fee-switch-configuration.md",
       "sha256": "12d00339e69e233a4d58d2d55d98684bc5e3df469315637098ffbc283e89404b",
       "size": 2337
+    },
+    {
+      "path": "pages/decisions/sdk-v1-3-design-considerations.md",
+      "sha256": "38a9e2f24677ceb601c28335f725be95dc04eea31d2735ac16aa5b4352fc4841",
+      "size": 3132
     },
     {
       "path": "pages/decisions/story-protocol-website-i18n-options.md",
@@ -8255,6 +8270,11 @@
       "size": 8518
     },
     {
+      "path": "pages/systems/sdk-v1-3-contract-structure.md",
+      "sha256": "fd0a0e907fd0b5b8acce615b9c454511db3b00cd0f55f714055473c6616a84e4",
+      "size": 3173
+    },
+    {
       "path": "pages/systems/story-protocol-orchestrator-gateway.md",
       "sha256": "0ce3a08f3c4ee85ee682fe7fc972397921f3018fcc2a470bca0459569b1b13e1",
       "size": 3026
@@ -8281,5 +8301,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b2b0783e6d5fa03fcbfadd1033a15d51bae57d7f1860f796af7f3a4a2747e795"
+  "wiki_tree_hash": "9d22647b3d9e9c1c030b354887e95a85734d5a1ead3dd81896036211be1b654d"
 }

@@ -14930,3 +14930,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ca24ac83e07d7a538a8762878d2d8fd9
 - summary: Exploration of developer experience improvements for licensing and derivative registration in Story Protocol, including skipping LNFT minting in certain cases, default non-commerci...
 
+## [2026-05-06T11:05:27Z] synthesis | SDK V1.3 Contract Structure
+
+- status: published
+- slug: systems/sdk-v1-3-contract-structure
+- wiki_revision_id: wikirev_954b0bce68671dd146b5cab50cce07a2
+- summary: Directory layout and contract organization for the SDK V1.3 smart contracts, including core contracts, workflow modules, libraries, and interfaces.
+
+## [2026-05-06T11:05:28Z] synthesis | SDK V1.3 Design Considerations
+
+- status: published
+- slug: decisions/sdk-v1-3-design-considerations
+- wiki_revision_id: wikirev_419a79104ffdc62954d0337734534632
+- summary: Design feedback on the SDK V1.3 regarding generated contract functions, gas configuration, and transaction timeout handling, advocating for more user-facing abstraction levels.
+
