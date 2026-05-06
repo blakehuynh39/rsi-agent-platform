@@ -9,8 +9,8 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "8d50e41affcbedf38edc5fa9ab5c97354aae32fb28983fc3a37d2daa7cf5405a",
-        "size": 1453
+        "sha256": "8cdc69d568017597828eeccd7e20ef9bbeca91196beb3e88010edf1ebd00f12b",
+        "size": 1483
       },
       {
         "path": "apple/DESCRIPTION.md",
@@ -2816,8 +2816,8 @@
       },
       {
         "path": "index.md",
-        "sha256": "b598cebc6e4a41f317d6a7b7cc22608e3870bf2bfb7bfc5bef1b6e876fcdba64",
-        "size": 438375
+        "sha256": "ba0ee35dc0c4b5c1cc68d4a3c5a1c8cfc4ac810635f11887a98de8404fe94ac8",
+        "size": 438756
       },
       {
         "path": "log.md",
@@ -4109,7 +4109,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T09:34:44Z",
+  "exported_at": "2026-05-06T09:41:38Z",
   "file_count": 820,
   "files": [
     {
@@ -4119,8 +4119,8 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "8d50e41affcbedf38edc5fa9ab5c97354aae32fb28983fc3a37d2daa7cf5405a",
-      "size": 1453
+      "sha256": "8cdc69d568017597828eeccd7e20ef9bbeca91196beb3e88010edf1ebd00f12b",
+      "size": 1483
     },
     {
       "path": "apple/DESCRIPTION.md",
@@ -6922,7 +6922,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-bfdd9bqzchn",
-  "previous_tree_hash": "46e55ff2b462e6cc600ef0bd39c9ca9998962d355267dbdf22f7ae14352530d3",
+  "previous_tree_hash": "815d348ede17425f76e664b17a98845bedc1f49d3e33fba74c2688d802ebc866",
   "schema_version": 1,
   "skill_file_count": 561,
   "skill_manage_sessions": [
@@ -6933,9 +6933,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "e436a423cb49da237ad5915505f2e0cd5a9a282cd76fef73237aabeb9e1ac7bf",
+  "skill_tree_hash": "afbd2291fd67b2c005ef55e775975ab80b39daf1645a51d878d7521be04f637a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "815d348ede17425f76e664b17a98845bedc1f49d3e33fba74c2688d802ebc866",
+  "tree_hash": "b01a36361696242abf434cf783356c19c648ee5e10fe29c02a9e9f1b7a5545cd",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -6951,8 +6951,8 @@
     },
     {
       "path": "index.md",
-      "sha256": "b598cebc6e4a41f317d6a7b7cc22608e3870bf2bfb7bfc5bef1b6e876fcdba64",
-      "size": 438375
+      "sha256": "ba0ee35dc0c4b5c1cc68d4a3c5a1c8cfc4ac810635f11887a98de8404fe94ac8",
+      "size": 438756
     },
     {
       "path": "log.md",
@@ -8241,5 +8241,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "34db14fd00f6558c4aabba3912ce4f7c0815e7b35308ef21966580a8b8a221d7"
+  "wiki_tree_hash": "09601f09953bb714e89fca83c5d6c6e8a0ccf5cabd20f25071b044cfad0fcfd9"
 }
