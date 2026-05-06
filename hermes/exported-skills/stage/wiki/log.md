@@ -15153,3 +15153,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7711be6e1ba6d011fc4486a888adf474
 - summary: Guide for setting up a GCP node for the Omni/Halo network, including requirements, steps, common issues, and useful commands.
 
+## [2026-05-06T18:54:45Z] synthesis | CICD Design and Implementation
+
+- status: published
+- slug: systems/cicd-design-and-implementation
+- wiki_revision_id: wikirev_7fd832e92c517d891d4df4f1bd03a2f1
+- summary: Overview of the CI/CD pipeline for the project, using GitHub Actions for CI and ArgoCD for CD on AWS EKS.
+
