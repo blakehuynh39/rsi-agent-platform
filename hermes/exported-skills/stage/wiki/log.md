@@ -14709,3 +14709,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_00663512e0580340e72a37ca9106bbb9
 - summary: The Status Page or Section is a dashboard feature providing real-time updates on blockchain network health through color-coded banners (Green, Yellow, Red) with links to detailed i...
 
+## [2026-05-06T03:49:52Z] synthesis | Validator Bootstrapping Strategy
+
+- status: published
+- slug: policies/validator-bootstrapping-strategy
+- wiki_revision_id: wikirev_d10211b95798d02b4090f5216d384395
+- summary: Strategy for bootstrapping a validator community for a PoS blockchain, covering incentives, support, and community building.
+
+## [2026-05-06T03:50:47Z] synthesis | Network Rolling Upgrade
+
+- status: published
+- slug: runbooks/network-rolling-upgrade
+- wiki_revision_id: wikirev_f05a6888e3e08d6ebceb79b58803cdea
+- summary: Runbook for performing a rolling upgrade of the network infrastructure.
+

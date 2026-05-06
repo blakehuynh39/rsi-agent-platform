@@ -2786,13 +2786,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "931a520e46b8635ef958f9ea45f498838d97c5caf6a0927a2f319988f0d964fd",
-        "size": 431699
+        "sha256": "b01ecd2f4965ab3cef8acf59226c429e13b7238ccba1177bd0131587b7a5e267",
+        "size": 432284
       },
       {
         "path": "log.md",
-        "sha256": "e63a796a2017cd4248c983412e1047920682e5a6a74115b4e8e41f9b203c3ced",
-        "size": 739332
+        "sha256": "ca6e7646bf38d1b2a6c1d21c723b3fd1a2ba90b450e5b228974fb83115ddb139",
+        "size": 739941
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3405,6 +3405,11 @@
         "size": 1145
       },
       {
+        "path": "pages/policies/validator-bootstrapping-strategy.md",
+        "sha256": "cb83f5473643ded8ed3741646a37a8dbc7067d980401e36d8b6c8de8331c17cf",
+        "size": 5155
+      },
+      {
         "path": "pages/policies/withdrawal-safeguard-policy.md",
         "sha256": "61c29af4a91fd58f47f61104dbcd84f5b78d0330f03aea3449b5e8517bf46b4d",
         "size": 2488
@@ -3815,6 +3820,11 @@
         "size": 1395
       },
       {
+        "path": "pages/runbooks/network-rolling-upgrade.md",
+        "sha256": "c9d502873333682cbc1c3883ad95ffbda36c70e924f4582122d56651e1488d4b",
+        "size": 1372
+      },
+      {
         "path": "pages/runbooks/node-recovery-process.md",
         "sha256": "087fbd3444b40f2017d51383649f81848dcad424ced37f6aba586d947bfa720f",
         "size": 6068
@@ -3964,8 +3974,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T03:39:49Z",
-  "file_count": 791,
+  "exported_at": "2026-05-06T03:51:16Z",
+  "file_count": 793,
   "files": [
     {
       "path": ".usage.json",
@@ -6747,7 +6757,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-754f894zd8d",
-  "previous_tree_hash": "65a7856014a4056f001d28cc819edd82c6c501bfc465b7d2e270c88f93b6bce4",
+  "previous_tree_hash": "83a90f09cf5afc0f92ccb9912019d35e6473b03633a08e19a8e6a687e4c8d98f",
   "schema_version": 1,
   "skill_file_count": 555,
   "skill_manage_sessions": [
@@ -6760,14 +6770,14 @@
   ],
   "skill_tree_hash": "93a39c348b599ba4ce6366c3184425e46fb0b11259fb63916e94477fa44536b7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "83a90f09cf5afc0f92ccb9912019d35e6473b03633a08e19a8e6a687e4c8d98f",
+  "tree_hash": "982c43ecab20faef7ed4412ae4279652b9371d72d3e087ad9a51b6173a5ce91f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 236,
+  "wiki_file_count": 238,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6776,13 +6786,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "931a520e46b8635ef958f9ea45f498838d97c5caf6a0927a2f319988f0d964fd",
-      "size": 431699
+      "sha256": "b01ecd2f4965ab3cef8acf59226c429e13b7238ccba1177bd0131587b7a5e267",
+      "size": 432284
     },
     {
       "path": "log.md",
-      "sha256": "e63a796a2017cd4248c983412e1047920682e5a6a74115b4e8e41f9b203c3ced",
-      "size": 739332
+      "sha256": "ca6e7646bf38d1b2a6c1d21c723b3fd1a2ba90b450e5b228974fb83115ddb139",
+      "size": 739941
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7395,6 +7405,11 @@
       "size": 1145
     },
     {
+      "path": "pages/policies/validator-bootstrapping-strategy.md",
+      "sha256": "cb83f5473643ded8ed3741646a37a8dbc7067d980401e36d8b6c8de8331c17cf",
+      "size": 5155
+    },
+    {
       "path": "pages/policies/withdrawal-safeguard-policy.md",
       "sha256": "61c29af4a91fd58f47f61104dbcd84f5b78d0330f03aea3449b5e8517bf46b4d",
       "size": 2488
@@ -7805,6 +7820,11 @@
       "size": 1395
     },
     {
+      "path": "pages/runbooks/network-rolling-upgrade.md",
+      "sha256": "c9d502873333682cbc1c3883ad95ffbda36c70e924f4582122d56651e1488d4b",
+      "size": 1372
+    },
+    {
       "path": "pages/runbooks/node-recovery-process.md",
       "sha256": "087fbd3444b40f2017d51383649f81848dcad424ced37f6aba586d947bfa720f",
       "size": 6068
@@ -7951,5 +7971,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "246ddad98094ee2721c83d6ecf6a85256882ce1c34a9f8a69541573f1242476a"
+  "wiki_tree_hash": "ef48b34e0bafbd84390b5c5bfbbca02fcc416d261785a3cbeecac944cff653b6"
 }
