@@ -2816,13 +2816,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "c5d77a2f1c5888aef87e4cbe1fe8be6a2bb205f017a4380611ac03884e3ee124",
-        "size": 440993
+        "sha256": "5c2c811e6cc262d1bb19e6914b2c353e95e7333bdb3105ad1168543cbe419f24",
+        "size": 441316
       },
       {
         "path": "log.md",
-        "sha256": "dd13301ff91ffebb012403368d62ac5b816109a52d49ec3494e2281d5b64ee2b",
-        "size": 750307
+        "sha256": "d846573682dc6d2402573d20702cdb78532f9638b38d5a2052472f06632b912b",
+        "size": 750642
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3198,6 +3198,11 @@
         "path": "pages/concepts/story-protocol-wallet-operations.md",
         "sha256": "fe5e44644b7ae0c905245db4c965a40398f0f48de45eefd3e666df4515f8cd7c",
         "size": 1427
+      },
+      {
+        "path": "pages/concepts/story-public-testnet-guide-deprecation.md",
+        "sha256": "d3495a8356cc13300f1baef04bdfcda707f7c7938556cdee595d69505e738a8f",
+        "size": 1405
       },
       {
         "path": "pages/concepts/story-supernet.md",
@@ -4139,8 +4144,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T11:10:29Z",
-  "file_count": 826,
+  "exported_at": "2026-05-06T11:40:44Z",
+  "file_count": 827,
   "files": [
     {
       "path": ".curator_state",
@@ -6951,8 +6956,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c9cb69kn5p6",
-  "previous_tree_hash": "7d3baff86c260da92578dd127b63f3fdfa0d114ab8a65dd64cba681f837f77cd",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c9cb697rvtm",
+  "previous_tree_hash": "bfe55ef8f4f108f7edfffc8c5a54fb3a048363527ee86bba73ea60f913bdf5a7",
   "schema_version": 1,
   "skill_file_count": 561,
   "skill_manage_sessions": [
@@ -6965,14 +6970,14 @@
   ],
   "skill_tree_hash": "afbd2291fd67b2c005ef55e775975ab80b39daf1645a51d878d7521be04f637a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "bfe55ef8f4f108f7edfffc8c5a54fb3a048363527ee86bba73ea60f913bdf5a7",
+  "tree_hash": "4ca96810a63f1b6933013138cf8927c7776f11cf8908b187861bfe3c61385dff",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 265,
+  "wiki_file_count": 266,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6981,13 +6986,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "c5d77a2f1c5888aef87e4cbe1fe8be6a2bb205f017a4380611ac03884e3ee124",
-      "size": 440993
+      "sha256": "5c2c811e6cc262d1bb19e6914b2c353e95e7333bdb3105ad1168543cbe419f24",
+      "size": 441316
     },
     {
       "path": "log.md",
-      "sha256": "dd13301ff91ffebb012403368d62ac5b816109a52d49ec3494e2281d5b64ee2b",
-      "size": 750307
+      "sha256": "d846573682dc6d2402573d20702cdb78532f9638b38d5a2052472f06632b912b",
+      "size": 750642
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7363,6 +7368,11 @@
       "path": "pages/concepts/story-protocol-wallet-operations.md",
       "sha256": "fe5e44644b7ae0c905245db4c965a40398f0f48de45eefd3e666df4515f8cd7c",
       "size": 1427
+    },
+    {
+      "path": "pages/concepts/story-public-testnet-guide-deprecation.md",
+      "sha256": "d3495a8356cc13300f1baef04bdfcda707f7c7938556cdee595d69505e738a8f",
+      "size": 1405
     },
     {
       "path": "pages/concepts/story-supernet.md",
@@ -8301,5 +8311,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9d22647b3d9e9c1c030b354887e95a85734d5a1ead3dd81896036211be1b654d"
+  "wiki_tree_hash": "992b1dac063e8ba42dc6d5dddfbedcd290f4b8e8d44bbfe994e45fe031960137"
 }

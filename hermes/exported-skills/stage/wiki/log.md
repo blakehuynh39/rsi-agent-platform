@@ -14944,3 +14944,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_419a79104ffdc62954d0337734534632
 - summary: Design feedback on the SDK V1.3 regarding generated contract functions, gas configuration, and transaction timeout handling, advocating for more user-facing abstraction levels.
 
+## [2026-05-06T11:36:06Z] synthesis | Story Public Testnet Guide Deprecation
+
+- status: published
+- slug: concepts/story-public-testnet-guide-deprecation
+- wiki_revision_id: wikirev_2b1a4b79c34e1779a24957f490a9327d
+- summary: The Story Public Testnet Guide has been deprecated; users should refer to the official Story Network Guide.
+
