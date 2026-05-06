@@ -15202,3 +15202,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_13324069e093c19e72a84795caedd543
 - summary: A database for projects, accessible via Notion.
 
+## [2026-05-06T21:33:11Z] synthesis | Frontend / Periphery Contracts
+
+- status: published
+- slug: concepts/frontend-periphery-contracts
+- wiki_revision_id: wikirev_dc341ed58d68b576437dbc36fc473c71
+- summary: Defines the interface and responsibilities for frontend (gateway) contracts in Story Protocol, including the IGateway and IModuleRegistry interfaces and their role in managing modu...
+

@@ -137,6 +137,16 @@ When a WAF rule blocks legitimate traffic, you have two fix options:
 
 **Rule of thumb:** If the blocked endpoint is an **internal service-to-server path** with its own origin-level auth (Bearer token verification, HMAC, etc.), prefer a **skip rule**. It's the same pattern as the existing `numo-waf-slackbot-skip` rule — skip custom WAF + managed rules + SBFM for the specific paths.
 
+**PITFALL — don't create skip rules blindly.** When asked "is it safe to relax WAF for this endpoint?", verify the origin auth model first:
+1. Clone `piplabs/depin-backend` (or the relevant origin repo) and find the route handler + auth extractor
+2. Confirm auth runs *before* the handler body (extractor, middleware, or guard) — not an in-band check
+3. Confirm it fails closed: missing/invalid credentials → non-2xx response
+4. Cross-reference other WAF rules to confirm only the expected rule(s) match this path
+5. Rate limiting is in a separate CF phase (`http_ratelimit`) — skip rules in `http_request_firewall_custom` don't affect rate limits, which is a good safety net
+6. Document findings in `references/internal-endpoints-numolabs.md` for future sessions
+
+See `references/internal-endpoints-numolabs.md` for the detailed NDV auth model verification performed in the 2026-05-06 session — use it as a template for future internal endpoint audits.
+
 If the traffic is from a **person's dev machine** that can't send an Origin header (CLI, curl, scripts), IP allowlisting is usually simpler.
 
 **Skip rule template** (place before the rule it's bypassing):
