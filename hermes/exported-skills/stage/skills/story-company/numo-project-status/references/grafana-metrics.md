@@ -142,8 +142,19 @@ sum(rate(http_requests_total{job="use1-stage-depin-backend",path!="unmatched"}[1
 ### 2. CF-Access Headers Required for Proxy
 `GRAFANA_TOKEN` returns 200 on dashboard/health/search endpoints but 401 on datasource proxy endpoints. The proxy requires Cloudflare Access tunnel authentication.
 
-### 3. Prod Pods Not in `story` Namespace
-Prod pod queries via Thanos use the prod namespace (not `story`). `kubectl get pods -n story` will only show stage pods. For prod pod restarts/status, you must use Thanos metrics.
+### 3. Prod Pods Share `namespace="story"` in Thanos Container Metrics
+
+Prod pods (`use1-prod-depin-backend-*`) are NOT in the K8s `story` namespace and cannot be accessed via `kubectl -n story`. However, in Thanos kube-state-metrics, `container_*` queries with `namespace="story"` return **both stage and prod** depin-backend pods. Always filter by pod name prefix to separate environments:
+
+```promql
+# Stage pods
+sum by (pod) (container_memory_working_set_bytes{namespace="story",container="depin-backend",pod=~"use1-stage.*"})
+
+# Prod pods — same namespace filter works, but use pod prefix
+sum by (pod) (container_memory_working_set_bytes{namespace="story",container="depin-backend",pod=~"use1-prod.*"})
+```
+
+`kubectl get pods -n story` shows **stage pods only**. For prod pod restarts/status, you must use Thanos metrics (container restarts via `kube_pod_container_status_restarts_total`).
 
 ### 4. Memory Anomaly (jemalloc Arena Retention)
 A prod pod may show 14× memory vs siblings (e.g., 570 MB vs 40 MB) without being a leak. Characteristics of jemalloc arena retention:
@@ -172,6 +183,37 @@ curl -s ... "?query=...&start=-6h&end=now&step=15m"
 ```
 
 Error you'll see: `{"status":"error","errorType":"bad_data","error":"cannot parse \"-6h\" to a valid timestamp"}`
+
+### 7. NaN p95 Values on Low/Zero-Traffic Endpoints
+
+When `histogram_quantile(0.95, sum by (le, path) (...))` returns `NaN` for specific paths, it means the endpoint had **no requests in the 15m window** (zero bucket counts). This is normal for admin-only or infrequently-called endpoints. Don't interpret as errors.
+
+```promql
+# Filter out NaN paths when reporting
+histogram_quantile(0.95, sum by (le, path) (rate(http_request_duration_seconds_bucket{job="use1-prod-depin-backend"}[15m]))) != NaN
+```
+
+### 8. Histogram Bucket Floor Artifact (4.75ms)
+
+Many low-traffic endpoints show exactly **4.75ms p95** — this is the smallest histogram bucket boundary, not real end-to-end latency. When an endpoint receives only 1-2 requests in a 15m window that all land in the smallest bucket (≤5ms), the quantile calculation returns the bucket floor. These endpoints have negligible real latency but the number is misleading. Only interpret p95 values as accurate for endpoints with sustained traffic.
+
+**How to distinguish**: If the endpoint also shows 4.75ms at p50 and p99, it's the bucket floor. Real latency shows distinct values across percentiles.
+
+### 9. Multiple ReplicaSets in `kubectl top` During Rolling Deploys
+
+During a rolling deploy, `kubectl top pods` may show pods from both the old and new ReplicaSet simultaneously (e.g., 4 submitter pods when deployment says 3/3). Old pods are terminating — cross-reference with `kubectl get pods | grep` to see actual pod states (`Running` vs `Terminating`). Only count Running pods when assessing health.
+
+### 10. `job` Label Unreliable for Prod `container_*` Metrics
+
+Querying `container_memory_working_set_bytes{job="use1-prod-depin-backend",...}` returns **empty results** in Thanos. The `job` label is populated by the Prometheus scrape config and may not match the container metric source. **Always use `namespace="story"` for `container_*` queries** for both stage and prod pods, and filter by pod name prefix (`pod=~"use1-prod.*"` or `pod=~"use1-stage.*"`) to separate environments.
+
+```promql
+# ✅ Correct — prod pod memory
+sum by (pod) (container_memory_working_set_bytes{namespace="story",container="depin-backend",pod=~"use1-prod.*"}) / 1024 / 1024
+
+# ❌ Wrong — returns empty
+sum by (pod) (container_memory_working_set_bytes{job="use1-prod-depin-backend",container="depin-backend"}) / 1024 / 1024
+```
 
 ## Cross-Referencing with kubectl
 

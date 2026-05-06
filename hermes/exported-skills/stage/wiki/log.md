@@ -15088,3 +15088,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_9a9b2e73b285f8b5943e5a18281717ee
 - summary: Source: [Notion source](https://www.notion.so/Add-FB-tracking-pixel-to-web-app-34f051299a5480039302fbcbb256e854)
 
+## [2026-05-06T16:50:52Z] synthesis | Projects & Tasks Overview
+
+- status: published
+- slug: concepts/projects-and-tasks-overview
+- wiki_revision_id: wikirev_c9a1267d294cf9e3a65cb252858e9885
+- summary: This page provides an overview of the Projects and Tasks databases in Notion, explaining their purpose and how to navigate them.
+
