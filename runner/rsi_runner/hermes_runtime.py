@@ -26,7 +26,8 @@ from urllib import request as urlrequest
 from .json_types import JsonObject, JsonToolWrapperSchema, JsonValue
 
 from .config import RunnerConfig
-from .hermes_adapter import HermesAdapter, _atomic_write_json
+from .file_utils import _atomic_write_json
+from .hermes_adapter import HermesAdapter
 from .hermes_agent_adapter import validate_hermes_contract
 from .hermes_mcp_adapter import HermesTaskScopedMCPAdapter, TaskScopedMCPRegistration
 from .execution_contract import (
@@ -5911,6 +5912,10 @@ class HermesRuntime:
             "HERMES_SESSION_CHAT_ID": channel_id,
             "SLACK_BOT_TOKEN": slack_bot_token,
         }
+        delivery_policy = _json_object_or_empty(task.delivery_policy)
+        idempotency_key = _string_or_json(delivery_policy.get("idempotency_key_base"))
+        if idempotency_key:
+            env["RSI_DELIVERY_IDEMPOTENCY_KEY"] = idempotency_key
         thread_ts = (task.thread_ts or "").strip()
         if thread_ts:
             env["HERMES_SESSION_THREAD_ID"] = thread_ts

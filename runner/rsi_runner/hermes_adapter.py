@@ -10,6 +10,7 @@ import tempfile
 from .json_types import JsonObject
 
 from .config import RunnerConfig
+from .file_utils import _atomic_write_json, _fsync_parent
 from .rsi_tools import rsi_plugin_toolset_definitions
 
 try:
@@ -700,37 +701,6 @@ def _build_plugin_module() -> str:
         "__PLUGIN_TOOLS__",
         repr(rsi_plugin_toolset_definitions()),
     )
-
-
-def _fsync_parent(path: Path) -> None:
-    try:
-        flags = getattr(os, "O_DIRECTORY", 0) | os.O_RDONLY
-        fd = os.open(str(path.parent), flags)
-    except OSError:
-        return
-    try:
-        os.fsync(fd)
-    except OSError:
-        pass
-    finally:
-        os.close(fd)
-
-
-def _atomic_write_json(path: Path, payload: JsonObject) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fd, temp_name = tempfile.mkstemp(prefix=path.name + ".", suffix=".tmp", dir=str(path.parent))
-    temp_path = Path(temp_name)
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as handle:
-            json.dump(payload, handle, ensure_ascii=True, indent=2, sort_keys=True)
-            handle.write("\n")
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(temp_path, path)
-        _fsync_parent(path)
-    finally:
-        if temp_path.exists():
-            temp_path.unlink(missing_ok=True)
 
 
 @dataclass

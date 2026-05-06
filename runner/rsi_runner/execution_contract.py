@@ -8,6 +8,7 @@ import shutil
 import time
 from typing import Any
 
+from .file_utils import _json_object_from_string
 from .json_types import JsonObject
 
 
@@ -48,18 +49,6 @@ def _safe_path_segment(value: Any, default: str) -> str:
     text = _string(value)
     out = "".join(ch if ch.isalnum() or ch in {"-", "_", "."} else "-" for ch in text).strip(".-")
     return out[:96] or default
-
-
-def _json_object_from_string(value: Any) -> JsonObject:
-    if isinstance(value, dict):
-        return value
-    if not isinstance(value, str) or not value.strip():
-        return {}
-    try:
-        parsed = json.loads(value)
-    except (TypeError, ValueError, json.JSONDecodeError):
-        return {}
-    return parsed if isinstance(parsed, dict) else {}
 
 
 def _bool(value: Any) -> bool:

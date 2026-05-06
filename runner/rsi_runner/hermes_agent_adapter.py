@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+import hashlib
 import importlib.metadata
 import inspect
 import json
@@ -15,6 +16,7 @@ import time
 from typing import Any
 
 from .db_utils import float_env, sqlite_error_is_locked
+from .file_utils import _atomic_write_json, _fsync_parent, _json_object_from_string
 from .json_types import JsonObject
 from .rsi_tools import normalize_tool_names
 
@@ -104,6 +106,7 @@ _PARTIAL_COMPLETION_TERMINATION_REASONS = frozenset(
         "output_token_budget_exhausted",
     }
 )
+DIRECT_DELIVERY_SUCCESS_STATUSES = frozenset({"posted", "sent", "uploaded", "completed", "ok", "success", "shared"})
 
 
 def _string(value: Any) -> str:
@@ -124,6 +127,10 @@ def _json_object(value: Any) -> JsonObject:
 
 def _json_list(value: Any) -> list[Any]:
     return value if isinstance(value, list) else []
+
+
+def _json_object_list(value: Any) -> list[JsonObject]:
+    return [item for item in _json_list(value) if isinstance(item, dict)]
 
 
 def _string_list(value: Any) -> list[str]:
@@ -540,6 +547,7 @@ class HermesAgentAdapter:
             response = _string(result.get("final_response"))
         if not response:
             response = _string(result)
+        reply_delivery = self._commit_final_delivery_if_required(response, result if isinstance(result, dict) else {})
         self_review_candidate = self._write_self_review_candidate(result if isinstance(result, dict) else {})
         safe_result = dict(result) if isinstance(result, dict) else {"value": response}
         safe_result.pop("self_review_observation", None)
@@ -562,8 +570,308 @@ class HermesAgentAdapter:
             "session_id": session_id,
             "contract_status": status.to_dict(),
             "self_review_candidate": self_review_candidate,
+            "reply_delivery": reply_delivery,
             **completion_meta,
         }
+
+    def _commit_final_delivery_if_required(self, response: str, result: JsonObject) -> JsonObject:
+        policy = self._delivery_policy()
+        if not self._direct_delivery_required(policy):
+            return {}
+        envelope_path = self._runtime_envelope_path()
+        if envelope_path is None:
+            self._lifecycle.record(
+                "direct_delivery.commit.skipped",
+                {"status": "skipped", "reason": "runtime_envelope_path_missing"},
+            )
+            return {}
+        envelope = self._load_runtime_envelope(envelope_path)
+        if not envelope:
+            self._lifecycle.record(
+                "direct_delivery.commit.skipped",
+                {"status": "skipped", "reason": "runtime_envelope_missing"},
+            )
+            return {}
+        if self._envelope_has_successful_delivery(envelope):
+            self._lifecycle.record(
+                "direct_delivery.commit.skipped",
+                {"status": "skipped", "reason": "delivery_already_recorded"},
+            )
+            return {}
+        body = self._final_delivery_body(response, result)
+        channel_id = _string(policy.get("bound_channel_id")) or _string(self._payload.get("chat_id"))
+        thread_ts = _string(policy.get("bound_thread_ts")) or _string(self._payload.get("thread_id"))
+        idempotency_key = _string(policy.get("idempotency_key_base")) or self._fallback_delivery_idempotency_key(channel_id, thread_ts, body)
+        delivery_id = self._delivery_id(idempotency_key, body)
+        if not body:
+            delivery = self._delivery_failure_record(
+                delivery_id=delivery_id,
+                idempotency_key=idempotency_key,
+                channel_id=channel_id,
+                thread_ts=thread_ts,
+                body=body,
+                reason="final response was empty",
+            )
+            self._write_delivery_commit(envelope_path, envelope, delivery)
+            return delivery
+        if not channel_id:
+            delivery = self._delivery_failure_record(
+                delivery_id=delivery_id,
+                idempotency_key=idempotency_key,
+                channel_id=channel_id,
+                thread_ts=thread_ts,
+                body=body,
+                reason="bound Slack channel is missing",
+            )
+            self._write_delivery_commit(envelope_path, envelope, delivery)
+            return delivery
+
+        target = "slack:" + channel_id + (f":{thread_ts}" if thread_ts else "")
+        args: JsonObject = {
+            "target": target,
+            "message": body,
+            "idempotency_key": idempotency_key,
+        }
+        self._lifecycle.record(
+            "direct_delivery.commit.started",
+            {
+                "status": "running",
+                "target": target,
+                "body_sha1": hashlib.sha1(body.encode("utf-8")).hexdigest(),
+                "idempotency_key": idempotency_key,
+            },
+        )
+        try:
+            from tools.send_message_tool import send_message_tool  # type: ignore
+
+            raw_result = send_message_tool(args, tool_call_id=delivery_id, idempotency_key=idempotency_key)
+            parsed_result = _json_object_from_string(raw_result)
+        except Exception as exc:
+            parsed_result = {"error": str(exc)}
+        delivery = self._delivery_record_from_send_result(
+            delivery_id=delivery_id,
+            idempotency_key=idempotency_key,
+            channel_id=channel_id,
+            thread_ts=thread_ts,
+            body=body,
+            result=parsed_result,
+        )
+        self._write_delivery_commit(envelope_path, envelope, delivery)
+        self._lifecycle.record(
+            "direct_delivery.commit.completed"
+            if _string(delivery.get("send_status")).lower() in DIRECT_DELIVERY_SUCCESS_STATUSES
+            else "direct_delivery.commit.failed",
+            {
+                "status": _string(delivery.get("send_status")),
+                "channel_id": _string(delivery.get("channel_id")),
+                "thread_ts": _string(delivery.get("thread_ts")),
+                "provider_ref": _string(delivery.get("provider_ref")),
+                "message_link": _string(delivery.get("message_link")),
+                "error": _string(delivery.get("error")),
+            },
+        )
+        return delivery
+
+    def _delivery_policy(self) -> JsonObject:
+        policy = _json_object(self._payload.get("delivery_policy"))
+        if policy:
+            return dict(policy)
+        mode = _string(self._payload.get("reply_delivery_mode")).lower()
+        channel_id = _string(self._payload.get("chat_id"))
+        thread_ts = _string(self._payload.get("thread_id"))
+        trace_id = _string(self._payload.get("trace_id"))
+        return {
+            "bound_channel_id": channel_id,
+            "bound_thread_ts": thread_ts,
+            "direct_send_allowed": mode == "direct",
+            "idempotency_key_base": ":".join(part for part in [channel_id, thread_ts, trace_id] if part),
+        }
+
+    def _direct_delivery_required(self, policy: JsonObject) -> bool:
+        return _bool(policy.get("direct_send_allowed"))
+
+    def _runtime_envelope_path(self) -> Path | None:
+        raw = _string(self._payload.get("runtime_envelope_path")) or os.getenv("RSI_RUNTIME_ENVELOPE_PATH", "").strip()
+        if not raw:
+            return None
+        return Path(raw).expanduser().resolve()
+
+    def _load_runtime_envelope(self, path: Path) -> JsonObject:
+        try:
+            parsed = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return {}
+        return parsed if isinstance(parsed, dict) else {}
+
+    def _envelope_has_successful_delivery(self, envelope: JsonObject) -> bool:
+        for delivery in _json_object_list(envelope.get("deliveries")):
+            if _string(delivery.get("send_status")).lower() in DIRECT_DELIVERY_SUCCESS_STATUSES:
+                return True
+        return False
+
+    def _final_delivery_body(self, response: str, result: JsonObject) -> str:
+        parsed_response = _json_object_from_string(response)
+        candidates = [
+            parsed_response.get("final_answer"),
+            parsed_response.get("reply_draft"),
+            _json_object(result.get("structured_output")).get("final_answer"),
+            _json_object(result.get("structured_output")).get("reply_draft"),
+            result.get("final_response"),
+            response,
+        ]
+        for candidate in candidates:
+            text = _string(candidate)
+            if text:
+                return text
+        return ""
+
+    def _fallback_delivery_idempotency_key(self, channel_id: str, thread_ts: str, body: str) -> str:
+        material = json.dumps(
+            {
+                "execution_id": _string(self._payload.get("execution_id")),
+                "channel_id": channel_id,
+                "thread_ts": thread_ts,
+                "body_sha1": hashlib.sha1(body.encode("utf-8")).hexdigest() if body else "",
+            },
+            sort_keys=True,
+        )
+        return "rsi:executor-delivery:" + hashlib.sha256(material.encode("utf-8")).hexdigest()
+
+    def _delivery_id(self, idempotency_key: str, body: str) -> str:
+        material = idempotency_key or body or _string(self._payload.get("execution_id")) or str(time.time_ns())
+        return "rsi-delivery-" + hashlib.sha1(material.encode("utf-8")).hexdigest()[:16]
+
+    def _delivery_failure_record(
+        self,
+        *,
+        delivery_id: str,
+        idempotency_key: str,
+        channel_id: str,
+        thread_ts: str,
+        body: str,
+        reason: str,
+    ) -> JsonObject:
+        return {
+            "delivery_id": delivery_id,
+            "kind": "slack_message",
+            "send_status": "failed",
+            "status": "failed",
+            "channel_id": channel_id,
+            "thread_ts": thread_ts,
+            "body": body,
+            "body_sha1": hashlib.sha1(body.encode("utf-8")).hexdigest() if body else "",
+            "body_excerpt": body[:280],
+            "tool_call_id": delivery_id,
+            "tool_name": "send_message",
+            "idempotency_key": idempotency_key,
+            "error": reason,
+        }
+
+    def _delivery_record_from_send_result(
+        self,
+        *,
+        delivery_id: str,
+        idempotency_key: str,
+        channel_id: str,
+        thread_ts: str,
+        body: str,
+        result: JsonObject,
+    ) -> JsonObject:
+        success = bool(result.get("success"))
+        error = _string(result.get("error"))
+        status = "posted" if success else "failed"
+        return {
+            "delivery_id": delivery_id,
+            "kind": "slack_message",
+            "send_status": status,
+            "status": status,
+            "channel_id": _string(result.get("chat_id")) or _string(result.get("channel_id")) or channel_id,
+            "thread_ts": _string(result.get("thread_id")) or _string(result.get("thread_ts")) or thread_ts,
+            "body": body,
+            "body_sha1": hashlib.sha1(body.encode("utf-8")).hexdigest() if body else "",
+            "body_excerpt": body[:280],
+            "tool_call_id": delivery_id,
+            "tool_name": "send_message",
+            "provider_ref": _string(result.get("message_id")) or _string(result.get("ts")),
+            "message_link": _string(result.get("message_link")),
+            "idempotency_key": _string(result.get("idempotency_key")) or idempotency_key,
+            "platform": _string(result.get("platform")) or "slack",
+            **({"error": error} if error else {}),
+        }
+
+    def _write_delivery_commit(self, envelope_path: Path, envelope: JsonObject, delivery: JsonObject) -> None:
+        if not envelope:
+            return
+        delivery = dict(delivery)
+        delivery_key = _string(delivery.get("idempotency_key")) or _string(delivery.get("delivery_id"))
+        deliveries = _json_object_list(envelope.get("deliveries"))
+        envelope["deliveries"] = [
+            item
+            for item in deliveries
+            if (_string(item.get("idempotency_key")) or _string(item.get("delivery_id"))) != delivery_key
+        ] + [delivery]
+        envelope["ledger_events"] = [
+            *_json_object_list(envelope.get("ledger_events")),
+            self._delivery_ledger_event("delivery.commit.completed", delivery, status=_string(delivery.get("send_status"))),
+            self._delivery_ledger_event(
+                "slack.message.sent"
+                if _string(delivery.get("send_status")).lower() in DIRECT_DELIVERY_SUCCESS_STATUSES
+                else "slack.message.failed",
+                delivery,
+                status=_string(delivery.get("send_status")),
+            ),
+        ]
+        envelope["phase_runs"] = self._phase_runs_with_delivery(_json_object_list(envelope.get("phase_runs")), delivery)
+        facts = [str(item) for item in _json_list(envelope.get("facts_source"))]
+        facts.append("rsi_runner.hermes_agent_adapter.delivery_commit")
+        envelope["facts_source"] = sorted(set(item for item in facts if item))
+        try:
+            _atomic_write_json(envelope_path, envelope)
+        except Exception as exc:
+            self._lifecycle.record(
+                "direct_delivery.envelope_write_failed",
+                {
+                    "status": "failed",
+                    "error": str(exc)[:800],
+                    "envelope_path": str(envelope_path),
+                },
+            )
+
+    def _delivery_ledger_event(self, kind: str, delivery: JsonObject, *, status: str) -> JsonObject:
+        execution_id = _string(self._payload.get("execution_id"))
+        seed = "|".join([execution_id, kind, _string(delivery.get("idempotency_key")), _string(delivery.get("tool_call_id"))])
+        return {
+            "event_id": "ledger-" + hashlib.sha1(seed.encode("utf-8")).hexdigest()[:16],
+            "kind": kind,
+            "phase_id": "deliver",
+            "status": status,
+            "sequence": 0,
+            "idempotency_key": _string(delivery.get("idempotency_key")),
+            "recorded_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "payload": delivery,
+        }
+
+    def _phase_runs_with_delivery(self, phase_runs: list[JsonObject], delivery: JsonObject) -> list[JsonObject]:
+        status = "completed" if _string(delivery.get("send_status")).lower() in DIRECT_DELIVERY_SUCCESS_STATUSES else "failed"
+        deliver_phase: JsonObject = {
+            "phase_id": "deliver",
+            "phase_type": "deliver",
+            "status": status,
+            "input_refs": [],
+            "output_refs": [
+                value
+                for value in [
+                    _string(delivery.get("message_link")),
+                    _string(delivery.get("provider_ref")),
+                ]
+                if value
+            ],
+            "completion_verdict": "complete" if status == "completed" else "",
+            "termination_reason": "normal_completion" if status == "completed" else (_string(delivery.get("error")) or "delivery_failed"),
+        }
+        if status == "failed":
+            deliver_phase["failure"] = {"class": "reply_delivery_failed", "reason": _string(delivery.get("error")) or "delivery_failed"}
+        return [phase for phase in phase_runs if _string(phase.get("phase_id")) != "deliver"] + [deliver_phase]
 
     def _write_self_review_candidate(self, result: JsonObject) -> JsonObject:
         observation = _json_object(result.get("self_review_observation"))

@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import sqlite3
 import subprocess
+import sys
 import tempfile
 import threading
 import time
@@ -1456,6 +1457,79 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIsInstance(observation, dict)
         self.assertEqual(observation["execution_id"], "hexec-runner-123")
         self.assertEqual(candidate["execution_id"], "hexec-runner-123")
+
+    def test_hermes_agent_adapter_commits_direct_delivery_from_final_response(self) -> None:
+        calls: list[tuple[dict[str, object], dict[str, object]]] = []
+        send_module = types.ModuleType("tools.send_message_tool")
+
+        def fake_send_message(args, **kwargs):
+            calls.append((dict(args), dict(kwargs)))
+            return json.dumps(
+                {
+                    "success": True,
+                    "platform": "slack",
+                    "chat_id": "C123",
+                    "thread_id": "171000001.000100",
+                    "message_id": "171000001.000200",
+                    "message_link": "https://slack.example/archives/C123/p171000001000200",
+                    "idempotency_key": args["idempotency_key"],
+                }
+            )
+
+        send_module.send_message_tool = fake_send_message
+        tools_module = types.ModuleType("tools")
+        tools_module.__path__ = []
+
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(
+            sys.modules,
+            {
+                "tools": tools_module,
+                "tools.send_message_tool": send_module,
+            },
+        ), mock.patch.dict(os.environ, {"HERMES_HOME": tempdir}, clear=True):
+            envelope_path = Path(tempdir, "envelope.json")
+            write_native_test_envelope(
+                {
+                    "runtime_envelope_path": str(envelope_path),
+                    "execution_id": "hexec-direct",
+                    "operation_id": "op-direct",
+                    "trace_id": "trace-direct",
+                    "workflow_id": "wf-direct",
+                },
+                final_response="😺",
+            )
+            adapter = HermesAgentAdapter(
+                {
+                    "session_id": "session-direct",
+                    "execution_id": "hexec-direct",
+                    "trace_id": "trace-direct",
+                    "runtime_envelope_path": str(envelope_path),
+                    "delivery_policy": {
+                        "bound_channel_id": "C123",
+                        "bound_thread_ts": "171000001.000100",
+                        "direct_send_allowed": True,
+                        "idempotency_key_base": "C123:171000001.000100:trace-direct",
+                    },
+                }
+            )
+
+            delivery = adapter._commit_final_delivery_if_required("😺", {"final_response": "😺"})
+            envelope = json.loads(envelope_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(len(calls), 1)
+        args, kwargs = calls[0]
+        self.assertEqual(args["target"], "slack:C123:171000001.000100")
+        self.assertEqual(args["message"], "😺")
+        self.assertEqual(args["idempotency_key"], "C123:171000001.000100:trace-direct")
+        self.assertEqual(kwargs["idempotency_key"], "C123:171000001.000100:trace-direct")
+        self.assertEqual(delivery["send_status"], "posted")
+        self.assertEqual(delivery["body"], "😺")
+        self.assertEqual(envelope["deliveries"][0]["body"], "😺")
+        self.assertEqual(envelope["deliveries"][0]["send_status"], "posted")
+        self.assertIn("rsi_runner.hermes_agent_adapter.delivery_commit", envelope["facts_source"])
+        self.assertIn("slack.message.sent", [item["kind"] for item in envelope["ledger_events"]])
+        self.assertEqual(envelope["phase_runs"][-1]["phase_id"], "deliver")
+        self.assertEqual(envelope["phase_runs"][-1]["status"], "completed")
 
     def test_gateway_session_key_slack_thread_root_and_fallback(self) -> None:
         threaded = RunnerTaskRequest.from_payload(
@@ -6842,6 +6916,10 @@ class HermesRuntimeTests(unittest.TestCase):
                     "reply_delivery_mode": "direct",
                     "channel_id": "C123",
                     "thread_ts": "171000001.000100",
+                    "delivery_policy": {
+                        "direct_send_allowed": True,
+                        "idempotency_key_base": "C123:171000001.000100:trace-direct-env",
+                    },
                 }
             }
         )
@@ -6855,9 +6933,16 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertEqual(error, "")
         self.assertEqual(direct_env["SLACK_BOT_TOKEN"], "xoxb-test")
+        self.assertEqual(direct_env["RSI_DELIVERY_IDEMPOTENCY_KEY"], "C123:171000001.000100:trace-direct-env")
         self.assertEqual(
             set(direct_env),
-            {"HERMES_SESSION_PLATFORM", "HERMES_SESSION_CHAT_ID", "HERMES_SESSION_THREAD_ID", "SLACK_BOT_TOKEN"},
+            {
+                "HERMES_SESSION_PLATFORM",
+                "HERMES_SESSION_CHAT_ID",
+                "HERMES_SESSION_THREAD_ID",
+                "RSI_DELIVERY_IDEMPOTENCY_KEY",
+                "SLACK_BOT_TOKEN",
+            },
         )
 
     def test_prod_task_timeout_defaults_to_1800_when_transport_is_extended(self) -> None:
