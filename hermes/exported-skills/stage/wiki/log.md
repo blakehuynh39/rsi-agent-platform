@@ -15007,3 +15007,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_85ad0eaebdf7fd01990bd84ef74fd68c
 - summary: Procedure to increase disk size on validators when a low storage alert (≥ 80%) is received.
 
+## [2026-05-06T14:16:41Z] synthesis | Engineering Team Cost Optimization
+
+- status: published
+- slug: projects/engineering-team-cost-optimization
+- wiki_revision_id: wikirev_f66caa68b2f22b81d38ed0bb22a8e45c
+- summary: Analysis and optimization of engineering team costs, focusing on a significant reduction in Vercel expenses between August and October 2024.
+

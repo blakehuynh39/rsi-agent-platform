@@ -2821,8 +2821,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "07ec59fda428c6d8d2b26b6e9873ebabb50f5f1295412d8981714483a9b494f1",
-        "size": 753406
+        "sha256": "101746ea4688c3a61cc16000f413c8730a4bcf5c116ce901366d9f610d649807",
+        "size": 753766
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3600,6 +3600,11 @@
         "size": 1175
       },
       {
+        "path": "pages/projects/engineering-team-cost-optimization.md",
+        "sha256": "05065edd39bdf3220d9c78972aae699d1e17f62e03d1df1fb96dbf94f40d32f2",
+        "size": 2663
+      },
+      {
         "path": "pages/projects/ethdenver-fun-57b-activation.md",
         "sha256": "3e65581bcaccbd869d81cef813b02c32679cc8d9d20e4aa4c61bb5fbde9a643b",
         "size": 5148
@@ -4184,8 +4189,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T14:04:26Z",
-  "file_count": 835,
+  "exported_at": "2026-05-06T14:20:33Z",
+  "file_count": 836,
   "files": [
     {
       "path": ".curator_state",
@@ -6997,7 +7002,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c9cb697rvtm",
-  "previous_tree_hash": "8f6ca87a945609beb8ec8db170ddf29d8a23cb8c4a71a2b9e8831511cc0047dd",
+  "previous_tree_hash": "8c1aca3d598e45cb58d8525344cabda57c0cf73f9efd6c997e8fc0bdfe4996e5",
   "schema_version": 1,
   "skill_file_count": 561,
   "skill_manage_sessions": [
@@ -7010,14 +7015,14 @@
   ],
   "skill_tree_hash": "afbd2291fd67b2c005ef55e775975ab80b39daf1645a51d878d7521be04f637a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "8c1aca3d598e45cb58d8525344cabda57c0cf73f9efd6c997e8fc0bdfe4996e5",
+  "tree_hash": "f41f41d6250be086b00c052c8e5667d74e185af4309ab63af5ddddf356f808fe",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 274,
+  "wiki_file_count": 275,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7031,8 +7036,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "07ec59fda428c6d8d2b26b6e9873ebabb50f5f1295412d8981714483a9b494f1",
-      "size": 753406
+      "sha256": "101746ea4688c3a61cc16000f413c8730a4bcf5c116ce901366d9f610d649807",
+      "size": 753766
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7810,6 +7815,11 @@
       "size": 1175
     },
     {
+      "path": "pages/projects/engineering-team-cost-optimization.md",
+      "sha256": "05065edd39bdf3220d9c78972aae699d1e17f62e03d1df1fb96dbf94f40d32f2",
+      "size": 2663
+    },
+    {
       "path": "pages/projects/ethdenver-fun-57b-activation.md",
       "sha256": "3e65581bcaccbd869d81cef813b02c32679cc8d9d20e4aa4c61bb5fbde9a643b",
       "size": 5148
@@ -8391,5 +8401,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ec90221aa857aba2509e876252b90dd1f9ea603fc4ee10677804fc8155437988"
+  "wiki_tree_hash": "70c7ac264c618f7b59a6c32ab48e7fe0cdff42dc27db4b29dc2df51f90b866f3"
 }
