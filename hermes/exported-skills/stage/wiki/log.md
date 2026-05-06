@@ -15174,3 +15174,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_925a90840c1f1ed2bfe27af99b7384cc
 - summary: A Notion page that serves as a hub linking to quick guides for Loki and Grafana, as well as a Monitoring Stack page.
 
+## [2026-05-06T20:17:51Z] synthesis | Blockscout Explorer Setup Documentation
+
+- status: published
+- slug: runbooks/blockscout-explorer-setup
+- wiki_revision_id: wikirev_aa70c3960719325745164ef22de20e02
+- summary: Runbook for setting up Blockscout explorer on AWS EC2 using Docker Compose, including SSH access, Docker installation, configuration of environment files, and Nginx SSL termination...
+
