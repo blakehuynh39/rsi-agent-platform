@@ -2821,13 +2821,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b13f77a7751de5898198456549f9d2729b942d986be2e7108e94b81ac1127080",
+        "sha256": "f100a0d7a7612bcc6be26b9a6b0568787d4bbc8dc1429826eff2918e9ff49edb",
         "size": 447092
       },
       {
         "path": "log.md",
-        "sha256": "bc73a2d79d31eb2972549b22d902e183ed0668bdc99f691ff10520b20a7ac3b2",
-        "size": 759077
+        "sha256": "719eeecf2951fe36ff4032d64223b2ee814b2bb9692356206322e351bad5944d",
+        "size": 759531
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4234,7 +4234,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T17:51:55Z",
+  "exported_at": "2026-05-06T18:02:58Z",
   "file_count": 845,
   "files": [
     {
@@ -7052,7 +7052,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c9cb697rvtm",
-  "previous_tree_hash": "ff1453a63b1dfb386b8148b4dc907b60980f927db5ad33d5aa7460a3151b0c7b",
+  "previous_tree_hash": "18849257296ffd9809561fe5a4317bd1a8eadf1c197ac084df0a32357e8097f9",
   "schema_version": 1,
   "skill_file_count": 562,
   "skill_manage_sessions": [
@@ -7065,7 +7065,7 @@
   ],
   "skill_tree_hash": "90f983842dd37d8b39063c99a4526bf20ef5c6b1288978e6199735c8b0dbd15e",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "18849257296ffd9809561fe5a4317bd1a8eadf1c197ac084df0a32357e8097f9",
+  "tree_hash": "7216b074d50752f958ee009c06cd0b562473d4b62f069a14f4b78e9cd867b128",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -7081,13 +7081,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b13f77a7751de5898198456549f9d2729b942d986be2e7108e94b81ac1127080",
+      "sha256": "f100a0d7a7612bcc6be26b9a6b0568787d4bbc8dc1429826eff2918e9ff49edb",
       "size": 447092
     },
     {
       "path": "log.md",
-      "sha256": "bc73a2d79d31eb2972549b22d902e183ed0668bdc99f691ff10520b20a7ac3b2",
-      "size": 759077
+      "sha256": "719eeecf2951fe36ff4032d64223b2ee814b2bb9692356206322e351bad5944d",
+      "size": 759531
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8491,5 +8491,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c9170403f9d50b2664bd9aedd7ce899a68594db0cc256eec89b12b9167ff3c80"
+  "wiki_tree_hash": "ab70fb59fc399d5a01388df103935de6c56af7d9151fb9ea8aa0e154c3aeef0b"
 }

@@ -15123,3 +15123,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_979247177d64ac6212a8f052b042388a
 - summary: A reconciliation failure occurred on the public-testnet at block height 393 for account 0x5687400189B13551137e330F7ae081142EdfD866. The computed balance differed from the live bala...
 
+## [2026-05-06T18:00:26Z] ingest | Eng Leads Offsite April, 2025
+
+- status: published
+- slug: notion_document/eng-leads-offsite-april-2025-2c05b9e7
+- wiki_revision_id: wikirev_30ed4efe4017067994fba7f84771728d
+- source_document_id: srcdoc_f654a3c3bdf6e88fceffaabe2c05b9e7
+- source_revision_id: srcrev_d1881d12ebd9785d1e2565de9b6424e4
+- summary: Source: [Notion source](https://www.notion.so/Eng-Leads-Offsite-April-2025-1c0051299a5480b19087fa37d09c71e3)
+
