@@ -4,8 +4,8 @@
     "skills": [
       {
         "path": ".curator_state",
-        "sha256": "fea9d10d36b9096349c4db298ae1388db6dc1f354e0cd5719d86f67dce73e743",
-        "size": 252
+        "sha256": "56fbf9afd44ada6eab7180f5620169929aa8ed78db2e1ed21b95562fb83e21c9",
+        "size": 253
       },
       {
         "path": ".usage.json",
@@ -2796,13 +2796,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "ea5f21f3703927598ce9c03b1a1bc9d89654a054372d61fe81c4e28ad0563dff",
-        "size": 433908
+        "sha256": "a0be583bc708d743584fd83644ea3f9d6ee1dc06d26900e063e7e9ea7974664f",
+        "size": 434522
       },
       {
         "path": "log.md",
-        "sha256": "5225515c0de8f6996ca39bab177499e097cdcfdc1f30339f1971e972903ca9da",
-        "size": 742060
+        "sha256": "b2487ef2fd859f92d6c6ae061e518eff935a6be0e611014e58ac6730451fd942",
+        "size": 742698
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3023,6 +3023,11 @@
         "path": "pages/concepts/multi-parent-licensing.md",
         "sha256": "e010d2f4e8fc077b0df30bae4ff56aca20de4240d283766b409c84b84a36d1bf",
         "size": 4907
+      },
+      {
+        "path": "pages/concepts/mutability-support.md",
+        "sha256": "1f14d2d9bd3b698cd6aa6fb18f029e5f6f6945ae30ad4928f2e870ffe683ed9d",
+        "size": 3114
       },
       {
         "path": "pages/concepts/nft-launch-best-practices.md",
@@ -3780,6 +3785,11 @@
         "size": 2926
       },
       {
+        "path": "pages/projects/updating-mininet-to-main.md",
+        "sha256": "6b075561cc2a34425b53eaf233b0885bd637e33154a0c7f99ddabdc18f1d3943",
+        "size": 1211
+      },
+      {
         "path": "pages/projects/upwork-fiverr-i18n-translation-vetting.md",
         "sha256": "d046ecfcd2741ab81ffc4d30d1e6c166f43ad4376ee4896dff4db9879393a681",
         "size": 1547
@@ -4009,13 +4019,13 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T05:08:55Z",
-  "file_count": 800,
+  "exported_at": "2026-05-06T05:19:46Z",
+  "file_count": 802,
   "files": [
     {
       "path": ".curator_state",
-      "sha256": "fea9d10d36b9096349c4db298ae1388db6dc1f354e0cd5719d86f67dce73e743",
-      "size": 252
+      "sha256": "56fbf9afd44ada6eab7180f5620169929aa8ed78db2e1ed21b95562fb83e21c9",
+      "size": 253
     },
     {
       "path": ".usage.json",
@@ -6802,7 +6812,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5dc975pf99x",
-  "previous_tree_hash": "1aa37711698e0102c7a5491023766b8cb77145d85c40d52525e6ffc672dcb9b4",
+  "previous_tree_hash": "123e720f236e064dcbaafea6ed4cb4cb317f3bb602b81ec42ade4d66af8bcc80",
   "schema_version": 1,
   "skill_file_count": 557,
   "skill_manage_sessions": [
@@ -6813,16 +6823,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "e72fe1bc8d604e6b75b507e289803bacbd721cd220d190f0145cde8b9a22aa58",
+  "skill_tree_hash": "b6ad5930183bfbced7785774e834a18091c5c7c3dbe4517c93f737573d8e7dd6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "123e720f236e064dcbaafea6ed4cb4cb317f3bb602b81ec42ade4d66af8bcc80",
+  "tree_hash": "f60a4da7cdbf2da8bdffb4ebf82f06b80626212f4a80c6baa4fa318dc175f348",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 243,
+  "wiki_file_count": 245,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6831,13 +6841,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "ea5f21f3703927598ce9c03b1a1bc9d89654a054372d61fe81c4e28ad0563dff",
-      "size": 433908
+      "sha256": "a0be583bc708d743584fd83644ea3f9d6ee1dc06d26900e063e7e9ea7974664f",
+      "size": 434522
     },
     {
       "path": "log.md",
-      "sha256": "5225515c0de8f6996ca39bab177499e097cdcfdc1f30339f1971e972903ca9da",
-      "size": 742060
+      "sha256": "b2487ef2fd859f92d6c6ae061e518eff935a6be0e611014e58ac6730451fd942",
+      "size": 742698
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7058,6 +7068,11 @@
       "path": "pages/concepts/multi-parent-licensing.md",
       "sha256": "e010d2f4e8fc077b0df30bae4ff56aca20de4240d283766b409c84b84a36d1bf",
       "size": 4907
+    },
+    {
+      "path": "pages/concepts/mutability-support.md",
+      "sha256": "1f14d2d9bd3b698cd6aa6fb18f029e5f6f6945ae30ad4928f2e870ffe683ed9d",
+      "size": 3114
     },
     {
       "path": "pages/concepts/nft-launch-best-practices.md",
@@ -7815,6 +7830,11 @@
       "size": 2926
     },
     {
+      "path": "pages/projects/updating-mininet-to-main.md",
+      "sha256": "6b075561cc2a34425b53eaf233b0885bd637e33154a0c7f99ddabdc18f1d3943",
+      "size": 1211
+    },
+    {
       "path": "pages/projects/upwork-fiverr-i18n-translation-vetting.md",
       "sha256": "d046ecfcd2741ab81ffc4d30d1e6c166f43ad4376ee4896dff4db9879393a681",
       "size": 1547
@@ -8041,5 +8061,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9c8e472b29d89990b3c2c12867ffe8043bf16a9d0a17a1f5581440167fa78a08"
+  "wiki_tree_hash": "87391df928ee8f656bdc0c393151ba389e125e2db904ad028f095a55deedca4b"
 }

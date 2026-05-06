@@ -14767,3 +14767,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_63e499cb60642b038d578d874f7e5fac
 - summary: Compilation of recommendations and lessons learned related to upgrade processes and governance, as discussed with Zaki.
 
+## [2026-05-06T05:16:07Z] synthesis | Updating Mininet to Main
+
+- status: published
+- slug: projects/updating-mininet-to-main
+- wiki_revision_id: wikirev_1b0c7717d45018008a04df9748161677
+- summary: The Notion document 'Updating Mininet to Main' contains no content.
+
+## [2026-05-06T05:16:56Z] synthesis | Mutability Support
+
+- status: published
+- slug: concepts/mutability-support
+- wiki_revision_id: wikirev_670ec744f6c567986064631a2ad96571
+- summary: Discusses requirements for mutability of license terms and IP at the protocol level, including the ability to unattach license terms when no license tokens are in circulation and n...
+
