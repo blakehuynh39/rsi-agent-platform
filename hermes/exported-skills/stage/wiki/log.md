@@ -15109,3 +15109,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ff7cc59e90c18ac98db7d69a2216887b
 - summary: Contract addresses for the Story Protocol v1.2 GA release including main (seed 999) and older (seed 777) deployments.
 
+## [2026-05-06T17:48:22Z] synthesis | Network Rolling Upgrade Workflow
+
+- status: published
+- slug: projects/network-rolling-upgrade-workflow
+- wiki_revision_id: wikirev_cb0690633f251e92ec99db3c6962f9c8
+- summary: Design and implementation of a rolling upgrade workflow for the L1 network, enabling node-by-node upgrades while maintaining network health. Emphasizes security via OIDC, dedicated...
+
+## [2026-05-06T17:51:29Z] synthesis | Rosetta Reconciliation Failure on Public Testnet at Block 393
+
+- status: published
+- slug: open-questions/rosetta-reconciliation-failure-public-testnet-block-393
+- wiki_revision_id: wikirev_979247177d64ac6212a8f052b042388a
+- summary: A reconciliation failure occurred on the public-testnet at block height 393 for account 0x5687400189B13551137e330F7ae081142EdfD866. The computed balance differed from the live bala...
+
