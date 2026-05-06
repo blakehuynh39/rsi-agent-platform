@@ -88,7 +88,58 @@ Cloudflare WAF block pages embed the blocked visitor's IP in a hidden HTML eleme
 
 When users paste the raw HTML of the block page into Slack, the IP is visible in the source. This is often the fastest way to determine the blocked IP without asking the user to click "reveal" and report back.
 
-# PR #201 (2026-05-05) — Reference pattern
+# WAF Skip Rules (bypass patterns)
+
+Skip rules are the preferred approach for internal service-to-service endpoints that have their own origin-level authentication. They're more general than per-IP allowlisting and don't require maintaining individual IP entries.
+
+## numo-waf-slackbot-skip
+
+```typescript
+{
+  action: "skip",
+  actionParameters: {
+    phases: ["http_request_firewall_managed", "http_request_sbfm"],
+    ruleset: "current",
+  },
+  description: "numo-slackbot digest cron - bypass managed challenge + SBFM",
+  enabled: true,
+  expression: `(http.host in ${API_HOSTS}) and (http.request.method eq "GET") and (http.request.uri.path in {read-only admin paths}) and (http.user_agent contains "numo-slackbot/") and (http.request.headers["x-numo-source"][0] eq "slackbot")`,
+  logging: { enabled: true },
+  ref: "numo-waf-slackbot-skip",
+}
+```
+
+Skips managed rules + SBFM only (NOT custom rules). Identity verified via User-Agent + custom header.
+
+## numo-waf-skip-ndv-internal (PR #203)
+
+```typescript
+{
+  action: "skip",
+  actionParameters: {
+    phases: ["http_request_firewall_custom", "http_request_firewall_managed", "http_request_sbfm"],
+    ruleset: "current",
+  },
+  description: "numo-data-validation internal endpoints — bypass WAF",
+  enabled: true,
+  expression: `(http.host in ${API_HOSTS}) and (http.request.uri.path in {\"/v1/internal/numo-data-validation/submissions\" \"/v1/internal/numo-data-validation/validation-results\"})`,
+  logging: { enabled: true },
+  ref: "numo-waf-skip-ndv-internal",
+}
+```
+
+Skips ALL three phases (custom, managed, SBFM). The endpoints have their own Bearer-token auth (`NumoValidationServiceSession`, SHA-256 hash match) so WAF origin-check is unnecessary. No User-Agent or header checks — path-only matching because the endpoint itself enforces auth.
+
+### When to use each skip pattern
+
+| Pattern | Use case | Phases skipped | Additional checks |
+|---------|----------|----------------|-------------------|
+| slackbot (managed+SBFM only) | Read-only cron jobs with identifiable UA | managed, sbfm | User-Agent + custom header |
+| ndv-internal (all three) | Mutating internal endpoints with own auth | custom, managed, sbfm | Path only (origin auth suffices) |
+
+**Rule:** When an endpoint already has its own origin-level authentication (Bearer token, API key, etc.), skip all three phases. When the endpoint relies on CF for some security (e.g., browser-facing), be more conservative and keep custom rules active.
+
+# PR #201 (2026-05-05) — IP Allowlist pattern
 
 Branch: `feat/add-seb-ip-allowlist` → `main`
 Files changed:
@@ -96,3 +147,11 @@ Files changed:
 - `src/lists/index.ts` — added barrel export
 
 Key approach: Created a separate file for ListItems that references the existing List ID from `numo_allowlists.ts` rather than co-locating list definition and items. This is additive — it doesn't disrupt existing dashboard-managed entries.
+
+# PR #203 (2026-05-06) — WAF Skip Rule pattern
+
+Branch: `feat/add-ndv-waf-skip` → `main`
+Files changed:
+- `src/zones/numolabs.ai/waf.ts` — added skip rule before origin-check (+17 lines)
+
+Key approach: Placed skip rule between existing slackbot skip and origin-check. Expression uses path-only matching (`http.request.uri.path in {…}`) because the endpoint has its own auth. Covered both GET and POST NDV paths proactively.
