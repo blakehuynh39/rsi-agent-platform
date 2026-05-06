@@ -1128,6 +1128,10 @@ class HermesRuntime:
         self._executor_processes: dict[str, subprocess.Popen[str]] = {}
         self._executor_threads: dict[str, threading.Thread] = {}
         self._self_review_processes: dict[str, subprocess.Popen[str]] = {}
+        self._executor_native_session_ids: dict[str, str] = {}
+        self._executor_native_session_keys: dict[str, str] = {}
+        self._executor_native_started_at_unix: dict[str, float] = {}
+        self._executor_native_tracked_pids: dict[str, set[int]] = {}
         self._self_review_draining = False
         self._executor_process_lock = threading.RLock()
         self._executor_cancel_requests: set[str] = set()
@@ -1616,6 +1620,185 @@ class HermesRuntime:
             except OSError:
                 pass
 
+    def _process_registry_checkpoint_path(self) -> Path:
+        return Path(self._config.hermes_home).expanduser() / "processes.json"
+
+    def _read_process_registry_checkpoint(self) -> list[JsonObject]:
+        try:
+            parsed = json.loads(self._process_registry_checkpoint_path().read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return []
+        if not isinstance(parsed, list):
+            return []
+        return [item for item in parsed if isinstance(item, dict)]
+
+    def _proc_stat(self, pid: int) -> JsonObject:
+        try:
+            raw = (Path("/proc") / str(pid) / "stat").read_text(encoding="utf-8").strip()
+            _prefix, suffix = raw.rsplit(")", 1)
+            parts = suffix.strip().split()
+            if len(parts) < 4:
+                return {}
+            return {
+                "state": parts[0],
+                "ppid": int(parts[1]),
+                "pgid": int(parts[2]),
+                "session_id": int(parts[3]),
+            }
+        except (OSError, ValueError):
+            return {}
+
+    def _pid_is_active(self, pid: int) -> bool:
+        if pid <= 0:
+            return False
+        try:
+            os.kill(pid, 0)
+        except ProcessLookupError:
+            return False
+        except PermissionError:
+            pass
+        state = _string_or_json(self._proc_stat(pid).get("state")).upper()
+        return state != "Z"
+
+    def _process_command(self, pid: int) -> str:
+        proc_root = Path("/proc") / str(pid)
+        try:
+            raw = (proc_root / "cmdline").read_bytes()
+            command = " ".join(part.decode("utf-8", errors="replace") for part in raw.split(b"\0") if part)
+            if command:
+                return command[:240]
+        except OSError:
+            pass
+        try:
+            return (proc_root / "comm").read_text(encoding="utf-8", errors="replace").strip()[:240]
+        except OSError:
+            return ""
+
+    def _process_table(self) -> dict[int, JsonObject]:
+        proc_root = Path("/proc")
+        if not proc_root.exists():
+            return {}
+        table: dict[int, JsonObject] = {}
+        try:
+            proc_entries = list(proc_root.iterdir())
+        except OSError:
+            return {}
+        for item in proc_entries:
+            if item.name.isdigit():
+                pid = int(item.name)
+                stat = self._proc_stat(pid)
+                if stat:
+                    table[pid] = stat
+        return table
+
+    def _descendant_process_ids(self, pid: int) -> set[int]:
+        if pid <= 0:
+            return set()
+        table = self._process_table()
+        if not table:
+            return set()
+        children_by_parent: dict[int, list[int]] = {}
+        for child_pid, stat in table.items():
+            ppid = int(stat.get("ppid") or 0)
+            children_by_parent.setdefault(ppid, []).append(child_pid)
+        descendants: set[int] = set()
+        pending = list(children_by_parent.get(pid, []))
+        while pending:
+            child_pid = pending.pop()
+            if child_pid in descendants:
+                continue
+            descendants.add(child_pid)
+            pending.extend(children_by_parent.get(child_pid, []))
+        return descendants
+
+    def _refresh_native_descendant_tracking_locked(self) -> None:
+        for execution_id, process in list(self._executor_processes.items()):
+            if process.poll() is not None:
+                continue
+            descendants = self._descendant_process_ids(process.pid)
+            if descendants:
+                self._executor_native_tracked_pids.setdefault(execution_id, set()).update(descendants)
+
+    def _native_process_entry(self, *, pid: int, source: str, payload: JsonObject | None = None) -> JsonObject:
+        payload = payload or {}
+        return {
+            "pid": pid,
+            "source": source,
+            "pid_scope": _string_or_json(payload.get("pid_scope")) or "host",
+            "session_id": _string_or_json(payload.get("task_id")),
+            "session_key": _string_or_json(payload.get("session_key")),
+            "command": _string_or_json(payload.get("command")) or self._process_command(pid),
+        }
+
+    def _active_native_processes_by_execution_locked(self) -> dict[str, list[JsonObject]]:
+        self._refresh_native_descendant_tracking_locked()
+        by_execution: dict[str, dict[int, JsonObject]] = {}
+        session_ids = dict(self._executor_native_session_ids)
+        session_keys = dict(self._executor_native_session_keys)
+        execution_started_at = dict(self._executor_native_started_at_unix)
+
+        if session_ids:
+            for entry in self._read_process_registry_checkpoint():
+                pid_scope = _string_or_json(entry.get("pid_scope")) or "host"
+                if pid_scope != "host":
+                    continue
+                try:
+                    pid = int(entry.get("pid") or 0)
+                except (TypeError, ValueError):
+                    continue
+                if not self._pid_is_active(pid):
+                    continue
+                task_id = _string_or_json(entry.get("task_id"))
+                session_key = _string_or_json(entry.get("session_key"))
+                for execution_id, tracked_session_id in session_ids.items():
+                    tracked_session_key = session_keys.get(execution_id, "")
+                    try:
+                        process_started_at = float(entry.get("started_at") or 0)
+                    except (TypeError, ValueError):
+                        process_started_at = 0.0
+                    native_started_at = float(execution_started_at.get(execution_id) or 0)
+                    if (
+                        process_started_at > 0
+                        and native_started_at > 0
+                        and process_started_at < native_started_at - 1.0
+                    ):
+                        continue
+                    if (tracked_session_id and task_id == tracked_session_id) or (
+                        tracked_session_key and session_key == tracked_session_key
+                    ):
+                        by_execution.setdefault(execution_id, {})[pid] = self._native_process_entry(
+                            pid=pid,
+                            source="process_registry",
+                            payload=entry,
+                        )
+
+        for execution_id, pids in list(self._executor_native_tracked_pids.items()):
+            active_pids = {pid for pid in pids if self._pid_is_active(pid)}
+            if active_pids:
+                self._executor_native_tracked_pids[execution_id] = active_pids
+                for pid in active_pids:
+                    by_execution.setdefault(execution_id, {}).setdefault(
+                        pid,
+                        self._native_process_entry(pid=pid, source="descendant"),
+                    )
+            else:
+                self._executor_native_tracked_pids.pop(execution_id, None)
+
+        inactive_execution_ids = [
+            execution_id
+            for execution_id in set(session_ids) | set(session_keys) | set(execution_started_at)
+            if execution_id not in self._executor_threads
+            and execution_id not in self._executor_processes
+            and not by_execution.get(execution_id)
+        ]
+        for execution_id in inactive_execution_ids:
+            self._executor_native_session_ids.pop(execution_id, None)
+            self._executor_native_session_keys.pop(execution_id, None)
+            self._executor_native_started_at_unix.pop(execution_id, None)
+            self._executor_native_tracked_pids.pop(execution_id, None)
+
+        return {execution_id: list(entries.values()) for execution_id, entries in by_execution.items() if entries}
+
     def active_execution_snapshot(self, *, include_self_review_queue: bool = True) -> JsonObject:
         with self._executor_process_lock:
             active_thread_ids = sorted(
@@ -1638,21 +1821,32 @@ class HermesRuntime:
                 for review_id, process in self._self_review_processes.items()
                 if process.poll() is None
             )
-        active_ids = sorted(set(active_thread_ids) | set(active_process_ids))
+            native_processes_by_execution = self._active_native_processes_by_execution_locked()
+        active_native_subprocess_ids = sorted(native_processes_by_execution)
+        active_native_subprocesses = {
+            execution_id: sorted(items, key=lambda item: int(item.get("pid") or 0))
+            for execution_id, items in native_processes_by_execution.items()
+        }
+        active_ids = sorted(set(active_thread_ids) | set(active_process_ids) | set(active_native_subprocess_ids))
         review_status = self._self_review_queue_status(reconcile_stale=False) if include_self_review_queue else {}
         local_pending_reviews = int(review_status.get("local_owned_pending_count") or 0) + int(
             review_status.get("local_owned_promotable_count") or 0
         )
         active_self_review_count = len(active_self_review_ids)
+        active_native_subprocess_count = sum(len(items) for items in native_processes_by_execution.values())
         return {
             "active_execution_count": len(active_ids) + active_self_review_count + local_pending_reviews,
-            "active_main_execution_count": len(active_ids),
+            "active_main_execution_count": len(set(active_thread_ids) | set(active_process_ids)),
+            "active_native_subprocess_execution_count": len(active_native_subprocess_ids),
+            "active_native_subprocess_count": active_native_subprocess_count,
             "active_self_review_count": active_self_review_count,
             "local_pending_self_review_count": local_pending_reviews,
             "global_review_blocking_count": int(review_status.get("global_review_blocking_count") or 0),
             "global_skill_review_blocking_count": int(review_status.get("global_skill_review_blocking_count") or 0),
             "promotable_self_review_candidate_count": int(review_status.get("promotable_candidate_count") or 0),
             "active_execution_ids": active_ids,
+            "active_native_subprocess_execution_ids": active_native_subprocess_ids,
+            "active_native_subprocesses": active_native_subprocesses,
             "active_self_review_ids": active_self_review_ids,
             "active_thread_execution_ids": active_thread_ids,
             "active_process_execution_ids": active_process_ids,
@@ -2844,6 +3038,17 @@ class HermesRuntime:
             "RSI_WORKFLOW_ID": task.workflow_id or "",
         }
 
+    def _native_worker_session_env(self, task: RunnerTaskRequest) -> dict[str, str]:
+        env = {"HERMES_SESSION_KEY": canonical_gateway_session_key(task, self._role)}
+        channel_id = (task.channel_id or "").strip()
+        if channel_id:
+            env["HERMES_SESSION_PLATFORM"] = "slack"
+            env["HERMES_SESSION_CHAT_ID"] = channel_id
+        thread_ts = (task.thread_ts or "").strip()
+        if thread_ts:
+            env["HERMES_SESSION_THREAD_ID"] = thread_ts
+        return env
+
     def _native_executor_workspace_root(self, task: RunnerTaskRequest) -> Path:
         root = Path(self._config.hermes_computer_root).expanduser().resolve()
         root.mkdir(parents=True, exist_ok=True)
@@ -4026,6 +4231,7 @@ class HermesRuntime:
         env_copy = os.environ.copy()
         env_copy.update(github_cli_env)
         env_copy.update(direct_slack_env)
+        env_copy.update(self._native_worker_session_env(task))
         env_copy.update(self._native_runtime_env(task, context_path=context_path, envelope_path=envelope_path))
         secret_values = _sensitive_env_values(env_copy)
         if observer is not None:
@@ -4072,6 +4278,10 @@ class HermesRuntime:
             stderr=subprocess.PIPE,
             text=True,
         )
+        with self._executor_process_lock:
+            self._executor_native_session_ids[execution_id] = context.session_id
+            self._executor_native_session_keys[execution_id] = canonical_gateway_session_key(task, self._role)
+            self._executor_native_started_at_unix[execution_id] = time.time()
         if lifecycle_tailer is not None:
             lifecycle_tailer.start()
         stdout_chunks: list[str] = []
@@ -4119,6 +4329,7 @@ class HermesRuntime:
         try:
             while True:
                 with self._executor_process_lock:
+                    self._refresh_native_descendant_tracking_locked()
                     if execution_id in self._executor_cancel_requests:
                         cancelled = True
                         break

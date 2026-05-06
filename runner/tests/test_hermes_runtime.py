@@ -2624,6 +2624,106 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(drained["drain_status"], "drained")
         self.assertEqual(drained["active_execution_count"], 0)
 
+    def test_active_execution_snapshot_tracks_native_process_registry_checkpoint(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_ENABLED": "true",
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+            process = subprocess.Popen(
+                [sys.executable, "-c", "import time; time.sleep(0.5)"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            try:
+                session_key = "rsi:prod:slack:C123:1700000000.000000"
+                with runtime._executor_process_lock:
+                    runtime._executor_native_session_ids["hexec-native-bg"] = "session-native-bg"
+                    runtime._executor_native_session_keys["hexec-native-bg"] = session_key
+                    runtime._executor_native_started_at_unix["hexec-native-bg"] = time.time()
+                Path(hermes_home, "processes.json").write_text(
+                    json.dumps(
+                        [
+                            {
+                                "session_id": "proc-test",
+                                "command": "python long-native-eval.py",
+                                "pid": process.pid,
+                                "pid_scope": "host",
+                                "task_id": "default",
+                                "session_key": session_key,
+                                "started_at": time.time(),
+                            }
+                        ]
+                    ),
+                    encoding="utf-8",
+                )
+
+                snapshot = runtime.active_execution_snapshot(include_self_review_queue=False)
+                self.assertEqual(snapshot["active_execution_count"], 1)
+                self.assertEqual(snapshot["active_execution_ids"], ["hexec-native-bg"])
+                self.assertEqual(snapshot["active_native_subprocess_execution_ids"], ["hexec-native-bg"])
+                self.assertEqual(snapshot["active_native_subprocess_count"], 1)
+                self.assertEqual(snapshot["active_native_subprocesses"]["hexec-native-bg"][0]["pid"], process.pid)
+            finally:
+                process.terminate()
+                try:
+                    process.wait(timeout=2)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait(timeout=2)
+
+            drained = runtime.wait_for_active_executions(2)
+            self.assertEqual(drained["drain_status"], "drained")
+            self.assertEqual(drained["active_execution_count"], 0)
+
+    def test_active_execution_snapshot_keeps_native_descendants_after_worker_exits(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_ENABLED": "true",
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        class FakeProcess:
+            pid = 12345
+
+            def poll(self) -> None:
+                return None
+
+        with runtime._executor_process_lock:
+            runtime._executor_processes["hexec-native-descendant"] = FakeProcess()  # type: ignore[assignment]
+
+        with mock.patch.object(runtime, "_descendant_process_ids", return_value={23456}), mock.patch.object(
+            runtime,
+            "_pid_is_active",
+            side_effect=lambda pid: pid == 23456,
+        ):
+            snapshot = runtime.active_execution_snapshot(include_self_review_queue=False)
+            self.assertEqual(snapshot["active_execution_count"], 1)
+            self.assertEqual(snapshot["active_native_subprocess_count"], 1)
+            self.assertEqual(snapshot["active_native_subprocess_execution_ids"], ["hexec-native-descendant"])
+
+            with runtime._executor_process_lock:
+                runtime._executor_processes.pop("hexec-native-descendant", None)
+
+            snapshot = runtime.active_execution_snapshot(include_self_review_queue=False)
+            self.assertEqual(snapshot["active_execution_count"], 1)
+            self.assertEqual(snapshot["active_execution_ids"], ["hexec-native-descendant"])
+
     def test_executor_status_orphaned_diagnostics_include_pod_and_status_file(self) -> None:
         with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as workspace_root, mock.patch(
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
