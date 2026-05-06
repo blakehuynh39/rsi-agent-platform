@@ -2836,13 +2836,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "14e42bf32f505eb4b7437b7109f771e627f633778f42f6e5a23ba6584fcd44fb",
-        "size": 451790
+        "sha256": "23a5d36a8df8b374333be5591272e42d6fdfb681a4f2a7ed057b94df79f946ea",
+        "size": 452178
       },
       {
         "path": "log.md",
-        "sha256": "87fc0fc5913359a33eafab87cc029d770970cca5e61f64a02909845aa8ed6f99",
-        "size": 764957
+        "sha256": "e4f218725b093743e0e389f37eba3b73deb182fc7ffecbf01a7c29be1e0e6262",
+        "size": 765357
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3373,6 +3373,11 @@
         "path": "pages/decisions/license-token-standard-evaluation.md",
         "sha256": "d38939f4bf468400af175463560fb04d9fd1cfb1ba47de0596e1ff7655310c79",
         "size": 3674
+      },
+      {
+        "path": "pages/decisions/licensing-simplification-design.md",
+        "sha256": "bc7cde0c0ee234abd0d71f8af53046f81f85d9a58c2f670e201a6bc94a19eeef",
+        "size": 5812
       },
       {
         "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
@@ -4319,8 +4324,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T22:51:47Z",
-  "file_count": 862,
+  "exported_at": "2026-05-06T22:57:51Z",
+  "file_count": 863,
   "files": [
     {
       "path": ".curator_state",
@@ -7152,7 +7157,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5599f8q966n",
-  "previous_tree_hash": "49b0f012a70a48ff21a7605340de91958ac8475e3b335e1732f01cc3735b7d2c",
+  "previous_tree_hash": "6231e12234f2f7f6aea09a0c7b965f21e3b88b81d15d28f19a2bc1aacbe71834",
   "schema_version": 1,
   "skill_file_count": 565,
   "skill_manage_sessions": [
@@ -7165,14 +7170,14 @@
   ],
   "skill_tree_hash": "586df8ba0e523a8c5e12158faa9ae21522d76b47dedd8a894535ec8c9b1b43ca",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6231e12234f2f7f6aea09a0c7b965f21e3b88b81d15d28f19a2bc1aacbe71834",
+  "tree_hash": "d0f87f83f0af73e86fc99b87aea9ca5cb0ad60c486c6041f1255a08b6e64917d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 297,
+  "wiki_file_count": 298,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7181,13 +7186,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "14e42bf32f505eb4b7437b7109f771e627f633778f42f6e5a23ba6584fcd44fb",
-      "size": 451790
+      "sha256": "23a5d36a8df8b374333be5591272e42d6fdfb681a4f2a7ed057b94df79f946ea",
+      "size": 452178
     },
     {
       "path": "log.md",
-      "sha256": "87fc0fc5913359a33eafab87cc029d770970cca5e61f64a02909845aa8ed6f99",
-      "size": 764957
+      "sha256": "e4f218725b093743e0e389f37eba3b73deb182fc7ffecbf01a7c29be1e0e6262",
+      "size": 765357
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7718,6 +7723,11 @@
       "path": "pages/decisions/license-token-standard-evaluation.md",
       "sha256": "d38939f4bf468400af175463560fb04d9fd1cfb1ba47de0596e1ff7655310c79",
       "size": 3674
+    },
+    {
+      "path": "pages/decisions/licensing-simplification-design.md",
+      "sha256": "bc7cde0c0ee234abd0d71f8af53046f81f85d9a58c2f670e201a6bc94a19eeef",
+      "size": 5812
     },
     {
       "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
@@ -8661,5 +8671,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1c269db19a4794b9360f7186f566c57dea51565478245758a0b74eff3f376caf"
+  "wiki_tree_hash": "ff1119425cc1e028d4383aa0659db0e884c5f12258effa70bf0f2360c32e87ef"
 }

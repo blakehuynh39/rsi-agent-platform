@@ -15248,3 +15248,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7acd70a8a44d8ff9e1ce1ae3541fe662
 - summary: Summary of protocol research, development milestones, module discussions, and repository activities from May to July 2023.
 
+## [2026-05-06T22:52:55Z] synthesis | Simplify Licensing Design
+
+- status: published
+- slug: decisions/licensing-simplification-design
+- wiki_revision_id: wikirev_7d61d5f9ed85fc4f8c56dfcdf8e3c22d
+- summary: Design to simplify the licensing structure from License → Policy → FrameworkData → Framework to License → LicenseTemplate, update interfaces, and fully support third-party LicenseT...
+
