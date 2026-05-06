@@ -14556,3 +14556,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_63de520ee958b0974165024d749b5666
 - summary: Engineering plans for Story Protocol L1, covering launch items, precompiles, proof-of-creativity, custom data types, partners, 1st-party apps, cross-chain, token design, staking, a...
 
+## [2026-05-06T00:18:36Z] synthesis | Ethereum Improvement Proposal (EIP) Process
+
+- status: published
+- slug: concepts/ethereum-improvement-proposal-process
+- wiki_revision_id: wikirev_b5ebedee2659b3d35805d5b416708851
+- summary: Ethereum Improvement Proposals (EIPs) define standards for the Ethereum platform, including core protocol specs, APIs, and contract standards. They follow a defined lifecycle and p...
+

@@ -2791,8 +2791,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "27c7a3ddea6c84f70adb7878a6ae4daa0da643176e7f9518f0ca1c9a2cf01107",
-        "size": 731652
+        "sha256": "5bcdb399b8a32d189dbb3c793dd25291a4a7a401dc150d41d09f28a127a74aec",
+        "size": 732067
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2878,6 +2878,11 @@
         "path": "pages/concepts/enshrined-protocol.md",
         "sha256": "48ec3bbb2dc70b024dbdf0367d92a1a0c5921f99c552dbe417b21c5d02c1945f",
         "size": 1520
+      },
+      {
+        "path": "pages/concepts/ethereum-improvement-proposal-process.md",
+        "sha256": "868b398de8326c076e45efce6e8c108877f208f6aeb6fddc36fce9d9bc27c3b7",
+        "size": 3140
       },
       {
         "path": "pages/concepts/etherscan-custom-error-handling-limitation.md",
@@ -3874,8 +3879,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T00:01:52Z",
-  "file_count": 773,
+  "exported_at": "2026-05-06T00:22:52Z",
+  "file_count": 774,
   "files": [
     {
       "path": ".usage.json",
@@ -6657,7 +6662,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7c77c5tqkts",
-  "previous_tree_hash": "5f229ad95861e896ca95792bb6e8c949aabed3f267833c85a662ca626184dbde",
+  "previous_tree_hash": "ce73f38698b95381ac7b32847e287825c60291d7a7485f3cc4fff5e024afea3e",
   "schema_version": 1,
   "skill_file_count": 555,
   "skill_manage_sessions": [
@@ -6670,14 +6675,14 @@
   ],
   "skill_tree_hash": "93a39c348b599ba4ce6366c3184425e46fb0b11259fb63916e94477fa44536b7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ce73f38698b95381ac7b32847e287825c60291d7a7485f3cc4fff5e024afea3e",
+  "tree_hash": "1630f438a805304516b555283a20f64ce7fee78992e889e0240c92467475286b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 218,
+  "wiki_file_count": 219,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6691,8 +6696,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "27c7a3ddea6c84f70adb7878a6ae4daa0da643176e7f9518f0ca1c9a2cf01107",
-      "size": 731652
+      "sha256": "5bcdb399b8a32d189dbb3c793dd25291a4a7a401dc150d41d09f28a127a74aec",
+      "size": 732067
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6778,6 +6783,11 @@
       "path": "pages/concepts/enshrined-protocol.md",
       "sha256": "48ec3bbb2dc70b024dbdf0367d92a1a0c5921f99c552dbe417b21c5d02c1945f",
       "size": 1520
+    },
+    {
+      "path": "pages/concepts/ethereum-improvement-proposal-process.md",
+      "sha256": "868b398de8326c076e45efce6e8c108877f208f6aeb6fddc36fce9d9bc27c3b7",
+      "size": 3140
     },
     {
       "path": "pages/concepts/etherscan-custom-error-handling-limitation.md",
@@ -7771,5 +7781,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e6b420bed91bf26a3186b9bc3fcd4c22062e210d831cf33af9f8f95afd091439"
+  "wiki_tree_hash": "0737deac0ae535dbd92719e2621425fd0806a4615696a8367cbda7354b0f0a02"
 }
