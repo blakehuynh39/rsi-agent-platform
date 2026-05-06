@@ -14730,3 +14730,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_31b4a9c587f3a7b5e32c8ab4ff7641cc
 - summary: A cronjob that runs daily at midnight to prune unused Docker resources and truncate container log files on explorer instances.
 
+## [2026-05-06T04:16:23Z] synthesis | Binaries Releases
+
+- status: published
+- slug: projects/binaries-releases
+- wiki_revision_id: wikirev_0ce89f1fa101b73c21662ab5b862141d
+- summary: Stable and previous binary releases for the Story Network node, covering Linux, Windows, and macOS platforms.
+
