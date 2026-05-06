@@ -9,8 +9,8 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "a977aa968f75cace6c5dc789d96bd19ee291b9bdc1b5364c20200ddb4ceb33ad",
-        "size": 1483
+        "sha256": "d1ad37ce686b5588f330104f6fa82bcddf9033dbc3322c5efc94104aced4f8ef",
+        "size": 1513
       },
       {
         "path": "apple/DESCRIPTION.md",
@@ -2759,18 +2759,23 @@
       },
       {
         "path": "story-company/depin-prod-admin-read/SKILL.md",
-        "sha256": "2d7024d5d170918e72a11d55ee553f9409e369d311493c07c8e6875306d561a2",
-        "size": 4042
+        "sha256": "0ab74dfcc960862a18c4f45050dfbff9a11f5591c9dd89951061413fe3a34f66",
+        "size": 5352
       },
       {
         "path": "story-company/numo-project-status/SKILL.md",
-        "sha256": "5e9b205c5b239569d88457e56897cc906a11af6be0d567679976fabe3a3ecad9",
-        "size": 12423
+        "sha256": "5384f140ab54964a4c5584cc23c5ef1e5be1fea119013993351607e5992cce3b",
+        "size": 12596
       },
       {
         "path": "story-company/numo-project-status/references/ci-pipeline-checks.md",
         "sha256": "30e58e0a34fe49e14e70d5c3f919d5ff22adfd8e65732758bfd5784892a300a0",
         "size": 2473
+      },
+      {
+        "path": "story-company/numo-project-status/references/code-fix-workflow.md",
+        "sha256": "40b744b2b4bcbcf094720e0e6f1625335658f922a92c629b5daf40c1b7ace010",
+        "size": 4438
       },
       {
         "path": "story-company/numo-project-status/references/gap-analysis.md",
@@ -4204,8 +4209,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T16:38:28Z",
-  "file_count": 839,
+  "exported_at": "2026-05-06T16:44:30Z",
+  "file_count": 840,
   "files": [
     {
       "path": ".curator_state",
@@ -4214,8 +4219,8 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "a977aa968f75cace6c5dc789d96bd19ee291b9bdc1b5364c20200ddb4ceb33ad",
-      "size": 1483
+      "sha256": "d1ad37ce686b5588f330104f6fa82bcddf9033dbc3322c5efc94104aced4f8ef",
+      "size": 1513
     },
     {
       "path": "apple/DESCRIPTION.md",
@@ -6964,18 +6969,23 @@
     },
     {
       "path": "story-company/depin-prod-admin-read/SKILL.md",
-      "sha256": "2d7024d5d170918e72a11d55ee553f9409e369d311493c07c8e6875306d561a2",
-      "size": 4042
+      "sha256": "0ab74dfcc960862a18c4f45050dfbff9a11f5591c9dd89951061413fe3a34f66",
+      "size": 5352
     },
     {
       "path": "story-company/numo-project-status/SKILL.md",
-      "sha256": "5e9b205c5b239569d88457e56897cc906a11af6be0d567679976fabe3a3ecad9",
-      "size": 12423
+      "sha256": "5384f140ab54964a4c5584cc23c5ef1e5be1fea119013993351607e5992cce3b",
+      "size": 12596
     },
     {
       "path": "story-company/numo-project-status/references/ci-pipeline-checks.md",
       "sha256": "30e58e0a34fe49e14e70d5c3f919d5ff22adfd8e65732758bfd5784892a300a0",
       "size": 2473
+    },
+    {
+      "path": "story-company/numo-project-status/references/code-fix-workflow.md",
+      "sha256": "40b744b2b4bcbcf094720e0e6f1625335658f922a92c629b5daf40c1b7ace010",
+      "size": 4438
     },
     {
       "path": "story-company/numo-project-status/references/gap-analysis.md",
@@ -7017,9 +7027,9 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c9cb697rvtm",
-  "previous_tree_hash": "c192d08c653ee8ac81a7a3abb53f9d393ec0a23e06a1f8dd8d122a133d13a28b",
+  "previous_tree_hash": "27e7c0314e6e108efffa14325a26ac19e27b9265f9ec0b7b04e0db2aed5cf149",
   "schema_version": 1,
-  "skill_file_count": 561,
+  "skill_file_count": 562,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -7028,9 +7038,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "69e466b94f3c1198180a274e9903920645b8c3a7ba4342ce0876862fee67f132",
+  "skill_tree_hash": "085cf93f9b1bba4b418121d599fbd546314739887cef1bd3c8836581b135ea47",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "27e7c0314e6e108efffa14325a26ac19e27b9265f9ec0b7b04e0db2aed5cf149",
+  "tree_hash": "1f455ba6ed1a15cc64f2fdc8c4c66e8e34c93d959628eb20289b0126eaf014c8",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",

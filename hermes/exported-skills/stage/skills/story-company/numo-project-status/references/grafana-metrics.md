@@ -30,7 +30,7 @@ CF-Access-Client-Secret: ${RSI_GRAFANA_CF_ACCESS_CLIENT_SECRET}
 
 ### Prod
 - `job`: `use1-prod-depin-backend`
-- `namespace`: (prod namespace — not `story`)
+- `namespace`: `story` (in Thanos kube-state-metrics — `container_*` metrics for prod pods also appear under `namespace="story"` despite prod pods NOT being in the K8s `story` namespace. This is a quirk of how Thanos federates metrics. **Always confirm with pod name prefix** — `use1-prod-*` vs `use1-stage-*`.)
 - `cluster`: `use1-prod`
 - `environment`: `prod`
 - Note: Prod pods are NOT accessible via `kubectl` from the stage cluster. Use Thanos metrics exclusively for prod pod data.
