@@ -15139,3 +15139,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9ab3a13a3b7dc1d91bd04051ca0e314e
 - summary: Plan to launch an internal L1 Devnet with 25 validators (15 at genesis + 10 later), enshrined Story Protocol v1.1, IP graph support up to 1024 nodes, and full staking functionality...
 
+## [2026-05-06T18:33:23Z] synthesis | CDN Management
+
+- status: published
+- slug: runbooks/cdn-management
+- wiki_revision_id: wikirev_6eb13b3c367b07c6414edab333fd375f
+- summary: Guide for managing the CDN that fronts public S3 assets using Cloudflare.
+
