@@ -12,12 +12,7 @@ Query reference and pitfalls for Grafana → Thanos (Prometheus) metrics used in
 | `RSI_GRAFANA_CF_ACCESS_CLIENT_SECRET` | Cloudflare Access client secret | Required for datasource proxy |
 | Datasource UID | `thanos` | Type: prometheus, proxy access, backend `http://thanos-query:9090` |
 
-**Critical**: `GRAFANA_TOKEN` alone returns 401 on `/api/datasources/proxy/uid/thanos/...`. You MUST include all three headers:
-```
-Authorization: Bearer ${GRAFANA_TOKEN}
-CF-Access-Client-Id: ${RSI_GRAFANA_CF_ACCESS_CLIENT_ID}
-CF-Access-Client-Secret: ${RSI_GRAFANA_CF_ACCESS_CLIENT_SECRET}
-```
+**Critical**: `GRAFANA_TOKEN` alone works for ALL API endpoints including the datasource proxy `/api/datasources/proxy/uid/thanos/...`. The CF-Access headers are NOT required (verified 2026-05-06). If the proxy returns 401, the token itself is expired/insufficient — check permissions, not CF Access.
 
 ## Metric Labels Reference
 
@@ -45,12 +40,20 @@ CF-Access-Client-Secret: ${RSI_GRAFANA_CF_ACCESS_CLIENT_SECRET}
 ENCODED=$(python3 -c "import urllib.parse; print(urllib.parse.quote('<promql>'))")
 curl -s \
   -H "Authorization: Bearer ${GRAFANA_TOKEN}" \
-  -H "CF-Access-Client-Id: ${RSI_GRAFANA_CF_ACCESS_CLIENT_ID}" \
-  -H "CF-Access-Client-Secret: ${RSI_GRAFANA_CF_ACCESS_CLIENT_SECRET}" \
   "${GRAFANA_SERVER}/api/datasources/proxy/uid/thanos/api/v1/query?query=${ENCODED}"
 ```
 
 Parse results with: `python3 -c "import json,sys; d=json.load(sys.stdin); ..."`
+
+### Range Queries
+
+```bash
+NOW=$(date +%s)
+DAY_AGO=$((NOW - 86400))
+curl -s \
+  -H "Authorization: Bearer ${GRAFANA_TOKEN}" \
+  "${GRAFANA_SERVER}/api/datasources/proxy/uid/thanos/api/v1/query_range?query=${ENCODED}&start=${DAY_AGO}&end=${NOW}&step=1800"
+```
 
 ## Essential PromQL Queries
 
@@ -110,6 +113,46 @@ avg_over_time(container_memory_working_set_bytes{namespace="story",pod="use1-pro
 rate(container_cpu_usage_seconds_total{namespace="story",pod="use1-prod-depin-backend-7f6566fbd8-vzp5r",container="depin-backend"}[15m]) * 100
 ```
 
+### IP Registration Pipeline Throughput
+
+```promql
+# Confirmed + reverted rate (the definitive throughput metric)
+sum by (status) (rate(ip_registration_total{environment="prod",status=~"confirmed|reverted"}[5m]))
+
+# Broadcast outcomes
+sum by (status) (rate(ip_registration_total{environment="prod",status=~"broadcasted|broadcast_error"}[5m]))
+
+# Open jobs by (action, state) — queue depth
+sum by (state, action) (ip_registration_open_jobs_by_state{environment="prod"})
+
+# In-flight tx attempts
+sum by (state) (ip_registration_current_tx_attempts_by_state{environment="prod"})
+
+# Stuck broadcasted jobs (age > STUCK_THRESHOLD, default 1800s)
+sum by (action) (ip_registration_stuck_jobs{environment="prod",state="BROADCASTED"})
+
+# Oldest BROADCASTED job age (seconds)
+max by (action) (ip_registration_oldest_non_terminal_job_age_seconds{environment="prod",state="BROADCASTED"})
+
+# Active wallets
+ip_registration_wallets_active{environment="prod"}
+
+# Mempool inclusion latency (broadcast → confirm) p50/p95
+histogram_quantile(0.50, sum by (le) (rate(ip_registration_attempt_broadcast_to_confirm_seconds_bucket{environment="prod"}[15m])))
+histogram_quantile(0.95, sum by (le) (rate(ip_registration_attempt_broadcast_to_confirm_seconds_bucket{environment="prod"}[15m])))
+
+# Submit tx + confirm receipt duration
+histogram_quantile(0.50, sum by (le) (rate(ip_registration_duration_seconds_bucket{environment="prod",stage="submit_tx"}[15m])))
+histogram_quantile(0.50, sum by (le) (rate(ip_registration_duration_seconds_bucket{environment="prod",stage="confirm_receipt"}[15m])))
+
+# Full attempt lifecycle (created → terminal)
+histogram_quantile(0.50, sum by (le) (rate(ip_registration_attempt_lifecycle_seconds_bucket{environment="prod",terminal_state="confirmed"}[15m])))
+```
+
+**Key labels**: `environment="prod"` (NOT `"production"`), `action` (CREATE_COLLECTION/REGISTER_CAMPAIGN_IP/REGISTER_FILE_IP), `state` (READY_TO_SUBMIT/BROADCASTED), `status` (broadcasted/broadcast_error/confirmed/reverted).
+
+**Important**: A single job increments multiple `ip_registration_total` counters (broadcasted → confirmed). The `confirmed` rate is the definitive throughput metric. The 24h `increase()` on this counter will be roughly 2× the actual number of unique jobs confirmed.
+
 ### Dashboard Discovery
 
 ```bash
@@ -139,8 +182,8 @@ sum(rate(http_requests_total{job="use1-stage-depin-backend",status=~"4..|5..",pa
 sum(rate(http_requests_total{job="use1-stage-depin-backend",path!="unmatched"}[1h]))
 ```
 
-### 2. CF-Access Headers Required for Proxy
-`GRAFANA_TOKEN` returns 200 on dashboard/health/search endpoints but 401 on datasource proxy endpoints. The proxy requires Cloudflare Access tunnel authentication.
+### 2. CF-Access Headers NOT Required (verified 2026-05-06)
+Contrary to earlier documentation, `GRAFANA_TOKEN` works for ALL endpoints including the datasource proxy. CF-Access headers are not needed. If the proxy returns 401, the token permissions are insufficient — request a token with datasource query access.
 
 ### 3. Prod Pods Share `namespace="story"` in Thanos Container Metrics
 
