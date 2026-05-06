@@ -2821,8 +2821,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "0534bc9f64f046e5577426e9ac31cb9d654487f30f67de2415e8b3a48738e3ae",
-        "size": 746670
+        "sha256": "3e32c3a48739c462449a2932fa021d9820e30f1436b00314101aed0cc270d175",
+        "size": 746941
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2913,6 +2913,11 @@
         "path": "pages/concepts/enshrined-protocol.md",
         "sha256": "48ec3bbb2dc70b024dbdf0367d92a1a0c5921f99c552dbe417b21c5d02c1945f",
         "size": 1520
+      },
+      {
+        "path": "pages/concepts/epoched-staking.md",
+        "sha256": "6f5cb212fff8a9b0c84bda242c308da40d2af0a1effe8d19ab2ef7632e2e8bbc",
+        "size": 5376
       },
       {
         "path": "pages/concepts/ethereum-improvement-proposal-process.md",
@@ -4094,8 +4099,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-06T08:42:23Z",
-  "file_count": 817,
+  "exported_at": "2026-05-06T09:03:57Z",
+  "file_count": 818,
   "files": [
     {
       "path": ".curator_state",
@@ -6907,7 +6912,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-bfdd9bqzchn",
-  "previous_tree_hash": "59b9c51cc28b0e46264b3717b3b0a2ad74e56d60b4c2ce41659b881e74b05226",
+  "previous_tree_hash": "3fd651a30560afb974072e0415bc5d77f57d30dda76b3c7659a700c9a067e3db",
   "schema_version": 1,
   "skill_file_count": 561,
   "skill_manage_sessions": [
@@ -6920,14 +6925,14 @@
   ],
   "skill_tree_hash": "e436a423cb49da237ad5915505f2e0cd5a9a282cd76fef73237aabeb9e1ac7bf",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3fd651a30560afb974072e0415bc5d77f57d30dda76b3c7659a700c9a067e3db",
+  "tree_hash": "84285cbe72a308c2e9fffcf9a9a0ac402017ee6b9464c74d1cbf5db8b9d404b4",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 256,
+  "wiki_file_count": 257,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -6941,8 +6946,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "0534bc9f64f046e5577426e9ac31cb9d654487f30f67de2415e8b3a48738e3ae",
-      "size": 746670
+      "sha256": "3e32c3a48739c462449a2932fa021d9820e30f1436b00314101aed0cc270d175",
+      "size": 746941
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7033,6 +7038,11 @@
       "path": "pages/concepts/enshrined-protocol.md",
       "sha256": "48ec3bbb2dc70b024dbdf0367d92a1a0c5921f99c552dbe417b21c5d02c1945f",
       "size": 1520
+    },
+    {
+      "path": "pages/concepts/epoched-staking.md",
+      "sha256": "6f5cb212fff8a9b0c84bda242c308da40d2af0a1effe8d19ab2ef7632e2e8bbc",
+      "size": 5376
     },
     {
       "path": "pages/concepts/ethereum-improvement-proposal-process.md",
@@ -8211,5 +8221,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "bd07005fe3acf51c9bdf09641f633c7bdc6adf349c0b7a50684426871c0c002b"
+  "wiki_tree_hash": "f9ebdb2c95ddfed874a35a422a3c742e0d101d96f7bbe92653c77e310c635854"
 }

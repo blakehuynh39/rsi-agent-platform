@@ -14872,3 +14872,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a4edd4f357a5428f012939630921c4ed
 - summary: The Story Partner Testnet will be phased out on September 6, 2024. Users are advised to migrate to the Public Testnet. For support, contact boris.polania@storyprotocol.xyz.
 
+## [2026-05-06T09:02:05Z] synthesis | Epoched Staking
+
+- status: published
+- slug: concepts/epoched-staking
+- wiki_revision_id: wikirev_21923022f517a8e46fc96f948443e3a1
+- summary: Epoched staking mechanism that uses epochs to batch and execute validator set operations.
+
