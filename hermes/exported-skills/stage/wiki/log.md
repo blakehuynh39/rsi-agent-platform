@@ -19599,3 +19599,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9924d00f540ded0ee2dede20f6eaa7b6
 - summary: High-level design for a scalable, programmable Subnet infrastructure where the Subnet Server is a Layer 2 chain built on OP Stack, supporting workflow execution as smart contracts,...
 
+## [2026-05-07T19:48:18Z] synthesis | Poseidon Storage Network
+
+- status: published
+- slug: systems/poseidon-storage-network
+- wiki_revision_id: wikirev_65aafca3c9abe75e1396ea8cdfa81410
+- summary: Poseidon is a decentralized storage network composed of Subnets, each containing Storage Nodes. It uses a terminology mapping to Walrus concepts (Bucket/Shard, Chunk/Sliver, Data O...
+
+## [2026-05-07T19:50:05Z] synthesis | Poseidon
+
+- status: published
+- slug: projects/poseidon
+- wiki_revision_id: wikirev_933226427f6a8a7c080370d968a1ef27
+- summary: Poseidon is an internal project aiming to build a reusable storage layer to replace IPFS on Story L1, with a focus on privacy protection and a production service in 4 months. The 0...
+
+## [2026-05-07T19:50:05Z] synthesis | Poseidon PoC Crunch Time May 2025
+
+- status: published
+- slug: runbooks/poseidon-poc-crunch-time-may-2025
+- wiki_revision_id: wikirev_4b616244ae17d2c8eb8cbb53d410f85b
+- summary: Crunch time event for the Poseidon PoC, held from May 5 to May 21, 2025 at Palo Alto Story HQ, with daily hours 9:30am-9:30pm. Participants include domestic, international, and loc...
+

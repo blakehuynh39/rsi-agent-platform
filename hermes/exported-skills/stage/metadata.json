@@ -2896,13 +2896,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "53be122c04b23e3075fa1751b30b3c4bf22a6308509bfd84561a786dc8cf94ee",
-        "size": 491278
+        "sha256": "e8e59f53412c22a3f936ab4f8e850ab4cd092341073860392828d912b3a9e3ac",
+        "size": 492376
       },
       {
         "path": "log.md",
-        "sha256": "1ccafb333fdb6c2c8da2dcf9d59a77211130276a32b1e87e01b72f409ffd08e7",
-        "size": 929087
+        "sha256": "74a0fbf38df013da26a58b901f923da3a1723eeac5343ba53e133939e83df9d6",
+        "size": 930221
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4255,6 +4255,11 @@
         "size": 16430
       },
       {
+        "path": "pages/projects/poseidon.md",
+        "sha256": "869d739d3b1a2fc7f5686aec4de8f377548247a5ed2361ee5548ceed6654fb3e",
+        "size": 9941
+      },
+      {
         "path": "pages/projects/pre-processing-optimization.md",
         "sha256": "e2ee3b5ad6e79535c607f511d9cba457a0c04effbd5a58b7f6a945d5a9b30dce",
         "size": 1257
@@ -4545,6 +4550,11 @@
         "size": 5434
       },
       {
+        "path": "pages/runbooks/poseidon-poc-crunch-time-may-2025.md",
+        "sha256": "7f375920197e22e329dd143adcc97bae8a6b74f8d21f3a3703958dbd2373e1c2",
+        "size": 8715
+      },
+      {
         "path": "pages/runbooks/poseidon-subnet-worker-guide.md",
         "sha256": "c6670c18b2fa40efcbfd866e36efcdb64de5204695b3c471ebfbfff34b1b44ba",
         "size": 7034
@@ -4755,6 +4765,11 @@
         "size": 1383
       },
       {
+        "path": "pages/systems/poseidon-storage-network.md",
+        "sha256": "eb10e7632c5606c827260b13b76059d8150382071448aaffe5c288211ef8d346",
+        "size": 8771
+      },
+      {
         "path": "pages/systems/poseidon-storage-node-responsibilities.md",
         "sha256": "a16723eb358d4d34d88dba4451f05266f6d0ed1b4592d4b81c4fcecd9b1cd540",
         "size": 5422
@@ -4849,8 +4864,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T19:41:50Z",
-  "file_count": 968,
+  "exported_at": "2026-05-07T19:53:02Z",
+  "file_count": 971,
   "files": [
     {
       "path": ".curator_state",
@@ -7742,7 +7757,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7b87977wx4w",
-  "previous_tree_hash": "533f1dda4dd01a73eace41c895de338417222a19f4b7e6c4de31662b6c337c7d",
+  "previous_tree_hash": "e33ae450484ae90f30b3be82e868e0e5efb81d1ff2db1aeda0f5fb834aa7623c",
   "schema_version": 1,
   "skill_file_count": 577,
   "skill_manage_sessions": [
@@ -7755,14 +7770,14 @@
   ],
   "skill_tree_hash": "f268c07e5ed6610c18de5213322aa924cd9e307b226e3df74fd01b50d82a8489",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e33ae450484ae90f30b3be82e868e0e5efb81d1ff2db1aeda0f5fb834aa7623c",
+  "tree_hash": "2cffca4cc3af7f101c6ca0985cf8ab95e7173a2aa4a0d4401b346cf2e2db8eff",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 391,
+  "wiki_file_count": 394,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7771,13 +7786,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "53be122c04b23e3075fa1751b30b3c4bf22a6308509bfd84561a786dc8cf94ee",
-      "size": 491278
+      "sha256": "e8e59f53412c22a3f936ab4f8e850ab4cd092341073860392828d912b3a9e3ac",
+      "size": 492376
     },
     {
       "path": "log.md",
-      "sha256": "1ccafb333fdb6c2c8da2dcf9d59a77211130276a32b1e87e01b72f409ffd08e7",
-      "size": 929087
+      "sha256": "74a0fbf38df013da26a58b901f923da3a1723eeac5343ba53e133939e83df9d6",
+      "size": 930221
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9130,6 +9145,11 @@
       "size": 16430
     },
     {
+      "path": "pages/projects/poseidon.md",
+      "sha256": "869d739d3b1a2fc7f5686aec4de8f377548247a5ed2361ee5548ceed6654fb3e",
+      "size": 9941
+    },
+    {
       "path": "pages/projects/pre-processing-optimization.md",
       "sha256": "e2ee3b5ad6e79535c607f511d9cba457a0c04effbd5a58b7f6a945d5a9b30dce",
       "size": 1257
@@ -9420,6 +9440,11 @@
       "size": 5434
     },
     {
+      "path": "pages/runbooks/poseidon-poc-crunch-time-may-2025.md",
+      "sha256": "7f375920197e22e329dd143adcc97bae8a6b74f8d21f3a3703958dbd2373e1c2",
+      "size": 8715
+    },
+    {
       "path": "pages/runbooks/poseidon-subnet-worker-guide.md",
       "sha256": "c6670c18b2fa40efcbfd866e36efcdb64de5204695b3c471ebfbfff34b1b44ba",
       "size": 7034
@@ -9630,6 +9655,11 @@
       "size": 1383
     },
     {
+      "path": "pages/systems/poseidon-storage-network.md",
+      "sha256": "eb10e7632c5606c827260b13b76059d8150382071448aaffe5c288211ef8d346",
+      "size": 8771
+    },
+    {
       "path": "pages/systems/poseidon-storage-node-responsibilities.md",
       "sha256": "a16723eb358d4d34d88dba4451f05266f6d0ed1b4592d4b81c4fcecd9b1cd540",
       "size": 5422
@@ -9721,5 +9751,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "371b80dda3e0526c250a5d63547dd69a66e276ba59591be53e6e43ae0674f736"
+  "wiki_tree_hash": "235b0957259e863c518e7e0c224f024ff53f280837b88b65325c477d6686ea82"
 }
