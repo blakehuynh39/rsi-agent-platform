@@ -19270,3 +19270,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c7865e8bbb0326eaeabc8fac1caf9816
 - summary: Defines the schema, canonical encoding, signing, and on-chain verification of object certificates for proof of storage on Story Network.
 
+## [2026-05-07T11:48:30Z] synthesis | Engineering Meeting Cadence
+
+- status: published
+- slug: policies/engineering-meeting-cadence
+- wiki_revision_id: wikirev_cf290d2b9f42802450c0e5fe9e2b64a2
+- summary: Defines the goals, requirements, and schedule for engineering meetings, including all-hands, design reviews, learning sessions, and team-specific meetings.
+
