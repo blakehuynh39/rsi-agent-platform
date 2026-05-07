@@ -19109,3 +19109,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_38b58854a8884d8e7ddd0e03fb8b401b
 - summary: Hyperbolic is a decentralized AI cloud platform that connects idle GPUs from data centers, mining farms, and individuals into a scalable, cost-effective compute network for AI infe...
 
+## [2026-05-07T07:05:21Z] synthesis | Gensyn
+
+- status: published
+- slug: projects/gensyn
+- wiki_revision_id: wikirev_4c1cf35f9adbd0c90a27c80d09dd4ebb
+- summary: Gensyn is developing a decentralized machine learning compute protocol that enables training of AI models over a globally distributed network of devices. It aims to democratize acc...
+

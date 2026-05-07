@@ -2856,8 +2856,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "f7351a2683aaadaabb56b47b4c5f229868627420e70d1f2592b60392cbe2ade5",
-        "size": 906378
+        "sha256": "01b4f615ec8708a857c6e85b3a81d8174a907e589ba9f86de542814b97c0731c",
+        "size": 906725
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3800,6 +3800,11 @@
         "size": 1336
       },
       {
+        "path": "pages/projects/gensyn.md",
+        "sha256": "f4133dfea0310709611914bf70b876e0c7168c3d76573b68bd5d12bb53ef68ce",
+        "size": 8099
+      },
+      {
         "path": "pages/projects/gif-project.md",
         "sha256": "ef6d587313e77d5e5b196cb6af8beb85abd9237c6b36a27b71e1386a5d35065a",
         "size": 2580
@@ -4474,8 +4479,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T06:54:23Z",
-  "file_count": 893,
+  "exported_at": "2026-05-07T07:05:33Z",
+  "file_count": 894,
   "files": [
     {
       "path": ".curator_state",
@@ -7322,7 +7327,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c89c4f2tzr",
-  "previous_tree_hash": "d483308d020488120c1f2357543e74997f6e4cfc0c63747b6547f8682af298c6",
+  "previous_tree_hash": "6f61387af8eb08297eec0bedd2458ec538441eb44b1b0b1651afef0c4b8b97a9",
   "schema_version": 1,
   "skill_file_count": 568,
   "skill_manage_sessions": [
@@ -7335,14 +7340,14 @@
   ],
   "skill_tree_hash": "ec943e5241dcac5231901fd8f3469298280c5000a379f6caea8af83f6deee67d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6f61387af8eb08297eec0bedd2458ec538441eb44b1b0b1651afef0c4b8b97a9",
+  "tree_hash": "bc5329c35be78ce1fdbd9511c5cb4d5f1cab314f5b9c334f58f168806e5912ac",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 325,
+  "wiki_file_count": 326,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7356,8 +7361,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "f7351a2683aaadaabb56b47b4c5f229868627420e70d1f2592b60392cbe2ade5",
-      "size": 906378
+      "sha256": "01b4f615ec8708a857c6e85b3a81d8174a907e589ba9f86de542814b97c0731c",
+      "size": 906725
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8300,6 +8305,11 @@
       "size": 1336
     },
     {
+      "path": "pages/projects/gensyn.md",
+      "sha256": "f4133dfea0310709611914bf70b876e0c7168c3d76573b68bd5d12bb53ef68ce",
+      "size": 8099
+    },
+    {
       "path": "pages/projects/gif-project.md",
       "sha256": "ef6d587313e77d5e5b196cb6af8beb85abd9237c6b36a27b71e1386a5d35065a",
       "size": 2580
@@ -8971,5 +8981,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1e120cb0da358d1ab6c2a829ebb3af642c383e2753f70e8db094cb1bc337e7f9"
+  "wiki_tree_hash": "0e4b6c11ac9727d424d245d2f06a10a2349361595befb06023ea83076e181c37"
 }
