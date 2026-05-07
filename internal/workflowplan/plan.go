@@ -40,12 +40,8 @@ type SlackSurfaceHint struct {
 }
 
 type LiveHintSet struct {
-	Repo                     string             `json:"repo,omitempty"`
-	CandidateReadSurfaces    []SlackSurfaceHint `json:"candidate_read_surfaces,omitempty"`
-	KubernetesReadNamespaces []string           `json:"kubernetes_read_namespaces,omitempty"`
-	DeploymentTargets        []string           `json:"deployment_targets,omitempty"`
-	Since                    string             `json:"since,omitempty"`
-	Until                    string             `json:"until,omitempty"`
+	Repo                  string             `json:"repo,omitempty"`
+	CandidateReadSurfaces []SlackSurfaceHint `json:"candidate_read_surfaces,omitempty"`
 }
 
 var (
@@ -57,20 +53,14 @@ var (
 
 func BuildLiveHints(cfg RuntimeConfig, ctx RequestContext, now time.Time) LiveHintSet {
 	repo := ResolveTargetRepo(cfg, ctx.Question)
-	since, until := RepoActivityWindow(ctx.Question, now)
 	return LiveHintSet{
-		Repo:                     repo,
-		CandidateReadSurfaces:    CandidateReadSurfacesForContext(ctx),
-		KubernetesReadNamespaces: config.CompactUniqueStrings(cfg.KubernetesReadNamespaces),
-		DeploymentTargets:        DeploymentTargetsForRepo(repo),
-		Since:                    since,
-		Until:                    until,
+		Repo:                  repo,
+		CandidateReadSurfaces: CandidateReadSurfacesForContext(ctx),
 	}
 }
 
 func BuildToolRequestPayload(cfg RuntimeConfig, ctx RequestContext, now time.Time) map[string]any {
 	repo := ResolveTargetRepo(cfg, ctx.Question)
-	since, until := RepoActivityWindow(ctx.Question, now)
 	workflowID := ctx.Trace.WorkflowID
 	if workflowID == "" {
 		workflowID = ctx.WorkflowID
@@ -83,7 +73,7 @@ func BuildToolRequestPayload(cfg RuntimeConfig, ctx RequestContext, now time.Tim
 	if caseID == "" {
 		caseID = ctx.CaseID
 	}
-	return map[string]any{
+	payload := map[string]any{
 		"repo":                       repo,
 		"question":                   ctx.Question,
 		"topic":                      ctx.Question,
@@ -101,9 +91,13 @@ func BuildToolRequestPayload(cfg RuntimeConfig, ctx RequestContext, now time.Tim
 		"workflow_id":                workflowID,
 		"conversation_id":            conversationID,
 		"case_id":                    caseID,
-		"since":                      since,
-		"until":                      until,
 	}
+	if ShouldUseGitHubRepoActivity(ctx.Question, repo) {
+		since, until := RepoActivityWindow(ctx.Question, now)
+		payload["since"] = since
+		payload["until"] = until
+	}
+	return payload
 }
 
 func DeploymentTargetsForRepo(repo string) []string {

@@ -553,6 +553,26 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("artifact.write.completed", source)
         self.assertIn("artifact_write_file", source)
 
+    def test_github_repo_activity_default_payload_ignores_context_windows(self) -> None:
+        namespace: dict[str, object] = {}
+        exec(_build_plugin_module(), namespace)
+
+        payload = namespace["_default_payload"](
+            "github.repo_activity",
+            {
+                "task_repo": "rsi-agent-platform",
+                "context_refs": [
+                    {
+                        "kind": "repo_activity_window",
+                        "since": "2026-04-30T17:15:39Z",
+                        "until": "2026-05-07T17:15:39Z",
+                    }
+                ],
+            },
+        )
+
+        self.assertEqual(payload, {"repo": "rsi-agent-platform"})
+
     def test_runner_task_reads_kubernetes_namespace_scope(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {

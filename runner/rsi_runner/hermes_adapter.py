@@ -427,12 +427,6 @@ def _default_payload(canonical_name: str, payload: JsonObject) -> JsonObject:
             out["channel_id"] = channel_id
         if thread_ts:
             out["thread_ts"] = thread_ts
-    if canonical_name == "github.repo_activity":
-        since, until = _activity_window(payload)
-        if since:
-            out["since"] = since
-        if until:
-            out["until"] = until
     if canonical_name == "rsi.workflow_context":
         out["trace_id"] = trace_id
     if canonical_name == "rsi.action_chain":
@@ -511,20 +505,6 @@ def _default_slack_channel_ids(payload: JsonObject) -> list[str]:
         seen.add(channel_id)
         out.append(channel_id)
     return out
-
-
-def _activity_window(payload: JsonObject) -> tuple[str, str]:
-    refs = payload.get("context_refs") or []
-    for item in refs:
-        if not isinstance(item, dict):
-            continue
-        if str(item.get("kind", "")).strip() != "repo_activity_window":
-            continue
-        since = str(item.get("since", "")).strip()
-        until = str(item.get("until", "")).strip()
-        if since or until:
-            return since, until
-    return "", ""
 
 
 def _allowed_upload_roots(payload: JsonObject) -> list[Path]:

@@ -1214,7 +1214,6 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	}, time.Now().UTC())
 	hintRefs := liveHintContextRefs(liveHints)
 	combinedContextRefs := append(append([]clients.RunnerContextRef{}, contextRefs...), hintRefs...)
-	combinedContextSummary := joinContextSummary(contextSummary, liveHintSummary(liveHints))
 	allowed, _ := replyPolicy(store, workflow.Kind, trace.Summary.ThreadKey, ingestion.ChannelID)
 	mcpServers := workflowMCPServers(cfg)
 	replyDeliveryMode := workflowReplyDeliveryMode(allowed)
@@ -1231,9 +1230,6 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		promptParts = append(promptParts, "Bound Slack thread context is attached in the task evidence. Recover the main request from that thread context before answering, and treat the latest inbound message as a follow-up within that thread.")
 	}
 	promptParts = append(promptParts, "Investigate with native Hermes tools, MCP, and the company-computer terminal. Start with the attached persisted evidence and context, then expand with tools as needed. Cite concrete evidence when possible. Default any Slack reply to the ingress thread.")
-	if len(kubernetesReadNamespaceScope) > 0 {
-		promptParts = append(promptParts, fmt.Sprintf("Kubernetes read scope: %s. Use only one of these namespaces and do not probe unlisted or archived namespaces.", strings.Join(kubernetesReadNamespaceScope, ", ")))
-	}
 	prompt := strings.Join(promptParts, "\n\n")
 	repo := firstNonEmpty(liveHints.Repo, cfg.DefaultRepo)
 	expectedOutputs := []string{"session_title", "visible_reasoning", "final_answer", "produced_artifacts", "artifact_failure_reason"}
@@ -1247,7 +1243,7 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		AllowedCommands:           []string{},
 		ExpectedOutputs:           expectedOutputs,
 		ArtifactDestination:       fmt.Sprintf("trace:%s", trace.Summary.TraceID),
-		ContextSummary:            combinedContextSummary,
+		ContextSummary:            contextSummary,
 		Intent:                    workflow.Intent,
 		TraceID:                   trace.Summary.TraceID,
 		WorkflowID:                trace.Summary.WorkflowID,
@@ -3090,43 +3086,7 @@ func workflowTraceStatusMismatch(workflowStatus string, traceStatus events.Statu
 }
 
 func liveHintContextRefs(hints workflowplan.LiveHintSet) []clients.RunnerContextRef {
-	refs := make([]clients.RunnerContextRef, 0, 2+len(hints.CandidateReadSurfaces))
-	if repo := strings.TrimSpace(hints.Repo); repo != "" {
-		refs = append(refs, clients.RunnerContextRef{
-			Kind:    "repo_target",
-			Ref:     repo,
-			Repo:    repo,
-			Summary: fmt.Sprintf("Target repository for live investigation: %s.", repo),
-		})
-	}
-	if hints.Since != "" && hints.Until != "" {
-		refs = append(refs, clients.RunnerContextRef{
-			Kind:    "repo_activity_window",
-			Ref:     fmt.Sprintf("%s..%s", hints.Since, hints.Until),
-			Summary: fmt.Sprintf("Suggested repository activity window from %s to %s.", hints.Since, hints.Until),
-			Since:   hints.Since,
-			Until:   hints.Until,
-		})
-	}
-	if len(hints.KubernetesReadNamespaces) > 0 {
-		refs = append(refs, clients.RunnerContextRef{
-			Kind:       "kubernetes_read_scope",
-			Ref:        strings.Join(hints.KubernetesReadNamespaces, ","),
-			Summary:    fmt.Sprintf("Kubernetes read namespace scope: %s.", strings.Join(hints.KubernetesReadNamespaces, ", ")),
-			ToolName:   "kubernetes.*",
-			Namespaces: append([]string(nil), hints.KubernetesReadNamespaces...),
-		})
-	}
-	if len(hints.DeploymentTargets) > 0 {
-		refs = append(refs, clients.RunnerContextRef{
-			Kind:      "runtime_deployment_targets",
-			Ref:       strings.Join(hints.DeploymentTargets, ","),
-			Summary:   fmt.Sprintf("Runtime deployment targets for live infra lookup: %s.", strings.Join(hints.DeploymentTargets, ", ")),
-			ToolName:  "rsi.runtime_deployment_facts",
-			TargetRef: strings.Join(hints.DeploymentTargets, ","),
-			Repo:      hints.Repo,
-		})
-	}
+	refs := make([]clients.RunnerContextRef, 0, len(hints.CandidateReadSurfaces))
 	for _, surface := range hints.CandidateReadSurfaces {
 		refs = append(refs, clients.RunnerContextRef{
 			Kind:      "candidate_read_surface",
@@ -3138,26 +3098,6 @@ func liveHintContextRefs(hints workflowplan.LiveHintSet) []clients.RunnerContext
 		})
 	}
 	return refs
-}
-
-func liveHintSummary(hints workflowplan.LiveHintSet) string {
-	parts := make([]string, 0, 4)
-	if repo := strings.TrimSpace(hints.Repo); repo != "" {
-		parts = append(parts, fmt.Sprintf("Target repo: %s.", repo))
-	}
-	if len(hints.CandidateReadSurfaces) > 0 {
-		parts = append(parts, fmt.Sprintf("Candidate Slack read surfaces: %d.", len(hints.CandidateReadSurfaces)))
-	}
-	if len(hints.KubernetesReadNamespaces) > 0 {
-		parts = append(parts, fmt.Sprintf("Kubernetes read namespaces: %s.", strings.Join(hints.KubernetesReadNamespaces, ", ")))
-	}
-	if len(hints.DeploymentTargets) > 0 {
-		parts = append(parts, fmt.Sprintf("Runtime deployment targets: %s.", strings.Join(hints.DeploymentTargets, ", ")))
-	}
-	if hints.Since != "" && hints.Until != "" {
-		parts = append(parts, fmt.Sprintf("Suggested repo-activity window: %s to %s.", hints.Since, hints.Until))
-	}
-	return strings.Join(parts, " ")
 }
 
 func slackSurfaceHintSummary(surface workflowplan.SlackSurfaceHint) string {

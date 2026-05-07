@@ -4251,22 +4251,14 @@ func TestBuildRunnerTaskCarriesKubernetesReadScope(t *testing.T) {
 	if got := task.KubernetesReadNamespaces; len(got) != 2 || got[0] != "story" || got[1] != "rsi-platform" {
 		t.Fatalf("kubernetes read namespaces = %#v, want story+rsi-platform", got)
 	}
-	if !strings.Contains(task.Prompt, "Kubernetes read scope: story, rsi-platform") {
-		t.Fatalf("expected prompt to advertise Kubernetes read scope, got %q", task.Prompt)
+	if strings.Contains(task.Prompt, "Kubernetes read scope:") {
+		t.Fatalf("control-plane prompt should not duplicate Kubernetes read scope, got %q", task.Prompt)
 	}
-	if !strings.Contains(task.ContextSummary, "Runtime deployment targets: depin-backend, depin-ip-registration") {
-		t.Fatalf("expected context summary to advertise depin deployment targets, got %q", task.ContextSummary)
+	if strings.Contains(task.ContextSummary, "Runtime deployment targets:") {
+		t.Fatalf("context summary should not advertise deterministic deployment targets, got %q", task.ContextSummary)
 	}
-	var deploymentTargetRef string
-	for _, ref := range task.ContextRefs {
-		if ref.Kind == "runtime_deployment_targets" {
-			deploymentTargetRef = ref.TargetRef
-			break
-		}
-	}
-	if deploymentTargetRef != "depin-backend,depin-ip-registration" {
-		t.Fatalf("expected depin runtime deployment target ref, got %q", deploymentTargetRef)
-	}
+	assertNoContextRefKind(t, task.ContextRefs, "kubernetes_read_scope")
+	assertNoContextRefKind(t, task.ContextRefs, "runtime_deployment_targets")
 }
 
 func TestWorkflowRetryAtSkipsRetryAfterReplyPostBegins(t *testing.T) {
@@ -4648,8 +4640,9 @@ func TestBuildRunnerTaskLetsNativeRunnerChooseToolSurface(t *testing.T) {
 	if len(task.MCPServers) != 0 {
 		t.Fatalf("expected no Slack MCP servers for native delivery, got %#v", task.MCPServers)
 	}
-	assertContextRefKind(t, task.ContextRefs, "repo_target")
-	assertContextRefKind(t, task.ContextRefs, "repo_activity_window")
+	assertContextRefKind(t, task.ContextRefs, "candidate_read_surface")
+	assertNoContextRefKind(t, task.ContextRefs, "repo_target")
+	assertNoContextRefKind(t, task.ContextRefs, "repo_activity_window")
 }
 
 func TestProcessWorkflowRunnerEffectPassesIngressStraightToWorkflowRunner(t *testing.T) {
@@ -5587,4 +5580,13 @@ func assertContextRefKind(t *testing.T, refs []clients.RunnerContextRef, kind st
 		}
 	}
 	t.Fatalf("expected context ref kind %q in %#v", kind, refs)
+}
+
+func assertNoContextRefKind(t *testing.T, refs []clients.RunnerContextRef, kind string) {
+	t.Helper()
+	for _, ref := range refs {
+		if ref.Kind == kind {
+			t.Fatalf("did not expect context ref kind %q in %#v", kind, refs)
+		}
+	}
 }

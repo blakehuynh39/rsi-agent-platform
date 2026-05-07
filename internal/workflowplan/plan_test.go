@@ -7,7 +7,7 @@ import (
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 )
 
-func TestBuildLiveHintsCarriesDepinRuntimeDeploymentTargets(t *testing.T) {
+func TestBuildLiveHintsKeepsDeterministicToolHintsOutOfContext(t *testing.T) {
 	hints := BuildLiveHints(RuntimeConfig{
 		DefaultRepo:              "depin-backend",
 		KubernetesReadNamespaces: []string{"story", "rsi-platform"},
@@ -15,8 +15,41 @@ func TestBuildLiveHintsCarriesDepinRuntimeDeploymentTargets(t *testing.T) {
 		Question: "Draw the depin-backend architecture.",
 	}, time.Unix(0, 0).UTC())
 
-	if len(hints.DeploymentTargets) != 2 || hints.DeploymentTargets[0] != "depin-backend" || hints.DeploymentTargets[1] != "depin-ip-registration" {
-		t.Fatalf("deployment targets = %#v", hints.DeploymentTargets)
+	if hints.Repo != "depin-backend" {
+		t.Fatalf("repo = %q, want depin-backend", hints.Repo)
+	}
+	if len(hints.CandidateReadSurfaces) != 0 {
+		t.Fatalf("candidate read surfaces = %#v, want none", hints.CandidateReadSurfaces)
+	}
+}
+
+func TestBuildToolRequestPayloadAddsRepoActivityWindowOnlyForActivityRequests(t *testing.T) {
+	now := time.Date(2026, 5, 7, 17, 15, 39, 0, time.UTC)
+	cfg := RuntimeConfig{
+		DefaultRepo:  "rsi-agent-platform",
+		AllowedRepos: []string{"depin-backend", "rsi-agent-platform"},
+	}
+
+	generic := BuildToolRequestPayload(cfg, RequestContext{
+		Question: "Draw the depin-backend architecture.",
+	}, now)
+	if _, ok := generic["since"]; ok {
+		t.Fatalf("generic request should not get since hint, got %#v", generic["since"])
+	}
+	if _, ok := generic["until"]; ok {
+		t.Fatalf("generic request should not get until hint, got %#v", generic["until"])
+	}
+
+	activity := BuildToolRequestPayload(cfg, RequestContext{
+		Question: "Summarize depin-backend PR activity from last week.",
+	}, now)
+	since, ok := activity["since"].(string)
+	if !ok || since == "" {
+		t.Fatalf("activity request should get since hint, got %#v", activity["since"])
+	}
+	until, ok := activity["until"].(string)
+	if !ok || until == "" {
+		t.Fatalf("activity request should get until hint, got %#v", activity["until"])
 	}
 }
 

@@ -395,35 +395,8 @@ func (s *MemoryStore) appendWorkflowPlanningCommandsLocked(bundle *transitionPer
 	if !ok {
 		return fmt.Errorf("trace %s not found for workflow planning", workflow.TraceID)
 	}
-	ingestion, ok := findIngestion(s.ingestions, workflow.IngestionID)
-	if !ok {
-		return fmt.Errorf("ingestion %s not found for workflow planning", workflow.IngestionID)
-	}
-	planning := workflowPlanningConfigFromCommand(parent)
 	resumeQueue := firstNonEmpty(stringFromCommand(parent, "resume_queue"), string(queue.WorkflowQueue))
-	hints := workflowplan.BuildLiveHints(planning, workflowplan.RequestContext{
-		Trace:          trace.Summary,
-		WorkflowID:     workflow.ID,
-		ConversationID: workflow.ConversationID,
-		CaseID:         workflow.CaseID,
-		WorkflowKind:   workflow.Kind,
-		AssignedBot:    workflow.AssignedBot,
-		Question:       strings.TrimSpace(ingestion.Text),
-		ChannelID:      ingestion.ChannelID,
-		ThreadTS:       ingestion.ThreadTS,
-		EntityRefs:     append([]slack.EntityRef(nil), ingestion.EntityRefs...),
-	}, parent.OccurredAt)
-	summaryParts := make([]string, 0, 4)
-	if repo := strings.TrimSpace(hints.Repo); repo != "" {
-		summaryParts = append(summaryParts, fmt.Sprintf("Target repo: %s.", repo))
-	}
-	if len(hints.CandidateReadSurfaces) > 0 {
-		summaryParts = append(summaryParts, fmt.Sprintf("Candidate Slack read surfaces: %d.", len(hints.CandidateReadSurfaces)))
-	}
-	if hints.Since != "" && hints.Until != "" {
-		summaryParts = append(summaryParts, fmt.Sprintf("Suggested repo-activity window: %s to %s.", hints.Since, hints.Until))
-	}
-	seedSummary := firstNonEmpty(strings.Join(summaryParts, " "), "Seeded native execution hints from deterministic workflow planning.")
+	seedSummary := "Seeded native execution metadata from deterministic workflow planning."
 	executionStartedType := "runner.started"
 	executionStartedDescription := "Runner task dispatched with seeded native context and open tool choice."
 	appendFollowOnCommand(bundle, parent, transition.CommandEnvelope{
