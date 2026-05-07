@@ -2866,13 +2866,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "51bb95df0cbfcf1aacbf9d1765723899442630d4993e5c109111a7ffb8444405",
-        "size": 480155
+        "sha256": "0e64c60d3675aaa442e76588223d401d7f97eeec3f015bbee949c31f2d9e92a5",
+        "size": 480550
       },
       {
         "path": "log.md",
-        "sha256": "ff9b94c3da8e7b9d54a6c9c273c26b93104c8330af89dcb1bea410c33e7c03da",
-        "size": 916786
+        "sha256": "cc37599b8a8658f1f861daf2947bb75243bc179f82e78adcbfb41ff9aab72377",
+        "size": 917193
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3703,6 +3703,11 @@
         "path": "pages/policies/github-permissions-policy.md",
         "sha256": "8c961bc80712faf55e733a2ae23c86c5da0c1db1b3f5149550dd495bfff11320",
         "size": 11511
+      },
+      {
+        "path": "pages/policies/infra-research-evaluation-matrix-guide.md",
+        "sha256": "755d9683eb05bf40a701933b234e0d987e9e0c605c57c438825b31059b813fc9",
+        "size": 2928
       },
       {
         "path": "pages/policies/l1-urgent-contacts.md",
@@ -4639,8 +4644,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T13:20:25Z",
-  "file_count": 926,
+  "exported_at": "2026-05-07T13:51:48Z",
+  "file_count": 927,
   "files": [
     {
       "path": ".curator_state",
@@ -7502,7 +7507,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
-  "previous_tree_hash": "3b96652e7d22adb78f3a72a0561cfa34a0e6f06d398a81d989259fa86782ed28",
+  "previous_tree_hash": "2681beb3607f2d65660b724192a3fc6b5d71d6732c218fd4f7c9649ba7d59624",
   "schema_version": 1,
   "skill_file_count": 571,
   "skill_manage_sessions": [
@@ -7515,14 +7520,14 @@
   ],
   "skill_tree_hash": "ff72ad0c56115e95b1a106829f032a3ff4a43e92c933d812f680df1c04ef1c5c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2681beb3607f2d65660b724192a3fc6b5d71d6732c218fd4f7c9649ba7d59624",
+  "tree_hash": "50effcb3d6b64472a9a5cb015c001978e4dcb5e2a87e29dae5c428364cc1a959",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 355,
+  "wiki_file_count": 356,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7531,13 +7536,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "51bb95df0cbfcf1aacbf9d1765723899442630d4993e5c109111a7ffb8444405",
-      "size": 480155
+      "sha256": "0e64c60d3675aaa442e76588223d401d7f97eeec3f015bbee949c31f2d9e92a5",
+      "size": 480550
     },
     {
       "path": "log.md",
-      "sha256": "ff9b94c3da8e7b9d54a6c9c273c26b93104c8330af89dcb1bea410c33e7c03da",
-      "size": 916786
+      "sha256": "cc37599b8a8658f1f861daf2947bb75243bc179f82e78adcbfb41ff9aab72377",
+      "size": 917193
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8368,6 +8373,11 @@
       "path": "pages/policies/github-permissions-policy.md",
       "sha256": "8c961bc80712faf55e733a2ae23c86c5da0c1db1b3f5149550dd495bfff11320",
       "size": 11511
+    },
+    {
+      "path": "pages/policies/infra-research-evaluation-matrix-guide.md",
+      "sha256": "755d9683eb05bf40a701933b234e0d987e9e0c605c57c438825b31059b813fc9",
+      "size": 2928
     },
     {
       "path": "pages/policies/l1-urgent-contacts.md",
@@ -9301,5 +9311,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e7f543fc058c96d75eaad2827abdc77b2faebf295fd396f696f1be03ae362192"
+  "wiki_tree_hash": "ba00dd0ca52f1cf05f2355687793153c8b0828f6d3a58714d1cdcc4ebd2a29d3"
 }

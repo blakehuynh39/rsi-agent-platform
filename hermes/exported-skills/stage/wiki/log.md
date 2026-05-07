@@ -19326,3 +19326,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2d5ed19416094466acd7a259d4c84a3c
 - summary: A research hub covering data preparation, training methods, attribution/influence functions, evaluations, and DePIN-based data collection for AI/robotic training.
 
+## [2026-05-07T13:47:07Z] synthesis | Infra Research Evaluation Matrix Guide
+
+- status: published
+- slug: policies/infra-research-evaluation-matrix-guide
+- wiki_revision_id: wikirev_9f556a45bd7df373738f4b20b04dc1c1
+- summary: A guide for filling in the Infra Research Evaluation Matrix, providing a high-level view of researched infrastructure projects with calibrated leveling across multiple dimensions.
+
