@@ -2871,8 +2871,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "d12a6ed4ca5255e3f608342a926fed0993cc6d510090b9425a48384c2da32ee3",
-        "size": 913065
+        "sha256": "79cf1f806a2be6e525b06969d617f28ddc9c82bc45f9da8909432cdcefc25f76",
+        "size": 913695
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3188,6 +3188,11 @@
         "path": "pages/concepts/meeting-notes-index.md",
         "sha256": "bc57c4d4e27bd6090d31e237304f2dd0c7291bb015c0f3ae55937cbc72217244",
         "size": 1243
+      },
+      {
+        "path": "pages/concepts/minio-erasure-coding.md",
+        "sha256": "2bc4d64e3a1c28526c952800aa7b3c55f7d964f1d3de78ebc18481c8a79fd6ce",
+        "size": 2410
       },
       {
         "path": "pages/concepts/multi-parent-licensing.md",
@@ -3836,8 +3841,8 @@
       },
       {
         "path": "pages/projects/erasure-coding-investigation.md",
-        "sha256": "44424878d08095e021cde52c25565ed0071027455aa419d599c8309a0ca517cf",
-        "size": 1794
+        "sha256": "92ac304a5258f068ad60c9ec42ebdbb3f79fa5e371ecbe44cd496d77e83549fc",
+        "size": 3911
       },
       {
         "path": "pages/projects/ethdenver-fun-57b-activation.md",
@@ -4589,8 +4594,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T10:57:56Z",
-  "file_count": 916,
+  "exported_at": "2026-05-07T11:34:15Z",
+  "file_count": 917,
   "files": [
     {
       "path": ".curator_state",
@@ -7452,7 +7457,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
-  "previous_tree_hash": "01bcfa964d320f06375c96b662057c2f56682fcaafb502d29c906b2cf052bfe4",
+  "previous_tree_hash": "3ed283ea50c1980b87f1c40d85145a05ee2461fa40ae4b2576bc974d27ff8b3b",
   "schema_version": 1,
   "skill_file_count": 571,
   "skill_manage_sessions": [
@@ -7465,14 +7470,14 @@
   ],
   "skill_tree_hash": "ff72ad0c56115e95b1a106829f032a3ff4a43e92c933d812f680df1c04ef1c5c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3ed283ea50c1980b87f1c40d85145a05ee2461fa40ae4b2576bc974d27ff8b3b",
+  "tree_hash": "02ad28527639a786fd08ef0b30034d6f3c1ca94d1cb5450826b35263c460c97e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 345,
+  "wiki_file_count": 346,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7486,8 +7491,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "d12a6ed4ca5255e3f608342a926fed0993cc6d510090b9425a48384c2da32ee3",
-      "size": 913065
+      "sha256": "79cf1f806a2be6e525b06969d617f28ddc9c82bc45f9da8909432cdcefc25f76",
+      "size": 913695
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7803,6 +7808,11 @@
       "path": "pages/concepts/meeting-notes-index.md",
       "sha256": "bc57c4d4e27bd6090d31e237304f2dd0c7291bb015c0f3ae55937cbc72217244",
       "size": 1243
+    },
+    {
+      "path": "pages/concepts/minio-erasure-coding.md",
+      "sha256": "2bc4d64e3a1c28526c952800aa7b3c55f7d964f1d3de78ebc18481c8a79fd6ce",
+      "size": 2410
     },
     {
       "path": "pages/concepts/multi-parent-licensing.md",
@@ -8451,8 +8461,8 @@
     },
     {
       "path": "pages/projects/erasure-coding-investigation.md",
-      "sha256": "44424878d08095e021cde52c25565ed0071027455aa419d599c8309a0ca517cf",
-      "size": 1794
+      "sha256": "92ac304a5258f068ad60c9ec42ebdbb3f79fa5e371ecbe44cd496d77e83549fc",
+      "size": 3911
     },
     {
       "path": "pages/projects/ethdenver-fun-57b-activation.md",
@@ -9201,5 +9211,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "289dc4a7ea8b9e2fc1b265342943b1c68fbcc2200764beb6e1cb4baa22f06806"
+  "wiki_tree_hash": "92e7ffdca151b06ef981712738dcc7c0b5fcf97bcdf850d88449fdc5eb8889a1"
 }

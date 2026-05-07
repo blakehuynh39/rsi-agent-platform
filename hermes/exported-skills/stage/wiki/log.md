@@ -19249,3 +19249,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_97833feb37321d535d97ff60e50b1005
 - summary: Threat model for the Web2 infrastructure covering Kafka-based streaming pipeline and AI/ML data services (Iceberg, Milvus, Spark). Uses STRIDE categories to identify spoofing, tamp...
 
+## [2026-05-07T11:33:58Z] synthesis | Erasure Coding Investigation
+
+- status: published
+- slug: projects/erasure-coding-investigation
+- wiki_revision_id: wikirev_5c73b2eec1c8c3598b89056eefb1e0a9
+- summary: Investigation into erasure coding, with MinIO as a candidate technology.
+
+## [2026-05-07T11:33:58Z] synthesis | MinIO Erasure Coding
+
+- status: published
+- slug: concepts/minio-erasure-coding
+- wiki_revision_id: wikirev_52a51c7fa67ca4255962fac36ecd3eb0
+- summary: MinIO's erasure coding implementation uses per-object inline Reed-Solomon coding with configurable redundancy, object-level healing, and high fault tolerance.
+
