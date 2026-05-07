@@ -18925,3 +18925,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_70cce157a49085c4557906fbe3fa40fa
 - summary: Ceramic is a material referenced in the company knowledge base.
 
+## [2026-05-07T02:49:46Z] synthesis | Story Paragraph Building Blocks
+
+- status: published
+- slug: concepts/story-paragraph-building-blocks
+- wiki_revision_id: wikirev_9fe69506477bb7cc1c89ca28e606169b
+- summary: Defines the grid system and paragraph templates used as building blocks for the story telling experience, including generic and flexible template types and a proposed API JSON shap...
+
+## [2026-05-07T02:50:58Z] synthesis | LLM Inference Decoding Strategies
+
+- status: published
+- slug: concepts/llm-inference-decoding-strategies
+- wiki_revision_id: wikirev_84f1f198a37d89a1003287d36090cb71
+- summary: Decoding is how a language model picks the next word/token step by step to generate text.
+

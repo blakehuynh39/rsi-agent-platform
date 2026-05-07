@@ -2851,8 +2851,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "800a0350570d581c2f52eed3503e0ae66e438bf00ca83ee273ba4006dc8cec93",
-        "size": 897555
+        "sha256": "a0bef208e72ca31ab6f2828977dd4596ca9b979367ee4a1d7457109a2d1c6753",
+        "size": 897952
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3283,6 +3283,11 @@
         "path": "pages/concepts/standard-commercial-license-ip-assets.md",
         "sha256": "19d900e8b5b82691104a2bc7b5bcfd9b08a2610066b821d584cf878c40cc41d1",
         "size": 3256
+      },
+      {
+        "path": "pages/concepts/story-paragraph-building-blocks.md",
+        "sha256": "301816663bfc1d43a237659b6a88a614e2ed41e4859feea3063eee49fb4fcc21",
+        "size": 5023
       },
       {
         "path": "pages/concepts/story-protocol-vanity-addresses.md",
@@ -4394,8 +4399,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T02:39:03Z",
-  "file_count": 877,
+  "exported_at": "2026-05-07T02:50:17Z",
+  "file_count": 878,
   "files": [
     {
       "path": ".curator_state",
@@ -7237,7 +7242,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fdf64db9b7d",
-  "previous_tree_hash": "daba1de1877f4df3d5a3f1b38b235fd3245f60381f3db56d0b7b7fae4a5cb185",
+  "previous_tree_hash": "5b3e7f00551db2ee35ab07b46651499e62e72299c7be89925a848999c6a97843",
   "schema_version": 1,
   "skill_file_count": 567,
   "skill_manage_sessions": [
@@ -7250,14 +7255,14 @@
   ],
   "skill_tree_hash": "3193aa399d4116a5e0e3e5b0906417c67f296eb836d8aa8d22f9c66a2a363757",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5b3e7f00551db2ee35ab07b46651499e62e72299c7be89925a848999c6a97843",
+  "tree_hash": "d59ade355a7525f2bcd7d8d38295d14910e20cd2945b9bc3cf4c5854dd4f3a12",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 310,
+  "wiki_file_count": 311,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7271,8 +7276,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "800a0350570d581c2f52eed3503e0ae66e438bf00ca83ee273ba4006dc8cec93",
-      "size": 897555
+      "sha256": "a0bef208e72ca31ab6f2828977dd4596ca9b979367ee4a1d7457109a2d1c6753",
+      "size": 897952
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7703,6 +7708,11 @@
       "path": "pages/concepts/standard-commercial-license-ip-assets.md",
       "sha256": "19d900e8b5b82691104a2bc7b5bcfd9b08a2610066b821d584cf878c40cc41d1",
       "size": 3256
+    },
+    {
+      "path": "pages/concepts/story-paragraph-building-blocks.md",
+      "sha256": "301816663bfc1d43a237659b6a88a614e2ed41e4859feea3063eee49fb4fcc21",
+      "size": 5023
     },
     {
       "path": "pages/concepts/story-protocol-vanity-addresses.md",
@@ -8811,5 +8821,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1ff9ca1f73f5c5e980ffdac4034b59b94159ab08f8b5ce7c764008317599f439"
+  "wiki_tree_hash": "5dc1ffc1ccdfb2a5658a1bc21d2bc485883e0d6e646e7c5c4b48184dde956634"
 }
