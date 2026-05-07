@@ -12,6 +12,7 @@ RUN pnpm build
 FROM golang:${GO_VERSION}-bookworm AS builder
 
 ARG SERVICE=improvement-plane
+ARG CGO_ENABLED=0
 WORKDIR /src
 
 COPY go.mod go.sum* ./
@@ -19,7 +20,7 @@ RUN go mod download
 
 COPY . .
 COPY --from=ui-builder /src/internal/reviewui/dist ./internal/reviewui/dist
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /out/service ./cmd/${SERVICE}
+RUN CGO_ENABLED=${CGO_ENABLED} go build -o /out/service ./cmd/${SERVICE}
 
 FROM gcr.io/distroless/base-debian12
 ARG SERVICE=improvement-plane

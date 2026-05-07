@@ -106,6 +106,7 @@ jobs:
             tag_prefix: control-plane
             build_args: |
               SERVICE=control-plane
+              CGO_ENABLED=1
           - name: improvement-plane
             dockerfile: ./Dockerfile
             repository: rsi-agent-platform
