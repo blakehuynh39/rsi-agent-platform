@@ -91,6 +91,8 @@ Look for: product backlog pages, project integration pages, Notion database mani
 
 ### 4. Clone and inspect BOTH repos
 
+**PITFALL:** Clones under `/tmp/` are **transient across Hermes sessions**. The `/tmp/depin-backend` and `/tmp/numo-monorepo` directories from a previous session will NOT exist in a new session. Always verify the directory exists before `cd`-ing into it. If missing, re-clone. For simple stat queries where the admin API can answer directly, skip the clone entirely — the `depin-prod-admin-read` skill covers that path without repo access.
+
 The Numo project spans **two repos** that must be checked for cross-repo alignment:
 
 ```bash
