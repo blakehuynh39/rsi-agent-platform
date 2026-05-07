@@ -19627,3 +19627,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_458f7d4cb4882c45082519eb6a067104
 - summary: A collection of subnet-related specifications including API, contract, and worker specs, as linked from the main Subnet Specifications page.
 
+## [2026-05-07T20:19:41Z] synthesis | Technical Vendor Intake Process
+
+- status: published
+- slug: policies/technical-vendor-intake-process
+- wiki_revision_id: wikirev_1a0aae87bbd58d80c4b202d7f6991424
+- summary: Defines the structured process for signing infrastructure, IT, tooling, and other technical vendors at both company and team levels, including submission, evaluation, negotiation, ...
+
+## [2026-05-07T20:22:41Z] synthesis | Summer 2025 Engineering Leader PTO Schedule
+
+- status: published
+- slug: policies/summer-2025-engineering-leader-pto-schedule
+- wiki_revision_id: wikirev_d64b9a1c84d469e065722a37c2920c22
+- summary: Tracks planned time off and remote work locations for engineering leaders during summer 2025, including a company-wide holiday from June 30 to July 4.
+

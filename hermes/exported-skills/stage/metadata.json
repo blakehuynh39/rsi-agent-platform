@@ -2901,8 +2901,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "8038232f2e0bc5e7807445121a63bcdd34e8c931a7946e4acde7db8e8d8de182",
-        "size": 930555
+        "sha256": "ffc9837e7afb6c322bc1691a629c071333299b4221c6a9861147165a864cf468",
+        "size": 930952
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3828,6 +3828,11 @@
         "path": "pages/policies/serve-least-used-transcript-priority.md",
         "sha256": "8dcf7434b6331c67daac6fd878f77f2ea181b96d629e7e9b79656d46ec5cb23f",
         "size": 1145
+      },
+      {
+        "path": "pages/policies/technical-vendor-intake-process.md",
+        "sha256": "602dd23243fdb0d27049ece3813bf2af8fc00dfd1303e45bae7f6972b4091338",
+        "size": 6574
       },
       {
         "path": "pages/policies/validator-bootstrapping-strategy.md",
@@ -4869,8 +4874,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T20:10:22Z",
-  "file_count": 972,
+  "exported_at": "2026-05-07T20:22:13Z",
+  "file_count": 973,
   "files": [
     {
       "path": ".curator_state",
@@ -7761,8 +7766,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7b87977wx4w",
-  "previous_tree_hash": "f97cf4e39a47b3bd5ec19c6077b05767b3a158190700b60613c87a20cb87347e",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-76c5bc7spjk",
+  "previous_tree_hash": "34f27b2c30b0ca846fda8b3db4e3eca421a280d0804bb394b46de05038f75010",
   "schema_version": 1,
   "skill_file_count": 577,
   "skill_manage_sessions": [
@@ -7775,14 +7780,14 @@
   ],
   "skill_tree_hash": "f268c07e5ed6610c18de5213322aa924cd9e307b226e3df74fd01b50d82a8489",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "34f27b2c30b0ca846fda8b3db4e3eca421a280d0804bb394b46de05038f75010",
+  "tree_hash": "b3033369661e5253c0811f72223aebc4ffe37085367df76474d6e245e2d94d17",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 395,
+  "wiki_file_count": 396,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7796,8 +7801,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "8038232f2e0bc5e7807445121a63bcdd34e8c931a7946e4acde7db8e8d8de182",
-      "size": 930555
+      "sha256": "ffc9837e7afb6c322bc1691a629c071333299b4221c6a9861147165a864cf468",
+      "size": 930952
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8723,6 +8728,11 @@
       "path": "pages/policies/serve-least-used-transcript-priority.md",
       "sha256": "8dcf7434b6331c67daac6fd878f77f2ea181b96d629e7e9b79656d46ec5cb23f",
       "size": 1145
+    },
+    {
+      "path": "pages/policies/technical-vendor-intake-process.md",
+      "sha256": "602dd23243fdb0d27049ece3813bf2af8fc00dfd1303e45bae7f6972b4091338",
+      "size": 6574
     },
     {
       "path": "pages/policies/validator-bootstrapping-strategy.md",
@@ -9761,5 +9771,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "022f354b64b4e2d67b3295ae95e5dd3e6f6f0f013446ef6eda617930a73e9288"
+  "wiki_tree_hash": "e268bf6df8a135f9e4241187fe10c42e914a42dbaa7d301ffd50d2a12709d279"
 }
