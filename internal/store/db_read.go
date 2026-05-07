@@ -56,6 +56,7 @@ type DBReadRequest struct {
 	Purpose                    string                 `json:"purpose"`
 	SQL                        string                 `json:"sql"`
 	SQLSHA256                  string                 `json:"sql_sha256"`
+	ExecutionScopeKey          string                 `json:"execution_scope_key,omitempty"`
 	Requester                  string                 `json:"requester"`
 	ConversationID             string                 `json:"conversation_id,omitempty"`
 	WorkflowID                 string                 `json:"workflow_id,omitempty"`
@@ -114,21 +115,22 @@ type DBReadExecutionResult struct {
 }
 
 type DBReadCreateInput struct {
-	IdempotencyKey string
-	Target         string
-	Purpose        string
-	SQL            string
-	SQLSHA256      string
-	Requester      string
-	ConversationID string
-	WorkflowID     string
-	TraceID        string
-	ChannelID      string
-	ThreadTS       string
-	ExpiresAt      time.Time
-	Caps           DBReadCaps
-	Redaction      DBReadRedactionPolicy
-	Metadata       map[string]interface{}
+	IdempotencyKey    string
+	Target            string
+	Purpose           string
+	SQL               string
+	SQLSHA256         string
+	ExecutionScopeKey string
+	Requester         string
+	ConversationID    string
+	WorkflowID        string
+	TraceID           string
+	ChannelID         string
+	ThreadTS          string
+	ExpiresAt         time.Time
+	Caps              DBReadCaps
+	Redaction         DBReadRedactionPolicy
+	Metadata          map[string]interface{}
 }
 
 type DBReadLease struct {
@@ -140,6 +142,7 @@ func NewDBReadRequest(input DBReadCreateInput, now time.Time) (DBReadRequest, er
 	input.Target = strings.TrimSpace(input.Target)
 	input.SQL = strings.TrimSpace(input.SQL)
 	input.SQLSHA256 = strings.TrimSpace(input.SQLSHA256)
+	input.ExecutionScopeKey = strings.TrimSpace(input.ExecutionScopeKey)
 	input.Requester = strings.TrimSpace(input.Requester)
 	input.IdempotencyKey = strings.TrimSpace(input.IdempotencyKey)
 	if input.IdempotencyKey == "" {
@@ -161,25 +164,26 @@ func NewDBReadRequest(input DBReadCreateInput, now time.Time) (DBReadRequest, er
 		input.ExpiresAt = now.Add(time.Hour)
 	}
 	return DBReadRequest{
-		ID:             "dbread_" + uuid.NewString(),
-		IdempotencyKey: input.IdempotencyKey,
-		Target:         input.Target,
-		Purpose:        firstNonEmpty(input.Purpose, "query"),
-		SQL:            input.SQL,
-		SQLSHA256:      input.SQLSHA256,
-		Requester:      input.Requester,
-		ConversationID: input.ConversationID,
-		WorkflowID:     input.WorkflowID,
-		TraceID:        input.TraceID,
-		ChannelID:      input.ChannelID,
-		ThreadTS:       input.ThreadTS,
-		State:          DBReadStateValidating,
-		ExpiresAt:      input.ExpiresAt,
-		Caps:           input.Caps,
-		Redaction:      input.Redaction,
-		Metadata:       cloneAnyMap(input.Metadata),
-		CreatedAt:      now,
-		UpdatedAt:      now,
+		ID:                "dbread_" + uuid.NewString(),
+		IdempotencyKey:    input.IdempotencyKey,
+		Target:            input.Target,
+		Purpose:           firstNonEmpty(input.Purpose, "query"),
+		SQL:               input.SQL,
+		SQLSHA256:         input.SQLSHA256,
+		ExecutionScopeKey: input.ExecutionScopeKey,
+		Requester:         input.Requester,
+		ConversationID:    input.ConversationID,
+		WorkflowID:        input.WorkflowID,
+		TraceID:           input.TraceID,
+		ChannelID:         input.ChannelID,
+		ThreadTS:          input.ThreadTS,
+		State:             DBReadStateValidating,
+		ExpiresAt:         input.ExpiresAt,
+		Caps:              input.Caps,
+		Redaction:         input.Redaction,
+		Metadata:          cloneAnyMap(input.Metadata),
+		CreatedAt:         now,
+		UpdatedAt:         now,
 	}, nil
 }
 
@@ -246,6 +250,10 @@ func ValidateDBReadStateTransition(from DBReadState, to DBReadState) error {
 		return fmt.Errorf("illegal db read state transition %q -> %q", from, to)
 	}
 	return nil
+}
+
+func DBReadRequestBlocksNewScopedRequest(state DBReadState) bool {
+	return state != DBReadStateValidationFailed
 }
 
 func SortDBReadRequests(items []DBReadRequest) {

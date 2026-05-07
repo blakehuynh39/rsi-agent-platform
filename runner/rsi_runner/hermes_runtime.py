@@ -3105,6 +3105,10 @@ class HermesRuntime:
             "RSI_OPERATION_ID": task.operation_id or "",
             "RSI_TRACE_ID": task.trace_id or "",
             "RSI_WORKFLOW_ID": task.workflow_id or "",
+            "RSI_CONVERSATION_ID": task.conversation_id or "",
+            "RSI_SLACK_CHANNEL_ID": task.channel_id or "",
+            "RSI_SLACK_THREAD_TS": task.thread_ts or task.message_ts or _derive_root_message_ts(task) or "",
+            "RSI_TASK_REQUESTER": task.user_peer_id or "hermes",
         }
 
     def _native_worker_session_env(self, task: RunnerTaskRequest) -> dict[str, str]:

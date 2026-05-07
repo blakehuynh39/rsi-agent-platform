@@ -47,6 +47,9 @@ func (s *MemoryStore) UpsertDBReadRequest(input DBReadCreateInput, now time.Time
 			return cloneDBReadRequest(item), false, nil
 		}
 	}
+	if existing, ok := s.findDBReadRequestByExecutionScopeLocked(input.Target, input.ExecutionScopeKey); ok {
+		return cloneDBReadRequest(existing), false, nil
+	}
 	item, err := NewDBReadRequest(input, now)
 	if err != nil {
 		return DBReadRequest{}, false, err
@@ -54,6 +57,29 @@ func (s *MemoryStore) UpsertDBReadRequest(input DBReadCreateInput, now time.Time
 	s.dbReadRequests[item.ID] = item
 	s.dbReadRequestByIdempotencyKey[item.IdempotencyKey] = item.ID
 	return cloneDBReadRequest(item), true, nil
+}
+
+func (s *MemoryStore) findDBReadRequestByExecutionScopeLocked(target string, scopeKey string) (DBReadRequest, bool) {
+	target = strings.TrimSpace(target)
+	scopeKey = strings.TrimSpace(scopeKey)
+	if target == "" || scopeKey == "" {
+		return DBReadRequest{}, false
+	}
+	var found DBReadRequest
+	ok := false
+	for _, item := range s.dbReadRequests {
+		if item.Target != target || item.ExecutionScopeKey != scopeKey {
+			continue
+		}
+		if !DBReadRequestBlocksNewScopedRequest(item.State) {
+			continue
+		}
+		if !ok || item.CreatedAt.After(found.CreatedAt) {
+			found = item
+			ok = true
+		}
+	}
+	return found, ok
 }
 
 func (s *MemoryStore) AppendDBReadValidationAttempt(attempt DBReadValidationAttempt) (DBReadValidationAttempt, error) {

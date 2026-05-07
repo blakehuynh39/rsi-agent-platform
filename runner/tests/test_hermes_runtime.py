@@ -1638,6 +1638,39 @@ class HermesRuntimeTests(unittest.TestCase):
             "rsi:prod:scope:conversation:conv%3Awith%2Fslash%2520encoded",
         )
 
+    def test_native_runtime_env_exposes_db_read_request_scope(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(
+            os.environ,
+            {**runner_env("prod"), "HERMES_HOME": tempdir},
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "execution_id": "hexec-1",
+                        "operation_id": "op-1",
+                        "trace_id": "trace-1",
+                        "workflow_id": "wf-1",
+                        "conversation_id": "conv-1",
+                        "channel_id": "C123",
+                        "thread_ts": "171000001.000100",
+                        "user_peer_id": "user:U123",
+                    }
+                }
+            )
+            env = runtime._native_runtime_env(
+                task,
+                context_path=Path(tempdir, "context.json"),
+                envelope_path=Path(tempdir, "envelope.json"),
+            )
+
+        self.assertEqual(env["RSI_WORKFLOW_ID"], "wf-1")
+        self.assertEqual(env["RSI_CONVERSATION_ID"], "conv-1")
+        self.assertEqual(env["RSI_SLACK_CHANNEL_ID"], "C123")
+        self.assertEqual(env["RSI_SLACK_THREAD_TS"], "171000001.000100")
+        self.assertEqual(env["RSI_TASK_REQUESTER"], "user:U123")
+
     def test_hermes_agent_adapter_passes_rich_context_to_aiagent(self) -> None:
         captured: dict[str, object] = {}
 

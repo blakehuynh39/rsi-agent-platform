@@ -100,6 +100,86 @@ func TestMemoryDBReadLifecycleAndIdempotency(t *testing.T) {
 	}
 }
 
+func TestMemoryDBReadExecutionScopeBlocksSecondApprovalRequest(t *testing.T) {
+	store := NewMemoryStore()
+	now := time.Now().UTC()
+	first, created, err := store.UpsertDBReadRequest(DBReadCreateInput{
+		IdempotencyKey:    "first",
+		Target:            "depin-prod",
+		Purpose:           "query",
+		SQL:               "select count(*) from scripts",
+		SQLSHA256:         "sha256:first",
+		ExecutionScopeKey: "workflow:wf-1",
+		Requester:         "user:U123",
+		ExpiresAt:         now.Add(time.Hour),
+	}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !created {
+		t.Fatalf("expected first request to be created")
+	}
+
+	second, created, err := store.UpsertDBReadRequest(DBReadCreateInput{
+		IdempotencyKey:    "second",
+		Target:            "depin-prod",
+		Purpose:           "query",
+		SQL:               "select language_code, count(*) from scripts group by language_code",
+		SQLSHA256:         "sha256:second",
+		ExecutionScopeKey: "workflow:wf-1",
+		Requester:         "user:U123",
+		ExpiresAt:         now.Add(time.Hour),
+	}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if created || second.ID != first.ID {
+		t.Fatalf("expected scoped upsert to return existing request, created=%t id=%s want=%s", created, second.ID, first.ID)
+	}
+}
+
+func TestMemoryDBReadValidationFailureDoesNotBlockRepairRequest(t *testing.T) {
+	store := NewMemoryStore()
+	now := time.Now().UTC()
+	first, created, err := store.UpsertDBReadRequest(DBReadCreateInput{
+		IdempotencyKey:    "first-invalid",
+		Target:            "depin-prod",
+		Purpose:           "query",
+		SQL:               "select * from missing_table",
+		SQLSHA256:         "sha256:invalid",
+		ExecutionScopeKey: "workflow:wf-1",
+		Requester:         "user:U123",
+		ExpiresAt:         now.Add(time.Hour),
+	}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !created {
+		t.Fatalf("expected first request to be created")
+	}
+	_, err = store.AppendDBReadValidationAttempt(NewDBReadValidationAttempt(first, DBReadValidationStatusFailed, "offline_parse", "missing table", map[string]interface{}{"error_code": "missing_table"}, now))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	second, created, err := store.UpsertDBReadRequest(DBReadCreateInput{
+		IdempotencyKey:    "second-valid",
+		Target:            "depin-prod",
+		Purpose:           "query",
+		SQL:               "select count(*) from scripts",
+		SQLSHA256:         "sha256:valid",
+		ExecutionScopeKey: "workflow:wf-1",
+		Requester:         "user:U123",
+		ExpiresAt:         now.Add(time.Hour),
+	}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !created || second.ID == first.ID {
+		t.Fatalf("expected repaired SQL to create a new request, created=%t first=%s second=%s", created, first.ID, second.ID)
+	}
+}
+
 func TestMemoryExpireDBReadRequestsCoversValidationStates(t *testing.T) {
 	store := NewMemoryStore()
 	now := time.Now().UTC()

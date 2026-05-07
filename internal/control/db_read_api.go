@@ -113,20 +113,21 @@ func registerDBReadRoutes(r chi.Router, cfg config.Config, store storepkg.Store)
 		validation := dbread.ValidateSQLSafety(input.SQL)
 		now := time.Now().UTC()
 		request, created, err := store.UpsertDBReadRequest(storepkg.DBReadCreateInput{
-			IdempotencyKey: dbReadIdempotencyKey(input, validation.SQLSHA256),
-			Target:         target.ID,
-			Purpose:        firstNonEmpty(input.Purpose, "query"),
-			SQL:            input.SQL,
-			SQLSHA256:      validation.SQLSHA256,
-			Requester:      firstNonEmpty(input.Requester, "hermes"),
-			ConversationID: input.ConversationID,
-			WorkflowID:     input.WorkflowID,
-			TraceID:        input.TraceID,
-			ChannelID:      input.ChannelID,
-			ThreadTS:       input.ThreadTS,
-			ExpiresAt:      now.Add(target.TTL()),
-			Caps:           target.Caps,
-			Redaction:      target.Redaction,
+			IdempotencyKey:    dbReadIdempotencyKey(input, validation.SQLSHA256),
+			Target:            target.ID,
+			Purpose:           firstNonEmpty(input.Purpose, "query"),
+			SQL:               input.SQL,
+			SQLSHA256:         validation.SQLSHA256,
+			ExecutionScopeKey: dbReadExecutionScopeKey(input),
+			Requester:         firstNonEmpty(input.Requester, "hermes"),
+			ConversationID:    input.ConversationID,
+			WorkflowID:        input.WorkflowID,
+			TraceID:           input.TraceID,
+			ChannelID:         input.ChannelID,
+			ThreadTS:          input.ThreadTS,
+			ExpiresAt:         now.Add(target.TTL()),
+			Caps:              target.Caps,
+			Redaction:         target.Redaction,
 		}, now)
 		if err != nil {
 			statusCode := http.StatusInternalServerError
@@ -134,6 +135,14 @@ func registerDBReadRoutes(r chi.Router, cfg config.Config, store storepkg.Store)
 				statusCode = http.StatusBadRequest
 			}
 			app.WriteError(w, statusCode, err)
+			return
+		}
+		if !created && request.SQLSHA256 != validation.SQLSHA256 {
+			app.WriteJSON(w, http.StatusConflict, map[string]any{
+				"status":  "blocked_by_existing_db_read_request",
+				"message": "A DB read request already exists for this execution scope and target. Use rsi-db status on the existing request instead of creating a second approval.",
+				"request": request,
+			})
 			return
 		}
 		var attempt storepkg.DBReadValidationAttempt
@@ -198,4 +207,19 @@ func dbReadIdempotencyKey(input dbReadQueryRequest, hash string) string {
 	raw, _ := json.Marshal(parts)
 	sum := sha256.Sum256(raw)
 	return "dbread:sha256:" + hex.EncodeToString(sum[:])
+}
+
+func dbReadExecutionScopeKey(input dbReadQueryRequest) string {
+	if value := strings.TrimSpace(input.WorkflowID); value != "" {
+		return "workflow:" + value
+	}
+	if value := strings.TrimSpace(input.TraceID); value != "" {
+		return "trace:" + value
+	}
+	channelID := strings.TrimSpace(input.ChannelID)
+	threadTS := strings.TrimSpace(input.ThreadTS)
+	if channelID != "" && threadTS != "" {
+		return "thread:" + channelID + ":" + threadTS
+	}
+	return ""
 }

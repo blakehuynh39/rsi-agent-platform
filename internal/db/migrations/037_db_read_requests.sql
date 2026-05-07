@@ -5,6 +5,7 @@ create table if not exists db_read_request (
   purpose text not null default 'query',
   sql_text text not null,
   sql_sha256 text not null,
+  execution_scope_key text,
   requester text not null,
   conversation_id text,
   workflow_id text,
@@ -39,6 +40,12 @@ create index if not exists db_read_request_state_idx
 
 create index if not exists db_read_request_thread_idx
   on db_read_request (channel_id, thread_ts, created_at desc);
+
+create unique index if not exists db_read_request_active_scope_target_idx
+  on db_read_request (target, execution_scope_key)
+  where execution_scope_key is not null
+    and execution_scope_key <> ''
+    and state in ('validating', 'pending_approval', 'approved', 'executing');
 
 create table if not exists db_read_validation_attempt (
   id text primary key,

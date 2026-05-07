@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const dbReadRequestColumns = `id, idempotency_key, target, purpose, sql_text, sql_sha256, requester, conversation_id, workflow_id, trace_id, channel_id, thread_ts, state, current_validation_attempt_id, approved_by_slack_user_id, approved_at, expires_at, caps, redaction, slack_message_channel_id, slack_message_ts, lease_holder, lease_token, lease_generation, lease_expires_at, result_artifact_ref, result_sample, row_count, truncated, error_message, metadata, created_at, updated_at`
+const dbReadRequestColumns = `id, idempotency_key, target, purpose, sql_text, sql_sha256, execution_scope_key, requester, conversation_id, workflow_id, trace_id, channel_id, thread_ts, state, current_validation_attempt_id, approved_by_slack_user_id, approved_at, expires_at, caps, redaction, slack_message_channel_id, slack_message_ts, lease_holder, lease_token, lease_generation, lease_expires_at, result_artifact_ref, result_sample, row_count, truncated, error_message, metadata, created_at, updated_at`
 
 func (p *PostgresStore) ListDBReadRequests() []DBReadRequest {
 	rows, err := p.db.Query(`select ` + dbReadRequestColumns + ` from db_read_request order by created_at desc`)
@@ -40,16 +40,30 @@ func (p *PostgresStore) GetDBReadRequestByIdempotencyKey(key string) (DBReadRequ
 	return item, err == nil
 }
 
+func (p *PostgresStore) getDBReadRequestByExecutionScope(target string, scopeKey string) (DBReadRequest, bool) {
+	target = strings.TrimSpace(target)
+	scopeKey = strings.TrimSpace(scopeKey)
+	if target == "" || scopeKey == "" {
+		return DBReadRequest{}, false
+	}
+	row := p.db.QueryRow(`select `+dbReadRequestColumns+` from db_read_request where target = $1 and execution_scope_key = $2 and state <> $3 order by created_at desc limit 1`, target, scopeKey, string(DBReadStateValidationFailed))
+	item, err := scanDBReadRequest(row)
+	return item, err == nil
+}
+
 func (p *PostgresStore) UpsertDBReadRequest(input DBReadCreateInput, now time.Time) (DBReadRequest, bool, error) {
 	if existing, ok := p.GetDBReadRequestByIdempotencyKey(input.IdempotencyKey); ok {
+		return existing, false, nil
+	}
+	if existing, ok := p.getDBReadRequestByExecutionScope(input.Target, input.ExecutionScopeKey); ok {
 		return existing, false, nil
 	}
 	item, err := NewDBReadRequest(input, now)
 	if err != nil {
 		return DBReadRequest{}, false, err
 	}
-	_, err = p.db.Exec(`insert into db_read_request (`+dbReadRequestColumns+`) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18::jsonb,$19::jsonb,$20,$21,$22,$23,$24,$25,$26,$27::jsonb,$28,$29,$30,$31::jsonb,$32,$33)`,
-		item.ID, item.IdempotencyKey, item.Target, item.Purpose, item.SQL, item.SQLSHA256, item.Requester,
+	_, err = p.db.Exec(`insert into db_read_request (`+dbReadRequestColumns+`) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19::jsonb,$20::jsonb,$21,$22,$23,$24,$25,$26,$27,$28::jsonb,$29,$30,$31,$32::jsonb,$33,$34)`,
+		item.ID, item.IdempotencyKey, item.Target, item.Purpose, item.SQL, item.SQLSHA256, nullString(item.ExecutionScopeKey), item.Requester,
 		nullString(item.ConversationID), nullString(item.WorkflowID), nullString(item.TraceID), nullString(item.ChannelID), nullString(item.ThreadTS),
 		string(item.State), nullString(item.CurrentValidationAttemptID), nullString(item.ApprovedBySlackUserID), nullTime(item.ApprovedAt), item.ExpiresAt,
 		jsonString(item.Caps), jsonString(item.Redaction), nullString(item.SlackMessageChannelID), nullString(item.SlackMessageTS),
@@ -59,6 +73,9 @@ func (p *PostgresStore) UpsertDBReadRequest(input DBReadCreateInput, now time.Ti
 	)
 	if err != nil {
 		if existing, ok := p.GetDBReadRequestByIdempotencyKey(input.IdempotencyKey); ok {
+			return existing, false, nil
+		}
+		if existing, ok := p.getDBReadRequestByExecutionScope(input.Target, input.ExecutionScopeKey); ok {
 			return existing, false, nil
 		}
 		return DBReadRequest{}, false, err
@@ -299,8 +316,8 @@ func (p *PostgresStore) ExpirePendingDBReadRequests(now time.Time) ([]DBReadRequ
 }
 
 func updateDBReadRequestTx(tx *sql.Tx, item DBReadRequest) error {
-	_, err := tx.Exec(`update db_read_request set target=$2, purpose=$3, sql_text=$4, sql_sha256=$5, requester=$6, conversation_id=$7, workflow_id=$8, trace_id=$9, channel_id=$10, thread_ts=$11, state=$12, current_validation_attempt_id=$13, approved_by_slack_user_id=$14, approved_at=$15, expires_at=$16, caps=$17::jsonb, redaction=$18::jsonb, slack_message_channel_id=$19, slack_message_ts=$20, lease_holder=$21, lease_token=$22, lease_generation=$23, lease_expires_at=$24, result_artifact_ref=$25, result_sample=$26::jsonb, row_count=$27, truncated=$28, error_message=$29, metadata=$30::jsonb, updated_at=$31 where id=$1`,
-		item.ID, item.Target, item.Purpose, item.SQL, item.SQLSHA256, item.Requester,
+	_, err := tx.Exec(`update db_read_request set target=$2, purpose=$3, sql_text=$4, sql_sha256=$5, execution_scope_key=$6, requester=$7, conversation_id=$8, workflow_id=$9, trace_id=$10, channel_id=$11, thread_ts=$12, state=$13, current_validation_attempt_id=$14, approved_by_slack_user_id=$15, approved_at=$16, expires_at=$17, caps=$18::jsonb, redaction=$19::jsonb, slack_message_channel_id=$20, slack_message_ts=$21, lease_holder=$22, lease_token=$23, lease_generation=$24, lease_expires_at=$25, result_artifact_ref=$26, result_sample=$27::jsonb, row_count=$28, truncated=$29, error_message=$30, metadata=$31::jsonb, updated_at=$32 where id=$1`,
+		item.ID, item.Target, item.Purpose, item.SQL, item.SQLSHA256, nullString(item.ExecutionScopeKey), item.Requester,
 		nullString(item.ConversationID), nullString(item.WorkflowID), nullString(item.TraceID), nullString(item.ChannelID), nullString(item.ThreadTS),
 		string(item.State), nullString(item.CurrentValidationAttemptID), nullString(item.ApprovedBySlackUserID), nullTime(item.ApprovedAt), item.ExpiresAt,
 		jsonString(item.Caps), jsonString(item.Redaction), nullString(item.SlackMessageChannelID), nullString(item.SlackMessageTS),
@@ -313,12 +330,13 @@ type dbReadScanner interface{ Scan(dest ...any) error }
 
 func scanDBReadRequest(row dbReadScanner) (DBReadRequest, error) {
 	var item DBReadRequest
-	var conversationID, workflowID, traceID, channelID, threadTS, validationAttemptID, approvedBy, slackChannel, slackTS, leaseHolder, leaseToken, artifactRef, errorMessage sql.NullString
+	var executionScopeKey, conversationID, workflowID, traceID, channelID, threadTS, validationAttemptID, approvedBy, slackChannel, slackTS, leaseHolder, leaseToken, artifactRef, errorMessage sql.NullString
 	var approvedAt, leaseExpiresAt sql.NullTime
 	var capsRaw, redactionRaw, sampleRaw, metadataRaw []byte
-	if err := row.Scan(&item.ID, &item.IdempotencyKey, &item.Target, &item.Purpose, &item.SQL, &item.SQLSHA256, &item.Requester, &conversationID, &workflowID, &traceID, &channelID, &threadTS, &item.State, &validationAttemptID, &approvedBy, &approvedAt, &item.ExpiresAt, &capsRaw, &redactionRaw, &slackChannel, &slackTS, &leaseHolder, &leaseToken, &item.LeaseGeneration, &leaseExpiresAt, &artifactRef, &sampleRaw, &item.RowCount, &item.Truncated, &errorMessage, &metadataRaw, &item.CreatedAt, &item.UpdatedAt); err != nil {
+	if err := row.Scan(&item.ID, &item.IdempotencyKey, &item.Target, &item.Purpose, &item.SQL, &item.SQLSHA256, &executionScopeKey, &item.Requester, &conversationID, &workflowID, &traceID, &channelID, &threadTS, &item.State, &validationAttemptID, &approvedBy, &approvedAt, &item.ExpiresAt, &capsRaw, &redactionRaw, &slackChannel, &slackTS, &leaseHolder, &leaseToken, &item.LeaseGeneration, &leaseExpiresAt, &artifactRef, &sampleRaw, &item.RowCount, &item.Truncated, &errorMessage, &metadataRaw, &item.CreatedAt, &item.UpdatedAt); err != nil {
 		return DBReadRequest{}, err
 	}
+	item.ExecutionScopeKey = executionScopeKey.String
 	item.ConversationID = conversationID.String
 	item.WorkflowID = workflowID.String
 	item.TraceID = traceID.String

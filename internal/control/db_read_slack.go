@@ -2,10 +2,9 @@ package control
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
-	"time"
 	"unicode/utf8"
 
 	"github.com/slack-go/slack"
@@ -26,6 +25,9 @@ func postDBReadApprovalCard(ctx context.Context, cfg config.Config, store storep
 	}
 	if strings.TrimSpace(request.ChannelID) == "" {
 		return fmt.Errorf("db read request has no Slack channel")
+	}
+	if request.SlackMessageChannelID != "" && request.SlackMessageTS != "" {
+		return nil
 	}
 	text := dbReadApprovalText(request, attempt)
 	blocks := dbReadApprovalBlocks(request, attempt, preview)
@@ -64,23 +66,19 @@ func dbReadApprovalBlocks(request storepkg.DBReadRequest, attempt storepkg.DBRea
 	sqlPreview := truncateSlackText(preview, 2200)
 	return []slack.Block{
 		slack.NewSectionBlock(slack.NewTextBlockObject(slack.MarkdownType, dbReadApprovalText(request, attempt), false, false), nil, nil),
-		slack.NewSectionBlock(slack.NewTextBlockObject(slack.MarkdownType, "```"+escapeSlackCode(sqlPreview)+"```", false, false), nil, nil),
+		slack.NewSectionBlock(slack.NewTextBlockObject(slack.MarkdownType, "*Exact SQL to run:*\n```"+escapeSlackCode(sqlPreview)+"```", false, false), nil, nil),
+		slack.NewContextBlock("rsi_db_read_footer", slack.NewTextBlockObject(slack.MarkdownType, dbReadRequestFooter(request, attempt), false, false)),
 		slack.NewActionBlock("rsi_db_read_actions", approve, deny),
 	}
 }
 
 func dbReadApprovalText(request storepkg.DBReadRequest, attempt storepkg.DBReadValidationAttempt) string {
-	expires := request.ExpiresAt.Format(time.RFC3339)
-	hash := request.SQLSHA256
-	if len(hash) > 24 {
-		hash = hash[:24] + "..."
-	}
+	expires := request.ExpiresAt.Format("15:04 MST")
 	return fmt.Sprintf(
-		"*RSI DB read approval requested*\nTarget: `%s`\nRequester: `%s`\nHash: `%s`\nValidation attempt: `%s`\nCaps: max_rows=%d max_bytes=%d timeout=%ds\nExpires: `%s`",
+		"*Approve DB read?*\nTarget: `%s`  Requester: %s\nPurpose: `%s`\nCaps: max_rows=%d max_bytes=%d timeout=%ds  Expires: `%s`\nOnly authorized approvers can approve or deny this request.",
 		request.Target,
-		firstNonEmpty(request.Requester, "hermes"),
-		hash,
-		attempt.ID,
+		dbReadRequesterLabel(request.Requester),
+		firstNonEmpty(request.Purpose, "query"),
 		request.Caps.MaxRows,
 		request.Caps.MaxBytes,
 		request.Caps.TimeoutSeconds,
@@ -92,11 +90,29 @@ func updateDBReadSlackCard(ctx context.Context, api slackMessagePoster, request 
 	if api == nil || request.SlackMessageChannelID == "" || request.SlackMessageTS == "" {
 		return nil
 	}
-	text := fmt.Sprintf("*RSI DB read request `%s`*: %s\nTarget: `%s`\nHash: `%s`", request.ID, statusText, request.Target, request.SQLSHA256)
-	if len(request.ResultSample) > 0 {
-		raw, _ := json.MarshalIndent(request.ResultSample, "", "  ")
-		text += "\nSample:\n```" + escapeSlackCode(truncateSlackText(string(raw), 2200)) + "```"
+	const slackSectionTextLimit = 2900
+	header := fmt.Sprintf("*DB read `%s`*: %s\nTarget: `%s`  Requester: %s", request.ID, statusText, request.Target, dbReadRequesterLabel(request.Requester))
+	if request.ApprovedBySlackUserID != "" {
+		header += fmt.Sprintf("\nApproved by: <@%s>", request.ApprovedBySlackUserID)
 	}
+	footer := "\n" + dbReadRequestFooter(request, storepkg.DBReadValidationAttempt{ID: request.CurrentValidationAttemptID})
+	overhead := len(header) + len(footer) + len("\n*Exact SQL:*\n``````") + len("\n*Sample:*\n``````")
+	remainingBudget := slackSectionTextLimit - overhead
+	if remainingBudget < 0 {
+		remainingBudget = 0
+	}
+	sqlLimit := 1000
+	sampleLimit := remainingBudget - sqlLimit
+	if sampleLimit < 0 {
+		sqlLimit = remainingBudget
+		sampleLimit = 0
+	}
+	text := header
+	text += "\n*Exact SQL:*\n```" + escapeSlackCode(truncateSlackText(request.SQL, sqlLimit)) + "```"
+	if len(request.ResultSample) > 0 && sampleLimit > 0 {
+		text += "\n*Sample:*\n```" + escapeSlackCode(formatDBReadSampleTable(request.ResultSample, sampleLimit)) + "```"
+	}
+	text += footer
 	_, _, _, err := api.UpdateMessageContext(
 		ctx,
 		request.SlackMessageChannelID,
@@ -105,6 +121,88 @@ func updateDBReadSlackCard(ctx context.Context, api slackMessagePoster, request 
 		slack.MsgOptionBlocks(slack.NewSectionBlock(slack.NewTextBlockObject(slack.MarkdownType, text, false, false), nil, nil)),
 	)
 	return err
+}
+
+func dbReadRequestFooter(request storepkg.DBReadRequest, attempt storepkg.DBReadValidationAttempt) string {
+	hash := request.SQLSHA256
+	if len(hash) > 24 {
+		hash = hash[:24] + "..."
+	}
+	validationID := firstNonEmpty(attempt.ID, request.CurrentValidationAttemptID, "n/a")
+	return fmt.Sprintf("Request `%s` | Hash `%s` | Validation `%s`", request.ID, hash, validationID)
+}
+
+func dbReadRequesterLabel(requester string) string {
+	requester = strings.TrimSpace(requester)
+	for _, prefix := range []string{"user:", "operator:"} {
+		if strings.HasPrefix(requester, prefix) {
+			id := strings.TrimSpace(strings.TrimPrefix(requester, prefix))
+			if id != "" {
+				return fmt.Sprintf("<@%s> via Hermes", id)
+			}
+		}
+	}
+	if requester == "" {
+		return "`hermes`"
+	}
+	return "`" + escapeSlackCode(requester) + "`"
+}
+
+func formatDBReadSampleTable(rows []map[string]string, max int) string {
+	if len(rows) == 0 {
+		return "(no sample rows)"
+	}
+	columnSet := map[string]bool{}
+	for _, row := range rows {
+		for column := range row {
+			columnSet[column] = true
+		}
+	}
+	columns := make([]string, 0, len(columnSet))
+	for column := range columnSet {
+		columns = append(columns, column)
+	}
+	sort.Strings(columns)
+	widths := make(map[string]int, len(columns))
+	for _, column := range columns {
+		widths[column] = len(column)
+	}
+	for _, row := range rows {
+		for _, column := range columns {
+			if n := len(row[column]); n > widths[column] {
+				widths[column] = n
+			}
+		}
+	}
+	var b strings.Builder
+	writeRow := func(values map[string]string, header bool) {
+		for i, column := range columns {
+			if i > 0 {
+				b.WriteString(" | ")
+			}
+			value := column
+			if !header {
+				value = values[column]
+			}
+			b.WriteString(value)
+			for j := len(value); j < widths[column]; j++ {
+				b.WriteByte(' ')
+			}
+		}
+		b.WriteByte('\n')
+	}
+	writeRow(nil, true)
+	for i, column := range columns {
+		if i > 0 {
+			b.WriteString("-+-")
+		}
+		b.WriteString(strings.Repeat("-", widths[column]))
+	}
+	b.WriteByte('\n')
+	for _, row := range rows {
+		writeRow(row, false)
+	}
+	return truncateSlackText(b.String(), max)
 }
 
 func truncateSlackText(value string, max int) string {
