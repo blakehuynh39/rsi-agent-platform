@@ -121,7 +121,13 @@ Run once to gather evidence showing WHERE it breaks.
 THEN analyze evidence to identify the failing component.
 THEN investigate that specific component.
 
-### 5. Trace Data Flow
+### 5. Frontend-Specific Patterns
+
+Certain frontend rendering issues have reusable investigation recipes in `references/`. When the bug is visual/rendering-related, check there before starting from scratch:
+
+- **`references/frontend-font-locale-rendering.md`** — Locale-specific font rendering bugs (misaligned diacritics, missing glyphs, tofu characters). Covers finding font config, tracing CSS font stacks, checking i18n locale infrastructure, and proposing CSS-only fixes via `html[lang]` selectors or `unicode-range`.
+
+### 6. Trace Data Flow
 
 **WHEN error is deep in the call stack:**
 
