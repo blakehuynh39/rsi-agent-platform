@@ -19438,3 +19438,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_64a4769c0ae1edde682b93d5056bb49a
 - summary: Requirements for a bridge application that supports connecting a wallet, depositing and withdrawing IP or Poseidon currencies, and claiming from L2.
 
+## [2026-05-07T16:38:40Z] synthesis | Cloudflare Endpoint Protection
+
+- status: published
+- slug: systems/cloudflare-endpoint-protection
+- wiki_revision_id: wikirev_3a55a149153351ef0c00df037291d4df
+- summary: Configuration for Cloudflare protection of PSDN frontend and backend endpoints, including origin hardening, rate limiting rules, and bot management.
+

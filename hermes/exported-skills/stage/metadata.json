@@ -2876,13 +2876,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "678ad4590ce21fb333c2335fabe3d2d376903929ee285223e096c92cd417abe1",
-        "size": 484482
+        "sha256": "e2ecdc7e696bfc1d3f1c925894f0f9b622ca06de3b14392d9df85f2ea102a22d",
+        "size": 485161
       },
       {
         "path": "log.md",
-        "sha256": "7ab0d7326ea776ff4ddc50ad0e3fdc48129f8d91f0cccae30db757765768c834",
-        "size": 921845
+        "sha256": "e9c45f699215278f7145bbe4a92ecf0c20df94640b6d12372b0b77cb0fa9821e",
+        "size": 922204
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4520,6 +4520,11 @@
         "size": 6097
       },
       {
+        "path": "pages/systems/cloudflare-endpoint-protection.md",
+        "sha256": "b8ef0b4bd0aa182b71c32165a54ae61af6233ff926d2603ecedce59255ae3071",
+        "size": 9020
+      },
+      {
         "path": "pages/systems/consensus-labelling-mechanism.md",
         "sha256": "5a4be819b5571fa991b62c172998cc470b3b4c3bf68c39b8e745a7fbaad71fd5",
         "size": 1170
@@ -4724,8 +4729,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T16:35:31Z",
-  "file_count": 943,
+  "exported_at": "2026-05-07T16:41:36Z",
+  "file_count": 944,
   "files": [
     {
       "path": ".curator_state",
@@ -7597,7 +7602,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
-  "previous_tree_hash": "1da606b1943258b9c989460f5098a55bc10cb942262e644c07adad0c7016383d",
+  "previous_tree_hash": "7a1c03c5f6d38ef1c4b617c5a9559249a200d15b4a7e061fc587546a8476ea45",
   "schema_version": 1,
   "skill_file_count": 573,
   "skill_manage_sessions": [
@@ -7610,14 +7615,14 @@
   ],
   "skill_tree_hash": "28608c7248fc5dcd9142c2521d24ce87a8dbdf56f63028d0367e299b1383271a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7a1c03c5f6d38ef1c4b617c5a9559249a200d15b4a7e061fc587546a8476ea45",
+  "tree_hash": "da8e22980465c8d372e8837eb74508df174aee5691f1591bcc499928aca2d74d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 370,
+  "wiki_file_count": 371,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7626,13 +7631,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "678ad4590ce21fb333c2335fabe3d2d376903929ee285223e096c92cd417abe1",
-      "size": 484482
+      "sha256": "e2ecdc7e696bfc1d3f1c925894f0f9b622ca06de3b14392d9df85f2ea102a22d",
+      "size": 485161
     },
     {
       "path": "log.md",
-      "sha256": "7ab0d7326ea776ff4ddc50ad0e3fdc48129f8d91f0cccae30db757765768c834",
-      "size": 921845
+      "sha256": "e9c45f699215278f7145bbe4a92ecf0c20df94640b6d12372b0b77cb0fa9821e",
+      "size": 922204
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9270,6 +9275,11 @@
       "size": 6097
     },
     {
+      "path": "pages/systems/cloudflare-endpoint-protection.md",
+      "sha256": "b8ef0b4bd0aa182b71c32165a54ae61af6233ff926d2603ecedce59255ae3071",
+      "size": 9020
+    },
+    {
       "path": "pages/systems/consensus-labelling-mechanism.md",
       "sha256": "5a4be819b5571fa991b62c172998cc470b3b4c3bf68c39b8e745a7fbaad71fd5",
       "size": 1170
@@ -9471,5 +9481,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "8e75c7e39f225efb4dc8b49727921e2c9efdfe6c79f850a81cde7e5fa1cae2cb"
+  "wiki_tree_hash": "7a8dc89db48eedc35621fbed054b5eac3246c7b1c2cf10895e495c5be84a7c0a"
 }
