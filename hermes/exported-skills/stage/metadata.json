@@ -2734,13 +2734,18 @@
       },
       {
         "path": "software-development/systematic-debugging/SKILL.md",
-        "sha256": "77095e3c7bbfc29a17fa9f8f79806f36835e68245982252d66c3f709bbce3a64",
-        "size": 10971
+        "sha256": "e231a6aba910c31246b7c3cd471999a7741cdefa11664f84586385b044275068",
+        "size": 11427
       },
       {
         "path": "software-development/systematic-debugging/references/frontend-font-locale-rendering.md",
         "sha256": "38660209e3ee734ec2a561e6f7feb4feb851921d4d7352f78e02192f1f6b6a1e",
         "size": 4943
+      },
+      {
+        "path": "software-development/systematic-debugging/references/state-machine-debugging.md",
+        "sha256": "caab42daeaed491046437fd0d954df8c1c09b31095362f1e38aea9a779922f24",
+        "size": 4773
       },
       {
         "path": "software-development/test-driven-development/SKILL.md",
@@ -2881,8 +2886,8 @@
       },
       {
         "path": "index.md",
-        "sha256": "04a40d1d7f379e469a170cf1a9a76bcf5a1ef30ef26aef7bffc2c02d35c1f7d8",
-        "size": 490123
+        "sha256": "581ba3839e94c3bf0f121196e275696b067994ef1972d22985f6f92ac0f4ba15",
+        "size": 490506
       },
       {
         "path": "log.md",
@@ -4824,8 +4829,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T19:06:11Z",
-  "file_count": 963,
+  "exported_at": "2026-05-07T19:12:38Z",
+  "file_count": 964,
   "files": [
     {
       "path": ".curator_state",
@@ -7559,13 +7564,18 @@
     },
     {
       "path": "software-development/systematic-debugging/SKILL.md",
-      "sha256": "77095e3c7bbfc29a17fa9f8f79806f36835e68245982252d66c3f709bbce3a64",
-      "size": 10971
+      "sha256": "e231a6aba910c31246b7c3cd471999a7741cdefa11664f84586385b044275068",
+      "size": 11427
     },
     {
       "path": "software-development/systematic-debugging/references/frontend-font-locale-rendering.md",
       "sha256": "38660209e3ee734ec2a561e6f7feb4feb851921d4d7352f78e02192f1f6b6a1e",
       "size": 4943
+    },
+    {
+      "path": "software-development/systematic-debugging/references/state-machine-debugging.md",
+      "sha256": "caab42daeaed491046437fd0d954df8c1c09b31095362f1e38aea9a779922f24",
+      "size": 4773
     },
     {
       "path": "software-development/test-driven-development/SKILL.md",
@@ -7702,9 +7712,9 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7b87977wx4w",
-  "previous_tree_hash": "b06ce36a155183400bd53cbaf3bf3c9562e88e4f6ab8668890085516a58bd157",
+  "previous_tree_hash": "df3f0bb343f6f3bab4f72a6ef60f107d37b31a49a49b28d47b7a6db80654e067",
   "schema_version": 1,
-  "skill_file_count": 574,
+  "skill_file_count": 575,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -7713,9 +7723,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "8aed17056446f2116e9bf6efdba0a2c6620336f6321f8bf4bc6120aae3d2b834",
+  "skill_tree_hash": "36b780d1f91f781d3190e02ec28dd1d794baf847af386a5efae877bcac71dd7c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "df3f0bb343f6f3bab4f72a6ef60f107d37b31a49a49b28d47b7a6db80654e067",
+  "tree_hash": "2b6135fab4357e778e1dac95987664faf5b9a5d8d9a50707f6b5a3496b01c19a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -7731,8 +7741,8 @@
     },
     {
       "path": "index.md",
-      "sha256": "04a40d1d7f379e469a170cf1a9a76bcf5a1ef30ef26aef7bffc2c02d35c1f7d8",
-      "size": 490123
+      "sha256": "581ba3839e94c3bf0f121196e275696b067994ef1972d22985f6f92ac0f4ba15",
+      "size": 490506
     },
     {
       "path": "log.md",
@@ -9671,5 +9681,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "460fa2679ed8462be64840281132753eb010189eaadb436c4c753c6054d10621"
+  "wiki_tree_hash": "80560df507dd6a1a924a1a222a82e69dbf802cbde4a40473f9915902ed861624"
 }

@@ -127,6 +127,10 @@ Certain frontend rendering issues have reusable investigation recipes in `refere
 
 - **`references/frontend-font-locale-rendering.md`** — Locale-specific font rendering bugs (misaligned diacritics, missing glyphs, tofu characters). Covers finding font config, tracing CSS font stacks, checking i18n locale infrastructure, and proposing CSS-only fixes via `html[lang]` selectors or `unicode-range`.
 
+### 5b. State Machine Bugs
+
+When the bug involves a state machine or workflow pipeline (job lifecycle, transaction FSM, multi-step process), use the dedicated audit checklist in `references/state-machine-debugging.md` before proposing fixes. It covers the three dimensions: missing states, transition function gaps, and DB-commit vs external-action ordering. Load it whenever the error involves a state enum, a reducer/pipeline, or a crash-recovery path.
+
 ### 6. Trace Data Flow
 
 **WHEN error is deep in the call stack:**
