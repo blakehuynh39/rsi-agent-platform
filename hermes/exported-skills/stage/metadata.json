@@ -2866,13 +2866,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "561216cff88c7834e86c60dd931bdd8f8fd5a220db15c16492c77722bf02506e",
-        "size": 477847
+        "sha256": "99c00cb1cc177f3db0283e42a72d337b5b85dd63c05facf250f5de0804c312d0",
+        "size": 478546
       },
       {
         "path": "log.md",
-        "sha256": "28ee79b5963c62ddf5db4ac2102f1f9718dcd282e7e4df0ecf1d0cb069a1cba7",
-        "size": 914746
+        "sha256": "e7cdd2c5a90eef0eeba6efe6509d48b0f06d58bf3dc6eb7a815e3130dbc070ea",
+        "size": 915117
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3343,6 +3343,11 @@
         "path": "pages/concepts/royalty-nft.md",
         "sha256": "9eb01ee2e62b5886628478fcc8c3bd61f9c0f82a06974d28a22de118930337cd",
         "size": 6171
+      },
+      {
+        "path": "pages/concepts/sahara-ai-datasets.md",
+        "sha256": "b2e63054ae44057fed4b1420a5c8e72fd8764ab8dbccca98ab8f1bd32699f8ed",
+        "size": 5121
       },
       {
         "path": "pages/concepts/sdks.md",
@@ -4609,8 +4614,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T12:08:37Z",
-  "file_count": 920,
+  "exported_at": "2026-05-07T12:14:41Z",
+  "file_count": 921,
   "files": [
     {
       "path": ".curator_state",
@@ -7472,7 +7477,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
-  "previous_tree_hash": "4144b7462baf9f3569a1a4d3c30b55ce3f8b9c00828f05eb32f66d6ad49c2b14",
+  "previous_tree_hash": "f6725d02ba7b0dd89ae06266f89be8003c6e09b47b86f06905a135347d5959ab",
   "schema_version": 1,
   "skill_file_count": 571,
   "skill_manage_sessions": [
@@ -7485,14 +7490,14 @@
   ],
   "skill_tree_hash": "ff72ad0c56115e95b1a106829f032a3ff4a43e92c933d812f680df1c04ef1c5c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f6725d02ba7b0dd89ae06266f89be8003c6e09b47b86f06905a135347d5959ab",
+  "tree_hash": "dee381cad5ab9068511b74e696982731c8d2a0699ef22029a8dcc6b6940331a6",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 349,
+  "wiki_file_count": 350,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7501,13 +7506,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "561216cff88c7834e86c60dd931bdd8f8fd5a220db15c16492c77722bf02506e",
-      "size": 477847
+      "sha256": "99c00cb1cc177f3db0283e42a72d337b5b85dd63c05facf250f5de0804c312d0",
+      "size": 478546
     },
     {
       "path": "log.md",
-      "sha256": "28ee79b5963c62ddf5db4ac2102f1f9718dcd282e7e4df0ecf1d0cb069a1cba7",
-      "size": 914746
+      "sha256": "e7cdd2c5a90eef0eeba6efe6509d48b0f06d58bf3dc6eb7a815e3130dbc070ea",
+      "size": 915117
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7978,6 +7983,11 @@
       "path": "pages/concepts/royalty-nft.md",
       "sha256": "9eb01ee2e62b5886628478fcc8c3bd61f9c0f82a06974d28a22de118930337cd",
       "size": 6171
+    },
+    {
+      "path": "pages/concepts/sahara-ai-datasets.md",
+      "sha256": "b2e63054ae44057fed4b1420a5c8e72fd8764ab8dbccca98ab8f1bd32699f8ed",
+      "size": 5121
     },
     {
       "path": "pages/concepts/sdks.md",
@@ -9241,5 +9251,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f57bf4d6e1967f90b2ca65a12834bde6e2d44d00ea8384bd7efa9054ccb0f995"
+  "wiki_tree_hash": "f3db091cf0a6ec13d461c280670874a15534e2982293fc47721310e3a5ae5d76"
 }

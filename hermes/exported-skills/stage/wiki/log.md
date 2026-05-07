@@ -19284,3 +19284,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c9cb3f177e8f1250f3b23089f81093cb
 - summary: Sahara AI provides two core product suites: AI Studio for compute, models, data, and vaults, and a Data Service Platform (DSP) for data labeling and task management.
 
+## [2026-05-07T12:09:20Z] synthesis | Sahara AI Datasets
+
+- status: published
+- slug: concepts/sahara-ai-datasets
+- wiki_revision_id: wikirev_05477cc4aef3c5949af1cbc7df53bfc8
+- summary: Datasets within Sahara AI are managed by the Data Layer, which uses a hybrid on-chain/off-chain approach. Datasets can be registered and tokenized as ERC-721 Ownership NFTs on the ...
+
