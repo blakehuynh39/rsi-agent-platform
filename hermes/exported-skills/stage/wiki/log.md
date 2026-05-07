@@ -19655,3 +19655,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_78f0abadfb95a37a1b3cdf8003d44757
 - summary: Outlines the reward and incentivization strategy for Subnet 2.0, including initial Poseidon token grants for subnet owners that gradually decrease, shifting revenue to data buyers ...
 
+## [2026-05-07T21:05:06Z] synthesis | Poseidon Subnet Roadmap
+
+- status: published
+- slug: projects/poseidon-subnet-roadmap
+- wiki_revision_id: wikirev_bb51e77af215f56e10916af88e31d7db
+- summary: Roadmap for launching Poseidon Subnet mainnet in September 2026, covering tokenomics, subnet design, milestones, and risks.
+
+## [2026-05-07T21:05:30Z] synthesis | Subnet reliability and performance improvement
+
+- status: published
+- slug: projects/subnet-reliability-and-performance-improvement
+- wiki_revision_id: wikirev_22680cffc418982227757d7588be8f13
+- summary: Project to improve subnet reliability through load and destroy tests with mock API servers, and performance via optimistic validation, scalable infrastructure, and stage-by-stage m...
+
