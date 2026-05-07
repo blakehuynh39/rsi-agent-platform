@@ -20,6 +20,37 @@ func (s *MemoryStore) ListDBReadRequests() []DBReadRequest {
 	return out
 }
 
+func (s *MemoryStore) ListDBReadRequestsByScope(conversationID string, workflowID string, traceID string, channelID string, threadTS string, notBefore time.Time) []DBReadRequest {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	conversationID = strings.TrimSpace(conversationID)
+	workflowID = strings.TrimSpace(workflowID)
+	traceID = strings.TrimSpace(traceID)
+	channelID = strings.TrimSpace(channelID)
+	threadTS = strings.TrimSpace(threadTS)
+	out := make([]DBReadRequest, 0)
+	for _, item := range s.dbReadRequests {
+		if !notBefore.IsZero() && item.CreatedAt.Before(notBefore) {
+			continue
+		}
+		matched := false
+		if workflowID != "" && strings.TrimSpace(item.WorkflowID) == workflowID {
+			matched = true
+		} else if traceID != "" && strings.TrimSpace(item.TraceID) == traceID {
+			matched = true
+		} else if channelID != "" && threadTS != "" && strings.TrimSpace(item.ChannelID) == channelID && strings.TrimSpace(item.ThreadTS) == threadTS {
+			matched = true
+		} else if conversationID != "" && strings.TrimSpace(item.ConversationID) == conversationID {
+			matched = true
+		}
+		if matched {
+			out = append(out, cloneDBReadRequest(item))
+		}
+	}
+	SortDBReadRequests(out)
+	return out
+}
+
 func (s *MemoryStore) GetDBReadRequest(requestID string) (DBReadRequest, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

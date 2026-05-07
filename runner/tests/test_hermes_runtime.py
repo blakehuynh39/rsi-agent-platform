@@ -552,6 +552,8 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("artifact.write.started", source)
         self.assertIn("artifact.write.completed", source)
         self.assertIn("artifact_write_file", source)
+        self.assertIn("db_read_query", source)
+        self.assertIn("db_read.request_submitted", source)
 
     def test_github_repo_activity_default_payload_ignores_context_windows(self) -> None:
         namespace: dict[str, object] = {}
@@ -1694,6 +1696,56 @@ class HermesRuntimeTests(unittest.TestCase):
             str(Path(env["RSI_DB_READ_SUBMISSION_PATH"]).resolve()),
             str(Path(tempdir, "rsi_runtime", "db_read_submissions", "hexec-1.json").resolve()),
         )
+        self.assertNotIn("RSI_DB_READ_EXECUTION_TOKEN", env)
+        self.assertNotIn("RSI_DB_READ_CLIENT_TOKEN", env)
+
+    def test_native_runtime_env_injects_execution_scoped_db_read_token(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": tempdir,
+                "RSI_DB_READ_ENABLED": "true",
+                "RSI_CONTROL_PLANE_BASE_URL": "http://control-plane.rsi-platform.svc.cluster.local:8080",
+                "RSI_DB_READ_CLIENT_TOKEN": "static-secret",
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "execution_id": "hexec-1",
+                        "operation_id": "op-1",
+                        "trace_id": "trace-1",
+                        "workflow_id": "wf-1",
+                        "conversation_id": "conv-1",
+                        "channel_id": "C123",
+                        "thread_ts": "171000001.000100",
+                        "user_peer_id": "user:U123",
+                    }
+                }
+            )
+            env = runtime._native_runtime_env(
+                task,
+                context_path=Path(tempdir, "context.json"),
+                envelope_path=Path(tempdir, "envelope.json"),
+            )
+
+        token = env.get("RSI_DB_READ_EXECUTION_TOKEN", "")
+        self.assertTrue(token.startswith("v1."))
+        self.assertEqual(env["RSI_DB_READ_AUTH_MODE"], "execution_scoped")
+        self.assertNotIn("RSI_DB_READ_CLIENT_TOKEN", env)
+        parts = token.split(".")
+        claims = json.loads(base64.urlsafe_b64decode(parts[1] + "=" * (-len(parts[1]) % 4)).decode("utf-8"))
+        self.assertEqual(claims["execution_id"], "hexec-1")
+        self.assertEqual(claims["operation_id"], "op-1")
+        self.assertEqual(claims["conversation_id"], "conv-1")
+        self.assertEqual(claims["workflow_id"], "wf-1")
+        self.assertEqual(claims["trace_id"], "trace-1")
+        self.assertEqual(claims["channel_id"], "C123")
+        self.assertEqual(claims["thread_ts"], "171000001.000100")
+        self.assertEqual(claims["requester"], "user:U123")
 
     def test_hermes_agent_adapter_passes_rich_context_to_aiagent(self) -> None:
         captured: dict[str, object] = {}
@@ -4024,6 +4076,79 @@ class HermesRuntimeTests(unittest.TestCase):
             self.assertIn("artifact.list.completed", [event["event"] for event in events])
             self.assertIn("artifact.list.failed", [event["event"] for event in events])
 
+    def test_plugin_db_read_query_posts_to_control_plane_and_records_lifecycle(self) -> None:
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self) -> bytes:
+                return json.dumps(
+                    {
+                        "status": "pending_approval",
+                        "request": {
+                            "id": "dbread_1",
+                            "target": "depin-prod",
+                            "state": "pending_approval",
+                            "sql_sha256": "sha256:abc",
+                        },
+                        "validation": {"ok": True},
+                    }
+                ).encode("utf-8")
+
+        seen: dict[str, object] = {}
+
+        def fake_urlopen(req, timeout):  # type: ignore[no-untyped-def]
+            seen["url"] = req.full_url
+            seen["headers"] = dict(req.header_items())
+            seen["body"] = json.loads(req.data.decode("utf-8"))
+            seen["timeout"] = timeout
+            return Response()
+
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(
+            os.environ,
+            {
+                "HERMES_HOME": hermes_home,
+                "RSI_CONTROL_PLANE_BASE_URL": "https://control.example.test",
+                "RSI_DB_READ_EXECUTION_TOKEN": "scoped-token",
+                "RSI_DB_READ_SUBMISSION_PATH": str(Path(tempdir, "submission.json")),
+            },
+            clear=True,
+        ), mock.patch("urllib.request.urlopen", side_effect=fake_urlopen):
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+            handler = namespace["_tool_handler"]("db_read_query")
+            payload = json.loads(handler({"target": "depin-prod", "sql": "SELECT 1", "purpose": "query"}, task_id="sess-db"))
+            lifecycle_path = Path(hermes_home, "rsi_runtime", "lifecycle", "sess-db.jsonl")
+            lifecycle_events = [json.loads(line) for line in lifecycle_path.read_text(encoding="utf-8").splitlines()]
+            submission = json.loads(Path(tempdir, "submission.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(payload["status"], "ok")
+        self.assertEqual(payload["output"]["request_id"], "dbread_1")
+        self.assertEqual(payload["output"]["response_owner"], "slack_db_read_card")
+        self.assertEqual(payload["output"]["delivery_mode"], "card_only")
+        self.assertEqual(seen["url"], "https://control.example.test/internal/db-read/query")
+        self.assertEqual(seen["headers"].get("Authorization"), "Bearer scoped-token")
+        self.assertEqual(seen["body"], {"target": "depin-prod", "sql": "SELECT 1", "purpose": "query"})
+        self.assertEqual(submission["kind"], "db_read_request_submitted")
+        self.assertIn("db_read.request_submitted", [event["event"] for event in lifecycle_events])
+
+    def test_plugin_db_read_tools_require_execution_scoped_token(self) -> None:
+        with mock.patch.dict(
+            os.environ,
+            {
+                "RSI_CONTROL_PLANE_BASE_URL": "https://control.example.test",
+                "RSI_DB_READ_CLIENT_TOKEN": "static-token",
+            },
+            clear=True,
+        ):
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+        self.assertFalse(namespace["_db_read_tools_available"]())
+
     def test_plugin_slack_upload_tool_is_not_registered(self) -> None:
         with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as artifact_dir, mock.patch.dict(
             os.environ, {"HERMES_HOME": hermes_home}, clear=True
@@ -5575,6 +5700,33 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("rsi-artifacts", runtime._native_toolsets_for_task(lease_only_task))
         self.assertIn("rsi-artifacts", runtime._native_toolsets_for_task(requested_artifact_task))
 
+    def test_workflow_native_toolsets_expose_db_read_when_configured(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Read from prod DB.",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
+                }
+            }
+        )
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "RSI_HERMES_NATIVE_TERMINAL_ENABLED": "true",
+                "RSI_DB_READ_ENABLED": "true",
+                "RSI_CONTROL_PLANE_BASE_URL": "http://control-plane.rsi-platform.svc.cluster.local:8080",
+                "RSI_DB_READ_CLIENT_TOKEN": "static-secret",
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        self.assertIn("rsi-db-read", runtime._native_toolsets_for_task(task))
+
     def test_prod_role_hides_legacy_tool_policy_from_native_prompt(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
@@ -5724,6 +5876,12 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(artifact_list["name"], "artifact_list_files")
         self.assertEqual(artifact_list["parameters"]["required"], ["path"])
         self.assertEqual(artifact_list["parameters"]["properties"]["path"]["type"], ["string", "null"])
+
+        db_read_query = transport_tool_schema("db_read.query")
+        self.assertEqual(db_read_query["name"], "db_read_query")
+        self.assertEqual(db_read_query["parameters"]["required"], ["target", "sql", "purpose"])
+        self.assertEqual(db_read_query["parameters"]["properties"]["target"]["type"], "string")
+        self.assertEqual(db_read_query["parameters"]["properties"]["sql"]["type"], "string")
 
         invalid: dict[str, list[str]] = {}
         from rsi_runner.rsi_tools import rsi_plugin_toolset_definitions

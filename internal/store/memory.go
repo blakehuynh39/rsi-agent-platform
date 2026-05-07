@@ -44,6 +44,7 @@ type Store interface {
 	GetActionIntent(actionID string) (action.Intent, bool)
 	ListActionResults(actionIntentID string) []action.Result
 	ListDBReadRequests() []DBReadRequest
+	ListDBReadRequestsByScope(conversationID string, workflowID string, traceID string, channelID string, threadTS string, notBefore time.Time) []DBReadRequest
 	GetDBReadRequest(requestID string) (DBReadRequest, bool)
 	GetDBReadRequestByIdempotencyKey(key string) (DBReadRequest, bool)
 	UpsertDBReadRequest(input DBReadCreateInput, now time.Time) (DBReadRequest, bool, error)

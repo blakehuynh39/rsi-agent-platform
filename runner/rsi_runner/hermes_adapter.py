@@ -48,6 +48,7 @@ from rsi_runner.slack_uploads import prepare_local_slack_upload_payload
 _PLUGIN_TOOLS = __PLUGIN_TOOLS__
 _TRANSPORT_TO_CANONICAL = {item["transport_name"]: item["canonical_name"] for item in _PLUGIN_TOOLS}
 _ARTIFACT_CANONICAL_NAMES = {"artifact.list_files", "artifact.write_file"}
+_DB_READ_CANONICAL_NAMES = {"db_read.sources", "db_read.schema", "db_read.validate", "db_read.query", "db_read.status"}
 
 
 def _runtime_root() -> Path:
@@ -130,6 +131,22 @@ def _active_context(task_id: str = "", **kwargs) -> JsonObject:
 
 def _artifact_tools_available() -> bool:
     return True
+
+
+def _db_read_auth_token() -> str:
+    return os.getenv("RSI_DB_READ_EXECUTION_TOKEN", "").strip()
+
+
+def _db_read_tools_available() -> bool:
+    return bool(os.getenv("RSI_CONTROL_PLANE_BASE_URL", "").strip() and _db_read_auth_token())
+
+
+def _rsi_tool_available(canonical_name: str) -> bool:
+    if canonical_name in _ARTIFACT_CANONICAL_NAMES:
+        return _artifact_tools_available()
+    if canonical_name in _DB_READ_CANONICAL_NAMES:
+        return _db_read_tools_available()
+    return False
 
 
 def _first_non_empty(*values) -> str:
@@ -372,6 +389,182 @@ def _artifact_handler(canonical_name: str, transport_name: str, args: JsonObject
     }, sort_keys=True)
 
 
+def _db_read_request_json(method: str, path: str, body: JsonObject | None = None) -> JsonObject:
+    base_url = os.getenv("RSI_CONTROL_PLANE_BASE_URL", "").strip().rstrip("/")
+    token = _db_read_auth_token()
+    if not base_url:
+        raise RuntimeError("RSI_CONTROL_PLANE_BASE_URL is required")
+    if not token:
+        raise RuntimeError("RSI_DB_READ_EXECUTION_TOKEN is required")
+    data = None
+    headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
+    if body is not None:
+        data = json.dumps(body).encode("utf-8")
+        headers["Content-Type"] = "application/json"
+    req = urlrequest.Request(base_url + path, data=data, headers=headers, method=method)
+    try:
+        with urlrequest.urlopen(req, timeout=30) as resp:
+            raw = resp.read()
+    except urlerror.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")
+        if exc.code == 409:
+            try:
+                parsed = json.loads(detail)
+                if isinstance(parsed, dict):
+                    return parsed
+            except json.JSONDecodeError:
+                pass
+        raise RuntimeError(f"db-read request failed: HTTP {exc.code}: {detail}") from exc
+    except urlerror.URLError as exc:
+        raise RuntimeError(f"db-read request failed: {exc}") from exc
+    if not raw:
+        return {}
+    parsed = json.loads(raw.decode("utf-8"))
+    if not isinstance(parsed, dict):
+        raise RuntimeError("db-read response was not a JSON object")
+    return parsed
+
+
+def _db_read_submission_event(payload: JsonObject) -> JsonObject:
+    request = payload.get("request")
+    if not isinstance(request, dict):
+        return {}
+    validation = payload.get("validation")
+    if isinstance(validation, dict) and validation.get("ok") is False:
+        return {}
+    state = str(request.get("state") or payload.get("status") or "").strip()
+    if state == "validation_failed":
+        return {}
+    request_id = str(request.get("id") or "").strip()
+    if not request_id:
+        return {}
+    return {
+        "kind": "db_read_request_submitted",
+        "request_id": request_id,
+        "target": str(request.get("target") or "").strip(),
+        "state": state,
+        "sql_sha256": str(request.get("sql_sha256") or "").strip(),
+        "status": str(payload.get("status") or state).strip(),
+        "response_owner": "slack_db_read_card",
+        "delivery_mode": "card_only",
+    }
+
+
+def _compact_db_read_query_payload(payload: JsonObject) -> JsonObject:
+    event = _db_read_submission_event(payload)
+    if event:
+        return dict(event)
+    request = payload.get("request")
+    if isinstance(request, dict):
+        return {
+            "request_id": str(request.get("id") or "").strip(),
+            "target": str(request.get("target") or "").strip(),
+            "state": str(request.get("state") or payload.get("status") or "").strip(),
+            "sql_sha256": str(request.get("sql_sha256") or "").strip(),
+            "status": str(payload.get("status") or "").strip(),
+            "response_owner": "slack_db_read_card",
+            "delivery_mode": "card_only",
+        }
+    return {"status": str(payload.get("status") or "").strip()}
+
+
+def _record_db_read_submission(session_id: str, event: JsonObject) -> None:
+    if not event:
+        return
+    path = os.getenv("RSI_DB_READ_SUBMISSION_PATH", "").strip()
+    if path:
+        try:
+            destination = Path(path).expanduser()
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_text(json.dumps(event, indent=2, sort_keys=True), encoding="utf-8")
+        except OSError:
+            pass
+    if session_id:
+        _append_event(
+            session_id,
+            "db_read.request_submitted",
+            {
+                "event_type": "db_read.request_submitted",
+                "status": "completed",
+                "payload": dict(event),
+            },
+        )
+
+
+def _db_read_handler(canonical_name: str, transport_name: str, args: JsonObject, task_id: str = "", **kwargs):
+    session_id = str(task_id or kwargs.get("task_id", "") or kwargs.get("session_id", "")).strip()
+    safe_args = args if isinstance(args, dict) else {}
+    try:
+        if canonical_name == "db_read.sources":
+            payload = _db_read_request_json("GET", "/internal/db-read/sources")
+        elif canonical_name == "db_read.schema":
+            target = _string_value(safe_args.get("target"))
+            payload = _db_read_request_json("GET", "/internal/db-read/schema?" + urlparse.urlencode({"target": target}))
+        elif canonical_name == "db_read.validate":
+            payload = _db_read_request_json(
+                "POST",
+                "/internal/db-read/validate",
+                {
+                    "target": _string_value(safe_args.get("target")),
+                    "sql": str(safe_args.get("sql") or ""),
+                    "purpose": _string_value(safe_args.get("purpose")) or "query",
+                },
+            )
+        elif canonical_name == "db_read.query":
+            payload = _db_read_request_json(
+                "POST",
+                "/internal/db-read/query",
+                {
+                    "target": _string_value(safe_args.get("target")),
+                    "sql": str(safe_args.get("sql") or ""),
+                    "purpose": _string_value(safe_args.get("purpose")) or "query",
+                },
+            )
+            event = _db_read_submission_event(payload)
+            _record_db_read_submission(session_id, event)
+            payload = _compact_db_read_query_payload(payload)
+        elif canonical_name == "db_read.status":
+            request_id = urlparse.quote(_string_value(safe_args.get("request_id")))
+            payload = _db_read_request_json("GET", f"/internal/db-read/requests/{request_id}")
+        else:
+            raise RuntimeError("unknown RSI DB-read tool")
+        output = {
+            "tool_name": canonical_name,
+            "transport_tool_name": transport_name,
+            "status": "ok",
+            "output": payload,
+        }
+        if canonical_name == "db_read.query":
+            output["summary"] = "DB-read request submitted; the Slack approval/result card owns the response."
+        return json.dumps(output, sort_keys=True)
+    except Exception as exc:
+        failed_payload = {
+            "tool_name": canonical_name,
+            "transport_tool_name": transport_name,
+            "error": str(exc),
+        }
+        if session_id:
+            _append_event(
+                session_id,
+                "db_read.tool_failed",
+                {
+                    "event_type": "db_read.tool_failed",
+                    "status": "failed",
+                    "payload": failed_payload,
+                },
+            )
+        return json.dumps(
+            {
+                "tool_name": canonical_name,
+                "transport_tool_name": transport_name,
+                "status": "error",
+                "error": str(exc),
+                "output": failed_payload,
+            },
+            sort_keys=True,
+        )
+
+
 def _default_payload(canonical_name: str, payload: JsonObject) -> JsonObject:
     task_repo = str(payload.get("task_repo", "") or payload.get("repo", "")).strip()
     task_repo_ref = str(payload.get("task_repo_ref", "") or payload.get("repo_ref", "")).strip()
@@ -582,6 +775,8 @@ def _tool_handler(transport_name: str):
     canonical_name = _TRANSPORT_TO_CANONICAL[transport_name]
 
     def handler(args: JsonObject, task_id: str = "", **kwargs):
+        if canonical_name in _DB_READ_CANONICAL_NAMES:
+            return _db_read_handler(canonical_name, transport_name, args, task_id=task_id, **kwargs)
         return _artifact_handler(canonical_name, transport_name, args, task_id=task_id, **kwargs)
 
     return handler
@@ -667,7 +862,7 @@ def register(ctx):
             toolset=str(item["toolset"]),
             schema=dict(item["schema"]),
             handler=_tool_handler(str(item["transport_name"])),
-            check_fn=_artifact_tools_available,
+            check_fn=lambda canonical_name=canonical_name: _rsi_tool_available(canonical_name),
             description=str(item["schema"].get("description", "")),
         )
     ctx.register_hook("pre_llm_call", pre_llm_call)

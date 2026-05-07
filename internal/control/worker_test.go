@@ -107,6 +107,107 @@ func TestWorkflowRunnerUsesHermesExecutorWhenConfigured(t *testing.T) {
 	}
 }
 
+func TestWorkflowRunnerSuppressesReplyWhenDBReadCardOwnsResponse(t *testing.T) {
+	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/execute" {
+			t.Fatalf("runner path = %q, want /execute", r.URL.Path)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":       true,
+			"provider": "fake",
+			"message":  `{"visible_reasoning":[],"reply_draft":"raw model JSON should not be posted","final_answer":"raw model JSON should not be posted","confidence":0.9,"context_summary":"DB read submitted.","self_critique":"","proposed_actions":[],"knowledge_drafts":[],"outcome_hypotheses":[],"produced_artifacts":[],"artifact_failure_reason":""}`,
+			"raw": map[string]any{
+				"structured_output": map[string]any{
+					"visible_reasoning":       []any{},
+					"reply_draft":             "raw model JSON should not be posted",
+					"final_answer":            "raw model JSON should not be posted",
+					"confidence":              0.9,
+					"context_summary":         "DB read submitted.",
+					"self_critique":           "",
+					"proposed_actions":        []any{},
+					"knowledge_drafts":        []any{},
+					"outcome_hypotheses":      []any{},
+					"produced_artifacts":      []any{},
+					"artifact_failure_reason": "",
+				},
+			},
+		})
+	}))
+	defer runner.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	now := time.Now().UTC()
+	request, _, err := store.UpsertDBReadRequest(storepkg.DBReadCreateInput{
+		IdempotencyKey:    "db-read-card-owns-response",
+		Target:            "depin-prod",
+		Purpose:           "query",
+		SQL:               "select count(*) from scripts",
+		SQLSHA256:         "sha256:abc",
+		Requester:         "user:U123",
+		ConversationID:    "conv-1",
+		WorkflowID:        workflowItem.workflowID,
+		TraceID:           workflowItem.traceID,
+		ChannelID:         "C123",
+		ThreadTS:          "171000001.000100",
+		ExecutionScopeKey: "workflow:" + workflowItem.workflowID,
+		ExpiresAt:         now.Add(time.Hour),
+	}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.AppendDBReadValidationAttempt(storepkg.NewDBReadValidationAttempt(request, storepkg.DBReadValidationStatusSucceeded, "target_prepare", "", nil, now)); err != nil {
+		t.Fatal(err)
+	}
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             runner.URL,
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, now, queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect); err != nil {
+		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
+	}
+
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatal("expected workflow")
+	}
+	if workflow.Status != string(transition.WorkflowStateCompleted) {
+		t.Fatalf("expected completed workflow, got %s", workflow.Status)
+	}
+	if intents := store.ListActionIntents(); len(intents) != 0 {
+		t.Fatalf("expected no Slack reply action intents, got %#v", intents)
+	}
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatal("expected trace")
+	}
+	if len(trace.SlackActions) != 0 {
+		t.Fatalf("expected no runner Slack action when DB read card owns response, got %#v", trace.SlackActions)
+	}
+	found := false
+	for _, event := range trace.Events {
+		if event.EventType == "db_read.response_owned_by_card" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected db_read.response_owned_by_card trace event, got %#v", trace.Events)
+	}
+}
+
 func TestSessionTitleEffectProjectsGeneratedTitle(t *testing.T) {
 	var received clients.RunnerTask
 	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

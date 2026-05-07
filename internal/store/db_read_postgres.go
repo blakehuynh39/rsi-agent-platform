@@ -28,6 +28,56 @@ func (p *PostgresStore) ListDBReadRequests() []DBReadRequest {
 	return out
 }
 
+func (p *PostgresStore) ListDBReadRequestsByScope(conversationID string, workflowID string, traceID string, channelID string, threadTS string, notBefore time.Time) []DBReadRequest {
+	conversationID = strings.TrimSpace(conversationID)
+	workflowID = strings.TrimSpace(workflowID)
+	traceID = strings.TrimSpace(traceID)
+	channelID = strings.TrimSpace(channelID)
+	threadTS = strings.TrimSpace(threadTS)
+	var conditions []string
+	var args []any
+	if workflowID != "" {
+		args = append(args, workflowID)
+		conditions = append(conditions, "workflow_id = $"+strconv.Itoa(len(args)))
+	}
+	if traceID != "" {
+		args = append(args, traceID)
+		conditions = append(conditions, "trace_id = $"+strconv.Itoa(len(args)))
+	}
+	if channelID != "" && threadTS != "" {
+		args = append(args, channelID, threadTS)
+		conditions = append(conditions, "(channel_id = $"+strconv.Itoa(len(args)-1)+" and thread_ts = $"+strconv.Itoa(len(args))+")")
+	}
+	if conversationID != "" {
+		args = append(args, conversationID)
+		conditions = append(conditions, "conversation_id = $"+strconv.Itoa(len(args)))
+	}
+	if len(conditions) == 0 {
+		return []DBReadRequest{}
+	}
+	query := `select ` + dbReadRequestColumns + ` from db_read_request where (`
+	query += strings.Join(conditions, " or ")
+	query += `)`
+	if !notBefore.IsZero() {
+		args = append(args, notBefore)
+		query += ` and created_at >= $` + strconv.Itoa(len(args))
+	}
+	query += ` order by created_at desc`
+	rows, err := p.db.Query(query, args...)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	out := []DBReadRequest{}
+	for rows.Next() {
+		item, err := scanDBReadRequest(rows)
+		if err == nil {
+			out = append(out, item)
+		}
+	}
+	return out
+}
+
 func (p *PostgresStore) GetDBReadRequest(requestID string) (DBReadRequest, bool) {
 	row := p.db.QueryRow(`select `+dbReadRequestColumns+` from db_read_request where id = $1`, requestID)
 	item, err := scanDBReadRequest(row)

@@ -4,6 +4,7 @@ import concurrent.futures
 from dataclasses import dataclass, replace
 import base64
 import hashlib
+import hmac
 import html
 import json
 import logging
@@ -38,6 +39,7 @@ from .execution_contract import (
 from .observability import ObservationEmitter, execution_observation_id
 from .rsi_tools import (
     HERMES_ARTIFACT_TOOLSET,
+    HERMES_DB_READ_TOOLSET,
     canonical_tool_name,
     normalize_tool_names,
 )
@@ -1177,7 +1179,10 @@ class HermesRuntime:
     def _hermes_native_toolsets(self) -> list[str]:
         if not self._config.hermes_native_terminal_enabled:
             return []
-        return normalize_tool_names(self._config.hermes_native_toolsets or list(DEFAULT_HERMES_NATIVE_TOOLSETS))
+        toolsets = list(self._config.hermes_native_toolsets or list(DEFAULT_HERMES_NATIVE_TOOLSETS))
+        if self._config.db_read_gateway_configured:
+            toolsets.append(HERMES_DB_READ_TOOLSET)
+        return normalize_tool_names(toolsets)
 
     def _grafana_observability_configured(self) -> bool:
         return self._config.grafana_observability_configured
@@ -1224,7 +1229,7 @@ class HermesRuntime:
                 if str(bin_dir) not in path_entries:
                     os.environ["PATH"] = os.pathsep.join([str(bin_dir), *path_entries])
                 status["grafana_observability"] = self._configure_grafana_cli_environment()
-                status["db_read_gateway"] = self._install_db_read_cli_wrapper(bin_dir)
+                status["db_read_gateway"] = self._db_read_native_tool_status()
                 status.update(
                     {
                         "status": "configured",
@@ -1277,18 +1282,17 @@ class HermesRuntime:
             "default_metrics_command": 'gcx metrics query --datasource "$RSI_GRAFANA_METRICS_DATASOURCE_UID"',
         }
 
-    def _install_db_read_cli_wrapper(self, bin_dir: Path) -> JsonObject:
+    def _db_read_native_tool_status(self) -> JsonObject:
         if not self._config.db_read_gateway_configured:
-            return {"configured": False, "tool": "rsi-db"}
-        helper_path = bin_dir / "rsi-db"
-        helper_path.write_text(
-            "#!/usr/bin/env sh\nexec python3 -m rsi_runner.db_read_cli \"$@\"\n",
-            encoding="utf-8",
-        )
-        helper_path.chmod(0o700)
+            return {
+                "configured": False,
+                "interface": "native_toolset",
+                "toolset": HERMES_DB_READ_TOOLSET,
+            }
         return {
             "configured": True,
-            "tool": "rsi-db",
+            "interface": "native_toolset",
+            "toolset": HERMES_DB_READ_TOOLSET,
             "auth": "execution_scoped_control_plane_token",
             "executes_sql_locally": False,
         }
@@ -3105,8 +3109,32 @@ class HermesRuntime:
             / f"{self._native_execution_slug(execution_id)}.json"
         ).resolve()
 
+    def _db_read_execution_token(self, task: RunnerTaskRequest) -> str:
+        secret = os.getenv("RSI_DB_READ_CLIENT_TOKEN", "").strip()
+        if not self._config.db_read_gateway_configured or not secret:
+            return ""
+        now = int(time.time())
+        claims: JsonObject = {
+            "version": "v1",
+            "execution_id": task.execution_id or "",
+            "operation_id": task.operation_id or "",
+            "conversation_id": task.conversation_id or "",
+            "workflow_id": task.workflow_id or "",
+            "trace_id": task.trace_id or "",
+            "channel_id": task.channel_id or "",
+            "thread_ts": task.thread_ts or task.message_ts or _derive_root_message_ts(task) or "",
+            "requester": task.user_peer_id or "hermes",
+            "iat": now,
+            "exp": now + max(60, min(self._effective_task_timeout(task) + 300, 7200)),
+        }
+        raw_claims = json.dumps(claims, separators=(",", ":"), sort_keys=True).encode("utf-8")
+        encoded_claims = base64.urlsafe_b64encode(raw_claims).decode("ascii").rstrip("=")
+        signature = hmac.new(secret.encode("utf-8"), encoded_claims.encode("ascii"), hashlib.sha256).digest()
+        encoded_signature = base64.urlsafe_b64encode(signature).decode("ascii").rstrip("=")
+        return f"v1.{encoded_claims}.{encoded_signature}"
+
     def _native_runtime_env(self, task: RunnerTaskRequest, *, context_path: Path, envelope_path: Path) -> JsonObject:
-        return {
+        env: JsonObject = {
             "RSI_RUNTIME_CONTEXT_PATH": str(context_path),
             "RSI_RUNTIME_ENVELOPE_PATH": str(envelope_path),
             "RSI_DB_READ_SUBMISSION_PATH": str(self._native_db_read_submission_path(task.execution_id or "")),
@@ -3119,6 +3147,11 @@ class HermesRuntime:
             "RSI_SLACK_THREAD_TS": task.thread_ts or task.message_ts or _derive_root_message_ts(task) or "",
             "RSI_TASK_REQUESTER": task.user_peer_id or "hermes",
         }
+        token = self._db_read_execution_token(task)
+        if token:
+            env["RSI_DB_READ_EXECUTION_TOKEN"] = token
+            env["RSI_DB_READ_AUTH_MODE"] = "execution_scoped"
+        return env
 
     def _native_worker_session_env(self, task: RunnerTaskRequest) -> dict[str, str]:
         env = {"HERMES_SESSION_KEY": canonical_gateway_session_key(task, self._role)}
@@ -3665,6 +3698,40 @@ class HermesRuntime:
         if not _string_or_json(parsed.get("request_id")):
             return {}
         return parsed
+
+    def _db_read_submission_event_from_lifecycle(self, item: JsonObject, *, not_before_unix: float) -> JsonObject:
+        event_name = _string_or_json(item.get("event_type") or item.get("event"))
+        if event_name != "db_read.request_submitted":
+            return {}
+        recorded_at = _float_or_zero(item.get("recorded_at_unix"))
+        if recorded_at and recorded_at < not_before_unix:
+            return {}
+        payload = _json_object_or_empty(item.get("payload"))
+        if _string_or_json(payload.get("kind")) != "db_read_request_submitted":
+            return {}
+        if not _string_or_json(payload.get("request_id")):
+            return {}
+        return payload
+
+    def _load_db_read_submission_event_from_lifecycle(self, path: Path, *, not_before_unix: float) -> JsonObject:
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except OSError:
+            return {}
+        for line in reversed(lines):
+            text = line.strip()
+            if not text:
+                continue
+            try:
+                parsed = json.loads(text)
+            except json.JSONDecodeError:
+                continue
+            if not isinstance(parsed, dict):
+                continue
+            event = self._db_read_submission_event_from_lifecycle(parsed, not_before_unix=not_before_unix)
+            if event:
+                return event
+        return {}
 
     def _read_native_executor_stream(
         self,
@@ -4329,6 +4396,8 @@ class HermesRuntime:
         request_file.write_text(json.dumps(request_payload, indent=2, sort_keys=True), encoding="utf-8")
         worker_cmd = [sys.executable, "-m", "rsi_runner.hermes_executor_worker", str(request_file)]
         env_copy = os.environ.copy()
+        if self._config.db_read_gateway_configured:
+            env_copy.pop("RSI_DB_READ_CLIENT_TOKEN", None)
         env_copy.update(github_cli_env)
         env_copy.update(direct_slack_env)
         env_copy.update(self._native_worker_session_env(task))
@@ -4361,6 +4430,8 @@ class HermesRuntime:
         cancelled = False
         db_read_submitted = False
         db_read_submission: JsonObject = {}
+        db_read_handoff_not_before_unix = time.time() - 5.0
+        lifecycle_path = self._native_lifecycle_path(context.session_id)
 
         lifecycle_tailer: _NativeLifecycleTailer | None = None
         if observer is not None:
@@ -4437,6 +4508,27 @@ class HermesRuntime:
                         break
                 if not db_read_submitted and db_read_submission_file.exists():
                     candidate = self._load_db_read_submission_event(db_read_submission_file)
+                    if candidate:
+                        db_read_submitted = True
+                        db_read_submission = candidate
+                        if observer is not None:
+                            observer.emit(
+                                phase=execution_phase,
+                                event_type="db_read.request_submitted",
+                                status="completed",
+                                payload={
+                                    "request_id": _string_or_json(candidate.get("request_id")),
+                                    "target": _string_or_json(candidate.get("target")),
+                                    "state": _string_or_json(candidate.get("state")),
+                                    "status": _string_or_json(candidate.get("status")),
+                                },
+                            )
+                        break
+                if not db_read_submitted:
+                    candidate = self._load_db_read_submission_event_from_lifecycle(
+                        lifecycle_path,
+                        not_before_unix=db_read_handoff_not_before_unix,
+                    )
                     if candidate:
                         db_read_submitted = True
                         db_read_submission = candidate
@@ -4547,7 +4639,7 @@ class HermesRuntime:
             },
         )
 
-        if db_read_submitted and not parsed_result:
+        if db_read_submitted:
             finalized = self._session_manager.finalize(context, tracker)
             lifecycle_events = self._adapter.lifecycle_events(context.session_id)
             observed = self._observability_metadata(
@@ -4567,6 +4659,20 @@ class HermesRuntime:
             cleanup_errors: list[str] = []
             termination_reason = "db_read_request_submitted"
             completion_verdict = "complete"
+            structured_output: JsonObject = {
+                "session_title": "DB read request submitted",
+                "visible_reasoning": [],
+                "reply_draft": "",
+                "final_answer": "",
+                "confidence": 1.0,
+                "context_summary": "DB read request submitted; the Slack approval/result card owns the response.",
+                "self_critique": "",
+                "proposed_actions": [],
+                "knowledge_drafts": [],
+                "outcome_hypotheses": [],
+                "produced_artifacts": [],
+                "artifact_failure_reason": "",
+            }
             if observer is not None:
                 observer.emit(
                     phase=execution_phase,
@@ -4603,7 +4709,7 @@ class HermesRuntime:
                 )
             result = HermesExecutionResult(
                 ok=True,
-                message="DB read request submitted; Slack approval/result card handles the response.",
+                message="",
                 provider="hermes-native-executor",
                 raw={
                     **self._base_raw(prompt=task.prompt, system_message=task.system_message),
@@ -4621,6 +4727,7 @@ class HermesRuntime:
                     "termination_reason": termination_reason,
                     "completion_verdict": completion_verdict,
                     "non_deliverable": True,
+                    "structured_output": structured_output,
                     "db_read_submission": db_read_submission,
                     "lifecycle_events": lifecycle_events,
                     "runner_diagnostics": self._runner_diagnostics(
@@ -7686,11 +7793,12 @@ class HermesRuntime:
                 )
             if self._config.db_read_gateway_configured:
                 parts.append(
-                    "Postgres read requests are available through `rsi-db`. This is an async, Slack-approved RSI "
-                    "control-plane gateway: `rsi-db` never has DB DSNs and never executes SQL locally. Use "
-                    "`rsi-db sources`, `rsi-db schema --target <id>`, `rsi-db validate --target <id> --sql '<select>'`, "
-                    "`rsi-db query --target <id> --sql '<select>'`, and `rsi-db status <request_id>`. Approval is "
-                    "bound to the exact target and SQL hash, and results returned to Slack/Hermes are sanitized."
+                    "Postgres read requests are available through native `db_read.*` tools in the `rsi-db-read` "
+                    "toolset. This is an async, Slack-approved RSI control-plane gateway: the tools never have DB "
+                    "DSNs and never execute SQL locally. Use `db_read.sources`, `db_read.schema`, "
+                    "`db_read.validate`, `db_read.query`, and `db_read.status`. After `db_read.query` succeeds, "
+                    "stop: the in-thread Slack approval/result card owns the response. Approval is bound to the "
+                    "exact target and SQL hash, and results returned to Slack/Hermes are sanitized."
                 )
             repo_guidance = self._github_repository_guidance(task)
             if repo_guidance:

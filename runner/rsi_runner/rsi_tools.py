@@ -7,6 +7,7 @@ from .json_types import JsonObject, JsonToolFunctionSchema
 
 
 HERMES_ARTIFACT_TOOLSET = "rsi-artifacts"
+HERMES_DB_READ_TOOLSET = "rsi-db-read"
 
 _ARTIFACT_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     "artifact.list_files": {
@@ -34,6 +35,66 @@ _ARTIFACT_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
 }
 
 _TOOL_SCHEMAS = dict(_ARTIFACT_TOOL_SCHEMAS)
+_DB_READ_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
+    "db_read.sources": {
+        "name": "db_read.sources",
+        "description": "List RSI Slack-approved Postgres read targets available to this execution.",
+        "parameters": {
+            "type": "object",
+            "properties": {},
+        },
+    },
+    "db_read.schema": {
+        "name": "db_read.schema",
+        "description": "Show allowlisted schema metadata for one RSI DB-read target.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "target": {"type": "string"},
+            },
+            "required": ["target"],
+        },
+    },
+    "db_read.validate": {
+        "name": "db_read.validate",
+        "description": "Validate a read-only SQL query for one RSI DB-read target without requesting Slack approval.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "target": {"type": "string"},
+                "sql": {"type": "string"},
+                "purpose": {"type": "string"},
+            },
+            "required": ["target", "sql"],
+        },
+    },
+    "db_read.query": {
+        "name": "db_read.query",
+        "description": "Submit one Slack-approved read-only SQL query. After this tool succeeds, stop; the Slack approval/result card owns the response.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "target": {"type": "string"},
+                "sql": {"type": "string"},
+                "purpose": {"type": "string"},
+            },
+            "required": ["target", "sql"],
+        },
+    },
+    "db_read.status": {
+        "name": "db_read.status",
+        "description": "Show status for one RSI DB-read request.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "request_id": {"type": "string"},
+            },
+            "required": ["request_id"],
+        },
+    },
+}
+
+_TOOL_SCHEMAS.update(_DB_READ_TOOL_SCHEMAS)
 _TRANSPORT_SAFE_TOOL_CHARS = frozenset("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-")
 
 
@@ -156,6 +217,16 @@ def rsi_plugin_toolset_definitions() -> list[JsonObject]:
                 "canonical_name": canonical_name,
                 "transport_name": schema["name"],
                 "toolset": HERMES_ARTIFACT_TOOLSET,
+                "schema": schema,
+            }
+        )
+    for canonical_name in sorted(_DB_READ_TOOL_SCHEMAS):
+        schema = transport_tool_schema(canonical_name)
+        definitions.append(
+            {
+                "canonical_name": canonical_name,
+                "transport_name": schema["name"],
+                "toolset": HERMES_DB_READ_TOOLSET,
                 "schema": schema,
             }
         )

@@ -534,6 +534,18 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	if hasReplyDelivery && strings.TrimSpace(replyBody) == "" {
 		replyBody = strings.TrimSpace(replyDelivery.FinalBody)
 	}
+	dbReadResponseOwner, dbReadResponseOwned := latestDBReadResponseOwner(store, dbReadResponseScope{
+		ConversationID: strings.TrimSpace(ctx.trace.Summary.ConversationID),
+		WorkflowID:     strings.TrimSpace(ctx.workflow.ID),
+		TraceID:        strings.TrimSpace(ctx.trace.Summary.TraceID),
+		ChannelID:      strings.TrimSpace(ctx.ingestion.ChannelID),
+		ThreadTS:       strings.TrimSpace(ctx.ingestion.ThreadTS),
+		NotBefore:      runnerStarted.Add(-5 * time.Second),
+	})
+	if dbReadResponseOwned && !replyDeliverySucceeded {
+		replyBody = ""
+		proposedReplyAction = runnerutil.ProposedAction{}
+	}
 
 	finalReasoning := runnerutil.ToTraceReasoning(ctx.trace.Summary.TraceID, ctx.trace.Summary.WorkflowID, runnerOutput, runnerCompleted)
 	if runnerOutput.SelfCritique != "" {
@@ -557,6 +569,18 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 			Summary:    partialCompletionReasoningSummary(terminationReason),
 			Confidence: 1.0,
 			Decision:   "partial_completion",
+			CreatedAt:  runnerCompleted,
+		})
+	}
+	if dbReadResponseOwned {
+		finalReasoning = append(finalReasoning, events.ReasoningStep{
+			ID:         fmt.Sprintf("reason-db-read-handoff-%d", runnerCompleted.UnixNano()),
+			TraceID:    ctx.trace.Summary.TraceID,
+			WorkflowID: ctx.trace.Summary.WorkflowID,
+			StepType:   "db_read_handoff",
+			Summary:    fmt.Sprintf("DB read request %s owns the Slack response through its approval/result card.", dbReadResponseOwner.ID),
+			Confidence: 1.0,
+			Decision:   "suppress_runner_slack_reply",
 			CreatedAt:  runnerCompleted,
 		})
 	}
@@ -622,6 +646,21 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	}
 	if useLedgerFirst {
 		runnerEvents = append(runnerEvents, traceEventsFromExecutionLedger(ctx.trace, ctx.workflow, ledgerEvents, runnerStarted, runnerCompleted)...)
+	}
+	if dbReadResponseOwned {
+		runnerEvents = append(runnerEvents, events.TraceEvent{
+			TraceID:     ctx.trace.Summary.TraceID,
+			IngestionID: ctx.trace.Summary.IngestionID,
+			WorkflowID:  ctx.trace.Summary.WorkflowID,
+			Plane:       "execution",
+			Service:     "runner",
+			Actor:       ctx.workflow.AssignedBot,
+			EventType:   "db_read.response_owned_by_card",
+			Status:      events.StatusCompleted,
+			StartedAt:   runnerStarted,
+			EndedAt:     &runnerCompleted,
+			Description: fmt.Sprintf("DB read request %s owns the Slack response; runner reply delivery suppressed.", dbReadResponseOwner.ID),
+		})
 	}
 	var (
 		replyAction    action.Intent
