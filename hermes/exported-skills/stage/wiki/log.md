@@ -19312,3 +19312,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_234014f9904f24b700af1f15264ee711
 - summary: A Notion database tracking design decisions related to subnet architecture.
 
+## [2026-05-07T13:07:00Z] synthesis | Product Open Questions
+
+- status: published
+- slug: open-questions/product-open-questions
+- wiki_revision_id: wikirev_8b5d7f91a65d17cdf3da7762e0d9237c
+- summary: Open questions and decisions regarding product features, World ID verification, rewards, licensing, and compliance.
+

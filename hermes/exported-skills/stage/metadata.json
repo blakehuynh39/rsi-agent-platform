@@ -2866,13 +2866,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0a0b95e5613358fe6bb9f67f6200b3f3a5479c39d742729db1002d0133c258f9",
-        "size": 479472
+        "sha256": "60ab2f55c69b2adb9b4b39d8314424dd34c1c99bdbcc8ddfa0c54057a233f209",
+        "size": 479777
       },
       {
         "path": "log.md",
-        "sha256": "e306587b92227b1873c96a5a823080a5b048c4375c11d99f91599e39a708595d",
-        "size": 916079
+        "sha256": "9fd3b58160c77a3fea0028a4676bb6e800961b26c8d791816b6ffadd8c7e565e",
+        "size": 916396
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3643,6 +3643,11 @@
         "path": "pages/open-questions/parent-limit-increase-request.md",
         "sha256": "0b3dd1d37d12d2a1507724bbad3e975623403bed23cfc9c7aec99ffabfb2f368",
         "size": 2740
+      },
+      {
+        "path": "pages/open-questions/product-open-questions.md",
+        "sha256": "58ef4337a62c0c607d86027b2d816e5ea35ac93d8b4c43878e7b825594a0fd81",
+        "size": 3589
       },
       {
         "path": "pages/open-questions/rosetta-reconciliation-failure-public-testnet-block-393.md",
@@ -4629,8 +4634,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T12:53:05Z",
-  "file_count": 924,
+  "exported_at": "2026-05-07T13:09:16Z",
+  "file_count": 925,
   "files": [
     {
       "path": ".curator_state",
@@ -7492,7 +7497,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
-  "previous_tree_hash": "768177de3d04f67cfc1d00a38a8c61343f27a7f91e20e0db7b0e7b3848935d7e",
+  "previous_tree_hash": "8a335fa609cc165362bb74d90b0f7c641218f65664ea69f20d59e369a836055e",
   "schema_version": 1,
   "skill_file_count": 571,
   "skill_manage_sessions": [
@@ -7505,14 +7510,14 @@
   ],
   "skill_tree_hash": "ff72ad0c56115e95b1a106829f032a3ff4a43e92c933d812f680df1c04ef1c5c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "8a335fa609cc165362bb74d90b0f7c641218f65664ea69f20d59e369a836055e",
+  "tree_hash": "3b96652e7d22adb78f3a72a0561cfa34a0e6f06d398a81d989259fa86782ed28",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 353,
+  "wiki_file_count": 354,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7521,13 +7526,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0a0b95e5613358fe6bb9f67f6200b3f3a5479c39d742729db1002d0133c258f9",
-      "size": 479472
+      "sha256": "60ab2f55c69b2adb9b4b39d8314424dd34c1c99bdbcc8ddfa0c54057a233f209",
+      "size": 479777
     },
     {
       "path": "log.md",
-      "sha256": "e306587b92227b1873c96a5a823080a5b048c4375c11d99f91599e39a708595d",
-      "size": 916079
+      "sha256": "9fd3b58160c77a3fea0028a4676bb6e800961b26c8d791816b6ffadd8c7e565e",
+      "size": 916396
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8298,6 +8303,11 @@
       "path": "pages/open-questions/parent-limit-increase-request.md",
       "sha256": "0b3dd1d37d12d2a1507724bbad3e975623403bed23cfc9c7aec99ffabfb2f368",
       "size": 2740
+    },
+    {
+      "path": "pages/open-questions/product-open-questions.md",
+      "sha256": "58ef4337a62c0c607d86027b2d816e5ea35ac93d8b4c43878e7b825594a0fd81",
+      "size": 3589
     },
     {
       "path": "pages/open-questions/rosetta-reconciliation-failure-public-testnet-block-393.md",
@@ -9281,5 +9291,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "746d3cd7e71610ffaee742d281986f7fc1a5633ddb797416de6c584d449e3916"
+  "wiki_tree_hash": "65933f0d3a974901d62707daf5adae2bc657f4544605e10388ca02ca8b35c4d5"
 }
