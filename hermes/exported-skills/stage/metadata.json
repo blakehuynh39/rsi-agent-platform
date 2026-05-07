@@ -2024,8 +2024,8 @@
       },
       {
         "path": "productivity/notion/SKILL.md",
-        "sha256": "e919f897e55e06b503c51178a9613aed107c12ecf0afbd99ade944934d382c3f",
-        "size": 5201
+        "sha256": "7de09b6ad8e1a6a4d14c963dcc4448cf9cf4b84fc4263e3d38cc62366bfb83f4",
+        "size": 6678
       },
       {
         "path": "productivity/notion/references/block-types.md",
@@ -2911,8 +2911,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "99673f2d735e8f1aa48ef7856c0dfefe2696e8992a8637773c181ee4fb23ac9a",
-        "size": 933945
+        "sha256": "d9ff78407053ee077d431dcb347edbc1bcc151accd42d4b2dd500bb28d39c864",
+        "size": 934203
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2928,6 +2928,11 @@
         "path": "pages/concepts/ai-prompt-library.md",
         "sha256": "e071141f446943e9bbe94472c96e99d6444fe5eeabac7b14bc4a8dbbbd5d1a88",
         "size": 2320
+      },
+      {
+        "path": "pages/concepts/ai-x-crypto-ideas.md",
+        "sha256": "c5c820ede9fa2a3a1c22f2808d68f0ec425acf064f1f630581b569d8bcdd57ea",
+        "size": 1133
       },
       {
         "path": "pages/concepts/branching-tree-technique.md",
@@ -4924,8 +4929,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T22:15:34Z",
-  "file_count": 983,
+  "exported_at": "2026-05-07T22:45:55Z",
+  "file_count": 984,
   "files": [
     {
       "path": ".curator_state",
@@ -6949,8 +6954,8 @@
     },
     {
       "path": "productivity/notion/SKILL.md",
-      "sha256": "e919f897e55e06b503c51178a9613aed107c12ecf0afbd99ade944934d382c3f",
-      "size": 5201
+      "sha256": "7de09b6ad8e1a6a4d14c963dcc4448cf9cf4b84fc4263e3d38cc62366bfb83f4",
+      "size": 6678
     },
     {
       "path": "productivity/notion/references/block-types.md",
@@ -7826,8 +7831,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-76c5bc7spjk",
-  "previous_tree_hash": "ac4e2564f2c506ff3e14c99d550e3c80d7bc2f751dd3995b455a9cc53988213d",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fcbdd9wjb6h",
+  "previous_tree_hash": "c97fdf2908f7a0ea09f34735a7437413f711fda6108472f930e32eb43f7a3924",
   "schema_version": 1,
   "skill_file_count": 579,
   "skill_manage_sessions": [
@@ -7838,16 +7843,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "d784fd2b6b7a0f92707cccb91707a9362d5de67f7aa4923801ef2117ecc00d02",
+  "skill_tree_hash": "74117d619064610324c6f04f91504585b9e20fd5cd813b4f53eedfbfc7fcb2f2",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c97fdf2908f7a0ea09f34735a7437413f711fda6108472f930e32eb43f7a3924",
+  "tree_hash": "011eaa085b2370438c28502b46883479ec288c410a5e8cdcf570c41d3d818eb9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 404,
+  "wiki_file_count": 405,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7861,8 +7866,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "99673f2d735e8f1aa48ef7856c0dfefe2696e8992a8637773c181ee4fb23ac9a",
-      "size": 933945
+      "sha256": "d9ff78407053ee077d431dcb347edbc1bcc151accd42d4b2dd500bb28d39c864",
+      "size": 934203
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7878,6 +7883,11 @@
       "path": "pages/concepts/ai-prompt-library.md",
       "sha256": "e071141f446943e9bbe94472c96e99d6444fe5eeabac7b14bc4a8dbbbd5d1a88",
       "size": 2320
+    },
+    {
+      "path": "pages/concepts/ai-x-crypto-ideas.md",
+      "sha256": "c5c820ede9fa2a3a1c22f2808d68f0ec425acf064f1f630581b569d8bcdd57ea",
+      "size": 1133
     },
     {
       "path": "pages/concepts/branching-tree-technique.md",
@@ -9871,5 +9881,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "97f3f686954edbb512f9ba7265172f98b25dc65d8f44a26c84b6a3a4e08513d5"
+  "wiki_tree_hash": "4c889072f647ff139e9e7893d8a4a0fbe1298e1b16ed8b229bf722a6ec9447ec"
 }

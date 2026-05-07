@@ -19690,3 +19690,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_fd50608ac514ee2a4f3659a02f18c086
 - summary: Proposes a new optimistic workflow validation system that collapses miner and validator roles into a single worker, with an optional challenger to verify outputs, reducing redundan...
 
+## [2026-05-07T22:45:33Z] synthesis | AI x Crypto Ideas
+
+- status: published
+- slug: concepts/ai-x-crypto-ideas
+- wiki_revision_id: wikirev_f3d375504fc6f3ac07a626d373be81e0
+- summary: A Notion document collecting ideas at the intersection of AI and crypto.
+

@@ -161,6 +161,41 @@ Common property formats for database items:
   - Use `data_source_id` when querying (`POST /v1/data_sources/{id}/query`)
 - **Search results:** Databases return as `"object": "data_source"` with their `data_source_id`
 
+## Pitfalls & Diagnostics
+
+### Verify your key works
+
+A quick smoke test — search with a minimal page size:
+
+```bash
+curl -s -X POST "https://api.notion.com/v1/search" \
+  -H "Authorization: Bearer $NOTION_API_KEY" \
+  -H "Notion-Version: 2025-09-03" \
+  -H "Content-Type: application/json" \
+  -d '{"page_size": 1}' | jq '{object, first_id: .results[0].id}'
+```
+
+If the key is invalid or empty you'll get:
+```json
+{"object":"error","status":401,"code":"unauthorized","message":"API token is invalid."}
+```
+
+### MCP Notion tools are independent
+
+If a Notion MCP server is configured, its tools (search, retrieve page, get block children) use the MCP server's own credential — they work **independently** of the shell `$NOTION_API_KEY`. This means MCP reads can succeed even when curl calls fail with 401. However, MCP tools are typically **read-only**; creating or editing pages still requires a valid `NOTION_API_KEY` in the shell environment for curl-based operations.
+
+### Key is set but empty
+
+`[ -n "$NOTION_API_KEY" ]` returns true even when the variable is set to empty string. Check the actual value:
+```bash
+echo "Length: ${#NOTION_API_KEY}"
+```
+If length is 0, the key is present but empty — add a valid token.
+
+### Pages must be shared with your integration
+
+Even with a valid key, 404 errors on specific pages/databases usually mean the integration hasn't been granted access. In Notion, open the page → "..." → "Connect to" → select your integration.
+
 ## Notes
 
 - Page/database IDs are UUIDs (with or without dashes)
