@@ -4,13 +4,13 @@
     "created_at": "2026-05-06T06:52:06.761455+00:00",
     "created_by": "agent",
     "last_patched_at": "2026-05-07T07:17:41.589660+00:00",
-    "last_used_at": "2026-05-07T07:15:23.681744+00:00",
-    "last_viewed_at": "2026-05-07T07:15:23.645075+00:00",
+    "last_used_at": "2026-05-07T07:30:27.807505+00:00",
+    "last_viewed_at": "2026-05-07T07:30:27.779801+00:00",
     "patch_count": 20,
     "pinned": false,
     "state": "active",
-    "use_count": 14,
-    "view_count": 14
+    "use_count": 18,
+    "view_count": 18
   },
   "depin-prod-admin-read": {
     "archived_at": null,

@@ -60,3 +60,15 @@ Some Cloudflare managed rules (like OWASP) may return a terse 403 with a differe
 - POST `prod-post-smoke-1778135119`, cf-ray `9f7e2591993d9444-SJC` — empty 403
 
 Both reached origin (CF WAF skip rule + origin-check exclusion working), but origin returned 403 because `NUMO_VALIDATION_ENABLED` was not `true` in the production deployment environment.
+
+## Operational access constraints
+
+**RSI cannot directly modify production K8s deployments.** The production `depin-backend` deployment is NOT in the `story` or `rsi-platform` Kubernetes namespaces (only staging `use1-stage-depin-backend` is visible). The production ALB (`use1-prod-depin-backend-520197523.us-east-1.elb.amazonaws.com`, from `cloudflare/records.ts:35`) exists but its backend targets are in a separate cluster/namespace outside RSI's read scope.
+
+**What RSI CAN do for production fixes:**
+- Create PRs in `piplabs/depin-backend` to fix config files (e.g., `production.toml`)
+- Create PRs in `piplabs/cloudflare` to adjust WAF/DNS rules (these apply to both staging and production via `${API_HOSTS}`)
+- Diagnose issues from code analysis and CF Ray ID evidence
+- After PR merge, the production deployment must be updated/restarted by someone with production K8s access
+
+**PR #449** is the reference pattern for production config fixes: added `enabled = true` explicitly to `production.toml`'s `[numo_validation]` section (the file had an empty section header with no values).
