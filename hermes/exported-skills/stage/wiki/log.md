@@ -19144,3 +19144,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_697cb7d98484507002e09104bf748f9c
 - summary: Researcher who evaluated the Ritual project.
 
+## [2026-05-07T08:01:06Z] synthesis | E2E flow for model performance observation and evaluation
+
+- status: published
+- slug: projects/e2e-model-performance-observation-evaluation
+- wiki_revision_id: wikirev_bbd2be2aaf92da27f4ceaf2a08ced9ba
+- summary: Proposed approach to train a model using Group1's codebase on Prime Intellect, implement inference with Ollama/Llama.cpp for experiments and vllm/sglang for production, and validat...
+

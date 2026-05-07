@@ -9,8 +9,8 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "8ec9e064a4134942aabcbf35474e56dd90106f4d06c6c0997ac3f114f158f71c",
-        "size": 1578
+        "sha256": "4f02b399ae603a7e6d9fcebbeefb87881f82d0ed8a1f9f7d9c8b751e56b93a5f",
+        "size": 1579
       },
       {
         "path": "apple/DESCRIPTION.md",
@@ -2789,8 +2789,13 @@
       },
       {
         "path": "story-company/depin-prod-admin-read/SKILL.md",
-        "sha256": "33d5c84f549705b969facefb017fcca5ce57c9bfe9a667eb7a30e75aba75e934",
-        "size": 11824
+        "sha256": "6ec233f7007ff990b044a5bab094ed9b80f5c51fb899bf20dbf12cff892351e1",
+        "size": 12302
+      },
+      {
+        "path": "story-company/depin-prod-admin-read/references/db-read-api.md",
+        "sha256": "9b57fe9e77cf6d6a04b1382eeca670fa2c4e0f89298a157a6ff1a4453323f2ac",
+        "size": 5646
       },
       {
         "path": "story-company/numo-project-status/SKILL.md",
@@ -4509,8 +4514,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T07:54:27Z",
-  "file_count": 900,
+  "exported_at": "2026-05-07T08:00:41Z",
+  "file_count": 901,
   "files": [
     {
       "path": ".curator_state",
@@ -4519,8 +4524,8 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "8ec9e064a4134942aabcbf35474e56dd90106f4d06c6c0997ac3f114f158f71c",
-      "size": 1578
+      "sha256": "4f02b399ae603a7e6d9fcebbeefb87881f82d0ed8a1f9f7d9c8b751e56b93a5f",
+      "size": 1579
     },
     {
       "path": "apple/DESCRIPTION.md",
@@ -7299,8 +7304,13 @@
     },
     {
       "path": "story-company/depin-prod-admin-read/SKILL.md",
-      "sha256": "33d5c84f549705b969facefb017fcca5ce57c9bfe9a667eb7a30e75aba75e934",
-      "size": 11824
+      "sha256": "6ec233f7007ff990b044a5bab094ed9b80f5c51fb899bf20dbf12cff892351e1",
+      "size": 12302
+    },
+    {
+      "path": "story-company/depin-prod-admin-read/references/db-read-api.md",
+      "sha256": "9b57fe9e77cf6d6a04b1382eeca670fa2c4e0f89298a157a6ff1a4453323f2ac",
+      "size": 5646
     },
     {
       "path": "story-company/numo-project-status/SKILL.md",
@@ -7367,9 +7377,9 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c89c4f2tzr",
-  "previous_tree_hash": "0c978534f0ba693af2cf70d15f4e225dad83dc4d86141c6c45d0f525aa6c32a8",
+  "previous_tree_hash": "e10dc24035e012528b908735483e4b8df42cd83d52d4c4cc923bc981c109b44f",
   "schema_version": 1,
-  "skill_file_count": 570,
+  "skill_file_count": 571,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -7378,9 +7388,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "afe19f4cc9548e295eb79d6a117eacf5f921c13ecbea15208f0fe9032c773ed7",
+  "skill_tree_hash": "ff72ad0c56115e95b1a106829f032a3ff4a43e92c933d812f680df1c04ef1c5c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e10dc24035e012528b908735483e4b8df42cd83d52d4c4cc923bc981c109b44f",
+  "tree_hash": "1db5c88beefe2ffb6ba7b2c8f30bcb89acc252dc8728189e05599813304630ee",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",

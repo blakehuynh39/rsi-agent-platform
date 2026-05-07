@@ -1,7 +1,7 @@
 ---
 name: depin-prod-admin-read
-description: "Live prod Numo/depin user/submission stats admin reads."
-version: 1.1.0
+description: "Live prod Numo/depin stats — admin REST API reads and direct SQL via db-read tool."
+version: 1.2.0
 metadata:
   hermes:
     tags: [numo, depin, production, prod, admin, read-only, user-stats, users, submissions, api, vault]
@@ -51,6 +51,7 @@ Use this skill when a Story request asks for live Numo/depin user stats, submiss
    - request blocked before reaching depin
    - **stats key hitting a non-stats endpoint** (e.g., `/v1/admin/users`) — the key is working; the endpoint expects different auth. Report this as an auth scope mismatch, not a key rejection.
 11. Prefer `https://depin.storyprotocol.net` for production Numo/depin stats. Do not switch to staging APIs unless the user explicitly asks for staging data.
+12. **When REST endpoints are insufficient** (e.g., need table-level counts, arbitrary filters, or joins not exposed via `/v1/admin/*`), fall back to the **DB Read Tool** (`/internal/db-read/query` on the control plane). See the "DB Read Tool (Direct SQL)" section above for full workflow, caps, and pitfalls. Key steps: find control plane pod IP → confirm `RSI_DB_READ_CLIENT_TOKEN` → validate SQL → submit query → wait for Slack approval.
 
 ## Response Standard
 
