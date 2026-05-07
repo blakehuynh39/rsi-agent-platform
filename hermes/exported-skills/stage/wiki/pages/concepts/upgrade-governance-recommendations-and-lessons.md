@@ -2,7 +2,7 @@
 title: "Upgrade / Governance Recommendations and Lessons"
 type: "concept"
 slug: "concepts/upgrade-governance-recommendations-and-lessons"
-freshness: "2026-05-05T06:37:26Z"
+freshness: "2024-08-16T03:24:00Z"
 tags:
   - "governance"
   - "lessons-learned"
@@ -23,7 +23,7 @@ Compilation of recommendations and lessons learned related to upgrade processes 
 ## Claims
 
 - The document contains upgrade and governance recommendations and lessons. `claim:claim_1_1` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/Questions-with-Zaki-eec342e49a1a4a739e93f7cf7427bd4a) `source_document_id=srcdoc_0223a21bcd023366f21a3adbea60bdad` `source_revision_id=srcrev_5595f649af0bc05c24fff31589920442` `chunk_id=srcchunk_61f694f8d3af1b6d3bac88876725c5cb` `native_locator=https://www.notion.so/Questions-with-Zaki-eec342e49a1a4a739e93f7cf7427bd4a` `source_timestamp=2026-05-05T06:37:26Z`
+  - citation: [Notion source](https://www.notion.so/Questions-with-Zaki-eec342e49a1a4a739e93f7cf7427bd4a) `source_document_id=srcdoc_0223a21bcd023366f21a3adbea60bdad` `source_revision_id=srcrev_5595f649af0bc05c24fff31589920442` `chunk_id=srcchunk_61f694f8d3af1b6d3bac88876725c5cb` `native_locator=https://www.notion.so/Questions-with-Zaki-eec342e49a1a4a739e93f7cf7427bd4a` `source_timestamp=2024-08-16T03:24:00Z`
 
 ## Open Questions
 

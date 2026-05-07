@@ -2,7 +2,7 @@
 title: "StoryKit Components"
 type: "concept"
 slug: "concepts/storykit-components"
-freshness: "2026-05-05T06:32:35Z"
+freshness: "2024-03-24T00:21:00Z"
 tags:
   - "components"
   - "notion-database"
@@ -22,7 +22,7 @@ A Notion database listing the components that make up StoryKit.
 ## Claims
 
 - StoryKit has a Notion database titled 'StoryKit Components' that lists its components. `claim:claim_1_1` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/StoryKit-7dc617a20dde45b58f86b6b2a0f4368d) `source_document_id=srcdoc_50fd5f0a1531d9a0c0a09ab78ce98724` `source_revision_id=srcrev_37a0b72980511af9288d3d9e0b30a948` `chunk_id=srcchunk_1ee93ecdc4d6e9af25a55d94f2ee0409` `native_locator=https://www.notion.so/StoryKit-7dc617a20dde45b58f86b6b2a0f4368d` `source_timestamp=2026-05-05T06:32:35Z`
+  - citation: [Notion source](https://www.notion.so/StoryKit-7dc617a20dde45b58f86b6b2a0f4368d) `source_document_id=srcdoc_50fd5f0a1531d9a0c0a09ab78ce98724` `source_revision_id=srcrev_37a0b72980511af9288d3d9e0b30a948` `chunk_id=srcchunk_1ee93ecdc4d6e9af25a55d94f2ee0409` `native_locator=https://www.notion.so/StoryKit-7dc617a20dde45b58f86b6b2a0f4368d` `source_timestamp=2024-03-24T00:21:00Z`
 
 ## Open Questions
 

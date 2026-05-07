@@ -2,7 +2,7 @@
 title: "SDK Designs"
 type: "project"
 slug: "projects/sdk-designs"
-freshness: "2026-05-05T06:29:17Z"
+freshness: "2024-01-22T18:02:00Z"
 tags:
   - "design"
   - "documentation"
@@ -22,7 +22,7 @@ A Notion document outlining the design of the SDK, including requirements, testi
 ## Claims
 
 - The SDK Designs document includes sections for Requirements and Use Cases, Testing Guidelines and Info, Protocol metadata, CLI Design, CICD, and Beta Protocol SDK. `claim:claim_1_1` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/SDK-Designs-a2d8384d7be44cd698b70796db0541b9) `source_document_id=srcdoc_cfb7f95f73ec2f60c21631ef021104a8` `source_revision_id=srcrev_84e976ddb483c7e16b26f046ca28b91c` `chunk_id=srcchunk_ed88fdb0a1d0112eb1c0e035c579c330` `native_locator=https://www.notion.so/SDK-Designs-a2d8384d7be44cd698b70796db0541b9` `source_timestamp=2026-05-05T06:29:17Z`
+  - citation: [Notion source](https://www.notion.so/SDK-Designs-a2d8384d7be44cd698b70796db0541b9) `source_document_id=srcdoc_cfb7f95f73ec2f60c21631ef021104a8` `source_revision_id=srcrev_84e976ddb483c7e16b26f046ca28b91c` `chunk_id=srcchunk_ed88fdb0a1d0112eb1c0e035c579c330` `native_locator=https://www.notion.so/SDK-Designs-a2d8384d7be44cd698b70796db0541b9` `source_timestamp=2024-01-22T18:02:00Z`
 
 ## Related Pages
 

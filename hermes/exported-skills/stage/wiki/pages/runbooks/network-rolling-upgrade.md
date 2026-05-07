@@ -2,7 +2,7 @@
 title: "Network Rolling Upgrade"
 type: "runbook"
 slug: "runbooks/network-rolling-upgrade"
-freshness: "2026-05-05T06:37:07Z"
+freshness: "2024-08-01T21:43:00Z"
 tags:
   - "network"
   - "rolling-upgrade"
@@ -22,7 +22,7 @@ Runbook for performing a rolling upgrade of the network infrastructure.
 ## Claims
 
 - The Network Rolling Upgrade runbook exists as a Notion document. `claim:claim_1_1` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/Network-Rolling-Upgrade-44abfb110ec24cec961707e8b2d43636) `source_document_id=srcdoc_43e3616e13511c031df36c08abcb1c41` `source_revision_id=srcrev_8ce41884c82957e10c01bc731da213af` `chunk_id=srcchunk_430fa010925f08b094ca5c0ce2df9796` `native_locator=https://www.notion.so/Network-Rolling-Upgrade-44abfb110ec24cec961707e8b2d43636` `source_timestamp=2026-05-05T06:37:07Z`
+  - citation: [Notion source](https://www.notion.so/Network-Rolling-Upgrade-44abfb110ec24cec961707e8b2d43636) `source_document_id=srcdoc_43e3616e13511c031df36c08abcb1c41` `source_revision_id=srcrev_8ce41884c82957e10c01bc731da213af` `chunk_id=srcchunk_430fa010925f08b094ca5c0ce2df9796` `native_locator=https://www.notion.so/Network-Rolling-Upgrade-44abfb110ec24cec961707e8b2d43636` `source_timestamp=2024-08-01T21:43:00Z`
 
 ## Open Questions
 

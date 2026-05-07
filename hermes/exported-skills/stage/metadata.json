@@ -2846,267 +2846,267 @@
       },
       {
         "path": "log.md",
-        "sha256": "0faa2a6b8f52641f111cf79cbdd53019e6b91beb12772a23f3b842be0eac838c",
-        "size": 781888
+        "sha256": "50d8090a7b6f3ea323f3ff69e86b1a0fc8a21ded59b2b301fe91632433f71fa5",
+        "size": 896230
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
-        "sha256": "019a745692675137fbefa1f85b2dde48bd54253ec84f22fed75f9465f9748717",
+        "sha256": "69e6a45abd17b8bfd0febe293c9cced3afb35f6798a65ac7a97a3ebb7f7a5fe3",
         "size": 6422
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
-        "sha256": "f20f068a0ce630e082f0a0c60bfaa46e4f02ca3ea8a8423250ad54a6886b68eb",
+        "sha256": "e071141f446943e9bbe94472c96e99d6444fe5eeabac7b14bc4a8dbbbd5d1a88",
         "size": 2320
       },
       {
         "path": "pages/concepts/bridge-partners.md",
-        "sha256": "2af8becdc4ec65971a555e0d9cf0e0e3d994dbb686cdee8f5e4c1f7885957819",
+        "sha256": "5eaa6510bbf066d6cd5b7528a6d0d8dee17297907b4924eeb30a87edef5a5645",
         "size": 3900
       },
       {
         "path": "pages/concepts/bridging-evaluation.md",
-        "sha256": "d08187ab62fd179850ce5fd81cdcfc3931c36a57c188a218fd0d6f027725f147",
+        "sha256": "8ab39963cd3f963fc3ef4f06ad18a9d40861ff4cc726d2b5f6689ffd926d9e7d",
         "size": 2016
       },
       {
         "path": "pages/concepts/c2pa-account-innovation.md",
-        "sha256": "a3c30a4dc29bb9e07618dc0a1a0187beef260e67a8bea27622feed185d6d82bb",
+        "sha256": "1daa90acbedc64f74e59bbc3ea4d922a1e10de4f5d6cff4ecf61e720f21796b3",
         "size": 1287
       },
       {
         "path": "pages/concepts/carousel-data-shape.md",
-        "sha256": "a695d8125e084c67c7a31c8fb49e6049a05fa6a9da00e95e150672636151eb2f",
+        "sha256": "94db66bff6679f6b6e6d726a1e29451628ce29bed0e21ad965e537ace8971c88",
         "size": 1410
       },
       {
         "path": "pages/concepts/cli-design.md",
-        "sha256": "01525881fcd2aafc4197bbcea5718a2ca67c5beaf3257e78d727f0eb8dafb8fd",
+        "sha256": "170cf87dab2d5cb052df4e8bc2a9c81ad4e05ed5dbbd1f6cab735239584209ce",
         "size": 1036
       },
       {
         "path": "pages/concepts/coming-soon-placeholder-tasks.md",
-        "sha256": "c1d8e73099e443c9656dd8270dd70b95a5b759b8823001ecea8170a00b69c4a2",
+        "sha256": "9e8249101edf4328ffe9136736711d423694f7c3c959dac0f10d867be092ef8b",
         "size": 1065
       },
       {
         "path": "pages/concepts/consensus-mechanism-research.md",
-        "sha256": "e0482125cbb37a83a4bcf4f6d25db33c4b8c9c858f4abd3eb778b2232ca4cfc7",
+        "sha256": "41467c640e21ee149e24937e6b654129e561e6d7379df5e2a26207d1b20afe4b",
         "size": 2897
       },
       {
         "path": "pages/concepts/content-references.md",
-        "sha256": "015b037de8cddd285f8314e445d2f59d8fd38718f23042d2bae8d27b2e43148b",
+        "sha256": "08b6345eba8a2ce256086f937d86752336ad3bda9f3bbe671b693c8ee09859a7",
         "size": 4891
       },
       {
         "path": "pages/concepts/core-sdk-requests.md",
-        "sha256": "fb90826163ba5bc7749a5fec7da8acc1ccc2e1b3c52bccf595d42a7d4f59c670",
+        "sha256": "0e9fb881e8c48879aa79d691634bb9251902ea3b90679405a7c9725d63e96b28",
         "size": 1278
       },
       {
         "path": "pages/concepts/cross-chain-interactions.md",
-        "sha256": "81e2193822319b195c372d87bebf1a3d439c020126061f63ca09994e4bf59d25",
+        "sha256": "d0761007f325abd33e7e179da5fd3fefe0830d6f91dae2e0b6f5d36b51d2e767",
         "size": 5888
       },
       {
         "path": "pages/concepts/derivative-additional-revenue-share-multiple-parents.md",
-        "sha256": "c91eba2f9b70f39b89d4bef082b29179e9f4f0e7ab20ae2ba4bd484fa3e99875",
+        "sha256": "855223b4cb0780e224f7989848c69e4d831267780a5a848a7bb701123f0a1504",
         "size": 3805
       },
       {
         "path": "pages/concepts/dev-resources.md",
-        "sha256": "b90ab48e4eeceb821d3f400957a3930c1cd422e90024d3c44d273cea7b6acd54",
+        "sha256": "0ab5697bca39d344a8a59c350a1520e3e6fbae0bb3036e19add2f249a27b8196",
         "size": 2298
       },
       {
         "path": "pages/concepts/devex.md",
-        "sha256": "ea8b5c45a118c5ced76eb3e5d8d54524be7d51f2cb503f713f24b4c2d9c8b8fb",
+        "sha256": "1b0668077bf6a0607090c2116c4142f40677f219f563f75eba5b6597cbfd10b9",
         "size": 1283
       },
       {
         "path": "pages/concepts/dutch-auction-minting.md",
-        "sha256": "a7362c0a5b381a3006de17b51e4beb63d31ba765354fec5259178a75efb2fc4d",
+        "sha256": "aea775b27ff1eeb83f4363e41e32d6f2165b1c6bac50b91bcea86746d38b8a27",
         "size": 1388
       },
       {
         "path": "pages/concepts/ecosystem-growth-strategy.md",
-        "sha256": "31f9f970bc0b4fd7abdf63ae31872f69ef6d99e7a2fafe7f402e2e9097d30083",
+        "sha256": "f52dcd19e0e8a28fef930f5452048f399fda779aee3043526225343200d532f6",
         "size": 3859
       },
       {
         "path": "pages/concepts/eigen-token.md",
-        "sha256": "0ab44ef735962c6e99d948b8106e5815f37494fc3a71dee879758afb4d11e08f",
+        "sha256": "d8675a0f57ebaf16b252832a3d172bbda6314899c73f36ee9f1e66ed24ddd064",
         "size": 3908
       },
       {
         "path": "pages/concepts/enshrined-protocol.md",
-        "sha256": "48ec3bbb2dc70b024dbdf0367d92a1a0c5921f99c552dbe417b21c5d02c1945f",
+        "sha256": "b1712c658ba83150c6b1cb1fe4c0c76dc56f418541cfcc00e461389381cdea46",
         "size": 1520
       },
       {
         "path": "pages/concepts/epoched-staking.md",
-        "sha256": "6f5cb212fff8a9b0c84bda242c308da40d2af0a1effe8d19ab2ef7632e2e8bbc",
+        "sha256": "5db7c214d4ac11297b08b4705788a504cd5445e3bd4c6db09b008d0ede8511c1",
         "size": 5376
       },
       {
         "path": "pages/concepts/ethereum-improvement-proposal-process.md",
-        "sha256": "868b398de8326c076e45efce6e8c108877f208f6aeb6fddc36fce9d9bc27c3b7",
+        "sha256": "3ebc633025f5d131082b0e0f3939879d15cd6762dd1538112cf9195d8a52bc20",
         "size": 3140
       },
       {
         "path": "pages/concepts/etherscan-custom-error-handling-limitation.md",
-        "sha256": "77840cb8980531e9e0a5472349d53260978e423d48fe19f2db380d42ba090b6d",
+        "sha256": "f66ae8a1ac5c244fd7a0c015cb82393ef18db1563b6b69d8ebc1f3357737607f",
         "size": 2244
       },
       {
         "path": "pages/concepts/explorer-use-case.md",
-        "sha256": "73022b63a759659fd2e75bef6bb2a091bc8d456903552e0db4c60580db48e02d",
+        "sha256": "7f8f6b052ecf8bbd336e7deaa1a1dafe5963208b72cb65a7dbbb7657c11b9b90",
         "size": 6848
       },
       {
         "path": "pages/concepts/farming-mitigation.md",
-        "sha256": "98befb0319d9ec263ac358aff4f1b6f8cc59cd440f8cab20a8c935808fbe851e",
+        "sha256": "b0689d83a50686b57c7fd93ab10cfd99b089f3be60d1f6052b9a4fb1fa0d38ef",
         "size": 1138
       },
       {
         "path": "pages/concepts/frontend-periphery-contracts.md",
-        "sha256": "16fc4cc971888939b5060d998db289c06e0a1f9d61aff41ab54710b416f7d103",
+        "sha256": "7987c840d6d8511a75b7055157b93cfca17251c771b92c599374e5509a12e8a4",
         "size": 5253
       },
       {
         "path": "pages/concepts/frontend.md",
-        "sha256": "eb2d4f07aff92c242750004bc48862c2e05258c82cfaacb26f213dfc40e10552",
+        "sha256": "818e0e097e2de12c0ab50f518b48b72601974da9de00a0ef99f455ad2bccc471",
         "size": 1255
       },
       {
         "path": "pages/concepts/gas-estimations.md",
-        "sha256": "1488dcc21f75f3fad224df8db44a56cb72fc73ad8c1be56f6a604a4fd4373ad6",
+        "sha256": "0cac0b96587ad798b9e96cd88111925cb4f8486282de34e1b4a1b703ce218f3d",
         "size": 6026
       },
       {
         "path": "pages/concepts/gas-optimization-research.md",
-        "sha256": "8f516a85a4b3a3cdbb5e674ebc7908f709bc42023fc33da3039b7c2c52736af5",
+        "sha256": "91de57a4c993d9acc2be0493d974c934dd879aee7978bd726add23fead008567",
         "size": 3680
       },
       {
         "path": "pages/concepts/gas-optimizations.md",
-        "sha256": "2af3656239d429f7db6540f0fa27714d6be923931ffeaedcf08d03eba49a723c",
+        "sha256": "a665fedca50fe95414fce7cd8469744b0243fbf1673db7e0c3c128a76257d377",
         "size": 1294
       },
       {
         "path": "pages/concepts/github-handlers-directory.md",
-        "sha256": "0ba8f783f246a052c38cad8bdcdc31787509878064a95e0ed61b2f629c755fa4",
+        "sha256": "aeba0cbb1034dee237321f4b95d26891f26314231b4c0955c7af189bd923a5da",
         "size": 3990
       },
       {
         "path": "pages/concepts/global-ip-assets.md",
-        "sha256": "0a913fa5b0711aa39f3cbc73b6f735a87241b2bb013dca0af3416751a70c511e",
+        "sha256": "95a08ce9385dfefbffb1019598407ded0327aa70dca92c287a8cea14f26664ee",
         "size": 1258
       },
       {
         "path": "pages/concepts/governance-risks-and-mitigations.md",
-        "sha256": "45c8c29cc8a3cdf846221aa07ab393685e9319edfcde815d3494443b966fe58a",
+        "sha256": "afd504a733c1351a9cf02f19d48a47c9ed6f0a90c0c85f2c5215f6d9e4611ee0",
         "size": 7351
       },
       {
         "path": "pages/concepts/graphql-vs-rest-api.md",
-        "sha256": "e79608c28f93bee8710daae8048026af57cd758396d3eedbcb5b4f498c06b58b",
+        "sha256": "75b3fdd0d8b4f1ef717fcb9fe12d5d0f8d11aa7c9f30bb618883d845f06f0aad",
         "size": 1190
       },
       {
         "path": "pages/concepts/iliad-code-walkthrough.md",
-        "sha256": "1d288152141728a0de0dacbb632c6c73d0ccc9dc46a9cf39d43e4ac09cda6b89",
+        "sha256": "ebc7455e5ce459403097af5dc0927802382f7fb6deafaaef8c3271ff9967e5bf",
         "size": 4314
       },
       {
         "path": "pages/concepts/image-resizing-solution.md",
-        "sha256": "7af0b9f26187d82ec24d5b794136c1d2e26cad1809bb30b9209d37ce591e6abc",
+        "sha256": "e5e8bb4b2cbf35120217d842f26d2098aa8e3205fdf44dde7178c0058b54c91e",
         "size": 1950
       },
       {
         "path": "pages/concepts/interops-research-hub.md",
-        "sha256": "cfe3aa6c3cd1aa21dee79d92d28b03e24974eeaa584e34f72a5d6ae8bdec2f47",
+        "sha256": "a34aeb5c813e84a043d31e9b52ee226190d92a696d816460056313e7a966bbf6",
         "size": 4517
       },
       {
         "path": "pages/concepts/ip-account-centric-model.md",
-        "sha256": "4b1f1ce1ad47732305c399e614f72dbf4a8008468529b65a90350d1c90b01a27",
+        "sha256": "1b165b3b11ba1f73331be8511bb9368b2c4759d61273eafe588116d7e781c81d",
         "size": 7450
       },
       {
         "path": "pages/concepts/ip-graph-node-verification-merkle-tree.md",
-        "sha256": "af8242d5ae9889def47e8202abd2b8cc9577d1f75338430df331bcb7218af732",
+        "sha256": "830aacff632ed8d6dced1d747cbc62c71423643c73aa30b4e1d71eafcf21528c",
         "size": 1505
       },
       {
         "path": "pages/concepts/ip-graph-requirements.md",
-        "sha256": "d5b9149dd60d91f7ed2bc1a40b30a52ba7edaf7a9883be97106b57e9052a2b21",
+        "sha256": "74126f3c910923959f682f6087cc8dd43c2109105e7a1d688431a91c84e07d6d",
         "size": 4116
       },
       {
         "path": "pages/concepts/ip-oracle.md",
-        "sha256": "d9d5e408d2b9a54bd9e4a601c16bf91d2a1334807e5fd44696953cfbcee5b1e2",
+        "sha256": "63fdb3361823b879be1a5b2984ef8c426cca00621adb24d1ea1794ff306ebac3",
         "size": 1273
       },
       {
         "path": "pages/concepts/ip-stock-exchange.md",
-        "sha256": "8a16949f4182ebb25241083d72384c028ba754eeeae4ebac99d5c8961c1ec9f2",
+        "sha256": "ebeca03bbad81cbd0c876d1bd352b5aaac48d13b2940dacc06e49a115ec328fe",
         "size": 1150
       },
       {
         "path": "pages/concepts/ipa-book.md",
-        "sha256": "c3527a5d928cb1e9d08c17c7bc5390c27c3429e53b1c094a6180aa3d9b03b4ba",
+        "sha256": "125d0e867c4de17286d9eacf867afd77bbf94c4f7416d4811de2e4acc758149d",
         "size": 1229
       },
       {
         "path": "pages/concepts/ipa-expiration-design.md",
-        "sha256": "9e2d1859fb068bb9dbbaaa19cd8fff1baef38924d288fb022e6e4ce071730e00",
+        "sha256": "909783935a93819d2f0149ebcab7b28da830125a11055a56b66d9ba0ae25fa85",
         "size": 4049
       },
       {
         "path": "pages/concepts/ipaccount-centric-data-model.md",
-        "sha256": "e03ab8c60b8dae32cb0b62138874984fc3e9c28945e98cddd43bb7a843151d1b",
+        "sha256": "d5225da5615f81e7a9b94da774929cb3da709f34dc4b5eb92d3edb13abba1d8d",
         "size": 6834
       },
       {
         "path": "pages/concepts/l1-api-specifications.md",
-        "sha256": "e6085df97097ed2efe840a937e785e1998c66f981f12d6d5c753ae9cc40cec3a",
+        "sha256": "e1e1ff893145ee903c7f5d694299a5db11867ccb098952167e72910701f983c9",
         "size": 2274
       },
       {
         "path": "pages/concepts/l1-configs-and-metrics.md",
-        "sha256": "83eb558b75ddd2cc260fe554f4ce39947be4867e4edb7bc840f88f961e8bd060",
+        "sha256": "cc64535c8088485f1ca39a2b66a389a5da587bca64909c4809aecc15512ac478",
         "size": 1242
       },
       {
         "path": "pages/concepts/l1-features-services-brainstorming.md",
-        "sha256": "6dd1828d4bf3911bf4b7a2f490fe6e8868d0d37165a8361a71017cf658063cb4",
+        "sha256": "b806f1820968c3963ba442d5c585230c5abc44901b8da0dad5dad4df776bee21",
         "size": 1469
       },
       {
         "path": "pages/concepts/learning-center.md",
-        "sha256": "4389240d1c1b7ddf5997676c98e12bb863ce873cbbd812d22a125066a8640432",
+        "sha256": "56914bdf6a610721f45b6caf80d5efdcd9290ee28874dff6ddeb9afcf85a6eea",
         "size": 1328
       },
       {
         "path": "pages/concepts/license-nft.md",
-        "sha256": "177957e83cfade7ff448daa8e1e85f09fee4b4ff716367b9675d1cb26e68ad07",
+        "sha256": "87c5fde587aeae7a073dcb53fc9cd9e3ba937cd770f1c4c265dca337d6fadc0b",
         "size": 3119
       },
       {
         "path": "pages/concepts/licensing-module-design-considerations.md",
-        "sha256": "7252d1ff92f94bf358fdfe999bfa39d271aeb0aa95b6fdc5ccef32dba8c607af",
+        "sha256": "e7509da2eec2799702e55a6d1dba6d1a0909b939660b6521eabff7ce346a301a",
         "size": 7170
       },
       {
         "path": "pages/concepts/lowering-barrier-of-entry-for-creators.md",
-        "sha256": "a933b4b14b05cf6115f6eb6f0bbbf17d562be074c359feba3e5ca531da96536f",
+        "sha256": "705551ac715cdf707a4cff4b65205213d8b542ad902067d792e96bf8840418fa",
         "size": 4821
       },
       {
         "path": "pages/concepts/mainnet-api-data-model.md",
-        "sha256": "77d2f6b9c6b3b22293b348e7014c20cb130fb909deee960ac4a5f4a793d4bcc5",
+        "sha256": "f56bfbe6ccf7f757ab261035fdfc076eff221e98f3fbec7b216a2c2652f4d04f",
         "size": 2944
       },
       {
@@ -3121,202 +3121,202 @@
       },
       {
         "path": "pages/concepts/multi-parent-licensing.md",
-        "sha256": "e010d2f4e8fc077b0df30bae4ff56aca20de4240d283766b409c84b84a36d1bf",
+        "sha256": "bab8a21a74140bc259f45ee03383e79497e4ce30ca0a1c9376980908f38b79bd",
         "size": 4907
       },
       {
         "path": "pages/concepts/mutability-support.md",
-        "sha256": "1f14d2d9bd3b698cd6aa6fb18f029e5f6f6945ae30ad4928f2e870ffe683ed9d",
+        "sha256": "3dfc60a5973a81258ab217e01f8ac1bbecbbca23cfac44a80e55579b9d5a9fc3",
         "size": 3114
       },
       {
         "path": "pages/concepts/nft-launch-best-practices.md",
-        "sha256": "3597ae43534bdaabec9b87ff874b6747949d6fe7391f4c438f117cf95512c275",
+        "sha256": "9aeba089096e2552c50f9aad55b624d4367788d7246c2063142eadb823c3c3c6",
         "size": 4952
       },
       {
         "path": "pages/concepts/notion-page-299051299a5480f3890af1a1069deaf4.md",
-        "sha256": "c2613077b83c542217ba70ac58420dd85aac6365d1bf378227b613c880ab4bdc",
+        "sha256": "ab9a38332e3a42543f14a90000da0fcc2928f86da5c02c5ca63507efff39551c",
         "size": 1135
       },
       {
         "path": "pages/concepts/nouns-concept.md",
-        "sha256": "348ce18ae1d650c7d73570758cf91d626d6b5b0cee847c903aa918e3abaaa379",
+        "sha256": "16c426698507fbd5028f0549cd9c367d51db2e0bea7a7b57ff3ac74ffc93d18b",
         "size": 1165
       },
       {
         "path": "pages/concepts/nouns-policy-licensing.md",
-        "sha256": "3a35f8aa5c1d2fdea8bb490975e94cf4b835c19d88914159f6139e98d8c628b2",
+        "sha256": "65e1c8886de1525d655ff8d29cb30c867060c7948e0010e0c032ff8ce17cd88e",
         "size": 3519
       },
       {
         "path": "pages/concepts/opensea-conduit-delegation.md",
-        "sha256": "1c467d67475ce85b66da62800161dc928bc166cef9fc30ee89095d41fca6cdbc",
+        "sha256": "55e9e5cebdcae636afab5c6ca14296330487273dbe17e8b2f382e0e99f590b34",
         "size": 1243
       },
       {
         "path": "pages/concepts/package-frontend-story-telling-examples.md",
-        "sha256": "46b1f78218c812cede4a284048135ab3a4da0d271cd98f4577fbb182e3939cf8",
+        "sha256": "52f75c8af75ac679dac435639d64044d2a3a8cf2ecddd4e988f0b2018c42b374",
         "size": 1415
       },
       {
         "path": "pages/concepts/partner-integration.md",
-        "sha256": "7327d8b2007bfd6dd572d439d8728eaeb394e6cfedd8d7e7c1b50c723a2c8fec",
+        "sha256": "cd2110b988243e70650c2766eed7039ee8f88a59b344ddaed5994f54fede0bd3",
         "size": 1179
       },
       {
         "path": "pages/concepts/pil-derivative-commercial-rev-share-override.md",
-        "sha256": "d2e98c632020a119ee490548f8d1debdea61f6cc528e8f758f447d234915a88b",
+        "sha256": "f22a65018e5101ef42f05b05cb9c24797aaf403ebf23a37a7123697dcacd8fcb",
         "size": 2786
       },
       {
         "path": "pages/concepts/platform-api-a.md",
-        "sha256": "b44c4e9690e63917d94d4f19a396b1c1c8ce82a57af70325dd820a905481ed0d",
+        "sha256": "6c771442070077f3829cf776fcbebf7ff4deb9c6c9aae71314187136d0f0cb18",
         "size": 1152
       },
       {
         "path": "pages/concepts/post-submission-payout-clarity-dopamine-hit.md",
-        "sha256": "f7a60e7a74d2db3fdf1c66ff118b56d0227a5f091629382ed9caf4dd1d77bad8",
+        "sha256": "79d2ce9b8a6059108afa90f1e2919ee305a8a0db393835d6900082bb22edb73a",
         "size": 1215
       },
       {
         "path": "pages/concepts/ppl-protocol-support.md",
-        "sha256": "dc8513f93dfad71352f6539caeacd36112039ac58ba1343baa683d3ee51bcd50",
+        "sha256": "7a45a6dcb12e70120a17a31210a739bb0bd7bac6fe417439a07c6a2b24c89bd2",
         "size": 1120
       },
       {
         "path": "pages/concepts/precompile-code-examples.md",
-        "sha256": "72568e7ac0aacd7785a5656ba0faffa543f95e2c9b15d33f8f1e8d62e3b8b068",
+        "sha256": "e0ad3d02e5fc490336d9d52ad7141836df0da4f5a29cd67b1a32ae863a16253a",
         "size": 4752
       },
       {
         "path": "pages/concepts/priv-validator-state-json.md",
-        "sha256": "db8f5134f44fb724adc330e7e432aec3805408592f24e8eb254d30d2b0653aa2",
+        "sha256": "601ca4b5ab93842315919ed001c140c0fc0d85d8368917080d6e7c09b25d83be",
         "size": 1298
       },
       {
         "path": "pages/concepts/programmable-blockchain-framework-design-goals.md",
-        "sha256": "6db741afe4e1f6c321651d3a4d994bff709bef423af3e4b66cba93d06348aac5",
+        "sha256": "02c0387e735960b18744138aa401dede7b765b9f37793542440a7ad56d8bf08c",
         "size": 4207
       },
       {
         "path": "pages/concepts/projects-and-tasks-overview.md",
-        "sha256": "8e1a80ff2f1b93d25004382bf7c698c82ea1bc12677509efd9ddda037d2924a0",
+        "sha256": "96d2687270bf4626007d13cd5c1202ace3fa534484cd6986bed9b08a46c47b8b",
         "size": 2843
       },
       {
         "path": "pages/concepts/proof-of-creativity-incentive-alignment.md",
-        "sha256": "6c482e3edfe8800ab0f8195aa39789f71a50bb5e564ed5c2184103249c2a7a77",
+        "sha256": "1dea3e4c12599cede5609e621f14ddb8407220375c72e7b23ce5f93265aace58",
         "size": 2952
       },
       {
         "path": "pages/concepts/prophet-pfp-concept.md",
-        "sha256": "08cd01cacb6d411710eefc391e6b6ccb6d12df5280c7fd57eef9b68ed0bf1505",
+        "sha256": "2b00a0f71c7c51415369417fbf805e4e4da7f7af38539fcd80500492befa4c8d",
         "size": 4645
       },
       {
         "path": "pages/concepts/prophet-pfp-metadata-onchain-stats.md",
-        "sha256": "a67c9836a1bed782338a17f8f7288db596255d4910dc72bd25456551ee7a45fe",
+        "sha256": "4b9b5bf54e6cc8eb506038d0f1c5bff8595a83375300f9947d9ef779e8a660fc",
         "size": 3902
       },
       {
         "path": "pages/concepts/protocol-data-model-design-principles.md",
-        "sha256": "841d1014a9157be80b22048cde3021c5379eba347d1d449fd5b837ede500c19e",
+        "sha256": "12581c855b39e2d4a7e9b5e70efbd8bfc96a084492fd8c591be1d9549426fb54",
         "size": 4910
       },
       {
         "path": "pages/concepts/protocol-metadata.md",
-        "sha256": "15210b4c94ecfd91533e089b9170834d90302188934765f4f32549180227d5fb",
+        "sha256": "06cdf8b823a18915a2c4d3ae816f6210e51a2987fa4b4ef50da15155d9c8967c",
         "size": 2328
       },
       {
         "path": "pages/concepts/protocol-vision.md",
-        "sha256": "0a84999e8ce43a89a0ccc9fb7c3e2a92ff95e48126276893835740d85afe328e",
+        "sha256": "b07c124c8921cd04f103d188e81dcb096d5bb7cfd2625d0dd94649a54676a74d",
         "size": 2585
       },
       {
         "path": "pages/concepts/publishing.md",
-        "sha256": "ba4b4adcb57beeee67d170c643c668df7224fa95925e763d5fd2ff1f619b0d13",
+        "sha256": "d828414b692abaca932357b86f2cdd4a874117558d1e7b42fb02c0516a381f85",
         "size": 1077
       },
       {
         "path": "pages/concepts/royalty-nft.md",
-        "sha256": "c52bcb3a389a8998a75aa04d1009f8f528f207b1186585cb1f7e3d25040033da",
+        "sha256": "9eb01ee2e62b5886628478fcc8c3bd61f9c0f82a06974d28a22de118930337cd",
         "size": 6171
       },
       {
         "path": "pages/concepts/sdks.md",
-        "sha256": "e9d66d6e3e1b46816d0af83b503f806eefa5ffee8d839288a1b467cb333a5ed4",
+        "sha256": "f4744f4bbd03e39476e1fab9e3533b86dccad52bcad9b385b453948244b74d20",
         "size": 1068
       },
       {
         "path": "pages/concepts/serverless-design-expose-network-status.md",
-        "sha256": "59196754587c9a8aa94b9fbb1293597fab6ce1a644d75c0bdcdc1956f8e90ef3",
+        "sha256": "d119597c43de9f9bbc94c44ebd00df8292c9bad0296a038532696ae95c6e9451",
         "size": 1303
       },
       {
         "path": "pages/concepts/smart-contract-security-resources.md",
-        "sha256": "a47b0f02dba01efe1abbd9d31b1ac11706043172f11eb0a37c1c40d9ed6c3b96",
+        "sha256": "25350fc3a06b13ebd12496dee06ea2f505d90327c3cca0919b0b87247bfa2648",
         "size": 1888
       },
       {
         "path": "pages/concepts/standard-commercial-license-ip-assets.md",
-        "sha256": "c167f5aa2630cc3fb73e116c6f666695c498ee25008babde714f923c5003dc7c",
+        "sha256": "19d900e8b5b82691104a2bc7b5bcfd9b08a2610066b821d584cf878c40cc41d1",
         "size": 3256
       },
       {
         "path": "pages/concepts/story-protocol-vanity-addresses.md",
-        "sha256": "bf434495a8423360f1ed6a8a51b3464ee57463871b96be45c251c045c2cd4314",
+        "sha256": "251f737f8de7bffa5ae8605f1cd1d4c4e3445782f488287eac9e30a41a877311",
         "size": 4771
       },
       {
         "path": "pages/concepts/story-protocol-wallet-operations.md",
-        "sha256": "fe5e44644b7ae0c905245db4c965a40398f0f48de45eefd3e666df4515f8cd7c",
+        "sha256": "c48a6fd16507bca50cb9191ae12c4c240afea094fb06a4de9abc832c00557d32",
         "size": 1427
       },
       {
         "path": "pages/concepts/story-public-testnet-guide-deprecation.md",
-        "sha256": "d3495a8356cc13300f1baef04bdfcda707f7c7938556cdee595d69505e738a8f",
+        "sha256": "03bf580016e5773746f6e1fe1bd469bfa50e21b3a7eb48f7beaac4884cc91755",
         "size": 1405
       },
       {
         "path": "pages/concepts/story-supernet.md",
-        "sha256": "4f728814d53017c83f55334b6849115ebbd77213528ed72a6c03d525de9c1887",
+        "sha256": "40bfd02e9dda972ad776b0c5ff199f5ff98386ecc97fab1f0ccfb8260719c885",
         "size": 5600
       },
       {
         "path": "pages/concepts/storykit-components.md",
-        "sha256": "ab8afa5fcd48ceb51bc4528b0c643512fcaa44e8a891d730b1eda28c4cf8737d",
+        "sha256": "c78f02bc1e8ef9a8f0e419aa9fa49aa4e793490afaa73abbd2be1fedf168a289",
         "size": 1308
       },
       {
         "path": "pages/concepts/untitled-notion-page-350051299a5480f8b542e4f40de96a42.md",
-        "sha256": "8f6f92d6c652de62888b3dfd860e9e65cf6f28e426f8ad048a54fdababcd72a8",
+        "sha256": "1154fe7e02138355304d0a5842d471eaded8b509003c8ba54fb4fd07813e14cf",
         "size": 1132
       },
       {
         "path": "pages/concepts/upgrade-governance-recommendations-and-lessons.md",
-        "sha256": "4407651b2ba0549517e446b353d78eb0bd53029f475d5f317cffbbcb98dbe388",
+        "sha256": "dd13eb808ef26b360e9ce253485870076458dfeb07ec3fc6887bc28bb12cc7d4",
         "size": 1441
       },
       {
         "path": "pages/concepts/upload-submission-errors.md",
-        "sha256": "bea4de315c1241d295cefc379e17083477c771b9257b8c2c7d4a8996ce0a84bd",
+        "sha256": "0b3e7786c92b1d57c834027e062262dde0fc5225ec4293f8a83798cf7896a84b",
         "size": 1054
       },
       {
         "path": "pages/concepts/verbs-concept.md",
-        "sha256": "724180e8dd19e8593d7b31ff6b7767030140c39b584f3d274c7e0c673d7d6234",
+        "sha256": "4743e16188a134a6539bedfc6cc79e609730ab2e29102a8cae59fab1f11213cd",
         "size": 1153
       },
       {
         "path": "pages/concepts/virtual-machine-execution-environments.md",
-        "sha256": "167fa8a3e4ea91bbdd2324a45de378f64e253584726e022a6b7b6ee8c88183aa",
+        "sha256": "ad9cc14555f239605bf5d9043436e1273c82444ebea4ce7097f8645c31a5f231",
         "size": 2000
       },
       {
         "path": "pages/concepts/web3-wallet-libraries.md",
-        "sha256": "d3f31d10ec80f0d5e47d6f96aa81e2709edabeab88cddaf3e78ab702a8d64734",
+        "sha256": "823fcd17040decdc18180910db436bb8bfc27169be3855112c367294cfa4943e",
         "size": 9617
       },
       {
@@ -3326,1042 +3326,1042 @@
       },
       {
         "path": "pages/concepts/zk-primitive.md",
-        "sha256": "a2e4f6717ebaab1f2d67f2a6ce40c90a4f22a20eb881ce4a59786ece55af1ee8",
+        "sha256": "4d78434786f418f150d7f76609cebb01b83eba963d91879cf78c0806f0a74453",
         "size": 1735
       },
       {
         "path": "pages/decisions/access-control-acl.md",
-        "sha256": "f5a4885fd67700e4c28693212633dc0884cad30f5a3f70c567d374fcf3386d2d",
+        "sha256": "b33441d546cf6c99d0df88ad7a40f3b605534f8759fa988dc253bc0bdc5321cb",
         "size": 6118
       },
       {
         "path": "pages/decisions/ai-model-pil-term-decision.md",
-        "sha256": "96bcd16f3d05f1389e4da49fb7870e44dd4afe5b24f33fe4abc37d897ed399a3",
+        "sha256": "fbd5253a6f4f05f130a4415023439ab0b50822ed40bd9bd33a73738450eac042",
         "size": 3679
       },
       {
         "path": "pages/decisions/character-backstory-orchestrator.md",
-        "sha256": "f9ed6e0c0218bc2ac971372cde89c321af510a34409c7a2062803077979bbeb1",
+        "sha256": "cdb85d3b982c5824c079bbfd1ac85332d1088bb9e66f549ff81cf7894c55bcdf",
         "size": 4107
       },
       {
         "path": "pages/decisions/core-vs-periphery-divisions.md",
-        "sha256": "0cd03be1f2180a23f891a61eec03f75318ff28507bb1ddb6b86e55153f37169f",
+        "sha256": "84d62097ab809d9b142c3f5c7f9d3ffba39c78260f659f23f124068219953f9e",
         "size": 3191
       },
       {
         "path": "pages/decisions/decision-dynamic-vs-static-module-address-resolution.md",
-        "sha256": "00e477194c9050dc467d062e45afbc34b4f6acd62d3d612cd5e9fe2f3fe15184",
+        "sha256": "4143542761702c44c3bc666aaba711c795e20a9bfbbc971bdae8bf94bf5506fc",
         "size": 8054
       },
       {
         "path": "pages/decisions/deployment-chain-decision.md",
-        "sha256": "ecd659d0c9d821f1174ca04f402fc37609290049bcf3d2e333af0ee2c3cb6b7a",
+        "sha256": "5badf5ec71bcf5e24fc8432524347a18a5852818f644feebc6ffedc3b299feaa",
         "size": 4760
       },
       {
         "path": "pages/decisions/dispute-policy-immutability.md",
-        "sha256": "91ad5236e9965db2967443d475c9800ab1972449adb0ede056e290d643847ed3",
+        "sha256": "a056ac3df1df77b3a2f653fdc266155efc77ee0cb6a7e9f4375bef46bc4bad60",
         "size": 3037
       },
       {
         "path": "pages/decisions/distinguish-user-device-types-for-risk-assessment.md",
-        "sha256": "9e31672f07f8156be99a5595abd31ff91ed30e70171d44dcc55dbb2d5c0ea7ee",
+        "sha256": "5761e21f07eed59857340315f2983c0bb33154e14a3fa91d230442cf73789e58",
         "size": 1433
       },
       {
         "path": "pages/decisions/eip-7212-precompile.md",
-        "sha256": "7b9b72e018a3c51330d5e8181f78f4b1f2d445b3560089ed0e5e03cbe8cd79ff",
+        "sha256": "785752278b55f9062a2b4f3cf5c1de2e1659232cb1f7005277862bb171dc9d47",
         "size": 5011
       },
       {
         "path": "pages/decisions/ip-account-wallet-architecture-decision.md",
-        "sha256": "347e26c4ac9aaed5a04c931ef4ffa936e50effb670e7481afcef222ae2493056",
+        "sha256": "bce7c38f5ffc39b18fee32a8b8202dcfaa6521ccb93ce1dc0b521d32f0043313",
         "size": 11612
       },
       {
         "path": "pages/decisions/ip-asset-on-chain-metadata-design.md",
-        "sha256": "e6c35e7d0313a28d0a55bf42d11d939076e0137ff80a290d7698ba4f275c02c7",
+        "sha256": "36700d8fd2dd32c61eb152dac4f4e543fa5cb69899712401f4886f5c87c0d152",
         "size": 5472
       },
       {
         "path": "pages/decisions/l1-tech-framework-evaluation.md",
-        "sha256": "c3d0118f85c07a02809b7e40a86984321c2ddac81b8c93baa0162ea9e8d47cfa",
+        "sha256": "5e64be37b478907637d16d7e833c86691928bc0db04a30b5b96ef0fe406f681c",
         "size": 8188
       },
       {
         "path": "pages/decisions/l1-vs-l2-decision.md",
-        "sha256": "68387b902dc928a6d867a9737801969e628650c122a47de03b8f70504a42b2cc",
+        "sha256": "10e75d19279b60b7a930d23985f90c0538133f19711c5a0843bbc1c1d96838a6",
         "size": 5721
       },
       {
         "path": "pages/decisions/license-simplification-alpha.md",
-        "sha256": "2ab05ab613ef9334b2b768d4df0ee905655127220b95cb9560e460efca963dca",
+        "sha256": "d32d9e142cb6a42978b7338cbbeff8648ce13df35648d73708d7ecbf8dcf60e1",
         "size": 7046
       },
       {
         "path": "pages/decisions/license-token-standard-evaluation.md",
-        "sha256": "d38939f4bf468400af175463560fb04d9fd1cfb1ba47de0596e1ff7655310c79",
+        "sha256": "9ac8d79526cde1f766c9d5d3dc8fa8002eb0b047d78ab232db95684268a6e9fd",
         "size": 3674
       },
       {
         "path": "pages/decisions/licensing-simplification-design.md",
-        "sha256": "bc7cde0c0ee234abd0d71f8af53046f81f85d9a58c2f670e201a6bc94a19eeef",
+        "sha256": "d291c9315e4271e578c54e6192fdab477db778ad3d22c698d851400ee6d10707",
         "size": 5812
       },
       {
         "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
-        "sha256": "8e9ec5fa2596e9a48b96836914d6bfd93708467d38f8cb9ada8cf4c2fd7883c6",
+        "sha256": "2b12602856c94cea9a0ad8a77dd41658c429d11474be9c5d03a322619e3fa0d4",
         "size": 1593
       },
       {
         "path": "pages/decisions/partner-testnet-phase-out.md",
-        "sha256": "bbf5295384c2c2a13eadf9a54437f0e29251c83b8a9dd3847cbcc5c8b8d00c10",
+        "sha256": "65d8d7093855fa6d152e9e1cb8731fde2c69becaf9f071ef3e568fa9ae867112",
         "size": 2536
       },
       {
         "path": "pages/decisions/pausability-design.md",
-        "sha256": "9d78213a0d1afa64e8aadb9887a77999ebd2cf41fd9adac9e622377ea1847b05",
+        "sha256": "36dccb5464eb6388960dfa9bfd1d0441d23b295b10490c92ae8b10b8535c7b9d",
         "size": 4556
       },
       {
         "path": "pages/decisions/permissionless-ip-registration.md",
-        "sha256": "192edac32d95164df86b92c1db43c5aeff5311032b146bad617fd76b2a1e0600",
+        "sha256": "7decbb8cbb99e1d0a04d4af8da38d89c5ef4292efa8ab51c50fd37ce47c2af42",
         "size": 2954
       },
       {
         "path": "pages/decisions/prophet-nft-distribution-strategy.md",
-        "sha256": "5c5c1b8f53ac27fa72a3b33ba256605a793bea7800beb408f1655c14418bb2ac",
+        "sha256": "6d99d839b2ff76eac11ff8986fe10572fe95cccebf9adb2b8ee39649ae0da83c",
         "size": 2248
       },
       {
         "path": "pages/decisions/prophet-pfp-ip-asset.md",
-        "sha256": "4e28669628d36de26160d3c8809508895a2310811317862674444aa5b4578617",
+        "sha256": "a0a364500018e02dd57b9e682e1cd333d9fcba80708f985204add88b6dee8560",
         "size": 4637
       },
       {
         "path": "pages/decisions/protocol-fee-switch-configuration.md",
-        "sha256": "12d00339e69e233a4d58d2d55d98684bc5e3df469315637098ffbc283e89404b",
+        "sha256": "fbe5b5ea42ebd0a87fb6aca9f61f054c6bf81661ade2f849466a9b454c051197",
         "size": 2337
       },
       {
         "path": "pages/decisions/sdk-v1-3-design-considerations.md",
-        "sha256": "38a9e2f24677ceb601c28335f725be95dc04eea31d2735ac16aa5b4352fc4841",
+        "sha256": "07154b66b553489b1e6e938a2e09a0ce8badd9cfcb00fd20b4f4efb31af9ae0e",
         "size": 3132
       },
       {
         "path": "pages/decisions/story-protocol-website-i18n-options.md",
-        "sha256": "7a31a612b3ce6b5df02ad4294250b6b726848b2cacfd22e88f927cd334498d11",
+        "sha256": "8e86f1c12c3d8d2d935d081c1bbe0f2b43a36478f68b78334c0ef8a88096cd51",
         "size": 3856
       },
       {
         "path": "pages/decisions/v2-monitoring-cicd-design.md",
-        "sha256": "2914ed4fa1be697658882c87ff936acc631361a5be90e2eef5e66e59836b1f25",
+        "sha256": "0bd48363bcfd7ac6d30762725e4604ad145a7283cb7123e13679fff480b0c457",
         "size": 6568
       },
       {
         "path": "pages/decisions/vote-ip-asset-interaction-levels.md",
-        "sha256": "ccaef1ac467a46781d89190867847667c59191c6d1e7389d7bf8a256017896d1",
+        "sha256": "d2605c15184cc973c36d801c9c3f9ba90ff64cb0a589b448edc0c85964dafc72",
         "size": 3861
       },
       {
         "path": "pages/decisions/web2-api-strategy.md",
-        "sha256": "c97eb782af64e77269c1cf1e0b2c376ecaf79a4497c63e83ff715d44d7dcd03c",
+        "sha256": "a234210233b84c84a66869842d326fd53d9560fbe78e9f7d6d5a93b929959563",
         "size": 5348
       },
       {
         "path": "pages/open-questions/access-controller-repetitiveness.md",
-        "sha256": "3d7d8c9ddfd14a6e0276c5ab5cb8e11a863b3b906e5f1bca990d4940ab113bc8",
+        "sha256": "e7ac1a72c254cad24bcf49555cd85a37177788101a156ccecf8ad068bd5b0f3c",
         "size": 2040
       },
       {
         "path": "pages/open-questions/access-controller-suggestions.md",
-        "sha256": "d8f4d5940409eae0160798a060c69b2e27d6f007a2f1beefa96f4f598ecb19ba",
+        "sha256": "908d4699ba99a2510e33fab69dbd8a844a4eea032c149aa5798fb71da54bc660",
         "size": 1551
       },
       {
         "path": "pages/open-questions/define-what-to-do-for-rejected-submissions.md",
-        "sha256": "2550cf3840125e55b8a44bf9adf36f70719f2d31a7ed9ec2dd27c2a42d71664d",
+        "sha256": "27e4ffbae0750ea28ace8ca568543b51b607131383f2cd95cb69d10c53449c2b",
         "size": 1289
       },
       {
         "path": "pages/open-questions/feedback-and-improvements-for-oncall-performance.md",
-        "sha256": "011ab1069af27ee1cbfc707efe710c93d4998f8e5adee7c2f480175e8f34c982",
+        "sha256": "d346784e1df490af2f4c9ff9627e62a25ade81371ac2db699ae7b63a4f9792ae",
         "size": 1497
       },
       {
         "path": "pages/open-questions/license-term-flexibility-derivatives.md",
-        "sha256": "befc749c8c099691df95667128b5beb765cd03cef97e4629287ad5843c86a0ca",
+        "sha256": "e58e80965664a5dea7806156e14f2372eec09cb130efb440a442f95381c9f584",
         "size": 2857
       },
       {
         "path": "pages/open-questions/licensing-questions-to-ben.md",
-        "sha256": "9a5b17e3304c09c1af08f448b8f75d642255dabfb02ed59e316f6a48cc77f143",
+        "sha256": "9151804c35ca6fbe29201d83e965af71577e75a85d82493b748ded92c70a97e1",
         "size": 5471
       },
       {
         "path": "pages/open-questions/need-plan-b-api-gas-limits.md",
-        "sha256": "3ec6dca680c6c186231b1b8a606a1b8d54f875b00b32210c93bc034465dac5dc",
+        "sha256": "f38675b9706fec3f92c4cc18864badb7e98895d588d7316afd6bd8beae94f7bd",
         "size": 1298
       },
       {
         "path": "pages/open-questions/nft-feedback-color.md",
-        "sha256": "64c91fe7a406ae544fac543ecd452fd43d3752ae0e3497bae92dc51e52ad5062",
+        "sha256": "4d01489b9897b53db28065c751ec49655e6dfa2a192e9cbc6f672c031c2e29eb",
         "size": 5138
       },
       {
         "path": "pages/open-questions/open-questions-blast-and-sp-tokenomics.md",
-        "sha256": "6266245462c2f1abafdbd659093562c0f635b892f95f847ef47430e7ec60d315",
+        "sha256": "9a509677215bea999f6a45b64c8f2945d1a2f267d2b4bb577737643fcf04bee9",
         "size": 2539
       },
       {
         "path": "pages/open-questions/parent-limit-increase-request.md",
-        "sha256": "68c03eb5b486037b4c3b95510695cb238fe6131e2dbaea3b5daef1d38299df3d",
+        "sha256": "0b3dd1d37d12d2a1507724bbad3e975623403bed23cfc9c7aec99ffabfb2f368",
         "size": 2740
       },
       {
         "path": "pages/open-questions/rosetta-reconciliation-failure-public-testnet-block-393.md",
-        "sha256": "4250b875705bf02f7be99b81befcf00407ecfbf6f59e42c91725b8afbfdacd33",
+        "sha256": "c908fd566bd6b9d3cdc32a35850fd0512563aea1302fd1ab3d1ef07eaf3c0efc",
         "size": 4130
       },
       {
         "path": "pages/open-questions/royalty-dilution-feedback.md",
-        "sha256": "e593e720ef6eeb2c360e2ac2ef73f75eecaedeca5ef010eb2b1c9cbf9589fe0c",
+        "sha256": "d64caaafdd7d709baacc137c47f5f03cd234b6e0c11c456526e1c86d30555b22",
         "size": 2853
       },
       {
         "path": "pages/open-questions/sp-precompile-candidates.md",
-        "sha256": "4d95e7403e0f2596a1ffec6e52aa2b0f526b8d8d95cf4fb654b7e50ea41a9b26",
+        "sha256": "dc232a424a28fc831ddb87b1a93558524b5e9c052dcb1e418dfa3ab20f96b838",
         "size": 3834
       },
       {
         "path": "pages/policies/database-table-naming-conventions.md",
-        "sha256": "1e05bf6d7a11a8394a4c192d0e90a35fd009d94f4e31db03f8e57474d0282049",
+        "sha256": "3ddfb433a5d73b08519f4ca4d6ca42df1914ec8929fffdf4676e66defa341eb4",
         "size": 2937
       },
       {
         "path": "pages/policies/engineering-communication-strategy.md",
-        "sha256": "0ec139d0291fc562b6df454a28501f596e0fa7efcd1a91701d56090788037f12",
+        "sha256": "9d5709a3ba4d2b9d4f70721a292251a05076a021fe46be4cb0492e44d896a04e",
         "size": 7591
       },
       {
         "path": "pages/policies/frontend-repo-open-source-checklist.md",
-        "sha256": "dd5a2def40171382a01191743bc72a14a1c0bfb4daffed0ad56dcc3197f8b664",
+        "sha256": "220d79936ecb8f7b3bf927bac9a2f97a0ec47a383b71c6b487f3790b803a2d7f",
         "size": 1303
       },
       {
         "path": "pages/policies/github-branch-management-policy.md",
-        "sha256": "935a7e230202dcfd4255ee2e45a047bf00c4eb2137e02a657c22d50291671292",
+        "sha256": "b8b20c7c7d7efcfa09105ec405d9afad73a3219d529b0ae37bb26ac8d91ab969",
         "size": 5463
       },
       {
         "path": "pages/policies/github-permissions-policy.md",
-        "sha256": "38e0b0c7827e4201573a0b04ac3871fb5ad26a16e6b7e5353485372134ecfc10",
+        "sha256": "8c961bc80712faf55e733a2ae23c86c5da0c1db1b3f5149550dd495bfff11320",
         "size": 11511
       },
       {
         "path": "pages/policies/l1-urgent-contacts.md",
-        "sha256": "d9a7956ff3e3be8a97c3d296c8db260fe6faa1a80ddfe8450ca768b00a61ecaf",
+        "sha256": "55fe7afd4beb067ff92a86b6bfc64b76f9ec93259a86dffce7e4d2219faca747",
         "size": 6760
       },
       {
         "path": "pages/policies/limited-ip-rights-representation-registration.md",
-        "sha256": "7f96e95418ca1392dfd370b96c5c29988b860877fd277d4031f97726a29ab05a",
+        "sha256": "c137188b728f1a88667a1b5fa8d65d73208508c3f24e01c375d3c3aa692402fa",
         "size": 1584
       },
       {
         "path": "pages/policies/off-chain-terms.md",
-        "sha256": "10f4df68a4e5453109491e8072fe05bb26d4337a6617b0157e16882129828da9",
+        "sha256": "78f7f2fdc76c94fcb5af6637ff6db23af64f084fa669b8b82a1bd7f0cdf738ab",
         "size": 5565
       },
       {
         "path": "pages/policies/platform-team-secrets-access.md",
-        "sha256": "399065e92723c4188485d083248a95ca04df631bf0892870704825835ca59943",
+        "sha256": "b9e972091c12f86d26263d18339f7b9fdd885580494f4b30f479fc26a95be88c",
         "size": 1269
       },
       {
         "path": "pages/policies/product-intake-process.md",
-        "sha256": "189f126e0ec2af949edd940f87e392b64757a32d26a9fe2582f1b344b3f3d8e9",
+        "sha256": "7664d52c28134ac8ed008f4b6c6ade445a3e265c3ddefffaa93ea021f5e83b8c",
         "size": 6644
       },
       {
         "path": "pages/policies/serve-least-used-transcript-priority.md",
-        "sha256": "7117eeae65297b9176974b2191e619f770108c515d7ffc9c5f384dc32845ad8e",
+        "sha256": "8dcf7434b6331c67daac6fd878f77f2ea181b96d629e7e9b79656d46ec5cb23f",
         "size": 1145
       },
       {
         "path": "pages/policies/validator-bootstrapping-strategy.md",
-        "sha256": "cb83f5473643ded8ed3741646a37a8dbc7067d980401e36d8b6c8de8331c17cf",
+        "sha256": "0ed3b8424b1f5bea49883945c0bc7bb831a7c871eaf50a12502981c2e304616b",
         "size": 5155
       },
       {
         "path": "pages/policies/withdrawal-safeguard-policy.md",
-        "sha256": "61c29af4a91fd58f47f61104dbcd84f5b78d0330f03aea3449b5e8517bf46b4d",
+        "sha256": "4d16f76e0f9afdda25943b811edb68e446e3422d896110655657ddeb7bbb6f2a",
         "size": 2488
       },
       {
         "path": "pages/projects/1combo-integration-feedback.md",
-        "sha256": "0eab582ef2b0009fe808d40b0a815e87c18625082693c53879c21c5cd67378a4",
+        "sha256": "f586bc49e6e09c0cc200d2f2b2eac4e0ea8a1ff6cd0eb17a338a8c15db641a8b",
         "size": 7418
       },
       {
         "path": "pages/projects/adaptive-trust-screening-reputation.md",
-        "sha256": "b4e39d91a75d2f8e4a8470aa81e93a9d8b9e24ed27beb1855a9443b3c686c367",
+        "sha256": "8c79490c01adb6827a47dfcb34f2d5fb4f33b5e29333599fa93705a65771202a",
         "size": 1333
       },
       {
         "path": "pages/projects/add-back-en-kr-vn-ph.md",
-        "sha256": "bf627ac563febb37c005034d32cd90840951b66f56f8e46ea3cf0fbb257011f6",
+        "sha256": "f74019b40630c6bdef51f6823b6396cbff80ae28bc45ccbc31272a69c17b45f5",
         "size": 2153
       },
       {
         "path": "pages/projects/add-cookie-banner-to-app.md",
-        "sha256": "98d23ae22a7eb47dc0b9e66faf3286e2d4195acefc480a2d4cd296e89bb2fe5e",
+        "sha256": "89fc89ac87977e77f8acf3577cec5780810bac405d7cb9c15d7504de2f4da558",
         "size": 1016
       },
       {
         "path": "pages/projects/add-fb-tracking-pixel-to-web-app.md",
-        "sha256": "5be120ce196bb2b040bf437ca7bcf9ae20c397257c798b21a07237db97ce7b24",
+        "sha256": "0917486df39d9640a48310229d20eebb80216ec5851c2f2fc615855c0415954a",
         "size": 1116
       },
       {
         "path": "pages/projects/add-intercom-automated-customer-service.md",
-        "sha256": "dd922000a3cf304707ec0c31aa32912eda860f7e9c9258dd11a241a09f164369",
+        "sha256": "a6282c703449c30f83e8d7003b51f9df9f6baf5f544643b0be0c3ee2ee43d18d",
         "size": 1140
       },
       {
         "path": "pages/projects/add-mother-tongue.md",
-        "sha256": "da38ce8edce15916e80994c68f87143500d3b671a3683d67514661a0598561d7",
+        "sha256": "321bae07d2cdaa7078bfeca4c67383771825fcfe5025cb9bf598405aa77bfebb",
         "size": 1166
       },
       {
         "path": "pages/projects/address-p1-dogfooding-issues.md",
-        "sha256": "11e8cc689b9187d6b57efd6cc5ef35219ede1482132d4cb8e9a472a4104f8c9a",
+        "sha256": "62a9ee009891a287f61682bab2d841eb3500307f75102d2bac03bf5c5242407d",
         "size": 1074
       },
       {
         "path": "pages/projects/automate-support-email-summarize-feedback.md",
-        "sha256": "b6eea627d1d15dff130aae8332936c8b0442916a52cc18d7f184b1f9ee86ceb7",
+        "sha256": "a2ac9c51f36b6aa0d82e62314c2b8522e2056a6a372aeb3cf6e8eb2cbc48032a",
         "size": 1232
       },
       {
         "path": "pages/projects/beta-protocol-sdk.md",
-        "sha256": "cdcd386e6d51cab037595d6dc000e2b42c3014674980800102b83a2d2523daca",
+        "sha256": "589ee139d444fedb315525efdbc8d33219802a53d57afcf45d22467752000b50",
         "size": 3780
       },
       {
         "path": "pages/projects/beta-to-mainnet-plan.md",
-        "sha256": "cf9222b643c1b975bd3f7a43fb38a24a3e1ea09905a922de90529077a5035a8e",
+        "sha256": "539513d2a7b2a3edf6ddddb0ee3aaa1122ab2b8fb7e31c826eb91c6d2bfa6824",
         "size": 3367
       },
       {
         "path": "pages/projects/binaries-releases.md",
-        "sha256": "b154facd690a2188b2399bd267a9b8d030e7ea19a0ff81907c300d03df1a24e8",
+        "sha256": "7e66e7cf9ac6e23f181a1c4f119c84f2ea575429952aab11af8986cc97cde05c",
         "size": 1836
       },
       {
         "path": "pages/projects/conference-plan-2024.md",
-        "sha256": "768b7f75daed420931ea40d33b57ee015e412de75582b01871f9a56469555e23",
+        "sha256": "e51ed5f42bb98e6eca93f842f1eb5a4156ced694bb8cf290061ad3f2a2542799",
         "size": 4104
       },
       {
         "path": "pages/projects/devnet-war-mode-daily-tracker.md",
-        "sha256": "113c0e87aeaf15155e89492e821dd623e620668b7a6f6acfd712ad1551a8402a",
+        "sha256": "790301badf8204c8a6ac4fbedf2e9b686c132b72e1d8fae1dccef576fc8945a7",
         "size": 1579
       },
       {
         "path": "pages/projects/dispute-module-improvements.md",
-        "sha256": "1b9e878ef50877897d27101cab5900c76b05ebfb6443e0ff31e3c82faa57cd47",
+        "sha256": "7abdfcb29ac0c390ef2593d91482a743d75048e62c88564b1be78d4f86b7e828",
         "size": 5264
       },
       {
         "path": "pages/projects/dispute-module-ipa-staking-integration.md",
-        "sha256": "1463c29f2722640a360c180027b05faef4eb0cbfe6fde586b17c4d4fd0bfee63",
+        "sha256": "234be6e14b8f8f1a4e9a14f62b803bdc90ab1c2d36e31aaf0f3650fd4770cd0f",
         "size": 3089
       },
       {
         "path": "pages/projects/drag-and-drop-upload-functionality.md",
-        "sha256": "747ada8f17d97a5c9b8fa301af14888f191890bab1d406f516bd10604bf21740",
+        "sha256": "7b55947f3c3d7bc55d231079ba39d960dcdc265c4ef3504f972bf6b932031a7e",
         "size": 1259
       },
       {
         "path": "pages/projects/emergence-universe.md",
-        "sha256": "67a0a1d2c9473e67b6de6ef56469c285d1180a100c75ad4f331eb40f9eea8686",
+        "sha256": "b15c12537ddb4d4e9d741c183cba6632de95d921dd699cb00112202c27b58745",
         "size": 2353
       },
       {
         "path": "pages/projects/engineering-lightning-talks.md",
-        "sha256": "613b315b0a49055187b90ec0315b4441c4a69889daf923df23dd2297feb5603e",
+        "sha256": "0c791403bd87643be30861a0f84871adf1658c8665670af76b097ddc98449897",
         "size": 1175
       },
       {
         "path": "pages/projects/engineering-team-cost-optimization.md",
-        "sha256": "05065edd39bdf3220d9c78972aae699d1e17f62e03d1df1fb96dbf94f40d32f2",
+        "sha256": "cc35b3d56c1dae933d448c8ac3c1d3cb4dbec6443cab886081d8d0edd45a499c",
         "size": 2663
       },
       {
         "path": "pages/projects/ethdenver-fun-57b-activation.md",
-        "sha256": "3e65581bcaccbd869d81cef813b02c32679cc8d9d20e4aa4c61bb5fbde9a643b",
+        "sha256": "984f981148554ab36037f181e765791d9a5aa71a0cb96ae27cf8f58dc627ac91",
         "size": 5148
       },
       {
         "path": "pages/projects/eu-backend-design.md",
-        "sha256": "0fdbb7b92a41518235e58d71070a2f3e6098b1a6d8e2eaf65bfb429db45da07e",
+        "sha256": "fbc6cdecdc6e2dd012dfecfa057de6e3f864b24bec4769f9a6ca00b555e7a24f",
         "size": 1170
       },
       {
         "path": "pages/projects/eu-pfp-nfts.md",
-        "sha256": "9623caea47c9e67891a01a53f226d726237b812623184f9e568e2bd2a91062d7",
+        "sha256": "6d76b7a5b2c8afa0b0fddef127602376adbb9e7b757981cc62ddeff636ee55a1",
         "size": 2363
       },
       {
         "path": "pages/projects/eu-v1-qa.md",
-        "sha256": "55333ae20bacd800b25db4d984caa7e7e5072376628ba6d31939920bdc5fd019",
+        "sha256": "0daeae7dfb75dcdf54f5cb3b2610d18b46605930f35ee185364902ec2fba7ad9",
         "size": 2582
       },
       {
         "path": "pages/projects/eu-website-releases-tasks.md",
-        "sha256": "76bbfcecb315c49948e530789eae76f7f79729369431b080ef8ce7fa07b13f95",
+        "sha256": "c13218334e4de8851ad25e79a9e5928c6c7eab8812a8b9124198e70ac3fc6e38",
         "size": 2920
       },
       {
         "path": "pages/projects/frame.md",
-        "sha256": "65009b14c4476c91ae027eec246fcadb03ca2992a706f20aab238bef9f3aa34c",
+        "sha256": "e8d7861e6c115f7d0f9c1ae09b22d269a17d30f2156e98995dca4df9845fe4ac",
         "size": 4415
       },
       {
         "path": "pages/projects/gcp-gke-l1-orchestration-setup.md",
-        "sha256": "dc18a2b3549544e2460d5d3b7836eb60df5840b99aa277d1da93d81458fd9d07",
+        "sha256": "27a455f3689160f9f36a282580d268b9fc9067e60d642a31d4e7a10d1d59072a",
         "size": 1336
       },
       {
         "path": "pages/projects/gif-project.md",
-        "sha256": "3e5cf596c6709957c7161bd32f1e8e94e07ffbab069d382deb9405bdafb5e2a1",
+        "sha256": "ef6d587313e77d5e5b196cb6af8beb85abd9237c6b36a27b71e1386a5d35065a",
         "size": 2580
       },
       {
         "path": "pages/projects/global-wallet-solution.md",
-        "sha256": "e5c1fdaff050c2162dd2304830ac4114401fef534397814bc841b0ec8e698d67",
+        "sha256": "6736283738ebf14338e01340de4d1fcdf357262c5a969c6e6004957290d1e043",
         "size": 1175
       },
       {
         "path": "pages/projects/hub-v1-backend.md",
-        "sha256": "8f847d0441c835b082f27a9b66d708e5ec450e19cbfaa6104950789cb7008001",
+        "sha256": "8ede055bdb6d80bab1e1eaed6232f857d8a5f73b86403e6c70512f32d623a945",
         "size": 4080
       },
       {
         "path": "pages/projects/iliad-testnet.md",
-        "sha256": "3d365cf1bb3b8d5c63c90c83d867a843525ca9913b94ca6d3b773eec5aac6e8e",
+        "sha256": "f53d08e1793cd9f7e67a2246f2ebb1a6158d94a2680f545b1a2370fc06c147aa",
         "size": 1217
       },
       {
         "path": "pages/projects/improved-mobile-app-tracking-platform.md",
-        "sha256": "f360875a4e9860668933a9b85f568e3362ba5c3fcd4c881ef25bf432aa7b1880",
+        "sha256": "46d6eebfbe87ff5235831ca8af2fe00fa33224086a17119ac75087284d908bfd",
         "size": 1392
       },
       {
         "path": "pages/projects/integrate-fb-tracking-google-ads-admin-dashboard.md",
-        "sha256": "b5f1177236f943a9283bc077262cb4c2f37af19dc368651dcb7db4fea7e09e62",
+        "sha256": "bce7ed458a1325985c7e23cd2b636bfb1d12027cfdfb3f5b34573e30c767394d",
         "size": 1377
       },
       {
         "path": "pages/projects/integrate-intercom-or-similar.md",
-        "sha256": "60431ecc536766192d1e38f0558fb63a24606485ab0e60e3b289686a8d38e9fa",
+        "sha256": "24ec1d3da050da04c2b5ff9bfa44832e15fb69e79f47de2bdcb9549361a5f239",
         "size": 1139
       },
       {
         "path": "pages/projects/integrate-poseidon-processing-pipeline-with-numo.md",
-        "sha256": "b2312e738d37c8c577cde062ed1ae5357bd4aea6503f608d81b9731cc9be6ef7",
+        "sha256": "581b4e56a8bf4db117832eb7c6f4438ebb96e073d988a0a3ac05ff6926c8e8e7",
         "size": 1202
       },
       {
         "path": "pages/projects/ip-auto-registration-script.md",
-        "sha256": "6d23332dd73884b3c24044337b5c1ce4f513a7a1cce7957a195d74e8da843687",
+        "sha256": "d10df07655c5cbb3db51eccbeaca8e208010bcd916af7783cdf142070e07e74b",
         "size": 1238
       },
       {
         "path": "pages/projects/july-partner-testnet.md",
-        "sha256": "246923b7ec228eff756c1d1e674a9b67039faa162185d49b317e3be622e72375",
+        "sha256": "1c2f9ab110f10c3f6f6440e4ecdc7781e8bb0fa1a63f5736d5acbd4b37806e4a",
         "size": 6261
       },
       {
         "path": "pages/projects/kleros.md",
-        "sha256": "9a50cdf230639fad1a1c1d5653b26c85561b147d8c9fad43db4004cd9cca0e7e",
+        "sha256": "dbacfeea859fbd7869000cf4b8e6e1cd5c1b4ea154f36e262075dad895b4a5e4",
         "size": 6997
       },
       {
         "path": "pages/projects/l1-devnet-june-2025-deliverables.md",
-        "sha256": "5a7f2f1b3c16435bda6433754dd31c17daa7993400a3841947730566032389ea",
+        "sha256": "f6f9d65d1cfc24d8cce352e507961f5092ad5e72dce89412c8d05c7262d22a2d",
         "size": 5626
       },
       {
         "path": "pages/projects/l1-devnet-launch.md",
-        "sha256": "9d70643cfcf02db8fd5730c37fd9daedf4e6a477ecae407b5449acc3314f7903",
+        "sha256": "abecff2350bd3aa86bf0b4f9e7d439aaf6ae624c054308f86126219ebf6d9c25",
         "size": 9775
       },
       {
         "path": "pages/projects/l1-infra-roadmap-sep-30.md",
-        "sha256": "cf587906b137166939c72a34a1c26cf4874a9ce54ea066753864375df7248788",
+        "sha256": "92da1491592139f90b767bd84e5da60f55c9810237a769255a196ced06d9669c",
         "size": 2413
       },
       {
         "path": "pages/projects/l1-test-plan.md",
-        "sha256": "ff8ade5610304af4b04bf4f7683d73475a0927d1898552fb8885745365984c8f",
+        "sha256": "02a22fa6e4961c696870b5d152e5adbc307929e2c883719ef592155976933cde",
         "size": 6324
       },
       {
         "path": "pages/projects/l2-analytics-tool-research.md",
-        "sha256": "6362f232c774b3353374f0b72b4f606bb6b2edb7d57a2e343c2beeb293052a42",
+        "sha256": "0f0eb9ee3c5db2d7062d76214c87fbae80216159b0ef93a2f65c36d945e4af95",
         "size": 1240
       },
       {
         "path": "pages/projects/large-pfp-collection-ip-remix.md",
-        "sha256": "d3abf11c62c40f2b2e1c95c7ebb8ebbe4a88a43353d64e3bd1056d12b774bb13",
+        "sha256": "850e713dd60ac8f8751b7fd28e91f477f6562826699d8833dbe3cbbef45b2592",
         "size": 4670
       },
       {
         "path": "pages/projects/lens-open-action-integration.md",
-        "sha256": "e84382b66e4ccb213075cd02b4ba853aab8d990e1cb4687cb89c58dabe0aa5cc",
+        "sha256": "68884bcc39094de781119188874bd0312e236c3403317acebd3819e78b39feaa",
         "size": 4404
       },
       {
         "path": "pages/projects/lens-protocol-deep-dive.md",
-        "sha256": "c78c17a1664966741de798c5ec9badc9219d3d50bd976c38838ec6c0213a466f",
+        "sha256": "14f8f9256eeff3ccaaf91ff22bef8e81c00cc369688f290229399adbc77478f3",
         "size": 1252
       },
       {
         "path": "pages/projects/lens-v2.md",
-        "sha256": "0c29b75458afe95f235b37fadd7a8779647cb8a53a8b33f01f40bc0a5374ecc2",
+        "sha256": "4e58d6b4a66353277d438d85a061869aca111d5bbe2b94e0fba4c22d74effae5",
         "size": 1188
       },
       {
         "path": "pages/projects/license-receipt-functionality.md",
-        "sha256": "36224868d31e4f14731d7d1e4eb9d161338f5a381a0aba24618ce429ca652e7f",
+        "sha256": "137f47b968c15073d90ab7e722b8ecf874cd6a6755b929bcacb83dfaef5444d5",
         "size": 3652
       },
       {
         "path": "pages/projects/licensing-and-derivatives-devex.md",
-        "sha256": "7fbd42e18614be5b1dddd2cd800836b9114a0adc1f774a91f61ed7565fc2d334",
+        "sha256": "5d6a79bafefee223aab145109ba28ec84a0a2b558b4d11326eb08dd885b9a41b",
         "size": 8425
       },
       {
         "path": "pages/projects/link-user-socials.md",
-        "sha256": "c805919694c08024e3ed1b8846759025b2d4d9470bbdc95840e81d4eea4eaffe",
+        "sha256": "a24912b116fb164bcf5bb84b93367c1a0de7259fc8dee1cf588d06efdc7eb9aa",
         "size": 1168
       },
       {
         "path": "pages/projects/mainnet-api.md",
-        "sha256": "f8c5463019cd5abe929fd6ad854e9dc7000f408bb4102cfb1bf98da710c74ff8",
+        "sha256": "815357e6ac3d8b643995bc6839096a0d49d73aff207de5a18fbf735ffe65f1c5",
         "size": 4023
       },
       {
         "path": "pages/projects/migrate-web-app-to-react-native.md",
-        "sha256": "77e3ef5dabe21299f2d74d4d6badf67c1d4764190ca6d62c577b49abdf495a67",
+        "sha256": "52260fd6f4a7d44d5de9abee09776cfee50d22c246550293ecd1c8418e3ba202",
         "size": 2902
       },
       {
         "path": "pages/projects/multichain-story-supernet.md",
-        "sha256": "bd2092e10100a27f1d6161245c75483dc2f5682b2277d5265fc43d56e68b7723",
+        "sha256": "5b0c61803d6e3268e2abdde733cc500292efb8c15dbd25dc95a6dd5b0b8cad26",
         "size": 1410
       },
       {
         "path": "pages/projects/network-rolling-upgrade-workflow.md",
-        "sha256": "cdd97287d3bf6318eccf74bbc45b2e54c926b692335da7e1fa7117099387536d",
+        "sha256": "dd2259b38c3f6e59fd9dd4c51505584f817b79cf57fa42f52e57403b9a1395a8",
         "size": 4338
       },
       {
         "path": "pages/projects/odyssey-testnet.md",
-        "sha256": "275078dd6b62305bf71aba4b0de11eb3080a2641ea30f763e2ac0504e90e3337",
+        "sha256": "d75c1a77b6b9b10491a81d6b615c82e5e11722e5efaeea2fb4e9f9769bc3ac66",
         "size": 10782
       },
       {
         "path": "pages/projects/open-source-development-plan.md",
-        "sha256": "aa234fe334d42b4826b3a462084066394711c2022871d628a570fd4ed267d5bc",
+        "sha256": "9dba6fb42427cced81c0874a945fb15f7d9e02a0d2d6b86dfa6689145f81396f",
         "size": 8717
       },
       {
         "path": "pages/projects/openverse-story-protocol-integration.md",
-        "sha256": "07ddc9e1b38223cbbee07ee60cceacb15cd7a7bd84080326fa060cd3e578180f",
+        "sha256": "76e5828bda31c3839f66ea5ffbfc5bba384a5e37eef9ad069621a0747661b3bc",
         "size": 5317
       },
       {
         "path": "pages/projects/p1-gamification-tactics.md",
-        "sha256": "e79c89facc054bfbe1532be546b683081b371b2669cca007d465e04ee0b38424",
+        "sha256": "f68d8cf976c963c35f91a4f792312586f308174836957ce213235a9d89f3824e",
         "size": 2996
       },
       {
         "path": "pages/projects/p256-precompile-case-study.md",
-        "sha256": "b7836441237121f4dbabd3c49e9241e1bb4ef7f2866311e592ce345d5632e5a9",
+        "sha256": "c77231a88ce779ac875d23ec7dfef6436bd14984474b9c80f5d4c11195074dc1",
         "size": 1212
       },
       {
         "path": "pages/projects/partner-testnet-release-v1-0-1.md",
-        "sha256": "fe8cc9f482d0a351573adfb8bd25b357c149188ff61ec061b6d8720d78b7bb73",
+        "sha256": "e88137727b21fadf8767cfa2f0b90071ef7fef1809c13cca16d57f296e5687fb",
         "size": 5007
       },
       {
         "path": "pages/projects/pfp-engineering-specs.md",
-        "sha256": "dad8c097fa6cf008c6fa0fbfff9ab60f73ec575582c4141a1bd17077aff836b8",
+        "sha256": "a28e54c4c976c0d319da2e0d8d698e87943421fa5c159c1bcb9ac45e718fa9a7",
         "size": 4800
       },
       {
         "path": "pages/projects/platform-beta-plan.md",
-        "sha256": "23e20ff254d29b6dd20cfdd8dcf647a7a443576cc947ff13910724c477d9e2ed",
+        "sha256": "fb0abc5459a582e4d72ad302a31eaddc7d2b9294d588bd2d5ff5a36bfebc9f17",
         "size": 3847
       },
       {
         "path": "pages/projects/precompiles-plan.md",
-        "sha256": "374355af5492a63459cceb7cd5f483ade8e392b46fcbcdb99d3603e05697ea7d",
+        "sha256": "70725c03fd8f6ae98905cdbe6f979accdcd5876d88089063f1f801b35e4a2e7d",
         "size": 1121
       },
       {
         "path": "pages/projects/private-testnet-march-15.md",
-        "sha256": "7e9a167924e54001506f9a936b6e89a44cd59dec51d268bf1ee5bb8293a5949c",
+        "sha256": "5e792162788358fd73bfcf74c029641d8a3e9cdac9f47dd98a76e3987a5a5016",
         "size": 4878
       },
       {
         "path": "pages/projects/productionize-backend.md",
-        "sha256": "d5fb06ca021f90773597565e8a2491a85919942ebe7de367dae0510ecfea4936",
+        "sha256": "4794cb46538afab566b66726e75415fda7fd901b9aa5d7ac5bf3739d3215e3bd",
         "size": 3994
       },
       {
         "path": "pages/projects/project-nova-setup.md",
-        "sha256": "20d6eaabc2405dd40acf8f7335c5b0c67fe902e2ba03e308ad743a965042d941",
+        "sha256": "72ba4c7bb60b99dc2e5d4dac3522216e33996cac7e0ce89df97109da2d04a357",
         "size": 1109
       },
       {
         "path": "pages/projects/protocol-beta-mainnet.md",
-        "sha256": "708e2716dcd1ee387834e9fab274355f9598ff5ff6ff4b1a26909e471d17deae",
+        "sha256": "98773cfccb7ca951f70451ace5a6df453073fad726e4dff281cf415aa2cb43fb",
         "size": 4862
       },
       {
         "path": "pages/projects/protocol-periphery-sot.md",
-        "sha256": "019a5e8f4efd0494c25744dc3adb3f23509029011654c494e56904fa780b2f42",
+        "sha256": "d5d90ae612c77f5852ec7d3a1a81b9932785d45e4b4c1ddc7395d2d34f6bd4f1",
         "size": 3987
       },
       {
         "path": "pages/projects/protocol-rd-update-may-jul-2023.md",
-        "sha256": "745a8eaa013f631d7b71b606d0bc53cc3ca7de78f258874ddc05f8648493de15",
+        "sha256": "8369d474a6d941da02bf6e386f1e67170239f0bd76b65042e1ebe02a51671303",
         "size": 4360
       },
       {
         "path": "pages/projects/rcade-music-app.md",
-        "sha256": "05cdabffae3c60e6a9ec557c386d2dd47fd7b1a559a349737e9aeddd0f670a73",
+        "sha256": "976f84736524cb60b8b8153797190cda98ab6a932bf921221b557bd969818c25",
         "size": 1058
       },
       {
         "path": "pages/projects/record-seedphrase-during-signup-flow.md",
-        "sha256": "47ad95d731b8185ecd7017ab31db092de0bb690d35f6c6949ddab1da00fd8991",
+        "sha256": "e7ace0095d21cf9c4b5c3660413829d863e94949cc7de7e50f7fa643fc65686e",
         "size": 1220
       },
       {
         "path": "pages/projects/renaissance-public-testnet.md",
-        "sha256": "e4721440b50f6d94ef84b7f6b2feb6033d42bd0a8bdddfc0e392934fdcb5664b",
+        "sha256": "dc72b34a2eee29c56dfe72aac4e03e397ae34db0df6e7bbb3987ffa0d65f6a68",
         "size": 3525
       },
       {
         "path": "pages/projects/replace-feedback-form-api.md",
-        "sha256": "58348f558c0817e1c2e8158db50145fc94b4322ea8972ddb977694858adc80dc",
+        "sha256": "cb26a8ecffb01bc79f26e077d5f70a8aec43ab835a9f9d94b247df210b59dcba",
         "size": 1192
       },
       {
         "path": "pages/projects/reputation-attestation-module.md",
-        "sha256": "681e3dee6fcbca2237369b468da0f72dd1dbfe8149f9e5802ca0b50fb8e470cd",
+        "sha256": "6f9f1b655de6f1004c5acce234816f5f9191f3d98c4f5b882a9d04f35cbca26a",
         "size": 1292
       },
       {
         "path": "pages/projects/sdk-designs.md",
-        "sha256": "00d0d6711c3ede9ce27fb9b146c55707f5475a801b6637392757640f1aa7bed0",
+        "sha256": "87b412573b470045b8f3edf7b6694f8bc7383289cb2c6e2beaaa889d24f4012c",
         "size": 1430
       },
       {
         "path": "pages/projects/sp-tokenomics-blast.md",
-        "sha256": "017902b5256c20a8c93b58c71e159b3789db89f321325342a341890681c97588",
+        "sha256": "6246d9cf4f263f43cc7b076b705c89272b005b9fbcc8d47b123b568543bb144c",
         "size": 4829
       },
       {
         "path": "pages/projects/spam-detection-mechanism.md",
-        "sha256": "34eaaf726d06e98a3c9415b0e367c422834ecc11529c9454139a4fbf4e3ff068",
+        "sha256": "d7fa453e825c28a487d1d9bbe5558d3ba538889dc1a1d0132261cfcd2cd1b493",
         "size": 1411
       },
       {
         "path": "pages/projects/status-page-section.md",
-        "sha256": "951778437cdee06606f48892e2a5aa0edaf651897c1645914487468849cdebb5",
+        "sha256": "81d69d97a660dcbe7b20d62451df64a6c23629b7b065041fafd0d6101b3252ab",
         "size": 7071
       },
       {
         "path": "pages/projects/story-chain-chainlist-listing.md",
-        "sha256": "ddc231abca3f7f6ad0866a9197b204edf80fa673360a4de638aa9937f9906956",
+        "sha256": "73eb2f9c610f1cd514de1ebf69bda1e6f3fbde33e98eeeef90d896f96f510ccc",
         "size": 2410
       },
       {
         "path": "pages/projects/story-node-improvements.md",
-        "sha256": "e91d1efd2cc5e1e20323b60e5ddacec28add46b73f79b3f420c7458cf0aac2dc",
+        "sha256": "1fc743319a70a62c7d3f81d11bf1c74687970c07609a555ddb3e3cb81f389c0e",
         "size": 4128
       },
       {
         "path": "pages/projects/story-protocol-l1-launch-plan.md",
-        "sha256": "b27a482745471709a043a1fd7886c5c422940005dc5dc60012f9794fd492b3d3",
+        "sha256": "b763c75e446aa43d398120d50fbc004402e69614c1458e612667a1c7d996cb3b",
         "size": 12083
       },
       {
         "path": "pages/projects/stress-test-plan.md",
-        "sha256": "b2b6927e188db74e0301b7630661ede23bbb76eb290f1d66c9466461a615fee3",
+        "sha256": "03cdb60e6bfdd36cc80f07b01a7d4837bb3beec9b552b5bc861481e0b06ccd53",
         "size": 10431
       },
       {
         "path": "pages/projects/testnet-launch-checklist.md",
-        "sha256": "d43c388b51ea4d706c4e0dc246c8a27242885e6221e304c4f63378e9c3ed96da",
+        "sha256": "109f8b06fffb6cd81277b3e13cc88c8a306319047bef740afc1231b907899c3e",
         "size": 2926
       },
       {
         "path": "pages/projects/updating-mininet-to-main.md",
-        "sha256": "6b075561cc2a34425b53eaf233b0885bd637e33154a0c7f99ddabdc18f1d3943",
+        "sha256": "1caa2e0cd5f009bf443206708ed21d5af7768994c2a9404cd72c67f63bb47cbc",
         "size": 1211
       },
       {
         "path": "pages/projects/upwork-fiverr-i18n-translation-vetting.md",
-        "sha256": "d046ecfcd2741ab81ffc4d30d1e6c166f43ad4376ee4896dff4db9879393a681",
+        "sha256": "9474163f52f6a8a3db60b9a9aa0dc370b0174d9fa9af88916baab3ea55cda0e0",
         "size": 1547
       },
       {
         "path": "pages/projects/web2-partner-integration-solution.md",
-        "sha256": "e9dd876cc66543478d3170f294d7135a41408ca74ef50af601206d77cfc42fd0",
+        "sha256": "68c35822db84047e80244272f08b5d70a90f448c33ae844b9fda44070be47af9",
         "size": 3976
       },
       {
         "path": "pages/projects/web3-cross-chain-solution.md",
-        "sha256": "f7d806fcc82b91c341ba641584d3eb9a32ae583d86853410a532ad162fc173ef",
+        "sha256": "5f53261fdbaac9d0b59db39117bf2979f0fb3d168d4370235b63dd5f67e2f8c0",
         "size": 7611
       },
       {
         "path": "pages/projects/wf-metadata-design.md",
-        "sha256": "39f1d42c21f52d660d59c5948d6ba3e757a62c033cf352642abef69ccc8738eb",
+        "sha256": "037f412afef619bebbe91a332c385c9ed51ff9ba047b718e0d366fe553e5b62e",
         "size": 5261
       },
       {
         "path": "pages/projects/world-launch.md",
-        "sha256": "b448926002521d0078e2bcad412b798b34df88d01a0f8748e45f5417b19d46dd",
+        "sha256": "2b89f97a6cda4b0263b14c9ed36eb9a63ad8d46e7ad47932b2042400eff3dc0c",
         "size": 909
       },
       {
         "path": "pages/projects/wrapped-ip-erc20-permit.md",
-        "sha256": "6fb5be5284d4d2b28d172ed88a5ff488d582fbfdb4bae4c1c565543810fc3539",
+        "sha256": "542220bd4c20589eb78c380f1dc411c60c86176276e3d9b54375b95151da142b",
         "size": 2368
       },
       {
         "path": "pages/runbooks/15-plus-1-devnet-halo-config-files.md",
-        "sha256": "f6213d2f7ddc1bae7b6effd145bae854f7f6f24a8f995d0f0419f520d3019efc",
+        "sha256": "9ffb4533873dcdc9ae2436ab9c9f5fd594bcaaa15d0c2ed3924bda0eb92fda1b",
         "size": 2497
       },
       {
         "path": "pages/runbooks/blockscout-explorer-setup.md",
-        "sha256": "142447cc53610b2d83289864bab137b224cf3c3a991aa3c150d2815cdeba2d87",
+        "sha256": "6c8602b0c1c88569cedbc14e2b5b398d36c6249c182ce27fd49254c936a77730",
         "size": 5223
       },
       {
         "path": "pages/runbooks/cdn-management.md",
-        "sha256": "9a41823b807701d50cb75d8ad9806cc063c898d082a1c7d604b3fe63803c87f0",
+        "sha256": "4ba6cbc927d61f5f10d7dce27039fb9420eb3f32f6958fee079618adfbfbaaf2",
         "size": 4536
       },
       {
         "path": "pages/runbooks/configure-a-validator.md",
-        "sha256": "454b04bad67f70919a69835866f1a8be592674d61d9fd010a82663835ff74cbd",
+        "sha256": "3ac48c818d3ecf3ca07dd0f470ef8169e555e8fcc80be246157b4bda78b38a34",
         "size": 3408
       },
       {
         "path": "pages/runbooks/debugging-mint-and-register-ip-with-sig-revert.md",
-        "sha256": "efdc297751b96bfdeb6d2164d299282a39865edd21b2d35d13deb2238c93425a",
+        "sha256": "564fcfc8d0de2579c6668f9c891e487fb962fb3673f5cc427fdf8e01ecd5d590",
         "size": 4910
       },
       {
         "path": "pages/runbooks/deploy-and-config-monitoring-stack.md",
-        "sha256": "75cd9b14ccce97c738a5c65e44e1733b8206ecb252bfab732e7d482824f0c8bc",
+        "sha256": "e277b7a9c771105da475a9632b59c230f2c0392bd08faea07101b7d45fbd7389",
         "size": 5781
       },
       {
         "path": "pages/runbooks/devnet-homework-jun-17-21.md",
-        "sha256": "de1eac38e784b9f3b1f53f69ceb288b9e1b99340fd5fbc13aadc146e5d0a11ee",
+        "sha256": "1172842861a6b74f0eb177a185f97685e199efa1e8f13ce714a69be6a5af0a72",
         "size": 3620
       },
       {
         "path": "pages/runbooks/docker-ecr-login.md",
-        "sha256": "d3d17b7e8ceb0db832f39b6d3a5ac6405db3be35baf080566f488df7b902ffb9",
+        "sha256": "ba88e0a35801b5dd8d5e90bf184c9ec5ff5f0d7a3dad185156a09aba64a2e3a1",
         "size": 1616
       },
       {
         "path": "pages/runbooks/eu-protocol-procedures.md",
-        "sha256": "8a320275ee7d58e0290f3e7a166f413683740af210f9219f016ef62877bd5ccb",
+        "sha256": "8506ff8f6fc857cbc0f90ff64d8e9eb47cdafb324d889bda3f9f74cb2a6b2a52",
         "size": 3640
       },
       {
         "path": "pages/runbooks/explorer-docker-cleanup-cronjob.md",
-        "sha256": "db029ebbc301b669be68f04287fdd5c3fdfbc2180b3b0ad5facf11ee0c890fc4",
+        "sha256": "0d64616300ef482f3de93593b0f23f7da3ee135cf12e31ca7c093a44526c0d13",
         "size": 3005
       },
       {
         "path": "pages/runbooks/faucet-app-runbook.md",
-        "sha256": "ed8760368e7aea77a0d33cb4c8186a6df361eba33d71da12d017e3b2a20c3ad3",
+        "sha256": "cd3c01556860dbf7f28ee1f36f97c8d13d944d4826f4fbb9e68ec13e02671660",
         "size": 3599
       },
       {
         "path": "pages/runbooks/gcp-internal-l1-testnet-setup.md",
-        "sha256": "aafab6b79066036eb46b78d8feabf6ade7fde84d54a3854cbb8e210c13c1b0fe",
+        "sha256": "1db82297ef0699c37de93ed809e0b2ef11dee240613375c1cd812f510eabc6c1",
         "size": 1296
       },
       {
         "path": "pages/runbooks/gcp-node-setup.md",
-        "sha256": "fae2098220d5f40e6809e2e77ac0d91ae27e83a8610bd7d22addee5f3c96f06a",
+        "sha256": "c80dbc91169e85454ac742bd22073ca11cbe9c0dbfc712bf3561a3c99f7ce896",
         "size": 8481
       },
       {
         "path": "pages/runbooks/how-to-handle-smart-contract-update.md",
-        "sha256": "286c161a9da18220b1399871159e088efafe6de7ebaf73e8d6ea7b223bc49a1f",
+        "sha256": "381fb80fecdb86c03c73268101ba15963d90872090a690c36189ce51a021ace1",
         "size": 1395
       },
       {
         "path": "pages/runbooks/incident-2023-03-16-prod-cluster-down-argocd-misconfig.md",
-        "sha256": "d1c4f4f54625af861b953252cf3dbd09d3da121fa58b9afba4ff3b233822d236",
+        "sha256": "125ea08afc41a31782246685c30a2b44148f7790db1320a3775ea4e0a2a106f4",
         "size": 5237
       },
       {
         "path": "pages/runbooks/list-ip-asset-api-outage-postmortem-may-2024.md",
-        "sha256": "ef8dbb4858368e403bab447fcdcf1237453b36856f12863f43a8831a14f1468e",
+        "sha256": "63e12ee7e7a52b82b4484ce5f117c17eb34aa4d44483b4384664b4815aeb4b1f",
         "size": 5189
       },
       {
         "path": "pages/runbooks/network-rolling-upgrade.md",
-        "sha256": "c9d502873333682cbc1c3883ad95ffbda36c70e924f4582122d56651e1488d4b",
+        "sha256": "4391f56af86cef9fad79985b4eab0e898cedb82da41329f0317244897395cef7",
         "size": 1372
       },
       {
         "path": "pages/runbooks/node-recovery-process.md",
-        "sha256": "087fbd3444b40f2017d51383649f81848dcad424ced37f6aba586d947bfa720f",
+        "sha256": "2d77986dd78a017e9f954551557749879c45581f8509c8f501ead85ba85418fa",
         "size": 6068
       },
       {
         "path": "pages/runbooks/odyssey-testnet-ssh-access.md",
-        "sha256": "72b85c68b62b3ac77f4329676611fedd58389e7fcdb681f4f1132ea54cfe7cdc",
+        "sha256": "4702f5bc17d88ec7d94183b5e1ed8e443ad1492d44c07a77e055e18d16108499",
         "size": 2897
       },
       {
         "path": "pages/runbooks/official-release-guide.md",
-        "sha256": "349c75ca8203388310bdc5c375b18be5ba5d9a9406b76ea4fdef6f0bb3a388bf",
+        "sha256": "3dc891e71473566e20ea06cf70f4ae704cc69c51b4c188b7313b833ca63f30ad",
         "size": 3344
       },
       {
         "path": "pages/runbooks/periphery-new-release-runbook.md",
-        "sha256": "fa369d4aa1340cf8b219394e76821bce07b9bf5078918df9fb0a3b7e8745c70a",
+        "sha256": "fa7ac793cf31cde641170ca10e4ab8964428391b4f5197a9447a921c3e0e2ef8",
         "size": 5434
       },
       {
         "path": "pages/runbooks/rds-backup-and-recovery-runbook.md",
-        "sha256": "65252360494194dcf0c59ded3084bfc6ada23ae4bb24626b21b7ab81195a82cc",
+        "sha256": "2f3a0b02767fac5e079f851de2a964434234f703ff5d2b3bd0f72cb724d139c4",
         "size": 2863
       },
       {
         "path": "pages/runbooks/runbook-maintain-and-recover-aws-eks.md",
-        "sha256": "4d6c4c099e01d768429e2c193c341b551783ed4322a6ded426c56e0faaf6b2f5",
+        "sha256": "eb96e73dab3b91115d0d11ca6e8b48499732a047614d71cc691f98828aee6994",
         "size": 1280
       },
       {
         "path": "pages/runbooks/runbook-node-storage-low.md",
-        "sha256": "b9d9f08f711a1a3e12aba4163bb4c44b460f963e724605751d90189a3df7b476",
+        "sha256": "f2c95d12bd2795d5cd950372dd93fb96d9399f99aa867cd809709d769da740a7",
         "size": 3043
       },
       {
         "path": "pages/runbooks/running-a-node.md",
-        "sha256": "79ca2b08394043072c132e4c800b536535ad473402384b2c84bc67fe2f14b208",
+        "sha256": "9bfd734eec74ecde8153101d83504c183a8c3064b85b58b9ef481e76bcabb136",
         "size": 4260
       },
       {
         "path": "pages/runbooks/story-node-setup-guide.md",
-        "sha256": "f492630a473495e84c4ab57d5fac3062e069fc4b78aeeb08e6275babf3f9952f",
+        "sha256": "fe475ea6839dcda953ff0ad053043c5ebccacd04f4d8333cc6129a931e7b1308",
         "size": 1225
       },
       {
         "path": "pages/runbooks/track-nft-purchases-ethereum.md",
-        "sha256": "c1593f782aa6bd2d66cb239d497f64c7c98edc370521b5abdfa12d960e93580a",
+        "sha256": "24baadd462c91f9a66de27de7d2e998ac1ec49a639c687692de901080ee16766",
         "size": 3685
       },
       {
         "path": "pages/runbooks/typescript-sdk-setup.md",
-        "sha256": "11484f7a695c4bcaaa211d113f2967d571774cc714f0df2c8dd7b043327f2779",
+        "sha256": "a635bc8d24ccc1cd5eddc146b89a66deb673512d29062b4d92cdcc4a06a8471d",
         "size": 1126
       },
       {
         "path": "pages/runbooks/upgrade-geth-0-9-2-to-0-9-3.md",
-        "sha256": "b018d5599d59c6dc3ddc006f45d63e21749a38070cadec18900d7d0ac6d52be0",
+        "sha256": "702351340a9f29f6b8b2c7d5e603d4b2fd211db6131bf5cbdf59f3a8de1ddbf2",
         "size": 3752
       },
       {
         "path": "pages/runbooks/velia-node-provisioning-prerequisites.md",
-        "sha256": "3666e6ff74a8570c2c85143d9de0b524613a80b34950b8d546d6ac00ca019d15",
+        "sha256": "570b590827e325b8ad5046129a7d76d7f694c1b8d6aa9f2837abe98591a47327",
         "size": 3701
       },
       {
         "path": "pages/systems/admin-api-security-architecture.md",
-        "sha256": "cd1da0a4827ee8d168cb8111a08c95579ff104873a91d21362fd37b731ae89b0",
+        "sha256": "e2137a1ea7a5e6a7706e226bfb7e669436c73fc83cc9222f46c1a52cda109818",
         "size": 4492
       },
       {
         "path": "pages/systems/back-end-designs.md",
-        "sha256": "f9d7547bf83dd4c233e62019fcfff45e3ef4f8811948dd78a6c2a86e9c870f59",
+        "sha256": "4ad07d9759632134395dd5fc88fabe110be6b66005a933655e77c557f0f69229",
         "size": 1540
       },
       {
         "path": "pages/systems/balancer-v2-access-control.md",
-        "sha256": "87f28b29eacdbee7b22916dfbe41cd874d80ed58aaf45b73a79420cbff8af01d",
+        "sha256": "b3b51f82a9d9f72a3ba281e610c7a9303bdd2ffc9cc21f6f8deaedd8674a0f85",
         "size": 1181
       },
       {
         "path": "pages/systems/calendar.md",
-        "sha256": "ed956d132a00dfc7dbfa46efca59e83aef7985d39db223811dd8494527d39604",
+        "sha256": "e172c9d8d978ad40c4fd950c3c62514fd89591dc6cdd83ac879c4690dfc0f824",
         "size": 1050
       },
       {
         "path": "pages/systems/cicd-design-and-implementation.md",
-        "sha256": "ee91fd0f330e3f063dcabc478fc2b9c23b1999fdaf881e0863f6190607ba7f82",
+        "sha256": "d6b71c40e10ed8db57db7249c41c97def9b467f51823fd9af7a695ae2085e4f5",
         "size": 6097
       },
       {
         "path": "pages/systems/consensus-labelling-mechanism.md",
-        "sha256": "974ed87a722675eae881b08551d05a853ef8514f56e1c9bd2fa660f0681eb3a3",
+        "sha256": "5a4be819b5571fa991b62c172998cc470b3b4c3bf68c39b8e745a7fbaad71fd5",
         "size": 1170
       },
       {
         "path": "pages/systems/core-sdk.md",
-        "sha256": "217d382d70a1c589ccea1b2514ed808d1168137736611714a05002bcaa551093",
+        "sha256": "d316266ef87b0c94542266ecda5154511458cda622e913e8260cab74ae17b886",
         "size": 2819
       },
       {
         "path": "pages/systems/engineering-home.md",
-        "sha256": "33e80d75fcc279d7f9a931ce315d507b98ed19971007e9e63f7b04b9e61a672a",
+        "sha256": "24da97e95ffbea808450cba348264d6254d27c6f823e9aaf56e8be9dbeeddec2",
         "size": 2127
       },
       {
         "path": "pages/systems/event-indexing-workflow.md",
-        "sha256": "6025485295b98b1d88f7456ff7937198552703686a68d20a41ca29e895572d66",
+        "sha256": "fb207167b3b648ce62905eb9a957a2fb5aeb4590260bb23697c8a0f8c1322704",
         "size": 1319
       },
       {
         "path": "pages/systems/external-services-tracking.md",
-        "sha256": "4b8df99635190cf83bc63b90b81ef89bb42fa06ae67f2a7495cc010d5fb9abc2",
+        "sha256": "f65198dc44d302f8eab1329ab365155a6c4cf4c7789323f96d244370748961dd",
         "size": 1216
       },
       {
         "path": "pages/systems/file-upload-api.md",
-        "sha256": "c5979f880c232c6e7428828c3d136bf73e7dc37f54c5c9eeab0f7adfa481a7a2",
+        "sha256": "73497371e69891f2b3b28310776dc29881240c21e83f6c9aafce919f1282411d",
         "size": 3060
       },
       {
         "path": "pages/systems/go-swagger-story-api.md",
-        "sha256": "2a797c929c95e614ed30f0a9f5b6e7e79948f9cbbb6bfe3df291bb62fdfd258a",
+        "sha256": "4cf68d8e1a0003bbdc839684fb01ed710b886a77e67150c780203c6e74c18407",
         "size": 1301
       },
       {
         "path": "pages/systems/group-ipa.md",
-        "sha256": "27352d555afee472f579e42213fa75c932df2d64a2b7d3d5720056d7622a6fa9",
+        "sha256": "e38110ac103f59ae5a7cd8d30837ce35ffd7614b99c5e77a29e58116bb27f99a",
         "size": 3337
       },
       {
         "path": "pages/systems/halo-configuration.md",
-        "sha256": "8f1d2e4e6e94f9cc14a08c93f5a59887d1c998223ef381e861d5157ef9ed6e52",
+        "sha256": "ba1fc9565ad3d516771b7a37c18407826deaa3ffa3512eb193f7ba6b74f7df3f",
         "size": 8514
       },
       {
         "path": "pages/systems/ip-graph-api.md",
-        "sha256": "7bd3a6bda886a15f7cb91dff0ed83736c2dd84ce10927084b74532990999fd29",
+        "sha256": "1c660ad193ab335e283d00763ed37d79f241b1ad4c08851f5ddcd441a8ec1bdd",
         "size": 4630
       },
       {
         "path": "pages/systems/l1-design-doc.md",
-        "sha256": "59d63e59133f20b4e58ea3c39bc91e2f78229b3e71706bf7699b40755542fd64",
+        "sha256": "3bc89edb9cb1230deff42649f86ea2554f403972174053f8e9c6a516e258035e",
         "size": 1804
       },
       {
         "path": "pages/systems/legal-database.md",
-        "sha256": "7d0671c7c129f2e1f7c91ae2cdecd06697e9f76c0adcece894bba9c6784731fd",
+        "sha256": "cd31194f98f9828d711e5b6ba552adb2758003bfd302d9ca26532c651b14b058",
         "size": 1102
       },
       {
         "path": "pages/systems/monitoring-and-dashboard.md",
-        "sha256": "020a2652582a44eafd7e6959efe4cd73dc8b572c24dc0822333e8c473a57633c",
+        "sha256": "2de47ae430d4f8c20b301d298fabd9dc552e4297525378aa4cd748e347f7b70b",
         "size": 3036
       },
       {
         "path": "pages/systems/new-product-intake.md",
-        "sha256": "bb8c04b26350bd5fbd98ee7e69ce0fee8bcd235e8ab7fc90bd2433a8be131668",
+        "sha256": "2fdcbc8c8c4d0fddbaca724fb418ae92e44f67e62b18ca9d6de71fae4179db56",
         "size": 1093
       },
       {
         "path": "pages/systems/nft-metadata-reveal.md",
-        "sha256": "1ef12e5f18cd1a63b3bdfda90519567c7983ac72895764ba8767e790d5babb95",
+        "sha256": "4a895987668ad8c9051b8c9415aee3dbae7220a65c8ea70a0809ef38102754d6",
         "size": 4007
       },
       {
         "path": "pages/systems/numo-product-backlog.md",
-        "sha256": "9121bc8785a88a5833ce207d151c3e126a05944948acff35f9b0c2a438850d8d",
+        "sha256": "968b9abb43c6e55543f1e83ea58ab265344525f4ffbd6df1e9a092e4457107cf",
         "size": 1109
       },
       {
         "path": "pages/systems/polygon-token-oracle-backend.md",
-        "sha256": "6e78921d515611345da677c27fb175ac88bcff8fa7cd58b89cdcd134d3f3a992",
+        "sha256": "83718fc1d4c010695fc0825ed6004816d3ad5f9bc9b8392a563bc77c23684cfd",
         "size": 2631
       },
       {
         "path": "pages/systems/projects-database.md",
-        "sha256": "40f2560cb9382914b6cfd04ed3d028aa05e5b64cbd5c8ea16dff64359f8cd772",
+        "sha256": "d1907bf97dab6d42c7a0d2072ccf0e6c4e528d886d5c677b96b52280cf0bfa78",
         "size": 1112
       },
       {
         "path": "pages/systems/protocol-api-specs.md",
-        "sha256": "817897cd3e29c6ca0c252ec531ea74543214e319524e58091c2c11143452efc3",
+        "sha256": "808ec9e19deca02d0738072f0537537a2150b30dc4ca720d37edc3b2e8570c85",
         "size": 8518
       },
       {
         "path": "pages/systems/protocol-v1-2-ga-release.md",
-        "sha256": "b8fb9f0220032b6ae36675ceb031e94eff12a836878a64ac6ac1792a28ff971f",
+        "sha256": "ae3c23844ba52c32cfafd31c9a496d8453ad24ec2f1f388106b4b8f720b6c725",
         "size": 5826
       },
       {
         "path": "pages/systems/sdk-v1-3-contract-structure.md",
-        "sha256": "fd0a0e907fd0b5b8acce615b9c454511db3b00cd0f55f714055473c6616a84e4",
+        "sha256": "6a2728da285072daff3275eeab5bd4a1708af0f97dfe56935b9a824a161ff89c",
         "size": 3173
       },
       {
         "path": "pages/systems/story-protocol-orchestrator-gateway.md",
-        "sha256": "0ce3a08f3c4ee85ee682fe7fc972397921f3018fcc2a470bca0459569b1b13e1",
+        "sha256": "7ebadaaee46fd1b2f710c024ba8bd68db004d137d9651ed3f8d8762e9e7da81e",
         "size": 3026
       },
       {
         "path": "pages/systems/tmkms.md",
-        "sha256": "3ffb525b953c30effdc5d68248f7717c2fedda8fa7f39b95f7d029f9767acd52",
+        "sha256": "6001f868c157137aaf3aaaa7dced56102d50d16cccdce109cf241868ba218387",
         "size": 4668
       },
       {
         "path": "pages/systems/token-distribution-database.md",
-        "sha256": "ee29e699bdb683f05511d5e84f3340790aad8346379a5f7f55a73b23053f62ad",
+        "sha256": "d19ace67bc2f89e7cfd767fe42423d32d5cc83da94ef714c37bfd54e5d6f94b4",
         "size": 1206
       },
       {
         "path": "pages/systems/twitter-oracle-backend-server.md",
-        "sha256": "27af51efc986773842a3b98f76dd9da337ecdfe7d26d09a7152deacacb47a63d",
+        "sha256": "605a9d3c487283d4388e8de2dd59e9fc2617a59766754d4078bc5d982446a1e4",
         "size": 5053
       },
       {
         "path": "pages/systems/uma-oracle.md",
-        "sha256": "f4e9211a033a979e7179654f34d5d8ba38ca9bf62f169e6b18685c5225e1018f",
+        "sha256": "0b6cc7eb195365bb7fa4ecea8eebb6616dcb8787a9e4f8cba48ae1dc79905710",
         "size": 4582
       },
       {
         "path": "pages/systems/untitled-database-129051299a548040a4d9e22a8cd01435.md",
-        "sha256": "e1479859167670f0dbc2b8b90d572d21c31eef98f067099920dbd5dd506287a5",
+        "sha256": "0bfc48d79cfe18e8633cad97373a88a6ffa5fdccecc4b4eb44155d6944fddaeb",
         "size": 1192
       },
       {
         "path": "pages/systems/upload-system.md",
-        "sha256": "26d2530e2c92acb0cb89dabf87d680fc1425af8a7b1e3c69e81b234a3a7b62c1",
+        "sha256": "3a2b31c93c32a138724f3dec534dfa2f432fc80b775065953eb1a4a022671a1b",
         "size": 3182
       }
     ]
@@ -4369,7 +4369,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T01:33:20Z",
+  "exported_at": "2026-05-07T01:39:35Z",
   "file_count": 872,
   "files": [
     {
@@ -7207,7 +7207,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fdf64db9b7d",
-  "previous_tree_hash": "5b8e21df55ab6ed25a5c31239c52178d64c6b3a75499bd307f7cc33863eb2ae6",
+  "previous_tree_hash": "1a0ef73ce50fb47463f9f3da7bdcbd75d127e257b063ca947ba29884552e9922",
   "schema_version": 1,
   "skill_file_count": 566,
   "skill_manage_sessions": [
@@ -7220,7 +7220,7 @@
   ],
   "skill_tree_hash": "747c829d25d8a027bacd325f73e55e23510516f56f9abbb9b207998dc8f1fd28",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1a0ef73ce50fb47463f9f3da7bdcbd75d127e257b063ca947ba29884552e9922",
+  "tree_hash": "7b04705e602fbdb3a8d2e4627490e0ffff7ffe6b67f9184c2046230f73b10b5d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -7241,267 +7241,267 @@
     },
     {
       "path": "log.md",
-      "sha256": "0faa2a6b8f52641f111cf79cbdd53019e6b91beb12772a23f3b842be0eac838c",
-      "size": 781888
+      "sha256": "50d8090a7b6f3ea323f3ff69e86b1a0fc8a21ded59b2b301fe91632433f71fa5",
+      "size": 896230
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
-      "sha256": "019a745692675137fbefa1f85b2dde48bd54253ec84f22fed75f9465f9748717",
+      "sha256": "69e6a45abd17b8bfd0febe293c9cced3afb35f6798a65ac7a97a3ebb7f7a5fe3",
       "size": 6422
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
-      "sha256": "f20f068a0ce630e082f0a0c60bfaa46e4f02ca3ea8a8423250ad54a6886b68eb",
+      "sha256": "e071141f446943e9bbe94472c96e99d6444fe5eeabac7b14bc4a8dbbbd5d1a88",
       "size": 2320
     },
     {
       "path": "pages/concepts/bridge-partners.md",
-      "sha256": "2af8becdc4ec65971a555e0d9cf0e0e3d994dbb686cdee8f5e4c1f7885957819",
+      "sha256": "5eaa6510bbf066d6cd5b7528a6d0d8dee17297907b4924eeb30a87edef5a5645",
       "size": 3900
     },
     {
       "path": "pages/concepts/bridging-evaluation.md",
-      "sha256": "d08187ab62fd179850ce5fd81cdcfc3931c36a57c188a218fd0d6f027725f147",
+      "sha256": "8ab39963cd3f963fc3ef4f06ad18a9d40861ff4cc726d2b5f6689ffd926d9e7d",
       "size": 2016
     },
     {
       "path": "pages/concepts/c2pa-account-innovation.md",
-      "sha256": "a3c30a4dc29bb9e07618dc0a1a0187beef260e67a8bea27622feed185d6d82bb",
+      "sha256": "1daa90acbedc64f74e59bbc3ea4d922a1e10de4f5d6cff4ecf61e720f21796b3",
       "size": 1287
     },
     {
       "path": "pages/concepts/carousel-data-shape.md",
-      "sha256": "a695d8125e084c67c7a31c8fb49e6049a05fa6a9da00e95e150672636151eb2f",
+      "sha256": "94db66bff6679f6b6e6d726a1e29451628ce29bed0e21ad965e537ace8971c88",
       "size": 1410
     },
     {
       "path": "pages/concepts/cli-design.md",
-      "sha256": "01525881fcd2aafc4197bbcea5718a2ca67c5beaf3257e78d727f0eb8dafb8fd",
+      "sha256": "170cf87dab2d5cb052df4e8bc2a9c81ad4e05ed5dbbd1f6cab735239584209ce",
       "size": 1036
     },
     {
       "path": "pages/concepts/coming-soon-placeholder-tasks.md",
-      "sha256": "c1d8e73099e443c9656dd8270dd70b95a5b759b8823001ecea8170a00b69c4a2",
+      "sha256": "9e8249101edf4328ffe9136736711d423694f7c3c959dac0f10d867be092ef8b",
       "size": 1065
     },
     {
       "path": "pages/concepts/consensus-mechanism-research.md",
-      "sha256": "e0482125cbb37a83a4bcf4f6d25db33c4b8c9c858f4abd3eb778b2232ca4cfc7",
+      "sha256": "41467c640e21ee149e24937e6b654129e561e6d7379df5e2a26207d1b20afe4b",
       "size": 2897
     },
     {
       "path": "pages/concepts/content-references.md",
-      "sha256": "015b037de8cddd285f8314e445d2f59d8fd38718f23042d2bae8d27b2e43148b",
+      "sha256": "08b6345eba8a2ce256086f937d86752336ad3bda9f3bbe671b693c8ee09859a7",
       "size": 4891
     },
     {
       "path": "pages/concepts/core-sdk-requests.md",
-      "sha256": "fb90826163ba5bc7749a5fec7da8acc1ccc2e1b3c52bccf595d42a7d4f59c670",
+      "sha256": "0e9fb881e8c48879aa79d691634bb9251902ea3b90679405a7c9725d63e96b28",
       "size": 1278
     },
     {
       "path": "pages/concepts/cross-chain-interactions.md",
-      "sha256": "81e2193822319b195c372d87bebf1a3d439c020126061f63ca09994e4bf59d25",
+      "sha256": "d0761007f325abd33e7e179da5fd3fefe0830d6f91dae2e0b6f5d36b51d2e767",
       "size": 5888
     },
     {
       "path": "pages/concepts/derivative-additional-revenue-share-multiple-parents.md",
-      "sha256": "c91eba2f9b70f39b89d4bef082b29179e9f4f0e7ab20ae2ba4bd484fa3e99875",
+      "sha256": "855223b4cb0780e224f7989848c69e4d831267780a5a848a7bb701123f0a1504",
       "size": 3805
     },
     {
       "path": "pages/concepts/dev-resources.md",
-      "sha256": "b90ab48e4eeceb821d3f400957a3930c1cd422e90024d3c44d273cea7b6acd54",
+      "sha256": "0ab5697bca39d344a8a59c350a1520e3e6fbae0bb3036e19add2f249a27b8196",
       "size": 2298
     },
     {
       "path": "pages/concepts/devex.md",
-      "sha256": "ea8b5c45a118c5ced76eb3e5d8d54524be7d51f2cb503f713f24b4c2d9c8b8fb",
+      "sha256": "1b0668077bf6a0607090c2116c4142f40677f219f563f75eba5b6597cbfd10b9",
       "size": 1283
     },
     {
       "path": "pages/concepts/dutch-auction-minting.md",
-      "sha256": "a7362c0a5b381a3006de17b51e4beb63d31ba765354fec5259178a75efb2fc4d",
+      "sha256": "aea775b27ff1eeb83f4363e41e32d6f2165b1c6bac50b91bcea86746d38b8a27",
       "size": 1388
     },
     {
       "path": "pages/concepts/ecosystem-growth-strategy.md",
-      "sha256": "31f9f970bc0b4fd7abdf63ae31872f69ef6d99e7a2fafe7f402e2e9097d30083",
+      "sha256": "f52dcd19e0e8a28fef930f5452048f399fda779aee3043526225343200d532f6",
       "size": 3859
     },
     {
       "path": "pages/concepts/eigen-token.md",
-      "sha256": "0ab44ef735962c6e99d948b8106e5815f37494fc3a71dee879758afb4d11e08f",
+      "sha256": "d8675a0f57ebaf16b252832a3d172bbda6314899c73f36ee9f1e66ed24ddd064",
       "size": 3908
     },
     {
       "path": "pages/concepts/enshrined-protocol.md",
-      "sha256": "48ec3bbb2dc70b024dbdf0367d92a1a0c5921f99c552dbe417b21c5d02c1945f",
+      "sha256": "b1712c658ba83150c6b1cb1fe4c0c76dc56f418541cfcc00e461389381cdea46",
       "size": 1520
     },
     {
       "path": "pages/concepts/epoched-staking.md",
-      "sha256": "6f5cb212fff8a9b0c84bda242c308da40d2af0a1effe8d19ab2ef7632e2e8bbc",
+      "sha256": "5db7c214d4ac11297b08b4705788a504cd5445e3bd4c6db09b008d0ede8511c1",
       "size": 5376
     },
     {
       "path": "pages/concepts/ethereum-improvement-proposal-process.md",
-      "sha256": "868b398de8326c076e45efce6e8c108877f208f6aeb6fddc36fce9d9bc27c3b7",
+      "sha256": "3ebc633025f5d131082b0e0f3939879d15cd6762dd1538112cf9195d8a52bc20",
       "size": 3140
     },
     {
       "path": "pages/concepts/etherscan-custom-error-handling-limitation.md",
-      "sha256": "77840cb8980531e9e0a5472349d53260978e423d48fe19f2db380d42ba090b6d",
+      "sha256": "f66ae8a1ac5c244fd7a0c015cb82393ef18db1563b6b69d8ebc1f3357737607f",
       "size": 2244
     },
     {
       "path": "pages/concepts/explorer-use-case.md",
-      "sha256": "73022b63a759659fd2e75bef6bb2a091bc8d456903552e0db4c60580db48e02d",
+      "sha256": "7f8f6b052ecf8bbd336e7deaa1a1dafe5963208b72cb65a7dbbb7657c11b9b90",
       "size": 6848
     },
     {
       "path": "pages/concepts/farming-mitigation.md",
-      "sha256": "98befb0319d9ec263ac358aff4f1b6f8cc59cd440f8cab20a8c935808fbe851e",
+      "sha256": "b0689d83a50686b57c7fd93ab10cfd99b089f3be60d1f6052b9a4fb1fa0d38ef",
       "size": 1138
     },
     {
       "path": "pages/concepts/frontend-periphery-contracts.md",
-      "sha256": "16fc4cc971888939b5060d998db289c06e0a1f9d61aff41ab54710b416f7d103",
+      "sha256": "7987c840d6d8511a75b7055157b93cfca17251c771b92c599374e5509a12e8a4",
       "size": 5253
     },
     {
       "path": "pages/concepts/frontend.md",
-      "sha256": "eb2d4f07aff92c242750004bc48862c2e05258c82cfaacb26f213dfc40e10552",
+      "sha256": "818e0e097e2de12c0ab50f518b48b72601974da9de00a0ef99f455ad2bccc471",
       "size": 1255
     },
     {
       "path": "pages/concepts/gas-estimations.md",
-      "sha256": "1488dcc21f75f3fad224df8db44a56cb72fc73ad8c1be56f6a604a4fd4373ad6",
+      "sha256": "0cac0b96587ad798b9e96cd88111925cb4f8486282de34e1b4a1b703ce218f3d",
       "size": 6026
     },
     {
       "path": "pages/concepts/gas-optimization-research.md",
-      "sha256": "8f516a85a4b3a3cdbb5e674ebc7908f709bc42023fc33da3039b7c2c52736af5",
+      "sha256": "91de57a4c993d9acc2be0493d974c934dd879aee7978bd726add23fead008567",
       "size": 3680
     },
     {
       "path": "pages/concepts/gas-optimizations.md",
-      "sha256": "2af3656239d429f7db6540f0fa27714d6be923931ffeaedcf08d03eba49a723c",
+      "sha256": "a665fedca50fe95414fce7cd8469744b0243fbf1673db7e0c3c128a76257d377",
       "size": 1294
     },
     {
       "path": "pages/concepts/github-handlers-directory.md",
-      "sha256": "0ba8f783f246a052c38cad8bdcdc31787509878064a95e0ed61b2f629c755fa4",
+      "sha256": "aeba0cbb1034dee237321f4b95d26891f26314231b4c0955c7af189bd923a5da",
       "size": 3990
     },
     {
       "path": "pages/concepts/global-ip-assets.md",
-      "sha256": "0a913fa5b0711aa39f3cbc73b6f735a87241b2bb013dca0af3416751a70c511e",
+      "sha256": "95a08ce9385dfefbffb1019598407ded0327aa70dca92c287a8cea14f26664ee",
       "size": 1258
     },
     {
       "path": "pages/concepts/governance-risks-and-mitigations.md",
-      "sha256": "45c8c29cc8a3cdf846221aa07ab393685e9319edfcde815d3494443b966fe58a",
+      "sha256": "afd504a733c1351a9cf02f19d48a47c9ed6f0a90c0c85f2c5215f6d9e4611ee0",
       "size": 7351
     },
     {
       "path": "pages/concepts/graphql-vs-rest-api.md",
-      "sha256": "e79608c28f93bee8710daae8048026af57cd758396d3eedbcb5b4f498c06b58b",
+      "sha256": "75b3fdd0d8b4f1ef717fcb9fe12d5d0f8d11aa7c9f30bb618883d845f06f0aad",
       "size": 1190
     },
     {
       "path": "pages/concepts/iliad-code-walkthrough.md",
-      "sha256": "1d288152141728a0de0dacbb632c6c73d0ccc9dc46a9cf39d43e4ac09cda6b89",
+      "sha256": "ebc7455e5ce459403097af5dc0927802382f7fb6deafaaef8c3271ff9967e5bf",
       "size": 4314
     },
     {
       "path": "pages/concepts/image-resizing-solution.md",
-      "sha256": "7af0b9f26187d82ec24d5b794136c1d2e26cad1809bb30b9209d37ce591e6abc",
+      "sha256": "e5e8bb4b2cbf35120217d842f26d2098aa8e3205fdf44dde7178c0058b54c91e",
       "size": 1950
     },
     {
       "path": "pages/concepts/interops-research-hub.md",
-      "sha256": "cfe3aa6c3cd1aa21dee79d92d28b03e24974eeaa584e34f72a5d6ae8bdec2f47",
+      "sha256": "a34aeb5c813e84a043d31e9b52ee226190d92a696d816460056313e7a966bbf6",
       "size": 4517
     },
     {
       "path": "pages/concepts/ip-account-centric-model.md",
-      "sha256": "4b1f1ce1ad47732305c399e614f72dbf4a8008468529b65a90350d1c90b01a27",
+      "sha256": "1b165b3b11ba1f73331be8511bb9368b2c4759d61273eafe588116d7e781c81d",
       "size": 7450
     },
     {
       "path": "pages/concepts/ip-graph-node-verification-merkle-tree.md",
-      "sha256": "af8242d5ae9889def47e8202abd2b8cc9577d1f75338430df331bcb7218af732",
+      "sha256": "830aacff632ed8d6dced1d747cbc62c71423643c73aa30b4e1d71eafcf21528c",
       "size": 1505
     },
     {
       "path": "pages/concepts/ip-graph-requirements.md",
-      "sha256": "d5b9149dd60d91f7ed2bc1a40b30a52ba7edaf7a9883be97106b57e9052a2b21",
+      "sha256": "74126f3c910923959f682f6087cc8dd43c2109105e7a1d688431a91c84e07d6d",
       "size": 4116
     },
     {
       "path": "pages/concepts/ip-oracle.md",
-      "sha256": "d9d5e408d2b9a54bd9e4a601c16bf91d2a1334807e5fd44696953cfbcee5b1e2",
+      "sha256": "63fdb3361823b879be1a5b2984ef8c426cca00621adb24d1ea1794ff306ebac3",
       "size": 1273
     },
     {
       "path": "pages/concepts/ip-stock-exchange.md",
-      "sha256": "8a16949f4182ebb25241083d72384c028ba754eeeae4ebac99d5c8961c1ec9f2",
+      "sha256": "ebeca03bbad81cbd0c876d1bd352b5aaac48d13b2940dacc06e49a115ec328fe",
       "size": 1150
     },
     {
       "path": "pages/concepts/ipa-book.md",
-      "sha256": "c3527a5d928cb1e9d08c17c7bc5390c27c3429e53b1c094a6180aa3d9b03b4ba",
+      "sha256": "125d0e867c4de17286d9eacf867afd77bbf94c4f7416d4811de2e4acc758149d",
       "size": 1229
     },
     {
       "path": "pages/concepts/ipa-expiration-design.md",
-      "sha256": "9e2d1859fb068bb9dbbaaa19cd8fff1baef38924d288fb022e6e4ce071730e00",
+      "sha256": "909783935a93819d2f0149ebcab7b28da830125a11055a56b66d9ba0ae25fa85",
       "size": 4049
     },
     {
       "path": "pages/concepts/ipaccount-centric-data-model.md",
-      "sha256": "e03ab8c60b8dae32cb0b62138874984fc3e9c28945e98cddd43bb7a843151d1b",
+      "sha256": "d5225da5615f81e7a9b94da774929cb3da709f34dc4b5eb92d3edb13abba1d8d",
       "size": 6834
     },
     {
       "path": "pages/concepts/l1-api-specifications.md",
-      "sha256": "e6085df97097ed2efe840a937e785e1998c66f981f12d6d5c753ae9cc40cec3a",
+      "sha256": "e1e1ff893145ee903c7f5d694299a5db11867ccb098952167e72910701f983c9",
       "size": 2274
     },
     {
       "path": "pages/concepts/l1-configs-and-metrics.md",
-      "sha256": "83eb558b75ddd2cc260fe554f4ce39947be4867e4edb7bc840f88f961e8bd060",
+      "sha256": "cc64535c8088485f1ca39a2b66a389a5da587bca64909c4809aecc15512ac478",
       "size": 1242
     },
     {
       "path": "pages/concepts/l1-features-services-brainstorming.md",
-      "sha256": "6dd1828d4bf3911bf4b7a2f490fe6e8868d0d37165a8361a71017cf658063cb4",
+      "sha256": "b806f1820968c3963ba442d5c585230c5abc44901b8da0dad5dad4df776bee21",
       "size": 1469
     },
     {
       "path": "pages/concepts/learning-center.md",
-      "sha256": "4389240d1c1b7ddf5997676c98e12bb863ce873cbbd812d22a125066a8640432",
+      "sha256": "56914bdf6a610721f45b6caf80d5efdcd9290ee28874dff6ddeb9afcf85a6eea",
       "size": 1328
     },
     {
       "path": "pages/concepts/license-nft.md",
-      "sha256": "177957e83cfade7ff448daa8e1e85f09fee4b4ff716367b9675d1cb26e68ad07",
+      "sha256": "87c5fde587aeae7a073dcb53fc9cd9e3ba937cd770f1c4c265dca337d6fadc0b",
       "size": 3119
     },
     {
       "path": "pages/concepts/licensing-module-design-considerations.md",
-      "sha256": "7252d1ff92f94bf358fdfe999bfa39d271aeb0aa95b6fdc5ccef32dba8c607af",
+      "sha256": "e7509da2eec2799702e55a6d1dba6d1a0909b939660b6521eabff7ce346a301a",
       "size": 7170
     },
     {
       "path": "pages/concepts/lowering-barrier-of-entry-for-creators.md",
-      "sha256": "a933b4b14b05cf6115f6eb6f0bbbf17d562be074c359feba3e5ca531da96536f",
+      "sha256": "705551ac715cdf707a4cff4b65205213d8b542ad902067d792e96bf8840418fa",
       "size": 4821
     },
     {
       "path": "pages/concepts/mainnet-api-data-model.md",
-      "sha256": "77d2f6b9c6b3b22293b348e7014c20cb130fb909deee960ac4a5f4a793d4bcc5",
+      "sha256": "f56bfbe6ccf7f757ab261035fdfc076eff221e98f3fbec7b216a2c2652f4d04f",
       "size": 2944
     },
     {
@@ -7516,202 +7516,202 @@
     },
     {
       "path": "pages/concepts/multi-parent-licensing.md",
-      "sha256": "e010d2f4e8fc077b0df30bae4ff56aca20de4240d283766b409c84b84a36d1bf",
+      "sha256": "bab8a21a74140bc259f45ee03383e79497e4ce30ca0a1c9376980908f38b79bd",
       "size": 4907
     },
     {
       "path": "pages/concepts/mutability-support.md",
-      "sha256": "1f14d2d9bd3b698cd6aa6fb18f029e5f6f6945ae30ad4928f2e870ffe683ed9d",
+      "sha256": "3dfc60a5973a81258ab217e01f8ac1bbecbbca23cfac44a80e55579b9d5a9fc3",
       "size": 3114
     },
     {
       "path": "pages/concepts/nft-launch-best-practices.md",
-      "sha256": "3597ae43534bdaabec9b87ff874b6747949d6fe7391f4c438f117cf95512c275",
+      "sha256": "9aeba089096e2552c50f9aad55b624d4367788d7246c2063142eadb823c3c3c6",
       "size": 4952
     },
     {
       "path": "pages/concepts/notion-page-299051299a5480f3890af1a1069deaf4.md",
-      "sha256": "c2613077b83c542217ba70ac58420dd85aac6365d1bf378227b613c880ab4bdc",
+      "sha256": "ab9a38332e3a42543f14a90000da0fcc2928f86da5c02c5ca63507efff39551c",
       "size": 1135
     },
     {
       "path": "pages/concepts/nouns-concept.md",
-      "sha256": "348ce18ae1d650c7d73570758cf91d626d6b5b0cee847c903aa918e3abaaa379",
+      "sha256": "16c426698507fbd5028f0549cd9c367d51db2e0bea7a7b57ff3ac74ffc93d18b",
       "size": 1165
     },
     {
       "path": "pages/concepts/nouns-policy-licensing.md",
-      "sha256": "3a35f8aa5c1d2fdea8bb490975e94cf4b835c19d88914159f6139e98d8c628b2",
+      "sha256": "65e1c8886de1525d655ff8d29cb30c867060c7948e0010e0c032ff8ce17cd88e",
       "size": 3519
     },
     {
       "path": "pages/concepts/opensea-conduit-delegation.md",
-      "sha256": "1c467d67475ce85b66da62800161dc928bc166cef9fc30ee89095d41fca6cdbc",
+      "sha256": "55e9e5cebdcae636afab5c6ca14296330487273dbe17e8b2f382e0e99f590b34",
       "size": 1243
     },
     {
       "path": "pages/concepts/package-frontend-story-telling-examples.md",
-      "sha256": "46b1f78218c812cede4a284048135ab3a4da0d271cd98f4577fbb182e3939cf8",
+      "sha256": "52f75c8af75ac679dac435639d64044d2a3a8cf2ecddd4e988f0b2018c42b374",
       "size": 1415
     },
     {
       "path": "pages/concepts/partner-integration.md",
-      "sha256": "7327d8b2007bfd6dd572d439d8728eaeb394e6cfedd8d7e7c1b50c723a2c8fec",
+      "sha256": "cd2110b988243e70650c2766eed7039ee8f88a59b344ddaed5994f54fede0bd3",
       "size": 1179
     },
     {
       "path": "pages/concepts/pil-derivative-commercial-rev-share-override.md",
-      "sha256": "d2e98c632020a119ee490548f8d1debdea61f6cc528e8f758f447d234915a88b",
+      "sha256": "f22a65018e5101ef42f05b05cb9c24797aaf403ebf23a37a7123697dcacd8fcb",
       "size": 2786
     },
     {
       "path": "pages/concepts/platform-api-a.md",
-      "sha256": "b44c4e9690e63917d94d4f19a396b1c1c8ce82a57af70325dd820a905481ed0d",
+      "sha256": "6c771442070077f3829cf776fcbebf7ff4deb9c6c9aae71314187136d0f0cb18",
       "size": 1152
     },
     {
       "path": "pages/concepts/post-submission-payout-clarity-dopamine-hit.md",
-      "sha256": "f7a60e7a74d2db3fdf1c66ff118b56d0227a5f091629382ed9caf4dd1d77bad8",
+      "sha256": "79d2ce9b8a6059108afa90f1e2919ee305a8a0db393835d6900082bb22edb73a",
       "size": 1215
     },
     {
       "path": "pages/concepts/ppl-protocol-support.md",
-      "sha256": "dc8513f93dfad71352f6539caeacd36112039ac58ba1343baa683d3ee51bcd50",
+      "sha256": "7a45a6dcb12e70120a17a31210a739bb0bd7bac6fe417439a07c6a2b24c89bd2",
       "size": 1120
     },
     {
       "path": "pages/concepts/precompile-code-examples.md",
-      "sha256": "72568e7ac0aacd7785a5656ba0faffa543f95e2c9b15d33f8f1e8d62e3b8b068",
+      "sha256": "e0ad3d02e5fc490336d9d52ad7141836df0da4f5a29cd67b1a32ae863a16253a",
       "size": 4752
     },
     {
       "path": "pages/concepts/priv-validator-state-json.md",
-      "sha256": "db8f5134f44fb724adc330e7e432aec3805408592f24e8eb254d30d2b0653aa2",
+      "sha256": "601ca4b5ab93842315919ed001c140c0fc0d85d8368917080d6e7c09b25d83be",
       "size": 1298
     },
     {
       "path": "pages/concepts/programmable-blockchain-framework-design-goals.md",
-      "sha256": "6db741afe4e1f6c321651d3a4d994bff709bef423af3e4b66cba93d06348aac5",
+      "sha256": "02c0387e735960b18744138aa401dede7b765b9f37793542440a7ad56d8bf08c",
       "size": 4207
     },
     {
       "path": "pages/concepts/projects-and-tasks-overview.md",
-      "sha256": "8e1a80ff2f1b93d25004382bf7c698c82ea1bc12677509efd9ddda037d2924a0",
+      "sha256": "96d2687270bf4626007d13cd5c1202ace3fa534484cd6986bed9b08a46c47b8b",
       "size": 2843
     },
     {
       "path": "pages/concepts/proof-of-creativity-incentive-alignment.md",
-      "sha256": "6c482e3edfe8800ab0f8195aa39789f71a50bb5e564ed5c2184103249c2a7a77",
+      "sha256": "1dea3e4c12599cede5609e621f14ddb8407220375c72e7b23ce5f93265aace58",
       "size": 2952
     },
     {
       "path": "pages/concepts/prophet-pfp-concept.md",
-      "sha256": "08cd01cacb6d411710eefc391e6b6ccb6d12df5280c7fd57eef9b68ed0bf1505",
+      "sha256": "2b00a0f71c7c51415369417fbf805e4e4da7f7af38539fcd80500492befa4c8d",
       "size": 4645
     },
     {
       "path": "pages/concepts/prophet-pfp-metadata-onchain-stats.md",
-      "sha256": "a67c9836a1bed782338a17f8f7288db596255d4910dc72bd25456551ee7a45fe",
+      "sha256": "4b9b5bf54e6cc8eb506038d0f1c5bff8595a83375300f9947d9ef779e8a660fc",
       "size": 3902
     },
     {
       "path": "pages/concepts/protocol-data-model-design-principles.md",
-      "sha256": "841d1014a9157be80b22048cde3021c5379eba347d1d449fd5b837ede500c19e",
+      "sha256": "12581c855b39e2d4a7e9b5e70efbd8bfc96a084492fd8c591be1d9549426fb54",
       "size": 4910
     },
     {
       "path": "pages/concepts/protocol-metadata.md",
-      "sha256": "15210b4c94ecfd91533e089b9170834d90302188934765f4f32549180227d5fb",
+      "sha256": "06cdf8b823a18915a2c4d3ae816f6210e51a2987fa4b4ef50da15155d9c8967c",
       "size": 2328
     },
     {
       "path": "pages/concepts/protocol-vision.md",
-      "sha256": "0a84999e8ce43a89a0ccc9fb7c3e2a92ff95e48126276893835740d85afe328e",
+      "sha256": "b07c124c8921cd04f103d188e81dcb096d5bb7cfd2625d0dd94649a54676a74d",
       "size": 2585
     },
     {
       "path": "pages/concepts/publishing.md",
-      "sha256": "ba4b4adcb57beeee67d170c643c668df7224fa95925e763d5fd2ff1f619b0d13",
+      "sha256": "d828414b692abaca932357b86f2cdd4a874117558d1e7b42fb02c0516a381f85",
       "size": 1077
     },
     {
       "path": "pages/concepts/royalty-nft.md",
-      "sha256": "c52bcb3a389a8998a75aa04d1009f8f528f207b1186585cb1f7e3d25040033da",
+      "sha256": "9eb01ee2e62b5886628478fcc8c3bd61f9c0f82a06974d28a22de118930337cd",
       "size": 6171
     },
     {
       "path": "pages/concepts/sdks.md",
-      "sha256": "e9d66d6e3e1b46816d0af83b503f806eefa5ffee8d839288a1b467cb333a5ed4",
+      "sha256": "f4744f4bbd03e39476e1fab9e3533b86dccad52bcad9b385b453948244b74d20",
       "size": 1068
     },
     {
       "path": "pages/concepts/serverless-design-expose-network-status.md",
-      "sha256": "59196754587c9a8aa94b9fbb1293597fab6ce1a644d75c0bdcdc1956f8e90ef3",
+      "sha256": "d119597c43de9f9bbc94c44ebd00df8292c9bad0296a038532696ae95c6e9451",
       "size": 1303
     },
     {
       "path": "pages/concepts/smart-contract-security-resources.md",
-      "sha256": "a47b0f02dba01efe1abbd9d31b1ac11706043172f11eb0a37c1c40d9ed6c3b96",
+      "sha256": "25350fc3a06b13ebd12496dee06ea2f505d90327c3cca0919b0b87247bfa2648",
       "size": 1888
     },
     {
       "path": "pages/concepts/standard-commercial-license-ip-assets.md",
-      "sha256": "c167f5aa2630cc3fb73e116c6f666695c498ee25008babde714f923c5003dc7c",
+      "sha256": "19d900e8b5b82691104a2bc7b5bcfd9b08a2610066b821d584cf878c40cc41d1",
       "size": 3256
     },
     {
       "path": "pages/concepts/story-protocol-vanity-addresses.md",
-      "sha256": "bf434495a8423360f1ed6a8a51b3464ee57463871b96be45c251c045c2cd4314",
+      "sha256": "251f737f8de7bffa5ae8605f1cd1d4c4e3445782f488287eac9e30a41a877311",
       "size": 4771
     },
     {
       "path": "pages/concepts/story-protocol-wallet-operations.md",
-      "sha256": "fe5e44644b7ae0c905245db4c965a40398f0f48de45eefd3e666df4515f8cd7c",
+      "sha256": "c48a6fd16507bca50cb9191ae12c4c240afea094fb06a4de9abc832c00557d32",
       "size": 1427
     },
     {
       "path": "pages/concepts/story-public-testnet-guide-deprecation.md",
-      "sha256": "d3495a8356cc13300f1baef04bdfcda707f7c7938556cdee595d69505e738a8f",
+      "sha256": "03bf580016e5773746f6e1fe1bd469bfa50e21b3a7eb48f7beaac4884cc91755",
       "size": 1405
     },
     {
       "path": "pages/concepts/story-supernet.md",
-      "sha256": "4f728814d53017c83f55334b6849115ebbd77213528ed72a6c03d525de9c1887",
+      "sha256": "40bfd02e9dda972ad776b0c5ff199f5ff98386ecc97fab1f0ccfb8260719c885",
       "size": 5600
     },
     {
       "path": "pages/concepts/storykit-components.md",
-      "sha256": "ab8afa5fcd48ceb51bc4528b0c643512fcaa44e8a891d730b1eda28c4cf8737d",
+      "sha256": "c78f02bc1e8ef9a8f0e419aa9fa49aa4e793490afaa73abbd2be1fedf168a289",
       "size": 1308
     },
     {
       "path": "pages/concepts/untitled-notion-page-350051299a5480f8b542e4f40de96a42.md",
-      "sha256": "8f6f92d6c652de62888b3dfd860e9e65cf6f28e426f8ad048a54fdababcd72a8",
+      "sha256": "1154fe7e02138355304d0a5842d471eaded8b509003c8ba54fb4fd07813e14cf",
       "size": 1132
     },
     {
       "path": "pages/concepts/upgrade-governance-recommendations-and-lessons.md",
-      "sha256": "4407651b2ba0549517e446b353d78eb0bd53029f475d5f317cffbbcb98dbe388",
+      "sha256": "dd13eb808ef26b360e9ce253485870076458dfeb07ec3fc6887bc28bb12cc7d4",
       "size": 1441
     },
     {
       "path": "pages/concepts/upload-submission-errors.md",
-      "sha256": "bea4de315c1241d295cefc379e17083477c771b9257b8c2c7d4a8996ce0a84bd",
+      "sha256": "0b3e7786c92b1d57c834027e062262dde0fc5225ec4293f8a83798cf7896a84b",
       "size": 1054
     },
     {
       "path": "pages/concepts/verbs-concept.md",
-      "sha256": "724180e8dd19e8593d7b31ff6b7767030140c39b584f3d274c7e0c673d7d6234",
+      "sha256": "4743e16188a134a6539bedfc6cc79e609730ab2e29102a8cae59fab1f11213cd",
       "size": 1153
     },
     {
       "path": "pages/concepts/virtual-machine-execution-environments.md",
-      "sha256": "167fa8a3e4ea91bbdd2324a45de378f64e253584726e022a6b7b6ee8c88183aa",
+      "sha256": "ad9cc14555f239605bf5d9043436e1273c82444ebea4ce7097f8645c31a5f231",
       "size": 2000
     },
     {
       "path": "pages/concepts/web3-wallet-libraries.md",
-      "sha256": "d3f31d10ec80f0d5e47d6f96aa81e2709edabeab88cddaf3e78ab702a8d64734",
+      "sha256": "823fcd17040decdc18180910db436bb8bfc27169be3855112c367294cfa4943e",
       "size": 9617
     },
     {
@@ -7721,1045 +7721,1045 @@
     },
     {
       "path": "pages/concepts/zk-primitive.md",
-      "sha256": "a2e4f6717ebaab1f2d67f2a6ce40c90a4f22a20eb881ce4a59786ece55af1ee8",
+      "sha256": "4d78434786f418f150d7f76609cebb01b83eba963d91879cf78c0806f0a74453",
       "size": 1735
     },
     {
       "path": "pages/decisions/access-control-acl.md",
-      "sha256": "f5a4885fd67700e4c28693212633dc0884cad30f5a3f70c567d374fcf3386d2d",
+      "sha256": "b33441d546cf6c99d0df88ad7a40f3b605534f8759fa988dc253bc0bdc5321cb",
       "size": 6118
     },
     {
       "path": "pages/decisions/ai-model-pil-term-decision.md",
-      "sha256": "96bcd16f3d05f1389e4da49fb7870e44dd4afe5b24f33fe4abc37d897ed399a3",
+      "sha256": "fbd5253a6f4f05f130a4415023439ab0b50822ed40bd9bd33a73738450eac042",
       "size": 3679
     },
     {
       "path": "pages/decisions/character-backstory-orchestrator.md",
-      "sha256": "f9ed6e0c0218bc2ac971372cde89c321af510a34409c7a2062803077979bbeb1",
+      "sha256": "cdb85d3b982c5824c079bbfd1ac85332d1088bb9e66f549ff81cf7894c55bcdf",
       "size": 4107
     },
     {
       "path": "pages/decisions/core-vs-periphery-divisions.md",
-      "sha256": "0cd03be1f2180a23f891a61eec03f75318ff28507bb1ddb6b86e55153f37169f",
+      "sha256": "84d62097ab809d9b142c3f5c7f9d3ffba39c78260f659f23f124068219953f9e",
       "size": 3191
     },
     {
       "path": "pages/decisions/decision-dynamic-vs-static-module-address-resolution.md",
-      "sha256": "00e477194c9050dc467d062e45afbc34b4f6acd62d3d612cd5e9fe2f3fe15184",
+      "sha256": "4143542761702c44c3bc666aaba711c795e20a9bfbbc971bdae8bf94bf5506fc",
       "size": 8054
     },
     {
       "path": "pages/decisions/deployment-chain-decision.md",
-      "sha256": "ecd659d0c9d821f1174ca04f402fc37609290049bcf3d2e333af0ee2c3cb6b7a",
+      "sha256": "5badf5ec71bcf5e24fc8432524347a18a5852818f644feebc6ffedc3b299feaa",
       "size": 4760
     },
     {
       "path": "pages/decisions/dispute-policy-immutability.md",
-      "sha256": "91ad5236e9965db2967443d475c9800ab1972449adb0ede056e290d643847ed3",
+      "sha256": "a056ac3df1df77b3a2f653fdc266155efc77ee0cb6a7e9f4375bef46bc4bad60",
       "size": 3037
     },
     {
       "path": "pages/decisions/distinguish-user-device-types-for-risk-assessment.md",
-      "sha256": "9e31672f07f8156be99a5595abd31ff91ed30e70171d44dcc55dbb2d5c0ea7ee",
+      "sha256": "5761e21f07eed59857340315f2983c0bb33154e14a3fa91d230442cf73789e58",
       "size": 1433
     },
     {
       "path": "pages/decisions/eip-7212-precompile.md",
-      "sha256": "7b9b72e018a3c51330d5e8181f78f4b1f2d445b3560089ed0e5e03cbe8cd79ff",
+      "sha256": "785752278b55f9062a2b4f3cf5c1de2e1659232cb1f7005277862bb171dc9d47",
       "size": 5011
     },
     {
       "path": "pages/decisions/ip-account-wallet-architecture-decision.md",
-      "sha256": "347e26c4ac9aaed5a04c931ef4ffa936e50effb670e7481afcef222ae2493056",
+      "sha256": "bce7c38f5ffc39b18fee32a8b8202dcfaa6521ccb93ce1dc0b521d32f0043313",
       "size": 11612
     },
     {
       "path": "pages/decisions/ip-asset-on-chain-metadata-design.md",
-      "sha256": "e6c35e7d0313a28d0a55bf42d11d939076e0137ff80a290d7698ba4f275c02c7",
+      "sha256": "36700d8fd2dd32c61eb152dac4f4e543fa5cb69899712401f4886f5c87c0d152",
       "size": 5472
     },
     {
       "path": "pages/decisions/l1-tech-framework-evaluation.md",
-      "sha256": "c3d0118f85c07a02809b7e40a86984321c2ddac81b8c93baa0162ea9e8d47cfa",
+      "sha256": "5e64be37b478907637d16d7e833c86691928bc0db04a30b5b96ef0fe406f681c",
       "size": 8188
     },
     {
       "path": "pages/decisions/l1-vs-l2-decision.md",
-      "sha256": "68387b902dc928a6d867a9737801969e628650c122a47de03b8f70504a42b2cc",
+      "sha256": "10e75d19279b60b7a930d23985f90c0538133f19711c5a0843bbc1c1d96838a6",
       "size": 5721
     },
     {
       "path": "pages/decisions/license-simplification-alpha.md",
-      "sha256": "2ab05ab613ef9334b2b768d4df0ee905655127220b95cb9560e460efca963dca",
+      "sha256": "d32d9e142cb6a42978b7338cbbeff8648ce13df35648d73708d7ecbf8dcf60e1",
       "size": 7046
     },
     {
       "path": "pages/decisions/license-token-standard-evaluation.md",
-      "sha256": "d38939f4bf468400af175463560fb04d9fd1cfb1ba47de0596e1ff7655310c79",
+      "sha256": "9ac8d79526cde1f766c9d5d3dc8fa8002eb0b047d78ab232db95684268a6e9fd",
       "size": 3674
     },
     {
       "path": "pages/decisions/licensing-simplification-design.md",
-      "sha256": "bc7cde0c0ee234abd0d71f8af53046f81f85d9a58c2f670e201a6bc94a19eeef",
+      "sha256": "d291c9315e4271e578c54e6192fdab477db778ad3d22c698d851400ee6d10707",
       "size": 5812
     },
     {
       "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
-      "sha256": "8e9ec5fa2596e9a48b96836914d6bfd93708467d38f8cb9ada8cf4c2fd7883c6",
+      "sha256": "2b12602856c94cea9a0ad8a77dd41658c429d11474be9c5d03a322619e3fa0d4",
       "size": 1593
     },
     {
       "path": "pages/decisions/partner-testnet-phase-out.md",
-      "sha256": "bbf5295384c2c2a13eadf9a54437f0e29251c83b8a9dd3847cbcc5c8b8d00c10",
+      "sha256": "65d8d7093855fa6d152e9e1cb8731fde2c69becaf9f071ef3e568fa9ae867112",
       "size": 2536
     },
     {
       "path": "pages/decisions/pausability-design.md",
-      "sha256": "9d78213a0d1afa64e8aadb9887a77999ebd2cf41fd9adac9e622377ea1847b05",
+      "sha256": "36dccb5464eb6388960dfa9bfd1d0441d23b295b10490c92ae8b10b8535c7b9d",
       "size": 4556
     },
     {
       "path": "pages/decisions/permissionless-ip-registration.md",
-      "sha256": "192edac32d95164df86b92c1db43c5aeff5311032b146bad617fd76b2a1e0600",
+      "sha256": "7decbb8cbb99e1d0a04d4af8da38d89c5ef4292efa8ab51c50fd37ce47c2af42",
       "size": 2954
     },
     {
       "path": "pages/decisions/prophet-nft-distribution-strategy.md",
-      "sha256": "5c5c1b8f53ac27fa72a3b33ba256605a793bea7800beb408f1655c14418bb2ac",
+      "sha256": "6d99d839b2ff76eac11ff8986fe10572fe95cccebf9adb2b8ee39649ae0da83c",
       "size": 2248
     },
     {
       "path": "pages/decisions/prophet-pfp-ip-asset.md",
-      "sha256": "4e28669628d36de26160d3c8809508895a2310811317862674444aa5b4578617",
+      "sha256": "a0a364500018e02dd57b9e682e1cd333d9fcba80708f985204add88b6dee8560",
       "size": 4637
     },
     {
       "path": "pages/decisions/protocol-fee-switch-configuration.md",
-      "sha256": "12d00339e69e233a4d58d2d55d98684bc5e3df469315637098ffbc283e89404b",
+      "sha256": "fbe5b5ea42ebd0a87fb6aca9f61f054c6bf81661ade2f849466a9b454c051197",
       "size": 2337
     },
     {
       "path": "pages/decisions/sdk-v1-3-design-considerations.md",
-      "sha256": "38a9e2f24677ceb601c28335f725be95dc04eea31d2735ac16aa5b4352fc4841",
+      "sha256": "07154b66b553489b1e6e938a2e09a0ce8badd9cfcb00fd20b4f4efb31af9ae0e",
       "size": 3132
     },
     {
       "path": "pages/decisions/story-protocol-website-i18n-options.md",
-      "sha256": "7a31a612b3ce6b5df02ad4294250b6b726848b2cacfd22e88f927cd334498d11",
+      "sha256": "8e86f1c12c3d8d2d935d081c1bbe0f2b43a36478f68b78334c0ef8a88096cd51",
       "size": 3856
     },
     {
       "path": "pages/decisions/v2-monitoring-cicd-design.md",
-      "sha256": "2914ed4fa1be697658882c87ff936acc631361a5be90e2eef5e66e59836b1f25",
+      "sha256": "0bd48363bcfd7ac6d30762725e4604ad145a7283cb7123e13679fff480b0c457",
       "size": 6568
     },
     {
       "path": "pages/decisions/vote-ip-asset-interaction-levels.md",
-      "sha256": "ccaef1ac467a46781d89190867847667c59191c6d1e7389d7bf8a256017896d1",
+      "sha256": "d2605c15184cc973c36d801c9c3f9ba90ff64cb0a589b448edc0c85964dafc72",
       "size": 3861
     },
     {
       "path": "pages/decisions/web2-api-strategy.md",
-      "sha256": "c97eb782af64e77269c1cf1e0b2c376ecaf79a4497c63e83ff715d44d7dcd03c",
+      "sha256": "a234210233b84c84a66869842d326fd53d9560fbe78e9f7d6d5a93b929959563",
       "size": 5348
     },
     {
       "path": "pages/open-questions/access-controller-repetitiveness.md",
-      "sha256": "3d7d8c9ddfd14a6e0276c5ab5cb8e11a863b3b906e5f1bca990d4940ab113bc8",
+      "sha256": "e7ac1a72c254cad24bcf49555cd85a37177788101a156ccecf8ad068bd5b0f3c",
       "size": 2040
     },
     {
       "path": "pages/open-questions/access-controller-suggestions.md",
-      "sha256": "d8f4d5940409eae0160798a060c69b2e27d6f007a2f1beefa96f4f598ecb19ba",
+      "sha256": "908d4699ba99a2510e33fab69dbd8a844a4eea032c149aa5798fb71da54bc660",
       "size": 1551
     },
     {
       "path": "pages/open-questions/define-what-to-do-for-rejected-submissions.md",
-      "sha256": "2550cf3840125e55b8a44bf9adf36f70719f2d31a7ed9ec2dd27c2a42d71664d",
+      "sha256": "27e4ffbae0750ea28ace8ca568543b51b607131383f2cd95cb69d10c53449c2b",
       "size": 1289
     },
     {
       "path": "pages/open-questions/feedback-and-improvements-for-oncall-performance.md",
-      "sha256": "011ab1069af27ee1cbfc707efe710c93d4998f8e5adee7c2f480175e8f34c982",
+      "sha256": "d346784e1df490af2f4c9ff9627e62a25ade81371ac2db699ae7b63a4f9792ae",
       "size": 1497
     },
     {
       "path": "pages/open-questions/license-term-flexibility-derivatives.md",
-      "sha256": "befc749c8c099691df95667128b5beb765cd03cef97e4629287ad5843c86a0ca",
+      "sha256": "e58e80965664a5dea7806156e14f2372eec09cb130efb440a442f95381c9f584",
       "size": 2857
     },
     {
       "path": "pages/open-questions/licensing-questions-to-ben.md",
-      "sha256": "9a5b17e3304c09c1af08f448b8f75d642255dabfb02ed59e316f6a48cc77f143",
+      "sha256": "9151804c35ca6fbe29201d83e965af71577e75a85d82493b748ded92c70a97e1",
       "size": 5471
     },
     {
       "path": "pages/open-questions/need-plan-b-api-gas-limits.md",
-      "sha256": "3ec6dca680c6c186231b1b8a606a1b8d54f875b00b32210c93bc034465dac5dc",
+      "sha256": "f38675b9706fec3f92c4cc18864badb7e98895d588d7316afd6bd8beae94f7bd",
       "size": 1298
     },
     {
       "path": "pages/open-questions/nft-feedback-color.md",
-      "sha256": "64c91fe7a406ae544fac543ecd452fd43d3752ae0e3497bae92dc51e52ad5062",
+      "sha256": "4d01489b9897b53db28065c751ec49655e6dfa2a192e9cbc6f672c031c2e29eb",
       "size": 5138
     },
     {
       "path": "pages/open-questions/open-questions-blast-and-sp-tokenomics.md",
-      "sha256": "6266245462c2f1abafdbd659093562c0f635b892f95f847ef47430e7ec60d315",
+      "sha256": "9a509677215bea999f6a45b64c8f2945d1a2f267d2b4bb577737643fcf04bee9",
       "size": 2539
     },
     {
       "path": "pages/open-questions/parent-limit-increase-request.md",
-      "sha256": "68c03eb5b486037b4c3b95510695cb238fe6131e2dbaea3b5daef1d38299df3d",
+      "sha256": "0b3dd1d37d12d2a1507724bbad3e975623403bed23cfc9c7aec99ffabfb2f368",
       "size": 2740
     },
     {
       "path": "pages/open-questions/rosetta-reconciliation-failure-public-testnet-block-393.md",
-      "sha256": "4250b875705bf02f7be99b81befcf00407ecfbf6f59e42c91725b8afbfdacd33",
+      "sha256": "c908fd566bd6b9d3cdc32a35850fd0512563aea1302fd1ab3d1ef07eaf3c0efc",
       "size": 4130
     },
     {
       "path": "pages/open-questions/royalty-dilution-feedback.md",
-      "sha256": "e593e720ef6eeb2c360e2ac2ef73f75eecaedeca5ef010eb2b1c9cbf9589fe0c",
+      "sha256": "d64caaafdd7d709baacc137c47f5f03cd234b6e0c11c456526e1c86d30555b22",
       "size": 2853
     },
     {
       "path": "pages/open-questions/sp-precompile-candidates.md",
-      "sha256": "4d95e7403e0f2596a1ffec6e52aa2b0f526b8d8d95cf4fb654b7e50ea41a9b26",
+      "sha256": "dc232a424a28fc831ddb87b1a93558524b5e9c052dcb1e418dfa3ab20f96b838",
       "size": 3834
     },
     {
       "path": "pages/policies/database-table-naming-conventions.md",
-      "sha256": "1e05bf6d7a11a8394a4c192d0e90a35fd009d94f4e31db03f8e57474d0282049",
+      "sha256": "3ddfb433a5d73b08519f4ca4d6ca42df1914ec8929fffdf4676e66defa341eb4",
       "size": 2937
     },
     {
       "path": "pages/policies/engineering-communication-strategy.md",
-      "sha256": "0ec139d0291fc562b6df454a28501f596e0fa7efcd1a91701d56090788037f12",
+      "sha256": "9d5709a3ba4d2b9d4f70721a292251a05076a021fe46be4cb0492e44d896a04e",
       "size": 7591
     },
     {
       "path": "pages/policies/frontend-repo-open-source-checklist.md",
-      "sha256": "dd5a2def40171382a01191743bc72a14a1c0bfb4daffed0ad56dcc3197f8b664",
+      "sha256": "220d79936ecb8f7b3bf927bac9a2f97a0ec47a383b71c6b487f3790b803a2d7f",
       "size": 1303
     },
     {
       "path": "pages/policies/github-branch-management-policy.md",
-      "sha256": "935a7e230202dcfd4255ee2e45a047bf00c4eb2137e02a657c22d50291671292",
+      "sha256": "b8b20c7c7d7efcfa09105ec405d9afad73a3219d529b0ae37bb26ac8d91ab969",
       "size": 5463
     },
     {
       "path": "pages/policies/github-permissions-policy.md",
-      "sha256": "38e0b0c7827e4201573a0b04ac3871fb5ad26a16e6b7e5353485372134ecfc10",
+      "sha256": "8c961bc80712faf55e733a2ae23c86c5da0c1db1b3f5149550dd495bfff11320",
       "size": 11511
     },
     {
       "path": "pages/policies/l1-urgent-contacts.md",
-      "sha256": "d9a7956ff3e3be8a97c3d296c8db260fe6faa1a80ddfe8450ca768b00a61ecaf",
+      "sha256": "55fe7afd4beb067ff92a86b6bfc64b76f9ec93259a86dffce7e4d2219faca747",
       "size": 6760
     },
     {
       "path": "pages/policies/limited-ip-rights-representation-registration.md",
-      "sha256": "7f96e95418ca1392dfd370b96c5c29988b860877fd277d4031f97726a29ab05a",
+      "sha256": "c137188b728f1a88667a1b5fa8d65d73208508c3f24e01c375d3c3aa692402fa",
       "size": 1584
     },
     {
       "path": "pages/policies/off-chain-terms.md",
-      "sha256": "10f4df68a4e5453109491e8072fe05bb26d4337a6617b0157e16882129828da9",
+      "sha256": "78f7f2fdc76c94fcb5af6637ff6db23af64f084fa669b8b82a1bd7f0cdf738ab",
       "size": 5565
     },
     {
       "path": "pages/policies/platform-team-secrets-access.md",
-      "sha256": "399065e92723c4188485d083248a95ca04df631bf0892870704825835ca59943",
+      "sha256": "b9e972091c12f86d26263d18339f7b9fdd885580494f4b30f479fc26a95be88c",
       "size": 1269
     },
     {
       "path": "pages/policies/product-intake-process.md",
-      "sha256": "189f126e0ec2af949edd940f87e392b64757a32d26a9fe2582f1b344b3f3d8e9",
+      "sha256": "7664d52c28134ac8ed008f4b6c6ade445a3e265c3ddefffaa93ea021f5e83b8c",
       "size": 6644
     },
     {
       "path": "pages/policies/serve-least-used-transcript-priority.md",
-      "sha256": "7117eeae65297b9176974b2191e619f770108c515d7ffc9c5f384dc32845ad8e",
+      "sha256": "8dcf7434b6331c67daac6fd878f77f2ea181b96d629e7e9b79656d46ec5cb23f",
       "size": 1145
     },
     {
       "path": "pages/policies/validator-bootstrapping-strategy.md",
-      "sha256": "cb83f5473643ded8ed3741646a37a8dbc7067d980401e36d8b6c8de8331c17cf",
+      "sha256": "0ed3b8424b1f5bea49883945c0bc7bb831a7c871eaf50a12502981c2e304616b",
       "size": 5155
     },
     {
       "path": "pages/policies/withdrawal-safeguard-policy.md",
-      "sha256": "61c29af4a91fd58f47f61104dbcd84f5b78d0330f03aea3449b5e8517bf46b4d",
+      "sha256": "4d16f76e0f9afdda25943b811edb68e446e3422d896110655657ddeb7bbb6f2a",
       "size": 2488
     },
     {
       "path": "pages/projects/1combo-integration-feedback.md",
-      "sha256": "0eab582ef2b0009fe808d40b0a815e87c18625082693c53879c21c5cd67378a4",
+      "sha256": "f586bc49e6e09c0cc200d2f2b2eac4e0ea8a1ff6cd0eb17a338a8c15db641a8b",
       "size": 7418
     },
     {
       "path": "pages/projects/adaptive-trust-screening-reputation.md",
-      "sha256": "b4e39d91a75d2f8e4a8470aa81e93a9d8b9e24ed27beb1855a9443b3c686c367",
+      "sha256": "8c79490c01adb6827a47dfcb34f2d5fb4f33b5e29333599fa93705a65771202a",
       "size": 1333
     },
     {
       "path": "pages/projects/add-back-en-kr-vn-ph.md",
-      "sha256": "bf627ac563febb37c005034d32cd90840951b66f56f8e46ea3cf0fbb257011f6",
+      "sha256": "f74019b40630c6bdef51f6823b6396cbff80ae28bc45ccbc31272a69c17b45f5",
       "size": 2153
     },
     {
       "path": "pages/projects/add-cookie-banner-to-app.md",
-      "sha256": "98d23ae22a7eb47dc0b9e66faf3286e2d4195acefc480a2d4cd296e89bb2fe5e",
+      "sha256": "89fc89ac87977e77f8acf3577cec5780810bac405d7cb9c15d7504de2f4da558",
       "size": 1016
     },
     {
       "path": "pages/projects/add-fb-tracking-pixel-to-web-app.md",
-      "sha256": "5be120ce196bb2b040bf437ca7bcf9ae20c397257c798b21a07237db97ce7b24",
+      "sha256": "0917486df39d9640a48310229d20eebb80216ec5851c2f2fc615855c0415954a",
       "size": 1116
     },
     {
       "path": "pages/projects/add-intercom-automated-customer-service.md",
-      "sha256": "dd922000a3cf304707ec0c31aa32912eda860f7e9c9258dd11a241a09f164369",
+      "sha256": "a6282c703449c30f83e8d7003b51f9df9f6baf5f544643b0be0c3ee2ee43d18d",
       "size": 1140
     },
     {
       "path": "pages/projects/add-mother-tongue.md",
-      "sha256": "da38ce8edce15916e80994c68f87143500d3b671a3683d67514661a0598561d7",
+      "sha256": "321bae07d2cdaa7078bfeca4c67383771825fcfe5025cb9bf598405aa77bfebb",
       "size": 1166
     },
     {
       "path": "pages/projects/address-p1-dogfooding-issues.md",
-      "sha256": "11e8cc689b9187d6b57efd6cc5ef35219ede1482132d4cb8e9a472a4104f8c9a",
+      "sha256": "62a9ee009891a287f61682bab2d841eb3500307f75102d2bac03bf5c5242407d",
       "size": 1074
     },
     {
       "path": "pages/projects/automate-support-email-summarize-feedback.md",
-      "sha256": "b6eea627d1d15dff130aae8332936c8b0442916a52cc18d7f184b1f9ee86ceb7",
+      "sha256": "a2ac9c51f36b6aa0d82e62314c2b8522e2056a6a372aeb3cf6e8eb2cbc48032a",
       "size": 1232
     },
     {
       "path": "pages/projects/beta-protocol-sdk.md",
-      "sha256": "cdcd386e6d51cab037595d6dc000e2b42c3014674980800102b83a2d2523daca",
+      "sha256": "589ee139d444fedb315525efdbc8d33219802a53d57afcf45d22467752000b50",
       "size": 3780
     },
     {
       "path": "pages/projects/beta-to-mainnet-plan.md",
-      "sha256": "cf9222b643c1b975bd3f7a43fb38a24a3e1ea09905a922de90529077a5035a8e",
+      "sha256": "539513d2a7b2a3edf6ddddb0ee3aaa1122ab2b8fb7e31c826eb91c6d2bfa6824",
       "size": 3367
     },
     {
       "path": "pages/projects/binaries-releases.md",
-      "sha256": "b154facd690a2188b2399bd267a9b8d030e7ea19a0ff81907c300d03df1a24e8",
+      "sha256": "7e66e7cf9ac6e23f181a1c4f119c84f2ea575429952aab11af8986cc97cde05c",
       "size": 1836
     },
     {
       "path": "pages/projects/conference-plan-2024.md",
-      "sha256": "768b7f75daed420931ea40d33b57ee015e412de75582b01871f9a56469555e23",
+      "sha256": "e51ed5f42bb98e6eca93f842f1eb5a4156ced694bb8cf290061ad3f2a2542799",
       "size": 4104
     },
     {
       "path": "pages/projects/devnet-war-mode-daily-tracker.md",
-      "sha256": "113c0e87aeaf15155e89492e821dd623e620668b7a6f6acfd712ad1551a8402a",
+      "sha256": "790301badf8204c8a6ac4fbedf2e9b686c132b72e1d8fae1dccef576fc8945a7",
       "size": 1579
     },
     {
       "path": "pages/projects/dispute-module-improvements.md",
-      "sha256": "1b9e878ef50877897d27101cab5900c76b05ebfb6443e0ff31e3c82faa57cd47",
+      "sha256": "7abdfcb29ac0c390ef2593d91482a743d75048e62c88564b1be78d4f86b7e828",
       "size": 5264
     },
     {
       "path": "pages/projects/dispute-module-ipa-staking-integration.md",
-      "sha256": "1463c29f2722640a360c180027b05faef4eb0cbfe6fde586b17c4d4fd0bfee63",
+      "sha256": "234be6e14b8f8f1a4e9a14f62b803bdc90ab1c2d36e31aaf0f3650fd4770cd0f",
       "size": 3089
     },
     {
       "path": "pages/projects/drag-and-drop-upload-functionality.md",
-      "sha256": "747ada8f17d97a5c9b8fa301af14888f191890bab1d406f516bd10604bf21740",
+      "sha256": "7b55947f3c3d7bc55d231079ba39d960dcdc265c4ef3504f972bf6b932031a7e",
       "size": 1259
     },
     {
       "path": "pages/projects/emergence-universe.md",
-      "sha256": "67a0a1d2c9473e67b6de6ef56469c285d1180a100c75ad4f331eb40f9eea8686",
+      "sha256": "b15c12537ddb4d4e9d741c183cba6632de95d921dd699cb00112202c27b58745",
       "size": 2353
     },
     {
       "path": "pages/projects/engineering-lightning-talks.md",
-      "sha256": "613b315b0a49055187b90ec0315b4441c4a69889daf923df23dd2297feb5603e",
+      "sha256": "0c791403bd87643be30861a0f84871adf1658c8665670af76b097ddc98449897",
       "size": 1175
     },
     {
       "path": "pages/projects/engineering-team-cost-optimization.md",
-      "sha256": "05065edd39bdf3220d9c78972aae699d1e17f62e03d1df1fb96dbf94f40d32f2",
+      "sha256": "cc35b3d56c1dae933d448c8ac3c1d3cb4dbec6443cab886081d8d0edd45a499c",
       "size": 2663
     },
     {
       "path": "pages/projects/ethdenver-fun-57b-activation.md",
-      "sha256": "3e65581bcaccbd869d81cef813b02c32679cc8d9d20e4aa4c61bb5fbde9a643b",
+      "sha256": "984f981148554ab36037f181e765791d9a5aa71a0cb96ae27cf8f58dc627ac91",
       "size": 5148
     },
     {
       "path": "pages/projects/eu-backend-design.md",
-      "sha256": "0fdbb7b92a41518235e58d71070a2f3e6098b1a6d8e2eaf65bfb429db45da07e",
+      "sha256": "fbc6cdecdc6e2dd012dfecfa057de6e3f864b24bec4769f9a6ca00b555e7a24f",
       "size": 1170
     },
     {
       "path": "pages/projects/eu-pfp-nfts.md",
-      "sha256": "9623caea47c9e67891a01a53f226d726237b812623184f9e568e2bd2a91062d7",
+      "sha256": "6d76b7a5b2c8afa0b0fddef127602376adbb9e7b757981cc62ddeff636ee55a1",
       "size": 2363
     },
     {
       "path": "pages/projects/eu-v1-qa.md",
-      "sha256": "55333ae20bacd800b25db4d984caa7e7e5072376628ba6d31939920bdc5fd019",
+      "sha256": "0daeae7dfb75dcdf54f5cb3b2610d18b46605930f35ee185364902ec2fba7ad9",
       "size": 2582
     },
     {
       "path": "pages/projects/eu-website-releases-tasks.md",
-      "sha256": "76bbfcecb315c49948e530789eae76f7f79729369431b080ef8ce7fa07b13f95",
+      "sha256": "c13218334e4de8851ad25e79a9e5928c6c7eab8812a8b9124198e70ac3fc6e38",
       "size": 2920
     },
     {
       "path": "pages/projects/frame.md",
-      "sha256": "65009b14c4476c91ae027eec246fcadb03ca2992a706f20aab238bef9f3aa34c",
+      "sha256": "e8d7861e6c115f7d0f9c1ae09b22d269a17d30f2156e98995dca4df9845fe4ac",
       "size": 4415
     },
     {
       "path": "pages/projects/gcp-gke-l1-orchestration-setup.md",
-      "sha256": "dc18a2b3549544e2460d5d3b7836eb60df5840b99aa277d1da93d81458fd9d07",
+      "sha256": "27a455f3689160f9f36a282580d268b9fc9067e60d642a31d4e7a10d1d59072a",
       "size": 1336
     },
     {
       "path": "pages/projects/gif-project.md",
-      "sha256": "3e5cf596c6709957c7161bd32f1e8e94e07ffbab069d382deb9405bdafb5e2a1",
+      "sha256": "ef6d587313e77d5e5b196cb6af8beb85abd9237c6b36a27b71e1386a5d35065a",
       "size": 2580
     },
     {
       "path": "pages/projects/global-wallet-solution.md",
-      "sha256": "e5c1fdaff050c2162dd2304830ac4114401fef534397814bc841b0ec8e698d67",
+      "sha256": "6736283738ebf14338e01340de4d1fcdf357262c5a969c6e6004957290d1e043",
       "size": 1175
     },
     {
       "path": "pages/projects/hub-v1-backend.md",
-      "sha256": "8f847d0441c835b082f27a9b66d708e5ec450e19cbfaa6104950789cb7008001",
+      "sha256": "8ede055bdb6d80bab1e1eaed6232f857d8a5f73b86403e6c70512f32d623a945",
       "size": 4080
     },
     {
       "path": "pages/projects/iliad-testnet.md",
-      "sha256": "3d365cf1bb3b8d5c63c90c83d867a843525ca9913b94ca6d3b773eec5aac6e8e",
+      "sha256": "f53d08e1793cd9f7e67a2246f2ebb1a6158d94a2680f545b1a2370fc06c147aa",
       "size": 1217
     },
     {
       "path": "pages/projects/improved-mobile-app-tracking-platform.md",
-      "sha256": "f360875a4e9860668933a9b85f568e3362ba5c3fcd4c881ef25bf432aa7b1880",
+      "sha256": "46d6eebfbe87ff5235831ca8af2fe00fa33224086a17119ac75087284d908bfd",
       "size": 1392
     },
     {
       "path": "pages/projects/integrate-fb-tracking-google-ads-admin-dashboard.md",
-      "sha256": "b5f1177236f943a9283bc077262cb4c2f37af19dc368651dcb7db4fea7e09e62",
+      "sha256": "bce7ed458a1325985c7e23cd2b636bfb1d12027cfdfb3f5b34573e30c767394d",
       "size": 1377
     },
     {
       "path": "pages/projects/integrate-intercom-or-similar.md",
-      "sha256": "60431ecc536766192d1e38f0558fb63a24606485ab0e60e3b289686a8d38e9fa",
+      "sha256": "24ec1d3da050da04c2b5ff9bfa44832e15fb69e79f47de2bdcb9549361a5f239",
       "size": 1139
     },
     {
       "path": "pages/projects/integrate-poseidon-processing-pipeline-with-numo.md",
-      "sha256": "b2312e738d37c8c577cde062ed1ae5357bd4aea6503f608d81b9731cc9be6ef7",
+      "sha256": "581b4e56a8bf4db117832eb7c6f4438ebb96e073d988a0a3ac05ff6926c8e8e7",
       "size": 1202
     },
     {
       "path": "pages/projects/ip-auto-registration-script.md",
-      "sha256": "6d23332dd73884b3c24044337b5c1ce4f513a7a1cce7957a195d74e8da843687",
+      "sha256": "d10df07655c5cbb3db51eccbeaca8e208010bcd916af7783cdf142070e07e74b",
       "size": 1238
     },
     {
       "path": "pages/projects/july-partner-testnet.md",
-      "sha256": "246923b7ec228eff756c1d1e674a9b67039faa162185d49b317e3be622e72375",
+      "sha256": "1c2f9ab110f10c3f6f6440e4ecdc7781e8bb0fa1a63f5736d5acbd4b37806e4a",
       "size": 6261
     },
     {
       "path": "pages/projects/kleros.md",
-      "sha256": "9a50cdf230639fad1a1c1d5653b26c85561b147d8c9fad43db4004cd9cca0e7e",
+      "sha256": "dbacfeea859fbd7869000cf4b8e6e1cd5c1b4ea154f36e262075dad895b4a5e4",
       "size": 6997
     },
     {
       "path": "pages/projects/l1-devnet-june-2025-deliverables.md",
-      "sha256": "5a7f2f1b3c16435bda6433754dd31c17daa7993400a3841947730566032389ea",
+      "sha256": "f6f9d65d1cfc24d8cce352e507961f5092ad5e72dce89412c8d05c7262d22a2d",
       "size": 5626
     },
     {
       "path": "pages/projects/l1-devnet-launch.md",
-      "sha256": "9d70643cfcf02db8fd5730c37fd9daedf4e6a477ecae407b5449acc3314f7903",
+      "sha256": "abecff2350bd3aa86bf0b4f9e7d439aaf6ae624c054308f86126219ebf6d9c25",
       "size": 9775
     },
     {
       "path": "pages/projects/l1-infra-roadmap-sep-30.md",
-      "sha256": "cf587906b137166939c72a34a1c26cf4874a9ce54ea066753864375df7248788",
+      "sha256": "92da1491592139f90b767bd84e5da60f55c9810237a769255a196ced06d9669c",
       "size": 2413
     },
     {
       "path": "pages/projects/l1-test-plan.md",
-      "sha256": "ff8ade5610304af4b04bf4f7683d73475a0927d1898552fb8885745365984c8f",
+      "sha256": "02a22fa6e4961c696870b5d152e5adbc307929e2c883719ef592155976933cde",
       "size": 6324
     },
     {
       "path": "pages/projects/l2-analytics-tool-research.md",
-      "sha256": "6362f232c774b3353374f0b72b4f606bb6b2edb7d57a2e343c2beeb293052a42",
+      "sha256": "0f0eb9ee3c5db2d7062d76214c87fbae80216159b0ef93a2f65c36d945e4af95",
       "size": 1240
     },
     {
       "path": "pages/projects/large-pfp-collection-ip-remix.md",
-      "sha256": "d3abf11c62c40f2b2e1c95c7ebb8ebbe4a88a43353d64e3bd1056d12b774bb13",
+      "sha256": "850e713dd60ac8f8751b7fd28e91f477f6562826699d8833dbe3cbbef45b2592",
       "size": 4670
     },
     {
       "path": "pages/projects/lens-open-action-integration.md",
-      "sha256": "e84382b66e4ccb213075cd02b4ba853aab8d990e1cb4687cb89c58dabe0aa5cc",
+      "sha256": "68884bcc39094de781119188874bd0312e236c3403317acebd3819e78b39feaa",
       "size": 4404
     },
     {
       "path": "pages/projects/lens-protocol-deep-dive.md",
-      "sha256": "c78c17a1664966741de798c5ec9badc9219d3d50bd976c38838ec6c0213a466f",
+      "sha256": "14f8f9256eeff3ccaaf91ff22bef8e81c00cc369688f290229399adbc77478f3",
       "size": 1252
     },
     {
       "path": "pages/projects/lens-v2.md",
-      "sha256": "0c29b75458afe95f235b37fadd7a8779647cb8a53a8b33f01f40bc0a5374ecc2",
+      "sha256": "4e58d6b4a66353277d438d85a061869aca111d5bbe2b94e0fba4c22d74effae5",
       "size": 1188
     },
     {
       "path": "pages/projects/license-receipt-functionality.md",
-      "sha256": "36224868d31e4f14731d7d1e4eb9d161338f5a381a0aba24618ce429ca652e7f",
+      "sha256": "137f47b968c15073d90ab7e722b8ecf874cd6a6755b929bcacb83dfaef5444d5",
       "size": 3652
     },
     {
       "path": "pages/projects/licensing-and-derivatives-devex.md",
-      "sha256": "7fbd42e18614be5b1dddd2cd800836b9114a0adc1f774a91f61ed7565fc2d334",
+      "sha256": "5d6a79bafefee223aab145109ba28ec84a0a2b558b4d11326eb08dd885b9a41b",
       "size": 8425
     },
     {
       "path": "pages/projects/link-user-socials.md",
-      "sha256": "c805919694c08024e3ed1b8846759025b2d4d9470bbdc95840e81d4eea4eaffe",
+      "sha256": "a24912b116fb164bcf5bb84b93367c1a0de7259fc8dee1cf588d06efdc7eb9aa",
       "size": 1168
     },
     {
       "path": "pages/projects/mainnet-api.md",
-      "sha256": "f8c5463019cd5abe929fd6ad854e9dc7000f408bb4102cfb1bf98da710c74ff8",
+      "sha256": "815357e6ac3d8b643995bc6839096a0d49d73aff207de5a18fbf735ffe65f1c5",
       "size": 4023
     },
     {
       "path": "pages/projects/migrate-web-app-to-react-native.md",
-      "sha256": "77e3ef5dabe21299f2d74d4d6badf67c1d4764190ca6d62c577b49abdf495a67",
+      "sha256": "52260fd6f4a7d44d5de9abee09776cfee50d22c246550293ecd1c8418e3ba202",
       "size": 2902
     },
     {
       "path": "pages/projects/multichain-story-supernet.md",
-      "sha256": "bd2092e10100a27f1d6161245c75483dc2f5682b2277d5265fc43d56e68b7723",
+      "sha256": "5b0c61803d6e3268e2abdde733cc500292efb8c15dbd25dc95a6dd5b0b8cad26",
       "size": 1410
     },
     {
       "path": "pages/projects/network-rolling-upgrade-workflow.md",
-      "sha256": "cdd97287d3bf6318eccf74bbc45b2e54c926b692335da7e1fa7117099387536d",
+      "sha256": "dd2259b38c3f6e59fd9dd4c51505584f817b79cf57fa42f52e57403b9a1395a8",
       "size": 4338
     },
     {
       "path": "pages/projects/odyssey-testnet.md",
-      "sha256": "275078dd6b62305bf71aba4b0de11eb3080a2641ea30f763e2ac0504e90e3337",
+      "sha256": "d75c1a77b6b9b10491a81d6b615c82e5e11722e5efaeea2fb4e9f9769bc3ac66",
       "size": 10782
     },
     {
       "path": "pages/projects/open-source-development-plan.md",
-      "sha256": "aa234fe334d42b4826b3a462084066394711c2022871d628a570fd4ed267d5bc",
+      "sha256": "9dba6fb42427cced81c0874a945fb15f7d9e02a0d2d6b86dfa6689145f81396f",
       "size": 8717
     },
     {
       "path": "pages/projects/openverse-story-protocol-integration.md",
-      "sha256": "07ddc9e1b38223cbbee07ee60cceacb15cd7a7bd84080326fa060cd3e578180f",
+      "sha256": "76e5828bda31c3839f66ea5ffbfc5bba384a5e37eef9ad069621a0747661b3bc",
       "size": 5317
     },
     {
       "path": "pages/projects/p1-gamification-tactics.md",
-      "sha256": "e79c89facc054bfbe1532be546b683081b371b2669cca007d465e04ee0b38424",
+      "sha256": "f68d8cf976c963c35f91a4f792312586f308174836957ce213235a9d89f3824e",
       "size": 2996
     },
     {
       "path": "pages/projects/p256-precompile-case-study.md",
-      "sha256": "b7836441237121f4dbabd3c49e9241e1bb4ef7f2866311e592ce345d5632e5a9",
+      "sha256": "c77231a88ce779ac875d23ec7dfef6436bd14984474b9c80f5d4c11195074dc1",
       "size": 1212
     },
     {
       "path": "pages/projects/partner-testnet-release-v1-0-1.md",
-      "sha256": "fe8cc9f482d0a351573adfb8bd25b357c149188ff61ec061b6d8720d78b7bb73",
+      "sha256": "e88137727b21fadf8767cfa2f0b90071ef7fef1809c13cca16d57f296e5687fb",
       "size": 5007
     },
     {
       "path": "pages/projects/pfp-engineering-specs.md",
-      "sha256": "dad8c097fa6cf008c6fa0fbfff9ab60f73ec575582c4141a1bd17077aff836b8",
+      "sha256": "a28e54c4c976c0d319da2e0d8d698e87943421fa5c159c1bcb9ac45e718fa9a7",
       "size": 4800
     },
     {
       "path": "pages/projects/platform-beta-plan.md",
-      "sha256": "23e20ff254d29b6dd20cfdd8dcf647a7a443576cc947ff13910724c477d9e2ed",
+      "sha256": "fb0abc5459a582e4d72ad302a31eaddc7d2b9294d588bd2d5ff5a36bfebc9f17",
       "size": 3847
     },
     {
       "path": "pages/projects/precompiles-plan.md",
-      "sha256": "374355af5492a63459cceb7cd5f483ade8e392b46fcbcdb99d3603e05697ea7d",
+      "sha256": "70725c03fd8f6ae98905cdbe6f979accdcd5876d88089063f1f801b35e4a2e7d",
       "size": 1121
     },
     {
       "path": "pages/projects/private-testnet-march-15.md",
-      "sha256": "7e9a167924e54001506f9a936b6e89a44cd59dec51d268bf1ee5bb8293a5949c",
+      "sha256": "5e792162788358fd73bfcf74c029641d8a3e9cdac9f47dd98a76e3987a5a5016",
       "size": 4878
     },
     {
       "path": "pages/projects/productionize-backend.md",
-      "sha256": "d5fb06ca021f90773597565e8a2491a85919942ebe7de367dae0510ecfea4936",
+      "sha256": "4794cb46538afab566b66726e75415fda7fd901b9aa5d7ac5bf3739d3215e3bd",
       "size": 3994
     },
     {
       "path": "pages/projects/project-nova-setup.md",
-      "sha256": "20d6eaabc2405dd40acf8f7335c5b0c67fe902e2ba03e308ad743a965042d941",
+      "sha256": "72ba4c7bb60b99dc2e5d4dac3522216e33996cac7e0ce89df97109da2d04a357",
       "size": 1109
     },
     {
       "path": "pages/projects/protocol-beta-mainnet.md",
-      "sha256": "708e2716dcd1ee387834e9fab274355f9598ff5ff6ff4b1a26909e471d17deae",
+      "sha256": "98773cfccb7ca951f70451ace5a6df453073fad726e4dff281cf415aa2cb43fb",
       "size": 4862
     },
     {
       "path": "pages/projects/protocol-periphery-sot.md",
-      "sha256": "019a5e8f4efd0494c25744dc3adb3f23509029011654c494e56904fa780b2f42",
+      "sha256": "d5d90ae612c77f5852ec7d3a1a81b9932785d45e4b4c1ddc7395d2d34f6bd4f1",
       "size": 3987
     },
     {
       "path": "pages/projects/protocol-rd-update-may-jul-2023.md",
-      "sha256": "745a8eaa013f631d7b71b606d0bc53cc3ca7de78f258874ddc05f8648493de15",
+      "sha256": "8369d474a6d941da02bf6e386f1e67170239f0bd76b65042e1ebe02a51671303",
       "size": 4360
     },
     {
       "path": "pages/projects/rcade-music-app.md",
-      "sha256": "05cdabffae3c60e6a9ec557c386d2dd47fd7b1a559a349737e9aeddd0f670a73",
+      "sha256": "976f84736524cb60b8b8153797190cda98ab6a932bf921221b557bd969818c25",
       "size": 1058
     },
     {
       "path": "pages/projects/record-seedphrase-during-signup-flow.md",
-      "sha256": "47ad95d731b8185ecd7017ab31db092de0bb690d35f6c6949ddab1da00fd8991",
+      "sha256": "e7ace0095d21cf9c4b5c3660413829d863e94949cc7de7e50f7fa643fc65686e",
       "size": 1220
     },
     {
       "path": "pages/projects/renaissance-public-testnet.md",
-      "sha256": "e4721440b50f6d94ef84b7f6b2feb6033d42bd0a8bdddfc0e392934fdcb5664b",
+      "sha256": "dc72b34a2eee29c56dfe72aac4e03e397ae34db0df6e7bbb3987ffa0d65f6a68",
       "size": 3525
     },
     {
       "path": "pages/projects/replace-feedback-form-api.md",
-      "sha256": "58348f558c0817e1c2e8158db50145fc94b4322ea8972ddb977694858adc80dc",
+      "sha256": "cb26a8ecffb01bc79f26e077d5f70a8aec43ab835a9f9d94b247df210b59dcba",
       "size": 1192
     },
     {
       "path": "pages/projects/reputation-attestation-module.md",
-      "sha256": "681e3dee6fcbca2237369b468da0f72dd1dbfe8149f9e5802ca0b50fb8e470cd",
+      "sha256": "6f9f1b655de6f1004c5acce234816f5f9191f3d98c4f5b882a9d04f35cbca26a",
       "size": 1292
     },
     {
       "path": "pages/projects/sdk-designs.md",
-      "sha256": "00d0d6711c3ede9ce27fb9b146c55707f5475a801b6637392757640f1aa7bed0",
+      "sha256": "87b412573b470045b8f3edf7b6694f8bc7383289cb2c6e2beaaa889d24f4012c",
       "size": 1430
     },
     {
       "path": "pages/projects/sp-tokenomics-blast.md",
-      "sha256": "017902b5256c20a8c93b58c71e159b3789db89f321325342a341890681c97588",
+      "sha256": "6246d9cf4f263f43cc7b076b705c89272b005b9fbcc8d47b123b568543bb144c",
       "size": 4829
     },
     {
       "path": "pages/projects/spam-detection-mechanism.md",
-      "sha256": "34eaaf726d06e98a3c9415b0e367c422834ecc11529c9454139a4fbf4e3ff068",
+      "sha256": "d7fa453e825c28a487d1d9bbe5558d3ba538889dc1a1d0132261cfcd2cd1b493",
       "size": 1411
     },
     {
       "path": "pages/projects/status-page-section.md",
-      "sha256": "951778437cdee06606f48892e2a5aa0edaf651897c1645914487468849cdebb5",
+      "sha256": "81d69d97a660dcbe7b20d62451df64a6c23629b7b065041fafd0d6101b3252ab",
       "size": 7071
     },
     {
       "path": "pages/projects/story-chain-chainlist-listing.md",
-      "sha256": "ddc231abca3f7f6ad0866a9197b204edf80fa673360a4de638aa9937f9906956",
+      "sha256": "73eb2f9c610f1cd514de1ebf69bda1e6f3fbde33e98eeeef90d896f96f510ccc",
       "size": 2410
     },
     {
       "path": "pages/projects/story-node-improvements.md",
-      "sha256": "e91d1efd2cc5e1e20323b60e5ddacec28add46b73f79b3f420c7458cf0aac2dc",
+      "sha256": "1fc743319a70a62c7d3f81d11bf1c74687970c07609a555ddb3e3cb81f389c0e",
       "size": 4128
     },
     {
       "path": "pages/projects/story-protocol-l1-launch-plan.md",
-      "sha256": "b27a482745471709a043a1fd7886c5c422940005dc5dc60012f9794fd492b3d3",
+      "sha256": "b763c75e446aa43d398120d50fbc004402e69614c1458e612667a1c7d996cb3b",
       "size": 12083
     },
     {
       "path": "pages/projects/stress-test-plan.md",
-      "sha256": "b2b6927e188db74e0301b7630661ede23bbb76eb290f1d66c9466461a615fee3",
+      "sha256": "03cdb60e6bfdd36cc80f07b01a7d4837bb3beec9b552b5bc861481e0b06ccd53",
       "size": 10431
     },
     {
       "path": "pages/projects/testnet-launch-checklist.md",
-      "sha256": "d43c388b51ea4d706c4e0dc246c8a27242885e6221e304c4f63378e9c3ed96da",
+      "sha256": "109f8b06fffb6cd81277b3e13cc88c8a306319047bef740afc1231b907899c3e",
       "size": 2926
     },
     {
       "path": "pages/projects/updating-mininet-to-main.md",
-      "sha256": "6b075561cc2a34425b53eaf233b0885bd637e33154a0c7f99ddabdc18f1d3943",
+      "sha256": "1caa2e0cd5f009bf443206708ed21d5af7768994c2a9404cd72c67f63bb47cbc",
       "size": 1211
     },
     {
       "path": "pages/projects/upwork-fiverr-i18n-translation-vetting.md",
-      "sha256": "d046ecfcd2741ab81ffc4d30d1e6c166f43ad4376ee4896dff4db9879393a681",
+      "sha256": "9474163f52f6a8a3db60b9a9aa0dc370b0174d9fa9af88916baab3ea55cda0e0",
       "size": 1547
     },
     {
       "path": "pages/projects/web2-partner-integration-solution.md",
-      "sha256": "e9dd876cc66543478d3170f294d7135a41408ca74ef50af601206d77cfc42fd0",
+      "sha256": "68c35822db84047e80244272f08b5d70a90f448c33ae844b9fda44070be47af9",
       "size": 3976
     },
     {
       "path": "pages/projects/web3-cross-chain-solution.md",
-      "sha256": "f7d806fcc82b91c341ba641584d3eb9a32ae583d86853410a532ad162fc173ef",
+      "sha256": "5f53261fdbaac9d0b59db39117bf2979f0fb3d168d4370235b63dd5f67e2f8c0",
       "size": 7611
     },
     {
       "path": "pages/projects/wf-metadata-design.md",
-      "sha256": "39f1d42c21f52d660d59c5948d6ba3e757a62c033cf352642abef69ccc8738eb",
+      "sha256": "037f412afef619bebbe91a332c385c9ed51ff9ba047b718e0d366fe553e5b62e",
       "size": 5261
     },
     {
       "path": "pages/projects/world-launch.md",
-      "sha256": "b448926002521d0078e2bcad412b798b34df88d01a0f8748e45f5417b19d46dd",
+      "sha256": "2b89f97a6cda4b0263b14c9ed36eb9a63ad8d46e7ad47932b2042400eff3dc0c",
       "size": 909
     },
     {
       "path": "pages/projects/wrapped-ip-erc20-permit.md",
-      "sha256": "6fb5be5284d4d2b28d172ed88a5ff488d582fbfdb4bae4c1c565543810fc3539",
+      "sha256": "542220bd4c20589eb78c380f1dc411c60c86176276e3d9b54375b95151da142b",
       "size": 2368
     },
     {
       "path": "pages/runbooks/15-plus-1-devnet-halo-config-files.md",
-      "sha256": "f6213d2f7ddc1bae7b6effd145bae854f7f6f24a8f995d0f0419f520d3019efc",
+      "sha256": "9ffb4533873dcdc9ae2436ab9c9f5fd594bcaaa15d0c2ed3924bda0eb92fda1b",
       "size": 2497
     },
     {
       "path": "pages/runbooks/blockscout-explorer-setup.md",
-      "sha256": "142447cc53610b2d83289864bab137b224cf3c3a991aa3c150d2815cdeba2d87",
+      "sha256": "6c8602b0c1c88569cedbc14e2b5b398d36c6249c182ce27fd49254c936a77730",
       "size": 5223
     },
     {
       "path": "pages/runbooks/cdn-management.md",
-      "sha256": "9a41823b807701d50cb75d8ad9806cc063c898d082a1c7d604b3fe63803c87f0",
+      "sha256": "4ba6cbc927d61f5f10d7dce27039fb9420eb3f32f6958fee079618adfbfbaaf2",
       "size": 4536
     },
     {
       "path": "pages/runbooks/configure-a-validator.md",
-      "sha256": "454b04bad67f70919a69835866f1a8be592674d61d9fd010a82663835ff74cbd",
+      "sha256": "3ac48c818d3ecf3ca07dd0f470ef8169e555e8fcc80be246157b4bda78b38a34",
       "size": 3408
     },
     {
       "path": "pages/runbooks/debugging-mint-and-register-ip-with-sig-revert.md",
-      "sha256": "efdc297751b96bfdeb6d2164d299282a39865edd21b2d35d13deb2238c93425a",
+      "sha256": "564fcfc8d0de2579c6668f9c891e487fb962fb3673f5cc427fdf8e01ecd5d590",
       "size": 4910
     },
     {
       "path": "pages/runbooks/deploy-and-config-monitoring-stack.md",
-      "sha256": "75cd9b14ccce97c738a5c65e44e1733b8206ecb252bfab732e7d482824f0c8bc",
+      "sha256": "e277b7a9c771105da475a9632b59c230f2c0392bd08faea07101b7d45fbd7389",
       "size": 5781
     },
     {
       "path": "pages/runbooks/devnet-homework-jun-17-21.md",
-      "sha256": "de1eac38e784b9f3b1f53f69ceb288b9e1b99340fd5fbc13aadc146e5d0a11ee",
+      "sha256": "1172842861a6b74f0eb177a185f97685e199efa1e8f13ce714a69be6a5af0a72",
       "size": 3620
     },
     {
       "path": "pages/runbooks/docker-ecr-login.md",
-      "sha256": "d3d17b7e8ceb0db832f39b6d3a5ac6405db3be35baf080566f488df7b902ffb9",
+      "sha256": "ba88e0a35801b5dd8d5e90bf184c9ec5ff5f0d7a3dad185156a09aba64a2e3a1",
       "size": 1616
     },
     {
       "path": "pages/runbooks/eu-protocol-procedures.md",
-      "sha256": "8a320275ee7d58e0290f3e7a166f413683740af210f9219f016ef62877bd5ccb",
+      "sha256": "8506ff8f6fc857cbc0f90ff64d8e9eb47cdafb324d889bda3f9f74cb2a6b2a52",
       "size": 3640
     },
     {
       "path": "pages/runbooks/explorer-docker-cleanup-cronjob.md",
-      "sha256": "db029ebbc301b669be68f04287fdd5c3fdfbc2180b3b0ad5facf11ee0c890fc4",
+      "sha256": "0d64616300ef482f3de93593b0f23f7da3ee135cf12e31ca7c093a44526c0d13",
       "size": 3005
     },
     {
       "path": "pages/runbooks/faucet-app-runbook.md",
-      "sha256": "ed8760368e7aea77a0d33cb4c8186a6df361eba33d71da12d017e3b2a20c3ad3",
+      "sha256": "cd3c01556860dbf7f28ee1f36f97c8d13d944d4826f4fbb9e68ec13e02671660",
       "size": 3599
     },
     {
       "path": "pages/runbooks/gcp-internal-l1-testnet-setup.md",
-      "sha256": "aafab6b79066036eb46b78d8feabf6ade7fde84d54a3854cbb8e210c13c1b0fe",
+      "sha256": "1db82297ef0699c37de93ed809e0b2ef11dee240613375c1cd812f510eabc6c1",
       "size": 1296
     },
     {
       "path": "pages/runbooks/gcp-node-setup.md",
-      "sha256": "fae2098220d5f40e6809e2e77ac0d91ae27e83a8610bd7d22addee5f3c96f06a",
+      "sha256": "c80dbc91169e85454ac742bd22073ca11cbe9c0dbfc712bf3561a3c99f7ce896",
       "size": 8481
     },
     {
       "path": "pages/runbooks/how-to-handle-smart-contract-update.md",
-      "sha256": "286c161a9da18220b1399871159e088efafe6de7ebaf73e8d6ea7b223bc49a1f",
+      "sha256": "381fb80fecdb86c03c73268101ba15963d90872090a690c36189ce51a021ace1",
       "size": 1395
     },
     {
       "path": "pages/runbooks/incident-2023-03-16-prod-cluster-down-argocd-misconfig.md",
-      "sha256": "d1c4f4f54625af861b953252cf3dbd09d3da121fa58b9afba4ff3b233822d236",
+      "sha256": "125ea08afc41a31782246685c30a2b44148f7790db1320a3775ea4e0a2a106f4",
       "size": 5237
     },
     {
       "path": "pages/runbooks/list-ip-asset-api-outage-postmortem-may-2024.md",
-      "sha256": "ef8dbb4858368e403bab447fcdcf1237453b36856f12863f43a8831a14f1468e",
+      "sha256": "63e12ee7e7a52b82b4484ce5f117c17eb34aa4d44483b4384664b4815aeb4b1f",
       "size": 5189
     },
     {
       "path": "pages/runbooks/network-rolling-upgrade.md",
-      "sha256": "c9d502873333682cbc1c3883ad95ffbda36c70e924f4582122d56651e1488d4b",
+      "sha256": "4391f56af86cef9fad79985b4eab0e898cedb82da41329f0317244897395cef7",
       "size": 1372
     },
     {
       "path": "pages/runbooks/node-recovery-process.md",
-      "sha256": "087fbd3444b40f2017d51383649f81848dcad424ced37f6aba586d947bfa720f",
+      "sha256": "2d77986dd78a017e9f954551557749879c45581f8509c8f501ead85ba85418fa",
       "size": 6068
     },
     {
       "path": "pages/runbooks/odyssey-testnet-ssh-access.md",
-      "sha256": "72b85c68b62b3ac77f4329676611fedd58389e7fcdb681f4f1132ea54cfe7cdc",
+      "sha256": "4702f5bc17d88ec7d94183b5e1ed8e443ad1492d44c07a77e055e18d16108499",
       "size": 2897
     },
     {
       "path": "pages/runbooks/official-release-guide.md",
-      "sha256": "349c75ca8203388310bdc5c375b18be5ba5d9a9406b76ea4fdef6f0bb3a388bf",
+      "sha256": "3dc891e71473566e20ea06cf70f4ae704cc69c51b4c188b7313b833ca63f30ad",
       "size": 3344
     },
     {
       "path": "pages/runbooks/periphery-new-release-runbook.md",
-      "sha256": "fa369d4aa1340cf8b219394e76821bce07b9bf5078918df9fb0a3b7e8745c70a",
+      "sha256": "fa7ac793cf31cde641170ca10e4ab8964428391b4f5197a9447a921c3e0e2ef8",
       "size": 5434
     },
     {
       "path": "pages/runbooks/rds-backup-and-recovery-runbook.md",
-      "sha256": "65252360494194dcf0c59ded3084bfc6ada23ae4bb24626b21b7ab81195a82cc",
+      "sha256": "2f3a0b02767fac5e079f851de2a964434234f703ff5d2b3bd0f72cb724d139c4",
       "size": 2863
     },
     {
       "path": "pages/runbooks/runbook-maintain-and-recover-aws-eks.md",
-      "sha256": "4d6c4c099e01d768429e2c193c341b551783ed4322a6ded426c56e0faaf6b2f5",
+      "sha256": "eb96e73dab3b91115d0d11ca6e8b48499732a047614d71cc691f98828aee6994",
       "size": 1280
     },
     {
       "path": "pages/runbooks/runbook-node-storage-low.md",
-      "sha256": "b9d9f08f711a1a3e12aba4163bb4c44b460f963e724605751d90189a3df7b476",
+      "sha256": "f2c95d12bd2795d5cd950372dd93fb96d9399f99aa867cd809709d769da740a7",
       "size": 3043
     },
     {
       "path": "pages/runbooks/running-a-node.md",
-      "sha256": "79ca2b08394043072c132e4c800b536535ad473402384b2c84bc67fe2f14b208",
+      "sha256": "9bfd734eec74ecde8153101d83504c183a8c3064b85b58b9ef481e76bcabb136",
       "size": 4260
     },
     {
       "path": "pages/runbooks/story-node-setup-guide.md",
-      "sha256": "f492630a473495e84c4ab57d5fac3062e069fc4b78aeeb08e6275babf3f9952f",
+      "sha256": "fe475ea6839dcda953ff0ad053043c5ebccacd04f4d8333cc6129a931e7b1308",
       "size": 1225
     },
     {
       "path": "pages/runbooks/track-nft-purchases-ethereum.md",
-      "sha256": "c1593f782aa6bd2d66cb239d497f64c7c98edc370521b5abdfa12d960e93580a",
+      "sha256": "24baadd462c91f9a66de27de7d2e998ac1ec49a639c687692de901080ee16766",
       "size": 3685
     },
     {
       "path": "pages/runbooks/typescript-sdk-setup.md",
-      "sha256": "11484f7a695c4bcaaa211d113f2967d571774cc714f0df2c8dd7b043327f2779",
+      "sha256": "a635bc8d24ccc1cd5eddc146b89a66deb673512d29062b4d92cdcc4a06a8471d",
       "size": 1126
     },
     {
       "path": "pages/runbooks/upgrade-geth-0-9-2-to-0-9-3.md",
-      "sha256": "b018d5599d59c6dc3ddc006f45d63e21749a38070cadec18900d7d0ac6d52be0",
+      "sha256": "702351340a9f29f6b8b2c7d5e603d4b2fd211db6131bf5cbdf59f3a8de1ddbf2",
       "size": 3752
     },
     {
       "path": "pages/runbooks/velia-node-provisioning-prerequisites.md",
-      "sha256": "3666e6ff74a8570c2c85143d9de0b524613a80b34950b8d546d6ac00ca019d15",
+      "sha256": "570b590827e325b8ad5046129a7d76d7f694c1b8d6aa9f2837abe98591a47327",
       "size": 3701
     },
     {
       "path": "pages/systems/admin-api-security-architecture.md",
-      "sha256": "cd1da0a4827ee8d168cb8111a08c95579ff104873a91d21362fd37b731ae89b0",
+      "sha256": "e2137a1ea7a5e6a7706e226bfb7e669436c73fc83cc9222f46c1a52cda109818",
       "size": 4492
     },
     {
       "path": "pages/systems/back-end-designs.md",
-      "sha256": "f9d7547bf83dd4c233e62019fcfff45e3ef4f8811948dd78a6c2a86e9c870f59",
+      "sha256": "4ad07d9759632134395dd5fc88fabe110be6b66005a933655e77c557f0f69229",
       "size": 1540
     },
     {
       "path": "pages/systems/balancer-v2-access-control.md",
-      "sha256": "87f28b29eacdbee7b22916dfbe41cd874d80ed58aaf45b73a79420cbff8af01d",
+      "sha256": "b3b51f82a9d9f72a3ba281e610c7a9303bdd2ffc9cc21f6f8deaedd8674a0f85",
       "size": 1181
     },
     {
       "path": "pages/systems/calendar.md",
-      "sha256": "ed956d132a00dfc7dbfa46efca59e83aef7985d39db223811dd8494527d39604",
+      "sha256": "e172c9d8d978ad40c4fd950c3c62514fd89591dc6cdd83ac879c4690dfc0f824",
       "size": 1050
     },
     {
       "path": "pages/systems/cicd-design-and-implementation.md",
-      "sha256": "ee91fd0f330e3f063dcabc478fc2b9c23b1999fdaf881e0863f6190607ba7f82",
+      "sha256": "d6b71c40e10ed8db57db7249c41c97def9b467f51823fd9af7a695ae2085e4f5",
       "size": 6097
     },
     {
       "path": "pages/systems/consensus-labelling-mechanism.md",
-      "sha256": "974ed87a722675eae881b08551d05a853ef8514f56e1c9bd2fa660f0681eb3a3",
+      "sha256": "5a4be819b5571fa991b62c172998cc470b3b4c3bf68c39b8e745a7fbaad71fd5",
       "size": 1170
     },
     {
       "path": "pages/systems/core-sdk.md",
-      "sha256": "217d382d70a1c589ccea1b2514ed808d1168137736611714a05002bcaa551093",
+      "sha256": "d316266ef87b0c94542266ecda5154511458cda622e913e8260cab74ae17b886",
       "size": 2819
     },
     {
       "path": "pages/systems/engineering-home.md",
-      "sha256": "33e80d75fcc279d7f9a931ce315d507b98ed19971007e9e63f7b04b9e61a672a",
+      "sha256": "24da97e95ffbea808450cba348264d6254d27c6f823e9aaf56e8be9dbeeddec2",
       "size": 2127
     },
     {
       "path": "pages/systems/event-indexing-workflow.md",
-      "sha256": "6025485295b98b1d88f7456ff7937198552703686a68d20a41ca29e895572d66",
+      "sha256": "fb207167b3b648ce62905eb9a957a2fb5aeb4590260bb23697c8a0f8c1322704",
       "size": 1319
     },
     {
       "path": "pages/systems/external-services-tracking.md",
-      "sha256": "4b8df99635190cf83bc63b90b81ef89bb42fa06ae67f2a7495cc010d5fb9abc2",
+      "sha256": "f65198dc44d302f8eab1329ab365155a6c4cf4c7789323f96d244370748961dd",
       "size": 1216
     },
     {
       "path": "pages/systems/file-upload-api.md",
-      "sha256": "c5979f880c232c6e7428828c3d136bf73e7dc37f54c5c9eeab0f7adfa481a7a2",
+      "sha256": "73497371e69891f2b3b28310776dc29881240c21e83f6c9aafce919f1282411d",
       "size": 3060
     },
     {
       "path": "pages/systems/go-swagger-story-api.md",
-      "sha256": "2a797c929c95e614ed30f0a9f5b6e7e79948f9cbbb6bfe3df291bb62fdfd258a",
+      "sha256": "4cf68d8e1a0003bbdc839684fb01ed710b886a77e67150c780203c6e74c18407",
       "size": 1301
     },
     {
       "path": "pages/systems/group-ipa.md",
-      "sha256": "27352d555afee472f579e42213fa75c932df2d64a2b7d3d5720056d7622a6fa9",
+      "sha256": "e38110ac103f59ae5a7cd8d30837ce35ffd7614b99c5e77a29e58116bb27f99a",
       "size": 3337
     },
     {
       "path": "pages/systems/halo-configuration.md",
-      "sha256": "8f1d2e4e6e94f9cc14a08c93f5a59887d1c998223ef381e861d5157ef9ed6e52",
+      "sha256": "ba1fc9565ad3d516771b7a37c18407826deaa3ffa3512eb193f7ba6b74f7df3f",
       "size": 8514
     },
     {
       "path": "pages/systems/ip-graph-api.md",
-      "sha256": "7bd3a6bda886a15f7cb91dff0ed83736c2dd84ce10927084b74532990999fd29",
+      "sha256": "1c660ad193ab335e283d00763ed37d79f241b1ad4c08851f5ddcd441a8ec1bdd",
       "size": 4630
     },
     {
       "path": "pages/systems/l1-design-doc.md",
-      "sha256": "59d63e59133f20b4e58ea3c39bc91e2f78229b3e71706bf7699b40755542fd64",
+      "sha256": "3bc89edb9cb1230deff42649f86ea2554f403972174053f8e9c6a516e258035e",
       "size": 1804
     },
     {
       "path": "pages/systems/legal-database.md",
-      "sha256": "7d0671c7c129f2e1f7c91ae2cdecd06697e9f76c0adcece894bba9c6784731fd",
+      "sha256": "cd31194f98f9828d711e5b6ba552adb2758003bfd302d9ca26532c651b14b058",
       "size": 1102
     },
     {
       "path": "pages/systems/monitoring-and-dashboard.md",
-      "sha256": "020a2652582a44eafd7e6959efe4cd73dc8b572c24dc0822333e8c473a57633c",
+      "sha256": "2de47ae430d4f8c20b301d298fabd9dc552e4297525378aa4cd748e347f7b70b",
       "size": 3036
     },
     {
       "path": "pages/systems/new-product-intake.md",
-      "sha256": "bb8c04b26350bd5fbd98ee7e69ce0fee8bcd235e8ab7fc90bd2433a8be131668",
+      "sha256": "2fdcbc8c8c4d0fddbaca724fb418ae92e44f67e62b18ca9d6de71fae4179db56",
       "size": 1093
     },
     {
       "path": "pages/systems/nft-metadata-reveal.md",
-      "sha256": "1ef12e5f18cd1a63b3bdfda90519567c7983ac72895764ba8767e790d5babb95",
+      "sha256": "4a895987668ad8c9051b8c9415aee3dbae7220a65c8ea70a0809ef38102754d6",
       "size": 4007
     },
     {
       "path": "pages/systems/numo-product-backlog.md",
-      "sha256": "9121bc8785a88a5833ce207d151c3e126a05944948acff35f9b0c2a438850d8d",
+      "sha256": "968b9abb43c6e55543f1e83ea58ab265344525f4ffbd6df1e9a092e4457107cf",
       "size": 1109
     },
     {
       "path": "pages/systems/polygon-token-oracle-backend.md",
-      "sha256": "6e78921d515611345da677c27fb175ac88bcff8fa7cd58b89cdcd134d3f3a992",
+      "sha256": "83718fc1d4c010695fc0825ed6004816d3ad5f9bc9b8392a563bc77c23684cfd",
       "size": 2631
     },
     {
       "path": "pages/systems/projects-database.md",
-      "sha256": "40f2560cb9382914b6cfd04ed3d028aa05e5b64cbd5c8ea16dff64359f8cd772",
+      "sha256": "d1907bf97dab6d42c7a0d2072ccf0e6c4e528d886d5c677b96b52280cf0bfa78",
       "size": 1112
     },
     {
       "path": "pages/systems/protocol-api-specs.md",
-      "sha256": "817897cd3e29c6ca0c252ec531ea74543214e319524e58091c2c11143452efc3",
+      "sha256": "808ec9e19deca02d0738072f0537537a2150b30dc4ca720d37edc3b2e8570c85",
       "size": 8518
     },
     {
       "path": "pages/systems/protocol-v1-2-ga-release.md",
-      "sha256": "b8fb9f0220032b6ae36675ceb031e94eff12a836878a64ac6ac1792a28ff971f",
+      "sha256": "ae3c23844ba52c32cfafd31c9a496d8453ad24ec2f1f388106b4b8f720b6c725",
       "size": 5826
     },
     {
       "path": "pages/systems/sdk-v1-3-contract-structure.md",
-      "sha256": "fd0a0e907fd0b5b8acce615b9c454511db3b00cd0f55f714055473c6616a84e4",
+      "sha256": "6a2728da285072daff3275eeab5bd4a1708af0f97dfe56935b9a824a161ff89c",
       "size": 3173
     },
     {
       "path": "pages/systems/story-protocol-orchestrator-gateway.md",
-      "sha256": "0ce3a08f3c4ee85ee682fe7fc972397921f3018fcc2a470bca0459569b1b13e1",
+      "sha256": "7ebadaaee46fd1b2f710c024ba8bd68db004d137d9651ed3f8d8762e9e7da81e",
       "size": 3026
     },
     {
       "path": "pages/systems/tmkms.md",
-      "sha256": "3ffb525b953c30effdc5d68248f7717c2fedda8fa7f39b95f7d029f9767acd52",
+      "sha256": "6001f868c157137aaf3aaaa7dced56102d50d16cccdce109cf241868ba218387",
       "size": 4668
     },
     {
       "path": "pages/systems/token-distribution-database.md",
-      "sha256": "ee29e699bdb683f05511d5e84f3340790aad8346379a5f7f55a73b23053f62ad",
+      "sha256": "d19ace67bc2f89e7cfd767fe42423d32d5cc83da94ef714c37bfd54e5d6f94b4",
       "size": 1206
     },
     {
       "path": "pages/systems/twitter-oracle-backend-server.md",
-      "sha256": "27af51efc986773842a3b98f76dd9da337ecdfe7d26d09a7152deacacb47a63d",
+      "sha256": "605a9d3c487283d4388e8de2dd59e9fc2617a59766754d4078bc5d982446a1e4",
       "size": 5053
     },
     {
       "path": "pages/systems/uma-oracle.md",
-      "sha256": "f4e9211a033a979e7179654f34d5d8ba38ca9bf62f169e6b18685c5225e1018f",
+      "sha256": "0b6cc7eb195365bb7fa4ecea8eebb6616dcb8787a9e4f8cba48ae1dc79905710",
       "size": 4582
     },
     {
       "path": "pages/systems/untitled-database-129051299a548040a4d9e22a8cd01435.md",
-      "sha256": "e1479859167670f0dbc2b8b90d572d21c31eef98f067099920dbd5dd506287a5",
+      "sha256": "0bfc48d79cfe18e8633cad97373a88a6ffa5fdccecc4b4eb44155d6944fddaeb",
       "size": 1192
     },
     {
       "path": "pages/systems/upload-system.md",
-      "sha256": "26d2530e2c92acb0cb89dabf87d680fc1425af8a7b1e3c69e81b234a3a7b62c1",
+      "sha256": "3a2b31c93c32a138724f3dec534dfa2f432fc80b775065953eb1a4a022671a1b",
       "size": 3182
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "636c7429c2445bef4ef617cb2169086c851e8d866978982ba9223ec47e465b0d"
+  "wiki_tree_hash": "a4f6e97de65ee697ed60c0e6e948e4fb02c182cde3ace10f2d3e7d888e6e0e76"
 }

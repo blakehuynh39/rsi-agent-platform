@@ -2,7 +2,7 @@
 title: "OpenSea Conduit (Delegation)"
 type: "concept"
 slug: "concepts/opensea-conduit-delegation"
-freshness: "2026-05-05T06:31:35Z"
+freshness: "2024-03-12T07:04:00Z"
 tags:
   - "conduit"
   - "delegation"
@@ -23,7 +23,7 @@ OpenSea Conduit is a delegation mechanism used by OpenSea to facilitate transact
 ## Claims
 
 - OpenSea Conduit is a delegation mechanism. `claim:claim_1_1` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/OpenSea-Conduit-Delegation-1b732f68d6a844ee82fdac6c76bcb28d) `source_document_id=srcdoc_5fdfd5e53c1079ad5ab2fb9e1370d099` `source_revision_id=srcrev_e6c0daeb420278f533ca82f916181d49` `chunk_id=srcchunk_131e4d47feaf29ac6ac19d4a07cb43dd` `native_locator=https://www.notion.so/OpenSea-Conduit-Delegation-1b732f68d6a844ee82fdac6c76bcb28d` `source_timestamp=2026-05-05T06:31:35Z`
+  - citation: [Notion source](https://www.notion.so/OpenSea-Conduit-Delegation-1b732f68d6a844ee82fdac6c76bcb28d) `source_document_id=srcdoc_5fdfd5e53c1079ad5ab2fb9e1370d099` `source_revision_id=srcrev_e6c0daeb420278f533ca82f916181d49` `chunk_id=srcchunk_131e4d47feaf29ac6ac19d4a07cb43dd` `native_locator=https://www.notion.so/OpenSea-Conduit-Delegation-1b732f68d6a844ee82fdac6c76bcb28d` `source_timestamp=2024-03-12T07:04:00Z`
 
 ## Sources
 

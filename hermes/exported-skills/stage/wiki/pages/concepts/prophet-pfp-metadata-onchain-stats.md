@@ -2,7 +2,7 @@
 title: "Prophet PFP Metadata to Reflect On-Chain Protocol Stats"
 type: "concept"
 slug: "concepts/prophet-pfp-metadata-onchain-stats"
-freshness: "2026-05-05T06:27:06Z"
+freshness: "2023-10-31T22:01:00Z"
 tags:
   - "metadata"
   - "nft"
@@ -22,13 +22,13 @@ The concept involves NFT metadata dynamically reflecting on-chain statistics suc
 ## Claims
 
 - NFT metadata will reflect on-chain statistics like number of times the IPA has been collected (Collect Module), number of relationships (Relationship Module), and type of license (Licensing Module). `claim:claim_1_1` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/Prophet-PFP-metadata-to-reflect-Protocol-stats-2437208350c84d8d8c8383ed6da691a1) `source_document_id=srcdoc_46256ec0d6eeaa4f062aca1a3a516623` `source_revision_id=srcrev_def98f022ec5c3da7e1ff94e39e1df35` `chunk_id=srcchunk_00dd8c3c5ec4633a4d1e2d2a480d22b4` `native_locator=https://www.notion.so/Prophet-PFP-metadata-to-reflect-Protocol-stats-2437208350c84d8d8c8383ed6da691a1` `source_timestamp=2026-05-05T06:27:06Z`
+  - citation: [Notion source](https://www.notion.so/Prophet-PFP-metadata-to-reflect-Protocol-stats-2437208350c84d8d8c8383ed6da691a1) `source_document_id=srcdoc_46256ec0d6eeaa4f062aca1a3a516623` `source_revision_id=srcrev_def98f022ec5c3da7e1ff94e39e1df35` `chunk_id=srcchunk_00dd8c3c5ec4633a4d1e2d2a480d22b4` `native_locator=https://www.notion.so/Prophet-PFP-metadata-to-reflect-Protocol-stats-2437208350c84d8d8c8383ed6da691a1` `source_timestamp=2023-10-31T22:01:00Z`
 - The purpose is to provide a fun and more convenient way to showcase the IP Asset’s on-chain statistics through the metadata. `claim:claim_1_2` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/Prophet-PFP-metadata-to-reflect-Protocol-stats-2437208350c84d8d8c8383ed6da691a1) `source_document_id=srcdoc_46256ec0d6eeaa4f062aca1a3a516623` `source_revision_id=srcrev_def98f022ec5c3da7e1ff94e39e1df35` `chunk_id=srcchunk_00dd8c3c5ec4633a4d1e2d2a480d22b4` `native_locator=https://www.notion.so/Prophet-PFP-metadata-to-reflect-Protocol-stats-2437208350c84d8d8c8383ed6da691a1` `source_timestamp=2026-05-05T06:27:06Z`
+  - citation: [Notion source](https://www.notion.so/Prophet-PFP-metadata-to-reflect-Protocol-stats-2437208350c84d8d8c8383ed6da691a1) `source_document_id=srcdoc_46256ec0d6eeaa4f062aca1a3a516623` `source_revision_id=srcrev_def98f022ec5c3da7e1ff94e39e1df35` `chunk_id=srcchunk_00dd8c3c5ec4633a4d1e2d2a480d22b4` `native_locator=https://www.notion.so/Prophet-PFP-metadata-to-reflect-Protocol-stats-2437208350c84d8d8c8383ed6da691a1` `source_timestamp=2023-10-31T22:01:00Z`
 - The concept is still in the idea stage and its technical feasibility needs assessment. `claim:claim_1_3` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/Prophet-PFP-metadata-to-reflect-Protocol-stats-2437208350c84d8d8c8383ed6da691a1) `source_document_id=srcdoc_46256ec0d6eeaa4f062aca1a3a516623` `source_revision_id=srcrev_def98f022ec5c3da7e1ff94e39e1df35` `chunk_id=srcchunk_00dd8c3c5ec4633a4d1e2d2a480d22b4` `native_locator=https://www.notion.so/Prophet-PFP-metadata-to-reflect-Protocol-stats-2437208350c84d8d8c8383ed6da691a1` `source_timestamp=2026-05-05T06:27:06Z`
+  - citation: [Notion source](https://www.notion.so/Prophet-PFP-metadata-to-reflect-Protocol-stats-2437208350c84d8d8c8383ed6da691a1) `source_document_id=srcdoc_46256ec0d6eeaa4f062aca1a3a516623` `source_revision_id=srcrev_def98f022ec5c3da7e1ff94e39e1df35` `chunk_id=srcchunk_00dd8c3c5ec4633a4d1e2d2a480d22b4` `native_locator=https://www.notion.so/Prophet-PFP-metadata-to-reflect-Protocol-stats-2437208350c84d8d8c8383ed6da691a1` `source_timestamp=2023-10-31T22:01:00Z`
 - One engineering approach for hosting dynamic metadata on IPFS/Arweave is to have the NFT metadata tokenURI point to an IPFS/Arweave URI that acts as an API endpoint generating token metadata JSON, with a website uploaded to IPFS/Arweave that can query protocol stats on-chain, requiring RPC call handling. `claim:claim_1_4` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/Prophet-PFP-metadata-to-reflect-Protocol-stats-2437208350c84d8d8c8383ed6da691a1) `source_document_id=srcdoc_46256ec0d6eeaa4f062aca1a3a516623` `source_revision_id=srcrev_def98f022ec5c3da7e1ff94e39e1df35` `chunk_id=srcchunk_00dd8c3c5ec4633a4d1e2d2a480d22b4` `native_locator=https://www.notion.so/Prophet-PFP-metadata-to-reflect-Protocol-stats-2437208350c84d8d8c8383ed6da691a1` `source_timestamp=2026-05-05T06:27:06Z`
+  - citation: [Notion source](https://www.notion.so/Prophet-PFP-metadata-to-reflect-Protocol-stats-2437208350c84d8d8c8383ed6da691a1) `source_document_id=srcdoc_46256ec0d6eeaa4f062aca1a3a516623` `source_revision_id=srcrev_def98f022ec5c3da7e1ff94e39e1df35` `chunk_id=srcchunk_00dd8c3c5ec4633a4d1e2d2a480d22b4` `native_locator=https://www.notion.so/Prophet-PFP-metadata-to-reflect-Protocol-stats-2437208350c84d8d8c8383ed6da691a1` `source_timestamp=2023-10-31T22:01:00Z`
 
 ## Open Questions
 

@@ -2,7 +2,7 @@
 title: "Wrapped IP ERC20 Permit"
 type: "project"
 slug: "projects/wrapped-ip-erc20-permit"
-freshness: "2026-05-05T06:36:36Z"
+freshness: "2024-07-16T15:53:00Z"
 tags:
   - "erc20-permit"
   - "p2"
@@ -23,11 +23,11 @@ Add ERC20 Permit support to the Wrapped IP ($wIP) token by creating a new custom
 ## Claims
 
 - The $wIP token currently does not support ERC20 Permit. `claim:claim_3_1` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/Dispute-and-IPA-Staking-ca9eb8468cdc4846879fe9173e0e4980) `source_document_id=srcdoc_e6330768515dc61898e883dd66fdd63f` `source_revision_id=srcrev_aba2bccd4890de44c51dfab17b2c3ca1` `chunk_id=srcchunk_2f37f255cbff962b81c266b55d826f95` `native_locator=https://www.notion.so/Dispute-and-IPA-Staking-ca9eb8468cdc4846879fe9173e0e4980` `source_timestamp=2026-05-05T06:36:36Z`
+  - citation: [Notion source](https://www.notion.so/Dispute-and-IPA-Staking-ca9eb8468cdc4846879fe9173e0e4980) `source_document_id=srcdoc_e6330768515dc61898e883dd66fdd63f` `source_revision_id=srcrev_aba2bccd4890de44c51dfab17b2c3ca1` `chunk_id=srcchunk_2f37f255cbff962b81c266b55d826f95` `native_locator=https://www.notion.so/Dispute-and-IPA-Staking-ca9eb8468cdc4846879fe9173e0e4980` `source_timestamp=2024-07-16T15:53:00Z`
 - A new custom $wIP contract should be created that supports ERC20 Permit for better UX. `claim:claim_3_2` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/Dispute-and-IPA-Staking-ca9eb8468cdc4846879fe9173e0e4980) `source_document_id=srcdoc_e6330768515dc61898e883dd66fdd63f` `source_revision_id=srcrev_aba2bccd4890de44c51dfab17b2c3ca1` `chunk_id=srcchunk_2f37f255cbff962b81c266b55d826f95` `native_locator=https://www.notion.so/Dispute-and-IPA-Staking-ca9eb8468cdc4846879fe9173e0e4980` `source_timestamp=2026-05-05T06:36:36Z`
+  - citation: [Notion source](https://www.notion.so/Dispute-and-IPA-Staking-ca9eb8468cdc4846879fe9173e0e4980) `source_document_id=srcdoc_e6330768515dc61898e883dd66fdd63f` `source_revision_id=srcrev_aba2bccd4890de44c51dfab17b2c3ca1` `chunk_id=srcchunk_2f37f255cbff962b81c266b55d826f95` `native_locator=https://www.notion.so/Dispute-and-IPA-Staking-ca9eb8468cdc4846879fe9173e0e4980` `source_timestamp=2024-07-16T15:53:00Z`
 - This is a P2 Small priority item. `claim:claim_3_3` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/Dispute-and-IPA-Staking-ca9eb8468cdc4846879fe9173e0e4980) `source_document_id=srcdoc_e6330768515dc61898e883dd66fdd63f` `source_revision_id=srcrev_aba2bccd4890de44c51dfab17b2c3ca1` `chunk_id=srcchunk_2f37f255cbff962b81c266b55d826f95` `native_locator=https://www.notion.so/Dispute-and-IPA-Staking-ca9eb8468cdc4846879fe9173e0e4980` `source_timestamp=2026-05-05T06:36:36Z`
+  - citation: [Notion source](https://www.notion.so/Dispute-and-IPA-Staking-ca9eb8468cdc4846879fe9173e0e4980) `source_document_id=srcdoc_e6330768515dc61898e883dd66fdd63f` `source_revision_id=srcrev_aba2bccd4890de44c51dfab17b2c3ca1` `chunk_id=srcchunk_2f37f255cbff962b81c266b55d826f95` `native_locator=https://www.notion.so/Dispute-and-IPA-Staking-ca9eb8468cdc4846879fe9173e0e4980` `source_timestamp=2024-07-16T15:53:00Z`
 
 ## Related Pages
 

@@ -2,7 +2,7 @@
 title: "Enshrined Protocol"
 type: "concept"
 slug: "concepts/enshrined-protocol"
-freshness: "2026-05-05T06:33:56Z"
+freshness: "2024-04-26T06:57:00Z"
 tags:
   - "enshrining"
   - "precompiles"
@@ -22,7 +22,7 @@ Discussion and resources on enshrined protocol, covering precompiles, examples f
 ## Claims
 
 - Vanity address generation does not need to be enshrined; existing EVM tools like vanity-eth.tk can be used to obtain the private key. `claim:claim_1_1` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/Enshrined-Protocol-a6ae402d086f493cb29b82825a3ff4e2) `source_document_id=srcdoc_a2956e55a00391a14b4e35a2c9e62762` `source_revision_id=srcrev_a5f894d0107d384cfd9d2610bf4224ae` `chunk_id=srcchunk_30464122e7fec9fde405c40631c56a0b` `native_locator=https://www.notion.so/Enshrined-Protocol-a6ae402d086f493cb29b82825a3ff4e2` `source_timestamp=2026-05-05T06:33:56Z`
+  - citation: [Notion source](https://www.notion.so/Enshrined-Protocol-a6ae402d086f493cb29b82825a3ff4e2) `source_document_id=srcdoc_a2956e55a00391a14b4e35a2c9e62762` `source_revision_id=srcrev_a5f894d0107d384cfd9d2610bf4224ae` `chunk_id=srcchunk_30464122e7fec9fde405c40631c56a0b` `native_locator=https://www.notion.so/Enshrined-Protocol-a6ae402d086f493cb29b82825a3ff4e2` `source_timestamp=2024-04-26T06:57:00Z`
 
 ## Open Questions
 

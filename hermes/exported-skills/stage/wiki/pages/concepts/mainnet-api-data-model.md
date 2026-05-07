@@ -2,7 +2,7 @@
 title: "Mainnet API Data Model"
 type: "concept"
 slug: "concepts/mainnet-api-data-model"
-freshness: "2026-05-05T06:33:19Z"
+freshness: "2024-04-12T18:30:00Z"
 tags:
   - "api"
   - "data-model"
@@ -23,13 +23,13 @@ Defines the core entities and their relationships for the Mainnet API, including
 ## Claims
 
 - Core entities: IPAsset, Transaction, Collection. `claim:claim_2_1` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/Mainnet-API-17edd4d6506141c4b5245d5c09995e80) `source_document_id=srcdoc_019e39185e81d2cd2a27cd1123dbce59` `source_revision_id=srcrev_3d26cefb46d38234ae94bff498d4666e` `chunk_id=srcchunk_448d43a7beeac5522b01cabedf12f5ed` `native_locator=https://www.notion.so/Mainnet-API-17edd4d6506141c4b5245d5c09995e80` `source_timestamp=2026-05-05T06:33:19Z`
+  - citation: [Notion source](https://www.notion.so/Mainnet-API-17edd4d6506141c4b5245d5c09995e80) `source_document_id=srcdoc_019e39185e81d2cd2a27cd1123dbce59` `source_revision_id=srcrev_3d26cefb46d38234ae94bff498d4666e` `chunk_id=srcchunk_448d43a7beeac5522b01cabedf12f5ed` `native_locator=https://www.notion.so/Mainnet-API-17edd4d6506141c4b5245d5c09995e80` `source_timestamp=2024-04-12T18:30:00Z`
 - Licensing entities: LicenseToken (formerly License), IPLicenseTerm (formerly IPAPolicy), LicenseTerm (formerly Policy), LicenseTemplate (formerly License Framework Manager), LicenseMintingFeePaid. `claim:claim_2_2` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/Mainnet-API-17edd4d6506141c4b5245d5c09995e80) `source_document_id=srcdoc_019e39185e81d2cd2a27cd1123dbce59` `source_revision_id=srcrev_3d26cefb46d38234ae94bff498d4666e` `chunk_id=srcchunk_448d43a7beeac5522b01cabedf12f5ed` `native_locator=https://www.notion.so/Mainnet-API-17edd4d6506141c4b5245d5c09995e80` `source_timestamp=2026-05-05T06:33:19Z`
+  - citation: [Notion source](https://www.notion.so/Mainnet-API-17edd4d6506141c4b5245d5c09995e80) `source_document_id=srcdoc_019e39185e81d2cd2a27cd1123dbce59` `source_revision_id=srcrev_3d26cefb46d38234ae94bff498d4666e` `chunk_id=srcchunk_448d43a7beeac5522b01cabedf12f5ed` `native_locator=https://www.notion.so/Mainnet-API-17edd4d6506141c4b5245d5c09995e80` `source_timestamp=2024-04-12T18:30:00Z`
 - Royalty entities: RoyaltyPolicy, RoyaltyPayment, RoyaltyClaimed (TBD), RoyaltyTokenHolders (TBD), RoyaltyClaimable (TBD). `claim:claim_2_3` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/Mainnet-API-17edd4d6506141c4b5245d5c09995e80) `source_document_id=srcdoc_019e39185e81d2cd2a27cd1123dbce59` `source_revision_id=srcrev_3d26cefb46d38234ae94bff498d4666e` `chunk_id=srcchunk_448d43a7beeac5522b01cabedf12f5ed` `native_locator=https://www.notion.so/Mainnet-API-17edd4d6506141c4b5245d5c09995e80` `source_timestamp=2026-05-05T06:33:19Z`
+  - citation: [Notion source](https://www.notion.so/Mainnet-API-17edd4d6506141c4b5245d5c09995e80) `source_document_id=srcdoc_019e39185e81d2cd2a27cd1123dbce59` `source_revision_id=srcrev_3d26cefb46d38234ae94bff498d4666e` `chunk_id=srcchunk_448d43a7beeac5522b01cabedf12f5ed` `native_locator=https://www.notion.so/Mainnet-API-17edd4d6506141c4b5245d5c09995e80` `source_timestamp=2024-04-12T18:30:00Z`
 - Other modules: Dispute, Permission, Module. `claim:claim_2_4` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/Mainnet-API-17edd4d6506141c4b5245d5c09995e80) `source_document_id=srcdoc_019e39185e81d2cd2a27cd1123dbce59` `source_revision_id=srcrev_3d26cefb46d38234ae94bff498d4666e` `chunk_id=srcchunk_448d43a7beeac5522b01cabedf12f5ed` `native_locator=https://www.notion.so/Mainnet-API-17edd4d6506141c4b5245d5c09995e80` `source_timestamp=2026-05-05T06:33:19Z`
+  - citation: [Notion source](https://www.notion.so/Mainnet-API-17edd4d6506141c4b5245d5c09995e80) `source_document_id=srcdoc_019e39185e81d2cd2a27cd1123dbce59` `source_revision_id=srcrev_3d26cefb46d38234ae94bff498d4666e` `chunk_id=srcchunk_448d43a7beeac5522b01cabedf12f5ed` `native_locator=https://www.notion.so/Mainnet-API-17edd4d6506141c4b5245d5c09995e80` `source_timestamp=2024-04-12T18:30:00Z`
 
 ## Related Pages
 

@@ -2,7 +2,7 @@
 title: "NFT Feedback (Color)"
 type: "open_question"
 slug: "open-questions/nft-feedback-color"
-freshness: "2026-05-05T04:31:18Z"
+freshness: "2025-04-03T20:14:00Z"
 tags:
   - "license-tokens"
   - "marketplace"
@@ -24,17 +24,17 @@ Open questions and feedback regarding NFT integration with Story Protocol, licen
 ## Claims
 
 - All License Tokens (LTs) are currently in a single collection. `claim:claim_1_1` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84) `source_document_id=srcdoc_b8274bf4302d18121fcbec22d8b1e58b` `source_revision_id=srcrev_65195dda5174bdc6972d944c7aebf54a` `chunk_id=srcchunk_8bf6efc65f96b882e2dc7db32af4c4f4` `native_locator=https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84` `source_timestamp=2026-05-05T04:31:18Z`
+  - citation: [Notion source](https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84) `source_document_id=srcdoc_b8274bf4302d18121fcbec22d8b1e58b` `source_revision_id=srcrev_65195dda5174bdc6972d944c7aebf54a` `chunk_id=srcchunk_8bf6efc65f96b882e2dc7db32af4c4f4` `native_locator=https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84` `source_timestamp=2025-04-03T20:14:00Z`
 - All License Tokens have a single default image. `claim:claim_1_2` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84) `source_document_id=srcdoc_b8274bf4302d18121fcbec22d8b1e58b` `source_revision_id=srcrev_65195dda5174bdc6972d944c7aebf54a` `chunk_id=srcchunk_8bf6efc65f96b882e2dc7db32af4c4f4` `native_locator=https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84` `source_timestamp=2026-05-05T04:31:18Z`
+  - citation: [Notion source](https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84) `source_document_id=srcdoc_b8274bf4302d18121fcbec22d8b1e58b` `source_revision_id=srcrev_65195dda5174bdc6972d944c7aebf54a` `chunk_id=srcchunk_8bf6efc65f96b882e2dc7db32af4c4f4` `native_locator=https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84` `source_timestamp=2025-04-03T20:14:00Z`
 - EIP-6551 includes a fraud prevention segment. `claim:claim_1_3` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84) `source_document_id=srcdoc_b8274bf4302d18121fcbec22d8b1e58b` `source_revision_id=srcrev_65195dda5174bdc6972d944c7aebf54a` `chunk_id=srcchunk_8bf6efc65f96b882e2dc7db32af4c4f4` `native_locator=https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84` `source_timestamp=2026-05-05T04:31:18Z`
+  - citation: [Notion source](https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84) `source_document_id=srcdoc_b8274bf4302d18121fcbec22d8b1e58b` `source_revision_id=srcrev_65195dda5174bdc6972d944c7aebf54a` `chunk_id=srcchunk_8bf6efc65f96b882e2dc7db32af4c4f4` `native_locator=https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84` `source_timestamp=2025-04-03T20:14:00Z`
 - A user can list an NFT with a token bound account that holds value, then front-run the purchaseListing call to empty the token bound account of value. `claim:claim_1_4` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84) `source_document_id=srcdoc_b8274bf4302d18121fcbec22d8b1e58b` `source_revision_id=srcrev_65195dda5174bdc6972d944c7aebf54a` `chunk_id=srcchunk_8bf6efc65f96b882e2dc7db32af4c4f4` `native_locator=https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84` `source_timestamp=2026-05-05T04:31:18Z`
+  - citation: [Notion source](https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84) `source_document_id=srcdoc_b8274bf4302d18121fcbec22d8b1e58b` `source_revision_id=srcrev_65195dda5174bdc6972d944c7aebf54a` `chunk_id=srcchunk_8bf6efc65f96b882e2dc7db32af4c4f4` `native_locator=https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84` `source_timestamp=2025-04-03T20:14:00Z`
 - If the marketplace takes ownership of the NFT while listed, IP modules may be locked automatically. `claim:claim_1_5` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84) `source_document_id=srcdoc_b8274bf4302d18121fcbec22d8b1e58b` `source_revision_id=srcrev_65195dda5174bdc6972d944c7aebf54a` `chunk_id=srcchunk_8bf6efc65f96b882e2dc7db32af4c4f4` `native_locator=https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84` `source_timestamp=2026-05-05T04:31:18Z`
+  - citation: [Notion source](https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84) `source_document_id=srcdoc_b8274bf4302d18121fcbec22d8b1e58b` `source_revision_id=srcrev_65195dda5174bdc6972d944c7aebf54a` `chunk_id=srcchunk_8bf6efc65f96b882e2dc7db32af4c4f4` `native_locator=https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84` `source_timestamp=2025-04-03T20:14:00Z`
 - Royalties from IP modules might be sent to the NFT's token bound account. `claim:claim_1_6` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84) `source_document_id=srcdoc_b8274bf4302d18121fcbec22d8b1e58b` `source_revision_id=srcrev_65195dda5174bdc6972d944c7aebf54a` `chunk_id=srcchunk_8bf6efc65f96b882e2dc7db32af4c4f4` `native_locator=https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84` `source_timestamp=2026-05-05T04:31:18Z`
+  - citation: [Notion source](https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84) `source_document_id=srcdoc_b8274bf4302d18121fcbec22d8b1e58b` `source_revision_id=srcrev_65195dda5174bdc6972d944c7aebf54a` `chunk_id=srcchunk_8bf6efc65f96b882e2dc7db32af4c4f4` `native_locator=https://www.notion.so/NFT-Feedback-Color-bf68673b532a4e6d81820299e1905a84` `source_timestamp=2025-04-03T20:14:00Z`
 
 ## Open Questions
 

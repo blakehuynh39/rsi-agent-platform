@@ -2,7 +2,7 @@
 title: "Permissionless IP Registration"
 type: "decision"
 slug: "decisions/permissionless-ip-registration"
-freshness: "2026-05-05T06:32:42Z"
+freshness: "2024-03-26T00:48:00Z"
 tags:
   - "ip-registration"
   - "nft"
@@ -24,13 +24,13 @@ Decision to allow permissionless registration of IP for NFTs on Story Protocol, 
 ## Claims
 
 - Currently, only the NFT owners can register the IP of their NFTs on Story Protocol. `claim:claim_1_1` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/Permissionless-IP-registration-324440c145bb4e318078d6beeea5bbf1) `source_document_id=srcdoc_54a92a437cb2bde69f4228d38788a566` `source_revision_id=srcrev_03db4519c7816ca97aa2c1d94972893a` `chunk_id=srcchunk_92a033c72cc83f72fdbb4b75efbddefd` `native_locator=https://www.notion.so/Permissionless-IP-registration-324440c145bb4e318078d6beeea5bbf1` `source_timestamp=2026-05-05T06:32:42Z`
+  - citation: [Notion source](https://www.notion.so/Permissionless-IP-registration-324440c145bb4e318078d6beeea5bbf1) `source_document_id=srcdoc_54a92a437cb2bde69f4228d38788a566` `source_revision_id=srcrev_03db4519c7816ca97aa2c1d94972893a` `chunk_id=srcchunk_92a033c72cc83f72fdbb4b75efbddefd` `native_locator=https://www.notion.so/Permissionless-IP-registration-324440c145bb4e318078d6beeea5bbf1` `source_timestamp=2024-03-26T00:48:00Z`
 - Allow permissionless registration of IP for NFTs. `claim:claim_1_2` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/Permissionless-IP-registration-324440c145bb4e318078d6beeea5bbf1) `source_document_id=srcdoc_54a92a437cb2bde69f4228d38788a566` `source_revision_id=srcrev_03db4519c7816ca97aa2c1d94972893a` `chunk_id=srcchunk_92a033c72cc83f72fdbb4b75efbddefd` `native_locator=https://www.notion.so/Permissionless-IP-registration-324440c145bb4e318078d6beeea5bbf1` `source_timestamp=2026-05-05T06:32:42Z`
+  - citation: [Notion source](https://www.notion.so/Permissionless-IP-registration-324440c145bb4e318078d6beeea5bbf1) `source_document_id=srcdoc_54a92a437cb2bde69f4228d38788a566` `source_revision_id=srcrev_03db4519c7816ca97aa2c1d94972893a` `chunk_id=srcchunk_92a033c72cc83f72fdbb4b75efbddefd` `native_locator=https://www.notion.so/Permissionless-IP-registration-324440c145bb4e318078d6beeea5bbf1` `source_timestamp=2024-03-26T00:48:00Z`
 - Requires PR review from protocol engineers. `claim:claim_1_3` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/Permissionless-IP-registration-324440c145bb4e318078d6beeea5bbf1) `source_document_id=srcdoc_54a92a437cb2bde69f4228d38788a566` `source_revision_id=srcrev_03db4519c7816ca97aa2c1d94972893a` `chunk_id=srcchunk_92a033c72cc83f72fdbb4b75efbddefd` `native_locator=https://www.notion.so/Permissionless-IP-registration-324440c145bb4e318078d6beeea5bbf1` `source_timestamp=2026-05-05T06:32:42Z`
+  - citation: [Notion source](https://www.notion.so/Permissionless-IP-registration-324440c145bb4e318078d6beeea5bbf1) `source_document_id=srcdoc_54a92a437cb2bde69f4228d38788a566` `source_revision_id=srcrev_03db4519c7816ca97aa2c1d94972893a` `chunk_id=srcchunk_92a033c72cc83f72fdbb4b75efbddefd` `native_locator=https://www.notion.so/Permissionless-IP-registration-324440c145bb4e318078d6beeea5bbf1` `source_timestamp=2024-03-26T00:48:00Z`
 - Has little downstream effects. `claim:claim_1_4` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/Permissionless-IP-registration-324440c145bb4e318078d6beeea5bbf1) `source_document_id=srcdoc_54a92a437cb2bde69f4228d38788a566` `source_revision_id=srcrev_03db4519c7816ca97aa2c1d94972893a` `chunk_id=srcchunk_92a033c72cc83f72fdbb4b75efbddefd` `native_locator=https://www.notion.so/Permissionless-IP-registration-324440c145bb4e318078d6beeea5bbf1` `source_timestamp=2026-05-05T06:32:42Z`
+  - citation: [Notion source](https://www.notion.so/Permissionless-IP-registration-324440c145bb4e318078d6beeea5bbf1) `source_document_id=srcdoc_54a92a437cb2bde69f4228d38788a566` `source_revision_id=srcrev_03db4519c7816ca97aa2c1d94972893a` `chunk_id=srcchunk_92a033c72cc83f72fdbb4b75efbddefd` `native_locator=https://www.notion.so/Permissionless-IP-registration-324440c145bb4e318078d6beeea5bbf1` `source_timestamp=2024-03-26T00:48:00Z`
 
 ## Sources
 

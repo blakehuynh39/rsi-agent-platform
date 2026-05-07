@@ -2,7 +2,7 @@
 title: "P256 Precompile Case Study"
 type: "project"
 slug: "projects/p256-precompile-case-study"
-freshness: "2026-05-05T06:38:52Z"
+freshness: "2024-09-16T08:12:00Z"
 tags:
   - "op-geth"
   - "p256"
@@ -22,7 +22,7 @@ Case study for adding a new precompile, referencing the OP contracts.go implemen
 ## Claims
 
 - The OP contracts.go file is a reference for the p256compile case study. `claim:claim_1_1` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/Adding-new-precompile-ab85b1091e8d4c00968444d9a2411e78) `source_document_id=srcdoc_360e28a6740f53356144b3d5dfff1fa3` `source_revision_id=srcrev_97540201c78e50ec0661703029eaf9f2` `chunk_id=srcchunk_64b0d268cb1aaddb840fed811708cb59` `native_locator=https://www.notion.so/Adding-new-precompile-ab85b1091e8d4c00968444d9a2411e78` `source_timestamp=2026-05-05T06:38:52Z`
+  - citation: [Notion source](https://www.notion.so/Adding-new-precompile-ab85b1091e8d4c00968444d9a2411e78) `source_document_id=srcdoc_360e28a6740f53356144b3d5dfff1fa3` `source_revision_id=srcrev_97540201c78e50ec0661703029eaf9f2` `chunk_id=srcchunk_64b0d268cb1aaddb840fed811708cb59` `native_locator=https://www.notion.so/Adding-new-precompile-ab85b1091e8d4c00968444d9a2411e78` `source_timestamp=2024-09-16T08:12:00Z`
 
 ## Sources
 

@@ -2,7 +2,7 @@
 title: "Link User Socials"
 type: "project"
 slug: "projects/link-user-socials"
-freshness: "2026-05-04T23:58:08Z"
+freshness: "2026-04-28T21:18:00Z"
 tags:
   - "social-integration"
   - "user-profile"
@@ -21,7 +21,7 @@ Project to link user social accounts including Linkedin, social verification, an
 ## Claims
 
 - The project 'Link User Socials' includes tasks: Linkedin, Social verification, Gitcoin Passport. `claim:claim_1_1` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_27bb75f92096d04b5db0b15fe3553f83` `source_revision_id=srcrev_8fe78986a685694ad4a60888ce5aa6fc` `chunk_id=srcchunk_9e8e0f86045e65fc4df9ea3c562323a5` `native_locator=https://www.notion.so/Link-User-Socials-34f051299a5480cfba0cd775d76349e4` `source_timestamp=2026-05-04T23:58:08Z`
+  - citation: `source_document_id=srcdoc_27bb75f92096d04b5db0b15fe3553f83` `source_revision_id=srcrev_8fe78986a685694ad4a60888ce5aa6fc` `chunk_id=srcchunk_9e8e0f86045e65fc4df9ea3c562323a5` `native_locator=https://www.notion.so/Link-User-Socials-34f051299a5480cfba0cd775d76349e4` `source_timestamp=2026-04-28T21:18:00Z`
 
 ## Open Questions
 
