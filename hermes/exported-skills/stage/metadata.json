@@ -2896,13 +2896,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "586acd70c9ce20e50c339d534316eade5a94e18200550a047754e7367c3b7601",
-        "size": 493459
+        "sha256": "4d97f3bfde13b32a2fc837ad5f859940091f3ff60b8d83e4446fd94cad3e5571",
+        "size": 494220
       },
       {
         "path": "log.md",
-        "sha256": "afd93b55816b101c6c971a94d72166c30e891caec68add228ae1333b368f93c3",
-        "size": 931340
+        "sha256": "b7f5d03bdffb84f0f61124ee6c0fdbb32e6de0bc293bd40d18ad42780dfa7075",
+        "size": 932125
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3643,6 +3643,16 @@
         "path": "pages/decisions/story-protocol-website-i18n-options.md",
         "sha256": "8e86f1c12c3d8d2d935d081c1bbe0f2b43a36478f68b78334c0ef8a88096cd51",
         "size": 3856
+      },
+      {
+        "path": "pages/decisions/subnet-2-0-rewards-and-incentivization.md",
+        "sha256": "7ec40cbc86b4dd5d420297959601b908217be7658d4f8172c2b2489ea96a15ec",
+        "size": 2238
+      },
+      {
+        "path": "pages/decisions/subnet-2-0-validation-scheme.md",
+        "sha256": "b5920b3eb5aed4718c281e3baa0380e21123dd2a38be79b604f397694b03be8e",
+        "size": 4482
       },
       {
         "path": "pages/decisions/subnet-design-decisions.md",
@@ -4879,8 +4889,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T20:28:32Z",
-  "file_count": 974,
+  "exported_at": "2026-05-07T20:54:59Z",
+  "file_count": 976,
   "files": [
     {
       "path": ".curator_state",
@@ -7772,7 +7782,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-76c5bc7spjk",
-  "previous_tree_hash": "b3033369661e5253c0811f72223aebc4ffe37085367df76474d6e245e2d94d17",
+  "previous_tree_hash": "487dfceada5312947ceb9ad61ea17abb8e67d25666444bebd6c9ee03031280ce",
   "schema_version": 1,
   "skill_file_count": 577,
   "skill_manage_sessions": [
@@ -7785,14 +7795,14 @@
   ],
   "skill_tree_hash": "f268c07e5ed6610c18de5213322aa924cd9e307b226e3df74fd01b50d82a8489",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "487dfceada5312947ceb9ad61ea17abb8e67d25666444bebd6c9ee03031280ce",
+  "tree_hash": "952156bb385bbf7c0cb7c5b36c52fb259ff56df6206b6b99aae4b472750a40ac",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 397,
+  "wiki_file_count": 399,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7801,13 +7811,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "586acd70c9ce20e50c339d534316eade5a94e18200550a047754e7367c3b7601",
-      "size": 493459
+      "sha256": "4d97f3bfde13b32a2fc837ad5f859940091f3ff60b8d83e4446fd94cad3e5571",
+      "size": 494220
     },
     {
       "path": "log.md",
-      "sha256": "afd93b55816b101c6c971a94d72166c30e891caec68add228ae1333b368f93c3",
-      "size": 931340
+      "sha256": "b7f5d03bdffb84f0f61124ee6c0fdbb32e6de0bc293bd40d18ad42780dfa7075",
+      "size": 932125
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8548,6 +8558,16 @@
       "path": "pages/decisions/story-protocol-website-i18n-options.md",
       "sha256": "8e86f1c12c3d8d2d935d081c1bbe0f2b43a36478f68b78334c0ef8a88096cd51",
       "size": 3856
+    },
+    {
+      "path": "pages/decisions/subnet-2-0-rewards-and-incentivization.md",
+      "sha256": "7ec40cbc86b4dd5d420297959601b908217be7658d4f8172c2b2489ea96a15ec",
+      "size": 2238
+    },
+    {
+      "path": "pages/decisions/subnet-2-0-validation-scheme.md",
+      "sha256": "b5920b3eb5aed4718c281e3baa0380e21123dd2a38be79b604f397694b03be8e",
+      "size": 4482
     },
     {
       "path": "pages/decisions/subnet-design-decisions.md",
@@ -9781,5 +9801,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2f5224f0d2ff73bf9559ae5f77b64a89c7d7a48bdc4fe35328ea5a9a11a600f3"
+  "wiki_tree_hash": "cec488479951faffebe7b3eb2c2fdcbca41bba61925692c5030aadd8d60e9e96"
 }

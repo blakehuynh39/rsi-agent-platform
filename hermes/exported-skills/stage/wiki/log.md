@@ -19641,3 +19641,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d64b9a1c84d469e065722a37c2920c22
 - summary: Tracks planned time off and remote work locations for engineering leaders during summer 2025, including a company-wide holiday from June 30 to July 4.
 
+## [2026-05-07T20:52:32Z] synthesis | Subnet 2.0 Validation Scheme
+
+- status: published
+- slug: decisions/subnet-2-0-validation-scheme
+- wiki_revision_id: wikirev_b4c8ae4b393391ee44aca8eb0d83758b
+- summary: Explores the validation scheme for Subnet 2.0, weighing optimistic validation against the need for a final auditor, likely the subnet owner, to ensure data quality.
+
+## [2026-05-07T20:52:32Z] synthesis | Subnet 2.0 Rewards and Incentivization
+
+- status: published
+- slug: decisions/subnet-2-0-rewards-and-incentivization
+- wiki_revision_id: wikirev_78f0abadfb95a37a1b3cdf8003d44757
+- summary: Outlines the reward and incentivization strategy for Subnet 2.0, including initial Poseidon token grants for subnet owners that gradually decrease, shifting revenue to data buyers ...
+
