@@ -2841,13 +2841,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "18d9c05d73bda8144117761057c7e87fd1a9e37b403fbb791683aab812e24baa",
-        "size": 462221
+        "sha256": "b2683d8f4af413ac0a5fdc69a980dabaf2aed7f14624d8ab95211fd4fdc699a3",
+        "size": 462832
       },
       {
         "path": "log.md",
-        "sha256": "4c926a485a7b096682156c3db44ba2e8dc45e7009f1f4521a19b7d334b9f50ba",
-        "size": 779814
+        "sha256": "4cc65dd4986702826c89b68da93f286b4ffdff20e10a46211e67fb54d55ffa1b",
+        "size": 780753
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3110,6 +3110,11 @@
         "size": 2944
       },
       {
+        "path": "pages/concepts/meeting-notes-index.md",
+        "sha256": "bc57c4d4e27bd6090d31e237304f2dd0c7291bb015c0f3ae55937cbc72217244",
+        "size": 1243
+      },
+      {
         "path": "pages/concepts/multi-parent-licensing.md",
         "sha256": "e010d2f4e8fc077b0df30bae4ff56aca20de4240d283766b409c84b84a36d1bf",
         "size": 4907
@@ -3308,6 +3313,11 @@
         "path": "pages/concepts/web3-wallet-libraries.md",
         "sha256": "d3f31d10ec80f0d5e47d6f96aa81e2709edabeab88cddaf3e78ab702a8d64734",
         "size": 9617
+      },
+      {
+        "path": "pages/concepts/weekly-meeting.md",
+        "sha256": "d594218d57f314462d7942db2e4df82822a094c7827e342edd16475ca54b0e31",
+        "size": 4364
       },
       {
         "path": "pages/concepts/zk-primitive.md",
@@ -4354,8 +4364,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T01:15:45Z",
-  "file_count": 869,
+  "exported_at": "2026-05-07T01:22:01Z",
+  "file_count": 871,
   "files": [
     {
       "path": ".curator_state",
@@ -7192,7 +7202,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fdf64db9b7d",
-  "previous_tree_hash": "58605fb9e7aa0cc95d889c72cb530a65c8297276a52b601e01e565d9491cb44a",
+  "previous_tree_hash": "74d82416030a5918304e841deaa27a61cbd54bf0a9bafc4d79bb3a96f51005fd",
   "schema_version": 1,
   "skill_file_count": 566,
   "skill_manage_sessions": [
@@ -7205,14 +7215,14 @@
   ],
   "skill_tree_hash": "747c829d25d8a027bacd325f73e55e23510516f56f9abbb9b207998dc8f1fd28",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "74d82416030a5918304e841deaa27a61cbd54bf0a9bafc4d79bb3a96f51005fd",
+  "tree_hash": "5b8e21df55ab6ed25a5c31239c52178d64c6b3a75499bd307f7cc33863eb2ae6",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 303,
+  "wiki_file_count": 305,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7221,13 +7231,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "18d9c05d73bda8144117761057c7e87fd1a9e37b403fbb791683aab812e24baa",
-      "size": 462221
+      "sha256": "b2683d8f4af413ac0a5fdc69a980dabaf2aed7f14624d8ab95211fd4fdc699a3",
+      "size": 462832
     },
     {
       "path": "log.md",
-      "sha256": "4c926a485a7b096682156c3db44ba2e8dc45e7009f1f4521a19b7d334b9f50ba",
-      "size": 779814
+      "sha256": "4cc65dd4986702826c89b68da93f286b4ffdff20e10a46211e67fb54d55ffa1b",
+      "size": 780753
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7490,6 +7500,11 @@
       "size": 2944
     },
     {
+      "path": "pages/concepts/meeting-notes-index.md",
+      "sha256": "bc57c4d4e27bd6090d31e237304f2dd0c7291bb015c0f3ae55937cbc72217244",
+      "size": 1243
+    },
+    {
       "path": "pages/concepts/multi-parent-licensing.md",
       "sha256": "e010d2f4e8fc077b0df30bae4ff56aca20de4240d283766b409c84b84a36d1bf",
       "size": 4907
@@ -7688,6 +7703,11 @@
       "path": "pages/concepts/web3-wallet-libraries.md",
       "sha256": "d3f31d10ec80f0d5e47d6f96aa81e2709edabeab88cddaf3e78ab702a8d64734",
       "size": 9617
+    },
+    {
+      "path": "pages/concepts/weekly-meeting.md",
+      "sha256": "d594218d57f314462d7942db2e4df82822a094c7827e342edd16475ca54b0e31",
+      "size": 4364
     },
     {
       "path": "pages/concepts/zk-primitive.md",
@@ -8731,5 +8751,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4be318abe87be11c20e1a5567d57ea9a94aab7d96df00f8c25b1933d9d859c28"
+  "wiki_tree_hash": "c58020871a5c73fd060219fd9a7f2f46777101813ce829abd8f674651a7c4897"
 }
