@@ -2841,8 +2841,8 @@
       },
       {
         "path": "index.md",
-        "sha256": "468f457774c75dde223d6dc3aa49fab6da3150e9e9ee13a47946ddcd2711a78a",
-        "size": 461589
+        "sha256": "ce3b537c534b1e7c43941f448f669867734571b0e9384bc2f9af80e5825a2b5d",
+        "size": 461967
       },
       {
         "path": "log.md",
@@ -4354,7 +4354,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T01:03:44Z",
+  "exported_at": "2026-05-07T01:09:32Z",
   "file_count": 869,
   "files": [
     {
@@ -7191,8 +7191,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5599f8q966n",
-  "previous_tree_hash": "09756c8e00598678bc0ff4efda1237129f61c8e9979bb005043e62723a0c18d7",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fdf64db9b7d",
+  "previous_tree_hash": "fbe1b525b75fef25a2f4c3823c9b8e674fae07448a21bbb222ab4392e85a0754",
   "schema_version": 1,
   "skill_file_count": 566,
   "skill_manage_sessions": [
@@ -7205,7 +7205,7 @@
   ],
   "skill_tree_hash": "747c829d25d8a027bacd325f73e55e23510516f56f9abbb9b207998dc8f1fd28",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "fbe1b525b75fef25a2f4c3823c9b8e674fae07448a21bbb222ab4392e85a0754",
+  "tree_hash": "58605fb9e7aa0cc95d889c72cb530a65c8297276a52b601e01e565d9491cb44a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -7221,8 +7221,8 @@
     },
     {
       "path": "index.md",
-      "sha256": "468f457774c75dde223d6dc3aa49fab6da3150e9e9ee13a47946ddcd2711a78a",
-      "size": 461589
+      "sha256": "ce3b537c534b1e7c43941f448f669867734571b0e9384bc2f9af80e5825a2b5d",
+      "size": 461967
     },
     {
       "path": "log.md",
@@ -8731,5 +8731,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "02ab1f38e771e6c0b879c0a639efcc6ad1d665b9ca9e42f6716eb098ba843423"
+  "wiki_tree_hash": "45fd88ea328b5d10d45ec5c9253a80c62136a94621a49e555cfa68460a18c76b"
 }
