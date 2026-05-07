@@ -19578,3 +19578,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a294904e4eb23f292f2239b0b0c005f0
 - summary: Tracking page for Subnet version releases.
 
+## [2026-05-07T19:02:09Z] synthesis | Subnet Pipeline Attack Vectors
+
+- status: published
+- slug: concepts/subnet-pipeline-attack-vectors
+- wiki_revision_id: wikirev_da85b25775ce165600c3eb463330b71f
+- summary: Documented attack vectors for the subnet pipeline, covering both miner and validator roles. Miner attacks include bypassing transcription by using the reference script and skipping...
+
