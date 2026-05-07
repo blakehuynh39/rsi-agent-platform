@@ -16,6 +16,45 @@ Use this skill when a Story request asks "how is the Numo/depin project coming a
 
 Run these steps in parallel where possible. The goal is to gather evidence from **all six sources** before synthesizing.
 
+**⚠️ SCALE THE RESPONSE TO THE QUESTION.** Not every request needs a full 6-source investigation:
+- **"Latest number of submissions"** / simple stat → just curl the admin API (step 0) and answer concisely
+- **"How's the project coming along this week?"** / "latest stats for numo" → full 6-source investigation with 3-section report
+- **"What items are NOT in GitHub?"** → gap analysis mode (cross-reference all sources)
+- **"Review PR #N"** → use step 4a (PR review mode)
+
+### 0. Query the production admin API (for live stats)
+
+Skip the full investigation when the question is a simple stat query. The production API is at `https://depin.storyprotocol.net` and requires three env vars:
+
+```bash
+# These are the actual env var names (NOT INTERNAL_ADMIN_READ_API_KEY!)
+DEPIN_ADMIN_READ_API_KEY          # the credential value
+DEPIN_ADMIN_READ_API_KEY_HEADER   # the HTTP header name (e.g. "x-admin-read-key")
+DEPIN_ADMIN_BASE_URL              # base URL (e.g. "https://depin.storyprotocol.net")
+```
+
+**Key endpoints** (see `references/admin-api-endpoints.md` for full schema):
+
+```bash
+# Cumulative overview
+curl -s -H "${DEPIN_ADMIN_READ_API_KEY_HEADER}: ${DEPIN_ADMIN_READ_API_KEY}" \
+  "${DEPIN_ADMIN_BASE_URL}/v1/admin/overview"
+
+# Daily submission counts
+curl -s -H "${DEPIN_ADMIN_READ_API_KEY_HEADER}: ${DEPIN_ADMIN_READ_API_KEY}" \
+  "${DEPIN_ADMIN_BASE_URL}/v1/admin/stats/submissions"
+
+# Daily new user counts
+curl -s -H "${DEPIN_ADMIN_READ_API_KEY_HEADER}: ${DEPIN_ADMIN_READ_API_KEY}" \
+  "${DEPIN_ADMIN_BASE_URL}/v1/admin/stats/user-growth"
+
+# Rewards/payout summary
+curl -s -H "${DEPIN_ADMIN_READ_API_KEY_HEADER}: ${DEPIN_ADMIN_READ_API_KEY}" \
+  "${DEPIN_ADMIN_BASE_URL}/v1/admin/rewards/summary"
+```
+
+**PITFALL — env var name mismatch:** The admin key env var was historically documented as `INTERNAL_ADMIN_READ_API_KEY`. The actual name is `DEPIN_ADMIN_READ_API_KEY`. Check both if one returns empty length.
+
 ### 1. Read the ingress Slack thread
 
 Always read the full thread first — it defines what's being asked and may contain prior context, links, or specific questions.
