@@ -18960,3 +18960,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1dec3a6af462d5b7b4270fd0d42651d9
 - summary: Project for the AirDrop claim feature, with a PRD and a backend runbook.
 
+## [2026-05-07T03:46:05Z] synthesis | Community Badge
+
+- status: published
+- slug: projects/community-badge
+- wiki_revision_id: wikirev_084e3594e75651e3c642a8f3f227af7b
+- summary: The Community Badge feature is under development. Documentation includes a PRD and a linked implementation Notion page.
+
