@@ -19002,3 +19002,30 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c3f77026234923fc9982eda6b0c39687
 - summary: A structured template for documenting and tracking decisions, including status, impact, roles, options, and outcomes.
 
+## [2026-05-07T06:00:29Z] ingest | Engineering Home
+
+- status: published
+- slug: notion_document/engineering-home-457ba27e
+- wiki_revision_id: wikirev_4b927e42b9f979d8df7309bbd514ebe6
+- source_document_id: srcdoc_3e1bdff6ba2e92e68b675412457ba27e
+- source_revision_id: srcrev_8d215d1288122cfa806352d6cf7de080
+- summary: Source: [Notion source](https://www.notion.so/121051299a5480dd989ddd05c1b3a694)
+
+## [2026-05-07T06:00:36Z] ingest | Engineering Home
+
+- status: published
+- slug: notion_document/engineering-home-498d0f80
+- wiki_revision_id: wikirev_41040e8de90de6f58ec8da151436f10d
+- source_document_id: srcdoc_f4e685d735d7826eb36319e1498d0f80
+- source_revision_id: srcrev_80a7aae8a84ef0fc9ac2bfc12c8b07f8
+- summary: Source: [Notion source](https://www.notion.so/121051299a5480dd989ddd05c1b3a694)
+
+## [2026-05-07T06:00:51Z] ingest | Poseidon Eng Home
+
+- status: published
+- slug: notion_document/poseidon-eng-home-da25ed2d
+- wiki_revision_id: wikirev_58f39a4f41af4d87b8344f847092c0cb
+- source_document_id: srcdoc_f42fd2902cb181790fb1003eda25ed2d
+- source_revision_id: srcrev_ad331e05d69772eab86834eedca423bc
+- summary: Source: [Notion source](https://www.notion.so/Poseidon-Eng-Home-1cb051299a5480caa0d6c4d65e698209)
+
