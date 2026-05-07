@@ -19070,3 +19070,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a31058faa52d582dcb3b64e1b474146e
 - summary: A technique for writing tests by first defining a .tree file, then using Bulloak to generate a skeleton, and finally writing the tests.
 
+## [2026-05-07T06:21:40Z] synthesis | PyTorch Practices on MacOS
+
+- status: published
+- slug: runbooks/pytorch-practices-macos
+- wiki_revision_id: wikirev_d806620775e20834409e4414e0345022
+- summary: Guide for running the Gemma3 model on MacOS using PyTorch, transformers, and accelerate.
+

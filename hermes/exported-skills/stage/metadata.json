@@ -2846,13 +2846,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "428987c9acbb1dce5d49e00584a2e557e7039e235d67438338aa239a10b7e4a0",
-        "size": 469476
+        "sha256": "7e5b08a7cb1fd2fe5017304d4e45994e246a5148c37dd8ad91a00c83966abd6e",
+        "size": 469753
       },
       {
         "path": "log.md",
-        "sha256": "31b49e0cead18c6e2753252d28b52e119c2cafd99c358db3bdf50ab70df2b926",
-        "size": 904597
+        "sha256": "2c9f9079ab12321e0f3b888f6886932895a393e0e6b9ff5f3e5d77c4bc80ffdf",
+        "size": 904886
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4230,6 +4230,11 @@
         "size": 5434
       },
       {
+        "path": "pages/runbooks/pytorch-practices-macos.md",
+        "sha256": "f57a44298959a5c1662328d857d0089948379ebeec48127fc3dbcfbdcb47a065",
+        "size": 2428
+      },
+      {
         "path": "pages/runbooks/rds-backup-and-recovery-runbook.md",
         "sha256": "2f3a0b02767fac5e079f851de2a964434234f703ff5d2b3bd0f72cb724d139c4",
         "size": 2863
@@ -4454,8 +4459,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T06:07:20Z",
-  "file_count": 889,
+  "exported_at": "2026-05-07T06:23:35Z",
+  "file_count": 890,
   "files": [
     {
       "path": ".curator_state",
@@ -7297,7 +7302,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-dd74f4vsv7n",
-  "previous_tree_hash": "7cc9737031405ca4d2872b0e1e9e81c51e847492b7ddd908979ebfc56ef72c76",
+  "previous_tree_hash": "2e709ee156b94e3ddbb9be93bd4c13d0984abe9165d3ab0a14a6e300091ac50d",
   "schema_version": 1,
   "skill_file_count": 567,
   "skill_manage_sessions": [
@@ -7310,14 +7315,14 @@
   ],
   "skill_tree_hash": "3193aa399d4116a5e0e3e5b0906417c67f296eb836d8aa8d22f9c66a2a363757",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2e709ee156b94e3ddbb9be93bd4c13d0984abe9165d3ab0a14a6e300091ac50d",
+  "tree_hash": "e11bfbda9c0b5e9de07bce246252b46d168e276399a7ca2dcafe0c14278e0273",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 322,
+  "wiki_file_count": 323,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7326,13 +7331,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "428987c9acbb1dce5d49e00584a2e557e7039e235d67438338aa239a10b7e4a0",
-      "size": 469476
+      "sha256": "7e5b08a7cb1fd2fe5017304d4e45994e246a5148c37dd8ad91a00c83966abd6e",
+      "size": 469753
     },
     {
       "path": "log.md",
-      "sha256": "31b49e0cead18c6e2753252d28b52e119c2cafd99c358db3bdf50ab70df2b926",
-      "size": 904597
+      "sha256": "2c9f9079ab12321e0f3b888f6886932895a393e0e6b9ff5f3e5d77c4bc80ffdf",
+      "size": 904886
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8710,6 +8715,11 @@
       "size": 5434
     },
     {
+      "path": "pages/runbooks/pytorch-practices-macos.md",
+      "sha256": "f57a44298959a5c1662328d857d0089948379ebeec48127fc3dbcfbdcb47a065",
+      "size": 2428
+    },
+    {
       "path": "pages/runbooks/rds-backup-and-recovery-runbook.md",
       "sha256": "2f3a0b02767fac5e079f851de2a964434234f703ff5d2b3bd0f72cb724d139c4",
       "size": 2863
@@ -8931,5 +8941,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0f5efdb777fe6774c2978b4b69d6479e913762162df0b85185c0c9f76139edb0"
+  "wiki_tree_hash": "1ff86988bb4b737b92912954f9c5fd83e829206484cc38c8db521463cac54549"
 }
