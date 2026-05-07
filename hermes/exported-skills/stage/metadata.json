@@ -2846,13 +2846,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "aefd8467d526e1b8b3ef67185e04781acc44b4168745607f266280547a21d7ad",
-        "size": 464643
+        "sha256": "02fb6734caa51233101df669c938a0d63447190d1c4a6a75a73f9ea7b3788080",
+        "size": 465323
       },
       {
         "path": "log.md",
-        "sha256": "a0bef208e72ca31ab6f2828977dd4596ca9b979367ee4a1d7457109a2d1c6753",
-        "size": 897952
+        "sha256": "08e6f3ed44148f37a214a4abf134c60aad747d4304ca3f12ce8a1fed85e8bb7e",
+        "size": 898259
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3113,6 +3113,11 @@
         "path": "pages/concepts/licensing-module-design-considerations.md",
         "sha256": "e7509da2eec2799702e55a6d1dba6d1a0909b939660b6521eabff7ce346a301a",
         "size": 7170
+      },
+      {
+        "path": "pages/concepts/llm-inference-decoding-strategies.md",
+        "sha256": "0313836fd0924deff5a4d5568d979ff8a51451ba84b8881d1b501a6f93083cb3",
+        "size": 5362
       },
       {
         "path": "pages/concepts/lowering-barrier-of-entry-for-creators.md",
@@ -4399,8 +4404,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T02:50:17Z",
-  "file_count": 878,
+  "exported_at": "2026-05-07T02:56:28Z",
+  "file_count": 879,
   "files": [
     {
       "path": ".curator_state",
@@ -7242,7 +7247,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fdf64db9b7d",
-  "previous_tree_hash": "5b3e7f00551db2ee35ab07b46651499e62e72299c7be89925a848999c6a97843",
+  "previous_tree_hash": "d59ade355a7525f2bcd7d8d38295d14910e20cd2945b9bc3cf4c5854dd4f3a12",
   "schema_version": 1,
   "skill_file_count": 567,
   "skill_manage_sessions": [
@@ -7255,14 +7260,14 @@
   ],
   "skill_tree_hash": "3193aa399d4116a5e0e3e5b0906417c67f296eb836d8aa8d22f9c66a2a363757",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d59ade355a7525f2bcd7d8d38295d14910e20cd2945b9bc3cf4c5854dd4f3a12",
+  "tree_hash": "2f316c3503173753a465ea61fd60b8b4a6db95b94dbc176686c9617803c97c23",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 311,
+  "wiki_file_count": 312,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7271,13 +7276,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "aefd8467d526e1b8b3ef67185e04781acc44b4168745607f266280547a21d7ad",
-      "size": 464643
+      "sha256": "02fb6734caa51233101df669c938a0d63447190d1c4a6a75a73f9ea7b3788080",
+      "size": 465323
     },
     {
       "path": "log.md",
-      "sha256": "a0bef208e72ca31ab6f2828977dd4596ca9b979367ee4a1d7457109a2d1c6753",
-      "size": 897952
+      "sha256": "08e6f3ed44148f37a214a4abf134c60aad747d4304ca3f12ce8a1fed85e8bb7e",
+      "size": 898259
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7538,6 +7543,11 @@
       "path": "pages/concepts/licensing-module-design-considerations.md",
       "sha256": "e7509da2eec2799702e55a6d1dba6d1a0909b939660b6521eabff7ce346a301a",
       "size": 7170
+    },
+    {
+      "path": "pages/concepts/llm-inference-decoding-strategies.md",
+      "sha256": "0313836fd0924deff5a4d5568d979ff8a51451ba84b8881d1b501a6f93083cb3",
+      "size": 5362
     },
     {
       "path": "pages/concepts/lowering-barrier-of-entry-for-creators.md",
@@ -8821,5 +8831,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5dc1ffc1ccdfb2a5658a1bc21d2bc485883e0d6e646e7c5c4b48184dde956634"
+  "wiki_tree_hash": "aa892752e6189556b9a0414dce6e479e86f3d7774fa4aeda04f10d990f905a47"
 }
