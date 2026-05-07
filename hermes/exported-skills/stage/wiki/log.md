@@ -19029,3 +19029,44 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_ad331e05d69772eab86834eedca423bc
 - summary: Source: [Notion source](https://www.notion.so/Poseidon-Eng-Home-1cb051299a5480caa0d6c4d65e698209)
 
+## [2026-05-07T06:02:05Z] ingest | Lion Team members
+
+- status: published
+- slug: notion_document/lion-team-members-0988bf43
+- wiki_revision_id: wikirev_10c57392b1244065bb3aa68946e94563
+- source_document_id: srcdoc_fc5180b78411b475d7e569700988bf43
+- source_revision_id: srcrev_5abbcdcc1dfa5cb6f28d46d202722d60
+- summary: Source: [Notion source](https://www.notion.so/Lion-Team-members-359051299a5480efa332df3b2cbd6636)
+
+## [2026-05-07T06:02:08Z] synthesis | Relationship Definition Template
+
+- status: published
+- slug: concepts/relationship-definition-template
+- wiki_revision_id: wikirev_35e4aab69b45f16afb88e948ab709058
+- summary: A standardized template for proposing and defining relationship types (links) between IP assets in Story Protocol, inspired by Ethereum Improvement Proposals. It includes fields fo...
+
+## [2026-05-07T06:02:11Z] ingest | Lion Team
+
+- status: published
+- slug: notion_document/lion-team-34d7903a
+- wiki_revision_id: wikirev_6a714d0bed84f79f1bf959bb103a183f
+- source_document_id: srcdoc_bedb4e134badf14d697d6af434d7903a
+- source_revision_id: srcrev_056dbb98cf2a774e436ae1af1bc1ac00
+- summary: Source: [Notion source](https://www.notion.so/Lion-Team-359051299a54806da510c461d07c72a3)
+
+## [2026-05-07T06:02:17Z] ingest | Internal Agentic Initiative
+
+- status: published
+- slug: notion_document/internal-agentic-initiative-f70ad61c
+- wiki_revision_id: wikirev_5edc844c4779a3dde0975f0364b72f0e
+- source_document_id: srcdoc_6e51ed65cd3d5fc9a6e910a8f70ad61c
+- source_revision_id: srcrev_10c6fa12c031de81f1dfbdb3441e31e2
+- summary: Source: [Notion source](https://www.notion.so/Internal-Agentic-Initiative-359051299a54809986fdd6b48194f75e)
+
+## [2026-05-07T06:02:57Z] synthesis | Branching Tree Technique
+
+- status: published
+- slug: concepts/branching-tree-technique
+- wiki_revision_id: wikirev_a31058faa52d582dcb3b64e1b474146e
+- summary: A technique for writing tests by first defining a .tree file, then using Bulloak to generate a skeleton, and finally writing the tests.
+

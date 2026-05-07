@@ -2846,13 +2846,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e44bac593d9bc9a84d569e5553393a82aa0f9df6453f155383e1c003072465f2",
-        "size": 467920
+        "sha256": "428987c9acbb1dce5d49e00584a2e557e7039e235d67438338aa239a10b7e4a0",
+        "size": 469476
       },
       {
         "path": "log.md",
-        "sha256": "3a28679583bf0e91d5ba95c3a0c90b4be3aaf2db7afcfaa5ceaefe06e6e52eac",
-        "size": 902597
+        "sha256": "31b49e0cead18c6e2753252d28b52e119c2cafd99c358db3bdf50ab70df2b926",
+        "size": 904597
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2863,6 +2863,11 @@
         "path": "pages/concepts/ai-prompt-library.md",
         "sha256": "e071141f446943e9bbe94472c96e99d6444fe5eeabac7b14bc4a8dbbbd5d1a88",
         "size": 2320
+      },
+      {
+        "path": "pages/concepts/branching-tree-technique.md",
+        "sha256": "3f3d1cc91336429996f9e4ce632d27e385e5f3eff547b1f6b22700484b8975e7",
+        "size": 1889
       },
       {
         "path": "pages/concepts/bridge-partners.md",
@@ -3273,6 +3278,11 @@
         "path": "pages/concepts/publishing.md",
         "sha256": "d828414b692abaca932357b86f2cdd4a874117558d1e7b42fb02c0516a381f85",
         "size": 1077
+      },
+      {
+        "path": "pages/concepts/relationship-definition-template.md",
+        "sha256": "d7cd9c0c5a69450a619d25534eb8bb7e46bec3dc0723ed4c69467bee48d5b3b2",
+        "size": 3584
       },
       {
         "path": "pages/concepts/royalty-nft.md",
@@ -4444,8 +4454,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T06:01:19Z",
-  "file_count": 887,
+  "exported_at": "2026-05-07T06:07:20Z",
+  "file_count": 889,
   "files": [
     {
       "path": ".curator_state",
@@ -7287,7 +7297,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-dd74f4vsv7n",
-  "previous_tree_hash": "3e503225570b7592fa190c32e18cc9ce91c78a0aae8496ed9f17a0918db89f17",
+  "previous_tree_hash": "7cc9737031405ca4d2872b0e1e9e81c51e847492b7ddd908979ebfc56ef72c76",
   "schema_version": 1,
   "skill_file_count": 567,
   "skill_manage_sessions": [
@@ -7300,14 +7310,14 @@
   ],
   "skill_tree_hash": "3193aa399d4116a5e0e3e5b0906417c67f296eb836d8aa8d22f9c66a2a363757",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7cc9737031405ca4d2872b0e1e9e81c51e847492b7ddd908979ebfc56ef72c76",
+  "tree_hash": "2e709ee156b94e3ddbb9be93bd4c13d0984abe9165d3ab0a14a6e300091ac50d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 320,
+  "wiki_file_count": 322,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7316,13 +7326,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e44bac593d9bc9a84d569e5553393a82aa0f9df6453f155383e1c003072465f2",
-      "size": 467920
+      "sha256": "428987c9acbb1dce5d49e00584a2e557e7039e235d67438338aa239a10b7e4a0",
+      "size": 469476
     },
     {
       "path": "log.md",
-      "sha256": "3a28679583bf0e91d5ba95c3a0c90b4be3aaf2db7afcfaa5ceaefe06e6e52eac",
-      "size": 902597
+      "sha256": "31b49e0cead18c6e2753252d28b52e119c2cafd99c358db3bdf50ab70df2b926",
+      "size": 904597
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7333,6 +7343,11 @@
       "path": "pages/concepts/ai-prompt-library.md",
       "sha256": "e071141f446943e9bbe94472c96e99d6444fe5eeabac7b14bc4a8dbbbd5d1a88",
       "size": 2320
+    },
+    {
+      "path": "pages/concepts/branching-tree-technique.md",
+      "sha256": "3f3d1cc91336429996f9e4ce632d27e385e5f3eff547b1f6b22700484b8975e7",
+      "size": 1889
     },
     {
       "path": "pages/concepts/bridge-partners.md",
@@ -7743,6 +7758,11 @@
       "path": "pages/concepts/publishing.md",
       "sha256": "d828414b692abaca932357b86f2cdd4a874117558d1e7b42fb02c0516a381f85",
       "size": 1077
+    },
+    {
+      "path": "pages/concepts/relationship-definition-template.md",
+      "sha256": "d7cd9c0c5a69450a619d25534eb8bb7e46bec3dc0723ed4c69467bee48d5b3b2",
+      "size": 3584
     },
     {
       "path": "pages/concepts/royalty-nft.md",
@@ -8911,5 +8931,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "3e1e90644d8da4c9c9d2dec8adc6c55776f5509defdb09e0ce38c544485aba70"
+  "wiki_tree_hash": "0f5efdb777fe6774c2978b4b69d6479e913762162df0b85185c0c9f76139edb0"
 }
