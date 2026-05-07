@@ -869,7 +869,9 @@ func (p *PostgresStore) SearchCompanyWikiPages(query string, limit int) ([]Compa
 	rows, err := p.db.Query(`
 select p.id, p.slug, p.title, r.path, r.id, r.body_sha256,
        left(regexp_replace(r.body, '\s+', ' ', 'g'), 500) as snippet,
-       r.published_at
+       r.published_at,
+       r.metadata,
+       left(r.body, 1000) as body_prefix
 from company_wiki_page p
 join company_wiki_revision r on r.id = p.current_revision_id
 where $1 = ''
@@ -885,9 +887,12 @@ limit $2`, query, limit)
 	out := []CompanyWikiSearchResult{}
 	for rows.Next() {
 		var item CompanyWikiSearchResult
-		if err := rows.Scan(&item.PageID, &item.Slug, &item.Title, &item.Path, &item.WikiRevisionID, &item.SHA256, &item.Snippet, &item.PublishedAt); err != nil {
+		var rawMetadata []byte
+		bodyPrefix := ""
+		if err := rows.Scan(&item.PageID, &item.Slug, &item.Title, &item.Path, &item.WikiRevisionID, &item.SHA256, &item.Snippet, &item.PublishedAt, &rawMetadata, &bodyPrefix); err != nil {
 			return nil, err
 		}
+		item.Freshness = companyWikiFreshness(decodeJSON(rawMetadata, map[string]any{}), bodyPrefix)
 		out = append(out, item)
 	}
 	return out, rows.Err()

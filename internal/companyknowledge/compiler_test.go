@@ -789,7 +789,7 @@ func TestRevisionTimestampMapIncludesAllSlackEvidenceChunks(t *testing.T) {
 				ID:         "root-chunk",
 				DocumentID: "slack-doc",
 				RevisionID: "slack-root-revision",
-				Metadata:   map[string]any{"slack_ts": "1777651200.000000"},
+				Metadata:   map[string]any{"slack_ts": "1777636800.000000"},
 			},
 			{
 				ID:         "reply-chunk",
@@ -817,6 +817,37 @@ func TestRevisionTimestampMapIncludesAllSlackEvidenceChunks(t *testing.T) {
 	}}}
 	if freshness := synthesisFreshness(timestamps, page); freshness != replyTS.Format(time.RFC3339) {
 		t.Fatalf("freshness should use cited reply revision timestamp, got %q want %q", freshness, replyTS.Format(time.RFC3339))
+	}
+}
+
+func TestRevisionTimestampMapPrefersNotionLastEditedOverCrawlObservedAt(t *testing.T) {
+	lastEdited := time.Date(2026, 5, 2, 10, 0, 0, 0, time.UTC)
+	crawled := lastEdited.Add(48 * time.Hour)
+	evidence := store.CompanyWikiSourceEvidence{
+		Document: store.CompanyWikiSourceDocument{ID: "notion-doc", SourceType: NotionDocumentSourceType},
+		Revision: store.CompanyWikiSourceRevision{
+			ID:         "notion-revision",
+			DocumentID: "notion-doc",
+			ObservedAt: crawled,
+			Metadata: map[string]any{
+				"last_edited_time": lastEdited.Format(time.RFC3339),
+				"created_time":     lastEdited.Add(-24 * time.Hour).Format(time.RFC3339),
+			},
+		},
+		Chunks: []store.CompanyWikiSourceChunk{{
+			ID:         "notion-chunk",
+			DocumentID: "notion-doc",
+			RevisionID: "notion-revision",
+			Metadata: map[string]any{
+				"source_observed_at": crawled.Format(time.RFC3339),
+				"last_edited_time":   lastEdited.Format(time.RFC3339),
+			},
+		}},
+	}
+
+	timestamps := buildRevisionTimestampMap(evidence, nil)
+	if got := timestamps["notion-revision"]; got != lastEdited.Format(time.RFC3339) {
+		t.Fatalf("notion timestamp = %q, want source last edited %q", got, lastEdited.Format(time.RFC3339))
 	}
 }
 

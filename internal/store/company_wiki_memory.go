@@ -640,7 +640,8 @@ func (m *MemoryStore) SearchCompanyWikiPages(query string, limit int) ([]Company
 		}
 		out = append(out, CompanyWikiSearchResult{
 			PageID: page.ID, Slug: page.Slug, Title: page.Title, Path: rev.Path,
-			WikiRevisionID: rev.ID, SHA256: rev.BodySHA256, Snippet: snippetForWikiSearch(rev.Body), PublishedAt: rev.PublishedAt,
+			WikiRevisionID: rev.ID, SHA256: rev.BodySHA256, Snippet: snippetForWikiSearch(rev.Body),
+			Freshness: companyWikiFreshness(rev.Metadata, rev.Body), PublishedAt: rev.PublishedAt,
 		})
 	}
 	sort.SliceStable(out, func(i, j int) bool { return out[i].PublishedAt.After(out[j].PublishedAt) })

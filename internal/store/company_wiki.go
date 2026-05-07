@@ -273,6 +273,7 @@ type CompanyWikiSearchResult struct {
 	WikiRevisionID string    `json:"wiki_revision_id"`
 	SHA256         string    `json:"sha256"`
 	Snippet        string    `json:"snippet,omitempty"`
+	Freshness      string    `json:"freshness,omitempty"`
 	PublishedAt    time.Time `json:"published_at,omitempty"`
 }
 
@@ -597,4 +598,32 @@ func ChunkCompanyWikiText(text string, maxRunes int) []string {
 		start = end
 	}
 	return out
+}
+
+func companyWikiFreshness(metadata map[string]any, body string) string {
+	for _, key := range []string{"freshness", "source_freshness", "source_last_edited_at"} {
+		value := stringFromAnyMap(metadata, key)
+		if value != "" && value != "unknown" {
+			return value
+		}
+	}
+	for _, line := range strings.Split(body, "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" || line == "---" {
+			continue
+		}
+		key, value, ok := strings.Cut(line, ":")
+		if !ok {
+			continue
+		}
+		if strings.TrimSpace(key) != "freshness" {
+			continue
+		}
+		value = strings.Trim(strings.TrimSpace(value), `"'`)
+		if value != "unknown" {
+			return value
+		}
+		return ""
+	}
+	return ""
 }

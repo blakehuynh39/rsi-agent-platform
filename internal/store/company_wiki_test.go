@@ -57,7 +57,7 @@ func TestCompanyWikiMemoryStorePublishesAndReadsPage(t *testing.T) {
 		AuditID: audit.ID,
 		Slug:    "runbooks/deploy",
 		Title:   "Deploy Runbook",
-		Body:    "---\ntitle: Deploy Runbook\n---\n# Deploy Runbook\n",
+		Body:    "---\ntitle: Deploy Runbook\nfreshness: \"2026-05-02T10:00:00Z\"\n---\n# Deploy Runbook\n",
 		Path:    "pages/runbooks/deploy.md",
 		SHA256:  CompanyWikiSHA256("body"),
 		Citations: []CompanyWikiCitationInput{{
@@ -88,6 +88,9 @@ func TestCompanyWikiMemoryStorePublishesAndReadsPage(t *testing.T) {
 	}
 	if len(results) != 1 || results[0].Slug != "runbooks/deploy" {
 		t.Fatalf("unexpected search results: %+v", results)
+	}
+	if results[0].Freshness != "2026-05-02T10:00:00Z" {
+		t.Fatalf("search freshness = %q, want source freshness", results[0].Freshness)
 	}
 }
 

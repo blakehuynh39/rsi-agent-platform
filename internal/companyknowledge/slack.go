@@ -311,6 +311,7 @@ func SlackMessageMetadata(input SlackMessageInput, sourceKey string, sessionKey 
 		"mirror_allowed":     input.MirrorAllowed,
 		"mirror_denied":      input.MirrorDenied,
 		"slack_ts":           strings.TrimSpace(input.TS),
+		"edited_ts":          strings.TrimSpace(input.EditedTS),
 		"thread_ts":          input.EffectiveThreadTS(),
 		"permalink":          strings.TrimSpace(input.Permalink),
 		"event_id":           strings.TrimSpace(input.EventID),

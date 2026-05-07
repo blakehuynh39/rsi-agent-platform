@@ -934,10 +934,8 @@ func buildRevisionTimestampMap(evidence store.CompanyWikiSourceEvidence, candida
 	m := make(map[string]string)
 	currentRevID := strings.TrimSpace(evidence.Revision.ID)
 	if currentRevID != "" {
-		if !evidence.Revision.ObservedAt.IsZero() {
-			m[currentRevID] = evidence.Revision.ObservedAt.Format(time.RFC3339)
-		} else if !evidence.Revision.CreatedAt.IsZero() {
-			m[currentRevID] = evidence.Revision.CreatedAt.Format(time.RFC3339)
+		if timestamp, ok := sourceTimestampForMetadata(evidence.Revision.Metadata); ok {
+			m[currentRevID] = timestamp.Format(time.RFC3339)
 		}
 	}
 	for _, chunk := range evidence.Chunks {
@@ -947,6 +945,13 @@ func buildRevisionTimestampMap(evidence store.CompanyWikiSourceEvidence, candida
 		}
 		if timestamp, ok := sourceTimestampForChunk(chunk); ok {
 			m[revisionID] = timestamp.Format(time.RFC3339)
+		}
+	}
+	if currentRevID != "" && m[currentRevID] == "" {
+		if !evidence.Revision.ObservedAt.IsZero() {
+			m[currentRevID] = evidence.Revision.ObservedAt.Format(time.RFC3339)
+		} else if !evidence.Revision.CreatedAt.IsZero() {
+			m[currentRevID] = evidence.Revision.CreatedAt.Format(time.RFC3339)
 		}
 	}
 	for _, candidate := range candidates {
@@ -983,13 +988,14 @@ func buildRevisionTimestampMap(evidence store.CompanyWikiSourceEvidence, candida
 }
 
 func sourceTimestampForChunk(chunk store.CompanyWikiSourceChunk) (time.Time, bool) {
-	for _, key := range []string{"source_observed_at", "observed_at", "last_edited_time", "created_time"} {
-		if ts, ok := sourceTimestampFromAny(chunk.Metadata[key]); ok {
+	return sourceTimestampForMetadata(chunk.Metadata)
+}
+
+func sourceTimestampForMetadata(metadata map[string]any) (time.Time, bool) {
+	for _, key := range []string{"last_edited_time", "edited_ts", "slack_ts", "created_time", "source_observed_at", "observed_at"} {
+		if ts, ok := sourceTimestampFromAny(metadata[key]); ok {
 			return ts, true
 		}
-	}
-	if ts, ok := sourceTimestampFromAny(chunk.Metadata["slack_ts"]); ok {
-		return ts, true
 	}
 	return time.Time{}, false
 }

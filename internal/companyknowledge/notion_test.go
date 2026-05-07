@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 	"unicode/utf8"
 
 	"github.com/piplabs/rsi-agent-platform/internal/clients"
@@ -98,6 +99,22 @@ func TestNotionDocumentChunkMessagesReturnsEmptyForEmptyContentAndTitle(t *testi
 	}, map[string]any{"source": "notion"})
 	if len(messages) != 0 {
 		t.Fatalf("empty content/title should not create an empty Honcho message batch: %+v", messages)
+	}
+}
+
+func TestNotionWikiSourceRevisionInputUsesLastEditedAsObservedAt(t *testing.T) {
+	input := NotionWikiSourceRevisionInput(NotionDocumentInput{
+		WorkspaceID:    "notion",
+		PageID:         "page_freshness",
+		Title:          "Freshness Page",
+		LastEditedTime: "2026-05-02T10:00:00.000Z",
+		CreatedTime:    "2026-05-01T09:00:00.000Z",
+		Content:        "Actively maintained page.",
+	})
+
+	want := time.Date(2026, 5, 2, 10, 0, 0, 0, time.UTC)
+	if !input.ObservedAt.Equal(want) {
+		t.Fatalf("ObservedAt = %s, want last edited %s", input.ObservedAt.Format(time.RFC3339), want.Format(time.RFC3339))
 	}
 }
 

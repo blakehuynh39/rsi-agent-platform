@@ -451,7 +451,24 @@ func NotionWikiSourceRevisionInput(input NotionDocumentInput) store.CompanyWikiS
 		Content:           content,
 		NativeLocator:     nativeLocator,
 		Metadata:          NotionDocumentMetadata(input, sourceKey, sessionKey, revision),
+		ObservedAt:        notionDocumentObservedAt(input),
 	}
+}
+
+func notionDocumentObservedAt(input NotionDocumentInput) time.Time {
+	for _, raw := range []string{input.LastEditedTime, input.CreatedTime} {
+		raw = strings.TrimSpace(raw)
+		if raw == "" {
+			continue
+		}
+		if ts, err := time.Parse(time.RFC3339Nano, raw); err == nil {
+			return ts.UTC()
+		}
+		if ts, err := time.Parse(time.RFC3339, raw); err == nil {
+			return ts.UTC()
+		}
+	}
+	return time.Time{}
 }
 
 func NotionDocumentSummaryConclusionContent(input NotionDocumentInput, chunkCount int) string {

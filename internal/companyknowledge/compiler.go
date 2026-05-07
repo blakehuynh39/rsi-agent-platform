@@ -525,9 +525,11 @@ func compileOneWikiItem(ctx context.Context, cfg config.Config, wikiStore store.
 	}
 	targetInputs := make([]store.CompanyWikiCompileTargetInput, 0, len(pages))
 	rendered := map[string]renderedSynthesisPage{}
+	revisionTimestamps := buildRevisionTimestampMap(evidence, candidates)
 	for _, page := range pages {
 		body, citations, claims, conflicts := renderSynthesisPageMarkdownWithCandidates(evidence, candidates, page)
 		slug := synthesisSlug(page)
+		freshness := synthesisFreshness(revisionTimestamps, page)
 		bodyHash := store.CompanyWikiSHA256(body)
 		targetPath := filepath.ToSlash(filepath.Join("pages", slug+".md"))
 		idempotencyKey := strings.Join([]string{
@@ -550,7 +552,7 @@ func compileOneWikiItem(ctx context.Context, cfg config.Config, wikiStore store.
 		})
 		rendered[slug] = renderedSynthesisPage{
 			page: page, body: body, citations: citations, claims: claims, conflicts: conflicts,
-			path: targetPath, bodyHash: bodyHash, idempotencyKey: idempotencyKey,
+			path: targetPath, bodyHash: bodyHash, idempotencyKey: idempotencyKey, freshness: freshness,
 		}
 	}
 	targets, err := wikiStore.UpsertCompanyWikiCompileTargets(item.ID, targetInputs)
@@ -641,6 +643,7 @@ type renderedSynthesisPage struct {
 	citations      []store.CompanyWikiCitationInput
 	claims         []store.CompanyWikiClaimInput
 	conflicts      []store.CompanyWikiConflictInput
+	freshness      string
 	path           string
 	bodyHash       string
 	idempotencyKey string
@@ -692,9 +695,10 @@ func publishSynthesisTarget(cfg config.Config, wikiStore store.CompanyWikiStore,
 		Claims:            rendered.claims,
 		Conflicts:         rendered.conflicts,
 		Metadata: map[string]any{
-			"type":   rendered.page.Type,
-			"tags":   rendered.page.Tags,
-			"owners": rendered.page.Owners,
+			"type":      rendered.page.Type,
+			"tags":      rendered.page.Tags,
+			"owners":    rendered.page.Owners,
+			"freshness": rendered.freshness,
 		},
 		PublishedAt: time.Now().UTC(),
 	})
