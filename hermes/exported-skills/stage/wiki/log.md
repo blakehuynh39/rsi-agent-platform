@@ -19347,3 +19347,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8dd6326f159785cdfd927af7d9080836
 - summary: Trident v0.1.0 release.
 
+## [2026-05-07T14:49:37Z] synthesis | Stripe Payment Integration
+
+- status: published
+- slug: systems/stripe-payment-integration
+- wiki_revision_id: wikirev_e76f44c8c45ae79d1ef77569a687db9e
+- summary: Design for enabling users to purchase storage or license via Stripe, using hosted checkout sessions, webhook processing, and order fulfillment.
+
