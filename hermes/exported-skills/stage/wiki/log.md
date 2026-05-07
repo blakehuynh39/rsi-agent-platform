@@ -19354,3 +19354,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e76f44c8c45ae79d1ef77569a687db9e
 - summary: Design for enabling users to purchase storage or license via Stripe, using hosted checkout sessions, webhook processing, and order fulfillment.
 
+## [2026-05-07T15:02:50Z] synthesis | Poseidon S3 Compatible APIs
+
+- status: published
+- slug: systems/poseidon-s3-compatible-apis
+- wiki_revision_id: wikirev_b7fdc3d4e21cdc83760c4dfc49a9d75e
+- summary: Poseidon provides an S3-compatible API supporting a subset of AWS S3 operations for bucket management, object operations, and multipart uploads.
+
