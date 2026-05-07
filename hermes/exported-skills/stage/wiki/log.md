@@ -19172,3 +19172,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_676c44f5145272fe800623d74d0edcf6
 - summary: Bria AI is an AI model company that trains models exclusively on licensed data and programmatically compensates data owners through a patented attribution engine. It recently raise...
 
+## [2026-05-07T09:20:54Z] synthesis | Debias and Denoise Attribution (DDA)
+
+- status: published
+- slug: concepts/debias-and-denoise-attribution-dda
+- wiki_revision_id: wikirev_0c1102d46bfeb5e11c4b429cc6962d72
+- summary: A novel Training Data Attribution method that addresses fitting errors in LLM training through debiasing and denoising strategies.
+
+## [2026-05-07T09:20:54Z] synthesis | TrackStar
+
+- status: published
+- slug: concepts/trackstar
+- wiki_revision_id: wikirev_302a694126c22371b3edfd7849444b80
+- summary: A gradient-based method for identifying influential training examples, outperforming prior methods but with limitations in fact-entailment retrieval.
+
