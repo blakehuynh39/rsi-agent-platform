@@ -19585,3 +19585,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_da85b25775ce165600c3eb463330b71f
 - summary: Documented attack vectors for the subnet pipeline, covering both miner and validator roles. Miner attacks include bypassing transcription by using the reference script and skipping...
 
+## [2026-05-07T19:22:17Z] synthesis | Poseidon Internal Devnet Plan
+
+- status: published
+- slug: projects/poseidon-internal-devnet-plan
+- wiki_revision_id: wikirev_88918a76789aa1ad017179eb0fe67ca8
+- summary: Plan for the Poseidon internal devnet to run the video processing pipeline end-to-end on the subnet, expose engineering issues, and experiment with new tech stacks like Rust, reth,...
+
