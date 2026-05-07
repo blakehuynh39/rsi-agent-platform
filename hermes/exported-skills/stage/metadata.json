@@ -2846,13 +2846,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f99ae4056c0b6b814b93f7ccadef9ddd6bfa4bcca4256c0f65aadeb83272ca16",
-        "size": 469753
+        "sha256": "bf02e871e8e03ca427c6527bcf086c7e335f18676707eae78233a76694df7e0c",
+        "size": 470032
       },
       {
         "path": "log.md",
-        "sha256": "9c10209cd4e61a0273f986f8883aec9d9d3bf4f12ddb91d37375cfce300b18e8",
-        "size": 905732
+        "sha256": "22993fd0ad315080045f16c0070db14737fef0aff9ec4d718fd4bc19b8d6fd92",
+        "size": 906023
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4205,6 +4205,11 @@
         "size": 5689
       },
       {
+        "path": "pages/runbooks/llm-cluster-build-pre-checks.md",
+        "sha256": "d1808b4cc91ccd0d218e62eb368c2198081d22d1b770ac8cb7bdace07208125f",
+        "size": 1920
+      },
+      {
         "path": "pages/runbooks/network-rolling-upgrade.md",
         "sha256": "4391f56af86cef9fad79985b4eab0e898cedb82da41329f0317244897395cef7",
         "size": 1372
@@ -4459,8 +4464,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T06:31:02Z",
-  "file_count": 890,
+  "exported_at": "2026-05-07T06:37:08Z",
+  "file_count": 891,
   "files": [
     {
       "path": ".curator_state",
@@ -7302,7 +7307,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c89c4f2tzr",
-  "previous_tree_hash": "e11bfbda9c0b5e9de07bce246252b46d168e276399a7ca2dcafe0c14278e0273",
+  "previous_tree_hash": "ee0cd0d5ec387c031087f9a96658363ad45fe8039772cd54af05aa372cb7eb51",
   "schema_version": 1,
   "skill_file_count": 567,
   "skill_manage_sessions": [
@@ -7315,14 +7320,14 @@
   ],
   "skill_tree_hash": "3193aa399d4116a5e0e3e5b0906417c67f296eb836d8aa8d22f9c66a2a363757",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ee0cd0d5ec387c031087f9a96658363ad45fe8039772cd54af05aa372cb7eb51",
+  "tree_hash": "e6bfdad553d2e05cdb6a57d36a9bb5947619f84818c14913a5a8cc91be81bb68",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 323,
+  "wiki_file_count": 324,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7331,13 +7336,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f99ae4056c0b6b814b93f7ccadef9ddd6bfa4bcca4256c0f65aadeb83272ca16",
-      "size": 469753
+      "sha256": "bf02e871e8e03ca427c6527bcf086c7e335f18676707eae78233a76694df7e0c",
+      "size": 470032
     },
     {
       "path": "log.md",
-      "sha256": "9c10209cd4e61a0273f986f8883aec9d9d3bf4f12ddb91d37375cfce300b18e8",
-      "size": 905732
+      "sha256": "22993fd0ad315080045f16c0070db14737fef0aff9ec4d718fd4bc19b8d6fd92",
+      "size": 906023
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8690,6 +8695,11 @@
       "size": 5689
     },
     {
+      "path": "pages/runbooks/llm-cluster-build-pre-checks.md",
+      "sha256": "d1808b4cc91ccd0d218e62eb368c2198081d22d1b770ac8cb7bdace07208125f",
+      "size": 1920
+    },
+    {
       "path": "pages/runbooks/network-rolling-upgrade.md",
       "sha256": "4391f56af86cef9fad79985b4eab0e898cedb82da41329f0317244897395cef7",
       "size": 1372
@@ -8941,5 +8951,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "cc64b30459036cc0c68f397d1d07258a03df05f98064b043aaf0af2131abe764"
+  "wiki_tree_hash": "e196aa68abf30bdb256a12be10e19307102d4b0865a7923a35ffef8a5498ef88"
 }

@@ -19095,3 +19095,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_16b923b0470e07ac8ed1889dee034395
 - summary: Source: [Notion source](https://www.notion.so/Lion-Team-359051299a54806da510c461d07c72a3)
 
+## [2026-05-07T06:36:21Z] synthesis | LLM Cluster Build Pre-Checks
+
+- status: published
+- slug: runbooks/llm-cluster-build-pre-checks
+- wiki_revision_id: wikirev_faab72be86e1b85746064cfea706612b
+- summary: Requirements check before building an in-house LLM cluster with multiple GPU cards.
+
