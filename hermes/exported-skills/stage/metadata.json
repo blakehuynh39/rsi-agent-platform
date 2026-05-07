@@ -2851,8 +2851,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "03f5ba198a537f7459b9a79bd300cdbb6b29e8f28c78e4e2f1cc8a36b4506bb1",
-        "size": 898605
+        "sha256": "c46ef28d78322c51cc022d9116b2fbe90fd09e58ec88ab31956c429dd3aabe10",
+        "size": 898960
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3248,6 +3248,11 @@
         "path": "pages/concepts/protocol-data-model-design-principles.md",
         "sha256": "12581c855b39e2d4a7e9b5e70efbd8bfc96a084492fd8c591be1d9549426fb54",
         "size": 4910
+      },
+      {
+        "path": "pages/concepts/protocol-home.md",
+        "sha256": "1607f2d594c31eedba519cfadc4620e061e2f2166a4ff29a9ef4dd5bf5d5ca1b",
+        "size": 4263
       },
       {
         "path": "pages/concepts/protocol-metadata.md",
@@ -4409,8 +4414,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T03:22:55Z",
-  "file_count": 880,
+  "exported_at": "2026-05-07T03:34:11Z",
+  "file_count": 881,
   "files": [
     {
       "path": ".curator_state",
@@ -7252,7 +7257,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fdf64db9b7d",
-  "previous_tree_hash": "2f316c3503173753a465ea61fd60b8b4a6db95b94dbc176686c9617803c97c23",
+  "previous_tree_hash": "2e5e227305ac088049c6903fa8ab70c2e0e03ae07b67f5393cec0fcf78a5452f",
   "schema_version": 1,
   "skill_file_count": 567,
   "skill_manage_sessions": [
@@ -7265,14 +7270,14 @@
   ],
   "skill_tree_hash": "3193aa399d4116a5e0e3e5b0906417c67f296eb836d8aa8d22f9c66a2a363757",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2e5e227305ac088049c6903fa8ab70c2e0e03ae07b67f5393cec0fcf78a5452f",
+  "tree_hash": "d696a3b66571ec8a89819ed3fd1b2823eff0ec52cdc3787d01417f2eff74d15f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 313,
+  "wiki_file_count": 314,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7286,8 +7291,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "03f5ba198a537f7459b9a79bd300cdbb6b29e8f28c78e4e2f1cc8a36b4506bb1",
-      "size": 898605
+      "sha256": "c46ef28d78322c51cc022d9116b2fbe90fd09e58ec88ab31956c429dd3aabe10",
+      "size": 898960
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7683,6 +7688,11 @@
       "path": "pages/concepts/protocol-data-model-design-principles.md",
       "sha256": "12581c855b39e2d4a7e9b5e70efbd8bfc96a084492fd8c591be1d9549426fb54",
       "size": 4910
+    },
+    {
+      "path": "pages/concepts/protocol-home.md",
+      "sha256": "1607f2d594c31eedba519cfadc4620e061e2f2166a4ff29a9ef4dd5bf5d5ca1b",
+      "size": 4263
     },
     {
       "path": "pages/concepts/protocol-metadata.md",
@@ -8841,5 +8851,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5d6ff735aab0a6203f88b260b7209c61633431520270f50f57622caeadb35689"
+  "wiki_tree_hash": "1ae214eae48f0acb8d53c8dca0e56d1e12c9c7f5fe674e02bb3f9122ae8a159f"
 }

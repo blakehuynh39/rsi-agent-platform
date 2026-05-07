@@ -18946,3 +18946,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_935ca81af6ce9bcafd3c36b425ed9150
 - summary: OpenGradient is a full-stack AI infrastructure project including an EVM-compatible network, decentralized model hosting, a model hub, and an in-house research team.
 
+## [2026-05-07T03:32:42Z] synthesis | Protocol Home
+
+- status: published
+- slug: concepts/protocol-home
+- wiki_revision_id: wikirev_859495a751193981f11a43663287d8c6
+- summary: Central hub for Story Protocol design, development, ecosystem, and roadmap discussions. Contains links to key design documents, roadmap updates, project progress, and resources.
+
