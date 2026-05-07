@@ -2906,13 +2906,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "dd3d44319ab4b4f1dc699a69c2bea84c134289a0c5de3802543094e42654e99b",
+        "sha256": "8fd84dd327b8eaea3972692aa0718574b1d45d1b824e6b8230a547f99f3eb2b6",
         "size": 496238
       },
       {
         "path": "log.md",
-        "sha256": "46698f36c37b36f47cda4ec285fbc84fb6c9f2db71732a26309bf1a50cdd9133",
-        "size": 935164
+        "sha256": "2d68629b9149a843e762511f270f432a97fb69d4f686f4f76d422f1edebf5bc0",
+        "size": 935811
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3906,8 +3906,8 @@
       },
       {
         "path": "pages/projects/add-fb-tracking-pixel-to-web-app.md",
-        "sha256": "0917486df39d9640a48310229d20eebb80216ec5851c2f2fc615855c0415954a",
-        "size": 1116
+        "sha256": "2509db3f587ac23b80a6fe620f710e6c00467b3ab811d6e009a710977e577a32",
+        "size": 1197
       },
       {
         "path": "pages/projects/add-intercom-automated-customer-service.md",
@@ -4116,8 +4116,8 @@
       },
       {
         "path": "pages/projects/integrate-fb-tracking-google-ads-admin-dashboard.md",
-        "sha256": "bce7ed458a1325985c7e23cd2b636bfb1d12027cfdfb3f5b34573e30c767394d",
-        "size": 1377
+        "sha256": "e5213030355f74f54b75786b10da2ad870f02f58ed85cbe7b2d01d554f11a111",
+        "size": 1472
       },
       {
         "path": "pages/projects/integrate-intercom-or-similar.md",
@@ -4929,7 +4929,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T23:08:01Z",
+  "exported_at": "2026-05-07T23:18:50Z",
   "file_count": 984,
   "files": [
     {
@@ -7832,7 +7832,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fcbdd97tb5m",
-  "previous_tree_hash": "71b153c9ca96ad1cd3da9273d5094fdbdd0d0ec527c00221d750dc337e85990e",
+  "previous_tree_hash": "4e32f3e2741a77dd2cb81fe679d96b4cdc0e55712da80afa27036685b33dee38",
   "schema_version": 1,
   "skill_file_count": 579,
   "skill_manage_sessions": [
@@ -7845,7 +7845,7 @@
   ],
   "skill_tree_hash": "74117d619064610324c6f04f91504585b9e20fd5cd813b4f53eedfbfc7fcb2f2",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4e32f3e2741a77dd2cb81fe679d96b4cdc0e55712da80afa27036685b33dee38",
+  "tree_hash": "4105220a16f206827aa2e928564843a990181fbc62a6e5ba4fa38c75d996f6a6",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -7861,13 +7861,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "dd3d44319ab4b4f1dc699a69c2bea84c134289a0c5de3802543094e42654e99b",
+      "sha256": "8fd84dd327b8eaea3972692aa0718574b1d45d1b824e6b8230a547f99f3eb2b6",
       "size": 496238
     },
     {
       "path": "log.md",
-      "sha256": "46698f36c37b36f47cda4ec285fbc84fb6c9f2db71732a26309bf1a50cdd9133",
-      "size": 935164
+      "sha256": "2d68629b9149a843e762511f270f432a97fb69d4f686f4f76d422f1edebf5bc0",
+      "size": 935811
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8861,8 +8861,8 @@
     },
     {
       "path": "pages/projects/add-fb-tracking-pixel-to-web-app.md",
-      "sha256": "0917486df39d9640a48310229d20eebb80216ec5851c2f2fc615855c0415954a",
-      "size": 1116
+      "sha256": "2509db3f587ac23b80a6fe620f710e6c00467b3ab811d6e009a710977e577a32",
+      "size": 1197
     },
     {
       "path": "pages/projects/add-intercom-automated-customer-service.md",
@@ -9071,8 +9071,8 @@
     },
     {
       "path": "pages/projects/integrate-fb-tracking-google-ads-admin-dashboard.md",
-      "sha256": "bce7ed458a1325985c7e23cd2b636bfb1d12027cfdfb3f5b34573e30c767394d",
-      "size": 1377
+      "sha256": "e5213030355f74f54b75786b10da2ad870f02f58ed85cbe7b2d01d554f11a111",
+      "size": 1472
     },
     {
       "path": "pages/projects/integrate-intercom-or-similar.md",
@@ -9881,5 +9881,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5a499358abc935f6265c0aae8816849c18f4ce11477bf768af016927b6a6b39b"
+  "wiki_tree_hash": "3430f08d7b2b81ecb7cab222c67967fa282768bd8125e2baf4967a612a14ba0c"
 }

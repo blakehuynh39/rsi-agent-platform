@@ -19718,3 +19718,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6b5d69fe3590b1cfd9fe75577484258c
 - summary: The Numo Product Backlog is a Notion database where each row is mirrored as a separate Notion document.
 
+## [2026-05-07T23:16:30Z] synthesis | Add FB tracking pixel to web app
+
+- status: published
+- slug: projects/add-fb-tracking-pixel-to-web-app
+- wiki_revision_id: wikirev_efc73c3d4e12f1f7ae8015ca324968ee
+- summary: Integration of Facebook tracking pixel into the web application.
+
+## [2026-05-07T23:18:22Z] synthesis | Integrate FB tracking and Google Ads spent tracking to Admin Dashboard
+
+- status: published
+- slug: projects/integrate-fb-tracking-google-ads-admin-dashboard
+- wiki_revision_id: wikirev_d02966f53ec8db360d953ccc7f951c29
+- summary: Project to integrate Facebook tracking and Google Ads spending tracking into the Admin Dashboard.
+
