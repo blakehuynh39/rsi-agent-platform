@@ -19564,3 +19564,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c7ce6e01116acd8173ee23ba862257b7
 - summary: Project to build Subnet 0 (Proteus) with an audio pipeline from a DePIN app to Poseidon, including scalable infrastructure, open-source subnet stacks, and partner onboarding.
 
+## [2026-05-07T18:34:45Z] synthesis | Superbridge UI for Bridging
+
+- status: published
+- slug: concepts/superbridge-ui
+- wiki_revision_id: wikirev_6b883d9331ac26f0a1fadbdf178c6e9e
+- summary: Superbridge is a user interface for bridging assets between Layer 1 and Layer 2 networks. The UI provides step-by-step flows for L1→L2 and L2→L1 transfers, documented through a ser...
+

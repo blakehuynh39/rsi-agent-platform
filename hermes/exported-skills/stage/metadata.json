@@ -2881,13 +2881,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "cd2f3192bb6c14b2881cb9c0ca81ee4179061f583ce6433af0886bdef3379909",
-        "size": 489543
+        "sha256": "87ecc188675df57f9d2eda222b88dcfb5ab9b76d685c9b15cd6ff428f92a532d",
+        "size": 489911
       },
       {
         "path": "log.md",
-        "sha256": "11c2a414c4dc22fffca201974c4430f10eb2f08ad420534d72017c6ff48063c2",
-        "size": 927292
+        "sha256": "ba2e149c363d65713c3f9337b216929c69831faf389b7344ef082f2697f0a3b6",
+        "size": 927672
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3438,6 +3438,11 @@
         "path": "pages/concepts/strifed-threat-model-decentralized-video-depin.md",
         "sha256": "de3648f9606d6f351a8d9447f314e5d075c6d6a210028885a0ebb3482214642c",
         "size": 15654
+      },
+      {
+        "path": "pages/concepts/superbridge-ui.md",
+        "sha256": "ee4c1f83beb43155568fdc15ab93aec6720ebc393185291c306759ab05a7a17a",
+        "size": 1943
       },
       {
         "path": "pages/concepts/trackstar.md",
@@ -4809,8 +4814,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T18:26:53Z",
-  "file_count": 960,
+  "exported_at": "2026-05-07T18:37:23Z",
+  "file_count": 961,
   "files": [
     {
       "path": ".curator_state",
@@ -7686,8 +7691,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6df975hf6nb",
-  "previous_tree_hash": "9ef67ae0ba3744e45833d2333b243879fd4496b5144fff25d7926ab099be5414",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7b87977wx4w",
+  "previous_tree_hash": "1b9ab4528396214b8bfb9b3465f67fbbab41d8824dad49790956ca9b1fd9c535",
   "schema_version": 1,
   "skill_file_count": 574,
   "skill_manage_sessions": [
@@ -7700,14 +7705,14 @@
   ],
   "skill_tree_hash": "370edd1e02aa8747970f44e2814b02395b36aee8011cf532cdd294025684ec2f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1b9ab4528396214b8bfb9b3465f67fbbab41d8824dad49790956ca9b1fd9c535",
+  "tree_hash": "ec73b05ad97baf3b3fd68b39ecc9bce9566cd198db61a7bdabd373a8cc2436f6",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 386,
+  "wiki_file_count": 387,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7716,13 +7721,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "cd2f3192bb6c14b2881cb9c0ca81ee4179061f583ce6433af0886bdef3379909",
-      "size": 489543
+      "sha256": "87ecc188675df57f9d2eda222b88dcfb5ab9b76d685c9b15cd6ff428f92a532d",
+      "size": 489911
     },
     {
       "path": "log.md",
-      "sha256": "11c2a414c4dc22fffca201974c4430f10eb2f08ad420534d72017c6ff48063c2",
-      "size": 927292
+      "sha256": "ba2e149c363d65713c3f9337b216929c69831faf389b7344ef082f2697f0a3b6",
+      "size": 927672
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8273,6 +8278,11 @@
       "path": "pages/concepts/strifed-threat-model-decentralized-video-depin.md",
       "sha256": "de3648f9606d6f351a8d9447f314e5d075c6d6a210028885a0ebb3482214642c",
       "size": 15654
+    },
+    {
+      "path": "pages/concepts/superbridge-ui.md",
+      "sha256": "ee4c1f83beb43155568fdc15ab93aec6720ebc393185291c306759ab05a7a17a",
+      "size": 1943
     },
     {
       "path": "pages/concepts/trackstar.md",
@@ -9641,5 +9651,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1c7a32e0ed3ecac5e0c98a894e60a5d3c8a3170222f5db5b1b1a6a6e0345013b"
+  "wiki_tree_hash": "723f7671d0bd23e1f895557131d81d044e44b4a1f92e3cf0725192c8e37df23a"
 }
