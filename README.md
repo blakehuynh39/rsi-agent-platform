@@ -96,6 +96,8 @@ The Honcho stage rollout and rollback runbook lives at
 [`docs/honcho-stage-rollout.md`](./docs/honcho-stage-rollout.md).
 The Slack-approved Postgres DB read gateway architecture and security-review
 notes live at [`docs/db-read-gateway-architecture.md`](./docs/db-read-gateway-architecture.md).
+The self-hosted Firecrawl web-search architecture lives at
+[`docs/firecrawl-web-search-architecture.md`](./docs/firecrawl-web-search-architecture.md).
 
 The CD workflow builds and pushes five stage images on `main`:
 
