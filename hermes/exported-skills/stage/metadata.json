@@ -9,7 +9,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "5765559fe8274f7b99ebf91909919de5bd69ebe2c178e49e6dc49abeb7d03c8e",
+        "sha256": "1bb8dd5e92860f93cee7f03d6b2a393884a35596472cca4555b7fb82a79b4826",
         "size": 1578
       },
       {
@@ -2851,13 +2851,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "d77691bdb69b635d348b8c84805e2501aab11259ce76a8aa9591334a4ef282ec",
-        "size": 470375
+        "sha256": "be124867b0f896c35ae0429abdfa4516ce8db46badeb9084b80d757f15ba3fbc",
+        "size": 471777
       },
       {
         "path": "log.md",
-        "sha256": "01b4f615ec8708a857c6e85b3a81d8174a907e589ba9f86de542814b97c0731c",
-        "size": 906725
+        "sha256": "abaf9f7aae129df0ccf688163740bce42efd0900b03d56dcaa8704feafeb2939",
+        "size": 907829
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2983,6 +2983,11 @@
         "path": "pages/concepts/etherscan-custom-error-handling-limitation.md",
         "sha256": "f66ae8a1ac5c244fd7a0c015cb82393ef18db1563b6b69d8ebc1f3357737607f",
         "size": 2244
+      },
+      {
+        "path": "pages/concepts/evm-plus-plus.md",
+        "sha256": "f66a915f791d5f5bf59d96226fc965241b92720f2d2148b7eb2083efb51b343e",
+        "size": 1820
       },
       {
         "path": "pages/concepts/explorer-use-case.md",
@@ -3290,6 +3295,11 @@
         "size": 3584
       },
       {
+        "path": "pages/concepts/resonance.md",
+        "sha256": "7477015cf929568123fb7dc775620ea324c708cf64c09d1765be59f805cc776b",
+        "size": 1194
+      },
+      {
         "path": "pages/concepts/royalty-nft.md",
         "sha256": "9eb01ee2e62b5886628478fcc8c3bd61f9c0f82a06974d28a22de118930337cd",
         "size": 6171
@@ -3588,6 +3598,11 @@
         "path": "pages/open-questions/sp-precompile-candidates.md",
         "sha256": "dc232a424a28fc831ddb87b1a93558524b5e9c052dcb1e418dfa3ab20f96b838",
         "size": 3834
+      },
+      {
+        "path": "pages/people/hans.md",
+        "sha256": "c3466a19ac098ab33c8b7152cee7e47565dbb2717ca57232c88c9323e18985bf",
+        "size": 1026
       },
       {
         "path": "pages/policies/database-table-naming-conventions.md",
@@ -4050,6 +4065,11 @@
         "size": 1292
       },
       {
+        "path": "pages/projects/ritual.md",
+        "sha256": "c32969a22a55d918688b061c0b1e6fbc931f926ac4498849fc2358cef5e53e01",
+        "size": 6299
+      },
+      {
         "path": "pages/projects/sdk-designs.md",
         "sha256": "87b412573b470045b8f3edf7b6694f8bc7383289cb2c6e2beaaa889d24f4012c",
         "size": 1430
@@ -4479,8 +4499,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T07:05:33Z",
-  "file_count": 894,
+  "exported_at": "2026-05-07T07:11:39Z",
+  "file_count": 898,
   "files": [
     {
       "path": ".curator_state",
@@ -4489,7 +4509,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "5765559fe8274f7b99ebf91909919de5bd69ebe2c178e49e6dc49abeb7d03c8e",
+      "sha256": "1bb8dd5e92860f93cee7f03d6b2a393884a35596472cca4555b7fb82a79b4826",
       "size": 1578
     },
     {
@@ -7327,7 +7347,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c89c4f2tzr",
-  "previous_tree_hash": "6f61387af8eb08297eec0bedd2458ec538441eb44b1b0b1651afef0c4b8b97a9",
+  "previous_tree_hash": "bc5329c35be78ce1fdbd9511c5cb4d5f1cab314f5b9c334f58f168806e5912ac",
   "schema_version": 1,
   "skill_file_count": 568,
   "skill_manage_sessions": [
@@ -7338,16 +7358,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "ec943e5241dcac5231901fd8f3469298280c5000a379f6caea8af83f6deee67d",
+  "skill_tree_hash": "d4b99de4c5d843f6f128ea457b46c7bf135237cf39e8a80c0440b03ec6b1a3e2",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "bc5329c35be78ce1fdbd9511c5cb4d5f1cab314f5b9c334f58f168806e5912ac",
+  "tree_hash": "a9623cbb6f0d117bcbb46a20dd9167a6196f334ad17d89993a8122732b2decd8",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 326,
+  "wiki_file_count": 330,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7356,13 +7376,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "d77691bdb69b635d348b8c84805e2501aab11259ce76a8aa9591334a4ef282ec",
-      "size": 470375
+      "sha256": "be124867b0f896c35ae0429abdfa4516ce8db46badeb9084b80d757f15ba3fbc",
+      "size": 471777
     },
     {
       "path": "log.md",
-      "sha256": "01b4f615ec8708a857c6e85b3a81d8174a907e589ba9f86de542814b97c0731c",
-      "size": 906725
+      "sha256": "abaf9f7aae129df0ccf688163740bce42efd0900b03d56dcaa8704feafeb2939",
+      "size": 907829
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7488,6 +7508,11 @@
       "path": "pages/concepts/etherscan-custom-error-handling-limitation.md",
       "sha256": "f66ae8a1ac5c244fd7a0c015cb82393ef18db1563b6b69d8ebc1f3357737607f",
       "size": 2244
+    },
+    {
+      "path": "pages/concepts/evm-plus-plus.md",
+      "sha256": "f66a915f791d5f5bf59d96226fc965241b92720f2d2148b7eb2083efb51b343e",
+      "size": 1820
     },
     {
       "path": "pages/concepts/explorer-use-case.md",
@@ -7795,6 +7820,11 @@
       "size": 3584
     },
     {
+      "path": "pages/concepts/resonance.md",
+      "sha256": "7477015cf929568123fb7dc775620ea324c708cf64c09d1765be59f805cc776b",
+      "size": 1194
+    },
+    {
       "path": "pages/concepts/royalty-nft.md",
       "sha256": "9eb01ee2e62b5886628478fcc8c3bd61f9c0f82a06974d28a22de118930337cd",
       "size": 6171
@@ -8093,6 +8123,11 @@
       "path": "pages/open-questions/sp-precompile-candidates.md",
       "sha256": "dc232a424a28fc831ddb87b1a93558524b5e9c052dcb1e418dfa3ab20f96b838",
       "size": 3834
+    },
+    {
+      "path": "pages/people/hans.md",
+      "sha256": "c3466a19ac098ab33c8b7152cee7e47565dbb2717ca57232c88c9323e18985bf",
+      "size": 1026
     },
     {
       "path": "pages/policies/database-table-naming-conventions.md",
@@ -8555,6 +8590,11 @@
       "size": 1292
     },
     {
+      "path": "pages/projects/ritual.md",
+      "sha256": "c32969a22a55d918688b061c0b1e6fbc931f926ac4498849fc2358cef5e53e01",
+      "size": 6299
+    },
+    {
       "path": "pages/projects/sdk-designs.md",
       "sha256": "87b412573b470045b8f3edf7b6694f8bc7383289cb2c6e2beaaa889d24f4012c",
       "size": 1430
@@ -8981,5 +9021,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0e4b6c11ac9727d424d245d2f06a10a2349361595befb06023ea83076e181c37"
+  "wiki_tree_hash": "846530b5e33e42051a44b110ce2b5435363365b035f1265a8c65dd78f7b00b7d"
 }

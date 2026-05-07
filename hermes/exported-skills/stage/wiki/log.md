@@ -19116,3 +19116,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4c1cf35f9adbd0c90a27c80d09dd4ebb
 - summary: Gensyn is developing a decentralized machine learning compute protocol that enables training of AI models over a globally distributed network of devices. It aims to democratize acc...
 
+## [2026-05-07T07:09:09Z] synthesis | Ritual
+
+- status: published
+- slug: projects/ritual
+- wiki_revision_id: wikirev_59e3bf71d70cdfafc61b21a1c7e211dc
+- summary: Ritual is a blockchain designed for on-chain AI and heterogeneous compute, enabling trustless, censorship-resistant smart contract access to AI and other computations.
+
+## [2026-05-07T07:09:10Z] synthesis | EVM++
+
+- status: published
+- slug: concepts/evm-plus-plus
+- wiki_revision_id: wikirev_54e526e927f2cdfd183ebacefc11c3c2
+- summary: EVM++ is a backwards-compatible extension of the EVM with expressive compute precompiles, enabling heterogeneous compute via sidecars.
+
+## [2026-05-07T07:09:10Z] synthesis | Resonance
+
+- status: published
+- slug: concepts/resonance
+- wiki_revision_id: wikirev_9881a43536be6e49c8524dd775b41b52
+- summary: Resonance is a state-of-the-art transaction fee mechanism to efficiently match supply and demand.
+
+## [2026-05-07T07:09:10Z] synthesis | Hans
+
+- status: published
+- slug: people/hans
+- wiki_revision_id: wikirev_697cb7d98484507002e09104bf748f9c
+- summary: Researcher who evaluated the Ritual project.
+
