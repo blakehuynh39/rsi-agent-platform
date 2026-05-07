@@ -19473,3 +19473,66 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_96afa7a06a350ca6ac770a0fe4a769e0
 - summary: Guide for workers in the Poseidon Subnet workflow engine, covering registration, activity processing, staking, and rewards.
 
+## [2026-05-07T17:07:53Z] synthesis | DePIN Project
+
+- status: published
+- slug: projects/depin-project
+- wiki_revision_id: wikirev_e08bc2e901e27f95ee5d50d712c9f8a6
+- summary: DePIN project with launch date 8/26, scope includes Orb Visualization, and rewards logic being flushed out.
+
+## [2026-05-07T17:07:53Z] synthesis | Subnet Devnet
+
+- status: published
+- slug: projects/subnet-devnet
+- wiki_revision_id: wikirev_4caa86a8ad8f8c1eaa6f1f1daa500fec
+- summary: Subnet Devnet release on September 10, 2025, with first subnet owner KGEN.
+
+## [2026-05-07T17:07:53Z] synthesis | Partner DevNet
+
+- status: published
+- slug: projects/partner-devnet
+- wiki_revision_id: wikirev_12cf6ce057a8b35b8cd678940b0f9f91
+- summary: Partner DevNet crunch time from October 23 to November 10, 2025, with first partner devnet tech/biz definition needed.
+
+## [2026-05-07T17:07:54Z] synthesis | Airdrop Initiative
+
+- status: published
+- slug: projects/airdrop-initiative
+- wiki_revision_id: wikirev_ee966453bec68aa9a9ad2a73f3cee4b6
+- summary: Airdrop of IP to Poseidon users, with decisions pending on one-time vs multiple distributions and claim page necessity.
+
+## [2026-05-07T17:07:54Z] synthesis | Litepaper
+
+- status: published
+- slug: concepts/litepaper
+- wiki_revision_id: wikirev_22c9be61a77de7636b0b77d1a6ebd5f1
+- summary: Litepaper release during KBW on September 22, 2025.
+
+## [2026-05-07T17:07:54Z] synthesis | IP Vault
+
+- status: published
+- slug: projects/ip-vault
+- wiki_revision_id: wikirev_5f4ad93d016d0344e740c446d9df1dc9
+- summary: IP Vault announcement scheduled for the Friday of the week of September 10, 2025.
+
+## [2026-05-07T17:07:54Z] synthesis | DePIN Application Season One
+
+- status: published
+- slug: projects/depin-application-season-one
+- wiki_revision_id: wikirev_065bddeb435543bba08d46375ab72000
+- summary: DePIN Application season one likely closing the week of September 10, 2025, with 70% confidence.
+
+## [2026-05-07T17:07:54Z] synthesis | External Vendor for Token Distribution
+
+- status: published
+- slug: decisions/token-distribution-vendor
+- wiki_revision_id: wikirev_435f7cffa64ecdb9f5d618fe876a5892
+- summary: An external vendor is being considered for token distribution.
+
+## [2026-05-07T17:07:54Z] synthesis | Incentives Feedback Form
+
+- status: published
+- slug: projects/incentives-feedback-form
+- wiki_revision_id: wikirev_d4d60036875d90f3bbe468769186b310
+- summary: A feedback form around incentives is being planned.
+
