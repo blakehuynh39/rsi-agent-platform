@@ -87,6 +87,7 @@ Only `numo-waf-origin-check` actively blocks these endpoints. Other custom rules
 - PR #201 (cloudflare): Added Seb's IPv6 to `$numo_server_allowlist` — workaround, now superseded
 - PR #203 (cloudflare): WAF skip rule `numo-waf-skip-ndv-internal` for both NDV paths (created 2026-05-06)
 - PR #204 (cloudflare): **FIX** for PR #203 — removed `http_request_firewall_custom` from skip phases, added NDV path exclusion to origin-check expression. Zone plan doesn't authorize custom-phase skip rules (error 20120). See `references/waf-skip-custom-phase-pitfall.md`.
+- PR #449 (depin-backend): Added `enabled = true` explicitly to `production.toml`'s `[numo_validation]` section (2026-05-07). Production config had empty section header — explicit value removes ambiguity and ensures NDV endpoints are enabled.
 
 ## Slackbot Digest Cron
 
