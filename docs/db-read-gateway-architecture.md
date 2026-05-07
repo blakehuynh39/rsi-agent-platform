@@ -19,34 +19,34 @@ The design goal is to let Hermes answer operational data questions without givin
 ```mermaid
 sequenceDiagram
     autonumber
-    participant User as "Slack requester"
-    participant Hermes as "Hermes executor"
-    participant CLI as "rsi-db client"
-    participant CP as "RSI control-plane"
-    participant Slack as "Slack approval card"
-    participant Admin as "Authorized DB-read admin"
-    participant Worker as "DB read worker"
-    participant Lambda as "Prod Lambda relay"
-    participant RDS as "Postgres RDS"
+    participant User as Slack requester
+    participant Hermes as Hermes executor
+    participant CLI as rsi-db client
+    participant CP as RSI control-plane
+    participant Slack as Slack approval card
+    participant Admin as Authorized DB-read admin
+    participant Worker as DB read worker
+    participant Lambda as Prod Lambda relay
+    participant RDS as Postgres RDS
 
-    User->>Hermes: "Ask for data requiring SQL"
-    Hermes->>CLI: "rsi-db query --target depin-prod --sql ..."
-    CLI->>CP: "POST /internal/db-read/query"
-    CP->>CP: "Parse SQL, enforce allowlist/caps, create request"
-    CP->>Slack: "Post approval card with exact SQL, hash, target, caps"
-    CLI->>Hermes: "Return request metadata"
-    CLI->>Hermes: "Write terminal handoff marker"
-    Hermes->>Hermes: "Stop normal reply delivery; Slack card owns response"
-    Admin->>Slack: "Click Approve once"
-    Slack->>CP: "block_actions callback"
-    CP->>CP: "Verify approver, hash, target, caps, expiry"
-    Worker->>CP: "Lease approved execution job"
-    Worker->>Lambda: "Invoke prod relay for prod targets"
-    Lambda->>RDS: "Read-only transaction with time/row/byte caps"
-    RDS-->>Lambda: "Rows"
-    Lambda-->>Worker: "Sanitized result sample"
-    Worker->>CP: "Report execution result"
-    CP->>Slack: "Update card with Result or Result (truncated)"
+    User->>Hermes: Ask for data requiring SQL
+    Hermes->>CLI: rsi-db query submits exact SQL
+    CLI->>CP: POST /internal/db-read/query
+    CP->>CP: Parse SQL and enforce allowlist and caps
+    CP->>Slack: Post approval card with exact SQL and hash
+    CLI->>Hermes: Return request metadata
+    CLI->>Hermes: Write terminal handoff marker
+    Hermes->>Hermes: Stop normal reply delivery and let Slack card own response
+    Admin->>Slack: Click Approve once
+    Slack->>CP: Send block_actions callback
+    CP->>CP: Verify approver hash target caps and expiry
+    Worker->>CP: Lease approved execution job
+    Worker->>Lambda: Invoke prod relay for prod targets
+    Lambda->>RDS: Read-only transaction with time row and byte caps
+    RDS-->>Lambda: Return rows
+    Lambda-->>Worker: Return sanitized result sample
+    Worker->>CP: Report execution result
+    CP->>Slack: Update card with Result or Result truncated
 ```
 
 ## Trust Boundaries
@@ -60,14 +60,14 @@ flowchart LR
     end
 
     subgraph StageBoundary["Stage RSI Platform Boundary"]
-        Hermes["Hermes executor\nno DSNs"]
-        DBCLI["rsi-db client\nexecution-scoped token"]
-        CP["Control-plane API\nstate machine + audit"]
-        Worker["DB read worker\nstage DSNs only"]
+        Hermes["Hermes executor without DSNs"]
+        DBCLI["rsi-db client with execution-scoped token"]
+        CP["Control-plane API with state machine and audit"]
+        Worker["DB read worker with stage DSNs only"]
     end
 
     subgraph ProdBoundary["Prod AWS Data Boundary"]
-        Lambda["Prod Lambda relay\nread-only DSN"]
+        Lambda["Prod Lambda relay with read-only DSN"]
         ProdRDS["Prod RDS"]
     end
 
