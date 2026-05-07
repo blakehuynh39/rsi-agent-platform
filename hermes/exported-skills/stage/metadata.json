@@ -2881,8 +2881,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "5d3f97ae8fc5c625f933027bb4207b42b6e67778c97fbe2fdcae45f7798ae972",
-        "size": 920361
+        "sha256": "2e613f27e4b91ec660261307dc57e1a788f3a9a112a2fb3447519dd4a0da40a1",
+        "size": 920739
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4665,6 +4665,11 @@
         "size": 4797
       },
       {
+        "path": "pages/systems/subnet-l2-scheduling-contracts.md",
+        "sha256": "a5b29574d04d734fa7595152c09e8112f7da9a639145d2d221b9b394080e765f",
+        "size": 8131
+      },
+      {
         "path": "pages/systems/tmkms.md",
         "sha256": "6001f868c157137aaf3aaaa7dced56102d50d16cccdce109cf241868ba218387",
         "size": 4668
@@ -4704,8 +4709,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T15:23:12Z",
-  "file_count": 939,
+  "exported_at": "2026-05-07T15:39:27Z",
+  "file_count": 940,
   "files": [
     {
       "path": ".curator_state",
@@ -7577,7 +7582,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
-  "previous_tree_hash": "bcbb4e71dbe44dfb25b32ae785ef8a930f51e5534c8da95a3775299bd99194ff",
+  "previous_tree_hash": "62fc34f9b6029033c49cf8e010d2af25eb3c6ca5aa1cb7aa84ff604bb165fd42",
   "schema_version": 1,
   "skill_file_count": 573,
   "skill_manage_sessions": [
@@ -7590,14 +7595,14 @@
   ],
   "skill_tree_hash": "28608c7248fc5dcd9142c2521d24ce87a8dbdf56f63028d0367e299b1383271a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "62fc34f9b6029033c49cf8e010d2af25eb3c6ca5aa1cb7aa84ff604bb165fd42",
+  "tree_hash": "61be1a91037abcfab0a43fb61352b7a666439a6f41165931ca38e6d5c93656b2",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 366,
+  "wiki_file_count": 367,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7611,8 +7616,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "5d3f97ae8fc5c625f933027bb4207b42b6e67778c97fbe2fdcae45f7798ae972",
-      "size": 920361
+      "sha256": "2e613f27e4b91ec660261307dc57e1a788f3a9a112a2fb3447519dd4a0da40a1",
+      "size": 920739
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9395,6 +9400,11 @@
       "size": 4797
     },
     {
+      "path": "pages/systems/subnet-l2-scheduling-contracts.md",
+      "sha256": "a5b29574d04d734fa7595152c09e8112f7da9a639145d2d221b9b394080e765f",
+      "size": 8131
+    },
+    {
       "path": "pages/systems/tmkms.md",
       "sha256": "6001f868c157137aaf3aaaa7dced56102d50d16cccdce109cf241868ba218387",
       "size": 4668
@@ -9431,5 +9441,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1bdaeb2bce9663ea1d66be70040f69995288c99fc446eb7fc64625461334302a"
+  "wiki_tree_hash": "28587c238e846a6742d64e289a24ae21016edcf99ec05fb17ecafd455337465d"
 }

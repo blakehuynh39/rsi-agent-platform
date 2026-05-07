@@ -19403,3 +19403,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e4d5e6ec4876b334e6b45936a64b2543
 - summary: The coordinator (or any service node) handles key creation and reconstruction requests, splitting keys, distributing shares, and combining them.
 
+## [2026-05-07T15:35:48Z] synthesis | Subnet L2 & Scheduling Contracts
+
+- status: published
+- slug: systems/subnet-l2-scheduling-contracts
+- wiki_revision_id: wikirev_0e09cd686974c9cfa5a1a73a54146349
+- summary: On-chain scheduling system for a rollup-based subnet that manages job queues, worker registration, staking, and reward distribution using an epoch-driven push model.
+
