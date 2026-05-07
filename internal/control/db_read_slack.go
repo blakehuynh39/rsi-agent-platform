@@ -96,7 +96,7 @@ func updateDBReadSlackCard(ctx context.Context, api slackMessagePoster, request 
 		header += fmt.Sprintf("\nApproved by: <@%s>", request.ApprovedBySlackUserID)
 	}
 	footer := "\n" + dbReadRequestFooter(request, storepkg.DBReadValidationAttempt{ID: request.CurrentValidationAttemptID})
-	overhead := len(header) + len(footer) + len("\n*Exact SQL:*\n``````") + len("\n*Sample:*\n``````")
+	overhead := len(header) + len(footer) + len("\n*Exact SQL:*\n``````") + len("\n*Result (truncated):*\n``````")
 	remainingBudget := slackSectionTextLimit - overhead
 	if remainingBudget < 0 {
 		remainingBudget = 0
@@ -110,7 +110,11 @@ func updateDBReadSlackCard(ctx context.Context, api slackMessagePoster, request 
 	text := header
 	text += "\n*Exact SQL:*\n```" + escapeSlackCode(truncateSlackText(request.SQL, sqlLimit)) + "```"
 	if len(request.ResultSample) > 0 && sampleLimit > 0 {
-		text += "\n*Sample:*\n```" + escapeSlackCode(formatDBReadSampleTable(request.ResultSample, sampleLimit)) + "```"
+		resultLabel := "Result"
+		if request.Truncated || (request.RowCount > 0 && len(request.ResultSample) < request.RowCount) {
+			resultLabel = "Result (truncated)"
+		}
+		text += "\n*" + resultLabel + ":*\n```" + escapeSlackCode(formatDBReadSampleTable(request.ResultSample, sampleLimit)) + "```"
 	}
 	text += footer
 	_, _, _, err := api.UpdateMessageContext(
@@ -142,10 +146,31 @@ func dbReadRequesterLabel(requester string) string {
 			}
 		}
 	}
+	if looksLikeSlackUserID(requester) {
+		return fmt.Sprintf("<@%s> via Hermes", requester)
+	}
 	if requester == "" {
 		return "`hermes`"
 	}
 	return "`" + escapeSlackCode(requester) + "`"
+}
+
+func looksLikeSlackUserID(value string) bool {
+	if len(value) < 3 {
+		return false
+	}
+	switch value[0] {
+	case 'U', 'W':
+	default:
+		return false
+	}
+	for _, ch := range value[1:] {
+		if (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') {
+			continue
+		}
+		return false
+	}
+	return true
 }
 
 func formatDBReadSampleTable(rows []map[string]string, max int) string {

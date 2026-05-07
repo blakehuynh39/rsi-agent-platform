@@ -3,6 +3,7 @@ package control
 import (
 	"context"
 	"encoding/json"
+	"net/url"
 	"strings"
 	"testing"
 	"time"
@@ -75,9 +76,10 @@ func TestDBReadResultUpdateFormatsSampleAsTableAndRemovesButtons(t *testing.T) {
 		Purpose:                    "query",
 		SQL:                        "SELECT language_code, COUNT(*) AS transcript_count FROM scripts GROUP BY language_code",
 		SQLSHA256:                  "sha256:1234567890abcdef1234567890abcdef",
-		Requester:                  "user:U123",
+		Requester:                  "U123",
 		CurrentValidationAttemptID: "dbreadval_1",
 		ApprovedBySlackUserID:      "UADMIN",
+		RowCount:                   2,
 		SlackMessageChannelID:      "C123",
 		SlackMessageTS:             "171000001.000200",
 		ResultSample: []map[string]string{
@@ -95,6 +97,7 @@ func TestDBReadResultUpdateFormatsSampleAsTableAndRemovesButtons(t *testing.T) {
 	body := poster.calls[0].values.Encode()
 	body = strings.ReplaceAll(body, "%3C", "<")
 	body = strings.ReplaceAll(body, "%3E", ">")
+	decodedBody, _ := url.QueryUnescape(body)
 	for _, want := range []string{
 		"language_code",
 		"transcript_count",
@@ -106,7 +109,47 @@ func TestDBReadResultUpdateFormatsSampleAsTableAndRemovesButtons(t *testing.T) {
 			t.Fatalf("result card missing %q in %s", want, body)
 		}
 	}
+	if !strings.Contains(decodedBody, "<@U123> via Hermes") {
+		t.Fatalf("result card should mention bare Slack requester IDs: %s", decodedBody)
+	}
+	if !strings.Contains(decodedBody, "*Result:*") {
+		t.Fatalf("complete result card should label rows as Result: %s", decodedBody)
+	}
+	if strings.Contains(decodedBody, "*Sample:*") || strings.Contains(decodedBody, "*Result (truncated):*") {
+		t.Fatalf("complete result card should not label rows as sample: %s", decodedBody)
+	}
 	if strings.Contains(body, dbReadSlackApproveAction) || strings.Contains(body, dbReadSlackDenyAction) {
 		t.Fatalf("finalized result update should not keep approval actions: %s", body)
+	}
+}
+
+func TestDBReadResultUpdateLabelsPartialRowsAsTruncated(t *testing.T) {
+	request := storepkg.DBReadRequest{
+		ID:                         "dbread_1",
+		Target:                     "depin-prod",
+		Purpose:                    "query",
+		SQL:                        "SELECT language_code FROM scripts",
+		SQLSHA256:                  "sha256:1234567890abcdef1234567890abcdef",
+		Requester:                  "user:U123",
+		CurrentValidationAttemptID: "dbreadval_1",
+		ApprovedBySlackUserID:      "UADMIN",
+		RowCount:                   10,
+		SlackMessageChannelID:      "C123",
+		SlackMessageTS:             "171000001.000200",
+		ResultSample: []map[string]string{
+			{"language_code": "hi"},
+			{"language_code": "bn"},
+		},
+	}
+	poster := &fakeSlackPoster{}
+	if err := updateDBReadSlackCard(context.Background(), poster, request, "succeeded; rows=10 truncated=true"); err != nil {
+		t.Fatal(err)
+	}
+	if len(poster.calls) != 1 {
+		t.Fatalf("expected one Slack update, got %d", len(poster.calls))
+	}
+	decodedBody, _ := url.QueryUnescape(poster.calls[0].values.Encode())
+	if !strings.Contains(decodedBody, "*Result (truncated):*") {
+		t.Fatalf("partial result card should label rows as truncated: %s", decodedBody)
 	}
 }

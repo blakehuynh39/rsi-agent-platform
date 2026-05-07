@@ -3097,10 +3097,19 @@ class HermesRuntime:
             / f"{self._native_execution_slug(execution_id)}.json"
         ).resolve()
 
+    def _native_db_read_submission_path(self, execution_id: str) -> Path:
+        return (
+            Path(self._config.hermes_home).expanduser()
+            / "rsi_runtime"
+            / "db_read_submissions"
+            / f"{self._native_execution_slug(execution_id)}.json"
+        ).resolve()
+
     def _native_runtime_env(self, task: RunnerTaskRequest, *, context_path: Path, envelope_path: Path) -> JsonObject:
         return {
             "RSI_RUNTIME_CONTEXT_PATH": str(context_path),
             "RSI_RUNTIME_ENVELOPE_PATH": str(envelope_path),
+            "RSI_DB_READ_SUBMISSION_PATH": str(self._native_db_read_submission_path(task.execution_id or "")),
             "RSI_EXECUTION_ID": task.execution_id or "",
             "RSI_OPERATION_ID": task.operation_id or "",
             "RSI_TRACE_ID": task.trace_id or "",
@@ -3642,6 +3651,19 @@ class HermesRuntime:
         parsed = json.loads(result_path.read_text(encoding="utf-8"))
         if not isinstance(parsed, dict):
             raise ValueError("native Hermes executor result file did not contain a JSON object")
+        return parsed
+
+    def _load_db_read_submission_event(self, path: Path) -> JsonObject:
+        try:
+            parsed = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return {}
+        if not isinstance(parsed, dict):
+            return {}
+        if _string_or_json(parsed.get("kind")) != "db_read_request_submitted":
+            return {}
+        if not _string_or_json(parsed.get("request_id")):
+            return {}
         return parsed
 
     def _read_native_executor_stream(
@@ -4286,6 +4308,11 @@ class HermesRuntime:
             )
         request_file = request_dir / "request.json"
         result_file = request_dir / "result.json"
+        db_read_submission_file = self._native_db_read_submission_path(execution_id)
+        try:
+            db_read_submission_file.unlink(missing_ok=True)
+        except OSError:
+            pass
         request_payload = self._native_executor_request_payload(
             task,
             context,
@@ -4332,6 +4359,8 @@ class HermesRuntime:
         completed_stderr = ""
         completed_returncode = -1
         cancelled = False
+        db_read_submitted = False
+        db_read_submission: JsonObject = {}
 
         lifecycle_tailer: _NativeLifecycleTailer | None = None
         if observer is not None:
@@ -4406,10 +4435,28 @@ class HermesRuntime:
                     if execution_id in self._executor_cancel_requests:
                         cancelled = True
                         break
+                if not db_read_submitted and db_read_submission_file.exists():
+                    candidate = self._load_db_read_submission_event(db_read_submission_file)
+                    if candidate:
+                        db_read_submitted = True
+                        db_read_submission = candidate
+                        if observer is not None:
+                            observer.emit(
+                                phase=execution_phase,
+                                event_type="db_read.request_submitted",
+                                status="completed",
+                                payload={
+                                    "request_id": _string_or_json(candidate.get("request_id")),
+                                    "target": _string_or_json(candidate.get("target")),
+                                    "state": _string_or_json(candidate.get("state")),
+                                    "status": _string_or_json(candidate.get("status")),
+                                },
+                            )
+                        break
                 if process.poll() is not None:
                     break
                 time.sleep(0.25)
-            if cancelled:
+            if cancelled or db_read_submitted:
                 try:
                     process.terminate()
                 except OSError:
@@ -4499,6 +4546,119 @@ class HermesRuntime:
                 "message": "Hermes subprocess completed; validating native execution envelope.",
             },
         )
+
+        if db_read_submitted and not parsed_result:
+            finalized = self._session_manager.finalize(context, tracker)
+            lifecycle_events = self._adapter.lifecycle_events(context.session_id)
+            observed = self._observability_metadata(
+                None,
+                task,
+                tracker,
+                skill_diagnostics=skill_diagnostics,
+                observer=observer,
+                lifecycle_events=lifecycle_events,
+            )
+            observed_with_handoff = {
+                **observed,
+                "db_read_submission": db_read_submission,
+                "non_deliverable": True,
+            }
+            cleanup_status = "not_needed" if not agentic_mcp_registration.enabled else "worker_interrupted_after_db_read_submission"
+            cleanup_errors: list[str] = []
+            termination_reason = "db_read_request_submitted"
+            completion_verdict = "complete"
+            if observer is not None:
+                observer.emit(
+                    phase=execution_phase,
+                    event_type="model.call.completed",
+                    status="completed",
+                    payload={
+                        "engine": "hermes_aiagent_subprocess",
+                        "returncode": completed_returncode,
+                        "stderr": _truncate_string(redacted_completed_stderr, 4000),
+                        "termination_reason": termination_reason,
+                        "completion_verdict": completion_verdict,
+                        "db_read_submission": db_read_submission,
+                    },
+                )
+                observer.emit(
+                    phase=execution_phase,
+                    event_type="mcp.cleanup",
+                    status=cleanup_status,
+                    payload={"errors": cleanup_errors},
+                )
+                observer.emit(
+                    phase=execution_phase,
+                    event_type="executor.subprocess.completed",
+                    status="completed",
+                    payload={
+                        "engine": "hermes_aiagent_subprocess",
+                        "returncode": completed_returncode,
+                        "termination_reason": termination_reason,
+                        "completion_verdict": completion_verdict,
+                        "parsed_result_ok": False,
+                        "workspace_root": str(workspace_root),
+                        "artifact_output_dir": str(self._native_artifact_destination(task)),
+                    },
+                )
+            result = HermesExecutionResult(
+                ok=True,
+                message="DB read request submitted; Slack approval/result card handles the response.",
+                provider="hermes-native-executor",
+                raw={
+                    **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                    **finalized,
+                    **observed,
+                    **self._workflow_evidence_raw(task, observed_with_handoff, termination_reason),
+                    "native_strict": True,
+                    "native_timeout_source": "hermes_subprocess",
+                    "native_executor_mode": "subprocess",
+                    "native_executor_workspace_root": str(workspace_root),
+                    "native_executor_toolsets": toolsets,
+                    "native_executor_returncode": completed_returncode,
+                    "native_executor_stderr": _truncate_string(redacted_completed_stderr, 4000),
+                    "github_cli_credentials": github_cli_credentials,
+                    "termination_reason": termination_reason,
+                    "completion_verdict": completion_verdict,
+                    "non_deliverable": True,
+                    "db_read_submission": db_read_submission,
+                    "lifecycle_events": lifecycle_events,
+                    "runner_diagnostics": self._runner_diagnostics(
+                        failure_kind="",
+                        provider_error_message="",
+                        termination_reason=termination_reason,
+                        session_ready_issues=self._session_manager.ready_issues,
+                        repair_attempted=False,
+                        repair_succeeded=False,
+                        observed=observed_with_handoff,
+                    ),
+                },
+            )
+            result.raw = self._attach_agentic_mcp_diagnostics(
+                _json_object_or_empty(result.raw),
+                agentic_mcp_registration,
+                cleanup_status=cleanup_status,
+                cleanup_errors=cleanup_errors,
+            )
+            self._store_executor_result(
+                execution_id,
+                {
+                    "execution_id": execution_id,
+                    "status": "completed",
+                    "operation_id": task.operation_id,
+                    "trace_id": task.trace_id,
+                    "workflow_id": task.workflow_id,
+                    "executor_instance_id": self._config.executor_instance_id,
+                    "phase": self._execution_phase(task),
+                    "workspace_root": str(workspace_root),
+                    "session_id": context.session_id,
+                    "termination_reason": termination_reason,
+                    "completion_verdict": completion_verdict,
+                    "message": result.message,
+                    "result": self._executor_result_payload(result),
+                },
+            )
+            return result
 
         if cancelled and not parsed_result:
             finalized = self._session_manager.finalize(context, tracker)
@@ -7081,11 +7241,16 @@ class HermesRuntime:
                 result = self._native_cancelled_result(task, result)
         if self._config.execution_envelope_v1_enabled and not self._result_is_native_strict(result):
             result = self._company_computer.attach_envelope(task, result, observer=observer)
+        final_raw = _json_object_or_empty(result.raw)
+        non_deliverable_status = "cancelled" if (
+            _bool_or_false(final_raw.get("non_deliverable"))
+            and _string_or_json(final_raw.get("termination_reason")) != "db_read_request_submitted"
+        ) else None
         final_status = self._executor_final_status(
             task,
             result,
             execution_id=observer.execution_id,
-            status="cancelled" if _bool_or_false(_json_object_or_empty(result.raw).get("non_deliverable")) else None,
+            status=non_deliverable_status,
         )
         self._store_executor_result(observer.execution_id, final_status)
         self._finalize_self_review_candidate(task, result, final_status, execution_id=observer.execution_id)

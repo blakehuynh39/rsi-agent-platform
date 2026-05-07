@@ -1670,6 +1670,10 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(env["RSI_SLACK_CHANNEL_ID"], "C123")
         self.assertEqual(env["RSI_SLACK_THREAD_TS"], "171000001.000100")
         self.assertEqual(env["RSI_TASK_REQUESTER"], "user:U123")
+        self.assertEqual(
+            str(Path(env["RSI_DB_READ_SUBMISSION_PATH"]).resolve()),
+            str(Path(tempdir, "rsi_runtime", "db_read_submissions", "hexec-1.json").resolve()),
+        )
 
     def test_hermes_agent_adapter_passes_rich_context_to_aiagent(self) -> None:
         captured: dict[str, object] = {}

@@ -94,6 +94,8 @@ The stage acceptance runbook for the persistence hardening rollout lives at
 [`docs/persistence-hardening-stage-acceptance.md`](./docs/persistence-hardening-stage-acceptance.md).
 The Honcho stage rollout and rollback runbook lives at
 [`docs/honcho-stage-rollout.md`](./docs/honcho-stage-rollout.md).
+The Slack-approved Postgres DB read gateway architecture and security-review
+notes live at [`docs/db-read-gateway-architecture.md`](./docs/db-read-gateway-architecture.md).
 
 The CD workflow builds and pushes five stage images on `main`:
 

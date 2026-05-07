@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+from pathlib import Path
 import sys
 import urllib.error
 import urllib.parse
@@ -56,6 +57,7 @@ def main(argv: list[str] | None = None) -> int:
                     "thread_ts": args.thread_ts,
                 },
             )
+            record_db_read_submission(payload)
         elif args.command == "status":
             payload = request_json("GET", f"/internal/db-read/requests/{urllib.parse.quote(args.request_id)}")
         else:
@@ -86,6 +88,11 @@ def request_json(method: str, path: str, body: dict[str, object] | None = None) 
             raw = resp.read()
     except urllib.error.HTTPError as exc:
         detail = exc.read().decode("utf-8", errors="replace")
+        if exc.code == 409:
+            try:
+                return json.loads(detail)
+            except json.JSONDecodeError:
+                pass
         raise RuntimeError(f"rsi-db request failed: HTTP {exc.code}: {detail}") from exc
     except urllib.error.URLError as exc:
         raise RuntimeError(f"rsi-db request failed: {exc}") from exc
@@ -94,6 +101,39 @@ def request_json(method: str, path: str, body: dict[str, object] | None = None) 
     return json.loads(raw.decode("utf-8"))
 
 
+def record_db_read_submission(payload: object) -> None:
+    if not isinstance(payload, dict):
+        return
+    request = payload.get("request")
+    if not isinstance(request, dict):
+        return
+    validation = payload.get("validation")
+    if isinstance(validation, dict) and validation.get("ok") is False:
+        return
+    state = str(request.get("state") or payload.get("status") or "").strip()
+    if state == "validation_failed":
+        return
+    path = os.getenv("RSI_DB_READ_SUBMISSION_PATH", "").strip()
+    if not path:
+        return
+    event = {
+        "kind": "db_read_request_submitted",
+        "request_id": str(request.get("id") or ""),
+        "target": str(request.get("target") or ""),
+        "state": state,
+        "sql_sha256": str(request.get("sql_sha256") or ""),
+        "status": str(payload.get("status") or state),
+        "message": str(payload.get("message") or ""),
+    }
+    if not event["request_id"]:
+        return
+    try:
+        destination = Path(path).expanduser()
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(json.dumps(event, indent=2, sort_keys=True), encoding="utf-8")
+    except OSError:
+        return
+
+
 if __name__ == "__main__":
     raise SystemExit(main())
-
