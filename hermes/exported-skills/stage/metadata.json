@@ -2866,13 +2866,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "62c90326988822d50b8c616c1ed9121711f0645affca937bff377916444adc43",
-        "size": 476833
+        "sha256": "1a6f7902e9af93878546c30e0a6732de2edbc3e2df15ca8a38702b336770c099",
+        "size": 477498
       },
       {
         "path": "log.md",
-        "sha256": "79cf1f806a2be6e525b06969d617f28ddc9c82bc45f9da8909432cdcefc25f76",
-        "size": 913695
+        "sha256": "60abfdffa054c1aefc8439822521dfb93412622b44bd539ad0a4a5746ad9a402",
+        "size": 914033
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3223,6 +3223,11 @@
         "path": "pages/concepts/nouns-policy-licensing.md",
         "sha256": "65e1c8886de1525d655ff8d29cb30c867060c7948e0010e0c032ff8ce17cd88e",
         "size": 3519
+      },
+      {
+        "path": "pages/concepts/object-certificate-schema.md",
+        "sha256": "cef83f368e1550b48eb80d6d29c95c7d6cf209017f7e604d412fdb9d6559c228",
+        "size": 6195
       },
       {
         "path": "pages/concepts/opensea-conduit-delegation.md",
@@ -4594,8 +4599,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T11:34:15Z",
-  "file_count": 917,
+  "exported_at": "2026-05-07T11:40:19Z",
+  "file_count": 918,
   "files": [
     {
       "path": ".curator_state",
@@ -7457,7 +7462,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
-  "previous_tree_hash": "3ed283ea50c1980b87f1c40d85145a05ee2461fa40ae4b2576bc974d27ff8b3b",
+  "previous_tree_hash": "02ad28527639a786fd08ef0b30034d6f3c1ca94d1cb5450826b35263c460c97e",
   "schema_version": 1,
   "skill_file_count": 571,
   "skill_manage_sessions": [
@@ -7470,14 +7475,14 @@
   ],
   "skill_tree_hash": "ff72ad0c56115e95b1a106829f032a3ff4a43e92c933d812f680df1c04ef1c5c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "02ad28527639a786fd08ef0b30034d6f3c1ca94d1cb5450826b35263c460c97e",
+  "tree_hash": "54ba5e30cff03668c48dbb6c29751af968c89de936f819308bb4986fa1d0baa5",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 346,
+  "wiki_file_count": 347,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7486,13 +7491,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "62c90326988822d50b8c616c1ed9121711f0645affca937bff377916444adc43",
-      "size": 476833
+      "sha256": "1a6f7902e9af93878546c30e0a6732de2edbc3e2df15ca8a38702b336770c099",
+      "size": 477498
     },
     {
       "path": "log.md",
-      "sha256": "79cf1f806a2be6e525b06969d617f28ddc9c82bc45f9da8909432cdcefc25f76",
-      "size": 913695
+      "sha256": "60abfdffa054c1aefc8439822521dfb93412622b44bd539ad0a4a5746ad9a402",
+      "size": 914033
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7843,6 +7848,11 @@
       "path": "pages/concepts/nouns-policy-licensing.md",
       "sha256": "65e1c8886de1525d655ff8d29cb30c867060c7948e0010e0c032ff8ce17cd88e",
       "size": 3519
+    },
+    {
+      "path": "pages/concepts/object-certificate-schema.md",
+      "sha256": "cef83f368e1550b48eb80d6d29c95c7d6cf209017f7e604d412fdb9d6559c228",
+      "size": 6195
     },
     {
       "path": "pages/concepts/opensea-conduit-delegation.md",
@@ -9211,5 +9221,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "92e7ffdca151b06ef981712738dcc7c0b5fcf97bcdf850d88449fdc5eb8889a1"
+  "wiki_tree_hash": "73a4b860774b5fdbe47ba121336b69229b37529c056e06a7d36e54287d71713e"
 }

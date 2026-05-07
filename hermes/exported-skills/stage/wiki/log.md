@@ -19263,3 +19263,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_52a51c7fa67ca4255962fac36ecd3eb0
 - summary: MinIO's erasure coding implementation uses per-object inline Reed-Solomon coding with configurable redundancy, object-level healing, and high fault tolerance.
 
+## [2026-05-07T11:35:06Z] synthesis | Object Certificate Schema
+
+- status: published
+- slug: concepts/object-certificate-schema
+- wiki_revision_id: wikirev_c7865e8bbb0326eaeabc8fac1caf9816
+- summary: Defines the schema, canonical encoding, signing, and on-chain verification of object certificates for proof of storage on Story Network.
+
