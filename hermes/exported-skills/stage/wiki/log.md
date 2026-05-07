@@ -19620,3 +19620,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4b616244ae17d2c8eb8cbb53d410f85b
 - summary: Crunch time event for the Poseidon PoC, held from May 5 to May 21, 2025 at Palo Alto Story HQ, with daily hours 9:30am-9:30pm. Participants include domestic, international, and loc...
 
+## [2026-05-07T20:02:22Z] synthesis | Subnet Specifications
+
+- status: published
+- slug: concepts/subnet-specifications
+- wiki_revision_id: wikirev_458f7d4cb4882c45082519eb6a067104
+- summary: A collection of subnet-related specifications including API, contract, and worker specs, as linked from the main Subnet Specifications page.
+
