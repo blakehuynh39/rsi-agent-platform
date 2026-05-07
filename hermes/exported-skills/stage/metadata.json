@@ -2866,13 +2866,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "56d19a6299f3645a13970ec0da8db207b4edd0b7e4b9cd457b1c800a8c49cf15",
-        "size": 472612
+        "sha256": "962b0547654ca943cad3049bc4d34c248ad641c8ea4269beb9325730319cfffb",
+        "size": 472943
       },
       {
         "path": "log.md",
-        "sha256": "09782cc5ba1eb9410eaa7cce3cc011ef966f60c4ff1759ab0a3d0d4cc220b2e4",
-        "size": 908688
+        "sha256": "700502538b385502f09d370f700ee6f981b188da84d97b4fd2c9001003e5798c",
+        "size": 909031
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4150,6 +4150,11 @@
         "size": 1547
       },
       {
+        "path": "pages/projects/vana.md",
+        "sha256": "be2e09498878b603e9a0faad62a07898506dd001ae718ff3abdc37f8a4a9cfaa",
+        "size": 6148
+      },
+      {
         "path": "pages/projects/web2-partner-integration-solution.md",
         "sha256": "68c35822db84047e80244272f08b5d70a90f448c33ae844b9fda44070be47af9",
         "size": 3976
@@ -4524,8 +4529,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T08:06:50Z",
-  "file_count": 903,
+  "exported_at": "2026-05-07T08:40:40Z",
+  "file_count": 904,
   "files": [
     {
       "path": ".curator_state",
@@ -7386,8 +7391,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c89c4f2tzr",
-  "previous_tree_hash": "1db5c88beefe2ffb6ba7b2c8f30bcb89acc252dc8728189e05599813304630ee",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
+  "previous_tree_hash": "bd0d6cb501f01b13cd64dfecd01dd31f1a0c3d9d64afca2d87679e86d244a41b",
   "schema_version": 1,
   "skill_file_count": 571,
   "skill_manage_sessions": [
@@ -7400,14 +7405,14 @@
   ],
   "skill_tree_hash": "ff72ad0c56115e95b1a106829f032a3ff4a43e92c933d812f680df1c04ef1c5c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "bd0d6cb501f01b13cd64dfecd01dd31f1a0c3d9d64afca2d87679e86d244a41b",
+  "tree_hash": "9799fa43c931dadd56a46ae9063579b6439b9301e5cf600dbf5ffa8eb7ddd026",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 332,
+  "wiki_file_count": 333,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7416,13 +7421,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "56d19a6299f3645a13970ec0da8db207b4edd0b7e4b9cd457b1c800a8c49cf15",
-      "size": 472612
+      "sha256": "962b0547654ca943cad3049bc4d34c248ad641c8ea4269beb9325730319cfffb",
+      "size": 472943
     },
     {
       "path": "log.md",
-      "sha256": "09782cc5ba1eb9410eaa7cce3cc011ef966f60c4ff1759ab0a3d0d4cc220b2e4",
-      "size": 908688
+      "sha256": "700502538b385502f09d370f700ee6f981b188da84d97b4fd2c9001003e5798c",
+      "size": 909031
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8700,6 +8705,11 @@
       "size": 1547
     },
     {
+      "path": "pages/projects/vana.md",
+      "sha256": "be2e09498878b603e9a0faad62a07898506dd001ae718ff3abdc37f8a4a9cfaa",
+      "size": 6148
+    },
+    {
       "path": "pages/projects/web2-partner-integration-solution.md",
       "sha256": "68c35822db84047e80244272f08b5d70a90f448c33ae844b9fda44070be47af9",
       "size": 3976
@@ -9071,5 +9081,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "90ea0bc1eeb94abbe4a46af9e0eb97f32660258597c4fd1bbdd92f192bbda46e"
+  "wiki_tree_hash": "4294ed99f46b331cbfc50094993d6223bbed75d46ce129b8c49f3ad62f57bf40"
 }

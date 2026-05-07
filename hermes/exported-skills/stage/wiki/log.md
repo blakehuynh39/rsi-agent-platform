@@ -19158,3 +19158,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9f7a7bf75ca89394417c22ed27cdc58d
 - summary: Overview of various AI model training and fine-tuning methods including pretraining, full fine-tuning, parameter-efficient fine-tuning (PEFT), instruction tuning, and RLHF, with th...
 
+## [2026-05-07T08:39:25Z] synthesis | Vana
+
+- status: published
+- slug: projects/vana
+- wiki_revision_id: wikirev_41f9a478be8fbfba8b28b63047270c6f
+- summary: Vana is an L1 blockchain network for user-owned data, enabling data pooling via DataDAOs while preserving privacy. It allows developers to build AI models and data-driven dApps usi...
+
