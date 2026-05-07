@@ -2851,13 +2851,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "bf02e871e8e03ca427c6527bcf086c7e335f18676707eae78233a76694df7e0c",
-        "size": 470032
+        "sha256": "d77691bdb69b635d348b8c84805e2501aab11259ce76a8aa9591334a4ef282ec",
+        "size": 470375
       },
       {
         "path": "log.md",
-        "sha256": "22993fd0ad315080045f16c0070db14737fef0aff9ec4d718fd4bc19b8d6fd92",
-        "size": 906023
+        "sha256": "f7351a2683aaadaabb56b47b4c5f229868627420e70d1f2592b60392cbe2ade5",
+        "size": 906378
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3815,6 +3815,11 @@
         "size": 4080
       },
       {
+        "path": "pages/projects/hyperbolic.md",
+        "sha256": "a5542ce031c74815362f3d9f1e40df89d36c889b77e8938600dd5b12575e8457",
+        "size": 8934
+      },
+      {
         "path": "pages/projects/iliad-testnet.md",
         "sha256": "f53d08e1793cd9f7e67a2246f2ebb1a6158d94a2680f545b1a2370fc06c147aa",
         "size": 1217
@@ -4469,8 +4474,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T06:43:14Z",
-  "file_count": 892,
+  "exported_at": "2026-05-07T06:54:23Z",
+  "file_count": 893,
   "files": [
     {
       "path": ".curator_state",
@@ -7317,7 +7322,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c89c4f2tzr",
-  "previous_tree_hash": "e6bfdad553d2e05cdb6a57d36a9bb5947619f84818c14913a5a8cc91be81bb68",
+  "previous_tree_hash": "d483308d020488120c1f2357543e74997f6e4cfc0c63747b6547f8682af298c6",
   "schema_version": 1,
   "skill_file_count": 568,
   "skill_manage_sessions": [
@@ -7330,14 +7335,14 @@
   ],
   "skill_tree_hash": "ec943e5241dcac5231901fd8f3469298280c5000a379f6caea8af83f6deee67d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d483308d020488120c1f2357543e74997f6e4cfc0c63747b6547f8682af298c6",
+  "tree_hash": "6f61387af8eb08297eec0bedd2458ec538441eb44b1b0b1651afef0c4b8b97a9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 324,
+  "wiki_file_count": 325,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7346,13 +7351,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "bf02e871e8e03ca427c6527bcf086c7e335f18676707eae78233a76694df7e0c",
-      "size": 470032
+      "sha256": "d77691bdb69b635d348b8c84805e2501aab11259ce76a8aa9591334a4ef282ec",
+      "size": 470375
     },
     {
       "path": "log.md",
-      "sha256": "22993fd0ad315080045f16c0070db14737fef0aff9ec4d718fd4bc19b8d6fd92",
-      "size": 906023
+      "sha256": "f7351a2683aaadaabb56b47b4c5f229868627420e70d1f2592b60392cbe2ade5",
+      "size": 906378
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8310,6 +8315,11 @@
       "size": 4080
     },
     {
+      "path": "pages/projects/hyperbolic.md",
+      "sha256": "a5542ce031c74815362f3d9f1e40df89d36c889b77e8938600dd5b12575e8457",
+      "size": 8934
+    },
+    {
       "path": "pages/projects/iliad-testnet.md",
       "sha256": "f53d08e1793cd9f7e67a2246f2ebb1a6158d94a2680f545b1a2370fc06c147aa",
       "size": 1217
@@ -8961,5 +8971,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e196aa68abf30bdb256a12be10e19307102d4b0865a7923a35ffef8a5498ef88"
+  "wiki_tree_hash": "1e120cb0da358d1ab6c2a829ebb3af642c383e2753f70e8db094cb1bc337e7f9"
 }

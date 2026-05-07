@@ -19102,3 +19102,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_faab72be86e1b85746064cfea706612b
 - summary: Requirements check before building an in-house LLM cluster with multiple GPU cards.
 
+## [2026-05-07T06:49:51Z] synthesis | Hyperbolic
+
+- status: published
+- slug: projects/hyperbolic
+- wiki_revision_id: wikirev_38b58854a8884d8e7ddd0e03fb8b401b
+- summary: Hyperbolic is a decentralized AI cloud platform that connects idle GPUs from data centers, mining farms, and individuals into a scalable, cost-effective compute network for AI infe...
+
