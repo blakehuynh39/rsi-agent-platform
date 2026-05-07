@@ -2841,13 +2841,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b2683d8f4af413ac0a5fdc69a980dabaf2aed7f14624d8ab95211fd4fdc699a3",
-        "size": 462832
+        "sha256": "9fa1d3d11f010d40664da37ae78b2fc7226ba8ceded94a17f0adc61eae90eea0",
+        "size": 463366
       },
       {
         "path": "log.md",
-        "sha256": "4cc65dd4986702826c89b68da93f286b4ffdff20e10a46211e67fb54d55ffa1b",
-        "size": 780753
+        "sha256": "0faa2a6b8f52641f111cf79cbdd53019e6b91beb12772a23f3b842be0eac838c",
+        "size": 781888
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3108,6 +3108,11 @@
         "path": "pages/concepts/mainnet-api-data-model.md",
         "sha256": "77d2f6b9c6b3b22293b348e7014c20cb130fb909deee960ac4a5f4a793d4bcc5",
         "size": 2944
+      },
+      {
+        "path": "pages/concepts/mainnet-infra-issue-trackers.md",
+        "sha256": "00fa4e4c9e1b485fc5d135696b042345b9ae8686a2cb1e7cb3424c4b2a4305b3",
+        "size": 1203
       },
       {
         "path": "pages/concepts/meeting-notes-index.md",
@@ -4364,8 +4369,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T01:22:01Z",
-  "file_count": 871,
+  "exported_at": "2026-05-07T01:33:20Z",
+  "file_count": 872,
   "files": [
     {
       "path": ".curator_state",
@@ -7202,7 +7207,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fdf64db9b7d",
-  "previous_tree_hash": "74d82416030a5918304e841deaa27a61cbd54bf0a9bafc4d79bb3a96f51005fd",
+  "previous_tree_hash": "5b8e21df55ab6ed25a5c31239c52178d64c6b3a75499bd307f7cc33863eb2ae6",
   "schema_version": 1,
   "skill_file_count": 566,
   "skill_manage_sessions": [
@@ -7215,14 +7220,14 @@
   ],
   "skill_tree_hash": "747c829d25d8a027bacd325f73e55e23510516f56f9abbb9b207998dc8f1fd28",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5b8e21df55ab6ed25a5c31239c52178d64c6b3a75499bd307f7cc33863eb2ae6",
+  "tree_hash": "1a0ef73ce50fb47463f9f3da7bdcbd75d127e257b063ca947ba29884552e9922",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 305,
+  "wiki_file_count": 306,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7231,13 +7236,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b2683d8f4af413ac0a5fdc69a980dabaf2aed7f14624d8ab95211fd4fdc699a3",
-      "size": 462832
+      "sha256": "9fa1d3d11f010d40664da37ae78b2fc7226ba8ceded94a17f0adc61eae90eea0",
+      "size": 463366
     },
     {
       "path": "log.md",
-      "sha256": "4cc65dd4986702826c89b68da93f286b4ffdff20e10a46211e67fb54d55ffa1b",
-      "size": 780753
+      "sha256": "0faa2a6b8f52641f111cf79cbdd53019e6b91beb12772a23f3b842be0eac838c",
+      "size": 781888
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7498,6 +7503,11 @@
       "path": "pages/concepts/mainnet-api-data-model.md",
       "sha256": "77d2f6b9c6b3b22293b348e7014c20cb130fb909deee960ac4a5f4a793d4bcc5",
       "size": 2944
+    },
+    {
+      "path": "pages/concepts/mainnet-infra-issue-trackers.md",
+      "sha256": "00fa4e4c9e1b485fc5d135696b042345b9ae8686a2cb1e7cb3424c4b2a4305b3",
+      "size": 1203
     },
     {
       "path": "pages/concepts/meeting-notes-index.md",
@@ -8751,5 +8761,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c58020871a5c73fd060219fd9a7f2f46777101813ce829abd8f674651a7c4897"
+  "wiki_tree_hash": "636c7429c2445bef4ef617cb2169086c851e8d866978982ba9223ec47e465b0d"
 }

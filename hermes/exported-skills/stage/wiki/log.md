@@ -15572,3 +15572,28 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7e5cfa8cf29f7a0f9c854d31ca6f8517
 - summary: Weekly infrastructure team meeting notes covering topics such as team metrics, infra templates, release processes, cloud support, and oncall rotations.
 
+## [2026-05-07T01:30:38Z] ingest | Slack thread C0AKH5SNGKH 1778117056.972269
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1778117056-972269-e5c22d52
+- wiki_revision_id: wikirev_c0a26a46cd63659b89917a738e722976
+- source_document_id: srcdoc_8ea1a74ffc4f07db7ddc055ee5c22d52
+- source_revision_id: srcrev_de43d90c1f291b2529b3f06e1012086f
+- summary: <@U04L0DD6B6F> <@U0772SH7BRA> <@U067QP5PD6J>
+
+## [2026-05-07T01:32:05Z] synthesis | Mainnet Infra Issue Trackers
+
+- status: published
+- slug: concepts/mainnet-infra-issue-trackers
+- wiki_revision_id: wikirev_600c79bff38cc28775df90a5587f7c06
+- summary: A Notion database used to track mainnet infrastructure issues.
+
+## [2026-05-07T01:32:44Z] ingest | Models for pre-verification
+
+- status: published
+- slug: notion_document/models-for-pre-verification-a01462a5
+- wiki_revision_id: wikirev_4510d1577f6c86c52622b53e958378a9
+- source_document_id: srcdoc_48fde66a8a1bc0d1e803964da01462a5
+- source_revision_id: srcrev_29fb37287dd828609727dbf3aa4e89a8
+- summary: Source: [Notion source](https://www.notion.so/Models-for-pre-verification-359051299a5480a18997e04f4a1919a9)
+
