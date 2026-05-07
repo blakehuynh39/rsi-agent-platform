@@ -19536,3 +19536,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d4d60036875d90f3bbe468769186b310
 - summary: A feedback form around incentives is being planned.
 
+## [2026-05-07T17:31:49Z] synthesis | New Product Intake
+
+- status: published
+- slug: systems/new-product-intake
+- wiki_revision_id: wikirev_769ec493fdc238e0d1bf23f112f74bd6
+- summary: A Notion database where row pages are mirrored as separate Notion documents.
+
+## [2026-05-07T17:32:52Z] synthesis | New Product Intake
+
+- status: published
+- slug: systems/new-product-intake
+- wiki_revision_id: wikirev_dba121721c04555df8d176aec7ffb498
+- summary: A Notion database where row pages are mirrored as separate Notion documents.
+
