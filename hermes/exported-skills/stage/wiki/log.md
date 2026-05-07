@@ -19417,3 +19417,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_183b7fa8e5713e13455fbff515d07eee
 - summary: Details of the Poseidon DevNet deployment including network configuration, contract addresses, queues, and workflows.
 
+## [2026-05-07T16:02:15Z] synthesis | DePIN v1.0.0 Release
+
+- status: published
+- slug: projects/depin-release-v1-0-0
+- wiki_revision_id: wikirev_75f2fc03f9e77a7b0ef661725cfa3ae4
+- summary: DePIN version 1.0.0 release.
+

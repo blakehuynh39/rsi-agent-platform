@@ -2881,8 +2881,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "7bed636b32c504974da54af9dc729088df4b0d22e46a40b5d8b86e77ac9da6d0",
-        "size": 921061
+        "sha256": "5e2ccf04082e818c725876c0fd32c47eda20b5d445dd8a446e99bc522ac8e9ba",
+        "size": 921281
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3860,6 +3860,11 @@
         "size": 4104
       },
       {
+        "path": "pages/projects/depin-release-v1-0-0.md",
+        "sha256": "f2f33e49b42950734be2a812aaa7107880486dde4f2acfb9bd7618a9585fbae0",
+        "size": 1053
+      },
+      {
         "path": "pages/projects/devnet-war-mode-daily-tracker.md",
         "sha256": "790301badf8204c8a6ac4fbedf2e9b686c132b72e1d8fae1dccef576fc8945a7",
         "size": 1579
@@ -4714,8 +4719,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T15:56:51Z",
-  "file_count": 941,
+  "exported_at": "2026-05-07T16:02:58Z",
+  "file_count": 942,
   "files": [
     {
       "path": ".curator_state",
@@ -7587,7 +7592,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
-  "previous_tree_hash": "8ddce8584f20e73456f44ae020ebc817f6a116936e584e0c0c8a17dc9198d45e",
+  "previous_tree_hash": "ebf852d373b9e1d18f583db1b52af0e892d43a10e7b25d6e9e322b80d5c591f5",
   "schema_version": 1,
   "skill_file_count": 573,
   "skill_manage_sessions": [
@@ -7600,14 +7605,14 @@
   ],
   "skill_tree_hash": "28608c7248fc5dcd9142c2521d24ce87a8dbdf56f63028d0367e299b1383271a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ebf852d373b9e1d18f583db1b52af0e892d43a10e7b25d6e9e322b80d5c591f5",
+  "tree_hash": "72c787862feedb6c397851deb5261e4487dd3545526035fc4f2c0e21190be4a8",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 368,
+  "wiki_file_count": 369,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7621,8 +7626,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "7bed636b32c504974da54af9dc729088df4b0d22e46a40b5d8b86e77ac9da6d0",
-      "size": 921061
+      "sha256": "5e2ccf04082e818c725876c0fd32c47eda20b5d445dd8a446e99bc522ac8e9ba",
+      "size": 921281
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8600,6 +8605,11 @@
       "size": 4104
     },
     {
+      "path": "pages/projects/depin-release-v1-0-0.md",
+      "sha256": "f2f33e49b42950734be2a812aaa7107880486dde4f2acfb9bd7618a9585fbae0",
+      "size": 1053
+    },
+    {
       "path": "pages/projects/devnet-war-mode-daily-tracker.md",
       "sha256": "790301badf8204c8a6ac4fbedf2e9b686c132b72e1d8fae1dccef576fc8945a7",
       "size": 1579
@@ -9451,5 +9461,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "859e60531521bf1937be86b8cf0f979fa8c02d46b5a9715bce8d2cf71be25e30"
+  "wiki_tree_hash": "48dcb294ed710ea146a34d915edb101a4dcb8755fa4a1c08bbcce3a1ad3e079c"
 }
