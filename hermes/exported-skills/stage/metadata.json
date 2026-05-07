@@ -2846,13 +2846,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "702664c6a43bd6fdf12eb534977736405a309f967b2c8cdccf8f1f458ccca275",
-        "size": 467615
+        "sha256": "e50159d44f80fa9bb36d4a963a8588cc7af1a065b3f69d848c9968fff1425160",
+        "size": 467920
       },
       {
         "path": "log.md",
-        "sha256": "a9c8b8e1140e54ea917fb29027427ae30ff4e4314bd823cc81737affd0792906",
-        "size": 901060
+        "sha256": "436066efbf12a4dceb34cb26559256a5ddd21949f943ea3599235c2c41518e1e",
+        "size": 901377
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2918,6 +2918,11 @@
         "path": "pages/concepts/cross-chain-interactions.md",
         "sha256": "d0761007f325abd33e7e179da5fd3fefe0830d6f91dae2e0b6f5d36b51d2e767",
         "size": 5888
+      },
+      {
+        "path": "pages/concepts/decision-making-template.md",
+        "sha256": "4dbe470a17aa376dcbd1044ed38fb7fc5eca0d0c10f491aacc63b2297b1cdbde",
+        "size": 2561
       },
       {
         "path": "pages/concepts/derivative-additional-revenue-share-multiple-parents.md",
@@ -4439,8 +4444,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T04:53:51Z",
-  "file_count": 886,
+  "exported_at": "2026-05-07T05:55:15Z",
+  "file_count": 887,
   "files": [
     {
       "path": ".curator_state",
@@ -7282,7 +7287,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-dd74f4vsv7n",
-  "previous_tree_hash": "5c4d555d0922933d5faf1d126651c752d5eedaf8f6b2c1393e1e7b59e00df93f",
+  "previous_tree_hash": "ecdbfaa8f2e8a870f1be022e542191203df1ea2d0c9827606f6d85946634b201",
   "schema_version": 1,
   "skill_file_count": 567,
   "skill_manage_sessions": [
@@ -7295,14 +7300,14 @@
   ],
   "skill_tree_hash": "3193aa399d4116a5e0e3e5b0906417c67f296eb836d8aa8d22f9c66a2a363757",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ecdbfaa8f2e8a870f1be022e542191203df1ea2d0c9827606f6d85946634b201",
+  "tree_hash": "3e503225570b7592fa190c32e18cc9ce91c78a0aae8496ed9f17a0918db89f17",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 319,
+  "wiki_file_count": 320,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7311,13 +7316,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "702664c6a43bd6fdf12eb534977736405a309f967b2c8cdccf8f1f458ccca275",
-      "size": 467615
+      "sha256": "e50159d44f80fa9bb36d4a963a8588cc7af1a065b3f69d848c9968fff1425160",
+      "size": 467920
     },
     {
       "path": "log.md",
-      "sha256": "a9c8b8e1140e54ea917fb29027427ae30ff4e4314bd823cc81737affd0792906",
-      "size": 901060
+      "sha256": "436066efbf12a4dceb34cb26559256a5ddd21949f943ea3599235c2c41518e1e",
+      "size": 901377
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7383,6 +7388,11 @@
       "path": "pages/concepts/cross-chain-interactions.md",
       "sha256": "d0761007f325abd33e7e179da5fd3fefe0830d6f91dae2e0b6f5d36b51d2e767",
       "size": 5888
+    },
+    {
+      "path": "pages/concepts/decision-making-template.md",
+      "sha256": "4dbe470a17aa376dcbd1044ed38fb7fc5eca0d0c10f491aacc63b2297b1cdbde",
+      "size": 2561
     },
     {
       "path": "pages/concepts/derivative-additional-revenue-share-multiple-parents.md",
@@ -8901,5 +8911,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b26aa44e0ee72da6f9ef6f454ab018cd715df8e6fd9ab811df047f46a915a8ca"
+  "wiki_tree_hash": "ad76d515549267bef1ca7a9a9bf32117de3675684839791950caf69ffc9bc719"
 }

@@ -18995,3 +18995,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_822b55c97e5a6acfc9379b16e3c0f085
 - summary: Design of the hook system for extending and customizing module behavior, supporting synchronous and asynchronous operations, with a generic interface, registry, and role-based acce...
 
+## [2026-05-07T05:51:36Z] synthesis | Decision Making Template
+
+- status: published
+- slug: concepts/decision-making-template
+- wiki_revision_id: wikirev_c3f77026234923fc9982eda6b0c39687
+- summary: A structured template for documenting and tracking decisions, including status, impact, roles, options, and outcomes.
+
