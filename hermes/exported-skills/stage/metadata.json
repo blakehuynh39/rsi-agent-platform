@@ -2866,13 +2866,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "93d1423e50404991348bbee3c2366980ea778ef10b0c353825deb6bd9ae3c1ee",
-        "size": 473927
+        "sha256": "74cfd541902fe56c2d79b23721a1e67dedba24f40eaaddf1944347e04582e748",
+        "size": 476043
       },
       {
         "path": "log.md",
-        "sha256": "c888043afd89af1717f58eb70fd55d6c27843930d2ac2af952db7458f63e1f85",
-        "size": 911820
+        "sha256": "e442344e0fcfa82168b2ac3d8790e6cf4f0ceb650364639b6db4c87c646a8c11",
+        "size": 912251
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3383,6 +3383,11 @@
         "path": "pages/concepts/storykit-components.md",
         "sha256": "c78f02bc1e8ef9a8f0e419aa9fa49aa4e793490afaa73abbd2be1fedf168a289",
         "size": 1308
+      },
+      {
+        "path": "pages/concepts/strifed-threat-model-decentralized-video-depin.md",
+        "sha256": "de3648f9606d6f351a8d9447f314e5d075c6d6a210028885a0ebb3482214642c",
+        "size": 15654
       },
       {
         "path": "pages/concepts/trackstar.md",
@@ -4574,8 +4579,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T10:34:42Z",
-  "file_count": 913,
+  "exported_at": "2026-05-07T10:40:47Z",
+  "file_count": 914,
   "files": [
     {
       "path": ".curator_state",
@@ -7437,7 +7442,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
-  "previous_tree_hash": "0ff3320381cc440a745cda23d3e770448b4391f88c6b2fdc7e468a39247ee67c",
+  "previous_tree_hash": "4078d06a79d0e722bb93519634774480d2d723ce7ab8e7330684ad36b1e6d445",
   "schema_version": 1,
   "skill_file_count": 571,
   "skill_manage_sessions": [
@@ -7450,14 +7455,14 @@
   ],
   "skill_tree_hash": "ff72ad0c56115e95b1a106829f032a3ff4a43e92c933d812f680df1c04ef1c5c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4078d06a79d0e722bb93519634774480d2d723ce7ab8e7330684ad36b1e6d445",
+  "tree_hash": "102b0effa28deae8f6d7e44767e3fa6782675ef4335125958bead8cbc4355a67",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 342,
+  "wiki_file_count": 343,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7466,13 +7471,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "93d1423e50404991348bbee3c2366980ea778ef10b0c353825deb6bd9ae3c1ee",
-      "size": 473927
+      "sha256": "74cfd541902fe56c2d79b23721a1e67dedba24f40eaaddf1944347e04582e748",
+      "size": 476043
     },
     {
       "path": "log.md",
-      "sha256": "c888043afd89af1717f58eb70fd55d6c27843930d2ac2af952db7458f63e1f85",
-      "size": 911820
+      "sha256": "e442344e0fcfa82168b2ac3d8790e6cf4f0ceb650364639b6db4c87c646a8c11",
+      "size": 912251
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7983,6 +7988,11 @@
       "path": "pages/concepts/storykit-components.md",
       "sha256": "c78f02bc1e8ef9a8f0e419aa9fa49aa4e793490afaa73abbd2be1fedf168a289",
       "size": 1308
+    },
+    {
+      "path": "pages/concepts/strifed-threat-model-decentralized-video-depin.md",
+      "sha256": "de3648f9606d6f351a8d9447f314e5d075c6d6a210028885a0ebb3482214642c",
+      "size": 15654
     },
     {
       "path": "pages/concepts/trackstar.md",
@@ -9171,5 +9181,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d8f7e5de2e296468d1a71eff0857baf782b6e3dccffecb95636dede251eb6da9"
+  "wiki_tree_hash": "a1f5e4c6920b0785139b8ffbb39bfbbcccc11166b8f30fef5e3a9dc1d54a79c3"
 }
