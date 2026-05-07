@@ -19550,3 +19550,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_dba121721c04555df8d176aec7ffb498
 - summary: A Notion database where row pages are mirrored as separate Notion documents.
 
+## [2026-05-07T18:16:49Z] synthesis | Poseidon Subnet
+
+- status: published
+- slug: projects/poseidon-subnet
+- wiki_revision_id: wikirev_6244b47d961c4bd5e0efcf8b2c925094
+- summary: Status and roadmap of the Poseidon Subnet project as of the internal devnet phase. Achievements include a functional L2, on-chain control plane, token bridge, worker, and API. Rema...
+
