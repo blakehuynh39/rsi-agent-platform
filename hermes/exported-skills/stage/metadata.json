@@ -2846,13 +2846,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "de9e25bdc10c61559a50da4dbad030a042e8d0f53ba6c0de0c630d2f7d7f128b",
-        "size": 466527
+        "sha256": "6bc89ddda4ce41d5c6e62eb857fae13024dde6257f858a6c1f47f6bab43041ee",
+        "size": 466919
       },
       {
         "path": "log.md",
-        "sha256": "65686e28a926f719e3520ae5c90f4f50901914eb8383380586c7bfbf12361bf4",
-        "size": 900340
+        "sha256": "300358ff341ee51ed8565a31e3c2316daa997536cad4539be40cfaf108c48c6f",
+        "size": 900697
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4130,6 +4130,11 @@
         "size": 5781
       },
       {
+        "path": "pages/runbooks/design-review-signup.md",
+        "sha256": "00f90acb69bd5dc07e54854067e92ee5026ea9c82ed7647e8dc87b7f07cd2a8d",
+        "size": 2504
+      },
+      {
         "path": "pages/runbooks/devnet-homework-jun-17-21.md",
         "sha256": "1172842861a6b74f0eb177a185f97685e199efa1e8f13ce714a69be6a5af0a72",
         "size": 3620
@@ -4429,8 +4434,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T04:25:16Z",
-  "file_count": 884,
+  "exported_at": "2026-05-07T04:31:26Z",
+  "file_count": 885,
   "files": [
     {
       "path": ".curator_state",
@@ -7272,7 +7277,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fdf64db9b7d",
-  "previous_tree_hash": "bdf1653713d6826d1e875c19d7fd268f44990ea6adc73ea0dcc40de7935d720a",
+  "previous_tree_hash": "bebdb1c4b1d6d613b2c3c4fe56b57e9fd18ea88ceb1c88acb2257a356b756a68",
   "schema_version": 1,
   "skill_file_count": 567,
   "skill_manage_sessions": [
@@ -7285,14 +7290,14 @@
   ],
   "skill_tree_hash": "3193aa399d4116a5e0e3e5b0906417c67f296eb836d8aa8d22f9c66a2a363757",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "bebdb1c4b1d6d613b2c3c4fe56b57e9fd18ea88ceb1c88acb2257a356b756a68",
+  "tree_hash": "bc8a3a19957675b2fc7e9f358a1cc44327996440f9c7a8777547d76eb024fedb",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 317,
+  "wiki_file_count": 318,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7301,13 +7306,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "de9e25bdc10c61559a50da4dbad030a042e8d0f53ba6c0de0c630d2f7d7f128b",
-      "size": 466527
+      "sha256": "6bc89ddda4ce41d5c6e62eb857fae13024dde6257f858a6c1f47f6bab43041ee",
+      "size": 466919
     },
     {
       "path": "log.md",
-      "sha256": "65686e28a926f719e3520ae5c90f4f50901914eb8383380586c7bfbf12361bf4",
-      "size": 900340
+      "sha256": "300358ff341ee51ed8565a31e3c2316daa997536cad4539be40cfaf108c48c6f",
+      "size": 900697
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8585,6 +8590,11 @@
       "size": 5781
     },
     {
+      "path": "pages/runbooks/design-review-signup.md",
+      "sha256": "00f90acb69bd5dc07e54854067e92ee5026ea9c82ed7647e8dc87b7f07cd2a8d",
+      "size": 2504
+    },
+    {
       "path": "pages/runbooks/devnet-homework-jun-17-21.md",
       "sha256": "1172842861a6b74f0eb177a185f97685e199efa1e8f13ce714a69be6a5af0a72",
       "size": 3620
@@ -8881,5 +8891,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "3570757e9e8c548795fe310187c5b13dca99fcac2ddca5a127cde78023c49c6e"
+  "wiki_tree_hash": "9d0f1a2444b27824b62ca5ca6f146f86aee7b7b8b134b0f9f7a9c0d8280f8b80"
 }
