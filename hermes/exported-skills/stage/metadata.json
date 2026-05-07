@@ -2911,8 +2911,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "2d68629b9149a843e762511f270f432a97fb69d4f686f4f76d422f1edebf5bc0",
-        "size": 935811
+        "sha256": "869b12e2d3debc3fad9839b7f63940c7336435aa953a8a24215425603f05c939",
+        "size": 936129
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3936,8 +3936,8 @@
       },
       {
         "path": "pages/projects/automate-support-email-summarize-feedback.md",
-        "sha256": "a2ac9c51f36b6aa0d82e62314c2b8522e2056a6a372aeb3cf6e8eb2cbc48032a",
-        "size": 1232
+        "sha256": "446c9bfcd97d42865ba4d8c9bb5e25a6241efe12b3f84a30f6d6351e070d683e",
+        "size": 1318
       },
       {
         "path": "pages/projects/batch-upload-and-dual-tier-pipelines.md",
@@ -4929,7 +4929,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T23:24:58Z",
+  "exported_at": "2026-05-07T23:31:02Z",
   "file_count": 984,
   "files": [
     {
@@ -7832,7 +7832,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fcbdd97tb5m",
-  "previous_tree_hash": "4105220a16f206827aa2e928564843a990181fbc62a6e5ba4fa38c75d996f6a6",
+  "previous_tree_hash": "c92f4ffdacba8308be91069c21856f318d49d9358a732604a062d0695d7fec55",
   "schema_version": 1,
   "skill_file_count": 579,
   "skill_manage_sessions": [
@@ -7845,7 +7845,7 @@
   ],
   "skill_tree_hash": "f6836a144752477a891413e53459d193b8fb1d0d9db00a3e5f31248de9c7aa48",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c92f4ffdacba8308be91069c21856f318d49d9358a732604a062d0695d7fec55",
+  "tree_hash": "95f192ea9d693629763476dfc07924987e310de30c1d41f64dd7d8a79a8a31a9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -7866,8 +7866,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "2d68629b9149a843e762511f270f432a97fb69d4f686f4f76d422f1edebf5bc0",
-      "size": 935811
+      "sha256": "869b12e2d3debc3fad9839b7f63940c7336435aa953a8a24215425603f05c939",
+      "size": 936129
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8891,8 +8891,8 @@
     },
     {
       "path": "pages/projects/automate-support-email-summarize-feedback.md",
-      "sha256": "a2ac9c51f36b6aa0d82e62314c2b8522e2056a6a372aeb3cf6e8eb2cbc48032a",
-      "size": 1232
+      "sha256": "446c9bfcd97d42865ba4d8c9bb5e25a6241efe12b3f84a30f6d6351e070d683e",
+      "size": 1318
     },
     {
       "path": "pages/projects/batch-upload-and-dual-tier-pipelines.md",
@@ -9881,5 +9881,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "3430f08d7b2b81ecb7cab222c67967fa282768bd8125e2baf4967a612a14ba0c"
+  "wiki_tree_hash": "05c0578b379d4adf85dd7476ec72a26213100a30f919b196f98d7bbdff0c423b"
 }
