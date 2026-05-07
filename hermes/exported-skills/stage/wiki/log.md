@@ -15542,3 +15542,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6ec0b314d47fa0d1ee40b70106a61db4
 - summary: Overview of governance risks in DAOs and various mitigation strategies, including economic attacks, sub-DAOs, timelocks, security councils, delegation, and conviction voting.
 
+## [2026-05-07T01:15:22Z] ingest | Slack thread C0AKH5SNGKH 1778115796.429689
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1778115796-429689-25841155
+- wiki_revision_id: wikirev_47551428fb7f126328b690b84dc7b8f1
+- source_document_id: srcdoc_1d71a3422c3acc6b56e03b7e25841155
+- source_revision_id: srcrev_725e2e5dfb9246e56658e6900f717e6b
+- summary: Slack file attachment:
+
