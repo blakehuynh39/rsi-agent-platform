@@ -2901,8 +2901,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "e85a8d2ad80bd1d268fc44ebc80db6435bcb4f301e42b34376a7f9437560e9d9",
-        "size": 932873
+        "sha256": "23302b5fc9c0a126c34f49cd4a844b436da771fea76af4027caa90be848afbc7",
+        "size": 933147
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4510,6 +4510,11 @@
         "size": 1616
       },
       {
+        "path": "pages/runbooks/eng-demo-signup.md",
+        "sha256": "4084e03af15fe3373e97baf285934ec5296f18c8147e56b1a65e8d5ae84fa430",
+        "size": 1424
+      },
+      {
         "path": "pages/runbooks/eu-protocol-procedures.md",
         "sha256": "8506ff8f6fc857cbc0f90ff64d8e9eb47cdafb324d889bda3f9f74cb2a6b2a52",
         "size": 3640
@@ -4899,8 +4904,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T21:06:19Z",
-  "file_count": 978,
+  "exported_at": "2026-05-07T21:17:41Z",
+  "file_count": 979,
   "files": [
     {
       "path": ".curator_state",
@@ -7792,7 +7797,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-76c5bc7spjk",
-  "previous_tree_hash": "952156bb385bbf7c0cb7c5b36c52fb259ff56df6206b6b99aae4b472750a40ac",
+  "previous_tree_hash": "65ef075dda48d1ec3961fa0f6afedd5e38025c2585ebdd59698713366792332f",
   "schema_version": 1,
   "skill_file_count": 577,
   "skill_manage_sessions": [
@@ -7805,14 +7810,14 @@
   ],
   "skill_tree_hash": "f268c07e5ed6610c18de5213322aa924cd9e307b226e3df74fd01b50d82a8489",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "65ef075dda48d1ec3961fa0f6afedd5e38025c2585ebdd59698713366792332f",
+  "tree_hash": "bccc971d9668acff62ee4e4be0d0b02b5324df65192487b867eb005c7c73b22e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 401,
+  "wiki_file_count": 402,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7826,8 +7831,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "e85a8d2ad80bd1d268fc44ebc80db6435bcb4f301e42b34376a7f9437560e9d9",
-      "size": 932873
+      "sha256": "23302b5fc9c0a126c34f49cd4a844b436da771fea76af4027caa90be848afbc7",
+      "size": 933147
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9435,6 +9440,11 @@
       "size": 1616
     },
     {
+      "path": "pages/runbooks/eng-demo-signup.md",
+      "sha256": "4084e03af15fe3373e97baf285934ec5296f18c8147e56b1a65e8d5ae84fa430",
+      "size": 1424
+    },
+    {
       "path": "pages/runbooks/eu-protocol-procedures.md",
       "sha256": "8506ff8f6fc857cbc0f90ff64d8e9eb47cdafb324d889bda3f9f74cb2a6b2a52",
       "size": 3640
@@ -9821,5 +9831,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e512ecfac4288ef41162d35ff2997d69e40eee0217665a937ec31cb42bf61721"
+  "wiki_tree_hash": "4654d2eb784cd0f4409bfe70bc1955e0401f955fcb8bd964d0d29c1e290145e4"
 }

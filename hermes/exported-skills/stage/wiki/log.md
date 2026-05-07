@@ -19669,3 +19669,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_22680cffc418982227757d7588be8f13
 - summary: Project to improve subnet reliability through load and destroy tests with mock API servers, and performance via optimistic validation, scalable infrastructure, and stage-by-stage m...
 
+## [2026-05-07T21:16:25Z] synthesis | Eng Demo Signup (Weekly on Friday)
+
+- status: published
+- slug: runbooks/eng-demo-signup
+- wiki_revision_id: wikirev_21ab10bf737ae78f5360b9968bf76f2d
+- summary: Weekly engineering demo signup process, with schedules for 2025 and 2026.
+
