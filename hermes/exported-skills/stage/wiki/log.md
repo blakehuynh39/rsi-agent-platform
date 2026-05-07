@@ -19466,3 +19466,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_5bcb6b15b46276f4bc59870776f2e398
 - summary: Decision that worker heartbeat should be a global liveness signal rather than per-activity, since it only indicates whether a worker is alive.
 
+## [2026-05-07T17:03:17Z] synthesis | Poseidon Subnet Worker Guide
+
+- status: published
+- slug: runbooks/poseidon-subnet-worker-guide
+- wiki_revision_id: wikirev_96afa7a06a350ca6ac770a0fe4a769e0
+- summary: Guide for workers in the Poseidon Subnet workflow engine, covering registration, activity processing, staking, and rewards.
+

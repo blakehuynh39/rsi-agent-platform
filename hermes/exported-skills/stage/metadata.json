@@ -2881,8 +2881,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "27e84889ee3f9755771d386785b4d15d8b8397dfe04c040c35a64a1559dbeafe",
-        "size": 923253
+        "sha256": "1c018d9fc970d855886b9e7ac5a620e1d6d36f035a41fccba11ac60340123e5c",
+        "size": 923584
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4450,6 +4450,11 @@
         "size": 5434
       },
       {
+        "path": "pages/runbooks/poseidon-subnet-worker-guide.md",
+        "sha256": "c6670c18b2fa40efcbfd866e36efcdb64de5204695b3c471ebfbfff34b1b44ba",
+        "size": 7034
+      },
+      {
         "path": "pages/runbooks/pytorch-practices-macos.md",
         "sha256": "f57a44298959a5c1662328d857d0089948379ebeec48127fc3dbcfbdcb47a065",
         "size": 2428
@@ -4744,8 +4749,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T16:57:48Z",
-  "file_count": 947,
+  "exported_at": "2026-05-07T17:03:54Z",
+  "file_count": 948,
   "files": [
     {
       "path": ".curator_state",
@@ -7617,7 +7622,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
-  "previous_tree_hash": "da8e22980465c8d372e8837eb74508df174aee5691f1591bcc499928aca2d74d",
+  "previous_tree_hash": "823687bfdb77bbdaf742e7d51375c62320279f51cfa3fc4c6748554f7ebd162d",
   "schema_version": 1,
   "skill_file_count": 573,
   "skill_manage_sessions": [
@@ -7630,14 +7635,14 @@
   ],
   "skill_tree_hash": "c32effca68ce239f5156373756dbd964569b125abbe252fbc43aecc3a763995c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "823687bfdb77bbdaf742e7d51375c62320279f51cfa3fc4c6748554f7ebd162d",
+  "tree_hash": "c20974d07b7f7e1bc708dd12532cf2b9bb8d63d7b9f1715f3acacbc0a4457254",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 374,
+  "wiki_file_count": 375,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7651,8 +7656,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "27e84889ee3f9755771d386785b4d15d8b8397dfe04c040c35a64a1559dbeafe",
-      "size": 923253
+      "sha256": "1c018d9fc970d855886b9e7ac5a620e1d6d36f035a41fccba11ac60340123e5c",
+      "size": 923584
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9220,6 +9225,11 @@
       "size": 5434
     },
     {
+      "path": "pages/runbooks/poseidon-subnet-worker-guide.md",
+      "sha256": "c6670c18b2fa40efcbfd866e36efcdb64de5204695b3c471ebfbfff34b1b44ba",
+      "size": 7034
+    },
+    {
       "path": "pages/runbooks/pytorch-practices-macos.md",
       "sha256": "f57a44298959a5c1662328d857d0089948379ebeec48127fc3dbcfbdcb47a065",
       "size": 2428
@@ -9511,5 +9521,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a6371fadcaae65cdf0b2b3be2274fe41ef07ca433fda6e7e6e90bc7b041c4db0"
+  "wiki_tree_hash": "6bbf32f1122c7239939b3a1663af6f8d314068de6389d99e74baeb5857fd0bf2"
 }
