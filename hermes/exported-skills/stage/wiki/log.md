@@ -19235,3 +19235,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b3f487f9dbbfe40998ab4097df99c39d
 - summary: A comprehensive STRIFED threat model analysis for a decentralized video DePIN, covering spoofing, tampering, repudiation, information disclosure, fraudulent exploitation, elevation...
 
+## [2026-05-07T10:48:59Z] synthesis | Arweave Content Moderation and Compliance on Nodes
+
+- status: published
+- slug: systems/arweave-content-moderation-and-compliance-on-nodes
+- wiki_revision_id: wikirev_d0a803f1df07f50b820a8111aac93716
+- summary: Arweave allows node operators to define content policies to filter transactions before storage, enabling compliance with local laws without forcing all nodes to store all data. The...
+
+## [2026-05-07T10:52:00Z] synthesis | Web2 Infra Threat Model
+
+- status: published
+- slug: systems/web2-infra-threat-model
+- wiki_revision_id: wikirev_97833feb37321d535d97ff60e50b1005
+- summary: Threat model for the Web2 infrastructure covering Kafka-based streaming pipeline and AI/ML data services (Iceberg, Milvus, Spark). Uses STRIDE categories to identify spoofing, tamp...
+

@@ -2871,8 +2871,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "e442344e0fcfa82168b2ac3d8790e6cf4f0ceb650364639b6db4c87c646a8c11",
-        "size": 912251
+        "sha256": "d61e4f3ae278e0c37a73ee13d4e7f7207e544a20984e80da8b7900f67aa0bff1",
+        "size": 912685
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4405,6 +4405,11 @@
         "size": 4492
       },
       {
+        "path": "pages/systems/arweave-content-moderation-and-compliance-on-nodes.md",
+        "sha256": "239bb412b5c5ec2647a63ba3e4585a5b5127e4c648d237423d946c42a22f7bb7",
+        "size": 11422
+      },
+      {
         "path": "pages/systems/back-end-designs.md",
         "sha256": "4ad07d9759632134395dd5fc88fabe110be6b66005a933655e77c557f0f69229",
         "size": 1540
@@ -4579,8 +4584,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T10:40:47Z",
-  "file_count": 914,
+  "exported_at": "2026-05-07T10:51:51Z",
+  "file_count": 915,
   "files": [
     {
       "path": ".curator_state",
@@ -7442,7 +7447,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
-  "previous_tree_hash": "4078d06a79d0e722bb93519634774480d2d723ce7ab8e7330684ad36b1e6d445",
+  "previous_tree_hash": "102b0effa28deae8f6d7e44767e3fa6782675ef4335125958bead8cbc4355a67",
   "schema_version": 1,
   "skill_file_count": 571,
   "skill_manage_sessions": [
@@ -7455,14 +7460,14 @@
   ],
   "skill_tree_hash": "ff72ad0c56115e95b1a106829f032a3ff4a43e92c933d812f680df1c04ef1c5c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "102b0effa28deae8f6d7e44767e3fa6782675ef4335125958bead8cbc4355a67",
+  "tree_hash": "01bcfa964d320f06375c96b662057c2f56682fcaafb502d29c906b2cf052bfe4",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 343,
+  "wiki_file_count": 344,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7476,8 +7481,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "e442344e0fcfa82168b2ac3d8790e6cf4f0ceb650364639b6db4c87c646a8c11",
-      "size": 912251
+      "sha256": "d61e4f3ae278e0c37a73ee13d4e7f7207e544a20984e80da8b7900f67aa0bff1",
+      "size": 912685
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9010,6 +9015,11 @@
       "size": 4492
     },
     {
+      "path": "pages/systems/arweave-content-moderation-and-compliance-on-nodes.md",
+      "sha256": "239bb412b5c5ec2647a63ba3e4585a5b5127e4c648d237423d946c42a22f7bb7",
+      "size": 11422
+    },
+    {
       "path": "pages/systems/back-end-designs.md",
       "sha256": "4ad07d9759632134395dd5fc88fabe110be6b66005a933655e77c557f0f69229",
       "size": 1540
@@ -9181,5 +9191,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a1f5e4c6920b0785139b8ffbb39bfbbcccc11166b8f30fef5e3a9dc1d54a79c3"
+  "wiki_tree_hash": "ecc0c0fdf45175b89bed4a282cbbd438951c3699f2f02f6977a61eb99911ff26"
 }
