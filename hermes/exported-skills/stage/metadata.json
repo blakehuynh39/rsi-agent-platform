@@ -2846,13 +2846,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "70660d0756eeebb4e14d4b32652fb5e7d1144ea58e9e659e5d4a9ff50dd10cf5",
-        "size": 464025
+        "sha256": "aefd8467d526e1b8b3ef67185e04781acc44b4168745607f266280547a21d7ad",
+        "size": 464643
       },
       {
         "path": "log.md",
-        "sha256": "6aa7f58651a15bbd2ab4729acd1132d428895743228bde7f48f04859087e0e04",
-        "size": 896913
+        "sha256": "800a0350570d581c2f52eed3503e0ae66e438bf00ca83ee273ba4006dc8cec93",
+        "size": 897555
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2883,6 +2883,11 @@
         "path": "pages/concepts/carousel-data-shape.md",
         "sha256": "94db66bff6679f6b6e6d726a1e29451628ce29bed0e21ad965e537ace8971c88",
         "size": 1410
+      },
+      {
+        "path": "pages/concepts/ceramic.md",
+        "sha256": "836e8692cb924229ee0d94bade7372bb60284ebd41b6da8fcc8552720c9f6374",
+        "size": 1057
       },
       {
         "path": "pages/concepts/cli-design.md",
@@ -3203,6 +3208,11 @@
         "path": "pages/concepts/priv-validator-state-json.md",
         "sha256": "601ca4b5ab93842315919ed001c140c0fc0d85d8368917080d6e7c09b25d83be",
         "size": 1298
+      },
+      {
+        "path": "pages/concepts/privacy-preserving-inference-techniques.md",
+        "sha256": "0d83970afdef93d829d73f3863dd0cebe8aeb4035958a4cf0987a4be19b73d95",
+        "size": 5483
       },
       {
         "path": "pages/concepts/programmable-blockchain-framework-design-goals.md",
@@ -4384,8 +4394,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T02:02:25Z",
-  "file_count": 875,
+  "exported_at": "2026-05-07T02:39:03Z",
+  "file_count": 877,
   "files": [
     {
       "path": ".curator_state",
@@ -7227,7 +7237,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fdf64db9b7d",
-  "previous_tree_hash": "b34502e791e3ccdcf5de35cfabd85b7ea025ad71bae5b5ac92a72d96377df1df",
+  "previous_tree_hash": "daba1de1877f4df3d5a3f1b38b235fd3245f60381f3db56d0b7b7fae4a5cb185",
   "schema_version": 1,
   "skill_file_count": 567,
   "skill_manage_sessions": [
@@ -7240,14 +7250,14 @@
   ],
   "skill_tree_hash": "3193aa399d4116a5e0e3e5b0906417c67f296eb836d8aa8d22f9c66a2a363757",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "daba1de1877f4df3d5a3f1b38b235fd3245f60381f3db56d0b7b7fae4a5cb185",
+  "tree_hash": "5b3e7f00551db2ee35ab07b46651499e62e72299c7be89925a848999c6a97843",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 308,
+  "wiki_file_count": 310,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7256,13 +7266,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "70660d0756eeebb4e14d4b32652fb5e7d1144ea58e9e659e5d4a9ff50dd10cf5",
-      "size": 464025
+      "sha256": "aefd8467d526e1b8b3ef67185e04781acc44b4168745607f266280547a21d7ad",
+      "size": 464643
     },
     {
       "path": "log.md",
-      "sha256": "6aa7f58651a15bbd2ab4729acd1132d428895743228bde7f48f04859087e0e04",
-      "size": 896913
+      "sha256": "800a0350570d581c2f52eed3503e0ae66e438bf00ca83ee273ba4006dc8cec93",
+      "size": 897555
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7293,6 +7303,11 @@
       "path": "pages/concepts/carousel-data-shape.md",
       "sha256": "94db66bff6679f6b6e6d726a1e29451628ce29bed0e21ad965e537ace8971c88",
       "size": 1410
+    },
+    {
+      "path": "pages/concepts/ceramic.md",
+      "sha256": "836e8692cb924229ee0d94bade7372bb60284ebd41b6da8fcc8552720c9f6374",
+      "size": 1057
     },
     {
       "path": "pages/concepts/cli-design.md",
@@ -7613,6 +7628,11 @@
       "path": "pages/concepts/priv-validator-state-json.md",
       "sha256": "601ca4b5ab93842315919ed001c140c0fc0d85d8368917080d6e7c09b25d83be",
       "size": 1298
+    },
+    {
+      "path": "pages/concepts/privacy-preserving-inference-techniques.md",
+      "sha256": "0d83970afdef93d829d73f3863dd0cebe8aeb4035958a4cf0987a4be19b73d95",
+      "size": 5483
     },
     {
       "path": "pages/concepts/programmable-blockchain-framework-design-goals.md",
@@ -8791,5 +8811,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2fd9828eeadeeb2c9cdf46a06dd610c39380dad52b503e26156a0f376ca8985a"
+  "wiki_tree_hash": "1ff9ca1f73f5c5e980ffdac4034b59b94159ab08f8b5ce7c764008317599f439"
 }

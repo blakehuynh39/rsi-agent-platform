@@ -18911,3 +18911,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_91c76717f28a38076376de9ea40adf75
 - summary: A collection of how-to guides covering SSH, GitHub commit signing, bastion hosts, and Cloudflare Zero Trust.
 
+## [2026-05-07T02:35:57Z] synthesis | Privacy-Preserving Inference Techniques
+
+- status: published
+- slug: concepts/privacy-preserving-inference-techniques
+- wiki_revision_id: wikirev_0a90c0848fcc738472b7178cb4a21570
+- summary: Overview of methods to protect input data and model weights during inference, including homomorphic encryption, split learning, federated learning, zero-knowledge proofs, consensus...
+
+## [2026-05-07T02:36:28Z] synthesis | Ceramic
+
+- status: published
+- slug: concepts/ceramic
+- wiki_revision_id: wikirev_70cce157a49085c4557906fbe3fa40fa
+- summary: Ceramic is a material referenced in the company knowledge base.
+
