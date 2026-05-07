@@ -19704,3 +19704,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_454c1496d6f3dbaff902326506b2a932
 - summary: Defines the weekly engineering meeting schedule: Monday for weekly goals and breakout, Wednesday for mid-point review and blocking issues, and Friday for weekly demos.
 
+## [2026-05-07T23:01:54Z] synthesis | Numo Product Backlog
+
+- status: published
+- slug: systems/numo-product-backlog
+- wiki_revision_id: wikirev_8782fca7853f86c869dd4ab5c679426c
+- summary: The Numo Product Backlog is a Notion database where each row is mirrored as a separate Notion document.
+
