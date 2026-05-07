@@ -9,8 +9,8 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "15e30c9c0380f15353c320b1c92fdf9ef8024624c18d31eae5a2d73d281b11cf",
-        "size": 1576
+        "sha256": "5765559fe8274f7b99ebf91909919de5bd69ebe2c178e49e6dc49abeb7d03c8e",
+        "size": 1578
       },
       {
         "path": "apple/DESCRIPTION.md",
@@ -2749,18 +2749,23 @@
       },
       {
         "path": "story-company/cloudflare-management/SKILL.md",
-        "sha256": "8c6d76ef362e35ebaa42de23a14513b3912b3cef81dd3ff03e44e6e070a4e226",
-        "size": 10202
+        "sha256": "9d47dc26d8d0d7c595c570436c9169251c99025db8a63e92259041351f4864d1",
+        "size": 11943
       },
       {
         "path": "story-company/cloudflare-management/references/internal-endpoints-numolabs.md",
-        "sha256": "4eee9ab98c20ee46b397c1231b2bf2728725f9498fed6a584844c824a7405a74",
-        "size": 5571
+        "sha256": "f1408c92a1fd7e14e028aadf24361f57cd46dd4a085e23066097a646c38302d9",
+        "size": 6005
       },
       {
         "path": "story-company/cloudflare-management/references/waf-rules-numolabs.md",
         "sha256": "88932ad6abc518312075cc30382ec1b769bdc19cdf95f577b98be42ffe5b9b8a",
         "size": 7555
+      },
+      {
+        "path": "story-company/cloudflare-management/references/waf-skip-custom-phase-pitfall.md",
+        "sha256": "f460d94b0591171bef4338fefedbb8a6d3284005006389e5042e11f6db4b064b",
+        "size": 3353
       },
       {
         "path": "story-company/cloudflare-management/templates/pr-body-ip-allowlist.md",
@@ -2846,8 +2851,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "50d8090a7b6f3ea323f3ff69e86b1a0fc8a21ded59b2b301fe91632433f71fa5",
-        "size": 896230
+        "sha256": "4c225dcd846d52243a7bc542e9e93c1b92840a3baf7dc1f773e0f80e872ae2be",
+        "size": 896627
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4115,6 +4120,11 @@
         "size": 8481
       },
       {
+        "path": "pages/runbooks/github-commit-ssh-key-signing.md",
+        "sha256": "b012d1cd7c14514bfdbec70a01c1a063a0dd650ae882fce6008e5e8df4e2e43f",
+        "size": 6826
+      },
+      {
         "path": "pages/runbooks/how-to-handle-smart-contract-update.md",
         "sha256": "381fb80fecdb86c03c73268101ba15963d90872090a690c36189ce51a021ace1",
         "size": 1395
@@ -4369,8 +4379,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T01:39:35Z",
-  "file_count": 872,
+  "exported_at": "2026-05-07T01:56:13Z",
+  "file_count": 874,
   "files": [
     {
       "path": ".curator_state",
@@ -4379,8 +4389,8 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "15e30c9c0380f15353c320b1c92fdf9ef8024624c18d31eae5a2d73d281b11cf",
-      "size": 1576
+      "sha256": "5765559fe8274f7b99ebf91909919de5bd69ebe2c178e49e6dc49abeb7d03c8e",
+      "size": 1578
     },
     {
       "path": "apple/DESCRIPTION.md",
@@ -7119,18 +7129,23 @@
     },
     {
       "path": "story-company/cloudflare-management/SKILL.md",
-      "sha256": "8c6d76ef362e35ebaa42de23a14513b3912b3cef81dd3ff03e44e6e070a4e226",
-      "size": 10202
+      "sha256": "9d47dc26d8d0d7c595c570436c9169251c99025db8a63e92259041351f4864d1",
+      "size": 11943
     },
     {
       "path": "story-company/cloudflare-management/references/internal-endpoints-numolabs.md",
-      "sha256": "4eee9ab98c20ee46b397c1231b2bf2728725f9498fed6a584844c824a7405a74",
-      "size": 5571
+      "sha256": "f1408c92a1fd7e14e028aadf24361f57cd46dd4a085e23066097a646c38302d9",
+      "size": 6005
     },
     {
       "path": "story-company/cloudflare-management/references/waf-rules-numolabs.md",
       "sha256": "88932ad6abc518312075cc30382ec1b769bdc19cdf95f577b98be42ffe5b9b8a",
       "size": 7555
+    },
+    {
+      "path": "story-company/cloudflare-management/references/waf-skip-custom-phase-pitfall.md",
+      "sha256": "f460d94b0591171bef4338fefedbb8a6d3284005006389e5042e11f6db4b064b",
+      "size": 3353
     },
     {
       "path": "story-company/cloudflare-management/templates/pr-body-ip-allowlist.md",
@@ -7207,9 +7222,9 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fdf64db9b7d",
-  "previous_tree_hash": "1a0ef73ce50fb47463f9f3da7bdcbd75d127e257b063ca947ba29884552e9922",
+  "previous_tree_hash": "7b04705e602fbdb3a8d2e4627490e0ffff7ffe6b67f9184c2046230f73b10b5d",
   "schema_version": 1,
-  "skill_file_count": 566,
+  "skill_file_count": 567,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -7218,16 +7233,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "747c829d25d8a027bacd325f73e55e23510516f56f9abbb9b207998dc8f1fd28",
+  "skill_tree_hash": "3193aa399d4116a5e0e3e5b0906417c67f296eb836d8aa8d22f9c66a2a363757",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7b04705e602fbdb3a8d2e4627490e0ffff7ffe6b67f9184c2046230f73b10b5d",
+  "tree_hash": "b34502e791e3ccdcf5de35cfabd85b7ea025ad71bae5b5ac92a72d96377df1df",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 306,
+  "wiki_file_count": 307,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7241,8 +7256,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "50d8090a7b6f3ea323f3ff69e86b1a0fc8a21ded59b2b301fe91632433f71fa5",
-      "size": 896230
+      "sha256": "4c225dcd846d52243a7bc542e9e93c1b92840a3baf7dc1f773e0f80e872ae2be",
+      "size": 896627
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8510,6 +8525,11 @@
       "size": 8481
     },
     {
+      "path": "pages/runbooks/github-commit-ssh-key-signing.md",
+      "sha256": "b012d1cd7c14514bfdbec70a01c1a063a0dd650ae882fce6008e5e8df4e2e43f",
+      "size": 6826
+    },
+    {
       "path": "pages/runbooks/how-to-handle-smart-contract-update.md",
       "sha256": "381fb80fecdb86c03c73268101ba15963d90872090a690c36189ce51a021ace1",
       "size": 1395
@@ -8761,5 +8781,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a4f6e97de65ee697ed60c0e6e948e4fb02c182cde3ace10f2d3e7d888e6e0e76"
+  "wiki_tree_hash": "61f3f521e9ee53df46cdff4170e6171a2366a19894648ac23276264f7e9b1c2a"
 }

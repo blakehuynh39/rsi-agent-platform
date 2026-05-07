@@ -18897,3 +18897,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_57830e955cd137d1b03a5ccb07b6922d
 - summary: published_file_sha256_mismatch
 
+## [2026-05-07T01:53:54Z] synthesis | Runbook: Secure GitHub Commits with SSH Key Signing
+
+- status: published
+- slug: runbooks/github-commit-ssh-key-signing
+- wiki_revision_id: wikirev_0aa658f3feb00b1e407f3666c896c192
+- summary: Step-by-step guide to set up SSH key signing for GitHub commits, including key generation, agent setup, GitHub configuration, and troubleshooting unverified commits.
+
+## [2026-05-07T01:56:34Z] synthesis | HOW-TO Series
+
+- status: published
+- slug: concepts/how-to-series
+- wiki_revision_id: wikirev_91c76717f28a38076376de9ea40adf75
+- summary: A collection of how-to guides covering SSH, GitHub commit signing, bastion hosts, and Cloudflare Zero Trust.
+

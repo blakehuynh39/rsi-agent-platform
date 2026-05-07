@@ -3,14 +3,14 @@
     "archived_at": null,
     "created_at": "2026-05-06T06:52:06.761455+00:00",
     "created_by": "agent",
-    "last_patched_at": "2026-05-06T21:47:40.726098+00:00",
-    "last_used_at": "2026-05-06T21:47:07.832693+00:00",
-    "last_viewed_at": "2026-05-06T21:47:07.815409+00:00",
-    "patch_count": 10,
+    "last_patched_at": "2026-05-07T01:54:09.834508+00:00",
+    "last_used_at": "2026-05-07T01:53:26.886578+00:00",
+    "last_viewed_at": "2026-05-07T01:53:26.864005+00:00",
+    "patch_count": 17,
     "pinned": false,
     "state": "active",
-    "use_count": 9,
-    "view_count": 9
+    "use_count": 12,
+    "view_count": 12
   },
   "depin-prod-admin-read": {
     "archived_at": null,

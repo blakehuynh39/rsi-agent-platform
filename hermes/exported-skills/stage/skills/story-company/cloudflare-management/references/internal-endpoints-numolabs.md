@@ -86,7 +86,7 @@ Only `numo-waf-origin-check` actively blocks these endpoints. Other custom rules
 
 - PR #201 (cloudflare): Added Seb's IPv6 to `$numo_server_allowlist` — workaround, now superseded
 - PR #203 (cloudflare): WAF skip rule `numo-waf-skip-ndv-internal` for both NDV paths (created 2026-05-06)
-- Issue #444 (depin-backend): Replace Bearer API-key auth with OAuth/certificate token exchange — assigned to jdub
+- PR #204 (cloudflare): **FIX** for PR #203 — removed `http_request_firewall_custom` from skip phases, added NDV path exclusion to origin-check expression. Zone plan doesn't authorize custom-phase skip rules (error 20120). See `references/waf-skip-custom-phase-pitfall.md`.
 
 ## Slackbot Digest Cron
 
@@ -100,6 +100,7 @@ Auth via `X-Numo-Source: slackbot` header + specific User-Agent (`numo-slackbot/
 When adding a new internal service-to-server endpoint behind `numolabs.ai`:
 
 1. Ensure the endpoint has its own auth (Bearer token, HMAC, mTLS, or Vault secret header)
-2. Add a skip rule to `waf.ts` for the path(s) — skip custom WAF + managed + SBFM phases
-3. Place the skip rule before `numo-waf-origin-check` in the rules array
-4. Use `logging: { enabled: true }` for audit trail
+2. Add a skip rule to `waf.ts` for the path(s) — skip managed rules + SBFM phases only (the `numolabs.ai` zone plan does NOT authorize `http_request_firewall_custom` phase for skip rules — see `references/waf-skip-custom-phase-pitfall.md`)
+3. ALSO add a path exclusion to the `numo-waf-origin-check` rule's expression: `(not http.request.uri.path in {<paths>})`
+4. Place the skip rule before `numo-waf-origin-check` in the rules array
+5. Use `logging: { enabled: true }` for audit trail

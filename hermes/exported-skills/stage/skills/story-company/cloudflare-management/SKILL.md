@@ -135,7 +135,7 @@ When a WAF rule blocks legitimate traffic, you have two fix options:
 | **Add IP to `$numo_server_allowlist`** | One-off personal IPs, fixed-infra servers | Doesn't scale — each new worker/operator needs another PR |
 | **Add WAF skip rule** | Entire endpoint classes, internal service-to-server paths, or when the origin has its own auth | Surgical and scalable, but must verify the endpoint has adequate origin-level auth |
 
-**Rule of thumb:** If the blocked endpoint is an **internal service-to-server path** with its own origin-level auth (Bearer token verification, HMAC, etc.), prefer a **skip rule**. It's the same pattern as the existing `numo-waf-slackbot-skip` rule — skip custom WAF + managed rules + SBFM for the specific paths.
+**Rule of thumb:** If the blocked endpoint is an **internal service-to-server path** with its own origin-level auth (Bearer token verification, HMAC, etc.), prefer a **skip rule**. It's the same pattern as the existing `numo-waf-slackbot-skip` rule — skip managed rules + SBFM for the specific paths, plus a path exclusion in the origin-check rule to bypass the custom WAF phase.
 
 **PITFALL — don't create skip rules blindly.** When asked "is it safe to relax WAF for this endpoint?", verify the origin auth model first:
 1. Clone `piplabs/depin-backend` (or the relevant origin repo) and find the route handler + auth extractor
@@ -149,22 +149,41 @@ See `references/internal-endpoints-numolabs.md` for the detailed NDV auth model 
 
 If the traffic is from a **person's dev machine** that can't send an Origin header (CLI, curl, scripts), IP allowlisting is usually simpler.
 
-**Skip rule template** (place before the rule it's bypassing):
+**CRITICAL PITFALL — `http_request_firewall_custom` phase is not authorized for skip rules on numolabs.ai zone.**
+
+The `numolabs.ai` zone's Cloudflare plan does **not** support a WAF skip rule targeting the custom WAF phase. Attempting to include `http_request_firewall_custom` in the `phases` array results in:
+
+```
+error updating ruleset: skip action parameter phase 'http_request_firewall_custom' is not authorized (20120)
+```
+
+The existing `numo-waf-slackbot-skip` rule skips only `http_request_firewall_managed` + `http_request_sbfm` — never `http_request_firewall_custom`. This is intentional and documented in the failed Pulumi run for PR #203 (see `references/waf-skip-custom-phase-pitfall.md`).
+
+**The correct skip rule template** (for `numolabs.ai` zone, matching slackbot pattern):
 
 ```typescript
 {
   action: "skip",
   actionParameters: {
-    phases: ["http_request_firewall_custom", "http_request_firewall_managed", "http_request_sbfm"],
+    phases: ["http_request_firewall_managed", "http_request_sbfm"],
     ruleset: "current",
   },
-  description: "<service> internal endpoints — bypass WAF",
+  description: "<service> internal endpoints — bypass managed rules + SBFM",
   enabled: true,
-  expression: `(http.host in ${API_HOSTS}) and (http.request.uri.path in {\"/v1/internal/<path>\" \"/v1/internal/<other-path>\"})`,
+  expression: `(http.host in ${API_HOSTS}) and (http.request.uri.path in {\"/v1/internal/<path>\"})`,
   logging: { enabled: true },
   ref: "numo-waf-skip-<service>-internal",
 },
 ```
+
+**BUT** since the skip rule can't bypass `numo-waf-origin-check` (which lives in the custom WAF phase), you must ALSO add a path exclusion directly to the origin-check rule's expression. Example from PR #204:
+
+```typescript
+// Inside numo-waf-origin-check expression, add BEFORE the Origin header checks:
+(not http.request.uri.path in {\"/v1/internal/numo-data-validation/submissions\" \"/v1/internal/numo-data-validation/validation-results\"})
+```
+
+This two-part pattern (skip rule for managed/SBFM + path exclusion in origin-check) is the correct approach for any internal service-to-server endpoint on `numolabs.ai`.
 
 PR workflow for skip rules: same as WAF rule modifications:
 ```
@@ -206,5 +225,6 @@ Before pushing a Cloudflare PR:
 ## Support Files
 
 - `references/waf-rules-numolabs.md` — Full WAF rule expressions, rate-limit tiers, IP allowlist structure, and block page IP extraction pattern
-- `references/internal-endpoints-numolabs.md` — Internal service-to-server endpoints behind numolabs.ai with their own origin-level auth (NDV, slackbot); guidance for WAF skip-rule decisions
+- `references/internal-endpoints-numolabs.md` — Internal service-to-server endpoints behind numolabs.ai with their own origin-level auth (NDV, slackbot); guidance for WAF skip-rule decisions and auth model audit template
+- `references/waf-skip-custom-phase-pitfall.md` — **CRITICAL**: The `numolabs.ai` zone plan does NOT authorize WAF skip rules targeting `http_request_firewall_custom` phase (error 20120). Correct two-part fix: skip rule for managed+SBFM only + path exclusion in origin-check expression. Evidence from failed Pulumi run #25461941289.
 - `templates/pr-body-ip-allowlist.md` — PR description template for IP allowlist additions
