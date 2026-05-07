@@ -2881,8 +2881,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "a33f9c58fa544dc60de5eebfdf35a34a2a9b37f4c44fd4c90551784c201cbd3f",
-        "size": 921501
+        "sha256": "7ab0d7326ea776ff4ddc50ad0e3fdc48129f8d91f0cccae30db757765768c834",
+        "size": 921845
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3850,6 +3850,11 @@
         "size": 1836
       },
       {
+        "path": "pages/projects/bridge-app-requirement.md",
+        "sha256": "8531140e53f14fee19e03182a332789ebd0f6f4f569d1d01a40e62c8178f5c8d",
+        "size": 3017
+      },
+      {
         "path": "pages/projects/community-badge.md",
         "sha256": "3441aadfde671762abefe0ae9c7f230abfa4909049f752bcf34892b7e5b99fa4",
         "size": 1733
@@ -4719,8 +4724,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T16:09:09Z",
-  "file_count": 942,
+  "exported_at": "2026-05-07T16:35:31Z",
+  "file_count": 943,
   "files": [
     {
       "path": ".curator_state",
@@ -7592,7 +7597,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
-  "previous_tree_hash": "72c787862feedb6c397851deb5261e4487dd3545526035fc4f2c0e21190be4a8",
+  "previous_tree_hash": "1da606b1943258b9c989460f5098a55bc10cb942262e644c07adad0c7016383d",
   "schema_version": 1,
   "skill_file_count": 573,
   "skill_manage_sessions": [
@@ -7605,14 +7610,14 @@
   ],
   "skill_tree_hash": "28608c7248fc5dcd9142c2521d24ce87a8dbdf56f63028d0367e299b1383271a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1da606b1943258b9c989460f5098a55bc10cb942262e644c07adad0c7016383d",
+  "tree_hash": "7a1c03c5f6d38ef1c4b617c5a9559249a200d15b4a7e061fc587546a8476ea45",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 369,
+  "wiki_file_count": 370,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7626,8 +7631,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "a33f9c58fa544dc60de5eebfdf35a34a2a9b37f4c44fd4c90551784c201cbd3f",
-      "size": 921501
+      "sha256": "7ab0d7326ea776ff4ddc50ad0e3fdc48129f8d91f0cccae30db757765768c834",
+      "size": 921845
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8595,6 +8600,11 @@
       "size": 1836
     },
     {
+      "path": "pages/projects/bridge-app-requirement.md",
+      "sha256": "8531140e53f14fee19e03182a332789ebd0f6f4f569d1d01a40e62c8178f5c8d",
+      "size": 3017
+    },
+    {
       "path": "pages/projects/community-badge.md",
       "sha256": "3441aadfde671762abefe0ae9c7f230abfa4909049f752bcf34892b7e5b99fa4",
       "size": 1733
@@ -9461,5 +9471,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "79c892193b301370da717f127506d30e8ce768a922eb3e15ddcaee13abb83eac"
+  "wiki_tree_hash": "8e75c7e39f225efb4dc8b49727921e2c9efdfe6c79f850a81cde7e5fa1cae2cb"
 }

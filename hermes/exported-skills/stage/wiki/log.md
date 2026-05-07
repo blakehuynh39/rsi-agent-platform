@@ -19431,3 +19431,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_afb484e4575b9ed637d5ac3537a2d55a
 - summary: DePIN version 1.0.0 release.
 
+## [2026-05-07T16:33:25Z] synthesis | Bridge App Requirement
+
+- status: published
+- slug: projects/bridge-app-requirement
+- wiki_revision_id: wikirev_64a4769c0ae1edde682b93d5056bb49a
+- summary: Requirements for a bridge application that supports connecting a wallet, depositing and withdrawing IP or Poseidon currencies, and claiming from L2.
+
