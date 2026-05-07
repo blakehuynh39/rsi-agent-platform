@@ -2871,13 +2871,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "858cb427b837a4d812dcd12e7ec800e129e566d7db5b4dedafd31f8661d6b6ee",
-        "size": 480748
+        "sha256": "ad003e79aea56679c9462837d45e9ca8204cbea2bf0a72fb0cf5845b948d0c3b",
+        "size": 480939
       },
       {
         "path": "log.md",
-        "sha256": "217450702dcb669614b7251f49722842d688a405dad6f24da14fffec51a4263a",
-        "size": 917403
+        "sha256": "cfbbc9077ab7e077d8a2c141f8a54df23d230e7b7ab76782999d60306a253e69",
+        "size": 917606
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4240,6 +4240,11 @@
         "size": 2926
       },
       {
+        "path": "pages/projects/trident-v0-1-0.md",
+        "sha256": "850181491dcc93e43aee53d6ce1b7626a7ba38f406b0d709db576935e0d90f2c",
+        "size": 1063
+      },
+      {
         "path": "pages/projects/updating-mininet-to-main.md",
         "sha256": "1caa2e0cd5f009bf443206708ed21d5af7768994c2a9404cd72c67f63bb47cbc",
         "size": 1211
@@ -4654,8 +4659,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T14:31:21Z",
-  "file_count": 929,
+  "exported_at": "2026-05-07T14:37:30Z",
+  "file_count": 930,
   "files": [
     {
       "path": ".curator_state",
@@ -7522,7 +7527,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
-  "previous_tree_hash": "8be4419f038e6a01110bdad536c12439fa18ab95c5d8b38f2efbffb6522890ce",
+  "previous_tree_hash": "f959f75cd651654fc3757094faf678f6c725735d5197e2bc4fcfb81685ee0916",
   "schema_version": 1,
   "skill_file_count": 572,
   "skill_manage_sessions": [
@@ -7535,14 +7540,14 @@
   ],
   "skill_tree_hash": "9875bf060e875569a84e7dd2d1aa120afe934961ec8d008359cc52f2dabdc9fb",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f959f75cd651654fc3757094faf678f6c725735d5197e2bc4fcfb81685ee0916",
+  "tree_hash": "9f3a44b7e8095f22f27e8cafc2af1efd4d20f4ae99ee50d15101b4a67a85e261",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 357,
+  "wiki_file_count": 358,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7551,13 +7556,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "858cb427b837a4d812dcd12e7ec800e129e566d7db5b4dedafd31f8661d6b6ee",
-      "size": 480748
+      "sha256": "ad003e79aea56679c9462837d45e9ca8204cbea2bf0a72fb0cf5845b948d0c3b",
+      "size": 480939
     },
     {
       "path": "log.md",
-      "sha256": "217450702dcb669614b7251f49722842d688a405dad6f24da14fffec51a4263a",
-      "size": 917403
+      "sha256": "cfbbc9077ab7e077d8a2c141f8a54df23d230e7b7ab76782999d60306a253e69",
+      "size": 917606
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8920,6 +8925,11 @@
       "size": 2926
     },
     {
+      "path": "pages/projects/trident-v0-1-0.md",
+      "sha256": "850181491dcc93e43aee53d6ce1b7626a7ba38f406b0d709db576935e0d90f2c",
+      "size": 1063
+    },
+    {
       "path": "pages/projects/updating-mininet-to-main.md",
       "sha256": "1caa2e0cd5f009bf443206708ed21d5af7768994c2a9404cd72c67f63bb47cbc",
       "size": 1211
@@ -9331,5 +9341,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f684b222ac217c3536c423a48a55d42d0f2892dc2615d8ca7cbcf54c818c58df"
+  "wiki_tree_hash": "5745958ebeb200ba93ef2a505511b0933bdfc7600d70f8716a96b7ba07d82877"
 }
