@@ -2871,8 +2871,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "e7cdd2c5a90eef0eeba6efe6509d48b0f06d58bf3dc6eb7a815e3130dbc070ea",
-        "size": 915117
+        "sha256": "2ad3cdc80c5853fff21f8a8afa08b4632400f5cad79b6c76a4bf8532660def3e",
+        "size": 915459
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4405,6 +4405,11 @@
         "size": 3685
       },
       {
+        "path": "pages/runbooks/trident-mvp-website-user-guide.md",
+        "sha256": "41cea2d25b3b50589f4b99fafc6a13edaf36fe3543d2f8cf02eba56c853781b3",
+        "size": 6399
+      },
+      {
         "path": "pages/runbooks/typescript-sdk-setup.md",
         "sha256": "a635bc8d24ccc1cd5eddc146b89a66deb673512d29062b4d92cdcc4a06a8471d",
         "size": 1126
@@ -4614,8 +4619,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T12:14:41Z",
-  "file_count": 921,
+  "exported_at": "2026-05-07T12:20:46Z",
+  "file_count": 922,
   "files": [
     {
       "path": ".curator_state",
@@ -7477,7 +7482,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
-  "previous_tree_hash": "f6725d02ba7b0dd89ae06266f89be8003c6e09b47b86f06905a135347d5959ab",
+  "previous_tree_hash": "dee381cad5ab9068511b74e696982731c8d2a0699ef22029a8dcc6b6940331a6",
   "schema_version": 1,
   "skill_file_count": 571,
   "skill_manage_sessions": [
@@ -7490,14 +7495,14 @@
   ],
   "skill_tree_hash": "ff72ad0c56115e95b1a106829f032a3ff4a43e92c933d812f680df1c04ef1c5c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "dee381cad5ab9068511b74e696982731c8d2a0699ef22029a8dcc6b6940331a6",
+  "tree_hash": "3b725f2dccbf10cc2cc69a2b61531e9d83359fc1ca29f61cc6ed9a56cda61ed2",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 350,
+  "wiki_file_count": 351,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7511,8 +7516,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "e7cdd2c5a90eef0eeba6efe6509d48b0f06d58bf3dc6eb7a815e3130dbc070ea",
-      "size": 915117
+      "sha256": "2ad3cdc80c5853fff21f8a8afa08b4632400f5cad79b6c76a4bf8532660def3e",
+      "size": 915459
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9045,6 +9050,11 @@
       "size": 3685
     },
     {
+      "path": "pages/runbooks/trident-mvp-website-user-guide.md",
+      "sha256": "41cea2d25b3b50589f4b99fafc6a13edaf36fe3543d2f8cf02eba56c853781b3",
+      "size": 6399
+    },
+    {
       "path": "pages/runbooks/typescript-sdk-setup.md",
       "sha256": "a635bc8d24ccc1cd5eddc146b89a66deb673512d29062b4d92cdcc4a06a8471d",
       "size": 1126
@@ -9251,5 +9261,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f3db091cf0a6ec13d461c280670874a15534e2982293fc47721310e3a5ae5d76"
+  "wiki_tree_hash": "3bc32aff1c35c212ceefb19b4240223659683841d58cba4289423f08c76e226c"
 }

@@ -19291,3 +19291,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_05477cc4aef3c5949af1cbc7df53bfc8
 - summary: Datasets within Sahara AI are managed by the Data Layer, which uses a hybrid on-chain/off-chain approach. Datasets can be registered and tokenized as ERC-721 Ownership NFTs on the ...
 
+## [2026-05-07T12:17:07Z] synthesis | Trident MVP Website User Guide
+
+- status: published
+- slug: runbooks/trident-mvp-website-user-guide
+- wiki_revision_id: wikirev_20ac0c709e756b8b445b319f2729cdfc
+- summary: User guide for the Trident MVP website covering sign-in, storage subscription, file operations, licensing, and account management.
+
