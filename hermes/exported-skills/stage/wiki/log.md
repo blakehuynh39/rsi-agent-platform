@@ -19676,3 +19676,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_21ab10bf737ae78f5360b9968bf76f2d
 - summary: Weekly engineering demo signup process, with schedules for 2025 and 2026.
 
+## [2026-05-07T21:38:42Z] synthesis | Infra Proposal for a Multi-tenant System
+
+- status: published
+- slug: decisions/infra-multi-tenant-aws-org-proposal
+- wiki_revision_id: wikirev_23f8257a347b22e5b2b35c1387eb96e3
+- summary: Proposal to restructure AWS accounts under a centralized AWS Organization with dedicated OUs for STAG, PROD, and ECR, enabling environment isolation and unified identity management...
+
