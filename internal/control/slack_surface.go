@@ -32,6 +32,7 @@ const slackMentionsOnlySentinel = "MENTIONS_ONLY"
 
 type slackMessagePoster interface {
 	PostMessageContext(ctx context.Context, channelID string, options ...slack.MsgOption) (string, string, error)
+	UpdateMessageContext(ctx context.Context, channelID, timestamp string, options ...slack.MsgOption) (string, string, string, error)
 }
 
 func RunSlackSurface(cfg config.Config, store storepkg.Store) error {
@@ -182,9 +183,101 @@ func (s *slackSurfaceRuntime) run(parentCtx context.Context) error {
 				}
 				s.client.Ack(*evt.Request)
 				s.handleEventsAPIEvent(ctx, eventsAPIEvent)
+			case socketmode.EventTypeInteractive:
+				s.client.Ack(*evt.Request)
+				callback, ok := evt.Data.(slack.InteractionCallback)
+				if !ok {
+					log.Printf("slack-surface identity=%s unsupported interactive payload=%T", s.cfg.SlackAppIdentity, evt.Data)
+					continue
+				}
+				go s.handleInteractiveCallback(context.Background(), callback)
 			}
 		}
 	}
+}
+
+func (s *slackSurfaceRuntime) handleInteractiveCallback(ctx context.Context, callback slack.InteractionCallback) {
+	if callback.Type != slack.InteractionTypeBlockActions {
+		return
+	}
+	if len(callback.ActionCallback.BlockActions) == 0 {
+		return
+	}
+	action := callback.ActionCallback.BlockActions[0]
+	if action == nil {
+		return
+	}
+	if action.ActionID != dbReadSlackApproveAction && action.ActionID != dbReadSlackDenyAction {
+		return
+	}
+	requestID := strings.TrimSpace(action.Value)
+	request, ok := s.store.GetDBReadRequest(requestID)
+	if !ok {
+		log.Printf("slack-surface identity=%s db-read action=%s unknown request=%s", s.cfg.SlackAppIdentity, action.ActionID, requestID)
+		return
+	}
+	userID := strings.TrimSpace(callback.User.ID)
+	if !dbReadApproverAllowed(s.cfg, userID) {
+		log.Printf("slack-surface identity=%s db-read action=%s unauthorized user=%s request=%s", s.cfg.SlackAppIdentity, action.ActionID, userID, requestID)
+		_, _, _ = s.slackAPI.PostMessageContext(
+			ctx,
+			firstNonEmpty(request.SlackMessageChannelID, request.ChannelID),
+			slack.MsgOptionText("You are not authorized to approve RSI DB read requests.", false),
+			slack.MsgOptionTS(firstNonEmpty(request.SlackMessageTS, request.ThreadTS)),
+		)
+		return
+	}
+	now := time.Now().UTC()
+	if request.State != storepkg.DBReadStatePendingApproval {
+		_ = updateDBReadSlackCard(ctx, s.slackAPI, request, "stale action ignored; current state is `"+string(request.State)+"`")
+		return
+	}
+	if request.ExpiresAt.Before(now) {
+		updated, err := s.store.TransitionDBReadRequest(request.ID, storepkg.DBReadStatePendingApproval, storepkg.DBReadStateExpired, func(item *storepkg.DBReadRequest) error {
+			item.ErrorMessage = "approval expired before Slack action"
+			return nil
+		})
+		if err == nil {
+			_ = updateDBReadSlackCard(ctx, s.slackAPI, updated, "expired")
+		}
+		return
+	}
+	switch action.ActionID {
+	case dbReadSlackApproveAction:
+		updated, err := s.store.TransitionDBReadRequest(request.ID, storepkg.DBReadStatePendingApproval, storepkg.DBReadStateApproved, func(item *storepkg.DBReadRequest) error {
+			item.ApprovedBySlackUserID = userID
+			item.ApprovedAt = &now
+			return nil
+		})
+		if err != nil {
+			log.Printf("slack-surface identity=%s db-read approve request=%s error=%v", s.cfg.SlackAppIdentity, request.ID, err)
+			return
+		}
+		_ = updateDBReadSlackCard(ctx, s.slackAPI, updated, "approved by `<@"+userID+">`; queued for execution")
+	case dbReadSlackDenyAction:
+		updated, err := s.store.TransitionDBReadRequest(request.ID, storepkg.DBReadStatePendingApproval, storepkg.DBReadStateDenied, func(item *storepkg.DBReadRequest) error {
+			item.ErrorMessage = "denied by Slack approver"
+			return nil
+		})
+		if err != nil {
+			log.Printf("slack-surface identity=%s db-read deny request=%s error=%v", s.cfg.SlackAppIdentity, request.ID, err)
+			return
+		}
+		_ = updateDBReadSlackCard(ctx, s.slackAPI, updated, "denied by `<@"+userID+">`")
+	}
+}
+
+func dbReadApproverAllowed(cfg config.Config, userID string) bool {
+	userID = strings.TrimSpace(userID)
+	if userID == "" {
+		return false
+	}
+	for _, allowed := range cfg.DBReadApproverSlackUserIDs {
+		if strings.TrimSpace(allowed) == userID {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *slackSurfaceRuntime) watchDrain(ctx context.Context, cancel context.CancelFunc) {

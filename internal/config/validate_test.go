@@ -100,6 +100,35 @@ func TestSlackSurfaceValidationRequiresSlackContract(t *testing.T) {
 	}
 }
 
+func TestSlackSurfaceDBReadClientTokenValidationIsNotDuplicated(t *testing.T) {
+	cfg := validControlPlaneConfig()
+	cfg.SlackAppIdentity = "rsi"
+	cfg.SlackSocketModeEnabled = true
+	cfg.SlackAppToken = "xapp-test"
+	cfg.SlackBotToken = "xoxb-test"
+	cfg.AllowedSlackChannelIDs = []string{"DM_ONLY"}
+	cfg.DBReadEnabled = true
+	cfg.DBReadApproverSlackUserIDs = []string{"UADMIN"}
+
+	_, err := cfg.ValidatedFor("control-plane", "slack-surface")
+	if err == nil {
+		t.Fatal("expected validation error")
+	}
+	validationErr, ok := err.(ValidationError)
+	if !ok {
+		t.Fatalf("expected ValidationError, got %T", err)
+	}
+	count := 0
+	for _, issue := range validationErr.Issues {
+		if strings.Contains(issue, "RSI_DB_READ_CLIENT_TOKEN") {
+			count++
+		}
+	}
+	if count != 1 {
+		t.Fatalf("expected one RSI_DB_READ_CLIENT_TOKEN validation issue, got %d: %v", count, validationErr.Issues)
+	}
+}
+
 func TestSlackMirrorValidationRequiresHonchoAndMirrorContract(t *testing.T) {
 	cfg := validControlPlaneConfig()
 

@@ -54,6 +54,15 @@ func (f *fakeSlackPoster) PostMessageContext(_ context.Context, channelID string
 	return channelID, "171000001.000200", nil
 }
 
+func (f *fakeSlackPoster) UpdateMessageContext(_ context.Context, channelID, timestamp string, options ...slack.MsgOption) (string, string, string, error) {
+	_, values, _ := slack.UnsafeApplyMsgOptions("xoxb-test", channelID, "https://slack.com/api/", options...)
+	f.calls = append(f.calls, fakeSlackPost{channelID: channelID, values: values})
+	if f.err != nil {
+		return "", "", "", f.err
+	}
+	return channelID, timestamp, "", nil
+}
+
 func TestSlackSurfaceBuildMentionEnvelopeFiltersAndMapsIdentity(t *testing.T) {
 	runtime := newSlackSurfaceRuntime(config.Config{
 		SlackAppIdentity:       "oncall",
@@ -199,6 +208,62 @@ func TestSlackSurfacePostsOperatorACKAfterDurableIngress(t *testing.T) {
 	call := poster.calls[0]
 	if call.channelID != "C123" || call.values.Get("thread_ts") != "171000001.000100" {
 		t.Fatalf("ACK posted to wrong target: channel=%s values=%s", call.channelID, call.values.Encode())
+	}
+}
+
+func TestSlackSurfaceDBReadDenyDoesNotSetApprovalFields(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	request, _, err := store.UpsertDBReadRequest(storepkg.DBReadCreateInput{
+		IdempotencyKey: "db-read-deny-test",
+		Target:         "depin-stage",
+		Purpose:        "query",
+		SQL:            "select 1",
+		SQLSHA256:      "sha256:abc",
+		Requester:      "hermes",
+		ChannelID:      "C123",
+		ThreadTS:       "171000001.000100",
+		ExpiresAt:      now.Add(time.Hour),
+	}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	attempt := storepkg.NewDBReadValidationAttempt(request, storepkg.DBReadValidationStatusSucceeded, "target_prepare", "", nil, now)
+	if _, err := store.AppendDBReadValidationAttempt(attempt); err != nil {
+		t.Fatal(err)
+	}
+	request, err = store.TransitionDBReadRequest(request.ID, storepkg.DBReadStatePendingApproval, storepkg.DBReadStatePendingApproval, func(item *storepkg.DBReadRequest) error {
+		item.SlackMessageChannelID = "C123"
+		item.SlackMessageTS = "171000001.000200"
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	runtime := newSlackSurfaceRuntime(config.Config{
+		SlackAppIdentity:           "rsi",
+		DBReadApproverSlackUserIDs: []string{"UADMIN"},
+	}, store)
+	runtime.slackAPI = &fakeSlackPoster{}
+
+	runtime.handleInteractiveCallback(context.Background(), slack.InteractionCallback{
+		Type: slack.InteractionTypeBlockActions,
+		User: slack.User{ID: "UADMIN"},
+		ActionCallback: slack.ActionCallbacks{BlockActions: []*slack.BlockAction{{
+			ActionID: dbReadSlackDenyAction,
+			Value:    request.ID,
+		}}},
+	})
+
+	updated, ok := store.GetDBReadRequest(request.ID)
+	if !ok {
+		t.Fatal("expected DB read request")
+	}
+	if updated.State != storepkg.DBReadStateDenied {
+		t.Fatalf("expected denied state, got %s", updated.State)
+	}
+	if updated.ApprovedBySlackUserID != "" || updated.ApprovedAt != nil {
+		t.Fatalf("deny should not set approval fields: approved_by=%q approved_at=%v", updated.ApprovedBySlackUserID, updated.ApprovedAt)
 	}
 }
 

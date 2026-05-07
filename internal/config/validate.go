@@ -98,6 +98,14 @@ func (c Config) validateControlPlane(issues *[]string) {
 		c.validateCompanyWikiCompiler(issues)
 		return
 	}
+	if c.RuntimeMode == "db-read-worker" {
+		if !c.DBReadEnabled {
+			*issues = append(*issues, "RSI_DB_READ_ENABLED must be true for db-read-worker")
+		}
+		addRequiredString(issues, "RSI_DB_READ_TARGETS_JSON", c.DBReadTargetsJSON)
+		addRequiredList(issues, "RSI_DB_READ_WORKER_TARGETS", c.DBReadWorkerTargets)
+		return
+	}
 	if len(c.HermesExecutorURLs()) == 0 {
 		addRequiredURL(issues, "RSI_RUNNER_PROD_BASE_URL", c.ProdRunnerBaseURL, c.nonLocalhostRequired())
 		addRequiredURL(issues, "RSI_RUNNER_PROACTIVE_BASE_URL", c.ProactiveRunnerBaseURL, c.nonLocalhostRequired())
@@ -127,6 +135,12 @@ func (c Config) validateControlPlane(issues *[]string) {
 		if c.SlackMirrorEnabled {
 			c.validateSlackMirror(issues)
 		}
+		if c.DBReadEnabled {
+			addRequiredList(issues, "RSI_DB_READ_APPROVER_SLACK_USER_IDS", c.DBReadApproverSlackUserIDs)
+		}
+	}
+	if c.DBReadEnabled && c.RuntimeMode != "db-read-worker" && c.nonLocalhostRequired() {
+		addRequiredString(issues, "RSI_DB_READ_CLIENT_TOKEN", c.DBReadClientToken)
 	}
 }
 

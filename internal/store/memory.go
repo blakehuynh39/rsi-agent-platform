@@ -43,6 +43,18 @@ type Store interface {
 	ListActionIntents() []action.Intent
 	GetActionIntent(actionID string) (action.Intent, bool)
 	ListActionResults(actionIntentID string) []action.Result
+	ListDBReadRequests() []DBReadRequest
+	GetDBReadRequest(requestID string) (DBReadRequest, bool)
+	GetDBReadRequestByIdempotencyKey(key string) (DBReadRequest, bool)
+	UpsertDBReadRequest(input DBReadCreateInput, now time.Time) (DBReadRequest, bool, error)
+	AppendDBReadValidationAttempt(attempt DBReadValidationAttempt) (DBReadValidationAttempt, error)
+	ListDBReadValidationAttempts(requestID string) []DBReadValidationAttempt
+	TransitionDBReadRequest(requestID string, from DBReadState, to DBReadState, mutate func(*DBReadRequest) error) (DBReadRequest, error)
+	ClaimNextDBReadValidationRequest(holder string, lease time.Duration, now time.Time, targets []string) (DBReadLease, bool, error)
+	ClaimNextDBReadRequest(holder string, lease time.Duration, now time.Time, targets []string) (DBReadLease, bool, error)
+	AppendDBReadExecutionResult(result DBReadExecutionResult) (DBReadExecutionResult, error)
+	ListDBReadExecutionResults(requestID string) []DBReadExecutionResult
+	ExpirePendingDBReadRequests(now time.Time) ([]DBReadRequest, error)
 	ListDomainEvents() []transition.DomainEvent
 	ListEffectExecutions() []transition.EffectExecution
 	ListEffectExecutionsByAggregate(machineKind transition.MachineKind, aggregateID string) []transition.EffectExecution
@@ -162,6 +174,10 @@ type MemoryStore struct {
 	feedbackRecords                   map[string][]review.FeedbackRecord
 	actionIntents                     map[string]action.Intent
 	actionResults                     map[string][]action.Result
+	dbReadRequests                    map[string]DBReadRequest
+	dbReadRequestByIdempotencyKey     map[string]string
+	dbReadValidationAttempts          map[string][]DBReadValidationAttempt
+	dbReadExecutionResults            map[string][]DBReadExecutionResult
 	domainEvents                      []transition.DomainEvent
 	effectExecutions                  map[string]transition.EffectExecution
 	runnerExecutions                  map[string]RunnerExecution
@@ -226,6 +242,10 @@ func (s *MemoryStore) ResetAppData() (AppDataResetResult, error) {
 	s.feedbackRecords = replacement.feedbackRecords
 	s.actionIntents = replacement.actionIntents
 	s.actionResults = replacement.actionResults
+	s.dbReadRequests = replacement.dbReadRequests
+	s.dbReadRequestByIdempotencyKey = replacement.dbReadRequestByIdempotencyKey
+	s.dbReadValidationAttempts = replacement.dbReadValidationAttempts
+	s.dbReadExecutionResults = replacement.dbReadExecutionResults
 	s.domainEvents = replacement.domainEvents
 	s.effectExecutions = replacement.effectExecutions
 	s.commandReceipts = replacement.commandReceipts
@@ -3071,7 +3091,8 @@ func compactStrings(items []string) []string {
 
 func firstNonEmpty(values ...string) string {
 	for _, value := range values {
-		if strings.TrimSpace(value) != "" {
+		value = strings.TrimSpace(value)
+		if value != "" {
 			return value
 		}
 	}

@@ -73,6 +73,11 @@ type Config struct {
 	CompanyWikiCompilerOpenRouterAPIKey  string
 	SlackMCPEnabled                      bool
 	SlackMCPServerURL                    string
+	DBReadEnabled                        bool
+	DBReadTargetsJSON                    string
+	DBReadClientToken                    string
+	DBReadApproverSlackUserIDs           []string
+	DBReadWorkerTargets                  []string
 	NotionMCPEnabled                     bool
 	NotionMCPServerURL                   string
 	NotionMCPHeaders                     map[string]string
@@ -224,6 +229,11 @@ func Load(serviceName string) Config {
 		CompanyWikiCompilerOpenRouterAPIKey:  firstNonEmpty(stringEnv("RSI_COMPANY_WIKI_COMPILER_OPENROUTER_API_KEY", ""), stringEnv("RSI_OPENROUTER_API_KEY", ""), stringEnv("OPENROUTER_API_KEY", "")),
 		SlackMCPEnabled:                      boolEnv("RSI_SLACK_MCP_ENABLED", false),
 		SlackMCPServerURL:                    stringEnv("RSI_SLACK_MCP_SERVER_URL", "http://127.0.0.1:8092/mcp"),
+		DBReadEnabled:                        boolEnv("RSI_DB_READ_ENABLED", false),
+		DBReadTargetsJSON:                    stringEnv("RSI_DB_READ_TARGETS_JSON", ""),
+		DBReadClientToken:                    stringEnv("RSI_DB_READ_CLIENT_TOKEN", ""),
+		DBReadApproverSlackUserIDs:           listEnv("RSI_DB_READ_APPROVER_SLACK_USER_IDS"),
+		DBReadWorkerTargets:                  listEnv("RSI_DB_READ_WORKER_TARGETS"),
 		NotionMCPEnabled:                     boolEnv("RSI_NOTION_MCP_ENABLED", false),
 		NotionMCPServerURL:                   stringEnv("RSI_NOTION_MCP_SERVER_URL", "https://mcp.notion.com/mcp"),
 		NotionMCPHeaders:                     mapEnv("RSI_NOTION_MCP_HEADERS"),

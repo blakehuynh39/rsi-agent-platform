@@ -1224,6 +1224,7 @@ class HermesRuntime:
                 if str(bin_dir) not in path_entries:
                     os.environ["PATH"] = os.pathsep.join([str(bin_dir), *path_entries])
                 status["grafana_observability"] = self._configure_grafana_cli_environment()
+                status["db_read_gateway"] = self._install_db_read_cli_wrapper(bin_dir)
                 status.update(
                     {
                         "status": "configured",
@@ -1274,6 +1275,22 @@ class HermesRuntime:
             "agent_mode_env": "GCX_AGENT_MODE",
             "metrics_datasource_uid": datasource_uid,
             "default_metrics_command": 'gcx metrics query --datasource "$RSI_GRAFANA_METRICS_DATASOURCE_UID"',
+        }
+
+    def _install_db_read_cli_wrapper(self, bin_dir: Path) -> JsonObject:
+        if not self._config.db_read_gateway_configured:
+            return {"configured": False, "tool": "rsi-db"}
+        helper_path = bin_dir / "rsi-db"
+        helper_path.write_text(
+            "#!/usr/bin/env sh\nexec python3 -m rsi_runner.db_read_cli \"$@\"\n",
+            encoding="utf-8",
+        )
+        helper_path.chmod(0o700)
+        return {
+            "configured": True,
+            "tool": "rsi-db",
+            "auth": "execution_scoped_control_plane_token",
+            "executes_sql_locally": False,
         }
 
     def _write_company_kubeconfig(self) -> Path:
@@ -7497,6 +7514,14 @@ class HermesRuntime:
                     "Use `gcx help-tree` or `gcx commands` to discover the exact read-only dashboard and alert "
                     "inspection commands supported by the installed gcx version. "
                     "Dashboard edits and imports must be PRs to storyprotocol/story-infra-aws, not live Grafana writes."
+                )
+            if self._config.db_read_gateway_configured:
+                parts.append(
+                    "Postgres read requests are available through `rsi-db`. This is an async, Slack-approved RSI "
+                    "control-plane gateway: `rsi-db` never has DB DSNs and never executes SQL locally. Use "
+                    "`rsi-db sources`, `rsi-db schema --target <id>`, `rsi-db validate --target <id> --sql '<select>'`, "
+                    "`rsi-db query --target <id> --sql '<select>'`, and `rsi-db status <request_id>`. Approval is "
+                    "bound to the exact target and SQL hash, and results returned to Slack/Hermes are sanitized."
                 )
             repo_guidance = self._github_repository_guidance(task)
             if repo_guidance:

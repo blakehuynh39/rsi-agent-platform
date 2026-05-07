@@ -23,6 +23,9 @@ var ErrRunnerExecutionHolderRequired = errors.New("runner execution holder is re
 
 func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 	r := app.NewBaseRouter(cfg)
+	if cfg.DBReadEnabled {
+		registerDBReadRoutes(r, cfg, store)
+	}
 
 	r.Get("/api/events", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{
