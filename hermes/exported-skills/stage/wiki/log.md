@@ -15535,3 +15535,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_d840c99831103bb389a471f8483d91d0
 - summary: <@U05A515NBFC> i'm fixing MC for <https://github.com/piplabs/numo-monorepo/pull/139>
 
+## [2026-05-07T00:59:59Z] synthesis | Governance Risks and Mitigations
+
+- status: published
+- slug: concepts/governance-risks-and-mitigations
+- wiki_revision_id: wikirev_6ec0b314d47fa0d1ee40b70106a61db4
+- summary: Overview of governance risks in DAOs and various mitigation strategies, including economic attacks, sub-DAOs, timelocks, security councils, delegation, and conviction voting.
+

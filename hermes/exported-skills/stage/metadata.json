@@ -2846,8 +2846,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "3b9efe710cbb316113c222f939bc8f237949de05be6b6b9332ed76a4dd0e0c31",
-        "size": 779031
+        "sha256": "648c733009ebcb15c1c923fe5d5dec2a1bd4803a90c779f95a74d569dc19d93f",
+        "size": 779421
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3003,6 +3003,11 @@
         "path": "pages/concepts/global-ip-assets.md",
         "sha256": "0a913fa5b0711aa39f3cbc73b6f735a87241b2bb013dca0af3416751a70c511e",
         "size": 1258
+      },
+      {
+        "path": "pages/concepts/governance-risks-and-mitigations.md",
+        "sha256": "45c8c29cc8a3cdf846221aa07ab393685e9319edfcde815d3494443b966fe58a",
+        "size": 7351
       },
       {
         "path": "pages/concepts/graphql-vs-rest-api.md",
@@ -4349,8 +4354,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T00:47:34Z",
-  "file_count": 868,
+  "exported_at": "2026-05-07T01:03:44Z",
+  "file_count": 869,
   "files": [
     {
       "path": ".curator_state",
@@ -7187,7 +7192,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5599f8q966n",
-  "previous_tree_hash": "5b3a07f2c0b8c75d949cf3de4473e0127835254d5f856dbe98598bb6e5202244",
+  "previous_tree_hash": "09756c8e00598678bc0ff4efda1237129f61c8e9979bb005043e62723a0c18d7",
   "schema_version": 1,
   "skill_file_count": 566,
   "skill_manage_sessions": [
@@ -7200,14 +7205,14 @@
   ],
   "skill_tree_hash": "747c829d25d8a027bacd325f73e55e23510516f56f9abbb9b207998dc8f1fd28",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "09756c8e00598678bc0ff4efda1237129f61c8e9979bb005043e62723a0c18d7",
+  "tree_hash": "fbe1b525b75fef25a2f4c3823c9b8e674fae07448a21bbb222ab4392e85a0754",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 302,
+  "wiki_file_count": 303,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7221,8 +7226,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "3b9efe710cbb316113c222f939bc8f237949de05be6b6b9332ed76a4dd0e0c31",
-      "size": 779031
+      "sha256": "648c733009ebcb15c1c923fe5d5dec2a1bd4803a90c779f95a74d569dc19d93f",
+      "size": 779421
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7378,6 +7383,11 @@
       "path": "pages/concepts/global-ip-assets.md",
       "sha256": "0a913fa5b0711aa39f3cbc73b6f735a87241b2bb013dca0af3416751a70c511e",
       "size": 1258
+    },
+    {
+      "path": "pages/concepts/governance-risks-and-mitigations.md",
+      "sha256": "45c8c29cc8a3cdf846221aa07ab393685e9319edfcde815d3494443b966fe58a",
+      "size": 7351
     },
     {
       "path": "pages/concepts/graphql-vs-rest-api.md",
@@ -8721,5 +8731,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6a81ffb137c0fe65716df0efb9925644a8b31bbe12e71d4c225c926702e1ad07"
+  "wiki_tree_hash": "02ab1f38e771e6c0b879c0a639efcc6ad1d665b9ca9e42f6716eb098ba843423"
 }
