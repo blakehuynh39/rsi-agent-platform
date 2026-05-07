@@ -9,8 +9,8 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "a14de5194b3b061eaed0367db19defbdb2a93b89707b955b9f53995a988784c8",
-        "size": 1579
+        "sha256": "aa57aef3795aef70364dd92c1e083a18a52bfe5c6ae8e2433ee50151b81aa303",
+        "size": 2004
       },
       {
         "path": "apple/DESCRIPTION.md",
@@ -2718,6 +2718,16 @@
         "size": 8718
       },
       {
+        "path": "software-development/state-machine-design-review/SKILL.md",
+        "sha256": "91e94d51ac10580f3633724c19db1a47a1ea51fdd9b75b63921b2c358d2de2a7",
+        "size": 6736
+      },
+      {
+        "path": "software-development/state-machine-design-review/references/depin-backend-txattempt-enum-analysis.md",
+        "sha256": "ef42742b76ca83c0f0dbbd82f8cb7a7b8fa99c1916c770ec0abf8523465c363f",
+        "size": 5973
+      },
+      {
         "path": "software-development/subagent-driven-development/SKILL.md",
         "sha256": "8046dea19e20071895116a06319cfdc6b1eb036bc2d3f931145b8a93e1c06960",
         "size": 10707
@@ -4834,8 +4844,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T19:24:23Z",
-  "file_count": 965,
+  "exported_at": "2026-05-07T19:30:36Z",
+  "file_count": 967,
   "files": [
     {
       "path": ".curator_state",
@@ -4844,8 +4854,8 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "a14de5194b3b061eaed0367db19defbdb2a93b89707b955b9f53995a988784c8",
-      "size": 1579
+      "sha256": "aa57aef3795aef70364dd92c1e083a18a52bfe5c6ae8e2433ee50151b81aa303",
+      "size": 2004
     },
     {
       "path": "apple/DESCRIPTION.md",
@@ -7553,6 +7563,16 @@
       "size": 8718
     },
     {
+      "path": "software-development/state-machine-design-review/SKILL.md",
+      "sha256": "91e94d51ac10580f3633724c19db1a47a1ea51fdd9b75b63921b2c358d2de2a7",
+      "size": 6736
+    },
+    {
+      "path": "software-development/state-machine-design-review/references/depin-backend-txattempt-enum-analysis.md",
+      "sha256": "ef42742b76ca83c0f0dbbd82f8cb7a7b8fa99c1916c770ec0abf8523465c363f",
+      "size": 5973
+    },
+    {
       "path": "software-development/subagent-driven-development/SKILL.md",
       "sha256": "8046dea19e20071895116a06319cfdc6b1eb036bc2d3f931145b8a93e1c06960",
       "size": 10707
@@ -7717,9 +7737,9 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7b87977wx4w",
-  "previous_tree_hash": "2b6135fab4357e778e1dac95987664faf5b9a5d8d9a50707f6b5a3496b01c19a",
+  "previous_tree_hash": "c1036d46d448d8caab9702c131baf549a593bda4fde2f87db5d0738bd9fc5577",
   "schema_version": 1,
-  "skill_file_count": 575,
+  "skill_file_count": 577,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -7728,9 +7748,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "8f9d511f660a2b918275394629343786b462e156a6ed5b58dcc890ba425c198b",
+  "skill_tree_hash": "f268c07e5ed6610c18de5213322aa924cd9e307b226e3df74fd01b50d82a8489",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c1036d46d448d8caab9702c131baf549a593bda4fde2f87db5d0738bd9fc5577",
+  "tree_hash": "533f1dda4dd01a73eace41c895de338417222a19f4b7e6c4de31662b6c337c7d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
