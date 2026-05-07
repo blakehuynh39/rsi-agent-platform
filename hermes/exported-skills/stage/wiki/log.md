@@ -19683,3 +19683,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_23f8257a347b22e5b2b35c1387eb96e3
 - summary: Proposal to restructure AWS accounts under a centralized AWS Organization with dedicated OUs for STAG, PROD, and ECR, enabling environment isolation and unified identity management...
 
+## [2026-05-07T22:02:59Z] synthesis | Optimistic Workflow Design
+
+- status: published
+- slug: concepts/optimistic-workflow-design
+- wiki_revision_id: wikirev_fd50608ac514ee2a4f3659a02f18c086
+- summary: Proposes a new optimistic workflow validation system that collapses miner and validator roles into a single worker, with an optional challenger to verify outputs, reducing redundan...
+

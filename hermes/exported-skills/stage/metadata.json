@@ -2901,8 +2901,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "bceca63a35073ce8dd868f1ba3ffa53a71960beb2179e31e0cae320e615d8d9c",
-        "size": 933558
+        "sha256": "99673f2d735e8f1aa48ef7856c0dfefe2696e8992a8637773c181ee4fb23ac9a",
+        "size": 933945
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3273,6 +3273,11 @@
         "path": "pages/concepts/opensea-conduit-delegation.md",
         "sha256": "55e9e5cebdcae636afab5c6ca14296330487273dbe17e8b2f382e0e99f590b34",
         "size": 1243
+      },
+      {
+        "path": "pages/concepts/optimistic-workflow-design.md",
+        "sha256": "0ffb3242d8eef24a2c749c75320cdfc69933febb893603f27e94d2af8c5233cd",
+        "size": 5174
       },
       {
         "path": "pages/concepts/package-frontend-story-telling-examples.md",
@@ -4909,8 +4914,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T21:46:41Z",
-  "file_count": 980,
+  "exported_at": "2026-05-07T22:03:13Z",
+  "file_count": 981,
   "files": [
     {
       "path": ".curator_state",
@@ -7802,7 +7807,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-76c5bc7spjk",
-  "previous_tree_hash": "6acc260557e58a08af233e65a56d1674ac5e4c66baa710963c1329ca00613e4c",
+  "previous_tree_hash": "7b5391cca6b5b39311261bae5af9ca7e397033caa7e9125374130d06d5a1647f",
   "schema_version": 1,
   "skill_file_count": 577,
   "skill_manage_sessions": [
@@ -7815,14 +7820,14 @@
   ],
   "skill_tree_hash": "264965536f96ae80cfccaafc0809e63d4dcfe1afb60f62b1c4109cefeee6770f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7b5391cca6b5b39311261bae5af9ca7e397033caa7e9125374130d06d5a1647f",
+  "tree_hash": "90899e307ef8d5326ee74abf8cb66914856585251d47671a4b42ea4aa2c9c161",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 403,
+  "wiki_file_count": 404,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7836,8 +7841,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "bceca63a35073ce8dd868f1ba3ffa53a71960beb2179e31e0cae320e615d8d9c",
-      "size": 933558
+      "sha256": "99673f2d735e8f1aa48ef7856c0dfefe2696e8992a8637773c181ee4fb23ac9a",
+      "size": 933945
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8208,6 +8213,11 @@
       "path": "pages/concepts/opensea-conduit-delegation.md",
       "sha256": "55e9e5cebdcae636afab5c6ca14296330487273dbe17e8b2f382e0e99f590b34",
       "size": 1243
+    },
+    {
+      "path": "pages/concepts/optimistic-workflow-design.md",
+      "sha256": "0ffb3242d8eef24a2c749c75320cdfc69933febb893603f27e94d2af8c5233cd",
+      "size": 5174
     },
     {
       "path": "pages/concepts/package-frontend-story-telling-examples.md",
@@ -9841,5 +9851,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "72ac5ab17e95029d5e7ee926a9418b753d8dc932770bede0370b795f3e26ca60"
+  "wiki_tree_hash": "f56bbf135fb156db7a2d3374e2471ca855bbb2a54c82db2eeef23af0eec836d1"
 }
