@@ -19333,3 +19333,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9f556a45bd7df373738f4b20b04dc1c1
 - summary: A guide for filling in the Infra Research Evaluation Matrix, providing a high-level view of researched infrastructure projects with calibrated leveling across multiple dimensions.
 
+## [2026-05-07T14:05:59Z] synthesis | Storj
+
+- status: published
+- slug: concepts/storj
+- wiki_revision_id: wikirev_62287b45c626b21c63dd96072f1de4e9
+- summary: Storj is a decentralized cloud storage platform.
+

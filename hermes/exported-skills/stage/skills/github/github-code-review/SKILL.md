@@ -625,6 +625,8 @@ While subagents run, search for paired FE PRs using the GitHub Search API:
 gh search prs --repo=piplabs/numo-monorepo --match title "submission quality"
 # Also try matching branch prefix
 gh search prs --repo=piplabs/numo-monorepo --head feat/fraud
+
+**PITFALL:** `gh search prs` has a narrower `--json` field set than `gh pr list`/`gh pr view`. It does NOT support `headRefName`, `baseRefName`, `mergeable`, `reviews`, `statusCheckRollup`, or `changedFiles`. When you need those fields, use `gh pr list` with `--search` instead. For branch-prefix matching specifically, `gh search prs --head <prefix>` works fine as a filter (no `--json` needed).
 ```
 
 If the BE PR adds API routes, new schemas, or response fields and no FE PR exists, flag it as `missing-cross-repo-pair`.
