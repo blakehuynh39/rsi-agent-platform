@@ -2846,13 +2846,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "05f14f5f9c3fc2da3d3e7ec4dde197ad7406beb0e251aa5b16440b0587e96e98",
-        "size": 465657
+        "sha256": "085fa09f3f08f54a58017b45676c075ea18f44fde1e3a36bb12dbc0a4ae167f5",
+        "size": 466238
       },
       {
         "path": "log.md",
-        "sha256": "c46ef28d78322c51cc022d9116b2fbe90fd09e58ec88ab31956c429dd3aabe10",
-        "size": 898960
+        "sha256": "13b7a7c0ff67c68c36d491e95ff862b33776ba8422de8e5f7a83fc1c049fcadc",
+        "size": 899210
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3675,6 +3675,11 @@
         "size": 1074
       },
       {
+        "path": "pages/projects/airdrop-claim.md",
+        "sha256": "9c6c92da763183db034a2e07809d1263daa643144fb0d9a709116bccbcaf99f7",
+        "size": 1249
+      },
+      {
         "path": "pages/projects/automate-support-email-summarize-feedback.md",
         "sha256": "a2ac9c51f36b6aa0d82e62314c2b8522e2056a6a372aeb3cf6e8eb2cbc48032a",
         "size": 1232
@@ -4414,8 +4419,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T03:34:11Z",
-  "file_count": 881,
+  "exported_at": "2026-05-07T03:40:21Z",
+  "file_count": 882,
   "files": [
     {
       "path": ".curator_state",
@@ -7257,7 +7262,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fdf64db9b7d",
-  "previous_tree_hash": "2e5e227305ac088049c6903fa8ab70c2e0e03ae07b67f5393cec0fcf78a5452f",
+  "previous_tree_hash": "d696a3b66571ec8a89819ed3fd1b2823eff0ec52cdc3787d01417f2eff74d15f",
   "schema_version": 1,
   "skill_file_count": 567,
   "skill_manage_sessions": [
@@ -7270,14 +7275,14 @@
   ],
   "skill_tree_hash": "3193aa399d4116a5e0e3e5b0906417c67f296eb836d8aa8d22f9c66a2a363757",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d696a3b66571ec8a89819ed3fd1b2823eff0ec52cdc3787d01417f2eff74d15f",
+  "tree_hash": "9ffdbd834cf4cdea97437661ffe3bce05866d69838716e6af391847399c09ce5",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 314,
+  "wiki_file_count": 315,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7286,13 +7291,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "05f14f5f9c3fc2da3d3e7ec4dde197ad7406beb0e251aa5b16440b0587e96e98",
-      "size": 465657
+      "sha256": "085fa09f3f08f54a58017b45676c075ea18f44fde1e3a36bb12dbc0a4ae167f5",
+      "size": 466238
     },
     {
       "path": "log.md",
-      "sha256": "c46ef28d78322c51cc022d9116b2fbe90fd09e58ec88ab31956c429dd3aabe10",
-      "size": 898960
+      "sha256": "13b7a7c0ff67c68c36d491e95ff862b33776ba8422de8e5f7a83fc1c049fcadc",
+      "size": 899210
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8115,6 +8120,11 @@
       "size": 1074
     },
     {
+      "path": "pages/projects/airdrop-claim.md",
+      "sha256": "9c6c92da763183db034a2e07809d1263daa643144fb0d9a709116bccbcaf99f7",
+      "size": 1249
+    },
+    {
       "path": "pages/projects/automate-support-email-summarize-feedback.md",
       "sha256": "a2ac9c51f36b6aa0d82e62314c2b8522e2056a6a372aeb3cf6e8eb2cbc48032a",
       "size": 1232
@@ -8851,5 +8861,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1ae214eae48f0acb8d53c8dca0e56d1e12c9c7f5fe674e02bb3f9122ae8a159f"
+  "wiki_tree_hash": "9ea2346eafed33f77cef1fdd52b67acab97d5bd02e49576837cd9259ce34a185"
 }

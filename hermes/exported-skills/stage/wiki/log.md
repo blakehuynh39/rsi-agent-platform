@@ -18953,3 +18953,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_859495a751193981f11a43663287d8c6
 - summary: Central hub for Story Protocol design, development, ecosystem, and roadmap discussions. Contains links to key design documents, roadmap updates, project progress, and resources.
 
+## [2026-05-07T03:35:13Z] synthesis | AirDrop Claim
+
+- status: published
+- slug: projects/airdrop-claim
+- wiki_revision_id: wikirev_1dec3a6af462d5b7b4270fd0d42651d9
+- summary: Project for the AirDrop claim feature, with a PRD and a backend runbook.
+
