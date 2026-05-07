@@ -2846,13 +2846,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "9fa1d3d11f010d40664da37ae78b2fc7226ba8ceded94a17f0adc61eae90eea0",
-        "size": 463366
+        "sha256": "70660d0756eeebb4e14d4b32652fb5e7d1144ea58e9e659e5d4a9ff50dd10cf5",
+        "size": 464025
       },
       {
         "path": "log.md",
-        "sha256": "4c225dcd846d52243a7bc542e9e93c1b92840a3baf7dc1f773e0f80e872ae2be",
-        "size": 896627
+        "sha256": "6aa7f58651a15bbd2ab4729acd1132d428895743228bde7f48f04859087e0e04",
+        "size": 896913
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3018,6 +3018,11 @@
         "path": "pages/concepts/graphql-vs-rest-api.md",
         "sha256": "75b3fdd0d8b4f1ef717fcb9fe12d5d0f8d11aa7c9f30bb618883d845f06f0aad",
         "size": 1190
+      },
+      {
+        "path": "pages/concepts/how-to-series.md",
+        "sha256": "1defdb1c3c5f2fb1255a09cdc004160eebe342b32d240093cf2b1fe8594a84c4",
+        "size": 3350
       },
       {
         "path": "pages/concepts/iliad-code-walkthrough.md",
@@ -4379,8 +4384,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T01:56:13Z",
-  "file_count": 874,
+  "exported_at": "2026-05-07T02:02:25Z",
+  "file_count": 875,
   "files": [
     {
       "path": ".curator_state",
@@ -7222,7 +7227,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fdf64db9b7d",
-  "previous_tree_hash": "7b04705e602fbdb3a8d2e4627490e0ffff7ffe6b67f9184c2046230f73b10b5d",
+  "previous_tree_hash": "b34502e791e3ccdcf5de35cfabd85b7ea025ad71bae5b5ac92a72d96377df1df",
   "schema_version": 1,
   "skill_file_count": 567,
   "skill_manage_sessions": [
@@ -7235,14 +7240,14 @@
   ],
   "skill_tree_hash": "3193aa399d4116a5e0e3e5b0906417c67f296eb836d8aa8d22f9c66a2a363757",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b34502e791e3ccdcf5de35cfabd85b7ea025ad71bae5b5ac92a72d96377df1df",
+  "tree_hash": "daba1de1877f4df3d5a3f1b38b235fd3245f60381f3db56d0b7b7fae4a5cb185",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 307,
+  "wiki_file_count": 308,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7251,13 +7256,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "9fa1d3d11f010d40664da37ae78b2fc7226ba8ceded94a17f0adc61eae90eea0",
-      "size": 463366
+      "sha256": "70660d0756eeebb4e14d4b32652fb5e7d1144ea58e9e659e5d4a9ff50dd10cf5",
+      "size": 464025
     },
     {
       "path": "log.md",
-      "sha256": "4c225dcd846d52243a7bc542e9e93c1b92840a3baf7dc1f773e0f80e872ae2be",
-      "size": 896627
+      "sha256": "6aa7f58651a15bbd2ab4729acd1132d428895743228bde7f48f04859087e0e04",
+      "size": 896913
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7423,6 +7428,11 @@
       "path": "pages/concepts/graphql-vs-rest-api.md",
       "sha256": "75b3fdd0d8b4f1ef717fcb9fe12d5d0f8d11aa7c9f30bb618883d845f06f0aad",
       "size": 1190
+    },
+    {
+      "path": "pages/concepts/how-to-series.md",
+      "sha256": "1defdb1c3c5f2fb1255a09cdc004160eebe342b32d240093cf2b1fe8594a84c4",
+      "size": 3350
     },
     {
       "path": "pages/concepts/iliad-code-walkthrough.md",
@@ -8781,5 +8791,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "61f3f521e9ee53df46cdff4170e6171a2366a19894648ac23276264f7e9b1c2a"
+  "wiki_tree_hash": "2fd9828eeadeeb2c9cdf46a06dd610c39380dad52b503e26156a0f376ca8985a"
 }
