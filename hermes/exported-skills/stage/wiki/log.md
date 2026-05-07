@@ -15276,3 +15276,253 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_24c983c74bbd211a99be7441cbc460ad
 - summary: List of L1 urgent contacts for DevOps and Partners/Comms, including phone numbers, Telegram, and WeChat handles. Notes emphasize phone calls as the first choice and whitelisting co...
 
+## [2026-05-07T00:31:50Z] ingest | Tiger Team
+
+- status: published
+- slug: notion_document/tiger-team-35b64fb7
+- wiki_revision_id: wikirev_a0ff146d93aa9afdb56d50d0f064902a
+- source_document_id: srcdoc_914a6de252419d2b91b13f9535b64fb7
+- source_revision_id: srcrev_43dba63dc37ec8ab005c9753a5d88b68
+- summary: Source: [Notion source](https://www.notion.so/Tiger-Team-325051299a5480ba82baf2b41d01da34)
+
+## [2026-05-07T00:31:54Z] ingest | Scout Careers
+
+- status: published
+- slug: notion_document/scout-careers-275b5600
+- wiki_revision_id: wikirev_1d75d98efc63c3a35f9004d8b0c4ce96
+- source_document_id: srcdoc_18ad4a0f808bd3c815e7e0c1275b5600
+- source_revision_id: srcrev_5edd17ed207ce1bfda252fd01f3dbf80
+- summary: Source: [Notion source](https://www.notion.so/Scout-Careers-32c051299a5480e5b42fd67a3268da83)
+
+## [2026-05-07T00:31:55Z] synthesis | Story Chain Chainlist Listing
+
+- status: published
+- slug: projects/story-chain-chainlist-listing
+- wiki_revision_id: wikirev_c81872b5764515b9cc3702c51bb5b506
+- summary: Story chain (chain ID 1514) is listed on Chainlist. The manifest is maintained on GitHub. Next steps include adding GCP Faucet, OKX Explorer, and QuickNode RPC.
+
+## [2026-05-07T00:31:59Z] ingest | Todos
+
+- status: published
+- slug: notion_document/todos-7be3b375
+- wiki_revision_id: wikirev_90ed51092d5d148aa6ed738e16892831
+- source_document_id: srcdoc_fd2907916158412f5ea4101f7be3b375
+- source_revision_id: srcrev_c61c399eb77b0901cc500f43298b41e4
+- summary: Source: [Notion source](https://www.notion.so/Todos-32c051299a548067a1c3f989ab77edf6)
+
+## [2026-05-07T00:32:07Z] ingest | Mercor Reference
+
+- status: published
+- slug: notion_document/mercor-reference-861de986
+- wiki_revision_id: wikirev_a27e68147fe4325a1fb1773e3d117230
+- source_document_id: srcdoc_d479a8bb74050539672e5c35861de986
+- source_revision_id: srcrev_2763ea544d93ba284d9e98510982cc5b
+- summary: Source: [Notion source](https://www.notion.so/Mercor-Reference-328051299a54806f80b9d10cf1a79e36)
+
+## [2026-05-07T00:32:14Z] ingest | Aura
+
+- status: published
+- slug: notion_document/aura-c01456fa
+- wiki_revision_id: wikirev_009afab2acef07126866a32a301a365e
+- source_document_id: srcdoc_087178aed8b390665c766581c01456fa
+- source_revision_id: srcrev_4b89cc7f1f640fdddf599081ed0de441
+- summary: Source: [Notion source](https://www.notion.so/Aura-32c051299a54805f8adacf0d904c8e64)
+
+## [2026-05-07T00:32:18Z] ingest | Todos
+
+- status: published
+- slug: notion_document/todos-d759ea5a
+- wiki_revision_id: wikirev_82c30d8b198dc6cf860169d4f6894798
+- source_document_id: srcdoc_1d6e27cc177a96743321f802d759ea5a
+- source_revision_id: srcrev_d45b2ecf75c9126038424622d5c30c7e
+- summary: Source: [Notion source](https://www.notion.so/Todos-32c051299a54802d83cbc88d9b01b795)
+
+## [2026-05-07T00:32:24Z] ingest | DePIN Backend
+
+- status: published
+- slug: notion_document/depin-backend-db298aa7
+- wiki_revision_id: wikirev_a60edf9b6e58664c0d555baa5e0d9857
+- source_document_id: srcdoc_59a54884735af81769540da9db298aa7
+- source_revision_id: srcrev_0515809d6cc43cab067e1e1de246c11d
+- summary: Source: [Notion source](https://www.notion.so/DePIN-Backend-32c051299a548031b6bae4473339d3ec)
+
+## [2026-05-07T00:32:28Z] ingest | DePIN Admin
+
+- status: published
+- slug: notion_document/depin-admin-1ffccbe1
+- wiki_revision_id: wikirev_46a3e9d630f5b47b545ce2b6cd29baaf
+- source_document_id: srcdoc_368feb26bfb0baebfb1c30d01ffccbe1
+- source_revision_id: srcrev_044c3891ab0bcf24d56f2c2e37ce8361
+- summary: Source: [Notion source](https://www.notion.so/DePIN-Admin-32c051299a5480db8225e157465e024a)
+
+## [2026-05-07T00:32:33Z] ingest | List of Potential Apps
+
+- status: published
+- slug: notion_document/list-of-potential-apps-0aaf0e20
+- wiki_revision_id: wikirev_ad314c5c1858bf4b3dff4be5a0a39fd4
+- source_document_id: srcdoc_af1ff5c9adbe33bc4da78c8b0aaf0e20
+- source_revision_id: srcrev_b6d7e2be71d64caa4734c9c58fbd4547
+- summary: Source: [Notion source](https://www.notion.so/List-of-Potential-Apps-327051299a548057b7e9cec4190dfed5)
+
+## [2026-05-07T00:32:39Z] ingest | Team Members and Roles
+
+- status: published
+- slug: notion_document/team-members-and-roles-f2bc3e44
+- wiki_revision_id: wikirev_b08b16afae3def96272952179e8808ce
+- source_document_id: srcdoc_c96e430a442c3bc0c0501840f2bc3e44
+- source_revision_id: srcrev_ef20c3262790bfeb841aa1983b65fa21
+- summary: Source: [Notion source](https://www.notion.so/Team-Members-and-Roles-325051299a548036bb07e54247e9471d)
+
+## [2026-05-07T00:32:44Z] ingest | Two-month plan
+
+- status: published
+- slug: notion_document/two-month-plan-a66cc67f
+- wiki_revision_id: wikirev_9cf97b114a8ddcd5068d38f803af1141
+- source_document_id: srcdoc_993560ff7a075e1f151b69a0a66cc67f
+- source_revision_id: srcrev_49835b032ba7ae794405f00c90971de1
+- summary: Source: [Notion source](https://www.notion.so/Two-month-plan-325051299a5480bfab04ea6da7f9d904)
+
+## [2026-05-07T00:32:49Z] ingest | DePIN Tiger Team: App Initiative Update
+
+- status: published
+- slug: notion_document/depin-tiger-team-app-initiative-update-a902804c
+- wiki_revision_id: wikirev_89267fe16a7ea74e04903fa65f243ddd
+- source_document_id: srcdoc_49714bb369c0e85d4eb3f4f9a902804c
+- source_revision_id: srcrev_7e2bdc03a6af9ec06e97282af76837d2
+- summary: Source: [Notion source](https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a)
+
+## [2026-05-07T00:32:55Z] ingest | Strategy for Story’s App Initiative and Data Ecosystem Expansion
+
+- status: published
+- slug: notion_document/strategy-for-story-s-app-initiative-and-data-ecosystem-expansion-f559bd88
+- wiki_revision_id: wikirev_2980561897f64e5847718a26271bf699
+- source_document_id: srcdoc_7b69f86b2d5c7b1bf35fd7f2f559bd88
+- source_revision_id: srcrev_453a78248cb35c2194b57735b96072ae
+- summary: Source: [Notion source](https://www.notion.so/Strategy-for-Story-s-App-Initiative-and-Data-Ecosystem-Expansion-327051299a5480e68362c230e8076287)
+
+## [2026-05-07T00:33:01Z] ingest | Turning Story into the Platform for DePIN Apps, Data Supply, and Ecosystem Growth
+
+- status: published
+- slug: notion_document/turning-story-into-the-platform-for-depin-apps-data-supply-and-ecosystem-growth-30922021
+- wiki_revision_id: wikirev_4d090d9bb3bb06d86c210bf91ca84416
+- source_document_id: srcdoc_798cda9b28fd81031946c2bc30922021
+- source_revision_id: srcrev_d4eaf6765607e3f462df6b6df84570b7
+- summary: Source: [Notion source](https://www.notion.so/Turning-Story-into-the-Platform-for-DePIN-Apps-Data-Supply-and-Ecosystem-Growth-328051299a5480929f44e5b792865456)
+
+## [2026-05-07T00:33:06Z] ingest | Blueprint
+
+- status: published
+- slug: notion_document/blueprint-8c122bf2
+- wiki_revision_id: wikirev_7884fe18e65a78e21b04897ad289ec66
+- source_document_id: srcdoc_e2a0dbbd72679e50583753dd8c122bf2
+- source_revision_id: srcrev_c522fe1ba3deafc271e704d7b7f6a9c2
+- summary: Source: [Notion source](https://www.notion.so/Blueprint-325051299a54802390b8d5b0efe1c6da)
+
+## [2026-05-07T00:33:11Z] ingest | SPAM Combat
+
+- status: published
+- slug: notion_document/spam-combat-5800dc26
+- wiki_revision_id: wikirev_0ec5fc8d98a6ee579799bac1dd3427e4
+- source_document_id: srcdoc_e0986692a5484368264439705800dc26
+- source_revision_id: srcrev_95d9b61d63a8c7147d7b8de011c130db
+- summary: Source: [Notion source](https://www.notion.so/SPAM-Combat-327051299a54802a9172ed82c9bf8cb7)
+
+## [2026-05-07T00:33:16Z] ingest | Sandeep chat
+
+- status: published
+- slug: notion_document/sandeep-chat-19079059
+- wiki_revision_id: wikirev_4120bd2390f5c2262f87adc645d41b1e
+- source_document_id: srcdoc_7f33f1322a692f1be4fd76ec19079059
+- source_revision_id: srcrev_f41f7d5ec957ad5857d6d5431448b867
+- summary: Source: [Notion source](https://www.notion.so/Sandeep-chat-329051299a5480ffbceaf43f6617cf20)
+
+## [2026-05-07T00:33:21Z] ingest | Eleven Labs Orchestration Tradeoffs— Managed vs. Hybrid vs. DIY
+
+- status: published
+- slug: notion_document/eleven-labs-orchestration-tradeoffs-managed-vs-hybrid-vs-diy-ac6afe7d
+- wiki_revision_id: wikirev_726e10d09e2bb44d1ef63a669646241b
+- source_document_id: srcdoc_1b46c424944d0f61891ab6beac6afe7d
+- source_revision_id: srcrev_2109cc214482c6acf350c04cde529621
+- summary: Source: [Notion source](https://www.notion.so/Eleven-Labs-Orchestration-Tradeoffs-Managed-vs-Hybrid-vs-DIY-32c051299a54805b9427f63f3edc962e)
+
+## [2026-05-07T00:33:26Z] ingest | Voice Models
+
+- status: published
+- slug: notion_document/voice-models-1de484fc
+- wiki_revision_id: wikirev_8c558d6d4af6acfb20399c2d02a60df5
+- source_document_id: srcdoc_406ad3672ed538d69269ee481de484fc
+- source_revision_id: srcrev_aa710914002810612e3ced60c2ab8ec9
+- summary: Source: [Notion source](https://www.notion.so/Voice-Models-32d051299a54806c9837c9347cf05628)
+
+## [2026-05-07T00:33:30Z] ingest | Magical Prompts
+
+- status: published
+- slug: notion_document/magical-prompts-9a794325
+- wiki_revision_id: wikirev_56ca1e4a3eaddd953fff38a7e2a3976b
+- source_document_id: srcdoc_d95f1fd49f99be316f8c0cd39a794325
+- source_revision_id: srcrev_2236af2e0ff77b68be12e423bdc8cea6
+- summary: Source: [Notion source](https://www.notion.so/Magical-Prompts-32d051299a54801f8ea3f5973ff27b63)
+
+## [2026-05-07T00:33:35Z] ingest | DePIN season 1 ↔ Numo Eng hand-off
+
+- status: published
+- slug: notion_document/depin-season-1-numo-eng-hand-off-d72869f5
+- wiki_revision_id: wikirev_9b19667c0bd87178fd6e59734678b41b
+- source_document_id: srcdoc_df54c3fd0adbb52f93998570d72869f5
+- source_revision_id: srcrev_1154730a31c0527278fb1bc4f91a419d
+- summary: Source: [Notion source](https://www.notion.so/DePIN-season-1-Numo-Eng-hand-off-334051299a54807e9b94de55d327db0c)
+
+## [2026-05-07T00:33:40Z] ingest | Yash’s Post Analysis notes
+
+- status: published
+- slug: notion_document/yash-s-post-analysis-notes-a402c8a9
+- wiki_revision_id: wikirev_9b439c67ac9edd25d7980a07e4d540c0
+- source_document_id: srcdoc_ee9e7bb5f3da238e122ed856a402c8a9
+- source_revision_id: srcrev_953af77cd1ce855d9a86ce08026db4c6
+- summary: Source: [Notion source](https://www.notion.so/Yash-s-Post-Analysis-notes-335051299a54808597c3d45c715ce8d9)
+
+## [2026-05-07T00:33:46Z] ingest | Numo App Strategy
+
+- status: published
+- slug: notion_document/numo-app-strategy-3639f4e7
+- wiki_revision_id: wikirev_a580dac50996bfa0ea6a46bb8a38ea4c
+- source_document_id: srcdoc_23ea56dd8e1ad8665e6c69083639f4e7
+- source_revision_id: srcrev_b60200373b9e5cc6e10a3f12d76855ce
+- summary: Source: [Notion source](https://www.notion.so/Numo-App-Strategy-33b051299a5480378830d5c7bfe5111e)
+
+## [2026-05-07T00:33:50Z] ingest | Adaptive Trust Sampling
+
+- status: published
+- slug: notion_document/adaptive-trust-sampling-63487a8b
+- wiki_revision_id: wikirev_8250b35694d11c960392466e8a89dfb9
+- source_document_id: srcdoc_d694d4c3868a7ea422d75a2863487a8b
+- source_revision_id: srcrev_367dd868f8187614f467db57dbb74659
+- summary: Source: [Notion source](https://www.notion.so/Adaptive-Trust-Sampling-33c051299a5480789341f45c15460265)
+
+## [2026-05-07T00:33:55Z] ingest | Numo V1 (Webapp) Release Doc
+
+- status: published
+- slug: notion_document/numo-v1-webapp-release-doc-fb452b54
+- wiki_revision_id: wikirev_be445064cc7c862cc1418c9b26a488b3
+- source_document_id: srcdoc_319da480faa51ce9096c8f8bfb452b54
+- source_revision_id: srcrev_038c4cc1d74b28c250a51315403050e7
+- summary: Source: [Notion source](https://www.notion.so/Numo-V1-Webapp-Release-Doc-34a051299a548013ab98e56cf9c22185)
+
+## [2026-05-07T00:34:01Z] ingest | AI Data Audit Portal
+
+- status: published
+- slug: notion_document/ai-data-audit-portal-d7864b93
+- wiki_revision_id: wikirev_b398fa758233bd966e338450867d7604
+- source_document_id: srcdoc_f34407b922c741d72df23780d7864b93
+- source_revision_id: srcrev_50046995bd5ffb655e97273fd4cc70b4
+- summary: Source: [Notion source](https://www.notion.so/AI-Data-Audit-Portal-358051299a54806eabbbdfa3ce6181d8)
+
+## [2026-05-07T00:34:10Z] ingest | Models for pre-verification
+
+- status: published
+- slug: notion_document/models-for-pre-verification-a01462a5
+- wiki_revision_id: wikirev_9ad646cb2383448ef7cc4e36098a2a70
+- source_document_id: srcdoc_48fde66a8a1bc0d1e803964da01462a5
+- source_revision_id: srcrev_b97287e54852bbaf4360e2f1e7245db8
+- summary: Source: [Notion source](https://www.notion.so/Models-for-pre-verification-359051299a5480a18997e04f4a1919a9)
+

@@ -2841,13 +2841,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "caf74362941fd9bb0507309e0e96bea78ae9c8056efb3a3d2a747ff606edc1b8",
-        "size": 453212
+        "sha256": "58e493e37e8138a4b15d50f2b585d6fb7a03e3b2c28fb7e82de5a6f6685d0c38",
+        "size": 461589
       },
       {
         "path": "log.md",
-        "sha256": "002def76cf26758811232b3d98159dce465a9d38598efdd16a68dfb3c2e749e5",
-        "size": 766427
+        "sha256": "71e37b2a08b05d39e087fae3ecec1d5591a3380d8f79b9b93cc5d5f79f67b31b",
+        "size": 778596
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3970,6 +3970,11 @@
         "size": 7071
       },
       {
+        "path": "pages/projects/story-chain-chainlist-listing.md",
+        "sha256": "ddc231abca3f7f6ad0866a9197b204edf80fa673360a4de638aa9937f9906956",
+        "size": 2410
+      },
+      {
         "path": "pages/projects/story-node-improvements.md",
         "sha256": "e91d1efd2cc5e1e20323b60e5ddacec28add46b73f79b3f420c7458cf0aac2dc",
         "size": 4128
@@ -4344,8 +4349,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T00:05:09Z",
-  "file_count": 867,
+  "exported_at": "2026-05-07T00:36:27Z",
+  "file_count": 868,
   "files": [
     {
       "path": ".curator_state",
@@ -7182,7 +7187,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5599f8q966n",
-  "previous_tree_hash": "a7c5afa8b83ee7a27c12d1a824c36f86e5d4028a433822026bb2992ba527c08e",
+  "previous_tree_hash": "6280aaafd3f0fd3a5575b5e4a68021c440816e3d7129a2df89168ff258325225",
   "schema_version": 1,
   "skill_file_count": 566,
   "skill_manage_sessions": [
@@ -7195,14 +7200,14 @@
   ],
   "skill_tree_hash": "747c829d25d8a027bacd325f73e55e23510516f56f9abbb9b207998dc8f1fd28",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6280aaafd3f0fd3a5575b5e4a68021c440816e3d7129a2df89168ff258325225",
+  "tree_hash": "5b3a07f2c0b8c75d949cf3de4473e0127835254d5f856dbe98598bb6e5202244",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 301,
+  "wiki_file_count": 302,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7211,13 +7216,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "caf74362941fd9bb0507309e0e96bea78ae9c8056efb3a3d2a747ff606edc1b8",
-      "size": 453212
+      "sha256": "58e493e37e8138a4b15d50f2b585d6fb7a03e3b2c28fb7e82de5a6f6685d0c38",
+      "size": 461589
     },
     {
       "path": "log.md",
-      "sha256": "002def76cf26758811232b3d98159dce465a9d38598efdd16a68dfb3c2e749e5",
-      "size": 766427
+      "sha256": "71e37b2a08b05d39e087fae3ecec1d5591a3380d8f79b9b93cc5d5f79f67b31b",
+      "size": 778596
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8340,6 +8345,11 @@
       "size": 7071
     },
     {
+      "path": "pages/projects/story-chain-chainlist-listing.md",
+      "sha256": "ddc231abca3f7f6ad0866a9197b204edf80fa673360a4de638aa9937f9906956",
+      "size": 2410
+    },
+    {
       "path": "pages/projects/story-node-improvements.md",
       "sha256": "e91d1efd2cc5e1e20323b60e5ddacec28add46b73f79b3f420c7458cf0aac2dc",
       "size": 4128
@@ -8711,5 +8721,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "438b21259aba059c2af0d6fc39507c9caefa1dfec44c780573993091eb01d0e6"
+  "wiki_tree_hash": "2a3351bacafbb4742d14134ca96a511aed8414ca4cf49fccde60d3326f9802ea"
 }
