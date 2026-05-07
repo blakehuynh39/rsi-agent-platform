@@ -9,7 +9,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "897a8b9d06d52ced225c7b8670dddb67de1ccb0a1c4440d55f97fdaf358d0c1d",
+        "sha256": "1928fe9d8b34b4195ff4880b8ac12e5e3aba43e67e7268aad6ec3496bc58c643",
         "size": 1579
       },
       {
@@ -2804,8 +2804,8 @@
       },
       {
         "path": "story-company/numo-project-status/SKILL.md",
-        "sha256": "1aea26ce8b595677ad80b0f0ad473138cdcf7ce4a0a8f546c4aa38aad538695a",
-        "size": 15594
+        "sha256": "8aae902eea0eb1703857aca1f6dadacdbf4a66c558ef5b96a7b32f70e639701d",
+        "size": 16608
       },
       {
         "path": "story-company/numo-project-status/references/admin-api-endpoints.md",
@@ -2826,6 +2826,11 @@
         "path": "story-company/numo-project-status/references/code-fix-workflow.md",
         "sha256": "40b744b2b4bcbcf094720e0e6f1625335658f922a92c629b5daf40c1b7ace010",
         "size": 4438
+      },
+      {
+        "path": "story-company/numo-project-status/references/depin-codebase-investigation-paths.md",
+        "sha256": "9e3ea02b4bf1286ada811f0a3821fd2965a61f241605cdcc33ad3ae299e549d6",
+        "size": 3970
       },
       {
         "path": "story-company/numo-project-status/references/gap-analysis.md",
@@ -4794,8 +4799,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T17:21:11Z",
-  "file_count": 957,
+  "exported_at": "2026-05-07T17:27:22Z",
+  "file_count": 958,
   "files": [
     {
       "path": ".curator_state",
@@ -4804,7 +4809,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "897a8b9d06d52ced225c7b8670dddb67de1ccb0a1c4440d55f97fdaf358d0c1d",
+      "sha256": "1928fe9d8b34b4195ff4880b8ac12e5e3aba43e67e7268aad6ec3496bc58c643",
       "size": 1579
     },
     {
@@ -7599,8 +7604,8 @@
     },
     {
       "path": "story-company/numo-project-status/SKILL.md",
-      "sha256": "1aea26ce8b595677ad80b0f0ad473138cdcf7ce4a0a8f546c4aa38aad538695a",
-      "size": 15594
+      "sha256": "8aae902eea0eb1703857aca1f6dadacdbf4a66c558ef5b96a7b32f70e639701d",
+      "size": 16608
     },
     {
       "path": "story-company/numo-project-status/references/admin-api-endpoints.md",
@@ -7621,6 +7626,11 @@
       "path": "story-company/numo-project-status/references/code-fix-workflow.md",
       "sha256": "40b744b2b4bcbcf094720e0e6f1625335658f922a92c629b5daf40c1b7ace010",
       "size": 4438
+    },
+    {
+      "path": "story-company/numo-project-status/references/depin-codebase-investigation-paths.md",
+      "sha256": "9e3ea02b4bf1286ada811f0a3821fd2965a61f241605cdcc33ad3ae299e549d6",
+      "size": 3970
     },
     {
       "path": "story-company/numo-project-status/references/gap-analysis.md",
@@ -7667,9 +7677,9 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
-  "previous_tree_hash": "4cf514d8f0e25d4790ce15cca53b88358cdb31d2b8d3dff13f3b039d83fd5d51",
+  "previous_tree_hash": "53b9a88041631c4b8a42a2dfa8bc52fac3f3a2adac10c92d5dec6d14c10cc0e2",
   "schema_version": 1,
-  "skill_file_count": 573,
+  "skill_file_count": 574,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -7678,9 +7688,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "57af29972669a043e43f0090332334ebd309a3d8a102126d698e0abcd335fecd",
+  "skill_tree_hash": "988d7c20d7c0ae8a10adfffa4ac6cf4f2a3e85375fad2f22858eadbf44a2bb28",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "53b9a88041631c4b8a42a2dfa8bc52fac3f3a2adac10c92d5dec6d14c10cc0e2",
+  "tree_hash": "ac50bb2a65280794fb05c65a7c3c32b06ef62e63c0847ab2769aea954c5e55b8",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
